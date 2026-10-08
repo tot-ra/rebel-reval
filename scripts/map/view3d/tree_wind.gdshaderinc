@@ -1,51 +1,97 @@
 // Whole-tree wind shared by the crown shader (map_view_canopy.gdshader) and the
-// bark shader (map_view_bark_wind.gdshader). Both call the SAME functions with
+// bark shader (map_view_bark_wind.gdshader). Both call tree_wind_offset() with
 // the same inputs, so a branch and the leaf cards growing on it move together
 // and foliage never tears off its limbs.
 //
-// Three scales, slowest to fastest, thicker to thinner:
-//   trunk lean   - the whole bole leans with height; every vertex gets it
-//   limb bend    - low-frequency heave that grows with height squared
-//   twig sway    - quicker, larger motion that only thin parts take (flex ~ 1)
-// `flex` is 0 for the trunk and 1 for twig tips (the bark mesh stores it in
-// COLOR.a from the segment radius); thick limbs therefore move little and
-// thin ones move a lot. All three scale with the shared weather wind
-// (wind_strength_g), so a calm day barely stirs the wood and a storm whips it.
+// The model is a loaded cantilever, not a sine on a vertex:
+//   load     - drag on a flexible crown grows as u^1.4, not u^2: leaves and
+//              twigs fold and streamline in strong wind (Vogel exponent), so a
+//              storm bends a tree a lot but does not fold it flat. Saturates
+//              at TREE_Q_MAX.
+//   trunk    - deflection of a uniformly loaded cantilever,
+//              y^2 (3L - y) / (2 L^3): grows with height squared, straight
+//              (constant slope) above the tree top. Rings at the tree's own
+//              sway frequency (~0.5 Hz) so a gust overshoots and rebounds.
+//   limbs    - each branch is a smaller cantilever: its tip lags with the
+//              square of its horizontal reach from the trunk axis, and rings
+//              faster (~1.2 Hz) than the bole.
+//   twigs    - thin shoots (`flex` ~ 1, the bark mesh stores it in COLOR.a)
+//              shiver quickly on top.
+//   arc      - a bent bole keeps its length, so the crown sinks as it leans.
+// Everything is computed in world metres and scales with the shared weather
+// wind (wind_strength_g and the gust front), so a calm day barely stirs the
+// wood and a storm gust heaves whole limbs.
 #include "res://scripts/map/view3d/wind_field.gdshaderinc"
 
-// Thick limbs keep this share of the limb bend; twig tips take all of it, which
-// is what the leaves (always on thin shoots) get.
-const float TREE_THICK_BEND_SHARE = 0.3;
+// Reference tree height in metres; taller trees bend more because the
+// deflection keeps growing past it, shorter ones stay stiffer.
+const float TREE_REF_HEIGHT = 9.0;
+// Crown-top deflection per metre of tree height at unit load.
+const float TREE_TRUNK_BEND = 0.05;
+// Tip lag of a limb of reach r metres: TREE_LIMB_BEND * load * r^2.
+const float TREE_LIMB_BEND = 0.012;
+const float TREE_LIMB_REACH_MAX = 5.0;
+const float TREE_TWIG_BEND = 0.09;
+const float TREE_Q_MAX = 3.0;
+// sway_strength of the default crown; per-species stiffness (conifers 0.03,
+// orchard 0.075) scales every amplitude relative to it.
+const float TREE_REF_SWAY = 0.06;
 
-// Heave of a limb point at model height y. `x` only decorrelates the phase of
-// neighbouring limbs. Same maths the crown always used for its leaves.
-vec2 tree_limb_bend(vec2 wind, vec2 origin, float x, float y, float strength,
-		float sway_strength, float push, float t) {
-	float gust = push - 0.35;
-	float height = clamp(y * 0.18, 0.0, 1.0);
-	float limb = sin(t * 0.9 + dot(origin, vec2(0.37, 0.53)) + x * 0.8) * 0.5 + 0.5;
-	return wind * (gust * 0.6 + limb * 0.4) * strength * strength
-		* sway_strength * 2.2 * height * height;
+// Aerodynamic load: `strength` * `push` is the local wind speed, 0..~3.
+float tree_wind_load(float strength, float push) {
+	float u = max(strength * push, 0.0);
+	float q = pow(u, 1.4);
+	return q / (1.0 + q / TREE_Q_MAX);
 }
 
-// One cycle per roughly 13 s, phase from the trunk position so neighbouring
-// trees lean out of step. Grows with height: the arc of a bending bole.
-vec2 tree_trunk_lean(vec2 wind, vec2 origin, float y, float strength,
-		float sway_strength, float trunk_sway, float t) {
-	float sway_phase = sin(t * 0.47 + dot(origin, vec2(0.11, 0.17)));
-	return wind * (0.55 + 0.45 * sway_phase) * strength * strength
-		* sway_strength * trunk_sway * max(y, 0.0);
+// Cantilever deflection shape, 0 at the root and 1 at height L, with the
+// straight continuation above L.
+float tree_cantilever_shape(float h) {
+	float hc = min(h, TREE_REF_HEIGHT);
+	float L = TREE_REF_HEIGHT;
+	float s = hc * hc * (3.0 * L - hc) / (2.0 * L * L * L);
+	return s + max(h - L, 0.0) * 1.5 / L;
 }
 
-// Quick shiver of thin shoots riding the gust. flex^2 so only the thinnest
-// parts take it; strength^1.5 so even a breeze visibly stirs twigs while the
-// trunk waits for real wind.
-vec2 tree_twig_sway(vec2 wind, vec2 origin, vec3 p, float flex, float strength,
+// World-space displacement (metres) of a point of a tree.
+//   origin  trunk position in world xz (decorrelates neighbouring trees)
+//   p       point in tree-local model space (trunk axis = y)
+//   flex    0 for the bole .. 1 for twig tips
+//   scale   metres per model unit (the instance scale)
+//   push    gust pressure sampled at the trunk (wind_pressure_coarse)
+vec3 tree_wind_offset(vec2 origin, vec3 p, float flex, float scale, float strength,
 		float sway_strength, float push, float t) {
+	vec2 wind = wind_dir();
 	vec2 across = vec2(-wind.y, wind.x);
-	float phase = dot(origin, vec2(0.23, 0.31)) + dot(p, vec3(0.7, 0.5, 0.6));
-	float osc = 0.6 * sin(t * 1.7 + phase) + 0.4 * sin(t * 3.3 + phase * 1.9);
-	float f = flex * flex;
-	return (wind * (push * 0.55 + osc * 0.45 * wind_flutter_scale()) + across * osc * 0.35)
-		* pow(strength, 1.5) * sway_strength * 2.4 * f;
+	float stiffness = sway_strength / TREE_REF_SWAY;
+	float q = tree_wind_load(strength, push);
+	float phase = dot(origin, vec2(0.11, 0.17));
+
+	// Bole: lean of the whole tree, with the gust ringing on the sway mode.
+	float hw = max(p.y, 0.0) * scale;
+	float ring = 1.0 + 0.22 * sin(t * 3.1 + phase) * min(q, 1.0);
+	float lean = TREE_TRUNK_BEND * q * TREE_REF_HEIGHT * stiffness * ring
+		* tree_cantilever_shape(hw);
+	// Gusts also slew the crown sideways (swirl behind the leading edge).
+	float slew = 0.2 * lean * sin(t * 2.3 + phase * 1.7);
+	vec2 trunk = wind * lean + across * slew;
+
+	// Limbs: cantilevers of their own, ringing faster than the bole.
+	float reach = min(length(p.xz) * scale, TREE_LIMB_REACH_MAX);
+	float limb_ring = 0.78 + 0.22 * sin(t * 7.3 + dot(p, vec3(1.3, 0.9, 1.1)) + phase);
+	float limb = TREE_LIMB_BEND * q * reach * reach * stiffness * limb_ring
+		* (0.35 + 0.65 * flex);
+	vec2 branch = wind * limb + across * limb * 0.3 * sin(t * 4.1 + phase * 2.3 + p.x);
+
+	// Twigs: the quick shiver only thin shoots take.
+	float phase_p = phase + dot(p, vec3(0.7, 0.5, 0.6));
+	float osc = 0.6 * sin(t * 1.7 + phase_p) + 0.4 * sin(t * 3.3 + phase_p * 1.9);
+	osc *= wind_flutter_scale();
+	vec2 twig = (wind * (1.0 + osc) + across * osc * 0.35)
+		* TREE_TWIG_BEND * pow(q, 0.8) * stiffness * flex * flex;
+
+	vec2 total = trunk + branch + twig;
+	// Arc: horizontal travel of the bole shortens its vertical reach.
+	float drop = -dot(trunk, trunk) / (2.0 * max(hw, 1.5));
+	return vec3(total.x, drop, total.y);
 }

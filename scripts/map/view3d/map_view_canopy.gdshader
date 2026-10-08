@@ -31,10 +31,9 @@ uniform float card_scissor : hint_range(0.0, 1.0) = 0.5;
 // Cards face the sky more than folded leaves and stack several leaves of
 // translucency; without this gain dense crowns read neon yellow-green.
 uniform float card_gain : hint_range(0.0, 2.0) = 0.74;
-// VEGR-6 (R-1324). Wind in three levels: trunk sway (this uniform, the slowest),
-// branch heave and leaf flutter (both below). Lean at full wind is
-// sway_strength * trunk_sway per unit of model height; the bole mesh has no wind
-// shader, so this stays small enough that foliage never visibly leaves its limbs.
+// VEGR-6 (R-1324). Wind in levels: whole-tree bend (tree_wind.gdshaderinc, shared
+// with the bark so foliage stays on its limbs), leaf flutter below. trunk_sway is
+// kept for material compatibility; the bend now follows the cantilever model.
 uniform float trunk_sway : hint_range(0.0, 1.0) = 0.3;
 // How much of the transmitted light takes the chlorophyll hue shift.
 uniform float leaf_translucency : hint_range(0.0, 1.0) = 0.65;
@@ -74,27 +73,15 @@ void vertex() {
 		* sway_strength * strength * weight
 		+ across * flutter * shake_flutter * 0.06 * weight;
 	VERTEX += inverse(mat3(MODEL_MATRIX)) * vec3(displace.x, flutter * (sway_strength * strength + shake_flutter * 0.05) * weight * 0.18, displace.y);
-	// Low-frequency branch/crown bend, rigid per leaf (petiole height), so whole
-	// limbs heave in a gust instead of only leaf tips fluttering.
-	if (leaf_tag > 0.5) {
-		float height = clamp(CUSTOM0.y * 0.18, 0.0, 1.0);
-		vec2 origin = MODEL_MATRIX[3].xz;
-		// Same functions as the bark shader (tree_wind.gdshaderinc), so a leaf
-		// card moves with the shoot it grows on. Leaves sit on thin shoots:
-		// full limb bend plus the twig shiver (flex = 1).
-		vec2 bend = tree_limb_bend(wind, origin, CUSTOM0.x, CUSTOM0.y, strength,
-				sway_strength, push, TIME)
-			+ tree_twig_sway(wind, origin, CUSTOM0.xyz, 1.0, strength, sway_strength, push, TIME)
-			+ INSTANCE_CUSTOM.xy * height;
-		VERTEX += inverse(mat3(MODEL_MATRIX)) * vec3(bend.x, 0.0, bend.y);
-	}
-	// VEGR-6 wind level 1 of 3: trunk sway. One cycle per roughly 13 s - far
-	// slower than the branch heave above and the leaf flutter above that - with
-	// its phase taken from the trunk position, so neighbouring trees lean out of
-	// step. Lean grows with height, which is the arc a bending bole describes.
-	vec2 lean = tree_trunk_lean(wind, MODEL_MATRIX[3].xz, VERTEX.y, strength,
-		sway_strength, trunk_sway, TIME);
-	VERTEX += inverse(mat3(MODEL_MATRIX)) * vec3(lean.x, 0.0, lean.y);
+	// Whole-tree bend: the same cantilever model as the bark shader, so a leaf
+	// card moves with the shoot it grows on. Leaves sit on thin shoots (flex 1)
+	// at their petiole; bushes and legacy primitives bend by vertex position.
+	vec3 anchor = leaf_tag > 0.5 ? CUSTOM0.xyz : VERTEX;
+	float flex = leaf_tag > 0.5 ? 1.0 : 0.0;
+	vec3 bend = tree_wind_offset(MODEL_MATRIX[3].xz, anchor, flex,
+		length(MODEL_MATRIX[1].xyz), strength, sway_strength, push, TIME);
+	bend.xz += INSTANCE_CUSTOM.xy * clamp(anchor.y * 0.18, 0.0, 1.0);
+	VERTEX += inverse(mat3(MODEL_MATRIX)) * bend;
 }
 
 float hash11(float p) {

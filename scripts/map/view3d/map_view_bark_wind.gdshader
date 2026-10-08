@@ -12,24 +12,17 @@ uniform sampler2D normal_tex : hint_roughness_normal, filter_linear_mipmap_aniso
 uniform float roughness_value : hint_range(0.0, 1.0) = 0.92;
 // Same defaults as the crown material so wood and leaves share one sway scale.
 uniform float sway_strength = 0.06;
-uniform float trunk_sway : hint_range(0.0, 1.0) = 0.3;
 // Rain: dry bark darkens and turns glossy (mirrors MapViewPropMaterials wetness).
 uniform float wetness : hint_range(0.0, 1.0) = 0.0;
 
 void vertex() {
-	vec2 wind = wind_dir();
-	float strength = wind_strength();
 	float flex = clamp(COLOR.a, 0.0, 1.0);
 	vec2 origin = MODEL_MATRIX[3].xz;
+	float scale = length(MODEL_MATRIX[1].xyz);
 	float push = wind_pressure_coarse(origin, TIME);
-	// Thin parts take the full limb bend (the leaves on them do); the trunk and
-	// thick limbs keep only a share, so they sway far less than the twigs.
-	vec2 bend = tree_limb_bend(wind, origin, VERTEX.x, VERTEX.y, strength, sway_strength, push, TIME)
-		* mix(TREE_THICK_BEND_SHARE, 1.0, flex)
-		+ tree_twig_sway(wind, origin, VERTEX, flex, strength, sway_strength, push, TIME);
-	vec2 lean = tree_trunk_lean(wind, origin, VERTEX.y, strength, sway_strength, trunk_sway, TIME);
-	vec2 total = bend + lean;
-	VERTEX += inverse(mat3(MODEL_MATRIX)) * vec3(total.x, 0.0, total.y);
+	vec3 offset = tree_wind_offset(origin, VERTEX, flex, scale, wind_strength(),
+		sway_strength, push, TIME);
+	VERTEX += inverse(mat3(MODEL_MATRIX)) * offset;
 }
 
 void fragment() {

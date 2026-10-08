@@ -122,3 +122,20 @@ func test_canopy_leaves_carry_seasonal_contract() -> void:
 		assert_true(seed >= 0.0 and seed <= 1.0)
 		min_alpha = minf(min_alpha, colors[i].a)
 	assert_true(min_alpha < 0.8, "inner crown leaves are occluded")
+
+
+func test_gust_leaf_rate_needs_leaves_trees_and_strong_local_wind() -> void:
+	var july := {"day": 10, "month": 7, "year": 1343}
+	var january := {"day": 10, "month": 1, "year": 1343}
+	assert_eq(
+		TreeLeafFall3D.gust_leaf_rate(&"birch", july, 0.5, 10), 0.0, "a breeze keeps its leaves"
+	)
+	assert_eq(
+		TreeLeafFall3D.gust_leaf_rate(&"birch", january, 2.5, 10), 0.0, "bare trees shed nothing"
+	)
+	assert_eq(TreeLeafFall3D.gust_leaf_rate(&"birch", july, 2.5, 0), 0.0, "no trees, no leaves")
+	assert_true(
+		TreeLeafFall3D.gust_leaf_rate(&"birch", july, 2.5, 10)
+		> TreeLeafFall3D.gust_leaf_rate(&"birch", july, 1.3, 10),
+		"a storm front tears off more than a strong gust"
+	)

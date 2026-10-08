@@ -25,15 +25,22 @@ const AMBIENT_AMOUNT := 40
 const AMBIENT_SAMPLE_INTERVAL := 1.5
 const AMBIENT_TREE_RADIUS := 22.0
 const AMBIENT_BOX := Vector3(9.0, 1.5, 9.0)
+## Leaves torn off and carried downwind by a strong gust (local wind speed
+## strength * pressure; 0.8 is a fresh breeze, 2+ a storm gust front).
+const GUST_LEAF_AMOUNT := 72
+const GUST_LEAF_THRESHOLD := 0.9
+const GUST_LEAF_FULL := 2.0
 
 var _bursts: Array[CPUParticles3D] = []
 var _next_burst := 0
 var _ambient: CPUParticles3D
+var _gust_leaves: CPUParticles3D
 var _ambient_amount := 0
 var _ambient_timer := 0.0
 var _ambient_species: StringName = &""
 var _ambient_tree_count := 0
 var _ambient_ramp_key := ""
+var _gust_ramp_key := ""
 ## Active shakes: {node, index, direction(Vector2), strength, age}.
 var _shakes: Array[Dictionary] = []
 var _leaf_mesh: QuadMesh
@@ -77,6 +84,21 @@ func _ready() -> void:
 	_ambient.emission_box_extents = AMBIENT_BOX
 	_ambient.emitting = false
 	add_child(_ambient)
+	_gust_leaves = _make_emitter("GustLeaves")
+	_gust_leaves.amount = GUST_LEAF_AMOUNT
+	_gust_leaves.lifetime = 3.6
+	_gust_leaves.emission_shape = CPUParticles3D.EMISSION_SHAPE_BOX
+	_gust_leaves.emission_box_extents = Vector3(7.0, 3.0, 7.0)
+	# Torn leaves ride the air instead of falling: light gravity, little drag,
+	# and a fast tumble.
+	_gust_leaves.spread = 22.0
+	_gust_leaves.damping_min = 0.0
+	_gust_leaves.damping_max = 0.15
+	_gust_leaves.explosiveness = 0.0
+	_gust_leaves.angular_velocity_min = -520.0
+	_gust_leaves.angular_velocity_max = 520.0
+	_gust_leaves.emitting = false
+	add_child(_gust_leaves)
 
 
 func _process(delta: float) -> void:
@@ -266,6 +288,7 @@ func update_ambient(
 	if not _ambient_species.is_empty():
 		rate = ambient_rate(_ambient_species, date, wind_strength, _ambient_tree_count)
 	var amount := int(round(rate * AMBIENT_AMOUNT / 8.0)) * 8
+	_update_gust_leaves(focus, date, wind_direction, wind_strength)
 	if amount <= 0:
 		_ambient.emitting = false
 		_ambient_amount = 0
@@ -304,6 +327,61 @@ static func ambient_rate(
 	var rate := float(state["fall_rate"]) * (0.35 + wind_strength) + storm * 0.25 * density
 	var woods := clampf(float(tree_count) / 6.0, 0.25, 1.0)
 	return clampf(rate * woods, 0.0, 1.0)
+
+
+## 0..1 share of the gust-leaf budget. Only leafed trees shed, and only when the
+## local wind (strength times the gust front) passes a breeze; a storm front
+## strips the crown, a lull stops it.
+static func gust_leaf_rate(
+	species: StringName, date: Dictionary, local_wind: float, tree_count: int
+) -> float:
+	if tree_count <= 0:
+		return 0.0
+	var density := float(VegetationPhenology.state_for(species, date)["leaf_density"])
+	if density <= 0.02:
+		return 0.0
+	var load_t := smoothstep(GUST_LEAF_THRESHOLD, GUST_LEAF_FULL, local_wind)
+	var woods := clampf(float(tree_count) / 6.0, 0.25, 1.0)
+	return clampf(load_t * density * woods, 0.0, 1.0)
+
+
+func _update_gust_leaves(
+	focus: Vector3, date: Dictionary, wind_direction: Vector2, wind_strength: float
+) -> void:
+	if _gust_leaves == null:
+		return
+	var xz := Vector2(focus.x, focus.z)
+	var local_wind := wind_strength * WindField.pressure(xz, WindField.clock())
+	var rate := 0.0
+	if not _ambient_species.is_empty():
+		rate = gust_leaf_rate(_ambient_species, date, local_wind, _ambient_tree_count)
+	if rate <= 0.0 or wind_direction.is_zero_approx():
+		_gust_leaves.emitting = false
+		return
+	var wind := wind_direction.normalized()
+	# Born upwind of the player and flung across the view at wind speed.
+	_gust_leaves.global_position = focus + Vector3(-wind.x * 7.0, 4.5, -wind.y * 7.0)
+	_gust_leaves.direction = Vector3(wind.x, 0.12, wind.y)
+	var speed := 2.5 + local_wind * 3.2
+	_gust_leaves.initial_velocity_min = speed * 0.7
+	_gust_leaves.initial_velocity_max = speed * 1.3
+	_gust_leaves.gravity = Vector3(0.0, -0.7, 0.0)
+	# CPUParticles3D has no amount_ratio and restarts when amount changes, so the
+	# density is quantised in steps of 8 like the ambient stream.
+	var amount := maxi(int(round(rate * GUST_LEAF_AMOUNT / 8.0)) * 8, 8)
+	if amount != _gust_leaves.amount:
+		_gust_leaves.amount = amount
+	var ramp_key := "%s:%s" % [_ambient_species, GameCalendar.format_date(date)]
+	if ramp_key != _gust_ramp_key:
+		_gust_ramp_key = ramp_key
+		_gust_leaves.color_initial_ramp = _gradient(
+			VegetationPhenology.falling_leaf_colors(_ambient_species, date)
+		)
+	_gust_leaves.emitting = true
+
+
+func gust_leaves_emitting() -> bool:
+	return _gust_leaves != null and _gust_leaves.emitting
 
 
 func ambient_amount() -> int:

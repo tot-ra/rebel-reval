@@ -246,8 +246,11 @@ func _card_anchors(species: StringName) -> PackedVector3Array:
 func test_canopy_shader_drives_three_wind_levels() -> void:
 	var code: String = MapViewMaterialShaders.CANOPY_SHADER.code
 	assert_true(code.contains("uniform float trunk_sway"), "trunk sway level is missing")
-	assert_true(code.contains("TIME * 0.47"), "trunk sway must stay the slowest term")
-	assert_true(code.contains("TIME * 0.9"), "branch heave level is missing")
+	# Bole, limb and twig motion live in the include shared with the bark shader.
+	assert_true(code.contains("tree_wind_offset("), "tree bend must come from the shared include")
+	var wind := FileAccess.get_file_as_string("res://scripts/map/view3d/tree_wind.gdshaderinc")
+	assert_true(wind.contains("t * 3.1"), "bole ring (~0.5 Hz) is the slowest term")
+	assert_true(wind.contains("t * 7.3"), "limb ring (~1.2 Hz) is missing")
 	assert_true(code.contains("TIME * 5.3"), "leaf flutter level is missing")
 	assert_true(
 		code.contains("leaf_translucency"), "leaf translucency hue shift is missing"
