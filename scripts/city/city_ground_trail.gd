@@ -13,6 +13,8 @@ extends Node3D
 ## `track_cart` (CityTrailFeed calls them every frame): only those inside
 ## TRACK_RADIUS of Kalev and inside the window leave marks, and depth follows
 ## `wetness` exactly as Kalev's own prints do.
+## Near Kalev a fine relief mesh (`_relief`, the ground shader's trail mesh mode)
+## lifts the prints into real geometry so a grazing camera sees their silhouette.
 
 const WINDOW_CELLS := 1024
 ## One cell in world units: a boot is ~0.13 wu wide, so 0.04 gives it 3-4 cells.
@@ -43,6 +45,15 @@ const TRACK_RADIUS := 20.0
 const TRACK_MARGIN := 1.0
 ## One walker moving further than this between two calls was moved, not walked.
 const MARK_TELEPORT := 4.0
+## Relief mesh half extent and fine vertex spacing in world units. The spacing is
+## one trail cell and divides the height grid cell, so the vertices sit on trail
+## texel corners and stay put in the world as the mesh re-snaps (no swimming or
+## beat pattern against the trail texels). Only the core within RELIEF_FINE_HALF
+## of the centre is that fine; outside it every other vertex is kept (0.08 wu),
+## because the vertex stage is what the mesh costs.
+const RELIEF_HALF := 6.2
+const RELIEF_STEP := CELL
+const RELIEF_FINE_HALF := 3.16
 ## Per species: hoof half extents (along, across), distance between the left and
 ## right hoof, distance walked per hoof pair, weight against a person's.
 const HOOVES := {
@@ -69,6 +80,8 @@ var _dust: CPUParticles3D
 ## stops being fed (out of range, despawned) is forgotten after a frame.
 var _marks: Dictionary = {}
 var _tick := 0
+var _relief: MeshInstance3D
+var _relief_centre := Vector2.INF
 
 
 static func create(city_plan: CityPlan, surface: Callable) -> CityGroundTrail:
@@ -80,6 +93,7 @@ static func create(city_plan: CityPlan, surface: Callable) -> CityGroundTrail:
 	node._image.fill(Color(NEUTRAL, 0.0, 0.0))
 	node._texture = ImageTexture.create_from_image(node._image)
 	node._build_dust()
+	node._build_relief()
 	return node
 
 
@@ -100,6 +114,7 @@ func value_at(world_xz: Vector2) -> float:
 func update_for(world_xz: Vector2, _delta: float) -> void:
 	if _last == Vector2.INF or _last.distance_to(world_xz) > TELEPORT:
 		_recentre(world_xz)
+		_place_relief(world_xz)
 		_last = world_xz
 		return
 	var half := float(WINDOW_CELLS) * CELL * 0.5
@@ -107,6 +122,7 @@ func update_for(world_xz: Vector2, _delta: float) -> void:
 		absf(world_xz.y - (_origin.y + half)) > half - EDGE_MARGIN
 	):
 		_recentre(world_xz)
+	_place_relief(world_xz)
 	var step := world_xz - _last
 	_travelled += step.length()
 	if _travelled >= STRIDE and step.length() > 0.0001:
@@ -345,6 +361,127 @@ func _apply_to_ground() -> void:
 		return
 	ground.set_shader_parameter("trail", _texture)
 	ground.set_shader_parameter("trail_rect", window_rect())
+
+
+func _exit_tree() -> void:
+	# Stop the chunks sinking with no mesh over them; re-entering places it afresh.
+	_relief_centre = Vector2.INF
+	var ground := CityTerrainBuilder.shared_material()
+	if ground != null:
+		ground.set_shader_parameter("trail_mesh_rect", Vector4.ZERO)
+
+
+## A flat grid; the ground shader sets every vertex height, so the AABB spans
+## any height the city has. Vertex colour alpha 0 is what tells the shader this
+## is the relief mesh and not a terrain chunk.
+func _build_relief() -> void:
+	_relief = MeshInstance3D.new()
+	_relief.name = "TrailRelief"
+	_relief.mesh = relief_mesh()
+	_relief.top_level = true
+	_relief.visible = false
+	_relief.custom_aabb = AABB(
+		Vector3(-RELIEF_HALF, -100.0, -RELIEF_HALF), Vector3(RELIEF_HALF * 2.0, 600.0, RELIEF_HALF * 2.0)
+	)
+	add_child(_relief)
+
+
+## The relief grid, centred on the origin: RELIEF_STEP quads in the core, double
+## size quads outside it. A coarse quad on the core's edge also takes the fine
+## vertex in the middle of that edge and is fanned into three triangles, so the
+## two densities meet without T-junction cracks.
+static func relief_mesh() -> ArrayMesh:
+	var n := roundi(RELIEF_HALF * 2.0 / RELIEF_STEP)
+	var mid := n / 2
+	var core := roundi(RELIEF_FINE_HALF / RELIEF_STEP)
+	# Core bounds on even indices so the coarse lattice (even indices) meets it.
+	var lo := (mid - core) & ~1
+	var hi := lo + 2 * core
+	var ids := PackedInt32Array()
+	ids.resize((n + 1) * (n + 1))
+	ids.fill(-1)
+	var verts := PackedVector3Array()
+	for j in n + 1:
+		for i in n + 1:
+			var in_core := i >= lo and i <= hi and j >= lo and j <= hi
+			if in_core or (i % 2 == 0 and j % 2 == 0):
+				ids[j * (n + 1) + i] = verts.size()
+				verts.append(Vector3(float(i - mid), 0.0, float(j - mid)) * RELIEF_STEP)
+	var at := func(i: int, j: int) -> int: return ids[j * (n + 1) + i]
+	var indices := PackedInt32Array()
+	# Same winding as CityTerrainBuilder._chunk_mesh: (x0z0, x1z0, x1z1, x0z1).
+	for j in range(lo, hi):
+		for i in range(lo, hi):
+			indices.append_array(
+				[at.call(i, j), at.call(i + 1, j), at.call(i + 1, j + 1),
+				at.call(i, j), at.call(i + 1, j + 1), at.call(i, j + 1)]
+			)
+	for j in range(0, n, 2):
+		for i in range(0, n, 2):
+			if i >= lo and i + 2 <= hi and j >= lo and j + 2 <= hi:
+				continue
+			# Corners and edge midpoints in winding order; a midpoint exists only
+			# where the edge lies on the core boundary (at most one per quad).
+			var ring: Array[int] = []
+			var split := -1
+			var candidates: Array[Vector2i] = [
+				Vector2i(i, j), Vector2i(i + 1, j), Vector2i(i + 2, j), Vector2i(i + 2, j + 1),
+				Vector2i(i + 2, j + 2), Vector2i(i + 1, j + 2), Vector2i(i, j + 2), Vector2i(i, j + 1),
+			]
+			for c in candidates.size():
+				var id: int = at.call(candidates[c].x, candidates[c].y)
+				if id >= 0:
+					if c % 2 == 1:
+						split = ring.size()
+					ring.append(id)
+			# Fan from the corner two after the midpoint: it is off the split
+			# edge, so no triangle is degenerate.
+			var first := 0 if split < 0 else (split + 2) % ring.size()
+			for k in range(1, ring.size() - 1):
+				indices.append_array(
+					[ring[first], ring[(first + k) % ring.size()], ring[(first + k + 1) % ring.size()]]
+				)
+	var normals := PackedVector3Array()
+	normals.resize(verts.size())
+	normals.fill(Vector3.UP)
+	var tangents := PackedFloat32Array()
+	for v in verts.size():
+		tangents.append_array([1.0, 0.0, 0.0, 1.0])
+	var colors := PackedColorArray()
+	colors.resize(verts.size())
+	colors.fill(Color(0.0, 0.0, 0.0, 0.0))
+	var arrays := []
+	arrays.resize(Mesh.ARRAY_MAX)
+	arrays[Mesh.ARRAY_VERTEX] = verts
+	arrays[Mesh.ARRAY_NORMAL] = normals
+	arrays[Mesh.ARRAY_TANGENT] = tangents
+	arrays[Mesh.ARRAY_COLOR] = colors
+	arrays[Mesh.ARRAY_INDEX] = indices
+	var mesh := ArrayMesh.new()
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	return mesh
+
+
+## Keep the relief mesh round Kalev, centred on a height grid vertex: the chunk
+## vertices the shader sinks under it are then a fixed set until the next snap,
+## and the sunk cells always lie inside the mesh.
+func _place_relief(world_xz: Vector2) -> void:
+	var ground := CityTerrainBuilder.shared_material()
+	if ground == null or _relief == null:
+		return
+	var cell := _plan.height_cell()
+	var origin := _plan.height_origin()
+	var centre := origin + ((world_xz - origin) / cell).round() * cell
+	if centre == _relief_centre:
+		return
+	_relief_centre = centre
+	_relief.material_override = ground
+	# top_level: position is the world position, and works before the node enters the tree.
+	_relief.position = Vector3(centre.x, 0.0, centre.y)
+	_relief.visible = true
+	# Sink grid vertices whose surrounding cells lie wholly inside the mesh.
+	var sink_half := (floorf(RELIEF_HALF / cell) - 1.0) * cell + cell * 0.25
+	ground.set_shader_parameter("trail_mesh_rect", Vector4(centre.x, centre.y, sink_half, 1.0))
 
 
 func _cell_of(world_xz: Vector2) -> Vector2i:

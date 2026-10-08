@@ -18,6 +18,17 @@ uniform float trail_depth = 0.17; // world units of relief at full press
 // The city heightfield (CityPlan.height_texture): crests dry out, hollows stay damp.
 uniform sampler2D ground_height : filter_linear, repeat_disable;
 uniform vec4 ground_rect = vec4(0.0, 0.0, 1.0, 1.0); // origin.xz, size.xz in world units
+// Trail relief mesh (CityGroundTrail._relief): a fine grid round Kalev displaced by the
+// trail map so prints and ruts have a real silhouette at grazing angles. The
+// coarse chunks under it sink by `trail_sink` at every grid vertex within
+// `trail_mesh_rect.z` of the centre (xy) so the pressed relief is not buried;
+// w = 0 switches the mesh off and nothing sinks. Visual only: CityPlan.ground_height
+// and collision still follow the undisplaced surface.
+uniform vec4 trail_mesh_rect = vec4(0.0, 0.0, 0.0, 0.0); // centre.xz, sink half-extent, on
+uniform float trail_sink = 0.4; // > deepest print plus rut at trail_mesh_depth
+// Share of the shaded print depth the mesh really displaces: the normal-map relief
+// is exaggerated so a print reads from above, real geometry that deep looks dug.
+uniform float trail_mesh_depth = 0.6;
 
 uniform sampler2D earth_albedo : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
 uniform sampler2D earth_normal : hint_normal, filter_linear_mipmap_anisotropic, repeat_enable;
@@ -138,7 +149,118 @@ vec3 detiled(sampler2D tex, vec2 uv) {
 
 #include "res://scripts/city/city_grass_ground.gdshaderinc"
 
+// --- Trail relief mesh -------------------------------------------------------
+// The mesh must lie exactly on the chunk surface, so it rebuilds it here: the
+// same grid samples, the same diagonal split (CityTerrainBuilder._chunk_mesh,
+// CityPlan.ground_height) and the same central-difference vertex normals and
+// tangents, interpolated over the triangle like the rasteriser does for a chunk.
+
+float grid_h(ivec2 g) {
+	ivec2 n = textureSize(ground_height, 0);
+	return texelFetch(ground_height, clamp(g, ivec2(0), n - 1), 0).r;
+}
+
+float grid_cell() {
+	return ground_rect.z / float(textureSize(ground_height, 0).x);
+}
+
+vec3 grid_normal(ivec2 g, float cell) {
+	float dx = grid_h(g + ivec2(1, 0)) - grid_h(g - ivec2(1, 0));
+	float dz = grid_h(g + ivec2(0, 1)) - grid_h(g - ivec2(0, 1));
+	return normalize(vec3(-dx, 2.0 * cell, -dz));
+}
+
+// Sink of a chunk vertex: a grid vertex well inside the mesh rect drops by
+// trail_sink. Exact grid offsets from a grid-snapped centre, so the pattern does
+// not flicker as Kalev walks.
+float grid_sink(ivec2 g, vec2 origin, float cell) {
+	vec2 off = abs(origin + vec2(g) * cell - trail_mesh_rect.xy);
+	return (trail_mesh_rect.w > 0.5 && max(off.x, off.y) <= trail_mesh_rect.z) ? trail_sink : 0.0;
+}
+
+// Relief height the mesh lifts into geometry at p: the trail prints scaled by
+// the fragment's `give` (soft ground takes prints, paving and rock do not) plus
+// the cart-road rut profile, both without the per-pixel noise of the blend.
+float vertex_relief(vec2 p, vec3 n, float tr, float wet_road) {
+	vec2 suv = (p - splat_rect.xy) / splat_rect.zw;
+	vec4 s = textureLod(splat, suv, 0.0);
+	vec4 rd = textureLod(roads, suv, 0.0);
+	float paving = smoothstep(0.25, 0.7, s.r);
+	float road = rd.r * (1.0 - paving);
+	float soft = clamp(smoothstep(0.15, 0.65, s.g) + smoothstep(0.2, 0.7, s.a) + road, 0.0, 1.0) * (1.0 - paving);
+	float sand = smoothstep(0.2, 0.7, s.b);
+	float rock = smoothstep(0.32, 0.5, 1.0 - clamp(n.y, 0.0, 1.0));
+	float give = clamp(soft + (1.0 - soft) * (1.0 - sand) * 0.3 * grass_step(n), 0.0, 1.0) * (1.0 - rock);
+	return tr * give * (0.45 + 1.3 * wet_road) + road_profile(p, rd, wet_road).x * road;
+}
+
+void trail_mesh_vertex(inout vec3 vtx, inout vec3 nrm, inout vec3 tan, inout vec3 bin, mat4 model) {
+	vec2 p = (model * vec4(vtx, 1.0)).xz;
+	float cell = grid_cell();
+	vec2 origin = ground_rect.xy + cell * 0.5;
+	ivec2 n = textureSize(ground_height, 0);
+	vec2 f = clamp((p - origin) / cell, vec2(0.0), vec2(n) - 1.001);
+	ivec2 i = ivec2(floor(f));
+	vec2 uv = f - vec2(i);
+	ivec2 ga = i, gb = i + ivec2(1, 0), gc = i + ivec2(0, 1), gd = i + ivec2(1, 1);
+	float ha = grid_h(ga), hb = grid_h(gb), hc = grid_h(gc), hd = grid_h(gd);
+	// Barycentric weights of the four corners on the triangle that holds p.
+	vec4 w;
+	if (abs(ha - hd) < abs(hb - hc)) {
+		w = uv.x >= uv.y ? vec4(1.0 - uv.x, uv.x - uv.y, 0.0, uv.y) : vec4(1.0 - uv.y, 0.0, uv.y - uv.x, uv.x);
+	} else {
+		w = uv.x + uv.y <= 1.0 ? vec4(1.0 - uv.x - uv.y, uv.x, uv.y, 0.0) : vec4(0.0, 1.0 - uv.y, 1.0 - uv.x, uv.x + uv.y - 1.0);
+	}
+	float base = dot(w, vec4(ha, hb, hc, hd));
+	vec3 na = grid_normal(ga, cell), nb = grid_normal(gb, cell), nc = grid_normal(gc, cell), nd = grid_normal(gd, cell);
+	vec3 bn = na * w.x + nb * w.y + nc * w.z + nd * w.w;
+	vec3 x = vec3(1.0, 0.0, 0.0);
+	vec3 bt = normalize(x - na * na.x) * w.x + normalize(x - nb * nb.x) * w.y
+		+ normalize(x - nc * nc.x) * w.z + normalize(x - nd * nd.x) * w.w;
+	// The sunk chunk surface under p: the mesh may never dip below it, so in the
+	// ramp band (part-sunk cells) deep prints are clamped instead of buried.
+	float sink = dot(w, vec4(grid_sink(ga, origin, cell), grid_sink(gb, origin, cell),
+		grid_sink(gc, origin, cell), grid_sink(gd, origin, cell)));
+	float wet_road = clamp(wetness + puddles * 0.5, 0.0, 1.0);
+	// A 3x3 tent 1.5 trail texels wide: the stamps have near-vertical walls that
+	// read as torn cliffs in geometry; the blur slopes them like slumped mud.
+	vec2 t = vec2(1.5 * trail_rect.z / float(textureSize(trail, 0).x), 0.0);
+	float tr = trail_height(p) * 0.25
+		+ (trail_height(p + t.xy) + trail_height(p - t.xy) + trail_height(p + t.yx) + trail_height(p - t.yx)) * 0.125
+		+ (trail_height(p + t.xx) + trail_height(p - t.xx) + trail_height(p + vec2(t.x, -t.x)) + trail_height(p - vec2(t.x, -t.x))) * 0.0625;
+	float disp = vertex_relief(p, normalize(bn), tr, wet_road) * trail_mesh_depth;
+	// Fade out over the part-sunk band so a groove eases into the shader-only
+	// relief past the mesh instead of ending in a step.
+	vec2 off = abs(p - trail_mesh_rect.xy);
+	disp *= smoothstep(trail_mesh_rect.z + cell * 0.75, trail_mesh_rect.z, max(off.x, off.y));
+	// A hair above the chunk so the two never z-fight where neither moved.
+	disp = max(disp, -sink) + 0.004;
+	vtx.y = base + disp - model[3].y;
+	// Shading keeps the undisplaced surface normal: the fragment's trail normal
+	// map already shades the prints, exactly as on the chunks round the mesh.
+	nrm = bn;
+	tan = bt;
+	bin = cross(bn, bt);
+}
+
 void vertex() {
+	// The relief mesh carries vertex colour alpha 0; the chunks have no colour
+	// array, which Godot reads as white. (An instance uniform would take a global
+	// buffer slot for every chunk and overflow it.)
+	if (COLOR.a < 0.5) {
+		vec3 vtx = VERTEX, nrm = NORMAL, tan = TANGENT, bin = BINORMAL;
+		trail_mesh_vertex(vtx, nrm, tan, bin, MODEL_MATRIX);
+		VERTEX = vtx;
+		NORMAL = nrm;
+		TANGENT = tan;
+		BINORMAL = bin;
+	} else if (trail_mesh_rect.w > 0.5) {
+		// Chunk vertices on grid points; sink the ones the trail mesh covers.
+		vec2 p = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xz;
+		float cell = grid_cell();
+		vec2 origin = ground_rect.xy + cell * 0.5;
+		VERTEX.y -= grid_sink(ivec2(round((p - origin) / cell)), origin, cell);
+	}
 	world_pos = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
 	world_normal = normalize((MODEL_MATRIX * vec4(NORMAL, 0.0)).xyz);
 }

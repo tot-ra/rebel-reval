@@ -263,3 +263,74 @@ func test_unfed_walkers_are_forgotten() -> void:
 	trail.update_for(Vector2(0, -400), 0.016)
 	assert_eq(trail._marks.size(), 0, "mark dropped after a frame without feed")
 	trail.free()
+
+
+func test_relief_mesh_follows_kalev_on_the_height_grid() -> void:
+	var plan := CityPlan.load_default()
+	var ground := CityTerrainBuilder.material(plan)
+	var trail := _soft_trail()
+	var relief: MeshInstance3D = trail.get_node("TrailRelief")
+	assert_true(relief.visible, "relief mesh shown once Kalev is placed")
+	assert_eq(relief.material_override, ground, "relief mesh draws with the ground material")
+	var cell := plan.height_cell()
+	var centre := Vector2(relief.position.x, relief.position.z)
+	var grid := (centre - plan.height_origin()) / cell
+	assert_almost_eq(grid.x, roundf(grid.x), 0.001, "centre on a height grid vertex (x)")
+	assert_almost_eq(grid.y, roundf(grid.y), 0.001, "centre on a height grid vertex (z)")
+	assert_true(centre.distance_to(Vector2(0, -400)) <= cell * 0.75, "centre near Kalev")
+	var rect: Vector4 = ground.get_shader_parameter("trail_mesh_rect")
+	assert_almost_eq(rect.x, centre.x, 0.001)
+	assert_almost_eq(rect.y, centre.y, 0.001)
+	assert_almost_eq(rect.w, 1.0, 0.001, "chunks sink under the mesh")
+	# Every cell touching a sunk chunk vertex must lie under the mesh, or the
+	# sunk chunk would show as a pit past its edge.
+	var farthest_sunk := floorf(rect.z / cell) * cell
+	assert_true(farthest_sunk > 0.0, "some chunk vertices sink")
+	assert_true(farthest_sunk + cell <= CityGroundTrail.RELIEF_HALF, "sunk cells inside the mesh")
+	# Walking a few cells moves the mesh by whole grid cells.
+	trail.update_for(Vector2(5.0, -400.0), 0.016)
+	var moved := Vector2(relief.position.x, relief.position.z) - centre
+	assert_almost_eq(fmod(absf(moved.x), cell), 0.0, 0.001, "re-snapped by whole cells")
+	assert_true(moved.x > 0.0, "mesh followed Kalev")
+	trail.free()
+
+
+func test_relief_vertices_sit_on_trail_texel_corners() -> void:
+	# Vertex spacing equals a trail cell and divides the height cell, so the mesh
+	# vertices are fixed in the world and do not swim against the trail texels.
+	var plan := CityPlan.load_default()
+	var per_cell := plan.height_cell() / CityGroundTrail.RELIEF_STEP
+	assert_almost_eq(per_cell, roundf(per_cell), 0.0001)
+	var per_half := CityGroundTrail.RELIEF_HALF / CityGroundTrail.RELIEF_STEP
+	assert_almost_eq(per_half, roundf(per_half), 0.0001)
+	var origin_steps := plan.height_origin().x / CityGroundTrail.RELIEF_STEP
+	assert_almost_eq(origin_steps, roundf(origin_steps), 0.0001)
+
+
+func test_relief_mesh_has_no_cracks_between_its_densities() -> void:
+	# A T-junction where the fine core meets the coarse ring would leave an edge
+	# used by one triangle inside the mesh; only the outer border may have those.
+	var mesh := CityGroundTrail.relief_mesh()
+	var arrays := mesh.surface_get_arrays(0)
+	var verts: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
+	var indices: PackedInt32Array = arrays[Mesh.ARRAY_INDEX]
+	var uses := {}
+	for t in range(0, indices.size(), 3):
+		var a := verts[indices[t]]
+		var b := verts[indices[t + 1]]
+		var c := verts[indices[t + 2]]
+		assert_true((b - a).cross(c - a).y < 0.0, "triangle %d keeps the chunk winding" % (t / 3))
+		for k in 3:
+			var u := indices[t + k]
+			var v := indices[t + (k + 1) % 3]
+			var key := Vector2i(mini(u, v), maxi(u, v))
+			uses[key] = int(uses.get(key, 0)) + 1
+	var edge := CityGroundTrail.RELIEF_HALF - 0.001
+	var inner_open := 0
+	for key: Vector2i in uses:
+		if int(uses[key]) == 1:
+			var p := (verts[key.x] + verts[key.y]) * 0.5
+			if absf(p.x) < edge and absf(p.z) < edge:
+				inner_open += 1
+	assert_eq(inner_open, 0, "open edges inside the relief mesh")
+	assert_true(verts.size() < 50000, "two densities keep vertices down, got %d" % verts.size())

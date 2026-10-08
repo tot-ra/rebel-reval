@@ -4,7 +4,8 @@ extends SceneTree
 ## (docs/SYSTEMS/SEAMLESS_CITY.md, "Ground relief, roads and prints"). Picks a
 ## busy road, walks a stretch of it in wet or dry ground so the trail map fills
 ## with prints, then shoots from eye, gameplay and low grazing cameras.
-##   tools/godot_render.sh --script tools/capture_city_mud.gd -- --tag=now [--wet=0.9]
+##   tools/godot_render.sh --script tools/capture_city_mud.gd -- --tag=now [--wet=0.9] [--relief=0]
+## --relief=0 hides the trail relief mesh (shader relief only), for before/after plates.
 ## Output: build/mud/<shot>_<tag>.png
 
 const OUTPUT_DIR := "res://build/mud"
@@ -13,6 +14,7 @@ const VIEWPORT_SIZE := Vector2i(1600, 900)
 var _tag := "now"
 var _wet := 0.9
 var _puddles := -1.0
+var _relief := true
 
 
 func _initialize() -> void:
@@ -21,6 +23,8 @@ func _initialize() -> void:
 			_tag = arg.substr(6)
 		elif arg.begins_with("--puddles="):
 			_puddles = float(arg.substr(10))
+		elif arg.begins_with("--relief="):
+			_relief = arg.substr(9) != "0"
 		elif arg.begins_with("--wet="):
 			_wet = float(arg.substr(6))
 	call_deferred("_run")
@@ -141,7 +145,9 @@ func _run() -> void:
 		world.grass.update_for(pos)
 		if i % 60 == 0:
 			await process_frame
-	var g := plan.ground_height(pos)
+	if not _relief:
+		world.trail.get_node("TrailRelief").visible = false
+		ground.set_shader_parameter("trail_mesh_rect", Vector4.ZERO)
 	var focus := pos - dir * 3.0 + side * 1.2
 	var gf := plan.ground_height(focus)
 	var specs := [
