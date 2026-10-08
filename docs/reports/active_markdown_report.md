@@ -14,19 +14,19 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `1076`
+- Active Markdown files scanned: `1077`
 - Markdown files excluded as archive/reference/out of active scope: `747`
-- Local/external links inspected: `12811`
-- Links to active Markdown docs: `11905`
-- Links to existing archive/reference/non-active local docs: `437`
+- Local/external links inspected: `12827`
+- Links to active Markdown docs: `11912`
+- Links to existing archive/reference/non-active local docs: `440`
 - External links skipped for reachability: `88`
-- Issues found: `3`
+- Issues found: `6`
 
 ## Issue counts
 
 | Code | Count |
 | --- | ---: |
-| `BROKEN_LINK` | 3 |
+| `BROKEN_LINK` | 6 |
 | `BROKEN_ANCHOR` | 0 |
 | `DUPLICATE_CHARACTER_NAME` | 0 |
 | `CONTRADICTORY_DATE` | 0 |
@@ -37,8 +37,11 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 | Code | Location | Detail |
 | --- | --- | --- |
 | `BROKEN_LINK` | `docs/SYSTEMS/AUDIO.md:19` | Local Markdown link target does not exist: `../reports/audio_licenses/README.md` |
-| `BROKEN_LINK` | `docs/SYSTEMS/SEAMLESS_CITY.md:121` | Local Markdown link target does not exist: `../reports/animal_placement_plan.md` |
-| `BROKEN_LINK` | `docs/SYSTEMS/SPIRIT_DIALOGUE.md:142` | Local Markdown link target does not exist: `../reports/images/spirit_form/` |
+| `BROKEN_LINK` | `docs/SYSTEMS/CITIZENS.md:3` | Local Markdown link target does not exist: `./HOUSEHOLDS.md` |
+| `BROKEN_LINK` | `docs/SYSTEMS/CITIZENS.md:58` | Local Markdown link target does not exist: `./HOUSEHOLDS.md` |
+| `BROKEN_LINK` | `docs/SYSTEMS/GATE_GARRISONS.md:9` | Local Markdown link target does not exist: `../CITIZENS/gate_garrisons.md` |
+| `BROKEN_LINK` | `docs/SYSTEMS/SEAMLESS_CITY.md:122` | Local Markdown link target does not exist: `../reports/animal_placement_plan.md` |
+| `BROKEN_LINK` | `docs/SYSTEMS/SEAMLESS_CITY.md:168` | Local Markdown link target does not exist: `./HOUSEHOLDS.md` |
 
 ## Active files scanned
 
@@ -1012,6 +1015,7 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/SYSTEMS/FACTIONS_AND_ECONOMY.md`
 - `docs/SYSTEMS/FARMLAND.md`
 - `docs/SYSTEMS/FLAG_CLOTH.md`
+- `docs/SYSTEMS/GATE_GARRISONS.md`
 - `docs/SYSTEMS/HOIST_ROPE.md`
 - `docs/SYSTEMS/HUD_AND_MENUS.md`
 - `docs/SYSTEMS/LIVING_CITY.md`
