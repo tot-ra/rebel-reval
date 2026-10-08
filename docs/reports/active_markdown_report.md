@@ -14,11 +14,11 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `1089`
+- Active Markdown files scanned: `1092`
 - Markdown files excluded as archive/reference/out of active scope: `744`
-- Local/external links inspected: `12866`
-- Links to active Markdown docs: `11936`
-- Links to existing archive/reference/non-active local docs: `443`
+- Local/external links inspected: `12909`
+- Links to active Markdown docs: `11949`
+- Links to existing archive/reference/non-active local docs: `444`
 - External links skipped for reachability: `88`
 - Issues found: `150`
 
@@ -1154,6 +1154,7 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/SOUND_EFFECTS_TOP_100.md`
 - `docs/STORAGE_SIZE_BACKLOG.md`
 - `docs/SYSTEMS/AUDIO.md`
+- `docs/SYSTEMS/CHURCH_INTERIORS.md`
 - `docs/SYSTEMS/CITIZENS.md`
 - `docs/SYSTEMS/CITY_LANDMARK_SITES.md`
 - `docs/SYSTEMS/CITY_SEA.md`
@@ -1174,6 +1175,7 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/SYSTEMS/LIVING_CITY.md`
 - `docs/SYSTEMS/LIVING_VEGETATION.md`
 - `docs/SYSTEMS/LIVING_WORLD.md`
+- `docs/SYSTEMS/LOCAL_ATMOSPHERE.md`
 - `docs/SYSTEMS/MAGIC.md`
 - `docs/SYSTEMS/MUSCLE_LOCOMOTION.md`
 - `docs/SYSTEMS/NATURAL.md`
@@ -1184,6 +1186,7 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/SYSTEMS/README.md`
 - `docs/SYSTEMS/SEAMLESS_CITY.md`
 - `docs/SYSTEMS/SETTINGS_AND_ACCESSIBILITY.md`
+- `docs/SYSTEMS/SHIPS.md`
 - `docs/SYSTEMS/SPIRIT_DIALOGUE.md`
 - `docs/SYSTEMS/STATE_AND_SAVES.md`
 - `docs/SYSTEMS/TIME_AND_PHASES.md`

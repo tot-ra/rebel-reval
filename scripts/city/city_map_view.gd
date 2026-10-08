@@ -92,6 +92,7 @@ func _bind_city_ripples(texture: Texture2D, window: Vector4, texel_count: float)
 ## texel over the whole city would stall the first visible frame.
 func _create_sky_passes() -> void:
 	_create_cloud_shadow_pass()
+	_create_city_atmosphere()
 	if _sky_weather == null or not GodRayPassScript.should_create(false):
 		return
 	_god_ray_pass = GodRayPassScript.new()
@@ -99,6 +100,20 @@ func _create_sky_passes() -> void:
 	_god_ray_pass.configure(
 		_camera, plan.bounds.size, func() -> Array[AABB]: return _occluder_bounds, Callable(),
 		plan.bounds.position
+	)
+
+
+## Patchy fog on the shore, moat and stream, and horizon heat shimmer. The city always
+## has water, so the fog layer probes the plan's sea/moat surface directly.
+func _create_city_atmosphere() -> void:
+	if _sky_weather == null or not LocalAtmosphereScript.should_create(false):
+		return
+	_local_atmosphere = LocalAtmosphereScript.new()
+	add_child(_local_atmosphere)
+	_local_atmosphere.configure(
+		_camera,
+		Callable(self, &"water_surface_height_at"),
+		func(world_xz: Vector2) -> float: return plan.ground_height(world_xz)
 	)
 
 
@@ -114,6 +129,8 @@ func _process(delta: float) -> void:
 		world.apply_cloud_cells(presentation.cloud_cells)
 	if _god_ray_pass != null:
 		_god_ray_pass.update(delta, presentation)
+	if _local_atmosphere != null:
+		_local_atmosphere.update(delta, presentation, _sky_weather.cloud_cell_clock())
 
 
 func _exit_tree() -> void:

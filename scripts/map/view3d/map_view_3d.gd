@@ -26,6 +26,7 @@ const TIME_NIGHT := &"night"
 const FOG_OF_WAR_SCRIPT := preload("res://scripts/map/view3d/map_fog_of_war.gd")
 const CloudShadowPassScript := preload("res://scripts/map/view3d/cloud_shadow_pass.gd")
 const GodRayPassScript := preload("res://scripts/map/view3d/god_ray_pass.gd")
+const LocalAtmosphereScript := preload("res://scripts/map/view3d/local_atmosphere.gd")
 const StaticBatcher := preload("res://scripts/map/view3d/map_view_static_batcher.gd")
 ## Plume culling runs on a coarse timer: the camera pans slowly and the extra
 ## margin hides the seam, so per-frame checks would only add cost.
@@ -117,6 +118,8 @@ var _smoke_cull_timer := 0.0
 var _fog_of_war: Node3D
 var _cloud_shadow_pass: CloudShadowPassScript
 var _god_ray_pass: GodRayPassScript
+## Patchy fog near water and horizon heat shimmer (presentation only).
+var _local_atmosphere: LocalAtmosphereScript
 var _occluder_bounds: Array[AABB] = []
 var _object_index: MapChunkRuntimeIndex
 var _object_streamer: MapObjectChunkStreamer
@@ -343,6 +346,15 @@ func _process(delta: float) -> void:
 				cycle_progress,
 				SkyWeather3D.daylight_blend(cycle_progress, _sky_weather.calendar_date)
 			)
+		)
+	if _local_atmosphere != null and _sky_weather != null:
+		_local_atmosphere.update(
+			delta,
+			_sky_weather.presentation_snapshot(
+				cycle_progress,
+				SkyWeather3D.daylight_blend(cycle_progress, _sky_weather.calendar_date)
+			),
+			_sky_weather.cloud_cell_clock()
 		)
 	var player_rig := get_tree().get_first_node_in_group(&"player_view_rig") as Node3D
 	_sync_ambient_leaf_fall(delta, player_rig)
@@ -804,6 +816,22 @@ func _create_god_ray_pass() -> void:
 	_god_ray_pass.configure(
 		_camera, Vector2(definition.size_cells), func() -> Array[AABB]: return _occluder_bounds, ground
 	)
+
+
+## Fog banks gather where water is near, so a map with no water gets no layer; the
+## horizon shimmer is cheap and independent of water, so it mounts everywhere outdoors.
+func _create_local_atmosphere() -> void:
+	var indoor := definition != null and definition.suppresses_exterior_surroundings()
+	if _sky_weather == null or _camera == null or not LocalAtmosphereScript.should_create(indoor):
+		return
+	_local_atmosphere = LocalAtmosphereScript.new()
+	add_child(_local_atmosphere)
+	var ground := Callable()
+	if not definition.relief_heights.is_empty():
+		ground = func(world_xz: Vector2) -> float:
+			return MapViewMeshBuilder.ground_height(definition, world_xz)
+	var water := Callable(self, &"water_surface_height_at") if _has_water() else Callable()
+	_local_atmosphere.configure(_camera, water, ground)
 
 
 func _create_cloud_shadow_pass() -> void:

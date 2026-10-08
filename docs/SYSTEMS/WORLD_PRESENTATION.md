@@ -27,6 +27,7 @@ Third-person by default ([ADR 0015](../adr/0015-default-third-person-camera.md))
 - **Astronomy**: `SkyAstronomy` computes sun, moon, sidereal time, and tides for medieval Reval. Real stars come from `EstoniaStarCatalog`.
 - **Atmosphere**: physically based sky-view LUT (`SkyAtmosphereLut`, `AtmosphereCpu`), screen-space cloud shadows (`cloud_shadow_pass.gd`), and volumetric-style god rays from sun or moon occluded by architecture (`god_ray_pass.gd`).
 - **Cloud cells**: individual world-space cumulus and cumulonimbus (`CloudCells`) that the dome ray-marches, that cast their own ground shadows and cut god rays, and that are the only source of lightning. Contract: [`CLOUD_CELLS.md`](./CLOUD_CELLS.md).
+- **Local atmosphere**: patchy ground fog near water with its own lighting, perspective-only distance haze and a midsummer heat mirage, all driven by the same presentation snapshot. Contract: [`LOCAL_ATMOSPHERE.md`](./LOCAL_ATMOSPHERE.md).
 - **Lighting**: `MapViewLighting` owns the day/night response. Practical lights: forge fire, candles, domestic hearths, interior and building window glow (evening fade), chimney smoke driven by weather wind.
 - Day/night clock and calendar: [`TIME_AND_PHASES.md`](./TIME_AND_PHASES.md#clock-and-calendar). Task specs: [`docs/tasks/water_sky/`](../tasks/water_sky/README.md).
 

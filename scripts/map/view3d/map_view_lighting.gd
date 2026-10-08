@@ -102,6 +102,17 @@ const FOG_POTENTIAL_FULL := 0.95
 const GLINT_MIST_OPTICAL_DEPTH := 0.30
 const GLINT_RAIN_OPTICAL_DEPTH := 0.50
 const GLINT_HAZE_MAX_AIR_MASS := 12.0
+## Aerial perspective for distant land and sea: a faint always-on distance veil in the
+## horizon hue, thicker in damp air and in summer heat. Perspective cameras only; the
+## orthographic gameplay lens would read the same fog as a flat wash.
+const HORIZON_HAZE_DENSITY := 0.0011
+const HORIZON_HAZE_BASE := 0.3
+const HORIZON_HAZE_DAMP_WEIGHT := 0.35
+const HORIZON_HAZE_HEAT_WEIGHT := 0.35
+## Heat shimmer needs a high sun. Sine of the elevation: ~0.67 at the April noon the
+## campaign opens in (no shimmer), ~0.77 in late May, ~0.81 at midsummer (full).
+const HEAT_SUN_MIN := 0.7
+const HEAT_SUN_FULL := 0.8
 ## Stars reflect from the whole dome; their haze path uses this mean elevation.
 const GLINT_STAR_MEAN_ELEVATION_SIN := 0.5
 
@@ -245,7 +256,10 @@ static func apply_cycle_progress(
 		BACKGROUND_DAY_COLOR, presentation.day_blend
 	)
 	sync_background(environment, interior_top_down)
-	apply_ground_mist(environment, presentation, enclosed_interior)
+	var horizon_haze := 0.0
+	if not enclosed_interior and sky_weather.view_is_perspective():
+		horizon_haze = horizon_haze_amount(presentation)
+	apply_ground_mist(environment, presentation, enclosed_interior, horizon_haze)
 
 	# Water specular follows the visible sun disk rather than civil-twilight light,
 	# preventing a sun glint after the disk has set.
@@ -410,7 +424,8 @@ static func sync_background(environment: Environment, interior_top_down: bool) -
 static func apply_ground_mist(
 	environment: Environment,
 	presentation: SkyWeather3D.WeatherPresentation,
-	enclosed_interior: bool
+	enclosed_interior: bool,
+	horizon_haze: float = 0.0
 ) -> void:
 	if environment == null or presentation == null:
 		return
@@ -419,7 +434,8 @@ static func apply_ground_mist(
 		return
 	var mist := ground_mist_amount(presentation, false)
 	var rain_haze := ground_rain_haze(presentation, false)
-	if mist <= 0.001 and rain_haze <= 0.001:
+	var distance_haze := clampf(horizon_haze, 0.0, 1.0)
+	if mist <= 0.001 and rain_haze <= 0.001 and distance_haze <= 0.001:
 		environment.fog_enabled = false
 		return
 	environment.fog_enabled = true
@@ -441,9 +457,48 @@ static func apply_ground_mist(
 	)
 	environment.fog_sky_affect = 0.08
 	environment.fog_aerial_perspective = 0.0
-	environment.fog_density = FOG_MAX_DENSITY * mist + 0.0035 * rain_haze
+	environment.fog_density = (
+		FOG_MAX_DENSITY * mist + 0.0035 * rain_haze + HORIZON_HAZE_DENSITY * distance_haze
+	)
 	environment.fog_height = FOG_HEIGHT
 	environment.fog_height_density = FOG_MAX_HEIGHT_DENSITY * mist * (1.0 - rain_haze)
+
+
+## 0..1 how damp the air is, from the same weather signals as the sky: overcast deck,
+## falling rain and standing puddles (wet ground keeps giving moisture back after rain).
+static func air_dampness(presentation: SkyWeather3D.WeatherPresentation) -> float:
+	if presentation == null:
+		return 0.0
+	return clampf(
+		presentation.overcast * 0.5
+		+ presentation.rain_intensity * 0.45
+		+ presentation.puddle_wetness * 0.65,
+		0.0,
+		1.0
+	)
+
+
+## 0..1 hot-weather shimmer: a high summer sun, little cloud, calm and dry air.
+static func heat_amount(presentation: SkyWeather3D.WeatherPresentation) -> float:
+	if presentation == null:
+		return 0.0
+	var heat := smoothstep(HEAT_SUN_MIN, HEAT_SUN_FULL, presentation.sun_direction.y)
+	heat *= 1.0 - clampf(presentation.cloud_coverage * 1.3, 0.0, 1.0)
+	heat *= 1.0 - clampf(presentation.wind_strength * 0.8, 0.0, 1.0)
+	heat *= 1.0 - clampf(presentation.rain_intensity * 2.0, 0.0, 1.0)
+	return heat
+
+
+## 0..1 distance haze for perspective cameras, limited by the fog quality tier.
+static func horizon_haze_amount(presentation: SkyWeather3D.WeatherPresentation) -> float:
+	if presentation == null:
+		return 0.0
+	var haze := (
+		HORIZON_HAZE_BASE
+		+ HORIZON_HAZE_DAMP_WEIGHT * air_dampness(presentation)
+		+ HORIZON_HAZE_HEAT_WEIGHT * heat_amount(presentation)
+	)
+	return clampf(haze, 0.0, 1.0) * clampf(presentation.fog_quality, 0.0, 1.0)
 
 
 ## 0..1 morning ground mist for this presentation: the dawn envelope scaled by the

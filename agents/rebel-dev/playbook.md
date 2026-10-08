@@ -253,4 +253,9 @@ This file contains lessons specific to the Dev role.
 
 - Window aperture ray tests must target the average of all six quad vertices, not `verts[0]` and `verts[2]`: `quad_out` can reverse triangle winding, making those two vertices a frame-edge midpoint and falsely reporting wall backing. Pair centre rays with removed-area and rotated-wall UV tests.
 
-- A clean shader compile log is not proof a complex FFT surface drew on macOS GL. Verify changed pixels against an opaque replacement mesh; additional global cloud samplers can silently hide the sea. Keep an A/B capture with the extra helper disabled before blaming depth or bathymetry.
+- Spatial shaders: `MODEL_MATRIX` is not available in `fragment()` (parse error that shows only as a dummy-renderer "Shader compilation failed" in an unrelated test); copy what you need into a `varying` in `vertex()`. For soft billboard fog in Compatibility draw the depth-reading pass before screen-reading water (after cloud shadows), or the back-buffer copy loses opaque depth. UV-edge fading alone cannot hide a card sliced through terrain: use camera-facing ellipses, ground-height fade and opaque-depth contact fade; verify overview and steep pitches as well as eye level. Check the sign of `UV.y` (0 is the top of a `QuadMesh`).
+- A GPU-particle effect that "runs" but cannot be seen is usually placed too far from the camera, not broken: print each emitter's distance and `unproject_position` in the capture script, and have the capture walk to the strongest emitter before shooting.
+
+### Local atmosphere checks
+- Bound water-probe caches to the camera's active cell halo and stop invisible particle emitters. A bounded draw pool alone does not bound memory or simulation work during seamless travel.
+- Weather comparison captures must reset lingering puddle wetness between shots; setting clear weather alone does not make a dry baseline.

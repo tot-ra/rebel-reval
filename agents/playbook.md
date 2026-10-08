@@ -21,6 +21,8 @@ Keep this file short. Append a durable reusable rule, not a dated incident log. 
 - No-op replacements (identical old and new text) are rejected. Apply only a non-empty delta.
 
 ### Tool batches and probes
+- Never run recursive index/documentation writers in a verification snapshot whose reference folders symlink to the live checkout. They can rewrite live index pages; use an isolated Git worktree or materialize all writable index pages first. Use `git ls-files -z` for filenames with non-ASCII characters rather than parsing quoted line output.
+- Check the project Python version before using newer archive APIs: `tarfile.extractall(filter=...)` is not available in the macOS system Python 3.9. For a trusted local `git archive`, omit that newer argument or use the configured Python 3.11.
 - If a parallel batch fails before execution (wrong schema, missing tool, malformed path), discard the batch and rerun each check independently. Do not infer repository state from a wrapper error.
 - A silent compound shell or heredoc failure is an invocation failure. Split checks into independent commands with captured status.
 - `grep` a line that starts with `-` using `--` or `-e`. Guard expected-empty searches with `|| true` under `set -e`.

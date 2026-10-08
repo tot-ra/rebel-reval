@@ -1024,6 +1024,15 @@ func cell_sun_edge(sun_dir: Vector3) -> float:
 	return clampf(hi - lo, 0.0, 1.0)
 
 
+## True when the sky is drawn through a perspective camera (third/first person), the
+## only lens that shows a horizon; the orthographic overview must not get distance haze.
+func view_is_perspective() -> bool:
+	var active := get_viewport().get_camera_3d() if is_inside_tree() else null
+	if active == null:
+		active = _camera
+	return is_instance_valid(active) and active.projection != Camera3D.PROJECTION_ORTHOGONAL
+
+
 func _view_position() -> Vector3:
 	if _camera != null and is_instance_valid(_camera) and _camera.is_inside_tree():
 		return _camera.global_position

@@ -321,9 +321,6 @@ func _build_water() -> void:
 		# caustics and refraction, so the sea reads the same on every map.
 		inst.material_override = MapViewMaterials.water_surface(MapTypes.TERRAIN_SHALLOW_WATER)
 		_bind_sea_depth_map()
-		# R-1437: physical bathymetry belongs to this mesh, not the cached
-		# district material. Instance state keeps shared weather updates intact.
-		inst.set_instance_shader_parameter("sea_physical_depth", true)
 		MapViewMaterials.WATER_MATERIALS.set_wave_height_boost(SEA_WAVE_BOOST)
 		inst.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		root.add_child(inst)
