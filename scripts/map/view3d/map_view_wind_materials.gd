@@ -42,6 +42,15 @@ const LEAF_CARD_ATLAS := preload("res://assets/materials/pbr/foliage_cards/leaf_
 const PropMaterials := preload("res://scripts/map/view3d/map_view_prop_materials.gd")
 const LeafGeometry := preload("res://scripts/map/view3d/map_view_leaf_geometry.gd")
 
+## Whole-tree flexibility (tree_wind.gdshaderinc `slender`): how far the crown top
+## swings under the same load. Tall thin boles (pine, birch) reach 20-30 degrees in
+## a storm gust; stout broadleaves bend less. Unlisted species use 1.0.
+const TREE_SLENDER := {
+	&"pine": 1.5, &"spruce": 1.15, &"birch": 1.3, &"alder": 1.1, &"willow": 1.2,
+	&"linden": 0.95, &"maple": 0.95, &"ash": 1.0, &"elm": 0.95, &"oak": 0.85,
+	&"juniper": 0.7, &"apple": 0.8,
+}
+
 static var _cache: Dictionary = {}
 ## Recent footfalls pressing the grass down (R-1327).
 static var _trail := VegetationInteractionBuffer.new()
@@ -253,6 +262,7 @@ static func canopy_for_species(species: StringName) -> ShaderMaterial:
 	var template := canopy(MapViewTreeSpecies.canopy_material_kind(species))
 	var material := template.duplicate() as ShaderMaterial
 	material.set_meta(&"tree_species", species)
+	_apply_tree_flexibility(material, species)
 	material.set_shader_parameter("atlas_tile", LeafGeometry.card_tile(species))
 	# Dense needle cards stack more translucent layers than broadleaf cards and
 	# overexposed under the sun; a lower gain keeps conifers dark green.
@@ -271,8 +281,8 @@ static func canopy_for_species(species: StringName) -> ShaderMaterial:
 ## MapViewPropMaterials.bark_plate on the city wood mesh so the wood moves with
 ## the crown: thin limbs (vertex alpha) far more than the bole. Textures come
 ## from the plain plate material so both stay in sync.
-static func bark_plate_wind(plate: StringName) -> ShaderMaterial:
-	var key := "bark_wind:%s" % String(plate)
+static func bark_plate_wind(plate: StringName, species: StringName = &"") -> ShaderMaterial:
+	var key := "bark_wind:%s:%s" % [String(plate), String(species)]
 	if _cache.has(key):
 		return _cache[key]
 	var plain := PropMaterials.bark_plate(plate)
@@ -283,10 +293,19 @@ static func bark_plate_wind(plate: StringName) -> ShaderMaterial:
 	material.set_shader_parameter("albedo_tex", plain.albedo_texture)
 	material.set_shader_parameter("normal_tex", plain.normal_texture)
 	material.set_shader_parameter("roughness_value", plain.get_meta(&"dry_roughness", plain.roughness))
-	material.set_shader_parameter("sway_strength", 0.06)
+	if species != &"":
+		_apply_tree_flexibility(material, species)
 	material.set_shader_parameter("wetness", _vegetation_wetness)
 	_cache[key] = material
 	return material
+
+
+## Crown-top height (model units, from the shared city crown) and species
+## flexibility, so bark and leaves bend with the same cantilever.
+static func _apply_tree_flexibility(material: ShaderMaterial, species: StringName) -> void:
+	var top := MapViewTreeMeshes.city_canopy_far_mesh(species).get_aabb().end.y
+	material.set_shader_parameter("tree_top", maxf(top, 0.5))
+	material.set_shader_parameter("slender", float(TREE_SLENDER.get(species, 1.0)))
 
 
 ## Pushes the campaign date into every tree crown. Cheap: one uniform set per

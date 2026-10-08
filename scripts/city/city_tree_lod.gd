@@ -179,6 +179,8 @@ func _rebuild_near(species: StringName, macro: bool) -> void:
 		Vector3.ZERO,
 		true
 	)
+	# Match far crowns: shader bend exceeds static bounds.
+	node.extra_cull_margin = 12.0
 	if bool(info["shrub"]):
 		node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(node)

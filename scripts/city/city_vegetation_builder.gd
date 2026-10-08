@@ -165,10 +165,12 @@ static func build(plan: CityPlan, parent: Node3D) -> Node3D:
 			),
 			transforms,
 			colors,
-			MapViewMaterials.bark_plate_wind(MapViewTreeSpecies.bark_plate_for(species)),
+			MapViewMaterials.bark_plate_wind(MapViewTreeSpecies.bark_plate_for(species), species),
 			Vector3.ZERO
 		)
 		var shrub := species in MapViewTreeMeshes.CITY_SHRUBS
+		# Shader-bent crowns can reach beyond the undeformed batch AABB.
+		wood.extra_cull_margin = 12.0
 		wood.visibility_range_end = BUSH_RANGE if shrub else WOOD_RANGE
 		if shrub:
 			wood.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
@@ -182,6 +184,7 @@ static func build(plan: CityPlan, parent: Node3D) -> Node3D:
 			Vector3.ZERO,
 			true
 		)
+		crown.extra_cull_margin = 12.0
 		crown.visibility_range_end = BUSH_RANGE if shrub else CROWN_RANGE
 		if shrub:
 			crown.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF

@@ -368,8 +368,8 @@ static func hay_wisps() -> ShaderMaterial:
 	return PROP_MATERIALS.hay_wisps()
 
 
-static func bark_plate_wind(plate: StringName) -> ShaderMaterial:
-	return WIND_MATERIALS.bark_plate_wind(plate)
+static func bark_plate_wind(plate: StringName, species: StringName = &"") -> ShaderMaterial:
+	return WIND_MATERIALS.bark_plate_wind(plate, species)
 
 
 static func apply_world_wind(direction: Vector2, strength: float) -> void:

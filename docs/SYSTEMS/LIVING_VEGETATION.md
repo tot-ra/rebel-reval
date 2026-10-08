@@ -1,6 +1,6 @@
 # Living vegetation
 
-Status: implemented (tasks **R-1187**, **R-1194**, **R-1329** procedural leaf atlas, **R-1321** shared wind field, **R-1404** 3D conifer needles close up, seamless-city pass of **R-712** covering **R-1101**, **R-1102**, **R-1103**, **R-1105**; visual/reviewer acceptance pending). Scope: tree crowns in the 3D view follow the campaign calendar, react to rain and wind, and respond to melee swings. Presentation only: nothing here changes combat, collision, navigation, or saved state. Out of scope: felling or damaging trees, persistent leaf litter on the ground, snow on branches, seasonal bushes, grass, and crops, and blossom.
+Status: implemented (tasks **R-1187**, **R-1194**, **R-1329** procedural leaf atlas, **R-1321** shared wind field, **R-1433** flexible storm trees, **R-1404** 3D conifer needles close up, seamless-city pass of **R-712** covering **R-1101**, **R-1102**, **R-1103**, **R-1105**; visual/reviewer acceptance pending). Scope: tree crowns in the 3D view follow the campaign calendar, react to rain and wind, and respond to melee swings. Presentation only: nothing here changes combat, collision, navigation, or saved state. Out of scope: felling or damaging trees, persistent leaf litter on the ground, snow on branches, seasonal bushes, grass, and crops, and blossom.
 
 Reference bar: trees that feel alive in the way Witcher 3 and RDR2 trees do. The crown changes with the month, and a blow to the trunk knocks leaves loose.
 
@@ -488,3 +488,62 @@ a dense hedge of city roses costs about seven times the old blob triangles (the 
 - Conifer realism pass: needle cards are 3-segment strips that bow downward (`CONIFER_CARD_DROOP` 0.22) with smooth, width-rounded vertex normals (`append_card` `droop`), and `map_view_canopy.gdshader` darkens gaps from the atlas (`clump`), shades sprig bases (`tip_light`) and perturbs card normals from the cluster pattern so needles stop lighting as flat plates. Conifer `card_gain` 0.84.
 - Conifer card normals follow the crown shell (`CONIFER_NORMAL_OUTWARD`, no upward bias) and use `card_gain` 0.66, which stops sun wash-out.
 - `tools/assets/defringe_atlas.py` removes pale outlines from `grass_blades_atlas.png` (2x2): alpha eroded, edge colour repainted from solid leaf colour. Do not run it on `leaf_card_atlas.png` since R-1329: the generator already fills empty texels with nearby leaf colour, and a second pass would erode the procedural tiles.
+
+## Flexible whole-tree storm response (R-1433)
+
+Status: implemented (task **R-1433**; independent review pending). Scope: shared
+GPU deformation for city tree wood and every crown LOD. No new controls, assets,
+collision, navigation, gameplay, or persistent/save state. Out of scope: structural
+failure, branch breakage, CPU rigid-body simulation, and district wood conversion.
+
+User decision: tall thin pines must visibly flex as a whole tree, reaching about
+20-30 degrees in strong gusts and moving to either side of the wind, not merely
+fluttering leaves. The angle here is the root-to-crown line, not the top tangent.
+
+- `tree_wind.gdshaderinc` samples the existing shared coarse gust. Aerodynamic
+  load grows with speed to power 1.4 and saturates as foliage streamlines. At
+  the existing storm profile's strength 0.70 a slender 18 m pine reaches about
+  29 degrees in the 60-second regression sample; all responses are bounded at
+  30 degrees. Calm strength 0.04 stays below one degree. Weather profiles and
+  other wind consumers are unchanged.
+- The rooted cantilever curves rather than pivoting rigidly. Integrating unit
+  tangents preserves centreline length as the crown drops. Limbs heave faster,
+  twigs shiver, and cross-wind modes/heading veer produce sideways motion. This
+  is an analytic, bounded modal approximation, not an elastic structural solver
+  or an exact time-integrated gust response.
+- Species `slender` and model-space `tree_top` are set identically by
+  `MapViewWindMaterials._apply_tree_flexibility` for bark and crown materials.
+  Pine is more flexible than oak. City bark materials are cached by both bark
+  plate and species; `CityVegetationBuilder` passes species through the public
+  `MapViewMaterials.bark_plate_wind` facade. Shared near/macro/far crown materials
+  keep the same deformation inputs.
+- World-oriented coordinates account for random instance yaw. Leaves rotate
+  with their bent trunk section and keep petiole-relative flutter; bark normals
+  and tangents rotate as well. Near/macro/far tree batches reserve a 12 m culling
+  margin so displaced crowns do not disappear at the edge of the camera.
+- Existing `TreeLeafFall3D` gust shedding is retained. It is presentation-only,
+  sparse outside autumn, and does not remove persistent leaves from a tree.
+
+Verification:
+
+```bash
+/Applications/Godot.app/Contents/MacOS/Godot --headless --path . \
+  --script tools/run_godot_tests.gd -- \
+  --filter=test_tree_storm_bend,test_tree_wood_wind,test_tree_skeleton,test_tree_leaf_fall,test_wind_field
+tools/godot_render.sh --script tools/capture_tree_storm.gd
+```
+
+The capture writes `build/scratch/tree_storm_sheet.png`: identical 18 m pine and
+camera, calm at left, storm strength 0.70 at shader times 1, 4 and 9 seconds.
+Frozen capture time affects only duplicated capture shaders, never production
+materials. Tests cover actual shared-gust amplitude, calm/zero wind, bounded
+lean, fixed root, centreline length and shared bark/crown uniforms. District
+crowns still use this canopy shader with legacy defaults but have rigid wood;
+whole-tree acceptance is limited to the seamless city's species-wired trees.
+
+Limits: bark and leaves share the bole model, but limb flex remains a vertex/
+petiole approximation rather than a jointed branch skeleton; attached leaves
+are not guaranteed exact branch-tip parity. No new save data is generated.
+The single independent reviewer call failed upstream without findings; human
+visual/correctness sign-off remains open. The focused 33-test run and real
+Compatibility GPU capture passed locally. Full repository tests were not run.
