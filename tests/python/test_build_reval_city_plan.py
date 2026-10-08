@@ -46,7 +46,8 @@ class CityPlanBuilderTest(unittest.TestCase):
 
     def test_post_1343_fortifications_are_absent(self):
         names = " ".join(t["name"] for t in self.plan["towers"])
-        for later in ("Margaret", "Kiek", "Neitsi", "Hermann", "Epping", "Loewenschede"):
+        # Towers up to ~50 years late are shown on purpose (maintainer direction 2026-10-08).
+        for later in ("Margaret", "Kiek", "Hermann"):
             self.assertNotIn(later, names)
         states = {g["id"]: g["state"] for g in self.plan["gates"]}
         self.assertEqual(states["gate.long_hill"], "wooden")

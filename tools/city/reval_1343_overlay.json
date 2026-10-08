@@ -368,15 +368,18 @@
       },
       {
         "osm": "Bremeni torn",
-        "state": "stone"
+        "state": "stone",
+        "tower": "tower.bremen"
       },
       {
         "osm": "Munkadetagune torn",
-        "state": "stone"
+        "state": "stone",
+        "tower": "tower.munkade"
       },
       {
         "osm": "Hellemanni torn",
-        "state": "stone"
+        "state": "stone",
+        "tower": "tower.helleman"
       },
       {
         "ref": "gate.viru",
@@ -400,7 +403,8 @@
       },
       {
         "osm": "Assauwe torn",
-        "state": "stone"
+        "state": "stone",
+        "tower": "tower.assauwe"
       },
       {
         "ref": "gate.harju",
@@ -412,11 +416,13 @@
       },
       {
         "osm": "Neitsitorn",
-        "state": "stone"
+        "state": "stone",
+        "tower": "tower.neitsitorn"
       },
       {
         "osm": "Tallitorn",
-        "state": "stone"
+        "state": "stone",
+        "tower": "tower.tallitorn"
       },
       {
         "at": [
@@ -472,7 +478,8 @@
       },
       {
         "osm": "Saunatorn",
-        "state": "stone"
+        "state": "stone",
+        "tower": "tower.saunatorn"
       },
       {
         "osm": "Kuldjala torn",
@@ -481,19 +488,23 @@
       },
       {
         "osm": "Loewenschede torn",
-        "state": "stone"
+        "state": "stone",
+        "tower": "tower.loewenschede"
       },
       {
         "osm": "Köismäe torn",
-        "state": "stone"
+        "state": "stone",
+        "tower": "tower.koismae"
       },
       {
         "osm": "Plate torn",
-        "state": "stone"
+        "state": "stone",
+        "tower": "tower.plate"
       },
       {
         "osm": "Eppingi torn",
-        "state": "stone"
+        "state": "stone",
+        "tower": "tower.epping"
       },
       {
         "osm": "Grusbeke-tagune torn",
@@ -520,50 +531,50 @@
     {
       "id": "tower.nunnatorn",
       "name": "Nunnatorn / Nuns' Tower",
-      "form": "rect",
-      "w": 7.0,
-      "d": 6.0,
-      "h": 8.4,
+      "form": "round",
+      "w": 8.5,
+      "d": 8.5,
+      "h": 13.5,
       "state": "completed",
       "confidence": "attested type, first half 14th c."
     },
     {
       "id": "tower.kuldjala",
       "name": "Kuldjala / Golden Leg",
-      "form": "horseshoe",
-      "w": 9.0,
-      "d": 8.0,
-      "h": 9.0,
+      "form": "round",
+      "w": 9.5,
+      "d": 9.5,
+      "h": 15.0,
       "state": "completed",
       "confidence": "attested c. 1310"
     },
     {
       "id": "tower.rentenitorn",
       "name": "Rentenitorn / Rent Tower",
-      "form": "rect",
-      "w": 7.5,
-      "d": 6.5,
-      "h": 9.0,
+      "form": "round",
+      "w": 8.5,
+      "d": 8.5,
+      "h": 14.0,
       "state": "completed",
       "confidence": "attested before mid-14th c.; position plausible composite"
     },
     {
       "id": "tower.stolting",
       "name": "Stolting Tower",
-      "form": "horseshoe",
-      "w": 8.0,
-      "d": 7.5,
-      "h": 9.5,
+      "form": "round",
+      "w": 9.0,
+      "d": 9.0,
+      "h": 15.5,
       "state": "completed",
       "confidence": "on mid-14th-c. plan"
     },
     {
       "id": "tower.hinke",
       "name": "Hinke Tower",
-      "form": "horseshoe",
-      "w": 8.0,
-      "d": 7.5,
-      "h": 9.0,
+      "form": "round",
+      "w": 9.0,
+      "d": 9.0,
+      "h": 15.0,
       "state": "completed",
       "confidence": "construction candidate (RevalFortificationRegistry); shown completed (presentation)"
     },
@@ -581,21 +592,151 @@
       "id": "tower.viru_north",
       "name": "Viru gate north flanking tower",
       "form": "round",
-      "w": 7.5,
-      "d": 7.5,
-      "h": 10.5,
+      "w": 9.0,
+      "d": 9.0,
+      "h": 16.0,
       "state": "completed",
-      "confidence": "invented (presentation); the round Viru foregate towers date from the 1370s"
+      "confidence": "invented (presentation); the round Viru foregate towers date from the 1370s, the barbican shown by maintainer direction 2026-10-08"
     },
     {
       "id": "tower.viru_south",
       "name": "Viru gate south flanking tower",
       "form": "round",
-      "w": 7.5,
-      "d": 7.5,
-      "h": 10.5,
+      "w": 9.0,
+      "d": 9.0,
+      "h": 16.0,
       "state": "completed",
-      "confidence": "invented (presentation); the round Viru foregate towers date from the 1370s"
+      "confidence": "invented (presentation); the round Viru foregate towers date from the 1370s, the barbican shown by maintainer direction 2026-10-08"
+    },
+    {
+      "id": "tower.viru_outer_north",
+      "name": "Viru barbican outer north tower",
+      "form": "round",
+      "w": 8.5,
+      "d": 8.5,
+      "h": 15.0,
+      "state": "completed",
+      "confidence": "invented (presentation); the round Viru foregate towers date from the 1370s, the barbican shown by maintainer direction 2026-10-08"
+    },
+    {
+      "id": "tower.viru_outer_south",
+      "name": "Viru barbican outer south tower",
+      "form": "round",
+      "w": 8.5,
+      "d": 8.5,
+      "h": 15.0,
+      "state": "completed",
+      "confidence": "invented (presentation); the round Viru foregate towers date from the 1370s, the barbican shown by maintainer direction 2026-10-08"
+    },
+    {
+      "id": "tower.bremen",
+      "name": "Bremen Tower",
+      "form": "round",
+      "w": 8.5,
+      "d": 8.5,
+      "h": 14.5,
+      "state": "completed",
+      "confidence": "invented (presentation); attested turn of the 14th/15th c.. Shown early by maintainer direction 2026-10-08 (more historical towers, up to ~50 years ahead of the record)."
+    },
+    {
+      "id": "tower.munkade",
+      "name": "At the Monks' Tower (Munkade-tagune)",
+      "form": "round",
+      "w": 8.5,
+      "d": 8.5,
+      "h": 14.0,
+      "state": "completed",
+      "confidence": "invented (presentation); attested late 14th c.. Shown early by maintainer direction 2026-10-08 (more historical towers, up to ~50 years ahead of the record)."
+    },
+    {
+      "id": "tower.helleman",
+      "name": "Helleman Tower",
+      "form": "round",
+      "w": 8.5,
+      "d": 8.5,
+      "h": 14.5,
+      "state": "completed",
+      "confidence": "invented (presentation); attested turn of the 14th/15th c.. Shown early by maintainer direction 2026-10-08 (more historical towers, up to ~50 years ahead of the record)."
+    },
+    {
+      "id": "tower.assauwe",
+      "name": "Assauwe Tower",
+      "form": "round",
+      "w": 9.0,
+      "d": 9.0,
+      "h": 15.0,
+      "state": "completed",
+      "confidence": "invented (presentation); attested turn of the 14th/15th c.. Shown early by maintainer direction 2026-10-08 (more historical towers, up to ~50 years ahead of the record)."
+    },
+    {
+      "id": "tower.neitsitorn",
+      "name": "Neitsitorn / Maiden Tower",
+      "form": "round",
+      "w": 9.0,
+      "d": 9.0,
+      "h": 16.0,
+      "state": "completed",
+      "confidence": "invented (presentation); attested 1370s (first record 1373). Shown early by maintainer direction 2026-10-08 (more historical towers, up to ~50 years ahead of the record)."
+    },
+    {
+      "id": "tower.tallitorn",
+      "name": "Tallitorn / Stable Tower",
+      "form": "round",
+      "w": 8.5,
+      "d": 8.5,
+      "h": 14.5,
+      "state": "completed",
+      "confidence": "invented (presentation); attested 1370s. Shown early by maintainer direction 2026-10-08 (more historical towers, up to ~50 years ahead of the record)."
+    },
+    {
+      "id": "tower.saunatorn",
+      "name": "Saunatorn / Bath Tower",
+      "form": "round",
+      "w": 8.5,
+      "d": 8.5,
+      "h": 14.0,
+      "state": "completed",
+      "confidence": "invented (presentation); attested 1370s. Shown early by maintainer direction 2026-10-08 (more historical towers, up to ~50 years ahead of the record)."
+    },
+    {
+      "id": "tower.loewenschede",
+      "name": "Loewenschede Tower",
+      "form": "round",
+      "w": 8.5,
+      "d": 8.5,
+      "h": 14.5,
+      "state": "completed",
+      "confidence": "invented (presentation); attested 1370s. Shown early by maintainer direction 2026-10-08 (more historical towers, up to ~50 years ahead of the record)."
+    },
+    {
+      "id": "tower.koismae",
+      "name": "Ropemakers' Tower (Köismäe)",
+      "form": "round",
+      "w": 8.5,
+      "d": 8.5,
+      "h": 14.0,
+      "state": "completed",
+      "confidence": "invented (presentation); attested 1370s. Shown early by maintainer direction 2026-10-08 (more historical towers, up to ~50 years ahead of the record)."
+    },
+    {
+      "id": "tower.plate",
+      "name": "Plate Tower",
+      "form": "round",
+      "w": 8.5,
+      "d": 8.5,
+      "h": 14.0,
+      "state": "completed",
+      "confidence": "invented (presentation); attested 15th c.. Shown early by maintainer direction 2026-10-08 (more historical towers, up to ~50 years ahead of the record)."
+    },
+    {
+      "id": "tower.epping",
+      "name": "Epping Tower",
+      "form": "round",
+      "w": 9.0,
+      "d": 9.0,
+      "h": 15.5,
+      "state": "completed",
+      "confidence": "invented (presentation); attested 1370s. Shown early by maintainer direction 2026-10-08 (more historical towers, up to ~50 years ahead of the record)."
     }
   ],
   "toompea_wall": {
@@ -843,7 +984,8 @@
           ]
         ],
         "width_m": 6.0,
-        "confidence": "plausible composite (follows Narva mnt; crossing the Hareapea by a timber bridge is a reversible reconstruction)"
+        "confidence": "plausible composite (follows Narva mnt; crossing the Hareapea by a timber bridge is a reversible reconstruction)",
+        "causeway_width_m": 26.0
       },
       {
         "id": "road.karja",
@@ -1593,7 +1735,7 @@
   },
   "metres_per_world_unit_note": "Kalev's rig is 1.83 units tall, so the city uses 1 m per world unit to keep buildings, trees and walls in proportion to him.",
   "presentation": {
-    "note": "Maintainer direction 2026-10-07: show the curtain finished and dressed (covered timber wall-walk, tiled tower roofs, round flanking towers at the Viru gate, a wet moat). Historically the S/E works were unfinished, the Viru foregate towers are 1370s and the moat filled only after the 1345 water grant; these are presentation choices, labelled 'invented (presentation)'.",
+    "note": "Maintainer direction 2026-10-07: show the curtain finished and dressed (covered timber wall-walk, tiled tower roofs, round flanking towers at the Viru gate, a wet moat). Historically the S/E works were unfinished, the Viru foregate towers are 1370s and the moat filled only after the 1345 water grant; these are presentation choices, labelled 'invented (presentation)'. Maintainer direction 2026-10-08: every wall tower is a round Tallinn drum with a moderate cone, towers up to ~50 years later than 1343 are shown, and the Viru gate is a barbican (inner gate, bailey, outer gate, four round towers).",
     "finished_curtain": true
   },
   "flanking_towers": [
@@ -1613,5 +1755,21 @@
     ],
     "name_1343": "Kalev's smithy",
     "note": "Workers' quarter between Viru street and the Cattle Gate, where the district map placed the forge. Its door leads into the forge interior (scenes/reval_east/forge)."
-  }
+  },
+  "barbicans": [
+    {
+      "id": "barbican.viru",
+      "gate": "gate.viru",
+      "length_m": 30.0,
+      "half_width_m": 6.2,
+      "wall_height_m": 7.5,
+      "wall_thickness_m": 1.7,
+      "outer_towers": [
+        "tower.viru_outer_north",
+        "tower.viru_outer_south"
+      ],
+      "outer_name": "Viru foregate (outer gate)",
+      "confidence": "invented (presentation); the round Viru foregate towers date from the 1370s, the barbican shown by maintainer direction 2026-10-08"
+    }
+  ]
 }

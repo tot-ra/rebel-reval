@@ -220,3 +220,5 @@ Keep this file short. Append a durable reusable rule, not a dated incident log. 
 
 - Never `git stash` in this repo: other sessions commit concurrently and a stash hides their unstaged work for the duration. To tell whether a repo-wide gate (`generate_active_docs_report.py --check`) failure is yours, grep the generated report for your own file paths instead of stashing to get a baseline.
 - Do not commit fresh `docs/reports/images/**` plates without checking `docs/ASSET_STORAGE_POLICY.md`: 1280x720 Godot captures of a lit 3D scene run ~2 MiB, over the 1.5 MiB active soft cap, and a new directory must also be registered in `docs/data/evidence_image_retention.json`. Cite the reproducible capture command in the doc instead.
+
+- Terrain height queries must triangulate exactly like the mesh that is drawn (same quad diagonal rule); bilinear lookups on a triangulated mesh sink actors on lumpy ground. Rivers from a DEM plate need a water level that follows the land, not sea level, or banks become gorges and bridges hang mid-slope.

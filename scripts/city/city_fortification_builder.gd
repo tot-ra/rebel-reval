@@ -64,6 +64,21 @@ static func build(plan: CityPlan, parent: Node3D) -> Node3D:
 		)
 	for g: Dictionary in plan.data["gates"]:
 		_gate(shell, plan, g)
+	# Barbican (Viru): an outer gate and two bailey walls; the four drums come from
+	# the tower list.
+	for bb: Dictionary in plan.data.get("barbicans", []):
+		_gate(shell, plan, bb["outer_gate"])
+		for w: Dictionary in bb["walls"]:
+			_curtain(
+				shell,
+				plan,
+				Vector2(w["from"][0], w["from"][1]),
+				Vector2(w["to"][0], w["to"][1]),
+				"stone",
+				float(w["height"]),
+				float(w["thickness"]),
+				town_centroid
+			)
 	for t: Dictionary in plan.data["towers"]:
 		_tower(shell, plan, t)
 	# Toompea castrum maius wall with openings where the hill ways arrive.
@@ -692,7 +707,9 @@ static func _gate(shell: CityBuildingBuilder.Shell, plan: CityPlan, g: Dictionar
 			Color(1, 1, 1),
 			Vector3(along.x * s, 0, along.y * s)
 		)
-	_pyramid(shell, "tile", at, along, half_w + 0.45, depth * 0.5 + 0.45, ground + height, 5.5)
+	# An unfinished gate (Viru, 1343) carries a low shed roof, not the steep cap.
+	var roof_rise := 2.2 if String(g["state"]) == "unfinished" else 5.5
+	_pyramid(shell, "tile", at, along, half_w + 0.45, depth * 0.5 + 0.45, ground + height, roof_rise)
 	# Leaves stand open against the passage walls.
 	for s: float in [-1.0, 1.0]:
 		var leaf := at + along * s * (opening * 0.5 - 0.1) + across * (opening * 0.25)
@@ -851,7 +868,7 @@ static func _tower(shell: CityBuildingBuilder.Shell, plan: CityPlan, t: Dictiona
 	var c := _toward_field(plan, at, along, d * 0.35)
 	if form == "horseshoe" or form == "round":
 		var r := w * 0.5
-		# Battered foot, then the drum, slit windows and a steep tile cone.
+		# Battered foot, then the drum, slit windows and a tile cone.
 		_drum(shell, c, r + 0.35, ground - 1.6, ground + 1.2, 18)
 		_drum(shell, c, r, ground + 1.2, ground + h, 18)
 		for k in 4:
@@ -872,7 +889,11 @@ static func _tower(shell: CityBuildingBuilder.Shell, plan: CityPlan, t: Dictiona
 					Color(1, 1, 1),
 					Vector3(dir.x, 0, dir.y)
 				)
-		_cone(shell, "tile", c, r + 0.6, ground + h - 0.2, (r + 0.6) * 2.3, 18)
+		# Corbelled fighting gallery under the roof: the silhouette Tallinn's round
+		# towers are known by. The cone is a moderate ~50 degrees (it was 66 and read
+		# as a needle) with eaves overhanging the gallery.
+		_drum(shell, c, r + 0.4, ground + h - 1.5, ground + h, 18)
+		_cone(shell, "tile", c, r + 0.9, ground + h, (r + 0.9) * 1.2, 18)
 	else:
 		_obox(shell, "stone", c, along, w * 0.5, d * 0.5, ground - 1.6, ground + h)
 		_pyramid(shell, "tile", c, along, w * 0.5 + 0.5, d * 0.5 + 0.5, ground + h, w * 1.1)

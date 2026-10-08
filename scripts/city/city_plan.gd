@@ -36,6 +36,7 @@ var _cell := 2.0
 var _origin := Vector2.ZERO
 ## Building footprints by INDEX_CELL bucket, for point queries.
 var _building_index: Dictionary = {}
+var _building_ids: Dictionary = {}
 var _footprints: Array[PackedVector2Array] = []
 var _height_texture: ImageTexture
 
@@ -133,7 +134,11 @@ func grid_height(ix: int, iy: int) -> float:
 	return _heights[iy * _nx + ix]
 
 
-## Bilinear ground height at a world XZ position (world units).
+## Ground height at a world XZ position (world units). Interpolated on the same
+## triangles the terrain mesh draws (CityTerrainBuilder splits each quad along the
+## diagonal closer in height), so Kalev's feet meet the visible surface. Plain
+## bilinear interpolation sat up to a few decimetres below the mesh on lumpy
+## ground and Kalev sank into it.
 func ground_height(world_xz: Vector2) -> float:
 	if _nx == 0:
 		return 0.0
@@ -149,7 +154,15 @@ func ground_height(world_xz: Vector2) -> float:
 	var h10 := _heights[i + 1]
 	var h01 := _heights[i + _nx]
 	var h11 := _heights[i + _nx + 1]
-	return lerpf(lerpf(h00, h10, u), lerpf(h01, h11, u), v)
+	if absf(h00 - h11) < absf(h10 - h01):
+		# Diagonal h00-h11: triangles (00, 10, 11) and (00, 11, 01).
+		if u >= v:
+			return h00 + (h10 - h00) * u + (h11 - h10) * v
+		return h00 + (h11 - h01) * u + (h01 - h00) * v
+	# Diagonal h10-h01: triangles (00, 10, 01) and (10, 11, 01).
+	if u + v <= 1.0:
+		return h00 + (h10 - h00) * u + (h01 - h00) * v
+	return h11 + (h01 - h11) * (1.0 - u) + (h10 - h11) * (1.0 - v)
 
 
 ## Ground slope in radians from central differences.
@@ -231,10 +244,17 @@ func buildings_near(world_xz: Vector2, radius: float) -> Array[int]:
 	return found
 
 
+## Index of the plan building with stable id `id`, or -1.
+func building_index_by_id(id: String) -> int:
+	return int(_building_ids.get(id, -1))
+
+
 func _index_buildings() -> void:
 	_footprints.clear()
 	_building_index.clear()
+	_building_ids.clear()
 	for i in buildings.size():
+		_building_ids[String(buildings[i]["id"])] = i
 		var ring := PackedVector2Array()
 		for p: Array in buildings[i]["footprint"]:
 			ring.append(Vector2(p[0], p[1]))

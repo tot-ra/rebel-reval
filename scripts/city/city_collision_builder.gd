@@ -176,7 +176,18 @@ static func _fortifications(plan: CityPlan, add_poly: Callable) -> void:
 			var u := p0.lerp(p1, float(k) / pieces) - dir * 0.3
 			var v := p0.lerp(p1, float(k + 1) / pieces) + dir * 0.3
 			add_poly.call(_segment_box(u, v, maxf(float(c["thickness"]), 0.8)))
-	for g: Dictionary in plan.data["gates"]:
+	var all_gates: Array = plan.data["gates"].duplicate()
+	for bb: Dictionary in plan.data.get("barbicans", []):
+		all_gates.append(bb["outer_gate"])
+		for w: Dictionary in bb["walls"]:
+			add_poly.call(
+				_segment_box(
+					Vector2(w["from"][0], w["from"][1]),
+					Vector2(w["to"][0], w["to"][1]),
+					maxf(float(w["thickness"]), 0.8)
+				)
+			)
+	for g: Dictionary in all_gates:
 		var at := Vector2(g["at"][0], g["at"][1])
 		var along := Vector2(cos(float(g["angle"])), sin(float(g["angle"])))
 		var opening := float(g["opening"])

@@ -26,7 +26,7 @@ var grass: CityGrass
 var farmland: CityFarmland
 var trail: CityGroundTrail
 var build_stats: Dictionary = {}
-## Wet moat stretches as [a, b, surface_a, surface_b, half_width] (swimming).
+## Wet moat and stream stretches as [a, b, surface_a, surface_b, half_width] (swimming).
 var moat_water: Array = []
 ## Chimney tops as [Vector3 top, StringName building id] (CityChimneySmoke).
 var chimneys: Array = []
@@ -56,6 +56,7 @@ func _build() -> void:
 	var t3 := Time.get_ticks_usec()
 	_build_water()
 	CityBridges.build(plan, self)
+	CityHarbour.build(plan, self)
 	CityVegetationBuilder.build(plan, self)
 	CityDressingBuilder.build(plan, self)
 	CityWallFoot.build(plan, self)
@@ -307,8 +308,9 @@ func _build_water() -> void:
 	var hj: Dictionary = plan.data.get("harjapea", {})
 	if not hj.is_empty():
 		var ribbon := _ribbon(
-			CityPlan.points(hj["points"]), hj["widths"], float(hj["surface"]) + 0.05
+			CityPlan.points(hj["points"]), hj["widths"], hj["surfaces"], 0.05
 		)
+		_stream_water(CityPlan.points(hj["points"]), hj["widths"], hj["surfaces"])
 		var r_inst := MeshInstance3D.new()
 		r_inst.name = "Harjapea"
 		r_inst.mesh = ribbon
@@ -334,6 +336,20 @@ func _build_water() -> void:
 			m_inst.mesh = pool_mesh
 			m_inst.material_override = _water_material(0.04, 0.0)
 			root.add_child(m_inst)
+
+
+## Stream segments for swimming/wading (same record shape as the moat pools).
+func _stream_water(points: PackedVector2Array, widths: Array, levels: Array) -> void:
+	for i in points.size() - 1:
+		moat_water.append(
+			[
+				points[i],
+				points[i + 1],
+				float(levels[i]),
+				float(levels[i + 1]),
+				(float(widths[i]) + float(widths[i + 1])) * 0.25
+			]
+		)
 
 
 func _water_material(wave: float, flow: float) -> ShaderMaterial:
@@ -400,7 +416,10 @@ func _surface_grid(y: float, depth_at: Callable) -> ArrayMesh:
 	return mesh
 
 
-func _ribbon(points: PackedVector2Array, widths: Array, y: float) -> ArrayMesh:
+## `levels` holds the water level at each trace point (the stream runs downhill).
+func _ribbon(
+	points: PackedVector2Array, widths: Array, levels: Array, lift: float
+) -> ArrayMesh:
 	var st := SurfaceTool.new()
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
 	var along := 0.0
@@ -421,6 +440,8 @@ func _ribbon(points: PackedVector2Array, widths: Array, y: float) -> ArrayMesh:
 			st.set_color(Color(0.35, 0, 0))
 			st.set_uv(uvs[idx] / Vector2(10.0, 1.0))
 			st.set_normal(Vector3.UP)
+			# Quad corners 0,3 sit at the start of the segment, 1,2 at its end.
+			var y := float(levels[i if idx == 0 or idx == 3 else i + 1]) + lift
 			st.add_vertex(Vector3(q.x, y, q.y))
 		along += seg
 	return st.commit()
@@ -435,7 +456,7 @@ func _moat_pools(
 	var st := SurfaceTool.new()
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
 	var count := 0
-	var half := width * 0.46
+	var half := width * 0.5
 	var edges: Array[Vector2] = []
 	for i in line.size():
 		var prev := line[maxi(i - 1, 0)]
@@ -449,7 +470,7 @@ func _moat_pools(
 		var on_causeway := false
 		for c: Dictionary in causeways:
 			var at := Vector2(c["at"][0], c["at"][1])
-			if (line[i] + line[i + 1]).distance_to(at * 2.0) * 0.5 < float(c["width"]) * 0.5 + 3.5:
+			if (line[i] + line[i + 1]).distance_to(at * 2.0) * 0.5 < float(c["width"]) * 0.5 + 1.0:
 				on_causeway = true
 		if on_causeway:
 			continue
