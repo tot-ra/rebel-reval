@@ -49,7 +49,7 @@ Esc opens Settings ([`SETTINGS_AND_ACCESSIBILITY.md`](./SETTINGS_AND_ACCESSIBILI
 
 - **Local**: the full-screen version of the minimap (`WorldMapLocalView`).
 - **Fast travel**: the Reval district graph built from the active transition manifest (`WorldMapGraph`, `WorldMapFastTravelView`). Click or focus a district to travel through `DoorNavigator`.
-- **Global**: an Estonia basemap with distant locations from `GlobalMapCatalog`, kept off the district graph (developer-traversable placeholders).
+- **Global**: a full-screen, text-free Estonia basemap (`WorldMapGlobalView`, `GlobalMapCatalog`), kept off the district graph. Every campaign location is a round marker, including places not built yet (dim hollow rings that never travel). The name and a one-line blurb appear only while a marker is hovered or focused. Roads are inked curves, not dashed lines. Choosing a destination walks a small hooded traveler along the road with a gold trail (1.4-4 s) before `DoorNavigator` travel starts; headless runs skip the walk. The X button, `M` or Escape close the map. Verify: `--filter=test_world_map_overlay` and `--filter=test_global_map_catalog`.
 
 Doors and transitions: `DoorNavigator` autoload and `content/transitions/active_destinations.json` ([`MAP_AUTHORING.md`](../MAP_AUTHORING.md)).
 
@@ -73,4 +73,4 @@ godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_min
 ## Limits
 
 - `scenes/elements/gameplay_help_hud.tscn` and `scripts/ui/gameplay_help_hud.gd` are deprecated and mounted nowhere. Removal is tracked in the [code-health audit](../reports/code_health_audit_2026-10-07.md).
-- Global-map destinations are developer placeholders until their acts activate.
+- Global-map destinations are developer placeholders until their acts activate. Planned markers are positions only; promote one by removing its `planned` flag and adding neighbors and a gate in `GlobalMapCatalog`.

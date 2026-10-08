@@ -29,15 +29,12 @@ static func build(host: CanvasLayer, callbacks: Dictionary) -> Dictionary:
 
 	var panel := PanelContainer.new()
 	panel.name = "WorldMapPanel"
-	panel.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
-	panel.custom_minimum_size = PANEL_SIZE
-	panel.offset_left = -PANEL_SIZE.x * 0.5
-	panel.offset_top = -PANEL_SIZE.y * 0.5
-	panel.offset_right = PANEL_SIZE.x * 0.5
-	panel.offset_bottom = PANEL_SIZE.y * 0.5
+	# Full-screen: every map layer gets the whole viewport instead of a small card.
+	panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	root.add_child(panel)
 
 	var margin := MarginContainer.new()
+	margin.name = "Margin"
 	margin.add_theme_constant_override("margin_left", 20)
 	margin.add_theme_constant_override("margin_right", 20)
 	margin.add_theme_constant_override("margin_top", 16)
@@ -49,6 +46,7 @@ static func build(host: CanvasLayer, callbacks: Dictionary) -> Dictionary:
 	margin.add_child(layout)
 
 	var header := HBoxContainer.new()
+	header.name = "Header"
 	header.add_theme_constant_override("separation", 12)
 	layout.add_child(header)
 
@@ -131,6 +129,8 @@ static func build(host: CanvasLayer, callbacks: Dictionary) -> Dictionary:
 	layout.add_child(help)
 
 	return {
+		"margin": margin,
+		"header": header,
 		"title": title,
 		"subtitle": subtitle,
 		"local_view": local_view,
