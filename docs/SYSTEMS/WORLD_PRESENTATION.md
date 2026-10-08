@@ -14,7 +14,7 @@ Gameplay runs on a flat orthogonal 2D logic plane ([ADR 0002](../adr/0002-orthog
 | `MapView3D` | `scripts/map/view3d/map_view_3d.gd` | Builds geometry, materials, lighting from the compiled `MapDefinition` |
 | `MapViewAssembly`, `MapViewWorkerJob` | `scripts/map/view3d/` | Resumable, budgeted assembly queue with worker-thread jobs (WB-07) |
 | `MapViewStaticBatcher` | `scripts/map/view3d/map_view_static_batcher.gd` | Batches never-animated geometry into fewer draw calls |
-| `WorldHost`, `WorldHostStreamingDriver` | `scripts/world/` | Seamless additive streaming of contiguous outdoor locations ([ADR 0019](../adr/0019-seamless-contiguous-location-streaming.md), [`SEAMLESS_STREAMING_PLAN.md`](../SEAMLESS_STREAMING_PLAN.md)) |
+| `WorldHost`, `WorldHostStreamingDriver`, `WorldHostResidency` (pure residency policy), `WorldHostHandles` (stable-handle discovery) | `scripts/world/` | Seamless additive streaming of contiguous outdoor locations ([ADR 0019](../adr/0019-seamless-contiguous-location-streaming.md), [`SEAMLESS_STREAMING_PLAN.md`](../SEAMLESS_STREAMING_PLAN.md)) |
 | Chunking | — | [ADR 0010](../adr/0010-large-map-runtime-chunking.md), [`LARGE_MAP_CHUNKING_PLAN.md`](../LARGE_MAP_CHUNKING_PLAN.md) |
 
 ## Camera
