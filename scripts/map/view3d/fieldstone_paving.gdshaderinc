@@ -90,13 +90,26 @@ FieldStone compute_fieldstone(vec2 world_xz, float footprint) {
 	float joint = 0.025 + h0 * 0.03;
 	float edge_soft = 0.03 + footprint * 0.5;
 	float stone = smoothstep(joint, joint + edge_soft, inset);
-	// Dome: the shoulder rises over `shoulder` cells, the crown stays broad.
-	float shoulder = 0.34;
+	// Worn-flat stone: a narrow shoulder carries most of the rise right at the
+	// edge, so ~3/4 of the face reads flat; a faint broad crown keeps it from
+	// looking like a tile.
+	float shoulder = 0.11;
 	float t = clamp((inset - joint) / shoulder, 0.0, 1.0);
-	float dome = t * t * (3.0 - 2.0 * t);
+	float crown_span = 0.40;
+	float tc = clamp((inset - joint) / crown_span, 0.0, 1.0);
+	float edge_rise = 0.85;
+	float dome = edge_rise * t * t * (3.0 - 2.0 * t) + (1.0 - edge_rise) * tc * tc * (3.0 - 2.0 * tc);
 	// Some stones have sunk under cart wheels; others stand proud.
 	float top = 0.55 + h2 * 0.45;
-	vec2 grad_h = grad_inset * top * 6.0 * t * (1.0 - t) / shoulder;
+	vec2 grad_h = grad_inset * top * (
+		edge_rise * 6.0 * t * (1.0 - t) / shoulder
+		+ (1.0 - edge_rise) * 6.0 * tc * (1.0 - tc) / crown_span
+	);
+	// Sand joints are scoured below the stone feet: the bed dips toward the
+	// middle of the gap (inset 0) and rises to meet the stone at `joint`.
+	float sand_t = clamp(1.0 - inset / joint, 0.0, 1.0);
+	float sand_depth = 0.35;
+	grad_h += grad_inset * sand_depth * 2.0 * sand_t / joint;
 	vec2 slope = grad_h * (cobble_relief / cobble_cell_size) * detail;
 	float slope_len = length(slope);
 	slope *= min(1.0, 0.75 / max(slope_len, 1e-4));
@@ -136,7 +149,9 @@ FieldStone compute_fieldstone(vec2 world_xz, float footprint) {
 	stone_color = mix(mean_stone, stone_color, detail * 0.8 + 0.2);
 	float cover = mix(0.75, stone, detail);
 	FieldStone result;
-	result.albedo = mix(earth, stone_color, cover);
+	// The sunken joint sand sits in the stones' shadow: darken it toward the gap middle.
+	vec3 joint_earth = earth * (1.0 - 0.4 * sand_t * detail);
+	result.albedo = mix(joint_earth, stone_color, cover);
 	result.normal_xy = -slope;
 	result.roughness = mix(0.97, mix(0.88, 0.66, dome * top), cover);
 	result.stone = cover;
