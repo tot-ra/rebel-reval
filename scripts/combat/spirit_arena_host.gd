@@ -12,6 +12,12 @@ signal closed(outcome: Dictionary)
 
 const BAR_SIZE := Vector2(260.0, 14.0)
 const OBSERVE_BEAT_SEC := 2.4
+## Full-screen tint over the world while the arena is open (was an opaque 0.82 curtain).
+const DIM_ALPHA := 0.22
+## Height of the darker top and bottom frame bands, as a share of the screen height.
+const FRAME_TOP_SHARE := 0.34
+const FRAME_BOTTOM_SHARE := 0.5
+const FRAME_ALPHA := 0.88
 const SPELL_ACTIONS: Array[StringName] = [
 	&"spellforge_element_1",
 	&"spellforge_element_2",
@@ -360,10 +366,15 @@ func _refresh_bars() -> void:
 
 
 func _build_ui() -> void:
+	# A light spirit-world tint instead of an opaque curtain, so the staged scene behind the
+	# duel (almshouse hall, frozen street) stays readable (R-1334). Dark bands at the top and
+	# bottom keep the text legible where the UI sits; the middle stays clear for the actors.
 	_dim = ColorRect.new()
-	_dim.color = Color(0.05, 0.04, 0.10, 0.82)
+	_dim.color = Color(0.05, 0.04, 0.10, DIM_ALPHA)
 	_dim.set_anchors_preset(Control.PRESET_FULL_RECT)
 	add_child(_dim)
+	_add_frame_band(true)
+	_add_frame_band(false)
 	var column := VBoxContainer.new()
 	column.set_anchors_preset(Control.PRESET_FULL_RECT)
 	column.offset_left = 80.0
@@ -389,6 +400,28 @@ func _build_ui() -> void:
 	_hint_label = Label.new()
 	column.add_child(_hint_label)
 	_composure_bar = _make_bar(column, "Your composure", Color(0.40, 0.65, 0.85))
+
+
+func _add_frame_band(top: bool) -> void:
+	var gradient := Gradient.new()
+	var dark := Color(0.03, 0.02, 0.06, FRAME_ALPHA)
+	var clear := Color(dark, 0.0)
+	gradient.colors = PackedColorArray([dark, clear] if top else [clear, dark])
+	var texture := GradientTexture2D.new()
+	texture.gradient = gradient
+	texture.fill_from = Vector2(0.0, 0.0)
+	texture.fill_to = Vector2(0.0, 1.0)
+	texture.width = 4
+	texture.height = 64
+	var band := TextureRect.new()
+	band.texture = texture
+	band.stretch_mode = TextureRect.STRETCH_SCALE
+	band.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	band.anchor_left = 0.0
+	band.anchor_right = 1.0
+	band.anchor_top = 0.0 if top else 1.0 - FRAME_BOTTOM_SHARE
+	band.anchor_bottom = FRAME_TOP_SHARE if top else 1.0
+	add_child(band)
 
 
 func _make_bar(parent: Control, caption: String, color: Color) -> ProgressBar:

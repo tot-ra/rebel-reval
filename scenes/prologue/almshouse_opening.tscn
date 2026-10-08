@@ -1,6 +1,9 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://scripts/prologue/almshouse_opening.gd" id="1_opening"]
+[ext_resource type="PackedScene" path="res://scenes/prologue/almshouse_stage.tscn" id="2_stage"]
 
 [node name="AlmshouseOpening" type="Node"]
 script = ExtResource("1_opening")
+
+[node name="Stage" parent="." instance=ExtResource("2_stage")]
