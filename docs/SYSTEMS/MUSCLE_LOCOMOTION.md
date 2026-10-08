@@ -4,6 +4,30 @@ Status: planned; **research prototype only** (build-time Python under [`tools/re
 
 Scope: one creature description for biped, quadruped, bird and snake bodies, motion found by evolution instead of hand animation, baked to clips. Out of scope: runtime muscle simulation, ragdoll combat, 3D balance, flight, snakes (designed, not built).
 
+## Goal and motivation (read this first)
+
+This page and the prototype exist because of one problem and one idea, stated by the maintainer in the 2026-10-07/08 design session. Any task that touches procedural creatures must keep this goal.
+
+**The problem.** The game has a very small set of animals, people need many body types, and both need believable animation. AI mesh generators produce unreliable animals (wrong anatomy, flat legs), downloaded models are limited by licence and by missing clips, and hand animation does not scale to dozens of species, body types, speeds and situations. What is wanted is high realism, variety and animation: walk, run, attack, death and every other state, for people, mammals, birds and snakes. The sourcing research is in [`ANIMAL_3D_SOURCING.md`](../ANIMAL_3D_SOURCING.md): no free source offers realistic, species-diverse, rigged animals with a full clip set, so motion cannot simply be downloaded.
+
+**The idea (the maintainer's).** Describe any creature with a few physical constraints and let motion be found, not authored:
+- the skeleton is a graph of rigid bones joined at points; bones never stretch;
+- muscles are lines attached to bones; they can only contract or relax, with a minimum and maximum length, and cannot rotate;
+- extra mass can hang anywhere (a belly, armour, a heavy head), so the centre of gravity changes the gait;
+- a small network (or evolved controller) drives the sequence of muscle contractions; that sequence is the animation;
+- a species or a person is then only a set of bone lengths, muscle strengths and joint limits, and an individual differs by small changes of the same numbers;
+- birds need a different system (light bones, lift, goals such as staying aloft) but the same philosophy;
+- because motion is generated, it is fluid and reacts to the situation instead of being a fixed clip.
+
+**Situations the system must eventually handle** (the maintainer's list, in rough order):
+walking; running; uphill and downhill; stairs (the city has them); obstacles, including walking around them, stepping over, climbing, jumping and ducking under a low doorway; posture changes from armour weight, a belly, a dress (adds weight and hinders the legs), an obese body, a very tall or a very short body, a dwarf; keeping balance when shoved in the chest; sitting and standing; crowds, where people push, avoid and do not pass through each other; combat with arm strikes, wind-ups and blocking with a shield, including reacting to an attacker; a horse with and without a rider or load; the differences between cat, dog and horse and the tail as a balance organ; birds.
+
+**Demonstration first.** Before anything is integrated, the maintainer wants shaded 3D animations (GIFs) of the models walking, running and handling each case, so the idea can be iterated and judged. Integration into the game comes later and needs its own ADR and task (AGENTS.md scope rules).
+
+**Lessons so far (keep them).** A fitness of only "survive and match the speed" is satisfied by a lunging limp (one leg always ahead); structure (left-right symmetry by half a cycle) plus gait-shape costs fixes it. Controllers overfit to the training horizon and to mid-range bodies, so train on parameter extremes and on longer episodes. Dynamic similarity matters: joint damping and inertia must scale with size or dwarfs fail. Muscles as constant-moment-arm fixed tendons work; straight point to point lines on bent joints do not.
+
+Task spec and acceptance criteria: [`CM-01`](../tasks/creatures/CM-01_procedural_creature_locomotion.md).
+
 ## Idea
 
 1. **Skeleton** = a graph of rigid bones joined by hinge joints; bones never stretch.
@@ -19,6 +43,8 @@ Scope: one creature description for biped, quadruped, bird and snake bodies, mot
 Not a new idea: [Karl Sims, Evolved Virtual Creatures, 1994](https://karlsims.com/evolved-virtual-creatures.html) (evolved morphology and neural muscle control); [Geijtenbeek et al., Flexible Muscle-Based Locomotion for Bipedal Creatures, SIGGRAPH Asia 2013](https://www.cs.ubc.ca/~van/papers/2013-TOG-MuscleBasedBipeds/index.html) (muscle-driven bipeds, controllers adapt gait to target speed, also in the open-source [SCONE](https://joss.theoj.org/papers/10.21105/joss.01421.pdf)); [Lee et al., Scalable Muscle-actuated Human Simulation, SIGGRAPH 2019](https://mrl.snu.ac.kr/research/ProjectScalable/Page.htm) (346 muscles via learning); [Vaughan 2018](https://research.tees.ac.uk/en/publications/evolution-of-neural-networks-for-physically-simulated-evolved-vir/) (neuroevolution of quadrupeds). MuJoCo has a muscle actuator with force-length-velocity curves built in. What was not found is a ready game pipeline that uses one description for all body plans and bakes clips for an engine; that integration is the possible contribution.
 
 ## The prototype
+
+How to run it locally (macOS included), resume interrupted training and continue the 3D curriculum: [`tools/research/muscle_locomotion/README.md`](../../tools/research/muscle_locomotion/README.md).
 
 Files: `creature.py` (bone graph to MuJoCo XML), `presets.py` (parametric `biped` and `quadruped`; `Body` = size, mass multiplier, strength, load, belly), `sim.py` (simulation, controller, fitness), `evolve_general.py` (CMA-ES, one controller for a range of bodies and speeds), `evolve.py` (older single-body search), `render.py` (replay on named bodies, gallery PNG, baked clip JSON), `results/`.
 
@@ -44,7 +70,7 @@ Design points that mattered:
 
 | Creature | Result | Evidence |
 |---|---|---|
-| Biped, one generalist controller for many bodies (6 joints, 12 muscles, 247 parameters) | Six named bodies all walk 15 s with an alternating gait at about 2 Hz: normal (75 kg), dwarf (size 0.65), tall (1.12), heavy (mass x1.5), armoured (+20 % load), belly (+13 % mass forward). Speeds 0.82 to 1.07 m/s against a 1.04 m/s target. On 45 random test cases (bodies and speeds, 15 of them on bodies seen in training, 30 held out) 38 survive 15 s; all 7 failures are at the smallest size (0.6) or at the fastest speed | [`results/biped_general_gallery.png`](../../tools/research/muscle_locomotion/results/biped_general_gallery.png), `biped_general*_clip.json` |
+| Biped, one generalist controller for many bodies (6 joints, 12 muscles, symmetric: 127 parameters) | Trained on the narrow range (size 0.9 to 1.1, mass x0.9 to 1.2, load up to 10 %). All six named bodies stay up 15 s with legs that alternate and pass each other, but speed is below target: normal 0.84 m/s (target 1.04), dwarf 0.39 (0.84), tall 0.92 (1.11), heavy 0.69, armoured 0.72, belly 0.54. 29 of 30 held-out narrow-range cases survive 15 s. The earlier non-symmetric version tracked speed better but walked with one leg always ahead (`results/demo/biped_planar_bodies.gif`, kept as the before picture); the symmetric one is `biped_planar_symmetric_v1.gif`. Wide-range retraining with a higher speed weight was interrupted by a session restart | [`results/biped_general_gallery.png`](../../tools/research/muscle_locomotion/results/biped_general_gallery.png), `results/demo/*.gif`, `biped_general*_clip.json` |
 | Quadruped, same generalist method | Training queued; the earlier single-body quadruped (0.77 m/s, 8 s) used the previous code and was removed with its stale results | n/a |
 | Bird, snake, human sit/stand/fight | Not built | n/a |
 
@@ -62,7 +88,7 @@ The prototype was visually checked only through stick-figure filmstrips. There i
 ## Verification
 
 
-`python render.py results/biped_general.json --fr 0.35` replays the stored controller on six named bodies and must print `alive 1.00` for each, with speeds about 1.07, 0.87, 1.07, 0.82, 0.84, 0.86 m/s (normal, dwarf, tall, heavy, armoured, belly) and writes the gallery and clips. There are no automated tests yet.
+`python render.py results/biped_general.json --fr 0.35` replays the stored controller on six named bodies and must print `alive 1.00` for each, with speeds about 0.84, 0.39, 0.92, 0.69, 0.72, 0.54 m/s (normal, dwarf, tall, heavy, armoured, belly) and writes the gallery and clips. There are no automated tests yet.
 
 ## Pushing evolution toward natural gaits
 
