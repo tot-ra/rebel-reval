@@ -299,3 +299,17 @@ func test_hud_names_district_street_and_building() -> void:
 	assert_true(String(plan.location_at(inside)["street"]).begins_with("Viru"))
 	var lossi := plan.location_at(Vector2(-370, 175) / plan.metres_per_unit)
 	assert_eq(lossi["district"], "Toompea")
+
+
+func test_bridge_builds_weathered_planked_deck() -> void:
+	var plan := _plan()
+	var host := Node3D.new()
+	var root := CityBridges.build(plan, host)
+	assert_true(root.get_child_count() == plan.data["bridges"].size(), "one node per bridge")
+	for bridge_node: Node in root.get_children():
+		var planks := 0
+		for child: Node in bridge_node.get_children():
+			if child is MultiMeshInstance3D and child.name.begins_with("Planks"):
+				planks += (child as MultiMeshInstance3D).multimesh.instance_count
+		assert_true(planks > 3, "%s deck is individual planks" % bridge_node.name)
+	host.free()
