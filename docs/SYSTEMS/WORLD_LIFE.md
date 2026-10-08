@@ -41,6 +41,7 @@ On market days Lower Town stalls fill, a stall keeper (`StaticNpcActor`) appears
 - `scripts/npc.gd`: base logic NPC. The 3D runtime mirrors each logic body onto a character rig ([`CHARACTER_GENERATION.md`](../CHARACTER_GENERATION.md)).
 - `StaticNpcActor`: stationary person at a prop (stall, door, post).
 - `NpcPush` (`scripts/physics/npc_push.gd`): Kalev gently shoulders non-hostile NPCs aside; walls still block both.
+- `CrowdYield` (`scripts/physics/crowd_yield.gd`): the ambient crowd (census citizens, standing site people) sits on `CollisionLayers.CROWD`, which the player does not mask, so a crowd at a door never blocks Kalev. Instead each person eases up to 30 px sideways out of his way (preferring the side of his heading) and drifts back after. Seated people and residents at home do not move. Named NPCs keep `NpcPush`. Test: `tests/godot/test_collision_layers.gd`. No animation yet.
 
 ## Verify
 

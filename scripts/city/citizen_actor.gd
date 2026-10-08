@@ -43,6 +43,9 @@ var interiors: CityInteriors
 
 var _facing := Vector2.DOWN
 var _moving := false
+## Sideways give-way from the player (CrowdYield), on top of the scheduled spot.
+var _yield := Vector2.ZERO
+var _player: CharacterBody2D
 
 
 static func create(citizen_roster: CitizenRoster, resident: int, hours: Callable) -> CitizenActor:
@@ -60,7 +63,7 @@ static func create(citizen_roster: CitizenRoster, resident: int, hours: Callable
 
 
 func _ready() -> void:
-	CollisionLayers.apply_npc(self)
+	CollisionLayers.apply_crowd(self)
 	add_to_group(&"map_view_actor")
 	add_to_group(&"city_citizen")
 	var shape := CollisionShape2D.new()
@@ -95,6 +98,14 @@ func _physics_process(delta: float) -> void:
 				pos += facing * SIT_BACK
 	_set_solid(outdoors)
 	var logic := CityPlan.to_logic(pos)
+	# Only people in the open make way; residents shown at home keep their bed/bench.
+	if _player == null or not is_instance_valid(_player):
+		_player = CrowdYield.find_player(get_tree())
+	if _player != null and outdoors and not at_home:
+		_yield = CrowdYield.step_offset(_yield, logic, _player.global_position, _player.velocity, delta)
+	else:
+		_yield = _yield.move_toward(Vector2.ZERO, CrowdYield.EASE_SPEED * delta)
+	logic += _yield
 	velocity = (logic - global_position) / maxf(delta, 0.0001)
 	global_position = logic
 	_moving = moving and velocity.length_squared() > 4.0

@@ -95,6 +95,7 @@ var _swim := PlayerSwimState.new()
 
 func _ready() -> void:
 	CollisionLayers.apply_player(self)
+	add_to_group(CrowdYield.PLAYER_GROUP)
 	add_to_group(MeleeAttackResolver.DAMAGEABLE_GROUP)
 	_configure_combat_vitals()
 	_sync_resource_bars()

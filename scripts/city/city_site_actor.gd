@@ -22,6 +22,9 @@ var role := ""
 var pose: StringName = &"stand"
 var seat_h := 0.48
 var _facing := Vector2.DOWN
+var _home := Vector2.ZERO
+var _yield := Vector2.ZERO
+var _player: CharacterBody2D
 
 
 static func create(person: Dictionary) -> CitySiteActor:
@@ -41,14 +44,30 @@ static func create(person: Dictionary) -> CitySiteActor:
 
 func _ready() -> void:
 	add_to_group(&"map_view_actor")
+	_home = global_position
 	if pose != &"sit":
-		CollisionLayers.apply_npc(self)
+		CollisionLayers.apply_crowd(self)
 		var shape := CollisionShape2D.new()
 		var capsule := CapsuleShape2D.new()
 		capsule.radius = 9.0
 		capsule.height = 18.0
 		shape.shape = capsule
 		add_child(shape)
+
+
+## Standing people step aside for the player (CrowdYield) and return after.
+func _physics_process(delta: float) -> void:
+	if pose == &"sit":
+		return
+	if _player == null or not is_instance_valid(_player):
+		_player = CrowdYield.find_player(get_tree())
+		if _player == null:
+			return
+	var far := 2.0 * CrowdYield.YIELD_RADIUS
+	if _yield.is_zero_approx() and global_position.distance_to(_player.global_position) > far:
+		return
+	_yield = CrowdYield.step_offset(_yield, _home, _player.global_position, _player.velocity, delta)
+	global_position = _home + _yield
 
 
 ## Vertical offset of the rig (MapViewRuntimeActors): seats the sit pose on
