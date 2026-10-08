@@ -128,6 +128,8 @@ Decisions over `story/STORY.md`. Every promoted beat carries a confidence label.
 
 * **Reval** - **`attested`** 
   * The historical name for Tallinn, used by the Danish and German ruling classes and the Hanseatic League.
+* **Hareapea swim pools / mill-pond-like reach** - **`plausible composite`**
+  * The city plan's deeper bend and downstream bridge reaches are reversible gameplay bathymetry. Exact 1343 depths, a dam, and the location of a mill pond are **`unknown`** here; this does not attest a named mill or pond. No dam or mill is added. Runtime scope: [city stream](SYSTEMS/CITY_SEA.md#stream-moat-and-wake).
 * **Toompea (Domberg)** - **`attested`**
   * The upper town / castle hill of Reval, seat of the Danish viceroy.
 * **Harju County (Harjumaa)** - **`attested`**

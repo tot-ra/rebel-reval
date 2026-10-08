@@ -40,9 +40,15 @@ func test_stream_water_reaches_the_waterline() -> void:
 func test_no_tree_or_bush_stands_in_the_stream() -> void:
 	var world := _stream_world()
 	var plan := world.plan
-	var before := (plan.data["trees"] as Array).size()
+	var original := plan.data.duplicate(true)
 	world._clear_wet_trees()
-	assert_true((plan.data["trees"] as Array).size() < before, "trees were removed from the bed")
+	for key: String in ["trees", "bushes"]:
+		assert_eq(plan.data[key], original[key], "generator already excludes wet stream %s" % key)
+		# The runtime guard must still reject stale/imported wet placements.
+		plan.data[key].append([617.64, 294.69, "alder", 1.0])
+	world._clear_wet_trees()
+	for key: String in ["trees", "bushes"]:
+		assert_eq(plan.data[key], original[key], "safety net removes injected wet %s" % key)
 	for key: String in ["trees", "bushes"]:
 		for t: Array in plan.data[key]:
 			var p := Vector2(float(t[0]), float(t[1]))
@@ -61,4 +67,26 @@ func test_reeds_fringe_the_stream_banks() -> void:
 	assert_true(reeds != null and reeds.multimesh.instance_count > 200, "reed clumps on the stream")
 	assert_true(cattails != null and cattails.multimesh.instance_count > 40, "cattails on the stream")
 	plants.free()
+	world.free()
+
+
+func test_pools_swim_and_margins_wade_without_changing_thresholds() -> void:
+	var world := _stream_world()
+	var plan := world.plan
+	# Lower bend and reaches 18 m downstream of the Viru/Tartu crossings.
+	var pools := [Vector2(587.63, 155.78), Vector2(617.64, 294.69), Vector2(657.36, 441.63)]
+	for p: Vector2 in pools:
+		var depth := world.water_surface_at(p) - plan.walk_height(p)
+		assert_true(depth >= 1.6 and depth <= 2.05, "pool column %.3f at %s" % [depth, p])
+		var state := PlayerSwimState.new()
+		state.update(depth, false, 1.0 / 60.0)
+		assert_eq(state.medium, PlayerSwimState.Medium.SWIM, "feet leave bed in pool")
+		var margin := p + Vector2(7, 0)
+		var shallow := world.water_surface_at(margin) - plan.walk_height(margin)
+		assert_true(shallow > 0.12 and shallow < PlayerSwimState.SWIM_EXIT_DEPTH)
+		state.update(shallow, false, 1.0 / 60.0)
+		assert_eq(state.medium, PlayerSwimState.Medium.WADE, "swimmer can wade out")
+	var riffle := Vector2(682.5, 545)
+	var riffle_depth := world.water_surface_at(riffle) - plan.walk_height(riffle)
+	assert_true(riffle_depth > 0.9 and riffle_depth < PlayerSwimState.SWIM_ENTER_DEPTH)
 	world.free()

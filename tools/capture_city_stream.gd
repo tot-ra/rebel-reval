@@ -5,7 +5,7 @@ extends SceneTree
 ## wake (ripple sim impulses walked along the stream, as MapViewSwimmerPresenter
 ## feeds them). Needs a renderer:
 ##   tools/godot_render.sh --script tools/capture_city_stream.gd [-- --tag=<t>]
-## Output: build/stream/{bank_up,bank_low,bank_mouth,top,wake}_<t>.png
+## Output: build/stream/{bank_up,bank_low,bank_mouth,top,wake,pool_swim}_<t>.png
 
 const OUTPUT_DIR := "res://build/stream"
 const VIEWPORT_SIZE := Vector2i(1600, 900)
@@ -32,6 +32,7 @@ func _on_stream(plan: CityPlan, i: int, t: float) -> Dictionary:
 
 
 func _run() -> void:
+	await process_frame  # Register autoloads before loading the real player for the pool plate.
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT_DIR))
 	var plan := CityPlan.load_default()
 	var viewport := SubViewport.new()
@@ -103,7 +104,57 @@ func _run() -> void:
 				sim.add_moving_body(p, dir * speed, 0.7 * 0.9, 0.32 * 0.9)
 			await process_frame
 		_save(viewport, "wake")
+	await _capture_pool(viewport, view, camera)
+	viewport.queue_free()
+	for frame in 3:
+		await process_frame
 	quit(0)
+
+
+## Controlled traversal through the Viru pool with the real Player water state
+## and swimmer presenter, not a posed mesh or a manually forced SWIM enum.
+func _capture_pool(viewport: SubViewport, view: CityMapView, camera: Camera3D) -> void:
+	var player: CharacterBody2D = load("res://player.tscn").instantiate()
+	viewport.add_child(player)
+	player.set_process(false)
+	player.set_physics_process(false)
+	player.hide()
+	player.call("set_water_depth_provider", func(logic: Vector2) -> float:
+		return view.water_depth_at(CityPlan.to_world_xz(logic)))
+	var rig: SharedCharacterRig = load("res://assets/characters/kalev/kalev.tscn").instantiate()
+	view.add_child(rig)
+	rig.play_animation(&"idle")
+	var presenter: RefCounted = load(
+		"res://scripts/map/view3d/map_view_swimmer_presenter.gd"
+	).new()
+	var pool := Vector2(617.64, 294.69)
+	var direction := Vector2(-30, -110).normalized()
+	var speed := 1.5
+	player.velocity = CityPlan.to_logic(direction * speed)
+	rig.set_facing(direction)
+	var surface := view.world.water_surface_at(pool)
+	var eye := pool + direction.orthogonal() * 4.5 - direction * 3.0
+	camera.look_at_from_position(
+		Vector3(eye.x, surface + 2.5, eye.y),
+		Vector3(pool.x, surface + 0.1, pool.y), Vector3.UP)
+	for frame in 120:
+		var p := pool + direction * (float(frame) / 60.0 - 1.0) * speed
+		player.global_position = CityPlan.to_logic(p)
+		player.call("_update_water", 1.0 / 60.0)
+		view.sync_actor(rig, player.global_position)
+		presenter.call("apply", rig, player, view, Vector2.ZERO,
+			player.velocity.length(), 1.0 / 60.0)
+		if int(player.call("water_medium")) != PlayerSwimState.Medium.SWIM:
+			push_error("Viru pool traversal did not enter SWIM")
+			quit(1)
+			return
+		await process_frame
+	print("POOL_SWIM medium=%d depth=%.3f position=%s" % [
+		player.call("water_medium"), player.call("water_depth"), rig.position])
+	_save(viewport, "pool_swim")
+	rig.queue_free()
+	player.queue_free()
+	await process_frame
 
 
 func _save(viewport: SubViewport, name: String) -> void:

@@ -261,3 +261,7 @@ This file contains lessons specific to the Dev role.
 - Weather comparison captures must reset lingering puddle wetness between shots; setting clear weather alone does not make a dry baseline.
 
 - A clean shader compile log is not proof a complex FFT surface drew on macOS GL. Verify changed pixels against an opaque replacement mesh; additional global cloud samplers can silently hide the sea. Keep an A/B capture with the extra helper disabled before blaming depth or bathymetry.
+
+- City bathymetry probes must check `water_surface_at - walk_height`, not only surface minus ground: below sea datum the current water query returns sea level even on an elevated stream. Keep near-mouth swim pools upstream of that boundary, and preserve seeded land-use decisions by applying submerged-only bed lowering after countryside placement.
+- GPU capture cleanup diagnostics occur after images are saved: inspect the complete log rather than treating exit 0 plus a nonempty PNG as a clean run. Keep shutdown-only renderer leaks separate from runtime or shader-compilation failures.
+- Review images under `docs/reports/images/` are ignored by default; add a specifically requested new proof plate with an explicit `git add -f -- <plate>` rather than force-adding the whole reports directory.

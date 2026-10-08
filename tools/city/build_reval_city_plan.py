@@ -55,6 +55,66 @@ SPLAT_PX_PER_WU = 1.0
 # with FIELD_MUD_* in scripts/city/city_ground.gdshader and CityGrass.field_share.
 FIELD_MUD_LEVEL = 110
 
+# Shallow margins stay wadeable; local pools clear the 1.25 m swim threshold
+# even after the 2 m height grid is quantised and bilinearly sampled.
+STREAM_MARGIN_DEPTH_M = 0.9
+STREAM_THALWEG_DEPTH_M = 1.05
+
+
+def stream_pools(overlay):
+    """Deterministic chainage-based scour pools, not attested 1343 bathymetry."""
+    trace = overlay["harjapea"]["trace_m"]
+    chain = [0.0]
+    for a, b in zip(trace, trace[1:]):
+        chain.append(chain[-1] + math.dist(a, b))
+    pools = [("pool.lower_bend", chain[-2] - 16.0, 28.0, 1.8)]
+    for road in overlay["streets"]["extramural_roads"]:
+        if road["id"] not in ("road.viru", "road.tartu"):
+            continue
+        for a, b in zip(road["points_m"], road["points_m"][1:]):
+            for i, (c, d) in enumerate(zip(trace, trace[1:])):
+                q = seg_intersection(a, b, c, d)
+                if q is not None:
+                    # 18 m downstream keeps swimming clear of the walkable deck.
+                    pools.append(("pool." + road["id"].split(".")[1],
+                                  chain[i] + math.dist(c, q) + 18.0, 32.0, 2.0))
+    return chain, pools
+
+
+def stream_depth(distance, width, chainage, pools):
+    """Smooth lateral thalweg and compact longitudinal pools; no bank steps."""
+    centre = np.full_like(np.asarray(chainage, dtype=float), STREAM_THALWEG_DEPTH_M)
+    for _, at, radius, depth in pools:
+        t = np.clip(1.0 - np.abs(chainage - at) / radius, 0.0, 1.0)
+        centre = np.maximum(centre, STREAM_THALWEG_DEPTH_M +
+                            (depth - STREAM_THALWEG_DEPTH_M) * t * t * (3.0 - 2.0 * t))
+    t = np.clip(1.0 - (distance / (width * 0.5)) ** 2, 0.0, 1.0)
+    lateral = t * t * (3.0 - 2.0 * t)
+    return STREAM_MARGIN_DEPTH_M + (centre - STREAM_MARGIN_DEPTH_M) * lateral
+
+
+def stream_vegetation_exclusion(trace, widths, levels, h_at_m, mpu):
+    """Reject the wet banks as well as the bed, using final terrain and levels.
+
+    The 14 m carved bank envelope bounds the query; the waterline, not the
+    nominal bed width, decides. Check serialized positions with the runtime's
+    0.25-unit clearance plus height quantisation tolerance.
+    """
+    def wet(p):
+        px, py = (round(v / mpu, 2) * mpu for v in p)
+        for i, (a, b) in enumerate(zip(trace, trace[1:])):
+            dx, dy = b[0] - a[0], b[1] - a[1]
+            t = min(max(((px - a[0]) * dx + (py - a[1]) * dy) / (dx * dx + dy * dy), 0), 1)
+            half = (widths[i] + (widths[i + 1] - widths[i]) * t) * 0.5
+            if math.hypot(px - a[0] - dx * t, py - a[1] - dy * t) > half + 14.0:
+                continue
+            surface = levels[i] + (levels[i + 1] - levels[i]) * t
+            if h_at_m(px, py) < surface + 0.26:
+                return True
+        return False
+    return wet
+
+
 # ---------------------------------------------------------------------------
 # small geometry kit
 # ---------------------------------------------------------------------------
@@ -698,14 +758,18 @@ def build(args) -> dict:
     river_d = np.full(X.shape, 1e9)
     river_w = np.zeros(X.shape)
     river_s = np.zeros(X.shape)
+    river_chain, pools = stream_pools(overlay)
+    river_along = np.zeros(X.shape)
     for i in range(len(trace) - 1):
         dd, t = dist_point_seg(X, Y, trace[i][0], trace[i][1], trace[i + 1][0], trace[i + 1][1])
         closer = dd < river_d
         river_d = np.where(closer, dd, river_d)
         river_w = np.where(closer, hj["width_m"][i] + (hj["width_m"][i + 1] - hj["width_m"][i]) * t, river_w)
         river_s = np.where(closer, river_level[i] + (river_level[i + 1] - river_level[i]) * t, river_s)
+        river_along = np.where(closer, river_chain[i] + (river_chain[i + 1] - river_chain[i]) * t, river_along)
     bank = np.clip((river_d - river_w * 0.5) / 14.0, 0.0, 1.0)
-    river_bed = river_s - 0.9
+    river_bed = river_s - STREAM_MARGIN_DEPTH_M
+    river_lowering = stream_depth(river_d, river_w, river_along, pools) - STREAM_MARGIN_DEPTH_M
     asl = np.where(river_d < river_w * 0.5 + 14.0, river_bed + (asl - river_bed) * bank, asl)
 
     # Moat (ditch) outside the S/E curtain.
@@ -1216,8 +1280,10 @@ def build(args) -> dict:
     # ---------------- vegetation and fields ----------------
     # Site buildings and their open reserves keep trees and shrubs off.
     occupied_by = buildings + [{"footprint": poly} for so in site_out for poly in so["footprints"] + [so["reserve"]] if poly]
-    trees, fields, pastures, woods, farmsteads, orchards = plant(overlay, occupied_by, streets, circuit_poly, toompea_edge, trace, h_at_m, mpu, x0, y0, x1, y1)
-    bushes = shrubs(overlay, occupied_by, streets, circuit_poly, toompea_edge, trace, anchors, h_at_m, mpu, x0, y0, x1, y1)
+    wet_stream = stream_vegetation_exclusion(
+        trace, hj["width_m"], [(v - sea_asl) / mpu for v in river_level], h_at_m, mpu)
+    trees, fields, pastures, woods, farmsteads, orchards = plant(overlay, occupied_by, streets, circuit_poly, toompea_edge, trace, h_at_m, mpu, x0, y0, x1, y1, wet_stream)
+    bushes = shrubs(overlay, occupied_by, streets, circuit_poly, toompea_edge, trace, anchors, h_at_m, mpu, x0, y0, x1, y1, wet_stream)
     bushes = drop_inside([[tuple(q) for q in f["polygon"]] for f in fields + pastures + orchards], bushes)
 
     for s in streets:
@@ -1270,6 +1336,11 @@ def build(args) -> dict:
         "points_of_interest": pois,
         "flows": overlay["flows"],
     }
+
+    # Deepen only the submerged bed after land-use/bridge placement. Its wet
+    # margins do not move, and underwater slopes must not reshuffle countryside
+    # RNG decisions (and thereby rename unrelated stable field/pasture IDs).
+    height_wu -= river_lowering / mpu
 
     # ---------------- rasters ----------------
     q = np.round(height_wu * 100).astype(np.int64) + HEIGHT_OFFSET_CM
@@ -1431,7 +1502,7 @@ def footprint_cells(ring, cell, margin):
     return out
 
 
-def plant(overlay, buildings, streets, circuit_poly, toompea_edge, river, h_at_m, mpu, x0, y0, x1, y1):
+def plant(overlay, buildings, streets, circuit_poly, toompea_edge, river, h_at_m, mpu, x0, y0, x1, y1, wet_stream):
     """Deterministic trees and strip fields. Trees avoid footprints and streets."""
     rng = random.Random(4013)
     occupied = {}
@@ -1469,8 +1540,12 @@ def plant(overlay, buildings, streets, circuit_poly, toompea_edge, river, h_at_m
     trees = []
 
     def add(p, species, scale):
-        trees.append([round(p[0] / mpu, 2), round(p[1] / mpu, 2), species, round(scale, 2)])
+        # Reserve the candidate even when wet: rejection must not reshuffle the
+        # seeded countryside sequence and rename unrelated fields/pastures.
         occupied[key(p)] = True
+        # All countryside wood/orchard placements use this same guarded sink.
+        if not wet_stream(p):
+            trees.append([round(p[0] / mpu, 2), round(p[1] / mpu, 2), species, round(scale, 2)])
 
     # Yard orchards behind the street front inside the walls.
     for _ in range(1600):
@@ -2099,7 +2174,7 @@ def seg_intersection(p1, p2, p3, p4):
     return None
 
 
-def shrubs(overlay, buildings, streets, circuit_poly, toompea_edge, river, anchors, h_at_m, mpu, x0, y0, x1, y1):
+def shrubs(overlay, buildings, streets, circuit_poly, toompea_edge, river, anchors, h_at_m, mpu, x0, y0, x1, y1, wet_stream):
     """Hedges, yard shrubs, wall-foot scrub, stream thickets and field edges."""
     rng = random.Random(1344)
     cell = 2.5
@@ -2122,6 +2197,8 @@ def shrubs(overlay, buildings, streets, circuit_poly, toompea_edge, river, ancho
         if k in occupied or h_at_m(*p) < 0.5:
             return
         occupied.add(k)
+        if wet_stream(p):
+            return
         out.append([round(p[0] / mpu, 2), round(p[1] / mpu, 2), species, round(scale, 2)])
 
     yard = ["elder", "raspberry", "hazel_shrub", "dog_rose", "guelder_rose"]

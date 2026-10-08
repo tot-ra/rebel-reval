@@ -22,6 +22,30 @@ class CityPlanBuilderTest(unittest.TestCase):
         # Same inputs, same bytes: the committed plan is what the builder makes.
         self.assertEqual(builder.write_outputs(self.result, check=True), 0)
 
+    def test_stream_depth_is_deterministic_with_wadeable_margins(self):
+        overlay = json.loads(builder.OVERLAY_PATH.read_text())
+        chain, pools = builder.stream_pools(overlay)
+        self.assertEqual((chain, pools), builder.stream_pools(overlay))
+        self.assertEqual({p[0] for p in pools},
+                         {"pool.lower_bend", "pool.viru", "pool.tartu"})
+        for _, at, _, peak in pools:
+            self.assertAlmostEqual(float(builder.stream_depth(0.0, 10.0, at, pools)), peak)
+            margin = float(builder.stream_depth(5.0, 10.0, at, pools))
+            self.assertLess(margin, 1.05)
+            self.assertGreater(margin, 0.12)
+        self.assertAlmostEqual(float(builder.stream_depth(0.0, 10.0, 0.0, pools)), 1.05)
+        self.assertEqual(float(builder.stream_depth(8.0, 10.0, pools[0][1], pools)), 0.9)
+
+    def test_stream_planting_excludes_wet_banks_not_just_nominal_bed(self):
+        # A 10 m bed has submerged banks out to 8 m. Width-only exclusion fails.
+        wet = builder.stream_vegetation_exclusion(
+            [(0, 0), (0, 100)], [10, 10], [3, 3],
+            lambda x, y: 2.0 if abs(x) < 8 else 4.0, 1.0)
+        self.assertTrue(wet((0, 50)))
+        self.assertTrue(wet((7, 50)))
+        self.assertFalse(wet((9, 50)))
+        self.assertFalse(wet((50, 50)))
+
     def test_every_gate_sits_on_the_wall_and_its_street(self):
         anchors = {a["ref"]: a["at"] for a in self.plan["circuit"] if a["ref"]}
         for gate in self.plan["gates"]:
