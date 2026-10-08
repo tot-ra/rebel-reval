@@ -232,6 +232,13 @@ def main(argv: list[str] | None = None) -> int:
     root = Path(args.root)
     path = root / args.manifest
     if not path.exists():
+        # ADR 0031 retired every reval_outdoor member, and build_world_layout.gd
+        # writes no manifest for an empty group. Absence is only valid while the
+        # plan's streamed table is empty too.
+        plan_path = root / PLAN
+        if plan_path.exists() and not plan_members(plan_path.read_text(encoding="utf-8")):
+            print(f"ok: {PLAN} streams no reval_outdoor members; no manifest expected")
+            return 0
         print(f"missing {args.manifest}; run tools/build_world_layout.gd", file=sys.stderr)
         return 1
     manifest = json.loads(path.read_text(encoding="utf-8"))

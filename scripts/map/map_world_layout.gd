@@ -37,28 +37,21 @@ const SEAM_STATUS_BLOCKED := "blocked"
 const EXPLICIT_REASON_TRAVEL := "travel_alignment"
 const EXPLICIT_REASON_OUTSIDE := "outside_group"
 const EXPLICIT_REASON_UNPAIRED := "unpaired"
-## The accepted `reval_outdoor` membership (docs/SEAMLESS_STREAMING_PLAN.md,
-## R-977 / R-1016). Interiors and every world.* map stay explicit transitions.
-## scene_id is the DoorNavigator destination id the transitions use (`to=`).
-const REVAL_OUTDOOR_MEMBERS := [
-	{"location_id": &"archbishops_garden", "scene_id": &"reval_archbishops_garden"},
-	{"location_id": &"lower_town_slice", "scene_id": &"reval_east"},
-	{"location_id": &"market_civic_quarter", "scene_id": &"reval_center"},
-	{"location_id": &"monastery_quarter", "scene_id": &"reval_monastery"},
-	{"location_id": &"north_quarter", "scene_id": &"reval_north"},
-	{"location_id": &"reval_harbor_east", "scene_id": &"reval_harbor_east"},
-	{"location_id": &"reval_harbor_north", "scene_id": &"reval_harbor_north"},
-	{"location_id": &"south_quarter", "scene_id": &"reval_south"},
-	{"location_id": &"toompea_quarter", "scene_id": &"reval_toompea"},
-	{"location_id": &"viru_gate_foreland", "scene_id": &"viru_gate_foreland"},
-]
-## Named group registry. `reval_hinterland` is declared with no members until UF-15
-## (R-1133) fills it, so the tool accepts it without writing an empty manifest.
+## The `reval_outdoor` membership (docs/SEAMLESS_STREAMING_PLAN.md). Retired by
+## ADR 0031: the seamless `reval_city` scene replaced the ten district maps, and
+## their .rrmap sources were removed (88b01050). CityTravel.REDIRECTS sends the old
+## district scene ids into the city. The group stays declared, empty, so its id and
+## diagnostics remain a stable API. Row shape when non-empty:
+## {"location_id": &"<map id>", "scene_id": &"<DoorNavigator destination id>"}.
+const REVAL_OUTDOOR_MEMBERS := []
+## Named group registry. A group declared with no members (`reval_outdoor` after
+## ADR 0031, `reval_hinterland` until UF-15 / R-1133) is accepted by the tools
+## without writing an empty manifest.
 const WORLD_GROUPS := [
 	{
 		"id": &"reval_outdoor",
 		"members": REVAL_OUTDOOR_MEMBERS,
-		"root_location_id": &"lower_town_slice",
+		"root_location_id": &"",
 		"manifest_path": REVAL_OUTDOOR_MANIFEST_PATH,
 	},
 	{
@@ -162,14 +155,23 @@ static func validate_registry(
 		var shift: Variant = transform.get("translate_cells", null)
 		var quarters: Variant = transform.get("rotate_quarters", null)
 		if not (shift is Array and (shift as Array).size() == 2 and quarters is int):
-			errors.append("%s bridge %s needs integer rotate_quarters and translate_cells" % [DIAG_BRIDGE_TRANSFORM_INVALID, label])
+			errors.append(
+				"%s bridge %s needs integer rotate_quarters and translate_cells"
+				% [DIAG_BRIDGE_TRANSFORM_INVALID, label]
+			)
 		else:
 			for component in shift:
 				if not component is int:
-					errors.append("%s bridge %s translate_cells must be integers" % [DIAG_BRIDGE_TRANSFORM_INVALID, label])
+					errors.append(
+						"%s bridge %s translate_cells must be integers"
+						% [DIAG_BRIDGE_TRANSFORM_INVALID, label]
+					)
 					break
 			if int(quarters) < 0 or int(quarters) > 3:
-				errors.append("%s bridge %s rotate_quarters must be 0..3" % [DIAG_BRIDGE_TRANSFORM_INVALID, label])
+				errors.append(
+					"%s bridge %s rotate_quarters must be 0..3"
+					% [DIAG_BRIDGE_TRANSFORM_INVALID, label]
+				)
 	errors.sort()
 	return errors
 
@@ -195,23 +197,36 @@ static func validate_bridges(
 		var transition_a := _transition_by_id(map_a, StringName(bridge.get("transition_a", "")))
 		var transition_b := _transition_by_id(map_b, StringName(bridge.get("transition_b", "")))
 		if transition_a.is_empty() or transition_b.is_empty():
-			errors.append("%s bridge %s names a map or transition that does not exist" % [DIAG_BRIDGE_ENDPOINT_UNKNOWN, label])
+			errors.append(
+				"%s bridge %s names a map or transition that does not exist"
+				% [DIAG_BRIDGE_ENDPOINT_UNKNOWN, label]
+			)
 			continue
+		var far_a := String(transition_a.get("destination_scene_id", ""))
+		var far_b := String(transition_b.get("destination_scene_id", ""))
 		if (
-			String(transition_a.get("destination_scene_id", "")) != String(scene_ids.get(map_b.map_id, ""))
-			or String(transition_b.get("destination_scene_id", "")) != String(scene_ids.get(map_a.map_id, ""))
+			far_a != String(scene_ids.get(map_b.map_id, ""))
+			or far_b != String(scene_ids.get(map_a.map_id, ""))
 		):
-			errors.append("%s bridge %s: the far side does not lead back" % [DIAG_BRIDGE_NOT_RECIPROCAL, label])
+			errors.append(
+				"%s bridge %s: the far side does not lead back" % [DIAG_BRIDGE_NOT_RECIPROCAL, label]
+			)
 			continue
 		var side_a := MapAlignmentMath.transition_side(map_a, transition_a)
 		var side_b := MapAlignmentMath.transition_side(map_b, transition_b)
 		var quarters := int((bridge.get("transform", {}) as Dictionary).get("rotate_quarters", 0))
 		if OPPOSITE_SIDES.get(side_a, &"") != rotate_side(side_b, quarters):
-			errors.append("%s bridge %s: sides %s and %s are not opposite after rotation" % [DIAG_BRIDGE_SIDES_NOT_OPPOSITE, label, side_a, side_b])
+			errors.append(
+				"%s bridge %s: sides %s and %s are not opposite after rotation"
+				% [DIAG_BRIDGE_SIDES_NOT_OPPOSITE, label, side_a, side_b]
+			)
 		var span_a := MapAlignmentMath.seam_span_cells(map_a, transition_a, side_a)
 		var span_b := MapAlignmentMath.seam_span_cells(map_b, transition_b, side_b)
 		if not is_equal_approx(span_a, span_b):
-			errors.append("%s bridge %s: spans %s and %s differ" % [DIAG_BRIDGE_WIDTH_MISMATCH, label, span_a, span_b])
+			errors.append(
+				"%s bridge %s: spans %s and %s differ"
+				% [DIAG_BRIDGE_WIDTH_MISMATCH, label, span_a, span_b]
+			)
 	errors.sort()
 	return errors
 

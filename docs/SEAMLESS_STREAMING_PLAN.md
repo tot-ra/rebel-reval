@@ -30,18 +30,19 @@ manifest for this group. Current `alignment=travel` marks on some district edges
 **not** override this list. R-980 must convert those edges to reciprocal physical
 seams before they can stream.
 
+**Retired ([ADR 0031](adr/0031-continuous-reval-city-plan.md)).** The ten district maps
+(`lower_town_slice`, `market_civic_quarter`, `monastery_quarter`, `north_quarter`,
+`south_quarter`, `toompea_quarter`, `archbishops_garden`, `viru_gate_foreland`,
+`reval_harbor_north`, `reval_harbor_east`) were replaced by the one seamless
+`reval_city` scene and their `.rrmap` sources were removed. `REVAL_OUTDOOR_MEMBERS` is
+empty, `content/world/reval_outdoor_layout.json` is not built, the seam-continuity grace
+list is empty, and `CityTravel.REDIRECTS` routes the old district scene ids into the
+city. The group id stays declared so its diagnostics remain a stable API. The table
+below is intentionally empty: `tools/verify_world_layout.py` reads it as the expected
+membership.
+
 | Map id | Source | Catalog `active` | Why it streams |
 |---|---|---|---|
-| `lower_town_slice` | `lower_town_slice.rrmap` | true | Playable Lower Town yard and streets |
-| `market_civic_quarter` | `market_civic_quarter.rrmap` | false | Central forum, adjacent to Lower Town |
-| `monastery_quarter` | `monastery_quarter.rrmap` | false | Pikk/Lai precinct between civic and north wards |
-| `north_quarter` | `north_quarter.rrmap` | false | Merchant ward to the Coastal Gate |
-| `south_quarter` | `south_quarter.rrmap` | false | Knights District / Karja approach |
-| `toompea_quarter` | `toompea_quarter.rrmap` | false | Walled Upper Town plateau |
-| `archbishops_garden` | `archbishops_garden.rrmap` | false | Western Toompea plateau, same hill |
-| `viru_gate_foreland` | `viru_gate_foreland.rrmap` | false | Eastern gate and Pirita approach |
-| `reval_harbor_north` | `reval_harbor_north.rrmap` | false | Coastal Gate landing |
-| `reval_harbor_east` | `reval_harbor_east.rrmap` | false | Kalamaja shore, adjacent landing |
 
 Planned addition ([ADR 0029](adr/0029-natural-reval-maps-and-larger-coast.md), no source file
 yet, outside the 29-map count): planned: `reval_harbor_sand_gate`, a shore map adjacent to

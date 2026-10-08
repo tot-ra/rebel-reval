@@ -41,15 +41,23 @@ const NON_FRONTAGE_KINDS: Array[StringName] = [
 
 func _init() -> void:
 	var budget := load_budget()
-	var compiled := MapWorldLayout.compile_members()
+	var group := MapWorldLayout.group_entry(MapWorldLayout.DEFAULT_WORLD_GROUP_ID)
 	var failures: Array[String] = []
-	for error in compiled["errors"]:
-		failures.append(str(error))
-	var definitions: Array[MapDefinition] = compiled["definitions"]
-	var layout := MapWorldLayout.build(
-		definitions, &"lower_town_slice", MapWorldLayout.DEFAULT_WORLD_GROUP_ID
-	)
-	var violations := verify_layout(definitions, layout, budget)
+	var layout := {"seams": []}
+	var violations: Array[Dictionary] = []
+	if (group["members"] as Array).is_empty():
+		# ADR 0031 retired the reval_outdoor members. With no seams, apply_grace below
+		# still fails on any leftover grace row, so the budget cannot rot silently.
+		print("world group %s declares no members; no seams to compare" % group["id"])
+	else:
+		var compiled := MapWorldLayout.compile_members(group["members"])
+		for error in compiled["errors"]:
+			failures.append(str(error))
+		var definitions: Array[MapDefinition] = compiled["definitions"]
+		layout = MapWorldLayout.build(
+			definitions, StringName(group["root_location_id"]), StringName(group["id"])
+		)
+		violations = verify_layout(definitions, layout, budget)
 	var report := apply_grace(violations, layout["seams"], budget)
 	print_table(layout["seams"], violations, report)
 	failures.append_array(report["failures"])

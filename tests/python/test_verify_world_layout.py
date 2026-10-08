@@ -104,10 +104,18 @@ class VerifyWorldLayoutTest(unittest.TestCase):
     def test_fixture_passes(self) -> None:
         self.assertEqual(verify(self.manifest, self.root), [])
 
-    def test_checked_in_manifest_passes(self) -> None:
+    def test_checked_in_state_passes(self) -> None:
+        # ADR 0031 retired reval_outdoor: no manifest, and the plan streams nothing.
+        self.assertFalse((ROOT / DEFAULT_MANIFEST).exists())
         self.assertEqual(main(["--manifest", DEFAULT_MANIFEST]), 0)
-        manifest = json.loads((ROOT / DEFAULT_MANIFEST).read_text(encoding="utf-8"))
-        self.assertEqual(len(manifest["locations"]), 10)
+
+    def test_missing_manifest_fails_while_plan_streams_members(self) -> None:
+        (self.root / "docs").mkdir()
+        (self.root / "docs/SEAMLESS_STREAMING_PLAN.md").write_text(
+            "### Streamed: `world_group_id = reval_outdoor`\n| `map_a` | a |\n### Interiors: y\n",
+            encoding="utf-8",
+        )
+        self.assertEqual(main(["--manifest", "missing.json", "--root", str(self.root)]), 1)
 
     def test_tampered_body_fails_fingerprint(self) -> None:
         self.manifest["locations"][1]["origin_cell"] = [11, 0]
