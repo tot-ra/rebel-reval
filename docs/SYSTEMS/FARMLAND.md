@@ -50,7 +50,7 @@ Sources: [`harbour-and-shoreline.md`](../../history/dossiers/topography/harbour-
 
 - **Bridges.** Plan key `bridges` (`bridge.viru`, `bridge.tartu`): where an extramural road crosses the Hareapea the generator records the crossing and `CityBridges` builds a plank deck on pile trestles. `CityPlan.bridge_deck_height` makes the deck walkable (ramped between bank heights) and keeps Kalev out of the swim state. No 1343 bridge is attested: a reversible reconstruction. The Viru (Narva) road now bends inland to cross the stream instead of running into the bay. The stream is graded (2026-10-08): plan `harjapea.surfaces` gives the water level per trace point (valley floor minus 1.6 m, never rising downstream, 0 at the mouth), the bed is 0.9 m under it and the banks blend over 14 m, so the deck meets the banks instead of hanging over a 12 m gorge. Stream segments feed `water_surface_at` like the moat pools. Test: `test_stream_is_graded_and_bridges_sit_on_the_banks`.
 - **Moat.** The ditch now runs up the east curtain from the Viru gate to the Sand gate as well as round the south (canon: new irrigated moat on the southern and eastern sections; Ülemiste water rights only 1345, so the water is a presentation choice, see `docs/CANON.md`).
-- **Not built, by canon.** The four-tower Viru barbican and round foregate towers are 1370s to 1460s (`history/dossiers/topography/walls-gates-towers.md`: "Viru: present/unfinished, no foregates or barbicans in April 1343"). The round flanking towers once drawn at Viru were removed (2026-10-08): the gate is one plain stone gate house with a low shed roof (`state: unfinished`). The east moat now reaches the causeway dam at the gate.
+- **Not built, by canon.** The four-tower Viru barbican and round foregate towers are 1370s to 1460s (`history/dossiers/topography/walls-gates-towers.md`: "Viru: present/unfinished, no foregates or barbicans in April 1343"). Viru is a plain gate house between two slim round drums (`w` 6.5, cone `roof_h` 6.5; maintainer direction 2026-10-08, the four-tower barbican was withdrawn the same day, so `plan.barbicans` is empty).
 
 ## Verify
 
@@ -69,3 +69,9 @@ tools/godot_render.sh --script tools/capture_city_farmland.gd -- --only=field_ry
 - Crop stage uses fixed day-of-year anchors, not weather.
 - Outbuildings use the shared log and thatch kit: no yard fences, wells, hay or manure clutter, and no dedicated model art pass the dossier asks for (log variation, corner joinery, smoke-darkened doors).
 - Outbuildings have no interiors.
+
+
+## Moat (east and south ditch)
+
+`tools/city/build_reval_city_plan.py` rounds the ditch line (`smooth_ditch`, kept 11.5 m from the curtain), cuts it with a long soft bank profile, grades the splat from grass through wet earth to mud, and cuts the ditch unbroken: every road crosses it on a timber bridge (`bridges` entries with `kind: "moat"`, `bridge.moat.viru|karja|harju`), not an earth dam.
+`CityWorld3D` draws the water with `city_moat_water.gdshader` (murky silt colour, depth-buffer edge fade) on a ribbon `CityPlan.MOAT_WATER_HALF_FACTOR` wide, so it meets the sloping bank. `CityMoatPlants` adds reed and cattail clumps rooted in the shallows plus floating lily pads and duckweed. `CityPlan.in_moat` keeps trees, shrubs and fauna (horses at the gates) out of the ditch. Review shots: `tools/capture_city_farmland.gd --only=viru_aerial,moat_reeds,bridge_moat_viru_side`. Limits: no flow, plants are static, bridge piles are the Hareapea trestle kit.

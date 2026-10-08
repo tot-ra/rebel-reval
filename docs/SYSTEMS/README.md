@@ -14,9 +14,12 @@ One page per implemented or planned feature. Each page opens with a `Status:` li
 | [Factions, relationships, pressure, prices](./FACTIONS_AND_ECONOMY.md) | Implemented |
 | [World life](./WORLD_LIFE.md) | Implemented in Lower Town; Padise and public events unwired |
 | [Citizens: census, ledger, deep cards](./CITIZENS.md) | Implemented: census residents live in the seamless city with timetables, blank bodies and a click-for-info panel |
+| [Households: furnished houses and life at home](./HOUSEHOLDS.md) | Implemented in the seamless city: furniture by household, rooms, hearth and firewood day, people at home; no player use of furniture |
+| [Gate garrisons and patrols](./GATE_GARRISONS.md) | Implemented: census residents hold every gate by shift and walk the town and wall patrols, in their own clothes with a hat and spear |
 | [World presentation (3D view)](./WORLD_PRESENTATION.md) | Implemented |
 | [Seamless Reval city (1343)](./SEAMLESS_CITY.md) | Playable preview (ADR 0031); no quests or saves yet |
 | [Landmark sites in the seamless city](./CITY_LANDMARK_SITES.md) | Implemented for Raekoja plats (ADR 0032); other sites planned |
+| [City sea, shore and harbour life](./CITY_SEA.md) | Implemented (FFT sea with storm swell, beach relief, shore stones, boardable boats, fish) |
 | [Farmland, pastures and woods](./FARMLAND.md) | Implemented (fields, crops by date, pastures, woods; no far-field LOD yet) |
 | [Living vegetation](./LIVING_VEGETATION.md) | Implemented (seasons, weather, leaf fall on hits) |
 | [Vegetation realism (grass, grain fields, trees)](./VEGETATION_REALISM.md) | In progress: benchmark and budgets (R-1320) and procedural vegetation textures (R-1329) implemented; later phases planned |
@@ -28,6 +31,7 @@ One page per implemented or planned feature. Each page opens with a `Status:` li
 | [Magic](./MAGIC.md) | Design contract; runtime foundation and cookbook implemented |
 | [Hammer combat and night missions](./COMBAT_NIGHT.md) | Design contract |
 | [Living City](./LIVING_CITY.md) | Design contract; state only |
+| [Living World routines](./LIVING_WORLD.md) | Implemented (R-1344): hourly civilian schedule |
 | [NATURAL aspects](./NATURAL.md) | Design contract; state and display only |
 | [Hingepuu psyche](./PSYCHE.md) | Design contract; state and display only |
 | [Spirit dialogue combat](./SPIRIT_DIALOGUE.md) | Planned (ADR 0033); nothing implemented |

@@ -643,7 +643,24 @@ def build(args) -> dict:
     # lowers the post-1840 harbour fill near the shore.
     blend = np.clip((shore_d - 60.0) / 140.0, 0.0, 1.0)
     land_h = np.where(~in_sea, land_h * (1 - blend) + asl * blend, land_h)
+    # Beach berms and runnels parallel to the water, hummocks of drift sand: the
+    # strand is not a plane (docs/SYSTEMS/CITY_SEA.md). Nothing within 1.5 m of the
+    # waterline, so the shore stays where the overlay put it.
+    strand = smoothstep01(shore_d, 1.5, 8.0) * (1.0 - smoothstep01(shore_d, 28.0, 55.0))
+    berm = 0.26 * np.sin(shore_d / 5.2 + terrain_relief.lattice_noise(X, Y, 70.0, 9201) * 4.0)
+    hummock = (terrain_relief.lattice_noise(X, Y, 16.0, 9202) - 0.5) * 0.55
+    land_h = np.where(~in_sea, land_h + (berm + hummock) * strand, land_h)
+    # Seabed: shore-parallel sandbars and troughs, boulder fields and undulation, so
+    # the water has real depth variety (bars are broken along the shore by noise).
     seabed = sea_asl - np.minimum(0.6 + shore_d * 0.035, 7.0)
+    ss = terrain_relief.smoothstep
+    bar_a = 0.55 * np.exp(-(((shore_d - 32.0) / 9.0) ** 2)) * ss(0.42, 0.68, terrain_relief.lattice_noise(X, Y, 90.0, 9101))
+    bar_b = 0.45 * np.exp(-(((shore_d - 85.0) / 13.0) ** 2)) * ss(0.4, 0.65, terrain_relief.lattice_noise(X, Y, 130.0, 9102))
+    trough = -0.4 * np.exp(-(((shore_d - 56.0) / 10.0) ** 2))
+    swell = (terrain_relief.lattice_noise(X, Y, 38.0, 9103) - 0.5) * 0.7 + (terrain_relief.lattice_noise(X, Y, 14.0, 9104) - 0.5) * 0.25
+    boulders = ss(0.6, 0.8, terrain_relief.lattice_noise(X, Y, 60.0, 9105)) * ss(0.5, 0.85, terrain_relief.lattice_noise(X, Y, 5.0, 9106)) * 0.75 * (shore_d < 170.0)
+    seabed = seabed + (bar_a + bar_b + trough + swell + boulders) * ss(5.0, 24.0, shore_d)
+    seabed = np.minimum(seabed, sea_asl - 0.14)  # a bar may shoal the water, never dry it
     asl = np.where(in_sea, seabed, land_h)
 
     # Hareapea stream channel. The DEM is a smooth plate that falls ~16 m from the
@@ -690,15 +707,18 @@ def build(args) -> dict:
 
     # Moat (ditch) outside the S/E curtain.
     mo = overlay["moat"]
-    moat_line = offset_outward(resample([a["p"] for a in anchors[mo["from_anchor"] : mo["to_anchor"] + 1]], 6.0), circuit_poly, mo["offset_m"])
+    wall_line = [a["p"] for a in anchors[mo["from_anchor"] : mo["to_anchor"] + 1]]
+    moat_line = offset_outward(resample(wall_line, 6.0), circuit_poly, mo["offset_m"])
+    # Rounded corners, kept clear of the curtain foot (ditch inner edge >= 3 m out).
+    moat_line = resample(smooth_ditch(moat_line, wall_line, mo["offset_m"] - 1.5), 6.0)
     moat_d = np.full(X.shape, 1e9)
     for i in range(len(moat_line) - 1):
         dd, _ = dist_point_seg(X, Y, moat_line[i][0], moat_line[i][1], moat_line[i + 1][0], moat_line[i + 1][1])
         moat_d = np.minimum(moat_d, dd)
     half = mo["width_m"] * 0.5
-    cut = np.clip(1.0 - (moat_d - half * 0.55) / (half * 0.9), 0.0, 1.0)
+    cut = np.clip(1.0 - (moat_d - half * 0.5) / (half * 1.7), 0.0, 1.0)
     cut = cut * cut * (3 - 2 * cut)
-    # Earthen causeways carry every road over the ditch: no cut near a road.
+    # Every road crosses the ditch: remember where, for the moat bridges.
     causeways = []
     for r in overlay["streets"]["extramural_roads"]:
         pts = [tuple(q) for q in r["points_m"]]
@@ -706,12 +726,9 @@ def build(args) -> dict:
             for i in range(len(moat_line) - 1):
                 q = seg_intersection(pts[k], pts[k + 1], moat_line[i], moat_line[i + 1])
                 if q is not None:
-                    causeways.append((q, math.atan2(pts[k + 1][1] - pts[k][1], pts[k + 1][0] - pts[k][0]), r.get("causeway_width_m", r["width_m"])))
-    keep = np.zeros(X.shape)
-    for q, _, w_ in causeways:
-        dq = np.hypot(X - q[0], Y - q[1])
-        keep = np.maximum(keep, np.clip(1.0 - (dq - (w_ * 0.5 + 2.0)) / 4.0, 0.0, 1.0))
-    asl = asl - cut * mo["depth_m"] * (1.0 - keep)
+                    causeways.append((q, math.atan2(pts[k + 1][1] - pts[k][1], pts[k + 1][0] - pts[k][0]), r.get("causeway_width_m", r["width_m"]), r["id"]))
+    # Roads cross the ditch on timber bridges (below), so the ditch is cut unbroken.
+    asl = asl - cut * mo["depth_m"]
 
     # Final light smoothing outside the cliff band keeps the ground from stair-stepping.
     cliff_band = (sd > -np.maximum(sw, 1) - 2) & (sd < 3)
@@ -775,6 +792,19 @@ def build(args) -> dict:
                     "ha": round(ha, 3), "hb": round(hb, 3),
                     "confidence": "plausible composite; no 1343 bridge is attested, a plank-deck timber bridge is a reversible reconstruction",
                 })
+    # Moat bridges: a plank deck on trestles carries each road over the ditch.
+    for q, ang, _w, road_id in causeways:
+        road = next(r for r in overlay["streets"]["extramural_roads"] if r["id"] == road_id)
+        length = mo["width_m"] * 2.0 + 4.0
+        c, s_ = math.cos(ang), math.sin(ang)
+        bridges.append({
+            "id": "bridge.moat.%s" % road["id"].split(".")[1], "road": road["id"], "kind": "moat",
+            "at": [round(q[0] / mpu, 2), round(q[1] / mpu, 2)], "angle": round(ang, 4),
+            "length": round(length / mpu, 2), "width": round((road["width_m"] + 1.5) / mpu, 2),
+            "ha": round(h_at_m(q[0] - c * length / 2, q[1] - s_ * length / 2), 3),
+            "hb": round(h_at_m(q[0] + c * length / 2, q[1] + s_ * length / 2), 3),
+            "confidence": "plausible composite; the ditch is crossed by a timber plank bridge (reversible reconstruction), no 1343 bridge is attested",
+        })
 
     # ---------------- buildings ----------------
     excluded_b = set(overlay["excluded_osm_buildings"])
@@ -953,8 +983,8 @@ def build(args) -> dict:
                 continue
             placed.append((px_, py_))
             ang = math.atan2(foot[1] - py_, foot[0] - px_) + math.pi / 2 + srng.uniform(-0.25, 0.25)
-            L = srng.uniform(7, 12) if sub["kind"] != "fisher" else srng.uniform(5, 8)
-            D = srng.uniform(5, 7)
+            L = srng.uniform(7, 12) if sub["kind"] != "fisher" else srng.uniform(4.2, 9.5)
+            D = srng.uniform(5, 7) if sub["kind"] != "fisher" else srng.uniform(3.4, 5.4)
             ring = [(px_ + math.cos(ang) * sx * L / 2 - math.sin(ang) * sy * D / 2, py_ + math.sin(ang) * sx * L / 2 + math.cos(ang) * sy * D / 2) for sx, sy in ((-1, -1), (1, -1), (1, 1), (-1, 1))]
             # irregular: nudge one corner so houses are not perfect rectangles
             ci = srng.randrange(4)
@@ -968,8 +998,8 @@ def build(args) -> dict:
             buildings.append({
                 "id": hid, "kind": "house", "name_1343": "", "landmark_id": "", "confidence": sub["confidence"],
                 "footprint": [[round(p[0] / mpu, 3), round(p[1] / mpu, 3)] for p in ring],
-                "base_h": round(hmin, 3), "base_span": round(hmax - hmin, 3), "wall_h": round(srng.uniform(2.6, 3.4) / mpu, 3),
-                "roof": "thatch", "roof_pitch_deg": 52, "ridge_angle": round(ang, 4),
+                "base_h": round(hmin, 3), "base_span": round(hmax - hmin, 3), "wall_h": round((srng.uniform(2.6, 3.4) if sub["kind"] != "fisher" else srng.uniform(1.7, 2.4)) / mpu, 3),
+                "roof": "thatch", "roof_pitch_deg": 52 if sub["kind"] != "fisher" else srng.choice([34, 38, 42, 48]), "ridge_angle": round(ang, 4),
                 "material": "log", "street_id": seg[2]["id"],
                 "door": [round(door[0] / mpu, 3), round(door[1] / mpu, 3), round(door[2], 4)] if door else None,
                 "enterable": bool(door), "tower_h": 0.0,
@@ -1063,6 +1093,7 @@ def build(args) -> dict:
                     "confidence": spec["confidence"], "at": [round(p[0] / mpu, 3), round(p[1] / mpu, 3)],
                     "angle": round(along, 4), "w": round(spec["w"] / mpu, 3), "d": round(spec["d"] / mpu, 3),
                     "h": round(spec["h"] / mpu, 3), "base_h": round(h_at_m(*p), 3),
+                    **({"roof_h": round(spec["roof_h"] / mpu, 3)} if "roof_h" in spec else {}),
                 })
         for bb in overlay.get("barbicans", []):
             if bb["gate"] != g["id"]:
@@ -1191,8 +1222,7 @@ def build(args) -> dict:
         "splat": {"file": "splat.png", "px_per_unit": SPLAT_PX_PER_WU, "channels": ["paving", "packed_earth", "sand", "mud"]},
         "shoreline": wu(shore),
         "harjapea": {"points": wu(trace), "widths": [round(w_ / mpu, 3) for w_ in hj["width_m"]], "surface": round((min(river_level) - sea_asl) / mpu, 3), "surfaces": [round((v_ - sea_asl) / mpu, 3) for v_ in river_level], "confidence": hj["confidence"]},
-        "moat": {"points": wu(moat_line), "width": round(mo["width_m"] / mpu, 3), "wet_fraction": mo["wet_fraction"], "confidence": mo["confidence"],
-                 "causeways": [{"at": [round(q[0] / mpu, 3), round(q[1] / mpu, 3)], "angle": round(a_, 4), "width": round((w_ + 1.5) / mpu, 3)} for q, a_, w_ in causeways]},
+        "moat": {"points": wu(moat_line), "width": round(mo["width_m"] / mpu, 3), "wet_fraction": mo["wet_fraction"], "confidence": mo["confidence"]},
         "toompea_edge": wu(toompea_edge),
         "forum": {"id": overlay["forum"]["id"], "name_1343": overlay["forum"]["name_1343"], "polygon": wu(overlay["forum"]["polygon_m"]), "confidence": overlay["forum"]["confidence"]},
         "circuit": [{"at": [round(a["p"][0] / mpu, 3), round(a["p"][1] / mpu, 3)], "state": a["state"], "ref": a["ref"], "tower": a["tower"], "osm": a["osm"]} for a in anchors],
@@ -1889,7 +1919,7 @@ def harbour_features(buildings, h_at_m, nearest_street, mpu):
     harbour["crane"] = {"id": "crane.coastal", "at": [round(mid[0] / mpu, 2), round(mid[1] / mpu, 2)], "angle": round(-math.pi / 2, 4), "confidence": "plausible composite (one reversible treadwheel crane; no Reval-specific attestation)"}
     taken.append(((mid[0], mid[1]), 5.0))
     for i in range(3):
-        place("bldg.coastal.cargoshed%d" % i, "cargo_shed", (228.0 + (i - 1) * 24, mid[1] + 11 + hrng.uniform(-2, 3)), 5.0, (228.0, mid[1]), conf + "; plank cargo shed", shore_dir=0.04)
+        place("bldg.coastal.cargoshed%d" % i, "cargo_shed", (228.0 + (i - 1) * 24, mid[1] + 14 + hrng.uniform(-2, 3)), 9.0, (228.0, mid[1]), conf + "; plank cargo shed", shore_dir=0.04, min_h=0.45)
     for i in range(6):
         harbour["stacks"].append({"id": "stack.coastal.%d" % i, "kind": ["barrel", "barrel", "bale", "crate"][i % 4], "at": [round(mid[0] + hrng.uniform(-14, 14), 2), round(mid[1] + hrng.uniform(1, 7), 2)]})
     # ---- Kalamaja fishing shore: three beach decks, three net yards, sheds, boats ----
@@ -1917,7 +1947,16 @@ def harbour_features(buildings, h_at_m, nearest_street, mpu):
         k = i % 3
         base = shore_march(h_at_m, xs[k] + hrng.uniform(-30, 30), -740.0, 0.0, -1.0)
         p = (base[0] + hrng.uniform(-4, 4), base[1] + hrng.uniform(0.5, 3.0))
-        harbour["boats"].append({"id": "boat.kalamaja.%d" % i, "at": [round(p[0] / mpu, 2), round(p[1] / mpu, 2)], "angle": round(hrng.uniform(-0.5, 0.5) + math.pi / 2, 3), "lift": round(max(h_at_m(*p), 0.0), 3)})
+        harbour["boats"].append({"id": "boat.kalamaja.%d" % i, "type": "skiff" if i % 3 == 2 else "clinker", "at": [round(p[0] / mpu, 2), round(p[1] / mpu, 2)], "angle": round(hrng.uniform(-0.5, 0.5) + math.pi / 2, 3), "lift": round(max(h_at_m(*p), 0.0), 3)})
+    # Boats turned over for tarring, on trestles by the boatwright ground and a net yard.
+    for i, (bx, by) in enumerate(((bw[0] + 12, bw[1] + 4), (xs[1] + 22, shore_march(h_at_m, xs[1] + 22, -740.0, 0.0, -1.0)[1] + 9))):
+        harbour["boats"].append({"id": "boat.kalamaja.up%d" % i, "type": "overturned", "at": [round(bx / mpu, 2), round(by / mpu, 2)], "angle": round(hrng.uniform(-0.3, 0.3), 3), "lift": round(max(h_at_m(bx, by), 0.5), 3)})
+    # Cargo lighters at the jetty tips of the merchant landing: cargo goes by lighter
+    # and cart through the shallows to the cogs in the roadstead.
+    for name, j in (("a", decks[0]), ("b", decks[1])):
+        tip = (j["at"][0] * mpu, j["at"][1] * mpu - j["length"] * mpu / 2 - 7.0)
+        for n in range(2 if name == "a" else 1):
+            harbour["boats"].append({"id": "lighter.coastal.%s%d" % (name, n), "type": "lighter", "at": [round(tip[0] / mpu + n * 10.0 - 4.0, 2), round(tip[1] / mpu - n * 8.0 - 3.0, 2)], "angle": round(math.pi / 2 + hrng.uniform(-0.2, 0.2), 3), "lift": 0.0})
     return out_b, decks, harbour
 
 
@@ -2068,6 +2107,39 @@ def chain_parts(parts):
         chain = chain + q[1:] if at_end else q[:-1] + chain
     # Ramps start at the lower end.
     return chain
+
+
+def smooth_ditch(line, wall_pts, keep_m, passes=3, window=4):
+    """Round the corners of a ditch centre line (moving average along it, end
+    points fixed), then push it back out to keep_m from the wall so rounding
+    never pulls the ditch into the curtain foot."""
+    pts = [list(q) for q in line]
+    for _ in range(passes):
+        nxt = [pts[0][:]]
+        for i in range(1, len(pts) - 1):
+            lo, hi = max(0, i - window), min(len(pts) - 1, i + window)
+            k = min(i - lo, hi - i)
+            seg = pts[i - k : i + k + 1]
+            nxt.append([sum(q[0] for q in seg) / len(seg), sum(q[1] for q in seg) / len(seg)])
+        nxt.append(pts[-1][:])
+        pts = nxt
+    wall = [tuple(w) for w in wall_pts]
+    for _ in range(4):
+        for i, q in enumerate(pts):
+            best = None
+            for k in range(len(wall) - 1):
+                (ax, ay), (bx, by) = wall[k], wall[k + 1]
+                dx, dy = bx - ax, by - ay
+                t = max(0.0, min(1.0, ((q[0] - ax) * dx + (q[1] - ay) * dy) / max(dx * dx + dy * dy, 1e-9)))
+                cx, cy = ax + dx * t, ay + dy * t
+                d = math.hypot(q[0] - cx, q[1] - cy)
+                if best is None or d < best[0]:
+                    best = (d, cx, cy)
+            d, cx, cy = best
+            if d < keep_m and d > 1e-6:
+                f = keep_m / d
+                pts[i] = [cx + (q[0] - cx) * f, cy + (q[1] - cy) * f]
+    return [tuple(q) for q in pts]
 
 
 def offset_outward(line, poly, dist):
@@ -2223,7 +2295,9 @@ def render_splat(plan, mpu):
     draws["sand"].line([T(p) for p in shore], fill=255, width=sand_w, joint="curve")
     hj = plan["harjapea"]
     draws["mud"].line([T(p) for p in hj["points"]], fill=255, width=int(30 / mpu), joint="curve")
-    draws["mud"].line([T(p) for p in plan["moat"]["points"]], fill=200, width=int(plan["moat"]["width"] * 1.3), joint="curve")
+    # Ditch banks grade from grass through wet earth to mud at the waterline.
+    for scale_, fill_ in ((2.5, 70), (1.9, 130), (1.4, 190), (1.0, 245)):
+        draws["mud"].line([T(p) for p in plan["moat"]["points"]], fill=fill_, width=int(plan["moat"]["width"] * scale_), joint="curve")
     # Trampled ground: a light wash over the whole walled town, a strong band
     # around every house (eaves drip, doorstep, cart turn).
     circuit = [T(a["at"]) for a in plan["circuit"]]

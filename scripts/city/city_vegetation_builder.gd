@@ -133,6 +133,8 @@ static func build(plan: CityPlan, parent: Node3D) -> Node3D:
 	for t: Array in entries:
 		var species := StringName(t[2])
 		var p := Vector2(t[0], t[1])
+		if plan.in_moat(p, 1.0):
+			continue  # nothing roots in the ditch water
 		if not species_scales.has(species):
 			species_scales[species] = species_scale(species, plan.metres_per_unit)
 		var bucket := [species, Vector2i(floori(p.x / CHUNK), floori(p.y / CHUNK))]
@@ -219,6 +221,8 @@ static func build_bushes(plan: CityPlan, root: Node3D) -> void:
 		if SHRUB_AS_TREE.has(species):
 			continue
 		var p := Vector2(t[0], t[1])
+		if plan.in_moat(p, 1.0):
+			continue
 		var key := [species, Vector2i(floori(p.x / CHUNK), floori(p.y / CHUNK))]
 		if not buckets.has(key):
 			buckets[key] = {"transforms": [] as Array[Transform3D], "colors": [] as Array[Color]}

@@ -1,18 +1,33 @@
 extends SceneTree
 
-## Reproducible P0-103 / P0-114 tree silhouette sheet. Renders every catalog species
-## from procedural geometry only (no map scatter or gameplay placement).
+## Reproducible tree reference sheets from procedural geometry only (no map
+## scatter or gameplay placement). Three sheets:
+##   1. the P0-103 / P0-114 catalog sheet (every species, silhouette distance)
+##   2. VEGR-6 (R-1324) silhouettes of the Weber-Penn species at true relative height
+##   3. VEGR-6 close-ups of the same species, where crown clusters and the
+##      branch structure under them have to be readable
+##
 ## Run with a rendering-capable Godot process (no --headless):
-## tools/godot_render.sh \
-##   --script tools/capture_tree_reference_sheet.gd
+## tools/godot_render.sh --script tools/capture_tree_reference_sheet.gd
 
 const TreeSpecies := preload("res://scripts/map/view3d/map_view_tree_species.gd")
+const TreeSkeleton := preload("res://scripts/map/view3d/tree_skeleton_weber_penn.gd")
 
-const OUTPUT := "res://docs/reports/images/fauna/p0_103_tree_reference_sheet.png"
-const VIEWPORT_SIZE := Vector2i(2000, 1400)
-const COLUMNS := 5
-const CELL_SIZE := Vector2(3.2, 4.2)
-const DISPLAY_TARGET := 3.6
+const CATALOG_OUTPUT := "res://docs/reports/images/fauna/p0_103_tree_reference_sheet.png"
+const SILHOUETTE_OUTPUT := "res://docs/reports/images/vegetation/r1324_tree_silhouettes_after.png"
+const CLOSEUP_OUTPUT := "res://docs/reports/images/vegetation/r1324_tree_closeups_after.png"
+## Species that VEGR-6 grows from a Weber-Penn preset, in the order of the spec.
+const PRESET_SPECIES: Array[StringName] = [
+	&"pine",
+	&"spruce",
+	&"birch",
+	&"oak",
+	&"alder",
+	&"aspen",
+	&"juniper",
+	&"linden",
+	&"maple",
+]
 
 
 func _initialize() -> void:
@@ -20,49 +35,115 @@ func _initialize() -> void:
 
 
 func _run() -> void:
-	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT.get_base_dir()))
+	# Catalog sheet: every species normalised to the same display height, so the
+	# comparison is of shape, not of size.
+	var failed := await _capture(
+		CATALOG_OUTPUT,
+		TreeSpecies.ALL_SPECIES,
+		5,
+		Vector2i(2000, 1400),
+		Vector2(3.4, 4.6),
+		16.8,
+		0.0
+	)
+	# VEGR-6 silhouettes: true relative heights (a pine towers over a juniper).
+	failed = (
+		await _capture(
+			SILHOUETTE_OUTPUT,
+			PRESET_SPECIES,
+			5,
+			Vector2i(2000, 900),
+			Vector2(3.4, 5.0),
+			12.2,
+			1.0
+		)
+		or failed
+	)
+	# VEGR-6 close-ups: the crown fills the cell, clusters and limbs readable.
+	failed = (
+		await _capture(
+			CLOSEUP_OUTPUT,
+			PRESET_SPECIES,
+			3,
+			Vector2i(1800, 1800),
+			Vector2(4.6, 5.0),
+			16.6,
+			0.0
+		)
+		or failed
+	)
+	quit(1 if failed else 0)
+
+
+## `natural_scale` 0 normalises every tree to one display height (shape
+## comparison), 1 keeps the species' own proportions (size comparison).
+func _capture(
+	output: String,
+	species_list: Array,
+	columns: int,
+	viewport_size: Vector2i,
+	cell: Vector2,
+	camera_size: float,
+	natural_scale: float
+) -> bool:
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(output.get_base_dir()))
 	var viewport := SubViewport.new()
-	viewport.size = VIEWPORT_SIZE
+	viewport.size = viewport_size
 	viewport.own_world_3d = true
 	viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	root.add_child(viewport)
 	viewport.add_child(_build_stage())
 
-	for index in TreeSpecies.ALL_SPECIES.size():
-		var species: StringName = TreeSpecies.ALL_SPECIES[index]
-		var column := index % COLUMNS
-		var row := index / COLUMNS
+	var rows := int(ceil(float(species_list.size()) / float(columns)))
+	var tallest := 0.0
+	for species: StringName in species_list:
+		tallest = maxf(tallest, _display_height(species))
+	for index in species_list.size():
+		var species: StringName = species_list[index]
+		var column := index % columns
+		var row := index / columns
 		var origin := Vector3(
-			(float(column) - float(COLUMNS - 1) * 0.5) * CELL_SIZE.x,
-			(float((TreeSpecies.ALL_SPECIES.size() - 1) / COLUMNS) * 0.5 - float(row)) * CELL_SIZE.y,
+			(float(column) - float(columns - 1) * 0.5) * cell.x,
+			# Leaves room under the bottom row for its labels.
+			(float(rows - 1) * 0.5 - float(row)) * cell.y - cell.y * 0.12,
 			0.0
 		)
-		viewport.add_child(_tree_entry(species, origin))
+		# Normalised sheets give every tree the same drawn height; natural sheets
+		# scale the whole row against the tallest species in the list.
+		var target := lerpf(cell.y * 0.78, cell.y * 0.86 * _display_height(species) / tallest,
+			natural_scale)
+		viewport.add_child(_tree_entry(species, origin, target))
 
 	var camera := Camera3D.new()
 	camera.projection = Camera3D.PROJECTION_ORTHOGONAL
-	camera.size = 16.5
-	camera.position = Vector3(0.0, 1.2, 24.0)
+	camera.size = camera_size
+	camera.position = Vector3(0.0, 0.0, 24.0)
 	viewport.add_child(camera)
 	camera.current = true
-	camera.look_at(Vector3(0.0, 1.0, 0.0), Vector3.UP)
+	camera.look_at(Vector3(0.0, 0.0, 0.0), Vector3.UP)
 
 	for _frame in 10:
 		await process_frame
-	var error := viewport.get_texture().get_image().save_png(ProjectSettings.globalize_path(OUTPUT))
-	if error != OK:
-		push_error("Could not save tree reference sheet %s: %s" % [OUTPUT, error_string(error)])
-		quit(1)
-		return
-	print("P0-103 tree reference sheet: %s" % OUTPUT)
+	var error := viewport.get_texture().get_image().save_png(
+		ProjectSettings.globalize_path(output)
+	)
 	viewport.queue_free()
-	quit(0)
+	if error != OK:
+		push_error("Could not save tree sheet %s: %s" % [output, error_string(error)])
+		return true
+	print("Tree reference sheet: %s" % output)
+	return false
 
 
-func _tree_entry(species: StringName, origin: Vector3) -> Node3D:
+## Drawn height of a species before sheet scaling, in shared-mesh units.
+func _display_height(species: StringName) -> float:
+	var bounds := MapViewMeshBuilderPrimitives.tree_canopy_mesh(species).get_aabb()
+	return maxf(bounds.end.y * TreeSpecies.instance_scale(TreeSpecies.SIZE_MEDIUM, 0.5).y, 0.01)
+
+
+func _tree_entry(species: StringName, origin: Vector3, display_target: float) -> Node3D:
 	var root_3d := Node3D.new()
 	root_3d.name = String(species).to_pascal_case()
-	root_3d.position = origin
 
 	var scale_vec := TreeSpecies.instance_scale(TreeSpecies.SIZE_MEDIUM, 0.5)
 	var wood_mesh := MapViewMeshBuilderPrimitives.tree_wood_mesh(species)
@@ -90,20 +171,24 @@ func _tree_entry(species: StringName, origin: Vector3) -> Node3D:
 		fruit.scale = scale_vec
 		root_3d.add_child(fruit)
 
-	var bounds := canopy_mesh.get_aabb()
-	var largest_axis := maxf(bounds.size.x, maxf(bounds.size.y, bounds.size.z)) * scale_vec.y
-	var visual_scale := DISPLAY_TARGET / maxf(largest_axis, 0.01)
+	# Scale the whole tree to the cell, then stand it on the cell's baseline.
+	# (The old sheet overwrote position.y here, which stacked every row on one line.)
+	var bounds := canopy_mesh.get_aabb().merge(wood_mesh.get_aabb())
+	var drawn_height := maxf(bounds.end.y * scale_vec.y, 0.01)
+	var visual_scale := display_target / drawn_height
 	root_3d.scale = Vector3.ONE * visual_scale
-	root_3d.position.y = 0.2 - bounds.position.y * visual_scale * scale_vec.y
+	root_3d.position = origin + Vector3.UP * (-bounds.position.y * scale_vec.y * visual_scale)
 
 	var label := Label3D.new()
 	label.name = "Label"
 	label.text = "tree.%s" % species
-	label.font_size = 32
-	label.modulate = Color("e9e2d2")
+	label.font_size = 30
+	label.modulate = Color("e9e2d2") if TreeSkeleton.has_preset(species) else Color("9aa39f")
 	label.outline_size = 5
 	label.outline_modulate = Color("202527")
-	label.position = Vector3(0.0, -0.35, 0.12)
+	# Label sits just under the trunk base, in sheet space (undo the tree scale).
+	label.scale = Vector3.ONE / visual_scale
+	label.position = Vector3(0.0, -0.3 / visual_scale, 0.12 / visual_scale)
 	label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	label.no_depth_test = true
 	root_3d.add_child(label)

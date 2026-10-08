@@ -20,12 +20,18 @@ const BRIDGE_DECK_LIFT := 0.12
 ## Streets further than this (beyond their edge) are not named on the HUD.
 const STREET_LABEL_RADIUS := 6.0
 
+## Moat water ribbon half-width as a share of the ditch width: wide enough to
+## meet the bank where the sloping ditch wall rises through the waterline.
+const MOAT_WATER_HALF_FACTOR := 0.65
+
 static var _cached: CityPlan
 
 var data: Dictionary = {}
 var bounds := Rect2()
 var metres_per_unit := 0.87
 var buildings: Array = []
+## Optional (Vector2) -> float deck height of a moving platform (boats, CityShips), NAN off it.
+var dynamic_deck := Callable()
 var streets: Array = []
 ## Landmark sites (ADR 0032) with their compiled placement.
 var sites: Array[CitySite] = []
@@ -39,6 +45,8 @@ var _building_index: Dictionary = {}
 var _building_ids: Dictionary = {}
 var _footprints: Array[PackedVector2Array] = []
 var _height_texture: ImageTexture
+var _moat_line := PackedVector2Array()
+var _moat_bounds := Rect2()
 
 
 static func load_default() -> CityPlan:
@@ -178,6 +186,10 @@ func walk_height(world_xz: Vector2) -> float:
 	var deck := bridge_deck_height(world_xz)
 	if not is_nan(deck):
 		return deck
+	if dynamic_deck.is_valid():
+		deck = float(dynamic_deck.call(world_xz))
+		if not is_nan(deck):
+			return deck
 	for site in sites:
 		var f := site.floor_at(world_xz)
 		if not f.is_empty():
@@ -201,6 +213,29 @@ func bridge_deck_height(world_xz: Vector2) -> float:
 		if absf(u) <= half and absf(v) <= float(b["width"]) * 0.5:
 			return bridge_deck_at(b, (u + half) / float(b["length"]))
 	return NAN
+
+
+## True within `margin` of the water's edge in the moat ditch (trees, animals and
+## buildings keep out; bridge decks over the ditch are not "in" it).
+func in_moat(world_xz: Vector2, margin: float = 0.0) -> bool:
+	var moat: Dictionary = data.get("moat", {})
+	if moat.is_empty():
+		return false
+	if _moat_line.is_empty():
+		_moat_line = CityPlan.points(moat["points"])
+		_moat_bounds = Rect2(_moat_line[0], Vector2.ZERO)
+		for q in _moat_line:
+			_moat_bounds = _moat_bounds.expand(q)
+	var reach := float(moat["width"]) * MOAT_WATER_HALF_FACTOR + margin
+	if not _moat_bounds.grow(reach).has_point(world_xz):
+		return false
+	for i in _moat_line.size() - 1:
+		var a := _moat_line[i]
+		var ab := _moat_line[i + 1] - a
+		var t := clampf((world_xz - a).dot(ab) / maxf(ab.length_squared(), 0.001), 0.0, 1.0)
+		if world_xz.distance_to(a + ab * t) < reach:
+			return true
+	return false
 
 
 static func bridge_deck_at(bridge: Dictionary, t: float) -> float:

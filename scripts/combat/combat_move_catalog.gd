@@ -35,6 +35,8 @@ const TEEN_CHARACTER_IDS: Array[StringName] = [&"char.apprentice"]
 
 const ROLL_FORWARD := &"roll_forward"
 const ROLL_BACKWARD := &"roll_backward"
+const ROLL_LEFT := &"roll_left"
+const ROLL_RIGHT := &"roll_right"
 const CAST_PROJECTILE := &"cast_projectile"
 const CAST_SELF := &"cast_self"
 const CAST_AREA := &"cast_area"
@@ -109,6 +111,8 @@ const MOVE_SETS: Dictionary = {
 const ACTION_MOVES: Dictionary = {
 	ROLL_FORWARD: {"id": ROLL_FORWARD, "duration_sec": 0.62},
 	ROLL_BACKWARD: {"id": ROLL_BACKWARD, "duration_sec": 0.62},
+	ROLL_LEFT: {"id": ROLL_LEFT, "duration_sec": 0.62},
+	ROLL_RIGHT: {"id": ROLL_RIGHT, "duration_sec": 0.62},
 	CAST_PROJECTILE: {"id": CAST_PROJECTILE, "impact_sec": 0.18, "duration_sec": 0.50,
 		"source_contact_sec": 0.30},
 	CAST_SELF: {"id": CAST_SELF, "impact_sec": 0.30, "duration_sec": 0.62,

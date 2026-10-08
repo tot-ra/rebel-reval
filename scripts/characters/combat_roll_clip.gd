@@ -1,7 +1,7 @@
 class_name CombatRollClip
 extends RefCounted
 
-## Procedural forward/backward roll for the shared humanoid skeleton.
+## Procedural forward/backward/left/right roll for the shared humanoid skeleton.
 ##
 ## WHY procedural: the CC0 KayKit library behind every body (ADR 0022) has no
 ## roll, only 0.38 s side-hops. Instead of a new external clip on a foreign
@@ -15,12 +15,19 @@ extends RefCounted
 const LIBRARY := &"combat"
 const CLIP_FORWARD := &"Roll_Forward"
 const CLIP_BACKWARD := &"Roll_Backward"
+## Side rolls tumble about the forward axis (shoulder over shoulder) so the
+## character keeps facing the threat while guarding.
+const CLIP_LEFT := &"Roll_Left"
+const CLIP_RIGHT := &"Roll_Right"
 const LENGTH_SEC := 0.62
 const KEY_COUNT := 32
 const BASE_CLIP := &"Idle"
 ## Model space: +Y up, +Z forward, +X the character's left. A positive turn
 ## about +X carries the head forward and down (forward roll).
 const LATERAL_AXIS := Vector3.RIGHT
+## A positive turn about +Z carries the left side (+X) up, so a roll to the
+## left (head toward +X) is the negative turn.
+const FORWARD_AXIS := Vector3.BACK
 const HIPS := &"hips"
 ## Degrees of extra sagittal flexion at full tuck (sign per the axis above).
 const TUCK_DEG: Dictionary = {
@@ -61,9 +68,8 @@ static var _cache: Dictionary = {}
 ## AnimationPlayer name of the requested clip, or empty when the rig lacks the
 ## bones or the Idle base clip.
 static func ensure_clip(
-	player: AnimationPlayer, skeleton: Skeleton3D, cache_key: String, backward: bool
+	player: AnimationPlayer, skeleton: Skeleton3D, cache_key: String, clip: StringName
 ) -> StringName:
-	var clip := CLIP_BACKWARD if backward else CLIP_FORWARD
 	var full_name := StringName("%s/%s" % [LIBRARY, clip])
 	if player == null or skeleton == null:
 		return &""
@@ -74,7 +80,7 @@ static func ensure_clip(
 	var key := "%s|%s" % [cache_key, clip]
 	var animation: Animation = _cache.get(key)
 	if animation == null:
-		animation = build(player.get_animation(BASE_CLIP), skeleton, backward)
+		animation = build(player.get_animation(BASE_CLIP), skeleton, clip)
 		_cache[key] = animation
 	var library: AnimationLibrary
 	if player.has_animation_library(LIBRARY):
@@ -86,7 +92,7 @@ static func ensure_clip(
 	return full_name
 
 
-static func build(base: Animation, skeleton: Skeleton3D, backward: bool) -> Animation:
+static func build(base: Animation, skeleton: Skeleton3D, clip: StringName) -> Animation:
 	var tracks := _bone_tracks(base, skeleton)
 	var bone_count := skeleton.get_bone_count()
 	# Base (Idle frame 0) local pose per bone; untracked bones stay at rest.
@@ -111,10 +117,12 @@ static func build(base: Animation, skeleton: Skeleton3D, backward: bool) -> Anim
 	var base_global := _globals(skeleton, base_pos, base_rot, base_scale)
 	# Lateral axis expressed in each bone's own base frame (see header).
 	var local_axis: Array[Vector3] = []
+	var local_turn_axis: Array[Vector3] = []
+	var turn_axis := FORWARD_AXIS if clip in [CLIP_LEFT, CLIP_RIGHT] else LATERAL_AXIS
 	for bone in bone_count:
-		local_axis.append(
-			(base_global[bone].basis.orthonormalized().inverse() * LATERAL_AXIS).normalized()
-		)
+		var inverse := base_global[bone].basis.orthonormalized().inverse()
+		local_axis.append((inverse * LATERAL_AXIS).normalized())
+		local_turn_axis.append((inverse * turn_axis).normalized())
 
 	var animation := Animation.new()
 	animation.length = LENGTH_SEC
@@ -135,7 +143,7 @@ static func build(base: Animation, skeleton: Skeleton3D, backward: bool) -> Anim
 		animation.track_set_path(hips_position_track, _path_for_bone(tracks, skeleton, hips))
 		track_of["%d:%d" % [hips, Animation.TYPE_POSITION_3D]] = hips_position_track
 
-	var direction := -1.0 if backward else 1.0
+	var direction := -1.0 if clip in [CLIP_BACKWARD, CLIP_LEFT] else 1.0
 	# Lift is relative to the standing pose, so the first and last keys match
 	# Idle exactly whatever height the feet are authored at.
 	var standing_lowest := _lowest_point(skeleton, base_pos, base_rot, base_scale)
@@ -150,7 +158,7 @@ static func build(base: Animation, skeleton: Skeleton3D, backward: bool) -> Anim
 				continue
 			var angle := deg_to_rad(float(TUCK_DEG[bone_name])) * tuck
 			pose_rot[bone] = base_rot[bone] * Quaternion(local_axis[bone], angle)
-		pose_rot[hips] = pose_rot[hips] * Quaternion(local_axis[hips], turn)
+		pose_rot[hips] = pose_rot[hips] * Quaternion(local_turn_axis[hips], turn)
 		var pose_pos := base_pos.duplicate()
 		pose_pos[hips] = (
 			base_pos[hips]

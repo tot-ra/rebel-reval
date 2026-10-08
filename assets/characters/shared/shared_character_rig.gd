@@ -29,6 +29,8 @@ const CANONICAL_ANIMATIONS: Dictionary = {
 	# Procedural, generated on first use by CombatRollClip (no source clip).
 	&"roll_forward": &"combat/Roll_Forward",
 	&"roll_backward": &"combat/Roll_Backward",
+	&"roll_left": &"combat/Roll_Left",
+	&"roll_right": &"combat/Roll_Right",
 	&"guard": &"Blocking",
 	&"dodge_left": &"Dodge_Left",
 	&"dodge_right": &"Dodge_Right",
@@ -83,8 +85,10 @@ const BLEND_ACTION_TO_LOCOMOTION_SEC := 0.22
 const BLEND_LOCOMOTION_SEC := 0.18
 const LOCOMOTION_FAMILY: Array[StringName] = [&"idle", &"walk", &"run"]
 const PROCEDURAL_CLIPS: Dictionary = {
-	&"roll_forward": false,
-	&"roll_backward": true,
+	&"roll_forward": CombatRollClip.CLIP_FORWARD,
+	&"roll_backward": CombatRollClip.CLIP_BACKWARD,
+	&"roll_left": CombatRollClip.CLIP_LEFT,
+	&"roll_right": CombatRollClip.CLIP_RIGHT,
 }
 
 ## Named bone-attachment points for rigid equipment (weapons, tools, props).
@@ -472,7 +476,7 @@ func _ensure_procedural_clip(canonical_name: StringName) -> void:
 	if not PROCEDURAL_CLIPS.has(canonical_name):
 		return
 	CombatRollClip.ensure_clip(
-		_animation_player, _skeleton, body_basename(), bool(PROCEDURAL_CLIPS[canonical_name])
+		_animation_player, _skeleton, body_basename(), PROCEDURAL_CLIPS[canonical_name] as StringName
 	)
 
 func set_facing(logic_direction: Vector2) -> void:

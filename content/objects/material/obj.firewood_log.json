@@ -14,7 +14,7 @@
     "size_m": [
       0.5,
       0.15,
-      0.15
+      0.08
     ],
     "materials": [
       "wood"
@@ -46,7 +46,14 @@
     "grouping": "single"
   },
   "model": {
-    "status": "missing"
+    "status": "glb",
+    "glb": "res://assets/props/furniture/household_kit/household_furniture_kit.glb",
+    "node": "FirewoodLog",
+    "measured_size_m": [
+      0.5,
+      0.15,
+      0.08
+    ]
   },
   "visual": {
     "preview": "docs/reports/images/object_catalog/obj.firewood_log.png",
@@ -55,7 +62,7 @@
     "look": "Split birch log, pale on the cut face, bark intact on the round side.",
     "image_prompt": "A split birch log, pale cut face and intact bark on the rounded side"
   },
-  "lifecycle": "planned",
+  "lifecycle": "usable",
   "confidence": "plausible composite",
   "carry": {
     "grid_width": 1,

@@ -893,7 +893,7 @@ static func _tower(shell: CityBuildingBuilder.Shell, plan: CityPlan, t: Dictiona
 		# towers are known by. The cone is a moderate ~50 degrees (it was 66 and read
 		# as a needle) with eaves overhanging the gallery.
 		_drum(shell, c, r + 0.4, ground + h - 1.5, ground + h, 18)
-		_cone(shell, "tile", c, r + 0.9, ground + h, (r + 0.9) * 1.2, 18)
+		_cone(shell, "tile", c, r + 0.9, ground + h, float(t.get("roof_h", (r + 0.9) * 1.2)), 18)
 	else:
 		_obox(shell, "stone", c, along, w * 0.5, d * 0.5, ground - 1.6, ground + h)
 		_pyramid(shell, "tile", c, along, w * 0.5 + 0.5, d * 0.5 + 0.5, ground + h, w * 1.1)

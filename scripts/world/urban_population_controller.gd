@@ -8,6 +8,7 @@ extends Node
 const ProfileScript := preload("res://scripts/world/urban_population_profile.gd")
 const MapBindingScript := preload("res://scripts/world/urban_population_map_binding.gd")
 const PlacementScript := preload("res://scripts/world/urban_population_placement.gd")
+const ScheduleScript := preload("res://scripts/world/citizen_schedule.gd")
 const MarketDayModelScript := preload("res://scripts/world/market_day_model.gd")
 const PressureScript := preload("res://scripts/faction/district_pressure_model.gd")
 const MeshBuilderScript := preload("res://scripts/map/view3d/map_view_mesh_builder.gd")
@@ -25,6 +26,9 @@ var _replay_seed := DEFAULT_REPLAY_SEED
 var _market_day_active := false
 var _sync_key := ""
 var _active_profile: Dictionary = {}
+# Tests pin the clock; -1 with _hour_pinned means "no schedule" (legacy phase-only crowd).
+var _hour_pinned := false
+var _pinned_hour := -1
 
 
 func setup(
@@ -82,8 +86,14 @@ func crowd_active_count() -> int:
 
 
 func sync_for_test(
-	phase_id: StringName, elapsed_days: int, market_day: bool = false, replay_seed: int = -1
+	phase_id: StringName,
+	elapsed_days: int,
+	market_day: bool = false,
+	replay_seed: int = -1,
+	hour: int = -1
 ) -> void:
+	_hour_pinned = true
+	_pinned_hour = hour
 	if _state != null:
 		_state.set_phase(phase_id)
 	if _view_runtime != null:
@@ -138,19 +148,28 @@ func _sync_population() -> void:
 	var date := _current_date(phase_id)
 	var context := _profile_context()
 	var next_key := (
-		"%s|%s|%s|%s|%d"
+		"%s|%s|%s|%s|%d|%d"
 		% [
 			String(phase_id),
 			GameCalendar.format_date(date),
 			str(_market_day_active),
 			str(context),
 			_replay_seed,
+			_clock_hour(),
 		]
 	)
 	if next_key == _sync_key:
 		return
 	_sync_key = next_key
 	var profile := ProfileScript.resolve_for_context(phase_id, date, _replay_seed, context)
+	# LIFE-1: route civilians by in-game hour. Crackdown keeps its fixed cautious
+	# layout because curfew pressure overrides daily habits.
+	var hour := _clock_hour()
+	if hour >= 0 and StringName(profile["profile_id"]) != ProfileScript.PROFILE_CRACKDOWN:
+		profile["actor_plan"] = ScheduleScript.apply_to_plan(
+			profile["actor_plan"], hour, int(profile["weekday_index"]), _replay_seed
+		)
+		profile["schedule_hour"] = hour
 	_active_profile = profile
 	_apply_profile_to_renderer(profile)
 
@@ -173,6 +192,15 @@ func _apply_profile_to_renderer(profile: Dictionary) -> void:
 			int(placement["actor_index"]),
 			Vector3(world_position.x, ground_y + 0.02, world_position.z)
 		)
+
+
+## In-game hour from the shared day/night clock, or -1 when no clock is available.
+func _clock_hour() -> int:
+	if _hour_pinned:
+		return _pinned_hour
+	if _view_runtime == null or not ("cycle_progress" in _view_runtime):
+		return -1
+	return ScheduleScript.hour_from_progress(float(_view_runtime.cycle_progress))
 
 
 func _current_phase_id() -> StringName:

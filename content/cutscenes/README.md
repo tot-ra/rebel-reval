@@ -9,7 +9,7 @@ loaded by `ContentDB` and played by `CutscenePlayer`. Schema:
 |---|---|---|---|
 | `cutscene.prologue.conquest` | I. The Forging of Chains (1219-1343) | 6 | the almshouse scene |
 | `cutscene.prologue.almshouse_dawn` | II. The almshouse of the Holy Spirit | 3 | returns to the host scene (not played by the shortened opening) |
-| `cutscene.prologue.taken_in` | III. The forge | 3 | the forge, spawn `smithy_start` |
+| `cutscene.prologue.taken_in` | III. The forge | 3 | the city, spawn `kalev_smithy` (street in front of the smithy) |
 
 Each shot carries an `authoring` block with the `direction`, the `image_prompt` that produced
 the shipped frame, and the `video_prompt` for the later AI-video tier. Write them under

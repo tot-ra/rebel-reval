@@ -596,41 +596,23 @@
       "id": "tower.viru_north",
       "name": "Viru gate north flanking tower",
       "form": "round",
-      "w": 9.0,
-      "d": 9.0,
-      "h": 16.0,
+      "w": 6.5,
+      "d": 6.5,
+      "h": 15.0,
       "state": "completed",
-      "confidence": "invented (presentation); the round Viru foregate towers date from the 1370s, the barbican shown by maintainer direction 2026-10-08"
+      "confidence": "invented (presentation); the round Viru foregate towers date from the 1370s, shown as two slim drums by maintainer direction 2026-10-08",
+      "roof_h": 6.5
     },
     {
       "id": "tower.viru_south",
       "name": "Viru gate south flanking tower",
       "form": "round",
-      "w": 9.0,
-      "d": 9.0,
-      "h": 16.0,
-      "state": "completed",
-      "confidence": "invented (presentation); the round Viru foregate towers date from the 1370s, the barbican shown by maintainer direction 2026-10-08"
-    },
-    {
-      "id": "tower.viru_outer_north",
-      "name": "Viru barbican outer north tower",
-      "form": "round",
-      "w": 8.5,
-      "d": 8.5,
+      "w": 6.5,
+      "d": 6.5,
       "h": 15.0,
       "state": "completed",
-      "confidence": "invented (presentation); the round Viru foregate towers date from the 1370s, the barbican shown by maintainer direction 2026-10-08"
-    },
-    {
-      "id": "tower.viru_outer_south",
-      "name": "Viru barbican outer south tower",
-      "form": "round",
-      "w": 8.5,
-      "d": 8.5,
-      "h": 15.0,
-      "state": "completed",
-      "confidence": "invented (presentation); the round Viru foregate towers date from the 1370s, the barbican shown by maintainer direction 2026-10-08"
+      "confidence": "invented (presentation); the round Viru foregate towers date from the 1370s, shown as two slim drums by maintainer direction 2026-10-08",
+      "roof_h": 6.5
     },
     {
       "id": "tower.bremen",
@@ -1739,7 +1721,7 @@
   },
   "metres_per_world_unit_note": "Kalev's rig is 1.83 units tall, so the city uses 1 m per world unit to keep buildings, trees and walls in proportion to him.",
   "presentation": {
-    "note": "Maintainer direction 2026-10-07: show the curtain finished and dressed (covered timber wall-walk, tiled tower roofs, round flanking towers at the Viru gate, a wet moat). Historically the S/E works were unfinished, the Viru foregate towers are 1370s and the moat filled only after the 1345 water grant; these are presentation choices, labelled 'invented (presentation)'. Maintainer direction 2026-10-08: every wall tower is a round Tallinn drum with a moderate cone, towers up to ~50 years later than 1343 are shown, and the Viru gate is a barbican (inner gate, bailey, outer gate, four round towers).",
+    "note": "Maintainer direction 2026-10-07: show the curtain finished and dressed (covered timber wall-walk, tiled tower roofs, round flanking towers at the Viru gate, a wet moat). Historically the S/E works were unfinished, the Viru foregate towers are 1370s and the moat filled only after the 1345 water grant; these are presentation choices, labelled 'invented (presentation)'. Maintainer direction 2026-10-08: every wall tower is a round Tallinn drum with a moderate cone, towers up to ~50 years later than 1343 are shown, and the Viru gate is a plain gate house between two slim round drums (the first four-tower barbican was withdrawn the same day).",
     "finished_curtain": true
   },
   "flanking_towers": [
@@ -1749,7 +1731,7 @@
         "tower.viru_north",
         "tower.viru_south"
       ],
-      "offset_m": 6.2
+      "offset_m": 5.4
     }
   ],
   "kalev_smithy": {
@@ -1760,20 +1742,5 @@
     "name_1343": "Kalev's smithy",
     "note": "Workers' quarter between Viru street and the Cattle Gate, where the district map placed the forge. Its door leads into the forge interior (scenes/reval_east/forge)."
   },
-  "barbicans": [
-    {
-      "id": "barbican.viru",
-      "gate": "gate.viru",
-      "length_m": 30.0,
-      "half_width_m": 6.2,
-      "wall_height_m": 7.5,
-      "wall_thickness_m": 1.7,
-      "outer_towers": [
-        "tower.viru_outer_north",
-        "tower.viru_outer_south"
-      ],
-      "outer_name": "Viru foregate (outer gate)",
-      "confidence": "invented (presentation); the round Viru foregate towers date from the 1370s, the barbican shown by maintainer direction 2026-10-08"
-    }
-  ]
+  "barbicans": []
 }

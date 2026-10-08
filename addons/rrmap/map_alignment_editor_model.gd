@@ -433,7 +433,7 @@ func _clip_to_bounds() -> void:
 				data["points"] = points
 				keep = not points.is_empty()
 			&"structure_rect", &"transition", &"interaction_anchor", &"excluded_rect", \
-			&"fade_rect", &"decal_rect", &"view_landmark":
+			&"fade_rect", &"decal_rect", &"view_landmark", &"vegetation_mask":
 				if data.has("rect"):
 					var clipped_rect := _clip_rect(data["rect"], bounds)
 					keep = clipped_rect.size.x > 0 and clipped_rect.size.y > 0

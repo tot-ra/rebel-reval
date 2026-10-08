@@ -10,13 +10,15 @@ const MAX_FRUIT_COUNT := 18
 
 static func profile_for(species: StringName) -> Dictionary:
 	match species:
+		# Norway spruce: a whorl every 30-50 cm of a real 10 m tree, so the shared
+		# 3 m mesh needs ~22 of them (VEGR-6; the city override raises it to 26).
 		&"spruce":
 			return _profile(
 				3.0,
 				0.125,
 				0.48,
 				2.55,
-				14,
+				22,
 				2,
 				1.18,
 				-0.10,
@@ -29,24 +31,26 @@ static func profile_for(species: StringName) -> Dictionary:
 				0.13,
 				0.20
 			)
+		# Scots pine: tall bare bole, a high irregular crown of long limbs that end
+		# in needle tufts (not spruce-like whorls down to the ground).
 		&"pine":
 			return _profile(
-				2.85,
-				0.120,
-				1.42,
-				2.58,
-				11,
+				3.35,
+				0.115,
+				1.85,
+				3.15,
+				10,
 				2,
-				1.08,
-				0.12,
-				0.58,
-				0.56,
+				1.05,
+				0.2,
+				0.62,
+				0.6,
 				0.54,
-				0.02,
-				68,
+				0.0,
+				64,
 				10,
 				0.15,
-				0.18
+				0.2
 			)
 		# Birch: tall slender bole + dense small-leaf sprays; tip-only sprays looked bald.
 		&"birch":

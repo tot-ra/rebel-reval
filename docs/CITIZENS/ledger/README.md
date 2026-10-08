@@ -20,7 +20,7 @@ Every household and resident of the 1343 census, one page per street. Generated 
 
 | Street | Households | Residents | Cards |
 |---|---:|---:|---:|
-| [Western coast road](kalarand/western_coast_road.md) | 26 | 147 | 25 |
+| [Western coast road](kalarand/western_coast_road.md) | 23 | 132 | 25 |
 
 ## Lower Town
 
@@ -48,14 +48,14 @@ Every household and resident of the 1343 census, one page per street. Generated 
 | [Mündi](lower_town/mundi.md) | 3 | 15 | 0 |
 | [Müürivahe](lower_town/muurivahe.md) | 29 | 179 | 38 |
 | [Niguliste](lower_town/niguliste.md) | 2 | 14 | 3 |
-| [Nunne](lower_town/nunne.md) | 5 | 41 | 20 |
+| [Nunne](lower_town/nunne.md) | 7 | 53 | 20 |
 | [Olevimägi](lower_town/olevimagi.md) | 16 | 108 | 11 |
 | [Oleviste](lower_town/oleviste.md) | 2 | 15 | 10 |
 | [Pagari](lower_town/pagari.md) | 3 | 16 | 0 |
 | [Pikk](lower_town/pikk.md) | 38 | 288 | 68 |
 | [Pikk jalg](lower_town/pikk_jalg.md) | 5 | 37 | 6 |
-| [Pühavaimu](lower_town/puhavaimu.md) | 14 | 110 | 10 |
-| [Raekoja](lower_town/raekoja.md) | 9 | 71 | 17 |
+| [Pühavaimu](lower_town/puhavaimu.md) | 13 | 105 | 10 |
+| [Raekoja](lower_town/raekoja.md) | 8 | 59 | 11 |
 | [Rataskaevu](lower_town/rataskaevu.md) | 11 | 74 | 10 |
 | [Saiakang](lower_town/saiakang.md) | 5 | 39 | 6 |
 | [Sauna](lower_town/sauna.md) | 17 | 125 | 22 |
@@ -71,7 +71,7 @@ Every household and resident of the 1343 census, one page per street. Generated 
 | [Vene](lower_town/vene.md) | 22 | 159 | 29 |
 | [Viru](lower_town/viru.md) | 13 | 96 | 6 |
 | [Voorimehe](lower_town/voorimehe.md) | 10 | 72 | 4 |
-| [Väike-Kloostri](lower_town/vaike_kloostri.md) | 2 | 45 | 6 |
+| [Väike-Kloostri](lower_town/vaike_kloostri.md) | 1 | 40 | 6 |
 
 ## Vassal yards below the castle
 
@@ -102,7 +102,7 @@ Every household and resident of the 1343 census, one page per street. Generated 
 
 | Street | Households | Residents | Cards |
 |---|---:|---:|---:|
-| [Viru road](viru_road/viru_road.md) | 28 | 150 | 26 |
+| [Viru road](viru_road/viru_road.md) | 21 | 118 | 17 |
 
 ## All files in this folder
 

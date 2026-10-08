@@ -3,21 +3,15 @@ extends "res://tests/godot/test_case.gd"
 const MusicDirectorScript = preload("res://scripts/global/music_director.gd")
 const DayNightCycle := preload("res://scripts/global/day_night_cycle.gd")
 
+## Scenes that still pick their own theme; the seamless city picks per zone instead
+## (CityMusicZones), so these are the themes it can ask for.
 const DISTRICT_SCENE_THEMES: Dictionary = {
-	"res://scenes/reval_east/reval_east.tscn": &"town",
-	"res://scenes/reval_east/viru_gate_foreland/viru_gate_foreland.tscn": &"town",
-	"res://scenes/reval_center/reval_center.tscn": &"center",
-	"res://scenes/reval_center/market_civic_quarter/olaf_guild_hall.tscn": &"center",
-	"res://scenes/reval_center/town_hall/town_hall.tscn": &"raekoda",
-	"res://scenes/reval_center/holy_spirit_church/holy_spirit_church.tscn": &"holy_spirit",
-	"res://scenes/reval_north/reval_north.tscn": &"north",
-	"res://scenes/reval_north/oleviste_church/oleviste_church.tscn": &"oleviste",
-	"res://scenes/reval_monastery/reval_monastery.tscn": &"monastery",
-	"res://scenes/harbor/harbor_north.tscn": &"harbor",
-	"res://scenes/harbor/harbor_east.tscn": &"harbor",
-	"res://scenes/reval_toompea/reval_toompea.tscn": &"toompea",
-	"res://scenes/reval_south/reval_south.tscn": &"south",
+	"res://scenes/reval_east/forge/forge.tscn": &"forge",
 }
+const CITY_ZONE_THEMES: Array[StringName] = [
+	&"center", &"raekoda", &"holy_spirit", &"north", &"oleviste", &"monastery", &"south",
+	&"town", &"forge", &"garden", &"harbor", &"toompea",
+]
 
 
 func test_all_traversable_districts_route_to_restored_themes() -> void:
@@ -30,7 +24,7 @@ func test_all_traversable_districts_route_to_restored_themes() -> void:
 
 
 func test_all_district_themes_have_loadable_day_tracks() -> void:
-	for theme_id: StringName in DISTRICT_SCENE_THEMES.values():
+	for theme_id: StringName in CITY_ZONE_THEMES:
 		var track_paths := MusicDirectorScript.day_track_paths_for_theme(theme_id)
 		assert_false(track_paths.is_empty(), "district theme %s should have restored tracks" % theme_id)
 		for track_path: String in track_paths:

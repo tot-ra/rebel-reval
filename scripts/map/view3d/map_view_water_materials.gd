@@ -448,7 +448,24 @@ static func hull_motion_scale(wind: float, rain: float) -> float:
 ## fft_geometry_scale. WS-05 hull sampling must multiply by the same factor.
 static func ocean_fft_geometry_scale(wave_height: float) -> float:
 	var meters_per_unit := float(ocean_fft_profile().get("meters_per_world_unit", 0.87))
-	return wave_height / (OCEAN_FFT_REFERENCE_CREST_M / meters_per_unit)
+	return wave_height / (OCEAN_FFT_REFERENCE_CREST_M / meters_per_unit) * wave_height_boost
+
+
+## Multiplies the displaced crest height of every sea (shader and CPU hull sampler
+## alike). The district maps keep 1.0, their budget being a few cells of water; the
+## open city sea sets it above 1 so a storm swell really lifts boats and swimmers.
+static var wave_height_boost := 1.0
+
+
+static func set_wave_height_boost(boost: float, wave_profiles: Dictionary = WATER_WAVE_BASE) -> void:
+	wave_height_boost = maxf(boost, 0.0)
+	for terrain_id: StringName in [MapTypes.TERRAIN_SHALLOW_WATER, MapTypes.TERRAIN_DEEP_WATER]:
+		var material := water_surface(terrain_id, wave_profiles)
+		var wave: Dictionary = wave_profiles[terrain_id]
+		material.set_shader_parameter(
+			"fft_geometry_scale", ocean_fft_geometry_scale(float(wave["height"]))
+		)
+	_sync_sea_wave_blend(wave_profiles)
 
 
 ## The table choppiness is the open-sea value. Sheltered terrains keep their

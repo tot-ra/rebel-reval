@@ -9,7 +9,7 @@ One page per feature, with status, behavior, code entry points, content, saved s
 | Area | Pages |
 |---|---|
 | Core loop | [Quests, commissions, investigations](./SYSTEMS/QUESTS.md) · [Dialogue and barks](./SYSTEMS/DIALOGUE.md) · [Cutscenes](./SYSTEMS/CUTSCENES.md) · [Sound effects](./SYSTEMS/AUDIO.md) · [Game state, rules, saves](./SYSTEMS/STATE_AND_SAVES.md) · [Time and phases](./SYSTEMS/TIME_AND_PHASES.md) |
-| Consequences | [Factions, relationships, pressure, prices](./SYSTEMS/FACTIONS_AND_ECONOMY.md) · [Living City Hope/Fear](./SYSTEMS/LIVING_CITY.md) · [World life](./SYSTEMS/WORLD_LIFE.md) |
+| Consequences | [Factions, relationships, pressure, prices](./SYSTEMS/FACTIONS_AND_ECONOMY.md) · [Living City Hope/Fear](./SYSTEMS/LIVING_CITY.md) · [World life](./SYSTEMS/WORLD_LIFE.md) · [Daily routines](./SYSTEMS/LIVING_WORLD.md) · [Households and life at home](./SYSTEMS/HOUSEHOLDS.md) |
 | Action | [Combat runtime](./SYSTEMS/COMBAT.md) · [Combat animation](./SYSTEMS/COMBAT_ANIMATION.md) · [Hammer combat and night missions](./SYSTEMS/COMBAT_NIGHT.md) · [Magic](./SYSTEMS/MAGIC.md) |
 | Kalev's inner world | [NATURAL aspects](./SYSTEMS/NATURAL.md) · [Hingepuu psyche](./SYSTEMS/PSYCHE.md) |
 | Player interface | [HUD, menus, journal, maps](./SYSTEMS/HUD_AND_MENUS.md) · [Inventory](./INVENTORY_MECHANICS.md) · [Physical object catalog](./SYSTEMS/OBJECT_CATALOG.md) · [Controls](./CONTROLS.md) · [Settings and accessibility](./SYSTEMS/SETTINGS_AND_ACCESSIBILITY.md) |
@@ -18,7 +18,7 @@ One page per feature, with status, behavior, code entry points, content, saved s
 
 | Topic | Pages |
 |---|---|
-| The 3D world (camera, sky, weather, water, vegetation, fauna, lighting) | [World presentation](./SYSTEMS/WORLD_PRESENTATION.md) · [Seamless Reval city](./SYSTEMS/SEAMLESS_CITY.md) · [Landmark sites](./SYSTEMS/CITY_LANDMARK_SITES.md) · [Farmland and woods](./SYSTEMS/FARMLAND.md) · [Vegetation realism plan](./SYSTEMS/VEGETATION_REALISM.md) · [Hoist ropes](./SYSTEMS/HOIST_ROPE.md) · [Sky/weather state contract](./SKY_WEATHER_STATE_CONTRACT.md) · [World-building visual gate](./WORLD_BUILDING_VISUAL_GATE.md) |
+| The 3D world (camera, sky, weather, water, vegetation, fauna, lighting) | [World presentation](./SYSTEMS/WORLD_PRESENTATION.md) · [Seamless Reval city](./SYSTEMS/SEAMLESS_CITY.md) · [Landmark sites](./SYSTEMS/CITY_LANDMARK_SITES.md) · [Farmland and woods](./SYSTEMS/FARMLAND.md) · [City sea and shore](./SYSTEMS/CITY_SEA.md) · [Vegetation realism plan](./SYSTEMS/VEGETATION_REALISM.md) · [Hoist ropes](./SYSTEMS/HOIST_ROPE.md) · [Sky/weather state contract](./SKY_WEATHER_STATE_CONTRACT.md) · [World-building visual gate](./WORLD_BUILDING_VISUAL_GATE.md) |
 | Map system | [Map authoring (blueprints, compiler, stable IDs)](./MAP_AUTHORING.md) · [Map conversion plan](./MAP_CONVERSION_PLAN.md) · [Map alignment editor](./MAP_ALIGNMENT_EDITOR.md) · [Large-map chunking](./LARGE_MAP_CHUNKING_PLAN.md) · [Seamless streaming](./SEAMLESS_STREAMING_PLAN.md) |
 | Locations beyond Reval (journey nodes, variety, resources to generate) | [Locations hub](./LOCATIONS/README.md) |
 | City and landmarks | [Landmark narrative integration](./LANDMARK_NARRATIVE_INTEGRATION.md) · [Tourist landmarks](./TOURIST_LANDMARKS.md) · [1343 fortifications](./reports/reval_fortifications_1343.md) · [Legacy location notes](../scenes/README.md) |

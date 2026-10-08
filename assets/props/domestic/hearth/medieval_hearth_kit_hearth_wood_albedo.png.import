@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://lx3rbaccf3ft"
-path="res://.godot/imported/medieval_hearth_kit_hearth_wood_albedo.png-7c7085df87ade3e6dd6a657532c5412b.ctex"
+path.s3tc="res://.godot/imported/medieval_hearth_kit_hearth_wood_albedo.png-7c7085df87ade3e6dd6a657532c5412b.s3tc.ctex"
+path.etc2="res://.godot/imported/medieval_hearth_kit_hearth_wood_albedo.png-7c7085df87ade3e6dd6a657532c5412b.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "a3c858a69646bf24eee22dd257a23927"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/props/domestic/hearth/medieval_hearth_kit_hearth_wood_albedo.png"
-dest_files=["res://.godot/imported/medieval_hearth_kit_hearth_wood_albedo.png-7c7085df87ade3e6dd6a657532c5412b.ctex"]
+dest_files=["res://.godot/imported/medieval_hearth_kit_hearth_wood_albedo.png-7c7085df87ade3e6dd6a657532c5412b.s3tc.ctex", "res://.godot/imported/medieval_hearth_kit_hearth_wood_albedo.png-7c7085df87ade3e6dd6a657532c5412b.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +42,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

@@ -189,6 +189,61 @@ static func grass_tuft_mesh() -> ArrayMesh:
 	return mesh
 
 
+## A clump of individual curved blades (VEGR-4, Tsushima-style near grass). Each
+## blade is a tapered 7-vertex strip (5 triangles) that bows over, so a clump is
+## real geometry with a silhouette instead of a textured card. UV.y is the height
+## fraction (the shader bends and tints by it), UV2 = (0, 0) selects the shader's
+## procedural, atlas-free path. Blade count and width are fixed here so the mesh
+## is one cached resource shared by every MultiMesh.
+static func grass_blade_clump_mesh() -> ArrayMesh:
+	const CACHE_KEY := &"grass_blade_clump_v1"
+	if _mesh_cache.has(CACHE_KEY):
+		return _mesh_cache[CACHE_KEY]
+	var surface := SurfaceTool.new()
+	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
+	const BLADES := 6
+	const SEGMENTS := 3
+	for blade in BLADES:
+		var yaw := TAU * float(blade) / float(BLADES) + MeshMath.hash01(blade, 3, 301) * 0.9
+		var direction := Vector3(sin(yaw), 0.0, cos(yaw))
+		var side := Vector3(cos(yaw), 0.0, -sin(yaw))
+		var root := direction * (0.015 + MeshMath.hash01(blade, 5, 307) * 0.075)
+		var height := 0.26 + MeshMath.hash01(blade, 7, 311) * 0.2
+		var half_width := 0.011 + MeshMath.hash01(blade, 9, 313) * 0.006
+		# Blades bow outward from the clump centre; taller ones bow further.
+		var lean := height * (0.2 + MeshMath.hash01(blade, 11, 317) * 0.4)
+		var tint := Color(0.94, 0.97, 0.86).lerp(Color(1.06, 1.03, 0.94), MeshMath.hash01(blade, 13, 331))
+		# Ring r is at t = r / SEGMENTS; the last ring collapses to the tip vertex.
+		var rings: Array[Array] = []
+		for ring in SEGMENTS + 1:
+			var t := float(ring) / float(SEGMENTS)
+			var centre := root + direction * lean * t * t + Vector3.UP * height * (t - 0.12 * t * t)
+			var width := half_width * (1.0 - t * t * 0.92) if ring < SEGMENTS else 0.0
+			rings.append([centre - side * width, centre + side * width, t])
+		for ring in SEGMENTS:
+			var lower: Array = rings[ring]
+			var upper: Array = rings[ring + 1]
+			var tangent: Vector3 = ((upper[0] + upper[1]) - (lower[0] + lower[1])).normalized()
+			var normal := tangent.cross(side).normalized()
+			var quad: Array = [
+				[lower[0], Vector2(0.0, lower[2])], [lower[1], Vector2(1.0, lower[2])],
+				[upper[1], Vector2(1.0, upper[2])], [upper[0], Vector2(0.0, upper[2])],
+			]
+			# The final ring is a point, so its quad degenerates to one triangle.
+			var order: Array[int] = [0, 1, 2]
+			if ring < SEGMENTS - 1:
+				order = [0, 1, 2, 0, 2, 3]
+			for index in order:
+				surface.set_normal(normal)
+				surface.set_color(tint)
+				surface.set_uv(quad[index][1])
+				surface.set_uv2(Vector2.ZERO)
+				surface.add_vertex(quad[index][0])
+	var mesh := surface.commit()
+	_mesh_cache[CACHE_KEY] = mesh
+	return mesh
+
+
 ## A small common-reed bed rather than one camera-facing rectangle. Rounded stems,
 ## curved leaves, and sparse branching panicles retain a readable silhouette from
 ## every gameplay angle while remaining one cached mesh for MultiMesh batching.

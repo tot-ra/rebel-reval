@@ -1,18 +1,12 @@
 class_name CityNpcs
 extends Node2D
 
-## Posted and working people of the seamless city (ADR 0031): watchmen at every
-## town gate and Danish men-at-arms at the Toompea gates, the town watch walking
-## Pikk, Lai and Vene, and the people at work on landmark sites. The residents
-## themselves (townsfolk, market folk) are the census citizens of CityCitizens.
+## Posted and working people of the seamless city (ADR 0031): the people at work
+## on landmark sites and the farm hands in the fields. The residents themselves
+## (townsfolk, market folk) and the gate garrisons and watch patrols are census
+## citizens on duty (CityCitizens, docs/SYSTEMS/GATE_GARRISONS.md).
 ## Bodies are logic actors; MapViewRuntime mirrors their rigs.
 
-const WATCHMAN := preload("res://assets/characters/variants/watchman.tscn")
-const MAN_AT_ARMS := preload("res://assets/characters/variants/danish_warrior.tscn")
-const SERGEANT := preload("res://assets/characters/variants/sergeant.tscn")
-const CASTLE_GATES: Array[String] = ["gate.long_hill", "gate.short_hill"]
-const PATROL_STREETS: Array[String] = ["Pikk", "Lai", "Vene"]
-const PATROL_SPEED := 1.3
 const SITE_PEOPLE_RANGE := 45.0
 ## Farm hands on spring-sown fields and garden beds, present only near Kalev.
 const FIELD_WORKER_RANGE := 75.0
@@ -92,8 +86,6 @@ static func create(city_plan: CityPlan, kalev: Node2D) -> CityNpcs:
 
 
 func _ready() -> void:
-	_place_guards()
-	_place_patrols()
 	if player != null:
 		_stream_site_people(CityPlan.to_world_xz(player.global_position))
 	_collect_field_sites()
@@ -117,39 +109,6 @@ func _walker(rig: PackedScene, speed: float) -> Walker:
 	w.speed = speed
 	add_child(w)
 	return w
-
-
-## Two guards flank the town side of every gate passage.
-func _place_guards() -> void:
-	for g: Dictionary in plan.data.get("gates", []):
-		var id := String(g["id"])
-		var inside := CityTravel.spawn_position(plan, id)
-		var at := Vector2(g["at"][0], g["at"][1])
-		var inward := (inside - at).normalized()
-		var across := Vector2(-inward.y, inward.x)
-		var rig := MAN_AT_ARMS if id in CASTLE_GATES else WATCHMAN
-		for side: float in [-1.0, 1.0]:
-			var post := StaticNpcActor.new()
-			post.rig_scene = SERGEANT if side > 0 and id == "gate.viru" else rig
-			post.name = "Guard_%s_%d" % [id.replace(".", "_"), int(side)]
-			add_child(post)
-			post.configure(
-				player, CityPlan.to_logic(at + inward * 8.5 + across * side * 2.8), -inward
-			)
-
-
-func _place_patrols() -> void:
-	for name in PATROL_STREETS:
-		var best := PackedVector2Array()
-		for s: Dictionary in plan.data.get("streets", []):
-			var pts := CityPlan.points(s["points"])
-			if String(s.get("name", "")) == name and pts.size() > best.size():
-				best = pts
-		if best.size() < 2:
-			continue
-		var w := _walker(WATCHMAN, PATROL_SPEED)
-		w.name = "Watch_%s" % name.to_lower()
-		w.seat(best, 0, true)
 
 
 ## People at work in landmark sites (ADR 0032) are only present while Kalev is

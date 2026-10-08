@@ -79,10 +79,63 @@ func _shots(plan: CityPlan) -> Array[Dictionary]:
 		shots.append({"name": "%s_side" % String(b["id"]).replace(".", "_"), "eye": Vector3(at.x + across.x * 26.0, 14.0, at.y + across.y * 26.0), "look": Vector3(at.x, 6.0, at.y), "fov": 60.0, "focus": at})  # gdlint: ignore=max-line-length
 		var start := at - along * 20.0
 		shots.append({"name": "%s_walk" % String(b["id"]).replace(".", "_"), "eye": Vector3(start.x, plan.ground_height(start) + 3.0, start.y), "look": Vector3(at.x, 8.0, at.y), "fov": 60.0, "focus": at})  # gdlint: ignore=max-line-length
+	for g: Dictionary in plan.data.get("gates", []):
+		if String(g["id"]) != "gate.viru":
+			continue
+		var at := Vector2(g["at"][0], g["at"][1])
+		var gh := plan.ground_height(at)
+		shots.append({"name": "viru_gate_out", "eye": Vector3(at.x + 34.0, gh + 2.6, at.y), "look": Vector3(at.x, gh + 4.0, at.y), "fov": 60.0, "focus": at})  # gdlint: ignore=max-line-length
+		shots.append({"name": "viru_aerial", "eye": Vector3(at.x + 38.0, gh + 34.0, at.y + 38.0), "look": Vector3(at.x + 6.0, gh + 3.0, at.y), "fov": 50.0, "focus": at})  # gdlint: ignore=max-line-length
+		shots.append({"name": "viru_gate_side", "eye": Vector3(at.x + 30.0, gh + 12.0, at.y + 45.0), "look": Vector3(at.x, gh + 2.0, at.y), "fov": 60.0, "focus": at})  # gdlint: ignore=max-line-length
+	for spot: Array in [["moat_reeds", Vector2(228.0, -250.0)]]:
+		var at: Vector2 = spot[1]
+		var g := plan.ground_height(at)
+		shots.append({"name": spot[0], "eye": Vector3(at.x + 14.0, g + 5.2, at.y + 8.0), "look": Vector3(at.x - 2.0, g + 1.0, at.y - 4.0), "fov": 60.0, "focus": at})  # gdlint: ignore=max-line-length
 	for spot: Array in [["moat_east_a", Vector2(215.0, -300.0)], ["moat_east_b", Vector2(262.0, -60.0)], ["moat_east_c", Vector2(232.0, -470.0)]]:  # gdlint: ignore=max-line-length
 		var at: Vector2 = spot[1]
 		var g := plan.ground_height(at)
 		shots.append({"name": spot[0], "eye": Vector3(at.x + 30.0, g + 14.0, at.y), "look": Vector3(at.x, g, at.y), "fov": 60.0, "focus": at})  # gdlint: ignore=max-line-length
+	# Far view: the wheat strips from a vantage 120 m off, as the player sees them.
+	var wheat := _feature(plan, &"field", &"wheat")
+	if not wheat.is_empty():
+		var c: Vector2 = wheat["centre"]
+		var g := plan.ground_height(c)
+		shots.append({"name": "wheat_far", "eye": Vector3(c.x + 70.0, g + 30.0, c.y + 90.0), "look": Vector3(c.x, g, c.y), "fov": 55.0, "focus": c})
+		shots.append({"name": "wheat_wide", "eye": Vector3(c.x + 160.0, g + 70.0, c.y + 200.0), "look": Vector3(c.x, g, c.y), "fov": 55.0, "focus": c})
+	# Farmsteads: the yard round one barn-dwelling and round the plainest croft.
+	for want: String in ["barn_dwelling", "hen_house"]:
+		for b: Dictionary in plan.data["buildings"]:
+			if String(b.get("type", "")) != want:
+				continue
+			var fp := CityPlan.points(b["footprint"])
+			var at := fp[0]
+			var g := plan.ground_height(at)
+			shots.append({"name": "yard_%s" % want, "eye": Vector3(at.x + 22.0, g + 9.0, at.y + 22.0), "look": Vector3(at.x, g + 1.5, at.y), "fov": 60.0, "focus": at})
+			shots.append({"name": "yard_%s_close" % want, "eye": Vector3(at.x + 9.0, g + 2.4, at.y + 9.0), "look": Vector3(at.x, g + 1.2, at.y), "fov": 60.0, "focus": at})
+			break
+	# Harbour: the merchant landing and the Kalamaja fishing shore.
+	var harbour: Dictionary = plan.data.get("harbour", {})
+	if not harbour.is_empty():
+		var crane_at := Vector2(harbour["crane"]["at"][0], harbour["crane"]["at"][1])
+		shots.append({"name": "harbour_landing", "eye": Vector3(crane_at.x - 28.0, 9.0, crane_at.y + 26.0), "look": Vector3(crane_at.x, 3.0, crane_at.y - 6.0), "fov": 60.0, "focus": crane_at})
+		shots.append({"name": "harbour_landing_sea", "eye": Vector3(crane_at.x + 10.0, 6.0, crane_at.y - 50.0), "look": Vector3(crane_at.x, 2.0, crane_at.y), "fov": 60.0, "focus": crane_at})
+		var lighter: Dictionary = {}
+		var turned: Dictionary = {}
+		for b: Dictionary in harbour["boats"]:
+			if b.get("type", "") == "lighter" and lighter.is_empty():
+				lighter = b
+			if b.get("type", "") == "overturned" and turned.is_empty():
+				turned = b
+		if not lighter.is_empty():
+			var lp := Vector2(lighter["at"][0], lighter["at"][1])
+			shots.append({"name": "harbour_lighter", "eye": Vector3(lp.x - 14.0, 5.0, lp.y + 16.0), "look": Vector3(lp.x, 0.5, lp.y), "fov": 60.0, "focus": lp})
+		if not turned.is_empty():
+			var tp := Vector2(turned["at"][0], turned["at"][1])
+			shots.append({"name": "harbour_overturned", "eye": Vector3(tp.x - 8.0, plan.ground_height(tp) + 3.0, tp.y + 9.0), "look": Vector3(tp.x, plan.ground_height(tp) + 1.0, tp.y), "fov": 60.0, "focus": tp})
+		var yard: Dictionary = harbour["net_yards"][0]
+		var yc := CityPlan.points(yard["polygon"])[0]
+		shots.append({"name": "harbour_kalamaja", "eye": Vector3(yc.x - 18.0, 8.0, yc.y + 24.0), "look": Vector3(yc.x + 8.0, 1.5, yc.y - 6.0), "fov": 60.0, "focus": yc})
+		shots.append({"name": "harbour_kalamaja_eye", "eye": Vector3(yc.x + 2.0, plan.ground_height(yc) + 1.8, yc.y + 14.0), "look": Vector3(yc.x + 6.0, 1.2, yc.y - 6.0), "fov": 60.0, "focus": yc})
 	var pasture := _feature(plan, &"pasture")
 	if not pasture.is_empty():
 		var c: Vector2 = pasture["centre"]
@@ -126,6 +179,7 @@ func _run() -> void:
 			world.grass.update_for(shot["focus"])
 			world.farmland.update_for(shot["focus"])
 			await process_frame
+		await RenderingServer.frame_post_draw
 		var image := viewport.get_texture().get_image()
 		var path := "%s/%s_%s.png" % [OUTPUT_DIR, shot["name"], _tag]
 		image.save_png(ProjectSettings.globalize_path(path))

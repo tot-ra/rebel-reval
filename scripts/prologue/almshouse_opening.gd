@@ -19,8 +19,10 @@ const STAGE_DONE := &"done"
 const CONFRONTATION := &"dialogue.prologue.porter_confrontation"
 const KALEV_ARRIVES := &"dialogue.prologue.kalev_arrives"
 const CLOSING_CUTSCENE := &"cutscene.prologue.taken_in"
-const NEXT_SCENE_ID := &"forge"
-const NEXT_SPAWN_ID := &"smithy_start"
+## The new game opens in the seamless city, in the street in front of Kalev's smithy
+## (`landmark.kalev_smithy`); the smithy door leads on into the forge interior.
+const NEXT_SCENE_ID := &"reval_city"
+const NEXT_SPAWN_ID := &"kalev_smithy"
 ## The year card leaves on its own after this long; interact or a click leaves sooner.
 const TITLE_CARD_SEC := 3.0
 ## Holding `ui_cancel` this long during the duel or Kalev's dialogue skips the rest.
@@ -271,7 +273,7 @@ func _build_title_card() -> void:
 		["", 18],
 		["You see what others do not. Answer with what you can do.", 20],
 		["", 18],
-		["Press interact to begin  (Esc skips to the forge)", 16],
+		["Press interact to begin  (Esc skips to the smithy)", 16],
 	]:
 		var label := Label.new()
 		label.text = String(entry[0])

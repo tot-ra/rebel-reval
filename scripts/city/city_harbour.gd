@@ -65,8 +65,10 @@ static func _cylinder(
 	return inst
 
 
-## Double treadwheel crane on a timber frame: two trestle legs, an axle with a
-## man-sized wheel, and a jib reaching over the water.
+## Hanseatic treadwheel crane: a timber tower on four posts with a gabled roof,
+## a spoked tread drum inside (two men walk in it) turning a windlass, and a long
+## jib reaching over the water with a rope and a cargo hook. The tower stands
+## behind the quay edge and the jib (local +x) overhangs the sea.
 static func _crane(
 	plan: CityPlan, root: Node3D, c: Dictionary, timber: Material, wood: Material
 ) -> void:
@@ -75,31 +77,51 @@ static func _crane(
 	var node := Node3D.new()
 	node.name = "TreadwheelCrane"
 	node.position = Vector3(at.x, ground, at.y)
-	# The jib points seaward (plan angle); the frame stands across it.
 	node.rotation.y = -float(c["angle"])
 	root.add_child(node)
+	var half := 2.4
+	# Four corner posts, cross-braced, on stone-and-timber sills.
+	for sx: float in [-1.0, 1.0]:
+		for sz: float in [-1.0, 1.0]:
+			_box(node, Vector3(0.4, 7.2, 0.4), Vector3(sx * half, 3.6, sz * half), timber)
+			_box(node, Vector3(0.7, 0.3, 0.7), Vector3(sx * half, 0.1, sz * half), wood)
+	for sz: float in [-1.0, 1.0]:
+		for y: float in [2.2, 4.6]:
+			_box(node, Vector3(half * 2.0, 0.22, 0.22), Vector3(0.0, y, sz * half), timber)
+		_box(node, Vector3(0.18, 5.6, 0.18), Vector3(0.0, 3.6, sz * half), timber, Vector3(0.0, 0.0, 0.7))
+		_box(node, Vector3(0.18, 5.6, 0.18), Vector3(0.0, 3.6, sz * half), timber, Vector3(0.0, 0.0, -0.7))
+	for sx: float in [-1.0, 1.0]:
+		for y: float in [2.2, 4.6]:
+			_box(node, Vector3(0.22, 0.22, half * 2.0), Vector3(sx * half, y, 0.0), timber)
+	# Gabled shingle roof.
 	for side: float in [-1.0, 1.0]:
-		_box(
-			node,
-			Vector3(0.35, 6.0, 0.35),
-			Vector3(0.0, 3.0, side * 1.6),
-			timber,
-			Vector3(side * 0.12, 0.0, 0.0),
-		)
-		_box(
-			node,
-			Vector3(0.3, 4.4, 0.3),
-			Vector3(-1.4, 2.0, side * 1.9),
-			timber,
-			Vector3(side * 0.1, 0.0, 0.5),
-		)
-		# Wheel: a drum between the legs with spoke planks.
-		_cylinder(node, 2.2, 0.35, Vector3(0.0, 3.6, side * 0.9), wood, Vector3(PI * 0.5, 0.0, 0.0))
-	_box(node, Vector3(0.28, 0.28, 3.8), Vector3(0.0, 5.9, 0.0), timber)
-	# Jib (towards +x, the sea) with a hanging rope and a cargo hook block.
-	_box(node, Vector3(6.5, 0.3, 0.3), Vector3(3.0, 6.1, 0.0), timber, Vector3(0.0, 0.0, -0.1))
-	_cylinder(node, 0.03, 4.4, Vector3(6.0, 3.9, 0.0), wood)
-	_box(node, Vector3(0.3, 0.3, 0.3), Vector3(6.0, 1.6, 0.0), timber)
+		_box(node, Vector3(half * 2.6, 0.16, 3.2), Vector3(0.0, 8.0, side * 1.35), wood, Vector3(side * 0.62, 0.0, 0.0))
+	_box(node, Vector3(half * 2.7, 0.22, 0.22), Vector3(0.0, 8.7, 0.0), timber)
+	# The tread drum: rim, 8 spokes, tread boards, inside the frame along z.
+	var drum := Node3D.new()
+	drum.position = Vector3(0.0, 3.8, 0.0)
+	node.add_child(drum)
+	var rim_r := 2.0
+	for side: float in [-1.0, 1.0]:
+		for i in 16:
+			var a := TAU * float(i) / 16.0
+			_box(drum, Vector3(0.7, 0.14, 0.14), Vector3(cos(a) * rim_r, sin(a) * rim_r, side * 0.95), timber, Vector3(0.0, 0.0, a + PI * 0.5))
+		for i in 8:
+			var a := TAU * float(i) / 8.0
+			_box(drum, Vector3(rim_r * 2.0, 0.12, 0.12), Vector3(0.0, 0.0, side * 0.95), timber, Vector3(0.0, 0.0, a))
+	for i in 24:
+		var a := TAU * float(i) / 24.0
+		_box(drum, Vector3(0.12, 0.12, 1.9), Vector3(cos(a) * (rim_r - 0.05), sin(a) * (rim_r - 0.05), 0.0), wood, Vector3(0.0, 0.0, a))
+	# Windlass axle with the hoist rope winding to the jib head.
+	_cylinder(node, 0.2, half * 2.6, Vector3(0.0, 3.8, 0.0), timber, Vector3(PI * 0.5, 0.0, 0.0))
+	# Jib: two struts rising seaward from the frame to a pulley head over the water.
+	for sz: float in [-0.9, 0.9]:
+		_box(node, Vector3(7.8, 0.28, 0.28), Vector3(half + 3.4, 7.3, sz), timber, Vector3(0.0, 0.0, -0.14))
+		_box(node, Vector3(0.2, 3.6, 0.2), Vector3(half + 5.6, 5.7, sz), timber, Vector3(0.0, 0.0, 0.0))
+	_box(node, Vector3(0.5, 0.5, 2.1), Vector3(half + 7.2, 6.7, 0.0), timber)
+	_cylinder(node, 0.03, 4.9, Vector3(half + 7.2, 4.2, 0.0), wood)
+	_box(node, Vector3(0.45, 0.45, 0.45), Vector3(half + 7.2, 1.6, 0.0), timber)
+	_box(node, Vector3(1.0, 0.8, 0.8), Vector3(half + 7.2, 0.9, 0.0), wood)
 
 
 static func _stack(

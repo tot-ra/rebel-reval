@@ -5,11 +5,17 @@ extends Node2D
 ## Replaces the generic townsfolk pool: people near Kalev are the real residents
 ## of the houses around him, seated by the timetable in CitizenRoster, in the blank
 ## body that matches their sex, age and build. Hover shows a name, click (or
-## interact beside them) opens the information panel.
+## interact beside them) opens the information panel. Residents at home in a
+## furnished house near Kalev (CityInteriors) are shown inside it, asleep, at
+## table or at the hearth; residents fetching firewood carry it home on their back.
 
 const SPAWN_RADIUS := 62.0
 const DESPAWN_RADIUS := 80.0
 const MAX_LIVE := 30
+## People shown at home: within this distance of Kalev, at most MAX_INDOOR.
+const INDOOR_RADIUS := 16.0
+const MAX_INDOOR := 18
+const SPAWN_PER_FRAME := 3
 const SELECT_REACH := 3.0
 const PICK_RADIUS := 0.55
 const REFRESH_SECONDS := 1.0
@@ -32,6 +38,10 @@ var _panel: CitizenInfoPanel
 var _tag: Label3D
 var _hover: CitizenActor
 var _selected: CitizenActor
+var _interiors: CityInteriors
+## Main-thread cost of the last scan step (microseconds), for budget checks.
+var last_scan_usec := 0
+static var _armful: PackedScene
 
 
 static func create(city_plan: CityPlan, kalev: Node2D) -> CityCitizens:
@@ -96,8 +106,11 @@ func _process(delta: float) -> void:
 	if _since >= REFRESH_SECONDS and player != null and _cursor >= _candidates.size():
 		_since = 0.0
 		refresh(CityPlan.to_world_xz(player.global_position))
+	var start := Time.get_ticks_usec()
 	_scan_step()
+	last_scan_usec = Time.get_ticks_usec() - start
 	_style_new_rigs()
+	_pose_rigs()
 	_update_tag()
 	if _selected != null and is_instance_valid(_selected) and _panel.is_open():
 		_panel.update_now(roster.describe(_selected.index, hour()))
@@ -115,16 +128,20 @@ func refresh(me: Vector2) -> void:
 		var actor: CitizenActor = _live[index]
 		if (
 			not is_instance_valid(actor)
-			or not actor.outdoors
+			or (not actor.outdoors and not actor.at_home)
 			or actor.world_xz().distance_to(me) > DESPAWN_RADIUS
+			or (actor.at_home and actor.world_xz().distance_to(me) > INDOOR_RADIUS + 4.0)
 		):
 			_release(index)
 
 
 func _scan_step() -> void:
 	if _cursor >= _candidates.size():
+		if not _wanted.is_empty():
+			_spawn_wanted()
 		return
 	var end := mini(_cursor + SCAN_PER_FRAME, _candidates.size())
+	var interiors := interiors_node()
 	for k in range(_cursor, end):
 		var index := _candidates[k]
 		if _live.has(index):
@@ -133,18 +150,59 @@ func _scan_step() -> void:
 		if state["visible"]:
 			var distance := (state["pos"] as Vector2).distance_to(_scan_origin)
 			if distance <= SPAWN_RADIUS:
-				_wanted.append([distance, index])
+				_wanted.append([distance, index, false])
+		elif interiors != null:
+			var inside := interiors.indoor_state(index, _scan_hour, float(state["arrived"]))
+			if not inside.is_empty():
+				var distance := (inside["pos"] as Vector2).distance_to(_scan_origin)
+				if distance <= INDOOR_RADIUS:
+					_wanted.append([distance, index, true])
 	_cursor = end
 	if _cursor < _candidates.size():
 		return
+	if _wanted.is_empty():
+		return
 	_wanted.sort()
-	for entry: Array in _wanted:
-		if _live.size() >= MAX_LIVE:
-			break
+	_spawn_wanted()
+
+
+## Seats the wanted residents nearest first, at most SPAWN_PER_FRAME a frame
+## (loading a body is the expensive part); the rest wait for the next frames.
+func _spawn_wanted() -> void:
+	var interiors := interiors_node()
+	var outdoor := 0
+	var indoor := 0
+	for actor: CitizenActor in _live.values():
+		if is_instance_valid(actor) and actor.at_home:
+			indoor += 1
+		else:
+			outdoor += 1
+	var spawned := 0
+	while not _wanted.is_empty() and spawned < SPAWN_PER_FRAME:
+		var entry: Array = _wanted.pop_front()
+		if _live.has(int(entry[1])):
+			continue
+		if entry[2]:
+			if indoor >= MAX_INDOOR:
+				continue
+			indoor += 1
+		else:
+			if outdoor >= MAX_LIVE:
+				continue
+			outdoor += 1
 		var actor := CitizenActor.create(roster, int(entry[1]), Callable(self, "hour"))
+		actor.interiors = interiors
 		add_child(actor)
 		_live[int(entry[1])] = actor
-	_wanted.clear()
+		spawned += 1
+
+
+## The scene's furnished houses (CityInteriors), or null outside the city.
+func interiors_node() -> CityInteriors:
+	if _interiors == null or not is_instance_valid(_interiors):
+		var scene := get_tree().get_first_node_in_group(&"seamless_city")
+		_interiors = scene.get("interiors") as CityInteriors if scene != null else null
+	return _interiors
 
 
 func _release(index: int) -> void:
@@ -185,9 +243,55 @@ func _style_new_rigs() -> void:
 		if model != null:
 			model.scale = rig.model_scale * float(actor.record["height_scale"])
 		_dye(rig, actor.record)
+		CitizenGear.arm(rig, actor.record)
 		var proportions := rig.find_child("RealisticProportions", true, false)
 		if proportions != null:
 			proportions.set("head_scale", float(actor.record["head_scale"]))
+
+
+## Sleepers lie on their backs on the bed (the standing idle turned flat, head
+## behind the origin); people carrying firewood home have an armful on their back.
+func _pose_rigs() -> void:
+	for actor: CitizenActor in _live.values():
+		if not is_instance_valid(actor) or not actor.rig_styled:
+			continue
+		var rig := _rig_of(actor)
+		if rig == null:
+			continue
+		var model := rig.get_node_or_null("Model") as Node3D
+		if model != null:
+			var lying := -PI * 0.5 if actor.is_lying() else 0.0
+			if not is_equal_approx(model.rotation.x, lying):
+				model.rotation.x = lying
+		var carrying := rig.equipped(&"back") != null
+		if actor.carrying_wood != carrying:
+			if actor.carrying_wood:
+				var bundle := rig.equip(&"back", _armful_scene())
+				if bundle != null:
+					_strap_on_back(bundle, actor.view_facing())
+			else:
+				rig.unequip(&"back")
+
+
+## The chest bone lives inside the scaled body: set the bundle's world
+## transform instead, logs across the shoulders, resting on the upper back.
+static func _strap_on_back(bundle: Node3D, facing: Vector2) -> void:
+	var parent := bundle.get_parent() as Node3D
+	var forward := Vector3(facing.x, 0.0, facing.y).normalized()
+	var right := Vector3.UP.cross(forward).normalized()
+	var world := Transform3D(Basis(right, Vector3.UP, right.cross(Vector3.UP)), Vector3.ZERO)
+	world.origin = parent.global_position - forward * 0.24 - Vector3.UP * 0.08
+	bundle.transform = parent.global_transform.affine_inverse() * world
+
+
+static func _armful_scene() -> PackedScene:
+	if _armful == null:
+		var model := CityInteriors._template("obj.firewood_armful", "")
+		_armful = PackedScene.new()
+		if model != null:
+			_armful.pack(model)
+			model.free()
+	return _armful
 
 
 ## Garment dyes: the body ships undyed cloth; this resident's own colours replace it.

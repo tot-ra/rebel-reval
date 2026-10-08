@@ -144,6 +144,21 @@ func test_roll_plan_turns_into_left_right_forward_and_rolls_back_without_turning
 	assert_eq(idle["animation"], CombatMoveCatalog.ROLL_BACKWARD, "No input rolls back")
 
 
+func test_guarded_roll_strafes_sideways_keeping_facing() -> void:
+	var facing := Vector2.DOWN
+	# Facing the viewer, the character's left is screen right.
+	var left: Dictionary = Player.roll_plan(Vector2.RIGHT, facing, true)
+	assert_eq(left["animation"], CombatMoveCatalog.ROLL_LEFT)
+	assert_true((left["facing"] as Vector2).is_equal_approx(facing), "A strafe roll keeps facing")
+	assert_true((left["direction"] as Vector2).is_equal_approx(Vector2.RIGHT))
+	var right: Dictionary = Player.roll_plan(Vector2.LEFT, facing, true)
+	assert_eq(right["animation"], CombatMoveCatalog.ROLL_RIGHT)
+	var forward: Dictionary = Player.roll_plan(Vector2.DOWN, facing, true)
+	assert_eq(forward["animation"], CombatMoveCatalog.ROLL_FORWARD, "Forward stays a forward roll")
+	var unguarded: Dictionary = Player.roll_plan(Vector2.RIGHT, facing, false)
+	assert_eq(unguarded["animation"], CombatMoveCatalog.ROLL_FORWARD, "Without guard the body turns")
+
+
 func test_player_roll_travels_toward_input_and_spends_stamina() -> void:
 	var player := _create_player()
 	player.global_position = Vector2.ZERO
@@ -219,6 +234,33 @@ func test_clock_driven_swing_actually_moves_the_weapon_hand() -> void:
 				% [move_id, start.distance_to(contact)]
 			)
 		)
+	kalev.queue_free()
+
+
+func test_side_rolls_tumble_toward_their_own_side_and_end_standing() -> void:
+	var kalev := _create_kalev()
+	var skeleton := kalev.skeleton()
+	var hips := skeleton.find_bone("hips")
+	var length := CombatRollClip.LENGTH_SEC
+	for id: StringName in [CombatMoveCatalog.ROLL_LEFT, CombatMoveCatalog.ROLL_RIGHT]:
+		assert_true(kalev.play_animation(id, 0.0), "%s must exist" % id)
+		kalev.sync_action_presentation(id, 0.0, length)
+		var start := skeleton.get_bone_global_pose(hips)
+		var min_up_dot := 1.0
+		var head_side := 0.0
+		for i in 21:
+			kalev.sync_action_presentation(id, length * i / 20.0, length)
+			var up := skeleton.get_bone_global_pose(hips).basis.y.normalized()
+			min_up_dot = minf(min_up_dot, up.dot(start.basis.y.normalized()))
+			head_side += up.x
+		assert_true(min_up_dot < -0.5, "%s must go over shoulders (%.2f)" % [id, min_up_dot])
+		# Rolling left carries the head toward the character's left (+X in model space).
+		assert_true(
+			(head_side > 0.0) == (id == CombatMoveCatalog.ROLL_LEFT),
+			"%s tumbles toward its own side (%.2f)" % [id, head_side]
+		)
+		var end := skeleton.get_bone_global_pose(hips)
+		assert_true(end.basis.y.normalized().dot(start.basis.y.normalized()) > 0.95, "%s ends upright" % id)
 	kalev.queue_free()
 
 

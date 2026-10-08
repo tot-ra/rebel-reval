@@ -80,6 +80,13 @@ const FALLOW_HERDS: Array[Dictionary] = [
 	{"species": GOAT, "count": 2},
 ]
 const FIELD_FOX_MIN_Z := 470.0
+## Outbuilding type -> the animals kept at it.
+const YARD_STOCK := {
+	"hen_house": {"species": &"chicken", "behavior": BEHAVIOR_WANDER, "radius": 3.5, "count": 3},
+	"pigsty": {"species": &"pig", "behavior": BEHAVIOR_PEN, "radius": 3.0, "count": 2},
+	"byre": {"species": &"cow", "behavior": BEHAVIOR_PEN, "radius": 4.5, "count": 2},
+	"sheep_shed": {"species": &"sheep", "behavior": BEHAVIOR_PEN, "radius": 4.0, "count": 3},
+}
 
 var plan: CityPlan
 var player: Node2D
@@ -143,13 +150,19 @@ static func groups_for(city_plan: CityPlan) -> Array[Dictionary]:
 				"count": int(stock["count"]),
 			}
 			_add(groups, _group(city_plan, "%s/%s" % [pasture["id"], species], entry, centre))
-	for farm: Dictionary in city_plan.data.get("farmsteads", []):
-		var yard := Vector2(farm["at"][0], farm["at"][1]) + Vector2(5.0, 6.0)
-		var hens := {"species": &"chicken", "behavior": BEHAVIOR_WANDER, "radius": 3.5, "count": 3}
-		_add(groups, _group(city_plan, "%s/chicken" % farm["id"], hens, yard))
-		if hash(farm["id"]) % 3 == 0:
-			var pigs := {"species": &"pig", "behavior": BEHAVIOR_PEN, "radius": 3.5, "count": 2}
-			_add(groups, _group(city_plan, "%s/pig" % farm["id"], pigs, yard + Vector2(-8.0, 3.0)))
+	# Yard animals live at their own outbuildings (farm_outbuildings in the plan).
+	for b: Dictionary in city_plan.data.get("buildings", []):
+		if String(b.get("kind", "")) != "outbuilding" or not YARD_STOCK.has(String(b["type"])):
+			continue
+		var stock: Dictionary = YARD_STOCK[String(b["type"])]
+		var yard := _centroid(CityPlan.points(b["footprint"])) + Vector2(3.5, 3.5)
+		var entry := {
+			"species": stock["species"],
+			"behavior": stock["behavior"],
+			"radius": stock["radius"],
+			"count": stock["count"],
+		}
+		_add(groups, _group(city_plan, "%s/%s" % [b["id"], stock["species"]], entry, yard))
 	return groups
 
 
@@ -206,6 +219,7 @@ static func _group(city_plan: CityPlan, id: String, entry: Dictionary, at: Vecto
 static func _is_dry(city_plan: CityPlan, xz: Vector2) -> bool:
 	return (
 		city_plan.ground_height(xz) > MIN_GROUND
+		and not city_plan.in_moat(xz, 1.5)
 		and city_plan.slope_at(xz) < MAX_SLOPE
 		and city_plan.site_at(xz) == null
 		and _clear_of_buildings(city_plan, xz)

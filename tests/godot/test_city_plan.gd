@@ -85,25 +85,27 @@ func test_no_post_1343_towers_are_built() -> void:
 		assert_false(name.contains("Margaret"), "no Fat Margaret building")
 
 
-func test_viru_gate_is_a_four_tower_barbican() -> void:
+func test_viru_gate_has_two_slim_drums_and_no_barbican() -> void:
 	var plan := _plan()
-	var barbicans: Array = plan.data["barbicans"]
-	assert_eq(barbicans.size(), 1, "one barbican")
-	var bb: Dictionary = barbicans[0]
-	assert_eq(bb["gate"], "gate.viru")
-	assert_eq((bb["walls"] as Array).size(), 2, "two bailey walls")
+	assert_true((plan.data.get("barbicans", []) as Array).is_empty(), "no barbican at Viru")
 	var viru_drums := 0
 	for t: Dictionary in plan.data["towers"]:
 		if String(t["id"]).begins_with("tower.viru_"):
 			viru_drums += 1
 			assert_eq(t["form"], "round", "%s is a round drum" % t["id"])
-	assert_eq(viru_drums, 4, "inner pair plus outer pair")
-	var inner := Vector2(0, 0)
-	for g: Dictionary in plan.data["gates"]:
-		if g["id"] == "gate.viru":
-			inner = Vector2(g["at"][0], g["at"][1])
-	var outer := Vector2(bb["outer_gate"]["at"][0], bb["outer_gate"]["at"][1])
-	assert_true(inner.distance_to(outer) > 20.0, "a real bailey between the gates")
+			assert_true(float(t["w"]) <= 7.0, "%s is a slim drum" % t["id"])
+	assert_eq(viru_drums, 2, "one flanking drum each side of the gate")
+
+
+func test_roads_cross_the_moat_on_bridges_not_dams() -> void:
+	var plan := _plan()
+	var moat_bridges := 0
+	for b: Dictionary in plan.data["bridges"]:
+		if String(b.get("kind", "")) == "moat":
+			moat_bridges += 1
+			var at := Vector2(b["at"][0], b["at"][1])
+			assert_false(is_nan(plan.bridge_deck_height(at)), "%s has a deck" % b["id"])
+	assert_true(moat_bridges >= 3, "Viru, Karja and Harju roads cross the ditch by bridge")
 
 
 func test_stream_is_graded_and_bridges_sit_on_the_banks() -> void:
