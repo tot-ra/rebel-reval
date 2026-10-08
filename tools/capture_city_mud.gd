@@ -12,12 +12,15 @@ const VIEWPORT_SIZE := Vector2i(1600, 900)
 
 var _tag := "now"
 var _wet := 0.9
+var _puddles := -1.0
 
 
 func _initialize() -> void:
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--tag="):
 			_tag = arg.substr(6)
+		elif arg.begins_with("--puddles="):
+			_puddles = float(arg.substr(10))
 		elif arg.begins_with("--wet="):
 			_wet = float(arg.substr(6))
 	call_deferred("_run")
@@ -60,7 +63,10 @@ func _open_with_verge(plan: CityPlan, wp: Vector2, splat: Image, size: Vector2) 
 			return false
 	var at := func(q: Vector2) -> Color:
 		var p := (q - plan.bounds.position) / plan.bounds.size * Vector2(splat.get_size())
-		return splat.get_pixel(clampi(int(p.x), 0, splat.get_width() - 1), clampi(int(p.y), 0, splat.get_height() - 1))
+		return splat.get_pixel(
+			clampi(int(p.x), 0, splat.get_width() - 1),
+			clampi(int(p.y), 0, splat.get_height() - 1)
+		)
 	if (at.call(wp) as Color).r > 0.2:
 		return false
 	var grass := 0
@@ -84,7 +90,10 @@ func _road_dir(plan: CityPlan, at: Vector2) -> Vector2:
 		for s in range(1, 40):
 			var wp := at + d * float(s) * 0.5
 			var p := (wp - plan.bounds.position) / plan.bounds.size * size
-			if img.get_pixel(clampi(int(p.x), 0, img.get_width() - 1), clampi(int(p.y), 0, img.get_height() - 1)).r > 0.9:
+			var px := img.get_pixel(
+				clampi(int(p.x), 0, img.get_width() - 1), clampi(int(p.y), 0, img.get_height() - 1)
+			)
+			if px.r > 0.9:
 				n += 1
 		if n > best_len:
 			best_len = n
@@ -114,7 +123,7 @@ func _run() -> void:
 	world.apply_time(0.42)
 	var ground := CityTerrainBuilder.shared_material()
 	ground.set_shader_parameter("wetness", _wet)
-	ground.set_shader_parameter("puddles", _wet * 0.5)
+	ground.set_shader_parameter("puddles", _puddles if _puddles >= 0.0 else _wet * 0.5)
 	world.trail.wetness = _wet
 	# Walk 24 wu along the road, a little wandering, so prints fill the window.
 	var side := Vector2(-dir.y, dir.x)

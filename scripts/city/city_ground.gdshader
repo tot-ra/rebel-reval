@@ -281,14 +281,36 @@ void fragment() {
 	// Ruts hold water only where they are deepest; elsewhere they stay damp clay.
 	float rut_pool = in_rut * smoothstep(0.35, 0.8, value_noise(wuv * 0.21)) * 1.5;
 	float pool = max(hollow * soft, max(rut_pool, pressed)) * flat_ground;
-	float puddle = smoothstep(0.35, 0.6, pool) * puddles * (1.0 - paving);
+	// Water has a level, not a switch: rain raises it through the hollows, so the
+	// deepest basins fill first and the pools widen as `puddles` grows. `water_depth` is
+	// the water standing over each point (negative = still above the waterline).
+	float water_depth = (pool - (1.05 - puddles * 0.75)) * (1.0 - paving);
+	// Gradation, driest to wettest: damp earth round the pool, a thin wet film that
+	// still shows the bed, then standing water that hides it and mirrors the sky.
+	float damp_ring = smoothstep(-0.32, 0.0, water_depth) * step(0.001, puddles);
+	float film = smoothstep(0.0, 0.05, water_depth);
+	float deep = smoothstep(0.04, 0.28, water_depth);
 	// Water seeps into the deepest prints and ruts of soaked ground even where no
-	// standing puddle has formed yet.
+	// standing puddle has formed yet: a film only, never deep water.
 	float seep = smoothstep(0.55, 0.9, max(pressed, in_rut * 0.7 * smoothstep(0.35, 0.7, value_noise(wuv * 0.4)))) * smoothstep(0.45, 0.9, wet_road) * (1.0 - paving) * flat_ground;
-	puddle = max(puddle, seep * 0.8);
+	float puddle = max(film, seep * 0.8);
 	float wet = clamp(wetness + mud * 0.35 + shore * 0.5 + puddles * soft * 0.5 + pressed * wet_road * 0.3, 0.0, 1.0);
-	col = mix(col * mix(1.0, 0.62, wet), vec3(0.08, 0.09, 0.09), puddle * 0.85);
-	nxy = mix(nxy, vec2(0.0), puddle);
+	col *= mix(1.0, 0.62, wet);
+	// Soaked margin: darker, richer earth before any water is visible.
+	col = mix(col, col * vec3(0.66, 0.6, 0.55), damp_ring * 0.65);
+	// Film keeps the bed visible but dark; deep water is a murky, almost bedless tint.
+	vec3 water_col = mix(col * 0.6, vec3(0.115, 0.135, 0.135), deep);
+	col = mix(col, water_col, puddle * 0.92);
+	// Water is level: the bed relief vanishes under it, and rain pocks the surface
+	// with expanding rings. Only standing water (deep) ripples, a film just shines.
+	nxy = mix(nxy, vec2(0.0), clamp(puddle * 0.55 + deep * 0.45, 0.0, 1.0));
+	vec2 rcell = floor(wuv * 3.0);
+	vec2 rloc = fract(wuv * 3.0) - 0.5;
+	float rphase = fract(TIME * 0.9 + hash12(rcell));
+	float rdist = length(rloc - (vec2(hash12(rcell + 3.1), hash12(rcell + 7.7)) - 0.5) * 0.5);
+	float ring = cos((rdist - rphase * 0.7) * 38.0) * exp(-abs(rdist - rphase * 0.7) * 14.0) * (1.0 - rphase);
+	float rain_on_water = smoothstep(0.2, 0.7, wetness) * deep * detail;
+	nxy += normalize(rloc + vec2(0.0001)) * ring * 0.16 * rain_on_water;
 	// Meadow relief: cavity shading and a tussock normal on pure turf only. Fades
 	// out with distance like the other micro relief so it cannot shimmer.
 	float turf = (1.0 - max(max(earth, mud), max(sand, max(road, paving)))) * (1.0 - max(rock, bank)) * (1.0 - puddle);
@@ -297,14 +319,15 @@ void fragment() {
 	vec2 gslope = vec2(grass_height(wuv + e.xy) - gh, grass_height(wuv + e.yx) - gh) / e.x;
 	nxy += -gslope * grass_relief_normal * turf * detail;
 	ALBEDO = col;
-	ROUGHNESS = mix(mix(0.95, 0.6, wet * (1.0 - rock * 0.5)), 0.12, puddle);
+	ROUGHNESS = mix(mix(0.95, 0.6, wet * (1.0 - rock * 0.5)), 0.5, damp_ring * 0.5);
+	ROUGHNESS = mix(ROUGHNESS, mix(0.16, 0.025, deep), puddle);
 	// Dust is the roughest thing there is; slick clay shines in the ruts.
 	ROUGHNESS = mix(ROUGHNESS, 0.98, road * dryness * 0.6);
 	ROUGHNESS = mix(ROUGHNESS, 0.5, in_rut * wet_road * 0.8);
 	ROUGHNESS = mix(ROUGHNESS, 0.3, (pressed + rim * 0.5) * wet_road * 0.7);
 	// Turf scatters light diffusely: no glint and no wet-gloss on dry-looking grass.
 	ROUGHNESS = mix(ROUGHNESS, 1.0, turf * 0.85);
-	SPECULAR = mix(mix(0.3, grass_specular, turf), 0.55, puddle);
+	SPECULAR = mix(mix(0.3, grass_specular, turf), mix(0.4, 0.6, deep), puddle);
 	nxy = clamp(nxy * mix(1.0, 0.75, wet) * (1.0 - rock), vec2(-0.95), vec2(0.95));
 	NORMAL_MAP = vec3(nxy, sqrt(max(1.0 - dot(nxy, nxy), 0.0))) * 0.5 + 0.5;
 }
