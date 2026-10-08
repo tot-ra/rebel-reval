@@ -32,6 +32,8 @@ const SPELL_ACTIONS: Array[StringName] = [
 var duel := SpiritDuel.new()
 var observation := SpiritObservation.new()
 var freeze_world := true
+## The 3D disc the duel is fought in, when attach_arena() was used.
+var arena_3d: SpiritArena3D
 
 var _runner: Node
 var _was_paused := false
@@ -74,6 +76,24 @@ func _init() -> void:
 
 func is_open() -> bool:
 	return _open
+
+
+## ADR 0038: fight inside a bounded 3D disc around `at` instead of over the frozen world. Call
+## before open(); close() restores the hidden room. Real-time movement arrives with SA3D-2.
+func attach_arena(world_root: Node, at: Vector3, keep: Array[Node3D], is_indoors: bool) -> bool:
+	detach_arena()
+	arena_3d = SpiritArena3D.new()
+	if arena_3d.open(world_root, at, keep, is_indoors):
+		return true
+	arena_3d.free()
+	arena_3d = null
+	return false
+
+
+func detach_arena() -> void:
+	if arena_3d != null and arena_3d.is_open():
+		arena_3d.close()
+	arena_3d = null
 
 
 ## Open the arena for `dialogue_id`. False (and nothing changes) when it is not a duel.
@@ -169,6 +189,7 @@ func close() -> void:
 	if freeze_world and is_inside_tree():
 		get_tree().paused = _was_paused
 	_teardown()
+	detach_arena()
 	closed.emit(outcome)
 
 
