@@ -209,7 +209,17 @@ static func bridge_deck_at(bridge: Dictionary, t: float) -> float:
 
 func floor_height(index: int) -> float:
 	var b: Dictionary = buildings[index]
-	return float(b["base_h"]) + float(b["base_span"]) + FLOOR_LIFT
+	var highest := float(b["base_h"]) + float(b["base_span"]) + FLOOR_LIFT
+	# A building nobody can enter has no interior floor for the slope to poke
+	# through, so its threshold follows the street at the door instead of the
+	# highest ground under the footprint. Otherwise a house on a slope gets a
+	# flight of steps up to a doorway that opens onto a blank wall.
+	var door: Variant = b.get("door")
+	if door != null and not bool(b.get("enterable", false)):
+		var out := Vector2(cos(float(door[2])), sin(float(door[2])))
+		var at_door := ground_height(Vector2(door[0], door[1]) + out) + FLOOR_LIFT
+		return clampf(at_door, float(b["base_h"]) + FLOOR_LIFT, highest)
+	return highest
 
 
 func footprint(index: int) -> PackedVector2Array:
