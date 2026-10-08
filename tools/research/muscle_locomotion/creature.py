@@ -46,6 +46,11 @@ class Creature:
     w_pitch: float = 0.0          # cost weight: trunk tilt (radians)
     w_effort: float = 0.5         # cost weight: mean squared muscle activation
     body: dict = field(default_factory=dict)   # body parameters the creature was built from
+    symmetric: bool = False       # right leg = left leg's controller half a cycle later, with mirrored sensors
+    w_lead: float = 0.0           # cost: one foot stays ahead of the pelvis on average (lunging gait)
+    w_exc: float = 0.0            # cost: each foot must swing through a stride-length excursion
+    w_clear: float = 0.0          # cost: swing foot must clear the ground
+    w_alt: float = 0.0            # cost: heel strikes must alternate left, right, left, right
     f_range: tuple = (0.5, 3.5)   # stride frequency range (Hz) at size 1; scales with 1/sqrt(size)
     w_air: float = 0.0            # cost weight: each foot should be off the ground about `air_target` of the time
     air_target: float = 0.4

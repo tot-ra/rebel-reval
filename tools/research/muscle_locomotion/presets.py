@@ -50,7 +50,8 @@ def biped(body=None, **kw):
         ]
     stand = (0.43 + 0.43 + 0.045) * b.size
     return Creature("biped", B, stand_height=stand, fall_frac=0.74, root_pitch_ok=30, proprio=True,
-                    w_height=1.0, w_pitch=2.0, start_speed=0.6, f_range=(0.6, 2.0), w_air=2.0, air_target=0.38, body=asdict(b))
+                    w_height=1.0, w_pitch=2.0, start_speed=0.6, f_range=(0.6, 2.0), w_air=2.0, air_target=0.38, symmetric=True,
+                    w_lead=3.0, w_exc=2.0, w_clear=1.0, w_alt=1.5, body=asdict(b))
 
 def quadruped(body=None, **kw):
     """Dog-ish, 25 kg at nominal. Root = pelvis; the trunk runs forward to the shoulders."""

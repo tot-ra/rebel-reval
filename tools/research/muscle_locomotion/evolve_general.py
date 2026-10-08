@@ -78,8 +78,8 @@ if __name__ == "__main__":
         x0 = np.array(json.load(open(a.init))["params"])
     else:
         x0 = np.zeros(s0.nparams)
-        P = x0[:-1 - 6].reshape(s0.nj, s0.per_joint)
-        P[:, 1] = 2.0; P[:, 2] = rng.uniform(0, 2 * np.pi, s0.nj); P[:, 3] = 0.5
+        P = x0[:-1 - 6].reshape(s0.npj, s0.per_joint)
+        P[:, 1] = 2.0; P[:, 2] = rng.uniform(0, 2 * np.pi, s0.npj); P[:, 3] = 0.5
         x0 = np.concatenate([P.ravel(), np.zeros(1 + 6)]) + rng.normal(0, 0.05, s0.nparams)
     es = cma.CMAEvolutionStrategy(x0, a.sigma, {"popsize": a.pop, "seed": a.seed, "verbose": -9})
     best = (1e9, x0); t0 = time.time()

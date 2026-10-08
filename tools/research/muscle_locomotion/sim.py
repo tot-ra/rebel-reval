@@ -36,7 +36,30 @@ class Sim:
         self.ns = 2 + self.nfoot + (2 + len(self.joint_bones) if c.proprio else 0) + NCTX
         self.nj = self.nm // 2
         self.per_joint = 4 + self.ns + 3 * NCTX
-        self.nparams = self.nj * self.per_joint + 1 + NCTX
+        names = [b.name for b in self.joint_bones]
+        if c.symmetric:
+            twin = {}
+            for i, n in enumerate(names):
+                if n.endswith("R"): twin[i] = names.index(n[:-1] + "L")
+            self.right = np.array([i in twin for i in range(self.nj)])
+            left_ids = [i for i in range(self.nj) if not self.right[i]]
+            self.pidx = np.array([left_ids.index(twin.get(i, i)) for i in range(self.nj)])
+            self.npj = len(left_ids)
+            self.shift = np.where(self.right, math.pi, 0.0)
+            # sensor permutation for the mirrored side: swap left/right joint angles and foot contacts
+            nb = 4 if c.proprio else 2
+            perm = list(range(self.ns))
+            if c.proprio:
+                for i, t in twin.items():
+                    perm[nb + i] = nb + t; perm[nb + t] = nb + i
+            base = nb + (self.nj if c.proprio else 0)
+            if self.nfoot == 2:
+                perm[base], perm[base + 1] = base + 1, base
+            self.perm = np.array(perm)
+        else:
+            self.right = np.zeros(self.nj, bool); self.pidx = np.arange(self.nj); self.npj = self.nj
+            self.shift = np.zeros(self.nj); self.perm = np.arange(self.ns)
+        self.nparams = self.npj * self.per_joint + 1 + NCTX
 
     def _set_length_ranges(self):
         """Each muscle's usable length range = its tendon length swept over the joint's limits."""
@@ -67,7 +90,7 @@ class Sim:
         """Per joint: bias a, amplitude b, phase psi, co-contraction c, sensor weights W, and
         context modulators of a, b and c. Flexor is driven by c+x, extensor by c-x."""
         nj, pj = self.nj, self.per_joint
-        P = np.asarray(p[:-1 - NCTX]).reshape(nj, pj)
+        P = np.asarray(p[:-1 - NCTX]).reshape(self.npj, pj)[self.pidx]
         ns = self.ns
         q = dict(a=P[:, 0], b=P[:, 1], psi=P[:, 2], c=P[:, 3], W=P[:, 4:4 + ns],
                  Ma=P[:, 4 + ns:4 + ns + NCTX], Mb=P[:, 4 + ns + NCTX:4 + ns + 2 * NCTX],
@@ -81,7 +104,10 @@ class Sim:
         return (lo + (hi - lo) / (1 + math.exp(-(q["f0"] + float(q["fc"] @ ctx))))) / math.sqrt(size)
 
     def drive(self, q, f, t, s, ctx):
-        x = q["a"] + q["Ma"] @ ctx + (q["b"] + q["Mb"] @ ctx) * np.sin(2 * math.pi * f * t + q["psi"]) + q["W"] @ s
+        fb = q["W"] @ s
+        if self.c.symmetric:
+            fb = np.where(self.right, q["W"] @ s[self.perm], fb)
+        x = q["a"] + q["Ma"] @ ctx + (q["b"] + q["Mb"] @ ctx) * np.sin(2 * math.pi * f * t + q["psi"] + self.shift) + fb
         c = q["c"] + q["Mc"] @ ctx
         u = np.empty(self.nm)
         u[0::2] = 1.0 / (1.0 + np.exp(-(c + x)))
@@ -128,7 +154,7 @@ class Sim:
         q = self.unpack(p); f = self.frequency(q, ctx)
         n = int(T / (CTRL_EVERY * m.opt.timestep))
         d.qvel[0] = self.c.start_speed * v_target
-        effort = sag = tilt = 0.0; air = np.zeros(self.nfoot); alive = 0; traj = []; verr = 0.0; vcount = 0
+        effort = sag = tilt = 0.0; air = np.zeros(self.nfoot); relx = []; clear = []; strikes = []; prev_c = np.zeros(self.nfoot); alive = 0; traj = []; verr = 0.0; vcount = 0
         x_prev = d.qpos[0]; pushed = push is None
         root_body = m.body(self.c.bones[0].name).id
         for k in range(n):
@@ -147,6 +173,15 @@ class Sim:
                 break
             alive += 1
             air += 1.0 - self.last_contacts
+            if self.nfoot == 2 and (self.c.w_lead or self.c.w_exc or self.c.w_clear or self.c.w_alt):
+                rx = d.xpos[m.body(self.c.bones[0].name).id][0]
+                relx.append([d.geom_xpos[g][0] - rx for g in self.foot_geoms])
+                for i, g in enumerate(self.foot_geoms):
+                    if self.last_contacts[i] == 0:
+                        clear.append(d.geom_xpos[g][2] - m.geom_size[g][0])
+                    elif prev_c[i] == 0:
+                        strikes.append(i)
+                prev_c = self.last_contacts.copy()
             effort += float(np.mean(u * u))
             zr = (d.qpos[1] + self.c.stand_height) / self.stand
             sag += max(0.0, 0.85 - zr); tilt += abs(d.qpos[2])
@@ -161,6 +196,16 @@ class Sim:
         mean_verr = verr / max(vcount, 1) if vcount else 2.0
         na = max(alive, 1)
         gait = self.c.w_air * float(np.mean(np.abs(air / na - self.c.air_target)))
+        if relx and (self.c.w_lead or self.c.w_exc or self.c.w_clear or self.c.w_alt):
+            R = np.array(relx)[int(0.4 * len(relx)):]
+            leg = self.stand
+            gait += self.c.w_lead * abs(R[:, 0].mean() - R[:, 1].mean()) / leg
+            exc = (R.max(axis=0) - R.min(axis=0)) / leg
+            gait += self.c.w_exc * float(np.mean(np.maximum(0.0, 0.6 - exc)))
+            mc = float(np.mean(clear)) if clear else 0.0
+            gait += self.c.w_clear * max(0.0, 1.0 - mc / 0.05)
+            alt = float(np.mean(np.diff(strikes) != 0)) if len(strikes) > 3 else 0.0
+            gait += self.c.w_alt * (1.0 - alt)
         cost = (10.0 * (1 - alive_frac) + W_SPEED * mean_verr + self.c.w_effort * effort / na
                 + self.c.w_height * sag / na * 10 + self.c.w_pitch * tilt / na + gait)
         return dict(cost=cost, alive=alive_frac, dist=float(d.qpos[0]), speed=float(d.qpos[0] / T), verr=mean_verr,

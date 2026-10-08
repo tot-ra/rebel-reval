@@ -64,6 +64,25 @@ The prototype was visually checked only through stick-figure filmstrips. There i
 
 `python render.py results/biped_general.json --fr 0.35` replays the stored controller on six named bodies and must print `alive 1.00` for each, with speeds about 1.07, 0.87, 1.07, 0.82, 0.84, 0.86 m/s (normal, dwarf, tall, heavy, armoured, belly) and writes the gallery and clips. There are no automated tests yet.
 
+## Pushing evolution toward natural gaits
+
+Observed (2026-10-08): in the planar biped GIF one leg (orange) stays ahead of the pelvis and the other (blue) stays behind, so the legs never swap: a lunging, slow, statically stable gait. Evolution optimises the fitness, not the intent; if survival and speed error are the only terms, any stable shuffle is a valid answer. Remedies, from cheapest to most expensive; the first four are implemented in the planar prototype (`sim.py`), the 3D trainer already has the first.
+
+1. **Structure (removes whole classes of bad solutions).** The right leg runs the left leg's controller half a cycle later with mirrored sensors (`Creature.symmetric`). A lead leg is then impossible by construction. Also halves the search space.
+2. **Gait-shape costs measured from the simulation.**
+   - Lead asymmetry: the mean forward position of each foot relative to the pelvis must match (`w_lead`).
+   - Excursion: each foot must swing through at least about 0.6 leg lengths (`w_exc`), so a trailing foot that barely moves is punished.
+   - Swing clearance: the average height of an airborne foot should reach about 5 cm (`w_clear`), against dragging.
+   - Alternation: heel strikes must alternate left, right, left, right (`w_alt`).
+   - Foot air time about 38 % per foot (`w_air`), as before.
+3. **Energy.** Natural walking is close to energy-optimal (pendulum-like gait). The effort term is a cost of transport proxy; raising its weight late in training removes needless co-contraction. It must not be raised first, or standing still wins.
+4. **Speed pressure.** A slow target allows a static lunge; a faster target (Froude 0.35 and up) needs real swing phases. Curriculum: train at the faster end, then widen.
+5. **Environment (not yet implemented, same trainer hooks).** Small random bumps and kerbs force foot lift; random pushes force stepping, which swaps the legs; slopes and stairs need a clearance. These also make the gait robust, which fixed-trajectory training does not.
+6. **Reference prior (optional, needs care).** A soft penalty on the distance of the joint-angle curves to generic human walking curves (hip about 30 degrees flexed at heel strike to 10 degrees extended at toe-off, knee about 15 degrees in loading and 60 degrees in swing, ankle small) pulls the shape toward human walking. It needs a correct reference (motion capture or published curves); I did not have one in the session, so this is left out, and values quoted here are from memory.
+7. **Learned discriminator (heavier).** An adversarial motion prior learns "does this look like a real gait" from example clips (as in AMP-style imitation); it needs a dataset of human or animal motion and reinforcement learning.
+
+Results of the planar retrain with items 1 to 4 are in the Results table once finished.
+
 ## 3D architecture (in progress)
 
 The planar prototype proved the method. The target is a full 3D system for procedural people, animals, birds and snakes. Design decisions for `creature3d.py` and `sim3d.py`:
