@@ -33,6 +33,7 @@ var _guard_mode_option: OptionButton
 var _screen_shake_check: CheckButton
 var _reduced_flashing_check: CheckButton
 var _enhanced_focus_check: CheckButton
+var _reply_timer_check: CheckButton
 var _remap_controls_button: Button
 
 
@@ -201,6 +202,8 @@ func _build_ui() -> void:
 	_reduced_flashing_check.toggled.connect(_on_reduced_flashing_toggled)
 	_enhanced_focus_check = _add_toggle_row(layout, "Enhanced focus contrast")
 	_enhanced_focus_check.toggled.connect(_on_enhanced_focus_toggled)
+	_reply_timer_check = _add_toggle_row(layout, "Spirit duel reply timer pressure")
+	_reply_timer_check.toggled.connect(_on_reply_timer_toggled)
 
 	_remap_controls_button = Button.new()
 	_remap_controls_button.text = "Remap controls"
@@ -318,6 +321,7 @@ func _sync_from_settings() -> void:
 	_screen_shake_check.set_pressed_no_signal(gameplay_settings.screenshake_enabled)
 	_reduced_flashing_check.set_pressed_no_signal(gameplay_settings.reduced_flashing)
 	_enhanced_focus_check.set_pressed_no_signal(gameplay_settings.enhanced_focus_contrast)
+	_reply_timer_check.set_pressed_no_signal(gameplay_settings.reply_timer_pressure)
 
 
 func _on_music_changed(value: float) -> void:
@@ -409,6 +413,12 @@ func _on_reduced_flashing_toggled(pressed: bool) -> void:
 func _on_enhanced_focus_toggled(pressed: bool) -> void:
 	var gameplay = _current_gameplay_settings()
 	gameplay.enhanced_focus_contrast = pressed
+	_apply_gameplay_settings(gameplay)
+
+
+func _on_reply_timer_toggled(pressed: bool) -> void:
+	var gameplay = _current_gameplay_settings()
+	gameplay.reply_timer_pressure = pressed
 	_apply_gameplay_settings(gameplay)
 
 

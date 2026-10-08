@@ -229,7 +229,14 @@
     {
       "id": "resolved_spared",
       "speaker_id": "char.almshouse_porter",
-      "text": "Hm. Take the heel of it to the little one. And you did not hear this from me."
+      "text": "Hm. Take the heel of it to the little one. And you did not hear this from me.",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.prologue.spared_porter",
+          "value": true
+        }
+      ]
     },
     {
       "id": "resolved_broken",

@@ -43,6 +43,58 @@
           "delivery": "Deliberately anticlimactic. The transaction, not the rescue."
         },
         {
+          "id": "l1_spared",
+          "text": "At the door the porter pressed the heel of a loaf into his hand and looked the other way.",
+          "seconds": 5.0,
+          "delivery": "Quiet, a beat after the matron's line. The duel's cost, not its moral.",
+          "conditions": [
+            {
+              "op": "flag_is",
+              "key": "flag.prologue.spared_porter",
+              "value": true
+            }
+          ]
+        },
+        {
+          "id": "l1_broke",
+          "text": "Behind them the porter sat on the cold-store step with a rusted key in his lap, and did not watch them go.",
+          "seconds": 5.0,
+          "delivery": "Quiet, a beat after the matron's line. The duel's cost, not its moral.",
+          "conditions": [
+            {
+              "op": "flag_is",
+              "key": "flag.prologue.broke_porter",
+              "value": true
+            }
+          ]
+        },
+        {
+          "id": "l1_struck",
+          "text": "The porter shouted something after them, one hand on his jaw. The boy did not turn. His own hands remembered the shove.",
+          "seconds": 5.0,
+          "delivery": "Quiet, a beat after the matron's line. The duel's cost, not its moral.",
+          "conditions": [
+            {
+              "op": "flag_is",
+              "key": "flag.prologue.struck_porter",
+              "value": true
+            }
+          ]
+        },
+        {
+          "id": "l1_punished",
+          "text": "His palm still burned from the rod. He closed it around nothing and kept walking.",
+          "seconds": 5.0,
+          "delivery": "Quiet, a beat after the matron's line. The duel's cost, not its moral.",
+          "conditions": [
+            {
+              "op": "flag_is",
+              "key": "flag.prologue.punished_by_porter",
+              "value": true
+            }
+          ]
+        },
+        {
           "id": "l2",
           "text": "A bed by the hearth, bread twice a day, and work from before light.",
           "seconds": 6.0,

@@ -19,7 +19,60 @@
     "char.apprentice"
   ],
   "start_node_id": "kalev_looks",
+  "entry_variants": [
+    {
+      "node_id": "kalev_heard_struck",
+      "priority": 30,
+      "conditions": [
+        {
+          "op": "flag_is",
+          "key": "flag.prologue.struck_porter",
+          "value": true
+        }
+      ]
+    },
+    {
+      "node_id": "kalev_heard_broke",
+      "priority": 20,
+      "conditions": [
+        {
+          "op": "flag_is",
+          "key": "flag.prologue.broke_porter",
+          "value": true
+        }
+      ]
+    },
+    {
+      "node_id": "kalev_heard_punished",
+      "priority": 10,
+      "conditions": [
+        {
+          "op": "flag_is",
+          "key": "flag.prologue.punished_by_porter",
+          "value": true
+        }
+      ]
+    }
+  ],
   "nodes": [
+    {
+      "id": "kalev_heard_struck",
+      "speaker_id": "char.kalev",
+      "text": "The matron says you laid hands on the porter. I have a temper too, boy. It has cost me more than it ever won me.",
+      "next_node_id": "kalev_looks"
+    },
+    {
+      "id": "kalev_heard_broke",
+      "speaker_id": "char.kalev",
+      "text": "Hanß is sitting on the cold-store step, white as flour, and he will not say what you said to him. Remember that words cut too.",
+      "next_node_id": "kalev_looks"
+    },
+    {
+      "id": "kalev_heard_punished",
+      "speaker_id": "char.kalev",
+      "text": "Show me the hand. The rod, for a loaf. Keep it out of the fire until it heals.",
+      "next_node_id": "kalev_looks"
+    },
     {
       "id": "kalev_looks",
       "speaker_id": "char.kalev",

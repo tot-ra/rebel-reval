@@ -101,3 +101,15 @@ func test_escape_on_the_title_card_skips_to_the_forge() -> void:
 	assert_true(done[0])
 	assert_true(SessionState.state.get_flag(&"flag.prologue.apprenticed"))
 	opening.free()
+
+
+func test_skip_during_the_duel_goes_straight_to_the_forge() -> void:
+	var opening := _opening()
+	var done := [false]
+	opening.finished.connect(func() -> void: done[0] = true)
+	assert_true(opening.begin_duel())
+	opening.skip()
+	assert_eq(opening.stage, AlmshouseOpening.STAGE_DONE)
+	assert_true(done[0])
+	assert_true(SessionState.state.get_flag(&"flag.prologue.apprenticed"))
+	opening.queue_free()

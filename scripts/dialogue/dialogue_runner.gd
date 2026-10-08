@@ -352,6 +352,8 @@ func _resolve_choice(choice: Dictionary) -> Dictionary:
 		"move": _move_of(choice),
 		# Duel replies cast this spell as the reply itself; `text` only voices it.
 		"spell_id": String(choice.get("spell_id", "")),
+		# Optional offline voice clip for the spoken line (the arena plays it on cast).
+		"voice_path": String(choice.get("voice_path", "")),
 	}
 
 

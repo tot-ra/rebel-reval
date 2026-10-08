@@ -78,7 +78,7 @@ button charges instead of repeating the swing.
 | Interact / continue | `E`, `Enter` | A |
 | Attack (tap = next combo strike, hold = heavy) | left click (see above) | X |
 | Guard | `F`, right click | Left shoulder |
-| Roll (toward the held direction; none = back roll) | `Space` | Right trigger |
+| Roll (toward the held direction; none = back roll; with guard held, `A`/`D` = side roll keeping facing) | `Space` | Right trigger |
 | Sidestep | `Q` | Right shoulder |
 | Talk to yourself (short guard buff; nearby witnesses react, ADR 0033) | `T` | Left trigger |
 | Dive (hold, while swimming in deep water) | `X`, `Ctrl` | B |
@@ -89,13 +89,28 @@ button charges instead of repeating the swing.
 | World map | `M` | D-pad down |
 | Controls | `K` | Start |
 | Back / close | `Esc` | B |
-| Cast learned spell 1-5 | `1` `2` `3` `4` `5` | Cookbook (D-pad right), then on-screen slots |
+| Cast learned spell / reply slot 1-5 | `1` `2` `3` `4` `5` | X, Y, left shoulder, right shoulder, right stick click (or the cookbook, D-pad right) |
 | Spell cookbook | `R` | D-pad right |
 | Cast forged cookbook spell | `Enter` (cookbook only) | A (cookbook only) |
 
 Left click never casts. It stays attack / interact / travel as described above. Number keys cast the learned recipes shown on the bottom-left spell bar (Fireball, Earth Tremor, Iron Skin in a new demo) **only in the spirit world** (during a spirit duel, [ADR 0033](adr/0033-teen-protagonist-and-spirit-dialogue-combat.md)); in the physical world they report "Magic answers only in the spirit world." and cost nothing. Gamepad face buttons stay combat verbs; open the cookbook to pick a spell with the mouse or focus.
 
 Combat moves, combo timing, roll rules and cast gestures are specified in [`SYSTEMS/COMBAT_ANIMATION.md`](SYSTEMS/COMBAT_ANIMATION.md).
+
+### Spirit duel
+
+A spirit duel (the prologue confrontation, [`SYSTEMS/SPIRIT_DIALOGUE.md`](SYSTEMS/SPIRIT_DIALOGUE.md)) freezes the world and uses the same bindings, no separate scheme:
+
+| Action | Keyboard / mouse | Gamepad |
+|---|---|---|
+| Guard the telegraphed blow (hold; raise it inside the gold band to parry) | `F`, right click | Left shoulder |
+| Dodge the telegraphed blow (once per blow) | `Q` | Right shoulder |
+| Cast the reply in hotbar slot 1-5 | `1`..`5` | X, Y, left shoulder, right shoulder, right stick click |
+| Cast the focused reply card | left click, `Enter` | A |
+| Move the focus between reply cards | `Tab`, arrow keys | D-pad, left stick |
+| Continue a spoken line / leave a finished duel | `E`, `Enter` | A |
+
+The telegraph prompt and every card badge print the live binding, so a rebind shows up at once. During a telegraph a slot key that is also the guard or dodge button (by default the shoulders, slots 3 and 4) defends and does not cast. Settings -> Gameplay accessibility -> **Reply timer pressure** turns off the countdown ring on the reply window.
 
 Bindings are stored per device and persist outside campaign save slots. Saved v1 bindings that still map `Space` to attack drop that default on load, because `Space` is the roll since bindings v2.
 

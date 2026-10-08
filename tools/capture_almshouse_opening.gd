@@ -19,9 +19,20 @@ func _init() -> void:
 	await _frames(4)
 	await _save(out + "/title.png")
 	opening.begin_duel()
-	opening.host().duel.tick(SpiritDuel.TELEGRAPH_SEC + 0.01)
+	var host: SpiritArenaHost = opening.host()
+	# SD-18: the blow sweeping along the telegraph arc with the guard/dodge prompt.
+	host.duel.tick(SpiritDuel.TELEGRAPH_SEC * 0.7)
+	await _frames(3)
+	await _save(out + "/telegraph.png")
+	host.duel.tick(SpiritDuel.TELEGRAPH_SEC)
+	# The spell-card hotbar with the countdown ring part-way down.
+	host.duel.tick(SpiritDuel.REPLY_WINDOW_SEC * 0.4)
 	await _frames(3)
 	await _save(out + "/duel.png")
+	# A cast reply: its spoken line typed over the arena.
+	host.pick_slot(0)
+	await _frames(40)
+	await _save(out + "/cast.png")
 	quit()
 
 

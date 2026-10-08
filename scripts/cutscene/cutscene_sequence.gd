@@ -71,8 +71,10 @@ var next_target: Dictionary = {}
 
 
 ## Build from a ContentDB record. Returns null when the record is not a usable cutscene,
-## so callers can fall back instead of half-playing a broken sequence.
-static func from_record(record: Dictionary) -> CutsceneSequence:
+## so callers can fall back instead of half-playing a broken sequence. Lines with
+## `conditions` are kept only when `state` satisfies them; without a state they are dropped,
+## so a context-free player never shows an echo of a choice the player did not make.
+static func from_record(record: Dictionary, state: GameState = null) -> CutsceneSequence:
 	if String(record.get("type", "")) != "cutscene":
 		return null
 	var shot_records: Array = record.get("shots", [])
@@ -91,11 +93,11 @@ static func from_record(record: Dictionary) -> CutsceneSequence:
 	for entry: Variant in shot_records:
 		if typeof(entry) != TYPE_DICTIONARY:
 			continue
-		sequence.shots.append(_parse_shot(entry as Dictionary))
+		sequence.shots.append(_parse_shot(entry as Dictionary, state))
 	return null if sequence.shots.is_empty() else sequence
 
 
-static func _parse_shot(record: Dictionary) -> Shot:
+static func _parse_shot(record: Dictionary, state: GameState) -> Shot:
 	var shot := Shot.new()
 	shot.id = StringName(String(record.get("id", "")))
 	shot.still_path = String(record.get("still", ""))
@@ -121,6 +123,8 @@ static func _parse_shot(record: Dictionary) -> Shot:
 		if typeof(entry) != TYPE_DICTIONARY:
 			continue
 		var line_record: Dictionary = entry
+		if not _line_conditions_met(line_record, state):
+			continue
 		var line := Line.new()
 		line.id = StringName(String(line_record.get("id", "")))
 		line.speaker = String(line_record.get("speaker", ""))
@@ -130,6 +134,15 @@ static func _parse_shot(record: Dictionary) -> Shot:
 		line.voice_path = String(line_record.get("voice", ""))
 		shot.lines.append(line)
 	return shot
+
+
+static func _line_conditions_met(line_record: Dictionary, state: GameState) -> bool:
+	var conditions: Variant = line_record.get("conditions", [])
+	if typeof(conditions) != TYPE_ARRAY or (conditions as Array).is_empty():
+		return true
+	if state == null:
+		return false
+	return StateRuleEvaluator.new().evaluate_conditions(conditions as Array, state)
 
 
 func shot_count() -> int:

@@ -111,16 +111,18 @@ func current_shot() -> CutsceneSequence.Shot:
 func _unhandled_input(event: InputEvent) -> void:
 	if not is_playing:
 		return
+	# Cached: advancing/skipping can finish the cutscene and leave the tree.
+	var viewport := get_viewport()
 	if event.is_action_pressed(&"ui_cancel"):
 		_cancel_held = 0.0
-		get_viewport().set_input_as_handled()
+		viewport.set_input_as_handled()
 		return
 	if event.is_action_released(&"ui_cancel"):
 		# A tap skips the shot; the hold path already fired in _process.
 		if is_playing and _cancel_held < HOLD_TO_SKIP_SEC:
 			_advance_shot()
 		_cancel_held = -1.0
-		get_viewport().set_input_as_handled()
+		viewport.set_input_as_handled()
 		return
 	var is_advance := (
 		event.is_action_pressed(&"interact")
@@ -133,7 +135,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	)
 	if is_advance:
 		advance()
-		get_viewport().set_input_as_handled()
+		viewport.set_input_as_handled()
 
 
 func _process(delta: float) -> void:

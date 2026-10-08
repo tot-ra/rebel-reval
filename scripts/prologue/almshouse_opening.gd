@@ -3,7 +3,8 @@ extends Node
 ## New-game opening (ADR 0033): the almshouse of the Holy Spirit. A short year card, then
 ## straight into the hero's first spirit duel against the porter, fought with spells (each
 ## reply is a cast, the spoken line only voices it), then Kalev takes him in and a closing
-## cutscene walks him to the forge. `ui_cancel` on the year card skips straight to the forge.
+## cutscene walks him to the forge. `ui_cancel` on the year card skips straight to the forge;
+## holding `ui_cancel` for HOLD_TO_SKIP_SEC skips from the duel or Kalev's dialogue too.
 ## The old observed quarrel and the dawn cutscene are no longer part of the flow (kept short
 ## on purpose); their records stay in content.
 
@@ -22,6 +23,8 @@ const NEXT_SCENE_ID := &"forge"
 const NEXT_SPAWN_ID := &"smithy_start"
 ## The year card leaves on its own after this long; interact or a click leaves sooner.
 const TITLE_CARD_SEC := 3.0
+## Holding `ui_cancel` this long during the duel or Kalev's dialogue skips the rest.
+const HOLD_TO_SKIP_SEC := 0.8
 ## The hero's first magic. The duel needs these as replies, so the opening grants them
 ## itself instead of relying on the forge's later seeding.
 const STARTER_GRANTS: Array[StringName] = [
@@ -30,6 +33,12 @@ const STARTER_GRANTS: Array[StringName] = [
 	&"magic.grant.starter_iron_skin",
 ]
 const DUEL_WILLPOWER := 8
+## The physical answer in the duel (`[Shove him away]`) only sets a dialogue flag; the
+## opening turns it into guilt the same way a melee blow on an unarmed target would
+## (PhysicalBlowGuilt's `act.<actor>.blow` id, so it records once per save).
+const FLAG_STRUCK_PORTER := &"flag.prologue.struck_porter"
+const PORTER_BLOW_ACT := &"act.almshouse_porter.blow"
+const PORTER_BLOW_CIRCUMSTANCE := &"act.unarmed_victim"
 
 ## Tests turn this off; the running game leaves the almshouse for the forge.
 var auto_continue := true
@@ -43,6 +52,8 @@ var _dialogue_ui: Node
 var _title_layer: CanvasLayer
 var _title_left := TITLE_CARD_SEC
 var _skipped := false
+var _cancel_held := 0.0
+var _hint_layer: CanvasLayer
 
 
 func _ready() -> void:
@@ -52,6 +63,11 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
+	if stage == STAGE_CONFRONTATION or stage == STAGE_KALEV:
+		_cancel_held = _cancel_held + delta if Input.is_action_pressed(&"ui_cancel") else 0.0
+		if _cancel_held >= HOLD_TO_SKIP_SEC:
+			skip()
+		return
 	if stage != STAGE_TITLE:
 		return
 	_title_left -= delta
@@ -84,24 +100,51 @@ func begin_duel() -> bool:
 		MagicResolver.apply_grant_operation(_state, _db, grant_id)
 	_state.set_magic_resource(GameState.MAGIC_RESOURCE_WILLPOWER, DUEL_WILLPOWER)
 	_set_stage(STAGE_CONFRONTATION)
+	_show_skip_hint()
 	_host = SpiritArenaHost.new()
 	_host.freeze_world = false
 	add_child(_host)
 	_host.closed.connect(_on_confrontation_closed)
 	if _host.open(_db, _state, CONFRONTATION):
+		_pin_spirit_form()
 		return true
 	_host.queue_free()
 	_begin_kalev()
 	return false
 
 
-## Skip the whole opening (ui_cancel on the year card).
+## Skip the whole opening (ui_cancel on the year card, or held during the duel / dialogue).
 func skip() -> void:
+	if stage == STAGE_DONE:
+		return
 	_skipped = true
 	if _title_layer != null:
 		_title_layer.visible = false
+	if _hint_layer != null:
+		_hint_layer.visible = false
+	if _host != null and is_instance_valid(_host):
+		_host.closed.disconnect(_on_confrontation_closed)
+		_host.close()
+		_host.queue_free()
+		_host = null
+	if _runner != null and is_instance_valid(_runner):
+		_runner.finished.disconnect(_on_kalev_finished)
+		_runner.queue_free()
+		_runner = null
+	if _dialogue_ui != null and is_instance_valid(_dialogue_ui):
+		_dialogue_ui.queue_free()
+		_dialogue_ui = null
+	record_duel_guilt(_state)
 	_state.set_flag(&"flag.prologue.apprenticed", true)
 	_finish()
+
+
+## Turn the duel's physical outcome into guilt. Returns the weights applied ({} when the
+## porter was not struck or the blow was already recorded).
+static func record_duel_guilt(state: GameState) -> Dictionary:
+	if state == null or not state.get_flag(FLAG_STRUCK_PORTER):
+		return {}
+	return state.guilt.record_act(PORTER_BLOW_ACT, PORTER_BLOW_CIRCUMSTANCE)
 
 
 func host() -> SpiritArenaHost:
@@ -116,7 +159,19 @@ func dialogue_runner() -> Node:
 	return _runner
 
 
+## When the staged hall is mounted (child `Stage` with `camera()` / `porter()`), the porter's
+## spirit image looms over the staged actor instead of a drawn silhouette.
+func _pin_spirit_form() -> void:
+	var stage_node := get_node_or_null(^"Stage")
+	if stage_node == null or not stage_node.has_method(&"camera"):
+		return
+	var camera := stage_node.call(&"camera") as Camera3D
+	var porter := stage_node.call(&"porter") as Node3D
+	_host.form_view().track_3d(camera, porter)
+
+
 func _on_confrontation_closed(_outcome: Dictionary) -> void:
+	record_duel_guilt(_state)
 	_host.queue_free()
 	_begin_kalev()
 
@@ -145,23 +200,44 @@ func _finish() -> void:
 	if stage == STAGE_DONE:
 		return
 	_set_stage(STAGE_DONE)
+	if _hint_layer != null:
+		_hint_layer.visible = false
 	finished.emit()
 	if not auto_continue:
 		return
 	# The closing cutscene walks the boy to the forge and owns the door transition through
 	# its own `next` block; a skip or a missing record falls straight through to the door.
 	if not _skipped:
-		var closing := CutscenePlayer.new()
-		add_child(closing)
-		if closing.play_id(_db, CLOSING_CUTSCENE):
+		# Parsed with the session state so the lines conditioned on the duel's outcome
+		# (`flag.prologue.*_porter`) echo the ending the player actually reached.
+		var sequence := CutsceneSequence.from_record(_db.get_cutscene(CLOSING_CUTSCENE), _state)
+		if sequence != null:
+			var closing := CutscenePlayer.new()
+			add_child(closing)
+			closing.play(sequence)
 			return
-		closing.queue_free()
 	DoorNavigator.go_to_scene(NEXT_SCENE_ID, NEXT_SPAWN_ID)
 
 
 func _set_stage(next: StringName) -> void:
 	stage = next
 	stage_changed.emit(next)
+
+
+func _show_skip_hint() -> void:
+	if _hint_layer != null:
+		return
+	_hint_layer = CanvasLayer.new()
+	_hint_layer.layer = 91
+	add_child(_hint_layer)
+	var label := Label.new()
+	label.text = "Hold Esc to skip the introduction"
+	label.add_theme_font_size_override("font_size", 14)
+	label.modulate = Color(1, 1, 1, 0.6)
+	label.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
+	label.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	label.position += Vector2(-16, 12)
+	_hint_layer.add_child(label)
 
 
 func _build_title_card() -> void:

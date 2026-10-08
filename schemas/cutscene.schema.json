@@ -176,6 +176,13 @@
         "delivery": {
           "description": "Voice direction for the video tier: tone, pace, accent, breath.",
           "type": "string"
+        },
+        "conditions": {
+          "description": "Optional state conditions (same ops as dialogue). The line plays only when all hold; a player without game state drops conditional lines.",
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/condition"
+          }
         }
       }
     },

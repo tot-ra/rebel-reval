@@ -35,6 +35,17 @@ func test_gameplay_accessibility_settings_round_trip_persists_all_fields() -> vo
 	assert_true(loaded.enhanced_focus_contrast)
 
 
+func test_reply_timer_pressure_defaults_on_and_round_trips() -> void:
+	assert_true(SettingsScript.default_settings().reply_timer_pressure)
+	assert_true(SettingsScript.from_dict({}).reply_timer_pressure, "older files keep the default")
+	var settings = SettingsScript.default_settings()
+	settings.reply_timer_pressure = false
+	var store = _store()
+	assert_true(store.save_gameplay_accessibility_settings(settings))
+	assert_false(store.load_gameplay_accessibility_settings().reply_timer_pressure)
+	assert_false(settings.duplicate_settings().reply_timer_pressure)
+
+
 func test_invalid_guard_mode_normalizes_to_hold() -> void:
 	var settings = SettingsScript.from_dict({"guard_mode": "unsupported"})
 	settings.normalize()

@@ -62,12 +62,21 @@ and are loaded by `ContentDB` through `SessionState.DEMO_CONTENT_DIRS`. Schema:
 Per shot: a stable `id`, a `still` under `res://assets/cutscenes/`, a reserved `video`,
 `transition_in` (`cut`/`fade`/`dissolve`), a `motion` block (`push_in`, `pull_out`,
 `pan_left`, `pan_right`, `tilt_up`, `tilt_down`, `hold` with `zoom_from`/`zoom_to`), a
-`caption`, `lines` with optional `speaker`/`speaker_id`/`seconds`/`delivery`, reserved
+`caption`, `lines` with optional `speaker`/`speaker_id`/`seconds`/`delivery`/`conditions`, reserved
 `sound`, and a required **`authoring`** block holding `direction`, `image_prompt` and
 `video_prompt`. The runtime ignores `authoring`; it exists so the prompt that produced a
 frame is inseparable from the frame, and so the video tier is written while the scene is
 being authored rather than reconstructed later. Grammar for those prompts:
 [`cinematics/PROMPT_GRAMMAR.md`](../../cinematics/PROMPT_GRAMMAR.md).
+
+**Conditional lines (R-1335):** a line may carry `conditions` (the dialogue condition ops
+from `common.schema.json`, for example `flag_is`). `CutsceneSequence.from_record(record,
+state)` keeps such a line only when every condition holds for `state`; without a state
+(`CutscenePlayer.play_id`, `CutsceneSceneHost`) conditional lines are dropped, so a
+context-free player never echoes a choice the player did not make. `AlmshouseOpening` parses
+`cutscene.prologue.taken_in` with the session state, so its first shot adds one line for the
+duel's ending (`l1_spared`, `l1_broke`, `l1_struck`, `l1_punished`). Those lines have no voice
+take yet and play as timed narration.
 
 Shot and line IDs are stable API: renaming one breaks the generated-art mapping and the
 future voice-line mapping. Do not renumber shots when inserting one; append a new ID.
@@ -116,7 +125,7 @@ Centuries* (`music/intro/`, prompt in `music/README.md`) starts with shot `s01_f
 
 ## Saved state
 
-None. Cutscenes write no flags and read no state; the almshouse scene around them owns
+Cutscenes write no flags. They read state only through conditional lines (above); the almshouse scene around them owns
 `flag.prologue.apprenticed` exactly as before. A cutscene is therefore safe to replay and
 safe to skip.
 
