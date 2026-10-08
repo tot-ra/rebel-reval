@@ -237,3 +237,5 @@ Keep this file short. Append a durable reusable rule, not a dated incident log. 
 - Before naming a new ADR, `git fetch` and list `origin/main:docs/adr`: parallel sessions take the next number. In a cherry-pick worktree, regenerate the shared ADR index with `python3 tools/docs_index.py` instead of hand patching, and use `sed -i ''` on BSD.
 
 - Before editing a shader, confirm which one draws the surface: render a capture after the edit and diff it against the "before" shot. City ground is `scripts/city/city_ground.gdshader`, not `map_view_terrain_blend.gdshader` (map view only). A shader that fails to compile renders white; check `SHADER ERROR` in the `godot_render.sh` output.
+
+- Before `git commit` run `git diff --cached --stat`: another session may have staged files in the shared index, and a plain commit sweeps them in. Commit with explicit paths (`git commit -- <paths>`) so only your files go in.
