@@ -1,18 +1,25 @@
 class_name CityMoatPlants
 extends RefCounted
 
-## Water plants of the moat: reed and cattail clumps rooted in the shallows along
-## both banks (they stand out of the water, never on dry ground), and floating
-## lily pads and duckweed mats on the open surface. Visual only, deterministic.
-## Placement reads the moat water records ([a, b, surface_a, surface_b, half])
-## that CityWorld3D builds, so plants follow the water, not the plan line. No
-## visibility range: it measures from the node origin, which is far from the moat.
+## Water plants of the moat and the Hareapea stream: reed and cattail clumps
+## rooted in the shallows along both banks, and floating lily pads and duckweed
+## mats on the open surface. Visual only, deterministic.
+## Placement reads the water records ([a, b, surface_a, surface_b, half]) that
+## CityWorld3D builds, so plants follow the water, not the plan line. On the
+## stream the reed belt also climbs a little onto the wet bank (a slow lowland
+## brook is fringed with reed and sedge, so the bank does not start bare) and
+## floating plants are sparser. No visibility range: it measures from the node
+## origin, which is far from the water.
 
 const STEP := 1.7
 const SEED := 4417
 ## Reeds root where the bed lies this far under the surface.
 const REED_MIN_DEPTH := -0.05
 const REED_MAX_DEPTH := 0.8
+## Stream banks: reeds also root on wet ground up to this far above the surface.
+const STREAM_REED_MIN_DEPTH := -0.3
+## Share of floating-plant chances kept on the stream (the water moves).
+const STREAM_FLOAT_SHARE := 0.4
 ## Floating plants need the bed at least this far under the surface.
 const FLOAT_MIN_DEPTH := 0.5
 const PAD_RADIUS := 0.3
@@ -34,8 +41,9 @@ static func build(plan: CityPlan, records: Array) -> Node3D:
 	for rec: Array in records:
 		var a: Vector2 = rec[0]
 		var b: Vector2 = rec[1]
-		if not plan.in_moat((a + b) * 0.5, 1.0):
-			continue  # stream stretch
+		var stream := not plan.in_moat((a + b) * 0.5, 1.0)
+		var reed_min := STREAM_REED_MIN_DEPTH if stream else REED_MIN_DEPTH
+		var float_chance := 0.22 * (STREAM_FLOAT_SHARE if stream else 1.0)
 		var length := a.distance_to(b)
 		var dir := (b - a) / maxf(length, 0.001)
 		var side := dir.orthogonal()
@@ -48,7 +56,7 @@ static func build(plan: CityPlan, records: Array) -> Node3D:
 			for bank: float in [-1.0, 1.0]:
 				var p := centre + side * bank * rng.randf_range(half * 0.5, half * 1.02)
 				var depth := surface - plan.ground_height(p)
-				if depth < REED_MIN_DEPTH or depth > REED_MAX_DEPTH:
+				if depth < reed_min or depth > REED_MAX_DEPTH:
 					continue
 				if not is_nan(plan.bridge_deck_height(p)):
 					continue
@@ -71,7 +79,7 @@ static func build(plan: CityPlan, records: Array) -> Node3D:
 						var shade := rng.randf_range(0.8, 1.1)
 						reed_colors.append(Color(shade * 0.9, shade, shade * 0.7, 1.0))
 			# Floating plants out on the open water.
-			if rng.randf() < 0.22:
+			if rng.randf() < float_chance:
 				var c := centre + side * rng.randf_range(-half * 0.6, half * 0.6)
 				if surface - plan.ground_height(c) < FLOAT_MIN_DEPTH:
 					continue

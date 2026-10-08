@@ -20,6 +20,20 @@ const SEA_WAVE_BOOST := 5.0
 ## Depth (world units) at which the sea shader's shore factor reaches open water.
 const SEA_SHORE_DEPTH := 2.5
 const BUILDING_RANGE := 1600.0
+## The stream ribbon reaches this far (world units) past the waterline into the bank.
+const STREAM_BANK_OVERLAP := 1.5
+## Farthest a stream bank is probed for the waterline from the trace. The
+## upstream end sits on the plan edge where the ground drops ~5 m under the
+## stream level, so an unbounded probe would spread a pool across the border.
+const STREAM_PROBE_MAX := 16.0
+## Trees and bushes need their foot this far above any water surface.
+const TREE_WATERLINE_CLEARANCE := 0.25
+## Stream grid spacing (world units) along and across the water.
+const STREAM_GRID_STEP := 1.5
+## Stream vertex depth encoding: COLOR.r = (depth + OFFSET) / SCALE, so the
+## bank above the waterline (negative depth) still fades smoothly to zero.
+const STREAM_DEPTH_OFFSET := 0.5
+const STREAM_DEPTH_SCALE := 2.5
 
 var plan: CityPlan
 var sun: DirectionalLight3D
@@ -325,14 +339,14 @@ func _build_water() -> void:
 	# The Hareapea stream as a ribbon along its trace.
 	var hj: Dictionary = plan.data.get("harjapea", {})
 	if not hj.is_empty():
-		var ribbon := _ribbon(
-			CityPlan.points(hj["points"]), hj["widths"], hj["surfaces"], 0.05
-		)
-		_stream_water(CityPlan.points(hj["points"]), hj["widths"], hj["surfaces"])
+		var trace := CityPlan.points(hj["points"])
+		var halves := _stream_wet_halves(trace, hj["widths"], hj["surfaces"])
+		var ribbon := _stream_mesh(trace, halves, hj["surfaces"])
+		_stream_water(trace, halves, hj["surfaces"])
 		var r_inst := MeshInstance3D.new()
 		r_inst.name = "Harjapea"
 		r_inst.mesh = ribbon
-		r_inst.material_override = _water_material(0.06, 0.55)
+		r_inst.material_override = _stream_material()
 		r_inst.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		root.add_child(r_inst)
 	# Moat pools in the lowest stretches of the ditch (1343: mostly dry).
@@ -354,11 +368,39 @@ func _build_water() -> void:
 			m_inst.mesh = pool_mesh
 			m_inst.material_override = _moat_material()
 			root.add_child(m_inst)
-			root.add_child(MoatPlants.build(plan, moat_water))
+	# Reeds, cattails and floating plants in the moat and along the stream banks.
+	if not moat_water.is_empty():
+		root.add_child(MoatPlants.build(plan, moat_water))
+	_clear_wet_trees()
+
+
+## Half width of the stream's water at each trace point, out to where the bank
+## climbs above the surface. The plan's channel width is only the flat bed: the
+## carved banks stay under the surface for several metres more, so a ribbon cut
+## at the bed width ended in a step over a dry pit. The ribbon reaches
+## STREAM_BANK_OVERLAP past the waterline; the terrain hides the excess and the
+## murky shader's depth rim fades the edge into the mud.
+func _stream_wet_halves(
+	points: PackedVector2Array, widths: Array, levels: Array
+) -> PackedFloat32Array:
+	var halves := PackedFloat32Array()
+	for i in points.size():
+		var side := _ribbon_side(points, i)
+		var surface := float(levels[i])
+		var wet := float(widths[i]) * 0.5
+		for sign: float in [-1.0, 1.0]:
+			var d := wet
+			while d < STREAM_PROBE_MAX and plan.ground_height(points[i] + side * sign * d) < surface:
+				d += 0.5
+			wet = maxf(wet, d)
+		halves.append(wet + STREAM_BANK_OVERLAP)
+	return halves
 
 
 ## Stream segments for swimming/wading (same record shape as the moat pools).
-func _stream_water(points: PackedVector2Array, widths: Array, levels: Array) -> void:
+## Past the waterline the bank is above the surface, so the extra reach never
+## puts Kalev in water on dry ground (water_depth_at clamps at 0).
+func _stream_water(points: PackedVector2Array, halves: PackedFloat32Array, levels: Array) -> void:
 	for i in points.size() - 1:
 		moat_water.append(
 			[
@@ -366,9 +408,25 @@ func _stream_water(points: PackedVector2Array, widths: Array, levels: Array) -> 
 				points[i + 1],
 				float(levels[i]),
 				float(levels[i + 1]),
-				(float(widths[i]) + float(widths[i + 1])) * 0.25
+				(halves[i] + halves[i + 1]) * 0.5
 			]
 		)
+
+
+## The plan scatters open-country trees, woods and bank thickets without
+## knowing where the stream bed is, so some stood in the water. Drop every tree
+## and bush whose foot is under, or within TREE_WATERLINE_CLEARANCE of, a
+## stream, moat or sea surface; the reeds and cattails of CityMoatPlants grow
+## there instead.
+func _clear_wet_trees() -> void:
+	for key: String in ["trees", "bushes"]:
+		var kept: Array = []
+		for t: Array in plan.data.get(key, []):
+			var p := Vector2(float(t[0]), float(t[1]))
+			if water_surface_at(p) > plan.ground_height(p) - TREE_WATERLINE_CLEARANCE:
+				continue
+			kept.append(t)
+		plan.data[key] = kept
 
 
 ## Murky ditch water with a soft bank edge (city_moat_water.gdshader).
@@ -378,6 +436,24 @@ func _moat_material() -> ShaderMaterial:
 	mat.set_shader_parameter("wave_strength", 0.025)
 	mat.set_shader_parameter("flow_speed", 0.0)
 	water_materials.append(mat)
+	return mat
+
+
+## The Hareapea: the moat's murky, depth-rimmed water in a peat-brown tint (a
+## lowland Estonian brook is humic and silty, never glass-clear), with its
+## ripples running downstream along the ribbon UV.
+func _stream_material() -> ShaderMaterial:
+	var mat := _moat_material()
+	mat.set_shader_parameter("shallow_color", Color(0.31, 0.29, 0.19))
+	mat.set_shader_parameter("deep_color", Color(0.09, 0.09, 0.06))
+	mat.set_shader_parameter("mud_color", Color(0.29, 0.23, 0.15))
+	mat.set_shader_parameter("deep_depth", 1.0)
+	mat.set_shader_parameter("edge_soft", 0.4)
+	mat.set_shader_parameter("wave_strength", 0.02)
+	mat.set_shader_parameter("flow_speed", 0.35)
+	mat.set_shader_parameter("vertex_depth", true)
+	mat.set_shader_parameter("vertex_depth_offset", STREAM_DEPTH_OFFSET)
+	mat.set_shader_parameter("vertex_depth_scale", STREAM_DEPTH_SCALE)
 	return mat
 
 
@@ -471,8 +547,14 @@ func _surface_grid(y: float, depth_at: Callable, depth_norm := 5.0) -> ArrayMesh
 
 
 ## `levels` holds the water level at each trace point (the stream runs downhill).
-func _ribbon(
-	points: PackedVector2Array, widths: Array, levels: Array, lift: float
+## Stream water as a grid ribbon along `points`, `halves[i]` wide either side
+## of each point and mitred at the bends (no overlap or wedge gap). Each vertex
+## carries its water depth over the plan ground in COLOR.r (STREAM_DEPTH_SCALE):
+## the murky shader's depth-texture column read ~0 in perspective under GL
+## Compatibility, so the stream rendered fully clear. Vertex depth needs no
+## depth texture and fades the edge where the bank rises out of the water.
+func _stream_mesh(
+	points: PackedVector2Array, halves: PackedFloat32Array, levels: Array
 ) -> ArrayMesh:
 	var st := SurfaceTool.new()
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
@@ -480,25 +562,51 @@ func _ribbon(
 	for i in points.size() - 1:
 		var a := points[i]
 		var b := points[i + 1]
-		var dir := (b - a).normalized()
-		var side := Vector2(-dir.y, dir.x)
-		var wa := float(widths[i]) * 0.5 + 1.0
-		var wb := float(widths[i + 1]) * 0.5 + 1.0
+		var sa := _ribbon_side(points, i) * halves[i]
+		var sb := _ribbon_side(points, i + 1) * halves[i + 1]
 		var seg := a.distance_to(b)
-		var quad := [a + side * wa, b + side * wb, b - side * wb, a - side * wa]
-		var uvs := [
-			Vector2(along, 0), Vector2(along + seg, 0), Vector2(along + seg, 1), Vector2(along, 1)
-		]
-		for idx: int in [0, 1, 2, 0, 2, 3]:
-			var q: Vector2 = quad[idx]
-			st.set_color(Color(0.35, 0, 0))
-			st.set_uv(uvs[idx] / Vector2(10.0, 1.0))
-			st.set_normal(Vector3.UP)
-			# Quad corners 0,3 sit at the start of the segment, 1,2 at its end.
-			var y := float(levels[i if idx == 0 or idx == 3 else i + 1]) + lift
-			st.add_vertex(Vector3(q.x, y, q.y))
+		var rows := maxi(int(ceil(seg / STREAM_GRID_STEP)), 1)
+		var cols := maxi(int(ceil(maxf(halves[i], halves[i + 1]) * 2.0 / STREAM_GRID_STEP)), 2)
+		var grid: Array[Vector3] = []
+		var colors: Array[Color] = []
+		var uvs: Array[Vector2] = []
+		for r in rows + 1:
+			var t := float(r) / float(rows)
+			var centre := a.lerp(b, t)
+			var side := sa.lerp(sb, t)
+			var surface := lerpf(float(levels[i]), float(levels[i + 1]), t)
+			for c in cols + 1:
+				var u := float(c) / float(cols)
+				var q := centre + side * (u * 2.0 - 1.0)
+				var depth := surface - plan.ground_height(q)
+				grid.append(Vector3(q.x, surface, q.y))
+				colors.append(Color(clampf((depth + STREAM_DEPTH_OFFSET) / STREAM_DEPTH_SCALE, 0.0, 1.0), 0, 0))
+				uvs.append(Vector2((along + seg * t) / 10.0, u))
+		for r in rows:
+			for c in cols:
+				var k := r * (cols + 1) + c
+				for idx: int in [k, k + cols + 1, k + cols + 2, k, k + cols + 2, k + 1]:
+					st.set_color(colors[idx])
+					st.set_uv(uvs[idx])
+					st.set_normal(Vector3.UP)
+					st.add_vertex(grid[idx])
 		along += seg
 	return st.commit()
+
+
+## Unit-width mitre at trace point `i`: the mean of the adjacent segment
+## normals, lengthened so the ribbon keeps its width through the bend.
+func _ribbon_side(points: PackedVector2Array, i: int) -> Vector2:
+	var normal := Vector2.ZERO
+	if i > 0:
+		normal += (points[i] - points[i - 1]).normalized().orthogonal()
+	if i < points.size() - 1:
+		normal += (points[i + 1] - points[i]).normalized().orthogonal()
+	var mitre := normal.normalized()
+	var reference := (
+		(points[i + 1] - points[i]) if i < points.size() - 1 else (points[i] - points[i - 1])
+	).normalized().orthogonal()
+	return mitre / maxf(mitre.dot(reference), 0.5)
 
 
 ## Water along the ditch: one ribbon whose surface follows the ditch floor

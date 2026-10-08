@@ -7,6 +7,9 @@ extends MapView3D
 ## three camera modes, actor rigs, magic VFX, swimmer presenter and session
 ## clock unchanged. Everything else about the old district view stays unused.
 
+## How far ahead of the camera (world units) the ripple window is centred.
+const CITY_RIPPLE_FOCUS_AHEAD := 6.0
+
 var world: CityWorld3D
 var plan: CityPlan
 ## Kalev's current interior (building index) or -1; set by the city scene.
@@ -34,7 +37,52 @@ static func create_city(city_plan: CityPlan) -> CityMapView:
 	view._sky_weather = view.world.sky_weather
 	view._occluder_bounds = view._building_bounds()
 	view._create_sky_passes()
+	view._create_city_ripple_sim()
 	return view
+
+
+## WS-15 wake for the city: the district maps' ripple sim, its window centred
+## ahead of the camera on Kalev (the stream and moat lie well above y = 0, so
+## the base view's sea-plane ray hit would land far off). It feeds the sea
+## material and every city water material (moat and stream), so wading and
+## swimming leave a trail in all of them. Off on tiers without the sim.
+func _create_city_ripple_sim() -> void:
+	var tier: Variant = _sky_weather.quality_tier if _sky_weather != null else null
+	if not WaterRippleSimScript.should_create(tier, false, true):
+		_bind_city_ripples(null, Vector4(0.0, 0.0, WaterRippleSimScript.WINDOW_WORLD_SIZE, 0.0), 1.0)
+		return
+	_water_ripple_sim = WaterRippleSimScript.new()
+	_water_ripple_sim.name = "WaterRippleSim"
+	add_child(_water_ripple_sim)
+	_water_ripple_sim.configure(WaterRippleSimScript.sim_size_for_tier(tier))
+	_water_ripple_sim.focus_provider = _city_ripple_focus
+	_water_ripple_sim.bind_callback = _bind_city_ripples
+
+
+## Ground point a few units ahead of the camera along its heading: Kalev in the
+## third-person and first-person views, the screen centre seen from above.
+func _city_ripple_focus() -> Vector3:
+	if _camera == null or not _camera.is_inside_tree():
+		return Vector3.ZERO
+	var forward := -_camera.global_transform.basis.z
+	var flat := Vector2(forward.x, forward.z)
+	var origin := _camera.global_position
+	if flat.length() < 0.01:
+		return origin
+	return origin + Vector3(flat.x, 0.0, flat.y).normalized() * CITY_RIPPLE_FOCUS_AHEAD
+
+
+func _bind_city_ripples(texture: Texture2D, window: Vector4, texel_count: float) -> void:
+	_bind_water_ripples(texture, window, texel_count)
+	var state := (
+		texture if texture != null and window.w > 0.5
+		else MapViewMaterials.WATER_MATERIALS.ripple_off_texture()
+	)
+	var bound := window if texture != null else Vector4(window.x, window.y, window.z, 0.0)
+	for mat in world.water_materials:
+		mat.set_shader_parameter("ripple_state", state)
+		mat.set_shader_parameter("ripple_window", bound)
+		mat.set_shader_parameter("ripple_texel_count", maxf(texel_count, 1.0))
 
 
 ## R-1400: the city had a sky but no cloud-shadow or god-ray pass, so clouds threw
@@ -149,10 +197,6 @@ func set_interior_shell_for_first_person(_enabled: bool) -> void:
 
 func set_terrain_detail_for_first_person(_enabled: bool) -> void:
 	pass
-
-
-func water_ripple_sim() -> WaterRippleSimScript:
-	return null
 
 
 ## Water surface at view XZ: the sea, the stream and the moat sit at sea level
