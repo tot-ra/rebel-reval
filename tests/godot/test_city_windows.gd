@@ -27,10 +27,14 @@ func test_every_style_has_depth_beyond_the_wall() -> void:
 		&"shutters_open",
 		&"shutters_closed",
 		&"slit",
-		&"surround"
+		&"surround",
+		&"leaded",
+		&"panelled"
 	]:
 		var shell := _build(style)
-		assert_true(shell.surfaces.has("opening"), "%s keeps a dark opening" % style)
+		assert_false(shell.surfaces.has("opening"), "%s has no opaque fake pane" % style)
+		if style != &"slit":
+			assert_true(shell.surfaces.has("glass:forest"), "%s has glazing" % style)
 		var depth := 0.0
 		for key: String in shell.surfaces:
 			for v in (shell.surfaces[key] as CityBuildingBuilder.Surf).verts:
@@ -59,5 +63,11 @@ func test_look_is_deterministic_and_rural_looks_vary() -> void:
 		assert_eq(l1, CityWindows.look(r2, &"log"), "same seed, same look")
 		seen[l1["style"]] = true
 	assert_true(seen.size() >= 4, "rural styles vary across houses (%d)" % seen.size())
-	var town := CityWindows.look(RandomNumberGenerator.new(), &"limestone")
-	assert_eq(town["style"], &"surround", "stone houses get a dressed surround")
+	var town_seen := {}
+	for i in 40:
+		var rng := RandomNumberGenerator.new()
+		rng.seed = i
+		var town := CityWindows.look(rng, &"limestone")
+		town_seen[town["style"]] = true
+		assert_false(town["style"] in [&"platband", &"gable_cap"], "no late carving")
+	assert_true(town_seen.size() >= 4, "town houses also vary")

@@ -250,3 +250,5 @@ This file contains lessons specific to the Dev role.
 - Godot 4 imports a horizontal strip as a texture array only with `importer="2d_array_texture"` (not `2d_array`) and `slices/horizontal=N` in the `.import`; an unknown importer name is silently replaced by the plain `texture` importer on the next import.
 
 - Calibrate vegetation bend with the actual coarse-gust weather range, not a claimed peak pressure. Keep bark/crown shader signatures and species uniforms identical; test angles numerically and capture multiple frozen times on the real GPU. Dummy-renderer greens cannot establish motion amplitude or culling parity.
+
+- Window aperture ray tests must target the average of all six quad vertices, not `verts[0]` and `verts[2]`: `quad_out` can reverse triangle winding, making those two vertices a frame-edge midpoint and falsely reporting wall backing. Pair centre rays with removed-area and rotated-wall UV tests.

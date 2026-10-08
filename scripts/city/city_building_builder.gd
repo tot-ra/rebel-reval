@@ -64,6 +64,10 @@ const ROOF_COLORS := {
 	&"tile": Color(0.55, 0.27, 0.19),
 }
 
+const WindowOpenings := preload("res://scripts/city/city_window_openings.gd")
+const WINDOW_WOOD := preload("res://scripts/city/city_window_wood.gdshader")
+const WINDOW_GLASS := preload("res://scripts/city/city_window_glass.gdshader")
+
 const WALL_SHADER := preload("res://scripts/city/city_weathered_wall.gdshader")
 const ROOF_SHADER := preload("res://scripts/city/city_weathered_roof.gdshader")
 const TILE_ROOF_SHADER := preload("res://scripts/city/city_tile_roof.gdshader")
@@ -193,17 +197,31 @@ static func opening_material() -> Material:
 	return _materials["opening"]
 
 
-## Flat painted wood for window trim, shutters and carved platbands: the
-## colour comes entirely from the vertex colour so one surface serves every
-## palette. Lightly rough, no texture, so it reads as paint rather than board.
+## Window-only wood shader: worn pigment, exposed grain and rain streaks.
 static func paint_material() -> Material:
 	if not _materials.has("paint"):
-		var mat := StandardMaterial3D.new()
-		mat.albedo_color = Color.WHITE
-		mat.vertex_color_use_as_albedo = true
-		mat.roughness = 0.78
+		var mat := ShaderMaterial.new()
+		mat.shader = WINDOW_WOOD
 		_materials["paint"] = mat
 	return _materials["paint"]
+
+
+static func glass_material(profile: StringName) -> Material:
+	var key := "glass:%s" % profile
+	if not _materials.has(key):
+		var mat := ShaderMaterial.new()
+		mat.shader = WINDOW_GLASS
+		var opacity := 0.28
+		var tint := Vector3(0.57, 0.67, 0.56)
+		if profile == &"horn":
+			opacity = 0.86
+			tint = Vector3(0.55, 0.43, 0.26)
+		elif profile == &"forest":
+			opacity = 0.56
+		mat.set_shader_parameter("opacity", opacity)
+		mat.set_shader_parameter("glass_tint", tint)
+		_materials[key] = mat
+	return _materials[key]
 
 
 static func timber_material() -> Material:
@@ -415,6 +433,16 @@ static func material_for_key(key: String) -> Material:
 			return timber_material()
 		"paint":
 			return paint_material()
+		"glass":
+			return glass_material(family)
+		"iron":
+			if not _materials.has("iron"):
+				var iron := StandardMaterial3D.new()
+				iron.albedo_color = Color(0.12, 0.115, 0.10)
+				iron.metallic = 0.65
+				iron.roughness = 0.8
+				_materials["iron"] = iron
+			return _materials["iron"]
 	return wall_material(&"plaster")
 
 
@@ -558,6 +586,7 @@ static func build_building(
 			0.2,
 			0.8
 		)
+	var windows: Array[Dictionary] = []
 	# Exterior walls with gable infill, windows and the door opening.
 	for i in ring.size():
 		var a := ring[i]
@@ -572,7 +601,7 @@ static func build_building(
 		if not bool(b.get("openings", true)):
 			continue
 		if not String(b.get("kind", "house")) in ["church", "chapel", "hall"]:
-			CityWindows.add_wall(shell, a, c, floor_y, eave, gap, rng, look)
+			windows.append_array(CityWindows.placements(a, c, floor_y, eave, gap, rng, look))
 		else:
 			_lancets(shell, a, c, floor_y, eave)
 	if door_edge >= 0 and ground_at.is_valid():
@@ -589,6 +618,10 @@ static func build_building(
 		# The ceiling belongs with the roof: both lift while Kalev is inside, so
 		# top-down and first-person views look into the room, not at boards.
 		_interior(shell, ring, thick, floor_y, eave, frame, door_edge, door_t, roof)
+		WindowOpenings.cut(shell, windows, thick)
+		for window in windows:
+			CityWindows.add_placed(shell, window)
+			CityWindows.add_interior(shell, window, thick)
 		# Cutaway: everything above head height goes with the roof node, and
 		# the cut wall tops get a stone section cap, so the room reads from above.
 		var parts := shell.split_at(floor_y + CUT_HEIGHT)
@@ -596,6 +629,9 @@ static func build_building(
 		roof.merge(parts[1])
 		wall_top_cap(shell, ring, thick, floor_y + CUT_HEIGHT, door_edge, door_t)
 	else:
+		WindowOpenings.cut(shell, windows, thick)
+		for window in windows:
+			CityWindows.add_placed(shell, window)
 		# Flat cap under the roof so a raised camera never sees into a hollow house.
 		var inner := ring
 		_cap(shell, wall_key, inner, eave - 0.02, tint)
