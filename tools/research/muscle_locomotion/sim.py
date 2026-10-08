@@ -76,7 +76,9 @@ class Sim:
         return q
 
     def frequency(self, q, ctx):
-        return 0.5 + 3.0 / (1 + math.exp(-(q["f0"] + float(q["fc"] @ ctx))))
+        lo, hi = self.c.f_range
+        size = self.c.body.get("size", 1.0) if self.c.body else 1.0
+        return (lo + (hi - lo) / (1 + math.exp(-(q["f0"] + float(q["fc"] @ ctx))))) / math.sqrt(size)
 
     def drive(self, q, f, t, s, ctx):
         x = q["a"] + q["Ma"] @ ctx + (q["b"] + q["Mb"] @ ctx) * np.sin(2 * math.pi * f * t + q["psi"]) + q["W"] @ s
@@ -95,6 +97,7 @@ class Sim:
             for a, b in ((c.geom1, c.geom2), (c.geom2, c.geom1)):
                 if a == self.floor and b in self.foot_geoms:
                     contacts[self.foot_geoms.index(b)] = 1.0
+        self.last_contacts = contacts
         base = [pitch, 0.2 * rate]
         if self.c.proprio:
             base += [0.5 * d.qvel[0] / math.sqrt(self.stand), (d.qpos[1] + self.c.stand_height) / self.stand - 1.0]
@@ -125,7 +128,7 @@ class Sim:
         q = self.unpack(p); f = self.frequency(q, ctx)
         n = int(T / (CTRL_EVERY * m.opt.timestep))
         d.qvel[0] = self.c.start_speed * v_target
-        effort = sag = tilt = 0.0; alive = 0; traj = []; verr = 0.0; vcount = 0
+        effort = sag = tilt = 0.0; air = np.zeros(self.nfoot); alive = 0; traj = []; verr = 0.0; vcount = 0
         x_prev = d.qpos[0]; pushed = push is None
         root_body = m.body(self.c.bones[0].name).id
         for k in range(n):
@@ -133,7 +136,8 @@ class Sim:
             if not pushed and t >= push[0]:
                 d.qvel[0] += push[1] / m.body_subtreemass[root_body]
                 pushed = True
-            u = self.drive(q, f, t, self.sensors(ctx), ctx)
+            sens = self.sensors(ctx)
+            u = self.drive(q, f, t, sens, ctx)
             d.ctrl[:] = u
             for _ in range(CTRL_EVERY):
                 mujoco.mj_step(m, d)
@@ -142,6 +146,7 @@ class Sim:
             if self.fell() and t > 0.3:
                 break
             alive += 1
+            air += 1.0 - self.last_contacts
             effort += float(np.mean(u * u))
             zr = (d.qpos[1] + self.c.stand_height) / self.stand
             sag += max(0.0, 0.85 - zr); tilt += abs(d.qpos[2])
@@ -155,7 +160,8 @@ class Sim:
         alive_frac = alive / n
         mean_verr = verr / max(vcount, 1) if vcount else 2.0
         na = max(alive, 1)
+        gait = self.c.w_air * float(np.mean(np.abs(air / na - self.c.air_target)))
         cost = (10.0 * (1 - alive_frac) + W_SPEED * mean_verr + self.c.w_effort * effort / na
-                + self.c.w_height * sag / na * 10 + self.c.w_pitch * tilt / na)
+                + self.c.w_height * sag / na * 10 + self.c.w_pitch * tilt / na + gait)
         return dict(cost=cost, alive=alive_frac, dist=float(d.qpos[0]), speed=float(d.qpos[0] / T), verr=mean_verr,
                     freq=f, v_target=v_target, traj=traj)

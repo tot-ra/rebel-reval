@@ -46,6 +46,9 @@ class Creature:
     w_pitch: float = 0.0          # cost weight: trunk tilt (radians)
     w_effort: float = 0.5         # cost weight: mean squared muscle activation
     body: dict = field(default_factory=dict)   # body parameters the creature was built from
+    f_range: tuple = (0.5, 3.5)   # stride frequency range (Hz) at size 1; scales with 1/sqrt(size)
+    w_air: float = 0.0            # cost weight: each foot should be off the ground about `air_target` of the time
+    air_target: float = 0.4
     start_speed: float = 0.0      # initial forward speed as a fraction of the target speed
 
     @property
