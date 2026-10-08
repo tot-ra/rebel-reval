@@ -711,13 +711,24 @@ def build(args) -> dict:
     moat_line = offset_outward(resample(wall_line, 6.0), circuit_poly, mo["offset_m"])
     # Rounded corners, kept clear of the curtain foot (ditch inner edge >= 3 m out).
     moat_line = resample(smooth_ditch(moat_line, wall_line, mo["offset_m"] - 1.5), 6.0)
+    # The ditch runs out gently at both ends (depth and width fade over the last
+    # MOAT_TAPER_M of its length) instead of stopping at a blunt cut-off.
+    arc = [0.0]
+    for i in range(1, len(moat_line)):
+        arc.append(arc[-1] + math.hypot(moat_line[i][0] - moat_line[i - 1][0], moat_line[i][1] - moat_line[i - 1][1]))
+    taper = [float(smoothstep01(min(a_, arc[-1] - a_), 0.0, MOAT_TAPER_M)) for a_ in arc]
     moat_d = np.full(X.shape, 1e9)
+    moat_fade = np.zeros(X.shape)
     for i in range(len(moat_line) - 1):
-        dd, _ = dist_point_seg(X, Y, moat_line[i][0], moat_line[i][1], moat_line[i + 1][0], moat_line[i + 1][1])
-        moat_d = np.minimum(moat_d, dd)
+        dd, tt = dist_point_seg(X, Y, moat_line[i][0], moat_line[i][1], moat_line[i + 1][0], moat_line[i + 1][1])
+        closer = dd < moat_d
+        moat_fade = np.where(closer, taper[i] + (taper[i + 1] - taper[i]) * tt, moat_fade)
+        moat_d = np.where(closer, dd, moat_d)
     half = mo["width_m"] * 0.5
-    cut = np.clip(1.0 - (moat_d - half * 0.5) / (half * 1.7), 0.0, 1.0)
-    cut = cut * cut * (3 - 2 * cut)
+    # Narrower ditch toward the ends: shrink the profile, not just its depth.
+    half_here = half * (0.35 + 0.65 * moat_fade)
+    cut = np.clip(1.0 - (moat_d - half_here * 0.5) / (half_here * 1.7), 0.0, 1.0)
+    cut = cut * cut * (3 - 2 * cut) * moat_fade
     # Every road crosses the ditch: remember where, for the moat bridges.
     causeways = []
     for r in overlay["streets"]["extramural_roads"]:
@@ -2107,6 +2118,10 @@ def chain_parts(parts):
         chain = chain + q[1:] if at_end else q[:-1] + chain
     # Ramps start at the lower end.
     return chain
+
+
+# Length over which the moat ditch shallows and narrows at each end.
+MOAT_TAPER_M = 80.0
 
 
 def smooth_ditch(line, wall_pts, keep_m, passes=3, window=4):

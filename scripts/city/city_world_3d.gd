@@ -10,6 +10,8 @@ extends Node3D
 const Fort := preload("res://scripts/city/city_fortification_builder.gd")
 const WATER_SHADER := preload("res://scripts/city/city_water.gdshader")
 const MOAT_WATER_SHADER := preload("res://scripts/city/city_moat_water.gdshader")
+## Length of the moat's tapered end stretches, metres (see _moat_pools).
+const MOAT_TAPER_M := 80.0
 const MoatPlants := preload("res://scripts/city/city_moat_plants.gd")
 const CHUNK := 96.0
 const SEA_STEP := 4.0
@@ -501,12 +503,19 @@ func _moat_pools(
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
 	var count := 0
 	var half := width * CityPlan.MOAT_WATER_HALF_FACTOR
+	# The ditch shallows and narrows over its last MOAT_TAPER_M at both ends
+	# (mirrors MOAT_TAPER_M in build_reval_city_plan.py), so the water thins out
+	# instead of stopping at a blunt edge.
+	var arc: Array[float] = [0.0]
+	for i in range(1, line.size()):
+		arc.append(arc[i - 1] + line[i].distance_to(line[i - 1]))
 	var edges: Array[Vector2] = []
 	for i in line.size():
 		var prev := line[maxi(i - 1, 0)]
 		var next := line[mini(i + 1, line.size() - 1)]
 		var dir := (next - prev).normalized()
-		edges.append(Vector2(-dir.y, dir.x) * half)
+		var fade := smoothstep(0.0, MOAT_TAPER_M, minf(arc[i], arc[-1] - arc[i]))
+		edges.append(Vector2(-dir.y, dir.x) * half * (0.15 + 0.85 * fade))
 	for i in line.size() - 1:
 		if lows[i] > cutoff and lows[i + 1] > cutoff:
 			continue
@@ -514,7 +523,7 @@ func _moat_pools(
 		var yb := lows[i + 1] + 1.1
 		var a := line[i]
 		var b := line[i + 1]
-		moat_water.append([a, b, ya, yb, half])
+		moat_water.append([a, b, ya, yb, (edges[i].length() + edges[i + 1].length()) * 0.5])
 		var quad := [
 			Vector3(a.x + edges[i].x, ya, a.y + edges[i].y),
 			Vector3(b.x + edges[i + 1].x, yb, b.y + edges[i + 1].y),
