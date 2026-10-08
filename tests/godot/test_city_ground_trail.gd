@@ -105,3 +105,46 @@ func test_open_country_is_no_longer_flat() -> void:
 		lo = minf(lo, h)
 		hi = maxf(hi, h)
 	assert_true(hi - lo > 1.0, "relief across 200 m is %.2f wu" % (hi - lo))
+
+
+func test_wet_ground_takes_deeper_prints_than_dry() -> void:
+	var dry := _soft_trail()
+	var wet := _soft_trail()
+	dry.wetness = 0.0
+	wet.wetness = 1.0
+	var pos := Vector2(0, -400)
+	for i in 12:
+		pos += Vector2(0.25, 0.0)
+		dry.update_for(pos, 0.016)
+		wet.update_for(pos, 0.016)
+	var deepest_dry := 1.0
+	var deepest_wet := 1.0
+	var x := 0.0
+	while x < 4.0:
+		for sy in [-1.0, 1.0]:
+			var p := Vector2(x, -400.0 + sy * CityGroundTrail.FOOT_SPREAD)
+			deepest_dry = minf(deepest_dry, dry.value_at(p))
+			deepest_wet = minf(deepest_wet, wet.value_at(p))
+		x += CityGroundTrail.CELL
+	assert_true(deepest_wet < deepest_dry - 0.1, "wet %.2f vs dry %.2f" % [deepest_wet, deepest_dry])
+	dry.free()
+	wet.free()
+
+
+func test_grass_keeps_off_the_road_body_and_shrinks_at_its_edge() -> void:
+	var plan := CityPlan.load_default()
+	var grass := CityGrass.create(plan)
+	var image := (load(CityPlan.ROADS_PATH) as Texture2D).get_image()
+	if image.is_compressed():
+		image.decompress()
+	var checked := 0
+	for y in range(0, image.get_height(), 7):
+		for x in range(0, image.get_width(), 7):
+			var texel := image.get_pixel(x, y)
+			if texel.r > 0.95 and texel.b > 0.5:
+				var p := plan.bounds.position + (Vector2(x, y) + Vector2(0.5, 0.5)) / Vector2(image.get_size()) * plan.bounds.size
+				assert_true(grass.road_clearance(p) > 0.7, "busy road body is cleared of plants")
+				assert_true(grass._bareness(p) >= 0.7, "bareness covers the road body")
+				checked += 1
+	assert_true(checked > 20, "found busy road texels, got %d" % checked)
+	grass.free()

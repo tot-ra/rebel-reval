@@ -14,7 +14,7 @@ uniform sampler2D roads : filter_linear, repeat_disable;
 // 0.5 for undisturbed ground, below it pressed down, above it pushed up as a rim.
 uniform sampler2D trail : filter_linear, repeat_disable;
 uniform vec4 trail_rect = vec4(0.0, 0.0, 1.0, 1.0); // origin.xz, size.xz in world units
-uniform float trail_depth = 0.09; // world units of relief at full press
+uniform float trail_depth = 0.17; // world units of relief at full press
 // The city heightfield (CityPlan.height_texture): crests dry out, hollows stay damp.
 uniform sampler2D ground_height : filter_linear, repeat_disable;
 uniform vec4 ground_rect = vec4(0.0, 0.0, 1.0, 1.0); // origin.xz, size.xz in world units
@@ -82,7 +82,7 @@ vec3 road_profile(vec2 p, vec4 rd, float wet) {
 	float ruts = max(exp(-pow((lat + gauge) / 0.22, 2.0)), exp(-pow((lat - gauge) / 0.22, 2.0)));
 	float berm = exp(-pow((abs(lat) - gauge - 0.46) / 0.24, 2.0));
 	float hump = exp(-pow(lat / 0.5, 2.0));
-	float h = (-ruts * 0.085 + berm * 0.035 - hump * 0.012) * depth;
+	float h = (-ruts * 0.12 + berm * 0.05 - hump * 0.012) * depth;
 	return vec3(h, ruts * depth, hump * depth);
 }
 
@@ -201,8 +201,11 @@ void fragment() {
 		vec3 dust_tone = vec3(1.2, 1.08, 0.88);
 		vec3 clay_tone = vec3(0.5, 0.44, 0.39);
 		vec3 road_col = clay * mix(dust_tone, clay_tone, wet_road);
-		float weeds = road_prof.z * (1.0 - rd.b) * smoothstep(0.35, 0.7, value_noise(wuv * 0.9));
-		road_col = mix(road_col, grass * 0.8, clamp(weeds, 0.0, 0.8));
+		// Wheels and boots keep a used road bare: only the quiet margin of a
+		// lightly travelled track shows a faint green fuzz of tiny sprouts.
+		float quiet = (1.0 - smoothstep(0.15, 0.45, rd.b)) * (1.0 - smoothstep(0.35, 0.85, rd.r));
+		float sprouts = quiet * smoothstep(0.5, 0.8, value_noise(wuv * 1.3)) * (1.0 - wet_road * 0.5);
+		road_col = mix(road_col, grass * 0.7, clamp(sprouts, 0.0, 0.35));
 		float pebbles = step(0.86, value_noise(wuv * 5.3)) * (0.4 + 0.6 * rd.b);
 		road_col = mix(road_col, road_col * 1.35 + 0.05, pebbles * 0.5);
 		col = mix(col, road_col, road);
@@ -231,7 +234,7 @@ void fragment() {
 	vec2 mslope = vec2(mud_height(wuv + e.xy) - h0, mud_height(wuv + e.yx) - h0) / e.x;
 	nxy += -mslope * 0.09 * soft * detail;
 	// Road and footprint relief by finite differences of the same height function.
-	float prints_scale = give * (0.55 + 0.9 * wet_road) * detail;
+	float prints_scale = give * (0.45 + 1.3 * wet_road) * detail;
 	float tr0 = trail_height(wuv);
 	float tr_x = trail_height(wuv + e.xy);
 	float tr_z = trail_height(wuv + e.yx);
@@ -251,7 +254,9 @@ void fragment() {
 	// where it was pressed and shines.
 	float dryness = 1.0 - wet_road;
 	col *= mix(1.0, 0.86 + h0 * 0.28, soft);
-	col *= 1.0 - 0.22 * in_rut * (0.5 + wet_road) - 0.3 * pressed * (0.4 + wet_road);
+	col *= 1.0 - 0.28 * in_rut * (0.5 + wet_road) - 0.42 * pressed * (0.4 + wet_road);
+	// Wet mud squeezes up round a print and darkens into slick clay.
+	col = mix(col, col * vec3(0.8, 0.74, 0.68), rim * wet_road * 0.6);
 	col = mix(col, col * 1.18 + 0.03, rim * dryness * 0.6);
 	col = mix(col, col * vec3(1.12, 1.05, 0.93) + 0.025, soft * dryness * 0.35);
 	// Puddles gather in flat hollows of earth and mud after rain, and fill the
@@ -262,6 +267,10 @@ void fragment() {
 	float rut_pool = in_rut * smoothstep(0.35, 0.8, value_noise(wuv * 0.21)) * 1.5;
 	float pool = max(hollow * soft, max(rut_pool, pressed)) * flat_ground;
 	float puddle = smoothstep(0.35, 0.6, pool) * puddles * (1.0 - paving);
+	// Water seeps into the deepest prints and ruts of soaked ground even where no
+	// standing puddle has formed yet.
+	float seep = smoothstep(0.55, 0.9, max(pressed, in_rut * 0.7 * smoothstep(0.35, 0.7, value_noise(wuv * 0.4)))) * smoothstep(0.45, 0.9, wet_road) * (1.0 - paving) * flat_ground;
+	puddle = max(puddle, seep * 0.8);
 	float wet = clamp(wetness + mud * 0.35 + shore * 0.5 + puddles * soft * 0.5 + pressed * wet_road * 0.3, 0.0, 1.0);
 	col = mix(col * mix(1.0, 0.62, wet), vec3(0.08, 0.09, 0.09), puddle * 0.85);
 	nxy = mix(nxy, vec2(0.0), puddle);
@@ -269,7 +278,8 @@ void fragment() {
 	ROUGHNESS = mix(mix(0.95, 0.6, wet * (1.0 - rock * 0.5)), 0.12, puddle);
 	// Dust is the roughest thing there is; slick clay shines in the ruts.
 	ROUGHNESS = mix(ROUGHNESS, 0.98, road * dryness * 0.6);
-	ROUGHNESS = mix(ROUGHNESS, 0.38, in_rut * wet_road * 0.8);
+	ROUGHNESS = mix(ROUGHNESS, 0.5, in_rut * wet_road * 0.8);
+	ROUGHNESS = mix(ROUGHNESS, 0.3, (pressed + rim * 0.5) * wet_road * 0.7);
 	SPECULAR = mix(0.3, 0.55, puddle);
 	nxy = clamp(nxy * mix(1.0, 0.75, wet) * (1.0 - rock), vec2(-0.95), vec2(0.95));
 	NORMAL_MAP = vec3(nxy, sqrt(max(1.0 - dot(nxy, nxy), 0.0))) * 0.5 + 0.5;

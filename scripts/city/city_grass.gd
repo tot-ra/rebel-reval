@@ -10,7 +10,8 @@ extends Node3D
 ##   accents    - 3D plantain, dandelion, clover and yarrow scattered through the
 ##                mid chunks, so those plants are never baked into a texture
 ## Placement thins on trodden earth and leaves paving, floors, water and steep
-## banks bare. Deterministic per chunk (seeded from the chunk key).
+## banks bare. Cart roads (roads.png) stay bare where wheels and feet pass: grass
+## stands only on the verge, and a stray tuft on a lightly used road is tiny. Deterministic per chunk (seeded from the chunk key).
 
 const PlantMeshes := preload("res://scripts/map/view3d/map_view_plant_meshes.gd")
 const PlantSpecies := preload("res://scripts/map/view3d/map_view_plant_species.gd")
@@ -37,6 +38,7 @@ const ACCENT_DENSITY := {
 
 var plan: CityPlan
 var _splat: Image
+var _roads: Image
 var _mid_chunks: Dictionary = {}
 var _near_chunks: Dictionary = {}
 var _blade_mesh: Mesh
@@ -52,6 +54,9 @@ static func create(city_plan: CityPlan) -> CityGrass:
 	node._splat = (load(CityPlan.SPLAT_PATH) as Texture2D).get_image()
 	if node._splat.is_compressed():
 		node._splat.decompress()
+	node._roads = (load(CityPlan.ROADS_PATH) as Texture2D).get_image()
+	if node._roads.is_compressed():
+		node._roads.decompress()
 	node._blade_mesh = MapViewMeshBuilderPrimitives.grass_blade_clump_mesh()
 	node._near_material = MapViewMaterials.grass_blade_tier(true)
 	node._mid_material = MapViewMaterials.grass_blade_tier(false)
@@ -98,10 +103,33 @@ func surface_at(world_xz: Vector2) -> Color:
 	return _splat.get_pixel(x, y)
 
 
+## Road raster at a world position: (body, lateral offset, traffic wear, verge).
+func road_at(world_xz: Vector2) -> Color:
+	var p := (world_xz - plan.bounds.position) / plan.bounds.size * Vector2(_roads.get_size())
+	var x := clampi(int(p.x), 0, _roads.get_width() - 1)
+	var y := clampi(int(p.y), 0, _roads.get_height() - 1)
+	return _roads.get_pixel(x, y)
+
+
+## How much of the road surface at `p` is kept clear of plants, 0..1. Wheels,
+## hooves and boots keep the body of a road bare whatever the plate underneath
+## says; only the unused edge of a quiet track may sprout.
+func road_clearance(p: Vector2) -> float:
+	var rd := road_at(p)
+	return clampf(rd.r * (0.7 + 0.6 * rd.b), 0.0, 1.0)
+
+
 ## Share of ground at `p` that stays bare (paving, earth, sand, mud).
 func _bareness(p: Vector2) -> float:
 	var s := surface_at(p)
-	return maxf(s.r * 1.6, maxf(s.b, s.a * 0.9)) + s.g * 0.75
+	var base := maxf(s.r * 1.6, maxf(s.b, s.a * 0.9)) + s.g * 0.75
+	# Packed earth beside a road still grows grass (verge); the road body does not.
+	return maxf(base, road_clearance(p) * 1.25)
+
+
+## Plants that do survive on a road are stunted: trampled, dry, never in the ruts.
+func _road_shrink(p: Vector2) -> float:
+	return lerpf(1.0, 0.3, clampf(road_at(p).r * 1.5, 0.0, 1.0))
 
 
 ## Ground height where grass may stand at `p`, or NAN where it must stay bare.
@@ -133,7 +161,7 @@ func _scatter_clumps(
 		var h := _grass_height(p)
 		if is_nan(h):
 			continue
-		var scale := rng.randf_range(scale_range.x, scale_range.y)
+		var scale := rng.randf_range(scale_range.x, scale_range.y) * _road_shrink(p)
 		var basis := Basis(Vector3.UP, rng.randf() * TAU).scaled(
 			Vector3(scale, scale * rng.randf_range(0.75, 1.3), scale)
 		)
@@ -200,7 +228,10 @@ func _add_accent_plants(root: Node3D, key: Vector2i) -> void:
 			var h := _grass_height(p)
 			if is_nan(h):
 				continue
-			var scale := rng.randf_range(scale_range.x, scale_range.y) * rng.randf_range(0.8, 1.25)
+			var scale := (
+				rng.randf_range(scale_range.x, scale_range.y) * rng.randf_range(0.8, 1.25)
+				* _road_shrink(p)
+			)
 			var basis := Basis(Vector3.UP, rng.randf() * TAU).scaled(Vector3.ONE * scale)
 			transforms.append(Transform3D(basis, Vector3(p.x, h - 0.02, p.y)))
 			colors.append(PlantSpecies.instance_tint(species, rng.randf()))

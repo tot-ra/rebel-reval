@@ -10,16 +10,22 @@ extends Node3D
 ## and dusty when dry. Dry footfalls on soft ground also kick up a puff of dust.
 ## Prints are visual only: they do not change walking speed or the heightfield.
 
-const WINDOW_CELLS := 512
-## Metres-ish: one cell in world units. 512 cells * 0.1 = a 51 wu window.
-const CELL := 0.1
+const WINDOW_CELLS := 1024
+## One cell in world units: a boot is ~0.13 wu wide, so 0.04 gives it 3-4 cells.
+## 1024 cells * 0.04 = a 41 wu window.
+const CELL := 0.04
 ## Distance walked per footfall, in world units.
 const STRIDE := 0.85
 ## Recentre when Kalev gets this close to the window edge.
 const EDGE_MARGIN := 12.0
 const NEUTRAL := 0.5
-const FOOT_RADIUS := Vector2(0.15, 0.27)
-const FOOT_SPREAD := 0.17
+## Half extents of the whole print (along, across). A turnshoe is ~0.38 wu long.
+const FOOT_RADIUS := Vector2(0.19, 0.075)
+const FOOT_SPREAD := 0.1
+## Toe-out of each foot in radians, left and right mirrored.
+const TOE_OUT := 0.14
+## Heel strike presses harder than the ball of the foot.
+const HEEL_DEPTH := 1.25
 ## Footfalls only bite where the ground gives (splat earth/mud minus paving).
 const MIN_SOFTNESS := 0.12
 ## Below this wetness the footfall raises dust instead of nothing.
@@ -91,7 +97,16 @@ func update_for(world_xz: Vector2, _delta: float) -> void:
 ## One footprint: an oval pressed in, a rim heaped round it. `facing` is the
 ## direction of travel in world XZ; `weight` scales depth (running is heavier).
 func stamp_foot(world_xz: Vector2, facing: Vector2, weight := 1.0) -> void:
-	stamp_oval(world_xz, FOOT_RADIUS, facing, 0.55 * weight, 0.16 * weight)
+	# A boot is two lobes, a narrow heel and a broad ball with the toes: that
+	# reads as a footprint where a single oval reads as a puddle.
+	var fwd := facing.normalized()
+	var ball_depth := minf(0.55 * weight, 0.9)
+	var heel_depth := minf(0.55 * weight * HEEL_DEPTH, 0.95)
+	var rim := 0.16 * weight
+	stamp_oval(world_xz + fwd * 0.07, Vector2(0.125, 0.075), fwd, ball_depth, rim)
+	stamp_oval(world_xz - fwd * 0.09, Vector2(0.095, 0.062), fwd, heel_depth, rim)
+	# The arch barely touches the ground; it joins the lobes into one sole.
+	stamp_oval(world_xz - fwd * 0.01, Vector2(0.08, 0.045), fwd, ball_depth * 0.45, 0.0)
 
 
 ## A pressed oval with a rim. `radii` are the half extents (along, across the
@@ -112,7 +127,8 @@ func stamp_oval(
 			var r2 := u * u + v * v
 			var current := _image.get_pixel(cx, cy).r
 			if r2 < 1.0:
-				var press := depth * (1.0 - r2 * r2)
+				# Steep walls and a flat floor, softened so a print is not a stencil.
+				var press := depth * smoothstep(1.0, 0.3, r2)
 				current = minf(current, NEUTRAL - NEUTRAL * press)
 				current = clampf(current, 0.0, 1.0)
 				_image.set_pixel(cx, cy, Color(current, 0.0, 0.0))
@@ -143,10 +159,12 @@ func _footfall(world_xz: Vector2, facing: Vector2) -> void:
 	if give < MIN_SOFTNESS or _plan.ground_height(world_xz) < 0.4:
 		return
 	var side := Vector2(-facing.y, facing.x)
-	var foot := world_xz + side * FOOT_SPREAD * (1.0 if _left_foot else -1.0)
+	var foot_sign := 1.0 if _left_foot else -1.0
+	var foot := world_xz + side * FOOT_SPREAD * foot_sign
 	_left_foot = not _left_foot
-	var weight := 0.65 + 0.7 * clampf(wetness, 0.0, 1.0)
-	stamp_foot(foot, facing, weight)
+	# Dry ground only crumbles; wet clay gives under the full weight.
+	var weight := 0.4 + 1.15 * clampf(wetness, 0.0, 1.0)
+	stamp_foot(foot, facing.rotated(TOE_OUT * foot_sign), weight)
 	if wetness < DRY_WETNESS and softness >= 0.4:
 		_puff(foot)
 
