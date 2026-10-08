@@ -6,11 +6,22 @@ extends RefCounted
 
 const DEFAULT_PATH := "res://content/audio/sfx_catalog.json"
 
+## Parsed once per run: doors, footsteps and ambience all ask for the default
+## catalog, and re-reading the JSON per caller showed up as avoidable churn.
+static var _default_catalog: SfxCatalog
+
 var _entries: Dictionary = {}
 
 
 static func load_default() -> SfxCatalog:
-	return load_from_path(DEFAULT_PATH)
+	if _default_catalog == null:
+		_default_catalog = load_from_path(DEFAULT_PATH)
+	return _default_catalog
+
+
+## Drops the shared instance. Tests that write a temporary catalog call this.
+static func clear_default_cache() -> void:
+	_default_catalog = null
 
 
 static func load_from_path(path: String) -> SfxCatalog:

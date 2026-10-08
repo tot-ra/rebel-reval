@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import json
 import subprocess
 import sys
 from pathlib import Path
@@ -17,8 +18,25 @@ ROOT = Path(__file__).resolve().parents[1]
 WEATHER_DIR = ROOT / "sounds" / "weather"
 MANIFEST_CSV = WEATHER_DIR / "manifest.csv"
 ROOF_AUDIO_GD = ROOT / "scripts" / "map" / "view3d" / "sky_weather_roof_audio.gd"
+SFX_CATALOG = ROOT / "content" / "audio" / "sfx_catalog.json"
+ROOF_SOUND_ID = "amb.weather.rain_roof"
+ROOF_STREAM = "res://sounds/weather/rain_roof.mp3"
 MIN_DURATION_SECONDS = 30.0
 MAX_DURATION_SECONDS = 60.0
+
+
+def check_catalog_binding() -> str:
+    """Empty string when the catalog maps the roof sound ID to the roof clip."""
+    if not SFX_CATALOG.is_file():
+        return f"missing sfx catalog {SFX_CATALOG}"
+    payload = json.loads(SFX_CATALOG.read_text(encoding="utf-8"))
+    for entry in payload.get("entries", []):
+        if entry.get("id") != ROOF_SOUND_ID:
+            continue
+        if ROOF_STREAM not in entry.get("streams", []):
+            return f"catalog entry {ROOF_SOUND_ID} must stream {ROOF_STREAM}"
+        return ""
+    return f"sfx catalog has no entry {ROOF_SOUND_ID}"
 
 
 def probe_duration_seconds(path: Path) -> float:
@@ -53,8 +71,15 @@ def main() -> int:
         print(f"ERROR: missing runtime binding {ROOF_AUDIO_GD}")
         return 1
     text = ROOF_AUDIO_GD.read_text(encoding="utf-8")
-    if "res://sounds/weather/rain_roof.mp3" not in text:
-        print("ERROR: sky_weather_roof_audio.gd must reference rain_roof.mp3")
+    # ADR 0035 phase 2: the runtime binds the catalog ID and the catalog owns
+    # the file, so the clip is checked through the catalog rather than a path
+    # literal in the script.
+    if ROOF_SOUND_ID not in text:
+        print(f"ERROR: sky_weather_roof_audio.gd must reference {ROOF_SOUND_ID}")
+        return 1
+    catalog_error = check_catalog_binding()
+    if catalog_error:
+        print(f"ERROR: {catalog_error}")
         return 1
 
     errors = 0

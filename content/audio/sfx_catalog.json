@@ -12,30 +12,54 @@
       "volume_jitter_db": 1.5,
       "max_voices": 2,
       "cooldown_ms": 250,
-      "spatial": "3d"
+      "spatial": "none"
     },
     {
       "id": "sfx.footstep.wood.walk",
       "bus": "Footsteps",
-      "streams": ["res://sounds/walk_wood.mp3"],
+      "streams": [
+        "res://sounds/footsteps/wood_walk_01.mp3",
+        "res://sounds/footsteps/wood_walk_02.mp3",
+        "res://sounds/footsteps/wood_walk_03.mp3",
+        "res://sounds/footsteps/wood_walk_04.mp3",
+        "res://sounds/footsteps/wood_walk_05.mp3"
+      ],
       "tier": "C",
-      "source_ids": ["sounds.walk.wood"],
+      "source_ids": [
+        "sounds.footsteps.wood_walk_01",
+        "sounds.footsteps.wood_walk_02",
+        "sounds.footsteps.wood_walk_03",
+        "sounds.footsteps.wood_walk_04",
+        "sounds.footsteps.wood_walk_05"
+      ],
       "pitch_jitter": 0.08,
       "volume_jitter_db": 2.0,
-      "no_repeat": 1,
-      "max_voices": 4,
+      "no_repeat": 2,
+      "max_voices": 2,
+      "cooldown_ms": 90,
       "spatial": "3d"
     },
     {
       "id": "sfx.footstep.mud.walk",
       "bus": "Footsteps",
-      "streams": ["res://sounds/walking_on_mud_stable_audio_3.mp3"],
+      "streams": [
+        "res://sounds/footsteps/mud_walk_01.mp3",
+        "res://sounds/footsteps/mud_walk_02.mp3",
+        "res://sounds/footsteps/mud_walk_03.mp3",
+        "res://sounds/footsteps/mud_walk_04.mp3"
+      ],
       "tier": "C",
-      "source_ids": ["sounds.walking.on.mud.stable.audio.3"],
+      "source_ids": [
+        "sounds.footsteps.mud_walk_01",
+        "sounds.footsteps.mud_walk_02",
+        "sounds.footsteps.mud_walk_03",
+        "sounds.footsteps.mud_walk_04"
+      ],
       "pitch_jitter": 0.08,
       "volume_jitter_db": 2.0,
-      "no_repeat": 1,
-      "max_voices": 4,
+      "no_repeat": 2,
+      "max_voices": 2,
+      "cooldown_ms": 90,
       "spatial": "3d"
     },
     {
@@ -62,9 +86,39 @@
       "id": "amb.weather.rain_roof",
       "bus": "Weather",
       "streams": ["res://sounds/weather/rain_roof.mp3"],
-      "tier": "C",
+      "tier": "B",
       "source_ids": ["sounds.weather.rain_roof"],
       "volume_db": -6.0,
+      "max_voices": 1,
+      "spatial": "none"
+    },
+    {
+      "id": "amb.weather.rain_outdoor",
+      "bus": "Weather",
+      "streams": ["res://sounds/weather/rain_outdoor.mp3"],
+      "tier": "B",
+      "source_ids": ["sounds.weather.rain_outdoor"],
+      "volume_db": -8.0,
+      "max_voices": 1,
+      "spatial": "none"
+    },
+    {
+      "id": "amb.lower_town.bed",
+      "bus": "Ambience",
+      "streams": ["res://sounds/ambience/lower_town_bed.mp3"],
+      "tier": "B",
+      "source_ids": ["sounds.ambience.lower_town_bed"],
+      "volume_db": -14.0,
+      "max_voices": 1,
+      "spatial": "none"
+    },
+    {
+      "id": "amb.forge.bed",
+      "bus": "Ambience",
+      "streams": ["res://sounds/ambience/forge_bed.mp3"],
+      "tier": "B",
+      "source_ids": ["sounds.ambience.forge_bed"],
+      "volume_db": -12.0,
       "max_voices": 1,
       "spatial": "none"
     }

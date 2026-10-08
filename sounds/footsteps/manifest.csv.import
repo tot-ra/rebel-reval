@@ -1,0 +1,19 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://cvbe0unuoa63a"
+
+[deps]
+
+files=["res://sounds/footsteps/manifest.file.translation", "res://sounds/footsteps/manifest.license.translation", "res://sounds/footsteps/manifest.source.translation", "res://sounds/footsteps/manifest.notes.translation"]
+
+source_file="res://sounds/footsteps/manifest.csv"
+dest_files=["res://sounds/footsteps/manifest.file.translation", "res://sounds/footsteps/manifest.license.translation", "res://sounds/footsteps/manifest.source.translation", "res://sounds/footsteps/manifest.notes.translation"]
+
+[params]
+
+compress=1
+delimiter=0
+unescape_keys=false
+unescape_translations=true

@@ -5,7 +5,14 @@ extends Node
 ## the weather controller reports suppressed falling rain and a non-zero profile.
 
 const AudioBusServiceScript := preload("res://scripts/settings/audio_bus_service.gd")
-const ROOF_LOOP_PATH := "res://sounds/weather/rain_roof.mp3"
+## Catalog ID instead of a file path (ADR 0035 phase 2): the clip, its bus and
+## its trim live in content/audio/sfx_catalog.json, so replacing the loop needs
+## no code change. Playback stays local because this is a crossfaded bed driven
+## by the weather field, not a one-shot SfxPlayer voice.
+const ROOF_SOUND_ID := &"amb.weather.rain_roof"
+## Used only when the catalog entry is missing, which would otherwise silence
+## interior rain outright.
+const ROOF_LOOP_FALLBACK_PATH := "res://sounds/weather/rain_roof.mp3"
 const RAIN_AUDIBLE_THRESHOLD := 0.02
 const MAX_LINEAR_VOLUME := 0.42
 const FADE_DB_PER_SECOND := 12.0
@@ -13,17 +20,28 @@ const SILENCE_DB := -80.0
 
 var _player: AudioStreamPlayer
 var _audio_enabled := true
+## Catalog trim for the loop, added on top of the weather-driven volume.
+var _catalog_volume_db := 0.0
 
 
 func _ready() -> void:
 	_player = AudioStreamPlayer.new()
 	_player.name = "RoofRainPlayer"
-	var stream := load(ROOF_LOOP_PATH) as AudioStream
+	var entry := SfxCatalog.load_default().get_entry(ROOF_SOUND_ID)
+	var stream_path := ROOF_LOOP_FALLBACK_PATH
+	var bus := AudioBusServiceScript.BUS_SFX
+	if entry.has("streams"):
+		stream_path = String(entry["streams"][0])
+		bus = StringName(entry.get("bus", bus))
+		_catalog_volume_db = float(entry.get("volume_db", 0.0))
+	else:
+		push_warning("SkyWeatherRoofAudio: catalog entry %s is missing" % ROOF_SOUND_ID)
+	var stream := load(stream_path) as AudioStream
 	if stream is AudioStreamMP3:
 		(stream as AudioStreamMP3).loop = true
 	_player.stream = stream
 	_player.volume_db = SILENCE_DB
-	AudioBusServiceScript.assign_bus(_player, AudioBusServiceScript.BUS_SFX)
+	AudioBusServiceScript.assign_bus(_player, bus)
 	add_child(_player)
 
 
@@ -39,7 +57,7 @@ func sync(rain_suppressed: bool, rain_intensity: float, delta: float = 0.0) -> v
 	var target_linear := target_linear_volume(rain_suppressed, rain_intensity, _audio_enabled)
 	var target_db := SILENCE_DB
 	if target_linear > 0.0:
-		target_db = linear_to_db(target_linear)
+		target_db = linear_to_db(target_linear) + _catalog_volume_db
 	if delta > 0.0:
 		var step_db := FADE_DB_PER_SECOND * delta
 		if target_db > _player.volume_db:

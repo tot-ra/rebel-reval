@@ -3,7 +3,8 @@
 
 Schema checks run through the shared content validator. This tool adds the
 cross-file rules the schema cannot express: unique IDs, streams exist on disk,
-and every stream is covered by an approved SOURCES.csv row named in source_ids.
+every stream is covered by an approved SOURCES.csv row named in source_ids, and
+one-shot pools really do hold one-shots.
 """
 
 from __future__ import annotations
@@ -14,9 +15,18 @@ from pathlib import Path
 
 from validate_asset_sources import read_sources
 from validate_content_examples import SCHEMAS_DIR, SchemaStore, validate_value
+from verify_runtime_audio_budget import probe_audio
 
 ROOT = Path(__file__).resolve().parents[1]
 CATALOG = ROOT / "content" / "audio" / "sfx_catalog.json"
+
+## ID prefixes whose entries are played as single events by SfxPlayer.play().
+## R-1382: the phase-2 catalog pointed the footstep pools at multi-second walk
+## *cycles*, so every foot plant started a whole cycle and several overlapped.
+## A duration cap makes that class of mistake a validator failure instead of
+## something you only hear in game.
+ONE_SHOT_PREFIXES = ("sfx.footstep.", "sfx.door.")
+ONE_SHOT_MAX_SECONDS = 1.5
 
 
 def validate(catalog_path: Path = CATALOG, sources: list[dict[str, str]] | None = None) -> list[str]:
@@ -44,13 +54,31 @@ def validate(catalog_path: Path = CATALOG, sources: list[dict[str, str]] | None 
             if not row["approval"].startswith("approved"):
                 errors.append(f"{sid}: source {source_id!r} is not approved ({row['approval']!r})")
             covered.add(row["path"])
+        one_shot = sid.startswith(ONE_SHOT_PREFIXES)
         for stream in entry["streams"]:
             rel = stream.removeprefix("res://")
-            if not (ROOT / rel).is_file():
+            path = ROOT / rel
+            if not path.is_file():
                 errors.append(f"{sid}: stream missing on disk: {stream}")
+            elif one_shot:
+                errors += _one_shot_duration_errors(sid, stream, path)
             if rel not in covered:
                 errors.append(f"{sid}: stream {stream} has no listed source_ids row")
     return errors
+
+
+def _one_shot_duration_errors(sid: str, stream: str, path: Path) -> list[str]:
+    probed = probe_audio(path)
+    if probed is None:
+        return [f"{sid}: cannot read the duration of one-shot stream {stream}"]
+    _bitrate, duration = probed
+    if duration > ONE_SHOT_MAX_SECONDS:
+        return [
+            f"{sid}: one-shot stream {stream} is {duration:.2f} s, over the "
+            f"{ONE_SHOT_MAX_SECONDS} s cap; a loop or walk cycle cannot be played "
+            "per event"
+        ]
+    return []
 
 
 def main() -> int:

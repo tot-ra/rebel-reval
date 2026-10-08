@@ -1,6 +1,6 @@
 # ADR 0035: Game audio sourcing and the sound-effects system (RFC)
 
-- **Status:** Accepted for Phases 0-1 (maintainer request, 2026-10-08); implemented: policy tooling and core runtime, see [`SYSTEMS/AUDIO.md`](../SYSTEMS/AUDIO.md). Phases 2-6 remain gated on Open questions 2 and 3 and the scope offset below.
+- **Status:** Accepted for Phases 0-2 (maintainer request, 2026-10-08); implemented: policy tooling, core runtime, and the slice pilot (surfaces, footsteps, doors, layered ambience) - see [`SYSTEMS/AUDIO.md`](../SYSTEMS/AUDIO.md). Open question 3 (voice) is answered below. Phase 2 shipped its *code* with in-house synthesis placeholders; licensed and recorded material still waits on Open question 2 (budget), as do Phases 3-6 and the scope offset below.
 - **Scope:** Every non-music sound in the game: ambience, weather, animals, water, crowds, footsteps, impacts, weapons, vocal efforts, UI, magic. Music stays with [`music/README.md`](../../music/README.md) and `scripts/global/music_director.gd`.
 - **Amends:** the asset freeze ([`AGENTS.md`](../../AGENTS.md#scope)) only in that it names an allowed audio pipeline. It does not touch the visual freeze.
 - **Does not supersede:** ADR 0003 (offline authored content, no runtime LLM; this ADR also forbids runtime audio generation), [`ASSET_STORAGE_POLICY.md`](../ASSET_STORAGE_POLICY.md), [`reports/bird_audio_sourcing.md`](../reports/bird_audio_sourcing.md) (still the bird-species source of truth).
@@ -146,7 +146,7 @@ Each phase is a separate task created with `tasks.create` after Acceptance. Prop
 |-------|-------------|--------------|
 | **0. Policy and tooling** | `schemas/sfx_catalog.schema.json`, catalog validator, `SOURCES.csv` audio checks (license gate), `docs/reports/audio_licenses/`, `docs/SYSTEMS/AUDIO.md` (planned), budget for libraries/session | `python3 tools/validate_content.py`, `tools/validate_asset_sources.py`, unit tests for the gate |
 | **1. Core runtime** | `SfxPlayer`, buses, `sfx_catalog.json` seeded with existing sounds, settings wiring | `tests/godot/test_sfx_catalog.gd`, `test_sfx_player_no_repeat.gd` |
-| **2. Slice pilot** | Forge + Lower Town: 6 footstep surfaces, doors, forge sounds, city bed + spot layer, rain | Headless catalog coverage test; captured session log of triggered IDs; maintainer listening review |
+| **2. Slice pilot** (code done, **R-1357**/**R-1358**) | Forge + Lower Town: 6 footstep surfaces, doors, city and forge beds, rain. Forge tool sounds and the mid/spot content are deferred to Open question 2 | Headless catalog coverage test; captured session log of triggered IDs; maintainer listening review |
 | **3. Combat and gear** | Weapons, impacts, armour/cloth, vocal efforts | Test: every combat event ID resolves; loudness report |
 | **4. Fauna and crowds** | Domestic animals, crowd densities, market/harbour/church beds | Coverage test per district; per-category variation counts met |
 | **5. Space** | Reverb zones, optional occlusion, ducking tuning | Listening review, performance report within budget |
@@ -177,11 +177,19 @@ Equivalent-cost scope proposed to be removed or deferred, **pending maintainer c
 - Defer per-district bespoke ambience for Act 2 and Act 3 districts until after the vertical slice passes.
 - Defer UI sound polish beyond a single base set.
 
+Phase 2 was built inside these deferrals without drawing on them: it added no bird species, no Act 2/3 district ambience and no UI sounds, and its three new clips are in-house synthesis at no acquisition cost. Confirmation is still required before Phases 3-6.
+
 ## Open questions
 
 1. **xeno-canto CC-BY-SA**: does share-alike propagate to a game that bundles the recordings? Needs a legal read. If yes, keep birds in separately extractable files, document, or replace with CC0/BY/paid material.
-2. **Budget**: which paid libraries and how much, and whether to contract a Foley session.
-3. **Voice**: protagonist and NPC vocal efforts and barks. Options: licensed vocal-effort packs, hired voice actors, or AI voices under a licence that covers voice rights. Never clone a real person's voice without a written release.
+2. **Budget**: which paid libraries and how much, and whether to contract a Foley session. **Open.** Interim position, used by Phase 2: no purchases were made, and the pilot ships deterministic in-house ffmpeg synthesis as placeholders under the P0-124 precedent (tier B, own material). Every placeholder is addressed by catalog ID, so licensed or recorded pools replace it without code changes (`AUDIO-4` / **R-1359**).
+3. **Voice**: **Decided** (maintainer, 2026-10-08): AI voices, generated through the a2gent tooling onto ElevenLabs. Licensed vocal-effort packs and hired actors are not pursued for now. Constraints that follow from this ADR and the maintainer's instruction:
+   - Generation runs **in reviewable batches scoped to a dialogue or a scene**, not as one bulk pass, so the maintainer can listen to a concrete scene and re-run (retry) individual lines they do not like. The batch and its prompt/seed are recorded per line.
+   - Offline only. ADR 0003 and this ADR forbid runtime TTS: exported clips are shipped as assets, addressed by content ID.
+   - Paid plan only. Free-tier output is quarantined by the license gate (`tools/validate_asset_sources.py` requires `paid plan` in `edits`), and every row records model, version, prompt, seed, plan and date.
+   - No cloning of a real person's voice without a written release.
+   - AI voice is disclosed on the store page and in credits (Open question 4).
+   - Voice work is not part of Phase 2; it lands with vocal efforts in Phase 3 and with narration tasks (**R-1331**, **R-632**).
 4. **AI disclosure and platform**: confirm store wording once the audio set is known.
 5. **Sonniss licence text**: store the exact bundle licence for the year used; confirm the AI-training clause does not affect our use (we do not train models).
 6. **Loudness standard** for the mix (target LUFS per bus).

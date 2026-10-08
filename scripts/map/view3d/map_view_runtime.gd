@@ -203,6 +203,30 @@ func insect_audio_active_voice_count() -> int:
 	return _ambient_controller.insect_audio_active_voice_count()
 
 
+func set_footstep_audio_enabled(enabled: bool) -> void:
+	_ambient_controller.set_footstep_audio_enabled(enabled)
+
+
+func footstep_played_count() -> int:
+	return _ambient_controller.footstep_played_count()
+
+
+func last_footstep_sound_id() -> StringName:
+	return _ambient_controller.last_footstep_sound_id()
+
+
+func last_footstep_surface() -> StringName:
+	return _ambient_controller.last_footstep_surface()
+
+
+func set_ambience_enabled(enabled: bool) -> void:
+	_ambient_controller.set_ambience_enabled(enabled)
+
+
+func ambience_active_layer_ids() -> Array[StringName]:
+	return _ambient_controller.ambience_active_layer_ids()
+
+
 func configure_crowd(max_instances: int, seed_value: int) -> void:
 	_ambient_controller.configure_crowd(max_instances, seed_value)
 

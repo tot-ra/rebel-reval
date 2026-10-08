@@ -1,0 +1,3 @@
+clip_id,file,license,source,notes
+ambience.forge_bed,forge_bed.mp3,AGPL-3.0-or-later (project author),in-house ffmpeg synthesis (R-1358),"48 s forge hearth bed: brown-noise fire rumble with a 0.28 Hz bellows swell, mixed with a gated white-noise crackle layer; lavfi seed 135802"
+ambience.lower_town_bed,lower_town_bed.mp3,AGPL-3.0-or-later (project author),in-house ffmpeg synthesis (R-1358),48 s brown-noise Lower Town street hum; low-passed with a 0.2 Hz breath so it reads as distant town rather than wind; lavfi seed 135801
