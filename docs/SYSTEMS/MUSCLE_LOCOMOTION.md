@@ -20,14 +20,14 @@ Not a new idea: [Karl Sims, Evolved Virtual Creatures, 1994](https://karlsims.co
 
 ## The prototype
 
-Files: `creature.py` (bone graph to MuJoCo XML), `presets.py` (`biped`, `quadruped`, optional `belly` mass), `sim.py` (simulation, controller, fitness), `evolve.py` (CMA-ES, 4 processes), `render.py` (replay, filmstrip PNG, baked clip JSON), `results/`.
+Files: `creature.py` (bone graph to MuJoCo XML), `presets.py` (parametric `biped` and `quadruped`; `Body` = size, mass multiplier, strength, load, belly), `sim.py` (simulation, controller, fitness), `evolve_general.py` (CMA-ES, one controller for a range of bodies and speeds), `evolve.py` (older single-body search), `render.py` (replay on named bodies, gallery PNG, baked clip JSON), `results/`.
 
 ```bash
 pip install -r tools/research/muscle_locomotion/requirements.txt
 cd tools/research/muscle_locomotion
-python evolve.py quadruped --gens 300 --pop 48 --T 8 --v 1.0 --out q.json   # about 3 minutes on 4 cores
-python evolve.py biped --gens 400 --pop 48 --T 8 --v 1.2 --belly 12 --out b.json
-python render.py results/quadruped.json 8     # writes *_strip.png and *_clip.json
+python evolve_general.py biped --ranges human_narrow --fr 0.25 0.45 --gens 500 --out narrow.json   # about 20 min on 4 cores
+python evolve_general.py biped --ranges human_wide --fr 0.25 0.5 --gens 800 --w-speed 3 --init narrow.json --sigma 0.3 --out wide.json
+python render.py wide.json --fr 0.35          # gallery PNG and one baked clip per named body
 ```
 
 Design points that mattered:
@@ -35,15 +35,17 @@ Design points that mattered:
 - Planar (sagittal) 2D: x forward, z up, hinge joints about y. Legs left and right are independent in the same plane.
 - Muscles are MuJoCo **fixed tendons**: length = linear function of the joint angle with a constant moment arm, length range swept over the joint limits. This is the "line with min and max length" and also allows muscles that cross two joints. Point-to-point straight tendons were tried first and failed: on bent rest poses the line passed on the wrong side of the joint, so both antagonists pushed the same way.
 - Muscle strength is a per-joint peak torque; the MuJoCo muscle model adds activation lag (10 ms up, 40 ms down) and the force-length curve.
-- Controller (49 parameters for the biped, 121 for the quadruped): per joint a bias, oscillation amplitude, phase, co-contraction and sensor weights, plus one global stride frequency. The flexor gets `c + x`, the extensor `c - x`. Structure matters: a free per-muscle parametrisation sat in a "stand still" local optimum.
+- Generalist controller: the network sees a context vector (Froude number of the target speed plus log size, log mass, log strength, load and belly), and biases, oscillation amplitude and co-contraction are linear in that context, so one set of weights covers many bodies and speeds. Speed is set as a Froude number (speed = Fr x sqrt(g x standing height)) so scaled bodies move in dynamically similar ways. Joint damping scales with size^4.5 and armature with size^5; a fixed damping made dwarfs fail until this was corrected. Every generation scores all candidates on the same few (body, speed) cases, with the plain body and parameter extremes always in the mix (a controller trained on random mid-range bodies failed on the plain body).
+- Gait realism: the first generalist "walked" by shuffling at 3 Hz with small steps; limiting the stride frequency to 0.6 to 2.0 Hz (scaled by 1/sqrt(size)) and adding a cost for foot air time (each foot should be off the ground about 38 % of the time) produced a real swing-and-plant gait.
+- Controller of the first single-body experiment (49 parameters for the biped, 121 for the quadruped): per joint a bias, oscillation amplitude, phase, co-contraction and sensor weights, plus one global stride frequency. The flexor gets `c + x`, the extensor `c - x`. Structure matters: a free per-muscle parametrisation sat in a "stand still" local optimum.
 - Fitness (CMA-ES, lower is better): 10 x fraction of the episode not survived, plus mean absolute speed error against the target, plus a small effort term. Falling = root too low, trunk tilted past a limit, or any non-foot part touching the ground.
 
 ## Results (honest)
 
 | Creature | Result | Evidence |
 |---|---|---|
-| Quadruped, 25 kg, 12 joints, 24 muscles | Walks 8 s without falling at 0.77 m/s (target 1.0), stride 0.51 m, period 0.64 s. Gait is crouched and shuffling, not natural | [`results/quadruped_strip.png`](../../tools/research/muscle_locomotion/results/quadruped_strip.png), `quadruped_clip.json` |
-| Biped, 75 kg, 6 joints, 12 muscles | **Walks.** No fall in 20 s and in 40 s tests, 0.99 m/s (target 1.0), stride 0.85 m, period 0.85 s, upright torso, legs swing past each other. First attempt scooted in a split-leg stance and, after retraining at 8 s, fell at 8.5 s on a 20 s test; the fix was proprioceptive sensors, height and tilt cost terms, a stricter fall rule and a final 20 s training run. Planar only, no pushes or terrain | [`results/biped_strip.png`](../../tools/research/muscle_locomotion/results/biped_strip.png), `biped_clip.json` |
+| Biped, one generalist controller for many bodies (6 joints, 12 muscles, 247 parameters) | Six named bodies all walk 15 s with an alternating gait at about 2 Hz: normal (75 kg), dwarf (size 0.65), tall (1.12), heavy (mass x1.5), armoured (+20 % load), belly (+13 % mass forward). Speeds 0.82 to 1.07 m/s against a 1.04 m/s target. On 45 random test cases (bodies and speeds, 15 of them on bodies seen in training, 30 held out) 38 survive 15 s; all 7 failures are at the smallest size (0.6) or at the fastest speed | [`results/biped_general_gallery.png`](../../tools/research/muscle_locomotion/results/biped_general_gallery.png), `biped_general*_clip.json` |
+| Quadruped, same generalist method | Training queued; the earlier single-body quadruped (0.77 m/s, 8 s) used the previous code and was removed with its stale results | n/a |
 | Bird, snake, human sit/stand/fight | Not built | n/a |
 
 The prototype was visually checked only through stick-figure filmstrips. There is no Godot or Blender in the authoring session, so none of this has been seen on a mesh or in the engine.
@@ -59,9 +61,8 @@ The prototype was visually checked only through stick-figure filmstrips. There i
 
 ## Verification
 
-**Work in progress:** the prototype was just reworked for parametric bodies and one generalist controller (`evolve_general.py`, body and speed as controller inputs). The stored `results/` and the replay commands below belong to the previous version (commit `c097f21`) and will be regenerated with the new code; `render.py` is not yet updated for the new parameter layout.
 
-`python render.py results/quadruped.json 8` replays the stored controller and must print `alive 1.0`, `speed` about 0.77, `dist` about 6.16. `python render.py results/biped.json 20` must print `alive 1.0`, `speed` about 0.986, `dist` about 19.71. There are no automated tests yet.
+`python render.py results/biped_general.json --fr 0.35` replays the stored controller on six named bodies and must print `alive 1.00` for each, with speeds about 1.07, 0.87, 1.07, 0.82, 0.84, 0.86 m/s (normal, dwarf, tall, heavy, armoured, belly) and writes the gallery and clips. There are no automated tests yet.
 
 ## Roadmap
 
