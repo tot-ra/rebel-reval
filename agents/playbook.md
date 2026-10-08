@@ -225,3 +225,5 @@ Keep this file short. Append a durable reusable rule, not a dated incident log. 
 - `--resolution WxH` sizes the window, not the viewport: `root.get_texture().get_image()` comes out at the project's 1920x1080. Resize the image to 1280x720 before `save_png` when the plate is evidence.
 
 - Terrain height queries must triangulate exactly like the mesh that is drawn (same quad diagonal rule); bilinear lookups on a triangulated mesh sink actors on lumpy ground. Rivers from a DEM plate need a water level that follows the land, not sea level, or banks become gorges and bridges hang mid-slope.
+
+- Godot binary on this Mac is `/Applications/Godot.app/Contents/MacOS/Godot` (not on PATH; `ls` is aliased, so verify with absolute paths).
