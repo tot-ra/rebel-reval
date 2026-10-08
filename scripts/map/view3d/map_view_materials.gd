@@ -24,6 +24,9 @@ const TERRAIN_MATERIALS := preload("res://scripts/map/view3d/map_view_terrain_ma
 const SKY_WEATHER := preload("res://scripts/map/view3d/sky_weather_3d.gd")
 const BUILDING_MATERIALS := preload("res://scripts/map/view3d/map_view_building_materials.gd")
 const PROP_MATERIALS := preload("res://scripts/map/view3d/map_view_prop_materials.gd")
+# A literal: .size() of another script's const array is not a constant expression.
+# Keep equal to PROP_MATERIALS.HAY_STACK_SHELLS.size().
+const HAY_STACK_SHELL_COUNT := 4
 const PATTERN_FAMILIES := preload(
 	"res://scripts/map/view3d/map_view_material_pattern_families.gd"
 )
@@ -357,6 +360,14 @@ static func apply_water_sky_reflection(
 
 ## Wind-driven vegetation and cloth APIs remain here for existing builders and
 ## tests. Their independent cache lives in WIND_MATERIALS.
+static func hay_stack(layer: int) -> ShaderMaterial:
+	return PROP_MATERIALS.hay_stack(layer)
+
+
+static func hay_wisps() -> ShaderMaterial:
+	return PROP_MATERIALS.hay_wisps()
+
+
 static func bark_plate_wind(plate: StringName) -> ShaderMaterial:
 	return WIND_MATERIALS.bark_plate_wind(plate)
 

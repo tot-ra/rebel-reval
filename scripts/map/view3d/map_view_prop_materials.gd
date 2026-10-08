@@ -19,6 +19,11 @@ const PATTERN_BARK := PATTERN_FAMILIES.PATTERN_BARK
 const PATTERN_BIRCH_BARK := PATTERN_FAMILIES.PATTERN_BIRCH_BARK
 const PATTERN_CHERRY_BARK := PATTERN_FAMILIES.PATTERN_CHERRY_BARK
 const HAY_FIBER_TEXTURE := preload("res://assets/materials/production/hay_fibers.png")
+const HAY_STACK_SHADER := preload("res://scripts/map/view3d/map_view_hay_stack.gdshader")
+const HAY_WISP_SHADER := preload("res://scripts/map/view3d/map_view_hay_wisps.gdshader")
+## Fur shells over a hay stack body: layer 0 is the solid body, the rest stand off
+## it. Fractions of the fur length, outermost last.
+const HAY_STACK_SHELLS: Array[float] = [0.0, 0.3, 0.6, 0.9]
 
 const EMBER_COLOR := Color8(224, 108, 48)
 const EMBER_ENERGY := 1.6
@@ -69,6 +74,8 @@ static func role(role_name: StringName) -> StandardMaterial3D:
 			material.uv1_world_triplanar = false
 			material.uv1_scale = Vector3(2.6, 2.6, 2.6)
 			material.roughness = 0.98
+			# Cured hay is grey-gold; the saturated style colour read as yellow paint.
+			material.albedo_color = material.albedo_color.lerp(Color(0.62, 0.55, 0.38), 0.6)
 		&"metal":
 			material.metallic = 0.55
 			material.roughness = 0.45
@@ -87,6 +94,32 @@ static func role(role_name: StringName) -> StandardMaterial3D:
 			material.emission_enabled = true
 			material.emission = EMBER_COLOR
 			material.emission_energy_multiplier = EMBER_ENERGY
+	_cache[key] = material
+	return material
+
+
+## Wind-swayed furry hay for stacks (map_view_hay_stack.gdshader). `layer` indexes
+## HAY_STACK_SHELLS: 0 is the opaque body, higher layers are the fur shells.
+static func hay_stack(layer: int) -> ShaderMaterial:
+	layer = clampi(layer, 0, HAY_STACK_SHELLS.size() - 1)
+	var key := "hay_stack:%d" % layer
+	if _cache.has(key):
+		return _cache[key]
+	var material := ShaderMaterial.new()
+	material.shader = HAY_STACK_SHADER
+	material.set_shader_parameter(&"fiber_tex", HAY_FIBER_TEXTURE)
+	material.set_shader_parameter(&"shell", HAY_STACK_SHELLS[layer])
+	_cache[key] = material
+	return material
+
+
+## Loose strands a hay stack sheds in gusts (map_view_hay_wisps.gdshader).
+static func hay_wisps() -> ShaderMaterial:
+	var key := "hay_wisps"
+	if _cache.has(key):
+		return _cache[key]
+	var material := ShaderMaterial.new()
+	material.shader = HAY_WISP_SHADER
 	_cache[key] = material
 	return material
 
