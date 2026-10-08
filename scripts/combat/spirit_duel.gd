@@ -68,6 +68,11 @@ var phase: StringName = PHASE_IDLE
 var last_outcome: Dictionary = {}
 ## Why the last spell reply failed (a MagicResolver failure id), empty after a clean cast.
 var last_cast_failure: StringName = &""
+## ADR 0038 SA3D-2 position-aware hit check. When set, it is called at impact with the incoming
+## move and returns {"in_zone": bool, "guard_facing": bool} (SpiritArenaMotion.hit_check): out of
+## the strike zone the blow misses like a dodge (no resolve cost), and a raised guard counts only
+## when it faces the opponent. Unset keeps the 2D rules (guard and dodge() alone decide).
+var hit_check: Callable = Callable()
 
 var _runner: Node
 var _state: GameState
@@ -434,6 +439,11 @@ func _land_incoming() -> void:
 	pose.is_guarding = _guard_elapsed >= 0.0
 	pose.guard_elapsed_sec = maxf(0.0, _guard_elapsed)
 	pose.parry_window_sec = hero.parry_window_sec
+	var spatial := _spatial_check()
+	if not bool(spatial.get("in_zone", true)):
+		pose.is_action_invulnerable = true
+	if not bool(spatial.get("guard_facing", true)):
+		pose.is_guarding = false
 	var incoming_kind := StringName(String(_incoming.get("kind", "")))
 	var amount: float = (
 		float(INCOMING_DAMAGE[incoming_kind])
@@ -453,6 +463,7 @@ func _land_incoming() -> void:
 			"composure_lost": result.health_damage,
 			"resolve_lost": result.stamina_damage,
 			"pressure_left": opponent.health,
+			"in_zone": bool(spatial.get("in_zone", true)),
 		}
 	)
 	_guard_elapsed = -1.0
@@ -461,6 +472,14 @@ func _land_incoming() -> void:
 		return
 	_set_phase(PHASE_LINE)
 	_runner.advance()
+
+
+## The hit-check answer at impact; {} (no spatial say) without a valid hook or a dict answer.
+func _spatial_check() -> Dictionary:
+	if not hit_check.is_valid():
+		return {}
+	var answer: Variant = hit_check.call(_incoming.duplicate(true))
+	return answer if answer is Dictionary else {}
 
 
 func _finish(result_phase: StringName, node_id: StringName) -> void:

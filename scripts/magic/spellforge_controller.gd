@@ -185,9 +185,12 @@ func _gameplay_input_blocked() -> bool:
 	var tree := get_tree()
 	if tree == null:
 		return false
-	for overlay: Node in tree.get_nodes_in_group(&"modal_input_overlay"):
-		if overlay is CanvasItem and (overlay as CanvasItem).visible:
-			return true
+	# `spell_input_overlay`: the real-time spirit arena (SA3D-2) owns the slot keys but, unlike a
+	# modal overlay, leaves locomotion live.
+	for group: StringName in [&"modal_input_overlay", &"spell_input_overlay"]:
+		for overlay: Node in tree.get_nodes_in_group(group):
+			if overlay is CanvasItem and (overlay as CanvasItem).visible:
+				return true
 	return false
 
 

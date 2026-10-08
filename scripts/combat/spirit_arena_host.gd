@@ -34,6 +34,8 @@ var observation := SpiritObservation.new()
 var freeze_world := true
 ## The 3D disc the duel is fought in, when attach_arena() was used.
 var arena_3d: SpiritArena3D
+## Real-time fighter positions (SA3D-2), when attach_arena() was given the hero.
+var motion: SpiritArenaMotion
 
 var _runner: Node
 var _was_paused := false
@@ -65,6 +67,11 @@ var _cards: Array[SpiritSpellCard] = []
 ## Enter/A is both `ui_accept` (picks the focused card) and `interact` (continues a line);
 ## the frame a reply was cast must not also skip the opponent's next line.
 var _answered_frame := -1
+var _decal: SpiritTelegraphDecal
+var _hero_body: Node
+var _opponent_body: Node
+var _cell_size := 1
+var _freeze_before := true
 
 
 func _init() -> void:
@@ -79,21 +86,52 @@ func is_open() -> bool:
 
 
 ## ADR 0038: fight inside a bounded 3D disc around `at` instead of over the frozen world. Call
-## before open(); close() restores the hidden room. Real-time movement arrives with SA3D-2.
-func attach_arena(world_root: Node, at: Vector3, keep: Array[Node3D], is_indoors: bool) -> bool:
+## before open(); close() restores the hidden room. With a `hero` (SA3D-2) the duel is real time:
+## the world is not paused and locomotion stays live, the hero is clamped to the disc, the
+## `opponent` (optional; a virtual one stands 4 m off otherwise) moves by its line, telegraphs
+## become floor decals and a blow lands by position and guard facing. A Node2D fighter is a
+## logic-plane body mapped through MapViewBridge with `cell_size`; a Node3D one is used as is.
+func attach_arena(
+	world_root: Node, at: Vector3, keep: Array[Node3D], is_indoors: bool, hero: Node = null, opponent: Node = null, cell_size := 1  # gdlint: ignore=max-line-length
+) -> bool:
 	detach_arena()
 	arena_3d = SpiritArena3D.new()
-	if arena_3d.open(world_root, at, keep, is_indoors):
-		return true
-	arena_3d.free()
-	arena_3d = null
-	return false
+	if not arena_3d.open(world_root, at, keep, is_indoors):
+		arena_3d.free()
+		arena_3d = null
+		return false
+	if hero != null:
+		_hero_body = hero
+		_opponent_body = opponent
+		_cell_size = maxi(1, cell_size)
+		motion = SpiritArenaMotion.new(arena_3d)
+		motion.hero_position = _read_position(hero, at)
+		motion.opponent_position = (
+			_read_position(opponent, at) if opponent != null else at + Vector3(0.0, 0.0, -4.0)
+		)
+		_decal = SpiritTelegraphDecal.new()
+		arena_3d.add_child(_decal)
+		duel.hit_check = motion.hit_check
+		_freeze_before = freeze_world
+		freeze_world = false
+	return true
 
 
 func detach_arena() -> void:
+	if motion != null:
+		duel.hit_check = Callable()
+		freeze_world = _freeze_before
+	motion = null
+	_decal = null
+	_hero_body = null
+	_opponent_body = null
 	if arena_3d != null and arena_3d.is_open():
 		arena_3d.close()
 	arena_3d = null
+
+
+func telegraph_decal() -> SpiritTelegraphDecal:
+	return _decal
 
 
 ## Open the arena for `dialogue_id`. False (and nothing changes) when it is not a duel.
@@ -206,12 +244,14 @@ func _process(delta: float) -> void:
 			else:
 				observation.step()
 		return
+	_tick_motion(delta)
 	duel.tick(delta)
 	_process_spell_keys()
 	_type_caption(delta)
 	if duel.phase == SpiritDuel.PHASE_TELEGRAPH:
 		duel.set_guard(Input.is_action_pressed(&"player_guard"))
-		if Input.is_action_just_pressed(&"player_dodge"):
+		# In the 3D arena the dodge is the hero's own roll out of the zone, not i-frames.
+		if motion == null and Input.is_action_just_pressed(&"player_dodge"):
 			duel.dodge()
 	elif (
 		Input.is_action_just_pressed(&"interact")
@@ -264,14 +304,63 @@ func _show_spell_hint() -> void:
 	_spell_hint = "Spells: " + ", ".join(names) if not names.is_empty() else ""
 
 
+## A modal overlay freezes locomotion. The real-time arena must not (the hero moves), but it
+## still keeps the world Spellforge quiet so a slot key is not cast twice.
 func _enter_modal() -> void:
-	if not _dim.is_in_group(&"modal_input_overlay"):
-		_dim.add_to_group(&"modal_input_overlay")
+	var group := &"spell_input_overlay" if motion != null else &"modal_input_overlay"
+	if not _dim.is_in_group(group):
+		_dim.add_to_group(group)
 
 
 func _leave_modal() -> void:
-	if _dim.is_in_group(&"modal_input_overlay"):
-		_dim.remove_from_group(&"modal_input_overlay")
+	for group: StringName in [&"modal_input_overlay", &"spell_input_overlay"]:
+		if _dim.is_in_group(group):
+			_dim.remove_from_group(group)
+
+
+## SA3D-2: pull the hero back onto the disc, step the opponent's footwork, fill the decal.
+func _tick_motion(delta: float) -> void:
+	if motion == null:
+		return
+	_sync_hero()
+	motion.step(delta)
+	if _opponent_body != null and is_instance_valid(_opponent_body):
+		_write_position(_opponent_body, motion.opponent_position)
+		if _opponent_body is Node3D and (_opponent_body as Node3D).is_inside_tree():
+			var look := Vector3(motion.hero_position.x, motion.opponent_position.y, motion.hero_position.z)
+			if look.distance_to(motion.opponent_position) > 0.01:
+				(_opponent_body as Node3D).look_at(look, Vector3.UP)
+	if _decal != null and _decal.visible:
+		_decal.set_progress(duel.telegraph_progress())
+
+
+func _sync_hero() -> void:
+	if _hero_body == null or not is_instance_valid(_hero_body):
+		return
+	var read := _read_position(_hero_body, motion.hero_position)
+	var clamped := motion.clamp_hero(read)
+	if not clamped.is_equal_approx(read):
+		_write_position(_hero_body, clamped)
+	if _hero_body.has_method(&"facing_direction"):
+		var facing: Vector2 = _hero_body.call(&"facing_direction")
+		motion.hero_facing = Vector3(facing.x, 0.0, facing.y)
+	elif _hero_body is Node3D:
+		motion.hero_facing = -(_hero_body as Node3D).global_basis.z
+
+
+func _read_position(body: Node, fallback: Vector3) -> Vector3:
+	if body is Node3D:
+		return (body as Node3D).global_position
+	if body is Node2D:
+		return MapViewBridge.logic_to_world((body as Node2D).global_position, _cell_size, fallback.y)
+	return fallback
+
+
+func _write_position(body: Node, at: Vector3) -> void:
+	if body is Node3D:
+		(body as Node3D).global_position = at
+	elif body is Node2D:
+		(body as Node2D).global_position = MapViewBridge.world_to_logic(at, _cell_size)
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -317,6 +406,8 @@ func _on_line(speaker_id: StringName, text: String, move: Dictionary) -> void:
 		_move_label.text = "%s of %s" % [String(move.get("kind", "")), String(move.get("element", ""))]
 	if speaker_id == duel.hero_id:
 		_move_label.text = "you: " + _move_label.text
+	elif motion != null:
+		motion.set_line(move)
 	if not _observing:
 		_clear_choices()
 
@@ -503,12 +594,24 @@ func _content_db_spell(spell_id: String) -> Dictionary:
 
 
 func _on_phase(phase: StringName) -> void:
+	if motion != null:
+		if phase == SpiritDuel.PHASE_TELEGRAPH:
+			_sync_hero()
+			_decal.show_zone(motion.lock_zone(duel.incoming_move()), arena_3d.center)
+		else:
+			motion.clear_zone()
+			_decal.hide_zone()
 	match phase:
 		SpiritDuel.PHASE_TELEGRAPH:
 			_caption_label.text = ""
-			_telegraph_prompt.text = "Guard [%s] hold, parry in the gold    Dodge [%s]" % [
-				_binding_label(&"player_guard"), _binding_label(&"player_dodge")
-			]
+			if motion != null:
+				_telegraph_prompt.text = "Guard [%s] facing them, or step out of the red" % (
+					_binding_label(&"player_guard")
+				)
+			else:
+				_telegraph_prompt.text = "Guard [%s] hold, parry in the gold    Dodge [%s]" % [
+					_binding_label(&"player_guard"), _binding_label(&"player_dodge")
+				]
 			_hint_label.text = _spell_hint
 		SpiritDuel.PHASE_ANSWER:
 			# The gamepad slot buttons do not fit on the cards, so the hint names the
@@ -566,7 +669,8 @@ func _refresh_bars() -> void:
 	_pressure_bar.max_value = duel.opponent.max_health
 	_pressure_bar.value = duel.opponent.health
 	var telegraphing := not _observing and duel.phase == SpiritDuel.PHASE_TELEGRAPH
-	_telegraph_arc.visible = telegraphing
+	# In the 3D arena the floor decal is the telegraph (ADR 0038); the 2D arc stays for the overlay.
+	_telegraph_arc.visible = telegraphing and motion == null
 	_telegraph_prompt.visible = telegraphing
 	_telegraph_arc.progress = duel.telegraph_progress()
 	if duel.telegraph_sec > 0.0:
