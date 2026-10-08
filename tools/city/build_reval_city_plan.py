@@ -495,6 +495,36 @@ def build(args) -> dict:
     for s in streets:
         s["points_m"] = clip_to_circuit(s["points_m"], circuit_poly, gate_points)
     streets = [s for s in streets if len(s["points_m"]) >= 2 and polyline_length(s["points_m"]) > 2.0]
+    # A gate whose street meets the curtain at a slant leaves the road ending
+    # against the wall beside the opening. Where the overlay asks for it
+    # ("approach"), bend the street's gate end onto the wall normal so the road
+    # runs straight through the passage and a short stub continues outside.
+    for g in overlay["gates"]:
+        ap = g.get("approach")
+        if not ap:
+            continue
+        ai = next(i for i, a in enumerate(anchors) if a["ref"] == g["id"])
+        pp, np_ = anchors[ai - 1]["p"], anchors[(ai + 1) % len(anchors)]["p"]
+        wl = math.hypot(np_[0] - pp[0], np_[1] - pp[1])
+        nrm = (-(np_[1] - pp[1]) / wl, (np_[0] - pp[0]) / wl)
+        cen = (sum(a["p"][0] for a in anchors) / len(anchors), sum(a["p"][1] for a in anchors) / len(anchors))
+        if (cen[0] - g["at"][0]) * nrm[0] + (cen[1] - g["at"][1]) * nrm[1] > 0:
+            nrm = (-nrm[0], -nrm[1])  # outward (field side)
+        cands = [s for s in streets if s["name"] == g["street"]]
+        ends = [(math.dist(s["points_m"][e], g["at"]), s, e) for s in cands for e in (0, -1)]
+        _, st, e = min(ends, key=lambda t: t[0])
+        pts = [tuple(p) for p in st["points_m"]]
+        if e == 0:
+            pts.reverse()
+        # drop the slanted tail inside the approach distance, then re-enter on the normal
+        while len(pts) > 2 and math.dist(pts[-1], g["at"]) < ap["inside_m"]:
+            pts.pop()
+        gx, gy = g["at"]
+        pts += [(gx - nrm[0] * ap["inside_m"], gy - nrm[1] * ap["inside_m"]), (gx, gy),
+                (gx + nrm[0] * ap["outside_m"], gy + nrm[1] * ap["outside_m"])]
+        if e == 0:
+            pts.reverse()
+        st["points_m"] = [[round(p[0], 2), round(p[1], 2)] for p in pts]
     for r in overlay["streets"]["extramural_roads"]:
         streets.append({
             "id": r["id"], "name": "", "name_1343": r["name_1343"], "register_id": "",
@@ -1227,14 +1257,14 @@ def site_to_world(site, p):
     return (ax + p[0] * c - p[1] * s_, ay + p[0] * s_ + p[1] * c)
 
 
-def flatten_ground(height_wu, ring, level, blend, x0, y0, mpu):
+def flatten_ground(height_wu, ring, level, blend, x0, y0, mpu, apron=1.0):
     """Cut or fill the heightfield inside `ring` (metres) to `level` (wu), blended
     back into the natural ground over `blend` metres with a smoothstep."""
     cell = HEIGHT_CELL_WU * mpu
     ny, nx = height_wu.shape
     xs = [p[0] for p in ring]
     ys = [p[1] for p in ring]
-    m = max(blend, 1.01)
+    m = max(blend, apron + 0.01)
     j0 = max(0, int((min(xs) - m - x0) / cell))
     j1 = min(nx - 1, int((max(xs) + m - x0) / cell) + 1)
     i0 = max(0, int((min(ys) - m - y0) / cell))
@@ -1246,8 +1276,9 @@ def flatten_ground(height_wu, ring, level, blend, x0, y0, mpu):
         a, c = ring[k], ring[(k + 1) % len(ring)]
         dk, _ = dist_point_seg(X, Y, a[0], a[1], c[0], c[1])
         d = np.minimum(d, dk)
-    # 1 m apron at full level, then a smoothstep back to the natural slope.
-    t = np.clip((d - 1.0) / (m - 1.0), 0.0, 1.0)
+    # Apron at full level (1 m by default), then a smoothstep back to the
+    # natural slope.
+    t = np.clip((d - apron) / (m - apron), 0.0, 1.0)
     w = np.where(inside, 1.0, 1.0 - t * t * (3.0 - 2.0 * t))
     block = height_wu[i0:i1 + 1, j0:j1 + 1]
     height_wu[i0:i1 + 1, j0:j1 + 1] = block * (1.0 - w) + level * w
@@ -1287,16 +1318,47 @@ def terrace_site(site, height_wu, h_at_m, x0, y0, mpu):
 TERRACE_KINDS = ("church", "chapel", "hall")
 TERRACE_MIN_SPAN_WU = 0.8
 TERRACE_BLEND_M = 8.0
+# Houses get the same treatment on a smaller scale: the floor is the highest
+# ground under the footprint, so on a slope the street-side door sat up to a
+# metre and a half above the street and the runtime filled the gap with a tall
+# flight of steps. Cutting the plot to the door's street level keeps the
+# threshold at 0-2 treads. A footprint spanning more than HOUSE_TERRACE_MAX_SPAN_WU
+# is a merged OSM polygon or a cliff edge; levelling it would carve a quarry, so
+# those keep the runtime steps.
+HOUSE_TERRACE_MIN_SPAN_WU = 0.3
+HOUSE_TERRACE_MAX_SPAN_WU = 3.0
+HOUSE_TERRACE_BLEND_M = 3.0
 
 
 def terrace_landmarks(buildings, height_wu, h_at_m, x0, y0, mpu):
+    plots = []
     for b in buildings:
-        if b["kind"] not in TERRACE_KINDS or not b["door"] or b["base_span"] < TERRACE_MIN_SPAN_WU:
+        if not b["door"]:
+            continue
+        if b["kind"] in TERRACE_KINDS:
+            if b["base_span"] < TERRACE_MIN_SPAN_WU:
+                continue
+            blend = TERRACE_BLEND_M
+        elif b["kind"] == "house":
+            if not HOUSE_TERRACE_MIN_SPAN_WU <= b["base_span"] <= HOUSE_TERRACE_MAX_SPAN_WU:
+                continue
+            blend = HOUSE_TERRACE_BLEND_M
+        else:
             continue
         ring = [(q[0] * mpu, q[1] * mpu) for q in b["footprint"]]
         dx, dy, ang = b["door"][0] * mpu, b["door"][1] * mpu, b["door"][2]
+        # Every level is read from the natural ground before any plot is cut, so
+        # the result does not depend on building order.
         level = h_at_m(dx + math.cos(ang) * 2.0, dy + math.sin(ang) * 2.0)
-        flatten_ground(height_wu, ring, level, TERRACE_BLEND_M, x0, y0, mpu)
+        plots.append((ring, level, blend))
+    for ring, level, blend in plots:
+        flatten_ground(height_wu, ring, level, blend, x0, y0, mpu)
+    # In a dense row the blend of one plot lands on its neighbour's floor. Cut
+    # the footprints once more with a 2.2 m apron (just over one 2 wu grid cell,
+    # so every cell the bilinear lookup at a footprint corner reads is at level)
+    # and almost no blend, so each floor ends up at its own door level.
+    for ring, level, _blend in plots:
+        flatten_ground(height_wu, ring, level, 2.3, x0, y0, mpu, apron=2.2)
     # Bases of every building near a terrace changed: recompute them all.
     for b in buildings:
         ring = [(q[0] * mpu, q[1] * mpu) for q in b["footprint"]]
