@@ -614,10 +614,12 @@ func snapshot_state(
 	state.cloud_offset = _cloud_offset
 	state.cloud_detail_offset = _cloud_detail_offset
 	state.wind_smoothing_valid = _wind_smoothing_valid
-	state.wind_heading = _wind_heading_rad
-	state.wind_drift_strength = _wind_drift_strength
+	# Wind and rain clocks are float64 accumulators; JSON.stringify keeps only ~15
+	# significant digits, so unsnapped values drift across a save/map round trip.
+	state.wind_heading = _json_safe_float(_wind_heading_rad)
+	state.wind_drift_strength = _json_safe_float(_wind_drift_strength)
 	state.puddle_wetness = _json_safe_float(_puddle_wetness)
-	state.seconds_since_rain = _seconds_since_rain
+	state.seconds_since_rain = _json_safe_float(_seconds_since_rain)
 	if not is_finite(_seconds_since_rain):
 		state.seconds_since_rain = SkyWeatherStateScript.LAST_RAIN_NEVER
 	state.gust = _json_safe_float(_gust)

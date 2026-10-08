@@ -7,7 +7,7 @@ render_mode unshaded, fog_disabled, depth_draw_never, depth_test_disabled, cull_
 // WHY no hint_screen_texture: Godot 4.7 binds a default buffer for that hint
 // in SceneTree capture paths (Metal beige mottling, Compatibility RGB noise).
 // The pass darkens the live framebuffer by mixing black over it:
-// dest * (1 - ALPHA). R-1400: the previous blend_mul wrote ALBEDO as the
+// dest * (1 - ALPHA). R-1400: the previous multiply blend mode wrote ALBEDO as the
 // multiplier, but the Compatibility 3D buffer stores colour pre-scaled by its
 // HDR luminance multiplier, so ALBEDO 1.0 multiplied the frame by about 0.25
 // and the old COMPAT_BLEND_GAIN (2.34) still left every frame ~40% darker with
