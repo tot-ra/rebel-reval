@@ -15,6 +15,10 @@ extends RefCounted
 ##   A 1 = beach (gentle slope), 0 = hard edge (quay, rock, bluff)
 
 const MAX_DISTANCE := 8.0
+## World units per field unit. The field stores world distance / DISTANCE_SCALE so the
+## shader's 8-unit surf zone spans 24 world units: breakers a few metres wide and
+## about a metre tall (shore_depth_scale carries the same factor into the shader).
+const DISTANCE_SCALE := 3.0
 ## Contour gradient (metres per world unit) between beach and hard edge. The city's
 ## generated beaches sit at 0.05-0.35; quays, rocks and the bluff are above 0.75.
 const BEACH_SLOPE_MIN := 0.42
@@ -24,6 +28,13 @@ const SHEET_REACH := 3.0
 const SHEET_SEAWARD_MARGIN := 0.35
 const SHEET_LIFT := 0.05
 const SHEET_STEP := 1.0
+## Fine water band along the coast: the 4-unit sea grid is far too coarse to carry
+## a breaker (a crest is ~2 units wide), so the surf zone gets its own mesh.
+const BAND_STEP := 1.0
+const BAND_SEA := 7.5
+const BAND_LAND := 0.6
+## The band is cut into tiles of this many world units so frustum culling works.
+const BAND_TILE := 128.0
 
 
 ## Returns {texture, origin, size}. One texel per height node, centred on the node.
@@ -34,7 +45,7 @@ static func bake(plan: CityPlan) -> Dictionary:
 	var count := grid.x * grid.y
 	var best := PackedFloat32Array()
 	best.resize(count)
-	best.fill(MAX_DISTANCE * MAX_DISTANCE)
+	best.fill(pow(MAX_DISTANCE * DISTANCE_SCALE, 2.0))
 	var near_x := PackedFloat32Array()
 	near_x.resize(count)
 	var near_y := PackedFloat32Array()
@@ -43,7 +54,7 @@ static func bake(plan: CityPlan) -> Dictionary:
 	beach.resize(count)
 	var found := PackedByteArray()
 	found.resize(count)
-	var reach := int(ceil(MAX_DISTANCE / cell)) + 1
+	var reach := int(ceil(MAX_DISTANCE * DISTANCE_SCALE / cell)) + 1
 	var contour := PackedVector2Array()
 	for j in grid.y - 1:
 		for i in grid.x - 1:
@@ -89,7 +100,7 @@ static func bake(plan: CityPlan) -> Dictionary:
 				var centre := node_origin + Vector2(float(i), float(j)) * cell
 				var seed := Vector2(near_x[index], near_y[index])
 				var d := sqrt(best[index])
-				signed = clampf(d if water else -d, -MAX_DISTANCE, MAX_DISTANCE)
+				signed = clampf((d if water else -d) / DISTANCE_SCALE, -MAX_DISTANCE, MAX_DISTANCE)
 				if d > 0.0001:
 					dir = (seed - centre) / d if water else (centre - seed) / d
 				kind = beach[index]
@@ -133,7 +144,10 @@ static func build_sheet(plan: CityPlan, shore: Dictionary) -> ArrayMesh:
 		for i in grid.x - 1:
 			var index := j * grid.x + i
 			var land := -distance[index]
-			if land < -SHEET_SEAWARD_MARGIN - cell or land > SHEET_REACH + cell:
+			if (
+				land < -SHEET_SEAWARD_MARGIN - cell / DISTANCE_SCALE
+				or land > SHEET_REACH + cell / DISTANCE_SCALE
+			):
 				continue
 			if beach[index] < 0.5:
 				continue
@@ -214,3 +228,78 @@ static func _stamp(
 				near_y[index] = nearest.y
 				beach[index] = flag
 				found[index] = 1
+
+
+## Signed distance to the waterline (+ water) at a point, nearest height node.
+static func signed_distance_at(shore: Dictionary, plan: CityPlan, p: Vector2) -> float:
+	var grid: Vector2i = shore["grid"]
+	var f := (p - plan.height_origin()) / plan.height_cell()
+	var i := clampi(int(round(f.x)), 0, grid.x - 1)
+	var j := clampi(int(round(f.y)), 0, grid.y - 1)
+	return (shore["distance"] as PackedFloat32Array)[j * grid.x + i]
+
+
+## True where the fine band draws the water, so the coarse sea grid can skip it.
+static func in_band(shore: Dictionary, plan: CityPlan, p: Vector2) -> bool:
+	var d := signed_distance_at(shore, plan, p)
+	# Wet side only: quads straddling the waterline stay, the fine band overdraws them.
+	return d < BAND_SEA - 1.5 and d > 0.0
+
+
+## Fine water mesh along the waterline, one mesh per BAND_TILE square. Vertex
+## colour R = water depth / depth_norm, exactly like the coarse sea grid, so the
+## same water material shades it (shore lift, curl, foam all come from the shader).
+static func build_band(plan: CityPlan, shore: Dictionary, depth_norm: float) -> Array[ArrayMesh]:
+	var bounds := plan.bounds
+	var tiles := {}
+	var nx := int(bounds.size.x / BAND_STEP)
+	var nz := int(bounds.size.y / BAND_STEP)
+	for j in nz:
+		for i in nx:
+			var p0 := bounds.position + Vector2(i, j) * BAND_STEP
+			var corners: Array[Vector2] = [
+				p0, p0 + Vector2(BAND_STEP, 0.0),
+				p0 + Vector2(BAND_STEP, BAND_STEP), p0 + Vector2(0.0, BAND_STEP)
+			]
+			var near := false
+			var any_wet := false
+			var depths: Array[float] = []
+			for c in corners:
+				var d := signed_distance_at(shore, plan, c)
+				# Unit-cell test against the baked field (+-MAX_DISTANCE clamp).
+				if d < BAND_SEA and d > -BAND_LAND:
+					near = true
+				var depth := -plan.ground_height(c)
+				depths.append(depth)
+				if depth > -0.4:
+					any_wet = true
+			if not near or not any_wet:
+				continue
+			var key := Vector2i(int(floor((p0.x - bounds.position.x) / BAND_TILE)),
+				int(floor((p0.y - bounds.position.y) / BAND_TILE)))
+			if not tiles.has(key):
+				tiles[key] = {"v": PackedVector3Array(), "c": PackedColorArray(), "n": PackedVector3Array()}
+			var tile_vertices: PackedVector3Array = tiles[key]["v"]
+			var tile_colors: PackedColorArray = tiles[key]["c"]
+			var tile_normals: PackedVector3Array = tiles[key]["n"]
+			for index: int in [0, 1, 2, 0, 2, 3]:
+				var c := corners[index]
+				tile_vertices.append(Vector3(c.x, 0.0, c.y))
+				tile_colors.append(Color(clampf(depths[index] / depth_norm, 0.0, 1.0), 0.0, 0.0))
+				tile_normals.append(Vector3.UP)
+			# Packed arrays copy on write: store the grown ones back.
+			tiles[key]["v"] = tile_vertices
+			tiles[key]["c"] = tile_colors
+			tiles[key]["n"] = tile_normals
+	var meshes: Array[ArrayMesh] = []
+	for key in tiles:
+		var tile: Dictionary = tiles[key]
+		var arrays := []
+		arrays.resize(Mesh.ARRAY_MAX)
+		arrays[Mesh.ARRAY_VERTEX] = tile["v"]
+		arrays[Mesh.ARRAY_COLOR] = tile["c"]
+		arrays[Mesh.ARRAY_NORMAL] = tile["n"]
+		var mesh := ArrayMesh.new()
+		mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+		meshes.append(mesh)
+	return meshes

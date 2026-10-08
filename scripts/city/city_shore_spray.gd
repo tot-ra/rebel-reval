@@ -18,7 +18,7 @@ const WIND_FULL := 0.9
 ## Sea level for the emitters, world units; crests ride above it in a gale.
 const WATERLINE_Y := 0.35
 ## Offshore of the contour where the surf breaks, world units.
-const BREAK_OFFSET := 1.2
+const BREAK_OFFSET := 5.0
 
 var _contour := PackedVector2Array()
 var _plan: CityPlan
@@ -96,8 +96,8 @@ func _place_emitters(at: Vector2) -> void:
 
 static func _make_emitter() -> GPUParticles3D:
 	var particles := GPUParticles3D.new()
-	particles.amount = 90
-	particles.lifetime = 1.6
+	particles.amount = 220
+	particles.lifetime = 1.3
 	particles.preprocess = 1.0
 	particles.local_coords = false
 	particles.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
@@ -105,7 +105,7 @@ static func _make_emitter() -> GPUParticles3D:
 	var material := ParticleProcessMaterial.new()
 	material.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_BOX
 	# Spread along the shore, thin across it.
-	material.emission_box_extents = Vector3(5.0, 0.2, 5.0)
+	material.emission_box_extents = Vector3(7.0, 0.3, 4.0)
 	material.direction = Vector3(0.0, 1.0, 0.0)
 	material.spread = 32.0
 	material.initial_velocity_min = 1.5
@@ -113,8 +113,8 @@ static func _make_emitter() -> GPUParticles3D:
 	material.gravity = Vector3(0.0, -9.0, 0.0)
 	material.damping_min = 0.3
 	material.damping_max = 0.9
-	material.scale_min = 0.25
-	material.scale_max = 0.8
+	material.scale_min = 0.3
+	material.scale_max = 1.0
 	var fade := Gradient.new()
 	fade.set_color(0, Color(1.0, 1.0, 1.0, 0.0))
 	fade.set_color(1, Color(1.0, 1.0, 1.0, 0.0))
@@ -142,7 +142,7 @@ static func _make_emitter() -> GPUParticles3D:
 	quad_material.albedo_texture = disc
 	quad_material.disable_receive_shadows = true
 	var quad := QuadMesh.new()
-	quad.size = Vector2(0.8, 0.8)
+	quad.size = Vector2(0.45, 0.45)
 	quad.material = quad_material
 	particles.draw_pass_1 = quad
 	return particles

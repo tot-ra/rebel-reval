@@ -36,6 +36,14 @@ uniform float shore_runup_gain = 3.2;
 // seamless city (1 m per unit, open Baltic) raises it so a gale throws a tall surf
 // where a calm day only laps.
 uniform float shore_wave_gain = 1.0;
+// Multiplies the idealised beach depth (_swash_depth). 1 keeps the district maps. The
+// city bakes its field with distances divided by this factor (CityShoreField), so one
+// field unit spans that many world units and its breakers can be metres wide and
+// about a metre tall instead of the district's 0.25 m ripple.
+uniform float shore_depth_scale = 1.0;
+// Scales the breaker foam (bore_foam). 1 keeps the district maps; the city lifts it so
+// a metre-tall surf reads as white water, not a thin line.
+uniform float shore_foam_gain = 1.0;
 
 // Deviation from Tidewater's sea-state-scaled period (9 s * mix(1.2, 0.8, sea)):
 // ocean_time is an absolute clock, so a period that follows the weather would
@@ -117,7 +125,7 @@ vec4 shore_sea() {
 
 // Water depth (metres) of the idealised beach profile at a water-side distance.
 float _swash_depth(float x) {
-	return max(x, 0.02) * SHORE_METERS_PER_UNIT * SHORE_BEACH_SLOPE;
+	return max(x, 0.02) * SHORE_METERS_PER_UNIT * SHORE_BEACH_SLOPE * shore_depth_scale;
 }
 
 float _swash_set_envelope(float wave_index) {
@@ -200,7 +208,7 @@ ShoreState shore_state(vec2 world_xz, float t, vec4 sea) {
 	float h_deep = SHORE_AMPLITUDE * energy * shore_wave_gain;
 	float break_depth = pow(h_deep * pow(d0, 0.25) / SHORE_GAMMA, 0.8);
 	float break_x = min(
-		break_depth / (SHORE_METERS_PER_UNIT * SHORE_BEACH_SLOPE), SHORE_OFFSHORE - 0.5
+		break_depth / (SHORE_METERS_PER_UNIT * SHORE_BEACH_SLOPE * shore_depth_scale), SHORE_OFFSHORE - 0.5
 	);
 	float breaker_height = SHORE_GAMMA * _swash_depth(break_x);
 	s.surf_zone = (1.0 - smoothstep(break_x * 0.85, break_x * 1.1, x)) * step(0.0, x) * s.beach;
@@ -233,7 +241,7 @@ ShoreState shore_state(vec2 world_xz, float t, vec4 sea) {
 		float bore = exp(-since_pass / SHORE_SURF_FOAM_LIFE) * mix(0.55, 1.0, exp(-since_pass / 0.6));
 		// Older foam lingers faintly over the whole surf zone (foamLife).
 		bore = max(bore, exp(-since_pass / SHORE_FOAM_LIFE) * 0.25 * s.surf_zone);
-		s.bore_foam = broken * bore * s.beach * mix(0.7, 1.0, sea_state);
+		s.bore_foam = broken * bore * s.beach * mix(0.7, 1.0, sea_state) * shore_foam_gain;
 		// Hard edges: no run-up, the water column sloshes against the wall.
 		float wall = 1.0 - s.beach;
 		float slosh_phase = sin(6.2831853 * u);

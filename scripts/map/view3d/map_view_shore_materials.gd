@@ -27,6 +27,7 @@ const SHORE_TIDE_SHIFT := 1.6
 ## Must match the defaults in shore_swash.gdshaderinc.
 const DEFAULT_WAVE_GAIN := 1.0
 const DEFAULT_RUNUP_GAIN := 3.2
+const DEFAULT_GEOMETRY_SCALE := 0.12
 const SWASH_SHEET_OWN_UNIFORMS: Array[StringName] = [
 	&"swash_sheet", &"ripple_state", &"ripple_window", &"ripple_texel_count"
 ]
@@ -62,7 +63,13 @@ static func apply_tide(level: float) -> void:
 
 ## Surf strength for maps whose sea is bigger than the district default (the
 ## seamless city): breaker height gain and run-up gain, see shore_swash.gdshaderinc.
-static func apply_surf_gain(wave_gain: float, runup_gain: float) -> void:
+static func apply_surf_gain(
+	wave_gain: float, runup_gain: float, geometry_scale := DEFAULT_GEOMETRY_SCALE,
+	depth_scale := 1.0, foam_gain := 1.0
+) -> void:
+	_set_shore_uniform(&"shore_foam_gain", foam_gain)
+	_set_shore_uniform(&"shore_depth_scale", depth_scale)
+	_set_shore_uniform(&"shore_geometry_scale", geometry_scale)
 	_set_shore_uniform(&"shore_wave_gain", wave_gain)
 	_set_shore_uniform(&"shore_runup_gain", runup_gain)
 	_sync_swash_sheets()
@@ -75,6 +82,9 @@ static func apply_shore_field(texture: Texture2D, origin: Vector2, size: Vector2
 	# Each map binding starts from the district surf; the city re-applies its own gain.
 	_set_shore_uniform(&"shore_wave_gain", DEFAULT_WAVE_GAIN)
 	_set_shore_uniform(&"shore_runup_gain", DEFAULT_RUNUP_GAIN)
+	_set_shore_uniform(&"shore_geometry_scale", DEFAULT_GEOMETRY_SCALE)
+	_set_shore_uniform(&"shore_depth_scale", 1.0)
+	_set_shore_uniform(&"shore_foam_gain", 1.0)
 	var extent := Vector2(maxf(size.x, 0.001), maxf(size.y, 0.001))
 	for material in _shore_materials():
 		if texture != null:

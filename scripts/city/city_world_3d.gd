@@ -24,8 +24,13 @@ const SEA_SHORE_DEPTH := 2.5
 ## Surf strength on the open 1 m-per-unit Baltic: breaker height and run-up gain over
 ## the district default (shore_swash.gdshaderinc), so a gale breaks tall and a calm
 ## day still washes visibly up the sand.
-const SURF_WAVE_GAIN := 2.6
-const SURF_RUNUP_GAIN := 5.0
+const SURF_WAVE_GAIN := 2.0
+const SURF_RUNUP_GAIN := 1.8
+## Districts compress surf crests to 0.12 (the water column is centimetres deep); the
+## city sea is metres deep, so crests keep nearly their physical height.
+const SURF_GEOMETRY_SCALE := 1.3
+## Breaker foam gain: a metre-tall surf should be white water along its whole face.
+const SURF_FOAM_GAIN := 2.2
 const BUILDING_RANGE := 1600.0
 ## The stream ribbon reaches this far (world units) past the waterline into the bank.
 const STREAM_BANK_OVERLAP := 1.5
@@ -320,9 +325,16 @@ func _build_water() -> void:
 	var root := Node3D.new()
 	root.name = "Water"
 	add_child(root)
-	# Sea: a grid over every wet cell, vertex colour R = depth hint.
+	# Sea: a grid over every wet cell, vertex colour R = depth hint. The surf zone
+	# is drawn by the fine band instead (below), so the coarse grid skips it.
+	var shore: Dictionary = ShoreField.bake(plan)
 	var sea := _surface_grid(
-		0.0, func(p: Vector2) -> float: return -plan.ground_height(p), SEA_SHORE_DEPTH
+		0.0, func(p: Vector2) -> float: return -plan.ground_height(p), SEA_SHORE_DEPTH,
+		func(_centre: Vector2, corners: Array) -> bool:
+			for corner: Vector2 in corners:
+				if not ShoreField.in_band(shore, plan, corner):
+					return false
+			return true
 	)
 	if sea != null:
 		var inst := MeshInstance3D.new()
@@ -332,13 +344,23 @@ func _build_water() -> void:
 		# caustics and refraction, so the sea reads the same on every map.
 		inst.material_override = MapViewMaterials.water_surface(MapTypes.TERRAIN_SHALLOW_WATER)
 		_bind_sea_depth_map()
-		_bind_shore_field()
+		_bind_shore_field(shore)
 		# R-1437: physical bathymetry belongs to this mesh, not the cached
 		# district material. Instance state keeps shared weather updates intact.
 		inst.set_instance_shader_parameter("sea_physical_depth", true)
 		MapViewMaterials.WATER_MATERIALS.set_wave_height_boost(SEA_WAVE_BOOST)
 		inst.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		root.add_child(inst)
+		var band_index := 0
+		for band_mesh in ShoreField.build_band(plan, shore, SEA_SHORE_DEPTH):
+			var band := MeshInstance3D.new()
+			band.name = "SeaSurfBand%d" % band_index
+			band_index += 1
+			band.mesh = band_mesh
+			band.material_override = inst.material_override
+			band.set_instance_shader_parameter("sea_physical_depth", true)
+			band.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+			root.add_child(band)
 	# Open water beyond the plan to the horizon.
 	var outer := MeshInstance3D.new()
 	outer.name = "OpenSea"
@@ -504,13 +526,15 @@ func _bind_sea_depth_map() -> void:
 ## The surf (bore foam, run-up, quay slosh) is analytic in a shore distance field;
 ## without one the sea meets the land as a hard cut. The materials are shared with
 ## the district maps, which rebind their own field, so the city rebinds on tree entry.
-func _bind_shore_field() -> void:
-	var shore: Dictionary = ShoreField.bake(plan)
+func _bind_shore_field(shore: Dictionary) -> void:
 	var texture: Texture2D = shore["texture"]
 	var origin: Vector2 = shore["origin"]
 	var extent: Vector2 = shore["size"]
 	MapViewMaterials.apply_shore_field(texture, origin, extent)
-	MapViewMaterials.apply_surf_gain(SURF_WAVE_GAIN, SURF_RUNUP_GAIN)
+	MapViewMaterials.apply_surf_gain(
+		SURF_WAVE_GAIN, SURF_RUNUP_GAIN, SURF_GEOMETRY_SCALE, ShoreField.DISTANCE_SCALE,
+		SURF_FOAM_GAIN
+	)
 	spray = ShoreSpray.new()
 	spray.name = "ShoreSpray"
 	add_child(spray)
@@ -528,7 +552,10 @@ func _bind_shore_field() -> void:
 	tree_entered.connect(
 		func() -> void:
 			MapViewMaterials.apply_shore_field(texture, origin, extent)
-			MapViewMaterials.apply_surf_gain(SURF_WAVE_GAIN, SURF_RUNUP_GAIN)
+			MapViewMaterials.apply_surf_gain(
+		SURF_WAVE_GAIN, SURF_RUNUP_GAIN, SURF_GEOMETRY_SCALE, ShoreField.DISTANCE_SCALE,
+		SURF_FOAM_GAIN
+	)
 	)
 
 
@@ -548,7 +575,9 @@ func set_wind(direction: Vector2) -> void:
 
 
 ## Grid at `y` over cells where depth_at(p) > 0 (any corner).
-func _surface_grid(y: float, depth_at: Callable, depth_norm := 5.0) -> ArrayMesh:
+func _surface_grid(
+	y: float, depth_at: Callable, depth_norm := 5.0, skip := Callable()
+) -> ArrayMesh:
 	var verts := PackedVector3Array()
 	var colors := PackedColorArray()
 	var normals := PackedVector3Array()
@@ -572,6 +601,9 @@ func _surface_grid(y: float, depth_at: Callable, depth_norm := 5.0) -> ArrayMesh
 				if d > -0.4:
 					any_wet = true
 			if not any_wet:
+				continue
+			# The fine surf band draws this quad instead (CityShoreField.build_band).
+			if skip.is_valid() and skip.call(p0 + Vector2(SEA_STEP, SEA_STEP) * 0.5, corners):
 				continue
 			var vs: Array[Vector3] = []
 			var cs: Array[Color] = []

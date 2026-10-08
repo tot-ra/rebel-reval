@@ -54,16 +54,27 @@ Run `tools/run_godot_tests.gd` with `--filter=test_cloud_cells,test_city_stream`
 
 ## Surf, run-up and spray (shore field)
 
-The sea shader draws every bit of surf (breaker bore foam, run-up sheet, wet sand sheen, quay slosh) analytically from a per-map shore distance field. The city bound none, so its sea met the land as a hard cut with no foam. Now:
+Status: implemented (follow-up to the city sea; board task not yet filed).
 
-- `CityShoreField.bake` (`scripts/city/city_shore_field.gd`) builds the field from the plan heightfield: marching squares on ground height 0, then nearest-contour distance, landward direction and a beach/hard-edge flag (contour slope under 0.42 m per unit is beach; quays, rocks and the bluff are above 0.75) per height node. Same texture layout as the district bake. About 0.5 s at load.
-- `CityWorld3D._bind_shore_field` binds it with `MapViewMaterials.apply_shore_field` (rebinding on tree entry, since the materials are shared with the district maps) and adds a swash sheet (`ShoreField.build_sheet`, 1 unit grid on the terrain, 3 units inland) so the run-up climbs the sand.
-- Surf strength: `MapViewMaterials.apply_surf_gain(SURF_WAVE_GAIN 2.6, SURF_RUNUP_GAIN 5.0)` raises the breaker height and run-up over the district defaults (`shore_wave_gain` uniform in `shore_swash.gdshaderinc`, default 1.0; `apply_shore_field` resets it for districts). Sea state, and so the wind, scales the energy: a calm day laps, a gale breaks hard.
-- Spray: `CityShoreSpray` (`scripts/city/city_shore_spray.gd`) keeps 10 GPU particle emitters on the waterline nearest the camera, throwing droplets up and landward; wind 0.35 starts it and 0.9 is full strength (`CityWorld3D.apply_time` feeds `set_wind`).
+The sea shader draws all surf (breaker foam, wave crest, run-up film, quay slosh) analytically from a per-map shore distance field. The city bound none, so its sea met the land as a hard cut with no foam. The district defaults also make a breaker only about 0.25 m tall and 2 m wide, which does not read on a metre-per-unit sea. What the city does now:
 
-Verify: `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_city_shore_field`; plates `tools/godot_render.sh --script tools/capture_city_sea.gd -- --tag=x --advance=3 --only=sea_storm_beach_close,sea_calm_beach_close` (`--advance` shifts the swash phase).
+- **Shore field** (`CityShoreField.bake`, `scripts/city/city_shore_field.gd`): marching squares on plan ground height 0, then nearest-contour distance, landward direction and a beach flag (contour slope under 0.42 m per unit is beach, above 0.75 is quay, rock or bluff). Distances are divided by `DISTANCE_SCALE` (3), so the shader's 8-unit surf zone spans 24 world units; `shore_depth_scale` carries the same factor into the shader. Bake time is about 0.5 s.
+- **Fine surf band** (`CityShoreField.build_band`): the 4-unit coarse sea grid cannot carry a crest, so a 1-unit mesh in 128-unit tiles covers the water within about 22 units of the waterline, with the same material. The coarse grid skips the quads the band covers (`in_band`).
+- **Run-up film** (`CityShoreField.build_sheet`): a 1-unit grid on the terrain, 9 units inland of the waterline, painted by the water shader with the wave front, its foam bead and a wet sheen.
+- **Surf strength** (`CityWorld3D.SURF_*`, applied through `MapViewMaterials.apply_surf_gain`): breaker height gain 2.0, run-up gain 1.8, crest geometry scale 1.3 (district 0.12), foam gain 2.2, depth scale 3. `apply_shore_field` resets all of them for district maps. The sea state, so the wind, scales the energy: a calm day laps, a fresh wind rolls breakers in with white crests, a gale floods the beach.
+- **Spray** (`CityShoreSpray`, `scripts/city/city_shore_spray.gd`): 10 GPU particle emitters keep to the waterline nearest the camera, 5 units offshore, throwing droplets up and landward. Wind 0.35 starts them, 0.9 is full strength (`CityWorld3D.apply_time` feeds `set_wind`).
 
-Limits: the water mesh itself still ends at the terrain intersection, so the run-up is a film on the sand, not the mesh climbing it; the ground shader has no wet-sand band tied to the field; storm breakers rise only through the gains above, there is no per-wave vertex surf.
+Review plates (side-on, `tools/capture_city_sea.gd`):
+
+![Calm: swash film with a foam bead on wet sand](../reports/images/city/city_surf_calm_swash.png)
+
+![Fresh wind: breakers with white crests rolling in and the run-up film](../reports/images/city/city_surf_fresh.png)
+
+![Gale: tall foamy surf, flooded beach and spray droplets in the air](../reports/images/city/city_surf_storm_spray.png)
+
+Verify: `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_city_shore_field`; plates `tools/godot_render.sh --script tools/capture_city_sea.gd -- --tag=x --advance=6 --only=surf_side_calm,surf_side_fresh,surf_side_storm` (`--advance` shifts the wave phase; `surf_*` are the front plates).
+
+Limits: the crest is a displaced mesh with foam, not a curling wave with a hollow face; the run-up film shows streaks from the swash noise on steep sand; the ground shader has no wet-sand band tied to the field; spray droplets are soft billboards without a splash sprite; quays and rocks get slosh foam only (no climbing water).
 
 ## Limits
 
