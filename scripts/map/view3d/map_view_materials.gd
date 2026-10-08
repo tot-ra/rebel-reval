@@ -379,8 +379,10 @@ static func grass_blade_tier(near: bool) -> ShaderMaterial:
 	return WIND_MATERIALS.grass_blade_tier(near)
 
 
-static func apply_grass_interaction(center_xz: Vector2, velocity_xz: Vector2) -> void:
-	WIND_MATERIALS.apply_grass_interaction(center_xz, velocity_xz)
+static func apply_grass_interaction(
+	center_xz: Vector2, velocity_xz: Vector2, now: float = -1.0
+) -> void:
+	WIND_MATERIALS.apply_grass_interaction(center_xz, velocity_xz, now)
 
 
 static func clear_grass_interaction() -> void:

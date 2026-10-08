@@ -76,8 +76,11 @@ func water_depth_at(world_xz: Vector2) -> float:
 	return maxf(world.water_surface_at(world_xz) - plan.walk_height(world_xz), 0.0)
 
 
-func update_grass_interaction(_logic_position: Vector2, _logic_velocity: Vector2) -> void:
-	pass
+## The city runs in logic pixels (32 per world unit); the grass shader wants world XZ.
+func update_grass_interaction(logic_position: Vector2, logic_velocity: Vector2) -> void:
+	MapViewMaterials.apply_grass_interaction(
+		CityPlan.to_world_xz(logic_position), CityPlan.to_world_xz(logic_velocity)
+	)
 
 
 func add_mud_footprint(_logic_position: Vector2, _movement: Vector2) -> bool:

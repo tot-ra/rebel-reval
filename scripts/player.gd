@@ -46,7 +46,8 @@ var stamina: float = 100.0
 var max_stamina: float = 100.0
 var action_state_machine := PlayerActionStateMachine.new()
 var combat_vitals := CombatVitals.new()
-## Body build of the hero (ADR 0033): the apprentice is a teen; scales move timing, damage, reach and stamina.
+## Body build of the hero (ADR 0033): the apprentice is a teen; scales move timing,
+## damage, reach and stamina.
 var combat_build: StringName = CombatMoveCatalog.BUILD_TEEN
 var self_talk := SelfTalk.new()
 
@@ -81,6 +82,8 @@ var _map_grid: MapTerrainGrid
 var _map_origin := Vector2.ZERO
 var _water_depth_provider := Callable()
 var _mud_wetness_provider: Callable
+## Walking drag from ground cover, 1 = none (tall grass, ADR 0039).
+var _ground_drag_provider: Callable
 ## ADR 0021: derived from the water column under the body every physics tick.
 var _swim := PlayerSwimState.new()
 
@@ -129,6 +132,11 @@ func terrain_speed_multiplier() -> float:
 
 func set_mud_wetness_provider(provider: Callable) -> void:
 	_mud_wetness_provider = provider
+
+
+## Callable returning a 0..1 speed multiplier for the ground under the player.
+func set_ground_drag_provider(provider: Callable) -> void:
+	_ground_drag_provider = provider
 
 
 ## Water medium under the body (ADR 0021): walk, wade, swim or dive.
@@ -972,6 +980,16 @@ func _get_encumbrance_speed_multiplier() -> float:
 
 
 func _get_terrain_speed_multiplier() -> float:
+	return _get_ground_drag_multiplier() * _get_map_terrain_speed_multiplier()
+
+
+func _get_ground_drag_multiplier() -> float:
+	if _swim.medium != PlayerSwimState.Medium.WALK or not _ground_drag_provider.is_valid():
+		return 1.0
+	return clampf(float(_ground_drag_provider.call()), 0.1, 1.0)
+
+
+func _get_map_terrain_speed_multiplier() -> float:
 	if _map_definition == null or _map_grid == null:
 		return 1.0
 	# ADR 0021: wading drag replaces the dry-ground terrain factor; swimming speed is

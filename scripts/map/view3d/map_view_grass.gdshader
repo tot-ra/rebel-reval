@@ -9,6 +9,10 @@ uniform vec2 interact_center = vec2(0.0);
 uniform float interact_strength = 0.0;
 uniform float interact_radius = 0.65;
 uniform vec2 interact_push = vec2(0.0);
+// R-1327: last footfalls (x, z, heading angle, press 0..1). Each presses and parts
+// the grass round it, fading as the blades spring back, so a lane stays open
+// behind the walker. Unused slots carry press 0.
+uniform vec4 trail[8];
 // R-1103: 2x2 blade-cluster atlas (fine meadow, timothy, sedge, dry straw).
 uniform sampler2D blade_atlas : source_color, filter_linear_mipmap, repeat_disable;
 // Average of the grass ground plate; roots blend into it so no seam shows.
@@ -79,15 +83,42 @@ void vertex() {
 	vec2 displace = (wind * push + across * flutter * 0.16)
 		* strength * sway_strength * weight;
 	vec3 world_displace = vec3(displace.x, -length(displace) * 0.18, displace.y);
+	// Parting scales with the blade's own height: ankle grass barely stirs, waist
+	// high grass is shoved aside and laid over, so wading through a meadow reads
+	// as effort. Height is measured on the displaced-free blade in world space.
+	float blade_h = max(world.y - origin.y, 0.0);
 	if (interact_strength > 0.001 && interact_radius > 0.001) {
 		vec2 offset = world.xz - interact_center;
 		float dist = length(offset);
-		float falloff = 1.0 - smoothstep(0.0, interact_radius, dist);
-		falloff *= falloff;
+		float reach = interact_radius + blade_h * 0.7;
+		float falloff = 1.0 - smoothstep(0.0, reach, dist);
 		vec2 radial = dist > 0.001 ? offset / dist : vec2(0.0, 1.0);
+		float lean = interact_strength * 6.0 * blade_h + interact_strength;
 		vec2 interact_disp = radial * 0.9 + interact_push * 0.55;
-		float tip = interact_strength * weight * falloff;
-		world_displace += vec3(interact_disp.x * tip, -tip * 0.22, interact_disp.y * tip);
+		float tip = weight * falloff;
+		world_displace += vec3(
+			interact_disp.x * tip * lean, -tip * blade_h * 0.35, interact_disp.y * tip * lean);
+	}
+	for (int i = 0; i < 8; i++) {
+		float press = trail[i].w;
+		if (press < 0.01) {
+			continue;
+		}
+		vec2 offset = world.xz - trail[i].xy;
+		float dist = length(offset);
+		float reach = interact_radius + 0.3 + blade_h * 0.7;
+		if (dist > reach) {
+			continue;
+		}
+		float falloff = 1.0 - smoothstep(0.0, reach, dist);
+		falloff *= press;
+		vec2 radial = dist > 0.001 ? offset / dist : vec2(0.0, 1.0);
+		vec2 heading = vec2(cos(trail[i].z), sin(trail[i].z));
+		// Blades part sideways of the path and are trodden along the heading.
+		vec2 away = radial * 0.9 + heading * 0.35;
+		float tip = weight * falloff;
+		world_displace += vec3(
+			away.x * tip * blade_h * 1.1, -tip * blade_h * 0.7, away.y * tip * blade_h * 1.1);
 	}
 	// MultiMeshes rotate each tuft. Convert a world-space push back to local
 	// space so adjacent plants bend downwind rather than following their yaw.

@@ -37,6 +37,8 @@ const LEAF_CARD_ATLAS := preload("res://assets/materials/pbr/foliage_cards/leaf_
 const LeafGeometry := preload("res://scripts/map/view3d/map_view_leaf_geometry.gd")
 
 static var _cache: Dictionary = {}
+## Recent footfalls pressing the grass down (R-1327).
+static var _trail := VegetationInteractionBuffer.new()
 ## R-1187: last calendar date and wetness pushed into vegetation. Kept here so a
 ## species canopy material created later (streamed chunk, reset cache) starts
 ## in the current season instead of the summer defaults.
@@ -136,6 +138,7 @@ static func _grass_material(
 	material.set_shader_parameter("interact_radius", 0.65)
 	material.set_shader_parameter("interact_center", Vector2.ZERO)
 	material.set_shader_parameter("interact_push", Vector2.ZERO)
+	material.set_shader_parameter("trail", empty_trail())
 	material.set_shader_parameter("fade_start", fade_start)
 	material.set_shader_parameter("fade_end", fade_end)
 	material.set_shader_parameter("fade_in_start", fade_in_start)
@@ -147,7 +150,9 @@ static func _grass_material(
 ## Soft character parting for all grass MultiMeshes sharing grass_blades().
 ## center_xz / velocity_xz are world-space ground coordinates; tip displacement
 ## grows with speed so a walk opens a pocket and a run leaves a readable wake.
-static func apply_grass_interaction(center_xz: Vector2, velocity_xz: Vector2) -> void:
+static func apply_grass_interaction(
+	center_xz: Vector2, velocity_xz: Vector2, now: float = -1.0
+) -> void:
 	var speed := velocity_xz.length()
 	var push := Vector2.ZERO
 	if speed > 0.02:
@@ -159,6 +164,19 @@ static func apply_grass_interaction(center_xz: Vector2, velocity_xz: Vector2) ->
 		material.set_shader_parameter("interact_push", push)
 		material.set_shader_parameter("interact_strength", tip_displace)
 		material.set_shader_parameter("interact_radius", 0.65)
+	# Footfalls stay pressed for a few seconds behind the walker (R-1327).
+	var t := Time.get_ticks_msec() / 1000.0 if now < 0.0 else now
+	if speed > 0.02:
+		_trail.push(center_xz, velocity_xz, t)
+	var trail := _trail.to_shader_array(t)
+	for material in _grass_interaction_materials():
+		material.set_shader_parameter("trail", trail)
+
+
+static func empty_trail() -> PackedVector4Array:
+	var out := PackedVector4Array()
+	out.resize(VegetationInteractionBuffer.CAPACITY)
+	return out
 
 
 static func _grass_interaction_materials() -> Array[ShaderMaterial]:
@@ -167,9 +185,11 @@ static func _grass_interaction_materials() -> Array[ShaderMaterial]:
 
 ## Clears character parting when no player rig is driving the view.
 static func clear_grass_interaction() -> void:
+	_trail.clear()
 	for material in _grass_interaction_materials():
 		material.set_shader_parameter("interact_strength", 0.0)
 		material.set_shader_parameter("interact_push", Vector2.ZERO)
+		material.set_shader_parameter("trail", empty_trail())
 
 
 static func canopy(kind: StringName) -> ShaderMaterial:

@@ -14,11 +14,11 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `1084`
-- Markdown files excluded as archive/reference/out of active scope: `743`
-- Local/external links inspected: `12843`
-- Links to active Markdown docs: `11916`
-- Links to existing archive/reference/non-active local docs: `442`
+- Active Markdown files scanned: `1087`
+- Markdown files excluded as archive/reference/out of active scope: `744`
+- Local/external links inspected: `12859`
+- Links to active Markdown docs: `11931`
+- Links to existing archive/reference/non-active local docs: `443`
 - External links skipped for reachability: `88`
 - Issues found: `150`
 
@@ -225,7 +225,9 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/adr/0034-cutscene-mode-and-cinematic-prologue.md`
 - `docs/adr/0035-game-audio-sourcing-and-sfx-system.md`
 - `docs/adr/0036-jump-vault-and-expanded-melee-verbs.md`
-- `docs/adr/0037-realtime-3d-spirit-arena-and-topic-spells.md`
+- `docs/adr/0037-layered-npc-mind-with-local-llm.md`
+- `docs/adr/0038-realtime-3d-spirit-arena-and-topic-spells.md`
+- `docs/adr/0039-tall-grass-height-and-wading-drag.md`
 - `docs/adr/README.md`
 - `docs/AGENT_LOOPS.md`
 - `docs/ANIMAL_3D_SOURCING.md`
@@ -1173,6 +1175,7 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/SYSTEMS/MAGIC.md`
 - `docs/SYSTEMS/MUSCLE_LOCOMOTION.md`
 - `docs/SYSTEMS/NATURAL.md`
+- `docs/SYSTEMS/NPC_MIND.md`
 - `docs/SYSTEMS/OBJECT_CATALOG.md`
 - `docs/SYSTEMS/PSYCHE.md`
 - `docs/SYSTEMS/QUESTS.md`

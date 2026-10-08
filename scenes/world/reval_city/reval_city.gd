@@ -64,6 +64,10 @@ func _ready() -> void:
 	player.set_water_depth_provider(
 		func(logic: Vector2) -> float: return view.water_depth_at(CityPlan.to_world_xz(logic))
 	)
+	# Waist-high meadow drags at the legs (ADR 0039); scythed verges do not.
+	player.set_ground_drag_provider(
+		func() -> float: return world.grass.walk_drag_at(CityPlan.to_world_xz(player.global_position))
+	)
 	minimap = CityMinimap.create(plan)
 	add_child(minimap)
 	_smithy = CityTravel.building_index(plan, "kalev_smithy")

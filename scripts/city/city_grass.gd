@@ -11,7 +11,10 @@ extends Node3D
 ##                mid chunks, so those plants are never baked into a texture
 ## Placement thins on trodden earth and leaves paving, floors, water and steep
 ## banks bare. Cart roads (roads.png) stay bare where wheels and feet pass: grass
-## stands only on the verge, and a stray tuft on a lightly used road is tiny. Deterministic per chunk (seeded from the chunk key).
+## stands only on the verge, and a stray tuft on a lightly used road is tiny.
+## Height follows use: kept short where people pass (near roads and houses, where
+## it gets scythed) and growing to waist height in the open, which also drags on
+## whoever wades through it (walk_drag_at). Deterministic per chunk (seeded from the chunk key).
 
 const PlantMeshes := preload("res://scripts/map/view3d/map_view_plant_meshes.gd")
 const PlantSpecies := preload("res://scripts/map/view3d/map_view_plant_species.gd")
@@ -36,7 +39,25 @@ const ACCENT_DENSITY := {
 	PlantSpecies.SPECIES_YARROW: 0.012,
 }
 
+## Distances (world units) over which grass grows from scythed to wild.
+const ROAD_WILD_NEAR := 3.0
+const ROAD_WILD_FAR := 22.0
+const HOUSE_WILD_NEAR := 2.0
+const HOUSE_WILD_FAR := 14.0
+## Clump scale multiplier at the scythed edge and in the wild (blade clumps are
+## ~0.4 m tall at 1.0, so 2.7 reaches roughly a person's waist).
+const TALL_SCALE_MIN := 0.55
+const TALL_SCALE_MAX := 2.7
+## Walking speed multiplier in fully wild, full-density grass.
+const TALL_GRASS_DRAG := 0.5
+## Offsets sampled (unit ring directions x these radii) to find the nearest road.
+const ROAD_PROBE_RADII := [1.5, 3.0, 5.0, 8.0, 12.0, 17.0, 22.0]
+const ROAD_PROBE_DIRS := 8
+const ROAD_PROBE_BODY := 0.25
+const WILD_CACHE_LIMIT := 40000
+
 var plan: CityPlan
+var _wild_cache: Dictionary = {}
 var _splat: Image
 var _roads: Image
 var _mid_chunks: Dictionary = {}
@@ -132,6 +153,65 @@ func _road_shrink(p: Vector2) -> float:
 	return lerpf(1.0, 0.3, clampf(road_at(p).r * 1.5, 0.0, 1.0))
 
 
+## Distance from `p` to the nearest road body, capped at ROAD_WILD_FAR. The roads
+## raster is 1 px per world unit, so a ring probe is enough for a growth gradient.
+func road_distance(p: Vector2) -> float:
+	if road_at(p).r > ROAD_PROBE_BODY:
+		return 0.0
+	for radius: float in ROAD_PROBE_RADII:
+		for k in ROAD_PROBE_DIRS:
+			var q := p + Vector2.from_angle(TAU * k / ROAD_PROBE_DIRS) * radius
+			if road_at(q).r > ROAD_PROBE_BODY:
+				return radius
+	return ROAD_WILD_FAR
+
+
+## Distance from `p` to the nearest house wall, capped at HOUSE_WILD_FAR.
+func house_distance(p: Vector2) -> float:
+	var best := HOUSE_WILD_FAR
+	for index in plan.buildings_near(p, HOUSE_WILD_FAR):
+		var ring := plan.footprint(index)
+		for i in ring.size():
+			var closest := Geometry2D.get_closest_point_to_segment(
+				p, ring[i], ring[(i + 1) % ring.size()]
+			)
+			best = minf(best, p.distance_to(closest))
+	return best
+
+
+## How wild the ground at `p` is, 0 (scythed beside a road or wall) to 1 (open
+## meadow far from both). Cached per metre; the grass height and the wading drag
+## both read it, so what the eye sees is what slows the walker.
+func wildness_at(p: Vector2) -> float:
+	var key := Vector2i(floori(p.x), floori(p.y))
+	if _wild_cache.has(key):
+		return _wild_cache[key]
+	if _wild_cache.size() > WILD_CACHE_LIMIT:
+		_wild_cache.clear()
+	var c := Vector2(key) + Vector2(0.5, 0.5)
+	var w := minf(
+		smoothstep(ROAD_WILD_NEAR, ROAD_WILD_FAR, road_distance(c)),
+		smoothstep(HOUSE_WILD_NEAR, HOUSE_WILD_FAR, house_distance(c))
+	)
+	_wild_cache[key] = w
+	return w
+
+
+## Clump scale multiplier from use: short where people pass, tall where nobody does.
+func height_factor(p: Vector2) -> float:
+	return lerpf(TALL_SCALE_MIN, TALL_SCALE_MAX, wildness_at(p))
+
+
+## Walking speed multiplier at `p` for wading through grass: 1 on bare ground and
+## short turf, down to TALL_GRASS_DRAG in dense waist-high meadow.
+func walk_drag_at(p: Vector2) -> float:
+	var standing := 1.0 - clampf(_bareness(p), 0.0, 1.0)
+	if standing <= 0.0 or is_nan(_grass_height(p)):
+		return 1.0
+	var tall := smoothstep(0.35, 0.9, wildness_at(p)) * standing
+	return lerpf(1.0, TALL_GRASS_DRAG, tall)
+
+
 ## Ground height where grass may stand at `p`, or NAN where it must stay bare.
 func _grass_height(p: Vector2) -> float:
 	var h := plan.ground_height(p)
@@ -161,9 +241,12 @@ func _scatter_clumps(
 		var h := _grass_height(p)
 		if is_nan(h):
 			continue
+		# Tall grass grows up much more than out, so the wild meadow stays a field of
+		# blades rather than a field of fat bushes.
+		var tall := height_factor(p)
 		var scale := rng.randf_range(scale_range.x, scale_range.y) * _road_shrink(p)
 		var basis := Basis(Vector3.UP, rng.randf() * TAU).scaled(
-			Vector3(scale, scale * rng.randf_range(0.75, 1.3), scale)
+			Vector3(scale * sqrt(tall), scale * tall * rng.randf_range(0.75, 1.3), scale * sqrt(tall))
 		)
 		transforms.append(Transform3D(basis, Vector3(p.x, h - 0.02, p.y)))
 		var tone := rng.randf_range(0.82, 1.08)
