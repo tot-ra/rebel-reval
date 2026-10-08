@@ -1067,3 +1067,37 @@ func test_visual_wind_heading_is_rate_limited() -> void:
 		"heading must not swing faster than the slew rate during a transition"
 	)
 	sky.free()
+
+
+func test_bright_stars_bake_to_a_single_texel() -> void:
+	# R-1443: the shader draws the round disk; a baked '+' kernel read as crosses.
+	var image := SkyWeather.SKY_RESOURCES.new_star_image()
+	var sirius: Array[Vector4] = [Vector4(101.2872, -16.7161, -1.44, 0.009)]
+	SkyWeather.SKY_RESOURCES.bake_stars(image, sirius, 0, 1, 2000.0, 2000.0, 5.0)
+	var lit := 0
+	for y in range(image.get_height()):
+		for x in range(image.get_width()):
+			if image.get_pixel(x, y).r > 0.0:
+				lit += 1
+	assert_eq(lit, 1, "a bright star must occupy exactly one texel and empty sky must stay black")
+
+
+func test_milky_way_frame_is_precessed_and_orthogonal() -> void:
+	var galaxy: Dictionary = SkyWeather.SKY_RESOURCES.galactic_frame(2000.0, SkyWeather.SKY_EPOCH_YEAR)
+	var pole: Vector3 = galaxy["pole"]
+	var center: Vector3 = galaxy["center"]
+	assert_true(absf(pole.dot(center)) < 1e-4, "galactic pole and centre must be 90 degrees apart")
+	var j2000: Dictionary = SkyWeather.SKY_RESOURCES.galactic_frame(2000.0, 2000.0)
+	var shift := rad_to_deg(acos(clampf(pole.dot(j2000["pole"]), -1.0, 1.0)))
+	assert_true(shift > 2.0 and shift < 10.0, "the 1343 galactic pole must be precessed from J2000")
+	# Deneb (J2000 RA 310.358, Dec 45.280) lies in the Cygnus Milky Way: |b| < 3 deg.
+	var deneb := SkyWeather.precess_equatorial(Vector4(310.358, 45.280, 1.25, 0.09), 2000.0, SkyWeather.SKY_EPOCH_YEAR)
+	var deneb_vector: Vector3 = SkyWeather.SKY_RESOURCES.equatorial_vector(deneb.x, deneb.y)
+	assert_true(absf(rad_to_deg(asin(deneb_vector.dot(pole)))) < 3.0, "Deneb must sit in the galactic plane")
+
+
+func test_shader_draws_round_twinkling_stars_and_milky_way() -> void:
+	var source: String = SkyWeather.SKY_SHADER.code
+	assert_true("sky_stars.gdshaderinc" in source, "stars and Milky Way live in the sky include")
+	assert_true("star_field(" in source and "milky_way(" in source, "the dome must draw stars and the galaxy")
+	assert_true("!AT_CUBEMAP_PASS" in source, "the star search must stay out of the radiance cubemap")

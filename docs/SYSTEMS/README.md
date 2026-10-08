@@ -19,6 +19,7 @@ One page per implemented or planned feature. Each page opens with a `Status:` li
 | [Gate garrisons and patrols](./GATE_GARRISONS.md) | Implemented: census residents hold every gate by shift and walk the town and wall patrols, in their own clothes with a hat and spear |
 | [World presentation (3D view)](./WORLD_PRESENTATION.md) | Implemented |
 | [Cloud cells, cloud shadows, storm-cell lightning](./CLOUD_CELLS.md) | Implemented (R-1400): world-space cumulus and cumulonimbus, per-cloud ground shadows, lightning only from storm cells |
+| [Night sky: stars and the Milky Way](./NIGHT_SKY.md) | Implemented (R-1443): round twinkling Hipparcos stars, Milky Way placed for Tallinn in 1343, seasonal sidereal drift |
 | [Seamless Reval city (1343)](./SEAMLESS_CITY.md) | Playable preview (ADR 0031); no quests or saves yet |
 | [Landmark sites in the seamless city](./CITY_LANDMARK_SITES.md) | Implemented for Raekoja plats (ADR 0032); other sites planned |
 | [Church interiors](./CHURCH_INTERIORS.md) | In progress (R-1392): glazing implemented (R-1393, eight plates, per-church programmes); ornamental wall paintings (R-1396: consecration crosses, dado curtain, foliage band); liturgical objects, seating, figural murals planned |

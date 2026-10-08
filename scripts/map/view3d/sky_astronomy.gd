@@ -59,11 +59,23 @@ static func celestial_direction(progress: float, declination_degrees: float) -> 
 
 ## Sky and water use the same sidereal rotation. The small excess over one turn
 ## per solar day keeps stars moving faster than the sun instead of locked to it.
-static func sidereal_angle_for_progress(progress: float) -> float:
+## R-1443: the same excess accumulates per calendar day (~0.986 degrees), so the
+## midnight sky drifts through the seasons: Orion in winter, Cygnus overhead in
+## late summer. An empty date keeps the canonical St George's Night sky.
+static func sidereal_angle_for_progress(progress: float, date: Dictionary = {}) -> float:
+	var days_from_reference := 0.0
+	if not date.is_empty():
+		days_from_reference = julian_day(date) - julian_day(_reference_date())
 	return (
 		deg_to_rad(MIDNIGHT_SIDEREAL_DEGREES)
+		+ days_from_reference * TAU * (SIDEREAL_ROTATIONS_PER_SOLAR_DAY - 1.0)
 		+ wrapf(progress, 0.0, 1.0) * TAU * SIDEREAL_ROTATIONS_PER_SOLAR_DAY
 	)
+
+
+static func _reference_date() -> Dictionary:
+	var parts := REFERENCE_DATE.split("-")
+	return {"year": int(parts[0]), "month": int(parts[1]), "day": int(parts[2])}
 
 
 ## Returns the observer-to-sun direction in the sky shader's ENU world frame:

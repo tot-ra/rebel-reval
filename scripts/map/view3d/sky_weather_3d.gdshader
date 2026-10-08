@@ -82,7 +82,8 @@ uniform vec2 wind_dir = vec2(0.928, 0.371);
 // darken toward rain-bearing grey instead of staying fair-weather white.
 uniform float cloud_gloom : hint_range(0.0, 1.0) = 0.0;
 
-// Hipparcos stars live in equatorial coordinates in this nearest-filtered map.
+// Hipparcos stars live in equatorial coordinates in this nearest-filtered map,
+// one texel per star (read with texelFetch in sky_stars.gdshaderinc).
 // The observer transform below turns each sky ray into right ascension and
 // declination for Reval's latitude and the canonical 23 April 1343 sidereal sky.
 uniform sampler2D star_map : filter_nearest, repeat_enable;
@@ -557,6 +558,8 @@ void sky() {
 		float night = 1.0 - day_blend;
 		horizon = lut_horizon + night_horizon_color.rgb * night;
 		color = sky_lut_radiance(dir) * art
+#include "res://scripts/map/view3d/sky_stars.gdshaderinc"
+
 			+ mix(night_top_color.rgb, night_horizon_color.rgb, haze) * night;
 		// Art-controlled warm band on the sun side, now a small boost over the LUT sunset.
 		color += sunset_color.rgb * sunset_factor * pow(sun_amount, 2.0) * haze * sunset_boost;
@@ -580,10 +583,18 @@ void sky() {
 	float local_storm = cloud_sample.z;
 
 	// Real stars fade with twilight and are occluded by the procedural weather.
-	// Nearest sampling keeps each catalog texel crisp in the sky dome.
-	vec3 stars = texture(star_map, equatorial_uv(dir)).rgb;
-	float star_visibility = pow(1.0 - day_blend, 3.0) * smoothstep(-0.01, 0.05, height);
-	color += stars * star_visibility * (1.0 - clouds) * 0.32;
+	// R-1443: catalog texels are drawn as round twinkling point sources and the
+	// Milky Way glows behind them (sky_stars.gdshaderinc). The radiance cubemap
+	// skips both: their ambient contribution is negligible and the star search
+	// needs screen-space derivatives.
+	if (!AT_CUBEMAP_PASS) {
+		vec2 star_uv = equatorial_uv(dir);
+		float pixel_angle = max(length(dFdx(dir)), length(dFdy(dir)));
+		vec3 stars = star_field(star_uv, height, pixel_angle);
+		float star_visibility = pow(1.0 - day_blend, 3.0) * smoothstep(-0.01, 0.05, height);
+		color += stars * star_visibility * (1.0 - clouds) * 0.32;
+		color += milky_way(star_uv) * milky_way_visibility(height) * (1.0 - clouds) * 0.25;
+	}
 
 	// Sun disk plus halo, hidden once the sun dips below the horizon.
 	float sun_visibility = smoothstep(-0.05, 0.05, sun_direction.y);

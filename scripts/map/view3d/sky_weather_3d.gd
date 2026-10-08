@@ -87,6 +87,8 @@ const SUN_DISK_FADE_END := SkyAstronomy.SUN_DISK_FADE_END
 ## Compatibility aliases for callers that size generated sky resources explicitly.
 const STAR_MAP_WIDTH := SKY_RESOURCES.STAR_MAP_WIDTH
 const STAR_MAP_HEIGHT := SKY_RESOURCES.STAR_MAP_HEIGHT
+## Wraps the twinkle clock so float precision never degrades the flicker.
+const STAR_TWINKLE_PERIOD := 3600.0
 const LUNAR_ALBEDO_MAP_SIZE := SKY_RESOURCES.LUNAR_ALBEDO_MAP_SIZE
 
 
@@ -462,6 +464,7 @@ var _cells: CloudCellsScript = CloudCellsScript.new()
 var _cell_noise_size := 0
 var _material: ShaderMaterial
 var _star_map: ImageTexture
+var _star_twinkle_time := 0.0
 var _camera: Camera3D
 var _environment: Environment
 var _rain: GPUParticles3D
@@ -730,6 +733,11 @@ func _weather_for_profile(profile: Dictionary) -> StringName:
 
 func _process(delta: float) -> void:
 	advance(delta * maxf(time_scale, 0.0))
+	# R-1443: scintillation runs on real time even when the weather clock is
+	# paused; it is presentation only and never saved.
+	_star_twinkle_time = fmod(_star_twinkle_time + delta, STAR_TWINKLE_PERIOD)
+	if _material != null:
+		_material.set_shader_parameter(&"star_twinkle_time", _star_twinkle_time)
 
 
 ## Replaces the environment's flat background with the sky dome and builds the
@@ -795,6 +803,9 @@ func configure_steps(camera: Camera3D, environment: Environment) -> Array[Callab
 		_star_map = ImageTexture.create_from_image(star_image[0])
 		_material.set_shader_parameter(&"star_map", _star_map)
 		_material.set_shader_parameter(&"observer_latitude", deg_to_rad(OBSERVER_LATITUDE_DEGREES))
+		var galaxy := SKY_RESOURCES.galactic_frame(STAR_CATALOG.CATALOG_EPOCH, SKY_EPOCH_YEAR)
+		_material.set_shader_parameter(&"galactic_pole", galaxy["pole"])
+		_material.set_shader_parameter(&"galactic_center", galaxy["center"])
 	var sky := func() -> void:
 		var dome := Sky.new()
 		dome.sky_material = _material
@@ -1084,7 +1095,9 @@ func apply_sky_state(progress: float, day_blend: float, sun_direction: Vector3) 
 	_material.set_shader_parameter(&"moon_phase", phase)
 	_material.set_shader_parameter(&"day_blend", day_blend)
 	_material.set_shader_parameter(&"sunset_factor", sunset_factor)
-	_material.set_shader_parameter(&"sidereal_angle", sidereal_angle_for_progress(progress))
+	_material.set_shader_parameter(
+		&"sidereal_angle", sidereal_angle_for_progress(progress, calendar_date)
+	)
 	if _atmosphere_lut != null:
 		_atmosphere_lut.update(sun_direction, Engine.get_process_frames())
 	_publish_cloud_shadow_globals()
@@ -1127,7 +1140,7 @@ func presentation_snapshot(progress: float, day_blend: float) -> WeatherPresenta
 	snapshot.cell_sun_edge = cell_sun_edge(snapshot.sun_direction)
 	snapshot.star_visibility = pow(1.0 - snapshot.day_blend, 3.0) * cloud_occlusion
 	snapshot.tide_level = tide_level(progress, calendar_date)
-	snapshot.sidereal_angle = sidereal_angle_for_progress(progress)
+	snapshot.sidereal_angle = sidereal_angle_for_progress(progress, calendar_date)
 	snapshot.star_map = star_map_texture()
 	# Color8: Color(255, ...) is a 0..255 float colour that blew the water's sky
 	# reflection out to white whenever the sun stood ahead of the camera.
@@ -1449,8 +1462,8 @@ func star_map_texture() -> Texture2D:
 
 ## Sky and water retain this compatibility entry point while SkyAstronomy owns
 ## the sidereal rate used by both render paths.
-static func sidereal_angle_for_progress(progress: float) -> float:
-	return SkyAstronomy.sidereal_angle_for_progress(progress)
+static func sidereal_angle_for_progress(progress: float, date: Dictionary = {}) -> float:
+	return SkyAstronomy.sidereal_angle_for_progress(progress, date)
 
 
 ## Clouds must gather before rain, so wet regimes are only ever reached through

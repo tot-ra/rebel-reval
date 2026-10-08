@@ -7,6 +7,9 @@ extends RefCounted
 
 const STAR_MAP_WIDTH := 2048
 const STAR_MAP_HEIGHT := 1024
+## J2000 galactic north pole and galactic centre (IAU 1958 frame in FK5).
+const GALACTIC_POLE_J2000 := Vector2(192.85948, 27.12825)
+const GALACTIC_CENTER_J2000 := Vector2(266.40499, -28.93617)
 const LUNAR_ALBEDO_MAP_SIZE := 1024
 const CLOUD_NOISE_RESOLUTION_MINIMUM := 128
 const CLOUD_NOISE_RESOLUTION_RECOMMENDED := 256
@@ -107,7 +110,9 @@ static func build_star_map(
 
 static func new_star_image() -> Image:
 	var image := Image.create(STAR_MAP_WIDTH, STAR_MAP_HEIGHT, false, Image.FORMAT_RGBAH)
-	image.fill(Color.TRANSPARENT)
+	# R-1443: Color.TRANSPARENT is (1, 1, 1, 0), which made every empty texel a
+	# white "star" and washed the whole night sky (and its water reflection).
+	image.fill(Color(0.0, 0.0, 0.0, 0.0))
 	return image
 
 
@@ -130,10 +135,9 @@ static func bake_stars(
 		)
 		var luminosity := magnitude_to_luminance(star.z, limiting_magnitude)
 		var color := bv_to_rgb(star.w) * luminosity
+		# R-1443: one texel per star. The sky shader draws a round point-spread
+		# disk around it; the old '+' kernel for bright stars read as crosses.
 		_set_star_texel(image, x, y, color)
-		if star.z <= 2.5:
-			for offset in [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN]:
-				_set_star_texel(image, x + offset.x, y + offset.y, color * 0.28)
 
 
 static func _set_star_texel(image: Image, x: int, y: int, color: Color) -> void:
@@ -174,6 +178,32 @@ static func bv_to_rgb(bv: float) -> Color:
 	else:
 		blue = clampf((138.5177312231 * log(scaled - 10.0) - 305.0447927307) / 255.0, 0.0, 1.0)
 	return Color(red, green, blue)
+
+
+## R-1443: galactic pole and centre as unit vectors in the star map's equatorial
+## frame at `target_epoch`, so the Milky Way precesses with the stars.
+## Vector convention matches sky_stars.gdshaderinc equatorial_vector().
+static func galactic_frame(catalog_epoch: float, target_epoch: float) -> Dictionary:
+	var pole := precess_equatorial(
+		Vector4(GALACTIC_POLE_J2000.x, GALACTIC_POLE_J2000.y, 0.0, 0.0), catalog_epoch, target_epoch
+	)
+	var center := precess_equatorial(
+		Vector4(GALACTIC_CENTER_J2000.x, GALACTIC_CENTER_J2000.y, 0.0, 0.0),
+		catalog_epoch,
+		target_epoch
+	)
+	return {
+		"pole": equatorial_vector(pole.x, pole.y),
+		"center": equatorial_vector(center.x, center.y),
+	}
+
+
+static func equatorial_vector(
+	right_ascension_degrees: float, declination_degrees: float
+) -> Vector3:
+	var ra := deg_to_rad(right_ascension_degrees)
+	var dec := deg_to_rad(declination_degrees)
+	return Vector3(cos(dec) * cos(ra), cos(dec) * sin(ra), sin(dec))
 
 
 ## IAU 1976 precession is sufficiently accurate across the 657-year offset and
