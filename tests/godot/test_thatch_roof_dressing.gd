@@ -14,15 +14,16 @@ func test_thatch_roofs_use_slope_reeds_and_framed_gables() -> void:
 		"thatch roofs must not reuse the soft hay/terrain straw pattern"
 	)
 	var thatch_box_uv := MapViewMaterials.building_uv_scale(
-		MapViewMaterials.PATTERN_THATCH,
-		MapViewMaterials.BUILDING_UV_REFERENCE_SIZE
+		MapViewMaterials.PATTERN_THATCH, MapViewMaterials.BUILDING_UV_REFERENCE_SIZE
 	)
 	var thatch_world_uv := MapViewMaterials.roof_cover_world_density(
 		MapViewMaterials.PATTERN_THATCH
 	)
 	assert_true(
-		MapViewMaterials.BUILDING_UV_SCALE[MapViewMaterials.PATTERN_THATCH].y
-			> MapViewMaterials.BUILDING_UV_SCALE[MapViewMaterials.PATTERN_STRAW].y,
+		(
+			MapViewMaterials.BUILDING_UV_SCALE[MapViewMaterials.PATTERN_THATCH].y
+			> MapViewMaterials.BUILDING_UV_SCALE[MapViewMaterials.PATTERN_STRAW].y
+		),
 		"thatch courses need denser along-slope UV repeats than field straw"
 	)
 	assert_true(
@@ -38,7 +39,7 @@ func test_thatch_roofs_use_slope_reeds_and_framed_gables() -> void:
 		"thatch needs deeper protective eaves than tile or shingle"
 	)
 
-	var definition := LowerTownSlice.create()
+	var definition := KalevSmithyDefinition.create()
 	var checked := 0
 	for building in definition.buildings:
 		if building.get("roof_material", &"") != &"thatch":
@@ -63,8 +64,7 @@ func test_thatch_roofs_use_slope_reeds_and_framed_gables() -> void:
 			"%s: thatch gables need a structural tie beam" % house_id
 		)
 		assert_true(
-			node.has_node("ThatchGableKingPost_1"),
-			"%s: thatch gables need a king post" % house_id
+			node.has_node("ThatchGableKingPost_1"), "%s: thatch gables need a king post" % house_id
 		)
 		assert_true(
 			node.has_node("ThatchVergeBoard_-1_-1"),
@@ -106,8 +106,7 @@ func test_thatch_roofs_use_slope_reeds_and_framed_gables() -> void:
 		)
 
 		var along_ridge_x := MapViewMeshBuilderBuildingFacade.ridge_along_x(
-			building,
-			building["footprint"].size * MapViewBridge.world_scale(definition.cell_size)
+			building, building["footprint"].size * MapViewBridge.world_scale(definition.cell_size)
 		)
 		var ridge_direction := Vector3.RIGHT if along_ridge_x else Vector3.FORWARD
 		for side in [-1, 1]:
@@ -130,8 +129,7 @@ func test_thatch_roofs_use_slope_reeds_and_framed_gables() -> void:
 			)
 			var stem_direction: Vector3 = relief.get_meta("stem_direction", Vector3.ZERO)
 			assert_true(
-				stem_direction.y < -0.6,
-				"%s: stems must descend from ridge to eave" % house_id
+				stem_direction.y < -0.6, "%s: stems must descend from ridge to eave" % house_id
 			)
 			assert_true(
 				absf(stem_direction.dot(ridge_direction)) < 0.01,
@@ -149,5 +147,7 @@ func test_thatch_roofs_use_slope_reeds_and_framed_gables() -> void:
 func _expected_cover_density(material: StandardMaterial3D, fallback: Vector3) -> Vector3:
 	var materials: Variant = MapViewMaterials.BUILDING_MATERIALS
 	if material.has_meta(materials.LIBRARY_STEM_META):
-		return materials.library_world_uv_density(String(material.get_meta(materials.LIBRARY_STEM_META)))
+		return materials.library_world_uv_density(
+			String(material.get_meta(materials.LIBRARY_STEM_META))
+		)
 	return fallback

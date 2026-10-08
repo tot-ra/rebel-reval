@@ -11,7 +11,7 @@
   },
   "description": "Mare and Ott Raide's civic grain stall beside the municipal weighing house.",
   "gameplay_space": false,
-  "scene_path": "res://scenes/reval_center/reval_center.tscn",
+  "scene_path": "res://scenes/world/reval_city/reval_city.tscn",
   "spawn_ids": [
     "grain_stall"
   ],

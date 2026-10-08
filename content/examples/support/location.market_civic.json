@@ -11,7 +11,7 @@
   },
   "description": "Inactive prototype map for the Town Hall square, civic weighing house, and merchant stalls.",
   "gameplay_space": true,
-  "scene_path": "res://scenes/reval_center/reval_center.tscn",
+  "scene_path": "res://scenes/world/reval_city/reval_city.tscn",
   "spawn_ids": [
     "market_cross"
   ],

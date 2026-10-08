@@ -14,19 +14,19 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `1083`
+- Active Markdown files scanned: `1084`
 - Markdown files excluded as archive/reference/out of active scope: `743`
-- Local/external links inspected: `12845`
+- Local/external links inspected: `12843`
 - Links to active Markdown docs: `11916`
-- Links to existing archive/reference/non-active local docs: `444`
+- Links to existing archive/reference/non-active local docs: `442`
 - External links skipped for reachability: `88`
-- Issues found: `149`
+- Issues found: `150`
 
 ## Issue counts
 
 | Code | Count |
 | --- | ---: |
-| `BROKEN_LINK` | 83 |
+| `BROKEN_LINK` | 84 |
 | `BROKEN_ANCHOR` | 66 |
 | `DUPLICATE_CHARACTER_NAME` | 0 |
 | `CONTRADICTORY_DATE` | 0 |
@@ -132,6 +132,7 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 | `BROKEN_LINK` | `docs/FLORA_FAUNA.md:44` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
 | `BROKEN_LINK` | `docs/FLORA_FAUNA.md:45` | Local Markdown link target does not exist: `../content/maps/reval_harbor_north.rrmap` |
 | `BROKEN_LINK` | `docs/FLORA_FAUNA.md:46` | Local Markdown link target does not exist: `../content/maps/reval_harbor_east.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:50` | Local Markdown link target does not exist: `../tests/godot/test_map_view_tree_species.gd` |
 | `BROKEN_LINK` | `docs/FLORA_FAUNA.md:58` | Local Markdown link target does not exist: `../content/maps/monastery_quarter.rrmap` |
 | `BROKEN_LINK` | `docs/FLORA_FAUNA.md:59` | Local Markdown link target does not exist: `../content/maps/monastery_quarter.rrmap` |
 | `BROKEN_LINK` | `docs/FLORA_FAUNA.md:59` | Local Markdown link target does not exist: `../content/maps/reval_harbor_north.rrmap` |
@@ -224,6 +225,7 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/adr/0034-cutscene-mode-and-cinematic-prologue.md`
 - `docs/adr/0035-game-audio-sourcing-and-sfx-system.md`
 - `docs/adr/0036-jump-vault-and-expanded-melee-verbs.md`
+- `docs/adr/0037-realtime-3d-spirit-arena-and-topic-spells.md`
 - `docs/adr/README.md`
 - `docs/AGENT_LOOPS.md`
 - `docs/ANIMAL_3D_SOURCING.md`

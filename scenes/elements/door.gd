@@ -1,6 +1,5 @@
-extends Area2D
-
 class_name Door
+extends Area2D
 
 const AudioBusService := preload("res://scripts/settings/audio_bus_service.gd")
 const SfxPlayerScript := preload("res://scripts/audio/sfx_player.gd")

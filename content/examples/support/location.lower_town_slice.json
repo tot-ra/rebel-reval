@@ -11,7 +11,7 @@
   },
   "description": "Support copy of the active Lower Town slice location for example-corpus reference checks.",
   "gameplay_space": true,
-  "scene_path": "res://scenes/reval_east/reval_east.tscn",
+  "scene_path": "res://scenes/world/reval_city/reval_city.tscn",
   "spawn_ids": [
     "street_start",
     "forge"

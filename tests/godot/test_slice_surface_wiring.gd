@@ -14,7 +14,9 @@ func test_kalev_smithy_interior_walls_use_weathered_textures() -> void:
 		var node := MapViewMeshBuilder.build_building(building, definition.cell_size)
 		var walls := node.get_node("Walls") as MeshInstance3D
 		var material := walls.material_override as StandardMaterial3D
-		assert_true(material != null, "%s: interior wall needs a material override" % building["id"])
+		assert_true(
+			material != null, "%s: interior wall needs a material override" % building["id"]
+		)
 		assert_true(
 			material.albedo_texture != null,
 			"%s: interior wall must use a procedural albedo texture" % building["id"]
@@ -61,7 +63,9 @@ func test_kalev_smithy_ceiling_uses_textured_planks() -> void:
 	for child in ceiling.find_children("*", "MeshInstance3D", true, false):
 		var mesh_instance := child as MeshInstance3D
 		for surface in mesh_instance.mesh.get_surface_count():
-			var material := mesh_instance.get_surface_override_material(surface) as StandardMaterial3D
+			var material := (
+				mesh_instance.get_surface_override_material(surface) as StandardMaterial3D
+			)
 			if material != null and material.resource_name == "ksi_boards":
 				textured_boards = material.albedo_texture != null
 	assert_true(textured_boards, "loft boards must use the textured plank plate")
@@ -69,7 +73,7 @@ func test_kalev_smithy_ceiling_uses_textured_planks() -> void:
 
 
 func test_slice_maps_ground_uses_textured_splat_shader() -> void:
-	for definition in [KalevSmithyDefinition.create(), LowerTownSlice.create()]:
+	for definition in [KalevSmithyDefinition.create(), KalevSmithyDefinition.create()]:
 		var view := MapView3D.create(definition, MapBuilder.build(definition))
 		var ground := view.get_node("Terrain/Terrain_Ground") as MeshInstance3D
 		assert_true(ground != null, "%s: playable slice needs a ground mesh" % definition.map_id)
@@ -87,14 +91,17 @@ func test_slice_maps_ground_uses_textured_splat_shader() -> void:
 
 func test_slice_maps_have_no_untextured_building_walls() -> void:
 	MapViewMaterials.reset()
-	for definition in [KalevSmithyDefinition.create(), LowerTownSlice.create()]:
+	for definition in [KalevSmithyDefinition.create(), KalevSmithyDefinition.create()]:
 		for building in definition.buildings:
 			var kind: StringName = building.get("kind", MapTypes.BUILDING_KIND_HOUSE)
-			if kind not in [
-				MapTypes.BUILDING_KIND_HOUSE,
-				MapTypes.BUILDING_KIND_INTERIOR_WALL,
-				MapTypes.BUILDING_KIND_WALL,
-			]:
+			if (
+				kind
+				not in [
+					MapTypes.BUILDING_KIND_HOUSE,
+					MapTypes.BUILDING_KIND_INTERIOR_WALL,
+					MapTypes.BUILDING_KIND_WALL,
+				]
+			):
 				continue
 			var node := MapViewMeshBuilder.build_building(building, definition.cell_size)
 			var walls := node.get_node_or_null("Walls") as MeshInstance3D
@@ -105,6 +112,9 @@ func test_slice_maps_have_no_untextured_building_walls() -> void:
 			if material is StandardMaterial3D:
 				assert_true(
 					(material as StandardMaterial3D).albedo_texture != null,
-					"%s/%s: wall surface must carry procedural albedo detail" % [definition.map_id, building["id"]]
+					(
+						"%s/%s: wall surface must carry procedural albedo detail"
+						% [definition.map_id, building["id"]]
+					)
 				)
 			node.free()

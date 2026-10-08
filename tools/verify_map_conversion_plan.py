@@ -272,7 +272,8 @@ def validate_map_conversion_plan(
         if not task["constraints"]:
             errors.append(ValidationError(f"task `{task_id}` has no constraints"))
 
-    # Approved production conversion is intentionally restricted to these two legacy scenes.
+    # Approved production conversion is intentionally restricted to the forge interior;
+    # the Lower Town exterior is now part of the generated reval_city plan (ADR 0031).
     production_targets = {
         row.scene
         for row in index_rows
@@ -280,7 +281,6 @@ def validate_map_conversion_plan(
     }
     expected_production_targets = {
         "scenes/reval_east/forge/forge.tscn",
-        "scenes/reval_east/reval_east.tscn",
     }
     if production_targets != expected_production_targets:
         errors.append(

@@ -11,7 +11,7 @@
   },
   "description": "Inactive prototype map for Pikk Street warehouses, salt stores, ropewalk, and St. Olaf guild workshop row.",
   "gameplay_space": true,
-  "scene_path": "res://scenes/reval_north/reval_north.tscn",
+  "scene_path": "res://scenes/world/reval_city/reval_city.tscn",
   "spawn_ids": [
     "merchant_court"
   ],

@@ -1,5 +1,6 @@
 extends "res://tests/godot/map_view_3d_test_base.gd"
 
+
 func test_night_state_is_deterministic_and_darker() -> void:
 	var definition := SmithyCourtyard.create()
 	var first := MapView3D.create(definition, MapBuilder.build(definition), MapView3D.TIME_NIGHT)
@@ -61,9 +62,7 @@ func test_cycle_progress_interpolates_lighting_and_advances() -> void:
 		23.5 / 24.0, DayNightCycle.CYCLE_DURATION_SECONDS / 24.0
 	)
 	assert_eq(
-		midnight_crossing["completed_days"],
-		1,
-		"clock advance must report a crossed midnight"
+		midnight_crossing["completed_days"], 1, "clock advance must report a crossed midnight"
 	)
 	assert_true(
 		is_equal_approx(float(midnight_crossing["progress"]), 0.5 / 24.0),
@@ -78,13 +77,11 @@ func test_view_uses_calendar_sun_direction_and_seasonal_daylight() -> void:
 	view.set_calendar_date({"day": 21, "month": 4, "year": 1343})
 	view.apply_cycle_progress(6.0 / 24.0)
 	assert_true(
-		view.sun_light().basis.z.x > 0.0,
-		"morning light must come from the eastern (+X) sky"
+		view.sun_light().basis.z.x > 0.0, "morning light must come from the eastern (+X) sky"
 	)
 	view.apply_cycle_progress(18.0 / 24.0)
 	assert_true(
-		view.sun_light().basis.z.x < 0.0,
-		"evening light must come from the western (-X) sky"
+		view.sun_light().basis.z.x < 0.0, "evening light must come from the western (-X) sky"
 	)
 
 	view.set_calendar_date({"day": 21, "month": 12, "year": 1343})
@@ -130,8 +127,10 @@ func test_night_directional_light_follows_lunar_phase_and_horizon() -> void:
 		"full moon must cast more directional light than new moon"
 	)
 	assert_true(
-		SkyWeather3D.moonlight_strength(0.0, {"day": 10, "month": 5, "year": 1343})
-			> SkyWeather3D.moonlight_strength(0.5, {"day": 10, "month": 5, "year": 1343}),
+		(
+			SkyWeather3D.moonlight_strength(0.0, {"day": 10, "month": 5, "year": 1343})
+			> SkyWeather3D.moonlight_strength(0.5, {"day": 10, "month": 5, "year": 1343})
+		),
 		"physical moonlight must fade after the moon sets"
 	)
 	view.free()
@@ -162,18 +161,16 @@ func test_evening_window_schedule_is_deterministic_and_bounded() -> void:
 		var start_hour := float(first["start_hour"])
 		var end_hour := float(first["end_hour"])
 		assert_true(
-			start_hour >= 18.0 and start_hour <= 20.5,
-			"evening glow should start near dusk"
+			start_hour >= 18.0 and start_hour <= 20.5, "evening glow should start near dusk"
 		)
 		assert_true(
-			end_hour >= 22.0 and end_hour <= 23.75,
-			"evening glow should end before midnight"
+			end_hour >= 22.0 and end_hour <= 23.75, "evening glow should end before midnight"
 		)
 		assert_true(end_hour > start_hour + 1.0, "lit hours must span a meaningful evening")
 
 
 func test_houses_get_evening_window_lights_with_per_building_variation() -> void:
-	var definition := LowerTownSlice.create()
+	var definition := KalevSmithyDefinition.create()
 	var participating := 0
 	var skipped := 0
 	var start_hours: Dictionary = {}
@@ -184,8 +181,7 @@ func test_houses_get_evening_window_lights_with_per_building_variation() -> void
 			continue
 		var node := MapViewMeshBuilder.build_building(building, definition.cell_size)
 		assert_true(
-			node.has_node("WindowLights"),
-			"%s: houses need evening window lights" % building["id"]
+			node.has_node("WindowLights"), "%s: houses need evening window lights" % building["id"]
 		)
 		var lights := node.get_node("WindowLights") as BuildingWindowLights3D
 		var schedule: Dictionary = BuildingWindowLights3D.evening_schedule_for(
@@ -212,7 +208,9 @@ func test_houses_get_evening_window_lights_with_per_building_variation() -> void
 					glass_mat == shared,
 					"%s: lit windows must duplicate glass materials" % building["id"]
 				)
-			assert_true(found_glass, "%s: participating houses still need glass panes" % building["id"])
+			assert_true(
+				found_glass, "%s: participating houses still need glass panes" % building["id"]
+			)
 			lights.apply_cycle_progress(22.0 / 24.0)
 			for child in node.get_children():
 				if not child is MeshInstance3D:
@@ -225,7 +223,8 @@ func test_houses_get_evening_window_lights_with_per_building_variation() -> void
 					continue
 				var glass_mat := mesh.material_override as StandardMaterial3D
 				if (
-					glass_mat != null and glass_mat.emission_enabled
+					glass_mat != null
+					and glass_mat.emission_enabled
 					and glass_mat.emission_energy_multiplier > 0.0
 				):
 					found_evening_glow = true
@@ -422,16 +421,17 @@ func test_glint_haze_transmittance_follows_mist_rain_and_elevation() -> void:
 	var low := MapViewLighting.glint_haze_transmittance(0.08, 1.0, 0.0)
 	assert_true(high < 1.0 and high > 0.6, "a high sun keeps most of its glint through thin mist")
 	assert_true(
-		low < high * 0.2,
-		"a low sun crosses the mist layer and loses most of its glitter path"
+		low < high * 0.2, "a low sun crosses the mist layer and loses most of its glitter path"
 	)
 	assert_true(
 		MapViewLighting.glint_haze_transmittance(-0.2, 1.0, 0.0) > 0.0,
 		"the horizon air mass is clamped so the gate stays finite"
 	)
 	assert_true(
-		MapViewLighting.glint_haze_transmittance(0.5, 0.0, 1.0)
-			< MapViewLighting.glint_haze_transmittance(0.5, 0.0, 0.0),
+		(
+			MapViewLighting.glint_haze_transmittance(0.5, 0.0, 1.0)
+			< MapViewLighting.glint_haze_transmittance(0.5, 0.0, 0.0)
+		),
 		"rain haze must dim the glint as well"
 	)
 
@@ -460,9 +460,20 @@ func test_morning_mist_dims_water_glints() -> void:
 	var glint := float(water.get_shader_parameter("sun_reflection_visibility"))
 	assert_true(glint < unhazed * 0.9, "dawn mist must dim the sun glitter path on water")
 	assert_true(
-		absf(glint - unhazed * MapViewLighting.glint_haze_transmittance(
-			presentation.sun_direction.y, mist, 0.0
-		)) < 1e-4,
+		(
+			absf(
+				(
+					glint
+					- (
+						unhazed
+						* MapViewLighting.glint_haze_transmittance(
+							presentation.sun_direction.y, mist, 0.0
+						)
+					)
+				)
+			)
+			< 1e-4
+		),
 		"the water glint must use the same mist amount as the Environment fog"
 	)
 	view.free()
@@ -477,8 +488,7 @@ func test_morning_mist_gathers_before_dawn_and_burns_off() -> void:
 		"the small hours before the mist window must be clear"
 	)
 	assert_true(
-		MapView3D._morning_mist_factor(12.0, sunrise) == 0.0,
-		"midday must be clear of morning mist"
+		MapView3D._morning_mist_factor(12.0, sunrise) == 0.0, "midday must be clear of morning mist"
 	)
 	assert_true(
 		MapView3D._morning_mist_factor(sunrise, sunrise) > 0.9,
@@ -486,17 +496,17 @@ func test_morning_mist_gathers_before_dawn_and_burns_off() -> void:
 	)
 	var pre_dawn := MapView3D._morning_mist_factor(sunrise - 1.5, sunrise)
 	assert_true(
-		pre_dawn > 0.0 and pre_dawn < 1.0,
-		"the mist must build through the pre-dawn, not snap on"
+		pre_dawn > 0.0 and pre_dawn < 1.0, "the mist must build through the pre-dawn, not snap on"
 	)
 	var burning_off := MapView3D._morning_mist_factor(sunrise + 1.5, sunrise)
 	assert_true(
-		burning_off > 0.0 and burning_off < 1.0,
-		"the mist must burn off gradually after sunrise"
+		burning_off > 0.0 and burning_off < 1.0, "the mist must burn off gradually after sunrise"
 	)
 	assert_true(
-		MapView3D._morning_mist_factor(sunrise + 1.0, sunrise)
-			< MapView3D._morning_mist_factor(sunrise - 0.5, sunrise) + 1.0,
+		(
+			MapView3D._morning_mist_factor(sunrise + 1.0, sunrise)
+			< MapView3D._morning_mist_factor(sunrise - 0.5, sunrise) + 1.0
+		),
 		"the mist envelope must be continuous across sunrise"
 	)
 
@@ -532,8 +542,7 @@ func test_enclosed_interior_suppresses_morning_ground_mist() -> void:
 
 	var outdoor_def := SmithyCourtyard.create()
 	assert_false(
-		outdoor_def.suppresses_exterior_surroundings(),
-		"courtyard control must stay an outdoor map"
+		outdoor_def.suppresses_exterior_surroundings(), "courtyard control must stay an outdoor map"
 	)
 	var outdoor := MapView3D.create(outdoor_def, MapBuilder.build(outdoor_def), MapView3D.TIME_DAY)
 	var outdoor_sky := outdoor.sky_weather()
@@ -543,8 +552,7 @@ func test_enclosed_interior_suppresses_morning_ground_mist() -> void:
 	outdoor.apply_cycle_progress(sunrise_progress)
 	var outdoor_env := (outdoor.get_node("ViewEnvironment") as WorldEnvironment).environment
 	assert_true(
-		outdoor_env.fog_enabled,
-		"outdoor sunrise mist must still form on fog-prone mornings"
+		outdoor_env.fog_enabled, "outdoor sunrise mist must still form on fog-prone mornings"
 	)
 	outdoor.free()
 
@@ -565,8 +573,5 @@ func test_enclosed_interior_suppresses_morning_ground_mist() -> void:
 	indoor.set_calendar_date(fog_date)
 	indoor.apply_cycle_progress(sunrise_progress)
 	var indoor_env := (indoor.get_node("ViewEnvironment") as WorldEnvironment).environment
-	assert_false(
-		indoor_env.fog_enabled,
-		"enclosed interiors must not render outdoor morning mist"
-	)
+	assert_false(indoor_env.fog_enabled, "enclosed interiors must not render outdoor morning mist")
 	indoor.free()

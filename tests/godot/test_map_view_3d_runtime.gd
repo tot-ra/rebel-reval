@@ -16,7 +16,8 @@ func test_runtime_hides_flat_map_visuals_without_disabling_collision() -> void:
 	building.add_child(collision)
 	var prop := Node2D.new()
 	var bootstrap := {
-		"assembled": {
+		"assembled":
+		{
 			"terrain": terrain,
 			"buildings": [building],
 			"props": [prop],
@@ -46,7 +47,7 @@ func test_runtime_maps_keyboard_to_screen_axes_and_preserves_facing_on_stop() ->
 	var tree := Engine.get_main_loop() as SceneTree
 	tree.root.add_child(scene_root)
 
-	var definition := LowerTownSlice.create()
+	var definition := KalevSmithyDefinition.create()
 	var bootstrap := {
 		"definition": definition,
 		"grid": MapBuilder.build(definition),
@@ -101,8 +102,7 @@ func test_runtime_maps_keyboard_to_screen_axes_and_preserves_facing_on_stop() ->
 		"rotating the view must re-project keyboard movement"
 	)
 	assert_true(
-		is_equal_approx(rotated_up.length(), 1.0),
-		"re-projected movement must stay normalized"
+		is_equal_approx(rotated_up.length(), 1.0), "re-projected movement must stay normalized"
 	)
 
 	var yaw_before_drag := camera.rotation_degrees.y
@@ -111,7 +111,11 @@ func test_runtime_maps_keyboard_to_screen_axes_and_preserves_facing_on_stop() ->
 	assert_true(
 		is_equal_approx(
 			camera.rotation_degrees.y,
-			wrapf(yaw_before_drag + 100.0 * MapViewRuntime.MOUSE_ROTATE_DEGREES_PER_PIXEL, -180.0, 180.0)
+			wrapf(
+				yaw_before_drag + 100.0 * MapViewRuntime.MOUSE_ROTATE_DEGREES_PER_PIXEL,
+				-180.0,
+				180.0
+			)
 		),
 		"right-click drag must orbit the camera horizontally"
 	)
@@ -130,7 +134,7 @@ func test_runtime_accepts_mouse_wheel_and_trackpad_zoom_input() -> void:
 	var tree := Engine.get_main_loop() as SceneTree
 	tree.root.add_child(scene_root)
 
-	var definition := LowerTownSlice.create()
+	var definition := KalevSmithyDefinition.create()
 	var bootstrap := {
 		"definition": definition,
 		"grid": MapBuilder.build(definition),
@@ -162,8 +166,7 @@ func test_runtime_accepts_mouse_wheel_and_trackpad_zoom_input() -> void:
 	magnify_in.factor = 1.1
 	runtime._unhandled_input(magnify_in)
 	assert_true(
-		camera.size < default_camera_size,
-		"trackpad pinch spread must zoom toward the player"
+		camera.size < default_camera_size, "trackpad pinch spread must zoom toward the player"
 	)
 
 	var magnify_out := InputEventMagnifyGesture.new()
@@ -202,7 +205,9 @@ func test_runtime_accepts_mouse_wheel_and_trackpad_zoom_input() -> void:
 		"zooming in past the close top-down size must restore third-person"
 	)
 	assert_true(
-		is_equal_approx(runtime.third_person_follow_distance(), MapViewRuntime.THIRD_PERSON_MAX_DISTANCE),
+		is_equal_approx(
+			runtime.third_person_follow_distance(), MapViewRuntime.THIRD_PERSON_MAX_DISTANCE
+		),
 		"restored third-person from top-down must start at the farthest boom"
 	)
 	scene_root.free()
@@ -250,10 +255,11 @@ func test_runtime_midnight_advances_view_date_and_lunar_phase() -> void:
 		"the rendered sky must receive the next campaign date at midnight"
 	)
 	var phase_step := fposmod(
-		SkyWeather3D.lunar_phase(runtime.view.sky_weather().calendar_date) - previous_phase,
-		1.0
+		SkyWeather3D.lunar_phase(runtime.view.sky_weather().calendar_date) - previous_phase, 1.0
 	)
-	assert_true(phase_step > 0.03 and phase_step < 0.04, "the visible moon phase must advance with the date")
+	assert_true(
+		phase_step > 0.03 and phase_step < 0.04, "the visible moon phase must advance with the date"
+	)
 	assert_true(
 		is_equal_approx(runtime.cycle_progress, 0.5 / 24.0),
 		"the sun clock must continue after midnight without losing elapsed time"
@@ -264,7 +270,10 @@ func test_runtime_midnight_advances_view_date_and_lunar_phase() -> void:
 
 func test_time_speed_ladder_steps_up_and_down_and_clamps() -> void:
 	var runtime := MapViewRuntime.new()
-	assert_true(is_equal_approx(runtime.effective_time_speed(), 1.0), "time must default to real-time pacing")
+	assert_true(
+		is_equal_approx(runtime.effective_time_speed(), 1.0),
+		"time must default to real-time pacing"
+	)
 	runtime.time_speed_up()
 	assert_true(is_equal_approx(runtime.time_speed, 2.0), "speeding up must step one rung faster")
 	runtime.time_speed_down()
@@ -273,10 +282,16 @@ func test_time_speed_ladder_steps_up_and_down_and_clamps() -> void:
 	# The ladder must clamp at both ends instead of running off.
 	for step in 20:
 		runtime.time_speed_up()
-	assert_true(is_equal_approx(runtime.time_speed, MapViewRuntime.TIME_SPEED_LADDER[-1]), "fastest speed must clamp")
+	assert_true(
+		is_equal_approx(runtime.time_speed, MapViewRuntime.TIME_SPEED_LADDER[-1]),
+		"fastest speed must clamp"
+	)
 	for step in 20:
 		runtime.time_speed_down()
-	assert_true(is_equal_approx(runtime.time_speed, MapViewRuntime.TIME_SPEED_LADDER[0]), "slowest speed must clamp")
+	assert_true(
+		is_equal_approx(runtime.time_speed, MapViewRuntime.TIME_SPEED_LADDER[0]),
+		"slowest speed must clamp"
+	)
 	runtime.free()
 
 
@@ -287,11 +302,18 @@ func test_pause_freezes_flow_but_keeps_the_chosen_speed() -> void:
 	assert_true(is_equal_approx(runtime.time_speed, 4.0), "precondition: a fast speed is chosen")
 	runtime.toggle_time_pause()
 	assert_true(runtime.time_paused, "pausing must set the paused flag")
-	assert_true(is_equal_approx(runtime.effective_time_speed(), 0.0), "a paused clock must not advance")
-	assert_true(is_equal_approx(runtime.time_speed, 4.0), "pausing must not discard the chosen speed")
+	assert_true(
+		is_equal_approx(runtime.effective_time_speed(), 0.0), "a paused clock must not advance"
+	)
+	assert_true(
+		is_equal_approx(runtime.time_speed, 4.0), "pausing must not discard the chosen speed"
+	)
 	runtime.toggle_time_pause()
 	assert_false(runtime.time_paused, "toggling again must resume")
-	assert_true(is_equal_approx(runtime.effective_time_speed(), 4.0), "resuming must restore the chosen speed")
+	assert_true(
+		is_equal_approx(runtime.effective_time_speed(), 4.0),
+		"resuming must restore the chosen speed"
+	)
 	runtime.free()
 
 
@@ -299,12 +321,18 @@ func test_speeding_up_while_paused_resumes_and_reset_returns_to_realtime() -> vo
 	var runtime := MapViewRuntime.new()
 	runtime.set_time_paused(true)
 	runtime.time_speed_up()
-	assert_false(runtime.time_paused, "nudging the speed must resume a paused clock so the key always does something")
+	assert_false(
+		runtime.time_paused,
+		"nudging the speed must resume a paused clock so the key always does something"
+	)
 	runtime.set_time_speed(8.0)
 	runtime.set_time_paused(true)
 	runtime.reset_time_flow()
 	assert_false(runtime.time_paused, "reset must unpause")
-	assert_true(is_equal_approx(runtime.effective_time_speed(), 1.0), "reset must return to real-time pacing")
+	assert_true(
+		is_equal_approx(runtime.effective_time_speed(), 1.0),
+		"reset must return to real-time pacing"
+	)
 	runtime.free()
 
 
@@ -338,9 +366,7 @@ func test_runtime_facade_preserves_ambient_controls_and_camera_contract() -> voi
 		"uninstalled bird audio must report no active voices"
 	)
 	assert_eq(
-		runtime.bird_flight_active_count(),
-		0,
-		"uninstalled bird flight must report no active birds"
+		runtime.bird_flight_active_count(), 0, "uninstalled bird flight must report no active birds"
 	)
 	assert_eq(
 		runtime.urban_fauna_active_count(),
@@ -358,9 +384,7 @@ func test_runtime_facade_preserves_ambient_controls_and_camera_contract() -> voi
 		"uninstalled insect audio must report no active voices"
 	)
 	assert_eq(
-		runtime.crowd_active_count(),
-		0,
-		"uninstalled crowd rendering must report no active actors"
+		runtime.crowd_active_count(), 0, "uninstalled crowd rendering must report no active actors"
 	)
 
 	runtime.set_bird_audio_enabled(false)
@@ -371,15 +395,25 @@ func test_runtime_facade_preserves_ambient_controls_and_camera_contract() -> voi
 	runtime.set_crowd_enabled(false)
 	var ambient: MapViewRuntimeAmbient = runtime._ambient_controller
 	assert_false(ambient._bird_audio_enabled, "bird audio toggle must persist before installation")
-	assert_false(ambient._bird_flight_enabled, "bird flight toggle must persist before installation")
-	assert_false(ambient._urban_fauna_enabled, "urban fauna toggle must persist before installation")
-	assert_false(ambient._penned_fauna_enabled, "penned fauna toggle must persist before installation")
-	assert_false(ambient._insect_audio_enabled, "insect audio toggle must persist before installation")
+	assert_false(
+		ambient._bird_flight_enabled, "bird flight toggle must persist before installation"
+	)
+	assert_false(
+		ambient._urban_fauna_enabled, "urban fauna toggle must persist before installation"
+	)
+	assert_false(
+		ambient._penned_fauna_enabled, "penned fauna toggle must persist before installation"
+	)
+	assert_false(
+		ambient._insect_audio_enabled, "insect audio toggle must persist before installation"
+	)
 	assert_false(ambient._crowd_enabled, "crowd toggle must persist before installation")
 
 	assert_eq(MapViewRuntime.FOLLOW_LERP_WEIGHT, MapViewRuntimeCamera.FOLLOW_LERP_WEIGHT)
 	assert_eq(MapViewRuntime.ZOOM_STEP_FACTOR, MapViewRuntimeCamera.ZOOM_STEP_FACTOR)
-	assert_eq(MapViewRuntime.THIRD_PERSON_MAX_DISTANCE, MapViewRuntimeCamera.THIRD_PERSON_MAX_DISTANCE)
+	assert_eq(
+		MapViewRuntime.THIRD_PERSON_MAX_DISTANCE, MapViewRuntimeCamera.THIRD_PERSON_MAX_DISTANCE
+	)
 	assert_eq(MapViewRuntime.FIRST_PERSON_EYE_HEIGHT, MapViewRuntimeCamera.FIRST_PERSON_EYE_HEIGHT)
 	runtime.free()
 
@@ -410,19 +444,45 @@ func test_environment_binding_keeps_weather_identity_across_map_transition() -> 
 	var expected_weather := weather.weather
 	var expected_offset := weather.cloud_offset()
 	exterior._bind_environment_runtime()
-	assert_true(exterior.view.environment_binding_active(), "rebinding the same runtime must be idempotent")
+	assert_true(
+		exterior.view.environment_binding_active(), "rebinding the same runtime must be idempotent"
+	)
 	interior._bind_environment_runtime()
 	assert_false(exterior.view.environment_binding_active(), "old map binding must be deactivated")
-	assert_true(interior.view.environment_binding_active(), "new map must become the only active binding")
-	assert_eq(interior.view.sky_weather().weather, expected_weather, "weather identity must survive the handoff")
-	assert_true(interior.view.sky_weather().cloud_offset().is_equal_approx(expected_offset), "cloud drift must survive the handoff")
-	assert_true(interior.view.sky_weather().rain_suppressed, "interior roof suppression is presentation-only")
+	assert_true(
+		interior.view.environment_binding_active(), "new map must become the only active binding"
+	)
+	assert_eq(
+		interior.view.sky_weather().weather,
+		expected_weather,
+		"weather identity must survive the handoff"
+	)
+	assert_true(
+		interior.view.sky_weather().cloud_offset().is_equal_approx(expected_offset),
+		"cloud drift must survive the handoff"
+	)
+	assert_true(
+		interior.view.sky_weather().rain_suppressed,
+		"interior roof suppression is presentation-only"
+	)
 	interior._bind_environment_runtime()
 	exterior._bind_environment_runtime()
-	assert_false(interior.view.environment_binding_active(), "returning outside must release the interior binding")
-	assert_false(exterior.view.sky_weather().rain_suppressed, "exterior binding must restore visible rain")
-	assert_eq(exterior.view.sky_weather().weather, expected_weather, "returning outside must keep weather identity")
-	assert_true(exterior.view.sky_weather().cloud_offset().is_equal_approx(expected_offset), "returning outside must keep cloud offset")
+	assert_false(
+		interior.view.environment_binding_active(),
+		"returning outside must release the interior binding"
+	)
+	assert_false(
+		exterior.view.sky_weather().rain_suppressed, "exterior binding must restore visible rain"
+	)
+	assert_eq(
+		exterior.view.sky_weather().weather,
+		expected_weather,
+		"returning outside must keep weather identity"
+	)
+	assert_true(
+		exterior.view.sky_weather().cloud_offset().is_equal_approx(expected_offset),
+		"returning outside must keep cloud offset"
+	)
 	exterior.free()
 	interior.free()
 	session_state.state.set_environment_state(null)

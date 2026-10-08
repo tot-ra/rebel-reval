@@ -179,7 +179,7 @@ const MAPS: Dictionary = {
             json.dump({"scenes": [{"id": "forge", "active": True, "release": True}]}, f)
 
         errors = verify_release_scope(dest_path, self.temp_dir.name)
-        self.assertTrue(any("forge, reval_east and reval_city" in error for error in errors))
+        self.assertTrue(any("forge and reval_city" in error for error in errors))
 
 if __name__ == '__main__':
     unittest.main()

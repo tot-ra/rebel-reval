@@ -72,10 +72,6 @@ Inventory row count (data rows in the table below): **135**.
 | 25 | `scenes/events/saaremaa.tscn` | archive | Empty `Node2D`; campaign location outside slice. |
 | 26 | `scenes/events/swedesh_outpost.tscn` | archive | Empty `Node2D`; campaign location outside slice. |
 | 27 | `scenes/events/swedish_arrival.tscn` | archive | Empty `Node2D`; fleet arrival event outside slice. |
-| 28 | `scenes/harbor/harbor.tscn` | placeholder | Single screenshot sprite; no player, doors, or navigation. |
-| 74 | `scenes/harbor/harbor_north.tscn` | partial | Inactive Trade Harbour prototype; developer traversal only. |
-| 75 | `scenes/harbor/harbor_east.tscn` | partial | Inactive Fishing Harbour prototype; developer traversal only. |
-| 29 | `scenes/harbor/warehouse.tscn` | partial | Inactive programmatic warehouse interior prototype (`active=false`); ADR 0006 scope expansion. |
 | 30 | `scenes/interaction/interactable.tscn` | working | Shared `Interactable` focus, prompt, and interaction range component. |
 | 31 | `scenes/interaction/interaction_test.tscn` | partial | Developer-only interaction and input verification scene. |
 | 32 | `scenes/intro/intro.tscn` | placeholder | Empty `Node2D`; intro video lives in `main_menu.tscn`. |
@@ -84,24 +80,9 @@ Inventory row count (data rows in the table below): **135**.
 | 35 | `scenes/menu/main_menu.tscn` | working | `run/main_scene`; Start/Exit UI, video, audio; P0-017 smoke pass. |
 | 36 | `scenes/menu/credits.tscn` | working | Credits roll overlay opened from the main menu. |
 | 128 | `scenes/menu/assets_library.tscn` | working | Main-menu 3D model browser with orbit preview and clip playback. |
-| 37 | `scenes/reval_center/market_civic_quarter/olaf_guild_hall.tscn` | partial | Inactive programmatic guild hall interior prototype; not in active destinations. |
-| 91 | `scenes/reval_north/oleviste_church/oleviste_church.tscn` | partial | Inactive St. Olaf's Church interior prototype; developer traversal from Monastery District. |
-| 77 | `scenes/reval_archbishops_garden/reval_archbishops_garden.tscn` | partial | Inactive Archbishop's Garden western Toompea prototype; developer traversal only. |
-| 38 | `scenes/reval_center/reval_center.tscn` | partial | Unified inactive Central District prototype containing Town Hall market square and civic quarter; release-gated. |
-| 92 | `scenes/reval_center/holy_spirit_church/holy_spirit_church.tscn` | partial | Inactive Holy Spirit Church interior prototype; developer traversal from Central District. |
-| 93 | `scenes/reval_center/town_hall/town_hall.tscn` | partial | Inactive early Town Hall interior prototype; developer traversal from market civic quarter. |
 | 39 | `scenes/reval_east/forge/forge.tscn` | working | Programmatic smithy interior; `DoorNavigator` target with stable anchors and courtyard transition. |
 | 40 | `scenes/reval_east/forge/forge_cat.tscn` | working | Ambient smithy cat with navigation and idle behavior. |
 | 41 | `scenes/reval_east/forge/smithy_henning.tscn` | working | Smithy apprentice Henning with patrol and idle behavior. |
-| 42 | `scenes/reval_east/reval_east.tscn` | working | Programmatic bounded Lower Town exterior; default Start destination via manifest. |
-| 78 | `scenes/reval_east/viru_gate_foreland/viru_gate_foreland.tscn` | partial | Inactive Pirita River crossing prototype (stable ID `viru_gate_foreland`); developer traversal only and release-gated. |
-| 73 | `scenes/reval_monastery/reval_monastery.tscn` | partial | Inactive Monastery District prototype; developer traversal only. |
-| 43 | `scenes/reval_north/reval_north.tscn` | partial | Inactive programmatic north quarter prototype; developer traversal only. |
-| 44 | `scenes/reval_south/reval_south.tscn` | partial | Inactive southern quarter prototype (Rataskaev / Karja approach); developer traversal only. |
-| 45 | `scenes/reval_toompea/reval_toompea.tscn` | partial | Inactive Toompea Upper Town prototype; developer traversal via Lühike Jalg. |
-| 46 | `scenes/reval_toompea/domberg.tscn` | archive | Empty `Node2D`; legacy Toompea castle shell. |
-| 47 | `scenes/reval_toompea/maria_toomkirik.tscn` | archive | Empty `Node2D`; legacy cathedral shell. |
-| 135 | `scenes/reval_toompea/toompea_small_castle.tscn` | partial | Inactive Danish Small Castle interior; developer traversal from Toompea. |
 | 48 | `scenes/tests/font_glyph_render_test.tscn` | partial | Dev-only font glyph verification; not player-facing. |
 | 49 | `scenes/tests/dialogue_ui_test.tscn` | partial | Dev-only dialogue UI and settings review scene (P1-012/P1-013). |
 | 50 | `scenes/tests/dialogue_overflow_test.tscn` | partial | Dev-only pseudo-localization overflow review scene (P1-014). |
@@ -213,10 +194,6 @@ Both commands should print `135` on a clean checkout at this revision.
 | 106 | `scenes/debug/asset_showcase_large.tscn` | partial | Developer-only large asset review scene. |
 | 107 | `scenes/debug/characters_animals_showcase.tscn` | partial | Developer-only character and animal review scene. |
 | 108 | `scenes/reval_east/forge/smithy_mart.tscn` | working | Mart smithy routine child actor scene. |
-| 109 | `scenes/reval_east/workers_district_bandit.tscn` | working | Workers District bandit child actor scene. |
-| 110 | `scenes/reval_monastery/kuldjala_interior.tscn` | partial | Inactive declarative Kuldjala tower prototype. |
-| 111 | `scenes/reval_monastery/nunnatorn_interior.tscn` | partial | Inactive declarative Nunnatorn tower prototype. |
-| 112 | `scenes/reval_north/rentenitorn_interior.tscn` | partial | Inactive declarative Rentenitorn tower prototype. |
 | 113 | `tools/benchmarks/renderer_comparison_benchmark.tscn` | partial | Developer-only renderer comparison host. |
 | 116 | `assets/storybook/equipment/hammer.tscn` | working | Grounded live actor or held prop; P0-206. |
 | 118 | `assets/storybook/equipment/sword.tscn` | working | Grounded live actor or held prop; P0-206. |
@@ -250,6 +227,8 @@ Both commands should print `135` on a clean checkout at this revision.
 | 153 | `assets/characters/variants/citizen_m_elder_thin.tscn` | working | Seamless city citizen or cast body (MPFB pipeline). |
 | 154 | `scenes/cutscene/prologue_opening.tscn` | working | Prologue cutscene or almshouse opening. |
 | 155 | `scenes/prologue/almshouse_opening.tscn` | working | Prologue cutscene or almshouse opening. |
+| 159 | `scenes/prologue/almshouse_stage.tscn` | working | Prologue cutscene or almshouse opening. |
 | 156 | `tools/capture_city_citizens.tscn` | partial | Developer capture or profiling tool. |
 | 157 | `tools/capture_city_fauna.tscn` | partial | Developer capture or profiling tool. |
+| 160 | `tools/capture_city_households.tscn` | partial | Developer capture or profiling tool. |
 | 158 | `tools/profile_reval_city.tscn` | partial | Developer capture or profiling tool. |

@@ -4,7 +4,7 @@ extends "res://tests/godot/map_view_3d_test_base.gd"
 
 
 func test_perspective_modes_attach_practical_camera_attributes() -> void:
-	var fixture := _install_runtime(LowerTownSlice.create())
+	var fixture := _install_runtime(KalevSmithyDefinition.create())
 	var scene_root := fixture["scene_root"] as Node2D
 	var runtime := fixture["runtime"] as MapViewRuntime
 	var camera := runtime.view.view_camera()
@@ -25,19 +25,27 @@ func test_perspective_modes_attach_practical_camera_attributes() -> void:
 	_free_map_scene(scene_root)
 
 
-func _assert_perspective_attributes(camera: Camera3D, mode: MapViewRuntimeCamera.CameraMode) -> void:
+func _assert_perspective_attributes(
+	camera: Camera3D, mode: MapViewRuntimeCamera.CameraMode
+) -> void:
 	assert_true(camera.attributes is CameraAttributesPractical)
 	var attrs := camera.attributes as CameraAttributesPractical
-	var rendering_method := str(ProjectSettings.get_setting("rendering/renderer/rendering_method", ""))
+	var rendering_method := str(
+		ProjectSettings.get_setting("rendering/renderer/rendering_method", "")
+	)
 	var auto_exposure_supported := rendering_method == "forward_plus"
 	var dof_supported := rendering_method in ["forward_plus", "mobile"]
 	assert_eq(attrs.auto_exposure_enabled, auto_exposure_supported)
 	if auto_exposure_supported:
 		assert_true(
-			is_equal_approx(attrs.auto_exposure_scale, MapViewRuntimeCamera.PERSPECTIVE_AUTO_EXPOSURE_SCALE)
+			is_equal_approx(
+				attrs.auto_exposure_scale, MapViewRuntimeCamera.PERSPECTIVE_AUTO_EXPOSURE_SCALE
+			)
 		)
 		assert_true(
-			is_equal_approx(attrs.exposure_sensitivity, MapViewRuntimeCamera.PERSPECTIVE_EXPOSURE_SENSITIVITY)
+			is_equal_approx(
+				attrs.exposure_sensitivity, MapViewRuntimeCamera.PERSPECTIVE_EXPOSURE_SENSITIVITY
+			)
 		)
 	assert_false(attrs.dof_blur_near_enabled, "near blur would soften the player in close follow")
 	assert_eq(
@@ -50,17 +58,25 @@ func _assert_perspective_attributes(camera: Camera3D, mode: MapViewRuntimeCamera
 	match mode:
 		MapViewRuntimeCamera.CameraMode.THIRD_PERSON:
 			assert_true(
-				is_equal_approx(attrs.dof_blur_amount, MapViewRuntimeCamera.THIRD_PERSON_DOF_BLUR_AMOUNT)
+				is_equal_approx(
+					attrs.dof_blur_amount, MapViewRuntimeCamera.THIRD_PERSON_DOF_BLUR_AMOUNT
+				)
 			)
 			assert_true(
-				is_equal_approx(attrs.dof_blur_far_distance, MapViewRuntimeCamera.THIRD_PERSON_DOF_FAR_DISTANCE)
+				is_equal_approx(
+					attrs.dof_blur_far_distance, MapViewRuntimeCamera.THIRD_PERSON_DOF_FAR_DISTANCE
+				)
 			)
 		MapViewRuntimeCamera.CameraMode.FIRST_PERSON:
 			assert_true(
-				is_equal_approx(attrs.dof_blur_amount, MapViewRuntimeCamera.FIRST_PERSON_DOF_BLUR_AMOUNT)
+				is_equal_approx(
+					attrs.dof_blur_amount, MapViewRuntimeCamera.FIRST_PERSON_DOF_BLUR_AMOUNT
+				)
 			)
 			assert_true(
-				is_equal_approx(attrs.dof_blur_far_distance, MapViewRuntimeCamera.FIRST_PERSON_DOF_FAR_DISTANCE)
+				is_equal_approx(
+					attrs.dof_blur_far_distance, MapViewRuntimeCamera.FIRST_PERSON_DOF_FAR_DISTANCE
+				)
 			)
 
 

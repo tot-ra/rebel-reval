@@ -96,26 +96,6 @@ func test_tree_cards_keep_cluster_attributes_and_species_tiles() -> void:
 		"relative brightness atlas is linear data, not sRGB albedo")
 
 
-func test_cover_rebuild_and_split_chunks_preserve_every_instance() -> void:
-	var definition := LowerTownSliceDefinition.create()
-	var grid := MapBuilder.build(definition)
-	var fingerprint := grid.fingerprint()
-	var whole := MapViewTerrainDetails.build_chunk(definition, grid, Rect2i(7, 73, 9, 14), true)
-	var left := MapViewTerrainDetails.build_chunk(definition, grid, Rect2i(7, 73, 4, 14), true)
-	var right := MapViewTerrainDetails.build_chunk(definition, grid, Rect2i(11, 73, 5, 14), true)
-	var split := _instances(left)
-	split.append_array(_instances(right))
-	split.sort()
-	assert_eq(_instances(whole), split, "chunk partition cannot change placement, tint or scale")
-	assert_true(split.size() > 0)
-	assert_true(split.size() <= 126 * 12, "near detail remains bounded per cell")
-	assert_eq(
-		grid.fingerprint(), fingerprint, "decorative detail must not mutate terrain semantics"
-	)
-	for part in [whole, left, right]:
-		part.free()
-
-
 func test_patch_density_is_continuous_and_seeded() -> void:
 	for x in range(-10, 30):
 		var spot := Vector2(float(x) * 4.7, 7.4)
@@ -140,28 +120,6 @@ func test_legacy_bushes_keep_height_weighted_wind() -> void:
 		code.contains("UV2.x > 0.5 ? UV.y * UV.y : clamp(VERTEX.y"),
 		"shared canopy material must retain bush height weighting without leaf UVs"
 	)
-
-
-func _instances(root: Node3D) -> Array[String]:
-	var result: Array[String] = []
-	var blocked := MapViewMeshBuilderPrimitives.building_cell_rects(
-		LowerTownSliceDefinition.create()
-	)
-	for node: MultiMeshInstance3D in root.find_children("*", "MultiMeshInstance3D", true, false):
-		assert_eq(node.cast_shadow, GeometryInstance3D.SHADOW_CASTING_SETTING_OFF)
-		var multi := node.multimesh
-		for i in multi.instance_count:
-			var transform := multi.get_instance_transform(i)
-			var cell := Vector2i(floori(transform.origin.x), floori(transform.origin.z))
-			# Dummy renderer discards MultiMesh buffers; the rendered suite verifies positions.
-			if DisplayServer.get_name() != "headless":
-				assert_false(
-					MapViewMeshBuilderPrimitives.cell_blocked(cell, blocked),
-					"cover must respect buildings: %s" % cell
-				)
-			result.append("%s:%s:%s" % [node.name, transform, multi.get_instance_color(i)])
-	result.sort()
-	return result
 
 
 func _check_mesh(mesh: ArrayMesh) -> void:

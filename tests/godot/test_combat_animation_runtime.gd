@@ -24,7 +24,7 @@ func test_left_click_roll_and_cast_animate_the_3d_player_rig() -> void:
 	scene_root.add_child(actors)
 	actors.add_child(player)
 	tree.root.add_child(scene_root)
-	var definition := LowerTownSlice.create()
+	var definition := KalevSmithyDefinition.create()
 	var bootstrap := {
 		"definition": definition,
 		"grid": MapBuilder.build(definition),
