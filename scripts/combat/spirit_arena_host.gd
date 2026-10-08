@@ -293,6 +293,9 @@ func _process(delta: float) -> void:
 		# In the 3D arena the dodge is the hero's own roll out of the zone, not i-frames.
 		if motion == null and Input.is_action_just_pressed(&"player_dodge"):
 			duel.dodge()
+	elif _won_and_over():
+		if Input.is_action_just_pressed(&"interact"):
+			close()
 	elif (
 		Input.is_action_just_pressed(&"interact")
 		and Engine.get_process_frames() != _answered_frame
@@ -416,10 +419,17 @@ func _write_position(body: Node, at: Vector3) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if _open and event.is_action_pressed(&"interact") and duel.phase == SpiritDuel.PHASE_WON:
-		if duel.acknowledge() or duel.is_over():
-			close()
+	if _open and not _observing and event.is_action_pressed(&"interact") and _won_and_over():
+		close()
 		get_viewport().set_input_as_handled()
+
+
+## The duel reached its winning node. Acknowledging must not advance the runner past it:
+## that moved the phase off WON (next node -> LINE), so nothing ever closed the arena and the
+## prologue never continued to Kalev after the fight.
+func _won_and_over() -> bool:
+	var result := String(duel.last_outcome.get("result", ""))
+	return duel.is_over() and result == String(SpiritDuel.PHASE_WON)
 
 
 func form_view() -> SpiritFormView:
