@@ -134,8 +134,8 @@ float cell_hash(float n) {
 
 
 // A jagged cloud-to-ground channel from `top` to `ground` with two side branches.
-// Returns brightness (core + glow) for the eye ray; width stays a few pixels at
-// any distance, with a physical floor so a close strike reads as a thick bolt.
+// Returns brightness (core + glow) for the eye ray; a hairline at any distance
+// with a thin physical width that only shows on a very close strike.
 float cell_bolt(vec3 ro, vec3 rd, vec3 top, vec3 ground, float seed) {
 	const int KINKS = 9;
 	float best = 1e9;
@@ -176,12 +176,21 @@ float cell_bolt(vec3 ro, vec3 rd, vec3 top, vec3 ground, float seed) {
 		}
 		prev = next;
 	}
+	// Widths are angular half-widths (radians). A real luminous channel is a few
+	// centimetres to decimetres across, so it is sub-pixel past a few hundred metres
+	// and photographs as a hairline: the physical term (0.35 m) only matters for a
+	// strike very close by, and the floor (~0.6 px at 1080p / 70 deg FOV) keeps the
+	// line unbroken without inflating it. The halo stays below 1.0 even after the
+	// caller's x4 HDR gain, so only the core saturates and the scene glow adds the
+	// soft bloom instead of a painted fat stroke.
 	float ang = best / max(best_t, 1.0);
-	float width = max(0.0009, 2.5 / max(best_t, 1.0));
+	float width = max(0.0007, 0.35 / max(best_t, 1.0));
 	float core = 1.0 - smoothstep(width * 0.5, width, ang);
-	float glow = exp(-ang / (width * 6.0)) * 0.35;
+	float glow = exp(-ang / (width * 3.0)) * 0.12;
+	// Branches carry less current: thinner and dimmer than the main stroke.
 	float b_ang = branch_best / max(branch_t, 1.0);
-	float branch = (1.0 - smoothstep(width * 0.3, width * 0.7, b_ang)) * 0.45
-		+ exp(-b_ang / (width * 4.0)) * 0.12;
+	float b_width = max(0.0006, 0.15 / max(branch_t, 1.0));
+	float branch = (1.0 - smoothstep(b_width * 0.5, b_width, b_ang)) * 0.4
+		+ exp(-b_ang / (b_width * 2.5)) * 0.05;
 	return core + glow + branch;
 }
