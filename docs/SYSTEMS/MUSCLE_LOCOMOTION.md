@@ -44,7 +44,7 @@ Design points that mattered:
 
 | Creature | Result | Evidence |
 |---|---|---|
-| Biped, one generalist controller for many bodies (6 joints, 12 muscles, 247 parameters) | Six named bodies all walk 15 s with an alternating gait at about 2 Hz: normal (75 kg), dwarf (size 0.65), tall (1.12), heavy (mass x1.5), armoured (+20 % load), belly (+13 % mass forward). Speeds 0.82 to 1.07 m/s against a 1.04 m/s target. On 45 random test cases (bodies and speeds, 15 of them on bodies seen in training, 30 held out) 38 survive 15 s; all 7 failures are at the smallest size (0.6) or at the fastest speed | [`results/biped_general_gallery.png`](../../tools/research/muscle_locomotion/results/biped_general_gallery.png), `biped_general*_clip.json` |
+| Biped, one generalist controller for many bodies (6 joints, 12 muscles, symmetric: 127 parameters) | Trained on the narrow range (size 0.9 to 1.1, mass x0.9 to 1.2, load up to 10 %). All six named bodies stay up 15 s with legs that alternate and pass each other, but speed is below target: normal 0.84 m/s (target 1.04), dwarf 0.39 (0.84), tall 0.92 (1.11), heavy 0.69, armoured 0.72, belly 0.54. 29 of 30 held-out narrow-range cases survive 15 s. The earlier non-symmetric version tracked speed better but walked with one leg always ahead (`results/demo/biped_planar_bodies.gif`, kept as the before picture); the symmetric one is `biped_planar_symmetric_v1.gif`. Wide-range retraining with a higher speed weight was interrupted by a session restart | [`results/biped_general_gallery.png`](../../tools/research/muscle_locomotion/results/biped_general_gallery.png), `results/demo/*.gif`, `biped_general*_clip.json` |
 | Quadruped, same generalist method | Training queued; the earlier single-body quadruped (0.77 m/s, 8 s) used the previous code and was removed with its stale results | n/a |
 | Bird, snake, human sit/stand/fight | Not built | n/a |
 
@@ -62,7 +62,7 @@ The prototype was visually checked only through stick-figure filmstrips. There i
 ## Verification
 
 
-`python render.py results/biped_general.json --fr 0.35` replays the stored controller on six named bodies and must print `alive 1.00` for each, with speeds about 1.07, 0.87, 1.07, 0.82, 0.84, 0.86 m/s (normal, dwarf, tall, heavy, armoured, belly) and writes the gallery and clips. There are no automated tests yet.
+`python render.py results/biped_general.json --fr 0.35` replays the stored controller on six named bodies and must print `alive 1.00` for each, with speeds about 0.84, 0.39, 0.92, 0.69, 0.72, 0.54 m/s (normal, dwarf, tall, heavy, armoured, belly) and writes the gallery and clips. There are no automated tests yet.
 
 ## Pushing evolution toward natural gaits
 

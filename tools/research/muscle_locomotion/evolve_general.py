@@ -93,6 +93,8 @@ if __name__ == "__main__":
             f = pool.map(_eval, [(a.creature, x, scen, a.T) for x in X])
             es.tell(X, f)
             i = int(np.argmin(f))
+            if g % 25 == 0:      # checkpoint so an interrupted session can resume with --init
+                json.dump(dict(creature=a.creature, ranges=a.ranges, fr=a.fr, gen=g, params=list(map(float, es.result.xfavorite))), open(a.out + ".partial", "w"))
             if g % 20 == 0 or g == a.gens - 1:
                 print(f"gen {g:4d} mean-best {min(f):.3f} median {np.median(f):.3f} [{time.time()-t0:.0f}s]", flush=True)
             if g == a.gens - 1 or g % 20 == 0:

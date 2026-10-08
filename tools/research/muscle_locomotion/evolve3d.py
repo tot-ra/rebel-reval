@@ -34,6 +34,8 @@ def run(body, stages, pop, T, speed, seed, init, out_prefix):
                 X = es.ask()
                 f = pool.map(_eval, [(body, xi, T, speed, assist) for xi in X])
                 es.tell(X, f)
+                if g % 25 == 0:
+                    json.dump(dict(body=body, speed=speed, assist=assist, gen=g, params=list(map(float, es.result.xfavorite))), open(f"{out_prefix}_a{assist:.2f}.partial", "w"))
                 if g % 25 == 0 or g == gens - 1:
                     r = s0.rollout(np.array(es.result.xfavorite), T=T, speed=speed, assist=assist)
                     print(f"assist {assist:.2f} gen {g:4d} best {min(f):.3f} | mean-solution alive {r['alive']:.2f} speed {r['speed']:.2f} lat {r['lateral']:.2f} [{time.time()-t0:.0f}s]", flush=True)
