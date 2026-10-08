@@ -68,6 +68,11 @@ var surroundings_town_sides: Array[StringName] = []
 ## Per-side authored view continuation. Values are &"town", &"water", or
 ## &"woodland". Unlisted sides render no exterior backdrop.
 var surroundings_sides: Dictionary = {}
+## R-1322 authored vegetation override mask, view-only: `{id, rect (cells,
+## Rect2i), layer (VegetationEcology.MASK_LAYERS), density}` sorted by id.
+## Multiplies the ecology density of one layer (or `all`) inside the rect;
+## 0 clears planting, 2 doubles it. Never affects collision or navigation.
+var vegetation_masks: Array[Dictionary] = []
 
 ## World-travel locations stand a day or more of road from Reval. They still use
 ## ground transitions, but their destination district is not spatially adjacent,
@@ -227,6 +232,9 @@ func validate() -> Array[String]:
 
 	for index in view_landmarks.size():
 		errors.append_array(_validate_view_landmark(view_landmarks[index], index, seen_ids))
+
+	for index in vegetation_masks.size():
+		errors.append_array(_validate_vegetation_mask(vegetation_masks[index], index))
 
 	for side in surroundings_town_sides:
 		if not WORLD_SIDES.has(side):
@@ -689,6 +697,25 @@ func _validate_view_landmark(
 	elif not _rect_inside_world_pixels(landmark["rect"]):
 		errors.append("%s.rect is outside world bounds" % prefix)
 
+	return errors
+
+
+func _validate_vegetation_mask(mask: Dictionary, index: int) -> Array[String]:
+	var errors: Array[String] = []
+	var prefix := "vegetation_masks[%d]" % index
+	if String(mask.get("id", "")).is_empty():
+		errors.append("%s.id is required" % prefix)
+	if not mask.get("rect") is Rect2i:
+		errors.append("%s.rect must be Rect2i" % prefix)
+	elif not _rect_inside_bounds(mask["rect"]):
+		errors.append("%s.rect is outside map bounds" % prefix)
+	if not VegetationEcology.MASK_LAYERS.has(mask.get("layer", &"")):
+		errors.append("%s.layer is unknown: %s" % [prefix, str(mask.get("layer", ""))])
+	var density: Variant = mask.get("density")
+	if not (density is float or density is int):
+		errors.append("%s.density must be a number" % prefix)
+	elif float(density) < 0.0 or float(density) > VegetationEcology.MASK_MAX_DENSITY:
+		errors.append("%s.density must be within 0..%s" % [prefix, VegetationEcology.MASK_MAX_DENSITY])
 	return errors
 
 

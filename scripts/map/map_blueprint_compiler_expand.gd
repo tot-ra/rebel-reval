@@ -25,6 +25,7 @@ static func expand_primitives(
 		"patrols": [],
 		"exclusions": [],
 		"fades": [],
+		"vegetation_masks": [],
 		"decals": [],
 		"landmarks": [],
 		"resolved_ids": {},
@@ -217,6 +218,21 @@ static func expand_primitives(
 					blueprint,
 					path,
 					expanded["fades"],
+					expanded,
+					global_overrides,
+					errors
+				)
+			&"vegetation_mask":
+				_expand_rect_record(
+					&"vegetation_mask",
+					primitive_id,
+					data,
+					style_values,
+					inline_overrides,
+					MapBlueprintCompiler.VEGETATION_MASK_KEYS,
+					blueprint,
+					path,
+					expanded["vegetation_masks"],
 					expanded,
 					global_overrides,
 					errors

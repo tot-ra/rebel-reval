@@ -217,6 +217,11 @@ static func _print_primitive(primitive: Dictionary) -> String:
 			return "exclude %s %s" % [id, _rect_text(data["rect"])]
 		&"fade_rect":
 			return "fade %s %s" % [id, _rect_text(data["rect"])]
+		&"vegetation_mask":
+			return (
+				"vegetation_mask %s %s layer=%s density=%s"
+				% [id, _rect_text(data["rect"]), data["layer"], _number_text(float(data["density"]))]
+			)
 		&"decal_rect":
 			options["radius"] = data["radius"]
 			return (

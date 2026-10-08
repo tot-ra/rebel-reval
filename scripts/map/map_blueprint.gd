@@ -514,6 +514,18 @@ func fade_rect(fade_id: StringName, rect: Rect2i, overrides: Dictionary = {}) ->
 	return self
 
 
+## R-1322: view-only vegetation override mask. `layer` is one of
+## VegetationEcology.MASK_LAYERS; `density` multiplies the ecology density
+## inside `rect` (0 clears planting, 1 keeps it, up to 4).
+func vegetation_mask(
+	mask_id: StringName, rect: Rect2i, layer: StringName, density: float
+) -> MapBlueprint:
+	_append_primitive(
+		&"vegetation_mask", mask_id, {"rect": rect, "layer": layer, "density": density}, &"", {}
+	)
+	return self
+
+
 func decal_rect(
 	decal_id: StringName,
 	kind: StringName,

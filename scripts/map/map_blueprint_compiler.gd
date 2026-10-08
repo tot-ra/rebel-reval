@@ -64,6 +64,7 @@ const TRANSITION_KEYS: Array[StringName] = [
 const ANCHOR_KEYS: Array[StringName] = [&"cell", &"rect", &"kind"]
 const PATROL_KEYS: Array[StringName] = [&"points", &"point_rects"]
 const RECT_KEYS: Array[StringName] = [&"rect"]
+const VEGETATION_MASK_KEYS: Array[StringName] = [&"rect", &"layer", &"density"]
 const DECAL_KEYS: Array[StringName] = [&"rect", &"kind", &"radius", &"rotation", &"tint"]
 const LANDMARK_OVERRIDE_KEYS: Array[StringName] = [
 	# interior_side names the range side of a cloister walk, which is the high

@@ -107,6 +107,8 @@ func parse_statement(tokens: Array[Dictionary], line: int) -> void:
 			_parse_simple_rect(tokens, line, &"exclude")
 		"fade":
 			_parse_simple_rect(tokens, line, &"fade")
+		"vegetation_mask":
+			_parse_vegetation_mask(tokens, line)
 		"decal":
 			_parse_decal(tokens, line)
 		"landmark":
@@ -719,6 +721,36 @@ func _parse_simple_rect(tokens: Array[Dictionary], line: int, kind: StringName) 
 		_parser._blueprint.excluded_rect(StringName(tokens[1]["text"]), rect)
 	else:
 		_parser._blueprint.fade_rect(StringName(tokens[1]["text"]), rect)
+
+
+## R-1322: vegetation_mask <id> <x> <y> <width> <height> layer=<layer> density=<n>
+func _parse_vegetation_mask(tokens: Array[Dictionary], line: int) -> void:
+	var usage := "vegetation_mask <id> <x> <y> <width> <height> layer=<layer> density=<n>"
+	if not _tokens.exact_arity(tokens, line, 8, usage):
+		return
+	var rect = _tokens.rect_from_tokens(tokens, line, 2)
+	if rect == null:
+		return
+	var options := {}
+	for token: Dictionary in tokens.slice(6):
+		var text: String = token["text"]
+		var split := text.find("=")
+		if split <= 0:
+			_parser._error(line, token["column"], &"invalid_option", "expected key=value")
+			return
+		options[text.substr(0, split)] = text.substr(split + 1)
+	if not options.has("layer") or not options.has("density"):
+		_parser._error(line, tokens[6]["column"], &"invalid_option", usage)
+		return
+	if not String(options["density"]).is_valid_float():
+		_parser._error(line, tokens[7]["column"], &"invalid_number", "density must be a number")
+		return
+	_parser._blueprint.vegetation_mask(
+		StringName(tokens[1]["text"]),
+		rect,
+		StringName(options["layer"]),
+		float(options["density"])
+	)
 
 
 func _parse_decal(tokens: Array[Dictionary], line: int) -> void:
