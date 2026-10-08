@@ -82,11 +82,32 @@ tools/run_performance_report.sh build/perf_wind.json --vegetation
 
 **Limits.** Shader `TIME` cannot be pinned, so the capture uses real-time intervals and the CPU mirror only tracks the GPU field approximately (`WindField.clock()` vs the renderer's frame time). Turbulence comes from strength alone; rain and storm profile `chaos` are not mapped separately. The sea, smoke and rain particles still use their own wind inputs; only their heading is shared through `SkyWeather3D.wind_direction_xz`. The three-level tree wind (trunk sway) arrives with VEGR-6 (R-1324).
 
+## Crown structure: parametric skeletons and twig clusters (R-1324)
+
+VEGR-6 changed where the cards of the section below are placed, not what they are.
+Nine species (pine, spruce, birch, oak, alder, aspen, juniper, linden, maple) now
+grow from the Weber-Penn generator
+[`tree_skeleton_weber_penn.gd`](../../scripts/map/view3d/tree_skeleton_weber_penn.gd),
+which reports its shoot ends as `skeleton["twigs"]`. For those species
+`MapViewTreeMeshes._append_twig_clusters` replaces the per-tip fan and the conifer
+along-branch and trunk-ring cards: foliage sits in clusters over the outer
+`cluster_span` of each shoot, so limbs stay bare between clusters and the branch
+structure shows through the crown. Clusters nearer the crown axis get fewer,
+smaller cards, and only shell clusters take the spherical crown normal, so the
+outside of the crown lights as one dome over a dark hollow. The canopy shader adds
+a chlorophyll hue shift to transmitted light (`leaf_translucency`) and a third,
+slowest wind level, trunk sway (`trunk_sway`), under the existing branch heave and
+leaf flutter. The remaining species keep the legacy skeleton and the placement
+below. The `UV2` / `CUSTOM0` / `COLOR.a` leaf contract is unchanged, so seasons,
+autumn hue and leaf fall work the same for both. Full detail and the before/after
+sheets: [`VEGETATION_REALISM.md` section 4](./VEGETATION_REALISM.md).
+
 ## Dense cluster crowns (R-1194)
 
 Trees now combine the existing folded silhouette leaves with four-triangle folded
 cluster cards. Every skeleton tip gets three cards (two for conifers); spruce,
-pine and juniper also carry cards along branches and rings around the crown bole.
+pine and juniper also carry cards along branches and rings around the crown bole
+(superseded for the nine R-1324 species above).
 Conifers retain two opaque needle shoots per spray. Geometry is cached once per
 species, with one canopy surface and the existing MultiMesh batching, no per-card
 nodes or new material surfaces. Stable species IDs and save data are unchanged.
@@ -238,7 +259,7 @@ Code review of commit `3078c157`: no blocking issues found.
   whole chunk appeared or vanished with camera motion. `map_view_grass.gdshader`
   now shrinks each tuft to zero between `fade_start` and `fade_end` (distance from
   the camera, same metric as the range cull) before the cull fires. Scatter grass
-  (`grass_blades()`) fades 22-36 m inside its 45 m range; eye-level terrain details
+  (`grass_blades()`) fades 30-43 m inside its 45 m range (the city streams 16 m chunks 3 deep, at least 48 m); eye-level terrain details
   (`grass_blades_near()`) fade 7-11 m inside their 14 m range.
 - Grass variety: per-tuft height, width and tint vary from the planted position.
 - Not yet verified visually: needle transparency on conifers and bush popping
@@ -281,7 +302,7 @@ What the player sees:
   corner its own plate, rotation and offset and blends the four corners with
   height-aware weights, so patches meet in ragged edges and nothing repeats.
 - **Grass tufts** are 0.2-0.45 m tall (`CityGrass.TUFT_SCALE` 0.36-0.78 of the shared
-  tuft, was 0.55-1.15) at 2.8 tufts per m^2.
+  tuft, was 0.55-1.15) at 1.8 tufts per m^2 (was 2.8; thinned when the fade moved out to 30-43 m).
 
 Runtime entry points:
 
@@ -397,6 +418,7 @@ a dense hedge of city roses costs about seven times the old blob triangles (the 
 - Only the player's swings strike trees. NPC melee, magic blasts, and projectiles do not.
 - When two hosted views overlap at a seam, each runs its own ambient emitter, which can double the leaf fall right at the seam.
 - Late-April leaf density is a design choice for the slice's spring look. Real Tallinn birches usually break bud a week or two later.
+- R-1324 trunk sway moves the crown only: the bole mesh uses the bark material, which has no wind shader, so the sway amplitude is kept small enough that foliage never visibly leaves its limbs.
 
 ## Conifer volume and atlas fringe fix
 

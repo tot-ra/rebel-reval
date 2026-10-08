@@ -25,6 +25,11 @@ const DEFAULT_FOCUS := Vector2(0.5, 0.56)
 const DEFAULT_FRAME_HEIGHT := 0.28
 ## Chest height above a tracked actor's origin (realistic-human rigs stand on their origin).
 const TRACK_CHEST_HEIGHT := 1.3
+## How far over the chest the shader's image reaches at its largest (frame metres): it is
+## centred one metre up and its widest swell is about one metre tall.
+const IMAGE_TOP_METRES := 2.05
+## Keep that much of the screen above the image when tracking an actor.
+const TRACK_TOP_MARGIN := 0.04
 const CAPTION_WIDTH := 160.0
 
 var image_id: StringName = &""
@@ -185,7 +190,11 @@ func _update_tracking() -> void:
 	var chest_px := _track_camera.unproject_position(chest)
 	var metre_px := chest_px.distance_to(_track_camera.unproject_position(chest + Vector3.UP))
 	focus = chest_px / screen
-	frame_height = metre_px / screen.y
+	# A near camera makes one metre so tall that the image, which looms two metres over the
+	# chest, would be cut off by the top of the screen. Shrink the image's metre instead of
+	# moving it, so the form stays anchored on the actor and still fits in frame.
+	var fit_height := (focus.y - TRACK_TOP_MARGIN) / IMAGE_TOP_METRES
+	frame_height = minf(metre_px / screen.y, maxf(fit_height, 0.01))
 
 
 func _push_uniforms() -> void:

@@ -9,7 +9,7 @@
   "canon_status": "active",
   "approval": {
     "status": "draft",
-    "notes": "R-1318. Plays after dialogue.prologue.kalev_arrives and hands the player to the forge at spawn smithy_start."
+    "notes": "R-1318. Plays after dialogue.prologue.kalev_arrives and hands the player to the city in front of Kalev's smithy (spawn kalev_smithy)."
   },
   "deterministic_offline": {
     "authored": true,
@@ -19,8 +19,8 @@
   },
   "next": {
     "kind": "door",
-    "scene_id": "forge",
-    "spawn_id": "smithy_start"
+    "scene_id": "reval_city",
+    "spawn_id": "kalev_smithy"
   },
   "shots": [
     {

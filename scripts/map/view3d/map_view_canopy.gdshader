@@ -31,6 +31,13 @@ uniform float card_scissor : hint_range(0.0, 1.0) = 0.5;
 // Cards face the sky more than folded leaves and stack several leaves of
 // translucency; without this gain dense crowns read neon yellow-green.
 uniform float card_gain : hint_range(0.0, 2.0) = 0.74;
+// VEGR-6 (R-1324). Wind in three levels: trunk sway (this uniform, the slowest),
+// branch heave and leaf flutter (both below). Lean at full wind is
+// sway_strength * trunk_sway per unit of model height; the bole mesh has no wind
+// shader, so this stays small enough that foliage never visibly leaves its limbs.
+uniform float trunk_sway : hint_range(0.0, 1.0) = 0.3;
+// How much of the transmitted light takes the chlorophyll hue shift.
+uniform float leaf_translucency : hint_range(0.0, 1.0) = 0.65;
 
 varying float v_leaf_autumn;
 varying float v_leaf_seed;
@@ -79,6 +86,14 @@ void vertex() {
 			+ INSTANCE_CUSTOM.xy * height;
 		VERTEX += inverse(mat3(MODEL_MATRIX)) * vec3(bend.x, 0.0, bend.y);
 	}
+	// VEGR-6 wind level 1 of 3: trunk sway. One cycle per roughly 13 s - far
+	// slower than the branch heave above and the leaf flutter above that - with
+	// its phase taken from the trunk position, so neighbouring trees lean out of
+	// step. Lean grows with height, which is the arc a bending bole describes.
+	float sway_phase = sin(TIME * 0.47 + dot(MODEL_MATRIX[3].xz, vec2(0.11, 0.17)));
+	vec2 lean = wind * (0.55 + 0.45 * sway_phase)
+		* strength * strength * sway_strength * trunk_sway * max(VERTEX.y, 0.0);
+	VERTEX += inverse(mat3(MODEL_MATRIX)) * vec3(lean.x, 0.0, lean.y);
 }
 
 float hash11(float p) {
@@ -128,7 +143,13 @@ void fragment() {
 	// Thin leaves transmit light; autumn leaves glow more strongly against the sun.
 	// Cards stack several translucent leaves, so full backlight washes conifers
 	// near white whenever the sun sits behind them; transmit less through cards.
-	BACKLIGHT = albedo * (0.42 + v_leaf_autumn * 0.22) * mix(1.0, 0.45, card)
+	// VEGR-6: transmitted light is not just dimmer albedo. Chlorophyll passes
+	// around 550 nm and absorbs blue, so light coming through a leaf is warmer
+	// and yellower than light bouncing off it; autumn leaves lose the shift as
+	// the chlorophyll goes. This hue change is what makes a backlit crown glow.
+	vec3 transmit = albedo * mix(vec3(1.0),
+		vec3(1.16, 1.24, 0.54), leaf_translucency * leaf_tag * (1.0 - v_leaf_autumn));
+	BACKLIGHT = transmit * (0.42 + v_leaf_autumn * 0.22) * mix(1.0, 0.45, card)
 		* (1.0 - midrib * 0.4 * folded) * mix(0.6, 1.0, occlusion);
 	// Card normals lean away from the crown centre; undo the automatic back-face
 	// flip so both sides of a card light as the same leafy volume.

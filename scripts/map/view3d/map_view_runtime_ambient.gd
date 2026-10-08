@@ -15,6 +15,9 @@ const InsectAmbientAudio := preload("res://scripts/map/view3d/map_view_insect_am
 const InsectContext := preload("res://scripts/map/view3d/map_view_insect_context.gd")
 const MapMusicZoneBinder := preload("res://scripts/map/map_music_zone_binder.gd")
 const CrowdRenderer := preload("res://scripts/map/view3d/map_view_crowd_renderer.gd")
+const FootstepAudioScript := preload("res://scripts/audio/footstep_audio.gd")
+const AmbienceControllerScript := preload("res://scripts/audio/ambience_controller.gd")
+const AmbienceProfilesScript := preload("res://scripts/audio/ambience_profiles.gd")
 
 var _host: Node3D
 var _definition: MapDefinition
@@ -32,6 +35,10 @@ var _penned_fauna_enabled := true
 var _insect_audio
 var _insect_audio_enabled := true
 var _music_zone_binder
+var _footstep_audio
+var _footstep_audio_enabled := true
+var _ambience
+var _ambience_enabled := true
 var _crowd_renderer: MapViewCrowdRenderer
 var _crowd_enabled := true
 
@@ -75,6 +82,12 @@ func rebind_map(map_definition: MapDefinition, map_view: MapView3D) -> void:
 		_insect_audio.configure(_definition.map_id, insect_context)
 	if _music_zone_binder != null:
 		_music_zone_binder.configure(_definition, _player)
+	if _footstep_audio != null:
+		_footstep_audio.configure(_definition, _terrain_grid())
+	if _ambience != null:
+		_ambience.configure(
+			AmbienceProfilesScript.profile_for_map(_definition.map_id), hash(_definition.map_id)
+		)
 	if _crowd_renderer != null:
 		_crowd_renderer.configure(200, hash(_definition.map_id))
 
@@ -86,6 +99,8 @@ func install() -> void:
 	_install_penned_fauna()
 	_install_insect_audio()
 	_install_music_zone_binder()
+	_install_footstep_audio()
+	_install_ambience()
 	_install_crowd_renderer()
 
 
@@ -95,6 +110,52 @@ func sync(delta: float, cycle_progress: float) -> void:
 	_sync_urban_fauna(delta)
 	_sync_penned_fauna(delta)
 	_sync_insect_audio(delta, cycle_progress)
+	_sync_ambience(delta, cycle_progress)
+
+
+## Foot-contact entry point handed to MapViewRuntimeActors (ADR 0035 phase 2).
+## Returns the catalog ID that played, or &"" when nothing did, so the headless
+## footstep log can record the triggered IDs.
+func play_footstep(foot_world_position: Vector3, speed: float) -> StringName:
+	if _footstep_audio == null:
+		return &""
+	return _footstep_audio.on_foot_plant(foot_world_position, speed)
+
+
+func set_footstep_audio_enabled(enabled: bool) -> void:
+	_footstep_audio_enabled = enabled
+	if _footstep_audio != null:
+		_footstep_audio.set_audio_enabled(enabled)
+
+
+func footstep_played_count() -> int:
+	if _footstep_audio == null:
+		return 0
+	return _footstep_audio.played_count()
+
+
+func last_footstep_sound_id() -> StringName:
+	if _footstep_audio == null:
+		return &""
+	return _footstep_audio.last_sound_id()
+
+
+func last_footstep_surface() -> StringName:
+	if _footstep_audio == null:
+		return &""
+	return _footstep_audio.last_surface()
+
+
+func set_ambience_enabled(enabled: bool) -> void:
+	_ambience_enabled = enabled
+	if _ambience != null:
+		_ambience.set_audio_enabled(enabled)
+
+
+func ambience_active_layer_ids() -> Array[StringName]:
+	if _ambience == null:
+		return []
+	return _ambience.active_layer_ids()
 
 
 func set_bird_audio_enabled(enabled: bool) -> void:
@@ -231,6 +292,44 @@ func _install_music_zone_binder() -> void:
 	_music_zone_binder.name = "MapMusicZoneBinder"
 	_host.add_child(_music_zone_binder)
 	_music_zone_binder.configure(_definition, _player)
+
+
+func _install_footstep_audio() -> void:
+	_footstep_audio = FootstepAudioScript.new()
+	_footstep_audio.name = "FootstepAudio"
+	_host.add_child(_footstep_audio)
+	_footstep_audio.configure(_definition, _terrain_grid())
+	_footstep_audio.set_audio_enabled(_footstep_audio_enabled)
+
+
+func _install_ambience() -> void:
+	_ambience = AmbienceControllerScript.new()
+	_ambience.name = "AmbienceController"
+	_host.add_child(_ambience)
+	_ambience.configure(
+		AmbienceProfilesScript.profile_for_map(_definition.map_id), hash(_definition.map_id)
+	)
+	_ambience.set_audio_enabled(_ambience_enabled)
+
+
+## The built grid lives on the view, which the city adapter subclasses.
+func _terrain_grid() -> MapTerrainGrid:
+	if _view == null or not is_instance_valid(_view):
+		return null
+	return _view.grid
+
+
+func _sync_ambience(delta: float, cycle_progress: float) -> void:
+	if _ambience == null or _definition == null or _view == null:
+		return
+	var listener := _camera.global_position if _camera != null else Vector3.ZERO
+	var rain_intensity := 0.0
+	var rain_suppressed := _definition.suppresses_exterior_surroundings()
+	var sky_weather := _view.sky_weather()
+	if sky_weather != null:
+		rain_intensity = sky_weather.rain_intensity()
+		rain_suppressed = rain_suppressed or sky_weather.rain_suppressed
+	_ambience.sync(delta, listener, cycle_progress, rain_intensity, rain_suppressed)
 
 
 func _install_crowd_renderer() -> void:

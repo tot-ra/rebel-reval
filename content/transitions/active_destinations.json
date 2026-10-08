@@ -22,335 +22,50 @@
       "active": true,
       "release": true,
       "spawns": [
-        { "id": "poi.forum" },
-        { "id": "kalev_smithy" },
-        { "id": "gate.viru" },
-        { "id": "gate.viru.outside" },
-        { "id": "gate.harju.outside" },
-        { "id": "gate.karja.outside" },
-        { "id": "gate.coastal" },
-        { "id": "poi.fish_landing" },
-        { "id": "poi.granary.pikk" },
-        { "id": "landmark.st_olaf" },
-        { "id": "landmark.st_nicholas" },
-        { "id": "road.toompea_west" },
-        { "id": "poi.barracks.castle" },
-        { "id": "poi.well.bishop_garden" },
-        { "id": "suburb.kalarand" }
-      ]
-    },
-    {
-      "id": "reval_east",
-      "path": "res://scenes/reval_east/reval_east.tscn",
-      "active": true,
-      "release": true,
-      "spawns": [
         {
-          "id": "forge"
+          "id": "poi.forum"
         },
         {
-          "id": "street_start"
+          "id": "kalev_smithy"
         },
         {
-          "id": "vana_turg_boundary"
+          "id": "gate.viru"
         },
         {
-          "id": "vene_district_boundary"
+          "id": "gate.viru.outside"
         },
         {
-          "id": "viru_road_boundary"
+          "id": "gate.harju.outside"
         },
         {
-          "id": "from_reval_south"
+          "id": "gate.karja.outside"
         },
         {
-          "id": "workers_outer_exit"
-        }
-      ]
-    },
-    {
-      "id": "reval_center",
-      "path": "res://scenes/reval_center/reval_center.tscn",
-      "active": true,
-      "release": false,
-      "spawns": [
-        {
-          "id": "from_reval_east"
+          "id": "gate.coastal"
         },
         {
-          "id": "to_reval_north"
+          "id": "poi.fish_landing"
         },
         {
-          "id": "to_reval_toompea"
+          "id": "poi.granary.pikk"
         },
         {
-          "id": "to_reval_south"
+          "id": "landmark.st_olaf"
         },
         {
-          "id": "to_guild_hall"
+          "id": "landmark.st_nicholas"
         },
         {
-          "id": "to_archbishops_garden"
+          "id": "road.toompea_west"
         },
         {
-          "id": "to_town_hall"
+          "id": "poi.barracks.castle"
         },
         {
-          "id": "to_holy_spirit_church"
-        }
-      ]
-    },
-    {
-      "id": "reval_north",
-      "path": "res://scenes/reval_north/reval_north.tscn",
-      "active": true,
-      "release": false,
-      "spawns": [
-        {
-          "id": "from_monastery"
+          "id": "poi.well.bishop_garden"
         },
         {
-          "id": "from_monastery_outer"
-        },
-        {
-          "id": "to_reval_harbor"
-        },
-        {
-          "id": "outer_harbor_exit"
-        },
-        {
-          "id": "merchant_wall_tower_northwest_return"
-        }
-      ]
-    },
-    {
-      "id": "rentenitorn_interior",
-      "path": "res://scenes/reval_north/rentenitorn_interior.tscn",
-      "active": false,
-      "release": false,
-      "spawns": [
-        {
-          "id": "rentenitorn_interior_entry"
-        }
-      ]
-    },
-    {
-      "id": "reval_monastery",
-      "path": "res://scenes/reval_monastery/reval_monastery.tscn",
-      "active": true,
-      "release": false,
-      "spawns": [
-        {
-          "id": "from_reval_north"
-        },
-        {
-          "id": "from_reval_center"
-        },
-        {
-          "id": "from_reval_east"
-        },
-        {
-          "id": "outer_monastery_exit"
-        },
-        {
-          "id": "outer_workers_entry"
-        },
-        {
-          "id": "from_reval_toompea"
-        },
-        {
-          "id": "to_oleviste_church"
-        },
-        {
-          "id": "monastery_wall_tower_northwest_return"
-        },
-        {
-          "id": "monastery_wall_tower_west_mid_return"
-        }
-      ]
-    },
-    {
-      "id": "nunnatorn_interior",
-      "path": "res://scenes/reval_monastery/nunnatorn_interior.tscn",
-      "active": true,
-      "release": false,
-      "spawns": [
-        {
-          "id": "nunnatorn_interior_entry"
-        }
-      ]
-    },
-    {
-      "id": "kuldjala_interior",
-      "path": "res://scenes/reval_monastery/kuldjala_interior.tscn",
-      "active": true,
-      "release": false,
-      "spawns": [
-        {
-          "id": "kuldjala_interior_entry"
-        }
-      ]
-    },
-    {
-      "id": "oleviste_church",
-      "path": "res://scenes/reval_north/oleviste_church/oleviste_church.tscn",
-      "active": true,
-      "release": false,
-      "spawns": [
-        {
-          "id": "from_reval_monastery"
-        }
-      ]
-    },
-    {
-      "id": "st_olafs_guild_hall",
-      "path": "res://scenes/reval_center/market_civic_quarter/olaf_guild_hall.tscn",
-      "active": true,
-      "release": false,
-      "spawns": [
-        {
-          "id": "from_reval_center"
-        }
-      ]
-    },
-    {
-      "id": "town_hall",
-      "path": "res://scenes/reval_center/town_hall/town_hall.tscn",
-      "active": true,
-      "release": false,
-      "spawns": [
-        {
-          "id": "from_reval_center"
-        }
-      ]
-    },
-    {
-      "id": "holy_spirit_church",
-      "path": "res://scenes/reval_center/holy_spirit_church/holy_spirit_church.tscn",
-      "active": true,
-      "release": false,
-      "spawns": [
-        {
-          "id": "from_reval_center"
-        }
-      ]
-    },
-    {
-      "id": "viru_gate_foreland",
-      "path": "res://scenes/reval_east/viru_gate_foreland/viru_gate_foreland.tscn",
-      "active": true,
-      "release": false,
-      "spawns": [
-        {
-          "id": "from_reval_east"
-        },
-        {
-          "id": "from_world_harju"
-        }
-      ]
-    },
-    {
-      "id": "reval_harbor_north",
-      "path": "res://scenes/harbor/harbor_north.tscn",
-      "active": true,
-      "release": false,
-      "spawns": [
-        {
-          "id": "from_reval_north"
-        },
-        {
-          "id": "from_reval_north_outer"
-        },
-        {
-          "id": "from_harbor_east"
-        },
-        {
-          "id": "from_world_saaremaa"
-        }
-      ]
-    },
-    {
-      "id": "reval_harbor_east",
-      "path": "res://scenes/harbor/harbor_east.tscn",
-      "active": true,
-      "release": false,
-      "spawns": [
-        {
-          "id": "from_harbor_north"
-        }
-      ]
-    },
-    {
-      "id": "reval_archbishops_garden",
-      "path": "res://scenes/reval_archbishops_garden/reval_archbishops_garden.tscn",
-      "active": true,
-      "release": false,
-      "spawns": [
-        {
-          "id": "from_reval_toompea"
-        },
-        {
-          "id": "from_reval_center"
-        },
-        {
-          "id": "from_reval_south"
-        }
-      ]
-    },
-    {
-      "id": "reval_toompea",
-      "path": "res://scenes/reval_toompea/reval_toompea.tscn",
-      "active": true,
-      "release": false,
-      "spawns": [
-        {
-          "id": "from_reval_center"
-        },
-        {
-          "id": "from_reval_north"
-        },
-        {
-          "id": "from_archbishops_garden"
-        },
-        {
-          "id": "from_world_padise"
-        },
-        {
-          "id": "from_small_castle"
-        }
-      ]
-    },
-    {
-      "id": "toompea_small_castle",
-      "path": "res://scenes/reval_toompea/toompea_small_castle.tscn",
-      "active": true,
-      "release": false,
-      "spawns": [
-        {
-          "id": "small_castle_entry"
-        },
-        {
-          "id": "from_small_castle"
-        }
-      ]
-    },
-    {
-      "id": "reval_south",
-      "path": "res://scenes/reval_south/reval_south.tscn",
-      "active": true,
-      "release": false,
-      "spawns": [
-        {
-          "id": "from_reval_center"
-        },
-        {
-          "id": "from_reval_east"
-        },
-        {
-          "id": "from_archbishops_garden"
-        },
-        {
-          "id": "from_world_sacred_grove"
+          "id": "suburb.kalarand"
         }
       ]
     },
@@ -360,8 +75,12 @@
       "active": true,
       "release": false,
       "spawns": [
-        { "id": "from_reval_south" },
-        { "id": "from_world_harju" }
+        {
+          "id": "from_reval_south"
+        },
+        {
+          "id": "from_world_harju"
+        }
       ]
     },
     {
@@ -370,11 +89,21 @@
       "active": true,
       "release": false,
       "spawns": [
-        { "id": "from_reval_east" },
-        { "id": "from_world_sacred_grove" },
-        { "id": "from_world_rebel_kings" },
-        { "id": "from_world_kanavere" },
-        { "id": "from_world_sojamae" }
+        {
+          "id": "from_reval_east"
+        },
+        {
+          "id": "from_world_sacred_grove"
+        },
+        {
+          "id": "from_world_rebel_kings"
+        },
+        {
+          "id": "from_world_kanavere"
+        },
+        {
+          "id": "from_world_sojamae"
+        }
       ]
     },
     {
@@ -383,8 +112,12 @@
       "active": true,
       "release": false,
       "spawns": [
-        { "id": "from_reval_west" },
-        { "id": "from_world_parnu" }
+        {
+          "id": "from_reval_west"
+        },
+        {
+          "id": "from_world_parnu"
+        }
       ]
     },
     {
@@ -393,9 +126,15 @@
       "active": true,
       "release": false,
       "spawns": [
-        { "id": "from_reval_harbor" },
-        { "id": "from_world_parnu" },
-        { "id": "from_world_poide" }
+        {
+          "id": "from_reval_harbor"
+        },
+        {
+          "id": "from_world_parnu"
+        },
+        {
+          "id": "from_world_poide"
+        }
       ]
     },
     {
@@ -404,8 +143,12 @@
       "active": true,
       "release": false,
       "spawns": [
-        { "id": "from_world_harju" },
-        { "id": "from_world_kanavere" }
+        {
+          "id": "from_world_harju"
+        },
+        {
+          "id": "from_world_kanavere"
+        }
       ]
     },
     {
@@ -414,9 +157,15 @@
       "active": true,
       "release": false,
       "spawns": [
-        { "id": "from_world_harju" },
-        { "id": "from_world_rebel_kings" },
-        { "id": "from_world_paide" }
+        {
+          "id": "from_world_harju"
+        },
+        {
+          "id": "from_world_rebel_kings"
+        },
+        {
+          "id": "from_world_paide"
+        }
       ]
     },
     {
@@ -425,8 +174,12 @@
       "active": true,
       "release": false,
       "spawns": [
-        { "id": "from_world_harju" },
-        { "id": "from_world_paide" }
+        {
+          "id": "from_world_harju"
+        },
+        {
+          "id": "from_world_paide"
+        }
       ]
     },
     {
@@ -435,9 +188,15 @@
       "active": true,
       "release": false,
       "spawns": [
-        { "id": "from_world_kanavere" },
-        { "id": "from_world_sojamae" },
-        { "id": "from_world_parnu" }
+        {
+          "id": "from_world_kanavere"
+        },
+        {
+          "id": "from_world_sojamae"
+        },
+        {
+          "id": "from_world_parnu"
+        }
       ]
     },
     {
@@ -446,9 +205,15 @@
       "active": true,
       "release": false,
       "spawns": [
-        { "id": "from_world_padise" },
-        { "id": "from_world_paide" },
-        { "id": "from_world_saaremaa" }
+        {
+          "id": "from_world_padise"
+        },
+        {
+          "id": "from_world_paide"
+        },
+        {
+          "id": "from_world_saaremaa"
+        }
       ]
     },
     {
@@ -457,7 +222,9 @@
       "active": true,
       "release": false,
       "spawns": [
-        { "id": "from_world_saaremaa" }
+        {
+          "id": "from_world_saaremaa"
+        }
       ]
     }
   ]

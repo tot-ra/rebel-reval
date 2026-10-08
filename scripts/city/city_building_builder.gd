@@ -680,7 +680,9 @@ static func _door_steps(
 	var rise := floor_y - float(ground_at.call(mid + out * 1.0))
 	if rise < 0.12:
 		return
-	var steps := clampi(int(ceil(rise / 0.18)), 1, 8)
+	# Up to 14 treads keeps the riser near 0.18 m even on the few doors that
+	# still face a steep drop; 8 made 0.7 m risers there.
+	var steps := clampi(int(ceil(rise / 0.18)), 1, 14)
 	var tread := 0.32
 	var half_w := DOOR_WIDTH * 0.5 + 0.25
 	for k in steps:

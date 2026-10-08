@@ -10,6 +10,9 @@ extends RefCounted
 const LeafGeometry := preload("res://scripts/map/view3d/map_view_leaf_geometry.gd")
 const TreeMeshProfiles := preload("res://scripts/map/view3d/map_view_tree_mesh_profiles.gd")
 const TreeMeshSkeleton := preload("res://scripts/map/view3d/map_view_tree_mesh_skeleton.gd")
+## VEGR-6 (R-1324) parametric skeletons. Preloaded, not referenced by class name,
+## so the dependency stays one-way (Weber-Penn reads the legacy vector helpers).
+const TreeSkeletonWeber := preload("res://scripts/map/view3d/tree_skeleton_weber_penn.gd")
 
 const WOOD_RADIAL_SEGMENTS := 5
 const MAX_WOOD_SEGMENTS := TreeMeshSkeleton.MAX_WOOD_SEGMENTS
@@ -62,7 +65,7 @@ const NEAR_FOLDED_LEAF_SHRINK := 0.4
 ## skeleton, so the LOD switch never changes the silhouette.
 const CITY_PROFILE_OVERRIDES := {
 	&"spruce": {"primary_count": 26, "crown_start": 0.34, "max_segments": 300},
-	&"pine": {"primary_count": 16, "max_segments": 220},
+	&"pine": {"primary_count": 11, "max_segments": 200},
 }
 
 static var _geometry_cache: Dictionary = {}
@@ -167,15 +170,25 @@ static func city_profile(species: StringName) -> Dictionary:
 static func _skeleton_for(species: StringName) -> Dictionary:
 	var key := "skeleton:%s" % species
 	if not _city_cache.has(key):
-		_city_cache[key] = TreeMeshSkeleton.build(species, city_profile(species))
+		_city_cache[key] = build_skeleton(species, city_profile(species))
 	return _city_cache[key]
+
+
+## VEGR-6: species that have a Weber-Penn preset grow from the parametric
+## generator (forked, tapered, drooping limbs with twig ends); the rest keep the
+## legacy recursive skeleton until they get presets. Both return the same
+## dictionary contract, so wood, canopy, fruit, LOD and leaf fall are unchanged.
+static func build_skeleton(species: StringName, profile: Dictionary) -> Dictionary:
+	if TreeSkeletonWeber.has_preset(species):
+		return TreeSkeletonWeber.build(species, profile)
+	return TreeMeshSkeleton.build(species, profile)
 
 
 static func _geometry_for(species: StringName) -> Dictionary:
 	if _geometry_cache.has(species):
 		return _geometry_cache[species]
 	var profile := TreeMeshProfiles.profile_for(species)
-	var skeleton := TreeMeshSkeleton.build(species, profile)
+	var skeleton := build_skeleton(species, profile)
 	var wood := _build_wood_mesh(species, skeleton)
 	var canopy_data := _build_canopy_mesh(species, profile, skeleton)
 	var fruit := _build_fruit_mesh(species, profile, canopy_data["anchors"])
@@ -193,6 +206,10 @@ static func _geometry_for(species: StringName) -> Dictionary:
 		"interior_branch_junctions":
 		int(skeleton["growth_stats"].get("interior_branch_junctions", 0)),
 		"primary_attachment_heights": (skeleton["primary_attachment_heights"] as Array).duplicate(),
+		# VEGR-6: branch levels and shoot ends of the parametric skeleton (empty
+		# arrays / 0 for species still on the legacy recursive growth).
+		"level_counts": (skeleton["growth_stats"].get("level_counts", []) as Array).duplicate(),
+		"twig_count": (skeleton.get("twigs", []) as Array).size(),
 	}
 	var geometry := {"wood": wood, "canopy": canopy_data["mesh"], "fruit": fruit, "stats": stats}
 	_geometry_cache[species] = geometry
@@ -341,6 +358,10 @@ static func _append_cluster_cards(
 	size_factor := 1.0,
 	count_factor := 1.0
 ) -> int:
+	if skeleton.has("twigs"):
+		return _append_twig_clusters(
+			surface, species, profile, skeleton, crown, size_factor, count_factor
+		)
 	var conifer := species in CONIFERS
 	var length := (
 		float(profile["leaf_length"])
@@ -348,6 +369,9 @@ static func _append_cluster_cards(
 		* size_factor
 	)
 	var per_tip := roundi((CONIFER_CARDS_PER_TIP if conifer else CARDS_PER_TIP) * count_factor)
+	if species == &"pine":
+		# Scots pine reads as flat, dense needle pads at limb ends (not 5 thin spikes).
+		per_tip = roundi(8.0 * count_factor)
 	var spread := float(profile["leaf_spread"])
 	# With small near cards a whole tip cluster would shrink to a ball; spread
 	# the extra cards back along the twig and out round it instead.
@@ -378,7 +402,9 @@ static func _append_cluster_cards(
 			var facing := (Vector3.UP * 0.7 + radial * 0.5).normalized()
 			_emit_card(surface, species, base, axis, facing, size, crown, seed, card_index)
 			cards += 1
-	if not conifer:
+	# Pine limbs stay visibly bare between tufts: no cards along segments or
+	# around the bole (that is what made it read as a layered spruce).
+	if not conifer or species == &"pine":
 		return cards
 	var segments: Array = skeleton["segments"]
 	for segment_index in segments.size():
@@ -423,6 +449,84 @@ static func _append_cluster_cards(
 					roll_index
 				)
 			cards += rolls
+	return cards
+
+
+## VEGR-6 (R-1324) clustered leaf placement. Foliage sits in clusters on the
+## outer `cluster_span` of every shoot (`skeleton["twigs"]`) instead of being
+## scattered over the whole crown, so limbs stay bare between clusters and light
+## comes through the gaps. Cards point outward from the crown shell; clusters
+## deeper inside get fewer and smaller cards, and `_emit_card` darkens them
+## through the baked crown AO. This is what makes a crown read as a lit shell
+## over a shadowed hollow with branch structure showing through.
+static func _append_twig_clusters(
+	surface: SurfaceTool,
+	species: StringName,
+	profile: Dictionary,
+	skeleton: Dictionary,
+	crown: AABB,
+	size_factor := 1.0,
+	count_factor := 1.0
+) -> int:
+	var conifer := species in CONIFERS
+	var length := (
+		float(profile["leaf_length"])
+		* (CONIFER_CARD_SCALE if conifer else CARD_SCALE)
+		* size_factor
+	)
+	var base_cards := maxi(
+		1, roundi(float(skeleton.get("cluster_cards", CARDS_PER_TIP)) * count_factor)
+	)
+	var span := clampf(float(skeleton.get("cluster_span", 0.6)), 0.05, 1.0)
+	var centre := crown.get_center()
+	var shell_radius := maxf(Vector2(crown.size.x, crown.size.z).length() * 0.5, 0.05)
+	var twigs: Array = skeleton["twigs"]
+	var cards := 0
+	for twig: Dictionary in twigs:
+		var end: Vector3 = twig["end"]
+		var direction: Vector3 = twig["direction"]
+		var seed := int(twig["seed"])
+		var twig_length := float(twig["length"])
+		# Clusters only on the shoot end; the inner part of the shoot stays wood.
+		var start := end - direction * twig_length * span
+		# 0 on the crown axis, 1 out at the shell: how exposed this cluster is.
+		var exposure := clampf(
+			Vector2(end.x - centre.x, end.z - centre.z).length() / shell_radius, 0.0, 1.0
+		)
+		if not bool(twig.get("terminal", true)):
+			# A limb that still carries shoots of its own gets a token tuft only.
+			exposure *= 0.45
+		var count := maxi(1, roundi(float(base_cards) * lerpf(0.45, 1.0, exposure)))
+		var outward := end - centre
+		outward.y = 0.0
+		if outward.length_squared() < 0.0001:
+			outward = direction
+		outward = outward.normalized()
+		for card_index in count:
+			var t := clampf(
+				(float(card_index) + 0.5 + (_hash(card_index, seed, 601) - 0.5) * 0.7)
+				/ float(count),
+				0.0,
+				1.0
+			)
+			var station := start.lerp(end, t)
+			# Golden-angle roll keeps a cluster's cards from stacking into a plate.
+			var yaw := TAU * (float(card_index) * 0.618034 + _hash(card_index, seed, 607))
+			var radial := TreeMeshSkeleton.radial_around(direction, yaw)
+			var axis := (
+				direction * 0.42
+				+ radial * 0.82
+				+ Vector3.UP * (0.0 if conifer else 0.22)
+			).normalized()
+			var size := (
+				length
+				* lerpf(0.74, 1.12, _hash(card_index, seed, 613))
+				* lerpf(0.66, 1.0, exposure)
+			)
+			var base := station - axis * size * 0.16 + radial * size * 0.1
+			var facing := (radial * 0.55 + outward * 0.45 + Vector3.UP * 0.2).normalized()
+			_emit_card(surface, species, base, axis, facing, size, crown, seed, card_index)
+			cards += 1
 	return cards
 
 
@@ -479,7 +583,14 @@ static func _emit_card(
 	# whorl face the sun and blow out white.
 	outward.y = (outward.y * 0.5) if conifer else (maxf(outward.y, 0.0) + crown.size.y * 0.15)
 	var color := _leaf_vertex_color(species, lerpf(0.82, 1.08, _hash(index, seed, 517)))
-	color.a = _crown_occlusion(middle, crown)
+	var occlusion := _crown_occlusion(middle, crown)
+	color.a = occlusion
+	# VEGR-6 crown volume: only shell clusters take the full spherical normal, so
+	# the outer surface lights as one dome. Clusters deeper in keep their own
+	# cluster normal (bent just a little toward the crown centre), which leaves
+	# the hollow dark instead of lighting every interior card like a shell.
+	var shell := clampf(inverse_lerp(0.48, 1.0, occlusion), 0.0, 1.0)
+	var outward_weight := (CONIFER_NORMAL_OUTWARD if conifer else 0.55) * lerpf(0.3, 1.0, shell)
 	LeafGeometry.append_card(
 		surface,
 		base,
@@ -490,7 +601,7 @@ static func _emit_card(
 		color,
 		_hash(index, seed, 521),
 		_hash(index, seed, 523) > 0.5,
-		CONIFER_NORMAL_OUTWARD if conifer else 0.55,
+		outward_weight,
 		CONIFER_CARD_DROOP if conifer else 0.0
 	)
 

@@ -40,6 +40,7 @@ Numbered decisions (Status / Context / Decision / Alternatives / Consequences). 
 - [ADR 0033: A teenage clairvoyant protagonist and spirit-world dialogue combat](0033-teen-protagonist-and-spirit-dialogue-combat.md)
 - [ADR 0034: Cutscene mode and the cinematic prologue](0034-cutscene-mode-and-cinematic-prologue.md)
 - [ADR 0035: Game audio sourcing and the sound-effects system (RFC)](0035-game-audio-sourcing-and-sfx-system.md)
-- [ADR 0036: Layered NPC mind: state machines, decision model, optional local LLM](0036-layered-npc-mind-with-local-llm.md)
+- [ADR 0036: Jump, vault and expanded melee verbs](0036-jump-vault-and-expanded-melee-verbs.md)
+- [ADR 0037: Layered NPC mind: state machines, decision model, optional local LLM](0037-layered-npc-mind-with-local-llm.md)
 
 <!-- docs-index:end -->

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Measure a local LLM as the NPC "mind" layer (ADR 0036, proposed).
+"""Measure a local LLM as the NPC "mind" layer (ADR 0037, proposed).
 
 Talks to any OpenAI-compatible streaming endpoint, for example a local
 `llama-server` (llama.cpp) started with a pinned GGUF file:

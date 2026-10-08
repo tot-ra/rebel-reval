@@ -164,6 +164,28 @@ void fragment() {
 	nxy = mix(nxy, texture(earth_normal, wuv * earth_scale).rg * 2.0 - 1.0, mud);
 	col = mix(col, detiled(sand_albedo, wuv * sand_scale), sand);
 	nxy = mix(nxy, texture(sand_normal, wuv * sand_scale).rg * 2.0 - 1.0, sand);
+	// Shore zones read from height (docs/SYSTEMS/CITY_SEA.md): two sands, a dark wet
+	// strand, shingle ridges just above the swash, and a seabed of weed, stone and
+	// ripple-marked sand, so no beach or sea floor is one flat tone.
+	float hy = world_pos.y - sea_level;
+	float sand_var = smoothstep(0.35, 0.7, value_noise(wuv * 0.07 + 11.0));
+	col = mix(col, col * mix(vec3(1.06, 1.03, 0.96), vec3(0.74, 0.7, 0.62), sand_var), sand * 0.8);
+	float wet_strand = (1.0 - smoothstep(0.2, 0.95 + (micro - 0.5) * 0.3, hy)) * sand;
+	col = mix(col, col * vec3(0.52, 0.5, 0.48), wet_strand);
+	float shingle_band = smoothstep(0.3, 0.7, hy) * (1.0 - smoothstep(1.6, 2.6, hy));
+	float shingle = shingle_band * smoothstep(0.42, 0.62, value_noise(wuv * 0.31 + 3.0)) * sand;
+	vec3 pebbles = texture(rock_albedo, wuv * 1.6).rgb * vec3(0.85, 0.82, 0.76);
+	col = mix(col, pebbles, shingle * 0.9);
+	nxy = mix(nxy, texture(rock_normal, wuv * 1.6).rg * 2.0 - 1.0, shingle);
+	float under = step(hy, 0.05);
+	float depth = max(-hy, 0.0);
+	float weed = smoothstep(0.5, 0.7, value_noise(wuv * 0.21 + 7.0)) * smoothstep(0.3, 1.2, depth) * (1.0 - smoothstep(3.0, 5.0, depth));
+	col = mix(col, vec3(0.16, 0.24, 0.13), weed * 0.7 * under);
+	float seabed_rock = smoothstep(0.62, 0.8, value_noise(wuv * 0.45 + 21.0)) * under;
+	col = mix(col, texture(rock_albedo, wuv * 0.9).rgb * vec3(0.55, 0.6, 0.58), seabed_rock * 0.8);
+	nxy = mix(nxy, texture(rock_normal, wuv * 0.9).rg * 2.0 - 1.0, seabed_rock);
+	float ripples = sin(wuv.x * 2.1 + value_noise(wuv * 0.3) * 6.0) * 0.5 + 0.5;
+	col *= 1.0 - under * (1.0 - weed) * (1.0 - seabed_rock) * ripples * 0.09;
 	if (paving > 0.001) {
 		vec2 world_step = fwidth(wuv);
 		FieldStone field = compute_fieldstone(wuv, max(world_step.x, world_step.y) / cobble_cell_size);

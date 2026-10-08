@@ -1,0 +1,64 @@
+{
+  "type": "world_object",
+  "id": "obj.firewood_armful",
+  "name": "Armful of firewood",
+  "description": "Six split logs carried home from the woodyard in both arms.",
+  "category": "material",
+  "handling": "carry_two_hands",
+  "tags": [
+    "fuel",
+    "wood"
+  ],
+  "physical": {
+    "mass_kg": 14,
+    "size_m": [
+      0.54,
+      0.33,
+      0.34
+    ],
+    "materials": [
+      "wood"
+    ],
+    "flammable": true
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop",
+    "push"
+  ],
+  "economy": {
+    "base_pfennigs": 6,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "home_poor",
+      "home_burgher",
+      "street"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/furniture/household_kit/household_furniture_kit.glb",
+    "measured_size_m": [
+      0.54,
+      0.33,
+      0.34
+    ],
+    "node": "FirewoodArmful"
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.firewood_armful.png",
+    "icon": "res://assets/objects/icons/obj.firewood_armful.png",
+    "icon_status": "missing",
+    "look": "Six split birch logs held together, white bark and pale split faces.",
+    "image_prompt": "Armful of firewood: Six split birch logs held together, white bark and pale split faces."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite"
+}

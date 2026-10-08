@@ -54,6 +54,34 @@ class SfxCatalogTest(unittest.TestCase):
         self.assertIn("not in assets/SOURCES.csv", text)
         self.assertIn("stream missing on disk", text)
 
+    def test_one_shot_pool_rejects_a_walk_cycle_stream(self) -> None:
+        """R-1382: the walk-cycle clips must never come back as per-step one-shots."""
+        payload = json.loads(catalog.CATALOG.read_text(encoding="utf-8"))
+        entry = next(e for e in payload["entries"] if e["id"] == "sfx.footstep.mud.walk")
+        entry["streams"] = ["res://sounds/walking_on_mud_stable_audio_3.mp3"]
+        entry["source_ids"] = ["sounds.walking.on.mud.stable.audio.3"]
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "cat.json"
+            path.write_text(json.dumps(payload), encoding="utf-8")
+            errors = catalog.validate(path)
+        self.assertTrue(
+            any("over the" in e and "sfx.footstep.mud.walk" in e for e in errors),
+            f"the duration cap did not fire: {errors}",
+        )
+
+    def test_every_shipped_one_shot_stream_is_short(self) -> None:
+        payload = json.loads(catalog.CATALOG.read_text(encoding="utf-8"))
+        checked = 0
+        for entry in payload["entries"]:
+            if not entry["id"].startswith(catalog.ONE_SHOT_PREFIXES):
+                continue
+            for stream in entry["streams"]:
+                probed = catalog.probe_audio(ROOT / stream.removeprefix("res://"))
+                self.assertIsNotNone(probed, f"cannot probe {stream}")
+                self.assertLessEqual(probed[1], catalog.ONE_SHOT_MAX_SECONDS, stream)
+                checked += 1
+        self.assertGreater(checked, 0, "no one-shot entries found to check")
+
     def test_bad_bus_fails_schema(self) -> None:
         payload = json.loads(catalog.CATALOG.read_text(encoding="utf-8"))
         payload["entries"][0]["bus"] = "Nope"

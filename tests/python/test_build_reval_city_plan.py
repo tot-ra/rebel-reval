@@ -28,6 +28,20 @@ class CityPlanBuilderTest(unittest.TestCase):
             self.assertIn(gate["id"], anchors)
             self.assertEqual(gate["at"], anchors[gate["id"]])
 
+    def test_nuns_gate_road_runs_straight_through_the_passage(self):
+        # The Nunne road used to end slanted against the wall beside the gate.
+        gate = next(g for g in self.plan["gates"] if g["id"] == "gate.nuns")
+        passage = (-math.sin(gate["angle"]), math.cos(gate["angle"]))
+        street = next(s for s in self.plan["streets"] if s["name"] == "Nunne")
+        pts = street["points"]
+        k = next(i for i, p in enumerate(pts) if p == gate["at"])
+        self.assertGreater(k, 0)
+        self.assertLess(k, len(pts) - 1)
+        for a, b in ((pts[k - 1], pts[k]), (pts[k], pts[k + 1])):
+            d = (b[0] - a[0], b[1] - a[1])
+            n = math.hypot(*d)
+            self.assertGreater(abs(d[0] * passage[0] + d[1] * passage[1]) / n, 0.99)
+
     def test_streets_cross_the_curtain_only_at_gates(self):
         gates = [tuple(g["at"]) for g in self.plan["gates"]]
         curtains = self.plan["curtains"]
@@ -46,7 +60,8 @@ class CityPlanBuilderTest(unittest.TestCase):
 
     def test_post_1343_fortifications_are_absent(self):
         names = " ".join(t["name"] for t in self.plan["towers"])
-        for later in ("Margaret", "Kiek", "Neitsi", "Hermann", "Epping", "Loewenschede"):
+        # Towers up to ~50 years late are shown on purpose (maintainer direction 2026-10-08).
+        for later in ("Margaret", "Kiek", "Hermann"):
             self.assertNotIn(later, names)
         states = {g["id"]: g["state"] for g in self.plan["gates"]}
         self.assertEqual(states["gate.long_hill"], "wooden")

@@ -72,10 +72,10 @@ func test_no_post_1343_towers_are_built() -> void:
 	var ids: Array = []
 	for t: Dictionary in plan.data["towers"]:
 		ids.append(t["id"])
-	for forbidden: String in [
-		"tower.fat_margaret", "tower.kiek_in_de_kok", "tower.neitsitorn", "tower.pikk_hermann"
-	]:
-		assert_false(ids.has(forbidden), "%s postdates spring 1343" % forbidden)
+	# Towers up to ~50 years later than 1343 are shown on purpose (maintainer direction
+	# 2026-10-08); the 15th/16th-century ones stay out.
+	for forbidden: String in ["tower.fat_margaret", "tower.kiek_in_de_kok", "tower.pikk_hermann"]:
+		assert_false(ids.has(forbidden), "%s is far too late for the circuit" % forbidden)
 	for required: String in [
 		"tower.nunnatorn", "tower.kuldjala", "tower.rentenitorn", "tower.stolting"
 	]:
@@ -83,6 +83,70 @@ func test_no_post_1343_towers_are_built() -> void:
 	for b: Dictionary in plan.buildings:
 		var name := String(b.get("name_1343", ""))
 		assert_false(name.contains("Margaret"), "no Fat Margaret building")
+
+
+func test_viru_gate_has_two_slim_drums_and_no_barbican() -> void:
+	var plan := _plan()
+	assert_true((plan.data.get("barbicans", []) as Array).is_empty(), "no barbican at Viru")
+	var viru_drums := 0
+	for t: Dictionary in plan.data["towers"]:
+		if String(t["id"]).begins_with("tower.viru_"):
+			viru_drums += 1
+			assert_eq(t["form"], "round", "%s is a round drum" % t["id"])
+			assert_true(float(t["w"]) <= 7.0, "%s is a slim drum" % t["id"])
+	assert_eq(viru_drums, 2, "one flanking drum each side of the gate")
+
+
+func test_roads_cross_the_moat_on_bridges_not_dams() -> void:
+	var plan := _plan()
+	var moat_bridges := 0
+	for b: Dictionary in plan.data["bridges"]:
+		if String(b.get("kind", "")) == "moat":
+			moat_bridges += 1
+			var at := Vector2(b["at"][0], b["at"][1])
+			assert_false(is_nan(plan.bridge_deck_height(at)), "%s has a deck" % b["id"])
+	assert_true(moat_bridges >= 3, "Viru, Karja and Harju roads cross the ditch by bridge")
+
+
+func test_stream_is_graded_and_bridges_sit_on_the_banks() -> void:
+	var plan := _plan()
+	var levels: Array = plan.data["harjapea"]["surfaces"]
+	for i in range(1, levels.size()):
+		assert_true(float(levels[i]) <= float(levels[i - 1]) + 0.001, "stream never runs uphill")
+	for b: Dictionary in plan.data["bridges"]:
+		if String(b.get("kind", "")) != "":
+			continue
+		var at := Vector2(b["at"][0], b["at"][1])
+		var along := Vector2.from_angle(float(b["angle"]))
+		for sign: float in [-1.0, 1.0]:
+			var end := at + along * sign * float(b["length"]) * 0.5
+			assert_true(
+				absf(plan.ground_height(end) - float(plan.bridge_deck_height(end))) < 0.6,
+				"%s deck meets the bank" % b["id"]
+			)
+
+
+func test_ground_height_matches_terrain_mesh_triangles() -> void:
+	var plan := _plan()
+	# Along a cell diagonal the interpolation must be linear between the two corners
+	# whichever way the mesh splits the quad.
+	var cell := plan.height_cell()
+	var o := plan.height_origin()
+	var worst := 0.0
+	for k in 200:
+		var ix := 100 + k
+		var iy := 330
+		var p00 := o + Vector2(ix, iy) * cell
+		var h00 := plan.grid_height(ix, iy)
+		var h11 := plan.grid_height(ix + 1, iy + 1)
+		var h10 := plan.grid_height(ix + 1, iy)
+		var h01 := plan.grid_height(ix, iy + 1)
+		var mid := plan.ground_height(p00 + Vector2(cell, cell) * 0.5)
+		var expect := (h00 + h11) * 0.5
+		if absf(h00 - h11) >= absf(h10 - h01):
+			expect = (h10 + h01) * 0.5
+		worst = maxf(worst, absf(mid - expect))
+	assert_true(worst < 0.001, "cell centre lies on the mesh diagonal (off by %f)" % worst)
 
 
 func test_building_lookup_and_floor_height() -> void:

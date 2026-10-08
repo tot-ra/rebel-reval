@@ -495,6 +495,36 @@ def build(args) -> dict:
     for s in streets:
         s["points_m"] = clip_to_circuit(s["points_m"], circuit_poly, gate_points)
     streets = [s for s in streets if len(s["points_m"]) >= 2 and polyline_length(s["points_m"]) > 2.0]
+    # A gate whose street meets the curtain at a slant leaves the road ending
+    # against the wall beside the opening. Where the overlay asks for it
+    # ("approach"), bend the street's gate end onto the wall normal so the road
+    # runs straight through the passage and a short stub continues outside.
+    for g in overlay["gates"]:
+        ap = g.get("approach")
+        if not ap:
+            continue
+        ai = next(i for i, a in enumerate(anchors) if a["ref"] == g["id"])
+        pp, np_ = anchors[ai - 1]["p"], anchors[(ai + 1) % len(anchors)]["p"]
+        wl = math.hypot(np_[0] - pp[0], np_[1] - pp[1])
+        nrm = (-(np_[1] - pp[1]) / wl, (np_[0] - pp[0]) / wl)
+        cen = (sum(a["p"][0] for a in anchors) / len(anchors), sum(a["p"][1] for a in anchors) / len(anchors))
+        if (cen[0] - g["at"][0]) * nrm[0] + (cen[1] - g["at"][1]) * nrm[1] > 0:
+            nrm = (-nrm[0], -nrm[1])  # outward (field side)
+        cands = [s for s in streets if s["name"] == g["street"]]
+        ends = [(math.dist(s["points_m"][e], g["at"]), s, e) for s in cands for e in (0, -1)]
+        _, st, e = min(ends, key=lambda t: t[0])
+        pts = [tuple(p) for p in st["points_m"]]
+        if e == 0:
+            pts.reverse()
+        # drop the slanted tail inside the approach distance, then re-enter on the normal
+        while len(pts) > 2 and math.dist(pts[-1], g["at"]) < ap["inside_m"]:
+            pts.pop()
+        gx, gy = g["at"]
+        pts += [(gx - nrm[0] * ap["inside_m"], gy - nrm[1] * ap["inside_m"]), (gx, gy),
+                (gx + nrm[0] * ap["outside_m"], gy + nrm[1] * ap["outside_m"])]
+        if e == 0:
+            pts.reverse()
+        st["points_m"] = [[round(p[0], 2), round(p[1], 2)] for p in pts]
     for r in overlay["streets"]["extramural_roads"]:
         streets.append({
             "id": r["id"], "name": "", "name_1343": r["name_1343"], "register_id": "",
@@ -613,36 +643,82 @@ def build(args) -> dict:
     # lowers the post-1840 harbour fill near the shore.
     blend = np.clip((shore_d - 60.0) / 140.0, 0.0, 1.0)
     land_h = np.where(~in_sea, land_h * (1 - blend) + asl * blend, land_h)
+    # Beach berms and runnels parallel to the water, hummocks of drift sand: the
+    # strand is not a plane (docs/SYSTEMS/CITY_SEA.md). Nothing within 1.5 m of the
+    # waterline, so the shore stays where the overlay put it.
+    strand = smoothstep01(shore_d, 1.5, 8.0) * (1.0 - smoothstep01(shore_d, 28.0, 55.0))
+    berm = 0.26 * np.sin(shore_d / 5.2 + terrain_relief.lattice_noise(X, Y, 70.0, 9201) * 4.0)
+    hummock = (terrain_relief.lattice_noise(X, Y, 16.0, 9202) - 0.5) * 0.55
+    land_h = np.where(~in_sea, land_h + (berm + hummock) * strand, land_h)
+    # Seabed: shore-parallel sandbars and troughs, boulder fields and undulation, so
+    # the water has real depth variety (bars are broken along the shore by noise).
     seabed = sea_asl - np.minimum(0.6 + shore_d * 0.035, 7.0)
+    ss = terrain_relief.smoothstep
+    bar_a = 0.55 * np.exp(-(((shore_d - 32.0) / 9.0) ** 2)) * ss(0.42, 0.68, terrain_relief.lattice_noise(X, Y, 90.0, 9101))
+    bar_b = 0.45 * np.exp(-(((shore_d - 85.0) / 13.0) ** 2)) * ss(0.4, 0.65, terrain_relief.lattice_noise(X, Y, 130.0, 9102))
+    trough = -0.4 * np.exp(-(((shore_d - 56.0) / 10.0) ** 2))
+    swell = (terrain_relief.lattice_noise(X, Y, 38.0, 9103) - 0.5) * 0.7 + (terrain_relief.lattice_noise(X, Y, 14.0, 9104) - 0.5) * 0.25
+    boulders = ss(0.6, 0.8, terrain_relief.lattice_noise(X, Y, 60.0, 9105)) * ss(0.5, 0.85, terrain_relief.lattice_noise(X, Y, 5.0, 9106)) * 0.75 * (shore_d < 170.0)
+    seabed = seabed + (bar_a + bar_b + trough + swell + boulders) * ss(5.0, 24.0, shore_d)
+    seabed = np.minimum(seabed, sea_asl - 0.14)  # a bar may shoal the water, never dry it
     asl = np.where(in_sea, seabed, land_h)
 
-    # Hareapea stream channel.
+    # Hareapea stream channel. The DEM is a smooth plate that falls ~16 m from the
+    # south edge to the sea, so a river held at sea level would sit in a 12 m
+    # gorge (bridges hung mid-slope, banks too steep to walk). The water instead
+    # follows the land: surface = valley floor minus a shallow bank, never rising
+    # downstream, and the banks stay gentle enough to walk down to the water.
     hj = overlay["harjapea"]
     trace = [tuple(p) for p in hj["trace_m"]]
+
+    def asl_pre(px, py):
+        fx = min(max((px - x0) / (HEIGHT_CELL_WU * mpu), 0), nx - 1.001)
+        fy = min(max((py - y0) / (HEIGHT_CELL_WU * mpu), 0), ny - 1.001)
+        i, j = int(fy), int(fx)
+        u, v = fy - i, fx - j
+        return float(asl[i, j] * (1 - u) * (1 - v) + asl[i + 1, j] * u * (1 - v) + asl[i, j + 1] * (1 - u) * v + asl[i + 1, j + 1] * u * v)
+
+    # Land beside the stream (lowest of both banks, 30 m out) sets the water level.
+    river_level = []
+    for i, (tx, ty) in enumerate(trace):
+        nxt = trace[min(i + 1, len(trace) - 1)]
+        prv = trace[max(i - 1, 0)]
+        d_ = math.hypot(nxt[0] - prv[0], nxt[1] - prv[1]) or 1.0
+        sx, sy = -(nxt[1] - prv[1]) / d_, (nxt[0] - prv[0]) / d_
+        bank_land = min(asl_pre(tx + sx * 30.0, ty + sy * 30.0), asl_pre(tx - sx * 30.0, ty - sy * 30.0))
+        river_level.append(bank_land - 1.6)
+    # Downstream is the last trace point: the level never rises toward it, and
+    # the mouth meets the sea.
+    for i in range(1, len(river_level)):
+        river_level[i] = min(river_level[i], river_level[i - 1])
+    river_level = [max(v_, sea_asl + 0.0) for v_ in river_level]
     river_d = np.full(X.shape, 1e9)
     river_w = np.zeros(X.shape)
+    river_s = np.zeros(X.shape)
     for i in range(len(trace) - 1):
         dd, t = dist_point_seg(X, Y, trace[i][0], trace[i][1], trace[i + 1][0], trace[i + 1][1])
         closer = dd < river_d
         river_d = np.where(closer, dd, river_d)
         river_w = np.where(closer, hj["width_m"][i] + (hj["width_m"][i + 1] - hj["width_m"][i]) * t, river_w)
-    bank = np.clip((river_d - river_w * 0.5) / 14.0, 0.0, 1.0)  # a steep-sided valley, not a gorge
-    river_bed = sea_asl - 0.9
+        river_s = np.where(closer, river_level[i] + (river_level[i + 1] - river_level[i]) * t, river_s)
+    bank = np.clip((river_d - river_w * 0.5) / 14.0, 0.0, 1.0)
+    river_bed = river_s - 0.9
     asl = np.where(river_d < river_w * 0.5 + 14.0, river_bed + (asl - river_bed) * bank, asl)
-    # River water surface descends gently toward the sea.
-    river_surface = sea_asl + 0.0
 
     # Moat (ditch) outside the S/E curtain.
     mo = overlay["moat"]
-    moat_line = offset_outward(resample([a["p"] for a in anchors[mo["from_anchor"] : mo["to_anchor"] + 1]], 6.0), circuit_poly, mo["offset_m"])
+    wall_line = [a["p"] for a in anchors[mo["from_anchor"] : mo["to_anchor"] + 1]]
+    moat_line = offset_outward(resample(wall_line, 6.0), circuit_poly, mo["offset_m"])
+    # Rounded corners, kept clear of the curtain foot (ditch inner edge >= 3 m out).
+    moat_line = resample(smooth_ditch(moat_line, wall_line, mo["offset_m"] - 1.5), 6.0)
     moat_d = np.full(X.shape, 1e9)
     for i in range(len(moat_line) - 1):
         dd, _ = dist_point_seg(X, Y, moat_line[i][0], moat_line[i][1], moat_line[i + 1][0], moat_line[i + 1][1])
         moat_d = np.minimum(moat_d, dd)
     half = mo["width_m"] * 0.5
-    cut = np.clip(1.0 - (moat_d - half * 0.55) / (half * 0.9), 0.0, 1.0)
+    cut = np.clip(1.0 - (moat_d - half * 0.5) / (half * 1.7), 0.0, 1.0)
     cut = cut * cut * (3 - 2 * cut)
-    # Earthen causeways carry every road over the ditch: no cut near a road.
+    # Every road crosses the ditch: remember where, for the moat bridges.
     causeways = []
     for r in overlay["streets"]["extramural_roads"]:
         pts = [tuple(q) for q in r["points_m"]]
@@ -650,12 +726,9 @@ def build(args) -> dict:
             for i in range(len(moat_line) - 1):
                 q = seg_intersection(pts[k], pts[k + 1], moat_line[i], moat_line[i + 1])
                 if q is not None:
-                    causeways.append((q, math.atan2(pts[k + 1][1] - pts[k][1], pts[k + 1][0] - pts[k][0]), r["width_m"]))
-    keep = np.zeros(X.shape)
-    for q, _, w_ in causeways:
-        dq = np.hypot(X - q[0], Y - q[1])
-        keep = np.maximum(keep, np.clip(1.0 - (dq - (w_ * 0.5 + 2.0)) / 4.0, 0.0, 1.0))
-    asl = asl - cut * mo["depth_m"] * (1.0 - keep)
+                    causeways.append((q, math.atan2(pts[k + 1][1] - pts[k][1], pts[k + 1][0] - pts[k][0]), r.get("causeway_width_m", r["width_m"]), r["id"]))
+    # Roads cross the ditch on timber bridges (below), so the ditch is cut unbroken.
+    asl = asl - cut * mo["depth_m"]
 
     # Final light smoothing outside the cliff band keeps the ground from stair-stepping.
     cliff_band = (sd > -np.maximum(sw, 1) - 2) & (sd < 3)
@@ -708,7 +781,7 @@ def build(args) -> dict:
                 ang = math.atan2(pts[k + 1][1] - pts[k][1], pts[k + 1][0] - pts[k][0])
                 t = math.dist(trace[i], q) / max(math.dist(trace[i], trace[i + 1]), 1e-9)
                 river = hj["width_m"][i] + (hj["width_m"][i + 1] - hj["width_m"][i]) * t
-                length = river + 12.0
+                length = river + 16.0
                 c, s_ = math.cos(ang), math.sin(ang)
                 ha = h_at_m(q[0] - c * length / 2, q[1] - s_ * length / 2)
                 hb = h_at_m(q[0] + c * length / 2, q[1] + s_ * length / 2)
@@ -719,6 +792,19 @@ def build(args) -> dict:
                     "ha": round(ha, 3), "hb": round(hb, 3),
                     "confidence": "plausible composite; no 1343 bridge is attested, a plank-deck timber bridge is a reversible reconstruction",
                 })
+    # Moat bridges: a plank deck on trestles carries each road over the ditch.
+    for q, ang, _w, road_id in causeways:
+        road = next(r for r in overlay["streets"]["extramural_roads"] if r["id"] == road_id)
+        length = mo["width_m"] * 2.0 + 4.0
+        c, s_ = math.cos(ang), math.sin(ang)
+        bridges.append({
+            "id": "bridge.moat.%s" % road["id"].split(".")[1], "road": road["id"], "kind": "moat",
+            "at": [round(q[0] / mpu, 2), round(q[1] / mpu, 2)], "angle": round(ang, 4),
+            "length": round(length / mpu, 2), "width": round((road["width_m"] + 1.5) / mpu, 2),
+            "ha": round(h_at_m(q[0] - c * length / 2, q[1] - s_ * length / 2), 3),
+            "hb": round(h_at_m(q[0] + c * length / 2, q[1] + s_ * length / 2), 3),
+            "confidence": "plausible composite; the ditch is crossed by a timber plank bridge (reversible reconstruction), no 1343 bridge is attested",
+        })
 
     # ---------------- buildings ----------------
     excluded_b = set(overlay["excluded_osm_buildings"])
@@ -874,6 +960,7 @@ def build(args) -> dict:
         })
 
     # Suburb houses outside the walls: deterministic scatter along roads.
+    farm_houses = []
     for sub in overlay["suburbs"]:
         poly = [tuple(p) for p in sub["polygon_m"]]
         xs = [p[0] for p in poly]
@@ -896,8 +983,8 @@ def build(args) -> dict:
                 continue
             placed.append((px_, py_))
             ang = math.atan2(foot[1] - py_, foot[0] - px_) + math.pi / 2 + srng.uniform(-0.25, 0.25)
-            L = srng.uniform(7, 12) if sub["kind"] != "fisher" else srng.uniform(5, 8)
-            D = srng.uniform(5, 7)
+            L = srng.uniform(7, 12) if sub["kind"] != "fisher" else srng.uniform(4.2, 9.5)
+            D = srng.uniform(5, 7) if sub["kind"] != "fisher" else srng.uniform(3.4, 5.4)
             ring = [(px_ + math.cos(ang) * sx * L / 2 - math.sin(ang) * sy * D / 2, py_ + math.sin(ang) * sx * L / 2 + math.cos(ang) * sy * D / 2) for sx, sy in ((-1, -1), (1, -1), (1, 1), (-1, 1))]
             # irregular: nudge one corner so houses are not perfect rectangles
             ci = srng.randrange(4)
@@ -906,16 +993,22 @@ def build(args) -> dict:
             hmin = min(h_at_m(p[0], p[1]) for p in ring)
             hmax = max(h_at_m(p[0], p[1]) for p in ring)
             hid = "bldg.%s.%02d" % (sub["id"].split(".")[1], len(placed))
+            if sub["kind"] == "farm":
+                farm_houses.append((hid, (px_, py_), ang, seg[2]["id"], sub["confidence"]))
             buildings.append({
                 "id": hid, "kind": "house", "name_1343": "", "landmark_id": "", "confidence": sub["confidence"],
                 "footprint": [[round(p[0] / mpu, 3), round(p[1] / mpu, 3)] for p in ring],
-                "base_h": round(hmin, 3), "base_span": round(hmax - hmin, 3), "wall_h": round(srng.uniform(2.6, 3.4) / mpu, 3),
-                "roof": "thatch", "roof_pitch_deg": 52, "ridge_angle": round(ang, 4),
+                "base_h": round(hmin, 3), "base_span": round(hmax - hmin, 3), "wall_h": round((srng.uniform(2.6, 3.4) if sub["kind"] != "fisher" else srng.uniform(1.7, 2.4)) / mpu, 3),
+                "roof": "thatch", "roof_pitch_deg": 52 if sub["kind"] != "fisher" else srng.choice([34, 38, 42, 48]), "ridge_angle": round(ang, 4),
                 "material": "log", "street_id": seg[2]["id"],
                 "door": [round(door[0] / mpu, 3), round(door[1] / mpu, 3), round(door[2], 4)] if door else None,
                 "enterable": bool(door), "tower_h": 0.0,
             })
 
+    buildings.extend(farm_outbuildings(farm_houses, buildings, h_at_m, nearest_street, mpu))
+    harbour_b, harbour_decks, harbour = harbour_features(buildings, h_at_m, nearest_street, mpu)
+    buildings.extend(harbour_b)
+    bridges.extend(harbour_decks)
     buildings.sort(key=lambda b_: b_["id"])
     # ADR 0032 landmark sites: drop the generic buildings they replace, level
     # their terraces, then the generic landmark terraces.
@@ -974,6 +1067,8 @@ def build(args) -> dict:
         })
     flank_specs = {f["gate"]: f for f in overlay.get("flanking_towers", [])}
     gates_out = []
+    barbicans_out = []
+    circuit_centroid = (sum(a["p"][0] for a in anchors) / len(anchors), sum(a["p"][1] for a in anchors) / len(anchors))
     for g in overlay["gates"]:
         idx = next(i for i, a in enumerate(anchors) if a["ref"] == g["id"])
         prev_p = anchors[idx - 1]["p"]
@@ -998,7 +1093,47 @@ def build(args) -> dict:
                     "confidence": spec["confidence"], "at": [round(p[0] / mpu, 3), round(p[1] / mpu, 3)],
                     "angle": round(along, 4), "w": round(spec["w"] / mpu, 3), "d": round(spec["d"] / mpu, 3),
                     "h": round(spec["h"] / mpu, 3), "base_h": round(h_at_m(*p), 3),
+                    **({"roof_h": round(spec["roof_h"] / mpu, 3)} if "roof_h" in spec else {}),
                 })
+        for bb in overlay.get("barbicans", []):
+            if bb["gate"] != g["id"]:
+                continue
+            # Outer gate, bailey side walls and the outer tower pair: the passage
+            # runs along the street (perpendicular to the wall), outward = field side.
+            ax = (math.cos(along), math.sin(along))
+            nrm = (-ax[1], ax[0])
+            if math.dist((g["at"][0] + nrm[0], g["at"][1] + nrm[1]), circuit_centroid) < math.dist((g["at"][0] - nrm[0], g["at"][1] - nrm[1]), circuit_centroid):
+                nrm = (-nrm[0], -nrm[1])
+            outer = (g["at"][0] + nrm[0] * bb["length_m"], g["at"][1] + nrm[1] * bb["length_m"])
+            hw = bb["half_width_m"]
+            for sign, tid in zip((-1, 1), bb["outer_towers"]):
+                spec = tower_specs[tid]
+                p = (outer[0] + ax[0] * sign * hw, outer[1] + ax[1] * sign * hw)
+                towers.append({
+                    "id": spec["id"], "name": spec["name"], "form": spec["form"], "state": spec["state"],
+                    "confidence": spec["confidence"], "at": [round(p[0] / mpu, 3), round(p[1] / mpu, 3)],
+                    "angle": round(along, 4), "w": round(spec["w"] / mpu, 3), "d": round(spec["d"] / mpu, 3),
+                    "h": round(spec["h"] / mpu, 3), "base_h": round(h_at_m(*p), 3),
+                })
+            walls = []
+            for sign in (-1, 1):
+                # Tower centres of the inner pair sit on the wall line; the outer pair is
+                # offset the same way, so each side wall joins the two drums.
+                a0 = (g["at"][0] + ax[0] * sign * hw, g["at"][1] + ax[1] * sign * hw)
+                a1 = (outer[0] + ax[0] * sign * hw, outer[1] + ax[1] * sign * hw)
+                walls.append({
+                    "from": [round(a0[0] / mpu, 3), round(a0[1] / mpu, 3)], "to": [round(a1[0] / mpu, 3), round(a1[1] / mpu, 3)],
+                    "height": round(bb["wall_height_m"] / mpu, 3), "thickness": round(bb["wall_thickness_m"] / mpu, 3),
+                    "base_from": round(h_at_m(*a0), 3), "base_to": round(h_at_m(*a1), 3),
+                })
+            barbicans_out.append({
+                "id": bb["id"], "gate": g["id"], "confidence": bb["confidence"], "walls": walls,
+                "outer_gate": {
+                    "id": g["id"] + ".outer", "name_1343": bb["outer_name"], "state": "present",
+                    "confidence": bb["confidence"], "at": [round(outer[0] / mpu, 3), round(outer[1] / mpu, 3)],
+                    "angle": round(along, 4), "opening": round(3.6 / mpu, 3), "base_h": round(h_at_m(*outer), 3),
+                },
+            })
         gates_out.append({
             "id": g["id"], "name_1343": g["name_1343"], "state": g["state"], "confidence": g["confidence"],
             "at": [round(g["at"][0] / mpu, 3), round(g["at"][1] / mpu, 3)], "angle": round(along, 4),
@@ -1086,14 +1221,14 @@ def build(args) -> dict:
         "height_grid": {"cell": HEIGHT_CELL_WU, "nx": nx, "ny": ny, "origin": [round(x0 / mpu, 3), round(y0 / mpu, 3)], "file": "height.json"},
         "splat": {"file": "splat.png", "px_per_unit": SPLAT_PX_PER_WU, "channels": ["paving", "packed_earth", "sand", "mud"]},
         "shoreline": wu(shore),
-        "harjapea": {"points": wu(trace), "widths": [round(w_ / mpu, 3) for w_ in hj["width_m"]], "surface": round((river_surface - sea_asl) / mpu, 3), "confidence": hj["confidence"]},
-        "moat": {"points": wu(moat_line), "width": round(mo["width_m"] / mpu, 3), "wet_fraction": mo["wet_fraction"], "confidence": mo["confidence"],
-                 "causeways": [{"at": [round(q[0] / mpu, 3), round(q[1] / mpu, 3)], "angle": round(a_, 4), "width": round((w_ + 1.5) / mpu, 3)} for q, a_, w_ in causeways]},
+        "harjapea": {"points": wu(trace), "widths": [round(w_ / mpu, 3) for w_ in hj["width_m"]], "surface": round((min(river_level) - sea_asl) / mpu, 3), "surfaces": [round((v_ - sea_asl) / mpu, 3) for v_ in river_level], "confidence": hj["confidence"]},
+        "moat": {"points": wu(moat_line), "width": round(mo["width_m"] / mpu, 3), "wet_fraction": mo["wet_fraction"], "confidence": mo["confidence"]},
         "toompea_edge": wu(toompea_edge),
         "forum": {"id": overlay["forum"]["id"], "name_1343": overlay["forum"]["name_1343"], "polygon": wu(overlay["forum"]["polygon_m"]), "confidence": overlay["forum"]["confidence"]},
         "circuit": [{"at": [round(a["p"][0] / mpu, 3), round(a["p"][1] / mpu, 3)], "state": a["state"], "ref": a["ref"], "tower": a["tower"], "osm": a["osm"]} for a in anchors],
         "curtains": curtains,
         "towers": towers,
+        "barbicans": barbicans_out,
         "gates": gates_out,
         "toompea_walls": toompea_walls,
         "toompea_openings": toompea_openings,
@@ -1116,6 +1251,7 @@ def build(args) -> dict:
         "woods": woods,
         "farmsteads": farmsteads,
         "bridges": bridges,
+        "harbour": harbour,
         "points_of_interest": pois,
         "flows": overlay["flows"],
     }
@@ -1151,14 +1287,14 @@ def site_to_world(site, p):
     return (ax + p[0] * c - p[1] * s_, ay + p[0] * s_ + p[1] * c)
 
 
-def flatten_ground(height_wu, ring, level, blend, x0, y0, mpu):
+def flatten_ground(height_wu, ring, level, blend, x0, y0, mpu, apron=1.0):
     """Cut or fill the heightfield inside `ring` (metres) to `level` (wu), blended
     back into the natural ground over `blend` metres with a smoothstep."""
     cell = HEIGHT_CELL_WU * mpu
     ny, nx = height_wu.shape
     xs = [p[0] for p in ring]
     ys = [p[1] for p in ring]
-    m = max(blend, 1.01)
+    m = max(blend, apron + 0.01)
     j0 = max(0, int((min(xs) - m - x0) / cell))
     j1 = min(nx - 1, int((max(xs) + m - x0) / cell) + 1)
     i0 = max(0, int((min(ys) - m - y0) / cell))
@@ -1170,8 +1306,9 @@ def flatten_ground(height_wu, ring, level, blend, x0, y0, mpu):
         a, c = ring[k], ring[(k + 1) % len(ring)]
         dk, _ = dist_point_seg(X, Y, a[0], a[1], c[0], c[1])
         d = np.minimum(d, dk)
-    # 1 m apron at full level, then a smoothstep back to the natural slope.
-    t = np.clip((d - 1.0) / (m - 1.0), 0.0, 1.0)
+    # Apron at full level (1 m by default), then a smoothstep back to the
+    # natural slope.
+    t = np.clip((d - apron) / (m - apron), 0.0, 1.0)
     w = np.where(inside, 1.0, 1.0 - t * t * (3.0 - 2.0 * t))
     block = height_wu[i0:i1 + 1, j0:j1 + 1]
     height_wu[i0:i1 + 1, j0:j1 + 1] = block * (1.0 - w) + level * w
@@ -1211,16 +1348,47 @@ def terrace_site(site, height_wu, h_at_m, x0, y0, mpu):
 TERRACE_KINDS = ("church", "chapel", "hall")
 TERRACE_MIN_SPAN_WU = 0.8
 TERRACE_BLEND_M = 8.0
+# Houses get the same treatment on a smaller scale: the floor is the highest
+# ground under the footprint, so on a slope the street-side door sat up to a
+# metre and a half above the street and the runtime filled the gap with a tall
+# flight of steps. Cutting the plot to the door's street level keeps the
+# threshold at 0-2 treads. A footprint spanning more than HOUSE_TERRACE_MAX_SPAN_WU
+# is a merged OSM polygon or a cliff edge; levelling it would carve a quarry, so
+# those keep the runtime steps.
+HOUSE_TERRACE_MIN_SPAN_WU = 0.3
+HOUSE_TERRACE_MAX_SPAN_WU = 3.0
+HOUSE_TERRACE_BLEND_M = 3.0
 
 
 def terrace_landmarks(buildings, height_wu, h_at_m, x0, y0, mpu):
+    plots = []
     for b in buildings:
-        if b["kind"] not in TERRACE_KINDS or not b["door"] or b["base_span"] < TERRACE_MIN_SPAN_WU:
+        if not b["door"]:
+            continue
+        if b["kind"] in TERRACE_KINDS:
+            if b["base_span"] < TERRACE_MIN_SPAN_WU:
+                continue
+            blend = TERRACE_BLEND_M
+        elif b["kind"] == "house":
+            if not HOUSE_TERRACE_MIN_SPAN_WU <= b["base_span"] <= HOUSE_TERRACE_MAX_SPAN_WU:
+                continue
+            blend = HOUSE_TERRACE_BLEND_M
+        else:
             continue
         ring = [(q[0] * mpu, q[1] * mpu) for q in b["footprint"]]
         dx, dy, ang = b["door"][0] * mpu, b["door"][1] * mpu, b["door"][2]
+        # Every level is read from the natural ground before any plot is cut, so
+        # the result does not depend on building order.
         level = h_at_m(dx + math.cos(ang) * 2.0, dy + math.sin(ang) * 2.0)
-        flatten_ground(height_wu, ring, level, TERRACE_BLEND_M, x0, y0, mpu)
+        plots.append((ring, level, blend))
+    for ring, level, blend in plots:
+        flatten_ground(height_wu, ring, level, blend, x0, y0, mpu)
+    # In a dense row the blend of one plot lands on its neighbour's floor. Cut
+    # the footprints once more with a 2.2 m apron (just over one 2 wu grid cell,
+    # so every cell the bilinear lookup at a footprint corner reads is at level)
+    # and almost no blend, so each floor ends up at its own door level.
+    for ring, level, _blend in plots:
+        flatten_ground(height_wu, ring, level, 2.3, x0, y0, mpu, apron=2.2)
     # Bases of every building near a terrace changed: recompute them all.
     for b in buildings:
         ring = [(q[0] * mpu, q[1] * mpu) for q in b["footprint"]]
@@ -1343,7 +1511,7 @@ def plant(overlay, buildings, streets, circuit_poly, toompea_edge, river, h_at_m
 # the Estonian diet; oats feed the horses; winter wheat is a minor crop on the
 # best soil near the town (docs/CANON.md diet note). Weights are per block.
 CROP_WEIGHTS = [
-    ("rye", "winter", 30), ("wheat", "winter", 9), ("barley", "spring", 22),
+    ("rye", "winter", 26), ("wheat", "winter", 18), ("barley", "spring", 22),
     ("oat", "spring", 14), ("pea", "spring", 4), ("flax", "spring", 3), ("fallow", "fallow", 18),
 ]
 GARDEN_CROPS = ["cabbage", "turnip", "pea", "onion", "flax", "cabbage", "turnip"]
@@ -1596,6 +1764,203 @@ def countryside(overlay, buildings, streets, circuit_poly, toompea_edge, h_at_m,
 
 
 
+# ---------------------------------------------------------------------------
+# Farm outbuildings (history/dossiers/architecture/rural-smoke-dwelling-and-farmstead-1343.md)
+# ---------------------------------------------------------------------------
+
+# type -> (length m, depth m, wall height m, roof pitch deg, door). Sizes keep the
+# silhouettes apart: the barn-dwelling is the long, high log mass; the byre is
+# low and long; pigsty and hen house are knee-high sheds. No rabbit hutches: no
+# domestic rabbit is evidenced in 1343 Estonia (dossier open question).
+OUTBUILDING_TYPES = {
+    "barn_dwelling": ((14.0, 18.0), (6.8, 8.0), 2.9, 54, "door"),
+    "barn": ((10.0, 14.0), (6.0, 7.0), 2.7, 52, None),
+    "byre": ((8.0, 10.5), (4.6, 5.4), 1.9, 46, "door"),
+    "sheep_shed": ((5.5, 7.0), (3.6, 4.4), 1.7, 44, "door"),
+    "pigsty": ((3.4, 4.4), (2.5, 3.1), 1.25, 38, "door"),
+    "hen_house": ((2.2, 2.8), (1.9, 2.3), 1.1, 40, None),
+    "store": ((3.8, 4.6), (3.3, 3.9), 2.2, 50, "door"),
+    # Harbour (history/dossiers/topography/harbour-and-shoreline.md, kalamaja-fishing-shore-1343.md)
+    "cargo_shed": ((8.0, 11.0), (4.6, 5.6), 2.4, 32, None),
+    "smoke_shed": ((3.8, 4.8), (2.8, 3.4), 1.8, 38, "door"),
+    "salt_shed": ((4.0, 5.0), (3.0, 3.6), 1.9, 36, "door"),
+}
+# What a farmstead keeps by wealth tier (hash of its house id): grain farm with a
+# barn-dwelling, ordinary farm, poor croft.
+FARM_TIERS = [
+    ["barn_dwelling", "byre", "pigsty", "hen_house", "store"],
+    ["barn", "byre", "hen_house", "pigsty"],
+    ["barn", "sheep_shed", "hen_house"],
+    ["sheep_shed", "hen_house", "pigsty"],
+    ["hen_house", "pigsty"],
+]
+
+
+def outbuilding_record(bid, typ, cx, cy, axis, L, D, face, h_at_m, mpu, street_id, confidence, extra=None):
+    """One non-enterable outbuilding of OUTBUILDING_TYPES at (cx, cy) metres."""
+    _, _, wall, pitch, door_kind = OUTBUILDING_TYPES[typ]
+    ring = [(cx + math.cos(axis) * sx * L / 2 - math.sin(axis) * sy * D / 2, cy + math.sin(axis) * sx * L / 2 + math.cos(axis) * sy * D / 2) for sx, sy in ((-1, -1), (1, -1), (1, 1), (-1, 1))]
+    door = None
+    if door_kind:
+        d = door_on_edge(ring, face)
+        door = [round(d[0] / mpu, 3), round(d[1] / mpu, 3), round(d[2], 4)]
+    hs = [h_at_m(q[0], q[1]) for q in ring]
+    rec = {
+        "id": bid, "kind": "outbuilding", "type": typ, "name_1343": "", "landmark_id": "", "confidence": confidence,
+        "footprint": [[round(q[0] / mpu, 3), round(q[1] / mpu, 3)] for q in ring],
+        "base_h": round(min(hs), 3), "base_span": round(max(hs) - min(hs), 3), "wall_h": round(wall / mpu, 3),
+        "roof": "thatch", "roof_pitch_deg": pitch, "ridge_angle": round(axis if L >= D else axis + math.pi / 2, 4),
+        "material": "log", "street_id": street_id, "door": door, "enterable": False, "openings": False, "tower_h": 0.0,
+    }
+    rec.update(extra or {})
+    return rec
+
+
+def farm_outbuildings(farm_houses, buildings, h_at_m, nearest_street, mpu):
+    """Deterministic yard buildings round every farm-suburb house: kind
+    "outbuilding", never enterable, so the census and doors ignore them."""
+    out = []
+    taken = [(poly_centroid([(q[0] * mpu, q[1] * mpu) for q in b["footprint"]]), 9.0 if b.get("kind") == "house" else 5.0) for b in buildings]
+    for hid, (hx, hy), ang, street_id, conf in farm_houses:
+        rng = random.Random(hash_int(hid) ^ 0x5F3)
+        tier = FARM_TIERS[hash_int(hid + "tier") % len(FARM_TIERS)]
+        for n, typ in enumerate(tier):
+            (lmin, lmax), (dmin, dmax), _, _, _ = OUTBUILDING_TYPES[typ]
+            L, D = rng.uniform(lmin, lmax), rng.uniform(dmin, dmax)
+            radius = math.hypot(L, D) / 2
+            for attempt in range(40):
+                a = rng.uniform(0, math.tau)
+                dist = rng.uniform(11, 26) + radius * 0.5 + attempt * 0.4
+                cx, cy = hx + math.cos(a) * dist, hy + math.sin(a) * dist
+                if h_at_m(cx, cy) < 0.6:
+                    continue
+                if any(math.dist((cx, cy), t[0]) < t[1] + radius + 1.5 for t in taken):
+                    continue
+                d_street, foot, seg = nearest_street((cx, cy))
+                if d_street < 5.5 + radius * 0.4:
+                    continue
+                axis = ang + rng.choice([0.0, math.pi / 2]) + rng.uniform(-0.18, 0.18)
+                ring = [(cx + math.cos(axis) * sx * L / 2 - math.sin(axis) * sy * D / 2, cy + math.sin(axis) * sx * L / 2 + math.cos(axis) * sy * D / 2) for sx, sy in ((-1, -1), (1, -1), (1, 1), (-1, 1))]
+                if min(h_at_m(q[0], q[1]) for q in ring) < 0.5:
+                    continue
+                taken.append(((cx, cy), radius))
+                out.append(outbuilding_record(
+                    "bldg.%s.%s%d" % (hid.split(".", 1)[1], typ.replace("_", ""), n), typ, cx, cy, axis, L, D, (hx, hy), h_at_m, mpu, street_id,
+                    "plausible composite (rural-smoke-dwelling-and-farmstead-1343 dossier); %s" % conf,
+                    {"farmstead": "farmstead." + hid.split(".", 1)[1]},
+                ))
+                break
+    return out
+
+
+
+def shore_march(h_at_m, x, y, dx, dy, limit=160.0):
+    """Walk from (x, y) along (dx, dy) until the ground drops under the sea; returns
+    the last dry point (metres)."""
+    last = (x, y)
+    t = 0.0
+    while t < limit:
+        px, py = x + dx * t, y + dy * t
+        if h_at_m(px, py) < 0.2:
+            return last
+        last = (px, py)
+        t += 1.0
+    return last
+
+
+def harbour_features(buildings, h_at_m, nearest_street, mpu):
+    """Merchant landing below the Coastal Gate and the Kalamaja fishing shore:
+    short timber jetties and beach decks (walkable, like bridges), one treadwheel
+    crane, cargo sheds, three net yards, smoke and salt sheds, a boatwright
+    ground and small clinker boats on the sand. No stone quay, no foregate."""
+    hrng = random.Random(1343_77)
+    taken = [(poly_centroid([(q[0] * mpu, q[1] * mpu) for q in b["footprint"]]), 9.0 if b.get("kind") == "house" else 5.0) for b in buildings]
+    out_b, decks, harbour = [], [], {"crane": None, "net_yards": [], "boats": [], "stacks": [], "boatwright": None, "landings": []}
+
+    def place(bid, typ, around, spread, face, conf, shore_dir=None, min_h=0.7):
+        (lmin, lmax), (dmin, dmax), _, _, _ = OUTBUILDING_TYPES[typ]
+        L, D = hrng.uniform(lmin, lmax), hrng.uniform(dmin, dmax)
+        radius = math.hypot(L, D) / 2
+        for attempt in range(80):
+            cx = around[0] + hrng.uniform(-spread, spread)
+            cy = around[1] + hrng.uniform(-spread, spread)
+            if h_at_m(cx, cy) < min_h or any(math.dist((cx, cy), t[0]) < t[1] + radius + 1.2 for t in taken):
+                continue
+            d_street, _, seg = nearest_street((cx, cy))
+            if d_street < 5.0 + radius * 0.4:
+                continue
+            axis = shore_dir if shore_dir is not None else hrng.uniform(0, math.pi)
+            ring_h = [h_at_m(cx + math.cos(axis) * sx * L / 2, cy + math.sin(axis) * sx * L / 2) for sx in (-1, 1)]
+            if min(ring_h) < min_h - 0.1:
+                continue
+            taken.append(((cx, cy), radius))
+            out_b.append(outbuilding_record(bid, typ, cx, cy, axis, L, D, face, h_at_m, mpu, seg[2]["id"], conf))
+            return (cx, cy)
+        return None
+
+    def deck(did, kind, start, direction, length, width, conf):
+        ang = math.atan2(direction[1], direction[0])
+        level = max(h_at_m(*start), 0.8)
+        mid = (start[0] + direction[0] * length / 2, start[1] + direction[1] * length / 2)
+        decks.append({"id": did, "road": "", "kind": kind, "at": [round(mid[0] / mpu, 2), round(mid[1] / mpu, 2)], "angle": round(ang, 4),
+                      "length": round(length / mpu, 2), "width": round(width / mpu, 2), "ha": round(level, 3), "hb": round(level, 3), "rails": False,
+                      "confidence": conf})
+
+    conf = "plausible composite (harbour-and-shoreline / kalamaja-fishing-shore-1343 dossiers)"
+    # ---- merchant landing under the Coastal Gate: two short timber jetties, one crane ----
+    north = (0.0, -1.0)
+    shore = {}
+    for name, x in (("a", 204.0), ("b", 252.0)):
+        s_ = shore_march(h_at_m, x, -600.0, *north)
+        shore[name] = s_
+        start = (s_[0], s_[1] + 4.0)
+        deck("jetty.coastal.%s" % name, "jetty", start, north, 15.0 if name == "a" else 10.5, 2.4, conf + "; short timber jetty, not a continuous dressed-stone quay")
+    mid = shore_march(h_at_m, 228.0, -600.0, *north)
+    harbour["crane"] = {"id": "crane.coastal", "at": [round(mid[0] / mpu, 2), round(mid[1] / mpu, 2)], "angle": round(-math.pi / 2, 4), "confidence": "plausible composite (one reversible treadwheel crane; no Reval-specific attestation)"}
+    taken.append(((mid[0], mid[1]), 5.0))
+    for i in range(3):
+        place("bldg.coastal.cargoshed%d" % i, "cargo_shed", (228.0 + (i - 1) * 24, mid[1] + 14 + hrng.uniform(-2, 3)), 9.0, (228.0, mid[1]), conf + "; plank cargo shed", shore_dir=0.04, min_h=0.45)
+    for i in range(6):
+        harbour["stacks"].append({"id": "stack.coastal.%d" % i, "kind": ["barrel", "barrel", "bale", "crate"][i % 4], "at": [round(mid[0] + hrng.uniform(-14, 14), 2), round(mid[1] + hrng.uniform(1, 7), 2)]})
+    # ---- Kalamaja fishing shore: three beach decks, three net yards, sheds, boats ----
+    xs = (-640.0, -560.0, -470.0)
+    for k, x in enumerate(xs):
+        s_ = shore_march(h_at_m, x, -740.0, 0.0, -1.0)
+        harbour["landings"].append([round(s_[0], 2), round(s_[1], 2)])
+        deck("jetty.kalamaja.%d" % k, "beach_deck", (s_[0], s_[1] + 3.0), (0.0, -1.0), 7.0, 1.8, conf + "; short timber beach deck")
+        yard_c = (s_[0] + 9.0, s_[1] + 12.0 + hrng.uniform(0, 4))
+        if h_at_m(*yard_c) > 0.7:
+            racks = []
+            for r in range(4):
+                racks.append([round(yard_c[0] - 5.0 + r * 3.4, 2), round(yard_c[1] - 3.0, 2), 0.0, 3.0])
+            ring = [(yard_c[0] + sx * 7.5, yard_c[1] + sy * 4.5) for sx, sy in ((-1, -1), (1, -1), (1, 1), (-1, 1))]
+            harbour["net_yards"].append({"id": "netyard.%d" % k, "polygon": [[round(q[0] / mpu, 2), round(q[1] / mpu, 2)] for q in ring], "racks": [[round(r_[0] / mpu, 2), round(r_[1] / mpu, 2), r_[2], round(r_[3] / mpu, 2)] for r_ in racks]})
+            taken.append((yard_c, 8.0))
+    mid_k = shore_march(h_at_m, -555.0, -740.0, 0.0, -1.0)
+    place("bldg.kalamaja.smokeshed0", "smoke_shed", (mid_k[0] - 24, mid_k[1] + 14), 6.0, mid_k, conf + "; timber smoke rack under a low roof", shore_dir=0.0)
+    place("bldg.kalamaja.smokeshed1", "smoke_shed", (mid_k[0] + 30, mid_k[1] + 14), 6.0, mid_k, conf, shore_dir=0.0)
+    place("bldg.kalamaja.saltshed0", "salt_shed", (mid_k[0] + 4, mid_k[1] + 22), 6.0, mid_k, conf + "; imported Hanseatic salt", shore_dir=0.0)
+    bw = (mid_k[0] - 55, mid_k[1] + 10)
+    harbour["boatwright"] = {"id": "boatwright.kalamaja", "at": [round(bw[0] / mpu, 2), round(bw[1] / mpu, 2)], "confidence": conf}
+    taken.append((bw, 7.0))
+    for i in range(8):
+        k = i % 3
+        base = shore_march(h_at_m, xs[k] + hrng.uniform(-30, 30), -740.0, 0.0, -1.0)
+        p = (base[0] + hrng.uniform(-4, 4), base[1] + hrng.uniform(0.5, 3.0))
+        harbour["boats"].append({"id": "boat.kalamaja.%d" % i, "type": "skiff" if i % 3 == 2 else "clinker", "at": [round(p[0] / mpu, 2), round(p[1] / mpu, 2)], "angle": round(hrng.uniform(-0.5, 0.5) + math.pi / 2, 3), "lift": round(max(h_at_m(*p), 0.0), 3)})
+    # Boats turned over for tarring, on trestles by the boatwright ground and a net yard.
+    for i, (bx, by) in enumerate(((bw[0] + 12, bw[1] + 4), (xs[1] + 22, shore_march(h_at_m, xs[1] + 22, -740.0, 0.0, -1.0)[1] + 9))):
+        harbour["boats"].append({"id": "boat.kalamaja.up%d" % i, "type": "overturned", "at": [round(bx / mpu, 2), round(by / mpu, 2)], "angle": round(hrng.uniform(-0.3, 0.3), 3), "lift": round(max(h_at_m(bx, by), 0.5), 3)})
+    # Cargo lighters at the jetty tips of the merchant landing: cargo goes by lighter
+    # and cart through the shallows to the cogs in the roadstead.
+    for name, j in (("a", decks[0]), ("b", decks[1])):
+        tip = (j["at"][0] * mpu, j["at"][1] * mpu - j["length"] * mpu / 2 - 7.0)
+        for n in range(2 if name == "a" else 1):
+            harbour["boats"].append({"id": "lighter.coastal.%s%d" % (name, n), "type": "lighter", "at": [round(tip[0] / mpu + n * 10.0 - 4.0, 2), round(tip[1] / mpu - n * 8.0 - 3.0, 2)], "angle": round(math.pi / 2 + hrng.uniform(-0.2, 0.2), 3), "lift": 0.0})
+    return out_b, decks, harbour
+
+
+
 def clip_to_circuit(points, circuit, gates, gate_radius=12.0):
     """Cut a street where it crosses the curtain away from a gate; keep the
     part with the most length inside the circuit."""
@@ -1742,6 +2107,39 @@ def chain_parts(parts):
         chain = chain + q[1:] if at_end else q[:-1] + chain
     # Ramps start at the lower end.
     return chain
+
+
+def smooth_ditch(line, wall_pts, keep_m, passes=3, window=4):
+    """Round the corners of a ditch centre line (moving average along it, end
+    points fixed), then push it back out to keep_m from the wall so rounding
+    never pulls the ditch into the curtain foot."""
+    pts = [list(q) for q in line]
+    for _ in range(passes):
+        nxt = [pts[0][:]]
+        for i in range(1, len(pts) - 1):
+            lo, hi = max(0, i - window), min(len(pts) - 1, i + window)
+            k = min(i - lo, hi - i)
+            seg = pts[i - k : i + k + 1]
+            nxt.append([sum(q[0] for q in seg) / len(seg), sum(q[1] for q in seg) / len(seg)])
+        nxt.append(pts[-1][:])
+        pts = nxt
+    wall = [tuple(w) for w in wall_pts]
+    for _ in range(4):
+        for i, q in enumerate(pts):
+            best = None
+            for k in range(len(wall) - 1):
+                (ax, ay), (bx, by) = wall[k], wall[k + 1]
+                dx, dy = bx - ax, by - ay
+                t = max(0.0, min(1.0, ((q[0] - ax) * dx + (q[1] - ay) * dy) / max(dx * dx + dy * dy, 1e-9)))
+                cx, cy = ax + dx * t, ay + dy * t
+                d = math.hypot(q[0] - cx, q[1] - cy)
+                if best is None or d < best[0]:
+                    best = (d, cx, cy)
+            d, cx, cy = best
+            if d < keep_m and d > 1e-6:
+                f = keep_m / d
+                pts[i] = [cx + (q[0] - cx) * f, cy + (q[1] - cy) * f]
+    return [tuple(q) for q in pts]
 
 
 def offset_outward(line, poly, dist):
@@ -1897,7 +2295,9 @@ def render_splat(plan, mpu):
     draws["sand"].line([T(p) for p in shore], fill=255, width=sand_w, joint="curve")
     hj = plan["harjapea"]
     draws["mud"].line([T(p) for p in hj["points"]], fill=255, width=int(30 / mpu), joint="curve")
-    draws["mud"].line([T(p) for p in plan["moat"]["points"]], fill=200, width=int(plan["moat"]["width"] * 1.3), joint="curve")
+    # Ditch banks grade from grass through wet earth to mud at the waterline.
+    for scale_, fill_ in ((2.5, 70), (1.9, 130), (1.4, 190), (1.0, 245)):
+        draws["mud"].line([T(p) for p in plan["moat"]["points"]], fill=fill_, width=int(plan["moat"]["width"] * scale_), joint="curve")
     # Trampled ground: a light wash over the whole walled town, a strong band
     # around every house (eaves drip, doorstep, cart turn).
     circuit = [T(a["at"]) for a in plan["circuit"]]

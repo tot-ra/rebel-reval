@@ -41,15 +41,11 @@ func test_hall_floor_room_and_hud_name() -> void:
 	assert_true(plan.site_room_at(outside).is_empty(), "the forum is not inside the hall")
 
 
-func test_people_have_roles_poses_and_stand_on_floors() -> void:
-	var site := _site(&"site.raekoja_plats")
-	var roles := {}
-	for person: Dictionary in site.people:
-		roles[person["id"]] = person["pose"]
-		assert_false(site.floor_at(person["at"]).is_empty(), "%s is on a floor" % person["id"])
-	assert_eq(roles[&"vogt"], &"sit")
-	assert_eq(roles[&"burgomaster.1"], &"sit")
-	assert_true(roles.has(&"scribe") and roles.has(&"kammerer"), "scribe and Kämmerer at work")
+func test_sites_carry_no_posted_people() -> void:
+	# Only census citizens (clickable, with a card) populate the city; posted
+	# nameless site bodies were removed, so a site manifest must not list any.
+	for id: StringName in [&"site.raekoja_plats", &"site.holy_spirit"]:
+		assert_true(_site(id).people.is_empty(), "%s has no nameless posted people" % id)
 
 
 func test_door_gap_leads_from_the_forum_onto_the_floor() -> void:

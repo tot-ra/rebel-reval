@@ -57,7 +57,7 @@ and are loaded by `ContentDB` through `SessionState.DEMO_CONTENT_DIRS`. Schema:
 |---|---|---|
 | `cutscene.prologue.conquest` | 6 | `scene_file` → `res://scenes/prologue/almshouse_opening.tscn` |
 | `cutscene.prologue.almshouse_dawn` | 3 | `return` (the host scene continues) |
-| `cutscene.prologue.taken_in` | 3 | `door` → scene `forge`, spawn `smithy_start` |
+| `cutscene.prologue.taken_in` | 3 | `door` → scene `reval_city`, spawn `kalev_smithy` |
 
 Per shot: a stable `id`, a `still` under `res://assets/cutscenes/`, a reserved `video`,
 `transition_in` (`cut`/`fade`/`dissolve`), a `motion` block (`push_in`, `pull_out`,

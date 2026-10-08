@@ -1,7 +1,7 @@
 extends RichTextLabel
 
 ## New game opens on the historical prologue cutscene (ADR 0034), which chains into the
-## almshouse opening (ADR 0033) and from there to the forge.
+## almshouse opening (ADR 0033) and from there to the street in front of the smithy.
 const OPENING_SCENE := "res://scenes/cutscene/prologue_opening.tscn"
 
 func _ready() -> void:

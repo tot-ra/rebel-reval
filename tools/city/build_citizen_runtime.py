@@ -33,6 +33,9 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "tools/assets/realistic_humans"))
 import citizen_bodies  # noqa: E402
 
+sys.path.insert(0, str(ROOT / "tools/city"))
+import gate_garrisons  # noqa: E402
+
 CENSUS = ROOT / "docs/data/city_census.json"
 PLAN = ROOT / "content/world/reval_city/plan.json"
 PEOPLE = ROOT / "docs/CITIZENS/people"
@@ -139,6 +142,10 @@ PATTERNS = {
     "cleric": [[4.5, "work"], [7.0, "water"], [7.4, "work"], [9.0, "home"], [10.0, "work"],
                [12.0, "home"], [14.0, "work"], [18.0, "home"]],
     "military": [[6.0, "work"], [12.0, "food"], [12.5, "work"], [18.0, "door"], [19.5, "home"]],
+    # Gate watch and patrols (tools/city/gate_garrisons.py): the day shift holds the post from
+    # dawn to the evening bell, the night shift relieves it and goes home at first light.
+    "watch_day": [[5.6, "work"], [12.0, "home"], [12.8, "work"], [18.0, "home"]],
+    "watch_night": gate_garrisons.PATTERN_NIGHT,
     "well": [[6.0, "work"], [11.0, "home"], [11.6, "food"], [12.2, "home"], [13.2, "work"], [16.5, "home"]],
     "leisure": [[7.0, "church"], [8.0, "water"], [8.4, "door"], [9.8, "home"], [10.5, "stroll"],
                 [12.0, "home"], [14.0, "door"], [15.0, "stroll"], [16.2, "water"], [16.6, "home"]],
@@ -541,13 +548,31 @@ def build():
         }
         residents.append(rec)
 
+    household_xy = {h["id"]: tuple(h["xy"]) for h in census["households"] if h.get("xy")}
+    patrols, _ = gate_garrisons.assign(plan, residents, household_xy, place, hash01)
+
+    # Households living in a plan house: what their rooms are furnished with
+    # (docs/SYSTEMS/HOUSEHOLDS.md). Size counts every member, infants too.
+    households = {}
+    for h in census["households"]:
+        if h["kind"] != "house" or not h["members"] or h["id"] not in hh_door:
+            continue
+        households[h["id"]] = {
+            "building": h["building"],
+            "class": h["class"],
+            "trade": head_trade.get(h["id"], ""),
+            "size": len(h["members"]),
+        }
+
     return {
         "schema": SCHEMA,
         "source": "docs/data/city_census.json + content/world/reval_city/plan.json",
         "patterns": PATTERNS,
+        "households": households,
         "graph": {"nodes": [[x, z] for x, z in graph.nodes],
                   "edges": [list(e) for e in sorted(graph.edges)]},
         "places": places,
+        "patrols": patrols,
         "residents": residents,
     }
 

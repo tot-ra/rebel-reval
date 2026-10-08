@@ -124,6 +124,28 @@ func _shots(plan: CityPlan) -> Array[Dictionary]:
 	)
 	var viru := plan.gate("gate.viru")
 	var va := Vector2(viru["at"][0], viru["at"][1])
+	# Barbican review: bird's-eye over the bailey, and the east road bridge.
+	shots.append(
+		{
+			"name": "viru_barbican_aerial",
+			"eye": Vector3(va.x + 62, plan.ground_height(va) + 38, va.y + 34),
+			"look": Vector3(va.x + 14, plan.ground_height(va) + 6, va.y),
+			"fov": 55.0
+		}
+	)
+	if not plan.data["bridges"].is_empty():
+		var br: Dictionary = plan.data["bridges"][0]
+		var ba := Vector2(br["at"][0], br["at"][1])
+		var bdir := Vector2.from_angle(float(br["angle"]))
+		var eye2 := ba - bdir * 34.0
+		shots.append(
+			{
+				"name": "east_bridge_approach",
+				"eye": Vector3(eye2.x, plan.ground_height(eye2) + 3.0, eye2.y),
+				"look": Vector3(ba.x, plan.walk_height(ba) + 1.0, ba.y),
+				"fov": 60.0
+			}
+		)
 	shots.append(
 		{
 			"name": "gate_viru_from_outside",

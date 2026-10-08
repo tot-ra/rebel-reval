@@ -24,6 +24,8 @@ var _actors_without_rig: Dictionary = {}
 var _equipment_state: GameState
 var _content_db: ContentDB
 var _request_screen_shake: Callable
+## Set by MapViewRuntime to MapViewRuntimeAmbient.play_footstep (ADR 0035).
+var _footstep_callback: Callable
 var _sample_owning_ground := false
 var _swimmer := MapViewSwimmerPresenter.new()
 
@@ -50,6 +52,10 @@ func rebind_view(map_definition: MapDefinition, map_view: MapView3D) -> void:
 	_definition = map_definition
 	_view = map_view
 	_sample_owning_ground = true
+
+
+func set_footstep_callback(callback: Callable) -> void:
+	_footstep_callback = callback
 
 
 func set_screen_shake_callback(callback: Callable) -> void:
@@ -183,6 +189,10 @@ func sync_player(snap: bool, delta: float = 0.0) -> void:
 			if _sample_owning_ground:
 				foot = _local_world(foot)
 			_view.add_mud_footprint_at(foot, _player.velocity.normalized())
+			# Same contact event and the same sampling point as the mud print,
+			# so the sound matches the ground the sole actually hits.
+			if _footstep_callback.is_valid():
+				_footstep_callback.call(foot, speed)
 	else:
 		_player_rig.consume_foot_plant()
 	_sync_actor_health_ring(_player_rig, _player)

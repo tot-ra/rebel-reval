@@ -24,6 +24,8 @@ var view: CityMapView
 var world: CityWorld3D
 var runtime: MapViewRuntime
 var minimap: CityMinimap
+## Furnished houses round Kalev and their people at home (docs/SYSTEMS/HOUSEHOLDS.md).
+var interiors: CityInteriors
 var music_zones := CityMusicZones.new()
 var inside_building := -1
 var _music_timer := 0.0
@@ -46,12 +48,18 @@ func _ready() -> void:
 	CityCollisionBuilder.build(plan, self)
 	player.walk_speed = int(player.walk_speed * SPEED_MULTIPLIER)
 	player.run_speed = int(player.run_speed * SPEED_MULTIPLIER)
-	_place_player(spawn_id())
+	var arrival := spawn_id()
+	_place_player(arrival)
 	actors.add_child(CityNpcs.create(plan, player))
 	view = CityMapView.create_city(plan)
 	world = view.world
 	runtime = CityRuntime.install(self, view, player)
 	world.add_child(CityFauna.create(plan, player))
+	world.add_child(CityFish.create(plan, player))
+	interiors = CityInteriors.create(plan, CitizenRoster.load_default(), world.chimneys)
+	interiors.collision_parent = self
+	interiors.enabled = not "--no-interiors" in OS.get_cmdline_user_args()
+	world.add_child(interiors)
 	# ADR 0021 swimming: sea and moat depth come from the city's water, not a grid.
 	player.set_water_depth_provider(
 		func(logic: Vector2) -> float: return view.water_depth_at(CityPlan.to_world_xz(logic))
@@ -59,6 +67,7 @@ func _ready() -> void:
 	minimap = CityMinimap.create(plan)
 	add_child(minimap)
 	_smithy = CityTravel.building_index(plan, "kalev_smithy")
+	_face_door_on_arrival(arrival)
 	_update_music(CityPlan.to_world_xz(player.global_position))
 
 
@@ -78,6 +87,38 @@ func _place_player(id: String) -> void:
 ## Fast travel inside the city (DoorNavigator calls this instead of reloading).
 func arrive_at(id: String) -> void:
 	_place_player(id)
+	_face_door_on_arrival(id)
+
+
+## Arriving at a building spawn (the new game starts in front of Kalev's smithy)
+## turns the gameplay camera to look at its door, so the lane's walls stay behind
+## the camera instead of filling the view. The smithy stands in a narrow lane, so
+## the nearest look direction whose camera spot is clear of houses is used.
+func _face_door_on_arrival(id: String) -> void:
+	if runtime == null:
+		return
+	var index := CityTravel.building_index(plan, id)
+	if index < 0 or plan.buildings[index].get("door") == null:
+		return
+	var door := Vector2(plan.buildings[index]["door"][0], plan.buildings[index]["door"][1])
+	var here := CityPlan.to_world_xz(player.global_position)
+	var toward := door - here
+	if toward.is_zero_approx():
+		return
+	var best := toward.angle()
+	for step in range(0, 17):
+		var sign := 1.0 if step % 2 == 0 else -1.0
+		var offset: float = ceilf(step / 2.0) * (PI / 8.0) * sign
+		var look := Vector2.from_angle(toward.angle() + offset)
+		if (
+			plan.building_at(here - look * 2.5) < 0
+			and plan.building_at(here - look * 5.5) < 0
+		):
+			best = look.angle()
+			break
+	var dir := Vector2.from_angle(best)
+	var yaw := rad_to_deg(atan2(-dir.x, -dir.y))
+	runtime._camera_controller.rotate_view_degrees(yaw - view.view_camera().rotation_degrees.y)
 
 
 func _process(delta: float) -> void:
@@ -92,6 +133,7 @@ func _process(delta: float) -> void:
 		return
 	_check_city_edge(xz)
 	world.doors.update_for(xz, delta)
+	interiors.update_for(xz, delta)
 	world.grass.update_for(xz)
 	world.farmland.update_for(xz)
 	world.trail.update_for(xz, delta)

@@ -1,7 +1,8 @@
 class_name CityBridges
 extends RefCounted
 
-## Timber bridges where the extramural roads cross the Hareapea (plan `bridges`).
+## Timber bridges where the extramural roads cross the Hareapea, and the short
+## harbour jetties and beach decks (plan `bridges`, `rails: false` for decks).
 ## No 1343 bridge is attested; a plank deck on pile trestles is a reversible
 ## reconstruction (docs/SYSTEMS/FARMLAND.md, Bridges). Kalev walks the deck
 ## through CityPlan.bridge_deck_height; the water under it is not swimmable there.
@@ -52,9 +53,10 @@ static func _bridge(plan: CityPlan, b: Dictionary, wood: Material, timber: Mater
 		plank.rotation = Vector3(0.0, yaw, atan2(y1 - y0, seg))
 		node.add_child(plank)
 	# Rails and trestles on both sides.
+	var railed: bool = b.get("rails", true)
 	for side: float in [-1.0, 1.0]:
 		var offset := across * side * (width * 0.5 - 0.1)
-		for i in steps:
+		for i in steps if railed else 0:
 			var t0 := float(i) / steps
 			var t1 := float(i + 1) / steps
 			var p0 := at + along * (t0 - 0.5) * length + offset
@@ -77,7 +79,7 @@ static func _bridge(plan: CityPlan, b: Dictionary, wood: Material, timber: Mater
 			var p := at + along * (t - 0.5) * length + offset
 			var deck := CityPlan.bridge_deck_at(b, t)
 			var bed := plan.ground_height(p) - 0.4
-			var post_top := deck + RAIL_HEIGHT
+			var post_top := deck + (RAIL_HEIGHT if railed else 0.35)
 			var post := MeshInstance3D.new()
 			var pbox := BoxMesh.new()
 			# Post runs from the river bed (or bank) up to the handrail.

@@ -32,8 +32,10 @@ class TestWorldMapOverlay:
 
 	func open() -> void:
 		visible = true
-const LowerTownSlice := preload(
-	"res://scripts/map/definitions/lower_town/lower_town_slice_definition.gd"
+# The Lower Town slice factory was retired with the .rrmap city rewrite; the minimap
+# only needs any compiled MapDefinition, so use the surviving smithy interior.
+const LocalMapDefinition := preload(
+	"res://scripts/map/definitions/lower_town/kalev_smithy_definition.gd"
 )
 const MapBuilder := preload("res://scripts/map/map_builder.gd")
 const LocalMapView := preload("res://scripts/ui/world_map_local_view.gd")
@@ -114,7 +116,7 @@ func test_overlay_highlights_current_scene_and_lists_manifest_nodes() -> void:
 	)
 	overlay.queue_free()
 func test_map_mode_opens_on_local_position_with_fast_travel_as_separate_option() -> void:
-	var definition: MapDefinition = LowerTownSlice.create()
+	var definition: MapDefinition = LocalMapDefinition.create()
 	var grid: MapTerrainGrid = MapBuilder.build(definition)
 	var player := Node2D.new()
 	player.name = "Player"

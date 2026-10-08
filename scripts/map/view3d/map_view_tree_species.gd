@@ -245,7 +245,7 @@ static func canopy_tint(species: StringName, roll: float) -> Color:
 		SPECIES_SPRUCE:
 			return Color(variance * 0.86, variance, variance * 0.84)
 		SPECIES_PINE:
-			return Color(variance * 0.78, variance * 0.92, variance * 0.72)
+			return Color(variance * 0.80, variance * 0.93, variance * 0.82)
 		SPECIES_BIRCH:
 			return Color(variance * 0.94, variance * 1.02, variance * 0.78)
 		SPECIES_OAK:

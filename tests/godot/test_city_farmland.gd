@@ -67,3 +67,68 @@ func test_every_curtain_end_at_a_gate_lands_inside_the_gate_house() -> void:
 			var local := (joint - at)
 			assert_true(absf(local.dot(along)) < CityFortificationBuilder._gate_half_extent(g), "%s joint is within the house" % g["id"])  # gdlint: ignore=max-line-length
 			assert_true(absf(local.dot(along.orthogonal())) < 0.01, "%s joint is on the gate axis" % g["id"])
+
+
+func test_roads_cross_the_hareapea_on_timber_bridges() -> void:
+	var plan := _plan()
+	var bridges: Array = plan.data["bridges"]
+	assert_true(bridges.size() >= 2, "Viru and Tartu roads are bridged")
+	for b: Dictionary in bridges:
+		var at := Vector2(b["at"][0], b["at"][1])
+		var deck := plan.bridge_deck_height(at)
+		assert_false(is_nan(deck), "%s has a deck at its middle" % b["id"])
+		assert_eq(plan.walk_height(at), deck, "%s is walked on its deck" % b["id"])
+		assert_true(deck > 0.5, "%s deck clears the water" % b["id"])
+		assert_true(is_nan(plan.bridge_deck_height(at + Vector2(0.0, 80.0))), "%s deck is local" % b["id"])
+
+
+func test_the_east_curtain_has_a_moat() -> void:
+	var plan := _plan()
+	var points := CityPlan.points(plan.data["moat"]["points"])
+	var east := 0
+	for p in points:
+		if p.x > 200.0 and p.y < -100.0:
+			east += 1
+	assert_true(east >= 20, "ditch runs up the east side, got %d points" % east)
+
+
+func test_farm_yards_have_distinct_historical_outbuildings() -> void:
+	var plan := _plan()
+	var types := {}
+	for b: Dictionary in plan.data["buildings"]:
+		if String(b["kind"]) != "outbuilding":
+			continue
+		types[b["type"]] = (types.get(b["type"], 0) as int) + 1
+		assert_false(bool(b["enterable"]), "%s is not a dwelling to enter" % b["id"])
+	for type in ["barn_dwelling", "barn", "byre", "sheep_shed", "pigsty", "hen_house", "store"]:
+		assert_true(types.has(type), "%s is built" % type)
+	assert_false(types.has("rabbit_hutch"), "no rabbit hutches in 1343 Estonia")
+	# Livestock stands at its own sheds.
+	var yard := {}
+	for group in CityFauna.groups_for(plan):
+		if "bldg." in String(group["id"]):
+			yard[group["species"]] = true
+	for species in [&"chicken", &"pig", &"cow", &"sheep"]:
+		assert_true(yard.has(species), "%s kept at an outbuilding" % species)
+
+
+func test_both_shores_are_dressed_from_the_dossiers() -> void:
+	var plan := _plan()
+	var harbour: Dictionary = plan.data["harbour"]
+	assert_false((harbour["crane"] as Dictionary).is_empty(), "one yard crane")
+	assert_eq((harbour["net_yards"] as Array).size(), 3, "three net yards")
+	assert_eq((harbour["landings"] as Array).size(), 3, "three beach decks")
+	assert_true((harbour["boats"] as Array).size() >= 6, "six to eight boats on the sand")
+	var decks := 0
+	for b: Dictionary in plan.data["bridges"]:
+		if String(b.get("kind", "")) in ["jetty", "beach_deck"]:
+			decks += 1
+			var at := Vector2(b["at"][0], b["at"][1])
+			assert_false(is_nan(plan.bridge_deck_height(at)), "%s is walkable" % b["id"])
+	assert_eq(decks, 5, "two jetties and three beach decks")
+	var types := {}
+	for b: Dictionary in plan.data["buildings"]:
+		if String(b["kind"]) == "outbuilding":
+			types[b["type"]] = true
+	for type in ["cargo_shed", "smoke_shed", "salt_shed"]:
+		assert_true(types.has(type), "%s stands on the shore" % type)

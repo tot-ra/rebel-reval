@@ -25,6 +25,9 @@ const ROLL_DISTANCE_PX := 112.0
 const ROLL_TRAVEL_SEC := 0.5
 ## Input pointing this far behind the facing rolls backward without turning.
 const ROLL_BACKWARD_DOT := -0.6
+## Held guard turns a sideways roll into a strafe roll: the body tumbles shoulder
+## over shoulder and keeps facing the threat. Within this cosine of the lateral axis.
+const ROLL_SIDE_DOT := 0.5
 ## Soft target lock: an attack turns toward a hostile this far beyond reach.
 const SOFT_LOCK_REACH_MULT := 1.8
 const SOFT_LOCK_FACING_DOT := 0.0
@@ -62,6 +65,7 @@ var _dodge_facing := Vector2.ZERO
 var _dodge_animation: StringName = &"dodge_right"
 var _dodge_distance_remaining := 0.0
 var _pending_roll_direction := Vector2.ZERO
+var _pending_roll_strafe := false
 var _roll_direction := Vector2.ZERO
 var _roll_facing := Vector2.ZERO
 var _roll_animation: StringName = CombatMoveCatalog.ROLL_FORWARD
@@ -322,6 +326,7 @@ func try_start_roll(direction: Vector2 = Vector2.ZERO) -> bool:
 		else movement_direction_for_screen_input(ScreenDirectionInput.read_axis())
 	)
 	_pending_roll_direction = requested
+	_pending_roll_strafe = PlayerActionInput.read_guard_held()
 	var was_free_to_start := action_state_machine.state == PlayerActionState.State.MOVE
 	var started := action_state_machine.try_start_action(PlayerActionKind.Kind.ROLL)
 	if was_free_to_start and not started:
@@ -329,8 +334,16 @@ func try_start_roll(direction: Vector2 = Vector2.ZERO) -> bool:
 	return started
 
 
-static func roll_plan(requested: Vector2, facing: Vector2) -> Dictionary:
+static func roll_plan(requested: Vector2, facing: Vector2, strafe: bool = false) -> Dictionary:
 	var normalized_facing := facing.normalized() if not facing.is_zero_approx() else Vector2.DOWN
+	if strafe and not requested.is_zero_approx():
+		var lateral := requested.normalized().dot(Vector2(normalized_facing.y, -normalized_facing.x))
+		if absf(lateral) >= ROLL_SIDE_DOT:
+			return {
+				"direction": requested.normalized(),
+				"facing": normalized_facing,
+				"animation": CombatMoveCatalog.ROLL_LEFT if lateral > 0.0 else CombatMoveCatalog.ROLL_RIGHT,
+			}
 	if (
 		requested.is_zero_approx()
 		or requested.normalized().dot(normalized_facing) <= ROLL_BACKWARD_DOT
@@ -415,8 +428,9 @@ func _start_attack() -> void:
 
 
 func _start_roll() -> void:
-	var plan := roll_plan(_pending_roll_direction, _current_dodge_facing())
+	var plan := roll_plan(_pending_roll_direction, _current_dodge_facing(), _pending_roll_strafe)
 	_pending_roll_direction = Vector2.ZERO
+	_pending_roll_strafe = false
 	_roll_direction = plan["direction"]
 	_roll_facing = plan["facing"]
 	_roll_animation = plan["animation"]

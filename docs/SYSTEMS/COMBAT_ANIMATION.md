@@ -36,6 +36,7 @@ Input edges (`just_pressed` / `just_released`) are handed out once per physics f
 | Input | Keyboard | Gamepad | Action |
 | --- | --- | --- | --- |
 | Roll | `Space` + direction | RT + left stick | Roll toward the held direction. Forward, left and right turn Kalev into the roll; backward (or no direction) rolls back while still facing the threat |
+| Strafe roll (guard held) | hold `F` / right click, `Space` + `A`/`D` | LB + RT + left stick | Sideways roll shoulder over shoulder (`Roll_Left` / `Roll_Right`); Kalev keeps facing the threat. Forward and back inputs still roll forward / back |
 | Sidestep | `Q` + direction | RB + left stick | Short 0.28 s hop (`Dodge_*` clips, P1-025) |
 
 | Property | Roll | Sidestep |
@@ -117,7 +118,7 @@ Kalev is rooted during the gesture (state `CAST`). A cast is refused mid-swing, 
 
 ## 7. The roll clip
 
-The CC0 library has no roll, only 0.38 s side hops. `CombatRollClip` builds `combat/Roll_Forward` and `combat/Roll_Backward` per body on first use: it starts from the body's `Idle` frame, curls into a tuck (knees to chest, chin down, arms around the shins), rotates the hips 360 degrees about the lateral axis and stands up, re-solving hips height each key so the lowest body point touches the ground. Clips are cached per body and direction. `test_procedural_roll_tumbles_the_body_and_ends_standing` checks the body goes head over heels and ends where `Idle` starts.
+The CC0 library has no roll, only 0.38 s side hops. `CombatRollClip` builds `combat/Roll_Forward`, `Roll_Backward`, `Roll_Left` and `Roll_Right` per body (side rolls turn about the forward axis; `Player.roll_plan(..., strafe)` picks them when guard is held and the input is within `ROLL_SIDE_DOT` of lateral) on first use: it starts from the body's `Idle` frame, curls into a tuck (knees to chest, chin down, arms around the shins), rotates the hips 360 degrees about the lateral axis and stands up, re-solving hips height each key so the lowest body point touches the ground. Clips are cached per body and direction. `test_procedural_roll_tumbles_the_body_and_ends_standing` checks the body goes head over heels and ends where `Idle` starts.
 
 ## 8. Files and verification
 

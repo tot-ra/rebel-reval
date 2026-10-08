@@ -12,21 +12,12 @@ func test_map_catalog() -> void:
 		_failures.append("Expected 'forge' map in catalog")
 	elif forge.get("scope") != "production":
 		_failures.append("Expected 'forge' to be production")
-		
-	var toompea = MapCatalog.get_map("reval_toompea")
-	if toompea.is_empty():
-		_failures.append("Expected 'reval_toompea' in catalog")
-	elif toompea.get("scope") != "prototype":
-		_failures.append("Expected 'reval_toompea' to be prototype")
 
-	var south = MapCatalog.get_map("reval_south")
-	if south.is_empty():
-		_failures.append("Expected 'reval_south' in catalog")
-	elif south.get("scope") != "prototype":
-		_failures.append("Expected 'reval_south' to be prototype")
+	# The old Reval district maps are gone: the city is one seamless plan.
+	for retired in ["reval_east", "reval_center", "reval_north", "reval_monastery", "reval_toompea", "reval_south", "town_hall", "viru_gate_foreland", "reval_harbor_north", "reval_harbor_east"]:
+		if not MapCatalog.get_map(retired).is_empty():
+			_failures.append("'%s' was retired and must not be in the catalog" % retired)
 
-	var town_hall = MapCatalog.get_map("town_hall")
-	if town_hall.is_empty():
-		_failures.append("Expected 'town_hall' in catalog")
-	elif town_hall.get("scope") != "prototype":
-		_failures.append("Expected 'town_hall' to be prototype")
+	var padise = MapCatalog.get_map("world_padise")
+	if padise.is_empty():
+		_failures.append("Expected distant region 'world_padise' in catalog")

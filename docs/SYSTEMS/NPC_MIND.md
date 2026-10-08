@@ -1,6 +1,6 @@
 # NPC mind: reflex, decision model, local LLM
 
-Status: planned ([ADR 0036](../adr/0036-layered-npc-mind-with-local-llm.md), proposed, not yet approved). Scope: how citizens and other NPCs choose goals, speak, and fight, in three optional layers. Out of scope: story-critical dialogue (stays authored, see [`DIALOGUE.md`](./DIALOGUE.md)), spirit dialogue combat ([`SPIRIT_DIALOGUE.md`](./SPIRIT_DIALOGUE.md)), runtime audio or TTS, free-text player chat, remote LLM APIs.
+Status: planned ([ADR 0037](../adr/0037-layered-npc-mind-with-local-llm.md), proposed, not yet approved). Scope: how citizens and other NPCs choose goals, speak, and fight, in three optional layers. Out of scope: story-critical dialogue (stays authored, see [`DIALOGUE.md`](./DIALOGUE.md)), spirit dialogue combat ([`SPIRIT_DIALOGUE.md`](./SPIRIT_DIALOGUE.md)), runtime audio or TTS, free-text player chat, remote LLM APIs.
 
 Nothing here is built. Existing behaviour that layer 0 will wrap lives in [`WORLD_LIFE.md`](./WORLD_LIFE.md), [`CITIZENS.md`](./CITIZENS.md) and [`TIME_AND_PHASES.md`](./TIME_AND_PHASES.md).
 
@@ -43,6 +43,10 @@ Cost follows player attention, not population.
 First evidence: [`reports/npc_mind_scale_spike_2026-10-08.md`](../reports/npc_mind_scale_spike_2026-10-08.md). The spike (`tools/benchmarks/npc_mind_scale_benchmark.gd`) puts the abstract tier at 0.002 ms mean per frame for 4,247 residents and under 1 ms worst case for 20,000, against 0.75 ms per frame for a naive object-per-resident update. Local-model latency is not measured yet (`tools/benchmarks/llm_npc_latency.py` is ready).
 
 A headless benchmark with synthetic populations (5,000 and 20,000 rows) must report per-frame cost of the manager, event throughput, promotion/demotion cost, and save size; it goes into `tools/run_performance_report.sh`. Phase 0 is not done until it exists. Local model latency, memory and install size are measured in the layer-2 spike, not assumed.
+
+## Local stack and offline contract (planned)
+
+System 1 is layers 0 and 1 (state machines plus utility scoring, GDScript, no model). System 2 is the optional LLM. Candidates, all pending benchmark and primary-licence checks: Qwen3-0.6B (Tiny), Qwen3-1.7B (Small, default when on), Qwen3-4B (Medium), run through our own llama.cpp GDExtension with grammar-constrained output. Llama and Gemma are out unless their downstream terms are acceptable in our EULA. Everything ships in the depot: no download, no network calls, no telemetry, SHA-256 pins, fallback to layer 1 when files are absent or mismatched. Reasons and the full contract are in [ADR 0037](../adr/0037-layered-npc-mind-with-local-llm.md#3a-recommended-local-stack-fully-offline-candidates-until-the-benchmark-and-licence-checks-pass).
 
 ## Controls (planned)
 

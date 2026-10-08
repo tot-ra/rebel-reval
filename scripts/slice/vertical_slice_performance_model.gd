@@ -6,7 +6,7 @@ extends RefCounted
 ## runner, and the Python report tool can reference without duplicating budgets.
 
 const BUSIEST_SCENE_PROFILE_ID := &"lower_town_scene"
-const BUSIEST_SCENE_PATH := "res://scenes/reval_east/reval_east.tscn"
+const BUSIEST_SCENE_PATH := "res://scenes/world/reval_city/reval_city.tscn"
 const MINIMUM_HARDWARE_PROFILE := "res://tools/benchmarks/minimum-hardware.json"
 const BENCHMARK_CONFIG_PATH := "res://tools/benchmarks/large_map_benchmark_config.json"
 

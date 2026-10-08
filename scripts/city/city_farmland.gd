@@ -43,6 +43,27 @@ const SEASONS := {
 	&"spring": {"sprout": 118, "full": 190, "ripe": 215, "cut": 240, "start": 0.0},
 	&"garden": {"sprout": 112, "full": 200, "ripe": 400, "cut": 290, "start": 0.35},
 }
+const FAR_STEP := 10.0
+const FAR_BAND := 1.8
+const FAR_LIFT := 0.07
+const FAR_SOIL := Color(0.38, 0.29, 0.2)
+const FAR_GREEN := {
+	&"rye": Color(0.3, 0.46, 0.2),
+	&"wheat": Color(0.4, 0.55, 0.22),
+	&"barley": Color(0.42, 0.56, 0.22),
+	&"oat": Color(0.4, 0.54, 0.25),
+	&"pea": Color(0.3, 0.5, 0.24),
+	&"flax": Color(0.34, 0.52, 0.28),
+	&"cabbage": Color(0.34, 0.52, 0.28),
+	&"turnip": Color(0.32, 0.5, 0.24),
+	&"onion": Color(0.36, 0.52, 0.26),
+}
+const FAR_GOLD := {
+	&"rye": Color(0.7, 0.58, 0.26),
+	&"wheat": Color(0.9, 0.72, 0.28),
+	&"barley": Color(0.84, 0.68, 0.28),
+	&"oat": Color(0.8, 0.66, 0.3),
+}
 const RIPE_COLOR := Color(1.25, 1.0, 0.55)
 const STUBBLE_GROWTH := 0.14
 
@@ -50,6 +71,7 @@ var plan: CityPlan
 var day_of_year := 111
 var _features: Array[Dictionary] = []
 var _live: Dictionary = {}
+var _far: MeshInstance3D
 
 
 static func create(city_plan: CityPlan) -> CityFarmland:
@@ -57,6 +79,7 @@ static func create(city_plan: CityPlan) -> CityFarmland:
 	node.name = "Farmland"
 	node.plan = city_plan
 	node._features = features_for(city_plan)
+	node._rebuild_far()
 	return node
 
 
@@ -134,6 +157,7 @@ func set_calendar_date(date: Dictionary) -> void:
 	for id: String in _live.keys():
 		(_live[id] as Node).queue_free()
 	_live.clear()
+	_rebuild_far()
 
 
 func live_count() -> int:
@@ -310,3 +334,60 @@ func _hay_rick(root: Node3D, feature: Dictionary, rng: RandomNumberGenerator) ->
 		Vector3.ONE,
 		HayMeshes.SIZE_MEDIUM
 	)
+
+
+## Far layer: every cropped field as one coloured, row-banded sheet that follows
+## the ground, so fields read from the whole city and far beyond DRAW_RANGE,
+## where the plants are no longer drawn. Colour follows crop and date.
+func _rebuild_far() -> void:
+	if _far != null:
+		_far.queue_free()
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var count := 0
+	for f in _features:
+		if f["kind"] != &"field" or f["sowing"] == &"fallow":
+			continue
+		var colour := far_color(f["crop"], f["sowing"], day_of_year)
+		var poly: PackedVector2Array = f["polygon"]
+		var u := poly[1] - poly[0]
+		var v := poly[3] - poly[0]
+		var cols := maxi(int(u.length() / FAR_STEP), 1)
+		var rows := maxi(int(v.length() / FAR_BAND), 1)
+		for r in rows:
+			var shade := 1.0 if r % 2 == 0 else 0.86
+			var tone := Color(colour.r * shade, colour.g * shade, colour.b * shade)
+			for c in cols:
+				var a := poly[0] + u * (float(c) / cols) + v * (float(r) / rows)
+				var b := a + u / cols
+				var d := a + v / rows
+				var e := b + v / rows
+				for q: Vector2 in [a, b, e, a, e, d]:
+					st.set_color(tone)
+					st.set_normal(Vector3.UP)
+					st.add_vertex(Vector3(q.x, plan.ground_height(q) + FAR_LIFT, q.y))
+				count += 2
+	_far = null
+	if count == 0:
+		return
+	_far = MeshInstance3D.new()
+	_far.name = "FarFields"
+	_far.mesh = st.commit()
+	var material := StandardMaterial3D.new()
+	material.vertex_color_use_as_albedo = true
+	material.roughness = 1.0
+	_far.material_override = material
+	_far.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	add_child(_far)
+
+
+## Sheet colour of a field on a day of year: tilled soil, greening, then gold.
+static func far_color(crop: StringName, sowing: StringName, doy: int) -> Color:
+	var green := FAR_GREEN.get(crop, Color(0.34, 0.5, 0.2)) as Color
+	var amount := clampf(growth(sowing, doy) * 1.5, 0.0, 1.0)
+	var colour := FAR_SOIL.lerp(green, amount)
+	var ripe := tint(sowing, doy)
+	if ripe != Color.WHITE:
+		var t := clampf((ripe.r - 1.0) / (RIPE_COLOR.r - 1.0), 0.0, 1.0)
+		colour = colour.lerp(FAR_GOLD.get(crop, Color(0.8, 0.64, 0.24)) as Color, t)
+	return colour

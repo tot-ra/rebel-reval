@@ -9,8 +9,14 @@ extends Node3D
 
 const Fort := preload("res://scripts/city/city_fortification_builder.gd")
 const WATER_SHADER := preload("res://scripts/city/city_water.gdshader")
+const MOAT_WATER_SHADER := preload("res://scripts/city/city_moat_water.gdshader")
+const MoatPlants := preload("res://scripts/city/city_moat_plants.gd")
 const CHUNK := 96.0
-const SEA_STEP := 6.0
+const SEA_STEP := 4.0
+## Storm swell scale for the open 1 m-per-unit sea (district maps use 1.0).
+const SEA_WAVE_BOOST := 5.0
+## Depth (world units) at which the sea shader's shore factor reaches open water.
+const SEA_SHORE_DEPTH := 2.5
 const BUILDING_RANGE := 1600.0
 
 var plan: CityPlan
@@ -26,7 +32,7 @@ var grass: CityGrass
 var farmland: CityFarmland
 var trail: CityGroundTrail
 var build_stats: Dictionary = {}
-## Wet moat stretches as [a, b, surface_a, surface_b, half_width] (swimming).
+## Wet moat and stream stretches as [a, b, surface_a, surface_b, half_width] (swimming).
 var moat_water: Array = []
 ## Chimney tops as [Vector3 top, StringName building id] (CityChimneySmoke).
 var chimneys: Array = []
@@ -56,6 +62,8 @@ func _build() -> void:
 	var t3 := Time.get_ticks_usec()
 	_build_water()
 	CityBridges.build(plan, self)
+	CityHarbour.build(plan, self)
+	add_child(CityShore.create(plan))
 	CityVegetationBuilder.build(plan, self)
 	CityDressingBuilder.build(plan, self)
 	CityWallFoot.build(plan, self)
@@ -109,6 +117,9 @@ func apply_time(progress: float) -> void:
 	var day_blend := SkyWeather3D.daylight_blend(progress, sky_weather.calendar_date)
 	var presentation := sky_weather.presentation_snapshot(progress, day_blend)
 	MapViewMaterials.apply_world_wind(presentation.wind_direction, presentation.wind_strength)
+	MapViewMaterials.apply_sea_weather(
+		presentation.wind_strength, presentation.rain_intensity, presentation.wind_direction
+	)
 	set_wind(presentation.wind_direction)
 	var ground := CityTerrainBuilder.shared_material()
 	if ground != null:
@@ -283,12 +294,18 @@ func _build_water() -> void:
 	root.name = "Water"
 	add_child(root)
 	# Sea: a grid over every wet cell, vertex colour R = depth hint.
-	var sea := _surface_grid(0.0, func(p: Vector2) -> float: return -plan.ground_height(p))
+	var sea := _surface_grid(
+		0.0, func(p: Vector2) -> float: return -plan.ground_height(p), SEA_SHORE_DEPTH
+	)
 	if sea != null:
 		var inst := MeshInstance3D.new()
 		inst.name = "Sea"
 		inst.mesh = sea
-		inst.material_override = _water_material(0.18, 0.0)
+		# The district maps' ocean: baked FFT waves, whitecaps, foam, storm swell,
+		# caustics and refraction, so the sea reads the same on every map.
+		inst.material_override = MapViewMaterials.water_surface(MapTypes.TERRAIN_SHALLOW_WATER)
+		_bind_sea_depth_map()
+		MapViewMaterials.WATER_MATERIALS.set_wave_height_boost(SEA_WAVE_BOOST)
 		inst.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		root.add_child(inst)
 	# Open water beyond the plan to the horizon.
@@ -307,8 +324,9 @@ func _build_water() -> void:
 	var hj: Dictionary = plan.data.get("harjapea", {})
 	if not hj.is_empty():
 		var ribbon := _ribbon(
-			CityPlan.points(hj["points"]), hj["widths"], float(hj["surface"]) + 0.05
+			CityPlan.points(hj["points"]), hj["widths"], hj["surfaces"], 0.05
 		)
+		_stream_water(CityPlan.points(hj["points"]), hj["widths"], hj["surfaces"])
 		var r_inst := MeshInstance3D.new()
 		r_inst.name = "Harjapea"
 		r_inst.mesh = ribbon
@@ -332,8 +350,33 @@ func _build_water() -> void:
 			var m_inst := MeshInstance3D.new()
 			m_inst.name = "MoatPools"
 			m_inst.mesh = pool_mesh
-			m_inst.material_override = _water_material(0.04, 0.0)
+			m_inst.material_override = _moat_material()
 			root.add_child(m_inst)
+			root.add_child(MoatPlants.build(plan, moat_water))
+
+
+## Stream segments for swimming/wading (same record shape as the moat pools).
+func _stream_water(points: PackedVector2Array, widths: Array, levels: Array) -> void:
+	for i in points.size() - 1:
+		moat_water.append(
+			[
+				points[i],
+				points[i + 1],
+				float(levels[i]),
+				float(levels[i + 1]),
+				(float(widths[i]) + float(widths[i + 1])) * 0.25
+			]
+		)
+
+
+## Murky ditch water with a soft bank edge (city_moat_water.gdshader).
+func _moat_material() -> ShaderMaterial:
+	var mat := ShaderMaterial.new()
+	mat.shader = MOAT_WATER_SHADER
+	mat.set_shader_parameter("wave_strength", 0.025)
+	mat.set_shader_parameter("flow_speed", 0.0)
+	water_materials.append(mat)
+	return mat
 
 
 func _water_material(wave: float, flow: float) -> ShaderMaterial:
@@ -345,6 +388,23 @@ func _water_material(wave: float, flow: float) -> ShaderMaterial:
 	return mat
 
 
+## One texel per SEA_STEP of depth below the waterline, so the sea shader blends
+## shallow and deep water by depth like the district maps.
+func _bind_sea_depth_map() -> void:
+	var r := plan.bounds
+	var nx := int(r.size.x / SEA_STEP) + 1
+	var nz := int(r.size.y / SEA_STEP) + 1
+	var image := Image.create_empty(nx, nz, false, Image.FORMAT_RF)
+	for j in nz:
+		for i in nx:
+			var p := r.position + (Vector2(i, j) + Vector2(0.5, 0.5)) * SEA_STEP
+			image.set_pixel(i, j, Color(maxf(-plan.ground_height(p), 0.0), 0.0, 0.0))
+	MapViewMaterials.WATER_MATERIALS.apply_sea_depth_map(
+		ImageTexture.create_from_image(image),
+		Vector4(r.position.x, r.position.y, float(nx) * SEA_STEP, float(nz) * SEA_STEP)
+	)
+
+
 func set_wind(direction: Vector2) -> void:
 	for mat in water_materials:
 		mat.set_shader_parameter("wind_dir", direction)
@@ -353,7 +413,7 @@ func set_wind(direction: Vector2) -> void:
 
 
 ## Grid at `y` over cells where depth_at(p) > 0 (any corner).
-func _surface_grid(y: float, depth_at: Callable) -> ArrayMesh:
+func _surface_grid(y: float, depth_at: Callable, depth_norm := 5.0) -> ArrayMesh:
 	var verts := PackedVector3Array()
 	var colors := PackedColorArray()
 	var normals := PackedVector3Array()
@@ -383,7 +443,7 @@ func _surface_grid(y: float, depth_at: Callable) -> ArrayMesh:
 			for k in 4:
 				var c: Vector2 = corners[k]
 				vs.append(Vector3(c.x, y, c.y))
-				cs.append(Color(clampf(depths[k] / 5.0, 0.0, 1.0), 0, 0))
+				cs.append(Color(clampf(depths[k] / depth_norm, 0.0, 1.0), 0, 0))
 			for idx: int in [0, 1, 2, 0, 2, 3]:
 				verts.append(vs[idx])
 				colors.append(cs[idx])
@@ -400,7 +460,10 @@ func _surface_grid(y: float, depth_at: Callable) -> ArrayMesh:
 	return mesh
 
 
-func _ribbon(points: PackedVector2Array, widths: Array, y: float) -> ArrayMesh:
+## `levels` holds the water level at each trace point (the stream runs downhill).
+func _ribbon(
+	points: PackedVector2Array, widths: Array, levels: Array, lift: float
+) -> ArrayMesh:
 	var st := SurfaceTool.new()
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
 	var along := 0.0
@@ -421,6 +484,8 @@ func _ribbon(points: PackedVector2Array, widths: Array, y: float) -> ArrayMesh:
 			st.set_color(Color(0.35, 0, 0))
 			st.set_uv(uvs[idx] / Vector2(10.0, 1.0))
 			st.set_normal(Vector3.UP)
+			# Quad corners 0,3 sit at the start of the segment, 1,2 at its end.
+			var y := float(levels[i if idx == 0 or idx == 3 else i + 1]) + lift
 			st.add_vertex(Vector3(q.x, y, q.y))
 		along += seg
 	return st.commit()
@@ -435,23 +500,15 @@ func _moat_pools(
 	var st := SurfaceTool.new()
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
 	var count := 0
-	var half := width * 0.46
+	var half := width * CityPlan.MOAT_WATER_HALF_FACTOR
 	var edges: Array[Vector2] = []
 	for i in line.size():
 		var prev := line[maxi(i - 1, 0)]
 		var next := line[mini(i + 1, line.size() - 1)]
 		var dir := (next - prev).normalized()
 		edges.append(Vector2(-dir.y, dir.x) * half)
-	var causeways: Array = plan.data.get("moat", {}).get("causeways", [])
 	for i in line.size() - 1:
 		if lows[i] > cutoff and lows[i + 1] > cutoff:
-			continue
-		var on_causeway := false
-		for c: Dictionary in causeways:
-			var at := Vector2(c["at"][0], c["at"][1])
-			if (line[i] + line[i + 1]).distance_to(at * 2.0) * 0.5 < float(c["width"]) * 0.5 + 3.5:
-				on_causeway = true
-		if on_causeway:
 			continue
 		var ya := lows[i] + 1.1
 		var yb := lows[i + 1] + 1.1

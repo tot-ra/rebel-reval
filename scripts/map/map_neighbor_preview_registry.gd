@@ -2,53 +2,11 @@ class_name MapNeighborPreviewRegistry
 extends RefCounted
 
 ## Resolves traversable scene IDs to their authored map definitions for view-only
-## edge previews. Keeping this registry explicit preserves deterministic loading,
-## while reading the real definitions means edits to either district immediately
-## update the reciprocal backdrop without copied facade data.
+## edge previews. The old Reval district maps are gone (the city is one seamless
+## plan, docs/SYSTEMS/SEAMLESS_CITY.md), so no scene currently has a neighbour
+## preview; the registry stays as the explicit seam for future map neighbours.
 
-const LowerTownSlice := preload(
-	"res://scripts/map/definitions/lower_town/lower_town_slice_definition.gd"
-)
-const MarketCivicQuarter := preload(
-	"res://scripts/map/definitions/prototypes/market_civic_quarter_definition.gd"
-)
-const NorthQuarter := preload(
-	"res://scripts/map/definitions/prototypes/north_quarter_definition.gd"
-)
-const MonasteryQuarter := preload(
-	"res://scripts/map/definitions/prototypes/monastery_quarter_definition.gd"
-)
-const ArchbishopsGarden := preload(
-	"res://scripts/map/definitions/prototypes/archbishops_garden_definition.gd"
-)
-const ToompeaQuarter := preload(
-	"res://scripts/map/definitions/prototypes/toompea_quarter_definition.gd"
-)
-const SouthQuarter := preload(
-	"res://scripts/map/definitions/prototypes/south_quarter_definition.gd"
-)
-const ViruGateForeland := preload(
-	"res://scripts/map/definitions/outdoor/viru_gate_foreland_definition.gd"
-)
-const RevalHarborNorth := preload(
-	"res://scripts/map/definitions/outdoor/reval_harbor_north_definition.gd"
-)
-const RevalHarborEast := preload(
-	"res://scripts/map/definitions/outdoor/reval_harbor_east_definition.gd"
-)
-
-const DEFINITION_FACTORIES: Dictionary = {
-	&"reval_east": LowerTownSlice,
-	&"reval_center": MarketCivicQuarter,
-	&"reval_north": NorthQuarter,
-	&"reval_monastery": MonasteryQuarter,
-	&"reval_archbishops_garden": ArchbishopsGarden,
-	&"reval_toompea": ToompeaQuarter,
-	&"reval_south": SouthQuarter,
-	&"viru_gate_foreland": ViruGateForeland,
-	&"reval_harbor_north": RevalHarborNorth,
-	&"reval_harbor_east": RevalHarborEast,
-}
+const DEFINITION_FACTORIES: Dictionary = {}
 
 
 static func create_definition(scene_id: StringName) -> MapDefinition:

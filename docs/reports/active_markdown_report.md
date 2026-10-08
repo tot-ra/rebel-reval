@@ -14,20 +14,20 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `1076`
-- Markdown files excluded as archive/reference/out of active scope: `748`
-- Local/external links inspected: `12771`
-- Links to active Markdown docs: `11904`
-- Links to existing archive/reference/non-active local docs: `436`
-- External links skipped for reachability: `52`
-- Issues found: `3`
+- Active Markdown files scanned: `1083`
+- Markdown files excluded as archive/reference/out of active scope: `743`
+- Local/external links inspected: `12845`
+- Links to active Markdown docs: `11916`
+- Links to existing archive/reference/non-active local docs: `444`
+- External links skipped for reachability: `88`
+- Issues found: `149`
 
 ## Issue counts
 
 | Code | Count |
 | --- | ---: |
-| `BROKEN_LINK` | 3 |
-| `BROKEN_ANCHOR` | 0 |
+| `BROKEN_LINK` | 83 |
+| `BROKEN_ANCHOR` | 66 |
 | `DUPLICATE_CHARACTER_NAME` | 0 |
 | `CONTRADICTORY_DATE` | 0 |
 | `MISSING_REFERENCE` | 0 |
@@ -36,9 +36,155 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 | Code | Location | Detail |
 | --- | --- | --- |
-| `BROKEN_LINK` | `docs/SYSTEMS/AUDIO.md:19` | Local Markdown link target does not exist: `../reports/audio_licenses/README.md` |
-| `BROKEN_LINK` | `docs/SYSTEMS/SEAMLESS_CITY.md:121` | Local Markdown link target does not exist: `../reports/animal_placement_plan.md` |
-| `BROKEN_LINK` | `docs/SYSTEMS/SPIRIT_DIALOGUE.md:142` | Local Markdown link target does not exist: `../reports/images/spirit_form/` |
+| `BROKEN_ANCHOR` | `docs/CITIZENS/people/kalarand/gunnar_bengtsson.md:68` | Local Markdown link anchor `#hh-kr-kalarand-26` not found in `docs/CITIZENS/ledger/kalarand/western_coast_road.md` |
+| `BROKEN_ANCHOR` | `docs/CITIZENS/people/kalarand/kaspar.md:72` | Local Markdown link anchor `#hh-kr-kalarand-11` not found in `docs/CITIZENS/ledger/kalarand/western_coast_road.md` |
+| `BROKEN_ANCHOR` | `docs/CITIZENS/people/kalarand/tonu_lembitu_poeg.md:69` | Local Markdown link anchor `#hh-kr-kalarand-11` not found in `docs/CITIZENS/ledger/kalarand/western_coast_road.md` |
+| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/berend_rode.md:11` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
+| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/berend_rode.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
+| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/berend_rode.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
+| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/berend_rode.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
+| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/berend_rode.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
+| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/berend_rode.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
+| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/berend_rode.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
+| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/ellen_overdyk.md:11` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
+| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/ellen_overdyk.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
+| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/ellen_overdyk.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
+| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/ellen_overdyk.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
+| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/ellen_overdyk.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
+| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/ellen_overdyk.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
+| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/ellen_overdyk.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
+| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/ermelin.md:11` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
+| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/ermelin.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
+| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/ermelin.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
+| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/ermelin.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
+| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/ermelin.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
+| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/ermelin.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
+| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/ermelin.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
+| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/evert_rode.md:11` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
+| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/evert_rode.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
+| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/evert_rode.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
+| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/evert_rode.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
+| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/evert_rode.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
+| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/evert_rode.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
+| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/evert_rode.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
+| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/jakob_wulf.md:11` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
+| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/jakob_wulf.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
+| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/jakob_wulf.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
+| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/jakob_wulf.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
+| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/jakob_wulf.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
+| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/jakob_wulf.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
+| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/jakob_wulf.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
+| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/juri_mattese_poeg.md:70` | Local Markdown link anchor `#hh-lt-osm-w26875416` not found in `docs/CITIZENS/ledger/lower_town/puhavaimu.md` |
+| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/triin.md:11` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
+| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/triin.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
+| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/triin.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
+| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/triin.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
+| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/triin.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
+| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/triin.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
+| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/triin.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
+| `BROKEN_ANCHOR` | `docs/CITIZENS/people/viru_road/anna_juhontytar.md:71` | Local Markdown link anchor `#hh-vi-viru-22` not found in `docs/CITIZENS/ledger/viru_road/viru_road.md` |
+| `BROKEN_ANCHOR` | `docs/CITIZENS/people/viru_road/anna_juhontytar.md:71` | Local Markdown link anchor `#hh-vi-viru-25` not found in `docs/CITIZENS/ledger/viru_road/viru_road.md` |
+| `BROKEN_ANCHOR` | `docs/CITIZENS/people/viru_road/eeva_priidiku_tutar.md:69` | Local Markdown link anchor `#hh-vi-viru-24` not found in `docs/CITIZENS/ledger/viru_road/viru_road.md` |
+| `BROKEN_ANCHOR` | `docs/CITIZENS/people/viru_road/elina_tuomasntytar.md:68` | Local Markdown link anchor `#hh-vi-viru-23` not found in `docs/CITIZENS/ledger/viru_road/viru_road.md` |
+| `BROKEN_ANCHOR` | `docs/CITIZENS/people/viru_road/erik_bengtsson.md:11` | Local Markdown link anchor `#hh-vi-viru-26` not found in `docs/CITIZENS/ledger/viru_road/viru_road.md` |
+| `BROKEN_ANCHOR` | `docs/CITIZENS/people/viru_road/evert_karrenman.md:11` | Local Markdown link anchor `#hh-vi-viru-27` not found in `docs/CITIZENS/ledger/viru_road/viru_road.md` |
+| `BROKEN_ANCHOR` | `docs/CITIZENS/people/viru_road/folke_knutsson.md:11` | Local Markdown link anchor `#hh-vi-viru-26` not found in `docs/CITIZENS/ledger/viru_road/viru_road.md` |
+| `BROKEN_ANCHOR` | `docs/CITIZENS/people/viru_road/gertrud_mihkli_tutar.md:65` | Local Markdown link anchor `#hh-vi-viru-24` not found in `docs/CITIZENS/ledger/viru_road/viru_road.md` |
+| `BROKEN_ANCHOR` | `docs/CITIZENS/people/viru_road/gunhild_jonsdotter.md:11` | Local Markdown link anchor `#hh-vi-viru-26` not found in `docs/CITIZENS/ledger/viru_road/viru_road.md` |
+| `BROKEN_ANCHOR` | `docs/CITIZENS/people/viru_road/gyla_fromme.md:11` | Local Markdown link anchor `#hh-vi-viru-27` not found in `docs/CITIZENS/ledger/viru_road/viru_road.md` |
+| `BROKEN_ANCHOR` | `docs/CITIZENS/people/viru_road/ilona_anttantytar.md:66` | Local Markdown link anchor `#hh-vi-viru-27` not found in `docs/CITIZENS/ledger/viru_road/viru_road.md` |
+| `BROKEN_ANCHOR` | `docs/CITIZENS/people/viru_road/katrin_priidiku_tutar.md:68` | Local Markdown link anchor `#hh-vi-viru-27` not found in `docs/CITIZENS/ledger/viru_road/viru_road.md` |
+| `BROKEN_ANCHOR` | `docs/CITIZENS/people/viru_road/lars_folkesson.md:71` | Local Markdown link anchor `#hh-vi-viru-27` not found in `docs/CITIZENS/ledger/viru_road/viru_road.md` |
+| `BROKEN_ANCHOR` | `docs/CITIZENS/people/viru_road/marquard_karrenman.md:11` | Local Markdown link anchor `#hh-vi-viru-27` not found in `docs/CITIZENS/ledger/viru_road/viru_road.md` |
+| `BROKEN_ANCHOR` | `docs/CITIZENS/people/viru_road/partel_jaagu_poeg.md:11` | Local Markdown link anchor `#hh-vi-viru-26` not found in `docs/CITIZENS/ledger/viru_road/viru_road.md` |
+| `BROKEN_ANCHOR` | `docs/CITIZENS/people/viru_road/peter_karrenman.md:11` | Local Markdown link anchor `#hh-vi-viru-27` not found in `docs/CITIZENS/ledger/viru_road/viru_road.md` |
+| `BROKEN_ANCHOR` | `docs/CITIZENS/people/viru_road/sanna_tuomasntytar.md:68` | Local Markdown link anchor `#hh-vi-viru-23` not found in `docs/CITIZENS/ledger/viru_road/viru_road.md` |
+| `BROKEN_ANCHOR` | `docs/CITIZENS/people/viru_road/tuomas_tuomasnpoika.md:71` | Local Markdown link anchor `#hh-vi-viru-23` not found in `docs/CITIZENS/ledger/viru_road/viru_road.md` |
+| `BROKEN_ANCHOR` | `docs/CITIZENS/people/viru_road/tuomas_tuomasnpoika.md:71` | Local Markdown link anchor `#hh-vi-viru-28` not found in `docs/CITIZENS/ledger/viru_road/viru_road.md` |
+| `BROKEN_ANCHOR` | `docs/CITIZENS/people/viru_road/yakov_fedorovich.md:11` | Local Markdown link anchor `#hh-vi-viru-26` not found in `docs/CITIZENS/ledger/viru_road/viru_road.md` |
+| `BROKEN_LINK` | `docs/CITIZENS/factions/cult_metsik.md:174` | Local Markdown link target does not exist: `../people/lower_town/margareta.md` |
+| `BROKEN_LINK` | `docs/CITIZENS/factions/hanseatic.md:232` | Local Markdown link target does not exist: `../people/lower_town/karin_folkesdotter.md` |
+| `BROKEN_LINK` | `docs/CITIZENS/ledger/lower_town/katariina_kaik.md:145` | Local Markdown link target does not exist: `../../people/lower_town/henn_mikku_poeg.md` |
+| `BROKEN_LINK` | `docs/CITIZENS/ledger/lower_town/katariina_kaik.md:190` | Local Markdown link target does not exist: `../../people/lower_town/kristiina_madise_tutar.md` |
+| `BROKEN_LINK` | `docs/CITIZENS/ledger/lower_town/munga.md:51` | Local Markdown link target does not exist: `../../people/lower_town/karin_folkesdotter.md` |
+| `BROKEN_LINK` | `docs/CITIZENS/ledger/lower_town/olevimagi.md:31` | Local Markdown link target does not exist: `../../people/lower_town/peeter_hindreku_poeg.md` |
+| `BROKEN_LINK` | `docs/CITIZENS/ledger/lower_town/olevimagi.md:36` | Local Markdown link target does not exist: `../../people/lower_town/hindrek_andrese_poeg.md` |
+| `BROKEN_LINK` | `docs/CITIZENS/ledger/lower_town/oleviste.md:35` | Local Markdown link target does not exist: `../../people/lower_town/margareta.md` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:27` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:27` | Local Markdown link target does not exist: `../content/maps/reval_harbor_east.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:28` | Local Markdown link target does not exist: `../content/maps/reval_harbor_east.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:29` | Local Markdown link target does not exist: `../content/maps/reval_harbor_east.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:30` | Local Markdown link target does not exist: `../content/maps/reval_harbor_north.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:31` | Local Markdown link target does not exist: `../content/maps/reval_harbor_east.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:32` | Local Markdown link target does not exist: `../content/maps/reval_harbor_east.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:33` | Local Markdown link target does not exist: `../content/maps/monastery_quarter.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:34` | Local Markdown link target does not exist: `../content/maps/monastery_quarter.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:35` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:36` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:37` | Local Markdown link target does not exist: `../content/maps/monastery_quarter.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:38` | Local Markdown link target does not exist: `../content/maps/monastery_quarter.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:39` | Local Markdown link target does not exist: `../content/maps/reval_harbor_east.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:40` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:40` | Local Markdown link target does not exist: `../content/maps/reval_harbor_north.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:41` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:42` | Local Markdown link target does not exist: `../content/maps/reval_harbor_east.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:43` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:44` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:45` | Local Markdown link target does not exist: `../content/maps/reval_harbor_north.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:46` | Local Markdown link target does not exist: `../content/maps/reval_harbor_east.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:58` | Local Markdown link target does not exist: `../content/maps/monastery_quarter.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:59` | Local Markdown link target does not exist: `../content/maps/monastery_quarter.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:59` | Local Markdown link target does not exist: `../content/maps/reval_harbor_north.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:60` | Local Markdown link target does not exist: `../content/maps/monastery_quarter.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:61` | Local Markdown link target does not exist: `../content/maps/monastery_quarter.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:61` | Local Markdown link target does not exist: `../content/maps/reval_harbor_north.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:62` | Local Markdown link target does not exist: `../content/maps/monastery_quarter.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:63` | Local Markdown link target does not exist: `../content/maps/reval_harbor_east.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:64` | Local Markdown link target does not exist: `../content/maps/reval_harbor_east.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:65` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:66` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:67` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:68` | Local Markdown link target does not exist: `../content/maps/viru_gate_foreland.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:69` | Local Markdown link target does not exist: `../content/maps/viru_gate_foreland.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:70` | Local Markdown link target does not exist: `../content/maps/viru_gate_foreland.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:71` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:72` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:73` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:74` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:75` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:76` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:77` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:78` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:79` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:80` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:81` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:82` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:83` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:84` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:85` | Local Markdown link target does not exist: `../content/maps/monastery_quarter.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:86` | Local Markdown link target does not exist: `../content/maps/monastery_quarter.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:87` | Local Markdown link target does not exist: `../content/maps/monastery_quarter.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:97` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:98` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:99` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:100` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:101` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:102` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:103` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:104` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:105` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:106` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:107` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:108` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:109` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:110` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:111` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:112` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:113` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:114` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:115` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
+| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:116` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
+| `BROKEN_LINK` | `docs/LOCATIONS/sacred_grove.md:50` | Local Markdown link target does not exist: `../../content/maps/south_quarter.rrmap` |
 
 ## Active files scanned
 
@@ -77,9 +223,10 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/adr/0033-teen-protagonist-and-spirit-dialogue-combat.md`
 - `docs/adr/0034-cutscene-mode-and-cinematic-prologue.md`
 - `docs/adr/0035-game-audio-sourcing-and-sfx-system.md`
-- `docs/adr/0036-layered-npc-mind-with-local-llm.md`
+- `docs/adr/0036-jump-vault-and-expanded-melee-verbs.md`
 - `docs/adr/README.md`
 - `docs/AGENT_LOOPS.md`
+- `docs/ANIMAL_3D_SOURCING.md`
 - `docs/ARCHITECTURE.md`
 - `docs/ART_BIBLE.md`
 - `docs/ASSET_INVENTORY.md`
@@ -122,6 +269,7 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/CITIZENS/factions/pskov_novgorod.md`
 - `docs/CITIZENS/factions/README.md`
 - `docs/CITIZENS/factions/vitalienbruder.md`
+- `docs/CITIZENS/gate_garrisons.md`
 - `docs/CITIZENS/ledger/harju_road/harju_road.md`
 - `docs/CITIZENS/ledger/kalarand/western_coast_road.md`
 - `docs/CITIZENS/ledger/karja_road/karja_road.md`
@@ -1004,6 +1152,7 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/SYSTEMS/AUDIO.md`
 - `docs/SYSTEMS/CITIZENS.md`
 - `docs/SYSTEMS/CITY_LANDMARK_SITES.md`
+- `docs/SYSTEMS/CITY_SEA.md`
 - `docs/SYSTEMS/COMBAT.md`
 - `docs/SYSTEMS/COMBAT_ANIMATION.md`
 - `docs/SYSTEMS/COMBAT_NIGHT.md`
@@ -1012,14 +1161,16 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/SYSTEMS/FACTIONS_AND_ECONOMY.md`
 - `docs/SYSTEMS/FARMLAND.md`
 - `docs/SYSTEMS/FLAG_CLOTH.md`
+- `docs/SYSTEMS/GATE_GARRISONS.md`
 - `docs/SYSTEMS/HOIST_ROPE.md`
+- `docs/SYSTEMS/HOUSEHOLDS.md`
 - `docs/SYSTEMS/HUD_AND_MENUS.md`
 - `docs/SYSTEMS/LIVING_CITY.md`
 - `docs/SYSTEMS/LIVING_VEGETATION.md`
 - `docs/SYSTEMS/LIVING_WORLD.md`
 - `docs/SYSTEMS/MAGIC.md`
+- `docs/SYSTEMS/MUSCLE_LOCOMOTION.md`
 - `docs/SYSTEMS/NATURAL.md`
-- `docs/SYSTEMS/NPC_MIND.md`
 - `docs/SYSTEMS/OBJECT_CATALOG.md`
 - `docs/SYSTEMS/PSYCHE.md`
 - `docs/SYSTEMS/QUESTS.md`
@@ -1058,6 +1209,8 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/tasks/coast/CO-09_saaremaa_traversability.md`
 - `docs/tasks/coast/CO-10_swim_dive_drown.md`
 - `docs/tasks/coast/README.md`
+- `docs/tasks/creatures/CM-01_procedural_creature_locomotion.md`
+- `docs/tasks/creatures/README.md`
 - `docs/tasks/README.md`
 - `docs/tasks/urban_form/README.md`
 - `docs/tasks/urban_form/UF-00_reconcile_adr_0023_acceptance.md`

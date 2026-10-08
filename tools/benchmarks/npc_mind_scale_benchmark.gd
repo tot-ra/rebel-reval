@@ -1,5 +1,5 @@
 extends SceneTree
-## Spike for ADR 0036 (proposed): can layer 0/1 NPC state scale to a whole city?
+## Spike for ADR 0037 (proposed): can layer 0/1 NPC state scale to a whole city?
 ##
 ## Not runtime code. Measures a packed struct-of-arrays store with a minute
 ## timing wheel (the "abstract" tier), utility scoring, a spatial grid query,
@@ -47,7 +47,7 @@ func _initialize() -> void:
 			out_path = arg.trim_prefix("--out=")
 	_build_curves()
 	var report := {
-		"spike": "ADR 0036 NPC mind scale",
+		"spike": "ADR 0037 NPC mind scale",
 		"engine": Engine.get_version_info().string,
 		"cpu_threads": OS.get_processor_count(),
 		"checks": _run_checks(),

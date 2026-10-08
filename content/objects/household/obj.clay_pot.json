@@ -12,9 +12,9 @@
   "physical": {
     "mass_kg": 0.9,
     "size_m": [
-      0.18,
-      0.2,
-      0.18
+      0.27,
+      0.27,
+      0.27
     ],
     "materials": [
       "clay_ceramic"
@@ -44,7 +44,14 @@
     "grouping": "single"
   },
   "model": {
-    "status": "missing"
+    "status": "glb",
+    "glb": "res://assets/props/furniture/household_kit/household_furniture_kit.glb",
+    "node": "ClayPot",
+    "measured_size_m": [
+      0.27,
+      0.27,
+      0.27
+    ]
   },
   "visual": {
     "preview": "docs/reports/images/object_catalog/obj.clay_pot.png",
@@ -53,7 +60,7 @@
     "look": "Rounded unglazed clay pot with a flared rim.",
     "image_prompt": "A plain rounded unglazed clay pot with a flared rim"
   },
-  "lifecycle": "planned",
+  "lifecycle": "usable",
   "confidence": "plausible composite",
   "carry": {
     "grid_width": 1,

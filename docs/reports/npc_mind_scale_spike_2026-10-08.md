@@ -1,6 +1,6 @@
 # NPC mind: scale benchmark and local-LLM research (spike)
 
-Date: 2026-10-08. Feeds [ADR 0036](../adr/0036-layered-npc-mind-with-local-llm.md) (proposed) and [`SYSTEMS/NPC_MIND.md`](../SYSTEMS/NPC_MIND.md). Status: evidence only; no runtime code changed.
+Date: 2026-10-08. Feeds [ADR 0037](../adr/0037-layered-npc-mind-with-local-llm.md) (proposed) and [`SYSTEMS/NPC_MIND.md`](../SYSTEMS/NPC_MIND.md). Status: evidence only; no runtime code changed.
 
 ## What was run
 
@@ -14,7 +14,7 @@ Numbers are host-specific. Use ratios and budgets; re-run on the minimum-hardwar
 
 ## Layer 0/1 results
 
-The spike models the *abstract tier* of ADR 0036: a packed struct-of-arrays store, a 1,440-slot minute timing wheel for state-change events, a 128 m grid for perception, and a utility scorer (16 goals x 5 considerations) run on about 1 event in 16. Positions jump to the leg's place; real route interpolation is not modelled.
+The spike models the *abstract tier* of ADR 0037: a packed struct-of-arrays store, a 1,440-slot minute timing wheel for state-change events, a 128 m grid for perception, and a utility scorer (16 goals x 5 considerations) run on about 1 event in 16. Positions jump to the leg's place; real route interpolation is not modelled.
 
 | Residents | Manager tick, 24-min game day at 60 Hz (mean / p99 / max) | Max events in one game minute | Fast-forward day, 1 h per s (mean / max per step) | 8 h catch-up of everyone | Alarm query (60 m) | Save: overrides only vs full rows |
 |---:|---|---:|---|---:|---:|---|

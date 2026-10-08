@@ -563,6 +563,10 @@ static func grass_tuft_mesh() -> ArrayMesh:
 	return FoliageMeshes.grass_tuft_mesh()
 
 
+static func grass_blade_clump_mesh() -> ArrayMesh:
+	return FoliageMeshes.grass_blade_clump_mesh()
+
+
 static func reed_stem_mesh() -> ArrayMesh:
 	return FoliageMeshes.reed_stem_mesh()
 
