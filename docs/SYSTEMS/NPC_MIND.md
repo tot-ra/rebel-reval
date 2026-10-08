@@ -12,6 +12,36 @@ Nothing here is built. Existing behaviour that layer 0 will wrap lives in [`WORL
 
 Every layer works when everything above it is off, slow or failing.
 
+## Architecture for scale (planned)
+
+Starting point in code: 4,247 census residents; `CitizenRoster.resolve` gives each one a position as a pure function of the clock, a 128 m spatial grid indexes them, and `CityCitizens` keeps at most 30 live actors within about 60 m of Kalev, scanning 250 residents per frame. There is no per-resident state to save. The design keeps that cost profile and adds state only where it pays off. Figures below are targets to be measured in phase 0/1, not results.
+
+- **No node per citizen.** Residents are rows in one packed store (struct of arrays: state id, goal id, position, route cursor, next-event time, mood, memory flags). One manager owns it; only the live tier has scene nodes.
+- **Three detail tiers by distance and relevance.**
+  - *Live* (about 30, near the player): real rig, state machine stepped every physics frame for steering and animation, goal re-evaluated every 0.5-2 s.
+  - *Abstract* (rest of the loaded area): no node. Position is interpolated along the cached street route; the state changes only at scheduled events held in a time-ordered queue. Cost scales with events per game day (about 10-20 per resident), not with frames.
+  - *Dormant* (outside streaming range): schedule and next-event time only. On wake-up the record is fast-forwarded to "now".
+  - Promotion and demotion copy state between a row and its actor, so nobody teleports.
+- **Plan plus deviations.** The timetable stays the baseline plan. A resident departs from it only through a sparse *override* (goal, until-time, reason code), set by layer 1 or an event such as alarm, weather, market day, or a quest. Position is `plan(clock)` unless an override is active. Saves store overrides and short memory only, so they stay small and the 4,247-resident census is never serialized.
+- **Layer 1 is event-driven.** Scoring runs on arrival, interrupt or a slow staggered heartbeat (hash of the resident ID), never every frame for everybody. A budgeted scheduler spends at most a fixed slice of each frame, as the roster scan already does.
+- **Perception through the grid.** Alarms, crowds and "who sees this" use cell lookups on the existing grid, never pairwise checks.
+- **Routes are cached.** Street-graph routes per (door, destination) are precomputed or memoised; live NPCs follow them with lane offsets. Navigation-server agents are reserved for the few live NPCs that need local avoidance.
+- **Optional worker thread.** Abstract and dormant updates work on packed arrays only, so they can run on `WorkerThreadPool` and hand results to the main thread. Start single-threaded; move only if the benchmark demands it.
+- **Crowds in the distance** keep using the multimesh crowd renderer.
+
+### Dialogue at scale
+
+Cost follows player attention, not population.
+
+1. **Authored** (`DialogueRunner`): quest, faction and the 737 deep-card characters.
+2. **Rule-selected barks**: role x mood x situation x location, with conditions. This covers most ordinary citizens at near-zero cost.
+3. **LLM speech** (layer 2): only for the NPC the player is addressing or standing next to. One queue, one or two requests at a time, late answers dropped. Small fixed prompt: character card, district brief, structured state summary (goal, mood, last few facts), never raw history. The shared prefix is cached. Approaching the NPC may start a speculative greeting; an authored filler animation or bark covers the wait.
+4. **NPC-to-NPC talk is not generated.** Background conversations are abstract events that move *facts* (rumours with source, age, confidence) through the social graph in the abstract tier, and surface as barks or ambient animation when the player is near. Facts are IDs, so they stay small and can feed layer 1 and the rules engine.
+
+### Verify the scale claim
+
+A headless benchmark with synthetic populations (5,000 and 20,000 rows) must report per-frame cost of the manager, event throughput, promotion/demotion cost, and save size; it goes into `tools/run_performance_report.sh`. Phase 0 is not done until it exists. Local model latency, memory and install size are measured in the layer-2 spike, not assumed.
+
 ## Controls (planned)
 
 - Closed output schemas; invalid output is dropped and the authored bark or layer-1 choice is used.
