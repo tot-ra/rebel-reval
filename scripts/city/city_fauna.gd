@@ -263,6 +263,16 @@ func live_actor_count() -> int:
 	return count
 
 
+## Every spawned animal, for the ground trail (CityTrailFeed).
+func live_animals() -> Array[Node3D]:
+	var out: Array[Node3D] = []
+	for actors: Array in _live.values():
+		for actor: Node3D in actors:
+			if is_instance_valid(actor):
+				out.append(actor)
+	return out
+
+
 func group_count() -> int:
 	return _groups.size()
 

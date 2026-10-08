@@ -30,6 +30,8 @@ var music_zones := CityMusicZones.new()
 var inside_building := -1
 var _music_timer := 0.0
 var _smithy := -1
+var _npcs: CityNpcs
+var _fauna: CityFauna
 ## Site room Kalev stands in: {site, room} and its key, or empty.
 var _site_room: Dictionary = {}
 var _site_room_key := ""
@@ -50,11 +52,13 @@ func _ready() -> void:
 	player.run_speed = int(player.run_speed * SPEED_MULTIPLIER)
 	var arrival := spawn_id()
 	_place_player(arrival)
-	actors.add_child(CityNpcs.create(plan, player))
+	_npcs = CityNpcs.create(plan, player)
+	actors.add_child(_npcs)
 	view = CityMapView.create_city(plan)
 	world = view.world
 	runtime = CityRuntime.install(self, view, player)
-	world.add_child(CityFauna.create(plan, player))
+	_fauna = CityFauna.create(plan, player)
+	world.add_child(_fauna)
 	world.add_child(CityFish.create(plan, player))
 	interiors = CityInteriors.create(plan, CitizenRoster.load_default(), world.chimneys)
 	interiors.collision_parent = self
@@ -141,6 +145,7 @@ func _process(delta: float) -> void:
 	world.grass.update_for(xz)
 	world.farmland.update_for(xz)
 	world.trail.update_for(xz, delta)
+	CityTrailFeed.feed(world.trail, _npcs.citizens, _fauna, get_tree())
 	world.smoke.update_for(xz, delta)
 	var camera := view.view_camera()
 	var forward := -camera.global_transform.basis.z

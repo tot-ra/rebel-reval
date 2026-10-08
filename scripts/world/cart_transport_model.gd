@@ -90,6 +90,23 @@ const _ROUTE_DESCRIPTORS: Array[Dictionary] = [
 ]
 
 
+## Ground marks a rolling vehicle leaves (CityGroundTrail.track_cart): `gauge`
+## is the distance between the wheel (or runner) lines in world units (metres),
+## 0 for a single wheel; `half_width` the groove half width (iron tyre or
+## runner); `load` the depth against a plain cart. {} for an unknown class.
+static func wheel_track_spec(vehicle_class: StringName) -> Dictionary:
+	match vehicle_class:
+		VEHICLE_CLASS_CART_2W:
+			return {"gauge": 1.25, "half_width": 0.06, "load": 1.0}
+		VEHICLE_CLASS_WAGON_4W:
+			return {"gauge": 1.5, "half_width": 0.07, "load": 1.3}
+		VEHICLE_CLASS_BARROW:
+			return {"gauge": 0.0, "half_width": 0.06, "load": 0.5}
+		VEHICLE_CLASS_SLEDGE:
+			return {"gauge": 0.8, "half_width": 0.08, "load": 0.6}
+	return {}
+
+
 static func default_vehicle_class() -> StringName:
 	return VEHICLE_CLASS_CART_2W
 

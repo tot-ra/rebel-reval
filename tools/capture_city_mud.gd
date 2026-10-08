@@ -1,6 +1,6 @@
 extends SceneTree
 
-## Review plates for cart-road mud, verge grass and footprints
+## Review plates for cart-road mud, verge grass, footprints, wheel grooves and hooves
 ## (docs/SYSTEMS/SEAMLESS_CITY.md, "Ground relief, roads and prints"). Picks a
 ## busy road, walks a stretch of it in wet or dry ground so the trail map fills
 ## with prints, then shoots from eye, gameplay and low grazing cameras.
@@ -132,11 +132,17 @@ func _run() -> void:
 	for i in 480:
 		pos += dir * 0.05 + side * sin(float(i) * 0.05) * 0.004
 		world.trail.update_for(pos, 0.016)
+		# A cart with its horse and a townsman keep pace beside Kalev, so the plates
+		# show wheel grooves, hoof prints and a second set of boots (CityTrailFeed).
+		var cart_at := pos + dir * 3.0 + side * 2.2
+		world.trail.track_cart(1, cart_at, CartTransportModel.VEHICLE_CLASS_CART_2W)
+		world.trail.track_hooves(2, cart_at + dir * 2.4, &"horse")
+		world.trail.track_walker(3, pos + dir * 2.0 - side * 2.0)
 		world.grass.update_for(pos)
 		if i % 60 == 0:
 			await process_frame
 	var g := plan.ground_height(pos)
-	var focus := pos - dir * 5.0
+	var focus := pos - dir * 3.0 + side * 1.2
 	var gf := plan.ground_height(focus)
 	var specs := [
 		["eye", focus - dir * 4.0 + side * 1.0, 1.7, 0.0, 65.0],

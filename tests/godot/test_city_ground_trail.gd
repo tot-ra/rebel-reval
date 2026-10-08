@@ -142,9 +142,124 @@ func test_grass_keeps_off_the_road_body_and_shrinks_at_its_edge() -> void:
 		for x in range(0, image.get_width(), 7):
 			var texel := image.get_pixel(x, y)
 			if texel.r > 0.95 and texel.b > 0.5:
-				var p := plan.bounds.position + (Vector2(x, y) + Vector2(0.5, 0.5)) / Vector2(image.get_size()) * plan.bounds.size
+				var uv := (Vector2(x, y) + Vector2(0.5, 0.5)) / Vector2(image.get_size())
+				var p := plan.bounds.position + uv * plan.bounds.size
 				assert_true(grass.road_clearance(p) > 0.7, "busy road body is cleared of plants")
 				assert_true(grass._bareness(p) >= 0.7, "bareness covers the road body")
 				checked += 1
 	assert_true(checked > 20, "found busy road texels, got %d" % checked)
 	grass.free()
+
+
+## Counts cells pressed below neutral in a world rectangle of the trail.
+func _pressed_cells(trail: CityGroundTrail, rect: Rect2) -> int:
+	var n := 0
+	var x := rect.position.x
+	while x < rect.end.x:
+		var y := rect.position.y
+		while y < rect.end.y:
+			if trail.value_at(Vector2(x, y)) < FLAT - 0.05:
+				n += 1
+			y += CityGroundTrail.CELL
+		x += CityGroundTrail.CELL
+	return n
+
+
+func _deepest(trail: CityGroundTrail, rect: Rect2) -> float:
+	var low := 1.0
+	var x := rect.position.x
+	while x < rect.end.x:
+		var y := rect.position.y
+		while y < rect.end.y:
+			low = minf(low, trail.value_at(Vector2(x, y)))
+			y += CityGroundTrail.CELL
+		x += CityGroundTrail.CELL
+	return low
+
+
+func _walk_walker(trail: CityGroundTrail, key: int, from: Vector2, steps: int) -> void:
+	var pos := from
+	for i in steps:
+		pos += Vector2(0.25, 0.0)
+		trail.update_for(Vector2(0, -400), 0.016)
+		trail.track_walker(key, pos)
+
+
+func test_citizen_walking_leaves_prints_inside_the_window() -> void:
+	var trail := _soft_trail()
+	_walk_walker(trail, 1, Vector2(3, -395), 40)
+	assert_true(_pressed_cells(trail, Rect2(3, -396, 11, 2)) > 20, "citizen prints near Kalev")
+	trail.free()
+
+
+func test_walkers_beyond_track_radius_leave_nothing() -> void:
+	var trail := _soft_trail()
+	var far := Vector2(CityGroundTrail.TRACK_RADIUS + 5.0, -400)
+	_walk_walker(trail, 2, far, 40)
+	assert_eq(_pressed_cells(trail, Rect2(far.x, -401, 12, 2)), 0, "nothing beyond the radius")
+	trail.free()
+
+
+func test_hooves_press_by_species_and_ignore_birds() -> void:
+	var trail := _soft_trail()
+	var pos := Vector2(2, -398)
+	for i in 40:
+		pos += Vector2(0.2, 0.0)
+		trail.update_for(Vector2(0, -400), 0.016)
+		trail.track_hooves(10, pos, &"horse")
+		trail.track_hooves(11, pos + Vector2(0, 3), &"goose")
+	assert_true(_pressed_cells(trail, Rect2(2, -399, 8, 2)) > 10, "horse hoof prints")
+	assert_eq(_pressed_cells(trail, Rect2(2, -396, 8, 2)), 0, "a goose leaves no hoof print")
+	trail.free()
+
+
+func test_cart_wheels_cut_two_grooves_and_wet_cuts_deeper() -> void:
+	var dry := _soft_trail()
+	var wet := _soft_trail()
+	dry.wetness = 0.0
+	wet.wetness = 1.0
+	var pos := Vector2(2, -400)
+	for i in 30:
+		pos += Vector2(0.2, 0.0)
+		for t: CityGroundTrail in [dry, wet]:
+			t.update_for(Vector2(0, -400), 0.016)
+			t.track_cart(20, pos, CartTransportModel.VEHICLE_CLASS_CART_2W)
+	var cart_class := CartTransportModel.VEHICLE_CLASS_CART_2W
+	var gauge: float = CartTransportModel.wheel_track_spec(cart_class)["gauge"]
+	for sy in [-1.0, 1.0]:
+		var line := Rect2(4, -400.0 + sy * gauge * 0.5 - 0.05, 4, 0.1)
+		assert_true(_pressed_cells(wet, line) > 10, "groove on wheel line %.1f" % sy)
+		assert_true(_deepest(wet, line) < _deepest(dry, line) - 0.1, "wet groove deeper")
+	assert_almost_eq(wet.value_at(Vector2(6, -400)), FLAT, 0.01, "centre between the wheels stays")
+	dry.free()
+	wet.free()
+
+
+func test_slow_cart_still_draws_a_groove() -> void:
+	var trail := _soft_trail()
+	trail.wetness = 1.0
+	var pos := Vector2(2, -400)
+	# 0.008 wu per frame is under one cell: the segment must accumulate.
+	for i in 400:
+		pos += Vector2(0.008, 0.0)
+		trail.update_for(Vector2(0, -400), 0.016)
+		trail.track_cart(21, pos, CartTransportModel.VEHICLE_CLASS_BARROW)
+	assert_true(_pressed_cells(trail, Rect2(2.5, -400.1, 2.5, 0.2)) > 10, "barrow groove")
+	trail.free()
+
+
+func test_unknown_vehicle_class_leaves_nothing() -> void:
+	var trail := _soft_trail()
+	trail.track_cart(22, Vector2(2, -400), &"hovercraft")
+	trail.track_cart(22, Vector2(4, -400), &"hovercraft")
+	assert_eq(_pressed_cells(trail, Rect2(1, -401, 5, 2)), 0)
+	trail.free()
+
+
+func test_unfed_walkers_are_forgotten() -> void:
+	var trail := _soft_trail()
+	trail.track_walker(30, Vector2(3, -399))
+	trail.update_for(Vector2(0, -400), 0.016)
+	trail.update_for(Vector2(0, -400), 0.016)
+	assert_eq(trail._marks.size(), 0, "mark dropped after a frame without feed")
+	trail.free()

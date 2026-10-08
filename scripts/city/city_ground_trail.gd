@@ -9,6 +9,10 @@ extends Node3D
 ## into relief, damp darkening and puddles: deep and glossy in rain, shallow
 ## and dusty when dry. Dry footfalls on soft ground also kick up a puff of dust.
 ## Prints are visual only: they do not change walking speed or the heightfield.
+## Other walkers feed the same window through `track_walker`, `track_hooves` and
+## `track_cart` (CityTrailFeed calls them every frame): only those inside
+## TRACK_RADIUS of Kalev and inside the window leave marks, and depth follows
+## `wetness` exactly as Kalev's own prints do.
 
 const WINDOW_CELLS := 1024
 ## One cell in world units: a boot is ~0.13 wu wide, so 0.04 gives it 3-4 cells.
@@ -32,6 +36,22 @@ const MIN_SOFTNESS := 0.12
 const DRY_WETNESS := 0.35
 ## A jump further than this in one frame is a teleport: start a fresh window.
 const TELEPORT := 10.0
+## Other walkers, animals and carts mark the ground only this close to Kalev:
+## beyond it nobody can see the print and the stamps would be wasted work.
+const TRACK_RADIUS := 20.0
+## Keep marks off the very edge of the window, where a recentre would clip them.
+const TRACK_MARGIN := 1.0
+## One walker moving further than this between two calls was moved, not walked.
+const MARK_TELEPORT := 4.0
+## Per species: hoof half extents (along, across), distance between the left and
+## right hoof, distance walked per hoof pair, weight against a person's.
+const HOOVES := {
+	&"horse": {"radii": Vector2(0.075, 0.07), "gauge": 0.28, "stride": 1.1, "weight": 1.5},
+	&"cow": {"radii": Vector2(0.06, 0.04), "gauge": 0.3, "stride": 0.95, "weight": 1.3},
+	&"pig": {"radii": Vector2(0.045, 0.03), "gauge": 0.2, "stride": 0.5, "weight": 0.8},
+	&"goat": {"radii": Vector2(0.045, 0.03), "gauge": 0.16, "stride": 0.45, "weight": 0.7},
+	&"sheep": {"radii": Vector2(0.045, 0.03), "gauge": 0.18, "stride": 0.45, "weight": 0.7},
+}
 
 var wetness := 0.0
 
@@ -45,6 +65,10 @@ var _travelled := 0.0
 var _left_foot := true
 var _dirty := false
 var _dust: CPUParticles3D
+## Walkers seen this frame: key -> {at, travelled, left, seen}. A walker that
+## stops being fed (out of range, despawned) is forgotten after a frame.
+var _marks: Dictionary = {}
+var _tick := 0
 
 
 static func create(city_plan: CityPlan, surface: Callable) -> CityGroundTrail:
@@ -89,9 +113,82 @@ func update_for(world_xz: Vector2, _delta: float) -> void:
 		_travelled = fmod(_travelled, STRIDE)
 		_footfall(world_xz, step.normalized())
 	_last = world_xz
+	_forget_unseen()
 	if _dirty:
 		_texture.update(_image)
 		_dirty = false
+
+
+## A person on foot (a citizen): one boot print per STRIDE, left and right
+## alternating, lighter than Kalev's own. `key` is any stable id of the walker.
+func track_walker(key: Variant, world_xz: Vector2) -> void:
+	var mark := _advance_mark(key, world_xz)
+	if mark.is_empty() or float(mark["travelled"]) < STRIDE:
+		return
+	mark["travelled"] = fmod(float(mark["travelled"]), STRIDE)
+	var soft := _softness_at(world_xz)
+	if soft.x < MIN_SOFTNESS:
+		return
+	var facing: Vector2 = mark["facing"]
+	var foot_sign := 1.0 if mark["left"] else -1.0
+	mark["left"] = not mark["left"]
+	var side := Vector2(-facing.y, facing.x)
+	stamp_foot(
+		world_xz + side * FOOT_SPREAD * foot_sign,
+		facing.rotated(TOE_OUT * foot_sign),
+		_weight() * 0.85
+	)
+
+
+## A hoofed animal (`species` is a key of HOOVES, anything else leaves nothing):
+## a left and a right hoof per stride, the right one half a stride behind.
+func track_hooves(key: Variant, world_xz: Vector2, species: StringName) -> void:
+	if not HOOVES.has(species):
+		return
+	var spec: Dictionary = HOOVES[species]
+	var mark := _advance_mark(key, world_xz)
+	if mark.is_empty() or float(mark["travelled"]) < float(spec["stride"]):
+		return
+	mark["travelled"] = fmod(float(mark["travelled"]), float(spec["stride"]))
+	if _softness_at(world_xz).x < MIN_SOFTNESS:
+		return
+	var facing: Vector2 = mark["facing"]
+	var side := Vector2(-facing.y, facing.x)
+	var half := float(spec["gauge"]) * 0.5
+	var radii: Vector2 = spec["radii"]
+	var depth := minf(0.5 * _weight() * float(spec["weight"]), 0.95)
+	var back := facing * float(spec["stride"]) * 0.5
+	stamp_oval(world_xz + side * half, radii, facing, depth, 0.14 * _weight())
+	stamp_oval(world_xz - side * half - back, radii, facing, depth, 0.14 * _weight())
+
+
+## A cart, wagon, barrow or sledge rolling: one groove per wheel (or runner)
+## from where it was last fed to where it is now. `vehicle_class` is a
+## CartTransportModel class; one it has no wheel track for leaves nothing.
+func track_cart(key: Variant, world_xz: Vector2, vehicle_class: StringName) -> void:
+	var spec := CartTransportModel.wheel_track_spec(vehicle_class)
+	if spec.is_empty():
+		return
+	var previous: Vector2 = _marks[key]["at"] if _marks.has(key) else world_xz
+	# A groove is drawn per segment of at least two cells: a slow cart is not
+	# lost to many tiny steps, and a fresh mark has no earlier point to draw from.
+	var mark := _advance_mark(key, world_xz, CELL * 2.0)
+	if mark.is_empty():
+		return
+	if _softness_at(world_xz).x < MIN_SOFTNESS:
+		return
+	var dir: Vector2 = mark["facing"]
+	var side := Vector2(-dir.y, dir.x)
+	var depth := minf((0.3 + 0.9 * clampf(wetness, 0.0, 1.0)) * float(spec["load"]), 0.95)
+	var gauge := float(spec["gauge"])
+	var offsets: Array[float] = []
+	if gauge <= 0.0:
+		offsets.append(0.0)
+	else:
+		offsets.append(gauge * 0.5)
+		offsets.append(-gauge * 0.5)
+	for off in offsets:
+		stamp_track(previous + side * off, world_xz + side * off, float(spec["half_width"]), depth)
 
 
 ## One footprint: an oval pressed in, a rim heaped round it. `facing` is the
@@ -151,20 +248,74 @@ func stamp_track(a: Vector2, b: Vector2, half_width: float, depth: float) -> voi
 		stamp_oval(at, Vector2(CELL * 2.5, half_width), dir, depth, 0.1)
 
 
-func _footfall(world_xz: Vector2, facing: Vector2) -> void:
+## Vector2(give, softness) of the ground at a spot: give is what a print needs
+## (grass and sand take a faint one, paving none), softness is bare earth/mud.
+func _softness_at(world_xz: Vector2) -> Vector2:
 	var s: Color = _surface.call(world_xz)
 	var softness := clampf(maxf(s.g, s.a) - s.r, 0.0, 1.0)
-	# Grass and sand take a faint print; paving takes none (the shader also gates).
 	var give := maxf(softness, (1.0 - s.r) * 0.25)
-	if give < MIN_SOFTNESS or _plan.ground_height(world_xz) < 0.4:
+	if _plan.ground_height(world_xz) < 0.4:
+		give = 0.0
+	return Vector2(give, softness)
+
+
+## Dry ground only crumbles; wet clay gives under the full weight.
+func _weight() -> float:
+	return 0.4 + 1.15 * clampf(wetness, 0.0, 1.0)
+
+
+## Update a walker's mark with its new position. Returns the mark (with the
+## direction of travel in `facing` and the distance walked since the last
+## print in `travelled`), or {} if the walker may not leave a print now: outside
+## the tracked area, just appeared, or moved less than `min_step` (its mark then
+## keeps the old position so slow movement still adds up).
+func _advance_mark(key: Variant, world_xz: Vector2, min_step := 0.0001) -> Dictionary:
+	if _last == Vector2.INF or _last.distance_to(world_xz) > TRACK_RADIUS:
+		_marks.erase(key)
+		return {}
+	var c := _cell_of(world_xz)
+	var margin := int(TRACK_MARGIN / CELL)
+	if (
+		c.x < margin or c.y < margin
+		or c.x >= WINDOW_CELLS - margin or c.y >= WINDOW_CELLS - margin
+	):
+		_marks.erase(key)
+		return {}
+	var mark: Dictionary = _marks.get(key, {})
+	if mark.is_empty() or (mark["at"] as Vector2).distance_to(world_xz) > MARK_TELEPORT:
+		_marks[key] = {
+			"at": world_xz, "travelled": 0.0, "left": true, "seen": _tick,
+			"facing": Vector2.RIGHT,
+		}
+		return {}
+	var step := world_xz - (mark["at"] as Vector2)
+	mark["seen"] = _tick
+	if step.length() < min_step:
+		return {}
+	mark["travelled"] = float(mark["travelled"]) + step.length()
+	mark["facing"] = step.normalized()
+	mark["at"] = world_xz
+	return mark
+
+
+## Drop walkers that were not fed during the last frame, then start a new one.
+func _forget_unseen() -> void:
+	for key in _marks.keys():
+		if int(_marks[key]["seen"]) < _tick:
+			_marks.erase(key)
+	_tick += 1
+
+
+func _footfall(world_xz: Vector2, facing: Vector2) -> void:
+	var soft := _softness_at(world_xz)
+	var softness := soft.y
+	if soft.x < MIN_SOFTNESS:
 		return
 	var side := Vector2(-facing.y, facing.x)
 	var foot_sign := 1.0 if _left_foot else -1.0
 	var foot := world_xz + side * FOOT_SPREAD * foot_sign
 	_left_foot = not _left_foot
-	# Dry ground only crumbles; wet clay gives under the full weight.
-	var weight := 0.4 + 1.15 * clampf(wetness, 0.0, 1.0)
-	stamp_foot(foot, facing.rotated(TOE_OUT * foot_sign), weight)
+	stamp_foot(foot, facing.rotated(TOE_OUT * foot_sign), _weight())
 	if wetness < DRY_WETNESS and softness >= 0.4:
 		_puff(foot)
 
