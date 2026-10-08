@@ -107,6 +107,10 @@ func begin_duel() -> bool:
 	_host.closed.connect(_on_confrontation_closed)
 	if _host.open(_db, _state, CONFRONTATION):
 		_pin_spirit_form()
+		# R-1365: the staged actor an exchange hurts flinches (porter hit / hero hit).
+		var staged := _stage()
+		if staged != null:
+			_host.duel.exchange_resolved.connect(staged.react_to_exchange)
 		return true
 	_host.queue_free()
 	_begin_kalev()
@@ -159,15 +163,18 @@ func dialogue_runner() -> Node:
 	return _runner
 
 
-## When the staged hall is mounted (child `Stage` with `camera()` / `porter()`), the porter's
-## spirit image looms over the staged actor instead of a drawn silhouette.
+## The staged hall (child `Stage`), or null when the scene is mounted without it.
+func _stage() -> AlmshouseStage:
+	return get_node_or_null(^"Stage") as AlmshouseStage
+
+
+## When the staged hall is mounted, the porter's spirit image looms over the staged actor
+## instead of a drawn silhouette.
 func _pin_spirit_form() -> void:
-	var stage_node := get_node_or_null(^"Stage")
-	if stage_node == null or not stage_node.has_method(&"camera"):
+	var staged := _stage()
+	if staged == null:
 		return
-	var camera := stage_node.call(&"camera") as Camera3D
-	var porter := stage_node.call(&"porter") as Node3D
-	_host.form_view().track_3d(camera, porter)
+	_host.form_view().track_3d(staged.camera(), staged.porter())
 
 
 func _on_confrontation_closed(_outcome: Dictionary) -> void:
@@ -178,6 +185,10 @@ func _on_confrontation_closed(_outcome: Dictionary) -> void:
 
 func _begin_kalev() -> void:
 	_set_stage(STAGE_KALEV)
+	# Before the runner starts, so Kalev's rig is in the speaker group for his first line.
+	var staged := _stage()
+	if staged != null:
+		staged.bring_in_kalev()
 	_dialogue_ui = DialogueUI.new()
 	add_child(_dialogue_ui)
 	_dialogue_ui.apply_settings(UserSettings.dialogue)

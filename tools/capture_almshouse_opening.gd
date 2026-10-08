@@ -33,6 +33,10 @@ func _init() -> void:
 	host.pick_slot(0)
 	await _frames(40)
 	await _save(out + "/cast.png")
+	# R-1365: Kalev in the hall doorway, camera reframed on him and the boy, on his first line.
+	host.close()
+	await _frames(40)
+	await _save(out + "/kalev.png")
 	quit()
 
 

@@ -6,12 +6,16 @@ extends Node3D
 ## the porter's, so the duel reads as the boy against the house. Everything is built from
 ## existing assets (P0-040 asset freeze): realistic-human rigs, the hearth / table / chest
 ## prop kits and the shared PBR plaster, stone and timber textures. No gameplay lives here.
+## R-1365: Kalev's rig steps into the back doorway for his scene and the camera reframes on
+## him and the boy; the rigs answer the DialogueRunner speaker group (jaw while they speak)
+## and flinch when a duel exchange lands on them.
 
 const HERO_SCENE := preload("res://assets/characters/variants/apprentice.tscn")
 ## No bespoke porter body exists yet; a heavy adult townsman reads as the gruff keyholder.
 const PORTER_SCENE := preload("res://assets/characters/variants/citizen_m_adult_heavy.tscn")
 const HEARTH_KIT := preload("res://assets/props/domestic/hearth/medieval_hearth_kit.glb")
 const TABLE_KIT := preload("res://assets/props/furniture/tables/medieval_table_kit/medieval_table_kit.glb")  # gdlint: ignore=max-line-length
+const KALEV_SCENE := preload("res://assets/characters/kalev/kalev.tscn")
 const CHEST := preload("res://assets/props/furniture/chest_poor_household/chest_poor_household.glb")  # gdlint: ignore=max-line-length
 const PLASTER := preload("res://assets/materials/pbr/plaster/plaster_albedo.png")
 const STONE := preload("res://assets/materials/pbr/stone/stone_albedo.png")
@@ -30,9 +34,28 @@ const CAMERA_TARGET := Vector3(0.0, 1.2, 0.0)
 const CAMERA_FOV := 40.0
 const WARM := Color(1.0, 0.62, 0.32)
 const COLD := Color(0.55, 0.68, 1.0)
+## Speaker ids the rigs answer to in the dialogue speaker group. The porter borrows a crowd
+## body, so his variant is re-keyed to the prologue character (see _place_actor).
+const PORTER_SPEAKER_ID := &"char.almshouse_porter"
+## The back-wall doorway Kalev appears in, between the hearth and the chest.
+const DOOR_X := -0.3
+const DOOR_WIDTH := 1.1
+const DOOR_HEIGHT := 2.3
+const KALEV_POSITION := Vector3(DOOR_X, 0.0, -HALL_DEPTH + 0.7)
+## Kalev's two-shot: from the porter's side so the boy (front left) and Kalev (doorway)
+## separate across the frame instead of stacking along the view axis.
+const KALEV_CAMERA_POSITION := Vector3(1.7, 1.55, 3.3)
+const KALEV_CAMERA_TARGET := Vector3(-0.55, 1.2, -1.1)
+## The porter steps back beside the chest to make room for the smith, still in frame.
+const PORTER_YIELD_POSITION := Vector3(1.4, 0.0, -1.9)
+## Kalev stands against the dark doorway; without a key of his own he reads as a silhouette.
+const KALEV_KEY_POSITION := Vector3(0.6, 2.1, -0.6)
+## The rig's `hit` clip is one-shot; the actor returns to idle after this long.
+const HIT_RECOVER_SEC := 0.8
 
 var _hero: Node3D
 var _porter: Node3D
+var _kalev: Node3D
 var _camera: Camera3D
 
 
@@ -41,8 +64,10 @@ func _ready() -> void:
 	_build_hall()
 	_build_props()
 	_build_lights()
-	_hero = _place_actor(HERO_SCENE, "Hero", -DUEL_HALF_GAP, FACING_DEG)
-	_porter = _place_actor(PORTER_SCENE, "Porter", DUEL_HALF_GAP, -FACING_DEG)
+	_hero = _place_actor(HERO_SCENE, "Hero", Vector3(-DUEL_HALF_GAP, 0, 0), FACING_DEG)
+	_porter = _place_actor(
+		PORTER_SCENE, "Porter", Vector3(DUEL_HALF_GAP, 0, 0), -FACING_DEG, PORTER_SPEAKER_ID
+	)
 	_camera = Camera3D.new()
 	_camera.name = "Camera"
 	_camera.fov = CAMERA_FOV
@@ -59,8 +84,72 @@ func porter() -> Node3D:
 	return _porter
 
 
+## Null until bring_in_kalev().
+func kalev() -> Node3D:
+	return _kalev
+
+
 func camera() -> Camera3D:
 	return _camera
+
+
+## Kalev's scene: his rig stands in the back doorway facing the boy, the porter yields
+## toward the table and the camera reframes on hero + Kalev. Idempotent.
+func bring_in_kalev() -> Node3D:
+	if _kalev != null:
+		return _kalev
+	var kalev_yaw := _yaw_toward(KALEV_POSITION, _hero.position)
+	_kalev = _place_actor(KALEV_SCENE, "Kalev", KALEV_POSITION, kalev_yaw)
+	_porter.position = PORTER_YIELD_POSITION
+	var between := (_hero.position + _kalev.position) * 0.5
+	_porter.rotation_degrees.y = _yaw_toward(_porter.position, between)
+	var key := OmniLight3D.new()
+	key.name = "KalevKey"
+	key.light_color = WARM
+	key.light_energy = 1.4
+	key.omni_range = 3.5
+	key.position = KALEV_KEY_POSITION
+	add_child(key)
+	_camera.look_at_from_position(KALEV_CAMERA_POSITION, KALEV_CAMERA_TARGET)
+	return _kalev
+
+
+## SpiritDuel.exchange_resolved: whoever an exchange hurt flinches. Replies and offensive
+## spells that cost the porter pressure hit him; a blow that costs the boy composure hits
+## the boy. Buffs, heals, parries and dodges play nothing. Returns the actor that reacted.
+func react_to_exchange(result: Dictionary) -> Node3D:
+	var target: Node3D = null
+	match String(result.get("kind", "")):
+		"reply":
+			if float(result.get("damage", 0.0)) > 0.0:
+				target = _porter
+		"spell":
+			if String(result.get("arena_effect", "")) in ["pressure", "stagger"]:
+				target = _porter
+		"incoming":
+			if float(result.get("composure_lost", 0.0)) > 0.0:
+				target = _hero
+	if target != null:
+		play_hit(target)
+	return target
+
+
+func play_hit(actor: Node3D) -> void:
+	if not actor.has_method(&"play_animation") or not actor.call(&"play_animation", &"hit"):
+		return
+	get_tree().create_timer(HIT_RECOVER_SEC).timeout.connect(_recover.bind(actor))
+
+
+## Yaw (degrees) that turns a rig's forward (+Z) from `from` toward `to` on the floor.
+static func _yaw_toward(from: Vector3, to: Vector3) -> float:
+	var direction := to - from
+	return rad_to_deg(atan2(direction.x, direction.z))
+
+
+func _recover(actor: Node3D) -> void:
+	# The actor may be gone (opening skipped) or already doing something else.
+	if is_instance_valid(actor) and actor.call(&"current_canonical_animation") == &"hit":
+		actor.call(&"play_animation", &"idle")
 
 
 func _notification(what: int) -> void:
@@ -72,11 +161,20 @@ func _notification(what: int) -> void:
 		SharedCharacterRig._detach_render_geometry(self)
 
 
-func _place_actor(scene: PackedScene, actor_name: String, x: float, yaw_deg: float) -> Node3D:
+func _place_actor(
+	scene: PackedScene, actor_name: String, at: Vector3, yaw_deg: float,
+	speaker_id: StringName = &""
+) -> Node3D:
 	var actor := scene.instantiate() as Node3D
 	actor.name = actor_name
-	actor.position = Vector3(x, 0.0, 0.0)
+	actor.position = at
 	actor.rotation_degrees.y = yaw_deg
+	# RealisticRig talks when the announced speaker equals its variant id. Re-key a borrowed
+	# body on a copy (the shared crowd variant resource must stay untouched) before _ready.
+	if not speaker_id.is_empty() and actor.get(&"variant") is CharacterVariant:
+		var keyed := (actor.get(&"variant") as CharacterVariant).duplicate() as CharacterVariant
+		keyed.stable_id = speaker_id
+		actor.set(&"variant", keyed)
 	add_child(actor)
 	# The combat health ring means nothing in a cinematic two-shot.
 	var ring := actor.get_node_or_null(^"HealthRing") as Node3D
@@ -142,6 +240,18 @@ func _build_hall() -> void:
 	glass.emission_energy_multiplier = 1.2
 	_box("WindowLight", Vector3(0.7, 1.2, 0.04), frame + Vector3(0, 0, 0.08), glass)
 	_box("WindowMullion", Vector3(0.06, 1.2, 0.06), frame + Vector3(0, 0, 0.11), beam)
+	# The doorway Kalev comes through: a dark opening in a timber frame on the back wall.
+	var opening := StandardMaterial3D.new()
+	opening.albedo_color = Color(0.03, 0.025, 0.02)
+	# In front of the stone plinth course (its face is at -HALL_DEPTH + 0.2).
+	var door_z := -HALL_DEPTH + 0.23
+	var door_at := Vector3(DOOR_X, DOOR_HEIGHT * 0.5, door_z)
+	_box("Doorway", Vector3(DOOR_WIDTH, DOOR_HEIGHT, 0.04), door_at, opening)
+	for side: float in [-1.0, 1.0]:
+		var post_at := Vector3(DOOR_X + side * (DOOR_WIDTH * 0.5 + 0.06), DOOR_HEIGHT * 0.5, door_z)
+		_box("DoorPost%d" % int(side), Vector3(0.14, DOOR_HEIGHT, 0.1), post_at, beam)
+	var lintel_at := Vector3(DOOR_X, DOOR_HEIGHT + 0.07, door_z)
+	_box("DoorLintel", Vector3(DOOR_WIDTH + 0.4, 0.16, 0.1), lintel_at, beam)
 
 
 func _build_props() -> void:
