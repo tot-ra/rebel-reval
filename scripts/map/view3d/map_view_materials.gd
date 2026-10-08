@@ -272,6 +272,12 @@ static func apply_coastal_tide(level: float) -> void:
 	SHORE_MATERIALS.apply_tide(level)
 
 
+## Surf strength override for a map with a bigger sea (the seamless city). Call it
+## after apply_shore_field(), which resets the district defaults.
+static func apply_surf_gain(wave_gain: float, runup_gain: float) -> void:
+	SHORE_MATERIALS.apply_surf_gain(wave_gain, runup_gain)
+
+
 ## WS-08: binds one map's shore distance field to every material that draws the
 ## shore. A null texture (no sea, interiors) turns every swash path off.
 static func apply_shore_field(texture: Texture2D, origin: Vector2, size: Vector2) -> void:

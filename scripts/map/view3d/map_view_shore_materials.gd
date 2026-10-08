@@ -24,6 +24,9 @@ const SHORE_STRENGTH_BY_TERRAIN := {
 ## (seaward), so the swash origin follows the water's own tide_shore_retreat.
 const SHORE_TIDE_SHIFT := 1.6
 ## Uniforms a swash sheet must not inherit from its source water material.
+## Must match the defaults in shore_swash.gdshaderinc.
+const DEFAULT_WAVE_GAIN := 1.0
+const DEFAULT_RUNUP_GAIN := 3.2
 const SWASH_SHEET_OWN_UNIFORMS: Array[StringName] = [
 	&"swash_sheet", &"ripple_state", &"ripple_window", &"ripple_texel_count"
 ]
@@ -57,10 +60,21 @@ static func apply_tide(level: float) -> void:
 	_sync_swash_sheets()
 
 
+## Surf strength for maps whose sea is bigger than the district default (the
+## seamless city): breaker height gain and run-up gain, see shore_swash.gdshaderinc.
+static func apply_surf_gain(wave_gain: float, runup_gain: float) -> void:
+	_set_shore_uniform(&"shore_wave_gain", wave_gain)
+	_set_shore_uniform(&"shore_runup_gain", runup_gain)
+	_sync_swash_sheets()
+
+
 ## Binds one map's shore distance field to every material that draws the shore.
 ## A null texture (no sea, interiors) turns every swash path off.
 static func apply_shore_field(texture: Texture2D, origin: Vector2, size: Vector2) -> void:
 	var valid := 1.0 if texture != null else 0.0
+	# Each map binding starts from the district surf; the city re-applies its own gain.
+	_set_shore_uniform(&"shore_wave_gain", DEFAULT_WAVE_GAIN)
+	_set_shore_uniform(&"shore_runup_gain", DEFAULT_RUNUP_GAIN)
 	var extent := Vector2(maxf(size.x, 0.001), maxf(size.y, 0.001))
 	for material in _shore_materials():
 		if texture != null:

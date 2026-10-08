@@ -52,6 +52,19 @@ Verification: `tools/godot_render.sh --script tools/capture_city_sea.gd -- --tag
 --only=sea_calm_wide,sea_calm_shore,sea_storm_shore` (put both arguments on one line).
 Run `tools/run_godot_tests.gd` with `--filter=test_cloud_cells,test_city_stream`.
 
+## Surf, run-up and spray (shore field)
+
+The sea shader draws every bit of surf (breaker bore foam, run-up sheet, wet sand sheen, quay slosh) analytically from a per-map shore distance field. The city bound none, so its sea met the land as a hard cut with no foam. Now:
+
+- `CityShoreField.bake` (`scripts/city/city_shore_field.gd`) builds the field from the plan heightfield: marching squares on ground height 0, then nearest-contour distance, landward direction and a beach/hard-edge flag (contour slope under 0.42 m per unit is beach; quays, rocks and the bluff are above 0.75) per height node. Same texture layout as the district bake. About 0.5 s at load.
+- `CityWorld3D._bind_shore_field` binds it with `MapViewMaterials.apply_shore_field` (rebinding on tree entry, since the materials are shared with the district maps) and adds a swash sheet (`ShoreField.build_sheet`, 1 unit grid on the terrain, 3 units inland) so the run-up climbs the sand.
+- Surf strength: `MapViewMaterials.apply_surf_gain(SURF_WAVE_GAIN 2.6, SURF_RUNUP_GAIN 5.0)` raises the breaker height and run-up over the district defaults (`shore_wave_gain` uniform in `shore_swash.gdshaderinc`, default 1.0; `apply_shore_field` resets it for districts). Sea state, and so the wind, scales the energy: a calm day laps, a gale breaks hard.
+- Spray: `CityShoreSpray` (`scripts/city/city_shore_spray.gd`) keeps 10 GPU particle emitters on the waterline nearest the camera, throwing droplets up and landward; wind 0.35 starts it and 0.9 is full strength (`CityWorld3D.apply_time` feeds `set_wind`).
+
+Verify: `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_city_shore_field`; plates `tools/godot_render.sh --script tools/capture_city_sea.gd -- --tag=x --advance=3 --only=sea_storm_beach_close,sea_calm_beach_close` (`--advance` shifts the swash phase).
+
+Limits: the water mesh itself still ends at the terrain intersection, so the run-up is a film on the sand, not the mesh climbing it; the ground shader has no wet-sand band tied to the field; storm breakers rise only through the gains above, there is no per-wave vertex surf.
+
 ## Limits
 
 - The sea shader hides anything below about a metre of water, so fish only show in the shallows and boulders and weed deeper down are felt as colour, not seen. Fish were not seen in a plate; treat them as unverified until someone looks.

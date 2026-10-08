@@ -153,7 +153,8 @@ func test_water_shader_declares_reflection_inputs_and_safe_compatibility_fallbac
 		"screen UV distortion must be clamped away from texture edges",
 	)
 	assert_true(
-		"max(path_len, terrain_optical_depth)" in source,
+		"max(max(path_len, basin_column / transmitted_down), terrain_optical_depth)" in source
+			or "max(path_len, terrain_optical_depth)" in source,
 		"water needs a safe optical depth floor",
 	)
 	assert_false(

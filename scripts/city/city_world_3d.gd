@@ -7,6 +7,8 @@ extends Node3D
 ## CHUNK so the draw-call count stays flat; roofs of enterable houses are
 ## separate nodes so the runtime can lift the roof Kalev is standing under.
 
+const ShoreField := preload("res://scripts/city/city_shore_field.gd")
+const ShoreSpray := preload("res://scripts/city/city_shore_spray.gd")
 const Fort := preload("res://scripts/city/city_fortification_builder.gd")
 const WATER_SHADER := preload("res://scripts/city/city_water.gdshader")
 const MOAT_WATER_SHADER := preload("res://scripts/city/city_moat_water.gdshader")
@@ -19,6 +21,11 @@ const SEA_STEP := 4.0
 const SEA_WAVE_BOOST := 5.0
 ## Depth (world units) at which the sea shader's shore factor reaches open water.
 const SEA_SHORE_DEPTH := 2.5
+## Surf strength on the open 1 m-per-unit Baltic: breaker height and run-up gain over
+## the district default (shore_swash.gdshaderinc), so a gale breaks tall and a calm
+## day still washes visibly up the sand.
+const SURF_WAVE_GAIN := 2.6
+const SURF_RUNUP_GAIN := 5.0
 const BUILDING_RANGE := 1600.0
 ## The stream ribbon reaches this far (world units) past the waterline into the bank.
 const STREAM_BANK_OVERLAP := 1.5
@@ -36,6 +43,8 @@ const STREAM_DEPTH_OFFSET := 0.5
 const STREAM_DEPTH_SCALE := 2.5
 
 var plan: CityPlan
+## Spray emitters on the waterline (CityShoreSpray); null until the sea is built.
+var spray: Node3D
 var sun: DirectionalLight3D
 var environment: Environment
 var world_environment: WorldEnvironment
@@ -136,6 +145,8 @@ func apply_time(progress: float) -> void:
 	MapViewMaterials.apply_sea_weather(
 		presentation.wind_strength, presentation.rain_intensity, presentation.wind_direction
 	)
+	if spray != null:
+		spray.set_wind(presentation.wind_strength)
 	set_wind(presentation.wind_direction)
 	var ground := CityTerrainBuilder.shared_material()
 	if ground != null:
@@ -321,6 +332,7 @@ func _build_water() -> void:
 		# caustics and refraction, so the sea reads the same on every map.
 		inst.material_override = MapViewMaterials.water_surface(MapTypes.TERRAIN_SHALLOW_WATER)
 		_bind_sea_depth_map()
+		_bind_shore_field()
 		# R-1437: physical bathymetry belongs to this mesh, not the cached
 		# district material. Instance state keeps shared weather updates intact.
 		inst.set_instance_shader_parameter("sea_physical_depth", true)
@@ -483,6 +495,37 @@ func _bind_sea_depth_map() -> void:
 	MapViewMaterials.WATER_MATERIALS.apply_sea_depth_map(
 		ImageTexture.create_from_image(image),
 		Vector4(r.position.x, r.position.y, float(nx) * SEA_STEP, float(nz) * SEA_STEP)
+	)
+
+
+## The surf (bore foam, run-up, quay slosh) is analytic in a shore distance field;
+## without one the sea meets the land as a hard cut. The materials are shared with
+## the district maps, which rebind their own field, so the city rebinds on tree entry.
+func _bind_shore_field() -> void:
+	var shore: Dictionary = ShoreField.bake(plan)
+	var texture: Texture2D = shore["texture"]
+	var origin: Vector2 = shore["origin"]
+	var extent: Vector2 = shore["size"]
+	MapViewMaterials.apply_shore_field(texture, origin, extent)
+	MapViewMaterials.apply_surf_gain(SURF_WAVE_GAIN, SURF_RUNUP_GAIN)
+	spray = ShoreSpray.new()
+	spray.name = "ShoreSpray"
+	add_child(spray)
+	spray.configure(plan, shore["contour"])
+	var sheet_mesh := ShoreField.build_sheet(plan, shore)
+	if sheet_mesh != null and MapViewMaterials.shore_swash_sheet_enabled():
+		var sheet := MeshInstance3D.new()
+		sheet.name = "ShoreSwashSheet"
+		sheet.mesh = sheet_mesh
+		sheet.material_override = MapViewMaterials.swash_sheet_material(
+			MapTypes.TERRAIN_SHALLOW_WATER
+		)
+		sheet.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		add_child(sheet)
+	tree_entered.connect(
+		func() -> void:
+			MapViewMaterials.apply_shore_field(texture, origin, extent)
+			MapViewMaterials.apply_surf_gain(SURF_WAVE_GAIN, SURF_RUNUP_GAIN)
 	)
 
 

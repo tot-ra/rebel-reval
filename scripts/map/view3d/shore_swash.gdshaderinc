@@ -32,6 +32,10 @@ uniform float shore_tide_offset = 0.0;
 // is about 0.4 m, which does not read from the gameplay camera; this gain keeps a
 // visible uprush that still stays inside the 3-unit sheet in a storm.
 uniform float shore_runup_gain = 3.2;
+// Scale of the breaker height (shore_state h_deep). 1 keeps the district maps; the
+// seamless city (1 m per unit, open Baltic) raises it so a gale throws a tall surf
+// where a calm day only laps.
+uniform float shore_wave_gain = 1.0;
 
 // Deviation from Tidewater's sea-state-scaled period (9 s * mix(1.2, 0.8, sea)):
 // ocean_time is an absolute clock, so a period that follows the weather would
@@ -193,7 +197,7 @@ ShoreState shore_state(vec2 world_xz, float t, vec4 sea) {
 	// Shoaling H = A (d0 / d)^0.25 breaks where H > gamma d. Solving for d gives
 	// the break depth; the break point is clamped inside the field.
 	float d0 = _swash_depth(SHORE_OFFSHORE);
-	float h_deep = SHORE_AMPLITUDE * energy;
+	float h_deep = SHORE_AMPLITUDE * energy * shore_wave_gain;
 	float break_depth = pow(h_deep * pow(d0, 0.25) / SHORE_GAMMA, 0.8);
 	float break_x = min(
 		break_depth / (SHORE_METERS_PER_UNIT * SHORE_BEACH_SLOPE), SHORE_OFFSHORE - 0.5
