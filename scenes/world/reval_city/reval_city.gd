@@ -29,7 +29,6 @@ var interiors: CityInteriors
 var music_zones := CityMusicZones.new()
 var inside_building := -1
 var _music_timer := 0.0
-var _smithy := -1
 var _npcs: CityNpcs
 var _fauna: CityFauna
 ## Site room Kalev stands in: {site, room} and its key, or empty.
@@ -37,7 +36,6 @@ var _site_room: Dictionary = {}
 var _site_room_key := ""
 var _cut := true
 ## Armed once Kalev has been outside the smithy (no bounce on arrival).
-var _leaving := true
 
 @onready var actors: Node2D = $Actors
 @onready var player: Player = $Actors/Player
@@ -56,6 +54,8 @@ func _ready() -> void:
 	actors.add_child(_npcs)
 	view = CityMapView.create_city(plan)
 	world = view.world
+	# Hay stacks in the farmland are solid; their colliders live on the logic plane.
+	world.farmland.collision_parent = self
 	runtime = CityRuntime.install(self, view, player)
 	_fauna = CityFauna.create(plan, player)
 	world.add_child(_fauna)
@@ -74,7 +74,6 @@ func _ready() -> void:
 	)
 	minimap = CityMinimap.create(plan)
 	add_child(minimap)
-	_smithy = CityTravel.building_index(plan, "kalev_smithy")
 	_face_door_on_arrival(arrival)
 	_update_music(CityPlan.to_world_xz(player.global_position))
 
@@ -132,13 +131,6 @@ func _face_door_on_arrival(id: String) -> void:
 func _process(delta: float) -> void:
 	var xz := CityPlan.to_world_xz(player.global_position)
 	_update_interior(xz)
-	if inside_building != _smithy:
-		_leaving = false
-	elif _smithy >= 0 and not _leaving:
-		# The forge interior keeps its own scene (commission ledger, anvil, quests).
-		_leaving = true
-		DoorNavigator.go_to_scene(&"forge", &"door_courtyard")
-		return
 	_check_city_edge(xz)
 	world.doors.update_for(xz, delta)
 	interiors.update_for(xz, delta)
@@ -148,6 +140,7 @@ func _process(delta: float) -> void:
 	CityTrailFeed.feed(world.trail, _npcs.citizens, _fauna, get_tree())
 	world.smoke.update_for(xz, delta)
 	var camera := view.view_camera()
+	_fit_shadow_range(camera)
 	var forward := -camera.global_transform.basis.z
 	var yaw := atan2(-forward.x, -forward.z)
 	minimap.update_view(xz, player.view_facing(), yaw, inside_building)
@@ -155,6 +148,25 @@ func _process(delta: float) -> void:
 	if _music_timer <= 0.0:
 		_music_timer = 0.25
 		_update_music(xz)
+
+
+## Keeps the shadow cascades spent on what the camera can actually see: the
+## fixed 170 m range smeared the 8k map over the whole district, so shadows from
+## trees, props and people looked blocky. Zoomed in, the range shrinks and the
+## texel density rises; it never drops below a distance that covers the frame.
+func _fit_shadow_range(camera: Camera3D) -> void:
+	var sun := world.sun
+	if sun == null or camera == null:
+		return
+	var reach := 170.0
+	if camera.projection == Camera3D.PROJECTION_ORTHOGONAL:
+		reach = clampf(camera.size * 1.6, 40.0, 170.0)
+	else:
+		# The player lives on the 2D logic plane, so map it to the 3D world (ground level).
+		var xz := CityPlan.to_world_xz(player.global_position)
+		var distance := camera.global_position.distance_to(Vector3(xz.x, 0.0, xz.y))
+		reach = clampf(distance * 3.0 + 40.0, 60.0, 170.0)
+	sun.directional_shadow_max_distance = lerpf(sun.directional_shadow_max_distance, reach, 0.1)
 
 
 ## Music follows where Kalev is (CityMusicZones), not a scene route. The runtime
