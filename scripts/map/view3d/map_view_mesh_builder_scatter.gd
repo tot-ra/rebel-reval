@@ -5,6 +5,10 @@ const PlantSpecies := preload("res://scripts/map/view3d/map_view_plant_species.g
 const PlantMeshes := preload("res://scripts/map/view3d/map_view_plant_meshes.gd")
 const BushSpecies := preload("res://scripts/map/view3d/map_view_bush_species.gd")
 const BushMeshes := preload("res://scripts/map/view3d/map_view_bush_meshes.gd")
+## R-1320: every vegetation MultiMesh carries an explicit benchmark layer tag, so
+## tools/capture_vegetation_benchmark.gd attributes cost without guessing from
+## node names (surroundings rename some layers). Metadata only; no render change.
+const VEG_LAYER_META := &"veg_layer"
 
 
 ## Layered decorative vegetation and ground clutter. Textured ground cover carries
@@ -424,6 +428,7 @@ static func emit_layers(state: Dictionary) -> void:
 			Vector3(0.0, 0.02, 0.0)
 		)
 		clover_instances.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		_tag_layer(clover_instances, &"flowers")
 		clover_instances.visibility_range_end = (
 			MapViewMeshBuilderConfig.SCATTER_GRASS_VISIBILITY_RANGE
 		)
@@ -559,6 +564,7 @@ static func _emit_bush_batches(root: Node3D, batches: Dictionary) -> void:
 		)
 		instances.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		instances.set_meta(&"bush_species", species)
+		_tag_layer(instances, &"shrubs")
 		root.add_child(instances)
 
 
@@ -609,6 +615,7 @@ static func _emit_plant_batches(root: Node3D, batches: Dictionary) -> void:
 		)
 		instances.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		instances.set_meta(&"plant_species", species)
+		_tag_layer(instances, _plant_layer(species))
 		root.add_child(instances)
 
 
@@ -744,6 +751,8 @@ static func _emit_tree_batches(root: Node3D, batches: Dictionary) -> void:
 			TreeLeafFall3D.tag_canopy(instances, species, typed_transforms)
 		if layer == &"fruit":
 			instances.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		# One mesh per species, no LOD chain outside the city yet (VEGR-7).
+		_tag_layer(instances, &"trees_lod0")
 		root.add_child(instances)
 
 
@@ -761,6 +770,7 @@ static func _add_grass_layer(
 	)
 	# Paper-thin wind-animated blades flicker in directional shadow maps.
 	instances.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	_tag_layer(instances, &"veg_misc" if layer_name == "Reeds" else &"grass_mid")
 	# Cull distant grass instances that are invisible to the camera. The scatter
 	# layer covers the entire district; without range culling every MultiMesh
 	# instance is submitted to the GPU even when far off-screen, tanking FPS on
@@ -786,6 +796,7 @@ static func _add_hay_stubble_layer(
 		Vector3.ZERO
 	)
 	instances.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	_tag_layer(instances, &"grass_mid")
 	instances.visibility_range_end = MapViewMeshBuilderConfig.SCATTER_GRASS_VISIBILITY_RANGE
 	instances.visibility_range_end_margin = (
 		MapViewMeshBuilderConfig.SCATTER_GRASS_VISIBILITY_RANGE_MARGIN
@@ -812,7 +823,24 @@ static func _add_cattail_layer(
 		Vector3.ZERO
 	)
 	instances.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	_tag_layer(instances, &"veg_misc")
 	root.add_child(instances)
+
+
+static func _tag_layer(instance: GeometryInstance3D, layer: StringName) -> void:
+	instance.set_meta(VEG_LAYER_META, layer)
+
+
+## Field cereals (rye, wheat, barley, oat, flax) are the grain layer; flowering
+## herbs are flowers; every other herb, fern, reed or vegetable is veg_misc.
+static func _plant_layer(species: StringName) -> StringName:
+	match PlantSpecies.profile_for(species).get("archetype", &""):
+		PlantSpecies.ARCHETYPE_CEREAL:
+			return &"grain"
+		PlantSpecies.ARCHETYPE_FLOWER:
+			return &"flowers"
+		_:
+			return &"veg_misc"
 
 
 ## Deterministic placement helpers shared by all terrain scatter layers.
