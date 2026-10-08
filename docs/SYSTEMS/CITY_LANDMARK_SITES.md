@@ -75,7 +75,7 @@ Review plates: `docs/reports/images/city/raekoja_plats_aerial.png`, `raekoja_pla
   - **The yards:** a masons' lodge with banker benches and templates, stone stacks, a lime pit, a cart, and a detached timber belfry with two bells.
   - **People:** a canon celebrating at the high altar, three canons in the choir stalls, the sacristan, the master mason, masons, labourers at the crane and the lime pit, and a carpenter at the centering.
 - **Walking in:** Kalev enters through the portal and the door swings open.
-- **People:** a site's people are present while Kalev is within 45 m of it, seated (`sit_idle`), standing or gesturing (`talk_gesture`). A seated person's `at` is the seat point and `seat_h` the seat height. `CitySiteActor` moves the body forward by the pose's hip offset and lowers the rig through `view_height_offset()` (read by `MapViewRuntimeActors`), so people sit on the bench rather than hover in the air. They do not talk yet.
+- **People:** none. Landmark sites no longer post nameless people (they could not be clicked and had no census record); only census citizens populate the city. The `people` manifest key and `CitySiteActor` remain supported but unused.
 - **Cutaway:** in the top-down and third-person cameras, while he is inside, everything above head height lifts away: upper walls, gables, banners, roof and ceiling. The wall stubs get a stone section cap, so the cameras see into the room. First person keeps the whole room, ceiling included. Ordinary houses use the same cutaway ([Seamless city](./SEAMLESS_CITY.md#how-buildings-are-built)).
 - **Minimap:** shows "Inside: Council hall".
 - **Collision:** the walls, posts, table, chest, lectern, storeroom partition and stores block Kalev, as do the booths, stalls and carts outside. The pillory does not (dossier: no permanent collision).
@@ -152,7 +152,7 @@ Sites hold no state. Door positions are not saved; the plan and manifests rebuil
 - The cut is one flat plane at head height: window openings above it are cut through, and the section cap spans the window holes.
 - Neighbouring generic roofs are clipped where they would overhang a site building (`keep_out`), so they no longer poke through its walls.
 - The retable, figures and pulpit are box-modelled; carved detail and painted faces need the planned Blender models.
-- Site people use the crowd townsfolk rigs. Civic costume (burgomasters' fur-trimmed dark wool, the scribe's gown) needs new character variants, which are an asset task under the asset freeze. People do not talk or react.
+- Council, court and clergy are not shown until they can be census citizens with civic costume (asset task under the asset freeze).
 - Interior light is approximate: one candle light per room, with the indoor darkening baked into the materials. There is no light falling through the windows.
 - The validator's mesh check compares plan extents (AABB), not a full top-down raster.
 - The plan's `forum` polygon (about 90 × 80 m) is still larger than the dossier's 1343 market reserve (about 44 × 36 m). The site's `reserve` follows the dossier, but the extra open ground around it is not yet filled with burgess plots.
