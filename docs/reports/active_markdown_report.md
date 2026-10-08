@@ -14,12 +14,12 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `1079`
-- Markdown files excluded as archive/reference/out of active scope: `747`
-- Local/external links inspected: `12781`
-- Links to active Markdown docs: `11894`
-- Links to existing archive/reference/non-active local docs: `440`
-- External links skipped for reachability: `52`
+- Active Markdown files scanned: `1083`
+- Markdown files excluded as archive/reference/out of active scope: `743`
+- Local/external links inspected: `12845`
+- Links to active Markdown docs: `11916`
+- Links to existing archive/reference/non-active local docs: `444`
+- External links skipped for reachability: `88`
 - Issues found: `149`
 
 ## Issue counts
@@ -226,6 +226,7 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/adr/0036-jump-vault-and-expanded-melee-verbs.md`
 - `docs/adr/README.md`
 - `docs/AGENT_LOOPS.md`
+- `docs/ANIMAL_3D_SOURCING.md`
 - `docs/ARCHITECTURE.md`
 - `docs/ART_BIBLE.md`
 - `docs/ASSET_INVENTORY.md`
@@ -1168,6 +1169,7 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/SYSTEMS/LIVING_VEGETATION.md`
 - `docs/SYSTEMS/LIVING_WORLD.md`
 - `docs/SYSTEMS/MAGIC.md`
+- `docs/SYSTEMS/MUSCLE_LOCOMOTION.md`
 - `docs/SYSTEMS/NATURAL.md`
 - `docs/SYSTEMS/OBJECT_CATALOG.md`
 - `docs/SYSTEMS/PSYCHE.md`
@@ -1207,6 +1209,8 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/tasks/coast/CO-09_saaremaa_traversability.md`
 - `docs/tasks/coast/CO-10_swim_dive_drown.md`
 - `docs/tasks/coast/README.md`
+- `docs/tasks/creatures/CM-01_procedural_creature_locomotion.md`
+- `docs/tasks/creatures/README.md`
 - `docs/tasks/README.md`
 - `docs/tasks/urban_form/README.md`
 - `docs/tasks/urban_form/UF-00_reconcile_adr_0023_acceptance.md`

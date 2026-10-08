@@ -9,6 +9,7 @@ Detailed specifications for multi-task streams. The live queue is the project ta
 | Urban form (streets, landmarks, hinterland) | [`urban_form/`](./urban_form/README.md) |
 | Water and sky | [`water_sky/`](./water_sky/README.md) |
 | World (relief, streaming, density) | [`world/`](./world/README.md) |
+| Creatures (procedural motion of people and animals) | [`creatures/`](./creatures/README.md) |
 
 ## All files in this folder
 
@@ -42,6 +43,10 @@ Detailed specifications for multi-task streams. The live queue is the project ta
 - [CO-08: Wind direction and a labelled wind-to-wave-height continuum](coast/CO-08_sea_state_wind_coupling.md)
 - [CO-09: Saaremaa becomes a region you can walk, not a corridor](coast/CO-09_saaremaa_traversability.md)
 - [CO-10: Walk into the sea, swim, dive, and be able to drown](coast/CO-10_swim_dive_drown.md)
+
+#### `creatures/`
+
+- [CM-01: Procedural muscle-driven locomotion for people and animals](creatures/CM-01_procedural_creature_locomotion.md)
 
 #### `urban_form/`
 
