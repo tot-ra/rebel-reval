@@ -60,6 +60,11 @@ void vertex() {
 	float size = mix(0.62, 1.22, h3);
 	VERTEX.xz *= size * mix(0.85, 1.2, h2);
 	VERTEX.y *= mix(0.55, 1.3, fract(h2 * 4.13 + h));
+	// Looking straight down, every tuft shows its full footprint and the cards
+	// read as fat green blobs. Slim the footprint as the camera pitches toward
+	// vertical (forward.y -> -1) so the ground and individual blades show through.
+	float look_down = INV_VIEW_MATRIX[2].y;
+	VERTEX.xz *= mix(1.0, 0.4, smoothstep(0.55, 0.95, look_down));
 	v_variety = vec2(mix(0.82, 1.12, h), h3);
 	if (fade_end > 0.0) {
 		float dist = distance(origin, CAMERA_POSITION_WORLD);
