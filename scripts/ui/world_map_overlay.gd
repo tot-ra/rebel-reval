@@ -29,6 +29,8 @@ var _travelable: Dictionary = {}
 var _global_travelable: Dictionary = {}
 var _mode: StringName = MODE_LOCAL
 var _local_map: MinimapHud
+var _margin: MarginContainer
+var _header: Control
 var _title: Label
 var _subtitle: Label
 var _local_view: LocalMapView
@@ -223,6 +225,8 @@ func _build_ui() -> void:
 			}
 		)
 	)
+	_margin = nodes["margin"]
+	_header = nodes["header"]
 	_title = nodes["title"]
 	_subtitle = nodes["subtitle"]
 	_local_view = nodes["local_view"]
@@ -235,6 +239,7 @@ func _build_ui() -> void:
 	_help = nodes["help"]
 	_fast_travel_view.destination_requested.connect(request_travel_to)
 	_global_view.destination_requested.connect(request_travel_to)
+	_global_view.close_requested.connect(close)
 
 
 func _configure_views() -> void:
@@ -254,6 +259,18 @@ func _set_mode(mode: StringName) -> void:
 	_apply_mode()
 
 
+## The Estonia map is an edge-to-edge picture: no margins, header, or prose.
+## The place name appears on hover inside the view itself.
+func _apply_chrome(global_selected: bool) -> void:
+	var inset := 0 if global_selected else 20
+	_margin.add_theme_constant_override("margin_left", inset)
+	_margin.add_theme_constant_override("margin_right", inset)
+	_margin.add_theme_constant_override("margin_top", 0 if global_selected else 16)
+	_margin.add_theme_constant_override("margin_bottom", 0 if global_selected else 16)
+	_header.visible = not global_selected
+	_help.visible = not global_selected
+
+
 func _apply_mode() -> void:
 	if _local_view == null or _fast_travel_view == null or _global_view == null:
 		return
@@ -263,6 +280,7 @@ func _apply_mode() -> void:
 	_local_view.visible = local_selected
 	_fast_travel_view.visible = fast_selected
 	_global_view.visible = global_selected
+	_apply_chrome(global_selected)
 	_local_tab.disabled = local_selected
 	_fast_travel_tab.disabled = fast_selected
 	_global_tab.disabled = global_selected

@@ -6,9 +6,6 @@ extends RefCounted
 ## manifest exactly; edges only keep destinations that are also active.
 
 const KalevSmithy := preload("res://scripts/map/definitions/lower_town/kalev_smithy_definition.gd")
-const StOlafsGuildHall := preload(
-	"res://scripts/map/definitions/prototypes/st_olafs_guild_hall_definition.gd"
-)
 const DistantLocationDefinitions := preload(
 	"res://scripts/map/definitions/outdoor/distant_location_definitions.gd"
 )
@@ -16,20 +13,7 @@ const DistantLocationDefinitions := preload(
 ## Geographic-ish normalized positions so the overlay reads as Reval districts.
 ## Unknown active scenes fall back to a bottom row so nothing is silently dropped.
 const LAYOUT_BY_SCENE: Dictionary = {
-	&"reval_toompea": Vector2(0.16, 0.42),
-	&"reval_north": Vector2(0.40, 0.16),
-	&"reval_harbor": Vector2(0.70, 0.10),
-	&"reval_harbor_north": Vector2(0.64, 0.10),
-	&"reval_harbor_east": Vector2(0.50, 0.06),
-	&"viru_gate_foreland": Vector2(0.86, 0.48),
-	&"reval_monastery": Vector2(0.40, 0.30),
-	&"reval_center": Vector2(0.40, 0.46),
-	&"st_olafs_guild_hall": Vector2(0.22, 0.28),
-	&"oleviste_church": Vector2(0.44, 0.22),
-	&"holy_spirit_church": Vector2(0.38, 0.40),
-	&"reval_east": Vector2(0.70, 0.50),
 	&"forge": Vector2(0.88, 0.58),
-	&"reval_south": Vector2(0.46, 0.78),
 	&"reval_city": Vector2(0.62, 0.30),
 }
 
@@ -55,8 +39,6 @@ static func create_definition(scene_id: StringName) -> MapDefinition:
 	match scene_id:
 		&"forge":
 			return KalevSmithy.create()
-		&"st_olafs_guild_hall":
-			return StOlafsGuildHall.create()
 		_:
 			if GlobalMapCatalog.is_distant_scene(scene_id):
 				return DistantLocationDefinitions.create(scene_id)
