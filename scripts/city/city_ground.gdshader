@@ -35,6 +35,10 @@ uniform float rock_scale = 0.3;
 // Fieldstone paving shared with the district maps (fieldstone_paving.gdshaderinc).
 uniform float cobble_cell_size = 0.2;
 uniform float cobble_relief = 0.05;
+// Meadow relief strength (normal, cavity shade) and turf specular, see grass_height().
+uniform float grass_relief_normal = 0.12;
+uniform float grass_relief_shade = 0.30;
+uniform float grass_specular = 0.04;
 uniform vec3 grass_tint : source_color = vec3(0.78, 0.86, 0.62);
 uniform vec3 earth_tint : source_color = vec3(0.60, 0.55, 0.47);
 uniform float wetness = 0.0;
@@ -104,6 +108,17 @@ float curvature(vec2 p) {
 	float around = (ground_at(p + vec2(r, 0.0)) + ground_at(p - vec2(r, 0.0))
 		+ ground_at(p + vec2(0.0, r)) + ground_at(p - vec2(0.0, r))) * 0.25;
 	return ground_at(p) - around;
+}
+
+// Tussock height of meadow turf in [0,1]. The grass plates only hold blade-scale
+// detail, so under a low sun a pasture read as one smooth waxy sheet. Clumps of
+// ~2 m, ridged tufts of ~0.7 m and blade lumps add mid-scale relief; the ridge
+// term makes sharp valleys between tufts, the way turf shades its own soil.
+float grass_height(vec2 p) {
+	float clumps = value_noise(p * 0.5 + vec2(2.3, 8.1));
+	float tufts = value_noise(p * 1.4 - vec2(6.7, 1.9));
+	float blades = value_noise(p * 4.1 + vec2(11.2, 4.6));
+	return clumps * 0.42 + (1.0 - abs(tufts * 2.0 - 1.0)) * 0.38 + blades * 0.20;
 }
 
 float grass_step(vec3 n) {
@@ -274,13 +289,22 @@ void fragment() {
 	float wet = clamp(wetness + mud * 0.35 + shore * 0.5 + puddles * soft * 0.5 + pressed * wet_road * 0.3, 0.0, 1.0);
 	col = mix(col * mix(1.0, 0.62, wet), vec3(0.08, 0.09, 0.09), puddle * 0.85);
 	nxy = mix(nxy, vec2(0.0), puddle);
+	// Meadow relief: cavity shading and a tussock normal on pure turf only. Fades
+	// out with distance like the other micro relief so it cannot shimmer.
+	float turf = (1.0 - max(max(earth, mud), max(sand, max(road, paving)))) * (1.0 - max(rock, bank)) * (1.0 - puddle);
+	float gh = grass_height(wuv);
+	col *= 1.0 + (gh - 0.5) * grass_relief_shade * turf;
+	vec2 gslope = vec2(grass_height(wuv + e.xy) - gh, grass_height(wuv + e.yx) - gh) / e.x;
+	nxy += -gslope * grass_relief_normal * turf * detail;
 	ALBEDO = col;
 	ROUGHNESS = mix(mix(0.95, 0.6, wet * (1.0 - rock * 0.5)), 0.12, puddle);
 	// Dust is the roughest thing there is; slick clay shines in the ruts.
 	ROUGHNESS = mix(ROUGHNESS, 0.98, road * dryness * 0.6);
 	ROUGHNESS = mix(ROUGHNESS, 0.5, in_rut * wet_road * 0.8);
 	ROUGHNESS = mix(ROUGHNESS, 0.3, (pressed + rim * 0.5) * wet_road * 0.7);
-	SPECULAR = mix(0.3, 0.55, puddle);
+	// Turf scatters light diffusely: no glint and no wet-gloss on dry-looking grass.
+	ROUGHNESS = mix(ROUGHNESS, 1.0, turf * 0.85);
+	SPECULAR = mix(mix(0.3, grass_specular, turf), 0.55, puddle);
 	nxy = clamp(nxy * mix(1.0, 0.75, wet) * (1.0 - rock), vec2(-0.95), vec2(0.95));
 	NORMAL_MAP = vec3(nxy, sqrt(max(1.0 - dot(nxy, nxy), 0.0))) * 0.5 + 0.5;
 }
