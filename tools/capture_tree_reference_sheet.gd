@@ -15,19 +15,18 @@ const TreeSkeleton := preload("res://scripts/map/view3d/tree_skeleton_weber_penn
 
 const CATALOG_OUTPUT := "res://docs/reports/images/fauna/p0_103_tree_reference_sheet.png"
 const SILHOUETTE_OUTPUT := "res://docs/reports/images/vegetation/r1324_tree_silhouettes_after.png"
+const WOOD_OUTPUT := "res://docs/reports/images/vegetation/tree_wood_branch_flow.png"
 const CLOSEUP_OUTPUT := "res://docs/reports/images/vegetation/r1324_tree_closeups_after.png"
-## Species that VEGR-6 grows from a Weber-Penn preset, in the order of the spec.
-const PRESET_SPECIES: Array[StringName] = [
-	&"pine",
-	&"spruce",
-	&"birch",
-	&"oak",
-	&"alder",
-	&"aspen",
-	&"juniper",
-	&"linden",
-	&"maple",
+## Species shown on the Weber-Penn sheets. Every species now has a preset.
+const PRESET_SPECIES: Array[StringName] = TreeSpecies.ALL_SPECIES
+## Bare-wood sheet: the branch architecture that tells the species apart
+## (forks, multi-stem stools, scaffold limbs, ascending vs drooping shoots).
+const WOOD_SPECIES: Array[StringName] = [
+	&"pine", &"oak", &"apple", &"pear", &"ash", &"elm", &"willow", &"hazel", &"blackthorn",
 ]
+
+
+var _wood_only := false
 
 
 func _initialize() -> void:
@@ -41,9 +40,9 @@ func _run() -> void:
 		CATALOG_OUTPUT,
 		TreeSpecies.ALL_SPECIES,
 		5,
-		Vector2i(2000, 1400),
+		Vector2i(2000, 1500),
 		Vector2(3.4, 4.6),
-		16.8,
+		21.0,
 		0.0
 	)
 	# VEGR-6 silhouettes: true relative heights (a pine towers over a juniper).
@@ -52,9 +51,9 @@ func _run() -> void:
 			SILHOUETTE_OUTPUT,
 			PRESET_SPECIES,
 			5,
-			Vector2i(2000, 900),
+			Vector2i(2000, 1700),
 			Vector2(3.4, 5.0),
-			12.2,
+			23.4,
 			1.0
 		)
 		or failed
@@ -64,10 +63,24 @@ func _run() -> void:
 		await _capture(
 			CLOSEUP_OUTPUT,
 			PRESET_SPECIES,
+			5,
+			Vector2i(2300, 2000),
+			Vector2(4.6, 5.0),
+			23.0,
+			0.0
+		)
+		or failed
+	)
+	# Bare wood: limb curvature and the collars where branches leave the parent.
+	_wood_only = true
+	failed = (
+		await _capture(
+			WOOD_OUTPUT,
+			WOOD_SPECIES,
 			3,
 			Vector2i(1800, 1800),
 			Vector2(4.6, 5.0),
-			16.6,
+			16.4,
 			0.0
 		)
 		or failed
@@ -157,6 +170,7 @@ func _tree_entry(species: StringName, origin: Vector3, display_target: float) ->
 	root_3d.add_child(trunk)
 
 	var canopy := MeshInstance3D.new()
+	canopy.visible = not _wood_only
 	canopy.name = "Canopy"
 	canopy.mesh = canopy_mesh
 	canopy.material_override = MapViewMaterials.canopy(TreeSpecies.canopy_material_kind(species))
@@ -167,7 +181,10 @@ func _tree_entry(species: StringName, origin: Vector3, display_target: float) ->
 	if fruit_mesh != null:
 		var fruit := MeshInstance3D.new()
 		fruit.name = "Fruit"
+		fruit.visible = not _wood_only
 		fruit.mesh = fruit_mesh
+		# Vertex-coloured fruit material; without it the fruit drew as grey diamonds.
+		fruit.material_override = MapViewMaterials.tree_fruit()
 		fruit.scale = scale_vec
 		root_3d.add_child(fruit)
 

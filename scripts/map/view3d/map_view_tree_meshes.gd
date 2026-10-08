@@ -226,6 +226,12 @@ static func _build_wood_mesh(
 	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
 	var segments: Array = skeleton["segments"]
 	var v_at_end: Dictionary = {}
+	# Segment ends keyed with depth: a segment whose start is not the end of a
+	# same-depth segment is a branch base needing a collar (limb sections continue
+	# at equal depth; a base may touch a parent end of a lower depth).
+	var chain_ends: Dictionary = {}
+	for chain_segment in segments:
+		chain_ends[[_point_key(chain_segment["end"]), int(chain_segment["depth"])]] = true
 	for segment_index in segments.size():
 		var segment: Dictionary = segments[segment_index]
 		var depth := int(segment["depth"])
@@ -252,9 +258,76 @@ static func _build_wood_mesh(
 			wood_color,
 			uv_rect
 		)
+		if depth > 0 and not chain_ends.has([_point_key(start), depth]):
+			_append_branch_collar(
+				surface,
+				start,
+				end,
+				float(segment["start_radius"]) * factor,
+				_parent_radius_at(segments, start, depth) * factor,
+				wood_color,
+				uv_rect
+			)
 	if bark_tile > 0.0:
 		surface.generate_tangents()
 	return surface.commit()
+
+
+## Flared, concave collar where a branch leaves its parent, so the limb flows
+## out of the bole like a liquid instead of poking in at a hard angle. Only
+## large limbs get a strong flare; fine twigs only a gentle one (WHY: at high
+## branchiness a strong collar on every twig would read as knobby bulk).
+## The first ring sits inside the parent and is hidden by it.
+static func _append_branch_collar(
+	surface: SurfaceTool,
+	start: Vector3,
+	end: Vector3,
+	radius: float,
+	parent_radius: float,
+	color: Color,
+	uv_rect: Rect2
+) -> void:
+	# Radii in tree units: twigs ~0.004, primary limbs 0.02-0.05.
+	# The first ring must stay inside the parent, or it shows as a flange.
+	var flare := minf(lerpf(1.25, 2.0, smoothstep(0.004, 0.03, radius)), parent_radius * 0.92 / radius)
+	if flare < 1.08:
+		return
+	var axis := end - start
+	var span := minf(radius * 5.0, axis.length() * 0.9)
+	if span <= 0.0001:
+		return
+	axis = axis.normalized()
+	# Concave (exponential-like) falloff of the ring radii along the branch.
+	var offsets := [0.0, 0.25, 0.6, 1.0]
+	var scales := [flare, lerpf(1.0, flare, 0.5), lerpf(1.0, flare, 0.17), 1.02]
+	for i in 3:
+		_append_tapered_tube(
+			surface,
+			start + axis * span * float(offsets[i]),
+			start + axis * span * float(offsets[i + 1]),
+			radius * float(scales[i]),
+			radius * float(scales[i + 1]),
+			color,
+			uv_rect
+		)
+
+
+## Radius of the nearest lower-depth segment at `point` (the limb a branch grows from).
+static func _parent_radius_at(segments: Array, point: Vector3, depth: int) -> float:
+	var best_distance := INF
+	var best_radius := 0.0
+	for candidate: Dictionary in segments:
+		if int(candidate["depth"]) >= depth:
+			continue
+		var a: Vector3 = candidate["start"]
+		var ab: Vector3 = (candidate["end"] as Vector3) - a
+		var length_sq := ab.length_squared()
+		var u := 0.0 if length_sq < 0.0000001 else clampf((point - a).dot(ab) / length_sq, 0.0, 1.0)
+		var distance := point.distance_squared_to(a + ab * u)
+		if distance < best_distance:
+			best_distance = distance
+			best_radius = lerpf(float(candidate["start_radius"]), float(candidate["end_radius"]), u)
+	return best_radius
 
 
 static func _point_key(point: Vector3) -> Vector3i:
@@ -599,7 +672,9 @@ static func _emit_card(
 		outward,
 		Vector2(size * 0.92, size),
 		color,
-		_hash(index, seed, 521),
+		# hash01 can return exactly 0 or 1; the leaf contract needs a seed strictly
+		# inside (0, 1), or the shader treats the card as fallen/never-leafing.
+		clampf(_hash(index, seed, 521), 0.0001, 0.9999),
 		_hash(index, seed, 523) > 0.5,
 		outward_weight,
 		CONIFER_CARD_DROOP if conifer else 0.0

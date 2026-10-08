@@ -26,6 +26,8 @@ enum Shape {
 }
 
 const MAX_WOOD_SEGMENTS := 120
+## Each coarse limb piece becomes this many segments (smooth bends, see _trace_stem).
+const BRANCH_SMOOTH_SUBDIV := 3
 const MIN_TIP_RADIUS := 0.0035
 
 ## Species presets. Lengths are fractions of the parent stem; angles in degrees.
@@ -37,33 +39,37 @@ const MIN_TIP_RADIUS := 0.0035
 ## Level 0 is the trunk (lean, flare). "cluster_cards" is the card count per twig
 ## cluster and "cluster_span" how much of a twig's end carries foliage.
 const PRESETS := {
-	# Scots pine: tall clear bole, domed crown high up, near-horizontal lower limbs
-	# whose tips turn up, short ascending shoots ending in dense needle pads.
+	# Scots pine (mature): a tall, clear, straight bole and a high crown that
+	# flattens into an irregular umbrella with age. Limbs leave the stem near
+	# horizontal in loose whorls and turn up toward their ends; the upper limbs
+	# climb almost as high as the leader, which is what flattens the top. The
+	# needles sit in dense tufts on short upturned shoots at the limb ends.
 	&"pine": {
-		"shape": Shape.HEMISPHERICAL,
+		"shape": Shape.TEND_FLAME,
 		"splits": 0,
-		"cluster_cards": 9,
-		"cluster_span": 0.6,
+		"cluster_cards": 12,
+		"cluster_span": 0.55,
 		"levels": [
 			{"curve_res": 4, "curve_v": 7.0, "lean": 0.035, "flare": 0.45, "taper": 0.95},
 			{
-				"branches": 14, "length": 0.40, "length_v": 0.06, "down": 94.0, "down_v": -46.0,
-				"rotate": 137.5, "rotate_v": 24.0, "curve_res": 3, "curve": 26.0, "curve_v": 14.0,
-				"attraction": -0.18, "taper": 0.88, "start": 0.0,
+				"branches": 14, "length": 0.48, "length_v": 0.06, "down": 90.0, "down_v": -50.0,
+				"rotate": 137.5, "rotate_v": 24.0, "curve_res": 3, "curve": 34.0, "curve_v": 14.0,
+				"attraction": -0.08, "taper": 0.88, "start": 0.0,
 			},
 			{
-				"branches": 5, "length": 0.42, "length_v": 0.10, "down": 48.0, "down_v": 12.0,
+				"branches": 6, "length": 0.38, "length_v": 0.10, "down": 46.0, "down_v": 12.0,
 				"rotate": 140.0, "rotate_v": 30.0, "curve_res": 1, "curve": 0.0, "curve_v": 10.0,
-				"attraction": 0.22, "taper": 0.9, "start": 0.38,
+				"attraction": 0.28, "taper": 0.9, "start": 0.35,
 			},
 		],
 	},
-	# Norway spruce: conical, limbs to near the ground, hanging second-order shoots.
+	# Norway spruce: a dense dark cone, limbs to near the ground, curtains of
+	# hanging second-order shoots needled along almost their whole length.
 	&"spruce": {
 		"shape": Shape.CONICAL,
 		"splits": 0,
-		"cluster_cards": 8,
-		"cluster_span": 0.85,
+		"cluster_cards": 11,
+		"cluster_span": 0.95,
 		"levels": [
 			{"curve_res": 4, "curve_v": 3.0, "lean": 0.015, "flare": 0.35, "taper": 0.98},
 			{
@@ -72,7 +78,7 @@ const PRESETS := {
 				"attraction": -0.32, "taper": 0.92, "start": 0.0,
 			},
 			{
-				"branches": 4, "length": 0.36, "length_v": 0.08, "down": 62.0, "down_v": 0.0,
+				"branches": 7, "length": 0.40, "length_v": 0.08, "down": 62.0, "down_v": 0.0,
 				"rotate": 180.0, "rotate_v": 20.0, "curve_res": 1, "curve": -10.0, "curve_v": 8.0,
 				"attraction": -0.45, "taper": 0.9, "start": 0.3,
 			},
@@ -224,6 +230,262 @@ const PRESETS := {
 			},
 		],
 	},
+	# Old-orchard apple on a seedling stock (standard tree): a short clear bole,
+	# then three to five crooked scaffold limbs leave it at about the same height
+	# and spread at 40-60 degrees into a low crown wider than it is tall; outer
+	# limbs sag under fruit. Not a central leader with side arms.
+	&"apple": {
+		"shape": Shape.HEMISPHERICAL,
+		"splits": 3,
+		"split_height": 0.3,
+		"split_angle": 42.0,
+		"cluster_cards": 6,
+		"cluster_span": 0.6,
+		"levels": [
+			{"curve_res": 4, "curve": -14.0, "curve_v": 16.0, "lean": 0.05, "flare": 0.4, "taper": 0.88},
+			{
+				"branches": 9, "length": 0.44, "length_v": 0.08, "down": 50.0, "down_v": -10.0,
+				"rotate": 137.5, "rotate_v": 40.0, "curve_res": 3, "curve": -8.0, "curve_v": 34.0,
+				"attraction": -0.16, "taper": 0.86, "start": 0.0,
+			},
+			{
+				"branches": 5, "length": 0.46, "length_v": 0.1, "down": 52.0, "down_v": 0.0,
+				"rotate": 140.0, "rotate_v": 40.0, "curve_res": 2, "curve": 0.0, "curve_v": 28.0,
+				"attraction": -0.18, "taper": 0.9, "start": 0.2,
+			},
+		],
+	},
+	# Sour cherry, the northern orchard cherry: a small tree, often several stems
+	# from low down, a rounded spreading crown and long slender shoots that hang
+	# at their ends.
+	&"cherry": {
+		"shape": Shape.SPHERICAL,
+		"splits": 2,
+		"split_height": 0.24,
+		"split_angle": 26.0,
+		"cluster_cards": 5,
+		"cluster_span": 0.7,
+		"levels": [
+			{"curve_res": 4, "curve": -8.0, "curve_v": 10.0, "lean": 0.05, "flare": 0.35, "taper": 0.9},
+			{
+				"branches": 10, "length": 0.42, "length_v": 0.07, "down": 52.0, "down_v": -14.0,
+				"rotate": 137.5, "rotate_v": 30.0, "curve_res": 3, "curve": 4.0, "curve_v": 18.0,
+				"attraction": -0.14, "taper": 0.88, "start": 0.0,
+			},
+			{
+				"branches": 5, "length": 0.5, "length_v": 0.1, "down": 44.0, "down_v": 0.0,
+				"rotate": 140.0, "rotate_v": 30.0, "curve_res": 2, "curve": -6.0, "curve_v": 12.0,
+				"attraction": -0.45, "taper": 0.9, "start": 0.25,
+			},
+		],
+	},
+	# European plum: a small tree with an upright, irregular oval crown; the stem
+	# usually divides low into a few ascending limbs.
+	&"plum": {
+		"shape": Shape.TEND_FLAME,
+		"splits": 2,
+		"split_height": 0.28,
+		"split_angle": 20.0,
+		"cluster_cards": 5,
+		"cluster_span": 0.6,
+		"levels": [
+			{"curve_res": 4, "curve_v": 12.0, "lean": 0.04, "flare": 0.35, "taper": 0.9},
+			{
+				"branches": 10, "length": 0.38, "length_v": 0.07, "down": 40.0, "down_v": -8.0,
+				"rotate": 137.5, "rotate_v": 30.0, "curve_res": 3, "curve": 6.0, "curve_v": 26.0,
+				"attraction": 0.04, "taper": 0.88, "start": 0.0,
+			},
+			{
+				"branches": 4, "length": 0.42, "length_v": 0.1, "down": 46.0, "down_v": 0.0,
+				"rotate": 140.0, "rotate_v": 30.0, "curve_res": 2, "curve": 0.0, "curve_v": 20.0,
+				"attraction": -0.06, "taper": 0.9, "start": 0.25,
+			},
+		],
+	},
+	# Pear: the tallest orchard tree, a persistent central leader and a narrow
+	# pyramidal to upright-oval crown of steeply ascending limbs with short spurs.
+	&"pear": {
+		"shape": Shape.TEND_FLAME,
+		"splits": 0,
+		"cluster_cards": 5,
+		"cluster_span": 0.55,
+		"levels": [
+			{"curve_res": 4, "curve_v": 6.0, "lean": 0.025, "flare": 0.4, "taper": 0.94},
+			{
+				"branches": 11, "length": 0.34, "length_v": 0.06, "down": 38.0, "down_v": -10.0,
+				"rotate": 137.5, "rotate_v": 24.0, "curve_res": 3, "curve": 10.0, "curve_v": 18.0,
+				"attraction": 0.10, "taper": 0.88, "start": 0.0,
+			},
+			{
+				"branches": 4, "length": 0.36, "length_v": 0.08, "down": 50.0, "down_v": 0.0,
+				"rotate": 140.0, "rotate_v": 30.0, "curve_res": 2, "curve": 0.0, "curve_v": 18.0,
+				"attraction": -0.04, "taper": 0.9, "start": 0.25,
+			},
+		],
+	},
+	# Common ash: tall, a clear bole and a high, open, airy dome of a few stout
+	# limbs that rise outward and whose shoot ends curl upward like fingers.
+	# Opposite buds, so shoots leave the limb in pairs (rotate ~180).
+	&"ash": {
+		"shape": Shape.HEMISPHERICAL,
+		"splits": 0,
+		"cluster_cards": 4,
+		"cluster_span": 0.5,
+		"levels": [
+			{"curve_res": 4, "curve_v": 7.0, "lean": 0.03, "flare": 0.4, "taper": 0.93},
+			{
+				"branches": 9, "length": 0.42, "length_v": 0.07, "down": 52.0, "down_v": -14.0,
+				"rotate": 137.5, "rotate_v": 24.0, "curve_res": 3, "curve": 26.0, "curve_v": 14.0,
+				"attraction": 0.08, "taper": 0.88, "start": 0.0,
+			},
+			{
+				"branches": 4, "length": 0.42, "length_v": 0.08, "down": 50.0, "down_v": 0.0,
+				"rotate": 180.0, "rotate_v": 20.0, "curve_res": 2, "curve": 24.0, "curve_v": 10.0,
+				"attraction": 0.22, "taper": 0.9, "start": 0.3,
+			},
+		],
+	},
+	# Wych elm: the stem forks low into heavy limbs that spread wide into a broad
+	# dome; outer shoots arch over and hang.
+	&"elm": {
+		"shape": Shape.SPHERICAL,
+		"splits": 1,
+		"split_height": 0.36,
+		"split_angle": 30.0,
+		"cluster_cards": 6,
+		"cluster_span": 0.65,
+		"levels": [
+			{"curve_res": 4, "curve_v": 10.0, "lean": 0.04, "flare": 0.5, "taper": 0.88},
+			{
+				"branches": 11, "length": 0.56, "length_v": 0.08, "down": 62.0, "down_v": -20.0,
+				"rotate": 137.5, "rotate_v": 30.0, "curve_res": 3, "curve": 4.0, "curve_v": 20.0,
+				"attraction": -0.14, "taper": 0.86, "start": 0.0,
+			},
+			{
+				"branches": 5, "length": 0.46, "length_v": 0.1, "down": 50.0, "down_v": 0.0,
+				"rotate": 140.0, "rotate_v": 30.0, "curve_res": 2, "curve": -8.0, "curve_v": 12.0,
+				"attraction": -0.32, "taper": 0.9, "start": 0.25,
+			},
+		],
+	},
+	# White / crack willow by water: a short, thick, leaning bole that breaks into
+	# several ascending limbs (often from an old pollard head), a broad irregular
+	# crown and slender shoots hanging at their ends. Not the ornamental weeping
+	# willow, which reached northern Europe centuries later.
+	&"willow": {
+		"shape": Shape.TEND_FLAME,
+		"splits": 2,
+		"split_height": 0.3,
+		"split_angle": 30.0,
+		"cluster_cards": 6,
+		"cluster_span": 0.8,
+		"levels": [
+			{"curve_res": 4, "curve": 6.0, "curve_v": 12.0, "lean": 0.12, "flare": 0.5, "taper": 0.86},
+			{
+				"branches": 13, "length": 0.42, "length_v": 0.08, "down": 32.0, "down_v": -6.0,
+				"rotate": 137.5, "rotate_v": 30.0, "curve_res": 3, "curve": -10.0, "curve_v": 16.0,
+				"attraction": 0.0, "taper": 0.88, "start": 0.0,
+			},
+			{
+				"branches": 5, "length": 0.5, "length_v": 0.1, "down": 38.0, "down_v": 0.0,
+				"rotate": 140.0, "rotate_v": 30.0, "curve_res": 2, "curve": -14.0, "curve_v": 10.0,
+				"attraction": -0.42, "taper": 0.9, "start": 0.25,
+			},
+		],
+	},
+	# Rowan: a slender small tree, often two stems, with ascending limbs and a
+	# light, open, rounded-oval crown.
+	&"rowan": {
+		"shape": Shape.TEND_FLAME,
+		"splits": 1,
+		"split_height": 0.26,
+		"split_angle": 14.0,
+		"cluster_cards": 4,
+		"cluster_span": 0.55,
+		"levels": [
+			{"curve_res": 4, "curve_v": 8.0, "lean": 0.04, "flare": 0.3, "taper": 0.92},
+			{
+				"branches": 12, "length": 0.36, "length_v": 0.06, "down": 42.0, "down_v": -10.0,
+				"rotate": 137.5, "rotate_v": 26.0, "curve_res": 3, "curve": 10.0, "curve_v": 14.0,
+				"attraction": 0.08, "taper": 0.9, "start": 0.0,
+			},
+			{
+				"branches": 3, "length": 0.42, "length_v": 0.1, "down": 42.0, "down_v": 0.0,
+				"rotate": 140.0, "rotate_v": 30.0, "curve_res": 2, "curve": 0.0, "curve_v": 12.0,
+				"attraction": 0.02, "taper": 0.9, "start": 0.3,
+			},
+		],
+	},
+	# Hazel: a multi-stemmed shrub, many straight stems rising from one stool and
+	# fanning out into a vase, arching over at the top. No single trunk.
+	&"hazel": {
+		"shape": Shape.TAPERED_CYLINDRICAL,
+		"splits": 5,
+		"split_height": 0.03,
+		"split_angle": 20.0,
+		"cluster_cards": 5,
+		"cluster_span": 0.7,
+		"levels": [
+			{"curve_res": 4, "curve": -22.0, "curve_v": 10.0, "lean": 0.02, "flare": 0.15, "taper": 0.9},
+			{
+				"branches": 12, "length": 0.34, "length_v": 0.06, "down": 46.0, "down_v": -6.0,
+				"rotate": 150.0, "rotate_v": 30.0, "curve_res": 3, "curve": -10.0, "curve_v": 14.0,
+				"attraction": -0.12, "taper": 0.9, "start": 0.0,
+			},
+			{
+				"branches": 4, "length": 0.5, "length_v": 0.1, "down": 44.0, "down_v": 0.0,
+				"rotate": 140.0, "rotate_v": 30.0, "curve_res": 2, "curve": -6.0, "curve_v": 12.0,
+				"attraction": -0.18, "taper": 0.9, "start": 0.2,
+			},
+		],
+	},
+	# Hawthorn: a small tree or big shrub, a short often divided stem, crooked
+	# zigzag limbs and a dense, rounded to flat-topped crown.
+	&"hawthorn": {
+		"shape": Shape.SPHERICAL,
+		"splits": 2,
+		"split_height": 0.18,
+		"split_angle": 30.0,
+		"cluster_cards": 6,
+		"cluster_span": 0.7,
+		"levels": [
+			{"curve_res": 4, "curve": -10.0, "curve_v": 18.0, "lean": 0.06, "flare": 0.55, "taper": 0.88},
+			{
+				"branches": 12, "length": 0.42, "length_v": 0.08, "down": 62.0, "down_v": -16.0,
+				"rotate": 137.5, "rotate_v": 40.0, "curve_res": 3, "curve": 0.0, "curve_v": 42.0,
+				"attraction": -0.04, "taper": 0.88, "start": 0.0,
+			},
+			{
+				"branches": 5, "length": 0.44, "length_v": 0.1, "down": 56.0, "down_v": 0.0,
+				"rotate": 140.0, "rotate_v": 40.0, "curve_res": 2, "curve": 0.0, "curve_v": 36.0,
+				"attraction": 0.0, "taper": 0.9, "start": 0.2,
+			},
+		],
+	},
+	# Blackthorn: a suckering thicket of many stiff, dark stems; short side
+	# shoots stand out at near right angles and end in thorns, so the bush is
+	# dense, twiggy and flat-topped rather than a crown on a trunk.
+	&"blackthorn": {
+		"shape": Shape.CYLINDRICAL,
+		"splits": 5,
+		"split_height": 0.03,
+		"split_angle": 16.0,
+		"cluster_cards": 5,
+		"cluster_span": 0.75,
+		"levels": [
+			{"curve_res": 4, "curve": -8.0, "curve_v": 14.0, "lean": 0.03, "flare": 0.15, "taper": 0.9},
+			{
+				"branches": 12, "length": 0.3, "length_v": 0.06, "down": 70.0, "down_v": -10.0,
+				"rotate": 137.5, "rotate_v": 40.0, "curve_res": 3, "curve": 0.0, "curve_v": 30.0,
+				"attraction": 0.0, "taper": 0.9, "start": 0.0,
+			},
+			{
+				"branches": 5, "length": 0.5, "length_v": 0.1, "down": 72.0, "down_v": 0.0,
+				"rotate": 140.0, "rotate_v": 40.0, "curve_res": 2, "curve": 0.0, "curve_v": 26.0,
+				"attraction": 0.0, "taper": 0.9, "start": 0.15,
+			},
+		],
+	},
 }
 ## When the segment cap leaves room, the last (twig) level may grow up to this
 ## factor denser; the city profile raises the cap so near crowns get more shoots.
@@ -266,7 +528,8 @@ static func shape_ratio(shape: int, ratio: float) -> float:
 static func build(species: StringName, profile: Dictionary) -> Dictionary:
 	var preset := preset_for(species)
 	var levels: Array = preset["levels"]
-	var cap := int(profile.get("max_segments", MAX_WOOD_SEGMENTS))
+	# Smoothing multiplies the segments of every limb piece, so the budget scales with it.
+	var cap := int(profile.get("max_segments", MAX_WOOD_SEGMENTS)) * BRANCH_SMOOTH_SUBDIV
 	var height := float(profile["trunk_height"])
 	var base_radius := float(profile["trunk_radius"])
 	var base_size := clampf(float(profile.get("crown_start", height * 0.3)) / height, 0.04, 0.9)
@@ -290,7 +553,7 @@ static func build(species: StringName, profile: Dictionary) -> Dictionary:
 		for parent: Dictionary in parents:
 			var count := _desired_children(parent, params, level, base_size)
 			desired.append(count)
-			expected += count * float(int(params["curve_res"]))
+			expected += count * float(int(params["curve_res"]) * BRANCH_SMOOTH_SUBDIV)
 		var remaining := float(cap - (state["segments"] as Array).size())
 		if expected <= 0.0 or remaining <= 0.0:
 			stems_by_level.append([])
@@ -363,9 +626,13 @@ static func build(species: StringName, profile: Dictionary) -> Dictionary:
 	for stems: Array in stems_by_level:
 		level_counts.append(stems.size())
 	var trunk: Dictionary = trunk_stems[0]
+	# Reported over the whole tree height: a multi-stem shrub's bole is only a
+	# short stub below the split, which would hide the taper.
+	var whole_trunk := trunk.duplicate()
+	whole_trunk["z1"] = 1.0
 	var trunk_radii: Array[float] = []
 	for section in 4:
-		trunk_radii.append(_trunk_radius(trunk, base_radius, float(section) / 3.0))
+		trunk_radii.append(_trunk_radius(whole_trunk, base_radius, float(section) / 3.0))
 	return {
 		"segments": segments,
 		"leaf_candidates": leaf_candidates,
@@ -402,30 +669,44 @@ static func _grow_trunks(
 	_trace_stem(state, main, direction, height * split_z, sections, params, 0, seed, true)
 	if splits == 0:
 		return [main]
-	# Dichotomous fork: two leaders leave the split point at +-split_angle, each
-	# with the trunk's remaining length and a radius that conserves area roughly.
+	# Fork into splits + 1 leaders at +-split_angle: one split is the dichotomous
+	# fork of oak or maple; a split height near the ground with several leaders is
+	# a multi-stemmed shrub (hazel, blackthorn) or a low-headed orchard tree whose
+	# scaffold limbs all leave the bole at about the same height (apple). Leader
+	# radius conserves cross-section area roughly (2 leaders: 0.74 of the bole).
+	var leader_count := splits + 1
 	var fork_point: Vector3 = main["points"][(main["points"] as Array).size() - 1]
 	var fork_dir: Vector3 = (fork_point - (main["points"] as Array)[0]).normalized()
 	var fork_radius := _trunk_radius(main, base_radius, 1.0)
+	# Scaffold limbs of a headed tree stay stout; a shrub's stool stems are rods.
+	var area_share := 1.05 / sqrt(float(leader_count))
+	if leader_count == 2:
+		area_share = 0.74
+	elif split_z >= 0.1:
+		area_share = maxf(0.62, area_share)
+	var leader_radius := fork_radius * area_share
 	var stems: Array = [main]
 	var split_yaw := TAU * _hash(2, seed, 5)
-	for branch in 2:
+	for branch in leader_count:
 		var angle := deg_to_rad(float(preset["split_angle"])) * lerpf(0.8, 1.2, _hash(branch, seed, 7))
-		var yaw := split_yaw + PI * float(branch)
+		var yaw_jitter := 0.0 if leader_count <= 2 else (_hash(branch, seed, 9) - 0.5) * 0.3
+		var yaw := split_yaw + TAU * (float(branch) + yaw_jitter) / float(leader_count)
 		var leader_dir := _rotate_from(fork_dir, yaw, angle)
+		# With three or more stems they differ in length, so a shrub or orchard
+		# crown is not a symmetric candelabra.
+		var length_scale := 1.0 if leader_count <= 2 else lerpf(0.72, 1.0, _hash(branch, seed, 15))
+		var leader_length := height * (1.0 - split_z) * length_scale
+		# Leaders start a little inside the bole, so they grow out of it instead
+		# of standing on its flat top cap (which read as a sawn-off step).
+		var leader_start := fork_point - fork_dir * minf(fork_radius * 1.2, fork_point.y * 0.4)
 		var leader := _new_stem(
-			0,
-			fork_point,
-			height * (1.0 - split_z),
-			fork_radius * 0.74,
-			seed + 31 * (branch + 1),
-			0.0
+			0, leader_start, leader_length, leader_radius, seed + 31 * (branch + 1), 0.0
 		)
 		leader["leader"] = true
 		leader["z0"] = split_z
 		leader["z1"] = 1.0
 		_trace_stem(
-			state, leader, leader_dir, height * (1.0 - split_z),
+			state, leader, leader_dir, leader_length,
 			maxi(1, curve_res - sections), params, 0, int(leader["seed"]), true
 		)
 		stems.append(leader)
@@ -570,8 +851,10 @@ static func _trace_stem(
 	var attraction := float(params.get("attraction", 0.0))
 	var taper := float(params.get("taper", 0.9))
 	var traced := 0
+	var coarse_points: Array[Vector3] = [position]
+	var coarse_radii: Array[float] = [radii[0]]
 	for section in sections:
-		if segments.size() >= int(state["cap"]):
+		if segments.size() + traced * BRANCH_SMOOTH_SUBDIV >= int(state["cap"]):
 			break
 		if section > 0 or not is_trunk:
 			var bend := curve / float(sections) + (_hash(section, seed, 41) - 0.5) * curve_v
@@ -590,17 +873,33 @@ static func _trace_stem(
 			)
 		else:
 			radius = maxf(float(stem["base_radius"]) * (1.0 - taper * t), MIN_TIP_RADIUS)
+		position = next
+		coarse_points.append(next)
+		coarse_radii.append(radius)
+		traced += 1
+	if not is_trunk and traced > 0:
+		# Branch limbs are resampled along a smooth curve so direction changes
+		# between sections read as bends, not kinks (trunks keep their pieces).
+		var smooth := MapViewTreeMeshSkeleton.smooth_polyline(
+			coarse_points,
+			coarse_radii,
+			direction,
+			BRANCH_SMOOTH_SUBDIV,
+			deg_to_rad(18.0) * (_hash(0, seed, 53) - 0.5) * 2.0 - attraction * 0.25,
+			MapViewTreeMeshSkeleton.radial_around(direction, TAU * _hash(1, seed, 59))
+		)
+		coarse_points = smooth["points"]
+		coarse_radii = smooth["radii"]
+	for i in range(1, coarse_points.size()):
 		segments.append({
-			"start": position,
-			"end": next,
-			"start_radius": radii[radii.size() - 1],
-			"end_radius": radius,
+			"start": coarse_points[i - 1],
+			"end": coarse_points[i],
+			"start_radius": coarse_radii[i - 1],
+			"end_radius": coarse_radii[i],
 			"depth": depth,
 		})
-		position = next
-		points.append(next)
-		radii.append(radius)
-		traced += 1
+		points.append(coarse_points[i])
+		radii.append(coarse_radii[i])
 	if traced >= 2:
 		state["curved"] = int(state["curved"]) + 1
 	if is_trunk:

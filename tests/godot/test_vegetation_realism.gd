@@ -67,20 +67,25 @@ func test_tree_cards_keep_cluster_attributes_and_species_tiles() -> void:
 		var colors: PackedColorArray = arrays[Mesh.ARRAY_COLOR]
 		var seeds: Dictionary = {}
 		var card_vertices := 0
+		# Broadleaf cards are one flat segment per half (12 vertices); conifer
+		# cards droop in three segments (36), see LeafGeometry.append_card.
+		var per_card := 36 if species in MapViewTreeMeshes.CONIFERS else 12
 		var anchor := Vector4.ZERO
 		for i in tags.size():
 			if tags[i].y < 0.5:
 				continue
 			var data := Vector4(custom[i * 4], custom[i * 4 + 1],
 				custom[i * 4 + 2], custom[i * 4 + 3])
-			if card_vertices % 12 == 0:
+			if card_vertices % per_card == 0:
 				anchor = data
 				seeds[data.w] = true
-			assert_eq(data, anchor, "all four triangles must collapse to one petiole")
+			assert_eq(data, anchor, "all card triangles must collapse to one petiole")
 			assert_true(data.is_finite() and data.w > 0.0 and data.w < 1.0)
 			assert_true(colors[i].a >= 0.47 and colors[i].a <= 1.0)
 			card_vertices += 1
-		assert_eq(card_vertices, int(MapViewTreeMeshes.geometry_stats(species)["card_count"]) * 12)
+		assert_eq(
+			card_vertices, int(MapViewTreeMeshes.geometry_stats(species)["card_count"]) * per_card
+		)
 		assert_true(card_vertices > 1200, "every species needs a layered card crown")
 		assert_true(seeds.size() > 100, "clusters must not all shed at once")
 		var material := MapViewMaterials.canopy_for_species(species)

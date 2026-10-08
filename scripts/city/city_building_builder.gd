@@ -24,6 +24,19 @@ const CORNER_RADIUS := {&"limestone": 0.1, &"plaster": 0.22, &"log": 0.16, &"pla
 const CORNER_SEGMENTS := 3
 const DOOR_WIDTH := 1.5
 const DOOR_HEIGHT := 2.55
+## Farmstead outbuildings (width, height in metres). A 1343 byre, sty or store
+## had a low, narrow opening of plain boards sized for a person stooping or a
+## beast led through, never a house-sized portal. Types not listed (houses,
+## barn_dwelling) keep DOOR_WIDTH x DOOR_HEIGHT.
+const OUTBUILDING_DOORS := {
+	&"pigsty": Vector2(0.62, 0.9),
+	&"sheep_shed": Vector2(0.9, 1.35),
+	&"byre": Vector2(1.0, 1.65),
+	&"store": Vector2(0.85, 1.65),
+	&"salt_shed": Vector2(0.85, 1.6),
+	&"smoke_shed": Vector2(0.75, 1.5),
+	&"cargo_shed": Vector2(1.5, 1.9),
+}
 const WINDOW_W := 0.72
 const WINDOW_H := 0.95
 const WINDOW_SPACING := 3.4
@@ -552,9 +565,9 @@ static func build_building(
 		var gap := Vector2(-1, -1)
 		if i == door_edge:
 			var length := a.distance_to(c)
-			var half_gap := minf(DOOR_WIDTH * 0.5, length * 0.35) / maxf(length, 0.01)
+			var half_gap := minf(door_size(b).x * 0.5, length * 0.35) / maxf(length, 0.01)
 			gap = Vector2(door_t - half_gap, door_t + half_gap)
-		_wall_edge(shell, wall_key, a, c, bottom, frame, tint, gap, floor_y, enterable)
+		_wall_edge(shell, wall_key, a, c, bottom, frame, tint, gap, floor_y, enterable, door_size(b).y)
 		# Site models (ADR 0032) bring their own openings.
 		if not bool(b.get("openings", true)):
 			continue
@@ -563,7 +576,7 @@ static func build_building(
 		else:
 			_lancets(shell, a, c, floor_y, eave)
 	if door_edge >= 0 and ground_at.is_valid():
-		_door_steps(shell, ring, door_edge, door_t, floor_y, ground_at)
+		_door_steps(shell, ring, door_edge, door_t, floor_y, ground_at, door_size(b).x)
 	# Roof halves.
 	_roof(roof, roof_key, ring, frame, roof_tint, roof_family, keep_out)
 	# Most town houses have a stone flue by 1343 (thatched country cottages keep
@@ -689,7 +702,8 @@ static func _door_steps(
 	edge: int,
 	door_t: float,
 	floor_y: float,
-	ground_at: Callable
+	ground_at: Callable,
+	door_width: float = DOOR_WIDTH
 ) -> void:
 	var a := ring[edge]
 	var c := ring[(edge + 1) % ring.size()]
@@ -705,7 +719,7 @@ static func _door_steps(
 	# still face a steep drop; 8 made 0.7 m risers there.
 	var steps := clampi(int(ceil(rise / 0.18)), 1, 14)
 	var tread := 0.32
-	var half_w := DOOR_WIDTH * 0.5 + 0.25
+	var half_w := door_width * 0.5 + 0.25
 	for k in steps:
 		var top := floor_y - rise * float(k) / steps
 		var depth := tread * float(k + 1)
@@ -740,6 +754,16 @@ static func _door_steps(
 			)
 
 
+## Door opening (width, height) of a building: reduced for farmstead outbuildings,
+## and always under the eave so a low shed never gets a lintel above its wall.
+static func door_size(b: Dictionary) -> Vector2:
+	var size := Vector2(DOOR_WIDTH, DOOR_HEIGHT)
+	if String(b.get("kind", "")) == "outbuilding":
+		size = OUTBUILDING_DOORS.get(StringName(String(b.get("type", ""))), size)
+		size.y = minf(size.y, float(b.get("wall_h", size.y)) - 0.2)
+	return size
+
+
 static func _closest_edge(ring: PackedVector2Array, p: Vector2) -> int:
 	var best := 0
 	var best_d := INF
@@ -764,7 +788,8 @@ static func _wall_edge(
 	tint: Color,
 	gap: Vector2,
 	floor_y: float,
-	enterable: bool
+	enterable: bool,
+	door_height: float = DOOR_HEIGHT
 ) -> void:
 	var pts: Array[Vector2] = [a]
 	# Ridge crossing makes the gable peak.
@@ -779,7 +804,7 @@ static func _wall_edge(
 	if gap.x >= 0.0:
 		var g0 := a.lerp(c, gap.x)
 		var g1 := a.lerp(c, gap.y)
-		var top_y := floor_y + DOOR_HEIGHT
+		var top_y := floor_y + door_height
 		_wall_strip(shell, key, a, g0, bottom, frame, tint, pts)
 		_wall_strip(shell, key, g1, c, bottom, frame, tint, pts)
 		# Lintel band over the door up to the roof line.

@@ -209,6 +209,26 @@ func test_roof_follows_ridge_and_walls_meet_it() -> void:
 	assert_almost_eq(CityBuildingBuilder.roof_height(frame, Vector2(5, 0)), 5.0, 0.001)
 
 
+func test_outbuilding_doors_are_small_and_under_the_eave() -> void:
+	var plan := _plan()
+	var seen := 0
+	for i in plan.buildings.size():
+		var b: Dictionary = plan.buildings[i]
+		var size := CityBuildingBuilder.door_size(b)
+		if String(b.get("kind", "")) != "outbuilding" or b.get("door") == null:
+			continue
+		if StringName(String(b["type"])) == &"barn_dwelling":
+			assert_almost_eq(size.x, CityBuildingBuilder.DOOR_WIDTH, 0.001)
+			continue
+		seen += 1
+		assert_true(size.x <= 1.5, "%s door width" % b["id"])
+		assert_true(size.y <= float(b["wall_h"]) - 0.19, "%s door under eave" % b["id"])
+		assert_true(size.y < CityBuildingBuilder.DOOR_HEIGHT, "%s door lower than a house door" % b["id"])
+	assert_true(seen > 20, "outbuildings with doors checked: %d" % seen)
+	var house := {"kind": "house", "wall_h": 5.0}
+	assert_almost_eq(CityBuildingBuilder.door_size(house).y, CityBuildingBuilder.DOOR_HEIGHT, 0.001)
+
+
 func test_collision_leaves_door_gap_and_blocks_cliffs() -> void:
 	var plan := _plan()
 	var root := Node2D.new()

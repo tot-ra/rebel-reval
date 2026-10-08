@@ -79,7 +79,7 @@ static func _buildings(plan: CityPlan, add_poly: Callable) -> void:
 					(door_p - a).dot(c - a) / maxf((c - a).length_squared(), 0.001), 0.2, 0.8
 				)
 				var hg := (
-					minf(CityBuildingBuilder.DOOR_WIDTH * 0.5, length * 0.35) / maxf(length, 0.01)
+					minf(CityBuildingBuilder.door_size(b).x * 0.5, length * 0.35) / maxf(length, 0.01)
 				)
 				add_poly.call(_wall_quad(ring, a, a.lerp(c, t - hg), thick))
 				add_poly.call(_wall_quad(ring, a.lerp(c, t + hg), c, thick))

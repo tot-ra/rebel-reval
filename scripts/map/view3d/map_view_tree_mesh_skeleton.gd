@@ -117,6 +117,54 @@ static func build(species: StringName, profile: Dictionary) -> Dictionary:
 	}
 
 
+## Cubic Hermite resampling of a coarse branch polyline (WHY: a limb built from
+## 1-4 straight pieces shows hard kinks where the direction changes). The curve
+## passes through every coarse point, so tips and attachment points stay put;
+## each piece is split into `subdiv` shorter pieces with interpolated radii.
+## The start tangent follows `start_direction` (continuity with the parent
+## direction). A one-piece limb has no neighbour to bend toward, so it gets a
+## gentle bow of `single_bend` radians about `bend_axis`, which makes it a curve.
+static func smooth_polyline(
+	points: Array[Vector3],
+	radii: Array[float],
+	start_direction: Vector3,
+	subdiv: int,
+	single_bend: float,
+	bend_axis: Vector3
+) -> Dictionary:
+	var count := points.size()
+	if count < 2 or subdiv <= 1:
+		return {"points": points, "radii": radii}
+	var tangents: Array[Vector3] = []
+	for i in count:
+		var tangent: Vector3
+		if i == 0:
+			tangent = start_direction.normalized() * points[0].distance_to(points[1])
+		elif i == count - 1:
+			tangent = points[i] - points[i - 1]
+			if count == 2:
+				tangent = tangent.rotated(bend_axis, single_bend)
+		else:
+			tangent = (points[i + 1] - points[i - 1]) * 0.5
+		tangents.append(tangent)
+	var out_points: Array[Vector3] = [points[0]]
+	var out_radii: Array[float] = [radii[0]]
+	for i in count - 1:
+		for step in range(1, subdiv + 1):
+			var u := float(step) / float(subdiv)
+			var u2 := u * u
+			var u3 := u2 * u
+			var point := (
+				points[i] * (2.0 * u3 - 3.0 * u2 + 1.0)
+				+ tangents[i] * (u3 - 2.0 * u2 + u)
+				+ points[i + 1] * (-2.0 * u3 + 3.0 * u2)
+				+ tangents[i + 1] * (u3 - u2)
+			)
+			out_points.append(point)
+			out_radii.append(lerpf(radii[i], radii[i + 1], u))
+	return {"points": out_points, "radii": out_radii}
+
+
 static func radial_around(axis: Vector3, angle: float) -> Vector3:
 	var side := perpendicular(axis)
 	var forward := axis.cross(side).normalized()
@@ -181,19 +229,33 @@ static func _grow_branch(
 			current_position + (current_direction + next_direction).normalized() * section_length
 		)
 		var next_radius := lerpf(radius, end_radius, pow(piece_t, 0.82))
-		_append_segment(
-			segments,
-			current_position,
-			next_position,
-			path_radii[path_radii.size() - 1],
-			next_radius,
-			depth + 1
-		)
 		current_position = next_position
 		current_direction = next_direction
 		path_points.append(current_position)
 		path_directions.append(current_direction)
 		path_radii.append(next_radius)
+
+	if path_points.size() > 1:
+		# Smooth the coarse path, then emit the segments (see smooth_polyline).
+		var smooth := smooth_polyline(
+			path_points,
+			path_radii,
+			direction,
+			4,
+			lerpf(-0.35, 0.35, _hash(branch_index, seed, 113)),
+			curve_axis
+		)
+		path_points = smooth["points"]
+		path_radii = smooth["radii"]
+		path_directions = [direction.normalized()]
+		for i in range(1, path_points.size()):
+			path_directions.append((path_points[i] - path_points[i - 1]).normalized())
+		for i in range(path_points.size() - 1):
+			_append_segment(
+				segments, path_points[i], path_points[i + 1], path_radii[i], path_radii[i + 1], depth + 1
+			)
+		current_position = path_points[path_points.size() - 1]
+		current_direction = path_directions[path_directions.size() - 1]
 
 	if path_points.size() <= 1:
 		leaf_candidates.append({"position": start, "direction": direction, "seed": seed})

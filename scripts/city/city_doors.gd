@@ -19,6 +19,12 @@ const TIMBER_NORMAL := "res://assets/materials/pbr/timber/timber_normal.png"
 
 ## Rectangular leaves only: the openings are rectangular.
 const STYLES: Array[StringName] = [&"plank", &"braced", &"studded", &"ledged"]
+## Outbuilding doors: bare weathered or tarred boards, no paint and no ironwork.
+const ROUGH_PAINTS: Array[Color] = [
+	Color(0.44, 0.40, 0.34),  # weathered grey oak
+	Color(0.36, 0.31, 0.25),  # old pine
+	Color(0.24, 0.20, 0.17),  # tarred
+]
 const PAINTS: Array[Color] = [
 	Color(0.52, 0.38, 0.25),  # oiled oak
 	Color(0.24, 0.20, 0.17),  # tarred
@@ -58,6 +64,16 @@ func _build() -> void:
 		if String(b["material"]) == "limestone" and rng.randf() < 0.5:
 			style = &"studded"
 		var paint: Color = PAINTS[rng.randi() % PAINTS.size()]
+		# WHY: sheds, sties and byres had cheap ledged boarding, not the strapped
+		# or studded doors of dwellings (their openings are also smaller, see
+		# CityBuildingBuilder.door_size).
+		var rough := (
+			String(b.get("kind", "")) == "outbuilding"
+			and CityBuildingBuilder.OUTBUILDING_DOORS.has(StringName(String(b.get("type", ""))))
+		)
+		if rough:
+			style = &"rough"
+			paint = ROUGH_PAINTS[rng.randi() % ROUGH_PAINTS.size()]
 		var double := float(gap["width"]) > 2.2 or String(b.get("landmark_id", "")) != ""
 		doors[i] = _hang(
 			"Door_%d" % i,
@@ -67,7 +83,7 @@ func _build() -> void:
 			gap["inward"],
 			style,
 			paint,
-			CityBuildingBuilder.DOOR_HEIGHT - 0.05,
+			CityBuildingBuilder.door_size(b).y - 0.05,
 			double
 		)
 		doors[i]["enterable"] = bool(b.get("enterable", false))
@@ -150,7 +166,7 @@ static func door_gap(city_plan: CityPlan, index: int) -> Dictionary:
 	if length < 0.5:
 		return {}
 	var t := clampf((door - a).dot(c - a) / maxf((c - a).length_squared(), 0.001), 0.2, 0.8)
-	var hg := minf(CityBuildingBuilder.DOOR_WIDTH * 0.5, length * 0.35) / maxf(length, 0.01)
+	var hg := minf(CityBuildingBuilder.door_size(b).x * 0.5, length * 0.35) / maxf(length, 0.01)
 	var g0 := a.lerp(c, t - hg)
 	var g1 := a.lerp(c, t + hg)
 	var dir := (c - a) / length
@@ -267,6 +283,24 @@ static func _leaf_mesh(style: StringName, width: float, height: float) -> ArrayM
 			Color(0.45, 0.45, 0.45)
 		)
 	match style:
+		&"rough":
+			# Two plain wooden ledges and a wooden latch bar; nothing forged.
+			for y: float in [0.25, top - 0.3]:
+				_box(
+					shell,
+					Vector3(0.03, y, t * 0.5),
+					Vector3(width - 0.03, y + 0.11, t * 0.5 + 0.03),
+					wood * 0.8
+				)
+			_box(
+				shell,
+				Vector3(width * 0.62, top * 0.5, t * 0.5),
+				Vector3(width * 0.9, top * 0.5 + 0.04, t * 0.5 + 0.035),
+				wood * 0.7
+			)
+			var rough_mesh := shell.to_mesh(func(_k: String) -> Material: return null)
+			_mesh_cache[key] = rough_mesh
+			return rough_mesh
 		&"plank":
 			for y: float in [0.35, top - 0.45]:
 				_box(

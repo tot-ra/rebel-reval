@@ -10,17 +10,10 @@ const TreeMeshProfiles := preload("res://scripts/map/view3d/map_view_tree_mesh_p
 
 ## Shared (non-city) canopy budget per species, from the VEGR-0 tree budget.
 const CANOPY_TRIANGLE_CAP := 24000
-const PRESET_SPECIES: Array[StringName] = [
-	&"pine",
-	&"spruce",
-	&"birch",
-	&"oak",
-	&"alder",
-	&"aspen",
-	&"juniper",
-	&"linden",
-	&"maple",
-]
+## Every catalogue species grows from a Weber-Penn preset; none may fall back to
+## the legacy recursive skeleton (that is what drew orchard trees as a pole with
+## a tuft on top and two horizontal arms).
+const PRESET_SPECIES: Array[StringName] = MapViewTreeSpecies.ALL_SPECIES
 
 
 func test_every_preset_species_grows_three_branch_levels() -> void:
@@ -101,6 +94,33 @@ func test_oak_and_maple_fork_into_two_leaders() -> void:
 		if int(stem["level"]) == 0:
 			pine_stems += 1
 	assert_eq(pine_stems, 1, "pine keeps a single straight bole")
+
+
+func test_shrubs_grow_from_a_stool_and_apple_from_scaffold_limbs() -> void:
+	# Hazel and blackthorn: several stems from the ground, no single trunk.
+	for species in [&"hazel", &"blackthorn"]:
+		var stems := _leader_stems(species)
+		assert_true(stems.size() >= 4, "%s must rise as a multi-stem stool" % species)
+		for stem: Dictionary in stems:
+			assert_true(
+				(stem["start"] as Vector3).y < 0.1, "%s stems must leave the ground" % species
+			)
+	# Apple: a short bole, then three or more scaffold limbs spreading outward.
+	var apple := _leader_stems(&"apple")
+	assert_true(apple.size() >= 3, "apple needs scaffold limbs, not a central leader")
+	for stem: Dictionary in apple:
+		var rise := (stem["first_direction"] as Vector3).y
+		assert_true(rise < cos(deg_to_rad(25.0)), "apple scaffold limb grows too upright")
+
+
+func _leader_stems(species: StringName) -> Array:
+	var stems: Array = TreeSkeleton.build(species, TreeMeshProfiles.profile_for(species))["stems"]
+	var leaders: Array = []
+	for stem: Dictionary in stems:
+		# Level-0 stems after the first are the leaders above the split.
+		if int(stem["level"]) == 0 and (stem["start"] as Vector3).length() > 0.0001:
+			leaders.append(stem)
+	return leaders
 
 
 func test_rebuilds_from_the_same_seed_are_byte_identical() -> void:

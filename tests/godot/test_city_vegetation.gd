@@ -6,6 +6,9 @@ extends "res://tests/godot/test_case.gd"
 const KALEV_HEIGHT := 1.83
 
 
+const TreeSkeletonWeber := preload("res://scripts/map/view3d/tree_skeleton_weber_penn.gd")
+
+
 func _world_height(species: StringName) -> float:
 	var scale := CityVegetationBuilder.species_scale(species, 1.0)
 	return MapViewTreeMeshes.city_canopy_far_mesh(species).get_aabb().end.y * scale
@@ -98,7 +101,9 @@ func test_city_spruce_keeps_all_whorls() -> void:
 func test_shared_meshes_unchanged_for_district_maps() -> void:
 	# The city variants must not leak into the district maps' cached geometry.
 	var stats := MapViewTreeMeshes.geometry_stats(&"spruce")
-	assert_true(int(stats["wood_segments"]) <= MapViewTreeMeshes.MAX_WOOD_SEGMENTS)
+	# Limb smoothing subdivides every coarse piece, so the budget scales with it.
+	var budget := MapViewTreeMeshes.MAX_WOOD_SEGMENTS * TreeSkeletonWeber.BRANCH_SMOOTH_SUBDIV
+	assert_true(int(stats["wood_segments"]) <= budget, "district spruce wood budget")
 	assert_true(int(stats["canopy_triangles"]) <= 26000, "district spruce canopy unchanged")
 
 
