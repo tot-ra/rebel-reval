@@ -126,28 +126,23 @@ func test_sea_weather_scales_water_wave_height() -> void:
 func test_world_wind_drives_vegetation_and_cloth_uniforms() -> void:
 	var calm_dir := Vector2(1.0, 0.0)
 	var storm_dir := Vector2(0.0, 1.0)
+	# R-1321: one published wind field; every wind material reads its globals.
+	for material: ShaderMaterial in [
+		MapViewMaterials.grass_blades(),
+		MapViewMaterials.canopy(&"leaf"),
+		MapViewMaterials.sail_cloth(),
+		MapViewMaterials.flag_cloth(),
+	]:
+		assert_true(
+			material.shader.code.contains("wind_field.gdshaderinc"),
+			"%s must read the shared wind field" % material.shader.resource_path
+		)
 	MapViewMaterials.apply_world_wind(calm_dir, 0.22)
-	var grass := MapViewMaterials.grass_blades()
-	var canopy := MapViewMaterials.canopy(&"leaf")
-	var sail := MapViewMaterials.sail_cloth()
-	var flag := MapViewMaterials.flag_cloth()
-	assert_eq(grass.get_shader_parameter("wind_strength"), 0.22, "calm wind must reach grass")
-	assert_eq(
-		canopy.get_shader_parameter("wind_direction"), calm_dir, "canopy must share calm wind heading"
-	)
-	assert_eq(
-		sail.get_shader_parameter("wind_direction"), calm_dir, "sails must share calm wind heading"
-	)
+	assert_almost_eq(WindField.current().strength, 0.22, 0.0001, "calm wind must be published")
+	assert_eq(WindField.current().direction, calm_dir, "vegetation and cloth share calm heading")
 	MapViewMaterials.apply_world_wind(storm_dir, 0.92)
-	assert_eq(
-		grass.get_shader_parameter("wind_strength"), 0.92, "storm wind must raise grass sway power"
-	)
-	assert_eq(
-		flag.get_shader_parameter("wind_direction"), storm_dir, "flags must turn with storm wind"
-	)
-	assert_eq(
-		sail.get_shader_parameter("wind_strength"), 0.92, "sails must stiffen with storm wind"
-	)
+	assert_almost_eq(WindField.current().strength, 0.92, 0.0001, "storm wind must be published")
+	assert_eq(WindField.current().direction, storm_dir, "flags must turn with storm wind")
 	# Restore calm defaults for later material-sensitive tests.
 	MapViewMaterials.apply_world_wind(Vector2(0.9285, 0.3714), 0.22)
 

@@ -44,15 +44,15 @@ func _run() -> void:
 	sun.light_energy = 1.6
 	stage.add_child(sun)
 
+	# R-1321: wind is a shared global; full world strength scaled per flag.
+	MapViewMaterials.apply_world_wind(WIND_DIRECTION, 1.0)
 	for index in WINDS.size():
 		var material := MapViewMaterials.flag_cloth().duplicate() as ShaderMaterial
-		material.set_shader_parameter("wind_direction", WIND_DIRECTION)
-		material.set_shader_parameter("wind_strength", WINDS[index])
+		material.set_shader_parameter("wind_scale", WINDS[index])
 		var pennant_mesh := FactionHeraldry.pennant_mesh(FactionHeraldry.DANISH_CROWN)
 		_add_flag(stage, Vector3(-4.5 + index * 3.0, 0.0, 0.0), pennant_mesh, material, 2.0)
 	var hall_material := MapViewMaterials.flag_cloth(true).duplicate() as ShaderMaterial
-	hall_material.set_shader_parameter("wind_direction", WIND_DIRECTION)
-	hall_material.set_shader_parameter("wind_strength", 0.45)
+	hall_material.set_shader_parameter("wind_scale", 0.45)
 	var hall_mesh: ArrayMesh = TownHallModel._banner_mesh(1.5, 1.1, true, 2)
 	_add_flag(stage, Vector3(4.5, 0.0, 0.0), hall_mesh, hall_material, 1.0)
 

@@ -1,6 +1,6 @@
 # Vegetation realism: grass, grain fields, trees
 
-Status: in progress (epic **R-1319**). Implemented: V0 benchmark and budgets (**R-1320**, section 8) and V1 procedural textures (**R-1329**, section 7); every other phase is planned. Scope: a staged upgrade of how grass, grain fields, trees, and shrubs are rendered in the 3D view, so open country and woods read as real Baltic nature. Out of scope: gameplay changes, felling or damaging trees, new biomes, imported game assets, a renderer change (GL Compatibility stays), and anything that changes saved state. This page is the spec to turn into tasks; it extends [`LIVING_VEGETATION.md`](./LIVING_VEGETATION.md) (seasons, crown shader, leaf fall) and the "Vegetation realism (P0-208)" rule in [`ART_BIBLE.md`](../ART_BIBLE.md).
+Status: in progress (epic **R-1319**). Implemented: V0 benchmark and budgets (**R-1320**, section 8), V1 procedural textures (**R-1329**, section 7) and V2 shared wind field (**R-1321**, section 1); every other phase is planned. Scope: a staged upgrade of how grass, grain fields, trees, and shrubs are rendered in the 3D view, so open country and woods read as real Baltic nature. Out of scope: gameplay changes, felling or damaging trees, new biomes, imported game assets, a renderer change (GL Compatibility stays), and anything that changes saved state. This page is the spec to turn into tasks; it extends [`LIVING_VEGETATION.md`](./LIVING_VEGETATION.md) (seasons, crown shader, leaf fall) and the "Vegetation realism (P0-208)" rule in [`ART_BIBLE.md`](../ART_BIBLE.md).
 
 Scope rule: this revises existing vegetation presentation. It adds no mechanic, area, or pillar, so it needs no ADR. A new crop mechanic (planting, harvest as gameplay) would, and is not part of this plan.
 
@@ -45,6 +45,10 @@ If any code or asset is copied from an open-source project, add it to `assets/SO
 ## Design
 
 ### 1. One wind field for everything
+
+Status: implemented (task **R-1321**, VEGR-2). Runtime contract, globals, weather mapping, tests and evidence: [`LIVING_VEGETATION.md`](./LIVING_VEGETATION.md#shared-wind-field-r-1321). Decisions taken in the task: the noise is analytic value noise in `wind_field.gdshaderinc`, not a texture (no sampler slot, no unbound sampler on GLES, exact CPU mirror); the globals are declared in `project.godot` because the wind shaders are preloaded; the front is sampled once per tuft, tree or staff, not per vertex; grass gets a bend sheen so fronts read at distance; the sea keeps its own wind uniforms. Benchmark before and after (`tools/run_performance_report.sh <out> --vegetation`, then `budgets --baseline`): vegetation counts identical on every camera and layer (the change is shader-only; `compare` differs only in Lower Town's non-vegetation `other` layer, from unrelated concurrent work), and the budget check passes. Frame time was noisy because the editor was running a game on the same GPU: `meadow_gameplay` median over three paired runs was 115 / 105 / 130 ms with the old grass and crown shaders and 113 / 127 / 137 ms with the final ones, within run-to-run spread; the other five cameras matched within 3 ms in the full runs. Crowns sample the noise-free `wind_pressure_coarse` (three `sin`, as before) because their vertex cost multiplies by the shadow cascades; grass keeps the patchy front.
+
+The original design, as specified:
 
 A single deterministic wind model drives grass, grain, crowns, cloth, and falling leaves, so a gust crosses a field, reaches the trees, then the flags.
 

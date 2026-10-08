@@ -1,6 +1,6 @@
 # Living vegetation
 
-Status: implemented (tasks **R-1187**, **R-1194**, **R-1329** procedural leaf atlas, seamless-city pass of **R-712** covering **R-1101**, **R-1102**, **R-1103**, **R-1105**; visual/reviewer acceptance pending). Scope: tree crowns in the 3D view follow the campaign calendar, react to rain and wind, and respond to melee swings. Presentation only: nothing here changes combat, collision, navigation, or saved state. Out of scope: felling or damaging trees, persistent leaf litter on the ground, snow on branches, seasonal bushes, grass, and crops, and blossom.
+Status: implemented (tasks **R-1187**, **R-1194**, **R-1329** procedural leaf atlas, **R-1321** shared wind field, seamless-city pass of **R-712** covering **R-1101**, **R-1102**, **R-1103**, **R-1105**; visual/reviewer acceptance pending). Scope: tree crowns in the 3D view follow the campaign calendar, react to rain and wind, and respond to melee swings. Presentation only: nothing here changes combat, collision, navigation, or saved state. Out of scope: felling or damaging trees, persistent leaf litter on the ground, snow on branches, seasonal bushes, grass, and crops, and blossom.
 
 Reference bar: trees that feel alive in the way Witcher 3 and RDR2 trees do. The crown changes with the month, and a blow to the trunk knocks leaves loose.
 
@@ -9,7 +9,7 @@ Reference bar: trees that feel alive in the way Witcher 3 and RDR2 trees do. The
 - **Seasons.** Deciduous crowns follow northern Estonian (Tallinn) phenology as a function of the in-game date: bare in winter. Bud-burst starts in late April with sparse, small, light yellow-green leaves. Crowns are full from June to August. Autumn colouring runs from mid September, with per-species palettes (birch and aspen gold, maple and rowan red, oak brown), several hues per crown, and the oldest leaves turning brown. The crowns are bare by early November. Early leafers (birch, willow, aspen, alder, orchard trees) open before late leafers (oak, ash, linden, elm, maple). Conifers keep their needles and turn duller and bluer in deep winter. On the slice's opening date, 21 April 1343, birches show about 28% of their leaves, small and fresh, and oaks show only their first buds.
 - **Fruit** appears only in season: cherries in July, plums in August and September, apples and pears from August to October, rowan and hawthorn berries from August to November, and sloes from September to November.
 - **Rain** darkens leaves and bark and makes them glossy. Leaves get wet from active rain at once, not only when puddles form.
-- **Wind** moves crowns at two frequencies: whole limbs heave in gusts, rigid from the petiole, while leaf tips flutter.
+- **Wind** moves crowns at two frequencies: whole limbs heave in gusts, rigid from the petiole, while leaf tips flutter. Since R-1321 a gust is one event in the world: it rolls across a meadow as a visible front, reaches the trees, then the flags, ropes and nets (see [Shared wind field](#shared-wind-field-r-1321)).
 - **Melee swings.** When a landed swing (hit or miss) reaches a tree in front of Kalev, that crown shakes away from the blow and rings down over about 1.8 s, and a burst of leaves in the current season's colours tumbles to the ground. Heavy blows shake harder and drop more. Autumn crowns are the loosest. Conifers drop a few needles, and bare trees drop nothing.
 - **Ambient leaf fall.** Leaves drift down around the player where trees stand nearby: heavily in October, a few during storms in any season with leaves, and none in open streets or bare winter woods. The wind carries them sideways.
 
@@ -19,6 +19,7 @@ Reference bar: trees that feel alive in the way Witcher 3 and RDR2 trees do. The
 |---|---|
 | Seasonal model (pure, deterministic) | [`vegetation_phenology.gd`](../../scripts/map/view3d/vegetation_phenology.gd) (`VegetationPhenology.state_for`, `falling_leaf_colors`, `hit_leaf_count`) |
 | Crown shader (season, autumn hue, crown AO, wetness, two-frequency wind, hit shake) | [`map_view_canopy.gdshader`](../../scripts/map/view3d/map_view_canopy.gdshader) |
+| Shared wind field (weather mapping, globals, CPU mirror) | [`wind_field.gd`](../../scripts/map/view3d/wind_field.gd) (`WindField`), shader side [`wind_field.gdshaderinc`](../../scripts/map/view3d/wind_field.gdshaderinc) |
 | Per-species crown materials, season and wetness fan-out | [`map_view_wind_materials.gd`](../../scripts/map/view3d/map_view_wind_materials.gd) (`canopy_for_species`, `apply_vegetation_season`, `apply_vegetation_wetness`) |
 | Seasonal fruit, wet bark | [`map_view_prop_materials.gd`](../../scripts/map/view3d/map_view_prop_materials.gd) (`tree_fruit_for_species`, `apply_fruit_season`, `apply_bark_wetness`) |
 | Leaf mesh contract | [`map_view_leaf_geometry.gd`](../../scripts/map/view3d/map_view_leaf_geometry.gd), [`map_view_tree_meshes.gd`](../../scripts/map/view3d/map_view_tree_meshes.gd) |
@@ -41,6 +42,45 @@ Reference bar: trees that feel alive in the way Witcher 3 and RDR2 trees do. The
 
 - [`test_vegetation_phenology.gd`](../../tests/godot/test_vegetation_phenology.gd) checks winter bareness, the 21 April bud-burst range, full summer crowns, October colouring and shedding, evergreen conifers, continuity and determinism, Julian leap years, and hit strength.
 - [`test_tree_leaf_fall.gd`](../../tests/godot/test_tree_leaf_fall.gd) checks the strike query (nearest tree in front, ignoring trees behind or out of reach), shake ring-down, bursts only from leafed trees, ambient rate against season, wind, and tree count, season delivery to materials and fruit, and the leaf `CUSTOM0` and occlusion contract.
+
+## Shared wind field (R-1321)
+
+Status: implemented (task **R-1321**, VEGR-2). Scope: one deterministic wind for grass, tree crowns, sails, pennants and flags, wall banners, hoist ropes and fishing nets, plus the sideways drift of falling leaves. Out of scope: the sea (water keeps its own wind uniforms fed by `apply_sea_weather`), smoke and rain particles, the seamless city's own water shader, wind-driven gameplay (sailing, fire spread), grass geometry and placement (VEGR-4, VEGR-3).
+
+**What the player sees.** A gust crosses an open meadow as a front: the tufts lay over and turn their paler flanks up, so a lighter band rolls downwind; a few seconds later the same front heaves the tree line and lifts the flags beyond it. Calm air nearly stops the wave; a storm makes fronts taller, longer, faster and more turbulent (more flutter). The heading and strength come from the weather and veer with it.
+
+**Contract.** `MapViewWindMaterials.apply_world_wind(direction, strength)` is the single writer. It calls `WindField.publish(WindField.params_for(direction, strength))`, which writes six global shader parameters once through `RenderingServer.global_shader_parameter_set`; no material carries a per-material `wind_direction` / `wind_strength` uniform any more, so streamed chunks and materials created later are in the current wind without a fan-out. Callers are unchanged: `MapViewMaterials.apply_weather_presentation` (every `MapView3D` frame) and `CityWorld3D.apply_time`.
+
+| Global (declared in `project.godot` `[shader_globals]`) | Meaning | Mapping from weather strength `s` (0..1) |
+|---|---|---|
+| `wind_dir_g` | Unit heading on the XZ ground plane | weather heading (`SkyWeather3D.wind_direction_xz`), zero falls back to the historical harbour bearing |
+| `wind_strength_g` | Sustained strength | `s` (profile wind plus live rain-front gust, as `SkyWeather3D.wind_strength`) |
+| `wind_gust_amp_g` | Gust height above the steady push | `0.12 + 0.88 * sqrt(s)` |
+| `wind_gust_wavelength_g` | Metres between fronts | `lerp(14, 34, s)` |
+| `wind_speed_g` | Front speed, m/s along the heading | `lerp(2, 11, s)` |
+| `wind_turbulence_g` | Flutter and cross-wind chaos | `0.15 + 0.85 * s^2` |
+
+Project defaults equal `params_for(default heading, 0.22)`, so a map that never publishes keeps the previous breeze. The shader include samples the front at `dot(xz, dir) - TIME * speed` at two scales (broad front, narrow ripple) with low-frequency value noise along the front so it never reads as a ruled line. Consumers call `wind_pressure(xz, TIME)` (downwind push, about 0.48 in a lull and 0.8 on average), `wind_gust_signed` (cloth and ropes that used a sine gust), and `wind_flutter_scale()`. Grass samples once per tuft, crowns once per tree at the trunk (`wind_pressure_coarse`: the same front without the patch noise, three `sin` like the old sway, because crown vertices are drawn again in every shadow cascade), cloth, ropes and nets once per staff or rack, so a whole plant moves together and the cost per vertex did not grow. Grass also brightens with the bend (`v_sheen`), which is what makes the front readable from across a field. Banners keep a sheltered share of the world wind (`wind_scale` 0.36, the old fixed 0.08 at the default breeze); flags and ropes expose `wind_scale` (default 1) so capture plates can show several strengths at once.
+
+No texture is sampled: an analytic noise avoids a sampler slot (the Compatibility renderer links at most 16) and the unbound-sampler hazard on GLES, and lets `WindField.gust` / `pressure` / `local_strength` mirror the shader on the CPU. `TreeLeafFall3D` uses that mirror (at `WindField.clock()`, the wall clock that tracks shader `TIME`) so drifting leaves and strike bursts speed up while a front passes.
+
+**Spike result.** Global shader parameters and a per-frame `global_shader_parameter_set` work under GL Compatibility at the Godot 4.7.1 pin: the cloud shadow pass (`cloud_offset_g`) and the sea clock (`ocean_time`) already depended on them, and the R-1321 capture shows the front moving between frames rendered through `tools/godot_render.sh`. Globals must be declared in `project.godot`: the wind shaders are preloaded constants and compile before any runtime `global_shader_parameter_add` could run.
+
+**Determinism and saves.** The field is a pure function of world XZ, time and the weather snapshot: no RNG, no stored state, nothing persisted. Shader `TIME` wraps at Godot's 3600 s rollover, so once an hour every front jumps; this was already true of every animated shader.
+
+**Verify.**
+
+```bash
+/Applications/Godot.app/Contents/MacOS/Godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_wind_field,test_vegetation_realism,test_tree_leaf_fall,test_map_view_3d_mesh
+tools/godot_render.sh --script tools/capture_wind_front.gd
+tools/run_performance_report.sh build/perf_wind.json --vegetation
+```
+
+[`test_wind_field.gd`](../../tests/godot/test_wind_field.gd) checks determinism (same time and weather give the same bend, publishing other weather changes nothing), that the state at one point reaches a downwind point `distance / speed` seconds later (a travelling front), coherence across the wind, calm versus storm mapping, the zero-heading fallback, that `project.godot` defaults equal the default breeze, the single writer, and that all seven wind shaders include the field, keep no per-material wind uniform and still compile. `test_boat_float_3d`, `test_fishing_nets` and `test_hoist_rope` check the published state instead of material uniforms.
+
+**Evidence.** [`r1321_wind_front_sheet.png`](../reports/images/vegetation/r1321_wind_front_sheet.png): six frames about 0.45 s apart over one meadow at strength 0.6, each beside its front map (luminance minus the mean of all frames, blurred to front scale; warm means blades laid over by a gust crest). The warm band moves left to right across the meadow, and in the first frame the previous front is at the birches. [`r1321_wind_calm_storm.png`](../reports/images/vegetation/r1321_wind_calm_storm.png): the same meadow at strength 0.04 and 0.92. The tool fails if two frames are byte-identical (a minimized window that stopped redrawing). Benchmark: see the R-1321 row in [`VEGETATION_REALISM.md`](./VEGETATION_REALISM.md#1-one-wind-field-for-everything).
+
+**Limits.** Shader `TIME` cannot be pinned, so the capture uses real-time intervals and the CPU mirror only tracks the GPU field approximately (`WindField.clock()` vs the renderer's frame time). Turbulence comes from strength alone; rain and storm profile `chaos` are not mapped separately. The sea, smoke and rain particles still use their own wind inputs; only their heading is shared through `SkyWeather3D.wind_direction_xz`. The three-level tree wind (trunk sway) arrives with VEGR-6 (R-1324).
 
 ## Dense cluster crowns (R-1194)
 

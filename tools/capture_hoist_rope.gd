@@ -34,12 +34,13 @@ func _run() -> void:
 	beam.material_override = MapViewMaterials.hewn_timber(true, 1)
 	beam.position = Vector3(0.0, 3.1, 0.0)
 	stage.add_child(beam)
+	# R-1321: wind is a shared global; full world strength scaled per rope.
+	MapViewMaterials.apply_world_wind(WIND_DIRECTION, 1.0)
 	for index in WINDS.size():
 		var rope := MapViewHoistRope.create(2.4)
 		for surface in 2:
 			var material := rope.get_surface_override_material(surface).duplicate() as ShaderMaterial
-			material.set_shader_parameter("wind_direction", WIND_DIRECTION)
-			material.set_shader_parameter("wind_strength", WINDS[index])
+			material.set_shader_parameter("wind_scale", WINDS[index])
 			rope.set_surface_override_material(surface, material)
 		rope.position = Vector3(-2.0 + index * 2.0, 3.0, 0.0)
 		stage.add_child(rope)

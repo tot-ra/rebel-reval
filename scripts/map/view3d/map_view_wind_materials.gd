@@ -34,8 +34,6 @@ static var _cache: Dictionary = {}
 ## in the current season instead of the summer defaults.
 static var _season_date: Dictionary = GameCalendar.DEFAULT_DATE.duplicate()
 static var _vegetation_wetness := 0.0
-static var _world_wind_direction := Vector2(0.9285, 0.3714)
-static var _world_wind_strength := 0.22
 
 
 static func reset() -> void:
@@ -43,30 +41,24 @@ static func reset() -> void:
 	_vegetation_wetness = 0.0
 
 
-## Pushes the shared world wind field into grass, canopy, sail, and flag cloth.
-## Call alongside sea-weather updates so vegetation and cloth match harbor boats.
+## The single writer of the shared wind field (R-1321). Grass, crowns, sails,
+## flags, banners, ropes and nets read the `wind_*_g` shader globals through
+## wind_field.gdshaderinc, so one call reaches every material at once,
+## including ones a streamed chunk creates later. Call alongside sea-weather
+## updates so vegetation and cloth match harbor boats.
 static func apply_world_wind(direction: Vector2, strength: float) -> void:
-	var dir := direction
-	if dir.length_squared() < 0.0001:
-		dir = Vector2(0.9285, 0.3714)
-	else:
-		dir = dir.normalized()
-	var wind := clampf(strength, 0.0, 1.0)
-	_world_wind_direction = dir
-	_world_wind_strength = wind
-	for material in wind_materials():
-		material.set_shader_parameter("wind_direction", dir)
-		material.set_shader_parameter("wind_strength", wind)
+	WindField.publish(WindField.params_for(direction, strength))
 
 
 static func world_wind_direction() -> Vector2:
-	return _world_wind_direction
+	return WindField.current().direction
 
 
 static func world_wind_strength() -> float:
-	return _world_wind_strength
+	return WindField.current().strength
 
 
+## Materials whose shaders read the shared wind field (for tests and tools).
 static func wind_materials() -> Array[ShaderMaterial]:
 	var materials: Array[ShaderMaterial] = _species_canopies()
 	materials.append_array(_shared_wind_materials())
@@ -201,8 +193,6 @@ static func canopy_for_species(species: StringName) -> ShaderMaterial:
 	var palette := VegetationPhenology.autumn_colors(species)
 	material.set_shader_parameter("autumn_color_a", palette[0])
 	material.set_shader_parameter("autumn_color_b", palette[1])
-	material.set_shader_parameter("wind_direction", _world_wind_direction)
-	material.set_shader_parameter("wind_strength", _world_wind_strength)
 	material.set_shader_parameter("wetness", _vegetation_wetness)
 	_apply_season_to(material, species, _season_date)
 	_cache[key] = material
@@ -312,9 +302,6 @@ static func _hoist_rope_material(
 	material.set_shader_parameter("metallic_value", metallic)
 	material.set_shader_parameter("specular_value", 0.5 if metallic > 0.0 else 0.3)
 	material.set_shader_parameter("lay_pattern", lay)
-	# Ropes appear with streamed chunks; start them in the current wind.
-	material.set_shader_parameter("wind_direction", _world_wind_direction)
-	material.set_shader_parameter("wind_strength", _world_wind_strength)
 	_cache[key] = material
 	return material
 
@@ -336,7 +323,6 @@ static func hanging_banner_cloth(
 	)
 	material.set_shader_parameter("base_color", Color8(248, 246, 240))
 	material.set_shader_parameter("sway_strength", 0.035)
-	material.set_shader_parameter("wind_strength", 0.08)
 	material.set_shader_parameter("free_edge", Vector2(0.0, 1.0))
 	material.set_shader_parameter("vertex_color_srgb", 1.0 if srgb_vertex_color else 0.0)
 	if albedo != null:

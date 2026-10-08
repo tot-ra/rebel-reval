@@ -1,10 +1,10 @@
 shader_type spatial;
 render_mode cull_disabled, depth_draw_opaque;
 
+#include "res://scripts/map/view3d/wind_field.gdshaderinc"
+
 uniform vec3 base_color : source_color = vec3(0.38, 0.48, 0.24);
 uniform float sway_strength = 0.10;
-uniform vec2 wind_direction = vec2(0.9285, 0.3714);
-uniform float wind_strength = 0.22;
 uniform vec2 interact_center = vec2(0.0);
 uniform float interact_strength = 0.0;
 uniform float interact_radius = 0.65;
@@ -26,6 +26,8 @@ varying flat float v_cell;
 varying flat float v_dry;
 varying float v_atlas;
 varying vec2 v_variety;
+// R-1321: how far the passing gust front lays this tuft over (0 in a lull).
+varying float v_sheen;
 
 void vertex() {
 	vec3 world = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
@@ -52,15 +54,18 @@ void vertex() {
 		float dist = distance(origin, CAMERA_POSITION_WORLD);
 		VERTEX *= 1.0 - smoothstep(fade_start, fade_end, dist);
 	}
-	vec2 wind = wind_direction / max(length(wind_direction), 0.001);
+	vec2 wind = wind_dir();
 	vec2 across = vec2(-wind.y, wind.x);
-	float strength = clamp(wind_strength, 0.0, 1.0);
-	// Same advected broad pressure field as trees; fine flutter varies by tuft.
-	float phase = dot(world.xz, wind) * 0.65 - TIME * 1.4;
-	float gust = 0.55 + 0.30 * sin(phase) + 0.15 * sin(phase * 0.43 + TIME * 0.37);
-	float flutter = sin(TIME * 4.1 + world.x * 3.7 + world.z * 2.3);
+	float strength = wind_strength();
+	// R-1321: the shared gust front, sampled once per tuft so a whole tuft bends
+	// together and the wave rolls across the meadow; fine flutter varies by tuft.
+	float push = wind_pressure(origin.xz, TIME);
+	float flutter = sin(TIME * 4.1 + world.x * 3.7 + world.z * 2.3) * wind_flutter_scale();
 	float weight = UV.y * UV.y;
-	vec2 displace = (wind * (0.35 + gust) + across * flutter * 0.16)
+	// Bent blades turn their paler flanks to the sky: this sheen, not the lean
+	// alone, is what makes a front readable from across a field.
+	v_sheen = clamp((push - 0.48) * strength, 0.0, 1.0);
+	vec2 displace = (wind * push + across * flutter * 0.16)
 		* strength * sway_strength * weight;
 	vec3 world_displace = vec3(displace.x, -length(displace) * 0.18, displace.y);
 	if (interact_strength > 0.001 && interact_radius > 0.001) {
@@ -98,6 +103,7 @@ void fragment() {
 		albedo *= mix(0.62, 1.08, smoothstep(0.0, 0.85, blade));
 		float root = 1.0 - smoothstep(0.0, 0.30, blade);
 		albedo = mix(albedo, root_tint * COLOR.rgb, root * 0.75);
+		albedo = mix(albedo, albedo * vec3(1.32, 1.30, 1.12), v_sheen * 0.8 * blade);
 		ALBEDO = albedo;
 		// Soft sky-lit shading: lean normals toward up so cards do not flip dark.
 		NORMAL = normalize(mix(NORMAL, (VIEW_MATRIX * vec4(0.0, 1.0, 0.0, 0.0)).xyz, 0.55));
@@ -108,6 +114,7 @@ void fragment() {
 		// Procedural blade (seed heads and any untextured tuft mesh).
 		float midrib = 1.0 - smoothstep(0.025, 0.025 + max(fwidth(UV.x), 0.035), abs(UV.x - 0.5));
 		ALBEDO = base_color * COLOR.rgb * mix(0.58, 1.12, sqrt(blade));
+		ALBEDO = mix(ALBEDO, ALBEDO * vec3(1.32, 1.30, 1.12), v_sheen * 0.8 * blade);
 		ALBEDO *= 1.0 + midrib * 0.10;
 		// Light-driven transmission, not emission: plants remain dark at night.
 		BACKLIGHT = ALBEDO * (0.26 + blade * 0.14);

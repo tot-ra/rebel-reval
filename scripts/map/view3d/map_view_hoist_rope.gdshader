@@ -1,6 +1,8 @@
 shader_type spatial;
 render_mode cull_back, depth_draw_opaque;
 
+#include "res://scripts/map/view3d/wind_field.gdshaderinc"
+
 // Hoist ropes with an iron hook hanging from a gable beam (R-1200).
 //
 // WHY: the kit baked the rope as a rigid six-sided cylinder, so it read as a
@@ -23,8 +25,8 @@ uniform float metallic_value = 0.0;
 uniform float specular_value = 0.3;
 // Pendulum response; 1.0 is the reference loaded hook.
 uniform float sway_strength = 1.0;
-uniform vec2 wind_direction = vec2(0.9285, 0.3714);
-uniform float wind_strength = 0.22;
+// Per-material share of the world wind (R-1321); capture plates vary it.
+uniform float wind_scale = 1.0;
 // 1.0 draws the three-strand hemp lay; 0.0 for the iron hook.
 uniform float lay_pattern = 0.0;
 // One strand returns to the same side of the rope every `lay_pitch` metres.
@@ -34,8 +36,11 @@ varying float rope_len;
 
 const float GRAVITY = 9.81;
 
-float gusted_wind(float wind, float t, float seed) {
-	float gust = sin(t * 0.37 + seed) * sin(t * 0.23 + seed * 1.7);
+// R-1321: the gust is the shared front at the staff, so flags downwind of a
+// meadow lift after the grass bends; `seed` keeps a small per-staff wobble.
+float gusted_wind(vec2 xz, float t, float seed) {
+	float wind = clamp(wind_strength() * wind_scale, 0.0, 1.0);
+	float gust = wind_gust_signed(xz, t) * 0.8 + 0.2 * sin(t * 0.37 + seed);
 	return clamp(wind * (0.85 + 0.35 * gust), 0.0, 1.0);
 }
 
@@ -67,14 +72,14 @@ void vertex() {
 	float t = TIME;
 	vec3 origin = MODEL_MATRIX[3].xyz;
 	float seed = fract(sin(dot(origin.xz, vec2(12.9898, 78.233))) * 43758.5453) * TAU;
-	float w = gusted_wind(clamp(wind_strength, 0.0, 1.0), t, seed);
+	float w = gusted_wind(origin.xz, t, seed);
 	float len = max(UV2.y, 0.1);
 	bool hook = UV2.x > 0.5;
 	rope_len = len;
 	float s = hook ? len : clamp(-VERTEX.y, 0.0, len);
 	float u = s / len;
 
-	vec2 wind = normalize(wind_direction);
+	vec2 wind = wind_dir();
 	vec3 local_wind = (inverse(MODEL_MATRIX) * vec4(wind.x, 0.0, wind.y, 0.0)).xyz;
 	vec2 down_wind = dot(local_wind.xz, local_wind.xz) > 0.000001 ? normalize(local_wind.xz) : vec2(1.0, 0.0);
 	vec2 cross_wind = vec2(-down_wind.y, down_wind.x);

@@ -1,11 +1,11 @@
 shader_type spatial;
 render_mode cull_disabled, depth_draw_opaque;
 
+#include "res://scripts/map/view3d/wind_field.gdshaderinc"
+
 uniform vec3 base_color : source_color = vec3(0.30, 0.42, 0.26);
 uniform float sway_strength = 0.05;
 uniform float shade_bottom = 0.62;
-uniform vec2 wind_direction = vec2(0.9285, 0.3714);
-uniform float wind_strength = 0.22;
 
 // R-1187 living vegetation. Defaults are a full summer crown so bushes, legacy
 // canopies and any material the season driver has not touched look unchanged.
@@ -37,9 +37,9 @@ varying float v_leaf_seed;
 
 void vertex() {
 	vec3 world = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
-	vec2 wind = wind_direction / max(length(wind_direction), 0.001);
+	vec2 wind = wind_dir();
 	vec2 across = vec2(-wind.y, wind.x);
-	float strength = clamp(wind_strength, 0.0, 1.0);
+	float strength = wind_strength();
 	float leaf_tag = step(0.5, UV2.x);
 	v_leaf_seed = CUSTOM0.w * leaf_tag;
 	v_leaf_autumn = 0.0;
@@ -50,9 +50,12 @@ void vertex() {
 		VERTEX = mix(CUSTOM0.xyz, VERTEX, leaf_scale * present);
 		v_leaf_autumn = clamp(autumn * 1.6 - (1.0 - CUSTOM0.w) * 0.6, 0.0, 1.0);
 	}
-	float phase = dot(world.xz, wind) * 0.65 - TIME * 1.4;
-	float gust = 0.55 + 0.30 * sin(phase) + 0.15 * sin(phase * 0.43 + TIME * 0.37);
-	float flutter = sin(TIME * 5.3 + dot(world, vec3(4.1, 2.7, 3.3)) + COLOR.g * 13.0);
+	// R-1321: one gust front per tree (sampled at the trunk), so the crown heaves
+	// as the front that crossed the meadow reaches it; leaves keep their own flutter.
+	float push = wind_pressure_coarse(MODEL_MATRIX[3].xz, TIME);
+	float gust = push - 0.35;
+	float flutter = sin(TIME * 5.3 + dot(world, vec3(4.1, 2.7, 3.3)) + COLOR.g * 13.0)
+		* wind_flutter_scale();
 	// Bushes and legacy canopy primitives share this material but have no
 	// leaf UV contract. Only explicitly tagged leaves use petiole pinning.
 	float weight = UV2.x > 0.5 ? UV.y * UV.y : clamp(VERTEX.y * 0.4 + 0.4, 0.0, 1.0);
@@ -60,7 +63,7 @@ void vertex() {
 	// metres, z = extra leaf flutter. Written per frame by TreeLeafFall3D only for
 	// recently struck trees; zero (or no custom data) leaves the crown at rest.
 	float shake_flutter = clamp(INSTANCE_CUSTOM.z, 0.0, 1.0);
-	vec2 displace = (wind * (0.35 + gust) + across * flutter * 0.32)
+	vec2 displace = (wind * push + across * flutter * 0.32)
 		* sway_strength * strength * weight
 		+ across * flutter * shake_flutter * 0.06 * weight;
 	VERTEX += inverse(mat3(MODEL_MATRIX)) * vec3(displace.x, flutter * (sway_strength * strength + shake_flutter * 0.05) * weight * 0.18, displace.y);
