@@ -450,6 +450,9 @@ func _moat_material() -> ShaderMaterial:
 	mat.shader = MOAT_WATER_SHADER
 	mat.set_shader_parameter("wave_strength", 0.025)
 	mat.set_shader_parameter("flow_speed", 0.0)
+	mat.set_shader_parameter("vertex_depth", true)
+	mat.set_shader_parameter("vertex_depth_offset", STREAM_DEPTH_OFFSET)
+	mat.set_shader_parameter("vertex_depth_scale", STREAM_DEPTH_SCALE)
 	water_materials.append(mat)
 	return mat
 
@@ -686,16 +689,26 @@ func _moat_pools(
 		var a := line[i]
 		var b := line[i + 1]
 		moat_water.append([a, b, ya, yb, (edges[i].length() + edges[i + 1].length()) * 0.5])
-		var quad := [
-			Vector3(a.x + edges[i].x, ya, a.y + edges[i].y),
-			Vector3(b.x + edges[i + 1].x, yb, b.y + edges[i + 1].y),
-			Vector3(b.x - edges[i + 1].x, yb, b.y - edges[i + 1].y),
-			Vector3(a.x - edges[i].x, ya, a.y - edges[i].y),
-		]
-		for idx: int in [0, 1, 2, 0, 2, 3]:
-			st.set_color(Color(0.3, 0, 0))
-			st.set_normal(Vector3.UP)
-			st.add_vertex(quad[idx])
+		# Three lateral rows (bank, middle, bank): the ditch floor is deepest in the
+		# middle, and a two-row ribbon would interpolate the bank's zero depth
+		# across the whole width.
+		for lane in 2:
+			var l0 := float(lane) - 1.0  # -1 then 0
+			var l1 := l0 + 1.0  # 0 then 1
+			var quad := [
+				Vector3(a.x + edges[i].x * l0, ya, a.y + edges[i].y * l0),
+				Vector3(b.x + edges[i + 1].x * l0, yb, b.y + edges[i + 1].y * l0),
+				Vector3(b.x + edges[i + 1].x * l1, yb, b.y + edges[i + 1].y * l1),
+				Vector3(a.x + edges[i].x * l1, ya, a.y + edges[i].y * l1),
+			]
+			for idx: int in [0, 1, 2, 0, 2, 3]:
+				# Water column baked per vertex (the shader's vertex_depth path): the
+				# depth texture read ~0 from low camera pitches, so the moat vanished.
+				var v: Vector3 = quad[idx]
+				var column := maxf(v.y - plan.ground_height(Vector2(v.x, v.z)), 0.0)
+				st.set_color(Color((column + STREAM_DEPTH_OFFSET) / STREAM_DEPTH_SCALE, 0, 0))
+				st.set_normal(Vector3.UP)
+				st.add_vertex(v)
 		count += 1
 	return st.commit() if count > 0 else null
 
