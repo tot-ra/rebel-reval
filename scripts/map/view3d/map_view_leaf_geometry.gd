@@ -2,7 +2,7 @@ extends RefCounted
 
 ## R-1194 leaf-cluster atlas tiles (column, row) in
 ## assets/materials/pbr/foliage_cards/leaf_card_atlas.png. Order matches
-## tools/assets/build_leaf_card_atlas.py TILES. Species without their own plate
+## tools/assets/generate_vegetation_atlases.py TILES (R-1329). Species without their own plate
 ## borrow the closest leaf shape.
 const CARD_ATLAS_GRID := Vector2(4, 2)
 const CARD_TILES := {

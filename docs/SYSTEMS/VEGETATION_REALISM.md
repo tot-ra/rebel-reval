@@ -1,6 +1,6 @@
 # Vegetation realism: grass, grain fields, trees
 
-Status: planned (research and technical plan; no task created yet, nothing implemented). Scope: a staged upgrade of how grass, grain fields, trees, and shrubs are rendered in the 3D view, so open country and woods read as real Baltic nature. Out of scope: gameplay changes, felling or damaging trees, new biomes, imported game assets, a renderer change (GL Compatibility stays), and anything that changes saved state. This page is the spec to turn into tasks; it extends [`LIVING_VEGETATION.md`](./LIVING_VEGETATION.md) (seasons, crown shader, leaf fall) and the "Vegetation realism (P0-208)" rule in [`ART_BIBLE.md`](../ART_BIBLE.md).
+Status: in progress (epic **R-1319**). Implemented: V0 benchmark and budgets (**R-1320**, section 8) and V1 procedural textures (**R-1329**, section 7); every other phase is planned. Scope: a staged upgrade of how grass, grain fields, trees, and shrubs are rendered in the 3D view, so open country and woods read as real Baltic nature. Out of scope: gameplay changes, felling or damaging trees, new biomes, imported game assets, a renderer change (GL Compatibility stays), and anything that changes saved state. This page is the spec to turn into tasks; it extends [`LIVING_VEGETATION.md`](./LIVING_VEGETATION.md) (seasons, crown shader, leaf fall) and the "Vegetation realism (P0-208)" rule in [`ART_BIBLE.md`](../ART_BIBLE.md).
 
 Scope rule: this revises existing vegetation presentation. It adds no mechanic, area, or pillar, so it needs no ADR. A new crop mechanic (planting, harvest as gameplay) would, and is not part of this plan.
 
@@ -115,19 +115,62 @@ Realism comes more from where things grow than from how each plant is drawn (the
 
 ### 7. Textures without an image generator
 
-The current leaf atlas is Leonardo-generated and its rights are unverified. Replace it with generated-in-code textures so the pipeline has no external rights risk.
+Status: implemented (task **R-1329**, VEGR-1). The canopy leaf atlas no longer comes from Leonardo (`leaf_cards_v1`) or OpenAI needle plates; every vegetation texture below is drawn in code and carries no external image-generator rights risk. Out of scope here: tree skeletons, leaf placement, density and wind (VEGR-6, VEGR-2), and binding the new bark, ground and ear textures (VEGR-5, VEGR-6).
 
-- A Python tool (under `tools/`) draws leaf and needle atlases from parametric outlines (per-species shape, midrib and vein curves, serrations, colour gradients, noise), writes PNGs, and records provenance in `assets/SOURCES.csv`.
-- Bark, ground cover, and grain-ear sprites come from the same tool: layered noise with species parameters.
-- Procedural textures can look synthetic. Plan a visual review pass with side-by-side captures; if a species fails review, redraw that species by hand rather than loosening the gate.
+**Run.** `python3 tools/assets/generate_vegetation_atlases.py` (NumPy and Pillow, about 12 s). Every output is a pure function of the species parameters and seed 1343: PCG64 random streams, FFT-filtered noise, a fixed PNG encoder and no metadata, so two runs give byte-identical files (`tests/python/test_generate_vegetation_atlases.py` checks both runs and that the committed files match). `--tune` re-derives each leaf species' `size_scale` for its coverage target (about 2.5 min); `--compare-old OLD.png --sheets DIR` writes per-species review sheets. `--out-root DIR` writes the same tree elsewhere. The old entry point `tools/assets/build_leaf_card_atlas.py` now calls the generator; `build_vegetation_plates.py` no longer touches the leaf atlas.
+
+**Outputs** (power-of-two PNGs with committed `.import` sidecars; provenance rows in `assets/SOURCES.csv`):
+
+| File | Content | Used by |
+|---|---|---|
+| `assets/materials/pbr/foliage_cards/leaf_card_atlas.png` | 2048x1024 RGBA, 4x2 tiles: birch, oak, maple, linden / apple, spruce, pine, empty (order `MapViewLeafGeometry.CARD_TILES`) | Canopy shader `leaf_atlas` via `map_view_wind_materials.gd` (same path and import settings as R-1194) |
+| `.../foliage_cards/leaf_card_normal.png` | OpenGL tangent-space normals (+Y up) of the same tiles | VEGR-6 (R-1324); not sampled yet |
+| `.../foliage_cards/leaf_card_surface.png` | R roughness, G translucency (low on veins, midrib and twig), B baked occlusion | VEGR-6 (R-1324); not sampled yet |
+| `assets/vegetation/bark/bark_<kind>_{albedo,normal}.png` | Seamless 512 px plates for `birch`, `oak`, `grey` (alder, aspen, smooth bark), `pine`, `spruce`, `cherry` | VEGR-6 bark (R-1324); the shipped bark still uses the R-712 plates |
+| `assets/vegetation/ground/ground_<kind>_{albedo,normal}.png` | Seamless 512 px `moss`, `leaf_litter`, `needle_litter` | VEGR-3/VEGR-8 ground cover |
+| `assets/vegetation/grain/grain_ear_atlas.png` | 1024x512 RGBA, 4x1 tiles of 256x512: `rye`, `barley`, `oat`, `flax` ears on a stalk, base at the bottom edge | VEGR-5 grain fields (R-1325) |
+
+**How the leaves are drawn.** Each tile is a twig cluster on a 1024 px supersampled canvas, downsampled 2x with premultiplied box filtering. Leaves are signed-distance outlines in leaf space: deltoid double-serrate birch, obovate oak with rounded lobes and basal auricles, palmate Norway maple with pointed lobes and side teeth, oblique cordate linden, elliptic crenate apple. Each leaf gets a midrib, pinnate or palmate veins, a fold and dome shading term, per-leaf hue and brightness variation, browned tips or margins on a share of leaves, and a soft contact shadow on what lies beneath. Layouts follow the species: alternate with side shoots (birch), tip rosettes (oak), opposite pairs (maple), two-ranked (linden), short spurs (apple). Spruce is a flat spray of short single needles round alternate side shoots with paler new growth at the tips; Scots pine is paired, long, slightly curved needles on a whorl of shoots. Bark uses periodic noise and periodic Voronoi (furrowed oak ridges, plated pine, scaly spruce, white birch with lenticels and black fissures, smooth grey bark with lichen, banded cherry); ground plates stamp leaves and needles with wraparound so they tile.
+
+**Runtime contract kept from R-1194.** RGB is relative detail scaled so the mean opaque colour is neutral 0.5 grey (the shader multiplies by 2 and owns species tint, season, autumn and wetness); alpha is coverage for the 0.5 scissor; the petiole end sits on the bottom edge (card `UV.y = 0`); empty texels carry nearby leaf colour (normalised blur fill) so mipmaps never halo against the sky. Grain ears follow the same contract.
+
+**Coverage.** Each species' foliage size was tuned (`size_scale`) so the card covers about as much as the tile it replaced, keeping crown density unchanged: birch 0.32 (old 0.34), oak 0.43 (0.45), maple 0.37 (0.41), linden 0.40 (0.47), apple 0.39 (0.39), spruce 0.39 (0.39), pine 0.37 (0.52). Linden and pine stop short because a wider cluster is fitted down into the card; the in-engine captures show crowns of matching density.
+
+**Visual review.** Per-species sheets, each `before | after` at near range then canopy distance, all on the same calendar date and light. Atlas sheets (tile tinted like the shader, then a 32 px mip): [birch](../reports/images/vegetation_atlases/birch_before_after.png), [oak](../reports/images/vegetation_atlases/oak_before_after.png), [maple](../reports/images/vegetation_atlases/maple_before_after.png), [linden](../reports/images/vegetation_atlases/linden_before_after.png), [apple](../reports/images/vegetation_atlases/apple_before_after.png), [spruce](../reports/images/vegetation_atlases/spruce_before_after.png), [pine](../reports/images/vegetation_atlases/pine_before_after.png). In-engine crowns (real tree meshes and canopy material, rendered through `tools/godot_render.sh`): [birch](../reports/images/vegetation_atlases/birch_engine_before_after.png), [oak](../reports/images/vegetation_atlases/oak_engine_before_after.png), [maple](../reports/images/vegetation_atlases/maple_engine_before_after.png), [linden](../reports/images/vegetation_atlases/linden_engine_before_after.png), [apple](../reports/images/vegetation_atlases/apple_engine_before_after.png), [spruce](../reports/images/vegetation_atlases/spruce_engine_before_after.png), [pine](../reports/images/vegetation_atlases/pine_engine_before_after.png). The first pass failed review (sparse cards, holly-like oak lobes, star-shaped maple, thin spruce), and those species were redrawn by parameters, not by loosening the gate.
+
+**Verify.** `python3 -m unittest tests.python.test_generate_vegetation_atlases -v`; run the generator twice and compare SHA-256; `python3 tools/validate_asset_sources.py`; `python3 tools/verify_asset_lint.py`; `python3 tools/verify_storage_hygiene.py`.
+
+**Limits.** At card scale the outlines read well; close up, leaves are flat-shaded vector shapes without the micro texture of a photograph, and linden's heart-shaped base is barely visible in a crowded cluster. The normal, surface, bark, ground and ear textures are built but not mounted in any material until their VEGR tasks bind them. Species without their own tile still borrow the nearest one (`CARD_TILES`).
 
 ### 8. Performance budgets
 
-No vegetation budget exists today, and the only baseline is one machine (M5 Pro, 2026-07-25, Lower Town, [`PERFORMANCE_REPORT.md`](../PERFORMANCE_REPORT.md)); the minimum-hardware checklist (R-653) has no recorded result. Therefore:
+Status: implemented (task **R-1320**, VEGR-0). Benchmark command, camera set, layer attribution and JSON schema: [`PERFORMANCE_REPORT.md`](../PERFORMANCE_REPORT.md#vegetation-benchmark-r-1320). Baseline run and findings: [`vegetation_benchmark_baseline.md`](../reports/vegetation_benchmark_baseline.md).
 
-1. First task: a vegetation benchmark mode in `tools/run_performance_report.sh` that reports triangles, instances, and draw calls by layer (grass near, mid, grain, trees LOD0/1/2, shrubs) on a fixed set of cameras.
-2. Set numeric budgets only after that baseline exists. Starting guesses to be replaced by measurements: vegetation at most 35 percent of total draw calls and triangles in a meadow scene; no layer adds more than 4 ms to the staged-assembly frame budget.
-3. Every phase below ends with a before and after benchmark; a phase that regresses the baseline beyond its budget does not merge.
+`tools/run_performance_report.sh <out.json> --vegetation` walks six fixed cameras (`meadow_eye_level`, `meadow_gameplay`, `grain_field_eye_level`, `woodland_interior`, `woodland_distance` on `viru_gate_foreland`; `lower_town_street` on `lower_town_slice`) and reports instances, triangles and draw calls per layer (`grass_near`, `grass_mid`, `grain`, `trees_lod0/1/2`, `shrubs`, `flowers`, `litter`, `veg_misc`, `other`), frame time, and the paired shown/hidden cost of each layer. Counts reproduce exactly between runs; milliseconds do not.
+
+**What the baseline says (M5 Pro, 1920x1080, 2026-10-08).** Tree crowns are almost the entire cost: 9.5 to 14.6 million LOD0 crown triangles per rural camera (about 10,400 per tree, no distance reduction), 33 to 72 ms of a 44 to 97 ms frame, multiplied about 4.5 times by shadow cascades. Grass, grain, flowers and herbs together stay under 0.2 million triangles and 1 ms. Scatter grass is chunk-culled at 45 m, so the gameplay camera draws none.
+
+**Budgets.** Hard gate on counts, per camera, main pass (`tools/vegetation_performance.py budgets`). With `--baseline docs/reports/vegetation_benchmark_baseline.json` each limit is `max(target, baseline)`: a layer already over target (today only the tree crowns) may not grow, a layer under target may grow up to it. A phase that breaks a limit does not merge.
+
+| Layer | Triangles | Draw calls | Baseline peak (tris / draws) | Reasoning |
+|---|---|---|---|---|
+| `grass_near` | 300,000 | 8 | 87,792 / 4 | VEGR-4 blades at about 5 triangles each: room for about 60,000 visible blades in the 14 m first-person ring, about 3.4 times today's tufts, in the same few MultiMeshes |
+| `grass_mid` | 100,000 | 24 | 44,480 / 10 | Keeps the existing card tier (twice today) chunked; extra density belongs in the near tier |
+| `grain` | 250,000 | 16 | 38,208 / 6 | VEGR-5 stalks plus ear clusters fill a field to the 45 m range; one batch per crop per chunk |
+| `trees_lod0` | 1,000,000 | 100 | 14,583,844 / 139 | About 95 full crowns near the camera at today's 10,400 triangles; everything farther must go to LOD1/2 (VEGR-6/7). Biggest gap: today 14.6 times over |
+| `trees_lod1` | 600,000 | 60 | 0 / 0 | Simplified crowns to about 90 m, about a quarter of LOD0 cost per tree |
+| `trees_lod2` | 100,000 | 30 | 0 / 0 | Cross-plane or octahedral impostors beyond 90 m: a few triangles per tree, one batch per species |
+| `shrubs` | 150,000 | 30 | 320 / 1 | Ecology pass (VEGR-3) understory: juniper, hazel, bramble, fern clumps |
+| `flowers` | 60,000 | 12 | 35,310 / 4 | Field-margin and meadow flowers stay a garnish |
+| `litter` | 50,000 | 8 | 0 / 0 | VEGR-8 leaf litter is mostly a ground texture; geometry only near the camera |
+| `veg_misc` | 100,000 | 16 | 4,252 / 4 | Reeds, cattails, herbs and ferns |
+| **All vegetation** | **2,000,000** | **250** | 14,583,844 / 165 | The baseline measures 0.20 to 0.28 M crown triangles per ms including shadow cascades, so 2 M main-pass triangles cost about 7 to 10 ms on the reference: roughly half of a 60 fps frame, leaving the other half to the rest of the scene (Lower Town street: 15 ms total today) |
+
+Frame time: no single layer should cost more than 4 ms on the reference machine (paired shown/hidden median at 1920x1080). Every non-tree layer measured at most 1.3 ms, so the placeholder holds as an advisory check; the tool prints timing findings as warnings because the tree-layer measurement varies by tens of percent between runs. The spec's placeholder share rule (vegetation at most 35 percent of a meadow) is dropped: vegetation is 93 to 97 percent of a rural frame because it is the scene, so only absolute counts are meaningful.
+
+**Decision (open question 4, R-1320).** Budgets are measured and gated on the development reference (Apple M5 Pro, `tools/benchmarks/target_hardware.json`), with counts as the portable gate. The declared minimum target, Intel UHD 620 at 1920x1080 (`tools/benchmarks/minimum-hardware.json`, P3-011), is the density floor: the count budgets above are what the default density must fit, and a lower density preset is derived from the same per-layer counts once R-653 records a real run on that hardware. Until then minimum-hardware acceptance for vegetation stays BLOCKED, as for every other R-653 row; an M5 Pro run never certifies the UHD 620 target.
+
+Every phase below ends with a before and after benchmark (`--vegetation`, then `budgets --baseline`), and the phase updates the baseline report only when it lowers a count.
 
 ## Delivery plan
 
@@ -162,7 +205,7 @@ Each task also updates this page and `LIVING_VEGETATION.md`, per the mandatory f
 1. Which pilot map shows grain fields first (a rural map near Reval or the hinterland group)?
 2. Octahedral impostors (V9) or cross-plane billboards only, once V7 is measured?
 3. Should NATURAL aspects tint or bend vegetation through the shared wind and tint channels, and in which act?
-4. Minimum hardware target for vegetation density: the M5 Pro baseline alone, or Intel UHD 620 at 1080p as well (R-653)?
+4. ~~Minimum hardware target for vegetation density~~ Decided in R-1320: budgets gated on the M5 Pro reference, Intel UHD 620 at 1080p is the density floor (see section 8).
 
 ## Verification of this page
 

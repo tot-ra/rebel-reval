@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Build seamless grass-ground and bark plates from the OpenAI vegetation run.
 
-Sources: generated/openai/vegetation_v1/{grass,bark,needles}/<name>/source.png
+Sources: generated/openai/vegetation_v1/{grass,bark}/<name>/source.png
 (raw 1024 px plates, ignored by git; prompt.json records prompt, generation id
 and SHA-256, and assets/SOURCES.csv repeats them).
 
@@ -21,11 +21,12 @@ Outputs:
 - assets/materials/pbr/grass_ground/grass_ground_albedo_array.jpg  (4x3 slices)
 - assets/materials/pbr/grass_ground/grass_ground_normal_array.jpg  (4x3 slices)
 - assets/materials/pbr/bark_<kind>/bark_<kind>_albedo.jpg, _normal.jpg
-- the spruce and pine tiles of assets/materials/pbr/foliage_cards/leaf_card_atlas.png
-  (rebuilt from the selected needle plates with build_leaf_card_atlas.build_tile and
-  defringed per tile; do not run defringe_atlas.py on the whole atlas again)
 
-Usage: python3 tools/assets/build_vegetation_plates.py [--only grass,bark,needles]
+The spruce and pine leaf-atlas tiles are no longer built here: since R-1329 the
+whole leaf_card_atlas.png is drawn procedurally by generate_vegetation_atlases.py,
+which also emits procedural bark plates (assets/vegetation/bark/) for VEGR-6.
+
+Usage: python3 tools/assets/build_vegetation_plates.py [--only grass,bark]
        [--preview build/vegetation_plates]   (writes 2x2 seam-check tilings)
 Slice order must match CityTerrainBuilder.GRASS_VARIANTS.
 """
@@ -35,7 +36,6 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-import sys
 from pathlib import Path
 
 import numpy as np
@@ -62,12 +62,6 @@ GRASS_DEFAULT_PULL = 0.85
 # Bark kind -> (saturation multiplier, normal strength). Pine came out neon orange.
 BARK = {"birch": (0.9, 2.0), "oak": (0.95, 3.2), "grey": (0.9, 2.6),
         "pine": (0.62, 3.0), "spruce": (0.85, 2.6), "cherry": (0.9, 1.8)}
-NEEDLES = {"spruce": "spruce_1", "pine": "pine_2"}
-# Backdrop deficit (0-255) where a texel starts to count as needle. Pine needles
-# are paler grey-green than spruce, so they need a lower threshold.
-NEEDLE_KEY = {"spruce": 75.0, "pine": 66.0}
-LEAF_ATLAS = ROOT / "assets/materials/pbr/foliage_cards/leaf_card_atlas.png"
-LEAF_TILE_INDEX = {"spruce": 5, "pine": 6}  # MapViewLeafGeometry.CARD_TILES
 
 
 def load(path: Path) -> np.ndarray:
@@ -187,73 +181,9 @@ def build_bark(preview: Path | None) -> None:
             preview_tiling(img, preview / f"bark_{kind}_2x2.jpg")
 
 
-def box_blur(a: np.ndarray, r: int) -> np.ndarray:
-    """Separable box blur with edge clamping; three passes approximate a Gaussian."""
-    for axis in (0, 1):
-        pad = [(0, 0), (0, 0)]
-        pad[axis] = (r + 1, r)
-        c = np.cumsum(np.pad(a, pad, mode="edge"), axis=axis)
-        n = a.shape[axis]
-        hi = np.take(c, np.arange(2 * r + 1, 2 * r + 1 + n), axis=axis)
-        lo = np.take(c, np.arange(0, n), axis=axis)
-        a = (hi - lo) / (2 * r + 1)
-    return a
-
-
-def fill_needle_rim(tile: np.ndarray) -> np.ndarray:
-    """Repaint every texel below the scissor with nearby needle colour so linear
-    mips never mix backdrop grey into the needle edges. defringe_atlas.py cannot
-    be used: it trusts colour only deep inside solid shapes, and needles are a
-    few texels wide (the result is a mosaic). Normalised Gaussian fill instead."""
-    rgb = tile[..., :3].astype(np.float32)
-    solid = (tile[..., 3] > 127).astype(np.float32)
-    fill = rgb.copy()
-    for radius in (2, 6, 18):
-        def blur(a: np.ndarray, r: int = radius) -> np.ndarray:
-            return box_blur(box_blur(box_blur(a, r), r), r)
-        weight = blur(solid)
-        colour = np.dstack([blur(rgb[..., c] * solid) for c in range(3)])
-        colour /= np.maximum(weight, 1e-4)[..., None]
-        empty = (solid < 0.5) & (weight > 1e-3)
-        fill[empty] = colour[empty]
-        solid = np.maximum(solid, (weight > 1e-3).astype(np.float32))
-    out = np.dstack([np.clip(fill, 0, 255), tile[..., 3]])
-    return out.round().astype(np.uint8)
-
-
-def build_needles() -> None:
-    sys.path.insert(0, str(ROOT / "tools/assets"))
-    import build_leaf_card_atlas as leaf  # noqa: E402  (sibling tool, shared keying)
-
-    # Needle plates have soft grey contact shadows between needles that the leaf
-    # keying (threshold 22) keeps as opaque pale fill, which is exactly what made
-    # spruce cards read as a flat sheet. Key needles much harder.
-    base_key = leaf.key_alpha
-    atlas = Image.open(LEAF_ATLAS).convert("RGBA")
-    for species, candidate in NEEDLES.items():
-        threshold = NEEDLE_KEY[species]
-
-        def needle_key(rgb: np.ndarray, t: float = threshold) -> tuple[np.ndarray, np.ndarray]:
-            border = np.concatenate([rgb[:8].reshape(-1, 3), rgb[-8:].reshape(-1, 3)])
-            deficit = np.max(np.median(border, axis=0)[None, None, :] - rgb, axis=2)
-            _alpha, pure = base_key(rgb)
-            return np.clip((deficit - t) / 40.0, 0.0, 1.0), pure
-
-        leaf.key_alpha = needle_key
-        tile = np.asarray(leaf.build_tile(SOURCE / "needles" / candidate / "source.png"))
-        tile = fill_needle_rim(tile)
-        index = LEAF_TILE_INDEX[species]
-        box = ((index % leaf.GRID[0]) * leaf.TILE, (index // leaf.GRID[0]) * leaf.TILE)
-        atlas.paste(Image.fromarray(tile), box)
-    leaf.key_alpha = base_key
-    atlas.save(LEAF_ATLAS, optimize=True)
-    digest = hashlib.sha256(LEAF_ATLAS.read_bytes()).hexdigest()
-    print(f"{LEAF_ATLAS.relative_to(ROOT)} SHA-256 {digest} ")
-
-
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("--only", default="grass,bark,needles")
+    parser.add_argument("--only", default="grass,bark")
     parser.add_argument("--preview", type=Path)
     args = parser.parse_args()
     parts = set(args.only.split(","))
@@ -261,10 +191,8 @@ def main() -> int:
         build_grass(args.preview)
     if "bark" in parts:
         build_bark(args.preview)
-    if "needles" in parts:
-        build_needles()
     manifest = {"grass_slices": GRASS, "grid": list(GRID), "bark": sorted(BARK),
-                "needles": NEEDLES, "source_run": "generated/openai/vegetation_v1"}
+                "source_run": "generated/openai/vegetation_v1"}
     (GRASS_OUT / "prompt.json").write_text(json.dumps(manifest, indent=2) + "\n")
     return 0
 

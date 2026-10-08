@@ -1,10 +1,14 @@
 {
   "id": "material.foliage_cards.leaf_card_atlas",
   "family": "foliage_cards",
-  "kind": "leonardo_leaf_cluster_atlas",
-  "task": "R-1194",
+  "kind": "procedural_leaf_cluster_atlas",
+  "task": "R-1329",
   "target": "assets/materials/pbr/foliage_cards/leaf_card_atlas.png",
-  "prompt": "Botanical flat-lay photograph seen from directly above: one short twig per species carrying a dense cluster of overlapping leaves, isolated on a pure flat white background, even soft overcast light, no cast shadow, scan quality, square. The full per-species prompts, negative prompts, candidates and generation ids live in generated/leonardo/leaf_cards_v1/<species>/prompt.json (apple, birch, linden, maple, oak, pine, spruce).",
-  "processor": "tools/assets/build_leaf_card_atlas.py",
-  "notes": "Seven selected plates keyed to alpha into a 4x2 atlas."
+  "companions": [
+    "assets/materials/pbr/foliage_cards/leaf_card_normal.png",
+    "assets/materials/pbr/foliage_cards/leaf_card_surface.png"
+  ],
+  "generator": "tools/assets/generate_vegetation_atlases.py",
+  "seed": 1343,
+  "notes": "Drawn in code from parametric species outlines (birch, oak, maple, linden, apple, spruce, pine); 4x2 tiles of 512 px in MapViewLeafGeometry.CARD_TILES order. No image-generator input. Replaces the R-1194 Leonardo leaf_cards_v1 and OpenAI needle plates."
 }

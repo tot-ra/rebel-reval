@@ -1,6 +1,6 @@
 # Living vegetation
 
-Status: implemented (tasks **R-1187**, **R-1194**, seamless-city pass of **R-712** covering **R-1101**, **R-1102**, **R-1103**, **R-1105**; visual/reviewer acceptance pending). Scope: tree crowns in the 3D view follow the campaign calendar, react to rain and wind, and respond to melee swings. Presentation only: nothing here changes combat, collision, navigation, or saved state. Out of scope: felling or damaging trees, persistent leaf litter on the ground, snow on branches, seasonal bushes, grass, and crops, and blossom.
+Status: implemented (tasks **R-1187**, **R-1194**, **R-1329** procedural leaf atlas, seamless-city pass of **R-712** covering **R-1101**, **R-1102**, **R-1103**, **R-1105**; visual/reviewer acceptance pending). Scope: tree crowns in the 3D view follow the campaign calendar, react to rain and wind, and respond to melee swings. Presentation only: nothing here changes combat, collision, navigation, or saved state. Out of scope: felling or damaging trees, persistent leaf litter on the ground, snow on branches, seasonal bushes, grass, and crops, and blossom.
 
 Reference bar: trees that feel alive in the way Witcher 3 and RDR2 trees do. The crown changes with the month, and a blow to the trunk knocks leaves loose.
 
@@ -66,14 +66,15 @@ apply to the cards too. No input or save-format changes are involved.
   approximately neutral relative brightness, not sRGB albedo; the shader samples
   it as data and multiplies by two. `card_gain` tunes card brightness. UV inset
   reduces tile-edge bleed, but does not guarantee isolation at coarse mip levels.
-- The seven Leonardo generation records, two candidates each, prompts and selected
-  filenames are under `generated/leonardo/leaf_cards_v1/<species>/prompt.json`.
-  Rebuild with `python3 tools/assets/build_leaf_card_atlas.py` (Pillow and NumPy).
-  Optional `--preview build/leaf_cards.png` writes a tinted inspection plate.
-  The processor keys white, trims bare twigs, resizes premultiplied scalar channels,
-  normalizes brightness and packs tiles. Empty foreground fails explicitly.
-  All raw plates and the atlas have provenance rows in `assets/SOURCES.csv`;
-  Leonardo account rights and final visual approval are not independently verified.
+- Since R-1329 the atlas is drawn in code, not keyed from image-generator plates:
+  `python3 tools/assets/generate_vegetation_atlases.py` (NumPy and Pillow; the old
+  `build_leaf_card_atlas.py` entry point now calls it). Each tile is a twig with
+  parametric leaves or needles (outline, serration, lobes, veins, wear) whose size
+  was tuned so card coverage stays near the R-1194 tile it replaced. The output is
+  byte-identical on every run; details and limits are in
+  [`VEGETATION_REALISM.md`](./VEGETATION_REALISM.md) section 7. The Leonardo
+  `leaf_cards_v1` and OpenAI needle sources are retired; the atlas row in
+  `assets/SOURCES.csv` records the replacement.
 
 ### Verification and evidence
 
@@ -256,13 +257,13 @@ Runtime entry points:
 
 Data and assets: `assets/materials/pbr/grass_ground/grass_ground_{albedo,normal}_array.jpg`
 (imported as 4x3 `Texture2DArray`s; slice order is the `GRASS` list in the processor and
-the comment in the include), `assets/materials/pbr/bark_<plate>/`, and the spruce and pine
-tiles of `foliage_cards/leaf_card_atlas.png`. Sources are OpenAI `gpt-image-1` plates under
+the comment in the include) and `assets/materials/pbr/bark_<plate>/` (the spruce and pine
+tiles of `foliage_cards/leaf_card_atlas.png` came from here until R-1329 drew the whole
+atlas procedurally). Sources are OpenAI `gpt-image-1` plates under
 `generated/openai/vegetation_v1/<group>/<name>/prompt.json` (prompt, generation id, SHA-256;
 the raw PNGs are not committed). Rebuild with
-`python3 tools/assets/build_vegetation_plates.py [--only grass,bark,needles] [--preview build/vegetation_plates]`
-(the preview writes 2x2 tilings for a seam check). Do not run `defringe_atlas.py` on the
-whole atlas afterwards: it would erode the deciduous tiles a second time. Provenance rows
+`python3 tools/assets/build_vegetation_plates.py [--only grass,bark] [--preview build/vegetation_plates]`
+(the preview writes 2x2 tilings for a seam check). Provenance rows
 are in `assets/SOURCES.csv` (visual and rights approval pending). Nothing is saved: the LOD
 and all geometry are rebuilt deterministically from the plan.
 
@@ -362,4 +363,4 @@ a dense hedge of city roses costs about seven times the old blob triangles (the 
 - Conifer cards are smaller (`CONIFER_CARD_SCALE` 2.0, trunk fans x0.62), three per tip, and branch whorls use three fans rolled around the branch axis so needles read as volume from every side.
 - Conifer realism pass: needle cards are 3-segment strips that bow downward (`CONIFER_CARD_DROOP` 0.22) with smooth, width-rounded vertex normals (`append_card` `droop`), and `map_view_canopy.gdshader` darkens gaps from the atlas (`clump`), shades sprig bases (`tip_light`) and perturbs card normals from the cluster pattern so needles stop lighting as flat plates. Conifer `card_gain` 0.84.
 - Conifer card normals follow the crown shell (`CONIFER_NORMAL_OUTWARD`, no upward bias) and use `card_gain` 0.66, which stops sun wash-out.
-- `tools/assets/defringe_atlas.py` removes pale outlines from `leaf_card_atlas.png` (4x2) and `grass_blades_atlas.png` (2x2): alpha eroded, edge colour repainted from solid leaf colour.
+- `tools/assets/defringe_atlas.py` removes pale outlines from `grass_blades_atlas.png` (2x2): alpha eroded, edge colour repainted from solid leaf colour. Do not run it on `leaf_card_atlas.png` since R-1329: the generator already fills empty texels with nearby leaf colour, and a second pass would erode the procedural tiles.

@@ -23,7 +23,8 @@ const GRASS_NEAR_FADE_START := 7.0
 const GRASS_NEAR_FADE_END := 11.0
 const GRASS_BLADE_ATLAS := preload("res://assets/materials/pbr/grass_blades/grass_blades_atlas.png")
 const BLACK_CLOAKS_BANNER_TEXTURE := preload("res://assets/heraldry/black_cloaks_banner.png")
-## R-1194 leaf-cluster card atlas (tools/assets/build_leaf_card_atlas.py).
+## R-1194 leaf-cluster card atlas, drawn procedurally since R-1329
+## (tools/assets/generate_vegetation_atlases.py; no image-generator source).
 const LEAF_CARD_ATLAS := preload("res://assets/materials/pbr/foliage_cards/leaf_card_atlas.png")
 const LeafGeometry := preload("res://scripts/map/view3d/map_view_leaf_geometry.gd")
 

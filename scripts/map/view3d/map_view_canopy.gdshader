@@ -19,7 +19,8 @@ uniform vec3 autumn_color_a : source_color = vec3(0.94, 0.70, 0.18);
 uniform vec3 autumn_color_b : source_color = vec3(0.80, 0.44, 0.12);
 // Shared rain state: wet leaves darken and pick up a sheen.
 uniform float wetness : hint_range(0.0, 1.0) = 0.0;
-// R-1194 leaf-cluster cards (UV2 = (1, 1)): RGB is neutral-grey relative detail
+// R-1194 leaf-cluster cards (UV2 = (1, 1)), drawn procedurally since R-1329
+// (tools/assets/generate_vegetation_atlases.py): RGB is neutral-grey relative detail
 // (mean 0.5), so species tint, season and autumn hue still come from the
 // uniforms above. atlas_tile selects the species cluster (column, row).
 // Relative brightness data, not sRGB albedo: 0.5 must sample as 0.5.
