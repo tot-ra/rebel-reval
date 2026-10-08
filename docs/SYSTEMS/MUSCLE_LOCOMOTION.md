@@ -20,6 +20,8 @@ Not a new idea: [Karl Sims, Evolved Virtual Creatures, 1994](https://karlsims.co
 
 ## The prototype
 
+How to run it locally (macOS included), resume interrupted training and continue the 3D curriculum: [`tools/research/muscle_locomotion/README.md`](../../tools/research/muscle_locomotion/README.md).
+
 Files: `creature.py` (bone graph to MuJoCo XML), `presets.py` (parametric `biped` and `quadruped`; `Body` = size, mass multiplier, strength, load, belly), `sim.py` (simulation, controller, fitness), `evolve_general.py` (CMA-ES, one controller for a range of bodies and speeds), `evolve.py` (older single-body search), `render.py` (replay on named bodies, gallery PNG, baked clip JSON), `results/`.
 
 ```bash

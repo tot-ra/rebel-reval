@@ -1,11 +1,12 @@
 """Shaded 3D rendering of simulated creatures (MuJoCo software renderer) and GIF assembly.
 
-Needs an OpenGL software backend: `apt-get install libosmesa6`, then run with MUJOCO_GL=osmesa
-(set automatically below if unset).
+On headless Linux it needs a software OpenGL backend (`apt-get install libosmesa6`; the backend is
+selected automatically below). On macOS the native OpenGL is used.
 """
-import os, re
-os.environ.setdefault("MUJOCO_GL", "osmesa")
-os.environ.setdefault("PYOPENGL_PLATFORM", "osmesa")
+import os, re, sys
+if sys.platform.startswith("linux") and not os.environ.get("DISPLAY"):
+    os.environ.setdefault("MUJOCO_GL", "osmesa")      # headless Linux; macOS and desktop Linux use the native backend
+    os.environ.setdefault("PYOPENGL_PLATFORM", "osmesa")
 import numpy as np
 import mujoco
 from PIL import Image, ImageDraw

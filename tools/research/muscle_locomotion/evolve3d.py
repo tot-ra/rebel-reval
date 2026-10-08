@@ -1,5 +1,5 @@
 """CMA-ES for the 3D controller with an assist curriculum (harness annealed to zero)."""
-import argparse, json, time
+import argparse, json, os, time
 import numpy as np, cma
 from multiprocessing import Pool
 from sim3d import Sim3D
@@ -16,7 +16,7 @@ def _eval(a):
     body, p, T, speed, assist = a
     return _sim(body).rollout(p, T=T, speed=speed, assist=assist)["cost"]
 
-def run(body, stages, pop, T, speed, seed, init, out_prefix):
+def run(body, stages, pop, T, speed, seed, init, out_prefix, procs):
     s0 = _sim(body)
     rng = np.random.default_rng(seed)
     if init:
@@ -26,7 +26,7 @@ def run(body, stages, pop, T, speed, seed, init, out_prefix):
         P = x[:-1].reshape(s0.npd, s0.per)
         P[:, 1] = 1.5; P[:, 2] = rng.uniform(0, 2 * np.pi, s0.npd); P[:, 3] = 0.5
         x = x + rng.normal(0, 0.05, s0.nparams)
-    with Pool(4) as pool:
+    with Pool(procs) as pool:
         for si, (assist, gens) in enumerate(stages):
             es = cma.CMAEvolutionStrategy(x, 0.5 if si == 0 else 0.3, {"popsize": pop, "seed": seed + si, "verbose": -9})
             t0 = time.time()
@@ -48,7 +48,7 @@ if __name__ == "__main__":
     ap.add_argument("--stages", default="1.0:150,0.7:150,0.45:150,0.25:150,0.1:150,0.0:400")
     ap.add_argument("--pop", type=int, default=64); ap.add_argument("--T", type=float, default=8.0)
     ap.add_argument("--speed", type=float, default=1.0); ap.add_argument("--seed", type=int, default=1)
-    ap.add_argument("--init"); ap.add_argument("--out", required=True)
+    ap.add_argument("--init"); ap.add_argument("--out", required=True); ap.add_argument("--procs", type=int, default=os.cpu_count())
     a = ap.parse_args()
     stages = [(float(x.split(":")[0]), int(x.split(":")[1])) for x in a.stages.split(",")]
-    run(presets3d.asdict(presets3d.Body3D()), stages, a.pop, a.T, a.speed, a.seed, a.init, a.out)
+    run(presets3d.asdict(presets3d.Body3D()), stages, a.pop, a.T, a.speed, a.seed, a.init, a.out, a.procs)

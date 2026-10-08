@@ -4,7 +4,7 @@ Each generation every candidate is scored on the same few (body, speed) scenario
 the training distribution, so noise is shared and the search is fair. At the end the best
 controller is tested on all training bodies and on held-out bodies it never saw.
 """
-import argparse, json, time, math
+import argparse, json, os, time, math
 import numpy as np, cma
 from multiprocessing import Pool
 from dataclasses import asdict
@@ -39,7 +39,9 @@ def _sim(creature, body):
     return _CACHE[key]
 
 def _eval(args):
-    creature, p, scen, T = args
+    creature, p, scen, T, w_speed = args
+    import sim as _sim_mod
+    _sim_mod.W_SPEED = w_speed          # set in the worker itself: macOS workers are spawned, they do not inherit globals
     costs = []
     for body, fr in scen:
         costs.append(_sim(creature, body).rollout(p, T=T, froude=fr)["cost"])
@@ -66,7 +68,7 @@ if __name__ == "__main__":
     ap.add_argument("--gens", type=int, default=300); ap.add_argument("--pop", type=int, default=48)
     ap.add_argument("--T", type=float, default=10.0); ap.add_argument("--k", type=int, default=4)
     ap.add_argument("--seed", type=int, default=1); ap.add_argument("--sigma", type=float, default=0.6)
-    ap.add_argument("--init"); ap.add_argument("--out", required=True); ap.add_argument("--w-speed", type=float, default=1.0)
+    ap.add_argument("--init"); ap.add_argument("--out", required=True); ap.add_argument("--w-speed", type=float, default=1.0); ap.add_argument("--procs", type=int, default=os.cpu_count())
     a = ap.parse_args()
     import sim as _sim_mod; _sim_mod.W_SPEED = a.w_speed
     rng = np.random.default_rng(a.seed)
@@ -83,14 +85,14 @@ if __name__ == "__main__":
         x0 = np.concatenate([P.ravel(), np.zeros(1 + 6)]) + rng.normal(0, 0.05, s0.nparams)
     es = cma.CMAEvolutionStrategy(x0, a.sigma, {"popsize": a.pop, "seed": a.seed, "verbose": -9})
     best = (1e9, x0); t0 = time.time()
-    with Pool(4) as pool:
+    with Pool(a.procs) as pool:
         for g in range(a.gens):
             gr = np.random.default_rng(a.seed * 100003 + g)
             scen = [(make_body(gr, a.ranges), float(gr.uniform(*a.fr))) for _ in range(a.k)]
             if g % 4 == 0:
                 scen[0] = (nominal, scen[0][1])      # the plain body is always part of the mix
             X = es.ask()
-            f = pool.map(_eval, [(a.creature, x, scen, a.T) for x in X])
+            f = pool.map(_eval, [(a.creature, x, scen, a.T, a.w_speed) for x in X])
             es.tell(X, f)
             i = int(np.argmin(f))
             if g % 25 == 0:      # checkpoint so an interrupted session can resume with --init
