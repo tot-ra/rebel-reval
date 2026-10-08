@@ -150,10 +150,13 @@ func test_grass_ground_plates_are_a_twelve_layer_array() -> void:
 	)
 
 
-func test_grass_tufts_are_real_size() -> void:
-	var tuft := MapViewMeshBuilderPrimitives.grass_tuft_mesh().get_aabb().size
-	assert_true(tuft.y * CityGrass.TUFT_SCALE.y < 0.5, "tallest tuft under half a metre")
-	assert_true(maxf(tuft.x, tuft.z) * CityGrass.TUFT_SCALE.y < 0.65, "widest tuft under 0.65 m")
+func test_grass_clumps_are_real_size() -> void:
+	var clump := MapViewMeshBuilderPrimitives.grass_blade_clump_mesh().get_aabb().size
+	var tallest := CityGrass.MID_CLUMP_SCALE.y * 1.3  # instance Y stretch tops out at 1.3
+	assert_true(clump.y * tallest < 1.2, "tallest mid clump under 1.2 m")
+	var widest := maxf(clump.x, clump.z) * CityGrass.MID_CLUMP_SCALE.y
+	assert_true(widest < 0.9, "widest mid clump under 0.9 m")
+	assert_true(clump.y * CityGrass.NEAR_CLUMP_SCALE.y * 1.3 < 0.8, "near blades stay knee-high")
 
 
 ## Longest leaf-cluster card in a mesh, times the instance scale, in metres.

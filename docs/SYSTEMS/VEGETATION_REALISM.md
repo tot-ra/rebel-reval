@@ -59,6 +59,16 @@ A single deterministic wind model drives grass, grain, crowns, cloth, and fallin
 
 ### 2. Grass: three tiers
 
+Status: partly implemented for the seamless city (task **R-1323**, VEGR-4; the task stays open for the blueprint-map terrain-detail carpet and grass seasons). Decision (user, 2026-10-08): the ground texture is a primitive colour field and every recognisable plant is 3D geometry.
+
+- **Ground.** The city grass plates (`grass_ground_*_array.jpg`) and the map-view grass plate (`pbr/grass/grass_*.png`) are drawn by [`tools/assets/generate_simple_grass_plates.py`](../../tools/assets/generate_simple_grass_plates.py): soft tonal patches and fine grain, no plantain, clover, flowers or leaves in the image. Same files, slice order (0-7 green, 8 dry, 9 moss, 10 litter, 11 trodden) and import settings as before. `build_vegetation_plates.py` is kept for bark only.
+- **Near tier (0 to about 12 m).** [`CityGrass`](../../scripts/city/city_grass.gd) scatters 8 m chunks of `grass_blade_clump_mesh` (six curved, tapered blades, five triangles each, cached) at 4.5 clumps/m2 with the `grass_blade_tier(true)` material, which shrinks clumps out between 12 and 17 m.
+- **Mid tier (about 9 to 46 m).** 16 m chunks of the same mesh, larger and sparser (1 clump/m2), `grass_blade_tier(false)`: clumps grow in between 9 and 15 m (scale cross-fade in `map_view_grass.gdshader`, no alpha fade) and shrink out between 38 and 46 m. Beyond that the ground colour carries.
+- **Accent plants.** Mid chunks also hold 3D plantain, dandelion, clover and yarrow (`PlantMeshes`), sparse (0.012 to 0.06 per m2). No season gating yet: dandelions show all year.
+- **Shading.** Blades use the shared grass shader's procedural path: root-to-tip gradient with a warm tip and per-clump dry tip, root colour melting into the ground, rounded normal across the width, backlight, and the shared wind front (v_sheen).
+- **Verify.** `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_grass_tiers,test_city_vegetation`; plates with `tools/godot_render.sh --script tools/capture_city_grass.gd` (writes `build/grass/`).
+- **Limits.** Not done from the R-1323 spec: grass seasons in `VegetationPhenology`, edge-on blade widening, terrain-detail carpet of blueprint maps (still textured tuft cards from the R-1103 atlas), per-tile hysteresis (chunk streaming is distance-based and deterministic), a measured perf run against the `grass_near` budget.
+
 | Tier | Range (starting values, tune by measurement) | Representation |
 |---|---|---|
 | Near | 0 to about 12 m | Individual blades: a 7-vertex tapered, curved strip per blade (about 5 triangles), 3 to 5 blades per clump, MultiMesh |

@@ -227,3 +227,5 @@ Keep this file short. Append a durable reusable rule, not a dated incident log. 
 - Terrain height queries must triangulate exactly like the mesh that is drawn (same quad diagonal rule); bilinear lookups on a triangulated mesh sink actors on lumpy ground. Rivers from a DEM plate need a water level that follows the land, not sea level, or banks become gorges and bridges hang mid-slope.
 
 - Godot binary on this Mac is `/Applications/Godot.app/Contents/MacOS/Godot` (not on PATH; `ls` is aliased, so verify with absolute paths).
+
+- Replacing a ground plate: CO-01 ground texture arrays need one layer size per map type (grass albedo 2048, normal and roughness 1024, tests enforce it), and `godot --headless --import` must run after rewriting a PNG or tests read the stale imported size. macOS has no `timeout` and BSD `sed -i` needs `-i ''`; use Python for file edits. After another session adds a `class_name` file, run `godot --headless --path . --editor --quit` before a render capture.
