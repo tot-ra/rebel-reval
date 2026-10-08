@@ -263,6 +263,7 @@ Start with:
 - [Toompea 1343 ordinary fabric contract](toompea_1343_fabric_contract.md)
 - [Town Hall 1343 remodel: historical state, wear and Danish banners](town_hall_1343_remodel.md)
 - [Town Hall arcade rework: structural gallery instead of decorative arches](town_hall_arcade_rework.md)
+- [Vegetation benchmark baseline (R-1320, VEGR-0)](vegetation_benchmark_baseline.md)
 - [Vegetation realism — P0-208](vegetation_realism_2026-09-12.md)
 - [P0-036 visual targets - Smithy Courtyard](visual_targets_p0_036.md)
 - [P0-036 independent UX review](visual_targets_p0_036_ux_review.md)

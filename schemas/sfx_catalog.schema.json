@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "sfx_catalog.schema.json",
+  "title": "Reval Rebel sound-effects catalog (ADR 0035)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["type", "id", "entries"],
+  "properties": {
+    "type": { "const": "sfx_catalog" },
+    "id": { "$ref": "common.schema.json#/$defs/content_id" },
+    "entries": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "sfx_catalog.schema.json#/$defs/entry" }
+    }
+  },
+  "$defs": {
+    "entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "bus", "streams", "tier", "source_ids"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^(sfx|amb)\\.[a-z0-9_]+(\\.[a-z0-9_]+)+$",
+          "description": "Stable sound ID, for example sfx.footstep.wood.walk or amb.reval_east.day."
+        },
+        "bus": {
+          "type": "string",
+          "enum": ["SFX", "Ambience", "Weather", "Footsteps", "Combat", "UI", "Voice"]
+        },
+        "streams": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "pattern": "^res://(sounds|assets)/.+\\.(mp3|ogg|wav)$" },
+          "description": "Variation pool. One stream is a pool of one."
+        },
+        "tier": { "type": "string", "enum": ["A", "B", "C"] },
+        "source_ids": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$" },
+          "description": "asset_id rows in assets/SOURCES.csv that provenance-cover every stream."
+        },
+        "volume_db": { "type": "number", "minimum": -60, "maximum": 12 },
+        "pitch_jitter": { "type": "number", "minimum": 0, "maximum": 0.5 },
+        "volume_jitter_db": { "type": "number", "minimum": 0, "maximum": 12 },
+        "no_repeat": { "type": "integer", "minimum": 0, "maximum": 32 },
+        "max_voices": { "type": "integer", "minimum": 1, "maximum": 32 },
+        "cooldown_ms": { "type": "integer", "minimum": 0, "maximum": 60000 },
+        "spatial": { "type": "string", "enum": ["none", "2d", "3d"] },
+        "max_distance": { "type": "number", "minimum": 1, "maximum": 500 }
+      }
+    }
+  }
+}

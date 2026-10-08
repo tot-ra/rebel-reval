@@ -14,6 +14,7 @@ signal state_replaced(previous: GameState, current: GameState, reason: StringNam
 ## shared character references instead of the trimmed demo-only copies.
 const DEMO_CONTENT_DIRS: Array[String] = [
 	"res://content/demo",
+	"res://content/cutscenes",
 	"res://content/prologue",
 	"res://content/examples/support",
 	"res://content/examples/valid",

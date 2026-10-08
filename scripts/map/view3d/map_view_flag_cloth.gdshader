@@ -1,6 +1,8 @@
 shader_type spatial;
 render_mode cull_disabled, depth_draw_opaque;
 
+#include "res://scripts/map/view3d/wind_field.gdshaderinc"
+
 // Hoist-fixed flags and pennants (tower roofs, the town hall gable, mastheads).
 //
 // WHY: the shared sail shader only pushed vertices along the wind vector, so a
@@ -21,8 +23,8 @@ render_mode cull_disabled, depth_draw_opaque;
 uniform vec3 base_color : source_color = vec3(0.97, 0.96, 0.94);
 // 0.42 is the reference flutter; boats and towers share the same scale.
 uniform float sway_strength = 0.42;
-uniform vec2 wind_direction = vec2(0.9285, 0.3714);
-uniform float wind_strength = 0.22;
+// Per-material share of the world wind (R-1321); capture plates vary it.
+uniform float wind_scale = 1.0;
 // Kept for API parity with map_view_cloth.gdshader; the fly axis is UV.x.
 uniform vec2 free_edge = vec2(1.0, 0.0);
 // 1.0 when vertex colors are authored in sRGB (town hall cloth).
@@ -33,8 +35,11 @@ uniform float translucency = 0.32;
 varying float fold_shade;
 
 // Effective wind after slow, per-flag gusting so neighbours never flap in sync.
-float gusted_wind(float wind, float t, float seed) {
-	float gust = sin(t * 0.37 + seed) * sin(t * 0.23 + seed * 1.7);
+// R-1321: the gust is the shared front at the staff, so flags downwind of a
+// meadow lift after the grass bends; `seed` keeps a small per-staff wobble.
+float gusted_wind(vec2 xz, float t, float seed) {
+	float wind = clamp(wind_strength() * wind_scale, 0.0, 1.0);
+	float gust = wind_gust_signed(xz, t) * 0.8 + 0.2 * sin(t * 0.37 + seed);
 	return clamp(wind * (0.85 + 0.35 * gust), 0.0, 1.0);
 }
 
@@ -85,7 +90,7 @@ void vertex() {
 	float t = TIME;
 	vec3 origin = MODEL_MATRIX[3].xyz;
 	float seed = fract(sin(dot(origin.xz, vec2(12.9898, 78.233))) * 43758.5453) * TAU;
-	float w = gusted_wind(clamp(wind_strength, 0.0, 1.0), t, seed);
+	float w = gusted_wind(origin.xz, t, seed);
 
 	// Fly length from the rest pose (UV.x = x / len), so one material serves
 	// pennants and flags of any size.
@@ -103,7 +108,7 @@ void vertex() {
 
 	// Weathervane about the staff (local Y): +X turns to point downwind, with a
 	// little hunting that grows in light air.
-	vec2 wind = normalize(wind_direction);
+	vec2 wind = wind_dir();
 	vec3 local_wind = (inverse(MODEL_MATRIX) * vec4(wind.x, 0.0, wind.y, 0.0)).xyz;
 	float heading = 0.0;
 	if (dot(local_wind.xz, local_wind.xz) > 0.000001) {

@@ -22,6 +22,7 @@ VALID_DIR = ROOT / "content" / "examples" / "valid"
 INVALID_DIR = ROOT / "content" / "examples" / "invalid"
 
 SCHEMA_BY_TYPE = {
+    "sfx_catalog": "sfx_catalog.schema.json",
     "character": "character.schema.json",
     "dialogue": "dialogue.schema.json",
     "bark_pool": "bark.schema.json",

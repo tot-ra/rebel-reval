@@ -15,6 +15,8 @@ var guard_mode: String = GUARD_MODE_HOLD
 var enhanced_focus_contrast: bool = false
 var screenshake_enabled: bool = true
 var reduced_flashing: bool = false
+## Spirit arena reply countdown ring and its hesitation chip (SD-18). Off removes the pressure.
+var reply_timer_pressure: bool = true
 
 
 static func default_settings() -> GameplayAccessibilitySettings:
@@ -27,6 +29,7 @@ func duplicate_settings() -> GameplayAccessibilitySettings:
 	copy.enhanced_focus_contrast = enhanced_focus_contrast
 	copy.screenshake_enabled = screenshake_enabled
 	copy.reduced_flashing = reduced_flashing
+	copy.reply_timer_pressure = reply_timer_pressure
 	return copy
 
 
@@ -64,6 +67,7 @@ func to_dict() -> Dictionary:
 		"enhanced_focus_contrast": enhanced_focus_contrast,
 		"screenshake_enabled": screenshake_enabled,
 		"reduced_flashing": reduced_flashing,
+		"reply_timer_pressure": reply_timer_pressure,
 	}
 
 
@@ -75,5 +79,6 @@ static func from_dict(data: Dictionary) -> GameplayAccessibilitySettings:
 		data.get("screenshake_enabled", data.get("screen_shake_enabled", true))
 	)
 	settings.reduced_flashing = bool(data.get("reduced_flashing", false))
+	settings.reply_timer_pressure = bool(data.get("reply_timer_pressure", true))
 	settings.normalize()
 	return settings

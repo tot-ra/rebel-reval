@@ -78,6 +78,35 @@ def _asset_file_exists(asset_path: str) -> bool:
     )
 
 
+# ADR 0035 license gate for audio. Denylist is matched against the license,
+# creator/tool and model columns of approved audio rows; ElevenLabs output is
+# only shippable from a paid plan, which the row must state.
+AUDIO_SUFFIXES = (".mp3", ".ogg", ".wav", ".flac")
+AUDIO_DENY_RE = re.compile(
+    r"\bBY-NC|\bNC\b|-ND\b|NonCommercial|NoDerivs|RemArc|AudioLDM|TangoFlux|MMAudio",
+    re.IGNORECASE,
+)
+
+
+def audio_license_errors(rows: list[dict[str, str]]) -> list[str]:
+    """Return ADR 0035 license-gate violations for approved audio rows."""
+    errors: list[str] = []
+    for row in rows:
+        path = row.get("path", "")
+        if not path.lower().endswith(AUDIO_SUFFIXES):
+            continue
+        if not row.get("approval", "").startswith("approved"):
+            continue
+        asset_id = row.get("asset_id", "")
+        for column in ("license", "creator_or_tool", "model_version"):
+            if AUDIO_DENY_RE.search(row.get(column, "")):
+                errors.append(f"audio {asset_id}: denied term in {column}: {row[column]!r}")
+        if "elevenlabs" in (row.get("creator_or_tool", "") + row.get("model_version", "")).casefold():
+            if "paid plan" not in (row.get("edits", "") + row.get("prompt_or_url", "")).casefold():
+                errors.append(f"audio {asset_id}: ElevenLabs output must record 'paid plan' in edits")
+    return errors
+
+
 def validate() -> list[str]:
     rows = read_sources()
     errors: list[str] = []
@@ -128,6 +157,7 @@ def validate() -> list[str]:
             "active runtime assets missing from SOURCES.csv: " + ", ".join(missing_active)
         )
 
+    errors.extend(audio_license_errors(rows))
     return errors
 
 

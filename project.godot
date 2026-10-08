@@ -215,6 +215,30 @@ cloud_shadow_strength={
 "type": "float",
 "value": 0.55
 }
+wind_dir_g={
+"type": "vec2",
+"value": Vector2(0.9285, 0.3714)
+}
+wind_strength_g={
+"type": "float",
+"value": 0.22
+}
+wind_gust_amp_g={
+"type": "float",
+"value": 0.53276
+}
+wind_gust_wavelength_g={
+"type": "float",
+"value": 18.4
+}
+wind_speed_g={
+"type": "float",
+"value": 3.98
+}
+wind_turbulence_g={
+"type": "float",
+"value": 0.19114
+}
 
 [world_host]
 

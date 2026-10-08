@@ -18,14 +18,25 @@ func _init() -> void:
 	root.add_child(opening)
 	await _frames(4)
 	await _save(out + "/title.png")
-	opening.begin_quarrel()
-	opening.host().observation.step()
+	opening.begin_duel()
+	var host: SpiritArenaHost = opening.host()
+	# SD-18: the blow sweeping along the telegraph arc with the guard/dodge prompt.
+	host.duel.tick(SpiritDuel.TELEGRAPH_SEC * 0.7)
 	await _frames(3)
-	await _save(out + "/quarrel.png")
-	opening.host().observation.play_all()
-	opening.host().close()
+	await _save(out + "/telegraph.png")
+	host.duel.tick(SpiritDuel.TELEGRAPH_SEC)
+	# The spell-card hotbar with the countdown ring part-way down.
+	host.duel.tick(SpiritDuel.REPLY_WINDOW_SEC * 0.4)
 	await _frames(3)
 	await _save(out + "/duel.png")
+	# A cast reply: its spoken line typed over the arena.
+	host.pick_slot(0)
+	await _frames(40)
+	await _save(out + "/cast.png")
+	# R-1365: Kalev in the hall doorway, camera reframed on him and the boy, on his first line.
+	host.close()
+	await _frames(40)
+	await _save(out + "/kalev.png")
 	quit()
 
 

@@ -14,19 +14,19 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `1071`
-- Markdown files excluded as archive/reference/out of active scope: `743`
-- Local/external links inspected: `12747`
-- Links to active Markdown docs: `11876`
-- Links to existing archive/reference/non-active local docs: `430`
+- Active Markdown files scanned: `1076`
+- Markdown files excluded as archive/reference/out of active scope: `747`
+- Local/external links inspected: `12811`
+- Links to active Markdown docs: `11905`
+- Links to existing archive/reference/non-active local docs: `437`
 - External links skipped for reachability: `88`
-- Issues found: `4`
+- Issues found: `3`
 
 ## Issue counts
 
 | Code | Count |
 | --- | ---: |
-| `BROKEN_LINK` | 4 |
+| `BROKEN_LINK` | 3 |
 | `BROKEN_ANCHOR` | 0 |
 | `DUPLICATE_CHARACTER_NAME` | 0 |
 | `CONTRADICTORY_DATE` | 0 |
@@ -36,10 +36,9 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 | Code | Location | Detail |
 | --- | --- | --- |
-| `BROKEN_LINK` | `docs/CITIZENS/WRITING_CARDS.md:49` | Local Markdown link target does not exist: `link` |
+| `BROKEN_LINK` | `docs/SYSTEMS/AUDIO.md:19` | Local Markdown link target does not exist: `../reports/audio_licenses/README.md` |
 | `BROKEN_LINK` | `docs/SYSTEMS/SEAMLESS_CITY.md:121` | Local Markdown link target does not exist: `../reports/animal_placement_plan.md` |
-| `BROKEN_LINK` | `docs/adr/0034-cutscene-mode-and-cinematic-prologue.md:123` | Local Markdown link target does not exist: `../SYSTEMS/CUTSCENES.md` |
-| `BROKEN_LINK` | `docs/adr/0034-cutscene-mode-and-cinematic-prologue.md:126` | Local Markdown link target does not exist: `../../cinematics/PROMPT_GRAMMAR.md` |
+| `BROKEN_LINK` | `docs/SYSTEMS/SPIRIT_DIALOGUE.md:142` | Local Markdown link target does not exist: `../reports/images/spirit_form/` |
 
 ## Active files scanned
 
@@ -77,6 +76,7 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/adr/0032-bespoke-landmark-sites-in-the-city.md`
 - `docs/adr/0033-teen-protagonist-and-spirit-dialogue-combat.md`
 - `docs/adr/0034-cutscene-mode-and-cinematic-prologue.md`
+- `docs/adr/0035-game-audio-sourcing-and-sfx-system.md`
 - `docs/adr/README.md`
 - `docs/AGENT_LOOPS.md`
 - `docs/ANIMAL_3D_SOURCING.md`
@@ -1001,18 +1001,22 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/SKY_WEATHER_STATE_CONTRACT.md`
 - `docs/SOUND_EFFECTS_TOP_100.md`
 - `docs/STORAGE_SIZE_BACKLOG.md`
+- `docs/SYSTEMS/AUDIO.md`
 - `docs/SYSTEMS/CITIZENS.md`
 - `docs/SYSTEMS/CITY_LANDMARK_SITES.md`
 - `docs/SYSTEMS/COMBAT.md`
 - `docs/SYSTEMS/COMBAT_ANIMATION.md`
 - `docs/SYSTEMS/COMBAT_NIGHT.md`
+- `docs/SYSTEMS/CUTSCENES.md`
 - `docs/SYSTEMS/DIALOGUE.md`
 - `docs/SYSTEMS/FACTIONS_AND_ECONOMY.md`
+- `docs/SYSTEMS/FARMLAND.md`
 - `docs/SYSTEMS/FLAG_CLOTH.md`
 - `docs/SYSTEMS/HOIST_ROPE.md`
 - `docs/SYSTEMS/HUD_AND_MENUS.md`
 - `docs/SYSTEMS/LIVING_CITY.md`
 - `docs/SYSTEMS/LIVING_VEGETATION.md`
+- `docs/SYSTEMS/LIVING_WORLD.md`
 - `docs/SYSTEMS/MAGIC.md`
 - `docs/SYSTEMS/MUSCLE_LOCOMOTION.md`
 - `docs/SYSTEMS/NATURAL.md`

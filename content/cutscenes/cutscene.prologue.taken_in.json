@@ -25,7 +25,7 @@
   "shots": [
     {
       "id": "s01_door",
-      "still": "res://assets/cutscenes/prologue_taken_in/s01_door.png",
+      "still": "res://assets/cutscenes/prologue_taken_in/s01_door.jpg",
       "video": "",
       "transition_in": "fade",
       "motion": {
@@ -43,6 +43,58 @@
           "delivery": "Deliberately anticlimactic. The transaction, not the rescue."
         },
         {
+          "id": "l1_spared",
+          "text": "At the door the porter pressed the heel of a loaf into his hand and looked the other way.",
+          "seconds": 5.0,
+          "delivery": "Quiet, a beat after the matron's line. The duel's cost, not its moral.",
+          "conditions": [
+            {
+              "op": "flag_is",
+              "key": "flag.prologue.spared_porter",
+              "value": true
+            }
+          ]
+        },
+        {
+          "id": "l1_broke",
+          "text": "Behind them the porter sat on the cold-store step with a rusted key in his lap, and did not watch them go.",
+          "seconds": 5.0,
+          "delivery": "Quiet, a beat after the matron's line. The duel's cost, not its moral.",
+          "conditions": [
+            {
+              "op": "flag_is",
+              "key": "flag.prologue.broke_porter",
+              "value": true
+            }
+          ]
+        },
+        {
+          "id": "l1_struck",
+          "text": "The porter shouted something after them, one hand on his jaw. The boy did not turn. His own hands remembered the shove.",
+          "seconds": 5.0,
+          "delivery": "Quiet, a beat after the matron's line. The duel's cost, not its moral.",
+          "conditions": [
+            {
+              "op": "flag_is",
+              "key": "flag.prologue.struck_porter",
+              "value": true
+            }
+          ]
+        },
+        {
+          "id": "l1_punished",
+          "text": "His palm still burned from the rod. He closed it around nothing and kept walking.",
+          "seconds": 5.0,
+          "delivery": "Quiet, a beat after the matron's line. The duel's cost, not its moral.",
+          "conditions": [
+            {
+              "op": "flag_is",
+              "key": "flag.prologue.punished_by_porter",
+              "value": true
+            }
+          ]
+        },
+        {
           "id": "l2",
           "text": "A bed by the hearth, bread twice a day, and work from before light.",
           "seconds": 6.0,
@@ -55,14 +107,14 @@
       },
       "authoring": {
         "direction": "The hero leaves one institution for another, and the frame should not promise that this is better. Kalev leads and does not look back; the boy follows at a distance that is almost obedience. Door closing behind them is the beat.",
-        "image_prompt": "Cinematic film still, 35mm, low eye-level from inside a narrow medieval lane looking at the plank door of a limestone almshouse just closing, a woman's dark sleeve withdrawing inside. Walking away from the door toward camera but off-axis: a broad weathered master smith in his forties, soot-black hands and forearms, a scorched leather apron over a dark wool tunic, hair tied back, carrying a canvas roll of tools, face set, not looking back. Four paces behind him a thin fifteen-year-old boy in an undyed linen shirt and a too-large borrowed wool cloak, bare calves, carrying nothing, watching the smith's back. Wet packed-earth lane, limestone walls close on both sides, a timber overhang, a drain channel, the tiled flank of a church to one side. Cold spring morning, overcast with a low break in the cloud behind them, warm filmic grade with cool shadows, fine film grain, breath visible. Historically accurate Reval 1343. No text.",
+        "image_prompt": "Cinematic film still, 35mm lens, low eye-level in a narrow medieval lane with rough limestone walls close on both sides, wet packed-earth and mud underfoot, a timber overhang, the tiled flank of a stone church to one side. Behind them in the background, a heavy plank door of a limestone almshouse is just closing, a woman's dark sleeve withdrawing inside. Walking TOWARD the camera, off-axis to the right: a broad weathered master smith in his forties with a short dark beard, soot-stained hands and forearms, hair tied back, wearing a scorched leather apron over a dark wool tunic, carrying a canvas roll of tools, face set and grim, not looking back. Four paces behind him a lanky fifteen-year-old adolescent boy, nearly as tall as a man, with shoulder-length dark brown hair and a narrow pale face, in an undyed linen tunic and a too-large borrowed wool cloak, carrying nothing, watching the smith's back. Cold spring morning, flat overcast light with a low break in the cloud, breath visible in the air, warm filmic grade with cool shadows, heavy 35mm film grain, photographic realism. Historically accurate Reval 1343.",
         "video_prompt": "9 seconds. Camera: slow pull back and slight lift as the pair walk toward and past camera, 35mm, steadicam at chest height. Subject motion: the almshouse door swinging shut and seating with a bounce in the first second; the smith's long unhurried stride; the boy half-running two steps to keep the gap, then settling; the cloak dragging; breath clouds; a dog crossing the lane behind them. Audio: door latch, boots in wet earth, a distant church bell, a single dry cough from inside the almshouse as the door shuts; music is one low plucked figure only. Voice-over only, no lip-sync. Narrator lines l1-l2; l2 ends as the smith passes the lens.",
         "negative_prompt": "text, watermark, smiling faces, heroic posing, sunlight, cobblestone pavement, modern doors with hinges visible as steel, hero shot, backlit glory lighting"
       }
     },
     {
       "id": "s02_street",
-      "still": "res://assets/cutscenes/prologue_taken_in/s02_street.png",
+      "still": "res://assets/cutscenes/prologue_taken_in/s02_street.jpg",
       "video": "",
       "transition_in": "dissolve",
       "motion": {
@@ -92,14 +144,14 @@
       },
       "authoring": {
         "direction": "Establish the playable world and the hero's permanent condition in one frame: a dense real street plus one cold thing that only he registers. Keep the phantom tiny, deep in a doorway, easy to miss on a first viewing - it rewards a second look and teaches that the spirit layer is always on.",
-        "image_prompt": "Cinematic film still, 28mm wide, eye-level along a busy narrow medieval Hanseatic street in the morning: tall lime-washed and timber-framed houses with stepped gables and red tile, hoist beams overhead, a loaded ox cart squeezing past, a fishwife with a flat basket of Baltic herring, two carters arguing over right of way, a watchman in a kettle helm and padded jack standing at a corner with his eyes on the crowd, chickens, mud, a woman emptying a pail into the street channel. Mid-frame among it, small: a broad soot-stained master smith striding through the crowd with a thin fifteen-year-old boy trailing him, the boy's head turned toward a dark recessed doorway on the left. Deep in that doorway, barely visible and easy to miss: a thin translucent cold-cyan shape with too-long fingers leaning out at the boy's height, lit faintly from within, unnoticed by every other person in the frame. Overcast morning light, warm filmic grade in the street, one small cold cyan accent in the doorway, fine film grain, atmospheric depth. Historically accurate Reval 1343. No text, no legible signage.",
+        "image_prompt": "Cinematic film still, 35mm lens, eye-level in a narrow empty medieval street at cold early morning, only four people in the whole frame. Lime-washed and timber-framed houses with stepped gables, red clay tile roofs and closed wooden shutters lean over a street of deep churned mud with a central drainage channel; a heavy hoist beam juts overhead; a wicker basket of herring stands against a wall. In the middle distance, walking away from camera: a broad soot-stained master smith in his forties in a scorched leather apron over a dark wool tunic, and three paces behind him a lanky fifteen-year-old boy in an undyed linen tunic and an oversized coarse wool cloak, the boy's head turned sharply toward a dark recessed doorway on the left. Deep inside that doorway, small and half-hidden in shadow, barely visible: a thin faint translucent pale-blue figure with unnaturally long fingers leaning out at the boy's height. Far behind them, a single watchman in a kettle helm at a corner. Flat overcast morning light, warm filmic grade with one faint cold blue accent in the doorway, heavy 35mm film grain, atmospheric depth, photographic realism. Historically accurate 14th century Baltic town.",
         "video_prompt": "9 seconds. Camera: slow lateral pan left tracking the pair through the crowd, 28mm, slight handheld life, foreground figures crossing and briefly blocking the lens. Subject motion: full street business - cart wheel, haggling, the watchman's head turning to follow the smith, a shutter opening above; the boy's head turning to the doorway and holding; the cyan shape leaning a few centimetres further out and withdrawing as a passer-by crosses in front of it; the boy facing front again and quickening his step. Audio: dense street mix, cart, gulls, Low German and Estonian cross-talk, and a single thin high tone that fades in only while the doorway is in frame and cuts the instant the boy looks away. Voice-over only, no lip-sync. Narrator lines l1-l2; 'He kept walking' as the boy's head turns back to front.",
         "negative_prompt": "text, watermark, legible signage, empty clean street, tourists, modern crowd, bright saturated colours, ghost in plain sight, glowing eyes, monster in the open"
       }
     },
     {
       "id": "s03_forge",
-      "still": "res://assets/cutscenes/prologue_taken_in/s03_forge.png",
+      "still": "res://assets/cutscenes/prologue_taken_in/s03_forge.jpg",
       "video": "",
       "transition_in": "dissolve",
       "motion": {
@@ -135,7 +187,7 @@
       },
       "authoring": {
         "direction": "The hub reveal and the promise of the loop. Heat is the subject: after two cold chapters the audience should want to be inside. End on the boy stepping toward the light so the first frame of gameplay continues the motion.",
-        "image_prompt": "Cinematic film still, 35mm, exterior night-into-morning contrast shot of a medieval smithy on a Lower Town street: a low limestone and timber workshop with a wide open double door and an unshuttered work hatch, the interior blazing orange from a stone hearth and a glowing billet on the anvil, sparks and heat shimmer spilling into the grey morning air, smoke venting from a roof hole, horseshoes and barrel hoops hung on the outside wall, a water trough, a stacked charcoal basket, scrap iron. Silhouetted in the doorway against the forge light, back to camera: a broad master smith with one hand on the door jamb, pushing it wider. Two paces behind him in the cold grey street, lit on one side by the forge glow and on the other by flat dawn, a thin fifteen-year-old boy stopped mid-step, looking in. Strong two-source light design, forge amber against cold blue morning, warm filmic grade, fine film grain, airborne ash and dust catching the light. Historically accurate Reval 1343 smithy. No text, no fantasy magic effects.",
+        "image_prompt": "Cinematic film still, 35mm lens, exterior of a 14th-century village smithy at cold grey dawn, seen from the muddy street. A low limestone and timber workshop with a wide open double plank door; inside, a stone hearth and a glowing white-hot iron billet on an anvil blaze orange, throwing sparks and heat shimmer out into the cold air; smoke vents from a hole in the thatched roof; horseshoes and barrel hoops hang on the outside wall; a hollowed log water trough, a wicker charcoal basket, scrap iron half-sunk in churned mud. Silhouetted in the doorway against the forge light, back to camera: a broad master smith in his forties with hair tied back and a scorched leather apron, one hand on the door jamb pushing it wider. Two paces behind him in the cold street, lit warm orange on one side and cold blue on the other, a lanky fifteen-year-old boy in an undyed linen tunic and an oversized coarse wool cloak stopped mid-step, looking in. Strong two-source light design, forge amber against cold blue morning, warm filmic grade, heavy 35mm film grain, airborne ash catching the light, photographic realism.",
         "video_prompt": "11 seconds. Camera: slow push-in from the street toward the open door, 35mm, drifting behind and past the boy so the forge interior grows until it fills the upper frame. Subject motion: the door swinging wider under the smith's hand and shuddering on its hinge; the billet on the anvil pulsing orange; a sparse spray of sparks; bellows breathing somewhere inside and the light brightening in time with it; smoke rolling out and up; the boy's shoulders dropping as the heat reaches him, then one step forward at the very end of the shot. Audio: bellows, a single hammer stroke on iron timed to the first word of l2, charcoal crackle, the street fading behind; music builds to the prologue's one full statement and holds on the last frame. Voice-over only, no lip-sync. Narrator lines l1-l3; l3 'Go in, boy' over the boy's forward step, then cut to gameplay on the same motion with no fade.",
         "negative_prompt": "text, watermark, magical glowing runes, blue fire, sparks as fireworks, modern anvil, machine press, gas forge, clean workshop, Renaissance armour display"
       }

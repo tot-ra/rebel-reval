@@ -1,7 +1,8 @@
 extends RichTextLabel
 
-## New game opens in the almshouse (ADR 0033); the opening then hands over to the forge.
-const OPENING_SCENE := "res://scenes/prologue/almshouse_opening.tscn"
+## New game opens on the historical prologue cutscene (ADR 0034), which chains into the
+## almshouse opening (ADR 0033) and from there to the forge.
+const OPENING_SCENE := "res://scenes/cutscene/prologue_opening.tscn"
 
 func _ready() -> void:
 	mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND

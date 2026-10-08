@@ -1,5 +1,9 @@
 # Prequel Visual Prompts: The Forging of Chains (1219)
 
+> **Legacy status: `reference`.** Superseded by [ADR 0034](../docs/adr/0034-cutscene-mode-and-cinematic-prologue.md).
+> Lembitu, Aita and the grove massacre are not in the shipped prologue; see
+> [`cinematics/PROLOGUE.md`](../cinematics/PROLOGUE.md).
+
 **Setting:** A sacred oak grove in Harju County, circa 1219. The air is thick with the smell of damp earth, moss, and the faint, sweet scent of burning offerings. An ancient, massive oak tree, its branches like gnarled arms reaching for the sky, stands at the center of a clearing. Carved wooden idols stand guard around it.
 
 **(The scene opens with a wide shot of the sacred grove. The sun is setting, casting long, ominous shadows. The Volkhv is leading a ritual at the base of the great oak. Lembitu stands guard, his hand resting on the hilt of his sword. Aita watches from a safe distance, her eyes wide with a mixture of awe and fear.)**

@@ -180,6 +180,7 @@ The initial vocabulary must cover the existing runtime contract without exposing
 | `view_landmark` | Stable ID, supported view-only kind, placement and dimensions | `view_landmarks` |
 | `surroundings` | Explicit per-side view continuation (`town`, `water`, `woodland`) | `surroundings_sides` |
 | `camera_bounds` | Optional cell rectangle, otherwise full map bounds | `camera_bounds` |
+| `vegetation_mask` | Stable ID, cell rectangle, ecology layer (`ground_cover`, `grass`, `flowers`, `shrubs`, `trees`, `all`), density multiplier 0..4; view-only (R-1322) | `vegetation_masks` |
 | `prefab_instance` | Stable instance ID, prefab ID/version, origin, supported transform, overrides | Expanded primitives in the fields above |
 
 ### Smithy activity points (P2-058)
@@ -1098,6 +1099,20 @@ prop road.birch tree 90 44 style=tree.birch.large
 ```
 
 `prop bush` and `prop tree` place slow-down volumes over their `rect=` footprint (or around the anchor cell when no rect is given). Tree props resolve one of ten local woodland and orchard species (spruce, pine, birch, oak, alder, aspen, maple, linden, apple, cherry) at small, medium, or large scale. Visual scatter for woodland zones and exterior `woodland` surroundings uses the same species catalog and map seed; they do not change collision or navigation.
+
+### Ecology placement and the vegetation override mask (R-1322)
+
+Status: implemented (task **R-1322**, VEGR-3). Scatter density and understory are decided by [`VegetationEcology`](../scripts/map/vegetation_ecology.gd), a pure function of the compiled `MapDefinition` and its terrain grid: distance to water, to trodden road or path (`dirt`, `cobblestone`, `castle_paving`), to building footprints, to bare limestone (`stone`) and to field ground (`farm_soil`, `hay`, `straw`); woodland shade and its conifer share from tree zones, `forest_floor` and authored `tree` props; and a low-frequency fertility noise from the map seed. Nothing is generated into the map: preview, runtime, chunking and the 3D view evaluate the same function of the same definition, and a chunk split never changes a cell's result. Authored terrain styles keep at least half their density; authored props and buildings still block scatter, so they always win.
+
+Authors steer it without code through `vegetation_mask`. Masks are view-only (no collision, navigation or gameplay effect), carry a stable ID like any primitive, and multiply the ecology density of one layer, or every layer with `all`, inside their rectangle. Overlapping masks multiply. `density=0` clears planting (a threshing floor, a fairground, a garden kept bare), `density=2` doubles it; the allowed range is 0..4 and unknown layers are rejected at compile time.
+
+```rrmap
+vegetation_mask mask.threshing_floor 40 22 6 4 layer=all density=0
+vegetation_mask mask.hazel_thicket 12 30 8 5 layer=shrubs density=2.5
+vegetation_mask mask.mown_lawn 60 10 12 8 layer=flowers density=0.2
+```
+
+The typed API is `MapBlueprint.vegetation_mask(id, rect, layer, density)`. Compiled masks land in `MapDefinition.vegetation_masks` sorted by ID. They enter the fingerprint only when a map has at least one, so maps without masks keep their fingerprints and parity fixtures. The full rules and evidence are in [`VEGETATION_REALISM.md`](SYSTEMS/VEGETATION_REALISM.md#5-ecology-driven-placement).
 
 ## Production hardening contract
 

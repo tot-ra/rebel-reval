@@ -132,7 +132,6 @@ Roles `level`, `map`, and `event` have full conversion specifications later in t
 | `tools/capture_demo_walkthrough_host.tscn` | test | `retain` | Packaged demo walkthrough capture host | Developer/CI host for D-004 frame capture; never release-playable | not a map definition |
 | `tools/capture_reval_city_walk.tscn` | test | `retain` | Seamless Reval city walk acceptance host | ADR 0031 walk over real input and physics frames (Viru, Pikk jalg, Lühike jalg, Pikk to the shore, a house door); never release-playable | not a map definition |
 | `tools/verify_world_seam_walk.tscn` | test | `retain` | WorldHost seam-walk verification host | R-1043 flag-on physical seam walk over real physics frames; never release-playable | not a map definition |
-| `generated/comfyui/forge_cat_hunyuan3d_v1/production/godot_verify/verify.tscn` | test | `retain` | Forge cat GLB import verification host | ComfyUI production pipeline smoke only; never release-playable | not a map definition |
 
 | `assets/characters/shared/sword.tscn` | support | `retain` | Shared sword equipment mesh | Equippable weapon component; not a map | not a map definition |
 | `assets/characters/variants/aita.tscn` | actor | `retain` | Aita NPC variant | Shared rig cast variant; no map activation | not a map definition |
@@ -157,21 +156,41 @@ Roles `level`, `map`, and `event` have full conversion specifications later in t
 | `scenes/reval_toompea/toompea_small_castle.tscn` | level | `convert` | `loc.toompea.small_castle` | `active=false` Danish Small Castle interior; developer traversal only until a separate approval artifact | `scripts/map/definitions/prototypes/toompea_small_castle_definition.gd` |
 | `tools/benchmarks/renderer_comparison_benchmark.tscn` | test | `retain` | Renderer comparison benchmark host | Developer-only renderer probe; never release-playable | not a map definition |
 
-| `assets/storybook/aita/aita.tscn` | test | `retain` | Model and equipment review | P0-206 asset integration; no map activation | not a map definition |
-| `assets/storybook/ellen/ellen.tscn` | test | `retain` | Model and equipment review | P0-206 asset integration; no map activation | not a map definition |
 | `assets/storybook/equipment/hammer.tscn` | actor | `retain` | Grounded live actor or held prop | P0-206 asset integration; no map activation | not a map definition |
-| `assets/storybook/equipment/shield.tscn` | actor | `retain` | Grounded live actor or held prop | P0-206 asset integration; no map activation | not a map definition |
 | `assets/storybook/equipment/sword.tscn` | actor | `retain` | Grounded live actor or held prop | P0-206 asset integration; no map activation | not a map definition |
 | `assets/storybook/forge_cat/forge_cat.tscn` | actor | `retain` | Grounded live actor or held prop | P0-206 asset integration; no map activation | not a map definition |
-| `assets/storybook/henning/henning.tscn` | test | `retain` | Model and equipment review | P0-206 asset integration; no map activation | not a map definition |
-| `assets/storybook/jurgen/jurgen.tscn` | test | `retain` | Model and equipment review | P0-206 asset integration; no map activation | not a map definition |
-| `assets/storybook/kaja/kaja.tscn` | test | `retain` | Model and equipment review | P0-206 asset integration; no map activation | not a map definition |
 | `assets/characters/kalev_fresh/kalev_fresh.tscn` | test | `retain` | Model and equipment review | P0-214 rebuild review; no map activation | not a map definition |
 | `assets/characters/kalev_fresh/preview.tscn` | test | `retain` | Model and equipment review | P0-214 rebuild review; no map activation | not a map definition |
-| `assets/storybook/mart/mart.tscn` | test | `retain` | Model and equipment review | P0-206 asset integration; no map activation | not a map definition |
-| `assets/storybook/watchman/watchman.tscn` | test | `retain` | Model and equipment review | P0-206 asset integration; no map activation | not a map definition |
 | `scenes/debug/storybook_showcase.tscn` | test | `retain` | Model and equipment review | P0-206 asset integration; no map activation | not a map definition |
 | `assets/characters/showcase/modular_character_showcase.tscn` | test | `retain` | Model and equipment review | P0-206 asset integration; no map activation | not a map definition |
+| `assets/characters/variants/apprentice.tscn` | actor | `retain` | Crowd/citizen variant apprentice | Shared-rig ambient body; not a map destination | not a map definition |
+| `assets/characters/variants/citizen_f_adult_average_b.tscn` | actor | `retain` | Crowd/citizen variant citizen_f_adult_average_b | Shared-rig ambient body; not a map destination | not a map definition |
+| `assets/characters/variants/citizen_f_adult_average.tscn` | actor | `retain` | Crowd/citizen variant citizen_f_adult_average | Shared-rig ambient body; not a map destination | not a map definition |
+| `assets/characters/variants/citizen_f_adult_heavy_b.tscn` | actor | `retain` | Crowd/citizen variant citizen_f_adult_heavy_b | Shared-rig ambient body; not a map destination | not a map definition |
+| `assets/characters/variants/citizen_f_adult_heavy.tscn` | actor | `retain` | Crowd/citizen variant citizen_f_adult_heavy | Shared-rig ambient body; not a map destination | not a map definition |
+| `assets/characters/variants/citizen_f_adult_sturdy_b.tscn` | actor | `retain` | Crowd/citizen variant citizen_f_adult_sturdy_b | Shared-rig ambient body; not a map destination | not a map definition |
+| `assets/characters/variants/citizen_f_adult_sturdy.tscn` | actor | `retain` | Crowd/citizen variant citizen_f_adult_sturdy | Shared-rig ambient body; not a map destination | not a map definition |
+| `assets/characters/variants/citizen_f_adult_thin_b.tscn` | actor | `retain` | Crowd/citizen variant citizen_f_adult_thin_b | Shared-rig ambient body; not a map destination | not a map definition |
+| `assets/characters/variants/citizen_f_adult_thin.tscn` | actor | `retain` | Crowd/citizen variant citizen_f_adult_thin | Shared-rig ambient body; not a map destination | not a map definition |
+| `assets/characters/variants/citizen_f_child_average.tscn` | actor | `retain` | Crowd/citizen variant citizen_f_child_average | Shared-rig ambient body; not a map destination | not a map definition |
+| `assets/characters/variants/citizen_f_elder_heavy.tscn` | actor | `retain` | Crowd/citizen variant citizen_f_elder_heavy | Shared-rig ambient body; not a map destination | not a map definition |
+| `assets/characters/variants/citizen_f_elder_thin.tscn` | actor | `retain` | Crowd/citizen variant citizen_f_elder_thin | Shared-rig ambient body; not a map destination | not a map definition |
+| `assets/characters/variants/citizen_m_adult_average_b.tscn` | actor | `retain` | Crowd/citizen variant citizen_m_adult_average_b | Shared-rig ambient body; not a map destination | not a map definition |
+| `assets/characters/variants/citizen_m_adult_average.tscn` | actor | `retain` | Crowd/citizen variant citizen_m_adult_average | Shared-rig ambient body; not a map destination | not a map definition |
+| `assets/characters/variants/citizen_m_adult_heavy_b.tscn` | actor | `retain` | Crowd/citizen variant citizen_m_adult_heavy_b | Shared-rig ambient body; not a map destination | not a map definition |
+| `assets/characters/variants/citizen_m_adult_heavy.tscn` | actor | `retain` | Crowd/citizen variant citizen_m_adult_heavy | Shared-rig ambient body; not a map destination | not a map definition |
+| `assets/characters/variants/citizen_m_adult_sturdy_b.tscn` | actor | `retain` | Crowd/citizen variant citizen_m_adult_sturdy_b | Shared-rig ambient body; not a map destination | not a map definition |
+| `assets/characters/variants/citizen_m_adult_sturdy.tscn` | actor | `retain` | Crowd/citizen variant citizen_m_adult_sturdy | Shared-rig ambient body; not a map destination | not a map definition |
+| `assets/characters/variants/citizen_m_adult_thin_b.tscn` | actor | `retain` | Crowd/citizen variant citizen_m_adult_thin_b | Shared-rig ambient body; not a map destination | not a map definition |
+| `assets/characters/variants/citizen_m_adult_thin.tscn` | actor | `retain` | Crowd/citizen variant citizen_m_adult_thin | Shared-rig ambient body; not a map destination | not a map definition |
+| `assets/characters/variants/citizen_m_child_average.tscn` | actor | `retain` | Crowd/citizen variant citizen_m_child_average | Shared-rig ambient body; not a map destination | not a map definition |
+| `assets/characters/variants/citizen_m_elder_heavy.tscn` | actor | `retain` | Crowd/citizen variant citizen_m_elder_heavy | Shared-rig ambient body; not a map destination | not a map definition |
+| `assets/characters/variants/citizen_m_elder_thin.tscn` | actor | `retain` | Crowd/citizen variant citizen_m_elder_thin | Shared-rig ambient body; not a map destination | not a map definition |
+| `scenes/cutscene/prologue_opening.tscn` | ui | `retain` | Prologue opening scene | Prologue flow scene; not a map | not a map definition |
+| `scenes/prologue/almshouse_opening.tscn` | ui | `retain` | Almshouse opening scene | Prologue flow scene; not a map | not a map definition |
+| `tools/capture_city_citizens.tscn` | test | `retain` | Capture city citizens tool scene | Developer-only capture or profiling host; never release-playable | not a map definition |
+| `tools/capture_city_fauna.tscn` | test | `retain` | Capture city fauna tool scene | Developer-only capture or profiling host; never release-playable | not a map definition |
+| `tools/profile_reval_city.tscn` | test | `retain` | Profile reval city tool scene | Developer-only capture or profiling host; never release-playable | not a map definition |
 
 ## Detailed map, level, and event specifications
 

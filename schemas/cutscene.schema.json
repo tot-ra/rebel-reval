@@ -162,6 +162,11 @@
           "type": "string",
           "minLength": 1
         },
+        "voice": {
+          "description": "Optional res:// path to the spoken take of this line. When set, the player plays it on the Voice bus and holds the line until the audio ends.",
+          "type": "string",
+          "pattern": "^res://.+\\.(mp3|ogg|wav)$"
+        },
         "seconds": {
           "description": "Auto-advance delay. Input advances earlier.",
           "type": "number",
@@ -171,16 +176,30 @@
         "delivery": {
           "description": "Voice direction for the video tier: tone, pace, accent, breath.",
           "type": "string"
+        },
+        "conditions": {
+          "description": "Optional state conditions (same ops as dialogue). The line plays only when all hold; a player without game state drops conditional lines.",
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/condition"
+          }
         }
       }
     },
     "sound": {
-      "description": "Reserved in this change; the prologue plays silent (ADR 0034 consequences).",
+      "description": "Per-shot audio. `music` starts an underscore that keeps playing until the sequence ends (then fades out); `ambience` is reserved.",
       "type": "object",
       "additionalProperties": false,
       "properties": {
         "music": {
+          "description": "Optional res:// mp3/ogg underscore started with this shot. Empty keeps whatever is already playing.",
           "type": "string"
+        },
+        "music_volume_db": {
+          "description": "Music-bus level of the underscore in dB (default -16, well under the narrator).",
+          "type": "number",
+          "minimum": -60,
+          "maximum": 6
         },
         "ambience": {
           "type": "string"

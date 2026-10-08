@@ -5,6 +5,13 @@ const PlantSpecies := preload("res://scripts/map/view3d/map_view_plant_species.g
 const PlantMeshes := preload("res://scripts/map/view3d/map_view_plant_meshes.gd")
 const BushSpecies := preload("res://scripts/map/view3d/map_view_bush_species.gd")
 const BushMeshes := preload("res://scripts/map/view3d/map_view_bush_meshes.gd")
+## R-1320: every vegetation MultiMesh carries an explicit benchmark layer tag, so
+## tools/capture_vegetation_benchmark.gd attributes cost without guessing from
+## node names (surroundings rename some layers). Metadata only; no render change.
+const VEG_LAYER_META := &"veg_layer"
+## R-1322 review switch for before/after captures only
+## (tools/capture_vegetation_realism.gd -- ecology). Runtime never changes it.
+static var ecology_enabled := true
 
 
 ## Layered decorative vegetation and ground clutter. Textured ground cover carries
@@ -49,6 +56,9 @@ static func begin_scatter(
 	state["blocked"] = blocked
 	state["field"] = MapViewMeshBuilderTerrain.ensure_height_field(definition, grid)
 	state["is_urban"] = _is_urban_map(definition)
+	# R-1322: where plants grow. Region-local and margin-padded, so a chunk split
+	# never changes a cell's result.
+	state["ecology"] = VegetationEcology.for_region(definition, grid, bounds)
 	state["small_grass"] = [] as Array[Transform3D]
 	state["small_grass_colors"] = [] as Array[Color]
 	state["hay_stubble"] = [] as Array[Transform3D]
@@ -104,6 +114,7 @@ static func collect_rows(state: Dictionary, until_row: int) -> bool:
 	var stone_colors: Array[Color] = state["stone_colors"]
 	var puddles: Array[Transform3D] = state["puddles"]
 	var puddle_colors: Array[Color] = state["puddle_colors"]
+	var ecology: VegetationEcology = state["ecology"]
 
 	for y in range(first_row, last_row):
 		for x in range(bounds.position.x, bounds.end.x):
@@ -147,6 +158,18 @@ static func collect_rows(state: Dictionary, until_row: int) -> bool:
 			# open sea; shore debris and cattails are placed by their own passes.
 			if MapTypes.WATER_TERRAINS.has(terrain):
 				continue
+			# R-1322 ecology multipliers on the authored/terrain chances below.
+			var grass_eco := 1.0
+			var flower_eco := 1.0
+			var cover_eco := 1.0
+			var shrub_eco := 1.0
+			var tree_eco := 1.0
+			if ecology_enabled:
+				grass_eco = ecology.density(VegetationEcology.LAYER_GRASS, cell)
+				flower_eco = ecology.density(VegetationEcology.LAYER_FLOWERS, cell)
+				cover_eco = ecology.density(VegetationEcology.LAYER_GROUND_COVER, cell)
+				shrub_eco = ecology.density(VegetationEcology.LAYER_SHRUBS, cell)
+				tree_eco = ecology.density(VegetationEcology.LAYER_TREES, cell)
 
 			var puddle_chance := float(MapViewMeshBuilderConfig.PUDDLE_CHANCE.get(terrain, 0.0))
 			if puddle_chance > 0.0:
@@ -205,7 +228,7 @@ static func collect_rows(state: Dictionary, until_row: int) -> bool:
 			var small_chance := float(
 				MapViewMeshBuilderConfig.SCATTER_SMALL_GRASS_CHANCE.get(terrain, 0.0)
 			)
-			small_chance *= float(profile.get("small_chance_scale", 1.0)) * density
+			small_chance *= float(profile.get("small_chance_scale", 1.0)) * density * grass_eco
 			if MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 4242) < small_chance:
 				var small_min := float(profile.get("small_height_min", 0.34))
 				var small_max := float(profile.get("small_height_max", 0.62))
@@ -219,7 +242,7 @@ static func collect_rows(state: Dictionary, until_row: int) -> bool:
 					Color(green * 0.94 * tint.r, green * tint.g, green * 0.8 * tint.b)
 				)
 
-			var large_chance := float(profile.get("large_chance", 0.0)) * density
+			var large_chance := float(profile.get("large_chance", 0.0)) * density * grass_eco
 			if MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 4357) < large_chance:
 				var large_min := float(profile.get("large_height_min", 0.75))
 				var large_max := float(profile.get("large_height_max", 1.05))
@@ -239,7 +262,7 @@ static func collect_rows(state: Dictionary, until_row: int) -> bool:
 
 			if (
 				MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 1200)
-				< float(profile.get("flower_chance", 0.0)) * density
+				< float(profile.get("flower_chance", 0.0)) * density * flower_eco
 			):
 				small_grass.append(
 					_scatter_transform(field, x, y, definition.seed + 1271, 0.35, 0.55)
@@ -251,13 +274,13 @@ static func collect_rows(state: Dictionary, until_row: int) -> bool:
 				)
 			if (
 				MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 1400)
-				< float(profile.get("clover_chance", 0.0)) * density
+				< float(profile.get("clover_chance", 0.0)) * density * cover_eco
 			):
 				clovers.append(_scatter_transform(field, x, y, definition.seed + 1450, 0.7, 1.0))
 				clover_colors.append(Color(0.62, 0.86, 0.48))
 			if (
 				MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 1300)
-				< float(profile.get("fern_chance", 0.0)) * density
+				< float(profile.get("fern_chance", 0.0)) * density * cover_eco
 			):
 				large_grass.append(
 					_scatter_transform(field, x, y, definition.seed + 1310, 0.5, 0.82)
@@ -282,7 +305,7 @@ static func collect_rows(state: Dictionary, until_row: int) -> bool:
 						)
 					)
 
-			var plant_chance := float(profile.get("plant_chance", 0.0)) * density
+			var plant_chance := float(profile.get("plant_chance", 0.0)) * density * cover_eco
 			if (
 				plant_chance > 0.0
 				and MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 1867) < plant_chance
@@ -299,6 +322,7 @@ static func collect_rows(state: Dictionary, until_row: int) -> bool:
 					)
 					* density
 				)
+			bush_chance *= shrub_eco
 			if (
 				bush_chance > 0.0
 				and MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 1500) < bush_chance
@@ -328,6 +352,7 @@ static func collect_rows(state: Dictionary, until_row: int) -> bool:
 					)
 				)
 				* density
+				* tree_eco
 			)
 			if MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 2309) < tree_chance:
 				var tree_variant: StringName = profile.get("tree_variant", variant)
@@ -336,6 +361,9 @@ static func collect_rows(state: Dictionary, until_row: int) -> bool:
 				elif tree_variant.is_empty():
 					tree_variant = TerrainVegetation.VARIANT_TREE_MIXED
 				_append_scattered_tree(tree_batches, field, x, y, definition.seed, tree_variant)
+
+			if ecology_enabled:
+				_append_understory(state, ecology.understory(cell), x, y, density)
 
 			var stone_chance := float(
 				MapViewMeshBuilderConfig.SCATTER_STONE_CHANCE.get(terrain, 0.0)
@@ -353,6 +381,57 @@ static func collect_rows(state: Dictionary, until_row: int) -> bool:
 					Color(gray * (0.96 + warmth * 0.10), gray, gray * (1.04 - warmth * 0.12))
 				)
 	return last_row >= bounds.end.y
+
+
+## R-1322: one ecology understory pick per cell, drawn with existing meshes in
+## existing batches (sedge and fern as large tufts, moss as low cushions, field
+## weeds as flower tufts, nettle and juniper in their species batches), so the
+## pass adds draw calls only where nettle or juniper actually grow. `density`
+## is the urban/authored object multiplier, so towns stay sparse.
+static func _append_understory(
+	state: Dictionary, pick: Dictionary, x: int, y: int, density: float
+) -> void:
+	var kind: StringName = pick["kind"]
+	var definition: MapDefinition = state["definition"]
+	var field: Dictionary = state["field"]
+	if kind.is_empty():
+		return
+	if (
+		MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 6211)
+		>= float(pick["chance"]) * density
+	):
+		return
+	var seed := definition.seed + 6229
+	var shade := MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 6233)
+	match kind:
+		VegetationEcology.UNDERSTORY_SEDGE:
+			(state["large_grass"] as Array).append(_scatter_transform(field, x, y, seed, 0.62, 0.95))
+			(state["large_grass_colors"] as Array).append(
+				Color(0.50, 0.64, 0.40).lerp(Color(0.42, 0.56, 0.36), shade)
+			)
+		VegetationEcology.UNDERSTORY_FERN:
+			(state["large_grass"] as Array).append(_scatter_transform(field, x, y, seed, 0.5, 0.82))
+			(state["large_grass_colors"] as Array).append(Color(0.48, 0.72, 0.42))
+		VegetationEcology.UNDERSTORY_MOSS:
+			(state["clovers"] as Array).append(_scatter_transform(field, x, y, seed, 0.55, 0.9))
+			(state["clover_colors"] as Array).append(
+				Color(0.40, 0.54, 0.28).lerp(Color(0.52, 0.60, 0.30), shade)
+			)
+		VegetationEcology.UNDERSTORY_FIELD_WEED:
+			(state["small_grass"] as Array).append(_scatter_transform(field, x, y, seed, 0.35, 0.55))
+			(state["small_grass_colors"] as Array).append(
+				MapVisualStyle.role_color(
+					&"flower", MapVisualStyle.TARGET_CLEAN_PAINTED, MapVisualStyle.TIME_DAY
+				)
+			)
+		VegetationEcology.UNDERSTORY_NETTLE:
+			_append_scattered_plant(
+				state["plant_batches"], field, x, y, seed, PlantSpecies.SPECIES_NETTLE
+			)
+		VegetationEcology.UNDERSTORY_JUNIPER:
+			_append_scattered_bush(
+				state["bush_batches"], field, x, y, seed, &"", BushSpecies.SPECIES_JUNIPER_SHRUB
+			)
 
 
 ## Emits every collected layer and the shore dressing; returns the chunk root.
@@ -424,6 +503,7 @@ static func emit_layers(state: Dictionary) -> void:
 			Vector3(0.0, 0.02, 0.0)
 		)
 		clover_instances.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		_tag_layer(clover_instances, &"flowers")
 		clover_instances.visibility_range_end = (
 			MapViewMeshBuilderConfig.SCATTER_GRASS_VISIBILITY_RANGE
 		)
@@ -559,6 +639,7 @@ static func _emit_bush_batches(root: Node3D, batches: Dictionary) -> void:
 		)
 		instances.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		instances.set_meta(&"bush_species", species)
+		_tag_layer(instances, &"shrubs")
 		root.add_child(instances)
 
 
@@ -609,6 +690,7 @@ static func _emit_plant_batches(root: Node3D, batches: Dictionary) -> void:
 		)
 		instances.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		instances.set_meta(&"plant_species", species)
+		_tag_layer(instances, _plant_layer(species))
 		root.add_child(instances)
 
 
@@ -744,6 +826,8 @@ static func _emit_tree_batches(root: Node3D, batches: Dictionary) -> void:
 			TreeLeafFall3D.tag_canopy(instances, species, typed_transforms)
 		if layer == &"fruit":
 			instances.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		# One mesh per species, no LOD chain outside the city yet (VEGR-7).
+		_tag_layer(instances, &"trees_lod0")
 		root.add_child(instances)
 
 
@@ -761,6 +845,7 @@ static func _add_grass_layer(
 	)
 	# Paper-thin wind-animated blades flicker in directional shadow maps.
 	instances.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	_tag_layer(instances, &"veg_misc" if layer_name == "Reeds" else &"grass_mid")
 	# Cull distant grass instances that are invisible to the camera. The scatter
 	# layer covers the entire district; without range culling every MultiMesh
 	# instance is submitted to the GPU even when far off-screen, tanking FPS on
@@ -786,6 +871,7 @@ static func _add_hay_stubble_layer(
 		Vector3.ZERO
 	)
 	instances.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	_tag_layer(instances, &"grass_mid")
 	instances.visibility_range_end = MapViewMeshBuilderConfig.SCATTER_GRASS_VISIBILITY_RANGE
 	instances.visibility_range_end_margin = (
 		MapViewMeshBuilderConfig.SCATTER_GRASS_VISIBILITY_RANGE_MARGIN
@@ -812,7 +898,24 @@ static func _add_cattail_layer(
 		Vector3.ZERO
 	)
 	instances.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	_tag_layer(instances, &"veg_misc")
 	root.add_child(instances)
+
+
+static func _tag_layer(instance: GeometryInstance3D, layer: StringName) -> void:
+	instance.set_meta(VEG_LAYER_META, layer)
+
+
+## Field cereals (rye, wheat, barley, oat, flax) are the grain layer; flowering
+## herbs are flowers; every other herb, fern, reed or vegetable is veg_misc.
+static func _plant_layer(species: StringName) -> StringName:
+	match PlantSpecies.profile_for(species).get("archetype", &""):
+		PlantSpecies.ARCHETYPE_CEREAL:
+			return &"grain"
+		PlantSpecies.ARCHETYPE_FLOWER:
+			return &"flowers"
+		_:
+			return &"veg_misc"
 
 
 ## Deterministic placement helpers shared by all terrain scatter layers.

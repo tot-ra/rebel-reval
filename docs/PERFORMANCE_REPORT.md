@@ -97,6 +97,49 @@ material (`MapViewStaticBatcher`), dropping shadow casting on architectural trim
 too slim to read as a shadow, and stripping backdrop dressing plus culling
 offscreen chimney plumes.
 
+## Vegetation benchmark (R-1320)
+
+Status: implemented (task **R-1320**, VEGR-0). Per-layer cost of vegetation over a fixed camera set; the measurement gate of the vegetation-realism epic (R-1319). Measurement only: it changes no look, density, placement or shader. A separate report: the default and `--quick` contracts above are unchanged.
+
+```bash
+tools/run_performance_report.sh build/perf_veg.json --vegetation
+python3 tools/vegetation_performance.py budgets build/perf_veg.json \
+  --baseline docs/reports/vegetation_benchmark_baseline.json
+python3 tools/vegetation_performance.py compare run_a.json run_b.json   # determinism
+```
+
+The mode runs `tools/capture_vegetation_benchmark.gd` through `tools/godot_render.sh --resolution 1920x1080 --disable-vsync` (minimized window) and prints a per-camera table. It cannot run headless: the dummy renderer drops MultiMesh instance transforms and AABBs, so the tool exits with code 2 there. `VEGETATION_LAYER_TIMING=0` skips the per-layer timing pass (counts and frame totals only, about 40 s). Single camera: `tools/godot_render.sh --disable-vsync --script res://tools/capture_vegetation_benchmark.gd -- --output=res://build/benchmarks/veg.json --camera=meadow_eye_level [--layer-timing] [--frames=40] [--size=1920x1080] [--screenshots=res://build/benchmarks/veg_shots/]`.
+
+**Scene state.** Each map is built with `MapView3D.create`, the calendar fixed at 15 June 1343, noon, default weather, and rendered into a fixed 1920x1080 `SubViewport` (own world), so window size and display scale never change the result.
+
+**Camera set** (cells are map cells, 1 world unit each; eye cameras are perspective, 65 degree FOV, with first-person ground detail on; the gameplay camera reproduces the orthographic follow camera: pitch -30, yaw 45, boom 90, `CharacterScale.GAMEPLAY_ORTHOGRAPHIC_SIZE`):
+
+| Name | Map | Eye cell, height | Aim cell, height |
+|---|---|---|---|
+| `meadow_eye_level` | `viru_gate_foreland` | (121, 31), 1.65 | (136, 22), 0.6 |
+| `meadow_gameplay` | `viru_gate_foreland` | focus (121, 31) | gameplay camera |
+| `grain_field_eye_level` | `viru_gate_foreland` | (36, 79), 1.65 | (30, 95), 0.4 |
+| `woodland_interior` | `viru_gate_foreland` | (50, 114), 1.65 | (24, 116), 2.0 |
+| `woodland_distance` | `viru_gate_foreland` | (35, 72), 6.0 | (35, 114), 3.0 |
+| `lower_town_street` | `lower_town_slice` | (11, 85), 1.65 | (9, 82), 0.35 |
+
+**Layers and attribution.** `grass_near`, `grass_mid`, `grain`, `trees_lod0`, `trees_lod1`, `trees_lod2`, `shrubs`, `flowers`, `litter`, `veg_misc` (vegetation outside the named tiers: reeds, cattails, herbs, ferns), and `other` (every non-vegetation node). Attribution never guesses from node names:
+
+- scatter MultiMeshes carry an explicit `veg_layer` metadata tag set in `scripts/map/view3d/map_view_mesh_builder_scatter.gd` (`SmallGrass`, `LargeGrass`, `HayStubble` are `grass_mid`; cereal-archetype plants are `grain`; flower-archetype plants and clover are `flowers`; bushes are `shrubs`; every tree wood, crown and fruit batch, including the surroundings woodland that reuses the same emitter, is `trees_lod0`);
+- first-person ground cover is attributed by its fixed parent `TerrainDetails/FirstPerson` (`MeadowGrass`, `DryGrass` to `grass_near`; `Clover` to `flowers`; `Ferns` to `veg_misc`);
+- authored props map through their kind on the `MapDefinition` (`tree`, `orchard_row` to `trees_lod0`; `bush`, `hedge` to `shrubs`);
+- `TreeLeafFall3D` descendants are `litter`.
+
+**Counting rule.** A geometry node counts when it is visible in the tree, its world AABB intersects the camera frustum, and its AABB centre is within its `visibility_range_end` (the per-node tests Godot's scene cull applies). A MultiMesh is culled as a whole, so all of its instances count. Triangles are mesh triangles times instances; draw calls are surfaces per submitted node (main pass); `shadow_draw_calls` counts the same surfaces again when the node casts shadows (once per node, not per cascade split).
+
+**Timing.** Frame time is the median of synchronous frames: `RenderingServer.force_draw()` (the main loop skips drawing while the window is minimized) followed by a render-target readback that waits for the GPU. Layer cost (`--layer-timing`) is the median of paired frames with the layer shown and hidden. Small layers repeat within about 1 ms; the tree layer varies by tens of percent, so milliseconds are advisory and counts are the gate.
+
+**Schema** (`rr.vegetation_benchmark.v1`): top level `schema`, `godot`, `renderer`, `display_server`, `host {os, cpu, arch, gpu}`, `resolution`, `timed`, `layer_timing`, `frames`, `layers` (the ordered list above), `cameras[]`. Each camera: `name`, `map_id`, `mode` (`eye` or `gameplay`), `projection`, `fov` or `size`, `cell`, `look_cell`, `position`, `layers {<layer>: {nodes, instances, triangles, draw_calls, shadow_draw_calls}}`, `totals {all, vegetation}`, `vegetation_share {triangles, draw_calls}`, `unattributed_top` (largest `other` nodes, for auditing attribution), `gpu {frame_ms_median, draw_calls_peak, primitives_peak, objects_peak}`, and with layer timing `layer_ms {<layer>: {frame_ms_saved, frame_ms_shown, draw_calls_saved}}`. Counts are integers and reproduce exactly on the same build; adding a layer or camera bumps the schema version.
+
+**Budgets.** `tools/vegetation_performance.py budgets` checks counts against the target budgets in its `BUDGETS` table (documented with their reasoning in [`VEGETATION_REALISM.md`](./SYSTEMS/VEGETATION_REALISM.md) section 8). With `--baseline`, each limit is `max(target, baseline)`: a layer already over target may not grow, a layer under target may grow up to it. Millisecond findings print as advisory warnings. Baseline run and findings: [`docs/reports/vegetation_benchmark_baseline.md`](./reports/vegetation_benchmark_baseline.md).
+
+Verify: `python3 -m unittest tests.python.test_vegetation_performance -v`.
+
 ## Hardware identity and interpretation
 
 `target_hardware` is the declared machine profile for which the run is intended. `measurement_host` is what Godot detects at runtime. They are intentionally separate so a report made on a fast developer machine cannot be mistaken for minimum-hardware proof.

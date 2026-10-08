@@ -101,6 +101,19 @@ static func build_definition(blueprint: MapBlueprint, expanded: Dictionary) -> M
 			volume["music_theme"] = &"garden"
 		definition.fade_volumes.append(volume)
 
+	# R-1322: view-only vegetation override mask, cell rects sorted by id.
+	var masks: Array = expanded["vegetation_masks"]
+	masks.sort_custom(MapBlueprintCompiler._compare_id_records)
+	for values in masks:
+		definition.vegetation_masks.append(
+			{
+				"id": values["id"],
+				"rect": values["rect"],
+				"layer": StringName(values.get("layer", &"")),
+				"density": float(values.get("density", 1.0)),
+			}
+		)
+
 	var decals: Array = expanded["decals"]
 	decals.sort_custom(MapBlueprintCompiler._compare_id_records)
 	for values in decals:
@@ -299,6 +312,10 @@ static func _fingerprint(definition: MapDefinition) -> String:
 		"surroundings_town_sides": definition.surroundings_town_sides,
 		"surroundings_sides": definition.surroundings_sides,
 	}
+	# Only maps that author a vegetation mask carry the key, so every existing
+	# fingerprint and parity fixture stays byte-identical (R-1322).
+	if not definition.vegetation_masks.is_empty():
+		payload["vegetation_masks"] = definition.vegetation_masks
 	return MapParitySnapshot.serialize_value(payload).sha256_text()
 
 

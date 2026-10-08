@@ -1,3 +1,9 @@
+# Act 1 image prompts (legacy)
+
+> **Legacy status: `reference`.** Superseded by [ADR 0034](../docs/adr/0034-cutscene-mode-and-cinematic-prologue.md).
+> Written when Kalev was the adult protagonist. Current cutscene prompts live inside the records
+> (`content/cutscenes/*.json`) under the grammar in [`cinematics/PROMPT_GRAMMAR.md`](../cinematics/PROMPT_GRAMMAR.md).
+
 **Prompt:**
 "Medieval blacksmith forge at night, 1340s Estonia. Kalev, a weathered 25-year-old Estonian man with shoulder-length dark brown hair, angular face with high cheekbones, and calloused scarred hands from years of smithing. He wears a leather apron over simple brown tunic, his muscular forearms visible. Cinematic lighting, historical accuracy, detailed textures
 

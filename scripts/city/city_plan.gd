@@ -15,6 +15,8 @@ const LOGIC_PX_PER_UNIT := 32.0
 const INDEX_CELL := 32.0
 ## Interior floors sit on a slab above the highest ground under the footprint.
 const FLOOR_LIFT := 0.12
+## A bridge deck rides this far above the bank ground at its ends.
+const BRIDGE_DECK_LIFT := 0.12
 ## Streets further than this (beyond their edge) are not named on the HUD.
 const STREET_LABEL_RADIUS := 6.0
 
@@ -160,6 +162,9 @@ func slope_at(world_xz: Vector2) -> float:
 
 ## Height an actor stands at: building floors win over the ground inside a shell.
 func walk_height(world_xz: Vector2) -> float:
+	var deck := bridge_deck_height(world_xz)
+	if not is_nan(deck):
+		return deck
 	for site in sites:
 		var f := site.floor_at(world_xz)
 		if not f.is_empty():
@@ -168,6 +173,25 @@ func walk_height(world_xz: Vector2) -> float:
 	if index >= 0:
 		return floor_height(index)
 	return ground_height(world_xz)
+
+
+## Deck height of the timber bridge under the point, or NAN off every bridge.
+## The deck ramps from bank height to bank height along the road.
+func bridge_deck_height(world_xz: Vector2) -> float:
+	for b: Dictionary in data.get("bridges", []):
+		var at := Vector2(b["at"][0], b["at"][1])
+		var along := Vector2.from_angle(float(b["angle"]))
+		var local := world_xz - at
+		var u := local.dot(along)
+		var v := local.dot(along.orthogonal())
+		var half := float(b["length"]) * 0.5
+		if absf(u) <= half and absf(v) <= float(b["width"]) * 0.5:
+			return bridge_deck_at(b, (u + half) / float(b["length"]))
+	return NAN
+
+
+static func bridge_deck_at(bridge: Dictionary, t: float) -> float:
+	return lerpf(float(bridge["ha"]), float(bridge["hb"]), clampf(t, 0.0, 1.0)) + BRIDGE_DECK_LIFT
 
 
 func floor_height(index: int) -> float:

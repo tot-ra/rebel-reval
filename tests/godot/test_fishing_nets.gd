@@ -13,7 +13,7 @@ func test_fishing_nets_have_knotted_mesh_floats_sinkers_and_grounded_frame() -> 
 	assert_true(model.get_meta(&"production_fishing_nets_model", false))
 	assert_true(model.has_node("FishingNets/Frame"), "rack needs a braced oak frame")
 	assert_true(model.has_node("FishingNets/Netting"), "rack needs visible diamond netting")
-	assert_true(model.has_node("FishingNets/OutlineRope"), "net needs a heavy outline rope and rail lashings")
+	assert_true(model.has_node("FishingNets/OutlineRope"), "net needs a heavy outline rope and rail lashings")  # gdlint: ignore=max-line-length
 	assert_true(model.has_node("FishingNets/Floats"), "net needs a readable float line")
 	assert_true(model.has_node("FishingNets/Sinkers"), "net needs a weighted foot line")
 	assert_false(model.has_node("Mesh0"), "vertical box-strip placeholder must stay retired")
@@ -40,21 +40,21 @@ func test_fishing_nets_have_knotted_mesh_floats_sinkers_and_grounded_frame() -> 
 				textured_material_names[material.resource_name] = true
 
 	assert_false(first, "fishing nets GLB must expose render geometry")
-	assert_true(bounds.size.x >= 1.4 and bounds.size.x <= 1.55, "rack must preserve the one-cell visual width")
-	assert_true(bounds.size.y >= 1.4 and bounds.size.y <= 1.55, "rack needs a readable shoulder-height silhouette")
-	assert_true(bounds.size.z >= 0.45 and bounds.size.z <= 0.58, "rear braces must stay inside the compact net-yard depth")
+	assert_true(bounds.size.x >= 1.4 and bounds.size.x <= 1.55, "rack must preserve the one-cell visual width")  # gdlint: ignore=max-line-length
+	assert_true(bounds.size.y >= 1.4 and bounds.size.y <= 1.55, "rack needs a readable shoulder-height silhouette")  # gdlint: ignore=max-line-length
+	assert_true(bounds.size.z >= 0.45 and bounds.size.z <= 0.58, "rear braces must stay inside the compact net-yard depth")  # gdlint: ignore=max-line-length
 	assert_true(bounds.position.y >= -0.001, "frame and braces must touch the ground plane")
-	assert_true(triangle_count >= 3000 and triangle_count <= 4500, "diamond mesh and maritime cues must stay readable and lightweight")
+	assert_true(triangle_count >= 3000 and triangle_count <= 4500, "diamond mesh and maritime cues must stay readable and lightweight")  # gdlint: ignore=max-line-length
 	assert_eq(material_names.size(), 4, "rack keeps oak, hemp, float, and sinker identities")
-	assert_eq(textured_material_names.size(), 4, "all fishing-net material families need embedded painted albedos")
+	assert_eq(textured_material_names.size(), 4, "all fishing-net material families need embedded painted albedos")  # gdlint: ignore=max-line-length
 
 	var frame := model.get_node("FishingNets/Frame") as MeshInstance3D
 	assert_true(frame.material_override == null, "oak rack must remain on its rigid imported material")
-	for path in ["FishingNets/Netting", "FishingNets/OutlineRope", "FishingNets/Floats", "FishingNets/Sinkers"]:
+	for path in ["FishingNets/Netting", "FishingNets/OutlineRope", "FishingNets/Floats", "FishingNets/Sinkers"]:  # gdlint: ignore=max-line-length
 		var moving_part := model.get_node(path) as MeshInstance3D
-		assert_true(moving_part.material_override is ShaderMaterial, "%s must use GPU wind deformation" % path)
-		assert_true(moving_part.get_meta(&"wind_animated", false), "%s must be tagged as wind animated" % path)
-		assert_true(moving_part.get_instance_shader_parameter("motion_phase") is float, "%s needs a deterministic motion phase" % path)
+		assert_true(moving_part.material_override is ShaderMaterial, "%s must use GPU wind deformation" % path)  # gdlint: ignore=max-line-length
+		assert_true(moving_part.get_meta(&"wind_animated", false), "%s must be tagged as wind animated" % path)  # gdlint: ignore=max-line-length
+		assert_true(moving_part.get_instance_shader_parameter("motion_phase") is float, "%s needs a deterministic motion phase" % path)  # gdlint: ignore=max-line-length
 	host.free()
 
 
@@ -65,17 +65,18 @@ func test_fishing_nets_prop_uses_production_model_without_gameplay_bodies() -> v
 		"position": Vector2(64, 64),
 	}
 	var node := MapViewMeshBuilderProps.build_prop(prop, MapTypes.DEFAULT_CELL_SIZE)
-	assert_true(node.find_child("FishingNetsModel", true, false) != null, "district-life prop must instantiate the production GLB")
-	assert_true(node.find_children("*", "CollisionObject3D", true, false).is_empty(), "visual upgrade must not add collision or navigation bodies")
+	assert_true(node.find_child("FishingNetsModel", true, false) != null, "district-life prop must instantiate the production GLB")  # gdlint: ignore=max-line-length
+	assert_true(node.find_children("*", "CollisionObject3D", true, false).is_empty(), "visual upgrade must not add collision or navigation bodies")  # gdlint: ignore=max-line-length
 	_free_map_scene(node)
 
 
 func test_fishing_nets_follow_shared_weather_wind() -> void:
 	var net := MapViewMaterials.fishing_net_hemp()
 	MapViewMaterials.apply_world_wind(Vector2(0.0, 1.0), 0.84)
-	assert_eq(net.get_shader_parameter("wind_direction"), Vector2(0.0, 1.0), "net must follow harbor wind direction")
-	assert_eq(net.get_shader_parameter("wind_strength"), 0.84, "net must strengthen with storm wind")
+	assert_eq(WindField.current().direction, Vector2(0.0, 1.0), "net must follow harbor wind direction")  # gdlint: ignore=max-line-length
+	assert_almost_eq(WindField.current().strength, 0.84, 0.0001, "net must strengthen with storm wind")
 	var shader := net.shader
+	assert_true(shader.code.contains("wind_field.gdshaderinc"), "net must read the shared wind field")
 	assert_true(shader != null, "fishing net must use a wind shader")
 	assert_true(
 		shader.code.contains("smoothstep(pin_height - pin_fade, pin_height, VERTEX.y)"),

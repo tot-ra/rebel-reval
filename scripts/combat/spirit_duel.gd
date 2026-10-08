@@ -30,7 +30,7 @@ const RESOLVE_RECOVERY_PER_EXCHANGE := 25.0
 const PARRY_RETURN_PRESSURE := 15.0
 ## Blows that land on the hero's composure; other kinds are spoken without a telegraph.
 const INCOMING_DAMAGE: Dictionary = {&"attack": 20.0, &"pressure": 14.0, &"feint": 10.0}
-## Reply kind -> the incoming kind it counters (defense > attack > feint > defense; appeal <> pressure).
+## Reply kind -> the incoming kind it counters (defense > attack > feint > defense; appeal <> pressure).  # gdlint: ignore=max-line-length
 const COUNTERS: Dictionary = {
 	&"defense": &"attack",
 	&"attack": &"feint",
@@ -47,15 +47,24 @@ const REPLY_NEUTRAL := 12.0
 const REPLY_COUNTER := 30.0
 const REPLY_COUNTERED := 4.0
 const REPLY_RESONANCE := 8.0
+## Reply window pressure (SD-18): mild, not a timeout. When the window runs out the hero
+## hesitates once and loses a little composure; the replies stay open.
+const REPLY_WINDOW_SEC := 6.0
+const HESITATION_COMPOSURE := 6.0
 
 var hero_id: StringName = &"char.apprentice"
 var telegraph_sec := TELEGRAPH_SEC
+var reply_window_sec := REPLY_WINDOW_SEC
+## Off through Settings -> Gameplay accessibility -> "Reply timer pressure".
+var reply_pressure_enabled := true
 ## Hero composure is `health`, resolve is `stamina`; the opponent's pressure is `health`.
 var hero := CombatVitals.new()
 var opponent := CombatVitals.new()
 var checkpoint := EncounterCheckpoint.new()
 var phase: StringName = PHASE_IDLE
 var last_outcome: Dictionary = {}
+## Why the last spell reply failed (a MagicResolver failure id), empty after a clean cast.
+var last_cast_failure: StringName = &""
 
 var _runner: Node
 var _state: GameState
@@ -64,6 +73,8 @@ var _dialogue_id: StringName = &""
 var _incoming: Dictionary = {}
 var _choices: Array = []
 var _telegraph_left := 0.0
+var _reply_left := 0.0
+var _hesitated := false
 var _guard_elapsed := -1.0
 var _dodged := false
 var _swing_id := 0
@@ -82,12 +93,21 @@ func begin(runner: Node, content_db: ContentDB, state: GameState, dialogue_id: S
 	return _start_run()
 
 
+func content_db() -> ContentDB:
+	return _content_db
+
+
 func is_over() -> bool:
 	return _finished
 
 
 func tick(delta: float) -> void:
-	if phase != PHASE_TELEGRAPH or delta <= 0.0:
+	if delta <= 0.0:
+		return
+	if phase == PHASE_ANSWER:
+		_tick_reply_window(delta)
+		return
+	if phase != PHASE_TELEGRAPH:
 		return
 	hero.tick(delta)
 	if _guard_elapsed >= 0.0:
@@ -101,6 +121,41 @@ func telegraph_progress() -> float:
 	if phase != PHASE_TELEGRAPH or telegraph_sec <= 0.0:
 		return 0.0
 	return clampf(1.0 - _telegraph_left / telegraph_sec, 0.0, 1.0)
+
+
+## How much of the reply window has run (0 fresh .. 1 run out); 0 when pressure is off.
+func reply_window_progress() -> float:
+	if phase != PHASE_ANSWER or not reply_pressure_enabled or reply_window_sec <= 0.0:
+		return 0.0
+	return clampf(1.0 - _reply_left / reply_window_sec, 0.0, 1.0)
+
+
+## Why `choice` cannot be picked now, empty when it can. A disabled choice keeps its authored
+## reason; a spell reply is pre-checked for its grant and resource so the card can say why
+## before the hero tries (the cast itself still goes through MagicResolver).
+func reply_block_reason(choice: Dictionary) -> String:
+	if not bool(choice.get("enabled", false)):
+		var authored := String(choice.get("disabled_reason", ""))
+		return authored if not authored.is_empty() else "Not available."
+	var spell_id := StringName(String(choice.get("spell_id", "")))
+	if spell_id.is_empty() or _state == null or _content_db == null:
+		return ""
+	if not _state.has_magic_grant(spell_id):
+		return SpellforgeModel.failure_text(MagicResolver.FAILURE_LOCKED)
+	var record := (
+		_content_db.get_spell(spell_id)
+		if String(spell_id).begins_with("spell.")
+		else _content_db.get_rite(spell_id)
+	)
+	var cost: Dictionary = record.get("cost", {})
+	var resource_id := StringName(String(cost.get("resource", "")))
+	var amount := int(cost.get("amount", 0))
+	var have := _state.get_magic_resource(resource_id)
+	if amount > 0 and have < amount:
+		return "Not enough %s (%d needed, %d left)." % [
+			String(resource_id).trim_prefix("resource."), amount, have
+		]
+	return ""
 
 
 func incoming_move() -> Dictionary:
@@ -147,6 +202,14 @@ func answer(choice_id: String) -> bool:
 			break
 	if chosen.is_empty():
 		return false
+	# A spell reply is the magic itself: the cast resolves first and a failed cast (locked,
+	# no willpower) leaves the choice open so the hero can pick another reply.
+	var reply_spell := StringName(String(chosen.get("spell_id", "")))
+	if not reply_spell.is_empty():
+		var cast := cast_spell(reply_spell)
+		last_cast_failure = StringName(String(cast.get("reason", ""))) if not bool(cast.get("ok", false)) else &""  # gdlint: ignore=max-line-length
+		if not last_cast_failure.is_empty():
+			return false
 	var reply_move: Dictionary = chosen.get("move", {})
 	var reply_element := StringName(String(reply_move.get("element", "")))
 	var damage := reply_damage(reply_move, _incoming) * PhysicalBlowGuilt.reply_multiplier(
@@ -228,7 +291,7 @@ func cast_spell(target_id: StringName) -> Dictionary:
 		arena_effect = &"buff"
 	result["arena_effect"] = arena_effect
 	exchange_resolved.emit(
-		{"kind": "spell", "spell_id": String(target_id), "arena_effect": String(arena_effect), "pressure_left": opponent.health}
+		{"kind": "spell", "spell_id": String(target_id), "arena_effect": String(arena_effect), "pressure_left": opponent.health}  # gdlint: ignore=max-line-length
 	)
 	return result
 
@@ -261,13 +324,15 @@ func present_line(
 		_set_phase(PHASE_LINE)
 
 
-## What an unreadable (foreign, not understood) move reveals: the kind of blow, not its element or stakes.
+## What an unreadable (foreign, not understood) move reveals: the kind of blow, not its element or stakes.  # gdlint: ignore=max-line-length
 static func kind_only(move: Dictionary) -> Dictionary:
 	return {} if move.is_empty() else {"kind": move.get("kind", "")}
 
 
 func present_choices(choices: Array) -> void:
 	_choices = choices.duplicate(true)
+	_reply_left = reply_window_sec
+	_hesitated = false
 	_set_phase(PHASE_ANSWER)
 	choices_ready.emit(_choices)
 
@@ -309,6 +374,21 @@ func _start_run() -> bool:
 		_state.in_spirit_world = false
 		return false
 	return true
+
+
+func _tick_reply_window(delta: float) -> void:
+	if not reply_pressure_enabled or _hesitated:
+		return
+	_reply_left -= delta
+	if _reply_left > 0.0:
+		return
+	_hesitated = true
+	# Hesitation stings but never breaks composure on its own, so it cannot lose the duel.
+	var chip := clampf(HESITATION_COMPOSURE, 0.0, maxf(0.0, hero.health - 1.0))
+	if chip > 0.0:
+		hero.health -= chip
+		hero.health_changed.emit(hero.health, hero.max_health)
+	exchange_resolved.emit({"kind": "hesitation", "composure_lost": chip})
 
 
 func _land_incoming() -> void:

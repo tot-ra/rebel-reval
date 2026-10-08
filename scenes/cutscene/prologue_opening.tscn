@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/cutscene/cutscene_scene_host.gd" id="1_host"]
+
+[node name="PrologueOpening" type="Node"]
+script = ExtResource("1_host")
+sequence_id = &"cutscene.prologue.conquest"
+fallback_scene_path = "res://scenes/prologue/almshouse_opening.tscn"

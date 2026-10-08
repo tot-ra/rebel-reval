@@ -272,7 +272,9 @@ func update_ambient(
 		return
 	_ambient.global_position = focus + Vector3(0.0, 5.5, 0.0)
 	var wind := wind_direction.normalized() if not wind_direction.is_zero_approx() else Vector2.ZERO
-	var drift := 0.4 + wind_strength * 1.6
+	# R-1321: drifting leaves speed up as the shared gust front passes overhead.
+	var gust := WindField.pressure(Vector2(focus.x, focus.z), WindField.clock()) / 0.8
+	var drift := 0.4 + wind_strength * gust * 1.6
 	_ambient.gravity = Vector3(wind.x * drift, -0.95, wind.y * drift)
 	if amount != _ambient_amount:
 		# Quantised in steps of 8 because changing amount restarts the emitter.
@@ -371,7 +373,9 @@ func _emit_burst(hit: Dictionary, colors: Array[Color], amount: int) -> void:
 	# sqrt(2h/a) seconds to reach the ground from the crown centre.
 	burst.lifetime = clampf(sqrt(2.0 * maxf(height - radius * 0.3, 0.5) / 0.9), 1.6, 5.5)
 	var wind := MapViewMaterials.WIND_MATERIALS.world_wind_direction()
-	var wind_strength := MapViewMaterials.WIND_MATERIALS.world_wind_strength()
+	var wind_strength := WindField.local_strength(
+		Vector2(crown_center.x, crown_center.z), WindField.clock()
+	)
 	burst.gravity = Vector3(wind.x * wind_strength * 1.4, -1.25, wind.y * wind_strength * 1.4)
 	burst.color_initial_ramp = _gradient(colors)
 	burst.restart()

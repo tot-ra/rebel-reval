@@ -165,6 +165,16 @@
                 "move": {
                   "$ref": "common.schema.json#/$defs/duel_move"
                 },
+                "spell_id": {
+                  "type": "string",
+                  "pattern": "^(spell|rite)\\.[a-z0-9_.]+$",
+                  "description": "Duel replies only: casting this granted spell or rite IS the reply; `text` is the spoken line that voices the cast."
+                },
+                "voice_path": {
+                  "type": "string",
+                  "pattern": "^res://.+\\.(ogg|wav|mp3)$",
+                  "description": "Optional offline voice clip for the choice's spoken line; the spirit arena plays it on the Voice bus when the reply is cast and voice playback is on."
+                },
                 "comprehension": {
                   "type": "object",
                   "additionalProperties": false,

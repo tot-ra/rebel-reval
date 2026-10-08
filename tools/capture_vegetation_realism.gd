@@ -1,7 +1,17 @@
 extends SceneTree
 
 ## Matched production-mesh review; -- before|after selects the output folder.
+## `-- ecology` instead renders the R-1322 plates: woodland edge, water edge and
+## road verge on viru_gate_foreland, each ecology off | on side by side.
 const OUTPUT := "res://docs/reports/images/vegetation_realism/"
+const ECOLOGY_OUTPUT := "res://docs/reports/images/vegetation/"
+const ECOLOGY_MAP := "res://scripts/map/definitions/outdoor/viru_gate_foreland_definition.gd"
+## name -> [eye cell, look-at cell]; cells found with VegetationEcology on that map.
+const ECOLOGY_SHOTS := {
+	"r1322_woodland_edge": [Vector2(112, 18), Vector2(112, 6)],
+	"r1322_water_edge": [Vector2(98, 12), Vector2(93, 5)],
+	"r1322_road_verge": [Vector2(45, 64), Vector2(40, 46)],
+}
 var viewport: SubViewport
 var camera: Camera3D
 var stage: Node3D
@@ -14,6 +24,9 @@ func _initialize() -> void:
 func _run() -> void:
 	var args := OS.get_cmdline_user_args()
 	var label := args[0] if not args.is_empty() else "after"
+	if label == "ecology":
+		await _run_ecology()
+		return
 	viewport = SubViewport.new()
 	viewport.size = Vector2i(1440, 900)
 	viewport.own_world_3d = true
@@ -151,6 +164,67 @@ func _run() -> void:
 	camera.look_at(eye + Vector3(-2, 0.35, -3))
 	live_view.update_terrain_detail_focus(camera.position)
 	await _capture(label, "district_live")
+	viewport.queue_free()
+	await process_frame
+	quit()
+
+
+func _run_ecology() -> void:
+	viewport = SubViewport.new()
+	viewport.size = Vector2i(960, 600)
+	viewport.own_world_3d = true
+	viewport.msaa_3d = Viewport.MSAA_4X
+	viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	root.add_child(viewport)
+	var plates := {}
+	for enabled: bool in [false, true]:
+		MapViewMeshBuilderScatter.ecology_enabled = enabled
+		var definition: MapDefinition = load(ECOLOGY_MAP).create()
+		var view := MapView3D.create(definition, MapBuilder.build(definition))
+		viewport.add_child(view)
+		view.set_calendar_date({"year": 1343, "month": 6, "day": 15})
+		view.apply_cycle_progress(0.42)
+		view.set_close_camera_mode(true)
+		var cam := view.view_camera()
+		cam.projection = Camera3D.PROJECTION_PERSPECTIVE
+		cam.fov = 62.0
+		cam.current = true
+		for shot: String in ECOLOGY_SHOTS.keys():
+			var eye: Vector2 = ECOLOGY_SHOTS[shot][0]
+			var look: Vector2 = ECOLOGY_SHOTS[shot][1]
+			cam.position = view.world_position(eye * definition.cell_size) + Vector3.UP * 2.2
+			cam.look_at(view.world_position(look * definition.cell_size) + Vector3.UP * 0.6)
+			view.update_active_chunks_from_logic_positions(
+				[eye * definition.cell_size, look * definition.cell_size] as Array[Vector2]
+			)
+			view.update_terrain_detail_focus(cam.position)
+			for frame in 20:
+				await process_frame
+			await RenderingServer.frame_post_draw
+			var image := viewport.get_texture().get_image()
+			image.convert(Image.FORMAT_RGB8)
+			if not plates.has(shot):
+				plates[shot] = []
+			(plates[shot] as Array).append(image)
+		view.queue_free()
+		await process_frame
+	MapViewMeshBuilderScatter.ecology_enabled = true
+	var directory := ProjectSettings.globalize_path(ECOLOGY_OUTPUT)
+	DirAccess.make_dir_recursive_absolute(directory)
+	for shot: String in plates.keys():
+		var pair: Array = plates[shot]
+		var w: int = (pair[0] as Image).get_width()
+		var h: int = (pair[0] as Image).get_height()
+		var sheet := Image.create(w * 2 + 8, h, false, Image.FORMAT_RGB8)
+		sheet.fill(Color.WHITE)
+		sheet.blit_rect(pair[0], Rect2i(0, 0, w, h), Vector2i.ZERO)
+		sheet.blit_rect(pair[1], Rect2i(0, 0, w, h), Vector2i(w + 8, 0))
+		var path := directory.path_join(shot + ".png")
+		if sheet.save_png(path) != OK:
+			push_error("Ecology capture failed: %s" % path)
+			quit(1)
+			return
+		print("Ecology capture (off | on): ", path)
 	viewport.queue_free()
 	await process_frame
 	quit()

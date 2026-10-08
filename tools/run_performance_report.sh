@@ -6,13 +6,31 @@ OUTPUT="${1:-$ROOT/build/benchmarks/performance-report.json}"
 MODE="${2:-}"
 
 if [[ "$#" -gt 2 ]]; then
-  echo "Usage: $0 [output.json] [--quick]" >&2
+  echo "Usage: $0 [output.json] [--quick|--vegetation]" >&2
   exit 2
 fi
 
-if [[ -n "$MODE" && "$MODE" != "--quick" ]]; then
-  echo "Usage: $0 [output.json] [--quick]" >&2
+if [[ -n "$MODE" && "$MODE" != "--quick" && "$MODE" != "--vegetation" ]]; then
+  echo "Usage: $0 [output.json] [--quick|--vegetation]" >&2
   exit 2
+fi
+
+# R-1320 (VEGR-0): per-layer vegetation benchmark over the fixed camera set. It
+# needs a real renderer (the dummy renderer drops MultiMesh transforms), so it
+# always runs through godot_render.sh (minimized window). A separate report:
+# the default and --quick contracts above are unchanged.
+# VEGETATION_LAYER_TIMING=0 skips the per-layer frame-time pass (counts only).
+if [[ "$MODE" == "--vegetation" ]]; then
+  mkdir -p "$(dirname "$OUTPUT")"
+  OUTPUT_ABS="$(cd "$(dirname "$OUTPUT")" && pwd)/$(basename "$OUTPUT")"
+  VEGETATION_ARGS=(--output="$OUTPUT_ABS")
+  if [[ "${VEGETATION_LAYER_TIMING:-1}" != "0" ]]; then
+    VEGETATION_ARGS+=(--layer-timing)
+  fi
+  "$ROOT/tools/godot_render.sh" --resolution 1920x1080 --disable-vsync \
+    --script res://tools/capture_vegetation_benchmark.gd -- "${VEGETATION_ARGS[@]}"
+  python3 "$ROOT/tools/vegetation_performance.py" summary "$OUTPUT_ABS"
+  exit 0
 fi
 
 "$ROOT/tools/benchmarks/run_large_map_benchmark.sh" "$OUTPUT" "$MODE"

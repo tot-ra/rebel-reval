@@ -164,10 +164,11 @@ static func _fortifications(plan: CityPlan, add_poly: Callable) -> void:
 		var dir := (b - a).normalized()
 		var ra := String(circuit[i]["ref"])
 		var rb := String(circuit[(i + 1) % circuit.size()]["ref"])
-		var p0 := a + dir * (Fort._gate_half_extent(gate_by_id[ra]) if gate_by_id.has(ra) else 0.0)
-		var p1 := b - dir * (Fort._gate_half_extent(gate_by_id[rb]) if gate_by_id.has(rb) else 0.0)
-		if (p1 - p0).dot(dir) <= 0.1:
+		var p0 := Fort.gate_joint(gate_by_id[ra], dir) if gate_by_id.has(ra) else a
+		var p1 := Fort.gate_joint(gate_by_id[rb], -dir) if gate_by_id.has(rb) else b
+		if (p1 - p0).dot(dir) <= 0.5:
 			continue
+		dir = (p1 - p0).normalized()
 		# Long segments become several boxes so each sits in its own body chunk.
 		var length := p0.distance_to(p1)
 		var pieces := maxi(1, int(ceil(length / 40.0)))

@@ -25,8 +25,8 @@ var world: CityWorld3D
 var runtime: MapViewRuntime
 var minimap: CityMinimap
 var music_zones := CityMusicZones.new()
-var _music_timer := 0.0
 var inside_building := -1
+var _music_timer := 0.0
 var _smithy := -1
 ## Site room Kalev stands in: {site, room} and its key, or empty.
 var _site_room: Dictionary = {}
@@ -93,6 +93,7 @@ func _process(delta: float) -> void:
 	_check_city_edge(xz)
 	world.doors.update_for(xz, delta)
 	world.grass.update_for(xz)
+	world.farmland.update_for(xz)
 	world.trail.update_for(xz, delta)
 	world.smoke.update_for(xz, delta)
 	var camera := view.view_camera()

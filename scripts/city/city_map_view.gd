@@ -56,6 +56,8 @@ func set_time_of_day(_next_time: StringName) -> void:
 func set_calendar_date(date: Dictionary) -> void:
 	if _sky_weather != null:
 		_sky_weather.set_calendar_date(date)
+	if world != null and world.farmland != null:
+		world.farmland.set_calendar_date(date)
 
 
 func sync_actor(actor: Node3D, logic_position: Vector2) -> void:
