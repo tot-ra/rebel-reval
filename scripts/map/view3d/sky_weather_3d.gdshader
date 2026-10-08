@@ -346,10 +346,24 @@ vec4 cells_volume(
 				if (s >= cell_steps) {
 					break;
 				}
-				float t = hit.x + (float(s) + jitter) * dt;
+				float t = hit.x + (float(s) + 0.5 + (jitter - 0.5) * 0.0) * dt;
 				vec3 p = ro + rd * t;
 				if (cell_density(vec3(p.x - c.x, 0.0, p.z - c.y), p.y, a, b, cell_noise, p, wind_dir) > 0.02) {
-					t_enter = max(t - dt, hit.x);
+					// Bisect to the true surface so every pixel starts its fine march at the
+						// same optical depth: a fixed-step entry showed as contour terraces
+						// (and a per-pixel jitter of it as dither grain).
+						float lo = max(t - dt, hit.x);
+						float hi = t;
+						for (int k = 0; k < 5; k++) {
+							float mid = 0.5 * (lo + hi);
+							vec3 pm = ro + rd * mid;
+							if (cell_density(vec3(pm.x - c.x, 0.0, pm.z - c.y), pm.y, a, b, cell_noise, pm, wind_dir) > 0.02) {
+								hi = mid;
+							} else {
+								lo = mid;
+							}
+						}
+						t_enter = lo;
 					break;
 				}
 			}
@@ -362,7 +376,9 @@ vec4 cells_volume(
 					if (s >= cell_fine_steps) {
 						break;
 					}
-					float t = t_enter + (float(s) + jitter) * fine;
+					// Jitter is damped: the full +-0.5 step offset showed as a static dither
+						// grain on the cloud surface; a small one still hides step banding.
+						float t = t_enter + (float(s) + 0.5 + (jitter - 0.5) * 0.0) * fine;
 					if (t > hit.y) {
 						break;
 					}
