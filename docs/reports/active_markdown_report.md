@@ -14,10 +14,10 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `1087`
+- Active Markdown files scanned: `1088`
 - Markdown files excluded as archive/reference/out of active scope: `744`
-- Local/external links inspected: `12859`
-- Links to active Markdown docs: `11931`
+- Local/external links inspected: `12860`
+- Links to active Markdown docs: `11932`
 - Links to existing archive/reference/non-active local docs: `443`
 - External links skipped for reachability: `88`
 - Issues found: `150`
@@ -1160,6 +1160,7 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/SYSTEMS/COMBAT.md`
 - `docs/SYSTEMS/COMBAT_ANIMATION.md`
 - `docs/SYSTEMS/COMBAT_NIGHT.md`
+- `docs/SYSTEMS/COTTAGE_WINDOWS.md`
 - `docs/SYSTEMS/CUTSCENES.md`
 - `docs/SYSTEMS/DIALOGUE.md`
 - `docs/SYSTEMS/FACTIONS_AND_ECONOMY.md`

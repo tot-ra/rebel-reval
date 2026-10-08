@@ -21,6 +21,7 @@ One page per implemented or planned feature. Each page opens with a `Status:` li
 | [Seamless Reval city (1343)](./SEAMLESS_CITY.md) | Playable preview (ADR 0031); no quests or saves yet |
 | [Landmark sites in the seamless city](./CITY_LANDMARK_SITES.md) | Implemented for Raekoja plats (ADR 0032); other sites planned |
 | [City sea, shore and harbour life](./CITY_SEA.md) | Implemented (FFT sea with storm swell, beach relief, shore stones, boardable boats, fish) |
+| [Village and house windows](./COTTAGE_WINDOWS.md) | Implemented (7 styles: platbands, shutters, slit, stone surround) |
 | [Farmland, pastures and woods](./FARMLAND.md) | Implemented (fields, crops by date, pastures, woods; no far-field LOD yet) |
 | [Living vegetation](./LIVING_VEGETATION.md) | Implemented (seasons, weather, leaf fall on hits) |
 | [Vegetation realism (grass, grain fields, trees)](./VEGETATION_REALISM.md) | In progress: benchmark and budgets (R-1320) and procedural vegetation textures (R-1329) implemented; later phases planned |

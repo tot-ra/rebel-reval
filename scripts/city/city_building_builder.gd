@@ -180,6 +180,19 @@ static func opening_material() -> Material:
 	return _materials["opening"]
 
 
+## Flat painted wood for window trim, shutters and carved platbands: the
+## colour comes entirely from the vertex colour so one surface serves every
+## palette. Lightly rough, no texture, so it reads as paint rather than board.
+static func paint_material() -> Material:
+	if not _materials.has("paint"):
+		var mat := StandardMaterial3D.new()
+		mat.albedo_color = Color.WHITE
+		mat.vertex_color_use_as_albedo = true
+		mat.roughness = 0.78
+		_materials["paint"] = mat
+	return _materials["paint"]
+
+
 static func timber_material() -> Material:
 	if not _materials.has("timber"):
 		var mat := (
@@ -387,6 +400,8 @@ static func material_for_key(key: String) -> Material:
 			return opening_material()
 		"timber":
 			return timber_material()
+		"paint":
+			return paint_material()
 	return wall_material(&"plaster")
 
 
@@ -508,6 +523,12 @@ static func build_building(
 	tint.a = 1.0
 	var roof_tint := Color(1, 1, 1) * rng.randf_range(0.82, 1.1)
 	roof_tint.a = 1.0
+	# Window character is chosen once per building from its own RNG so every
+	# wall of one house shares a palette and trim style, without shifting the
+	# draws that drive roof tint, chimney and window dropout above/below.
+	var look_rng := RandomNumberGenerator.new()
+	look_rng.seed = hash(b["id"]) + 7919
+	var look := CityWindows.look(look_rng, family)
 	var bottom := float(b["base_h"]) - SINK
 	var eave := floor_y + float(b["wall_h"])
 	var frame := roof_frame(ring, float(b["ridge_angle"]), eave, float(b["roof_pitch_deg"]))
@@ -538,7 +559,7 @@ static func build_building(
 		if not bool(b.get("openings", true)):
 			continue
 		if not String(b.get("kind", "house")) in ["church", "chapel", "hall"]:
-			_windows(shell, a, c, floor_y, eave, gap, rng, family)
+			CityWindows.add_wall(shell, a, c, floor_y, eave, gap, rng, look)
 		else:
 			_lancets(shell, a, c, floor_y, eave)
 	if door_edge >= 0 and ground_at.is_valid():
@@ -841,49 +862,6 @@ static func _wall_strip_from(
 		Vector3(p0.x, maxf(h0, from_y), p0.y),
 		tint
 	)
-
-
-static func _windows(
-	shell: Shell,
-	a: Vector2,
-	c: Vector2,
-	floor_y: float,
-	eave: float,
-	gap: Vector2,
-	rng: RandomNumberGenerator,
-	family: StringName
-) -> void:
-	var length := a.distance_to(c)
-	if length < 2.6:
-		return
-	var dir := (c - a) / length
-	var out := Vector2(-dir.y, dir.x) * 0.03
-	var storeys := maxi(1, int((eave - floor_y) / 3.1))
-	var count := int(length / WINDOW_SPACING)
-	if count < 1:
-		return
-	var w := WINDOW_W * (0.75 if family == &"log" else 1.0)
-	for s in storeys:
-		var y0 := floor_y + 1.05 + float(s) * 3.0
-		if y0 + WINDOW_H > eave - 0.35:
-			break
-		for k in count:
-			var t := (float(k) + 0.5) / float(count)
-			if gap.x >= 0.0 and s == 0 and t > gap.x - 0.12 and t < gap.y + 0.12:
-				continue
-			if rng.randf() < 0.18:
-				continue
-			var m := a + dir * (t * length)
-			var p0 := m - dir * w * 0.5 + out
-			var p1 := m + dir * w * 0.5 + out
-			shell.quad(
-				"opening",
-				Vector3(p0.x, y0, p0.y),
-				Vector3(p1.x, y0, p1.y),
-				Vector3(p1.x, y0 + WINDOW_H, p1.y),
-				Vector3(p0.x, y0 + WINDOW_H, p0.y),
-				Color(1, 1, 1)
-			)
 
 
 ## Tall pointed windows for churches and halls, spaced along the long walls.
