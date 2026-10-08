@@ -83,6 +83,30 @@ float mud_height(vec2 p) {
 	return lumps * 0.55 + ruts * 0.3 + pocks * 0.15;
 }
 
+// Tilled field soil (black earth). The plan generator marks it in splat.png as full
+// packed earth plus a mud-channel value of FIELD_MUD_LEVEL (110/255 = 0.43); no other
+// surface sits in that band. Keep in sync with build_reval_city_plan.py and
+// CityGrass.field_share.
+float field_zone(vec4 s, float edge_noise) {
+	float band = smoothstep(0.30, 0.36, s.a + edge_noise) * (1.0 - smoothstep(0.52, 0.60, s.a + edge_noise));
+	return band * smoothstep(0.6, 0.85, s.g);
+}
+
+// Clods, ridges and small stones of a ploughed field as a height field (0..1).
+// Returns x = height, y = stone mask (round pebbles standing out of the soil).
+vec2 field_height(vec2 p) {
+	// Broad ridges and hollows, warped so they never run ruler straight.
+	vec2 w = p + vec2(value_noise(p * 0.21), value_noise(p * 0.21 + 7.3)) * 3.0;
+	float ridges = value_noise(vec2(w.x * 0.9, w.y * 0.9));
+	float clods = value_noise(p * 2.3) * 0.6 + value_noise(p * 5.9) * 0.4;
+	vec2 cell = floor(p * 3.1);
+	vec2 off = vec2(hash12(cell + 11.0), hash12(cell + 23.0)) * 0.6 + 0.2;
+	float d = length(fract(p * 3.1) - off);
+	float present = step(0.84, hash12(cell + 5.0));
+	float stone = present * (1.0 - smoothstep(0.07, 0.15, d));
+	return vec2(ridges * 0.45 + clods * 0.4 + stone * 0.6, stone);
+}
+
 // Cart road cross-section as height in world units (1 wu = 0.87 m): two wheel
 // ruts a cart's gauge apart, a spoil berm outside each, and the hump the horse
 // walks along. `rd` is the roads texel; wetness deepens everything because wet
@@ -332,6 +356,10 @@ void fragment() {
 	float earth = smoothstep(0.15, 0.65, s.g + (micro - 0.5) * 0.3);
 	float sand = smoothstep(0.2, 0.7, s.b + (macro - 0.5) * 0.3);
 	float mud = smoothstep(0.2, 0.7, s.a + (micro - 0.5) * 0.3);
+	// Field soil carries a mud-channel marker: it is not mud, and its edge is ragged.
+	float field = field_zone(s, (micro - 0.5) * 0.12 + (macro - 0.5) * 0.2);
+	mud *= 1.0 - field;
+	earth = max(earth * (1.0 - field), 0.0);
 	// Beaches and the delta margin: everything within a metre of the sea is sand or mud.
 	float shore = 1.0 - smoothstep(sea_level + 0.4, sea_level + 1.6, world_pos.y);
 	sand = max(sand, shore * 0.9);
@@ -354,6 +382,16 @@ void fragment() {
 	nxy = mix(nxy, texture(earth_normal, wuv * earth_scale).rg * 2.0 - 1.0, earth);
 	col = mix(col, detiled(earth_albedo, wuv * earth_scale) * vec3(0.62, 0.55, 0.46), mud);
 	nxy = mix(nxy, texture(earth_normal, wuv * earth_scale).rg * 2.0 - 1.0, mud);
+	// Ploughed black earth: dark soil with lighter dry clods and stones, no turf.
+	vec2 fh = field_height(wuv);
+	vec3 soil_tex = detiled(earth_albedo, wuv * earth_scale);
+	// The mud plate is orange clay: pull the hue towards grey-brown for black earth.
+	soil_tex = mix(soil_tex, vec3(dot(soil_tex, vec3(0.33))), 0.55);
+	vec3 soil = soil_tex * vec3(0.34, 0.29, 0.25);
+	soil *= 0.7 + 0.7 * fh.x;
+	soil = mix(soil, vec3(0.36, 0.34, 0.31) * (0.8 + 0.4 * micro), fh.y * 0.85);
+	col = mix(col, soil, field);
+	nxy = mix(nxy, texture(earth_normal, wuv * earth_scale).rg * 2.0 - 1.0, field);
 	col = mix(col, detiled(sand_albedo, wuv * sand_scale), sand);
 	nxy = mix(nxy, texture(sand_normal, wuv * sand_scale).rg * 2.0 - 1.0, sand);
 	// Shore zones read from height (docs/SYSTEMS/CITY_SEA.md): two sands, a dark wet
@@ -447,7 +485,7 @@ void fragment() {
 	// Trodden earth and mud are lumpy, with ruts and hoof pocks: a procedural
 	// height field adds relief on top of the plate normals. Cart roads add wheel
 	// ruts, and the trail map adds every footprint Kalev has left nearby.
-	float soft = clamp(earth + mud + road, 0.0, 1.0) * (1.0 - paving);
+	float soft = clamp(earth + mud + field + road, 0.0, 1.0) * (1.0 - paving);
 	float give = clamp(soft + (1.0 - soft) * (1.0 - sand) * 0.3 * grass_step(world_normal), 0.0, 1.0) * (1.0 - rock);
 	// Far pixels see sub-texel relief as noise: fade it out with distance.
 	float detail = 1.0 - smoothstep(0.1, 0.4, length(fwidth(wuv)));
@@ -455,6 +493,10 @@ void fragment() {
 	float h0 = mud_height(wuv);
 	vec2 mslope = vec2(mud_height(wuv + e.xy) - h0, mud_height(wuv + e.yx) - h0) / e.x;
 	nxy += -mslope * 0.09 * soft * detail;
+	// Field relief: clods, warped ridges and stones catch the light.
+	float f0 = fh.x;
+	vec2 fslope = vec2(field_height(wuv + e.xy).x - f0, field_height(wuv + e.yx).x - f0) / e.x;
+	nxy += -fslope * 0.16 * field * detail;
 	// Road and footprint relief by finite differences of the same height function.
 	float prints_scale = give * (0.45 + 1.3 * wet_road) * detail;
 	float tr0 = trail_height(wuv);
@@ -520,7 +562,7 @@ void fragment() {
 	nxy += normalize(rloc + vec2(0.0001)) * ring * 0.16 * rain_on_water;
 	// Meadow relief: cavity shading and a tussock normal on pure turf only. Fades
 	// out with distance like the other micro relief so it cannot shimmer.
-	float turf = (1.0 - max(max(earth, mud), max(sand, max(road, paving)))) * (1.0 - max(rock, bank)) * (1.0 - puddle);
+	float turf = (1.0 - max(field, max(max(earth, mud), max(sand, max(road, paving))))) * (1.0 - max(rock, bank)) * (1.0 - puddle);
 	float gh = grass_height(wuv);
 	col *= 1.0 + (gh - 0.5) * grass_relief_shade * turf;
 	vec2 gslope = vec2(grass_height(wuv + e.xy) - gh, grass_height(wuv + e.yx) - gh) / e.x;

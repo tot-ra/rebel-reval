@@ -44,9 +44,13 @@ Sources: [`harbour-and-shoreline.md`](../../history/dossiers/topography/harbour-
 - **Kalamaja fishing shore**: three beach decks, three fenced net yards with pole racks (`CityHarbour`), two smoke sheds, a salt shed, the boatwright's timber and cart, and 8 clinker boats drawn up on the sand. The existing `bldg.kalarand.*` huts are the fisher dwellings.
 - The yard and boat counts (3 yards, 6 to 8 boats) are bounded gameplay composites; documentary support is thin (dossier open question).
 
+## Field soil (2026-10-09)
+
+Tilled fields and gardens are black earth, never turf. `render_splat` paints each non-fallow field as full packed earth plus a mud-channel marker `FIELD_MUD_LEVEL` (110/255), with the outline warped by smooth noise so strips are not ruler-straight. `city_ground.gdshader` (`field_zone`, `field_height`) reads that band as ploughed soil: dark desaturated earth, lighter dry clods, warped ridges, scattered stones, plus clod relief in the normal map. `CityGrass.field_share` keeps the grass scatter off it. Fallow strips stay rough grass. Review: `tools/godot_render.sh --script tools/capture_city_farmland.gd -- --only=field_rye_game --date=4-21`. Limits: no straight furrow lines in the ground (rows come from the crop plants), and a house seam in the mud channel at the same value would read as field soil.
+
 ## Far fields
 
-`CityFarmland._rebuild_far` draws every cropped field as one coloured, row-banded sheet that hugs the ground, so fields read from the whole city and beyond `DRAW_RANGE`. Colour follows crop and date (`far_color`): tilled soil, greening, then gold. In April winter grain is green and spring fields are brown; wheat and barley turn gold in July and August (`--date=7-25` in the capture tool).
+`CityFarmland._rebuild_far` draws every sown field as a translucent, row-banded crop wash (`FAR_SHEET_ALPHA`) that hugs the ground, thins to a ragged margin and fades in with the plants (bare soil gets no sheet, the ground shader shows it), so fields read from the whole city and beyond `DRAW_RANGE`. Colour follows crop and date (`far_color`): tilled soil, greening, then gold. In April winter grain is green and spring fields are brown; wheat and barley turn gold in July and August (`--date=7-25` in the capture tool).
 
 ## Bridges and the east moat
 

@@ -140,9 +140,20 @@ func road_clearance(p: Vector2) -> float:
 	return clampf(rd.r * (0.7 + 0.6 * rd.b), 0.0, 1.0)
 
 
+## Share of tilled field soil at a splat texel, 0..1. The generator marks fields as
+## full packed earth plus a mud-channel value of 110/255 (FIELD_MUD_LEVEL in
+## build_reval_city_plan.py); the same band is read by city_ground.gdshader.
+static func field_share(s: Color) -> float:
+	var band := smoothstep(0.30, 0.36, s.a) * (1.0 - smoothstep(0.52, 0.60, s.a))
+	return band * smoothstep(0.6, 0.85, s.g)
+
+
 ## Share of ground at `p` that stays bare (paving, earth, sand, mud).
 func _bareness(p: Vector2) -> float:
 	var s := surface_at(p)
+	# Ploughed fields grow no turf; crops are drawn by CityFarmland.
+	if field_share(s) > 0.0:
+		return 1.0
 	var base := maxf(s.r * 1.6, maxf(s.b, s.a * 0.9)) + s.g * 0.75
 	# Packed earth beside a road still grows grass (verge); the road body does not.
 	return maxf(base, road_clearance(p) * 1.25)

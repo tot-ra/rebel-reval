@@ -44,6 +44,8 @@ const SEASONS := {
 const FAR_STEP := 10.0
 const FAR_BAND := 1.8
 const FAR_LIFT := 0.07
+## The far crop sheet is a translucent wash so the ground's soil shows through it.
+const FAR_SHEET_ALPHA := 0.45
 const FAR_SOIL := Color(0.38, 0.29, 0.2)
 const FAR_GREEN := {
 	&"rye": Color(0.3, 0.46, 0.2),
@@ -321,24 +323,54 @@ func _rebuild_far() -> void:
 	var st := SurfaceTool.new()
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
 	var count := 0
+	var noise := FastNoiseLite.new()
+	noise.frequency = 0.05
 	for f in _features:
 		if f["kind"] != &"field" or f["sowing"] == &"fallow":
 			continue
 		var colour := far_color(f["crop"], f["sowing"], day_of_year)
+		# Bare soil is left to the ground shader (black earth, clods, stones); the sheet
+		# only shows a crop, and it fades in with the plants so no flat coloured box
+		# lies on the soil.
+		var cover := clampf(growth(f["sowing"], day_of_year) * 2.5, 0.0, 1.0)
+		if cover <= 0.02:
+			continue
 		var poly: PackedVector2Array = f["polygon"]
 		var u := poly[1] - poly[0]
 		var v := poly[3] - poly[0]
 		var cols := maxi(int(u.length() / FAR_STEP), 1)
 		var rows := maxi(int(v.length() / FAR_BAND), 1)
+		var length := u.length()
+		var width := v.length()
 		for r in rows:
-			var shade := 1.0 if r % 2 == 0 else 0.86
-			var tone := Color(colour.r * shade, colour.g * shade, colour.b * shade)
+			var shade := 1.0 if r % 2 == 0 else 0.93
 			for c in cols:
 				var a := poly[0] + u * (float(c) / cols) + v * (float(r) / rows)
 				var b := a + u / cols
 				var d := a + v / rows
 				var e := b + v / rows
-				for q: Vector2 in [a, b, e, a, e, d]:
+				var corners: Array[Vector2] = [a, b, e, a, e, d]
+				var fractions: Array[Vector2] = [
+					Vector2(float(c) / cols, float(r) / rows),
+					Vector2(float(c + 1) / cols, float(r) / rows),
+					Vector2(float(c + 1) / cols, float(r + 1) / rows),
+					Vector2(float(c) / cols, float(r) / rows),
+					Vector2(float(c + 1) / cols, float(r + 1) / rows),
+					Vector2(float(c) / cols, float(r + 1) / rows),
+				]
+				for k in 6:
+					var q := corners[k]
+					var t := fractions[k]
+					# Ragged margin: the sheet thins towards the strip edge and is mottled
+					# inside, so the field ends in a soft crop edge, not a ruler line.
+					var edge := minf(
+						minf(t.x * length, (1.0 - t.x) * length),
+						minf(t.y * width, (1.0 - t.y) * width)
+					)
+					var fade := smoothstep(0.4, 3.2 + 2.0 * noise.get_noise_2d(q.x, q.y), edge)
+					var mottle := 0.8 + 0.4 * (noise.get_noise_2d(q.x * 3.0, q.y * 3.0) + 0.5)
+					var tone := colour * (shade * mottle)
+					tone.a = fade * cover * FAR_SHEET_ALPHA
 					st.set_color(tone)
 					st.set_normal(Vector3.UP)
 					st.add_vertex(Vector3(q.x, plan.ground_height(q) + FAR_LIFT, q.y))
@@ -351,6 +383,7 @@ func _rebuild_far() -> void:
 	_far.mesh = st.commit()
 	var material := StandardMaterial3D.new()
 	material.vertex_color_use_as_albedo = true
+	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	material.roughness = 1.0
 	_far.material_override = material
 	_far.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF

@@ -51,6 +51,9 @@ SCHEMA = "rr.city_plan.v1"
 HEIGHT_CELL_WU = 2.0  # heightfield spacing in world units
 HEIGHT_OFFSET_CM = 2000  # stored = round(height_wu * 100) + offset
 SPLAT_PX_PER_WU = 1.0
+# Mud-channel value (of 255) that marks tilled field soil in splat.png; keep in sync
+# with FIELD_MUD_* in scripts/city/city_ground.gdshader and CityGrass.field_share.
+FIELD_MUD_LEVEL = 110
 
 # ---------------------------------------------------------------------------
 # small geometry kit
@@ -2389,11 +2392,35 @@ def render_splat(plan, mpu):
             ring = [T(p) for p in poly]
             draws["earth"].line(ring + [ring[0]], fill=210, width=int(5 / mpu), joint="curve")
             draws["mud"].line(ring + [ring[0]], fill=150, width=max(1, int(1.4 / mpu * SPLAT_PX_PER_WU)), joint="curve")
+    # Tilled fields: black-earth soil, never turf. The ground shader reads a field as
+    # full packed earth plus a mud-channel marker in FIELD_MUD_LEVEL (a band no other
+    # surface uses), so it can add clods and stones and the grass scatter stays off.
+    # The outline is warped by smooth noise so a strip is not a ruler-straight box.
+    field_earth = Image.new("L", (W, H), 0)
+    field_mark = Image.new("L", (W, H), 0)
+    fe_draw = ImageDraw.Draw(field_earth)
+    fm_draw = ImageDraw.Draw(field_mark)
     for f in plan["fields"]:
         ring = [T(p) for p in f["polygon"]]
-        # April: spring fields lie freshly tilled, winter grain shows green
-        # through the soil, gardens are dug beds, fallow is rough grass.
-        draws["earth"].polygon(ring, fill={"spring": 235, "winter": 105, "garden": 205, "fallow": 55}.get(f.get("sowing"), 120))
+        sowing = f.get("sowing")
+        if sowing == "fallow":
+            # Fallow stays rough grass with a trampled wash.
+            draws["earth"].polygon(ring, fill=55)
+            continue
+        fe_draw.polygon(ring, fill=255)
+        fm_draw.polygon(ring, fill=FIELD_MUD_LEVEL)
+    rng_w = np.random.default_rng(1343)
+    coarse = rng_w.random((2, max(H // 14, 2), max(W // 14, 2))).astype(np.float32)
+    warp = []
+    for k in range(2):
+        im = Image.fromarray((coarse[k] * 255).astype(np.uint8)).resize((W, H), Image.BICUBIC)
+        warp.append((np.asarray(im, dtype=np.float32) / 255.0 - 0.5) * 9.0)
+    yy, xx = np.mgrid[0:H, 0:W]
+    sx = np.clip((xx + warp[0]).astype(np.int32), 0, W - 1)
+    sy = np.clip((yy + warp[1]).astype(np.int32), 0, H - 1)
+    for src, key in ((field_earth, "earth"), (field_mark, "mud")):
+        warped = Image.fromarray(np.asarray(src)[sy, sx])
+        layers[key] = Image.fromarray(np.maximum(np.asarray(layers[key]), np.asarray(warped)))
     blurred = {}
     from PIL import ImageFilter
 
