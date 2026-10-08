@@ -5,6 +5,10 @@ extends Node
 ## reply is a cast, the spoken line only voices it), then Kalev takes him in and a closing
 ## cutscene walks him to the forge. `ui_cancel` on the year card skips straight to the forge;
 ## holding `ui_cancel` for HOLD_TO_SKIP_SEC skips from the duel or Kalev's dialogue too.
+## R-1389 (ADR 0038): with the staged hall mounted the duel is fought on the 3D spirit disc:
+## the hall is stripped to the floor disc, the boy walks (move keys), guards facing the porter
+## (`player_guard`) and dashes out of red strike zones (`player_dodge`) while the porter moves
+## by his lines. The duel's `topic` (the rusted key) makes on-topic replies land harder.
 ## The old observed quarrel and the dawn cutscene are no longer part of the flow (kept short
 ## on purpose); their records stay in content.
 
@@ -65,6 +69,8 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
+	if stage == STAGE_CONFRONTATION:
+		_drive_hero(delta)
 	if stage == STAGE_CONFRONTATION or stage == STAGE_KALEV:
 		_cancel_held = _cancel_held + delta if Input.is_action_pressed(&"ui_cancel") else 0.0
 		if _cancel_held >= HOLD_TO_SKIP_SEC:
@@ -107,13 +113,16 @@ func begin_duel() -> bool:
 	_host.freeze_world = false
 	add_child(_host)
 	_host.closed.connect(_on_confrontation_closed)
+	var staged := _stage()
+	if staged != null:
+		_mount_arena(staged)
 	if _host.open(_db, _state, CONFRONTATION):
 		_pin_spirit_form()
 		# R-1365: the staged actor an exchange hurts flinches (porter hit / hero hit).
-		var staged := _stage()
 		if staged != null:
 			_host.duel.exchange_resolved.connect(staged.react_to_exchange)
 		return true
+	_host.detach_arena()
 	_host.queue_free()
 	_begin_kalev()
 	return false
@@ -170,6 +179,28 @@ func _stage() -> AlmshouseStage:
 	return get_node_or_null(^"Stage") as AlmshouseStage
 
 
+## Fight on the spirit disc in the hall: indoors, so walls, furniture and the hall floor are
+## hidden while the stage lights stay; the two rigs are the fighters (glTF rigs face +Z).
+func _mount_arena(staged: AlmshouseStage) -> void:
+	_host.model_front_plus_z = true
+	var keep: Array[Node3D] = [staged.hero(), staged.porter()]
+	if _host.attach_arena(
+		staged, Vector3.ZERO, keep, true, staged.hero(), staged.porter(), 1, AlmshouseStage.ARENA_RADIUS
+	):
+		staged.frame_arena()
+
+
+## The boy's footwork while the arena duel is open (SpiritArenaHost clamps him to the disc).
+func _drive_hero(delta: float) -> void:
+	var staged := _stage()
+	if staged == null or _host == null or not is_instance_valid(_host) or _host.motion == null:
+		return
+	var direction := ScreenDirectionInput.read_axis()
+	if Input.is_action_just_pressed(&"player_dodge"):
+		staged.dash_hero(direction)
+	staged.move_hero(direction, Input.is_action_pressed(&"player_guard"), delta)
+
+
 ## When the staged hall is mounted, the porter's spirit image looms over the staged actor
 ## instead of a drawn silhouette.
 func _pin_spirit_form() -> void:
@@ -190,6 +221,7 @@ func _begin_kalev() -> void:
 	# Before the runner starts, so Kalev's rig is in the speaker group for his first line.
 	var staged := _stage()
 	if staged != null:
+		staged.end_arena()
 		staged.bring_in_kalev()
 	_dialogue_ui = DialogueUI.new()
 	add_child(_dialogue_ui)

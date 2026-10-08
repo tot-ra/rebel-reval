@@ -6,7 +6,7 @@
   "canon_status": "draft",
   "approval": {
     "status": "draft",
-    "notes": "SD-05 prologue prototype (ADR 0033); reworked so every reply is a cast spell voiced by a short line."
+    "notes": "SD-05 prologue prototype (ADR 0033); reworked so every reply is a cast spell voiced by a short line. SA3D-5 (R-1389): duel.topic 'rusted_key' with topic lines per element; on-topic replies carry topic_tags."
   },
   "deterministic_offline": {
     "authored": true,
@@ -30,7 +30,120 @@
       "resolved_broken",
       "resolved_punished",
       "resolved_struck"
-    ]
+    ],
+    "topic": {
+      "id": "rusted_key",
+      "tags": [
+        "key",
+        "place",
+        "bread",
+        "orphan",
+        "hunger"
+      ],
+      "lines": {
+        "fear": [
+          {
+            "text": "You lock the cold store at night because you fear the hungry, not the thieves.",
+            "relevance": [
+              "key",
+              "hunger"
+            ]
+          },
+          {
+            "text": "One day they will take that key from you, Hanß. You know it.",
+            "relevance": [
+              "key",
+              "place"
+            ]
+          }
+        ],
+        "shame": [
+          {
+            "text": "The key is rusted and the bread is gone. Whose hand turned it?",
+            "relevance": [
+              "key",
+              "bread"
+            ]
+          },
+          {
+            "text": "You weigh the orphans' loaves and keep the heels.",
+            "relevance": [
+              "bread",
+              "orphan"
+            ]
+          },
+          {
+            "text": "Look the little ones in the eye, Hanß.",
+            "relevance": [
+              "orphan"
+            ]
+          }
+        ],
+        "duty": [
+          {
+            "text": "The bread of this house is owed to its children.",
+            "relevance": [
+              "bread",
+              "orphan"
+            ]
+          },
+          {
+            "text": "You keep the key for the house, not for your belly.",
+            "relevance": [
+              "key",
+              "place"
+            ]
+          }
+        ],
+        "love": [
+          {
+            "text": "She is four winters old and hungry. Give her the heel.",
+            "relevance": [
+              "bread",
+              "orphan",
+              "hunger"
+            ]
+          },
+          {
+            "text": "I have no mother and no father. This house is the only place I have.",
+            "relevance": [
+              "orphan",
+              "place"
+            ]
+          }
+        ],
+        "faith": [
+          {
+            "text": "The Holy Spirit fed this house before you ever held its key.",
+            "relevance": [
+              "key",
+              "place"
+            ]
+          },
+          {
+            "text": "Bread kept from orphans is bread kept from God.",
+            "relevance": [
+              "bread",
+              "orphan"
+            ]
+          }
+        ],
+        "coin": [
+          {
+            "text": "The council pays for every loaf. Who sold the missing ones?",
+            "relevance": [
+              "bread"
+            ]
+          },
+          {
+            "text": "A rusted key and a full purse, Hanß. I can count.",
+            "relevance": [
+              "key"
+            ]
+          }
+        ]
+      }
+    }
   },
   "nodes": [
     {
@@ -55,6 +168,9 @@
             "element": "shame",
             "stakes": [
               "secret"
+            ],
+            "topic_tags": [
+              "bread"
             ]
           },
           "spell_id": "spell.pagan.fireball"
@@ -81,6 +197,11 @@
             "element": "love",
             "stakes": [
               "obligation"
+            ],
+            "topic_tags": [
+              "bread",
+              "orphan",
+              "hunger"
             ]
           },
           "spell_id": "spell.pagan.earth_tremor"
@@ -128,6 +249,9 @@
             "element": "fear",
             "stakes": [
               "secret"
+            ],
+            "topic_tags": [
+              "key"
             ]
           },
           "spell_id": "spell.pagan.fireball"
@@ -141,6 +265,10 @@
             "element": "duty",
             "stakes": [
               "obligation"
+            ],
+            "topic_tags": [
+              "hunger",
+              "orphan"
             ]
           },
           "spell_id": "spell.pagan.earth_tremor"
@@ -154,6 +282,9 @@
             "element": "fear",
             "stakes": [
               "respect"
+            ],
+            "topic_tags": [
+              "place"
             ]
           },
           "spell_id": "spell.pagan.iron_skin"
@@ -194,6 +325,10 @@
             "element": "fear",
             "stakes": [
               "secret"
+            ],
+            "topic_tags": [
+              "key",
+              "bread"
             ]
           },
           "spell_id": "spell.pagan.fireball"
@@ -207,6 +342,10 @@
             "element": "love",
             "stakes": [
               "obligation"
+            ],
+            "topic_tags": [
+              "bread",
+              "orphan"
             ]
           },
           "spell_id": "spell.pagan.earth_tremor"
@@ -220,6 +359,9 @@
             "element": "shame",
             "stakes": [
               "respect"
+            ],
+            "topic_tags": [
+              "place"
             ]
           },
           "spell_id": "spell.pagan.iron_skin"

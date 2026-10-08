@@ -36,6 +36,9 @@ var freeze_world := true
 var arena_3d: SpiritArena3D
 ## Real-time fighter positions (SA3D-2), when attach_arena() was given the hero.
 var motion: SpiritArenaMotion
+## Set before attach_arena() when the 3D fighters are glTF character rigs, whose model front is
+## +Z (Godot's -Z convention would turn the opponent's back to the hero and misread guard facing).
+var model_front_plus_z := false
 
 var _runner: Node
 var _was_paused := false
@@ -91,12 +94,13 @@ func is_open() -> bool:
 ## `opponent` (optional; a virtual one stands 4 m off otherwise) moves by its line, telegraphs
 ## become floor decals and a blow lands by position and guard facing. A Node2D fighter is a
 ## logic-plane body mapped through MapViewBridge with `cell_size`; a Node3D one is used as is.
+## `radius` sizes the disc (a small staged room uses less than the street default).
 func attach_arena(
-	world_root: Node, at: Vector3, keep: Array[Node3D], is_indoors: bool, hero: Node = null, opponent: Node = null, cell_size := 1  # gdlint: ignore=max-line-length
+	world_root: Node, at: Vector3, keep: Array[Node3D], is_indoors: bool, hero: Node = null, opponent: Node = null, cell_size := 1, radius := SpiritArena3D.DEFAULT_RADIUS  # gdlint: ignore=max-line-length
 ) -> bool:
 	detach_arena()
 	arena_3d = SpiritArena3D.new()
-	if not arena_3d.open(world_root, at, keep, is_indoors):
+	if not arena_3d.open(world_root, at, keep, is_indoors, radius):
 		arena_3d.free()
 		arena_3d = null
 		return false
@@ -329,7 +333,7 @@ func _tick_motion(delta: float) -> void:
 		if _opponent_body is Node3D and (_opponent_body as Node3D).is_inside_tree():
 			var look := Vector3(motion.hero_position.x, motion.opponent_position.y, motion.hero_position.z)
 			if look.distance_to(motion.opponent_position) > 0.01:
-				(_opponent_body as Node3D).look_at(look, Vector3.UP)
+				(_opponent_body as Node3D).look_at(look, Vector3.UP, model_front_plus_z)
 	if _decal != null and _decal.visible:
 		_decal.set_progress(duel.telegraph_progress())
 
@@ -345,7 +349,8 @@ func _sync_hero() -> void:
 		var facing: Vector2 = _hero_body.call(&"facing_direction")
 		motion.hero_facing = Vector3(facing.x, 0.0, facing.y)
 	elif _hero_body is Node3D:
-		motion.hero_facing = -(_hero_body as Node3D).global_basis.z
+		var basis_z := (_hero_body as Node3D).global_basis.z
+		motion.hero_facing = basis_z if model_front_plus_z else -basis_z
 
 
 func _read_position(body: Node, fallback: Vector3) -> Vector3:

@@ -107,3 +107,29 @@ func test_kalev_takes_the_apprentice() -> void:
 	_runner.advance_for_test()
 	assert_true(_runner.select_choice("stare"))
 	assert_true(_state.get_flag(&"flag.prologue.apprenticed"))
+
+
+## R-1389 (ADR 0038): the duel is about the rusted key and the boy's place in the house; every
+## element has 2-3 authored topic lines, and the replies that name it land harder.
+func test_the_porter_duel_has_a_topic_with_lines_for_every_element() -> void:
+	var topic: Dictionary = _db.get_dialogue(CONFRONT)["duel"]["topic"]
+	assert_eq(String(topic["id"]), "rusted_key")
+	for tag: String in ["key", "place", "bread", "orphan"]:
+		assert_true((topic["tags"] as Array).has(tag), tag)
+	for element: String in ["fear", "shame", "duty", "love", "faith", "coin"]:
+		var count := (topic["lines"] as Dictionary).get(element, []).size() as int
+		assert_true(count >= 2 and count <= 3, "%s has %d lines" % [element, count])
+
+
+func test_on_topic_replies_hit_harder_and_off_topic_ones_stay_neutral() -> void:
+	assert_true(_duel.begin(_runner, _db, _state, CONFRONT))
+	var choices: Dictionary = {}
+	for node: Dictionary in _db.get_dialogue(CONFRONT)["nodes"]:
+		for choice: Dictionary in node.get("choices", []):
+			choices[choice["id"]] = choice["move"]
+	assert_eq(_duel.topic_multiplier(choices["fire_secret"]), SpiritDuel.TOPIC_ON)
+	assert_eq(_duel.topic_multiplier(choices["still_mercy"]), SpiritDuel.TOPIC_ON)
+	assert_eq(_duel.topic_multiplier(choices["ward_rod"]), 1.0, "a taunt about the rod is off topic")
+	assert_eq(_duel.topic_multiplier(choices["shove"]), 1.0)
+	var line := _duel.topic_line_for(&"shame", ["key"])
+	assert_true(String(line.get("text", "")).contains("key"), "the key line wins for a key spell")

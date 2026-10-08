@@ -9,6 +9,9 @@ extends Node3D
 ## R-1365: Kalev's rig steps into the back doorway for his scene and the camera reframes on
 ## him and the boy; the rigs answer the DialogueRunner speaker group (jaw while they speak)
 ## and flinch when a duel exchange lands on them.
+## R-1389 (ADR 0038): the duel itself is fought on the 3D spirit disc. SpiritArena3D hides the
+## hall around the two rigs; frame_arena() lifts the camera over the disc, move_hero() and
+## dash_hero() are the boy's footwork, end_arena() puts both back on their marks for Kalev.
 
 const HERO_SCENE := preload("res://assets/characters/variants/apprentice.tscn")
 ## No bespoke porter body exists yet; a heavy adult townsman reads as the gruff keyholder.
@@ -52,11 +55,26 @@ const PORTER_YIELD_POSITION := Vector3(1.4, 0.0, -1.9)
 const KALEV_KEY_POSITION := Vector3(0.6, 2.1, -0.6)
 ## The rig's `hit` clip is one-shot; the actor returns to idle after this long.
 const HIT_RECOVER_SEC := 0.8
+## Spirit disc of the duel, centred between the duellists. Large enough for the porter's
+## retreat (SpiritArenaMotion.FAR_DISTANCE) but framed whole by the arena camera.
+const ARENA_RADIUS := 5.5
+const ARENA_CAMERA_POSITION := Vector3(0.0, 7.4, 9.8)
+const ARENA_CAMERA_TARGET := Vector3(0.0, 0.2, 0.3)
+const ARENA_CAMERA_FOV := 50.0
+const HERO_WALK_SPEED := 2.4
+const HERO_GUARD_SPEED := 1.2
+## The arena dodge is a short dash, long enough to clear an attack arc's edge.
+const HERO_DASH_SPEED := 7.0
+const HERO_DASH_SEC := 0.28
 
 var _hero: Node3D
 var _porter: Node3D
 var _kalev: Node3D
 var _camera: Camera3D
+var _hero_mark: Transform3D
+var _porter_mark: Transform3D
+var _dash_left := 0.0
+var _dash_direction := Vector3.ZERO
 
 
 func _ready() -> void:
@@ -74,6 +92,8 @@ func _ready() -> void:
 	add_child(_camera)
 	_camera.look_at_from_position(CAMERA_POSITION, CAMERA_TARGET)
 	_camera.current = true
+	_hero_mark = _hero.transform
+	_porter_mark = _porter.transform
 
 
 func hero() -> Node3D:
@@ -114,6 +134,62 @@ func bring_in_kalev() -> Node3D:
 	return _kalev
 
 
+## Frame the whole spirit disc from above the front of the hall instead of the two-shot.
+func frame_arena() -> void:
+	_camera.fov = ARENA_CAMERA_FOV
+	_camera.look_at_from_position(ARENA_CAMERA_POSITION, ARENA_CAMERA_TARGET)
+
+
+## After the arena duel: both duellists back on their marks and the two-shot restored, so
+## Kalev's scene (bring_in_kalev) frames the same hall whatever footwork the duel had.
+func end_arena() -> void:
+	_dash_left = 0.0
+	_hero.transform = _hero_mark
+	_porter.transform = _porter_mark
+	_camera.fov = CAMERA_FOV
+	_camera.look_at_from_position(CAMERA_POSITION, CAMERA_TARGET)
+	_play(_hero, &"idle")
+	_play(_porter, &"idle")
+
+
+## The boy's arena footwork. `direction` is screen-relative (x right, y down); the arena camera
+## looks down -Z, so it maps straight onto the floor. Guarding slows him and, like standing
+## still, squares him up to the porter, so a raised guard faces the blow (SpiritArenaMotion).
+## SpiritArenaHost clamps him to the disc after this moves him.
+func move_hero(direction: Vector2, guarding: bool, delta: float) -> void:
+	var speed := HERO_GUARD_SPEED if guarding else HERO_WALK_SPEED
+	var velocity := Vector3(direction.x, 0.0, direction.y).limit_length(1.0) * speed
+	var dashing := _dash_left > 0.0
+	if dashing:
+		_dash_left -= delta
+		velocity = _dash_direction * HERO_DASH_SPEED
+	_hero.position += velocity * delta
+	var moving := velocity.length() > 0.01
+	if (guarding and not dashing) or not moving:
+		_hero.rotation_degrees.y = _yaw_toward(_hero.position, _porter.position)
+	else:
+		_hero.rotation.y = atan2(velocity.x, velocity.z)
+	if dashing:
+		_play(_hero, &"run")
+	elif guarding:
+		_play(_hero, &"guard")
+	else:
+		_play(_hero, &"walk" if moving else &"idle")
+
+
+## The arena dodge: a dash along `direction`, or sideways from the porter when standing still.
+func dash_hero(direction: Vector2) -> void:
+	var along := Vector3(direction.x, 0.0, direction.y)
+	if along.length() < 0.1:
+		var to_porter := _porter.position - _hero.position
+		to_porter.y = 0.0
+		along = to_porter.cross(Vector3.UP)
+	if along.length() < 0.001:
+		return
+	_dash_direction = along.normalized()
+	_dash_left = HERO_DASH_SEC
+
+
 ## SpiritDuel.exchange_resolved: whoever an exchange hurt flinches. Replies and offensive
 ## spells that cost the porter pressure hit him; a blow that costs the boy composure hits
 ## the boy. Buffs, heals, parries and dodges play nothing. Returns the actor that reacted.
@@ -144,6 +220,15 @@ func play_hit(actor: Node3D) -> void:
 static func _yaw_toward(from: Vector3, to: Vector3) -> float:
 	var direction := to - from
 	return rad_to_deg(atan2(direction.x, direction.z))
+
+
+## Switch `actor` to `clip` unless it already plays it or is mid-flinch (hit recovers itself).
+func _play(actor: Node3D, clip: StringName) -> void:
+	if not actor.has_method(&"play_animation"):
+		return
+	var current: StringName = actor.call(&"current_canonical_animation")
+	if current != clip and current != &"hit":
+		actor.call(&"play_animation", clip)
 
 
 func _recover(actor: Node3D) -> void:
