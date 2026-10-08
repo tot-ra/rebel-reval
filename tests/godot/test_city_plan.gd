@@ -170,6 +170,42 @@ func test_building_lookup_and_floor_height() -> void:
 		assert_true(plan.floor_height(found) >= plan.ground_height(p) - 0.01)
 
 
+## Walking height never dips under the terrain surface on shells without an
+## interior site and at bridge deck ends (Kalev used to sink into the ground in
+## the south farmland sheds and at the Viru and Tartu bridge approaches).
+func test_walk_height_never_below_ground_outside_sites() -> void:
+	var plan := _plan()
+	for i in plan.buildings.size():
+		var ring := plan.footprint(i)
+		for p in ring:
+			var inside := p + (plan.footprint(i)[0] - p).normalized() * 0.2
+			if plan.building_at(inside) != i or not plan.sites.is_empty() and _in_site(plan, inside):
+				continue
+			assert_true(
+				plan.walk_height(inside) >= plan.ground_height(inside) - 0.001,
+				"%s shell stands on or above the ground" % plan.buildings[i]["id"]
+			)
+	for b: Dictionary in plan.data.get("bridges", []):
+		var at := Vector2(b["at"][0], b["at"][1])
+		var along := Vector2.from_angle(float(b["angle"]))
+		var half := float(b["length"]) * 0.5
+		var u := -half
+		while u <= half:
+			var p := at + along * u
+			assert_true(
+				plan.walk_height(p) >= plan.ground_height(p) - 0.001,
+				"%s deck stays above the bank" % b["id"]
+			)
+			u += 0.5
+
+
+func _in_site(plan: CityPlan, at: Vector2) -> bool:
+	for site in plan.sites:
+		if not site.floor_at(at).is_empty():
+			return true
+	return false
+
+
 func test_enterable_house_interior_matches_exterior_minus_wall() -> void:
 	var plan := _plan()
 	for i in plan.buildings.size():

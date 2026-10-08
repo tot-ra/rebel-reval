@@ -185,7 +185,10 @@ func slope_at(world_xz: Vector2) -> float:
 func walk_height(world_xz: Vector2) -> float:
 	var deck := bridge_deck_height(world_xz)
 	if not is_nan(deck):
-		return deck
+		# Never below the visible ground: where the bank rises above the ramp's
+		# end the deck rectangle overlaps it, and walking at deck height sank
+		# Kalev under the terrain there.
+		return maxf(deck, ground_height(world_xz))
 	if dynamic_deck.is_valid():
 		deck = float(dynamic_deck.call(world_xz))
 		if not is_nan(deck):
@@ -196,7 +199,10 @@ func walk_height(world_xz: Vector2) -> float:
 			return site.floor_height_at(f, world_xz)
 	var index := building_at(world_xz)
 	if index >= 0:
-		return floor_height(index)
+		# A shell with no interior site (sheds, barns, pigsties on a slope) has a
+		# threshold-based floor that can sit up to a metre under the uphill
+		# ground; standing there put Kalev below the terrain surface.
+		return maxf(floor_height(index), ground_height(world_xz))
 	return ground_height(world_xz)
 
 
