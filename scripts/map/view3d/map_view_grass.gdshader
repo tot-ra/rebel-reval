@@ -21,6 +21,13 @@ uniform float max_dryness = 0.42;
 // chunk in and out as the camera moves. fade_end <= 0 disables it.
 uniform float fade_start = 0.0;
 uniform float fade_end = 0.0;
+// VEGR-4: inverse fade for the mid blade tier. Clumps grow from nothing at
+// fade_in_start to full size at fade_in_end so they meet the near tier without
+// doubling its density. fade_in_end <= 0 disables it.
+uniform float fade_in_start = 0.0;
+uniform float fade_in_end = 0.0;
+// Share of blades whose tips are sun-cured toward straw (procedural blades).
+uniform float tip_dry = 0.35;
 
 varying flat float v_cell;
 varying flat float v_dry;
@@ -53,6 +60,10 @@ void vertex() {
 	if (fade_end > 0.0) {
 		float dist = distance(origin, CAMERA_POSITION_WORLD);
 		VERTEX *= 1.0 - smoothstep(fade_start, fade_end, dist);
+	}
+	if (fade_in_end > 0.0) {
+		float dist_in = distance(origin, CAMERA_POSITION_WORLD);
+		VERTEX *= smoothstep(fade_in_start, fade_in_end, dist_in);
 	}
 	vec2 wind = wind_dir();
 	vec2 across = vec2(-wind.y, wind.x);
@@ -111,14 +122,24 @@ void fragment() {
 		ROUGHNESS = mix(0.94, 0.74, blade);
 		SPECULAR = 0.22;
 	} else {
-		// Procedural blade (seed heads and any untextured tuft mesh).
+		// Procedural blade (blade clumps, seed heads, 3D plants).
 		float midrib = 1.0 - smoothstep(0.025, 0.025 + max(fwidth(UV.x), 0.035), abs(UV.x - 0.5));
-		ALBEDO = base_color * COLOR.rgb * mix(0.58, 1.12, sqrt(blade));
-		ALBEDO = mix(ALBEDO, ALBEDO * vec3(1.32, 1.30, 1.12), v_sheen * 0.8 * blade);
-		ALBEDO *= 1.0 + midrib * 0.10;
+		vec3 albedo = base_color * COLOR.rgb * mix(0.42, 0.86, sqrt(blade));
+		// Two-tone root to tip: warm gold-green up top, with a per-clump dry tip.
+		albedo = mix(albedo, albedo * vec3(1.14, 1.10, 0.78), smoothstep(0.45, 1.0, blade) * 0.5);
+		albedo = mix(albedo, straw_color * 0.9, smoothstep(0.7, 1.0, blade) * v_dry * tip_dry * 2.0);
+		// Roots melt into the ground colour so no grass/soil seam shows.
+		albedo = mix(albedo, root_tint * COLOR.rgb, (1.0 - smoothstep(0.0, 0.18, blade)) * 0.6);
+		albedo = mix(albedo, albedo * vec3(1.32, 1.30, 1.12), v_sheen * 0.8 * blade);
+		ALBEDO = albedo * (1.0 + midrib * 0.10);
+		// Round the flat strip: tilt the normal across the width so one blade
+		// shades like a curved leaf, then lean toward the sky so it never flips dark.
+		float across_blade = (UV.x - 0.5) * 2.0;
+		NORMAL = normalize(NORMAL + (VIEW_MATRIX * vec4(0.0, 1.0, 0.0, 0.0)).xyz * 0.5
+			+ vec3(across_blade * 0.35, 0.0, 0.0));
 		// Light-driven transmission, not emission: plants remain dark at night.
-		BACKLIGHT = ALBEDO * (0.26 + blade * 0.14);
-		ROUGHNESS = mix(0.94, 0.72, blade);
-		SPECULAR = 0.25;
+		BACKLIGHT = ALBEDO * (0.14 + blade * 0.10);
+		ROUGHNESS = mix(0.94, 0.80, blade);
+		SPECULAR = 0.12;
 	}
 }

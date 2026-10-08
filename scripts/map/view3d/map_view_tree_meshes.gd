@@ -62,7 +62,7 @@ const NEAR_FOLDED_LEAF_SHRINK := 0.4
 ## skeleton, so the LOD switch never changes the silhouette.
 const CITY_PROFILE_OVERRIDES := {
 	&"spruce": {"primary_count": 26, "crown_start": 0.34, "max_segments": 300},
-	&"pine": {"primary_count": 16, "max_segments": 220},
+	&"pine": {"primary_count": 11, "max_segments": 200},
 }
 
 static var _geometry_cache: Dictionary = {}
@@ -348,6 +348,9 @@ static func _append_cluster_cards(
 		* size_factor
 	)
 	var per_tip := roundi((CONIFER_CARDS_PER_TIP if conifer else CARDS_PER_TIP) * count_factor)
+	if species == &"pine":
+		# Scots pine reads as flat, dense needle pads at limb ends (not 5 thin spikes).
+		per_tip = roundi(8.0 * count_factor)
 	var spread := float(profile["leaf_spread"])
 	# With small near cards a whole tip cluster would shrink to a ball; spread
 	# the extra cards back along the twig and out round it instead.
@@ -378,7 +381,9 @@ static func _append_cluster_cards(
 			var facing := (Vector3.UP * 0.7 + radial * 0.5).normalized()
 			_emit_card(surface, species, base, axis, facing, size, crown, seed, card_index)
 			cards += 1
-	if not conifer:
+	# Pine limbs stay visibly bare between tufts: no cards along segments or
+	# around the bole (that is what made it read as a layered spruce).
+	if not conifer or species == &"pine":
 		return cards
 	var segments: Array = skeleton["segments"]
 	for segment_index in segments.size():

@@ -14,19 +14,19 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `1073`
-- Markdown files excluded as archive/reference/out of active scope: `747`
-- Local/external links inspected: `12743`
-- Links to active Markdown docs: `11886`
-- Links to existing archive/reference/non-active local docs: `437`
-- External links skipped for reachability: `52`
-- Issues found: `0`
+- Active Markdown files scanned: `1079`
+- Markdown files excluded as archive/reference/out of active scope: `748`
+- Local/external links inspected: `12838`
+- Links to active Markdown docs: `11921`
+- Links to existing archive/reference/non-active local docs: `442`
+- External links skipped for reachability: `88`
+- Issues found: `6`
 
 ## Issue counts
 
 | Code | Count |
 | --- | ---: |
-| `BROKEN_LINK` | 0 |
+| `BROKEN_LINK` | 6 |
 | `BROKEN_ANCHOR` | 0 |
 | `DUPLICATE_CHARACTER_NAME` | 0 |
 | `CONTRADICTORY_DATE` | 0 |
@@ -34,7 +34,14 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Issues
 
-No active Markdown documentation issues found.
+| Code | Location | Detail |
+| --- | --- | --- |
+| `BROKEN_LINK` | `docs/SYSTEMS/AUDIO.md:19` | Local Markdown link target does not exist: `../reports/audio_licenses/README.md` |
+| `BROKEN_LINK` | `docs/SYSTEMS/CITIZENS.md:3` | Local Markdown link target does not exist: `./HOUSEHOLDS.md` |
+| `BROKEN_LINK` | `docs/SYSTEMS/CITIZENS.md:58` | Local Markdown link target does not exist: `./HOUSEHOLDS.md` |
+| `BROKEN_LINK` | `docs/SYSTEMS/GATE_GARRISONS.md:9` | Local Markdown link target does not exist: `../CITIZENS/gate_garrisons.md` |
+| `BROKEN_LINK` | `docs/SYSTEMS/SEAMLESS_CITY.md:122` | Local Markdown link target does not exist: `../reports/animal_placement_plan.md` |
+| `BROKEN_LINK` | `docs/SYSTEMS/SEAMLESS_CITY.md:168` | Local Markdown link target does not exist: `./HOUSEHOLDS.md` |
 
 ## Active files scanned
 
@@ -75,6 +82,7 @@ No active Markdown documentation issues found.
 - `docs/adr/0035-game-audio-sourcing-and-sfx-system.md`
 - `docs/adr/README.md`
 - `docs/AGENT_LOOPS.md`
+- `docs/ANIMAL_3D_SOURCING.md`
 - `docs/ARCHITECTURE.md`
 - `docs/ART_BIBLE.md`
 - `docs/ASSET_INVENTORY.md`
@@ -1007,11 +1015,14 @@ No active Markdown documentation issues found.
 - `docs/SYSTEMS/FACTIONS_AND_ECONOMY.md`
 - `docs/SYSTEMS/FARMLAND.md`
 - `docs/SYSTEMS/FLAG_CLOTH.md`
+- `docs/SYSTEMS/GATE_GARRISONS.md`
 - `docs/SYSTEMS/HOIST_ROPE.md`
 - `docs/SYSTEMS/HUD_AND_MENUS.md`
 - `docs/SYSTEMS/LIVING_CITY.md`
 - `docs/SYSTEMS/LIVING_VEGETATION.md`
+- `docs/SYSTEMS/LIVING_WORLD.md`
 - `docs/SYSTEMS/MAGIC.md`
+- `docs/SYSTEMS/MUSCLE_LOCOMOTION.md`
 - `docs/SYSTEMS/NATURAL.md`
 - `docs/SYSTEMS/OBJECT_CATALOG.md`
 - `docs/SYSTEMS/PSYCHE.md`
@@ -1051,6 +1062,8 @@ No active Markdown documentation issues found.
 - `docs/tasks/coast/CO-09_saaremaa_traversability.md`
 - `docs/tasks/coast/CO-10_swim_dive_drown.md`
 - `docs/tasks/coast/README.md`
+- `docs/tasks/creatures/CM-01_procedural_creature_locomotion.md`
+- `docs/tasks/creatures/README.md`
 - `docs/tasks/README.md`
 - `docs/tasks/urban_form/README.md`
 - `docs/tasks/urban_form/UF-00_reconcile_adr_0023_acceptance.md`
