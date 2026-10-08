@@ -5,6 +5,7 @@ extends "res://tests/godot/test_case.gd"
 const CloudCellsScript := preload("res://scripts/map/view3d/cloud_cells.gd")
 const SkyWeather := preload("res://scripts/map/view3d/sky_weather_3d.gd")
 const CLOUD_SHADOW_SHADER := preload("res://scripts/map/view3d/cloud_shadow_pass.gdshader")
+const WATER_SHADER := preload("res://scripts/map/view3d/map_view_water.gdshader")
 const GOD_RAY_SHADER := preload("res://scripts/map/view3d/god_ray_pass.gdshader")
 
 
@@ -180,10 +181,12 @@ func test_shaders_consume_the_cells() -> void:
 
 ## The shadow pass draws before transparents, so water dims its own sun under a cell.
 func test_water_dims_its_own_sun_under_the_cells() -> void:
-	var sea_code: String = load("res://scripts/map/view3d/map_view_water.gdshader").code
-	assert_true("cells_ground_shadow" in sea_code, "the sea reads the cells")
+	var sea_code: String = WATER_SHADER.code
+	assert_true("water_cloud_shadow" in sea_code, "the sea reads the shared cloud shadow")
 	assert_true("cloud_lit" in sea_code, "the sea's light() scales sun diffuse and glints")
-	for path in ["res://scripts/city/city_water.gdshader", "res://scripts/city/city_moat_water.gdshader"]:
+	for path in [
+		"res://scripts/city/city_water.gdshader", "res://scripts/city/city_moat_water.gdshader",
+	]:
 		var code: String = load(path).code
 		assert_true("city_water_light.gdshaderinc" in code, "%s uses the cell-aware light()" % path)
 		assert_true("city_water_cloud_shadow" in code, "%s samples the cell shadow" % path)
@@ -192,6 +195,42 @@ func test_water_dims_its_own_sun_under_the_cells() -> void:
 	MapViewMaterials.apply_cloud_cells(cells.uniforms())
 	var sea := MapViewMaterials.water_surface(MapTypes.TERRAIN_SHALLOW_WATER)
 	assert_eq(sea.get_shader_parameter("cloud_cells"), cells.uniforms(), "cells reach the sea")
+
+
+## R-1436: both water paths share the deck/cell union; map water has no spare
+## fragment samplers. GPU captures verify this source contract on real GL.
+func test_water_deck_shadow_shares_the_pass_field_and_stays_vertex_only() -> void:
+	var shared := FileAccess.get_file_as_string(
+		"res://scripts/map/view3d/water_cloud_shadow.gdshaderinc"
+	)
+	for token in [
+		"sky_cloud_shadow_soft", "cells_ground_shadow", "cloud_shape_tex", "cloud_noise_tex",
+		"cloud_detail_offset_g", "cloud_coverage_g", "cloud_chaos_g", "cloud_shadow_strength",
+		"(q / WATER_CLOUD_LAYER_H) * 0.12 - cloud_offset_g",
+		"WATER_CLOUD_LAYER_H = 400.0", "WATER_CLOUD_SHADOW_MIP_BIAS = 1.5",
+		"WATER_CELL_SHADOW_STRENGTH = 0.85",
+		"1.0 - (1.0 - deck) * (1.0 - cell * WATER_CELL_SHADOW_STRENGTH)",
+		"smoothstep(WATER_SUN_HANDOFF_Y, 0.0, cloud_sun_dir.y)",
+	]:
+		assert_true(token in shared, "shared water shadow contract: %s" % token)
+	assert_false("hint_screen_texture" in shared, "cloud shading never reads the framebuffer")
+	assert_false("TIME" in shared, "cloud shading uses the restored sky state, not shader time")
+	var sea_code: String = WATER_SHADER.code
+	var vertex := sea_code.get_slice("void vertex()", 1).get_slice("void fragment()", 0)
+	var fragment_and_light := sea_code.get_slice("void fragment()", 1)
+	assert_true("water_cloud_shadow(undisplaced_world)" in vertex, "map sea samples per vertex")
+	assert_false("water_cloud_shadow(" in fragment_and_light, "no fragment cloud samplers")
+	assert_true(
+		"LIGHT_IS_DIRECTIONAL ? 1.0 - cloud_cell_shadow : 1.0" in fragment_and_light,
+		"apply the combined shadow once, leaving local lights alone"
+	)
+	var city := FileAccess.get_file_as_string("res://scripts/city/city_water_light.gdshaderinc")
+	assert_true("water_cloud_shadow.gdshaderinc" in city, "city and map share the field")
+	assert_true("return water_cloud_shadow(world);" in city, "city samples the same union")
+	assert_true(
+		"LIGHT_IS_DIRECTIONAL ? 1.0 - cloud_cell_shadow : 1.0" in city,
+		"city applies the combined shadow once, leaving local lights alone"
+	)
 
 
 ## R-1400 follow-up: a configured sky whose camera sits in the tree, so rain reads

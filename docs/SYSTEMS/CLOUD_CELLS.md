@@ -1,6 +1,6 @@
 # Discrete cloud cells, cloud shadows and storm-cell lightning
 
-Status: implemented (task **R-1400**)
+Status: implemented (tasks **R-1400**, **R-1436** water deck shadows)
 
 Scope: individual clouds as world-space objects in the 3D view. Each cumulus or cumulonimbus has a position, base altitude, size and life; the sky dome ray-marches it as a volume, the ground shadow pass projects it along the sun, god rays are cut by it, and lightning is born only inside a grown cumulonimbus. Mounted in both `MapView3D` maps and the seamless city (`CityMapView`).
 
@@ -24,7 +24,7 @@ Out of scope: puddles and mud that follow the storm cell (ground water stays wea
 | Volume march, sky beams, bolt | `scripts/map/view3d/sky_weather_3d.gdshader` (`cells_volume`, `cells_sky_rays`, `lightning_bolt`) |
 | Ground shadows | `scripts/map/view3d/cloud_shadow_pass.gd` / `.gdshader` |
 | God rays cut by cells | `scripts/map/view3d/god_ray_pass.gd` / `.gdshader` |
-| Water dims its own sun under a cell | `scripts/map/view3d/map_view_water.gdshader` (`cloud_cell_shadow`, `light()`), `scripts/city/city_water_light.gdshaderinc` (city sea, stream, moat); pushed by `MapViewMaterials.apply_cloud_cells` and `CityWorld3D.apply_cloud_cells` |
+| Water dims its own sun under deck and cells | `scripts/map/view3d/map_view_water.gdshader` (`cloud_cell_shadow`, `light()`), shared `scripts/map/view3d/water_cloud_shadow.gdshaderinc`, `scripts/city/city_water_light.gdshaderinc` (city sea, stream, moat); pushed by `MapViewMaterials.apply_cloud_cells` and `CityWorld3D.apply_cloud_cells` |
 | 3D Worley noise for cell shapes | `SkyWeatherResources.build_cell_noise_3d` |
 | City mounting | `CityMapView._create_sky_passes`, `CityMapView._process` |
 
@@ -77,8 +77,10 @@ The ground shadow pass had two defects that kept it from ever drawing a localise
 ```bash
 godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_cloud_cells
 godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_cloud_shadow_pass
-godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_sky_weather
+godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_sky_weather_3d,test_sky_weather_state
 tools/godot_render.sh --script tools/capture_cloud_cells.gd [-- --only=<shot>[,<shot>...]]
+# R-1436: continuous deck patches must continue from land onto the sea.
+tools/godot_render.sh --script tools/capture_cloud_cells.gd -- --only=cells_aerial_cloudy,cells_harbour_shadow
 ```
 
 Captures land in `docs/reports/images/weather/`: `cells_aerial_clear`, `cells_aerial_cloudy`, `cells_topdown_shadow`, `cells_street_cumulus`, `cells_storm_ground_stroke`, `cells_storm_in_cloud`, `cells_storm_rain_under` / `cells_storm_rain_away` (same view with the storm cell overhead and 3 km away), `cells_sunbeams`, `cells_harbour_shadow` (a cell shadow crossing the waterline; the tool walks the cell clock in fixed 10 s steps until one shadow covers both shore and sea). Screen passes composite over the live framebuffer, so captures must render in the root window, not a `SubViewport`.
@@ -93,7 +95,7 @@ Captures land in `docs/reports/images/weather/`: `cells_aerial_clear`, `cells_ae
 
 - Only the rain particles and roof-rain audio are local to storm cells. Puddles and mud stay weather-wide (see the decision above), and the outdoor rain ambience layer (`AmbienceController`, fed from `map_view_runtime_ambient.gd`) still hears the weather-wide `rain_intensity`.
 - Under a storm cell the local rain is the storm profile's 0.22, so a thunderstorm shower reads as light rain, not a downpour.
-- Water dims only its direct sun under a cell; its sky reflection and ambient term stay, so a shadow on the sea reads lighter than on grass (about 10% darker luminance in `cells_harbour_shadow`). The soft continuous cloud deck (`sky_cloud_shadow_soft`) still does not shade the water surface, only the bed through it. In shallow clear water the bed is darkened by the pass and the surface's own diffuse again, so the bed under a cloud reads slightly darker than the same bed on land.
+- Water dims only its direct sun (diffuse and glints) under both the continuous deck and discrete cells; its sky reflection and ambient term stay, so sea shadows remain lighter than grass shadows. The shared water helper uses `sky_cloud_shadow_soft`, the pass's 400-unit projection and 1.5 erosion mip, and the same restored cloud globals. It combines `deck = soft_shadow * cloud_shadow_strength` and `cell` as `1 - (1 - deck) * (1 - cell * 0.85)`, then fades out at the sun-to-moon handoff; local lights are unchanged. `map_view_water` samples both `cloud_shape_tex` and `cloud_noise_tex` per vertex (the fragment stage is at the GL sampler limit), so coarse meshes can soften the interpolated shadow edges. The lightweight city water and moat shaders sample the same helper per fragment; city surfaces using `MapViewMaterials.water_surface` retain the vertex path. Water always uses the soft deck variant, even when the ground pass uses its one-sample minimum tier. In shallow clear water the bed is darkened by the pass and the surface's own diffuse again, so the bed under a cloud reads slightly darker than the same bed on land.
 - The city god-ray raster leaves terrain out (sampling the relief over the whole city stalls the first frame), and the air slab stops at 32 m, so Upper Town streets on the klint get no street-level beams.
 - Cell edges show a fine dither from the deterministic march jitter at close range.
 - Thunder audio is not yet timed to strike distance.

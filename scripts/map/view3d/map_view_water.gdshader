@@ -150,13 +150,11 @@ uniform float shore_geometry_scale = 0.12;
 // WS-07 tile helpers shared with UnderwaterPass so the net matches from above and below.
 #include "res://scripts/map/view3d/caustics_common.gdshaderinc"
 #include "res://scripts/map/view3d/atmosphere_common.gdshaderinc"
-// R-1400 follow-up: the discrete cloud cells (`cloud_cells`, pushed each frame by
+// R-1400 / R-1436: the cloud deck and discrete cells (`cloud_cells`, pushed each frame by
 // MapViewMaterials.apply_cloud_cells) shade the water's own direct sun. The
 // CloudShadowPass draws before transparents, so it darkens the bed seen through
 // the water but not this surface or its glints.
-#include "res://scripts/map/view3d/cloud_cells.gdshaderinc"
-global uniform sampler2D cloud_noise_tex : filter_linear_mipmap, repeat_enable;
-global uniform vec3 cloud_sun_dir;
+#include "res://scripts/map/view3d/water_cloud_shadow.gdshaderinc"
 
 // WS-15 interactive ripples (WaterRippleSim): R = height, G = previous height, B = aeration,
 // on a camera-following window. ripple_window = (origin x, origin z, size, valid); valid 0
@@ -295,19 +293,17 @@ varying float glint_alpha;
 varying float directional_glint_gate;
 varying float local_glint_gate;
 varying float diffuse_share;
-// Share of direct sun the cloud cells stop at this point (0 lit .. 1 full shadow).
+// Combined deck + cell direct-sun occlusion (0 lit .. 1 full shadow).
 // WHY per vertex: the fragment stage already uses all 16 GL Compatibility sampler
 // units (see sea_depth_t), and the billowed cell edge is ~60 m wide, far coarser
-// than any water grid. light() applies it to the directional light only.
+// than any water grid. Both cloud_shape_tex and cloud_noise_tex stay in the
+// vertex stage; light() applies the interpolated factor to the directional light only.
 varying float cloud_cell_shadow;
 
 // Tidewater: glints are clamped to 400x so they stay inside fp16 range.
 const float GLINT_CLAMP = 400.0;
 // sin(-6 deg): MapViewLighting finishes handing the light from moon to sun here.
 const float SUN_LIGHT_HANDOFF_Y = -0.1045;
-// Direct-sun share a full cell shadow removes; matches CELL_SHADOW_STRENGTH in
-// cloud_shadow_pass.gdshader.
-const float CLOUD_CELL_SHADOW_STRENGTH = 0.85;
 
 float _hash(vec2 p) {
 	return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
@@ -867,8 +863,7 @@ void vertex() {
 	wave_sample_xz = undisplaced_world.xz;
 	// Cells project along the sun only; once the directional light has handed
 	// over to the moon the gate is 0 and nothing shades the moon path.
-	cloud_cell_shadow = cells_ground_shadow(undisplaced_world, cloud_sun_dir, cloud_noise_tex, 1.0)
-		* smoothstep(SUN_LIGHT_HANDOFF_Y, 0.0, cloud_sun_dir.y);
+	cloud_cell_shadow = water_cloud_shadow(undisplaced_world);
 	sea_depth_t = -1.0;
 	if (sea_depth_blend > 0.5) {
 		vec2 sea_uv = (undisplaced_world.xz - sea_depth_rect.xy) / max(sea_depth_rect.zw, vec2(0.001));
@@ -1624,8 +1619,8 @@ void light() {
 	float glint = _d_ggx(n_dot_h, a2) * _v_smith_ggx_correlated(n_dot_l, n_dot_v, a2)
 		* _fresnel_dielectric(v_dot_h, WATER_IOR) * n_dot_l;
 	float gate = LIGHT_IS_DIRECTIONAL ? directional_glint_gate : local_glint_gate;
-	// R-1400: a cloud cell overhead dims the sun's diffuse and puts out its glints.
-	float cloud_lit = LIGHT_IS_DIRECTIONAL ? 1.0 - cloud_cell_shadow * CLOUD_CELL_SHADOW_STRENGTH : 1.0;
+	// Deck and cells dim direct diffuse and glints together, without shading ambient.
+	float cloud_lit = LIGHT_IS_DIRECTIONAL ? 1.0 - cloud_cell_shadow : 1.0;
 	SPECULAR_LIGHT += LIGHT_COLOR * ATTENUATION * min(glint, GLINT_CLAMP) * gate * cloud_lit;
 	DIFFUSE_LIGHT += LIGHT_COLOR * ATTENUATION * n_dot_l * diffuse_share * cloud_lit / PI;
 }
