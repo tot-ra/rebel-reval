@@ -407,6 +407,14 @@ func _bind_sea_depth_map() -> void:
 	)
 
 
+## R-1400: the city sea, stream, moat and harbour water read the discrete cloud
+## cells and dim their own direct sun (the shadow pass draws before them).
+func apply_cloud_cells(cells: PackedVector4Array) -> void:
+	for mat in water_materials:
+		mat.set_shader_parameter("cloud_cells", cells)
+	MapViewMaterials.apply_cloud_cells(cells)
+
+
 func set_wind(direction: Vector2) -> void:
 	for mat in water_materials:
 		mat.set_shader_parameter("wind_dir", direction)

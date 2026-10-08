@@ -231,6 +231,14 @@ static func apply_weather_presentation(
 	var foliage_wetness := maxf(presentation.puddle_wetness, presentation.rain_intensity)
 	WIND_MATERIALS.apply_vegetation_wetness(foliage_wetness)
 	PROP_MATERIALS.apply_bark_wetness(foliage_wetness)
+	apply_cloud_cells(presentation.cloud_cells)
+
+
+## R-1400: the CloudShadowPass draws before transparents, so water dims its own
+## direct sun under the discrete cloud cells. Push once per frame (cells drift).
+static func apply_cloud_cells(cells: PackedVector4Array) -> void:
+	WATER_MATERIALS.apply_cloud_cells(cells, WATER_WAVE_BASE)
+	SHORE_MATERIALS.apply_cloud_cells(cells)
 
 
 ## Water material API remains here for existing map builders and tests. The

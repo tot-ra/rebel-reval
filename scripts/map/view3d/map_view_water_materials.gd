@@ -265,6 +265,11 @@ static var _caustic_tiles_built := false
 ## (declared by WS-05) so hulls never float on a sea they cannot sample.
 static var force_ocean_fft_support := false
 
+## Multiplies the displaced crest height of every sea (shader and CPU hull sampler
+## alike). The district maps keep 1.0, their budget being a few cells of water; the
+## open city sea sets it above 1 so a storm swell really lifts boats and swimmers.
+static var wave_height_boost := 1.0
+
 
 static func reset() -> void:
 	_cache.clear()
@@ -451,13 +456,9 @@ static func ocean_fft_geometry_scale(wave_height: float) -> float:
 	return wave_height / (OCEAN_FFT_REFERENCE_CREST_M / meters_per_unit) * wave_height_boost
 
 
-## Multiplies the displaced crest height of every sea (shader and CPU hull sampler
-## alike). The district maps keep 1.0, their budget being a few cells of water; the
-## open city sea sets it above 1 so a storm swell really lifts boats and swimmers.
-static var wave_height_boost := 1.0
-
-
-static func set_wave_height_boost(boost: float, wave_profiles: Dictionary = WATER_WAVE_BASE) -> void:
+static func set_wave_height_boost(
+	boost: float, wave_profiles: Dictionary = WATER_WAVE_BASE
+) -> void:
 	wave_height_boost = maxf(boost, 0.0)
 	for terrain_id: StringName in [MapTypes.TERRAIN_SHALLOW_WATER, MapTypes.TERRAIN_DEEP_WATER]:
 		var material := water_surface(terrain_id, wave_profiles)
@@ -811,6 +812,14 @@ static func apply_water_lighting(
 		var material := water_surface(terrain_id as StringName, wave_profiles)
 		material.set_shader_parameter("sun_visibility", visibility)
 		material.set_shader_parameter("day_blend", blend)
+
+
+## R-1400: binds the discrete cloud cells (CloudCells.uniforms()) so the water's
+## light() dims direct sun diffuse and glints under each cloud's shadow.
+static func apply_cloud_cells(cells: PackedVector4Array, wave_profiles: Dictionary) -> void:
+	for terrain_id in wave_profiles.keys():
+		var material := water_surface(terrain_id as StringName, wave_profiles)
+		material.set_shader_parameter("cloud_cells", cells)
 
 
 ## WS-15 flat ripple state for materials without a live sim (indoors, minimum tier).

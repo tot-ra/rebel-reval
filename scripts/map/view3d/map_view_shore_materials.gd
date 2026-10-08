@@ -101,6 +101,13 @@ static func swash_sheet_material(terrain_id: StringName) -> ShaderMaterial:
 	return material
 
 
+## R-1400: per-frame cloud cells for the beach film. A full _sync_swash_sheets()
+## mirror every frame would copy every uniform for one changed array.
+static func apply_cloud_cells(cells: PackedVector4Array) -> void:
+	for sheet: ShaderMaterial in _swash_sheet_materials.values():
+		sheet.set_shader_parameter("cloud_cells", cells)
+
+
 static func _sync_swash_sheets() -> void:
 	for terrain_id: StringName in _swash_sheet_materials.keys():
 		var source := WATER_MATERIALS.water_surface(

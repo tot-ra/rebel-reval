@@ -15,6 +15,8 @@ uniform float time_scale = 1.0;
 
 varying vec3 world_pos;
 
+#include "res://scripts/city/city_water_light.gdshaderinc"
+
 float hash12(vec2 p) {
 	vec3 p3 = fract(vec3(p.xyx) * 0.1031);
 	p3 += dot(p3, p3.yzx + 33.33);
@@ -61,5 +63,8 @@ void fragment() {
 	ROUGHNESS = 0.08;
 	METALLIC = 0.0;
 	SPECULAR = 0.6;
+	water_f0 = 0.16 * SPECULAR * SPECULAR;
+	// Cloud cells dim this surface's direct sun (city_water_light.gdshaderinc).
+	cloud_cell_shadow = city_water_cloud_shadow(world_pos);
 	ALPHA = mix(opacity * mix(0.7, 1.0, depth_hint), 1.0, fres * 0.6);
 }

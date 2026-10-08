@@ -62,6 +62,8 @@ func _process(delta: float) -> void:
 	)
 	if _cloud_shadow_pass != null:
 		_cloud_shadow_pass.update_share(presentation)
+	if world != null:
+		world.apply_cloud_cells(presentation.cloud_cells)
 	if _god_ray_pass != null:
 		_god_ray_pass.update(delta, presentation)
 

@@ -24,6 +24,7 @@ Out of scope: puddles and mud that follow the storm cell (ground water stays wea
 | Volume march, sky beams, bolt | `scripts/map/view3d/sky_weather_3d.gdshader` (`cells_volume`, `cells_sky_rays`, `lightning_bolt`) |
 | Ground shadows | `scripts/map/view3d/cloud_shadow_pass.gd` / `.gdshader` |
 | God rays cut by cells | `scripts/map/view3d/god_ray_pass.gd` / `.gdshader` |
+| Water dims its own sun under a cell | `scripts/map/view3d/map_view_water.gdshader` (`cloud_cell_shadow`, `light()`), `scripts/city/city_water_light.gdshaderinc` (city sea, stream, moat); pushed by `MapViewMaterials.apply_cloud_cells` and `CityWorld3D.apply_cloud_cells` |
 | 3D Worley noise for cell shapes | `SkyWeatherResources.build_cell_noise_3d` |
 | City mounting | `CityMapView._create_sky_passes`, `CityMapView._process` |
 
@@ -69,7 +70,7 @@ The radiance cubemap pass skips the cells. A 1280x720 street view in the seamles
 The ground shadow pass had two defects that kept it from ever drawing a localised shadow:
 
 - **Compositing**: `blend_mul` multiplied the frame by `ALBEDO`, but the Compatibility 3D buffer stores colour pre-scaled by its HDR luminance multiplier, so `ALBEDO = 1` multiplied every frame by about 0.25 and the old `COMPAT_BLEND_GAIN` still left frames ~40% darker. The pass now mixes black by `ALPHA` (`blend_mix`), which is exact under any multiplier or tonemapper.
-- **Draw order**: the pass drew at transparent priority 96, after the water. Water samples the screen texture, and in Compatibility that back-buffer copy leaves `hint_depth_texture` empty (all 0) for every transparent pass drawn after it, so the pass rebuilt no positions on any map with a sea. It now draws first (`RENDER_PRIORITY = -100`). The water surface itself stays unshadowed. Pixels with no depth behind them (sea without a bed mesh) are shaded on the sea plane, faded out between 1.5 and 3 km.
+- **Draw order**: the pass drew at transparent priority 96, after the water. Water samples the screen texture, and in Compatibility that back-buffer copy leaves `hint_depth_texture` empty (all 0) for every transparent pass drawn after it, so the pass rebuilt no positions on any map with a sea. It now draws first (`RENDER_PRIORITY = -100`), so it darkens the opaque scene and the bed seen through the water. The water surface shades itself: every water shader samples `cells_ground_shadow` and scales the directional light's diffuse and specular by `1 - shadow * 0.85` (the pass's `CELL_SHADOW_STRENGTH`), so a cloud's shadow continues from the shore across the sea and puts out the sun glints under it. The map-view sea and city harbour (`map_view_water.gdshader`) evaluates it per vertex because its fragment stage already uses all 16 Compatibility sampler units; the cell edge is ~60 m wide, far coarser than any water grid. The city's `city_water` / `city_moat_water` use a `light()` that repeats Godot's Burley diffuse and Schlick-GGX specular with that factor. The shadow is gated to the sun (0 once the light has handed over to the moon). `cloud_cells` is pushed every frame (`MapViewMaterials.apply_weather_presentation`, `CityMapView._process`). Pixels with no depth behind them (sea without a bed mesh) are shaded on the sea plane, faded out between 1.5 and 3 km.
 
 ## Verify
 
@@ -80,17 +81,19 @@ godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_sky
 tools/godot_render.sh --script tools/capture_cloud_cells.gd [-- --only=<shot>[,<shot>...]]
 ```
 
-Captures land in `docs/reports/images/weather/`: `cells_aerial_clear`, `cells_aerial_cloudy`, `cells_topdown_shadow`, `cells_street_cumulus`, `cells_storm_ground_stroke`, `cells_storm_in_cloud`, `cells_storm_rain_under` / `cells_storm_rain_away` (same view with the storm cell overhead and 3 km away), `cells_sunbeams`. Screen passes composite over the live framebuffer, so captures must render in the root window, not a `SubViewport`.
+Captures land in `docs/reports/images/weather/`: `cells_aerial_clear`, `cells_aerial_cloudy`, `cells_topdown_shadow`, `cells_street_cumulus`, `cells_storm_ground_stroke`, `cells_storm_in_cloud`, `cells_storm_rain_under` / `cells_storm_rain_away` (same view with the storm cell overhead and 3 km away), `cells_sunbeams`, `cells_harbour_shadow` (a cell shadow crossing the waterline; the tool walks the cell clock in fixed 10 s steps until one shadow covers both shore and sea). Screen passes composite over the live framebuffer, so captures must render in the root window, not a `SubViewport`.
 
 ![Clear day: separate cumulus and their shadows on the town fields](../reports/images/weather/cells_aerial_clear.png)
 
 ![A cumulonimbus with a cloud-to-ground stroke from its base](../reports/images/weather/cells_storm_ground_stroke.png)
 
+![One cloud shadow continuing from the shore fields across the harbour water](../reports/images/weather/cells_harbour_shadow.png)
+
 ## Limits
 
 - Only the rain particles and roof-rain audio are local to storm cells. Puddles and mud stay weather-wide (see the decision above), and the outdoor rain ambience layer (`AmbienceController`, fed from `map_view_runtime_ambient.gd`) still hears the weather-wide `rain_intensity`.
 - Under a storm cell the local rain is the storm profile's 0.22, so a thunderstorm shower reads as light rain, not a downpour.
-- The water surface is not darkened by cloud shadows (the pass draws before water); only the bed seen through it is. Glints and specular on the sea under a cloud need the water shader to sample `cells_ground_shadow` itself.
+- Water dims only its direct sun under a cell; its sky reflection and ambient term stay, so a shadow on the sea reads lighter than on grass (about 10% darker luminance in `cells_harbour_shadow`). The soft continuous cloud deck (`sky_cloud_shadow_soft`) still does not shade the water surface, only the bed through it. In shallow clear water the bed is darkened by the pass and the surface's own diffuse again, so the bed under a cloud reads slightly darker than the same bed on land.
 - The city god-ray raster leaves terrain out (sampling the relief over the whole city stalls the first frame), and the air slab stops at 32 m, so Upper Town streets on the klint get no street-level beams.
 - Cell edges show a fine dither from the deterministic march jitter at close range.
 - Thunder audio is not yet timed to strike distance.

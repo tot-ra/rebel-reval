@@ -113,6 +113,22 @@ func _run() -> void:
 			for i in 60:
 				await process_frame
 			await _shot(viewport, camera, shot, eye, look, 70.0)
+	if _wanted("cells_harbour_shadow"):
+		# R-1400 follow-up: the water dims its own sun under a cell, so one cloud
+		# shadow continues from the shore across the sea instead of stopping at it.
+		await _settle(view, sky, SkyWeather3D.WEATHER_CLOUDY, 0.42)
+		# Walk the cell clock in fixed steps until a shadow straddles the coast
+		# (deterministic: same plan and weather give the same frame).
+		var shore := _shore_shadow_point(sky, plan)
+		for step in 120:
+			if shore.y == 0.0:
+				break
+			sky.advance(10.0)
+			shore = _shore_shadow_point(sky, plan)
+		shore.y = 0.0
+		for i in 3:
+			await process_frame
+		await _shot(viewport, camera, "cells_harbour_shadow", shore + Vector3(0, 420, 520), shore, 55.0)
 	if _wanted("cells_sunbeams"):
 		await _settle(view, sky, SkyWeather3D.WEATHER_CLOUDY, 0.30)
 		var sun := SkyWeather3D.solar_direction(0.30, sky.calendar_date)
@@ -176,6 +192,40 @@ func _strongest(sky: SkyWeather3D, kind: int) -> int:
 func _near_copy(c: Vector3, near: Vector3, kind: int = 0) -> Vector3:
 	var d := CloudCellsScript.wrap_delta(Vector2(c.x, c.z), Vector2(near.x, near.z), kind)
 	return Vector3(near.x + d.x, c.y, near.z + d.y)
+
+
+## Sea point under a cloud-cell shadow that also covers land within 250 m, nearest
+## the town, so one plate shows the shadow crossing the waterline.
+func _shore_shadow_point(sky: SkyWeather3D, plan: CityPlan) -> Vector3:
+	var cells = sky.cloud_cells()
+	var sun := SkyWeather3D.solar_direction(0.42, sky.calendar_date)
+	var town := Vector2(-60, -200)
+	# y = 1 flags "not found" for the caller's search loop.
+	var best := Vector3(town.x, 1, town.y)
+	var best_d := INF
+	# Inset from the plan edge: past it the terrain skirt and OpenSea do not meet
+	# along a real coast.
+	var r := plan.bounds.grow(-150.0)
+	for j in int(r.size.y / 40.0):
+		for i in int(r.size.x / 40.0):
+			var p := r.position + Vector2(i, j) * 40.0
+			if not _is_sea(plan, p) or cells.shadow_at(Vector3(p.x, 0, p.y), sun) < 0.6:
+				continue
+			for k in 8:
+				var q := p + Vector2.from_angle(TAU * k / 8.0) * 250.0
+				if not _is_sea(plan, q) and plan.ground_height(q) > 0.5 \
+						and cells.shadow_at(Vector3(q.x, 0, q.y), sun) > 0.6:
+					var d := p.distance_to(town)
+					if d < best_d:
+						best_d = d
+						best = Vector3(p.x, 0, p.y)
+					break
+	print("harbour shadow at %s (%.0f m from town centre)" % [best, best_d])
+	return best
+
+
+func _is_sea(plan: CityPlan, p: Vector2) -> bool:
+	return plan.ground_height(p) < -0.5
 
 
 ## Ground point on the shadow edge of the grown cell of `kind` whose shadow falls
