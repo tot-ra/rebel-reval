@@ -217,3 +217,6 @@ Keep this file short. Append a durable reusable rule, not a dated incident log. 
 - Delegation: if the only configured agent fails a one-line health-check task (for example "Model returned an empty final response"), stop re-dispatching and do the work in the parent session, telling the user that the requested parallel agents did not run.
 
 - Bulk task-board edits: the `tasks` MCP tool only returns 100 rows and has no bulk update. Use the brute HTTP API (`GET/PATCH localhost:5445/projects/<id>/tasks[/<ref>]`, JSON body with `priority`/`status`/`body`) from a script with a dry-run first.
+
+- Never `git stash` in this repo: other sessions commit concurrently and a stash hides their unstaged work for the duration. To tell whether a repo-wide gate (`generate_active_docs_report.py --check`) failure is yours, grep the generated report for your own file paths instead of stashing to get a baseline.
+- Do not commit fresh `docs/reports/images/**` plates without checking `docs/ASSET_STORAGE_POLICY.md`: 1280x720 Godot captures of a lit 3D scene run ~2 MiB, over the 1.5 MiB active soft cap, and a new directory must also be registered in `docs/data/evidence_image_retention.json`. Cite the reproducible capture command in the doc instead.
