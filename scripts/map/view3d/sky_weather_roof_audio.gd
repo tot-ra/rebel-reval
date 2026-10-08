@@ -3,6 +3,9 @@ extends Node
 
 ## Muffled rain-on-roof bed for enclosed interiors (P0-124). Plays only while
 ## the weather controller reports suppressed falling rain and a non-zero profile.
+## `rain_intensity` passed to sync() is the rain over the camera
+## (SkyWeather3D.local_rain_intensity()), so under a localized thunderstorm the
+## roof only drums while a storm cell's rain shaft covers the building.
 
 const AudioBusServiceScript := preload("res://scripts/settings/audio_bus_service.gd")
 ## Catalog ID instead of a file path (ADR 0035 phase 2): the clip, its bus and

@@ -84,6 +84,35 @@ func _run() -> void:
 			await _shot(viewport, camera, shot, eye, look, 62.0)
 			sky._lightning_time = -1.0
 			sky._lightning = 0.0
+	if _wanted("cells_storm_rain_under") or _wanted("cells_storm_rain_away"):
+		# R-1400 follow-up: storm rain falls only inside a cell's shaft. One street
+		# view; the cloud drift is shifted so the strongest cumulonimbus sits over the
+		# camera, then 3 km east of it. Cells are a pure function of the drift.
+		await _settle(view, sky, SkyWeather3D.WEATHER_STORM, 0.40)
+		var slot := _strongest(sky, CloudCellsScript.KIND_STORM)
+		var street := Vector2(-60, -200)
+		# Just above the roofs, so the plate shows rain against the town, not a wall.
+		var eye := Vector3(street.x, plan.walk_height(street) + 16.0, street.y)
+		var look := eye + Vector3(-20, -9, -60)
+		var shifts := {"cells_storm_rain_under": 0.0, "cells_storm_rain_away": 3000.0}
+		for shot: String in shifts:
+			if not _wanted(shot):
+				continue
+			var c: Vector3 = sky.cloud_cells().centers[slot]
+			var to_eye := CloudCellsScript.wrap_delta(
+				Vector2(eye.x + float(shifts[shot]), eye.z), Vector2(c.x, c.z),
+				CloudCellsScript.KIND_STORM
+			)
+			sky._cloud_offset += to_eye / CloudCellsScript.METRES_PER_UV
+			camera.look_at_from_position(eye, look, Vector3.UP)
+			sky.advance(0.0)
+			print("%s local rain %.2f emitter %s" % [
+				shot, sky.local_rain_factor(), sky.rain_emitter_visible()
+			])
+			# Let the particles fill the air before the plate.
+			for i in 60:
+				await process_frame
+			await _shot(viewport, camera, shot, eye, look, 70.0)
 	if _wanted("cells_sunbeams"):
 		await _settle(view, sky, SkyWeather3D.WEATHER_CLOUDY, 0.30)
 		var sun := SkyWeather3D.solar_direction(0.30, sky.calendar_date)

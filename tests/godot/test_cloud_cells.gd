@@ -176,3 +176,143 @@ func test_shaders_consume_the_cells() -> void:
 	var sky_code: String = SkyWeather.SKY_SHADER.code
 	assert_true("cells_volume" in sky_code, "the dome ray-marches the cells")
 	assert_true("lightning_origin" in sky_code, "the bolt starts in its storm cell")
+
+
+## The shadow pass draws before transparents, so water dims its own sun under a cell.
+func test_water_dims_its_own_sun_under_the_cells() -> void:
+	var sea_code: String = load("res://scripts/map/view3d/map_view_water.gdshader").code
+	assert_true("cells_ground_shadow" in sea_code, "the sea reads the cells")
+	assert_true("cloud_lit" in sea_code, "the sea's light() scales sun diffuse and glints")
+	for path in ["res://scripts/city/city_water.gdshader", "res://scripts/city/city_moat_water.gdshader"]:
+		var code: String = load(path).code
+		assert_true("city_water_light.gdshaderinc" in code, "%s uses the cell-aware light()" % path)
+		assert_true("city_water_cloud_shadow" in code, "%s samples the cell shadow" % path)
+	var cells := CloudCellsScript.new()
+	cells.update(50.0, Vector2.ZERO, Vector2(6.0, 1.0))
+	MapViewMaterials.apply_cloud_cells(cells.uniforms())
+	var sea := MapViewMaterials.water_surface(MapTypes.TERRAIN_SHALLOW_WATER)
+	assert_eq(sea.get_shader_parameter("cloud_cells"), cells.uniforms(), "cells reach the sea")
+
+
+## R-1400 follow-up: a configured sky whose camera sits in the tree, so rain reads
+## the camera position. Storm cells are grown, then pinned (advance(0.0) keeps them).
+func _storm_sky_with_camera(weather: StringName) -> Array:
+	var tree := Engine.get_main_loop() as SceneTree
+	var sky = SkyWeather.new()
+	tree.root.add_child(sky)
+	var camera := Camera3D.new()
+	sky.add_child(camera)
+	sky.configure(camera, Environment.new())
+	sky.auto_weather = false
+	sky.set_weather(weather)
+	sky.advance(SkyWeather.TRANSITION_SECONDS + 0.1)
+	# Walk the cell clock until one cumulonimbus is well grown.
+	for step in 400:
+		if sky.cloud_cells().max_weight(CloudCellsScript.KIND_STORM) > 0.8:
+			break
+		sky.advance(0.5)
+	return [sky, camera]
+
+
+func _strongest_storm_center(sky) -> Vector3:
+	var cells = sky.cloud_cells()
+	var best := CloudCellsScript.CUMULUS_SLOTS
+	for slot in range(CloudCellsScript.CUMULUS_SLOTS, CloudCellsScript.SLOTS):
+		if cells.weights[slot] > cells.weights[best]:
+			best = slot
+	return cells.centers[best]
+
+
+## A ground point `distance` from `center` that no storm shaft covers.
+func _dry_point(sky, center: Vector3, distance: float) -> Vector3:
+	for i in 16:
+		var p := Vector3(center.x, 0.0, center.z) + Vector3.FORWARD.rotated(
+			Vector3.UP, TAU * float(i) / 16.0
+		) * distance
+		if sky.storm_rain_cover_at(p) == 0.0:
+			return p
+	return Vector3.INF
+
+
+func test_storm_rain_falls_only_under_a_storm_cell() -> void:
+	var made := _storm_sky_with_camera(SkyWeather.WEATHER_STORM)
+	var sky = made[0]
+	var camera: Camera3D = made[1]
+	assert_true(
+		sky.cloud_cells().max_weight(CloudCellsScript.KIND_STORM) > 0.8, "precondition: a grown cell"
+	)
+	var center := _strongest_storm_center(sky)
+	camera.global_position = Vector3(center.x, 2.0, center.z)
+	sky.advance(0.0)
+	assert_true(sky.rain_emitter_visible(), "rain falls under the cumulonimbus")
+	assert_true(sky.local_rain_factor() > 0.75, "the shaft core carries most of the storm rain")
+	var far := _dry_point(sky, center, 3000.0)
+	assert_true(far != Vector3.INF, "precondition: open sky 3 km from the cell")
+	camera.global_position = far + Vector3.UP * 2.0
+	sky.advance(0.0)
+	assert_false(sky.rain_emitter_visible(), "no rain falls 3 km from the storm cell")
+	assert_almost_eq(
+		sky.rain_intensity(), float(SkyWeather.PROFILES[SkyWeather.WEATHER_STORM]["rain"]), 0.001,
+		"the weather-wide rain field does not depend on the camera"
+	)
+	sky.queue_free()
+
+
+func test_roof_rain_audio_follows_the_storm_cell() -> void:
+	var made := _storm_sky_with_camera(SkyWeather.WEATHER_STORM)
+	var sky = made[0]
+	var camera: Camera3D = made[1]
+	var center := _strongest_storm_center(sky)
+	sky.rain_suppressed = true
+	camera.global_position = Vector3(center.x, 2.0, center.z)
+	sky.advance(0.0)
+	assert_true(sky.roof_audio_active(), "a roof under the storm cell drums")
+	var far := _dry_point(sky, center, 3000.0)
+	assert_true(far != Vector3.INF, "precondition: open sky 3 km from the cell")
+	camera.global_position = far + Vector3.UP * 2.0
+	sky.advance(0.0)
+	assert_false(sky.roof_audio_active(), "a roof 3 km from the storm stays quiet")
+	sky.queue_free()
+
+
+func test_rain_front_rains_everywhere() -> void:
+	var made := _storm_sky_with_camera(SkyWeather.WEATHER_RAIN)
+	var sky = made[0]
+	var camera: Camera3D = made[1]
+	var center := _strongest_storm_center(sky)
+	for offset in [Vector3.ZERO, Vector3(3000.0, 0.0, 0.0), Vector3(-4100.0, 0.0, 2300.0)]:
+		camera.global_position = Vector3(center.x, 2.0, center.z) + offset
+		sky.advance(0.0)
+		assert_almost_eq(sky.local_rain_factor(), 1.0, 0.0001, "a rain front falls everywhere")
+		assert_true(sky.rain_emitter_visible(), "rain weather rains away from the cells too")
+	sky.queue_free()
+
+
+func test_puddles_stay_weather_wide_and_save_compatible() -> void:
+	var made := _storm_sky_with_camera(SkyWeather.WEATHER_STORM)
+	var sky = made[0]
+	var camera: Camera3D = made[1]
+	var headless = SkyWeather.new()
+	headless.auto_weather = false
+	headless.restore_state(sky.snapshot_state().to_dict())
+	assert_almost_eq(headless.local_rain_factor(), 1.0, 0.0001, "no camera: counts as under the storm")
+	# Put the camera in open sky: local rain stops, ground water keeps filling.
+	var center := _strongest_storm_center(sky)
+	var far := _dry_point(sky, center, 3000.0)
+	assert_true(far != Vector3.INF, "precondition: open sky 3 km from the cell")
+	camera.global_position = far + Vector3.UP * 2.0
+	for step in 20:
+		sky.advance(0.1)
+		headless.advance(0.1)
+	assert_false(sky.rain_emitter_visible(), "precondition: dry where the camera stands")
+	assert_almost_eq(
+		sky.puddle_wetness(), headless.puddle_wetness(), 0.0001,
+		"puddles follow the weather, not where the camera stands"
+	)
+	assert_true(sky.puddle_wetness() > 0.0, "storm rain still fills puddles")
+	var restored = SkyWeather.new()
+	assert_true(restored.restore_state(sky.snapshot_state().to_dict()), "state must restore")
+	assert_almost_eq(restored.puddle_wetness(), sky.puddle_wetness(), 0.0001, "puddles persist")
+	sky.queue_free()
+	headless.free()
+	restored.free()

@@ -4,7 +4,7 @@ Status: implemented (task **R-1400**)
 
 Scope: individual clouds as world-space objects in the 3D view. Each cumulus or cumulonimbus has a position, base altitude, size and life; the sky dome ray-marches it as a volume, the ground shadow pass projects it along the sun, god rays are cut by it, and lightning is born only inside a grown cumulonimbus. Mounted in both `MapView3D` maps and the seamless city (`CityMapView`).
 
-Out of scope: rain particles and puddles that follow the storm cell under the player (rain is still a weather-wide `rain_intensity`), thunder audio tied to strike distance, clouds that react to terrain, and replacing the dome's continuous cloud deck (it stays as the distant layer and the overcast sheet).
+Out of scope: puddles and mud that follow the storm cell (ground water stays weather-wide, see **Local storm rain**), thunder audio tied to strike distance, clouds that react to terrain, and replacing the dome's continuous cloud deck (it stays as the distant layer and the overcast sheet).
 
 ## What the player sees
 
@@ -30,6 +30,21 @@ Out of scope: rain particles and puddles that follow the storm cell under the pl
 `CloudCells.update(clock, cloud_offset, counts)` rebuilds 16 slots (13 cumulus, 3 cumulonimbus) every `SkyWeather3D.advance()`. Counts come from the blended weather profile (`CloudCells.counts_for(coverage, storm)`), so a weather transition fades cells in and out. Cells drift with the shared `cloud_offset` (`METRES_PER_UV` = 5000 world units per offset unit). They tile a periodic square (3.2 km for cumulus, 9.6 km for storm cells). Shaders take the copy nearest the camera and fade cells out before the seam.
 
 `WeatherPresentation.cloud_cells` carries the packed uniforms to the passes; `cell_sun_edge` (how ragged the cover is right around the sun) adds haze to god rays. `celestial_cloud_clear` (water glints, god-ray strength) also multiplies in the cells in front of the sun or moon.
+
+## Local storm rain
+
+In `storm` weather the falling rain is local: the rain particles and the roof-rain bed only run while the camera stands inside a cumulonimbus rain shaft, the same cylinder the sky draws its curtain in (`RAIN_SHAFT_RADIUS` = 0.55 x cell radius, faded over +-15% of it, scaled by the cell's visible weight). Three kilometres from the cell the street is dry and the roof is quiet while the curtain still hangs on the horizon. In `rain` weather the deck rains everywhere.
+
+- `SkyWeather3D.local_rain_factor()` blends from 1 (everywhere) to the shaft cover by `smoothstep(0.3, 0.8, storm_locality())`, so the `rain` front (locality 0.18) gives 1 and the `storm` profile (0.9) is fully local. Weather transitions blend smoothly.
+- `local_rain_intensity()` = `rain_intensity()` x that factor. It drives `rain_emitter_visible()`, the emitter `amount_ratio`, and `SkyWeatherRoofAudio.sync()` in `_update_rain()`.
+- `storm_rain_cover_at(point)` measures the shaft cover; horizontal distance uses `CloudCells.wrap_delta(..., KIND_STORM)`.
+- With no camera in the tree (headless simulation, tests that never call `configure`) the factor is 1, like lightning proximity.
+
+**Decision: puddles, mud and saved state stay weather-wide.** `rain_intensity()`, `puddle_wetness()`, `mud_wetness()`, `seconds_since_rain()` and `WeatherPresentation.rain_intensity` keep using the profile rain (0.22 in a storm). Storm cells drift over the whole town during one storm, so the low profile rain stands in for the town-wide average, and a camera-dependent fill would make saved ground water depend on where the player stood. Local rain is presentation only: nothing new is saved, and older saves load unchanged.
+
+![Under a storm cell: rain curtain and falling rain](../reports/images/weather/cells_storm_rain_under.png)
+
+![The same view with the cell 3 km away: dry](../reports/images/weather/cells_storm_rain_away.png)
 
 ## Saved state
 
@@ -65,7 +80,7 @@ godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_sky
 tools/godot_render.sh --script tools/capture_cloud_cells.gd [-- --only=<shot>[,<shot>...]]
 ```
 
-Captures land in `docs/reports/images/weather/`: `cells_aerial_clear`, `cells_aerial_cloudy`, `cells_topdown_shadow`, `cells_street_cumulus`, `cells_storm_ground_stroke`, `cells_storm_in_cloud`, `cells_sunbeams`. Screen passes composite over the live framebuffer, so captures must render in the root window, not a `SubViewport`.
+Captures land in `docs/reports/images/weather/`: `cells_aerial_clear`, `cells_aerial_cloudy`, `cells_topdown_shadow`, `cells_street_cumulus`, `cells_storm_ground_stroke`, `cells_storm_in_cloud`, `cells_storm_rain_under` / `cells_storm_rain_away` (same view with the storm cell overhead and 3 km away), `cells_sunbeams`. Screen passes composite over the live framebuffer, so captures must render in the root window, not a `SubViewport`.
 
 ![Clear day: separate cumulus and their shadows on the town fields](../reports/images/weather/cells_aerial_clear.png)
 
@@ -73,7 +88,8 @@ Captures land in `docs/reports/images/weather/`: `cells_aerial_clear`, `cells_ae
 
 ## Limits
 
-- Rain particles, puddles and roof-rain audio still follow the weather-wide `rain_intensity`, not whether the player stands under a storm cell.
+- Only the rain particles and roof-rain audio are local to storm cells. Puddles and mud stay weather-wide (see the decision above), and the outdoor rain ambience layer (`AmbienceController`, fed from `map_view_runtime_ambient.gd`) still hears the weather-wide `rain_intensity`.
+- Under a storm cell the local rain is the storm profile's 0.22, so a thunderstorm shower reads as light rain, not a downpour.
 - The water surface is not darkened by cloud shadows (the pass draws before water); only the bed seen through it is. Glints and specular on the sea under a cloud need the water shader to sample `cells_ground_shadow` itself.
 - The city god-ray raster leaves terrain out (sampling the relief over the whole city stalls the first frame), and the air slab stops at 32 m, so Upper Town streets on the klint get no street-level beams.
 - Cell edges show a fine dither from the deterministic march jitter at close range.

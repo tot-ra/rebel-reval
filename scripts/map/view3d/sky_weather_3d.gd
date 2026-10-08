@@ -300,6 +300,16 @@ const LIGHTNING_FAR_DISTANCE := 2600.0
 const LIGHTNING_FAR_SCALE := 0.4
 
 const RAIN_EMITTER_HEIGHT := 11.0
+## Local rain under storm cells. The sky shader hangs each cumulonimbus rain
+## curtain in a cylinder of RAIN_SHAFT_RADIUS x cell radius; the emitter fades
+## over RAIN_SHAFT_EDGE (fraction of that radius) either side of its wall, so
+## walking out of the shaft thins the rain instead of cutting it.
+const RAIN_SHAFT_RADIUS := 0.55
+const RAIN_SHAFT_EDGE := 0.15
+## storm_locality range over which visible rain switches from weather-wide (a rain
+## front, locality 0.18) to only-under-cells (a thunderstorm, locality 0.9).
+const RAIN_LOCAL_FROM := 0.3
+const RAIN_LOCAL_TO := 0.8
 
 ## Worked-ground puddles start dry, fill while rain reaches the ground, and then
 ## evaporate gradually. Intensity is accumulated in simulated weather seconds so
@@ -1196,12 +1206,59 @@ func cloud_detail_offset() -> Vector2:
 	return _cloud_detail_offset
 
 
+## Weather-wide rainfall from the blended profile. Deterministic and saved; it
+## drives puddles, mud and the snapshot. What the camera sees falling is
+## local_rain_intensity().
 func rain_intensity() -> float:
 	return float(_current["rain"])
 
 
+## Rain falling at the camera: rain_intensity() scaled by local_rain_factor().
+## Presentation only (emitter, roof audio); never saved, never fed to puddles.
+func local_rain_intensity() -> float:
+	return rain_intensity() * local_rain_factor()
+
+
+## 0..1 share of the weather rain that falls where the camera stands. A widespread
+## front (low storm_locality) rains everywhere (1). A localized thunderstorm only
+## rains inside the curtain the sky draws under each cumulonimbus. Without a
+## camera in the tree (headless simulation) the camera counts as under the storm,
+## as _lightning_proximity() does.
+func local_rain_factor() -> float:
+	var localized := smoothstep(RAIN_LOCAL_FROM, RAIN_LOCAL_TO, storm_locality())
+	if localized <= 0.0:
+		return 1.0
+	if _camera == null or not is_instance_valid(_camera) or not _camera.is_inside_tree():
+		return 1.0
+	return lerpf(1.0, storm_rain_cover_at(_view_position()), localized)
+
+
+## 0..1 how far `point` stands inside a storm cell's rain shaft, scaled by the
+## cell's visible weight (the same `b.y` factor the sky shader puts on the curtain).
+func storm_rain_cover_at(point: Vector3) -> float:
+	var cover := 0.0
+	for slot in range(CloudCellsScript.CUMULUS_SLOTS, CloudCellsScript.SLOTS):
+		var weight: float = _cells.weights[slot]
+		if weight <= 0.0:
+			continue
+		var c: Vector3 = _cells.centers[slot]
+		var offset := CloudCellsScript.wrap_delta(
+			Vector2(point.x, point.z), Vector2(c.x, c.z), CloudCellsScript.KIND_STORM
+		)
+		var shaft := maxf(float(_cells.radii[slot]) * RAIN_SHAFT_RADIUS, 1.0)
+		var inside := 1.0 - smoothstep(
+			1.0 - RAIN_SHAFT_EDGE, 1.0 + RAIN_SHAFT_EDGE, offset.length() / shaft
+		)
+		cover = maxf(cover, weight * inside)
+	return cover
+
+
 ## Persistent surface water created only by rain that has already reached the
 ## ground. A storm can leave puddles behind after the rain particles stop.
+## Decision (R-1400 follow-up): puddles stay weather-wide on rain_intensity(), not
+## on local rain. Storm cells drift over the whole town during one storm, so the
+## profile's low storm rain (0.22) stands in for that average; a camera-dependent
+## fill would make saved ground water depend on where the player stood.
 func puddle_wetness() -> float:
 	return _puddle_wetness
 
@@ -1546,10 +1603,11 @@ func _lightning_envelope(t: float) -> float:
 
 
 ## Whether the falling-rain particle emitter should draw this frame: only when
-## it is actually raining and the player is not under an enclosed roof. Exposed
-## so headless tests can assert indoor suppression without building a renderer.
+## it is actually raining where the camera stands (see local_rain_factor()) and
+## the player is not under an enclosed roof. Exposed so headless tests can assert
+## indoor suppression without building a renderer.
 func rain_emitter_visible() -> bool:
-	return not rain_suppressed and rain_intensity() > 0.02
+	return not rain_suppressed and local_rain_intensity() > 0.02
 
 
 func roof_audio_active() -> bool:
@@ -1571,9 +1629,10 @@ func _update_rain(delta: float = 0.0) -> void:
 	# Headless tests drive advance() without configure(); no emitter exists then.
 	if _rain == null:
 		return
+	var local_rain := local_rain_intensity()
 	_rain.visible = rain_emitter_visible()
 	if _rain.visible:
-		_rain.amount_ratio = clampf(rain_intensity(), 0.05, 1.0)
+		_rain.amount_ratio = clampf(local_rain, 0.05, 1.0)
 	var process := _rain.process_material as ParticleProcessMaterial
 	if process != null:
 		var wind := wind_direction_xz() * wind_strength()
@@ -1581,7 +1640,8 @@ func _update_rain(delta: float = 0.0) -> void:
 	if _camera != null:
 		_rain.global_position = _camera.global_position + Vector3.UP * RAIN_EMITTER_HEIGHT
 	if _roof_audio != null:
-		_roof_audio.sync(rain_suppressed, rain_intensity(), delta)
+		# A roof only drums when the storm cell is over the building.
+		_roof_audio.sync(rain_suppressed, local_rain, delta)
 
 
 func _push_cloud_uniforms() -> void:
