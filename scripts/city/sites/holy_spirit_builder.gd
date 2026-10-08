@@ -60,6 +60,10 @@ static func build(site: CitySite, _plan: CityPlan) -> Node3D:
 	lower_node.add_child(Kit.mesh("GlassLow", glass_parts[0]))
 	var roof_node := Kit.mesh("Roof", roof)
 	Kit.bind_site_washes([lower_node, upper_node, roof_node], site, FLOOR, NAVE_LEN - 1.2)
+	# The painted walls carry their own dado and frieze (city_limewash.gdshader).
+	ChurchMurals.paint(
+		lower_node, upper_node, site, fabric, CUT, FLOOR, _consecration_crosses(), false
+	)
 	church.add_child(lower_node)
 	church.add_child(upper_node)
 	church.add_child(roof_node)
@@ -246,7 +250,6 @@ static func _interior(
 			Vector3(0, 0, 1),
 			BLUE if x < 15.0 else RED
 		)
-	_consecration_crosses(shell)
 	# Holy-water stoup by the north portal; bell ropes under the turret.
 	Kit.pillar(shell, Vector3(12.6, FLOOR, -6.6), 0.11, 0.85)
 	CitySiteProps._box(
@@ -268,37 +271,13 @@ static func _interior(
 	_almshouse(shell)
 
 
-## Twelve painted consecration crosses in red circles on the aisle walls.
-static func _consecration_crosses(shell: CityBuildingBuilder.Shell) -> void:
+## Consecration crosses on the aisle walls, as [centre, into_room].
+static func _consecration_crosses() -> Array:
+	var spots: Array = []
 	for x: float in [6.0, 17.0, 24.5, 31.0]:
 		for z: float in [-6.99, 6.99]:
-			var out := Vector3(0, 0, 1.0 if z < 0 else -1.0)
-			var c := Vector3(x, 3.3, z)
-			for k in 12:
-				var a0 := TAU * k / 12.0
-				var a1 := TAU * (k + 1) / 12.0
-				shell.tri_out(
-					"limewash",
-					c + out * 0.004,
-					c + Vector3(cos(a0) * 0.28, sin(a0) * 0.28, 0) + out * 0.004,
-					c + Vector3(cos(a1) * 0.28, sin(a1) * 0.28, 0) + out * 0.004,
-					RED,
-					out
-				)
-			CitySiteProps._box(
-				shell,
-				"limewash",
-				c + Vector3(-0.2, -0.04, 0) + out * 0.006,
-				c + Vector3(0.2, 0.04, 0) + out * 0.008,
-				Color(0.9, 0.86, 0.76)
-			)
-			CitySiteProps._box(
-				shell,
-				"limewash",
-				c + Vector3(-0.04, -0.2, 0) + out * 0.006,
-				c + Vector3(0.04, 0.2, 0) + out * 0.008,
-				Color(0.9, 0.86, 0.76)
-			)
+			spots.append([Vector3(x, 3.3, z), Vector3(0, 0, 1.0 if z < 0 else -1.0)])
+	return spots
 
 
 ## Almshouse: box beds with straw ticks and blankets, a chest, a table.

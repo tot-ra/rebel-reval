@@ -19,6 +19,7 @@ const FISHING_NET_WIND_SHADER := preload(
 )
 const GRASS_SHADER := preload("res://scripts/map/view3d/map_view_grass.gdshader")
 const CANOPY_SHADER := preload("res://scripts/map/view3d/map_view_canopy.gdshader")
+const BARK_WIND_SHADER := preload("res://scripts/map/view3d/map_view_bark_wind.gdshader")
 const WATER_SHADER := preload("res://scripts/map/view3d/map_view_water.gdshader")
 const TERRAIN_BLEND_SHADER := preload("res://scripts/map/view3d/map_view_terrain_blend.gdshader")
 

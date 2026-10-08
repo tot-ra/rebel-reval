@@ -95,6 +95,30 @@ func test_st_olaf_hall_tower_and_period_rule() -> void:
 	assert_true(site.data["presentation"].is_empty(), "strict 1343: no presentation exceptions")
 
 
+func test_church_murals_crosses_and_dado() -> void:
+	# R-1396: twelve consecration crosses on the lime-washed walls, painted
+	# dado plates on them, and no murals on the St Mary building site.
+	var olaf := _site(&"site.st_olaf")
+	var spots := ChurchMurals.cross_spots(olaf.data["fabric"])
+	assert_eq(spots.size(), 12, "St Olaf: twelve consecration crosses")
+	for spot: Array in spots:
+		assert_true((spot[1] as Vector3).is_normalized(), "cross faces into the room")
+	var built: Node3D = load("res://scripts/city/sites/st_olaf_builder.gd").build(olaf, _plan())
+	# The dado sits below the interior cutaway, the crosses above it.
+	var low := built.get_node_or_null("Church/Lower/Murals") as MeshInstance3D
+	var high := built.get_node_or_null("Church/Upper/Murals") as MeshInstance3D
+	assert_true(low != null and high != null, "St Olaf has mural layers on both sides of the cut")
+	if low != null and high != null:
+		assert_eq(low.mesh.get_surface_count(), 2, "drapery and foliage plates")
+		assert_eq(high.mesh.get_surface_count(), 1, "consecration cross plate")
+	built.free()
+	var mary: Node3D = load("res://scripts/city/sites/st_mary_builder.gd").build(
+		_site(&"site.st_mary"), _plan()
+	)
+	assert_true(mary.find_child("Murals", true, false) == null, "St Mary is unpainted")
+	mary.free()
+
+
 func test_st_nicholas_rooms_chapel_and_period_rule() -> void:
 	var plan := _plan()
 	var site := _site(&"site.st_nicholas")

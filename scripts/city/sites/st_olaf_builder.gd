@@ -63,6 +63,7 @@ static func build(site: CitySite, _plan: CityPlan) -> Node3D:
 	lower_node.add_child(Kit.mesh("GlassLow", glass_parts[0]))
 	var roof_node := Kit.mesh("Roof", roof)
 	Kit.bind_site_washes([lower_node, upper_node, roof_node], site, FLOOR)
+	ChurchMurals.paint(lower_node, upper_node, site, fabric, CUT, FLOOR)
 	church.add_child(lower_node)
 	church.add_child(upper_node)
 	church.add_child(roof_node)

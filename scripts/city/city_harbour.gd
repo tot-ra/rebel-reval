@@ -9,6 +9,7 @@ extends RefCounted
 ## `outbuilding` buildings; boats are CityShips. Visual only: no collision.
 
 const NET_COLOR := Color(0.2, 0.17, 0.12)
+const DRAW_RANGE := 160.0
 
 
 static func build(plan: CityPlan, parent: Node3D) -> Node3D:
@@ -169,28 +170,12 @@ static func _net_yard(
 	var node := Node3D.new()
 	node.name = String(yard["id"]).replace(".", "_")
 	root.add_child(node)
-	for i in poly.size():
-		var a := poly[i]
-		var b := poly[(i + 1) % poly.size()]
-		var span := a.distance_to(b)
-		var dir := (b - a) / maxf(span, 0.001)
-		var posts := maxi(int(span / 2.5), 1)
-		for k in posts + 1:
-			var p := a + dir * (span * float(k) / posts)
-			_box(
-				node,
-				Vector3(0.1, 1.1, 0.1),
-				Vector3(p.x, plan.ground_height(p) + 0.55, p.y),
-				timber,
-			)
-		var mid := (a + b) * 0.5
-		_box(
-			node,
-			Vector3(span, 0.06, 0.06),
-			Vector3(mid.x, plan.ground_height(mid) + 0.85, mid.y),
-			wood,
-			Vector3(0.0, -atan2(dir.y, dir.x), 0.0)
-		)
+	# Fishers fenced their drying yards with woven wattle or rough poles like any
+	# 1343 croft, never sawn boxes; the id picks between the two (CityFences).
+	var kind := CityFences.kind_for(String(yard["id"]))
+	if kind == CityFences.KIND_STONE:
+		kind = CityFences.KIND_POLE
+	CityFences.build(node, String(yard["id"]), poly, plan.ground_height, DRAW_RANGE, kind)
 	var net := StandardMaterial3D.new()
 	net.albedo_color = NET_COLOR
 	net.roughness = 1.0

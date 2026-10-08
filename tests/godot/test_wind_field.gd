@@ -5,6 +5,7 @@ extends "res://tests/godot/test_case.gd"
 const WIND_SHADERS := [
 	"res://scripts/map/view3d/map_view_grass.gdshader",
 	"res://scripts/map/view3d/map_view_canopy.gdshader",
+	"res://scripts/map/view3d/map_view_bark_wind.gdshader",
 	"res://scripts/map/view3d/map_view_cloth.gdshader",
 	"res://scripts/map/view3d/map_view_flag_cloth.gdshader",
 	"res://scripts/map/view3d/map_view_hanging_banner_cloth.gdshader",
@@ -137,7 +138,11 @@ func test_every_wind_shader_reads_the_globals_and_compiles() -> void:
 	for path: String in WIND_SHADERS:
 		var shader := load(path) as Shader
 		assert_true(shader != null, path)
-		assert_true(shader.code.contains("wind_field.gdshaderinc"), "%s must include the field" % path)
+		# Tree shaders reach the field through tree_wind.gdshaderinc, which includes it.
+		assert_true(
+			shader.code.contains("wind_field.gdshaderinc") or shader.code.contains("tree_wind.gdshaderinc"),
+			"%s must include the field" % path
+		)
 		assert_false(
 			shader.code.contains("uniform vec2 wind_direction"),
 			"%s must not keep a per-material wind heading" % path

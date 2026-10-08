@@ -882,6 +882,8 @@ static func material_for(key: String) -> Material:
 			var pm := ShaderMaterial.new()
 			pm.shader = LIMEWASH
 			pm.set_shader_parameter("paint", 1.0)
+			pm.set_shader_parameter("dado_plate", load(ChurchMurals.PLATES["drapery"]))
+			pm.set_shader_parameter("frieze_plate", load(ChurchMurals.PLATES["foliage"]))
 			mat = pm
 		"flags":
 			var fs := ShaderMaterial.new()

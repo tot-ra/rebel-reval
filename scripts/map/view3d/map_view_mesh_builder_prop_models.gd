@@ -430,19 +430,16 @@ static func _add_timber_fence(root: Node3D, prop: Dictionary, cell_size: int) ->
 	var scale := MapViewBridge.world_scale(cell_size)
 	var horizontal := footprint.size.x >= footprint.size.y
 	var length := maxf(maxf(footprint.size.x, footprint.size.y) * scale - 0.25, 0.75)
-	var post_count := maxi(2, ceili(length / 1.4) + 1)
-	for index in post_count:
-		var along := lerpf(-length * 0.5, length * 0.5, float(index) / float(post_count - 1))
-		var position := Vector3(along, 0.48, 0.0) if horizontal else Vector3(0.0, 0.48, along)
-		MapViewMeshBuilderPrimitives.box(
-			root, "Post%d" % index, Vector3(0.12, 0.96, 0.12), position, &"timber"
-		)
-	for rail_index in 2:
-		var rail_y := 0.32 + float(rail_index) * 0.34
-		var rail_size := Vector3(length, 0.1, 0.1) if horizontal else Vector3(0.1, 0.1, length)
-		MapViewMeshBuilderPrimitives.box(
-			root, "Rail%d" % rail_index, rail_size, Vector3(0.0, rail_y, 0.0), &"wood"
-		)
+	var half := length * 0.5
+	var from := Vector2(-half, 0.0) if horizontal else Vector2(0.0, -half)
+	var to := Vector2(half, 0.0) if horizontal else Vector2(0.0, half)
+	# WHY: country fences are wattle or rough poles in grey weathered wood, not sawn
+	# boxes (CityFences); the stable prop id picks the kind. The prop root already
+	# sits on the ground, so local height is 0.
+	var kind := CityFences.KIND_POLE if absi(hash(String(prop.get("id", "")))) % 2 == 0 else CityFences.KIND_WATTLE
+	CityFences.build_run(
+		root, String(prop.get("id", "timber_fence")), from, to, func(_p: Vector2) -> float: return 0.0, 200.0, kind
+	)
 
 
 static func _add_cattle(root: Node3D, prop: Dictionary) -> void:

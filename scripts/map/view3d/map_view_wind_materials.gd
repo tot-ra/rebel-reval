@@ -29,11 +29,17 @@ const BLADE_MID_FADE_IN_START := 9.0
 const BLADE_MID_FADE_IN_END := 15.0
 const BLADE_MID_FADE_START := 38.0
 const BLADE_MID_FADE_END := 46.0
+# Far tier: grows in as the mid tier shrinks out (38-46 m), gone by ~118 m.
+const BLADE_FAR_FADE_IN_START := 36.0
+const BLADE_FAR_FADE_IN_END := 48.0
+const BLADE_FAR_FADE_START := 100.0
+const BLADE_FAR_FADE_END := 118.0
 const GRASS_BLADE_ATLAS := preload("res://assets/materials/pbr/grass_blades/grass_blades_atlas.png")
 const BLACK_CLOAKS_BANNER_TEXTURE := preload("res://assets/heraldry/black_cloaks_banner.png")
 ## R-1194 leaf-cluster card atlas, drawn procedurally since R-1329
 ## (tools/assets/generate_vegetation_atlases.py; no image-generator source).
 const LEAF_CARD_ATLAS := preload("res://assets/materials/pbr/foliage_cards/leaf_card_atlas.png")
+const PropMaterials := preload("res://scripts/map/view3d/map_view_prop_materials.gd")
 const LeafGeometry := preload("res://scripts/map/view3d/map_view_leaf_geometry.gd")
 
 static var _cache: Dictionary = {}
@@ -81,6 +87,7 @@ static func _shared_wind_materials() -> Array[ShaderMaterial]:
 		grass_blades_near(),
 		grass_blade_tier(true),
 		grass_blade_tier(false),
+		grass_blade_far(),
 		canopy(&"spruce"),
 		canopy(&"pine"),
 		canopy(&"leaf"),
@@ -118,6 +125,14 @@ static func grass_blade_tier(near: bool) -> ShaderMaterial:
 	return _grass_material(
 		"grass_blade_mid", BLADE_MID_FADE_START, BLADE_MID_FADE_END,
 		BLADE_MID_FADE_IN_START, BLADE_MID_FADE_IN_END
+	)
+
+
+## Sparse wide clumps beyond the mid tier (CityGrass far tier).
+static func grass_blade_far() -> ShaderMaterial:
+	return _grass_material(
+		"grass_blade_far", BLADE_FAR_FADE_START, BLADE_FAR_FADE_END,
+		BLADE_FAR_FADE_IN_START, BLADE_FAR_FADE_IN_END
 	)
 
 
@@ -180,7 +195,10 @@ static func empty_trail() -> PackedVector4Array:
 
 
 static func _grass_interaction_materials() -> Array[ShaderMaterial]:
-	return [grass_blades(), grass_blades_near(), grass_blade_tier(true), grass_blade_tier(false)]
+	return [
+		grass_blades(), grass_blades_near(), grass_blade_tier(true), grass_blade_tier(false),
+		grass_blade_far(),
+	]
 
 
 ## Clears character parting when no player rig is driving the view.
@@ -249,6 +267,28 @@ static func canopy_for_species(species: StringName) -> ShaderMaterial:
 	return material
 
 
+## Swaying bark plate for city trunks and branches. Replaces
+## MapViewPropMaterials.bark_plate on the city wood mesh so the wood moves with
+## the crown: thin limbs (vertex alpha) far more than the bole. Textures come
+## from the plain plate material so both stay in sync.
+static func bark_plate_wind(plate: StringName) -> ShaderMaterial:
+	var key := "bark_wind:%s" % String(plate)
+	if _cache.has(key):
+		return _cache[key]
+	var plain := PropMaterials.bark_plate(plate)
+	var material := ShaderMaterial.new()
+	material.shader = MapViewMaterialShaders.shader_resource(
+		"bark_wind", MapViewMaterialShaders.BARK_WIND_SHADER
+	)
+	material.set_shader_parameter("albedo_tex", plain.albedo_texture)
+	material.set_shader_parameter("normal_tex", plain.normal_texture)
+	material.set_shader_parameter("roughness_value", plain.get_meta(&"dry_roughness", plain.roughness))
+	material.set_shader_parameter("sway_strength", 0.06)
+	material.set_shader_parameter("wetness", _vegetation_wetness)
+	_cache[key] = material
+	return material
+
+
 ## Pushes the campaign date into every tree crown. Cheap: one uniform set per
 ## species material, no mesh rebuild, and streamed chunks inherit it.
 static func apply_vegetation_season(date: Dictionary) -> void:
@@ -270,6 +310,9 @@ static func apply_vegetation_wetness(wetness: float) -> void:
 	_vegetation_wetness = value
 	for material in _species_canopies():
 		material.set_shader_parameter("wetness", value)
+	for key: String in _cache.keys():
+		if key.begins_with("bark_wind:"):
+			(_cache[key] as ShaderMaterial).set_shader_parameter("wetness", value)
 
 
 static func _apply_season_to(

@@ -1,7 +1,7 @@
 shader_type spatial;
 render_mode cull_disabled, depth_draw_opaque;
 
-#include "res://scripts/map/view3d/wind_field.gdshaderinc"
+#include "res://scripts/map/view3d/tree_wind.gdshaderinc"
 
 uniform vec3 base_color : source_color = vec3(0.30, 0.42, 0.26);
 uniform float sway_strength = 0.05;
@@ -79,10 +79,12 @@ void vertex() {
 	if (leaf_tag > 0.5) {
 		float height = clamp(CUSTOM0.y * 0.18, 0.0, 1.0);
 		vec2 origin = MODEL_MATRIX[3].xz;
-		float limb = sin(TIME * 0.9 + dot(origin, vec2(0.37, 0.53)) + CUSTOM0.x * 0.8)
-			* 0.5 + 0.5;
-		vec2 bend = wind * (gust * 0.6 + limb * 0.4) * strength * strength
-			* sway_strength * 2.2 * height * height
+		// Same functions as the bark shader (tree_wind.gdshaderinc), so a leaf
+		// card moves with the shoot it grows on. Leaves sit on thin shoots:
+		// full limb bend plus the twig shiver (flex = 1).
+		vec2 bend = tree_limb_bend(wind, origin, CUSTOM0.x, CUSTOM0.y, strength,
+				sway_strength, push, TIME)
+			+ tree_twig_sway(wind, origin, CUSTOM0.xyz, 1.0, strength, sway_strength, push, TIME)
 			+ INSTANCE_CUSTOM.xy * height;
 		VERTEX += inverse(mat3(MODEL_MATRIX)) * vec3(bend.x, 0.0, bend.y);
 	}
@@ -90,9 +92,8 @@ void vertex() {
 	// slower than the branch heave above and the leaf flutter above that - with
 	// its phase taken from the trunk position, so neighbouring trees lean out of
 	// step. Lean grows with height, which is the arc a bending bole describes.
-	float sway_phase = sin(TIME * 0.47 + dot(MODEL_MATRIX[3].xz, vec2(0.11, 0.17)));
-	vec2 lean = wind * (0.55 + 0.45 * sway_phase)
-		* strength * strength * sway_strength * trunk_sway * max(VERTEX.y, 0.0);
+	vec2 lean = tree_trunk_lean(wind, MODEL_MATRIX[3].xz, VERTEX.y, strength,
+		sway_strength, trunk_sway, TIME);
 	VERTEX += inverse(mat3(MODEL_MATRIX)) * vec3(lean.x, 0.0, lean.y);
 }
 

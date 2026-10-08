@@ -165,7 +165,7 @@ static func build(plan: CityPlan, parent: Node3D) -> Node3D:
 			),
 			transforms,
 			colors,
-			MapViewMaterials.bark_plate(MapViewTreeSpecies.bark_plate_for(species)),
+			MapViewMaterials.bark_plate_wind(MapViewTreeSpecies.bark_plate_for(species)),
 			Vector3.ZERO
 		)
 		var shrub := species in MapViewTreeMeshes.CITY_SHRUBS

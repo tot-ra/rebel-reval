@@ -51,6 +51,11 @@ def lattice_noise(x, y, wavelength, seed):
     n = 1 + int(4096 // max(wavelength, 1.0)) + 3
     rng = np.random.default_rng(seed)
     lat = rng.random((n, n))
+    # The indices below wrap modulo n - 1, so the lattice must be periodic. Without
+    # this the noise jumped by up to ~10 m along every wrap line (a vertical scarp
+    # across the south approach that the Karja road climbed).
+    lat[:, n - 1] = lat[:, 0]
+    lat[n - 1, :] = lat[0, :]
     fx = x / wavelength + 1024.0
     fy = y / wavelength + 1024.0
     ix = np.floor(fx).astype(np.int64)

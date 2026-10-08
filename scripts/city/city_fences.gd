@@ -41,24 +41,61 @@ static func kind_for(feature_id: String) -> StringName:
 
 
 ## Builds the fence round `poly` under `parent`. `ground` maps xz to terrain height.
+## `forced_kind` overrides the id roll for places where one kind is the only
+## plausible one (a fishers' net yard is never a stone field wall).
 static func build(
-	parent: Node3D, feature_id: String, poly: PackedVector2Array, ground: Callable, draw_range: float
+	parent: Node3D,
+	feature_id: String,
+	poly: PackedVector2Array,
+	ground: Callable,
+	draw_range: float,
+	forced_kind: StringName = &""
+) -> void:
+	var kind := forced_kind if forced_kind != &"" else kind_for(feature_id)
+	if kind == KIND_STONE:
+		var rng := RandomNumberGenerator.new()
+		rng.seed = hash(feature_id + "/fence")
+		_stone_wall(parent, poly, ground, rng, draw_range)
+		return
+	var runs: Array[PackedVector2Array] = []
+	for i in poly.size():
+		runs.append(PackedVector2Array([poly[i], poly[(i + 1) % poly.size()]]))
+	_build_runs(parent, feature_id, runs, ground, draw_range, kind)
+
+
+## Builds one open wood fence run from `a` to `b` (single prop fences, not
+## enclosures). Stone is not offered for runs: a stone request falls back to wattle.
+static func build_run(
+	parent: Node3D,
+	feature_id: String,
+	a: Vector2,
+	b: Vector2,
+	ground: Callable,
+	draw_range: float,
+	forced_kind: StringName = &""
+) -> void:
+	var runs: Array[PackedVector2Array] = [PackedVector2Array([a, b])]
+	var kind := forced_kind if forced_kind in [KIND_WATTLE, KIND_POLE] else KIND_WATTLE
+	_build_runs(parent, feature_id, runs, ground, draw_range, kind)
+
+
+static func _build_runs(
+	parent: Node3D,
+	feature_id: String,
+	runs: Array[PackedVector2Array],
+	ground: Callable,
+	draw_range: float,
+	kind: StringName
 ) -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = hash(feature_id + "/fence")
-	var kind := kind_for(feature_id)
-	if kind == KIND_STONE:
-		_stone_wall(parent, poly, ground, rng, draw_range)
-		return
 	var st := SurfaceTool.new()
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
-	for i in poly.size():
-		var a := poly[i]
-		var b := poly[(i + 1) % poly.size()]
+	for run in runs:
 		if kind == KIND_WATTLE:
-			_wattle_run(st, a, b, ground, rng)
+			_wattle_run(st, run[0], run[1], ground, rng)
 		else:
-			_pole_run(st, a, b, ground, rng)
+			_pole_run(st, run[0], run[1], ground, rng)
 	st.generate_tangents()
 	var inst := MeshInstance3D.new()
 	inst.name = "Fence_%s" % kind

@@ -949,6 +949,12 @@ static func _build_fruit_mesh(
 	return surface.commit()
 
 
+## 0 for the bole, 1 for twig tips, from the limb radius in tree units (twigs
+## ~0.004, primary limbs 0.02-0.05, trunks above 0.07).
+static func limb_flex(radius: float) -> float:
+	return 1.0 - smoothstep(0.006, 0.07, radius)
+
+
 static func _append_tapered_tube(
 	surface: SurfaceTool,
 	start: Vector3,
@@ -978,7 +984,13 @@ static func _append_tapered_tube(
 		var ub := float(next_index) / WOOD_RADIAL_SEGMENTS
 		var v0 := 0.0
 		var v1 := 1.0
+		var start_color := color
+		var end_color := color
 		if uv_rect.size.x > 0.0:
+			# City wood moves in the wind: alpha carries the limb flexibility per
+			# ring (see map_view_bark_wind.gdshader), so thin limbs sway more.
+			start_color.a = limb_flex(start_radius)
+			end_color.a = limb_flex(end_radius)
 			# Bark plates: the last face closes the ring at u = tiles, not back at 0.
 			ub = float(radial_index + 1) / WOOD_RADIAL_SEGMENTS
 			ua *= uv_rect.size.x
@@ -996,7 +1008,8 @@ static func _append_tapered_tube(
 			color,
 			Vector2(ua, v0),
 			Vector2(ua, v1),
-			Vector2(ub, v1)
+			Vector2(ub, v1),
+			PackedColorArray([start_color, end_color, end_color])
 		)
 		_append_colored_triangle(
 			surface,
@@ -1009,7 +1022,8 @@ static func _append_tapered_tube(
 			color,
 			Vector2(ua, v0),
 			Vector2(ub, v1),
-			Vector2(ub, v0)
+			Vector2(ub, v0),
+			PackedColorArray([start_color, end_color, start_color])
 		)
 
 
@@ -1047,10 +1061,13 @@ static func _append_colored_triangle(
 	color: Color,
 	uv_a: Vector2,
 	uv_b: Vector2,
-	uv_c: Vector2
+	uv_c: Vector2,
+	vertex_colors := PackedColorArray()
 ) -> void:
+	var index := 0
 	for vertex in [[a, normal_a, uv_a], [b, normal_b, uv_b], [c, normal_c, uv_c]]:
-		surface.set_color(color)
+		surface.set_color(vertex_colors[index] if vertex_colors.size() == 3 else color)
+		index += 1
 		surface.set_normal(vertex[1])
 		surface.set_uv(vertex[2])
 		surface.add_vertex(vertex[0])

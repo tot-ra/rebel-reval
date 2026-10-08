@@ -92,9 +92,12 @@ const GLOW_MIX := Lighting.GLOW_MIX
 ## or the camera far plane. Tighter distance concentrates shadow-map texels on
 ## the slice the player actually sees.
 const SUN_SHADOW_MAX_DISTANCE := MapViewRuntime.ZOOM_MAX_ORTHOGRAPHIC_SIZE * 1.35 + 8.0
-const SUN_SHADOW_SPLIT_1 := 0.08
-const SUN_SHADOW_SPLIT_2 := 0.22
-const SUN_SHADOW_SPLIT_3 := 0.48
+const SUN_SHADOW_SPLIT_1 := 0.05
+const SUN_SHADOW_SPLIT_2 := 0.15
+const SUN_SHADOW_SPLIT_3 := 0.4
+## Penumbra width (PCF blur) so tree, building and actor shadows soften with the
+## distance-independent filter instead of the old razor-hard edge.
+const SUN_SHADOW_BLUR := 1.8
 const SUN_SHADOW_BIAS := 0.05
 const SUN_SHADOW_NORMAL_BIAS := 1.2
 
@@ -581,6 +584,7 @@ func update_grass_interaction(logic_position: Vector2, logic_velocity: Vector2) 
 	var scale := MapViewBridge.world_scale(definition.cell_size)
 	var world_velocity := Vector2(logic_velocity.x, logic_velocity.y) * scale
 	MapViewMaterials.apply_grass_interaction(Vector2(world.x, world.z), world_velocity)
+	HayRickReaction.set_actor(Vector2(world.x, world.z), world_velocity)
 
 
 func mud_wetness() -> float:
@@ -1413,10 +1417,10 @@ static func _configure_sun_shadows(sun: DirectionalLight3D) -> void:
 	sun.directional_shadow_blend_splits = true
 	sun.shadow_bias = SUN_SHADOW_BIAS
 	sun.shadow_normal_bias = SUN_SHADOW_NORMAL_BIAS
-	sun.shadow_blur = 0.0
-	# Hard shadows: GLES Compatibility does not run PCSS, but zeroing angular size
-	# keeps the authored look crisp if the renderer is upgraded later.
-	sun.light_angular_distance = 0.0
+	# Compatibility has no PCSS, so softness comes from the PCF blur plus the
+	# project-wide filter quality; angular distance only matters on Forward+.
+	sun.shadow_blur = SUN_SHADOW_BLUR
+	sun.light_angular_distance = 0.5
 
 
 ## Appends the bounds of `count` children of a container from index `first`

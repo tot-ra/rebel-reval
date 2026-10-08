@@ -121,6 +121,7 @@ static func _assemble(
 	lower_node.add_child(Kit.mesh("GlassLow", glass_parts[0]))
 	var roof_node := Kit.mesh("Roof", roof)
 	Kit.bind_site_washes([lower_node, upper_node, roof_node], site, FLOOR)
+	ChurchMurals.paint(lower_node, upper_node, site, fabric, CUT, FLOOR)
 	node.add_child(lower_node)
 	node.add_child(upper_node)
 	node.add_child(roof_node)

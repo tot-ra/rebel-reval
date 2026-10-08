@@ -8,9 +8,12 @@ render_mode blend_mix, depth_draw_opaque, cull_back, diffuse_burley, specular_sc
 // Optional painted decoration (`paint` > 0), as 14th-century Hanseatic halls
 // were finished (plausible composite for Reval 1343: no hall painting of that
 // date survives): red-ochre false-ashlar joint lines over the wash, an earthy
-// dado, and a frieze band between ochre rules. The frieze is a chevron band,
-// or a green-and-red vine scroll beyond `rich_from` along `site_axis`
-// (measured from `site_origin`), so one material can paint two rooms.
+// dado painted as a hanging curtain (`dado_plate`), and a frieze band between
+// ochre rules. The frieze is the foliage band plate (`frieze_plate`), or a
+// green-and-red vine scroll beyond `rich_from` along `site_axis` (measured
+// from `site_origin`), so one material can paint two rooms. The plates come
+// from tools/build_church_mural_plates.py (R-1396) and are also laid on plain
+// lime-washed church walls by ChurchMurals.
 
 #include "res://scripts/city/city_weathering.gdshaderinc"
 
@@ -27,6 +30,9 @@ uniform vec2 site_axis = vec2(1.0, 0.0);
 uniform float rich_from = 1e9;
 uniform vec3 ochre : source_color = vec3(0.6, 0.24, 0.15);
 uniform vec3 verdigris : source_color = vec3(0.27, 0.4, 0.3);
+// Unset plates read as transparent: the plain ochre dado and an empty band.
+uniform sampler2D dado_plate : source_color, filter_linear_mipmap, repeat_enable, hint_default_transparent;
+uniform sampler2D frieze_plate : source_color, filter_linear_mipmap, repeat_enable, hint_default_transparent;
 
 void vertex() {
 	w_pos = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
@@ -55,6 +61,9 @@ void fragment() {
 		col = mix(col, ochre * 1.05, joint * 0.7 * worn * field);
 		// Dado: an earthy band at the foot of the wall, with an ochre rule.
 		col = mix(col, mix(ochre, wash, 0.55) * 0.9, step(h, dado_h) * 0.85);
+		// The curtain plate is 2:1, its top edge on the dado rule.
+		vec4 cloth = texture(dado_plate, vec2(s / (dado_h * 2.0), 1.0 - h / dado_h));
+		col = mix(col, cloth.rgb, cloth.a * step(h, dado_h));
 		float dado_rule = smoothstep(dado_h - 0.035, dado_h, h) * (1.0 - smoothstep(dado_h, dado_h + 0.035, h));
 		col = mix(col, ochre * 0.8, dado_rule);
 		// Frieze band between two ochre rules.
@@ -63,8 +72,9 @@ void fragment() {
 			vec3 band = wash * 0.95;
 			bool rich = dot(w_pos.xz - site_origin, site_axis) > rich_from;
 			if (!rich) {
-				float zig = abs(fract(s * 2.2) - 0.5) * 2.0;
-				band = mix(band, ochre, smoothstep(0.1, 0.0, abs(v - 0.15 - zig * 0.7)));
+				// The foliage plate is 8:1 and carries its own rules.
+				vec4 leaf = texture(frieze_plate, vec2(s / ((frieze_y1 - frieze_y0) * 8.0), 1.0 - v));
+				band = mix(band, leaf.rgb, leaf.a);
 			} else {
 				float stem = 0.5 + 0.26 * sin(s * 5.0);
 				float st = smoothstep(0.06, 0.0, abs(v - stem));

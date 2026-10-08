@@ -357,6 +357,10 @@ static func apply_water_sky_reflection(
 
 ## Wind-driven vegetation and cloth APIs remain here for existing builders and
 ## tests. Their independent cache lives in WIND_MATERIALS.
+static func bark_plate_wind(plate: StringName) -> ShaderMaterial:
+	return WIND_MATERIALS.bark_plate_wind(plate)
+
+
 static func apply_world_wind(direction: Vector2, strength: float) -> void:
 	WIND_MATERIALS.apply_world_wind(direction, strength)
 
@@ -385,6 +389,10 @@ static func grass_blades_near() -> ShaderMaterial:
 
 static func grass_blade_tier(near: bool) -> ShaderMaterial:
 	return WIND_MATERIALS.grass_blade_tier(near)
+
+
+static func grass_blade_far() -> ShaderMaterial:
+	return WIND_MATERIALS.grass_blade_far()
 
 
 static func apply_grass_interaction(

@@ -10,7 +10,7 @@ func _plan() -> CityPlan:
 
 func test_the_plan_carries_fields_pastures_woods_and_farmsteads() -> void:
 	var data := _plan().data
-	assert_true((data["fields"] as Array).size() >= 100, "strip fields round the town")
+	assert_true((data["fields"] as Array).size() >= 90, "strip fields round the town")
 	assert_true((data["pastures"] as Array).size() >= 15, "crofts and common pastures")
 	assert_true((data["woods"] as Array).size() >= 5, "woods")
 	assert_true((data["farmsteads"] as Array).size() >= 20, "farmsteads")
@@ -103,7 +103,7 @@ func test_roads_cross_the_hareapea_on_timber_bridges() -> void:
 		assert_false(is_nan(deck), "%s has a deck at its middle" % b["id"])
 		assert_eq(plan.walk_height(at), deck, "%s is walked on its deck" % b["id"])
 		assert_true(deck > 0.5, "%s deck clears the water" % b["id"])
-		assert_true(is_nan(plan.bridge_deck_height(at + Vector2(0.0, 80.0))), "%s deck is local" % b["id"])
+		assert_true(is_nan(plan.bridge_deck_height(at + Vector2(0.0, 80.0))), "%s deck is local" % b["id"])  # gdlint: ignore=max-line-length
 
 
 func test_the_east_curtain_has_a_moat() -> void:

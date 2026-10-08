@@ -85,6 +85,16 @@ func _shots(plan: CityPlan) -> Array[Dictionary]:
 				"fov": 60.0
 			}
 		)
+	# South approach: Karja road where a seam in the relief noise once made a 9 m scarp.
+	var karja_eye := Vector2(40, 440)
+	shots.append(
+		{
+			"name": "city_south_karja_road",
+			"eye": Vector3(karja_eye.x, plan.ground_height(karja_eye) + 12.0, karja_eye.y),
+			"look": Vector3(10, plan.ground_height(Vector2(10, 540)) + 2.0, 540),
+			"fov": 60.0
+		}
+	)
 	for spec: Array in [
 		["street_pikk_jalg", "Pikk jalg", 0.45, 1.0],
 		["street_luhike_jalg", "Lühike jalg", 0.3, 1.0],

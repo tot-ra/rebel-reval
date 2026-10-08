@@ -39,6 +39,26 @@ func test_blade_tiers_cross_fade() -> void:
 	assert_true(near.get_shader_parameter("blade_atlas") != null, "shared shader still binds an atlas")
 
 
+func test_far_tier_extends_range_and_hands_over_from_mid() -> void:
+	var mid := MapViewMaterials.grass_blade_tier(false)
+	var far := MapViewMaterials.grass_blade_far()
+	assert_true(far != mid, "far tier has its own material")
+	assert_true(
+		float(far.get_shader_parameter("fade_in_start")) <= float(mid.get_shader_parameter("fade_start")),
+		"far grows in before mid has gone"
+	)
+	assert_true(
+		float(far.get_shader_parameter("fade_in_end")) >= float(mid.get_shader_parameter("fade_end")),
+		"far is full size once mid has gone (no bare ring)"
+	)
+	var reach := float(far.get_shader_parameter("fade_end"))
+	assert_true(reach > 100.0, "far tier reaches past 100 m")
+	assert_true(
+		reach <= CityGrass.FAR_CHUNK * CityGrass.FAR_RADIUS_CHUNKS,
+		"far chunks cover the fade range in every direction"
+	)
+
+
 func test_ground_plates_are_plain() -> void:
 	# The ground is a colour field: no plantain or flower may be baked into it.
 	# Fine grain is small; a baked plant is a strong, large dark/bright blob.

@@ -480,7 +480,7 @@ a dense hedge of city roses costs about seven times the old blob triangles (the 
 - Only the player's swings strike trees. NPC melee, magic blasts, and projectiles do not.
 - When two hosted views overlap at a seam, each runs its own ambient emitter, which can double the leaf fall right at the seam.
 - Late-April leaf density is a design choice for the slice's spring look. Real Tallinn birches usually break bud a week or two later.
-- R-1324 trunk sway moves the crown only: the bole mesh uses the bark material, which has no wind shader, so the sway amplitude is kept small enough that foliage never visibly leaves its limbs.
+- R-1324 trunk sway moves the crown only on district maps (rigid bole). City trees sway trunk and branches too, thin limbs most; see `VEGETATION_REALISM.md`.
 
 ## Conifer volume and atlas fringe fix
 
