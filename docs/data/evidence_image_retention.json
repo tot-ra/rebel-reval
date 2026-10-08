@@ -56,7 +56,8 @@
   {"path": "docs/reports/images/r713_sky_weather", "tier": "active", "max_long_edge": 1280},
   {"path": "docs/reports/images/r715_water", "tier": "active", "max_long_edge": 1280},
   {"path": "docs/reports/images/wb07", "tier": "active", "max_long_edge": 1280},
-  {"path": "docs/reports/images/st_olaf_1343", "tier": "active", "max_long_edge": 1280}
+  {"path": "docs/reports/images/st_olaf_1343", "tier": "active", "max_long_edge": 1280},
+  {"path": "docs/reports/images/spirit_form", "tier": "active", "max_long_edge": 1280}
   ],
   "archived_directories": [
   {"path": "docs/reports/images/renderer_evaluation", "tier": "archived", "closed_task": "renderer_evaluation"},

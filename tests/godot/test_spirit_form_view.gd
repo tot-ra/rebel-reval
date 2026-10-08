@@ -145,3 +145,28 @@ func test_tracking_a_staged_actor_hides_the_silhouette_and_pins_the_focus() -> v
 	assert_true(form.show_body)
 	assert_eq(form.focus, SpiritFormView.DEFAULT_FOCUS)
 	stage.free()
+
+
+## A close two-shot makes one metre so tall that the image, two metres over the chest, would
+## be cut off by the top of the screen; it is scaled down to fit instead of drifting off.
+func test_a_close_camera_shrinks_the_image_so_it_stays_in_frame() -> void:
+	var root := (Engine.get_main_loop() as SceneTree).root
+	var stage := Node3D.new()
+	root.add_child(stage)
+	var camera := Camera3D.new()
+	stage.add_child(camera)
+	var actor := Node3D.new()
+	stage.add_child(actor)
+	var form := _host.form_view()
+
+	camera.look_at_from_position(Vector3(0.0, 1.3, 1.1), Vector3(0.0, 1.3, 0.0))
+	form.track_3d(camera, actor)
+	var near_height := form.frame_height
+	var image_top := form.focus.y - SpiritFormView.IMAGE_TOP_METRES * form.frame_height
+	assert_true(image_top >= 0.0, "image top on screen, got %s" % image_top)
+
+	# A camera far enough back needs no clamp, so the metre keeps the camera's own scale.
+	camera.look_at_from_position(Vector3(0.0, 1.3, 7.0), Vector3(0.0, 1.3, 0.0))
+	form.track_3d(camera, actor)
+	assert_true(form.frame_height < near_height, "far shot has the smaller metre")
+	stage.free()
