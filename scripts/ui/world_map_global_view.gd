@@ -2,18 +2,18 @@ class_name WorldMapGlobalView
 extends Control
 
 ## Estonia-wide travel presentation owned by WorldMapOverlay. Renders the
-## full-screen basemap, inked roads, and round markers, and emits destination
-## intent only. Names appear on hover/focus; choosing a destination first walks
-## a small traveler along the road, then emits.
+## full-screen basemap and round markers, and emits destination intent only.
+## The road graph still drives travel planning but is not drawn: static lines
+## cluttered the painted map, so only the walking traveler shows its route.
+## Names appear on hover/focus; choosing a destination first walks a small
+## traveler along the road, then emits.
 
 signal destination_requested(scene_id: StringName)
 signal close_requested
 
 const PANEL_SIZE := Vector2(820, 600)
-const MARKER_SIZE := Vector2(40, 40)
+const MARKER_SIZE := Vector2(52, 52)
 const MarkerScript := preload("res://scripts/ui/world_map_marker.gd")
-const ROAD_INK := Color(0.26, 0.16, 0.08, 0.92)
-const ROAD_WASH := Color(0.26, 0.16, 0.08, 0.18)
 const TRAIL_GOLD := Color(1.0, 0.76, 0.24, 1.0)
 const ROAD_SAMPLES := 40
 ## Screen pixels per second the traveler covers; clamped so short hops still read.
@@ -208,17 +208,6 @@ func _road_points(from_point: Vector2, to_point: Vector2) -> PackedVector2Array:
 func _draw_routes() -> void:
 	if _route_host == null:
 		return
-	for edge in GlobalMapCatalog.connections():
-		var from_id: StringName = edge.get("from", &"")
-		var to_id: StringName = edge.get("to", &"")
-		# Always draw in a stable direction so the bow is identical both ways.
-		if String(from_id) > String(to_id):
-			var swap := from_id
-			from_id = to_id
-			to_id = swap
-		var points := _road_points(_marker_center(from_id), _marker_center(to_id))
-		_route_host.draw_polyline(points, ROAD_WASH, 9.0, true)
-		_route_host.draw_polyline(points, ROAD_INK, 3.0, true)
 	if _walking and _walk_path.size() > 1:
 		var upto := int(floor(_walk_t * float(_walk_path.size() - 1))) + 1
 		var trail := _walk_path.slice(0, mini(upto + 1, _walk_path.size()))
@@ -277,7 +266,7 @@ func _begin_travel(scene_id: StringName) -> void:
 		return
 	var from_point := _marker_center(origin)
 	var to_point := _marker_center(scene_id)
-	# Roads are drawn in id order; walk the same curve, reversed when needed.
+	# Bow direction follows id order so a trip and its return share one curve.
 	var forward := String(origin) < String(scene_id)
 	var path := (
 		_road_points(from_point, to_point)

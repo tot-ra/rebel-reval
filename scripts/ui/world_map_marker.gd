@@ -35,25 +35,25 @@ func _draw() -> void:
 	match kind:
 		Kind.PLANNED:
 			# Uncharted place: hollow faded ring, never reads as clickable.
-			draw_arc(center, 7.0, 0.0, TAU, 24, Color(INK, 0.55), 2.0, true)
-			draw_circle(center, 2.5, Color(INK, 0.35))
+			draw_arc(center, 9.0, 0.0, TAU, 24, Color(INK, 0.55), 2.0, true)
+			draw_circle(center, 3.0, Color(INK, 0.35))
 			if lit:
-				draw_arc(center, 11.0, 0.0, TAU, 28, Color(INK, 0.45), 1.5, true)
+				draw_arc(center, 14.0, 0.0, TAU, 28, Color(INK, 0.45), 1.5, true)
 		Kind.CURRENT:
-			draw_circle(center, 9.0, GOLD)
-			draw_arc(center, 9.0, 0.0, TAU, 28, INK, 2.5, true)
-			var ring := 11.0 + 12.0 * _pulse
+			draw_circle(center, 12.0, GOLD)
+			draw_arc(center, 12.0, 0.0, TAU, 28, INK, 2.5, true)
+			var ring := 14.0 + 14.0 * _pulse
 			draw_arc(center, ring, 0.0, TAU, 32, Color(GOLD, 1.0 - _pulse), 2.0, true)
 		Kind.HUB:
-			draw_circle(center, 11.0, PARCHMENT)
-			draw_arc(center, 11.0, 0.0, TAU, 32, INK, 3.0, true)
-			draw_circle(center, 5.0, INK)
+			draw_circle(center, 14.0, PARCHMENT)
+			draw_arc(center, 14.0, 0.0, TAU, 32, INK, 3.0, true)
+			draw_circle(center, 6.5, INK)
 			if lit:
-				draw_arc(center, 16.0, 0.0, TAU, 32, GOLD, 3.0, true)
+				draw_arc(center, 21.0, 0.0, TAU, 32, GOLD, 3.0, true)
 		_:
-			draw_circle(center, 8.0, PARCHMENT)
-			draw_arc(center, 8.0, 0.0, TAU, 28, INK, 2.5, true)
-			draw_circle(center, 3.0, INK)
+			draw_circle(center, 10.5, PARCHMENT)
+			draw_arc(center, 10.5, 0.0, TAU, 28, INK, 2.5, true)
+			draw_circle(center, 4.0, INK)
 			if lit:
-				draw_circle(center, 8.0, Color(GOLD, 0.55))
-				draw_arc(center, 14.0, 0.0, TAU, 32, GOLD, 3.0, true)
+				draw_circle(center, 10.5, Color(GOLD, 0.55))
+				draw_arc(center, 18.0, 0.0, TAU, 32, GOLD, 3.0, true)
