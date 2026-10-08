@@ -252,3 +252,5 @@ This file contains lessons specific to the Dev role.
 - Calibrate vegetation bend with the actual coarse-gust weather range, not a claimed peak pressure. Keep bark/crown shader signatures and species uniforms identical; test angles numerically and capture multiple frozen times on the real GPU. Dummy-renderer greens cannot establish motion amplitude or culling parity.
 
 - Window aperture ray tests must target the average of all six quad vertices, not `verts[0]` and `verts[2]`: `quad_out` can reverse triangle winding, making those two vertices a frame-edge midpoint and falsely reporting wall backing. Pair centre rays with removed-area and rotated-wall UV tests.
+
+- A clean shader compile log is not proof a complex FFT surface drew on macOS GL. Verify changed pixels against an opaque replacement mesh; additional global cloud samplers can silently hide the sea. Keep an A/B capture with the extra helper disabled before blaming depth or bathymetry.
