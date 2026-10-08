@@ -1,0 +1,25 @@
+{
+  "id": "material.bridge_timber.albedo",
+  "family": "bridge_timber",
+  "map_type": "albedo",
+  "kind": "leonardo_material_plate",
+  "target": "assets/materials/pbr/bridge_timber/bridge_timber_0_albedo.png",
+  "source": "generated/leonardo/59cc48e1-77b8-411f-aad4-36219e2f7037-1.jpg",
+  "candidates": [
+    "generated/leonardo/59cc48e1-77b8-411f-aad4-36219e2f7037-1.jpg",
+    "generated/leonardo/59cc48e1-77b8-411f-aad4-36219e2f7037-2.jpg"
+  ],
+  "prompt": "Seamless tileable top-down texture of old weathered grey-brown oak planks of an outdoor medieval timber bridge deck, deep cracks along the grain, silvered sun-bleached wood, dark rot stains and damp patches, subtle green moss and pale lichen in the crevices, visible nail holes, fine wood fibres, realistic photographic PBR albedo, flat even lighting, no shadows, no perspective, no text, planks running vertically",
+  "negative_prompt": "text, watermark, perspective, shadows, new wood, cartoon, painted, border, frame",
+  "model_name": "Leonardo default",
+  "width": 1024,
+  "height": 1024,
+  "tiling": false,
+  "generation_id": "59cc48e1-77b8-411f-aad4-36219e2f7037",
+  "selected_candidate": 1,
+  "processor": "manual crop of three boards (x 150-258, 275-382, 398-508), rotate 90 deg, resize 1024x128; normals by Sobel on luminance",
+  "style_refs": [
+    "docs/ART_BIBLE.md"
+  ],
+  "notes": "OpenAI image credit was exhausted, so Leonardo fallback. Files _0/_1/_2 are three boards of candidate 1; _normal maps derived."
+}

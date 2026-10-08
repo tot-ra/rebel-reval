@@ -13,7 +13,7 @@ const PLANK_WIDTH := 0.26
 const PLANK_GAP := 0.025
 const STRINGER_SIZE := 0.2
 const RAIL_HEIGHT := 1.0
-## Piles are wet (dark, mossy) this far above the waterline.
+## Piles are wet (dark, water-soaked) this far above the waterline.
 const SPLASH_HEIGHT := 0.45
 
 
@@ -29,43 +29,31 @@ static func build(plan: CityPlan, parent: Node3D) -> Node3D:
 ## Shared look: adzed silvered oak (normal-mapped hewn timber) instead of the old
 ## stretched procedural plank pattern, which smeared over large box faces. WHY:
 ## every piece gets UVs fitted to its own size (hewn_timber_for_size) so grain
-## stays crisp, and decay is layered on top: per-plank tone, cracks, lichen on
-## the dry deck, and dark rotten moss-grown piles at the waterline.
+## stays crisp, and decay is layered on top: per-plank tone, cracks, and dark
+## water-soaked piles at the waterline (moss and lichen live in the board texture).
 static func _beam(size: Vector3, seed_value: int, tint: Color) -> StandardMaterial3D:
 	var material := MapViewMaterials.hewn_timber_for_size(size, seed_value).duplicate()
-	material.albedo_color = material.albedo_color * tint
+	_apply_board_texture(material, posmod(seed_value, 3))
+	material.albedo_color = tint
 	return material
+
+
+## Leonardo-generated weathered boards (assets/materials/pbr/bridge_timber): the
+## procedural beam texture read as blur at bridge viewing distance. The strips are
+## 1024x128 with grain along U, matching hewn_timber_for_size's UV repeats.
+static func _apply_board_texture(material: StandardMaterial3D, variant: int) -> void:
+	var stem := "res://assets/materials/pbr/bridge_timber/bridge_timber_%d" % variant
+	material.albedo_texture = load(stem + "_albedo.png")
+	material.normal_enabled = true
+	material.normal_texture = load(stem + "_normal.png")
+	material.normal_scale = 1.0
+	material.roughness = 0.9
 
 
 static func _wet_timber(size: Vector3, seed_value: int) -> StandardMaterial3D:
 	# Water-soaked oak: near black-brown with a green cast, glossier than dry wood.
-	var material := _beam(size, seed_value, Color(0.78, 0.84, 0.66))
+	var material := _beam(size, seed_value, Color(0.42, 0.48, 0.36))
 	material.roughness = 0.62
-	return material
-
-
-static func _moss_material() -> StandardMaterial3D:
-	var material := StandardMaterial3D.new()
-	var noise := FastNoiseLite.new()
-	noise.frequency = 0.09
-	noise.fractal_octaves = 4
-	var texture := NoiseTexture2D.new()
-	texture.noise = noise
-	texture.seamless = true
-	texture.width = 128
-	texture.height = 128
-	material.albedo_texture = texture
-	material.albedo_color = Color(0.36, 0.5, 0.22)
-	material.roughness = 1.0
-	material.uv1_triplanar = true
-	material.uv1_scale = Vector3(3.0, 3.0, 3.0)
-	return material
-
-
-static func _lichen_material() -> StandardMaterial3D:
-	var material := StandardMaterial3D.new()
-	material.albedo_color = Color(0.7, 0.76, 0.52)
-	material.roughness = 1.0
 	return material
 
 
@@ -91,10 +79,6 @@ static func _bridge(plan: CityPlan, b: Dictionary, parent: Node3D) -> Node3D:
 	var tilt := atan2(float(b["hb"]) - float(b["ha"]), length)
 	var frame := Basis.from_euler(Vector3(0.0, yaw, tilt))
 	var steps := maxi(int(ceil(length / 2.0)), 2)
-	var moss := _moss_material()
-	var lichen := _lichen_material()
-	var lichen_transforms: Array[Transform3D] = []
-	var moss_transforms: Array[Transform3D] = []
 	var crack_transforms: Array[Transform3D] = []
 
 	# Deck planks: individual boards across the span, each slightly off-true,
@@ -120,16 +104,16 @@ static func _bridge(plan: CityPlan, b: Dictionary, parent: Node3D) -> Node3D:
 			Transform3D(basis, Vector3(p.x, top - PLANK_THICKNESS * 0.5, p.y))
 		)
 		# Tone: mostly silver-grey, some boards dark and rotten, a few greened.
-		var tone := rng.randf_range(0.85, 1.12)
-		var color := Color(tone, tone, tone)
+		var tone := rng.randf_range(0.5, 0.68)
+		var color := Color(tone * 1.05, tone, tone * 0.9)
 		var roll := rng.randf()
 		if roll < 0.14:
-			color = Color(0.46, 0.44, 0.38)
+			color = Color(0.3, 0.28, 0.24)
 		elif roll < 0.24:
-			color = Color(tone * 0.82, tone * 0.95, tone * 0.72)
+			color = Color(tone * 0.85, tone * 1.0, tone * 0.75)
 		variant_colors[v].append(color)
 		var top_point := Vector3(p.x, top + 0.004, p.y)
-		# Checks along the grain (across the span) and lichen rosettes.
+		# Checks along the grain (across the span).
 		if rng.randf() < 0.45:
 			var off := across * rng.randf_range(-width * 0.4, width * 0.4)
 			var crack_len := rng.randf_range(0.3, 1.1)
@@ -138,17 +122,12 @@ static func _bridge(plan: CityPlan, b: Dictionary, parent: Node3D) -> Node3D:
 			crack_transforms.append(
 				Transform3D(cb, top_point + Vector3(off.x, 0.0, off.y))
 			)
-		if rng.randf() < 0.2:
-			var off := across * rng.randf_range(-width * 0.5, width * 0.5)
-			var r := rng.randf_range(0.5, 1.6)
-			lichen_transforms.append(
-				Transform3D(frame * Basis.from_scale(Vector3(r, 1.0, r)),
-					top_point + Vector3(off.x, 0.002, off.y))
-			)
 	for v in 3:
 		if variant_xforms[v].is_empty():
 			continue
 		var material := _beam(plank_mesh.size, v, Color.WHITE)
+		# One board texture per box face (BoxMesh atlas cell is 1/3 x 1/2).
+		material.uv1_scale = Vector3(3.0, 2.0, 1.0)
 		material.vertex_color_use_as_albedo = true
 		var xforms: Array[Transform3D] = []
 		xforms.assign(variant_xforms[v])
@@ -175,7 +154,7 @@ static func _bridge(plan: CityPlan, b: Dictionary, parent: Node3D) -> Node3D:
 			var bmesh := BoxMesh.new()
 			bmesh.size = beam_size
 			beam.mesh = bmesh
-			beam.material_override = _beam(beam_size, i + int(offset_w * 10.0), Color(1.0, 0.97, 0.9))
+			beam.material_override = _beam(beam_size, i + int(offset_w * 10.0), Color(0.62, 0.58, 0.52))
 			var mid := (p0 + p1) * 0.5
 			beam.position = Vector3(mid.x, (y0 + y1) * 0.5, mid.y)
 			beam.rotation = Vector3(0.0, yaw, atan2(y1 - y0, seg))
@@ -201,17 +180,10 @@ static func _bridge(plan: CityPlan, b: Dictionary, parent: Node3D) -> Node3D:
 				var rbox := BoxMesh.new()
 				rbox.size = rail_size
 				rail.mesh = rbox
-				rail.material_override = _beam(rail_size, i + int(side), Color(1.15, 1.1, 1.0))
+				rail.material_override = _beam(rail_size, i + int(side), Color(0.7, 0.66, 0.6))
 				rail.position = Vector3(mid.x, (y0 + y1) * 0.5, mid.y)
 				rail.rotation = Vector3(0.0, yaw, atan2(y1 - y0, seg))
 				node.add_child(rail)
-				if h > 0.5 and rng.randf() < 0.35:
-					lichen_transforms.append(
-						Transform3D(
-							Basis.from_euler(rail.rotation) * Basis.from_scale(Vector3.ONE * rng.randf_range(0.5, 1.2)),
-							rail.position + Vector3(0.0, 0.052, 0.0)
-						)
-					)
 		var posts := maxi(int(length / TRESTLE_STEP), 1) + 1
 		for k in posts:
 			var t := float(k) / maxf(posts - 1, 1)
@@ -232,58 +204,17 @@ static func _bridge(plan: CityPlan, b: Dictionary, parent: Node3D) -> Node3D:
 				wet.material_override = _wet_timber(wet_size, k)
 				wet.position = Vector3(p.x, (wet_top + bed) * 0.5, p.y)
 				node.add_child(wet)
-				if water > -INF:
-					# Moss collar riding the waterline, thicker on shaded sides.
-					for _m in 4:
-						var collar := Basis.from_euler(Vector3(0.0, rng.randf() * TAU, 0.0))
-						moss_transforms.append(
-							Transform3D(
-								collar * Basis.from_scale(Vector3(rng.randf_range(0.9, 1.4), rng.randf_range(0.7, 1.4), rng.randf_range(0.9, 1.4))),  # gdlint: ignore=max-line-length
-								Vector3(p.x, water + rng.randf_range(0.0, 0.3), p.y)
-							)
-						)
 			var dry_size := Vector3(0.28, post_top - wet_top, 0.28)
 			var dry := MeshInstance3D.new()
 			var dmesh := BoxMesh.new()
 			dmesh.size = dry_size
 			dry.mesh = dmesh
-			dry.material_override = _beam(dry_size, k + 1, Color(1.1, 1.06, 0.98))
+			dry.material_override = _beam(dry_size, k + 1, Color(0.66, 0.62, 0.56))
 			dry.position = Vector3(p.x, (post_top + wet_top) * 0.5, p.y)
 			node.add_child(dry)
 
-	_add_scatter(node, "Lichen", lichen_transforms, lichen, 0.16)
-	_add_scatter(node, "Moss", moss_transforms, moss, 0.2)
 	_add_cracks(node, crack_transforms)
 	return node
-
-
-static func _add_scatter(
-	node: Node3D, node_name: String, xforms: Array[Transform3D], material: Material, radius: float
-) -> void:
-	if xforms.is_empty():
-		return
-	var mesh: Mesh
-	if node_name == "Moss":
-		var sphere := SphereMesh.new()
-		sphere.radius = radius
-		sphere.height = radius * 1.1
-		sphere.radial_segments = 8
-		sphere.rings = 4
-		mesh = sphere
-	else:
-		var disc := CylinderMesh.new()
-		disc.top_radius = radius
-		disc.bottom_radius = radius
-		disc.height = 0.008
-		disc.radial_segments = 8
-		disc.rings = 1
-		mesh = disc
-	var colors: Array[Color] = []
-	for _i in xforms.size():
-		colors.append(Color.WHITE)
-	node.add_child(
-		MapViewMeshBuilderPrimitives.multi_mesh(node_name, mesh, xforms, colors, material, Vector3.ZERO)
-	)
 
 
 static func _add_cracks(node: Node3D, xforms: Array[Transform3D]) -> void:
