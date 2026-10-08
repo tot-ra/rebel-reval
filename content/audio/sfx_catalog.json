@@ -1,0 +1,72 @@
+{
+  "type": "sfx_catalog",
+  "id": "audio.sfx_catalog",
+  "entries": [
+    {
+      "id": "sfx.door.wood.use",
+      "bus": "SFX",
+      "streams": ["res://sounds/door.mp3"],
+      "tier": "C",
+      "source_ids": ["sounds.door"],
+      "pitch_jitter": 0.06,
+      "volume_jitter_db": 1.5,
+      "max_voices": 2,
+      "cooldown_ms": 250,
+      "spatial": "3d"
+    },
+    {
+      "id": "sfx.footstep.wood.walk",
+      "bus": "Footsteps",
+      "streams": ["res://sounds/walk_wood.mp3"],
+      "tier": "C",
+      "source_ids": ["sounds.walk.wood"],
+      "pitch_jitter": 0.08,
+      "volume_jitter_db": 2.0,
+      "no_repeat": 1,
+      "max_voices": 4,
+      "spatial": "3d"
+    },
+    {
+      "id": "sfx.footstep.mud.walk",
+      "bus": "Footsteps",
+      "streams": ["res://sounds/walking_on_mud_stable_audio_3.mp3"],
+      "tier": "C",
+      "source_ids": ["sounds.walking.on.mud.stable.audio.3"],
+      "pitch_jitter": 0.08,
+      "volume_jitter_db": 2.0,
+      "no_repeat": 1,
+      "max_voices": 4,
+      "spatial": "3d"
+    },
+    {
+      "id": "sfx.water.emerge",
+      "bus": "SFX",
+      "streams": ["res://sounds/water/emerge.mp3"],
+      "tier": "A",
+      "source_ids": ["sounds.water.emerge"],
+      "pitch_jitter": 0.05,
+      "max_voices": 2,
+      "spatial": "none"
+    },
+    {
+      "id": "sfx.water.submerge",
+      "bus": "SFX",
+      "streams": ["res://sounds/water/submerge.mp3"],
+      "tier": "A",
+      "source_ids": ["sounds.water.submerge"],
+      "pitch_jitter": 0.05,
+      "max_voices": 2,
+      "spatial": "none"
+    },
+    {
+      "id": "amb.weather.rain_roof",
+      "bus": "Weather",
+      "streams": ["res://sounds/weather/rain_roof.mp3"],
+      "tier": "C",
+      "source_ids": ["sounds.weather.rain_roof"],
+      "volume_db": -6.0,
+      "max_voices": 1,
+      "spatial": "none"
+    }
+  ]
+}

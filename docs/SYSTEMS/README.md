@@ -7,6 +7,7 @@ One page per implemented or planned feature. Each page opens with a `Status:` li
 | [Physical object catalog](./OBJECT_CATALOG.md) | Implemented (data, validator, bag rules); gameplay verbs and map gating unwired |
 | [Quests, commissions, investigations](./QUESTS.md) | Implemented (Act 1); Act 2 finale and Act 3 ending are models only |
 | [Dialogue, barks, localization](./DIALOGUE.md) | Implemented |
+| [Sound effects](./AUDIO.md) | Implemented (Phases 0-1: catalog, SfxPlayer, buses, license gate; ADR 0035) |
 | [Cutscenes](./CUTSCENES.md) | Implemented (stills tier, ADR 0034); video tier and audio reserved |
 | [Game state, rules, saves](./STATE_AND_SAVES.md) | Implemented |
 | [Time, phases, patrols](./TIME_AND_PHASES.md) | Implemented |

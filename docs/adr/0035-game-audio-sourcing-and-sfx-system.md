@@ -1,10 +1,10 @@
 # ADR 0035: Game audio sourcing and the sound-effects system (RFC)
 
-- **Status:** Proposed (RFC, 2026-10-07). Nothing here is implemented. No audio code, catalog schema, or bulk asset import may land until a maintainer marks this ADR Accepted.
+- **Status:** Accepted for Phases 0-1 (maintainer request, 2026-10-08); implemented: policy tooling and core runtime, see [`SYSTEMS/AUDIO.md`](../SYSTEMS/AUDIO.md). Phases 2-6 remain gated on Open questions 2 and 3 and the scope offset below.
 - **Scope:** Every non-music sound in the game: ambience, weather, animals, water, crowds, footsteps, impacts, weapons, vocal efforts, UI, magic. Music stays with [`music/README.md`](../../music/README.md) and `scripts/global/music_director.gd`.
 - **Amends:** the asset freeze ([`AGENTS.md`](../../AGENTS.md#scope)) only in that it names an allowed audio pipeline. It does not touch the visual freeze.
 - **Does not supersede:** ADR 0003 (offline authored content, no runtime LLM; this ADR also forbids runtime audio generation), [`ASSET_STORAGE_POLICY.md`](../ASSET_STORAGE_POLICY.md), [`reports/bird_audio_sourcing.md`](../reports/bird_audio_sourcing.md) (still the bird-species source of truth).
-- **Feeds:** a future `docs/SYSTEMS/AUDIO.md` (`Status: planned` until code lands).
+- **Feeds:** [`docs/SYSTEMS/AUDIO.md`](../SYSTEMS/AUDIO.md).
 
 ## Summary
 
