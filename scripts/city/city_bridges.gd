@@ -59,7 +59,7 @@ static func _wet_timber(size: Vector3, seed_value: int) -> StandardMaterial3D:
 
 static func _crack_material() -> StandardMaterial3D:
 	var material := StandardMaterial3D.new()
-	material.albedo_color = Color(0.05, 0.04, 0.035)
+	material.albedo_color = Color(0.1, 0.085, 0.07)
 	material.roughness = 1.0
 	return material
 
@@ -109,12 +109,16 @@ static func _bridge(plan: CityPlan, b: Dictionary, parent: Node3D) -> Node3D:
 		var roll := rng.randf()
 		if roll < 0.14:
 			color = Color(0.3, 0.28, 0.24)
-		elif roll < 0.24:
-			color = Color(tone * 0.85, tone * 1.0, tone * 0.75)
+		elif roll < 0.34:
+			# Mossy boards: clearly green so the damp patches read from deck height.
+			color = Color(tone * 0.88, tone * 1.0, tone * 0.76)
+		elif roll < 0.44:
+			# Pale lichen-crusted boards.
+			color = Color(tone * 1.2, tone * 1.22, tone * 1.05)
 		variant_colors[v].append(color)
 		var top_point := Vector3(p.x, top + 0.004, p.y)
 		# Checks along the grain (across the span).
-		if rng.randf() < 0.45:
+		if rng.randf() < 0.3:
 			var off := across * rng.randf_range(-width * 0.4, width * 0.4)
 			var crack_len := rng.randf_range(0.3, 1.1)
 			var cb := frame * Basis(Vector3.UP, PI * 0.5 + rng.randf_range(-0.05, 0.05))
@@ -204,6 +208,18 @@ static func _bridge(plan: CityPlan, b: Dictionary, parent: Node3D) -> Node3D:
 				wet.material_override = _wet_timber(wet_size, k)
 				wet.position = Vector3(p.x, (wet_top + bed) * 0.5, p.y)
 				node.add_child(wet)
+				if water > -INF:
+					# Moss collar: a slightly fatter green band right at the waterline.
+					var collar_size := Vector3(0.37, 0.22, 0.37)
+					var collar := MeshInstance3D.new()
+					var cmesh := BoxMesh.new()
+					cmesh.size = collar_size
+					collar.mesh = cmesh
+					var cmat := _beam(collar_size, k + 7, Color(0.5, 0.58, 0.4))
+					cmat.roughness = 0.95
+					collar.material_override = cmat
+					collar.position = Vector3(p.x, water + 0.02, p.y)
+					node.add_child(collar)
 			var dry_size := Vector3(0.28, post_top - wet_top, 0.28)
 			var dry := MeshInstance3D.new()
 			var dmesh := BoxMesh.new()

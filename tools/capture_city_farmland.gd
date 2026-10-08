@@ -79,6 +79,16 @@ func _shots(plan: CityPlan) -> Array[Dictionary]:
 		shots.append({"name": "%s_side" % String(b["id"]).replace(".", "_"), "eye": Vector3(at.x + across.x * 26.0, 14.0, at.y + across.y * 26.0), "look": Vector3(at.x, 6.0, at.y), "fov": 60.0, "focus": at})  # gdlint: ignore=max-line-length
 		var start := at - along * 20.0
 		shots.append({"name": "%s_walk" % String(b["id"]).replace(".", "_"), "eye": Vector3(start.x, plan.ground_height(start) + 3.0, start.y), "look": Vector3(at.x, 8.0, at.y), "fov": 60.0, "focus": at})  # gdlint: ignore=max-line-length
+		# Close-ups for the weathering pass: deck planks at walking height, and a pile
+		# at the waterline seen from beside the span (wet band, moss collar).
+		var bid := String(b["id"]).replace(".", "_")
+		var blen := float(b["length"])
+		var deck_at := at - along * blen * 0.15
+		var dg := CityPlan.bridge_deck_at(b, 0.35)
+		shots.append({"name": "%s_deck" % bid, "eye": Vector3(deck_at.x - along.x * 3.2, dg + 1.3, deck_at.y - along.y * 3.2), "look": Vector3(deck_at.x, dg, deck_at.y), "fov": 55.0, "focus": at})  # gdlint: ignore=max-line-length
+		var pile_at := at + across * (float(b["width"]) * 0.5 - 0.1)
+		var pg := CityPlan.bridge_deck_at(b, 0.5)
+		shots.append({"name": "%s_pile" % bid, "eye": Vector3(pile_at.x + across.x * 2.6, pg + 0.2, pile_at.y + across.y * 2.6), "look": Vector3(pile_at.x, pg - 1.2, pile_at.y), "fov": 55.0, "focus": at})  # gdlint: ignore=max-line-length
 	for g: Dictionary in plan.data.get("gates", []):
 		if String(g["id"]) != "gate.viru":
 			continue
@@ -100,8 +110,8 @@ func _shots(plan: CityPlan) -> Array[Dictionary]:
 	if not wheat.is_empty():
 		var c: Vector2 = wheat["centre"]
 		var g := plan.ground_height(c)
-		shots.append({"name": "wheat_far", "eye": Vector3(c.x + 70.0, g + 30.0, c.y + 90.0), "look": Vector3(c.x, g, c.y), "fov": 55.0, "focus": c})
-		shots.append({"name": "wheat_wide", "eye": Vector3(c.x + 160.0, g + 70.0, c.y + 200.0), "look": Vector3(c.x, g, c.y), "fov": 55.0, "focus": c})
+		shots.append({"name": "wheat_far", "eye": Vector3(c.x + 70.0, g + 30.0, c.y + 90.0), "look": Vector3(c.x, g, c.y), "fov": 55.0, "focus": c})  # gdlint: ignore=max-line-length
+		shots.append({"name": "wheat_wide", "eye": Vector3(c.x + 160.0, g + 70.0, c.y + 200.0), "look": Vector3(c.x, g, c.y), "fov": 55.0, "focus": c})  # gdlint: ignore=max-line-length
 	# Farmsteads: the yard round one barn-dwelling and round the plainest croft.
 	for want: String in ["barn_dwelling", "hen_house"]:
 		for b: Dictionary in plan.data["buildings"]:
@@ -110,15 +120,15 @@ func _shots(plan: CityPlan) -> Array[Dictionary]:
 			var fp := CityPlan.points(b["footprint"])
 			var at := fp[0]
 			var g := plan.ground_height(at)
-			shots.append({"name": "yard_%s" % want, "eye": Vector3(at.x + 22.0, g + 9.0, at.y + 22.0), "look": Vector3(at.x, g + 1.5, at.y), "fov": 60.0, "focus": at})
-			shots.append({"name": "yard_%s_close" % want, "eye": Vector3(at.x + 9.0, g + 2.4, at.y + 9.0), "look": Vector3(at.x, g + 1.2, at.y), "fov": 60.0, "focus": at})
+			shots.append({"name": "yard_%s" % want, "eye": Vector3(at.x + 22.0, g + 9.0, at.y + 22.0), "look": Vector3(at.x, g + 1.5, at.y), "fov": 60.0, "focus": at})  # gdlint: ignore=max-line-length
+			shots.append({"name": "yard_%s_close" % want, "eye": Vector3(at.x + 9.0, g + 2.4, at.y + 9.0), "look": Vector3(at.x, g + 1.2, at.y), "fov": 60.0, "focus": at})  # gdlint: ignore=max-line-length
 			break
 	# Harbour: the merchant landing and the Kalamaja fishing shore.
 	var harbour: Dictionary = plan.data.get("harbour", {})
 	if not harbour.is_empty():
 		var crane_at := Vector2(harbour["crane"]["at"][0], harbour["crane"]["at"][1])
-		shots.append({"name": "harbour_landing", "eye": Vector3(crane_at.x - 28.0, 9.0, crane_at.y + 26.0), "look": Vector3(crane_at.x, 3.0, crane_at.y - 6.0), "fov": 60.0, "focus": crane_at})
-		shots.append({"name": "harbour_landing_sea", "eye": Vector3(crane_at.x + 10.0, 6.0, crane_at.y - 50.0), "look": Vector3(crane_at.x, 2.0, crane_at.y), "fov": 60.0, "focus": crane_at})
+		shots.append({"name": "harbour_landing", "eye": Vector3(crane_at.x - 28.0, 9.0, crane_at.y + 26.0), "look": Vector3(crane_at.x, 3.0, crane_at.y - 6.0), "fov": 60.0, "focus": crane_at})  # gdlint: ignore=max-line-length
+		shots.append({"name": "harbour_landing_sea", "eye": Vector3(crane_at.x + 10.0, 6.0, crane_at.y - 50.0), "look": Vector3(crane_at.x, 2.0, crane_at.y), "fov": 60.0, "focus": crane_at})  # gdlint: ignore=max-line-length
 		var lighter: Dictionary = {}
 		var turned: Dictionary = {}
 		for b: Dictionary in harbour["boats"]:
@@ -128,14 +138,14 @@ func _shots(plan: CityPlan) -> Array[Dictionary]:
 				turned = b
 		if not lighter.is_empty():
 			var lp := Vector2(lighter["at"][0], lighter["at"][1])
-			shots.append({"name": "harbour_lighter", "eye": Vector3(lp.x - 14.0, 5.0, lp.y + 16.0), "look": Vector3(lp.x, 0.5, lp.y), "fov": 60.0, "focus": lp})
+			shots.append({"name": "harbour_lighter", "eye": Vector3(lp.x - 14.0, 5.0, lp.y + 16.0), "look": Vector3(lp.x, 0.5, lp.y), "fov": 60.0, "focus": lp})  # gdlint: ignore=max-line-length
 		if not turned.is_empty():
 			var tp := Vector2(turned["at"][0], turned["at"][1])
-			shots.append({"name": "harbour_overturned", "eye": Vector3(tp.x - 8.0, plan.ground_height(tp) + 3.0, tp.y + 9.0), "look": Vector3(tp.x, plan.ground_height(tp) + 1.0, tp.y), "fov": 60.0, "focus": tp})
+			shots.append({"name": "harbour_overturned", "eye": Vector3(tp.x - 8.0, plan.ground_height(tp) + 3.0, tp.y + 9.0), "look": Vector3(tp.x, plan.ground_height(tp) + 1.0, tp.y), "fov": 60.0, "focus": tp})  # gdlint: ignore=max-line-length
 		var yard: Dictionary = harbour["net_yards"][0]
 		var yc := CityPlan.points(yard["polygon"])[0]
-		shots.append({"name": "harbour_kalamaja", "eye": Vector3(yc.x - 18.0, 8.0, yc.y + 24.0), "look": Vector3(yc.x + 8.0, 1.5, yc.y - 6.0), "fov": 60.0, "focus": yc})
-		shots.append({"name": "harbour_kalamaja_eye", "eye": Vector3(yc.x + 2.0, plan.ground_height(yc) + 1.8, yc.y + 14.0), "look": Vector3(yc.x + 6.0, 1.2, yc.y - 6.0), "fov": 60.0, "focus": yc})
+		shots.append({"name": "harbour_kalamaja", "eye": Vector3(yc.x - 18.0, 8.0, yc.y + 24.0), "look": Vector3(yc.x + 8.0, 1.5, yc.y - 6.0), "fov": 60.0, "focus": yc})  # gdlint: ignore=max-line-length
+		shots.append({"name": "harbour_kalamaja_eye", "eye": Vector3(yc.x + 2.0, plan.ground_height(yc) + 1.8, yc.y + 14.0), "look": Vector3(yc.x + 6.0, 1.2, yc.y - 6.0), "fov": 60.0, "focus": yc})  # gdlint: ignore=max-line-length
 	var orchard := _feature(plan, &"orchard")
 	if not orchard.is_empty():
 		var oc: Vector2 = orchard["centre"]
