@@ -64,7 +64,10 @@ void vertex() {
 	// read as fat green blobs. Slim the footprint as the camera pitches toward
 	// vertical (forward.y -> -1) so the ground and individual blades show through.
 	float look_down = INV_VIEW_MATRIX[2].y;
-	VERTEX.xz *= mix(1.0, 0.4, smoothstep(0.55, 0.95, look_down));
+	float down_t = smoothstep(0.4, 0.9, look_down);
+	VERTEX.xz *= mix(1.0, 0.25, down_t);
+	// Tall tufts also pile up toward the lens from above, so lower them too.
+	VERTEX.y *= mix(1.0, 0.55, down_t);
 	v_variety = vec2(mix(0.82, 1.12, h), h3);
 	if (fade_end > 0.0) {
 		float dist = distance(origin, CAMERA_POSITION_WORLD);
