@@ -1,0 +1,132 @@
+{
+  "type": "dialogue",
+  "id": "dialogue.test_duel_topic",
+  "title": "Spirit Duel Topic Fixture",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "review",
+    "notes": "SA3D-4 topic fixture only (ADR 0038)."
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "explicit_node_id",
+    "notes": "Tagged duel fixture for DialogueRunner tests."
+  },
+  "participants": [
+    "char.mart",
+    "char.kalev"
+  ],
+  "start_node_id": "accuse",
+  "duel": {
+    "stakes": [
+      "respect",
+      "secret"
+    ],
+    "resolution_node_ids": [
+      "yield",
+      "stand"
+    ],
+    "topic": {
+      "id": "stolen_iron",
+      "tags": [
+        "iron",
+        "theft",
+        "friend"
+      ],
+      "lines": {
+        "shame": [
+          {
+            "text": "The ledger is short, and you hold the key.",
+            "relevance": [
+              "theft",
+              "iron"
+            ]
+          }
+        ],
+        "love": [
+          {
+            "text": "I did it for a friend who had nothing.",
+            "relevance": [
+              "friend"
+            ]
+          }
+        ],
+        "fear": [
+          {
+            "text": "Someone is listening at the door.",
+            "relevance": [
+              "theft"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "nodes": [
+    {
+      "id": "accuse",
+      "speaker_id": "char.kalev",
+      "text": "You have been stealing iron.",
+      "move": {
+        "kind": "attack",
+        "element": "shame",
+        "stakes": [
+          "secret"
+        ],
+        "spirit_image_id": "ledger_chain"
+      },
+      "choices": [
+        {
+          "id": "deny",
+          "text": "I never touched it.",
+          "target_node_id": "stand",
+          "move": {
+            "kind": "defense",
+            "element": "fear",
+            "stakes": [
+              "respect"
+            ],
+            "topic_tags": [
+              "theft"
+            ]
+          }
+        },
+        {
+          "id": "confess",
+          "text": "It was for a friend.",
+          "target_node_id": "yield",
+          "move": {
+            "kind": "appeal",
+            "element": "love",
+            "stakes": [
+              "secret",
+              "respect"
+            ],
+            "topic_tags": [
+              "friend"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "yield",
+      "speaker_id": "char.kalev",
+      "text": "Then we speak of it no more tonight."
+    },
+    {
+      "id": "stand",
+      "speaker_id": "char.mart",
+      "text": "Believe what you like."
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Fixture for dialogue move tags."
+    }
+  ]
+}

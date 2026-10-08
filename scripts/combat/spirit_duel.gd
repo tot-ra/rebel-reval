@@ -47,6 +47,9 @@ const REPLY_NEUTRAL := 12.0
 const REPLY_COUNTER := 30.0
 const REPLY_COUNTERED := 4.0
 const REPLY_RESONANCE := 8.0
+## ADR 0038: a reply that names the dispute's topic lands harder, one that misses it softer.
+const TOPIC_ON := 1.5
+const TOPIC_OFF := 0.6
 ## Reply window pressure (SD-18): mild, not a timeout. When the window runs out the hero
 ## hesitates once and loses a little composure; the replies stay open.
 const REPLY_WINDOW_SEC := 6.0
@@ -82,6 +85,7 @@ var _finished := true
 var _trait_mods: Dictionary = {}
 var _next_blow_factor := 1.0
 var _temperament: Array = []
+var _topic: Dictionary = {}
 
 
 ## Start `dialogue_id` (a record with a `duel`) on `runner`. False when it is not a duel.
@@ -219,6 +223,7 @@ func answer(choice_id: String) -> bool:
 	damage *= SpiritTraits.temperament_multiplier(
 		_temperament, StringName(String(reply_move.get("kind", "")))
 	)
+	damage *= topic_multiplier(reply_move)
 	damage = hero.modifiers.scale_outgoing_damage(damage)
 	if damage > 0.0:
 		opponent.resolve_hit(damage)
@@ -252,6 +257,37 @@ static func reply_damage(reply_move: Dictionary, incoming: Dictionary) -> float:
 		if String(reply_move.get("element", "")) == String(incoming.get("element", "")):
 			damage += REPLY_RESONANCE
 	return damage
+
+
+## Damage factor from the duel topic: x1.5 when the move's `topic_tags` meet the topic's tags,
+## x0.6 when it names tags that all miss, x1 for an untagged move or a duel without a topic.
+func topic_multiplier(reply_move: Dictionary) -> float:
+	var tags: Array = reply_move.get("topic_tags", [])
+	if _topic.is_empty() or tags.is_empty():
+		return 1.0
+	var topic_tags: Array = _topic.get("tags", [])
+	for tag: Variant in tags:
+		if topic_tags.has(tag):
+			return TOPIC_ON
+	return TOPIC_OFF
+
+
+## The authored topic line the hero speaks for `element`: the first line with the highest overlap
+## between its `relevance` and `tags`. Empty when the duel has no topic or no line for the element.
+func topic_line_for(element: StringName, tags: Array) -> Dictionary:
+	var lines: Array = (_topic.get("lines", {}) as Dictionary).get(String(element), [])
+	var best: Dictionary = {}
+	var best_score := -1
+	for line_value: Variant in lines:
+		var line: Dictionary = line_value
+		var score := 0
+		for tag: Variant in line.get("relevance", []):
+			if tags.has(tag):
+				score += 1
+		if score > best_score:
+			best_score = score
+			best = line
+	return best.duplicate(true)
 
 
 ## Cast a granted spell or rite in the arena through the same MagicResolver as the world
@@ -367,6 +403,7 @@ func _start_run() -> bool:
 	_temperament = (_content_db.get_dialogue(_dialogue_id).get("duel", {}) as Dictionary).get(
 		"temperament", []
 	)
+	_topic = (_content_db.get_dialogue(_dialogue_id).get("duel", {}) as Dictionary).get("topic", {})
 	checkpoint.arm(_state, _dialogue_id)
 	_state.in_spirit_world = true
 	if not _runner.start(_dialogue_id):

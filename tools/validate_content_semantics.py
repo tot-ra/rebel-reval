@@ -436,6 +436,28 @@ def validate_dialogue_duel(
                 diagnostics.append(
                     diag("DUEL_STAKE", path, f"{pointer}.stakes", f"stake {stake!r} is not declared in duel.stakes", root=root)
                 )
+    topic = duel.get("topic") if isinstance(duel.get("topic"), dict) else None
+    if topic is not None:
+        topic_tags = set(topic.get("tags") or [])
+        for element, lines in (topic.get("lines") or {}).items():
+            for line_index, line in enumerate(lines or []):
+                for tag in (line or {}).get("relevance") or []:
+                    if tag not in topic_tags:
+                        diagnostics.append(
+                            diag(
+                                "DUEL_TOPIC",
+                                path,
+                                f"$.duel.topic.lines.{element}[{line_index}].relevance",
+                                f"relevance tag {tag!r} is not declared in duel.topic.tags",
+                                root=root,
+                            )
+                        )
+    for pointer, move in tagged:
+        for tag in move.get("topic_tags") or []:
+            if topic is None or tag not in (topic.get("tags") or []):
+                diagnostics.append(
+                    diag("DUEL_TOPIC", path, f"{pointer}.topic_tags", f"topic tag {tag!r} is not declared in duel.topic.tags", root=root)
+                )
     for index, node_id in enumerate(duel.get("resolution_node_ids") or []):
         pointer = f"$.duel.resolution_node_ids[{index}]"
         if node_id not in id_to_index:

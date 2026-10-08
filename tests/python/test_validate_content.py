@@ -412,6 +412,17 @@ class ValidateContentTests(unittest.TestCase):
         )
         self.assertIn("DUEL_STAKE", codes)
 
+    def test_duel_topic_valid_and_undeclared_tags(self) -> None:
+        topic = {"id": "key", "tags": ["key"], "lines": {"shame": [{"text": "x", "relevance": ["key"]}]}}
+        move = {"kind": "attack", "element": "shame", "topic_tags": ["key"]}
+        duel = {"stakes": ["respect"], "resolution_node_ids": ["end"], "topic": topic}
+        self.assertEqual(self._duel_codes(nodes=self._duel_nodes(move), duel=duel), [])
+        bad = dict(topic, lines={"shame": [{"text": "x", "relevance": ["moon"]}]})
+        codes = self._duel_codes(nodes=self._duel_nodes(move), duel=dict(duel, topic=bad))
+        self.assertIn("DUEL_TOPIC", codes)
+        move2 = {"kind": "attack", "element": "shame", "topic_tags": ["moon"]}
+        self.assertIn("DUEL_TOPIC", self._duel_codes(nodes=self._duel_nodes(move2), duel=duel))
+
     def test_duel_unreachable_resolution(self) -> None:
         nodes = self._duel_nodes({"kind": "defense", "element": "duty"})
         nodes[0].pop("next_node_id")
