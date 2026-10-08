@@ -259,3 +259,5 @@ This file contains lessons specific to the Dev role.
 ### Local atmosphere checks
 - Bound water-probe caches to the camera's active cell halo and stop invisible particle emitters. A bounded draw pool alone does not bound memory or simulation work during seamless travel.
 - Weather comparison captures must reset lingering puddle wetness between shots; setting clear weather alone does not make a dry baseline.
+
+- A clean shader compile log is not proof a complex FFT surface drew on macOS GL. Verify changed pixels against an opaque replacement mesh; additional global cloud samplers can silently hide the sea. Keep an A/B capture with the extra helper disabled before blaming depth or bathymetry.

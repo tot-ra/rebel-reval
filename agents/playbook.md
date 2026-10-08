@@ -258,3 +258,5 @@ Keep this file short. Append a durable reusable rule, not a dated incident log. 
 - The text `read` tool does not decode PNGs: it returns binary text, not visual evidence. Use a browser/media preview and publish the capture path; do not claim visual inspection from raw bytes or a screenshot tool that only returns a filename.
 - When explicitly staging approved capture PNGs below ignored `docs/reports/`, use exact file paths with `git add -f`; do not force-add the whole generated evidence directory.
 - macOS is case-insensitive: `ln -sf Godot .../MacOS/godot` overwrote the real `Godot` binary with a self-referencing symlink. Never create a differently-cased alias next to a binary; put a wrapper on `PATH` or call the absolute path `/Applications/Godot.app/Contents/MacOS/Godot`. Recovery: download the matching release into a fresh temp dir and copy the executable back.
+
+- A temporary Git index built from HEAD can become stale while another session commits. Immediately before commit, compare the captured base SHA to live HEAD and rebuild the entire index on any mismatch; post-commit inspect the path set and never restore stale trees over concurrent commits.

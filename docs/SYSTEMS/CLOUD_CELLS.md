@@ -105,3 +105,11 @@ Captures land in `docs/reports/images/weather/`: `cells_aerial_clear`, `cells_ae
 - The city god-ray raster leaves terrain out (sampling the relief over the whole city stalls the first frame), and the air slab stops at 32 m, so Upper Town streets on the klint get no street-level beams.
 - Cell edges show a fine dither from the deterministic march jitter at close range.
 - Thunder audio is not yet timed to strike distance.
+
+### FFT sea compatibility limit (R-1437)
+
+FFT sea surfaces sample only discrete cell shadows in the vertex stage. The extra
+continuous-deck sampler made the surface disappear on macOS GL Compatibility,
+without a reported compile failure. Lightweight city water retains the deck/cell
+union; full deck shadows on FFT water require a separately verified sampler-safe
+implementation. See [city sea visibility](./CITY_SEA.md#perspective-sea-visibility-r-1437).

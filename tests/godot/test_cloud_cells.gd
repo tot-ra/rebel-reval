@@ -182,7 +182,7 @@ func test_shaders_consume_the_cells() -> void:
 ## The shadow pass draws before transparents, so water dims its own sun under a cell.
 func test_water_dims_its_own_sun_under_the_cells() -> void:
 	var sea_code: String = WATER_SHADER.code
-	assert_true("water_cloud_shadow" in sea_code, "the sea reads the shared cloud shadow")
+	assert_true("cells_ground_shadow" in sea_code, "the sea reads the cell shadow")
 	assert_true("cloud_lit" in sea_code, "the sea's light() scales sun diffuse and glints")
 	for path in [
 		"res://scripts/city/city_water.gdshader", "res://scripts/city/city_moat_water.gdshader",
@@ -197,7 +197,7 @@ func test_water_dims_its_own_sun_under_the_cells() -> void:
 	assert_eq(sea.get_shader_parameter("cloud_cells"), cells.uniforms(), "cells reach the sea")
 
 
-## R-1436: both water paths share the deck/cell union; map water has no spare
+## R-1437: lightweight city water retains the deck/cell union; FFT sea has no spare
 ## fragment samplers. GPU captures verify this source contract on real GL.
 func test_water_deck_shadow_shares_the_pass_field_and_stays_vertex_only() -> void:
 	var shared := FileAccess.get_file_as_string(
@@ -218,7 +218,8 @@ func test_water_deck_shadow_shares_the_pass_field_and_stays_vertex_only() -> voi
 	var sea_code: String = WATER_SHADER.code
 	var vertex := sea_code.get_slice("void vertex()", 1).get_slice("void fragment()", 0)
 	var fragment_and_light := sea_code.get_slice("void fragment()", 1)
-	assert_true("water_cloud_shadow(undisplaced_world)" in vertex, "map sea samples per vertex")
+	assert_true("cells_ground_shadow(undisplaced_world" in vertex, "map sea samples per vertex")
+	assert_false("water_cloud_shadow.gdshaderinc" in sea_code, "FFT sea avoids extra deck sampler")
 	assert_false("water_cloud_shadow(" in fragment_and_light, "no fragment cloud samplers")
 	assert_true(
 		"LIGHT_IS_DIRECTIONAL ? 1.0 - cloud_cell_shadow : 1.0" in fragment_and_light,

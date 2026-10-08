@@ -30,6 +30,21 @@ tools/godot_render.sh --script tools/capture_city_stream.gd -- --tag=x   # build
 godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_city_stream
 ```
 
+## Perspective sea visibility (R-1437)
+
+The FFT surface keeps discrete cloud-cell shadows but does not include the extra
+continuous-deck sampler: that helper made the FFT sea disappear on macOS GL
+Compatibility, even with no shader error in the capture log. Lightweight stream,
+moat and horizon water retain their deck shadows. City sea meshes opt into
+`sea_physical_depth` and use the existing vertex-sampled bathymetry as a minimum
+optical column, independent of screen-depth failures. District meshes default off.
+Shared material weather updates remain intact; the switch is mesh-instance state.
+No input, stable content IDs or save format changes.
+
+Verification: `tools/godot_render.sh --script tools/capture_city_sea.gd -- --tag=restored
+--only=sea_calm_wide,sea_calm_shore,sea_storm_shore` (put both arguments on one line).
+Run `tools/run_godot_tests.gd` with `--filter=test_cloud_cells,test_city_stream`.
+
 ## Limits
 
 - The sea shader hides anything below about a metre of water, so fish only show in the shallows and boulders and weed deeper down are felt as colour, not seen. Fish were not seen in a plate; treat them as unverified until someone looks.

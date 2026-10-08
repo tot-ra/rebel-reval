@@ -154,7 +154,12 @@ uniform float shore_geometry_scale = 0.12;
 // MapViewMaterials.apply_cloud_cells) shade the water's own direct sun. The
 // CloudShadowPass draws before transparents, so it darkens the bed seen through
 // the water but not this surface or its glints.
-#include "res://scripts/map/view3d/water_cloud_shadow.gdshaderinc"
+// R-1437: keep this sampler in the vertex stage. The extra global deck
+// sampler in water_cloud_shadow silently hides this surface on macOS GL.
+// The city lightweight water path can still use the full deck/cell helper.
+#include "res://scripts/map/view3d/cloud_cells.gdshaderinc"
+global uniform sampler2D cloud_noise_tex : filter_linear_mipmap, repeat_enable;
+global uniform vec3 cloud_sun_dir;
 
 // WS-15 interactive ripples (WaterRippleSim): R = height, G = previous height, B = aeration,
 // on a camera-following window. ripple_window = (origin x, origin z, size, valid); valid 0
@@ -185,6 +190,9 @@ uniform float rain_ring_intensity = 0.0;
 uniform sampler2D sea_depth_map : hint_default_black, filter_linear, repeat_disable;
 uniform vec4 sea_depth_rect = vec4(0.0, 0.0, 1.0, 1.0);
 uniform float sea_depth_blend = 0.0;
+// The metre-scale city uses real bathymetry, not the district optical bed floor.
+// Screen depth can be invalid in Compatibility after transparent screen passes.
+instance uniform bool sea_physical_depth = false;
 // Basin depths where the look is fully shallow (x) and fully deep (y).
 uniform vec2 sea_depth_range = vec2(1.0, 3.6);
 // Per family: (choppiness, fft_geometry_scale, standing_wave_ratio, wave_height), kept in
@@ -278,6 +286,7 @@ varying vec3 water_world_position;
 // GL Compatibility allows (Godot adds shadow, radiance and light samplers), and the basin
 // depth is one texel per cell, so vertex interpolation loses nothing.
 varying float sea_depth_t;
+varying float sea_basin_depth;
 varying vec2 wave_sample_xz;
 varying float shore_factor;
 // WS-13b: 1 on in-map water whose rendered sea bed may lie below the flat gameplay
@@ -863,12 +872,15 @@ void vertex() {
 	wave_sample_xz = undisplaced_world.xz;
 	// Cells project along the sun only; once the directional light has handed
 	// over to the moon the gate is 0 and nothing shades the moon path.
-	cloud_cell_shadow = water_cloud_shadow(undisplaced_world);
+	cloud_cell_shadow = cells_ground_shadow(undisplaced_world, cloud_sun_dir, cloud_noise_tex, 1.0)
+		* 0.85 * smoothstep(SUN_LIGHT_HANDOFF_Y, 0.0, cloud_sun_dir.y);
 	sea_depth_t = -1.0;
+	sea_basin_depth = 0.0;
 	if (sea_depth_blend > 0.5) {
 		vec2 sea_uv = (undisplaced_world.xz - sea_depth_rect.xy) / max(sea_depth_rect.zw, vec2(0.001));
 		if (all(greaterThanEqual(sea_uv, vec2(0.0))) && all(lessThanEqual(sea_uv, vec2(1.0)))) {
 			float basin = textureLod(sea_depth_map, sea_uv, 0.0).r;
+			sea_basin_depth = max(basin, 0.0);
 			sea_depth_t = smoothstep(sea_depth_range.x, sea_depth_range.y, basin);
 		}
 	}
@@ -1139,6 +1151,11 @@ void fragment() {
 		float bed_y = flat_bed_flag > 0.5 ? max(bed_world.y, flat_bed_world_y) : bed_world.y;
 		water_column = max(surface_world.y - bed_y, 0.0);
 	}
+	// R-1437: preserve the physical city column even if screen depth resolves to
+	// the surface/another transparent pass. The existing vertex-only depth fetch
+	// avoids exceeding Compatibility's fragment sampler budget. Districts opt out.
+	float basin_column = sea_physical_depth ? max(sea_basin_depth + surface_world.y, 0.0) : 0.0;
+	water_column = max(water_column, basin_column);
 	// Authored water cells share a flat gameplay bed a few centimetres down, so the
 	// per-terrain absorption profile also selects a minimum optical path. This floor,
 	// not the thin real column, is what keeps shallow/river/deep water distinct.
@@ -1195,7 +1212,7 @@ void fragment() {
 	refracted_uv = clamp(refracted_uv, vec2(0.001), vec2(0.999));
 	vec3 floor_color = textureLod(screen_texture, refracted_uv, 0.0).rgb;
 	// Optical path in world units: the refracted path, floored by the terrain profile.
-	float water_depth = max(path_len, terrain_optical_depth);
+	float water_depth = max(max(path_len, basin_column / transmitted_down), terrain_optical_depth);
 	// The layered bed and its caustics are classified by vertical depth (same floor),
 	// so an orbiting camera cannot turn sand into deep-water bed.
 	float bed_column = max(water_column, terrain_optical_depth);
