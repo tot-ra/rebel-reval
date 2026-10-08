@@ -14,19 +14,19 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `1073`
+- Active Markdown files scanned: `1076`
 - Markdown files excluded as archive/reference/out of active scope: `747`
-- Local/external links inspected: `12743`
-- Links to active Markdown docs: `11886`
-- Links to existing archive/reference/non-active local docs: `437`
+- Local/external links inspected: `12770`
+- Links to active Markdown docs: `11904`
+- Links to existing archive/reference/non-active local docs: `435`
 - External links skipped for reachability: `52`
-- Issues found: `0`
+- Issues found: `3`
 
 ## Issue counts
 
 | Code | Count |
 | --- | ---: |
-| `BROKEN_LINK` | 0 |
+| `BROKEN_LINK` | 3 |
 | `BROKEN_ANCHOR` | 0 |
 | `DUPLICATE_CHARACTER_NAME` | 0 |
 | `CONTRADICTORY_DATE` | 0 |
@@ -34,7 +34,11 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Issues
 
-No active Markdown documentation issues found.
+| Code | Location | Detail |
+| --- | --- | --- |
+| `BROKEN_LINK` | `docs/SYSTEMS/AUDIO.md:19` | Local Markdown link target does not exist: `../reports/audio_licenses/README.md` |
+| `BROKEN_LINK` | `docs/SYSTEMS/SEAMLESS_CITY.md:121` | Local Markdown link target does not exist: `../reports/animal_placement_plan.md` |
+| `BROKEN_LINK` | `docs/SYSTEMS/SPIRIT_DIALOGUE.md:142` | Local Markdown link target does not exist: `../reports/images/spirit_form/` |
 
 ## Active files scanned
 
@@ -73,6 +77,7 @@ No active Markdown documentation issues found.
 - `docs/adr/0033-teen-protagonist-and-spirit-dialogue-combat.md`
 - `docs/adr/0034-cutscene-mode-and-cinematic-prologue.md`
 - `docs/adr/0035-game-audio-sourcing-and-sfx-system.md`
+- `docs/adr/0036-layered-npc-mind-with-local-llm.md`
 - `docs/adr/README.md`
 - `docs/AGENT_LOOPS.md`
 - `docs/ARCHITECTURE.md`
@@ -1011,8 +1016,10 @@ No active Markdown documentation issues found.
 - `docs/SYSTEMS/HUD_AND_MENUS.md`
 - `docs/SYSTEMS/LIVING_CITY.md`
 - `docs/SYSTEMS/LIVING_VEGETATION.md`
+- `docs/SYSTEMS/LIVING_WORLD.md`
 - `docs/SYSTEMS/MAGIC.md`
 - `docs/SYSTEMS/NATURAL.md`
+- `docs/SYSTEMS/NPC_MIND.md`
 - `docs/SYSTEMS/OBJECT_CATALOG.md`
 - `docs/SYSTEMS/PSYCHE.md`
 - `docs/SYSTEMS/QUESTS.md`
