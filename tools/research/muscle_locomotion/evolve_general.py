@@ -18,14 +18,23 @@ RANGES = {   # name -> {param: (low, high)}
     "dog_wide":     dict(size=(0.6, 1.4), mass_mult=(0.8, 1.4), strength=(0.85, 1.15), load=(0.0, 0.25), belly=(0.0, 0.1)),
 }
 _CACHE = {}
+_CACHE_MAX = 60
 
-def make_body(rng, rname):
+def make_body(rng, rname, corners=True):
+    """Random body from the range. With `corners`, each parameter is often pinned to its low or high
+    bound, so the extremes (no load, no belly, smallest, heaviest) are always trained, not just the middle."""
     r = RANGES[rname]
-    return presets.Body(**{k: float(rng.uniform(*v)) for k, v in r.items()})
+    vals = {}
+    for k, (lo, hi) in r.items():
+        u = rng.random()
+        vals[k] = lo if corners and u < 0.25 else hi if corners and u < 0.35 else float(rng.uniform(lo, hi))
+    return presets.Body(**vals)
 
 def _sim(creature, body):
     key = (creature, tuple(sorted(asdict(body).items())))
     if key not in _CACHE:
+        if len(_CACHE) > _CACHE_MAX:
+            _CACHE.clear()
         _CACHE[key] = Sim(getattr(presets, creature)(body))
     return _CACHE[key]
 
@@ -62,7 +71,8 @@ if __name__ == "__main__":
     import sim as _sim_mod; _sim_mod.W_SPEED = a.w_speed
     rng = np.random.default_rng(a.seed)
     train = [make_body(rng, a.ranges) for _ in range(10)]
-    test = [make_body(np.random.default_rng(1000 + i), a.ranges) for i in range(6)]
+    test = [make_body(np.random.default_rng(1000 + i), a.ranges) for i in range(10)]
+    nominal = presets.Body()
     s0 = _sim(a.creature, presets.Body())
     if a.init:
         x0 = np.array(json.load(open(a.init))["params"])
@@ -76,7 +86,9 @@ if __name__ == "__main__":
     with Pool(4) as pool:
         for g in range(a.gens):
             gr = np.random.default_rng(a.seed * 100003 + g)
-            scen = [(train[gr.integers(len(train))], float(gr.uniform(*a.fr))) for _ in range(a.k)]
+            scen = [(make_body(gr, a.ranges), float(gr.uniform(*a.fr))) for _ in range(a.k)]
+            if g % 4 == 0:
+                scen[0] = (nominal, scen[0][1])      # the plain body is always part of the mix
             X = es.ask()
             f = pool.map(_eval, [(a.creature, x, scen, a.T) for x in X])
             es.tell(X, f)
@@ -89,5 +101,5 @@ if __name__ == "__main__":
         p = np.array(es.result.xfavorite)
     frs = [a.fr[0], 0.5 * (a.fr[0] + a.fr[1]), a.fr[1]]
     json.dump(dict(creature=a.creature, ranges=a.ranges, fr=a.fr, params=p.tolist()), open(a.out, "w"))
-    report(a.creature, p, train[:4], frs, 15.0, "training bodies (15 s test)")
+    report(a.creature, p, [nominal] + train[:4], frs, 15.0, "nominal and sampled bodies (15 s test)")
     report(a.creature, p, test, frs, 15.0, "held-out bodies (never seen)")
