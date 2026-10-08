@@ -41,5 +41,7 @@ Numbered decisions (Status / Context / Decision / Alternatives / Consequences). 
 - [ADR 0034: Cutscene mode and the cinematic prologue](0034-cutscene-mode-and-cinematic-prologue.md)
 - [ADR 0035: Game audio sourcing and the sound-effects system (RFC)](0035-game-audio-sourcing-and-sfx-system.md)
 - [ADR 0036: Jump, vault and expanded melee verbs](0036-jump-vault-and-expanded-melee-verbs.md)
+- [ADR 0037: Layered NPC mind: state machines, decision model, optional local LLM](0037-layered-npc-mind-with-local-llm.md)
+- [ADR 0038: Real-time 3D spirit arena and topic-bound word spells](0038-realtime-3d-spirit-arena-and-topic-spells.md)
 
 <!-- docs-index:end -->

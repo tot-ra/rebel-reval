@@ -76,6 +76,7 @@ Start with:
 - [Merchant cart and road-transport contract (P0-164)](merchant_cart_transport_contract.md)
 - [P0-034 Migration Matrix](migration_matrix_p0_034.md)
 - [Music recovery after audio quarantine](music_recovery_p0_031.md)
+- [NPC mind: scale benchmark and local-LLM research (spike)](npc_mind_scale_spike_2026-10-08.md)
 - [R-629: Nunnatorn independent acceptance](nunnatorn_acceptance.md)
 - [Nunnatorn historical and art review](nunnatorn_historical_art_review.md)
 - [Nunnatorn interior contract](nunnatorn_interior_contract.md)
