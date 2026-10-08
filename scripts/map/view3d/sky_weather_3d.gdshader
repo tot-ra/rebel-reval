@@ -120,8 +120,10 @@ uniform float cloud_sun_scale : hint_range(0.0, 0.5) = 0.08;
 const float CLOUD_HEIGHT_KM = 1.5;
 // Art-scaled angular radii (chord on the unit sphere). Real bodies are ~0.0047, which
 // reads as a pinprick at game FOV; the sun is ~2.5x and the moon ~1.7x that.
-const float SUN_DISK_R = 0.0125;
-const float MOON_DISK_R = 0.0080;
+// Stylised, not physical (real: sun 0.0047, moon 0.0045 rad); enlarged so the
+// disk reads at game zoom. Sun stays clearly larger than the moon.
+const float SUN_DISK_R = 0.0200;
+const float MOON_DISK_R = 0.0110;
 
 #include "res://scripts/map/view3d/sky_clouds.gdshaderinc"
 #include "res://scripts/map/view3d/cloud_cells.gdshaderinc"

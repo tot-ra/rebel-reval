@@ -38,9 +38,15 @@ float sky_cloud_opacity(
 	float chaos
 ) {
 	float cloud = sky_cloud_bulk(uv, cover, shape_tex);
+	// Fade the two fine octaves where the layer UV is minified (low sky angles,
+	// the layer stretches toward the horizon): the hard threshold remap below
+	// turns their sub-pixel variation into grain. Fallback is the mean (0.5).
+	float texel_rate = max(fwidth(uv.x), fwidth(uv.y));
+	float fine_w = 1.0 - smoothstep(0.02, 0.08, texel_rate);
+	float mid_w = 1.0 - smoothstep(0.05, 0.2, texel_rate);
 	float detail = texture(noise_tex, uv * 1.9 + detail_offset).r * 0.5
-		+ texture(noise_tex, uv * 4.6 - detail_offset * 0.6).r * 0.32
-		+ texture(noise_tex, uv * 9.4 + detail_offset * 0.3).r * 0.18;
+		+ mix(0.5, texture(noise_tex, uv * 4.6 - detail_offset * 0.6).r, mid_w) * 0.32
+		+ mix(0.5, texture(noise_tex, uv * 9.4 + detail_offset * 0.3).r, fine_w) * 0.18;
 	cloud = sky_cloud_remap(cloud, detail * mix(0.18, 0.42, chaos), 1.0, 0.0, 1.0);
 	return clamp(cloud, 0.0, 1.0);
 }
