@@ -68,6 +68,23 @@ func _shots(plan: CityPlan) -> Array[Dictionary]:
 			"fov": 55.0
 		}
 	)
+	# Klint faces: eye outside the Toompea cliff edge, looking back at it, at three edge points.
+	var edge := CityPlan.points(plan.data["toompea_edge"])
+	var edge_centre := Vector2.ZERO
+	for q: Vector2 in edge:
+		edge_centre += q / float(edge.size())
+	for k in 3:
+		var q: Vector2 = edge[int(edge.size() * (0.15 + 0.3 * k)) % edge.size()]
+		var out := (q - edge_centre).normalized()
+		var eye2 := q + out * 55.0
+		shots.append(
+			{
+				"name": "city_klint_%d" % k,
+				"eye": Vector3(eye2.x, plan.ground_height(eye2) + 14.0, eye2.y),
+				"look": Vector3(q.x, plan.ground_height(q) + 6.0, q.y),
+				"fov": 60.0
+			}
+		)
 	for spec: Array in [
 		["street_pikk_jalg", "Pikk jalg", 0.45, 1.0],
 		["street_luhike_jalg", "Lühike jalg", 0.3, 1.0],

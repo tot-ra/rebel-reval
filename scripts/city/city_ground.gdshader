@@ -147,6 +147,61 @@ vec3 detiled(sampler2D tex, vec2 uv) {
 	return mix(texture(tex, uv).rgb, texture(tex, uv2).rgb, smoothstep(0.3, 0.7, n));
 }
 
+
+// --- Cliff rock ----------------------------------------------------------------
+// The klint faces and steep banks are Ordovician limestone over sand and clay, not
+// a masonry wall: horizontal beds of varying hardness (hard beds jut out, soft ones
+// recess), vertical joints, spalled blocks and weathering. Procedural in world space
+// so a face never stretches and never shows a repeating brick pattern.
+// Returns relief height in world units; bed index in `bed`.
+float cliff_height(vec3 p, out float bed) {
+	// Warp so beds undulate and wedge out along the face instead of ruling dead straight.
+	float warp = (value_noise(p.xz * 0.11) - 0.5) * 2.2 + (value_noise(p.xz * 0.45) - 0.5) * 0.5;
+	float s = p.y * 1.15 + warp;
+	bed = floor(s);
+	float hard = hash12(vec2(bed, 3.7));
+	float f = fract(s);
+	// Hard beds keep a square nose; soft beds weather back into a slope.
+	float profile = mix(smoothstep(0.0, 0.9, f) * 0.35, 1.0 - pow(1.0 - f, 5.0) * 0.6, hard);
+	float h = profile * (0.10 + 0.16 * hard);
+	// Vertical joints: ridged noise stretched along the fall line, cutting the beds into blocks.
+	float along = p.x * 0.8 + p.z * 0.6;
+	float joint_a = abs(value_noise(vec2(along * 1.7 + bed * 5.3, bed * 0.31)) * 2.0 - 1.0);
+	float joint_b = abs(value_noise(vec2(along * 4.3 - bed * 2.9, p.y * 0.12)) * 2.0 - 1.0);
+	float joints = (1.0 - smoothstep(0.0, 0.07, joint_a)) + (1.0 - smoothstep(0.0, 0.05, joint_b)) * 0.6;
+	h -= clamp(joints, 0.0, 1.0) * 0.22;
+	// Spalled and weathered surface: blocky mid scale plus fine grain.
+	h += (value_noise(vec2(along * 2.3, p.y * 1.9) + bed) - 0.5) * 0.22;
+	h += (value_noise(vec2(along * 9.0, p.y * 7.0)) - 0.5) * 0.06;
+	return h;
+}
+
+// Sand bluffs (low coast banks, soft lower beds) erode into gullies running down the
+// face rather than beds; same output convention as cliff_height().
+float bluff_height(vec3 p) {
+	float along = p.x * 0.8 + p.z * 0.6;
+	float rills = value_noise(vec2(along * 3.1 + value_noise(vec2(along * 0.7, p.y * 0.3)) * 2.0, p.y * 0.35));
+	float h = (rills - 0.5) * 0.2;
+	h += (value_noise(vec2(along * 8.0, p.y * 5.0)) - 0.5) * 0.07;
+	// Slumped terraces where a harder band holds a lip.
+	h += smoothstep(0.7, 1.0, fract(p.y * 0.7 + value_noise(p.xz * 0.2) * 1.4)) * 0.1;
+	return h;
+}
+
+// Share of sandy bluff vs limestone: low banks and some soft lower beds are sand.
+float bluff_share(vec3 p, float bed, float sand_splat) {
+	float low = 1.0 - smoothstep(3.0, 11.0, p.y);
+	float soft_bed = step(0.78, hash12(vec2(bed, 9.1))) * 0.6;
+	return clamp(max(max(low * 0.9, soft_bed), sand_splat), 0.0, 1.0);
+}
+
+float rock_surface(vec3 p, float sand_splat) {
+	float bed;
+	float lime = cliff_height(p, bed);
+	float sandy = bluff_share(p, bed, sand_splat);
+	return mix(lime, bluff_height(p), sandy);
+}
+
 #include "res://scripts/city/city_grass_ground.gdshaderinc"
 
 // --- Trail relief mesh -------------------------------------------------------
@@ -189,7 +244,7 @@ float vertex_relief(vec2 p, vec3 n, float tr, float wet_road) {
 	float road = rd.r * (1.0 - paving);
 	float soft = clamp(smoothstep(0.15, 0.65, s.g) + smoothstep(0.2, 0.7, s.a) + road, 0.0, 1.0) * (1.0 - paving);
 	float sand = smoothstep(0.2, 0.7, s.b);
-	float rock = smoothstep(0.32, 0.5, 1.0 - clamp(n.y, 0.0, 1.0));
+	float rock = smoothstep(0.24, 0.4, 1.0 - clamp(n.y, 0.0, 1.0));
 	float give = clamp(soft + (1.0 - soft) * (1.0 - sand) * 0.3 * grass_step(n), 0.0, 1.0) * (1.0 - rock);
 	return tr * give * (0.45 + 1.3 * wet_road) + road_profile(p, rd, wet_road).x * road;
 }
@@ -272,7 +327,7 @@ void fragment() {
 	float micro = value_noise(world_pos.xz * 0.6);
 
 	float slope = 1.0 - clamp(world_normal.y, 0.0, 1.0);
-	float rock = smoothstep(0.32, 0.5, slope + (macro - 0.5) * 0.12);
+	float rock = smoothstep(0.24, 0.4, slope + (macro - 0.5) * 0.12);
 	float paving = smoothstep(0.25, 0.7, s.r + (micro - 0.5) * 0.25);
 	float earth = smoothstep(0.15, 0.65, s.g + (micro - 0.5) * 0.3);
 	float sand = smoothstep(0.2, 0.7, s.b + (macro - 0.5) * 0.3);
@@ -348,16 +403,46 @@ void fragment() {
 		col = mix(col, road_col, road);
 		nxy = mix(nxy, texture(earth_normal, wuv * earth_scale).rg * 2.0 - 1.0, road);
 	}
-	// Exposed limestone on the klint faces and steep banks, triplanar so cliffs do not stretch.
-	vec3 an = abs(world_normal);
-	vec3 rx = texture(rock_albedo, world_pos.zy * rock_scale).rgb;
-	vec3 rz = texture(rock_albedo, world_pos.xy * rock_scale).rgb;
-	vec3 ry = texture(rock_albedo, world_pos.xz * rock_scale).rgb;
-	vec3 rock_col = (rx * an.x + ry * an.y + rz * an.z) / (an.x + an.y + an.z) * vec3(0.95, 0.93, 0.86);
-	col = mix(col, rock_col, rock);
 	// Grassy banks too steep to hold turf show bare sand and clay before they turn to rock.
 	float bank = smoothstep(0.13, 0.3, slope) * (1.0 - paving) * (1.0 - rock);
-	col = mix(col, detiled(sand_albedo, wuv * sand_scale) * vec3(0.9, 0.82, 0.68), bank * 0.85);
+	// Exposed limestone and sand bluff on the klint faces and steep banks (cliff_height()).
+	float rock_ao = 1.0;
+	vec2 rock_nxy = vec2(0.0);
+	if (rock + bank > 0.003) {
+		vec3 rp = world_pos;
+		float bed;
+		float lime_h = cliff_height(rp, bed);
+		float sandy = max(bluff_share(rp, bed, smoothstep(0.2, 0.7, s.b)), bank);
+		float h0r = mix(lime_h, bluff_height(rp), sandy);
+		// Relief gradient by finite differences, projected on the face tangent plane.
+		float de = 0.07;
+		vec3 g = vec3(
+			rock_surface(rp + vec3(de, 0.0, 0.0), smoothstep(0.2, 0.7, s.b)) - h0r,
+			rock_surface(rp + vec3(0.0, de, 0.0), smoothstep(0.2, 0.7, s.b)) - h0r,
+			rock_surface(rp + vec3(0.0, 0.0, de), smoothstep(0.2, 0.7, s.b)) - h0r) / de;
+		vec3 wt = normalize((INV_VIEW_MATRIX * vec4(TANGENT, 0.0)).xyz);
+		vec3 wb = normalize((INV_VIEW_MATRIX * vec4(BINORMAL, 0.0)).xyz);
+		float rdetail = 1.0 - smoothstep(0.5, 2.5, length(fwidth(rp)));
+		rock_nxy = -vec2(dot(g, wt), dot(g, wb)) * 0.26 * rdetail * clamp(rock + bank * 0.7, 0.0, 1.0);
+		// Tone: per-bed variation in cream limestone, ochre sand, grey where wet or shaded.
+		float bed_tone = hash12(vec2(bed, 1.3));
+		vec3 lime_col = mix(vec3(0.70, 0.62, 0.48), vec3(0.84, 0.77, 0.62), bed_tone);
+		lime_col = mix(lime_col, vec3(0.62, 0.55, 0.42), step(0.85, hash12(vec2(bed, 5.5))) * 0.7);
+		vec3 sand_col = mix(vec3(0.72, 0.60, 0.40), vec3(0.82, 0.71, 0.50), value_noise(rp.xz * 0.4 + rp.y));
+		vec3 rock_col = mix(lime_col, sand_col, sandy);
+		// Grain so no flat colour survives a close look.
+		rock_col *= 0.86 + 0.28 * value_noise(vec2((rp.x * 0.8 + rp.z * 0.6) * 5.0, rp.y * 4.0));
+		// Cavity darkening in joints and recessed beds; the crests catch light.
+		rock_ao = clamp(0.62 + h0r * 1.3, 0.35, 1.1);
+		rock_col *= rock_ao;
+		// Rain streaks run down from the ledges, and moss and lichen hold on the damp upper side.
+		float streak = value_noise(vec2((rp.x * 0.8 + rp.z * 0.6) * 2.6, rp.y * 0.18));
+		rock_col *= 1.0 - 0.22 * smoothstep(0.55, 0.85, streak);
+		float moss = smoothstep(0.62, 0.85, value_noise(rp.xz * 0.5 + rp.y * 0.9)) * smoothstep(0.1, 0.5, h0r + 0.25) * (1.0 - sandy);
+		rock_col = mix(rock_col, vec3(0.33, 0.38, 0.2), moss * 0.25);
+		col = mix(col, rock_col, rock);
+	}
+	col = mix(col, detiled(sand_albedo, wuv * sand_scale) * vec3(0.9, 0.82, 0.68) * mix(1.0, rock_ao, 0.6), bank * 0.85);
 
 	// Trodden earth and mud are lumpy, with ruts and hoof pocks: a procedural
 	// height field adds relief on top of the plate normals. Cart roads add wheel
@@ -450,6 +535,9 @@ void fragment() {
 	// Turf scatters light diffusely: no glint and no wet-gloss on dry-looking grass.
 	ROUGHNESS = mix(ROUGHNESS, 1.0, turf * 0.85);
 	SPECULAR = mix(mix(0.3, grass_specular, turf), mix(0.4, 0.6, deep), puddle);
-	nxy = clamp(nxy * mix(1.0, 0.75, wet) * (1.0 - rock), vec2(-0.95), vec2(0.95));
+	// Dry limestone and sand are matte: no sky sheen on the klint faces.
+	ROUGHNESS = mix(ROUGHNESS, 0.95, max(rock, bank) * (1.0 - puddle) * (1.0 - wet * 0.5));
+	SPECULAR = mix(SPECULAR, 0.1, max(rock, bank) * (1.0 - puddle));
+	nxy = clamp(nxy * mix(1.0, 0.75, wet) * (1.0 - rock) + rock_nxy, vec2(-0.95), vec2(0.95));
 	NORMAL_MAP = vec3(nxy, sqrt(max(1.0 - dot(nxy, nxy), 0.0))) * 0.5 + 0.5;
 }
