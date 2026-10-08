@@ -109,12 +109,14 @@ func test_shot_and_line_signals_fire_in_order() -> void:
 	assert_eq(shots, [1, 2] as Array[int])
 
 
-func test_auto_advance_uses_the_authored_line_timing() -> void:
+func test_auto_advance_waits_for_the_line_hold() -> void:
 	var player := _player(ALMSHOUSE)
 	var first_line := player.current_shot().lines[0]
-	player._process(first_line.seconds * 0.5)
+	assert_true(player._line_hold >= first_line.seconds, "hold is at least the authored seconds")
+	player._voice.stop()  # the dummy audio driver does not advance playback
+	player._process(player._line_hold * 0.5)
 	assert_eq(player.line_index, 0)
-	player._process(first_line.seconds * 0.6)
+	player._process(player._line_hold * 0.6)
 	assert_eq(player.line_index, 1)
 
 
@@ -125,3 +127,41 @@ func test_every_shot_points_at_a_frame_that_exists() -> void:
 			var path := shot.media_path()
 			assert_false(path.is_empty(), String(shot.id))
 			assert_true(ResourceLoader.exists(path), path)
+
+
+func test_voice_take_stretches_the_line_hold_and_stops_on_advance() -> void:
+	var player := _player(CONQUEST)
+	var line := player.current_shot().lines[0]
+	assert_false(line.voice_path.is_empty(), "narration line carries a voice take")
+	assert_true(player._voice.playing, "voice starts with the line")
+	var take_length := player._voice.stream.get_length()
+	assert_true(player._line_hold >= take_length, "hold covers the whole take")
+	player.advance()
+	assert_true(player._voice.stream.resource_path != line.voice_path, "next line replaces the take")
+
+
+func test_conquest_narration_is_voiced_and_later_chapters_are_not() -> void:
+	var conquest := CutsceneSequence.from_record(_db.get_cutscene(CONQUEST))
+	for shot: CutsceneSequence.Shot in conquest.shots:
+		for line: CutsceneSequence.Line in shot.lines:
+			assert_true(ResourceLoader.exists(line.voice_path), line.voice_path)
+	# From spring 1343 the story plays as "now" with no narrator (maintainer decision).
+	assert_true(conquest.shots[conquest.shots.size() - 1].lines.is_empty(), "spring shot has no narration")  # gdlint: ignore=max-line-length
+	for cutscene_id: StringName in [ALMSHOUSE, TAKEN_IN]:
+		for shot: CutsceneSequence.Shot in CutsceneSequence.from_record(_db.get_cutscene(cutscene_id)).shots:  # gdlint: ignore=max-line-length
+			for line: CutsceneSequence.Line in shot.lines:
+				assert_true(line.voice_path.is_empty(), String(line.id))
+
+
+func test_opening_underscore_starts_quiet_and_fades_out_at_the_end() -> void:
+	var player := _player(CONQUEST)
+	var shot := player.current_shot()
+	assert_false(shot.music_path.is_empty(), "first shot carries the underscore")
+	assert_true(ResourceLoader.exists(shot.music_path), shot.music_path)
+	assert_true(shot.music_db <= -10.0, "underscore sits well under the narrator")
+	assert_true(player._music.playing, "music starts with the sequence")
+	var music := player._music
+	player.skip()
+	assert_true(player._music == null, "music is handed off to the tree root for its fade-out")
+	assert_true(music.get_parent() == player.get_tree().root, "faded out on the root so a scene change cannot cut it")  # gdlint: ignore=max-line-length
+	music.queue_free()

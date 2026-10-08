@@ -274,10 +274,6 @@ Start with:
 - [WS-10 physical sky - evidence report](ws10_physical_sky.md)
 - [WS-15 interactive ripples and wakes - evidence](ws15_ripple_sim.md)
 
-#### `audio_licenses/`
-
-- [Audio license records](audio_licenses/README.md)
-
 #### `evidence/`
 
 - [P0-122f Great Cormorant Fallback Acceptance](evidence/p0_122f/great_cormorant_fallback_acceptance.md)

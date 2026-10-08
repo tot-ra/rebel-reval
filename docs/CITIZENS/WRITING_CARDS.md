@@ -46,7 +46,7 @@ Per card: the census record, the appearance seed, the household (every member, c
 ## Length and format
 
 - **Length:** adults 600-850 words of prose (the whole file, tables and prompt included, stays under 1,300); children 14 and under 300-450. Brevity with specifics beats coverage. Do not pad `At a glance` with restatements.
-- **Network:** one bullet per planned edge: `[Name](link), their trade or role: the agreed fact in your own words, how it began, what this person feels about it and does about it.` Do not run edges together in one paragraph.
+- **Network:** one bullet per planned edge: `Name` (linked to their card), their trade or role: the agreed fact in your own words, how it began, what this person feels about it and does about it.` Do not run edges together in one paragraph.
 - **Household:** one bullet naming every household member (link or ledger link) and what each means to this person.
 
 - Follow [`TEMPLATE.md`](./TEMPLATE.md) exactly: title, hook blockquote, field table, then the H2 sections in order. Use plain Markdown; no images, no HTML.

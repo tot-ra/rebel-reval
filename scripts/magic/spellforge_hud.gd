@@ -13,12 +13,16 @@ signal close_requested
 const PANEL_SIZE := Vector2(720.0, 620.0)
 ## No authored maximum exists yet; the orb is full at the starting reserve.
 const ORB_BASELINE_MAX := 8
+const QUICK_HUD_WORLD_LAYER := 25
+const QUICK_HUD_SPIRIT_LAYER := 85  # above SpiritArenaHost (80)
 
 var _model: SpellforgeModel
 var _collection_root: Control
 var _quick_spell_column: VBoxContainer
 var _quick_willpower_label: Label
 var _mana_orb: ManaOrb
+var _quick_root: Control
+var _quick_shown := false
 var _quick_sequence_label: Label
 var _quick_feedback_label: Label
 var _element_row: HBoxContainer
@@ -37,11 +41,27 @@ func configure(model: SpellforgeModel) -> void:
 
 
 func _ready() -> void:
-	layer = 25
+	layer = QUICK_HUD_WORLD_LAYER
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_build_ui()
 	visible = true
 	refresh()
+
+
+## The mana orb and spell slots belong to the spirit world only. The spirit arena
+## sits above the world HUD, so the layer is lifted while it is shown.
+func _process(_delta: float) -> void:
+	if _model == null or _quick_root == null:
+		return
+	var shown := _model.is_spirit_world()
+	if shown != _quick_shown:
+		_quick_shown = shown
+		_quick_root.visible = shown
+		layer = QUICK_HUD_SPIRIT_LAYER if shown else QUICK_HUD_WORLD_LAYER
+	if shown:
+		var willpower := _model.willpower()
+		_quick_willpower_label.text = str(willpower)
+		_mana_orb.set_values(willpower, maxi(ORB_BASELINE_MAX, willpower))
 
 
 func open() -> void:
@@ -225,6 +245,8 @@ func _build_quick_hud() -> void:
 	# learned spell slots is all the playfield shows; the cookbook lives in Esc.
 	var margin := MarginContainer.new()
 	margin.name = "QuickSpellHud"
+	_quick_root = margin
+	margin.visible = false
 	margin.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
 	margin.anchor_left = 0.0
 	margin.anchor_top = 1.0
@@ -305,6 +327,9 @@ func _rebuild_quick_spells() -> void:
 		]
 		button.tooltip_text = String(row["summary"])
 		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		# WHY: slots only show in the spirit world, where the arena casts by key.
+		button.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		button.focus_mode = Control.FOCUS_NONE
 		button.pressed.connect(_on_quick_spell_pressed.bind(StringName(String(row["id"]))))
 		_quick_spell_column.add_child(button)
 

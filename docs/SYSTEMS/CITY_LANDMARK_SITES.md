@@ -1,6 +1,6 @@
 # Landmark sites in the seamless city
 
-Status: implemented for `site.raekoja_plats`, `site.holy_spirit`, `site.st_olaf` and `site.st_nicholas` ([ADR 0032](../adr/0032-bespoke-landmark-sites-in-the-city.md), accepted 2026-10-07; board task to be filed, no board access in the authoring session). Scope: a contract and runtime for bespoke, navigable models of famous Reval buildings and places in the [seamless city](./SEAMLESS_CITY.md), shown as they stood in spring 1343. Out of scope: Blender-generated GLB models (the first site uses an interim GDScript builder), multi-storey interiors, NPC behaviour on sites, the remaining sites (Kiriku plats and St Mary's, St Catherine, St Michael, the castle, the gates).
+Status: implemented for `site.raekoja_plats`, `site.holy_spirit`, `site.st_olaf`, `site.st_nicholas` and `site.st_mary` ([ADR 0032](../adr/0032-bespoke-landmark-sites-in-the-city.md), accepted 2026-10-07; board task to be filed, no board access in the authoring session). Scope: a contract and runtime for bespoke, navigable models of famous Reval buildings and places in the [seamless city](./SEAMLESS_CITY.md), shown as they stood in spring 1343. Out of scope: Blender-generated GLB models (the first site uses an interim GDScript builder), multi-storey interiors, NPC behaviour on sites, the remaining sites (St Catherine, St Michael, the castle, the gates).
 
 Review plates: `docs/reports/images/city/raekoja_plats_aerial.png`, `raekoja_plats_topdown.png`, `raekoja_plats_street.png`, and the walk-in shots `walk_site_raekoja_plats_inside*.png`.
 
@@ -60,6 +60,20 @@ Review plates: `docs/reports/images/city/raekoja_plats_aerial.png`, `raekoja_pla
   - **St Barbara chapel:** a charnel house with bones and skulls stacked on low benches and an altar of St Barbara.
   - **Cemetery:** wooden grave crosses, slabs and mounds; the whole churchyard is levelled with the church.
   - **People:** the priest and an acolyte, merchants at their family altar and on benches, a guildsman, the sacristan, a beggar at the north porch, a gravedigger and a mourner.
+- **St Mary's cathedral (Dome church) on Toompea in 1343, a building site**, compared with photos of today's church:
+  - **Left out, dated later:** the west tower and baroque helm (1779), the later chapels, the funeral hatchments and monuments, the box pews, the brass chandeliers, the pulpit (1686).
+  - **Attested:** the cathedral of the Bishopric of Reval with its chapter and school; the rebuilding into a three-aisle Gothic basilica from the 1330s; the choir and vestry of the early-14th-century phase standing.
+  - **Finished and in use (plausible composite):**
+    - The chancel with a polygonal apse and tracery windows, white render and buttresses as today, holding the chapter's choir stalls, the high altar with a winged retable and the rood.
+    - The vestry.
+    - The easternmost nave bay: arcade, clerestory, rib vaults and roof, closed westwards by a plank screen with a door and a boarded temporary gable.
+  - **Rising westwards (the building site):**
+    - Walls of bare rubble stand at 7, 4.5 and 2 m with ragged courses on top; piers are half built.
+    - The second bay's arcade arches are turned on timber centering.
+    - The west front is a low wall with a plank site gate, and the floor is packed earth with stone chips.
+    - A treadwheel crane with jib, rope and a stone in a lewis; putlog scaffolds and ladders on the walls.
+  - **The yards:** a masons' lodge with banker benches and templates, stone stacks, a lime pit, a cart, and a detached timber belfry with two bells.
+  - **People:** a canon celebrating at the high altar, three canons in the choir stalls, the sacristan, the master mason, masons, labourers at the crane and the lime pit, and a carpenter at the centering.
 - **Walking in:** Kalev enters through the portal and the door swings open.
 - **People:** a site's people are present while Kalev is within 45 m of it, seated (`sit_idle`), standing or gesturing (`talk_gesture`). A seated person's `at` is the seat point and `seat_h` the seat height. `CitySiteActor` moves the body forward by the pose's hip offset and lowers the rig through `view_height_offset()` (read by `MapViewRuntimeActors`), so people sit on the bench rather than hover in the air. They do not talk yet.
 - **Cutaway:** in the top-down and third-person cameras, while he is inside, everything above head height lifts away: upper walls, gables, banners, roof and ceiling. The wall stubs get a stone section cap, so the cameras see into the room. First person keeps the whole room, ceiling included. Ordinary houses use the same cutaway ([Seamless city](./SEAMLESS_CITY.md#how-buildings-are-built)).
@@ -110,6 +124,7 @@ Period rule: show the building as it stood in spring 1343. A later feature needs
 | `scripts/city/city_site_actor.gd` (`CitySiteActor`) | A person on a site: rig, facing, pose |
 | `scripts/city/sites/site_kit.gd` (`CitySiteKit`) | Shared kit for site models. Walls from `fabric` with flat or pointed openings, splays, glass, niches and louvres; crow-stepped gables; gable and pyramid roofs; quadripartite rib vaults (`rib_vault`); square piers (`square_pier`, plastered or bare `greystone`); octagonal pillars; flag floors with ledger slabs; cut caps; materials (`bind_site_washes` binds the lime wash and painted wash of a site's meshes to its floor height and frieze frame and sets their indoor brightness) |
 | `scripts/city/sites/holy_spirit_builder.gd` | Holy Spirit church, choir, almshouse and bell turret on the kit |
+| `scripts/city/sites/st_mary_builder.gd` | St Mary's chancel, apse, vestry, finished bay, rising nave, crane, centering, scaffolds, lodge, belfry |
 | `scripts/city/sites/st_nicholas_builder.gd` | St Nicholas' hall church, chancel, sacristy, porch, low tower, buttresses, St Barbara charnel chapel, cemetery |
 | `scripts/city/sites/st_olaf_builder.gd` | St Olaf's hall church, chancel, unfinished tower, scaffold, belfry, vaults |
 | `scripts/city/sites/church_furnishings.gd` (`CityChurchFurnishings`) | Shared church furnishings: plank floors, benches, font, altars with a winged retable and saint figures, the rood, pulpit, statues, candle crowns, candle lights |
@@ -128,7 +143,7 @@ Sites hold no state. Door positions are not saved; the plan and manifests rebuil
 
 - `godot --headless --path . --script tools/validate_city_sites.gd`: the registry loads; replaced buildings are gone; no overlap with generic buildings; every door has clear ground outside and a floor behind it (its own floor, or a passage through a thick wall touching it); no wall crosses a door; every door and arch is at least 1.4 m wide (Kalev's capsule is 1.0 m); every floor is reachable; every room is reachable from the street through doors and floor-level openings (room graph); people stand on a floor and not inside furniture; every `hide` path resolves; visual walls and authored walls agree within 0.25 m (AABB of the `Walls` mesh against the wall segments).
 - `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_city_sites`: placement, replaced building, floor height, room and HUD name, door gap.
-- `tools/godot_render.sh --resolution 1600x900 res://tools/capture_reval_city_walk.tscn [-- --only-sites]`: walks in through every site door (door opens, roof lifts, top-down shot inside), then from inside through every other door of the site (the hall into the council chamber) and back out.
+- `tools/godot_render.sh --resolution 1600x900 res://tools/capture_reval_city_walk.tscn [-- --only-sites]` (NPC collision is ignored during the site checks, so people standing at a door do not fail them; each inner door must be reachable from at least one entrance): walks in through every site door (door opens, roof lifts, top-down shot inside), then from inside through every other door of the site (the hall into the council chamber) and back out.
 - `tools/godot_render.sh --script tools/capture_reval_city.gd -- --only=raekoja_plats_aerial,raekoja_plats_topdown,raekoja_plats_street,raekoja_plats_cutaway,raekoja_plats_interior` (the cutaway plate lifts the rooms as if Kalev were inside).
 
 ## Limits

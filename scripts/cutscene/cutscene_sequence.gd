@@ -9,6 +9,9 @@ extends RefCounted
 
 const DEFAULT_HOLD_SECONDS := 5.0
 const DEFAULT_LINE_SECONDS := 5.0
+## Underscore sits well below the Voice bus so narration stays clear; tune per shot via
+## `sound.music_volume_db`.
+const DEFAULT_MUSIC_DB := -16.0
 const DEFAULT_TRANSITION := &"dissolve"
 
 ## One spoken or narrated line inside a shot.
@@ -18,6 +21,8 @@ class Line extends RefCounted:
 	var speaker_id: StringName = &""
 	var text: String = ""
 	var seconds: float = DEFAULT_LINE_SECONDS
+	## Optional spoken take (res:// mp3/ogg/wav). Empty means a silent, timed line.
+	var voice_path: String = ""
 
 	## Narration has no speaker and is presented without a name plate.
 	func is_narration() -> bool:
@@ -35,6 +40,10 @@ class Shot extends RefCounted:
 	var zoom_to: float = 1.0
 	var hold_seconds: float = DEFAULT_HOLD_SECONDS
 	var caption: String = ""
+	## Underscore started with this shot (res:// mp3/ogg). Empty keeps whatever is playing.
+	var music_path: String = ""
+	## Level of that underscore on the Music bus; quiet by default so it sits under a narrator.
+	var music_db: float = DEFAULT_MUSIC_DB
 	var lines: Array[Line] = []
 
 	## The frame to show. The video tier wins when it has been authored.
@@ -95,6 +104,12 @@ static func _parse_shot(record: Dictionary) -> Shot:
 	shot.caption = String(record.get("caption", ""))
 	shot.hold_seconds = float(record.get("hold_seconds", DEFAULT_HOLD_SECONDS))
 
+	var sound_value: Variant = record.get("sound", {})
+	if typeof(sound_value) == TYPE_DICTIONARY:
+		var sound: Dictionary = sound_value
+		shot.music_path = String(sound.get("music", ""))
+		shot.music_db = float(sound.get("music_volume_db", DEFAULT_MUSIC_DB))
+
 	var motion_value: Variant = record.get("motion", {})
 	if typeof(motion_value) == TYPE_DICTIONARY:
 		var motion: Dictionary = motion_value
@@ -112,6 +127,7 @@ static func _parse_shot(record: Dictionary) -> Shot:
 		line.speaker_id = StringName(String(line_record.get("speaker_id", "")))
 		line.text = String(line_record.get("text", ""))
 		line.seconds = float(line_record.get("seconds", DEFAULT_LINE_SECONDS))
+		line.voice_path = String(line_record.get("voice", ""))
 		shot.lines.append(line)
 	return shot
 

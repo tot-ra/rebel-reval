@@ -1,4 +1,5 @@
 {
+  "prompt": "Procedural (no image generator): parametric leaf-cluster atlas for birch, oak, maple, linden, apple, spruce and pine, drawn in code by tools/assets/generate_vegetation_atlases.py (seed 1343).",
   "id": "material.foliage_cards.leaf_card_atlas",
   "family": "foliage_cards",
   "kind": "procedural_leaf_cluster_atlas",

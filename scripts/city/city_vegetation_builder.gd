@@ -68,6 +68,10 @@ const SHRUB_AS_TREE := {
 	&"hawthorn": &"hawthorn",
 	&"blackthorn": &"blackthorn",
 	&"spindle": &"hawthorn",
+	# The shared block-shaped shrub meshes read as giant flat-shaded stalks beside
+	# a 1.83 m figure; these draw with the real-size leaf-card shrub trees.
+	&"juniper_shrub": &"juniper",
+	&"sea_buckthorn": &"blackthorn",
 }
 
 ## Crowns are expensive (layered leaf cards): chunk them spatially and only

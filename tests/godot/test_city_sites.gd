@@ -118,3 +118,22 @@ func test_st_nicholas_rooms_chapel_and_period_rule() -> void:
 		absf(chapel - 0.12 - yard) < 0.3, "the charnel chapel stands on the levelled churchyard"
 	)
 	assert_true(site.data["presentation"].is_empty(), "strict 1343: no presentation exceptions")
+
+
+func test_st_mary_building_site_state() -> void:
+	var plan := _plan()
+	var site := _site(&"site.st_mary")
+	assert_true(site != null, "site.st_mary loads")
+	assert_eq(plan.site_room_at(site.to_world(Vector2(5.0, -5.0)))["room"]["id"], &"room.chancel")
+	assert_eq(
+		plan.site_room_at(site.to_world(Vector2(-10.0, -5.0)))["room"]["id"], &"room.finished_bay"
+	)
+	assert_eq(plan.site_room_at(site.to_world(Vector2(-25.0, -12.0)))["room"]["id"], &"room.site")
+	# Walls rise from west to east: the finished bay is the tallest.
+	var heights := {}
+	for w: Dictionary in site.data["fabric"]:
+		if String(w["id"]).begins_with("north.bay"):
+			heights[w["id"]] = float(w["y1"])
+	assert_true(heights["north.bay1"] > heights["north.bay2"], "east bay finished first")
+	assert_true(heights["north.bay3"] > heights["north.bay4"], "west front lowest")
+	assert_true(site.data["presentation"].is_empty(), "strict 1343: no presentation exceptions")

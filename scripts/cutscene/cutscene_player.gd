@@ -19,6 +19,17 @@ signal finished(sequence_id: StringName, skipped: bool)
 const HOLD_TO_SKIP_SEC := 0.6
 const LETTERBOX_RATIO := 0.072
 const FADE_SEC := 0.6
+## Breathing room after a spoken line ends, so the next one does not start on its heels.
+const VOICE_TAIL_SEC := 0.9
+## Longer pause when the line closes a shot, so the image can sit before the cut.
+const VOICE_SHOT_END_TAIL_SEC := 1.8
+const VOICE_BUS := &"Voice"
+## Narration trim, so the underscore can be raised without drowning the narrator.
+const VOICE_DB := -4.0
+const MUSIC_BUS := &"Music"
+const MUSIC_FADE_IN_SEC := 2.0
+const MUSIC_FADE_OUT_SEC := 3.0
+const MUSIC_SILENT_DB := -60.0
 ## Shown instead of the frame when a still is missing, so a not-yet-generated shot
 ## degrades to a readable title card rather than a crash or a blank screen.
 const MISSING_STILL_COLOR := Color(0.05, 0.05, 0.07, 1.0)
@@ -46,6 +57,12 @@ var _speaker_label: Label
 var _line_label: Label
 var _hint_label: Label
 var _text_plate: ColorRect
+var _voice: AudioStreamPlayer
+var _music: AudioStreamPlayer
+var _music_path := ""
+## Seconds the current line holds before auto-advance: the authored `seconds`, stretched
+## to cover its voice take so narration is never cut off by the timer.
+var _line_hold := 0.0
 
 
 func _init() -> void:
@@ -142,7 +159,9 @@ func _process(delta: float) -> void:
 		return
 	if line_index < 0 or line_index >= shot.lines.size():
 		return
-	if _elapsed_in_line >= shot.lines[line_index].seconds:
+	# WHY the playing check: a take must never be cut off by the timer, even if the
+	# decoded stream length was underestimated.
+	if _elapsed_in_line >= _line_hold and not (_voice != null and _voice.playing):
 		advance()
 
 
@@ -182,9 +201,11 @@ func _advance_shot() -> void:
 	var shot := sequence.shots[shot_index]
 	_load_frame(shot)
 	_caption_label.text = shot.caption
+	_start_music(shot)
 	_chapter_label.visible = shot_index == 0 and not sequence.chapter.is_empty()
 	shot_changed.emit(shot.id, shot_index)
 	if shot.lines.is_empty():
+		_stop_voice()
 		_set_text("", "")
 	else:
 		_set_line(0)
@@ -198,6 +219,8 @@ func _set_line(index: int) -> void:
 	_elapsed_in_line = 0.0
 	var line := shot.lines[index]
 	_set_text(line.speaker, line.text)
+	_line_hold = line.seconds
+	_play_voice(line)
 	line_changed.emit(shot.id, index)
 
 
@@ -206,6 +229,8 @@ func _finish() -> void:
 		return
 	_finished = true
 	is_playing = false
+	_stop_voice()
+	_release_music()
 	finished.emit(sequence.id if sequence != null else &"", _skipped)
 	if auto_continue:
 		_follow_next()
@@ -230,6 +255,61 @@ func _follow_next() -> void:
 				get_tree().change_scene_to_file(path)
 		_:
 			queue_free()
+
+
+## Play the line's voice take, replacing whatever was speaking. A missing or unloadable
+## file degrades to the silent timed line instead of failing the cutscene.
+func _play_voice(line: CutsceneSequence.Line) -> void:
+	_stop_voice()
+	if _voice == null or line.voice_path.is_empty() or not ResourceLoader.exists(line.voice_path):
+		return
+	var stream := load(line.voice_path)
+	if not stream is AudioStream:
+		return
+	_voice.stream = stream
+	_voice.play()
+	var shot := current_shot()
+	var closes_shot := shot != null and line_index == shot.lines.size() - 1
+	var tail := VOICE_SHOT_END_TAIL_SEC if closes_shot else VOICE_TAIL_SEC
+	_line_hold = maxf(line.seconds, (stream as AudioStream).get_length() + tail)
+
+
+## Start the shot's underscore unless that track is already playing. A new track replaces
+## the old one; an empty `music` leaves the current one running across shots.
+func _start_music(shot: CutsceneSequence.Shot) -> void:
+	if _music == null or shot.music_path.is_empty() or shot.music_path == _music_path:
+		return
+	if not ResourceLoader.exists(shot.music_path):
+		push_warning("Cutscene music is missing: %s" % shot.music_path)
+		return
+	var stream := load(shot.music_path)
+	if not stream is AudioStream:
+		return
+	_music_path = shot.music_path
+	_music.stream = stream
+	_music.volume_db = MUSIC_SILENT_DB
+	_music.play()
+	create_tween().tween_property(_music, "volume_db", shot.music_db, MUSIC_FADE_IN_SEC)
+
+
+## Fade the underscore out when the sequence ends. The player node is usually freed by the
+## scene change that follows, so the music node moves to the tree root and a SceneTree
+## tween frees it after the fade, which lets the fade finish across the cut.
+func _release_music() -> void:
+	if _music == null or not _music.playing or not is_inside_tree():
+		return
+	var tree := get_tree()
+	var music := _music
+	_music = null
+	music.reparent(tree.root)
+	var tween := tree.create_tween()
+	tween.tween_property(music, "volume_db", MUSIC_SILENT_DB, MUSIC_FADE_OUT_SEC)
+	tween.tween_callback(music.queue_free)
+
+
+func _stop_voice() -> void:
+	if _voice != null and _voice.playing:
+		_voice.stop()
 
 
 # --- presentation ---------------------------------------------------------------
@@ -304,6 +384,17 @@ func _set_text(speaker: String, text: String) -> void:
 
 
 func _build_ui() -> void:
+	_voice = AudioStreamPlayer.new()
+	# The Voice bus exists in audio/default_bus_layout.tres; fall back to Master if a
+	# custom layout ever drops it.
+	_voice.bus = VOICE_BUS if AudioServer.get_bus_index(VOICE_BUS) >= 0 else &"Master"
+	_voice.volume_db = VOICE_DB
+	add_child(_voice)
+
+	_music = AudioStreamPlayer.new()
+	_music.bus = MUSIC_BUS if AudioServer.get_bus_index(MUSIC_BUS) >= 0 else &"Master"
+	add_child(_music)
+
 	var root := Control.new()
 	root.set_anchors_preset(Control.PRESET_FULL_RECT)
 	root.mouse_filter = Control.MOUSE_FILTER_IGNORE

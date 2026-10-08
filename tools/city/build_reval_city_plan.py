@@ -626,9 +626,9 @@ def build(args) -> dict:
         closer = dd < river_d
         river_d = np.where(closer, dd, river_d)
         river_w = np.where(closer, hj["width_m"][i] + (hj["width_m"][i + 1] - hj["width_m"][i]) * t, river_w)
-    bank = np.clip((river_d - river_w * 0.5) / 6.0, 0.0, 1.0)
+    bank = np.clip((river_d - river_w * 0.5) / 14.0, 0.0, 1.0)  # a steep-sided valley, not a gorge
     river_bed = sea_asl - 0.9
-    asl = np.where(river_d < river_w * 0.5 + 6.0, river_bed + (asl - river_bed) * bank * bank, asl)
+    asl = np.where(river_d < river_w * 0.5 + 14.0, river_bed + (asl - river_bed) * bank, asl)
     # River water surface descends gently toward the sea.
     river_surface = sea_asl + 0.0
 
@@ -695,6 +695,30 @@ def build(args) -> dict:
         u, v = fy - i, fx - j
         h = height_wu
         return float(h[i, j] * (1 - u) * (1 - v) + h[i + 1, j] * u * (1 - v) + h[i, j + 1] * (1 - u) * v + h[i + 1, j + 1] * u * v)
+
+    # ---------------- bridges: every extramural road over the Hareapea ----------------
+    bridges = []
+    for r in overlay["streets"]["extramural_roads"]:
+        pts = [tuple(q) for q in r["points_m"]]
+        for k in range(len(pts) - 1):
+            for i in range(len(trace) - 1):
+                q = seg_intersection(pts[k], pts[k + 1], trace[i], trace[i + 1])
+                if q is None:
+                    continue
+                ang = math.atan2(pts[k + 1][1] - pts[k][1], pts[k + 1][0] - pts[k][0])
+                t = math.dist(trace[i], q) / max(math.dist(trace[i], trace[i + 1]), 1e-9)
+                river = hj["width_m"][i] + (hj["width_m"][i + 1] - hj["width_m"][i]) * t
+                length = river + 12.0
+                c, s_ = math.cos(ang), math.sin(ang)
+                ha = h_at_m(q[0] - c * length / 2, q[1] - s_ * length / 2)
+                hb = h_at_m(q[0] + c * length / 2, q[1] + s_ * length / 2)
+                bridges.append({
+                    "id": "bridge.%s" % r["id"].split(".")[1], "road": r["id"],
+                    "at": [round(q[0] / mpu, 2), round(q[1] / mpu, 2)], "angle": round(ang, 4),
+                    "length": round(length / mpu, 2), "width": round((r["width_m"] + 1.5) / mpu, 2),
+                    "ha": round(ha, 3), "hb": round(hb, 3),
+                    "confidence": "plausible composite; no 1343 bridge is attested, a plank-deck timber bridge is a reversible reconstruction",
+                })
 
     # ---------------- buildings ----------------
     excluded_b = set(overlay["excluded_osm_buildings"])
@@ -1043,8 +1067,9 @@ def build(args) -> dict:
     # ---------------- vegetation and fields ----------------
     # Site buildings and their open reserves keep trees and shrubs off.
     occupied_by = buildings + [{"footprint": poly} for so in site_out for poly in so["footprints"] + [so["reserve"]] if poly]
-    trees, fields = plant(overlay, occupied_by, streets, circuit_poly, toompea_edge, trace, h_at_m, mpu, x0, y0, x1, y1)
+    trees, fields, pastures, woods, farmsteads = plant(overlay, occupied_by, streets, circuit_poly, toompea_edge, trace, h_at_m, mpu, x0, y0, x1, y1)
     bushes = shrubs(overlay, occupied_by, streets, circuit_poly, toompea_edge, trace, anchors, h_at_m, mpu, x0, y0, x1, y1)
+    bushes = drop_inside([[tuple(q) for q in f["polygon"]] for f in fields + pastures], bushes)
 
     for s in streets:
         s["points"] = wu(s.pop("points_m"))
@@ -1087,6 +1112,10 @@ def build(args) -> dict:
             for sub in overlay["suburbs"]
         ],
         "fields": fields,
+        "pastures": pastures,
+        "woods": woods,
+        "farmsteads": farmsteads,
+        "bridges": bridges,
         "points_of_interest": pois,
         "flows": overlay["flows"],
     }
@@ -1240,6 +1269,12 @@ def plant(overlay, buildings, streets, circuit_poly, toompea_edge, river, h_at_m
     for k in footprint_cells(forum, cell, 6.0):
         occupied[k] = True
 
+    static_occupied = dict(occupied)  # buildings, streets, forum: no trees yet
+
+    def free_static(p, gap=0):
+        k = key(p)
+        return not any(static_occupied.get((k[0] + dx, k[1] + dy)) for dx in range(-gap, gap + 1) for dy in range(-gap, gap + 1))
+
     def free(p, gap=0):
         k = key(p)
         for dx in range(-gap, gap + 1):
@@ -1293,20 +1328,272 @@ def plant(overlay, buildings, streets, circuit_poly, toompea_edge, river, h_at_m
         if rng.random() < 0.55:
             continue
         add(p, rng.choice(["oak", "birch", "birch", "ash", "spruce", "pine"]), rng.uniform(0.85, 1.35))
-    # April strip fields south and east of the walls, ridge-and-furrow parcels.
-    fields = []
-    for fid, (cx, cy, ang, n) in enumerate([(-30, 470, 0.15, 7), (220, 400, -0.5, 6), (400, 250, -0.35, 6), (-260, 520, 0.4, 5), (480, 520, -0.2, 5)]):
-        for k in range(n):
-            w = rng.uniform(14, 22)
-            L = rng.uniform(90, 150)
-            off = (k - n / 2) * 24
-            c = (cx + math.cos(ang + math.pi / 2) * off, cy + math.sin(ang + math.pi / 2) * off)
-            ring = [(c[0] + math.cos(ang) * sx * L / 2 - math.sin(ang) * sy * w / 2, c[1] + math.sin(ang) * sx * L / 2 + math.cos(ang) * sy * w / 2) for sx, sy in ((-1, -1), (1, -1), (1, 1), (-1, 1))]
-            if any(pip(q, circuit_poly) for q in ring):
-                continue
-            fields.append({"id": "field.%02d.%d" % (fid, k), "ploughed": rng.random() < 0.7, "polygon": [[round(q[0] / mpu, 2), round(q[1] / mpu, 2)] for q in ring]})
+    fields, pastures, woods, farmsteads = countryside(
+        overlay, buildings, streets, circuit_poly, toompea_edge, h_at_m, mpu, x0, y0, x1, y1, free, free_static, add, rng, trees
+    )
     trees.sort()
-    return trees, fields
+    return trees, fields, pastures, woods, farmsteads
+
+
+# ---------------------------------------------------------------------------
+# Countryside: farmland, pastures, woods, farmsteads (April 1343)
+# ---------------------------------------------------------------------------
+
+# Three-field system: winter grain, spring grain, fallow. Rye and barley carry
+# the Estonian diet; oats feed the horses; winter wheat is a minor crop on the
+# best soil near the town (docs/CANON.md diet note). Weights are per block.
+CROP_WEIGHTS = [
+    ("rye", "winter", 30), ("wheat", "winter", 9), ("barley", "spring", 22),
+    ("oat", "spring", 14), ("pea", "spring", 4), ("flax", "spring", 3), ("fallow", "fallow", 18),
+]
+GARDEN_CROPS = ["cabbage", "turnip", "pea", "onion", "flax", "cabbage", "turnip"]
+FARM_SUBURBS = ("karja", "harju", "toompea_foot")
+
+
+def _h2(ix, iy, seed):
+    h = (ix * 374761393 + iy * 668265263 + seed * 2147483647) & 0xFFFFFFFF
+    h = ((h ^ (h >> 13)) * 1274126177) & 0xFFFFFFFF
+    return ((h ^ (h >> 16)) & 0xFFFF) / 65535.0
+
+
+def vnoise(x, y, seed):
+    ix, iy = math.floor(x), math.floor(y)
+    fx, fy = x - ix, y - iy
+    fx, fy = fx * fx * (3 - 2 * fx), fy * fy * (3 - 2 * fy)
+    a, b = _h2(ix, iy, seed), _h2(ix + 1, iy, seed)
+    c, d = _h2(ix, iy + 1, seed), _h2(ix + 1, iy + 1, seed)
+    return (a * (1 - fx) + b * fx) * (1 - fy) + (c * (1 - fx) + d * fx) * fy
+
+
+def fbm(x, y, seed):
+    return 0.58 * vnoise(x / 300, y / 300, seed) + 0.30 * vnoise(x / 130, y / 130, seed + 1) + 0.12 * vnoise(x / 55, y / 55, seed + 2)
+
+
+def drop_inside(rings, items, mpu=1.0):
+    """Items ([x, y, ...] in world units) that stand in none of the rings (metres)."""
+    boxes = [(min(q[0] for q in r_), min(q[1] for q in r_), max(q[0] for q in r_), max(q[1] for q in r_)) for r_ in rings]
+    return [t for t in items if not any(bx[0] <= t[0] * mpu <= bx[2] and bx[1] <= t[1] * mpu <= bx[3] and pip((t[0] * mpu, t[1] * mpu), r_) for bx, r_ in zip(boxes, rings))]
+
+
+def countryside(overlay, buildings, streets, circuit_poly, toompea_edge, h_at_m, mpu, x0, y0, x1, y1, free, free_static, add, rng, trees):
+    """Deterministic woods, strip fields, kitchen gardens, pastures and farmsteads
+    outside the walls. Woods first (they claim the damp, steep and far ground),
+    then fields on dry gentle land near the town, then fenced pastures."""
+    crng = random.Random(5171)
+    town = [tuple(q) for q in resample(circuit_poly + [circuit_poly[0]], 8.0)]
+    town += [tuple(q) for q in resample(list(toompea_edge) + [toompea_edge[0]], 8.0)]
+    tx = np.array([q[0] for q in town])
+    ty = np.array([q[1] for q in town])
+
+    def dist_town(p):
+        return float(np.min(np.hypot(tx - p[0], ty - p[1])))
+
+    def slope(p, d=6.0):
+        return max(abs(h_at_m(p[0] + d, p[1]) - h_at_m(p[0] - d, p[1])), abs(h_at_m(p[0], p[1] + d) - h_at_m(p[0], p[1] - d))) / (2 * d)
+
+    def inside_town(p):
+        return pip(p, circuit_poly) or pip(p, toompea_edge)
+
+    def open_land(p, hmin=1.8, smax=0.45):
+        if not (x0 + 24 < p[0] < x1 - 24 and y0 + 24 < p[1] < y1 - 24):
+            return False  # keep a margin at the plan edge: the world ends there
+        return h_at_m(*p) >= hmin and slope(p) < smax and not inside_town(p) and free_static(p, 1)
+
+    # ---- woods: a coarse mask, thicker with distance from the walls ----
+    cell = 12.0
+    gx0, gy0 = int(x0 // cell) + 1, int(y0 // cell) + 1
+    gx1, gy1 = int(x1 // cell) - 1, int(y1 // cell) - 1
+    wood = {}
+    for gx in range(gx0, gx1):
+        for gy in range(gy0, gy1):
+            p = ((gx + 0.5) * cell, (gy + 0.5) * cell)
+            d = dist_town(p)
+            if d < 70 or not open_land(p, 1.5, 0.55):
+                continue
+            far = min(max((d - 60) / 480, 0.0), 1.0)
+            if fbm(p[0], p[1], 7001) > 0.50 + 0.22 * (1.0 - far) ** 1.5:
+                if fbm(p[0], p[1], 7011) > 0.86:
+                    continue  # glade
+                wood[(gx, gy)] = True
+
+    def in_wood(p):
+        return (int(p[0] // cell), int(p[1] // cell)) in wood
+
+    def wood_kind(p):
+        h = h_at_m(*p)
+        n = fbm(p[0], p[1], 7021)
+        if h < 6.0:
+            return "alder_birch"
+        if h < 14.0 and n < 0.5:
+            return "pine"
+        return "spruce_pine" if n < 0.55 else ("oak_mixed" if n > 0.7 else "mixed")
+
+    mixes = {
+        "alder_birch": ["alder", "alder", "birch", "birch", "willow", "ash"],
+        "pine": ["pine", "pine", "pine", "pine", "spruce", "birch", "juniper"],
+        "spruce_pine": ["spruce", "spruce", "spruce", "pine", "pine", "birch"],
+        "mixed": ["spruce", "pine", "birch", "birch", "oak", "ash", "linden", "alder"],
+        "oak_mixed": ["oak", "oak", "linden", "ash", "elm", "maple", "birch", "hazel"],
+    }
+    wood_trees = 0
+    for (gx, gy) in sorted(wood):
+        edge = sum(1 for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)) if (gx + dx, gy + dy) not in wood)
+        for _ in range(3 if edge == 0 else 2):
+            p = ((gx + crng.random()) * cell, (gy + crng.random()) * cell)
+            if not free(p):
+                continue
+            kind = wood_kind(p)
+            sp = crng.choice(mixes[kind])
+            if edge and crng.random() < 0.5:
+                sp = crng.choice(["birch", "rowan", "hazel", "juniper"])
+            add(p, sp, crng.uniform(0.85, 1.4) if sp not in ("hazel", "juniper") else crng.uniform(0.9, 1.2))
+            wood_trees += 1
+    # connected wood components -> named records
+    seen, woods = set(), []
+    for c0 in sorted(wood):
+        if c0 in seen:
+            continue
+        stack, comp = [c0], []
+        seen.add(c0)
+        while stack:
+            c = stack.pop()
+            comp.append(c)
+            for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                n_ = (c[0] + dx, c[1] + dy)
+                if n_ in wood and n_ not in seen:
+                    seen.add(n_)
+                    stack.append(n_)
+        if len(comp) < 6:
+            continue
+        mx = sum(c[0] for c in comp) / len(comp)
+        my = sum(c[1] for c in comp) / len(comp)
+        at = ((mx + 0.5) * cell, (my + 0.5) * cell)
+        woods.append({"id": "wood.%02d" % len(woods), "kind": wood_kind(at), "at": [round(at[0] / mpu, 2), round(at[1] / mpu, 2)], "area_m2": int(len(comp) * cell * cell), "cells": len(comp)})
+
+    taken = set()
+    fcell = 6.0
+
+    # ---- farmsteads: the farm-suburb houses, each with a yard and a fenced croft ----
+    farmsteads = []
+    for b in buildings:
+        bid = b.get("id", "")
+        if not bid.startswith("bldg.") or bid.split(".")[1] not in FARM_SUBURBS or "footprint" not in b:
+            continue
+        c = poly_centroid([(q[0] * mpu, q[1] * mpu) for q in b["footprint"]])
+        farmsteads.append({"id": "farmstead." + bid.split(".", 1)[1], "building": bid, "at": [round(c[0] / mpu, 2), round(c[1] / mpu, 2)]})
+
+    # ---- pastures: fenced crofts beside farmsteads, common grazing along the cattle road ----
+    pastures = []
+
+    def blob(c, r, seed):
+        prng = random.Random(seed)
+        k = 9
+        ph = prng.uniform(0, math.tau)
+        return [(c[0] + math.cos(ph + math.tau * i / k) * r * prng.uniform(0.78, 1.15), c[1] + math.sin(ph + math.tau * i / k) * r * prng.uniform(0.78, 1.15)) for i in range(k)]
+
+    def pasture_ok(ring):
+        c = poly_centroid(ring)
+        for q in ring + [c]:
+            if in_wood(q) or not open_land(q, 1.0, 0.3) or dist_town(q) < 25:
+                return False
+        return not (footprint_cells(ring, fcell, 0.5) & taken)
+
+    def add_pasture(kind, c, r, stock, fence, seed):
+        ring = blob(c, r, seed)
+        if not pasture_ok(ring):
+            return False
+        taken.update(footprint_cells(ring, fcell, 0.5))
+        pastures.append({"id": "pasture.%02d" % len(pastures), "kind": kind, "fence": fence, "stock": stock,
+                         "polygon": [[round(q[0] / mpu, 2), round(q[1] / mpu, 2)] for q in ring]})
+        return True
+
+    karja = next(r_ for r_ in overlay["streets"]["extramural_roads"] if r_["id"] == "road.karja")
+    for i, q in enumerate(resample([tuple(q) for q in karja["points_m"]], 70.0)[2:]):
+        for side in (-1, 1):
+            for attempt in range(8):
+                c = (q[0] + side * crng.uniform(45, 120), q[1] + crng.uniform(-30, 30))
+                if add_pasture("common", c, crng.uniform(30, 48), [{"species": "cow", "count": 4}, {"species": "sheep", "count": 5}], False, 100 + i * 20 + attempt):
+                    break
+    for fs in farmsteads:
+        mix = crng.choice([[{"species": "cow", "count": 2}, {"species": "goat", "count": 2}], [{"species": "sheep", "count": 4}], [{"species": "horse", "count": 1}, {"species": "cow", "count": 1}]])
+        for attempt in range(12):
+            a = crng.uniform(0, math.tau)
+            c = (fs["at"][0] * mpu + math.cos(a) * crng.uniform(26, 50), fs["at"][1] * mpu + math.sin(a) * crng.uniform(26, 50))
+            if add_pasture("croft", c, crng.uniform(13, 21), mix, True, 300 + len(pastures) * 13 + attempt):
+                break
+    # damp low meadows by the streams and the shore: sheep and geese
+    for i in range(300):
+        p = (crng.uniform(x0 + 40, x1 - 40), crng.uniform(y0 + 40, y1 - 40))
+        d = dist_town(p)
+        if 60 < d < 600 and 1.2 < h_at_m(*p) < 6.0:
+            if sum(1 for pa in pastures if pa["kind"] == "meadow") < 10:
+                add_pasture("meadow", p, crng.uniform(24, 40), [{"species": "sheep", "count": 3}, {"species": "goose", "count": 3}], False, 500 + i)
+    # ---- farmland: strip blocks on dry, gentle ground near the town ----
+    def strip_ring(c, ang, w, L):
+        ca, sa = math.cos(ang), math.sin(ang)
+        return [(c[0] + ca * sx * L / 2 - sa * sy * w / 2, c[1] + sa * sx * L / 2 + ca * sy * w / 2) for sx, sy in ((-1, -1), (1, -1), (1, 1), (-1, 1))]
+
+    def ring_ok(ring):
+        c = poly_centroid(ring)
+        pts = ring + [c] + [((ring[i][0] + ring[(i + 1) % 4][0]) / 2, (ring[i][1] + ring[(i + 1) % 4][1]) / 2) for i in range(4)]
+        for q in pts:
+            if in_wood(q) or not open_land(q, 2.0, 0.22) or dist_town(q) < 30:
+                return False
+        return not (footprint_cells(ring, fcell, 0.5) & taken)
+
+    def pick_crop():
+        total = sum(w_ for _, _, w_ in CROP_WEIGHTS)
+        r = crng.uniform(0, total)
+        for crop, sow, w_ in CROP_WEIGHTS:
+            r -= w_
+            if r <= 0:
+                return crop, sow
+        return "rye", "winter"
+
+    fields = []
+    cands = []
+    for gx in range(int(x0 // 40), int(x1 // 40) + 1):
+        for gy in range(int(y0 // 40), int(y1 // 40) + 1):
+            p = ((gx + 0.5) * 40 + crng.uniform(-12, 12), (gy + 0.5) * 40 + crng.uniform(-12, 12))
+            d = dist_town(p)
+            if 40 <= d <= 620 and crng.random() < 0.95 - 0.7 * min(d / 620, 1.0):
+                cands.append((d, p))
+    cands.sort()
+    for bid, (d, p) in enumerate(cands):
+        if not open_land(p, 2.0, 0.2) or in_wood(p):
+            continue
+        garden = d < 230 and crng.random() < 0.4
+        ang = (vnoise(p[0] / 380, p[1] / 380, 7031) - 0.5) * 2.4 + 0.2
+        block_crop, block_sow = pick_crop()
+        n = crng.randint(3, 5) if garden else crng.randint(4, 8)
+        placed = 0
+        for k in range(n):
+            w = crng.uniform(7, 11) if garden else crng.uniform(14, 24)
+            L = crng.uniform(28, 48) if garden else crng.uniform(80, 150)
+            off = (k - n / 2) * (w + 2.0)
+            c = (p[0] + math.cos(ang + math.pi / 2) * off, p[1] + math.sin(ang + math.pi / 2) * off)
+            ring = strip_ring(c, ang, w, L)
+            if not ring_ok(ring):
+                continue
+            taken |= footprint_cells(ring, fcell, 0.5)
+            if garden:
+                crop, sow = crng.choice(GARDEN_CROPS), "garden"
+            elif crng.random() < 0.75:
+                crop, sow = block_crop, block_sow
+            else:
+                crop, sow = pick_crop()
+            fields.append({
+                "id": "field.%02d.%d" % (bid, placed), "crop": crop, "sowing": sow,
+                "ploughed": crop != "fallow", "angle": round(ang, 4),
+                "polygon": [[round(q[0] / mpu, 2), round(q[1] / mpu, 2)] for q in ring],
+            })
+            placed += 1
+
+    # no trees stand in a field or pasture
+    rings = [[(q[0] * mpu, q[1] * mpu) for q in f["polygon"]] for f in fields + pastures]
+    trees[:] = drop_inside(rings, trees, mpu)
+    return fields, pastures, woods, farmsteads
+
 
 
 def clip_to_circuit(points, circuit, gates, gate_radius=12.0):
@@ -1426,7 +1713,7 @@ def shrubs(overlay, buildings, streets, circuit_poly, toompea_edge, river, ancho
             continue
         h = h_at_m(*p)
         if h < 3.0:
-            add(p, rng.choice(["juniper_shrub", "sea_buckthorn", "heather"]), rng.uniform(0.8, 1.2))
+            add(p, rng.choice(["juniper_shrub", "sea_buckthorn"]), rng.uniform(0.8, 1.2))
         elif rng.random() < 0.6:
             add(p, rng.choice(["hazel_shrub", "hawthorn", "juniper_shrub", "raspberry", "dog_rose", "spindle"]), rng.uniform(0.8, 1.3))
     for p in toompea_edge:
@@ -1633,7 +1920,9 @@ def render_splat(plan, mpu):
             draws["mud"].line(ring + [ring[0]], fill=150, width=max(1, int(1.4 / mpu * SPLAT_PX_PER_WU)), joint="curve")
     for f in plan["fields"]:
         ring = [T(p) for p in f["polygon"]]
-        draws["earth"].polygon(ring, fill=235 if f["ploughed"] else 120)
+        # April: spring fields lie freshly tilled, winter grain shows green
+        # through the soil, gardens are dug beds, fallow is rough grass.
+        draws["earth"].polygon(ring, fill={"spring": 235, "winter": 105, "garden": 205, "fallow": 55}.get(f.get("sowing"), 120))
     blurred = {}
     from PIL import ImageFilter
 
@@ -1674,7 +1963,10 @@ def render_minimap(plan, height_wu):
         return (p[0] - x0, p[1] - y0)
 
     for f in plan["fields"]:
-        dr.polygon([T(p) for p in f["polygon"]], fill=(150, 128, 92) if f["ploughed"] else (140, 150, 100))
+        tone = {"spring": (156, 126, 88), "winter": (128, 150, 84), "garden": (122, 140, 78), "fallow": (150, 156, 104)}
+        dr.polygon([T(p) for p in f["polygon"]], fill=tone.get(f.get("sowing"), (150, 128, 92)))
+    for pa in plan.get("pastures", []):
+        dr.polygon([T(p) for p in pa["polygon"]], fill=(150, 168, 108), outline=(112, 98, 72) if pa["fence"] else None)
     dr.polygon([T(a["at"]) for a in plan["circuit"]], fill=(170, 160, 135))
     dr.polygon([T(p) for p in plan["toompea_edge"]], fill=(175, 168, 140))
     hj = plan["harjapea"]

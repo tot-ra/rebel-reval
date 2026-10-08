@@ -82,3 +82,9 @@ P0-180: `music/battle/` is a retained unassigned library. Numbered alternate tak
 - **The Duel in the Garden:** Fast-paced harpsichord, dueling strings, dramatic percussion hits.
 - **Inquisition's Judgment:** Ominous choir, low brass drones, heavy chains, sounds of fire.
 - **Uprising of the Lowly:** Aggressive folk instruments, chaotic percussion, angry mob shouts, alarm bells.
+
+## Prologue intro: "The Weight of Centuries"
+
+Underscore for the conquest prologue (`cutscene.prologue.conquest`), played under the narrator. File: `music/intro/The Weight of Centuries.mp3`.
+
+**Prompt:** cinematic orchestral underscore for a dark medieval historical epic, instrumental only, sorrowful and heavy with restrained anger, low bowed strings, a lone kannel/nyckelharpa melody, deep frame drums, low brass swells, sea wind; builds to a bitter climax, then resolves into a single warm, hopeful string line; D minor, about 60 BPM, mixed with room in the mids for a male narrator.

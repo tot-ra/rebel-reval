@@ -210,4 +210,8 @@ Keep this file short. Append a durable reusable rule, not a dated incident log. 
 
 - Creating a task pack from a doc delivery-plan table: afterwards re-list by tag and diff the rows one by one against the table (one row was silently skipped once), and confirm each line shows `(depends on ...)` - `tasks.create` can accept `depends_on` without recording it, so re-apply it with `tasks.update`. Write the created IDs back into the doc table so the plan and the board cannot drift.
 
+- OpenRouter TTS: `POST /api/v1/audio/speech` (OpenAI-compatible). Provider-specific knobs go in `provider.options.<vendor>` (MiniMax: `voice_setting` with emotion/speed/pitch); the top-level `instructions` field is ignored by MiniMax. A single request can take over 100 s, so run bulk generation in the background with a thread pool and read the key from the Brute config without printing it.
+- Eleven v4 (OpenRouter TTS) tags: keep each audio tag one short standard word (`[sorrowful]`, `[hopeful]`). Long descriptive tags get spoken aloud and make the model repeat the first phrase. Always verify generated narration by transcribing it (`stt`) against the source text, and flag takes with an unusually high seconds-per-word.
+- OpenRouter credits are finite and bulk TTS regeneration burns them (HTTP 402 `Insufficient credits`). Before a `--force` regeneration of all takes, check `GET /api/v1/credits` (total_credits vs total_usage), and regenerate only the changed lines (delete just those mp3s and run without `--force`).
+
 - Delegation: if the only configured agent fails a one-line health-check task (for example "Model returned an empty final response"), stop re-dispatching and do the work in the parent session, telling the user that the requested parallel agents did not run.

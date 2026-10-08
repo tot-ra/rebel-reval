@@ -37,20 +37,23 @@
       "lines": [
         {
           "id": "l1",
-          "text": "Every chain is forged twice. Once by the hand that makes it, and once by the years that keep it on.",
-          "seconds": 6.5,
-          "delivery": "Old woman, Estonian-accented, unhurried, close to the microphone. Not grand. The voice of someone who has told this before and expects no help from it."
+          "text": "Every chain is forged twice: once by the hand that makes it, once by the years that keep it on.",
+          "seconds": 5.5,
+          "delivery": "Old woman, Estonian-accented, unhurried, close to the microphone. Not grand. The voice of someone who has told this before and expects no help from it.",
+          "voice": "res://assets/audio/cutscene_voice/prologue_conquest/s01_fleet_l1.mp3"
         },
         {
           "id": "l2",
-          "text": "Ours was begun on a morning in June, by a king who came by sea.",
-          "seconds": 5.5,
-          "delivery": "Flat, factual. Let the word 'king' carry no respect at all."
+          "text": "Ours began one June morning, with a king who came by sea.",
+          "seconds": 4.0,
+          "delivery": "Flat, factual. Let the word 'king' carry no respect at all.",
+          "voice": "res://assets/audio/cutscene_voice/prologue_conquest/s01_fleet_l2.mp3"
         }
       ],
       "sound": {
-        "music": "",
-        "ambience": ""
+        "music": "res://music/intro/The Weight of Centuries.mp3",
+        "ambience": "",
+        "music_volume_db": -11.0
       },
       "authoring": {
         "direction": "Establish scale and inevitability. The fleet must look like weather, not like men: too many hulls to count, arriving on a sea that does not care. Keep the Estonian shore in the lower third, low and wooded and defenceless, so the frame reads as 'this is being done to us'.",
@@ -74,21 +77,17 @@
       "lines": [
         {
           "id": "l1",
-          "text": "Valdemar of Denmark brought a bishop to bless it and an army to do it.",
-          "seconds": 5.0,
-          "delivery": "Dry. The two halves of the line weigh the same."
+          "text": "Valdemar of Denmark brought a bishop to bless it, and an army to do it. They say a banner fell from the sky for them.",
+          "seconds": 6.5,
+          "delivery": "Dry. The two halves of the line weigh the same.",
+          "voice": "res://assets/audio/cutscene_voice/prologue_conquest/s02_banner_l1.mp3"
         },
         {
           "id": "l2",
-          "text": "Afterwards they said a banner fell out of the sky for them. A red cloth with a white cross, given by God.",
-          "seconds": 6.5,
-          "delivery": "Repeating someone else's story, with the faintest contempt in the word 'given'."
-        },
-        {
-          "id": "l3",
-          "text": "Perhaps. Nothing fell out of the sky for us.",
-          "seconds": 4.5,
-          "delivery": "Quiet, final. A small pause before the last sentence."
+          "text": "Nothing fell out of the sky for us.",
+          "seconds": 3.5,
+          "delivery": "Repeating someone else's story, with the faintest contempt in the word 'given'.",
+          "voice": "res://assets/audio/cutscene_voice/prologue_conquest/s02_banner_l2.mp3"
         }
       ],
       "sound": {
@@ -117,21 +116,17 @@
       "lines": [
         {
           "id": "l1",
-          "text": "They burned the stronghold on the hill and built their own on the ash, in stone, with our backs.",
+          "text": "They burned our stronghold and built theirs on the ash, in stone. They named it Taani linn - the Danish town.",
           "seconds": 6.5,
-          "delivery": "The only line in the chapter with heat in it. Still controlled."
+          "delivery": "The only line in the chapter with heat in it. Still controlled.",
+          "voice": "res://assets/audio/cutscene_voice/prologue_conquest/s03_hill_l1.mp3"
         },
         {
           "id": "l2",
-          "text": "Then they gave the place a name. Taani linn. The Danish town.",
-          "seconds": 6.0,
-          "delivery": "Estonian pronunciation, exact and unhurried, then a beat before the translation."
-        },
-        {
-          "id": "l3",
           "text": "We have lived in it for a hundred and twenty-four years.",
-          "seconds": 5.0,
-          "delivery": "No self-pity. A measurement."
+          "seconds": 4.0,
+          "delivery": "Estonian pronunciation, exact and unhurried, then a beat before the translation.",
+          "voice": "res://assets/audio/cutscene_voice/prologue_conquest/s03_hill_l2.mp3"
         }
       ],
       "sound": {
@@ -160,21 +155,17 @@
       "lines": [
         {
           "id": "l1",
-          "text": "The town grew rich. Salt and herring in, flax and wax and furs out, and a council of German merchants to count it.",
-          "seconds": 7.0,
-          "delivery": "Almost admiring, which makes the next line worse."
+          "text": "Salt, herring and furs made the town rich, and German merchants wrote its laws, in their language, for their houses.",
+          "seconds": 6.5,
+          "delivery": "Almost admiring, which makes the next line worse.",
+          "voice": "res://assets/audio/cutscene_voice/prologue_conquest/s04_town_l1.mp3"
         },
         {
           "id": "l2",
-          "text": "The law was written down. It was written in their language, for their houses, with their names on it.",
-          "seconds": 6.5,
-          "delivery": "Three beats, each slightly harder than the last."
-        },
-        {
-          "id": "l3",
-          "text": "We were the hands. Carters, maids, labourers, smiths. Useful, and outside.",
-          "seconds": 6.0,
-          "delivery": "'Useful, and outside' is the thesis of the chapter. Separate the two words."
+          "text": "We were the hands. Useful, and outside.",
+          "seconds": 3.5,
+          "delivery": "Three beats, each slightly harder than the last.",
+          "voice": "res://assets/audio/cutscene_voice/prologue_conquest/s04_town_l2.mp3"
         }
       ],
       "sound": {
@@ -203,21 +194,17 @@
       "lines": [
         {
           "id": "l1",
-          "text": "A new Valdemar sat in Denmark. He had inherited a kingdom that was already pawned, and he meant to buy it back.",
-          "seconds": 7.0,
-          "delivery": "Explaining the machine, not the man."
+          "text": "Then the king needed silver, and the tax fell on everyone - which kings almost never risk.",
+          "seconds": 5.5,
+          "delivery": "Explaining the machine, not the man.",
+          "voice": "res://assets/audio/cutscene_voice/prologue_conquest/s05_tax_l1.mp3"
         },
         {
           "id": "l2",
-          "text": "So the tax came. On the vassals, on the merchants, on the church, on the farms. On everyone, which is a thing kings almost never risk.",
-          "seconds": 7.5,
-          "delivery": "Pick up pace through the list, then slow hard on the last clause."
-        },
-        {
-          "id": "l3",
           "text": "A man will carry a hundred years of insult. He will not carry it twice in one spring.",
-          "seconds": 6.5,
-          "delivery": "The turn of the chapter. Low, almost gentle."
+          "seconds": 5.5,
+          "delivery": "Pick up pace through the list, then slow hard on the last clause.",
+          "voice": "res://assets/audio/cutscene_voice/prologue_conquest/s05_tax_l2.mp3"
         }
       ],
       "sound": {
@@ -243,26 +230,7 @@
       },
       "hold_seconds": 7.0,
       "caption": "Reval. Spring, 1343.",
-      "lines": [
-        {
-          "id": "l1",
-          "text": "This is the spring I am telling you about. The ice is off the bay, the ships are coming back, and the county is very quiet.",
-          "seconds": 7.0,
-          "delivery": "Shift in address: she is talking to the player now, not reciting."
-        },
-        {
-          "id": "l2",
-          "text": "In the almshouse by the Holy Spirit there is a boy who sees more than there is.",
-          "seconds": 6.0,
-          "delivery": "Warmer. This is the first thing in the chapter she cares about."
-        },
-        {
-          "id": "l3",
-          "text": "Nobody has told him yet what he is for.",
-          "seconds": 5.0,
-          "delivery": "Last line of the chapter. End on it cleanly, no trailing breath."
-        }
-      ],
+      "lines": [],
       "sound": {
         "music": "",
         "ambience": ""

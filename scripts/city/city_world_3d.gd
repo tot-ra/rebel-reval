@@ -23,6 +23,7 @@ var roof_nodes: Dictionary = {}
 var water_materials: Array[ShaderMaterial] = []
 var doors: CityDoors
 var grass: CityGrass
+var farmland: CityFarmland
 var trail: CityGroundTrail
 var build_stats: Dictionary = {}
 ## Wet moat stretches as [a, b, surface_a, surface_b, half_width] (swimming).
@@ -54,6 +55,7 @@ func _build() -> void:
 	Fort.build(plan, self)
 	var t3 := Time.get_ticks_usec()
 	_build_water()
+	CityBridges.build(plan, self)
 	CityVegetationBuilder.build(plan, self)
 	CityDressingBuilder.build(plan, self)
 	CityWallFoot.build(plan, self)
@@ -62,6 +64,8 @@ func _build() -> void:
 	add_child(doors)
 	grass = CityGrass.create(plan)
 	add_child(grass)
+	farmland = CityFarmland.create(plan)
+	add_child(farmland)
 	trail = CityGroundTrail.create(plan, grass.surface_at)
 	add_child(trail)
 	smoke = CityChimneySmoke.create(chimneys)

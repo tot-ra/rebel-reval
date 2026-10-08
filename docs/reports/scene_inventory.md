@@ -143,7 +143,6 @@ Inventory row count (data rows in the table below): **135**.
 | 138 | `scenes/world/reval_city/reval_city.tscn` | working | ADR 0031 seamless Reval 1343 city preview (main menu "Reval (seamless)"). |
 | 139 | `tools/capture_reval_city_walk.tscn` | partial | ADR 0031 seamless-city walk acceptance host; not player-facing. |
 | 134 | `tools/verify_world_seam_walk.tscn` | partial | R-1043 WorldHost seam-walk verification host (keyboard, gamepad, mouse, fallback); not player-facing. |
-| 95 | `generated/comfyui/forge_cat_hunyuan3d_v1/production/godot_verify/verify.tscn` | partial | Forge cat GLB import verification host; ComfyUI pipeline only. |
 
 ## Totals by folder
 
@@ -219,18 +218,38 @@ Both commands should print `135` on a clean checkout at this revision.
 | 111 | `scenes/reval_monastery/nunnatorn_interior.tscn` | partial | Inactive declarative Nunnatorn tower prototype. |
 | 112 | `scenes/reval_north/rentenitorn_interior.tscn` | partial | Inactive declarative Rentenitorn tower prototype. |
 | 113 | `tools/benchmarks/renderer_comparison_benchmark.tscn` | partial | Developer-only renderer comparison host. |
-| 114 | `assets/storybook/aita/aita.tscn` | partial | Model and equipment review; P0-206. |
-| 115 | `assets/storybook/ellen/ellen.tscn` | partial | Model and equipment review; P0-206. |
 | 116 | `assets/storybook/equipment/hammer.tscn` | working | Grounded live actor or held prop; P0-206. |
-| 117 | `assets/storybook/equipment/shield.tscn` | working | Grounded live actor or held prop; P0-206. |
 | 118 | `assets/storybook/equipment/sword.tscn` | working | Grounded live actor or held prop; P0-206. |
 | 119 | `assets/storybook/forge_cat/forge_cat.tscn` | working | Grounded live actor or held prop; P0-206. |
-| 120 | `assets/storybook/henning/henning.tscn` | partial | Model and equipment review; P0-206. |
-| 121 | `assets/storybook/jurgen/jurgen.tscn` | partial | Model and equipment review; P0-206. |
-| 122 | `assets/storybook/kaja/kaja.tscn` | partial | Model and equipment review; P0-206. |
 | 128 | `assets/characters/kalev_fresh/kalev_fresh.tscn` | partial | Rebuild review rig; P0-214. |
 | 129 | `assets/characters/kalev_fresh/preview.tscn` | partial | Rebuild review scene; P0-214. |
-| 124 | `assets/storybook/mart/mart.tscn` | partial | Model and equipment review; P0-206. |
-| 125 | `assets/storybook/watchman/watchman.tscn` | partial | Model and equipment review; P0-206. |
 | 126 | `scenes/debug/storybook_showcase.tscn` | partial | Model and equipment review; P0-206. |
 | 127 | `assets/characters/showcase/modular_character_showcase.tscn` | partial | Model and equipment review; P0-206. |
+| 131 | `assets/characters/variants/apprentice.tscn` | working | Seamless city citizen or cast body (MPFB pipeline). |
+| 132 | `assets/characters/variants/citizen_f_adult_average_b.tscn` | working | Seamless city citizen or cast body (MPFB pipeline). |
+| 133 | `assets/characters/variants/citizen_f_adult_average.tscn` | working | Seamless city citizen or cast body (MPFB pipeline). |
+| 134 | `assets/characters/variants/citizen_f_adult_heavy_b.tscn` | working | Seamless city citizen or cast body (MPFB pipeline). |
+| 135 | `assets/characters/variants/citizen_f_adult_heavy.tscn` | working | Seamless city citizen or cast body (MPFB pipeline). |
+| 136 | `assets/characters/variants/citizen_f_adult_sturdy_b.tscn` | working | Seamless city citizen or cast body (MPFB pipeline). |
+| 137 | `assets/characters/variants/citizen_f_adult_sturdy.tscn` | working | Seamless city citizen or cast body (MPFB pipeline). |
+| 138 | `assets/characters/variants/citizen_f_adult_thin_b.tscn` | working | Seamless city citizen or cast body (MPFB pipeline). |
+| 139 | `assets/characters/variants/citizen_f_adult_thin.tscn` | working | Seamless city citizen or cast body (MPFB pipeline). |
+| 140 | `assets/characters/variants/citizen_f_child_average.tscn` | working | Seamless city citizen or cast body (MPFB pipeline). |
+| 141 | `assets/characters/variants/citizen_f_elder_heavy.tscn` | working | Seamless city citizen or cast body (MPFB pipeline). |
+| 142 | `assets/characters/variants/citizen_f_elder_thin.tscn` | working | Seamless city citizen or cast body (MPFB pipeline). |
+| 143 | `assets/characters/variants/citizen_m_adult_average_b.tscn` | working | Seamless city citizen or cast body (MPFB pipeline). |
+| 144 | `assets/characters/variants/citizen_m_adult_average.tscn` | working | Seamless city citizen or cast body (MPFB pipeline). |
+| 145 | `assets/characters/variants/citizen_m_adult_heavy_b.tscn` | working | Seamless city citizen or cast body (MPFB pipeline). |
+| 146 | `assets/characters/variants/citizen_m_adult_heavy.tscn` | working | Seamless city citizen or cast body (MPFB pipeline). |
+| 147 | `assets/characters/variants/citizen_m_adult_sturdy_b.tscn` | working | Seamless city citizen or cast body (MPFB pipeline). |
+| 148 | `assets/characters/variants/citizen_m_adult_sturdy.tscn` | working | Seamless city citizen or cast body (MPFB pipeline). |
+| 149 | `assets/characters/variants/citizen_m_adult_thin_b.tscn` | working | Seamless city citizen or cast body (MPFB pipeline). |
+| 150 | `assets/characters/variants/citizen_m_adult_thin.tscn` | working | Seamless city citizen or cast body (MPFB pipeline). |
+| 151 | `assets/characters/variants/citizen_m_child_average.tscn` | working | Seamless city citizen or cast body (MPFB pipeline). |
+| 152 | `assets/characters/variants/citizen_m_elder_heavy.tscn` | working | Seamless city citizen or cast body (MPFB pipeline). |
+| 153 | `assets/characters/variants/citizen_m_elder_thin.tscn` | working | Seamless city citizen or cast body (MPFB pipeline). |
+| 154 | `scenes/cutscene/prologue_opening.tscn` | working | Prologue cutscene or almshouse opening. |
+| 155 | `scenes/prologue/almshouse_opening.tscn` | working | Prologue cutscene or almshouse opening. |
+| 156 | `tools/capture_city_citizens.tscn` | partial | Developer capture or profiling tool. |
+| 157 | `tools/capture_city_fauna.tscn` | partial | Developer capture or profiling tool. |
+| 158 | `tools/profile_reval_city.tscn` | partial | Developer capture or profiling tool. |

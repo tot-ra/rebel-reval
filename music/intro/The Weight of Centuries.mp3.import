@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://c4p8puowdrl46"
+path="res://.godot/imported/The Weight of Centuries.mp3-8d7eb7534ebe1c2e8cb780a2899db01f.mp3str"
+
+[deps]
+
+source_file="res://music/intro/The Weight of Centuries.mp3"
+dest_files=["res://.godot/imported/The Weight of Centuries.mp3-8d7eb7534ebe1c2e8cb780a2899db01f.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

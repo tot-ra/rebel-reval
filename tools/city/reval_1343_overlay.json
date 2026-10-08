@@ -610,8 +610,8 @@
     }
   },
   "moat": {
-    "comment": "S/E irrigated ditch under construction in the 1340s; Ulemiste water rights only 1345, so most of it is dry or puddled.",
-    "from_anchor": 8,
+    "comment": "S/E irrigated ditch under construction in the 1340s, now carried up the east curtain to the Sand gate; Ulemiste water rights only 1345, so most of it is dry or puddled.",
+    "from_anchor": 2,
     "to_anchor": 14,
     "offset_m": 13.0,
     "width_m": 12.0,
@@ -803,7 +803,7 @@
     "extramural_roads": [
       {
         "id": "road.viru",
-        "name_1343": "eastern road beyond the clay gate",
+        "name_1343": "eastern road beyond the clay gate (bends inland to the Hareapea ford-bridge)",
         "points_m": [
           [
             268,
@@ -818,20 +818,32 @@
             58
           ],
           [
-            520,
-            30
+            490,
+            95
           ],
           [
-            610,
-            14
+            545,
+            165
+          ],
+          [
+            580,
+            250
+          ],
+          [
+            622,
+            312
+          ],
+          [
+            690,
+            322
           ],
           [
             760,
-            6
+            330
           ]
         ],
         "width_m": 6.0,
-        "confidence": "plausible composite (follows Narva mnt)"
+        "confidence": "plausible composite (follows Narva mnt; crossing the Hareapea by a timber bridge is a reversible reconstruction)"
       },
       {
         "id": "road.karja",

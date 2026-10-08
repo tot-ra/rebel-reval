@@ -44,15 +44,13 @@ static func build(plan: CityPlan, parent: Node3D) -> Node3D:
 		var a := Vector2(c["from"][0], c["from"][1])
 		var b := Vector2(c["to"][0], c["to"][1])
 		var dir := (b - a).normalized()
-		var trim_a := 0.0
-		var trim_b := 0.0
+		var p0 := a
+		var p1 := b
 		if gates_by_anchor.has(i):
-			trim_a = _gate_half_extent(gates_by_anchor[i])
+			p0 = gate_joint(gates_by_anchor[i], dir)
 		if gates_by_anchor.has((i + 1) % curtains.size()):
-			trim_b = _gate_half_extent(gates_by_anchor[(i + 1) % curtains.size()])
-		var p0 := a + dir * trim_a
-		var p1 := b - dir * trim_b
-		if p0.distance_to(b) <= trim_b:
+			p1 = gate_joint(gates_by_anchor[(i + 1) % curtains.size()], -dir)
+		if (p1 - p0).dot(dir) <= 0.5:
 			continue
 		_curtain(
 			shell,
@@ -172,6 +170,17 @@ static func _centroid_of(points: Array) -> Vector2:
 	for p: Vector2 in points:
 		c += p
 	return c / maxf(points.size(), 1)
+
+
+## Where a curtain leaving a gate (towards `toward`) meets the gate house: the
+## middle of the house's end face on the curtain's side, sunk 0.3 m into it. The
+## gate house is aligned to its street, not to the wall, so trimming the curtain
+## along its own line (the old way) left a wedge-shaped hole at the corner.
+static func gate_joint(g: Dictionary, toward: Vector2) -> Vector2:
+	var at := Vector2(g["at"][0], g["at"][1])
+	var along := Vector2(cos(float(g["angle"])), sin(float(g["angle"])))
+	var side := 1.0 if toward.dot(along) >= 0.0 else -1.0
+	return at + along * side * (_gate_half_extent(g) - 0.3)
 
 
 static func _gate_half_extent(g: Dictionary) -> float:

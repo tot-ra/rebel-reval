@@ -384,6 +384,12 @@ func _features(plan: CityPlan) -> void:
 ## swings, the room's roof lifts and Kalev stands on the site floor, walk out.
 func _enter_sites(plan: CityPlan) -> void:
 	var player: Player = _city.player
+	# The doors and floors are under test, not crowd behaviour: people standing
+	# at a door (citizens, site staff) must not fail the walk-through.
+	var mask := player.collision_mask
+	player.collision_mask = mask & ~CollisionLayers.NPC
+	var inner_ok := {}
+	var inner_where := {}
 	for site in plan.sites:
 		for d: Dictionary in site.doors:
 			if bool(d.get("inner", false)):
@@ -480,16 +486,15 @@ func _enter_sites(plan: CityPlan) -> void:
 						]
 					)
 				)
-				if not reached:
-					_failures.append(
-						(
-							"%s: could not walk through %s (stopped at local %s)"
-							% [
-								site.id,
-								other["id"],
-								site.to_local(CityPlan.to_world_xz(player.global_position))
-							]
-						)
+				# An inner door must be reachable from at least one entrance (the
+				# straight-line walk cannot steer round furniture or a crane).
+				var key_inner := "%s/%s" % [site.id, other["id"]]
+				if reached:
+					inner_ok[key_inner] = true
+				elif not inner_ok.has(key_inner):
+					inner_ok[key_inner] = false
+					inner_where[key_inner] = site.to_local(
+						CityPlan.to_world_xz(player.global_position)
 					)
 				await _shot(
 					(
@@ -560,6 +565,11 @@ func _enter_sites(plan: CityPlan) -> void:
 						]
 					)
 				)
+	player.collision_mask = mask
+	for key: String in inner_ok:
+		if not bool(inner_ok[key]):
+			var msg := "%s: could not walk through from any entrance (last stop at local %s)"
+			_failures.append(msg % [key, inner_where[key]])
 
 
 func _finish() -> void:

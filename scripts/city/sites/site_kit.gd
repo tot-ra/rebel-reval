@@ -900,6 +900,18 @@ static func material_for(key: String) -> Material:
 			std.vertex_color_use_as_albedo = true
 			std.roughness = 0.88
 			mat = std
+		"earth":
+			# Packed earth and lime dust on a building site floor.
+			var em := StandardMaterial3D.new()
+			em.albedo_texture = load("res://assets/materials/pbr/mud/mud_albedo.png")
+			em.normal_enabled = true
+			em.normal_texture = load("res://assets/materials/pbr/mud/mud_normal.png")
+			em.uv1_triplanar = true
+			em.uv1_world_triplanar = true
+			em.uv1_scale = Vector3(0.35, 0.35, 0.35)
+			em.albedo_color = Color(0.82, 0.76, 0.66)
+			em.roughness = 0.95
+			mat = em
 		"greystone":
 			# Bare grey limestone (piers and arches left unplastered inside).
 			var gs2 := StandardMaterial3D.new()

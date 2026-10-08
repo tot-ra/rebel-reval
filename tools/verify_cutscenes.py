@@ -114,6 +114,17 @@ def verify() -> list[str]:
                 if line_id in line_ids:
                     problems.append(f"{where}: duplicate line id {line_id!r}")
                 line_ids.add(line_id)
+                voice = str(line.get("voice", ""))
+                if voice:
+                    voice_path = _res_to_path(voice)
+                    relative_voice = voice[len(RES_PREFIX) :]
+                    if not voice.startswith(RES_PREFIX) or not voice_path.exists():
+                        problems.append(f"{where}/{line_id}: voice file is missing: {voice}")
+                    else:
+                        if not voice_path.with_suffix(voice_path.suffix + ".import").exists():
+                            problems.append(f"{where}/{line_id}: voice has no Godot .import sidecar: {relative_voice}")
+                        if relative_voice not in sourced:
+                            problems.append(f"{where}/{line_id}: voice has no assets/SOURCES.csv row: {relative_voice}")
 
             still = str(shot.get("still", ""))
             if not still.startswith(RES_PREFIX):

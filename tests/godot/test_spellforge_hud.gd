@@ -174,6 +174,28 @@ func test_quick_hud_stays_visible_when_cookbook_is_closed() -> void:
 	hud.free()
 
 
+func test_quick_hud_shows_only_in_the_spirit_world() -> void:
+	var state := GameState.new()
+	var db := _make_db()
+	assert_true(MagicResolver.apply_grant_operation(state, db, GRANT_FIREBALL))
+	var model := ModelScript.new() as SpellforgeModel
+	model.configure(state, db)
+	var hud := HudScript.new() as SpellforgeHud
+	hud.configure(model)
+	(Engine.get_main_loop() as SceneTree).root.add_child(hud)
+	var quick := hud.find_child("QuickSpellHud", true, false) as Control
+
+	assert_false(quick.visible, "physical world hides the mana orb and slots")
+	state.in_spirit_world = true
+	hud._process(0.0)
+	assert_true(quick.visible)
+	assert_true(hud.layer > 80, "lifted above the spirit arena")
+	state.in_spirit_world = false
+	hud._process(0.0)
+	assert_false(quick.visible)
+	hud.free()
+
+
 func test_number_keys_cast_the_first_learned_spell() -> void:
 	var state := GameState.new()
 	var db := _make_db()

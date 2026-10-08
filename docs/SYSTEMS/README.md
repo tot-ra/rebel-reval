@@ -17,6 +17,7 @@ One page per implemented or planned feature. Each page opens with a `Status:` li
 | [World presentation (3D view)](./WORLD_PRESENTATION.md) | Implemented |
 | [Seamless Reval city (1343)](./SEAMLESS_CITY.md) | Playable preview (ADR 0031); no quests or saves yet |
 | [Landmark sites in the seamless city](./CITY_LANDMARK_SITES.md) | Implemented for Raekoja plats (ADR 0032); other sites planned |
+| [Farmland, pastures and woods](./FARMLAND.md) | Implemented (fields, crops by date, pastures, woods; no far-field LOD yet) |
 | [Living vegetation](./LIVING_VEGETATION.md) | Implemented (seasons, weather, leaf fall on hits) |
 | [Vegetation realism (grass, grain fields, trees)](./VEGETATION_REALISM.md) | In progress: benchmark and budgets (R-1320) and procedural vegetation textures (R-1329) implemented; later phases planned |
 | [Hoist ropes](./HOIST_ROPE.md) | Implemented (wind-swung rope and hook on hoist beams) |

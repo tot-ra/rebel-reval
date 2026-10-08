@@ -14,19 +14,19 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `1070`
-- Markdown files excluded as archive/reference/out of active scope: `743`
-- Local/external links inspected: `12701`
-- Links to active Markdown docs: `11868`
-- Links to existing archive/reference/non-active local docs: `430`
+- Active Markdown files scanned: `1073`
+- Markdown files excluded as archive/reference/out of active scope: `747`
+- Local/external links inspected: `12743`
+- Links to active Markdown docs: `11886`
+- Links to existing archive/reference/non-active local docs: `437`
 - External links skipped for reachability: `52`
-- Issues found: `4`
+- Issues found: `0`
 
 ## Issue counts
 
 | Code | Count |
 | --- | ---: |
-| `BROKEN_LINK` | 4 |
+| `BROKEN_LINK` | 0 |
 | `BROKEN_ANCHOR` | 0 |
 | `DUPLICATE_CHARACTER_NAME` | 0 |
 | `CONTRADICTORY_DATE` | 0 |
@@ -34,12 +34,7 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Issues
 
-| Code | Location | Detail |
-| --- | --- | --- |
-| `BROKEN_LINK` | `docs/CITIZENS/WRITING_CARDS.md:49` | Local Markdown link target does not exist: `link` |
-| `BROKEN_LINK` | `docs/SYSTEMS/SEAMLESS_CITY.md:121` | Local Markdown link target does not exist: `../reports/animal_placement_plan.md` |
-| `BROKEN_LINK` | `docs/adr/0034-cutscene-mode-and-cinematic-prologue.md:123` | Local Markdown link target does not exist: `../SYSTEMS/CUTSCENES.md` |
-| `BROKEN_LINK` | `docs/adr/0034-cutscene-mode-and-cinematic-prologue.md:126` | Local Markdown link target does not exist: `../../cinematics/PROMPT_GRAMMAR.md` |
+No active Markdown documentation issues found.
 
 ## Active files scanned
 
@@ -1001,13 +996,16 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/SKY_WEATHER_STATE_CONTRACT.md`
 - `docs/SOUND_EFFECTS_TOP_100.md`
 - `docs/STORAGE_SIZE_BACKLOG.md`
+- `docs/SYSTEMS/AUDIO.md`
 - `docs/SYSTEMS/CITIZENS.md`
 - `docs/SYSTEMS/CITY_LANDMARK_SITES.md`
 - `docs/SYSTEMS/COMBAT.md`
 - `docs/SYSTEMS/COMBAT_ANIMATION.md`
 - `docs/SYSTEMS/COMBAT_NIGHT.md`
+- `docs/SYSTEMS/CUTSCENES.md`
 - `docs/SYSTEMS/DIALOGUE.md`
 - `docs/SYSTEMS/FACTIONS_AND_ECONOMY.md`
+- `docs/SYSTEMS/FARMLAND.md`
 - `docs/SYSTEMS/FLAG_CLOTH.md`
 - `docs/SYSTEMS/HOIST_ROPE.md`
 - `docs/SYSTEMS/HUD_AND_MENUS.md`

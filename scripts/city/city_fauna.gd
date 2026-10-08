@@ -46,31 +46,31 @@ const FLEE_SPEED := 4.2
 ## offset: metres from the anchor; species; behavior; radius: roaming yard;
 ## count: animals in the group, fanned around the offset}.
 const ANCHORS: Array[Dictionary] = [
-	{"anchor": "poi.forum", "offset": Vector2(12, 6), "species": &"dog", "behavior": BEHAVIOR_WANDER, "radius": 6.0, "count": 1},
-	{"anchor": "poi.forum", "offset": Vector2(-9, 5), "species": &"cat", "behavior": BEHAVIOR_WANDER, "radius": 3.5, "count": 1},
-	{"anchor": "poi.forum", "offset": Vector2(19, -5), "species": &"horse", "behavior": BEHAVIOR_TETHER, "radius": 2.4, "count": 1},
-	{"anchor": "poi.forum", "offset": Vector2(-15, -7), "species": &"chicken", "behavior": BEHAVIOR_WANDER, "radius": 3.0, "count": 3},
-	{"anchor": "poi.fish_landing", "offset": Vector2(-8, 14), "species": &"cat", "behavior": BEHAVIOR_WANDER, "radius": 5.0, "count": 2},
-	{"anchor": "poi.fish_landing", "offset": Vector2(14, 16), "species": &"dog", "behavior": BEHAVIOR_WANDER, "radius": 6.0, "count": 1},
-	{"anchor": "poi.granary.pikk", "offset": Vector2(5, 7), "species": &"rat", "behavior": BEHAVIOR_FLEE, "radius": 3.0, "count": 2},
-	{"anchor": "poi.granary.pikk", "offset": Vector2(-6, 9), "species": &"cat", "behavior": BEHAVIOR_WANDER, "radius": 3.0, "count": 1},
-	{"anchor": "poi.bakery.lai", "offset": Vector2(5, 5), "species": &"cat", "behavior": BEHAVIOR_WANDER, "radius": 3.0, "count": 1},
-	{"anchor": "poi.brewery.vene", "offset": Vector2(8, 8), "species": &"horse", "behavior": BEHAVIOR_TETHER, "radius": 2.4, "count": 1},
-	{"anchor": "poi.smithy.harju", "offset": Vector2(7, 6), "species": &"horse", "behavior": BEHAVIOR_TETHER, "radius": 2.4, "count": 1},
-	{"anchor": "poi.smithy.harju", "offset": Vector2(-6, 8), "species": &"dog", "behavior": BEHAVIOR_WANDER, "radius": 4.0, "count": 1},
-	{"anchor": "poi.barracks.castle", "offset": Vector2(9, 8), "species": &"horse", "behavior": BEHAVIOR_TETHER, "radius": 3.0, "count": 2},
-	{"anchor": "poi.slaughter.karja", "offset": Vector2(8, 9), "species": &"pig", "behavior": BEHAVIOR_PEN, "radius": 4.0, "count": 2},
-	{"anchor": "poi.slaughter.karja", "offset": Vector2(-9, 10), "species": &"cow", "behavior": BEHAVIOR_PEN, "radius": 4.0, "count": 1},
-	{"anchor": "poi.slaughter.karja", "offset": Vector2(2, 16), "species": &"chicken", "behavior": BEHAVIOR_WANDER, "radius": 3.0, "count": 3},
-	{"anchor": "poi.mill.karja", "offset": Vector2(9, 8), "species": &"goose", "behavior": BEHAVIOR_WANDER, "radius": 5.0, "count": 3},
-	{"anchor": "poi.well.yard.viru", "offset": Vector2(6, 5), "species": &"chicken", "behavior": BEHAVIOR_WANDER, "radius": 3.0, "count": 2},
-	{"anchor": "poi.well.yard.harju", "offset": Vector2(6, 5), "species": GOAT, "behavior": BEHAVIOR_PEN, "radius": 3.0, "count": 2},
-	{"anchor": "poi.well.yard.pikk_north", "offset": Vector2(5, 6), "species": &"chicken", "behavior": BEHAVIOR_WANDER, "radius": 3.0, "count": 2},
-	{"anchor": "gate.viru", "offset": Vector2(0, 14), "species": &"horse", "behavior": BEHAVIOR_TETHER, "radius": 2.4, "count": 1},
-	{"anchor": "gate.karja", "offset": Vector2(0, 16), "species": &"cow", "behavior": BEHAVIOR_PEN, "radius": 5.0, "count": 2},
-	{"anchor": "gate.karja", "offset": Vector2(8, 18), "species": &"sheep", "behavior": BEHAVIOR_PEN, "radius": 5.0, "count": 3},
-	{"anchor": "gate.harju", "offset": Vector2(0, 14), "species": &"horse", "behavior": BEHAVIOR_TETHER, "radius": 2.4, "count": 1},
-	{"anchor": "gate.coastal", "offset": Vector2(0, 14), "species": &"dog", "behavior": BEHAVIOR_WANDER, "radius": 5.0, "count": 1},
+	{"anchor": "poi.forum", "offset": Vector2(12, 6), "species": &"dog", "behavior": BEHAVIOR_WANDER, "radius": 6.0, "count": 1},  # gdlint: ignore=max-line-length
+	{"anchor": "poi.forum", "offset": Vector2(-9, 5), "species": &"cat", "behavior": BEHAVIOR_WANDER, "radius": 3.5, "count": 1},  # gdlint: ignore=max-line-length
+	{"anchor": "poi.forum", "offset": Vector2(19, -5), "species": &"horse", "behavior": BEHAVIOR_TETHER, "radius": 2.4, "count": 1},  # gdlint: ignore=max-line-length
+	{"anchor": "poi.forum", "offset": Vector2(-15, -7), "species": &"chicken", "behavior": BEHAVIOR_WANDER, "radius": 3.0, "count": 3},  # gdlint: ignore=max-line-length
+	{"anchor": "poi.fish_landing", "offset": Vector2(-8, 14), "species": &"cat", "behavior": BEHAVIOR_WANDER, "radius": 5.0, "count": 2},  # gdlint: ignore=max-line-length
+	{"anchor": "poi.fish_landing", "offset": Vector2(14, 16), "species": &"dog", "behavior": BEHAVIOR_WANDER, "radius": 6.0, "count": 1},  # gdlint: ignore=max-line-length
+	{"anchor": "poi.granary.pikk", "offset": Vector2(5, 7), "species": &"rat", "behavior": BEHAVIOR_FLEE, "radius": 3.0, "count": 2},  # gdlint: ignore=max-line-length
+	{"anchor": "poi.granary.pikk", "offset": Vector2(-6, 9), "species": &"cat", "behavior": BEHAVIOR_WANDER, "radius": 3.0, "count": 1},  # gdlint: ignore=max-line-length
+	{"anchor": "poi.bakery.lai", "offset": Vector2(5, 5), "species": &"cat", "behavior": BEHAVIOR_WANDER, "radius": 3.0, "count": 1},  # gdlint: ignore=max-line-length
+	{"anchor": "poi.brewery.vene", "offset": Vector2(8, 8), "species": &"horse", "behavior": BEHAVIOR_TETHER, "radius": 2.4, "count": 1},  # gdlint: ignore=max-line-length
+	{"anchor": "poi.smithy.harju", "offset": Vector2(7, 6), "species": &"horse", "behavior": BEHAVIOR_TETHER, "radius": 2.4, "count": 1},  # gdlint: ignore=max-line-length
+	{"anchor": "poi.smithy.harju", "offset": Vector2(-6, 8), "species": &"dog", "behavior": BEHAVIOR_WANDER, "radius": 4.0, "count": 1},  # gdlint: ignore=max-line-length
+	{"anchor": "poi.barracks.castle", "offset": Vector2(9, 8), "species": &"horse", "behavior": BEHAVIOR_TETHER, "radius": 3.0, "count": 2},  # gdlint: ignore=max-line-length
+	{"anchor": "poi.slaughter.karja", "offset": Vector2(8, 9), "species": &"pig", "behavior": BEHAVIOR_PEN, "radius": 4.0, "count": 2},  # gdlint: ignore=max-line-length
+	{"anchor": "poi.slaughter.karja", "offset": Vector2(-9, 10), "species": &"cow", "behavior": BEHAVIOR_PEN, "radius": 4.0, "count": 1},  # gdlint: ignore=max-line-length
+	{"anchor": "poi.slaughter.karja", "offset": Vector2(2, 16), "species": &"chicken", "behavior": BEHAVIOR_WANDER, "radius": 3.0, "count": 3},  # gdlint: ignore=max-line-length
+	{"anchor": "poi.mill.karja", "offset": Vector2(9, 8), "species": &"goose", "behavior": BEHAVIOR_WANDER, "radius": 5.0, "count": 3},  # gdlint: ignore=max-line-length
+	{"anchor": "poi.well.yard.viru", "offset": Vector2(6, 5), "species": &"chicken", "behavior": BEHAVIOR_WANDER, "radius": 3.0, "count": 2},  # gdlint: ignore=max-line-length
+	{"anchor": "poi.well.yard.harju", "offset": Vector2(6, 5), "species": GOAT, "behavior": BEHAVIOR_PEN, "radius": 3.0, "count": 2},  # gdlint: ignore=max-line-length
+	{"anchor": "poi.well.yard.pikk_north", "offset": Vector2(5, 6), "species": &"chicken", "behavior": BEHAVIOR_WANDER, "radius": 3.0, "count": 2},  # gdlint: ignore=max-line-length
+	{"anchor": "gate.viru", "offset": Vector2(0, 14), "species": &"horse", "behavior": BEHAVIOR_TETHER, "radius": 2.4, "count": 1},  # gdlint: ignore=max-line-length
+	{"anchor": "gate.karja", "offset": Vector2(0, 16), "species": &"cow", "behavior": BEHAVIOR_PEN, "radius": 5.0, "count": 2},  # gdlint: ignore=max-line-length
+	{"anchor": "gate.karja", "offset": Vector2(8, 18), "species": &"sheep", "behavior": BEHAVIOR_PEN, "radius": 5.0, "count": 3},  # gdlint: ignore=max-line-length
+	{"anchor": "gate.harju", "offset": Vector2(0, 14), "species": &"horse", "behavior": BEHAVIOR_TETHER, "radius": 2.4, "count": 1},  # gdlint: ignore=max-line-length
+	{"anchor": "gate.coastal", "offset": Vector2(0, 14), "species": &"dog", "behavior": BEHAVIOR_WANDER, "radius": 5.0, "count": 1},  # gdlint: ignore=max-line-length
 ]
 ## Fallow fields graze a herd (cycled by field index); every third ploughed
 ## field has a hare, the southernmost ones a fox.
@@ -127,6 +127,29 @@ static func groups_for(city_plan: CityPlan) -> Array[Dictionary]:
 		elif i % 3 == 0:
 			var hare := {"species": &"hare", "behavior": BEHAVIOR_FLEE, "radius": 8.0, "count": 1}
 			_add(groups, _group(city_plan, "%s/hare" % field["id"], hare, centre))
+	for pasture: Dictionary in city_plan.data.get("pastures", []):
+		var poly := CityPlan.points(pasture["polygon"])
+		var centre := _centroid(poly)
+		var spread := 0.0
+		for q in poly:
+			spread = maxf(spread, q.distance_to(centre))
+		var pen: bool = pasture["fence"]
+		for stock: Dictionary in pasture["stock"]:
+			var species := StringName(stock["species"])
+			var entry := {
+				"species": GOAT if species == &"goat" else species,
+				"behavior": BEHAVIOR_WANDER if species == &"goose" else (BEHAVIOR_PEN if pen else BEHAVIOR_GRAZE),  # gdlint: ignore=max-line-length
+				"radius": maxf(spread * 0.6, 4.0),
+				"count": int(stock["count"]),
+			}
+			_add(groups, _group(city_plan, "%s/%s" % [pasture["id"], species], entry, centre))
+	for farm: Dictionary in city_plan.data.get("farmsteads", []):
+		var yard := Vector2(farm["at"][0], farm["at"][1]) + Vector2(5.0, 6.0)
+		var hens := {"species": &"chicken", "behavior": BEHAVIOR_WANDER, "radius": 3.5, "count": 3}
+		_add(groups, _group(city_plan, "%s/chicken" % farm["id"], hens, yard))
+		if hash(farm["id"]) % 3 == 0:
+			var pigs := {"species": &"pig", "behavior": BEHAVIOR_PEN, "radius": 3.5, "count": 2}
+			_add(groups, _group(city_plan, "%s/pig" % farm["id"], pigs, yard + Vector2(-8.0, 3.0)))
 	return groups
 
 

@@ -14,6 +14,14 @@ const CASTLE_GATES: Array[String] = ["gate.long_hill", "gate.short_hill"]
 const PATROL_STREETS: Array[String] = ["Pikk", "Lai", "Vene"]
 const PATROL_SPEED := 1.3
 const SITE_PEOPLE_RANGE := 45.0
+## Farm hands on spring-sown fields and garden beds, present only near Kalev.
+const FIELD_WORKER_RANGE := 75.0
+const MAX_FIELD_WORKERS := 6
+const FIELD_WORKER_SPEED := 0.55
+const FIELD_RIGS: Array[String] = [
+	"citizen_m_adult_sturdy", "citizen_m_adult_average", "citizen_m_elder_thin",
+	"citizen_f_adult_average", "citizen_f_adult_sturdy",
+]
 
 
 ## A logic body walking a street centreline back and forth (metres, world xz).
@@ -66,10 +74,13 @@ class Walker:
 
 var plan: CityPlan
 var player: Node2D
-var _since := 0.0
 var citizens: CityCitizens
+var _since := 0.0
 ## Site id -> the CitySiteActors present while Kalev is near that site.
 var _site_people: Dictionary = {}
+var _field_sites: Array[Dictionary] = []
+## Field id -> the Walker working it.
+var _field_workers: Dictionary = {}
 
 
 static func create(city_plan: CityPlan, kalev: Node2D) -> CityNpcs:
@@ -85,6 +96,7 @@ func _ready() -> void:
 	_place_patrols()
 	if player != null:
 		_stream_site_people(CityPlan.to_world_xz(player.global_position))
+	_collect_field_sites()
 	citizens = CityCitizens.create(plan, player)
 	add_child(citizens)
 
@@ -94,7 +106,9 @@ func _process(delta: float) -> void:
 	if _since < 1.0 or player == null:
 		return
 	_since = 0.0
-	_stream_site_people(CityPlan.to_world_xz(player.global_position))
+	var me := CityPlan.to_world_xz(player.global_position)
+	_stream_site_people(me)
+	_stream_field_workers(me)
 
 
 func _walker(rig: PackedScene, speed: float) -> Walker:
@@ -154,3 +168,45 @@ func _stream_site_people(me: Vector2) -> void:
 			for actor: CitySiteActor in _site_people[site.id]:
 				actor.queue_free()
 			_site_people.erase(site.id)
+
+
+## Spring-sown fields and garden beds, each with the furrow line a worker walks.
+func _collect_field_sites() -> void:
+	for f in CityFarmland.features_for(plan):
+		if f["kind"] != &"field" or not (f["sowing"] == &"spring" or f["sowing"] == &"garden"):
+			continue
+		if hash(f["id"]) % 2 != 0:
+			continue
+		var poly: PackedVector2Array = f["polygon"]
+		var u := (poly[1] - poly[0]).normalized()
+		var v := (poly[3] - poly[0]).normalized()
+		var length := poly[0].distance_to(poly[1])
+		var width := poly[0].distance_to(poly[3])
+		var lane := hash([f["id"], "lane"]) % 5
+		var origin := poly[0] + v * (width * (0.25 + 0.1 * lane))
+		(
+			_field_sites
+			. append(
+				{
+					"id": f["id"],
+					"centre": f["centre"],
+					"path": PackedVector2Array([origin + u * 3.0, origin + u * (length - 3.0)]),
+					"rig": FIELD_RIGS[hash(f["id"]) % FIELD_RIGS.size()],
+				}
+			)
+		)
+
+
+## Farm hands walk their furrow back and forth while Kalev is near the field.
+func _stream_field_workers(me: Vector2) -> void:
+	for site in _field_sites:
+		var id: String = site["id"]
+		var near := (site["centre"] as Vector2).distance_to(me) <= FIELD_WORKER_RANGE
+		if near and not _field_workers.has(id) and _field_workers.size() < MAX_FIELD_WORKERS:
+			var w := _walker(load("res://assets/characters/variants/%s.tscn" % site["rig"]), FIELD_WORKER_SPEED)  # gdlint: ignore=max-line-length
+			w.name = "Farmhand_%s" % id.replace(".", "_")
+			w.seat(site["path"], hash(id) % 2, hash(id) % 3 != 0)
+			_field_workers[id] = w
+		elif not near and _field_workers.has(id):
+			(_field_workers[id] as Node).queue_free()
+			_field_workers.erase(id)
