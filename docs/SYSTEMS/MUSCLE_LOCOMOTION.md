@@ -4,6 +4,30 @@ Status: planned; **research prototype only** (build-time Python under [`tools/re
 
 Scope: one creature description for biped, quadruped, bird and snake bodies, motion found by evolution instead of hand animation, baked to clips. Out of scope: runtime muscle simulation, ragdoll combat, 3D balance, flight, snakes (designed, not built).
 
+## Goal and motivation (read this first)
+
+This page and the prototype exist because of one problem and one idea, stated by the maintainer in the 2026-10-07/08 design session. Any task that touches procedural creatures must keep this goal.
+
+**The problem.** The game has a very small set of animals, people need many body types, and both need believable animation. AI mesh generators produce unreliable animals (wrong anatomy, flat legs), downloaded models are limited by licence and by missing clips, and hand animation does not scale to dozens of species, body types, speeds and situations. What is wanted is high realism, variety and animation: walk, run, attack, death and every other state, for people, mammals, birds and snakes. The sourcing research is in [`ANIMAL_3D_SOURCING.md`](../ANIMAL_3D_SOURCING.md): no free source offers realistic, species-diverse, rigged animals with a full clip set, so motion cannot simply be downloaded.
+
+**The idea (the maintainer's).** Describe any creature with a few physical constraints and let motion be found, not authored:
+- the skeleton is a graph of rigid bones joined at points; bones never stretch;
+- muscles are lines attached to bones; they can only contract or relax, with a minimum and maximum length, and cannot rotate;
+- extra mass can hang anywhere (a belly, armour, a heavy head), so the centre of gravity changes the gait;
+- a small network (or evolved controller) drives the sequence of muscle contractions; that sequence is the animation;
+- a species or a person is then only a set of bone lengths, muscle strengths and joint limits, and an individual differs by small changes of the same numbers;
+- birds need a different system (light bones, lift, goals such as staying aloft) but the same philosophy;
+- because motion is generated, it is fluid and reacts to the situation instead of being a fixed clip.
+
+**Situations the system must eventually handle** (the maintainer's list, in rough order):
+walking; running; uphill and downhill; stairs (the city has them); obstacles, including walking around them, stepping over, climbing, jumping and ducking under a low doorway; posture changes from armour weight, a belly, a dress (adds weight and hinders the legs), an obese body, a very tall or a very short body, a dwarf; keeping balance when shoved in the chest; sitting and standing; crowds, where people push, avoid and do not pass through each other; combat with arm strikes, wind-ups and blocking with a shield, including reacting to an attacker; a horse with and without a rider or load; the differences between cat, dog and horse and the tail as a balance organ; birds.
+
+**Demonstration first.** Before anything is integrated, the maintainer wants shaded 3D animations (GIFs) of the models walking, running and handling each case, so the idea can be iterated and judged. Integration into the game comes later and needs its own ADR and task (AGENTS.md scope rules).
+
+**Lessons so far (keep them).** A fitness of only "survive and match the speed" is satisfied by a lunging limp (one leg always ahead); structure (left-right symmetry by half a cycle) plus gait-shape costs fixes it. Controllers overfit to the training horizon and to mid-range bodies, so train on parameter extremes and on longer episodes. Dynamic similarity matters: joint damping and inertia must scale with size or dwarfs fail. Muscles as constant-moment-arm fixed tendons work; straight point to point lines on bent joints do not.
+
+Task spec and acceptance criteria: [`CM-01`](../tasks/creatures/CM-01_procedural_creature_locomotion.md).
+
 ## Idea
 
 1. **Skeleton** = a graph of rigid bones joined by hinge joints; bones never stretch.

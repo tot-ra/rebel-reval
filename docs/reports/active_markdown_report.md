@@ -14,11 +14,11 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `1077`
-- Markdown files excluded as archive/reference/out of active scope: `747`
-- Local/external links inspected: `12828`
-- Links to active Markdown docs: `11912`
-- Links to existing archive/reference/non-active local docs: `441`
+- Active Markdown files scanned: `1079`
+- Markdown files excluded as archive/reference/out of active scope: `748`
+- Local/external links inspected: `12838`
+- Links to active Markdown docs: `11921`
+- Links to existing archive/reference/non-active local docs: `442`
 - External links skipped for reachability: `88`
 - Issues found: `6`
 
@@ -1062,6 +1062,8 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/tasks/coast/CO-09_saaremaa_traversability.md`
 - `docs/tasks/coast/CO-10_swim_dive_drown.md`
 - `docs/tasks/coast/README.md`
+- `docs/tasks/creatures/CM-01_procedural_creature_locomotion.md`
+- `docs/tasks/creatures/README.md`
 - `docs/tasks/README.md`
 - `docs/tasks/urban_form/README.md`
 - `docs/tasks/urban_form/UF-00_reconcile_adr_0023_acceptance.md`
