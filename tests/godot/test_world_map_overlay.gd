@@ -273,6 +273,16 @@ func test_global_catalog_edges_have_reciprocal_doors_and_manifest_spawns() -> vo
 		assert_true(_has_destination(to_definition, from_id))
 
 
+func test_every_distant_gate_plans_a_return_into_the_city() -> void:
+	for edge in GlobalMapCatalog.connections():
+		if edge["to"] != GlobalMapCatalog.REVAL_HUB_ID:
+			continue
+		var plan := GlobalMapCatalog.plan_travel(edge["from"], GlobalMapCatalog.REVAL_HUB_ID)
+		assert_false(plan.is_empty(), "%s -> Reval needs a travel plan" % edge["from"])
+		assert_eq(plan.get("scene_id", &""), &"reval_city")
+		assert_true(DoorNavigator.has_spawn(plan.get("scene_id", &""), plan.get("spawn_id", &"")))
+
+
 func _has_destination(definition: MapDefinition, destination_scene_id: StringName) -> bool:
 	if definition == null:
 		return false

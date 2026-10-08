@@ -292,6 +292,11 @@ static func _plan_return_to_reval(from_scene_id: StringName) -> Dictionary:
 	var spawn := StringName(String(row.get("gate_spawn_id", "")))
 	if gate.is_empty() or spawn.is_empty():
 		return {}
+	# ADR 0031: the legacy gate districts no longer exist in the manifest; plan
+	# against the city destination DoorNavigator.go_to_scene will redirect to.
+	var routed: Array = CityTravel.redirect(gate, spawn)
+	gate = routed[0]
+	spawn = routed[1]
 	if not DoorNavigator.has_active_scene(gate) or not DoorNavigator.has_spawn(gate, spawn):
 		return {}
 	return {"scene_id": gate, "spawn_id": spawn}
