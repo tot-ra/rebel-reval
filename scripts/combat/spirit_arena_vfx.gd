@@ -167,7 +167,7 @@ func _on_exchange(result: Dictionary) -> void:
 	match String(result.get("kind", "")):
 		"spell":
 			_on_spell(StringName(String(result.get("arena_effect", ""))), pressure_gain)
-		"reply":
+		"reply", "word":
 			if float(result.get("damage", 0.0)) > 0.0:
 				_strike(_opponent_point(), pressure_gain)
 		"incoming":

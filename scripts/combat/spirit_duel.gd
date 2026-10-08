@@ -167,6 +167,11 @@ func reply_block_reason(choice: Dictionary) -> String:
 	return ""
 
 
+## The replies of the current answer window (empty outside it).
+func current_choices() -> Array:
+	return _choices.duplicate(true) if phase == PHASE_ANSWER else []
+
+
 func incoming_move() -> Dictionary:
 	return _incoming.duplicate(true)
 
@@ -200,7 +205,9 @@ func acknowledge() -> bool:
 
 
 ## Pick a reply: its move strikes the opponent, then the dialogue follows the choice.
-func answer(choice_id: String) -> bool:
+## `spoken_word` (SA3D-3): the reply was spoken as a word spell, which is the cast itself, so the
+## reply's own spell is not resolved again (no second cost, no lock can stall the dispute).
+func answer(choice_id: String, spoken_word := false) -> bool:
 	if phase != PHASE_ANSWER:
 		return false
 	var chosen: Dictionary = {}
@@ -214,7 +221,7 @@ func answer(choice_id: String) -> bool:
 	# A spell reply is the magic itself: the cast resolves first and a failed cast (locked,
 	# no willpower) leaves the choice open so the hero can pick another reply.
 	var reply_spell := StringName(String(chosen.get("spell_id", "")))
-	if not reply_spell.is_empty():
+	if not reply_spell.is_empty() and not spoken_word:
 		var cast := cast_spell(reply_spell)
 		last_cast_failure = StringName(String(cast.get("reason", ""))) if not bool(cast.get("ok", false)) else &""  # gdlint: ignore=max-line-length
 		if not last_cast_failure.is_empty():
@@ -275,6 +282,28 @@ func topic_multiplier(reply_move: Dictionary) -> float:
 		if topic_tags.has(tag):
 			return TOPIC_ON
 	return TOPIC_OFF
+
+
+## The duel's `duel.topic` record ({} without a topic).
+func topic() -> Dictionary:
+	return _topic.duplicate(true)
+
+
+## SA3D-3: a word spell of `element` that names `tags` lands on the opponent. `base` is the word's
+## pressure before the same guilt, trait, topic and buff factors a reply gets (no counter table:
+## a word between replies meets no particular blow). Returns the pressure dealt; 0 once over.
+func land_word(element: StringName, tags: Array, base: float) -> float:
+	if _finished or base <= 0.0:
+		return 0.0
+	var damage := base * PhysicalBlowGuilt.reply_multiplier(_state, element)
+	damage *= SpiritTraits.reply_multiplier(_trait_mods, element)
+	damage *= topic_multiplier({"topic_tags": tags})
+	damage = hero.modifiers.scale_outgoing_damage(damage)
+	opponent.resolve_hit(damage)
+	exchange_resolved.emit(
+		{"kind": "word", "element": String(element), "damage": damage, "pressure_left": opponent.health}
+	)
+	return damage
 
 
 ## The authored topic line the hero speaks for `element`: the first line with the highest overlap

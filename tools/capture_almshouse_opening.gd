@@ -41,9 +41,12 @@ func _init() -> void:
 	duel.call(&"tick", reply_sec * 0.4)
 	await _frames(3)
 	await _save(out + "/duel.png")
-	# A cast reply: its spoken line typed over the arena.
+	# R-1388: slot 1 speaks a word that answers the porter: the line in a bubble over the boy,
+	# the bolt in the element colour mid-flight, the compact cast bar with its cooldown sweep.
 	host.call(&"pick_slot", 0)
-	await _frames(40)
+	await _frames(8)
+	await _save(out + "/word.png")
+	await _frames(32)
 	await _save(out + "/cast.png")
 	# R-1365: Kalev in the hall doorway, camera reframed on him and the boy, on his first line.
 	host.call(&"close")

@@ -6,7 +6,9 @@ extends CanvasLayer
 ## a countdown ring (SD-18); closing restores the previous pause state. Input: hold
 ## `player_guard`, press `player_dodge`, `interact` continues a spoken line, slot keys
 ## `spellforge_element_1..5` pick cards. Keyboard/mouse and gamepad both work through the
-## existing input actions and focusable cards.
+## existing input actions and focusable cards. In the real-time 3D arena (ADR 0038, SA3D-3) the
+## cards give way to word spells cast at any time from a compact cast bar, and the lines are
+## speech bubbles over the fighters instead of the text column.
 
 signal opened(dialogue_id: StringName)
 signal closed(outcome: Dictionary)
@@ -21,6 +23,12 @@ const DIM_ALPHA := 0.22
 const FRAME_TOP_SHARE := 0.34
 const FRAME_BOTTOM_SHARE := 0.5
 const FRAME_ALPHA := 0.88
+## Seconds a speech bubble stays up at least, and per character of its line.
+const BUBBLE_MIN_SEC := 2.5
+const BUBBLE_SEC_PER_CHAR := 0.06
+const BUBBLE_HEIGHT := 2.3
+## The opponent's bubble rides above its spirit image and caption (SpiritFormView), not into them.
+const OPPONENT_BUBBLE_HEIGHT := 3.4
 const SPELL_ACTIONS: Array[StringName] = [
 	&"spellforge_element_1",
 	&"spellforge_element_2",
@@ -39,6 +47,8 @@ var motion: SpiritArenaMotion
 ## Set before attach_arena() when the 3D fighters are glTF character rigs, whose model front is
 ## +Z (Godot's -Z convention would turn the opponent's back to the hero and misread guard facing).
 var model_front_plus_z := false
+## SA3D-3 word spells; set while a duel is open in the real-time arena.
+var words: SpiritWordSpells
 
 var _runner: Node
 var _was_paused := false
@@ -75,6 +85,15 @@ var _hero_body: Node
 var _opponent_body: Node
 var _cell_size := 1
 var _freeze_before := true
+var _frame_bands: Array[Control] = []
+var _cast_bar: SpiritCastBar
+## Speech bubbles over the fighters: "hero" / "opponent" -> {label: Label3D, left: float}.
+var _bubbles: Dictionary = {}
+## Word bolts in flight, by SpiritWordSpells bolt id.
+var _word_bolts: Dictionary = {}
+## The opponent's spoken blow flying at its strike zone during a telegraph.
+var _incoming_bolt: SpiritWordBolt
+var _hero_said := ""
 
 
 func _init() -> void:
@@ -162,6 +181,19 @@ func open(content_db: ContentDB, state: GameState, dialogue_id: StringName) -> b
 	_spell_model = SpellforgeModel.new() as SpellforgeModel
 	_spell_model.configure(state, content_db)
 	_show_spell_hint()
+	if motion != null:
+		words = SpiritWordSpells.new(duel, state)
+		_set_compact(true)
+		# The slots are words now, not the learned spells the 2D hint lists.
+		var names: Array[String] = []
+		for index in mini(words.slot_count(), SPELL_ACTIONS.size()):
+			names.append("%s %s" % [_slot_key_label(SPELL_ACTIONS[index]), String(words.elements[index])])
+		_spell_hint = "Words: " + ", ".join(names)
+		# The first line, phase and replies were presented inside begin(), before the word
+		# spells existed: replay the phase hint and turn any reply cards into the cast bar.
+		_on_phase(duel.phase)
+		if duel.phase == SpiritDuel.PHASE_ANSWER:
+			_on_choices(duel.current_choices())
 	if freeze_world and is_inside_tree():
 		_was_paused = get_tree().paused
 		get_tree().paused = true
@@ -227,6 +259,9 @@ func close() -> void:
 	_composure_bar.visible = true
 	_leave_modal()
 	_spell_model = null
+	_clear_word_nodes()
+	words = null
+	_set_compact(false)
 	visible = false
 	if freeze_world and is_inside_tree():
 		get_tree().paused = _was_paused
@@ -250,6 +285,7 @@ func _process(delta: float) -> void:
 		return
 	_tick_motion(delta)
 	duel.tick(delta)
+	_tick_words(delta)
 	_process_spell_keys()
 	_type_caption(delta)
 	if duel.phase == SpiritDuel.PHASE_TELEGRAPH:
@@ -270,6 +306,17 @@ func _process(delta: float) -> void:
 ## Spellforge controller stands down because the arena counts as a modal overlay.
 func _process_spell_keys() -> void:
 	if _spell_model == null:
+		return
+	if words != null:
+		for index in mini(words.slot_count(), SPELL_ACTIONS.size()):
+			if not InputMap.has_action(SPELL_ACTIONS[index]):
+				continue
+			if not Input.is_action_just_pressed(SPELL_ACTIONS[index]):
+				continue
+			if duel.phase == SpiritDuel.PHASE_TELEGRAPH and _shares_defense_binding(SPELL_ACTIONS[index]):
+				continue
+			cast_word(index)
+			return
 		return
 	# While the reply hotbar is up the slot keys pick a card instead of casting loose magic,
 	# so a spell reply's cast and its spoken line are always one act.
@@ -405,6 +452,8 @@ func _teardown() -> void:
 
 
 func _on_line(speaker_id: StringName, text: String, move: Dictionary) -> void:
+	if motion != null and not _observing:
+		_say(&"hero" if speaker_id == duel.hero_id else &"opponent", text)
 	_line_label.text = ("%s: %s" % [String(speaker_id), text]) if _observing else text
 	_move_label.text = ""
 	if not move.is_empty():
@@ -419,6 +468,11 @@ func _on_line(speaker_id: StringName, text: String, move: Dictionary) -> void:
 
 func _on_choices(choices: Array) -> void:
 	_clear_choices()
+	if words != null:
+		# The cast bar is the reply control here: a gold-rimmed word speaks a reply.
+		_reply_ring.visible = duel.reply_pressure_enabled
+		_refresh_cast_bar()
+		return
 	for choice_value: Variant in choices:
 		var choice: Dictionary = choice_value
 		var spell_id := String(choice.get("spell_id", ""))
@@ -453,7 +507,10 @@ func _on_choices(choices: Array) -> void:
 
 ## Pick the reply card in hotbar slot `index` (0-based), as slot key `index + 1` does.
 ## A blocked card explains itself instead of casting. False when nothing was picked.
+## In the real-time arena the slot is a word spell (cast_word).
 func pick_slot(index: int) -> bool:
+	if words != null:
+		return cast_word(index)
 	if index < 0 or index >= _cards.size():
 		return false
 	return _on_choice_pressed(_cards[index].choice_id)
@@ -464,9 +521,52 @@ func cards() -> Array[SpiritSpellCard]:
 	return _cards.duplicate()
 
 
-## The spoken line of the last cast reply as typed over the arena.
+## The spoken line of the last cast reply as typed over the arena (the hero's last word spell
+## in the real-time arena).
 func cast_caption() -> String:
-	return _caption_label.text
+	return _hero_said if words != null else _caption_label.text
+
+
+## SA3D-3: speak the word spell in `slot` (0-based) at the opponent: a bubble over the hero, a bolt
+## in the element colour, and either the matching reply or a free strike (SpiritWordSpells). A
+## refused word explains itself in the hint line. False when nothing was cast.
+func cast_word(slot: int) -> bool:
+	if words == null or motion == null:
+		return false
+	var result := words.cast(slot, motion.hero_position, motion.opponent_position)
+	if not bool(result.get("ok", false)):
+		_hint_label.text = String(result.get("reason", ""))
+		return false
+	_answered_frame = Engine.get_process_frames()
+	_hero_said = String(result.get("text", ""))
+	_say(&"hero", _hero_said)
+	var bolt: Dictionary = result["bolt"]
+	var node := SpiritWordBolt.new().setup(
+		StringName(String(result["element"])), bolt["from"] as Vector3, bolt["to"] as Vector3
+	)
+	arena_3d.add_child(node)
+	node.set_progress(0.0)
+	_word_bolts[int(bolt["id"])] = node
+	_refresh_cast_bar()
+	return true
+
+
+## The text of the speech bubble over "hero" or "opponent" ("" when none is up).
+func bubble_text(who: StringName) -> String:
+	var bubble: Dictionary = _bubbles.get(who, {})
+	return (bubble["label"] as Label3D).text if not bubble.is_empty() else ""
+
+
+func cast_bar() -> SpiritCastBar:
+	return _cast_bar
+
+
+func incoming_bolt() -> SpiritWordBolt:
+	return _incoming_bolt
+
+
+func word_bolt_count() -> int:
+	return _word_bolts.size()
 
 
 func _on_choice_pressed(choice_id: String) -> bool:
@@ -603,9 +703,11 @@ func _on_phase(phase: StringName) -> void:
 		if phase == SpiritDuel.PHASE_TELEGRAPH:
 			_sync_hero()
 			_decal.show_zone(motion.lock_zone(duel.incoming_move()), arena_3d.center)
+			_throw_incoming(motion.zone)
 		else:
 			motion.clear_zone()
 			_decal.hide_zone()
+			_drop_incoming()
 	match phase:
 		SpiritDuel.PHASE_TELEGRAPH:
 			_caption_label.text = ""
@@ -618,6 +720,10 @@ func _on_phase(phase: StringName) -> void:
 					_binding_label(&"player_guard"), _binding_label(&"player_dodge")
 				]
 			_hint_label.text = _spell_hint
+		SpiritDuel.PHASE_ANSWER when words != null:
+			_hint_label.text = "Speak a word [%s..%s]: a gold-rimmed word answers him." % [
+				_slot_key_label(SPELL_ACTIONS[0]), _slot_key_label(SPELL_ACTIONS[words.slot_count() - 1])
+			]
 		SpiritDuel.PHASE_ANSWER:
 			# The gamepad slot buttons do not fit on the cards, so the hint names the
 			# confirm binding that works for the focused card.
@@ -653,6 +759,10 @@ func _show_retry() -> void:
 	button.pressed.connect(
 		func() -> void:
 			if duel.retry():
+				# A word still in flight from the lost run must not land on the fresh one.
+				if words != null:
+					words.bolts.clear()
+					_clear_word_nodes()
 				_vfx.resync()
 				_clear_choices()
 	)
@@ -681,6 +791,7 @@ func _refresh_bars() -> void:
 	if duel.telegraph_sec > 0.0:
 		_telegraph_arc.parry_fraction = duel.hero.parry_window_sec / duel.telegraph_sec
 	_reply_ring.progress = duel.reply_window_progress()
+	_refresh_cast_bar()
 
 
 func _build_ui() -> void:
@@ -747,6 +858,10 @@ func _build_ui() -> void:
 	_voice_player = AudioStreamPlayer.new()
 	_voice_player.bus = AudioBusService.BUS_VOICE
 	add_child(_voice_player)
+	_cast_bar = SpiritCastBar.new()
+	_cast_bar.name = "CastBar"
+	_cast_bar.visible = false
+	reply_row.add_child(_cast_bar)
 	_hint_label = Label.new()
 	_hint_label.name = "Hint"
 	column.add_child(_hint_label)
@@ -777,6 +892,7 @@ func _add_frame_band(top: bool) -> void:
 	band.anchor_top = 0.0 if top else 1.0 - FRAME_BOTTOM_SHARE
 	band.anchor_bottom = FRAME_TOP_SHARE if top else 1.0
 	add_child(band)
+	_frame_bands.append(band)
 
 
 func _make_bar(parent: Control, caption: String, color: Color) -> ProgressBar:
@@ -795,3 +911,122 @@ func _fill_style(color: Color) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
 	style.bg_color = color
 	return style
+
+
+## SA3D-3 compact HUD: in the real-time arena the dark frame bands, the line column and the reply
+## caption give way to speech bubbles, and the cast bar replaces the reply cards.
+func _set_compact(compact: bool) -> void:
+	for band: Control in _frame_bands:
+		band.visible = not compact
+	_line_label.visible = not compact
+	_move_label.visible = not compact
+	_caption_label.visible = not compact
+	_cast_bar.visible = compact
+	_hero_said = ""
+
+
+func _refresh_cast_bar() -> void:
+	if words == null:
+		return
+	var slots: Array[Dictionary] = []
+	for index in words.slot_count():
+		slots.append(
+			{
+				"element": String(words.elements[index]),
+				"key": _slot_key_label(SPELL_ACTIONS[index]) if index < SPELL_ACTIONS.size() else "",
+				"cooldown": words.cooldown_fraction(index),
+				"answers": not words.answering_choice(index).is_empty(),
+				"blocked": words.block_reason(index) not in ["", SpiritWordSpells.REASON_COOLDOWN],
+			}
+		)
+	_cast_bar.set_slots(slots)
+
+
+## Advance cooldowns, fly the word bolts and age the speech bubbles.
+func _tick_words(delta: float) -> void:
+	if words == null:
+		return
+	for bolt: Dictionary in words.tick(delta):
+		var landed: Node = _word_bolts.get(int(bolt["id"]))
+		_word_bolts.erase(int(bolt["id"]))
+		if landed != null and is_instance_valid(landed):
+			landed.queue_free()
+	for bolt: Dictionary in words.bolts:
+		var node: SpiritWordBolt = _word_bolts.get(int(bolt["id"]))
+		if node != null and is_instance_valid(node):
+			node.set_progress(SpiritWordSpells.bolt_progress(bolt))
+	if _incoming_bolt != null:
+		_incoming_bolt.set_progress(duel.telegraph_progress())
+	for who: StringName in _bubbles.keys():
+		var bubble: Dictionary = _bubbles[who]
+		bubble["left"] = float(bubble["left"]) - delta
+		var label: Label3D = bubble["label"]
+		if float(bubble["left"]) <= 0.0:
+			label.queue_free()
+			_bubbles.erase(who)
+		elif label.is_inside_tree():
+			label.global_position = _bubble_anchor(who)
+
+
+## A speech bubble over the hero or the opponent; a new line replaces the old one.
+func _say(who: StringName, text: String) -> void:
+	if arena_3d == null or motion == null or text.is_empty():
+		return
+	var bubble: Dictionary = _bubbles.get(who, {})
+	var label: Label3D = bubble.get("label")
+	if label == null or not is_instance_valid(label):
+		label = Label3D.new()
+		label.name = "Bubble_%s" % String(who)
+		label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+		label.no_depth_test = true
+		label.pixel_size = 0.004
+		label.font_size = 40
+		label.outline_size = 12
+		label.outline_modulate = Color(0.03, 0.02, 0.06, 0.9)
+		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		label.width = 700.0
+		label.modulate = Color(0.98, 0.92, 0.76) if who == &"hero" else Color(0.95, 0.82, 0.80)
+		arena_3d.add_child(label)
+	label.text = text
+	label.global_position = _bubble_anchor(who)
+	_bubbles[who] = {"label": label, "left": maxf(BUBBLE_MIN_SEC, text.length() * BUBBLE_SEC_PER_CHAR)}
+
+
+## The opponent's blow is a spoken word too: it flies at the strike zone and arrives at impact,
+## so stepping out of the red is visibly stepping out of its path.
+func _throw_incoming(zone: Dictionary) -> void:
+	_drop_incoming()
+	if zone.is_empty() or arena_3d == null:
+		return
+	var target: Vector3 = zone["origin"]
+	if zone["shape"] == SpiritArenaMotion.SHAPE_ARC:
+		target += (zone["direction"] as Vector3) * maxf(0.0, float(zone["reach"]) - SpiritArenaMotion.ARC_EXTRA_REACH)  # gdlint: ignore=max-line-length
+	_incoming_bolt = SpiritWordBolt.new().setup(
+		StringName(String(zone.get("element", ""))), motion.opponent_position, target
+	)
+	arena_3d.add_child(_incoming_bolt)
+	_incoming_bolt.set_progress(0.0)
+
+
+func _drop_incoming() -> void:
+	if _incoming_bolt != null and is_instance_valid(_incoming_bolt):
+		_incoming_bolt.queue_free()
+	_incoming_bolt = null
+
+
+func _clear_word_nodes() -> void:
+	_drop_incoming()
+	for node: Variant in _word_bolts.values():
+		if is_instance_valid(node):
+			(node as Node).queue_free()
+	_word_bolts.clear()
+	for bubble: Dictionary in _bubbles.values():
+		if is_instance_valid(bubble["label"]):
+			(bubble["label"] as Node).queue_free()
+	_bubbles.clear()
+
+
+func _bubble_anchor(who: StringName) -> Vector3:
+	if who == &"hero":
+		return motion.hero_position + Vector3.UP * BUBBLE_HEIGHT
+	return motion.opponent_position + Vector3.UP * OPPONENT_BUBBLE_HEIGHT
