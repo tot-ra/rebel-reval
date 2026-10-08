@@ -1,12 +1,12 @@
 {
   "type": "dialogue",
   "id": "dialogue.prologue.porter_confrontation",
-  "title": "Porter confrontation",
+  "title": "Porter confrontation (spell duel)",
   "confidence": "invented",
   "canon_status": "draft",
   "approval": {
     "status": "draft",
-    "notes": "SD-05 prologue prototype (ADR 0033)."
+    "notes": "SD-05 prologue prototype (ADR 0033); reworked so every reply is a cast spell voiced by a short line."
   },
   "deterministic_offline": {
     "authored": true,
@@ -27,6 +27,7 @@
     ],
     "resolution_node_ids": [
       "resolved_spared",
+      "resolved_broken",
       "resolved_punished",
       "resolved_struck"
     ]
@@ -35,7 +36,7 @@
     {
       "id": "accuse",
       "speaker_id": "char.almshouse_porter",
-      "text": "A loaf is missing from the cold store. You were seen near it, boy.",
+      "text": "A loaf is missing from the cold store. You were seen near it, boy!",
       "move": {
         "kind": "attack",
         "element": "shame",
@@ -46,8 +47,21 @@
       },
       "choices": [
         {
-          "id": "deny",
-          "text": "I did not touch it.",
+          "id": "fire_hands",
+          "text": "Look at your own hands, Hanß. I saw where the barley went.",
+          "target_node_id": "porter_presses",
+          "move": {
+            "kind": "attack",
+            "element": "shame",
+            "stakes": [
+              "secret"
+            ]
+          },
+          "spell_id": "spell.pagan.fireball"
+        },
+        {
+          "id": "ward_rod",
+          "text": "Your rod does not frighten me.",
           "target_node_id": "porter_presses",
           "move": {
             "kind": "defense",
@@ -55,19 +69,21 @@
             "stakes": [
               "respect"
             ]
-          }
+          },
+          "spell_id": "spell.pagan.iron_skin"
         },
         {
-          "id": "explain_child",
-          "text": "The little one was crying with hunger.",
-          "target_node_id": "porter_softens",
+          "id": "still_hunger",
+          "text": "Stand still. The little one is crying for bread.",
+          "target_node_id": "porter_presses",
           "move": {
             "kind": "appeal",
             "element": "love",
             "stakes": [
               "obligation"
             ]
-          }
+          },
+          "spell_id": "spell.pagan.earth_tremor"
         },
         {
           "id": "shove",
@@ -93,7 +109,7 @@
     {
       "id": "porter_presses",
       "speaker_id": "char.almshouse_porter",
-      "text": "Liars get the rod. Say it again, and look at me.",
+      "text": "Liars get the rod. Say it again, and look at me!",
       "move": {
         "kind": "pressure",
         "element": "duty",
@@ -104,16 +120,43 @@
       },
       "choices": [
         {
-          "id": "cite_duty",
-          "text": "Matron said no child goes to bed hungry.",
-          "target_node_id": "porter_softens",
+          "id": "fire_lock",
+          "text": "Every night you lock the cold store. Who are you afraid of?",
+          "target_node_id": "porter_cornered",
+          "move": {
+            "kind": "attack",
+            "element": "fear",
+            "stakes": [
+              "secret"
+            ]
+          },
+          "spell_id": "spell.pagan.fireball"
+        },
+        {
+          "id": "still_duty",
+          "text": "Matron said no child goes to bed hungry. Hear it.",
+          "target_node_id": "porter_cornered",
           "move": {
             "kind": "appeal",
             "element": "duty",
             "stakes": [
               "obligation"
             ]
-          }
+          },
+          "spell_id": "spell.pagan.earth_tremor"
+        },
+        {
+          "id": "ward_hold",
+          "text": "Strike, then. I will not move.",
+          "target_node_id": "porter_cornered",
+          "move": {
+            "kind": "defense",
+            "element": "fear",
+            "stakes": [
+              "respect"
+            ]
+          },
+          "spell_id": "spell.pagan.iron_skin"
         },
         {
           "id": "say_nothing",
@@ -130,15 +173,75 @@
       ]
     },
     {
-      "id": "porter_softens",
+      "id": "porter_cornered",
       "speaker_id": "char.almshouse_porter",
-      "text": "Hm. Take the heel of it to the little one. And you did not hear this from me.",
-      "next_node_id": "resolved_spared"
+      "text": "Enough! I will beat the truth out of you!",
+      "move": {
+        "kind": "attack",
+        "element": "fear",
+        "stakes": [
+          "respect"
+        ],
+        "spirit_image_id": "rod"
+      },
+      "choices": [
+        {
+          "id": "fire_secret",
+          "text": "The key is rusted because you feed no one but yourself.",
+          "target_node_id": "resolved_broken",
+          "move": {
+            "kind": "attack",
+            "element": "fear",
+            "stakes": [
+              "secret"
+            ]
+          },
+          "spell_id": "spell.pagan.fireball"
+        },
+        {
+          "id": "still_mercy",
+          "text": "Take the heel of it to her yourself, Hanß. Stand still, and give.",
+          "target_node_id": "resolved_spared",
+          "move": {
+            "kind": "appeal",
+            "element": "love",
+            "stakes": [
+              "obligation"
+            ]
+          },
+          "spell_id": "spell.pagan.earth_tremor"
+        },
+        {
+          "id": "ward_shame",
+          "text": "Strike me, and the whole house will see who you are.",
+          "target_node_id": "resolved_spared",
+          "move": {
+            "kind": "defense",
+            "element": "shame",
+            "stakes": [
+              "respect"
+            ]
+          },
+          "spell_id": "spell.pagan.iron_skin"
+        }
+      ]
     },
     {
       "id": "resolved_spared",
       "speaker_id": "char.almshouse_porter",
-      "text": "Go. Before the matron sees you."
+      "text": "Hm. Take the heel of it to the little one. And you did not hear this from me."
+    },
+    {
+      "id": "resolved_broken",
+      "speaker_id": "char.almshouse_porter",
+      "text": "Stop it! Take the loaf. Take the key. God help me, only stop looking at me like that.",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.prologue.broke_porter",
+          "value": true
+        }
+      ]
     },
     {
       "id": "resolved_punished",

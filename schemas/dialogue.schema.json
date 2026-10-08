@@ -165,6 +165,11 @@
                 "move": {
                   "$ref": "common.schema.json#/$defs/duel_move"
                 },
+                "spell_id": {
+                  "type": "string",
+                  "pattern": "^(spell|rite)\\.[a-z0-9_.]+$",
+                  "description": "Duel replies only: casting this granted spell or rite IS the reply; `text` is the spoken line that voices the cast."
+                },
                 "comprehension": {
                   "type": "object",
                   "additionalProperties": false,

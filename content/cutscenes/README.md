@@ -8,7 +8,7 @@ loaded by `ContentDB` and played by `CutscenePlayer`. Schema:
 | Record | Chapter | Shots | Chains to |
 |---|---|---|---|
 | `cutscene.prologue.conquest` | I. The Forging of Chains (1219-1343) | 6 | the almshouse scene |
-| `cutscene.prologue.almshouse_dawn` | II. The almshouse of the Holy Spirit | 3 | returns to the host scene |
+| `cutscene.prologue.almshouse_dawn` | II. The almshouse of the Holy Spirit | 3 | returns to the host scene (not played by the shortened opening) |
 | `cutscene.prologue.taken_in` | III. The forge | 3 | the forge, spawn `smithy_start` |
 
 Each shot carries an `authoring` block with the `direction`, the `image_prompt` that produced

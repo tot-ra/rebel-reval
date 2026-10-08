@@ -39,6 +39,8 @@ var _composure_bar: ProgressBar
 var _pressure_bar: ProgressBar
 var _telegraph_bar: ProgressBar
 var _choices_box: VBoxContainer
+## Choice ids of the current reply wheel that cast a spell, in on-screen order (keys 1..n).
+var _spell_choice_ids: Array[String] = []
 
 
 func _init() -> void:
@@ -170,6 +172,14 @@ func _process(delta: float) -> void:
 func _process_spell_keys() -> void:
 	if _spell_model == null:
 		return
+	# When the replies themselves are spells, the number keys pick a reply instead of
+	# casting loose magic, so the cast and its spoken line are always one act.
+	if not _spell_choice_ids.is_empty():
+		for index in mini(_spell_choice_ids.size(), SPELL_ACTIONS.size()):
+			if InputMap.has_action(SPELL_ACTIONS[index]) and Input.is_action_just_pressed(SPELL_ACTIONS[index]):  # gdlint: ignore=max-line-length
+				_on_choice_pressed(_spell_choice_ids[index])
+				return
+		return
 	for index in SPELL_ACTIONS.size():
 		if not InputMap.has_action(SPELL_ACTIONS[index]):
 			continue
@@ -180,6 +190,10 @@ func _process_spell_keys() -> void:
 			var result := duel.cast_spell(StringName(String(spells[index]["id"])))
 			if bool(result.get("ok", false)):
 				_hint_label.text = "%s cast." % String(spells[index].get("name", ""))
+			else:
+				_hint_label.text = "%s fails (%s)." % [
+					String(spells[index].get("name", "")), String(result.get("reason", ""))
+				]
 
 
 func _show_spell_hint() -> void:
@@ -243,7 +257,14 @@ func _on_choices(choices: Array) -> void:
 		var move: Dictionary = choice.get("move", {})
 		var button := Button.new()
 		button.text = String(choice.get("text", ""))
-		if not move.is_empty():
+		var spell_id := String(choice.get("spell_id", ""))
+		if not spell_id.is_empty():
+			# The spell is the choice; the spoken line only voices it.
+			_spell_choice_ids.append(String(choice.get("id", "")))
+			button.text = "%d  %s  -  \"%s\"" % [
+				_spell_choice_ids.size(), _spell_label(spell_id), button.text
+			]
+		elif not move.is_empty():
 			button.text += "  [%s / %s]" % [move.get("kind", ""), move.get("element", "")]
 		button.disabled = not bool(choice.get("enabled", false))
 		button.pressed.connect(_on_choice_pressed.bind(String(choice.get("id", ""))))
@@ -255,7 +276,29 @@ func _on_choices(choices: Array) -> void:
 
 
 func _on_choice_pressed(choice_id: String) -> void:
-	duel.answer(choice_id)
+	if not duel.answer(choice_id) and not duel.last_cast_failure.is_empty():
+		_hint_label.text = SpellforgeModel.FAILURE_TEXT.get(duel.last_cast_failure, "The spell fails.")
+
+
+## "Fireball (2 willpower)" for a spell reply button.
+func _spell_label(spell_id: String) -> String:
+	var record := _content_db_spell(spell_id)
+	var cost: Dictionary = record.get("cost", {})
+	return "%s (%d %s)" % [
+		String(record.get("name", spell_id)),
+		int(cost.get("amount", 0)),
+		String(cost.get("resource", "resource.willpower")).trim_prefix("resource."),
+	]
+
+
+func _content_db_spell(spell_id: String) -> Dictionary:
+	if duel.content_db() == null:
+		return {}
+	return (
+		duel.content_db().get_spell(StringName(spell_id))
+		if spell_id.begins_with("spell.")
+		else duel.content_db().get_rite(StringName(spell_id))
+	)
 
 
 func _on_phase(phase: StringName) -> void:
@@ -302,6 +345,7 @@ func _show_retry() -> void:
 
 
 func _clear_choices() -> void:
+	_spell_choice_ids.clear()
 	for child in _choices_box.get_children():
 		_choices_box.remove_child(child)
 		child.queue_free()

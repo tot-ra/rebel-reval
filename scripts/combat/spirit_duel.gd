@@ -30,7 +30,7 @@ const RESOLVE_RECOVERY_PER_EXCHANGE := 25.0
 const PARRY_RETURN_PRESSURE := 15.0
 ## Blows that land on the hero's composure; other kinds are spoken without a telegraph.
 const INCOMING_DAMAGE: Dictionary = {&"attack": 20.0, &"pressure": 14.0, &"feint": 10.0}
-## Reply kind -> the incoming kind it counters (defense > attack > feint > defense; appeal <> pressure).
+## Reply kind -> the incoming kind it counters (defense > attack > feint > defense; appeal <> pressure).  # gdlint: ignore=max-line-length
 const COUNTERS: Dictionary = {
 	&"defense": &"attack",
 	&"attack": &"feint",
@@ -56,6 +56,8 @@ var opponent := CombatVitals.new()
 var checkpoint := EncounterCheckpoint.new()
 var phase: StringName = PHASE_IDLE
 var last_outcome: Dictionary = {}
+## Why the last spell reply failed (a MagicResolver failure id), empty after a clean cast.
+var last_cast_failure: StringName = &""
 
 var _runner: Node
 var _state: GameState
@@ -80,6 +82,10 @@ func begin(runner: Node, content_db: ContentDB, state: GameState, dialogue_id: S
 	_state = state
 	_dialogue_id = dialogue_id
 	return _start_run()
+
+
+func content_db() -> ContentDB:
+	return _content_db
 
 
 func is_over() -> bool:
@@ -147,6 +153,14 @@ func answer(choice_id: String) -> bool:
 			break
 	if chosen.is_empty():
 		return false
+	# A spell reply is the magic itself: the cast resolves first and a failed cast (locked,
+	# no willpower) leaves the choice open so the hero can pick another reply.
+	var reply_spell := StringName(String(chosen.get("spell_id", "")))
+	if not reply_spell.is_empty():
+		var cast := cast_spell(reply_spell)
+		last_cast_failure = StringName(String(cast.get("reason", ""))) if not bool(cast.get("ok", false)) else &""  # gdlint: ignore=max-line-length
+		if not last_cast_failure.is_empty():
+			return false
 	var reply_move: Dictionary = chosen.get("move", {})
 	var reply_element := StringName(String(reply_move.get("element", "")))
 	var damage := reply_damage(reply_move, _incoming) * PhysicalBlowGuilt.reply_multiplier(
@@ -228,7 +242,7 @@ func cast_spell(target_id: StringName) -> Dictionary:
 		arena_effect = &"buff"
 	result["arena_effect"] = arena_effect
 	exchange_resolved.emit(
-		{"kind": "spell", "spell_id": String(target_id), "arena_effect": String(arena_effect), "pressure_left": opponent.health}
+		{"kind": "spell", "spell_id": String(target_id), "arena_effect": String(arena_effect), "pressure_left": opponent.health}  # gdlint: ignore=max-line-length
 	)
 	return result
 
@@ -261,7 +275,7 @@ func present_line(
 		_set_phase(PHASE_LINE)
 
 
-## What an unreadable (foreign, not understood) move reveals: the kind of blow, not its element or stakes.
+## What an unreadable (foreign, not understood) move reveals: the kind of blow, not its element or stakes.  # gdlint: ignore=max-line-length
 static func kind_only(move: Dictionary) -> Dictionary:
 	return {} if move.is_empty() else {"kind": move.get("kind", "")}
 

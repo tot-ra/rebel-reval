@@ -16,17 +16,10 @@
   },
   "participants": [
     "char.kalev",
-    "char.apprentice",
-    "char.almshouse_matron"
+    "char.apprentice"
   ],
-  "start_node_id": "matron_introduces",
+  "start_node_id": "kalev_looks",
   "nodes": [
-    {
-      "id": "matron_introduces",
-      "speaker_id": "char.almshouse_matron",
-      "text": "This is the boy. Quiet. Eats little. Stares, sometimes. The priest says he is harmless.",
-      "next_node_id": "kalev_looks"
-    },
     {
       "id": "kalev_looks",
       "speaker_id": "char.kalev",

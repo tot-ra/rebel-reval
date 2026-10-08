@@ -34,26 +34,32 @@ func test_the_opening_cutscene_chains_into_the_almshouse() -> void:
 
 func test_the_prologue_content_is_loaded_in_the_session() -> void:
 	for dialogue_id: StringName in [
-		AlmshouseOpening.QUARREL, AlmshouseOpening.CONFRONTATION, AlmshouseOpening.KALEV_ARRIVES
+		AlmshouseOpening.CONFRONTATION, AlmshouseOpening.KALEV_ARRIVES
 	]:
 		assert_false(SessionState.content_db.get_dialogue(dialogue_id).is_empty(), String(dialogue_id))
 
 
-func test_the_opening_runs_title_quarrel_duel_and_kalev_then_finishes() -> void:
+func test_the_opening_runs_title_spell_duel_and_kalev_then_finishes() -> void:
 	var opening := _opening()
 	var done := [false]
 	opening.finished.connect(func() -> void: done[0] = true)
 	assert_eq(opening.stage, AlmshouseOpening.STAGE_TITLE)
-	assert_true(opening.begin_quarrel())
-	assert_eq(opening.stage, AlmshouseOpening.STAGE_QUARREL)
-	opening.host().observation.play_all()
-	opening.host().close()
+	assert_true(opening.begin_duel())
 	assert_eq(opening.stage, AlmshouseOpening.STAGE_CONFRONTATION)
+	assert_true(SessionState.state.has_magic_grant(&"spell.pagan.fireball"), "first spells granted")
 	var duel := opening.host().duel
 	duel.tick(SpiritDuel.TELEGRAPH_SEC + 0.01)
 	assert_eq(duel.phase, SpiritDuel.PHASE_ANSWER, "phase before answering")
-	assert_true(duel.answer("explain_child"), "answer")
-	assert_true(duel.acknowledge(), "acknowledge")
+	# Every reply is a cast: the spell lands pressure on the porter and spends willpower.
+	var willpower_before := SessionState.state.get_magic_resource(GameState.MAGIC_RESOURCE_WILLPOWER)
+	assert_true(duel.answer("fire_hands"), "cast fireball")
+	assert_true(duel.opponent.health < SpiritDuel.PRESSURE_MAX - 18.0, "spell + reply hurt him")
+	assert_true(SessionState.state.get_magic_resource(GameState.MAGIC_RESOURCE_WILLPOWER) < willpower_before)  # gdlint: ignore=max-line-length
+	duel.tick(SpiritDuel.TELEGRAPH_SEC + 0.01)
+	assert_true(duel.answer("still_duty"), "cast earth tremor")
+	duel.tick(SpiritDuel.TELEGRAPH_SEC + 0.01)
+	assert_true(duel.answer("still_mercy"), "final cast")
+	assert_eq(duel.last_outcome["resolution_node_id"], "resolved_spared")
 	opening.host().close()
 	assert_eq(opening.stage, AlmshouseOpening.STAGE_KALEV)
 	var runner := opening.dialogue_runner()
@@ -72,6 +78,18 @@ func test_the_opening_runs_title_quarrel_duel_and_kalev_then_finishes() -> void:
 	assert_eq(opening.stage, AlmshouseOpening.STAGE_DONE)
 	assert_true(SessionState.state.get_flag(&"flag.prologue.apprenticed"))
 	assert_false(SessionState.state.in_spirit_world)
+	opening.free()
+
+
+func test_a_spell_reply_without_willpower_is_refused_and_leaves_the_choice_open() -> void:
+	var opening := _opening()
+	opening.begin_duel()
+	var duel := opening.host().duel
+	SessionState.state.set_magic_resource(GameState.MAGIC_RESOURCE_WILLPOWER, 0)
+	duel.tick(SpiritDuel.TELEGRAPH_SEC + 0.01)
+	assert_false(duel.answer("fire_hands"))
+	assert_eq(duel.last_cast_failure, MagicResolver.FAILURE_INSUFFICIENT_WILLPOWER)
+	assert_eq(duel.phase, SpiritDuel.PHASE_ANSWER)
 	opening.free()
 
 

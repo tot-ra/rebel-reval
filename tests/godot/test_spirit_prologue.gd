@@ -30,6 +30,10 @@ func before_each() -> void:
 	_runner = RunnerScript.new()
 	root.add_child(_runner)
 	_duel = SpiritDuel.new()
+	# Duel replies are spells, so the hero needs the starter magic and willpower.
+	for grant_id: StringName in AlmshouseOpening.STARTER_GRANTS:
+		MagicResolver.apply_grant_operation(_state, _db, grant_id)
+	_state.set_magic_resource(GameState.MAGIC_RESOURCE_WILLPOWER, 8)
 
 
 func test_cast_and_dialogues_are_loaded() -> void:
@@ -48,33 +52,40 @@ func test_observed_quarrel_reaches_its_resolution() -> void:
 	assert_true(_runner.get_duel().get("resolution_node_ids").has("porter_yields"))
 
 
-func test_empathy_path_spares_the_hero() -> void:
+func test_mercy_path_spares_the_hero() -> void:
 	assert_true(_duel.begin(_runner, _db, _state, CONFRONT))
 	_duel.tick(SpiritDuel.TELEGRAPH_SEC + 0.01)
-	assert_true(_duel.answer("explain_child"))
-	assert_eq(_duel.phase, SpiritDuel.PHASE_LINE)
-	assert_true(_duel.acknowledge())
+	assert_true(_duel.answer("still_hunger"))
+	_duel.tick(SpiritDuel.TELEGRAPH_SEC + 0.01)
+	assert_true(_duel.answer("still_duty"))
+	_duel.tick(SpiritDuel.TELEGRAPH_SEC + 0.01)
+	assert_true(_duel.answer("still_mercy"))
 	assert_eq(_duel.last_outcome["resolution_node_id"], "resolved_spared")
 	assert_false(_state.get_flag(&"flag.prologue.struck_porter"))
 
 
-func test_denial_then_duty_also_spares_and_takes_two_blows() -> void:
+func test_fire_path_breaks_the_porter() -> void:
+	assert_true(_duel.begin(_runner, _db, _state, CONFRONT))
+	for choice_id in ["fire_hands", "fire_lock", "fire_secret"]:
+		_duel.tick(SpiritDuel.TELEGRAPH_SEC + 0.01)
+		assert_true(_duel.answer(choice_id), choice_id)
+	assert_eq(_duel.last_outcome["resolution_node_id"], "resolved_broken")
+	assert_true(_state.get_flag(&"flag.prologue.broke_porter"))
+
+
+func test_spell_replies_spend_willpower_and_stop_when_it_runs_out() -> void:
+	_state.set_magic_resource(GameState.MAGIC_RESOURCE_WILLPOWER, 1)
 	assert_true(_duel.begin(_runner, _db, _state, CONFRONT))
 	_duel.tick(SpiritDuel.TELEGRAPH_SEC + 0.01)
-	assert_true(_duel.answer("deny"))
-	assert_eq(_duel.opponent.health, SpiritDuel.PRESSURE_MAX - SpiritDuel.REPLY_COUNTER)
-	assert_eq(_duel.phase, SpiritDuel.PHASE_TELEGRAPH)
-	_duel.tick(SpiritDuel.TELEGRAPH_SEC + 0.01)
-	assert_eq(_duel.hero.health, SpiritDuel.COMPOSURE_MAX - 20.0 - 14.0)
-	assert_true(_duel.answer("cite_duty"))
-	assert_true(_duel.acknowledge())
-	assert_eq(_duel.last_outcome["resolution_node_id"], "resolved_spared")
+	assert_false(_duel.answer("fire_hands"))
+	assert_eq(_duel.phase, SpiritDuel.PHASE_ANSWER)
+	assert_true(_duel.answer("still_hunger"), "earth tremor costs 1")
 
 
 func test_silence_is_punished_and_flagged() -> void:
 	assert_true(_duel.begin(_runner, _db, _state, CONFRONT))
 	_duel.tick(SpiritDuel.TELEGRAPH_SEC + 0.01)
-	assert_true(_duel.answer("deny"))
+	assert_true(_duel.answer("ward_rod"))
 	_duel.tick(SpiritDuel.TELEGRAPH_SEC + 0.01)
 	assert_true(_duel.answer("say_nothing"))
 	assert_eq(_duel.last_outcome["resolution_node_id"], "resolved_punished")
@@ -93,7 +104,6 @@ func test_kalev_takes_the_apprentice() -> void:
 	var presenter: RefCounted = TestPresenterScript.new()
 	_runner.configure(_db, _state, presenter)
 	assert_true(_runner.start(KALEV))
-	_runner.advance_for_test()
 	_runner.advance_for_test()
 	assert_true(_runner.select_choice("stare"))
 	assert_true(_state.get_flag(&"flag.prologue.apprenticed"))

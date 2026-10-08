@@ -350,6 +350,8 @@ func _resolve_choice(choice: Dictionary) -> Dictionary:
 		"enabled": enabled,
 		"disabled_reason": disabled_reason,
 		"move": _move_of(choice),
+		# Duel replies cast this spell as the reply itself; `text` only voices it.
+		"spell_id": String(choice.get("spell_id", "")),
 	}
 
 
