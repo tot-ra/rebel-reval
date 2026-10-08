@@ -136,6 +136,11 @@ func _shots(plan: CityPlan) -> Array[Dictionary]:
 		var yc := CityPlan.points(yard["polygon"])[0]
 		shots.append({"name": "harbour_kalamaja", "eye": Vector3(yc.x - 18.0, 8.0, yc.y + 24.0), "look": Vector3(yc.x + 8.0, 1.5, yc.y - 6.0), "fov": 60.0, "focus": yc})
 		shots.append({"name": "harbour_kalamaja_eye", "eye": Vector3(yc.x + 2.0, plan.ground_height(yc) + 1.8, yc.y + 14.0), "look": Vector3(yc.x + 6.0, 1.2, yc.y - 6.0), "fov": 60.0, "focus": yc})
+	var orchard := _feature(plan, &"orchard")
+	if not orchard.is_empty():
+		var oc: Vector2 = orchard["centre"]
+		var og: float = plan.ground_height(oc)
+		shots.append({"name": "orchard", "eye": Vector3(oc.x + 18.0, og + 6.0, oc.y + 18.0), "look": Vector3(oc.x, og + 1.5, oc.y), "fov": 60.0, "focus": oc})  # gdlint: ignore=max-line-length
 	var pasture := _feature(plan, &"pasture")
 	if not pasture.is_empty():
 		var c: Vector2 = pasture["centre"]

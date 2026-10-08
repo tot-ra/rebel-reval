@@ -33,6 +33,30 @@ func test_no_tree_or_building_stands_in_a_field() -> void:
 		assert_eq(plan.building_at(f["centre"]), -1, "%s holds no building" % f["id"])
 
 
+func test_orchards_hold_fruit_trees_and_stay_clear_of_fields() -> void:
+	var plan := _plan()
+	var orchards: Array = plan.data.get("orchards", [])
+	assert_true(orchards.size() >= 15, "fenced fruit gardens round the farmsteads")
+	var fruit := {&"apple": true, &"cherry": true, &"plum": true, &"pear": true}
+	var seen := {}
+	for o: Dictionary in orchards:
+		var poly := CityPlan.points(o["polygon"])
+		var inside := 0
+		for t: Array in plan.data["trees"]:
+			if Geometry2D.is_point_in_polygon(Vector2(t[0], t[1]), poly):
+				inside += 1
+				assert_true(fruit.has(StringName(t[2])), "%s holds only fruit trees, not %s" % [o["id"], t[2]])
+				seen[StringName(t[2])] = true
+		assert_eq(inside, int(o["trees"]), "%s tree count matches the plan" % o["id"])
+	assert_true(seen.has(&"apple") and seen.has(&"cherry"), "apple and cherry are planted")
+	for f in CityFarmland.features_for(plan):
+		if f["kind"] != &"orchard":
+			continue
+		for g in CityFarmland.features_for(plan):
+			if g["kind"] == &"field":
+				assert_false(Geometry2D.intersect_polygons(f["polygon"], g["polygon"]).size() > 0, "%s clear of %s" % [f["id"], g["id"]])  # gdlint: ignore=max-line-length
+
+
 func test_crops_follow_the_calendar() -> void:
 	# 21 April (day 111): winter grain is green and low, spring grain only sown.
 	assert_true(CityFarmland.growth(&"winter", 111) > 0.25)

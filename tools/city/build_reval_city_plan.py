@@ -1213,9 +1213,9 @@ def build(args) -> dict:
     # ---------------- vegetation and fields ----------------
     # Site buildings and their open reserves keep trees and shrubs off.
     occupied_by = buildings + [{"footprint": poly} for so in site_out for poly in so["footprints"] + [so["reserve"]] if poly]
-    trees, fields, pastures, woods, farmsteads = plant(overlay, occupied_by, streets, circuit_poly, toompea_edge, trace, h_at_m, mpu, x0, y0, x1, y1)
+    trees, fields, pastures, woods, farmsteads, orchards = plant(overlay, occupied_by, streets, circuit_poly, toompea_edge, trace, h_at_m, mpu, x0, y0, x1, y1)
     bushes = shrubs(overlay, occupied_by, streets, circuit_poly, toompea_edge, trace, anchors, h_at_m, mpu, x0, y0, x1, y1)
-    bushes = drop_inside([[tuple(q) for q in f["polygon"]] for f in fields + pastures], bushes)
+    bushes = drop_inside([[tuple(q) for q in f["polygon"]] for f in fields + pastures + orchards], bushes)
 
     for s in streets:
         s["points"] = wu(s.pop("points_m"))
@@ -1259,6 +1259,7 @@ def build(args) -> dict:
         ],
         "fields": fields,
         "pastures": pastures,
+        "orchards": orchards,
         "woods": woods,
         "farmsteads": farmsteads,
         "bridges": bridges,
@@ -1507,11 +1508,11 @@ def plant(overlay, buildings, streets, circuit_poly, toompea_edge, river, h_at_m
         if rng.random() < 0.55:
             continue
         add(p, rng.choice(["oak", "birch", "birch", "ash", "spruce", "pine"]), rng.uniform(0.85, 1.35))
-    fields, pastures, woods, farmsteads = countryside(
+    fields, pastures, woods, farmsteads, orchards = countryside(
         overlay, buildings, streets, circuit_poly, toompea_edge, h_at_m, mpu, x0, y0, x1, y1, free, free_static, add, rng, trees
     )
     trees.sort()
-    return trees, fields, pastures, woods, farmsteads
+    return trees, fields, pastures, woods, farmsteads, orchards
 
 
 # ---------------------------------------------------------------------------
@@ -1707,6 +1708,58 @@ def countryside(overlay, buildings, streets, circuit_poly, toompea_edge, h_at_m,
         if 60 < d < 600 and 1.2 < h_at_m(*p) < 6.0:
             if sum(1 for pa in pastures if pa["kind"] == "meadow") < 10:
                 add_pasture("meadow", p, crng.uniform(24, 40), [{"species": "sheep", "count": 3}, {"species": "goose", "count": 3}], False, 500 + i)
+    # ---- orchards: fenced fruit gardens (apple, cherry, plum, pear) ----
+    # Claimed before the fields so strips go round them. One beside most
+    # farmsteads, plus a few on dry ground near the walls (town gardeners).
+    # Trees stand in a regular grid with a little jitter, as planted rows do.
+    orchards = []
+    orchard_trees = []
+
+    def add_orchard(c, ang, w, L, seed):
+        ring = strip_ring_o(c, ang, w, L)
+        pts = ring + [poly_centroid(ring)]
+        if any(in_wood(q) or not open_land(q, 1.5, 0.3) or dist_town(q) < 28 for q in pts) or (footprint_cells(ring, fcell, 0.5) & taken):
+            return False
+        taken.update(footprint_cells(ring, fcell, 0.5))
+        orng = random.Random(seed)
+        # one or two dominant kinds per orchard; apple leads (northern orchard mix)
+        mix = orng.choice([["apple"] * 5 + ["cherry"], ["apple"] * 3 + ["pear", "plum"], ["cherry"] * 3 + ["apple"] * 2 + ["plum"], ["apple"] * 4 + ["cherry", "plum", "pear"]])
+        ca, sa = math.cos(ang), math.sin(ang)
+        step = orng.uniform(5.2, 6.4)
+        n_along, n_across = int((L - 4.0) / step), int((w - 4.0) / step)
+        count = 0
+        for i in range(n_along):
+            for j in range(n_across):
+                if orng.random() < 0.08:
+                    continue  # a lost or felled tree
+                u = (i - (n_along - 1) / 2) * step + orng.uniform(-0.5, 0.5)
+                v = (j - (n_across - 1) / 2) * step + orng.uniform(-0.5, 0.5)
+                orchard_trees.append(((c[0] + ca * u - sa * v, c[1] + sa * u + ca * v), orng.choice(mix), orng.uniform(0.75, 1.05)))
+                count += 1
+        if count < 4:
+            return False
+        orchards.append({"id": "orchard.%02d" % len(orchards), "fence": True, "trees": count,
+                         "polygon": [[round(q[0] / mpu, 2), round(q[1] / mpu, 2)] for q in ring]})
+        return True
+
+    def strip_ring_o(c, ang, w, L):
+        ca, sa = math.cos(ang), math.sin(ang)
+        return [(c[0] + ca * sx * L / 2 - sa * sy * w / 2, c[1] + sa * sx * L / 2 + ca * sy * w / 2) for sx, sy in ((-1, -1), (1, -1), (1, 1), (-1, 1))]
+
+    orng_ = random.Random(6203)
+    for fs in farmsteads:
+        if orng_.random() < 0.3:
+            continue
+        for attempt in range(14):
+            a = orng_.uniform(0, math.tau)
+            c = (fs["at"][0] * mpu + math.cos(a) * orng_.uniform(34, 58), fs["at"][1] * mpu + math.sin(a) * orng_.uniform(34, 58))
+            if add_orchard(c, orng_.uniform(0, math.pi), orng_.uniform(24, 34), orng_.uniform(30, 44), 7000 + len(orchards) * 31 + attempt):
+                break
+    for i in range(400):
+        p = (orng_.uniform(x0 + 40, x1 - 40), orng_.uniform(y0 + 40, y1 - 40))
+        if 45 < dist_town(p) < 260 and len(orchards) < 30:
+            add_orchard(p, orng_.uniform(0, math.pi), orng_.uniform(26, 38), orng_.uniform(34, 50), 9000 + i)
+
     # ---- farmland: strip blocks on dry, gentle ground near the town ----
     def strip_ring(c, ang, w, L):
         ca, sa = math.cos(ang), math.sin(ang)
@@ -1769,9 +1822,12 @@ def countryside(overlay, buildings, streets, circuit_poly, toompea_edge, h_at_m,
             placed += 1
 
     # no trees stand in a field or pasture
-    rings = [[(q[0] * mpu, q[1] * mpu) for q in f["polygon"]] for f in fields + pastures]
+    rings = [[(q[0] * mpu, q[1] * mpu) for q in f["polygon"]] for f in fields + pastures + orchards]
     trees[:] = drop_inside(rings, trees, mpu)
-    return fields, pastures, woods, farmsteads
+    # the orchard's own trees go in after the clearing above
+    for p, sp, sc in orchard_trees:
+        add(p, sp, sc)
+    return fields, pastures, woods, farmsteads, orchards
 
 
 
@@ -2382,6 +2438,8 @@ def render_minimap(plan, height_wu):
         dr.polygon([T(p) for p in f["polygon"]], fill=tone.get(f.get("sowing"), (150, 128, 92)))
     for pa in plan.get("pastures", []):
         dr.polygon([T(p) for p in pa["polygon"]], fill=(150, 168, 108), outline=(112, 98, 72) if pa["fence"] else None)
+    for orc in plan.get("orchards", []):
+        dr.polygon([T(p) for p in orc["polygon"]], fill=(132, 160, 92), outline=(112, 98, 72))
     dr.polygon([T(a["at"]) for a in plan["circuit"]], fill=(170, 160, 135))
     dr.polygon([T(p) for p in plan["toompea_edge"]], fill=(175, 168, 140))
     hj = plan["harjapea"]

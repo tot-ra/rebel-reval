@@ -144,6 +144,21 @@ static func features_for(city_plan: CityPlan) -> Array[Dictionary]:
 				"radius": _radius(poly, centre),
 			}
 		)
+	# Fenced fruit gardens: the trees themselves are plan `trees` (apple, cherry,
+	# plum, pear); the feature only streams the enclosure fence.
+	for o: Dictionary in city_plan.data.get("orchards", []):
+		var poly := CityPlan.points(o["polygon"])
+		var centre := _centroid(poly)
+		out.append(
+			{
+				"id": String(o["id"]),
+				"kind": &"orchard",
+				"fence": bool(o["fence"]),
+				"polygon": poly,
+				"centre": centre,
+				"radius": _radius(poly, centre),
+			}
+		)
 	return out
 
 
@@ -211,6 +226,9 @@ func _build(feature: Dictionary) -> Node3D:
 		_plant_field(root, feature, rng)
 		if feature["sowing"] == &"fallow" and rng.randf() < 0.4:
 			_hay_rick(root, feature, rng)
+	elif feature["kind"] == &"orchard":
+		if feature["fence"]:
+			_fence(root, feature)
 	else:
 		if feature["fence"]:
 			_fence(root, feature)
