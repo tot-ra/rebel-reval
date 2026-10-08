@@ -27,6 +27,10 @@ const PILOT_TERRAINS: Array[StringName] = [
 ]
 
 
+## Coverage only: this passes as long as *something* plays, so it cannot catch a
+## stand-in from the wrong material. That guard is
+## test_sfx_surface_resolver.gd::test_stand_ins_never_name_another_material
+## (R-1383); do not treat this test as proof that a surface sounds right.
 func test_every_surface_and_gait_resolves_to_a_catalog_entry() -> void:
 	var catalog := SfxCatalog.load_default()
 	for surface: StringName in SurfaceResolver.SURFACES:

@@ -68,25 +68,30 @@ const TERRAIN_SURFACES: Dictionary = {
 ## fallback target even though it is not a first-cut surface.
 const VOCABULARY_MUD := &"mud"
 
-## Audible stand-ins while a surface has no pool of its own. Chains are flat
-## data, not a guess at play time, and are not resolved recursively: list every
-## step. ADR 0035 requires placeholders to be replaceable by catalog ID without
-## touching code, so adding sfx.footstep.stone.walk silently retires the wood
-## stand-in below.
+## Stand-ins while a surface has no pool of its own. Chains are flat data, not a
+## guess at play time, and are not resolved recursively: list every step. ADR
+## 0035 requires placeholders to be replaceable by catalog ID without touching
+## code, so adding sfx.footstep.stone.walk is enough to make stone audible.
 ##
-## Chains are grouped by acoustic family, and a dry surface must never fall
-## through to the wet pool (R-1382). Only two pools exist so far, so a stand-in
-## is always the wrong material; a dry tap on sand or cobbles is a far smaller
-## error than a wet squelch, which reads as a swamp on a beach.
+## A stand-in may only name the *same* material, never a neighbouring one.
+## R-1382 kept cross-material chains (stone and sand on the wood pool, grass on
+## the mud pool) and the result was audibly wrong on every map outside the
+## slice: walking world_saaremaa knocked like a plank on the beach and squelched
+## like a swamp on the meadows. Listeners classify surface *type* reliably
+## (Turchet/Nordahl/Serafin), so a wrong type is heard immediately, while
+## missing steps are not heard as a defect. Silence is therefore the correct
+## placeholder until the pool exists.
+##
+## Only dirt keeps a chain: the six-surface first cut deliberately folds mud
+## into dirt, so sfx.footstep.mud.walk is that surface's own pool, not a
+## neighbour's.
 const SURFACE_FALLBACKS: Dictionary = {
-	# Hard and dry -> the wood pool.
 	SURFACE_WOOD: [],
-	SURFACE_STONE: [SURFACE_WOOD],
-	SURFACE_GRAVEL: [SURFACE_WOOD],
-	# Soft, damp or wet -> the mud pool.
+	SURFACE_STONE: [],
+	SURFACE_GRAVEL: [],
 	SURFACE_DIRT: [VOCABULARY_MUD],
-	SURFACE_GRASS: [SURFACE_DIRT, VOCABULARY_MUD],
-	SURFACE_WATER_SHALLOW: [VOCABULARY_MUD, SURFACE_DIRT],
+	SURFACE_GRASS: [],
+	SURFACE_WATER_SHALLOW: [],
 }
 
 

@@ -63,6 +63,98 @@
       "spatial": "3d"
     },
     {
+      "id": "sfx.footstep.stone.walk",
+      "bus": "Footsteps",
+      "streams": [
+        "res://sounds/footsteps/stone_walk_01.mp3",
+        "res://sounds/footsteps/stone_walk_02.mp3",
+        "res://sounds/footsteps/stone_walk_03.mp3",
+        "res://sounds/footsteps/stone_walk_04.mp3"
+      ],
+      "tier": "B",
+      "source_ids": [
+        "sounds.footsteps.stone_walk_01",
+        "sounds.footsteps.stone_walk_02",
+        "sounds.footsteps.stone_walk_03",
+        "sounds.footsteps.stone_walk_04"
+      ],
+      "pitch_jitter": 0.08,
+      "volume_jitter_db": 2.0,
+      "no_repeat": 2,
+      "max_voices": 2,
+      "cooldown_ms": 90,
+      "spatial": "3d"
+    },
+    {
+      "id": "sfx.footstep.grass.walk",
+      "bus": "Footsteps",
+      "streams": [
+        "res://sounds/footsteps/grass_walk_01.mp3",
+        "res://sounds/footsteps/grass_walk_02.mp3",
+        "res://sounds/footsteps/grass_walk_03.mp3",
+        "res://sounds/footsteps/grass_walk_04.mp3"
+      ],
+      "tier": "B",
+      "source_ids": [
+        "sounds.footsteps.grass_walk_01",
+        "sounds.footsteps.grass_walk_02",
+        "sounds.footsteps.grass_walk_03",
+        "sounds.footsteps.grass_walk_04"
+      ],
+      "pitch_jitter": 0.08,
+      "volume_jitter_db": 2.0,
+      "no_repeat": 2,
+      "max_voices": 2,
+      "cooldown_ms": 90,
+      "spatial": "3d"
+    },
+    {
+      "id": "sfx.footstep.gravel.walk",
+      "bus": "Footsteps",
+      "streams": [
+        "res://sounds/footsteps/gravel_walk_01.mp3",
+        "res://sounds/footsteps/gravel_walk_02.mp3",
+        "res://sounds/footsteps/gravel_walk_03.mp3",
+        "res://sounds/footsteps/gravel_walk_04.mp3"
+      ],
+      "tier": "B",
+      "source_ids": [
+        "sounds.footsteps.gravel_walk_01",
+        "sounds.footsteps.gravel_walk_02",
+        "sounds.footsteps.gravel_walk_03",
+        "sounds.footsteps.gravel_walk_04"
+      ],
+      "pitch_jitter": 0.08,
+      "volume_jitter_db": 2.0,
+      "no_repeat": 2,
+      "max_voices": 2,
+      "cooldown_ms": 90,
+      "spatial": "3d"
+    },
+    {
+      "id": "sfx.footstep.water_shallow.walk",
+      "bus": "Footsteps",
+      "streams": [
+        "res://sounds/footsteps/water_shallow_walk_01.mp3",
+        "res://sounds/footsteps/water_shallow_walk_02.mp3",
+        "res://sounds/footsteps/water_shallow_walk_03.mp3",
+        "res://sounds/footsteps/water_shallow_walk_04.mp3"
+      ],
+      "tier": "B",
+      "source_ids": [
+        "sounds.footsteps.water_shallow_walk_01",
+        "sounds.footsteps.water_shallow_walk_02",
+        "sounds.footsteps.water_shallow_walk_03",
+        "sounds.footsteps.water_shallow_walk_04"
+      ],
+      "pitch_jitter": 0.08,
+      "volume_jitter_db": 2.0,
+      "no_repeat": 2,
+      "max_voices": 2,
+      "cooldown_ms": 90,
+      "spatial": "3d"
+    },
+    {
       "id": "sfx.water.emerge",
       "bus": "SFX",
       "streams": ["res://sounds/water/emerge.mp3"],

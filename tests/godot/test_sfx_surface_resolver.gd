@@ -106,8 +106,15 @@ func test_fallback_chain_prefers_the_exact_entry() -> void:
 		SurfaceResolver.resolve_footstep_sound_id(
 			catalog, SurfaceResolver.SURFACE_STONE, SurfaceResolver.GAIT_WALK
 		),
+		&"",
+		"stone must stay silent rather than borrow the wood pool"
+	)
+	assert_eq(
+		SurfaceResolver.resolve_footstep_sound_id(
+			catalog, SurfaceResolver.SURFACE_WOOD, SurfaceResolver.GAIT_RUN
+		),
 		&"sfx.footstep.wood.walk",
-		"stone falls back to the wood pool while it has no walk entry"
+		"a missing gait falls back to the same surface at a walk"
 	)
 	assert_eq(
 		SurfaceResolver.resolve_footstep_sound_id(catalog, SurfaceResolver.SURFACE_GRASS),
@@ -118,20 +125,33 @@ func test_fallback_chain_prefers_the_exact_entry() -> void:
 	assert_eq(SurfaceResolver.resolve_footstep_sound_id(null, SurfaceResolver.SURFACE_WOOD), &"")
 
 
-## R-1382: gravel used to chain through dirt into the wet mud pool, so a dry
-## beach on world_saaremaa played a squelch. Dry surfaces must stay dry.
-func test_dry_surfaces_never_fall_back_to_the_wet_pool() -> void:
-	var wet: Array[StringName] = [SurfaceResolver.VOCABULARY_MUD, SurfaceResolver.SURFACE_DIRT]
-	for surface: StringName in [SurfaceResolver.SURFACE_STONE, SurfaceResolver.SURFACE_GRAVEL]:
-		for fallback: StringName in SurfaceResolver.SURFACE_FALLBACKS.get(surface, []):
-			assert_false(
-				wet.has(fallback),
-				"dry surface %s must not fall back to the wet pool %s" % [surface, fallback]
-			)
+## A stand-in may only name the same material. R-1382 chained stone and sand
+## onto the wood pool and grass onto the mud pool, so world_saaremaa knocked
+## like a plank on its beaches and squelched like a swamp on its meadows.
+func test_stand_ins_never_name_another_material() -> void:
+	# dirt is the one documented fold: the first cut puts mud and dirt on one
+	# surface, so the mud pool is dirt's own pool.
+	var allowed: Dictionary = {SurfaceResolver.SURFACE_DIRT: [SurfaceResolver.VOCABULARY_MUD]}
+	for surface: StringName in SurfaceResolver.SURFACES:
+		var chain: Array = SurfaceResolver.SURFACE_FALLBACKS.get(surface, [])
+		assert_eq(
+			chain,
+			allowed.get(surface, []),
+			"surface %s must not borrow another material's pool" % surface
+		)
+
+
+## In the shipped catalog every surface must resolve to a pool of its own
+## material. dirt is the one documented exception: the first cut folds mud and
+## dirt together, so dirt plays the mud pool.
+func test_shipped_catalog_resolves_each_surface_to_its_own_material() -> void:
 	var catalog := SfxCatalog.load_default()
-	for surface: StringName in [SurfaceResolver.SURFACE_STONE, SurfaceResolver.SURFACE_GRAVEL]:
+	for surface: StringName in SurfaceResolver.SURFACES:
+		var expected := surface
+		if surface == SurfaceResolver.SURFACE_DIRT:
+			expected = SurfaceResolver.VOCABULARY_MUD
 		assert_eq(
 			SurfaceResolver.resolve_footstep_sound_id(catalog, surface),
-			&"sfx.footstep.wood.walk",
-			"%s must stand in on the dry pool while it has no entry of its own" % surface
+			StringName("sfx.footstep.%s.walk" % expected),
+			"%s must play its own pool" % surface
 		)
