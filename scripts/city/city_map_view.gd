@@ -33,11 +33,37 @@ static func create_city(city_plan: CityPlan) -> CityMapView:
 	view._world_environment = view.world.world_environment
 	view._sky_weather = view.world.sky_weather
 	view._occluder_bounds = view._building_bounds()
+	view._create_sky_passes()
 	return view
 
 
-func _process(_delta: float) -> void:
-	pass
+## R-1400: the city had a sky but no cloud-shadow or god-ray pass, so clouds threw
+## no shadows on Reval. Mount both like MapView3D's view-effects stage; god rays
+## rasterise the city's building boxes from the plan's corner (the city is centred
+## on the origin). Terrain is left out of that raster: sampling the relief per
+## texel over the whole city would stall the first visible frame.
+func _create_sky_passes() -> void:
+	_create_cloud_shadow_pass()
+	if _sky_weather == null or not GodRayPassScript.should_create(false):
+		return
+	_god_ray_pass = GodRayPassScript.new()
+	add_child(_god_ray_pass)
+	_god_ray_pass.configure(
+		_camera, plan.bounds.size, func() -> Array[AABB]: return _occluder_bounds, Callable(),
+		plan.bounds.position
+	)
+
+
+func _process(delta: float) -> void:
+	if _sky_weather == null:
+		return
+	var presentation := _sky_weather.presentation_snapshot(
+		cycle_progress, SkyWeather3D.daylight_blend(cycle_progress, _sky_weather.calendar_date)
+	)
+	if _cloud_shadow_pass != null:
+		_cloud_shadow_pass.update_share(presentation)
+	if _god_ray_pass != null:
+		_god_ray_pass.update(delta, presentation)
 
 
 func _exit_tree() -> void:

@@ -37,12 +37,16 @@
 | `lightning_direction` | Normalized 2D bearing of the current lightning cell. |
 | `lightning_time` | Elapsed time within the current lightning flash. |
 | `time_to_strike` | Countdown to the next deterministic lightning strike. |
+| `lightning_origin` | Charge centre of the current strike inside its storm cell, world units wrapped into the `CloudCells` domain (R-1400). |
+| `lightning_ground` | Ground point of the current cloud-to-ground stroke (R-1400). |
+| `lightning_kind` | `0` in-cloud flash, `1` cloud-to-ground stroke (R-1400). |
+| `cloud_cell_clock` | Simulated seconds that drive every discrete cloud cell's life cycle; with `cloud_offset` and the profile it rebuilds the cell field exactly (R-1400). |
 | `weather_rng_state` | Deterministic weather-sequence RNG state. |
 | `lightning_rng_state` | Separate deterministic lightning RNG state. |
 | `current_profile` | Active weather presentation profile, including coverage, darken, sun/ambient energy, gray, rain, wind, chaos, storm, locality, and thunder. |
 | `transition_from_profile` | Source presentation profile retained while a transition is in progress. |
 
-`SkyWeather3D.snapshot_state()` fills all 26 keys above. `SkyWeather3D.apply_state()` restores every presenter-owned field: weather transition data, weather flags, calendar date, cloud and wetness accumulators, gust/lightning timers, RNG streams, and both profiles. `cycle_progress` and `elapsed_days` are intentionally snapshot inputs owned by the shared day clock, so `apply_state()` does not overwrite that clock. `quality_tier`, renderer resources, and derived presentation values are not persisted.
+`SkyWeather3D.snapshot_state()` fills all 30 keys above. `SkyWeather3D.apply_state()` restores every presenter-owned field: weather transition data, weather flags, calendar date, cloud and wetness accumulators, gust/lightning timers, RNG streams, and both profiles. `cycle_progress` and `elapsed_days` are intentionally snapshot inputs owned by the shared day clock, so `apply_state()` does not overwrite that clock. `quality_tier`, renderer resources, and derived presentation values are not persisted.
 
 Since WS-10 the clear-sky background radiance and the sun disk colour come from the physical atmosphere: `SkyAtmosphereLut` renders a Hillaire sky-view LUT from the sun direction that `apply_sky_state()` already receives, and falls back to the old gradient when the WS-09 LUT assets are missing. The LUT is derived presentation state, rebuilt from the sun direction every (other) frame, so the state contract above is unchanged: no key was added and `snapshot_state()` / `apply_state()` keep their format.
 

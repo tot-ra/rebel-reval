@@ -65,6 +65,28 @@ static func build_cloud_shape(
 	return texture
 
 
+## R-1400: seamless 3D Worley-FBM noise for the discrete cloud cells. Inverted
+## cellular distance gives round, bulging puffs in every direction, so a cell's
+## surface boils into cauliflower turrets; a 2D texture sliced by height combed the
+## billows into vertical streaks. Baked in C++ by FastNoiseLite (~0.1 s at 48^3).
+static func build_cell_noise_3d(seed: int, size: int) -> ImageTexture3D:
+	var noise := FastNoiseLite.new()
+	noise.seed = seed + 31
+	noise.noise_type = FastNoiseLite.TYPE_CELLULAR
+	noise.frequency = 4.0 / float(size)
+	noise.cellular_distance_function = FastNoiseLite.DISTANCE_EUCLIDEAN
+	noise.cellular_return_type = FastNoiseLite.RETURN_DISTANCE
+	noise.fractal_type = FastNoiseLite.FRACTAL_FBM
+	noise.fractal_octaves = 3
+	noise.fractal_gain = 0.45
+	var images: Array[Image] = noise.get_seamless_image_3d(size, size, size, true, 0.1, true)
+	for image in images:
+		image.convert(Image.FORMAT_L8)
+	var texture := ImageTexture3D.new()
+	texture.create(Image.FORMAT_L8, size, size, size, false, images)
+	return texture
+
+
 ## Returns the authored near-side lunar albedo disk for the sky shader.
 ## WHY a NASA photo instead of procedural noise: real maria, Tycho rays, and
 ## crater layout read as the Moon at sky-disk scale. `_seed` is kept so callers

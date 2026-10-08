@@ -18,6 +18,8 @@ const GROUP := &"god_ray_pass"
 const BASE_HAZE := 0.10
 ## Broken cloud (not overcast) opens and shuts the beam into distinct shafts.
 const CLOUD_GAP_HAZE := 0.35
+## R-1400: a discrete cloud's ragged edge across the sun is the classic beam maker.
+const CELL_EDGE_HAZE := 0.3
 const RAIN_HAZE_WEIGHT := 0.6
 ## Moonlight is a few percent of sunlight; keep its rays a faint veil.
 const MOON_STRENGTH_SCALE := 0.3
@@ -53,6 +55,7 @@ var _material: ShaderMaterial
 var _overlay: MeshInstance3D
 var _camera: Camera3D
 var _world_extent := Vector2.ZERO
+var _raster_origin := Vector2.ZERO
 var _occluders := Callable()
 var _ground := Callable()
 var _height_texture: ImageTexture
@@ -78,7 +81,9 @@ static func haze_amount(
 	# Peaks at half cover: clear sky has no gaps to shape a beam, overcast hides the sun.
 	var broken := 1.0 - absf(presentation.cloud_coverage * 2.0 - 1.0)
 	return clampf(
-		BASE_HAZE + mist + rain_haze * RAIN_HAZE_WEIGHT + broken * CLOUD_GAP_HAZE, 0.0, 1.0
+		BASE_HAZE + mist + rain_haze * RAIN_HAZE_WEIGHT + broken * CLOUD_GAP_HAZE
+		+ presentation.cell_sun_edge * CELL_EDGE_HAZE,
+		0.0, 1.0
 	)
 
 
@@ -172,15 +177,19 @@ static func volume_top(image: Image) -> float:
 ## `world_extent` is the map size in world units (view-local XZ from the origin).
 ## `occluders` returns the view's building/landmark boxes (view-local AABBs);
 ## `ground` maps a world XZ to terrain height and is only passed for relief maps.
+## `raster_origin` is the view-local XZ of the raster's corner for maps that do not
+## start at the origin (the seamless city is centred on it, R-1400).
 func configure(
 	camera: Camera3D,
 	world_extent: Vector2 = Vector2.ZERO,
 	occluders: Callable = Callable(),
-	ground: Callable = Callable()
+	ground: Callable = Callable(),
+	raster_origin: Vector2 = Vector2.ZERO
 ) -> void:
 	name = "GodRayPass"
 	_camera = camera
 	_world_extent = world_extent
+	_raster_origin = raster_origin
 	_occluders = occluders
 	_ground = ground
 	add_to_group(GROUP)
@@ -219,6 +228,10 @@ func _sync_height_map(delta: float = 0.0) -> void:
 	var boxes: Array[AABB] = []
 	if _occluders.is_valid():
 		boxes.assign(_occluders.call())
+	if _raster_origin != Vector2.ZERO:
+		var shift := Vector3(_raster_origin.x, 0.0, _raster_origin.y)
+		for i in boxes.size():
+			boxes[i].position -= shift
 	var signature: Array = [boxes.size()]
 	if not boxes.is_empty():
 		signature.append_array([boxes[0], boxes[boxes.size() - 1]])
@@ -237,7 +250,12 @@ func _sync_height_map(delta: float = 0.0) -> void:
 	for box in boxes:
 		extent = extent.max(Vector2(box.end.x, box.end.z))
 	var texel := maxf(HEIGHT_TEXEL, maxf(extent.x, extent.y) / float(MAX_TEXELS))
-	var image := rasterize_heights(boxes, extent, texel, _ground)
+	var ground := _ground
+	if ground.is_valid() and _raster_origin != Vector2.ZERO:
+		var corner := _raster_origin
+		var local_ground := _ground
+		ground = func(xz: Vector2) -> float: return float(local_ground.call(xz + corner))
+	var image := rasterize_heights(boxes, extent, texel, ground)
 	if _height_texture != null and _height_texture.get_size() == Vector2(image.get_size()):
 		_height_texture.update(image)
 	else:
@@ -272,7 +290,8 @@ func update(delta: float, presentation: SkyWeather.WeatherPresentation) -> void:
 		# Golden hour warms the beam; the physical sun colour already carries it.
 		ray_color = presentation.physical_sun_color.lerp(SUN_COLOR, 0.35)
 	var origin := (get_parent() as Node3D).global_position if get_parent() is Node3D else Vector3()
-	_material.set_shader_parameter(&"map_origin", Vector2(origin.x, origin.z))
+	_material.set_shader_parameter(&"map_origin", Vector2(origin.x, origin.z) + _raster_origin)
 	_material.set_shader_parameter(&"light_dir", direction)
+	_material.set_shader_parameter(&"cloud_cells", presentation.cloud_cells)
 	_material.set_shader_parameter(&"ray_color", ray_color)
 	_material.set_shader_parameter(&"strength", base * GAIN)

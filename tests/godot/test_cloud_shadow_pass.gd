@@ -67,10 +67,13 @@ func test_shader_multiplies_live_framebuffer() -> void:
 		"res://scripts/map/view3d/cloud_shadow_pass.gdshader"
 	)
 	assert_false(source.is_empty(), "cloud shadow shader must exist")
+	# R-1400: black mixed by ALPHA darkens dest exactly under any HDR luminance
+	# multiplier or tonemapper; blend_mul's factor was rescaled and dimmed whole frames.
 	assert_true(
-		source.contains("blend_mul"),
-		"the pass must multiply the live framebuffer, not replace it"
+		source.contains("blend_mix") and source.contains("ALBEDO = vec3(0.0)"),
+		"the pass must darken the live framebuffer by mixing black, not replace it"
 	)
+	assert_false(source.contains("blend_mul"), "blend_mul rescales by the HDR multiplier")
 	assert_false(
 		source.contains("uniform sampler2D screen_texture"),
 		"must not resample a screen texture (default-buffer capture path)"

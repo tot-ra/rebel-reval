@@ -34,6 +34,10 @@ uniform float max_march = 90.0;
 uniform float shadow_reach = 60.0;
 uniform int view_steps = 16;
 uniform int shadow_steps = 8;
+// R-1400: discrete clouds shade the air too, so a beam is lit only where the
+// cloud shadow on the street is open: shafts start at real cloud edges.
+global uniform sampler2D cloud_noise_tex : filter_linear_mipmap, repeat_enable;
+#include "res://scripts/map/view3d/cloud_cells.gdshaderinc"
 
 float height_at(vec2 xz) {
 	ivec2 size = textureSize(height_map, 0);
@@ -110,7 +114,8 @@ void fragment() {
 			if (p.y <= height_at(p.xz)) {
 				break;
 			}
-			lit += sun_visibility(p, jitter) * dt;
+			float cloud_lit = 1.0 - cells_ground_shadow(p, light_dir, cloud_noise_tex, 2.0);
+			lit += sun_visibility(p, jitter) * cloud_lit * dt;
 		}
 	}
 	float scatter = 1.0 - exp(-density * lit);

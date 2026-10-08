@@ -12,7 +12,10 @@ float sky_cloud_local_storm_at(
 ) {
 	float cell = 1.0 - texture(shape_tex, uv * 0.12 + vec2(0.37, 0.71)).r;
 	float mask = mix(1.0, smoothstep(0.48, 0.8, cell), storm_loc);
-	return storm_amt * mask;
+	// R-1400: an isolated storm is drawn as discrete CloudCells cumulonimbus, so the
+	// dome deck keeps only the widespread share; otherwise dark dome cells would
+	// sit apart from the real thunderheads that carry the lightning and shadows.
+	return storm_amt * mask * (1.0 - storm_loc);
 }
 
 

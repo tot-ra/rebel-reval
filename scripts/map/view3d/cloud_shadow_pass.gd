@@ -2,15 +2,22 @@ extends Node3D
 
 ## WS-12 outdoor screen pass. Projects the shared sky cloud field along the sun
 ## onto reconstructed world depth so partly cloudy days throw moving patches
-## across town, harbour and sea. The overlay darkens the live framebuffer
-## with ALPHA (no screen-texture hint). Hidden, and the shader discards,
-## when sun_share is ~0 so night/overcast cannot replace the sea.
+## across town, harbour and sea. R-1400 adds the discrete CloudCells: each cloud
+## the dome draws casts its own shadow from the same position and size. The
+## overlay mixes black over the live framebuffer by ALPHA (no screen-texture
+## hint). Hidden, and the shader discards, when sun_share is ~0 so night and
+## overcast cannot replace the sea.
 
 const PASS_SHADER := preload("res://scripts/map/view3d/cloud_shadow_pass.gdshader")
 const Lighting := preload("res://scripts/map/view3d/map_view_lighting.gd")
 const SkyWeather := preload("res://scripts/map/view3d/sky_weather_3d.gd")
 
-const RENDER_PRIORITY := 96
+## R-1400: draw before every other transparent material. Water reads the screen
+## texture, and in Compatibility that back-buffer copy leaves `hint_depth_texture`
+## empty (all 0) for transparent passes drawn after it, so at 96 the pass rebuilt
+## no positions in any map with a sea and never placed a shadow. Drawn first it
+## darkens the opaque scene; the water surface itself stays unshadowed.
+const RENDER_PRIORITY := -100
 const OVERCAST_FADE_START := 0.45
 const OVERCAST_FADE_END := 0.75
 ## Matches SUN_SHARE_SKIP in cloud_shadow_pass.gdshader.
@@ -65,5 +72,7 @@ func update_share(presentation: SkyWeather.WeatherPresentation) -> void:
 	sun_share = sun_share_from_presentation(presentation)
 	if _material != null:
 		_material.set_shader_parameter(&"sun_share", sun_share)
+		# R-1400: the discrete cells that cast individual moving shadows.
+		_material.set_shader_parameter(&"cloud_cells", presentation.cloud_cells)
 	if _overlay != null:
 		_overlay.visible = sun_share > SUN_SHARE_SKIP

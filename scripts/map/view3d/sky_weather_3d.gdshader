@@ -60,6 +60,21 @@ uniform float storm_locality : hint_range(0.0, 1.0) = 0.0;
 // currently striking, so the flash lights that cloud rather than the whole dome.
 uniform float lightning : hint_range(0.0, 1.0) = 0.0;
 uniform vec2 lightning_dir = vec2(1.0, 0.0);
+// R-1400: every strike is born in a CloudCells storm cell. `lightning_origin` is the
+// charge centre inside that cell (world units, wrapped into the cell domain);
+// `lightning_kind` 0 is an in-cloud flash that lights the cell from inside, 1 a
+// cloud-to-ground stroke drawn as a 3D channel from the cell base to
+// `lightning_ground`.
+uniform vec3 lightning_origin = vec3(0.0, 600.0, 0.0);
+uniform vec3 lightning_ground = vec3(0.0);
+uniform float lightning_kind = 0.0;
+// Quality tier costs for the discrete cells (0 disables a feature).
+uniform int cell_steps : hint_range(0, 16) = 12;
+uniform int cell_fine_steps : hint_range(1, 12) = 10;
+// 3D Worley-FBM noise that shapes the cells (SkyWeatherResources.build_cell_noise_3d).
+uniform sampler3D cell_noise : filter_linear, repeat_enable;
+uniform int cell_light_samples : hint_range(0, 2) = 2;
+uniform int cell_ray_samples : hint_range(0, 10) = 8;
 // Prevailing wind on the ground plane, used to comb cirrus streaks and to lean
 // the storm wall into the upwind quarter so the front reads as approaching.
 uniform vec2 wind_dir = vec2(0.928, 0.371);
@@ -109,6 +124,7 @@ const float SUN_DISK_R = 0.0125;
 const float MOON_DISK_R = 0.0080;
 
 #include "res://scripts/map/view3d/sky_clouds.gdshaderinc"
+#include "res://scripts/map/view3d/cloud_cells.gdshaderinc"
 
 
 float remap(float v, float lo, float hi, float nlo, float nhi) {
@@ -257,64 +273,218 @@ float rain_shafts(vec3 dir) {
 }
 
 
-// A visible strike: a thin, jagged, brilliant channel at the flashing cell's
-// bearing, descending from high in the sky toward the horizon. Only drawn near
-// the peak of a flash so it reads as a bolt, not a steady line; it wanders
-// uniquely per strike and is naturally only seen when facing that quarter.
-//
-// Design: a mostly straight main trunk with a few rare angular deflections
-// (not high-frequency zigzag), plus 2-3 branches that fork off at realistic
-// angles. Each strike wanders uniquely via the per-strike seed.
-float lightning_bolt(vec3 dir) {
-	if (cloud_fallback || lightning < 0.35 || dir.y < 0.015 || dir.y > 0.62) {
+// A visible cloud-to-ground strike (R-1400). The channel is a real 3D polyline
+// from the charged cell's base to the ground point, so it hangs under its own
+// thundercloud, moves with parallax and can never appear in open sky. Only drawn
+// near the flash peak so it reads as a bolt, not a steady line.
+float lightning_bolt(vec3 ro, vec3 dir, vec3 top, vec3 ground) {
+	if (cloud_fallback || lightning < 0.35 || lightning_kind < 0.5) {
 		return 0.0;
 	}
-	vec2 g = normalize(vec2(dir.x, -dir.z) + vec2(0.0001));
-	// Signed horizontal angle between this ray and the strike bearing.
-	float ang = atan(g.x * lightning_dir.y - g.y * lightning_dir.x, dot(g, lightning_dir));
-
-	// --- Main trunk: low-frequency angular deflections, not sawtooth. ---
-	// A single coarse noise sample gives one slow drift left/right, then a
-	// sharper mid-frequency sample adds a couple of angular bends - but at
-	// much lower amplitude so the bolt reads as a mostly straight channel.
-	float seed = lightning_dir.x * 5.3 + lightning_dir.y * 2.1 + 0.5;
-	// Slow broad drift: one or two large sweeps across the sky.
-	float trunk = (texture(cloud_noise, vec2(dir.y * 1.8 + seed, seed * 0.37)).r - 0.5) * 0.08;
-	// Sharper angular kinks at half the frequency - rare bends, not zigzag.
-	trunk += (texture(cloud_noise, vec2(dir.y * 4.2 + seed, 0.6)).r - 0.5) * 0.025;
-	float d_main = abs(ang - trunk);
-	float core = smoothstep(0.009, 0.0, d_main);
-	float glow = smoothstep(0.05, 0.0, d_main) * 0.25;
-
-	// --- Branches: 2-3 thin forks that split off at an angle. ---
-	// Each branch is a separate angular line at a fixed offset from the main
-	// trunk, visible only partway down the bolt and much thinner.
-	float branch_sum = 0.0;
-	// Branch 1: forks right ~30% down, ~15 degrees offset.
-	float b1_active = smoothstep(0.55, 0.50, dir.y) * smoothstep(0.18, 0.25, dir.y);
-	float b1_angle = ang - 0.12;
-	float b1_jag = (texture(cloud_noise, vec2(dir.y * 3.0 + seed + 1.7, 0.3)).r - 0.5) * 0.02;
-	float d_b1 = abs(b1_angle - b1_jag - trunk);
-	float b1 = smoothstep(0.005, 0.0, d_b1) * b1_active;
-	// Branch 2: forks left ~55% down, slightly wider angle.
-	float b2_active = smoothstep(0.45, 0.38, dir.y) * smoothstep(0.10, 0.18, dir.y);
-	float b2_angle = ang + 0.16;
-	float b2_jag = (texture(cloud_noise, vec2(dir.y * 2.5 + seed + 3.2, 0.7)).r - 0.5) * 0.015;
-	float d_b2 = abs(b2_angle - b2_jag - trunk);
-	float b2 = smoothstep(0.004, 0.0, d_b2) * b2_active;
-	// Branch 3: short upper fork, visible only near cloud base.
-	float b3_active = smoothstep(0.52, 0.48, dir.y) * smoothstep(0.38, 0.44, dir.y);
-	float b3_angle = ang - 0.09;
-	float d_b3 = abs(b3_angle - trunk);
-	float b3 = smoothstep(0.004, 0.0, d_b3) * b3_active * 0.6;
-	branch_sum = b1 + b2 + b3;
-
-	// Taper from cloud base (top) to ground (bottom).
-	float taper = smoothstep(0.015, 0.08, dir.y);
+	float seed = fract(top.x * 0.0131 + top.z * 0.0071);
 	float flash_gate = smoothstep(0.35, 0.9, lightning);
-	return (core + glow + branch_sum * 0.35) * taper * flash_gate;
+	return cell_bolt(ro, dir, top, ground, seed) * flash_gate;
 }
 
+
+// Interleaved gradient noise: fixed per-pixel march offset (no TIME, deterministic).
+float cell_jitter(vec2 frag) {
+	return fract(52.9829189 * fract(dot(frag, vec2(0.06711056, 0.00583715))));
+}
+
+
+// Discrete clouds (R-1400), ray-marched as real volumes from the camera. Returns
+// premultiplied colour and coverage; `body_cover` is the cloud body alone (rain
+// excluded) so a bolt is hidden only by cloud. `lit_col` / `shade_col` are the
+// dome's own sun-lit and skylit cloud tones so cells and the deck share a palette.
+//
+// A cumulus is optically thick: light dies within tens of metres of its surface.
+// A uniform march through a translucent blob averaged several heights per pixel
+// and smeared the billows into radial fringes, so each cell is marched in two
+// phases: a cheap coarse search for the surface, then a short fine march with
+// full density and lighting from just before it. Storm cells add an analytic
+// rain curtain (chord through a cylinder under the base) behind the body.
+vec4 cells_volume(
+	vec3 ro, vec3 rd, vec3 lit_col, vec3 shade_col, vec3 haze_col, vec3 rain_col,
+	vec3 flash_at, float flash, float jitter, out float body_cover
+) {
+	vec3 acc = vec3(0.0);
+	float trans = 1.0;
+	float body_trans = 1.0;
+	float sun_up = smoothstep(-0.08, 0.18, sun_direction.y);
+	float sun_fwd = pow(max(dot(rd, sun_direction), 0.0), 8.0);
+	for (int i = 0; i < CELL_SLOTS; i++) {
+		vec4 a = cloud_cells[i * 2];
+		vec4 b = cloud_cells[i * 2 + 1];
+		if (b.y <= 0.001) {
+			continue;
+		}
+		vec2 c = ro.xz + cell_wrap_delta(a.xz, ro.xz, b.z);
+		// Fade out before the periodic seam at half a domain.
+		float domain = cell_domain(b.z);
+		float fade = 1.0 - smoothstep(0.36 * domain, 0.5 * domain, length(c - ro.xz));
+		if (fade <= 0.0) {
+			continue;
+		}
+		float reach = a.w * mix(1.05, 1.55, b.z);
+		vec3 cell_acc = vec3(0.0);
+		float cell_trans = 1.0;
+		float hit_t = 1e9;
+		vec2 hit = cell_box_hit(
+			ro, rd, vec3(c.x - reach, a.y, c.y - reach), vec3(c.x + reach, a.y + b.x, c.y + reach)
+		);
+		if (hit.y > hit.x) {
+			// Phase 1: coarse search for the first sample inside the body.
+			float dt = (hit.y - hit.x) / float(cell_steps);
+			float t_enter = -1.0;
+			for (int s = 0; s < 16; s++) {
+				if (s >= cell_steps) {
+					break;
+				}
+				float t = hit.x + (float(s) + jitter) * dt;
+				vec3 p = ro + rd * t;
+				if (cell_density(vec3(p.x - c.x, 0.0, p.z - c.y), p.y, a, b, cell_noise, p) > 0.02) {
+					t_enter = max(t - dt, hit.x);
+					break;
+				}
+			}
+			if (t_enter >= 0.0) {
+				hit_t = t_enter;
+				// Phase 2: fine march through the surface layer.
+				float fine = min(dt, a.w * 0.1);
+				float sigma = mix(0.06, 0.08, b.z);
+				for (int s = 0; s < 12; s++) {
+					if (s >= cell_fine_steps) {
+						break;
+					}
+					float t = t_enter + (float(s) + jitter) * fine;
+					if (t > hit.y) {
+						break;
+					}
+					vec3 p = ro + rd * t;
+					vec3 local = vec3(p.x - c.x, 0.0, p.z - c.y);
+					float dens = cell_density(local, p.y, a, b, cell_noise, p);
+					if (dens < 0.002) {
+						continue;
+					}
+					float alpha = 1.0 - exp(-dens * sigma * fine);
+					float tau = 0.0;
+					for (int l = 1; l <= 2; l++) {
+						if (l > cell_light_samples) {
+							break;
+						}
+						vec3 lp = p + sun_direction * (a.w * 0.22 * float(l * l));
+						tau += cell_density(vec3(lp.x - c.x, 0.0, lp.z - c.y), lp.y, a, b, cell_noise, lp);
+					}
+					float h = clamp((p.y - a.y) / max(b.x, 1.0), 0.0, 1.0);
+					// Beer-Lambert toward the sun plus a weaker, longer octave for the
+					// light that scatters many times inside the cloud (keeps cores from
+					// going black the way a single-scatter march does).
+					float k = mix(1.4, 2.2, b.z);
+					float light = max(exp(-tau * k), 0.35 * exp(-tau * k * 0.25)) * sun_up;
+					// Powder: thin edges and wisps stay darker than the sunlit core face.
+					light *= mix(0.7, 1.0, 1.0 - exp(-dens * 3.0));
+					// A thunderhead's lower body sits in its own shade.
+					light *= mix(1.0, smoothstep(0.0, 0.45, h), b.z * 0.8);
+					// Grey flat bases lit by skylight; storm towers darken hard toward the base.
+					float ambient = mix(0.62, 1.0, h) * mix(1.0, 0.4, b.z * (1.0 - h));
+					vec3 skylit = mix(shade_col, lit_col, 0.35) * ambient;
+					vec3 col = mix(skylit, lit_col, light);
+					// Silver lining where the thin edge sits in front of the sun.
+					col += lit_col * sun_fwd * exp(-dens * 3.0) * 0.8 * sun_up;
+					if (flash > 0.0) {
+						// Lightning floods the cloud from inside: light scatters through the
+						// whole body, brightest round the channel.
+						col += vec3(0.9, 0.94, 1.1) * flash * 3.0 * exp(-length(p - flash_at) / (a.w * 0.9));
+					}
+					cell_acc += cell_trans * alpha * col;
+					cell_trans *= 1.0 - alpha;
+					if (cell_trans < 0.02) {
+						break;
+					}
+				}
+			}
+		}
+		float body = (1.0 - cell_trans) * fade;
+		// Rain curtain under a storm base: chord length through a cylinder.
+		float rain = 0.0;
+		float rain_t = 1e9;
+		if (b.z > 0.5) {
+			vec2 o = ro.xz - c;
+			float r = a.w * 0.55;
+			float qa = dot(rd.xz, rd.xz);
+			float qb = dot(o, rd.xz);
+			float qc = dot(o, o) - r * r;
+			float disc = qb * qb - qa * qc;
+			if (disc > 0.0 && qa > 1e-6) {
+				float sq = sqrt(disc);
+				float t0 = max((-qb - sq) / qa, 0.0);
+				float t1 = (-qb + sq) / qa;
+				// Clip the chord to the air between the ground and the cloud base.
+				if (abs(rd.y) > 1e-5) {
+					float tg = (0.0 - ro.y) / rd.y;
+					float tb = (a.y - ro.y) / rd.y;
+					t0 = max(t0, min(tg, tb));
+					t1 = min(t1, max(tg, tb));
+				} else if (ro.y > a.y || ro.y < 0.0) {
+					t1 = t0;
+				}
+				if (t1 > t0) {
+					vec3 mid = ro + rd * (0.5 * (t0 + t1));
+					float streak = textureLod(
+						cloud_noise, vec2((mid.x - mid.z * 0.4) / 160.0 + b.w * 3.0, mid.y / 3000.0), 0.0
+					).r;
+					// Thickest in the middle of the shaft, thinning toward its sides.
+					float core = 1.0 - smoothstep(0.2, 1.0, length(mid.xz - c) / r);
+					rain = (1.0 - exp(-(t1 - t0) * 0.0016 * mix(0.55, 1.2, streak))) * b.y * core * fade;
+					rain_t = t0;
+				}
+			}
+		}
+		vec3 body_col = cell_trans < 1.0 ? cell_acc / max(1.0 - cell_trans, 1e-4) : vec3(0.0);
+		// Aerial perspective: a distant thunderhead still reads as a solid body.
+		body_col = mix(body_col, haze_col, (1.0 - exp(-min(hit_t, 2e4) / 16000.0)) * 0.6);
+		vec3 shaft_col = rain_col + vec3(0.9, 0.94, 1.1) * flash * 0.6;
+		shaft_col = mix(shaft_col, haze_col, (1.0 - exp(-min(rain_t, 2e4) / 9000.0)) * 0.6);
+		// Cloud body over its own rain, then this cell over what lies behind it.
+		vec3 cell_col = body_col * body + shaft_col * rain * (1.0 - body);
+		float cover = body + rain * (1.0 - body);
+		acc += trans * cell_col;
+		trans *= 1.0 - cover;
+		body_trans *= 1.0 - body;
+	}
+	body_cover = 1.0 - body_trans;
+	return vec4(acc, 1.0 - trans);
+}
+
+
+// Crepuscular rays under the cells (R-1400): march the eye ray through the air
+// below the clouds and ask, at each point, whether a cell shades it from the sun.
+// x = lit share of the path, y = shaded share. Only near the sun, where
+// forward-scattering haze makes beams visible.
+vec2 cells_sky_rays(vec3 ro, vec3 rd) {
+	if (cell_ray_samples <= 0 || sun_direction.y <= 0.0 || dot(rd, sun_direction) < 0.55) {
+		return vec2(0.0);
+	}
+	float lit = 0.0;
+	float shade = 0.0;
+	float total = 0.0;
+	for (int k = 0; k < 10; k++) {
+		if (k >= cell_ray_samples) {
+			break;
+		}
+		float t = 150.0 * pow(1.55, float(k));
+		vec3 p = ro + rd * t;
+		float s = cells_ground_shadow(p, sun_direction, cloud_noise, 1.0);
+		// Fade samples out toward the cloud bases instead of cutting them off,
+		// which banded the sky into horizontal steps.
+		float w = t * (1.0 - smoothstep(450.0, 700.0, p.y));
+		lit += (1.0 - s) * w;
+		shade += s * w;
+		total += w;
+	}
+	return total > 0.0 ? vec2(lit, shade) / total : vec2(0.0);
+}
 
 // Convert an ENU horizon ray to equatorial coordinates. World -Z is map north,
 // +X east, and +Y zenith. The latitude makes Polaris sit 59.4 degrees above the
@@ -588,18 +758,51 @@ void sky() {
 	// Only in the clear air under the cloud, not painted over the opaque cloud body.
 	color = mix(color, rain_veil, shafts * 0.6 * (1.0 - clouds));
 
-	// Lightning: a strike lights its own cell and rains, glows the nearby sky, and
-	// throws a faint flicker across the whole dome. Localised to lightning_dir so
-	// a single thundercloud flashes on its side of the sky, not everywhere.
+	// R-1400 discrete clouds: world-space cumulus and cumulonimbus cells drawn over
+	// the dome deck with real parallax. They hide the sun and stars behind them,
+	// and are the same objects that shade the ground and cut god rays.
+	// The radiance cubemap skips them: it only feeds ambient light, and a march per
+	// cubemap texel every frame would cost more than the whole visible dome.
+	vec3 ro = POSITION;
+	vec3 flash_col = vec3(0.90, 0.94, 1.10);
+	vec2 strike_shift = cell_wrap_delta(lightning_origin.xz, ro.xz, 1.0) + ro.xz - lightning_origin.xz;
+	vec3 strike_top = lightning_origin + vec3(strike_shift.x, 0.0, strike_shift.y);
+	vec3 strike_ground = lightning_ground + vec3(strike_shift.x, 0.0, strike_shift.y);
+	float flash = lightning * lightning_density;
+	float cell_cover = 0.0;
+	if (!cloud_fallback && cell_steps > 0 && !AT_CUBEMAP_PASS) {
+		vec3 haze_col = horizon * mix(1.0, 0.65, cloud_darken);
+		vec3 cell_rain = mix(cloud_shadow, rain_veil, 0.35) * 0.85;
+		vec4 cells = cells_volume(
+			ro, dir, cloud_top, cloud_shadow, haze_col, cell_rain, strike_top, flash,
+			cell_jitter(FRAGCOORD.xy), cell_cover
+		);
+		color = color * (1.0 - cells.a) + cells.rgb;
+		// Sunbeams: air shaded by a cell dims the forward glow, sunlit gaps between
+		// cells brighten it, so beams fan out from behind the clouds toward the sun.
+		vec2 rays = cells_sky_rays(ro, dir);
+		if (rays.y > 0.02) {
+			float g = 0.7;
+			float ratio = (1.0 - g) * (1.0 - g) / max(1.0 + g * g - 2.0 * g * dot(dir, sun_direction), 1e-4);
+			float hg = ratio * sqrt(ratio) * sun_visibility * day_blend;
+			float presence = smoothstep(0.02, 0.25, rays.y);
+			color *= 1.0 - clamp(rays.y * hg * 0.35, 0.0, 0.6);
+			color += sun_tint * rays.x * presence * hg * 0.22 * (1.0 - cell_cover);
+		}
+	}
+
+	// Lightning only ever comes from a storm cell (R-1400): the sky glows on that
+	// cell's bearing, the cell lights from inside (cells_volume), and a
+	// cloud-to-ground stroke draws its channel under the cell's base.
 	if (lightning > 0.001) {
-		vec2 strike_ground = normalize(vec2(dir.x, -dir.z) + vec2(0.0001));
-		float aim = max(dot(strike_ground, lightning_dir), 0.0);
-		float near_strike = pow(aim, 3.0) * smoothstep(0.75, 0.0, dir.y);
-		vec3 flash_col = vec3(0.90, 0.94, 1.10);
-		color += flash_col * lightning * lightning_density
-			* (near_strike * (0.5 + clouds * 1.6 + shafts * 1.3) + 0.03);
+		vec2 bearing = normalize(vec2(dir.x, -dir.z) + vec2(0.0001));
+		float aim = max(dot(bearing, lightning_dir), 0.0);
+		float near_strike = pow(aim, 6.0) * smoothstep(0.75, 0.0, dir.y);
+		color += flash_col * flash
+			* (near_strike * (0.2 + clouds * 1.2 + shafts * 1.0 + cell_cover * 0.6) + 0.02);
 		// The bolt itself, a searing white-blue channel drawn over the flash.
-		color += vec3(0.95, 0.97, 1.25) * lightning_bolt(dir) * 4.0 * lightning_density;
+		color += vec3(0.95, 0.97, 1.25) * lightning_bolt(ro, dir, strike_top, strike_ground)
+			* 4.0 * lightning_density * (1.0 - cell_cover * 0.85);
 	}
 
 	COLOR = color;

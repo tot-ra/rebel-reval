@@ -17,6 +17,7 @@ const AtmosphereCpuScript := preload("res://scripts/map/view3d/atmosphere_cpu.gd
 const SKY_RESOURCES := preload("res://scripts/map/view3d/sky_weather_resources.gd")
 const SkyWeatherRoofAudioScript := preload("res://scripts/map/view3d/sky_weather_roof_audio.gd")
 const SkyWeatherStateScript := preload("res://scripts/map/view3d/sky_weather_state.gd")
+const CloudCellsScript := preload("res://scripts/map/view3d/cloud_cells.gd")
 ## Catalog stars baked per staged-assembly unit (about 1 ms each).
 const STAR_BAKE_SLICE := 1000
 const STAR_CATALOG := preload("res://scripts/map/view3d/estonia_star_catalog.gd")
@@ -120,6 +121,12 @@ const QUALITY_TIERS: Dictionary = {
 		"sky_lut_every_n_frames": 2,
 		# WS-15: interactive ripple sim off; water keeps the FFT and detail normals.
 		"ripple_sim_size": 0,
+		# R-1400 discrete clouds: half the volume steps, one sun sample, no sky beams.
+		"cloud_cell_steps": 6,
+		"cloud_cell_noise_size": 32,
+		"cloud_cell_fine_steps": 5,
+		"cloud_cell_light_samples": 1,
+		"cloud_cell_ray_samples": 0,
 	},
 	QUALITY_RECOMMENDED: {
 		"cloud_noise_resolution": SKY_RESOURCES.CLOUD_NOISE_RESOLUTION_RECOMMENDED,
@@ -142,6 +149,11 @@ const QUALITY_TIERS: Dictionary = {
 		"sky_lut_every_n_frames": 1,
 		# WS-15: 256^2 texels over the 64 x 64-unit ripple window (0.25 units per texel).
 		"ripple_sim_size": 256,
+		"cloud_cell_steps": 12,
+		"cloud_cell_noise_size": 48,
+		"cloud_cell_fine_steps": 10,
+		"cloud_cell_light_samples": 2,
+		"cloud_cell_ray_samples": 8,
 	},
 }
 
@@ -269,11 +281,23 @@ const GUST_RISE_SECONDS := 1.0
 const GUST_DECAY_SECONDS := 5.0
 
 ## Lightning. A storm's `thunder` factor scales the strike rate between these mean
-## gaps (seconds); each strike picks a bearing (a cell to light up) and fires a
-## short, flickering flash envelope that brightens that cell, glows the sky, and
-## briefly lifts scene lighting. Deterministic off the weather RNG.
+## gaps (seconds). R-1400: each strike is born in a mature CloudCells cumulonimbus
+## (never in open sky): it is either an in-cloud flash that lights the cell from
+## inside or a cloud-to-ground stroke from the cell base. With no charged cell the
+## countdown waits LIGHTNING_RETRY_SECONDS and tries again. Deterministic off the
+## lightning RNG.
 const LIGHTNING_GAP_SECONDS := Vector2(2.5, 9.0)
 const LIGHTNING_FLASH_SECONDS := 0.42
+const LIGHTNING_RETRY_SECONDS := 0.8
+## Share of strikes that reach the ground; the rest stay inside the cloud.
+const LIGHTNING_GROUND_CHANCE := 0.4
+const LIGHTNING_KIND_CLOUD := 0
+const LIGHTNING_KIND_GROUND := 1
+## A distant strike lifts scene light less than one overhead (camera distance,
+## world units, to the charge centre).
+const LIGHTNING_NEAR_DISTANCE := 600.0
+const LIGHTNING_FAR_DISTANCE := 2600.0
+const LIGHTNING_FAR_SCALE := 0.4
 
 const RAIN_EMITTER_HEIGHT := 11.0
 
@@ -326,6 +350,11 @@ class WeatherPresentation extends RefCounted:
 	## each body right now (the same field the dome draws). Drives water glints.
 	var sun_cloud_clear := 1.0
 	var moon_cloud_clear := 1.0
+	## R-1400 discrete clouds, packed for the cloud_cells uniform (CloudCells.uniforms()).
+	var cloud_cells := PackedVector4Array()
+	## 0..1: how ragged the cell cover right around the sun is from the camera. A cell
+	## edge on the sun is what throws visible beams.
+	var cell_sun_edge := 0.0
 	var star_visibility := 0.0
 	var sunrise_hour := 6.0
 	var fog_potential := 0.0
@@ -412,6 +441,15 @@ var _lightning_time := -1.0
 var _time_to_strike := 0.0
 ## Separate stream so lightning draws never perturb the weather sequence.
 var _lightning_rng := RandomNumberGenerator.new()
+## R-1400: charge centre of the live strike (inside its storm cell, wrapped into the
+## cell domain), the ground point of a cloud-to-ground stroke, and the strike kind.
+var _lightning_origin := Vector3(0.0, 600.0, 0.0)
+var _lightning_ground := Vector3.ZERO
+var _lightning_kind := LIGHTNING_KIND_CLOUD
+## Simulated seconds that drive every cloud cell's life cycle.
+var _cloud_cell_clock := 0.0
+var _cells: CloudCellsScript = CloudCellsScript.new()
+var _cell_noise_size := 0
 var _material: ShaderMaterial
 var _star_map: ImageTexture
 var _camera: Camera3D
@@ -486,9 +524,23 @@ func _apply_quality_resources(cloud_noise: Texture2D = null, cloud_shape: Textur
 	)
 	_material.set_shader_parameter(&"lightning_density", float(settings["lightning_density"]))
 	_material.set_shader_parameter(&"cloud_fallback", not _cloud_resources_available)
+	# A later tier change rebuilds the cell noise; staged configure binds it in its own unit.
+	if _cell_noise_size != 0:
+		_bind_cell_noise()
 	_apply_atmosphere_lut(settings)
 	if _rain != null:
 		_rain.amount = int(settings["rain_particles"])
+
+
+## R-1400: 3D noise for the discrete cloud cells, rebuilt only when the tier changes size.
+func _bind_cell_noise() -> void:
+	var size := int(_quality_settings()["cloud_cell_noise_size"])
+	if size == _cell_noise_size:
+		return
+	_cell_noise_size = size
+	_material.set_shader_parameter(
+		&"cell_noise", SKY_RESOURCES.build_cell_noise_3d(WEATHER_SEED, size)
+	)
 
 
 ## WS-10: sizes the sky-view LUT for the tier and binds it, or keeps the gradient sky when the
@@ -525,6 +577,7 @@ func _init() -> void:
 	_lightning_rng.seed = WEATHER_SEED + 101
 	_time_to_strike = _lightning_rng.randf_range(LIGHTNING_GAP_SECONDS.x, LIGHTNING_GAP_SECONDS.y)
 	_state_duration = _roll_duration(weather)
+	_update_cells()
 
 
 ## Captures only simulation data so a presenter can hand the weather field to the
@@ -563,6 +616,10 @@ func snapshot_state(
 	state.lightning_direction = _lightning_dir
 	state.lightning_time = _json_safe_float(_lightning_time)
 	state.time_to_strike = _json_safe_float(_time_to_strike)
+	state.lightning_origin = _lightning_origin
+	state.lightning_ground = _lightning_ground
+	state.lightning_kind = _lightning_kind
+	state.cloud_cell_clock = _json_safe_float(_cloud_cell_clock)
 	state.weather_rng_state = _rng.state
 	state.lightning_rng_state = _lightning_rng.state
 	state.current_profile = _profile_for_state(_current)
@@ -603,6 +660,10 @@ func apply_state(state: RefCounted) -> bool:
 	_lightning_dir = restored.lightning_direction
 	_lightning_time = restored.lightning_time
 	_time_to_strike = restored.time_to_strike
+	_lightning_origin = restored.lightning_origin
+	_lightning_ground = restored.lightning_ground
+	_lightning_kind = restored.lightning_kind
+	_cloud_cell_clock = restored.cloud_cell_clock
 	if restored.weather_rng_state != -1:
 		_rng.state = restored.weather_rng_state
 	if restored.lightning_rng_state != -1:
@@ -611,6 +672,7 @@ func apply_state(state: RefCounted) -> bool:
 	_from = _profile_from_state(restored.transition_from_profile, _transition_from_weather)
 	_cycle_progress = wrapf(float(restored.cycle_progress), 0.0, 1.0)
 	_elapsed_days = int(restored.elapsed_days)
+	_update_cells()
 	_push_cloud_uniforms()
 	_update_rain()
 	return true
@@ -698,6 +760,8 @@ func configure_steps(camera: Camera3D, environment: Environment) -> Array[Callab
 		_material.set_shader_parameter(
 			&"lunar_albedo_map", SKY_RESOURCES.build_lunar_albedo_map(WEATHER_SEED)
 		)
+	var cell_noise := func() -> void:
+		_bind_cell_noise()
 	var star_image: Array[Image] = []
 	var star_slices: Array[Callable] = [
 		func() -> void: star_image.append(SKY_RESOURCES.new_star_image())
@@ -733,7 +797,7 @@ func configure_steps(camera: Camera3D, environment: Environment) -> Array[Callab
 		add_child(_roof_audio)
 		_push_cloud_uniforms()
 		set_process(true)
-	var steps: Array[Callable] = [setup, noise, shape, resources, moon]
+	var steps: Array[Callable] = [setup, noise, shape, resources, moon, cell_noise]
 	steps.append_array(star_slices)
 	steps.append_array([stars, sky, rain, attach])
 	return steps
@@ -757,7 +821,6 @@ static func precess_equatorial(star: Vector4, from_epoch: float, to_epoch: float
 ## can drive time without a scene tree; _process is the only other caller.
 func advance(delta: float) -> void:
 	_advance_gust(delta)
-	_advance_lightning(delta)
 	# Wind carries the clouds: gusts race the sky, calm clear days barely stir.
 	# Bank and detail drift share the multiplier so detail keeps outpacing banks.
 	_advance_wind_smoothing(delta)
@@ -785,6 +848,10 @@ func advance(delta: float) -> void:
 		_time_in_state += delta
 		if _time_in_state >= _state_duration:
 			_pick_next_weather()
+	# Cells follow the blended profile; lightning then needs this frame's cells.
+	_cloud_cell_clock += delta
+	_update_cells()
+	_advance_lightning(delta)
 	_advance_puddle_wetness(delta)
 	_update_rain(delta)
 	_push_cloud_uniforms()
@@ -888,8 +955,10 @@ func set_calendar_date(date: Dictionary) -> void:
 ## body, not with the dome-wide coverage. Returns `fallback` when the cloud textures
 ## have no CPU image yet (headless or before first generation).
 func celestial_cloud_clear(dir: Vector3, fallback: float) -> float:
-	if dir.y < 0.02 or _cloud_noise_tex == null or _cloud_shape_tex == null:
+	if dir.y < 0.02:
 		return fallback
+	if _cloud_noise_tex == null or _cloud_shape_tex == null:
+		return fallback * cells_clear_toward(dir)
 	var noise := _cloud_noise_tex.get_image()
 	var shape := _cloud_shape_tex.get_image()
 	if noise == null or shape == null or noise.is_empty() or shape.is_empty():
@@ -899,6 +968,7 @@ func celestial_cloud_clear(dir: Vector3, fallback: float) -> float:
 	var storm := storm_intensity()
 	var cell := 1.0 - _sample_repeat(shape, uv * 0.12 + Vector2(0.37, 0.71))
 	var storm_mask := lerpf(1.0, smoothstep(0.48, 0.8, cell), storm_locality())
+	storm_mask *= 1.0 - storm_locality()
 	var cover := clampf(cloud_coverage() + storm * storm_mask * 0.38, 0.0, 1.0)
 	var banks := 1.0 - _sample_repeat(shape, uv * 0.42 + Vector2(0.13, 0.61))
 	var heaps := 1.0 - _sample_repeat(shape, uv)
@@ -912,7 +982,56 @@ func celestial_cloud_clear(dir: Vector3, fallback: float) -> float:
 	)
 	var lo := detail * lerpf(0.18, 0.42, cloud_chaos())
 	var opacity := clampf((bulk - lo) / maxf(1.0 - lo, 1e-4), 0.0, 1.0)
-	return 1.0 - smoothstep(0.05, 0.65, opacity)
+	return (1.0 - smoothstep(0.05, 0.65, opacity)) * cells_clear_toward(d)
+
+
+## R-1400: share of light from `dir` that passes the discrete cells, seen from the
+## camera (the world origin before configure()).
+func cells_clear_toward(dir: Vector3) -> float:
+	return 1.0 - _cells.shadow_at(_view_position(), dir.normalized())
+
+
+## How broken the cell cover right around the sun is (0 = open or solid, 1 = a
+## ragged edge on the sun). Five probes within ~6 degrees of the sun disk.
+func cell_sun_edge(sun_dir: Vector3) -> float:
+	if sun_dir.y <= 0.0:
+		return 0.0
+	var origin := _view_position()
+	var axis := sun_dir.normalized()
+	var side := axis.cross(Vector3.UP).normalized()
+	if side.length_squared() < 0.5:
+		side = Vector3.RIGHT
+	var up := side.cross(axis).normalized()
+	var lo := 1.0
+	var hi := 0.0
+	for probe: Vector2 in [Vector2.ZERO, Vector2(1, 0), Vector2(-1, 0), Vector2(0, 1), Vector2(0, -1)]:
+		var d := (axis + (side * probe.x + up * probe.y) * 0.1).normalized()
+		var s: float = _cells.shadow_at(origin, d)
+		lo = minf(lo, s)
+		hi = maxf(hi, s)
+	return clampf(hi - lo, 0.0, 1.0)
+
+
+func _view_position() -> Vector3:
+	if _camera != null and is_instance_valid(_camera) and _camera.is_inside_tree():
+		return _camera.global_position
+	return Vector3.ZERO
+
+
+## The discrete cloud field (R-1400). Read-only for callers.
+func cloud_cells() -> CloudCellsScript:
+	return _cells
+
+
+func cloud_cell_clock() -> float:
+	return _cloud_cell_clock
+
+
+func _update_cells() -> void:
+	_cells.update(
+		_cloud_cell_clock, _cloud_offset,
+		CloudCellsScript.counts_for(cloud_coverage(), storm_intensity())
+	)
 
 
 ## Bilinear, wrapping red-channel lookup with shader uv semantics (uv 1.0 = one tile).
@@ -983,6 +1102,8 @@ func presentation_snapshot(progress: float, day_blend: float) -> WeatherPresenta
 	snapshot.moon_visibility = snapshot.lunar_light_strength * cloud_occlusion
 	snapshot.sun_cloud_clear = celestial_cloud_clear(snapshot.sun_direction, cloud_occlusion)
 	snapshot.moon_cloud_clear = celestial_cloud_clear(snapshot.moon_direction, cloud_occlusion)
+	snapshot.cloud_cells = _cells.uniforms()
+	snapshot.cell_sun_edge = cell_sun_edge(snapshot.sun_direction)
 	snapshot.star_visibility = pow(1.0 - snapshot.day_blend, 3.0) * cloud_occlusion
 	snapshot.tide_level = tide_level(progress, calendar_date)
 	snapshot.sidereal_angle = sidereal_angle_for_progress(progress)
@@ -1136,7 +1257,39 @@ func lightning_flash() -> float:
 
 
 func _effective_lightning() -> float:
-	return _lightning * _lightning_flash_scale()
+	return _lightning * _lightning_flash_scale() * _lightning_proximity()
+
+
+## Scene light lift falls off with camera distance to the charge centre. Without a
+## camera (headless simulation) the strike counts as overhead.
+func _lightning_proximity() -> float:
+	if _camera == null or not is_instance_valid(_camera) or not _camera.is_inside_tree():
+		return 1.0
+	var view := _view_position()
+	var offset := CloudCellsScript.wrap_delta(
+		Vector2(_lightning_origin.x, _lightning_origin.z), Vector2(view.x, view.z),
+		CloudCellsScript.KIND_STORM
+	)
+	var distance := Vector3(offset.x, _lightning_origin.y - view.y, offset.y).length()
+	return lerpf(
+		1.0, LIGHTNING_FAR_SCALE,
+		smoothstep(LIGHTNING_NEAR_DISTANCE, LIGHTNING_FAR_DISTANCE, distance)
+	)
+
+
+## Charge centre of the current strike in world units (wrapped into the cell domain).
+func lightning_origin() -> Vector3:
+	return _lightning_origin
+
+
+## Ground point of the current cloud-to-ground stroke (unused for in-cloud flashes).
+func lightning_ground() -> Vector3:
+	return _lightning_ground
+
+
+## LIGHTNING_KIND_CLOUD or LIGHTNING_KIND_GROUND.
+func lightning_kind() -> int:
+	return _lightning_kind
 
 
 ## Ground bearing (unit vec2, x = east, y = north) of the cell currently flashing.
@@ -1334,13 +1487,52 @@ func _advance_lightning(delta: float) -> void:
 		_lightning = 0.0
 	_time_to_strike -= delta * thunder
 	if _time_to_strike <= 0.0 and _lightning_time < 0.0:
-		var angle := _lightning_rng.randf() * TAU
-		_lightning_dir = Vector2(cos(angle), sin(angle))
+		var charged: Array[int] = _cells.mature_storm_cells()
+		if charged.is_empty():
+			# No thunderhead is grown yet: hold the charge instead of striking blue sky.
+			_time_to_strike = LIGHTNING_RETRY_SECONDS
+			return
+		_place_strike(charged[_lightning_rng.randi() % charged.size()])
 		_lightning_time = 0.0
 		_lightning = _lightning_envelope(0.0)
 		_time_to_strike = _lightning_rng.randf_range(
 			LIGHTNING_GAP_SECONDS.x, LIGHTNING_GAP_SECONDS.y
 		)
+
+
+## Puts the strike inside storm cell `slot`: a charge centre in the cell's lower
+## half, and for a ground stroke a point under the cell's rain core. The bearing
+## from the camera keeps the dome's directional flash on that cell.
+func _place_strike(slot: int) -> void:
+	var center: Vector3 = _cells.centers[slot]
+	var radius: float = _cells.radii[slot]
+	var height: float = _cells.heights[slot]
+	var angle := _lightning_rng.randf() * TAU
+	var reach := sqrt(_lightning_rng.randf()) * radius * 0.45
+	_lightning_kind = (
+		LIGHTNING_KIND_GROUND if _lightning_rng.randf() < LIGHTNING_GROUND_CHANCE
+		else LIGHTNING_KIND_CLOUD
+	)
+	var lift := height * _lightning_rng.randf_range(0.15, 0.55)
+	if _lightning_kind == LIGHTNING_KIND_GROUND:
+		lift = height * 0.08
+	_lightning_origin = Vector3(
+		center.x + cos(angle) * reach, center.y + lift, center.z + sin(angle) * reach
+	)
+	var ground_angle := _lightning_rng.randf() * TAU
+	var ground_reach := sqrt(_lightning_rng.randf()) * radius * 0.6
+	_lightning_ground = Vector3(
+		center.x + cos(ground_angle) * ground_reach, 0.0, center.z + sin(ground_angle) * ground_reach
+	)
+	var view := _view_position()
+	var bearing := CloudCellsScript.wrap_delta(
+		Vector2(_lightning_origin.x, _lightning_origin.z), Vector2(view.x, view.z),
+		CloudCellsScript.KIND_STORM
+	)
+	# Ground bearing convention: x = east, y = north (world -Z).
+	_lightning_dir = Vector2(bearing.x, -bearing.y).normalized()
+	if _lightning_dir.length_squared() < 0.5:
+		_lightning_dir = Vector2.RIGHT
 
 
 ## Flash shape: a sharp leader stroke plus a fast return-stroke flicker, both
@@ -1407,8 +1599,20 @@ func _push_cloud_uniforms() -> void:
 	_material.set_shader_parameter(&"cloud_fallback", not _cloud_resources_available)
 	_material.set_shader_parameter(&"storm_intensity", storm_intensity())
 	_material.set_shader_parameter(&"storm_locality", storm_locality())
-	_material.set_shader_parameter(&"lightning", _effective_lightning())
+	# The dome draws the strike at full brightness wherever it is; only the scene
+	# light lift (lighting_modifiers) falls off with distance to the cell.
+	_material.set_shader_parameter(&"lightning", _lightning * _lightning_flash_scale())
 	_material.set_shader_parameter(&"lightning_dir", _lightning_dir)
+	_material.set_shader_parameter(&"lightning_origin", _lightning_origin)
+	_material.set_shader_parameter(&"lightning_ground", _lightning_ground)
+	_material.set_shader_parameter(&"lightning_kind", float(_lightning_kind))
+	_material.set_shader_parameter(&"cloud_cells", _cells.uniforms())
+	_material.set_shader_parameter(&"cell_steps", int(settings["cloud_cell_steps"]))
+	_material.set_shader_parameter(&"cell_fine_steps", int(settings["cloud_cell_fine_steps"]))
+	_material.set_shader_parameter(
+		&"cell_light_samples", int(settings["cloud_cell_light_samples"])
+	)
+	_material.set_shader_parameter(&"cell_ray_samples", int(settings["cloud_cell_ray_samples"]))
 	_material.set_shader_parameter(&"wind_dir", wind_direction_xz())
 	_publish_cloud_shadow_globals()
 
@@ -1429,7 +1633,10 @@ func _publish_cloud_shadow_globals() -> void:
 	RenderingServer.global_shader_parameter_set(&"cloud_offset_g", _cloud_offset)
 	RenderingServer.global_shader_parameter_set(&"cloud_detail_offset_g", _cloud_detail_offset)
 	# Fold the storm lift into coverage so the ground pass stays in its sample budget.
-	var cover := clampf(cloud_coverage() + storm_intensity() * 0.38, 0.0, 1.0)
+	# R-1400: only the widespread share; an isolated storm shades through its cells.
+	var cover := clampf(
+		cloud_coverage() + storm_intensity() * (1.0 - storm_locality()) * 0.38, 0.0, 1.0
+	)
 	RenderingServer.global_shader_parameter_set(&"cloud_coverage_g", cover)
 	RenderingServer.global_shader_parameter_set(&"cloud_chaos_g", cloud_chaos())
 	RenderingServer.global_shader_parameter_set(&"storm_intensity_g", storm_intensity())

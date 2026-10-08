@@ -65,6 +65,13 @@ var lightning := 0.0
 var lightning_direction := Vector2(1.0, 0.0)
 var lightning_time := -1.0
 var time_to_strike := 0.0
+## R-1400: the live strike's charge centre and ground point (world units, wrapped
+## into the CloudCells domain) and kind (0 in-cloud, 1 cloud-to-ground).
+var lightning_origin := Vector3(0.0, 600.0, 0.0)
+var lightning_ground := Vector3.ZERO
+var lightning_kind := 0
+## Simulated seconds driving every CloudCells life cycle. Optional in older saves.
+var cloud_cell_clock := 0.0
 var weather_rng_state := -1
 var lightning_rng_state := -1
 ## Profiles are copied so a transition can resume exactly after a map swap.
@@ -97,6 +104,9 @@ func normalize() -> void:
 	seconds_since_rain = maxf(seconds_since_rain, LAST_RAIN_NEVER)
 	gust = clampf(gust, 0.0, 1.0)
 	lightning = clampf(lightning, 0.0, 1.0)
+	lightning_kind = clampi(lightning_kind, 0, 1)
+	if not is_finite(cloud_cell_clock) or cloud_cell_clock < 0.0:
+		cloud_cell_clock = 0.0
 	if lightning_direction.length_squared() < 0.000001:
 		lightning_direction = Vector2.RIGHT
 	else:
@@ -161,6 +171,10 @@ func to_dict() -> Dictionary:
 		"lightning_direction": _vector_to_array(lightning_direction),
 		"lightning_time": lightning_time,
 		"time_to_strike": time_to_strike,
+		"lightning_origin": _vector3_to_array(lightning_origin),
+		"lightning_ground": _vector3_to_array(lightning_ground),
+		"lightning_kind": lightning_kind,
+		"cloud_cell_clock": cloud_cell_clock,
 		# JSON numbers are IEEE-754 doubles in the save path and cannot carry a
 		# full 64-bit RNG state. Strings keep deterministic map transitions exact.
 		"weather_rng_state": str(weather_rng_state),
@@ -205,6 +219,12 @@ static func from_dict(data: Dictionary) -> SkyWeatherState:
 	)
 	state.lightning_time = float(data.get("lightning_time", -1.0))
 	state.time_to_strike = float(data.get("time_to_strike", 0.0))
+	state.lightning_origin = _vector3_from_value(
+		data.get("lightning_origin", []), Vector3(0.0, 600.0, 0.0)
+	)
+	state.lightning_ground = _vector3_from_value(data.get("lightning_ground", []), Vector3.ZERO)
+	state.lightning_kind = int(data.get("lightning_kind", 0))
+	state.cloud_cell_clock = float(data.get("cloud_cell_clock", 0.0))
 	state.weather_rng_state = _int_from_value(data.get("weather_rng_state", "-1"))
 	state.lightning_rng_state = _int_from_value(data.get("lightning_rng_state", "-1"))
 	var raw_current: Variant = data.get("current_profile", {})
@@ -237,6 +257,18 @@ static func _int_from_value(value: Variant) -> int:
 
 static func _vector_to_array(value: Vector2) -> Array[float]:
 	return [value.x, value.y]
+
+
+static func _vector3_to_array(value: Vector3) -> Array[float]:
+	return [value.x, value.y, value.z]
+
+
+static func _vector3_from_value(value: Variant, fallback: Vector3) -> Vector3:
+	if value is Vector3:
+		return value
+	if value is Array and value.size() >= 3:
+		return Vector3(float(value[0]), float(value[1]), float(value[2]))
+	return fallback
 
 
 static func _vector_from_value(value: Variant, fallback: Vector2) -> Vector2:
