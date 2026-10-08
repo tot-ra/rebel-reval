@@ -4,6 +4,7 @@ extends "res://tests/godot/test_case.gd"
 ## LOD, bark plates on city trunks, seamless grass ground plates, tuft size.
 
 const KALEV_HEIGHT := 1.83
+const LeafGeometry := preload("res://scripts/map/view3d/map_view_leaf_geometry.gd")
 
 
 const TreeSkeletonWeber := preload("res://scripts/map/view3d/tree_skeleton_weber_penn.gd")
@@ -88,6 +89,52 @@ func test_near_crown_cards_are_real_size_and_denser() -> void:
 		)
 
 
+func test_macro_conifer_crowns_grow_3d_needle_fronds() -> void:
+	assert_false(MapViewTreeMeshes.has_macro_crown(&"oak"), "broadleaf has no macro crown")
+	for species: StringName in [&"spruce", &"pine", &"juniper"]:
+		assert_true(MapViewTreeMeshes.has_macro_crown(species))
+		var scale := CityVegetationBuilder.species_scale(species, 1.0)
+		var near := MapViewTreeMeshes.city_canopy_near_stats(species, scale)
+		var macro := MapViewTreeMeshes.city_canopy_macro_stats(species, scale)
+		assert_eq(int(near["frond_count"]), 0, "%s near crown stays card-only" % species)
+		assert_true(
+			int(macro["frond_count"]) > 50, "%s macro fronds %d" % [species, macro["frond_count"]]
+		)
+		# Same card size and density as the near crown: the swap changes needle
+		# detail, not crown mass.
+		assert_eq(float(macro["size_factor"]), float(near["size_factor"]))
+		assert_eq(float(macro["count_factor"]), float(near["count_factor"]))
+		assert_true(
+			int(macro["frond_triangles"]) <= MapViewTreeMeshes.MACRO_FROND_TRIANGLE_CAP,
+			"%s frond triangles %d" % [species, macro["frond_triangles"]]
+		)
+
+
+func test_needle_shoot_needles_are_round_prisms() -> void:
+	var surface := SurfaceTool.new()
+	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
+	surface.set_custom_format(0, SurfaceTool.CUSTOM_RGBA_FLOAT)
+	var triangles := LeafGeometry.append_needle_shoot(
+		surface, Vector3.ZERO, Vector3.FORWARD, 0.2, 10, 0.04, 0.003, 1.0, Color.GREEN,
+		Color(0, 0, 0, 0.5), false
+	)
+	assert_eq(triangles, 30, "three faces per needle")
+	var arrays := surface.commit().surface_get_arrays(0)
+	var normals: PackedVector3Array = arrays[Mesh.ARRAY_NORMAL]
+	var vertices: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
+	assert_eq(vertices.size(), 90)
+	# A flat needle would share one normal; a round one spreads them all round.
+	var spread := 0.0
+	for index in range(0, 9):
+		spread = maxf(spread, normals[0].angle_to(normals[index]))
+	assert_true(spread > deg_to_rad(90.0), "needle normals wrap round the needle")
+	# Godot fronts are clockwise: each face winds against its own normal.
+	for face in range(0, vertices.size(), 3):
+		var a := vertices[face]
+		var cross := (vertices[face + 2] - a).cross(vertices[face + 1] - a)
+		assert_true(cross.dot(normals[face]) >= 0.0, "face %d winding" % face)
+
+
 func test_city_spruce_keeps_all_whorls() -> void:
 	var skeleton: Dictionary = MapViewTreeMeshes._skeleton_for(&"spruce")
 	var heights: Array = skeleton["primary_attachment_heights"]
@@ -133,6 +180,30 @@ func test_tree_lod_swaps_far_instances_with_hysteresis() -> void:
 	lod.update_for(Vector3(-CityTreeLod.NEAR_EXIT - 5.0 + 10.0, 0, 0))
 	assert_false(lod.is_near(0), "leaving the exit radius restores the far crown")
 	assert_eq(lod.near_count(), 0)
+	lod.free()
+
+
+func test_tree_lod_gives_close_conifers_a_macro_crown() -> void:
+	var lod := CityTreeLod.new()
+	var far := MultiMesh.new()
+	far.transform_format = MultiMesh.TRANSFORM_3D
+	far.use_colors = true
+	far.instance_count = 1
+	var xf := Transform3D(Basis(), Vector3(5, 0, 0))
+	far.set_instance_transform(0, xf)
+	var transforms: Array[Transform3D] = [xf]
+	var colors: Array[Color] = [Color.WHITE]
+	lod.register(
+		&"pine", CityVegetationBuilder.species_scale(&"pine", 1.0), far, transforms, colors, false
+	)
+	lod.update_for(Vector3.ZERO)
+	assert_true(lod.is_near(0) and lod.is_macro(0), "a pine 5 m away is macro")
+	assert_eq(lod.get_child(0).name, &"CrownMacro_pine")
+	# Between MACRO_ENTER and MACRO_EXIT it stays macro (no flicker).
+	assert_false(lod.update_for(Vector3(5.0 - CityTreeLod.MACRO_ENTER - 1.0, 0, 0)))
+	assert_true(lod.is_macro(0))
+	assert_true(lod.update_for(Vector3(5.0 - CityTreeLod.MACRO_EXIT - 1.0, 0, 0)))
+	assert_true(lod.is_near(0) and not lod.is_macro(0), "past MACRO_EXIT it drops to near")
 	lod.free()
 
 

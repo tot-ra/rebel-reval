@@ -56,6 +56,51 @@ const NEAR_MAX_COUNT_FACTOR := 3.5
 const NEAR_TRIANGLE_CAP := 56000
 ## Bark plates (assets/materials/pbr/bark_*) cover about this much trunk.
 const BARK_TILE_METRES := 0.55
+## Macro crown (conifers within CityTreeLod.MACRO_ENTER of the camera): the
+## outer needle cards are replaced by real 3D fronds, a leader shoot with side
+## shoots, every needle a small round three-sided prism. Cards are flat planks
+## seen from a few metres; fronds keep depth and a needle silhouette. Sizes are
+## metres and match the needle art on the cards (about 1.5-2x real), so the
+## swap does not change the crown's grain; true-size needles fall below a
+## pixel at gameplay distance and vanish into the cards behind them.
+## leader_m: frond leader cap; laterals: side shoots per frond; lateral: side
+## shoot length as a fraction of the leader; per_m: needles per metre of shoot;
+## stride: one frond per this many card stations (fewer, denser fronds read as
+## needle ropes; many sparse ones read as hair);
+## needle_m / radius_m: needle size; spread: needle angle off the shoot (rad);
+## paired: Scots pine needles come two to a fascicle; min_exposure: twig
+## clusters less exposed than this keep their cards (hidden inside the crown,
+## they only need to read as dark mass).
+const MACRO_FRONDS := {
+	&"spruce": {
+		"leader_m": 0.45, "laterals": 4, "lateral": 0.45, "per_m": 210.0, "stride": 4,
+		"needle_m": 0.04, "radius_m": 0.0032, "spread": 0.95, "paired": false,
+		# A spruce cone keeps its upper shoots near the crown axis, so the radial
+		# exposure test would skip them; every spruce shoot is on the surface.
+		"min_exposure": 0.0,
+	},
+	&"pine": {
+		"leader_m": 0.24, "laterals": 2, "lateral": 0.75, "per_m": 240.0, "stride": 1,
+		"needle_m": 0.085, "radius_m": 0.0034, "spread": 0.58, "paired": true,
+		"min_exposure": 0.3,
+	},
+	&"juniper": {
+		"leader_m": 0.28, "laterals": 4, "lateral": 0.45, "per_m": 180.0, "stride": 2,
+		"needle_m": 0.024, "radius_m": 0.0024, "spread": 0.85, "paired": false,
+		"min_exposure": 0.3,
+	},
+}
+## Frond triangle budget per macro crown. Over it, needle density is thinned
+## uniformly (never whole fronds), so the crown stays even. Only the one to
+## three trees beside the camera carry it.
+const MACRO_FROND_TRIANGLE_CAP := 480000
+## Fronds come out a little darker than the card art (no texture gain or clump
+## highlight); this lifts their vertex colour to match the cards they replace.
+const MACRO_FROND_GAIN := 1.6
+## Undercoat cards under the fronds: this fraction of the card size, darkened
+## by MACRO_UNDERCOAT_SHADE so they read as the shadowed inside of the shoots.
+const MACRO_UNDERCOAT_SCALE := 0.85
+const MACRO_UNDERCOAT_SHADE := 0.85
 ## Near folded (single) leaves shrink further than cards: a card is a whole
 ## twig cluster, a folded leaf is one leaf (birch ~5 cm, oak ~12 cm).
 const NEAR_FOLDED_LEAF_SHRINK := 0.4
@@ -114,8 +159,33 @@ static func city_wood_mesh(
 ## but cluster cards at real size (NEAR_*_CARD_METRES) and proportionally more
 ## of them. Drawn only for trees close to the camera (CityTreeLod).
 static func city_canopy_near_mesh(species: StringName, world_scale: float) -> ArrayMesh:
-	var key := "near:%s:%.2f" % [species, world_scale]
-	if not _city_cache.has(key):
+	return _city_canopy_close_mesh(species, world_scale, false)
+
+
+## City macro crown: the near crown with its exposed needle cards swapped for
+## 3D fronds (MACRO_FRONDS). Conifers only; see has_macro_crown.
+static func city_canopy_macro_mesh(species: StringName, world_scale: float) -> ArrayMesh:
+	return _city_canopy_close_mesh(species, world_scale, true)
+
+
+static func has_macro_crown(species: StringName) -> bool:
+	return MACRO_FRONDS.has(species)
+
+
+static func city_canopy_macro_stats(species: StringName, world_scale: float) -> Dictionary:
+	city_canopy_macro_mesh(species, world_scale)
+	return (_city_cache["stats:macro:%s:%.2f" % [species, world_scale]] as Dictionary).duplicate()
+
+
+## Near and macro crowns share card size and density, so the macro swap only
+## changes the needle detail, never the crown mass.
+static func _city_canopy_close_mesh(
+	species: StringName, world_scale: float, macro: bool
+) -> ArrayMesh:
+	var key := "%s:%s:%.2f" % ["macro" if macro else "near", species, world_scale]
+	if not _city_cache.has(key) and macro and has_macro_crown(species):
+		_build_macro_crown(species, world_scale, key)
+	elif not _city_cache.has(key):
 		var profile := city_profile(species)
 		var conifer := species in CONIFERS
 		var base := float(profile["leaf_length"]) * (CONIFER_CARD_SCALE if conifer else CARD_SCALE)
@@ -136,14 +206,43 @@ static func city_canopy_near_mesh(species: StringName, world_scale: float) -> Ar
 			data = _build_canopy_mesh(
 				species, profile, _skeleton_for(species), size_factor, count_factor
 			)
-		_city_cache[key] = data["mesh"]
-		_city_cache["stats:" + key] = {
-			"card_count": int(data["card_count"]),
-			"size_factor": size_factor,
-			"count_factor": count_factor,
-			"canopy_triangles": (data["mesh"] as ArrayMesh).surface_get_array_len(0) / 3,
-		}
+		_cache_close_mesh(key, data, size_factor, count_factor)
 	return _city_cache[key]
+
+
+## Macro crown on the near crown's card size and density (built first, so it is
+## cached too). Needle density is thinned uniformly when the fronds overshoot
+## MACRO_FROND_TRIANGLE_CAP.
+static func _build_macro_crown(species: StringName, world_scale: float, key: String) -> void:
+	var near := city_canopy_near_stats(species, world_scale)
+	var size_factor := float(near["size_factor"])
+	var count_factor := float(near["count_factor"])
+	var profile := city_profile(species)
+	var fronds := {"metres_to_tree": 1.0 / maxf(world_scale, 0.01), "density": 1.0}
+	var data := _build_canopy_mesh(
+		species, profile, _skeleton_for(species), size_factor, count_factor, fronds
+	)
+	var frond_triangles := int(data["frond_triangles"])
+	if frond_triangles > MACRO_FROND_TRIANGLE_CAP:
+		fronds["density"] = float(MACRO_FROND_TRIANGLE_CAP) / float(frond_triangles)
+		data = _build_canopy_mesh(
+			species, profile, _skeleton_for(species), size_factor, count_factor, fronds
+		)
+	_cache_close_mesh(key, data, size_factor, count_factor)
+
+
+static func _cache_close_mesh(
+	key: String, data: Dictionary, size_factor: float, count_factor: float
+) -> void:
+	_city_cache[key] = data["mesh"]
+	_city_cache["stats:" + key] = {
+		"card_count": int(data["card_count"]),
+		"frond_count": int(data["frond_count"]),
+		"frond_triangles": int(data["frond_triangles"]),
+		"size_factor": size_factor,
+		"count_factor": count_factor,
+		"canopy_triangles": (data["mesh"] as ArrayMesh).surface_get_array_len(0) / 3,
+	}
 
 
 static func city_canopy_near_stats(species: StringName, world_scale: float) -> Dictionary:
@@ -339,7 +438,8 @@ static func _build_canopy_mesh(
 	profile: Dictionary,
 	skeleton: Dictionary,
 	size_factor := 1.0,
-	count_factor := 1.0
+	count_factor := 1.0,
+	fronds: Dictionary = {}
 ) -> Dictionary:
 	var surface := SurfaceTool.new()
 	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
@@ -403,8 +503,10 @@ static func _build_canopy_mesh(
 				_hash(leaf_index, seed, 467)
 			)
 			leaf_count += 1
+	fronds["count"] = 0
+	fronds["triangles"] = 0
 	var card_count := _append_cluster_cards(
-		surface, species, profile, skeleton, crown, size_factor, count_factor
+		surface, species, profile, skeleton, crown, size_factor, count_factor, fronds
 	)
 	var fruit_count := mini(int(profile["fruit_count"]), used_anchors.size())
 	return {
@@ -412,6 +514,8 @@ static func _build_canopy_mesh(
 		"sprays": spray_count,
 		"leaf_count": leaf_count,
 		"card_count": card_count,
+		"frond_count": int(fronds["count"]),
+		"frond_triangles": int(fronds["triangles"]),
 		"fruit_count": fruit_count,
 		"anchors": used_anchors,
 	}
@@ -429,11 +533,12 @@ static func _append_cluster_cards(
 	skeleton: Dictionary,
 	crown: AABB,
 	size_factor := 1.0,
-	count_factor := 1.0
+	count_factor := 1.0,
+	fronds: Dictionary = {}
 ) -> int:
 	if skeleton.has("twigs"):
 		return _append_twig_clusters(
-			surface, species, profile, skeleton, crown, size_factor, count_factor
+			surface, species, profile, skeleton, crown, size_factor, count_factor, fronds
 		)
 	var conifer := species in CONIFERS
 	var length := (
@@ -539,9 +644,13 @@ static func _append_twig_clusters(
 	skeleton: Dictionary,
 	crown: AABB,
 	size_factor := 1.0,
-	count_factor := 1.0
+	count_factor := 1.0,
+	fronds: Dictionary = {}
 ) -> int:
 	var conifer := species in CONIFERS
+	# `fronds` carries metres_to_tree and density for a macro crown (see
+	# _city_canopy_close_mesh) and collects count / triangles; empty otherwise.
+	var use_fronds := fronds.has("metres_to_tree") and MACRO_FRONDS.has(species)
 	var length := (
 		float(profile["leaf_length"])
 		* (CONIFER_CARD_SCALE if conifer else CARD_SCALE)
@@ -570,6 +679,9 @@ static func _append_twig_clusters(
 			# A limb that still carries shoots of its own gets a token tuft only.
 			exposure *= 0.45
 		var count := maxi(1, roundi(float(base_cards) * lerpf(0.45, 1.0, exposure)))
+		var frond_cluster := (
+			use_fronds and exposure >= float(MACRO_FRONDS[species]["min_exposure"])
+		)
 		var outward := end - centre
 		outward.y = 0.0
 		if outward.length_squared() < 0.0001:
@@ -598,9 +710,98 @@ static func _append_twig_clusters(
 			)
 			var base := station - axis * size * 0.16 + radial * size * 0.1
 			var facing := (radial * 0.55 + outward * 0.45 + Vector3.UP * 0.2).normalized()
+			# Macro crown: an exposed cluster grows 3D fronds (one per `stride`
+			# stations) and keeps its cards only as a smaller, darker undercoat.
+			# Real-density needles would cost millions of triangles; the undercoat
+			# fills the gaps the way the shadowed inner needles of a shoot do, while
+			# the fronds own the silhouette and the parallax.
+			if frond_cluster:
+				if card_index % int(MACRO_FRONDS[species]["stride"]) == 0:
+					fronds["triangles"] = int(fronds["triangles"]) + _emit_frond(
+						surface, species, station, axis, facing, size, crown, seed, card_index,
+						fronds
+					)
+					fronds["count"] = int(fronds["count"]) + 1
+				var under := size * MACRO_UNDERCOAT_SCALE
+				_emit_card(
+					surface, species, station - axis * under * 0.3, axis, facing, under, crown,
+					seed, card_index, MACRO_UNDERCOAT_SHADE
+				)
+				cards += 1
+				continue
 			_emit_card(surface, species, base, axis, facing, size, crown, seed, card_index)
 			cards += 1
 	return cards
+
+
+## One 3D needle frond in place of a needle card (macro crown): a leader shoot
+## along the card axis and MACRO_FRONDS.laterals side shoots alternating left
+## and right in the frond plane, hanging a little like spruce branchlets. The
+## leader is the card length capped at leader_m. Returns triangles emitted.
+static func _emit_frond(
+	surface: SurfaceTool,
+	species: StringName,
+	station: Vector3,
+	axis: Vector3,
+	facing: Vector3,
+	size: float,
+	crown: AABB,
+	seed: int,
+	index: int,
+	fronds: Dictionary
+) -> int:
+	var spec: Dictionary = MACRO_FRONDS[species]
+	var metres_to_tree := float(fronds["metres_to_tree"])
+	var leader := minf(size, float(spec["leader_m"]) * metres_to_tree)
+	leader *= lerpf(0.8, 1.1, _hash(index, seed, 811))
+	# Hang the frond a little: real branchlets droop under their needles.
+	var heading := (axis + Vector3.DOWN * 0.18).normalized()
+	var side := facing.cross(heading)
+	if side.length_squared() < 0.0001:
+		side = TreeMeshSkeleton.perpendicular(heading)
+	side = side.normalized()
+	var base := station - heading * leader * 0.25
+	var color := _leaf_vertex_color(
+		species, lerpf(0.84, 1.08, _hash(index, seed, 817)) * MACRO_FROND_GAIN
+	)
+	color.a = _crown_occlusion(station + heading * leader * 0.5, crown)
+	var custom := Color(base.x, base.y, base.z, clampf(_hash(index, seed, 821), 0.0001, 0.9999))
+	var per_m := float(spec["per_m"]) * float(fronds["density"]) / metres_to_tree
+	var needle := float(spec["needle_m"]) * metres_to_tree
+	var radius := float(spec["radius_m"]) * metres_to_tree
+	var spread := float(spec["spread"])
+	var paired := bool(spec["paired"])
+	var triangles := LeafGeometry.append_needle_shoot(
+		surface, base, heading, leader, maxi(2, roundi(leader * per_m)),
+		needle, radius, spread, color, custom, paired
+	)
+	var laterals := int(spec["laterals"])
+	for lateral_index in laterals:
+		# Side shoots leave the leader from its base half toward its tip and
+		# shorten toward the tip, giving the frond its tapered outline.
+		var t := (float(lateral_index) + 0.5) / float(laterals) * 0.8
+		var sign_value := 1.0 if lateral_index % 2 == 0 else -1.0
+		var lateral_heading := (
+			heading * 0.62 + side * sign_value * 0.78 + Vector3.DOWN * 0.12
+		).normalized()
+		var lateral_length := (
+			leader * float(spec["lateral"]) * lerpf(1.15, 0.6, t)
+			* lerpf(0.85, 1.15, _hash(lateral_index, seed + index, 829))
+		)
+		triangles += LeafGeometry.append_needle_shoot(
+			surface,
+			base + heading * leader * t,
+			lateral_heading,
+			lateral_length,
+			maxi(2, roundi(lateral_length * per_m)),
+			needle * 0.9,
+			radius,
+			spread,
+			color,
+			custom,
+			paired
+		)
+	return triangles
 
 
 ## A ring of drooping fans around the bole inside a conifer crown. Spruce and
@@ -647,7 +848,8 @@ static func _emit_card(
 	size: float,
 	crown: AABB,
 	seed: int,
-	index: int
+	index: int,
+	shade := 1.0
 ) -> void:
 	var middle := base + axis * size * 0.5
 	var conifer := species in CONIFERS
@@ -655,7 +857,9 @@ static func _emit_card(
 	# Conifers keep the shell normal nearly horizontal: an upward bias made every
 	# whorl face the sun and blow out white.
 	outward.y = (outward.y * 0.5) if conifer else (maxf(outward.y, 0.0) + crown.size.y * 0.15)
-	var color := _leaf_vertex_color(species, lerpf(0.82, 1.08, _hash(index, seed, 517)))
+	var color := _leaf_vertex_color(
+		species, lerpf(0.82, 1.08, _hash(index, seed, 517)) * shade
+	)
 	var occlusion := _crown_occlusion(middle, crown)
 	color.a = occlusion
 	# VEGR-6 crown volume: only shell clusters take the full spherical normal, so

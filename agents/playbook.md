@@ -239,3 +239,5 @@ Keep this file short. Append a durable reusable rule, not a dated incident log. 
 - Before editing a shader, confirm which one draws the surface: render a capture after the edit and diff it against the "before" shot. City ground is `scripts/city/city_ground.gdshader`, not `map_view_terrain_blend.gdshader` (map view only). A shader that fails to compile renders white; check `SHADER ERROR` in the `godot_render.sh` output.
 
 - Before `git commit` run `git diff --cached --stat`: another session may have staged files in the shared index, and a plain commit sweeps them in. Commit with explicit paths (`git commit -- <paths>`) so only your files go in.
+
+- To throw away your own edits to a file, restore the index version (`git show :<path> > <path>`), never `git show HEAD:<path> > <path>` or `git checkout HEAD -- <path>`. Plain `git diff` compares against the index, so another session's staged hunks in that file are invisible to it, and resetting to HEAD silently deletes them from the working tree (their next commit, or yours, then reverts them). Check `git diff --cached -- <path>` before any reset.

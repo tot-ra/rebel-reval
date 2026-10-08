@@ -2,7 +2,7 @@ extends SceneTree
 
 ## Vegetation review plates for the seamless city (R-712 VEG pass): trees next
 ## to a 1.83 m reference figure (Kalev's height), needle, bark and grass close-ups,
-## and the near/far crown LOD switch. Needs a renderer:
+## conifer macro crowns (R-1404) and the near/far crown LOD switch. Needs a renderer:
 ##   tools/godot_render.sh --script tools/capture_city_vegetation.gd [-- --tag=before]
 ##     [--only=<shot>[,<shot>...]] [--date=7-15]
 ## Output: build/vegetation/<shot>_<tag>.png (copy the ones worth keeping into
@@ -113,6 +113,18 @@ func _shots(plan: CityPlan) -> Array[Dictionary]:
 			}
 		)
 		if species in ["spruce", "pine"]:
+			# R-1404 macro crown: a branch an arm's length away, where the 3D
+			# needle fronds replace the flat needle cards.
+			var low := g + minf(h * 0.35, 4.0)
+			var eye := Vector3(p.x + side.x * 2.6, low + 0.2, p.y + side.y * 2.6)
+			var look := Vector3(p.x + side.x * 1.2, low - 0.3, p.y + side.y * 1.2)
+			if species == "pine":
+				# The pine crown is high: stand inside its lowest limbs.
+				eye = Vector3(p.x + side.x * 1.2 + 1.0, g + h * 0.78 - 0.3, p.y + side.y * 1.2 - 1.6)
+				look = Vector3(p.x + side.x * 2.6 + 1.0, g + h * 0.78, p.y + side.y * 2.6)
+			shots.append(
+				{"name": "%s_macro" % species, "eye": eye, "look": look, "fov": 60.0, "focus": p}
+			)
 			# Close-up of the lower crown edge, where the user saw flat needle sheets.
 			shots.append(
 				{

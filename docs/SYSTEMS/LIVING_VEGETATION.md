@@ -1,6 +1,6 @@
 # Living vegetation
 
-Status: implemented (tasks **R-1187**, **R-1194**, **R-1329** procedural leaf atlas, **R-1321** shared wind field, seamless-city pass of **R-712** covering **R-1101**, **R-1102**, **R-1103**, **R-1105**; visual/reviewer acceptance pending). Scope: tree crowns in the 3D view follow the campaign calendar, react to rain and wind, and respond to melee swings. Presentation only: nothing here changes combat, collision, navigation, or saved state. Out of scope: felling or damaging trees, persistent leaf litter on the ground, snow on branches, seasonal bushes, grass, and crops, and blossom.
+Status: implemented (tasks **R-1187**, **R-1194**, **R-1329** procedural leaf atlas, **R-1321** shared wind field, **R-1404** 3D conifer needles close up, seamless-city pass of **R-712** covering **R-1101**, **R-1102**, **R-1103**, **R-1105**; visual/reviewer acceptance pending). Scope: tree crowns in the 3D view follow the campaign calendar, react to rain and wind, and respond to melee swings. Presentation only: nothing here changes combat, collision, navigation, or saved state. Out of scope: felling or damaging trees, persistent leaf litter on the ground, snow on branches, seasonal bushes, grass, and crops, and blossom.
 
 Reference bar: trees that feel alive in the way Witcher 3 and RDR2 trees do. The crown changes with the month, and a blow to the trunk knocks leaves loose.
 
@@ -308,9 +308,9 @@ Runtime entry points:
 
 | Piece | File |
 |---|---|
-| City wood, near and far crowns, city skeleton overrides | [`map_view_tree_meshes.gd`](../../scripts/map/view3d/map_view_tree_meshes.gd) (`city_wood_mesh`, `city_canopy_near_mesh`, `city_canopy_far_mesh`, `CITY_PROFILE_OVERRIDES`) |
+| City wood, near, macro and far crowns, city skeleton overrides | [`map_view_tree_meshes.gd`](../../scripts/map/view3d/map_view_tree_meshes.gd) (`city_wood_mesh`, `city_canopy_near_mesh`, `city_canopy_macro_mesh`, `city_canopy_far_mesh`, `CITY_PROFILE_OVERRIDES`) |
 | Profile-driven segment cap (`max_segments`) | [`map_view_tree_mesh_skeleton.gd`](../../scripts/map/view3d/map_view_tree_mesh_skeleton.gd) |
-| Per-tree near/far swap | [`city_tree_lod.gd`](../../scripts/city/city_tree_lod.gd) (`CityTreeLod`, child `Vegetation/TreeLod` of `CityWorld3D`; follows the active camera) |
+| Per-tree far/near/macro swap | [`city_tree_lod.gd`](../../scripts/city/city_tree_lod.gd) (`CityTreeLod`, child `Vegetation/TreeLod` of `CityWorld3D`; follows the active camera) |
 | Heights, trunk diameters, LOD registration | [`city_vegetation_builder.gd`](../../scripts/city/city_vegetation_builder.gd) |
 | Bark plate materials | [`map_view_prop_materials.gd`](../../scripts/map/view3d/map_view_prop_materials.gd) (`bark_plate`, `BARK_PLATES`), `MapViewTreeSpecies.bark_plate_for` |
 | Grass ground plates | [`city_grass_ground.gdshaderinc`](../../scripts/city/city_grass_ground.gdshaderinc), included by `city_ground.gdshader`; textures bound in `CityTerrainBuilder.TEXTURES` |
@@ -362,7 +362,69 @@ are 12-20k triangles for broadleaves, about 55k for spruce and 66k for pine
 Limits of this pass: Scots pine keeps a stylised clumped crown; the grass plates'
 plantain and dandelion rosettes can repeat in a regular rhythm inside one plate; the
 district maps keep their old bark and crown geometry. Shrub leaves were fixed in R-1315
-(below).
+(below), conifer needles close up in R-1404 (below).
+
+### Macro conifer crowns: round 3D needles (R-1404)
+
+Status: implemented (task **R-1404**). Scope: seamless-city spruce, pine and juniper
+within 10 m of the camera. Out of scope: broadleaf crowns, far and near crowns beyond
+10 m, district maps, and true needle density (see Limits).
+
+Close up, conifer needles were flat: the crown mass is alpha-cut needle cards, and the
+folded "needles" were two-triangle diamonds lying in one plane, so a branch read as a
+hanging plank and vanished edge-on. Now:
+
+- **Round needles everywhere.** `MapViewLeafGeometry.append_needle_shoot` builds a
+  bottlebrush shoot: needles spiral round the shoot axis on the golden angle, crowd a
+  little onto the lit upper side, shorten toward the bud, and Scots pine needles come
+  two to a fascicle. Each needle is a three-sided tapered prism whose normals point
+  radially out of the needle, so it shades like a small cylinder (dark root, lit tip).
+  The old flat diamonds on every conifer spray (near and far crowns) are now these
+  shoots: 36 triangles per spray instead of 28.
+- **Macro crown.** `CityTreeLod` adds a third tier: a conifer whose trunk is within
+  `MACRO_ENTER` (10 m; leaves at `MACRO_EXIT`, 13 m) swaps its near crown for
+  `MapViewTreeMeshes.city_canopy_macro_mesh`. There every exposed twig cluster
+  (`MACRO_FRONDS[species].min_exposure`) grows 3D fronds in place of its needle cards: a
+  leader shoot along the card axis plus side shoots alternating left and right and
+  hanging a little, one frond per `stride` card stations. Under each frond its card stays
+  as an undercoat at `MACRO_UNDERCOAT_SCALE` (0.85) and `MACRO_UNDERCOAT_SHADE` (0.85),
+  standing in for the shadowed inner needles. Inner clusters keep plain cards.
+  Card size and density match the near crown, and `MACRO_FROND_GAIN` matches the fronds'
+  brightness to the cards, so the 10 m swap changes needle detail, not crown mass or tone
+  ([near vs macro at the swap distance](../reports/images/vegetation/veg_city_spruce_near_macro_parity.jpg)).
+- **Sizes** (`MACRO_FRONDS`, metres): needles match the needle art on the cards (spruce
+  4 cm x 6.4 mm, pine 8.5 cm x 6.8 mm, juniper 2.4 cm), about 1.5-2x real. True-size
+  needles fall below a pixel at gameplay distance and vanish into the cards behind them.
+- **Wind and seasons.** Shoots use the folded-leaf contract (UV2 = (1, 0), UV.y rising
+  base to tip, CUSTOM0 = frond base + seed), so they sway, dull in winter and shed with
+  the rest of the crown.
+
+Budget: needle density is thinned uniformly until the fronds fit
+`MACRO_FROND_TRIANGLE_CAP` (480k): a macro spruce is about 520k triangles (774 fronds),
+pine 380k (929 fronds), juniper 58k, against 12-40k for their near crowns. Only the one
+to three trees beside the camera carry it. Building the macro crowns, together with the
+near crowns they reuse, takes about 1.8 s in all (spruce 1.1 s), done once when the
+species registers with `CityTreeLod`, so the first walk up to a conifer does not hitch.
+Nothing is saved; the tier is rebuilt from the camera position.
+
+Verify: `test_city_vegetation` (`test_needle_shoot_needles_are_round_prisms`: three faces
+per needle, normals wrapping the needle, clockwise fronts;
+`test_macro_conifer_crowns_grow_3d_needle_fronds`: fronds only in the macro crown, same
+card size and density as near, frond budget; `test_tree_lod_gives_close_conifers_a_macro_crown`:
+swap and hysteresis). GPU plates: `tools/godot_render.sh --script tools/capture_city_vegetation.gd -- --only=spruce_macro,pine_macro,spruce_needles_close`.
+
+Pine before / after:
+[before](../reports/images/vegetation/veg_city_pine_macro_before.jpg),
+[after](../reports/images/vegetation/veg_city_pine_macro_after.jpg);
+spruce after: [branch at arm's length](../reports/images/vegetation/veg_city_spruce_macro_after.jpg),
+[lower crown at 3.4 m](../reports/images/vegetation/veg_city_spruce_needles_close_macro.jpg)
+(before: [spruce needles](../reports/images/vegetation/veg_city_spruce_needles_close.jpg)).
+
+Limits: pine and juniper read as real 3D needle tufts; spruce gets 3D fronds on the
+surface, but most of its close-up density is still the darker undercoat cards, because
+real spruce needle density would be millions of triangles. No frame-time measurement
+with several macro spruces in view yet. GL Compatibility has no tessellation or mesh
+shaders to spend the budget only on the side facing the camera.
 
 ### City shrubs: real-size leaves (R-1315)
 

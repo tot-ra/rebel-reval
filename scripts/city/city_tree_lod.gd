@@ -14,9 +14,17 @@ extends Node3D
 ## tree entering the radius has its far instance collapsed to zero scale and is
 ## added to a small per-species near MultiMesh; leaving restores it. Hysteresis
 ## (NEAR_ENTER / NEAR_EXIT) stops trees at the edge from flickering.
+##
+## Macro: conifers within MACRO_ENTER metres swap the near crown for
+## MapViewTreeMeshes.city_canopy_macro_mesh, whose outer needle cards are real
+## 3D needle fronds. Those crowns cost ~10x the triangles, so only the few trees
+## right beside the camera get them; card size and density match the near crown,
+## so the swap changes needle detail, not crown mass.
 
 const NEAR_ENTER := 34.0
 const NEAR_EXIT := 42.0
+const MACRO_ENTER := 10.0
+const MACRO_EXIT := 13.0
 const GRID := 32.0
 const UPDATE_INTERVAL := 0.15
 
@@ -31,6 +39,10 @@ var _grid: Dictionary = {}
 var _near: Dictionary = {}
 ## species -> MultiMeshInstance3D
 var _near_nodes: Dictionary = {}
+## tree id -> true for trees drawn with the macro crown (a subset of _near)
+var _macro: Dictionary = {}
+## species -> MultiMeshInstance3D
+var _macro_nodes: Dictionary = {}
 var _timer := 0.0
 
 
@@ -44,6 +56,10 @@ func register(
 ) -> void:
 	if not _species.has(species):
 		_species[species] = {"world_scale": world_scale, "shrub": shrub}
+		if MapViewTreeMeshes.has_macro_crown(species):
+			# Build the macro (and with it the near) crown now, about a second
+			# for spruce, so the first walk up to a conifer does not hitch.
+			MapViewTreeMeshes.city_canopy_macro_mesh(species, world_scale)
 	for index in transforms.size():
 		var id := _trees.size()
 		var origin := transforms[index].origin
@@ -60,6 +76,10 @@ func near_count() -> int:
 
 func is_near(id: int) -> bool:
 	return _near.has(id)
+
+
+func is_macro(id: int) -> bool:
+	return _macro.has(id)
 
 
 func _process(delta: float) -> void:
@@ -80,6 +100,7 @@ func _process(delta: float) -> void:
 ## when the set changed.
 func update_for(focus: Vector3) -> bool:
 	var wanted := {}
+	var wanted_macro := {}
 	var reach := ceili(NEAR_EXIT / GRID)
 	var centre := Vector2i(floori(focus.x / GRID), floori(focus.z / GRID))
 	for dy in range(-reach, reach + 1):
@@ -89,7 +110,21 @@ func update_for(focus: Vector3) -> bool:
 				var d := Vector2(origin.x - focus.x, origin.z - focus.z).length()
 				if d < NEAR_ENTER or (_near.has(id) and d < NEAR_EXIT):
 					wanted[id] = true
+				if (
+					MapViewTreeMeshes.has_macro_crown(_trees[id][0])
+					and (d < MACRO_ENTER or (_macro.has(id) and d < MACRO_EXIT))
+				):
+					wanted[id] = true
+					wanted_macro[id] = true
 	var changed: Dictionary = {}
+	for id: int in _macro.keys():
+		if not wanted_macro.has(id):
+			_macro.erase(id)
+			changed[_trees[id][0]] = true
+	for id: int in wanted_macro:
+		if not _macro.has(id):
+			_macro[id] = true
+			changed[_trees[id][0]] = true
 	for id: int in _near.keys():
 		if not wanted.has(id):
 			_near.erase(id)
@@ -106,29 +141,38 @@ func update_for(focus: Vector3) -> bool:
 			(tree[3] as MultiMesh).set_instance_transform(tree[4], hidden)
 			changed[tree[0]] = true
 	for species: StringName in changed:
-		_rebuild_near(species)
+		_rebuild_near(species, false)
+		_rebuild_near(species, true)
 	return not changed.is_empty()
 
 
-func _rebuild_near(species: StringName) -> void:
-	if _near_nodes.has(species):
-		(_near_nodes[species] as Node).queue_free()
-		_near_nodes.erase(species)
+## Rebuilds the species' near (`macro` false: near trees that are not macro) or
+## macro MultiMesh.
+func _rebuild_near(species: StringName, macro: bool) -> void:
+	var nodes := _macro_nodes if macro else _near_nodes
+	if nodes.has(species):
+		(nodes[species] as Node).queue_free()
+		nodes.erase(species)
 	var transforms: Array[Transform3D] = []
 	var colors: Array[Color] = []
 	var ids := _near.keys()
 	ids.sort()
 	for id: int in ids:
 		var tree: Array = _trees[id]
-		if tree[0] == species:
+		if tree[0] == species and _macro.has(id) == macro:
 			transforms.append(tree[1])
 			colors.append(tree[2])
 	if transforms.is_empty():
 		return
 	var info: Dictionary = _species[species]
+	var world_scale := float(info["world_scale"])
 	var node := MapViewMeshBuilderPrimitives.multi_mesh(
-		"CrownNear_%s" % species,
-		MapViewTreeMeshes.city_canopy_near_mesh(species, float(info["world_scale"])),
+		"Crown%s_%s" % ["Macro" if macro else "Near", species],
+		(
+			MapViewTreeMeshes.city_canopy_macro_mesh(species, world_scale)
+			if macro
+			else MapViewTreeMeshes.city_canopy_near_mesh(species, world_scale)
+		),
 		transforms,
 		colors,
 		MapViewMaterials.canopy_for_species(species),
@@ -138,4 +182,4 @@ func _rebuild_near(species: StringName) -> void:
 	if bool(info["shrub"]):
 		node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(node)
-	_near_nodes[species] = node
+	nodes[species] = node
