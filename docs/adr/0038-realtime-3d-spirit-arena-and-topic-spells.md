@@ -2,7 +2,7 @@
 
 - **Status:** Proposed (maintainer request, 2026-10-08). Needs human approval before coding.
 - **Amends:** [ADR 0033](0033-teen-protagonist-and-spirit-dialogue-combat.md) item 3 ("real-time telegraphed opponent lines with a reply wheel", arena as a 2D overlay). Everything else in 0033 (guilt, traits, temperaments, language, observation) stays.
-- **Amended by:** [ADR 0041](0041-spirit-sight-auras-and-soul-lights.md) (proposed): item 2 changes, the building stays and only furniture and clutter hide; duels open only from spirit sight; the outdoor silhouette fade and the spirit-mist edge VFX are dropped.
+- **Amended by:** [ADR 0041](0041-spirit-sight-auras-and-soul-lights.md) (accepted): item 2 changes, the building stays and only furniture and clutter hide; duels open only from spirit sight; the outdoor silhouette fade and the spirit-mist edge VFX are dropped.
 - **Does not supersede:** ADR 0003 (offline authored dialogue, no runtime LLM), ADR 0028 (building interiors), the asset freeze (P0-040).
 
 ## Context

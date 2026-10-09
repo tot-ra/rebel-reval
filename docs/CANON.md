@@ -142,7 +142,7 @@ Decisions over `story/STORY.md`. Every promoted beat carries a confidence label.
   * Four Estonian leaders chosen by the rebels to lead the siege of Reval; later treacherously killed by the Livonian Order at Paide.
 * **Hingepuu** - **`invented`** / **`folklore`**
   * The reflection entity in the game, inspired by Baltic animist concepts of the "soul tree" or sacred groves, but formalized as a game mechanic to confront Kalev with his choices.
-* **Spirit sight, auras and soul lights (*hingetuled*)** - **`invented`** / **`folklore`**-inspired ([ADR 0041](./adr/0041-spirit-sight-auras-and-soul-lights.md), proposed)
+* **Spirit sight, auras and soul lights (*hingetuled*)** - **`invented`** / **`folklore`**-inspired ([ADR 0041](./adr/0041-spirit-sight-auras-and-soul-lights.md), accepted)
   * The hero's clairvoyant view of the same world, in which people and animals carry seven soul lights. Not drawn from a recorded Baltic tradition; the Sanskrit term "chakra" is anachronistic for 1343 Livonia and is never used in player-facing text. The aura shows strength, weak points and inner conflict, never a moral verdict.
 * **Harbour vessels (Spring 1343)** - mixed labels; full cards in [`reports/baltic_vessels_1343.md`](./reports/baltic_vessels_1343.md) (R-952)
   * **Cog / cog-like cargo in the roadstead** - **`attested`** as a type from the Peeter wreck (18.08 x 6.64 m, second-quarter 14th-c. pottery, dendro TPQ 1296) and the Lootsi 8 hull (24.5 x 9 m, timber felled around 1360). Lootsi is a large comparandum, not an April 1343 launch date. Cogs stand off and are lightered; they are not boarded and not beached at Kalamaja.

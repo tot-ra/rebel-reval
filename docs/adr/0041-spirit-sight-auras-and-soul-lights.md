@@ -1,6 +1,6 @@
 # ADR 0041: Spirit sight, auras and the seven soul lights
 
-- **Status:** Proposed (maintainer request, 2026-10-09). Needs human approval before coding.
+- **Status:** Accepted (maintainer-approved, 2026-10-09). Implementation is gated by tasks R-1484..R-1491; nothing here is runtime truth until a task verifies it.
 - **Amends:** [ADR 0038](0038-realtime-3d-spirit-arena-and-topic-spells.md) item 2 (interiors stripped to the floor) and the duel entry of [ADR 0033](0033-teen-protagonist-and-spirit-dialogue-combat.md) ("the world freezes into an arena"). Everything else in 0033 and 0038 (guilt, traits, temperaments, word spells, topic binding, the disc, real-time movement) stays.
 - **Does not supersede:** ADR 0003 (offline authored dialogue), ADR 0019/0027/0028 (seamless world, in-place interiors), the asset freeze (P0-040), the ban on a universal good/evil morality score.
 
@@ -18,7 +18,7 @@ The maintainer wants:
 
 The maintainer also asked that the aura show "how good or bad" a person is. That conflicts with the standing ban on a universal morality score (AGENTS.md scope, ADR 0033). This ADR resolves it below: the aura shows **strength** and **inner conflict**, never a moral verdict.
 
-## Decision (proposed)
+## Decision
 
 ### 1. Three layers on one map
 
