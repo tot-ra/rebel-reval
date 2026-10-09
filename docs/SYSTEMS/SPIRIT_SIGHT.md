@@ -1,6 +1,6 @@
 # Spirit sight, auras and soul lights
 
-Status: partially implemented. Aura profile data SS-2/SS-2b (**R-1485**, **R-1496**) is implemented; presentation remains planned (epic **R-1483**, [ADR 0041](../adr/0041-spirit-sight-auras-and-soul-lights.md), accepted). SS-1 (**R-1484**) is in progress.
+Status: partially implemented. The spirit sight toggle SS-1 (**R-1484**) and aura profile data SS-2/SS-2b (**R-1485**, **R-1496**) are implemented; auras on screen, reading, duel use and the duel layer remain planned (epic **R-1483**, [ADR 0041](../adr/0041-spirit-sight-auras-and-soul-lights.md), accepted).
 
 Scope: a spirit-sight layer the hero toggles anywhere on the same map, auras with seven soul lights on every person and animal, reading a soul, soul lights feeding the spirit duel, and duels that keep the building but hide furniture under a focused grade. Out of scope: a universal good/evil score, duels with animals, a separate spirit-world copy of the map, new art assets (P0-040). The duel rules themselves live in [`SPIRIT_DIALOGUE.md`](./SPIRIT_DIALOGUE.md).
 
@@ -16,14 +16,39 @@ Canon: the soul lights (*hingetuled*), auras and spirit sight are **`invented`**
 
 Nothing is loaded or unloaded between layers. A duel starts only from spirit sight and ends back in spirit sight.
 
-## Spirit sight toggle (planned, SS-1, **R-1484**)
+## Spirit sight toggle (implemented, SS-1, **R-1484**)
 
-- Toggle `player_spirit_sight` (proposed `V` / gamepad left stick press). Free, no timer. A ripple spreads from the hero (about 0.6 s; 0.2 s cross-fade with reduced motion).
-- One grade on the active `WorldEnvironment`: saturation about 0.25, cold blue-violet tint, ambient and sun about 40 % down, soft vignette. Restored exactly on exit.
-- Walk only; no sprint, physical attack or object use. Interact on a duel-ready person offers Challenge; on anything else it leaves sight and interacts.
-- `GameState.spirit_sight` is transient and never saved. `GameState.in_spirit_world` is also true in sight; casting stays limited to duels.
-- Unavailable during dialogue, cutscenes, modal overlays, swimming and diving; opening one turns sight off first. Observation mode (SD-06) uses the sight grade.
-- NPCs who watch the hero stare reuse the self-talk oddness reaction (SD-09).
+Status: implemented (task **R-1484**). Scope: the toggle, the grade, the ripple, the walk-only limits and transient state. Out of scope: auras (SS-3), reading (SS-4), Challenge and duel entry (SS-7), the observation grade swap and the witness stare reaction (not wired yet, see Limits).
+
+**Player:** press `player_spirit_sight` (`V` / gamepad left stick click, rebindable; the left stick click no longer walks) anywhere and the same place turns cold and desaturated; press again to return. A ripple spreads from the hero over 0.6 s and runs back on exit; with reduced motion it is a 0.2 s cross-fade with no ring or displacement. Settings -> Gameplay accessibility -> **Spirit sight grade intensity** (0-100 %) scales only the look.
+
+**While on:** walk speed only (keyboard, stick and click-to-move); no attack, heavy charge, guard, sidestep, roll or self-talk. Any interaction (key, click, click-to-travel arrival, cursor pickup) leaves sight first and then runs normally; Challenge on a duel-ready person arrives with SS-7.
+
+**Unavailable:** during dialogue (`demo_dialogue_active`), cutscenes (`cutscene_active`, joined by `CutscenePlayer` while playing), visible modal overlays (`modal_input_overlay`), a paused tree, swimming and diving, a running duel or observation, while the player is locked in an action or `combat_input_enabled` is off (scripted moves). If one of these starts while sight is on, sight drops at once on the next tick.
+
+**Runtime:**
+
+| Piece | File | Role |
+|---|---|---|
+| `SpiritSight` | `scripts/combat/spirit_sight.gd` | Child node `SpiritSight` of `Player`. Reads the input, tweens `blend`, composes the grade each frame and restores it before the next frame. |
+| Ripple / tint / vignette | `scripts/combat/spirit_sight_ripple.gdshader` | Full-screen `canvas_item` pass on a CanvasLayer: blue-violet tint, soft vignette, travelling ring from the hero's screen position. |
+| Walk cap and limits | `scripts/player.gd` (`is_walking`, `spirit_sight_blocked`, `leave_spirit_sight`) | |
+| Exit before use | `scripts/interaction/interactable.gd`, `scripts/world/world_item_controller.gd` | |
+
+**Grade (one recipe, never per map):** on the active camera or world `Environment`: saturation lerps to 0.25, ambient energy x0.6, ambient colour 35 % toward blue-violet, and the `Sun` light of that world x0.6; the shader adds the cold tint and the vignette. The weather keeps owning the physical values: the controller snapshots them after the weather update, grades, and restores the snapshot at the start of the next frame, so time of day and storms keep moving and the grade never compounds. Exit restores the latest ungraded values exactly.
+
+**State:** `GameState.spirit_sight` (sight) and `GameState.spirit_encounter_active` (duel or observation) are transient and never written by `save_payload`; `load_payload` clears both and a replaced session state leaves sight. `GameState.in_spirit_world` is now derived: true in sight or an encounter. Existing duel/observation code still assigns it, which sets only the encounter flag, so ending a duel never clears sight. Spellforge casting checks `spirit_encounter_active`, so casting stays limited to duels.
+
+**Verify:**
+
+```bash
+godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_spirit_sight
+tools/godot_render.sh --resolution 1280x720 --script tools/capture_spirit_sight.gd
+```
+
+Plates (day and night, physical vs sight, `smithy_courtyard`): [`../reports/images/spirit_sight/sheet.png`](../reports/images/spirit_sight/sheet.png).
+
+**Limits:** observation mode (SD-06) still uses its own dimming; NPC stare reactions (SD-09 reuse) are not wired; Challenge waits for SS-7. The ripple origin uses the 32 px/cell logic-to-world bridge.
 
 ## Aura data (implemented, SS-2, **R-1485**)
 

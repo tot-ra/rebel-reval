@@ -274,6 +274,8 @@ func _pickup_hint_for(item_id: StringName) -> String:
 func _try_pickup(item: WorldItem) -> bool:
 	if _state == null or item == null:
 		return false
+	if is_instance_valid(_player):
+		_player.leave_spirit_sight()
 	var item_id := item.get_item_id()
 	var result := _state.bag.try_add(item_id)
 	if result != InventoryBag.AddResult.OK:

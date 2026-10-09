@@ -110,6 +110,17 @@ var bag: InventoryBag = InventoryBag.new()
 ## Per-school guilt (ADR 0033); persisted by GameStatePersistence.
 var guilt: GuiltLedger = GuiltLedger.new()
 var map_world_state: MapStableStateStore = MapStableStateStore.new()
+## Spirit layers (ADR 0033, ADR 0041 SS-1), transient and never saved. Sight is the toggle;
+## the encounter flag is a running duel or observation. Spellforge casts need the encounter.
+var spirit_sight := false
+var spirit_encounter_active := false
+## True in sight or an encounter. Duel/observation code assigns it; that sets only the
+## encounter flag, so ending a duel never clears independently owned sight.
+var in_spirit_world: bool:
+	get:
+		return spirit_sight or spirit_encounter_active
+	set(value):
+		spirit_encounter_active = value
 ## Optional scene-tree-free weather snapshot owned by the session/save boundary.
 var _environment_state: Dictionary = {}
 
@@ -138,9 +149,6 @@ var _act1_transition: Dictionary = {}
 var _magic_resources: Dictionary[StringName, int] = {}
 var _magic_grants: Dictionary[StringName, bool] = {}
 ## Spirit-duel moves the hero learned by watching (ADR 0033); ids are `move.<kind>.<element>`.
-## True only while a spirit duel or observation is running (ADR 0033); transient, never saved.
-## Spellforge casts are refused while it is false: magic answers only in the spirit world.
-var in_spirit_world := false
 var _learned_moves: Dictionary[StringName, bool] = {}
 ## Double-edged hero traits (ADR 0033): trait id -> origin (`gift` or `scar`).
 var _traits: Dictionary[StringName, StringName] = {}
@@ -983,6 +991,8 @@ func save_payload() -> Dictionary:
 
 
 func load_payload(payload: Dictionary) -> Array[String]:
+	spirit_sight = false
+	spirit_encounter_active = false
 	return _PersistenceScript.load_payload(self, payload)
 
 

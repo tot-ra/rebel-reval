@@ -11,6 +11,7 @@ const EXPECTED_SLICE_ACTIONS: Array[StringName] = [
 	&"ui_left",
 	&"ui_right",
 	&"ui_shift",
+	&"player_spirit_sight",
 	&"interact",
 	&"ui_accept",
 	&"ui_cancel",
@@ -81,6 +82,8 @@ func test_every_slice_action_has_keyboard_mouse_and_gamepad_defaults() -> void:
 			bindings.events_for(action, BindingSettings.DEVICE_KEYBOARD_MOUSE).is_empty(),
 			"%s needs keyboard/mouse" % action
 		)
+		if action == &"ui_shift":
+			continue # L3 now belongs to spirit sight; walk is optionally rebound.
 		assert_false(
 			bindings.events_for(action, BindingSettings.DEVICE_GAMEPAD).is_empty(),
 			"%s needs gamepad" % action

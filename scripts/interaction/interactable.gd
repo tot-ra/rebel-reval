@@ -126,6 +126,9 @@ func interact(actor: Node) -> bool:
 	if not is_actor_in_range(actor as Node2D):
 		return false
 
+	# All keyboard, facing-click and click-to-travel paths converge here.
+	if actor.has_method("leave_spirit_sight"):
+		actor.call("leave_spirit_sight")
 	interacted.emit(actor)
 	if _callback.is_valid():
 		_callback.call(actor)

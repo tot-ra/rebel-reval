@@ -74,7 +74,8 @@ button charges instead of repeating the swing.
 | Action | Keyboard / mouse | Gamepad |
 | --- | --- | --- |
 | Move | `W` `A` `S` `D` / arrows | Left stick |
-| Walk (slow) | `Shift` | Left stick click |
+| Walk (slow) | `Shift` | unbound (rebind in Controls) |
+| Spirit sight on / off (walk only while on, [`SYSTEMS/SPIRIT_SIGHT.md`](SYSTEMS/SPIRIT_SIGHT.md)) | `V` | Left stick click |
 | Interact / continue | `E`, `Enter` | A |
 | Attack (tap = next combo strike, hold = heavy) | left click (see above) | X |
 | Guard | `F`, right click | Left shoulder |
@@ -112,7 +113,7 @@ A spirit duel (the prologue confrontation, [`SYSTEMS/SPIRIT_DIALOGUE.md`](SYSTEM
 
 The telegraph prompt and every card badge print the live binding, so a rebind shows up at once. During a telegraph a slot key that is also the guard or dodge button (by default the shoulders, slots 3 and 4) defends and does not cast. Settings -> Gameplay accessibility -> **Reply timer pressure** turns off the countdown ring on the reply window.
 
-Bindings are stored per device and persist outside campaign save slots. Saved v1 bindings that still map `Space` to attack drop that default on load, because `Space` is the roll since bindings v2.
+Bindings are stored per device and persist outside campaign save slots. Saved v1 bindings that still map `Space` to attack drop that default on load, because `Space` is the roll since bindings v2. Bindings v3 (R-1484) gives the left stick click to spirit sight: an untouched saved walk default on the left stick click is dropped on load, a deliberate custom walk binding is kept.
 
 ## Camera
 

@@ -97,6 +97,7 @@ func play(target: CutsceneSequence) -> void:
 	_skipped = false
 	_finished = false
 	is_playing = true
+	add_to_group(&"cutscene_active")
 	if _frame_clip != null and not sequence.chapter.is_empty():
 		_chapter_label.text = sequence.chapter
 	_advance_shot()
@@ -231,6 +232,7 @@ func _finish() -> void:
 		return
 	_finished = true
 	is_playing = false
+	remove_from_group(&"cutscene_active")
 	_stop_voice()
 	_release_music()
 	finished.emit(sequence.id if sequence != null else &"", _skipped)

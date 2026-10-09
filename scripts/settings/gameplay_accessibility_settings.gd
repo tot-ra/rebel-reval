@@ -17,6 +17,8 @@ var screenshake_enabled: bool = true
 var reduced_flashing: bool = false
 ## Spirit arena reply countdown ring and its hesitation chip (SD-18). Off removes the pressure.
 var reply_timer_pressure: bool = true
+## SS-1: scales the entire sight recipe, not gameplay limits.
+var spirit_sight_intensity: float = 1.0
 
 
 static func default_settings() -> GameplayAccessibilitySettings:
@@ -30,10 +32,14 @@ func duplicate_settings() -> GameplayAccessibilitySettings:
 	copy.screenshake_enabled = screenshake_enabled
 	copy.reduced_flashing = reduced_flashing
 	copy.reply_timer_pressure = reply_timer_pressure
+	copy.spirit_sight_intensity = spirit_sight_intensity
 	return copy
 
 
 func normalize() -> void:
+	spirit_sight_intensity = (
+		clampf(spirit_sight_intensity, 0.0, 1.0) if is_finite(spirit_sight_intensity) else 1.0
+	)
 	if not GUARD_MODES.has(guard_mode):
 		guard_mode = GUARD_MODE_HOLD
 
@@ -68,6 +74,7 @@ func to_dict() -> Dictionary:
 		"screenshake_enabled": screenshake_enabled,
 		"reduced_flashing": reduced_flashing,
 		"reply_timer_pressure": reply_timer_pressure,
+		"spirit_sight_intensity": spirit_sight_intensity,
 	}
 
 
@@ -80,5 +87,6 @@ static func from_dict(data: Dictionary) -> GameplayAccessibilitySettings:
 	)
 	settings.reduced_flashing = bool(data.get("reduced_flashing", false))
 	settings.reply_timer_pressure = bool(data.get("reply_timer_pressure", true))
+	settings.spirit_sight_intensity = float(data.get("spirit_sight_intensity", 1.0))
 	settings.normalize()
 	return settings

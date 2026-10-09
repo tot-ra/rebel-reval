@@ -34,6 +34,7 @@ var _screen_shake_check: CheckButton
 var _reduced_flashing_check: CheckButton
 var _enhanced_focus_check: CheckButton
 var _reply_timer_check: CheckButton
+var _sight_slider: HSlider
 var _remap_controls_button: Button
 
 
@@ -204,6 +205,14 @@ func _build_ui() -> void:
 	_enhanced_focus_check.toggled.connect(_on_enhanced_focus_toggled)
 	_reply_timer_check = _add_toggle_row(layout, "Spirit duel reply timer pressure")
 	_reply_timer_check.toggled.connect(_on_reply_timer_toggled)
+	_add_section_heading(layout, "Spirit sight grade intensity (0-100%)")
+	_sight_slider = HSlider.new()
+	_sight_slider.name = "SpiritSightIntensity"
+	_sight_slider.max_value = 100.0
+	_sight_slider.step = 5.0
+	_sight_slider.focus_mode = Control.FOCUS_ALL
+	layout.add_child(_sight_slider)
+	_sight_slider.value_changed.connect(_on_sight_intensity_changed)
 
 	_remap_controls_button = Button.new()
 	_remap_controls_button.text = "Remap controls"
@@ -322,6 +331,7 @@ func _sync_from_settings() -> void:
 	_reduced_flashing_check.set_pressed_no_signal(gameplay_settings.reduced_flashing)
 	_enhanced_focus_check.set_pressed_no_signal(gameplay_settings.enhanced_focus_contrast)
 	_reply_timer_check.set_pressed_no_signal(gameplay_settings.reply_timer_pressure)
+	_sight_slider.set_value_no_signal(gameplay_settings.spirit_sight_intensity * 100.0)
 
 
 func _on_music_changed(value: float) -> void:
@@ -413,6 +423,12 @@ func _on_reduced_flashing_toggled(pressed: bool) -> void:
 func _on_enhanced_focus_toggled(pressed: bool) -> void:
 	var gameplay = _current_gameplay_settings()
 	gameplay.enhanced_focus_contrast = pressed
+	_apply_gameplay_settings(gameplay)
+
+
+func _on_sight_intensity_changed(value: float) -> void:
+	var gameplay = _current_gameplay_settings()
+	gameplay.spirit_sight_intensity = value / 100.0
 	_apply_gameplay_settings(gameplay)
 
 

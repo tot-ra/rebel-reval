@@ -8,6 +8,8 @@ signal health_changed(current: float, maximum: float)
 signal died
 signal water_medium_changed(previous: PlayerSwimState.Medium, current: PlayerSwimState.Medium)
 
+const SpiritSightScript := preload("res://scripts/combat/spirit_sight.gd")
+
 const MeleeAttackResolverScript := preload("res://scripts/combat/melee_attack_resolver.gd")
 const AttackProfileScript := preload("res://scripts/combat/attack_profile.gd")
 const AttackProfileResolverScript := preload("res://scripts/combat/attack_profile_resolver.gd")
@@ -106,6 +108,9 @@ func _ready() -> void:
 	if not action_state_machine.state_changed.is_connected(_on_action_state_changed):
 		action_state_machine.state_changed.connect(_on_action_state_changed)
 	action_state_machine.action_start_validator = _can_start_action
+	var sight := SpiritSightScript.new()
+	sight.name = "SpiritSight"
+	add_child(sight)
 	DoorNavigator.on_trigger_player_spawn.connect(_on_spawn)
 	if navigation_agent != null:
 		navigation_agent.velocity_computed.connect(Callable(self, "_on_velocity_computed"))
@@ -201,6 +206,8 @@ func _physics_process(_delta):
 	action_state_machine.tick(_delta)
 	combat_vitals.tick(_delta)
 	_update_water(_delta)
+	# Water and scripted movement invalidate sight before this tick accepts actions.
+	get_node("SpiritSight").enforce_availability()
 	_process_action_input(_delta)
 	if not was_dodging and action_state_machine.state == PlayerActionState.State.DODGE:
 		dodge_motion_sec = minf(_delta, action_state_machine.dodge_duration_sec)
@@ -246,7 +253,7 @@ func _physics_process(_delta):
 			# A swimmer cannot stroll or sprint: one stroke speed per medium.
 			new_animation = "run"
 			current_speed = run_speed * encumbrance * _swim.speed_multiplier()
-		elif Input.is_action_pressed("ui_shift"):
+		elif is_walking():
 			new_animation = "walk"
 			current_speed = walk_speed * encumbrance * terrain_speed
 		else:
@@ -262,7 +269,7 @@ func _physics_process(_delta):
 			var next_path_position: Vector2 = navigation_agent.get_next_path_position()
 
 			velocity = (
-				run_speed
+				(walk_speed if is_walking() else run_speed)
 				* _get_encumbrance_speed_multiplier()
 				* _get_terrain_speed_multiplier()
 				* (next_path_position - current_agent_position).normalized()
@@ -271,7 +278,7 @@ func _physics_process(_delta):
 				_facing_direction = velocity.normalized()
 
 			navigation_agent.set_velocity(velocity)
-			new_animation = "run"
+			new_animation = "walk" if is_walking() else "run"
 		else:
 			velocity = Vector2.ZERO
 
@@ -284,7 +291,7 @@ func _physics_process(_delta):
 
 
 func _process_action_input(_delta: float) -> void:
-	if not combat_input_enabled or _movement_blocked():
+	if not combat_input_enabled or _movement_blocked() or is_spirit_sight_active():
 		return
 	# One attack button for every device: a tap commits the next light strike of
 	# the chain on release, holding past the threshold commits the heavy strike
@@ -386,7 +393,7 @@ func _current_dodge_facing() -> Vector2:
 
 func _can_start_action(kind: PlayerActionKind.Kind) -> bool:
 	# ADR 0021: no attacks, guard or dodge while swimming or diving.
-	if _swim.blocks_combat():
+	if _swim.blocks_combat() or is_spirit_sight_active():
 		return false
 	match kind:
 		PlayerActionKind.Kind.DODGE:
@@ -564,7 +571,10 @@ func request_heavy_attack() -> bool:
 ## Starts the attack now, or buffers it as the next combo step while a swing,
 ## roll or recovery is still running. Returns true only when it started now.
 func _request_attack(heavy: bool) -> bool:
-	if not combat_input_enabled or _movement_blocked() or _swim.blocks_combat():
+	if (
+		not combat_input_enabled or _movement_blocked()
+		or _swim.blocks_combat() or is_spirit_sight_active()
+	):
 		return false
 	return action_state_machine.try_start_attack(heavy)
 
@@ -577,7 +587,7 @@ func supports_charged_attack() -> bool:
 
 ## Mouse press (MapClickInputController) and keyboard/gamepad press share this.
 func begin_attack_charge() -> void:
-	if not combat_input_enabled or _movement_blocked():
+	if not combat_input_enabled or _movement_blocked() or is_spirit_sight_active():
 		return
 	_attack_charge_active = true
 	_attack_charge_sec = 0.0
@@ -613,7 +623,7 @@ func commit_attack_from_charge_hold(hold_sec: float) -> bool:
 
 func _commit_attack_from_charge_hold(hold_sec: float) -> bool:
 	_reset_attack_charge()
-	if _swim.blocks_combat():
+	if _swim.blocks_combat() or is_spirit_sight_active():
 		return false
 	return _request_attack(_supports_charged_attack() and hold_sec >= _charge_threshold_sec())
 
@@ -791,13 +801,33 @@ func view_animation_duration_sec() -> float:
 	return 0.0
 
 
+func is_spirit_sight_active() -> bool:
+	return has_node("/root/SessionState") and SessionState.state.spirit_sight
+
+
+func is_walking() -> bool:
+	return is_spirit_sight_active() or Input.is_action_pressed("ui_shift")
+
+
+func leave_spirit_sight() -> void:
+	get_node("SpiritSight").leave_immediately()
+
+
+func spirit_sight_blocked() -> bool:
+	return (
+		not combat_input_enabled or _movement_blocked() or _swim.is_swimming()
+		or action_state_machine.state != PlayerActionState.State.MOVE
+		or is_attack_charging()
+	)
+
+
 func _current_locomotion_animation() -> String:
 	if _movement_blocked():
 		return "idle"
 	if not action_state_machine.allows_movement():
 		return action_state_machine.get_animation_base()
 	if not velocity.is_zero_approx():
-		if Input.is_action_pressed("ui_shift"):
+		if is_walking():
 			return "walk"
 		return "run"
 	return "idle"

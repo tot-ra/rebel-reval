@@ -2,7 +2,7 @@ class_name InputBindingSettings
 extends RefCounted
 
 ## Bumped when a shipped default moves to another action (see from_dict).
-const BINDINGS_VERSION := 2
+const BINDINGS_VERSION := 3
 
 ## Persistent, device-separated bindings for every player-facing vertical-slice action.
 ## InputMap remains the runtime authority; this model only serializes and applies it.
@@ -18,6 +18,7 @@ const ACTION_DEFINITIONS: Array[Dictionary] = [
 	{"id": &"ui_left", "label": "Move / focus left", "category": "Movement"},
 	{"id": &"ui_right", "label": "Move / focus right", "category": "Movement"},
 	{"id": &"ui_shift", "label": "Walk", "category": "Movement"},
+	{"id": &"player_spirit_sight", "label": "Spirit sight", "category": "Movement"},
 	{"id": &"interact", "label": "Interact / continue", "category": "Interaction"},
 	{"id": &"ui_accept", "label": "Confirm", "category": "Interaction"},
 	{"id": &"ui_cancel", "label": "Back / close", "category": "Interaction"},
@@ -72,6 +73,11 @@ static func default_settings() -> InputBindingSettings:
 		"ui_shift":
 		{
 			DEVICE_KEYBOARD_MOUSE: [_key(KEY_SHIFT)],
+			DEVICE_GAMEPAD: [],
+		},
+		"player_spirit_sight":
+		{
+			DEVICE_KEYBOARD_MOUSE: [_key(KEY_V)],
 			DEVICE_GAMEPAD: [_joy_button(JOY_BUTTON_LEFT_STICK)],
 		},
 		"interact":
@@ -235,7 +241,13 @@ static func from_dict(data: Dictionary) -> InputBindingSettings:
 static func _is_retired_default(
 	version: int, action: String, device: StringName, decoded: Array[InputEvent]
 ) -> bool:
-	if version >= BINDINGS_VERSION or action != "player_attack" or device != DEVICE_KEYBOARD_MOUSE:
+	# Maintainer chose L3 for sight; retire only the old default walk binding.
+	if version < 3 and action == "ui_shift" and device == DEVICE_GAMEPAD:
+		return (
+			decoded.size() == 1 and decoded[0] is InputEventJoypadButton
+			and (decoded[0] as InputEventJoypadButton).button_index == JOY_BUTTON_LEFT_STICK
+		)
+	if version >= 2 or action != "player_attack" or device != DEVICE_KEYBOARD_MOUSE:
 		return false
 	return (
 		decoded.size() == 1
