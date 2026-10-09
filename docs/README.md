@@ -11,7 +11,7 @@ One page per feature, with status, behavior, code entry points, content, saved s
 | Core loop | [Quests, commissions, investigations](./SYSTEMS/QUESTS.md) · [Dialogue and barks](./SYSTEMS/DIALOGUE.md) · [Cutscenes](./SYSTEMS/CUTSCENES.md) · [Sound effects](./SYSTEMS/AUDIO.md) · [Game state, rules, saves](./SYSTEMS/STATE_AND_SAVES.md) · [Time and phases](./SYSTEMS/TIME_AND_PHASES.md) |
 | Consequences | [Factions, relationships, pressure, prices](./SYSTEMS/FACTIONS_AND_ECONOMY.md) · [Living City Hope/Fear](./SYSTEMS/LIVING_CITY.md) · [World life](./SYSTEMS/WORLD_LIFE.md) · [Daily routines](./SYSTEMS/LIVING_WORLD.md) · [Households and life at home](./SYSTEMS/HOUSEHOLDS.md) |
 | Action | [Combat runtime](./SYSTEMS/COMBAT.md) · [Combat animation](./SYSTEMS/COMBAT_ANIMATION.md) · [Hammer combat and night missions](./SYSTEMS/COMBAT_NIGHT.md) · [Magic](./SYSTEMS/MAGIC.md) |
-| Kalev's inner world | [NATURAL aspects](./SYSTEMS/NATURAL.md) · [Hingepuu psyche](./SYSTEMS/PSYCHE.md) |
+| Kalev's inner world | [NATURAL aspects](./SYSTEMS/NATURAL.md) · [Hingepuu psyche](./SYSTEMS/PSYCHE.md) · [Spirit sight, auras and soul lights](./SYSTEMS/SPIRIT_SIGHT.md) |
 | Player interface | [HUD, menus, journal, maps](./SYSTEMS/HUD_AND_MENUS.md) · [Inventory](./INVENTORY_MECHANICS.md) · [Physical object catalog](./SYSTEMS/OBJECT_CATALOG.md) · [Controls](./CONTROLS.md) · [Settings and accessibility](./SYSTEMS/SETTINGS_AND_ACCESSIBILITY.md) |
 
 ## World building
