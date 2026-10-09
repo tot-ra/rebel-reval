@@ -6,7 +6,7 @@ Countryside (fields, pastures, woods): [`FARMLAND.md`](./FARMLAND.md). Review pl
 
 ## What the player can do
 
-- Main menu → **Start**: Kalev wakes in his smithy (the `forge` scene, Mart, the anvil). Out through the courtyard door he steps into the city in front of his own house (`landmark.kalev_smithy`, a log house with a shingle roof off Viru street). Walking back in through that door returns to the forge interior. The old district maps are no longer reachable from the menu.
+- Main menu → **Start**: the almshouse prologue, then the city in front of Kalev's smithy (`landmark.kalev_smithy`, spawn `kalev_smithy`). The smithy is an ordinary enterable house: walk in through its door, no scene swap. Inside it is furnished as a forge (`CityInteriors.FORGE_HOUSEHOLD`, a smith's household: hearth, anvil and quench tub, bed, table, workbench). The `forge` scene id is redirected to this spawn (`CityTravel.REDIRECTS`), so old saves and links land here. The standalone `forge` scene file is unused by the live flow.
 - Walk anywhere in the plan without a loading screen: in through the Viru gate, along Pikk and Lai to the Coastal Gate and down to the shore, up Pikk jalg or the Lühike jalg steps onto Toompea, out of the Cattle or Smiths' gates to the fields. Movement is 5× the district-map speed (maintainer request, for crossing the city quickly).
 - Walk into any ordinary house, the council hall and the churches through their street door. The door swings inward as Kalev reaches it and shuts behind him once he moves on; roof and ceiling lift while he is inside, so the third-person, top-down and first-person cameras (`toggle_camera_view`) all see into the room.
 - Swim: the sea and the water-filled moat use the game's swimming (wade, swim, dive with `player_dive`, breath).
@@ -71,7 +71,7 @@ Review: `tools/godot_render.sh --script tools/capture_terrain_relief.gd` renders
 
 ### How buildings are built
 
-Every house, hall and church is generated at load from its plan record (`plan.json` → `buildings[]`) by `CityBuildingBuilder.build_building`; nothing is hand-modelled. The record carries the footprint, `base_h`/`base_span` (lowest ground under the footprint and the slope across it), `wall_h`, `material`, `roof`, `roof_pitch_deg`, `ridge_angle`, the street `door` (point and outward angle), `kind` (`house`, `church`, `chapel`, `hall`) and `enterable`.
+Every house, hall and church is generated at load from its plan record (`plan.json` → `buildings[]`) by `CityBuildingBuilder.build_building`; nothing is hand-modelled. The record carries the footprint, `base_h`/`base_span` (lowest ground under the footprint and the slope across it), `wall_h`, `material`, `roof`, `roof_pitch_deg`, `ridge_angle`, the street `door` (point and outward angle), `kind` (`house`, `church`, `chapel`, `hall`) and `enterable`. Intramural houses also persist `wealth_tier` (`poor`/`craft`/`merchant`/`great`, matching the material band), `age_tier` (`new`/`settled`/`old`) and `upkeep` (`kept`/`worn`), deterministic per building id from a separate seeded RNG (task **R-1412**); nothing renders from them yet.
 
 Chosen by the compiler (`tools/city/build_reval_city_plan.py`):
 
@@ -134,7 +134,7 @@ Positions and roster from [`walls-gates-towers.md`](../../history/dossiers/topog
 | `scripts/city/city_dressing_builder.gd` | Hoist beams and wind-swung ropes on merchant gables, town banners, castle pennants |
 | `scripts/city/city_water.gdshader` | Sea, stream and moat pools; waves travel with the wind |
 | `scripts/city/city_collision_builder.gd` | Logic-plane collision: solid houses, wall quads with a door gap for enterable houses, curtains with gate gaps, towers, Toompea wall openings, cliffs over 38°; sea and moat stay open for swimming |
-| `scenes/world/reval_city/reval_city.tscn` | The playable scene: spawn hand-off, roof lifting, the smithy door into `forge`, the edge-of-plan travel map, in-place fast travel (`arrive_at`) |
+| `scenes/world/reval_city/reval_city.tscn` | The playable scene: spawn hand-off, roof lifting, the edge-of-plan travel map, in-place fast travel (`arrive_at`) |
 | `scripts/global/door_navigator.gd` | `go_to_scene` routes old district ids through `CityTravel.redirect` and moves Kalev in place when the target is the city already loaded |
 | `scripts/city/city_music_zones.gd` (`CityMusicZones`) | Picks the `MusicDirector` theme from Kalev's position: landmark zones with a radius, district fallback, hold radius against flapping |
 
@@ -166,7 +166,7 @@ Measured on the authoring machine (Apple M5 Pro, 1600×900, minimized window): s
 ## Limits
 
 - Performance: see Verification; NPC rigs need distance culling or the crowd renderer, and the actor scan needs to stop walking the whole scene each frame.
-- No quests, dialogue, interaction anchors or saves in the city scene; the Act 1 cycles still run on `lower_town_slice` and the forge. City NPCs do not talk, react or fight.
+- No quests, dialogue, interaction anchors or saves in the city scene; the Act 1 cycles still run on `lower_town_slice` and the forge. City NPCs do not talk, react or fight. **The forge's own gameplay (Mart's conversation, the anvil spearhead pickup, commission ledger) is not yet in the city smithy; it needs a task to mount those controllers in the city.**
 - The old district scenes and their `.rrmap` maps are still in the repository and the transition manifest (redirected, not deleted).
 - Buildings are procedural shells from plot footprints: no kit GLB models, no upper floors. Lived-in houses near Kalev are furnished and split into rooms by [`HOUSEHOLDS.md`](./HOUSEHOLDS.md); churches and halls stay empty. Church interiors are an empty nave; the castle is a massing model. Bespoke, navigable landmark sites replace the generic shells one site at a time ([Landmark sites](./CITY_LANDMARK_SITES.md), ADR 0032): Raekoja plats is done; Kiriku plats and St Mary's, the parish churches, the castle and the gates are planned.
 - Corners are filleted at plan level only: the eave line, gable verges and window reveals are still straight-edged, and walls stay perfectly plumb (no lean or bulge).

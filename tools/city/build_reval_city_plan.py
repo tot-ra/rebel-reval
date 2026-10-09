@@ -1012,6 +1012,16 @@ def build(args) -> dict:
             "enterable": bool(door) and (bool(lm) or 22 <= area <= 520),
             "tower_h": round(lm.get("tower_h_m", 0) / mpu, 3) if lm else 0.0,
         }
+        if not lm:
+            # WB-13b: persist the tiers so plots and rendering read them instead of
+            # re-deriving from material/roof. Tier thresholds follow the material
+            # bands above (limestone+tile = great, >0.6 = merchant, log/plank below).
+            # Age and upkeep use their own Random so the draws above stay untouched.
+            trng = random.Random(hash_int(hid + "|tiers"))
+            bld["wealth_tier"] = ("great" if wealth > 0.85 else "merchant" if wealth > 0.6
+                                  else "craft" if wealth >= 0.47 else "poor")
+            bld["age_tier"] = trng.choices(("new", "settled", "old"), weights=(2, 5, 3))[0]
+            bld["upkeep"] = "kept" if trng.random() < 0.6 else "worn"
         buildings.append(bld)
         lower_town_area += area
 

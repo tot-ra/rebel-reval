@@ -46,6 +46,32 @@ class CityPlanBuilderTest(unittest.TestCase):
         self.assertFalse(wet((9, 50)))
         self.assertFalse(wet((50, 50)))
 
+    TIER_KEYS = ("wealth_tier", "age_tier", "upkeep")
+
+    def _tiered_houses(self):
+        return [b for b in self.plan["buildings"] if b.get("kind") == "house" and "wealth_tier" in b]
+
+    def test_every_intramural_house_carries_tiers_that_match_its_material(self):
+        houses = self._tiered_houses()
+        self.assertGreater(len(houses), 300)
+        for b in houses:
+            self.assertIn(b["wealth_tier"], ("poor", "craft", "merchant", "great"))
+            self.assertIn(b["age_tier"], ("new", "settled", "old"))
+            self.assertIn(b["upkeep"], ("kept", "worn"))
+            if b["material"] == "limestone" and b["roof"] == "tile":
+                self.assertNotIn(b["wealth_tier"], ("poor", "craft"), b["id"])
+            if b["material"] in ("log", "plank"):
+                self.assertIn(b["wealth_tier"], ("poor", "craft"), b["id"])
+        for b in self.plan["buildings"]:
+            # Landmark houses tagged later (Kalev's smithy) keep their tiers.
+            if b.get("landmark_id") and b.get("kind") != "house":
+                for k in self.TIER_KEYS:
+                    self.assertNotIn(k, b)
+
+    def test_tiers_are_deterministic(self):
+        again = builder.build(None)["plan"]
+        self.assertEqual(self.plan["buildings"], again["buildings"])
+
     def test_every_gate_sits_on_the_wall_and_its_street(self):
         anchors = {a["ref"]: a["at"] for a in self.plan["circuit"] if a["ref"]}
         for gate in self.plan["gates"]:
