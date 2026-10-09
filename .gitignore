@@ -37,3 +37,7 @@ docs/reports/*
 
 # Raw OpenAI image plates (provenance: prompt.json + SHA-256 rows in assets/SOURCES.csv)
 generated/openai/**/*.png
+
+# Ad-hoc root-level debug captures and the sidecars Godot generates for them
+/screenshot_*.png
+/screenshot_*.png.import
