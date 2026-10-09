@@ -1,0 +1,63 @@
+{
+  "type": "world_object",
+  "id": "obj.bolster_straw",
+  "name": "Straw bolster",
+  "description": "A hand-sewn linen bolster stuffed with straw, with a tied end and worn seams. Planned household object; not yet a runtime model.",
+  "category": "household",
+  "handling": "carry_one_hand",
+  "tags": [
+    "household",
+    "sleep"
+  ],
+  "physical": {
+    "mass_kg": 1.4,
+    "size_m": [
+      0.65,
+      0.15,
+      0.28
+    ],
+    "materials": [
+      "linen_cloth",
+      "straw"
+    ]
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop",
+    "use"
+  ],
+  "economy": {
+    "base_pfennigs": 5,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "surface",
+    "spaces": [
+      "home_poor",
+      "home_burgher",
+      "home_noble"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "missing"
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.bolster_straw.png",
+    "icon": "res://assets/objects/icons/obj.bolster_straw.png",
+    "icon_status": "missing",
+    "look": "A hand-sewn linen bolster stuffed with straw, with a tied end and worn seams.",
+    "image_prompt": "Straw bolster: A hand-sewn linen bolster stuffed with straw, with a tied end and worn seams."
+  },
+  "lifecycle": "planned",
+  "confidence": "plausible composite",
+  "notes": "HOMEOBJ-1 (R-1367): mass, dimensions and pfennigs are gameplay authoring estimates, not measured geometry or attested prices. No model or icon exists yet.",
+  "carry": {
+    "grid_width": 2,
+    "grid_height": 2,
+    "stackable": false
+  }
+}

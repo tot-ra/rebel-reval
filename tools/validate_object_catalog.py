@@ -206,6 +206,29 @@ def _check_entry(entry: dict[str, Any], path: Path, problems: list[str], glb_cac
         bad(f"lifecycle should be {expected!r}, got {entry['lifecycle']!r}")
 
 
+def _check_household_needs(
+    data: Any, entries: dict[str, dict[str, Any]], store: SchemaStore
+) -> list[str]:
+    """Validate authoring quotas only; planned models remain allowed in HOMEOBJ-1."""
+    try:
+        validate_value(data, store.resolve("household_needs.schema.json"), store)
+    except SchemaValidationError as exc:
+        return [f"household needs: {exc}"]
+    problems: list[str] = []
+    for need, tiers in data["needs"].items():
+        for tier, requirements in tiers.items():
+            seen: set[str] = set()
+            for requirement in requirements:
+                oid = requirement["id"]
+                label = f"household needs {need}/{tier}"
+                if oid in seen:
+                    problems.append(f"{label}: duplicate object {oid}")
+                seen.add(oid)
+                if oid not in entries:
+                    problems.append(f"{label}: unknown catalog object {oid}")
+    return problems
+
+
 def validate() -> list[str]:
     problems: list[str] = []
     store = SchemaStore(lib.ROOT / "schemas")
@@ -255,6 +278,14 @@ def validate() -> list[str]:
                 problems.append(f"{oid}: mass_kg disagrees with {entry['item_ref']} weight_g {carry['weight_g']}")
             if (mine["grid_width"], mine["grid_height"]) != (carry["grid_width"], carry["grid_height"]):
                 problems.append(f"{oid}: carry grid disagrees with {entry['item_ref']}")
+
+    needs_path = lib.CATALOG_DIR / "_household_needs.json"
+    try:
+        needs = lib.load_json(needs_path)
+    except (OSError, ValueError) as exc:
+        problems.append(f"household needs: missing or invalid {needs_path.name}: {exc}")
+    else:
+        problems += _check_household_needs(needs, entries, store)
 
     problems += _check_coverage(entries)
     return problems

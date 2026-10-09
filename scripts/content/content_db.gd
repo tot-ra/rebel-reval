@@ -264,7 +264,8 @@ func _discover_json_files_in(directory: String, discovered: Array[String]) -> vo
 			var path := directory.path_join(entry)
 			if dir.current_is_dir():
 				_discover_json_files_in(path, discovered)
-			elif entry.ends_with(".json"):
+			elif entry.ends_with(".json") and not entry.begins_with("_"):
+				# Underscore files are validated authoring tables, not typed runtime records.
 				discovered.append(path)
 		entry = dir.get_next()
 	dir.list_dir_end()

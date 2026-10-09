@@ -1,0 +1,67 @@
+{
+  "type": "world_object",
+  "id": "obj.kirtle_wool",
+  "name": "Wool kirtle",
+  "description": "A plain long-sleeved wool kirtle with a full skirt and hand-sewn seams. Planned household object; not yet a runtime model.",
+  "category": "armor_clothing",
+  "handling": "carry_one_hand",
+  "tags": [
+    "household",
+    "clothe"
+  ],
+  "physical": {
+    "mass_kg": 1.8,
+    "size_m": [
+      0.5,
+      1.25,
+      0.1
+    ],
+    "materials": [
+      "wool"
+    ]
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop",
+    "use",
+    "equip"
+  ],
+  "economy": {
+    "base_pfennigs": 32,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "worn",
+    "spaces": [
+      "home_poor",
+      "home_burgher",
+      "home_noble"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "missing"
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.kirtle_wool.png",
+    "icon": "res://assets/objects/icons/obj.kirtle_wool.png",
+    "icon_status": "missing",
+    "look": "A plain long-sleeved wool kirtle with a full skirt and hand-sewn seams.",
+    "image_prompt": "Wool kirtle: A plain long-sleeved wool kirtle with a full skirt and hand-sewn seams."
+  },
+  "lifecycle": "planned",
+  "confidence": "plausible composite",
+  "notes": "HOMEOBJ-1 (R-1367): mass, dimensions and pfennigs are gameplay authoring estimates, not measured geometry or attested prices. No model or icon exists yet.",
+  "carry": {
+    "grid_width": 2,
+    "grid_height": 2,
+    "stackable": false
+  },
+  "equip": {
+    "slot": "body",
+    "protection": "light"
+  }
+}

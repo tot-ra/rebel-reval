@@ -1,0 +1,64 @@
+{
+  "type": "world_object",
+  "id": "obj.tinderbox",
+  "name": "Tinderbox",
+  "description": "A small wooden tinder box holding a steel striker, a flint and dry tinder. Planned household object; not yet a runtime model.",
+  "category": "household",
+  "handling": "pocketable",
+  "tags": [
+    "household",
+    "light",
+    "warmth"
+  ],
+  "physical": {
+    "mass_kg": 0.25,
+    "size_m": [
+      0.13,
+      0.07,
+      0.09
+    ],
+    "materials": [
+      "wood",
+      "steel"
+    ]
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop",
+    "use"
+  ],
+  "economy": {
+    "base_pfennigs": 8,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "surface",
+    "spaces": [
+      "home_poor",
+      "home_burgher",
+      "home_noble"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "missing"
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.tinderbox.png",
+    "icon": "res://assets/objects/icons/obj.tinderbox.png",
+    "icon_status": "missing",
+    "look": "A small wooden tinder box holding a steel striker, a flint and dry tinder.",
+    "image_prompt": "Tinderbox: A small wooden tinder box holding a steel striker, a flint and dry tinder."
+  },
+  "lifecycle": "planned",
+  "confidence": "plausible composite",
+  "notes": "HOMEOBJ-1 (R-1367): mass, dimensions and pfennigs are gameplay authoring estimates, not measured geometry or attested prices. No model or icon exists yet.",
+  "carry": {
+    "grid_width": 1,
+    "grid_height": 1,
+    "stackable": false
+  }
+}

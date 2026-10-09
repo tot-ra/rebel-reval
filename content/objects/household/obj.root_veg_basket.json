@@ -1,0 +1,63 @@
+{
+  "type": "world_object",
+  "id": "obj.root_veg_basket",
+  "name": "Root vegetable basket",
+  "description": "A shallow wicker basket holding turnips, onions and a cabbage; no exotic produce. Planned household object; not yet a runtime model.",
+  "category": "household",
+  "handling": "carry_one_hand",
+  "tags": [
+    "household",
+    "eat"
+  ],
+  "physical": {
+    "mass_kg": 4.0,
+    "size_m": [
+      0.35,
+      0.27,
+      0.32
+    ],
+    "materials": [
+      "wood",
+      "food_organic"
+    ]
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop",
+    "use"
+  ],
+  "economy": {
+    "base_pfennigs": 6,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "home_poor",
+      "home_burgher",
+      "home_noble"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "missing"
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.root_veg_basket.png",
+    "icon": "res://assets/objects/icons/obj.root_veg_basket.png",
+    "icon_status": "missing",
+    "look": "A shallow wicker basket holding turnips, onions and a cabbage; no exotic produce.",
+    "image_prompt": "Root vegetable basket: A shallow wicker basket holding turnips, onions and a cabbage; no exotic produce."
+  },
+  "lifecycle": "planned",
+  "confidence": "plausible composite",
+  "notes": "HOMEOBJ-1 (R-1367): mass, dimensions and pfennigs are gameplay authoring estimates, not measured geometry or attested prices. No model or icon exists yet.",
+  "carry": {
+    "grid_width": 2,
+    "grid_height": 2,
+    "stackable": false
+  }
+}

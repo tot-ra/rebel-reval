@@ -116,6 +116,84 @@ class RuleTests(unittest.TestCase):
             sword.write_text(original, encoding="utf-8")
 
 
+class HouseholdNeedsTests(unittest.TestCase):
+    TOP_20 = (
+        "blanket_wool", "bolster_straw", "chamber_pot", "tunic_wool", "kirtle_wool",
+        "leather_boots", "wall_peg_rail", "pot_crane", "ladle_wood", "tinderbox",
+        "hatchet", "dagger_belt", "sword_cruciform", "coin_purse", "iron_key",
+        "ale_tankard", "sack_grain", "root_veg_basket", "spindle_distaff", "crucifix_wall",
+    )
+
+    def setUp(self) -> None:
+        self.data = lib.load_json(lib.CATALOG_DIR / "_household_needs.json")
+        self.entries = {e["id"]: e for e in lib.load_catalog()}
+        self.store = validator.SchemaStore(ROOT / "schemas")
+
+    def check(self, data: dict) -> list[str]:
+        return validator._check_household_needs(data, self.entries, self.store)
+
+    def test_shipped_needs_table_and_references_are_valid(self) -> None:
+        self.assertEqual(self.check(self.data), [])
+        referenced = {r["id"] for tiers in self.data["needs"].values()
+                      for requirements in tiers.values() for r in requirements}
+        for slug in self.TOP_20:
+            self.assertIn("obj." + slug, referenced)
+
+    def test_top_20_records_have_stats_prompts_and_valid_schema(self) -> None:
+        for slug in self.TOP_20:
+            candidate = self.entries["obj." + slug]
+            validator.validate_value(candidate, self.store.resolve("world_object.schema.json"), self.store)
+            self.assertTrue(candidate["visual"]["image_prompt"])
+            self.assertTrue(candidate["placement"]["spaces"])
+            if candidate["model"]["status"] == "missing":
+                self.assertEqual(candidate["lifecycle"], "planned")
+                self.assertEqual(problems_for(candidate), [])
+
+    def test_unknown_object_is_rejected(self) -> None:
+        self.data["needs"]["sleep"]["poor"][0]["id"] = "obj.no_such_object"
+        self.assertIn("unknown catalog object", " ".join(self.check(self.data)))
+
+    def test_duplicate_object_is_rejected(self) -> None:
+        requirements = self.data["needs"]["money"]["poor"]
+        requirements.append(copy.deepcopy(requirements[0]))
+        self.assertIn("duplicate object", " ".join(self.check(self.data)))
+
+    def test_missing_need_tier_and_unknown_vocabulary_are_rejected(self) -> None:
+        for mutation in ("need", "tier", "unknown_need", "unknown_tier"):
+            with self.subTest(mutation=mutation):
+                data = copy.deepcopy(self.data)
+                if mutation == "need":
+                    del data["needs"]["faith"]
+                elif mutation == "tier":
+                    del data["needs"]["faith"]["mid"]
+                elif mutation == "unknown_need":
+                    data["needs"]["luxury"] = data["needs"]["faith"]
+                else:
+                    data["needs"]["faith"]["noble"] = data["needs"]["faith"]["rich"]
+                self.assertTrue(self.check(data))
+
+    def test_empty_or_more_than_three_objects_are_rejected(self) -> None:
+        for requirements in ([], [{"id": "obj.coin_purse", "count_per_resident": 1}] * 4):
+            self.data["needs"]["money"]["poor"] = requirements
+            self.assertTrue(self.check(self.data))
+
+    def test_invalid_counts_and_unknown_fields_are_rejected(self) -> None:
+        for count in (0, -1, True, "1", 11):
+            with self.subTest(count=count):
+                self.data["needs"]["money"]["poor"][0]["count_per_resident"] = count
+                self.assertTrue(self.check(self.data))
+        self.data["needs"]["money"]["poor"][0] = {"id": "obj.coin_purse", "count_per_resident": 1, "extra": 1}
+        self.assertTrue(self.check(self.data))
+
+    def test_shared_fixture_fraction_and_planned_objects_are_allowed(self) -> None:
+        self.data["needs"]["money"]["poor"][0]["count_per_resident"] = 0.25
+        self.assertEqual(self.check(self.data), [])
+
+    def test_malformed_top_level_and_version_are_rejected(self) -> None:
+        for data in ([], None, {}, {"version": 2, "needs": self.data["needs"]}):
+            self.assertTrue(self.check(data))
+
+
 class ToolTests(unittest.TestCase):
     def test_index_in_docs_is_current(self) -> None:
         buffer = io.StringIO()

@@ -1,0 +1,64 @@
+{
+  "type": "world_object",
+  "id": "obj.hatchet",
+  "name": "Household hatchet",
+  "description": "A small single-bit iron hatchet with a short ash handle and a worn cutting edge. Planned household object; not yet a runtime model.",
+  "category": "tool",
+  "handling": "carry_one_hand",
+  "tags": [
+    "household",
+    "warmth",
+    "safety"
+  ],
+  "physical": {
+    "mass_kg": 1.1,
+    "size_m": [
+      0.16,
+      0.4,
+      0.04
+    ],
+    "materials": [
+      "iron",
+      "wood"
+    ]
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop",
+    "use"
+  ],
+  "economy": {
+    "base_pfennigs": 24,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "hanging",
+    "spaces": [
+      "home_poor",
+      "home_burgher",
+      "home_noble"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "missing"
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.hatchet.png",
+    "icon": "res://assets/objects/icons/obj.hatchet.png",
+    "icon_status": "missing",
+    "look": "A small single-bit iron hatchet with a short ash handle and a worn cutting edge.",
+    "image_prompt": "Household hatchet: A small single-bit iron hatchet with a short ash handle and a worn cutting edge."
+  },
+  "lifecycle": "planned",
+  "confidence": "plausible composite",
+  "notes": "HOMEOBJ-1 (R-1367): mass, dimensions and pfennigs are gameplay authoring estimates, not measured geometry or attested prices. No model or icon exists yet.",
+  "carry": {
+    "grid_width": 2,
+    "grid_height": 2,
+    "stackable": false
+  }
+}

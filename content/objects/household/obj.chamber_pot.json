@@ -1,0 +1,62 @@
+{
+  "type": "world_object",
+  "id": "obj.chamber_pot",
+  "name": "Chamber pot",
+  "description": "A low earthenware chamber pot with a broad lip and a simple loop handle. Planned household object; not yet a runtime model.",
+  "category": "household",
+  "handling": "carry_one_hand",
+  "tags": [
+    "household",
+    "wash"
+  ],
+  "physical": {
+    "mass_kg": 1.2,
+    "size_m": [
+      0.22,
+      0.18,
+      0.22
+    ],
+    "materials": [
+      "clay_ceramic"
+    ]
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop",
+    "use"
+  ],
+  "economy": {
+    "base_pfennigs": 8,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "home_poor",
+      "home_burgher",
+      "home_noble"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "missing"
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.chamber_pot.png",
+    "icon": "res://assets/objects/icons/obj.chamber_pot.png",
+    "icon_status": "missing",
+    "look": "A low earthenware chamber pot with a broad lip and a simple loop handle.",
+    "image_prompt": "Chamber pot: A low earthenware chamber pot with a broad lip and a simple loop handle."
+  },
+  "lifecycle": "planned",
+  "confidence": "plausible composite",
+  "notes": "HOMEOBJ-1 (R-1367): mass, dimensions and pfennigs are gameplay authoring estimates, not measured geometry or attested prices. No model or icon exists yet.",
+  "carry": {
+    "grid_width": 2,
+    "grid_height": 2,
+    "stackable": false
+  }
+}

@@ -1,0 +1,501 @@
+{
+  "version": 1,
+  "needs": {
+    "sleep": {
+      "poor": [
+        {
+          "id": "obj.bed_straw_pallet",
+          "count_per_resident": 1
+        },
+        {
+          "id": "obj.blanket_wool",
+          "count_per_resident": 1
+        },
+        {
+          "id": "obj.bolster_straw",
+          "count_per_resident": 1
+        }
+      ],
+      "mid": [
+        {
+          "id": "obj.bed_straw_pallet",
+          "count_per_resident": 1
+        },
+        {
+          "id": "obj.blanket_wool",
+          "count_per_resident": 1
+        },
+        {
+          "id": "obj.bolster_straw",
+          "count_per_resident": 1
+        }
+      ],
+      "rich": [
+        {
+          "id": "obj.bed_smithy",
+          "count_per_resident": 1
+        },
+        {
+          "id": "obj.blanket_wool",
+          "count_per_resident": 1
+        },
+        {
+          "id": "obj.bolster_straw",
+          "count_per_resident": 1
+        }
+      ]
+    },
+    "eat": {
+      "poor": [
+        {
+          "id": "obj.rye_bread_loaf",
+          "count_per_resident": 1
+        },
+        {
+          "id": "obj.trencher",
+          "count_per_resident": 1
+        },
+        {
+          "id": "obj.root_veg_basket",
+          "count_per_resident": 0.25
+        }
+      ],
+      "mid": [
+        {
+          "id": "obj.rye_bread_loaf",
+          "count_per_resident": 1
+        },
+        {
+          "id": "obj.sack_grain",
+          "count_per_resident": 0.25
+        },
+        {
+          "id": "obj.root_veg_basket",
+          "count_per_resident": 0.25
+        }
+      ],
+      "rich": [
+        {
+          "id": "obj.rye_bread_loaf",
+          "count_per_resident": 1
+        },
+        {
+          "id": "obj.sack_grain",
+          "count_per_resident": 0.25
+        },
+        {
+          "id": "obj.root_veg_basket",
+          "count_per_resident": 0.25
+        }
+      ]
+    },
+    "drink": {
+      "poor": [
+        {
+          "id": "obj.water_bucket",
+          "count_per_resident": 0.25
+        },
+        {
+          "id": "obj.cup",
+          "count_per_resident": 1
+        }
+      ],
+      "mid": [
+        {
+          "id": "obj.jug",
+          "count_per_resident": 0.25
+        },
+        {
+          "id": "obj.cup",
+          "count_per_resident": 1
+        },
+        {
+          "id": "obj.ale_tankard",
+          "count_per_resident": 1
+        }
+      ],
+      "rich": [
+        {
+          "id": "obj.jug",
+          "count_per_resident": 0.25
+        },
+        {
+          "id": "obj.cup",
+          "count_per_resident": 1
+        },
+        {
+          "id": "obj.ale_tankard",
+          "count_per_resident": 1
+        }
+      ]
+    },
+    "wash": {
+      "poor": [
+        {
+          "id": "obj.wash_basin_cloth",
+          "count_per_resident": 0.25
+        },
+        {
+          "id": "obj.chamber_pot",
+          "count_per_resident": 0.5
+        }
+      ],
+      "mid": [
+        {
+          "id": "obj.wash_basin_cloth",
+          "count_per_resident": 0.25
+        },
+        {
+          "id": "obj.chamber_pot",
+          "count_per_resident": 0.5
+        }
+      ],
+      "rich": [
+        {
+          "id": "obj.wash_basin_cloth",
+          "count_per_resident": 0.25
+        },
+        {
+          "id": "obj.chamber_pot",
+          "count_per_resident": 0.5
+        }
+      ]
+    },
+    "warmth": {
+      "poor": [
+        {
+          "id": "obj.hearth_domestic",
+          "count_per_resident": 0.25
+        },
+        {
+          "id": "obj.firewood_armful",
+          "count_per_resident": 1
+        },
+        {
+          "id": "obj.tinderbox",
+          "count_per_resident": 0.25
+        }
+      ],
+      "mid": [
+        {
+          "id": "obj.hearth_domestic",
+          "count_per_resident": 0.25
+        },
+        {
+          "id": "obj.firewood_armful",
+          "count_per_resident": 1
+        },
+        {
+          "id": "obj.tinderbox",
+          "count_per_resident": 0.25
+        }
+      ],
+      "rich": [
+        {
+          "id": "obj.hearth_domestic",
+          "count_per_resident": 0.25
+        },
+        {
+          "id": "obj.firewood_armful",
+          "count_per_resident": 1
+        },
+        {
+          "id": "obj.tinderbox",
+          "count_per_resident": 0.25
+        }
+      ]
+    },
+    "light": {
+      "poor": [
+        {
+          "id": "obj.pine_splint_holder",
+          "count_per_resident": 0.5
+        },
+        {
+          "id": "obj.tinderbox",
+          "count_per_resident": 0.25
+        }
+      ],
+      "mid": [
+        {
+          "id": "obj.candlestick_tallow_artisan",
+          "count_per_resident": 0.5
+        },
+        {
+          "id": "obj.tinderbox",
+          "count_per_resident": 0.25
+        }
+      ],
+      "rich": [
+        {
+          "id": "obj.candlestick_beeswax_rich",
+          "count_per_resident": 0.5
+        },
+        {
+          "id": "obj.tinderbox",
+          "count_per_resident": 0.25
+        }
+      ]
+    },
+    "cook": {
+      "poor": [
+        {
+          "id": "obj.cooking_pot",
+          "count_per_resident": 0.25
+        },
+        {
+          "id": "obj.ladle_wood",
+          "count_per_resident": 0.25
+        }
+      ],
+      "mid": [
+        {
+          "id": "obj.cooking_pot",
+          "count_per_resident": 0.25
+        },
+        {
+          "id": "obj.pot_crane",
+          "count_per_resident": 0.25
+        },
+        {
+          "id": "obj.ladle_wood",
+          "count_per_resident": 0.25
+        }
+      ],
+      "rich": [
+        {
+          "id": "obj.cooking_pot",
+          "count_per_resident": 0.25
+        },
+        {
+          "id": "obj.pot_crane",
+          "count_per_resident": 0.25
+        },
+        {
+          "id": "obj.ladle_wood",
+          "count_per_resident": 0.25
+        }
+      ]
+    },
+    "clothe": {
+      "poor": [
+        {
+          "id": "obj.tunic_wool",
+          "count_per_resident": 1
+        },
+        {
+          "id": "obj.kirtle_wool",
+          "count_per_resident": 1
+        },
+        {
+          "id": "obj.leather_boots",
+          "count_per_resident": 1
+        }
+      ],
+      "mid": [
+        {
+          "id": "obj.tunic_wool",
+          "count_per_resident": 1
+        },
+        {
+          "id": "obj.kirtle_wool",
+          "count_per_resident": 1
+        },
+        {
+          "id": "obj.leather_boots",
+          "count_per_resident": 1
+        }
+      ],
+      "rich": [
+        {
+          "id": "obj.tunic_wool",
+          "count_per_resident": 1
+        },
+        {
+          "id": "obj.kirtle_wool",
+          "count_per_resident": 1
+        },
+        {
+          "id": "obj.leather_boots",
+          "count_per_resident": 1
+        }
+      ]
+    },
+    "store": {
+      "poor": [
+        {
+          "id": "obj.chest_plain_coffer",
+          "count_per_resident": 0.25
+        },
+        {
+          "id": "obj.wall_peg_rail",
+          "count_per_resident": 0.25
+        }
+      ],
+      "mid": [
+        {
+          "id": "obj.chest_burgher",
+          "count_per_resident": 0.25
+        },
+        {
+          "id": "obj.wall_peg_rail",
+          "count_per_resident": 0.25
+        },
+        {
+          "id": "obj.iron_key",
+          "count_per_resident": 0.25
+        }
+      ],
+      "rich": [
+        {
+          "id": "obj.armarium_elite",
+          "count_per_resident": 0.25
+        },
+        {
+          "id": "obj.wall_peg_rail",
+          "count_per_resident": 0.25
+        },
+        {
+          "id": "obj.iron_key",
+          "count_per_resident": 0.25
+        }
+      ]
+    },
+    "work": {
+      "poor": [
+        {
+          "id": "obj.spindle_distaff",
+          "count_per_resident": 1
+        }
+      ],
+      "mid": [
+        {
+          "id": "obj.spindle_distaff",
+          "count_per_resident": 1
+        }
+      ],
+      "rich": [
+        {
+          "id": "obj.spindle_distaff",
+          "count_per_resident": 1
+        },
+        {
+          "id": "obj.ledger_book",
+          "count_per_resident": 0.25
+        }
+      ]
+    },
+    "faith": {
+      "poor": [
+        {
+          "id": "obj.crucifix_wall",
+          "count_per_resident": 0.25
+        }
+      ],
+      "mid": [
+        {
+          "id": "obj.crucifix_wall",
+          "count_per_resident": 0.25
+        }
+      ],
+      "rich": [
+        {
+          "id": "obj.crucifix_wall",
+          "count_per_resident": 0.25
+        }
+      ]
+    },
+    "safety": {
+      "poor": [
+        {
+          "id": "obj.hatchet",
+          "count_per_resident": 0.25
+        }
+      ],
+      "mid": [
+        {
+          "id": "obj.hatchet",
+          "count_per_resident": 0.25
+        },
+        {
+          "id": "obj.dagger_belt",
+          "count_per_resident": 1
+        }
+      ],
+      "rich": [
+        {
+          "id": "obj.sword_cruciform",
+          "count_per_resident": 0.25
+        },
+        {
+          "id": "obj.dagger_belt",
+          "count_per_resident": 1
+        }
+      ]
+    },
+    "money": {
+      "poor": [
+        {
+          "id": "obj.coin_purse",
+          "count_per_resident": 1
+        }
+      ],
+      "mid": [
+        {
+          "id": "obj.coin_purse",
+          "count_per_resident": 1
+        }
+      ],
+      "rich": [
+        {
+          "id": "obj.coin_purse",
+          "count_per_resident": 1
+        }
+      ]
+    },
+    "child": {
+      "poor": [
+        {
+          "id": "obj.blanket_wool",
+          "count_per_resident": 1
+        },
+        {
+          "id": "obj.bolster_straw",
+          "count_per_resident": 1
+        },
+        {
+          "id": "obj.bowl_small",
+          "count_per_resident": 1
+        }
+      ],
+      "mid": [
+        {
+          "id": "obj.blanket_wool",
+          "count_per_resident": 1
+        },
+        {
+          "id": "obj.bolster_straw",
+          "count_per_resident": 1
+        },
+        {
+          "id": "obj.bowl_small",
+          "count_per_resident": 1
+        }
+      ],
+      "rich": [
+        {
+          "id": "obj.blanket_wool",
+          "count_per_resident": 1
+        },
+        {
+          "id": "obj.bolster_straw",
+          "count_per_resident": 1
+        },
+        {
+          "id": "obj.bowl_small",
+          "count_per_resident": 1
+        }
+      ]
+    }
+  }
+}
