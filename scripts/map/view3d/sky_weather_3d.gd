@@ -369,6 +369,24 @@ const RAIN_LOCAL_TO := 0.8
 ## pausing or accelerating the weather clock affects puddles consistently.
 const PUDDLE_RAIN_FILL_PER_SECOND := 0.08
 const PUDDLE_DRY_PER_SECOND := 0.004
+
+## R-1516 drought. Once the puddles are gone, open sun bakes the bare soil:
+## `ground_dryness` climbs with sun height and clear sky. A fair spell only dusts
+## it (capped at DRYNESS_FAIR_CAP); cracks need a drought spell, which can start
+## only as the sky turns clear/cloudless over ground that is already parched.
+## During a drought the sky never builds rain. Rain first soaks the crust back to
+## loose earth (DRYNESS_SOAK_PER_SECOND) and only the rain left over fills puddles,
+## so the order is always cracks -> damp loose earth -> puddles.
+const DRYNESS_GAIN_PER_SECOND := 0.0025
+const DRYNESS_DROUGHT_GAIN := 2.5
+const DRYNESS_FAIR_CAP := 0.4
+const DRYNESS_SOAK_PER_SECOND := 0.06
+const DROUGHT_ONSET_DRYNESS := 0.3
+const DROUGHT_START_CHANCE := 0.25
+const DROUGHT_SECONDS := Vector2(240.0, 480.0)
+## In a drought, clear skies mostly fall back to cloudless; cumulus that do form
+## break up again instead of thickening to overcast or rain.
+const DROUGHT_CLEAR_TO_CLOUDLESS_CHANCE := 0.6
 const LAST_RAIN_NEVER := INF
 
 ## Cloud drift scales with wind so a gust visibly accelerates the sky and storms
@@ -398,6 +416,8 @@ class WeatherPresentation extends RefCounted:
 	var wind_strength := 0.0
 	var rain_intensity := 0.0
 	var puddle_wetness := 0.0
+	## R-1516: 0..1 baked-dry bare soil; cracks open above ~0.45.
+	var ground_dryness := 0.0
 	var cloud_coverage := 0.0
 	var overcast := 0.0
 	var lightning := 0.0
@@ -493,6 +513,11 @@ var _puddle_wetness := 0.0
 ## Elapsed simulated seconds since rain last reached the ground. INF means this
 ## weather controller has never observed rain, useful to mud and save/debug UI.
 var _seconds_since_rain := LAST_RAIN_NEVER
+## R-1516: 0 = wet or freshly soaked, 1 = drought crust fully cracked.
+var _ground_dryness := 0.0
+var _drought_seconds_left := 0.0
+## Separate stream so drought rolls never perturb the weather sequence.
+var _drought_rng := RandomNumberGenerator.new()
 ## Transient gust magnitude on top of the profile wind. `_gust_time` < 0 is idle.
 var _gust := 0.0
 var _gust_time := -1.0
@@ -639,6 +664,7 @@ func atmosphere_lut() -> SkyAtmosphereLutScript:
 func _init() -> void:
 	_rng.seed = WEATHER_SEED
 	_lightning_rng.seed = WEATHER_SEED + 101
+	_drought_rng.seed = WEATHER_SEED + 211
 	_time_to_strike = _lightning_rng.randf_range(LIGHTNING_GAP_SECONDS.x, LIGHTNING_GAP_SECONDS.y)
 	_state_duration = _roll_duration(weather)
 	_update_cells()
@@ -674,6 +700,8 @@ func snapshot_state(
 	state.wind_drift_strength = _json_safe_float(_wind_drift_strength)
 	state.puddle_wetness = _json_safe_float(_puddle_wetness)
 	state.seconds_since_rain = _json_safe_float(_seconds_since_rain)
+	state.ground_dryness = _json_safe_float(_ground_dryness)
+	state.drought_seconds_left = _json_safe_float(_drought_seconds_left)
 	if not is_finite(_seconds_since_rain):
 		state.seconds_since_rain = SkyWeatherStateScript.LAST_RAIN_NEVER
 	state.gust = _json_safe_float(_gust)
@@ -688,6 +716,7 @@ func snapshot_state(
 	state.cloud_cell_clock = _json_safe_float(_cloud_cell_clock)
 	state.weather_rng_state = _rng.state
 	state.lightning_rng_state = _lightning_rng.state
+	state.drought_rng_state = _drought_rng.state
 	state.current_profile = _profile_for_state(_current)
 	state.transition_from_profile = _profile_for_state(_from)
 	state.normalize()
@@ -718,6 +747,8 @@ func apply_state(state: RefCounted) -> bool:
 	_wind_drift_strength = restored.wind_drift_strength
 	_puddle_wetness = restored.puddle_wetness
 	_seconds_since_rain = restored.seconds_since_rain
+	_ground_dryness = restored.ground_dryness
+	_drought_seconds_left = restored.drought_seconds_left
 	if restored.seconds_since_rain < 0.0:
 		_seconds_since_rain = LAST_RAIN_NEVER
 	_gust = restored.gust
@@ -734,6 +765,8 @@ func apply_state(state: RefCounted) -> bool:
 		_rng.state = restored.weather_rng_state
 	if restored.lightning_rng_state != -1:
 		_lightning_rng.state = restored.lightning_rng_state
+	if restored.drought_rng_state != -1:
+		_drought_rng.state = restored.drought_rng_state
 	_current = _profile_from_state(restored.current_profile, weather)
 	_from = _profile_from_state(restored.transition_from_profile, _transition_from_weather)
 	_cycle_progress = wrapf(float(restored.cycle_progress), 0.0, 1.0)
@@ -926,7 +959,7 @@ func advance(delta: float) -> void:
 	_cloud_cell_clock += delta
 	_update_cells()
 	_advance_lightning(delta)
-	_advance_puddle_wetness(delta)
+	_advance_ground_water(delta)
 	_update_rain(delta)
 	_push_cloud_uniforms()
 
@@ -945,6 +978,7 @@ func set_weather(next_weather: StringName) -> void:
 	_blend = 0.0
 	_time_in_state = 0.0
 	_state_duration = _roll_duration(next_weather)
+	_maybe_start_drought()
 
 
 ## Public astronomy compatibility facade. Existing maps and systems keep using
@@ -1171,6 +1205,7 @@ func presentation_snapshot(progress: float, day_blend: float) -> WeatherPresenta
 	snapshot.wind_strength = wind_strength()
 	snapshot.rain_intensity = rain_intensity()
 	snapshot.puddle_wetness = puddle_wetness()
+	snapshot.ground_dryness = ground_dryness()
 	snapshot.cloud_coverage = cloud_coverage()
 	var modifiers := lighting_modifiers()
 	snapshot.overcast = float(modifiers["overcast"])
@@ -1385,11 +1420,56 @@ func seconds_since_rain() -> float:
 	return _seconds_since_rain
 
 
-func _advance_puddle_wetness(delta: float) -> void:
-	var rain_fill := rain_intensity() * PUDDLE_RAIN_FILL_PER_SECOND
-	var drying := PUDDLE_DRY_PER_SECOND if rain_fill <= 0.0 else 0.0
+## R-1516: 0..1 sun-baked bare soil. Cracks open in the puddle basins above ~0.45.
+func ground_dryness() -> float:
+	return _ground_dryness
+
+
+func drought_active() -> bool:
+	return _drought_seconds_left > 0.0
+
+
+func drought_seconds_left() -> float:
+	return _drought_seconds_left
+
+
+## Debug and test entry point: start (or with 0, end) a drought spell now.
+func start_drought(seconds: float) -> void:
+	_drought_seconds_left = maxf(seconds, 0.0)
+
+
+## Rolled once per real weather change (never on a "stay" re-pick): a clear or
+## cloudless sky over ground that a fair spell has already parched may settle
+## into a drought.
+func _maybe_start_drought() -> void:
+	if drought_active() or not (weather == WEATHER_CLEAR or weather == WEATHER_CLOUDLESS):
+		return
+	# A shower still easing out of the blend would cancel the drought next frame.
+	if _ground_dryness < DROUGHT_ONSET_DRYNESS or rain_intensity() > 0.001:
+		return
+	if _drought_rng.randf() < DROUGHT_START_CHANCE:
+		_drought_seconds_left = _drought_rng.randf_range(DROUGHT_SECONDS.x, DROUGHT_SECONDS.y)
+
+
+## Rain, puddles and dryness share one ground-water budget, in weather seconds.
+func _advance_ground_water(delta: float) -> void:
+	var rain := rain_intensity()
+	var rain_fill := rain * PUDDLE_RAIN_FILL_PER_SECOND
+	if rain > 0.001:
+		# Rain (even a forced debug shower) breaks a drought, and the dry crust
+		# drinks first: puddles only get the share the soil could not absorb.
+		_drought_seconds_left = 0.0
+		var soak := rain * DRYNESS_SOAK_PER_SECOND * delta
+		var absorbed := minf(soak, _ground_dryness)
+		_ground_dryness -= absorbed
+		rain_fill *= 1.0 - absorbed / maxf(soak, 0.000001)
+	else:
+		_drought_seconds_left = maxf(_drought_seconds_left - delta, 0.0)
+		if _puddle_wetness <= 0.0:
+			_ground_dryness = _bake_dryness(_ground_dryness, delta)
+	var drying := PUDDLE_DRY_PER_SECOND if rain <= 0.001 else 0.0
 	_puddle_wetness = clampf(_puddle_wetness + (rain_fill - drying) * delta, 0.0, 1.0)
-	if rain_intensity() > 0.001:
+	if rain > 0.001:
 		_seconds_since_rain = 0.0
 	elif not is_inf(_seconds_since_rain):
 		_seconds_since_rain += delta
@@ -1560,6 +1640,9 @@ static func sidereal_angle_for_progress(progress: float, date: Dictionary = {}) 
 ## weather. The probabilities are tuned to Estonian spring averages: sunny
 ## spells are common, rain and storms are punctuations rather than the norm.
 func _pick_next_weather() -> void:
+	if drought_active():
+		_pick_drought_weather()
+		return
 	match weather:
 		WEATHER_CLOUDLESS:
 			# A blue sky either holds or fair-weather cumulus start to bubble up.
@@ -1622,9 +1705,38 @@ func _pick_next_weather() -> void:
 				set_weather(WEATHER_OVERCAST)
 
 
+## Sun on dry ground raises dryness up to the fair-weather cap, or past it in a
+## drought. Nothing lowers it except rain: cracks outlast the drought that made them.
+func _bake_dryness(dryness: float, delta: float) -> float:
+	var sun := smoothstep(0.0, 0.35, _sun_direction.y) * (1.0 - 0.85 * cloud_coverage())
+	var gain := DRYNESS_GAIN_PER_SECOND * sun
+	var cap := DRYNESS_FAIR_CAP
+	if drought_active():
+		gain *= DRYNESS_DROUGHT_GAIN
+		cap = 1.0
+	if dryness >= cap:
+		return dryness
+	return minf(dryness + gain * delta, cap)
+
+
 func _roll_duration(for_weather: StringName) -> float:
 	var span: Vector2 = DURATIONS[for_weather]
 	return _rng.randf_range(span.x, span.y)
+
+
+## R-1516: a drought keeps the sky dry. One roll per pick like the normal chain;
+## no outcome leads towards overcast, rain or storm.
+func _pick_drought_weather() -> void:
+	var roll := _rng.randf()
+	match weather:
+		WEATHER_CLEAR:
+			set_weather(
+				WEATHER_CLOUDLESS if roll < DROUGHT_CLEAR_TO_CLOUDLESS_CHANCE else WEATHER_CLOUDY
+			)
+		WEATHER_CLOUDLESS:
+			set_weather(WEATHER_CLEAR)
+		_:
+			set_weather(WEATHER_CLEAR)
 
 
 ## Envelopes the gust front: a quick rise to the peak, then an exponential decay

@@ -61,6 +61,12 @@ var wind_heading := 0.0
 var wind_drift_strength := 0.0
 var puddle_wetness := 0.0
 var seconds_since_rain := LAST_RAIN_NEVER
+## R-1516: 0 = soaked or fresh ground, 1 = drought crust cracked open. Older saves
+## have no field and load as 0 (ground not yet dried).
+var ground_dryness := 0.0
+## Weather seconds left in the current drought spell; 0 = no drought.
+var drought_seconds_left := 0.0
+var drought_rng_state := -1
 var gust := 0.0
 var gust_time := -1.0
 var lightning := 0.0
@@ -103,6 +109,9 @@ func normalize() -> void:
 	cycle_progress = wrapf(cycle_progress, 0.0, 1.0)
 	elapsed_days = maxi(elapsed_days, 0)
 	puddle_wetness = clampf(puddle_wetness, 0.0, 1.0)
+	ground_dryness = clampf(ground_dryness, 0.0, 1.0)
+	if not is_finite(drought_seconds_left) or drought_seconds_left < 0.0:
+		drought_seconds_left = 0.0
 	seconds_since_rain = maxf(seconds_since_rain, LAST_RAIN_NEVER)
 	gust = clampf(gust, 0.0, 1.0)
 	lightning = clampf(lightning, 0.0, 1.0)
@@ -136,6 +145,8 @@ func validation_errors() -> Array[String]:
 		errors.append("cycle_progress must be in the wrapped 0..1 range")
 	if puddle_wetness < 0.0 or puddle_wetness > 1.0:
 		errors.append("puddle_wetness must be in the 0..1 range")
+	if ground_dryness < 0.0 or ground_dryness > 1.0:
+		errors.append("ground_dryness must be in the 0..1 range")
 	for profile_name in [&"current_profile", &"transition_from_profile"]:
 		var profile: Dictionary = (
 			current_profile if profile_name == &"current_profile" else transition_from_profile
@@ -167,6 +178,8 @@ func to_dict() -> Dictionary:
 		"wind_drift_strength": wind_drift_strength,
 		"puddle_wetness": puddle_wetness,
 		"seconds_since_rain": seconds_since_rain,
+		"ground_dryness": ground_dryness,
+		"drought_seconds_left": drought_seconds_left,
 		"gust": gust,
 		"gust_time": gust_time,
 		"lightning": lightning,
@@ -181,6 +194,7 @@ func to_dict() -> Dictionary:
 		# full 64-bit RNG state. Strings keep deterministic map transitions exact.
 		"weather_rng_state": str(weather_rng_state),
 		"lightning_rng_state": str(lightning_rng_state),
+		"drought_rng_state": str(drought_rng_state),
 		"current_profile": _profile_to_dict(current_profile),
 		"transition_from_profile": _profile_to_dict(transition_from_profile),
 	}
@@ -213,6 +227,8 @@ static func from_dict(data: Dictionary) -> SkyWeatherState:
 	state.wind_drift_strength = float(data.get("wind_drift_strength", 0.0))
 	state.puddle_wetness = float(data.get("puddle_wetness", 0.0))
 	state.seconds_since_rain = float(data.get("seconds_since_rain", LAST_RAIN_NEVER))
+	state.ground_dryness = float(data.get("ground_dryness", 0.0))
+	state.drought_seconds_left = float(data.get("drought_seconds_left", 0.0))
 	state.gust = float(data.get("gust", 0.0))
 	state.gust_time = float(data.get("gust_time", -1.0))
 	state.lightning = float(data.get("lightning", 0.0))
@@ -229,6 +245,7 @@ static func from_dict(data: Dictionary) -> SkyWeatherState:
 	state.cloud_cell_clock = float(data.get("cloud_cell_clock", 0.0))
 	state.weather_rng_state = _int_from_value(data.get("weather_rng_state", "-1"))
 	state.lightning_rng_state = _int_from_value(data.get("lightning_rng_state", "-1"))
+	state.drought_rng_state = _int_from_value(data.get("drought_rng_state", "-1"))
 	var raw_current: Variant = data.get("current_profile", {})
 	var raw_from: Variant = data.get("transition_from_profile", {})
 	state.current_profile = raw_current.duplicate(true) if raw_current is Dictionary else {}

@@ -76,6 +76,9 @@ GROUND_OUTPUTS = {
     "shore_shingle": GENERATED / "shore_shingle_v1" / "candidate_2.jpg",
     "mud": GENERATED / "mud_tidal_yard_v3" / "candidate_2.jpg",
     "grass": GENERATED / "grass_meadow_v4" / "candidate_1.jpg",
+    # R-1516: drought crust for dried puddle basins. Leonardo was out of tokens, so
+    # this plate comes from OpenAI gpt-image-1 (generated/openai is gitignored too).
+    "cracked_earth": ROOT / "generated" / "openai" / "cracked_earth_v1" / "candidate_1.png",
 }
 ## Per-family derivation constants.
 ## - normal_strength: slope gain of the height field (higher = deeper relief).
@@ -91,6 +94,14 @@ GROUND_DERIVATION = {
     # wet sheen (mud_wetness), so they are pulled back to the surrounding colour.
     "mud": {"normal_strength": 6.0, "roughness": (0.78, 0.40), "blur": 1.2, "despecular": True},
     "grass": {"normal_strength": 3.5, "roughness": (0.96, 0.84), "blur": 0.8},
+    # Crack gaps are dark and low, plates bright and high: height = luminance.
+    # albedo_only: the city ground shader is near the GL Compatibility sampler
+    # limit, so it derives crack relief from this plate's luminance instead of a
+    # second normal sampler. size: the 1024 px source is not upscaled.
+    "cracked_earth": {
+        "normal_strength": 7.0, "roughness": (0.97, 0.90), "blur": 0.8,
+        "albedo_only": True, "size": 1024,
+    },
 }
 # Directional or coursed plates must keep their authored phase. A half-tile
 # shift moves the original wrap seam into the middle of a wall face or board.
@@ -437,14 +448,21 @@ def process_ground(family: str) -> bool:
         return False
     params = GROUND_DERIVATION[family]
     image = Image.open(source).convert("RGB")
+    target_size = int(params.get("size", GROUND_TARGET_SIZE))
     if family in SEAMLESS_FAMILIES:
-        image = _resize_tileable(_make_seamless(_flatten_lighting(image)), GROUND_TARGET_SIZE)
+        image = _resize_tileable(_make_seamless(_flatten_lighting(image)), target_size)
     else:
-        image = image.resize((GROUND_TARGET_SIZE, GROUND_TARGET_SIZE), Image.Resampling.LANCZOS)
+        image = image.resize((target_size, target_size), Image.Resampling.LANCZOS)
         image = _weld_edges(image, phase_shift=True)
     if params.get("despecular"):
         cleaned = _remove_baked_glints(np.asarray(image, dtype=np.float64) / 255.0)
         image = _to_image(cleaned, "RGB")
+    out_dir = PBR / family
+    out_dir.mkdir(parents=True, exist_ok=True)
+    if params.get("albedo_only"):
+        image.save(out_dir / f"{family}_albedo.png", "PNG", optimize=True)
+        print(f"prepared {family}: {out_dir.relative_to(ROOT)} (albedo)")
+        return True
     if family in SEAMLESS_FAMILIES:
         derived_source = _resize_tileable(image, GROUND_DERIVED_SIZE)
     else:
@@ -455,8 +473,6 @@ def process_ground(family: str) -> bool:
     dry, damp = params["roughness"]
     roughness = _derive_roughness(albedo, height, float(dry), float(damp))
 
-    out_dir = PBR / family
-    out_dir.mkdir(parents=True, exist_ok=True)
     image.save(out_dir / f"{family}_albedo.png", "PNG", optimize=True)
     _to_image(normal, "RGB").save(out_dir / f"{family}_normal.png", "PNG", optimize=True)
     _to_image(roughness, "L").save(out_dir / f"{family}_roughness.png", "PNG", optimize=True)

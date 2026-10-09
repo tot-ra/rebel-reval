@@ -1,0 +1,30 @@
+{
+  "id": "material.cracked_earth.albedo",
+  "family": "cracked_earth",
+  "map_type": "albedo",
+  "kind": "openai_material_plate",
+  "target": "assets/materials/pbr/cracked_earth/cracked_earth_albedo.png",
+  "source": "generated/openai/cracked_earth_v1/candidate_1.png",
+  "candidates": [
+    "generated/openai/cracked_earth_v1/candidate_1.png",
+    "generated/openai/cracked_earth_v1/candidate_2.png"
+  ],
+  "prompt": "Seamless tileable PBR albedo texture, orthographic top-down photo scan of sun-baked cracked clay-loam soil: a dried-out puddle bed in a medieval Baltic town yard during a summer drought. Pale dusty grey-brown clay crust (#9C8770, #8A7660), dark umber shadowed crack gaps (#4A3A2E). Irregular polygonal desiccation plates 10-25 cm across with slightly curled lifted edges, a mix of narrow and wide cracks, fine hairline cracks inside the plates, a few small embedded pebbles and dry straw fibres. Even flat diffuse overcast light, no cast shadows, no horizon, no plants, no water, no text. Edges tile perfectly on all four sides, square material plate, sharp detail, realistic.",
+  "model_name": "OpenAI gpt-image-1",
+  "width": 1024,
+  "height": 1024,
+  "quality": "high",
+  "generation_id": "d62f6d6f-c033-4a34-9706-26e6c6b33b18",
+  "selected_candidate": 1,
+  "processor": "tools/process_leonardo_terrain_textures.py",
+  "style_refs": [
+    "docs/ART_BIBLE.md",
+    "docs/MATERIAL_STYLE_LOCK_KIT.md"
+  ],
+  "notes": "R-1516. Leonardo was out of API tokens, so OpenAI was used. Candidate 1 picked over 2 for more varied plate sizes and curled edges. Albedo only: crack relief is derived in city_ground.gdshader from luminance.",
+  "derived_maps": {},
+  "runtime_size": {
+    "albedo": 1024
+  },
+  "task": "R-1516"
+}

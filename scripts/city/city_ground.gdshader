@@ -36,6 +36,10 @@ uniform sampler2D sand_albedo : source_color, filter_linear_mipmap_anisotropic, 
 uniform sampler2D sand_normal : hint_normal, filter_linear_mipmap_anisotropic, repeat_enable;
 uniform sampler2D rock_albedo : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
 uniform sampler2D rock_normal : hint_normal, filter_linear_mipmap_anisotropic, repeat_enable;
+// R-1516 drought crust. Albedo only: this shader is near the GL Compatibility
+// sampler limit, so crack relief comes from the plate's luminance (gaps are dark).
+uniform sampler2D cracked_albedo : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
+uniform float crack_scale = 0.35; // one plate repeat per ~3 m: 15-35 cm clay polygons
 
 // Texture repeats per world unit. The plates cover ~1 m of ground, so a blade
 // of grass or a pebble reads at its real size next to Kalev.
@@ -55,6 +59,9 @@ uniform vec3 earth_tint : source_color = vec3(0.60, 0.55, 0.47);
 uniform float wetness = 0.0;
 // Standing water after rain (SkyWeather3D.puddle_wetness()).
 uniform float puddles = 0.0;
+// Sun-baked bare soil (SkyWeather3D.ground_dryness()): dusty above 0, the puddle
+// basins crack open from ~0.45 (drought only, see docs/SYSTEMS/WEATHER_GROUND.md).
+uniform float ground_dryness = 0.0;
 uniform float sea_level = 0.0;
 
 #include "res://scripts/map/view3d/fieldstone_paving.gdshaderinc"
@@ -537,13 +544,49 @@ void fragment() {
 	// Gradation, driest to wettest: damp earth round the pool, a thin wet film that
 	// still shows the bed, then standing water that hides it and mirrors the sky.
 	float damp_ring = smoothstep(-0.32, 0.0, water_depth) * step(0.001, puddles);
-	float film = smoothstep(0.0, 0.05, water_depth);
-	float deep = smoothstep(0.04, 0.28, water_depth);
+	// Baked ground drinks the first rain (R-1516): no standing water or film until
+	// the crust has soaked, even in the deepest ruts.
+	float soaked = 1.0 - smoothstep(0.05, 0.3, ground_dryness);
+	float film = smoothstep(0.0, 0.05, water_depth) * soaked;
+	float deep = smoothstep(0.04, 0.28, water_depth) * soaked;
 	// Water seeps into the deepest prints and ruts of soaked ground even where no
 	// standing puddle has formed yet: a film only, never deep water.
 	float seep = smoothstep(0.55, 0.9, max(pressed, in_rut * 0.7 * smoothstep(0.35, 0.7, value_noise(wuv * 0.4)))) * smoothstep(0.45, 0.9, wet_road) * (1.0 - paving) * flat_ground;
+	seep *= soaked;
 	float puddle = max(film, seep * 0.8);
-	float wet = clamp(wetness + mud * 0.35 + shore * 0.5 + puddles * soft * 0.5 + pressed * wet_road * 0.3, 0.0, 1.0);
+	// Drought: the same basins that hold puddles after rain bake into cracked clay,
+	// deepest first, widening as `ground_dryness` grows, on bare soil only (never turf,
+	// sand, rock or paving). Rain lowers `ground_dryness` before any puddle forms, so the
+	// crust shrinks back into dark loose earth first. Placed before the wet tint so
+	// a shower visibly darkens the cracks while they close.
+	// Shore sand (sand = max(sand, shore)) keeps the crust off beaches and the seabed.
+	float bare = soft * (1.0 - sand) * (1.0 - rock);
+	float parched = smoothstep(0.0, 0.4, ground_dryness) * bare * (1.0 - puddle);
+	col = mix(col, col * vec3(1.1, 1.05, 0.96) + 0.025, parched * 0.45);
+	float crack_amount = smoothstep(0.45, 1.0, ground_dryness);
+	float basin = max(hollow * soft, rut_pool) * flat_ground;
+	float crust_depth = basin + (value_noise(wuv * 1.7) - 0.5) * 0.08 - (1.05 - crack_amount * 0.9);
+	float crust = smoothstep(-0.08, 0.14, crust_depth) * bare * step(0.001, crack_amount) * (1.0 - puddle);
+	vec2 cuv = wuv * crack_scale;
+	vec3 crk = detiled(cracked_albedo, cuv);
+	// Luminance relief: a gap is a dark trench between raised, slightly curled plates.
+	float co = 1.5 / 1024.0;
+	float cl = dot(texture(cracked_albedo, cuv).rgb, vec3(0.333));
+	float cl_x = dot(texture(cracked_albedo, cuv + vec2(co, 0.0)).rgb, vec3(0.333));
+	float cl_z = dot(texture(cracked_albedo, cuv + vec2(0.0, co)).rgb, vec3(0.333));
+	vec2 crack_nxy = -vec2(cl_x - cl, cl_z - cl) * 9.0 * detail;
+	// The plate only carries pattern: divide out its mean tone so the crust keeps the
+	// local soil colour (road dust, black field earth), a shade paler where it baked.
+	// Dried pool silt is greyer and paler than the soil round it; gaps get extra
+	// contrast so the polygons read at gameplay distance.
+	vec3 crk_rel = pow(crk / vec3(0.61, 0.54, 0.455), vec3(1.5));
+	vec3 crust_col = mix(col * vec3(1.08, 1.05, 1.0), vec3(0.62, 0.57, 0.5), 0.4) * crk_rel;
+	// Silt settled last at the bottom of the pool: a pale rim just outside the crust.
+	float silt_rim = smoothstep(-0.2, -0.06, crust_depth) * (1.0 - crust) * bare * step(0.001, crack_amount);
+	col = mix(col, col * vec3(1.1, 1.07, 1.02) + 0.02, silt_rim * 0.5);
+	col = mix(col, crust_col, crust);
+	nxy = mix(nxy, crack_nxy, crust);
+	float wet = clamp(wetness * (1.0 - crust * 0.4) + mud * 0.35 * (1.0 - crust) + shore * 0.5 + puddles * soft * 0.5 + pressed * wet_road * 0.3, 0.0, 1.0);
 	col *= mix(1.0, 0.62, wet);
 	// Soaked margin: darker, richer earth before any water is visible.
 	col = mix(col, col * vec3(0.66, 0.6, 0.55), damp_ring * 0.65);
@@ -574,6 +617,8 @@ void fragment() {
 	ROUGHNESS = mix(ROUGHNESS, 0.98, road * dryness * 0.6);
 	ROUGHNESS = mix(ROUGHNESS, 0.5, in_rut * wet_road * 0.8);
 	ROUGHNESS = mix(ROUGHNESS, 0.3, (pressed + rim * 0.5) * wet_road * 0.7);
+	// Baked crust is chalk-matte; only real rain (wetness) gives it a sheen.
+	ROUGHNESS = mix(ROUGHNESS, 0.97, max(crust, parched * 0.5) * (1.0 - wetness));
 	// Turf scatters light diffusely: no glint and no wet-gloss on dry-looking grass.
 	ROUGHNESS = mix(ROUGHNESS, 1.0, turf * 0.85);
 	SPECULAR = mix(mix(0.3, grass_specular, turf), mix(0.4, 0.6, deep), puddle);

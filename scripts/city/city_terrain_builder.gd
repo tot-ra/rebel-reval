@@ -22,6 +22,8 @@ const TEXTURES := {
 	"sand_normal": "res://assets/materials/pbr/coast_sand/coast_sand_normal.png",
 	"rock_albedo": "res://assets/materials/pbr/stone/stone_albedo.png",
 	"rock_normal": "res://assets/materials/pbr/stone/stone_normal.png",
+	# R-1516 drought crust in dried puddle basins.
+	"cracked_albedo": "res://assets/materials/pbr/cracked_earth/cracked_earth_albedo.png",
 }
 
 

@@ -5,6 +5,7 @@ extends SceneTree
 ## busy road, walks a stretch of it in wet or dry ground so the trail map fills
 ## with prints, then shoots from eye, gameplay and low grazing cameras.
 ##   tools/godot_render.sh --script tools/capture_city_mud.gd -- --tag=now [--wet=0.9] [--relief=0]
+## --dryness=1 bakes the puddle basins into drought cracks (R-1516); pair with --wet=0.
 ## --relief=0 hides the trail relief mesh (shader relief only), for before/after plates.
 ## Output: build/mud/<shot>_<tag>.png
 
@@ -15,6 +16,7 @@ var _tag := "now"
 var _wet := 0.9
 var _puddles := -1.0
 var _relief := true
+var _dryness := 0.0
 
 
 func _initialize() -> void:
@@ -25,6 +27,8 @@ func _initialize() -> void:
 			_puddles = float(arg.substr(10))
 		elif arg.begins_with("--relief="):
 			_relief = arg.substr(9) != "0"
+		elif arg.begins_with("--dryness="):
+			_dryness = float(arg.substr(10))
 		elif arg.begins_with("--wet="):
 			_wet = float(arg.substr(6))
 	call_deferred("_run")
@@ -129,6 +133,7 @@ func _run() -> void:
 	ground.set_shader_parameter("wetness", _wet)
 	ground.set_shader_parameter("puddles", _puddles if _puddles >= 0.0 else _wet * 0.5)
 	world.trail.wetness = _wet
+	ground.set_shader_parameter("ground_dryness", _dryness)
 	# Walk 24 wu along the road, a little wandering, so prints fill the window.
 	var side := Vector2(-dir.y, dir.x)
 	var pos := at - dir * 12.0

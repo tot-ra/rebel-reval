@@ -14,19 +14,19 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `1092`
-- Markdown files excluded as archive/reference/out of active scope: `744`
-- Local/external links inspected: `12909`
-- Links to active Markdown docs: `11949`
-- Links to existing archive/reference/non-active local docs: `444`
-- External links skipped for reachability: `88`
-- Issues found: `150`
+- Active Markdown files scanned: `1097`
+- Markdown files excluded as archive/reference/out of active scope: `745`
+- Local/external links inspected: `12984`
+- Links to active Markdown docs: `11985`
+- Links to existing archive/reference/non-active local docs: `442`
+- External links skipped for reachability: `90`
+- Issues found: `152`
 
 ## Issue counts
 
 | Code | Count |
 | --- | ---: |
-| `BROKEN_LINK` | 84 |
+| `BROKEN_LINK` | 86 |
 | `BROKEN_ANCHOR` | 66 |
 | `DUPLICATE_CHARACTER_NAME` | 0 |
 | `CONTRADICTORY_DATE` | 0 |
@@ -186,6 +186,8 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 | `BROKEN_LINK` | `docs/FLORA_FAUNA.md:115` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
 | `BROKEN_LINK` | `docs/FLORA_FAUNA.md:116` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
 | `BROKEN_LINK` | `docs/LOCATIONS/sacred_grove.md:50` | Local Markdown link target does not exist: `../../content/maps/south_quarter.rrmap` |
+| `BROKEN_LINK` | `docs/SYSTEMS/AUDIO.md:68` | Local Markdown link target does not exist: `../reports/audio_licenses/README.md` |
+| `BROKEN_LINK` | `docs/SYSTEMS/SEAMLESS_CITY.md:125` | Local Markdown link target does not exist: `../reports/animal_placement_plan.md` |
 
 ## Active files scanned
 
@@ -228,6 +230,7 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/adr/0037-layered-npc-mind-with-local-llm.md`
 - `docs/adr/0038-realtime-3d-spirit-arena-and-topic-spells.md`
 - `docs/adr/0039-tall-grass-height-and-wading-drag.md`
+- `docs/adr/0041-spirit-sight-auras-and-soul-lights.md`
 - `docs/adr/README.md`
 - `docs/AGENT_LOOPS.md`
 - `docs/ANIMAL_3D_SOURCING.md`
@@ -1170,6 +1173,7 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/SYSTEMS/FLAG_CLOTH.md`
 - `docs/SYSTEMS/GATE_GARRISONS.md`
 - `docs/SYSTEMS/HOIST_ROPE.md`
+- `docs/SYSTEMS/HOUSEHOLD_OBJECTS.md`
 - `docs/SYSTEMS/HOUSEHOLDS.md`
 - `docs/SYSTEMS/HUD_AND_MENUS.md`
 - `docs/SYSTEMS/LIVING_CITY.md`
@@ -1179,6 +1183,7 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/SYSTEMS/MAGIC.md`
 - `docs/SYSTEMS/MUSCLE_LOCOMOTION.md`
 - `docs/SYSTEMS/NATURAL.md`
+- `docs/SYSTEMS/NIGHT_SKY.md`
 - `docs/SYSTEMS/NPC_MIND.md`
 - `docs/SYSTEMS/OBJECT_CATALOG.md`
 - `docs/SYSTEMS/PSYCHE.md`
@@ -1188,9 +1193,11 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/SYSTEMS/SETTINGS_AND_ACCESSIBILITY.md`
 - `docs/SYSTEMS/SHIPS.md`
 - `docs/SYSTEMS/SPIRIT_DIALOGUE.md`
+- `docs/SYSTEMS/SPIRIT_SIGHT.md`
 - `docs/SYSTEMS/STATE_AND_SAVES.md`
 - `docs/SYSTEMS/TIME_AND_PHASES.md`
 - `docs/SYSTEMS/VEGETATION_REALISM.md`
+- `docs/SYSTEMS/WEATHER_GROUND.md`
 - `docs/SYSTEMS/WORLD_LIFE.md`
 - `docs/SYSTEMS/WORLD_PRESENTATION.md`
 - `docs/TASK_ARCHIVE.md`

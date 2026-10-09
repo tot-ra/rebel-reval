@@ -54,6 +54,8 @@ func test_payload_lists_every_persisted_field() -> void:
 		"wind_drift_strength",
 		"puddle_wetness",
 		"seconds_since_rain",
+		"ground_dryness",
+		"drought_seconds_left",
 		"gust",
 		"gust_time",
 		"lightning",
@@ -66,6 +68,7 @@ func test_payload_lists_every_persisted_field() -> void:
 		"cloud_cell_clock",
 		"weather_rng_state",
 		"lightning_rng_state",
+		"drought_rng_state",
 		"current_profile",
 		"transition_from_profile",
 	]

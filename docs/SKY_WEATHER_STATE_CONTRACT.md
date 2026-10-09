@@ -31,6 +31,8 @@
 | `cloud_detail_offset` | Detail-cloud UV drift accumulator. |
 | `puddle_wetness` | Retained wet-ground intensity. |
 | `seconds_since_rain` | Simulated time since rain last reached the ground. |
+| `ground_dryness` | R-1516 sun-baked bare soil, 0..1; cracks open in puddle basins above ~0.45. Missing in older saves = 0. |
+| `drought_seconds_left` | R-1516 weather seconds left in a drought spell; 0 = none. |
 | `gust` | Transient rain-front gust intensity. |
 | `gust_time` | Elapsed time within the transient gust envelope. |
 | `lightning` | Current lightning flash intensity. |
@@ -43,6 +45,7 @@
 | `cloud_cell_clock` | Simulated seconds that drive every discrete cloud cell's life cycle; with `cloud_offset` and the profile it rebuilds the cell field exactly (R-1400). |
 | `weather_rng_state` | Deterministic weather-sequence RNG state. |
 | `lightning_rng_state` | Separate deterministic lightning RNG state. |
+| `drought_rng_state` | R-1516 separate deterministic drought-roll RNG state, string-encoded like the others. |
 | `current_profile` | Active weather presentation profile, including coverage, darken, sun/ambient energy, gray, rain, wind, chaos, storm, locality, and thunder. |
 | `transition_from_profile` | Source presentation profile retained while a transition is in progress. |
 

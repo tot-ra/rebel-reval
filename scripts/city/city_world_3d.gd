@@ -158,6 +158,7 @@ func apply_time(progress: float) -> void:
 	var ground := CityTerrainBuilder.shared_material()
 	if ground != null:
 		ground.set_shader_parameter("puddles", presentation.puddle_wetness)
+		ground.set_shader_parameter("ground_dryness", presentation.ground_dryness)
 		ground.set_shader_parameter(
 			"wetness",
 			clamp(presentation.rain_intensity * 0.6 + presentation.puddle_wetness * 0.4, 0.0, 1.0)
