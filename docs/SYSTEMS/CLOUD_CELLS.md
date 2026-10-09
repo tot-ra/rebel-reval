@@ -315,3 +315,16 @@ continuous-deck sampler made the surface disappear on macOS GL Compatibility,
 without a reported compile failure. Lightweight city water retains the deck/cell
 union; full deck shadows on FFT water require a separately verified sampler-safe
 implementation. See [city sea visibility](./CITY_SEA.md#perspective-sea-visibility-r-1437).
+
+## Night rain curtains (R-1531)
+
+Distant rain curtains (`rain_veil`) and the storm-cell hail tint are lit only by the sky,
+so at night they are scaled by the shared night light floor (`night_floor_readability`,
+the same `readability` factor that raises `night_top` / `night_horizon`). A curtain after
+dark is therefore a dark grey smudge a couple of times the sky floor - briefly lit by the
+lightning `flash` term, which is unchanged - instead of a fixed bright grey that out-glows
+the storm. Day and dusk (where `readability` is ~1) are unchanged.
+
+Verify: `tools/godot_render.sh --script tools/capture_weather_realism.gd -- --only=night_storm`
+writes `docs/reports/images/weather_realism/after/night_storm.png`; compare against
+`--baseline-shader` (`build/weather_baseline.gdshader`). See `night_storm_before_after.png`.

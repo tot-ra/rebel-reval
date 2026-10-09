@@ -9,9 +9,13 @@ shader_type sky;
 
 uniform vec4 day_top_color : source_color = vec4(0.18, 0.38, 0.65, 1.0);
 uniform vec4 day_horizon_color : source_color = vec4(0.67, 0.75, 0.81, 1.0);
+// Moonlit/twilight baseline, also retained unchanged for the lighting cubemap.
 uniform vec4 night_top_color : source_color = vec4(0.020, 0.045, 0.130, 1.0);
 uniform vec4 night_horizon_color : source_color = vec4(0.050, 0.100, 0.220, 1.0);
-uniform vec4 sunset_color : source_color = vec4(0.98, 0.45, 0.18, 1.0);
+// Faint blue-grey airglow rather than a saturated blue readability fill.
+const vec3 DARK_NIGHT_TOP = vec3(0.0015, 0.0020, 0.0030);
+const vec3 DARK_NIGHT_HORIZON = vec3(0.0030, 0.0040, 0.0060);
+uniform vec4 sunset_color : source_color = vec4(1.0, 0.25, 0.09, 1.0);
 uniform vec4 sun_color : source_color = vec4(1.0, 0.92, 0.74, 1.0);
 uniform vec4 moon_color : source_color = vec4(0.88, 0.86, 0.82, 1.0);
 
@@ -21,6 +25,16 @@ uniform float day_blend : hint_range(0.0, 1.0) = 1.0;
 uniform float sunset_factor : hint_range(0.0, 1.0) = 0.0;
 uniform vec3 sun_direction = vec3(0.0, 1.0, 0.0);
 uniform vec3 moon_direction = vec3(0.0, 1.0, 0.0);
+// Transient optics driven by the deterministic weather clock and active camera.
+uniform float rainbow_strength : hint_range(0.0, 1.0) = 0.0;
+// R-1518: 0 = fog droplets (white fogbow) .. 1 = large rain drops (vivid bow).
+uniform float rainbow_droplet : hint_range(0.0, 1.0) = 0.85;
+// xz = unit world direction of the departed rain curtain, y = cos(half-width); xz 0 = all around.
+uniform vec3 rainbow_curtain = vec3(0.0);
+// Rainbow radiance relative to the sky; the dome's exposed day sky sits near 0.3-0.8.
+uniform float rainbow_gain = 0.55;
+uniform float sun_flare_strength : hint_range(0.0, 1.0) = 0.0;
+uniform vec3 camera_direction = vec3(0.0, 0.0, -1.0);
 // Kept for earthshine strength; the lit crescent itself follows sun_direction.
 // 0 = new, 0.25 = first quarter, 0.5 = full, 0.75 = last quarter.
 uniform float moon_phase : hint_range(0.0, 1.0) = 0.5;
@@ -120,7 +134,7 @@ uniform float sky_adaptation : hint_range(0.0, 1.0) = 0.6;
 uniform float sky_adaptation_max_gain : hint_range(1.0, 16.0) = 4.0;
 uniform float sky_adaptation_reference = 0.155;
 // Share of the old art sunset band (sunset_color * sunset_factor) kept on top of the LUT.
-uniform float sunset_boost : hint_range(0.0, 1.0) = 0.25;
+uniform float sunset_boost : hint_range(0.0, 1.0) = 0.55;
 // Must match SkyAtmosphereLut.SUN_ILLUMINANCE (the LUT is already multiplied by it).
 uniform float sun_illuminance = 11.0;
 // Disk radiance = sun_illuminance * T(ground, mu_sun) * scale; 0.218 keeps the noon disk at
@@ -136,8 +150,8 @@ const float CLOUD_HEIGHT_KM = 1.5;
 // reads as a pinprick at game FOV; the sun is ~2.5x and the moon ~1.7x that.
 // Stylised, not physical (real: sun 0.0047, moon 0.0045 rad); enlarged so the
 // disk reads at game zoom. Sun stays clearly larger than the moon.
-const float SUN_DISK_R = 0.0200;
-const float MOON_DISK_R = 0.0110;
+const float SUN_DISK_R = 0.0230;
+const float MOON_DISK_R = 0.0140;
 
 #include "res://scripts/map/view3d/sky_clouds.gdshaderinc"
 #include "res://scripts/map/view3d/cloud_cells.gdshaderinc"
@@ -348,8 +362,8 @@ float cell_deck_sun(vec3 ro, vec3 p) {
 // full density and lighting from just before it. Storm cells add an analytic
 // rain curtain (chord through a cylinder under the base) behind the body.
 vec4 cells_volume(
-	vec3 ro, vec3 rd, vec3 lit_col, vec3 shade_col, vec3 haze_col, vec3 rain_col, vec3 deck_col,
-	vec3 flash_at, float flash, float jitter, out float body_cover
+	vec3 ro, vec3 rd, vec3 lit_col, vec3 shade_col, vec3 haze_col, vec3 rain_col, vec3 hail_col,
+	vec3 deck_col, vec3 flash_at, float flash, float jitter, out float body_cover
 ) {
 	vec3 acc = vec3(0.0);
 	float trans = 1.0;
@@ -560,8 +574,10 @@ vec4 cells_volume(
 				body_col, haze_col,
 				(1.0 - exp(-min(hit_t, 2e4) / mix(16000.0, 7000.0, cell_shade_lift))) * 0.6
 			);
-			// Some storms carry hail: a whiter, greenish-tinged core in the shaft.
-			vec3 shaft_col = mix(rain_col, vec3(0.78, 0.86, 0.82), step(0.55, fract(bc.w * 9.1)) * 0.5) + vec3(0.9, 0.94, 1.1) * flash * 0.6;
+			// Some storms carry hail: a whiter, greenish-tinged core in the shaft. `hail_col`
+			// already carries the shared night light floor (R-1531), so a night storm's hail
+			// core cannot out-glow the sky behind it.
+			vec3 shaft_col = mix(rain_col, hail_col, step(0.55, fract(bc.w * 9.1)) * 0.5) + vec3(0.9, 0.94, 1.1) * flash * 0.6;
 			shaft_col = mix(shaft_col, haze_col, (1.0 - exp(-min(rain_t, 2e4) / 9000.0)) * 0.6);
 			// Cloud body over its own rain, then this cell over what lies behind it.
 			vec3 cell_col = body_col * body + shaft_col * rain * (1.0 - body);
@@ -576,7 +592,7 @@ vec4 cells_volume(
 }
 
 
-// R-1444: crepuscular rays from the clouds the player actually sees. The old
+// R-1451: crepuscular rays from the clouds the player actually sees. The old
 // R-1400 march only asked the sparse discrete cells, so the dome deck - most of
 // the visible cloud - never cut a beam. Light reaching the air along this pixel
 // comes from the sun's side of the sky, so walk the great circle from the sun to
@@ -700,8 +716,22 @@ vec2 equatorial_uv(vec3 dir) {
 	return vec2(fract(right_ascension / TAU), 0.5 - declination / PI);
 }
 
-
 #include "res://scripts/map/view3d/sky_stars.gdshaderinc"
+#include "res://scripts/map/view3d/sky_rainbow.gdshaderinc"
+
+
+// R-1449: keep civil twilight readable, reaching the airglow floor only at
+// astronomical night (-18 degrees). A below-horizon or new moon adds no fill.
+float night_floor_readability(float sun_y, float moon_y, float phase) {
+	float twilight = smoothstep(-0.309017, 0.0, sun_y);
+	float moon_up = smoothstep(0.0, 0.15, moon_y);
+	float moon_illumination = 0.5 - 0.5 * cos(phase * TAU);
+	// Smooth tail plus a deep-blue floor: the old curve fell to ~0 by -12 degrees, so
+	// the sky snapped from blue to near-black. Night stays dark, but never switches off.
+	twilight = pow(twilight, 0.7);
+	float floor_fill = 0.16 + moon_up * moon_illumination * moon_illumination * 0.15;
+	return mix(floor_fill, 1.0, twilight);
+}
 
 
 void sky() {
@@ -713,6 +743,10 @@ void sky() {
 	// concentrated toward the sun rather than a uniform blue gradient.
 	float air_mass = 1.0 / max(height + 0.12, 0.12);
 	float haze = 1.0 - exp(-air_mass * (0.10 + cloud_darken * 0.12));
+	// Visible sky and material reflections must share the same night floor.
+	float readability = night_floor_readability(sun_direction.y, moon_direction.y, moon_phase);
+	vec3 night_top = mix(DARK_NIGHT_TOP, night_top_color.rgb, readability);
+	vec3 night_horizon = mix(DARK_NIGHT_HORIZON, night_horizon_color.rgb, readability);
 	vec3 horizon;
 	vec3 color;
 	// Physical sky only: LUT ambient for cloud shadows (zenith + horizon average).
@@ -729,18 +763,16 @@ void sky() {
 		lut_zenith *= art;
 		vec3 lut_horizon = sky_lut_radiance(normalize(vec3(dir.x, 0.0, dir.z) + vec3(0.0, 0.0, 1e-5))) * art;
 		cloud_ambient = 0.5 * (lut_zenith + lut_horizon);
-		// The sun-lit sky goes to ~0 below civil twilight; the old night gradient stays
-		// as the moonlit/airglow floor so nights look as before.
+		// Sunlight from the LUT is untouched; only the additive night floor varies.
 		float night = 1.0 - day_blend;
-		horizon = lut_horizon + night_horizon_color.rgb * night;
+		horizon = lut_horizon + night_horizon * night;
 		color = sky_lut_radiance(dir) * art
-
-			+ mix(night_top_color.rgb, night_horizon_color.rgb, haze) * night;
+			+ mix(night_top, night_horizon, haze) * night;
 		// Art-controlled warm band on the sun side, now a small boost over the LUT sunset.
 		color += sunset_color.rgb * sunset_factor * pow(sun_amount, 2.0) * haze * sunset_boost;
 	} else {
-		vec3 top = mix(night_top_color.rgb, day_top_color.rgb, day_blend);
-		horizon = mix(night_horizon_color.rgb, day_horizon_color.rgb, day_blend);
+		vec3 top = mix(night_top, day_top_color.rgb, day_blend);
+		horizon = mix(night_horizon, day_horizon_color.rgb, day_blend);
 		// Warm dusk/dawn band hugging the horizon on the sun side.
 		horizon = mix(horizon, sunset_color.rgb, sunset_factor * pow(sun_amount, 2.0) * 0.8);
 		color = mix(top, horizon, haze);
@@ -788,6 +820,23 @@ void sky() {
 		disk *= 1.0 - 0.6 * (1.0 - sqrt(1.0 - d_over_r * d_over_r));
 	}
 	color += sun_tint * (disk * 2.4 + halo) * sun_visibility * (1.0 - clouds * 0.95);
+
+	// R-1518: post-rain rainbow around the antisolar point (sky_rainbow.gdshaderinc).
+	// The old two-colour blue-to-red ramp was wider than the band, so the visible
+	// stripe was one pinkish mix, and its "outer" arc sat at 44 deg instead of the
+	// 51 deg secondary. The bow is lit by the same sun colour as the disk, but
+	// normalised so only its hue (orange at sunset) reaches the drops.
+	vec3 rainbow_light = sun_tint / max(max(sun_tint.r, max(sun_tint.g, sun_tint.b)), 1e-4);
+	color = rainbow_apply(color, dir, sun_direction,
+		rainbow_strength * smoothstep(-0.02, 0.03, sun_direction.y) * (1.0 - clouds),
+		rainbow_droplet, rainbow_curtain, rainbow_light * rainbow_gain);
+
+	// Camera-facing photographic flare: restrained halo and ghost discs along
+	// the sun-camera axis, without changing exposure or adding screen post effects.
+	float sun_alignment = max(dot(normalize(camera_direction), sun_direction), 0.0);
+	float flare = sun_flare_strength * smoothstep(0.94, 0.999, sun_alignment) * sun_visibility;
+	float flare_ghost = pow(max(dot(dir, normalize(mix(sun_direction, -sun_direction, 0.32))), 0.0), 48.0);
+	color += vec3(1.0, 0.72, 0.40) * flare * (pow(sun_amount, 24.0) * 0.20 + flare_ghost * 0.08);
 
 	// Moon: opaque shaded sphere sampled from a NASA near-side albedo photo.
 	// WHY: Additive `color += surface` lets the bright blue night sky leak through
@@ -909,8 +958,8 @@ void sky() {
 	// Thin aureole from atmospheric forward scatter; much subtler than a glowy disk.
 	// Daytime air is already bright, so keep most of the aureole nocturnal.
 	float moon_halo = smoothstep(cos(moon_radius * 3.0), moon_edge, moon_dot) * (1.0 - moon_disk);
-	color += vec3(0.82, 0.83, 0.86) * moon_halo * moon_visibility
-		* (0.018 + moon_lit * 0.028) * mix(1.0, 0.35, day_blend);
+	color += vec3(0.78, 0.82, 0.92) * moon_halo * moon_visibility
+		* (0.035 + moon_lit * 0.060) * mix(1.0, 0.35, day_blend);
 
 	// Cloud layer. By day the lit tone carries the sun's colour; at dawn and dusk
 	// it becomes a warm ramp — gold where it points at the sun, cooling through
@@ -962,7 +1011,11 @@ void sky() {
 	// distant shower glows as a luminous wall of water rather than flat grey.
 	float shafts = rain_shafts(dir);
 	float veil_sun = max(dot(normalize(dir), sun_direction), 0.0);
-	vec3 rain_veil = mix(vec3(0.34, 0.38, 0.46), vec3(0.60, 0.64, 0.72), day_blend);
+	// R-1531: a rain curtain is lit only by the sky. Scale the veil by the shared night
+	// light floor (`readability`) so a storm after dark darkens toward that floor instead of
+	// holding a bright fixed grey that out-glows the sky behind it. Day and dusk (readability
+	// near 1) are unchanged; only deep night, where the moon/twilight fill is gone, drops.
+	vec3 rain_veil = mix(vec3(0.34, 0.38, 0.46), vec3(0.60, 0.64, 0.72), day_blend) * readability;
 	rain_veil = mix(rain_veil, sun_color.rgb * 1.15, veil_sun * 0.45 * sun_visibility);
 	rain_veil = mix(rain_veil, sunset_color.rgb * 1.1, sunset_factor * veil_sun * 0.6);
 	// Only in the clear air under the cloud, not painted over the opaque cloud body.
@@ -983,13 +1036,16 @@ void sky() {
 	if (!cloud_fallback && cell_steps > 0 && !AT_CUBEMAP_PASS) {
 		vec3 haze_col = horizon * mix(1.0, 0.65, cloud_darken);
 		vec3 cell_rain = mix(cloud_shadow, rain_veil, 0.35) * 0.85;
+		// R-1531: the hail core is a day-lit white-green; scale it by the shared night light
+		// floor so it darkens with the veil instead of glowing after sunset.
+		vec3 cell_hail = vec3(0.78, 0.86, 0.82) * readability;
 		vec4 cells = cells_volume(
-			ro, dir, cloud_top, cloud_shadow, haze_col, cell_rain, overcast, strike_top, flash,
+			ro, dir, cloud_top, cloud_shadow, haze_col, cell_rain, cell_hail, overcast, strike_top, flash,
 			cell_jitter(FRAGCOORD.xy), cell_cover
 		);
 		color = color * (1.0 - cells.a) + cells.rgb;
 	}
-	// R-1444 sunbeams: air shaded by a cloud loses the forward glow the clear-air
+	// R-1451 sunbeams: air shaded by a cloud loses the forward glow the clear-air
 	// LUT assumed, open paths gain the extra haze of broken weather, so shafts fan
 	// out from the cloud gaps and dark columns from the cloud edges. Strongest with
 	// broken cover (a clear sky has nothing to cut, overcast hides the sun) and wider

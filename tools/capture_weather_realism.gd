@@ -23,6 +23,11 @@ func _run() -> void:
 	var baseline_shader := "--baseline-shader" in OS.get_cmdline_user_args()
 	if baseline_shader:
 		variant = "baseline_shader"
+	# Optional focused run: --only=night_storm renders a single plate (R-1531 proof).
+	var only := ""
+	for arg in OS.get_cmdline_user_args():
+		if arg.begins_with("--only="):
+			only = arg.trim_prefix("--only=")
 	var timings: Array[Dictionary] = []
 	DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_DISABLED)
 	Engine.max_fps = 0
@@ -67,8 +72,10 @@ func _run() -> void:
 	ground.material_override = ground_material
 	world.add_child(ground)
 	for scenario: String in [
-		"clear", "cloudy", "overcast", "rain", "storm", "dusk", "night", "minimum"
+		"clear", "cloudy", "overcast", "rain", "storm", "dusk", "night", "night_storm", "minimum"
 	]:
+		if only != "" and scenario != only:
+			continue
 		var sky := Weather.new()
 		sky.auto_weather = false
 		sky.set_process(false)
@@ -83,6 +90,10 @@ func _run() -> void:
 		var weather_id := StringName(scenario)
 		if scenario in ["dusk", "night", "minimum"]:
 			weather_id = Weather.WEATHER_CLOUDY
+		elif scenario == "night_storm":
+			# R-1531: the night storm plate is the proof that rain curtains stay dark after
+			# dark (weather_id is the scenario name, so map this one to the storm preset).
+			weather_id = Weather.WEATHER_STORM
 		sky.set_weather(weather_id)
 		sky.advance(Weather.TRANSITION_SECONDS)
 		camera.look_at(Vector3(0, 12, 35))
@@ -90,7 +101,7 @@ func _run() -> void:
 		if scenario == "dusk":
 			progress = 0.79
 			camera.look_at(camera.position + Weather.solar_direction(progress) * 35.0)
-		elif scenario == "night":
+		elif scenario in ["night", "night_storm"]:
 			progress = 0.0
 		else:
 			camera.look_at(Vector3(0, 12, 35))
