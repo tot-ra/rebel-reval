@@ -261,7 +261,7 @@ float cell_density(
 	// hard cut-out rim; storm towers keep their firm outline. `soft` (0..1, the sky's
 	// cell_edge_softness) pulls the inner end of the ramp further in, so density
 	// builds up over a deeper rim; the outer edge (and so the footprint) is unchanged.
-	float inner = mix(0.72, 0.86, cb) - soft * mix(0.4, 0.3, cb);
+	float inner = mix(0.72, 0.86, cb) - soft * mix(0.52, 0.38, cb);
 	return smoothstep(1.0, inner, dist) * smoothstep(0.0, 0.03, h)
 		* mix(b.y, 1.0, 0.6) * (1.0 - 0.45 * tatter);
 }

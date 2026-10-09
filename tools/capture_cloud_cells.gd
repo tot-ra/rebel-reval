@@ -9,7 +9,8 @@ extends SceneTree
 ## north, east, south and west from the ground while a tower is merged, to show
 ## that its periodic copies are different clouds and thinned out) and
 ## cells_sky_cloudless / cells_sky_clear (the same upward view under the cloudless
-## and the fair-cumulus profile). Needs a renderer:
+## and the fair-cumulus profile). R-1517 adds cells_sky_context (the cells under
+## a clear, cloudy, rain and storm sky). Needs a renderer:
 ##   tools/godot_render.sh --script tools/capture_cloud_cells.gd [-- --only=<shot>[,<shot>...]]
 ## Optional --tower-distance=<metres> sets the cells_tower_merge camera distance.
 ## Output: docs/reports/images/weather/<shot>.png
@@ -154,6 +155,10 @@ func _run() -> void:
 		await _settle(view, sky, SkyWeather3D.WEATHER_CLOUDY, 0.40)
 		var slot := _walk_to_storm(sky)
 		await _softness_sheet(viewport, camera, sky, slot, 2500.0, "cells_softness_tower")
+	if _wanted("cells_sky_context"):
+		# R-1517: the same cells under different skies. Sunlit white only when the
+		# sun reaches them; under a closed deck they take its grey skylight.
+		await _context_sheet(view, viewport, camera, sky)
 	if _wanted("cells_rain_slant"):
 		# R-1501: rain drifts with the wind. Street-level view across the wind, so
 		# the streaks lean sideways in frame.
@@ -415,6 +420,52 @@ func _softness_sheet(
 	var path := "%s/%s.png" % [OUTPUT_DIR, shot]
 	sheet.save_png(ProjectSettings.globalize_path(path))
 	print("captured %s" % path)
+
+
+## 2x2 sheet: fair cumulus on a clear day (top left), a merged tower on a cloudy
+## day (top right), a storm cell in rain under a closed deck (bottom left) and in
+## storm weather with an open sky (bottom right).
+func _context_sheet(view: CityMapView, viewport: Viewport, camera: Camera3D, sky: SkyWeather3D) -> void:
+	var sheet := Image.create(VIEWPORT_SIZE.x, VIEWPORT_SIZE.y, false, Image.FORMAT_RGBA8)
+	var frames: Array[Image] = []
+	await _settle(view, sky, SkyWeather3D.WEATHER_CLEAR, 0.40)
+	frames.append(await _sunlit_cell_frame(viewport, camera, sky, _strongest_fair(sky), 1000.0))
+	await _settle(view, sky, SkyWeather3D.WEATHER_CLOUDY, 0.40)
+	frames.append(await _sunlit_cell_frame(viewport, camera, sky, _walk_to_storm(sky), 2500.0))
+	for weather in [SkyWeather3D.WEATHER_RAIN, SkyWeather3D.WEATHER_STORM]:
+		await _settle(view, sky, weather, 0.40)
+		frames.append(await _storm_frame(viewport, camera, sky))
+	for i in frames.size():
+		var frame := frames[i]
+		frame.resize(VIEWPORT_SIZE.x / 2, VIEWPORT_SIZE.y / 2, Image.INTERPOLATE_LANCZOS)
+		frame.convert(Image.FORMAT_RGBA8)
+		sheet.blit_rect(
+			frame, Rect2i(Vector2i.ZERO, frame.get_size()), Vector2i(i % 2, i / 2) * frame.get_size()
+		)
+	var path := "%s/cells_sky_context.png" % OUTPUT_DIR
+	sheet.save_png(ProjectSettings.globalize_path(path))
+	print("captured %s" % path)
+
+
+## Strongest storm slot from 3 km on the sun's side, eye 30 m up.
+func _storm_frame(viewport: Viewport, camera: Camera3D, sky: SkyWeather3D) -> Image:
+	var slot := _strongest(sky, CloudCellsScript.KIND_STORM)
+	var cells = sky.cloud_cells()
+	var center := _near_copy(cells.centers[slot], Vector3(-60, 0, -200), CloudCellsScript.KIND_STORM)
+	var sun := SkyWeather3D.solar_direction(0.40, sky.calendar_date)
+	var toward_sun := Vector3(sun.x, 0, sun.z).normalized()
+	var eye := Vector3(center.x, 30, center.z) + toward_sun * 3000.0
+	camera.fov = 62.0
+	camera.far = 9000.0
+	camera.near = 0.08
+	camera.look_at_from_position(eye, Vector3(center.x, 1000, center.z), Vector3.UP)
+	# No flash: an in-cloud strike would light the body and hide its shading.
+	sky._lightning = 0.0
+	sky._lightning_time = -1.0
+	for i in 6:
+		await process_frame
+	print("storm frame: slot %d weight %.2f" % [slot, cells.weights[slot]])
+	return viewport.get_texture().get_image()
 
 
 ## Grown cumulus that has not merged into a tower.

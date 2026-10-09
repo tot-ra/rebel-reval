@@ -312,6 +312,30 @@ float cell_jitter(vec2 frag) {
 }
 
 
+// R-1517: how much of the sun the dome deck lets through to a cell point `p`. The sun
+// ray from `p` meets the deck layer (CLOUD_HEIGHT_KM) at q; the deck is read in the
+// direction the camera sees q, with the deck-shadow thresholds of sky_sunbeams, so a
+// cell lies in the shade of exactly the deck the player sees above it. Points above
+// the layer (a tower crown poking through) stay sunlit. 1 = full sun, 0 = shaded.
+float cell_deck_sun(vec3 ro, vec3 p) {
+	float deck_y = CLOUD_HEIGHT_KM * 1000.0;
+	if (p.y >= deck_y || sun_direction.y <= 0.0) {
+		return 1.0;
+	}
+	vec3 q = p + sun_direction * ((deck_y - p.y) / max(sun_direction.y, 0.05));
+	vec3 d = normalize(q - ro);
+	if (d.y <= 0.0) {
+		return 1.0;
+	}
+	vec2 uv = cloud_uv(d, 1.0);
+	float cover = clamp(cloud_coverage + local_storm_at(uv) * 0.38, 0.0, 1.0);
+	float body = sky_cloud_shadow_soft(uv, cover, cloud_shape, cloud_noise, cloud_detail_offset, cloud_chaos, 1.0);
+	// A grey sheet hides the sun everywhere, even where its texture thins out.
+	float occ = max(smoothstep(0.2, 0.55, body), smoothstep(0.5, 0.75, cloud_darken));
+	return 1.0 - occ;
+}
+
+
 // Discrete clouds (R-1400), ray-marched as real volumes from the camera. Returns
 // premultiplied colour and coverage; `body_cover` is the cloud body alone (rain
 // excluded) so a bolt is hidden only by cloud. `lit_col` / `shade_col` are the
@@ -324,7 +348,7 @@ float cell_jitter(vec2 frag) {
 // full density and lighting from just before it. Storm cells add an analytic
 // rain curtain (chord through a cylinder under the base) behind the body.
 vec4 cells_volume(
-	vec3 ro, vec3 rd, vec3 lit_col, vec3 shade_col, vec3 haze_col, vec3 rain_col,
+	vec3 ro, vec3 rd, vec3 lit_col, vec3 shade_col, vec3 haze_col, vec3 rain_col, vec3 deck_col,
 	vec3 flash_at, float flash, float jitter, out float body_cover
 ) {
 	vec3 acc = vec3(0.0);
@@ -395,11 +419,15 @@ vec4 cells_volume(
 				}
 				if (t_enter >= 0.0) {
 					hit_t = t_enter;
+					// R-1517: deck shade read once per cell at its entry point; samples above
+					// the layer fade back to full sun.
+					float deck_sun = cell_deck_sun(ro, ro + rd * t_enter);
 					// Phase 2: fine march through the surface layer.
 					// A soft rim needs finer steps: at 0.1 R a storm step (~170 m) crossed the
 					// whole fringe at once and printed it as a hard edge.
-					float fine = min(dt, ac.w * mix(0.1, 0.05, cell_edge_softness));
-					float sigma = mix(0.06, 0.08, cb);
+					float fine = min(dt, ac.w * mix(0.1, 0.07, cell_edge_softness));
+					// A soft rim also thins the body a little, so light diffuses deeper into it.
+					float sigma = mix(0.06, 0.08, cb) * mix(1.0, 0.75, cell_edge_softness);
 					for (int s = 0; s < 12; s++) {
 						if (s >= cell_fine_steps) {
 							break;
@@ -443,6 +471,13 @@ vec4 cells_volume(
 						float light = max(
 							exp(-tau * k), mix(0.35, 0.6, lift) * exp(-tau * k * mix(0.25, 0.15, lift))
 						) * sun_up;
+						float deck_y = CLOUD_HEIGHT_KM * 1000.0;
+						// A crown above a broken deck is sunlit; under a closed grey sheet it is not
+						// (the sheet would also hide it from the ground).
+						float above = smoothstep(deck_y - 150.0, deck_y + 150.0, p.y)
+							* (1.0 - smoothstep(0.5, 0.75, cloud_darken));
+						float sunlit = mix(deck_sun, 1.0, above);
+						light *= sunlit;
 						// Powder: thin edges and wisps stay darker than the sunlit core face.
 						light *= mix(mix(0.7, 0.85, lift), 1.0, 1.0 - exp(-dens * 3.0));
 						// A thunderhead's lower body sits in its own shade.
@@ -454,8 +489,14 @@ vec4 cells_volume(
 						ambient = mix(ambient, 1.0, 0.3 * lift * (1.0 - 0.5 * cb));
 						vec3 skylit = mix(shade_col, lit_col, 0.35 + 0.2 * lift) * ambient;
 						vec3 col = mix(skylit, lit_col, light);
+						// R-1517: in the deck's shade the cell is lit only by the grey light
+						// diffusing through the sheet, so it takes the sheet's own tone, a little
+						// darker toward its base and in its self-shadowed folds. The storm-base
+						// shade above is made for a sunny day and went near black here.
+						vec3 diffuse = deck_col * mix(0.72, 1.0, h) * mix(0.82, 1.0, exp(-tau * k * 0.5));
+						col = mix(diffuse, col, sunlit);
 						// Silver lining where the thin edge sits in front of the sun.
-						col += lit_col * sun_fwd * exp(-dens * 3.0) * 0.8 * sun_up;
+						col += lit_col * sun_fwd * exp(-dens * 3.0) * 0.8 * sun_up * sunlit;
 						if (flash > 0.0) {
 							// Lightning floods the cloud from inside: light scatters through the
 							// whole body, brightest round the channel.
@@ -469,7 +510,10 @@ vec4 cells_volume(
 					}
 				}
 			}
-			float body = (1.0 - cell_trans) * fade;
+			// Gaseous silhouette: partial cover at the rim (where the march crossed only
+			// thin fringe) is made more transparent still, the opaque core is kept, so the
+			// outline fades over a wider band like the dome deck's heaps.
+			float body = pow(1.0 - cell_trans, 1.0 + 0.9 * cell_edge_softness * (1.0 - 0.3 * cb)) * fade;
 			// Rain curtain under a storm base: chord length through a cylinder. A cumulus
 			// merged into a thunderstorm (R-1481) grows its curtain as it towers.
 			float rain = 0.0;
@@ -940,7 +984,7 @@ void sky() {
 		vec3 haze_col = horizon * mix(1.0, 0.65, cloud_darken);
 		vec3 cell_rain = mix(cloud_shadow, rain_veil, 0.35) * 0.85;
 		vec4 cells = cells_volume(
-			ro, dir, cloud_top, cloud_shadow, haze_col, cell_rain, strike_top, flash,
+			ro, dir, cloud_top, cloud_shadow, haze_col, cell_rain, overcast, strike_top, flash,
 			cell_jitter(FRAGCOORD.xy), cell_cover
 		);
 		color = color * (1.0 - cells.a) + cells.rgb;

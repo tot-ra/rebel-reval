@@ -1,6 +1,6 @@
 # Discrete cloud cells, cloud shadows and storm-cell lightning
 
-Status: implemented (tasks **R-1400**, **R-1436** water deck shadows, **R-1444** crepuscular rays, **R-1481** cumulus shape, drift, dissolve and merging, **R-1493** distant tower visibility, **R-1495** cloudless sky and varied towers, **R-1501** convective hotspots, wide storms and wind-slanted rain, **R-1507** gaseous rims and softer shading)
+Status: implemented (tasks **R-1400**, **R-1436** water deck shadows, **R-1444** crepuscular rays, **R-1481** cumulus shape, drift, dissolve and merging, **R-1493** distant tower visibility, **R-1495** cloudless sky and varied towers, **R-1501** convective hotspots, wide storms and wind-slanted rain, **R-1507** gaseous rims and softer shading, **R-1517** deck shade and blurred silhouettes)
 
 Scope: individual clouds as world-space objects in the 3D view. Each cumulus or cumulonimbus has a position, base altitude, size and life; the sky dome ray-marches it as a volume, the ground shadow pass projects it along the sun, god rays are cut by it, and lightning is born only inside a grown cumulonimbus. Mounted in both `MapView3D` maps and the seamless city (`CityMapView`).
 
@@ -237,7 +237,7 @@ Tests: `test_crowded_cumulus_merge_into_a_thunderstorm`, `test_a_cluster_storms_
 
 Three sky-shader uniforms in `sky_weather_3d.gdshader` (presentation only; positions, footprints, ground shadows, lightning and saved state are unchanged):
 
-- `cell_edge_softness` (0..1): `cell_density(..., soft)` pulls the inner end of the edge ramp in by up to 0.4 R (0.3 R for storms), so density builds over a deeper rim; the outer edge, and so the footprint, stays put. In the fine march thin density is far more transparent (extinction `dens * mix(1, dens^2, soft)`), and the fine step shrinks from 0.1 R to 0.05 R so a storm step no longer crosses the whole fringe at once.
+- `cell_edge_softness` (0..1): `cell_density(..., soft)` pulls the inner end of the edge ramp in by up to 0.52 R (0.38 R for storms; 0.4 / 0.3 before R-1517), so density builds over a deeper rim; the outer edge, and so the footprint, stays put. In the fine march thin density is far more transparent (extinction `dens * mix(1, dens^2, soft)`), sigma drops by up to 25%, and the fine step shrinks from 0.1 R to 0.07 R so a storm step no longer crosses the whole fringe at once. Since R-1517 the cell's coverage is also raised to the power `1 + 0.9 * soft` (storms 30% less): rays that crossed only fringe become more transparent while the opaque core stays, so the outline fades over a wider band like the dome deck's heaps.
 - `cell_wisp` (0..1): a finer 3D-noise lookup (0.16 R, at least 45 m) frays only the thin rim into tufts.
 - `cell_shade_lift` (0..1): a stronger multiple-scattering octave, more skylight and a lighter powder term on the shaded side, and a little more aerial haze (distance scale 16 km to 7 km), so the relief stays with less contrast.
 
@@ -266,6 +266,30 @@ Each sheet is the same frame under the four presets: before (top left), A (top r
 ![A merged thunderstorm tower under the four presets](../reports/images/weather/cells_softness_tower.png)
 
 Limit: the dome's continuous cloud deck (`sky_clouds.gdshaderinc`) is not affected; its thresholded heaps can still show cut-out edges next to a soft cell.
+
+## Shade from the deck above (R-1517)
+
+**Problem.** The cells were lit by the sun whatever the dome deck did: under a closed grey sheet (rain, overcast front) a cumulus or a storm tower still glowed sunlit white, although no direct sun can reach it through the cloud above.
+
+- `cell_deck_sun(ro, p)` in `sky_weather_3d.gdshader`: from the cell's entry point the sun ray is carried up to the deck layer (`CLOUD_HEIGHT_KM`, 1.5 km), and the deck is read in the direction the camera sees that point, with the same cover and thresholds as `sky_sunbeams` (`sky_cloud_shadow_soft`, `smoothstep(0.2, 0.55)`). `cloud_darken` 0.5-0.75 closes it fully, so a grey sheet hides the sun even where its texture thins. Read once per cell, three texture lookups.
+- Samples above the layer (a tower crown through a broken deck) fade back to full sun over +-150 m, but not under a closed sheet (`cloud_darken` 0.5-0.75).
+- In the shade the direct light and the silver lining are scaled by the open share, and the colour blends to the sheet's own tone (`overcast` from `sky()`, passed as `deck_col`), 0.72 at the base to 1.0 at the top and up to 18% darker in self-shadowed folds. The sunny-day storm-base shade made a cell under the sheet near black.
+- Clear and broken skies are unchanged: cells there stay sunlit white with grey bases.
+
+Decision: the shade is per cell, not per sample, so the deck's own shadow edge does not cross a single cell; ground shadows and god rays already used the deck and are unchanged. Nothing is saved.
+
+Verify:
+
+```bash
+godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_cloud_cells,test_sky_weather_3d
+tools/godot_render.sh --script tools/capture_cloud_cells.gd -- --only=cells_sky_context,cells_softness_cumulus,cells_softness_tower
+```
+
+`cells_sky_context` shows fair cumulus on a clear day (top left), a merged tower on a cloudy day (top right), a storm cell in rain under the closed deck (bottom left) and in storm weather with an open sky (bottom right), lightning off. The softness sheets are regenerated with the R-1517 values.
+
+![Cells under a clear, cloudy, rain and storm sky](../reports/images/weather/cells_sky_context.png)
+
+Limit: cells are composited over the deck without depth, so a tower crown that rises above a closed sheet is still drawn (unlit, in the sheet's tone) instead of being hidden by it.
 
 ## Limits
 
