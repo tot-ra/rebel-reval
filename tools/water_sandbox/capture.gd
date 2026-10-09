@@ -4,10 +4,13 @@ extends SceneTree
 ##   tools/godot_render.sh --script tools/water_sandbox/capture.gd -- \
 ##     [--case=sand,quay] [--shot=close,side,wide,swim,open] [--light=noon,sunset,night,overcast] \
 ##     [--wind=calm,fresh,gale] [--rain] [--gust] [--motion=N] [--advance=S]
-##     [--tier=recommended] [--size=1280x720] [--tag=x]
+##     [--tier=recommended] [--size=1280x720] [--tag=x] [--dolly=M] [--bench=N]
 ## Every list argument is a comma list; the run covers the full cross product.
 ## Output: build/water_sandbox/<tag>/<case>_<shot>_<light>_<wind>[_rain][_gust].png plus
-## sheet.png (all plates in one contact sheet). --motion=N writes N frames at 24 Hz per plate.
+## sheet.png (all plates in one contact sheet). --motion=N writes N frames at 24 Hz per plate;
+## --dolly=M moves the camera M metres forward (level) over those frames, so the clip
+## crosses sea LOD ring boundaries (WR-3 popping check). --bench=N writes bench.json:
+## mean frame time over N frames of the first case's open shot.
 
 const SANDBOX_PATH := "res://tools/water_sandbox/water_sandbox.gd"
 const OUTPUT_ROOT := "res://build/water_sandbox"
@@ -23,6 +26,8 @@ var _winds: Array = ["fresh"]
 var _rain := false
 var _gust := false
 var _motion := 0
+var _bench := 0
+var _dolly := 0.0
 var _advance := 4.0
 var _tier: StringName = &"recommended"
 var _tag := "now"
@@ -50,6 +55,10 @@ func _initialize() -> void:
 			_advance = float(value)
 		elif arg.begins_with("--tier="):
 			_tier = StringName(value)
+		elif arg.begins_with("--dolly="):
+			_dolly = float(value)
+		elif arg.begins_with("--bench="):
+			_bench = int(value)
 		elif arg.begins_with("--tag="):
 			_tag = value
 		elif arg.begins_with("--size="):
@@ -127,10 +136,83 @@ func _run() -> void:
 					plates.append(path)
 					print("captured ", path)
 					if _motion > 0:
-						await _record(viewport, world, "%s/%s_motion" % [out_dir, name],
+						await _record(viewport, world, camera, "%s/%s_motion" % [out_dir, name],
 							float(lights[light][0]), float(WINDS[wind_name]))
 	_contact_sheet(plates, "%s/sheet.png" % out_dir)
+	if _bench > 0:
+		await _benchmark(viewport, sandbox, camera, "%s/bench.json" % out_dir)
 	quit(0)
+
+
+## WR-3: mean frame time of the first case's open shot (fresh wind, noon). Wall
+## time between presented frames plus the GPU render time when the driver reports
+## it; the sea vertex count is the deterministic part of the comparison.
+func _benchmark(viewport: SubViewport, sandbox: Node3D, camera: Camera3D, out: String) -> void:
+	var world: Node3D = sandbox.world
+	var pose: Array = sandbox.shots_for(String(_cases[0]))["open"]
+	camera.fov = pose[2]
+	camera.look_at_from_position(pose[0], pose[1], Vector3.UP)
+	world.sky_weather.set_weather(SkyWeather3D.WEATHER_CLEAR)
+	world.sky_weather.advance(SkyWeather3D.TRANSITION_SECONDS + 0.1)
+	_apply(world, 0.5, float(WINDS["fresh"]), 0.0)
+	var rid := viewport.get_viewport_rid()
+	RenderingServer.viewport_set_measure_render_time(rid, true)
+	for i in 30:
+		MapViewRuntimeEnvironment.advance_ocean_time(1.0 / 60.0)
+		await RenderingServer.frame_post_draw
+	var wall: Array[float] = []
+	var gpu: Array[float] = []
+	var last := Time.get_ticks_usec()
+	for i in _bench:
+		MapViewRuntimeEnvironment.advance_ocean_time(1.0 / 60.0)
+		await RenderingServer.frame_post_draw
+		var now := Time.get_ticks_usec()
+		wall.append(float(now - last) / 1000.0)
+		gpu.append(RenderingServer.viewport_get_measured_render_time_gpu(rid))
+		last = now
+	wall.sort()
+	gpu.sort()
+	var report := {
+		"tier": String(_tier),
+		"case": String(_cases[0]),
+		"frames": _bench,
+		"wall_ms_mean": _mean(wall),
+		"wall_ms_median": wall[wall.size() / 2],
+		"gpu_ms_mean": _mean(gpu),
+		"sea_vertices": _sea_vertices(world),
+	}
+	var file := FileAccess.open(ProjectSettings.globalize_path(out), FileAccess.WRITE)
+	file.store_string(JSON.stringify(report, "  "))
+	print("water sandbox bench: ", JSON.stringify(report))
+
+
+static func _mean(values: Array[float]) -> float:
+	var total := 0.0
+	for v in values:
+		total += v
+	return total / maxf(float(values.size()), 1.0)
+
+
+## Vertices the sea submits per frame: every mesh under the Water node, with a
+## MultiMesh counted once per visible instance.
+static func _sea_vertices(world: Node3D) -> int:
+	var water := world.get_node_or_null("Water")
+	if water == null:
+		return 0
+	var total := 0
+	for node in water.find_children("*", "GeometryInstance3D", true, false):
+		if node is MeshInstance3D and (node as MeshInstance3D).mesh is ArrayMesh:
+			var mesh := (node as MeshInstance3D).mesh as ArrayMesh
+			for s in mesh.get_surface_count():
+				total += mesh.surface_get_array_len(s)
+		elif node is MultiMeshInstance3D and (node as MultiMeshInstance3D).multimesh != null:
+			var multi := (node as MultiMeshInstance3D).multimesh
+			if multi.mesh is ArrayMesh:
+				var count := multi.visible_instance_count
+				if count < 0:
+					count = multi.instance_count
+				total += (multi.mesh as ArrayMesh).surface_get_array_len(0) * count
+	return total
 
 
 ## Light, sky and sea for one plate. `gust` (0..1) adds a short wind burst on top
@@ -155,10 +237,17 @@ func _apply(world: Node3D, progress: float, wind: float, gust: float) -> void:
 ## 24 Hz frames. With --gust the wind follows a deterministic gust envelope:
 ## two bursts of different strength, each rising over ~1.5 s and dying away.
 func _record(
-	viewport: SubViewport, world: Node3D, dir: String, progress: float, wind: float
+	viewport: SubViewport, world: Node3D, camera: Camera3D, dir: String, progress: float,
+	wind: float
 ) -> void:
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(dir))
+	var start := camera.global_transform
+	var forward := -start.basis.z
+	forward.y = 0.0
+	forward = forward.normalized()
 	for i in _motion:
+		if _dolly != 0.0:
+			camera.global_position = start.origin + forward * _dolly * float(i) / maxf(_motion - 1, 1)
 		var t := float(i) / 24.0
 		if _gust:
 			var burst := exp(-pow((t - 2.0) / 1.2, 2.0)) + 0.6 * exp(-pow((t - 6.0) / 0.8, 2.0))
@@ -169,6 +258,7 @@ func _record(
 		viewport.get_texture().get_image().save_png(
 			ProjectSettings.globalize_path("%s/%04d.png" % [dir, i])
 		)
+	camera.global_transform = start
 
 
 func _contact_sheet(paths: Array[String], out: String) -> void:

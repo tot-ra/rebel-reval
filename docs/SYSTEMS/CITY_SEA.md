@@ -1,6 +1,6 @@
 # City sea, shore and harbour life
 
-Status: implemented (tasks **R-885**, **R-1437**, **R-1440**; city integration follow-up, 2026-10-09; ADR 0031). Scope: the Baltic off Reval and its shore in the seamless city: the sea surface and storm swell, seabed and beach relief, shore dressing, boardable boats and the working craft of the two shores; the Hareapea stream and moat water, their water plants and the wake Kalev leaves in any city water. Out of scope: swimming mechanics (ADR 0021), shipping routes, fishing as gameplay. Harbour layout and sources: [`FARMLAND.md`](./FARMLAND.md#harbour-and-kalamaja).
+Status: implemented (tasks **R-885**, **R-1437**, **R-1440**, **R-1508**; city integration follow-up, 2026-10-09; ADR 0031). Scope: the Baltic off Reval and its shore in the seamless city: the sea surface and storm swell, seabed and beach relief, shore dressing, boardable boats and the working craft of the two shores; the Hareapea stream and moat water, their water plants and the wake Kalev leaves in any city water. Out of scope: swimming mechanics (ADR 0021), shipping routes, fishing as gameplay. Harbour layout and sources: [`FARMLAND.md`](./FARMLAND.md#harbour-and-kalamaja).
 
 ## What the player sees
 
@@ -181,9 +181,9 @@ Verified on the [water sandbox](./WATER_SANDBOX.md) (synthetic coast, R-1498) an
 **Wave geometry (WR-1).**
 
 - **Real troughs.** The district guard `FFT_TROUGH_FLOOR` clamps every trough to 1.5 mm below rest, because district beds sit centimetres down. The city has metres of water, but used the same clamp, so its sea was crests over a flat plane with a kink at the clamp: the sharp ridges players saw. The city path now uses `_fft_bed_trough` (`ocean_fft_common.gdshaderinc`): troughs keep their full depth and only ease, with a 0.08 m polynomial smooth max, onto the actual bed plus `CITY_TROUGH_CLEARANCE` (0.05 m).
-- **Band-limited displacement.** Cascade C1 (4-16 m waves) no longer displaces the city's 4 m open-sea grid (`CITY_C1_GEOMETRY` 0, `_fft_displacement_foam_with_c1`): below Nyquist it drew triangular spikes. C1 and C2 stay in the per-pixel normal, so the small waves still shade. Both city meshes (coarse grid and 0.5 m surf band) use the same rule, so their shared edges still meet. C1 returns to the geometry near the camera with the LOD rings of WR-3.
+- **Band-limited displacement.** Cascade C1 (4-16 m waves) no longer displaces the city's 4 m open-sea grid (`CITY_C1_GEOMETRY` 0, `_fft_displacement_foam_with_c1`): below Nyquist it drew triangular spikes. C1 and C2 stay in the per-pixel normal, so the small waves still shade. Both city meshes (coarse grid and 0.5 m surf band) use the same rule, so their shared edges still meet. C1 returns to the geometry near the camera with the LOD rings of WR-3 (see [Sea LOD and graphics tiers](#sea-lod-and-graphics-tiers-wr-3)).
 - **Rounded spilling crest.** `shore_crest_shape` (city 1.0, `CityWorld3D.SURF_CREST_SHAPE`) widens the breaker by 30 %, softens the skew (shoreward face 0.65 instead of 0.4 of the width), lowers the peaking exponent from 1+2s to 1+0.8s and keeps 30 % of the curl that pushed the crest over its own face into a lip.
-- **CPU parity.** `CityWaterSurface.sea_height` (camera medium, swimmers) uses the same no-C1 displacement (`OceanFftSampler.height_at(..., c1_geometry)`), `OceanFftSampler.bed_trough` and the crest shape.
+- **CPU parity.** `CityWaterSurface.sea_height` (camera medium, swimmers) uses the same band-limited displacement (since WR-3 weighted by `CitySeaLod.displacement_weights`) (`OceanFftSampler.height_at(..., c1_geometry)`), `OceanFftSampler.bed_trough` and the crest shape.
 
 **Foam attached to the water (WR-2).**
 
@@ -219,6 +219,61 @@ tools/godot_render.sh --script tools/capture_city_sea.gd -- --tag=x --advance=4 
 `test_water_realism_v2` covers the bed trough (deep troughs kept, shallow ones eased onto the bed, continuous), C1 weighting, the shader contracts (city-only band limit, bed trough, clock-free foam cells, surge and age-driven coverage), the crest-shape reset for district maps and the sandbox build. No controls, saved fields or content IDs change.
 
 Limits: boats (`BoatFloat3D`) still sample the district trough floor, so in a city gale a hull can sit above a deep trough instead of dropping into it. Foam coverage is analytic: it has no memory between waves (WR-7). Wave height is not attenuated behind rocks or reefs below the 2 m height grid (WR-5). Gale whitecap coverage was tuned by eye in sandbox plates, not measured against photographs (WR-10). Spray is still emitted continuously at the waterline near the camera, not at breaking events.
+
+## Sea LOD and graphics tiers (WR-3)
+
+Status: implemented (task **R-1508** WR-3; pack [WR - Water realism v2](../tasks/water_sky/WR_water_realism_v2.md)). Scope: the city sea's open-water mesh and its graphics-tier presets. Out of scope: the 0.5 m surf band (unchanged), district maps (unchanged: every LOD branch needs the city's `sea_physical_depth` instance flag and `sea_lod_lattice.w`), the `OpenSea` horizon plane, compute or tessellation (GL Compatibility only).
+
+**What changed.** The fixed 4 m grid over every wet cell is replaced by camera-centred rings. Player-visible: near the camera the 4-16 m waves (C1) are real geometry again, so storm crests have relief and silhouettes; far water gets fewer vertices and stays normal-mapped.
+
+- **Ownership (still exclusive).** `CityWorld3D._surface_grid(..., split_rings = true)` keeps the surf band (`CityShoreField.build_band`) and the 4 m cells stitched to it (the static "skirt", node `Water/Sea`) as meshes; every other wet 4 m cell is recorded as a ring cell. `CitySeaLod` (`scripts/city/city_sea_lod.gd`, node `Water/SeaLod/SeaRings`) draws them.
+- **Rings (CDLOD).** One `MultiMesh` of 16 x 16-quad nodes. Level L has vertex spacing `base_spacing * 2^L`; a node is split while part of it is nearer than `ring_range * 2^(L-1)`, so ring L ends at `ring_range * 2^L`. Nodes without ring cells are dropped. Selection runs on the CPU when the camera moves more than 5 cm (`update_eye`), and binds the same eye as `sea_lod_eye`, so the CPU node choice and the GPU morph agree.
+- **Geomorphing.** `_sea_lod_vertex` (map_view_water.gdshader) morphs every vertex towards the next level over the outer 40 % of each ring (`SEA_LOD_MORPH`), on exact integer lattice coordinates: a fine vertex on a coarse neighbour's edge repeats the neighbour's arithmetic, so levels meet without cracks and a split node equals its four children (no popping).
+- **No cracks at the surf band.** A float texture with one texel per 4 m lattice vertex (bound as `sea_depth_map`, `CitySeaLod.field`) holds depth, signed bed height, a floor flag (1 at vertices touching a band or skirt cell: those vertices stay at exactly 4 m spacing and so share position and wave weights with the static meshes) and a cap (levels allowed above 4 m from the Chebyshev distance to the nearest cell the rings do not own, so no coarse triangle spans one). Ring pixels in cells owned by band, skirt or land are discarded (`_sea_lod_pixel_drawn`). All city sea meshes now derive the shore factor from the same float bed, so shared vertices are bit-identical.
+- **Which cascades a ring displaces.** `_sea_lod_weights`: C1 needs a mesh spacing of 1 m or finer (fades out by 2 m), C0 of 4 m (fades out by 8 m); the effective spacing is the coarser of the mesh spacing and the distance ring's spacing. Band and skirt count as 4 m: no C1, as in WR-1. Far rings are normal-only.
+- **CPU parity.** `CityWaterSurface.sea_height` multiplies the CPU FFT height by `CitySeaLod.displacement_weights` (same formula, no node snapping); C0 scales only the height, not the horizontal inversion, and is 1 within about 250 m of the camera.
+
+**Graphics-tier presets** (`MapViewWaterMaterials.SEA_LOD_PRESETS`, read when the city sea is built from the tier last passed to `MapViewWaterMaterials.set_ocean_fft_quality_tier`, the same request as the FFT and SkyWeather tiers; `high` is accepted here only, SkyWeather reads it as recommended):
+
+| | minimum | recommended | high |
+|---|---|---|---|
+| Ring-0 spacing / range | 2 m / 64 m | 1 m / 64 m | 0.5 m / 64 m |
+| Rings (coarsest spacing) | 6 (64 m) | 7 (64 m) | 8 (64 m) |
+| Cascades in the mesh | C0 | C0 + C1 | C0 + C1 |
+| Foam detail layers (`city_foam_layers`) | 3 (no grain) | 4 | 4 |
+| Spray particles per emitter | 160 | 420 | 640 |
+| Ripple sim size (from SkyWeather) | off | 256 | 256 |
+
+Root nodes are 1024 m on every tier.
+
+**Frame time** (water sandbox, `sand` open shot, fresh wind, 600 frames, M-series Mac, GL Compatibility, `--bench=600`; before = HEAD `44506eec` fixed grid, both trees run interleaved, two runs each). The GPU timer reads 0 on this driver, so these are wall times per presented frame:
+
+| Tier | Before (ms) | After (ms) | Sea vertices before | after |
+|---|---|---|---|---|
+| minimum | 4.64 / 4.58 | 4.73 / 4.54 | 272 936 | 233 735 |
+| recommended | 4.88 / 4.85 | 4.94 / 4.97 | 272 936 | 253 098 |
+| high | 4.83 / 4.95 | 4.84 / 4.84 | 272 936 | 325 637 |
+
+The minimum row was measured with two foam layers; the shipped preset keeps the bubble-cell layer (one more texture fetch per foam pixel) because two layers flattened gale foam into white blobs. The difference is within run-to-run noise: the sandbox frame is not bound by the sea mesh (the surf band holds most of its vertices). The LOD's gain is the C1 geometry near the camera at the same cost; the ring selection and MultiMesh upload take about 0.2 ms (sandbox, 154 nodes) to 0.3 ms (city plan, 214 nodes, 62 k ring vertices) per frame and only run when the camera moves; building the lattice field, clearance and node tables adds about 0.6 s to the city load (headless measurement).
+
+![Before and after: fixed 4 m grid, then the rings at minimum and recommended (open sea gale, open sea fresh, strand gale from 17 m, sea stack gale)](../reports/images/city/water_lod_before_after.jpg)
+
+![City, storm from the merchant landing roof with the rings at recommended: no seams against the surf band; GPU validity pass 0 invalid samples in 4 shots x 12 phases](../reports/images/city/water_lod_city_storm_wide.jpg)
+
+![Dolly clip, recommended, gale: the camera moves 120 m out to sea across ring boundaries (frames 0, 15, 31, 47)](../reports/images/city/water_lod_dolly.jpg)
+
+Verify:
+
+```bash
+godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_city_sea_lod,test_city_shore_field,test_water_realism_v2
+tools/godot_render.sh --script tools/water_sandbox/capture.gd -- --tag=lod --shot=open,close,wide --wind=fresh,gale --tier=minimum --bench=600
+tools/godot_render.sh --script tools/water_sandbox/capture.gd -- --tag=lod --shot=open,close,wide --wind=fresh,gale --tier=recommended --bench=600
+tools/godot_render.sh --script tools/water_sandbox/capture.gd -- --tag=lod_motion --case=sand --shot=open,wide --wind=gale --motion=48 --dolly=120
+```
+
+`test_city_sea_lod` ports the vertex morph to GDScript and checks, on a synthetic lattice with an island and skirt: every shared node edge meets without a crack at four camera positions, a node at its split distance coincides with its four children (no popping), ring vertices touching the skirt stay at the 4 m lattice and level, selected coarse nodes never span a cell the rings do not own, the ring level is continuous and capped, the displacement weights per spacing and tier, the presets, the shader contract and the sandbox build (one owner per cell, finite CPU heights). The dolly clips showed no isolated frame-difference spikes (max / median of consecutive-frame difference 1.2-1.7 in a gale, smooth trend). No controls, saved fields or content IDs change.
+
+Limits: ring nodes touching the plan edge or a static cell stay at 4 m spacing or finer (the cap treats outside the lattice as not owned), so the far plan edge costs a strip of fine nodes. The CPU height ignores node snapping and the C0 horizontal scale. Changing the tier needs a rebuild of the city (like the FFT tier). Boats (`BoatFloat3D`) still sample the district path.
 
 ## Limits
 

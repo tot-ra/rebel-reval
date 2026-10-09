@@ -63,6 +63,12 @@ var stream_material: ShaderMaterial
 var moat_material: ShaderMaterial
 var stream_segment_count := 0
 var sea_shore: Dictionary = {}
+## WR-3 camera-centred sea rings (CitySeaLod); null until the sea is built.
+var sea_lod: CitySeaLod
+## _surface_grid(split_rings): 1 per 4 m cell drawn by the rings / by a static
+## sea mesh (surf band or the stitched skirt), row-major over the sea lattice.
+var _sea_ring_cells := PackedByteArray()
+var _sea_static_cells := PackedByteArray()
 var doors: CityDoors
 var grass: CityGrass
 var farmland: CityFarmland
@@ -335,8 +341,9 @@ func _build_water() -> void:
 	var root := Node3D.new()
 	root.name = "Water"
 	add_child(root)
-	# Sea: a grid over every wet cell, vertex colour R = depth hint. The surf zone
-	# is drawn by the fine band instead (below), so the coarse grid skips it.
+	# Sea: the surf zone is drawn by the fine band (below); the 4 m cells stitched
+	# to it stay a static "skirt" grid (vertex colour R = depth hint), and every
+	# other wet cell belongs to the camera-centred rings (WR-3, CitySeaLod).
 	var shore: Dictionary = ShoreField.bake(plan)
 	sea_shore = shore
 	var sea := _surface_grid(
@@ -344,17 +351,18 @@ func _build_water() -> void:
 		func(p: Vector2) -> float: return -plan.ground_height(p),
 		SEA_SHORE_DEPTH,
 		func(_centre: Vector2, corners: Array) -> bool:
-			return ShoreField.covers_coarse_cell(shore, plan, corners[0])
+			return ShoreField.covers_coarse_cell(shore, plan, corners[0]),
+		true
 	)
-	if sea != null:
+	if sea != null or _sea_ring_cells.has(1):
 		var inst := MeshInstance3D.new()
 		inst.name = "Sea"
 		inst.mesh = sea
 		# The district maps' ocean: baked FFT waves, whitecaps, foam, storm swell,
 		# caustics and refraction, so the sea reads the same on every map.
 		inst.material_override = MapViewMaterials.water_surface(MapTypes.TERRAIN_SHALLOW_WATER)
-		_bind_sea_depth_map()
 		_bind_shore_field(shore)
+		_build_sea_lod(root, inst.material_override)
 		# R-1437: physical bathymetry belongs to this mesh, not the cached
 		# district material. Instance state keeps shared weather updates intact.
 		inst.set_instance_shader_parameter("sea_physical_depth", true)
@@ -521,21 +529,30 @@ func _water_material(wave: float, flow: float) -> ShaderMaterial:
 	return mat
 
 
-## One texel per SEA_STEP of depth below the waterline, so the sea shader blends
-## shallow and deep water by depth like the district maps.
-func _bind_sea_depth_map() -> void:
+## WR-3: the camera-centred rings over the cells _surface_grid(split_rings) left
+## to them. Their lattice field replaces the old per-cell depth map (it carries
+## the depth too), and the graphics tier (MapViewWaterMaterials.sea_lod_preset)
+## also sets the shore spray budget.
+func _build_sea_lod(root: Node3D, material: Material) -> void:
 	var r := plan.bounds
-	var nx := int(r.size.x / SEA_STEP) + 1
-	var nz := int(r.size.y / SEA_STEP) + 1
-	var image := Image.create_empty(nx, nz, false, Image.FORMAT_RF)
-	for j in nz:
-		for i in nx:
-			var p := r.position + (Vector2(i, j) + Vector2(0.5, 0.5)) * SEA_STEP
-			image.set_pixel(i, j, Color(maxf(-plan.ground_height(p), 0.0), 0.0, 0.0))
-	MapViewMaterials.WATER_MATERIALS.apply_sea_depth_map(
-		ImageTexture.create_from_image(image),
-		Vector4(r.position.x, r.position.y, float(nx) * SEA_STEP, float(nz) * SEA_STEP)
+	var preset := MapViewMaterials.WATER_MATERIALS.sea_lod_preset()
+	sea_lod = CitySeaLod.new()
+	sea_lod.name = "SeaLod"
+	sea_lod.configure(
+		r.position,
+		SEA_STEP,
+		Vector2i(int(r.size.x / SEA_STEP) + 1, int(r.size.y / SEA_STEP) + 1),
+		_sea_ring_cells,
+		_sea_static_cells,
+		func(p: Vector2) -> float: return plan.ground_height(p),
+		preset,
+		material
 	)
+	root.add_child(sea_lod)
+	if spray != null:
+		for emitter in spray.get_children():
+			if emitter is GPUParticles3D:
+				(emitter as GPUParticles3D).amount = int(preset["spray_particles"])
 
 
 ## The surf (bore foam, run-up, quay slosh) is analytic in a shore distance field;
@@ -587,9 +604,12 @@ func set_wind(direction: Vector2) -> void:
 		ships.set_wind(direction)
 
 
-## Grid at `y` over cells where depth_at(p) > 0 (any corner).
+## Grid at `y` over cells where depth_at(p) > 0 (any corner). With split_rings
+## (WR-3) only the cells stitched to the fine band are built; the plain cells are
+## recorded in _sea_ring_cells for CitySeaLod, band and stitched cells in
+## _sea_static_cells.
 func _surface_grid(
-	y: float, depth_at: Callable, depth_norm := 5.0, skip := Callable()
+	y: float, depth_at: Callable, depth_norm := 5.0, skip := Callable(), split_rings := false
 ) -> ArrayMesh:
 	var verts := PackedVector3Array()
 	var colors := PackedColorArray()
@@ -597,6 +617,11 @@ func _surface_grid(
 	var r := plan.bounds
 	var nx := int(r.size.x / SEA_STEP) + 1
 	var nz := int(r.size.y / SEA_STEP) + 1
+	if split_rings:
+		_sea_ring_cells = PackedByteArray()
+		_sea_ring_cells.resize(nx * nz)
+		_sea_static_cells = PackedByteArray()
+		_sea_static_cells.resize(nx * nz)
 	for j in nz:
 		for i in nx:
 			var p0 := r.position + Vector2(i, j) * SEA_STEP
@@ -613,10 +638,18 @@ func _surface_grid(
 				depths.append(d)
 				if d > -0.4:
 					any_wet = true
+			var banded := (
+				skip.is_valid()
+				and (any_wet or split_rings)
+				and bool(skip.call(p0 + Vector2(SEA_STEP, SEA_STEP) * 0.5, corners))
+			)
+			if split_rings and banded:
+				# Ring vertices touching any band cell keep its 4 m spacing.
+				_sea_static_cells[j * nx + i] = 1
 			if not any_wet:
 				continue
 			# The fine surf band draws this quad instead (CityShoreField.build_band).
-			if skip.is_valid() and skip.call(p0 + Vector2(SEA_STEP, SEA_STEP) * 0.5, corners):
+			if banded:
 				continue
 			# Stitch the 4 m sea to the 0.5 m surf band. Both sides must sample the
 			# exact same displaced vertices; ownership alone leaves animated cracks.
@@ -648,6 +681,11 @@ func _surface_grid(
 				stitched = stitched or fine_edge
 				for k in steps:
 					ring.append(a.lerp(b, float(k) / steps))
+			if split_rings:
+				if not stitched:
+					_sea_ring_cells[j * nx + i] = 1
+					continue
+				_sea_static_cells[j * nx + i] = 1
 			if stitched:
 				var centre := p0 + Vector2.ONE * SEA_STEP * 0.5
 				for edge in ring.size():

@@ -202,6 +202,23 @@ uniform float sea_depth_blend = 0.0;
 // The metre-scale city uses real bathymetry, not the district optical bed floor.
 // Screen depth can be invalid in Compatibility after transparent screen passes.
 instance uniform bool sea_physical_depth = false;
+// WR-3 city sea LOD (CitySeaLod, docs/SYSTEMS/CITY_SEA.md). sea_lod marks the
+// camera-centred ring instances; the city then rebinds sea_depth_map as one RGBA
+// texel per 4 m lattice vertex: R depth, G signed bed height, B shore floor weight,
+// A = 1000 x (cell drawn by the rings) + extra ring levels allowed at that vertex.
+instance uniform bool sea_lod = false;
+// (origin x, origin z, cell size, 1 = LOD active) and (base spacing, ring-0 range,
+// shore level, last level); levels count doublings of the base spacing.
+uniform vec4 sea_lod_lattice = vec4(0.0, 0.0, 4.0, 0.0);
+uniform vec4 sea_lod_rings = vec4(1.0, 64.0, 2.0, 6.0);
+// Selection camera of the current frame (not CAMERA_POSITION_WORLD), so the CPU
+// node choice and the vertex morph always agree.
+uniform vec3 sea_lod_eye = vec3(0.0);
+// 0 on tiers without C1 displacement (graphics-tier preset).
+uniform float sea_lod_c1 = 1.0;
+// Graphics tier: _city_foam_cells layers (2 = patches + lacework, 3 = + bubble
+// cells, 4 = + grain).
+uniform int city_foam_layers = 4;
 // Metric city water: extinction per metre, independent of the legacy thin-film
 // district palette. No extra sampler or pass; Beer-Lambert carries bed visibility.
 uniform vec3 physical_extinction = vec3(0.40, 0.24, 0.30);
@@ -283,6 +300,17 @@ const float FOAM_MASK_CAP = 1.0;
 // 4 m grid, and the water kept above the bed at the bottom of a trough.
 const float CITY_C1_GEOMETRY = 0.0;
 const float CITY_TROUGH_CLEARANCE = 0.05;
+// WR-3 LOD, mirrored by CitySeaLod. Grid quads per ring node side; share of each
+// ring over which it morphs into the next; morph values above SNAP count as done,
+// so float noise never leaves a micro T-junction; mesh spacing (m) where C1 is
+// fully carried / gone and C0 fully carried / gone (Nyquist of 4 m and 16 m waves).
+const float SEA_LOD_NODE_QUADS = 16.0;
+const float SEA_LOD_MORPH = 0.4;
+const float SEA_LOD_SNAP = 0.9995;
+const vec4 SEA_LOD_WEIGHT_SPACING = vec4(1.0, 2.0, 4.0, 8.0);
+const float SEA_LOD_DRAWN = 1000.0;
+// CityWorld3D.SEA_SHORE_DEPTH: depth where the shore factor reaches open water.
+const float CITY_SHORE_DEPTH = 2.5;
 // WR-2 city foam. Surf foam dissolves over this many seconds after the bore;
 // SCUM is the patchy residual coverage left over the surf zone between sets.
 const float CITY_SURF_FOAM_LIFE = 4.0;
@@ -316,6 +344,10 @@ varying vec3 water_world_position;
 varying float sea_depth_t;
 // Signed, triangle-matched terrain height, supplied by every city sea vertex.
 varying float sea_ground_y;
+// WR-3: ownership of the (up to four) 4 m cells around a ring vertex, indexed by
+// cell parity. Every triangle near land lies inside one cell, and its three
+// vertices store that cell under the same parity, so the value is exact per pixel.
+varying vec4 sea_lod_cells;
 varying vec2 sea_bed_slope;
 varying float invalid_surface_vertex;
 varying vec2 wave_sample_xz;
@@ -985,9 +1017,20 @@ vec2 _city_foam_cells(vec2 xz) {
 	// cells only add detail, so rims never dominate as rings.
 	float patches = texture(foam_tile, p * 0.0043 + warp * 0.035).g;
 	float lacework = texture(foam_tile, rotated * 0.011 + vec2(0.23, 0.61) + warp * 0.06).g;
-	float cells = texture(foam_tile, rotated * 0.12 + vec2(0.31, 0.73) + warp * 0.55).r;
-	float grain = texture(foam_tile, p * 0.52 + vec2(0.67, 0.19) + warp * 1.2).r;
-	float structure = patches * 0.36 + lacework * 0.26 + cells * 0.24 + grain * 0.14;
+	// WR-3 tier: lower tiers skip the finest layers (one fetch each) and
+	// renormalise the weights, so the structure keeps its spread and still
+	// dissolves into lace (a constant stand-in flattened it into white blobs).
+	float structure = patches * 0.36 + lacework * 0.26;
+	float weight = 0.62;
+	if (city_foam_layers > 2) {
+		structure += texture(foam_tile, rotated * 0.12 + vec2(0.31, 0.73) + warp * 0.55).r * 0.24;
+		weight += 0.24;
+	}
+	if (city_foam_layers > 3) {
+		structure += texture(foam_tile, p * 0.52 + vec2(0.67, 0.19) + warp * 1.2).r * 0.14;
+		weight += 0.14;
+	}
+	structure /= weight;
 	// Streaks meander with the same warp instead of running as straight rays.
 	float streak = texture(foam_tile, p * foam_tile_scale + vec2(0.0, warp.x * 0.12)).b;
 	return vec2(clamp((structure - 0.2) * 1.75, 0.0, 1.0), streak);
@@ -1004,9 +1047,168 @@ float _foam_dissolve(float structure, float c) {
 	return smoothstep(1.0 - k - soft * 0.5, 1.0 - k + soft * 0.5, structure) * step(0.001, k);
 }
 
+// WR-3 LOD field texel at lattice vertex i; outside the map: no water, full floor.
+vec4 _sea_lod_texel(ivec2 i) {
+	ivec2 size = textureSize(sea_depth_map, 0);
+	if (i.x < 0 || i.y < 0 || i.x >= size.x || i.y >= size.y) {
+		return vec4(0.0, 0.0, 1.0, 0.0);
+	}
+	return texelFetch(sea_depth_map, i, 0);
+}
+
+// Manual bilinear of the lattice field. Exact (no filtering hardware) so a lattice
+// vertex reads its texel bit for bit, like the static meshes' own attributes.
+vec4 _sea_lod_field(vec2 xz) {
+	vec2 u = (xz - sea_lod_lattice.xy) / sea_lod_lattice.z;
+	vec2 i0 = floor(u);
+	vec2 f = u - i0;
+	ivec2 b = ivec2(i0);
+	vec4 row0 = mix(_sea_lod_texel(b), _sea_lod_texel(b + ivec2(1, 0)), f.x);
+	vec4 row1 = mix(_sea_lod_texel(b + ivec2(0, 1)), _sea_lod_texel(b + ivec2(1, 1)), f.x);
+	return mix(row0, row1, f.y);
+}
+
+// Continuous ring level at distance d: ring L ends at range * 2^L and morphs into
+// ring L+1 over its outer SEA_LOD_MORPH share (CDLOD morph band).
+float _sea_lod_ring(float d) {
+	float range = sea_lod_rings.y;
+	float t = d / range;
+	float level = t < 1.0 ? 0.0 : floor(log2(t)) + 1.0;
+	float outer = range * exp2(level);
+	float inner = level < 0.5 ? 0.0 : outer * 0.5;
+	float w = SEA_LOD_MORPH * (outer - inner);
+	return min(level + clamp((d - outer + w) / w, 0.0, 1.0), sea_lod_rings.w);
+}
+
+float _sea_lod_distance_level(vec2 xz) {
+	return _sea_lod_ring(length(vec3(xz.x, 0.0, xz.y) - sea_lod_eye));
+}
+
+// 4 m lattice cell size in base-spacing units (a power of two).
+float _sea_lod_cell_span() {
+	return sea_lod_lattice.z / sea_lod_rings.x;
+}
+
+// Mesh level wanted at lattice point q (base-spacing units): the distance level,
+// raised to the 4 m shore level next to the static surf skirt (shared edges) and
+// capped near unowned cells so no coarse triangle spans one (A channel).
+float _sea_lod_level_at(vec2 q, bool on_cells) {
+	vec2 xz = sea_lod_lattice.xy + q * sea_lod_rings.x;
+	float shore = sea_lod_rings.z;
+	float level = max(_sea_lod_distance_level(xz), shore * _sea_lod_field(xz).b);
+	float cap = shore;
+	if (on_cells) {
+		// q is an exact lattice vertex here; index it from q, not from world xz,
+		// so float rounding never reads the neighbouring texel.
+		float a = _sea_lod_texel(ivec2(round(q / _sea_lod_cell_span()))).a;
+		cap = shore + a - SEA_LOD_DRAWN * step(SEA_LOD_DRAWN - 0.5, a);
+	}
+	return min(level, min(cap, sea_lod_rings.w));
+}
+
+// Ring node vertex. INSTANCE_CUSTOM = (node x, node z in node sizes, level, 2^level),
+// VERTEX.xz = grid index. Everything runs on exact integer lattice coordinates, and
+// step k reads its level at the vertex snapped to step k's own lattice: a fine
+// vertex on a coarse neighbour's edge then repeats the neighbour's arithmetic bit
+// for bit, so rings meet without cracks. Floor snapping keeps the static grid's
+// diagonal, so a fully morphed quad equals the coarse quad.
+vec3 _sea_lod_vertex(vec3 local, vec4 node, out float mesh_level, out vec2 lattice_g) {
+	float span = node.w;
+	vec2 g0 = (node.xy * SEA_LOD_NODE_QUADS + local.xz) * span;
+	vec2 g = g0;
+	float level = node.z;
+	float cell_span = _sea_lod_cell_span();
+	float previous = 1.0;
+	mesh_level = level;
+	for (int k = 0; k < 16; k++) {
+		if (level + float(k) >= sea_lod_rings.w) {
+			break;
+		}
+		vec2 q = g0 - mod(g0, span);
+		float m = clamp(_sea_lod_level_at(q, span >= cell_span) - (level + float(k)), 0.0, 1.0);
+		m = min(m >= SEA_LOD_SNAP ? 1.0 : m, previous);
+		if (m <= 0.0) {
+			break;
+		}
+		g = mix(g, g0 - mod(g0, span * 2.0), m);
+		mesh_level += m;
+		previous = m;
+		span *= 2.0;
+	}
+	lattice_g = g;
+	vec2 xz = sea_lod_lattice.xy + g * sea_lod_rings.x;
+	return vec3(xz.x, 0.0, xz.y);
+}
+
+// Displacement weights (C0, C1) from the coarser of the mesh spacing and the
+// distance spacing. Band and skirt pass one 4 m cell: no C1, C0 by distance only.
+vec2 _sea_lod_weights(vec2 xz, float mesh_spacing) {
+	float e = max(mesh_spacing, sea_lod_rings.x * exp2(_sea_lod_distance_level(xz)));
+	vec4 s = SEA_LOD_WEIGHT_SPACING;
+	return vec2(1.0 - smoothstep(s.z, s.w, e), sea_lod_c1 * (1.0 - smoothstep(s.x, s.y, e)));
+}
+
+// Drawn flags of the cells whose closure holds lattice point g (base units),
+// stored by cell parity.
+vec4 _sea_lod_cells(vec2 g) {
+	vec2 u = g / _sea_lod_cell_span();
+	vec2 lo = ceil(u) - 1.0;
+	vec2 hi = floor(u);
+	vec4 cells = vec4(1.0);
+	for (int n = 0; n < 4; n++) {
+		ivec2 c = ivec2(int((n & 1) == 0 ? lo.x : hi.x), int(n < 2 ? lo.y : hi.y));
+		float drawn = step(SEA_LOD_DRAWN - 0.5, _sea_lod_texel(c).a);
+		int parity = (c.x & 1) + 2 * (c.y & 1);
+		if (parity == 0) {
+			cells.x = drawn;
+		} else if (parity == 1) {
+			cells.y = drawn;
+		} else if (parity == 2) {
+			cells.z = drawn;
+		} else {
+			cells.w = drawn;
+		}
+	}
+	return cells;
+}
+
+// Whether a ring pixel at undisplaced xz belongs to a ring-drawn cell. The pixel's
+// own cell is exact (all three vertices of a ring triangle store it under its
+// parity); within SEA_LOD_EDGE of a cell edge the neighbour's parity counts too,
+// so an edge pixel is never dropped by rounding next to a drawn neighbour. A
+// sliver drawn over an undrawn neighbour lies on the shared edge, where both
+// surfaces have the same vertices.
+const float SEA_LOD_EDGE = 0.004;
+bool _sea_lod_pixel_drawn(vec2 xz, vec4 cells) {
+	vec2 u = (xz - sea_lod_lattice.xy) / sea_lod_lattice.z;
+	vec2 lo = floor(u - SEA_LOD_EDGE);
+	vec2 hi = floor(u + SEA_LOD_EDGE);
+	float drawn = 0.0;
+	for (int n = 0; n < 4; n++) {
+		ivec2 c = ivec2(int((n & 1) == 0 ? lo.x : hi.x), int(n < 2 ? lo.y : hi.y));
+		int parity = (c.x & 1) + 2 * (c.y & 1);
+		drawn = max(drawn, parity == 0 ? cells.x : (parity == 1 ? cells.y : (parity == 2 ? cells.z : cells.w)));
+	}
+	return drawn > 0.5;
+}
+
 void vertex() {
 	vec3 undisplaced_world = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
 	sea_ground_y = (MODEL_MATRIX * vec4(VERTEX.x, UV2.y, VERTEX.z, 1.0)).y;
+	// WR-3: band and skirt count as one 4 m cell (no C1); rings use their morph.
+	float lod_mesh_spacing = sea_lod_lattice.z;
+	sea_lod_cells = vec4(1.0);
+	if (sea_lod) {
+		float mesh_level;
+		vec2 lattice_g;
+		VERTEX = _sea_lod_vertex(VERTEX, INSTANCE_CUSTOM, mesh_level, lattice_g);
+		// Ring instances carry identity transforms, so VERTEX is already world space.
+		undisplaced_world = VERTEX;
+		sea_ground_y = _sea_lod_field(VERTEX.xz).g;
+		lod_mesh_spacing = sea_lod_rings.x * exp2(mesh_level);
+		sea_lod_cells = _sea_lod_cells(lattice_g);
+	}
+	bool lod_active = sea_physical_depth && sea_lod_lattice.w > 0.5;
 	wave_sample_xz = undisplaced_world.xz;
 	sea_bed_slope = -NORMAL.xz / max(NORMAL.y, 0.001);
 	// Cells project along the sun only; once the directional light has handed
@@ -1018,6 +1220,11 @@ void vertex() {
 		vec2 sea_uv = (undisplaced_world.xz - sea_depth_rect.xy) / max(sea_depth_rect.zw, vec2(0.001));
 		if (all(greaterThanEqual(sea_uv, vec2(0.0))) && all(lessThanEqual(sea_uv, vec2(1.0)))) {
 			float basin = textureLod(sea_depth_map, sea_uv, 0.0).r;
+			if (lod_active) {
+				// WR-3: the LOD field holds depth per lattice vertex; read it exactly
+				// so rings, skirt and band pick the same wave parameters.
+				basin = _sea_lod_field(undisplaced_world.xz).r;
+			}
 			sea_depth_t = smoothstep(sea_depth_range.x, sea_depth_range.y, basin);
 		}
 	}
@@ -1027,6 +1234,11 @@ void vertex() {
 		wave_params = mix(sea_wave_shallow, sea_wave_deep, sea_depth_t);
 	}
 	shore_factor = clamp(COLOR.r, 0.0, 1.0);
+	if (lod_active) {
+		// WR-3: the same depth hint as COLOR.r, from the float bed every city sea
+		// mesh shares, so rings, skirt and band stay bit-identical on shared vertices.
+		shore_factor = clamp(-sea_ground_y / CITY_SHORE_DEPTH, 0.0, 1.0);
+	}
 	flat_bed_flag = step(0.5, UV2.x);
 	flat_bed_world_y = (MODEL_MATRIX * vec4(VERTEX.x, UV2.y, VERTEX.z, 1.0)).y;
 	// Processor functions cannot return early; the sheet restores this at the end.
@@ -1041,10 +1253,16 @@ void vertex() {
 		vec3 unused_foam;
 		// WR-1: the city's 4 m open-sea grid cannot carry C1 (4-16 m waves); it
 		// stays in the per-pixel normal. District grids keep their displacement.
+		// WR-3: with the LOD, C1 returns where a ring is fine enough and far rings
+		// fall back to normal-only (_sea_lod_weights).
+		vec2 lod_weights = vec2(1.0, sea_physical_depth ? CITY_C1_GEOMETRY : 1.0);
+		if (lod_active) {
+			lod_weights = _sea_lod_weights(undisplaced_world.xz, lod_mesh_spacing);
+		}
 		displacement = _fft_displacement_foam_with_c1(
 			wave_sample_xz, unused_foam, wave_params.x, wave_params.z, wave_params.y,
-			sea_physical_depth ? CITY_C1_GEOMETRY : 1.0
-		);
+			lod_weights.y
+		) * lod_weights.x;
 		// Lee of a quay or headland: reuse the WS-08 signed shore field as fetch.
 		displacement *= _fetch_shelter(wave_sample_xz);
 	} else {
@@ -1147,6 +1365,11 @@ void fragment() {
 	}
 	// Screen size of one rain-ring cell; derivatives stay in uniform control flow here.
 	float rain_cell_px = RAIN_RING_CELL / max(length(fwidth(water_world_position.xz)), 0.00001);
+	// WR-3: ring nodes cover whole 4 m cells; cells owned by the static skirt and
+	// surf band, or by land, are cut per pixel (after the derivative above).
+	if (sea_lod && !_sea_lod_pixel_drawn(wave_sample_xz, sea_lod_cells)) {
+		discard;
+	}
 	// WS-06b: per-pixel baked foam. Do not read a vertex varying; GL Compatibility
 	// vertex fetches from the compressed disp arrays often drop the alpha.
 	vec3 fft_foam = vec3(0.0);

@@ -253,11 +253,49 @@ const BEAUFORT_LADDER: Array[Dictionary] = [
 ## reference FFT sea displaces the mesh as far as the tuned Gerstner sea did and
 ## storms grow from there through ocean_amplitude and the cascade weights.
 const OCEAN_FFT_REFERENCE_CREST_M := 0.63
+## WR-3 graphics-tier presets of the city sea (docs/SYSTEMS/CITY_SEA.md, LOD).
+## base_spacing: vertex spacing (m) of the innermost ring; ring_range: where ring 0
+## ends (m), every later ring doubles both; rings: ring count (spacing doubles up
+## to base_spacing * 2^(rings - 1)); displacement_cascades: FFT cascades the mesh
+## may carry (1 = C0 only, 2 = C1 too where a ring is fine enough);
+## foam_detail_layers: _city_foam_cells layers (2 = patches + lacework, 3 = + bubble
+## cells, 4 = + grain);
+## spray_particles: per CityShoreSpray emitter. sea_lod_preset() adds
+## ripple_sim_size from the SkyWeather tier (WS-15 owns the ripple sim; it has
+## no `high` tier yet, so high reads recommended).
+const SEA_LOD_TIER_HIGH: StringName = &"high"
+const SEA_LOD_PRESETS := {
+	&"minimum": {
+		"base_spacing": 2.0,
+		"ring_range": 64.0,
+		"rings": 6,
+		"displacement_cascades": 1,
+		"foam_detail_layers": 3,
+		"spray_particles": 160,
+	},
+	&"recommended": {
+		"base_spacing": 1.0,
+		"ring_range": 64.0,
+		"rings": 7,
+		"displacement_cascades": 2,
+		"foam_detail_layers": 4,
+		"spray_particles": 420,
+	},
+	&"high": {
+		"base_spacing": 0.5,
+		"ring_range": 64.0,
+		"rings": 8,
+		"displacement_cascades": 2,
+		"foam_detail_layers": 4,
+		"spray_particles": 640,
+	},
+}
 
 static var _cache: Dictionary = {}
 static var _ocean_fft_profile: Dictionary = {}
 static var _ocean_fft_textures: Dictionary = {}
 static var _ocean_fft_quality_tier: StringName = SKY_WEATHER.QUALITY_RECOMMENDED
+static var _sea_lod_tier: StringName = SKY_WEATHER.QUALITY_RECOMMENDED
 static var _ripple_off_texture: ImageTexture
 static var _caustic_tiles: Texture2D
 static var _caustic_tiles_built := false
@@ -298,6 +336,49 @@ static func uses_ocean_fft(terrain_id: StringName) -> bool:
 ## the map view (reset()) to switch, matching the other quality resources.
 static func set_ocean_fft_quality_tier(requested: Variant) -> void:
 	_ocean_fft_quality_tier = SKY_WEATHER.resolve_quality_tier(requested)
+	# SkyWeather has no `high` tier (it resolves to recommended); only the city sea
+	# LOD distinguishes it, so keep the request here.
+	var high := String(requested if requested != null else "").to_lower() == SEA_LOD_TIER_HIGH
+	_sea_lod_tier = SEA_LOD_TIER_HIGH if high else _ocean_fft_quality_tier
+
+
+## WR-3 city sea preset of the current tier (SEA_LOD_PRESETS).
+static func sea_lod_tier() -> StringName:
+	return _sea_lod_tier
+
+
+static func sea_lod_preset(tier: Variant = null) -> Dictionary:
+	var id: StringName = _sea_lod_tier if tier == null else StringName(String(tier).to_lower())
+	if not SEA_LOD_PRESETS.has(id):
+		id = SKY_WEATHER.resolve_quality_tier(id)
+	var preset := (SEA_LOD_PRESETS[id] as Dictionary).duplicate()
+	preset["tier"] = id
+	preset["ripple_sim_size"] = int(SKY_WEATHER.quality_settings(id)["ripple_sim_size"])
+	return preset
+
+
+## Binds the city sea LOD (CitySeaLod) to both sea families: `lattice` is the 4 m
+## cell lattice (origin x, origin z, cell size, 1 = active), `rings` the ring layout
+## (base spacing, ring-0 range, shore level, last level). Band, skirt and rings all
+## read these, so they agree on the distance weights along their shared edges.
+static func apply_sea_lod(
+	lattice: Vector4, rings: Vector4, preset: Dictionary,
+	wave_profiles: Dictionary = WATER_WAVE_BASE
+) -> void:
+	for terrain_id: StringName in [MapTypes.TERRAIN_SHALLOW_WATER, MapTypes.TERRAIN_DEEP_WATER]:
+		var material := water_surface(terrain_id, wave_profiles)
+		material.set_shader_parameter("sea_lod_lattice", lattice)
+		material.set_shader_parameter("sea_lod_rings", rings)
+		material.set_shader_parameter(
+			"sea_lod_c1", 1.0 if int(preset["displacement_cascades"]) >= 2 else 0.0
+		)
+		material.set_shader_parameter("city_foam_layers", int(preset["foam_detail_layers"]))
+
+
+## Per-frame LOD eye (CitySeaLod selection camera), shared by every city sea mesh.
+static func set_sea_lod_eye(eye: Vector3, wave_profiles: Dictionary = WATER_WAVE_BASE) -> void:
+	for terrain_id: StringName in [MapTypes.TERRAIN_SHALLOW_WATER, MapTypes.TERRAIN_DEEP_WATER]:
+		water_surface(terrain_id, wave_profiles).set_shader_parameter("sea_lod_eye", eye)
 
 
 static func ocean_fft_cascade_count() -> int:

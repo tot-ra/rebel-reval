@@ -84,8 +84,15 @@ static func sea_height(world: CityWorld3D, xz: Vector2) -> float:
 		if not world.sea_shore.is_empty()
 		else 1.0
 	)
-	# WR-1: same geometry as the shader's city path (no C1, bed-relative troughs).
-	var wave := OceanFftSampler.height_at(xz, time, surface, 2, CITY_C1_GEOMETRY) * shelter
+	# WR-1: same geometry as the shader's city path (bed-relative troughs). WR-3:
+	# the ring LOD decides the C0/C1 share by mesh spacing and camera distance
+	# (CitySeaLod.displacement_weights mirrors _sea_lod_weights); without it the
+	# fixed-grid rule (no C1) holds. C0 scales the height only, not the horizontal
+	# inversion inside height_at; it is 1 within ~250 m of the camera.
+	var weights := Vector2(1.0, CITY_C1_GEOMETRY)
+	if world.sea_lod != null:
+		weights = world.sea_lod.displacement_weights(xz)
+	var wave := OceanFftSampler.height_at(xz, time, surface, 2, weights.y) * weights.x * shelter
 	wave *= OceanFftSampler.shore_displacement_scale(
 		clampf(depth / CityWorld3D.SEA_SHORE_DEPTH, 0.0, 1.0)
 	)
