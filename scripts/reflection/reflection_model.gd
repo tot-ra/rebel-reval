@@ -33,6 +33,14 @@ static func build_snapshot(state: GameState) -> Dictionary:
 		"marks": marks,
 		"plain_summary": _build_plain_summary(state, marks),
 		"options": _build_options(),
+		# P7-011 host sections (NATURAL / psyche / loci): data only, the overlay
+		# renders them when natural_enabled is set. Always populated so the
+		# accessible plain-text host stays a pure read of GameState.
+		"natural_enabled": state.is_natural_system_enabled(),
+		"natural_aspects": _build_natural_aspects(state),
+		"natural_unspent_points": state.get_natural_unspent_points(),
+		"psyche_states": state.get_psyche_states(),
+		"hingepuu_loci": state.get_hingepuu_loci(),
 	}
 
 
@@ -102,6 +110,20 @@ static func _build_marks(state: GameState) -> Array[Dictionary]:
 	if state.get_flag(&"flag.watch_buckle_hidden_release"):
 		marks.append(_mark("hidden_release", "Hidden release", Color(0.72, 0.5, 0.92, 1.0)))
 	return marks
+
+
+static func _build_natural_aspects(state: GameState) -> Array[Dictionary]:
+	var aspects: Array[Dictionary] = []
+	for aspect_id in GameState.NATURAL_ASPECT_IDS:
+		aspects.append(
+			{
+				"id": String(aspect_id),
+				"display": String(GameState.NATURAL_ASPECT_DISPLAY_NAMES.get(aspect_id, aspect_id)),
+				"rank": state.get_natural_aspect_rank(aspect_id),
+				"effective_rank": state.get_natural_effective_aspect_rank(aspect_id),
+			}
+		)
+	return aspects
 
 
 static func _build_plain_summary(state: GameState, marks: Array[Dictionary]) -> String:

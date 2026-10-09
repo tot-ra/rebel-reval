@@ -45,6 +45,12 @@ const EFFECT_OPS := [
 	"remove_item",
 	"set_location_state",
 	"record_memory",
+	# NATURAL / psyche ops (P7-011). Content JSON cannot declare them until the
+	# schema + Python validator allowlist lands with SW-4; runtime callers
+	# (reflection host, tests) already speak through them.
+	"natural.grant_points",
+	"natural.spend_point",
+	"psyche.apply_state",
 ]
 
 var _last_error := ""
@@ -148,8 +154,7 @@ func apply_effect(effect: Dictionary, state: GameState) -> bool:
 	_last_error = _validate_effect(effect, state)
 	if not _last_error.is_empty():
 		return false
-	_apply_valid_effect(effect, state)
-	return true
+	return _apply_valid_effect(effect, state)
 
 
 func apply_effects(effects: Array, state: GameState) -> bool:
@@ -171,13 +176,18 @@ func apply_effects(effects: Array, state: GameState) -> bool:
 			return false
 
 	for effect in effects:
-		_apply_valid_effect(effect as Dictionary, state)
+		# Semantic fail codes (natural.fail.* / psyche.fail.*) abort at the failing
+		# effect. Earlier effects already applied: the batch is validated up front
+		# for shape errors, but GameState has no transactional rollback.
+		if not _apply_valid_effect(effect as Dictionary, state):
+			return false
 	return true
 
 
-func _apply_valid_effect(effect: Dictionary, state: GameState) -> void:
+func _apply_valid_effect(effect: Dictionary, state: GameState) -> bool:
 	var op := String(effect["op"])
-	var key := StringName(String(effect["key"]))
+	# natural.grant_points has no key field; validated key ops always carry one.
+	var key := StringName(String(effect.get("key", "")))
 	match op:
 		"set_flag":
 			state.set_flag(key, bool(effect["value"]))
@@ -213,6 +223,28 @@ func _apply_valid_effect(effect: Dictionary, state: GameState) -> void:
 			state.set_location_state(key, StringName(String(effect["value"])))
 		"record_memory":
 			state.record_relationship_memory(key)
+		"natural.grant_points":
+			return state.grant_natural_points(int(effect["amount"]))
+		"natural.spend_point":
+			return _absorb_fail_code(state.spend_natural_point(key))
+		"psyche.apply_state":
+			return _absorb_fail_code(
+				state.apply_psyche_state(
+					key,
+					int(effect["intensity"]),
+					StringName(String(effect.get("source_beat", "")))
+				)
+			)
+	return true
+
+
+## True for an empty GameState fail code; records `natural.fail.*` / `psyche.fail.*`
+## as the evaluator error otherwise, so apply-time failures stay fail-closed.
+func _absorb_fail_code(fail_code: StringName) -> bool:
+	if fail_code.is_empty():
+		return true
+	_last_error = String(fail_code)
+	return false
 
 
 func _validate_condition(condition: Dictionary, state: GameState) -> String:
@@ -422,7 +454,49 @@ func _validate_effect(effect: Dictionary, state: GameState) -> String:
 			return _validate_key_value(effect, "loc.", TYPE_STRING)
 		"record_memory":
 			return _validate_memory_record(effect)
+		"natural.grant_points":
+			return _validate_natural_grant(effect)
+		"natural.spend_point":
+			return _validate_key_only(effect, "aspect.")
+		"psyche.apply_state":
+			return _validate_psyche_apply_state(effect)
 	return "unsupported effect op: %s" % op
+
+
+## Bounds mirror GameState.NATURAL_INITIAL_POINTS so a typo cannot mint a pile of points.
+func _validate_natural_grant(effect: Dictionary) -> String:
+	var shape_error := _require_shape(effect, ["op", "amount"])
+	if not shape_error.is_empty():
+		return shape_error
+	if typeof(effect["amount"]) != TYPE_INT:
+		return "natural.grant_points amount must be an integer"
+	var amount := int(effect["amount"])
+	if amount < 1 or amount > GameState.NATURAL_INITIAL_POINTS:
+		return (
+			"natural.grant_points amount must be between 1 and %d"
+			% GameState.NATURAL_INITIAL_POINTS
+		)
+	return ""
+
+
+## Intensity bounds mirror GameState.apply_psyche_state (1..3); source_beat is optional.
+func _validate_psyche_apply_state(effect: Dictionary) -> String:
+	if effect.size() not in [3, 4]:
+		return "psyche.apply_state contains missing or unsupported fields"
+	for required_key in ["op", "key", "intensity"]:
+		if not effect.has(required_key):
+			return "psyche.apply_state requires %s" % required_key
+	var key_error := _validate_key(effect, "psyche.state.")
+	if not key_error.is_empty():
+		return key_error
+	if typeof(effect["intensity"]) != TYPE_INT:
+		return "psyche.apply_state intensity must be an integer"
+	var intensity := int(effect["intensity"])
+	if intensity < 1 or intensity > 3:
+		return "psyche.apply_state intensity must be between 1 and 3"
+	if effect.has("source_beat") and not _has_string(effect, "source_beat"):
+		return "psyche.apply_state source_beat must be a non-empty string"
+	return ""
 
 
 func _validate_memory_record(effect: Dictionary) -> String:

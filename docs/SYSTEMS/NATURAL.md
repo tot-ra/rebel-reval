@@ -8,7 +8,7 @@
 **Magic coupling:** [`docs/SYSTEMS/MAGIC.md`](./MAGIC.md) section 6  
 **Runtime implementation:** **P7-011** (GameState fields, spend/grant, save/load, minimal UI host). This file is not runtime truth until that row verifies.
 
-**Runtime today (2026-10-07):** `GameState` stores aspect ranks and unspent points (`get_natural_aspect_rank`, `grant_natural_points`, `spend_natural_point`) and saves them; magic scales by aspect (`tests/godot/test_magic_natural_scaling.gd`); the Hingepuu reflection overlay displays ranks. No gameplay path grants or spends points yet. See the [code-health audit](../reports/code_health_audit_2026-10-07.md).
+**Runtime today (2026-10-07):** `GameState` stores aspect ranks and unspent points (`get_natural_aspect_rank`, `grant_natural_points`, `spend_natural_point`) and saves them; magic scales by aspect (`tests/godot/test_magic_natural_scaling.gd`); the Hingepuu reflection overlay displays ranks. `StateRuleEvaluator` accepts `natural.grant_points` / `natural.spend_point` with fail-closed `natural.fail.*` codes, used by runtime callers and the reflection host (`tests/godot/test_p7_011_natural_psyche.gd`); `natural.set_rank` / `natural.lock_aspect` stay contract-only. Content JSON cannot declare these ops until the schema + Python validator allowlist lands with **SW-4**. See the [code-health audit](../reports/code_health_audit_2026-10-07.md).
 
 ---
 
@@ -180,7 +180,7 @@ Partial ship (P7-011 acceptance bar):
 |---|---|---|
 | Aspect | `aspect.<slug>` | `aspect.tenacity` |
 | Grant op | `natural.grant_points` | content effect |
-| Spend op | `natural.spend_point` | `{ "aspect": "aspect.unity" }` |
+| Spend op | `natural.spend_point` | `{ "op": "natural.spend_point", "key": "aspect.unity" }` |
 | Fail code | `natural.fail.<slug>` | `natural.fail.at_cap` |
 | Flag | `flag.natural.<slug>` | `flag.natural.initial_allocation` |
 
