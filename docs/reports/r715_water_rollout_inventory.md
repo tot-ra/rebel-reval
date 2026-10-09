@@ -97,7 +97,7 @@ R-713 handoff: unified sky/weather acceptance and water-facing synchronization e
 | Water surface geometry | [`map_view_mesh_builder_terrain_water.gd`](../../scripts/map/view3d/map_view_mesh_builder_terrain_water.gd) | Owns smoothed contours, coverage sampling, clipped water triangles, and recessed view-only surface vertices. |
 | Coastal shoreline detail | [`map_view_terrain_details.gd`](../../scripts/map/view3d/map_view_terrain_details.gd) | Owns CO-02 ShoreDebris (boulders, shingle, wrack, algae) on the WS-08 beach field. R-1092 deleted the primitive `CoastalRocks` SphereMesh layer. Dressing stays view-only; collision and navigation are unchanged. |
 | Terrain compilation and water metadata clearing | [`map_builder.gd`](../../scripts/map/map_builder.gd) | Applies authored zones and clears inherited vegetation metadata when a water overlay wins. |
-| Wind/rain and presentation snapshot | [`sky_weather_3d.gd`](../../scripts/map/view3d/sky_weather_3d.gd) | Owns the runtime weather values consumed by the view; the current checkout has a known parse cascade before this can be reverified. |
+| Wind/rain and presentation snapshot | [`sky_weather_3d.gd`](../../scripts/map/view3d/sky_weather_3d.gd) | Owns the runtime weather values consumed by the view; R-754 reverified it structurally (see below). |
 | Astronomical tide calculation | [`sky_astronomy.gd`](../../scripts/map/view3d/sky_astronomy.gd) | Owns the deterministic tide calculation; `MapViewLighting` forwards the presentation tide level to the material facade. |
 | Weather/tide fan-out | [`map_view_lighting.gd`](../../scripts/map/view3d/map_view_lighting.gd) | Applies the shared celestial/weather presentation to water lighting, coastal tide, and sky reflection. |
 
@@ -112,6 +112,14 @@ The material contract is implemented by the cached water adapter and one shader 
 The GL Compatibility fallback is intentional: invalid refracted depth falls back to `SCREEN_UV`, UV distortion is clamped away from texture edges, and optical depth is floored before absorption. The rollout does not use planar reflections; the shared sky catalog plus explicit celestial glints provide the supported deterministic reflection path without a second reflection pass.
 
 Focused proof: [`test_r715_water_material_contract.gd`](../../tests/godot/test_r715_water_material_contract.gd) passes 3/3, covering the shared shader identity, distinct shallow/deep/enclosed/river optical and flow/tide profiles, required screen/depth/Fresnel/celestial inputs, and compatibility fallbacks. This is structural material evidence only; renderer-quality and target-hardware acceptance remain owned by R-756/R-755.
+
+## R-754 water/weather state-owner contract
+
+Owner: SessionState/GameState keeps the single cross-map weather and time state; [`sky_weather_3d.gd`](../../scripts/map/view3d/sky_weather_3d.gd) is the one active environment presenter, and water is a pure consumer. [`map_view_lighting.gd`](../../scripts/map/view3d/map_view_lighting.gd) fans the presentation snapshot out to [`map_view_water_materials.gd`](../../scripts/map/view3d/map_view_water_materials.gd) (`apply_sea_weather`, `apply_water_lighting`, `apply_coastal_tide`, `apply_water_sky_reflection`). Water keeps no weather store of its own and no scene reload happens on weather change.
+
+Compatibility assumptions (R-713 remains the owning weather contract, its acceptance matrix is not copied): one snapshot updates every water profile; wind heading moves the FFT cascade weights; rain shelter changes only the rain emitter, never water state; a saved weather handoff restores identical water uniforms; the sky view LUT binds to every water profile.
+
+Proof: [`test_r715_water_weather_sync.gd`](../../tests/godot/test_r715_water_weather_sync.gd) passes 7/7 headless (structural only). Real-renderer visual evidence stays with R-756/R-713.
 
 ## Child-task handoff boundaries
 
