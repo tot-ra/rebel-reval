@@ -62,6 +62,7 @@ Keep this file short. Append a durable reusable rule, not a dated incident log. 
 - If a path-limited commit exits silently, inspect `HEAD` and hooks separately before retrying.
 - A long on-commit map audit can fail with `cannot lock ref HEAD` when another agent lands first. After hooks have already passed on the same path set, rebuild the temp index from the new `HEAD` and retry; `SKIP_PRE_COMMIT=1` is justified for that immediate retry only.
 - When several agents relocate GLB folders in one worktree, expect `.git/index.lock`, half-finished `git mv`, and empty asset dirs. Do not `git checkout HEAD -- assets/props/<area>/` until the lock is gone; restore from `origin/main` for that subtree, consolidate duplicates with a filesystem move, then stage only the scoped pathspec before commit.
+- Never `git commit --amend` in the shared worktree: another session can commit (and push) between your failed hook run and the retry, and the amend then rewrites their commit with your files. After a hook failure fix the files and make a new commit; if it already happened, `git reset --soft <their commit>` from the reflog and recommit only your paths.
 
 ### Godot and Python verification
 - Export `GODOT_BIN` in a preceding command (macOS: `/Applications/Godot.app/Contents/MacOS/Godot`). Inline `GODOT_BIN=... "$GODOT_BIN"` expands the old empty value and exits 127.
