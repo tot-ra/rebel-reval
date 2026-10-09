@@ -52,7 +52,7 @@ static func build(site: CitySite, _plan: CityPlan) -> Node3D:
 	_tower_top(body, roof, rng)
 	_roofs(roof)
 	_vaults(roof)
-	_interior(body, rng, site.data.get("benches", []))
+	var occluders := _interior(body, rng, site.data.get("benches", []))
 	var parts := body.split_at(CUT)
 	var lower: CityBuildingBuilder.Shell = parts[0]
 	Kit.cut_caps(lower, fabric, CUT)
@@ -70,7 +70,7 @@ static func build(site: CitySite, _plan: CityPlan) -> Node3D:
 	church.add_child(upper_node)
 	church.add_child(roof_node)
 	ChurchSunlight.apply(
-		church, lower_node, upper_node, roof_node, fabric, Kit.GLAZING.get(site.id, 0)
+		church, lower_node, upper_node, roof_node, fabric, Kit.GLAZING.get(site.id, 0), occluders
 	)
 	Furnish.coronas(
 		upper_node,
@@ -280,9 +280,11 @@ static func _tower_top(
 	)
 
 
+## Returns the piers and benches as boxes that shade the window light.
 static func _interior(
 	shell: CityBuildingBuilder.Shell, rng: RandomNumberGenerator, benches: Array
-) -> void:
+) -> Array[AABB]:
+	var occluders: Array[AABB] = []
 	Furnish.planks(shell, Rect2(TX + 1.6, -NZ + 1.6, NX - TX - 3.2, (NZ - 1.6) * 2.0), FLOOR, rng)
 	Kit.flag_floor(shell, Rect2(3.2, -3.8, 7.6, 7.6), FLOOR, rng)
 	Kit.flag_floor(
@@ -296,9 +298,15 @@ static func _interior(
 		)
 	for x: float in PIER_X:
 		for z: float in [-PIER_Z, PIER_Z]:
-			Kit.square_pier(shell, Vector3(x, FLOOR, z), 0.75, SPRING - FLOOR)
+			occluders.append_array(
+				Kit.square_pier(shell, Vector3(x, FLOOR, z), 0.75, SPRING - FLOOR)
+			)
 	for b: Dictionary in benches:
-		Furnish.bench(shell, Vector3(float(b["at"][0]), FLOOR, float(b["at"][1])), float(b["len"]))
+		occluders.append_array(
+			Furnish.bench(
+				shell, Vector3(float(b["at"][0]), FLOOR, float(b["at"][1])), float(b["len"])
+			)
+		)
 	Furnish.font(shell, Vector3(17.0, FLOOR, -9.0))
 	Furnish.altar(shell, Vector3(52.0, CHOIR_FLOOR, 0.0), 2.4, true)
 	Furnish.altar(shell, Vector3(41.3, FLOOR, -7.6), 1.4, false)
@@ -328,3 +336,4 @@ static func _interior(
 			0.035,
 			Color(0.68, 0.6, 0.45)
 		)
+	return occluders

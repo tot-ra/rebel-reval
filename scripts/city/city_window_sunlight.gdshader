@@ -10,7 +10,10 @@ render_mode unshaded, blend_add, depth_draw_never, cull_back, fog_disabled, shad
 // outline, and clear of the outer face and the splayed inner face of the
 // opening, so the reveal trims the patch) and adds that window's panel
 // colour, blurred with throw like the real sun disc does. Where no window is
-// hit the fragment is discarded (no change).
+// hit the fragment is discarded (no change). The overlay has no shadow map,
+// so shade inside a patch is analytic too: the tracery mullions of a
+// multi-light window, and the ray tested against the church's occluder boxes
+// (piers, benches, solid wall blocks; ChurchSunlight.occluder_boxes).
 //
 // Why additive: the Compatibility renderer gives a blended overlay no usable
 // shadow map, and a multiply over the engine's own soft sun patch turned into
@@ -44,6 +47,13 @@ uniform vec4 win_e[MAX_WINDOWS];
 // Added light = panel colour (brightest channel 1) x level x direct
 // strength x cos(incidence).
 uniform float level = 0.55;
+// Oriented boxes, two texels each: (centre xyz, along-wall dir x) and
+// (half extents along / up / across, along-wall dir z).
+uniform sampler2D occluders : filter_nearest, repeat_disable;
+uniform int occluder_count = 0;
+// Mullion half-width and half-depth about the glass plane (SiteKit._tracery).
+const float MULLION_HALF = 0.045;
+const float MULLION_DEPTH = 0.07;
 
 varying vec3 s_pos;
 varying vec3 s_nrm;
@@ -76,6 +86,47 @@ bool in_window(vec2 uv, vec4 c) {
 	float cx = uv.x <= w * 0.5 ? r : w - r;
 	vec2 d = vec2(uv.x - cx, uv.y - c.y);
 	return dot(d, d) <= r * r;
+}
+
+// On a stone mullion between lights: from the sill to the lights' heads
+// (spring + 0.85 x light width), at each joint between lights.
+bool on_mullion(vec2 uv, vec4 c, float lights) {
+	if (lights < 1.5) {
+		return false;
+	}
+	float lw = c.x / lights;
+	if (uv.y > c.y + lw * 0.85) {
+		return false;
+	}
+	float k = floor(uv.x / lw + 0.5);
+	return k >= 1.0 && k <= lights - 1.0 && abs(uv.x - k * lw) < MULLION_HALF;
+}
+
+// Does the ray p + l t, 0 < t < t_end, pass through an occluder box? A
+// fragment on a box's own face leaves it at once (exit at t ~ 0), so the
+// boxes need no gap to the meshes they stand for.
+bool occluded(vec3 p, vec3 l, float t_end) {
+	for (int i = 0; i < occluder_count; i++) {
+		vec4 a = texelFetch(occluders, ivec2(i * 2, 0), 0);
+		vec4 b = texelFetch(occluders, ivec2(i * 2 + 1, 0), 0);
+		vec2 d = vec2(a.w, b.w);
+		vec2 n = vec2(-d.y, d.x);
+		vec3 q = p - a.xyz;
+		vec3 o = vec3(dot(q.xz, d), q.y, dot(q.xz, n));
+		vec3 r = vec3(dot(l.xz, d), l.y, dot(l.xz, n));
+		vec3 sgn = vec3(greaterThanEqual(r, vec3(0.0))) * 2.0 - 1.0;
+		vec3 inv = sgn / max(abs(r), vec3(1e-5));
+		vec3 t0 = (-b.xyz - o) * inv;
+		vec3 t1 = (b.xyz - o) * inv;
+		vec3 tn = min(t0, t1);
+		vec3 tf = max(t0, t1);
+		float t_in = max(max(tn.x, tn.y), tn.z);
+		float t_out = min(min(tf.x, tf.y), tf.z);
+		if (t_in < t_out && t_out > 0.03 && t_in < t_end) {
+			return true;
+		}
+	}
+	return false;
 }
 
 void fragment() {
@@ -118,6 +169,22 @@ void fragment() {
 		uv3 += vec2(e.x, e.x * 0.6);
 		if (!in_window(uv3, vec4(win_c[i].x + e.x * 2.0, e.z, e.w, 0.0))) {
 			continue;
+		}
+		// The stone mullions between the lights, at the glass and at both of
+		// their faces, so a slanting sun widens their shade as it should.
+		vec3 dm = l * (MULLION_DEPTH / facing);
+		vec3 hm0 = h - dm;
+		vec3 hm1 = h + dm;
+		vec2 ub = vec2(win_b[i].x, win_b[i].y);
+		if (on_mullion(uv, win_c[i], win_a[i].w)
+				|| on_mullion(vec2(dot(hm0.xz - o.xz, ub), hm0.y - o.y), win_c[i], win_a[i].w)
+				|| on_mullion(vec2(dot(hm1.xz - o.xz, ub), hm1.y - o.y), win_c[i], win_a[i].w)) {
+			break;
+		}
+		// Piers, benches and other walls between the fragment and the inner
+		// face of this window's wall (the reveal itself is tested above).
+		if (occluder_count > 0 && occluded(s_pos, l, t - e.y / facing - 0.03)) {
+			break;
 		}
 		vec4 panel = glass_panel(uv, win_c[i].x, win_a[i].w, win_c[i].w, int(win_d[i].x + 0.5));
 		// The sun disc (0.53 deg) blurs the glass image by ~0.9 cm per metre

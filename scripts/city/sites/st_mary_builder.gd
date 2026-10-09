@@ -55,7 +55,7 @@ static func build(site: CitySite, plan: CityPlan) -> Node3D:
 	_buttresses(body)
 	_roofs(roof)
 	_vaults(roof)
-	_works(body, roof, rng)
+	var occluders := _works(body, roof, rng)
 	_interior(body, rng)
 	var node := Node3D.new()
 	node.name = "Cathedral"
@@ -76,7 +76,7 @@ static func build(site: CitySite, plan: CityPlan) -> Node3D:
 	node.add_child(upper_node)
 	node.add_child(roof_node)
 	ChurchSunlight.apply(
-		node, lower_node, upper_node, roof_node, fabric, Kit.GLAZING.get(site.id, 0)
+		node, lower_node, upper_node, roof_node, fabric, Kit.GLAZING.get(site.id, 0), occluders
 	)
 	Furnish.coronas(upper_node, [Vector2(-10.4, AX), Vector2(4.0, AX)], 5.0, 12.8)
 	(
@@ -325,9 +325,12 @@ static func _vaults(roof: CityBuildingBuilder.Shell) -> void:
 ## arches, a treadwheel crane, putlog scaffolds on the rising walls.
 static func _works(
 	body: CityBuildingBuilder.Shell, roof: CityBuildingBuilder.Shell, _rng: RandomNumberGenerator
-) -> void:
+) -> Array[AABB]:
+	var occluders: Array[AABB] = []
 	for z: float in [AN, AS]:
-		Kit.square_pier(body, Vector3(-27.8, 0.05, z), 0.7, 4.2, "greystone")
+		occluders.append_array(
+			Kit.square_pier(body, Vector3(-27.8, 0.05, z), 0.7, 4.2, "greystone")
+		)
 		# Centering under the bay-2 arcade arch (pointed timber frame).
 		var pts := Kit.arch(-20.4, 5.6, 5.4, 8.2)
 		for k in range(pts.size() - 1):
@@ -370,6 +373,7 @@ static func _works(
 	# Ladders.
 	_ladder(roof, Vector3(-26.0, 0.0, NO - 1.4), 7.4)
 	_ladder(roof, Vector3(-18.0, 0.0, SO + 1.4), 7.4)
+	return occluders
 
 
 ## Treadwheel crane: a man-driven wheel on a timber frame, a mast with a jib,

@@ -17,6 +17,10 @@ const SUNLIGHT := preload("res://scripts/city/city_window_sunlight.gdshader")
 const SHAFT := preload("res://scripts/city/city_window_shaft.gdshader")
 const PLATES := "res://assets/textures/churches/glass/glass_plates.png"
 const MAX_WINDOWS := 32
+## Boxes the window light is tested against (piers, benches, solid wall
+## blocks). Only fragments inside a patch walk the list, but each walks all
+## of it, so keep it to what a church holds.
+const MAX_OCCLUDERS := 256
 const GLOBAL := &"window_sun"
 ## Glass plane inset from the outer face, as SiteKit._glass.
 const INSET := 0.3
@@ -45,9 +49,17 @@ static func push_light(sun: DirectionalLight3D) -> void:
 
 
 ## Wires one church building: `lower`, `upper` and `roof` are its Kit.mesh
-## nodes (Upper holds "Glass", Lower "GlassLow"), `fabric` the manifest walls.
+## nodes (Upper holds "Glass", Lower "GlassLow"), `fabric` the manifest walls,
+## `occluders` the site-local boxes of its piers and benches (the builders
+## collect them from Kit.square_pier and Furnish.bench).
 static func apply(
-	building: Node3D, lower: Node3D, upper: Node3D, roof: Node3D, fabric: Array, glazing: int
+	building: Node3D,
+	lower: Node3D,
+	upper: Node3D,
+	roof: Node3D,
+	fabric: Array,
+	glazing: int,
+	occluders: Array[AABB] = []
 ) -> void:
 	var wins := windows(fabric, glazing)
 	# The upper glass hides with the Upper walls, so it needs a proxy too:
@@ -64,7 +76,7 @@ static func apply(
 		building.add_child(proxy)
 	if wins.is_empty():
 		return
-	var mat := sunlight_material(wins)
+	var mat := sunlight_material(wins, occluder_boxes(fabric, occluders))
 	for node: Node3D in [lower, upper]:
 		_overlay(node, mat)
 	# The site transform is set before the site enters the tree; read it then.
@@ -133,7 +145,9 @@ static func windows(fabric: Array, glazing: int) -> Array[Dictionary]:
 	return out_list
 
 
-static func sunlight_material(wins: Array[Dictionary]) -> ShaderMaterial:
+static func sunlight_material(
+	wins: Array[Dictionary], boxes: Array[Dictionary] = []
+) -> ShaderMaterial:
 	var mat := ShaderMaterial.new()
 	mat.shader = SUNLIGHT
 	mat.set_shader_parameter("plates", load(PLATES))
@@ -165,7 +179,110 @@ static func sunlight_material(wins: Array[Dictionary]) -> ShaderMaterial:
 	mat.set_shader_parameter("win_c", wc)
 	mat.set_shader_parameter("win_d", wd)
 	mat.set_shader_parameter("win_e", we)
+	# Occluders go in a float texture, two texels each (centre + along-wall
+	# x, half extents + along-wall z), not in uniform arrays: a church holds
+	# well over a hundred and the window arrays already use 160 vec4s.
+	mat.set_shader_parameter("occluder_count", boxes.size())
+	if not boxes.is_empty():
+		var data := PackedFloat32Array()
+		for box: Dictionary in boxes:
+			var c: Vector3 = box["centre"]
+			var h: Vector3 = box["half"]
+			var d: Vector2 = box["dir"]
+			data.append_array([c.x, c.y, c.z, d.x, h.x, h.y, h.z, d.y])
+		var img := Image.create_from_data(
+			boxes.size() * 2, 1, false, Image.FORMAT_RGBAF, data.to_byte_array()
+		)
+		mat.set_shader_parameter("occluders", ImageTexture.create_from_image(img))
 	return mat
+
+
+## Oriented boxes that shade the window light, site-local: `extra` (piers,
+## benches) as given, then every manifest wall cut into solid blocks around
+## its openings. The overlay cannot read the shadow map, so the shader tests
+## the ray to the window against these instead. Each is {centre, half, dir}:
+## half.x along `dir` (xz), half.y up, half.z across. First MAX_OCCLUDERS.
+static func occluder_boxes(fabric: Array, extra: Array[AABB] = []) -> Array[Dictionary]:
+	var out_list: Array[Dictionary] = []
+	for box: AABB in extra:
+		out_list.append({"centre": box.get_center(), "half": box.size * 0.5, "dir": Vector2.RIGHT})
+	for w: Dictionary in fabric:
+		out_list.append_array(_wall_blocks(w))
+	return out_list.slice(0, MAX_OCCLUDERS)
+
+
+## Solid blocks of one manifest wall, as SiteKit.wall builds it: the wall
+## runs from its outer line a..b inwards by `thick`, from y0 to y1, with the
+## openings cut through (windows at their wider splayed inner size, so a
+## window's own reveal never sits inside a block). Pointed heads count as
+## open up to the apex, a slight under-shade above the arch shoulders.
+static func _wall_blocks(w: Dictionary) -> Array[Dictionary]:
+	var a := Vector2(w["a"][0], w["a"][1])
+	var b := Vector2(w["b"][0], w["b"][1])
+	var inside := Vector2(w["inside"][0], w["inside"][1])
+	var thick := float(w["thick"])
+	var y0 := float(w.get("y0", -0.6))
+	var y1 := float(w["y1"])
+	var length := a.distance_to(b)
+	var dir := (b - a) / length
+	var out := Vector2(-dir.y, dir.x)
+	if out.dot(inside - (a + b) * 0.5) > 0.0:
+		out = -out
+	var holes: Array[Vector4] = []
+	var cuts: Array[float] = [0.0, length]
+	for op: Dictionary in w.get("openings", []):
+		var kind := String(op.get("kind", "window"))
+		if kind == "niche" or kind == "recess":
+			continue
+		var o := CitySiteKit._opening(op, true)
+		var s0 := clampf(float(o["s"]), 0.0, length)
+		var s1 := clampf(float(o["s"]) + float(o["w"]), 0.0, length)
+		holes.append(Vector4(s0, s1, float(o["sill"]), CitySiteKit._top(o)))
+		cuts.append_array([s0, s1])
+	cuts.sort()
+	# Spans between cuts with their solid height ranges; neighbours with the
+	# same ranges merge, so a plain wall stays one block.
+	var spans: Array[Dictionary] = []
+	for k in range(cuts.size() - 1):
+		var p := cuts[k]
+		var q := cuts[k + 1]
+		if q - p < 0.01:
+			continue
+		var mid := (p + q) * 0.5
+		var solid: Array[Vector2] = [Vector2(y0, y1)]
+		for hole: Vector4 in holes:
+			if mid <= hole.x or mid >= hole.y:
+				continue
+			var cut: Array[Vector2] = []
+			for r: Vector2 in solid:
+				if r.x < hole.z:
+					cut.append(Vector2(r.x, minf(r.y, hole.z)))
+				if r.y > hole.w:
+					cut.append(Vector2(maxf(r.x, hole.w), r.y))
+			solid = cut
+		if not spans.is_empty() and spans[-1]["q"] == p and spans[-1]["solid"] == solid:
+			spans[-1]["q"] = q
+		else:
+			spans.append({"p": p, "q": q, "solid": solid})
+	var blocks: Array[Dictionary] = []
+	for span: Dictionary in spans:
+		var p: float = span["p"]
+		var q: float = span["q"]
+		var at := a + dir * (p + q) * 0.5 - out * thick * 0.5
+		for r: Vector2 in span["solid"]:
+			if r.y - r.x < 0.01:
+				continue
+			(
+				blocks
+				. append(
+					{
+						"centre": Vector3(at.x, (r.x + r.y) * 0.5, at.y),
+						"half": Vector3((q - p) * 0.5, (r.y - r.x) * 0.5, thick * 0.5),
+						"dir": dir,
+					}
+				)
+			)
+	return blocks
 
 
 ## Beam prisms, one per window, in site-local space (see the shader for the

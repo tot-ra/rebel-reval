@@ -1149,13 +1149,15 @@ static func _pointed(u: float) -> float:
 
 
 ## Square pier with a chamfered base and a moulded impost (capital band).
+## Returns its base and shaft as boxes that shade the window light
+## (ChurchSunlight occluders).
 static func square_pier(
 	shell: CityBuildingBuilder.Shell,
 	at: Vector3,
 	half: float,
 	height: float,
 	shaft_key := "limewash"
-) -> void:
+) -> Array[AABB]:
 	CitySiteProps._box(
 		shell,
 		"ashlar",
@@ -1184,3 +1186,8 @@ static func square_pier(
 		at + Vector3(half + 0.16, height, half + 0.16),
 		ASHLAR
 	)
+	var base := half + 0.12
+	return [
+		AABB(at + Vector3(-base, 0.0, -base), Vector3(base * 2.0, 0.35, base * 2.0)),
+		AABB(at + Vector3(-half, 0.0, -half), Vector3(half * 2.0, height, half * 2.0)),
+	]

@@ -54,7 +54,7 @@ static func planks(
 
 ## Oak bench facing the altar (+x): seat, back rail, end boards with a
 ## rounded top (a plain form of the later pews), a kneeler rail in front.
-static func bench(shell: CityBuildingBuilder.Shell, at: Vector3, length: float) -> void:
+static func bench(shell: CityBuildingBuilder.Shell, at: Vector3, length: float) -> Array[AABB]:
 	var z0 := at.z - length * 0.5
 	var z1 := at.z + length * 0.5
 	var oak := Kit.OAK_DARK * 0.9
@@ -109,6 +109,12 @@ static func bench(shell: CityBuildingBuilder.Shell, at: Vector3, length: float) 
 		Vector3(at.x + 0.55, at.y + 0.12, z1 - 0.06),
 		oak
 	)
+	# Seat and back rail shade the window light (ChurchSunlight occluders);
+	# the end boards and the kneeler are too slim to matter.
+	return [
+		AABB(Vector3(at.x - 0.2, at.y + 0.42, z0), Vector3(0.38, 0.05, length)),
+		AABB(Vector3(at.x - 0.27, at.y + 0.47, z0), Vector3(0.05, 0.48, length)),
+	]
 
 
 static func font(shell: CityBuildingBuilder.Shell, at: Vector3) -> void:

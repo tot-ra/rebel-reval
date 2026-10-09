@@ -58,8 +58,8 @@ static func build(site: CitySite, plan: CityPlan) -> Node3D:
 	_tower(body, roof)
 	_roofs(roof)
 	_vaults(roof)
-	_interior(body, rng, site.data.get("benches", []))
-	root.add_child(_assemble("Church", site, body, glass, roof, church_fabric))
+	var occluders := _interior(body, rng, site.data.get("benches", []))
+	root.add_child(_assemble("Church", site, body, glass, roof, church_fabric, occluders))
 	var church := root.get_node("Church")
 	Furnish.coronas(
 		church.get_node("Upper"),
@@ -107,7 +107,8 @@ static func _assemble(
 	body: CityBuildingBuilder.Shell,
 	glass: CityBuildingBuilder.Shell,
 	roof: CityBuildingBuilder.Shell,
-	fabric: Array
+	fabric: Array,
+	occluders: Array[AABB] = []
 ) -> Node3D:
 	var node := Node3D.new()
 	node.name = node_name
@@ -128,7 +129,7 @@ static func _assemble(
 	node.add_child(upper_node)
 	node.add_child(roof_node)
 	ChurchSunlight.apply(
-		node, lower_node, upper_node, roof_node, fabric, Kit.GLAZING.get(site.id, 0)
+		node, lower_node, upper_node, roof_node, fabric, Kit.GLAZING.get(site.id, 0), occluders
 	)
 	return node
 
@@ -293,9 +294,11 @@ static func _vaults(roof: CityBuildingBuilder.Shell) -> void:
 	Kit.rib_vault(roof, Rect2(W0 + 2.4, AX - 2.6, 5.2, 5.2), 5.6, 8.4, RIB)
 
 
+## Returns the piers and benches as boxes that shade the window light.
 static func _interior(
 	shell: CityBuildingBuilder.Shell, rng: RandomNumberGenerator, benches: Array
-) -> void:
+) -> Array[AABB]:
+	var occluders: Array[AABB] = []
 	Kit.flag_floor(shell, Rect2(TX + 1.4, NN + 1.4, NX - TX - 2.8, NS - NN - 2.8), FLOOR, rng, 0.14)
 	Kit.flag_floor(shell, Rect2(W0 + 2.4, AX - 2.6, 5.2, 5.2), FLOOR, rng)
 	Kit.flag_floor(shell, Rect2(-11.8, NN - 3.4, 3.6, 3.4), FLOOR, rng)
@@ -315,9 +318,15 @@ static func _interior(
 		)
 	for x: float in PIER_X:
 		for z: float in PIER_Z:
-			Kit.square_pier(shell, Vector3(x, FLOOR, z), 0.8, SPRING - FLOOR, "greystone")
+			occluders.append_array(
+				Kit.square_pier(shell, Vector3(x, FLOOR, z), 0.8, SPRING - FLOOR, "greystone")
+			)
 	for b: Dictionary in benches:
-		Furnish.bench(shell, Vector3(float(b["at"][0]), FLOOR, float(b["at"][1])), float(b["len"]))
+		occluders.append_array(
+			Furnish.bench(
+				shell, Vector3(float(b["at"][0]), FLOOR, float(b["at"][1])), float(b["len"])
+			)
+		)
 	Furnish.font(shell, Vector3(-20.8, FLOOR, -16.4))
 	Furnish.altar(shell, Vector3(20.2, CHOIR_FLOOR, AX), 2.4, true)
 	Furnish.altar(shell, Vector3(8.0, FLOOR, -16.8), 1.4, false)
@@ -342,6 +351,7 @@ static func _interior(
 		Vector3(NX + 7.0, CHOIR_FLOOR + 1.9, CZ0 - 2.3),
 		Kit.OAK_DARK
 	)
+	return occluders
 
 
 ## Charnel: bones stacked along the walls on low benches, skulls in rows, an

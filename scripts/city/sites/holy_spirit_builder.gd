@@ -49,7 +49,7 @@ static func build(site: CitySite, _plan: CityPlan) -> Node3D:
 	_gables(body)
 	_roofs(roof)
 	_turret(roof)
-	_interior(body, roof, rng, site.data.get("benches", []))
+	var occluders := _interior(body, roof, rng, site.data.get("benches", []))
 	var parts := body.split_at(CUT)
 	var lower: CityBuildingBuilder.Shell = parts[0]
 	Kit.cut_caps(lower, fabric, CUT)
@@ -70,7 +70,7 @@ static func build(site: CitySite, _plan: CityPlan) -> Node3D:
 	church.add_child(upper_node)
 	church.add_child(roof_node)
 	ChurchSunlight.apply(
-		church, lower_node, upper_node, roof_node, fabric, Kit.GLAZING.get(site.id, 0)
+		church, lower_node, upper_node, roof_node, fabric, Kit.GLAZING.get(site.id, 0), occluders
 	)
 	Furnish.coronas(
 		upper_node,
@@ -227,7 +227,8 @@ static func _interior(
 	_roof: CityBuildingBuilder.Shell,
 	rng: RandomNumberGenerator,
 	benches: Array
-) -> void:
+) -> Array[AABB]:
+	var occluders: Array[AABB] = []
 	Furnish.planks(shell, Rect2(1.2, -7.0, 35.6, 14.0), FLOOR, rng)
 	Furnish.planks(shell, Rect2(38.0, 1.84, 10.0, 5.56), FLOOR, rng)
 	Kit.flag_floor(shell, Rect2(36.8, -7.1, 10.9, 7.84), CHOIR_FLOOR, rng, 0.12)
@@ -239,7 +240,11 @@ static func _interior(
 			shell, "ashlar", Vector3(x0, FLOOR - 0.01, -6.2), Vector3(36.82, h, -0.2), Kit.ASHLAR
 		)
 	for b: Dictionary in benches:
-		Furnish.bench(shell, Vector3(float(b["at"][0]), FLOOR, float(b["at"][1])), float(b["len"]))
+		occluders.append_array(
+			Furnish.bench(
+				shell, Vector3(float(b["at"][0]), FLOOR, float(b["at"][1])), float(b["len"])
+			)
+		)
 	Furnish.font(shell, Vector3(4.2, FLOOR, -4.6))
 	Furnish.altar(shell, Vector3(END_X - 1.6, CHOIR_FLOOR, -3.18), 2.4, true)
 	Furnish.altar(shell, Vector3(36.2, FLOOR, 3.0), 1.4, false)
@@ -274,6 +279,7 @@ static func _interior(
 			Color(0.68, 0.6, 0.45)
 		)
 	_almshouse(shell)
+	return occluders
 
 
 ## Consecration crosses on the aisle walls, as [centre, into_room].

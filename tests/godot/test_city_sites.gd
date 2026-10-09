@@ -165,7 +165,48 @@ func test_church_sunlight_through_glass() -> void:
 	)
 	var shafts := built.get_node_or_null("Church/SunShafts") as MeshInstance3D
 	assert_true(shafts != null and shafts.mesh.get_surface_count() == 1, "one shaft mesh")
+	if overlay is ShaderMaterial:
+		var count := int((overlay as ShaderMaterial).get_shader_parameter("occluder_count"))
+		# 6 piers x 2 boxes + 2 per bench, then the wall blocks.
+		var benches: int = (olaf.data.get("benches", []) as Array).size()
+		assert_true(count > 12 + benches * 2, "piers, benches and walls shade the light")
+		assert_true(count <= ChurchSunlight.MAX_OCCLUDERS, "occluders fit the cap")
+		assert_true(
+			(overlay as ShaderMaterial).get_shader_parameter("occluders") is ImageTexture,
+			"occluders are uploaded"
+		)
 	built.free()
+
+
+func test_church_sunlight_occluders() -> void:
+	# R-1474: the boxes the window light is tested against are solid where
+	# the fabric is (arcade piers) and open at every opening (glass, arches).
+	var spirit := _site(&"site.holy_spirit")
+	var fabric: Array = spirit.data["fabric"]
+	var pier := AABB(Vector3(10.0, 0.0, 0.0), Vector3(1.5, 7.0, 1.5))
+	var boxes := ChurchSunlight.occluder_boxes(fabric, [pier])
+	assert_true(_in_any_box(boxes, Vector3(10.75, 3.0, 0.75)), "extra box kept as given")
+	# Arcade (a = (1.2, 1.24), along +x, 1.2 thick): arches cover 1.0..5.8
+	# and 7.0..11.8 from a, so 6.4 is a pier and 3.4 an arch.
+	assert_true(_in_any_box(boxes, Vector3(1.2 + 6.4, 2.0, 1.84)), "arcade pier is solid")
+	assert_false(_in_any_box(boxes, Vector3(1.2 + 3.4, 2.0, 1.84)), "arcade arch is open")
+	for win: Dictionary in ChurchSunlight.windows(fabric, 0):
+		var o: Vector3 = win["origin"]
+		var dir: Vector2 = win["dir"]
+		var c := o + Vector3(dir.x, 0.0, dir.y) * float(win["width"]) * 0.5
+		c.y += float(win["spring"]) * 0.5
+		assert_false(_in_any_box(boxes, c), "window glass is not inside a wall block")
+
+
+static func _in_any_box(boxes: Array[Dictionary], p: Vector3) -> bool:
+	for box: Dictionary in boxes:
+		var q: Vector3 = p - box["centre"]
+		var d: Vector2 = box["dir"]
+		var h: Vector3 = box["half"]
+		var local := Vector3(q.x * d.x + q.z * d.y, q.y, -q.x * d.y + q.z * d.x)
+		if absf(local.x) < h.x and absf(local.y) < h.y and absf(local.z) < h.z:
+			return true
+	return false
 
 
 func test_church_walls_are_dimmed() -> void:
