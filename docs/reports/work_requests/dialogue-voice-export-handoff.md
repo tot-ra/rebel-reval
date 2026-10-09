@@ -1,3 +1,9 @@
+---
+status: merged
+merged-into: R-632
+producer-decision: "R-1477: external rights/export handoff remains blocked; R-632 is the live board owner, R-633 is a historical unresolved label."
+---
+
 # Dialogue voice export handoff
 
 **Status:** BLOCKED - awaiting the approved offline ElevenLabs export and record-level rights evidence.

@@ -16,3 +16,5 @@ This file contains lessons specific to the Producer role.
 - Stage only allowlisted packaging files. Never absorb concurrent map or prop WIP into a packaging or closeout commit.
 - For Act 1 packaging, keep the DMG gitignored and force-add only the small SHA fingerprint sidecars.
 - Prefer Current focus over a historical QA report that says "do not start X". Open a Dev row for ambient runtime defects rather than widening a Producer allowlist.
+
+- Request-card and parent-body refs can outlive deleted or cancelled board items. Resolve every dependency with a live project-scoped list/get before updating; missing refs and cancelled rows must become explicit decision blockers or verified successors, never assumed completed prerequisites.

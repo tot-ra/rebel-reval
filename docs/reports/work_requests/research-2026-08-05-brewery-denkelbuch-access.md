@@ -2,8 +2,9 @@
 id: wr-research-20260810-0800-brewery-denkelbuch-access
 raised_by: research-rebel-historical-geo
 raised_at: 2026-08-10T08:00:00Z
-status: accepted
-accepted: R-460
+status: merged
+merged-into: R-502
+producer-decision: "R-1477: R-460 is absent from this project board; share lawful TLA.230.1.Aa2 acquisition with R-502, retaining separate brewery and carter research questions."
 proposed_owner: producer
 slice: none
 source: blocked R-451

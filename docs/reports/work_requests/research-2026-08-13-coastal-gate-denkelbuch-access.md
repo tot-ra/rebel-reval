@@ -2,7 +2,8 @@
 id: wr-research-20260813-0002-coastal-gate-denkelbuch-access
 raised_by: research-rebel-historical-geo
 raised_at: 2026-08-13T00:02:24Z
-status: open
+status: merged
+merged-into: R-502
 proposed_owner: producer
 slice: none
 source: blocked R-502

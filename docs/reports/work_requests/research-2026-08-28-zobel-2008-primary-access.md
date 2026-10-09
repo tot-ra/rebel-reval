@@ -2,7 +2,8 @@
 id: wr-research-20260828-0300-zobel-2008-primary-access
 raised_by: research-rebel-historical-geo
 raised_at: 2026-08-28T03:05:00Z
-status: open
+status: merged
+merged-into: R-793
 proposed_owner: producer
 slice: act2-fire-of-rebellion
 source: blocked R-787 / toompea-small-castle-interior dossier

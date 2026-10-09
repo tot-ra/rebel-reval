@@ -2,7 +2,8 @@
 id:wr-research-20260730-2105-projectile-catalog-access
 raised_by:research-rebel-historical-geo
 raised_at:2026-07-30T21:05:00Z
-status:open
+status: rejected
+rejected: "Deferred outside demo-forge-return-recovery; no live R-061 board contract or approved current-slice use. Preserve evidence; Research may resubmit a bounded acquisition request when needed."
 proposed_owner:producer
 slice:lower-town-landmark-readability
 source:blockedTODO-IDR-061
