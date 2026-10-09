@@ -2,6 +2,7 @@ extends "res://tests/godot/test_case.gd"
 
 const GodRayPass := preload("res://scripts/map/view3d/god_ray_pass.gd")
 const SkyWeather := preload("res://scripts/map/view3d/sky_weather_3d.gd")
+const CloudShadowPass := preload("res://scripts/map/view3d/cloud_shadow_pass.gd")
 
 
 func _presentation(sun_y: float, clear: float, coverage: float) -> SkyWeather.WeatherPresentation:
@@ -27,10 +28,38 @@ func test_fog_and_rain_haze_raise_the_scatter() -> void:
 	assert_true(GodRayPass.haze_amount(wet) > GodRayPass.haze_amount(dry))
 
 
-func test_no_rays_at_night_without_moon_or_when_sun_is_blocked() -> void:
+func test_no_rays_at_night_without_moon() -> void:
 	var night := _presentation(-0.5, 1.0, 0.5)
 	assert_eq(GodRayPass.light_strength(night), 0.0)
-	assert_eq(GodRayPass.light_strength(_presentation(0.2, 0.0, 0.5)), 0.0)
+
+
+## R-1444: a sun hidden behind a cloud edge is when beams fan out from the gaps, so the
+## pass strength must not drop with the cloud in front of the sun; the shader shades
+## each air sample by the deck and cells instead.
+func test_sun_behind_a_cloud_still_feeds_the_beams() -> void:
+	var hidden := GodRayPass.light_strength(_presentation(0.2, 0.0, 0.5))
+	assert_almost_eq(hidden, GodRayPass.light_strength(_presentation(0.2, 1.0, 0.5)), 0.0001)
+	assert_true(hidden > 0.0)
+
+
+func test_shader_shades_air_by_the_deck_and_stops_at_surfaces() -> void:
+	var code: String = GodRayPass.PASS_SHADER.code
+	assert_true("sky_cloud_shadow_soft" in code, "the dome deck shades the air, not only cells")
+	assert_true("hint_depth_texture" in code, "the far march stops at the scene depth")
+	assert_true("blend_premul_alpha" in code, "shaded columns darken, lit air adds light")
+
+
+## Compatibility empties the depth texture for transparents drawn after the water's
+## screen copy, so the pass must sort right after the cloud shadow pass.
+func test_pass_draws_before_the_water() -> void:
+	assert_true(GodRayPass.RENDER_PRIORITY < 0)
+	assert_true(GodRayPass.RENDER_PRIORITY > CloudShadowPass.RENDER_PRIORITY)
+
+
+func test_sky_dome_beams_read_the_visible_deck() -> void:
+	var code: String = SkyWeather.SKY_SHADER.code
+	assert_true("sky_sunbeams" in code)
+	assert_false("cells_sky_rays" in code, "the cells-only sky march is replaced")
 
 
 func test_moonlight_rays_are_fainter_than_sunlight() -> void:

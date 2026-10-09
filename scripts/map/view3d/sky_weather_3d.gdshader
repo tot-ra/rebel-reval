@@ -483,32 +483,99 @@ vec4 cells_volume(
 }
 
 
-// Crepuscular rays under the cells (R-1400): march the eye ray through the air
-// below the clouds and ask, at each point, whether a cell shades it from the sun.
-// x = lit share of the path, y = shaded share. Only near the sun, where
-// forward-scattering haze makes beams visible.
-vec2 cells_sky_rays(vec3 ro, vec3 rd) {
-	if (cell_ray_samples <= 0 || sun_direction.y <= 0.0 || dot(rd, sun_direction) < 0.55) {
-		return vec2(0.0);
+// R-1444: crepuscular rays from the clouds the player actually sees. The old
+// R-1400 march only asked the sparse discrete cells, so the dome deck - most of
+// the visible cloud - never cut a beam. Light reaching the air along this pixel
+// comes from the sun's side of the sky, so walk the great circle from the sun to
+// the pixel (samples packed toward the sun, glow-weighted) and ask how open the
+// deck and the cells are there: the light-scattering post-process of GPU Gems 3
+// ch. 13, done analytically in direction space (no screen texture). Gaps around
+// a hidden sun fan out as bright shafts and cloud edges throw dark columns that
+// converge on the sun, at noon and with the sun on the horizon alike.
+// Returns the glow-weighted share of the path toward the sun that is open (1 = no
+// cloud in the way), or -1 when this pixel is too far from the sun to bother.
+// How much the discrete cells hide direction `d` from the camera at `ro`, matched to
+// what cells_volume draws: the copy of each cell nearest the camera, faded out before
+// the periodic seam, hit where the ray crosses the cell's shadow-casting layer.
+// WHY not cells_ground_shadow(ro, d): it clamps the slope to 0.15 and takes the copy
+// nearest the projected point, so low sky directions were hidden by far copies the
+// dome never draws, printing straight-edged dark blocks into the beams.
+float cells_toward(vec3 ro, vec3 d) {
+	if (d.y < 0.01) {
+		return 0.0;
 	}
-	float lit = 0.0;
-	float shade = 0.0;
-	float total = 0.0;
-	for (int k = 0; k < 10; k++) {
-		if (k >= cell_ray_samples) {
+	float lit = 1.0;
+	for (int i = 0; i < CELL_SLOTS; i++) {
+		vec4 a = cloud_cells[i * 2];
+		vec4 b = cloud_cells[i * 2 + 1];
+		if (b.y <= 0.001) {
+			continue;
+		}
+		vec2 c = ro.xz + cell_wrap_delta(a.xz, ro.xz, b.z);
+		float domain = cell_domain(b.z);
+		float fade = 1.0 - smoothstep(0.36 * domain, 0.5 * domain, length(c - ro.xz));
+		if (fade <= 0.0) {
+			continue;
+		}
+		float layer = a.y + b.x * mix(0.35, 0.25, b.z);
+		vec2 q = ro.xz + d.xz * ((layer - ro.y) / d.y);
+		float r = a.w * mix(CELL_CU_FOOTPRINT, CELL_CB_FOOTPRINT, b.z);
+		vec2 off = q - c;
+		if (dot(off, off) > r * r * 1.7) {
+			continue;
+		}
+		vec2 nuv = q / CELL_BILLOW_SCALE + b.w * 7.13;
+		float n = textureLod(cloud_noise, nuv, 1.0).r * 0.65
+			+ textureLod(cloud_noise, nuv * 2.7 + 0.31, 1.0).r * 0.35;
+		float dist = length(off) / max(r, 1.0) + (n - 0.5) * 0.38;
+		lit *= 1.0 - smoothstep(1.0, 0.8, dist) * b.y * fade
+			* mix(CELL_CU_OPACITY, CELL_CB_OPACITY, b.z);
+	}
+	return 1.0 - lit;
+}
+
+// Darkening of a fully shaded path and brightening of a fully open one, at the
+// phase peak in the hazy air of broken cloud.
+const float SUNBEAM_SHADE = 0.85;
+const float SUNBEAM_LIGHT = 1.5;
+
+float sky_sunbeams(vec3 ro, vec3 dir, float jitter) {
+	float c = dot(dir, sun_direction);
+	if (cloud_fallback || sun_direction.y < -0.04 || c < 0.15) {
+		return -1.0;
+	}
+	int steps = cell_ray_samples > 0 ? 14 : 7;
+	float span = acos(clamp(c, -1.0, 1.0));
+	float open_sum = 0.0;
+	float glow_sum = 0.0;
+	for (int i = 0; i < 14; i++) {
+		if (i >= steps) {
 			break;
 		}
-		float t = 150.0 * pow(1.55, float(k));
-		vec3 p = ro + rd * t;
-		float s = cells_ground_shadow(p, sun_direction, cloud_noise, 1.0);
-		// Fade samples out toward the cloud bases instead of cutting them off,
-		// which banded the sky into horizontal steps.
-		float w = t * (1.0 - smoothstep(450.0, 700.0, p.y));
-		lit += (1.0 - s) * w;
-		shade += s * w;
-		total += w;
+		float f = (float(i) + jitter) / float(steps);
+		vec3 d = normalize(mix(sun_direction, dir, f));
+		// Two ends matter: the sun's neighbourhood (a hidden sun dims every path) and
+		// the stretch just sunward of this pixel, where a cloud's shadow column starts
+		// and trails away from the sun. The middle of a long path counts less.
+		float glow = exp(-span * f * 5.0) + exp(-span * (1.0 - f) * 4.0);
+		float occ = 1.0;
+		if (d.y > -0.01) {
+			vec2 uv = cloud_uv(d, 1.0);
+			float cover = clamp(cloud_coverage + local_storm_at(uv) * 0.38, 0.0, 1.0);
+			// The dome integrates a thick slab, so a modest single-layer density is
+			// already an opaque cloud on screen (same thresholds as god_ray_pass).
+			float body = sky_cloud_shadow_soft(
+				uv, cover, cloud_shape, cloud_noise, cloud_detail_offset, cloud_chaos, 1.0
+			);
+			occ = smoothstep(0.2, 0.55, body) * smoothstep(-0.01, 0.06, d.y);
+			if (cell_ray_samples > 0) {
+				occ = 1.0 - (1.0 - occ) * (1.0 - cells_toward(ro, d));
+			}
+		}
+		open_sum += (1.0 - occ) * glow;
+		glow_sum += glow;
 	}
-	return total > 0.0 ? vec2(lit, shade) / total : vec2(0.0);
+	return open_sum / max(glow_sum, 1e-4);
 }
 
 // Convert an ENU horizon ray to equatorial coordinates. World -Z is map north,
@@ -526,6 +593,9 @@ vec2 equatorial_uv(vec3 dir) {
 	float right_ascension = sidereal_angle - hour_angle;
 	return vec2(fract(right_ascension / TAU), 0.5 - declination / PI);
 }
+
+
+#include "res://scripts/map/view3d/sky_stars.gdshaderinc"
 
 
 void sky() {
@@ -558,7 +628,6 @@ void sky() {
 		float night = 1.0 - day_blend;
 		horizon = lut_horizon + night_horizon_color.rgb * night;
 		color = sky_lut_radiance(dir) * art
-#include "res://scripts/map/view3d/sky_stars.gdshaderinc"
 
 			+ mix(night_top_color.rgb, night_horizon_color.rgb, haze) * night;
 		// Art-controlled warm band on the sun side, now a small boost over the LUT sunset.
@@ -813,16 +882,30 @@ void sky() {
 			cell_jitter(FRAGCOORD.xy), cell_cover
 		);
 		color = color * (1.0 - cells.a) + cells.rgb;
-		// Sunbeams: air shaded by a cell dims the forward glow, sunlit gaps between
-		// cells brighten it, so beams fan out from behind the clouds toward the sun.
-		vec2 rays = cells_sky_rays(ro, dir);
-		if (rays.y > 0.02) {
-			float g = 0.7;
-			float ratio = (1.0 - g) * (1.0 - g) / max(1.0 + g * g - 2.0 * g * dot(dir, sun_direction), 1e-4);
-			float hg = ratio * sqrt(ratio) * sun_visibility * day_blend;
-			float presence = smoothstep(0.02, 0.25, rays.y);
-			color *= 1.0 - clamp(rays.y * hg * 0.35, 0.0, 0.6);
-			color += sun_tint * rays.x * presence * hg * 0.22 * (1.0 - cell_cover);
+	}
+	// R-1444 sunbeams: air shaded by a cloud loses the forward glow the clear-air
+	// LUT assumed, open paths gain the extra haze of broken weather, so shafts fan
+	// out from the cloud gaps and dark columns from the cloud edges. Strongest with
+	// broken cover (a clear sky has nothing to cut, overcast hides the sun) and wider
+	// at dawn and dusk, when the low sun's rays sweep across much of the sky.
+	if (!AT_CUBEMAP_PASS) {
+		float open_path = sky_sunbeams(ro, dir, cell_jitter(FRAGCOORD.xy));
+		if (open_path >= 0.0) {
+			float cos_sun = dot(dir, sun_direction);
+			float g = mix(0.55, 0.35, sunset_factor);
+			float ratio = (1.0 - g) * (1.0 - g) / max(1.0 + g * g - 2.0 * g * cos_sun, 1e-4);
+			float hg = ratio * sqrt(ratio) * sun_visibility * smoothstep(0.15, 0.35, cos_sun);
+			float broken = 1.0 - abs(clamp(cloud_coverage, 0.0, 1.0) * 2.0 - 1.0);
+			float haze = clamp(0.1 + broken * 0.7 + storm_intensity * 0.2, 0.0, 1.0);
+			// Beams sit in the air in front of the clouds, so they also cross cloud
+			// bodies, a little weaker than over open sky. Deck only: `cell_cover` is
+			// non-zero across a cell's whole bounding box and printed its edges.
+			float in_front = 1.0 - clouds * 0.3;
+			float amount = clamp(hg * haze * in_front, 0.0, 1.0);
+			// Scale the sky's own radiance rather than add the sun colour: the in-scattered
+			// beam has the hue of the glow around the sun, which at dawn is the warm band
+			// the LUT already draws (the sun_tint seen through the horizon air is dim red).
+			color *= mix(1.0 - SUNBEAM_SHADE * amount, 1.0 + SUNBEAM_LIGHT * amount, open_path);
 		}
 	}
 

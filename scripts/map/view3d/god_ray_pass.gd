@@ -7,12 +7,18 @@ extends Node3D
 ## roofs and towers, and buildings cut them like shadows. The rays need something in
 ## the air to scatter (ground mist, rain haze, the gaps of broken cloud) and a camera
 ## looking toward the light; clear dry noon and a top-down view stay clean.
+## R-1444: the dome cloud deck and the discrete cells shade every air sample, and a far
+## march bounded by scene depth carries cloud-sized shafts out to the land and sea.
 
 const PASS_SHADER := preload("res://scripts/map/view3d/god_ray_pass.gdshader")
 const Lighting := preload("res://scripts/map/view3d/map_view_lighting.gd")
 const SkyWeather := preload("res://scripts/map/view3d/sky_weather_3d.gd")
 
-const RENDER_PRIORITY := 97
+## R-1444: drawn right after CloudShadowPass (-100) and before the water. In
+## Compatibility the water's screen-texture copy empties `hint_depth_texture` for every
+## transparent material drawn after it (agents/rebel-dev/playbook.md), and the far march
+## needs depth to stop at the land. The water then refracts the beams already drawn.
+const RENDER_PRIORITY := -99
 const GROUP := &"god_ray_pass"
 ## Dust and aerosol that always scatters a little, so a clear low sun is not bare.
 const BASE_HAZE := 0.10
@@ -89,13 +95,15 @@ static func haze_amount(
 
 ## Beam strength before the view-dependent phase. A low sun crosses more air, so rays
 ## fade out as it climbs; below the horizon the moon takes over at a fraction of it.
+## R-1444: no `*_cloud_clear` factor. The shader shades every air sample by the deck and
+## cells itself; gating the whole pass on the cloud in front of the sun switched the
+## beams off exactly when they matter most, with the sun hidden behind a cloud edge.
 static func light_strength(presentation: SkyWeather.WeatherPresentation) -> float:
 	var sun_elevation := clampf(presentation.sun_direction.y, 0.0, 1.0)
-	var sun_beam := presentation.sun_visibility * presentation.sun_cloud_clear
+	var sun_beam := presentation.sun_visibility
 	sun_beam *= 1.0 - smoothstep(0.25, 0.85, sun_elevation) * 0.75
 	var moon_beam := (
 		presentation.lunar_light_strength
-		* presentation.moon_cloud_clear
 		* clampf(presentation.moon_direction.y * 4.0, 0.0, 1.0)
 		* MOON_STRENGTH_SCALE
 	)

@@ -1,5 +1,8 @@
 shader_type spatial;
-render_mode unshaded, fog_disabled, depth_draw_never, depth_test_disabled, cull_disabled, blend_add;
+// R-1444: premultiplied blend (dest = ALBEDO + dest * (1 - ALPHA)) so lit air adds light
+// and air in a cloud's shadow takes some of the uniform haze back out: the shadow
+// columns between beams read darker, which is most of a crepuscular ray's contrast.
+render_mode unshaded, fog_disabled, depth_draw_never, depth_test_disabled, cull_disabled, blend_premul_alpha;
 
 // Volumetric crepuscular rays (god rays) ray-marched through the street air.
 // GL Compatibility has no volumetric fog, and screen/depth hints are unreliable on
@@ -37,7 +40,37 @@ uniform int shadow_steps = 8;
 // R-1400: discrete clouds shade the air too, so a beam is lit only where the
 // cloud shadow on the street is open: shafts start at real cloud edges.
 global uniform sampler2D cloud_noise_tex : filter_linear_mipmap, repeat_enable;
+// R-1444: the dome cloud deck shades the air as well, through the same WS-12 plane the
+// ground shadow pass projects (cloud_shadow_pass.gdshader), so a shaft lands on the
+// sunlit patch of street the deck leaves open.
+global uniform sampler2D cloud_shape_tex : filter_linear_mipmap, repeat_enable;
+global uniform vec2 cloud_offset_g;
+global uniform vec2 cloud_detail_offset_g;
+global uniform float cloud_coverage_g;
+global uniform float cloud_chaos_g;
+#include "res://scripts/map/view3d/sky_clouds.gdshaderinc"
 #include "res://scripts/map/view3d/cloud_cells.gdshaderinc"
+// Scene depth bounds the far march so beams stop at terrain, roofs, trees and ships.
+// Depth (unlike the screen texture) is reliable here: cloud_shadow_pass reads it too.
+uniform sampler2D depth_texture : hint_depth_texture, repeat_disable, filter_nearest;
+// Far march: kilometre-scale air between the eye and the cloud deck, where the
+// shadow columns of whole clouds form. Thin haze, so it needs long lit paths.
+// Distance over which the haze in front of a surface builds up (aerial perspective).
+uniform float far_extinction = 900.0;
+uniform float far_reach = 1600.0;
+uniform int far_steps = 12;
+// Extra light from lit far haze, and the share of the haze a fully shaded far path
+// removes (the dark columns), both at the phase peak.
+uniform float far_light = 0.1;
+uniform float shade_strength = 0.6;
+const float MAX_SHADE = 0.35;
+// Must match cloud_shadow_pass.gdshader CLOUD_LAYER_H (art-scaled deck height).
+const float DECK_H = 400.0;
+const float DECK_MIP = 1.5;
+// Single-layer deck density where the air starts to be shaded and where it is fully
+// shaded (the dome draws the same density as an opaque cloud).
+const float DECK_OPEN = 0.2;
+const float DECK_SOLID = 0.55;
 
 float height_at(vec2 xz) {
 	ivec2 size = textureSize(height_map, 0);
@@ -61,6 +94,28 @@ float sun_visibility(vec3 p, float jitter) {
 		}
 	}
 	return 1.0;
+}
+
+// Share of the light the clouds stop above air point `p` (1 = full shadow): the deck
+// projected along the light onto its plane, times the discrete cells. A real (not
+// clamped) light slope is used so dawn shafts lie as flat as the sun; only a floor
+// keeps the projection finite at the horizon.
+float cloud_shadow(vec3 p, float cell_lod) {
+	float light_y = max(light_dir.y, 0.03);
+	float deck = 0.0;
+	if (p.y < DECK_H) {
+		vec2 q = p.xz + light_dir.xz / light_y * (DECK_H - p.y);
+		vec2 uv = (q / DECK_H) * 0.12 - cloud_offset_g;
+		float body = sky_cloud_shadow_soft(
+			uv, clamp(cloud_coverage_g, 0.0, 1.0), cloud_shape_tex, cloud_noise_tex,
+			cloud_detail_offset_g, cloud_chaos_g, DECK_MIP
+		);
+		// Threshold like the dome's thick slab: a cloud the player sees as opaque must
+		// shade its column, and the thin fringe between heaps must stay open.
+		deck = smoothstep(DECK_OPEN, DECK_SOLID, body);
+	}
+	float cells = cells_ground_shadow(p, light_dir, cloud_noise_tex, cell_lod);
+	return 1.0 - (1.0 - deck) * (1.0 - cells);
 }
 
 // Henyey-Greenstein normalised to 1 when looking straight at the light.
@@ -104,22 +159,66 @@ void fragment() {
 	}
 	t1 = min(t1, t0 + max_march);
 
+	// Distance along the eye ray to the first opaque surface; sky pixels have none.
+	float scene_t = -1.0;
+	float depth = textureLod(depth_texture, SCREEN_UV, 0.0).r;
+	// Sky is 1.0 on the Compatibility depth range and 0.0 on reverse-Z renderers.
+	if (depth > 1e-6 && depth < 0.999999) {
+#if CURRENT_RENDERER == RENDERER_COMPATIBILITY
+		vec3 depth_ndc = vec3(SCREEN_UV, depth) * 2.0 - 1.0;
+#else
+		vec3 depth_ndc = vec3(SCREEN_UV * 2.0 - 1.0, depth);
+#endif
+		vec4 surface_view = INV_PROJECTION_MATRIX * vec4(depth_ndc, 1.0);
+		surface_view.xyz /= surface_view.w;
+		vec3 surface = (INV_VIEW_MATRIX * vec4(surface_view.xyz, 1.0)).xyz;
+		scene_t = max(dot(surface - origin, dir), 0.0);
+		t1 = min(t1, scene_t);
+	}
+
+	// Interleaved gradient noise: per-pixel step offset turns banding into fine grain.
+	float jitter = fract(52.9829189 * fract(dot(FRAGCOORD.xy, vec2(0.06711056, 0.00583715))));
 	float lit = 0.0;
 	if (t1 > t0) {
-		// Interleaved gradient noise: per-pixel step offset turns banding into fine grain.
-		float jitter = fract(52.9829189 * fract(dot(FRAGCOORD.xy, vec2(0.06711056, 0.00583715))));
 		float dt = (t1 - t0) / float(view_steps);
 		for (int i = 0; i < view_steps; i++) {
 			vec3 p = origin + dir * (t0 + (float(i) + jitter) * dt);
 			if (p.y <= height_at(p.xz)) {
 				break;
 			}
-			float cloud_lit = 1.0 - cells_ground_shadow(p, light_dir, cloud_noise_tex, 2.0);
+			float cloud_lit = 1.0 - cloud_shadow(p, 2.0);
 			lit += sun_visibility(p, jitter) * cloud_lit * dt;
 		}
 	}
-	float scatter = 1.0 - exp(-density * lit);
-	float beam = strength * phase(dot(dir, light_dir)) * scatter;
+	// R-1444 far march: the air from the eye out to the surface (or the deck plane),
+	// lit or shaded by whole clouds. Roof shadows do not matter at this scale, so the
+	// height raster is skipped. Only surfaces get it: the sky dome draws its own beams
+	// from the visible deck (sky_weather_3d.gdshader `sky_sunbeams`). Each sample is
+	// weighted by how much of its in-scattered haze still reaches the eye, so the
+	// result is the lit and the shaded share of the scene's aerial haze. Samples are
+	// packed toward the eye, where shafts are widest on screen.
+	float far_lit = 0.0;
+	float far_shade = 0.0;
+	if (scene_t > 0.0 && far_steps > 0) {
+		float far_end = min(scene_t, far_reach);
+		if (dir.y > 1e-4) {
+			far_end = min(far_end, (DECK_H - origin.y) / dir.y);
+		}
+		float prev_t = 0.0;
+		for (int k = 0; k < far_steps; k++) {
+			float f = (float(k) + jitter) / float(far_steps);
+			float t = far_end * f * f;
+			float w = exp(-t / far_extinction) * (t - prev_t) / far_extinction;
+			prev_t = t;
+			float s = cloud_shadow(origin + dir * t, 2.5);
+			far_lit += (1.0 - s) * w;
+			far_shade += s * w;
+		}
+	}
+	float forward = strength * phase(dot(dir, light_dir));
+	// Lit far air brightens only a little (the scene fog already assumes sunlit haze);
+	// the contrast comes mostly from the shaded columns taking their haze back out.
+	float beam = forward * (1.0 - exp(-density * lit) + far_lit * far_light);
 	ALBEDO = ray_color * intensity_cap * (1.0 - exp(-beam / intensity_cap));
-	ALPHA = 1.0;
+	ALPHA = clamp(forward * far_shade * shade_strength, 0.0, MAX_SHADE);
 }

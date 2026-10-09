@@ -1,6 +1,6 @@
 # Discrete cloud cells, cloud shadows and storm-cell lightning
 
-Status: implemented (tasks **R-1400**, **R-1436** water deck shadows)
+Status: implemented (tasks **R-1400**, **R-1436** water deck shadows, **R-1444** crepuscular rays)
 
 Scope: individual clouds as world-space objects in the 3D view. Each cumulus or cumulonimbus has a position, base altitude, size and life; the sky dome ray-marches it as a volume, the ground shadow pass projects it along the sun, god rays are cut by it, and lightning is born only inside a grown cumulonimbus. Mounted in both `MapView3D` maps and the seamless city (`CityMapView`).
 
@@ -12,7 +12,7 @@ Out of scope: puddles and mud that follow the storm cell (ground water stays wea
 - **Cloud shadows**: every cell throws its own soft-edged shadow on the ground, roofs and sea, offset along the sun, so you can watch one cloud's shadow sweep across a street or the harbour. The shadow removes most of the direct-sun share (up to 85%), and fades out at night and under full overcast.
 - **Thunderstorms**: `storm` weather grows up to three cumulonimbus towers (1.7-2.3 km tall, with a spreading anvil) that are visible from several kilometres away, with a grey rain curtain hanging under the base. `rain` weather embeds the same cells in its deck.
 - **Lightning** comes only from a mature storm cell. About 40% of strikes are cloud-to-ground: a jagged channel with two thinner, dimmer branches from the cell base to the ground. The channel is a hairline (about one pixel, physical half-width 0.35 m that only shows on a very close strike) with a faint halo; the bright corona comes from scene glow, not a painted fat stroke. The rest are in-cloud flashes that light the tower from inside. With no grown storm cell, there is no lightning, even when the weather profile has thunder. Scene light lift falls off with camera distance to the cell (to 40% beyond 2.6 km); the strike in the sky is always drawn at full strength.
-- **Sunbeams**: when the camera faces a low sun, air shaded by a cell darkens the forward glow and sunlit gaps brighten it (sky dome), and the street-level god-ray pass only scatters light where the cloud shadow is open, so beams start at real cloud edges.
+- **Sunbeams (crepuscular rays, R-1444)**: when the sun stands behind broken cloud, shafts of light fan out from the gaps and dark columns trail from the cloud edges, all converging on the sun. Both the dome cloud deck and the cells cut them, by day and with the sun on the horizon at dawn and dusk. Over the town and sea the air in a cloud's shadow is darker than sunlit air, and street-level shafts still start at roof edges. See **Crepuscular rays** below.
 
 ## Runtime entry points
 
@@ -21,16 +21,38 @@ Out of scope: puddles and mud that follow the storm cell (ground water stays wea
 | Cell field (pure, deterministic) | `scripts/map/view3d/cloud_cells.gd` (`CloudCells`) |
 | Shared shader maths (density, ground shadow, bolt) | `scripts/map/view3d/cloud_cells.gdshaderinc` |
 | Simulation, strike placement, uniforms | `scripts/map/view3d/sky_weather_3d.gd` (`_update_cells`, `_advance_lightning`, `_place_strike`) |
-| Volume march, sky beams, bolt | `scripts/map/view3d/sky_weather_3d.gdshader` (`cells_volume`, `cells_sky_rays`, `lightning_bolt`) |
+| Volume march, sky beams, bolt | `scripts/map/view3d/sky_weather_3d.gdshader` (`cells_volume`, `sky_sunbeams`, `cells_toward`, `lightning_bolt`) |
 | Ground shadows | `scripts/map/view3d/cloud_shadow_pass.gd` / `.gdshader` |
-| God rays cut by cells | `scripts/map/view3d/god_ray_pass.gd` / `.gdshader` |
+| God rays cut by deck and cells | `scripts/map/view3d/god_ray_pass.gd` / `.gdshader` (`cloud_shadow`, far march) |
+| Review plates | `tools/capture_god_rays_city.gd` |
 | Water dims its own sun under deck and cells | `scripts/map/view3d/map_view_water.gdshader` (`cloud_cell_shadow`, `light()`), shared `scripts/map/view3d/water_cloud_shadow.gdshaderinc`, `scripts/city/city_water_light.gdshaderinc` (city sea, stream, moat); pushed by `MapViewMaterials.apply_cloud_cells` and `CityWorld3D.apply_cloud_cells` |
 | 3D Worley noise for cell shapes | `SkyWeatherResources.build_cell_noise_3d` |
 | City mounting | `CityMapView._create_sky_passes`, `CityMapView._process` |
 
 `CloudCells.update(clock, cloud_offset, counts)` rebuilds 16 slots (13 cumulus, 3 cumulonimbus) every `SkyWeather3D.advance()`. Counts come from the blended weather profile (`CloudCells.counts_for(coverage, storm)`), so a weather transition fades cells in and out. Cells drift with the shared `cloud_offset` (`METRES_PER_UV` = 5000 world units per offset unit). They tile a periodic square (3.2 km for cumulus, 9.6 km for storm cells). Shaders take the copy nearest the camera and fade cells out before the seam.
 
-`WeatherPresentation.cloud_cells` carries the packed uniforms to the passes; `cell_sun_edge` (how ragged the cover is right around the sun) adds haze to god rays. `celestial_cloud_clear` (water glints, god-ray strength) also multiplies in the cells in front of the sun or moon.
+`WeatherPresentation.cloud_cells` carries the packed uniforms to the passes; `cell_sun_edge` (how ragged the cover is right around the sun) adds haze to god rays. `celestial_cloud_clear` (water glints) also multiplies in the cells in front of the sun or moon. Since R-1444 it no longer scales god-ray strength: the pass shades each air sample by the clouds instead, so beams keep going when the sun is hidden behind a cloud edge.
+
+## Crepuscular rays (R-1444)
+
+Before R-1444 only the discrete cells cut beams. The dome deck, which is most of the cloud the player sees, never did, and the pass dropped to zero whenever a cloud covered the sun. The beams were invisible in exactly the shots they are for.
+
+- **Sky dome** (`sky_sunbeams`): for each sky pixel within ~80 deg of the sun, 14 samples walk the great circle from the sun to the pixel and read how open the deck (`sky_cloud_shadow_soft`, thresholded 0.2-0.55 like the dome's thick slab) and the cells are. Cells are tested by `cells_toward`, which takes the copy `cells_volume` draws (nearest the camera, faded before the periodic seam) and the true ray slope. The ground-shadow helper clamps the slope and picks the copy nearest the projected point, so low directions were hidden by cells the dome never draws, which printed dark rectangles into the beams. The weights favour the sun's neighbourhood (a hidden sun dims every path) and the stretch just sunward of the pixel (where a cloud's shadow column starts). It is the light-scattering post-process of GPU Gems 3 ch. 13 done analytically in direction space, with no screen texture. The result scales the sky's own radiance: a shaded path darkens by up to `SUNBEAM_SHADE` and an open one brightens by up to `SUNBEAM_LIGHT`, times a Henyey-Greenstein phase (g 0.55 by day, 0.35 at sunrise and sunset so dawn rays sweep wide) and haze (strongest with broken cover). At dawn the beams take the warm hue of the glow instead of the dim red sun disc colour.
+- **God-ray pass** (`god_ray_pass.gdshader`): every air sample is shaded by `cloud_shadow()`, which combines the deck projected along the real light slope onto the 400-unit WS-12 plane and the cells. Besides the 32 m roof-cut slab, a far march (12 samples to 1.6 km, the deck plane, or the scene depth, whichever is nearest) adds a little light in lit haze and takes haze back out of shaded columns (`blend_premul_alpha`, `ALPHA` capped at 0.35). Sky pixels skip the far march, since the dome draws its own beams.
+- **Draw order**: the pass sorts at `RENDER_PRIORITY` -99, right after the cloud shadow pass and before the water. In Compatibility the water's screen copy empties `hint_depth_texture` for later transparents, and the far march needs depth to stop at land and roofs. The water refracts the beams already drawn.
+- **Verify**: `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_god_ray_pass`, then `tools/godot_render.sh --script tools/capture_god_rays_city.gd [-- --tag=after]`. That tool writes `godrays_<shot>_<tag>.png` for a street lens toward a morning sun, an aerial lens with the sun behind a cloud edge, a dawn lens and a clear-noon control that must stay clean.
+
+![Before R-1444: the sun behind a cloud edge over the town, no beams](../reports/images/weather/godrays_aerial_lowsun_before.png)
+
+![After R-1444: shafts fan down from the gaps around the hidden sun](../reports/images/weather/godrays_aerial_lowsun_after.png)
+
+![Before R-1444: dawn with the sun on the horizon behind cloud, no rays](../reports/images/weather/godrays_dawn_before.png)
+
+![After R-1444: dawn rays rise from the sun on the horizon](../reports/images/weather/godrays_dawn_after.png)
+
+![After R-1444: a street-level shaft along the lane toward the morning sun](../reports/images/weather/godrays_street_morning_after.png)
+
+![After R-1444: clear noon control stays clean](../reports/images/weather/godrays_noon_clear_after.png)
 
 ## Local storm rain
 
@@ -102,7 +124,9 @@ Captures land in `docs/reports/images/weather/`: `cells_aerial_clear`, `cells_ae
 - Only the rain particles and roof-rain audio are local to storm cells. Puddles and mud stay weather-wide (see the decision above), and the outdoor rain ambience layer (`AmbienceController`, fed from `map_view_runtime_ambient.gd`) still hears the weather-wide `rain_intensity`.
 - Under a storm cell the local rain is the storm profile's 0.22, so a thunderstorm shower reads as light rain, not a downpour.
 - Water dims only its direct sun (diffuse and glints) under both the continuous deck and discrete cells; its sky reflection and ambient term stay, so sea shadows remain lighter than grass shadows. The shared water helper uses `sky_cloud_shadow_soft`, the pass's 400-unit projection and 1.5 erosion mip, and the same restored cloud globals. It combines `deck = soft_shadow * cloud_shadow_strength` and `cell` as `1 - (1 - deck) * (1 - cell * 0.85)`, then fades out at the sun-to-moon handoff; local lights are unchanged. `map_view_water` samples both `cloud_shape_tex` and `cloud_noise_tex` per vertex (the fragment stage is at the GL sampler limit), so coarse meshes can soften the interpolated shadow edges. The lightweight city water and moat shaders sample the same helper per fragment; city surfaces using `MapViewMaterials.water_surface` retain the vertex path. Water always uses the soft deck variant, even when the ground pass uses its one-sample minimum tier. In shallow clear water the bed is darkened by the pass and the surface's own diffuse again, so the bed under a cloud reads slightly darker than the same bed on land.
-- The city god-ray raster leaves terrain out (sampling the relief over the whole city stalls the first frame), and the air slab stops at 32 m, so Upper Town streets on the klint get no street-level beams.
+- The city god-ray raster leaves terrain out (sampling the relief over the whole city stalls the first frame), and the near air slab stops at 32 m, so roof-edge shafts do not form in Upper Town streets on the klint. The R-1444 far march (cloud shafts) does reach them.
+- The dome deck is drawn around the camera, while the ground shadows and the pass's air shadows use the world-anchored WS-12 plane. Sky beams come from the visible clouds; beams over the land line up with the ground shadows, not with the dome clouds right above them.
+- The god-ray pass has no quality-tier switch yet: minimum quality runs the same 16 near and 12 far samples. The sky beams do follow the tier (14 steps with cells on recommended, 7 deck-only on minimum).
 - Cell edges show a fine dither from the deterministic march jitter at close range.
 - Thunder audio is not yet timed to strike distance.
 
