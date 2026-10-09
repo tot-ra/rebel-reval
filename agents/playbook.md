@@ -31,6 +31,7 @@ Keep this file short. Append a durable reusable rule, not a dated incident log. 
 - Stateful browser actions cannot run through a parallel wrapper.
 - Markdown backticks inside a double-quoted bash string are command substitution. Write SQL or task-board updates with Python or a single-quoted heredoc. A backtick path can execute a file and silently blank the intended text.
 - `git log -S --all` can hang on this LFS-heavy repo. Scope pickaxe searches to one path and a recent range (`-n 50`) instead of walking every ref.
+- A temp-index commit must use the same commit for `git read-tree` and `commit-tree -p`, read right before committing: another session can land a commit in between, and an older base silently reverts its files. Check that `git diff --name-only <parent> <new>` lists only your paths before `update-ref` and before syncing the shared index. In zsh, write `${P}:path`, not `$P:path` (`:a` and friends are history modifiers).
 
 ### TODO hygiene
 - Board `todo` rows can be months stale. Before claiming, run the row's `verify` command and `git log -n 50 -S '<unique symbol>' -- <path>`. If it already passes, close it with the commit ref, then pick again. For partly done rows, implement only the gap against the contract's acceptance list. Point density and map-content claims at `origin/main`, not a lagging local `main`: R-677's 147 South Quarter plots can already be on origin while the local file still has the pre-strip-plot 28 houses.
