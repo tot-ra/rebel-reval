@@ -214,7 +214,9 @@ float cell_noise3(vec3 p, float scale, float seed, sampler3D noise3) {
 // turrets; small puffs boil the surface. An ageing cumulus spreads its lobes apart
 // and tatters into ragged fragments (life past ~0.55) instead of just thinning,
 // while CloudCells shrinks it, so it dissolves gradually.
-float cell_density(vec3 local, float world_y, vec4 a, vec4 b, vec4 c, sampler3D noise3, vec3 world_p, vec2 wind) {
+float cell_density(
+	vec3 local, float world_y, vec4 a, vec4 b, vec4 c, sampler3D noise3, vec3 world_p, vec2 wind, float soft
+) {
 	float h = (world_y - a.y) / max(b.x, 1.0);
 	if (h < 0.0 || h > 1.0) {
 		return 0.0;
@@ -256,8 +258,11 @@ float cell_density(vec3 local, float world_y, vec4 a, vec4 b, vec4 c, sampler3D 
 	float erode = tatter * (1.0 - lump) * 0.4;
 	dist += (0.5 - boil) * 0.4 + erode;
 	// A wider edge ramp for fair cumulus gives a soft, wispy fringe instead of a
-	// hard cut-out rim; storm towers keep their firm outline.
-	return smoothstep(1.0, mix(0.72, 0.86, cb), dist) * smoothstep(0.0, 0.03, h)
+	// hard cut-out rim; storm towers keep their firm outline. `soft` (0..1, the sky's
+	// cell_edge_softness) pulls the inner end of the ramp further in, so density
+	// builds up over a deeper rim; the outer edge (and so the footprint) is unchanged.
+	float inner = mix(0.72, 0.86, cb) - soft * mix(0.4, 0.3, cb);
+	return smoothstep(1.0, inner, dist) * smoothstep(0.0, 0.03, h)
 		* mix(b.y, 1.0, 0.6) * (1.0 - 0.45 * tatter);
 }
 

@@ -82,9 +82,9 @@ uniform int cell_ray_samples : hint_range(0, 10) = 8;
 // at 1), so the rim fades into the sky. `cell_wisp`: fine noise frays only the
 // rim into tufts. `cell_shade_lift`: more multiple scattering and skylight in the
 // shaded side plus a little more air in front, so the relief stays with less contrast.
-uniform float cell_edge_softness : hint_range(0.0, 1.0) = 0.0;
-uniform float cell_wisp : hint_range(0.0, 1.0) = 0.0;
-uniform float cell_shade_lift : hint_range(0.0, 1.0) = 0.0;
+uniform float cell_edge_softness : hint_range(0.0, 1.0) = 1.0;
+uniform float cell_wisp : hint_range(0.0, 1.0) = 0.65;
+uniform float cell_shade_lift : hint_range(0.0, 1.0) = 0.5;
 // Prevailing wind on the ground plane, used to comb cirrus streaks and to lean
 // the storm wall into the upwind quarter so the front reads as approaching.
 uniform vec2 wind_dir = vec2(0.928, 0.371);
@@ -374,7 +374,7 @@ vec4 cells_volume(
 					}
 					float t = hit.x + (float(s) + 0.5 + (jitter - 0.5) * 0.0) * dt;
 					vec3 p = ro + rd * t;
-					if (cell_density(vec3(p.x - c.x, 0.0, p.z - c.y), p.y, ac, bc, cc, cell_noise, p, wind_dir) > 0.02) {
+					if (cell_density(vec3(p.x - c.x, 0.0, p.z - c.y), p.y, ac, bc, cc, cell_noise, p, wind_dir, cell_edge_softness) > 0.02) {
 						// Bisect to the true surface so every pixel starts its fine march at the
 							// same optical depth: a fixed-step entry showed as contour terraces
 							// (and a per-pixel jitter of it as dither grain).
@@ -383,7 +383,7 @@ vec4 cells_volume(
 							for (int k = 0; k < 5; k++) {
 								float mid = 0.5 * (lo + hi);
 								vec3 pm = ro + rd * mid;
-								if (cell_density(vec3(pm.x - c.x, 0.0, pm.z - c.y), pm.y, ac, bc, cc, cell_noise, pm, wind_dir) > 0.02) {
+								if (cell_density(vec3(pm.x - c.x, 0.0, pm.z - c.y), pm.y, ac, bc, cc, cell_noise, pm, wind_dir, cell_edge_softness) > 0.02) {
 									hi = mid;
 								} else {
 									lo = mid;
@@ -396,7 +396,9 @@ vec4 cells_volume(
 				if (t_enter >= 0.0) {
 					hit_t = t_enter;
 					// Phase 2: fine march through the surface layer.
-					float fine = min(dt, ac.w * 0.1);
+					// A soft rim needs finer steps: at 0.1 R a storm step (~170 m) crossed the
+					// whole fringe at once and printed it as a hard edge.
+					float fine = min(dt, ac.w * mix(0.1, 0.05, cell_edge_softness));
 					float sigma = mix(0.06, 0.08, cb);
 					for (int s = 0; s < 12; s++) {
 						if (s >= cell_fine_steps) {
@@ -410,17 +412,17 @@ vec4 cells_volume(
 						}
 						vec3 p = ro + rd * t;
 						vec3 local = vec3(p.x - c.x, 0.0, p.z - c.y);
-						float dens = cell_density(local, p.y, ac, bc, cc, cell_noise, p, wind_dir);
+						float dens = cell_density(local, p.y, ac, bc, cc, cell_noise, p, wind_dir, cell_edge_softness);
 						if (dens < 0.002) {
 							continue;
 						}
 						// Gaseous rim: `rim` is 1 in the thin fringe and 0 in the body. Storm
 						// towers keep a firmer outline, so both effects weaken with storminess.
 						float rim = 1.0 - smoothstep(0.05, 0.7, dens);
-						float soft = cell_edge_softness * (1.0 - 0.5 * cb);
+						float soft = cell_edge_softness * (1.0 - 0.3 * cb);
 						if (cell_wisp > 0.0) {
 							float tuft = cell_noise3(p, max(ac.w * 0.16, 45.0), bc.w + 0.9, cell_noise);
-							dens *= mix(1.0, smoothstep(0.3, 0.7, tuft), cell_wisp * rim * (1.0 - 0.5 * cb));
+							dens *= mix(1.0, smoothstep(0.3, 0.7, tuft), cell_wisp * rim * (1.0 - 0.3 * cb));
 						}
 						float extinction = dens * mix(1.0, dens * dens, soft);
 						float alpha = 1.0 - exp(-extinction * sigma * fine);
@@ -430,7 +432,7 @@ vec4 cells_volume(
 								break;
 							}
 							vec3 lp = p + sun_direction * (ac.w * 0.22 * float(l * l));
-							tau += cell_density(vec3(lp.x - c.x, 0.0, lp.z - c.y), lp.y, ac, bc, cc, cell_noise, lp, wind_dir);
+							tau += cell_density(vec3(lp.x - c.x, 0.0, lp.z - c.y), lp.y, ac, bc, cc, cell_noise, lp, wind_dir, cell_edge_softness);
 						}
 						float h = clamp((p.y - ac.y) / max(b.x, 1.0), 0.0, 1.0);
 						// Beer-Lambert toward the sun plus a weaker, longer octave for the

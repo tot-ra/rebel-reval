@@ -1,6 +1,6 @@
 # Discrete cloud cells, cloud shadows and storm-cell lightning
 
-Status: implemented (tasks **R-1400**, **R-1436** water deck shadows, **R-1444** crepuscular rays, **R-1481** cumulus shape, drift, dissolve and merging, **R-1493** distant tower visibility, **R-1495** cloudless sky and varied towers, **R-1501** convective hotspots, wide storms and wind-slanted rain)
+Status: implemented (tasks **R-1400**, **R-1436** water deck shadows, **R-1444** crepuscular rays, **R-1481** cumulus shape, drift, dissolve and merging, **R-1493** distant tower visibility, **R-1495** cloudless sky and varied towers, **R-1501** convective hotspots, wide storms and wind-slanted rain, **R-1507** gaseous rims and softer shading)
 
 Scope: individual clouds as world-space objects in the 3D view. Each cumulus or cumulonimbus has a position, base altitude, size and life; the sky dome ray-marches it as a volume, the ground shadow pass projects it along the sun, god rays are cut by it, and lightning is born only inside a grown cumulonimbus. Mounted in both `MapView3D` maps and the seamless city (`CityMapView`).
 
@@ -230,6 +230,42 @@ Tests: `test_crowded_cumulus_merge_into_a_thunderstorm`, `test_a_cluster_storms_
 
 ![Rain-front gale from rooftop height across the wind: the streaks lean downwind](../reports/images/weather/cells_rain_slant.png)
 
+
+## Gaseous rims and softer shading (R-1507)
+
+**Problem.** The march used one extinction for every density, and the density ramp at the rim was narrow next to the fine step (0.1 R, about 170 m in a storm). A cell went opaque in its outer ~100 m, so cumulus and towers kept their relief but read as hard cut-outs with harsh light-to-shade contrast, not as gas.
+
+Three sky-shader uniforms in `sky_weather_3d.gdshader` (presentation only; positions, footprints, ground shadows, lightning and saved state are unchanged):
+
+- `cell_edge_softness` (0..1): `cell_density(..., soft)` pulls the inner end of the edge ramp in by up to 0.4 R (0.3 R for storms), so density builds over a deeper rim; the outer edge, and so the footprint, stays put. In the fine march thin density is far more transparent (extinction `dens * mix(1, dens^2, soft)`), and the fine step shrinks from 0.1 R to 0.05 R so a storm step no longer crosses the whole fringe at once.
+- `cell_wisp` (0..1): a finer 3D-noise lookup (0.16 R, at least 45 m) frays only the thin rim into tufts.
+- `cell_shade_lift` (0..1): a stronger multiple-scattering octave, more skylight and a lighter powder term on the shaded side, and a little more aerial haze (distance scale 16 km to 7 km), so the relief stays with less contrast.
+
+Storm cells get 30% less of the softness and wisp, so towers keep a firmer outline than fair cumulus. The fine march count and light samples are unchanged; `cell_wisp` adds one noise lookup per fine step.
+
+| Preset | softness | wisp | lift |
+|---|---|---|---|
+| before | 0 | 0 | 0 |
+| A soft rim | 0.6 | 0.3 | 0.25 |
+| **B misty (default)** | 1.0 | 0.65 | 0.5 |
+| C soft light | 0.3 | 0 | 0.7 |
+
+**Decision:** B is the default (the strongest answer to "edges too sharp, not gaseous"). The other presets stay in `SOFTNESS_PRESETS` of `tools/capture_cloud_cells.gd`; switching is a change of the three uniform defaults.
+
+Verify:
+
+```bash
+godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_cloud_cells,test_sky_weather_3d
+tools/godot_render.sh --script tools/capture_cloud_cells.gd -- --only=cells_softness_cumulus,cells_softness_tower
+```
+
+Each sheet is the same frame under the four presets: before (top left), A (top right), B (bottom left), C (bottom right).
+
+![Fair cumulus under the four presets](../reports/images/weather/cells_softness_cumulus.png)
+
+![A merged thunderstorm tower under the four presets](../reports/images/weather/cells_softness_tower.png)
+
+Limit: the dome's continuous cloud deck (`sky_clouds.gdshaderinc`) is not affected; its thresholded heaps can still show cut-out edges next to a soft cell.
 
 ## Limits
 
