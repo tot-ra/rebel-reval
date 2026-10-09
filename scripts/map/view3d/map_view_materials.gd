@@ -276,10 +276,10 @@ static func apply_coastal_tide(level: float) -> void:
 ## after apply_shore_field(), which resets the district defaults.
 static func apply_surf_gain(
 	wave_gain: float, runup_gain: float, geometry_scale := 0.12,
-	depth_scale := 1.0, foam_gain := 1.0
+	depth_scale := 1.0, foam_gain := 1.0, crest_shape := 0.0
 ) -> void:
 	SHORE_MATERIALS.apply_surf_gain(
-		wave_gain, runup_gain, geometry_scale, depth_scale, foam_gain
+		wave_gain, runup_gain, geometry_scale, depth_scale, foam_gain, crest_shape
 	)
 
 

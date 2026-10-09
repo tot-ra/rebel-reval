@@ -65,8 +65,9 @@ static func apply_tide(level: float) -> void:
 ## seamless city): breaker height gain and run-up gain, see shore_swash.gdshaderinc.
 static func apply_surf_gain(
 	wave_gain: float, runup_gain: float, geometry_scale := DEFAULT_GEOMETRY_SCALE,
-	depth_scale := 1.0, foam_gain := 1.0
+	depth_scale := 1.0, foam_gain := 1.0, crest_shape := 0.0
 ) -> void:
+	_set_shore_uniform(&"shore_crest_shape", crest_shape)
 	_set_shore_uniform(&"shore_foam_gain", foam_gain)
 	_set_shore_uniform(&"shore_depth_scale", depth_scale)
 	_set_shore_uniform(&"shore_geometry_scale", geometry_scale)
@@ -85,6 +86,7 @@ static func apply_shore_field(texture: Texture2D, origin: Vector2, size: Vector2
 	_set_shore_uniform(&"shore_geometry_scale", DEFAULT_GEOMETRY_SCALE)
 	_set_shore_uniform(&"shore_depth_scale", 1.0)
 	_set_shore_uniform(&"shore_foam_gain", 1.0)
+	_set_shore_uniform(&"shore_crest_shape", 0.0)
 	var extent := Vector2(maxf(size.x, 0.001), maxf(size.y, 0.001))
 	for material in _shore_materials():
 		if texture != null:

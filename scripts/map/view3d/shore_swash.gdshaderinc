@@ -260,8 +260,9 @@ ShoreState shore_state(vec2 world_xz, float t, vec4 sea) {
 		bore *= smoothstep(0.0, 0.18, since_pass);
 		s.bore_foam = broken * bore * s.beach * mix(0.7, 1.0, sea_state) * shore_foam_gain;
 		// WR-2: water under a broken wave lunges landward as the bore passes
-		// (fast, first ~12% of the cycle) and drifts back over the rest, so the
-		// mean stays put. Shallow-water excursion ~ H/2 sqrt(g/h) T / (2 pi):
+		// (fast, first ~12% of the cycle) and drifts back over the rest, so it is
+		// back at rest when the next bore arrives (the cycle mean is ~0.44 of the
+		// excursion landward; only foam reads it). Shallow-water excursion ~ H/2 sqrt(g/h) T / (2 pi):
 		// metres for a metre-high breaker, so foam visibly surges in and out.
 		float pass_phase = fract(u - u_pass);
 		float local_depth = max(_swash_depth(x), 0.05);
