@@ -109,17 +109,25 @@ class PreCommitHooksTest(unittest.TestCase):
         # runner's exit code is irrelevant because sibling gates have no fixtures.
         with tempfile.TemporaryDirectory() as temp_dir:
             repo = Path(temp_dir)
+            fixture_env = _clean_git_env()
             for args in (
                 ["git", "init"],
                 ["git", "config", "user.email", "test@example.com"],
                 ["git", "config", "user.name", "Test"],
             ):
-                subprocess.run(args, cwd=repo, check=True, capture_output=True)
+                subprocess.run(
+                    args, cwd=repo, env=fixture_env, check=True, capture_output=True,
+                )
             tools_dir = repo / "tools"
             tools_dir.mkdir()
             runner_copy = tools_dir / "run_pre_commit_checks.sh"
             runner_copy.write_text(RUNNER.read_text(encoding="utf-8"), encoding="utf-8")
             runner_copy.chmod(0o755)
+            # The mandatory index gate runs before path-selected sibling gates.
+            (tools_dir / "verify_import_sidecars.py").write_text(
+                (ROOT / "tools" / "verify_import_sidecars.py").read_text(encoding="utf-8"),
+                encoding="utf-8",
+            )
             # The runner imports this helper before the map gates run.
             helper_dir = repo / "tests" / "python"
             helper_dir.mkdir(parents=True)
@@ -140,6 +148,7 @@ class PreCommitHooksTest(unittest.TestCase):
             subprocess.run(
                 ["git", "add", "docs/data/seam_continuity_budget.json"],
                 cwd=repo,
+                env=fixture_env,
                 check=True,
                 capture_output=True,
             )
@@ -234,6 +243,71 @@ class PreCommitHooksTest(unittest.TestCase):
             self.assertEqual(passed.returncode, 0, passed_text)
             self.assertIn("No staged files", passed.stdout)
             self.assertNotIn("CLASS CACHE GUARD", passed_text)
+
+    def test_runner_rejects_broken_import_pairs_even_on_deletion_only_commit(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            repo = Path(temp_dir)
+            env = _clean_git_env()
+            env.pop("SKIP_PRE_COMMIT", None)
+
+            def git(*args: str) -> None:
+                subprocess.run(
+                    ["git", *args], cwd=repo, env=env, check=True, capture_output=True,
+                )
+
+            git("init")
+            git("config", "user.email", "test@example.com")
+            git("config", "user.name", "Test")
+            tools = repo / "tools"
+            tools.mkdir()
+            runner = tools / "run_pre_commit_checks.sh"
+            runner.write_text(RUNNER.read_text(encoding="utf-8"), encoding="utf-8")
+            (tools / "verify_import_sidecars.py").write_text(
+                (ROOT / "tools/verify_import_sidecars.py").read_text(encoding="utf-8"),
+                encoding="utf-8",
+            )
+            # Enough context for the runner's always-imported path selector;
+            # no heavyweight content/budget fixture is needed for media paths.
+            helper = repo / "tests/python/test_magic_budget.py"
+            helper.parent.mkdir(parents=True)
+            helper.write_text(
+                "def magic_budget_paths_trigger(paths):\n    return False\n",
+                encoding="utf-8",
+            )
+            (repo / "tests/__init__.py").touch()
+            (repo / "tests/python/__init__.py").touch()
+
+            def run(mode: str = "staged") -> subprocess.CompletedProcess:
+                return subprocess.run(
+                    ["bash", str(runner), mode], cwd=repo, env=env,
+                    capture_output=True, text=True, check=False,
+                )
+
+            source = repo / "sky.png"
+            sidecar = repo / "sky.png.import"
+            source.write_bytes(b"fixture")
+            sidecar.write_text("fixture", encoding="utf-8")
+            git("add", "sky.png")
+            failed = run()
+            self.assertEqual(failed.returncode, 1, failed.stdout + failed.stderr)
+            self.assertIn("missing import sidecar", failed.stderr)
+            git("add", "sky.png.import")
+            passed = run()
+            self.assertEqual(passed.returncode, 0, passed.stdout + passed.stderr)
+            self.assertIn("Godot import sidecar pairs", passed.stdout)
+            git("-c", "core.hooksPath=/dev/null", "commit", "-m", "Fixture pair")
+            git("rm", "sky.png")
+            failed = run()
+            self.assertEqual(failed.returncode, 1, failed.stdout + failed.stderr)
+            self.assertIn("orphan import sidecar", failed.stderr)
+            self.assertNotIn("No staged files", failed.stdout)
+            failed_all = run("all")
+            self.assertEqual(failed_all.returncode, 1)
+            self.assertIn("orphan import sidecar", failed_all.stderr)
+            git("rm", "sky.png.import")
+            passed = run()
+            self.assertEqual(passed.returncode, 0, passed.stdout + passed.stderr)
+            self.assertIn("Import sidecar check passed", passed.stdout)
 
     def test_runner_rejects_unknown_mode(self) -> None:
         completed = subprocess.run(

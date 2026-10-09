@@ -111,6 +111,7 @@ What the hook runs (path-aware on staged files):
 
 | Staged paths | Checks |
 |--------------|--------|
+| any nonempty commit (including deletion-only) / `all` mode | Godot import source/sidecar pairs in the Git index (`verify_import_sidecars.py`) |
 | any commit | `git diff --cached --check` |
 | any commit | class_name scratch guard: unignored `class_name` scripts under `build/`, or cache paths outside `scripts/`, `tests/`, `tools/`, `assets/`, `scenes/`, `addons/` |
 | `.gd` files | `gdlint` via `python3 -m gdtoolkit.linter` (same toolkit pin as CI: `4.5.0`) |
@@ -136,6 +137,40 @@ PRE_COMMIT_FULL=1 tools/run_pre_commit_checks.sh staged   # optional full Godot 
 The installer writes `.git/hooks/pre-commit` and re-runs `git lfs install --local` so LFS `post-*` / `pre-push` hooks remain in place. Optional [`pre-commit`](https://pre-commit.com/) users can `pre-commit install` against [`.pre-commit-config.yaml`](../.pre-commit-config.yaml); that config calls the same runner and keeps `gdlint` (not `gdformat`) to match CI.
 
 `build/` is gitignored but Godot still scans it as `res://`. Put `class_name` backups under `build/scratch/` (`tools/godot_render.sh` creates that folder and its `.gdignore`) or add `.gdignore` to the scratch folder. Do not add `build/.gdignore` at the root: capture tools read and write `res://build/`, and `--script res://build/...` must keep resolving. If the class cache is already poisoned, add the `.gdignore` and run `Godot --headless --editor --path . --quit-after 2`.
+
+### Import sidecar validation
+
+Status: implemented (task **R-1453**). Scope: a read-only, index-based source/import
+pair gate. It does not import assets, rewrite settings, or validate `.uid` files.
+
+```bash
+python3 tools/verify_import_sidecars.py
+python3 tools/verify_import_sidecars.py --root /path/to/checkout
+python3 -m unittest tests.python.test_verify_import_sidecars tests.python.test_pre_commit_hooks -v
+```
+
+The entry point is [`tools/verify_import_sidecars.py`](../tools/verify_import_sidecars.py).
+It reads `git ls-files --cached -z`, so staged additions/deletions are checked,
+local untracked media and `.godot/` caches are irrelevant, and an untracked local
+source or sidecar cannot make a broken commit pass. Exit codes: `0` clean, `1`
+missing/orphan metadata, `2` Git/index access failure. The pre-commit runner invokes
+this lightweight gate for every nonempty commit, including source-only deletions,
+and in `all` mode before expensive gates. No persistent game state is touched.
+
+Every indexed `*.import` must have an indexed source, even in ignored folders.
+Standard Godot image, font, audio and 3D source formats in the checker's explicit
+`IMPORTABLE_SUFFIXES` set need an indexed `source.ext.import`, unless an indexed
+`.gdignore` exists in their directory or any ancestor (including the repository
+root). Stage both files after a headless Godot import, or remove both on deletion.
+For intentionally non-runtime media, stage an appropriate ancestor `.gdignore`.
+An unstaged `.gdignore` does not exempt the proposed commit.
+
+Limits: native resources (`.tscn`, `.tres`, `.gd`, shaders), CSV provenance manifests
+and custom plugin formats are not automatically classified as importable. Extend
+`IMPORTABLE_SUFFIXES` and its tests when adopting a new importer. This check tests
+index membership, not media bytes, sidecar settings, generated-cache existence or
+LFS hydration. It never deletes files or adds media automatically; the broader
+[storage policy](./ASSET_STORAGE_POLICY.md) remains authoritative.
 
 ## CI alignment
 

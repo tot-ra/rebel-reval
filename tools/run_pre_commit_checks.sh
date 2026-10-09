@@ -227,6 +227,13 @@ echo "Running on-commit checks (mode=$MODE)..."
 # class_name copies before any Godot process can poison the class cache.
 run_step "class_name scratch guard" check_class_cache_guard
 
+# R-1453: inspect the index, including deletion-only commits (the path list
+# below intentionally excludes deletions for lint/test selection). This cheap
+# gate must run before the staged-empty early exit and expensive sibling gates.
+if [[ "$MODE" == "all" ]] || ! git diff --cached --quiet; then
+  run_step "Godot import sidecar pairs" python3 tools/verify_import_sidecars.py
+fi
+
 if [[ "$MODE" == "staged" && ! -s "$STAGED_FILE" ]]; then
   echo "No staged files; nothing to check."
   exit 0
