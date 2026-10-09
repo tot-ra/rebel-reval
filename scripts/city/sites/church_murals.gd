@@ -214,4 +214,5 @@ static func _material(key: String, floor_y: float) -> Material:
 	mat.shader = SHADER
 	mat.set_shader_parameter("plate", load(PLATES[key]))
 	mat.set_shader_parameter("floor_y", floor_y)
+	mat.set_shader_parameter("indoor_ao", CitySiteKit.CHURCH_WASH_BRIGHTNESS)
 	return mat

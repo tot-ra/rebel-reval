@@ -65,6 +65,8 @@ The sun enters the four church sites only through their windows and lands as col
 - **Light source:** the global shader uniform `window_sun` (`project.godot` `[shader_globals]`): xyz the direction towards the light, w its direct strength (sun energy against the clear-day `MapViewLighting.SUN_DAY_ENERGY`, times the shadow opacity that overcast lowers). `CityWorld3D.apply_time` sets it each time update through `ChurchSunlight.push_light(sun)`; capture tools call the same function.
 - **Runtime entry points:** `ChurchSunlight.apply(building, lower, upper, roof, fabric, glazing)` in `scripts/city/sites/church_sunlight.gd`, called once by each church builder (`holy_spirit_builder.gd`, `st_olaf_builder.gd`, `st_nicholas_builder.gd` for the church and the St Barbara chapel, `st_mary_builder.gd`). No saved state.
 
+- **Dim nave (R-1472):** the lime wash, painted wash and murals of the four churches are bound to `CitySiteKit.CHURCH_WASH_BRIGHTNESS` (0.5, against the 0.82 default for other buildings) through `bind_site_washes` and `ChurchMurals._material`, so the nave reads dim and the window patches, shafts and candles carry the scene. It is per-material, so streets and other buildings keep the global ambient. Tuning: change the constant; `test_church_walls_are_dimmed` guards that churches stay below the default.
+
 Verify: `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_city_sites` (`test_church_sunlight_through_glass`), `tools/godot_render.sh --script tools/capture_church_sunlight.gd` (writes `sunlight_<church>_{morning,noon,afternoon}.jpg` and `sunlight_<church>_noon_off.jpg`, the same view with the window light switched off, under `docs/reports/images/church_interiors/`).
 
 | Window light off | Through the glass |

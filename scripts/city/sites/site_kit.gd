@@ -18,6 +18,9 @@ const IRON := Color(0.17, 0.16, 0.15)
 const ARCH_SEGMENTS := 8
 const LIMEWASH := preload("res://scripts/city/city_limewash.gdshader")
 const FLAGSTONE := preload("res://scripts/city/city_flagstone.gdshader")
+## Church naves are dim (14th-century glazing let in little light): the wash and
+## murals are darkened so window patches, shafts and candles carry the scene.
+const CHURCH_WASH_BRIGHTNESS := 0.5
 const GLASS := preload("res://scripts/city/city_stained_glass.gdshader")
 const STONE_ALBEDO := "res://assets/materials/pbr/stone/stone_albedo.png"
 const STONE_NORMAL := "res://assets/materials/pbr/stone/stone_normal.png"

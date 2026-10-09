@@ -168,6 +168,25 @@ func test_church_sunlight_through_glass() -> void:
 	built.free()
 
 
+func test_church_walls_are_dimmed() -> void:
+	# R-1472: church washes use the dim church level, not the 0.82 default.
+	var built: Node3D = ST_OLAF_BUILDER.build(_site(&"site.st_olaf"), _plan())
+	var lower := built.get_node("Church/Lower") as MeshInstance3D
+	var found := false
+	for k in lower.mesh.get_surface_count():
+		var mat := lower.get_surface_override_material(k)
+		if mat is ShaderMaterial and (mat as ShaderMaterial).get_shader_parameter("indoor_ao") != null:
+			found = true
+			assert_eq(
+				float((mat as ShaderMaterial).get_shader_parameter("indoor_ao")),
+				CitySiteKit.CHURCH_WASH_BRIGHTNESS,
+				"church wash is dimmed"
+			)
+	assert_true(found, "church lower walls carry a bound wash")
+	assert_true(CitySiteKit.CHURCH_WASH_BRIGHTNESS < 0.82, "dimmer than the default indoor wash")
+	built.free()
+
+
 func test_st_nicholas_rooms_chapel_and_period_rule() -> void:
 	var plan := _plan()
 	var site := _site(&"site.st_nicholas")
