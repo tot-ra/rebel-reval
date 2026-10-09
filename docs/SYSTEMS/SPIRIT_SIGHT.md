@@ -1,6 +1,6 @@
 # Spirit sight, auras and soul lights
 
-Status: partially implemented. The spirit sight toggle SS-1 (**R-1484**) and aura profile data SS-2/SS-2b (**R-1485**, **R-1496**) are implemented; auras on screen, reading, duel use and the duel layer remain planned (epic **R-1483**, [ADR 0041](../adr/0041-spirit-sight-auras-and-soul-lights.md), accepted).
+Status: partially implemented. The spirit sight toggle SS-1 (**R-1484**), aura profile data SS-2/SS-2b (**R-1485**, **R-1496**) and the aura look SS-3 (**R-1486**) are implemented; reading, duel use and the duel layer remain planned (epic **R-1483**, [ADR 0041](../adr/0041-spirit-sight-auras-and-soul-lights.md), accepted).
 
 Scope: a spirit-sight layer the hero toggles anywhere on the same map, auras with seven soul lights on every person and animal, reading a soul, soul lights feeding the spirit duel, and duels that keep the building but hide furniture under a focused grade. Out of scope: a universal good/evil score, duels with animals, a separate spirit-world copy of the map, new art assets (P0-040). The duel rules themselves live in [`SPIRIT_DIALOGUE.md`](./SPIRIT_DIALOGUE.md).
 
@@ -128,11 +128,45 @@ Tests cover the cross-process hash vector, metadata changes and tag reordering, 
 
 - **Meaning, not morality:** bright lights = a strong soul, a closed light (level 0) = a weak point, low clarity = a troubled soul. The aura never says whether someone is good.
 
-## Aura look (planned, SS-3, **R-1486**)
+## Aura look (implemented, SS-3, **R-1486**)
 
-- Each light is a glow on its bone anchor of the shared rig: 0 a dark crackling knot, 1 ember, 2 glow, 3 bright, 4 radiant, 5 blazing with a corona. Lights pulse at a slow breathing rate.
-- The flow is a set of field lines shaped like a magnetic dipole: up the spine through the lights from nature (pelvis) to light (above the head), spilling over the head, arcing around the body and back into the root, like water running in a loop or sap rising through the Hingepuu. Colour blends the lights each line passes; speed and shimmer follow the levels; low clarity adds curl noise and smoke streaks. A faint fresnel shell hugs the body.
-- Budget: full auras on the 12 nearest beings within the sight radius, a single soft glow up to 40 m, nothing beyond. Ribbons are a fixed mesh deformed in the vertex shader from seven anchor uniforms (GL Compatibility, no compute).
+Status: implemented (task **R-1486**). Scope: drawing every nearby person and animal's aura while spirit sight is on, the LOD budget and reduced flashing. Out of scope: reading (SS-4), duel dimming and the break scatter (SS-5), the awareness-driven sight radius (SS-8), automatic animal registration (see Limits).
+
+What the player sees when sight fades in (the auras fade with the sight `blend`, so they come and go with the ripple):
+
+- **Seven lights** on fixed body positions in NATURAL aspect order: pelvis floor, lower belly, solar plexus, sternum, mid neck, forehead, and the violet light resting on the crown of the skull, coloured red, orange, yellow, green, blue, indigo, violet. The level sets size and brightness: 0 a dark knot with thin flickering cracks of its colour, 1 ember, 2 glow, 3 bright, 4 radiant with a corona of rays, 5 blazing. Every light breathes slowly (about 0.2 Hz, phase-shifted per light). Position, not colour alone, tells which light is which.
+- **Field lines:** twelve closed loops shaped like a magnetic dipole. Each climbs the spine through the seven lights (root to crown), spills over the head, bows out around the body, dips under the pelvis and flows back into the root. Comets of light run round the loops; the line colour blends the lights beside it, brighter lights give brighter and wider lines, the mean level sets the speed and the spread. Low clarity carries the lines through a divergence-free (curl) field in small jerks and lays dark smoke streaks along them.
+- **Sky beam** (the tie to the sky, maintainer request 2026-10-09): a violet-white column rising from the crown light, with pulses climbing it. Strength = (sum of all seven levels / 35) x (0.4 + 0.6 x crown level / 5), so every light together feeds it and the crown gates it: a closed or absent crown has no beam, a whole soul at 5 has a full one 12 m high. Weak souls show a thin short thread. Low clarity makes the beam stutter in broken pieces; reduced flashing slows the pulses and stills the stutter. It shows strength, not virtue. Full tier only; animals have no crown light and no beam.
+- **Shell:** a faint fresnel rim hugging the torso and head, tinted by the level-weighted light colour.
+- **Animals:** the same picture fitted to the animal's mesh bounds, lights along the back from the hindquarters (nature) to the head (awareness), scaled to the body. Lights a species does not have are absent rather than knots, so a dog shows no false weak point.
+
+### Runtime
+
+| Piece | Path | Role |
+|---|---|---|
+| `SpiritAuraView` | `scripts/combat/spirit_aura_view.gd` | One aura: three draw calls (ribbons, shell, lights) on shared meshes built once; updates the seven anchor uniforms every frame, never the meshes. Tiers `NONE`, `GLOW`, `FULL`. |
+| `SpiritAuraManager` | `scripts/combat/spirit_aura_manager.gd` | Budget and visibility; mounted as `SpiritAuras` under the SS-1 controller (`scripts/combat/spirit_sight.gd`) and fades with its `blend`. |
+| Flow shader | `scripts/combat/spirit_aura_flow.gdshader` | Dipole field-line loops and the fresnel shell (`shell_mode`). |
+| Light shader | `scripts/combat/spirit_aura_light.gdshader` | The seven billboarded lights and the sky beam (quad 7, upright billboard, `beam_strength`) in one draw call, or one soft glow (`glow_only`). |
+| Anchor list | `SharedCharacterRig.SPIRIT_AURA_ANCHORS` | The one const list of anchors: a point along a bone segment (`hips`, `spine`, `chest`, `head`; the rig has no neck bone) plus a forward offset. Rigs join group `spirit_aura_bearer`. |
+
+- **Budget** (`SpiritAuraManager.assign_tiers`): nearest first from the hero rig (`PlayerRig`), ties in candidate order. The 12 nearest within the sight radius get a full aura, every other being within 40 m gets a single soft glow, nothing beyond. The radius is 12 m until SS-8 ties it to the awareness light. Tiers are re-ranked every 0.25 s; bone anchors follow every frame. Views are created on first need, kept with their body (a child, freed with it) and hidden, not rebuilt, when sight closes.
+- **Profiles:** `PlayerRig` gets the hero profile (`char.apprentice`, live guilt clarity, re-read on every re-rank). Actor rigs are named `<Actor>Rig`; a ContentDB record `char.<actor>` supplies authored data, otherwise the stable id-only derivation of SS-2 applies. `register(body, profile)` adds or overrides any body.
+- **GL Compatibility:** plain vertex/fragment shaders, uniform arrays, no compute, no Decal, no textures (P0-040). The lights and the spine run are biased toward the camera so the torso does not hide them; buildings still occlude.
+- **Reduced flashing** (`gameplay.reduced_flashing`): shimmer drops to 15 %, the breathing pulse and the corona drift to 15 %, and the knot cracks stop flickering.
+- **Save/load:** nothing saved. Views are transient presentation.
+
+### Verify
+
+```bash
+godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_spirit_aura_view
+tools/godot_render.sh --resolution 1280x720 --script tools/capture_spirit_auras.gd -- --out=res://docs/reports/images/spirit_auras
+tools/godot_render.sh --resolution 1280x720 --disable-vsync --script tools/capture_spirit_auras.gd -- --bench
+```
+
+`test_spirit_aura_view` covers anchors following bones and the rig, shared meshes that are never rebuilt, crown on the skull and brow on the forehead, level -> intensity, clarity -> turbulence, the sky beam (needs the crown, grows with all lights), reduced flashing, the 12 / 40 m budget, hidden outside sight and shown inside, absent animal lights and the animal layout. Plates: [bright clear soul](../reports/images/spirit_auras/bright_clear_soul.png), [dim murky soul](../reports/images/spirit_auras/dim_murky_soul.png), [crowd](../reports/images/spirit_auras/crowd.png), [dog](../reports/images/spirit_auras/animal_dog.png).
+
+**Frame budget** (`--bench`, crowd of 25 rigs, hero at the centre, 2026-10-09): 12 full auras and 13 glows add 49 draw calls (12 x 3 + 13 x 1) to the 851 the rigs already cost, and 29.7k primitives (+8.5 %). Per-frame CPU work is seven bone reads and three uniform writes per visible aura; meshes are never rebuilt. GL Compatibility reports no GPU timing, and the minimized render window is throttled by macOS, so the bench prints measured render time only as a noisy hint. `tools/run_performance_report.sh --quick` cannot run with sight on today: it hangs on `lower_town_scene_benchmark.tscn`, which still points at the removed `scenes/reval_east/reval_east.tscn`.
 
 ## Reading a soul (planned, SS-4, **R-1487**)
 
@@ -168,4 +202,8 @@ Each task names its filter: `test_spirit_sight`, `test_spirit_aura_profile`, `te
 
 ## Limits
 
-Planned only. Open balance questions: light-level multipliers, the 12-aura budget in dense crowds, and how many NPCs get an authored `aura` block versus a derived one.
+- Animals are drawn only when registered with `SpiritAuraManager.register` (as the capture does). Ambient animal actors do not join the aura group yet; wiring them needs a task that may touch the animal presenters.
+- The sight radius is a fixed 12 m until SS-8 (**R-1491**).
+- Anchor offsets are tuned for the shared adult rig; very short or seated bodies keep the same offsets.
+
+Open balance questions: light-level multipliers, the 12-aura budget in dense crowds, and how many NPCs get an authored `aura` block versus a derived one.

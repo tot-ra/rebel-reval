@@ -100,6 +100,26 @@ const EQUIPMENT_SLOTS: Dictionary = {
 	&"back": &"chest",
 }
 
+## ADR 0041 (SS-3): the seven soul-light anchors, pelvis to above the head, in
+## NATURAL aspect order (SpiritAuraProfile.LIGHT_IDS). The skeleton has no neck
+## or split spine bones, so an anchor is the point `t` along the from->to bone
+## segment (t > 1 extrapolates past the head) plus `forward` metres along the
+## body's facing. Pose-aware: a bow tilts the crown light with the head.
+## Heights on the 2.0 m body (hips 0.81, spine 1.01, chest 1.40, head bone at
+## the skull base 1.67, crown of the skull about 2.0): pelvis floor 0.83, lower
+## belly 1.05, solar plexus 1.25, sternum 1.42, mid neck 1.72, forehead 1.92,
+## and the violet light resting just on top of the skull at about 2.06.
+const SPIRIT_AURA_GROUP := &"spirit_aura_bearer"
+const SPIRIT_AURA_ANCHORS: Array[Dictionary] = [
+	{"from": &"hips", "to": &"spine", "t": 0.1, "forward": 0.0},
+	{"from": &"spine", "to": &"chest", "t": 0.1, "forward": 0.05},
+	{"from": &"spine", "to": &"chest", "t": 0.62, "forward": 0.07},
+	{"from": &"spine", "to": &"chest", "t": 1.05, "forward": 0.08},
+	{"from": &"chest", "to": &"head", "t": 1.18, "forward": 0.05},
+	{"from": &"chest", "to": &"head", "t": 1.9, "forward": 0.1},
+	{"from": &"chest", "to": &"head", "t": 2.42, "forward": 0.0},
+]
+
 ## Skinned garments authored against the shared skeleton by
 ## tools/generate_hero_body.py; they deform with the body.
 const GARMENT_SCENES: Dictionary = {
@@ -196,6 +216,7 @@ func _ready() -> void:
 	# Apply the authored anisotropic normalization in code because inherited
 	# imported-scene transforms can be reset to identity during instantiation.
 	$Model.scale = model_scale
+	add_to_group(SPIRIT_AURA_GROUP)
 	_animation_player = _find_animation_player($Model)
 	_skeleton = _find_skeleton($Model)
 	for clip_name in FALL_SOURCE_CLIPS:

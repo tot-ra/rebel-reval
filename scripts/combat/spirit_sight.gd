@@ -4,6 +4,7 @@ extends Node
 ## grade or freeze the clock. Exiting restores the latest ungraded weather exactly.
 
 const Ripple := preload("res://scripts/combat/spirit_sight_ripple.gdshader")
+const AuraManager := preload("res://scripts/combat/spirit_aura_manager.gd")
 const DURATION := 0.6
 const REDUCED_DURATION := 0.2
 const TINT := Color(0.66, 0.68, 1.0)
@@ -51,6 +52,12 @@ func _ready() -> void:
 	_rect.material = _material
 	_overlay.add_child(_rect)
 	_rect.visible = false
+	# SS-3: auras fade in with `blend`; the manager reads it from its parent.
+	var auras := AuraManager.new()
+	auras.name = "SpiritAuras"
+	auras.follow_session = follow_session
+	auras.state = state
+	add_child(auras)
 
 
 func _unhandled_input(event: InputEvent) -> void:
