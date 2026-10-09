@@ -97,10 +97,13 @@ void fragment() {
 	}
 
 	float haze = sky ? 0.0 : haze_max * (1.0 - exp(-max(dist - clear_radius, 0.0) * haze_density));
-	float blur = blur_pixels * smoothstep(blur_start, blur_full, dist);
+	// The sky dome (clouds included) draws its own atmosphere; blurring it smeared the
+	// cumulus. Far geometry may still gather sky taps, which only softens its silhouette.
+	float blur = sky ? 0.0 : blur_pixels * smoothstep(blur_start, blur_full, dist);
 	// Heat shimmer lives in the thin layer of hot air along the ground, so it shows on
-	// far surfaces seen nearly edge-on and on the horizon line itself.
-	float edge_on = 1.0 - smoothstep(0.0, 0.06, abs(dir.y));
+	// far surfaces seen nearly edge-on and on the horizon line itself. Over the sky it
+	// stays in a sliver above the horizon so low clouds do not waver.
+	float edge_on = 1.0 - smoothstep(0.0, sky ? 0.012 : 0.06, abs(dir.y));
 	float shimmer = shimmer_pixels * smoothstep(shimmer_start, shimmer_full, dist) * edge_on;
 
 	// Debug views exit early through discard-free branches (fragment() cannot return).
