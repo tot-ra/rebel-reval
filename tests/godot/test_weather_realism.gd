@@ -99,7 +99,15 @@ func test_rain_uses_world_wind_and_keeps_shelter_suppression() -> void:
 	var material := rain.process_material as ParticleProcessMaterial
 	var horizontal := Vector2(material.direction.x, material.direction.z).normalized()
 	assert_true(horizontal.dot(sky.wind_direction_xz()) > 0.999)
-	assert_true(material.direction.y < -0.9, "wind must not make rain fly sideways")
+	# R-1501 (user decision 2026-10-09): rain drifts with the wind at the physical
+	# angle atan(wind / fall speed), capped, instead of falling nearly straight down.
+	var tilt := Vector2(material.direction.x, material.direction.z).length() / -material.direction.y
+	assert_almost_eq(tilt, sky.rain_slant().length(), 0.01, "rain leans by the wind slant")
+	assert_true(tilt > 1.0 and tilt <= Weather.RAIN_MAX_SLANT + 0.001,
+		"a rain-front gale drives the rain past 45 degrees, but not flat")
+	var upwind := rain.global_position - camera.global_position
+	assert_true(Vector2(upwind.x, upwind.z).dot(sky.wind_direction_xz()) < 0.0,
+		"the emitter sits upwind so the slanted rain lands around the camera")
 	sky.rain_suppressed = true
 	sky.advance(0.0)
 	assert_false(rain.visible)

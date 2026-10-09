@@ -1,6 +1,6 @@
 # Discrete cloud cells, cloud shadows and storm-cell lightning
 
-Status: implemented (tasks **R-1400**, **R-1436** water deck shadows, **R-1444** crepuscular rays, **R-1481** cumulus shape, drift, dissolve and merging, **R-1493** distant tower visibility, **R-1495** cloudless sky and varied towers)
+Status: implemented (tasks **R-1400**, **R-1436** water deck shadows, **R-1444** crepuscular rays, **R-1481** cumulus shape, drift, dissolve and merging, **R-1493** distant tower visibility, **R-1495** cloudless sky and varied towers, **R-1501** convective hotspots, wide storms and wind-slanted rain)
 
 Scope: individual clouds as world-space objects in the 3D view. Each cumulus or cumulonimbus has a position, base altitude, size and life; the sky dome ray-marches it as a volume, the ground shadow pass projects it along the sun, god rays are cut by it, and lightning is born only inside a grown cumulonimbus. Mounted in both `MapView3D` maps and the seamless city (`CityMapView`).
 
@@ -9,7 +9,7 @@ Out of scope: puddles and mud that follow the storm cell (ground water stays wea
 ## What the player sees
 
 - **Cloudless, fair and cloudy days**: a `cloudless` sky (R-1495) has no cumulus at all; about eight (`clear`) to twenty (cloudy) separate cumulus ride the wind, each at its own speed, grow from small puffs, spread out, shrink and dissolve over about 55-90 s of game time. Each is a fused cluster of uneven heaps drawn out along its own axis and downwind, not one round ball. They have flat grey bases, sunlit cauliflower crowns and a silver lining when they cross the sun. They move with real parallax as the camera moves.
-- **Merging into a thunderstorm (R-1481, R-1495)**: when three or more cumulus drift together, they merge into one towering cloud: it widens, grows 0.9-1.7x as tall as it is wide, its base drops and darkens, the heaps fuse into a tapering cluster of turrets, some with an anvil, a rain curtain hangs under it, it rains on the player standing under it, and it can throw lightning even when the weather itself has no thunder. When the cluster drifts apart or its clouds dissolve, the tower sinks back.
+- **Merging into a thunderstorm (R-1481, R-1495, R-1501)**: when three or more cumulus drift together inside a convective hotspot, they merge into one storm 1.8-3 km across and 1.1-2 km tall: its base drops and darkens, the heaps fuse into a tapering cluster of turrets, some with an anvil, a rain curtain hangs under it, it rains on the player standing under it, and it can throw lightning even when the weather itself has no thunder. When the cluster drifts apart or its clouds dissolve, the tower sinks back.
 - **Cloud shadows**: every cell throws its own soft-edged shadow on the ground, roofs and sea, offset along the sun, so you can watch one cloud's shadow sweep across a street or the harbour. The shadow removes most of the direct-sun share (up to 85%), and fades out at night and under full overcast.
 - **Thunderstorms**: `storm` weather grows up to three cumulonimbus towers (1.7-2.3 km tall, with a spreading anvil) that are visible from several kilometres away, with a grey rain curtain hanging under the base. `rain` weather embeds the same cells in its deck.
 - **Lightning** comes only from a mature storm cell. About 40% of strikes are cloud-to-ground: a jagged channel with two thinner, dimmer branches from the cell base to the ground. The channel is a hairline (about one pixel, physical half-width 0.35 m that only shows on a very close strike) with a faint halo; the bright corona comes from scene glow, not a painted fat stroke. The rest are in-cloud flashes that light the tower from inside. With no grown storm cell, there is no lightning, even when the weather profile has thunder. Scene light lift falls off with camera distance to the cell (to 40% beyond 2.6 km); the strike in the sky is always drawn at full strength.
@@ -32,7 +32,7 @@ Out of scope: puddles and mud that follow the storm cell (ground water stays wea
 
 `CloudCells.update(clock, cloud_offset, counts, wind)` rebuilds 23 slots (20 cumulus, 3 cumulonimbus; 16 and 13 before R-1495) every `SkyWeather3D.advance()`. Counts come from the blended weather profile (`CloudCells.counts_for(coverage, storm)`), so a weather transition fades cells in and out. `wind` is the smoothed drift strength (`_wind_drift_strength`, already saved). Cells drift with the shared `cloud_offset` (`METRES_PER_UV` = 5000 world units per offset unit); cumulus scale and turn it per generation (see below). They tile a periodic square (3.2 km for cumulus, 9.6 km for storm cells). Fair cumulus and native storm slots use the copy nearest the camera and fade before the seam. Merged towers retain the 3.2 km simulation tile but draw additional periodic copies (see **Distant merged towers**).
 
-The `cloud_cells` uniform is three `vec4` per slot (69 total): `(x, base, z, radius)`, `(height, weight, kind, seed)`, `(life, tower, windiness, tile)`, where `tile` packs how many tiles the cumulus has drifted (`x + 64 z`, see **Cloudless sky and varied towers**). `cell_storminess(b, c) = max(kind, tower)` blends every cumulonimbus term (profile, shading, footprint, opacity, rain curtain), so a merged tower shades as a storm while it still lives on the cumulus tile.
+The `cloud_cells` uniform is four `vec4` per slot plus one (93 total): `(x, base, z, radius)`, `(height, weight, kind, seed)`, `(life, tower, windiness, tile)`, `(pull x, pull z, tower radius, tower height)`, then the hotspot centre `(x, z, 0, 0)`. `tile` packs how many tiles the cumulus has drifted (`x + 64 z`, see **Cloudless sky and varied towers**). The first three are the fair cloud; `cell_copy_shape()` turns each periodic copy into what is drawn (R-1501, see **Convective hotspots**). `cell_storminess(b, c) = max(kind, tower)` of that copy blends every cumulonimbus term (profile, shading, footprint, opacity, rain curtain), so a merged storm shades as one while it still lives on the cumulus tile.
 
 `WeatherPresentation.cloud_cells` carries the packed uniforms to the passes; `cell_sun_edge` (how ragged the cover is right around the sun) adds haze to god rays. `celestial_cloud_clear` (water glints) also multiplies in the cells in front of the sun or moon. Since R-1444 it no longer scales god-ray strength: the pass shades each air sample by the clouds instead, so beams keep going when the sun is hidden behind a cloud edge.
 
@@ -84,8 +84,8 @@ In `storm` weather the falling rain is local: the rain particles and the roof-ra
 
 - **Wind drift.** Each cumulus generation draws a speed share (0.7-1.4) and a veer (up to +-0.3 rad off the wind bearing) and moves by `cloud_offset.rotated(veer) * 2.6 * speed` (`CUMULUS_WIND_GAIN`). The shared offset is the integrated wind, so motion stays continuous while a cell lives, follows gusts and heading changes, and neighbours overtake, meet and part. A cumulus crosses several of its own widths in one life (about 7-35 m/s depending on wind).
 - **Dissolving.** Cumulus live 55-90 s (`CUMULUS_PERIOD`). From life 0.5 a cloud shrinks to 30% of its radius and flattens to 40% of its height; only from life 0.8 does its weight fade. The shader spreads the side lobes apart with age and, past life 0.55, breaks the cloud along its large lumps and thins it (`tatter`), so it comes apart in heaps instead of glittering at the fine boil scale.
-- **Merging.** `CloudCells._merge_crowded_cumulus()` runs after the slots are placed. A cumulus's crowding is the weight-scaled overlap of its neighbours (1 when centres are 0.55 x their summed radii apart, 0 beyond 1.1). Crowding 1.5-2.0 (1.35 before R-1495) ramps `towers[slot]` 0-1, gated to grown cells that are not in their last 15% of life. A tower is pulled toward its neighbours' centroid (45%), grows 60-110% wider (`TOWER_RADIUS_GAIN`) and 1.8-3.4 x its new radius tall (`TOWER_HEIGHT_PER_RADIUS`), both seeded per generation, and its base drops to 480 m. It only reads positions of this instant, so the field is still a pure function and the tower grows and sinks smoothly as clouds drift. In a headless 25 min run a tower above 0.75 is present 0.3% of the time on a `clear` day (coverage 0.3), 6% at coverage 0.45 and 24% on a cloudy day (R-1495; it was 1%, 8% and 12% with 13 cumulus slots).
-- **Tower weather.** A tower with `tower >= 0.75` and weight >= 0.5 joins `mature_storm_cells()`. `SkyWeather3D._advance_lightning` takes `max(profile thunder, 0.6 * smoothstep(0.75, 1, max_tower()))` (`TOWER_THUNDER`), so a merged tower can strike in fair weather; `_place_strike` re-centres a tower on the copy nearest the camera before it is wrapped on the storm tile. The sky hangs a rain curtain under any cell with storminess above 0.5. `tower_shower_intensity()` makes it rain (up to 0.35, `TOWER_SHOWER_RAIN`) where the camera stands inside a tower's shaft; `local_rain_intensity()` takes the larger of that and the weather rain. Like storm-cell local rain it is presentation only: puddles, mud and saved state stay on `rain_intensity()`.
+- **Merging.** `CloudCells._merge_crowded_cumulus()` runs after the slots are placed. A cumulus's crowding is the weight-scaled overlap of its neighbours (1 when centres are 0.55 x their summed radii apart, 0 beyond 1.1). Crowding 1.35-2.0 ramps `towers[slot]` 0-1 (how ready the cloud is to storm), gated to grown cells that are not in their last 15% of life. Since R-1501 only the copy in a convective hotspot storms, by `towers x hot_at(copy)` (see **Convective hotspots**). It only reads positions of this instant, so the field is still a pure function and the storm grows and sinks smoothly as clouds drift.
+- **Tower weather.** A cumulus whose hotspot copy storms at `tower_level() >= 0.75` with weight >= 0.5 joins `mature_storm_cells()`. `SkyWeather3D._advance_lightning` takes `max(profile thunder, 0.6 * smoothstep(0.75, 1, max_tower()))` (`TOWER_THUNDER`), so a merged tower can strike in fair weather; `_place_strike` takes the storming copy in the hotspot nearest the camera (`tower_copy_centre`, `copy_shape`) before the strike is wrapped on the storm tile. The sky hangs a rain curtain under any cell with storminess above 0.5. `tower_shower_intensity()` makes it rain (up to 0.35, `TOWER_SHOWER_RAIN`) where the camera stands inside the storming copy's leaning shaft; `local_rain_intensity()` takes the larger of that and the weather rain. Like storm-cell local rain it is presentation only: puddles, mud and saved state stay on `rain_intensity()`.
 
 ![A fair cumulus from open ground: lobed and drawn out, not a round ball](../reports/images/weather/cells_field_cumulus.png)
 
@@ -167,7 +167,7 @@ tools/godot_render.sh --script tools/capture_cloud_cells.gd -- --only=cells_towe
 ```
 
 `--tower-distance` overrides only this plate's horizontal camera distance in
-metres (default 1400). The output remains `cells_tower_merge.png`; use 5000 for the
+metres (default 4000 since R-1501 storms are wider). The output remains `cells_tower_merge.png`; use 5000 for the
 full-strength boundary. The capture uses a naturally merged field, not a handoff
 or an artificially pinned storm slot.
 
@@ -183,8 +183,8 @@ or an artificially pinned storm slot.
 
 - `tiles` (packed into `c.w`) counts how many tiles the cloud has drifted. A copy's label is its tile step from the wrapped centre minus that count, which stays constant when the drift carries the centre over the seam (`CloudCells.copy_tile`, `cell_copy_tile`).
 - `copy_hash(label, seed, salt)` (a small-input hash that float32 shaders reproduce to ~1e-4) gives each copy its own shape seed (`copy_seed`: stretch axis, lobes, noise, anvil, rain-shaft tint) and, for towers, a height factor of 0.65-1.35 (`copy_height_scale`).
-- Beyond 1.6-2.4 km from the camera only `TOWER_COPY_SHARE` (30%) of tower copies stay visible (`copy_gate`, `cell_copy_gate`). The copy near the player is never gated, so the cloud overhead keeps matching its shadow, rain and lightning. `SkyWeather3D._place_strike` uses `CloudCells.visible_copy_centre`, so a strike never comes from a thinned-out copy.
-- A merged tower folds its lobes only to `TOWER_LOBE_FOLD` (0.45, storm slots fold fully), narrows to 0.55 of its width at 0.7 h (storm slots 0.72) and can spread an anvil up to 0.6 (storm slots 0.42). Its height follows its own radius, so it reads as a tapering cluster of turrets instead of a ball or a pillar. The ground shadow (`cells_ground_shadow`, `CloudCells.slot_shadow`) uses the copy's seed and height.
+- Superseded by R-1501: R-1495 also gave tower copies their own height and drew only 30% of the distant ones. That still left a storm near the player for every merged cluster; hotspots replaced it.
+- A merged tower folds its lobes only to `TOWER_LOBE_FOLD` (0.45, storm slots fold fully), narrows to 0.55 of its width at 0.7 h (storm slots 0.72) and can spread an anvil up to 0.6 (storm slots 0.42). The ground shadow (`cells_ground_shadow`, `CloudCells.slot_shadow`) uses the copy's seed.
 
 Nothing new is saved: tiles, seeds and towers rebuild from the cell clock, drift and weather as before. Older saves load unchanged; a save made in `cloudless` weather and opened by an older build falls back to `clear` in `SkyWeatherState.normalize()`.
 
@@ -195,13 +195,40 @@ godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_clo
 tools/godot_render.sh --script tools/capture_cloud_cells.gd -- --only=cells_tower_horizon,cells_tower_merge,cells_sky_cloudless,cells_sky_clear
 ```
 
-Tests: `test_cloudless_sky_has_no_cumulus_and_cloudy_fills_the_slots`, `test_tower_copies_are_distinct_clouds_and_far_ones_are_thinned`, `test_copy_seed_survives_the_tile_wrap`, `test_merged_tower_keeps_its_lobes`, `test_tower_lightning_uses_a_visible_copy` (`test_cloud_cells.gd`) and `test_cloudless_sky_takes_a_realistic_share_of_time` (`test_sky_weather_3d.gd`).
+Tests: `test_cloudless_sky_has_no_cumulus_and_cloudy_fills_the_slots`, `test_copy_seed_survives_the_tile_wrap`, `test_merged_tower_keeps_its_lobes` (`test_cloud_cells.gd`) and `test_cloudless_sky_takes_a_realistic_share_of_time` (`test_sky_weather_3d.gd`).
 
 ![Cloudless weather: plain blue sky over the town](../reports/images/weather/cells_sky_cloudless.png)
 
 ![The same view in `clear` weather: scattered fair cumulus](../reports/images/weather/cells_sky_clear.png)
 
-![North, east, south and west from the ground while a tower is merged: the distant copies are thinned and each has its own shape](../reports/images/weather/cells_tower_horizon.png)
+## Convective hotspots, wide storms and wind-slanted rain (R-1501)
+
+**Problem.** After R-1495 storms still showed up too often, several at a time, and too narrow. Every merged cluster drew a tower in its copy nearest the player, so any merge anywhere put a storm within about 2 km; and a 3.2 km tile cannot hold storms several kilometres wide as repeating copies. Falling rain leaned at most ~20 degrees, and gravity straightened it further.
+
+**Hotspots.** `CloudCells.hot_centre` is one point of a `HOT_SPACING` (9.6 km, three cumulus tiles) lattice that rides the base cloud drift; cumulus ride 1.8-3.6x faster, so clusters pass through. `hot_at(p)` is 1 within 700 m of a hotspot and 0 beyond 1.4 km (`HOT_RADIUS`). A copy storms by `towers x hot_at(fair copy centre)` (`copy_shape`, `cell_copy_shape`): it moves by up to `tower_pulls` toward its cluster, widens to `tower_radii`, rises to `tower_heights` and drops its base to 480 m. Every other copy of the same cluster stays ordinary cumulus. Because `HOT_RADIUS.y` is under half a tile, at most one copy of a cluster storms per hotspot, and hotspots are one view radius apart. `tower_level(slot)` is the strongest copy's level (the copy nearest any hotspot); it drives `mature_storm_cells`, `max_tower` and thunder.
+
+**Wide storms.** Within one cluster only the most crowded cloud grows into the storm (`TOWER_LEAD` blends leadership over a 0.25 score margin, so it never pops); the others shrink to half their radius inside its base. The leader takes a seeded radius of 900-1500 m (`TOWER_RADIUS`, like the native storm slots, so 1.8-3 km across, about three times the R-1495 towers) and a top of 1.1-2.0 km (`TOWER_HEIGHT`). Shadows check the 3x3 copies around the nearest one for merging slots, because a storm is wider than half a tile.
+
+**How often.** Headless, three cameras 4-5 km apart, 50 min per coverage: a storm within 5 km is visible 0% of the time on a `clear` day (0.30), 1.2% at 0.45 and 5.4% on a cloudy day (0.66); two at once never. Native storm slots in `storm` weather are unchanged.
+
+**Slanted rain.** `SkyWeather3D.rain_slant()` is the downwind drift per metre of fall: wind strength x 16 m/s (`WIND_MS_AT_FULL`, the Beaufort sea ladder) over an 8 m/s terminal fall speed (`RAIN_TERMINAL_SPEED`), capped at 1.4 (about 55 degrees). The particles fly at that angle with no gravity (`SkyWeatherResources.build_rain`), with the streak speed scaled to keep it, and the emitter sits upwind so the rain still lands around the camera. Cloudy wind (0.52) leans the rain about 46 degrees; a rain-front gale (0.92) hits the cap. Storm and tower rain curtains lean at half that (`RAIN_SHAFT_SLANT`, sky uniform `rain_slant`, a sheared cylinder in `cells_volume`), and local storm and tower rain on the CPU (`storm_rain_cover_at`, `tower_shower_intensity`) follows the leaning foot of the shaft. Decision (user, 2026-10-09): this replaces the WS-11 rule that rain must not fly sideways (`test_rain_uses_world_wind_and_keeps_shelter_suppression`).
+
+Nothing new is saved: the hotspot follows the saved cloud drift, and everything else rebuilds as before.
+
+Verify:
+
+```bash
+godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_cloud_cells,test_weather_realism
+tools/godot_render.sh --script tools/capture_cloud_cells.gd -- --only=cells_tower_merge,cells_tower_horizon,cells_rain_slant --tower-distance=2000
+```
+
+Tests: `test_crowded_cumulus_merge_into_a_thunderstorm`, `test_a_cluster_storms_only_in_its_hotspot_copy`, `test_merged_tower_keeps_its_lobes`, `test_tower_lightning_uses_the_hotspot_copy` (`test_cloud_cells.gd`), `test_rain_uses_world_wind_and_keeps_shelter_suppression` (`test_weather_realism.gd`). `cells_rain_slant` thickens the streaks for the plate only.
+
+![A merged storm from 2 km: about three times wider than the R-1495 towers, flat dark base](../reports/images/weather/cells_tower_merge.png)
+
+![North, east, south and west from 3 km while a cluster storms: one storm in view, no repeated copies](../reports/images/weather/cells_tower_horizon.png)
+
+![Rain-front gale from rooftop height across the wind: the streaks lean downwind](../reports/images/weather/cells_rain_slant.png)
 
 
 ## Limits
@@ -213,9 +240,10 @@ Tests: `test_cloudless_sky_has_no_cumulus_and_cloudy_fills_the_slots`, `test_tow
 - The dome deck is drawn around the camera, while the ground shadows and the pass's air shadows use the world-anchored WS-12 plane. Sky beams come from the visible clouds; beams over the land line up with the ground shadows, not with the dome clouds right above them.
 - The god-ray pass has no quality-tier switch yet: minimum quality runs the same 16 near and 12 far samples. The sky beams do follow the tier (14 steps with cells on recommended, 7 deck-only on minimum).
 - Cell edges show a fine dither from the deterministic march jitter at close range.
-- Fair cumulus still fade at about 1.2-1.6 km. Mature merged towers draw to 5 km and fade out by 6 km. Their distant copies still sit on the 3.2 km lattice of the cumulus tile: since R-1495 each copy has its own shape and height and only about 30% of them show, but they are not independently simulated storms (they grow and sink together with the near tower).
-- The ground shadow and the god-ray pass do not apply the far-copy gate (they have no camera distance there), so with the camera 1.6-2.4 km from a thinned-out tower copy its shadow can show while the dome draws it partly faded. The existing slot/copy compositing is not depth-sorted, so overlapping towers can show ordering artifacts. Ground shadows and local rain still query the nearest periodic footprint. Distant tower copies do not get independent lightning strikes.
-- A tower has no life of its own: it follows the crowding of its cluster, so it sinks back as soon as its clouds drift apart or dissolve, and it never grows an anvil as wide as a storm slot. Under a tower the local rain is at most 0.35.
+- Fair cumulus still fade at about 1.2-1.6 km. Storms draw to 5 km and fade out by 6 km. Hotspots sit on a regular 9.6 km lattice; only one is in view at a time, but storms in neighbouring hotspots are the same cluster (they grow and sink together).
+- The existing slot/copy compositing is not depth-sorted, so overlapping towers can show ordering artifacts. Lightning strikes from the storm in the hotspot nearest the camera only.
+- A storm has no life of its own: it follows the crowding of its cluster and the hotspot, so it sinks back as soon as its clouds drift apart, dissolve or leave the hotspot. Under it the local rain is at most 0.35, and its curtain is faint from a few kilometres away.
+- Rain streaks are 1 cm wide, so their slant is hard to see in still captures; the evidence plate thickens them.
 - The `cloudless` profile has no cirrus: the dome's high wisps start at coverage 0.25.
 - Wind stretch (`windiness`) shapes the sky volume only; ground shadows use the lobed footprint without the downwind stretch.
 - Thunder audio is not yet timed to strike distance.

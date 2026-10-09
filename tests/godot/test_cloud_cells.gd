@@ -16,7 +16,8 @@ func test_cell_field_is_a_pure_function_of_clock_drift_and_counts() -> void:
 	b.update(123.4, Vector2(0.03, -0.01), Vector2(6.5, 1.2))
 	assert_eq(a.uniforms(), b.uniforms(), "same inputs must rebuild the same cells")
 	assert_eq(
-		a.uniforms().size(), CloudCellsScript.SLOTS * CloudCellsScript.STRIDE, "three vec4 per slot"
+		a.uniforms().size(), CloudCellsScript.SLOTS * CloudCellsScript.STRIDE + 1,
+		"four vec4 per slot and one for the hotspot"
 	)
 
 
@@ -117,40 +118,59 @@ func test_a_cell_shadows_the_ground_under_it_along_the_sun() -> void:
 	)
 
 
-## Pins cumulus 0..2 grown and touching, 3 alone far away, the rest gone.
+## Pins cumulus 0..3 grown and touching (0 in the middle, the most crowded), 4
+## alone far away, the rest gone, with a convective hotspot over the cluster.
 func _crowded_cluster() -> CloudCellsScript:
 	var cells := CloudCellsScript.new()
 	cells.update(0.0, Vector2.ZERO, Vector2(13.0, 0.0))
 	for slot in CloudCellsScript.SLOTS:
 		cells.weights[slot] = 0.0
 		cells.towers[slot] = 0.0
-	var spots := [Vector2(1000, 1000), Vector2(1250, 1000), Vector2(1120, 1220), Vector2(2600, 2600)]
+	var spots := [
+		Vector2(1100, 1100), Vector2(1350, 1100), Vector2(850, 1100), Vector2(1100, 1350),
+		Vector2(2600, 2600),
+	]
 	for slot in spots.size():
 		cells.weights[slot] = 1.0
 		cells.lives[slot] = 0.4
 		cells.radii[slot] = 250.0
 		cells.heights[slot] = 250.0
 		cells.centers[slot] = Vector3(spots[slot].x, 700.0, spots[slot].y)
+	for slot in CloudCellsScript.SLOTS:
+		cells.tower_pulls[slot] = Vector2.ZERO
+		cells.tower_radii[slot] = cells.radii[slot]
+		cells.tower_heights[slot] = cells.heights[slot]
+	cells.hot_centre = Vector2(1100, 1100)
 	cells._merge_crowded_cumulus()
 	return cells
 
 
-## R-1481: cumulus that crowd together merge into a thunderstorm tower.
+## R-1481 / R-1501: crowded cumulus merge into one wide thunderstorm, but only in
+## the copy that sits in a convective hotspot.
 func test_crowded_cumulus_merge_into_a_thunderstorm() -> void:
 	var cells := _crowded_cluster()
-	for slot in 3:
-		assert_true(cells.towers[slot] > CloudCellsScript.TOWER_MATURE, "a crowded cell towers")
-		assert_true(cells.heights[slot] > 600.0, "a tower grows tall")
-		assert_true(cells.storminess(slot) > 0.75, "a tower shades and rains as a storm")
-	assert_eq(cells.towers[3], 0.0, "a lone cumulus stays fair-weather")
-	assert_eq(cells.heights[3], 250.0, "a lone cumulus keeps its size")
-	# Merging pulls the cluster together.
-	var spread := Vector2(cells.centers[0].x, cells.centers[0].z).distance_to(
-		Vector2(cells.centers[1].x, cells.centers[1].z)
-	)
-	assert_true(spread < 250.0, "merging cells are drawn toward each other")
-	assert_true(cells.mature_storm_cells().has(0), "a mature tower can charge lightning")
+	for slot in 4:
+		assert_true(cells.towers[slot] > CloudCellsScript.TOWER_MATURE, "ready to storm")
+		assert_true(cells.tower_level(slot) > CloudCellsScript.TOWER_MATURE, "it storms in the hotspot")
+	assert_eq(cells.towers[4], 0.0, "a lone cumulus stays fair-weather")
+	assert_eq(cells.tower_level(4), 0.0, "a lone cumulus never storms")
+	# One leader grows into the storm; the others shrink into its base.
+	assert_true(cells.tower_radii[0] >= CloudCellsScript.TOWER_RADIUS.x, "the leader is storm-wide")
+	for slot in [1, 2, 3]:
+		assert_true(cells.tower_radii[slot] < cells.radii[slot], "the rest fold into the leader")
+	var storm := cells.copy_shape(0, Vector2(1100, 1100))
+	assert_true(storm[5] > CloudCellsScript.TOWER_MATURE, "the hotspot copy is a storm")
+	assert_true(storm[3] >= 900.0, "a storm is about a kilometre or more in radius: %.0f" % storm[3])
+	assert_true(storm[4] >= 1100.0, "and over a kilometre tall")
+	assert_almost_eq(storm[1], CloudCellsScript.TOWER_BASE, 60.0, "its base drops")
+	var fair := cells.copy_shape(0, Vector2(1100 + CloudCellsScript.DOMAIN, 1100))
+	assert_eq(fair[5], 0.0, "the same cluster's next copy stays ordinary cumulus")
+	assert_eq(fair[3], 250.0, "and keeps its size")
+	assert_true(cells.mature_storm_cells().has(0), "a mature storm can charge lightning")
 	assert_true(cells.max_tower() > CloudCellsScript.TOWER_MATURE, "tower level is exposed")
+	cells.hot_centre += Vector2(CloudCellsScript.DOMAIN * 0.5, 0.0)
+	assert_eq(cells.tower_level(0), 0.0, "away from a hotspot the cluster does not storm")
+	assert_false(cells.mature_storm_cells().has(0), "and throws no lightning")
 
 
 ## R-1481: a cumulus is a lobed cluster stretched along its axis, not a round disc.
@@ -243,7 +263,7 @@ func test_tower_visibility_rebuild_is_history_independent() -> void:
 	cells.update(123.4, Vector2(0.03, -0.01), counts, 0.7)
 	assert_eq(cells.uniforms(), saved, "restore needs no tower handoff or camera state")
 	var shader := FileAccess.get_file_as_string("res://scripts/map/view3d/sky_weather_3d.gdshader")
-	assert_eq(shader.count("cell_view_fade(length(c - ro.xz), b.z, cs.y)"), 2,
+	assert_eq(shader.count("cell_view_fade(length(c - ro.xz), b.z, cc.y)"), 2,
 		"volume and sky-beam occlusion use the same fade")
 	assert_eq(shader.count("copy < CELL_TOWER_COPIES"), 2,
 		"volume and sky-beam occlusion enumerate the same world copies")
@@ -273,35 +293,22 @@ func test_cloudless_sky_has_no_cumulus_and_cloudy_fills_the_slots() -> void:
 	assert_true(cloudy.x > 16.0, "a cloudy sky is crowded enough for cumulus to merge")
 
 
-func _tower_field() -> CloudCellsScript:
+## R-1501: a merged cluster storms in exactly one copy per hotspot, and every copy
+## still has its own shape seed.
+func test_a_cluster_storms_only_in_its_hotspot_copy() -> void:
 	var cells := _crowded_cluster()
-	cells.seeds[0] = 0.37
-	return cells
-
-
-## R-1495: periodic tower copies are not clones, and far ones are thinned out.
-func test_tower_copies_are_distinct_clouds_and_far_ones_are_thinned() -> void:
-	var cells := _tower_field()
-	var c: Vector3 = cells.centers[0]
-	var home := Vector2(c.x, c.z)
+	var storming := 0
 	var copy_seeds := {}
-	var heights := {}
-	var kept := 0
-	for x in range(-2, 3):
-		for z in range(-2, 3):
-			var centre := home + Vector2(x, z) * CloudCellsScript.DOMAIN
-			copy_seeds[snappedf(cells.copy_seed(0, centre), 0.0001)] = true
-			heights[snappedf(cells.copy_height_scale(0, centre), 0.0001)] = true
-			if cells.copy_gate(0, centre, 4000.0) > 0.5:
-				kept += 1
-			assert_eq(cells.copy_gate(0, centre, 1000.0), 1.0, "the copy near the player always shows")
-	assert_true(copy_seeds.size() >= 24, "every copy draws its own shape seed")
-	assert_true(heights.size() >= 20, "tower copies differ in height")
-	assert_true(kept >= 2 and kept <= 14, "only a share of distant tower copies stays: %d" % kept)
-	# A fair cumulus copy keeps its height and is never thinned.
-	assert_eq(cells.copy_height_scale(3, home), 1.0, "fair cumulus keep their height")
-	assert_eq(cells.copy_gate(3, home + Vector2(2, 0) * CloudCellsScript.DOMAIN, 5000.0), 1.0,
-		"fair cumulus are not gated")
+	for x in range(-1, 2):
+		for z in range(-1, 2):
+			var fair := Vector2(1100, 1100) + Vector2(x, z) * CloudCellsScript.DOMAIN
+			copy_seeds[snappedf(cells.copy_seed(0, fair), 0.0001)] = true
+			if cells.copy_shape(0, fair)[5] > 0.5:
+				storming += 1
+	assert_eq(storming, 1, "one storm per hotspot, not one per copy")
+	assert_true(copy_seeds.size() >= 8, "every copy draws its own shape seed")
+	assert_true(CloudCellsScript.HOT_RADIUS.y < CloudCellsScript.DOMAIN * 0.5,
+		"two copies of one cluster can never share a hotspot")
 
 
 ## R-1495: a copy keeps its shape seed while the wrapped centre crosses the seam.
@@ -330,37 +337,37 @@ func test_copy_seed_survives_the_tile_wrap() -> void:
 
 ## R-1495: a merged tower keeps a lobed outline instead of folding into a disc.
 func test_merged_tower_keeps_its_lobes() -> void:
-	var cells := _tower_field()
-	assert_true(cells.lobe_fold(0) < 0.5, "a tower folds its lobes only partly")
-	assert_eq(cells.lobe_fold(CloudCellsScript.CUMULUS_SLOTS), 1.0, "storm slots fold fully")
+	var cells := _crowded_cluster()
+	var hot := Vector2(1100, 1100)
+	var shape := cells.copy_shape(0, hot)
+	assert_true(shape[7] < 0.5, "a tower folds its lobes only partly")
+	var storm_slot := CloudCellsScript.CUMULUS_SLOTS
+	assert_eq(cells.copy_shape(storm_slot, hot)[7], 1.0, "storm slots fold fully")
 	var lo := INF
 	var hi := 0.0
 	for i in 36:
 		var dir := Vector2.from_angle(TAU * float(i) / 36.0)
 		var r := 0.0
-		while r < cells.radii[0] * 4.0 and cells.footprint_distance(0, dir * r) < 1.0:
-			r += 5.0
+		while r < shape[3] * 4.0 and cells.copy_footprint(0, hot, dir * r) < 1.0:
+			r += 20.0
 		lo = minf(lo, r)
 		hi = maxf(hi, r)
-	assert_true(hi / lo > 1.3, "the tower footprint is not round: %.2f" % (hi / lo))
+	assert_true(hi / lo > 1.2, "the tower footprint is not round: %.2f" % (hi / lo))
 	assert_true(
-		hi <= cells.radii[0] * lerpf(
-			CloudCellsScript.CUMULUS_REACH, CloudCellsScript.STORM_REACH, cells.lobe_fold(0)
-		),
+		hi <= shape[3] * lerpf(CloudCellsScript.CUMULUS_REACH, CloudCellsScript.STORM_REACH, shape[7]),
 		"the tower stays inside its march box"
 	)
 
 
-## R-1495: lightning picks a copy the sky draws, never a thinned-out one.
-func test_tower_lightning_uses_a_visible_copy() -> void:
-	var cells := _tower_field()
+## R-1501: lightning strikes from the storming copy in the hotspot nearest the eye.
+func test_tower_lightning_uses_the_hotspot_copy() -> void:
+	var cells := _crowded_cluster()
 	for angle in 16:
 		var eye := Vector2.from_angle(float(angle) * TAU / 16.0) * 2300.0 + Vector2(1100, 1100)
-		var centre := cells.visible_copy_centre(0, eye)
-		var distance := centre.distance_to(eye)
-		var shown := CloudCellsScript.view_fade(distance, 0, cells.towers[0])
-		assert_true(shown * cells.copy_gate(0, centre, distance) > 0.5,
-			"a strike copy is drawn (%.0f m away)" % distance)
+		var fair := cells.tower_copy_centre(0, eye)
+		assert_true(cells.copy_shape(0, fair)[5] > CloudCellsScript.TOWER_MATURE,
+			"the strike copy is the storm")
+		assert_true(fair.distance_to(eye) < 6000.0, "and the nearest one")
 
 
 func test_lightning_is_born_only_in_a_mature_storm_cell() -> void:
@@ -379,14 +386,21 @@ func test_lightning_is_born_only_in_a_mature_storm_cell() -> void:
 			var cells = sky.cloud_cells()
 			var inside := false
 			for slot in cells.mature_storm_cells():
-				var c: Vector3 = cells.centers[slot]
+				# Headless: the camera is the world origin. A merged storm is its
+				# hotspot copy (R-1501).
+				var c0: Vector3 = cells.centers[slot]
+				var fair := Vector2(c0.x, c0.z)
+				if CloudCellsScript.kind_of(slot) == CloudCellsScript.KIND_CUMULUS:
+					fair = cells.tower_copy_centre(slot, Vector2.ZERO)
+				var shape: PackedFloat32Array = cells.copy_shape(slot, fair)
+				var c := Vector3(shape[0], shape[1], shape[2])
 				var offset := CloudCellsScript.wrap_delta(
 					Vector2(origin.x, origin.z), Vector2(c.x, c.z), CloudCellsScript.kind_of(slot)
 				)
 				if (
-					offset.length() <= float(cells.radii[slot]) * 0.5
+					offset.length() <= shape[3] * 0.5
 					and origin.y >= c.y
-					and origin.y <= c.y + float(cells.heights[slot])
+					and origin.y <= c.y + shape[4]
 					and float(cells.weights[slot]) >= CloudCellsScript.STORM_MATURE_WEIGHT
 				):
 					inside = true

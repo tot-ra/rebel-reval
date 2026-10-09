@@ -21,7 +21,7 @@ const AERIAL_EYE := Vector3(700, 380, -900)
 const AERIAL_LOOK := Vector3(-80, 20, -150)
 
 var _only := ""
-var _tower_distance := 1400.0
+var _tower_distance := 4000.0
 var _plan: CityPlan
 
 
@@ -145,21 +145,37 @@ func _run() -> void:
 		# R-1481: crowded cumulus merged into a thunderstorm tower over fair weather.
 		# Walk the cell clock in fixed steps until one tower is fully merged.
 		await _settle(view, sky, SkyWeather3D.WEATHER_CLOUDY, 0.40)
-		var slot := _strongest_tower(sky)
-		for step in 200:
-			if sky.cloud_cells().towers[slot] * sky.cloud_cells().weights[slot] > 0.85:
-				break
-			sky.advance(4.0)
-			slot = _strongest_tower(sky)
+		var slot := _walk_to_storm(sky)
 		await _sunlit_cell_shot(viewport, camera, sky, slot, "cells_tower_merge", _tower_distance)
+	if _wanted("cells_softness_cumulus"):
+		await _settle(view, sky, SkyWeather3D.WEATHER_CLEAR, 0.40)
+		await _softness_sheet(viewport, camera, sky, _strongest_fair(sky), 1000.0, "cells_softness_cumulus")
+	if _wanted("cells_softness_tower"):
+		await _settle(view, sky, SkyWeather3D.WEATHER_CLOUDY, 0.40)
+		var slot := _walk_to_storm(sky)
+		await _softness_sheet(viewport, camera, sky, slot, 2500.0, "cells_softness_tower")
+	if _wanted("cells_rain_slant"):
+		# R-1501: rain drifts with the wind. Street-level view across the wind, so
+		# the streaks lean sideways in frame.
+		await _settle(view, sky, SkyWeather3D.WEATHER_RAIN, 0.40)
+		# Rooftop height over the street (the rain volume follows the camera), so
+		# the streaks show against the far houses instead of a wall.
+		var ground := Vector2(-60, -200)
+		var eye := Vector3(ground.x, _plan.walk_height(ground) + 22.0, ground.y)
+		var wind := sky.wind_direction_xz()
+		var across := Vector3(-wind.y, -0.25, wind.x)
+		# Evidence aid only: 1 cm streaks are sub-pixel at this range, so thicken
+		# them for the plate (the game keeps SkyWeatherResources.build_rain sizes).
+		var streak := sky._rain.draw_pass_1 as BoxMesh
+		streak.size = Vector3(0.05, 1.2, 0.05)
+		for i in 40:
+			sky.advance(0.05)
+			await process_frame
+		print("rain slant %s wind %.2f" % [sky.rain_slant(), sky.wind_strength()])
+		await _shot(viewport, camera, "cells_rain_slant", eye, eye + across * 10.0, 70.0)
 	if _wanted("cells_tower_horizon"):
 		await _settle(view, sky, SkyWeather3D.WEATHER_CLOUDY, 0.40)
-		var slot := _strongest_tower(sky)
-		for step in 200:
-			if sky.cloud_cells().towers[slot] * sky.cloud_cells().weights[slot] > 0.85:
-				break
-			sky.advance(4.0)
-			slot = _strongest_tower(sky)
+		var slot := _walk_to_storm(sky)
 		await _horizon_sheet(viewport, camera, sky, slot, "cells_tower_horizon")
 	for profile: Array in [
 		["cells_sky_cloudless", SkyWeather3D.WEATHER_CLOUDLESS],
@@ -296,18 +312,21 @@ func _sunlit_cell_shot(
 	await _shot(viewport, camera, shot, framing[0], framing[1], 62.0)
 
 
-## R-1495: 2x2 sheet of four 90-degree views (N, E, S, W) from the ground 1.2 km
-## from the merged tower, 6 degrees up, so every periodic copy within ~6 km shows.
+## R-1495: 2x2 sheet of four 90-degree views (N, E, S, W) from the ground 3 km
+## from the storm, 6 degrees up, so every storming copy within ~6 km shows.
 func _horizon_sheet(
 	viewport: Viewport, camera: Camera3D, sky: SkyWeather3D, slot: int, shot: String
 ) -> void:
-	var framing := _sunlit_cell_framing(sky, slot, 1200.0)
+	var framing := _sunlit_cell_framing(sky, slot, 3000.0)
 	var eye: Vector3 = framing[0]
 	var cells = sky.cloud_cells()
 	for s in CloudCellsScript.CUMULUS_SLOTS:
-		if cells.towers[s] > 0.5:
-			print("tower slot %d level %.2f radius %.0f height %.0f base %.0f" % [
-				s, cells.towers[s], cells.radii[s], cells.heights[s], cells.centers[s].y
+		if cells.tower_level(s) > 0.5:
+			var shape: PackedFloat32Array = cells.copy_shape(
+				s, cells.tower_copy_centre(s, Vector2(eye.x, eye.z))
+			)
+			print("storm slot %d level %.2f radius %.0f height %.0f base %.0f" % [
+				s, shape[5], shape[3], shape[4], shape[1]
 			])
 	var sheet := Image.create(VIEWPORT_SIZE.x, VIEWPORT_SIZE.y, false, Image.FORMAT_RGBA8)
 	var bearings := [Vector3.FORWARD, Vector3.RIGHT, Vector3.BACK, Vector3.LEFT]
@@ -334,6 +353,14 @@ func _horizon_sheet(
 func _sunlit_cell_framing(sky: SkyWeather3D, slot: int, distance: float) -> Array:
 	var cells = sky.cloud_cells()
 	var center := _near_copy(cells.centers[slot], Vector3(-60, 0, -200))
+	var height := float(cells.heights[slot])
+	if cells.tower_level(slot) > 0.5:
+		# R-1501: a merged cluster storms in its hotspot copy only.
+		var shape: PackedFloat32Array = cells.copy_shape(
+			slot, cells.tower_copy_centre(slot, Vector2(-60, -200))
+		)
+		center = Vector3(shape[0], shape[1], shape[2])
+		height = shape[4]
 	var sun := SkyWeather3D.solar_direction(0.40, sky.calendar_date)
 	var toward_sun := Vector2(sun.x, sun.z).normalized()
 	# Swing off the sun bearing until the eye stands on land, not in the sea.
@@ -346,8 +373,48 @@ func _sunlit_cell_framing(sky: SkyWeather3D, slot: int, distance: float) -> Arra
 			ground = p
 			break
 	var eye := Vector3(ground.x, _plan.walk_height(ground) + 30.0, ground.y)
-	var look := Vector3(center.x, center.y + float(cells.heights[slot]) * 0.4, center.z)
+	var look := Vector3(center.x, center.y + height * 0.4, center.z)
+	print("framing: eye %s cell %s level %.2f height %.0f clock %.1f" % [
+		eye, center, cells.tower_level(slot), height, sky.cloud_cell_clock()
+	])
 	return [eye, look]
+
+
+## Cloud-cell look presets compared on one frame: [edge softness, wisp, shade lift].
+## Order in the 2x2 sheet: top-left, top-right, bottom-left, bottom-right.
+const SOFTNESS_PRESETS := [
+	["before", 0.0, 0.0, 0.0],
+	["A soft rim", 0.6, 0.3, 0.25],
+	["B misty", 1.0, 0.65, 0.5],
+	["C soft light", 0.3, 0.0, 0.7],
+]
+
+
+## 2x2 sheet of cell `slot` under each SOFTNESS_PRESETS entry, same clock and
+## camera, then restores the shader defaults.
+func _softness_sheet(
+	viewport: Viewport, camera: Camera3D, sky: SkyWeather3D, slot: int, distance: float, shot: String
+) -> void:
+	var material: ShaderMaterial = sky._material
+	var keys := [&"cell_edge_softness", &"cell_wisp", &"cell_shade_lift"]
+	var defaults := keys.map(func(k: StringName) -> Variant: return material.get_shader_parameter(k))
+	var sheet := Image.create(VIEWPORT_SIZE.x, VIEWPORT_SIZE.y, false, Image.FORMAT_RGBA8)
+	for i in SOFTNESS_PRESETS.size():
+		var preset: Array = SOFTNESS_PRESETS[i]
+		for k in keys.size():
+			material.set_shader_parameter(keys[k], float(preset[k + 1]))
+		print("%s preset %s" % [shot, preset])
+		var frame := await _sunlit_cell_frame(viewport, camera, sky, slot, distance)
+		frame.resize(VIEWPORT_SIZE.x / 2, VIEWPORT_SIZE.y / 2, Image.INTERPOLATE_LANCZOS)
+		frame.convert(Image.FORMAT_RGBA8)
+		sheet.blit_rect(
+			frame, Rect2i(Vector2i.ZERO, frame.get_size()), Vector2i(i % 2, i / 2) * frame.get_size()
+		)
+	for k in keys.size():
+		material.set_shader_parameter(keys[k], defaults[k])
+	var path := "%s/%s.png" % [OUTPUT_DIR, shot]
+	sheet.save_png(ProjectSettings.globalize_path(path))
+	print("captured %s" % path)
 
 
 ## Grown cumulus that has not merged into a tower.
@@ -365,11 +432,31 @@ func _strongest_fair(sky: SkyWeather3D) -> int:
 func _strongest_tower(sky: SkyWeather3D) -> int:
 	var cells = sky.cloud_cells()
 	var best := 0
+	var best_score := -1.0
 	for slot in CloudCellsScript.CUMULUS_SLOTS:
-		if cells.towers[slot] * cells.weights[slot] > cells.towers[best] * cells.weights[best]:
+		# The cluster's leader grows into the storm; the others fold into its base.
+		var score: float = cells.tower_level(slot) * cells.weights[slot] * cells.tower_radii[slot]
+		if score > best_score:
+			best_score = score
 			best = slot
-	print("strongest tower slot %d level %.2f" % [best, cells.towers[best] * cells.weights[best]])
 	return best
+
+
+## R-1501: storms need a crowded cluster inside a hotspot, so walk the cell clock in
+## fixed 4 s steps until one is fully grown.
+func _walk_to_storm(sky: SkyWeather3D) -> int:
+	var cells = sky.cloud_cells()
+	var slot := _strongest_tower(sky)
+	for step in 1500:
+		var grown: bool = cells.tower_radii[slot] >= CloudCellsScript.TOWER_RADIUS.x * 0.9
+		if grown and cells.tower_level(slot) * cells.weights[slot] > 0.85:
+			break
+		sky.advance(4.0)
+		slot = _strongest_tower(sky)
+	print("strongest storm slot %d level %.2f after the walk" % [
+		slot, cells.tower_level(slot) * cells.weights[slot]
+	])
+	return slot
 
 
 ## Copy of wrapped cell position `c` nearest to `near` (ground y unchanged).

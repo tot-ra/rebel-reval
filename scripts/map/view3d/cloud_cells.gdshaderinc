@@ -1,15 +1,18 @@
 // R-1400: discrete world-space clouds (CloudCells). Shared by the sky dome, the
 // ground cloud-shadow pass and the god-ray pass so a cloud, its shadow and the
-// beams it cuts are one object. Three vec4 per slot, packed by CloudCells.uniforms():
+// beams it cuts are one object. Four vec4 per slot, packed by CloudCells.uniforms():
 //   a = (x, base altitude, z, radius), b = (height, weight, kind 0 cu / 1 cb, seed),
-//   c = (life 0..1, tower 0..1, windiness 0..1, absolute tile x + 64 z).
-// `tower` is how far a crowded cumulus has merged into a thunderstorm (R-1481), so
-// shading, shadow and rain blend toward cumulonimbus by cell_storminess().
+//   c = (life 0..1, tower 0..1, windiness 0..1, absolute tile x + 64 z),
+//   d = (pull x, pull z, tower radius, tower height); then one vec4 hotspot (x, z).
+// `tower` is how far a crowded cumulus is ready to merge into a thunderstorm
+// (R-1481); a copy storms only inside a convective hotspot (R-1501,
+// cell_copy_shape), and shading, shadow and rain blend toward cumulonimbus by
+// cell_storminess() of that copy.
 // Positions are wrapped into a CELL_DOMAIN tile; every caller takes the copy
 // nearest to its own point. Noise is passed in so callers keep their samplers.
 
 const int CELL_SLOTS = 23;
-const int CELL_STRIDE = 3;
+const int CELL_STRIDE = 4;
 const int CELL_LOBES = 3;
 // Must match CloudCells.DOMAIN / STORM_DOMAIN / footprint / opacity / lobe constants.
 // Storm cells tile a wider square: a 2 km thunderhead must stay visible from
@@ -27,7 +30,7 @@ const float CELL_CB_REACH = 1.9;
 // World units per billow-noise tile: ~90 m lumps on a cumulus flank.
 const float CELL_BILLOW_SCALE = 700.0;
 
-uniform vec4 cloud_cells[69];
+uniform vec4 cloud_cells[93];
 
 
 float cell_domain(float kind) {
@@ -72,16 +75,10 @@ vec2 cell_view_copy_offset(int copy) {
 }
 
 // R-1495: every periodic copy of the cumulus tile is its own cloud. Its shape seed
-// and (for towers) height come from a hash of a stable copy label built from the
-// tiles the cloud has drifted (c.w), so a copy keeps its shape while the wrapped
-// centre crosses the seam. Beyond CELL_TOWER_GATE_RANGE only a seeded share of tower
-// copies stays, so one merged cluster no longer prints identical storms all round
-// the horizon. Mirrors CloudCells.copy_tile / copy_hash / copy_seed /
-// copy_height_scale / copy_gate.
+// comes from a hash of a stable copy label built from the tiles the cloud has
+// drifted (c.w), so a copy keeps its shape while the wrapped centre crosses the
+// seam. Mirrors CloudCells.copy_tile / copy_hash / copy_seed.
 const float CELL_TILE_WRAP = 64.0;
-const float CELL_TOWER_COPY_SHARE = 0.3;
-const vec2 CELL_TOWER_GATE_RANGE = vec2(1600.0, 2400.0);
-const vec2 CELL_TOWER_COPY_HEIGHT = vec2(0.65, 1.35);
 
 vec2 cell_copy_tile(vec2 copy_centre, vec4 a, vec4 c) {
 	vec2 home = vec2(mod(c.w, CELL_TILE_WRAP), floor(c.w / CELL_TILE_WRAP));
@@ -95,27 +92,37 @@ float cell_copy_hash(vec2 tile, float seed, float salt) {
 	return fract((p.x + p.y) * p.z);
 }
 
-// The copy's own (height, weight, kind, seed): storm slots draw one copy as-is.
-vec4 cell_copy_b(vec2 copy_centre, vec4 a, vec4 b, vec4 c) {
-	if (b.z > 0.5) {
-		return b;
-	}
-	vec2 tile = cell_copy_tile(copy_centre, a, c);
-	float h = mix(CELL_TOWER_COPY_HEIGHT.x, CELL_TOWER_COPY_HEIGHT.y, cell_copy_hash(tile, b.w, 1.0));
-	vec4 out_b = b;
-	out_b.x *= mix(1.0, h, smoothstep(0.5, CELL_TOWER_MATURE, c.y));
-	out_b.w = cell_copy_hash(tile, b.w, 0.0);
-	return out_b;
+// R-1501: convective hotspots on a CELL_HOT_SPACING lattice (centre in the vec4
+// after the slots). A merging cumulus storms only in the copy inside a hotspot,
+// so one cluster gives at most one storm per hotspot. Mirrors CloudCells.hot_at.
+const float CELL_HOT_SPACING = 9600.0;
+const vec2 CELL_HOT_RADIUS = vec2(700.0, 1400.0);
+const float CELL_TOWER_BASE = 480.0;
+
+float cell_hot(vec2 p) {
+	vec2 q = p - cloud_cells[CELL_SLOTS * CELL_STRIDE].xy;
+	q -= CELL_HOT_SPACING * round(q / CELL_HOT_SPACING);
+	return smoothstep(CELL_HOT_RADIUS.y, CELL_HOT_RADIUS.x, length(q));
 }
 
-float cell_copy_gate(vec2 copy_centre, float distance, vec4 a, vec4 b, vec4 c) {
+// The copy of a slot whose fair centre is `fair`, as drawn: centre in a2.xz,
+// storm level in c2.y and the copy's own shape seed in b2.w. Storm slots draw one
+// copy as-is. Mirrors CloudCells.copy_shape().
+void cell_copy_shape(
+	vec2 fair, vec4 a, vec4 b, vec4 c, vec4 d, out vec4 a2, out vec4 b2, out vec4 c2
+) {
+	a2 = vec4(fair.x, a.y, fair.y, a.w);
+	b2 = b;
+	c2 = c;
 	if (b.z > 0.5) {
-		return 1.0;
+		return;
 	}
-	float keep = step(cell_copy_hash(cell_copy_tile(copy_centre, a, c), b.w, 2.0), CELL_TOWER_COPY_SHARE - 1e-6);
-	float far = smoothstep(CELL_TOWER_GATE_RANGE.x, CELL_TOWER_GATE_RANGE.y, distance)
-		* smoothstep(0.5, CELL_TOWER_MATURE, c.y);
-	return mix(1.0, keep, far);
+	b2.w = cell_copy_hash(cell_copy_tile(fair, a, c), b.w, 0.0);
+	float t = c.y > 0.0 ? c.y * cell_hot(fair) : 0.0;
+	c2.y = t;
+	vec2 centre = fair + d.xy * t;
+	a2 = vec4(centre.x, mix(a.y, CELL_TOWER_BASE, t), centre.y, mix(a.w, d.z, t));
+	b2.x = mix(b.x, d.w, t);
 }
 
 float cell_view_fade(float distance, float kind, float tower) {
@@ -285,28 +292,41 @@ float cells_ground_shadow(vec3 p, vec3 to_light, sampler2D noise_tex, float lod)
 		vec4 a = cloud_cells[i * CELL_STRIDE];
 		vec4 b = cloud_cells[i * CELL_STRIDE + 1];
 		vec4 c = cloud_cells[i * CELL_STRIDE + 2];
+		vec4 dv = cloud_cells[i * CELL_STRIDE + 3];
 		if (b.y <= 0.001) {
 			continue;
 		}
-		float cb = cell_storminess(b, c);
-		float layer = a.y + b.x * mix(0.35, 0.25, cb);
+		float layer = a.y + b.x * (b.z > 0.5 ? 0.25 : 0.35);
 		vec2 q = p.xz + to_light.xz / sun_y * (layer - p.y);
-		// R-1495: the copy under the point at the slot's own layer, then its own
-		// height and seed (copies are 3.2 km apart, far more than the layer shift).
-		vec2 copy_centre = q - cell_wrap_delta(q, a.xz, b.z);
-		vec4 bc = cell_copy_b(copy_centre, a, b, c);
-		layer = a.y + bc.x * mix(0.35, 0.25, cb);
-		q = p.xz + to_light.xz / sun_y * (layer - p.y);
-		vec2 d = q - copy_centre;
-		float reach = a.w * mix(CELL_CU_REACH, CELL_CB_REACH, cell_lobe_fold(b, c));
-		if (dot(d, d) > reach * reach) {
-			continue;
+		vec2 near = q - cell_wrap_delta(q, a.xz, b.z);
+		// R-1501: a storming copy is wider than half a tile and pulled off its fair
+		// centre, so a merging cumulus checks the 3x3 copies around the nearest.
+		int spread = (b.z < 0.5 && c.y > 0.0) ? 3 : 1;
+		float best = 0.0;
+		for (int k = 0; k < 9; k++) {
+			if (k >= spread * spread) {
+				break;
+			}
+			vec2 cell = spread == 1 ? vec2(0.0) : vec2(float(k % 3) - 1.0, float(k / 3) - 1.0);
+			vec4 ac;
+			vec4 bc;
+			vec4 cc;
+			cell_copy_shape(near + cell * CELL_DOMAIN, a, b, c, dv, ac, bc, cc);
+			float cb = cell_storminess(bc, cc);
+			float l = ac.y + bc.x * mix(0.35, 0.25, cb);
+			vec2 qc = p.xz + to_light.xz / sun_y * (l - p.y);
+			vec2 off = qc - ac.xz;
+			float reach = ac.w * mix(CELL_CU_REACH, CELL_CB_REACH, cell_lobe_fold(bc, cc));
+			if (dot(off, off) > reach * reach) {
+				continue;
+			}
+			vec2 nuv = qc / CELL_BILLOW_SCALE + bc.w * 7.13;
+			float n = textureLod(noise_tex, nuv, lod).r * 0.65
+				+ textureLod(noise_tex, nuv * 2.7 + 0.31, lod).r * 0.35;
+			float dist = cell_footprint(off, ac, bc, cc) + (n - 0.5) * 0.38;
+			best = max(best, smoothstep(1.0, 0.8, dist) * mix(CELL_CU_OPACITY, CELL_CB_OPACITY, cb));
 		}
-		vec2 nuv = q / CELL_BILLOW_SCALE + bc.w * 7.13;
-		float n = textureLod(noise_tex, nuv, lod).r * 0.65
-			+ textureLod(noise_tex, nuv * 2.7 + 0.31, lod).r * 0.35;
-		float dist = cell_footprint(d, a, bc, c) + (n - 0.5) * 0.38;
-		lit *= 1.0 - smoothstep(1.0, 0.8, dist) * b.y * mix(CELL_CU_OPACITY, CELL_CB_OPACITY, cb);
+		lit *= 1.0 - best * b.y;
 	}
 	return 1.0 - lit;
 }

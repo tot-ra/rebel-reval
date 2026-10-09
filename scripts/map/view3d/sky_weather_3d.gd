@@ -341,6 +341,18 @@ const TOWER_THUNDER := 0.6
 const TOWER_SHOWER_RAIN := 0.35
 
 const RAIN_EMITTER_HEIGHT := 11.0
+## R-1501: rain falls at its terminal speed and drifts with the wind, so it slants
+## by atan(wind / fall). Wind strength maps to m/s like the Beaufort sea ladder
+## (cloudy 0.52 ~ 8 m/s, storm 0.79 ~ 12.5 m/s); heavy drops fall at about 8 m/s.
+## The streaks are drawn faster than that (RAIN_STREAK_SPEED) to read as rain, with
+## the horizontal speed scaled to keep the physical angle, capped near 55 degrees.
+const WIND_MS_AT_FULL := 16.0
+const RAIN_TERMINAL_SPEED := 8.0
+const RAIN_STREAK_SPEED := 17.0
+const RAIN_MAX_SLANT := 1.4
+## A storm's rain curtain leans less than the drops near the ground: the wind under
+## the cloud base is weaker and the shaft is rain from the whole column.
+const RAIN_SHAFT_SLANT := 0.5
 ## Local rain under storm cells. The sky shader hangs each cumulonimbus rain
 ## curtain in a cylinder of RAIN_SHAFT_RADIUS x cell radius; the emitter fades
 ## over RAIN_SHAFT_EDGE (fraction of that radius) either side of its wall, so
@@ -1291,20 +1303,30 @@ func tower_shower_intensity() -> float:
 	if _camera == null or not is_instance_valid(_camera) or not _camera.is_inside_tree():
 		return 0.0
 	var point := _view_position()
+	var flat := Vector2(point.x, point.z)
+	var slant := rain_slant() * RAIN_SHAFT_SLANT
 	var cover := 0.0
 	for slot in CloudCellsScript.CUMULUS_SLOTS:
-		var tower: float = _cells.towers[slot]
-		if tower <= 0.5:
+		if _cells.tower_level(slot) <= 0.5:
 			continue
-		var c: Vector3 = _cells.centers[slot]
-		var offset := CloudCellsScript.wrap_delta(Vector2(point.x, point.z), Vector2(c.x, c.z))
-		var shaft := maxf(float(_cells.radii[slot]) * RAIN_SHAFT_RADIUS, 1.0)
+		# R-1501: only the copy storming in the hotspot nearest the camera rains.
+		var shape := _cells.copy_shape(slot, _cells.tower_copy_centre(slot, flat))
+		var t: float = shape[5]
+		var foot := Vector2(shape[0], shape[2]) + slant * (shape[1] - point.y)
+		var shaft := maxf(shape[3] * RAIN_SHAFT_RADIUS, 1.0)
 		var inside := 1.0 - smoothstep(
-			1.0 - RAIN_SHAFT_EDGE, 1.0 + RAIN_SHAFT_EDGE, offset.length() / shaft
+			1.0 - RAIN_SHAFT_EDGE, 1.0 + RAIN_SHAFT_EDGE, flat.distance_to(foot) / shaft
 		)
 		# Same ramp as the sky curtain (smoothstep(0.5, 0.9, storminess)).
-		cover = maxf(cover, float(_cells.weights[slot]) * inside * smoothstep(0.5, 0.9, tower))
+		cover = maxf(cover, float(_cells.weights[slot]) * inside * smoothstep(0.5, 0.9, t))
 	return cover * TOWER_SHOWER_RAIN
+
+
+## R-1501: horizontal metres the falling rain drifts per metre of fall, downwind
+## (world x, z). Gusts lean it further.
+func rain_slant() -> Vector2:
+	var ratio := wind_strength() * WIND_MS_AT_FULL / RAIN_TERMINAL_SPEED
+	return wind_direction_xz() * minf(ratio, RAIN_MAX_SLANT)
 
 
 ## 0..1 share of the weather rain that falls where the camera stands. A widespread
@@ -1330,8 +1352,10 @@ func storm_rain_cover_at(point: Vector3) -> float:
 		if weight <= 0.0:
 			continue
 		var c: Vector3 = _cells.centers[slot]
+		# R-1501: the curtain leans downwind, so it reaches the ground off-centre.
+		var foot := Vector2(c.x, c.z) + rain_slant() * RAIN_SHAFT_SLANT * (c.y - point.y)
 		var offset := CloudCellsScript.wrap_delta(
-			Vector2(point.x, point.z), Vector2(c.x, c.z), CloudCellsScript.KIND_STORM
+			Vector2(point.x, point.z), foot, CloudCellsScript.KIND_STORM
 		)
 		var shaft := maxf(float(_cells.radii[slot]) * RAIN_SHAFT_RADIUS, 1.0)
 		var inside := 1.0 - smoothstep(
@@ -1668,14 +1692,18 @@ func _advance_lightning(delta: float) -> void:
 func _place_strike(slot: int) -> void:
 	var center: Vector3 = _cells.centers[slot]
 	var view_at := _view_position()
-	if CloudCellsScript.kind_of(slot) == CloudCellsScript.KIND_CUMULUS:
-		# A merged tower lives on the smaller cumulus tile: take the nearest copy the
-		# sky actually draws (R-1495 thins distant copies), which is then also the
-		# nearest copy on the storm tile the strike origin is wrapped on.
-		var near := _cells.visible_copy_centre(slot, Vector2(view_at.x, view_at.z))
-		center = Vector3(near.x, center.y, near.y)
 	var radius: float = _cells.radii[slot]
 	var height: float = _cells.heights[slot]
+	if CloudCellsScript.kind_of(slot) == CloudCellsScript.KIND_CUMULUS:
+		# R-1501: a merged cluster storms only in its hotspot copy; strike from the
+		# one nearest the camera, which is then also the nearest copy on the storm
+		# tile the strike origin is wrapped on.
+		var shape := _cells.copy_shape(
+			slot, _cells.tower_copy_centre(slot, Vector2(view_at.x, view_at.z))
+		)
+		center = Vector3(shape[0], shape[1], shape[2])
+		radius = shape[3]
+		height = shape[4]
 	var angle := _lightning_rng.randf() * TAU
 	var reach := sqrt(_lightning_rng.randf()) * radius * 0.45
 	_lightning_kind = (
@@ -1747,10 +1775,20 @@ func _update_rain(delta: float = 0.0) -> void:
 		_rain.amount_ratio = clampf(local_rain, 0.05, 1.0)
 	var process := _rain.process_material as ParticleProcessMaterial
 	if process != null:
-		var wind := wind_direction_xz() * wind_strength()
-		process.direction = Vector3(wind.x * 0.40, -1.0, wind.y * 0.40).normalized()
+		# R-1501: drops drift with the wind at the physical angle; no gravity, they
+		# already fall at terminal speed.
+		var velocity := Vector3(0.0, -RAIN_STREAK_SPEED, 0.0)
+		var slant := rain_slant()
+		velocity += Vector3(slant.x, 0.0, slant.y) * RAIN_STREAK_SPEED
+		process.direction = velocity.normalized()
+		process.initial_velocity_min = velocity.length() * 0.9
+		process.initial_velocity_max = velocity.length() * 1.1
 	if _camera != null:
-		_rain.global_position = _camera.global_position + Vector3.UP * RAIN_EMITTER_HEIGHT
+		# Emit upwind so the slanted rain still lands around the camera.
+		var drift := rain_slant() * RAIN_EMITTER_HEIGHT
+		_rain.global_position = (
+			_camera.global_position + Vector3(-drift.x, RAIN_EMITTER_HEIGHT, -drift.y)
+		)
 	if _roof_audio != null:
 		# A roof only drums when the storm cell is over the building.
 		_roof_audio.sync(rain_suppressed, local_rain, delta)
@@ -1779,6 +1817,7 @@ func _push_cloud_uniforms() -> void:
 	_material.set_shader_parameter(&"lightning_ground", _lightning_ground)
 	_material.set_shader_parameter(&"lightning_kind", float(_lightning_kind))
 	_material.set_shader_parameter(&"cloud_cells", _cells.uniforms())
+	_material.set_shader_parameter(&"rain_slant", rain_slant() * RAIN_SHAFT_SLANT)
 	_material.set_shader_parameter(&"cell_steps", int(settings["cloud_cell_steps"]))
 	_material.set_shader_parameter(&"cell_fine_steps", int(settings["cloud_cell_fine_steps"]))
 	_material.set_shader_parameter(

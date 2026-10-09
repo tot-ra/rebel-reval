@@ -272,7 +272,9 @@ static func build_rain(amount: int = RAIN_PARTICLES_RECOMMENDED) -> GPUParticles
 	process.spread = 2.0
 	process.initial_velocity_min = 15.0
 	process.initial_velocity_max = 19.0
-	process.gravity = Vector3(0.0, -10.0, 0.0)
+	# R-1501: drops already fall at terminal speed; gravity would straighten the
+	# wind slant SkyWeather3D._update_rain() sets on the direction.
+	process.gravity = Vector3.ZERO
 	process.set_particle_flag(ParticleProcessMaterial.PARTICLE_FLAG_ALIGN_Y_TO_VELOCITY, true)
 	rain.process_material = process
 	# Stretched unshaded streaks; built from primitives, no texture assets.
