@@ -289,6 +289,11 @@ static func apply_shore_field(texture: Texture2D, origin: Vector2, size: Vector2
 	SHORE_MATERIALS.apply_shore_field(texture, origin, size)
 
 
+## WR-4: the city's bathymetry for the bed-aware surf; after apply_shore_field().
+static func apply_shore_bed(texture: Texture2D) -> void:
+	SHORE_MATERIALS.apply_shore_bed(texture)
+
+
 ## R-1160: binds one map's river channel centreline, so the current follows the
 ## meander and slows at the banks. An empty path restores the single heading.
 static func apply_river_flow(path: PackedVector3Array) -> void:

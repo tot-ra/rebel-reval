@@ -48,6 +48,26 @@ uniform float shore_foam_gain = 1.0;
 // a spilling breaker: a milder skew, a broader top and only a hint of the curl
 // that pushed the crest over its own face into a sharp lip.
 uniform float shore_crest_shape = 0.0;
+// WR-4 bathymetry, baked by CityShoreField.bake on the shore_field grid (same
+// origin and size): R still-water depth (m), G crest travel time from the offshore
+// source line (s, -1 where no wave arrives; land copies its waterline's time),
+// B beach-face slope tan(beta) of the nearest shore, A controlling depth (the
+// shallowest depth the wave crossed). shore_bed_valid 0 (district maps) keeps the
+// idealised beach below; 1 (the city) lets the waves feel this bed. Then the bound
+// shore_field is a side-by-side atlas: distance field left, bathymetry right. WHY
+// one sampler: the water shader already sits at GL Compatibility's limit of 16
+// fragment samplers.
+uniform float shore_bed_valid = 0.0;
+
+// shore_field uv of one atlas half (0 field, 1 bed); plain uv without the atlas.
+// The clamp keeps each half clamp-to-edge, so the seam never blends field and bed.
+vec2 shore_atlas_uv(vec2 uv, float half_index) {
+	if (shore_bed_valid < 0.5) {
+		return uv;
+	}
+	float edge = 0.5 / float(textureSize(shore_field, 0).x);
+	return vec2(clamp(uv.x * 0.5, edge, 0.5 - edge) + 0.5 * half_index, uv.y);
+}
 
 // Deviation from Tidewater's sea-state-scaled period (9 s * mix(1.2, 0.8, sea)):
 // ocean_time is an absolute clock, so a period that follows the weather would
@@ -88,6 +108,30 @@ const int SHORE_LOOKBACK = 8;
 // Run-up clamp, just inside MapViewMeshBuilderTerrainWater.SHORE_SHEET_REACH.
 const float SHORE_MAX_RUNUP = 2.9;
 const float SHORE_NEVER_WET = 10000.0;
+// WR-4 bed-aware surf (shore_bed_valid), mirrored by CityWaterSurface.
+// Deep-water wavelength of the fixed shore period, L0 = g T^2 / (2 pi).
+const float BED_L0 = 9.81 * SHORE_PERIOD * SHORE_PERIOD / 6.2831853;
+// Depth (m) at which shore_wave_gain x SHORE_AMPLITUDE x energy is the wave height;
+// Green's law H ~ h^-1/4 shoals it from there.
+const float BED_REF_DEPTH = 4.0;
+const float BED_MIN_DEPTH = 0.05;
+// Seconds of travel from the source line over which the train grows in.
+const float BED_ONSET = 3.0;
+// Slow alongshore phase scatter (cycles): the travel time already varies the
+// arrival along the coast, so far less than the district's 0.55.
+const float BED_PHASE_VARIATION = 0.15;
+// Cap on the local seaward-facing bed slope in the Iribarren number. WHY: the
+// breaker sees the slope over about a quarter wavelength; a 3 m boulder dome
+// differenced over one 2 m texel is not a 1:1 beach.
+const float BED_LOCAL_SLOPE_MAX = 0.1;
+// Breaker class blends on xi_b (Battjes 1974: spilling < 0.4, plunging 0.4-2,
+// collapsing / surging > 2). The plunging blend sits a little above 0.4 so a
+// 1:25-1:30 sand beach stays spilling at the fixed 9 s period (a long L0 that
+// already overstates xi for the Baltic wind sea); the surging blend is centred on 2.
+const vec2 BED_PLUNGE_XI = vec2(0.45, 0.8);
+const vec2 BED_SURGE_XI = vec2(1.6, 2.4);
+// Crest half-width as a share of the local wavelength.
+const float BED_CREST_WIDTH = 0.24;
 
 struct ShoreState {
 	float valid;            // 0..1, fades out at the field clamp
@@ -108,6 +152,8 @@ struct ShoreState {
 	float wall_foam;        // foam at the foot of a quay or rock edge
 	float surge;            // WR-2 landward water excursion in the surf zone, world units
 	float foam_age;         // WR-2 seconds since the bore passed this point (surf zone)
+	float plunge;           // WR-4 0 spilling .. 1 plunging (Iribarren number)
+	float surging;          // WR-4 0 breaking .. 1 collapsing / surging (steep shore)
 };
 
 float _swash_hash(vec2 p) {
@@ -140,13 +186,111 @@ float _swash_set_envelope(float wave_index) {
 
 // Sheet front (world units inland) during one cycle: ease-out uprush, then an
 // ease-in backwash that starts slowly and drains back over the longer remainder.
-float _swash_front(float u, float reach) {
+// WR-4 `drain` (0 district, surging share in the city) pulls the backwash in
+// earlier and harder, the strong return flow of a reflective shore.
+float _swash_front(float u, float reach, float drain) {
 	if (u < SHORE_UPRUSH) {
 		float a = 1.0 - u / SHORE_UPRUSH;
 		return reach * (1.0 - a * a);
 	}
 	float b = (u - SHORE_UPRUSH) / (1.0 - SHORE_UPRUSH);
-	return reach * (1.0 - b * b);
+	return reach * (1.0 - (drain > 0.0 ? pow(b, mix(2.0, 1.2, drain)) : b * b));
+}
+
+// WR-4 depth (m) at which this sea state breaks: Green's law H = H_ref (h_ref / h)^1/4
+// from BED_REF_DEPTH meets H = gamma h.
+float _shore_bed_break_depth(float h_deep) {
+	return pow(h_deep * pow(BED_REF_DEPTH, 0.25) / SHORE_GAMMA, 0.8);
+}
+
+// WR-4 crest profile over one local wavelength. rel is metres from the crest
+// (+ seaward, behind it); the shoreward face shortens as the wave steepens,
+// more for plunging, barely for surging.
+float _shore_bed_profile(float rel, float wavelength, float steep, float plunge, float surging) {
+	float width = max(BED_CREST_WIDTH * wavelength, 1.5);
+	float face_k = mix(mix(0.65, 0.42, plunge), 0.9, surging);
+	float face = rel < 0.0 ? width * mix(1.0, face_k, steep) : width;
+	float phase = clamp(rel / face, -1.0, 1.0) * 3.14159265;
+	// Same GLES guard as the district profile: never a negative pow() base.
+	float base = max(0.5 + 0.5 * cos(phase), 0.000001);
+	return pow(base, 1.0 + mix(mix(0.8, 1.8, plunge), 0.5, surging) * steep);
+}
+
+// WR-4 water side of the bed-aware surf. bed, bed_dx, bed_dz are the shore_bed
+// texel here and one texel along +x / +z; cell is world units per texel.
+ShoreState _shore_bed_water(
+	ShoreState s, vec4 bed, vec4 bed_dx, vec4 bed_dz, vec2 cell, float u, float h_deep,
+	float sea_state, float strength, float field_distance
+) {
+	float h = max(bed.r, BED_MIN_DEPTH);
+	float h_ctrl = clamp(bed.a, BED_MIN_DEPTH, h);
+	vec2 grad_h = vec2(bed_dx.r - bed.r, bed_dz.r - bed.r) / cell;
+	vec2 travel = s.to_land;
+	// Bed slope met by the wave (depth falling along its travel).
+	float up = clamp(-dot(grad_h, travel), 0.0, BED_LOCAL_SLOPE_MAX);
+	float tan_beta = max(bed.b, up);
+	// Iribarren number with the breaker height of this sea state. Re-formed
+	// waves behind a bar keep it: their own, lower re-break is spilling anyway.
+	float breaker = SHORE_GAMMA * _shore_bed_break_depth(h_deep);
+	float xi = tan_beta / sqrt(max(breaker, 0.02) / BED_L0);
+	s.plunge = smoothstep(BED_PLUNGE_XI.x, BED_PLUNGE_XI.y, xi);
+	s.surging = smoothstep(BED_SURGE_XI.x, BED_SURGE_XI.y, xi);
+	if (s.distance < 0.0) {
+		return s;
+	}
+	// Shoaling from the reference depth, capped by the shallowest depth crossed:
+	// a wave that broke on a bar or reef travels on at gamma x that depth and
+	// only breaks again where the bed rises above the bar.
+	float shoal = h_deep * pow(BED_REF_DEPTH / h, 0.25);
+	float height = min(shoal, SHORE_GAMMA * h_ctrl);
+	float steep = clamp(height / (SHORE_GAMMA * h), 0.0, 1.0);
+	float breaking = smoothstep(0.9, 1.0, steep);
+	float broke_before = smoothstep(
+		0.92, 1.0, h_deep * pow(BED_REF_DEPTH / h_ctrl, 0.25) / (SHORE_GAMMA * h_ctrl)
+	);
+	float reformed = broke_before * (1.0 - breaking);
+	// Eckart (1952): L = L0 sqrt(tanh(2 pi h / L0)), so trains shorten as they slow.
+	float wavelength = BED_L0 * sqrt(tanh(6.2831853 * h / BED_L0));
+	float onset = smoothstep(0.0, BED_ONSET, bed.g);
+	float rel = (u < 0.5 ? u : u - 1.0) * wavelength;
+	float incident = height * onset
+		* _shore_bed_profile(rel, wavelength, steep, s.plunge, s.surging);
+	// Reflection off the shore, Battjes R = 0.1 xi^2 on the beach face: a crest
+	// leaves the waterline as the incident one arrives and dies off within about
+	// half a wavelength. Quays (xi >> 3) reflect fully and stand. The reflected
+	// crest adds R x H / 2: this lift-only profile already draws the incident crest
+	// at the full height H (troughs are not drawn), so a second full H would make a
+	// standing crest four times its physical elevation and overtop the quays.
+	float xi_face = bed.b / sqrt(max(breaker, 0.02) / BED_L0);
+	float reflect_k = clamp(0.1 * xi_face * xi_face, 0.0, 1.0);
+	float to_shore = max(field_distance, 0.0) * shore_depth_scale;
+	float u_back = fract(u - 2.0 * to_shore / wavelength);
+	float reflected = reflect_k * 0.5 * height * onset * exp(-to_shore / (0.5 * wavelength))
+		* _shore_bed_profile((u_back < 0.5 ? u_back : u_back - 1.0) * wavelength, wavelength,
+			steep, 0.0, 1.0);
+	s.height = incident + reflected;
+	s.curl = SHORE_CURL * mix(0.3, 0.7, s.plunge * (1.0 - s.surging)) * incident
+		* smoothstep(0.6, 1.0, steep);
+	float since_pass = u * SHORE_PERIOD;
+	s.surf_zone = max(breaking, 0.5 * reformed) * (1.0 - 0.7 * s.surging);
+	float bore = exp(-since_pass / SHORE_SURF_FOAM_LIFE) * mix(0.55, 1.0, exp(-since_pass / 0.6));
+	bore = max(bore, exp(-since_pass / SHORE_FOAM_LIFE) * 0.25 * s.surf_zone);
+	bore *= smoothstep(0.0, 0.18, since_pass);
+	// Plunging: the jet hits the trough, a burst of foam just after the crest.
+	bore *= 1.0 + 0.8 * s.plunge * (1.0 - s.surging) * exp(-since_pass / 0.9);
+	// Surging: the wave slides up the face without breaking; little foam.
+	float broken = max(breaking, 0.35 * reformed) * (1.0 - 0.8 * s.surging) * onset;
+	s.bore_foam = broken * bore * mix(0.7, 1.0, sea_state) * shore_foam_gain;
+	// WR-2 contract: landward excursion under the bore and seconds since it passed.
+	float excursion = 0.5 * height * sqrt(9.81 / h) * SHORE_PERIOD / 6.2831853;
+	s.surge = min(excursion, 4.0) * (smoothstep(0.0, 0.12, u) - u) * broken;
+	s.foam_age = mix(SHORE_NEVER_WET, since_pass, broken);
+	// The reflected crest replaces the district wall slosh; the wall foam stays.
+	s.slosh = 0.0;
+	float slosh_phase = sin(6.2831853 * u);
+	s.wall_foam = exp(-s.distance / 0.45) * (0.45 + 0.55 * max(slosh_phase, 0.0))
+		* mix(0.5, 1.0, sea_state) * strength * (1.0 - s.beach);
+	return s;
 }
 
 // Two octaves of patch noise so foam lines never read as an even white rope
@@ -178,6 +322,8 @@ ShoreState shore_state(vec2 world_xz, float t, vec4 sea) {
 	s.wall_foam = 0.0;
 	s.surge = 0.0;
 	s.foam_age = SHORE_NEVER_WET;
+	s.plunge = 0.0;
+	s.surging = 0.0;
 	if (shore_field_valid < 0.5 || sea.y <= 0.0) {
 		return s;
 	}
@@ -185,19 +331,46 @@ ShoreState shore_state(vec2 world_xz, float t, vec4 sea) {
 	if (uv.x < 0.0 || uv.y < 0.0 || uv.x > 1.0 || uv.y > 1.0) {
 		return s;
 	}
-	vec4 field = textureLod(shore_field, uv, 0.0);
+	vec4 field = textureLod(shore_field, shore_atlas_uv(uv, 0.0), 0.0);
 	vec2 dir = field.gb * 2.0 - 1.0;
 	float dir_length = length(dir);
-	if (dir_length < 0.2) {
+	// WR-4: the bed-aware surf reaches past the shore field (bars, reefs), so it
+	// keeps going where no shoreline is within the field clamp.
+	bool bed_mode = shore_bed_valid > 0.5;
+	vec4 bed = vec4(0.0, -1.0, 0.0, 0.0);
+	vec4 bed_dx = bed;
+	vec4 bed_dz = bed;
+	vec2 bed_cell = vec2(1.0);
+	if (bed_mode) {
+		// One bed texel in the field's uv (the atlas is two fields wide).
+		vec2 texel = vec2(2.0, 1.0) / vec2(textureSize(shore_field, 0));
+		bed_cell = shore_field_size * texel;
+		bed = textureLod(shore_field, shore_atlas_uv(uv, 1.0), 0.0);
+		bed_dx = textureLod(shore_field, shore_atlas_uv(uv + vec2(texel.x, 0.0), 1.0), 0.0);
+		bed_dz = textureLod(shore_field, shore_atlas_uv(uv + vec2(0.0, texel.y), 1.0), 0.0);
+	}
+	if (dir_length < 0.2 && !bed_mode) {
 		// No shoreline within the field clamp (or two shores cancel in the filter).
 		return s;
 	}
-	dir /= dir_length;
+	dir = dir_length > 0.0001 ? dir / dir_length : vec2(0.0);
 	float x = field.r + sea.z;
 	s.valid = 1.0 - smoothstep(SHORE_OFFSHORE - 1.0, SHORE_OFFSHORE, abs(field.r));
 	s.distance = x;
 	s.to_land = dir;
 	s.beach = smoothstep(0.35, 0.65, field.a);
+	if (bed_mode) {
+		// Inside the wave zone (travel time >= 0) on the water side; the land side
+		// still fades at the field clamp.
+		s.valid = smoothstep(-0.9, -0.1, bed.g) * smoothstep(-0.9, -0.1, min(bed_dx.g, bed_dz.g))
+			* (1.0 - smoothstep(SHORE_OFFSHORE - 1.0, SHORE_OFFSHORE, max(-field.r, 0.0)));
+		// Waves travel along the travel-time gradient (refracted rays); land
+		// copies its waterline's time, so there the shore normal takes over.
+		vec2 grad_tau = vec2(bed_dx.g - bed.g, bed_dz.g - bed.g) / bed_cell;
+		float ray = smoothstep(0.02, 0.06, length(grad_tau)) * step(0.2, s.valid);
+		vec2 travel = mix(dir, grad_tau / max(length(grad_tau), 0.0001), ray);
+		s.to_land = length(travel) > 0.0001 ? normalize(travel) : vec2(0.0);
+	}
 
 	float sea_state = clamp(sea.x, 0.0, 1.0);
 	// Calm Baltic days still lap at the sand; family strength scales everything.
@@ -207,6 +380,13 @@ ShoreState shore_state(vec2 world_xz, float t, vec4 sea) {
 	// coordinates onto the changing nearest-shore tangent makes phase islands at
 	// bends/quays: centimetres of travel can jump the crest and its foam by seconds.
 	float cycle = t / period + SHORE_VARIATION * _swash_noise(world_xz * 0.05 + vec2(0.0, 3.7));
+	if (bed_mode) {
+		// WR-4: the crest passes here travel-time seconds after it left the source
+		// line, so crests are lines of equal travel time: refracted and shoaled by
+		// the bake. A static offset keeps the 182-wave ocean_time wrap seamless.
+		cycle = (t - max(bed.g, 0.0)) / period
+			+ BED_PHASE_VARIATION * _swash_noise(world_xz * 0.02 + vec2(0.0, 3.7));
+	}
 	float wave_index = floor(cycle);
 	float u = cycle - wave_index;
 
@@ -221,7 +401,15 @@ ShoreState shore_state(vec2 world_xz, float t, vec4 sea) {
 	float breaker_height = SHORE_GAMMA * _swash_depth(break_x);
 	s.surf_zone = (1.0 - smoothstep(break_x * 0.85, break_x * 1.1, x)) * step(0.0, x) * s.beach;
 
-	if (x >= 0.0) {
+	float drain = 0.0;
+	if (bed_mode) {
+		// breaker_height stays the district value: the run-up gains were calibrated
+		// on it, and the bed's taller breaker (Green's law from 4 m) pinned every
+		// storm run-up at SHORE_MAX_RUNUP, a film across the city paving.
+		s = _shore_bed_water(s, bed, bed_dx, bed_dz, bed_cell, u, h_deep, sea_state, sea.y, x);
+		drain = s.surging;
+	}
+	if (x >= 0.0 && !bed_mode) {
 		// Incoming crest: enters the field at u = 1 - SHORE_APPROACH, slows as the
 		// water shallows (celerity ~ sqrt(g d)) and reaches the waterline at u = 1.
 		float approach = clamp((1.0 - u) / SHORE_APPROACH, 0.0, 1.0);
@@ -288,20 +476,20 @@ ShoreState shore_state(vec2 world_xz, float t, vec4 sea) {
 		SHORE_RUNUP * breaker_height * 1.8 / SHORE_METERS_PER_UNIT * sea.w * reach_variation
 	);
 	float reach_now = min(base_reach * _swash_set_envelope(wave_index), SHORE_MAX_RUNUP);
-	float front = _swash_front(u, reach_now);
+	float front = _swash_front(u, reach_now, drain);
 	float uprush = 1.0 - step(SHORE_UPRUSH, u);
 	s.front_distance = front - land;
 	s.wet = step(0.0, land) * step(land, front) * step(0.001, front);
 	s.sheet_thickness = 0.045 * energy
 		* sqrt(clamp(s.front_distance / max(front, 0.05), 0.0, 1.0))
-		* mix(0.45, 1.0, uprush);
+		* mix(mix(0.45, 0.9, drain), 1.0, uprush);
 	// A narrow bright bead sits just behind the front, a thinner trail behind it.
 	float bead_coordinate = (s.front_distance - 0.08) / 0.06;
 	float bead = exp(-bead_coordinate * bead_coordinate);
 	float trail = smoothstep(0.0, 0.1, s.front_distance)
 		* exp(-max(s.front_distance, 0.0) / 0.45) * 0.55;
 	s.front_foam = (bead + trail) * mix(0.3, 1.0, _swash_patch(world_xz, t))
-		* mix(0.5, 1.0, uprush) * step(0.02, front) * s.beach;
+		* mix(0.5, 1.0, uprush) * step(0.02, front) * s.beach * (1.0 - 0.6 * drain);
 
 	if (land >= 0.0) {
 		// Periodic model => analytic wetting history. Walk back over the last set:
@@ -320,7 +508,11 @@ ShoreState shore_state(vec2 world_xz, float t, vec4 sea) {
 			if (!found && land <= reach) {
 				float r = sqrt(max(1.0 - land / max(reach, 0.001), 0.0));
 				float u_up = SHORE_UPRUSH * (1.0 - r);
-				float u_down = SHORE_UPRUSH + (1.0 - SHORE_UPRUSH) * r;
+				// Backwash inverse of _swash_front (b^p = 1 - land / reach).
+				float drained = drain > 0.0
+					? pow(max(1.0 - land / max(reach, 0.001), 0.0), 1.0 / mix(2.0, 1.2, drain))
+					: r;
+				float u_down = SHORE_UPRUSH + (1.0 - SHORE_UPRUSH) * drained;
 				if (elapsed >= u_up) {
 					s.time_since_wet = max(elapsed - u_down, 0.0) * period;
 					found = true;

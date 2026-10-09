@@ -87,6 +87,7 @@ static func apply_shore_field(texture: Texture2D, origin: Vector2, size: Vector2
 	_set_shore_uniform(&"shore_depth_scale", 1.0)
 	_set_shore_uniform(&"shore_foam_gain", 1.0)
 	_set_shore_uniform(&"shore_crest_shape", 0.0)
+	_set_shore_uniform(&"shore_bed_valid", 0.0)
 	var extent := Vector2(maxf(size.x, 0.001), maxf(size.y, 0.001))
 	for material in _shore_materials():
 		if texture != null:
@@ -100,6 +101,18 @@ static func apply_shore_field(texture: Texture2D, origin: Vector2, size: Vector2
 		)
 		var strength: Variant = SHORE_STRENGTH_BY_TERRAIN.get(terrain_id, 0.0)
 		water.set_shader_parameter("shore_strength", float(strength))
+
+
+## WR-4: binds the city's shore atlas (CityShoreField.bake "bed_texture": the shore
+## field and the bathymetry side by side) so the surf feels the real bed. Call after
+## apply_shore_field(), which rebinds a plain field and turns this off again.
+static func apply_shore_bed(atlas: Texture2D) -> void:
+	if atlas == null:
+		return
+	for material in _shore_materials():
+		material.set_shader_parameter("shore_field", atlas)
+	_set_shore_uniform(&"shore_bed_valid", 1.0)
+	_sync_swash_sheets()
 
 
 ## Minimum tier drops the sheet mesh but keeps the bore foam and wet sand. Like

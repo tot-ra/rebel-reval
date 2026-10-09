@@ -571,6 +571,9 @@ func _bind_shore_field(shore: Dictionary) -> void:
 		SURF_FOAM_GAIN,
 		SURF_CREST_SHAPE
 	)
+	# WR-4: the surf feels the baked bathymetry (bars, reefs, shingle, quays).
+	var bed: Texture2D = shore["bed_texture"]
+	MapViewMaterials.apply_shore_bed(bed)
 	spray = ShoreSpray.new()
 	spray.name = "ShoreSpray"
 	add_child(spray)
@@ -586,6 +589,7 @@ func _bind_shore_field(shore: Dictionary) -> void:
 				SURF_FOAM_GAIN,
 				SURF_CREST_SHAPE
 			)
+			MapViewMaterials.apply_shore_bed(bed)
 	)
 
 

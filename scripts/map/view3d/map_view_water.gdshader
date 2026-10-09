@@ -163,6 +163,7 @@ uniform float shore_geometry_scale = 0.12;
 uniform float rainbow_strength = 0.0;
 uniform float rainbow_droplet = 0.85;
 uniform vec3 rainbow_curtain = vec3(0.0);
+uniform float rainbow_secondary = 1.0;
 // Lower than the dome's 0.55: the reflected sky is darker than the dome, so the same
 // additive bow (and its bright interior) read as a white blot on the water.
 uniform float rainbow_gain = 0.32;
@@ -815,7 +816,7 @@ vec3 _with_reflected_rainbow(vec3 color, vec3 dir) {
 	vec3 light = sun_reflection_color
 		/ max(max(sun_reflection_color.r, max(sun_reflection_color.g, sun_reflection_color.b)), 1e-4);
 	return rainbow_apply(color, dir, sun_direction, rainbow_strength * (1.0 - cloud_darken),
-		rainbow_droplet, rainbow_curtain, light * rainbow_gain);
+		rainbow_droplet, rainbow_secondary, rainbow_curtain, light * rainbow_gain);
 }
 
 vec3 _sky_dome_reflection(vec3 dir) {
@@ -871,11 +872,11 @@ float _fetch_shelter(vec2 world_xz) {
 	if (uv.x < 0.0 || uv.y < 0.0 || uv.x > 1.0 || uv.y > 1.0) {
 		return 1.0;
 	}
-	float local_dist = textureLod(shore_field, uv, 0.0).r;
+	float local_dist = textureLod(shore_field, shore_atlas_uv(uv, 0.0), 0.0).r;
 	vec2 uv_up = (world_xz - wind * 8.0 - shore_field_origin) / extent;
 	float upwind_dist = 12.0;
 	if (uv_up.x >= 0.0 && uv_up.y >= 0.0 && uv_up.x <= 1.0 && uv_up.y <= 1.0) {
-		upwind_dist = textureLod(shore_field, uv_up, 0.0).r;
+		upwind_dist = textureLod(shore_field, shore_atlas_uv(uv_up, 0.0), 0.0).r;
 	}
 	float fetch = smoothstep(0.0, 12.0, upwind_dist);
 	float basin = smoothstep(1.5, 12.0, local_dist);
@@ -1782,12 +1783,15 @@ void fragment() {
 			float energy = mix(0.55, 1.0, clamp(shore_sea_state, 0.0, 1.0));
 			// Squares by multiplication: GLSL pow() is undefined for a negative base
 			// (the NaN class behind the earlier dark shore bands).
-			float roller_x = (age - 0.35) / 0.5;
+			// WR-4 breaker type: a plunging jet bursts a wider, denser roller; a
+			// surging wave slides up and back with little white water.
+			float roller_x = (age - 0.35) / mix(0.5, 0.8, shore_now.plunge);
 			float roller = exp(-roller_x * roller_x);
 			float trail = exp(-age / CITY_SURF_FOAM_LIFE);
 			float zone = clamp(shore_now.bore_foam / max(shore_foam_gain, 0.001), 0.0, 1.0);
-			float coverage = max(roller * 0.95, trail * 0.6) * step(0.0, shore_now.distance)
-				* smoothstep(0.0, 0.25, zone) * energy;
+			float coverage = max(roller * 0.95, trail * mix(0.6, 0.72, shore_now.plunge))
+				* step(0.0, shore_now.distance) * smoothstep(0.0, 0.25, zone) * energy
+				* (1.0 - 0.7 * shore_now.surging);
 			// Hard edges (quays, rocks) keep their slosh foam band.
 			coverage = max(coverage, clamp(shore_now.wall_foam, 0.0, 1.0) * 0.8);
 			coverage = max(coverage, CITY_SURF_SCUM * shore_now.surf_zone * energy);

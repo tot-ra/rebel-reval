@@ -45,7 +45,7 @@ Constraint shared by all rows: Godot 4.7 **GL Compatibility** (no compute shader
 | R-1499 | WR-1 band-limited wave geometry: bed-relative troughs, no C1 on the 4 m grid, rounded spilling crest | implemented |
 | R-1500 | WR-2 foam attached to the water: Lagrangian cells, swash surge, age dissolve, physical coverage; interim smaller lit spray | implemented |
 | R-1508 | WR-3 camera-centred sea LOD with geomorphing, graphics-tier water presets | planned |
-| R-1509 | WR-4 waves feel the seabed: shoaling, refraction, breaker type by Iribarren number | planned |
+| R-1509 | WR-4 waves feel the seabed: shoaling, refraction, breaker type by Iribarren number ([page](../../SYSTEMS/CITY_SEA.md#waves-feel-the-seabed-wr-4)) | implemented |
 | R-1510 | WR-5 waves around rocks and obstacles: local GPU wave sim with obstacle mask | planned |
 | R-1511 | WR-6 event-driven spray, splash and mist | planned |
 | R-1512 | WR-7 persistent foam buffer (born, advected, decayed), high tier | planned |

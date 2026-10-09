@@ -94,3 +94,145 @@ func test_sandbox_builds_every_bay_with_sea_land_and_obstacles() -> void:
 	assert_true(sandbox.world.sea_shore.has("contour"), "runtime shore field baked on the sandbox")
 	assert_true(sandbox.world.get_node_or_null("Water/Sea") != null, "runtime sea mesh built")
 	sandbox.free()
+
+
+# WR-4 (R-1509): waves feel the seabed.
+
+const Surface := preload("res://scripts/city/city_water_surface.gd")
+const ShoreField := preload("res://scripts/city/city_shore_field.gd")
+const SWASH := "res://scripts/map/view3d/shore_swash.gdshaderinc"
+
+
+func _sandbox() -> Node3D:
+	return (load(SANDBOX) as Script).create()
+
+
+func _bed_material(sea_state: float) -> ShaderMaterial:
+	var material := MapViewMaterials.water_surface(MapTypes.TERRAIN_SHALLOW_WATER)
+	material.set_shader_parameter("shore_sea_state", sea_state)
+	return material
+
+
+## Straight beach whose depth contours run at 30 degrees to the grid.
+func _oblique_plan() -> CityPlan:
+	var plan := CityPlan.new()
+	plan._nx = 121
+	plan._ny = 121
+	plan._cell = 2.0
+	plan._origin = Vector2(-120.0, -200.0)
+	plan.bounds = Rect2(plan._origin, Vector2(240.0, 240.0))
+	var normal := Vector2(sin(deg_to_rad(30.0)), cos(deg_to_rad(30.0)))
+	for j in plan._ny:
+		for i in plan._nx:
+			var p := plan._origin + Vector2(i, j) * plan._cell
+			plan._heights.append(maxf(p.dot(normal) * 0.04, -6.0))
+	return plan
+
+
+func test_bed_bake_slows_trains_and_turns_crests_to_the_contours() -> void:
+	var plan := _oblique_plan()
+	var shore := ShoreField.bake(plan)
+	assert_true(shore.has("bed_texture") and shore.has("bed_samples"), "bathymetry atlas baked")
+	var atlas: Texture2D = shore["bed_texture"]
+	assert_eq(atlas.get_width(), plan.height_grid_size().x * 2, "field and bed side by side")
+	var normal := Vector2(sin(deg_to_rad(30.0)), cos(deg_to_rad(30.0)))
+	var cell := plan.height_cell()
+	var previous_pace := 0.0
+	for d: float in [60.0, 40.0, 20.0, 8.0]:
+		# Point d world units seaward of the waterline, off-centre along the shore.
+		var p := Vector2(-20.0, 0.0) - normal * d + normal.orthogonal() * 10.0
+		var bed := Surface.bed_at(shore, p)
+		assert_true(bed.y > 0.0, "inside the wave zone at %d m" % int(d))
+		var grad := Vector2(
+			Surface.bed_at(shore, p + Vector2(cell, 0)).y - Surface.bed_at(shore, p - Vector2(cell, 0)).y,
+			Surface.bed_at(shore, p + Vector2(0, cell)).y - Surface.bed_at(shore, p - Vector2(0, cell)).y
+		) / (2.0 * cell)
+		# Refraction: crests (equal travel time) run parallel to the depth contours.
+		assert_true(
+			absf(rad_to_deg(grad.angle_to(normal))) < 4.0,
+			"crest normal follows the bed at %d m: %.1f deg" % [int(d), rad_to_deg(grad.angle_to(normal))]
+		)
+		# Shoaling: the train slows (time per metre rises) as the water shallows.
+		var pace := grad.length()
+		assert_true(pace > previous_pace, "slower in shallower water at %d m" % int(d))
+		assert_almost_eq(pace, 1.0 / ShoreField.bed_celerity(bed.x), 0.12 / ShoreField.bed_celerity(bed.x))
+		previous_pace = pace
+
+
+func test_bar_and_reef_break_then_reform_and_break_again() -> void:
+	var sandbox := _sandbox()
+	var shore: Dictionary = sandbox.world.sea_shore
+	var material := _bed_material(0.95)
+	for id: String in ["sand", "reef"]:
+		var cx: float = sandbox.bay_centres[id]
+		var bar_z := -48.0 if id == "sand" else -34.0
+		var lagoon_z := -38.0 if id == "sand" else -30.0
+		var at_bar := Surface.bed_state(shore, Vector2(cx + 7.0, bar_z), 2.0, material)
+		var behind := Surface.bed_state(shore, Vector2(cx + 7.0, lagoon_z), 2.0, material)
+		var inshore := Surface.bed_state(shore, Vector2(cx + 7.0, -8.0), 2.0, material)
+		assert_true(float(at_bar["breaking"]) > 0.9, "%s: breaks on the bar / reef" % id)
+		assert_true(float(behind["breaking"]) < 0.2, "%s: unbroken in the trough behind it" % id)
+		assert_true(float(behind["reformed"]) > 0.8, "%s: the wave re-forms" % id)
+		assert_true(float(inshore["breaking"]) > 0.9, "%s: breaks again near the shore" % id)
+		var control := Surface.bed_at(shore, Vector2(cx + 7.0, lagoon_z))
+		assert_true(control.w < control.x - 0.05, "%s: controlling depth carries the bar" % id)
+	sandbox.free()
+
+
+func test_breaker_class_follows_the_iribarren_number() -> void:
+	var sandbox := _sandbox()
+	var shore: Dictionary = sandbox.world.sea_shore
+	for wind: float in [0.55, 0.95]:
+		var material := _bed_material(wind)
+		var classes := {}
+		for id: String in ["sand", "shingle", "quay"]:
+			var cx: float = sandbox.bay_centres[id]
+			classes[id] = Surface.bed_state(shore, Vector2(cx + 7.0, -4.0), 2.0, material)
+		var sand: Dictionary = classes["sand"]
+		var shingle: Dictionary = classes["shingle"]
+		var quay: Dictionary = classes["quay"]
+		assert_true(float(sand["plunge"]) < 0.3 and float(sand["surging"]) == 0.0,
+			"wind %.2f: gentle sand spills (xi %.2f)" % [wind, sand["xi"]])
+		assert_true(float(shingle["surging"]) > 0.3,
+			"wind %.2f: steep shingle collapses / surges (xi %.2f)" % [wind, shingle["xi"]])
+		assert_true(float(quay["surging"]) > 0.99, "wind %.2f: a quay wall reflects" % wind)
+		assert_true(float(sand["xi"]) < float(shingle["xi"]) and float(shingle["xi"]) < float(quay["xi"]))
+	# Calmer sea, same shingle: lower waves raise xi towards surging.
+	var cx: float = sandbox.bay_centres["shingle"]
+	var calm := Surface.bed_state(shore, Vector2(cx + 7.0, -4.0), 2.0, _bed_material(0.1))
+	var gale := Surface.bed_state(shore, Vector2(cx + 7.0, -4.0), 2.0, _bed_material(0.95))
+	assert_true(float(calm["xi"]) > float(gale["xi"]), "xi rises as the sea calms")
+	sandbox.free()
+
+
+func test_bed_surf_is_seamless_across_the_ocean_time_wrap() -> void:
+	var sandbox := _sandbox()
+	var shore: Dictionary = sandbox.world.sea_shore
+	var material := _bed_material(0.75)
+	for id: String in ["sand", "reef", "quay"]:
+		var cx: float = sandbox.bay_centres[id]
+		for z: float in [-60.0, -30.0, -10.0, -2.0]:
+			var p := Vector2(cx + 3.0, z)
+			for t: float in [0.0, 0.4, 5.1]:
+				var a := Surface.shore_lift(p, Surface.field_at(shore, p), t, material, shore)
+				var b := Surface.shore_lift(p, Surface.field_at(shore, p), t + 1638.4, material, shore)
+				assert_almost_eq(a, b, 0.0005, "%s z %d t %.1f wraps seamlessly" % [id, int(z), t])
+	sandbox.free()
+
+
+func test_district_maps_keep_the_idealised_beach() -> void:
+	var material := MapViewMaterials.water_surface(MapTypes.TERRAIN_SHALLOW_WATER)
+	MapViewMaterials.apply_shore_field(null, Vector2.ZERO, Vector2.ONE)
+	MapViewMaterials.apply_shore_bed(ImageTexture.create_from_image(
+		Image.create_empty(4, 2, false, Image.FORMAT_RGBAH)
+	))
+	assert_almost_eq(float(material.get_shader_parameter("shore_bed_valid")), 1.0, 0.0001, "city on")
+	MapViewMaterials.apply_shore_field(null, Vector2.ZERO, Vector2.ONE)
+	assert_almost_eq(
+		float(material.get_shader_parameter("shore_bed_valid")), 0.0, 0.0001, "district off"
+	)
+	assert_false(Surface.bed_enabled({"bed_samples": PackedFloat32Array()}, material))
+	var swash := FileAccess.get_file_as_string(SWASH)
+	assert_true(swash.contains("if (x >= 0.0 && !bed_mode)"), "district crest path untouched")
+	assert_true(swash.contains("shore_atlas_uv(uv, 0.0)"), "plain uv without the atlas")
+	assert_false(swash.contains("uniform sampler2D shore_bed"), "no extra sampler (GL limit 16)")

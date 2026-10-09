@@ -74,7 +74,7 @@ Earlier side-on review plates (`tools/capture_city_sea.gd`, before the continuou
 
 Verify: `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_city_shore_field`; plates `tools/godot_render.sh --script tools/capture_city_sea.gd -- --tag=x --advance=6 --only=surf_side_calm,surf_side_fresh,surf_side_storm` (`--advance` shifts the wave phase; `surf_*` are the front plates).
 
-Limits: the crest is a displaced mesh with foam, not a curling wave with a hollow face; steep silhouettes can still reveal the 0.5 m mesh. Inland run-up is visual: the existing camera medium and swim-depth queries still classify coastal positions by the mean waterline (`bed < 0`), so they do not classify a camera inside the thin inland bore as underwater. The ground shader has no wet-sand band tied to the field; spray droplets are soft billboards without a splash sprite; quays and rocks get slosh foam only (no climbing water).
+Limits: the crest is a displaced mesh with foam, not a curling wave with a hollow face; steep silhouettes can still reveal the 0.5 m mesh. Inland run-up is visual: the existing camera medium and swim-depth queries still classify coastal positions by the mean waterline (`bed < 0`), so they do not classify a camera inside the thin inland bore as underwater. The ground shader has no wet-sand band tied to the field; spray droplets are soft billboards without a splash sprite; district quays and rocks get slosh foam only (no climbing water); in the city a reflected crest stands against the wall ([WR-4](#waves-feel-the-seabed-wr-4)).
 
 ## Optical and camera integration (R-885 / R-1437 follow-up)
 
@@ -174,7 +174,7 @@ The final guard passed the 16-test material contract and a further six-phase GL 
 
 ## Water realism v2 (WR-1, WR-2)
 
-Status: implemented (tasks **R-1499** WR-1 and **R-1500** WR-2; pack [WR - Water realism v2](../tasks/water_sky/WR_water_realism_v2.md), epic **R-1497**). Scope: the city sea's wave geometry and foam. Out of scope (planned in the pack): camera-distance LOD and tier presets (WR-3), depth refraction and breaker types (WR-4), wave interaction with rocks (WR-5), event-driven spray (WR-6), a persistent foam buffer (WR-7), gusts and rain on the sea (WR-8), beach wetting (WR-9). District maps are unchanged: every switch below is gated on the city's `sea_physical_depth` instance flag or on `shore_crest_shape`, which `apply_shore_field` resets to 0.
+Status: implemented (tasks **R-1499** WR-1 and **R-1500** WR-2; pack [WR - Water realism v2](../tasks/water_sky/WR_water_realism_v2.md), epic **R-1497**). Scope: the city sea's wave geometry and foam. Out of scope (planned in the pack): camera-distance LOD and tier presets (WR-3), depth refraction and breaker types ([WR-4](#waves-feel-the-seabed-wr-4)), wave interaction with rocks (WR-5), event-driven spray (WR-6), a persistent foam buffer (WR-7), gusts and rain on the sea (WR-8), beach wetting (WR-9). District maps are unchanged: every switch below is gated on the city's `sea_physical_depth` instance flag or on `shore_crest_shape`, which `apply_shore_field` resets to 0.
 
 Verified on the [water sandbox](./WATER_SANDBOX.md) (synthetic coast, R-1498) and in the city.
 
@@ -219,6 +219,70 @@ tools/godot_render.sh --script tools/capture_city_sea.gd -- --tag=x --advance=4 
 `test_water_realism_v2` covers the bed trough (deep troughs kept, shallow ones eased onto the bed, continuous), C1 weighting, the shader contracts (city-only band limit, bed trough, clock-free foam cells, surge and age-driven coverage), the crest-shape reset for district maps and the sandbox build. No controls, saved fields or content IDs change.
 
 Limits: boats (`BoatFloat3D`) still sample the district trough floor, so in a city gale a hull can sit above a deep trough instead of dropping into it. Foam coverage is analytic: it has no memory between waves (WR-7). Wave height is not attenuated behind rocks or reefs below the 2 m height grid (WR-5). Gale whitecap coverage was tuned by eye in sandbox plates, not measured against photographs (WR-10). Spray is still emitted continuously at the waterline near the camera, not at breaking events.
+
+## Waves feel the seabed (WR-4)
+
+Status: implemented (task **R-1509** WR-4; pack [WR - Water realism v2](../tasks/water_sky/WR_water_realism_v2.md)). Scope: the city's analytic shore waves (height, crest shape, breaking, surf foam, run-up drain and reflection) over the real bathymetry instead of the idealised 1:20 beach (`_swash_depth`). Out of scope: diffraction and wave shadows behind single rocks (WR-5), event spray (WR-6), the open-sea FFT spectrum (unchanged), district maps (unchanged: every branch needs `shore_bed_valid`, which only the city sets and `apply_shore_field` resets to 0).
+
+**Bake** (`CityShoreField.bake` -> `_bake_bed`, `scripts/city/city_shore_field.gd`). Per height node, on the shore field's grid:
+
+| Channel | Meaning |
+|---|---|
+| R | still-water depth, m (0 on land) |
+| G | crest travel time from the offshore source line, s (`BED_OUTSIDE` -1 where no wave arrives); land inside the shore field copies the time of its nearest waterline, so the run-up starts as the crest arrives |
+| B | beach-face slope tan(beta) of the nearest shore: ground rise from 6 m seaward to 4 m landward of the waterline, over 10 m |
+| A | controlling depth: the shallowest depth the wave crossed on its way here (upwind average, never deeper than the local depth) |
+
+The travel time solves the eikonal with the local celerity: pass 1 finds the geodesic distance through water from the waterline (exact contour distance as seeds); every water node `BED_REACH` (80 m) out becomes a source; pass 2 is a 16-neighbour Dijkstra (bucket queue, 0.01 s) with edge cost = length x mean slowness. Celerity is linear theory with Eckart's wavelength, `L = L0 sqrt(tanh(2 pi h / L0))`, `c = L / T`, `T` the fixed 9 s shore period (sqrt(g h) in the shallows). Crests are lines of equal travel time, so they bend parallel to the depth contours (refraction) and pack closer where the water shallows (shoaling). The city bake grows from about 0.55 s to 1.1 s.
+
+**One sampler.** The GPU gets field and bathymetry side by side in one half-float atlas (`bed_texture`, two grids wide) that `MapViewMaterials.apply_shore_bed` binds as `shore_field`; `shore_atlas_uv` picks a half and keeps each clamp-to-edge. WHY: the water shader already uses GL Compatibility's 16 fragment samplers. The CPU copy (`bed_samples`) is read back from the same half floats, so both sides see identical data.
+
+**Shader** (`shore_swash.gdshaderinc`, branch `bed_mode`, helper `_shore_bed_water`):
+
+- **Phase:** `cycle = (ocean_time - travel time) / T` plus a 0.15-cycle alongshore scatter. The offset is static, so the 182-wave `ocean_time` wrap stays seamless.
+- **Height:** Green's law from `BED_REF_DEPTH` (4 m), `H = H_ref (4 / h)^1/4`, capped at `gamma` (0.78) x the controlling depth. A wave breaks where `H / (gamma h)` reaches 1. Behind a bar or reef it travels on at gamma x the bar depth, unbroken (re-formed, residual foam only), and breaks again where the bed rises above the bar.
+- **Crest shape** over the local wavelength (`_shore_bed_profile`, half-width 0.24 L): the shoreward face shortens as the wave steepens.
+- **Breaker type** from the Iribarren number `xi = tan(beta) / sqrt(H_b / L0)` with the sea state's breaker height `H_b`; `tan(beta)` is the larger of the beach-face slope and the local seaward-facing bed slope (capped at 0.1, so a boulder dome is not read as a 1:1 beach). Blends: plunging over xi 0.45-0.8, collapsing / surging over 1.6-2.4 (Battjes 1974: spilling < 0.4, plunging 0.4-2, surging > 2; the plunging blend sits a little higher so a 1:25-1:30 sand beach stays spilling at the 9 s period).
+  - *Spilling* (gentle sand): rounded crest, foam roller on the crest and a trailing bore.
+  - *Plunging* (bars, reef, boulder beach): steeper, shorter face, more crest curl, and a burst of foam just after the crest (`bore_foam` x up to 1.8, a wider and denser roller in the city foam coverage).
+  - *Surging / collapsing* (shingle, quays): a nearly symmetric crest that slides up the face, 80 % less bore foam and 70 % less surf coverage, an earlier, harder backwash (`_swash_front` drain exponent 2 -> 1.2, thicker backwash sheet, thinner front foam) and reflection.
+- **Reflection:** Battjes `R = 0.1 xi^2` on the beach face (capped at 1). A reflected crest leaves the waterline as the incident one arrives and dies off within about half a wavelength. The reflected crest adds `R x H / 2`: the lift-only profile already draws the incident crest at the full height H (troughs are not drawn), so a second full H would quadruple the physical elevation of a standing crest and overtop the 1.6 m sandbox quay. A quay reflects fully, so the crest stands against the wall (1.5 H) and replaces the district wall slosh; the wall foam stays.
+- **Run-up reach** keeps the district breaker height its gains were calibrated on; the bed's taller Green's-law breaker only sets the wave height and xi. WHY: feeding it into the reach pinned every storm run-up at `SHORE_MAX_RUNUP` and laid a film across the harbour paving.
+- **WR-2 contract kept:** `surge` (landward excursion under the bore) and `foam_age` (seconds since the bore passed) come from the same phase, so the Lagrangian foam cells and their age dissolve work unchanged. `ShoreState` gains `plunge` and `surging`.
+
+Measured on the [water sandbox](./WATER_SANDBOX.md) (CPU mirror, `bed_state`):
+
+| Bay | Fresh (0.55) | Gale (0.95) |
+|---|---|---|
+| Sand 1:30 with a bar | xi 0.54 at the shore, spilling; breaks on the bar 48 m out, re-forms in the trough, breaks again from 20 m | xi 0.47, spilling; same bar sequence |
+| Shingle 1:8 | xi 2.19, collapsing / surging (0.8) | xi 1.93, collapsing (0.4) |
+| Reef | breaks over the rocks 34 m out, re-forms behind them, breaks again inshore | same |
+| Quay, 4 m berth | xi 7.5, surging, no breaking, full reflection | xi 6.7, same |
+
+**CPU parity** (`CityWaterSurface`): `bed_state` mirrors the branch (same three bed taps, phase, height, reflection and breaker class); `shore_lift(..., shore)` and `runup_profile(..., shore)` use it when `shore_bed_valid` is set, so the camera medium and swimmers ride the same crests and run-up. `sea_height` passes the city's `sea_shore`.
+
+Plates (water sandbox, `--tag=wr4 --shot=side --wind=gale --motion=192`, noon; frames from the motion clips):
+
+![Sand 1:30, gale: spilling breaker, the foam roller rides the crest and a bore runs up the gentle beach](../reports/images/city/water_wr4_sand_spilling.jpg)
+
+![Reef, gale: the wave broke over the rocks offshore, crossed the lagoon re-formed and breaks again at the beach](../reports/images/city/water_wr4_reef_reform.jpg)
+
+![Shingle 1:8, gale: collapsing / surging, the wave slides up the steep beach with little white water](../reports/images/city/water_wr4_shingle_surging.jpg)
+
+![Quay, gale: no breaking, the reflected crest stands against the wall](../reports/images/city/water_wr4_quay_reflection.jpg)
+
+Verify:
+
+```bash
+godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_water_realism_v2,test_city_shore_field,test_city_water_realism
+tools/godot_render.sh --script tools/water_sandbox/shore_parity.gd
+tools/godot_render.sh --script tools/water_sandbox/capture.gd -- --tag=wr4 --case=sand,shingle,reef,quay --shot=side --wind=fresh,gale --motion=192 --size=640x360
+tools/godot_render.sh --script tools/capture_city_sea.gd -- --tag=x --advance=4 --validate-surface=12 --only=surf_side_storm,close_shore_reverse_fresh,sea_level_storm
+```
+
+`test_water_realism_v2` covers the bake (crests within 4 degrees of the contours of an oblique beach, travel pace = 1 / celerity, slower inshore), bar and reef break / re-form / re-break, the breaker class per bay and wind (and xi rising as the sea calms), the seamless `ocean_time` wrap and the district reset (no extra sampler, district crest path untouched). `tools/water_sandbox/shore_parity.gd` renders `shore_state()` on the GPU (canvas shader `shore_parity.gdshader`) at 192 probe points across the four bays, two winds and four times on both sides of the wrap, and compares the camera lift, the surging share and the validity with the CPU mirror (tolerance 0.02 world units; measured 0.010). No controls, saved fields or content IDs change.
+
+Limits: refraction is the eikonal of first arrivals, so waves wrap into the lee of a headland or a reef gap without the energy loss of real diffraction (WR-5), and the refraction coefficient (ray spreading) is not applied to the height. Breaker type uses one period (9 s, the visual loop); a shorter Baltic wind sea would push every beach towards spilling. Beyond the 0.5 m surf band (about 22 m offshore) the bar breakers ride the 4 m coarse grid: their foam is per pixel, their crest geometry coarse. The wave zone reaches 80 m from the waterline; enclosed water the source line never reaches (a pool below sea level) gets no shore waves.
 
 ## Sea LOD and graphics tiers (WR-3)
 
