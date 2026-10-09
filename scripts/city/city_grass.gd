@@ -7,8 +7,11 @@ extends Node3D
 ##   near tier  - dense clumps of individual curved blades within ~12 m
 ##   mid tier   - sparser, larger blade clumps out to ~45 m, growing in as the
 ##                near tier shrinks out (scale cross-fade in the grass shader)
-##   accents    - 3D plantain, dandelion, clover and yarrow scattered through the
-##                mid chunks, so those plants are never baked into a texture
+##   far tier   - very sparse, wide clumps out to ~110 m, growing in as the mid
+##                tier shrinks out, so the meadow no longer ends at 46 m
+##   forbs      - detailed dandelion, plantain, white and red clover and burdock
+##                placed by habitat (CityForbs, R-1519) in their own chunks
+##   accents    - 3D yarrow scattered through the mid chunks
 ## Placement thins on trodden earth and leaves paving, floors, water and steep
 ## banks bare. Cart roads (roads.png) stay bare where wheels and feet pass: grass
 ## stands only on the verge, and a stray tuft on a lightly used road is tiny.
@@ -25,6 +28,18 @@ const MID_DENSITY := 1.0  # blade clumps per square world unit on full grass
 ## Mid clumps are scaled up so a sparse clump still covers its share of ground.
 const MID_CLUMP_SCALE := Vector2(1.1, 1.7)
 
+## Far tier: 32 m chunks, few but wide clumps (same height as mid, 2x the width at
+## a quarter of the density, so ground coverage matches). Fades in 36-48 m and out
+## 100-118 m; 4 chunks guarantee 128 m in every direction.
+const FAR_CHUNK := 32.0
+const FAR_RADIUS_CHUNKS := 4
+const FAR_DENSITY := 0.25
+const FAR_WIDTH_BOOST := 2.0
+
+## Streaming spends at most this long per frame building chunks (microseconds), so
+## grass fills in over a few frames instead of one chunk per frame, nearest first.
+const STREAM_BUDGET_US := 3500
+
 const NEAR_CHUNK := 8.0
 const NEAR_RADIUS_CHUNKS := 2
 const NEAR_DENSITY := 4.5
@@ -32,10 +47,8 @@ const NEAR_CLUMP_SCALE := Vector2(0.8, 1.35)
 
 ## Accent plants per square metre on full grass, by species (kept sparse so the
 ## meadow stays mostly grass and the plants read as individual finds).
+## Dandelion, plantain and clover moved to CityForbs (R-1519).
 const ACCENT_DENSITY := {
-	PlantSpecies.SPECIES_PLANTAIN: 0.05,
-	PlantSpecies.SPECIES_DANDELION: 0.035,
-	PlantSpecies.SPECIES_CLOVER: 0.06,
 	PlantSpecies.SPECIES_YARROW: 0.012,
 }
 
@@ -55,16 +68,27 @@ const ROAD_PROBE_RADII := [1.5, 3.0, 5.0, 8.0, 12.0, 17.0, 22.0]
 const ROAD_PROBE_DIRS := 8
 const ROAD_PROBE_BODY := 0.25
 const WILD_CACHE_LIMIT := 40000
+## Rounded down to this many metres, road and wall distances are cached for the
+## forb habitats (CityForbs probes them for most candidates).
+const DISTANCE_CACHE_LIMIT := 40000
 
 var plan: CityPlan
+## Wild plants (dandelion, plantain, clover, burdock), streamed after the mid tier.
+var forbs: CityForbs
 var _wild_cache: Dictionary = {}
+var _road_cache: Dictionary = {}
+var _house_cache: Dictionary = {}
 var _splat: Image
 var _roads: Image
 var _mid_chunks: Dictionary = {}
 var _near_chunks: Dictionary = {}
+var _far_chunks: Dictionary = {}
+var _deadline_us := 0
+var _built_this_frame := false
 var _blade_mesh: Mesh
 var _near_material: Material
 var _mid_material: Material
+var _far_material: Material
 var _accent_material: Material
 
 
@@ -81,39 +105,60 @@ static func create(city_plan: CityPlan) -> CityGrass:
 	node._blade_mesh = MapViewMeshBuilderPrimitives.grass_blade_clump_mesh()
 	node._near_material = MapViewMaterials.grass_blade_tier(true)
 	node._mid_material = MapViewMaterials.grass_blade_tier(false)
+	node._far_material = MapViewMaterials.grass_blade_far()
 	node._accent_material = MapViewMaterials.grass_blades()
+	node.forbs = CityForbs.create(node)
+	node.add_child(node.forbs)
 	return node
 
 
 func update_for(world_xz: Vector2) -> void:
-	# At most one new chunk per frame; near blades first, they are what the eye sees.
+	# Near blades first, they are what the eye sees; then mid, then far. Within a
+	# tier the closest missing chunk goes first. A frame budget (not a chunk count)
+	# limits the work, but at least one chunk is built whenever any is missing.
+	_deadline_us = Time.get_ticks_usec() + STREAM_BUDGET_US
+	_built_this_frame = false
 	if _stream(_near_chunks, world_xz, NEAR_CHUNK, NEAR_RADIUS_CHUNKS, _build_near_chunk):
 		return
-	_stream(_mid_chunks, world_xz, MID_CHUNK, MID_RADIUS_CHUNKS, _build_mid_chunk)
+	if _stream(_mid_chunks, world_xz, MID_CHUNK, MID_RADIUS_CHUNKS, _build_mid_chunk):
+		return
+	if forbs.update_for(world_xz, _deadline_us, _built_this_frame):
+		return
+	_stream(_far_chunks, world_xz, FAR_CHUNK, FAR_RADIUS_CHUNKS, _build_far_chunk)
 
 
-## Builds the nearest missing chunk (returns true if it did) and frees chunks that
-## left the radius.
+## Builds missing chunks nearest first until the frame budget is spent (returns
+## true if it stopped with chunks still missing) and frees chunks that left the
+## radius.
 func _stream(
 	chunks: Dictionary, world_xz: Vector2, size: float, radius: int, builder: Callable
 ) -> bool:
 	var center := Vector2i(floori(world_xz.x / size), floori(world_xz.y / size))
-	var wanted := {}
-	var built := false
+	var missing: Array[Vector2i] = []
 	for dy in range(-radius, radius + 1):
 		for dx in range(-radius, radius + 1):
 			var key := center + Vector2i(dx, dy)
-			wanted[key] = true
-			if not built and not chunks.has(key):
-				chunks[key] = builder.call(key)
-				built = true
-	for key: Vector2i in chunks.keys():
-		if not wanted.has(key):
-			var node: Node = chunks[key]
-			if node != null:
-				node.queue_free()
-			chunks.erase(key)
-	return built
+			if not chunks.has(key):
+				missing.append(key)
+	# Chunks are freed after the sweep so a big move does not hold stale nodes.
+	if chunks.size() + missing.size() > (2 * radius + 1) * (2 * radius + 1):
+		for key: Vector2i in chunks.keys():
+			if absi(key.x - center.x) > radius or absi(key.y - center.y) > radius:
+				var node: Node = chunks[key]
+				if node != null:
+					node.queue_free()
+				chunks.erase(key)
+	missing.sort_custom(
+		func(a: Vector2i, b: Vector2i) -> bool:
+			return (Vector2(a) + Vector2(0.5, 0.5)).distance_squared_to(world_xz / size) \
+				< (Vector2(b) + Vector2(0.5, 0.5)).distance_squared_to(world_xz / size)
+	)
+	for key in missing:
+		if _built_this_frame and Time.get_ticks_usec() >= _deadline_us:
+			return true
+		chunks[key] = builder.call(key)
+		_built_this_frame = true
+	return false
 
 
 ## Surface weights at a world position: (paving, earth, sand, mud), 0..1.
@@ -201,11 +246,41 @@ func wildness_at(p: Vector2) -> float:
 		_wild_cache.clear()
 	var c := Vector2(key) + Vector2(0.5, 0.5)
 	var w := minf(
-		smoothstep(ROAD_WILD_NEAR, ROAD_WILD_FAR, road_distance(c)),
-		smoothstep(HOUSE_WILD_NEAR, HOUSE_WILD_FAR, house_distance(c))
+		smoothstep(ROAD_WILD_NEAR, ROAD_WILD_FAR, road_distance_at(c)),
+		smoothstep(HOUSE_WILD_NEAR, HOUSE_WILD_FAR, house_distance_at(c))
 	)
 	_wild_cache[key] = w
 	return w
+
+
+## Cached road_distance per metre cell (habitat lookups for wild plants).
+func road_distance_at(p: Vector2) -> float:
+	var key := Vector2i(floori(p.x), floori(p.y))
+	if not _road_cache.has(key):
+		if _road_cache.size() > DISTANCE_CACHE_LIMIT:
+			_road_cache.clear()
+		_road_cache[key] = road_distance(Vector2(key) + Vector2(0.5, 0.5))
+	return _road_cache[key]
+
+
+## Cached house_distance per metre cell.
+func house_distance_at(p: Vector2) -> float:
+	var key := Vector2i(floori(p.x), floori(p.y))
+	if not _house_cache.has(key):
+		if _house_cache.size() > DISTANCE_CACHE_LIMIT:
+			_house_cache.clear()
+		_house_cache[key] = house_distance(Vector2(key) + Vector2(0.5, 0.5))
+	return _house_cache[key]
+
+
+## Share of ground at `p` that stays bare, 0..1+ (for CityForbs).
+func bareness_at(p: Vector2) -> float:
+	return _bareness(p)
+
+
+## Ground height where plants may stand at `p`, or NAN (for CityForbs).
+func plant_ground_height(p: Vector2) -> float:
+	return _grass_height(p)
 
 
 ## Clump scale multiplier from use: short where people pass, tall where nobody does.
@@ -237,7 +312,8 @@ func _grass_height(p: Vector2) -> float:
 
 
 func _scatter_clumps(
-	key: Vector2i, size: float, density: float, scale_range: Vector2, seed_salt: int
+	key: Vector2i, size: float, density: float, scale_range: Vector2, seed_salt: int,
+	width_boost: float = 1.0
 ) -> MultiMeshInstance3D:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = hash(key) + seed_salt
@@ -257,7 +333,10 @@ func _scatter_clumps(
 		var tall := height_factor(p)
 		var scale := rng.randf_range(scale_range.x, scale_range.y) * _road_shrink(p)
 		var basis := Basis(Vector3.UP, rng.randf() * TAU).scaled(
-			Vector3(scale * sqrt(tall), scale * tall * rng.randf_range(0.75, 1.3), scale * sqrt(tall))
+			Vector3(
+					scale * sqrt(tall) * width_boost, scale * tall * rng.randf_range(0.75, 1.3),
+					scale * sqrt(tall) * width_boost
+				)
 		)
 		transforms.append(Transform3D(basis, Vector3(p.x, h - 0.02, p.y)))
 		var tone := rng.randf_range(0.82, 1.08)
@@ -303,9 +382,21 @@ func _build_mid_chunk(key: Vector2i) -> Node3D:
 	return root
 
 
-## One MultiMesh per accent species: real plantain rosettes, dandelions, clover
-## and yarrow standing in the grass, drawn with the plant material (a distance
-## fade only, they do not shrink next to the player like mid-tier clumps).
+func _build_far_chunk(key: Vector2i) -> Node3D:
+	var inst := _scatter_clumps(
+		key, FAR_CHUNK, FAR_DENSITY, MID_CLUMP_SCALE, 104729, FAR_WIDTH_BOOST
+	)
+	if inst == null:
+		return null
+	inst.material_override = _far_material
+	inst.name = "FarGrass_%d_%d" % [key.x, key.y]
+	add_child(inst)
+	return inst
+
+
+## One MultiMesh per accent species: yarrow standing in the grass, drawn with the
+## plant material (a distance fade only, they do not shrink next to the player
+## like mid-tier clumps).
 func _add_accent_plants(root: Node3D, key: Vector2i) -> void:
 	var origin := Vector2(key) * MID_CHUNK
 	for species: StringName in ACCENT_DENSITY:
