@@ -1,5 +1,5 @@
 shader_type spatial;
-// R-1444: premultiplied blend (dest = ALBEDO + dest * (1 - ALPHA)) so lit air adds light
+// R-1451: premultiplied blend (dest = ALBEDO + dest * (1 - ALPHA)) so lit air adds light
 // and air in a cloud's shadow takes some of the uniform haze back out: the shadow
 // columns between beams read darker, which is most of a crepuscular ray's contrast.
 render_mode unshaded, fog_disabled, depth_draw_never, depth_test_disabled, cull_disabled, blend_premul_alpha;
@@ -40,7 +40,7 @@ uniform int shadow_steps = 8;
 // R-1400: discrete clouds shade the air too, so a beam is lit only where the
 // cloud shadow on the street is open: shafts start at real cloud edges.
 global uniform sampler2D cloud_noise_tex : filter_linear_mipmap, repeat_enable;
-// R-1444: the dome cloud deck shades the air as well, through the same WS-12 plane the
+// R-1451: the dome cloud deck shades the air as well, through the same WS-12 plane the
 // ground shadow pass projects (cloud_shadow_pass.gdshader), so a shaft lands on the
 // sunlit patch of street the deck leaves open.
 global uniform sampler2D cloud_shape_tex : filter_linear_mipmap, repeat_enable;
@@ -53,6 +53,8 @@ global uniform float cloud_chaos_g;
 // Scene depth bounds the far march so beams stop at terrain, roofs, trees and ships.
 // Depth (unlike the screen texture) is reliable here: cloud_shadow_pass reads it too.
 uniform sampler2D depth_texture : hint_depth_texture, repeat_disable, filter_nearest;
+// Sea level: rays over water end here (water surfaces are transparent, no depth).
+uniform float water_plane_y = 0.0;
 // Far march: kilometre-scale air between the eye and the cloud deck, where the
 // shadow columns of whole clouds form. Thin haze, so it needs long lit paths.
 // Distance over which the haze in front of a surface builds up (aerial perspective).
@@ -85,7 +87,8 @@ float height_at(vec2 xz) {
 // Samples are packed toward the point (squared spacing): nearby roof edges shape the
 // shaft, far ones only need to catch tall towers.
 float sun_visibility(vec3 p, float jitter) {
-	float reach = min((volume_top - p.y) / max(light_dir.y, 0.02), shadow_reach);
+	// Above the tallest roof (the slab can now rise over high ground) nothing blocks.
+	float reach = clamp((volume_top - p.y) / max(light_dir.y, 0.02), 0.0, shadow_reach);
 	for (int k = 0; k < shadow_steps; k++) {
 		float f = (float(k) + jitter) / float(shadow_steps);
 		vec3 q = p + light_dir * (reach * f * f + texel_size * 0.5);
@@ -147,20 +150,9 @@ void fragment() {
 	vec3 origin = (INV_VIEW_MATRIX * vec4(origin_view, 1.0)).xyz;
 	vec3 dir = normalize(mat3(INV_VIEW_MATRIX) * dir_view);
 
-	float t0 = 0.0;
-	float t1 = max_march;
-	if (abs(dir.y) > 1e-4) {
-		float t_top = (volume_top - origin.y) / dir.y;
-		float t_floor = (floor_y - origin.y) / dir.y;
-		t0 = max(min(t_top, t_floor), 0.0);
-		t1 = max(t_top, t_floor);
-	} else if (origin.y > volume_top || origin.y < floor_y) {
-		t1 = 0.0;
-	}
-	t1 = min(t1, t0 + max_march);
-
 	// Distance along the eye ray to the first opaque surface; sky pixels have none.
 	float scene_t = -1.0;
+	float surface_y = floor_y;
 	float depth = textureLod(depth_texture, SCREEN_UV, 0.0).r;
 	// Sky is 1.0 on the Compatibility depth range and 0.0 on reverse-Z renderers.
 	if (depth > 1e-6 && depth < 0.999999) {
@@ -173,6 +165,37 @@ void fragment() {
 		surface_view.xyz /= surface_view.w;
 		vec3 surface = (INV_VIEW_MATRIX * vec4(surface_view.xyz, 1.0)).xyz;
 		scene_t = max(dot(surface - origin, dir), 0.0);
+		surface_y = surface.y;
+	}
+	// Water writes no depth, so a ray over the sea ended on the bed where a bed mesh
+	// exists and was skipped where none does: the bed's outline printed hard light and
+	// dark edges onto the sea. End every downward ray at the water plane instead, as
+	// CloudShadowPass does for its depthless sea pixels.
+	if (dir.y < -1e-4) {
+		float t_water = (water_plane_y - origin.y) / dir.y;
+		if (t_water > 0.0 && (scene_t < 0.0 || t_water < scene_t)) {
+			scene_t = t_water;
+			surface_y = water_plane_y;
+		}
+	}
+
+	// The roof-edge slab is as deep over high ground as over the shore: its ceiling sits
+	// at least `volume_top` above the visible surface. A fixed sea-level ceiling left
+	// ~30 m of glowing air over the fields and ~7 m over the town on the klint, and the
+	// depth cut printed that step along the cliff.
+	float slab_top = max(volume_top, surface_y + volume_top - floor_y);
+	float t0 = 0.0;
+	float t1 = max_march;
+	if (abs(dir.y) > 1e-4) {
+		float t_top = (slab_top - origin.y) / dir.y;
+		float t_floor = (floor_y - origin.y) / dir.y;
+		t0 = max(min(t_top, t_floor), 0.0);
+		t1 = max(t_top, t_floor);
+	} else if (origin.y > slab_top || origin.y < floor_y) {
+		t1 = 0.0;
+	}
+	t1 = min(t1, t0 + max_march);
+	if (scene_t >= 0.0) {
 		t1 = min(t1, scene_t);
 	}
 
@@ -190,7 +213,7 @@ void fragment() {
 			lit += sun_visibility(p, jitter) * cloud_lit * dt;
 		}
 	}
-	// R-1444 far march: the air from the eye out to the surface (or the deck plane),
+	// R-1451 far march: the air from the eye out to the surface (or the deck plane),
 	// lit or shaded by whole clouds. Roof shadows do not matter at this scale, so the
 	// height raster is skipped. Only surfaces get it: the sky dome draws its own beams
 	// from the visible deck (sky_weather_3d.gdshader `sky_sunbeams`). Each sample is

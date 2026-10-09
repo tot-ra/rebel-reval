@@ -33,7 +33,7 @@ func test_no_rays_at_night_without_moon() -> void:
 	assert_eq(GodRayPass.light_strength(night), 0.0)
 
 
-## R-1444: a sun hidden behind a cloud edge is when beams fan out from the gaps, so the
+## R-1451: a sun hidden behind a cloud edge is when beams fan out from the gaps, so the
 ## pass strength must not drop with the cloud in front of the sun; the shader shades
 ## each air sample by the deck and cells instead.
 func test_sun_behind_a_cloud_still_feeds_the_beams() -> void:
@@ -42,11 +42,22 @@ func test_sun_behind_a_cloud_still_feeds_the_beams() -> void:
 	assert_true(hidden > 0.0)
 
 
+func test_closed_overcast_or_rain_sheet_has_no_beams() -> void:
+	var broken := _presentation(0.2, 1.0, 0.5)
+	broken.overcast = 0.32
+	var sheet := _presentation(0.2, 1.0, 0.5)
+	sheet.overcast = 0.62
+	assert_true(GodRayPass.light_strength(broken) > 0.0, "cloudy keeps its beams")
+	assert_eq(GodRayPass.light_strength(sheet), 0.0, "the rain sheet has no gaps")
+
+
 func test_shader_shades_air_by_the_deck_and_stops_at_surfaces() -> void:
 	var code: String = GodRayPass.PASS_SHADER.code
 	assert_true("sky_cloud_shadow_soft" in code, "the dome deck shades the air, not only cells")
 	assert_true("hint_depth_texture" in code, "the far march stops at the scene depth")
 	assert_true("blend_premul_alpha" in code, "shaded columns darken, lit air adds light")
+	assert_true("water_plane_y" in code, "rays over the sea end at the water, not the bed")
+	assert_true("slab_top" in code, "the roof-edge slab follows the ground up the klint")
 
 
 ## Compatibility empties the depth texture for transparents drawn after the water's

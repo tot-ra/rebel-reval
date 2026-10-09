@@ -7,14 +7,14 @@ extends Node3D
 ## roofs and towers, and buildings cut them like shadows. The rays need something in
 ## the air to scatter (ground mist, rain haze, the gaps of broken cloud) and a camera
 ## looking toward the light; clear dry noon and a top-down view stay clean.
-## R-1444: the dome cloud deck and the discrete cells shade every air sample, and a far
+## R-1451: the dome cloud deck and the discrete cells shade every air sample, and a far
 ## march bounded by scene depth carries cloud-sized shafts out to the land and sea.
 
 const PASS_SHADER := preload("res://scripts/map/view3d/god_ray_pass.gdshader")
 const Lighting := preload("res://scripts/map/view3d/map_view_lighting.gd")
 const SkyWeather := preload("res://scripts/map/view3d/sky_weather_3d.gd")
 
-## R-1444: drawn right after CloudShadowPass (-100) and before the water. In
+## R-1451: drawn right after CloudShadowPass (-100) and before the water. In
 ## Compatibility the water's screen-texture copy empties `hint_depth_texture` for every
 ## transparent material drawn after it (agents/rebel-dev/playbook.md), and the far march
 ## needs depth to stop at the land. The water then refracts the beams already drawn.
@@ -30,6 +30,8 @@ const RAIN_HAZE_WEIGHT := 0.6
 ## Moonlight is a few percent of sunlight; keep its rays a faint veil.
 const MOON_STRENGTH_SCALE := 0.3
 const MAX_STRENGTH := 0.55
+const OVERCAST_FADE_START := 0.35
+const OVERCAST_FADE_END := 0.6
 ## Scatter gain handed to the shader. The dimetric gameplay lens looks 30 deg down, so
 ## its rays sit far off the forward phase peak; the shader's soft cap (`INTENSITY_CAP`)
 ## keeps a lens aimed straight at the sun from washing out.
@@ -95,7 +97,7 @@ static func haze_amount(
 
 ## Beam strength before the view-dependent phase. A low sun crosses more air, so rays
 ## fade out as it climbs; below the horizon the moon takes over at a fraction of it.
-## R-1444: no `*_cloud_clear` factor. The shader shades every air sample by the deck and
+## R-1451: no `*_cloud_clear` factor. The shader shades every air sample by the deck and
 ## cells itself; gating the whole pass on the cloud in front of the sun switched the
 ## beams off exactly when they matter most, with the sun hidden behind a cloud edge.
 static func light_strength(presentation: SkyWeather.WeatherPresentation) -> float:
@@ -107,8 +109,15 @@ static func light_strength(presentation: SkyWeather.WeatherPresentation) -> floa
 		* clampf(presentation.moon_direction.y * 4.0, 0.0, 1.0)
 		* MOON_STRENGTH_SCALE
 	)
-	var beam := maxf(sun_beam, moon_beam)
+	# A closed deck (overcast, rain) has no gaps to cut a beam, and the per-sample deck
+	# shadow does not quite reach 1 under it, which left a glowing veil in the rain.
+	var beam := maxf(sun_beam, moon_beam) * overcast_fade(presentation)
 	return clampf(beam * haze_amount(presentation), 0.0, MAX_STRENGTH)
+
+
+## 1 with broken cloud (cloudy is 0.32), 0 under the overcast and rain sheets (0.75, 0.62).
+static func overcast_fade(presentation: SkyWeather.WeatherPresentation) -> float:
+	return 1.0 - smoothstep(OVERCAST_FADE_START, OVERCAST_FADE_END, presentation.overcast)
 
 
 ## True when the sun (not the moon) is the dominant source for the rays.

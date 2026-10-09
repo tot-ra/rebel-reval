@@ -897,6 +897,9 @@ void sky() {
 			float hg = ratio * sqrt(ratio) * sun_visibility * smoothstep(0.15, 0.35, cos_sun);
 			float broken = 1.0 - abs(clamp(cloud_coverage, 0.0, 1.0) * 2.0 - 1.0);
 			float haze = clamp(0.1 + broken * 0.7 + storm_intensity * 0.2, 0.0, 1.0);
+			// A closed rain or overcast sheet (darken 0.82 / 0.72) has no gaps to fan beams;
+			// broken cloud (0.40) and an open storm sky (0.34) keep them.
+			haze *= 1.0 - smoothstep(0.45, 0.7, cloud_darken);
 			// Beams sit in the air in front of the clouds, so they also cross cloud
 			// bodies, a little weaker than over open sky. Deck only: `cell_cover` is
 			// non-zero across a cell's whole bounding box and printed its edges.
