@@ -7,13 +7,15 @@ extends Button
 
 const CARD_SIZE := Vector2(200.0, 150.0)
 ## Duel move elements (common.schema.json duel_move.element) -> card colour.
+## SS-5: the colour of the soul light that guards the element (ADR 0041), so a word and the
+## light it hits share a colour.
 const ELEMENT_COLORS: Dictionary = {
-	"fear": Color(0.56, 0.44, 0.82),
-	"shame": Color(0.86, 0.36, 0.30),
-	"duty": Color(0.40, 0.60, 0.86),
-	"love": Color(0.90, 0.50, 0.66),
-	"faith": Color(0.95, 0.84, 0.46),
-	"coin": Color(0.80, 0.64, 0.30),
+	"fear": Color(0.88, 0.22, 0.20),
+	"coin": Color(0.96, 0.56, 0.16),
+	"duty": Color(0.96, 0.86, 0.26),
+	"love": Color(0.36, 0.80, 0.42),
+	"shame": Color(0.28, 0.52, 0.92),
+	"faith": Color(0.62, 0.40, 0.90),
 }
 const NEUTRAL_COLOR := Color(0.58, 0.58, 0.62)
 

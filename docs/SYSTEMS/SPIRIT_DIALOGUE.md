@@ -123,6 +123,10 @@ Scope: in the real-time 3D arena (a host given a hero through `attach_arena`) th
 
 A duel may declare `duel.topic` = `{id, tags[], lines{element: [{text, relevance[]}]}}` and a move may carry `topic_tags[]`. `SpiritDuel.topic_multiplier(move)`: x1.5 when a move tag is in `topic.tags`, x0.6 when it names tags that all miss, x1 for an untagged move or a duel without a topic; it composes with guilt, traits and temperament. `SpiritDuel.topic_line_for(element, tags)` returns the authored line with the highest relevance overlap (first wins ties), used by word spells (R-1388). Validator code `DUEL_TOPIC` rejects undeclared tags. Fixture: `content/examples/valid/dialogue.test_duel_topic.json`. Verify: `--filter=test_spirit_topic`, `python3 -m unittest tests.python.test_validate_content`.
 
+## Soul lights in a duel (implemented, SS-5, task **R-1488**)
+
+An opponent's `SpiritAuraProfile` scales its pressure pool by the sum of its light levels, its blows by the light guarding their element, and the hero's words by the same light plus a closed-light weakness (x1.5 at level 0, x1.25 at level 1). The word product (traits x temperament x topic x light) is clamped to 0.5..2.0; spells through MagicResolver get no light factor; no profile means today's numbers. Rules, constants and the aura feedback live in [`SPIRIT_SIGHT.md`](./SPIRIT_SIGHT.md) "Soul lights in a duel". `SpiritSpellCard.ELEMENT_COLORS` now follow the soul-light colours. Verify: `--filter=test_spirit_duel_aura`.
+
 ## Traits and temperaments (implemented, SD-15)
 
 - **Hero traits** (`SpiritTraits.TRAITS`, `GameState.grant_trait(id, origin)`): `trait.hears_fear`, `trait.watchful`, `trait.stubborn`. Each comes in two variants by how it was gained, `gift` or `scar`, and every variant has both a boon and a cost (checked by `SpiritTraits.is_double_edged`). Modifiers: reply damage by element, incoming blows by kind, dodge cost, parry window, composure. A trait is held once; saved under `traits` (optional in older saves).

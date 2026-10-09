@@ -50,6 +50,12 @@ var model_front_plus_z := false
 ## SA3D-3 word spells; set while a duel is open in the real-time arena.
 var words: SpiritWordSpells
 
+## SS-5: set before open(); null keeps a neutral soul (all lights level 2).
+var opponent_aura: SpiritAuraProfile
+var hero_aura: SpiritAuraProfile
+## The opponent's aura view, when the caller has one on screen: it follows the duel.
+var opponent_aura_view: SpiritAuraView
+
 var _runner: Node
 var _was_paused := false
 var _open := false
@@ -172,6 +178,12 @@ func open(content_db: ContentDB, state: GameState, dialogue_id: StringName) -> b
 	duel.finished.connect(_on_finished)
 	duel.exchange_resolved.connect(_on_exchange)
 	duel.reply_pressure_enabled = _reply_pressure_setting()
+	# SS-5: the opponent's soul lights shape the fight. A caller that knows the opponent sets
+	# `opponent_aura`; the hero's lights then come from his NATURAL ranks unless set too.
+	duel.opponent_aura = opponent_aura
+	duel.hero_aura = hero_aura
+	if opponent_aura != null and hero_aura == null:
+		duel.hero_aura = SpiritAuraProfile.for_character(duel.hero_id, content_db, state)
 	if not duel.begin(_runner, content_db, state, dialogue_id):
 		_teardown()
 		return false
@@ -197,6 +209,8 @@ func open(content_db: ContentDB, state: GameState, dialogue_id: StringName) -> b
 	if freeze_world and is_inside_tree():
 		_was_paused = get_tree().paused
 		get_tree().paused = true
+	if is_instance_valid(opponent_aura_view):
+		opponent_aura_view.bind_duel(duel)
 	_vfx.bind(duel, self, _composure_bar, _pressure_bar)
 	opened.emit(dialogue_id)
 	_refresh_bars()
@@ -441,6 +455,8 @@ func vfx() -> SpiritArenaVfx:
 
 
 func _teardown() -> void:
+	if is_instance_valid(opponent_aura_view):
+		opponent_aura_view.unbind_duel()
 	_vfx.unbind()
 	_form_view.unbind()
 	if observation.line_seen.is_connected(_on_line):

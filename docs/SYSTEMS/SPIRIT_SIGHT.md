@@ -172,12 +172,27 @@ tools/godot_render.sh --resolution 1280x720 --disable-vsync --script tools/captu
 
 Looking at a being for about 0.5 s opens a panel: the seven lights with glyph, aspect name, the element each guards and level pips, the strongest and closed lights, clarity in words (calm, uneasy, torn). The hero's awareness light sets the depth: 3 adds temperament tags (SD-15), 4 masked closed lights, 5 a hint of the duel topic.
 
-## Soul lights in a duel (planned, SS-5, **R-1488**)
+## Soul lights in a duel (implemented, SS-5, **R-1488**)
 
-- The opponent's pressure pool scales with the sum of its levels; its blows of an element scale +10 % per level above 2 (-10 % below).
-- The hero's words into a closed light land x1.5, into a level 1 light x1.25, stacked with topic, temperament and traits; the combined product is clamped to 0.5..2.0 (today only the temperament product is). The hero's own levels scale his words and replies the same way; `MagicResolver` spells keep their NATURAL scaling and get no second light multiplier.
-- A landed word dims the target light; falling pressure lowers clarity; a break shatters the aura. A duel without a profile keeps today's numbers.
-- The duel element colours are recoloured to the soul-light table so bolts and lights match.
+Status: implemented (task **R-1488**). Scope: the opponent's and the hero's soul lights changing the numbers of a `SpiritDuel`, the aura feedback and the element colours. Out of scope: who supplies the opponent's profile in play (SS-6/SS-7 callers) and the hero's baseline NATURAL ranks (SS-8, so the hero reads level 1 everywhere until then).
+
+All numbers are constants in `SpiritDuel`. Light and element pair as in the Aura data table (`SpiritDuel.light_for_element`); sight guards no element and never scales a word.
+
+| Rule | Value |
+|---|---|
+| Opponent pressure pool | `PRESSURE_MAX x sum(levels) / 14`, factor clamped 0.5..2.0 (neutral soul = 60) |
+| Opponent blow of an element | x(1 + 0.1 x (level - 2)) by the light guarding that element |
+| Hero word into a closed light (level 0) / level 1 | x1.5 / x1.25 |
+| Hero's own light | his words and replies x(1 + 0.1 x (own level - 2)) |
+| Combined word product | trait x temperament x topic x light, clamped 0.5..2.0 as one (`SpiritDuel.word_product`); guilt stays outside |
+
+- **Neutral soul:** `opponent_aura` / `hero_aura` null (or all levels 2, clarity 1) leave every number as before. The one deliberate difference: the 0.5..2.0 clamp now covers the whole product, so topic x temperament x trait beyond 2.0 is capped even without a profile.
+- **Spells:** `cast_spell` (MagicResolver) keeps its NATURAL aspect scaling and applies no light factor. A spoken word that is the reply, and free word strikes (`land_word`), do use it.
+- **Entry points:** `SpiritDuel.opponent_aura` / `hero_aura` (set before `begin`), `SpiritArenaHost.opponent_aura` / `hero_aura` (the hero's profile is derived from NATURAL ranks when only the opponent's is set) and `SpiritArenaHost.opponent_aura_view`.
+- **Aura feedback** (`SpiritAuraView.bind_duel`): a landed reply or word dims the light that guards its element (`dim_light`, 70 % at most, recovers in under a second); falling opponent pressure lowers clarity down to 35 % (`set_pressure_fraction`, more turbulence); a broken opponent shatters the aura over 0.8 s (`shatter_now`, levels to 0, turbulence to 1), mirroring the SD-19 crack of `SpiritFormView`. Exchange results now also carry `element` and `light_id`.
+- **Colours:** `SpiritSpellCard.ELEMENT_COLORS` follow the soul lights: fear red, coin orange, duty yellow, love green, shame blue, faith violet.
+- **Verify:** `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_spirit_duel_aura,test_spirit_arena,test_spirit_word_spells,test_spirit_traits,test_spirit_magic`.
+- **Limits:** nothing in play yet supplies an opponent profile; the dim and the shatter are not captured in a plate.
 
 ## Duel layer (planned, SS-6, **R-1489**)
 

@@ -50,6 +50,22 @@ const REPLY_RESONANCE := 8.0
 ## ADR 0038: a reply that names the dispute's topic lands harder, one that misses it softer.
 const TOPIC_ON := 1.5
 const TOPIC_OFF := 0.6
+## ADR 0041 section 5 (SS-5): the opponent's soul lights shape the fight. All numbers are data;
+## a duel without aura profiles (all levels 2, clarity 1) keeps the numbers above unchanged.
+const NEUTRAL_LIGHT_LEVEL := 2
+## Pressure pool = PRESSURE_MAX x (sum of the opponent's seven levels / this), within the bounds.
+const POOL_NEUTRAL_LEVEL_SUM := 14.0
+const POOL_FACTOR_MIN := 0.5
+const POOL_FACTOR_MAX := 2.0
+## A blow of an element scales x(1 + this x (level - 2)) by the opponent's light that guards it;
+## the hero's own light scales his words the same way.
+const LIGHT_LEVEL_STEP := 0.1
+## Hero words into a closed light (level 0) / a nearly closed one (level 1).
+const CLOSED_LIGHT_WORD_FACTOR := 1.5
+const DIM_LIGHT_WORD_FACTOR := 1.25
+## Topic x temperament x trait x light factors of a word are clamped as one product.
+const WORD_PRODUCT_MIN := 0.5
+const WORD_PRODUCT_MAX := 2.0
 ## Reply window pressure (SD-18): mild, not a timeout. When the window runs out the hero
 ## hesitates once and loses a little composure; the replies stay open.
 const REPLY_WINDOW_SEC := 6.0
@@ -73,6 +89,9 @@ var last_cast_failure: StringName = &""
 ## the strike zone the blow misses like a dodge (no resolve cost), and a raised guard counts only
 ## when it faces the opponent. Unset keeps the 2D rules (guard and dodge() alone decide).
 var hit_check: Callable = Callable()
+## SS-5 soul lights. Null = a neutral soul (all levels 2, clarity 1). Set before begin().
+var opponent_aura: SpiritAuraProfile
+var hero_aura: SpiritAuraProfile
 
 var _runner: Node
 var _state: GameState
@@ -231,11 +250,14 @@ func answer(choice_id: String, spoken_word := false) -> bool:
 	var damage := reply_damage(reply_move, _incoming) * PhysicalBlowGuilt.reply_multiplier(
 		_state, reply_element
 	)
-	damage *= SpiritTraits.reply_multiplier(_trait_mods, reply_element)
-	damage *= SpiritTraits.temperament_multiplier(
-		_temperament, StringName(String(reply_move.get("kind", "")))
+	damage *= word_product(
+		SpiritTraits.reply_multiplier(_trait_mods, reply_element),
+		SpiritTraits.temperament_multiplier(
+			_temperament, StringName(String(reply_move.get("kind", "")))
+		),
+		topic_multiplier(reply_move),
+		light_word_factor(reply_element)
 	)
-	damage *= topic_multiplier(reply_move)
 	damage = hero.modifiers.scale_outgoing_damage(damage)
 	if damage > 0.0:
 		opponent.resolve_hit(damage)
@@ -246,6 +268,8 @@ func answer(choice_id: String, spoken_word := false) -> bool:
 			"choice_id": choice_id,
 			"damage": damage,
 			"pressure_left": opponent.health,
+			"element": String(reply_element),
+			"light_id": String(light_for_element(reply_element)),
 		}
 	)
 	_incoming = {}
@@ -284,6 +308,56 @@ func topic_multiplier(reply_move: Dictionary) -> float:
 	return TOPIC_OFF
 
 
+## SS-5: the combined word multiplier (traits x temperament x topic x lights), clamped as one.
+static func word_product(trait_factor: float, temperament: float, topic: float, light: float) -> float:  # gdlint: ignore=max-line-length
+	return clampf(trait_factor * temperament * topic * light, WORD_PRODUCT_MIN, WORD_PRODUCT_MAX)
+
+
+## The NATURAL aspect light that guards a duel element ("" for sight or an unknown element).
+static func light_for_element(element: StringName) -> StringName:
+	for light: StringName in SpiritAuraProfile.LIGHT_IDS:
+		if SpiritAuraProfile.ELEMENTS.get(light, &"") == element and element != &"sight":
+			return light
+	return &""
+
+
+## `profile`'s level of the light guarding `element`; neutral (2) without a profile or a light.
+static func light_level(profile: SpiritAuraProfile, element: StringName) -> int:
+	var light := light_for_element(element)
+	if profile == null or light.is_empty():
+		return NEUTRAL_LIGHT_LEVEL
+	return clampi(int(profile.levels.get(light, NEUTRAL_LIGHT_LEVEL)), 0, 5)
+
+
+## Factor of a hero word of `element`: his own light scales it, the opponent's closed or dim
+## light guarding that element makes it land harder.
+func light_word_factor(element: StringName) -> float:
+	var own := 1.0 + LIGHT_LEVEL_STEP * float(light_level(hero_aura, element) - NEUTRAL_LIGHT_LEVEL)
+	var target := light_level(opponent_aura, element)
+	var weakness := 1.0
+	if light_for_element(element) != &"":
+		if target == 0:
+			weakness = CLOSED_LIGHT_WORD_FACTOR
+		elif target == 1:
+			weakness = DIM_LIGHT_WORD_FACTOR
+	return own * weakness
+
+
+## Factor of an opponent blow of `element`: the light that guards it sets its force.
+func light_blow_factor(element: StringName) -> float:
+	return 1.0 + LIGHT_LEVEL_STEP * float(light_level(opponent_aura, element) - NEUTRAL_LIGHT_LEVEL)
+
+
+## Pressure pool factor from the sum of the opponent's light levels (1.0 for a neutral soul).
+func pool_factor() -> float:
+	if opponent_aura == null:
+		return 1.0
+	var total := 0
+	for light: StringName in SpiritAuraProfile.LIGHT_IDS:
+		total += clampi(int(opponent_aura.levels.get(light, NEUTRAL_LIGHT_LEVEL)), 0, 5)
+	return clampf(float(total) / POOL_NEUTRAL_LEVEL_SUM, POOL_FACTOR_MIN, POOL_FACTOR_MAX)
+
+
 ## The duel's `duel.topic` record ({} without a topic).
 func topic() -> Dictionary:
 	return _topic.duplicate(true)
@@ -296,12 +370,22 @@ func land_word(element: StringName, tags: Array, base: float) -> float:
 	if _finished or base <= 0.0:
 		return 0.0
 	var damage := base * PhysicalBlowGuilt.reply_multiplier(_state, element)
-	damage *= SpiritTraits.reply_multiplier(_trait_mods, element)
-	damage *= topic_multiplier({"topic_tags": tags})
+	damage *= word_product(
+		SpiritTraits.reply_multiplier(_trait_mods, element),
+		1.0,
+		topic_multiplier({"topic_tags": tags}),
+		light_word_factor(element)
+	)
 	damage = hero.modifiers.scale_outgoing_damage(damage)
 	opponent.resolve_hit(damage)
 	exchange_resolved.emit(
-		{"kind": "word", "element": String(element), "damage": damage, "pressure_left": opponent.health}
+		{
+			"kind": "word",
+			"element": String(element),
+			"damage": damage,
+			"pressure_left": opponent.health,
+			"light_id": String(light_for_element(element)),
+		}
 	)
 	return damage
 
@@ -423,7 +507,8 @@ func _start_run() -> bool:
 	hero.parry_window_sec = CombatVitals.DEFAULT_PARRY_WINDOW_SEC + float(
 		_trait_mods.get("parry_window_delta", 0.0)
 	)
-	opponent.configure(PRESSURE_MAX, PRESSURE_MAX, 0.0, 0.0)
+	var pool := PRESSURE_MAX * pool_factor()
+	opponent.configure(pool, pool, 0.0, 0.0)
 	opponent.hit_invulnerability_sec = 0.0
 	_incoming = {}
 	_choices.clear()
@@ -478,6 +563,7 @@ func _land_incoming() -> void:
 		float(INCOMING_DAMAGE[incoming_kind])
 		* PhysicalBlowGuilt.incoming_multiplier(_state)
 		* SpiritTraits.incoming_multiplier(_trait_mods, incoming_kind)
+		* light_blow_factor(StringName(String(_incoming.get("element", ""))))
 		* _next_blow_factor
 	)
 	_next_blow_factor = 1.0
@@ -493,6 +579,7 @@ func _land_incoming() -> void:
 			"resolve_lost": result.stamina_damage,
 			"pressure_left": opponent.health,
 			"in_zone": bool(spatial.get("in_zone", true)),
+			"element": String(_incoming.get("element", "")),
 		}
 	)
 	_guard_elapsed = -1.0

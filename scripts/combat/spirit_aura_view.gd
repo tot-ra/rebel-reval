@@ -35,6 +35,12 @@ const MAX_LEVEL_SUM := 35.0
 ## Half the root-to-crown span of an adult on the shared rig; body_scale is
 ## measured against it so a dog's aura is dog-sized.
 const ADULT_HALF_SPAN := 0.67
+## SS-5 duel feedback: a landed word dims its light, then it recovers; falling pressure
+## lowers clarity down to this share; a break shatters the aura over SHATTER_SEC.
+const DIM_DEPTH := 0.7
+const DIM_RECOVER_PER_SEC := 1.2
+const PRESSURE_CLARITY_FLOOR := 0.35
+const SHATTER_SEC := 0.8
 
 static var _ribbon_mesh: ArrayMesh
 static var _shell_mesh: ArrayMesh
@@ -52,6 +58,14 @@ var body_scale := 1.0
 ## World-space anchor points from the last update, NATURAL aspect order.
 var anchors := PackedVector3Array()
 
+## 0 untouched .. 1 fully dimmed, per light; decays back to 0.
+var light_dim := PackedFloat32Array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
+## Opponent pressure left, 0..1; scales clarity so a beaten soul turns choppy.
+var pressure_fraction := 1.0
+## 0 whole .. 1 shattered (the aura of a broken opponent, mirrors SpiritFormView's crack).
+var shatter := 0.0
+var _shattering := false
+var _duel: SpiritDuel
 var _rig_bones: Array[Vector2i] = []
 var _fallback_local := PackedVector3Array()
 var _flow_material := ShaderMaterial.new()
@@ -104,19 +118,16 @@ func bind(target: Node3D, aura: SpiritAuraProfile) -> void:
 
 func set_profile(aura: SpiritAuraProfile) -> void:
 	profile = aura
-	var levels := PackedFloat32Array()
 	var weighted := Color(0, 0, 0, 0)
 	var weight := 0.0
 	for i in SpiritAuraProfile.LIGHT_IDS.size():
 		var level := level_at(i)
-		levels.append(-1.0 if closed_as_absent and level == 0 else float(level))
 		weighted += COLORS[i] * LEVEL_INTENSITY[level]
 		weight += LEVEL_INTENSITY[level]
 	var mean := mean_level()
 	var glow_color := weighted / maxf(weight, 0.001)
 	var glow_rgb := Vector3(glow_color.r, glow_color.g, glow_color.b)
-	for material: ShaderMaterial in [_flow_material, _shell_material, _light_material]:
-		material.set_shader_parameter(&"levels", levels)
+	_push_levels()
 	_flow_material.set_shader_parameter(&"flow_speed", flow_speed_for(mean))
 	_flow_material.set_shader_parameter(&"spread", 0.38 + 0.05 * mean)
 	_flow_material.set_shader_parameter(&"turbulence", turbulence())
@@ -127,6 +138,88 @@ func set_profile(aura: SpiritAuraProfile) -> void:
 	_light_material.set_shader_parameter(&"beam_strength", sky_beam_strength())
 	_light_material.set_shader_parameter(&"turbulence", turbulence())
 	_apply_motion_settings()
+
+
+## Levels as the shaders see them: the dim and the shatter lower a light below its level (the
+## shaders take float levels), an absent light stays absent.
+func _push_levels() -> void:
+	var levels := PackedFloat32Array()
+	for i in SpiritAuraProfile.LIGHT_IDS.size():
+		var level := level_at(i)
+		if closed_as_absent and level == 0:
+			levels.append(-1.0)
+		else:
+			levels.append(float(level) * (1.0 - DIM_DEPTH * light_dim[i]) * (1.0 - shatter))
+	for material: ShaderMaterial in [_flow_material, _shell_material, _light_material]:
+		material.set_shader_parameter(&"levels", levels)
+
+
+## A word landed on `light_id`: the light dims at once (`strength` 0..1) and recovers.
+func dim_light(light_id: StringName, strength: float = 1.0) -> void:
+	var index := SpiritAuraProfile.LIGHT_IDS.find(light_id)
+	if index < 0 or _shattering:
+		return
+	light_dim[index] = clampf(maxf(light_dim[index], strength), 0.0, 1.0)
+	_push_levels()
+
+
+## Opponent pressure left as a share of its pool: less pressure, less clarity.
+func set_pressure_fraction(value: float) -> void:
+	pressure_fraction = clampf(value, 0.0, 1.0)
+	var turb := turbulence()
+	_flow_material.set_shader_parameter(&"turbulence", turb)
+	_light_material.set_shader_parameter(&"turbulence", turb)
+
+
+## The break: the aura collapses into smoke and goes dark (reduced flashing: no sudden flare).
+func shatter_now() -> void:
+	_shattering = true
+
+
+## Follow a duel: its exchanges dim the hit light and drain clarity, a broken opponent shatters.
+func bind_duel(duel: SpiritDuel) -> void:
+	unbind_duel()
+	_duel = duel
+	duel.exchange_resolved.connect(_on_exchange)
+	duel.finished.connect(_on_duel_finished)
+	pressure_fraction = 1.0
+
+
+func unbind_duel() -> void:
+	if _duel != null:
+		if _duel.exchange_resolved.is_connected(_on_exchange):
+			_duel.exchange_resolved.disconnect(_on_exchange)
+		if _duel.finished.is_connected(_on_duel_finished):
+			_duel.finished.disconnect(_on_duel_finished)
+	_duel = null
+
+
+func _on_exchange(result: Dictionary) -> void:
+	var kind := String(result.get("kind", ""))
+	if (kind == "reply" or kind == "word") and float(result.get("damage", 0.0)) > 0.0:
+		dim_light(StringName(String(result.get("light_id", ""))))
+	if _duel != null and _duel.opponent.max_health > 0.0:
+		set_pressure_fraction(_duel.opponent.health / _duel.opponent.max_health)
+
+
+func _on_duel_finished(outcome: Dictionary) -> void:
+	if bool(outcome.get("broken", false)) and String(outcome.get("result", "")) == "won":
+		shatter_now()
+
+
+func _tick_duel_feedback(delta: float) -> void:
+	var changed := false
+	for i in light_dim.size():
+		if light_dim[i] > 0.0:
+			light_dim[i] = maxf(0.0, light_dim[i] - DIM_RECOVER_PER_SEC * delta)
+			changed = true
+	if _shattering and shatter < 1.0:
+		shatter = minf(1.0, shatter + delta / SHATTER_SEC)
+		changed = true
+	if changed:
+		_push_levels()
+		if _shattering:
+			set_pressure_fraction(pressure_fraction)
 
 
 func set_tier(next: Tier) -> void:
@@ -171,7 +264,13 @@ func intensity_at(index: int) -> float:
 
 ## 1 - clarity: 0 calm and clean, 1 choppy with smoke streaks.
 func turbulence() -> float:
-	return 1.0 - clampf(profile.clarity if profile != null else 1.0, 0.0, 1.0)
+	return lerpf(1.0 - effective_clarity(), 1.0, shatter)
+
+
+## Profile clarity scaled by the duel pressure left; the profile alone outside a duel.
+func effective_clarity() -> float:
+	var base := clampf(profile.clarity if profile != null else 1.0, 0.0, 1.0)
+	return base * lerpf(PRESSURE_CLARITY_FLOOR, 1.0, pressure_fraction)
 
 
 ## The tie to the sky (maintainer request, 2026-10-09): a column of light rising
@@ -198,8 +297,9 @@ func shader_value(param: StringName) -> Variant:
 	return _flow_material.get_shader_parameter(param)
 
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	update_anchors()
+	_tick_duel_feedback(delta)
 
 
 func update_anchors() -> void:
