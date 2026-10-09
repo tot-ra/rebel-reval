@@ -10,6 +10,7 @@ This file contains lessons specific to the Dev role.
 - Typed inference fails on `for side in [-1.0, 1.0]`. Declare `for side: float in [...]`. Values from `Dictionary.get()`, untyped arrays, `pop_front()`, `load()`, `load().new()`, `Node.get_class()`, and `Image.get_width()` / `get_height()` / `get_pixel()` often need an explicit `Variant` / typed local under warnings-as-errors.
 - `DialogueSettings.default_settings()` is untyped. Assign it to an explicit `Variant` before reading fields.
 - Shader sampler types are case-sensitive (`sampler2D`, not `sampler2d`).
+- Godot spatial shaders reject `return` inside `fragment()` ("Using 'return' in the 'fragment' processor function is incorrect"). Branch one quad type with `if / else`, not an early return.
 - `Dictionary.merged()` is not a constant expression. Shard merges need a lazy static cache, not `const PROFILES = base.merged(shard)`.
 - Do not `preload("res://some/dir/")` a directory. Do not call `has_method()` on preloaded Script classes in contract tests.
 - A brand-new `class_name` is invisible to already-loaded scripts on the first `--import`. In bootstrap/runtime hooks, `preload` the script, type the instance as `Node3D`, and `call("bind", ...)`. Do not write `as NewClassName` until a later Godot run has registered the class.
