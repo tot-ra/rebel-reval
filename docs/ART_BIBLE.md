@@ -73,9 +73,15 @@ the shader (`mud_wetness`, WS-08 swash), not the plate.
     at native 512 px by the `stone_albedo` sampler (R-1202; the 128 px array copy
     rendered aprons as a dark blur); `timber_floor` (4
     boards) at 1.33 units, ~29 cm boards; castle paving's cobble lattice (20 x
-    28 stones per 4 units, ~17 x 12 cm) and the street fieldstone Voronoi
-    (`cobble_cell_size` 0.2, ~17 cm). The authored `pbr/cobble` plate is not
+    28 stones per 4 units, ~17 x 12 cm). The authored `pbr/cobble` plate is not
     bound at runtime.
+  - Street fieldstone Voronoi (`cobble_cell_size` in `city_ground.gdshader` and
+    `map_view_terrain_blend.gdshader`, kept equal): 0.2 read as ~30 cm stones
+    beside Kalev in the gameplay camera, because warped Voronoi stones span more
+    than one cell. Now 0.14 (~20 cm, about a boot length); 0.08 already reads as
+    gravel and flattens into a grey blur within a few metres. Evidence (Town
+    Hall square, gameplay camera, 0.2 left / 0.14 right):
+    `docs/reports/images/city_fieldstone_scale_before_after.jpg`.
   - Evidence on `smithy_courtyard` (hay yard and stone apron):
     `tools/capture_smithy_courtyard_ground.gd`, plates
     `docs/reports/images/smithy_courtyard_ground_{gameplay,near,close}_{before,after}.jpg`.

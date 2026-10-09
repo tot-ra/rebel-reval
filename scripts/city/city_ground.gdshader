@@ -48,7 +48,9 @@ uniform float earth_scale = 0.55;
 uniform float sand_scale = 0.5;
 uniform float rock_scale = 0.3;
 // Fieldstone paving shared with the district maps (fieldstone_paving.gdshaderinc).
-uniform float cobble_cell_size = 0.2;
+// 0.2 read as ~30 cm stones beside Kalev (warped Voronoi stones span more than one
+// cell); 0.14 gives ~20 cm, about a boot length. Keep equal to map_view_terrain_blend.
+uniform float cobble_cell_size = 0.14;
 uniform float cobble_relief = 0.05;
 // Meadow relief strength (normal, cavity shade) and turf specular, see grass_height().
 uniform float grass_relief_normal = 0.12;

@@ -70,8 +70,9 @@ uniform float mud_wetness = 0.0;
 // a world-space Voronoi gives every stone its own outline, height, and granite
 // tint, with an analytic dome normal, so a street reads as relief without one
 // mesh per stone. Castle paving keeps the baked dressed-stone lattice.
-// cobble_cell_size is one stone's footprint in world units (~15 cm fieldstone).
-uniform float cobble_cell_size = 0.2;
+// cobble_cell_size is one stone's footprint in world units. 0.2 read as ~30 cm
+// stones beside the actor; 0.14 gives ~20 cm fieldstone. Keep equal to city_ground.
+uniform float cobble_cell_size = 0.14;
 // Crown height in world units that the tangent-space normal is derived from.
 uniform float cobble_relief = 0.05;
 uniform float natural_ground_uv_scale = 2.0;
