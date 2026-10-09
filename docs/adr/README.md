@@ -46,5 +46,6 @@ Numbered decisions (Status / Context / Decision / Alternatives / Consequences). 
 - [ADR 0039: Tall grass height by use, wading drag and trail](0039-tall-grass-height-and-wading-drag.md)
 - [ADR 0041: Spirit sight, auras and the seven soul lights](0041-spirit-sight-auras-and-soul-lights.md)
 - [ADR 0042: Regional site plans](0042-regional-site-plans.md)
+- [ADR 0043: Mobile renderer on Metal and opt-in HDR (EDR) output](0043-mobile-renderer-and-hdr-output.md)
 
 <!-- docs-index:end -->

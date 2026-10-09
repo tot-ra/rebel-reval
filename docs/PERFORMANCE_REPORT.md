@@ -28,6 +28,8 @@ TARGET_HARDWARE=/absolute/path/to/minimum-hardware.json \
   tools/run_performance_report.sh build/benchmarks/minimum-hardware.json
 ```
 
+`BENCHMARK_RENDERING_METHOD=gl_compatibility|mobile|forward_plus` (with `BENCHMARK_HEADLESS=0`) overrides the renderer for every Godot phase without editing `project.godot` (Compatibility uses `opengl3`, the others `metal`). As of 2026-10-09 the default and `--quick` modes hang on the retired `scenes/reval_east` scene and `--vegetation` loads a removed map (**R-1536**). Until that is fixed, `tools/benchmarks/renderer_frame_time.gd` measures per-renderer frame time on the continuous city and the Kalev smithy (usage in its header; results in [`reports/hdr_output_spike_2026-10-09.md`](./reports/hdr_output_spike_2026-10-09.md)).
+
 The command exits nonzero when the target profile is missing or invalid, either Godot phase fails, or the report cannot be written. It prints the output path and a one-line summary with target profile, frame-time p95, static memory, and actor count.
 
 ## What the report measures

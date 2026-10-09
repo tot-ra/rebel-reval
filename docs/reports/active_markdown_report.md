@@ -14,11 +14,11 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `1104`
-- Markdown files excluded as archive/reference/out of active scope: `745`
-- Local/external links inspected: `12952`
-- Links to active Markdown docs: `12008`
-- Links to existing archive/reference/non-active local docs: `455`
+- Active Markdown files scanned: `1105`
+- Markdown files excluded as archive/reference/out of active scope: `750`
+- Local/external links inspected: `12976`
+- Links to active Markdown docs: `12013`
+- Links to existing archive/reference/non-active local docs: `461`
 - External links skipped for reachability: `92`
 - Issues found: `0`
 
@@ -80,6 +80,7 @@ No active Markdown documentation issues found.
 - `docs/adr/0040-procedural-motion-runtime.md`
 - `docs/adr/0041-spirit-sight-auras-and-soul-lights.md`
 - `docs/adr/0042-regional-site-plans.md`
+- `docs/adr/0043-mobile-renderer-and-hdr-output.md`
 - `docs/adr/README.md`
 - `docs/AGENT_LOOPS.md`
 - `docs/ANIMAL_3D_SOURCING.md`

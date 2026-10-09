@@ -1,0 +1,84 @@
+{
+  "city_build_ms": 21508,
+  "fps_median_of_shots": 49.6105571265565,
+  "frame_ms_median_of_shots": 20.157,
+  "frame_ms_worst_shot": 37.484,
+  "frames": 120,
+  "render_size": "(1920.0, 1080.0)",
+  "rendering_driver": "metal",
+  "rendering_method": "forward_plus",
+  "shots": [
+    {
+      "draw_calls": 5114,
+      "frame_ms_median": 35.61,
+      "frame_ms_p95": 1011.765,
+      "primitives": 5424334,
+      "shot": "city/city_aerial_ne/day"
+    },
+    {
+      "draw_calls": 5114,
+      "frame_ms_median": 37.484,
+      "frame_ms_p95": 1006.792,
+      "primitives": 5424334,
+      "shot": "city/city_aerial_ne/night"
+    },
+    {
+      "draw_calls": 3423,
+      "frame_ms_median": 21.163,
+      "frame_ms_p95": 1008.17,
+      "primitives": 5284279,
+      "shot": "city/forum/day"
+    },
+    {
+      "draw_calls": 4828,
+      "frame_ms_median": 12.201,
+      "frame_ms_p95": 22.548,
+      "primitives": 6612646,
+      "shot": "city/forum/night"
+    },
+    {
+      "draw_calls": 1993,
+      "frame_ms_median": 13.678,
+      "frame_ms_p95": 17.477,
+      "primitives": 5168098,
+      "shot": "city/smithy_cutaway/day"
+    },
+    {
+      "draw_calls": 1552,
+      "frame_ms_median": 20.157,
+      "frame_ms_p95": 1008.975,
+      "primitives": 7228162,
+      "shot": "city/smithy_cutaway/night"
+    },
+    {
+      "draw_calls": 4468,
+      "frame_ms_median": 32.909,
+      "frame_ms_p95": 1011.168,
+      "primitives": 7380838,
+      "shot": "city/from_toompea_over_roofs/day"
+    },
+    {
+      "draw_calls": 8057,
+      "frame_ms_median": 19.932,
+      "frame_ms_p95": 21.162,
+      "primitives": 11080621,
+      "shot": "city/from_toompea_over_roofs/night"
+    },
+    {
+      "draw_calls": 347,
+      "frame_ms_median": 8.47,
+      "frame_ms_p95": 9.626,
+      "primitives": 297968,
+      "shot": "smithy/forge_bay/day"
+    },
+    {
+      "draw_calls": 249,
+      "frame_ms_median": 10.757,
+      "frame_ms_p95": 11.123,
+      "primitives": 210914,
+      "shot": "smithy/forge_bay/night"
+    }
+  ],
+  "task_id": "P0-142",
+  "video_adapter": "Apple M5 Pro (Apple9)"
+}

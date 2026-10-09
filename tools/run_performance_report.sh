@@ -48,7 +48,13 @@ if [[ "${BENCHMARK_HEADLESS:-1}" != "0" ]]; then
   "$GODOT_BIN" --headless --path "$ROOT" --script res://tools/benchmarks/async_assembly_trace.gd -- "${ASSEMBLY_ARGS[@]}"
 else
   command -v "$GODOT_BIN" >/dev/null 2>&1 && export GODOT_BIN || unset GODOT_BIN
-  "$ROOT/tools/godot_render.sh" --script res://tools/benchmarks/async_assembly_trace.gd -- "${ASSEMBLY_ARGS[@]}"
+  RENDER_ARGS=()
+  # P0-142: same renderer override as tools/benchmarks/run_large_map_benchmark.sh.
+  if [[ -n "${BENCHMARK_RENDERING_METHOD:-}" ]]; then
+    RENDER_ARGS=(--rendering-method "$BENCHMARK_RENDERING_METHOD" --rendering-driver)
+    [[ "$BENCHMARK_RENDERING_METHOD" == "gl_compatibility" ]] && RENDER_ARGS+=(opengl3) || RENDER_ARGS+=(metal)
+  fi
+  "$ROOT/tools/godot_render.sh" ${RENDER_ARGS[@]+"${RENDER_ARGS[@]}"} --script res://tools/benchmarks/async_assembly_trace.gd -- "${ASSEMBLY_ARGS[@]}"
 fi
 python3 - "$OUTPUT" "$ASSEMBLY_OUTPUT" <<'PY'
 import json

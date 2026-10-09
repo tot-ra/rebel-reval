@@ -1,0 +1,99 @@
+{
+  "hdr_output_enabled": true,
+  "hdr_output_requested": true,
+  "hdr_output_supported": true,
+  "map_frame": {
+    "fraction_over_ui_white": 0.00604166666666667,
+    "map_id": "kalev_smithy",
+    "output_max_linear_value": 3.99800086021423,
+    "peak": 2.341796875,
+    "shot": "hearth_close_night",
+    "ui_white": 1.0
+  },
+  "max_luminance_nits": 1600.0,
+  "output_max_linear_value": 3.99800086021423,
+  "reference_luminance_nits": 400.200012207031,
+  "rendering_driver": "metal",
+  "rendering_method": "forward_plus",
+  "screen": 1,
+  "screens": [
+    {
+      "index": 0,
+      "max_linear": 2.08206391334534,
+      "max_nits": 590.73046875,
+      "reference_nits": 283.723510742188,
+      "size": "(5120, 2880)"
+    },
+    {
+      "index": 1,
+      "max_linear": 3.99800086021423,
+      "max_nits": 1600.0,
+      "reference_nits": 400.200012207031,
+      "size": "(3456, 2234)"
+    }
+  ],
+  "task_id": "P0-142",
+  "variants": [
+    {
+      "format": 14,
+      "id": "shipped_agx_softlight",
+      "image_size": "(1920, 1080)",
+      "max_patch_over_ui_white": 2.79296875,
+      "patches": {
+        "fire_8": 2.326171875,
+        "forge_4": 1.75,
+        "lamp_2": 1.16796875,
+        "sun_16": 2.79296875,
+        "wall_0_5": 0.392333984375,
+        "white_1": 0.70654296875
+      },
+      "ui_white": 1.0
+    },
+    {
+      "format": 14,
+      "id": "agx_additive_glow",
+      "image_size": "(1920, 1080)",
+      "max_patch_over_ui_white": 3.158203125,
+      "patches": {
+        "fire_8": 2.900390625,
+        "forge_4": 2.47265625,
+        "lamp_2": 1.521484375,
+        "sun_16": 3.158203125,
+        "wall_0_5": 0.430908203125,
+        "white_1": 0.7763671875
+      },
+      "ui_white": 1.0
+    },
+    {
+      "format": 14,
+      "id": "agx_no_glow",
+      "image_size": "(1920, 1080)",
+      "max_patch_over_ui_white": 2.79296875,
+      "patches": {
+        "fire_8": 2.326171875,
+        "forge_4": 1.75,
+        "lamp_2": 1.16796875,
+        "sun_16": 2.79296875,
+        "wall_0_5": 0.380859375,
+        "white_1": 0.697265625
+      },
+      "ui_white": 1.0
+    },
+    {
+      "format": 14,
+      "id": "filmic_prologue",
+      "image_size": "(1920, 1080)",
+      "max_patch_over_ui_white": 1.3603515625,
+      "patches": {
+        "fire_8": 1.306640625,
+        "forge_4": 1.208984375,
+        "lamp_2": 1.048828125,
+        "sun_16": 1.3603515625,
+        "wall_0_5": 0.57373046875,
+        "white_1": 0.82470703125
+      },
+      "ui_white": 1.0
+    }
+  ],
+  "video_adapter": "Apple M5 Pro (Apple9)"
+}

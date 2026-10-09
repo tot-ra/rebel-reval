@@ -19,6 +19,16 @@ else
   command -v "$GODOT_BIN" >/dev/null 2>&1 && export GODOT_BIN || unset GODOT_BIN
   GODOT_RUN=("$ROOT/tools/godot_render.sh")
 fi
+# P0-142: compare renderers without editing project.godot. Only meaningful with
+# BENCHMARK_HEADLESS=0 (headless always uses the dummy renderer).
+if [[ -n "${BENCHMARK_RENDERING_METHOD:-}" ]]; then
+  GODOT_RUN+=(--rendering-method "$BENCHMARK_RENDERING_METHOD")
+  if [[ "$BENCHMARK_RENDERING_METHOD" == "gl_compatibility" ]]; then
+    GODOT_RUN+=(--rendering-driver opengl3)
+  else
+    GODOT_RUN+=(--rendering-driver metal)
+  fi
+fi
 USER_ARGS=(--output="$SCENE_OUTPUT")
 if [[ "$MODE" == "--quick" ]]; then
   USER_ARGS+=(--quick)

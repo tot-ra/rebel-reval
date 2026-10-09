@@ -50,6 +50,7 @@ Start with:
 - [generated/ classification (2026-09-09)](generated_classification_2026-09-09.md)
 - [Estonia global-map mockup portfolio](global_map_mockups.md)
 - [Godot import sidecar and cache policy (P0-023)](godot_import_cache_policy_p0_023.md)
+- [P0-142 HDR (EDR) output spike, 2026-10-09](hdr_output_spike_2026-10-09.md)
 - [hendrikReyneke Sketchfab model review](hendrik_reyneke_model_review.md)
 - [Historical door visual pass](historical_door_pass.md)
 - [Interior and compact urban map conversion report](interior_map_conversion.md)

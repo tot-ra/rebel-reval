@@ -1,0 +1,91 @@
+{
+  "hdr_output_enabled": false,
+  "hdr_output_requested": false,
+  "hdr_output_supported": false,
+  "max_luminance_nits": 1600.0,
+  "output_max_linear_value": 1.0,
+  "reference_luminance_nits": 200.0,
+  "rendering_driver": "opengl3",
+  "rendering_method": "gl_compatibility",
+  "screen": 1,
+  "screens": [
+    {
+      "index": 0,
+      "max_linear": 1.0,
+      "max_nits": 590.73046875,
+      "reference_nits": 200.0,
+      "size": "(5120, 2880)"
+    },
+    {
+      "index": 1,
+      "max_linear": 1.0,
+      "max_nits": 1600.0,
+      "reference_nits": 200.0,
+      "size": "(3456, 2234)"
+    }
+  ],
+  "task_id": "P0-142",
+  "variants": [
+    {
+      "format": 11,
+      "id": "shipped_agx_softlight",
+      "image_size": "(1920, 1080)",
+      "max_patch_over_ui_white": 0.92822265625,
+      "patches": {
+        "fire_8": 0.92822265625,
+        "forge_4": 0.92822265625,
+        "lamp_2": 0.8935546875,
+        "sun_16": 0.92822265625,
+        "wall_0_5": 0.463134765625,
+        "white_1": 0.7373046875
+      },
+      "ui_white": 1.0
+    },
+    {
+      "format": 11,
+      "id": "agx_additive_glow",
+      "image_size": "(1920, 1080)",
+      "max_patch_over_ui_white": 0.92822265625,
+      "patches": {
+        "fire_8": 0.92822265625,
+        "forge_4": 0.92822265625,
+        "lamp_2": 0.8935546875,
+        "sun_16": 0.92822265625,
+        "wall_0_5": 0.463134765625,
+        "white_1": 0.7373046875
+      },
+      "ui_white": 1.0
+    },
+    {
+      "format": 11,
+      "id": "agx_no_glow",
+      "image_size": "(1920, 1080)",
+      "max_patch_over_ui_white": 0.92822265625,
+      "patches": {
+        "fire_8": 0.92822265625,
+        "forge_4": 0.92822265625,
+        "lamp_2": 0.8837890625,
+        "sun_16": 0.92822265625,
+        "wall_0_5": 0.4453125,
+        "white_1": 0.7265625
+      },
+      "ui_white": 1.0
+    },
+    {
+      "format": 11,
+      "id": "filmic_prologue",
+      "image_size": "(1920, 1080)",
+      "max_patch_over_ui_white": 1.064453125,
+      "patches": {
+        "fire_8": 0.92822265625,
+        "forge_4": 0.92822265625,
+        "lamp_2": 1.064453125,
+        "sun_16": 0.92822265625,
+        "wall_0_5": 0.58251953125,
+        "white_1": 0.91748046875
+      },
+      "ui_white": 1.0
+    }
+  ],
+  "video_adapter": "Apple M5 Pro"
+}

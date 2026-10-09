@@ -3,6 +3,7 @@ extends SceneTree
 ## ADR 0031 review captures of the continuous Reval city. Renders an aerial
 ## overview and street-level shots along named streets. Needs a renderer:
 ##   tools/godot_render.sh --script tools/capture_reval_city.gd [-- --only=<shot>[,<shot>...]]
+##   [-- --out=res://build/x --progress=0.0]  (P0-142: per-renderer runs, night = 0.0)
 ## Output: docs/reports/images/city/<shot>.png
 
 const OUTPUT_DIR := "res://docs/reports/images/city"
@@ -14,12 +15,18 @@ var _only := ""
 ## World children to hide (debugging which layer draws something).
 var _hide: PackedStringArray = []
 var _wet := false
+var _output_dir := OUTPUT_DIR
+var _progress := DAY_PROGRESS
 
 
 func _initialize() -> void:
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--only="):
 			_only = arg.substr(7)
+		if arg.begins_with("--out="):
+			_output_dir = arg.substr(6)
+		if arg.begins_with("--progress="):
+			_progress = float(arg.substr(11))
 		if arg == "--wet":
 			_wet = true
 		if arg.begins_with("--hide="):
@@ -378,7 +385,7 @@ func _shots(plan: CityPlan) -> Array[Dictionary]:
 
 
 func _run() -> void:
-	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT_DIR))
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(_output_dir))
 	var t0 := Time.get_ticks_msec()
 	var plan := CityPlan.load_default()
 	if plan.buildings.is_empty():
@@ -402,7 +409,7 @@ func _run() -> void:
 		if child.name in _hide and child is Node3D:
 			(child as Node3D).visible = false
 			print("hidden %s" % child.name)
-	world.apply_time(DAY_PROGRESS)
+	world.apply_time(_progress)
 	print("city build stats: %s (total %d ms)" % [world.build_stats, Time.get_ticks_msec() - t0])
 	for shot in _shots(plan):
 		if not _only.is_empty() and not shot["name"] in _only.split(","):
@@ -415,7 +422,7 @@ func _run() -> void:
 				world.set_site_room_hidden(site, r, bool(shot.get("cutaway", false)))
 		if shot.has("cutaway_building"):
 			world.set_roof_hidden(int(shot["cutaway_building"]), true)
-		world.apply_time(DAY_PROGRESS)
+		world.apply_time(_progress)
 		if _wet:
 			CityTerrainBuilder.shared_material().set_shader_parameter("puddles", 1.0)
 			CityTerrainBuilder.shared_material().set_shader_parameter("wetness", 0.6)
@@ -423,7 +430,7 @@ func _run() -> void:
 		for i in 6:
 			await process_frame
 		var image := viewport.get_texture().get_image()
-		var path := "%s/%s%s.png" % [OUTPUT_DIR, shot["name"], "_wet" if _wet else ""]
+		var path := "%s/%s%s.png" % [_output_dir, shot["name"], "_wet" if _wet else ""]
 		image.save_png(ProjectSettings.globalize_path(path))
 		print("captured %s" % path)
 	quit(0)
