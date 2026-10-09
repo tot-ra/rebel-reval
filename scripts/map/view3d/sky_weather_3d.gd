@@ -401,6 +401,8 @@ const WIND_HEADING_MAX_RATE := 0.026
 const WIND_DRIFT_SMOOTH_SECONDS := 8.0
 ## Softer than Tidewater 0.85 so painted town materials stay readable.
 const CLOUD_SHADOW_STRENGTH := 0.55
+## R-1518: cos(80 deg) - the departed shower covers about 160 deg of horizon.
+const RAINBOW_CURTAIN_HALF_WIDTH_COS := 0.17
 
 
 ## Keeping these values together prevents lighting, fog, wet ground, wind, and
@@ -441,6 +443,8 @@ class WeatherPresentation extends RefCounted:
 	var star_visibility := 0.0
 	var sunrise_hour := 6.0
 	var fog_potential := 0.0
+	var sunset_hour := 18.0
+	var evening_fog_potential := 0.0
 	var tide_level := 0.0
 	var sidereal_angle := 0.0
 	var star_map: Texture2D
@@ -467,6 +471,9 @@ class WeatherPresentation extends RefCounted:
 	var sky_tint := Color.WHITE
 	## Sun compass azimuth in radians, measured from -Z (north) towards +X (east).
 	var sun_azimuth := 0.0
+	## R-1518: post-rain bow for the water reflection (same values the dome draws).
+	var rainbow_strength := 0.0
+	var rainbow_curtain := Vector3.ZERO
 var weather: StringName = WEATHER_CLEAR
 ## When false the current state holds until set_weather() is called.
 var auto_weather := true
@@ -1027,6 +1034,10 @@ static func morning_fog_potential(date: Dictionary = {}) -> float:
 	return SkyAstronomy.morning_fog_potential(date)
 
 
+static func evening_fog_potential(date: Dictionary = {}) -> float:
+	return SkyAstronomy.evening_fog_potential(date)
+
+
 static func moonlight_strength(progress: float, date: Dictionary = {}) -> float:
 	return SkyAstronomy.moonlight_strength(progress, date)
 
@@ -1062,15 +1073,17 @@ func set_calendar_date(date: Dictionary) -> void:
 ## direction, so a water reflection of the sun or moon dims when a cloud covers the
 ## body, not with the dome-wide coverage. Returns `fallback` when the cloud textures
 ## have no CPU image yet (headless or before first generation).
-func celestial_cloud_clear(dir: Vector3, fallback: float) -> float:
-	if dir.y < 0.02:
+func celestial_cloud_clear(
+	dir: Vector3, fallback: float, match_sky_deck: bool = false
+) -> float:
+	if dir.y < 0.02 and not match_sky_deck:
 		return fallback
 	if _cloud_noise_tex == null or _cloud_shape_tex == null:
 		return fallback * cells_clear_toward(dir)
 	var noise := _cloud_noise_tex.get_image()
 	var shape := _cloud_shape_tex.get_image()
 	if noise == null or shape == null or noise.is_empty() or shape.is_empty():
-		return fallback
+		return fallback * cells_clear_toward(dir)
 	var d := dir.normalized()
 	var uv := Vector2(d.x, d.z) * (1.0 / sqrt(d.y * d.y + 0.012)) * 0.12 - _cloud_offset
 	var storm := storm_intensity()
@@ -1078,6 +1091,13 @@ func celestial_cloud_clear(dir: Vector3, fallback: float) -> float:
 	var storm_mask := lerpf(1.0, smoothstep(0.48, 0.8, cell), storm_locality())
 	storm_mask *= 1.0 - storm_locality()
 	var cover := clampf(cloud_coverage() + storm * storm_mask * 0.38, 0.0, 1.0)
+	if match_sky_deck:
+		return _cloud_slab_clear(d, cover, storm * storm_mask, noise, shape) * cells_clear_toward(d)
+	var opacity := _cloud_opacity_at(uv, cover, noise, shape)
+	return (1.0 - smoothstep(0.05, 0.65, opacity)) * cells_clear_toward(d)
+
+
+func _cloud_opacity_at(uv: Vector2, cover: float, noise: Image, shape: Image) -> float:
 	var banks := 1.0 - _sample_repeat(shape, uv * 0.42 + Vector2(0.13, 0.61))
 	var heaps := 1.0 - _sample_repeat(shape, uv)
 	var base := heaps * lerpf(0.45, 1.0, smoothstep(0.30, 0.72, banks))
@@ -1090,8 +1110,45 @@ func celestial_cloud_clear(dir: Vector3, fallback: float) -> float:
 		+ _sample_repeat(noise, uv * 9.4 + _cloud_detail_offset * 0.3) * 0.18
 	)
 	var lo := detail * lerpf(0.18, 0.42, cloud_chaos())
-	var opacity := clampf((bulk - lo) / maxf(1.0 - lo, 1e-4), 0.0, 1.0)
-	return (1.0 - smoothstep(0.05, 0.65, opacity)) * cells_clear_toward(d)
+	return clampf((bulk - lo) / maxf(1.0 - lo, 1e-4), 0.0, 1.0)
+
+
+## Mirror cloud_field's Beer-Lambert slab, stratiform floor, cirrus and horizon
+## fade. A single heap sample misses the closed deck that hides the Moon in sky.
+func _cloud_slab_clear(
+	dir: Vector3, cover: float, storm: float, noise: Image, shape: Image
+) -> float:
+	var steps := int(_quality_settings()["cloud_shadow_samples"]) * 2
+	var step_length := 1.0 / float(steps)
+	var optical_step := (step_length * lerpf(9.0, 15.0, storm)
+		/ maxf(sqrt(maxf(dir.y, 0.0)), 0.38))
+	var transmittance := 1.0
+	var wind := wind_direction_xz()
+	for i in steps:
+		var h := (float(i) + 0.5) * step_length
+		var uv := _cloud_uv_at(dir, 1.0 + h * lerpf(0.14, 0.32, storm))
+		uv += wind * h * 0.008
+		var body := _cloud_opacity_at(uv, cover, noise, shape)
+		var profile := smoothstep(0.0, 0.16, h) * (1.0 - smoothstep(0.48, 1.0, h))
+		var billows := _sample_repeat(noise,
+			uv * 5.2 + _cloud_detail_offset + Vector2.ONE * h * 0.12)
+		var density := maxf(body - h * h * 0.38, 0.0) * profile * lerpf(0.55, 1.25, billows)
+		density += smoothstep(0.84, 0.98, cover) * profile * 0.32
+		transmittance *= exp(-density * optical_step)
+	var high_uv := _cloud_uv_at(dir, 2.1) + _cloud_offset * 0.65
+	var high_wind := Vector2(wind.x * 0.825 - wind.y * 0.565, wind.x * 0.565 + wind.y * 0.825)
+	var across := Vector2(-high_wind.y, high_wind.x)
+	var cirrus := _sample_repeat(noise, Vector2(high_uv.dot(high_wind) * 0.45,
+		high_uv.dot(across) * 1.8))
+	cirrus = (smoothstep(0.58, 0.85, cirrus) * 0.20
+		* smoothstep(0.25, 0.65, cloud_coverage()) * (1.0 - storm))
+	var density := 1.0 - transmittance * (1.0 - cirrus)
+	return 1.0 - density * smoothstep(-0.025, 0.055, dir.y)
+
+
+func _cloud_uv_at(dir: Vector3, altitude: float) -> Vector2:
+	return (Vector2(dir.x, dir.z) * (altitude / sqrt(dir.y * dir.y + 0.012)) * 0.12
+		- _cloud_offset)
 
 
 ## R-1400: share of light from `dir` that passes the discrete cells, seen from the
@@ -1182,6 +1239,8 @@ func apply_sky_state(progress: float, day_blend: float, sun_direction: Vector3) 
 	_material.set_shader_parameter(&"moon_phase", phase)
 	_material.set_shader_parameter(&"day_blend", day_blend)
 	_material.set_shader_parameter(&"sunset_factor", sunset_factor)
+	_material.set_shader_parameter(&"sun_flare_strength", day_blend)
+	_material.set_shader_parameter(&"camera_direction", _camera_forward())
 	_material.set_shader_parameter(
 		&"sidereal_angle", sidereal_angle_for_progress(progress, calendar_date)
 	)
@@ -1219,11 +1278,16 @@ func presentation_snapshot(progress: float, day_blend: float) -> WeatherPresenta
 	snapshot.lunar_light_strength = moonlight_strength(progress, calendar_date)
 	var sunrise_data := sunrise_sunset_hours(calendar_date)
 	snapshot.sunrise_hour = float(sunrise_data["sunrise"])
+	snapshot.sunset_hour = float(sunrise_data["sunset"])
 	snapshot.fog_potential = morning_fog_potential(calendar_date)
+	snapshot.evening_fog_potential = evening_fog_potential(calendar_date)
 	var cloud_occlusion := 1.0 - snapshot.cloud_coverage
-	snapshot.moon_visibility = snapshot.lunar_light_strength * cloud_occlusion
 	snapshot.sun_cloud_clear = celestial_cloud_clear(snapshot.sun_direction, cloud_occlusion)
-	snapshot.moon_cloud_clear = celestial_cloud_clear(snapshot.moon_direction, cloud_occlusion)
+	snapshot.moon_cloud_clear = celestial_cloud_clear(
+		snapshot.moon_direction, cloud_occlusion, true
+	)
+	snapshot.moon_visibility = (SkyAstronomy.lunar_reflection_strength(progress, calendar_date)
+		* snapshot.moon_cloud_clear)
 	snapshot.cloud_cells = _cells.uniforms()
 	snapshot.cell_sun_edge = cell_sun_edge(snapshot.sun_direction)
 	snapshot.star_visibility = pow(1.0 - snapshot.day_blend, 3.0) * cloud_occlusion
@@ -1238,6 +1302,8 @@ func presentation_snapshot(progress: float, day_blend: float) -> WeatherPresenta
 	snapshot.rain_suppressed = rain_suppressed
 	snapshot.weather_sun_energy = float(_current["sun_energy"])
 	snapshot.sun_azimuth = atan2(snapshot.sun_direction.x, -snapshot.sun_direction.z)
+	snapshot.rainbow_strength = rainbow_strength()
+	snapshot.rainbow_curtain = rainbow_curtain()
 	_fill_atmosphere(snapshot)
 	return snapshot
 
@@ -1408,6 +1474,38 @@ func storm_rain_cover_at(point: Vector3) -> float:
 ## fill would make saved ground water depend on where the player stood.
 func puddle_wetness() -> float:
 	return _puddle_wetness
+
+
+## 0..1 post-rain rainbow visibility. Recent rain and retained ground wetness
+## are required; cloud cover suppresses it. R-1518: a LOW sun is the best case
+## (the bow is a 42 deg cone around the antisolar point, so a sunset bow is a full
+## half circle). Above ~54 deg even the secondary sinks below the horizon, so the
+## strength fades there; the shader draws the exact geometry in between.
+func rainbow_strength() -> float:
+	if _seconds_since_rain < 0.0 or rain_intensity() > 0.04:
+		return 0.0
+	var recent_rain := 1.0 - smoothstep(0.0, 900.0, _seconds_since_rain)
+	var sun_up := smoothstep(-0.02, 0.03, _sun_direction.y)
+	var below_bow_limit := 1.0 - smoothstep(0.74, 0.81, _sun_direction.y)
+	var open_sky := 1.0 - smoothstep(0.52, 0.9, cloud_coverage())
+	return clampf(recent_rain * _puddle_wetness * sun_up * below_bow_limit * open_sky, 0.0, 1.0)
+
+
+## R-1518: where the lit drops are. The shower drifted downwind (rain_slant() and the
+## clouds move along wind_direction_xz()), so only that part of the bow shows. xz is
+## the unit world direction, y the cosine of the curtain's half-width (about 80 deg).
+func rainbow_curtain() -> Vector3:
+	var downwind := wind_direction_xz()
+	if downwind.length_squared() < 1e-6:
+		return Vector3.ZERO
+	downwind = downwind.normalized()
+	return Vector3(downwind.x, RAINBOW_CURTAIN_HALF_WIDTH_COS, downwind.y)
+
+
+func _camera_forward() -> Vector3:
+	if _camera != null and is_instance_valid(_camera) and _camera.is_inside_tree():
+		return -_camera.global_basis.z.normalized()
+	return Vector3(0.0, 0.0, -1.0)
 
 
 ## Mud uses the same retained ground water as puddles, so viscosity changes from
@@ -1909,6 +2007,9 @@ func _update_rain(delta: float = 0.0) -> void:
 func _push_cloud_uniforms() -> void:
 	if _material == null:
 		return
+	_material.set_shader_parameter(&"rainbow_strength", rainbow_strength())
+	_material.set_shader_parameter(&"rainbow_curtain", rainbow_curtain())
+	_material.set_shader_parameter(&"camera_direction", _camera_forward())
 	_material.set_shader_parameter(&"cloud_coverage", cloud_coverage())
 	_material.set_shader_parameter(&"cloud_darken", float(_current["darken"]))
 	_material.set_shader_parameter(&"cloud_offset", _cloud_offset)
@@ -1930,6 +2031,7 @@ func _push_cloud_uniforms() -> void:
 	_material.set_shader_parameter(&"lightning_kind", float(_lightning_kind))
 	_material.set_shader_parameter(&"cloud_cells", _cells.uniforms())
 	_material.set_shader_parameter(&"rain_slant", rain_slant() * RAIN_SHAFT_SLANT)
+	_material.set_shader_parameter(&"cloud_gloom", smoothstep(0.55, 0.95, cloud_coverage()))
 	_material.set_shader_parameter(&"cell_steps", int(settings["cloud_cell_steps"]))
 	_material.set_shader_parameter(&"cell_fine_steps", int(settings["cloud_cell_fine_steps"]))
 	_material.set_shader_parameter(
@@ -1939,7 +2041,6 @@ func _push_cloud_uniforms() -> void:
 	_material.set_shader_parameter(&"wind_dir", wind_direction_xz())
 	_publish_cloud_shadow_globals()
 
-	_material.set_shader_parameter(&"cloud_gloom", smoothstep(0.55, 0.95, cloud_coverage()))
 
 func cloud_shadow_enabled() -> bool:
 	return bool(_quality_settings()["cloud_shadow_enabled"])

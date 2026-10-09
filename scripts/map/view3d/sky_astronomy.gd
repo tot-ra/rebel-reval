@@ -157,10 +157,37 @@ static func morning_fog_potential(date: Dictionary = {}) -> float:
 	return fposmod(sin(day * 12.9898 + 4.1) * 43758.5453, 1.0)
 
 
+## Evening counterpart of morning_fog_potential: damp, still dusks where sea and
+## river mist (advection and early radiation fog) gather after sunset. Keyed to the
+## calendar day with its own hash constants so it is independent of the dawn roll and
+## stays deterministic. Same 0..1 scale and the same onset gate as the morning value.
+static func evening_fog_potential(date: Dictionary = {}) -> float:
+	var effective_date := GAME_CALENDAR.DEFAULT_DATE if date.is_empty() else date
+	var day := julian_day(effective_date)
+	return fposmod(sin(day * 78.233 + 1.7) * 24634.6345, 1.0)
+
+
 static func moonlight_strength(progress: float, date: Dictionary = {}) -> float:
 	var effective_date := GAME_CALENDAR.DEFAULT_DATE if date.is_empty() else date
 	var horizon_visibility := smoothstep(-0.04, 0.03, lunar_direction(progress, effective_date).y)
 	return lunar_illumination(lunar_phase(effective_date)) * horizon_visibility
+
+
+## Disk area alone overstates a crescent's reflected light. Approximate lunar
+## photometry with the phase angle (degrees), normalized to full=1 and new=0.
+## Keep this out of moonlight_strength: night scene fill has its own art baseline.
+static func lunar_reflection_brightness(phase: float) -> float:
+	var illumination := lunar_illumination(phase)
+	var angle := rad_to_deg(acos(clampf(2.0 * illumination - 1.0, -1.0, 1.0)))
+	var magnitude := 0.026 * angle + 4e-9 * pow(angle, 4.0)
+	var new_moon_floor := pow(10.0, -0.4 * (0.026 * 180.0 + 4e-9 * pow(180.0, 4.0)))
+	return clampf((pow(10.0, -0.4 * magnitude) - new_moon_floor)
+		/ (1.0 - new_moon_floor), 0.0, 1.0)
+
+
+static func lunar_reflection_strength(progress: float, date: Dictionary = {}) -> float:
+	var horizon := smoothstep(-0.04, 0.03, lunar_direction(progress, date).y)
+	return lunar_reflection_brightness(lunar_phase(date)) * horizon
 
 
 ## Lunar declination = solar seasonal declination plus the ~5.14° orbital tilt.

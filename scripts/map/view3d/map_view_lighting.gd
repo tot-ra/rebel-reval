@@ -25,16 +25,14 @@ const BACKGROUND_DAY_COLOR := Color8(31, 30, 28)
 ## the room readable instead of letting the outdoor sky dome show through.
 const BACKGROUND_INTERIOR_TOP_DOWN_COLOR := Color.BLACK
 
-## Night stays at least 20% darker than day while ambient light keeps terrain
-## identities readable. Calibration after ADR 0018 raised fill so indigo ambient
-## and local albedo survive outside fire/window pools instead of crushing to black.
+## Night fill is deliberately subdued: practical lights should dominate walls,
+## actors and diffuse white foam. The directional component also follows lunar
+## photometry/cloud visibility, rather than illuminating a moonless sky.
 const SUN_NIGHT_COLOR := Color8(142, 162, 210)
-const SUN_NIGHT_ENERGY := 0.72
-## Exposure pass: 58,74,112 at 0.92 put moonless streets at ~1/255 mean luma, so
-## only lantern-lit walls showed. Night stays blue and much darker than day, but
-## street shapes and ground must remain readable like a moonlit RPG night.
+const SUN_NIGHT_ENERGY := 0.28
+## A small ambient floor retains silhouettes without day-bright whitecaps.
 const AMBIENT_NIGHT_COLOR := Color8(76, 94, 138)
-const AMBIENT_NIGHT_ENERGY := 1.5
+const AMBIENT_NIGHT_ENERGY := 0.45
 const BACKGROUND_NIGHT_COLOR := Color8(14, 18, 28)
 ## Under a roofed room shell the fill is daylight bounced off limewash, timber
 ## and clay, not open sky: warm it instead of letting sky-blue fill tint every
@@ -93,6 +91,14 @@ const FOG_HOURS_BEFORE_SUNRISE := 3.0
 const FOG_HOURS_AFTER_SUNRISE := 2.5
 ## Raising the onset from 0.6 to 0.8 cuts eligible mornings from roughly two in
 ## five to one in five while preserving the strongest deterministic fog days.
+## Evening mist (R-1165): builds from just before sunset, holds through the first
+## hours of night and thins out before the small hours. Weaker than dawn mist because
+## the sea is warmer than the air by then, so it veils the glitter path less.
+const EVENING_FOG_HOURS_BEFORE_SUNSET := 0.5
+const EVENING_FOG_HOURS_RISE := 2.0
+const EVENING_FOG_HOURS_HOLD := 2.0
+const EVENING_FOG_HOURS_FADE := 2.0
+const EVENING_FOG_STRENGTH := 0.8
 const FOG_POTENTIAL_MIN := 0.8
 const FOG_POTENTIAL_FULL := 0.95
 ## Mist and rain haze also scatter the direct beam that paints the sun/moon glitter
@@ -206,16 +212,13 @@ static func apply_cycle_progress(
 	# fog, wet ground, wind, and water all consume the same transition sample.
 	sky_weather.apply_sky_state(progress, day_blend, sun_direction)
 	var presentation := sky_weather.presentation_snapshot(progress, day_blend)
-	# DirectionalLight3D emits along local -Z. Twilight therefore hands the light
-	# direction smoothly from the date-driven moon to the moving sun.
-	var sun_light_weight := smoothstep(
-		-6.0,
-		0.0,
-		sun_elevation_degrees(presentation.sun_direction)
+	# Never rotate a specular source between two celestial bodies: that creates
+	# a moving reflection of a light that does not exist. Both energies reach
+	# zero at the handoff; twilight illumination belongs to the sky fill.
+	var sun_light_weight := 1.0 if presentation.sun_direction.y >= 0.0 else 0.0
+	var light_direction := (
+		presentation.sun_direction if sun_light_weight > 0.0 else presentation.moon_direction
 	)
-	var light_direction := presentation.moon_direction.slerp(
-		presentation.sun_direction, sun_light_weight
-	).normalized()
 	sun.basis = Basis.looking_at(-light_direction, Vector3.UP)
 	sun.light_color = sun_light_color(presentation, sun_light_weight)
 	sun.light_energy = sun_light_energy(presentation)
@@ -263,7 +266,9 @@ static func apply_cycle_progress(
 
 	# Water specular follows the visible sun disk rather than civil-twilight light,
 	# preventing a sun glint after the disk has set.
-	MapViewMaterials.apply_water_lighting(presentation.sun_visibility, presentation.day_blend)
+	MapViewMaterials.apply_water_lighting(
+		direct_sun_visibility(presentation.sun_direction), presentation.day_blend
+	)
 	MapViewMaterials.apply_coastal_tide(presentation.tide_level)
 	# Glints answer to clouds (cloud_clear) and to the same mist/rain haze that
 	# apply_ground_mist puts in the Environment, so dawn mist dims the glitter path.
@@ -273,9 +278,9 @@ static func apply_cycle_progress(
 		presentation.star_map,
 		presentation.sun_direction,
 		presentation.moon_direction,
-		presentation.sun_visibility * presentation.sun_cloud_clear
+		direct_sun_visibility(presentation.sun_direction) * presentation.sun_cloud_clear
 			* glint_haze_transmittance(presentation.sun_direction.y, mist, rain_haze),
-		presentation.lunar_light_strength * presentation.moon_cloud_clear
+		presentation.moon_visibility
 			* glint_haze_transmittance(presentation.moon_direction.y, mist, rain_haze),
 		presentation.star_visibility
 			* glint_haze_transmittance(GLINT_STAR_MEAN_ELEVATION_SIN, mist, rain_haze),
@@ -288,6 +293,11 @@ static func apply_cycle_progress(
 		presentation.sky_lut_size,
 		presentation.sky_exposure,
 		presentation.sky_tint
+	)
+	# R-1518: calm water mirrors the post-rain bow. Interiors see no sky.
+	MapViewMaterials.apply_water_rainbow(
+		0.0 if enclosed_interior else presentation.rainbow_strength,
+		presentation.rainbow_curtain
 	)
 	apply_post_grade_snapshot(environment, presentation)
 	return presentation.day_blend < 0.5
@@ -319,9 +329,11 @@ static func sun_light_energy(presentation: SkyWeather3D.WeatherPresentation) -> 
 	if presentation.atmosphere_available:
 		day_energy *= clampf(presentation.physical_sun_energy, PHYSICAL_SUN_ENERGY_MIN, 1.0)
 		weather_energy = presentation.weather_sun_energy
-	var celestial_energy := lerpf(
-		SUN_NIGHT_ENERGY * presentation.lunar_light_strength, day_energy, presentation.day_blend
-	)
+	var celestial_energy := day_energy * direct_sun_visibility(presentation.sun_direction)
+	if presentation.sun_direction.y < 0.0:
+		celestial_energy = SUN_NIGHT_ENERGY * presentation.moon_visibility * moon_handoff(
+			presentation.sun_direction
+		)
 	return celestial_energy * weather_energy + presentation.lightning * LIGHTNING_SUN_ENERGY
 
 
@@ -359,14 +371,21 @@ static func sun_elevation_degrees(sun_direction: Vector3) -> float:
 	return rad_to_deg(asin(clampf(sun_direction.y, -1.0, 1.0)))
 
 
-## Ambient/post-grade blend for civil twilight. Night (<= -6) and the geometric
-## horizon (0) stay on daylight_blend; mid-twilight eases out so -3 deg is ~0.375
-## instead of ~0.16. Directional sun energy is not lifted (no new lights).
+## Direct solar lighting ends at the water horizon, not at civil twilight.
+static func direct_sun_visibility(direction: Vector3) -> float:
+	return smoothstep(0.0, 0.05, direction.y)
+
+
+## Leave a dark handoff interval instead of sweeping a phantom light across water.
+static func moon_handoff(direction: Vector3) -> float:
+	return 1.0 - smoothstep(-6.0, -1.0, sun_elevation_degrees(direction))
+
+
+## Carry the sky fill through civil and nautical twilight to astronomical night.
+## The same -18..0 degree ramp is used by the dome and reflected sky floor.
 static func twilight_fill_blend(day_blend: float, sun_direction: Vector3) -> float:
-	var elevation := sun_elevation_degrees(sun_direction)
-	var t := clampf((elevation + 6.0) / 6.0, 0.0, 1.0)
-	var civil := 1.0 - (1.0 - t) * (1.0 - t)
-	return maxf(clampf(day_blend, 0.0, 1.0), CIVIL_TWILIGHT_HORIZON_BLEND * civil)
+	var twilight := smoothstep(sin(deg_to_rad(-18.0)), 0.0, sun_direction.y)
+	return maxf(clampf(day_blend, 0.0, 1.0), CIVIL_TWILIGHT_HORIZON_BLEND * twilight)
 
 
 ## energy * sRGB luminance of the applied ambient colour. Tests use this so a
@@ -511,6 +530,9 @@ static func ground_mist_amount(
 	var hour := DayNightCycle.progress_to_hour(presentation.cycle_progress)
 	var mist := morning_mist_factor(hour, presentation.sunrise_hour)
 	mist *= smoothstep(FOG_POTENTIAL_MIN, FOG_POTENTIAL_FULL, presentation.fog_potential)
+	var evening := evening_mist_factor(hour, presentation.sunset_hour)
+	evening *= smoothstep(FOG_POTENTIAL_MIN, FOG_POTENTIAL_FULL, presentation.evening_fog_potential)
+	mist = maxf(mist, evening * EVENING_FOG_STRENGTH)
 	mist *= clampf(1.0 - presentation.wind_strength * 0.7, 0.0, 1.0)
 	return mist * clampf(presentation.fog_quality, 0.0, 1.0)
 
@@ -564,6 +586,23 @@ static func morning_mist_factor(hour: float, sunrise: float) -> float:
 	if hour < sunrise:
 		return smoothstep(start, sunrise, hour)
 	return 1.0 - smoothstep(sunrise, stop, hour)
+
+
+## Evening mist gathers around sunset and thins before the small hours. Hours past
+## midnight are read as 24+ so the envelope survives the day wrap.
+static func evening_mist_factor(hour: float, sunset: float) -> float:
+	var start := sunset - EVENING_FOG_HOURS_BEFORE_SUNSET
+	var peak := start + EVENING_FOG_HOURS_RISE
+	var hold_end := peak + EVENING_FOG_HOURS_HOLD
+	var stop := hold_end + EVENING_FOG_HOURS_FADE
+	var h := hour + 24.0 if hour < start - 12.0 else hour
+	if h <= start or h >= stop:
+		return 0.0
+	if h < peak:
+		return smoothstep(start, peak, h)
+	if h <= hold_end:
+		return 1.0
+	return 1.0 - smoothstep(hold_end, stop, h)
 
 
 ## Godot exponential height fog at y=0 is 1-exp(-(fog_height-y)*height_density).

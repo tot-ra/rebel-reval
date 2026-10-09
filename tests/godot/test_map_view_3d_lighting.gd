@@ -127,6 +127,10 @@ func test_night_directional_light_follows_lunar_phase_and_horizon() -> void:
 		"full moon must cast more directional light than new moon"
 	)
 	assert_true(
+		full_moon_energy > 0.05 and full_moon_energy <= MapViewLighting.SUN_NIGHT_ENERGY,
+		"full moon must be visible but subdued, not a second daylight source"
+	)
+	assert_true(
 		(
 			SkyWeather3D.moonlight_strength(0.0, {"day": 10, "month": 5, "year": 1343})
 			> SkyWeather3D.moonlight_strength(0.5, {"day": 10, "month": 5, "year": 1343})
@@ -170,16 +174,24 @@ func test_evening_window_schedule_is_deterministic_and_bounded() -> void:
 
 
 func test_houses_get_evening_window_lights_with_per_building_variation() -> void:
-	var definition := KalevSmithyDefinition.create()
+	# The forge interior has no ordinary houses. Own the fixture so this
+	# renderer regression cannot become vacuous when map content changes.
+	var buildings: Array[Dictionary] = []
+	for index in 48:
+		buildings.append({
+			"id": StringName("test.window_house.%d" % index),
+			"kind": MapTypes.BUILDING_KIND_HOUSE,
+			"footprint": Rect2(0, 0, 128, 96),
+		})
 	var participating := 0
 	var skipped := 0
 	var start_hours: Dictionary = {}
-	for building in definition.buildings:
+	for building in buildings:
 		if building["kind"] != MapTypes.BUILDING_KIND_HOUSE:
 			continue
 		if MapViewMeshBuilderBuildingRegistry.is_exceptional(building):
 			continue
-		var node := MapViewMeshBuilder.build_building(building, definition.cell_size)
+		var node := MapViewMeshBuilder.build_building(building, 32)
 		assert_true(
 			node.has_node("WindowLights"), "%s: houses need evening window lights" % building["id"]
 		)
@@ -509,6 +521,74 @@ func test_morning_mist_gathers_before_dawn_and_burns_off() -> void:
 		),
 		"the mist envelope must be continuous across sunrise"
 	)
+
+
+func test_evening_mist_builds_after_sunset_and_clears_by_night() -> void:
+	var sunset := 18.0
+	assert_true(
+		MapViewLighting.evening_mist_factor(12.0, sunset) == 0.0,
+		"noon must be clear of evening mist"
+	)
+	assert_true(
+		MapViewLighting.evening_mist_factor(sunset - 2.0, sunset) == 0.0,
+		"afternoon must be clear"
+	)
+	assert_true(
+		MapViewLighting.evening_mist_factor(sunset + 2.0, sunset) > 0.9,
+		"mist peaks after sunset"
+	)
+	assert_true(
+		MapViewLighting.evening_mist_factor(sunset + 5.0, sunset) > 0.0,
+		"mist lingers into the night"
+	)
+	assert_true(
+		MapViewLighting.evening_mist_factor(3.0, sunset) == 0.0,
+		"small hours must be clear"
+	)
+	# Late-summer sunset: the envelope crosses midnight and must still fade out.
+	assert_true(
+		MapViewLighting.evening_mist_factor(0.5, 21.0) > 0.9,
+		"late-summer mist survives midnight"
+	)
+
+
+func test_evening_fog_potential_is_deterministic_and_occasional() -> void:
+	var date := {"day": 10, "month": 10, "year": 1343}
+	var first := SkyWeather3D.evening_fog_potential(date)
+	assert_true(is_equal_approx(first, SkyWeather3D.evening_fog_potential(date)))
+	var eligible := 0
+	for day in range(1, 29):
+		var potential := SkyWeather3D.evening_fog_potential({"day": day, "month": 10, "year": 1343})
+		assert_true(potential >= 0.0 and potential <= 1.0)
+		if potential >= MapView3D.FOG_POTENTIAL_MIN:
+			eligible += 1
+	assert_true(eligible < 14, "evening fog must stay occasional")
+
+
+func test_evening_mist_gates_on_potential_wind_and_interiors() -> void:
+	var presentation := SkyWeather3D.WeatherPresentation.new()
+	presentation.sunset_hour = 18.0
+	presentation.sunrise_hour = 6.0
+	presentation.fog_quality = 1.0
+	presentation.cycle_progress = 20.0 / 24.0
+	presentation.evening_fog_potential = 1.0
+	var calm := MapViewLighting.ground_mist_amount(presentation, false)
+	assert_true(calm > 0.4, "fog-prone calm evening must carry mist")
+	presentation.wind_strength = 1.0
+	assert_true(
+		MapViewLighting.ground_mist_amount(presentation, false) < calm,
+		"wind disperses evening mist"
+	)
+	presentation.wind_strength = 0.0
+	assert_true(MapViewLighting.ground_mist_amount(presentation, true) == 0.0, "off indoors")
+	presentation.evening_fog_potential = 0.0
+	assert_true(
+		MapViewLighting.ground_mist_amount(presentation, false) == 0.0,
+		"dry evening is clear"
+	)
+	presentation.evening_fog_potential = 1.0
+	var misty := MapViewLighting.glint_haze_transmittance(0.1, calm, 0.0)
+	assert_true(misty < 1.0, "evening mist must dim the glitter path")
 
 
 func test_morning_mist_uses_the_reduced_daily_probability() -> void:
