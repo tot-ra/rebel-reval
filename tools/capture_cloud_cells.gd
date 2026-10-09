@@ -2,8 +2,10 @@ extends SceneTree
 
 ## R-1400 review captures of the discrete cloud cells over the seamless city:
 ## their ground shadows from the air and from above, cumulus seen from the street,
-## a cumulonimbus with a cloud-to-ground stroke and an in-cloud flash, and sunbeams
-## from behind a cell. Needs a renderer:
+## a cumulonimbus with a cloud-to-ground stroke and an in-cloud flash, sunbeams
+## from behind a cell, and (R-1481) lobed fair cumulus from open ground, one
+## cumulus through its life (cells_cumulus_life) and cumulus merged into a
+## thunderstorm tower. Needs a renderer:
 ##   tools/godot_render.sh --script tools/capture_cloud_cells.gd [-- --only=<shot>[,<shot>...]]
 ## Output: docs/reports/images/weather/<shot>.png
 
@@ -14,6 +16,7 @@ const AERIAL_EYE := Vector3(700, 380, -900)
 const AERIAL_LOOK := Vector3(-80, 20, -150)
 
 var _only := ""
+var _plan: CityPlan
 
 
 func _initialize() -> void:
@@ -30,6 +33,7 @@ func _wanted(shot: String) -> bool:
 func _run() -> void:
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT_DIR))
 	var plan := CityPlan.load_default()
+	_plan = plan
 	# WHY root, not a SubViewport: the ground shadow and god-ray passes composite
 	# over the live framebuffer, which is only the real play path in the root
 	# window (see tools/capture_ws12_cloud_shadows.gd).
@@ -129,6 +133,46 @@ func _run() -> void:
 		for i in 3:
 			await process_frame
 		await _shot(viewport, camera, "cells_harbour_shadow", shore + Vector3(0, 420, 520), shore, 55.0)
+	if _wanted("cells_tower_merge"):
+		# R-1481: crowded cumulus merged into a thunderstorm tower over fair weather.
+		# Walk the cell clock in fixed steps until one tower is fully merged.
+		await _settle(view, sky, SkyWeather3D.WEATHER_CLOUDY, 0.40)
+		var slot := _strongest_tower(sky)
+		for step in 200:
+			if sky.cloud_cells().towers[slot] * sky.cloud_cells().weights[slot] > 0.85:
+				break
+			sky.advance(4.0)
+			slot = _strongest_tower(sky)
+		await _sunlit_cell_shot(viewport, camera, sky, slot, "cells_tower_merge", 1400.0)
+	if _wanted("cells_field_cumulus"):
+		# R-1481: fair cumulus from open ground with the sun behind the camera, so
+		# the lobed, wind-stretched shapes read against blue sky.
+		await _settle(view, sky, SkyWeather3D.WEATHER_CLEAR, 0.40)
+		var slot := _strongest_fair(sky)
+		await _sunlit_cell_shot(viewport, camera, sky, slot, "cells_field_cumulus", 1100.0)
+	if _wanted("cells_cumulus_life"):
+		# R-1481: one cumulus at four points of its life in a 2x2 sheet: grown,
+		# spread out, shrunk while still solid, and the last tattered remnant. The
+		# camera follows the cell, so the drift does not move it out of frame.
+		await _settle(view, sky, SkyWeather3D.WEATHER_CLEAR, 0.40)
+		var slot := _strongest_fair(sky)
+		while sky.cloud_cells().lives[slot] > 0.3:
+			sky.advance(1.0)
+		var sheet := Image.create(VIEWPORT_SIZE.x, VIEWPORT_SIZE.y, false, Image.FORMAT_RGBA8)
+		var stages := [0.4, 0.62, 0.8, 0.93]
+		for i in stages.size():
+			while sky.cloud_cells().lives[slot] < float(stages[i]):
+				sky.advance(0.5)
+			var frame := await _sunlit_cell_frame(viewport, camera, sky, slot, 1000.0)
+			frame.resize(VIEWPORT_SIZE.x / 2, VIEWPORT_SIZE.y / 2, Image.INTERPOLATE_LANCZOS)
+			frame.convert(Image.FORMAT_RGBA8)
+			sheet.blit_rect(
+				frame, Rect2i(Vector2i.ZERO, frame.get_size()),
+				Vector2i(i % 2, i / 2) * frame.get_size()
+			)
+		var path := "%s/cells_cumulus_life.png" % OUTPUT_DIR
+		sheet.save_png(ProjectSettings.globalize_path(path))
+		print("captured %s" % path)
 	if _wanted("cells_sunbeams"):
 		await _settle(view, sky, SkyWeather3D.WEATHER_CLOUDY, 0.30)
 		var sun := SkyWeather3D.solar_direction(0.30, sky.calendar_date)
@@ -185,6 +229,83 @@ func _strongest(sky: SkyWeather3D, kind: int) -> int:
 			best_w = cells.weights[slot]
 			best = slot
 	print("strongest kind %d slot %d weight %.2f" % [kind, best, best_w])
+	return best
+
+
+## Raw frame of cell `slot` as _sunlit_cell_shot frames it, without saving.
+func _sunlit_cell_frame(
+	viewport: Viewport, camera: Camera3D, sky: SkyWeather3D, slot: int, distance: float
+) -> Image:
+	var framing := _sunlit_cell_framing(sky, slot, distance)
+	camera.fov = 62.0
+	camera.far = 9000.0
+	camera.near = 0.08
+	camera.look_at_from_position(framing[0], framing[1], Vector3.UP)
+	for i in 6:
+		await process_frame
+	var cells = sky.cloud_cells()
+	print("life frame: life %.2f weight %.2f radius %.0f" % [
+		cells.lives[slot], cells.weights[slot], cells.radii[slot]
+	])
+	return viewport.get_texture().get_image()
+
+
+## Plate of cell `slot` from `distance` away on the sun's side (sun behind the
+## camera), eye 30 m up, looking at the cell's mid height. Keep `distance` under
+## ~1.1 km: cumulus fade out 1.15-1.6 km from the camera (periodic tile seam).
+func _sunlit_cell_shot(
+	viewport: Viewport, camera: Camera3D, sky: SkyWeather3D, slot: int, shot: String,
+	distance: float
+) -> void:
+	var cells = sky.cloud_cells()
+	print("%s: slot %d life %.2f weight %.2f tower %.2f" % [
+		shot, slot, cells.lives[slot], cells.weights[slot], cells.towers[slot]
+	])
+	var framing := _sunlit_cell_framing(sky, slot, distance)
+	for i in 3:
+		await process_frame
+	await _shot(viewport, camera, shot, framing[0], framing[1], 62.0)
+
+
+## [eye, look] for a cell plate with the sun behind the camera, eye on land.
+func _sunlit_cell_framing(sky: SkyWeather3D, slot: int, distance: float) -> Array:
+	var cells = sky.cloud_cells()
+	var center := _near_copy(cells.centers[slot], Vector3(-60, 0, -200))
+	var sun := SkyWeather3D.solar_direction(0.40, sky.calendar_date)
+	var toward_sun := Vector2(sun.x, sun.z).normalized()
+	# Swing off the sun bearing until the eye stands on land, not in the sea.
+	var ground := Vector2(center.x, center.z) + toward_sun * distance
+	for i in 18:
+		var p := Vector2(center.x, center.z) + toward_sun.rotated(
+			deg_to_rad(20.0 * ceilf(i / 2.0) * (1.0 if i % 2 == 0 else -1.0))
+		) * distance
+		if _plan.ground_height(p) > 0.5:
+			ground = p
+			break
+	var eye := Vector3(ground.x, _plan.walk_height(ground) + 30.0, ground.y)
+	var look := Vector3(center.x, center.y + float(cells.heights[slot]) * 0.4, center.z)
+	return [eye, look]
+
+
+## Grown cumulus that has not merged into a tower.
+func _strongest_fair(sky: SkyWeather3D) -> int:
+	var cells = sky.cloud_cells()
+	var best := 0
+	var best_w := -1.0
+	for slot in CloudCellsScript.CUMULUS_SLOTS:
+		if cells.towers[slot] <= 0.0 and cells.weights[slot] > best_w:
+			best_w = cells.weights[slot]
+			best = slot
+	return best
+
+
+func _strongest_tower(sky: SkyWeather3D) -> int:
+	var cells = sky.cloud_cells()
+	var best := 0
+	for slot in CloudCellsScript.CUMULUS_SLOTS:
+		if cells.towers[slot] * cells.weights[slot] > cells.towers[best] * cells.weights[best]:
+			best = slot
+	print("strongest tower slot %d level %.2f" % [best, cells.towers[best] * cells.weights[best]])
 	return best
 
 

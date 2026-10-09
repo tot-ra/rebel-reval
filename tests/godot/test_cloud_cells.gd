@@ -15,7 +15,9 @@ func test_cell_field_is_a_pure_function_of_clock_drift_and_counts() -> void:
 	a.update(123.4, Vector2(0.03, -0.01), Vector2(6.5, 1.2))
 	b.update(123.4, Vector2(0.03, -0.01), Vector2(6.5, 1.2))
 	assert_eq(a.uniforms(), b.uniforms(), "same inputs must rebuild the same cells")
-	assert_eq(a.uniforms().size(), CloudCellsScript.SLOTS * 2, "two vec4 per slot")
+	assert_eq(
+		a.uniforms().size(), CloudCellsScript.SLOTS * CloudCellsScript.STRIDE, "three vec4 per slot"
+	)
 
 
 func test_weather_decides_how_many_cells_show() -> void:
@@ -28,15 +30,53 @@ func test_weather_decides_how_many_cells_show() -> void:
 	assert_true(storm.y >= 2.0, "a storm grows cumulonimbus cells")
 
 
-func test_cells_drift_with_the_shared_cloud_offset() -> void:
+## R-1481: every cumulus rides the wind at its own speed and slight veer, faster
+## than the dome deck, so clouds overtake each other instead of hanging in place.
+func test_cells_drift_with_the_wind_at_their_own_speed() -> void:
 	var cells := CloudCellsScript.new()
 	cells.update(10.0, Vector2.ZERO, Vector2(13.0, 0.0))
-	var before: Vector3 = cells.centers[0]
-	cells.update(10.0, Vector2(0.01, 0.0), Vector2(13.0, 0.0))
-	var after: Vector3 = cells.centers[0]
-	var moved := CloudCellsScript.wrap_delta(Vector2(after.x, after.z), Vector2(before.x, before.z))
-	assert_almost_eq(moved.x, 0.01 * CloudCellsScript.METRES_PER_UV, 0.01, "cells move with the wind")
-	assert_almost_eq(moved.y, 0.0, 0.01, "drift has no cross component here")
+	var before := cells.centers.duplicate()
+	var towered := cells.towers.duplicate()
+	cells.update(10.0, Vector2(0.002, 0.0), Vector2(13.0, 0.0))
+	var deck := 0.002 * CloudCellsScript.METRES_PER_UV
+	var speeds := {}
+	for slot in CloudCellsScript.CUMULUS_SLOTS:
+		# Merging pulls a tower off its own track; check free cells only.
+		if towered[slot] > 0.0 or cells.towers[slot] > 0.0:
+			continue
+		var a: Vector3 = before[slot]
+		var b: Vector3 = cells.centers[slot]
+		var moved := CloudCellsScript.wrap_delta(Vector2(b.x, b.z), Vector2(a.x, a.z))
+		assert_true(moved.length() > deck * 1.5, "cumulus outpace the deck drift")
+		assert_true(
+			absf(moved.angle()) <= CloudCellsScript.CUMULUS_VEER + 0.001,
+			"each cell keeps close to the wind bearing"
+		)
+		speeds[snappedf(moved.length(), 1.0)] = true
+	assert_true(speeds.size() >= 5, "cells drift at different speeds")
+
+
+## R-1481: a dissolving cumulus shrinks and flattens first and only then fades.
+func test_a_cumulus_shrinks_before_it_fades() -> void:
+	var cells := CloudCellsScript.new()
+	var full_radius := 0.0
+	var radius_at_fade_start := -1.0
+	for step in 2000:
+		cells.update(float(step) * 0.1, Vector2.ZERO, Vector2(1.0, 0.0))
+		var life: float = cells.lives[0]
+		if life > 0.3 and life < 0.45:
+			full_radius = maxf(full_radius, cells.radii[0])
+		if (
+			full_radius > 0.0 and radius_at_fade_start < 0.0
+			and life >= CloudCellsScript.CUMULUS_FADE_START
+		):
+			radius_at_fade_start = cells.radii[0]
+			assert_true(cells.weights[0] > 0.95, "the cloud is still solid when it starts to fade")
+			break
+	assert_true(radius_at_fade_start > 0.0, "precondition: the cell reached its fade")
+	assert_true(
+		radius_at_fade_start < full_radius * 0.75, "the cloud has shrunk well before it fades"
+	)
 
 
 func test_cells_live_grow_and_dissipate() -> void:
@@ -77,6 +117,66 @@ func test_a_cell_shadows_the_ground_under_it_along_the_sun() -> void:
 	)
 
 
+## Pins cumulus 0..2 grown and touching, 3 alone far away, the rest gone.
+func _crowded_cluster() -> CloudCellsScript:
+	var cells := CloudCellsScript.new()
+	cells.update(0.0, Vector2.ZERO, Vector2(13.0, 0.0))
+	for slot in CloudCellsScript.SLOTS:
+		cells.weights[slot] = 0.0
+		cells.towers[slot] = 0.0
+	var spots := [Vector2(1000, 1000), Vector2(1250, 1000), Vector2(1120, 1220), Vector2(2600, 2600)]
+	for slot in spots.size():
+		cells.weights[slot] = 1.0
+		cells.lives[slot] = 0.4
+		cells.radii[slot] = 250.0
+		cells.heights[slot] = 250.0
+		cells.centers[slot] = Vector3(spots[slot].x, 700.0, spots[slot].y)
+	cells._merge_crowded_cumulus()
+	return cells
+
+
+## R-1481: cumulus that crowd together merge into a thunderstorm tower.
+func test_crowded_cumulus_merge_into_a_thunderstorm() -> void:
+	var cells := _crowded_cluster()
+	for slot in 3:
+		assert_true(cells.towers[slot] > CloudCellsScript.TOWER_MATURE, "a crowded cell towers")
+		assert_true(cells.heights[slot] > 600.0, "a tower grows tall")
+		assert_true(cells.storminess(slot) > 0.75, "a tower shades and rains as a storm")
+	assert_eq(cells.towers[3], 0.0, "a lone cumulus stays fair-weather")
+	assert_eq(cells.heights[3], 250.0, "a lone cumulus keeps its size")
+	# Merging pulls the cluster together.
+	var spread := Vector2(cells.centers[0].x, cells.centers[0].z).distance_to(
+		Vector2(cells.centers[1].x, cells.centers[1].z)
+	)
+	assert_true(spread < 250.0, "merging cells are drawn toward each other")
+	assert_true(cells.mature_storm_cells().has(0), "a mature tower can charge lightning")
+	assert_true(cells.max_tower() > CloudCellsScript.TOWER_MATURE, "tower level is exposed")
+
+
+## R-1481: a cumulus is a lobed cluster stretched along its axis, not a round disc.
+func test_cumulus_footprint_is_lobed_and_elongated() -> void:
+	var cells := CloudCellsScript.new()
+	cells.update(0.0, Vector2.ZERO, Vector2(13.0, 0.0))
+	var longest := 0.0
+	for slot in CloudCellsScript.CUMULUS_SLOTS:
+		cells.towers[slot] = 0.0
+		var lo := INF
+		var hi := 0.0
+		for i in 36:
+			var dir := Vector2.from_angle(TAU * float(i) / 36.0)
+			var r := 0.0
+			while r < cells.radii[slot] * 4.0 and cells.footprint_distance(slot, dir * r) < 1.0:
+				r += 5.0
+			lo = minf(lo, r)
+			hi = maxf(hi, r)
+		longest = maxf(longest, hi / maxf(lo, 1.0))
+		assert_true(
+			hi <= cells.radii[slot] * CloudCellsScript.CUMULUS_REACH,
+			"the footprint stays inside the shader march box"
+		)
+	assert_true(longest > 1.8, "some cumulus are drawn out well over twice as long as wide")
+
+
 func test_wrap_delta_takes_the_nearest_periodic_copy() -> void:
 	var d := CloudCellsScript.wrap_delta(
 		Vector2(10.0, 0.0), Vector2(CloudCellsScript.DOMAIN - 10.0, 0.0)
@@ -99,10 +199,10 @@ func test_lightning_is_born_only_in_a_mature_storm_cell() -> void:
 			var origin: Vector3 = sky.lightning_origin()
 			var cells = sky.cloud_cells()
 			var inside := false
-			for slot in range(CloudCellsScript.CUMULUS_SLOTS, CloudCellsScript.SLOTS):
+			for slot in cells.mature_storm_cells():
 				var c: Vector3 = cells.centers[slot]
 				var offset := CloudCellsScript.wrap_delta(
-					Vector2(origin.x, origin.z), Vector2(c.x, c.z), CloudCellsScript.KIND_STORM
+					Vector2(origin.x, origin.z), Vector2(c.x, c.z), CloudCellsScript.kind_of(slot)
 				)
 				if (
 					offset.length() <= float(cells.radii[slot]) * 0.5
@@ -111,7 +211,7 @@ func test_lightning_is_born_only_in_a_mature_storm_cell() -> void:
 					and float(cells.weights[slot]) >= CloudCellsScript.STORM_MATURE_WEIGHT
 				):
 					inside = true
-			assert_true(inside, "every strike must start inside a charged cumulonimbus")
+			assert_true(inside, "every strike must start inside a charged cumulonimbus or tower")
 			if sky.lightning_kind() == SkyWeather.LIGHTNING_KIND_GROUND:
 				assert_almost_eq(sky.lightning_ground().y, 0.0, 0.001, "a ground stroke ends on the ground")
 		was_flashing = flashing
@@ -127,9 +227,12 @@ func test_no_storm_cell_means_no_lightning_even_with_thunder() -> void:
 	# cumulonimbus grows, so the sky must hold its charge instead of striking.
 	sky._current[&"thunder"] = 1.0
 	for step in 2000:
+		var flashing_before: bool = sky.lightning_flash() > 0.0
 		sky.advance(0.05)
 		assert_eq(sky.cloud_cells().max_weight(CloudCellsScript.KIND_STORM), 0.0, "no storm cells")
-		assert_eq(sky.lightning_flash(), 0.0, "lightning must never strike without a storm cell")
+		# R-1481: a merged cumulus tower may charge; with none, nothing strikes.
+		if not flashing_before and sky.cloud_cells().mature_storm_cells().is_empty():
+			assert_eq(sky.lightning_flash(), 0.0, "lightning must never strike without a storm cell")
 	sky.free()
 
 

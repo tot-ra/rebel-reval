@@ -300,6 +300,12 @@ const LIGHTNING_KIND_GROUND := 1
 const LIGHTNING_NEAR_DISTANCE := 600.0
 const LIGHTNING_FAR_DISTANCE := 2600.0
 const LIGHTNING_FAR_SCALE := 0.4
+## R-1481: cumulus merged into a thunderstorm tower charge lightning on their own,
+## even when the weather profile has no thunder (up to this strike-rate factor), and
+## rain under their curtain (up to TOWER_SHOWER_RAIN, presentation only like the
+## storm-cell local rain).
+const TOWER_THUNDER := 0.6
+const TOWER_SHOWER_RAIN := 0.35
 
 const RAIN_EMITTER_HEIGHT := 11.0
 ## Local rain under storm cells. The sky shader hangs each cumulonimbus rain
@@ -1062,7 +1068,8 @@ func cloud_cell_clock() -> float:
 func _update_cells() -> void:
 	_cells.update(
 		_cloud_cell_clock, _cloud_offset,
-		CloudCellsScript.counts_for(cloud_coverage(), storm_intensity())
+		CloudCellsScript.counts_for(cloud_coverage(), storm_intensity()),
+		_wind_drift_strength
 	)
 
 
@@ -1240,7 +1247,30 @@ func rain_intensity() -> float:
 ## Rain falling at the camera: rain_intensity() scaled by local_rain_factor().
 ## Presentation only (emitter, roof audio); never saved, never fed to puddles.
 func local_rain_intensity() -> float:
-	return rain_intensity() * local_rain_factor()
+	return maxf(rain_intensity() * local_rain_factor(), tower_shower_intensity())
+
+
+## R-1481: rain falling where the camera stands under a cumulus that merged into a
+## thunderstorm tower. Presentation only (puddles stay on rain_intensity()); 0
+## without a camera in the tree, so headless simulation stays weather-wide.
+func tower_shower_intensity() -> float:
+	if _camera == null or not is_instance_valid(_camera) or not _camera.is_inside_tree():
+		return 0.0
+	var point := _view_position()
+	var cover := 0.0
+	for slot in CloudCellsScript.CUMULUS_SLOTS:
+		var tower: float = _cells.towers[slot]
+		if tower <= 0.5:
+			continue
+		var c: Vector3 = _cells.centers[slot]
+		var offset := CloudCellsScript.wrap_delta(Vector2(point.x, point.z), Vector2(c.x, c.z))
+		var shaft := maxf(float(_cells.radii[slot]) * RAIN_SHAFT_RADIUS, 1.0)
+		var inside := 1.0 - smoothstep(
+			1.0 - RAIN_SHAFT_EDGE, 1.0 + RAIN_SHAFT_EDGE, offset.length() / shaft
+		)
+		# Same ramp as the sky curtain (smoothstep(0.5, 0.9, storminess)).
+		cover = maxf(cover, float(_cells.weights[slot]) * inside * smoothstep(0.5, 0.9, tower))
+	return cover * TOWER_SHOWER_RAIN
 
 
 ## 0..1 share of the weather rain that falls where the camera stands. A widespread
@@ -1548,7 +1578,11 @@ func _advance_gust(delta: float) -> void:
 ## strike timer resets and any in-flight flash is killed so lightning never
 ## appears during fair weather.
 func _advance_lightning(delta: float) -> void:
-	var thunder := float(_current.get("thunder", 0.0))
+	# A merged cumulus tower (R-1481) brings its own thunder into fair weather.
+	var thunder := maxf(
+		float(_current.get("thunder", 0.0)),
+		TOWER_THUNDER * smoothstep(CloudCellsScript.TOWER_MATURE, 1.0, _cells.max_tower())
+	)
 	# Fair weather: suppress lightning immediately and reset the countdown so
 	# strikes do not queue up and fire the instant weather turns stormy.
 	if thunder <= 0.01:
@@ -1586,6 +1620,15 @@ func _advance_lightning(delta: float) -> void:
 ## from the camera keeps the dome's directional flash on that cell.
 func _place_strike(slot: int) -> void:
 	var center: Vector3 = _cells.centers[slot]
+	var view_at := _view_position()
+	if CloudCellsScript.kind_of(slot) == CloudCellsScript.KIND_CUMULUS:
+		# A merged tower lives on the smaller cumulus tile: take the copy nearest the
+		# camera, which is then also the nearest copy on the storm tile the strike
+		# origin is wrapped on.
+		var near := CloudCellsScript.wrap_delta(
+			Vector2(center.x, center.z), Vector2(view_at.x, view_at.z)
+		)
+		center = Vector3(view_at.x + near.x, center.y, view_at.z + near.y)
 	var radius: float = _cells.radii[slot]
 	var height: float = _cells.heights[slot]
 	var angle := _lightning_rng.randf() * TAU

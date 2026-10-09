@@ -1,6 +1,6 @@
 # Discrete cloud cells, cloud shadows and storm-cell lightning
 
-Status: implemented (tasks **R-1400**, **R-1436** water deck shadows, **R-1444** crepuscular rays)
+Status: implemented (tasks **R-1400**, **R-1436** water deck shadows, **R-1444** crepuscular rays, **R-1481** cumulus shape, drift, dissolve and merging)
 
 Scope: individual clouds as world-space objects in the 3D view. Each cumulus or cumulonimbus has a position, base altitude, size and life; the sky dome ray-marches it as a volume, the ground shadow pass projects it along the sun, god rays are cut by it, and lightning is born only inside a grown cumulonimbus. Mounted in both `MapView3D` maps and the seamless city (`CityMapView`).
 
@@ -8,7 +8,8 @@ Out of scope: puddles and mud that follow the storm cell (ground water stays wea
 
 ## What the player sees
 
-- **Fair and cloudy days**: a handful (clear) to a dozen (cloudy) separate cumulus drift with the wind, grow from small puffs, mature, and dissolve over about 40-60 s of game time. They have flat grey bases, sunlit cauliflower crowns and a silver lining when they cross the sun. They move with real parallax as the camera moves.
+- **Fair and cloudy days**: a handful (clear) to a dozen (cloudy) separate cumulus ride the wind, each at its own speed, grow from small puffs, spread out, shrink and dissolve over about 55-90 s of game time. Each is a fused cluster of uneven heaps drawn out along its own axis and downwind, not one round ball. They have flat grey bases, sunlit cauliflower crowns and a silver lining when they cross the sun. They move with real parallax as the camera moves.
+- **Merging into a thunderstorm (R-1481)**: when three or more cumulus drift together, they merge into one towering cloud: it grows up to 3.4x taller, its base drops and darkens, the heaps fold into one mass, a rain curtain hangs under it, it rains on the player standing under it, and it can throw lightning even when the weather itself has no thunder. When the cluster drifts apart or its clouds dissolve, the tower sinks back.
 - **Cloud shadows**: every cell throws its own soft-edged shadow on the ground, roofs and sea, offset along the sun, so you can watch one cloud's shadow sweep across a street or the harbour. The shadow removes most of the direct-sun share (up to 85%), and fades out at night and under full overcast.
 - **Thunderstorms**: `storm` weather grows up to three cumulonimbus towers (1.7-2.3 km tall, with a spreading anvil) that are visible from several kilometres away, with a grey rain curtain hanging under the base. `rain` weather embeds the same cells in its deck.
 - **Lightning** comes only from a mature storm cell. About 40% of strikes are cloud-to-ground: a jagged channel with two thinner, dimmer branches from the cell base to the ground. The channel is a hairline (about one pixel, physical half-width 0.35 m that only shows on a very close strike) with a faint halo; the bright corona comes from scene glow, not a painted fat stroke. The rest are in-cloud flashes that light the tower from inside. With no grown storm cell, there is no lightning, even when the weather profile has thunder. Scene light lift falls off with camera distance to the cell (to 40% beyond 2.6 km); the strike in the sky is always drawn at full strength.
@@ -29,7 +30,9 @@ Out of scope: puddles and mud that follow the storm cell (ground water stays wea
 | 3D Worley noise for cell shapes | `SkyWeatherResources.build_cell_noise_3d` |
 | City mounting | `CityMapView._create_sky_passes`, `CityMapView._process` |
 
-`CloudCells.update(clock, cloud_offset, counts)` rebuilds 16 slots (13 cumulus, 3 cumulonimbus) every `SkyWeather3D.advance()`. Counts come from the blended weather profile (`CloudCells.counts_for(coverage, storm)`), so a weather transition fades cells in and out. Cells drift with the shared `cloud_offset` (`METRES_PER_UV` = 5000 world units per offset unit). They tile a periodic square (3.2 km for cumulus, 9.6 km for storm cells). Shaders take the copy nearest the camera and fade cells out before the seam.
+`CloudCells.update(clock, cloud_offset, counts, wind)` rebuilds 16 slots (13 cumulus, 3 cumulonimbus) every `SkyWeather3D.advance()`. Counts come from the blended weather profile (`CloudCells.counts_for(coverage, storm)`), so a weather transition fades cells in and out. `wind` is the smoothed drift strength (`_wind_drift_strength`, already saved). Cells drift with the shared `cloud_offset` (`METRES_PER_UV` = 5000 world units per offset unit); cumulus scale and turn it per generation (see below). They tile a periodic square (3.2 km for cumulus, 9.6 km for storm cells). Shaders take the copy nearest the camera and fade cells out before the seam.
+
+The `cloud_cells` uniform is three `vec4` per slot (48 total): `(x, base, z, radius)`, `(height, weight, kind, seed)`, `(life, tower, windiness, 0)`. `cell_storminess(b, c) = max(kind, tower)` blends every cumulonimbus term (profile, shading, footprint, opacity, rain curtain), so a merged tower shades as a storm while it still lives on the cumulus tile.
 
 `WeatherPresentation.cloud_cells` carries the packed uniforms to the passes; `cell_sun_edge` (how ragged the cover is right around the sun) adds haze to god rays. `celestial_cloud_clear` (water glints) also multiplies in the cells in front of the sun or moon. Since R-1444 it no longer scales god-ray strength: the pass shades each air sample by the clouds instead, so beams keep going when the sun is hidden behind a cloud edge.
 
@@ -72,13 +75,27 @@ In `storm` weather the falling rain is local: the rain particles and the roof-ra
 
 ## Cloud shape and weather (follow-up)
 
-- **Cumulus are irregular.** `cell_density()` stretches each cell along a seeded axis (aspect 0.6-1.7), domain-warps it with large noise so the outline breaks into lobes, leans the top downwind (`wind_dir`), and erodes a cell that is still forming or dissolving into ragged fragments.
+- **Cumulus are lobed clusters (R-1481).** `cell_density()` builds each cumulus from three lobes (`cell_lobe`): a main heap (0.8 R) and two smaller, lower side heaps 0.5-0.9 R either side along a seeded axis, with a seeded sideways offset, fused by a smooth minimum (`cell_smin`). The footprint is then stretched along the axis (aspect 0.9-1.3), drawn out downwind by the wind (`windiness`, along-wind distance divided by up to 1.8), domain-warped by large noise, and the top leans downwind, more in a strong wind. Footprints are on median about twice as long as wide. The fair-cumulus edge ramp is wider (`smoothstep(1.0, 0.72, dist)`) so the rim is a soft fringe, not a cut-out. Storm cells and merged towers fold the lobes into one mass (offsets and the smooth-min width go to 0 as storminess reaches 1, so a storm keeps its old size inside its march box).
+- **Shadows match the shape.** `cell_footprint()` (shader) and `CloudCells.footprint_distance()` (CPU, used by `shadow_at`, sun-behind-cloud and tests) evaluate the same lobes and stretch without 3D noise, so ground, water and god-ray shadows are the cloud's outline, not a disc.
 - **Cumulus are a blue-sky cloud.** `CloudCells.counts_for()` peaks them at moderate cover and removes them once a deck closes (coverage 0.6-0.92). The remaining ones darken toward rain grey through the sky shader uniform `cloud_gloom` (`smoothstep(0.55, 0.95, coverage)`).
 - **Cumulonimbus are wide and rare.** Radius 1100-1700 m, height 1300-1900 m (wider than tall), no narrow stem: the profile is a broad mass, and a seeded anvil share (0 to 0.42) makes some flat-topped and some ragged. Storm slots after the first are alive for `STORM_ACTIVE_SHARE` (half) of a 150-220 s cycle only. Some storm shafts get a whiter, greenish hail tint. Hail as a gameplay or ground effect is not implemented.
 
+## Wind drift, dissolving and merging (R-1481)
+
+- **Wind drift.** Each cumulus generation draws a speed share (0.7-1.4) and a veer (up to +-0.3 rad off the wind bearing) and moves by `cloud_offset.rotated(veer) * 2.6 * speed` (`CUMULUS_WIND_GAIN`). The shared offset is the integrated wind, so motion stays continuous while a cell lives, follows gusts and heading changes, and neighbours overtake, meet and part. A cumulus crosses several of its own widths in one life (about 7-35 m/s depending on wind).
+- **Dissolving.** Cumulus live 55-90 s (`CUMULUS_PERIOD`). From life 0.5 a cloud shrinks to 30% of its radius and flattens to 40% of its height; only from life 0.8 does its weight fade. The shader spreads the side lobes apart with age and, past life 0.55, breaks the cloud along its large lumps and thins it (`tatter`), so it comes apart in heaps instead of glittering at the fine boil scale.
+- **Merging.** `CloudCells._merge_crowded_cumulus()` runs after the slots are placed. A cumulus's crowding is the weight-scaled overlap of its neighbours (1 when centres are 0.55 x their summed radii apart, 0 beyond 1.1). Crowding 1.35-2.0 ramps `towers[slot]` 0-1, gated to grown cells that are not in their last 15% of life. A tower is pulled toward its neighbours' centroid (45%), grows `TOWER_HEIGHT_GAIN` 3.4x taller and 60% wider, and its base drops to 480 m. It only reads positions of this instant, so the field is still a pure function and the tower grows and sinks smoothly as clouds drift. In a headless 25 min run a tower above 0.75 was present 1% of the time on a clear day (coverage 0.3), 8% at coverage 0.45 and 12% on a cloudy day.
+- **Tower weather.** A tower with `tower >= 0.75` and weight >= 0.5 joins `mature_storm_cells()`. `SkyWeather3D._advance_lightning` takes `max(profile thunder, 0.6 * smoothstep(0.75, 1, max_tower()))` (`TOWER_THUNDER`), so a merged tower can strike in fair weather; `_place_strike` re-centres a tower on the copy nearest the camera before it is wrapped on the storm tile. The sky hangs a rain curtain under any cell with storminess above 0.5. `tower_shower_intensity()` makes it rain (up to 0.35, `TOWER_SHOWER_RAIN`) where the camera stands inside a tower's shaft; `local_rain_intensity()` takes the larger of that and the weather rain. Like storm-cell local rain it is presentation only: puddles, mud and saved state stay on `rain_intensity()`.
+
+![A fair cumulus from open ground: lobed and drawn out, not a round ball](../reports/images/weather/cells_field_cumulus.png)
+
+![One cumulus through its life: grown, spread, shrunk while still solid, last remnant](../reports/images/weather/cells_cumulus_life.png)
+
+![Crowded cumulus merged into a towering thunderstorm cloud over fair weather](../reports/images/weather/cells_tower_merge.png)
+
 ## Saved state
 
-`SkyWeatherState` gains four optional fields (older saves default them): `cloud_cell_clock` (rebuilds the whole cell field together with `cloud_offset` and the profile), `lightning_origin`, `lightning_ground`, `lightning_kind`. See [`SKY_WEATHER_STATE_CONTRACT.md`](../SKY_WEATHER_STATE_CONTRACT.md).
+`SkyWeatherState` gains four optional fields (older saves default them): `cloud_cell_clock` (rebuilds the whole cell field together with `cloud_offset`, the profile and the saved `wind_drift_strength`), `lightning_origin`, `lightning_ground`, `lightning_kind`. R-1481 adds no saved state: drift speeds, dissolve stage and towers all rebuild from these inputs. See [`SKY_WEATHER_STATE_CONTRACT.md`](../SKY_WEATHER_STATE_CONTRACT.md).
 
 ## Quality tiers
 
@@ -112,7 +129,9 @@ tools/godot_render.sh --script tools/capture_cloud_cells.gd [-- --only=<shot>[,<
 tools/godot_render.sh --script tools/capture_cloud_cells.gd -- --only=cells_aerial_cloudy,cells_harbour_shadow
 ```
 
-Captures land in `docs/reports/images/weather/`: `cells_aerial_clear`, `cells_aerial_cloudy`, `cells_topdown_shadow`, `cells_street_cumulus`, `cells_storm_ground_stroke`, `cells_storm_in_cloud`, `cells_storm_rain_under` / `cells_storm_rain_away` (same view with the storm cell overhead and 3 km away), `cells_sunbeams`, `cells_harbour_shadow` (a cell shadow crossing the waterline; the tool walks the cell clock in fixed 10 s steps until one shadow covers both shore and sea). Screen passes composite over the live framebuffer, so captures must render in the root window, not a `SubViewport`.
+R-1481 plates: `tools/godot_render.sh --script tools/capture_cloud_cells.gd -- --only=cells_field_cumulus,cells_cumulus_life,cells_tower_merge` (camera on land on the sun's side of the cell; the tower shot walks the cell clock in fixed 4 s steps until a tower is fully merged).
+
+Captures land in `docs/reports/images/weather/`: `cells_field_cumulus`, `cells_cumulus_life` (2x2 sheet), `cells_tower_merge`, `cells_aerial_clear`, `cells_aerial_cloudy`, `cells_topdown_shadow`, `cells_street_cumulus`, `cells_storm_ground_stroke`, `cells_storm_in_cloud`, `cells_storm_rain_under` / `cells_storm_rain_away` (same view with the storm cell overhead and 3 km away), `cells_sunbeams`, `cells_harbour_shadow` (a cell shadow crossing the waterline; the tool walks the cell clock in fixed 10 s steps until one shadow covers both shore and sea). Screen passes composite over the live framebuffer, so captures must render in the root window, not a `SubViewport`.
 
 ![Clear day: separate cumulus and their shadows on the town fields](../reports/images/weather/cells_aerial_clear.png)
 
@@ -129,6 +148,9 @@ Captures land in `docs/reports/images/weather/`: `cells_aerial_clear`, `cells_ae
 - The dome deck is drawn around the camera, while the ground shadows and the pass's air shadows use the world-anchored WS-12 plane. Sky beams come from the visible clouds; beams over the land line up with the ground shadows, not with the dome clouds right above them.
 - The god-ray pass has no quality-tier switch yet: minimum quality runs the same 16 near and 12 far samples. The sky beams do follow the tier (14 steps with cells on recommended, 7 deck-only on minimum).
 - Cell edges show a fine dither from the deterministic march jitter at close range.
+- Cumulus, and so merged towers, are drawn only within about 1.2-1.6 km of the camera (they fade before the 3.2 km tile seam). A merged tower is not visible from several kilometres away the way a storm-slot cumulonimbus is.
+- A tower has no life of its own: it follows the crowding of its cluster, so it sinks back as soon as its clouds drift apart or dissolve, and it never grows an anvil as wide as a storm slot. Under a tower the local rain is at most 0.35.
+- Wind stretch (`windiness`) shapes the sky volume only; ground shadows use the lobed footprint without the downwind stretch.
 - Thunder audio is not yet timed to strike distance.
 
 ### FFT sea compatibility limit (R-1437)

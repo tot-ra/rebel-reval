@@ -1,12 +1,17 @@
 // R-1400: discrete world-space clouds (CloudCells). Shared by the sky dome, the
 // ground cloud-shadow pass and the god-ray pass so a cloud, its shadow and the
-// beams it cuts are one object. Two vec4 per slot, packed by CloudCells.uniforms():
-//   a = (x, base altitude, z, radius), b = (height, weight, kind 0 cu / 1 cb, seed).
+// beams it cuts are one object. Three vec4 per slot, packed by CloudCells.uniforms():
+//   a = (x, base altitude, z, radius), b = (height, weight, kind 0 cu / 1 cb, seed),
+//   c = (life 0..1, tower 0..1, windiness 0..1, 0).
+// `tower` is how far a crowded cumulus has merged into a thunderstorm (R-1481), so
+// shading, shadow and rain blend toward cumulonimbus by cell_storminess().
 // Positions are wrapped into a CELL_DOMAIN tile; every caller takes the copy
 // nearest to its own point. Noise is passed in so callers keep their samplers.
 
 const int CELL_SLOTS = 16;
-// Must match CloudCells.DOMAIN / STORM_DOMAIN / footprint / opacity constants.
+const int CELL_STRIDE = 3;
+const int CELL_LOBES = 3;
+// Must match CloudCells.DOMAIN / STORM_DOMAIN / footprint / opacity / lobe constants.
 // Storm cells tile a wider square: a 2 km thunderhead must stay visible from
 // several kilometres away, while cumulus fade out sooner.
 const float CELL_DOMAIN = 3200.0;
@@ -15,10 +20,14 @@ const float CELL_CU_FOOTPRINT = 0.94;
 const float CELL_CB_FOOTPRINT = 1.1;
 const float CELL_CU_OPACITY = 0.82;
 const float CELL_CB_OPACITY = 0.97;
+// Ray-march box half-width (x R): a lobed, stretched cumulus reaches much further
+// from its centre than a single round thunderhead mass.
+const float CELL_CU_REACH = 3.0;
+const float CELL_CB_REACH = 1.9;
 // World units per billow-noise tile: ~90 m lumps on a cumulus flank.
 const float CELL_BILLOW_SCALE = 700.0;
 
-uniform vec4 cloud_cells[32];
+uniform vec4 cloud_cells[48];
 
 
 float cell_domain(float kind) {
@@ -30,6 +39,61 @@ vec2 cell_wrap_delta(vec2 p, vec2 c, float kind) {
 	float domain = cell_domain(kind);
 	vec2 d = p - c;
 	return d - domain * round(d / domain);
+}
+
+
+// 0 = fair cumulus, 1 = cumulonimbus: a real storm cell, or a cumulus that merged
+// with its crowded neighbours into a towering thunderstorm.
+float cell_storminess(vec4 b, vec4 c) {
+	return max(b.z, c.y);
+}
+
+
+// Lobe k of a cumulus (R-1481) in the cell's stretch frame (x along the seeded axis,
+// y across), in units of R: xy = centre offset, z = radius share, w = top height
+// share. One cloud is a fused cluster of uneven heaps, not a single round dumpling;
+// the side heaps drift apart as the cloud ages (`age`) and fold back into one
+// mass as it towers into a storm (`cb`). Mirrored by CloudCells._lobe().
+vec4 cell_lobe(int k, float seed, float cb, float age) {
+	if (k == 0) {
+		return vec4(0.0, 0.0, mix(0.8, 1.0, cb), 1.0);
+	}
+	float fk = float(k);
+	float side = k == 1 ? 1.0 : -1.0;
+	float along = side * (0.5 + fract(seed * (17.3 + 9.1 * fk)) * 0.4);
+	float across = (fract(seed * (31.7 + 5.3 * fk)) - 0.5) * 0.6;
+	vec2 off = vec2(along, across) * (1.0 + 0.3 * age) * (1.0 - cb);
+	float r = mix(mix(0.5, 0.82, fract(seed * (7.9 + 3.3 * fk))), 1.0, cb);
+	float top = mix(mix(0.45, 0.9, fract(seed * (11.3 + 2.9 * fk))), 1.0, cb);
+	return vec4(off, r, top);
+}
+
+
+// Seeded stretch axis and aspect of a cell's footprint. Mirrored by CloudCells.
+vec2 cell_axis(float seed) {
+	float ang = fract(seed * 13.7) * 3.14159;
+	return vec2(cos(ang), sin(ang));
+}
+
+
+float cell_aspect(float seed, float cb) {
+	return mix(0.9, 1.3, fract(seed * 5.3)) * mix(1.0, 1.2, cb);
+}
+
+
+// Smooth-min width for fusing lobes. It fades out as the lobes fold into one mass
+// (cb -> 1): a smooth min of coinciding lobes lowers the distance and would swell
+// a storm past its march box.
+float cell_lobe_blend(float cb) {
+	return 0.35 * (1.0 - cb) + 0.001;
+}
+
+
+// Polynomial smooth minimum: neighbouring lobes fuse into one body with a soft
+// saddle instead of a crease.
+float cell_smin(float x, float y, float k) {
+	float h = max(k - abs(x - y), 0.0) / k;
+	return min(x, y) - h * h * k * 0.25;
 }
 
 
@@ -54,63 +118,102 @@ float cell_noise3(vec3 p, float scale, float seed, sampler3D noise3) {
 
 
 // Density 0..1 at offset `local` from the cell centre column (y is world height).
-// Every cell is its own shape: the footprint is stretched along a seeded axis,
-// domain-warped by large noise so it breaks into lobes, and leans downwind with
-// height (shear). Large puffs swell the profile into turrets; small puffs boil the
-// surface. A cell that is still forming or dissolving (weight < 1) is eroded into
-// ragged fragments instead of just thinning, so clouds get torn apart by the wind.
-float cell_density(vec3 local, float world_y, vec4 a, vec4 b, sampler3D noise3, vec3 world_p, vec2 wind) {
+// Every cell is its own shape: a fused cluster of uneven lobes (cell_lobe), stretched
+// along a seeded axis and downwind by the wind (`c.z`), domain-warped by large noise,
+// and leaning downwind with height (shear). Large puffs swell the profile into
+// turrets; small puffs boil the surface. An ageing cumulus spreads its lobes apart
+// and tatters into ragged fragments (life past ~0.55) instead of just thinning,
+// while CloudCells shrinks it, so it dissolves gradually.
+float cell_density(vec3 local, float world_y, vec4 a, vec4 b, vec4 c, sampler3D noise3, vec3 world_p, vec2 wind) {
 	float h = (world_y - a.y) / max(b.x, 1.0);
 	if (h < 0.0 || h > 1.0) {
 		return 0.0;
 	}
+	float cb = cell_storminess(b, c);
+	float age = smoothstep(0.35, 1.0, c.x) * (1.0 - cb);
+	float windy = c.z * (1.0 - cb);
 	float lump = cell_noise3(world_p, a.w * 2.0, b.w, noise3);
-	float crown = clamp(h / mix(0.75, 1.15, lump), 0.0, 1.0);
-	// Seeded stretch axis and aspect (squall-line storms stretch the most).
-	float ang = fract(b.w * 13.7) * 3.14159;
-	vec2 ax = vec2(cos(ang), sin(ang));
-	float aspect = mix(0.6, 1.7, fract(b.w * 5.3)) * mix(1.0, 1.2, b.z);
 	vec2 q = local.xz;
-	// Lean downwind with height; cumulus tops shear harder than a storm's body.
-	q -= wind * (h * a.w * mix(0.35, 0.2, b.z) * (fract(b.w * 3.1) + 0.3));
-	vec2 along = ax * dot(q, ax);
-	q = (q - along) + along / aspect;
-	// Low-frequency warp breaks the round outline into separate lobes.
+	// Lean downwind with height; cumulus tops shear harder than a storm's body, and
+	// a strong wind shears them further.
+	q -= wind * (h * a.w * mix(0.35, 0.2, cb) * (fract(b.w * 3.1) + 0.3) * (1.0 + 1.2 * windy));
+	// Wind drags the cloud out downwind: compress the along-wind distance.
+	vec2 wa = wind * dot(q, wind);
+	q = (q - wa) + wa / (1.0 + 0.8 * windy);
+	// Low-frequency warp breaks the outline into ragged lobes; older clouds warp more.
 	float warp_a = cell_noise3(world_p, a.w * 1.3, b.w + 0.2, noise3);
 	float warp_b = cell_noise3(world_p, a.w * 1.3, b.w + 0.7, noise3);
-	q += (vec2(warp_a, warp_b) - 0.5) * a.w * 0.9;
-	float r = a.w * cell_profile(crown, b.z, b.w) * mix(0.75, 1.2, lump);
+	q += (vec2(warp_a, warp_b) - 0.5) * a.w * mix(0.9, 1.3, age);
+	vec2 ax = cell_axis(b.w);
+	vec2 u = vec2(dot(q, ax), dot(q, vec2(-ax.y, ax.x))) / max(a.w, 1.0);
+	u.x /= cell_aspect(b.w, cb);
+	float swell = mix(0.75, 1.2, lump);
+	float dist = 1e3;
+	for (int k = 0; k < CELL_LOBES; k++) {
+		vec4 lobe = cell_lobe(k, b.w, cb, age);
+		float crown = clamp(h / (mix(0.75, 1.15, lump) * lobe.w), 0.0, 1.0);
+		float r = lobe.z * cell_profile(crown, cb, b.w) * swell;
+		dist = cell_smin(dist, length(u - lobe.xy) / max(r, 0.002), cell_lobe_blend(cb));
+	}
 	float boil = cell_noise3(world_p, max(a.w * 0.6, 120.0), b.w + 0.5, noise3);
-	float erode = (1.0 - clamp(b.y, 0.0, 1.0)) * (1.0 - boil) * 0.3;
-	float dist = length(q) / max(r, 1.0) + (0.5 - boil) * 0.4 + erode;
-	return smoothstep(1.0, 0.86, dist) * smoothstep(0.0, 0.03, h) * mix(b.y, 1.0, 0.6);
+	// Forming or dissolving clouds come apart along the large lumps (whole heaps
+	// break off) and thin out, rather than crumbling at the fine boil scale, which
+	// read as glittering speckles on the rim.
+	float tatter = max(1.0 - clamp(b.y, 0.0, 1.0), smoothstep(0.55, 1.0, c.x) * (1.0 - cb));
+	float erode = tatter * (1.0 - lump) * 0.4;
+	dist += (0.5 - boil) * 0.4 + erode;
+	// A wider edge ramp for fair cumulus gives a soft, wispy fringe instead of a
+	// hard cut-out rim; storm towers keep their firm outline.
+	return smoothstep(1.0, mix(0.72, 0.86, cb), dist) * smoothstep(0.0, 0.03, h)
+		* mix(b.y, 1.0, 0.6) * (1.0 - 0.45 * tatter);
+}
+
+
+// Normalised footprint distance (1 = edge) of a cell at its shadow-casting layer,
+// `d` the horizontal offset from its centre: the same stretch axis and lobes as
+// cell_density without the 3D noise. Mirrored by CloudCells.footprint_distance().
+float cell_footprint(vec2 d, vec4 a, vec4 b, vec4 c) {
+	float cb = cell_storminess(b, c);
+	float age = smoothstep(0.35, 1.0, c.x) * (1.0 - cb);
+	float r = a.w * mix(CELL_CU_FOOTPRINT, CELL_CB_FOOTPRINT, cb);
+	vec2 ax = cell_axis(b.w);
+	vec2 u = vec2(dot(d, ax), dot(d, vec2(-ax.y, ax.x))) / max(r, 1.0);
+	u.x /= cell_aspect(b.w, cb);
+	float dist = 1e3;
+	for (int k = 0; k < CELL_LOBES; k++) {
+		vec4 lobe = cell_lobe(k, b.w, cb, age);
+		dist = cell_smin(dist, length(u - lobe.xy) / lobe.z, cell_lobe_blend(cb));
+	}
+	return dist;
 }
 
 
 // Share of light the cells stop between `p` and the light (1 = full shadow).
-// Each cell is flattened to the disc at its shadow-casting height; the mirror of
-// CloudCells.shadow_at() plus billowed edges.
+// Each cell is flattened to its lobed footprint at its shadow-casting height; the
+// mirror of CloudCells.shadow_at() plus billowed edges.
 float cells_ground_shadow(vec3 p, vec3 to_light, sampler2D noise_tex, float lod) {
 	float lit = 1.0;
 	float sun_y = max(to_light.y, 0.15);
 	for (int i = 0; i < CELL_SLOTS; i++) {
-		vec4 a = cloud_cells[i * 2];
-		vec4 b = cloud_cells[i * 2 + 1];
+		vec4 a = cloud_cells[i * CELL_STRIDE];
+		vec4 b = cloud_cells[i * CELL_STRIDE + 1];
+		vec4 c = cloud_cells[i * CELL_STRIDE + 2];
 		if (b.y <= 0.001) {
 			continue;
 		}
-		float layer = a.y + b.x * mix(0.35, 0.25, b.z);
+		float cb = cell_storminess(b, c);
+		float layer = a.y + b.x * mix(0.35, 0.25, cb);
 		vec2 q = p.xz + to_light.xz / sun_y * (layer - p.y);
 		vec2 d = cell_wrap_delta(q, a.xz, b.z);
-		float r = a.w * mix(CELL_CU_FOOTPRINT, CELL_CB_FOOTPRINT, b.z);
-		if (dot(d, d) > r * r * 1.7) {
+		float reach = a.w * mix(CELL_CU_REACH, CELL_CB_REACH, cb);
+		if (dot(d, d) > reach * reach) {
 			continue;
 		}
 		vec2 nuv = q / CELL_BILLOW_SCALE + b.w * 7.13;
 		float n = textureLod(noise_tex, nuv, lod).r * 0.65
 			+ textureLod(noise_tex, nuv * 2.7 + 0.31, lod).r * 0.35;
-		float dist = length(d) / max(r, 1.0) + (n - 0.5) * 0.38;
-		lit *= 1.0 - smoothstep(1.0, 0.8, dist) * b.y * mix(CELL_CU_OPACITY, CELL_CB_OPACITY, b.z);
+		float dist = cell_footprint(d, a, b, c) + (n - 0.5) * 0.38;
+		lit *= 1.0 - smoothstep(1.0, 0.8, dist) * b.y * mix(CELL_CU_OPACITY, CELL_CB_OPACITY, cb);
 	}
 	return 1.0 - lit;
 }
