@@ -10,6 +10,7 @@ extends Node3D
 const MIRAGE_SHADER := preload("res://scripts/map/view3d/horizon_mirage.gdshader")
 const Lighting := preload("res://scripts/map/view3d/map_view_lighting.gd")
 const SkyWeather := preload("res://scripts/map/view3d/sky_weather_3d.gd")
+const AerialPass := preload("res://scripts/map/view3d/aerial_perspective_pass.gd")
 
 const SEGMENTS := 72
 ## Ring distance: well inside the camera far plane, beyond any street-level geometry.
@@ -31,8 +32,10 @@ static func should_create(indoor: bool) -> bool:
 
 
 ## Shimmer strength 0..1 for a presentation; the band is pale sky-hued light.
+## R-1482: shares the aerial pass's wider heat gate, so the streaks and the warped far
+## ground appear together on any warm sunny midday, not only at midsummer noon.
 static func strength_for(presentation: SkyWeather.WeatherPresentation) -> float:
-	return Lighting.heat_amount(presentation) * clampf(presentation.fog_quality, 0.0, 1.0)
+	return AerialPass.heat_amount(presentation) * clampf(presentation.fog_quality, 0.0, 1.0)
 
 
 func configure(camera: Camera3D) -> void:
