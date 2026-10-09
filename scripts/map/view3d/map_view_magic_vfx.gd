@@ -17,7 +17,11 @@ const FIRE_BURST_DURATION_SEC := 2.6
 const FIZZLE_DURATION_SEC := 1.0
 const TRAIL_LINGER_SEC := 0.9
 const WARD_CAST_DURATION_SEC := 1.4
-const WEDGE_HEIGHT := 1.35
+## WHY: at the gameplay orthographic size (33.75) a wedge drawn at the true
+## 3.5 world-unit reach read as a courtyard puff (R-927). The cone is a view-only
+## cue, so it is drawn wider and taller than the CombatKnockbackEffect reach.
+const WEDGE_VISUAL_REACH_SCALE := 1.9
+const WEDGE_HEIGHT := 1.9
 const WEDGE_SEGMENTS := 10
 const SMOKE_AMOUNT := 36
 const PROJECTILE_HEIGHT := 0.62
@@ -95,8 +99,9 @@ func play_knockback_cone(
 	burst.set_meta(&"age", 0.0)
 	burst.set_meta(&"duration", BURST_DURATION_SEC)
 	add_child(burst)
-	_add_wedge(burst, radius_world, arc_deg)
-	_add_smoke(burst, radius_world, arc_deg)
+	var visual_radius := radius_world * WEDGE_VISUAL_REACH_SCALE
+	_add_wedge(burst, visual_radius, arc_deg)
+	_add_smoke(burst, visual_radius, arc_deg)
 	_bursts.append(burst)
 	return burst
 

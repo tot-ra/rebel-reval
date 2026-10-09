@@ -236,6 +236,7 @@ Start with:
 - [R-902 sun-reflection colour verification](r902_sun_reflection_verification.md)
 - [R-924 Air Gust 3D readability review](r924_air_gust_readability.md)
 - [R-927 Air Gust in-map gameplay-camera plates](r927_air_gust_in_map.md)
+- [R-928 Air Gust gameplay-scale wedge](r928_air_gust_gameplay_scale.md)
 - [R-929 Harbor East and Saaremaa crib visual review](r929_crib_visual_review.md)
 - [R-938 cloudy continuity visual review](r938_cloudy_continuity_visual_review.md)
 - [R-999: map-pipeline parity and routes](r999_map_pipeline_parity.md)

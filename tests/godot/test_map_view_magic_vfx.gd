@@ -16,6 +16,9 @@ func test_knockback_cone_spawns_wedge_and_smoke() -> void:
 	var mesh := wedge.mesh as ArrayMesh
 	assert_true(mesh.get_surface_count() >= 1)
 	assert_true(mesh.surface_get_array_len(0) > 8)
+	# R-928: the drawn fan reaches past the true 112 px (3.5 world) radius so it
+	# reads at the gameplay camera.
+	assert_true(mesh.get_aabb().size.z > 3.5 * 1.5)
 	var smoke := burst.get_node_or_null("WindSmoke") as GPUParticles3D
 	assert_true(smoke != null)
 	assert_true(smoke.one_shot)
