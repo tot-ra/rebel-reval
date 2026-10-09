@@ -262,6 +262,37 @@ def validate_effect_semantics(
         return
 
     rules = EFFECT_RULES[op]
+    # Keep the offline shape/ID/range checks aligned with GameState and the
+    # evaluator. Runtime-only failures (no points, at cap, already active)
+    # cannot be decided from content and still return their existing fail codes.
+    if "allowed" in rules:
+        for field in sorted(set(effect) - rules["allowed"]):
+            diagnostics.append(diag(
+                "UNSUPPORTED_EFFECT", path, f"{pointer}.{field}",
+                f"{op} must not include {field!r}", root=root,
+            ))
+    if "key_ids" in rules and (
+        not isinstance(effect.get("key"), str) or effect["key"] not in rules["key_ids"]
+    ):
+        diagnostics.append(diag(
+            "UNSUPPORTED_EFFECT", path, f"{pointer}.key",
+            f"{op} requires a known runtime key, got {effect.get('key')!r}", root=root,
+        ))
+    if "integer_range" in rules:
+        field, minimum, maximum = rules["integer_range"]
+        value = effect.get(field)
+        if type(value) is not int or not minimum <= value <= maximum:
+            diagnostics.append(diag(
+                "UNSUPPORTED_EFFECT", path, f"{pointer}.{field}",
+                f"{op} {field} must be an integer between {minimum} and {maximum}", root=root,
+            ))
+    if op == "psyche.apply_state" and "source_beat" in effect:
+        source = effect["source_beat"]
+        if not isinstance(source, str) or not source:
+            diagnostics.append(diag(
+                "UNSUPPORTED_EFFECT", path, f"{pointer}.source_beat",
+                f"{op} source_beat must be a non-empty string", root=root,
+            ))
     for required in rules.get("required", set()):
         if required not in effect:
             diagnostics.append(

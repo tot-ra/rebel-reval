@@ -161,8 +161,7 @@
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "op",
-        "key"
+        "op"
       ],
       "properties": {
         "op": {
@@ -178,7 +177,10 @@
             "add_item",
             "remove_item",
             "set_location_state",
-            "record_memory"
+            "record_memory",
+            "natural.grant_points",
+            "natural.spend_point",
+            "psyche.apply_state"
           ]
         },
         "key": {
@@ -192,16 +194,35 @@
           ]
         },
         "amount": {
-          "type": "integer",
-          "minimum": -3,
-          "maximum": 3
+          "type": "integer"
         },
         "summary": {
           "type": "string",
           "minLength": 1
+        },
+        "intensity": {
+          "type": "integer"
+        },
+        "source_beat": {
+          "type": "string",
+          "minLength": 1
         }
       },
-      "description": "Declarative allowlisted effect. Content must not embed arbitrary GDScript."
+      "description": "Declarative allowlisted effects. Each operation family has an exact shape; legacy effect bounds are unchanged.",
+      "oneOf": [
+        {
+          "$ref": "common.schema.json#/$defs/legacy_effect"
+        },
+        {
+          "$ref": "common.schema.json#/$defs/natural_grant_effect"
+        },
+        {
+          "$ref": "common.schema.json#/$defs/natural_spend_effect"
+        },
+        {
+          "$ref": "common.schema.json#/$defs/psyche_apply_effect"
+        }
+      ]
     },
     "mechanism_behavior": {
       "type": "string",
@@ -380,6 +401,130 @@
           "items": {
             "$ref": "common.schema.json#/$defs/local_id"
           }
+        }
+      }
+    },
+    "legacy_effect": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "op",
+        "key"
+      ],
+      "properties": {
+        "op": {
+          "type": "string",
+          "enum": [
+            "set_flag",
+            "set_fact",
+            "set_phase",
+            "set_quest_state",
+            "adjust_pressure",
+            "adjust_relationship",
+            "record_faction_event",
+            "add_item",
+            "remove_item",
+            "set_location_state",
+            "record_memory"
+          ]
+        },
+        "key": {
+          "$ref": "common.schema.json#/$defs/content_id"
+        },
+        "value": {
+          "type": [
+            "string",
+            "boolean",
+            "integer"
+          ]
+        },
+        "amount": {
+          "type": "integer",
+          "minimum": -3,
+          "maximum": 3
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "description": "Declarative allowlisted effect. Content must not embed arbitrary GDScript."
+    },
+    "natural_grant_effect": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "op",
+        "amount"
+      ],
+      "properties": {
+        "op": {
+          "const": "natural.grant_points"
+        },
+        "amount": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10
+        }
+      }
+    },
+    "natural_spend_effect": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "op",
+        "key"
+      ],
+      "properties": {
+        "op": {
+          "const": "natural.spend_point"
+        },
+        "key": {
+          "type": "string",
+          "enum": [
+            "aspect.nature",
+            "aspect.affection",
+            "aspect.tenacity",
+            "aspect.unity",
+            "aspect.resonance",
+            "aspect.awareness",
+            "aspect.light"
+          ]
+        }
+      }
+    },
+    "psyche_apply_effect": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "op",
+        "key",
+        "intensity"
+      ],
+      "properties": {
+        "op": {
+          "const": "psyche.apply_state"
+        },
+        "key": {
+          "type": "string",
+          "enum": [
+            "psyche.state.ruthless",
+            "psyche.state.exalted",
+            "psyche.state.melancholy",
+            "psyche.state.pride",
+            "psyche.state.apathy",
+            "psyche.state.paranoid",
+            "psyche.state.obsession"
+          ]
+        },
+        "intensity": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 3
+        },
+        "source_beat": {
+          "type": "string",
+          "minLength": 1
         }
       }
     }

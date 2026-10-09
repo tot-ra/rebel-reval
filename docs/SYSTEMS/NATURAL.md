@@ -8,7 +8,7 @@
 **Magic coupling:** [`docs/SYSTEMS/MAGIC.md`](./MAGIC.md) section 6  
 **Runtime implementation:** **P7-011** (GameState fields, spend/grant, save/load, minimal UI host). This file is not runtime truth until that row verifies.
 
-**Runtime today (2026-10-07):** `GameState` stores aspect ranks and unspent points (`get_natural_aspect_rank`, `grant_natural_points`, `spend_natural_point`) and saves them; magic scales by aspect (`tests/godot/test_magic_natural_scaling.gd`); the Hingepuu reflection overlay displays ranks. `StateRuleEvaluator` accepts `natural.grant_points` / `natural.spend_point` with fail-closed `natural.fail.*` codes, used by runtime callers and the reflection host (`tests/godot/test_p7_011_natural_psyche.gd`); `natural.set_rank` / `natural.lock_aspect` stay contract-only. Content JSON cannot declare these ops until the schema + Python validator allowlist lands with **SW-4**. See the [code-health audit](../reports/code_health_audit_2026-10-07.md).
+**Runtime today (2026-10-07):** `GameState` stores aspect ranks and unspent points (`get_natural_aspect_rank`, `grant_natural_points`, `spend_natural_point`) and saves them; magic scales by aspect (`tests/godot/test_magic_natural_scaling.gd`); the Hingepuu reflection overlay displays ranks. `StateRuleEvaluator` accepts `natural.grant_points` / `natural.spend_point` with fail-closed `natural.fail.*` codes, used by runtime callers and the reflection host (`tests/godot/test_p7_011_natural_psyche.gd`); `natural.set_rank` / `natural.lock_aspect` stay contract-only. Authored JSON can declare these two operations through the schema + Python validator allowlist implemented by **R-1454**. See the [code-health audit](../reports/code_health_audit_2026-10-07.md).
 
 ---
 
@@ -237,3 +237,32 @@ Forging aftermath content applies `{ "op": "natural.grant_points", "amount": 1 }
 | Aspect→element +2% | Kept; normative with MAGIC.md |
 | Pixel HUD illustrations | Inspiration only |
 | Character creator | Rejected for fixed Kalev |
+
+## Authored content effects (R-1454)
+
+Status: implemented (task **R-1454**). Scope: offline schema and semantic validation
+for the existing runtime operations. No new progression, UI, or playable quest is added.
+
+- `{"op": "natural.grant_points", "amount": 2}` grants 1..10 integer points.
+- `{"op": "natural.spend_point", "key": "aspect.awareness"}` spends one point on
+  one of the seven aspect IDs in section 2. Unknown aspects and extra fields are rejected.
+- These exact shapes do not accept `summary`, `value`, or other operation fields.
+  Existing legacy effects keep their original schema and -3..3 amount bounds.
+
+Entry points: `schemas/common.schema.json` (`effect` selects a closed `oneOf` branch),
+`tools/validate_content_common.py` (allowlists), `tools/validate_content_semantics.py`
+(IDs, fields, bounds), and `StateRuleEvaluator.apply_effects`. The repository schema
+validator `tools/validate_content_examples.py` checks exactly one matching branch.
+`content/examples/valid/quest.natural_psyche.json` is a validation-only example, not
+an active quest or an automatic grant. Existing GameState save/load is unchanged.
+
+Content checks cannot predict whether a player has points or is already at the cap.
+Runtime still returns `natural.fail.no_points`, `natural.fail.at_cap`, or
+`natural.fail.unknown_aspect` without applying the failing operation. Effect batches
+are not rolled back: earlier successful effects stay applied, as before.
+`natural.set_rank` and `natural.lock_aspect` remain unsupported content operations.
+
+Verify: `python3 tools/validate_content_examples.py`,
+`python3 tools/validate_content.py content/examples/valid content/examples/support`,
+`python3 -m unittest tests.python.test_natural_psyche_content tests.python.test_validate_content_examples -v`,
+and Godot harness `--filter=test_p7_011_natural_psyche,test_state_rule_evaluator`.

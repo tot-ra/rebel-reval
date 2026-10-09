@@ -8,7 +8,7 @@
 **Shipped slice host today:** `ReflectionModel` / reflection overlay (Duty, Fury, Mercy) - retained and extended, not deleted  
 **Runtime implementation:** **P7-011** (inner-world or extended reflection host, psyche state apply/clear, save/load). This file is not runtime truth until that row verifies.
 
-**Runtime today (2026-10-07):** `GameState.apply_psyche_state` / `clear_psyche_state` / `get_psyche_face_integration` exist and save; the reflection overlay lists active states (`tests/godot/test_p7_011_natural_psyche.gd`). The reflection host snapshot now carries `psyche_states`, `hingepuu_loci` and the NATURAL sections (`ReflectionModel.build_snapshot`), and `StateRuleEvaluator` accepts `psyche.apply_state` with fail-closed `psyche.fail.*` codes (`tests/godot/test_p7_011_natural_psyche.gd`). `psyche.clear_state` / `psyche.confront_state` ops and the schema + Python validator content allowlist deliberately land with **SW-4**; no content or scene applies a psyche state yet. See the [code-health audit](../reports/code_health_audit_2026-10-07.md).
+**Runtime today (2026-10-07):** `GameState.apply_psyche_state` / `clear_psyche_state` / `get_psyche_face_integration` exist and save; the reflection overlay lists active states (`tests/godot/test_p7_011_natural_psyche.gd`). The reflection host snapshot now carries `psyche_states`, `hingepuu_loci` and the NATURAL sections (`ReflectionModel.build_snapshot`), and `StateRuleEvaluator` accepts `psyche.apply_state` with fail-closed `psyche.fail.*` codes (`tests/godot/test_p7_011_natural_psyche.gd`). The schema + Python validator content allowlist for `psyche.apply_state` is implemented by **R-1454**; `psyche.clear_state` / `psyche.confront_state` remain unsupported evaluator operations. No playable content or scene applies a psyche state yet. See the [code-health audit](../reports/code_health_audit_2026-10-07.md).
 
 ---
 
@@ -280,3 +280,36 @@ P7-011 minimum green bar:
 | Rich visual demon prompts | Inspiration only until art tasks |
 | Reflection-only screen as final form | Extended, not replaced; Duty/Fury/Mercy retained |
 | Individuation as ultimate goal | Kept as long-horizon `face.self` unlock, not Act 1 critical path |
+
+## Authored content effects (R-1454)
+
+Status: implemented (task **R-1454**). Scope: validation of the existing apply-state
+operation, not authored confrontations, cleansing rites, or new scene integration.
+
+```json
+{"op": "psyche.apply_state", "key": "psyche.state.pride", "intensity": 1,
+ "source_beat": "beat.reflection"}
+```
+
+`key` must be one of the seven `GameState.PSYCHE_STATE_IDS`: `ruthless`, `exalted`,
+`melancholy`, `pride`, `apathy`, `paranoid`, or `obsession`, each prefixed with
+`psyche.state.`. `intensity` is an integer 1..3 (booleans are rejected).
+`source_beat` is optional; if supplied it is a non-empty string, not a cross-record
+reference. No other fields are accepted, including `summary` or `value`.
+
+Schema entry point: `schemas/common.schema.json#/$defs/psyche_apply_effect`;
+Python entry points: `validate_content_common.py` and `validate_content_semantics.py`;
+runtime: `StateRuleEvaluator` -> `GameState.apply_psyche_state`. Existing persistence
+saves the state ID, intensity and source beat; this task changes no save format.
+`psyche.fail.already_active`, `psyche.fail.unknown_state`, and `psyche.fail.blocked`
+remain fail-closed runtime outcomes. Earlier successful batch effects are not rolled back.
+
+`content/examples/valid/quest.natural_psyche.json` exercises these effects offline
+only. `psyche.clear_state` has a GameState method but no evaluator operation;
+`psyche.confront_state` has no implemented runtime API. Both remain rejected in
+schema, Python validation and evaluator until a separate runtime task aligns all three.
+
+Verify with `python3 tools/validate_content_examples.py`,
+`python3 -m unittest tests.python.test_natural_psyche_content tests.python.test_validate_content -v`,
+and Godot harness `--filter=test_p7_011_natural_psyche,test_state_rule_evaluator`
+(including the existing save/load round trip).

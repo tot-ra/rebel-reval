@@ -190,6 +190,19 @@ def validate_value(value: Any, schema: dict[str, Any], store: SchemaStore, path:
             elif isinstance(schema.get("additionalProperties"), dict):
                 validate_value(item, schema["additionalProperties"], store, f"{path}.{key}")
 
+    if "oneOf" in schema:
+        # Each operation family has its own closed shape. Do not silently ignore
+        # composition keywords: that would let data pass offline but fail runtime.
+        matches = 0
+        for option in schema["oneOf"]:
+            try:
+                validate_value(value, option, store, path)
+            except SchemaValidationError:
+                continue
+            matches += 1
+        if matches != 1:
+            raise SchemaValidationError(f"{path}: expected exactly one schema match, got {matches}")
+
 
 def load_json(path: Path) -> Any:
     with path.open(encoding="utf-8") as handle:

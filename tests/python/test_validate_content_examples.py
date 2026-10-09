@@ -19,6 +19,18 @@ import validate_content_examples as validator  # noqa: E402
 
 
 class ValidateContentExamplesTests(unittest.TestCase):
+    def test_one_of_requires_exactly_one_match_and_keeps_parent_constraints(self) -> None:
+        store = validator.SchemaStore(ROOT / "schemas")
+        schema = {"type": "integer", "minimum": 1,
+                  "oneOf": [{"maximum": 2}, {"minimum": 2}]}
+        for value in [1, 3]:
+            validator.validate_value(value, schema, store)
+        for value in [0, 2, "1"]:
+            with self.subTest(value=value), self.assertRaises(validator.SchemaValidationError):
+                validator.validate_value(value, schema, store)
+        with self.assertRaises(validator.SchemaValidationError):
+            validator.validate_value(1, {"oneOf": [{"const": 2}, {"const": 3}]}, store)
+
     def test_malformed_json_is_reported_and_does_not_abort_validation(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

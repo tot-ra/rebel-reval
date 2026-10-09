@@ -56,6 +56,9 @@ EFFECT_OPS = {
     "remove_item",
     "set_location_state",
     "record_memory",
+    "natural.grant_points",
+    "natural.spend_point",
+    "psyche.apply_state",
 }
 
 CONDITION_LIST_KEYS = frozenset({"conditions", "entry_conditions", "requires"})
@@ -146,6 +149,29 @@ EFFECT_RULES: dict[str, dict[str, Any]] = {
         "key_prefix": "loc.",
         "value_type": str,
         "location_state": True,
+    },
+    "natural.grant_points": {
+        "required": {"amount"},
+        "allowed": {"op", "amount"},
+        "integer_range": ("amount", 1, 10),
+    },
+    "natural.spend_point": {
+        "required": {"key"},
+        "allowed": {"op", "key"},
+        "key_ids": {
+            "aspect.nature", "aspect.affection", "aspect.tenacity", "aspect.unity",
+            "aspect.resonance", "aspect.awareness", "aspect.light",
+        },
+    },
+    "psyche.apply_state": {
+        "required": {"key", "intensity"},
+        "allowed": {"op", "key", "intensity", "source_beat"},
+        "key_ids": {
+            "psyche.state.ruthless", "psyche.state.exalted", "psyche.state.melancholy",
+            "psyche.state.pride", "psyche.state.apathy", "psyche.state.paranoid",
+            "psyche.state.obsession",
+        },
+        "integer_range": ("intensity", 1, 3),
     },
     "record_memory": {
         "required": {"key"},
