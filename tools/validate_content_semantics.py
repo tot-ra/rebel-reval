@@ -24,6 +24,41 @@ from validate_content_common import (
 )
 
 
+AURA_LIGHTS = frozenset(
+    f"aspect.{name}" for name in ("nature", "affection", "tenacity", "unity", "resonance", "awareness", "light")
+)
+
+
+def validate_aura(diagnostics: list[Diagnostic], *, path: Path, record: Any, root: Path) -> None:
+    """Classify aura ids/ranges before schema rejection can hide the stable codes."""
+    if not isinstance(record, dict) or record.get("type") != "character":
+        return
+    aura = record.get("aura")
+    if not isinstance(aura, dict):
+        return  # Structural failures are reported by the character schema.
+    levels = aura.get("levels")
+    if isinstance(levels, dict):
+        for light, level in levels.items():
+            pointer = f"$.aura.levels.{light}"
+            if light not in AURA_LIGHTS:
+                diagnostics.append(diag("AURA_LIGHT", path, pointer, f"unknown light {light!r}", root=root))
+            if type(level) is not int or not 0 <= level <= 5:
+                diagnostics.append(diag("AURA_LEVEL", path, pointer, "level must be an integer in 0..5", root=root))
+    mask = aura.get("closed_mask")
+    if isinstance(mask, list):
+        seen: set[str] = set()
+        for i, light in enumerate(mask):
+            pointer = f"$.aura.closed_mask[{i}]"
+            if not isinstance(light, str) or light not in AURA_LIGHTS:
+                diagnostics.append(diag("AURA_LIGHT", path, pointer, f"unknown light {light!r}", root=root))
+            elif light in seen:
+                diagnostics.append(diag("AURA_LIGHT", path, pointer, "duplicate masked light", root=root))
+            else:
+                seen.add(light)
+                if isinstance(levels, dict) and levels.get(light) != 0:
+                    diagnostics.append(diag("AURA_LEVEL", path, pointer, "masked light must have level 0", root=root))
+
+
 def schema_error_is_unknown_op_enum(message: str) -> bool:
     return ".op" in message and "is not one of" in message
 
@@ -35,7 +70,8 @@ def scan_unknown_ops(
     record: Any,
     root: Path,
 ) -> bool:
-    """Classify unknown condition/effect ops before schema validation."""
+    """Pre-schema diagnostics; return whether any condition/effect op is unknown."""
+    validate_aura(diagnostics, path=path, record=record, root=root)
     found = False
 
     def walk(obj: Any, pointer: str) -> None:

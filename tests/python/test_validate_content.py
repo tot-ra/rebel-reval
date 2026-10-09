@@ -181,6 +181,54 @@ def _minimal_commission(**overrides) -> dict:
 
 
 class ValidateContentTests(unittest.TestCase):
+    def test_aura_fixtures_and_legacy_character(self) -> None:
+        self.assertEqual(validate_corpus([
+            ROOT / "content/examples/valid/character.aura.json"
+        ], project_root=ROOT), [])
+        for suffix, code in [("light", "AURA_LIGHT"), ("level", "AURA_LEVEL")]:
+            with self.subTest(suffix=suffix):
+                diagnostics = validate_corpus([
+                    ROOT / f"content/examples/invalid/character.aura_{suffix}.json"
+                ], project_root=ROOT)
+                self.assertIn(code, _codes(diagnostics))
+
+    def test_aura_levels_masks_and_schema_shape(self) -> None:
+        lights = [f"aspect.{name}" for name in
+                  ("nature", "affection", "tenacity", "unity", "resonance", "awareness", "light")]
+        levels = dict.fromkeys(lights, 0)
+        cases = [
+            ({"levels": levels}, None),
+            ({"levels": dict.fromkeys(lights, 5), "clarity": 1}, None),
+            ({"levels": levels, "clarity": 0, "closed_mask": lights}, None),
+            ({"levels": levels, "clarity": -0.1}, "SCHEMA"),
+            ({"levels": levels, "clarity": 1.1}, "SCHEMA"),
+            ({"levels": levels, "clarity": True}, "SCHEMA"),
+            ({"levels": levels, "closed_mask": ["aspect.fake"]}, "AURA_LIGHT"),
+            ({"levels": levels, "closed_mask": ["aspect.nature"] * 2}, "AURA_LIGHT"),
+            ({"levels": levels, "closed_mask": [{}]}, "AURA_LIGHT"),
+            ({"levels": dict.fromkeys(lights, 1), "closed_mask": ["aspect.nature"]}, "AURA_LEVEL"),
+            ({"levels": {}}, "SCHEMA"),
+            ({"levels": []}, "SCHEMA"),
+            ({"clarity": 1}, "SCHEMA"),
+            ({"levels": levels, "extra": 1}, "SCHEMA"),
+        ]
+        for bad in [-1, 6, 1.5, True, "3", None]:
+            cases.append(({"levels": {**levels, "aspect.unity": bad}}, "AURA_LEVEL"))
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            path = root / "char.json"
+            for aura, code in cases:
+                with self.subTest(aura=aura):
+                    _write(path, _minimal_character(aura=aura))
+                    diagnostics = validate_corpus([path], project_root=root)
+                    if code is None:
+                        self.assertEqual(diagnostics, [])
+                    else:
+                        self.assertIn(code, _codes(diagnostics))
+            # Omitting the entire optional block remains backward compatible.
+            _write(path, _minimal_character())
+            self.assertEqual(validate_corpus([path], project_root=root), [])
+
     def test_valid_minimal_corpus_passes(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

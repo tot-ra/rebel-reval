@@ -179,6 +179,105 @@
       "items": {
         "$ref": "common.schema.json#/$defs/source_note"
       }
+    },
+    "aura": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "levels"
+      ],
+      "properties": {
+        "levels": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "aspect.nature",
+            "aspect.affection",
+            "aspect.tenacity",
+            "aspect.unity",
+            "aspect.resonance",
+            "aspect.awareness",
+            "aspect.light"
+          ],
+          "properties": {
+            "aspect.nature": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 5
+            },
+            "aspect.affection": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 5
+            },
+            "aspect.tenacity": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 5
+            },
+            "aspect.unity": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 5
+            },
+            "aspect.resonance": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 5
+            },
+            "aspect.awareness": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 5
+            },
+            "aspect.light": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 5
+            }
+          }
+        },
+        "clarity": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "closed_mask": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": [
+              "aspect.nature",
+              "aspect.affection",
+              "aspect.tenacity",
+              "aspect.unity",
+              "aspect.resonance",
+              "aspect.awareness",
+              "aspect.light"
+            ]
+          }
+        }
+      }
+    },
+    "faction": {
+      "type": "string",
+      "minLength": 1
+    },
+    "profession": {
+      "type": "string",
+      "minLength": 1
+    },
+    "species": {
+      "type": "string",
+      "minLength": 1
+    },
+    "temperament": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
     }
   }
 }

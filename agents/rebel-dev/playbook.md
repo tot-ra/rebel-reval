@@ -283,3 +283,6 @@ This file contains lessons specific to the Dev role.
 
 ### Content operation validation
 - For operation-shape negative tests, mutate only required fields: deleting an optional source field must stay valid. Check the repository JSON Schema subset before introducing composition keywords, and test both zero and multiple `oneOf` matches.
+
+- The repository test harness requires an explicit epsilon in `assert_almost_eq(actual, expected, epsilon)`; read helper signatures instead of assuming GUT-compatible defaults. `ContentDB.load_from_directories()` returns bool, while `GuiltLedger.from_dict()` returns errors; assert their actual contracts.
+- For a pathspec commit with shared-file hunks, Git cannot add files beneath directory symlinks. Materialize commit paths and use a disposable index; run repository-root-aware gates in the real checkout against that index, not in a symlink mirror whose indexes and metadata differ. Never replace the shared index or stage entire shared playbooks.

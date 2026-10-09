@@ -1,0 +1,56 @@
+{
+  "type": "character",
+  "id": "char.aura_fixture",
+  "name": "Test",
+  "role": "fixture",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft"
+  },
+  "pronunciation": "TEST",
+  "brief": {
+    "want": "want",
+    "fear": "fear",
+    "contradiction": "contradiction",
+    "secret_or_withheld_fact": "secret"
+  },
+  "relationships": [],
+  "voice": {
+    "summary": "voice",
+    "diction": "diction"
+  },
+  "outcomes": [
+    {
+      "id": "end",
+      "summary": "outcome"
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "fixture"
+    }
+  ],
+  "aura": {
+    "levels": {
+      "aspect.nature": 0,
+      "aspect.affection": 1,
+      "aspect.tenacity": 2,
+      "aspect.unity": 3,
+      "aspect.resonance": 4,
+      "aspect.awareness": 5,
+      "aspect.light": 1
+    },
+    "clarity": 0.75,
+    "closed_mask": [
+      "aspect.nature"
+    ]
+  },
+  "faction": "faction.guild",
+  "profession": "smith",
+  "temperament": [
+    "stubborn",
+    "proud"
+  ]
+}
