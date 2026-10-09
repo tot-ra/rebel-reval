@@ -327,160 +327,165 @@ vec4 cells_volume(
 			continue;
 		}
 		float cb = cell_storminess(b, cs);
-		vec2 c = ro.xz + cell_wrap_delta(a.xz, ro.xz, b.z);
-		// Fade out before the periodic seam at half a domain.
-		float domain = cell_domain(b.z);
-		float fade = 1.0 - smoothstep(0.36 * domain, 0.5 * domain, length(c - ro.xz));
-		if (fade <= 0.0) {
-			continue;
-		}
-		float reach = a.w * mix(CELL_CU_REACH, CELL_CB_REACH, cb);
-		vec3 cell_acc = vec3(0.0);
-		float cell_trans = 1.0;
-		float hit_t = 1e9;
-		vec2 hit = cell_box_hit(
-			ro, rd, vec3(c.x - reach, a.y, c.y - reach), vec3(c.x + reach, a.y + b.x, c.y + reach)
-		);
-		if (hit.y > hit.x) {
-			// Phase 1: coarse search for the first sample inside the body.
-			float dt = (hit.y - hit.x) / float(cell_steps);
-			float t_enter = -1.0;
-			for (int s = 0; s < 16; s++) {
-				if (s >= cell_steps) {
-					break;
-				}
-				float t = hit.x + (float(s) + 0.5 + (jitter - 0.5) * 0.0) * dt;
-				vec3 p = ro + rd * t;
-				if (cell_density(vec3(p.x - c.x, 0.0, p.z - c.y), p.y, a, b, cs, cell_noise, p, wind_dir) > 0.02) {
-					// Bisect to the true surface so every pixel starts its fine march at the
-						// same optical depth: a fixed-step entry showed as contour terraces
-						// (and a per-pixel jitter of it as dither grain).
-						float lo = max(t - dt, hit.x);
-						float hi = t;
-						for (int k = 0; k < 5; k++) {
-							float mid = 0.5 * (lo + hi);
-							vec3 pm = ro + rd * mid;
-							if (cell_density(vec3(pm.x - c.x, 0.0, pm.z - c.y), pm.y, a, b, cs, cell_noise, pm, wind_dir) > 0.02) {
-								hi = mid;
-							} else {
-								lo = mid;
-							}
-						}
-						t_enter = lo;
-					break;
-				}
+		vec2 nearest = ro.xz + cell_wrap_delta(a.xz, ro.xz, b.z);
+		// Same periodic copies and fade for the body, rain and sky-beam occlusion.
+		for (int copy = 0; copy < CELL_TOWER_COPIES; copy++) {
+			if (copy > 0 && (b.z > 0.5 || cs.y <= 0.5)) {
+				break;
 			}
-			if (t_enter >= 0.0) {
-				hit_t = t_enter;
-				// Phase 2: fine march through the surface layer.
-				float fine = min(dt, a.w * 0.1);
-				float sigma = mix(0.06, 0.08, cb);
-				for (int s = 0; s < 12; s++) {
-					if (s >= cell_fine_steps) {
+			vec2 c = nearest + cell_view_copy_offset(copy);
+			float fade = cell_view_fade(length(c - ro.xz), b.z, cs.y);
+			if (fade <= 0.0) {
+				continue;
+			}
+			float reach = a.w * mix(CELL_CU_REACH, CELL_CB_REACH, cb);
+			vec3 cell_acc = vec3(0.0);
+			float cell_trans = 1.0;
+			float hit_t = 1e9;
+			vec2 hit = cell_box_hit(
+				ro, rd, vec3(c.x - reach, a.y, c.y - reach), vec3(c.x + reach, a.y + b.x, c.y + reach)
+			);
+			if (hit.y > hit.x) {
+				// Phase 1: coarse search for the first sample inside the body.
+				float dt = (hit.y - hit.x) / float(cell_steps);
+				float t_enter = -1.0;
+				for (int s = 0; s < 16; s++) {
+					if (s >= cell_steps) {
 						break;
 					}
-					// Jitter is damped: the full +-0.5 step offset showed as a static dither
-						// grain on the cloud surface; a small one still hides step banding.
-						float t = t_enter + (float(s) + 0.5 + (jitter - 0.5) * 0.0) * fine;
-					if (t > hit.y) {
-						break;
-					}
+					float t = hit.x + (float(s) + 0.5 + (jitter - 0.5) * 0.0) * dt;
 					vec3 p = ro + rd * t;
-					vec3 local = vec3(p.x - c.x, 0.0, p.z - c.y);
-					float dens = cell_density(local, p.y, a, b, cs, cell_noise, p, wind_dir);
-					if (dens < 0.002) {
-						continue;
+					if (cell_density(vec3(p.x - c.x, 0.0, p.z - c.y), p.y, a, b, cs, cell_noise, p, wind_dir) > 0.02) {
+						// Bisect to the true surface so every pixel starts its fine march at the
+							// same optical depth: a fixed-step entry showed as contour terraces
+							// (and a per-pixel jitter of it as dither grain).
+							float lo = max(t - dt, hit.x);
+							float hi = t;
+							for (int k = 0; k < 5; k++) {
+								float mid = 0.5 * (lo + hi);
+								vec3 pm = ro + rd * mid;
+								if (cell_density(vec3(pm.x - c.x, 0.0, pm.z - c.y), pm.y, a, b, cs, cell_noise, pm, wind_dir) > 0.02) {
+									hi = mid;
+								} else {
+									lo = mid;
+								}
+							}
+							t_enter = lo;
+						break;
 					}
-					float alpha = 1.0 - exp(-dens * sigma * fine);
-					float tau = 0.0;
-					for (int l = 1; l <= 2; l++) {
-						if (l > cell_light_samples) {
+				}
+				if (t_enter >= 0.0) {
+					hit_t = t_enter;
+					// Phase 2: fine march through the surface layer.
+					float fine = min(dt, a.w * 0.1);
+					float sigma = mix(0.06, 0.08, cb);
+					for (int s = 0; s < 12; s++) {
+						if (s >= cell_fine_steps) {
 							break;
 						}
-						vec3 lp = p + sun_direction * (a.w * 0.22 * float(l * l));
-						tau += cell_density(vec3(lp.x - c.x, 0.0, lp.z - c.y), lp.y, a, b, cs, cell_noise, lp, wind_dir);
-					}
-					float h = clamp((p.y - a.y) / max(b.x, 1.0), 0.0, 1.0);
-					// Beer-Lambert toward the sun plus a weaker, longer octave for the
-					// light that scatters many times inside the cloud (keeps cores from
-					// going black the way a single-scatter march does).
-					float k = mix(1.4, 2.2, cb);
-					float light = max(exp(-tau * k), 0.35 * exp(-tau * k * 0.25)) * sun_up;
-					// Powder: thin edges and wisps stay darker than the sunlit core face.
-					light *= mix(0.7, 1.0, 1.0 - exp(-dens * 3.0));
-					// A thunderhead's lower body sits in its own shade.
-					light *= mix(1.0, smoothstep(0.0, 0.45, h), cb * 0.8);
-						light *= 1.0 - 0.55 * cloud_gloom * (1.0 - cb);
-					// Grey flat bases lit by skylight; storm towers darken hard toward the base.
-					float gloom = cloud_gloom * (1.0 - cb);
-						float ambient = mix(0.62, 1.0, h) * mix(1.0, 0.4, cb * (1.0 - h)) * mix(1.0, 0.62, gloom);
-					vec3 skylit = mix(shade_col, lit_col, 0.35) * ambient;
-					vec3 col = mix(skylit, lit_col, light);
-					// Silver lining where the thin edge sits in front of the sun.
-					col += lit_col * sun_fwd * exp(-dens * 3.0) * 0.8 * sun_up;
-					if (flash > 0.0) {
-						// Lightning floods the cloud from inside: light scatters through the
-						// whole body, brightest round the channel.
-						col += vec3(0.9, 0.94, 1.1) * flash * 3.0 * exp(-length(p - flash_at) / (a.w * 0.9));
-					}
-					cell_acc += cell_trans * alpha * col;
-					cell_trans *= 1.0 - alpha;
-					if (cell_trans < 0.02) {
-						break;
+						// Jitter is damped: the full +-0.5 step offset showed as a static dither
+							// grain on the cloud surface; a small one still hides step banding.
+							float t = t_enter + (float(s) + 0.5 + (jitter - 0.5) * 0.0) * fine;
+						if (t > hit.y) {
+							break;
+						}
+						vec3 p = ro + rd * t;
+						vec3 local = vec3(p.x - c.x, 0.0, p.z - c.y);
+						float dens = cell_density(local, p.y, a, b, cs, cell_noise, p, wind_dir);
+						if (dens < 0.002) {
+							continue;
+						}
+						float alpha = 1.0 - exp(-dens * sigma * fine);
+						float tau = 0.0;
+						for (int l = 1; l <= 2; l++) {
+							if (l > cell_light_samples) {
+								break;
+							}
+							vec3 lp = p + sun_direction * (a.w * 0.22 * float(l * l));
+							tau += cell_density(vec3(lp.x - c.x, 0.0, lp.z - c.y), lp.y, a, b, cs, cell_noise, lp, wind_dir);
+						}
+						float h = clamp((p.y - a.y) / max(b.x, 1.0), 0.0, 1.0);
+						// Beer-Lambert toward the sun plus a weaker, longer octave for the
+						// light that scatters many times inside the cloud (keeps cores from
+						// going black the way a single-scatter march does).
+						float k = mix(1.4, 2.2, cb);
+						float light = max(exp(-tau * k), 0.35 * exp(-tau * k * 0.25)) * sun_up;
+						// Powder: thin edges and wisps stay darker than the sunlit core face.
+						light *= mix(0.7, 1.0, 1.0 - exp(-dens * 3.0));
+						// A thunderhead's lower body sits in its own shade.
+						light *= mix(1.0, smoothstep(0.0, 0.45, h), cb * 0.8);
+							light *= 1.0 - 0.55 * cloud_gloom * (1.0 - cb);
+						// Grey flat bases lit by skylight; storm towers darken hard toward the base.
+						float gloom = cloud_gloom * (1.0 - cb);
+							float ambient = mix(0.62, 1.0, h) * mix(1.0, 0.4, cb * (1.0 - h)) * mix(1.0, 0.62, gloom);
+						vec3 skylit = mix(shade_col, lit_col, 0.35) * ambient;
+						vec3 col = mix(skylit, lit_col, light);
+						// Silver lining where the thin edge sits in front of the sun.
+						col += lit_col * sun_fwd * exp(-dens * 3.0) * 0.8 * sun_up;
+						if (flash > 0.0) {
+							// Lightning floods the cloud from inside: light scatters through the
+							// whole body, brightest round the channel.
+							col += vec3(0.9, 0.94, 1.1) * flash * 3.0 * exp(-length(p - flash_at) / (a.w * 0.9));
+						}
+						cell_acc += cell_trans * alpha * col;
+						cell_trans *= 1.0 - alpha;
+						if (cell_trans < 0.02) {
+							break;
+						}
 					}
 				}
 			}
-		}
-		float body = (1.0 - cell_trans) * fade;
-		// Rain curtain under a storm base: chord length through a cylinder. A cumulus
-		// merged into a thunderstorm (R-1481) grows its curtain as it towers.
-		float rain = 0.0;
-		float rain_t = 1e9;
-		if (cb > 0.5) {
-			vec2 o = ro.xz - c;
-			float r = a.w * 0.4;
-			float qa = dot(rd.xz, rd.xz);
-			float qb = dot(o, rd.xz);
-			float qc = dot(o, o) - r * r;
-			float disc = qb * qb - qa * qc;
-			if (disc > 0.0 && qa > 1e-6) {
-				float sq = sqrt(disc);
-				float t0 = max((-qb - sq) / qa, 0.0);
-				float t1 = (-qb + sq) / qa;
-				// Clip the chord to the air between the ground and the cloud base.
-				if (abs(rd.y) > 1e-5) {
-					float tg = (0.0 - ro.y) / rd.y;
-					float tb = (a.y - ro.y) / rd.y;
-					t0 = max(t0, min(tg, tb));
-					t1 = min(t1, max(tg, tb));
-				} else if (ro.y > a.y || ro.y < 0.0) {
-					t1 = t0;
-				}
-				if (t1 > t0) {
-					vec3 mid = ro + rd * (0.5 * (t0 + t1));
-					float streak = textureLod(
-						cloud_noise, vec2((mid.x - mid.z * 0.4) / 160.0 + b.w * 3.0, mid.y / 3000.0), 0.0
-					).r;
-					// Thickest in the middle of the shaft, thinning toward its sides.
-					float core = 1.0 - smoothstep(0.2, 1.0, length(mid.xz - c) / r);
-					rain = (1.0 - exp(-(t1 - t0) * 0.0016 * mix(0.55, 1.2, streak))) * b.y * core * fade
-						* smoothstep(0.5, 0.9, cb);
-					rain_t = t0;
+			float body = (1.0 - cell_trans) * fade;
+			// Rain curtain under a storm base: chord length through a cylinder. A cumulus
+			// merged into a thunderstorm (R-1481) grows its curtain as it towers.
+			float rain = 0.0;
+			float rain_t = 1e9;
+			if (cb > 0.5) {
+				vec2 o = ro.xz - c;
+				float r = a.w * 0.4;
+				float qa = dot(rd.xz, rd.xz);
+				float qb = dot(o, rd.xz);
+				float qc = dot(o, o) - r * r;
+				float disc = qb * qb - qa * qc;
+				if (disc > 0.0 && qa > 1e-6) {
+					float sq = sqrt(disc);
+					float t0 = max((-qb - sq) / qa, 0.0);
+					float t1 = (-qb + sq) / qa;
+					// Clip the chord to the air between the ground and the cloud base.
+					if (abs(rd.y) > 1e-5) {
+						float tg = (0.0 - ro.y) / rd.y;
+						float tb = (a.y - ro.y) / rd.y;
+						t0 = max(t0, min(tg, tb));
+						t1 = min(t1, max(tg, tb));
+					} else if (ro.y > a.y || ro.y < 0.0) {
+						t1 = t0;
+					}
+					if (t1 > t0) {
+						vec3 mid = ro + rd * (0.5 * (t0 + t1));
+						float streak = textureLod(
+							cloud_noise, vec2((mid.x - mid.z * 0.4) / 160.0 + b.w * 3.0, mid.y / 3000.0), 0.0
+						).r;
+						// Thickest in the middle of the shaft, thinning toward its sides.
+						float core = 1.0 - smoothstep(0.2, 1.0, length(mid.xz - c) / r);
+						rain = (1.0 - exp(-(t1 - t0) * 0.0016 * mix(0.55, 1.2, streak))) * b.y * core * fade
+							* smoothstep(0.5, 0.9, cb);
+						rain_t = t0;
+					}
 				}
 			}
+			vec3 body_col = cell_trans < 1.0 ? cell_acc / max(1.0 - cell_trans, 1e-4) : vec3(0.0);
+			// Aerial perspective: a distant thunderhead still reads as a solid body.
+			body_col = mix(body_col, haze_col, (1.0 - exp(-min(hit_t, 2e4) / 16000.0)) * 0.6);
+			// Some storms carry hail: a whiter, greenish-tinged core in the shaft.
+			vec3 shaft_col = mix(rain_col, vec3(0.78, 0.86, 0.82), step(0.55, fract(b.w * 9.1)) * 0.5) + vec3(0.9, 0.94, 1.1) * flash * 0.6;
+			shaft_col = mix(shaft_col, haze_col, (1.0 - exp(-min(rain_t, 2e4) / 9000.0)) * 0.6);
+			// Cloud body over its own rain, then this cell over what lies behind it.
+			vec3 cell_col = body_col * body + shaft_col * rain * (1.0 - body);
+			float cover = body + rain * (1.0 - body);
+			acc += trans * cell_col;
+			trans *= 1.0 - cover;
+			body_trans *= 1.0 - body;
 		}
-		vec3 body_col = cell_trans < 1.0 ? cell_acc / max(1.0 - cell_trans, 1e-4) : vec3(0.0);
-		// Aerial perspective: a distant thunderhead still reads as a solid body.
-		body_col = mix(body_col, haze_col, (1.0 - exp(-min(hit_t, 2e4) / 16000.0)) * 0.6);
-		// Some storms carry hail: a whiter, greenish-tinged core in the shaft.
-		vec3 shaft_col = mix(rain_col, vec3(0.78, 0.86, 0.82), step(0.55, fract(b.w * 9.1)) * 0.5) + vec3(0.9, 0.94, 1.1) * flash * 0.6;
-		shaft_col = mix(shaft_col, haze_col, (1.0 - exp(-min(rain_t, 2e4) / 9000.0)) * 0.6);
-		// Cloud body over its own rain, then this cell over what lies behind it.
-		vec3 cell_col = body_col * body + shaft_col * rain * (1.0 - body);
-		float cover = body + rain * (1.0 - body);
-		acc += trans * cell_col;
-		trans *= 1.0 - cover;
-		body_trans *= 1.0 - body;
 	}
 	body_cover = 1.0 - body_trans;
 	return vec4(acc, 1.0 - trans);
@@ -517,25 +522,31 @@ float cells_toward(vec3 ro, vec3 d) {
 			continue;
 		}
 		float cb = cell_storminess(b, cs);
-		vec2 c = ro.xz + cell_wrap_delta(a.xz, ro.xz, b.z);
-		float domain = cell_domain(b.z);
-		float fade = 1.0 - smoothstep(0.36 * domain, 0.5 * domain, length(c - ro.xz));
-		if (fade <= 0.0) {
-			continue;
+		vec2 nearest = ro.xz + cell_wrap_delta(a.xz, ro.xz, b.z);
+		// Same periodic copies and fade for the body, rain and sky-beam occlusion.
+		for (int copy = 0; copy < CELL_TOWER_COPIES; copy++) {
+			if (copy > 0 && (b.z > 0.5 || cs.y <= 0.5)) {
+				break;
+			}
+			vec2 c = nearest + cell_view_copy_offset(copy);
+			float fade = cell_view_fade(length(c - ro.xz), b.z, cs.y);
+			if (fade <= 0.0) {
+				continue;
+			}
+			float layer = a.y + b.x * mix(0.35, 0.25, cb);
+			vec2 q = ro.xz + d.xz * ((layer - ro.y) / d.y);
+			float reach = a.w * mix(CELL_CU_REACH, CELL_CB_REACH, cb);
+			vec2 off = q - c;
+			if (dot(off, off) > reach * reach) {
+				continue;
+			}
+			vec2 nuv = q / CELL_BILLOW_SCALE + b.w * 7.13;
+			float n = textureLod(cloud_noise, nuv, 1.0).r * 0.65
+				+ textureLod(cloud_noise, nuv * 2.7 + 0.31, 1.0).r * 0.35;
+			float dist = cell_footprint(off, a, b, cs) + (n - 0.5) * 0.38;
+			lit *= 1.0 - smoothstep(1.0, 0.8, dist) * b.y * fade
+				* mix(CELL_CU_OPACITY, CELL_CB_OPACITY, cb);
 		}
-		float layer = a.y + b.x * mix(0.35, 0.25, cb);
-		vec2 q = ro.xz + d.xz * ((layer - ro.y) / d.y);
-		float reach = a.w * mix(CELL_CU_REACH, CELL_CB_REACH, cb);
-		vec2 off = q - c;
-		if (dot(off, off) > reach * reach) {
-			continue;
-		}
-		vec2 nuv = q / CELL_BILLOW_SCALE + b.w * 7.13;
-		float n = textureLod(cloud_noise, nuv, 1.0).r * 0.65
-			+ textureLod(cloud_noise, nuv * 2.7 + 0.31, 1.0).r * 0.35;
-		float dist = cell_footprint(off, a, b, cs) + (n - 0.5) * 0.38;
-		lit *= 1.0 - smoothstep(1.0, 0.8, dist) * b.y * fade
-			* mix(CELL_CU_OPACITY, CELL_CB_OPACITY, cb);
 	}
 	return 1.0 - lit;
 }

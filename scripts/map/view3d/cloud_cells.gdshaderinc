@@ -49,6 +49,29 @@ float cell_storminess(vec4 b, vec4 c) {
 }
 
 
+// R-1493: enumerate the 5x5 periodic neighbourhood only for towering cumulus.
+// Increasing fade alone would still teleport the nearest copy at the 1.6 km seam.
+// Copy zero preserves the ordinary cumulus/storm fast path. Mirrors CloudCells.
+const int CELL_TOWER_COPIES = 25;
+const float CELL_TOWER_MATURE = 0.75;
+const vec2 CELL_TOWER_FADE = vec2(5000.0, 6000.0);
+
+vec2 cell_view_copy_offset(int copy) {
+	int grid = copy == 0 ? 12 : (copy == 12 ? 0 : copy);
+	return vec2(float(grid % 5 - 2), float(grid / 5 - 2)) * CELL_DOMAIN;
+}
+
+float cell_view_fade(float distance, float kind, float tower) {
+	float domain = cell_domain(kind);
+	float near_fade = 1.0 - smoothstep(0.36 * domain, 0.5 * domain, distance);
+	if (kind > 0.5) {
+		return near_fade;
+	}
+	float far_fade = 1.0 - smoothstep(CELL_TOWER_FADE.x, CELL_TOWER_FADE.y, distance);
+	return mix(near_fade, far_fade, smoothstep(0.5, CELL_TOWER_MATURE, tower));
+}
+
+
 // Lobe k of a cumulus (R-1481) in the cell's stretch frame (x along the seeded axis,
 // y across), in units of R: xy = centre offset, z = radius share, w = top height
 // share. One cloud is a fused cluster of uneven heaps, not a single round dumpling;

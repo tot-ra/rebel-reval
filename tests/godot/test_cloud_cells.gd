@@ -177,6 +177,83 @@ func test_cumulus_footprint_is_lobed_and_elongated() -> void:
 	assert_true(longest > 1.8, "some cumulus are drawn out well over twice as long as wide")
 
 
+## R-1493: far visibility cannot be implemented by widening the nearest-copy fade.
+func test_mature_towers_stay_solid_at_five_kilometres() -> void:
+	for distance in [1600.0, 4000.0, 5000.0]:
+		assert_almost_eq(CloudCellsScript.view_fade(
+			distance, 0, CloudCellsScript.TOWER_MATURE
+		), 1.0, 0.001, "a mature tower stays solid through 5 km")
+		assert_eq(CloudCellsScript.view_fade(distance, 0, 0.5), 0.0,
+			"ordinary cumulus retain their seam fade")
+	assert_almost_eq(CloudCellsScript.view_fade(4000.0, 0, 0.625), 0.5, 0.001,
+		"distant tower copies fade in smoothly, not at a binary maturity switch")
+	assert_almost_eq(CloudCellsScript.view_fade(5500.0, 0, 1.0), 0.5, 0.001,
+		"mature towers fade between 5 and 6 km")
+	assert_eq(CloudCellsScript.view_fade(6000.0, 0, 1.0), 0.0, "finite far reach")
+	for distance in [1000.0, 4000.0, 4800.0, 5000.0]:
+		var domain: float = CloudCellsScript.STORM_DOMAIN
+		assert_almost_eq(CloudCellsScript.view_fade(distance, 1, 0.0),
+			1.0 - smoothstep(0.36 * domain, 0.5 * domain, distance), 0.001,
+			"native storm slots keep their existing visibility")
+
+
+func _visible_tower_copies(eye: Vector2) -> Dictionary:
+	var nearest := eye + CloudCellsScript.wrap_delta(Vector2.ZERO, eye)
+	var copies := {}
+	for copy in CloudCellsScript.TOWER_COPIES:
+		var center := nearest + CloudCellsScript.view_copy_offset(copy)
+		var fade := CloudCellsScript.view_fade(center.distance_to(eye), 0, 1.0)
+		if fade > 0.0:
+			copies[center] = fade
+	return copies
+
+
+func test_tower_copies_cover_far_bearings_and_cross_seams_without_teleporting() -> void:
+	assert_eq(CloudCellsScript.view_copy_offset(0), Vector2.ZERO, "nearest fast path")
+	var unique := {}
+	for copy in CloudCellsScript.TOWER_COPIES:
+		unique[CloudCellsScript.view_copy_offset(copy)] = true
+	assert_eq(unique.size(), 25, "no duplicate copy or double opacity")
+	for angle in 32:
+		var eye := Vector2.from_angle(float(angle) * TAU / 32.0) * 5000.0
+		var visible := _visible_tower_copies(eye)
+		assert_true(visible.has(Vector2.ZERO), "original tower remains at its world position")
+		# Compare against a deliberately oversized reference neighbourhood.
+		for x in range(-4, 5):
+			for z in range(-4, 5):
+				var center := Vector2(x, z) * CloudCellsScript.DOMAIN
+				if center.distance_to(eye) < CloudCellsScript.TOWER_FADE.y:
+					assert_true(visible.has(center), "every in-range periodic copy is drawn")
+	for seam in [Vector2(1600, 0), Vector2(0, -1600), Vector2(1600, 1600)]:
+		var before := _visible_tower_copies(seam - Vector2.ONE * 0.01)
+		var after := _visible_tower_copies(seam + Vector2.ONE * 0.01)
+		assert_eq(before.size(), after.size(), "crossing a seam preserves visible copies")
+		for center: Vector2 in before:
+			assert_true(after.has(center), "world centres do not jump at the nearest-copy seam")
+			assert_almost_eq(before[center], after.get(center, -1.0), 0.001,
+				"opacity stays continuous across the seam")
+
+
+func test_tower_visibility_rebuild_is_history_independent() -> void:
+	var cells := CloudCellsScript.new()
+	var counts := Vector2(13.0, 0.0)
+	cells.update(123.4, Vector2(0.03, -0.01), counts, 0.7)
+	var saved := cells.uniforms()
+	cells.update(900.0, Vector2(1.2, -0.3), Vector2(2.0, 3.0), 0.2)
+	cells.update(123.4, Vector2(0.03, -0.01), counts, 0.7)
+	assert_eq(cells.uniforms(), saved, "restore needs no tower handoff or camera state")
+	var shader := FileAccess.get_file_as_string("res://scripts/map/view3d/sky_weather_3d.gdshader")
+	assert_eq(shader.count("cell_view_fade(length(c - ro.xz), b.z, cs.y)"), 2,
+		"volume and sky-beam occlusion use the same fade")
+	assert_eq(shader.count("copy < CELL_TOWER_COPIES"), 2,
+		"volume and sky-beam occlusion enumerate the same world copies")
+	var shared := FileAccess.get_file_as_string("res://scripts/map/view3d/cloud_cells.gdshaderinc")
+	assert_true("CELL_TOWER_COPIES = 25" in shared, "CPU/GPU neighbourhood matches")
+	assert_true("CELL_TOWER_MATURE = 0.75" in shared, "CPU/GPU maturity matches")
+	assert_true("CELL_TOWER_FADE = vec2(5000.0, 6000.0)" in shared,
+		"CPU/GPU fade range matches")
+
+
 func test_wrap_delta_takes_the_nearest_periodic_copy() -> void:
 	var d := CloudCellsScript.wrap_delta(
 		Vector2(10.0, 0.0), Vector2(CloudCellsScript.DOMAIN - 10.0, 0.0)

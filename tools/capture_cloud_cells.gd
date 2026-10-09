@@ -7,6 +7,7 @@ extends SceneTree
 ## cumulus through its life (cells_cumulus_life) and cumulus merged into a
 ## thunderstorm tower. Needs a renderer:
 ##   tools/godot_render.sh --script tools/capture_cloud_cells.gd [-- --only=<shot>[,<shot>...]]
+## Optional --tower-distance=<metres> sets the cells_tower_merge camera distance.
 ## Output: docs/reports/images/weather/<shot>.png
 
 const OUTPUT_DIR := "res://docs/reports/images/weather"
@@ -16,6 +17,7 @@ const AERIAL_EYE := Vector3(700, 380, -900)
 const AERIAL_LOOK := Vector3(-80, 20, -150)
 
 var _only := ""
+var _tower_distance := 1400.0
 var _plan: CityPlan
 
 
@@ -23,6 +25,8 @@ func _initialize() -> void:
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--only="):
 			_only = arg.substr(7)
+		if arg.begins_with("--tower-distance="):
+			_tower_distance = maxf(1.0, arg.substr(17).to_float())
 	call_deferred("_run")
 
 
@@ -143,7 +147,7 @@ func _run() -> void:
 				break
 			sky.advance(4.0)
 			slot = _strongest_tower(sky)
-		await _sunlit_cell_shot(viewport, camera, sky, slot, "cells_tower_merge", 1400.0)
+		await _sunlit_cell_shot(viewport, camera, sky, slot, "cells_tower_merge", _tower_distance)
 	if _wanted("cells_field_cumulus"):
 		# R-1481: fair cumulus from open ground with the sun behind the camera, so
 		# the lobed, wind-stretched shapes read against blue sky.
@@ -252,7 +256,7 @@ func _sunlit_cell_frame(
 
 ## Plate of cell `slot` from `distance` away on the sun's side (sun behind the
 ## camera), eye 30 m up, looking at the cell's mid height. Keep `distance` under
-## ~1.1 km: cumulus fade out 1.15-1.6 km from the camera (periodic tile seam).
+## ~1.1 km for fair cumulus. Mature towers stay solid through 5 km (R-1493).
 func _sunlit_cell_shot(
 	viewport: Viewport, camera: Camera3D, sky: SkyWeather3D, slot: int, shot: String,
 	distance: float

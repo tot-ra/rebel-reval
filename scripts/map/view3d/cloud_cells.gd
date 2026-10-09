@@ -13,8 +13,8 @@ extends RefCounted
 ## Everything is a pure function of (cell clock, cloud drift, weather counts), so the
 ## field is deterministic, survives save/load through those three inputs, and needs
 ## no per-cell state. Cells tile a periodic DOMAIN square: shaders pick the copy
-## nearest to the camera and fade cells out before the wrap seam (storm cells
-## tile a wider STORM_DOMAIN).
+## nearest to the camera and fade ordinary cells before the wrap seam (storm
+## cells tile a wider STORM_DOMAIN). Mature towers also draw distant copies.
 ##
 ## R-1481: cumulus are lobed and stretched by the wind (shader side), each one
 ## rides the wind at its own speed and slight veer so clouds overtake and meet,
@@ -87,6 +87,11 @@ const TOWER_BASE := 480.0
 const TOWER_PULL := 0.45
 ## A tower at least this far merged can rain and charge lightning.
 const TOWER_MATURE := 0.75
+## R-1493: keep the original periodic field, but draw its distant tower copies.
+## Full strength through 5 km; zero at 6 km. A 5x5 neighbourhood covers the
+## circle from any camera position, including both sides of a wrap seam.
+const TOWER_FADE := Vector2(5000.0, 6000.0)
+const TOWER_COPIES := 25
 ## Lightning only charges in a storm cell that is grown and not yet collapsing.
 const STORM_MATURE_LIFE := Vector2(0.2, 0.85)
 const STORM_MATURE_WEIGHT := 0.5
@@ -274,6 +279,22 @@ func uniforms() -> PackedVector4Array:
 		)
 		out[slot * STRIDE + 2] = Vector4(lives[slot], towers[slot], windiness, 0.0)
 	return out
+
+
+## CPU mirrors of the shared shader visibility helpers. Copy 0 is nearest;
+## distant copies are presentation only, not extra simulated/cloud uniform slots.
+static func view_copy_offset(copy: int) -> Vector2:
+	var grid := 12 if copy == 0 else (0 if copy == 12 else copy)
+	return Vector2(float(grid % 5 - 2), float(floori(float(grid) / 5.0) - 2)) * DOMAIN
+
+
+static func view_fade(distance: float, kind: int, tower: float) -> float:
+	var domain := STORM_DOMAIN if kind == KIND_STORM else DOMAIN
+	var near_fade := 1.0 - smoothstep(0.36 * domain, 0.5 * domain, distance)
+	if kind == KIND_STORM:
+		return near_fade
+	var far_fade := 1.0 - smoothstep(TOWER_FADE.x, TOWER_FADE.y, distance)
+	return lerpf(near_fade, far_fade, smoothstep(0.5, TOWER_MATURE, tower))
 
 
 ## Offset from cell centre `c` to `p` on the periodic domain of `kind` (nearest copy).
