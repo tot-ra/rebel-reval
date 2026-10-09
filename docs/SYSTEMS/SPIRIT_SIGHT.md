@@ -4,7 +4,7 @@ Status: planned (epic **R-1483**, [ADR 0041](../adr/0041-spirit-sight-auras-and-
 
 Scope: a spirit-sight layer the hero toggles anywhere on the same map, auras with seven soul lights on every person and animal, reading a soul, soul lights feeding the spirit duel, and duels that keep the building but hide furniture under a focused grade. Out of scope: a universal good/evil score, duels with animals, a separate spirit-world copy of the map, new art assets (P0-040). The duel rules themselves live in [`SPIRIT_DIALOGUE.md`](./SPIRIT_DIALOGUE.md).
 
-Canon: the soul lights (*hingetuled*), auras and spirit sight are **`invented`**, folklore-inspired like the Hingepuu ([`CANON.md`](../CANON.md)). The word "chakra" is an anachronism and appears only in code ids, never in player-facing text.
+Canon: the soul lights (*hingetuled*), auras and spirit sight are **`invented`**, folklore-inspired like the Hingepuu ([`CANON.md`](../CANON.md)). The seven soul lights are the seven NATURAL aspects ([`NATURAL.md`](./NATURAL.md)) shown on the body: light ids are the `aspect.*` ids and the hero's levels come from his NATURAL ranks (ADR 0041 revision, 2026-10-09). The word "chakra" is an anachronism and appears nowhere in ids or player-facing text; the `chakra.*` ids in the SS-2 section are renamed by SS-2b (**R-1496**).
 
 ## Three layers on one map
 
@@ -46,17 +46,17 @@ Seven lights, levels 0..5 each, plus clarity 0..1. Six lights are the duel eleme
 ## Aura look (planned, SS-3, **R-1486**)
 
 - Each light is a glow on its bone anchor of the shared rig: 0 a dark crackling knot, 1 ember, 2 glow, 3 bright, 4 radiant, 5 blazing with a corona. Lights pulse at a slow breathing rate.
-- The flow is a set of field lines shaped like a magnetic dipole: up the spine through the lights from root to crown, spilling over the head, arcing around the body and back into the root, like water running in a loop. Colour blends the lights each line passes; speed and shimmer follow the levels; low clarity adds curl noise and smoke streaks. A faint fresnel shell hugs the body.
+- The flow is a set of field lines shaped like a magnetic dipole: up the spine through the lights from nature (pelvis) to light (above the head), spilling over the head, arcing around the body and back into the root, like water running in a loop or sap rising through the Hingepuu. Colour blends the lights each line passes; speed and shimmer follow the levels; low clarity adds curl noise and smoke streaks. A faint fresnel shell hugs the body.
 - Budget: full auras on the 12 nearest beings within the sight radius, a single soft glow up to 40 m, nothing beyond. Ribbons are a fixed mesh deformed in the vertex shader from seven anchor uniforms (GL Compatibility, no compute).
 
 ## Reading a soul (planned, SS-4, **R-1487**)
 
-Looking at a being for about 0.5 s opens a panel: the seven lights with glyph, element and level pips, the strongest and closed lights, clarity in words (calm, uneasy, torn). The hero's brow light sets the depth: 3 adds temperament tags (SD-15), 4 masked closed lights, 5 a hint of the duel topic.
+Looking at a being for about 0.5 s opens a panel: the seven lights with glyph, aspect name, the element each guards and level pips, the strongest and closed lights, clarity in words (calm, uneasy, torn). The hero's awareness light sets the depth: 3 adds temperament tags (SD-15), 4 masked closed lights, 5 a hint of the duel topic.
 
 ## Soul lights in a duel (planned, SS-5, **R-1488**)
 
 - The opponent's pressure pool scales with the sum of its levels; its blows of an element scale +10 % per level above 2 (-10 % below).
-- The hero's words into a closed light land x1.5, into a level 1 light x1.25, stacked with topic, temperament and traits; the combined product is clamped to 0.5..2.0 (today only the temperament product is). The hero's own levels scale his words the same way.
+- The hero's words into a closed light land x1.5, into a level 1 light x1.25, stacked with topic, temperament and traits; the combined product is clamped to 0.5..2.0 (today only the temperament product is). The hero's own levels scale his words and replies the same way; `MagicResolver` spells keep their NATURAL scaling and get no second light multiplier.
 - A landed word dims the target light; falling pressure lowers clarity; a break shatters the aura. A duel without a profile keeps today's numbers.
 - The duel element colours are recoloured to the soul-light table so bolts and lights match.
 
@@ -70,16 +70,16 @@ Challenge (interact) on a duel-ready person in spirit sight opens the in-place d
 
 ## Hero growth (planned, SS-8, **R-1491**)
 
-The hero starts with root 2, heart 2, brow 3, the rest 1. Absolution and NATURAL aspects spent at the Hingepuu (SW-4) raise one light by one, capped per act. Brow sets the sight radius (12 m + 4 m per level above 2) and the reading depth. Saved as an optional `soul_lights` section; old saves load the starting levels.
+Hero lights are his NATURAL ranks seen as levels: rank below 5 or a locked aspect = 0, 5-9 = 1, 10-14 = 2, 15-24 = 3, 25-39 = 4, 40-50 = 5. They grow only through NATURAL (`natural.grant_points`, `natural.spend_point` at the Hingepuu); there is no separate light currency or save field. The apprentice's NATURAL baseline is nature 10, unity 10, awareness 15 (the clairvoyant gift), the rest 5, i.e. levels 2 / 2 / 3 / 1. Awareness sets the sight radius (12 m + 4 m per level above 2) and the reading depth.
 
 ## Save state and IDs
 
-- Stable ids: `chakra.root`, `chakra.sacral`, `chakra.solar`, `chakra.heart`, `chakra.throat`, `chakra.brow`, `chakra.crown`; input action `player_spirit_sight`.
-- Saved: hero light levels only (SS-8). Spirit sight, auras and duel visibility are transient.
+- Stable ids: the NATURAL aspect ids `aspect.nature`, `aspect.affection`, `aspect.tenacity`, `aspect.unity`, `aspect.resonance`, `aspect.awareness`, `aspect.light` as light ids; input action `player_spirit_sight`.
+- Saved: nothing new. Hero lights are the already saved NATURAL ranks; spirit sight, auras and duel visibility are transient.
 
 ## Verification
 
-Each task names its filter: `test_spirit_sight`, `test_spirit_aura_profile`, `test_spirit_aura_view`, `test_spirit_reading`, `test_spirit_duel_aura`, `test_spirit_arena_3d`, `test_spirit_sight_duel_entry`, `test_soul_lights_state`, plus capture plates for the grade, auras and the duel layer.
+Each task names its filter: `test_spirit_sight`, `test_spirit_aura_profile`, `test_spirit_aura_view`, `test_spirit_reading`, `test_spirit_duel_aura`, `test_spirit_arena_3d`, `test_spirit_sight_duel_entry`, `test_soul_lights_state` (rank bands and apprentice baseline), plus capture plates for the grade, auras and the duel layer.
 
 ## Limits
 

@@ -14,9 +14,9 @@
 
 ## 1. Purpose
 
-Define how Kalev's seven NATURAL aspects grow and modify play without:
+Define how the protagonist's seven NATURAL aspects grow and modify play without. Since [ADR 0033](../adr/0033-teen-protagonist-and-spirit-dialogue-combat.md) the protagonist is the 15-year-old apprentice (`char.apprentice`), not Kalev; older wording that names Kalev as the hero means the apprentice:
 
-- a separate custom-hero creator (Kalev is a fixed protagonist);
+- a separate custom-hero creator (the apprentice is a fixed protagonist);
 - party-controlled companions or follower-cap sims;
 - a universal morality score derived from aspect mix;
 - restoring superseded NATURAL / element pixel HUD art (ADR 0017 art rule).
@@ -43,7 +43,7 @@ Stable content IDs use the form `aspect.<slug>`. Display names stay English for 
 
 | Legacy claim | Production decision |
 |---|---|
-| Character-creation screen that allocates 10 points before play | Rejected. Fixed Kalev starts with authored baselines; discretionary points land at the first Hingepuu allocation beat (section 3). |
+| Character-creation screen that allocates 10 points before play | Rejected. The fixed apprentice starts with authored baselines; discretionary points land at the first Hingepuu allocation beat (section 3). |
 | Leadership raises a player-commanded follower cap | Deferred forever under current ADRs. `aspect.resonance` Leadership only affects authored ally scripts, barks, and mission potency - never party control. |
 | Open XP grind to level 50 as the only progress path | Softened. Aspect points are primarily **authored grants**; an XP ladder may exist later only under a named TODO and must still emit the same `natural.grant_points` ops. |
 | Sub-stat spreadsheets as independent save fields | Deferred. Runtime stores **aspect ranks** only; sub-stats are derived formulas owned by combat/dialogue systems (P7-005 / P7-011). |
@@ -99,6 +99,29 @@ Psyche states from [`PSYCHE.md`](./PSYCHE.md) may apply **temporary deltas** to 
 `effective_rank(aspect) = clamp(stored_rank + sum(psyche_deltas), 1, 50)`
 
 ---
+
+## 3.5 Soul lights: the aspects seen in spirit sight
+
+Status: planned ([ADR 0041](../adr/0041-spirit-sight-auras-and-soul-lights.md), accepted; tasks **R-1496** SS-2b, **R-1491** SS-8). Feature page: [`SPIRIT_SIGHT.md`](./SPIRIT_SIGHT.md).
+
+The seven aspects are also the seven soul lights (*hingetuled*) that every person and animal shows in spirit sight: the Hingepuu tiers laid along the body, from the pelvis (roots) to above the head (sky). There is one set of seven, not two.
+
+| Aspect | Hingepuu tier | Body anchor | Guards duel element | Light colour |
+|---|---|---|---|---|
+| `aspect.nature` | root system | pelvis | fear | red |
+| `aspect.affection` | base of trunk | lower spine | coin | orange |
+| `aspect.tenacity` | main trunk | mid spine | duty | yellow |
+| `aspect.unity` | large branch | chest | love | green |
+| `aspect.resonance` | high windy branch | neck | shame | blue |
+| `aspect.awareness` | treetop perch | head, front | sight | indigo |
+| `aspect.light` | sky above tree | above the head | faith | violet |
+
+- **Hero:** the light level (0..5) is read from the aspect rank: below 5 or locked = 0, 5-9 = 1, 10-14 = 2, 15-24 = 3, 25-39 = 4, 40-50 = 5. No separate light currency or save field; spending a NATURAL point at the Hingepuu is how a light grows.
+- **Apprentice baseline (planned, SS-8):** nature 10, unity 10, awareness 15 (the clairvoyant gift), the other four 5, so his lights start at 2 / 2 / 3 / 1. This replaces the flat baseline 5 of section 3.1 for the apprentice once SS-8 lands; the first-allocation rules are unchanged.
+- **Awareness** also sets the spirit-sight radius and how deeply the hero reads other souls; **light** keeps feeding `resource.willpower`.
+- **NPCs** have no NATURAL ranks; their light levels are content (`aura` block on the character record) or derived deterministically.
+- **No morality:** a bright or dim light shows strength or a weak point, never goodness (same rule as section 1).
+- **No double counting:** spells keep the aspect scaling of section 4; only spoken words and replies in a spirit duel use the light level.
 
 ## 4. Magic coupling (normative)
 
@@ -236,7 +259,7 @@ Forging aftermath content applies `{ "op": "natural.grant_points", "amount": 1 }
 | Sub-stat bullets per aspect | Kept as design formulas; not separate save keys |
 | Aspect→element +2% | Kept; normative with MAGIC.md |
 | Pixel HUD illustrations | Inspiration only |
-| Character creator | Rejected for fixed Kalev |
+| Character creator | Rejected for the fixed apprentice |
 
 ## Authored content effects (R-1454)
 
