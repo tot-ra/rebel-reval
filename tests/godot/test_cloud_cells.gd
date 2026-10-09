@@ -475,6 +475,24 @@ func test_shaders_consume_the_cells() -> void:
 	assert_true("lightning_origin" in sky_code, "the bolt starts in its storm cell")
 
 
+## R-1532 / R-1533: the storm march is soft-edged and feeds the sun-shower bow.
+func test_storm_cells_march_softly_and_light_a_shower_bow() -> void:
+	var sky_code: String = SkyWeather.SKY_SHADER.code
+	assert_true("for (int pass = 0; pass < 2; pass++)" in sky_code,
+		"a ray that grazes a wisp searches on for the body behind it (no see-through holes)")
+	assert_true(
+		"cell_density_boxed" in sky_code, "the march box fades the shape instead of cutting it"
+	)
+	assert_true("return 1.0 - smoothstep(0.5, 0.75, cloud_darken);" in sky_code,
+		"a crown above the deck layer is unlit under a closed sheet")
+	assert_true("uniform float rainbow_shower" in sky_code, "sun-shower bow control")
+	assert_true("shower_bow += trans * rain * (1.0 - body) * rain_sun" in sky_code,
+		"the bow is weighted by sunlit rain in front of the cloud body")
+	assert_almost_eq(CloudCellsScript.STORM_REACH, 2.4, 0.0001, "CPU reach mirrors CELL_CB_REACH")
+	var include := FileAccess.get_file_as_string("res://scripts/map/view3d/cloud_cells.gdshaderinc")
+	assert_true("const float CELL_CB_REACH = 2.4;" in include, "shader reach mirrors CloudCells")
+
+
 ## The shadow pass draws before transparents, so water dims its own sun under a cell.
 func test_water_dims_its_own_sun_under_the_cells() -> void:
 	var sea_code: String = WATER_SHADER.code

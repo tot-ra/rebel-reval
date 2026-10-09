@@ -141,7 +141,7 @@ const STORM_OPACITY := 0.97
 ## Shader ray-march reach (x R) used to bound the footprint search; matches
 ## CELL_CU_REACH / CELL_CB_REACH.
 const CUMULUS_REACH := 3.0
-const STORM_REACH := 1.9
+const STORM_REACH := 2.4
 const LOBES := 3
 ## vec4 per slot in uniforms(); matches CELL_STRIDE in the shader include.
 const STRIDE := 4

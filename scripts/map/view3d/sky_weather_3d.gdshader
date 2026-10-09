@@ -33,6 +33,9 @@ uniform float rainbow_droplet : hint_range(0.0, 1.0) = 0.85;
 uniform vec3 rainbow_curtain = vec3(0.0);
 // Rainbow radiance relative to the sky; the dome's exposed day sky sits near 0.3-0.8.
 uniform float rainbow_gain = 0.55;
+// R-1533: sun-shower bow on sunlit storm and tower rain curtains (0 = off). Unlike the
+// post-rain bow it needs no CPU gate: the shader finds the lit drops per pixel.
+uniform float rainbow_shower : hint_range(0.0, 1.0) = 1.0;
 uniform float sun_flare_strength : hint_range(0.0, 1.0) = 0.0;
 uniform vec3 camera_direction = vec3(0.0, 0.0, -1.0);
 // Kept for earthshine strength; the lit crescent itself follows sun_direction.
@@ -333,8 +336,14 @@ float cell_jitter(vec2 frag) {
 // the layer (a tower crown poking through) stay sunlit. 1 = full sun, 0 = shaded.
 float cell_deck_sun(vec3 ro, vec3 p) {
 	float deck_y = CLOUD_HEIGHT_KM * 1000.0;
-	if (p.y >= deck_y || sun_direction.y <= 0.0) {
+	if (sun_direction.y <= 0.0) {
 		return 1.0;
+	}
+	if (p.y >= deck_y) {
+		// R-1532: a crown above a broken deck is sunlit, but not under a closed grey
+		// sheet. Returning full sun here lit every cell whose ray entered above the
+		// layer, so a rain cell flashed crisp white patches along its top.
+		return 1.0 - smoothstep(0.5, 0.75, cloud_darken);
 	}
 	vec3 q = p + sun_direction * ((deck_y - p.y) / max(sun_direction.y, 0.05));
 	vec3 d = normalize(q - ro);
@@ -350,10 +359,31 @@ float cell_deck_sun(vec3 ro, vec3 p) {
 }
 
 
+// R-1533: sun-shower bow brightness relative to the post-rain bow (rainbow_gain).
+const float SHOWER_BOW_GAIN = 1.0;
+
+
+// R-1532: cell density with a soft fade toward the sides of the march box, so a
+// shape that still reaches past the box fades out instead of being cut along a
+// ruler-straight vertical edge.
+float cell_density_boxed(vec3 p, vec2 c, vec4 ac, vec4 bc, vec4 cc, float reach) {
+	vec2 side = abs(p.xz - c) / max(reach, 1.0);
+	float box = 1.0 - smoothstep(0.8, 1.0, max(side.x, side.y));
+	if (box <= 0.0) {
+		return 0.0;
+	}
+	return box * cell_density(
+		vec3(p.x - c.x, 0.0, p.z - c.y), p.y, ac, bc, cc, cell_noise, p, wind_dir, cell_edge_softness
+	);
+}
+
+
 // Discrete clouds (R-1400), ray-marched as real volumes from the camera. Returns
 // premultiplied colour and coverage; `body_cover` is the cloud body alone (rain
 // excluded) so a bolt is hidden only by cloud. `lit_col` / `shade_col` are the
 // dome's own sun-lit and skylit cloud tones so cells and the deck share a palette.
+// `shower_bow` (R-1533) is how much sunlit rain the ray sees in front of everything
+// else: the drops that make a sun-shower rainbow.
 //
 // A cumulus is optically thick: light dies within tens of metres of its surface.
 // A uniform march through a translucent blob averaged several heights per pixel
@@ -363,11 +393,12 @@ float cell_deck_sun(vec3 ro, vec3 p) {
 // rain curtain (chord through a cylinder under the base) behind the body.
 vec4 cells_volume(
 	vec3 ro, vec3 rd, vec3 lit_col, vec3 shade_col, vec3 haze_col, vec3 rain_col, vec3 hail_col,
-	vec3 deck_col, vec3 flash_at, float flash, float jitter, out float body_cover
+	vec3 deck_col, vec3 flash_at, float flash, float jitter, out float body_cover, out float shower_bow
 ) {
 	vec3 acc = vec3(0.0);
 	float trans = 1.0;
 	float body_trans = 1.0;
+	shower_bow = 0.0;
 	float sun_up = smoothstep(-0.08, 0.18, sun_direction.y);
 	float sun_fwd = pow(max(dot(rd, sun_direction), 0.0), 8.0);
 	for (int i = 0; i < CELL_SLOTS; i++) {
@@ -403,68 +434,81 @@ vec4 cells_volume(
 				ro, rd, vec3(c.x - reach, ac.y, c.y - reach), vec3(c.x + reach, ac.y + bc.x, c.y + reach)
 			);
 			if (hit.y > hit.x) {
-				// Phase 1: coarse search for the first sample inside the body.
 				float dt = (hit.y - hit.x) / float(cell_steps);
-				float t_enter = -1.0;
-				for (int s = 0; s < 16; s++) {
-					if (s >= cell_steps) {
-						break;
-					}
-					float t = hit.x + (float(s) + 0.5 + (jitter - 0.5) * 0.0) * dt;
-					vec3 p = ro + rd * t;
-					if (cell_density(vec3(p.x - c.x, 0.0, p.z - c.y), p.y, ac, bc, cc, cell_noise, p, wind_dir, cell_edge_softness) > 0.02) {
-						// Bisect to the true surface so every pixel starts its fine march at the
+				// A soft rim needs finer steps: at 0.1 R a storm step (~170 m) crossed the
+				// whole fringe at once and printed it as a hard edge.
+				float fine = min(dt, ac.w * mix(0.1, 0.07, cell_edge_softness));
+				// A soft rim also thins the body a little, so light diffuses deeper into it.
+				float sigma = mix(0.06, 0.08, cb) * mix(1.0, 0.75, cell_edge_softness);
+				// Storm towers keep a slightly firmer outline (R-1507: 30% less softness;
+				// R-1532: 10%, the 30% still printed hard storm edges).
+				float soft = cell_edge_softness * (1.0 - 0.1 * cb);
+				float deck_sun = 1.0;
+				float t_from = hit.x;
+				// R-1532: up to two surface entries. A ray that grazes a thin wisp in front
+				// used up its whole fine march in the gap behind it, so the tower behind
+				// never drew and the sky showed through crisp-edged holes. When the first
+				// pass stays mostly clear, search on and march the body behind it.
+				for (int pass = 0; pass < 2; pass++) {
+					// Phase 1: coarse search for the first sample inside the body.
+					float t_enter = -1.0;
+					for (int s = 0; s < 16; s++) {
+						if (s >= cell_steps) {
+							break;
+						}
+						float t = t_from + (float(s) + 0.5) * dt;
+						if (t > hit.y) {
+							break;
+						}
+						vec3 p = ro + rd * t;
+						if (cell_density_boxed(p, c, ac, bc, cc, reach) > 0.02) {
+							// Bisect to the true surface so every pixel starts its fine march at the
 							// same optical depth: a fixed-step entry showed as contour terraces
 							// (and a per-pixel jitter of it as dither grain).
-							float lo = max(t - dt, hit.x);
+							float lo = max(t - dt, t_from);
 							float hi = t;
 							for (int k = 0; k < 5; k++) {
 								float mid = 0.5 * (lo + hi);
-								vec3 pm = ro + rd * mid;
-								if (cell_density(vec3(pm.x - c.x, 0.0, pm.z - c.y), pm.y, ac, bc, cc, cell_noise, pm, wind_dir, cell_edge_softness) > 0.02) {
+								if (cell_density_boxed(ro + rd * mid, c, ac, bc, cc, reach) > 0.02) {
 									hi = mid;
 								} else {
 									lo = mid;
 								}
 							}
 							t_enter = lo;
+							break;
+						}
+					}
+					if (t_enter < 0.0) {
 						break;
 					}
-				}
-				if (t_enter >= 0.0) {
-					hit_t = t_enter;
-					// R-1517: deck shade read once per cell at its entry point; samples above
-					// the layer fade back to full sun.
-					float deck_sun = cell_deck_sun(ro, ro + rd * t_enter);
+					if (pass == 0) {
+						hit_t = t_enter;
+						// R-1517: deck shade read once per cell at its entry point; samples above
+						// the layer fade back to full sun.
+						deck_sun = cell_deck_sun(ro, ro + rd * t_enter);
+					}
 					// Phase 2: fine march through the surface layer.
-					// A soft rim needs finer steps: at 0.1 R a storm step (~170 m) crossed the
-					// whole fringe at once and printed it as a hard edge.
-					float fine = min(dt, ac.w * mix(0.1, 0.07, cell_edge_softness));
-					// A soft rim also thins the body a little, so light diffuses deeper into it.
-					float sigma = mix(0.06, 0.08, cb) * mix(1.0, 0.75, cell_edge_softness);
+					float t_last = t_enter;
 					for (int s = 0; s < 12; s++) {
 						if (s >= cell_fine_steps) {
 							break;
 						}
-						// Jitter is damped: the full +-0.5 step offset showed as a static dither
-							// grain on the cloud surface; a small one still hides step banding.
-							float t = t_enter + (float(s) + 0.5 + (jitter - 0.5) * 0.0) * fine;
+						float t = t_enter + (float(s) + 0.5) * fine;
 						if (t > hit.y) {
 							break;
 						}
+						t_last = t;
 						vec3 p = ro + rd * t;
-						vec3 local = vec3(p.x - c.x, 0.0, p.z - c.y);
-						float dens = cell_density(local, p.y, ac, bc, cc, cell_noise, p, wind_dir, cell_edge_softness);
+						float dens = cell_density_boxed(p, c, ac, bc, cc, reach);
 						if (dens < 0.002) {
 							continue;
 						}
-						// Gaseous rim: `rim` is 1 in the thin fringe and 0 in the body. Storm
-						// towers keep a firmer outline, so both effects weaken with storminess.
+						// Gaseous rim: `rim` is 1 in the thin fringe and 0 in the body.
 						float rim = 1.0 - smoothstep(0.05, 0.7, dens);
-						float soft = cell_edge_softness * (1.0 - 0.3 * cb);
 						if (cell_wisp > 0.0) {
 							float tuft = cell_noise3(p, max(ac.w * 0.16, 45.0), bc.w + 0.9, cell_noise);
-							dens *= mix(1.0, smoothstep(0.3, 0.7, tuft), cell_wisp * rim * (1.0 - 0.3 * cb));
+							dens *= mix(1.0, smoothstep(0.3, 0.7, tuft), cell_wisp * rim * (1.0 - 0.1 * cb));
 						}
 						float extinction = dens * mix(1.0, dens * dens, soft);
 						float alpha = 1.0 - exp(-extinction * sigma * fine);
@@ -474,7 +518,7 @@ vec4 cells_volume(
 								break;
 							}
 							vec3 lp = p + sun_direction * (ac.w * 0.22 * float(l * l));
-							tau += cell_density(vec3(lp.x - c.x, 0.0, lp.z - c.y), lp.y, ac, bc, cc, cell_noise, lp, wind_dir, cell_edge_softness);
+							tau += cell_density_boxed(lp, c, ac, bc, cc, reach);
 						}
 						float h = clamp((p.y - ac.y) / max(b.x, 1.0), 0.0, 1.0);
 						// Beer-Lambert toward the sun plus a weaker, longer octave for the
@@ -496,10 +540,10 @@ vec4 cells_volume(
 						light *= mix(mix(0.7, 0.85, lift), 1.0, 1.0 - exp(-dens * 3.0));
 						// A thunderhead's lower body sits in its own shade.
 						light *= mix(1.0, smoothstep(0.0, 0.45, h), cb * 0.8);
-							light *= 1.0 - 0.55 * cloud_gloom * (1.0 - cb);
+						light *= 1.0 - 0.55 * cloud_gloom * (1.0 - cb);
 						// Grey flat bases lit by skylight; storm towers darken hard toward the base.
 						float gloom = cloud_gloom * (1.0 - cb);
-							float ambient = mix(0.62, 1.0, h) * mix(1.0, 0.4, cb * (1.0 - h)) * mix(1.0, 0.62, gloom);
+						float ambient = mix(0.62, 1.0, h) * mix(1.0, 0.4, cb * (1.0 - h)) * mix(1.0, 0.62, gloom);
 						ambient = mix(ambient, 1.0, 0.3 * lift * (1.0 - 0.5 * cb));
 						vec3 skylit = mix(shade_col, lit_col, 0.35 + 0.2 * lift) * ambient;
 						vec3 col = mix(skylit, lit_col, light);
@@ -516,22 +560,34 @@ vec4 cells_volume(
 							// whole body, brightest round the channel.
 							col += vec3(0.9, 0.94, 1.1) * flash * 3.0 * exp(-length(p - flash_at) / (ac.w * 0.9));
 						}
+						// Aerial perspective per sample (R-1532; once per cell at its entry
+						// before): a tier or a far flank seen through a gap sits behind more
+						// air than the face in front, so the tower recedes in depth.
+						col = mix(
+							col, haze_col,
+							(1.0 - exp(-min(t, 2e4) / mix(16000.0, 7000.0, cell_shade_lift))) * 0.6
+						);
 						cell_acc += cell_trans * alpha * col;
 						cell_trans *= 1.0 - alpha;
 						if (cell_trans < 0.02) {
 							break;
 						}
 					}
+					if (cell_trans < 0.35) {
+						break;
+					}
+					t_from = t_last + fine;
 				}
 			}
 			// Gaseous silhouette: partial cover at the rim (where the march crossed only
 			// thin fringe) is made more transparent still, the opaque core is kept, so the
 			// outline fades over a wider band like the dome deck's heaps.
-			float body = pow(1.0 - cell_trans, 1.0 + 0.9 * cell_edge_softness * (1.0 - 0.3 * cb)) * fade;
+			float body = pow(1.0 - cell_trans, 1.0 + 0.9 * cell_edge_softness * (1.0 - 0.1 * cb)) * fade;
 			// Rain curtain under a storm base: chord length through a cylinder. A cumulus
 			// merged into a thunderstorm (R-1481) grows its curtain as it towers.
 			float rain = 0.0;
 			float rain_t = 1e9;
+			float rain_sun = 0.0;
 			if (cb > 0.5) {
 				// R-1501: the shaft leans downwind as the rain falls (rain_slant metres
 				// sideways per metre down): shear the ray into the leaning cylinder.
@@ -562,26 +618,36 @@ vec4 cells_volume(
 						).r;
 						// Thickest in the middle of the shaft, thinning toward its sides.
 						float core = 1.0 - smoothstep(0.2, 1.0, length(mid.xz - c - rain_slant * (ac.y - mid.y)) / r);
+						// R-1532: the curtain emerges from the base over its top ~15%, so the
+						// base edge is not a second ruler line under the cloud.
+						float emerge = smoothstep(0.0, 0.15, (ac.y - mid.y) / max(ac.y, 1.0));
 						rain = (1.0 - exp(-(t1 - t0) * 0.0016 * mix(0.55, 1.2, streak))) * b.y * core * fade
-							* smoothstep(0.5, 0.9, cb);
+							* smoothstep(0.5, 0.9, cb) * mix(0.6, 1.0, emerge);
 						rain_t = t0;
+						// R-1533: are these drops in sunlight? The sun ray from them climbs to
+						// the cell's shadow layer; under the cloud's own footprint, or under a
+						// closed deck, they hang in shade and make no bow. A low sun slips under
+						// the base and lights the shaft from the side, which is when sun-shower
+						// bows form.
+						if (sun_direction.y > 0.0) {
+							float layer = ac.y + bc.x * 0.25;
+							vec3 up = mid + sun_direction * ((layer - mid.y) / max(sun_direction.y, 0.05));
+							float shade = smoothstep(1.15, 0.8, cell_footprint(up.xz - c, ac, bc, cc));
+							rain_sun = (1.0 - shade) * cell_deck_sun(ro, mid);
+						}
 					}
 				}
 			}
-			vec3 body_col = cell_trans < 1.0 ? cell_acc / max(1.0 - cell_trans, 1e-4) : vec3(0.0);
-			// Aerial perspective: a distant thunderhead still reads as a solid body.
-			body_col = mix(
-				body_col, haze_col,
-				(1.0 - exp(-min(hit_t, 2e4) / mix(16000.0, 7000.0, cell_shade_lift))) * 0.6
-			);
 			// Some storms carry hail: a whiter, greenish-tinged core in the shaft. `hail_col`
 			// already carries the shared night light floor (R-1531), so a night storm's hail
 			// core cannot out-glow the sky behind it.
 			vec3 shaft_col = mix(rain_col, hail_col, step(0.55, fract(bc.w * 9.1)) * 0.5) + vec3(0.9, 0.94, 1.1) * flash * 0.6;
 			shaft_col = mix(shaft_col, haze_col, (1.0 - exp(-min(rain_t, 2e4) / 9000.0)) * 0.6);
+			vec3 body_col = cell_trans < 1.0 ? cell_acc / max(1.0 - cell_trans, 1e-4) : vec3(0.0);
 			// Cloud body over its own rain, then this cell over what lies behind it.
 			vec3 cell_col = body_col * body + shaft_col * rain * (1.0 - body);
 			float cover = body + rain * (1.0 - body);
+			shower_bow += trans * rain * (1.0 - body) * rain_sun;
 			acc += trans * cell_col;
 			trans *= 1.0 - cover;
 			body_trans *= 1.0 - body;
@@ -1033,17 +1099,29 @@ void sky() {
 	vec3 strike_ground = lightning_ground + vec3(strike_shift.x, 0.0, strike_shift.y);
 	float flash = lightning * lightning_density;
 	float cell_cover = 0.0;
+	float shower_bow = 0.0;
 	if (!cloud_fallback && cell_steps > 0 && !AT_CUBEMAP_PASS) {
 		vec3 haze_col = horizon * mix(1.0, 0.65, cloud_darken);
 		vec3 cell_rain = mix(cloud_shadow, rain_veil, 0.35) * 0.85;
 		// R-1531: the hail core is a day-lit white-green; scale it by the shared night light
 		// floor so it darkens with the veil instead of glowing after sunset.
 		vec3 cell_hail = vec3(0.78, 0.86, 0.82) * readability;
+		// R-1532: in the deck's shade a cell takes the tone of the deck seen right behind
+		// it (`cloud_col`, this pixel's own deck colour), not one fixed grey: lighter deck
+		// heaps around a dark cell printed its outline as a hard cut-out.
+		vec3 deck_tone = mix(overcast, cloud_col, clouds);
 		vec4 cells = cells_volume(
-			ro, dir, cloud_top, cloud_shadow, haze_col, cell_rain, cell_hail, overcast, strike_top, flash,
-			cell_jitter(FRAGCOORD.xy), cell_cover
+			ro, dir, cloud_top, cloud_shadow, haze_col, cell_rain, cell_hail, deck_tone, strike_top, flash,
+			cell_jitter(FRAGCOORD.xy), cell_cover, shower_bow
 		);
 		color = color * (1.0 - cells.a) + cells.rgb;
+		// R-1533: sun-shower rainbow. The bow is the same 42 deg cone as after rain, but
+		// only where the ray crosses sunlit drops of a storm or tower curtain, so it can
+		// hang beside a shower that is still falling. No azimuth mask: the lit rain is
+		// the mask, and the bow is no brighter than the curtain is dense.
+		color = rainbow_apply(color, dir, sun_direction,
+			rainbow_shower * clamp(shower_bow, 0.0, 1.0) * smoothstep(-0.02, 0.03, sun_direction.y),
+			rainbow_droplet, vec3(0.0), rainbow_light * rainbow_gain * SHOWER_BOW_GAIN);
 	}
 	// R-1451 sunbeams: air shaded by a cloud loses the forward glow the clear-air
 	// LUT assumed, open paths gain the extra haze of broken weather, so shafts fan

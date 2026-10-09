@@ -1,6 +1,6 @@
 # Discrete cloud cells, cloud shadows and storm-cell lightning
 
-Status: implemented (tasks **R-1400**, **R-1436** water deck shadows, **R-1444** crepuscular rays, **R-1481** cumulus shape, drift, dissolve and merging, **R-1493** distant tower visibility, **R-1495** cloudless sky and varied towers, **R-1501** convective hotspots, wide storms and wind-slanted rain, **R-1507** gaseous rims and softer shading, **R-1517** deck shade and blurred silhouettes)
+Status: implemented (tasks **R-1400**, **R-1436** water deck shadows, **R-1444** crepuscular rays, **R-1481** cumulus shape, drift, dissolve and merging, **R-1493** distant tower visibility, **R-1495** cloudless sky and varied towers, **R-1501** convective hotspots, wide storms and wind-slanted rain, **R-1507** gaseous rims and softer shading, **R-1517** deck shade and blurred silhouettes, **R-1532** soft storm edges and tiered towers, **R-1533** sun-shower rainbow on storm curtains)
 
 Scope: individual clouds as world-space objects in the 3D view. Each cumulus or cumulonimbus has a position, base altitude, size and life; the sky dome ray-marches it as a volume, the ground shadow pass projects it along the sun, god rays are cut by it, and lightning is born only inside a grown cumulonimbus. Mounted in both `MapView3D` maps and the seamless city (`CityMapView`).
 
@@ -289,7 +289,44 @@ tools/godot_render.sh --script tools/capture_cloud_cells.gd -- --only=cells_sky_
 
 ![Cells under a clear, cloudy, rain and storm sky](../reports/images/weather/cells_sky_context.png)
 
-Limit: cells are composited over the deck without depth, so a tower crown that rises above a closed sheet is still drawn (unlit, in the sheet's tone) instead of being hidden by it.
+Limit: cells are composited over the deck without depth, so a tower crown that rises above a closed sheet is still drawn (unlit, in the sheet's tone) instead of being hidden by it. Before R-1532 a crown whose ray entered above the layer was lit anyway; see **Soft storm edges and tiered towers**.
+
+## Soft storm edges and tiered towers (R-1532)
+
+**Problem.** Thunderstorm cells (storm slots and merged towers) still showed hard lines. Four causes, all fixed in the sky shader and `cloud_cells.gdshaderinc` (presentation only; footprints, ground shadows, lightning and saved state are unchanged):
+
+- **See-through holes.** The fine march covers only ~0.7 R after the first surface. A ray that grazed a thin wisp in front spent it in the gap behind and never reached the tower, so the sky showed through crisp-edged holes. `cells_volume` now runs up to two passes: when the first leaves the ray more than 35% clear, the coarse search continues behind it and marches the body there.
+- **Box cuts.** A stretched storm with an anvil reaches past the old 1.9 R march box, which sliced it along ruler-straight vertical edges. `CELL_CB_REACH` / `CloudCells.STORM_REACH` are 2.4, and `cell_density_boxed` fades density over the outer 20% of the box instead of cutting it.
+- **Crisp base, crown and rim.** The base ramp is 8% of the height for storms (3% before), the crown fades from 0.86 h (a big lump left it full width at h = 1), and storms take nearly the full `cell_edge_softness` (10% less than cumulus, 30% before). Rain curtains emerge from the base over their top band instead of starting at a second line.
+- **White patches under a closed sheet.** `cell_deck_sun` returned full sun for any entry point above the deck layer, so a rain cell flashed crisp white crescents along its top. Above the layer it now follows the sheet (`1 - smoothstep(0.5, 0.75, cloud_darken)`). In the deck's shade a cell takes the tone of the deck seen right behind it (`cloud_col`) instead of one fixed grey, so it sits inside the sheet with only its base darker.
+
+**Depth.** A storm is drawn as 3-5 stacked tiers: `cell_density` pinches the outline at seeded, noise-warped seams so tiers bulge apart and the self-shadowed gaps between them read as layers, and the lowest tier spreads into a slightly wider shelf. Aerial perspective is applied per sample, not once per cell, so a tier or flank seen through a gap sits behind more air than the face in front.
+
+Decision: the user reported storm clouds with too-sharp lines and asked for more depth to their layering; the fixes above target what the captures showed, and nothing new is saved.
+
+Verify:
+
+```bash
+godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_cloud_cells,test_sky_weather_3d
+tools/godot_render.sh --script tools/capture_cloud_cells.gd -- --only=cells_tower_merge,cells_sky_context,cells_softness_tower --tower-distance=2500
+```
+
+Test: `test_storm_cells_march_softly_and_light_a_shower_bow` (`test_cloud_cells.gd`).
+
+![Before (top) and after (bottom) R-1532: a merged tower from 2.5 km and a storm cell under the rain sheet](../reports/images/weather/cells_storm_soft_before_after.png)
+
+## Sun-shower rainbow (R-1533)
+
+A rainbow can now hang next to rain that is still falling. Every storm or tower rain curtain the eye ray crosses adds its sunlit share to `shower_bow` (an `out` of `cells_volume`): the sun ray from the middle of the chord climbs to the cell's shadow layer, and the drops are lit only when it leaves the cell's own footprint (`cell_footprint`) and is not under a closed deck (`cell_deck_sun`). A low sun slips under the base and lights the shaft from the side, which is when real sun-shower bows form; a high sun leaves the shaft in its cloud's shade.
+
+After the cells are composited, `sky()` draws the same spectral bow as the post-rain one (`rainbow_apply` from `sky_rainbow.gdshaderinc`) with strength `rainbow_shower * shower_bow` and no azimuth mask: the lit rain is the mask, and the bow is no brighter than the curtain is dense. Only the part of the 42 deg cone that crosses a curtain shows, so it is usually one leg or a short arc over the curtain's foot.
+
+- Uniform `rainbow_shower` (0..1, default 1) switches it; constant `SHOWER_BOW_GAIN` scales it against `rainbow_gain`. No CPU gate: the post-rain `rainbow_strength()` stays 0 during rain and is unchanged.
+- Deterministic and view-only; nothing is saved.
+
+Verify: `tools/godot_render.sh --script tools/capture_cloud_cells.gd -- --only=cells_shower_bow` (a merged storm opposite a sun about 15 deg up, camera 37 deg off the antisolar bearing; left bow off, right on).
+
+![Sun-shower bow off (left) and on (right) on a storm curtain](../reports/images/weather/cells_shower_bow.png)
 
 ## Limits
 
@@ -307,6 +344,7 @@ Limit: cells are composited over the deck without depth, so a tower crown that r
 - The `cloudless` profile has no cirrus: the dome's high wisps start at coverage 0.25.
 - Wind stretch (`windiness`) shapes the sky volume only; ground shadows use the lobed footprint without the downwind stretch.
 - Thunder audio is not yet timed to strike distance.
+- The sun-shower bow lives only on cell rain curtains: the dome deck's distant rain curtains (`rain_shafts`) and the water reflection do not carry it. A third surface behind two grazed wisps can still show a small gap.
 
 ### FFT sea compatibility limit (R-1437)
 

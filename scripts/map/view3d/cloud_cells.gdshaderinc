@@ -26,7 +26,9 @@ const float CELL_CB_OPACITY = 0.97;
 // Ray-march box half-width (x R): a lobed, stretched cumulus reaches much further
 // from its centre than a single round thunderhead mass.
 const float CELL_CU_REACH = 3.0;
-const float CELL_CB_REACH = 1.9;
+// R-1532: 2.4 (1.9 before) - a stretched storm with an anvil reaches past 1.9 R and
+// the box cut it along ruler-straight vertical edges. Mirrors CloudCells.STORM_REACH.
+const float CELL_CB_REACH = 2.4;
 // World units per billow-noise tile: ~90 m lumps on a cumulus flank.
 const float CELL_BILLOW_SCALE = 700.0;
 
@@ -250,6 +252,16 @@ float cell_density(
 		) * swell;
 		dist = cell_smin(dist, length(u - lobe.xy) / max(r, 0.002), cell_lobe_blend(fold));
 	}
+	// R-1532: a thunderstorm is stacked tiers (updraft pulses that each spread a little
+	// before the next punches through), not one smooth mass. Pinch the outline at
+	// seeded, noise-warped seams so the tiers bulge apart and the self-shadowed gaps
+	// between them give the tower depth; the lowest tier spreads into a wider shelf.
+	if (cb > 0.0) {
+		float tiers = mix(3.0, 5.0, fract(b.w * 4.3));
+		float seam = abs(fract(h * tiers + (lump - 0.5) * 0.7 + fract(b.w * 2.9)) - 0.5) * 2.0;
+		dist += cb * seam * seam * seam * 0.3;
+		dist -= cb * (1.0 - smoothstep(0.0, 0.18, h)) * 0.08;
+	}
 	float boil = cell_noise3(world_p, max(a.w * 0.6, 120.0), b.w + 0.5, noise3);
 	// Forming or dissolving clouds come apart along the large lumps (whole heaps
 	// break off) and thin out, rather than crumbling at the fine boil scale, which
@@ -261,8 +273,12 @@ float cell_density(
 	// hard cut-out rim; storm towers keep their firm outline. `soft` (0..1, the sky's
 	// cell_edge_softness) pulls the inner end of the ramp further in, so density
 	// builds up over a deeper rim; the outer edge (and so the footprint) is unchanged.
-	float inner = mix(0.72, 0.86, cb) - soft * mix(0.52, 0.38, cb);
-	return smoothstep(1.0, inner, dist) * smoothstep(0.0, 0.03, h)
+	// R-1532: storms take nearly the full soft ramp (0.38 R before), and the base and
+	// crown fade over a band instead of a cut: a big lump left the crown wide at h = 1,
+	// and a 3% base ramp printed a ruler-straight line across a 1.5 km tower.
+	float inner = mix(0.72, 0.86, cb) - soft * mix(0.52, 0.46, cb);
+	return smoothstep(1.0, inner, dist) * smoothstep(0.0, mix(0.03, 0.08, cb), h)
+		* (1.0 - smoothstep(0.86, 1.0, h))
 		* mix(b.y, 1.0, 0.6) * (1.0 - 0.45 * tatter);
 }
 

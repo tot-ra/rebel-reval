@@ -10,7 +10,8 @@ extends SceneTree
 ## that its periodic copies are different clouds and thinned out) and
 ## cells_sky_cloudless / cells_sky_clear (the same upward view under the cloudless
 ## and the fair-cumulus profile). R-1517 adds cells_sky_context (the cells under
-## a clear, cloudy, rain and storm sky). Needs a renderer:
+## a clear, cloudy, rain and storm sky). R-1533 adds cells_shower_bow (a sun-shower
+## bow on a storm curtain opposite a low sun, off and on). Needs a renderer:
 ##   tools/godot_render.sh --script tools/capture_cloud_cells.gd [-- --only=<shot>[,<shot>...]]
 ## Optional --tower-distance=<metres> sets the cells_tower_merge camera distance.
 ## Output: docs/reports/images/weather/<shot>.png
@@ -20,6 +21,14 @@ const VIEWPORT_SIZE := Vector2i(1280, 720)
 const CloudCellsScript := preload("res://scripts/map/view3d/cloud_cells.gd")
 const AERIAL_EYE := Vector3(700, 380, -900)
 const AERIAL_LOOK := Vector3(-80, 20, -150)
+## Cloud-cell look presets compared on one frame: [edge softness, wisp, shade lift].
+## Order in the 2x2 sheet: top-left, top-right, bottom-left, bottom-right.
+const SOFTNESS_PRESETS := [
+	["before", 0.0, 0.0, 0.0],
+	["A soft rim", 0.6, 0.3, 0.25],
+	["B misty", 1.0, 0.65, 0.5],
+	["C soft light", 0.3, 0.0, 0.7],
+]
 
 var _only := ""
 var _tower_distance := 4000.0
@@ -150,11 +159,19 @@ func _run() -> void:
 		await _sunlit_cell_shot(viewport, camera, sky, slot, "cells_tower_merge", _tower_distance)
 	if _wanted("cells_softness_cumulus"):
 		await _settle(view, sky, SkyWeather3D.WEATHER_CLEAR, 0.40)
-		await _softness_sheet(viewport, camera, sky, _strongest_fair(sky), 1000.0, "cells_softness_cumulus")
+		await _softness_sheet(
+			viewport, camera, sky, _strongest_fair(sky), 1000.0, "cells_softness_cumulus"
+		)
 	if _wanted("cells_softness_tower"):
 		await _settle(view, sky, SkyWeather3D.WEATHER_CLOUDY, 0.40)
 		var slot := _walk_to_storm(sky)
 		await _softness_sheet(viewport, camera, sky, slot, 2500.0, "cells_softness_tower")
+	if _wanted("cells_shower_bow"):
+		# R-1533: a sun-shower bow on a merged storm's rain curtain opposite a low sun,
+		# shower bow off (left) and on (right), same frame.
+		await _settle(view, sky, SkyWeather3D.WEATHER_CLOUDY, 0.40)
+		var slot := _walk_to_storm(sky)
+		await _shower_bow_sheet(view, viewport, camera, sky, slot)
 	if _wanted("cells_sky_context"):
 		# R-1517: the same cells under different skies. Sunlit white only when the
 		# sun reaches them; under a closed deck they take its grey skylight.
@@ -354,8 +371,58 @@ func _horizon_sheet(
 	print("captured %s" % path)
 
 
+## R-1533: 1x2 sheet, sun-shower bow off and on. The cycle is moved to the
+## afternoon progress whose sun stands about 15 deg up, so the primary bow (42 deg
+## from the antisolar point) crosses the curtain low in the frame.
+func _shower_bow_sheet(
+	view: CityMapView, viewport: Viewport, camera: Camera3D, sky: SkyWeather3D, slot: int
+) -> void:
+	var progress := 0.40
+	var best := INF
+	for i in 200:
+		var p := 0.45 + 0.3 * float(i) / 200.0
+		var err := absf(SkyWeather3D.solar_direction(p, sky.calendar_date).y - 0.26)
+		if err < best:
+			best = err
+			progress = p
+	view.apply_cycle_progress(progress)
+	var cell: Vector3 = _sunlit_cell_framing(sky, slot, 4500.0, progress)[1]
+	# The bow's legs stand 42 deg from the antisolar point, which a 15 deg sun puts
+	# 15 deg below the horizon: the low curtain meets the primary about 37 deg in
+	# azimuth off it. Stand there instead of straight on the sun's side.
+	var sun := SkyWeather3D.solar_direction(progress, sky.calendar_date)
+	var toward_sun := Vector2(sun.x, sun.z).normalized().rotated(deg_to_rad(37.0))
+	var ground := Vector2(cell.x, cell.z) + toward_sun * 4500.0
+	var eye := Vector3(ground.x, _plan.walk_height(ground) + 30.0, ground.y)
+	# Look at the curtain's foot, low across the horizon.
+	var look := Vector3(cell.x, eye.y + 0.08 * 4500.0, cell.z)
+	print("shower bow: progress %.3f sun %s" % [
+		progress, SkyWeather3D.solar_direction(progress, sky.calendar_date)
+	])
+	var material: ShaderMaterial = sky._material
+	var sheet := Image.create(VIEWPORT_SIZE.x, VIEWPORT_SIZE.y / 2, false, Image.FORMAT_RGBA8)
+	for i in 2:
+		material.set_shader_parameter(&"rainbow_shower", float(i))
+		camera.fov = 80.0
+		camera.far = 9000.0
+		camera.near = 0.08
+		camera.look_at_from_position(eye, look, Vector3.UP)
+		for f in 6:
+			await process_frame
+		var frame := viewport.get_texture().get_image()
+		frame.resize(VIEWPORT_SIZE.x / 2, VIEWPORT_SIZE.y / 2, Image.INTERPOLATE_LANCZOS)
+		frame.convert(Image.FORMAT_RGBA8)
+		sheet.blit_rect(
+			frame, Rect2i(Vector2i.ZERO, frame.get_size()), Vector2i(i * frame.get_width(), 0)
+		)
+	material.set_shader_parameter(&"rainbow_shower", 1.0)
+	var path := "%s/cells_shower_bow.png" % OUTPUT_DIR
+	sheet.save_png(ProjectSettings.globalize_path(path))
+	print("captured %s" % path)
+
+
 ## [eye, look] for a cell plate with the sun behind the camera, eye on land.
-func _sunlit_cell_framing(sky: SkyWeather3D, slot: int, distance: float) -> Array:
+func _sunlit_cell_framing(sky: SkyWeather3D, slot: int, distance: float, progress := 0.40) -> Array:
 	var cells = sky.cloud_cells()
 	var center := _near_copy(cells.centers[slot], Vector3(-60, 0, -200))
 	var height := float(cells.heights[slot])
@@ -366,7 +433,7 @@ func _sunlit_cell_framing(sky: SkyWeather3D, slot: int, distance: float) -> Arra
 		)
 		center = Vector3(shape[0], shape[1], shape[2])
 		height = shape[4]
-	var sun := SkyWeather3D.solar_direction(0.40, sky.calendar_date)
+	var sun := SkyWeather3D.solar_direction(progress, sky.calendar_date)
 	var toward_sun := Vector2(sun.x, sun.z).normalized()
 	# Swing off the sun bearing until the eye stands on land, not in the sea.
 	var ground := Vector2(center.x, center.z) + toward_sun * distance
@@ -383,16 +450,6 @@ func _sunlit_cell_framing(sky: SkyWeather3D, slot: int, distance: float) -> Arra
 		eye, center, cells.tower_level(slot), height, sky.cloud_cell_clock()
 	])
 	return [eye, look]
-
-
-## Cloud-cell look presets compared on one frame: [edge softness, wisp, shade lift].
-## Order in the 2x2 sheet: top-left, top-right, bottom-left, bottom-right.
-const SOFTNESS_PRESETS := [
-	["before", 0.0, 0.0, 0.0],
-	["A soft rim", 0.6, 0.3, 0.25],
-	["B misty", 1.0, 0.65, 0.5],
-	["C soft light", 0.3, 0.0, 0.7],
-]
 
 
 ## 2x2 sheet of cell `slot` under each SOFTNESS_PRESETS entry, same clock and
@@ -425,7 +482,9 @@ func _softness_sheet(
 ## 2x2 sheet: fair cumulus on a clear day (top left), a merged tower on a cloudy
 ## day (top right), a storm cell in rain under a closed deck (bottom left) and in
 ## storm weather with an open sky (bottom right).
-func _context_sheet(view: CityMapView, viewport: Viewport, camera: Camera3D, sky: SkyWeather3D) -> void:
+func _context_sheet(
+	view: CityMapView, viewport: Viewport, camera: Camera3D, sky: SkyWeather3D
+) -> void:
 	var sheet := Image.create(VIEWPORT_SIZE.x, VIEWPORT_SIZE.y, false, Image.FORMAT_RGBA8)
 	var frames: Array[Image] = []
 	await _settle(view, sky, SkyWeather3D.WEATHER_CLEAR, 0.40)
@@ -462,6 +521,8 @@ func _storm_frame(viewport: Viewport, camera: Camera3D, sky: SkyWeather3D) -> Im
 	# No flash: an in-cloud strike would light the body and hide its shading.
 	sky._lightning = 0.0
 	sky._lightning_time = -1.0
+	# The uniform keeps the last flash until the next advance(); clear it directly.
+	(sky._material as ShaderMaterial).set_shader_parameter(&"lightning", 0.0)
 	for i in 6:
 		await process_frame
 	print("storm frame: slot %d weight %.2f" % [slot, cells.weights[slot]])
