@@ -116,3 +116,7 @@ dependencies and can run in parallel.
    `--rendering-method mobile --rendering-driver metal` and also with the default Compatibility
    renderer.
 8. Another agent may be committing at the same time. Stage files by explicit path only.
+
+## Follow-up pack
+
+[WR - Water realism v2](./WR_water_realism_v2.md) (epic R-1497): band-limited wave geometry, foam attached to the water, surf on real bathymetry, obstacle interaction, tiered LOD, and the [water sandbox](../../SYSTEMS/WATER_SANDBOX.md) used to verify it.

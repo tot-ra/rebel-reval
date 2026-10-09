@@ -7,7 +7,7 @@
 //
 // WHY analytic: Tidewater carries wetness and foam between frames in compute
 // buffers, which GL Compatibility cannot do. Here every value is a pure, periodic
-// function of (shore distance, along-shore coordinate, ocean_time, sea state), so
+// function of (shore distance, world position, ocean_time, sea state), so
 // the water surface, the swash sheet and the wet sand evaluate the same wave and
 // always agree, with no simulation texture and no per-frame CPU work.
 //
@@ -44,6 +44,10 @@ uniform float shore_depth_scale = 1.0;
 // Scales the breaker foam (bore_foam). 1 keeps the district maps; the city lifts it so
 // a metre-tall surf reads as white water, not a thin line.
 uniform float shore_foam_gain = 1.0;
+// WR-1 crest shape. 0 keeps the district profile; 1 (city) rounds the crest of
+// a spilling breaker: a milder skew, a broader top and only a hint of the curl
+// that pushed the crest over its own face into a sharp lip.
+uniform float shore_crest_shape = 0.0;
 
 // Deviation from Tidewater's sea-state-scaled period (9 s * mix(1.2, 0.8, sea)):
 // ocean_time is an absolute clock, so a period that follows the weather would
@@ -102,6 +106,8 @@ struct ShoreState {
 	float residue;          // foam line left at the highest reach
 	float slosh;            // hard-edge vertical slosh, world units
 	float wall_foam;        // foam at the foot of a quay or rock edge
+	float surge;            // WR-2 landward water excursion in the surf zone, world units
+	float foam_age;         // WR-2 seconds since the bore passed this point (surf zone)
 };
 
 float _swash_hash(vec2 p) {
@@ -170,6 +176,8 @@ ShoreState shore_state(vec2 world_xz, float t, vec4 sea) {
 	s.residue = 0.0;
 	s.slosh = 0.0;
 	s.wall_foam = 0.0;
+	s.surge = 0.0;
+	s.foam_age = SHORE_NEVER_WET;
 	if (shore_field_valid < 0.5 || sea.y <= 0.0) {
 		return s;
 	}
@@ -195,10 +203,10 @@ ShoreState shore_state(vec2 world_xz, float t, vec4 sea) {
 	// Calm Baltic days still lap at the sand; family strength scales everything.
 	float energy = mix(0.35, 1.0, sea_state) * sea.y;
 	float period = SHORE_PERIOD;
-	// Projecting onto the shore tangent gives an along-shore coordinate, so crest
-	// phase and reach vary along the beach instead of arriving as ruled lines.
-	float along = dot(world_xz, vec2(-dir.y, dir.x));
-	float cycle = t / period + SHORE_VARIATION * _swash_noise(vec2(along * 0.05, 3.7));
+	// Use a continuous world-space field for phase and reach. Projecting absolute
+	// coordinates onto the changing nearest-shore tangent makes phase islands at
+	// bends/quays: centimetres of travel can jump the crest and its foam by seconds.
+	float cycle = t / period + SHORE_VARIATION * _swash_noise(world_xz * 0.05 + vec2(0.0, 3.7));
 	float wave_index = floor(cycle);
 	float u = cycle - wave_index;
 
@@ -225,14 +233,20 @@ ShoreState shore_state(vec2 world_xz, float t, vec4 sea) {
 		// Skewed profile pow(0.5 + 0.5 cos phi, 1 + 2 steep): the shoreward face
 		// shortens and the crest sharpens as the wave approaches breaking.
 		float rel = x - crest_x;
-		float width = mix(2.4, 1.4, steep);
-		float face = rel < 0.0 ? width * mix(1.0, 0.4, steep) : width;
+		float round_crest = clamp(shore_crest_shape, 0.0, 1.0);
+		float width = mix(2.4, 1.4, steep) * mix(1.0, 1.3, round_crest);
+		float face = rel < 0.0 ? width * mix(1.0, mix(0.4, 0.65, round_crest), steep) : width;
 		float phase = clamp(rel / face, -1.0, 1.0) * 3.14159265;
-		float profile = pow(0.5 + 0.5 * cos(phase), 1.0 + 2.0 * steep);
+		// GLES cos(PI) can undershoot -1 by one ulp. A negative base raised
+		// to the fractional steepness exponent poisons height/normal with NaN,
+		// producing flat dark polygons everywhere outside the crest.
+		float profile_base = max(0.5 + 0.5 * cos(phase), 0.000001);
+		float profile = pow(profile_base, 1.0 + mix(2.0, 0.8, round_crest) * steep);
 		float incoming = step(1.0 - SHORE_APPROACH, u)
 			* (1.0 - smoothstep(SHORE_OFFSHORE - 1.5, SHORE_OFFSHORE, crest_x));
 		s.height = crest_h / SHORE_METERS_PER_UNIT * profile * incoming * s.beach;
-		s.curl = SHORE_CURL * s.height * profile * smoothstep(0.6, 1.0, steep);
+		s.curl = SHORE_CURL * mix(1.0, 0.3, round_crest)
+			* s.height * profile * smoothstep(0.6, 1.0, steep);
 		// Bore: shoreward of the break point, foam trails the crest for
 		// surfFoamLife seconds after it passes, brightest just behind the front.
 		float u_pass = 1.0 - SHORE_APPROACH * pow(clamp(x / SHORE_OFFSHORE, 0.0, 1.0), 1.25);
@@ -241,7 +255,21 @@ ShoreState shore_state(vec2 world_xz, float t, vec4 sea) {
 		float bore = exp(-since_pass / SHORE_SURF_FOAM_LIFE) * mix(0.55, 1.0, exp(-since_pass / 0.6));
 		// Older foam lingers faintly over the whole surf zone (foamLife).
 		bore = max(bore, exp(-since_pass / SHORE_FOAM_LIFE) * 0.25 * s.surf_zone);
+		// Air entrains over a short interval instead of the fract() wrap painting
+		// a fully white front in one frame. Decay still trails the advancing bore.
+		bore *= smoothstep(0.0, 0.18, since_pass);
 		s.bore_foam = broken * bore * s.beach * mix(0.7, 1.0, sea_state) * shore_foam_gain;
+		// WR-2: water under a broken wave lunges landward as the bore passes
+		// (fast, first ~12% of the cycle) and drifts back over the rest, so the
+		// mean stays put. Shallow-water excursion ~ H/2 sqrt(g/h) T / (2 pi):
+		// metres for a metre-high breaker, so foam visibly surges in and out.
+		float pass_phase = fract(u - u_pass);
+		float local_depth = max(_swash_depth(x), 0.05);
+		float excursion = 0.5 * breaker_height * sqrt(9.81 / local_depth) * period / 6.2831853
+			/ SHORE_METERS_PER_UNIT;
+		s.surge = min(excursion, 4.0) * (smoothstep(0.0, 0.12, pass_phase) - pass_phase)
+			* broken * s.beach;
+		s.foam_age = mix(SHORE_NEVER_WET, since_pass, broken * s.beach);
 		// Hard edges: no run-up, the water column sloshes against the wall.
 		float wall = 1.0 - s.beach;
 		float slosh_phase = sin(6.2831853 * u);
@@ -254,7 +282,7 @@ ShoreState shore_state(vec2 world_xz, float t, vec4 sea) {
 		return s;
 	}
 	float land = -x;
-	float reach_variation = 0.8 + 0.4 * _swash_noise(vec2(along * 0.11, 17.3));
+	float reach_variation = 0.8 + 0.4 * _swash_noise(world_xz * 0.11 + vec2(0.0, 17.3));
 	float base_reach = (
 		SHORE_RUNUP * breaker_height * 1.8 / SHORE_METERS_PER_UNIT * sea.w * reach_variation
 	);
@@ -267,7 +295,8 @@ ShoreState shore_state(vec2 world_xz, float t, vec4 sea) {
 		* sqrt(clamp(s.front_distance / max(front, 0.05), 0.0, 1.0))
 		* mix(0.45, 1.0, uprush);
 	// A narrow bright bead sits just behind the front, a thinner trail behind it.
-	float bead = exp(-pow((s.front_distance - 0.08) / 0.06, 2.0));
+	float bead_coordinate = (s.front_distance - 0.08) / 0.06;
+	float bead = exp(-bead_coordinate * bead_coordinate);
 	float trail = smoothstep(0.0, 0.1, s.front_distance)
 		* exp(-max(s.front_distance, 0.0) / 0.45) * 0.55;
 	s.front_foam = (bead + trail) * mix(0.3, 1.0, _swash_patch(world_xz, t))

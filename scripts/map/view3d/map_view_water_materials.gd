@@ -744,6 +744,7 @@ static func apply_sea_weather(
 ) -> void:
 	var wind_state := clampf(wind, 0.0, 1.0)
 	var rain_state := clampf(rain, 0.0, 1.0)
+	puddle_surface().set_shader_parameter("rain_intensity", rain_state)
 	# Height follows wind and rain; chop tracks wind harder (Water Pro choppiness split).
 	var height_mul := lerpf(0.82, 1.95, wind_state) * lerpf(1.0, 1.45, rain_state)
 	var chaos_mul := lerpf(0.88, 1.65, wind_state) * lerpf(1.0, 1.35, rain_state)
@@ -797,6 +798,7 @@ static func apply_sea_weather(
 			"foam_intensity", float(wave["foam"]) * lerpf(0.9, 1.35, rain_state)
 		)
 		material.set_shader_parameter("rain_ring_intensity", rain_state)
+		material.set_shader_parameter("water_turbidity", 1.0 + wind_state * 0.55 + rain_state * 0.6)
 		material.set_shader_parameter("wind_direction", heading)
 	_sync_sea_wave_blend(wave_profiles)
 
@@ -946,6 +948,18 @@ static func apply_coastal_tide(level: float, wave_profiles: Dictionary) -> void:
 		water_surface(terrain_id as StringName, wave_profiles).set_shader_parameter(
 			"tide_level", normalized_level
 		)
+
+
+## R-1518: the reflected sky carries the dome's rainbow. Drops far away act as if at
+## infinity, so the reflection is the bow mirrored about the horizon.
+static func apply_water_rainbow(
+	strength: float, curtain: Vector3, droplet: float, wave_profiles: Dictionary
+) -> void:
+	for terrain_id in wave_profiles.keys():
+		var material := water_surface(terrain_id as StringName, wave_profiles)
+		material.set_shader_parameter("rainbow_strength", clampf(strength, 0.0, 1.0))
+		material.set_shader_parameter("rainbow_curtain", curtain)
+		material.set_shader_parameter("rainbow_droplet", clampf(droplet, 0.0, 1.0))
 
 
 ## Pushes the sky state shared by the dome and cached water materials. Reusing

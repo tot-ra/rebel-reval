@@ -96,7 +96,7 @@ func _place_emitters(at: Vector2) -> void:
 
 static func _make_emitter() -> GPUParticles3D:
 	var particles := GPUParticles3D.new()
-	particles.amount = 220
+	particles.amount = 420
 	particles.lifetime = 1.3
 	particles.preprocess = 1.0
 	particles.local_coords = false
@@ -113,13 +113,13 @@ static func _make_emitter() -> GPUParticles3D:
 	material.gravity = Vector3(0.0, -9.0, 0.0)
 	material.damping_min = 0.3
 	material.damping_max = 0.9
-	material.scale_min = 0.3
+	material.scale_min = 0.35
 	material.scale_max = 1.0
 	var fade := Gradient.new()
 	fade.set_color(0, Color(1.0, 1.0, 1.0, 0.0))
 	fade.set_color(1, Color(1.0, 1.0, 1.0, 0.0))
-	fade.add_point(0.15, Color(1.0, 1.0, 1.0, 0.95))
-	fade.add_point(0.6, Color(0.95, 0.97, 1.0, 0.5))
+	fade.add_point(0.1, Color(1.0, 1.0, 1.0, 0.8))
+	fade.add_point(0.6, Color(0.95, 0.97, 1.0, 0.35))
 	var ramp := GradientTexture1D.new()
 	ramp.gradient = fade
 	material.color_ramp = ramp
@@ -135,14 +135,17 @@ static func _make_emitter() -> GPUParticles3D:
 	disc.width = 64
 	disc.height = 64
 	var quad_material := StandardMaterial3D.new()
-	quad_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	# Lit, so droplets darken with the sky instead of glowing at night.
+	quad_material.shading_mode = BaseMaterial3D.SHADING_MODE_PER_VERTEX
 	quad_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	quad_material.billboard_mode = BaseMaterial3D.BILLBOARD_PARTICLES
 	quad_material.vertex_color_use_as_albedo = true
 	quad_material.albedo_texture = disc
 	quad_material.disable_receive_shadows = true
 	var quad := QuadMesh.new()
-	quad.size = Vector2(0.45, 0.45)
+	# WR-2 interim: droplets are centimetres, not the 0.45 m puffs that read as
+	# floating cotton balls. Event-driven spray and mist sheets are WR-6.
+	quad.size = Vector2(0.11, 0.11)
 	quad.material = quad_material
 	particles.draw_pass_1 = quad
 	return particles

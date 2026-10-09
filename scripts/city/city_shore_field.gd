@@ -23,16 +23,15 @@ const DISTANCE_SCALE := 3.0
 ## generated beaches sit at 0.05-0.35; quays, rocks and the bluff are above 0.75.
 const BEACH_SLOPE_MIN := 0.42
 const BEACH_SLOPE_MAX := 0.7
-## Sheet band, matching MapViewMeshBuilderTerrainWater.SHORE_SHEET_*.
-const SHEET_REACH := 3.0
-const SHEET_SEAWARD_MARGIN := 0.35
-const SHEET_LIFT := 0.05
-const SHEET_STEP := 1.0
 ## Fine water band along the coast: the 4-unit sea grid is far too coarse to carry
 ## a breaker (a crest is ~2 units wide), so the surf zone gets its own mesh.
-const BAND_STEP := 1.0
+const COARSE_STEP := 4.0
+const BAND_STEP := 0.5
 const BAND_SEA := 7.5
-const BAND_LAND := 0.6
+## Covers the full 2.9-field-unit run-up plus tide/filter margin (about 10 m).
+const BAND_LAND := 3.5
+## Includes shader-raised surf/terrain so grazing cameras cannot cull the run-up.
+const SURFACE_CULL_MARGIN := 6.0
 ## The band is cut into tiles of this many world units so frustum culling works.
 const BAND_TILE := 128.0
 
@@ -103,6 +102,13 @@ static func bake(plan: CityPlan) -> Dictionary:
 				signed = clampf((d if water else -d) / DISTANCE_SCALE, -MAX_DISTANCE, MAX_DISTANCE)
 				if d > 0.0001:
 					dir = (seed - centre) / d if water else (centre - seed) / d
+				else:
+					# A node exactly on the contour still has a shore. Zero
+					# direction made filtering grow an invalid island around it.
+					dir = Vector2(
+						plan.grid_height(i + 1, j) - plan.grid_height(i - 1, j),
+						plan.grid_height(i, j + 1) - plan.grid_height(i, j - 1)
+					).normalized()
 				kind = beach[index]
 			distance[index] = signed
 			beach_out[index] = kind
@@ -120,80 +126,11 @@ static func bake(plan: CityPlan) -> Dictionary:
 		"size": Vector2(float(grid.x), float(grid.y)) * cell,
 		"distance": distance,
 		"beach": beach_out,
+		"samples": rgba,
 		"grid": grid,
 		# Waterline segment midpoints, for the spray emitters (CityShoreSpray).
 		"contour": contour,
 	}
-
-
-## Thin film over beach sand, SHEET_REACH units inland of the waterline, lying on
-## the terrain (+ SHEET_LIFT) at one vertex per world unit. The water shader paints
-## the run-up front, its foam bead and the wet sheen on it (shore_swash.gdshaderinc).
-## Mirrors MapViewMeshBuilderTerrainWater.swash_sheet_arrays for the city heightfield.
-static func build_sheet(plan: CityPlan, shore: Dictionary) -> ArrayMesh:
-	var grid: Vector2i = shore["grid"]
-	var distance: PackedFloat32Array = shore["distance"]
-	var beach: PackedFloat32Array = shore["beach"]
-	var cell := plan.height_cell()
-	var node_origin := plan.height_origin()
-	var steps := int(round(cell / SHEET_STEP))
-	var vertices := PackedVector3Array()
-	var normals := PackedVector3Array()
-	var lift := Vector3(0.0, SHEET_LIFT, 0.0)
-	for j in grid.y - 1:
-		for i in grid.x - 1:
-			var index := j * grid.x + i
-			var land := -distance[index]
-			if (
-				land < -SHEET_SEAWARD_MARGIN - cell / DISTANCE_SCALE
-				or land > SHEET_REACH + cell / DISTANCE_SCALE
-			):
-				continue
-			if beach[index] < 0.5:
-				continue
-			var base := node_origin + Vector2(float(i), float(j)) * cell
-			for sy in steps:
-				for sx in steps:
-					var p := base + Vector2(float(sx), float(sy)) * SHEET_STEP
-					var q := _lerp_land(shore, plan, p + Vector2(SHEET_STEP, SHEET_STEP) * 0.5)
-					if q < -SHEET_SEAWARD_MARGIN or q > SHEET_REACH:
-						continue
-					var corners: Array[Vector3] = []
-					for offset in [Vector2(0, 0), Vector2(1, 0), Vector2(1, 1), Vector2(0, 1)]:
-						var c: Vector2 = p + (offset as Vector2) * SHEET_STEP
-						corners.append(Vector3(c.x, plan.ground_height(c), c.y) + lift)
-					for tri in [[0, 1, 2], [0, 2, 3]]:
-						for vi: int in tri:
-							vertices.append(corners[vi])
-							normals.append(Vector3.UP)
-	if vertices.is_empty():
-		return null
-	var colors := PackedColorArray()
-	colors.resize(vertices.size())
-	colors.fill(Color.WHITE)
-	var uvs := PackedVector2Array()
-	uvs.resize(vertices.size())
-	for k in vertices.size():
-		uvs[k] = Vector2(vertices[k].x, vertices[k].z) * 0.1
-	var arrays := []
-	arrays.resize(Mesh.ARRAY_MAX)
-	arrays[Mesh.ARRAY_VERTEX] = vertices
-	arrays[Mesh.ARRAY_NORMAL] = normals
-	arrays[Mesh.ARRAY_COLOR] = colors
-	arrays[Mesh.ARRAY_TEX_UV] = uvs
-	var mesh := ArrayMesh.new()
-	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
-	return mesh
-
-
-## Distance inland (world units, + land) at a point, nearest height node.
-static func _lerp_land(shore: Dictionary, plan: CityPlan, p: Vector2) -> float:
-	var grid: Vector2i = shore["grid"]
-	var cell := plan.height_cell()
-	var f := (p - plan.height_origin()) / cell
-	var i := clampi(int(round(f.x)), 0, grid.x - 1)
-	var j := clampi(int(round(f.y)), 0, grid.y - 1)
-	return -(shore["distance"] as PackedFloat32Array)[j * grid.x + i]
 
 
 static func _cross(
@@ -239,11 +176,21 @@ static func signed_distance_at(shore: Dictionary, plan: CityPlan, p: Vector2) ->
 	return (shore["distance"] as PackedFloat32Array)[j * grid.x + i]
 
 
-## True where the fine band draws the water, so the coarse sea grid can skip it.
+## One ownership test for both coarse and fine geometry. Transparent surfaces
+## must never overlap: two alpha layers expose a grid of dark/light triangles.
+static func covers_coarse_cell(shore: Dictionary, plan: CityPlan, origin: Vector2) -> bool:
+	for offset: Vector2 in [Vector2.ZERO, Vector2(COARSE_STEP, 0),
+		Vector2(0, COARSE_STEP), Vector2.ONE * COARSE_STEP, Vector2.ONE * COARSE_STEP * 0.5]:
+		var d := signed_distance_at(shore, plan, origin + offset)
+		if d < BAND_SEA and d > -BAND_LAND:
+			return true
+	return false
+
+
 static func in_band(shore: Dictionary, plan: CityPlan, p: Vector2) -> bool:
-	var d := signed_distance_at(shore, plan, p)
-	# Wet side only: quads straddling the waterline stay, the fine band overdraws them.
-	return d < BAND_SEA - 1.5 and d > 0.0
+	var cell := ((p - plan.bounds.position) / COARSE_STEP).floor()
+	var origin := plan.bounds.position + cell * COARSE_STEP
+	return covers_coarse_cell(shore, plan, origin)
 
 
 ## Fine water mesh along the waterline, one mesh per BAND_TILE square. Vertex
@@ -252,54 +199,64 @@ static func in_band(shore: Dictionary, plan: CityPlan, p: Vector2) -> bool:
 static func build_band(plan: CityPlan, shore: Dictionary, depth_norm: float) -> Array[ArrayMesh]:
 	var bounds := plan.bounds
 	var tiles := {}
-	var nx := int(bounds.size.x / BAND_STEP)
-	var nz := int(bounds.size.y / BAND_STEP)
+	var nx := int(ceil(bounds.size.x / COARSE_STEP))
+	var nz := int(ceil(bounds.size.y / COARSE_STEP))
+	var subdivisions := int(COARSE_STEP / BAND_STEP)
 	for j in nz:
 		for i in nx:
-			var p0 := bounds.position + Vector2(i, j) * BAND_STEP
-			var corners: Array[Vector2] = [
-				p0, p0 + Vector2(BAND_STEP, 0.0),
-				p0 + Vector2(BAND_STEP, BAND_STEP), p0 + Vector2(0.0, BAND_STEP)
-			]
-			var near := false
-			var any_wet := false
-			var depths: Array[float] = []
-			for c in corners:
-				var d := signed_distance_at(shore, plan, c)
-				# Unit-cell test against the baked field (+-MAX_DISTANCE clamp).
-				if d < BAND_SEA and d > -BAND_LAND:
-					near = true
-				var depth := -plan.ground_height(c)
-				depths.append(depth)
-				if depth > -0.4:
-					any_wet = true
-			if not near or not any_wet:
+			var coarse := bounds.position + Vector2(i, j) * COARSE_STEP
+			if not covers_coarse_cell(shore, plan, coarse):
 				continue
-			var key := Vector2i(int(floor((p0.x - bounds.position.x) / BAND_TILE)),
-				int(floor((p0.y - bounds.position.y) / BAND_TILE)))
-			if not tiles.has(key):
-				tiles[key] = {"v": PackedVector3Array(), "c": PackedColorArray(), "n": PackedVector3Array()}
-			var tile_vertices: PackedVector3Array = tiles[key]["v"]
-			var tile_colors: PackedColorArray = tiles[key]["c"]
-			var tile_normals: PackedVector3Array = tiles[key]["n"]
-			for index: int in [0, 1, 2, 0, 2, 3]:
-				var c := corners[index]
-				tile_vertices.append(Vector3(c.x, 0.0, c.y))
-				tile_colors.append(Color(clampf(depths[index] / depth_norm, 0.0, 1.0), 0.0, 0.0))
-				tile_normals.append(Vector3.UP)
-			# Packed arrays copy on write: store the grown ones back.
-			tiles[key]["v"] = tile_vertices
-			tiles[key]["c"] = tile_colors
-			tiles[key]["n"] = tile_normals
+			var bed_normals := {}
+			for cell in subdivisions * subdivisions:
+				var p0 := coarse + Vector2(cell % subdivisions, cell / subdivisions) * BAND_STEP
+				var corners: Array[Vector2] = [p0, p0 + Vector2(BAND_STEP, 0),
+					p0 + Vector2.ONE * BAND_STEP, p0 + Vector2(0, BAND_STEP)]
+				var depths: Array[float] = []
+				for corner in corners:
+					depths.append(-plan.ground_height(corner))
+				var key := Vector2i(int(floor((p0.x - bounds.position.x) / BAND_TILE)),
+					int(floor((p0.y - bounds.position.y) / BAND_TILE)))
+				if not tiles.has(key):
+					var surface := SurfaceTool.new()
+					surface.begin(Mesh.PRIMITIVE_TRIANGLES)
+					surface.set_normal(Vector3.UP)
+					tiles[key] = surface
+				var surface: SurfaceTool = tiles[key]
+				# Match the terrain's parent-cell diagonal. Shared vertices are
+				# indexed below, so the denser crest costs fewer vertex evaluations
+				# than the former unindexed 1 m grid (six copies per cell).
+				for index: int in _terrain_triangles(plan, p0):
+					var c := corners[index]
+					if not bed_normals.has(c):
+						bed_normals[c] = _bed_normal(plan, c)
+					surface.set_normal(bed_normals[c])
+					surface.set_color(Color(clampf(depths[index] / depth_norm, 0.0, 1.0), 0, 0))
+					surface.set_uv2(Vector2(0.0, -depths[index]))
+					surface.add_vertex(Vector3(c.x, 0.0, c.y))
 	var meshes: Array[ArrayMesh] = []
-	for key in tiles:
-		var tile: Dictionary = tiles[key]
-		var arrays := []
-		arrays.resize(Mesh.ARRAY_MAX)
-		arrays[Mesh.ARRAY_VERTEX] = tile["v"]
-		arrays[Mesh.ARRAY_COLOR] = tile["c"]
-		arrays[Mesh.ARRAY_NORMAL] = tile["n"]
-		var mesh := ArrayMesh.new()
-		mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
-		meshes.append(mesh)
+	for surface: SurfaceTool in tiles.values():
+		surface.index()
+		meshes.append(surface.commit())
 	return meshes
+
+
+## Continuous central differences match terrain normals at the height nodes.
+## Baked once, never sampled on the CPU per frame; shared tile edges agree.
+static func _bed_normal(plan: CityPlan, p: Vector2) -> Vector3:
+	var e := plan.height_cell()
+	var dx := plan.ground_height(p + Vector2(e, 0)) - plan.ground_height(p - Vector2(e, 0))
+	var dz := plan.ground_height(p + Vector2(0, e)) - plan.ground_height(p - Vector2(0, e))
+	return Vector3(-dx, 2.0 * e, -dz).normalized()
+
+
+## Fine cells divide the 2 m terrain cells exactly; use that parent diagonal.
+static func _terrain_triangles(plan: CityPlan, p: Vector2) -> Array[int]:
+	var cell := Vector2i(((p - plan.height_origin()) / plan.height_cell()).floor())
+	var a := plan.grid_height(cell.x, cell.y)
+	var b := plan.grid_height(cell.x + 1, cell.y)
+	var c := plan.grid_height(cell.x + 1, cell.y + 1)
+	var d := plan.grid_height(cell.x, cell.y + 1)
+	if absf(a - c) < absf(b - d):
+		return [0, 1, 2, 0, 2, 3]
+	return [0, 1, 3, 1, 2, 3]

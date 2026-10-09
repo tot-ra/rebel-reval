@@ -32,6 +32,10 @@ func test_anchored_hulls_can_be_boarded() -> void:
 	for h: Dictionary in ships._hulls:
 		var node: Node3D = h["node"]
 		var at := Vector2(node.global_position.x, node.global_position.z)
+		if bool(h["cog"]):
+			# Amidships is the hold well; sample the open weather deck forward of the mast.
+			var waist := node.to_global(Vector3(4.0, 0.0, -2.0))
+			at = Vector2(waist.x, waist.z)
 		var deck := plan.walk_height(at)
 		if bool(h["cog"]):
 			assert_true(deck > 2.0, "a cog deck stands above the water, got %f" % deck)
@@ -65,5 +69,8 @@ func test_fish_schools_sit_over_shallow_water() -> void:
 	assert_true(schools.size() >= 20, "schools in the bay, got %d" % schools.size())
 	for s: Dictionary in schools:
 		var depth := -plan.ground_height(s["at"])
-		assert_true(depth >= CityFish.MIN_DEPTH and depth <= CityFish.MAX_DEPTH, "%s over the clear shallows" % s["id"])
+		assert_true(
+			depth >= CityFish.MIN_DEPTH and depth <= CityFish.MAX_DEPTH,
+			"%s over the clear shallows" % s["id"]
+		)
 	assert_eq(CityFish.school_centres(plan).size(), schools.size())

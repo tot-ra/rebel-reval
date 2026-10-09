@@ -16,7 +16,7 @@ const MOAT_WATER_SHADER := preload("res://scripts/city/city_moat_water.gdshader"
 const MOAT_TAPER_M := 80.0
 const MoatPlants := preload("res://scripts/city/city_moat_plants.gd")
 const CHUNK := 96.0
-const SEA_STEP := 4.0
+const SEA_STEP := ShoreField.COARSE_STEP
 ## Storm swell scale for the open 1 m-per-unit sea (district maps use 1.0).
 const SEA_WAVE_BOOST := 5.0
 ## Depth (world units) at which the sea shader's shore factor reaches open water.
@@ -31,6 +31,8 @@ const SURF_RUNUP_GAIN := 1.8
 const SURF_GEOMETRY_SCALE := 1.3
 ## Breaker foam gain: a metre-tall surf should be white water along its whole face.
 const SURF_FOAM_GAIN := 2.2
+## WR-1: rounded spilling crest (shore_crest_shape) instead of the district lip.
+const SURF_CREST_SHAPE := 1.0
 const BUILDING_RANGE := 1600.0
 ## The stream ribbon reaches this far (world units) past the waterline into the bank.
 const STREAM_BANK_OVERLAP := 1.5
@@ -57,6 +59,10 @@ var sky_weather: SkyWeather3D
 ## building index -> MeshInstance3D roof node (enterable houses only)
 var roof_nodes: Dictionary = {}
 var water_materials: Array[ShaderMaterial] = []
+var stream_material: ShaderMaterial
+var moat_material: ShaderMaterial
+var stream_segment_count := 0
+var sea_shore: Dictionary = {}
 var doors: CityDoors
 var grass: CityGrass
 var farmland: CityFarmland
@@ -158,6 +164,7 @@ func apply_time(progress: float) -> void:
 	var ground := CityTerrainBuilder.shared_material()
 	if ground != null:
 		ground.set_shader_parameter("puddles", presentation.puddle_wetness)
+		ground.set_shader_parameter("rain_intensity", presentation.rain_intensity)
 		ground.set_shader_parameter("ground_dryness", presentation.ground_dryness)
 		ground.set_shader_parameter(
 			"wetness",
@@ -331,13 +338,13 @@ func _build_water() -> void:
 	# Sea: a grid over every wet cell, vertex colour R = depth hint. The surf zone
 	# is drawn by the fine band instead (below), so the coarse grid skips it.
 	var shore: Dictionary = ShoreField.bake(plan)
+	sea_shore = shore
 	var sea := _surface_grid(
-		0.0, func(p: Vector2) -> float: return -plan.ground_height(p), SEA_SHORE_DEPTH,
+		0.0,
+		func(p: Vector2) -> float: return -plan.ground_height(p),
+		SEA_SHORE_DEPTH,
 		func(_centre: Vector2, corners: Array) -> bool:
-			for corner: Vector2 in corners:
-				if not ShoreField.in_band(shore, plan, corner):
-					return false
-			return true
+			return ShoreField.covers_coarse_cell(shore, plan, corners[0])
 	)
 	if sea != null:
 		var inst := MeshInstance3D.new()
@@ -351,6 +358,7 @@ func _build_water() -> void:
 		# R-1437: physical bathymetry belongs to this mesh, not the cached
 		# district material. Instance state keeps shared weather updates intact.
 		inst.set_instance_shader_parameter("sea_physical_depth", true)
+		inst.extra_cull_margin = ShoreField.SURFACE_CULL_MARGIN
 		MapViewMaterials.WATER_MATERIALS.set_wave_height_boost(SEA_WAVE_BOOST)
 		inst.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		root.add_child(inst)
@@ -362,6 +370,7 @@ func _build_water() -> void:
 			band.mesh = band_mesh
 			band.material_override = inst.material_override
 			band.set_instance_shader_parameter("sea_physical_depth", true)
+			band.extra_cull_margin = ShoreField.SURFACE_CULL_MARGIN
 			band.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 			root.add_child(band)
 	# Open water beyond the plan to the horizon.
@@ -383,10 +392,12 @@ func _build_water() -> void:
 		var halves := _stream_wet_halves(trace, hj["widths"], hj["surfaces"])
 		var ribbon := _stream_mesh(trace, halves, hj["surfaces"])
 		_stream_water(trace, halves, hj["surfaces"])
+		stream_segment_count = moat_water.size()
 		var r_inst := MeshInstance3D.new()
 		r_inst.name = "Harjapea"
 		r_inst.mesh = ribbon
-		r_inst.material_override = _stream_material()
+		stream_material = _stream_material()
+		r_inst.material_override = stream_material
 		r_inst.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		root.add_child(r_inst)
 	# Moat pools in the lowest stretches of the ditch (1343: mostly dry).
@@ -406,7 +417,8 @@ func _build_water() -> void:
 			var m_inst := MeshInstance3D.new()
 			m_inst.name = "MoatPools"
 			m_inst.mesh = pool_mesh
-			m_inst.material_override = _moat_material()
+			moat_material = _moat_material()
+			m_inst.material_override = moat_material
 			root.add_child(m_inst)
 	# Reeds, cattails and floating plants in the moat and along the stream banks.
 	if not moat_water.is_empty():
@@ -430,7 +442,9 @@ func _stream_wet_halves(
 		var wet := float(widths[i]) * 0.5
 		for sign: float in [-1.0, 1.0]:
 			var d := wet
-			while d < STREAM_PROBE_MAX and plan.ground_height(points[i] + side * sign * d) < surface:
+			while (
+				d < STREAM_PROBE_MAX and plan.ground_height(points[i] + side * sign * d) < surface
+			):
 				d += 0.5
 			wet = maxf(wet, d)
 		halves.append(wet + STREAM_BANK_OVERLAP)
@@ -475,16 +489,15 @@ func _moat_material() -> ShaderMaterial:
 	mat.shader = MOAT_WATER_SHADER
 	mat.set_shader_parameter("wave_strength", 0.025)
 	mat.set_shader_parameter("flow_speed", 0.0)
-	mat.set_shader_parameter("vertex_depth", true)
 	mat.set_shader_parameter("vertex_depth_offset", STREAM_DEPTH_OFFSET)
 	mat.set_shader_parameter("vertex_depth_scale", STREAM_DEPTH_SCALE)
 	water_materials.append(mat)
 	return mat
 
 
-## The Hareapea: the moat's murky, depth-rimmed water in a peat-brown tint (a
-## lowland Estonian brook is humic and silty, never glass-clear), with its
-## ripples running downstream along the ribbon UV.
+## Authored humic/silty Hareapea profile, with ripples travelling downstream.
+## This peat-brown appearance is a plausible art profile, not a measurement of
+## medieval water clarity or a claim about every Estonian river.
 func _stream_material() -> ShaderMaterial:
 	var mat := _moat_material()
 	mat.set_shader_parameter("shallow_color", Color(0.31, 0.29, 0.19))
@@ -494,7 +507,6 @@ func _stream_material() -> ShaderMaterial:
 	mat.set_shader_parameter("edge_soft", 0.4)
 	mat.set_shader_parameter("wave_strength", 0.02)
 	mat.set_shader_parameter("flow_speed", 0.35)
-	mat.set_shader_parameter("vertex_depth", true)
 	mat.set_shader_parameter("vertex_depth_offset", STREAM_DEPTH_OFFSET)
 	mat.set_shader_parameter("vertex_depth_scale", STREAM_DEPTH_SCALE)
 	return mat
@@ -535,30 +547,28 @@ func _bind_shore_field(shore: Dictionary) -> void:
 	var extent: Vector2 = shore["size"]
 	MapViewMaterials.apply_shore_field(texture, origin, extent)
 	MapViewMaterials.apply_surf_gain(
-		SURF_WAVE_GAIN, SURF_RUNUP_GAIN, SURF_GEOMETRY_SCALE, ShoreField.DISTANCE_SCALE,
-		SURF_FOAM_GAIN
+		SURF_WAVE_GAIN,
+		SURF_RUNUP_GAIN,
+		SURF_GEOMETRY_SCALE,
+		ShoreField.DISTANCE_SCALE,
+		SURF_FOAM_GAIN,
+		SURF_CREST_SHAPE
 	)
 	spray = ShoreSpray.new()
 	spray.name = "ShoreSpray"
 	add_child(spray)
 	spray.configure(plan, shore["contour"])
-	var sheet_mesh := ShoreField.build_sheet(plan, shore)
-	if sheet_mesh != null and MapViewMaterials.shore_swash_sheet_enabled():
-		var sheet := MeshInstance3D.new()
-		sheet.name = "ShoreSwashSheet"
-		sheet.mesh = sheet_mesh
-		sheet.material_override = MapViewMaterials.swash_sheet_material(
-			MapTypes.TERRAIN_SHALLOW_WATER
-		)
-		sheet.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-		add_child(sheet)
 	tree_entered.connect(
 		func() -> void:
 			MapViewMaterials.apply_shore_field(texture, origin, extent)
 			MapViewMaterials.apply_surf_gain(
-		SURF_WAVE_GAIN, SURF_RUNUP_GAIN, SURF_GEOMETRY_SCALE, ShoreField.DISTANCE_SCALE,
-		SURF_FOAM_GAIN
-	)
+				SURF_WAVE_GAIN,
+				SURF_RUNUP_GAIN,
+				SURF_GEOMETRY_SCALE,
+				ShoreField.DISTANCE_SCALE,
+				SURF_FOAM_GAIN,
+				SURF_CREST_SHAPE
+			)
 	)
 
 
@@ -608,6 +618,46 @@ func _surface_grid(
 			# The fine surf band draws this quad instead (CityShoreField.build_band).
 			if skip.is_valid() and skip.call(p0 + Vector2(SEA_STEP, SEA_STEP) * 0.5, corners):
 				continue
+			# Stitch the 4 m sea to the 0.5 m surf band. Both sides must sample the
+			# exact same displaced vertices; ownership alone leaves animated cracks.
+			var ring: Array[Vector2] = []
+			var stitched := false
+			for edge in 4:
+				var a: Vector2 = corners[edge]
+				var b: Vector2 = corners[(edge + 1) % 4]
+				var neighbour: Vector2 = (
+					p0
+					+ [
+						Vector2(0, -SEA_STEP),
+						Vector2(SEA_STEP, 0),
+						Vector2(0, SEA_STEP),
+						Vector2(-SEA_STEP, 0)
+					][edge]
+				)
+				var adjacent := [
+					neighbour,
+					neighbour + Vector2(SEA_STEP, 0),
+					neighbour + Vector2.ONE * SEA_STEP,
+					neighbour + Vector2(0, SEA_STEP)
+				]
+				var fine_edge := (
+					skip.is_valid()
+					and bool(skip.call(neighbour + Vector2.ONE * SEA_STEP * 0.5, adjacent))
+				)
+				var steps := int(SEA_STEP / ShoreField.BAND_STEP) if fine_edge else 1
+				stitched = stitched or fine_edge
+				for k in steps:
+					ring.append(a.lerp(b, float(k) / steps))
+			if stitched:
+				var centre := p0 + Vector2.ONE * SEA_STEP * 0.5
+				for edge in ring.size():
+					for point: Vector2 in [centre, ring[edge], ring[(edge + 1) % ring.size()]]:
+						verts.append(Vector3(point.x, y, point.y))
+						colors.append(
+							Color(clampf(float(depth_at.call(point)) / depth_norm, 0.0, 1.0), 0, 0)
+						)
+						normals.append(Vector3.UP)
+				continue
 			var vs: Array[Vector3] = []
 			var cs: Array[Color] = []
 			for k in 4:
@@ -625,6 +675,11 @@ func _surface_grid(
 	arrays[Mesh.ARRAY_VERTEX] = verts
 	arrays[Mesh.ARRAY_COLOR] = colors
 	arrays[Mesh.ARRAY_NORMAL] = normals
+	var bed := PackedVector2Array()
+	bed.resize(verts.size())
+	for i in verts.size():
+		bed[i] = Vector2(0.0, plan.ground_height(Vector2(verts[i].x, verts[i].z)))
+	arrays[Mesh.ARRAY_TEX_UV2] = bed
 	var mesh := ArrayMesh.new()
 	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
 	return mesh
@@ -664,7 +719,11 @@ func _stream_mesh(
 				var q := centre + side * (u * 2.0 - 1.0)
 				var depth := surface - plan.ground_height(q)
 				grid.append(Vector3(q.x, surface, q.y))
-				colors.append(Color(clampf((depth + STREAM_DEPTH_OFFSET) / STREAM_DEPTH_SCALE, 0.0, 1.0), 0, 0))
+				colors.append(
+					Color(
+						clampf((depth + STREAM_DEPTH_OFFSET) / STREAM_DEPTH_SCALE, 0.0, 1.0), 0, 0
+					)
+				)
 				uvs.append(Vector2((along + seg * t) / 10.0, u))
 		for r in rows:
 			for c in cols:
@@ -688,8 +747,10 @@ func _ribbon_side(points: PackedVector2Array, i: int) -> Vector2:
 		normal += (points[i + 1] - points[i]).normalized().orthogonal()
 	var mitre := normal.normalized()
 	var reference := (
-		(points[i + 1] - points[i]) if i < points.size() - 1 else (points[i] - points[i - 1])
-	).normalized().orthogonal()
+		((points[i + 1] - points[i]) if i < points.size() - 1 else (points[i] - points[i - 1]))
+		. normalized()
+		. orthogonal()
+	)
 	return mitre / maxf(mitre.dot(reference), 0.5)
 
 
@@ -761,3 +822,31 @@ func water_surface_at(world_xz: Vector2) -> float:
 		if world_xz.distance_to(a + ab * t) < float(m[4]):
 			return lerpf(float(m[2]), float(m[3]), t)
 	return -INF
+
+
+## Rendering medium at the camera. Dry ribbon overlap is not underwater.
+func water_medium_at(world_xz: Vector2) -> Dictionary:
+	var bed := plan.ground_height(world_xz)
+	var surface := water_surface_at(world_xz)
+	if surface <= bed:
+		return {}
+	if bed < 0.0:
+		return {
+			"surface_y": surface,
+			"sea": true,
+			"material": MapViewMaterials.water_surface(MapTypes.TERRAIN_SHALLOW_WATER)
+		}
+	for i in moat_water.size():
+		var m: Array = moat_water[i]
+		var a: Vector2 = m[0]
+		var b: Vector2 = m[1]
+		if (
+			Geometry2D.get_closest_point_to_segment(world_xz, a, b).distance_to(world_xz)
+			< float(m[4])
+		):
+			return {
+				"surface_y": surface,
+				"sea": false,
+				"material": stream_material if i < stream_segment_count else moat_material
+			}
+	return {}

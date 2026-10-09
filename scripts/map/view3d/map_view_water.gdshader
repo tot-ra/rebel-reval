@@ -1,10 +1,10 @@
 shader_type spatial;
 render_mode blend_mix, depth_draw_always, cull_disabled, diffuse_burley, specular_schlick_ggx;
 
-// Water stays opaque to sorting, but reads the already-rendered bank and bed to
-// simulate transmission. Depth reconstruction makes absorption and distortion
-// respond to actual geometry instead of painting another animated blue texture.
-uniform sampler2D screen_texture : hint_screen_texture, repeat_disable, filter_linear_mipmap;
+// District and Metal water read the bank/bed for screen-space transmission.
+// City GL uses alpha transmission over real geometry and baked bathymetry,
+// avoiding depth/screen sampler aliasing on the Compatibility driver.
+uniform sampler2D screen_texture : hint_screen_texture, repeat_disable, filter_linear;
 uniform sampler2D depth_texture : hint_depth_texture, repeat_disable, filter_nearest;
 uniform vec3 shallow_color : source_color = vec3(0.45, 0.62, 0.75);
 uniform vec3 deep_color : source_color = vec3(0.16, 0.30, 0.44);
@@ -97,7 +97,7 @@ uniform vec3 day_top_color : source_color = vec3(0.18, 0.38, 0.65);
 uniform vec3 day_horizon_color : source_color = vec3(0.67, 0.75, 0.81);
 uniform vec3 night_top_color : source_color = vec3(0.020, 0.045, 0.130);
 uniform vec3 night_horizon_color : source_color = vec3(0.050, 0.100, 0.220);
-uniform vec3 sunset_color : source_color = vec3(0.98, 0.45, 0.18);
+uniform vec3 sunset_color : source_color = vec3(1.0, 0.25, 0.09);
 uniform float sunset_factor = 0.0;
 uniform float cloud_darken = 0.0;
 // WS-11: reflections sample the dome's own WS-10 sky-view LUT (HDR, no RGBM decode) with the
@@ -112,7 +112,7 @@ uniform vec3 sky_tint : source_color = vec3(1.0);
 uniform float sky_adaptation = 0.6;
 uniform float sky_adaptation_max_gain = 4.0;
 uniform float sky_adaptation_reference = 0.155;
-uniform float sunset_boost = 0.25;
+uniform float sunset_boost = 0.55;
 // Coastal terrain receives the live equilibrium tide. River water keeps zero
 // response, while shallow/deep sea tune shoreline retreat and optical depth.
 uniform float tide_level = 0.0;
@@ -158,6 +158,15 @@ uniform float shore_geometry_scale = 0.12;
 // sampler in water_cloud_shadow silently hides this surface on macOS GL.
 // The city lightweight water path can still use the full deck/cell helper.
 #include "res://scripts/map/view3d/cloud_cells.gdshaderinc"
+// R-1518: the reflected sky carries the dome's post-rain bow (same uniforms as the dome,
+// pushed by MapViewWaterMaterials.apply_water_rainbow).
+uniform float rainbow_strength = 0.0;
+uniform float rainbow_droplet = 0.85;
+uniform vec3 rainbow_curtain = vec3(0.0);
+// Lower than the dome's 0.55: the reflected sky is darker than the dome, so the same
+// additive bow (and its bright interior) read as a white blot on the water.
+uniform float rainbow_gain = 0.32;
+#include "res://scripts/map/view3d/sky_rainbow.gdshaderinc"
 global uniform sampler2D cloud_noise_tex : filter_linear_mipmap, repeat_enable;
 global uniform vec3 cloud_sun_dir;
 
@@ -193,6 +202,10 @@ uniform float sea_depth_blend = 0.0;
 // The metre-scale city uses real bathymetry, not the district optical bed floor.
 // Screen depth can be invalid in Compatibility after transparent screen passes.
 instance uniform bool sea_physical_depth = false;
+// Metric city water: extinction per metre, independent of the legacy thin-film
+// district palette. No extra sampler or pass; Beer-Lambert carries bed visibility.
+uniform vec3 physical_extinction = vec3(0.40, 0.24, 0.30);
+uniform float water_turbidity = 1.0;
 // Basin depths where the look is fully shallow (x) and fully deep (y).
 uniform vec2 sea_depth_range = vec2(1.0, 3.6);
 // Per family: (choppiness, fft_geometry_scale, standing_wave_ratio, wave_height), kept in
@@ -232,6 +245,8 @@ uniform float whitecap_onset = 1.0;
 // WS-06b debug: 1 writes the baked foam mask (fft_foam.x) to ALBEDO/EMISSION so
 // Metal vs Compatibility coverage can be compared without lighting or the tile.
 uniform float debug_foam_mask = 0.0;
+// Capture-only GPU regression: magenta marks non-finite surface math, green valid.
+uniform bool debug_surface_validity = false;
 // Wind streaks: storm share (0 calm .. 1 storm) times streak_amount. Tidewater's
 // 0.3 vanished under the storm sky reflection on the gameplay camera.
 uniform float storm_streaks = 0.0;
@@ -264,6 +279,19 @@ const float GUST_DRIFT_CELLS_PER_WRAP = 64.0;
 // Highest effective whitecap mask. At 1.0 the darker half of the tile stays open, so the
 // freshest foam still reads as clustered bubbles.
 const float FOAM_MASK_CAP = 1.0;
+// WR-1 city sea (sea_physical_depth): C1 share of vertex displacement on the
+// 4 m grid, and the water kept above the bed at the bottom of a trough.
+const float CITY_C1_GEOMETRY = 0.0;
+const float CITY_TROUGH_CLEARANCE = 0.05;
+// WR-2 city foam. Surf foam dissolves over this many seconds after the bore;
+// SCUM is the patchy residual coverage left over the surf zone between sets.
+const float CITY_SURF_FOAM_LIFE = 4.0;
+const float CITY_SURF_SCUM = 0.12;
+// Whitecaps: share of the baked foam mask that counts as breaking, its coverage
+// gain, and how much of the tile's streak channel survives as wind streaks.
+const float CITY_WHITECAP_THRESHOLD = 0.5;
+const float CITY_WHITECAP_GAIN = 0.6;
+const float CITY_STREAK_SHARE = 0.35;
 // Fraction of the window over which ripples fade out, so the window edge never shows a seam.
 const float RIPPLE_EDGE_FADE = 0.1;
 // Steepest ripple facet the shading normal may take (about 31 degrees).
@@ -286,7 +314,10 @@ varying vec3 water_world_position;
 // GL Compatibility allows (Godot adds shadow, radiance and light samplers), and the basin
 // depth is one texel per cell, so vertex interpolation loses nothing.
 varying float sea_depth_t;
-varying float sea_basin_depth;
+// Signed, triangle-matched terrain height, supplied by every city sea vertex.
+varying float sea_ground_y;
+varying vec2 sea_bed_slope;
+varying float invalid_surface_vertex;
 varying vec2 wave_sample_xz;
 varying float shore_factor;
 // WS-13b: 1 on in-map water whose rendered sea bed may lie below the flat gameplay
@@ -713,10 +744,17 @@ vec2 _equatorial_uv(vec3 direction) {
 
 // Bounded analytic sky-dome color for reflected rays. Matches the sky shader's
 // gradient path (without marching clouds) so fresnel reflections track the dome.
+float reflected_night_readability() {
+	// Keep in sync with night_floor_readability() in sky_weather_3d.gdshader.
+	float twilight = pow(smoothstep(-0.309017, 0.0, sun_direction.y), 0.7);
+	return mix(0.16 + moon_visibility * 0.15, 1.0, twilight);
+}
+
 vec3 _sky_dome_gradient(vec3 dir) {
 	float height = dir.y;
-	vec3 top = mix(night_top_color, day_top_color, day_blend);
-	vec3 horizon = mix(night_horizon_color, day_horizon_color, day_blend);
+	float night_fill = reflected_night_readability();
+	vec3 top = mix(mix(vec3(0.0015, 0.0020, 0.0030), night_top_color, night_fill), day_top_color, day_blend);
+	vec3 horizon = mix(mix(vec3(0.0030, 0.0040, 0.0060), night_horizon_color, night_fill), day_horizon_color, day_blend);
 	float sun_amount = max(dot(dir, normalize(sun_direction)), 0.0);
 	horizon = mix(horizon, sunset_color, sunset_factor * pow(sun_amount, 2.0) * 0.8);
 	float air_mass = 1.0 / max(height + 0.12, 0.12);
@@ -739,9 +777,18 @@ vec3 _sky_lut_radiance(vec3 dir) {
 // reflections survive after dark, and the small art sunset boost. Clouds are not in the LUT;
 // the existing cloud_darken veil and the below-horizon darkening stay from the gradient path.
 // Ported from Tidewater (MIT), see notice.code.tidewater (frame.horizonColor / sky sampling).
+// R-1518: distant drops act as if at infinity, so the reflected bow is the sky bow
+// mirrored about the horizon. Lit by the same sun hue as the dome's bow.
+vec3 _with_reflected_rainbow(vec3 color, vec3 dir) {
+	vec3 light = sun_reflection_color
+		/ max(max(sun_reflection_color.r, max(sun_reflection_color.g, sun_reflection_color.b)), 1e-4);
+	return rainbow_apply(color, dir, sun_direction, rainbow_strength * (1.0 - cloud_darken),
+		rainbow_droplet, rainbow_curtain, light * rainbow_gain);
+}
+
 vec3 _sky_dome_reflection(vec3 dir) {
 	if (!sky_lut_available) {
-		return _sky_dome_gradient(dir);
+		return _with_reflected_rainbow(_sky_dome_gradient(dir), dir);
 	}
 	float height = dir.y;
 	float sun_amount = max(dot(dir, normalize(sun_direction)), 0.0);
@@ -755,12 +802,15 @@ vec3 _sky_dome_reflection(vec3 dir) {
 	vec3 art = sky_exposure * sky_tint * adaptation;
 	vec3 lut_horizon = _sky_lut_radiance(normalize(vec3(dir.x, 0.0, dir.z) + vec3(0.0, 0.0, 1e-5))) * art;
 	float night = 1.0 - day_blend;
-	vec3 horizon = lut_horizon + night_horizon_color * night;
-	vec3 color = _sky_lut_radiance(dir) * art + mix(night_top_color, night_horizon_color, haze) * night;
+	float night_fill = reflected_night_readability();
+	vec3 night_top = mix(vec3(0.0015, 0.0020, 0.0030), night_top_color, night_fill);
+	vec3 night_horizon = mix(vec3(0.0030, 0.0040, 0.0060), night_horizon_color, night_fill);
+	vec3 horizon = lut_horizon + night_horizon * night;
+	vec3 color = _sky_lut_radiance(dir) * art + mix(night_top, night_horizon, haze) * night;
 	color += sunset_color * sunset_factor * pow(sun_amount, 2.0) * haze * sunset_boost;
 	color = mix(color, horizon * vec3(0.83, 0.87, 0.93), cloud_darken * 0.38);
 	color = mix(color, horizon * 0.55, clamp(-height * 3.0, 0.0, 1.0));
-	return color;
+	return _with_reflected_rainbow(color, dir);
 }
 
 // WS-06 catspaws and slicks: gain for the ripple cascade and the detail normal.
@@ -867,20 +917,107 @@ float _fresnel_dielectric(float cos_theta, float ior) {
 	return 0.5 * a * a * (1.0 + b * b);
 }
 
+// One continuous city surface: offshore waves rise into a finite-depth bore
+// over the sand. Coverage is resolved in fragment from this same shore phase.
+// Returns height and its partial derivative with respect to bed height.
+vec2 _city_runup_profile(ShoreState shore, float bed_y, float ocean_y) {
+	float front = shore.front_distance - shore.distance;
+	float active = smoothstep(0.001, 0.04, front);
+	float edge = smoothstep(0.0, 0.12, shore.front_distance);
+	float roller_coordinate = (shore.front_distance - 0.28) / 0.32;
+	float roller = exp(-roller_coordinate * roller_coordinate);
+	float thickness = (shore.sheet_thickness * 3.0
+		+ roller * mix(0.10, 0.42, shore_sea_state)) * active * edge;
+	float u = clamp((bed_y + 0.45) / 0.57, 0.0, 1.0);
+	float shore_blend = u * u * (3.0 - 2.0 * u) * shore.beach * shore.valid;
+	float bed_surface = bed_y + 0.018 + thickness;
+	// Smooth maximum keeps the terrain floor while removing the reflection hinge.
+	float merge = max(0.12 - abs(ocean_y - bed_surface), 0.0) / 0.12;
+	float joined = max(ocean_y, bed_surface) + merge * merge * 0.03;
+	float height = mix(ocean_y, joined, shore_blend);
+	// All inland vertices need the floor, including ones beyond the current
+	// front: otherwise a straddling triangle pulls its wet portion under sand.
+	if (height < bed_y + 0.018) {
+		return vec2(bed_y + 0.018, 1.0);
+	}
+	// Chain rule allows replacing only the terrain's flat triangle gradient
+	// with its interpolated smooth normal. Wave/front slopes remain analytic.
+	float dw = 6.0 * u * (1.0 - u) / 0.57 * shore.beach * shore.valid;
+	float bed_weight = shore_blend * clamp(0.5 + (bed_surface - ocean_y) / 0.24, 0.0, 1.0)
+		+ dw * (joined - ocean_y);
+	return vec2(height, bed_weight);
+}
+
+float _city_runup_height(ShoreState shore, float bed_y, float ocean_y) {
+	return _city_runup_profile(shore, bed_y, ocean_y).x;
+}
+
+// Analytic surface slope in world XZ, without extra shore-field texture reads.
+vec2 _city_height_gradient(float height, vec2 xz) {
+	vec2 dx = dFdx(xz);
+	vec2 dy = dFdy(xz);
+	float det = dx.x * dy.y - dx.y * dy.x;
+	if (abs(det) < 1e-10) {
+		return vec2(0.0);
+	}
+	float hx = dFdx(height);
+	float hy = dFdy(height);
+	return vec2(hx * dy.y - hy * dx.y, hy * dx.x - hx * dy.x) / det;
+}
+
+// WR-2: city foam structure, attached to the water. The input is a Lagrangian
+// (rest) coordinate: the FFT vertex displacement already carries it with the
+// surface, and the surf passes it pre-shifted by the swash excursion, so foam
+// rides crests and surges in and out with each breaker. No time term here: the
+// old version scrolled every layer downwind at a fixed speed, which read as a
+// global foam sheet sliding over the sea. x = bubble-cell structure (0..1,
+// clusters -> cells -> grain) for _foam_dissolve, y = wind-aligned streak.
+vec2 _city_foam_cells(vec2 xz) {
+	vec2 p = _fft_to_wind(xz, _fft_wind_axis());
+	vec2 rotated = mat2(vec2(0.8, 0.6), vec2(-0.6, 0.8)) * p;
+	// Domain warp from the smooth speckle channel at two scales: lace edges tear
+	// irregularly instead of following the tile's round Worley bubble rims.
+	vec2 warp = vec2(
+		texture(foam_tile, p * 0.0041 + vec2(0.41, 0.09)).g,
+		texture(foam_tile, rotated * 0.0047 + vec2(0.83, 0.27)).g
+	) - 0.5;
+	// Value-noise patches (metres, then decimetres) carry the shape; the bubble
+	// cells only add detail, so rims never dominate as rings.
+	float patches = texture(foam_tile, p * 0.0043 + warp * 0.035).g;
+	float lacework = texture(foam_tile, rotated * 0.011 + vec2(0.23, 0.61) + warp * 0.06).g;
+	float cells = texture(foam_tile, rotated * 0.12 + vec2(0.31, 0.73) + warp * 0.55).r;
+	float grain = texture(foam_tile, p * 0.52 + vec2(0.67, 0.19) + warp * 1.2).r;
+	float structure = patches * 0.36 + lacework * 0.26 + cells * 0.24 + grain * 0.14;
+	// Streaks meander with the same warp instead of running as straight rays.
+	float streak = texture(foam_tile, p * foam_tile_scale + vec2(0.0, warp.x * 0.12)).b;
+	return vec2(clamp((structure - 0.2) * 1.75, 0.0, 1.0), streak);
+}
+
+// WR-2: foam that ages breaks into lace instead of fading as a sheet. Coverage c
+// (0..1) keeps only the brightest part of the structure, so dying foam shrinks
+// to bubble rims and holes open in it (the industry "foam dissolve" threshold).
+// The edge widens with the pixel footprint of the structure (fwidth), so distant
+// or grazing foam averages to grey coverage instead of moire rims.
+float _foam_dissolve(float structure, float c) {
+	float k = clamp(c, 0.0, 1.0);
+	float soft = 0.12 + min(fwidth(structure) * 1.5, 0.5);
+	return smoothstep(1.0 - k - soft * 0.5, 1.0 - k + soft * 0.5, structure) * step(0.001, k);
+}
+
 void vertex() {
 	vec3 undisplaced_world = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
+	sea_ground_y = (MODEL_MATRIX * vec4(VERTEX.x, UV2.y, VERTEX.z, 1.0)).y;
 	wave_sample_xz = undisplaced_world.xz;
+	sea_bed_slope = -NORMAL.xz / max(NORMAL.y, 0.001);
 	// Cells project along the sun only; once the directional light has handed
 	// over to the moon the gate is 0 and nothing shades the moon path.
 	cloud_cell_shadow = cells_ground_shadow(undisplaced_world, cloud_sun_dir, cloud_noise_tex, 1.0)
 		* 0.85 * smoothstep(SUN_LIGHT_HANDOFF_Y, 0.0, cloud_sun_dir.y);
 	sea_depth_t = -1.0;
-	sea_basin_depth = 0.0;
 	if (sea_depth_blend > 0.5) {
 		vec2 sea_uv = (undisplaced_world.xz - sea_depth_rect.xy) / max(sea_depth_rect.zw, vec2(0.001));
 		if (all(greaterThanEqual(sea_uv, vec2(0.0))) && all(lessThanEqual(sea_uv, vec2(1.0)))) {
 			float basin = textureLod(sea_depth_map, sea_uv, 0.0).r;
-			sea_basin_depth = max(basin, 0.0);
 			sea_depth_t = smoothstep(sea_depth_range.x, sea_depth_range.y, basin);
 		}
 	}
@@ -902,8 +1039,11 @@ void vertex() {
 		// FFT replaces wave_height; wave_height stays the Gerstner amplitude only.
 		// Foam is resampled in fragment(): GL vertex atlas alpha is not trusted.
 		vec3 unused_foam;
-		displacement = _fft_displacement_foam_with(
-			wave_sample_xz, unused_foam, wave_params.x, wave_params.z, wave_params.y
+		// WR-1: the city's 4 m open-sea grid cannot carry C1 (4-16 m waves); it
+		// stays in the per-pixel normal. District grids keep their displacement.
+		displacement = _fft_displacement_foam_with_c1(
+			wave_sample_xz, unused_foam, wave_params.x, wave_params.z, wave_params.y,
+			sea_physical_depth ? CITY_C1_GEOMETRY : 1.0
 		);
 		// Lee of a quay or headland: reuse the WS-08 signed shore field as fetch.
 		displacement *= _fetch_shelter(wave_sample_xz);
@@ -932,7 +1072,12 @@ void vertex() {
 		// just above the bed while crests keep their full height: broad troughs,
 		// sharp crests. The shading normal still carries the full trough slope.
 		// WS-05 hull sampling must apply the same floor to stay seated.
-		if (displacement.y < 0.0) {
+		if (sea_physical_depth) {
+			// WR-1: the city bed lies metres below; troughs keep their depth.
+			float room = undisplaced_world.y + tide_height * tide_level
+				- (sea_ground_y + CITY_TROUGH_CLEARANCE);
+			displacement.y = _fft_bed_trough(displacement.y, room);
+		} else if (displacement.y < 0.0) {
 			displacement.y = -FFT_TROUGH_FLOOR * (1.0 - exp(displacement.y / FFT_TROUGH_FLOOR));
 		}
 	}
@@ -949,6 +1094,20 @@ void vertex() {
 		float shore_lift = (shore.height + max(shore.slosh, 0.0)) * shore_geometry_scale;
 		displacement.y += shore_lift * shore.valid;
 		displacement.xz += shore.to_land * shore.curl * shore_geometry_scale * shore.valid;
+		if (sea_physical_depth) {
+			// Pin horizontal motion before it reaches the bank, not at a mesh seam.
+			displacement.xz *= 1.0 - smoothstep(-1.0, -0.12, sea_ground_y);
+			float ocean_y = undisplaced_world.y + tide_height * tide_level + displacement.y;
+			displacement.y = _city_runup_height(shore, sea_ground_y, ocean_y)
+				- undisplaced_world.y - tide_height * tide_level;
+		}
+	}
+	invalid_surface_vertex = 0.0;
+	if (debug_surface_validity && (any(isnan(displacement)) || any(isinf(displacement)))) {
+		// A NaN vertex can disappear before fragment diagnostics see it.
+		// Only in the capture diagnostic, restore it and flag the triangle.
+		invalid_surface_vertex = 1.0;
+		displacement = vec3(0.0);
 	}
 	VERTEX.x += displacement.x;
 	VERTEX.y += tide_height * tide_level + displacement.y;
@@ -1040,7 +1199,7 @@ void fragment() {
 		sheet_foam = film_foam;
 	}
 	float tide_coverage = tide_shore_retreat * max(-tide_level, 0.0);
-	if (shore_factor < tide_coverage) {
+	if (!sea_physical_depth && shore_factor < tide_coverage) {
 		discard;
 	}
 	// WS-08: one shore evaluation per fragment feeds the surf turbidity and the
@@ -1049,8 +1208,19 @@ void fragment() {
 	bool shore_live = shore_field_valid > 0.5 && shore_strength > 0.0;
 	float swash_bore = 0.0;
 	ShoreState shore_now;
+	float city_coverage = 1.0;
 	if (shore_live) {
 		shore_now = shore_state(wave_sample_xz, ocean_time, shore_sea());
+		if (sea_physical_depth && sea_ground_y > tide_height * tide_level + 0.002) {
+			// Actual bed height owns coverage; a filtered distance-field zero must
+			// never cut a dry crack through pixels that are below the sea plane.
+			float front = shore_now.front_distance - shore_now.distance;
+			if (shore_now.valid * shore_now.beach < 0.01 || front < 0.001
+				|| shore_now.front_distance <= 0.0) {
+				discard;
+			}
+			city_coverage = smoothstep(0.0, 0.12, shore_now.front_distance);
+		}
 	}
 	// Sample the undisplaced XZ. Evaluating Gerstner at the chopped position
 	// feeds the displacement back into itself and swims the normal off the crest.
@@ -1116,6 +1286,18 @@ void fragment() {
 		world_normal = normalize(world_normal + vec3(-rain_slope.x, 0.0, -rain_slope.y));
 		ripple_slope_length = max(ripple_slope_length, length(rain_slope));
 	}
+	if (sea_physical_depth && shore_live) {
+		float ocean_crest = tide_height * tide_level
+			+ (shore_now.height + max(shore_now.slosh, 0.0)) * shore_geometry_scale * shore_now.valid;
+		vec2 runup = _city_runup_profile(shore_now, sea_ground_y, ocean_crest);
+		vec2 slope = _city_height_gradient(runup.x, wave_sample_xz);
+		vec2 raw_bed_slope = _city_height_gradient(sea_ground_y, wave_sample_xz);
+		slope += (sea_bed_slope - raw_bed_slope) * runup.y;
+		// Include the rising bore face in the shading normal, not only FFT ripples.
+		float inland = smoothstep(-0.45, 0.12, sea_ground_y) * shore_now.beach * shore_now.valid;
+		vec2 ocean_slope = world_normal.xz / max(world_normal.y, 0.2) * (1.0 - inland);
+		world_normal = normalize(vec3(ocean_slope.x - slope.x, 1.0, ocean_slope.y - slope.y));
+	}
 	// Low-angle sunlight turns tiny animated normal changes into long, fast
 	// specular bands. Keep the physical wave displacement, but reduce only the
 	// shading normal relief near the horizon; the blend widens the sunrise and
@@ -1126,10 +1308,20 @@ void fragment() {
 	vec3 view_normal = normalize((VIEW_MATRIX * vec4(calm_normal, 0.0)).xyz);
 	NORMAL = view_normal;
 
+	// City GL uses alpha transmission. Its depth/screen samplers can alias on
+	// this large material, so neither optical depth nor refraction may read them.
+	bool physical_alpha = false;
+#if CURRENT_RENDERER == RENDERER_COMPATIBILITY
+	physical_alpha = sea_physical_depth;
+#endif
 	float surface_depth = max(-VERTEX.z, 0.0001);
-	float raw_scene_depth = textureLod(depth_texture, SCREEN_UV, 0.0).r;
-	float scene_depth = _view_depth(SCREEN_UV, raw_scene_depth, INV_PROJECTION_MATRIX);
-	if (flat_bed_flag > 0.5) {
+	float raw_scene_depth = 0.0;
+	float scene_depth = surface_depth;
+	if (!physical_alpha) {
+		raw_scene_depth = textureLod(depth_texture, SCREEN_UV, 0.0).r;
+		scene_depth = _view_depth(SCREEN_UV, raw_scene_depth, INV_PROJECTION_MATRIX);
+	}
+	if (!physical_alpha && flat_bed_flag > 0.5) {
 		// WS-13b: the rendered sea bed lies metres below the flat gameplay bed.
 		// Every optical term below was tuned against that flat bed, so the column
 		// is measured to it: identical top-down water, real depth for cameras
@@ -1154,7 +1346,7 @@ void fragment() {
 	// R-1437: preserve the physical city column even if screen depth resolves to
 	// the surface/another transparent pass. The existing vertex-only depth fetch
 	// avoids exceeding Compatibility's fragment sampler budget. Districts opt out.
-	float basin_column = sea_physical_depth ? max(sea_basin_depth + surface_world.y, 0.0) : 0.0;
+	float basin_column = sea_physical_depth ? max(surface_world.y - sea_ground_y, 0.0) : 0.0;
 	water_column = max(water_column, basin_column);
 	// Authored water cells share a flat gameplay bed a few centimetres down, so the
 	// per-terrain absorption profile also selects a minimum optical path. This floor,
@@ -1163,6 +1355,9 @@ void fragment() {
 	// Rising coastal water hides more of the layered bed; ebbing water exposes it.
 	// Rivers use a zero w_tide_optical_depth profile and remain unchanged.
 	terrain_optical_depth = max(terrain_optical_depth + tide_level * w_tide_optical_depth, 0.018);
+	if (sea_physical_depth) {
+		terrain_optical_depth = 0.0;
+	}
 
 	// Ported from Tidewater (MIT), see notice.code.tidewater: follow the Snell-refracted
 	// view ray to the bed instead of the straight screen ray, which overestimates the
@@ -1182,7 +1377,7 @@ void fragment() {
 	// and project again. Never accept a sample whose depth is in front of the surface;
 	// that is the refraction halo that pulls dry bank pixels into the water.
 	vec2 refracted_uv = SCREEN_UV;
-	if (water_column > 0.0) {
+	if (!physical_alpha && water_column > 0.0) {
 		vec2 first_uv = _world_to_screen_uv(surface_world + transmitted_ray * path_len, PROJECTION_MATRIX, VIEW_MATRIX);
 		float first_raw = textureLod(depth_texture, clamp(first_uv, vec2(0.0), vec2(1.0)), 0.0).r;
 		vec3 first_bed = _view_position(first_uv, first_raw, INV_PROJECTION_MATRIX);
@@ -1210,72 +1405,196 @@ void fragment() {
 	}
 	// A rejected refinement keeps the straight sample and the column measured there.
 	refracted_uv = clamp(refracted_uv, vec2(0.001), vec2(0.999));
-	vec3 floor_color = textureLod(screen_texture, refracted_uv, 0.0).rgb;
+	vec3 floor_color = vec3(0.0);
+	if (!physical_alpha) {
+		floor_color = textureLod(screen_texture, refracted_uv, 0.0).rgb;
+	}
 	// Optical path in world units: the refracted path, floored by the terrain profile.
 	float water_depth = max(max(path_len, basin_column / transmitted_down), terrain_optical_depth);
 	// The layered bed and its caustics are classified by vertical depth (same floor),
 	// so an orbiting camera cannot turn sand into deep-water bed.
 	float bed_column = max(water_column, terrain_optical_depth);
 
-	// Sand dominates illuminated shallows, stones break it into cool patches,
-	// algae occupies sheltered mid-depth water, and the final layer suppresses
-	// all bed detail once little daylight reaches the floor. The actual rendered
-	// floor remains visible below the tint, preserving quays, props and authored
-	// bank materials seen through the surface.
-	vec4 bed_layers = _seabed_layers(water_world_position.xz, bed_column);
-	vec3 shallow_bed = (
-		sand_bed_color * bed_layers.x
-		+ stone_bed_color * bed_layers.y
-		+ algae_bed_color * bed_layers.z
-	);
-	vec3 layered_bed = mix(shallow_bed, deep_bed_color, bed_layers.w);
-	// The rendered terrain is physical geometry, but its grass texture should only
-	// survive as a restrained hint right at a clear, shallow edge. Otherwise the
-	// map's flat recessed bed makes it look like a meadow continues under water.
-	float bed_detail_visibility = exp(-water_depth * 9.5) * 0.18;
-	vec3 seabed = mix(layered_bed, floor_color * layered_bed * 1.18, bed_detail_visibility);
-
 	// Beer-Lambert along the refracted path. Wavelength-dependent extinction removes
 	// red first and blue last, so depth shifts hue instead of uniformly darkening RGB.
 	// sigma_t is art-scaled: the gameplay column is centimetres, not Baltic metres.
 	vec3 sigma_t = w_depth_absorption * vec3(1.28, 0.72, 0.40) / WATER_METERS_PER_UNIT;
+	float metres_per_unit = WATER_METERS_PER_UNIT;
+	if (sea_physical_depth) {
+		metres_per_unit = 1.0;
+		sigma_t = physical_extinction * water_turbidity;
+	}
 
-	// WS-07: caustics are light on the bed, applied before extinction, so the view path
-	// dims them again on the way up. They fade with depth (light_down), at night and
-	// under cloud. The sun-disk visibility ramp is intentionally not the gate: it spans
-	// only a few degrees and makes animated nets switch on as a band at sunrise; the
-	// wider solar envelope keeps the transition continuous.
 	float twilight_water_light = smoothstep(-0.25, 0.25, sun_direction.y);
-	// A caustic net only modulates the direct-sun share of the bed light; the skylight
-	// share is uniform. That share falls with sun height, squared because skylight takes
-	// over the bed at dusk (0.05 at a 13-degree sunset sun, none once the sun is down).
-	float caustic_direct_share = smoothstep(0.0, 0.7, sun_direction.y);
-	caustic_direct_share *= caustic_direct_share;
-	// Cloud: the contract's (1 - cloud_darken * 0.85) never acts, because MapViewLighting
-	// does not push cloud_darken to water (it stays 0; WS-11 owns that chain).
-	// sun_reflection_visibility is the direct-sun factor the glint already uses: sun disk
-	// x (1 - cloud coverage), 0.70 clear, 0.34 cloudy, 0.02 overcast. Its narrow horizon
-	// ramp sits where caustic_direct_share is already ~0, so it cannot band at sunrise.
-	float caustic_sun_gate = twilight_water_light * caustic_direct_share * (1.0 - bed_layers.w)
-		* sun_reflection_visibility;
-	// Where the refracted view ray meets the bed (WS-01 path), not the surface point.
-	vec2 caustic_bed_xz = surface_world.xz + transmitted_ray.xz * path_len;
-	vec2 caustic_slope = use_fft ? -world_normal.xz / max(world_normal.y, 0.2) : vec2(0.0);
-	seabed *= _bed_caustic_gain(
-		caustic_bed_xz, bed_column * WATER_METERS_PER_UNIT * CAUSTIC_APPARENT_SCALE, sun_direction,
-		caustic_slope, sigma_t, caustic_sun_gate
-	);
+	vec3 seabed = vec3(0.0);
+	// GL city transmission comes from fixed-function blending. Its synthetic
+	// bed and caustic samples are discarded, so skip that work explicitly.
+	if (!physical_alpha) {
+		// Sand dominates illuminated shallows, stones break it into cool patches,
+		// algae occupies sheltered mid-depth water, and the final layer suppresses
+		// all bed detail once little daylight reaches the floor. The actual rendered
+		// floor remains visible below the tint, preserving quays, props and authored
+		// bank materials seen through the surface.
+		vec4 bed_layers = _seabed_layers(water_world_position.xz, bed_column);
+		vec3 shallow_bed = (
+			sand_bed_color * bed_layers.x
+			+ stone_bed_color * bed_layers.y
+			+ algae_bed_color * bed_layers.z
+		);
+		vec3 layered_bed = mix(shallow_bed, deep_bed_color, bed_layers.w);
+		// The rendered terrain is physical geometry, but its grass texture should only
+		// survive as a restrained hint right at a clear, shallow edge. Otherwise the
+		// map's flat recessed bed makes it look like a meadow continues under water.
+		float bed_detail_visibility = exp(-water_depth * 9.5) * 0.18;
+		seabed = mix(layered_bed, floor_color * layered_bed * 1.18, bed_detail_visibility);
+		if (sea_physical_depth) {
+			// Preserve actual rocks, fish and foundations. Do not attenuate their
+			// contrast a second time with the old synthetic centimetre-deep bed.
+			seabed = floor_color;
+		}
 
-	float path_m = water_depth * WATER_METERS_PER_UNIT;
+		// WS-07: caustics are light on the bed, applied before extinction, so the view path
+		// dims them again on the way up. They fade with depth (light_down), at night and
+		// under cloud. The sun-disk visibility ramp is intentionally not the gate: it spans
+		// only a few degrees and makes animated nets switch on as a band at sunrise; the
+		// wider solar envelope keeps the transition continuous.
+		// A caustic net only modulates the direct-sun share of the bed light; the skylight
+		// share is uniform. That share falls with sun height, squared because skylight takes
+		// over the bed at dusk (0.05 at a 13-degree sunset sun, none once the sun is down).
+		float caustic_direct_share = smoothstep(0.0, 0.7, sun_direction.y);
+		caustic_direct_share *= caustic_direct_share;
+		// Cloud: the contract's (1 - cloud_darken * 0.85) never acts, because MapViewLighting
+		// does not push cloud_darken to water (it stays 0; WS-11 owns that chain).
+		// sun_reflection_visibility is the direct-sun factor the glint already uses: sun disk
+		// x (1 - cloud coverage), 0.70 clear, 0.34 cloudy, 0.02 overcast. Its narrow horizon
+		// ramp sits where caustic_direct_share is already ~0, so it cannot band at sunrise.
+		float caustic_sun_gate = twilight_water_light * caustic_direct_share * (1.0 - bed_layers.w)
+			* sun_reflection_visibility;
+		// Where the refracted view ray meets the bed (WS-01 path), not the surface point.
+		vec2 caustic_bed_xz = surface_world.xz + transmitted_ray.xz * path_len;
+		vec2 caustic_slope = use_fft ? -world_normal.xz / max(world_normal.y, 0.2) : vec2(0.0);
+		seabed *= _bed_caustic_gain(
+			caustic_bed_xz, bed_column * WATER_METERS_PER_UNIT * CAUSTIC_APPARENT_SCALE, sun_direction,
+			caustic_slope, sigma_t, caustic_sun_gate
+		);
+	}
+
+	float path_m = water_depth * metres_per_unit;
 	vec3 spectral_transmission = exp(-sigma_t * path_m);
 	float absorption = 1.0 - dot(spectral_transmission, vec3(0.333333));
 	vec3 transmitted = seabed * spectral_transmission;
+	#if CURRENT_RENDERER == RENDERER_COMPATIBILITY
+	if (sea_physical_depth) {
+		// GLES screen copies alias atlas samplers on this large material (the
+		// underwater pass has the same driver constraint). Let fixed-function
+		// blending transmit the actual opaque bed/fish; shade only the water.
+		transmitted = vec3(0.0);
+	}
+	#endif
 	vec3 water_color = transmitted + w_deep_color * (vec3(1.0) - spectral_transmission) * 0.82;
 	water_color = mix(water_color, w_shallow_color, (1.0 - absorption) * 0.12);
 	if (shore_live) {
-		// Breaking waves stir sand into the surf zone.
-		water_color = mix(water_color, sand_bed_color * 0.9, SHORE_TURBIDITY * shore_now.surf_zone * shore_now.valid);
+		// The stirred sediment continues into the run-up. The legacy surf-zone
+		// mask steps at distance zero: using it as a city tint drew a ruler-sharp
+		// sea/shore colour boundary even though geometry and normals were joined.
+		float stirred = shore_now.surf_zone;
+		float sediment = SHORE_TURBIDITY * shore_now.valid;
+		if (sea_physical_depth) {
+			stirred = max(stirred,
+				(1.0 - smoothstep(0.0, 0.5, shore_now.distance)) * shore_now.beach);
+			// A centimetre-thin sheet cannot scatter like a metre-deep bore.
+			sediment *= absorption;
+		}
+		water_color = mix(water_color, sand_bed_color * 0.9, sediment * stirred);
 	}
+
+	vec2 city_foam = vec2(0.0);
+	if (sea_physical_depth) {
+		vec2 advected = wave_sample_xz;
+		if (shore_live) {
+			// Water side: the bore's landward lunge and slow return (surge). Sheet
+			// side: the run-up front carries its water up the sand and back.
+			float front = shore_now.front_distance - shore_now.distance;
+			float on_sheet = 1.0 - smoothstep(-0.4, 0.4, shore_now.distance);
+			float shift = mix(shore_now.surge, front * shore_depth_scale * shore_now.beach, on_sheet);
+			advected -= shore_now.to_land * shift * shore_now.valid;
+		}
+		city_foam = _city_foam_cells(advected);
+	}
+	// COLOR.r is baked from the same smooth contour that clips the mesh. A pair
+	// of advancing breaker bands now travels into that contour, crests, and fades
+	// at the bank. This reads as surf arriving at shore rather than static edge foam.
+	float shore = 1.0 - smoothstep(0.0, 0.88, shore_factor);
+	float breaker_phase = shore_factor * 18.0 + TIME * (1.45 * wave_speed);
+	float breaker_warp = (_noise(water_world_position.xz * 0.42 + vec2(TIME * 0.08, -TIME * 0.04)) - 0.5) * 3.4;
+	float breaker_a = pow(max(sin(breaker_phase + breaker_warp), 0.0), 5.0);
+	float breaker_b = pow(max(sin(breaker_phase * 0.62 + breaker_warp * 0.7 + 2.4), 0.0), 7.0);
+	float breaker_band = (breaker_a + breaker_b * 0.55) * smoothstep(0.04, 0.92, shore);
+	if (shore_live) {
+		// The analytic bore replaces the travelling sin() bands; hard edges throw
+		// foam at the foot of the wall instead of running up.
+		float swash_foam = shore_now.bore_foam * mix(0.45, 1.0, _swash_patch(water_world_position.xz, TIME));
+		swash_foam += shore_now.wall_foam * mix(0.35, 1.0, _swash_patch(water_world_position.xz * 1.3, TIME));
+		breaker_band = mix(breaker_band, 0.0, shore_now.valid);
+		// Broken water is aerated white, unlike the tinted edge foam: add it after the
+		// breaker scale so the bore reads from the gameplay camera.
+		if (sea_physical_depth) {
+			float front = shore_now.front_distance - shore_now.distance;
+			float front_coordinate = (shore_now.front_distance - 0.28) / 0.4;
+			float rolling_front = exp(-front_coordinate * front_coordinate);
+			float trailing_foam = exp(-max(shore_now.front_distance, 0.0) / 1.4) * 0.45;
+			float runup_foam = (rolling_front * 1.4 + trailing_foam)
+				* smoothstep(0.001, 0.04, front) * smoothstep(0.0, 0.1, shore_now.front_distance)
+				* shore_now.beach * shore_now.valid;
+			swash_foam = mix(swash_foam, max(swash_foam, runup_foam),
+				smoothstep(-0.45, 0.12, sea_ground_y));
+		}
+		swash_bore = clamp(swash_foam * shore_now.valid, 0.0, 1.0);
+		if (sea_physical_depth) {
+			// WR-2: coverage follows the bore's age, not a saturated gain. The
+			// fresh roller just behind the front is a dense white band; behind it
+			// foam dissolves into lace over CITY_SURF_FOAM_LIFE seconds; between
+			// sets only a thin, patchy scum remains. foam_gain scales coverage.
+			float age = shore_now.foam_age;
+			float energy = mix(0.55, 1.0, clamp(shore_sea_state, 0.0, 1.0));
+			// Squares by multiplication: GLSL pow() is undefined for a negative base
+			// (the NaN class behind the earlier dark shore bands).
+			float roller_x = (age - 0.35) / 0.5;
+			float roller = exp(-roller_x * roller_x);
+			float trail = exp(-age / CITY_SURF_FOAM_LIFE);
+			float zone = clamp(shore_now.bore_foam / max(shore_foam_gain, 0.001), 0.0, 1.0);
+			float coverage = max(roller * 0.95, trail * 0.6) * step(0.0, shore_now.distance)
+				* smoothstep(0.0, 0.25, zone) * energy;
+			// Hard edges (quays, rocks) keep their slosh foam band.
+			coverage = max(coverage, clamp(shore_now.wall_foam, 0.0, 1.0) * 0.8);
+			coverage = max(coverage, CITY_SURF_SCUM * shore_now.surf_zone * energy);
+			// The run-up film is a thin, see-through sheet: a narrow foam bead at
+			// its leading edge and sparse lace behind it, not a white blanket.
+			float behind_front = shore_now.front_distance * shore_depth_scale;
+			float wet_sheet = step(shore_now.distance, 0.0) * step(0.0, behind_front)
+				* shore_now.beach * step(0.02, shore_now.front_distance - shore_now.distance);
+			float bead_x = (behind_front - 0.35) / 0.4;
+			float bead = exp(-bead_x * bead_x);
+			float lace = exp(-behind_front / 2.5) * 0.35;
+			coverage = max(coverage, max(bead * 0.9, lace) * wet_sheet * energy);
+			swash_bore = _foam_dissolve(city_foam.x, coverage * shore_now.valid)
+				* mix(0.7, 1.0, roller);
+		}
+	}
+	vec2 foam_uv = water_world_position.xz * 3.4 + vec2(-TIME * 0.22, TIME * 0.09) * wave_speed;
+	float foam_noise = _noise(foam_uv + _noise(foam_uv * 0.47) * 2.2);
+	float foam_ribbon = 0.5 + 0.5 * sin(
+		dot(water_world_position.xz, vec2(5.4, 3.8)) - TIME * 0.85 * wave_speed + foam_noise * 3.0
+	);
+	float edge_foam = shore * smoothstep(0.52, 0.88, foam_noise * 0.70 + foam_ribbon * 0.30);
+	float foam = edge_foam * foam_intensity + breaker_band * breaker_intensity;
+	foam *= smoothstep(0.012, 0.08, water_column);
+	if (sea_physical_depth) {
+		// WR-2: the edge ribbons scroll with TIME regardless of the water; the
+		// city's surf, whitecaps and wakes carry all of its foam.
+		foam = 0.0;
+	}
+
 
 	// WS-06 whitecaps. The baked mask decides where foam is; the foam tile, sampled at
 	// the undisplaced wave_sample_xz (in the wind frame) so it rides the surface,
@@ -1289,12 +1608,28 @@ void fragment() {
 		vec2 whitecap_uv = _fft_to_wind(wave_sample_xz, _fft_wind_axis()) * foam_tile_scale;
 		vec2 foam_drift_a = vec2(ocean_time * FOAM_DRIFT_A_TILES_PER_WRAP / OCEAN_TIME_WRAP_SECONDS, 0.0);
 		vec2 foam_drift_b = vec2(ocean_time * FOAM_DRIFT_B_TILES_PER_WRAP / OCEAN_TIME_WRAP_SECONDS, 0.0);
-		vec4 tile_a = texture(foam_tile, whitecap_uv - foam_drift_a);
-		vec4 tile_b = texture(foam_tile, whitecap_uv * 2.3 + vec2(0.37, 0.61) - foam_drift_b);
-		float foam_texture = mix(tile_a.r, tile_b.r, 0.5) * mix(0.7, 1.0, tile_a.g);
+		vec4 tile_a = vec4(0.0);
+		float foam_texture;
+		if (sea_physical_depth) {
+			foam_texture = city_foam.x;
+			tile_a.b = city_foam.y * CITY_STREAK_SHARE;
+		} else {
+			tile_a = texture(foam_tile, whitecap_uv - foam_drift_a);
+			vec4 tile_b = texture(foam_tile, whitecap_uv * 2.3 + vec2(0.37, 0.61) - foam_drift_b);
+			foam_texture = mix(tile_a.r, tile_b.r, 0.5) * mix(0.7, 1.0, tile_a.g);
+		}
 		// Capped so even a storm crest keeps bubble holes instead of a flat white sheet.
 		float foam_mask = min(fft_foam.x * storm_foam_coverage * foam_coverage, FOAM_MASK_CAP);
 		whitecap = clamp((foam_mask - (1.0 - foam_texture)) * foam_sharpness, 0.0, 1.0);
+		if (sea_physical_depth) {
+			// WR-2: the baked mask is broad (it carries every decaying patch), so the
+			// old threshold whitened most of the city sea. Only the upper part of the
+			// mask breaks: open-sea cover then grows from a few % in a fresh breeze
+			// towards a fifth of the sea in a gale (Monahan-like), as lace.
+			float breaking = clamp((foam_mask - CITY_WHITECAP_THRESHOLD)
+				/ (1.0 - CITY_WHITECAP_THRESHOLD), 0.0, 1.0);
+			whitecap = _foam_dissolve(foam_texture, breaking * CITY_WHITECAP_GAIN);
+		}
 		// Storm streaks: the tile's B channel is stretched 6:1 along +X, which is
 		// downwind in the wind frame. The coarse C0 mask links them to whitecaps.
 		float streak_link = smoothstep(0.02, 0.3, fft_foam.z * storm_foam_coverage);
@@ -1316,6 +1651,10 @@ void fragment() {
 		// about a second; this thin lace over the brightest bubble rims keeps it
 		// visible for the few seconds the bake still carries it.
 		float foam_trail = smoothstep(0.06, 0.3, foam_mask) * smoothstep(0.35, 0.75, foam_texture) * open_water;
+		if (sea_physical_depth) {
+			// Old whitecap foam: sparse lace that thins as the mask decays.
+			foam_trail = _foam_dissolve(foam_texture, smoothstep(0.2, 0.9, foam_mask) * 0.35) * open_water;
+		}
 		float whitecap_old = max(whitecap - whitecap_fresh, foam_trail * 0.9);
 		water_color = mix(water_color, mix(w_shallow_color, w_foam_color, 0.4), whitecap_old * 0.6);
 		water_color = mix(water_color, mix(w_foam_color, vec3(0.93, 0.95, 0.94), 0.6), whitecap_fresh);
@@ -1323,12 +1662,15 @@ void fragment() {
 		whitecap_fresh = max(whitecap_fresh, wind_streak);
 	}
 
+	float surface_foam = sea_physical_depth
+		? clamp(max(whitecap_fresh, max(swash_bore, foam)), 0.0, 1.0) : whitecap_fresh;
+
 	// Thin crests transmit more Baltic teal than troughs; fades with the same solar
 	// envelope as floor caustics so night water stays dark without a bloom pass.
 	float crest_subsurface = smoothstep(0.0, 0.30, max(crest_term, 0.0));
 	crest_subsurface *= choppiness * smoothstep(0.14, 0.48, shore_factor);
 	// Fresh foam is opaque: no light comes through the crest under it.
-	crest_subsurface *= 1.0 - whitecap_fresh;
+	crest_subsurface *= 1.0 - surface_foam;
 	float crest_sss_visibility = twilight_water_light * day_blend;
 	vec3 crest_transmit_tint = mix(w_shallow_color, w_highlight_color, 0.58);
 	water_color += crest_transmit_tint
@@ -1364,9 +1706,14 @@ void fragment() {
 		0.0,
 		0.88
 	);
+	if (sea_physical_depth) {
+		// A fixed 34% reflection bleaches the bed even when looking straight
+		// down. Fresnel gives clear shallows and a reflective grazing horizon.
+		sky_reflection_weight = clamp(fresnel, 0.02, 0.92);
+	}
 	// Fresh foam is rough and diffuse, so it does not mirror the sky. Old foam lies
 	// under the surface and keeps the reflection on top of it.
-	sky_reflection_weight *= 1.0 - whitecap_fresh;
+	sky_reflection_weight *= 1.0 - surface_foam;
 	// Stagnant water: darken and tint the column, then lay a floating film over it.
 	// shore_factor is 0 at the bank and grows toward open water, so it doubles as a
 	// depth cue: silty shelf at the edge, near-black olive in the middle.
@@ -1434,41 +1781,14 @@ void fragment() {
 	// cue without a racing sparkle highway while the disk skims the horizon on a
 	// compressed day cycle.
 	float low_sun_glitter = smoothstep(-0.02, 0.22, sun_direction.y);
-	float sun_glint_gate = sun_reflection_visibility * mix(0.2, 1.0, low_sun_glitter);
-	float sun_light_share = smoothstep(SUN_LIGHT_HANDOFF_Y, 0.0, sun_direction.y);
-	// During the moon-to-sun handoff the light points between the two bodies, so
-	// the moon share fades out quadratically and never paints a glint from nowhere.
-	float moon_glint_gate = moon_visibility * (1.0 - sun_light_share) * (1.0 - sun_light_share);
-	directional_glint_gate = (moon_glint_gate + sun_glint_gate * sun_light_share) * (1.0 - whitecap_fresh);
-	local_glint_gate = 1.0 - whitecap_fresh;
+	float sun_glint_gate = sun_reflection_visibility * smoothstep(0.0, 0.05, sun_direction.y)
+		* mix(0.2, 1.0, low_sun_glitter);
+	// MapViewLighting uses the actual sun or moon bearing, never an interpolated one.
+	float sun_light_share = step(0.0, sun_direction.y);
+	float moon_glint_gate = moon_visibility * (1.0 - sun_light_share);
+	directional_glint_gate = (moon_glint_gate + sun_glint_gate * sun_light_share) * (1.0 - surface_foam);
+	local_glint_gate = 1.0 - surface_foam;
 
-	// COLOR.r is baked from the same smooth contour that clips the mesh. A pair
-	// of advancing breaker bands now travels into that contour, crests, and fades
-	// at the bank. This reads as surf arriving at shore rather than static edge foam.
-	float shore = 1.0 - smoothstep(0.0, 0.88, shore_factor);
-	float breaker_phase = shore_factor * 18.0 + TIME * (1.45 * wave_speed);
-	float breaker_warp = (_noise(water_world_position.xz * 0.42 + vec2(TIME * 0.08, -TIME * 0.04)) - 0.5) * 3.4;
-	float breaker_a = pow(max(sin(breaker_phase + breaker_warp), 0.0), 5.0);
-	float breaker_b = pow(max(sin(breaker_phase * 0.62 + breaker_warp * 0.7 + 2.4), 0.0), 7.0);
-	float breaker_band = (breaker_a + breaker_b * 0.55) * smoothstep(0.04, 0.92, shore);
-	if (shore_live) {
-		// The analytic bore replaces the travelling sin() bands; hard edges throw
-		// foam at the foot of the wall instead of running up.
-		float swash_foam = shore_now.bore_foam * mix(0.45, 1.0, _swash_patch(water_world_position.xz, TIME));
-		swash_foam += shore_now.wall_foam * mix(0.35, 1.0, _swash_patch(water_world_position.xz * 1.3, TIME));
-		breaker_band = mix(breaker_band, 0.0, shore_now.valid);
-		// Broken water is aerated white, unlike the tinted edge foam: add it after the
-		// breaker scale so the bore reads from the gameplay camera.
-		swash_bore = clamp(swash_foam * shore_now.valid, 0.0, 1.0);
-	}
-	vec2 foam_uv = water_world_position.xz * 3.4 + vec2(-TIME * 0.22, TIME * 0.09) * wave_speed;
-	float foam_noise = _noise(foam_uv + _noise(foam_uv * 0.47) * 2.2);
-	float foam_ribbon = 0.5 + 0.5 * sin(
-		dot(water_world_position.xz, vec2(5.4, 3.8)) - TIME * 0.85 * wave_speed + foam_noise * 3.0
-	);
-	float edge_foam = shore * smoothstep(0.52, 0.88, foam_noise * 0.70 + foam_ribbon * 0.30);
-	float foam = edge_foam * foam_intensity + breaker_band * breaker_intensity;
-	foam *= smoothstep(0.012, 0.08, water_column);
 
 	// Jacobian whitecaps on the Gerstner fallback: folding crests, not shoreline bands.
 	// A short time lag leaves foam behind the advancing crest without a foam buffer.
@@ -1531,6 +1851,16 @@ void fragment() {
 	water_color = mix(water_color, mix(w_foam_color, vec3(0.93, 0.95, 0.94), 0.6), swash_bore * 0.85);
 
 	ALBEDO = water_color;
+	ALPHA = 1.0;
+	#if CURRENT_RENDERER == RENDERER_COMPATIBILITY
+	if (sea_physical_depth) {
+		float foam_cover = clamp(max(foam, max(whitecap_fresh, swash_bore)), 0.0, 1.0);
+		float through = dot(spectral_transmission, vec3(0.2126, 0.7152, 0.0722))
+			* (1.0 - sky_reflection_weight) * (1.0 - foam_cover);
+		ALPHA = clamp(1.0 - through, 0.025, 1.0);
+		ALBEDO = water_color / ALPHA;
+	}
+	#endif
 	// WS-02 roughness from wave slope variance (Toksvig-style). Calm water is a
 	// near mirror; rivers and foam are rougher. A rougher sea widens the glitter
 	// path, and slope the pixel cannot resolve (distant waves, the detail normal
@@ -1549,10 +1879,10 @@ void fragment() {
 	SPECULAR = mix(0.05, 0.25, sun_visibility);
 	// WS-06: fresh foam is a rough diffuse scatterer. It takes its brightness from
 	// the lights through ALBEDO, so it dims with the night instead of glowing.
-	ROUGHNESS = mix(ROUGHNESS, 0.6, whitecap_fresh);
+	ROUGHNESS = mix(ROUGHNESS, sea_physical_depth ? 0.72 : 0.6, surface_foam);
 	// Duckweed and leaf litter scatter light diffusely, unlike open water.
 	ROUGHNESS = mix(ROUGHNESS, 0.75, scum_cover);
-	SPECULAR = mix(SPECULAR, 0.1, whitecap_fresh);
+	SPECULAR = mix(SPECULAR, sea_physical_depth ? 0.05 : 0.1, surface_foam);
 	glint_alpha = ROUGHNESS * ROUGHNESS;
 	// WHY full Lambert rather than the ~0.02 of physical water: ALBEDO here is the
 	// already composited transmitted bed plus sky reflection, tuned under the old
@@ -1565,12 +1895,15 @@ void fragment() {
 	// the critical angle, total internal reflection (a silver-green mirror of the
 	// lit water) outside it. Unshaded via EMISSION so the sun cannot light the
 	// underside a second time.
-	// WHY not FRONT_FACING: some view water meshes (map-edge strips) are wound the
-	// other way, so their top reads as a back face from the gameplay camera. The
-	// camera being below the surface point is the robust test.
+	// City sea triangles have consistent winding. A tall approaching crest can be
+	// above the eye while its FRONT is visible: comparing heights paints a false
+	// underwater band across that crest. Legacy district edge strips have mixed
+	// winding and retain their rest-height convention.
 	vec3 camera_world = INV_VIEW_MATRIX[3].xyz;
-	bool seen_from_below = camera_world.y < water_world_position.y;
+	bool seen_from_below = sea_physical_depth ? !FRONT_FACING
+		: camera_world.y < water_world_position.y;
 	if (seen_from_below && !swash_sheet) {
+		ALPHA = 1.0;
 		vec3 uw_ambient;
 		vec3 uw_sun;
 		_uw_lighting(
@@ -1587,6 +1920,12 @@ void fragment() {
 			textureLod(screen_texture, uw.uv, 0.0).g,
 			textureLod(screen_texture, clamp(uw.uv - uw.fringe, vec2(0.001), vec2(0.999)), 0.0).b
 		);
+#if CURRENT_RENDERER == RENDERER_COMPATIBILITY
+		if (sea_physical_depth) {
+			vec3 exit_ray = refract(-world_view, -normalize(mix(vec3(0.0, 1.0, 0.0), world_normal, 0.6)), WATER_IOR);
+			uw_air = _sky_dome_reflection(normalize(exit_ray + vec3(0.0, 0.0001, 0.0)));
+		}
+#endif
 		EMISSION = _uw_below_color(
 			uw, uw_air, -world_view, uw_ambient, uw_sun, sun_direction, _uw_sigma_t(cloud_darken),
 			deep_bed_color
@@ -1608,6 +1947,7 @@ void fragment() {
 		directional_glint_gate = sun_glint_gate * sun_light_share * (1.0 - sheet_foam);
 		local_glint_gate = 1.0 - sheet_foam;
 	}
+	ALPHA *= city_coverage;
 	if (debug_foam_mask > 0.5) {
 		// Unlit mask: lighting and the foam tile must not hide renderer coverage.
 		vec3 mask = vec3(fft_foam.x);
@@ -1616,6 +1956,20 @@ void fragment() {
 		ROUGHNESS = 1.0;
 		SPECULAR = 0.0;
 		ALPHA = 1.0;
+		directional_glint_gate = 0.0;
+		local_glint_gate = 0.0;
+		diffuse_share = 0.0;
+	}
+	if (debug_surface_validity) {
+		bool invalid = any(isnan(world_normal)) || any(isinf(world_normal))
+			|| any(isnan(water_color)) || any(isinf(water_color))
+			|| isnan(swash_bore) || isnan(ALPHA) || invalid_surface_vertex > 0.001;
+		ALBEDO = vec3(0.0);
+		EMISSION = invalid ? vec3(1.0, 0.0, 1.0) : vec3(0.0, 1.0, 0.0);
+		NORMAL = vec3(0.0, 0.0, 1.0);
+		glint_alpha = 1.0;
+		ALPHA = 1.0;
+		SPECULAR = 0.0;
 		directional_glint_gate = 0.0;
 		local_glint_gate = 0.0;
 		diffuse_share = 0.0;

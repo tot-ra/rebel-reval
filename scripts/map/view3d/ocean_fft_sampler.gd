@@ -41,6 +41,8 @@ const PHYSICAL_SURFACE := Vector3(1.0, 1.0, -1.0)
 ## Fixed-point iterations that invert horizontal chop in height_at(). Three
 ## converge under 1 mm for choppiness <= 1.2 (WS-05 contract).
 const HEIGHT_ITERATIONS := 3
+## Width (world units) of the smooth max in bed_trough(), as FFT_BED_SOFTNESS.
+const BED_SOFTNESS := 0.08
 
 static var _loaded := false
 static var _load_failed := false
@@ -277,10 +279,12 @@ static func clear_time_override() -> void:
 ## Weighted C0 + C1 displacement in metres, bake frame (_fft_displacement_at).
 ## Each cascade is bilinear in space and linear between the two bracketing frames,
 ## exactly like _fft_sample with a repeat, linear-filtered sampler at LOD 0.
-static func baked_displacement(p: Vector2, time: float) -> Vector3:
+## c1_geometry scales cascade 1 only, like the shader's _fft_displacement_at_c1
+## (WR-1: the city's 4 m sea grid leaves C1 out of its geometry).
+static func baked_displacement(p: Vector2, time: float, c1_geometry := 1.0) -> Vector3:
 	var result := Vector3.ZERO
 	for cascade in DISP_CASCADES:
-		var weight := _weights[cascade]
+		var weight := _weights[cascade] * (c1_geometry if cascade == 1 else 1.0)
 		if weight == 0.0:
 			continue
 		var n := _texels[cascade]
@@ -363,7 +367,7 @@ static func baked_displacement(p: Vector2, time: float) -> Vector3:
 ## shader's shore fade (_fft_displacement_foam). The surface point is
 ## x' = x + lambda * D with the positive WS-03 sign.
 static func displacement_at(
-	world_xz: Vector2, time: float, surface: Vector3 = PHYSICAL_SURFACE
+	world_xz: Vector2, time: float, surface: Vector3 = PHYSICAL_SURFACE, c1_geometry := 1.0
 ) -> Vector3:
 	if not ensure_loaded():
 		return Vector3.ZERO
@@ -371,11 +375,11 @@ static func displacement_at(
 	var p := Vector2(
 		world_xz.x * axis.x + world_xz.y * axis.y, -world_xz.x * axis.y + world_xz.y * axis.x
 	)
-	var d := baked_displacement(p, time)
+	var d := baked_displacement(p, time, c1_geometry)
 	var standing := clampf(surface.z if surface.z >= 0.0 else _standing, 0.0, 1.0)
 	if standing > 0.01:
 		# Mirror train F(-p) with its horizontal displacement negated back.
-		var o := baked_displacement(-p, time)
+		var o := baked_displacement(-p, time, c1_geometry)
 		o.x = -o.x
 		o.z = -o.z
 		d = d.lerp(0.5 * (d + o), standing)
@@ -393,13 +397,14 @@ static func height_at(
 	world_xz: Vector2,
 	time: float,
 	surface: Vector3 = PHYSICAL_SURFACE,
-	iterations: int = HEIGHT_ITERATIONS
+	iterations: int = HEIGHT_ITERATIONS,
+	c1_geometry := 1.0
 ) -> float:
 	var x0 := world_xz
 	for i in iterations:
-		var d := displacement_at(x0, time, surface)
+		var d := displacement_at(x0, time, surface, c1_geometry)
 		x0 = world_xz - Vector2(d.x, d.z)
-	return displacement_at(x0, time, surface).y
+	return displacement_at(x0, time, surface, c1_geometry).y
 
 
 ## Height of the rendered mesh: height_at() through the shader's soft trough floor.
@@ -416,6 +421,14 @@ static func surface_height_at(
 ## _fft_trough_floor: troughs ease into a floor just above the recessed bed.
 static func trough_floor(y: float) -> float:
 	return -TROUGH_FLOOR * (1.0 - exp(y / TROUGH_FLOOR)) if y < 0.0 else y
+
+
+## _fft_bed_trough (WR-1): over a real bed troughs keep their depth and only ease
+## into the bed. `room` is rest surface minus (bed + clearance), world units.
+static func bed_trough(y: float, room: float) -> float:
+	var floor_y := -maxf(room, 0.0)
+	var h := maxf(BED_SOFTNESS - absf(y - floor_y), 0.0) / BED_SOFTNESS
+	return maxf(y, floor_y) + h * h * BED_SOFTNESS * 0.25
 
 
 ## Water-mesh COLOR.r: inverse_lerp of combined coverage from the clip threshold

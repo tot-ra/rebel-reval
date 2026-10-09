@@ -409,13 +409,16 @@ func test_fft_whitecaps_come_from_baked_foam_and_the_foam_tile() -> void:
 		"the weighted baked mask scales with weather and coverage",
 	)
 	assert_true(
-		source.contains("sky_reflection_weight *= 1.0 - whitecap_fresh;"),
+		source.contains("sky_reflection_weight *= 1.0 - surface_foam;"),
 		"fresh foam suppresses the sky mirror",
 	)
 	assert_true(
-		source.contains("crest_subsurface *= 1.0 - whitecap_fresh;"), "foam dims the crest glow"
+		source.contains("crest_subsurface *= 1.0 - surface_foam;"), "foam dims the crest glow"
 	)
-	assert_true(source.contains("ROUGHNESS = mix(ROUGHNESS, 0.6, whitecap_fresh);"), "foam is rough")
+	assert_true(
+		source.contains("ROUGHNESS = mix(ROUGHNESS, sea_physical_depth ? 0.72 : 0.6, surface_foam);"),
+		"city bore foam and whitecaps are diffuse; district roughness is retained"
+	)
 	assert_false(source.contains("EMISSION = foam"), "foam is lit, never emissive")
 	var include := FileAccess.get_file_as_string(
 		"res://scripts/map/view3d/ocean_fft_common.gdshaderinc"
@@ -531,8 +534,9 @@ func test_water_shader_shares_fft_include_and_draws_snells_window_from_below() -
 	for removed in ["camera_submerge", "underwater_fog_density", "underwater_fog_strength"]:
 		assert_false(removed in source, "the P0-227 tint (%s) is replaced by the pass" % removed)
 	assert_true(
-		source.contains("bool seen_from_below = camera_world.y < water_world_position.y;"),
-		"the underside branch keys on the camera height, not mesh winding",
+		source.contains("bool seen_from_below = sea_physical_depth ? !FRONT_FACING")
+		and source.contains(": camera_world.y < water_world_position.y;"),
+		"city crests use face orientation; legacy mixed-winding district edges retain height",
 	)
 	assert_true(
 		source.contains("if (seen_from_below && !swash_sheet)"), "the underside has its own branch"

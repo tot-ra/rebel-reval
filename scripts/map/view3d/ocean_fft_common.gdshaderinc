@@ -84,32 +84,42 @@ vec4 _fft_signed(vec4 encoded, vec4 scale) {
 // decoded, WS-03 amendment 1): x = weather-weighted mask w0*a0 + w1*a1,
 // y = freshness max(a0, a1) (the bake decays foam, so high = just broken),
 // z = the C0 share alone, a 1 m/texel coarse mask that connects wind streaks.
-vec3 _fft_displacement_at(vec2 p, out vec3 foam) {
+//
+// c1_geometry scales only C1's displacement (never its foam). WR-1: a mesh whose
+// vertices are further apart than half C1's shortest wave (4 m) samples it below
+// Nyquist and draws aliased spikes; such meshes pass 0 and keep C1 in the
+// per-pixel normal (_fft_derivatives_at) instead.
+vec3 _fft_displacement_at_c1(vec2 p, out vec3 foam, float c1_geometry) {
 	vec4 c0 = fft_cascade[0];
 	vec4 c1 = fft_cascade[1];
 	vec4 s0 = _fft_sample(fft_c0_disp, p / c0.x, c0, 0.0);
 	vec4 s1 = _fft_sample(fft_c1_disp, p / c1.x, c1, 0.0);
 	vec3 d = _fft_signed(s0, fft_disp_scale[0]).xyz * c0.w
-		+ _fft_signed(s1, fft_disp_scale[1]).xyz * c1.w;
+		+ _fft_signed(s1, fft_disp_scale[1]).xyz * (c1.w * c1_geometry);
 	foam = vec3(s0.a * c0.w + s1.a * c1.w, max(s0.a, s1.a), s0.a * c0.w);
 	return d;
 }
 
+vec3 _fft_displacement_at(vec2 p, out vec3 foam) {
+	return _fft_displacement_at_c1(p, foam, 1.0);
+}
+
 // Same displacement with explicit chop, standing ratio and geometry scale, so the sea
 // materials can blend them by depth and meet without a crack (map_view_water vertex()).
-vec3 _fft_displacement_foam_with(
-	vec2 world_xz, out vec3 foam, float chop_in, float standing_in, float geometry_scale
+vec3 _fft_displacement_foam_with_c1(
+	vec2 world_xz, out vec3 foam, float chop_in, float standing_in, float geometry_scale,
+	float c1_geometry
 ) {
 	vec2 axis = _fft_wind_axis();
 	vec2 p = _fft_to_wind(world_xz, axis);
-	vec3 d = _fft_displacement_at(p, foam);
+	vec3 d = _fft_displacement_at_c1(p, foam, c1_geometry);
 	float standing = clamp(standing_in, 0.0, 1.0);
 	// Two equal trains in opposite directions sum to a standing wave. The mirror
 	// train is F(-p) with horizontal displacement negated back; height and foam
 	// keep their sign. Branch on the uniform so open sea pays nothing.
 	if (standing > 0.01) {
 		vec3 mirror_foam;
-		vec3 o = _fft_displacement_at(-p, mirror_foam);
+		vec3 o = _fft_displacement_at_c1(-p, mirror_foam, c1_geometry);
 		o.xz = -o.xz;
 		d = mix(d, 0.5 * (d + o), standing);
 		foam = mix(foam, 0.5 * (foam + mirror_foam), standing);
@@ -119,6 +129,12 @@ vec3 _fft_displacement_foam_with(
 	world_d.xz = _fft_from_wind(d.xz * chop * FFT_HORIZONTAL_GEOMETRY, axis);
 	world_d.y = d.y;
 	return world_d * (ocean_amplitude * geometry_scale / FFT_METERS_PER_WORLD_UNIT);
+}
+
+vec3 _fft_displacement_foam_with(
+	vec2 world_xz, out vec3 foam, float chop_in, float standing_in, float geometry_scale
+) {
+	return _fft_displacement_foam_with_c1(world_xz, foam, chop_in, standing_in, geometry_scale, 1.0);
 }
 
 // World-unit displacement (before shore fade) plus the WS-06 foam terms of
@@ -257,6 +273,19 @@ const vec3 WATER_SIGMA_T_PER_M = vec3(0.36, 0.075, 0.062);
 // waterline sits exactly on the rendered surface.
 float _fft_trough_floor(float y) {
 	return y < 0.0 ? -FFT_TROUGH_FLOOR * (1.0 - exp(y / FFT_TROUGH_FLOOR)) : y;
+}
+
+// WR-1: troughs over a real bed (the city's metre-scale bathymetry). `room` is
+// how far the rest surface sits above the lowest allowed water (bed + clearance).
+// The district floor above clamps every trough to ~1.5 mm, which over deep water
+// rectifies the sea into ridges on a flat plane: the "sharp crest" artefact.
+// Here troughs keep their full depth and only ease (polynomial smooth max,
+// FFT_BED_SOFTNESS wide) into the bed where the water is too shallow to hold them.
+const float FFT_BED_SOFTNESS = 0.08;
+float _fft_bed_trough(float y, float room) {
+	float floor_y = -max(room, 0.0);
+	float h = max(FFT_BED_SOFTNESS - abs(y - floor_y), 0.0) / FFT_BED_SOFTNESS;
+	return max(y, floor_y) + h * h * FFT_BED_SOFTNESS * 0.25;
 }
 
 // ---- Shared underwater lighting (WS-13) -------------------------------------
