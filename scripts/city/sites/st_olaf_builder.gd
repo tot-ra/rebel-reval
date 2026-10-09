@@ -67,6 +67,9 @@ static func build(site: CitySite, _plan: CityPlan) -> Node3D:
 	church.add_child(lower_node)
 	church.add_child(upper_node)
 	church.add_child(roof_node)
+	ChurchSunlight.apply(
+		church, lower_node, upper_node, roof_node, fabric, Kit.GLAZING.get(site.id, 0)
+	)
 	Furnish.coronas(
 		upper_node,
 		[Vector2(18.6, 0.0), Vector2(25.25, 0.0), Vector2(32.75, 0.0), Vector2(39.4, 0.0)],

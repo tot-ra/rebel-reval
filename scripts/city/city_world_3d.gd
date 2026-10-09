@@ -143,6 +143,8 @@ func apply_time(progress: float) -> void:
 	if sun == null:
 		return
 	MapViewLighting.apply_cycle_progress(progress, sun, environment, sky_weather, false)
+	# Church glass throws coloured sunlight that follows this sun (R-1451).
+	ChurchSunlight.push_light(sun)
 	# One wind for everything that moves: flags, ropes, trees, grass, the sea.
 	var day_blend := SkyWeather3D.daylight_blend(progress, sky_weather.calendar_date)
 	var presentation := sky_weather.presentation_snapshot(progress, day_blend)

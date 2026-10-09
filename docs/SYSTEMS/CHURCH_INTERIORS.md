@@ -1,6 +1,6 @@
 # Church interiors: period-correct glazing, furnishings and wall paintings
 
-Status: in progress (epic task **R-1392**; glazing implemented in CI-01, task **R-1393**: eight painted plates as a texture array with a programme per church; ornamental wall paintings implemented in part in CI-04, task **R-1396**; CI-02, CI-03, CI-05, CI-06 and the figural murals planned). Scope: the interiors of the four city church sites (Holy Spirit, St Olaf, St Nicholas, St Mary's building site) built by `scripts/city/sites/*_builder.gd` and `church_furnishings.gd`. Out of scope: exteriors (LM / UF tasks), the Dominican St Catherine's interior (separate landmark task), Orthodox (Eastern) iconography.
+Status: in progress (epic task **R-1392**; glazing implemented in CI-01, task **R-1393**: eight painted plates as a texture array with a programme per church; sunlight through the glass implemented in CI-07, task **R-1451**; ornamental wall paintings implemented in part in CI-04, task **R-1396**; CI-02, CI-03, CI-05, CI-06 and the figural murals planned). Scope: the interiors of the four city church sites (Holy Spirit, St Olaf, St Nicholas, St Mary's building site) built by `scripts/city/sites/*_builder.gd` and `church_furnishings.gd`. Out of scope: exteriors (LM / UF tasks), the Dominican St Catherine's interior (separate landmark task), Orthodox (Eastern) iconography.
 
 ## Why
 
@@ -55,6 +55,31 @@ Verify: `tools/godot_render.sh --script tools/capture_church_interior.gd`, `godo
 | ![St Olaf before](../reports/images/church_interiors/murals_st_olaf_before.jpg) | ![St Olaf after](../reports/images/church_interiors/murals_st_olaf_after.jpg) |
 | ![St Nicholas before](../reports/images/church_interiors/murals_st_nicholas_before.jpg) | ![St Nicholas after](../reports/images/church_interiors/murals_st_nicholas_after.jpg) |
 
+## Sunlight through the glass (implemented, CI-07 / R-1451)
+
+The sun enters the four church sites only through their windows and lands as coloured patches of the window's own panels, with faint dusty shafts; both follow the sun over the day (and the moon at night, much weaker), without rebuilding any mesh.
+
+- **Real sun through the holes:** the glass (`Glass`, `GlassLow`) casts no shadow, and the `Upper` walls and the `Roof` (vaults included) cast theirs through always-present proxies (`UpperShadow`, `RoofShadow`, `SHADOWS_ONLY`, same mesh). So the cutaway, which hides `Upper` and `Roof` while Kalev is inside, no longer floods the nave with sun from above: the engine's shadowed sun lights only what the window openings let through, and the reveals, piers and furniture cut it.
+- **Coloured patch:** `scripts/city/city_window_sunlight.gdshader` is laid as `material_overlay` on every mesh under `Lower` and `Upper` except the glass (floor, walls, murals, furnishings). Per fragment it follows the ray towards the light, finds the window it leaves through (inside the glass outline, and through the outer face and the splayed inner face of the opening) and multiplies by that window's panel colour, sampled from the same plate array with the same panel walk (`scripts/city/city_stained_glass.gdshaderinc`, shared with the glass shader). The image is blurred with throw (`lod = log2(7.5 t)`, the sun disc's 0.53 degrees) and normalised to a fixed light level so a blue panel on a warm floor reads as light, not a hole. Window data (up to 32 per building: origin, wall direction and normal, width, spring, apex, glazing code, reveal depths) comes from the manifest fabric through `ChurchSunlight.windows()`.
+- **Shafts:** `ChurchSunlight.shafts()` builds one prism per window (side quads of the glass outline); `scripts/city/city_window_shaft.gdshader` pushes the far end along the light to the floor or the opposite wall, adds the window's mean panel colour (half towards warm white), fades with throw and towards the silhouette, and dims as the wall thickness closes the opening to a grazing sun.
+- **Light source:** the global shader uniform `window_sun` (`project.godot` `[shader_globals]`): xyz the direction towards the light, w its direct strength (sun energy against the clear-day `MapViewLighting.SUN_DAY_ENERGY`, times the shadow opacity that overcast lowers). `CityWorld3D.apply_time` sets it each time update through `ChurchSunlight.push_light(sun)`; capture tools call the same function.
+- **Runtime entry points:** `ChurchSunlight.apply(building, lower, upper, roof, fabric, glazing)` in `scripts/city/sites/church_sunlight.gd`, called once by each church builder (`holy_spirit_builder.gd`, `st_olaf_builder.gd`, `st_nicholas_builder.gd` for the church and the St Barbara chapel, `st_mary_builder.gd`). No saved state.
+
+Verify: `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_city_sites` (`test_church_sunlight_through_glass`), `tools/godot_render.sh --script tools/capture_church_sunlight.gd` (writes `sunlight_<church>_{morning,noon,afternoon}.jpg` and `sunlight_<church>_noon_off.jpg`, the same view with the window light switched off, under `docs/reports/images/church_interiors/`).
+
+| Window light off | Through the glass |
+|---|---|
+| ![St Olaf noon, window light off](../reports/images/church_interiors/sunlight_st_olaf_noon_off.jpg) | ![St Olaf noon](../reports/images/church_interiors/sunlight_st_olaf_noon.jpg) |
+| ![St Olaf morning](../reports/images/church_interiors/sunlight_st_olaf_morning.jpg) | ![Holy Spirit noon](../reports/images/church_interiors/sunlight_holy_spirit_noon.jpg) |
+
+In the city with the game's own lighting at noon (`tools/capture_reval_city.gd` shots `st_olaf_cutaway` and `st_olaf_interior` with `DAY_PROGRESS` set to 0.5; at its default 0.42 the sun grazes St Olaf's walls and the patches are slivers):
+
+| Cutaway | Nave |
+|---|---|
+| ![St Olaf cutaway at noon](../reports/images/church_interiors/sunlight_game_st_olaf_cutaway.jpg) | ![St Olaf nave at noon](../reports/images/church_interiors/sunlight_game_st_olaf_interior.jpg) |
+
+Limits: the overlay cannot read the shadow map (the Compatibility renderer draws shadowed lights in extra passes), so a bench or pier inside a patch casts no shade in it, and the tracery mullions do not cut it; the reveal is tested at its outer and inner faces only. The added light is a fixed level, not scaled by the surface's albedo (the screen texture read black in the city render). Shafts do not stop at piers. The interior's ambient light is unchanged, so the patches read best in the cutaway view; a dimmer church interior is a separate change. More than 32 glazed windows in one building: the rest get no window light.
+
 ## Pipeline
 
 1. **Image generation.** Try `openai_generate_image` first (project rule); on failure fall back to Leonardo (`leonardo_generate_image`). Prompts must name the period style: "Romanesque / early Gothic flat figures, Gotland and Westphalian 13th-14th century, hard outlines, no perspective, no text, no inscription, no cartouche". Never ask for "Gothic stained glass" unqualified: Leonardo returns 19th-century Gothic Revival with gibberish lettering.
@@ -72,6 +97,7 @@ Verify: `tools/godot_render.sh --script tools/capture_church_interior.gd`, `godo
 | CI-04 (**R-1396**) | Wall paintings: consecration crosses, dado drapery, Last Judgement, St Christopher, saint niches as decals; replace limewash zigzag frieze | none |
 | CI-05 (**R-1397**) | Retable, altar frontal and painted crucifix plates (replace flat coloured boxes in `retable()` and `figure()`) | CI-02 for the cross |
 | CI-06 (**R-1398**) | Integration, captures and review: place everything per church, `tools/capture_*` interior shots, docs, historian review | CI-01..CI-05 |
+| CI-07 (**R-1451**) | Sunlight through the glass: coloured patches and shafts that follow the sun | CI-01 |
 
 ## Verification
 
@@ -81,4 +107,4 @@ Verify: `tools/godot_render.sh --script tools/capture_church_interior.gd`, `godo
 
 ## Limits
 
-Only the glazing (CI-01) and the ornamental wall paintings (CI-04, without the figural murals) are implemented; plates are pending historian review, and the Leonardo account ran out of tokens on 2026-10-09, so further plates need a new budget or another generator. The St Mary captures frame the building-site choir tightly. Image-generation budget: the OpenAI account had no credits on 2026-10-08, so the first plates come from Leonardo (Nano Banana, `tools/generate_leonardo_v2_image.py`); the OpenAI model is also reachable there as `gpt-image-1.5`.
+Only the glazing (CI-01), its sunlight (CI-07) and the ornamental wall paintings (CI-04, without the figural murals) are implemented; plates are pending historian review, and the Leonardo account ran out of tokens on 2026-10-09, so further plates need a new budget or another generator. The St Mary captures frame the building-site choir tightly. Image-generation budget: the OpenAI account had no credits on 2026-10-08, so the first plates come from Leonardo (Nano Banana, `tools/generate_leonardo_v2_image.py`); the OpenAI model is also reachable there as `gpt-image-1.5`.

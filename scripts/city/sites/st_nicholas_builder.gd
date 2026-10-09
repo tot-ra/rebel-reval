@@ -125,6 +125,9 @@ static func _assemble(
 	node.add_child(lower_node)
 	node.add_child(upper_node)
 	node.add_child(roof_node)
+	ChurchSunlight.apply(
+		node, lower_node, upper_node, roof_node, fabric, Kit.GLAZING.get(site.id, 0)
+	)
 	return node
 
 

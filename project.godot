@@ -173,6 +173,10 @@ environment/defaults/default_clear_color=Color(0, 0, 0, 1)
 
 [shader_globals]
 
+window_sun={
+"type": "vec4",
+"value": Vector4(0, 1, 0, 0)
+}
 ocean_time={
 "type": "float",
 "value": 0.0

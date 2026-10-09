@@ -3,6 +3,8 @@ extends "res://tests/godot/test_case.gd"
 ## Landmark sites in the seamless city (ADR 0032): registry, compiled
 ## placement, replaced buildings, floors, rooms, HUD names and doors.
 
+const ST_OLAF_BUILDER := preload("res://scripts/city/sites/st_olaf_builder.gd")
+
 
 func _plan() -> CityPlan:
 	return CityPlan.load_default()
@@ -103,7 +105,7 @@ func test_church_murals_crosses_and_dado() -> void:
 	assert_eq(spots.size(), 12, "St Olaf: twelve consecration crosses")
 	for spot: Array in spots:
 		assert_true((spot[1] as Vector3).is_normalized(), "cross faces into the room")
-	var built: Node3D = load("res://scripts/city/sites/st_olaf_builder.gd").build(olaf, _plan())
+	var built: Node3D = ST_OLAF_BUILDER.build(olaf, _plan())
 	# The dado sits below the interior cutaway, the crosses above it.
 	var low := built.get_node_or_null("Church/Lower/Murals") as MeshInstance3D
 	var high := built.get_node_or_null("Church/Upper/Murals") as MeshInstance3D
@@ -117,6 +119,53 @@ func test_church_murals_crosses_and_dado() -> void:
 	)
 	assert_true(mary.find_child("Murals", true, false) == null, "St Mary is unpainted")
 	mary.free()
+
+
+func test_church_sunlight_through_glass() -> void:
+	# R-1451: the roof, upper walls and upper glass keep shadow proxies under
+	# the cutaway, the interior carries the coloured-light overlay and every
+	# window a shaft.
+	var olaf := _site(&"site.st_olaf")
+	var fabric: Array = olaf.data["fabric"]
+	var glazed := 0
+	for w: Dictionary in fabric:
+		for op: Dictionary in w.get("openings", []):
+			if bool(op.get("glass", false)):
+				glazed += 1
+	var wins := ChurchSunlight.windows(fabric, 1)
+	assert_eq(
+		wins.size(), mini(glazed, ChurchSunlight.MAX_WINDOWS), "one record per glazed opening"
+	)
+	for win: Dictionary in wins:
+		assert_true(float(win["depth"]) > 1.0, "window looks into a room")
+		assert_eq(int(win["code"]) / 16, 1, "St Olaf glazing programme")
+		var out: Vector2 = win["out"]
+		assert_true(out.is_normalized(), "outward normal is unit length")
+	var built: Node3D = ST_OLAF_BUILDER.build(olaf, _plan())
+	for part: String in ["Roof", "Upper", "Upper/Glass"]:
+		var node := built.get_node("Church/" + part) as MeshInstance3D
+		var proxy := (
+			built.get_node_or_null("Church/" + part.get_file() + "Shadow") as MeshInstance3D
+		)
+		assert_true(proxy != null, "%s keeps a shadow proxy" % part)
+		if proxy != null:
+			assert_eq(proxy.mesh, node.mesh, "proxy shares the mesh")
+			assert_eq(proxy.cast_shadow, GeometryInstance3D.SHADOW_CASTING_SETTING_SHADOWS_ONLY)
+		assert_eq(
+			node.cast_shadow, GeometryInstance3D.SHADOW_CASTING_SETTING_OFF, "no double shadow"
+		)
+	var overlay := (built.get_node("Church/Lower") as MeshInstance3D).material_overlay
+	assert_true(overlay is ShaderMaterial, "interior carries the sunlight overlay")
+	if overlay is ShaderMaterial:
+		assert_eq((overlay as ShaderMaterial).shader, ChurchSunlight.SUNLIGHT)
+		assert_eq((overlay as ShaderMaterial).get_shader_parameter("window_count"), wins.size())
+	assert_true(
+		(built.get_node("Church/Lower/GlassLow") as MeshInstance3D).material_overlay == null,
+		"glass itself is not tinted"
+	)
+	var shafts := built.get_node_or_null("Church/SunShafts") as MeshInstance3D
+	assert_true(shafts != null and shafts.mesh.get_surface_count() == 1, "one shaft mesh")
+	built.free()
 
 
 func test_st_nicholas_rooms_chapel_and_period_rule() -> void:
