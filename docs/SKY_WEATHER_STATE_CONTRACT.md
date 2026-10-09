@@ -16,7 +16,7 @@
 | Key | Purpose and ownership |
 |---|---|
 | `schema_version` | Payload version validated by `SkyWeatherState`. |
-| `weather` | Active weather mode. |
+| `weather` | Active weather mode: `clear`, `cloudy`, `overcast`, `rain`, `storm` or `cloudless` (R-1495; older builds fall back to `clear`). |
 | `transition_from_weather` | Weather mode at the start of the active transition. |
 | `transition_progress` | Blend progress from the source profile to the active profile. |
 | `time_in_state` | Simulated seconds spent in the active weather mode. |

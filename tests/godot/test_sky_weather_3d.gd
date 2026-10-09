@@ -6,6 +6,7 @@ const AtmosphereLut := preload("res://scripts/map/view3d/sky_atmosphere_lut.gd")
 const Lighting := preload("res://scripts/map/view3d/map_view_lighting.gd")
 const WaterMaterials := preload("res://scripts/map/view3d/map_view_water_materials.gd")
 const AtmosphereCpu := preload("res://scripts/map/view3d/atmosphere_cpu.gd")
+const CloudCellsScript := preload("res://scripts/map/view3d/cloud_cells.gd")
 
 # gdlint: disable=max-line-length
 
@@ -335,6 +336,33 @@ func test_rain_never_starts_from_a_clear_sky() -> void:
 			if sky.weather == SkyWeather.WEATHER_RAIN:
 				assert_true(previous in wet_predecessors, "rain must be preceded by cloudy or overcast, not clear")
 			previous = sky.weather
+	sky.free()
+
+
+## R-1495: a fully clear sky is a real share of the weather (Tallinn, late spring:
+## roughly a fifth of the time under 20% cover), and never jumps straight to rain.
+func test_cloudless_sky_takes_a_realistic_share_of_time() -> void:
+	var sky = SkyWeather.new()
+	var seconds := {}
+	var previous: StringName = sky.weather
+	for step in 40_000:
+		sky.advance(1.0)
+		seconds[sky.weather] = int(seconds.get(sky.weather, 0)) + 1
+		if sky.weather != previous:
+			if previous == SkyWeather.WEATHER_CLOUDLESS:
+				assert_true(sky.weather in [SkyWeather.WEATHER_CLOUDLESS, SkyWeather.WEATHER_CLEAR],
+					"a blue sky only clouds over through fair cumulus")
+			previous = sky.weather
+	var cloudless := float(seconds.get(SkyWeather.WEATHER_CLOUDLESS, 0)) / 40_000.0
+	var fair := cloudless + float(seconds.get(SkyWeather.WEATHER_CLEAR, 0)) / 40_000.0
+	assert_true(cloudless > 0.1 and cloudless < 0.3, "cloudless share %.2f" % cloudless)
+	assert_true(fair > 0.38 and fair < 0.62, "clear-or-fair share %.2f" % fair)
+	sky.set_weather(SkyWeather.WEATHER_CLOUDLESS)
+	sky.auto_weather = false
+	sky.advance(SkyWeather.TRANSITION_SECONDS + 1.0)
+	assert_eq(sky.cloud_cells().max_weight(CloudCellsScript.KIND_CUMULUS), 0.0,
+		"a cloudless sky draws no cumulus")
+	assert_eq(sky.lighting_modifiers()["sun_energy"], 1.0, "a cloudless noon keeps full sun")
 	sky.free()
 
 

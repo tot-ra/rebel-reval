@@ -2,13 +2,13 @@
 // ground cloud-shadow pass and the god-ray pass so a cloud, its shadow and the
 // beams it cuts are one object. Three vec4 per slot, packed by CloudCells.uniforms():
 //   a = (x, base altitude, z, radius), b = (height, weight, kind 0 cu / 1 cb, seed),
-//   c = (life 0..1, tower 0..1, windiness 0..1, 0).
+//   c = (life 0..1, tower 0..1, windiness 0..1, absolute tile x + 64 z).
 // `tower` is how far a crowded cumulus has merged into a thunderstorm (R-1481), so
 // shading, shadow and rain blend toward cumulonimbus by cell_storminess().
 // Positions are wrapped into a CELL_DOMAIN tile; every caller takes the copy
 // nearest to its own point. Noise is passed in so callers keep their samplers.
 
-const int CELL_SLOTS = 16;
+const int CELL_SLOTS = 23;
 const int CELL_STRIDE = 3;
 const int CELL_LOBES = 3;
 // Must match CloudCells.DOMAIN / STORM_DOMAIN / footprint / opacity / lobe constants.
@@ -27,7 +27,7 @@ const float CELL_CB_REACH = 1.9;
 // World units per billow-noise tile: ~90 m lumps on a cumulus flank.
 const float CELL_BILLOW_SCALE = 700.0;
 
-uniform vec4 cloud_cells[48];
+uniform vec4 cloud_cells[69];
 
 
 float cell_domain(float kind) {
@@ -49,6 +49,16 @@ float cell_storminess(vec4 b, vec4 c) {
 }
 
 
+// R-1495: how far the lobes fold into one mass. A storm slot folds fully; a merged
+// tower only partly, so it keeps a cluster of turrets instead of a round dome.
+// Mirrors CloudCells.lobe_fold().
+const float CELL_TOWER_LOBE_FOLD = 0.45;
+
+float cell_lobe_fold(vec4 b, vec4 c) {
+	return b.z > 0.5 ? 1.0 : c.y * CELL_TOWER_LOBE_FOLD;
+}
+
+
 // R-1493: enumerate the 5x5 periodic neighbourhood only for towering cumulus.
 // Increasing fade alone would still teleport the nearest copy at the 1.6 km seam.
 // Copy zero preserves the ordinary cumulus/storm fast path. Mirrors CloudCells.
@@ -59,6 +69,53 @@ const vec2 CELL_TOWER_FADE = vec2(5000.0, 6000.0);
 vec2 cell_view_copy_offset(int copy) {
 	int grid = copy == 0 ? 12 : (copy == 12 ? 0 : copy);
 	return vec2(float(grid % 5 - 2), float(grid / 5 - 2)) * CELL_DOMAIN;
+}
+
+// R-1495: every periodic copy of the cumulus tile is its own cloud. Its shape seed
+// and (for towers) height come from a hash of a stable copy label built from the
+// tiles the cloud has drifted (c.w), so a copy keeps its shape while the wrapped
+// centre crosses the seam. Beyond CELL_TOWER_GATE_RANGE only a seeded share of tower
+// copies stays, so one merged cluster no longer prints identical storms all round
+// the horizon. Mirrors CloudCells.copy_tile / copy_hash / copy_seed /
+// copy_height_scale / copy_gate.
+const float CELL_TILE_WRAP = 64.0;
+const float CELL_TOWER_COPY_SHARE = 0.3;
+const vec2 CELL_TOWER_GATE_RANGE = vec2(1600.0, 2400.0);
+const vec2 CELL_TOWER_COPY_HEIGHT = vec2(0.65, 1.35);
+
+vec2 cell_copy_tile(vec2 copy_centre, vec4 a, vec4 c) {
+	vec2 home = vec2(mod(c.w, CELL_TILE_WRAP), floor(c.w / CELL_TILE_WRAP));
+	// Step from the wrapped centre minus tiles drifted: constant for one copy.
+	return mod(round((copy_centre - a.xz) / CELL_DOMAIN) - home, CELL_TILE_WRAP);
+}
+
+float cell_copy_hash(vec2 tile, float seed, float salt) {
+	vec3 p = fract(vec3(tile, seed * 61.0 + salt) * 0.1031);
+	p += dot(p, p.zyx + 3.33);
+	return fract((p.x + p.y) * p.z);
+}
+
+// The copy's own (height, weight, kind, seed): storm slots draw one copy as-is.
+vec4 cell_copy_b(vec2 copy_centre, vec4 a, vec4 b, vec4 c) {
+	if (b.z > 0.5) {
+		return b;
+	}
+	vec2 tile = cell_copy_tile(copy_centre, a, c);
+	float h = mix(CELL_TOWER_COPY_HEIGHT.x, CELL_TOWER_COPY_HEIGHT.y, cell_copy_hash(tile, b.w, 1.0));
+	vec4 out_b = b;
+	out_b.x *= mix(1.0, h, smoothstep(0.5, CELL_TOWER_MATURE, c.y));
+	out_b.w = cell_copy_hash(tile, b.w, 0.0);
+	return out_b;
+}
+
+float cell_copy_gate(vec2 copy_centre, float distance, vec4 a, vec4 b, vec4 c) {
+	if (b.z > 0.5) {
+		return 1.0;
+	}
+	float keep = step(cell_copy_hash(cell_copy_tile(copy_centre, a, c), b.w, 2.0), CELL_TOWER_COPY_SHARE - 1e-6);
+	float far = smoothstep(CELL_TOWER_GATE_RANGE.x, CELL_TOWER_GATE_RANGE.y, distance)
+		* smoothstep(0.5, CELL_TOWER_MATURE, c.y);
+	return mix(1.0, keep, far);
 }
 
 float cell_view_fade(float distance, float kind, float tower) {
@@ -76,7 +133,7 @@ float cell_view_fade(float distance, float kind, float tower) {
 // y across), in units of R: xy = centre offset, z = radius share, w = top height
 // share. One cloud is a fused cluster of uneven heaps, not a single round dumpling;
 // the side heaps drift apart as the cloud ages (`age`) and fold back into one
-// mass as it towers into a storm (`cb`). Mirrored by CloudCells._lobe().
+// mass as it towers into a storm (`cb` = cell_lobe_fold). Mirrored by CloudCells._lobe().
 vec4 cell_lobe(int k, float seed, float cb, float age) {
 	if (k == 0) {
 		return vec4(0.0, 0.0, mix(0.8, 1.0, cb), 1.0);
@@ -124,10 +181,13 @@ float cell_smin(float x, float y, float k) {
 // base and a rounded cauliflower dome. Cumulonimbus: a broad squat mass that
 // narrows only slightly with height; `seed` (0..1) decides how much anvil spreads
 // from the crown, so some storms are flat-topped, some ragged with no anvil at all.
-float cell_profile(float h, float kind, float seed) {
+// `anvil_max` is the widest anvil share and `taper` the width left at 0.7 h: a
+// merged tower (R-1495) narrows more toward a cauliflower crown and spreads a
+// wider anvil than a storm slot, whose march box is tighter.
+float cell_profile(float h, float kind, float seed, float anvil_max, float taper) {
 	float cu = sqrt(max(1.0 - h * h, 0.0)) * mix(0.82, 1.0, smoothstep(0.0, 0.12, h));
-	float tower = mix(0.95, 0.72, smoothstep(0.0, 0.7, h));
-	float anvil = smoothstep(0.7, 0.88, h) * mix(0.0, 0.42, fract(seed * 7.7)) * (1.0 - smoothstep(0.95, 1.0, h));
+	float tower = mix(0.95, taper, smoothstep(0.0, 0.7, h));
+	float anvil = smoothstep(0.7, 0.88, h) * mix(0.0, anvil_max, fract(seed * 7.7)) * (1.0 - smoothstep(0.95, 1.0, h));
 	float cb = (tower + anvil) * (1.0 - smoothstep(0.9, 1.0, h));
 	return mix(cu, cb, kind);
 }
@@ -171,12 +231,15 @@ float cell_density(vec3 local, float world_y, vec4 a, vec4 b, vec4 c, sampler3D 
 	vec2 u = vec2(dot(q, ax), dot(q, vec2(-ax.y, ax.x))) / max(a.w, 1.0);
 	u.x /= cell_aspect(b.w, cb);
 	float swell = mix(0.75, 1.2, lump);
+	float fold = cell_lobe_fold(b, c);
 	float dist = 1e3;
 	for (int k = 0; k < CELL_LOBES; k++) {
-		vec4 lobe = cell_lobe(k, b.w, cb, age);
+		vec4 lobe = cell_lobe(k, b.w, fold, age);
 		float crown = clamp(h / (mix(0.75, 1.15, lump) * lobe.w), 0.0, 1.0);
-		float r = lobe.z * cell_profile(crown, cb, b.w) * swell;
-		dist = cell_smin(dist, length(u - lobe.xy) / max(r, 0.002), cell_lobe_blend(cb));
+		float r = lobe.z * cell_profile(
+			crown, cb, b.w, b.z > 0.5 ? 0.42 : 0.6, b.z > 0.5 ? 0.72 : 0.55
+		) * swell;
+		dist = cell_smin(dist, length(u - lobe.xy) / max(r, 0.002), cell_lobe_blend(fold));
 	}
 	float boil = cell_noise3(world_p, max(a.w * 0.6, 120.0), b.w + 0.5, noise3);
 	// Forming or dissolving clouds come apart along the large lumps (whole heaps
@@ -202,10 +265,11 @@ float cell_footprint(vec2 d, vec4 a, vec4 b, vec4 c) {
 	vec2 ax = cell_axis(b.w);
 	vec2 u = vec2(dot(d, ax), dot(d, vec2(-ax.y, ax.x))) / max(r, 1.0);
 	u.x /= cell_aspect(b.w, cb);
+	float fold = cell_lobe_fold(b, c);
 	float dist = 1e3;
 	for (int k = 0; k < CELL_LOBES; k++) {
-		vec4 lobe = cell_lobe(k, b.w, cb, age);
-		dist = cell_smin(dist, length(u - lobe.xy) / lobe.z, cell_lobe_blend(cb));
+		vec4 lobe = cell_lobe(k, b.w, fold, age);
+		dist = cell_smin(dist, length(u - lobe.xy) / lobe.z, cell_lobe_blend(fold));
 	}
 	return dist;
 }
@@ -227,15 +291,21 @@ float cells_ground_shadow(vec3 p, vec3 to_light, sampler2D noise_tex, float lod)
 		float cb = cell_storminess(b, c);
 		float layer = a.y + b.x * mix(0.35, 0.25, cb);
 		vec2 q = p.xz + to_light.xz / sun_y * (layer - p.y);
-		vec2 d = cell_wrap_delta(q, a.xz, b.z);
-		float reach = a.w * mix(CELL_CU_REACH, CELL_CB_REACH, cb);
+		// R-1495: the copy under the point at the slot's own layer, then its own
+		// height and seed (copies are 3.2 km apart, far more than the layer shift).
+		vec2 copy_centre = q - cell_wrap_delta(q, a.xz, b.z);
+		vec4 bc = cell_copy_b(copy_centre, a, b, c);
+		layer = a.y + bc.x * mix(0.35, 0.25, cb);
+		q = p.xz + to_light.xz / sun_y * (layer - p.y);
+		vec2 d = q - copy_centre;
+		float reach = a.w * mix(CELL_CU_REACH, CELL_CB_REACH, cell_lobe_fold(b, c));
 		if (dot(d, d) > reach * reach) {
 			continue;
 		}
-		vec2 nuv = q / CELL_BILLOW_SCALE + b.w * 7.13;
+		vec2 nuv = q / CELL_BILLOW_SCALE + bc.w * 7.13;
 		float n = textureLod(noise_tex, nuv, lod).r * 0.65
 			+ textureLod(noise_tex, nuv * 2.7 + 0.31, lod).r * 0.35;
-		float dist = cell_footprint(d, a, b, c) + (n - 0.5) * 0.38;
+		float dist = cell_footprint(d, a, bc, c) + (n - 0.5) * 0.38;
 		lit *= 1.0 - smoothstep(1.0, 0.8, dist) * b.y * mix(CELL_CU_OPACITY, CELL_CB_OPACITY, cb);
 	}
 	return 1.0 - lit;

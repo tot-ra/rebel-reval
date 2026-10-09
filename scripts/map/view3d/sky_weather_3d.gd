@@ -23,7 +23,12 @@ const STAR_BAKE_SLICE := 1000
 const STAR_CATALOG := preload("res://scripts/map/view3d/estonia_star_catalog.gd")
 const GAME_CALENDAR := preload("res://scripts/global/game_calendar.gd")
 
+## Fair weather with scattered cumulus ("mostly clear" to "partly cloudy", 20-50%
+## cover). The id predates WEATHER_CLOUDLESS and stays for save compatibility.
 const WEATHER_CLEAR := &"clear"
+## R-1495: a truly clear sky (0-10% cover): no cumulus, at most faint wisps.
+## Tallinn spends roughly a fifth of late-spring daylight under such a sky.
+const WEATHER_CLOUDLESS := &"cloudless"
 const WEATHER_CLOUDY := &"cloudy"
 ## Full grey cover with no blue showing through — the "you can't see the sky" case.
 const WEATHER_OVERCAST := &"overcast"
@@ -33,7 +38,8 @@ const WEATHER_RAIN := &"rain"
 ## rain in distant walls, and throw lightning — the "specific raining cloud" case.
 const WEATHER_STORM := &"storm"
 const ALL_WEATHERS: Array[StringName] = [
-	WEATHER_CLEAR, WEATHER_CLOUDY, WEATHER_OVERCAST, WEATHER_RAIN, WEATHER_STORM
+	WEATHER_CLEAR, WEATHER_CLOUDY, WEATHER_OVERCAST, WEATHER_RAIN, WEATHER_STORM,
+	WEATHER_CLOUDLESS
 ]
 
 ## Fixed seed: same weather sequence on every launch (deterministic, reviewable).
@@ -48,6 +54,7 @@ const CLOUD_DETAIL_DRIFT_PER_SECOND := Vector2(0.0019, -0.00075)
 ## historical (0.93, 0.37) harbour wind is the noon fair-weather reference.
 const WIND_HEADING_OFFSET_DEG: Dictionary = {
 	WEATHER_CLEAR: 0.0,
+	WEATHER_CLOUDLESS: 0.0,
 	WEATHER_CLOUDY: 55.0,
 	WEATHER_OVERCAST: 110.0,
 	WEATHER_RAIN: -70.0,
@@ -185,6 +192,22 @@ const PROFILES: Dictionary = {
 		"locality": 0.0,
 		"thunder": 0.0,
 	},
+	# R-1495: below ~0.08 cover CloudCells.counts_for() shows no cumulus and the
+	# dome deck fades out (sky_cloud_bulk), leaving only faint high wisps.
+	WEATHER_CLOUDLESS:
+	{
+		"coverage": 0.05,
+		"darken": 0.0,
+		"sun_energy": 1.0,
+		"ambient_energy": 1.0,
+		"gray": 0.0,
+		"rain": 0.0,
+		"wind": 0.20,
+		"chaos": 0.2,
+		"storm": 0.0,
+		"locality": 0.0,
+		"thunder": 0.0,
+	},
 	WEATHER_CLOUDY:
 	{
 		"coverage": 0.66,
@@ -248,31 +271,41 @@ const PROFILES: Dictionary = {
 ## feel like real Estonian sunny stretches; rain and storms pass quickly so they
 ## punctuate rather than dominate.
 const DURATIONS: Dictionary = {
+	WEATHER_CLOUDLESS: Vector2(30.0, 60.0),
 	WEATHER_CLEAR: Vector2(28.0, 55.0),
 	WEATHER_CLOUDY: Vector2(18.0, 35.0),
 	WEATHER_OVERCAST: Vector2(20.0, 35.0),
 	WEATHER_RAIN: Vector2(15.0, 30.0),
 	WEATHER_STORM: Vector2(12.0, 25.0),
 }
-## Cumulative odds for what a cloudy spell becomes next. Normalized to match
-## real Estonian spring weather: fair spells persist, rain comes from clouds
-## gathering, and storms are rare.
-const CLOUDY_TO_CLEAR_CHANCE := 0.30
+## R-1495: cumulative transition odds, tuned to Tallinn in late April-May (the
+## campaign opens on 21 April). Climatology (weatherspark, Tallinn): the sky is
+## clear, mostly clear or partly cloudy about 45% of the time in April and 50-55%
+## in May-August, and fully clear (under 20% cover) roughly a fifth of the time.
+## Before R-1495 the cycle had no cloudless state at all (`clear` always carried
+## ~8 cumulus). A long seeded run of this chain (holds plus 12 s blends) spends
+## about: cloudless 18%, clear 31%, cloudy 27%, overcast 12%, rain 10%, storm 1%.
+## Clouds must gather before rain: cloudless and clear never jump to rain or
+## storms (test_rain_never_starts_from_a_clear_sky); a passing front can clear
+## straight to cloudless.
+const CLOUDLESS_TO_STAY_CHANCE := 0.35
+const CLEAR_TO_CLOUDLESS_CHANCE := 0.30
+const CLEAR_TO_STAY_CHANCE := 0.45
+const CLOUDY_TO_CLEAR_CHANCE := 0.25
 const CLOUDY_TO_OVERCAST_CHANCE := 0.55
-const CLOUDY_TO_RAIN_CHANCE := 0.72
-const CLOUDY_TO_STORM_CHANCE := 0.80
-## Clear skies can hold or cloud over, but never jump to rain — clouds must
-## gather first (tested in test_rain_never_starts_from_a_clear_sky).
-const CLEAR_TO_STAY_CHANCE := 0.40
-## Overcast often clears or thins; rain is the minority outcome.
-const OVERCAST_TO_CLEAR_CHANCE := 0.20
-const OVERCAST_TO_CLOUDY_CHANCE := 0.55
-## Rain eases to clear or cloudy; lingering overcast is less common.
-const RAIN_TO_CLEAR_CHANCE := 0.25
-const RAIN_TO_CLOUDY_CHANCE := 0.75
+const CLOUDY_TO_RAIN_CHANCE := 0.75
+const CLOUDY_TO_STORM_CHANCE := 0.82
+## Overcast often thins; rain is the more common outcome of a thick deck.
+const OVERCAST_TO_CLEAR_CHANCE := 0.12
+const OVERCAST_TO_CLOUDY_CHANCE := 0.50
+## Rain eases to cloud, or a front passes and the sky opens up.
+const RAIN_TO_CLOUDLESS_CHANCE := 0.12
+const RAIN_TO_CLEAR_CHANCE := 0.30
+const RAIN_TO_CLOUDY_CHANCE := 0.70
 ## Storms pass and skies clear faster than lingering rain.
-const STORM_TO_CLEAR_CHANCE := 0.20
-const STORM_TO_CLOUDY_CHANCE := 0.70
+const STORM_TO_CLOUDLESS_CHANCE := 0.20
+const STORM_TO_CLEAR_CHANCE := 0.45
+const STORM_TO_CLOUDY_CHANCE := 0.80
 
 ## Gust front: a real squall is preceded by a shove of wind ahead of the rain.
 ## When the machine commits to rain we fire a transient gust that spikes the wind
@@ -1003,7 +1036,8 @@ func celestial_cloud_clear(dir: Vector3, fallback: float) -> float:
 	var heaps := 1.0 - _sample_repeat(shape, uv)
 	var base := heaps * lerpf(0.45, 1.0, smoothstep(0.30, 0.72, banks))
 	var floor_thr := lerpf(0.66, 0.04, cover)
-	var bulk := clampf((base - floor_thr) / 0.58, 0.0, 1.0)
+	# Mirrors sky_cloud_clear_fade(): the deck leaves a cloudless sky (R-1495).
+	var bulk := clampf((base - floor_thr) / 0.58, 0.0, 1.0) * smoothstep(0.02, 0.16, cover)
 	var detail := (
 		_sample_repeat(noise, uv * 1.9 + _cloud_detail_offset) * 0.5
 		+ _sample_repeat(noise, uv * 4.6 - _cloud_detail_offset * 0.6) * 0.32
@@ -1503,9 +1537,18 @@ static func sidereal_angle_for_progress(progress: float, date: Dictionary = {}) 
 ## spells are common, rain and storms are punctuations rather than the norm.
 func _pick_next_weather() -> void:
 	match weather:
+		WEATHER_CLOUDLESS:
+			# A blue sky either holds or fair-weather cumulus start to bubble up.
+			if _rng.randf() < CLOUDLESS_TO_STAY_CHANCE:
+				set_weather(WEATHER_CLOUDLESS)
+			else:
+				set_weather(WEATHER_CLEAR)
 		WEATHER_CLEAR:
 			# Sunny spells can hold -- real spring days in Reval often stay fair.
-			if _rng.randf() < CLEAR_TO_STAY_CHANCE:
+			var roll := _rng.randf()
+			if roll < CLEAR_TO_CLOUDLESS_CHANCE:
+				set_weather(WEATHER_CLOUDLESS)
+			elif roll < CLEAR_TO_STAY_CHANCE:
 				set_weather(WEATHER_CLEAR)
 			else:
 				set_weather(WEATHER_CLOUDY)
@@ -1534,7 +1577,9 @@ func _pick_next_weather() -> void:
 		WEATHER_RAIN:
 			# Showers pass: the sky clears or eases to cloud cover.
 			var roll := _rng.randf()
-			if roll < RAIN_TO_CLEAR_CHANCE:
+			if roll < RAIN_TO_CLOUDLESS_CHANCE:
+				set_weather(WEATHER_CLOUDLESS)
+			elif roll < RAIN_TO_CLEAR_CHANCE:
 				set_weather(WEATHER_CLEAR)
 			elif roll < RAIN_TO_CLOUDY_CHANCE:
 				set_weather(WEATHER_CLOUDY)
@@ -1543,7 +1588,9 @@ func _pick_next_weather() -> void:
 		WEATHER_STORM:
 			# Storms clear faster than steady rain -- convective cells move on.
 			var roll := _rng.randf()
-			if roll < STORM_TO_CLEAR_CHANCE:
+			if roll < STORM_TO_CLOUDLESS_CHANCE:
+				set_weather(WEATHER_CLOUDLESS)
+			elif roll < STORM_TO_CLEAR_CHANCE:
 				set_weather(WEATHER_CLEAR)
 			elif roll < STORM_TO_CLOUDY_CHANCE:
 				set_weather(WEATHER_CLOUDY)
@@ -1622,13 +1669,11 @@ func _place_strike(slot: int) -> void:
 	var center: Vector3 = _cells.centers[slot]
 	var view_at := _view_position()
 	if CloudCellsScript.kind_of(slot) == CloudCellsScript.KIND_CUMULUS:
-		# A merged tower lives on the smaller cumulus tile: take the copy nearest the
-		# camera, which is then also the nearest copy on the storm tile the strike
-		# origin is wrapped on.
-		var near := CloudCellsScript.wrap_delta(
-			Vector2(center.x, center.z), Vector2(view_at.x, view_at.z)
-		)
-		center = Vector3(view_at.x + near.x, center.y, view_at.z + near.y)
+		# A merged tower lives on the smaller cumulus tile: take the nearest copy the
+		# sky actually draws (R-1495 thins distant copies), which is then also the
+		# nearest copy on the storm tile the strike origin is wrapped on.
+		var near := _cells.visible_copy_centre(slot, Vector2(view_at.x, view_at.z))
+		center = Vector3(near.x, center.y, near.y)
 	var radius: float = _cells.radii[slot]
 	var height: float = _cells.heights[slot]
 	var angle := _lightning_rng.randf() * TAU

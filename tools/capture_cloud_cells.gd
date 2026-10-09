@@ -5,7 +5,11 @@ extends SceneTree
 ## a cumulonimbus with a cloud-to-ground stroke and an in-cloud flash, sunbeams
 ## from behind a cell, and (R-1481) lobed fair cumulus from open ground, one
 ## cumulus through its life (cells_cumulus_life) and cumulus merged into a
-## thunderstorm tower. Needs a renderer:
+## thunderstorm tower. R-1495 adds cells_tower_horizon (a 2x2 sheet looking
+## north, east, south and west from the ground while a tower is merged, to show
+## that its periodic copies are different clouds and thinned out) and
+## cells_sky_cloudless / cells_sky_clear (the same upward view under the cloudless
+## and the fair-cumulus profile). Needs a renderer:
 ##   tools/godot_render.sh --script tools/capture_cloud_cells.gd [-- --only=<shot>[,<shot>...]]
 ## Optional --tower-distance=<metres> sets the cells_tower_merge camera distance.
 ## Output: docs/reports/images/weather/<shot>.png
@@ -148,6 +152,27 @@ func _run() -> void:
 			sky.advance(4.0)
 			slot = _strongest_tower(sky)
 		await _sunlit_cell_shot(viewport, camera, sky, slot, "cells_tower_merge", _tower_distance)
+	if _wanted("cells_tower_horizon"):
+		await _settle(view, sky, SkyWeather3D.WEATHER_CLOUDY, 0.40)
+		var slot := _strongest_tower(sky)
+		for step in 200:
+			if sky.cloud_cells().towers[slot] * sky.cloud_cells().weights[slot] > 0.85:
+				break
+			sky.advance(4.0)
+			slot = _strongest_tower(sky)
+		await _horizon_sheet(viewport, camera, sky, slot, "cells_tower_horizon")
+	for profile: Array in [
+		["cells_sky_cloudless", SkyWeather3D.WEATHER_CLOUDLESS],
+		["cells_sky_clear", SkyWeather3D.WEATHER_CLEAR],
+	]:
+		if _wanted(profile[0]):
+			await _settle(view, sky, profile[1], 0.40)
+			var eye := Vector3(-60, _plan.walk_height(Vector2(-60, -200)) + 30.0, -200)
+			var sun := SkyWeather3D.solar_direction(0.40, sky.calendar_date)
+			# Look away from the sun, 25 degrees up, so the whole sky reads.
+			var away := Vector3(-sun.x, 0.0, -sun.z).normalized()
+			var look := eye + away * 100.0 + Vector3(0, 47.0, 0)
+			await _shot(viewport, camera, profile[0], eye, look, 80.0)
 	if _wanted("cells_field_cumulus"):
 		# R-1481: fair cumulus from open ground with the sun behind the camera, so
 		# the lobed, wind-stretched shapes read against blue sky.
@@ -269,6 +294,40 @@ func _sunlit_cell_shot(
 	for i in 3:
 		await process_frame
 	await _shot(viewport, camera, shot, framing[0], framing[1], 62.0)
+
+
+## R-1495: 2x2 sheet of four 90-degree views (N, E, S, W) from the ground 1.2 km
+## from the merged tower, 6 degrees up, so every periodic copy within ~6 km shows.
+func _horizon_sheet(
+	viewport: Viewport, camera: Camera3D, sky: SkyWeather3D, slot: int, shot: String
+) -> void:
+	var framing := _sunlit_cell_framing(sky, slot, 1200.0)
+	var eye: Vector3 = framing[0]
+	var cells = sky.cloud_cells()
+	for s in CloudCellsScript.CUMULUS_SLOTS:
+		if cells.towers[s] > 0.5:
+			print("tower slot %d level %.2f radius %.0f height %.0f base %.0f" % [
+				s, cells.towers[s], cells.radii[s], cells.heights[s], cells.centers[s].y
+			])
+	var sheet := Image.create(VIEWPORT_SIZE.x, VIEWPORT_SIZE.y, false, Image.FORMAT_RGBA8)
+	var bearings := [Vector3.FORWARD, Vector3.RIGHT, Vector3.BACK, Vector3.LEFT]
+	for i in bearings.size():
+		camera.fov = 75.0
+		camera.far = 9000.0
+		camera.near = 0.08
+		var dir: Vector3 = bearings[i] + Vector3(0, tan(deg_to_rad(6.0)), 0)
+		camera.look_at_from_position(eye, eye + dir * 100.0, Vector3.UP)
+		for f in 6:
+			await process_frame
+		var frame := viewport.get_texture().get_image()
+		frame.resize(VIEWPORT_SIZE.x / 2, VIEWPORT_SIZE.y / 2, Image.INTERPOLATE_LANCZOS)
+		frame.convert(Image.FORMAT_RGBA8)
+		sheet.blit_rect(
+			frame, Rect2i(Vector2i.ZERO, frame.get_size()), Vector2i(i % 2, i / 2) * frame.get_size()
+		)
+	var path := "%s/%s.png" % [OUTPUT_DIR, shot]
+	sheet.save_png(ProjectSettings.globalize_path(path))
+	print("captured %s" % path)
 
 
 ## [eye, look] for a cell plate with the sun behind the camera, eye on land.

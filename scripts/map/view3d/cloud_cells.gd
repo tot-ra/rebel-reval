@@ -22,9 +22,15 @@ extends RefCounted
 ## crowd together merge into a towering thunderstorm (`towers`) that can rain and
 ## throw lightning. Still a pure function of the same inputs plus the smoothed
 ## wind strength, which the weather state already saves.
+##
+## R-1495: a cloudy sky carries more cumulus (20 slots), so a thunderstorm needs a
+## really crowded patch of sky, and towers no longer look like clones. Each tower
+## draws its own height gain and keeps part of its lobes, and every periodic copy
+## of the cumulus tile gets its own shape seed (hashed from its absolute tile, so
+## it never pops) while distant tower copies are thinned to a seeded share.
 
 ## Fair-weather cumulus slots, then cumulonimbus slots, in one packed array.
-const CUMULUS_SLOTS := 13
+const CUMULUS_SLOTS := 20
 const STORM_SLOTS := 3
 const SLOTS := CUMULUS_SLOTS + STORM_SLOTS
 const KIND_CUMULUS := 0
@@ -75,14 +81,26 @@ const CUMULUS_SHRINK_TO := 0.3
 ## R-1481: merging. A cumulus's crowding is the overlap-weighted sum of its
 ## neighbours (overlap 1 when centres are TOWER_TOUCH x their summed radii apart,
 ## 0 beyond TOWER_APART). Crowding across TOWER_CROWDING turns it into a tower: it
-## grows up to TOWER_HEIGHT_GAIN x taller and TOWER_RADIUS_GAIN wider, its base
+## grows TOWER_RADIUS_GAIN wider and TOWER_HEIGHT_PER_RADIUS x its radius tall, its base
 ## drops toward TOWER_BASE, and it is pulled toward its neighbours' centroid so
 ## the cluster fuses into one thunderstorm mass.
 const TOWER_TOUCH := 0.55
 const TOWER_APART := 1.1
-const TOWER_CROWDING := Vector2(1.35, 2.0)
-const TOWER_HEIGHT_GAIN := 3.4
-const TOWER_RADIUS_GAIN := 0.6
+## R-1495: the ramp starts at 1.5 (was 1.35) now that a cloudy sky has 20 cumulus:
+## in a headless 25 min run a tower above 0.75 shows 0.3% of the time on a `clear`
+## day (0.30), 6% at 0.45 and 24% on a cloudy day (0.66).
+const TOWER_CROWDING := Vector2(1.5, 2.0)
+## R-1495: per generation each tower draws its own widening and height. The height
+## follows the tower's own radius (TOWER_HEIGHT_PER_RADIUS, 0.9-1.7 x its width):
+## the old 3.4 x cumulus height gave squat 1 km balls that read as round puffs on
+## the horizon, and a fixed tall height turned small clusters into thin pillars.
+## A tower is the merged mass of several cumulus, so it is wider than any of them.
+const TOWER_RADIUS_GAIN := Vector2(0.6, 1.1)
+const TOWER_HEIGHT_PER_RADIUS := Vector2(1.8, 3.4)
+## R-1495: a merged tower folds its lobes only this far (storm slots fold fully),
+## so it stays a cluster of turrets rather than a round dome. Mirrors
+## CELL_TOWER_LOBE_FOLD.
+const TOWER_LOBE_FOLD := 0.45
 const TOWER_BASE := 480.0
 const TOWER_PULL := 0.45
 ## A tower at least this far merged can rain and charge lightning.
@@ -92,6 +110,18 @@ const TOWER_MATURE := 0.75
 ## circle from any camera position, including both sides of a wrap seam.
 const TOWER_FADE := Vector2(5000.0, 6000.0)
 const TOWER_COPIES := 25
+## R-1495: every copy of the cumulus tile repeated the same tower, so one merged
+## cluster showed up as identical round storms all around the horizon. A copy's
+## shape seed is hashed from its absolute tile, and beyond TOWER_GATE_RANGE only
+## TOWER_COPY_SHARE of the tower copies stay visible (seeded per tile). The near
+## copy is never gated, so the cloud above the player matches its shadow, rain and
+## lightning. Mirrors CELL_TOWER_COPY_SHARE / CELL_TOWER_GATE_RANGE.
+const TOWER_COPY_SHARE := 0.3
+const TOWER_GATE_RANGE := Vector2(1600.0, 2400.0)
+## Tower copies vary their height by this factor (seeded per tile).
+const TOWER_COPY_HEIGHT := Vector2(0.65, 1.35)
+## Absolute tile coordinates wrap at this count; packed into the free uniform lane.
+const TILE_WRAP := 64
 ## Lightning only charges in a storm cell that is grown and not yet collapsing.
 const STORM_MATURE_LIFE := Vector2(0.2, 0.85)
 const STORM_MATURE_WEIGHT := 0.5
@@ -124,6 +154,9 @@ var seeds := PackedFloat32Array()
 var towers := PackedFloat32Array()
 ## 0..1 wind strength stretching and shearing the cumulus (same for every slot).
 var windiness := 0.0
+## R-1495: absolute tile of each cumulus centre (mod TILE_WRAP), so a periodic copy
+## keeps its own shape seed while the wrapped centre crosses the tile seam.
+var tiles := PackedVector2Array()
 
 
 func _init() -> void:
@@ -134,6 +167,7 @@ func _init() -> void:
 	lives.resize(SLOTS)
 	seeds.resize(SLOTS)
 	towers.resize(SLOTS)
+	tiles.resize(SLOTS)
 
 
 static func kind_of(slot: int) -> int:
@@ -147,7 +181,9 @@ static func kind_of(slot: int) -> int:
 ## cloud_gloom). Cumulonimbus need real storm development.
 static func counts_for(coverage: float, storm: float) -> Vector2:
 	var deck := smoothstep(0.6, 0.92, coverage)
-	var cumulus := float(CUMULUS_SLOTS) * clampf((coverage - 0.05) / 0.5, 0.0, 1.0)
+	# R-1495: none below 0.08 (a cloudless sky); about 8 on a `clear` day (0.30) as
+	# before, while a cloudy sky fills all 20 slots before its deck closes.
+	var cumulus := float(CUMULUS_SLOTS) * clampf((coverage - 0.08) / 0.55, 0.0, 1.0)
 	cumulus *= 1.0 - deck
 	var storms := float(STORM_SLOTS) * smoothstep(0.3, 1.0, storm)
 	return Vector2(cumulus, storms)
@@ -189,6 +225,7 @@ func update(clock: float, drift: Vector2, counts: Vector2, wind: float = 0.0) ->
 			var speed := CUMULUS_WIND_GAIN * lerpf(CUMULUS_SPEED.x, CUMULUS_SPEED.y, rand.call(9))
 			moved = shift.rotated((rand.call(10) - 0.5) * 2.0 * CUMULUS_VEER) * speed
 		var spawn := Vector2(rand.call(3), rand.call(4)) * domain + moved
+		tiles[slot] = _tile_of(spawn, Vector2.ZERO)
 		centers[slot] = Vector3(
 			fposmod(spawn.x, domain), lerpf(base_range.x, base_range.y, rand.call(7)),
 			fposmod(spawn.y, domain)
@@ -253,11 +290,16 @@ func _merge_crowded_cumulus() -> void:
 		towers[i] = tower
 		var c := centers[i]
 		var pulled := Vector2(c.x, c.z) + pulls[i] * TOWER_PULL * tower
+		# The pull can carry the centre over the tile seam: keep the absolute tile.
+		tiles[i] = _tile_of(pulled, tiles[i])
 		centers[i] = Vector3(
 			fposmod(pulled.x, DOMAIN), lerpf(c.y, TOWER_BASE, tower), fposmod(pulled.y, DOMAIN)
 		)
-		radii[i] *= 1.0 + TOWER_RADIUS_GAIN * tower
-		heights[i] *= lerpf(1.0, TOWER_HEIGHT_GAIN, tower)
+		var seed := seeds[i]
+		var gain_r := lerpf(TOWER_RADIUS_GAIN.x, TOWER_RADIUS_GAIN.y, fposmod(seed * 3.7, 1.0))
+		radii[i] *= 1.0 + gain_r * tower
+		var tall := lerpf(TOWER_HEIGHT_PER_RADIUS.x, TOWER_HEIGHT_PER_RADIUS.y, fposmod(seed * 4.1, 1.0))
+		heights[i] = lerpf(heights[i], radii[i] * tall, tower)
 
 
 ## 0 = fair cumulus, 1 = cumulonimbus (a storm slot or a fully merged tower).
@@ -266,8 +308,76 @@ func storminess(slot: int) -> float:
 	return 1.0 if kind_of(slot) == KIND_STORM else towers[slot]
 
 
+## R-1495: how far the lobes fold into one mass (0 = separate heaps). Storm slots
+## fold fully; a merged tower only to TOWER_LOBE_FOLD so it keeps its turrets.
+## Mirrors cell_lobe_fold() in the shader include.
+func lobe_fold(slot: int) -> float:
+	return 1.0 if kind_of(slot) == KIND_STORM else towers[slot] * TOWER_LOBE_FOLD
+
+
+## Absolute tile (mod TILE_WRAP) of unwrapped position `p`, counted on from `base`.
+static func _tile_of(p: Vector2, base: Vector2) -> Vector2:
+	return Vector2(
+		posmod(int(base.x) + floori(p.x / DOMAIN), TILE_WRAP),
+		posmod(int(base.y) + floori(p.y / DOMAIN), TILE_WRAP)
+	)
+
+
+## Stable label of the periodic copy of `slot` centred at world `copy_centre`: its
+## tile step from the wrapped centre minus the tiles the cloud has drifted. When
+## the drift carries the centre over the seam both terms grow by one, so a copy
+## keeps its label. Mirrors cell_copy_tile() in the shader include.
+func copy_tile(slot: int, copy_centre: Vector2) -> Vector2:
+	var c := centers[slot]
+	var step := ((copy_centre - Vector2(c.x, c.z)) / DOMAIN).round()
+	return Vector2(
+		fposmod(step.x - tiles[slot].x, float(TILE_WRAP)),
+		fposmod(step.y - tiles[slot].y, float(TILE_WRAP))
+	)
+
+
+## 0..1 hash of a copy's absolute tile, the slot seed and a salt. Small inputs keep
+## the float32 GPU result within ~1e-4 of this one. Mirrors cell_copy_hash().
+static func copy_hash(tile: Vector2, seed: float, salt: float) -> float:
+	var p := Vector3(tile.x, tile.y, seed * 61.0 + salt)
+	p = Vector3(fposmod(p.x * 0.1031, 1.0), fposmod(p.y * 0.1031, 1.0), fposmod(p.z * 0.1031, 1.0))
+	var dd := p.dot(Vector3(p.z, p.y, p.x) + Vector3.ONE * 3.33)
+	p += Vector3.ONE * dd
+	return fposmod((p.x + p.y) * p.z, 1.0)
+
+
+## Shape seed of a cumulus copy (every periodic copy is its own cloud). Storm
+## slots draw one copy and keep their seed.
+func copy_seed(slot: int, copy_centre: Vector2) -> float:
+	if kind_of(slot) == KIND_STORM:
+		return seeds[slot]
+	return copy_hash(copy_tile(slot, copy_centre), seeds[slot], 0.0)
+
+
+## Height factor of a tower copy (1 for fair cumulus and storm slots).
+func copy_height_scale(slot: int, copy_centre: Vector2) -> float:
+	if kind_of(slot) == KIND_STORM:
+		return 1.0
+	var h := copy_hash(copy_tile(slot, copy_centre), seeds[slot], 1.0)
+	var scale := lerpf(TOWER_COPY_HEIGHT.x, TOWER_COPY_HEIGHT.y, h)
+	return lerpf(1.0, scale, smoothstep(0.5, TOWER_MATURE, towers[slot]))
+
+
+## Visibility gate of a tower copy at horizontal camera distance `distance`: the
+## near copy always shows; far copies keep a seeded TOWER_COPY_SHARE. Mirrors
+## cell_copy_gate() in the shader include.
+func copy_gate(slot: int, copy_centre: Vector2, distance: float) -> float:
+	if kind_of(slot) == KIND_STORM:
+		return 1.0
+	var keep := copy_hash(copy_tile(slot, copy_centre), seeds[slot], 2.0) < TOWER_COPY_SHARE
+	var far := smoothstep(TOWER_GATE_RANGE.x, TOWER_GATE_RANGE.y, distance)
+	far *= smoothstep(0.5, TOWER_MATURE, towers[slot])
+	return lerpf(1.0, 1.0 if keep else 0.0, far)
+
+
 ## Three vec4 per slot for the `cloud_cells` uniform in cloud_cells.gdshaderinc:
-## (x, base, z, radius), (height, weight, kind, seed), (life, tower, windiness, 0).
+## (x, base, z, radius), (height, weight, kind, seed), (life, tower, windiness, tile)
+## where tile packs the absolute tile as x + TILE_WRAP * z (R-1495).
 func uniforms() -> PackedVector4Array:
 	var out := PackedVector4Array()
 	out.resize(SLOTS * STRIDE)
@@ -277,7 +387,10 @@ func uniforms() -> PackedVector4Array:
 		out[slot * STRIDE + 1] = Vector4(
 			heights[slot], weights[slot], float(kind_of(slot)), seeds[slot]
 		)
-		out[slot * STRIDE + 2] = Vector4(lives[slot], towers[slot], windiness, 0.0)
+		var tile := tiles[slot]
+		out[slot * STRIDE + 2] = Vector4(
+			lives[slot], towers[slot], windiness, tile.x + float(TILE_WRAP) * tile.y
+		)
 	return out
 
 
@@ -295,6 +408,26 @@ static func view_fade(distance: float, kind: int, tower: float) -> float:
 		return near_fade
 	var far_fade := 1.0 - smoothstep(TOWER_FADE.x, TOWER_FADE.y, distance)
 	return lerpf(near_fade, far_fade, smoothstep(0.5, TOWER_MATURE, tower))
+
+
+## World centre of the nearest copy of cumulus `slot` that the sky draws from `eye`
+## (fade x gate above one half); the nearest copy when none passes. Lightning
+## uses it so a merged tower never strikes from a thinned-out copy (R-1495).
+func visible_copy_centre(slot: int, eye: Vector2) -> Vector2:
+	var c := centers[slot]
+	var nearest := eye + wrap_delta(Vector2(c.x, c.z), eye)
+	var best := nearest
+	var best_distance := INF
+	for copy in TOWER_COPIES:
+		var centre := nearest + view_copy_offset(copy)
+		var distance := centre.distance_to(eye)
+		if distance >= best_distance:
+			continue
+		var shown := view_fade(distance, KIND_CUMULUS, towers[slot])
+		if shown * copy_gate(slot, centre, distance) > 0.5:
+			best = centre
+			best_distance = distance
+	return best
 
 
 ## Offset from cell centre `c` to `p` on the periodic domain of `kind` (nearest copy).
@@ -322,20 +455,31 @@ func slot_shadow(slot: int, point: Vector3, light_dir: Vector3, sun_y: float = -
 		sun_y = maxf(light_dir.y, 0.15)
 	var cb := storminess(slot)
 	var c := centers[slot]
+	var flat := Vector2(c.x, c.z)
+	var to_light := Vector2(light_dir.x, light_dir.z) / sun_y
+	# The copy under the point is found at the slot's own layer first; a tower copy
+	# then shifts its layer by its own height factor (R-1495). Copies are 3.2 km
+	# apart, far more than that shift, so the first pick stays the right copy.
 	var layer := c.y + heights[slot] * lerpf(0.35, 0.25, cb)
-	var q := Vector2(point.x, point.z) + Vector2(light_dir.x, light_dir.z) / sun_y * (layer - point.y)
-	var d := wrap_delta(q, Vector2(c.x, c.z), kind_of(slot))
-	if d.length() > radii[slot] * lerpf(CUMULUS_REACH, STORM_REACH, cb):
+	var q := Vector2(point.x, point.z) + to_light * (layer - point.y)
+	var copy_centre := q - wrap_delta(q, flat, kind_of(slot))
+	layer = c.y + heights[slot] * copy_height_scale(slot, copy_centre) * lerpf(0.35, 0.25, cb)
+	q = Vector2(point.x, point.z) + to_light * (layer - point.y)
+	var d := q - copy_centre
+	if d.length() > radii[slot] * lerpf(CUMULUS_REACH, STORM_REACH, lobe_fold(slot)):
 		return 0.0
-	var dist := footprint_distance(slot, d)
+	var dist := footprint_distance(slot, d, copy_seed(slot, copy_centre))
 	return smoothstep(1.0, 0.8, dist) * weights[slot] * lerpf(CUMULUS_OPACITY, STORM_OPACITY, cb)
 
 
 ## Normalised footprint distance (1 = edge) at offset `d` from the cell centre:
-## the noise-free mirror of cell_footprint() in the shader include.
-func footprint_distance(slot: int, d: Vector2) -> float:
+## the noise-free mirror of cell_footprint() in the shader include. `seed` is the
+## copy's shape seed (copy_seed); negative takes the slot seed.
+func footprint_distance(slot: int, d: Vector2, seed: float = -1.0) -> float:
 	var cb := storminess(slot)
-	var seed := seeds[slot]
+	var fold := lobe_fold(slot)
+	if seed < 0.0:
+		seed = seeds[slot]
 	var age := smoothstep(0.35, 1.0, lives[slot]) * (1.0 - cb)
 	var r := radii[slot] * lerpf(CUMULUS_FOOTPRINT, STORM_FOOTPRINT, cb)
 	var ax := Vector2.from_angle(fposmod(seed * 13.7, 1.0) * 3.14159)
@@ -343,12 +487,13 @@ func footprint_distance(slot: int, d: Vector2) -> float:
 	u.x /= lerpf(0.9, 1.3, fposmod(seed * 5.3, 1.0)) * lerpf(1.0, 1.2, cb)
 	var dist := 1e3
 	for k in LOBES:
-		var lobe := _lobe(k, seed, cb, age)
-		dist = _smin(dist, (u - Vector2(lobe.x, lobe.y)).length() / lobe.z, 0.35 * (1.0 - cb) + 0.001)
+		var lobe := _lobe(k, seed, fold, age)
+		dist = _smin(dist, (u - Vector2(lobe.x, lobe.y)).length() / lobe.z, 0.35 * (1.0 - fold) + 0.001)
 	return dist
 
 
 ## Mirror of cell_lobe() in the shader include: offset (x R), radius and top share.
+## `cb` is the lobe fold (lobe_fold()), not the storminess.
 static func _lobe(k: int, seed: float, cb: float, age: float) -> Vector4:
 	if k == 0:
 		return Vector4(0.0, 0.0, lerpf(0.8, 1.0, cb), 1.0)

@@ -335,15 +335,18 @@ vec4 cells_volume(
 			}
 			vec2 c = nearest + cell_view_copy_offset(copy);
 			float fade = cell_view_fade(length(c - ro.xz), b.z, cs.y);
+			// R-1495: each copy is its own cloud, and distant tower copies are thinned.
+			fade *= cell_copy_gate(c, length(c - ro.xz), a, b, cs);
 			if (fade <= 0.0) {
 				continue;
 			}
-			float reach = a.w * mix(CELL_CU_REACH, CELL_CB_REACH, cb);
+			vec4 bc = cell_copy_b(c, a, b, cs);
+			float reach = a.w * mix(CELL_CU_REACH, CELL_CB_REACH, cell_lobe_fold(b, cs));
 			vec3 cell_acc = vec3(0.0);
 			float cell_trans = 1.0;
 			float hit_t = 1e9;
 			vec2 hit = cell_box_hit(
-				ro, rd, vec3(c.x - reach, a.y, c.y - reach), vec3(c.x + reach, a.y + b.x, c.y + reach)
+				ro, rd, vec3(c.x - reach, a.y, c.y - reach), vec3(c.x + reach, a.y + bc.x, c.y + reach)
 			);
 			if (hit.y > hit.x) {
 				// Phase 1: coarse search for the first sample inside the body.
@@ -355,7 +358,7 @@ vec4 cells_volume(
 					}
 					float t = hit.x + (float(s) + 0.5 + (jitter - 0.5) * 0.0) * dt;
 					vec3 p = ro + rd * t;
-					if (cell_density(vec3(p.x - c.x, 0.0, p.z - c.y), p.y, a, b, cs, cell_noise, p, wind_dir) > 0.02) {
+					if (cell_density(vec3(p.x - c.x, 0.0, p.z - c.y), p.y, a, bc, cs, cell_noise, p, wind_dir) > 0.02) {
 						// Bisect to the true surface so every pixel starts its fine march at the
 							// same optical depth: a fixed-step entry showed as contour terraces
 							// (and a per-pixel jitter of it as dither grain).
@@ -364,7 +367,7 @@ vec4 cells_volume(
 							for (int k = 0; k < 5; k++) {
 								float mid = 0.5 * (lo + hi);
 								vec3 pm = ro + rd * mid;
-								if (cell_density(vec3(pm.x - c.x, 0.0, pm.z - c.y), pm.y, a, b, cs, cell_noise, pm, wind_dir) > 0.02) {
+								if (cell_density(vec3(pm.x - c.x, 0.0, pm.z - c.y), pm.y, a, bc, cs, cell_noise, pm, wind_dir) > 0.02) {
 									hi = mid;
 								} else {
 									lo = mid;
@@ -391,7 +394,7 @@ vec4 cells_volume(
 						}
 						vec3 p = ro + rd * t;
 						vec3 local = vec3(p.x - c.x, 0.0, p.z - c.y);
-						float dens = cell_density(local, p.y, a, b, cs, cell_noise, p, wind_dir);
+						float dens = cell_density(local, p.y, a, bc, cs, cell_noise, p, wind_dir);
 						if (dens < 0.002) {
 							continue;
 						}
@@ -402,7 +405,7 @@ vec4 cells_volume(
 								break;
 							}
 							vec3 lp = p + sun_direction * (a.w * 0.22 * float(l * l));
-							tau += cell_density(vec3(lp.x - c.x, 0.0, lp.z - c.y), lp.y, a, b, cs, cell_noise, lp, wind_dir);
+							tau += cell_density(vec3(lp.x - c.x, 0.0, lp.z - c.y), lp.y, a, bc, cs, cell_noise, lp, wind_dir);
 						}
 						float h = clamp((p.y - a.y) / max(b.x, 1.0), 0.0, 1.0);
 						// Beer-Lambert toward the sun plus a weaker, longer octave for the
@@ -463,7 +466,7 @@ vec4 cells_volume(
 					if (t1 > t0) {
 						vec3 mid = ro + rd * (0.5 * (t0 + t1));
 						float streak = textureLod(
-							cloud_noise, vec2((mid.x - mid.z * 0.4) / 160.0 + b.w * 3.0, mid.y / 3000.0), 0.0
+							cloud_noise, vec2((mid.x - mid.z * 0.4) / 160.0 + bc.w * 3.0, mid.y / 3000.0), 0.0
 						).r;
 						// Thickest in the middle of the shaft, thinning toward its sides.
 						float core = 1.0 - smoothstep(0.2, 1.0, length(mid.xz - c) / r);
@@ -477,7 +480,7 @@ vec4 cells_volume(
 			// Aerial perspective: a distant thunderhead still reads as a solid body.
 			body_col = mix(body_col, haze_col, (1.0 - exp(-min(hit_t, 2e4) / 16000.0)) * 0.6);
 			// Some storms carry hail: a whiter, greenish-tinged core in the shaft.
-			vec3 shaft_col = mix(rain_col, vec3(0.78, 0.86, 0.82), step(0.55, fract(b.w * 9.1)) * 0.5) + vec3(0.9, 0.94, 1.1) * flash * 0.6;
+			vec3 shaft_col = mix(rain_col, vec3(0.78, 0.86, 0.82), step(0.55, fract(bc.w * 9.1)) * 0.5) + vec3(0.9, 0.94, 1.1) * flash * 0.6;
 			shaft_col = mix(shaft_col, haze_col, (1.0 - exp(-min(rain_t, 2e4) / 9000.0)) * 0.6);
 			// Cloud body over its own rain, then this cell over what lies behind it.
 			vec3 cell_col = body_col * body + shaft_col * rain * (1.0 - body);
@@ -530,20 +533,22 @@ float cells_toward(vec3 ro, vec3 d) {
 			}
 			vec2 c = nearest + cell_view_copy_offset(copy);
 			float fade = cell_view_fade(length(c - ro.xz), b.z, cs.y);
+			fade *= cell_copy_gate(c, length(c - ro.xz), a, b, cs);
 			if (fade <= 0.0) {
 				continue;
 			}
-			float layer = a.y + b.x * mix(0.35, 0.25, cb);
+			vec4 bc = cell_copy_b(c, a, b, cs);
+			float layer = a.y + bc.x * mix(0.35, 0.25, cb);
 			vec2 q = ro.xz + d.xz * ((layer - ro.y) / d.y);
-			float reach = a.w * mix(CELL_CU_REACH, CELL_CB_REACH, cb);
+			float reach = a.w * mix(CELL_CU_REACH, CELL_CB_REACH, cell_lobe_fold(b, cs));
 			vec2 off = q - c;
 			if (dot(off, off) > reach * reach) {
 				continue;
 			}
-			vec2 nuv = q / CELL_BILLOW_SCALE + b.w * 7.13;
+			vec2 nuv = q / CELL_BILLOW_SCALE + bc.w * 7.13;
 			float n = textureLod(cloud_noise, nuv, 1.0).r * 0.65
 				+ textureLod(cloud_noise, nuv * 2.7 + 0.31, 1.0).r * 0.35;
-			float dist = cell_footprint(off, a, b, cs) + (n - 0.5) * 0.38;
+			float dist = cell_footprint(off, a, bc, cs) + (n - 0.5) * 0.38;
 			lit *= 1.0 - smoothstep(1.0, 0.8, dist) * b.y * fade
 				* mix(CELL_CU_OPACITY, CELL_CB_OPACITY, cb);
 		}

@@ -261,6 +261,108 @@ func test_wrap_delta_takes_the_nearest_periodic_copy() -> void:
 	assert_almost_eq(d.x, 20.0, 0.001, "a cell across the seam is 20 units away, not a domain")
 
 
+## R-1495: a cloudless sky has no cumulus; a cloudy one fills every slot.
+func test_cloudless_sky_has_no_cumulus_and_cloudy_fills_the_slots() -> void:
+	var cloudless := CloudCellsScript.counts_for(
+		float(SkyWeather.PROFILES[SkyWeather.WEATHER_CLOUDLESS]["coverage"]), 0.0
+	)
+	assert_eq(cloudless, Vector2.ZERO, "a cloudless sky shows no cell at all")
+	var clear := CloudCellsScript.counts_for(0.30, 0.0)
+	assert_almost_eq(clear.x, 8.0, 0.5, "a fair day keeps its scattered cumulus")
+	var cloudy := CloudCellsScript.counts_for(0.66, 0.16)
+	assert_true(cloudy.x > 16.0, "a cloudy sky is crowded enough for cumulus to merge")
+
+
+func _tower_field() -> CloudCellsScript:
+	var cells := _crowded_cluster()
+	cells.seeds[0] = 0.37
+	return cells
+
+
+## R-1495: periodic tower copies are not clones, and far ones are thinned out.
+func test_tower_copies_are_distinct_clouds_and_far_ones_are_thinned() -> void:
+	var cells := _tower_field()
+	var c: Vector3 = cells.centers[0]
+	var home := Vector2(c.x, c.z)
+	var copy_seeds := {}
+	var heights := {}
+	var kept := 0
+	for x in range(-2, 3):
+		for z in range(-2, 3):
+			var centre := home + Vector2(x, z) * CloudCellsScript.DOMAIN
+			copy_seeds[snappedf(cells.copy_seed(0, centre), 0.0001)] = true
+			heights[snappedf(cells.copy_height_scale(0, centre), 0.0001)] = true
+			if cells.copy_gate(0, centre, 4000.0) > 0.5:
+				kept += 1
+			assert_eq(cells.copy_gate(0, centre, 1000.0), 1.0, "the copy near the player always shows")
+	assert_true(copy_seeds.size() >= 24, "every copy draws its own shape seed")
+	assert_true(heights.size() >= 20, "tower copies differ in height")
+	assert_true(kept >= 2 and kept <= 14, "only a share of distant tower copies stays: %d" % kept)
+	# A fair cumulus copy keeps its height and is never thinned.
+	assert_eq(cells.copy_height_scale(3, home), 1.0, "fair cumulus keep their height")
+	assert_eq(cells.copy_gate(3, home + Vector2(2, 0) * CloudCellsScript.DOMAIN, 5000.0), 1.0,
+		"fair cumulus are not gated")
+
+
+## R-1495: a copy keeps its shape seed while the wrapped centre crosses the seam.
+func test_copy_seed_survives_the_tile_wrap() -> void:
+	var cells := CloudCellsScript.new()
+	var counts := Vector2(13.0, 0.0)
+	var drift := Vector2.ZERO
+	# The clock stays put, so slot 0 keeps one generation while the drift carries
+	# its wrapped centre across the tile seam several times.
+	cells.update(0.0, drift, counts)
+	var wrapped_seen := false
+	for step in 4000:
+		var prev := Vector2(cells.centers[0].x, cells.centers[0].z)
+		var prev_seed := cells.copy_seed(0, prev)
+		drift += Vector2(0.0002, 0.0)
+		cells.update(0.0, drift, counts)
+		var now := Vector2(cells.centers[0].x, cells.centers[0].z)
+		# Follow the same physical copy, which may now be a neighbouring tile.
+		var followed := prev + CloudCellsScript.wrap_delta(now, prev)
+		assert_almost_eq(cells.copy_seed(0, followed), prev_seed, 0.0005,
+			"a drifting copy keeps its seed")
+		if now.x < prev.x - CloudCellsScript.DOMAIN * 0.5:
+			wrapped_seen = true
+	assert_true(wrapped_seen, "the probe must actually cross the tile seam")
+
+
+## R-1495: a merged tower keeps a lobed outline instead of folding into a disc.
+func test_merged_tower_keeps_its_lobes() -> void:
+	var cells := _tower_field()
+	assert_true(cells.lobe_fold(0) < 0.5, "a tower folds its lobes only partly")
+	assert_eq(cells.lobe_fold(CloudCellsScript.CUMULUS_SLOTS), 1.0, "storm slots fold fully")
+	var lo := INF
+	var hi := 0.0
+	for i in 36:
+		var dir := Vector2.from_angle(TAU * float(i) / 36.0)
+		var r := 0.0
+		while r < cells.radii[0] * 4.0 and cells.footprint_distance(0, dir * r) < 1.0:
+			r += 5.0
+		lo = minf(lo, r)
+		hi = maxf(hi, r)
+	assert_true(hi / lo > 1.3, "the tower footprint is not round: %.2f" % (hi / lo))
+	assert_true(
+		hi <= cells.radii[0] * lerpf(
+			CloudCellsScript.CUMULUS_REACH, CloudCellsScript.STORM_REACH, cells.lobe_fold(0)
+		),
+		"the tower stays inside its march box"
+	)
+
+
+## R-1495: lightning picks a copy the sky draws, never a thinned-out one.
+func test_tower_lightning_uses_a_visible_copy() -> void:
+	var cells := _tower_field()
+	for angle in 16:
+		var eye := Vector2.from_angle(float(angle) * TAU / 16.0) * 2300.0 + Vector2(1100, 1100)
+		var centre := cells.visible_copy_centre(0, eye)
+		var distance := centre.distance_to(eye)
+		var shown := CloudCellsScript.view_fade(distance, 0, cells.towers[0])
+		assert_true(shown * cells.copy_gate(0, centre, distance) > 0.5,
+			"a strike copy is drawn (%.0f m away)" % distance)
+
+
 func test_lightning_is_born_only_in_a_mature_storm_cell() -> void:
 	var sky = SkyWeather.new()
 	sky.auto_weather = false

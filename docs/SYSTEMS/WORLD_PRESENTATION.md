@@ -23,7 +23,7 @@ Third-person by default ([ADR 0015](../adr/0015-default-third-person-camera.md))
 
 ## Sky, weather, and light
 
-- **Weather**: `clear`, `cloudy`, `overcast`, `rain`, `storm`, with blended transitions and an automatic deterministic cycle. `SkyWeatherState` is the scene-tree-free state saved with the game; `SkyWeather3D` renders it. Contract: [`SKY_WEATHER_STATE_CONTRACT.md`](../SKY_WEATHER_STATE_CONTRACT.md). Rain on roofs is `sky_weather_roof_audio.gd`.
+- **Weather**: `cloudless` (R-1495), `clear` (fair cumulus), `cloudy`, `overcast`, `rain`, `storm`, with blended transitions and odds tuned to Tallinn in spring (see [`CLOUD_CELLS.md`](CLOUD_CELLS.md#cloudless-sky-and-varied-towers-r-1495)) and an automatic deterministic cycle. `SkyWeatherState` is the scene-tree-free state saved with the game; `SkyWeather3D` renders it. Contract: [`SKY_WEATHER_STATE_CONTRACT.md`](../SKY_WEATHER_STATE_CONTRACT.md). Rain on roofs is `sky_weather_roof_audio.gd`.
 - **Astronomy**: `SkyAstronomy` computes sun, moon, sidereal time, and tides for medieval Reval. Real stars come from `EstoniaStarCatalog`.
 - **Atmosphere**: physically based sky-view LUT (`SkyAtmosphereLut`, `AtmosphereCpu`), screen-space cloud shadows (`cloud_shadow_pass.gd`), and volumetric-style god rays from sun or moon occluded by architecture and shaded by the cloud deck and cells, with crepuscular rays in the sky dome (`god_ray_pass.gd`, R-1444).
 - **Cloud cells**: individual world-space cumulus and cumulonimbus (`CloudCells`) that the dome ray-marches, that cast their own ground shadows and cut god rays, and that are the only source of lightning. Contract: [`CLOUD_CELLS.md`](./CLOUD_CELLS.md).

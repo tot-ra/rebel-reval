@@ -19,13 +19,22 @@ float sky_cloud_local_storm_at(
 }
 
 
+// R-1495: even at cover 0 the brightest heaps cleared the 0.66 floor, so the deck
+// never left the sky. Below ~0.16 cover it fades out; the `cloudless` profile
+// (0.05) keeps only faint wisps, while `clear` (0.30) and above are unchanged.
+float sky_cloud_clear_fade(float cover) {
+	return smoothstep(0.02, 0.16, cover);
+}
+
+
 float sky_cloud_bulk(vec2 uv, float cover, sampler2D shape_tex) {
 	float banks = 1.0 - texture(shape_tex, uv * 0.42 + vec2(0.13, 0.61)).r;
 	float heaps = 1.0 - texture(shape_tex, uv).r;
 	float bank_mask = smoothstep(0.30, 0.72, banks);
 	float base = heaps * mix(0.45, 1.0, bank_mask);
 	float floor_thr = mix(0.66, 0.04, cover);
-	return clamp(sky_cloud_remap(base, floor_thr, floor_thr + 0.58, 0.0, 1.0), 0.0, 1.0);
+	return clamp(sky_cloud_remap(base, floor_thr, floor_thr + 0.58, 0.0, 1.0), 0.0, 1.0)
+		* sky_cloud_clear_fade(cover);
 }
 
 
@@ -62,7 +71,8 @@ vec2 sky_cloud_uv(vec3 dir, float altitude, vec2 offset) {
 float sky_cloud_shadow_cheap(vec2 uv, float cover, sampler2D shape_tex) {
 	float heaps = 1.0 - texture(shape_tex, uv).r;
 	float floor_thr = mix(0.66, 0.04, cover);
-	return clamp(sky_cloud_remap(heaps, floor_thr, floor_thr + 0.58, 0.0, 1.0), 0.0, 1.0);
+	return clamp(sky_cloud_remap(heaps, floor_thr, floor_thr + 0.58, 0.0, 1.0), 0.0, 1.0)
+		* sky_cloud_clear_fade(cover);
 }
 
 
