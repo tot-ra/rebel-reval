@@ -45,5 +45,6 @@ Numbered decisions (Status / Context / Decision / Alternatives / Consequences). 
 - [ADR 0038: Real-time 3D spirit arena and topic-bound word spells](0038-realtime-3d-spirit-arena-and-topic-spells.md)
 - [ADR 0039: Tall grass height by use, wading drag and trail](0039-tall-grass-height-and-wading-drag.md)
 - [ADR 0041: Spirit sight, auras and the seven soul lights](0041-spirit-sight-auras-and-soul-lights.md)
+- [ADR 0042: Regional site plans](0042-regional-site-plans.md)
 
 <!-- docs-index:end -->
