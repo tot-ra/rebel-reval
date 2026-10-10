@@ -47,7 +47,6 @@ const PLOT_DRESSING_COMPONENTS: Dictionary = {
 	MapTypes.PROP_KIND_PLOT_WALL: &"PlotWall",
 	MapTypes.PROP_KIND_WATTLE_FENCE: &"WattleFence",
 	MapTypes.PROP_KIND_YARD_GATE: &"YardGate",
-	MapTypes.PROP_KIND_PRIVY: &"Privy",
 	MapTypes.PROP_KIND_WELL_SWEEP: &"WellSweep",
 	MapTypes.PROP_KIND_SERVANT_LEAN_TO: &"ServantLeanTo",
 	MapTypes.PROP_KIND_HOIST_BEAM: &"HoistBeam",
@@ -436,9 +435,19 @@ static func _add_timber_fence(root: Node3D, prop: Dictionary, cell_size: int) ->
 	# WHY: country fences are wattle or rough poles in grey weathered wood, not sawn
 	# boxes (CityFences); the stable prop id picks the kind. The prop root already
 	# sits on the ground, so local height is 0.
-	var kind := CityFences.KIND_POLE if absi(hash(String(prop.get("id", "")))) % 2 == 0 else CityFences.KIND_WATTLE
+	var kind := (
+		CityFences.KIND_POLE
+		if absi(hash(String(prop.get("id", "")))) % 2 == 0
+		else CityFences.KIND_WATTLE
+	)
 	CityFences.build_run(
-		root, String(prop.get("id", "timber_fence")), from, to, func(_p: Vector2) -> float: return 0.0, 200.0, kind
+		root,
+		String(prop.get("id", "timber_fence")),
+		from,
+		to,
+		func(_p: Vector2) -> float: return 0.0,
+		200.0,
+		kind
 	)
 
 

@@ -205,23 +205,6 @@ def build_yard_gate(root: bpy.types.Object, mats: dict[str, bpy.types.Material])
     cylinder(part, "IronLatch", 0.045, 0.26, (0.70, -0.09, 0.86), mats["iron"], 8, (math.pi / 2.0, 0.0, 0.0))
 
 
-def build_privy(root: bpy.types.Object, mats: dict[str, bpy.types.Material]) -> None:
-    part = component(root, "Privy", "privy")
-    box(part, "BackWall", (1.45, 0.10, 1.70), (0.0, 0.49, 0.85), mats["timber"], 0.02)
-    box(part, "SideWallL", (0.10, 1.08, 1.70), (-0.68, 0.0, 0.85), mats["oak"], 0.02)
-    box(part, "SideWallR", (0.10, 1.08, 1.70), (0.68, 0.0, 0.85), mats["oak"], 0.02)
-    # Jambs plus head close the front so the hut is not an open three-sided box.
-    for side, x in (("L", -0.51), ("R", 0.51)):
-        box(part, f"DoorJamb{side}", (0.32, 0.09, 1.70), (x, -0.50, 0.85), mats["timber"], 0.02)
-    box(part, "DoorHead", (0.72, 0.09, 0.26), (0.0, -0.50, 1.57), mats["timber"], 0.02)
-    box(part, "Door", (0.68, 0.06, 1.41), (0.0, -0.56, 0.735), mats["oak"], 0.02)
-    cylinder(part, "DoorRing", 0.05, 0.03, (0.22, -0.60, 0.95), mats["iron"], 8, (math.pi / 2.0, 0.0, 0.0))
-    box(part, "Seat", (1.26, 0.52, 0.10), (0.0, 0.22, 0.47), mats["oak"], 0.02)
-    box(part, "SeatApron", (1.26, 0.08, 0.42), (0.0, -0.05, 0.21), mats["oak"], 0.02)
-    # Roof base sits exactly on the 1.70 wall head; the old kit left a gap.
-    roof_prism(part, "Roof", 1.76, 1.32, 0.34, (0.0, 0.0, 1.70), mats["thatch"])
-
-
 WELL_SWEEP_ANGLE = 0.224
 
 
@@ -368,7 +351,6 @@ def main() -> None:
     build_wattle_fence(root, mats)
     build_plot_wall(root, mats)
     build_yard_gate(root, mats)
-    build_privy(root, mats)
     build_well_sweep(root, mats)
     build_lean_to(root, mats)
     build_firewood(root, mats)

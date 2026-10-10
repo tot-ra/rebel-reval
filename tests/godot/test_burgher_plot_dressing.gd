@@ -7,7 +7,6 @@ const EXPECTED_COMPONENTS := [
 	"WattleFence",
 	"PlotWall",
 	"YardGate",
-	"Privy",
 	"WellSweep",
 	"ServantLeanTo",
 	"FirewoodStack",
@@ -24,7 +23,6 @@ prop cellar cellar_neck 1 1
 prop wall plot_wall 2 1
 prop fence wattle_fence 3 1
 prop gate yard_gate 4 1
-prop privy privy 5 8
 prop sweep well_sweep 7 8
 prop lean servant_lean_to 9 8
 prop hoist hoist_beam 5 2 house_tier=merchant_stone
@@ -35,7 +33,7 @@ spawn spawn.main 1 1
 	assert_true(parsed.is_ok(), str(parsed.formatted_diagnostics()))
 	if not parsed.is_ok():
 		return
-	assert_eq(parsed.definition.props.size(), 9)
+	assert_eq(parsed.definition.props.size(), 8)
 	var props_by_id := {}
 	for prop in parsed.definition.props:
 		props_by_id[prop["id"]] = prop
@@ -51,7 +49,8 @@ spawn spawn.main 1 1
 """
 	var rejected := MapRrmapParser.parse(source, "res://invalid_plot_dressing.rrmap")
 	assert_false(rejected.is_ok(), "craft_boda must reject merchant hoist hardware")
-	assert_true(str(rejected.formatted_diagnostics()).contains("requires merchant_stone or merchant_timber"))
+	var diagnostics := str(rejected.formatted_diagnostics())
+	assert_true(diagnostics.contains("requires merchant_stone or merchant_timber"))
 
 
 func test_plot_dressing_kit_contains_all_components() -> void:
@@ -80,14 +79,18 @@ func test_plot_dressing_props_build_named_models() -> void:
 		{"kind": MapTypes.PROP_KIND_PLOT_WALL, "model": "PlotWallModel"},
 		{"kind": MapTypes.PROP_KIND_WATTLE_FENCE, "model": "WattleFenceModel"},
 		{"kind": MapTypes.PROP_KIND_YARD_GATE, "model": "YardGateModel"},
-		{"kind": MapTypes.PROP_KIND_PRIVY, "model": "PrivyModel"},
 		{"kind": MapTypes.PROP_KIND_WELL_SWEEP, "model": "WellSweepModel"},
 		{"kind": MapTypes.PROP_KIND_SERVANT_LEAN_TO, "model": "ServantLeanToModel"},
 		{"kind": MapTypes.PROP_KIND_HOIST_BEAM, "model": "HoistBeamModel"},
 		{"kind": MapTypes.PROP_KIND_LOADING_HATCH, "model": "LoadingHatchModel"},
 	]:
 		var node := MapViewMeshBuilder.build_prop(
-			{"id": spec["kind"], "kind": spec["kind"], "position": Vector2.ZERO, "house_tier": PropStyleVariants.HOUSE_TIER_MERCHANT_STONE},
+			{
+				"id": spec["kind"],
+				"kind": spec["kind"],
+				"position": Vector2.ZERO,
+				"house_tier": PropStyleVariants.HOUSE_TIER_MERCHANT_STONE,
+			},
 			MapTypes.DEFAULT_CELL_SIZE
 		)
 		assert_true(node.has_node(spec["model"]), "missing model for %s" % String(spec["kind"]))

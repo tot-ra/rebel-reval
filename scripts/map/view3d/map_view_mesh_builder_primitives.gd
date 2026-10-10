@@ -39,11 +39,10 @@ const SCATTER_BLOCKING_PROP_KINDS: Array[StringName] = [
 	MapTypes.PROP_KIND_ROPE_COIL,
 	MapTypes.PROP_KIND_BOAT_TIMBER_STACK,
 	# Farms and plots: carts share CartModels with PROP_KIND_CART; the cellar
-	# mound, privy hut and well-sweep drum are closed shells.
+	# mound and well-sweep drum are closed shells.
 	MapTypes.PROP_KIND_HAY_WAGON,
 	MapTypes.PROP_KIND_FARM_CART,
 	MapTypes.PROP_KIND_ROOT_CELLAR_MOUND,
-	MapTypes.PROP_KIND_PRIVY,
 	MapTypes.PROP_KIND_WELL_SWEEP,
 ]
 

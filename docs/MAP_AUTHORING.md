@@ -157,7 +157,7 @@ Interior furniture kits are modelled with their working face toward local **−Z
 - `MapTypes.FACING_AWARE_PROP_KINDS` is the allowlist. Kinds outside it ignore `facing`, so scatter and pile props cannot change silhouette by inheriting a value meant for something else.
 - `MapTypes.PROP_MODEL_FRONTS` records the exceptions. `banner` fronts **+X**, because its wall bracket and cloth project along `+X`; `facing=east` is that kit's identity turn.
 - `stairs` props with a wall-walk `primitive` consume `facing` as an access direction instead and are resolved before furniture yaw.
-- Solid props suppress ground scatter. `MapViewMeshBuilderPrimitives.SCATTER_BLOCKING_PROP_KINDS` lists the kinds whose cells the view-only vegetation scatter skips (wash tub, well, barrels, stall, cart, crates, trade goods and pallets, splitting table, bale, sack and keg piles, staves, firewood, hay, table; forge-yard anvil, charcoal pile, iron scrap pile; harbour salt pile, rope coil, boat timber stack; farm hay wagon, farm cart, root cellar mound, privy, well sweep), so grass no longer grows through a basin, a stall counter or an anvil stump. Flat or soft kinds (fences, fields, plots, animals) and open-legged frames (fish, smoke and herb drying racks, tanning frame) stay out of the list so verges keep their planting under them. Interior-only kinds (bed, shelf, hearth, chest) need no entry: scatter and ground cover are suppressed wholesale on maps where `suppresses_exterior_surroundings()` is true. A prop with a `rect=` footprint blocks that rectangle; a prop placed by cell blocks the single cell around it. Blocking is view-side only: the blueprint keeps authoring props and terrain independently.
+- Solid props suppress ground scatter. `MapViewMeshBuilderPrimitives.SCATTER_BLOCKING_PROP_KINDS` lists the kinds whose cells the view-only vegetation scatter skips (wash tub, well, barrels, stall, cart, crates, trade goods and pallets, splitting table, bale, sack and keg piles, staves, firewood, hay, table; forge-yard anvil, charcoal pile, iron scrap pile; harbour salt pile, rope coil, boat timber stack; farm hay wagon, farm cart, root cellar mound, well sweep), so grass no longer grows through a basin, a stall counter or an anvil stump. Flat or soft kinds (fences, fields, plots, animals) and open-legged frames (fish, smoke and herb drying racks, tanning frame) stay out of the list so verges keep their planting under them. Interior-only kinds (bed, shelf, hearth, chest) need no entry: scatter and ground cover are suppressed wholesale on maps where `suppresses_exterior_surroundings()` is true. A prop with a `rect=` footprint blocks that rectangle; a prop placed by cell blocks the single cell around it. Blocking is view-side only: the blueprint keeps authoring props and terrain independently.
 - Small items belong on the surface that carries them. Lift them with `visual_offset_px=<x>,<-y>`: the y component is screen-down, so the view bridge subtracts it. Known host heights are documented per map; for `kalev_smithy` see [`kalev_smithy_domestic_life_plan.md`](reports/kalev_smithy_domestic_life_plan.md). `visual_offset_px` accepts floats and shifts only world **X** and **Y** - there is no Z component, so a wall hanging must reach its wall through its cell and `facing`, not through the offset.
 
 ## Supported primitive vocabulary
@@ -229,7 +229,6 @@ New R-212 plot/street-threshold dressing props use the normal `prop` primitive a
 | `plot_wall` | `rect=3,1` | Low-detail limestone boundary, upper-bound wealthy-strip analogue |
 | `wattle_fence` | `rect=3,1` | Timber/wattle rear-plot boundary |
 | `yard_gate` | `rect=1,1` | Rear-lane or service-yard timber gate, not a city gate |
-| `privy` | `rect=2,1` | Small rear-yard shed over a pit/barrel typology |
 | `well_sweep` | `rect=2,2` | Yard sweep, rope, and bucket dressing beside a well apron |
 | `servant_lean_to` | `rect=3,2` | Compact service lean-to / Hinterhaus mass |
 | `firewood_stack` | `rect=2,2` | Existing domestic/workshop split-fuel stack |
@@ -283,7 +282,6 @@ prop barn_rick hay_stack 38 42 rect=2,2 style_variant=hay_stack.tall
 | `chicken_run` | `rect=2,1` | Timber chicken run beside croft yards (**B**) |
 | `flax_drying_frame` | `rect=2,1` | Flax/hemp drying frame distinct from herb racks (**B**) |
 | `root_cellar_mound` | `rect=2,1` | Turf-covered root cellar beside farmhouse walls (**B/U**) |
-| `orchard_row` | `rect=2,1` | Low orchard or fruit-tree row on garden margins (**B**) |
 | `farm_cart` | `rect=2,2` | Weathered single-axle farm cart with shafts (**B**) |
 
 Footprint rules match the P2-025 district-life contract: default single-cell placement, `rect=w,h` only when the yard needs an elongated silhouette (`w * h <= 4` on playable routes), and no blocking of required patrols, transitions, interaction anchors, or evidence routes.

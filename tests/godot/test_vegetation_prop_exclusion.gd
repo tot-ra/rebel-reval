@@ -40,7 +40,6 @@ const ADDED_SOLID_KINDS: Array[StringName] = [
 	MapTypes.PROP_KIND_HAY_WAGON,
 	MapTypes.PROP_KIND_FARM_CART,
 	MapTypes.PROP_KIND_ROOT_CELLAR_MOUND,
-	MapTypes.PROP_KIND_PRIVY,
 	MapTypes.PROP_KIND_WELL_SWEEP,
 ]
 ## Open-legged frames: grass under them is correct, so they must stay soft.
