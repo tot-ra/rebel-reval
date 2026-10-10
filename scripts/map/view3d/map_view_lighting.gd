@@ -66,9 +66,12 @@ const FOG_ART_TINT := Color.WHITE
 const PHYSICAL_SUN_ENERGY_MIN := 0.15
 ## Civil twilight still has a bright sky, but daylight_blend is a -6..+6
 ## smoothstep so -3 deg is already ~0.16 and the ground goes night-black.
-## Ambient and post-grade ease out to the existing horizon blend (0.5) and
-## leave night (<= -6) and day (>= 0) on the current day_blend path.
-const CIVIL_TWILIGHT_HORIZON_BLEND := 0.5
+## Ambient and post-grade ease out to the horizon blend and leave night (<= -6)
+## and day (>= 0) on the current day_blend path. 0.7 (was 0.5) with the TWILIGHT_FILL_CURVE
+## tail keeps the ground legible at -6..-12 deg, where a late-spring night at 59 N
+## still has a lit sky (hinterland site plates showed pitch-black land under it).
+const CIVIL_TWILIGHT_HORIZON_BLEND := 0.7
+const TWILIGHT_FILL_CURVE := 0.5
 ## Mie forward scatter of the fog around the sun: thin in clear dawn air, stronger in haze.
 const FOG_SUN_SCATTER_CLEAR := 0.2
 const FOG_SUN_SCATTER_HAZY := 0.35
@@ -386,8 +389,11 @@ static func moon_handoff(direction: Vector3) -> float:
 ## Carry the sky fill through civil and nautical twilight to astronomical night.
 ## The same -18..0 degree ramp is used by the dome and reflected sky floor.
 static func twilight_fill_blend(day_blend: float, sun_direction: Vector3) -> float:
-	var twilight := smoothstep(sin(deg_to_rad(-18.0)), 0.0, sun_direction.y)
-	return maxf(clampf(day_blend, 0.0, 1.0), CIVIL_TWILIGHT_HORIZON_BLEND * twilight)
+	var twilight := pow(smoothstep(sin(deg_to_rad(-18.0)), 0.0, sun_direction.y), TWILIGHT_FILL_CURVE)
+	# Crossfade (not maxf): a plateau at the civil-twilight cap let the sunset colour shift
+	# make the fill dip as the sun rose through the horizon.
+	var day := clampf(day_blend, 0.0, 1.0)
+	return lerpf(CIVIL_TWILIGHT_HORIZON_BLEND * twilight, 1.0, day)
 
 
 ## energy * sRGB luminance of the applied ambient colour. Tests use this so a

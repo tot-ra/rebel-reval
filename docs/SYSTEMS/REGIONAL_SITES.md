@@ -47,6 +47,15 @@ Review plates (`tools/godot_render.sh --script tools/capture_hinterland_sites.gd
 
 Limits: plumes reuse the chimney streamer's per-id schedule, so about one plume in three burns only by day, only at night or never; shelters are thatched outbuildings, not bough or hide models; the great oak is a point of interest, not a modelled tree (the grove's oaks come from the grove fill); there is no well model on the Harju common, no standard pole, carts or horses (fauna off); the spring pool is a flat disc on the ground, not a carved basin.
 
+## Sky, night and far ground at the sites (shared systems)
+
+The site sky uses the site's own origin as the `SkyAstronomy` observer (59.37 N for the hinterland, Paide and Padise), so the sun curve is already right for the latitude: the review plates' night shot (cycle progress 0.865) is a sun at about -6 degrees and 0.96 about -15 degrees in late April. What looked wrong was the shared look of that twilight, fixed once for every map and site:
+
+- **Twilight sky.** `sky_weather_3d.gdshader` (and the water's mirror in `map_view_water.gdshader`) add a linear `TWILIGHT_TOP` / `TWILIGHT_HORIZON` glow over the night floor, fading from 0 at -18 degrees to full at the horizon. The `source_color` night colours alone decode to about 0.0015 linear, so the dome was black by -6 degrees.
+- **Twilight ground.** `MapViewLighting.twilight_fill_blend` crossfades from `CIVIL_TWILIGHT_HORIZON_BLEND` (0.7) times a `TWILIGHT_FILL_CURVE` (0.5) tail to the day blend, so land, stockades and roads stay legible through civil and nautical twilight (pitch black before).
+- **Far crop strips.** `CityFarmland` reads its `FAR_SOIL` / `FAR_GREEN` swatches as sRGB vertex colour (`vertex_color_is_srgb`); as linear they drew as pale cream bars.
+- **No hole in the middle distance.** `CityTerrainBuilder` gives `FarTerrain` no visibility range. A range is measured to the mesh centre (the plan centre), so on a 700 m site plan the far mesh stayed hidden while near chunks beyond `NEAR_RANGE` were already culled, which showed as a pale slab (the sky) over the far fields in `harju_day_aerial.png`. The shader's `FAR_TERRAIN_CUT` still sinks the far mesh near the camera. Test: `tests/godot/test_city_far_terrain.gd`.
+
 ## Data and pipeline
 
 | File | What it is |

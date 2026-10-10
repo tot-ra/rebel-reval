@@ -33,3 +33,15 @@ func test_far_cut_stays_inside_the_near_chunk_cover() -> void:
 	# must still be drawn by an unsunk far triangle.
 	assert_true(cut + far_triangle < Builder.NEAR_RANGE - half_chunk, "no hole between near and far")
 	assert_true(source.contains("COLOR.a > 0.5 && COLOR.a < 0.9"), "vertex stage reads the far mark")
+
+
+func test_far_mesh_has_no_visibility_range_on_a_small_site_plan() -> void:
+	# A visibility range is measured to the mesh centre (the plan centre): on a 700 m
+	# site the far mesh stayed hidden while chunks past NEAR_RANGE were culled, leaving
+	# a sky-coloured hole in the middle distance. The shader's FAR_TERRAIN_CUT hides it
+	# near the camera instead.
+	var parent := Node3D.new()
+	var terrain := Builder.build(CityPlan.load_site("harju"), parent)
+	var far := terrain.get_node("FarTerrain") as MeshInstance3D
+	assert_almost_eq(far.visibility_range_begin, 0.0, 0.001, "far mesh draws at any range")
+	parent.free()

@@ -386,6 +386,9 @@ func _rebuild_far() -> void:
 	_far.mesh = st.commit()
 	var material := StandardMaterial3D.new()
 	material.vertex_color_use_as_albedo = true
+	# FAR_GREEN / FAR_SOIL are authored as sRGB swatches; read as linear the strips washed
+	# out to pale cream bars instead of soil and green.
+	material.vertex_color_is_srgb = true
 	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	material.roughness = 1.0
 	_far.material_override = material

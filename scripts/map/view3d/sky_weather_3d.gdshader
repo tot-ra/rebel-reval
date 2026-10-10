@@ -15,6 +15,12 @@ uniform vec4 night_horizon_color : source_color = vec4(0.050, 0.100, 0.220, 1.0)
 // Faint blue-grey airglow rather than a saturated blue readability fill.
 const vec3 DARK_NIGHT_TOP = vec3(0.0015, 0.0020, 0.0030);
 const vec3 DARK_NIGHT_HORIZON = vec3(0.0030, 0.0040, 0.0060);
+// Twilight glow (linear). The night colours above are source_color, so they decode to
+// ~0.0015 linear and the dome was black by -6 degrees, although at 59 N the late-spring
+// sky stays a readable deep blue through civil and most of nautical twilight. Added over
+// the night floor by twilight_glow(), fading out at -18 degrees; the water mirrors it.
+const vec3 TWILIGHT_TOP = vec3(0.030, 0.065, 0.170);
+const vec3 TWILIGHT_HORIZON = vec3(0.090, 0.150, 0.300);
 uniform vec4 sunset_color : source_color = vec4(1.0, 0.25, 0.09, 1.0);
 uniform vec4 sun_color : source_color = vec4(1.0, 0.92, 0.74, 1.0);
 uniform vec4 moon_color : source_color = vec4(0.88, 0.86, 0.82, 1.0);
@@ -834,6 +840,11 @@ float night_floor_readability(float sun_y, float moon_y, float phase) {
 }
 
 
+float twilight_glow(float sun_y) {
+	return pow(smoothstep(-0.309017, 0.0, sun_y), 0.6);
+}
+
+
 void sky() {
 	vec3 dir = EYEDIR;
 	float height = dir.y;
@@ -845,8 +856,10 @@ void sky() {
 	float haze = 1.0 - exp(-air_mass * (0.10 + cloud_darken * 0.12));
 	// Visible sky and material reflections must share the same night floor.
 	float readability = night_floor_readability(sun_direction.y, moon_direction.y, moon_phase);
-	vec3 night_top = mix(DARK_NIGHT_TOP, night_top_color.rgb, readability);
-	vec3 night_horizon = mix(DARK_NIGHT_HORIZON, night_horizon_color.rgb, readability);
+	float glow = twilight_glow(sun_direction.y);
+	vec3 night_top = mix(DARK_NIGHT_TOP, night_top_color.rgb, readability) + TWILIGHT_TOP * glow;
+	vec3 night_horizon = mix(DARK_NIGHT_HORIZON, night_horizon_color.rgb, readability)
+		+ TWILIGHT_HORIZON * glow;
 	vec3 horizon;
 	vec3 color;
 	// Physical sky only: LUT ambient for cloud shadows (zenith + horizon average).

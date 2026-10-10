@@ -14,6 +14,8 @@ Out of scope: stars fainter than magnitude 5 (the catalog stops there), planets,
 - **When it shows.** The Milky Way needs real darkness: it fades in only once the sun is about 7-16 degrees below the horizon, so it is faint in May and absent in Reval's white nights of June and July. A risen bright moon washes it out (up to 85% at full moon), clouds hide it with the stars, and it disappears into haze in the lowest degrees of sky.
 - **Seasons.** The star field drifts about 0.986 degrees per calendar day, so the same clock time shows different constellations through the year: Orion in winter evenings, the Summer Triangle overhead in August.
 
+- **Twilight blue.** Between the horizon and -18 degrees the dome keeps a deep-blue glow (`TWILIGHT_TOP`, `TWILIGHT_HORIZON` in `sky_weather_3d.gdshader`), so a late-spring evening is not black before the stars take over; details in [Regional sites](./REGIONAL_SITES.md).
+
 ## Runtime entry points
 
 | Piece | File | Role |

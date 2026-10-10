@@ -94,7 +94,10 @@ static func build(plan: CityPlan, parent: Node3D) -> Node3D:
 	far.name = "FarTerrain"
 	far.mesh = _chunk_mesh(plan, 0, 0, size.x - 1, size.y - 1, FAR_STEP, FAR_DROP, true)
 	far.material_override = mat
-	far.visibility_range_begin = NEAR_RANGE - 40.0
+	# No visibility range: it is measured to the mesh's own centre (the plan centre), so on
+	# a plan only a few hundred metres across the far mesh stayed hidden while the near
+	# chunks past NEAR_RANGE were already culled, leaving a hole to the sky. The shader
+	# sinks the far vertices within FAR_TERRAIN_CUT of the camera instead.
 	far.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	root.add_child(far)
 	var skirt := MeshInstance3D.new()

@@ -791,6 +791,15 @@ vec2 _equatorial_uv(vec3 direction) {
 	return vec2(fract(right_ascension / TAU), 0.5 - declination / PI);
 }
 
+// Twilight glow over the night floor; keep in sync with twilight_glow() and the
+// TWILIGHT_* constants in sky_weather_3d.gdshader.
+const vec3 TWILIGHT_TOP = vec3(0.030, 0.065, 0.170);
+const vec3 TWILIGHT_HORIZON = vec3(0.090, 0.150, 0.300);
+
+float twilight_glow() {
+	return pow(smoothstep(-0.309017, 0.0, sun_direction.y), 0.6);
+}
+
 // Bounded analytic sky-dome color for reflected rays. Matches the sky shader's
 // gradient path (without marching clouds) so fresnel reflections track the dome.
 float reflected_night_readability() {
@@ -802,8 +811,9 @@ float reflected_night_readability() {
 vec3 _sky_dome_gradient(vec3 dir) {
 	float height = dir.y;
 	float night_fill = reflected_night_readability();
-	vec3 top = mix(mix(vec3(0.0015, 0.0020, 0.0030), night_top_color, night_fill), day_top_color, day_blend);
-	vec3 horizon = mix(mix(vec3(0.0030, 0.0040, 0.0060), night_horizon_color, night_fill), day_horizon_color, day_blend);
+	float glow = twilight_glow();
+	vec3 top = mix(mix(vec3(0.0015, 0.0020, 0.0030), night_top_color, night_fill) + TWILIGHT_TOP * glow, day_top_color, day_blend);
+	vec3 horizon = mix(mix(vec3(0.0030, 0.0040, 0.0060), night_horizon_color, night_fill) + TWILIGHT_HORIZON * glow, day_horizon_color, day_blend);
 	float sun_amount = max(dot(dir, normalize(sun_direction)), 0.0);
 	horizon = mix(horizon, sunset_color, sunset_factor * pow(sun_amount, 2.0) * 0.8);
 	float air_mass = 1.0 / max(height + 0.12, 0.12);
@@ -856,8 +866,10 @@ vec3 _sky_dome_reflection(vec3 dir) {
 		_sky_lut_radiance(normalize(vec3(dir.x, 0.0, dir.z) + vec3(0.0, 0.0, 1e-5))) * art);
 	float night = 1.0 - day_blend;
 	float night_fill = reflected_night_readability();
-	vec3 night_top = mix(vec3(0.0015, 0.0020, 0.0030), night_top_color, night_fill);
-	vec3 night_horizon = mix(vec3(0.0030, 0.0040, 0.0060), night_horizon_color, night_fill);
+	float glow = twilight_glow();
+	vec3 night_top = mix(vec3(0.0015, 0.0020, 0.0030), night_top_color, night_fill) + TWILIGHT_TOP * glow;
+	vec3 night_horizon = mix(vec3(0.0030, 0.0040, 0.0060), night_horizon_color, night_fill)
+		+ TWILIGHT_HORIZON * glow;
 	vec3 horizon = lut_horizon + night_horizon * night;
 	vec3 color = sky_highlight_shoulder(_sky_lut_radiance(dir) * art)
 		+ mix(night_top, night_horizon, haze) * night;
