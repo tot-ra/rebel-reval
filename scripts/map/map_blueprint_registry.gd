@@ -46,6 +46,77 @@ static func entries() -> Array[Dictionary]:
 			"required_anchors":
 			[&"landmark_gatehouse", &"landmark_central_keep", &"landmark_island_chapel"],
 		},
+		{
+			"id": &"world.rakvere",
+			"source": "res://content/maps/world_rakvere.rrmap",
+			"required_anchors": [&"landmark_gatehouse", &"landmark_central_keep", &"landmark_yard_well"],
+		},
+		{
+			"id": &"world.haapsalu",
+			"source": "res://content/maps/world_haapsalu.rrmap",
+			"required_anchors": [&"landmark_gatehouse", &"landmark_central_keep", &"landmark_yard_well"],
+		},
+		{
+			"id": &"world.lihula",
+			"source": "res://content/maps/world_lihula.rrmap",
+			"required_anchors": [&"landmark_gatehouse", &"landmark_central_keep", &"landmark_yard_well"],
+		},
+		{
+			"id": &"world.tartu",
+			"source": "res://content/maps/world_tartu.rrmap",
+			"required_anchors":
+			[&"landmark_market_square", &"landmark_town_hall", &"landmark_warehouse_row"],
+		},
+		{
+			"id": &"world.viljandi",
+			"source": "res://content/maps/world_viljandi.rrmap",
+			"required_anchors": [&"landmark_gatehouse", &"landmark_central_keep", &"landmark_yard_well"],
+		},
+		{
+			"id": &"world.poltsamaa",
+			"source": "res://content/maps/world_poltsamaa.rrmap",
+			"required_anchors": [&"landmark_gatehouse", &"landmark_central_keep", &"landmark_yard_well"],
+		},
+		{
+			"id": &"world.narva",
+			"source": "res://content/maps/world_narva.rrmap",
+			"required_anchors": [&"landmark_gatehouse", &"landmark_central_keep", &"landmark_yard_well"],
+		},
+		{
+			"id": &"world.karksi",
+			"source": "res://content/maps/world_karksi.rrmap",
+			"required_anchors": [&"landmark_gatehouse", &"landmark_central_keep", &"landmark_yard_well"],
+		},
+		{
+			"id": &"world.helme",
+			"source": "res://content/maps/world_helme.rrmap",
+			"required_anchors": [&"landmark_gatehouse", &"landmark_central_keep", &"landmark_yard_well"],
+		},
+		{
+			"id": &"world.maasilinna",
+			"source": "res://content/maps/world_maasilinna.rrmap",
+			"required_anchors": [&"landmark_gatehouse", &"landmark_central_keep", &"landmark_yard_well"],
+		},
+		{
+			"id": &"world.karja",
+			"source": "res://content/maps/world_karja.rrmap",
+			"required_anchors": [&"landmark_gatehouse", &"landmark_central_keep", &"landmark_yard_well"],
+		},
+		{
+			"id": &"world.klint",
+			"source": "res://content/maps/world_klint.rrmap",
+			"required_anchors": [&"landmark_cliff_edge", &"landmark_lime_kiln", &"landmark_quarry"],
+		},
+		{
+			"id": &"world.soomaa",
+			"source": "res://content/maps/world_soomaa.rrmap",
+			"required_anchors": [&"landmark_causeway", &"landmark_pile_hut", &"landmark_boat_shed"],
+		},
+		{
+			"id": &"world.frontier_ugandi",
+			"source": "res://content/maps/world_frontier_ugandi.rrmap",
+			"required_anchors": [&"landmark_crossing", &"landmark_clearing_fire", &"landmark_watch_hut"],
+		},
 	]
 
 

@@ -10,6 +10,20 @@ const RRMAP_PATHS: Dictionary = {
 	&"world_sojamae": "res://content/maps/world_sojamae.rrmap",
 	&"world_parnu": "res://content/maps/world_parnu.rrmap",
 	&"world_poide": "res://content/maps/world_poide.rrmap",
+	&"world_rakvere": "res://content/maps/world_rakvere.rrmap",
+	&"world_haapsalu": "res://content/maps/world_haapsalu.rrmap",
+	&"world_lihula": "res://content/maps/world_lihula.rrmap",
+	&"world_tartu": "res://content/maps/world_tartu.rrmap",
+	&"world_viljandi": "res://content/maps/world_viljandi.rrmap",
+	&"world_poltsamaa": "res://content/maps/world_poltsamaa.rrmap",
+	&"world_narva": "res://content/maps/world_narva.rrmap",
+	&"world_karksi": "res://content/maps/world_karksi.rrmap",
+	&"world_helme": "res://content/maps/world_helme.rrmap",
+	&"world_maasilinna": "res://content/maps/world_maasilinna.rrmap",
+	&"world_karja": "res://content/maps/world_karja.rrmap",
+	&"world_klint": "res://content/maps/world_klint.rrmap",
+	&"world_soomaa": "res://content/maps/world_soomaa.rrmap",
+	&"world_frontier_ugandi": "res://content/maps/world_frontier_ugandi.rrmap",
 }
 
 const SCENE_IDS: Array[StringName] = [
@@ -17,6 +31,20 @@ const SCENE_IDS: Array[StringName] = [
 	&"world_sojamae",
 	&"world_parnu",
 	&"world_poide",
+	&"world_rakvere",
+	&"world_haapsalu",
+	&"world_lihula",
+	&"world_tartu",
+	&"world_viljandi",
+	&"world_poltsamaa",
+	&"world_narva",
+	&"world_karksi",
+	&"world_helme",
+	&"world_maasilinna",
+	&"world_karja",
+	&"world_klint",
+	&"world_soomaa",
+	&"world_frontier_ugandi",
 ]
 
 

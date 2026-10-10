@@ -1,6 +1,7 @@
 extends "res://tests/godot/test_case.gd"
 
-## Estonia map catalog: unbuilt places are charted but never travelable.
+## Estonia map catalog: unbuilt places would be charted but never travelable;
+## today every charted place is a debug greybox.
 
 
 func test_planned_locations_are_charted_but_not_travelable() -> void:
@@ -15,7 +16,18 @@ func test_planned_locations_are_charted_but_not_travelable() -> void:
 			GlobalMapCatalog.plan_travel(&"world_harju", scene_id).is_empty(),
 			"%s must not plan travel" % scene_id
 		)
-	assert_true(planned > 0, "catalog should chart unbuilt locations")
+	# Every charted place now has a debug greybox, so nothing is left unbuilt;
+	# the loop above still guards any future "planned" entry.
+	assert_eq(planned, 0, "all charted locations are travelable debug nodes")
+
+
+func test_debug_greybox_nodes_are_reachable_from_reval_and_back() -> void:
+	for scene_id in [&"world_rakvere", &"world_klint", &"world_soomaa", &"world_frontier_ugandi"]:
+		assert_true(GlobalMapCatalog.is_distant_scene(scene_id), "%s must be travelable" % scene_id)
+		var there := GlobalMapCatalog.plan_travel(GlobalMapCatalog.REVAL_HUB_ID, scene_id)
+		assert_false(there.is_empty(), "Reval -> %s needs a plan" % scene_id)
+		assert_true(DoorNavigator.has_spawn(scene_id, there.get("spawn_id", &"")))
+		assert_false(GlobalMapCatalog.plan_travel(scene_id, GlobalMapCatalog.REVAL_HUB_ID).is_empty())
 
 
 func test_every_marker_has_a_position_inside_the_basemap() -> void:

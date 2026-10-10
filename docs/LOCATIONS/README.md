@@ -1,6 +1,6 @@
 # Locations beyond Reval: journey nodes, variety, and resources
 
-**Status:** planned (design proposal, not implemented). No map, scene, or asset is added by these pages.
+**Status:** design proposal; the 11 formerly charted places plus Klint, Soomaa and the frontier node exist as bare debug travel greyboxes on the global map (see [HUD and menus](../SYSTEMS/HUD_AND_MENUS.md), debug travel greyboxes). The pages themselves add no art or content.
 **Scope:** the ten existing distant prototypes (`loc.world_*`, `release=false`) are deepened; eight new journey nodes are *proposed*. Reval itself is covered by [`../SYSTEMS/SEAMLESS_CITY.md`](../SYSTEMS/SEAMLESS_CITY.md) and [`../TOURIST_LANDMARKS.md`](../TOURIST_LANDMARKS.md) Part I.
 **Out of scope:** a seamless Estonia-wide world, playable Riga/Dorpat/Narva campaigns, army sims ([`AGENTS.md`](../../AGENTS.md), [ADR 0008](../adr/0008-three-act-campaign-and-faction-scope.md)). New nodes are compact authored travel greyboxes like the existing `world_*` maps (46-110 cells wide), not cities.
 

@@ -62,6 +62,20 @@ const DISPLAY_NAMES_BY_SCENE: Dictionary = {
 	&"world_paide": "Paide Castle",
 	&"world_parnu": "Pärnu",
 	&"world_poide": "Pöide Castle",
+	&"world_rakvere": "Rakvere Castle",
+	&"world_haapsalu": "Haapsalu Castle",
+	&"world_lihula": "Lihula Castle",
+	&"world_tartu": "Dorpat Castle",
+	&"world_viljandi": "Viljandi Castle",
+	&"world_poltsamaa": "Põltsamaa Castle",
+	&"world_narva": "Narva Castle",
+	&"world_karksi": "Karksi-Nuia",
+	&"world_helme": "Helme Castle",
+	&"world_maasilinna": "Maasilinna Castle",
+	&"world_karja": "Karja Fortress",
+	&"world_klint": "Baltic Klint Coast",
+	&"world_soomaa": "Soomaa Flood Refuge",
+	&"world_frontier_ugandi": "Otepää - Vastseliina Frontier",
 }
 
 

@@ -269,8 +269,8 @@ func test_global_catalog_edges_have_reciprocal_doors_and_manifest_spawns() -> vo
 
 		var from_definition := DistantLocationDefinitions.create(from_id)
 		var to_definition := DistantLocationDefinitions.create(to_id)
-		assert_true(_has_destination(from_definition, to_id))
-		assert_true(_has_destination(to_definition, from_id))
+		assert_true(_has_destination(from_definition, to_id), "%s needs a door to %s" % [from_id, to_id])
+		assert_true(_has_destination(to_definition, from_id), "%s needs a door to %s" % [to_id, from_id])
 
 
 func test_every_distant_gate_plans_a_return_into_the_city() -> void:

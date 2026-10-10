@@ -8,7 +8,11 @@ const MAP_TEXTURE_PATH := "res://assets/UI/estonia_world_map.png"
 const REVAL_HUB_ID := &"reval"
 
 ## Entries with "planned": true are charted but not yet built: they render as
-## dim markers, carry no neighbors, and never enter travel planning.
+## dim markers, carry no neighbors, and never enter travel planning. None is
+## planned right now: every charted place has at least a debug greybox.
+## Debug nodes (docs/LOCATIONS) connect to Reval and to each other only; the
+## older built sites are not linked to them because their plans own the arrival
+## spawns.
 ## Positions are normalized against the Estonia basemap and were placed from real
 ## latitude/longitude fitted to its painted coastline (islands and the southern
 ## border are hand-drawn, so those markers follow the drawing, not the projection).
@@ -20,7 +24,27 @@ const LOCATIONS: Dictionary = {
 		"display_name": "Reval",
 		"position": Vector2(0.456, 0.200),
 		"is_hub": true,
-		"neighbors": [&"world_sacred_grove", &"world_harju", &"world_padise", &"world_saaremaa"],
+		"neighbors":
+		[
+			&"world_sacred_grove",
+			&"world_harju",
+			&"world_padise",
+			&"world_saaremaa",
+			&"world_rakvere",
+			&"world_haapsalu",
+			&"world_lihula",
+			&"world_tartu",
+			&"world_viljandi",
+			&"world_poltsamaa",
+			&"world_narva",
+			&"world_karksi",
+			&"world_helme",
+			&"world_maasilinna",
+			&"world_karja",
+			&"world_klint",
+			&"world_soomaa",
+			&"world_frontier_ugandi",
+		],
 		"blurb": "Walled town and campaign hub",
 	},
 	&"world_sacred_grove":
@@ -116,78 +140,141 @@ const LOCATIONS: Dictionary = {
 	{
 		"display_name": "Rakvere Castle",
 		"position": Vector2(0.608, 0.226),
-		"planned": true,
+		"gate_scene_id": &"viru_gate_foreland",
+		"gate_spawn_id": &"from_world_rakvere",
+		"arrival_spawn_id": &"from_reval_east",
+		"neighbors": [REVAL_HUB_ID, &"world_narva", &"world_poltsamaa"],
 		"blurb": "Danish crown fortress in Virumaa",
 	},
 	&"world_haapsalu":
 	{
 		"display_name": "Haapsalu Castle",
 		"position": Vector2(0.332, 0.376),
-		"planned": true,
+		"gate_scene_id": &"reval_toompea",
+		"gate_spawn_id": &"from_world_haapsalu",
+		"arrival_spawn_id": &"from_reval_west",
+		"neighbors": [REVAL_HUB_ID, &"world_lihula", &"world_klint"],
 		"blurb": "Bishop of Ösel-Wiek seat, western siege front",
 	},
 	&"world_lihula":
 	{
 		"display_name": "Lihula Castle",
 		"position": Vector2(0.365, 0.471),
-		"planned": true,
+		"gate_scene_id": &"reval_toompea",
+		"gate_spawn_id": &"from_world_lihula",
+		"arrival_spawn_id": &"from_reval_west",
+		"neighbors": [REVAL_HUB_ID, &"world_haapsalu", &"world_maasilinna", &"world_soomaa"],
 		"blurb": "Leal, bishopric stronghold on the western coast",
 	},
 	&"world_tartu":
 	{
 		"display_name": "Dorpat Castle",
 		"position": Vector2(0.651, 0.581),
-		"planned": true,
-		"blurb": "Bishopric of Dorpat, university-to-be town",
+		"gate_scene_id": &"reval_south",
+		"gate_spawn_id": &"from_world_tartu",
+		"arrival_spawn_id": &"from_reval_south",
+		"neighbors": [REVAL_HUB_ID, &"world_poltsamaa", &"world_viljandi", &"world_frontier_ugandi"],
+		"blurb": "Bishopric of Dorpat, brick town above the river",
 	},
 	&"world_viljandi":
 	{
 		"display_name": "Viljandi Castle",
 		"position": Vector2(0.538, 0.588),
-		"planned": true,
+		"gate_scene_id": &"reval_south",
+		"gate_spawn_id": &"from_world_viljandi",
+		"arrival_spawn_id": &"from_reval_south",
+		"neighbors": [REVAL_HUB_ID, &"world_tartu", &"world_poltsamaa", &"world_karksi", &"world_soomaa"],
 		"blurb": "Fellin, Order castle and the rye-sack tale",
 	},
 	&"world_poltsamaa":
 	{
 		"display_name": "Põltsamaa Castle",
 		"position": Vector2(0.575, 0.482),
-		"planned": true,
+		"gate_scene_id": &"reval_south",
+		"gate_spawn_id": &"from_world_poltsamaa",
+		"arrival_spawn_id": &"from_reval_south",
+		"neighbors": [REVAL_HUB_ID, &"world_rakvere", &"world_tartu", &"world_viljandi"],
 		"blurb": "Order castle on the Põltsamaa river",
 	},
 	&"world_narva":
 	{
 		"display_name": "Narva Castle",
 		"position": Vector2(0.796, 0.217),
-		"planned": true,
-		"blurb": "Hermann castle on the eastern frontier",
+		"gate_scene_id": &"viru_gate_foreland",
+		"gate_spawn_id": &"from_world_narva",
+		"arrival_spawn_id": &"from_reval_east",
+		"neighbors": [REVAL_HUB_ID, &"world_rakvere"],
+		"blurb": "Danish river castle on the eastern frontier",
 	},
 	&"world_karksi":
 	{
 		"display_name": "Karksi-Nuia",
 		"position": Vector2(0.516, 0.638),
-		"planned": true,
+		"gate_scene_id": &"reval_south",
+		"gate_spawn_id": &"from_world_karksi",
+		"arrival_spawn_id": &"from_reval_south",
+		"neighbors": [REVAL_HUB_ID, &"world_viljandi", &"world_helme", &"world_soomaa"],
 		"blurb": "Order stronghold near the southern border",
 	},
 	&"world_helme":
 	{
 		"display_name": "Helme Castle",
 		"position": Vector2(0.573, 0.676),
-		"planned": true,
+		"gate_scene_id": &"reval_south",
+		"gate_spawn_id": &"from_world_helme",
+		"arrival_spawn_id": &"from_reval_south",
+		"neighbors": [REVAL_HUB_ID, &"world_karksi", &"world_frontier_ugandi"],
 		"blurb": "Order castle in the southern hills",
 	},
 	&"world_maasilinna":
 	{
 		"display_name": "Maasilinna Castle",
 		"position": Vector2(0.238, 0.493),
-		"planned": true,
+		"gate_scene_id": &"reval_harbor_north",
+		"gate_spawn_id": &"from_world_maasilinna",
+		"arrival_spawn_id": &"from_reval_harbor",
+		"neighbors": [REVAL_HUB_ID, &"world_lihula", &"world_karja"],
 		"blurb": "Soneburg, Order castle on the Muhu strait",
 	},
 	&"world_karja":
 	{
 		"display_name": "Karja Fortress",
 		"position": Vector2(0.195, 0.483),
-		"planned": true,
+		"gate_scene_id": &"reval_harbor_north",
+		"gate_spawn_id": &"from_world_karja",
+		"arrival_spawn_id": &"from_reval_harbor",
+		"neighbors": [REVAL_HUB_ID, &"world_maasilinna"],
 		"blurb": "Saaremaa hillfort",
+	},
+	&"world_klint":
+	{
+		"display_name": "Baltic Klint Coast",
+		"position": Vector2(0.415, 0.232),
+		"gate_scene_id": &"reval_toompea",
+		"gate_spawn_id": &"from_world_klint",
+		"arrival_spawn_id": &"from_reval_west",
+		"neighbors": [REVAL_HUB_ID, &"world_haapsalu"],
+		"blurb": "Limestone cliffs, waterfalls and quarries on the north coast",
+	},
+	&"world_soomaa":
+	{
+		"display_name": "Soomaa Flood Refuge",
+		"position": Vector2(0.48, 0.568),
+		"gate_scene_id": &"reval_south",
+		"gate_spawn_id": &"from_world_soomaa",
+		"arrival_spawn_id": &"from_reval_south",
+		"neighbors": [REVAL_HUB_ID, &"world_viljandi", &"world_karksi", &"world_lihula"],
+		"blurb": "Spring flood refuge among dugout boats",
+	},
+	&"world_frontier_ugandi":
+	{
+		"display_name": "Otepää - Vastseliina Frontier",
+		"position": Vector2(0.62, 0.655),
+		"gate_scene_id": &"reval_south",
+		"gate_spawn_id": &"from_world_frontier_ugandi",
+		"arrival_spawn_id": &"from_reval_south",
+		"neighbors": [REVAL_HUB_ID, &"world_tartu", &"world_helme"],
+		"blurb": "Hillfort and new border castle towards Pskov",
 	},
 }
 

@@ -338,3 +338,6 @@ This file contains lessons specific to the Dev role.
 
 - Mesh-joint tests that match ring vertices by distance must select both sections' ring planes (current and next axis) and skip skeleton segments that do not start at the previous end (oak/cherry list mid-trunk limbs at depth 0); otherwise bent joints give false UV failures.
 - Choosing Foley without listening: render log-frequency spectrograms (`showspectrumpic=fscale=log`) of candidate stretches next to the current pool and reject recordings with a continuous band under ~150 Hz (river flow, GoPro housing, wind); they read as rumble after levelling. Build ffmpeg `-filter_complex` strings with `[0][1]` labels in Python, not a zsh loop: zsh mangles `[$i]` and the graph fails as `papad`.
+
+- An rrmap may declare exactly one plain `spawn`; extra arrival spawns must come from a transition's `spawn=` (a door). Anchors must not sit inside building footprints (`MAP_ANCHOR_BLOCKED`), and a transition `to=` must be an active manifest scene (use `reval_city` plus a city spawn, not retired gate scenes).
+- `godot --script` cannot compile code that names autoloads (`DoorNavigator`, `MusicDirector`); write the capture as a scene (`tools/capture_global_map.tscn`) and run it through `tools/godot_render.sh res://...tscn`. `tools/capture_map_audit.gd` re-renders every map; check out unrelated PNG diffs afterwards.

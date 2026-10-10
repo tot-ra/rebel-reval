@@ -97,6 +97,20 @@ Inventory row count (data rows in the table below): **137**.
 | 85 | `scenes/world_travel/world_sojamae.tscn` | partial | Developer global-map placeholder; May 14 battlefield; `release=false`. |
 | 87 | `scenes/world_travel/world_parnu.tscn` | partial | Developer global-map placeholder; southern campaign town; `release=false`. |
 | 88 | `scenes/world_travel/world_poide.tscn` | partial | Developer global-map placeholder; Act 3 Saaremaa castle; `release=false`. |
+| 89 | `scenes/world_travel/world_rakvere.tscn` | partial | Developer global-map greybox (Rakvere Castle); `release=false`. |
+| 90 | `scenes/world_travel/world_haapsalu.tscn` | partial | Developer global-map greybox (Haapsalu Castle); `release=false`. |
+| 91 | `scenes/world_travel/world_lihula.tscn` | partial | Developer global-map greybox (Lihula Castle); `release=false`. |
+| 92 | `scenes/world_travel/world_tartu.tscn` | partial | Developer global-map greybox (Dorpat Castle); `release=false`. |
+| 93 | `scenes/world_travel/world_viljandi.tscn` | partial | Developer global-map greybox (Viljandi Castle); `release=false`. |
+| 94 | `scenes/world_travel/world_poltsamaa.tscn` | partial | Developer global-map greybox (Põltsamaa Castle); `release=false`. |
+| 95 | `scenes/world_travel/world_narva.tscn` | partial | Developer global-map greybox (Narva Castle); `release=false`. |
+| 96 | `scenes/world_travel/world_karksi.tscn` | partial | Developer global-map greybox (Karksi-Nuia); `release=false`. |
+| 97 | `scenes/world_travel/world_helme.tscn` | partial | Developer global-map greybox (Helme Castle); `release=false`. |
+| 98 | `scenes/world_travel/world_maasilinna.tscn` | partial | Developer global-map greybox (Maasilinna Castle); `release=false`. |
+| 99 | `scenes/world_travel/world_karja.tscn` | partial | Developer global-map greybox (Karja Fortress); `release=false`. |
+| 100 | `scenes/world_travel/world_klint.tscn` | partial | Developer global-map greybox (Baltic Klint Coast); `release=false`. |
+| 101 | `scenes/world_travel/world_soomaa.tscn` | partial | Developer global-map greybox (Soomaa Flood Refuge); `release=false`. |
+| 102 | `scenes/world_travel/world_frontier_ugandi.tscn` | partial | Developer global-map greybox (Otepää - Vastseliina Frontier); `release=false`. |
 | 56 | `scenes/world/haapsalu_castle.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
 | 57 | `scenes/world/harju_village.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
 | 58 | `scenes/world/karja_fortress.tscn` | archive | Empty `Node2D`; open-world location outside slice. |
