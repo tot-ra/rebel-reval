@@ -21,7 +21,7 @@ extends Node3D
 
 signal cue_played(cue_id: StringName)
 
-const AudioBusServiceScript := preload("res://scripts/settings/audio_bus_service.gd")
+const SfxPlayerScript := preload("res://scripts/audio/sfx_player.gd")
 const WaterMaterials := preload("res://scripts/map/view3d/map_view_water_materials.gd")
 const PASS_SHADER := preload("res://scripts/map/view3d/underwater_pass.gdshader")
 const Bubbles := preload("res://scripts/map/view3d/water_bubbles.gd")
@@ -46,8 +46,8 @@ const LOWPASS_FADE_SECONDS := 0.15
 const SHAFT_SAMPLES_BY_TIER := {&"minimum": 4, &"recommended": 8}
 const CUE_SUBMERGE := &"submerge"
 const CUE_EMERGE := &"emerge"
-const SUBMERGE_STREAM := preload("res://sounds/water/submerge.mp3")
-const EMERGE_STREAM := preload("res://sounds/water/emerge.mp3")
+const SUBMERGE_SOUND_ID := &"sfx.water.submerge"
+const EMERGE_SOUND_ID := &"sfx.water.emerge"
 const EMERGE_UNFILTERED_MIX := 0.001
 ## Water material uniforms the pass mirrors from the material under the camera, so the
 ## shared FFT include and the underwater light match the surface exactly.
@@ -97,8 +97,7 @@ var played_cues: Array[StringName] = []
 
 var _material: ShaderMaterial
 var _quad: MeshInstance3D
-var _submerge_player: AudioStreamPlayer
-var _emerge_player: AudioStreamPlayer
+var _sfx: SfxPlayer
 var _submerged_since_air := false
 var _emerge_pending := false
 var _lens_age := 0.0
@@ -158,8 +157,10 @@ func configure(view_camera: Camera3D, probe: Callable, tier: StringName) -> void
 	_quad.extra_cull_margin = 16384.0
 	_quad.visible = false
 	add_child(_quad)
-	_submerge_player = _make_player("SubmergeSfx", SUBMERGE_STREAM)
-	_emerge_player = _make_player("EmergeSfx", EMERGE_STREAM)
+	_sfx = SfxPlayerScript.new()
+	_sfx.name = "UnderwaterSfxPlayer"
+	add_child(_sfx)
+	_sfx.setup(SfxCatalog.load_default(), hash("underwater"))
 	_bubbles = Bubbles.new()
 	add_child(_bubbles)
 
@@ -177,10 +178,7 @@ func _exit_tree() -> void:
 	_emerge_pending = false
 	lowpass_mix = 0.0
 	_apply_lowpass()
-	if _submerge_player != null:
-		_submerge_player.stop()
-	if _emerge_player != null:
-		_emerge_player.stop()
+	# Cue voices are children of _sfx and are freed with this node.
 
 
 ## Called every frame by MapView3D.
@@ -330,22 +328,8 @@ func _apply_lowpass() -> void:
 		AudioServer.set_bus_effect_enabled(bus, index, enabled)
 
 
-func _make_player(player_name: String, stream: AudioStream) -> AudioStreamPlayer:
-	var player := AudioStreamPlayer.new()
-	player.name = player_name
-	player.stream = stream
-	if stream is AudioStreamMP3:
-		(stream as AudioStreamMP3).loop = false
-	AudioBusServiceScript.assign_bus(player, AudioBusServiceScript.BUS_SFX)
-	add_child(player)
-	return player
-
-
 func _play_cue(cue_id: StringName) -> void:
 	played_cues.append(cue_id)
 	cue_played.emit(cue_id)
-	var player := _submerge_player if cue_id == CUE_SUBMERGE else _emerge_player
-	if player == null or player.stream == null:
-		return
-	player.stop()
-	player.play()
+	if _sfx != null:
+		_sfx.play(SUBMERGE_SOUND_ID if cue_id == CUE_SUBMERGE else EMERGE_SOUND_ID)

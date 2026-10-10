@@ -5,6 +5,7 @@ extends Node
 
 const ModelScript := preload("res://scripts/faction/social_reputation_model.gd")
 const RunnerScript := preload("res://scripts/dialogue/dialogue_runner.gd")
+const SfxPlayerScript := preload("res://scripts/audio/sfx_player.gd")
 const FeedbackScript := preload("res://scripts/world/world_item_pickup_feedback.gd")
 
 var location_id: StringName = &""
@@ -14,7 +15,7 @@ var _player: Node2D
 var _layer: CanvasLayer
 var _label: Label
 var _runner: DialogueRunner
-var _audio_player: AudioStreamPlayer
+var _sfx: SfxPlayer
 var _bark_timer := 0.0
 var _state: GameState
 
@@ -27,10 +28,10 @@ func setup(scene_root: Node, map_location_id: StringName, player: Node2D) -> voi
 	_runner = RunnerScript.new()
 	_runner.name = "SocialReputationBarkRunner"
 	add_child(_runner)
-	_audio_player = AudioStreamPlayer.new()
-	_audio_player.name = "SocialReputationSfx"
-	_audio_player.bus = &"SFX"
-	add_child(_audio_player)
+	_sfx = SfxPlayerScript.new()
+	_sfx.name = "SocialReputationSfx"
+	add_child(_sfx)
+	_sfx.setup(SfxCatalog.load_default(), hash("social_reputation"))
 	_connect_state(SessionState.state)
 	if not SessionState.state_replaced.is_connected(_on_state_replaced):
 		SessionState.state_replaced.connect(_on_state_replaced)
@@ -94,18 +95,11 @@ func _present_reaction(event: Dictionary) -> void:
 
 
 func _play_reaction_sfx(event: Dictionary) -> void:
-	if _audio_player == null:
+	if _sfx == null:
 		return
-	var path := String(event.get("sfx_path", "")).strip_edges()
-	if path.is_empty():
-		return
-	var stream := load(path) as AudioStream
-	if stream == null:
-		return
-	_audio_player.stream = stream
-	_audio_player.pitch_scale = float(event.get("sfx_pitch", 1.0))
-	_audio_player.volume_db = float(event.get("sfx_volume_db", -8.0))
-	_audio_player.play()
+	var sound_id := StringName(String(event.get("sfx_id", "")))
+	if not sound_id.is_empty():
+		_sfx.play(sound_id)
 
 
 func _build_ui() -> void:

@@ -71,7 +71,7 @@ func play(sound_id: StringName, position: Variant = null) -> Node:
 	var spatial := String(entry.get("spatial", "none"))
 	var player: Node
 	var volume_db := float(entry.get("volume_db", 0.0)) + _jitter(float(entry.get("volume_jitter_db", 0.0)))  # gdlint: ignore=max-line-length
-	var pitch := 1.0 + _jitter(float(entry.get("pitch_jitter", 0.0)))
+	var pitch := float(entry.get("pitch", 1.0)) + _jitter(float(entry.get("pitch_jitter", 0.0)))
 	if spatial == "3d":
 		var p3 := AudioStreamPlayer3D.new()
 		p3.stream = stream

@@ -3,7 +3,7 @@ extends Node
 
 ## Tooltip, pickup bark, SFX, and cursor feedback for WorldItemController.
 
-const AudioBusService := preload("res://scripts/settings/audio_bus_service.gd")
+const SfxPlayerScript := preload("res://scripts/audio/sfx_player.gd")
 const PickupFeedbackScript := preload("res://scripts/world/world_item_pickup_feedback.gd")
 
 var feedback_text := ""
@@ -11,7 +11,7 @@ var cursor_over_pickup := false
 
 var _tooltip: Label
 var _bark_label: Label
-var _audio_player: AudioStreamPlayer
+var _sfx: SfxPlayer
 var _feedback_timer := 0.0
 var _bark_timer := 0.0
 var _pickup_bark_runner: DialogueRunner
@@ -93,7 +93,7 @@ func show_pickup_bark(feedback: Dictionary) -> void:
 
 
 func play_pickup_sfx(item_record: Dictionary) -> void:
-	PickupFeedbackScript.play_pickup_sfx(_audio_player, item_record)
+	PickupFeedbackScript.play_pickup_sfx(_sfx, item_record)
 
 
 func _build_ui() -> void:
@@ -125,7 +125,7 @@ func _build_ui() -> void:
 	_bark_label.visible = false
 	tooltip_layer.add_child(_bark_label)
 
-	_audio_player = AudioStreamPlayer.new()
-	_audio_player.name = "PickupSfx"
-	AudioBusService.assign_bus(_audio_player, AudioBusService.BUS_SFX)
-	add_child(_audio_player)
+	_sfx = SfxPlayerScript.new()
+	_sfx.name = "PickupSfxPlayer"
+	add_child(_sfx)
+	_sfx.setup(SfxCatalog.load_default(), hash("world_item_pickup"))

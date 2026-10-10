@@ -43,6 +43,7 @@
           "description": "asset_id rows in assets/SOURCES.csv that provenance-cover every stream."
         },
         "volume_db": { "type": "number", "minimum": -60, "maximum": 12 },
+        "pitch": { "type": "number", "minimum": 0.25, "maximum": 4 },
         "pitch_jitter": { "type": "number", "minimum": 0, "maximum": 0.5 },
         "volume_jitter_db": { "type": "number", "minimum": 0, "maximum": 12 },
         "no_repeat": { "type": "integer", "minimum": 0, "maximum": 32 },

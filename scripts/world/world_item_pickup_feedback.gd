@@ -3,7 +3,7 @@ extends RefCounted
 
 ## Bark lines and pickup SFX resolved from item content records.
 
-const DEFAULT_PICKUP_SFX := "res://sounds/door.mp3"
+const DEFAULT_PICKUP_SFX := &"sfx.item.pickup"
 const PICKUP_BARK_DURATION := 3.5
 
 
@@ -66,18 +66,12 @@ static func show_bark(bark_label: Label, feedback: Dictionary) -> float:
 	return PICKUP_BARK_DURATION
 
 
-static func play_pickup_sfx(audio_player: AudioStreamPlayer, item_record: Dictionary) -> void:
-	if audio_player == null:
+static func play_pickup_sfx(sfx: SfxPlayer, item_record: Dictionary) -> void:
+	if sfx == null:
 		return
 	var gameplay: Dictionary = item_record.get("gameplay", {})
 	var pickup: Dictionary = gameplay.get("pickup", {})
-	var path := String(pickup.get("sfx_path", DEFAULT_PICKUP_SFX))
-	if path.is_empty():
+	var sound_id := StringName(String(pickup.get("sfx_id", DEFAULT_PICKUP_SFX)))
+	if sound_id.is_empty():
 		return
-	var stream := load(path) as AudioStream
-	if stream == null:
-		return
-	audio_player.stream = stream
-	audio_player.pitch_scale = 1.35
-	audio_player.volume_db = -8.0
-	audio_player.play()
+	sfx.play(sound_id)

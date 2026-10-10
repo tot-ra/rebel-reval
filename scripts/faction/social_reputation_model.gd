@@ -18,9 +18,7 @@ const EVENTS: Array[Dictionary] = [
 		"bark_pool_id": &"bark.reputation.harju_kings_trusted",
 		"flag_id": &"flag.reputation.harju_kings_trusted",
 		"location_ids": [&"loc.lower_town_slice"],
-		"sfx_path": "res://sounds/walk_wood.mp3",
-		"sfx_pitch": 0.85,
-		"sfx_volume_db": -14.0,
+		"sfx_id": &"sfx.social.reaction.harju_kings_trusted",
 	},
 ]
 

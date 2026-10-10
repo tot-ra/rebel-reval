@@ -15,6 +15,29 @@
       "spatial": "none"
     },
     {
+      "id": "sfx.item.pickup",
+      "bus": "SFX",
+      "streams": ["res://sounds/door.mp3"],
+      "tier": "C",
+      "source_ids": ["sounds.door"],
+      "volume_db": -8.0,
+      "pitch": 1.35,
+      "max_voices": 2,
+      "cooldown_ms": 120,
+      "spatial": "none"
+    },
+    {
+      "id": "sfx.social.reaction.harju_kings_trusted",
+      "bus": "SFX",
+      "streams": ["res://sounds/walk_wood.mp3"],
+      "tier": "C",
+      "source_ids": ["sounds.walk.wood"],
+      "volume_db": -14.0,
+      "pitch": 0.85,
+      "max_voices": 1,
+      "spatial": "none"
+    },
+    {
       "id": "sfx.footstep.wood.walk",
       "bus": "Footsteps",
       "streams": [

@@ -6,7 +6,12 @@ extends Node
 
 const AudioBusService := preload("res://scripts/settings/audio_bus_service.gd")
 
-const ROOF_LOOP_PATH := "res://sounds/weather/rain_roof.mp3"
+## Catalog ID (ADR 0035); the clip and bus live in content/audio/sfx_catalog.json.
+## The catalog trim is deliberately not applied: this bed is driven by its own
+## MAX_LINEAR_VOLUME and migrating must not change how it sounds.
+const ROOF_SOUND_ID := &"amb.weather.rain_roof"
+## Used only when the catalog entry is missing.
+const ROOF_LOOP_FALLBACK_PATH := "res://sounds/weather/rain_roof.mp3"
 const RAIN_AUDIBLE_THRESHOLD := 0.02
 const MAX_LINEAR_VOLUME := 0.30
 const FADE_DB_PER_SECOND := 12.0
@@ -19,12 +24,18 @@ var _audio_enabled := true
 func _ready() -> void:
 	_player = AudioStreamPlayer.new()
 	_player.name = "NunnatornRoofBed"
-	var stream := load(ROOF_LOOP_PATH) as AudioStream
+	var entry := SfxCatalog.load_default().get_entry(ROOF_SOUND_ID)
+	var stream_path := ROOF_LOOP_FALLBACK_PATH
+	var bus := AudioBusService.BUS_SFX
+	if entry.has("streams"):
+		stream_path = String(entry["streams"][0])
+		bus = StringName(entry.get("bus", bus))
+	var stream := load(stream_path) as AudioStream
 	if stream is AudioStreamMP3:
 		(stream as AudioStreamMP3).loop = true
 	_player.stream = stream
 	_player.volume_db = SILENCE_DB
-	AudioBusService.assign_bus(_player, AudioBusService.BUS_SFX)
+	AudioBusService.assign_bus(_player, bus)
 	add_child(_player)
 
 
