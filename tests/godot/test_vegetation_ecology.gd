@@ -228,7 +228,7 @@ func _scatter_points(definition: MapDefinition, grid: MapTerrainGrid) -> Array[V
 	var transforms: Array = []
 	for key: String in ["small_grass", "large_grass", "clovers", "reeds"]:
 		transforms.append_array(state[key])
-	for batches_key: String in ["plant_batches", "bush_batches"]:
+	for batches_key: String in ["plant_batches"]:
 		for batch: Dictionary in (state[batches_key] as Dictionary).values():
 			transforms.append_array(batch["transforms"])
 	for batch: Variant in (state["tree_batches"] as Dictionary).values():

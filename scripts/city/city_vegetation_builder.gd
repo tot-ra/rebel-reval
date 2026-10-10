@@ -101,7 +101,6 @@ const BUSH_SIZE_M := {
 	&"spindle": Vector2(2.5, 2.0),
 }
 const BushMeshes := preload("res://scripts/map/view3d/map_view_bush_meshes.gd")
-const BushSpecies := preload("res://scripts/map/view3d/map_view_bush_species.gd")
 
 
 static func species_scale(species: StringName, metres_per_unit: float) -> float:
@@ -205,22 +204,16 @@ static func build(plan: CityPlan, parent: Node3D) -> Node3D:
 	return root
 
 
-## City mesh for a build_bushes shrub: leafy shrubs with a city variant are
-## built in metres with real-size leaf cards; the rest reuse the shared mesh.
+## City mesh for a build_bushes shrub, built in metres with real-size leaf
+## cards. Only species with a city variant reach build_bushes.
 static func bush_mesh(species: StringName) -> ArrayMesh:
-	if BushMeshes.has_city_variant(species):
-		return BushMeshes.city_mesh_for(species, BUSH_SIZE_M[species])
-	return BushMeshes.mesh_for(species)
+	return BushMeshes.city_mesh_for(species, BUSH_SIZE_M[species])
 
 
-## Uniform instance scale (the cards only read as a shrub in their authored
-## proportions). City variants are already in metres: only the plan factor.
-static func bush_scale(species: StringName, plan_scale: float, metres_per_unit: float) -> float:
-	if BushMeshes.has_city_variant(species):
-		return plan_scale / metres_per_unit
-	var size_m: Vector2 = BUSH_SIZE_M.get(species, Vector2(2.0, 2.0))
-	var height := maxf(BushMeshes.mesh_for(species).get_aabb().size.y, 0.1)
-	return size_m.x / metres_per_unit / height * plan_scale
+## Uniform instance scale: city variants are already in metres, so only the
+## plan factor applies.
+static func bush_scale(plan_scale: float, metres_per_unit: float) -> float:
+	return plan_scale / metres_per_unit
 
 
 ## Shrubs from the plan (yard elder and roses, wall-foot thorn scrub, stream
@@ -231,6 +224,10 @@ static func build_bushes(plan: CityPlan, root: Node3D) -> void:
 		var species := StringName(t[2])
 		if SHRUB_AS_TREE.has(species):
 			continue
+		# The legacy procedural shrub mesh was removed: a species with neither a
+		# tree form nor a city variant is not drawn.
+		if not BushMeshes.has_city_variant(species):
+			continue
 		var p := Vector2(t[0], t[1])
 		if plan.in_moat(p, 1.0):
 			continue
@@ -239,7 +236,7 @@ static func build_bushes(plan: CityPlan, root: Node3D) -> void:
 			buckets[key] = {"transforms": [] as Array[Transform3D], "colors": [] as Array[Color]}
 		var rng := RandomNumberGenerator.new()
 		rng.seed = hash(Vector2i(int(p.x * 10.0), int(p.y * 10.0)))
-		var sy := bush_scale(species, float(t[3]), plan.metres_per_unit)
+		var sy := bush_scale(float(t[3]), plan.metres_per_unit)
 		var basis := Basis(Vector3.UP, rng.randf() * TAU).scaled(Vector3.ONE * sy)
 		(buckets[key]["transforms"] as Array[Transform3D]).append(
 			Transform3D(basis, Vector3(p.x, plan.ground_height(p) - 0.05, p.y))
@@ -250,12 +247,7 @@ static func build_bushes(plan: CityPlan, root: Node3D) -> void:
 	keys.sort_custom(func(a: Array, b: Array) -> bool: return str(a) < str(b))
 	for key: Array in keys:
 		var species: StringName = key[0]
-		var kind: StringName = BushSpecies.material_kind(species)
-		var material: Material = (
-			MapViewMaterials.canopy(kind) if kind == &"leaf" else MapViewMaterials.foliage_tuft()
-		)
-		if BushMeshes.has_city_variant(species):
-			material = MapViewMaterials.canopy_for_species(BushMeshes.city_leaf_proxy(species))
+		var material := MapViewMaterials.canopy_for_species(BushMeshes.city_leaf_proxy(species))
 		var inst := MapViewMeshBuilderPrimitives.multi_mesh(
 			"Bush_%s" % species,
 			bush_mesh(species),

@@ -168,15 +168,36 @@ const BUILDING_SPECS: Array[Dictionary] = [
 		"wall_height": 56.0,
 	},
 ]
+## Prop kinds with no 3D model: bush props are movement/ground-cover data only
+## since the legacy procedural shrub mesh was removed, so the gallery skips them.
+const MODELLESS_PROP_KINDS: Array[StringName] = [MapTypes.PROP_KIND_BUSH]
 const GATE_SPECS: Array[Dictionary] = [
-	{"id": &"gate_oak", "label": "OAK GATE", "cell_rect": Rect2i(4, 104, 7, 3), "gate_variant": &"oak"},
-	{"id": &"gate_ironbound", "label": "IRONBOUND GATE", "cell_rect": Rect2i(30, 104, 7, 3), "gate_variant": &"ironbound"},
-	{"id": &"gate_portcullis", "label": "RAISED PORTCULLIS", "cell_rect": Rect2i(56, 104, 7, 3), "gate_variant": &"none", "grille_variant": &"portcullis"},
+	{
+		"id": &"gate_oak",
+		"label": "OAK GATE",
+		"cell_rect": Rect2i(4, 104, 7, 3),
+		"gate_variant": &"oak"
+	},
+	{
+		"id": &"gate_ironbound",
+		"label": "IRONBOUND GATE",
+		"cell_rect": Rect2i(30, 104, 7, 3),
+		"gate_variant": &"ironbound"
+	},
+	{
+		"id": &"gate_portcullis",
+		"label": "RAISED PORTCULLIS",
+		"cell_rect": Rect2i(56, 104, 7, 3),
+		"gate_variant": &"none",
+		"grille_variant": &"portcullis"
+	},
 ]
 
 
 static func create(showcase_kind: StringName = SHOWCASE_SMALL) -> MapDefinition:
-	assert(SHOWCASE_KINDS.has(showcase_kind), "Unknown asset showcase kind: %s" % String(showcase_kind))
+	assert(
+		SHOWCASE_KINDS.has(showcase_kind), "Unknown asset showcase kind: %s" % String(showcase_kind)
+	)
 	var large := showcase_kind == SHOWCASE_LARGE
 	var characters_animals := showcase_kind == SHOWCASE_CHARACTERS_ANIMALS
 	var definition := MapDefinition.new()
@@ -193,18 +214,16 @@ static func create(showcase_kind: StringName = SHOWCASE_SMALL) -> MapDefinition:
 	definition.seed = 1343
 	definition.cell_size = CELL_SIZE
 	definition.size_cells = (
-		LARGE_SIZE_CELLS if large
-		else CHARACTERS_ANIMALS_SIZE_CELLS if characters_animals
-		else SMALL_SIZE_CELLS
+		LARGE_SIZE_CELLS
+		if large
+		else CHARACTERS_ANIMALS_SIZE_CELLS if characters_animals else SMALL_SIZE_CELLS
 	)
 	definition.base_terrain = MapTypes.TERRAIN_GRASS
 	definition.scope = &"prototype"
 	definition.active = false
 	definition.palette = MapVisualStyle.TARGET_CLEAN_PAINTED
 	definition.player_spawn = _cell_center(
-		Vector2i(68, 65) if large
-		else Vector2i(68, 70) if characters_animals
-		else Vector2i(48, 60)
+		Vector2i(68, 65) if large else Vector2i(68, 70) if characters_animals else Vector2i(48, 60)
 	)
 	definition.camera_bounds = Rect2(Vector2.ZERO, definition.world_size())
 	definition.surroundings_sides = {
@@ -237,15 +256,20 @@ static func create_small() -> MapDefinition:
 static func small_prop_kinds() -> Array[StringName]:
 	var kinds: Array[StringName] = []
 	for kind in MapTypes.ALL_PROP_KINDS:
+		if kind in MODELLESS_PROP_KINDS:
+			continue
 		if kind not in LARGE_PROP_KINDS and kind not in LIVE_PROP_KINDS:
 			kinds.append(kind)
 	return kinds
 
 
 static func small_prop_cell(kind_index: int) -> Vector2i:
-	return SMALL_PROP_START_CELL + Vector2i(
-		(kind_index % SMALL_PROP_COLUMNS) * SMALL_PROP_SPACING_CELLS.x,
-		(kind_index / SMALL_PROP_COLUMNS) * SMALL_PROP_SPACING_CELLS.y
+	return (
+		SMALL_PROP_START_CELL
+		+ Vector2i(
+			(kind_index % SMALL_PROP_COLUMNS) * SMALL_PROP_SPACING_CELLS.x,
+			(kind_index / SMALL_PROP_COLUMNS) * SMALL_PROP_SPACING_CELLS.y
+		)
 	)
 
 
@@ -254,16 +278,22 @@ static func large_prop_cell(kind_index: int) -> Vector2i:
 
 
 static func terrain_cell(terrain_index: int) -> Vector2i:
-	return TERRAIN_START_CELL + Vector2i(
-		(terrain_index % TERRAIN_COLUMNS) * TERRAIN_SPACING_CELLS.x,
-		(terrain_index / TERRAIN_COLUMNS) * TERRAIN_SPACING_CELLS.y
+	return (
+		TERRAIN_START_CELL
+		+ Vector2i(
+			(terrain_index % TERRAIN_COLUMNS) * TERRAIN_SPACING_CELLS.x,
+			(terrain_index / TERRAIN_COLUMNS) * TERRAIN_SPACING_CELLS.y
+		)
 	)
 
 
 static func tree_model_cell(species_index: int) -> Vector2i:
-	return TREE_MODEL_START_CELL + Vector2i(
-		(species_index % TREE_MODEL_COLUMNS) * TREE_MODEL_SPACING_CELLS.x,
-		(species_index / TREE_MODEL_COLUMNS) * TREE_MODEL_SPACING_CELLS.y
+	return (
+		TREE_MODEL_START_CELL
+		+ Vector2i(
+			(species_index % TREE_MODEL_COLUMNS) * TREE_MODEL_SPACING_CELLS.x,
+			(species_index / TREE_MODEL_COLUMNS) * TREE_MODEL_SPACING_CELLS.y
+		)
 	)
 
 
@@ -274,10 +304,15 @@ static func prop_id_for(kind: StringName) -> StringName:
 static func _terrain_zones() -> Array[Dictionary]:
 	var zones: Array[Dictionary] = []
 	for index in MapTypes.ALL_TERRAINS.size():
-		zones.append({
-			"terrain": MapTypes.ALL_TERRAINS[index],
-			"rect": Rect2i(terrain_cell(index), TERRAIN_PATCH_SIZE),
-		})
+		(
+			zones
+			. append(
+				{
+					"terrain": MapTypes.ALL_TERRAINS[index],
+					"rect": Rect2i(terrain_cell(index), TERRAIN_PATCH_SIZE),
+				}
+			)
+		)
 
 	# Boats need a real water context instead of hovering over the neutral gallery
 	# floor. The bay has extra clearance around both hulls on the large-item grid.
@@ -285,10 +320,16 @@ static func _terrain_zones() -> Array[Dictionary]:
 	var merchant_index := LARGE_PROP_KINDS.find(MapTypes.PROP_KIND_MERCHANT_BOAT)
 	var first_boat := large_prop_cell(fishing_index)
 	var last_boat := large_prop_cell(merchant_index)
-	zones.append({
-		"terrain": MapTypes.TERRAIN_DEEP_WATER,
-		"rect": Rect2i(first_boat - Vector2i(4, 4), Vector2i(last_boat.x - first_boat.x + 9, 9)),
-	})
+	(
+		zones
+		. append(
+			{
+				"terrain": MapTypes.TERRAIN_DEEP_WATER,
+				"rect":
+				Rect2i(first_boat - Vector2i(4, 4), Vector2i(last_boat.x - first_boat.x + 9, 9)),
+			}
+		)
+	)
 	return zones
 
 
@@ -317,7 +358,9 @@ static func _props(showcase_kind: StringName) -> Array[Dictionary]:
 
 	for index in kinds.size():
 		var kind: StringName = kinds[index]
-		var cell := large_prop_cell(index) if showcase_kind == SHOWCASE_LARGE else small_prop_cell(index)
+		var cell := (
+			large_prop_cell(index) if showcase_kind == SHOWCASE_LARGE else small_prop_cell(index)
+		)
 		var prop := {
 			"id": prop_id_for(kind),
 			"kind": kind,
@@ -327,55 +370,73 @@ static func _props(showcase_kind: StringName) -> Array[Dictionary]:
 			prop["faction"] = FactionHeraldry.DANISH_CROWN
 		elif kind == MapTypes.PROP_KIND_TREE:
 			prop["style_variant"] = &"tree.oak.large"
-		elif kind == MapTypes.PROP_KIND_BUSH:
-			prop["style_variant"] = TerrainVegetation.VARIANT_BUSH_DENSE
 		elif kind in MapTypes.BOAT_PROP_KINDS:
 			prop["footprint"] = _cell_rect_to_world(Rect2i(cell - Vector2i(1, 2), Vector2i(3, 5)))
 		props.append(prop)
 
 	if showcase_kind == SHOWCASE_LARGE:
 		# Special variants exercise production branches beyond the base kind catalog.
-		props.append({
-			"id": &"ancient_tree",
-			"kind": MapTypes.PROP_KIND_TREE,
-			"position": _cell_center(ANCIENT_TREE_CELL),
-			"primitive": &"ancient_tree",
-		})
+		(
+			props
+			. append(
+				{
+					"id": &"ancient_tree",
+					"kind": MapTypes.PROP_KIND_TREE,
+					"position": _cell_center(ANCIENT_TREE_CELL),
+					"primitive": &"ancient_tree",
+				}
+			)
+		)
 		# These entries deliberately resolve through the normal prop builder so this
 		# gallery always shows the exact cached procedural models used on maps.
 		for index in MapViewTreeSpecies.ALL_SPECIES.size():
 			var species: StringName = MapViewTreeSpecies.ALL_SPECIES[index]
-			props.append({
-				"id": StringName("tree_%s_medium" % String(species)),
-				"kind": MapTypes.PROP_KIND_TREE,
-				"position": _cell_center(tree_model_cell(index)),
-				"style_variant": StringName("tree.%s.medium" % String(species)),
-			})
-		props.append({
-			"id": &"wall_walk_access",
-			"kind": MapTypes.PROP_KIND_STAIRS,
-			"position": _cell_center(WALL_WALK_ACCESS_CELL),
-			"footprint": _cell_rect_to_world(WALL_WALK_ACCESS_RECT),
-			"primitive": MapWallWalkAccess.ACCESS_PRIMITIVE,
-			"faction": FactionHeraldry.DANISH_CROWN,
-			"facing": Vector2.RIGHT,
-		})
+			(
+				props
+				. append(
+					{
+						"id": StringName("tree_%s_medium" % String(species)),
+						"kind": MapTypes.PROP_KIND_TREE,
+						"position": _cell_center(tree_model_cell(index)),
+						"style_variant": StringName("tree.%s.medium" % String(species)),
+					}
+				)
+			)
+		(
+			props
+			. append(
+				{
+					"id": &"wall_walk_access",
+					"kind": MapTypes.PROP_KIND_STAIRS,
+					"position": _cell_center(WALL_WALK_ACCESS_CELL),
+					"footprint": _cell_rect_to_world(WALL_WALK_ACCESS_RECT),
+					"primitive": MapWallWalkAccess.ACCESS_PRIMITIVE,
+					"faction": FactionHeraldry.DANISH_CROWN,
+					"facing": Vector2.RIGHT,
+				}
+			)
+		)
 	return props
 
 
 static func _gate_landmarks() -> Array[Dictionary]:
 	var landmarks: Array[Dictionary] = []
 	for spec in GATE_SPECS:
-		landmarks.append({
-			"id": spec["id"],
-			"kind": &"gate_arch",
-			"rect": _cell_rect_to_world(spec["cell_rect"]),
-			"top_px": 176.0,
-			"wall_color": Color8(143, 140, 128),
-			"gate_variant": spec["gate_variant"],
-			"grille_variant": spec.get("grille_variant", &"none"),
-			"passage_axis": &"z",
-		})
+		(
+			landmarks
+			. append(
+				{
+					"id": spec["id"],
+					"kind": &"gate_arch",
+					"rect": _cell_rect_to_world(spec["cell_rect"]),
+					"top_px": 176.0,
+					"wall_color": Color8(143, 140, 128),
+					"gate_variant": spec["gate_variant"],
+					"grille_variant": spec.get("grille_variant", &"none"),
+					"passage_axis": &"z",
+				}
+			)
+		)
 	return landmarks
 
 
@@ -385,6 +446,5 @@ static func _cell_center(cell: Vector2i) -> Vector2:
 
 static func _cell_rect_to_world(cell_rect: Rect2i) -> Rect2:
 	return Rect2(
-		Vector2(cell_rect.position) * float(CELL_SIZE),
-		Vector2(cell_rect.size) * float(CELL_SIZE)
+		Vector2(cell_rect.position) * float(CELL_SIZE), Vector2(cell_rect.size) * float(CELL_SIZE)
 	)

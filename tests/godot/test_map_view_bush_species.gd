@@ -1,10 +1,10 @@
 extends "res://tests/godot/test_case.gd"
 
 const BushSpecies := preload("res://scripts/map/view3d/map_view_bush_species.gd")
-const BushMeshes := preload("res://scripts/map/view3d/map_view_bush_meshes.gd")
+const AssetShowcaseDefinitionScript := preload("res://scenes/debug/asset_showcase_definition.gd")
 
 
-func test_bush_catalog_has_twenty_cached_distinct_meshes() -> void:
+func test_bush_catalog_has_twenty_species() -> void:
 	assert_eq(BushSpecies.ALL_SPECIES.size(), 20)
 	var archetypes: Dictionary = {}
 	var groups: Dictionary = {}
@@ -13,12 +13,6 @@ func test_bush_catalog_has_twenty_cached_distinct_meshes() -> void:
 		var profile := BushSpecies.profile_for(species)
 		archetypes[profile["archetype"]] = true
 		groups[profile["group"]] = true
-		var mesh := BushMeshes.mesh_for(species)
-		assert_true(mesh is ArrayMesh, "%s needs a procedural model" % species)
-		assert_true(mesh.get_surface_count() > 0, "%s model must contain geometry" % species)
-		assert_true(mesh == BushMeshes.mesh_for(species), "%s model must be cached" % species)
-		var stats := BushMeshes.geometry_stats(species)
-		assert_true(int(stats.get("triangles", 0)) >= 24, "%s silhouette is under-modeled" % species)
 	assert_true(archetypes.size() >= 5, "catalog needs visibly different shrub forms")
 	assert_true(groups.size() >= 6, "catalog needs ecological group diversity")
 
@@ -46,31 +40,8 @@ func test_legacy_dense_and_scrub_pools_resolve_species() -> void:
 	assert_ne(dense_species, scrub_species)
 
 
-func test_authored_locations_use_every_bush_model() -> void:
-	var paths := [
-		"res://content/maps/archbishops_garden.rrmap",
-		"res://content/maps/monastery_quarter.rrmap",
-		"res://content/maps/reval_harbor_east.rrmap",
-		"res://content/maps/reval_harbor_north.rrmap",
-		"res://content/maps/viru_gate_foreland.rrmap",
-		"res://content/maps/lower_town_slice.rrmap",
-	]
-	var bushes: Dictionary = {}
-	for path in paths:
-		var parsed = MapRrmapParser.parse_file(path)
-		assert_true(parsed.is_ok(), "%s: %s" % [path, str(parsed.formatted_diagnostics())])
-		if not parsed.is_ok():
-			continue
-		for zone in parsed.definition.zones:
-			_collect_bush_variant(zone.get("style_variant", &""), bushes)
-		for prop in parsed.definition.props:
-			if prop.get("kind", &"") == MapTypes.PROP_KIND_BUSH:
-				_collect_bush_variant(prop.get("style_variant", &""), bushes)
-	for species in BushSpecies.ALL_SPECIES:
-		assert_true(bushes.has(species), "bush.%s needs an authored location" % species)
-
-
-func test_authored_bush_prop_builds_species_mesh() -> void:
+func test_authored_bush_prop_has_no_3d_model() -> void:
+	# The legacy procedural shrub mesh was removed; bush props build no model.
 	var prop := {
 		"id": &"yard.heather",
 		"kind": MapTypes.PROP_KIND_BUSH,
@@ -78,13 +49,40 @@ func test_authored_bush_prop_builds_species_mesh() -> void:
 		"style_variant": &"bush.heather",
 	}
 	var node := MapViewMeshBuilderPropModels.build_prop(prop, MapTypes.DEFAULT_CELL_SIZE)
-	assert_eq(node.get_meta(&"bush_species"), BushSpecies.SPECIES_HEATHER)
-	assert_true(node.has_node("Bush"))
-	assert_true((node.get_node("Bush") as MeshInstance3D).mesh is ArrayMesh)
+	assert_false(node.has_node("Bush"))
+	assert_false(node.has_meta(&"bush_species"))
 	node.free()
 
 
-func _collect_bush_variant(variant: StringName, bushes: Dictionary) -> void:
-	var parsed := BushSpecies.parse_variant(variant)
-	if parsed.has("species"):
-		bushes[parsed["species"]] = true
+func test_district_scatter_emits_no_bushes() -> void:
+	# Bush zones and dry limestone (juniper understory) used to scatter the
+	# removed shrub mesh; now they emit no Bushes_* layer.
+	var blueprint := MapBlueprint.new(
+		&"bush_scatter_test", &"loc.bush_scatter_test", Vector2i(32, 24), MapTypes.TERRAIN_MEADOW
+	)
+	blueprint.player_spawn(&"spawn.main", Vector2i(1, 1))
+	blueprint.define_style(&"bush.dense", {})
+	blueprint.terrain_rect(
+		&"scrub", MapTypes.TERRAIN_MEADOW, Rect2i(2, 2, 14, 14), 0, 10, &"bush.dense"
+	)
+	blueprint.terrain_rect(&"alvar", MapTypes.TERRAIN_STONE, Rect2i(18, 4, 10, 10), 0, 10)
+	var result := MapBlueprintCompiler.compile_with_diagnostics(blueprint)
+	assert_true(result.is_ok(), "bush scatter map must compile: %s" % str(result.errors))
+	if not result.is_ok():
+		return
+	var grid := MapBuilder.build(result.definition)
+	var state := MapViewMeshBuilderScatter.begin_scatter(result.definition, grid)
+	MapViewMeshBuilderScatter.collect_rows(state, grid.size_cells.y)
+	assert_false(state.has("bush_batches"))
+	MapViewMeshBuilderScatter.emit_layers(state)
+	var root: Node3D = state["root"]
+	assert_true(root.get_child_count() > 0, "the scrub zone still grows grass")
+	for child in root.get_children():
+		assert_false(String(child.name).begins_with("Bushes_"), String(child.name))
+	root.free()
+
+
+func test_asset_showcase_has_no_bush_prop() -> void:
+	assert_false(
+		MapTypes.PROP_KIND_BUSH in AssetShowcaseDefinitionScript.small_prop_kinds()
+	)

@@ -7,8 +7,6 @@ const DistrictLifeProps := preload(
 const RuralLifeProps := preload(
 	"res://scripts/map/view3d/map_view_mesh_builder_rural_life_props.gd"
 )
-const BushMeshes := preload("res://scripts/map/view3d/map_view_bush_meshes.gd")
-const BushSpecies := preload("res://scripts/map/view3d/map_view_bush_species.gd")
 const FishingBoatBuilder := preload("res://scripts/map/view3d/map_view_fishing_boat_builder.gd")
 const MerchantBoatBuilder := preload("res://scripts/map/view3d/map_view_merchant_boat_builder.gd")
 const WallWalkAccessBuilder := preload(
@@ -227,7 +225,9 @@ static func build_prop(
 		MapTypes.PROP_KIND_CANDLE:
 			MedievalLightingModels.add_model(root, prop)
 		MapTypes.PROP_KIND_BUSH:
-			_add_authored_bush(root, prop)
+			# The legacy procedural shrub mesh was removed (it read as odd blobs);
+			# bush props stay as ground-cover/movement data with no 3D model.
+			pass
 		MapTypes.PROP_KIND_TREE:
 			_add_authored_tree(root, prop)
 		MapTypes.PROP_KIND_CARGO_CRATES:
@@ -517,31 +517,6 @@ static func _add_authored_tree(root: Node3D, prop: Dictionary) -> void:
 		root.add_child(fruit)
 	root.set_meta(&"tree_species", species)
 	root.set_meta(&"tree_size", size_class)
-
-
-static func _add_authored_bush(root: Node3D, prop: Dictionary) -> void:
-	var variant: StringName = prop.get("style_variant", &"")
-	if variant.is_empty():
-		variant = TerrainVegetation.VARIANT_BUSH_SCRUB
-	var parsed: Dictionary = BushSpecies.parse_variant(variant)
-	var species: StringName = parsed.get(
-		"species", BushSpecies.pick_species(BushSpecies.weights_for_variant(variant), 0.41)
-	)
-	var scale_range := BushSpecies.scale_range(species)
-	var uniform := lerpf(scale_range.x, scale_range.y, 0.5)
-	var bush := MeshInstance3D.new()
-	bush.name = "Bush"
-	bush.mesh = BushMeshes.mesh_for(species)
-	bush.scale = Vector3(uniform, uniform, uniform)
-	var material_kind: StringName = BushSpecies.material_kind(species)
-	bush.material_override = (
-		MapViewMaterials.canopy(material_kind)
-		if material_kind == &"leaf"
-		else MapViewMaterials.foliage_tuft()
-	)
-	bush.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	root.add_child(bush)
-	root.set_meta(&"bush_species", species)
 
 
 static func _add_ancient_oak(root: Node3D) -> void:

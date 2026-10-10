@@ -114,19 +114,6 @@ func test_patch_density_is_continuous_and_seeded() -> void:
 	)
 
 
-func test_legacy_bushes_keep_height_weighted_wind() -> void:
-	var mesh := MapViewBushMeshes.mesh_for(MapViewBushSpecies.ALL_SPECIES[0])
-	var arrays := mesh.surface_get_arrays(0)
-	assert_true(
-		arrays[Mesh.ARRAY_TEX_UV2] == null, "legacy bushes must not be tagged as petiole leaves"
-	)
-	var code := MapViewMaterialShaders.CANOPY_SHADER.code
-	assert_true(
-		code.contains("UV2.x > 0.5 ? UV.y * UV.y : clamp(VERTEX.y"),
-		"shared canopy material must retain bush height weighting without leaf UVs"
-	)
-
-
 func _check_mesh(mesh: ArrayMesh) -> void:
 	var arrays := mesh.surface_get_arrays(0)
 	var vertices: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]

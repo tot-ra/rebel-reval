@@ -3,8 +3,6 @@ extends RefCounted
 
 const PlantSpecies := preload("res://scripts/map/view3d/map_view_plant_species.gd")
 const PlantMeshes := preload("res://scripts/map/view3d/map_view_plant_meshes.gd")
-const BushSpecies := preload("res://scripts/map/view3d/map_view_bush_species.gd")
-const BushMeshes := preload("res://scripts/map/view3d/map_view_bush_meshes.gd")
 ## R-1320: every vegetation MultiMesh carries an explicit benchmark layer tag, so
 ## tools/capture_vegetation_benchmark.gd attributes cost without guessing from
 ## node names (surroundings rename some layers). Metadata only; no render change.
@@ -65,7 +63,6 @@ static func begin_scatter(
 	state["hay_stubble_colors"] = [] as Array[Color]
 	state["large_grass"] = [] as Array[Transform3D]
 	state["large_grass_colors"] = [] as Array[Color]
-	state["bush_batches"] = {}
 	state["tree_batches"] = {}
 	state["reeds"] = [] as Array[Transform3D]
 	state["reed_colors"] = [] as Array[Color]
@@ -101,7 +98,6 @@ static func collect_rows(state: Dictionary, until_row: int) -> bool:
 	var hay_stubble_colors: Array[Color] = state["hay_stubble_colors"]
 	var large_grass: Array[Transform3D] = state["large_grass"]
 	var large_grass_colors: Array[Color] = state["large_grass_colors"]
-	var bush_batches: Dictionary = state["bush_batches"]
 	var tree_batches: Dictionary = state["tree_batches"]
 	var reeds: Array[Transform3D] = state["reeds"]
 	var reed_colors: Array[Color] = state["reed_colors"]
@@ -162,13 +158,11 @@ static func collect_rows(state: Dictionary, until_row: int) -> bool:
 			var grass_eco := 1.0
 			var flower_eco := 1.0
 			var cover_eco := 1.0
-			var shrub_eco := 1.0
 			var tree_eco := 1.0
 			if ecology_enabled:
 				grass_eco = ecology.density(VegetationEcology.LAYER_GRASS, cell)
 				flower_eco = ecology.density(VegetationEcology.LAYER_FLOWERS, cell)
 				cover_eco = ecology.density(VegetationEcology.LAYER_GROUND_COVER, cell)
-				shrub_eco = ecology.density(VegetationEcology.LAYER_SHRUBS, cell)
 				tree_eco = ecology.density(VegetationEcology.LAYER_TREES, cell)
 
 			var puddle_chance := float(MapViewMeshBuilderConfig.PUDDLE_CHANCE.get(terrain, 0.0))
@@ -321,37 +315,6 @@ static func collect_rows(state: Dictionary, until_row: int) -> bool:
 				var plant_species: StringName = profile.get("plant_species", &"")
 				_append_scattered_plant(plant_batches, field, x, y, definition.seed, plant_species)
 
-			var bush_chance := float(profile.get("bush_chance", 0.0)) * density
-			if bush_chance <= 0.0:
-				bush_chance = (
-					(
-						float(profile.get("dense_bush_chance", 0.0))
-						+ float(profile.get("scrub_bush_chance", 0.0))
-					)
-					* density
-				)
-			bush_chance *= shrub_eco
-			if (
-				bush_chance > 0.0
-				and MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 1500) < bush_chance
-			):
-				var bush_variant: StringName = profile.get("bush_variant", variant)
-				if bush_variant.is_empty():
-					bush_variant = (
-						TerrainVegetation.VARIANT_BUSH_SCRUB
-						if float(profile.get("scrub_bush_chance", 0.0)) > 0.0
-						else TerrainVegetation.VARIANT_BUSH_DENSE
-					)
-				_append_scattered_bush(
-					bush_batches,
-					field,
-					x,
-					y,
-					definition.seed,
-					bush_variant,
-					profile.get("bush_species", &"")
-				)
-
 			var tree_chance := (
 				float(
 					profile.get(
@@ -437,9 +400,9 @@ static func _append_understory(
 				state["plant_batches"], field, x, y, seed, PlantSpecies.SPECIES_NETTLE
 			)
 		VegetationEcology.UNDERSTORY_JUNIPER:
-			_append_scattered_bush(
-				state["bush_batches"], field, x, y, seed, &"", BushSpecies.SPECIES_JUNIPER_SHRUB
-			)
+			# The legacy procedural shrub mesh was removed; juniper understory
+			# draws nothing until a real shrub model exists.
+			pass
 
 
 ## Emits every collected layer and the shore dressing; returns the chunk root.
@@ -459,7 +422,6 @@ static func emit_layers(state: Dictionary) -> void:
 	var hay_stubble_colors: Array[Color] = state["hay_stubble_colors"]
 	var large_grass: Array[Transform3D] = state["large_grass"]
 	var large_grass_colors: Array[Color] = state["large_grass_colors"]
-	var bush_batches: Dictionary = state["bush_batches"]
 	var tree_batches: Dictionary = state["tree_batches"]
 	var reeds: Array[Transform3D] = state["reeds"]
 	var reed_colors: Array[Color] = state["reed_colors"]
@@ -488,9 +450,6 @@ static func emit_layers(state: Dictionary) -> void:
 		large_grass_colors,
 		MapViewMeshBuilderPrimitives.grass_tuft_mesh()
 	)
-
-	if not bush_batches.is_empty():
-		_emit_bush_batches(root, bush_batches)
 
 	if not tree_batches.is_empty():
 		_emit_tree_batches(root, tree_batches)
@@ -581,74 +540,6 @@ static func _is_urban_map(definition: MapDefinition) -> bool:
 		if kind == &"town":
 			return true
 	return false
-
-
-static func _append_scattered_bush(
-	batches: Dictionary,
-	field: Dictionary,
-	x: int,
-	y: int,
-	map_seed: int,
-	bush_variant: StringName,
-	pinned_species: StringName
-) -> void:
-	var species := pinned_species
-	if species.is_empty():
-		species = BushSpecies.pick_species(
-			BushSpecies.weights_for_variant(bush_variant),
-			MapViewMeshBuilderPrimitives.hash01(x, y, map_seed + 1703)
-		)
-	if not BushSpecies.is_known_species(species):
-		return
-	var key := String(species)
-	if not batches.has(key):
-		batches[key] = {
-			"transforms": [] as Array[Transform3D],
-			"colors": [] as Array[Color],
-			"species": species,
-		}
-	var scale_range := BushSpecies.scale_range(species)
-	var batch: Dictionary = batches[key]
-	(batch["transforms"] as Array).append(
-		_scatter_transform(field, x, y, map_seed + 1733, scale_range.x, scale_range.y)
-	)
-	(batch["colors"] as Array).append(
-		BushSpecies.instance_tint(
-			species, MapViewMeshBuilderPrimitives.hash01(x, y, map_seed + 1747)
-		)
-	)
-
-
-static func _emit_bush_batches(root: Node3D, batches: Dictionary) -> void:
-	for key: Variant in batches.keys():
-		var batch: Dictionary = batches[key]
-		var transforms: Array[Transform3D] = []
-		var colors: Array[Color] = []
-		for transform: Variant in batch["transforms"]:
-			transforms.append(transform as Transform3D)
-		for color: Variant in batch["colors"]:
-			colors.append(color as Color)
-		if transforms.is_empty():
-			continue
-		var species: StringName = batch["species"]
-		var material_kind: StringName = BushSpecies.material_kind(species)
-		var material: Material = (
-			MapViewMaterials.canopy(material_kind)
-			if material_kind == &"leaf"
-			else MapViewMaterials.foliage_tuft()
-		)
-		var instances := MapViewMeshBuilderPrimitives.multi_mesh(
-			"Bushes_%s" % String(species).to_pascal_case(),
-			BushMeshes.mesh_for(species),
-			transforms,
-			colors,
-			material,
-			Vector3.ZERO
-		)
-		instances.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-		instances.set_meta(&"bush_species", species)
-		_tag_layer(instances, &"shrubs")
-		root.add_child(instances)
 
 
 ## Collect one concrete botanical species into its own cached MultiMesh batch.

@@ -269,8 +269,9 @@ Code review of commit `3078c157`: no blocking issues found.
   (`grass_blades()`) fades 30-43 m inside its 45 m range (the city streams 16 m chunks 3 deep, at least 48 m); eye-level terrain details
   (`grass_blades_near()`) fade 7-11 m inside their 14 m range.
 - Grass variety: per-tuft height, width and tint vary from the planted position.
-- Not yet verified visually: needle transparency on conifers and bush popping
-  (bushes have no range cull, so their cause is still open); see the follow-up tasks.
+- Not yet verified visually: needle transparency on conifers. District-map bush
+  popping is moot: district maps no longer draw bushes (see "Legacy shrub mesh
+  removed" below).
 
 ## Seamless city: real scale, near/far crowns, bark and grass plates (R-712)
 
@@ -438,11 +439,40 @@ real spruce needle density would be millions of triangles. No frame-time measure
 with several macro spruces in view yet. GL Compatibility has no tessellation or mesh
 shaders to spend the budget only on the side facing the camera.
 
+### Legacy shrub mesh removed
+
+Status: implemented (user request, 2026-10-10). The P0-115 procedural shrub mesh
+(`MapViewBushMeshes.mesh_for`: vertex-colour ellipsoid, tube and cone blobs per
+archetype) read as an odd green blob and was deleted with its builders.
+
+- District maps no longer scatter bushes: `map_view_mesh_builder_scatter.gd` emits no
+  `Bushes_*` layer for `bush.*` zones, and the ecology juniper understory draws
+  nothing. Grass, plants and scatter trees in those zones are unchanged.
+- Authored `bush` props build no 3D model (no `Bush` node). They remain map data:
+  movement slow-down (`TerrainVegetation`) and the composition audit's ground cover
+  still read them. `bush.*` style variants still slow movement.
+- The asset showcase no longer lists the `BUSH` prop.
+- Seamless city: only species with a city variant (dog rose, raspberry) are drawn by
+  `CityVegetationBuilder.build_bushes`; the other shrubs already used tree meshes
+  (`SHRUB_AS_TREE`). A plan species with neither is skipped instead of falling back.
+- The species catalog (`map_view_bush_species.gd`) stays for variant parsing, tints
+  and city sizes.
+
+Verify: `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_map_view_bush_species`
+(`test_district_scatter_emits_no_bushes`, `test_authored_bush_prop_has_no_3d_model`,
+`test_asset_showcase_has_no_bush_prop`).
+
+After: a `bush.dense` zone, a limestone alvar and an authored `bush` prop draw only grass and trees.
+
+![District bush zone after removal](../reports/images/vegetation_realism/bush_removed_district.png)
+
+Limits: district shrubs need a new, reviewed shrub model before they come back.
+
 ### City shrubs: real-size leaves (R-1315)
 
 Status: implemented (task **R-1315**). Scope: seamless-city shrubs from the plan's
-`bushes` list. Out of scope: district-map bushes (`MapViewBushMeshes.mesh_for` is
-unchanged) and the leafless scrub tufts (juniper, sea buckthorn, heather).
+`bushes` list. Out of scope: district-map bushes (the legacy mesh was later removed,
+see below) and the leafless scrub tufts (juniper, sea buckthorn, heather).
 
 City shrubs are drawn two ways, and both had the wrong leaf size beside Kalev:
 
@@ -471,7 +501,7 @@ saved; meshes are rebuilt deterministically from the plan.
 Verify: `test_city_bush_leaf_cards_are_real_size` measures every card along its spine
 (rose and raspberry under 0.4 m at the plan's largest size factor, at least 150 cards,
 height and spread kept; tree-mesh shrub near cards under 0.4 m and smaller than far
-cards) and `test_district_bush_meshes_unchanged` guards the district geometry. GPU
+cards). GPU
 plates: `tools/godot_render.sh --script tools/capture_city_vegetation.gd -- --only=dog_rose_close,raspberry_close,elder_close`
 (the most open shrub of each species next to the 1.83 m figure).
 

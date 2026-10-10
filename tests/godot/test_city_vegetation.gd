@@ -295,7 +295,7 @@ func test_city_bush_leaf_cards_are_real_size() -> void:
 	# The plan scales shrubs by up to ~1.35; leaves must stay hand-sized.
 	for species: StringName in [&"dog_rose", &"raspberry"]:
 		var mesh := CityVegetationBuilder.bush_mesh(species)
-		var scale := CityVegetationBuilder.bush_scale(species, 1.0, 1.0)
+		var scale := CityVegetationBuilder.bush_scale(1.0, 1.0)
 		var card := _max_card_metres(mesh, scale * 1.35)
 		assert_true(card > 0.1 and card < 0.4, "%s leaf card %.2f m" % [species, card])
 		var size_m: Vector2 = CityVegetationBuilder.BUSH_SIZE_M[species]
@@ -322,11 +322,3 @@ func test_city_bush_leaf_cards_are_real_size() -> void:
 		var stats := MapViewTreeMeshes.city_canopy_near_stats(species, scale)
 		assert_true(float(stats["count_factor"]) > 1.1, "%s near crown keeps its mass" % species)
 		assert_true(int(stats["canopy_triangles"]) <= MapViewTreeMeshes.NEAR_TRIANGLE_CAP)
-
-
-func test_district_bush_meshes_unchanged() -> void:
-	# The city variants must not leak into the district maps' bush geometry.
-	for species: StringName in [&"dog_rose", &"raspberry"]:
-		var stats := MapViewBushMeshes.geometry_stats(species)
-		assert_eq(int(stats["triangles"]), 320, "%s district mesh" % species)
-		assert_true((stats["aabb"] as AABB).size.y < 1.2, "%s district mesh ~1 unit" % species)

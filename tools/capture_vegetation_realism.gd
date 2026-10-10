@@ -129,16 +129,6 @@ func _run() -> void:
 	await _capture(label, "district_cover")
 	terrain.hide()
 	details.hide()
-	var bush := MeshInstance3D.new()
-	bush.mesh = MapViewBushMeshes.mesh_for(MapViewBushSpecies.ALL_SPECIES[0])
-	bush.material_override = MapViewMaterials.canopy(&"leaf")
-	stage.add_child(bush)
-	camera.position = Vector3(1.2, 0.8, 2.0)
-	camera.look_at(Vector3(0, 0.35, 0))
-	await _capture(label, "bush_wind_a")
-	for frame in 30:
-		await process_frame
-	await _capture(label, "bush_wind_b")
 	# A material with transmission must not become luminous in unlit scenes.
 	sun.light_energy = 0.0
 	env.ambient_light_energy = 0.0

@@ -1096,6 +1096,8 @@ prop yard.oak tree 42 18 style=tree.oak
 prop road.birch tree 90 44 style=tree.birch.large
 ```
 
+Bush variants and `prop bush` are movement and ground-cover data only: since the legacy shrub mesh was removed, district maps draw no bush model for them ([`LIVING_VEGETATION.md`](./SYSTEMS/LIVING_VEGETATION.md#legacy-shrub-mesh-removed)).
+
 `prop bush` and `prop tree` place slow-down volumes over their `rect=` footprint (or around the anchor cell when no rect is given). Tree props resolve one of ten local woodland and orchard species (spruce, pine, birch, oak, alder, aspen, maple, linden, apple, cherry) at small, medium, or large scale. Visual scatter for woodland zones and exterior `woodland` surroundings uses the same species catalog and map seed; they do not change collision or navigation.
 
 ### Ecology placement and the vegetation override mask (R-1322)
