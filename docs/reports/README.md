@@ -44,6 +44,7 @@ Start with:
 - [CO-08 / R-955 sea-state ladder](co08_sea_state_ladder.md)
 - [P0-033 comparison-room greybox](comparison_room_p0_033.md)
 - [P0-035 projection and direction comparison room](comparison_room_p0_035.md)
+- [Seeded crowd bodies - visual review (P0-153, task R-945)](crowd_variation_p0_153.md)
 - [D-004a release-only defect triage](d004a_release_only_triage.md)
 - [Demo walkthrough (D-004)](demo_walkthrough_d004.md)
 - [Exposure pass (2026-09-30)](exposure_pass_2026-09-30.md)

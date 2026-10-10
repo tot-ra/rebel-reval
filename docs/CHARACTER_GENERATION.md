@@ -93,6 +93,8 @@ Then:
 
 ### Seeded crowd bodies (P0-153)
 
+Visual review plates and per-body notes: [`docs/reports/crowd_variation_p0_153.md`](reports/crowd_variation_p0_153.md).
+
 Townsfolk that must not read as clones come from `crowd_variant_entry(template, seed)` in `tools/character_specs.py`, not from hand-written specs. The same `(template, seed)` pair always yields the same entry (string-seeded `random.Random`, stable across processes). Each seed varies:
 
 - stature (`leg_length`, `arm_length`, `torso_length`; head size stays fixed) and build (`bulk`, shoulder width, `chest_breadth`, `belly`)
