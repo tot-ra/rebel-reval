@@ -464,6 +464,16 @@ const PUDDLE_CHANCE := {
 	MapTypes.TERRAIN_FARM_SOIL: 0.06,
 }
 
+## R-1516 drought crust: soil tone of the bare-earth terrains whose puddle basins
+## bake into cracked clay. The decal is alpha-blended and cannot read the ground
+## beneath it, so the tone rides in the puddle's instance colour (alpha 1 = may
+## crack). Paving is absent: a dry puddle on stone simply vanishes.
+const PUDDLE_CRUST_SOIL := {
+	MapTypes.TERRAIN_MUD: Color(0.40, 0.32, 0.23),
+	MapTypes.TERRAIN_DIRT: Color(0.50, 0.42, 0.31),
+	MapTypes.TERRAIN_FARM_SOIL: Color(0.34, 0.27, 0.20),
+}
+
 ## Camera-dependent living ground cover. Cobblestone relief is part of the
 ## continuous terrain material in every camera mode; only grass silhouettes need
 ## nearby first-person MultiMeshes. The range-limited window prevents drawing an

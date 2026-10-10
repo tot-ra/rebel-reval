@@ -12,6 +12,8 @@ const WATER_TERRAINS: Array[StringName] = MapTypes.WATER_TERRAINS
 ## Authored downstream heading of the Pirita (south to north) and its current
 ## strength. The heading only orients the channel centreline extracted from the
 ## authored cells; MapViewRiverFlow then gives each reach its own direction.
+## R-1516 drought crust plate, shared with city_ground.gdshader.
+const PUDDLE_CRACKED_ALBEDO := "res://assets/materials/pbr/cracked_earth/cracked_earth_albedo.png"
 const RIVER_FLOW_DIRECTION := Vector2(0.0, -1.0)
 const RIVER_FLOW_STRENGTH := 0.6
 ## Centreline capacity of the water shader's river_path uniform.
@@ -603,8 +605,18 @@ static func puddle_surface() -> ShaderMaterial:
 	material.set_shader_parameter("water_tint", Vector3(0.10, 0.11, 0.11))
 	material.set_shader_parameter("damp_tint", Vector3(0.22, 0.20, 0.17))
 	material.set_shader_parameter("sheen_tint", Vector3(0.62, 0.70, 0.80))
+	# R-1516: the same basins bake into cracked clay in a drought (city_ground's plate).
+	material.set_shader_parameter("cracked_albedo", load(PUDDLE_CRACKED_ALBEDO))
 	_cache[key] = material
 	return material
+
+
+## R-1516: one weather frame's ground water. Wetness fills the decals with water,
+## dryness above ~0.45 bakes them into crust (see map_view_puddle.gdshader).
+static func apply_ground_water(puddle_wetness: float, ground_dryness: float) -> void:
+	var material := puddle_surface()
+	material.set_shader_parameter("puddle_wetness", clampf(puddle_wetness, 0.0, 1.0))
+	material.set_shader_parameter("ground_dryness", clampf(ground_dryness, 0.0, 1.0))
 
 
 ## Animated water surface for water-family terrain cells; colors derive from

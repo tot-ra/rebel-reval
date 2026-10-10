@@ -11,6 +11,9 @@ const Lighting := preload("res://scripts/map/view3d/map_view_lighting.gd")
 const SkyWeather3D := preload("res://scripts/map/view3d/sky_weather_3d.gd")
 const TerrainDetails := preload("res://scripts/map/view3d/map_view_terrain_details.gd")
 const MudFootprints3D := preload("res://scripts/map/view3d/mud_footprints_3d.gd")
+## R-1516: dryness above which the puddle decals show as drought crust. Matches
+## the 0.45 crack onset in map_view_puddle.gdshader and city_ground.gdshader.
+const PUDDLE_CRUST_DRYNESS := 0.45
 const WaterRippleSimScript := preload("res://scripts/map/view3d/water_ripple_sim.gd")
 const UnderwaterPassScript := preload("res://scripts/map/view3d/underwater_pass.gd")
 const Assembly := preload("res://scripts/map/view3d/map_view_assembly.gd")
@@ -127,6 +130,8 @@ var _scatter_root: Node3D
 var _loaded_scatter_chunks: Dictionary = {}
 var _active_chunks: Array[Vector2i] = []
 var _last_puddle_visible := false
+var _last_puddle_wetness := -1.0
+var _last_ground_dryness := -1.0
 var _first_person_terrain_detail := false
 var _terrain_detail_focus_cell := Vector2i(2147483647, 2147483647)
 var _decals_node: Node3D
@@ -414,11 +419,18 @@ func _sync_sea_weather() -> void:
 
 
 ## Puddle geometry remains prebuilt with each scatter chunk, but a fresh map is
-## dry. Rain-created wetness reveals it without rebuilding deterministic terrain.
+## dry. Rain-created wetness reveals it without rebuilding deterministic terrain;
+## a drought (R-1516) reveals the same decals as baked crust.
 func _sync_puddle_visibility(force: bool = false) -> void:
 	if _sky_weather == null or _scatter_root == null:
 		return
-	var puddle_visible := _sky_weather.puddle_wetness() > 0.001
+	var wetness := _sky_weather.puddle_wetness()
+	var dryness := _sky_weather.ground_dryness()
+	if force or wetness != _last_puddle_wetness or dryness != _last_ground_dryness:
+		_last_puddle_wetness = wetness
+		_last_ground_dryness = dryness
+		MapViewMaterials.WATER_MATERIALS.apply_ground_water(wetness, dryness)
+	var puddle_visible := puddle_layer_visible(wetness, dryness)
 	if not force and puddle_visible == _last_puddle_visible:
 		return
 	_last_puddle_visible = puddle_visible
@@ -426,6 +438,12 @@ func _sync_puddle_visibility(force: bool = false) -> void:
 		var puddles := chunk.get_node_or_null("Puddles") as Node3D
 		if puddles != null:
 			puddles.visible = puddle_visible
+
+
+## The puddle decals draw water after rain and cracked crust once a drought pushes
+## dryness past the crack threshold; between the two the ground shows no basin.
+static func puddle_layer_visible(wetness: float, dryness: float) -> bool:
+	return wetness > 0.001 or dryness > PUDDLE_CRUST_DRYNESS
 
 
 func set_time_of_day(next_time: StringName) -> void:
