@@ -63,7 +63,6 @@ No wage; a purse of 3 marks a year from his father, and a small profit share. He
 ## Relationships
 - **Household:** [Eler Lippe](../../people/lower_town/eler_lippe.md), father; [Berta van Soest](../../people/lower_town/berta_van_soest.md), mother; [Gyse Lippe](../../people/lower_town/gyse_lippe.md), [Oda Lippe](../../people/lower_town/oda_lippe.md), sisters; [Tibbeke van Wismar](../../people/lower_town/tibbeke_van_wismar.md), the elder kinswoman; [Peter, Jutte and Katharina](../../ledger/lower_town/pikk.md#hh-lt-osm-w200675294), the small ones.
 - **Network:**
-  - [Berend Rode](../../people/lower_town/berend_rode.md), merchant: Gottschalk knows Berend shares his sympathies; they meet briefly after mass and say nothing repeatable.
   - [Metteke Snelle](../../people/lower_town/metteke_snelle.md), spinner: neither knows the other's allegiance, yet each has noticed the other's silence at the right moments.
   - [Jaan Alberti poeg](../../people/lower_town/jaan_alberti_poeg.md), skipper: Jaan regularly supplies him, usually on credit settled at quarter-days; the arrangement is the backbone of both households' week.
   - [Ell Mikku tütar](../../people/lower_town/ell_mikku_tutar.md), spinner: he knows she shares his sympathies; they meet briefly after mass and say nothing repeatable.

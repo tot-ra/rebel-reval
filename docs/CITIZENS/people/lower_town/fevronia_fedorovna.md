@@ -62,7 +62,6 @@ She makes rusks from stale bread and sells them for a pfennig a bag. She gets ke
 ## Relationships
 - **Household:** [Marfa Yeremeyevna](../../people/lower_town/marfa_yeremeyevna.md), her daughter-in-law; [Olena Grigorievna](../../people/lower_town/olena_grigorievna.md) and [Irina Grigorievna](../../ledger/lower_town/raekoja.md#hh-lt-osm-w26903126), Grigory's daughters; [Domna Fedorovna](../../people/lower_town/domna_fedorovna.md) and [Praskovya Gavrilovna](../../ledger/lower_town/raekoja.md#hh-lt-osm-w26903126), her other sons' daughters; [Gunnar Svensson](../../people/lower_town/gunnar_svensson.md), the journeyman who carries the sacks.
 - **Network:**
-  - [Triin](../../people/lower_town/triin.md), maid in the Rode house: they know each other from the market, greet by name and trade the day's prices; both speak slowly and wait.
   - [Drude van Hamelen](../../people/lower_town/drude_van_hamelen.md), young maid on Vana turg: they share a distant kinship through marriage that neither can trace exactly; Fevronia gives her a rusk each time.
   - [Evert Tõnu poeg](../../people/lower_town/evert_tonu_poeg.md), gatekeeper on Kuninga: the boundary stake between their yards was moved by his late father; Fevronia's household has noticed and says nothing yet, and she greets him warmly.
   - [Kornel Everti poeg](../../people/lower_town/kornel_everti_poeg.md), young glover on Kuninga: she sells him small things at a fair price and he tells others to buy from her; he is fifteen and pays in pennies.

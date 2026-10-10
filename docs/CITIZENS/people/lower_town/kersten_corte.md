@@ -61,7 +61,6 @@ Wage 6 marks a year with board and loft; he has 2 marks saved. He buys parchment
 
 ## Relationships
 - **Household:** [Heyno van Revele Westfal](../../people/lower_town/heyno_van_revele_westfal.md), master; [Gyla Olde](../../people/lower_town/gyla_olde.md), mistress; [Sander van Revele Westfal](../../ledger/lower_town/dunkri.md#hh-lt-osm-w28087745), to whom he teaches letters; apprentices [Hermann van Hervorde](../../people/lower_town/hermann_van_hervorde.md), [Alke van Campen](../../people/lower_town/alke_van_campen.md) and [Hermann van Soest](../../people/lower_town/hermann_van_soest.md); servants [Wendla Lembitu tütar](../../ledger/lower_town/dunkri.md#hh-lt-osm-w28087745) and [Katri Eskilntytär](../../ledger/lower_town/dunkri.md#hh-lt-osm-w28087745).
-- **Network:** [Jakob Wulf](../../people/lower_town/jakob_wulf.md), clerk on Raekoja: Jakob is the better craftsman and Kersten the better businessperson; each believes the other has the easier life.
 - [Arend van Lemego](../../people/lower_town/arend_van_lemego.md), clerk on Lai: recruited Kersten a year ago with a small kindness, a night's lodging in a cold week; Kersten resents being treated as a debtor.
 - [Winand Lutke](../../people/lower_town/winand_lutke.md), clerk on Nunne: Kersten suspects but cannot prove that Winand leans the same way; each watches the other for a sign.
 - [Johannes van Verden](../../people/lower_town/johannes_van_verden.md), merchant on Pikk: Kersten knows he shares their sympathies; they meet briefly after mass and say nothing that could be repeated.

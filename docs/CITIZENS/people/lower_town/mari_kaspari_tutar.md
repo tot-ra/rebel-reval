@@ -65,7 +65,7 @@ She earns a mark a year and keep, plus about three pfennig a week from the marke
   - [Birgitta Larsdotter](../../people/lower_town/birgitta_larsdotter.md), hospital inmate: they know each other from the market, greet by name and trade the day's prices; Birgitta is Swedish and eighty, and Mari feels she is the only person who asks about the eggs.
   - [Sophia van Minden](../../people/lower_town/sophia_van_minden.md), spinner on Pikk: Mari sells her small things at a fair price and Sophia tells others to buy from Mari; it began with a spare pin and has become a quiet custom.
   - [Eeva Marteni tütar](../../people/lower_town/eeva_marteni_tutar.md), spinner on Olevimägi: a distant kinship through marriage that neither can trace; they call each other cousin and argue over which aunt it came through.
-  - [Taniel Eerika poeg](../../people/lower_town/taniel_eerika_poeg.md), retired craftsman on Olevimägi: they met at the church door the week of Easter and fell into the habit of walking home together; he was a cooper, he tells her about his wife, and she lets him talk.
+  - [Hindrek Andrese poeg](../../people/lower_town/hindrek_andrese_poeg.md), retired craftsman on Olevimägi: they met at the church door the week of Easter and fell into the habit of walking home together; he was a cooper, he tells her about his wife, and she lets him talk.
 - **Others:** [Ell Marteni tütar](../../ledger/lower_town/puhavaimu.md#hh-lt-osm-w26889741), baker, sells her the day-old rye.
 
 ## Faction and belief

@@ -60,7 +60,7 @@ Born in 1322 in a Swedish fisher's house on the Kopli shore, Folke was bound to 
 Board, bed and eight schillings a month. He has six marks saved and a bad tooth.
 
 ## Relationships
-- **Household:** [Gunnar Knutsson](../../people/lower_town/gunnar_knutsson.md), master. [Anna Persdotter](../../people/lower_town/anna_persdotter.md), mistress. [Ulrika Olofsdotter](../../people/lower_town/ulrika_olofsdotter.md), maid. [Erik Jönsson](../../people/lower_town/erik_jonsson.md), servant. [Per Magnusson](../../people/lower_town/per_magnusson.md), fellow journeyman. [Ingeborg Torgilsdotter](../../ledger/lower_town/munga.md#hh-lt-osm-w28187554), cook.
+- **Household:** [Gunnar Knutsson](../../people/lower_town/gunnar_knutsson.md), master. [Anna Persdotter](../../people/lower_town/anna_persdotter.md), mistress. [Karin Folkesdotter](../../people/lower_town/karin_folkesdotter.md), maid. [Erik Jönsson](../../people/lower_town/erik_jonsson.md), servant. [Per Magnusson](../../people/lower_town/per_magnusson.md), fellow journeyman. [Ingeborg Torgilsdotter](../../ledger/lower_town/munga.md#hh-lt-osm-w28187554), cook.
 - **Network:**
   - [Jaak](../../people/lower_town/jaak.md), baker on Müürivahe: a distant kinship through marriage that neither can trace exactly; they swap loaves for heel-taps.
   - [Tideman Schomaker](../../people/lower_town/tideman_schomaker.md), shoemaker on Nunne: Folke suspects him of undercutting the going price with stolen or smuggled stock; no proof, so far.

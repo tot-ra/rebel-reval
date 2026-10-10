@@ -60,11 +60,11 @@ Born in 1276 near Kalmar, he came to Reval with the Swedish shoemakers in 1298 a
 Shoes sell at eight to sixteen pfennigs the pair. Hides come from tanners; he owes the ropemaker fifteen marks. A bad month is one without a hide.
 
 ## Relationships
-- **Household:** [Anna Persdotter](../../people/lower_town/anna_persdotter.md), wife. [Ulrika Olofsdotter](../../people/lower_town/ulrika_olofsdotter.md), maid. [Erik Jönsson](../../people/lower_town/erik_jonsson.md), servant. [Per Magnusson](../../people/lower_town/per_magnusson.md) and [Folke Jönsson](../../people/lower_town/folke_jonsson.md), journeymen. [Ingeborg Torgilsdotter](../../ledger/lower_town/munga.md#hh-lt-osm-w28187554), cook.
+- **Household:** [Anna Persdotter](../../people/lower_town/anna_persdotter.md), wife. [Karin Folkesdotter](../../people/lower_town/karin_folkesdotter.md), maid. [Erik Jönsson](../../people/lower_town/erik_jonsson.md), servant. [Per Magnusson](../../people/lower_town/per_magnusson.md) and [Folke Jönsson](../../people/lower_town/folke_jonsson.md), journeymen. [Ingeborg Torgilsdotter](../../ledger/lower_town/munga.md#hh-lt-osm-w28187554), cook.
 - **Network:**
   - [Gunnar Larsson](../../people/lower_town/gunnar_larsson.md), tanner on Laboratooriumi: regularly supplies him and has twice held back stock to press an old point; Gunnar has not forgotten.
   - [Tyde Lowergerver](../../people/lower_town/tyde_lowergerver.md), tanner on Vaimu: trade favours in kind; the books are never even.
-  - [Peeter Tanieli poeg](../../people/lower_town/peeter_tanieli_poeg.md), ropemaker: lent thirty marks in autumn 1342 for a roof; the bond falls due at Michaelmas and about half is paid.
+  - [Peeter Hindreku poeg](../../people/lower_town/peeter_hindreku_poeg.md), ropemaker: lent thirty marks in autumn 1342 for a roof; the bond falls due at Michaelmas and about half is paid.
   - [Mikk Simoni poeg](../../people/lower_town/mikk_simoni_poeg.md), merchant on Vene: they sit near each other at church and trade gossip at the door after mass; each treats the other as an early-warning system.
 
 ## Faction and belief

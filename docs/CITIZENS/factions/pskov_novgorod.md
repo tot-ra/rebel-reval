@@ -24,7 +24,6 @@ The shared root is *belonging by trade and tongue*. Few here are exiles. They ar
 - Court duty: [Prokhor Mikulich](../people/lower_town/prokhor_mikulich.md), [Timofei Timofeyevich](../people/lower_town/timofei_timofeyevich.md), [Fedor Gavrilovich](../people/lower_town/fedor_gavrilovich.md) and [Timofei Stepanovich](../people/lower_town/timofei_stepanovich.md) live inside the Novgorod court and serve what it needs: the clerk keeps its books, the merchants keep its goods.
 - Hearth and cell: [Praskovya Fedorovna](../people/lower_town/praskovya_fedorovna.md), a dairy-woman on Sauna, is one of five core members, and [Mikula Stepanovich](../people/lower_town/mikula_stepanovich.md), the dyer on the same street, is active; they supply the circle's colour and cream, and the cover of daily errands.
 - Protection and age: [Irina Dmitrievna](../people/lower_town/irina_dmitrievna.md), 79, retired craftswoman on Tolli, is the keeper of old stories and the quiet superior of younger women; [Olena Timofeyevna](../people/lower_town/olena_timofeyevna.md), 54, spinner on Tolli, is active in her house.
-- The road: [Yakov Fedorovich](../people/viru_road/yakov_fedorovich.md), a sailor on the Viru road, carries what the quay cannot, and is told what to carry by Agafya.
 
 ## Who belongs
 

@@ -61,7 +61,7 @@ Born about 1315 in a fishing hamlet near Viimsi, the daughter of Aino, a net-men
 She earns 3 marks a year, shoes and board. Rye costs a little more each week. She owes nothing and saves what she can.
 
 ## Relationships
-- **Household:** [Albert Villemi poeg](../../people/lower_town/albert_villemi_poeg.md), master; [Berta Toomase tütar](../../people/lower_town/berta_toomase_tutar.md), mistress; [Kaur Alberti poeg](../../people/lower_town/kaur_alberti_poeg.md); [Paul Alberti poeg](../../people/lower_town/paul_alberti_poeg.md); Kadri Alberti tütar, 3 ([ledger](../../ledger/lower_town/oleviste.md#hh-lt-osm-w200516986)); [Mikk Kristjani poeg](../../people/lower_town/mikk_kristjani_poeg.md).
+- **Household:** [Albert Villemi poeg](../../people/lower_town/albert_villemi_poeg.md), master; [Margareta](../../people/lower_town/margareta.md), mistress; [Kaur Alberti poeg](../../people/lower_town/kaur_alberti_poeg.md); [Paul Alberti poeg](../../people/lower_town/paul_alberti_poeg.md); Kadri Alberti tütar, 3 ([ledger](../../ledger/lower_town/oleviste.md#hh-lt-osm-w200516986)); [Mikk Kristjani poeg](../../people/lower_town/mikk_kristjani_poeg.md).
 - **Network:** [Hendrik Mikku poeg](../../people/lower_town/hendrik_mikku_poeg.md), gravedigger and bell-ringer: they know each other from the market; they greet by name and trade the day's prices, and she feels easier when he is near.
 - [Ann Antsu tütar](../../people/lower_town/ann_antsu_tutar.md), servant on Lai: Ann did her a small favour at the gate once; the memory differs, since Ursula thinks it was a loan of a pail and Ann thinks it was a warning.
 - **Others:** [Gottschalk van Deventer's household](../../ledger/lower_town/lai.md#hh-lt-osm-w200517009).

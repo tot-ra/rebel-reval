@@ -65,7 +65,6 @@ She earns nothing; she owns a pebble and a straw doll.
 ## Relationships
 - **Household:** [Tuomas Tuomasnpoika](../../people/viru_road/tuomas_tuomasnpoika.md), father, who rescues her from ridges; [Anna Juhontytär](../../people/viru_road/anna_juhontytar.md), mother; [Elina Tuomasntytär](../../people/viru_road/elina_tuomasntytar.md), 13, sister, who minds her.
 - **Network:** None planned.
-- **Others:** [Alit Peetri tütar](../../ledger/viru_road/viru_road.md#hh-vi-viru-23), greengrocer, owner of the ram.
 
 ## Faction and belief
 None. She sings to the roof for luck.

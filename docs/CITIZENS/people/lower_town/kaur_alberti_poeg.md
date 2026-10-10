@@ -60,7 +60,7 @@ Born in the first winter after the great grain failure, Kaur is the first child 
 He earns nothing but a crust and sometimes a half-pfennig from a host's cook. He owes his brother Paul a knucklebone.
 
 ## Relationships
-- **Household:** [Albert Villemi poeg](../../people/lower_town/albert_villemi_poeg.md), father; [Berta Toomase tütar](../../people/lower_town/berta_toomase_tutar.md), mother; [Paul Alberti poeg](../../people/lower_town/paul_alberti_poeg.md), brother, 6; Kadri Alberti tütar, sister, 3 ([ledger](../../ledger/lower_town/oleviste.md#hh-lt-osm-w200516986)); [Mikk Kristjani poeg](../../people/lower_town/mikk_kristjani_poeg.md), who lets him blow reeds; [Ursula Aino tütar](../../people/lower_town/ursula_aino_tutar.md), who cuffs him for counting aloud.
+- **Household:** [Albert Villemi poeg](../../people/lower_town/albert_villemi_poeg.md), father; [Margareta](../../people/lower_town/margareta.md), mother; [Paul Alberti poeg](../../people/lower_town/paul_alberti_poeg.md), brother, 6; Kadri Alberti tütar, sister, 3 ([ledger](../../ledger/lower_town/oleviste.md#hh-lt-osm-w200516986)); [Mikk Kristjani poeg](../../people/lower_town/mikk_kristjani_poeg.md), who lets him blow reeds; [Ursula Aino tütar](../../people/lower_town/ursula_aino_tutar.md), who cuffs him for counting aloud.
 - **Network:** None planned.
 - **Others:** The gander at [the ropemaker's on Pagari](../../ledger/lower_town/pagari.md#hh-lt-osm-w200516967).
 

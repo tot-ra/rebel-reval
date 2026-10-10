@@ -62,7 +62,7 @@ No wage. She twists cord for neighbours for a few pfennig and sells wool leftove
 ## Relationships
 - **Household:** [Paul Antsu poeg](../../people/lower_town/paul_antsu_poeg.md), son; [Wendla Jakobi tütar](../../people/lower_town/wendla_jakobi_tutar.md), daughter-in-law; [Kaspar Pauli poeg](../../people/lower_town/kaspar_pauli_poeg.md), grandson; [Kadri Pauli tütar](../../ledger/lower_town/katariina_kaik.md#hh-lt-osm-w26889124), granddaughter.
 - **Network:**
-  - [Anna Leho tütar](../../people/lower_town/anna_leho_tutar.md), retail trader: a distant kinship through marriage that neither can trace exactly; Veronika loudly insists on it every Sunday.
+  - [Kristiina Madise tütar](../../people/lower_town/kristiina_madise_tutar.md), retail trader: a distant kinship through marriage that neither can trace exactly; Veronika loudly insists on it every Sunday.
   - [Andres Laurentsi poeg](../../people/lower_town/andres_laurentsi_poeg.md), potter: the same distant kinship; they argue amiably about the route.
 - **Others:** [Albert Toomase poeg](../../ledger/lower_town/katariina_kaik.md#hh-lt-osm-w1271275787), carter.
 

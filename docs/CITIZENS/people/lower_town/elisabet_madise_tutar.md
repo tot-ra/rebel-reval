@@ -68,7 +68,7 @@ She earns a few pfennigs from fast-day loaves and the household feeds her. She g
   - [Tuulikki Lassentytär](../../people/lower_town/tuulikki_lassentytar.md), maid on Dunkri: they were at the same funeral and the same whisper, and know it; a cell of two, with a third unnamed.
   - [Mett Laurentsi tütar](../../people/lower_town/mett_laurentsi_tutar.md), spinner on Vene: Elisabet once did Mett a small favour at the gate; the memory is slightly different on each side.
   - [Ede Eerika tütar](../../people/lower_town/ede_eerika_tutar.md), servant on Vene: Ede suspects but cannot prove that Elisabet leans the same way; each watches the other for a sign.
-  - [Ulrika Olofsdotter](../../people/lower_town/ulrika_olofsdotter.md), maid on Munga: they survived the same bad winter in the same lane; hardship is a quiet bond.
+  - [Karin Folkesdotter](../../people/lower_town/karin_folkesdotter.md), maid on Munga: they survived the same bad winter in the same lane; hardship is a quiet bond.
 - **Others:** [Lambert Brune](../../ledger/lower_town/muurivahe.md#hh-lt-osm-w200690726), the belt-maker; [Ants Pauli poeg](../../ledger/lower_town/muurivahe.md#hh-lt-osm-w227530067), the old knife-smith, her age-mate.
 
 ## Faction and belief

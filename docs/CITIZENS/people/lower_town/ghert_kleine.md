@@ -61,7 +61,6 @@ He brews with malt and hops from the harbour and sells at about 2 pfennigs a sto
 
 ## Relationships
 - **Household:** [Geseke van Lemego](../../people/lower_town/geseke_van_lemego.md), wife, who keeps the spinning room; children [Ermgard Kleine](../../people/lower_town/ermgard_kleine.md) (20), [Ropert Kleine](../../people/lower_town/ropert_kleine.md) (16) and [Hebele Kleine](../../ledger/lower_town/dunkri.md#hh-lt-osm-w28129671) (7); aunt [Fenne Grote](../../people/lower_town/fenne_grote.md), who sits by the fire; maid [Magdalena Pauli tütar](../../people/lower_town/magdalena_pauli_tutar.md).
-- **Network:** [Ellen Overdyk](../../people/lower_town/ellen_overdyk.md), spinner on Raekoja: his hens keep getting into her yard, always settled with a jug of beer, and always happens again; he has stopped fencing them.
 - [Borchard van Groninghe](../../people/lower_town/borchard_van_groninghe.md), merchant: advanced him 3 marks' worth of grain on credit after the failed harvest; interest is unspoken and heavy, and Ghert hates every Sunday he sees him at church.
 - [Nicolaus van Luneborch](../../people/lower_town/nicolaus_van_luneborch.md), fishmonger on Vana turg: they split a cart-hire and a day's labour at the harbour each week and quarrel each week; Ghert counts the pfennigs aloud.
 - [Paul Tõlli poeg](../../people/lower_town/paul_tolli_poeg.md), merchant on Vene: Ghert lent him 5 marks in autumn 1342 for a roof; the bond falls due at Michaelmas and Paul has paid about half; Ghert asks nothing and notes everything.

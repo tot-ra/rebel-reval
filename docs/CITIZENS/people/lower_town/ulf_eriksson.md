@@ -65,7 +65,7 @@ Flour from the Harju mills, wood from Pikk carters, sales to cooks and shops, ab
 - **Network:**
   - [Siim Niklase poeg](../../people/harju_road/siim_niklase_poeg.md), miller on the Harju road: supplies Ulf and has twice held back stock to press an old point; Ulf has not forgotten, and pays on the nail now just to deny him a grievance.
   - [Lutke van Soest](../../people/lower_town/lutke_van_soest.md), 22, merchant's clerk on Pikk: they survived the same bad winter in the same lane; hardship is a quiet bond, and Ulf still slips him a loaf.
-  - [Peeter Tanieli poeg](../../people/lower_town/peeter_tanieli_poeg.md), 47, ropemaker on Olevimägi: sleeps badly and has twice seen Ulf leave by the back lane after curfew; he has told no one, and Ulf suspects it.
+  - [Peeter Hindreku poeg](../../people/lower_town/peeter_hindreku_poeg.md), 47, ropemaker on Olevimägi: sleeps badly and has twice seen Ulf leave by the back lane after curfew; he has told no one, and Ulf suspects it.
   - [Wendla Joosepi tütar](../../people/lower_town/wendla_joosepi_tutar.md), 58, spinner on Pühavaimu: Ulf once did her a small favour at the gate; each remembers it slightly differently.
   - [Ain Uku poeg](../../people/lower_town/ain_uku_poeg.md), 14, apprentice on Pühavaimu: a small favour at the gate, remembered differently; Ulf thinks the boy was hungry, Ain thinks he was only polite.
   - [Tõnis Siimu poeg](../../people/lower_town/tonis_siimu_poeg.md), 40, gatekeeper on Kooli: Ulf lent him 18 marks in the autumn of 1342 for a roof; the bond falls due at Michaelmas and about half is paid.

@@ -60,7 +60,7 @@ Born in 1323 in Visby, he worked a bench there and set out last autumn, on the c
 Board, bed and six schillings a month. He keeps four marks.
 
 ## Relationships
-- **Household:** [Gunnar Knutsson](../../people/lower_town/gunnar_knutsson.md), master. [Anna Persdotter](../../people/lower_town/anna_persdotter.md), mistress. [Ulrika Olofsdotter](../../people/lower_town/ulrika_olofsdotter.md), maid. [Erik Jönsson](../../people/lower_town/erik_jonsson.md), servant. [Folke Jönsson](../../people/lower_town/folke_jonsson.md), fellow journeyman. [Ingeborg Torgilsdotter](../../ledger/lower_town/munga.md#hh-lt-osm-w28187554), cook.
+- **Household:** [Gunnar Knutsson](../../people/lower_town/gunnar_knutsson.md), master. [Anna Persdotter](../../people/lower_town/anna_persdotter.md), mistress. [Karin Folkesdotter](../../people/lower_town/karin_folkesdotter.md), maid. [Erik Jönsson](../../people/lower_town/erik_jonsson.md), servant. [Folke Jönsson](../../people/lower_town/folke_jonsson.md), fellow journeyman. [Ingeborg Torgilsdotter](../../ledger/lower_town/munga.md#hh-lt-osm-w28187554), cook.
 - **Network:**
   - [Rotcher Sasse](../../people/lower_town/rotcher_sasse.md), friar on Katariina käik: Per once did him a small favour at the gate. Per remembers fetching a lost sandal; the friar remembers a blessing.
   - [Andres Laurentsi poeg](../../people/lower_town/andres_laurentsi_poeg.md), potter on Katariina käik: they survived the same bad winter in the same lane; hardship is a quiet bond.

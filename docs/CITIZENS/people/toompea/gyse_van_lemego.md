@@ -64,8 +64,6 @@ She spins about a pfund of wool a week and sells the thread for six schillings; 
 
 ## Relationships
 - **Household:** [Ricbod van Minden](../../people/toompea/ricbod_van_minden.md), husband, a clerk she respects and does not trust; [Arend van Minden](../../people/toompea/arend_van_minden.md), 20, stepson, whom she feeds and worries over; [Henn Laurentsi poeg](../../people/toompea/henn_laurentsi_poeg.md), 28, lodger, a quiet man who carries her flax.
-- **Network:** [Evert Rode](../../people/lower_town/evert_rode.md), retired craftsman on Raekoja: Evert is her superior in the circle, though neither would put it that way; they never speak in the same room as others. He sends a bundle of flax with a knot in it.
-- [Ermelin](../../people/lower_town/ermelin.md), maid on Raekoja: Ermelin suspects but cannot prove that Gyse leans the same way; each watches the other for a sign.
 - [Johan Kniphof](../../people/lower_town/johan_kniphof.md), apprentice on Rataskaevu: Gyse knows he shares their sympathies; they meet briefly after mass and say nothing that could be repeated. She thinks him a child.
 - [Elisabet Lunge](../../people/toompea/elisabet_lunge.md), spinner on Rutu: Elisabet suspects but cannot prove that Gyse leans the same way; each watches the other for a sign. They buy flax at the same stall.
 

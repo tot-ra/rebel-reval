@@ -61,7 +61,7 @@ He earns his board and about 1 mark a quarter from the supply trade; he has 9 sc
 
 ## Relationships
 - **Household:** [Ghert Kleine](../../people/lower_town/ghert_kleine.md), father; [Geseke van Lemego](../../people/lower_town/geseke_van_lemego.md), mother; sister [Ermgard Kleine](../../people/lower_town/ermgard_kleine.md); sister [Hebele Kleine](../../ledger/lower_town/dunkri.md#hh-lt-osm-w28129671), 7; great-aunt [Fenne Grote](../../people/lower_town/fenne_grote.md); maid [Magdalena Pauli tütar](../../people/lower_town/magdalena_pauli_tutar.md).
-- **Network:** [Berta Toomase tütar](../../people/lower_town/berta_toomase_tutar.md), dairy-woman at Oleviste: neither knows the other's allegiance, but each has noticed the other's silence at the right moments; he buys her cream and says nothing.
+- **Network:** [Margareta](../../people/lower_town/margareta.md), dairy-woman at Oleviste: neither knows the other's allegiance, but each has noticed the other's silence at the right moments; he buys her cream and says nothing.
 - [Richardis Swarte](../../people/lower_town/richardis_swarte.md), sailor on Vaimu: she is Ropert's superior in the circle, though neither would put it that way; they never speak in the same room as others, and she is the one who left the bundle.
 - [Beke van Lemego](../../people/lower_town/beke_van_lemego.md), retailer on Pikk: she is Ropert's superior in the circle, though neither would say so; they never speak in the same room as others.
 - [Nicolaus van Luneborch](../../people/lower_town/nicolaus_van_luneborch.md), fishmonger on Vana turg: Ropert regularly supplies him, usually on credit settled at quarter-days; the arrangement is the backbone of both households' week.

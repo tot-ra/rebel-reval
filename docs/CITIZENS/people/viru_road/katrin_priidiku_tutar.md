@@ -64,8 +64,6 @@ She earns about nine schilling a month, spun to the pfund. She buys flax and woo
 - **Household:** [Antti Anttanpoika](../../people/viru_road/antti_anttanpoika.md), husband and smith; [Eskil Anttanpoika](../../people/viru_road/eskil_anttanpoika.md), 18, son; [Ilona Anttantytär](../../people/viru_road/ilona_anttantytar.md), 13, daughter; [Lars Folkesson](../../people/viru_road/lars_folkesson.md), lodger porter who pays his rent on time.
 - **Network:**
   - [Eeva Priidiku tütar](../../people/viru_road/eeva_priidiku_tutar.md), hawker: they met at the church door in Easter week and fell into walking home together. Katrin likes the company, and suspects they share a distant Priidik kin.
-  - [Folke Knutsson](../../people/viru_road/folke_knutsson.md), ostler: he sells her horsehair and twine at a fair price, and she tells others to buy from him. She thinks he is too young to be so tired.
-- **Others:** [Peter Karrenman](../../ledger/viru_road/viru_road.md#hh-vi-viru-27), executioner next door, to whom she is polite.
 
 ## Faction and belief
 No faction. A spinner with a smith husband and two children cannot afford a quarrel. A small favour she grants, a large one she refuses, informing she cannot imagine. She keeps a bit of wool on the hearth for the house spirit and prays to St Olaf.

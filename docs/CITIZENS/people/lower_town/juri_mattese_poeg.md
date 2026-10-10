@@ -67,7 +67,7 @@ He earns 8 pfennigs a week from spoons. The house gives bed and bread. A bad mon
   - [Veronika Korneli tütar](veronika_korneli_tutar.md), spinner on Pikk: they likewise met at the church door the week of Easter and walk home together; he teases her about her speed.
   - [Eylard van Groninghe](eylard_van_groninghe.md), merchant's clerk on Pikk: Jüri sells him small things at a fair price, and Eylard tells others to buy from Jüri.
   - [Lutke van Brunswik](lutke_van_brunswik.md), merchant on Saiakang: a boundary stake between their yards was moved by Lutke's late father; Jüri's household has noticed and says nothing yet.
-- **Others:** [Jüri Uku poeg](../../ledger/lower_town/puhavaimu.md#hh-lt-osm-w26875416), dock porter; [Claus van Wesele](../../ledger/lower_town/saiakang.md#hh-lt-osm-w28131875), scribe.
+- **Others:** [Claus van Wesele](../../ledger/lower_town/saiakang.md#hh-lt-osm-w28131875), scribe.
 
 ## Faction and belief
 None; he is old and dependent. For a small favour he would carve a whistle; for a large one he would refuse; he would not inform. He prays in Estonian and leaves a crust under the hearth for the house-spirit.

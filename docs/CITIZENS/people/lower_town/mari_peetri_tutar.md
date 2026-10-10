@@ -60,7 +60,7 @@ Born in the spring of 1337 in the room above the rope-walk, she was the first ch
 She earns nothing and is worth a great deal: a six-year-old who holds a cord straight saves a hired boy's penny. Her pay is the end of a honey cake at Easter and the right to keep the tar-stained spool her grandfather carves. In a bad month the porridge thins and she is told to eat slowly.
 
 ## Relationships
-- **Household:** [Peeter Tanieli poeg](../../people/lower_town/peeter_tanieli_poeg.md), father, whose rope she holds; [Eeva Marteni tütar](../../people/lower_town/eeva_marteni_tutar.md), mother; [Ain Peetri poeg](../../ledger/lower_town/olevimagi.md#hh-lt-osm-w200675324), brother; [Veronika Peetri tütar](../../ledger/lower_town/olevimagi.md#hh-lt-osm-w200675324), baby sister; [Taniel Eerika poeg](../../people/lower_town/taniel_eerika_poeg.md), grandfather; [Jüri Korneli poeg](../../people/lower_town/juri_korneli_poeg.md), apprentice who gives her scraps.
+- **Household:** [Peeter Hindreku poeg](../../people/lower_town/peeter_hindreku_poeg.md), father, whose rope she holds; [Eeva Marteni tütar](../../people/lower_town/eeva_marteni_tutar.md), mother; [Ain Peetri poeg](../../ledger/lower_town/olevimagi.md#hh-lt-osm-w200675324), brother; [Veronika Peetri tütar](../../ledger/lower_town/olevimagi.md#hh-lt-osm-w200675324), baby sister; [Hindrek Andrese poeg](../../people/lower_town/hindrek_andrese_poeg.md), grandfather; [Jüri Korneli poeg](../../people/lower_town/juri_korneli_poeg.md), apprentice who gives her scraps.
 - **Network:** None planned; her world is the yard and the lane. A neighbour's child, a goat and the baker's dog are all she meets outside the family.
 
 ## Faction and belief

@@ -65,7 +65,7 @@ She makes a mark and a half a month at best. She buys from merchants by the gros
 - **Network:** [Geseke Lippe](../../people/lower_town/geseke_lippe.md), Krämer of Dunkri: they belong to the same Amt fraternity and stand together at the feast masses, though they dislike each other's methods.
 - [Kunigunde](../../people/lower_town/kunigunde.md), Krämer of Müürivahe: they share one rare tool, a set of stamped weights lent back and forth, and each keeps a mental ledger of how long the other has held it.
 - [Sigrid Eriksdotter](../../people/lower_town/sigrid_eriksdotter.md), maid of Meistrite hoov: Gesa sells her small things at a fair price, and Sigrid tells others to buy from her.
-- [Anna Leho tütar](../../people/lower_town/anna_leho_tutar.md), Krämer of Katariina käik: they compete for the same customers; each privately counts the other's apprentices and lamp-oil.
+- [Kristiina Madise tütar](../../people/lower_town/kristiina_madise_tutar.md), Krämer of Katariina käik: they compete for the same customers; each privately counts the other's apprentices and lamp-oil.
 - [Liis Mattese tütar](../../people/lower_town/liis_mattese_tutar.md), dairy-woman of Vene: they survived the same bad winter in the same lane; hardship is a quiet bond.
 - [Evert Eerika poeg](../../people/lower_town/evert_eerika_poeg.md), servant of Viru: he once did Gesa a small favour at the gate; the memory is slightly different on each side.
 - **Others:** The tallow-boiler Villem Siimu poeg ([ledger](../../ledger/lower_town/meistrite_hoov.md#hh-lt-osm-w26885896)) sells her lamp-oil.

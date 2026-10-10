@@ -65,7 +65,7 @@ He buys pelts from Novgorod caravans and sells to German furriers; about three h
 - **Household:** The court's fellows: [Prokhor Mikulich](../../people/lower_town/prokhor_mikulich.md), [Timofei Timofeyevich](../../people/lower_town/timofei_timofeyevich.md), [Timofei Stepanovich](../../people/lower_town/timofei_stepanovich.md), [Dmitri Stepanovich](../../people/lower_town/dmitri_stepanovich.md); and in the [ledger](../../ledger/lower_town/vene.md#hh-inst-novgorod-court) Prokhor Prokhorovich, Prokhor Yakovlevich, Lavrenty Lavrentyevich, Timofei Yakovlevich, Yakov Timofeyevich, Ivan Lavrentyevich, Prokhor Ivanovich, Ivan Stepanovich, Grigori Lavrentyevich, Gavril Ontsiforovich, Semyon Dmitrievich and Ontsifor Prokhorovich.
 - **Network:**
   - [Mikula Stepanovich](../../people/lower_town/mikula_stepanovich.md), dyer on Sauna: neither knows the other's allegiance, but each has noticed the other's silence at the right moments.
-  - [Ulrika Olofsdotter](../../people/lower_town/ulrika_olofsdotter.md), maid on Munga: she sells him small things at a fair price, and he tells others to buy from her.
+  - [Karin Folkesdotter](../../people/lower_town/karin_folkesdotter.md), maid on Munga: she sells him small things at a fair price, and he tells others to buy from her.
 - **Others:** [Marten Uku poeg](../../ledger/lower_town/vene.md#hh-lt-osm-w200675291), grocer, sells him oil.
 
 ## Faction and belief

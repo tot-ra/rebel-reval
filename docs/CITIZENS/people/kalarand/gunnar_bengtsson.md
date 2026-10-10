@@ -65,7 +65,7 @@ A run pays two örtug; about five marks a year; the tar shelf adds two. Lodgers'
   - [Andres Lauri poeg](../../people/kalarand/andres_lauri_poeg.md), day labourer: Gunnar sells him small things at a fair price, and Andres tells others to buy from Gunnar. Gunnar quietly rounds down for him.
   - [Villem Olevi poeg](../../people/kalarand/villem_olevi_poeg.md), day labourer: Villem once did him a small favour at the gate; the memory is slightly different on each side. Gunnar thinks it was a barrel.
   - [Ede](../../people/kalarand/ede.md), lighter-man: she suspects him of undercutting the going price using stolen or smuggled stock; no proof. He shrugs and says tar is tar.
-- **Others:** [Torgils Knutsson](../../ledger/kalarand/western_coast_road.md#hh-kr-kalarand-21) and [Dorothea](../../ledger/kalarand/western_coast_road.md#hh-kr-kalarand-26), lighter-woman, are nearby.
+- **Others:** [Torgils Knutsson](../../ledger/kalarand/western_coast_road.md#hh-kr-kalarand-21) is nearby.
 
 ## Faction and belief
 No faction. A foreigner stays quiet. A small favour yes, a large one no, informing no. He wears a Swedish saint's medal.

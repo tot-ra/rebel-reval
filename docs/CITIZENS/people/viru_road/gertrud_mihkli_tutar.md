@@ -62,7 +62,6 @@ She earns about two schilling a quarter and food at midday. The wage goes to Eev
 ## Relationships
 - **Household:** [Mihkel Jüri poeg](../../people/viru_road/mihkel_juri_poeg.md), her father; [Eeva Priidiku tütar](../../people/viru_road/eeva_priidiku_tutar.md), her mother; [Hele](../../people/viru_road/hele_mihkli_tutar.md), the sister she shares a bed with; [Judit, 6](../../ledger/viru_road/viru_road.md#hh-vi-viru-14) and [Ann, 3](../../ledger/viru_road/viru_road.md#hh-vi-viru-14), whom she feeds when she can.
 - **Network:** None planned.
-- **Others:** [Pekka Lauranpoika](../../ledger/viru_road/viru_road.md#hh-vi-viru-24), tanner, her employer.
 
 ## Faction and belief
 No faction. She is too small and too busy to think about it, and her wages depend on a German-trained tanner. A small favour she does without a word; a large one she cannot see. She believes in the saints for sickness and in the hearth-spirit for luck.

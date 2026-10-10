@@ -60,7 +60,7 @@ Born in 1320 to a Swedish ship's cook, Erik was raised in the Harbour quarter. A
 A mark a year and shoes. He has two schillings and a debt to the cook.
 
 ## Relationships
-- **Household:** [Gunnar Knutsson](../../people/lower_town/gunnar_knutsson.md), master. [Anna Persdotter](../../people/lower_town/anna_persdotter.md), mistress. [Ulrika Olofsdotter](../../people/lower_town/ulrika_olofsdotter.md), maid. [Per Magnusson](../../people/lower_town/per_magnusson.md) and [Folke Jönsson](../../people/lower_town/folke_jonsson.md), journeymen; no kin to Folke despite the name. [Ingeborg Torgilsdotter](../../ledger/lower_town/munga.md#hh-lt-osm-w28187554), cook.
+- **Household:** [Gunnar Knutsson](../../people/lower_town/gunnar_knutsson.md), master. [Anna Persdotter](../../people/lower_town/anna_persdotter.md), mistress. [Karin Folkesdotter](../../people/lower_town/karin_folkesdotter.md), maid. [Per Magnusson](../../people/lower_town/per_magnusson.md) and [Folke Jönsson](../../people/lower_town/folke_jonsson.md), journeymen; no kin to Folke despite the name. [Ingeborg Torgilsdotter](../../ledger/lower_town/munga.md#hh-lt-osm-w28187554), cook.
 - **Network:**
   - [Tilman van Lubeke](../../people/lower_town/tilman_van_lubeke.md), merchant on Pikk: Erik knows Tilman shares their sympathies; they meet briefly after mass and say nothing that could be repeated.
   - [Mett Laurentsi tütar](../../people/lower_town/mett_laurentsi_tutar.md), spinner on Vene: they survived the same bad winter in the same lane; hardship is a quiet bond.

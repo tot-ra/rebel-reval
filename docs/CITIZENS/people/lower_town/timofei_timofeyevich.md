@@ -67,7 +67,6 @@ He sells flax and hemp to rope-makers and brings back salt. About two hundred ma
   - [Irina Ontsiforovna](../../people/lower_town/irina_ontsiforovna.md), servant on Pikk: neither knows the other's allegiance, but each has noticed the other's silence at the right moments.
   - [Olena Timofeyevna](../../people/lower_town/olena_timofeyevna.md), spinner on Tolli: she suspects but cannot prove that Timofei leans the same way; each watches the other for a sign. No kin, despite the patronymic.
   - [Agafya Stepanovna](../../people/lower_town/agafya_stepanovna.md), servant on Apteegi: she suspects but cannot prove that Timofei leans the same way; each watches the other for a sign.
-  - [Yakov Fedorovich](../../people/viru_road/yakov_fedorovich.md), sailor on Viru road: he recruited Timofei a year ago with a small kindness; Timofei resents being treated as a debtor.
 - **Others:** [Dmitri Gavrilovich](../../ledger/lower_town/vene.md#hh-lt-osm-w200675312), day labourer, carries his bales.
 
 ## Faction and belief

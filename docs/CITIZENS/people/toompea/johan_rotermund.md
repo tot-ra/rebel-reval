@@ -65,7 +65,6 @@ His fief yields about 20 marks a year; he spends 25. His wife's spinning and the
 ## Relationships
 - **Household:** [Fenne Gude](../../people/toompea/fenne_gude.md), wife, spinner; [Marquard Rotermund](../../people/toompea/marquard_rotermund.md), 21, elder son, who serves the crown; [Hartwig Rotermund](../../people/toompea/hartwig_rotermund.md), 19, younger.
 - **Network:**
-  - [Ermelin](../../people/lower_town/ermelin.md), maid on Raekoja: they were at the same funeral and the same whisper, and know it; a cell of two, with a third unnamed. He has never spoken to her.
   - [Tõll Mihkli poeg](../../people/toompea/toll_mihkli_poeg.md), day labourer on Kohtu: they survived the same bad winter in the same lane; hardship is a quiet bond. Johan sends him bread.
   - [Hildebrand van Hildensem](../../people/toompea/hildebrand_van_hildensem.md), market gardener on Kohtu: keeps an eye on the house when Johan is away, and is repaid in fish, bread or small repairs.
   - [Elisabet Lunge](../../people/toompea/elisabet_lunge.md), spinner on Rutu: he knows she shares their sympathies; they meet briefly after mass and say nothing repeatable.

@@ -65,7 +65,6 @@ She earns nothing; a loaf or two from grateful mothers goes to the house. She ow
 ## Relationships
 - **Household:** [Tuomas Tuomasnpoika](../../people/viru_road/tuomas_tuomasnpoika.md), father; [Anna Juhontytär](../../people/viru_road/anna_juhontytar.md), mother; [Sanna Tuomasntytär](../../people/viru_road/sanna_tuomasntytar.md), 6, sister, whom she minds.
 - **Network:** None planned.
-- **Others:** [Alit Peetri tütar](../../ledger/viru_road/viru_road.md#hh-vi-viru-23), greengrocer, who gives her a turnip.
 
 ## Faction and belief
 None. She says her prayers to St Olaf, and to the sea.

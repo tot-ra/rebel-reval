@@ -65,7 +65,6 @@ Board and a gown; a mark a year. Silver from the circle arrives in loaves.
   - [Prokhor Mikulich](../../people/lower_town/prokhor_mikulich.md), Novgorod merchant: they were at the same funeral and the same whisper and know it; a cell of two, with a third unnamed.
   - [Timofei Timofeyevich](../../people/lower_town/timofei_timofeyevich.md), Novgorod merchant: she suspects but cannot prove that he leans the same way; each watches the other for a sign.
   - [Irina Ontsiforovna](../../people/lower_town/irina_ontsiforovna.md), household servant: the same suspicion, the same watching.
-  - [Yakov Fedorovich](../../people/viru_road/yakov_fedorovich.md), sailor: she is his superior in the circle, though neither would put it that way; they never speak in the same room as others.
 - **Others:** [Elsa Aino tütar](../../ledger/lower_town/apteegi.md#hh-lt-osm-w28104254), the brewer next door.
 
 ## Faction and belief

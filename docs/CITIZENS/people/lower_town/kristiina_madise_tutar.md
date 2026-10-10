@@ -1,10 +1,10 @@
-# Anna Leho tütar
+# Kristiina Madise tütar
 
 > The barber-surgeon's wife who keeps a door-front shop of needles, salt and onions, with a voice that carries two lanes and a squint nobody mentions.
 
 | Field | Value |
 |---|---|
-| ID | `char.anna_leho_tutar` |
+| ID | `char.kristiina_madise_tutar` |
 | Census ID | `cit.lt.osm_w26885934.02` |
 | Confidence | `plausible composite` |
 | Tier | Citizen card (ambient, authored; not promoted into `docs/CHARACTERS/`) |
@@ -35,7 +35,7 @@
 - **Model notes:** MPFB macros: female, age_years 26, muscle 0.5, weight 0.55, proportions broad, height_m 1.60; skin tone fair-flushed; eyes blue; straw blond braids; crowd tier 2.
 
 ## Biography
-Born 1317 in Reval to a tallow-boiler, Leho, on Müürivahe; at nine she tipped a pot of boiling fat over her right hand and still has the glossy scar. She was sent to sell candle ends at fourteen. In 1335 she married Jüri, then a young barber, and has run the door-front shop since 1337. She has two children and a third who did not live.
+Born 1317 in Reval to a tallow-boiler, Madise, on Müürivahe; at nine she tipped a pot of boiling fat over her right hand and still has the glossy scar. She was sent to sell candle ends at fourteen. In 1335 she married Jüri, then a young barber, and has run the door-front shop since 1337. She has two children and a third who did not live.
 
 She is the brisker of the two; Jüri brings home the money and she makes it go further.
 
@@ -63,9 +63,9 @@ She buys small goods in bulk at the harbour and sells at a pfennig or two profit
 
 ## Relationships
 - **Household:** [Jüri Tanieli poeg](../../people/lower_town/juri_tanieli_poeg.md), husband, barber-surgeon; [Laurents Jüri poeg](../../people/lower_town/laurents_juri_poeg.md), five; and Veronika Jüri tütar, three, in the [household ledger](../../ledger/lower_town/katariina_kaik.md#hh-lt-osm-w26885934).
-- **Network:** [Gesa Gerdti tütar](../../people/lower_town/gesa_gerdti_tutar.md), retail trader on Meistrite hoov: they compete for the same customers, each privately counting the other's apprentices and lamp-oil. Gesa is seventy and has been selling since before Anna was born; Anna watches her shop with respect and annoyance.
+- **Network:** [Gesa Gerdti tütar](../../people/lower_town/gesa_gerdti_tutar.md), retail trader on Meistrite hoov: they compete for the same customers, each privately counting the other's apprentices and lamp-oil. Gesa is seventy and has been selling since before Kristiina was born; Kristiina watches her shop with respect and annoyance.
 - [Veronika Pauli tütar](../../people/lower_town/veronika_pauli_tutar.md), retired craftsman on Katariina käik: a distant kinship through marriage that neither can trace exactly. They call each other aunt and niece, and neither can say through whom.
-- [Lutgard van Soest](../../people/lower_town/lutgard_van_soest.md), merchant's wife: they met at the church door the week of Easter and fell into the habit of walking home together. Lutgard talks and Anna listens; they are an odd pair and both like it.
+- [Lutgard van Soest](../../people/lower_town/lutgard_van_soest.md), merchant's wife: they met at the church door the week of Easter and fell into the habit of walking home together. Lutgard talks and Kristiina listens; they are an odd pair and both like it.
 - [Elisabet Jaani tütar](../../people/lower_town/elisabet_jaani_tutar.md), spinner: they survived the same bad winter in the same lane; hardship is a quiet bond. They shared a pot of peas in February and speak of it with a nod.
 - **Others:** [Andres Laurentsi poeg](../../people/lower_town/andres_laurentsi_poeg.md) the potter buys salt from her door; his chimney she reckons the family's curse.
 

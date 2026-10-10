@@ -1,10 +1,10 @@
-# Berta Toomase tütar
+# Margareta
 
 > The dairy-woman of Oleviste lane, who sells butter to half the Lai kitchens and carries other people's whispers the way she carries milk: slowly, and without spilling.
 
 | Field | Value |
 |---|---|
-| ID | `char.berta_toomase_tutar` |
+| ID | `char.margareta` |
 | Census ID | `cit.lt.osm_w200516986.02` |
 | Confidence | `plausible composite` |
 | Tier | Citizen card (ambient, authored; not promoted into `docs/CHARACTERS/`) |
@@ -36,7 +36,7 @@
 - **Model notes:** MPFB: female, age_years 37, muscle 0.4, weight 0.5, proportions average, height_m 1.60; rosy fair skin; grey-blue eyes; ash blond hair covered by coif; crowd tier 1.
 
 ## Biography
-Born about 1306 on a Harju farm near the Pirita, the daughter of Toomas, a cowherd. Her family were free but poor; at twelve she was sent to town to a dairy-woman on Lai, learning to churn and salt in the cold cellar behind the Dominican friary. She lost her back teeth one by one, the first to a toothache in the sour spring of 1329, and the rest to the hunger years. She married Albert the piper in 1333, and since then her own trade has been the steady wage of the house. Her mother died in the hunger of 1339, and Berta has never since wasted a drop of milk. She sells now from three cows' worth of cream bought from Harju women.
+Born about 1306 on a Harju farm near the Pirita, the daughter of Toomas, a cowherd. Her family were free but poor; at twelve she was sent to town to a dairy-woman on Lai, learning to churn and salt in the cold cellar behind the Dominican friary. She lost her back teeth one by one, the first to a toothache in the sour spring of 1329, and the rest to the hunger years. She married Albert the piper in 1333, and since then her own trade has been the steady wage of the house. Her mother died in the hunger of 1339, and Margareta has never since wasted a drop of milk. She sells now from three cows' worth of cream bought from Harju women.
 
 ## Motivation
 - **Want:** A firm stall of her own at the Lai market, and a good indenture for Kaur.

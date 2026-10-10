@@ -19,7 +19,6 @@ The shared root is **fear of disorder and of owing**. The Danish crown is indebt
 - **Kinship and loyalty to a lord:** [Johan Rotermund](../people/toompea/johan_rotermund.md), 67, a vassal knight on Toom-Rüütli, lives by the Order's old law of service and holds land by it. He is the nearest thing to a household lord in the census.
 - **Habit and gossip:** [Elisabet Lunge](../people/toompea/elisabet_lunge.md), a Danish-born spinner on Rutu, is the go-between who found Sibbe the work, and carries wool news up and down the hill. [Gyse van Lemego](../people/toompea/gyse_van_lemego.md), 63, a spinner on Rahukohtu, passes what she hears across the market.
 - **Livelihood:** [Hildebrand van Hildensem](../people/toompea/hildebrand_van_hildensem.md), a market gardener on Kohtu, sells to the hill and counts the Order's silver as steadier than the crown's.
-- **Old loyalty:** [Evert Rode](../people/lower_town/evert_rode.md), 72, a retired craftsman on Raekoja, remembers the wars and trusts men who keep their word to the day. In his household [Ermelin](../people/lower_town/ermelin.md), a maid of 29, sympathises because her master does, and is quieter about it than he is.
 
 ## Who belongs
 

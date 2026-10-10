@@ -61,7 +61,6 @@ Segebode pays him five marks a year, board and a tunic. Kersten spends nothing a
 
 ## Relationships
 - **Household:** [Segebode Corte](segebode_corte.md), master; [Gyse van Hildensem](gyse_van_hildensem.md), mistress; [Rembert van Brunswik](rembert_van_brunswik.md) and [Conrad van Stralesund](conrad_van_stralesund.md), fellow clerks; [Peter van Bremen](peter_van_bremen.md), apprentice; others in [the ledger](../../ledger/lower_town/harju.md#hh-lt-osm-w28132814).
-- **Network:** [Detlev Starke](detlev_starke.md), sailor at the Coastal Gate quay: Kersten is his superior in the circle, though neither would say so; they never speak in the same room as others. [Geseke Lippe](geseke_lippe.md), retail trader on Dunkri: suspects Kersten leans the same way, and each watches the other for a sign. [Taleke van Revele Westfal](taleke_van_revele_westfal.md), washerwoman on Suur-Karja: he is her superior in the circle and they never speak openly. [Ingeborg Gunnarsdotter](ingeborg_gunnarsdotter.md), alewife on Kuninga: he once did her a small favour at the gate, and the memory differs on each side. [Gyla Fromme](../viru_road/gyla_fromme.md), retail trader on the Viru road: he is her superior in the circle and they never speak in the same room as others.
 - **Others:** [Tyde Langhe](../../ledger/lower_town/kuninga.md#hh-lt-osm-w201040624), the retail trader of Kuninga, buys his quills.
 
 ## Faction and belief

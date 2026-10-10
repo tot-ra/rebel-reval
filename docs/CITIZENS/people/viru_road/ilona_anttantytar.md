@@ -63,7 +63,6 @@ She earns nothing but board. She owns a pocket of nails and a kerchief. A bad mo
 ## Relationships
 - **Household:** [Antti Anttanpoika](../../people/viru_road/antti_anttanpoika.md), father; [Katrin Priidiku tütar](../../people/viru_road/katrin_priidiku_tutar.md), mother; [Eskil Anttanpoika](../../people/viru_road/eskil_anttanpoika.md), brother; [Lars Folkesson](../../people/viru_road/lars_folkesson.md), the lodger who jokes with her.
 - **Network:** None planned.
-- **Others:** [Peter Karrenman's household](../../ledger/viru_road/viru_road.md#hh-vi-viru-27) next door, whose children she is told not to play with.
 
 ## Faction and belief
 No faction; she is a child. She believes in St Olaf and in the fire's mood.

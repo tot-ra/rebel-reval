@@ -1,10 +1,10 @@
-# Taniel Eerika poeg
+# Hindrek Andrese poeg
 
 > The gap-toothed old ropemaker who laid cable for the Danish ships in the war years, and now sits at the end of the rope-walk telling the children what he remembers of it.
 
 | Field | Value |
 |---|---|
-| ID | `char.taniel_eerika_poeg` |
+| ID | `char.hindrek_andrese_poeg` |
 | Census ID | `cit.lt.osm_w200675324.06` |
 | Confidence | `plausible composite` |
 | Tier | Citizen card (ambient, authored; not promoted into `docs/CHARACTERS/`) |
@@ -62,7 +62,7 @@ He gave the rope-walk to Peeter in 1335 and now supervises, sleeps late, and tel
 He draws no wage; his son keeps him in bread, beer and a place by the fire in return for judging every cable by touch and tooth. He holds one small savings, 4 marks sewn into his belt for his burial, and he refuses to lend it. A bad month for the house is a month in which he coughs and cannot test the cable.
 
 ## Relationships
-- **Household:** [Peeter Tanieli poeg](../../people/lower_town/peeter_tanieli_poeg.md), his son; [Eeva Marteni tütar](../../people/lower_town/eeva_marteni_tutar.md), his son's wife; [Mari Peetri tütar](../../people/lower_town/mari_peetri_tutar.md), his granddaughter; [Ain Peetri poeg](../../ledger/lower_town/olevimagi.md#hh-lt-osm-w200675324); [Veronika Peetri tütar](../../ledger/lower_town/olevimagi.md#hh-lt-osm-w200675324); [Jüri Korneli poeg](../../people/lower_town/juri_korneli_poeg.md), apprentice.
+- **Household:** [Peeter Hindreku poeg](../../people/lower_town/peeter_hindreku_poeg.md), his son; [Eeva Marteni tütar](../../people/lower_town/eeva_marteni_tutar.md), his son's wife; [Mari Peetri tütar](../../people/lower_town/mari_peetri_tutar.md), his granddaughter; [Ain Peetri poeg](../../ledger/lower_town/olevimagi.md#hh-lt-osm-w200675324); [Veronika Peetri tütar](../../ledger/lower_town/olevimagi.md#hh-lt-osm-w200675324); [Jüri Korneli poeg](../../people/lower_town/juri_korneli_poeg.md), apprentice.
 - **Others:** [Otto Snelle](../../ledger/lower_town/olevimagi.md#hh-lt-osm-r3502095), baker, who sends him a heel of bread.
 - **Network:** [Ragnhild Nilsdotter](../../people/lower_town/ragnhild_nilsdotter.md), maid on Pikk: once did him a small favour at the gate; he remembers a held door, she a carried basket.
 - [Mari Kaspari tütar](../../people/lower_town/mari_kaspari_tutar.md), maid on Pühavaimu: they met at the church door the week of Easter and fell into the habit of walking home together.

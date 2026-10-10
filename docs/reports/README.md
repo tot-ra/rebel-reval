@@ -146,6 +146,7 @@ Start with:
 - [P6-007 full-campaign authorial gate](p6_007_campaign_gate.md)
 - [Padise Monastery Research for P6-009](padise_monastery_research_p6_009.md)
 - [Pirita in 1343 - research and map translation](pirita_1343_research.md)
+- [Procedural motion report](procedural_motion_report.md)
 - [QA daily smoke 2026-10-10](qa_smoke_2026-10-10.md)
 - [R-1021 second-reviewer sign-off of R-1003 shore-relative water recess](r1021_r1003_water_recess_review.md)
 - [R-1029 second-reviewer sign-off of R-1010 WB-07d worker-thread material bakes](r1029_r1010_cold_materials_review.md)

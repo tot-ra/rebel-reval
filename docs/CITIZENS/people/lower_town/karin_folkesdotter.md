@@ -1,10 +1,10 @@
-# Ulrika Olofsdotter
+# Karin Folkesdotter
 
 > The left-handed maid of Munga who sells leather ends to a Novgorod merchant and has a voice that reaches the far end of the street.
 
 | Field | Value |
 |---|---|
-| ID | `char.ulrika_olofsdotter` |
+| ID | `char.karin_folkesdotter` |
 | Census ID | `cit.lt.osm_w28187554.03` |
 | Confidence | `plausible composite` |
 | Tier | Citizen card (ambient, authored; not promoted into `docs/CHARACTERS/`) |

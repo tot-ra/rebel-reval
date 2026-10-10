@@ -64,7 +64,6 @@ He receives food, a bed and 1.5 marks a year. He keeps a pfennig in the manger. 
 - **Network:**
   - [Mikk Toomase poeg](../../people/lower_town/mikk_toomase_poeg.md), alewife on Sauna: they met at the church door the week of Easter and fell into the habit of walking home together; Simon finds the fourteen-year-old restful company.
   - [Joosep Mihkli poeg](../../people/lower_town/joosep_mihkli_poeg.md), ostler on Müürivahe: they share one rare tool, a curved hoof-knife, lent back and forth; each keeps a mental ledger of how long the other has held it.
-  - [Folke Knutsson](../../people/viru_road/folke_knutsson.md), ostler on Viru road: they compete for the same customers; each privately counts the other's apprentices and lamp-oil.
 - **Others:** [Halvard Andersson](../../ledger/lower_town/muurivahe.md#hh-lt-osm-w200645036), the boat-builder, hires the mare for timber.
 
 ## Faction and belief

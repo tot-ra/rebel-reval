@@ -62,7 +62,7 @@ Butter sells at two pfennigs a pound. A cheese ring brings eight.
 
 ## Relationships
 - **Household:** [Tideman Schomaker](../../people/lower_town/tideman_schomaker.md), husband; [Helga Torgilsdotter](../../ledger/lower_town/nunne.md#hh-lt-osm-w26901158); [Marga Mikku tütar](../../people/lower_town/marga_mikku_tutar.md); [Ragnvald Nilsson](../../people/lower_town/ragnvald_nilsson.md); [Gunhild Andersdotter](../../people/lower_town/gunhild_andersdotter.md); [Gertrud Pauli tütar](../../ledger/lower_town/nunne.md#hh-lt-osm-w26901158); [Henn Henni poeg](../../people/lower_town/henn_henni_poeg.md); [Ann Niklase tütar](../../ledger/lower_town/nunne.md#hh-lt-osm-w26901158); [Marketta Anttantytär](../../ledger/lower_town/nunne.md#hh-lt-osm-w26901158).
-- **Network:** [Berta Toomase tütar](../../people/lower_town/berta_toomase_tutar.md), dairy-woman on Oleviste: they once split a bulk delivery of raw material (salt) to beat the price; it lapsed after a quarrel over weights.
+- **Network:** [Margareta](../../people/lower_town/margareta.md), dairy-woman on Oleviste: they once split a bulk delivery of raw material (salt) to beat the price; it lapsed after a quarrel over weights.
 - [Ermelin van Hervorde](../../people/lower_town/ermelin_van_hervorde.md), maid on Lai: they survived the same bad winter in the same lane; hardship is a quiet bond, and Bela sends her whey.
 - [Elisabet Kauri tütar](../../people/lower_town/elisabet_kauri_tutar.md), maid on Lai: a distant kinship through marriage that neither can trace exactly.
 - [Marten Kaspari poeg](../../people/lower_town/marten_kaspari_poeg.md), clerk on Nunne: Bela once did him a small favour at the gate; the memory is slightly different on each side.

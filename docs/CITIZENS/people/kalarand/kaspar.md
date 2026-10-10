@@ -69,7 +69,7 @@ A pilotage fee is two or three örtug a keel, paid in silver by weight; about fi
   - [Elisabet Madise tütar](../../people/lower_town/elisabet_madise_tutar.md), retired craftsman: they stood at the same funeral and heard the same whisper, and know it; a cell of two, with a third unnamed.
   - [Kornel Antsu poeg](../../people/lower_town/kornel_antsu_poeg.md), household servant: recruited him a year ago with a small kindness; Kaspar resents being treated as a debtor.
   - [Ede Eerika tütar](../../people/lower_town/ede_eerika_tutar.md), servant on Vene: she suspects but cannot prove he leans the same way; each watches the other for a sign.
-- **Others:** [Hindrek Peetri poeg](../../ledger/kalarand/western_coast_road.md#hh-kr-kalarand-20) and [Mikk Reinu poeg](../../ledger/kalarand/western_coast_road.md#hh-kr-kalarand-11), boat-builder, are on his beach.
+- **Others:** [Hindrek Peetri poeg](../../ledger/kalarand/western_coast_road.md#hh-kr-kalarand-20) is on his beach.
 
 ## Faction and belief
 Informer for the Harju Kings, never a fighter. His root is the manor and the flogging, and he acts from fear of being sent back, not love of kings. A small favour he grants; a large one he refuses; informing is already what he does. He keeps a pinch of grave-earth in his boat.

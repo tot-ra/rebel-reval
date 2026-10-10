@@ -63,7 +63,7 @@ A skiff brings three marks. He buys oak ribs from carpenters and rope from Peete
 - **Household:** [Mikko Sakaranpoika](../../people/lower_town/mikko_sakaranpoika.md), washerman lodger; [Sibbe van Campen](../../people/lower_town/sibbe_van_campen.md), day-labourer lodger.
 - **Network:**
   - [Wolter Snelle](../../people/lower_town/wolter_snelle.md), fishmonger: they share a party wall and Wolter's chimney smokes into Johannes's loft, a grievance two winters old that neither has taken to the Vogt.
-  - [Peeter Tanieli poeg](../../people/lower_town/peeter_tanieli_poeg.md), ropemaker: they trade favours in kind and the books are never even.
+  - [Peeter Hindreku poeg](../../people/lower_town/peeter_hindreku_poeg.md), ropemaker: they trade favours in kind and the books are never even.
   - [Ain Aino poeg](../../people/lower_town/ain_aino_poeg.md), porter: they draw from one back-yard well on an unwritten rota that both resent and both keep.
   - [Lauri Villemi poeg](../../people/lower_town/lauri_villemi_poeg.md), carpenter: recommended Johannes to a third party and has heard complaints that rebound on his own name.
   - [Erik Folkesson](../../people/lower_town/erik_folkesson.md), merchant: advanced 12 marks' worth of grain after the failed harvest; interest is unspoken and heavy.

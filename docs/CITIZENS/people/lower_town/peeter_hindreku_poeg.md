@@ -1,10 +1,10 @@
-# Peeter Tanieli poeg
+# Peeter Hindreku poeg
 
 > The Estonian ropemaker of Olevimägi whose walk is the length of his rope-walk and whose books are kept in his chewed thumbnails.
 
 | Field | Value |
 |---|---|
-| ID | `char.peeter_tanieli_poeg` |
+| ID | `char.peeter_hindreku_poeg` |
 | Census ID | `cit.lt.osm_w200675324.01` |
 | Confidence | `plausible composite` |
 | Tier | Citizen card (ambient, authored; not promoted into `docs/CHARACTERS/`) |
@@ -62,7 +62,7 @@ Now he runs a rope-walk behind the house, rents a shed from a merchant, and empl
 A fathom of good cable fetches 1 örtug. He borrowed 15 marks from Erik Folkesson to pay a dowry for his sister; the marriage went ahead and the debt remains. He lent Gunnar Knutsson 30 marks in the autumn of 1342 for a new roof; the bond falls due at Michaelmas and Gunnar has paid about half. He rents a shed from Frederik van Brunswik for tools and firewood at a rate neither considers fair to themselves. A bad month is a ship that does not come.
 
 ## Relationships
-- **Household:** [Eeva Marteni tütar](../../people/lower_town/eeva_marteni_tutar.md), wife, who spins his yarn; [Mari Peetri tütar](../../people/lower_town/mari_peetri_tutar.md), six; [Ain Peetri poeg](../../ledger/lower_town/olevimagi.md#hh-lt-osm-w200675324), five; [Veronika Peetri tütar](../../ledger/lower_town/olevimagi.md#hh-lt-osm-w200675324), infant; [Taniel Eerika poeg](../../people/lower_town/taniel_eerika_poeg.md), his father; [Jüri Korneli poeg](../../people/lower_town/juri_korneli_poeg.md), apprentice.
+- **Household:** [Eeva Marteni tütar](../../people/lower_town/eeva_marteni_tutar.md), wife, who spins his yarn; [Mari Peetri tütar](../../people/lower_town/mari_peetri_tutar.md), six; [Ain Peetri poeg](../../ledger/lower_town/olevimagi.md#hh-lt-osm-w200675324), five; [Veronika Peetri tütar](../../ledger/lower_town/olevimagi.md#hh-lt-osm-w200675324), infant; [Hindrek Andrese poeg](../../people/lower_town/hindrek_andrese_poeg.md), his father; [Jüri Korneli poeg](../../people/lower_town/juri_korneli_poeg.md), apprentice.
 - **Network:** [Ulf Eriksson](../../people/lower_town/ulf_eriksson.md), baker on Pikk: Peeter sleeps badly and has twice seen him leave by the back lane after curfew; he has told no one.
 - [Johannes Fromme](../../people/lower_town/johannes_fromme.md), boat-builder on Aida: they trade favours in kind, Peeter supplying what Johannes lacks and Johannes returning work Peeter cannot do; the books are never even.
 - [Frederik van Brunswik](../../people/lower_town/frederik_van_brunswik.md), merchant on Pikk: rents Peeter a shed for tools and firewood at a rate neither considers fair to themselves.

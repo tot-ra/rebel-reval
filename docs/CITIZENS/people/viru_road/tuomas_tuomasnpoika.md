@@ -67,8 +67,7 @@ He earns about 14 marks in a good year at 3 örtug a day. Tiles come from the Lo
 - **Network:**
   - [Gerdt Jaani poeg](../../people/lower_town/gerdt_jaani_poeg.md), carpenter on Müürivahe: they split the cost of a cart-hire and a day's labour at the harbour each week, and quarrel about it every week. It began in 1337 over a load of laths.
   - [Pärtel Toomase poeg](../../people/viru_road/partel_toomase_poeg.md), carpenter on Viru road: recommended Tuomas to a third party and has since heard complaints that rebound on his own name. Tuomas feels the sting and says nothing.
-  - [Erik Bengtsson](../../people/viru_road/erik_bengtsson.md), 80, retired craftsman on Viru road: Tuomas sells him small things at a fair price, and Erik tells others to buy from Tuomas.
-- **Others:** [Alit Peetri tütar](../../ledger/viru_road/viru_road.md#hh-vi-viru-23), greengrocer; [Ain Joosepi poeg](../../ledger/viru_road/viru_road.md#hh-vi-viru-06), comb and horn worker; [Lasse Ollanpoika](../../ledger/viru_road/viru_road.md#hh-vi-viru-28), day labourer.
+- **Others:** [Ain Joosepi poeg](../../ledger/viru_road/viru_road.md#hh-vi-viru-06), comb and horn worker.
 
 ## Faction and belief
 None; rain does not care who is Danish. He gives a small favour by lending a ladder. He is baptised and attends St Olaf's, but leaves a few thatch straws crossed at the ridge for his grandfather's sake.

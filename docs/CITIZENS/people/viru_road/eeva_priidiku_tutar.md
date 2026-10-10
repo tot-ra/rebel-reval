@@ -64,9 +64,6 @@ She buys small wares on credit from a Lower Town merchant's agent and repays wee
 - **Household:** [Mihkel Jüri poeg](../../people/viru_road/mihkel_juri_poeg.md), husband and tub-keeper; [Gertrud](../../people/viru_road/gertrud_mihkli_tutar.md), 13; [Hele](../../people/viru_road/hele_mihkli_tutar.md), 10; [Judit, 6](../../ledger/viru_road/viru_road.md#hh-vi-viru-14) and [Ann, 3](../../ledger/viru_road/viru_road.md#hh-vi-viru-14), carried or led by the older girls.
 - **Network:**
   - [Katrin Priidiku tütar](../../people/viru_road/katrin_priidiku_tutar.md), spinner: they met at the church door in Easter week and fell into walking home together. Eeva finds Katrin's husky voice restful, and suspects they share a distant namesake through the Priidik name.
-  - [Gunhild Jönsdotter](../../people/viru_road/gunhild_jonsdotter.md), butcher: Eeva once did her a small favour at the gate, holding her place in a crush. Eeva remembers a kindness; Gunhild remembers a minor courtesy, and each tells it slightly differently.
-  - [Gyla Fromme](../../people/viru_road/gyla_fromme.md), retail trader: they were trained under the same widow, who taught Gyla later. Gyla owes Eeva an old, unspoken courtesy, and Eeva uses it only to skip the queue at the agent's.
-- **Others:** [Pekka Lauranpoika](../../ledger/viru_road/viru_road.md#hh-vi-viru-24), tanner, for whom Gertrud works.
 
 ## Faction and belief
 No faction; a hawker's survival depends on every household's door being open to her, so she keeps her opinions in her tray. A small favour she grants, a large one she refuses politely, and informing is not in her nature because it would end her customers. She wears a juniper sprig on the tray strap against the evil eye and goes to mass at St Olaf.

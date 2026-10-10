@@ -1,10 +1,10 @@
-# Rein Kauri poeg
+# Henn Mikku poeg
 
 > The Stenhus clerk who keeps the real books, a gaunt, bearded Estonian of twenty-six with a scarred lip and a very thin voice.
 
 | Field | Value |
 |---|---|
-| ID | `char.rein_kauri_poeg` |
+| ID | `char.henn_mikku_poeg` |
 | Census ID | `cit.lt.osm_w26902721.11` |
 | Confidence | `plausible composite` |
 | Tier | Citizen card (ambient, authored; not promoted into `docs/CHARACTERS/`) |
@@ -35,7 +35,7 @@
 - **Model notes:** MPFB macros: male, age_years 26, muscle 0.2, weight 0.2, proportions long, height_m 1.80; skin tone pale; eyes brown; brown hair, full beard; crowd tier 2.
 
 ## Biography
-Born 1317 in Reval to an Estonian cooper called Kauri, who paid for four winters at the cathedral school. He learned Latin and counting from a Danish deacon and was taken on by Lambrecht Stenhus in 1337 after a trial in which he found a four-mark error in the warehouse tally. He has been there since, sleeping in a closet off the strongroom.
+Born 1317 in Reval to an Estonian cooper called Mikku, who paid for four winters at the cathedral school. He learned Latin and counting from a Danish deacon and was taken on by Lambrecht Stenhus in 1337 after a trial in which he found a four-mark error in the warehouse tally. He has been there since, sleeping in a closet off the strongroom.
 
 He is quiet and slow to trust. His father died in 1340 of a lung sickness and left him a set of cooper's tools he cannot use and cannot sell.
 
@@ -64,8 +64,8 @@ Wage: board, closet and twenty öre a quarter. He earns a few pfennig on the sid
 ## Relationships
 - **Household:** [Lambrecht Stenhus](../../people/lower_town/lambrecht_stenhus.md), master, who trusts him; [Lutgard van Soest](../../people/lower_town/lutgard_van_soest.md), mistress, who mothers him; Borchard Stenhus, Volmar Stenhus and Conrad Stenhus in the [household ledger](../../ledger/lower_town/katariina_kaik.md#hh-lt-osm-w26902721); [Cecilia van Bremen](../../people/lower_town/cecilia_van_bremen.md), who feeds him; [Karin Torgilsdotter](../../people/lower_town/karin_torgilsdotter.md), maid; Ragnhild Torgilsdotter, Ruth Alberti tütar and Ilona Pietarantytär, cooks, in the ledger; and [Mihkel Kristjani poeg](../../people/lower_town/mihkel_kristjani_poeg.md), servant, whose sacks he counts.
 - **Network:** [Tilman van Munster](../../people/lower_town/tilman_van_munster.md), friar: they know each other from the market, greet by name and trade the day's prices. It began over a purchase of paper, and the old man now asks him the price of ink.
-- [Tõnu Mihkli poeg](../../people/lower_town/tonu_mihkli_poeg.md), clerk next door: they share one rare tool, a brass ruling compass, lent back and forth; each keeps a mental ledger of how long the other has held it. Rein had it nine days and expects it back on Tuesday.
-- **Others:** The candle-maker Leho Kauri poeg ([ledger](../../ledger/lower_town/katariina_kaik.md#hh-lt-osm-w28163736)) shares his father's given name, which Rein finds a comfort.
+- [Tõnu Mihkli poeg](../../people/lower_town/tonu_mihkli_poeg.md), clerk next door: they share one rare tool, a brass ruling compass, lent back and forth; each keeps a mental ledger of how long the other has held it. Henn had it nine days and expects it back on Tuesday.
+- **Others:** The candle-maker Leho Mikku poeg ([ledger](../../ledger/lower_town/katariina_kaik.md#hh-lt-osm-w28163736)) shares his father's given name, which Henn finds a comfort.
 
 ## Faction and belief
 No faction. He believes in a clean account and fears a dirty one. For a small favour he lends a quill; for a large one he would hesitate; he would not inform without being certain of the facts. He prays at St Olaf's and keeps his father's cooper's mallet over the closet door.

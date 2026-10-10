@@ -65,7 +65,6 @@ He earns eight marks a year and keep, plus a mark's livery. He owes two marks to
   - [Tyge Lunge](../../people/toompea/tyge_lunge.md), man-at-arms at the castle: he knows Peter shares their sympathies; they meet briefly after Mass and say nothing that could be repeated; Peter sees in him an old comrade of his father's.
   - [Simon Priidiku poeg](../../people/toompea/simon_priidiku_poeg.md), keeper of the wash-yard on Kohtu: Peter is his superior in the circle, though neither would put it that way; they never speak in the same room as others.
   - [Mogens Skjalm](../../people/toompea/mogens_skjalm.md), crown clerk on Pikk jalg: Peter knows he shares their sympathies; they meet briefly after Mass, and Peter is wary of a boy of sixteen.
-- **Others:** [Berend Rode](../../people/lower_town/berend_rode.md), councillor, is the nearest neighbour.
 
 ## Faction and belief
 He is loyal to the crown out of gratitude, not creed. He would carry a word for a small favour and a purse for a large one, and has told only what he overheard. He keeps a candle for his father at St Nicholas.

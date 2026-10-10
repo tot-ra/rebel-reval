@@ -67,8 +67,6 @@ A birth brings 1 to 3 schillings among the poor, or a loaf or a fish. She buys h
 - **Network:**
   - [Eeva Henni tütar](../../people/lower_town/eeva_henni_tutar.md), herb-wife on Müürivahe: they trade favours in kind; Anna supplies what Eeva lacks and Eeva returns work Anna cannot do; the books are never even.
   - [Kunigunde van Goslar](../../people/toompea/kunigunde_van_goslar.md), midwife on Rahukohtu: they share one rare tool, the eagle-stone, lent back and forth, and each keeps a mental ledger of how long the other has held it. Anna thinks Kunigunde is ahead by nine days, and says so.
-  - [Pärtel Jaagu poeg](../../people/viru_road/partel_jaagu_poeg.md), day labourer on Viru road: they survived the same bad winter in the same lane; hardship is a quiet bond. She delivered his wife's second child free.
-- **Others:** [Liis Tõnu tütar](../../ledger/viru_road/viru_road.md#hh-vi-viru-22), baker; [Agnes Peetri tütar](../../ledger/viru_road/viru_road.md#hh-vi-viru-25), butcher.
 
 ## Faction and belief
 None. A midwife who takes a side loses a door. She says the Hail Mary in Finnish and mutters an old charm for the cord. A small favour she gives to anyone; a large one only for a woman in labour.

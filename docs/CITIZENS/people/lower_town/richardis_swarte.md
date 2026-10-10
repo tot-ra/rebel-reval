@@ -67,7 +67,6 @@ Pay 3 pfennig a trip; about 2 marks a month. She owes her uncle 4 marks. A bad m
   - [Cord van Stralesund](../../people/lower_town/cord_van_stralesund.md), skipper: they were at the same funeral and the same whisper, and know it; a cell of two, with a third unnamed. It was about unpaid wages.
   - [Bernd van Dulmen](../../people/lower_town/bernd_van_dulmen.md), clerk of 22 on Lai: they know each other from the market; they greet by name and trade the day's prices.
   - [Ropert Kleine](../../people/lower_town/ropert_kleine.md), tavern keeper of 16 on Dunkri: she is his superior in the circle of the fund, though neither would put it that way; they never speak in the same room as others.
-  - [Yakov Fedorovich](../../people/viru_road/yakov_fedorovich.md), sailor of Viru road: they belong to the same Amt fraternity and stand together at feast masses, though they dislike each other's methods.
 - **Others:** [Thomas van Rostok](../../ledger/lower_town/vaimu.md#hh-lt-osm-w200517017), stable hand; [Heine van Gripeswold](../../ledger/lower_town/vaimu.md#hh-lt-osm-w200516964), butcher.
 
 ## Faction and belief

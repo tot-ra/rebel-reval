@@ -60,7 +60,7 @@ Born 1338 in the small house on Katariina käik, the first child. A cold winter 
 No wages; he is paid in a honey-root on Fridays for minding the door. He has never held a coin.
 
 ## Relationships
-- **Household:** [Jüri Tanieli poeg](../../people/lower_town/juri_tanieli_poeg.md), father, whose razor he admires; [Anna Leho tütar](../../people/lower_town/anna_leho_tutar.md), mother, who shouts and hugs; and Veronika Jüri tütar, three, his sister, in the [household ledger](../../ledger/lower_town/katariina_kaik.md#hh-lt-osm-w26885934).
+- **Household:** [Jüri Tanieli poeg](../../people/lower_town/juri_tanieli_poeg.md), father, whose razor he admires; [Kristiina Madise tütar](../../people/lower_town/kristiina_madise_tutar.md), mother, who shouts and hugs; and Veronika Jüri tütar, three, his sister, in the [household ledger](../../ledger/lower_town/katariina_kaik.md#hh-lt-osm-w26885934).
 - **Others:** The potter [Andres Laurentsi poeg](../../people/lower_town/andres_laurentsi_poeg.md) next door owns the smoke; his daughters [Ursula Andrese tütar](../../people/lower_town/ursula_andrese_tutar.md) and [Susanna Andrese tütar](../../people/lower_town/susanna_andrese_tutar.md) are fierce playmates.
 
 ## Faction and belief

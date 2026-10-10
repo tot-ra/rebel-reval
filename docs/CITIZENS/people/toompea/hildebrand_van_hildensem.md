@@ -63,8 +63,6 @@ He earns about eighteen marks a year from vegetables. He is owed thirty marks by
 - **Household:** [Margarete Grote](margarete_grote.md), wife. [Hennike van Hildensem](hennike_van_hildensem.md), son of eleven. [Tideman van Hildensem](tideman_van_hildensem.md), son of ten. Lucia van Hildensem, aged five, in the [household ledger](../../ledger/toompea/kohtu.md#hh-tp-osm-w26888730).
 - **Network:**
   - [Laurents Jaagu poeg](../../people/lower_town/laurents_jaagu_poeg.md), market gardener on Väike-Kloostri: they belong to the same Amt fraternity and stand together at the feast masses, though they dislike each other's methods. Laurents sows by the moon; Hildebrand by the calendar.
-  - [Evert Rode](../../people/lower_town/evert_rode.md), retired craftsman on Raekoja: he recruited Hildebrand a year ago with a small kindness; Hildebrand resents being treated as a debtor.
-  - [Ermelin](../../people/lower_town/ermelin.md), maid on Raekoja: neither knows the other's allegiance, but each has noticed the other's silence at the right moments.
   - [Siim Jaagu poeg](../../people/lower_town/siim_jaagu_poeg.md), tavern keeper on Lühike jalg: he owes Hildebrand 30 marks for a share in a boat voyage that went badly; Hildebrand has been patient so far.
   - [Winand Wulf](winand_wulf.md), canon on Kiriku plats: Hildebrand sleeps badly and has twice seen Winand leave by the back lane after curfew; he has told no one.
   - [Niels Galen](niels_galen.md), armourer on Kohtu: Hildebrand has twice seen Niels leave by the back lane after curfew; he has told no one.

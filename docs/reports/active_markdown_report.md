@@ -14,102 +14,27 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `1113`
-- Markdown files excluded as archive/reference/out of active scope: `752`
-- Local/external links inspected: `13140`
-- Links to active Markdown docs: `12132`
-- Links to existing archive/reference/non-active local docs: `455`
+- Active Markdown files scanned: `1099`
+- Markdown files excluded as archive/reference/out of active scope: `753`
+- Local/external links inspected: `12894`
+- Links to active Markdown docs: `11892`
+- Links to existing archive/reference/non-active local docs: `456`
 - External links skipped for reachability: `92`
-- Issues found: `74`
+- Issues found: `0`
 
 ## Issue counts
 
 | Code | Count |
 | --- | ---: |
-| `BROKEN_LINK` | 8 |
-| `BROKEN_ANCHOR` | 66 |
+| `BROKEN_LINK` | 0 |
+| `BROKEN_ANCHOR` | 0 |
 | `DUPLICATE_CHARACTER_NAME` | 0 |
 | `CONTRADICTORY_DATE` | 0 |
 | `MISSING_REFERENCE` | 0 |
 
 ## Issues
 
-| Code | Location | Detail |
-| --- | --- | --- |
-| `BROKEN_ANCHOR` | `docs/CITIZENS/people/kalarand/gunnar_bengtsson.md:68` | Local Markdown link anchor `#hh-kr-kalarand-26` not found in `docs/CITIZENS/ledger/kalarand/western_coast_road.md` |
-| `BROKEN_ANCHOR` | `docs/CITIZENS/people/kalarand/kaspar.md:72` | Local Markdown link anchor `#hh-kr-kalarand-11` not found in `docs/CITIZENS/ledger/kalarand/western_coast_road.md` |
-| `BROKEN_ANCHOR` | `docs/CITIZENS/people/kalarand/tonu_lembitu_poeg.md:69` | Local Markdown link anchor `#hh-kr-kalarand-11` not found in `docs/CITIZENS/ledger/kalarand/western_coast_road.md` |
-| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/berend_rode.md:11` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
-| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/berend_rode.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
-| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/berend_rode.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
-| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/berend_rode.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
-| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/berend_rode.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
-| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/berend_rode.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
-| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/berend_rode.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
-| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/ellen_overdyk.md:11` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
-| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/ellen_overdyk.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
-| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/ellen_overdyk.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
-| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/ellen_overdyk.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
-| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/ellen_overdyk.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
-| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/ellen_overdyk.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
-| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/ellen_overdyk.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
-| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/ermelin.md:11` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
-| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/ermelin.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
-| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/ermelin.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
-| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/ermelin.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
-| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/ermelin.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
-| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/ermelin.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
-| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/ermelin.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
-| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/evert_rode.md:11` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
-| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/evert_rode.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
-| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/evert_rode.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
-| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/evert_rode.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
-| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/evert_rode.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
-| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/evert_rode.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
-| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/evert_rode.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
-| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/jakob_wulf.md:11` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
-| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/jakob_wulf.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
-| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/jakob_wulf.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
-| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/jakob_wulf.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
-| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/jakob_wulf.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
-| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/jakob_wulf.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
-| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/jakob_wulf.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
-| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/juri_mattese_poeg.md:70` | Local Markdown link anchor `#hh-lt-osm-w26875416` not found in `docs/CITIZENS/ledger/lower_town/puhavaimu.md` |
-| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/triin.md:11` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
-| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/triin.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
-| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/triin.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
-| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/triin.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
-| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/triin.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
-| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/triin.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
-| `BROKEN_ANCHOR` | `docs/CITIZENS/people/lower_town/triin.md:63` | Local Markdown link anchor `#hh-lt-osm-r4061219` not found in `docs/CITIZENS/ledger/lower_town/raekoja.md` |
-| `BROKEN_ANCHOR` | `docs/CITIZENS/people/viru_road/anna_juhontytar.md:71` | Local Markdown link anchor `#hh-vi-viru-22` not found in `docs/CITIZENS/ledger/viru_road/viru_road.md` |
-| `BROKEN_ANCHOR` | `docs/CITIZENS/people/viru_road/anna_juhontytar.md:71` | Local Markdown link anchor `#hh-vi-viru-25` not found in `docs/CITIZENS/ledger/viru_road/viru_road.md` |
-| `BROKEN_ANCHOR` | `docs/CITIZENS/people/viru_road/eeva_priidiku_tutar.md:69` | Local Markdown link anchor `#hh-vi-viru-24` not found in `docs/CITIZENS/ledger/viru_road/viru_road.md` |
-| `BROKEN_ANCHOR` | `docs/CITIZENS/people/viru_road/elina_tuomasntytar.md:68` | Local Markdown link anchor `#hh-vi-viru-23` not found in `docs/CITIZENS/ledger/viru_road/viru_road.md` |
-| `BROKEN_ANCHOR` | `docs/CITIZENS/people/viru_road/erik_bengtsson.md:11` | Local Markdown link anchor `#hh-vi-viru-26` not found in `docs/CITIZENS/ledger/viru_road/viru_road.md` |
-| `BROKEN_ANCHOR` | `docs/CITIZENS/people/viru_road/evert_karrenman.md:11` | Local Markdown link anchor `#hh-vi-viru-27` not found in `docs/CITIZENS/ledger/viru_road/viru_road.md` |
-| `BROKEN_ANCHOR` | `docs/CITIZENS/people/viru_road/folke_knutsson.md:11` | Local Markdown link anchor `#hh-vi-viru-26` not found in `docs/CITIZENS/ledger/viru_road/viru_road.md` |
-| `BROKEN_ANCHOR` | `docs/CITIZENS/people/viru_road/gertrud_mihkli_tutar.md:65` | Local Markdown link anchor `#hh-vi-viru-24` not found in `docs/CITIZENS/ledger/viru_road/viru_road.md` |
-| `BROKEN_ANCHOR` | `docs/CITIZENS/people/viru_road/gunhild_jonsdotter.md:11` | Local Markdown link anchor `#hh-vi-viru-26` not found in `docs/CITIZENS/ledger/viru_road/viru_road.md` |
-| `BROKEN_ANCHOR` | `docs/CITIZENS/people/viru_road/gyla_fromme.md:11` | Local Markdown link anchor `#hh-vi-viru-27` not found in `docs/CITIZENS/ledger/viru_road/viru_road.md` |
-| `BROKEN_ANCHOR` | `docs/CITIZENS/people/viru_road/ilona_anttantytar.md:66` | Local Markdown link anchor `#hh-vi-viru-27` not found in `docs/CITIZENS/ledger/viru_road/viru_road.md` |
-| `BROKEN_ANCHOR` | `docs/CITIZENS/people/viru_road/katrin_priidiku_tutar.md:68` | Local Markdown link anchor `#hh-vi-viru-27` not found in `docs/CITIZENS/ledger/viru_road/viru_road.md` |
-| `BROKEN_ANCHOR` | `docs/CITIZENS/people/viru_road/lars_folkesson.md:71` | Local Markdown link anchor `#hh-vi-viru-27` not found in `docs/CITIZENS/ledger/viru_road/viru_road.md` |
-| `BROKEN_ANCHOR` | `docs/CITIZENS/people/viru_road/marquard_karrenman.md:11` | Local Markdown link anchor `#hh-vi-viru-27` not found in `docs/CITIZENS/ledger/viru_road/viru_road.md` |
-| `BROKEN_ANCHOR` | `docs/CITIZENS/people/viru_road/partel_jaagu_poeg.md:11` | Local Markdown link anchor `#hh-vi-viru-26` not found in `docs/CITIZENS/ledger/viru_road/viru_road.md` |
-| `BROKEN_ANCHOR` | `docs/CITIZENS/people/viru_road/peter_karrenman.md:11` | Local Markdown link anchor `#hh-vi-viru-27` not found in `docs/CITIZENS/ledger/viru_road/viru_road.md` |
-| `BROKEN_ANCHOR` | `docs/CITIZENS/people/viru_road/sanna_tuomasntytar.md:68` | Local Markdown link anchor `#hh-vi-viru-23` not found in `docs/CITIZENS/ledger/viru_road/viru_road.md` |
-| `BROKEN_ANCHOR` | `docs/CITIZENS/people/viru_road/tuomas_tuomasnpoika.md:71` | Local Markdown link anchor `#hh-vi-viru-23` not found in `docs/CITIZENS/ledger/viru_road/viru_road.md` |
-| `BROKEN_ANCHOR` | `docs/CITIZENS/people/viru_road/tuomas_tuomasnpoika.md:71` | Local Markdown link anchor `#hh-vi-viru-28` not found in `docs/CITIZENS/ledger/viru_road/viru_road.md` |
-| `BROKEN_ANCHOR` | `docs/CITIZENS/people/viru_road/yakov_fedorovich.md:11` | Local Markdown link anchor `#hh-vi-viru-26` not found in `docs/CITIZENS/ledger/viru_road/viru_road.md` |
-| `BROKEN_LINK` | `docs/CITIZENS/factions/cult_metsik.md:174` | Local Markdown link target does not exist: `../people/lower_town/margareta.md` |
-| `BROKEN_LINK` | `docs/CITIZENS/factions/hanseatic.md:232` | Local Markdown link target does not exist: `../people/lower_town/karin_folkesdotter.md` |
-| `BROKEN_LINK` | `docs/CITIZENS/ledger/lower_town/katariina_kaik.md:145` | Local Markdown link target does not exist: `../../people/lower_town/henn_mikku_poeg.md` |
-| `BROKEN_LINK` | `docs/CITIZENS/ledger/lower_town/katariina_kaik.md:190` | Local Markdown link target does not exist: `../../people/lower_town/kristiina_madise_tutar.md` |
-| `BROKEN_LINK` | `docs/CITIZENS/ledger/lower_town/munga.md:51` | Local Markdown link target does not exist: `../../people/lower_town/karin_folkesdotter.md` |
-| `BROKEN_LINK` | `docs/CITIZENS/ledger/lower_town/olevimagi.md:31` | Local Markdown link target does not exist: `../../people/lower_town/peeter_hindreku_poeg.md` |
-| `BROKEN_LINK` | `docs/CITIZENS/ledger/lower_town/olevimagi.md:36` | Local Markdown link target does not exist: `../../people/lower_town/hindrek_andrese_poeg.md` |
-| `BROKEN_LINK` | `docs/CITIZENS/ledger/lower_town/oleviste.md:35` | Local Markdown link target does not exist: `../../people/lower_town/margareta.md` |
+No active Markdown documentation issues found.
 
 ## Active files scanned
 
@@ -369,7 +294,6 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/CITIZENS/people/lower_town/anna_everti_tutar.md`
 - `docs/CITIZENS/people/lower_town/anna_gunnarsdotter.md`
 - `docs/CITIZENS/people/lower_town/anna_henni_tutar.md`
-- `docs/CITIZENS/people/lower_town/anna_leho_tutar.md`
 - `docs/CITIZENS/people/lower_town/anna_madise_tutar.md`
 - `docs/CITIZENS/people/lower_town/anna_mattese_tutar.md`
 - `docs/CITIZENS/people/lower_town/anna_niklase_tutar.md`
@@ -392,11 +316,9 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/CITIZENS/people/lower_town/bela_vrie.md`
 - `docs/CITIZENS/people/lower_town/bengt_magnusson.md`
 - `docs/CITIZENS/people/lower_town/bengt_persson.md`
-- `docs/CITIZENS/people/lower_town/berend_rode.md`
 - `docs/CITIZENS/people/lower_town/berend_van_hamelen.md`
 - `docs/CITIZENS/people/lower_town/berend_van_wismar.md`
 - `docs/CITIZENS/people/lower_town/bernd_van_dulmen.md`
-- `docs/CITIZENS/people/lower_town/berta_toomase_tutar.md`
 - `docs/CITIZENS/people/lower_town/berta_van_soest.md`
 - `docs/CITIZENS/people/lower_town/berta_van_stade.md`
 - `docs/CITIZENS/people/lower_town/bertold_van_paderborne.md`
@@ -453,14 +375,12 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/CITIZENS/people/lower_town/ell_reinu_tutar.md`
 - `docs/CITIZENS/people/lower_town/ell_tanieli_tutar.md`
 - `docs/CITIZENS/people/lower_town/ell_villemi_tutar.md`
-- `docs/CITIZENS/people/lower_town/ellen_overdyk.md`
 - `docs/CITIZENS/people/lower_town/els_toomase_tutar.md`
 - `docs/CITIZENS/people/lower_town/elsa_eerika_tutar.md`
 - `docs/CITIZENS/people/lower_town/elsa_gerdti_tutar.md`
 - `docs/CITIZENS/people/lower_town/erik_andersson.md`
 - `docs/CITIZENS/people/lower_town/erik_folkesson.md`
 - `docs/CITIZENS/people/lower_town/erik_jonsson.md`
-- `docs/CITIZENS/people/lower_town/ermelin.md`
 - `docs/CITIZENS/people/lower_town/ermelin_lowergerver.md`
 - `docs/CITIZENS/people/lower_town/ermelin_overdyk.md`
 - `docs/CITIZENS/people/lower_town/ermelin_van_bremen.md`
@@ -470,7 +390,6 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/CITIZENS/people/lower_town/evert_eerika_poeg.md`
 - `docs/CITIZENS/people/lower_town/evert_joosepi_poeg.md`
 - `docs/CITIZENS/people/lower_town/evert_lutke.md`
-- `docs/CITIZENS/people/lower_town/evert_rode.md`
 - `docs/CITIZENS/people/lower_town/evert_tonu_poeg.md`
 - `docs/CITIZENS/people/lower_town/eylard_van_goslar.md`
 - `docs/CITIZENS/people/lower_town/eylard_van_groninghe.md`
@@ -543,6 +462,7 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/CITIZENS/people/lower_town/henn_joosepi_poeg.md`
 - `docs/CITIZENS/people/lower_town/henn_juri_poeg.md`
 - `docs/CITIZENS/people/lower_town/henn_lauri_poeg.md`
+- `docs/CITIZENS/people/lower_town/henn_mikku_poeg.md`
 - `docs/CITIZENS/people/lower_town/henneke_overdyk.md`
 - `docs/CITIZENS/people/lower_town/hermann_overdyk.md`
 - `docs/CITIZENS/people/lower_town/hermann_van_hervorde.md`
@@ -556,6 +476,7 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/CITIZENS/people/lower_town/hildebrand_wulf.md`
 - `docs/CITIZENS/people/lower_town/hille_van_kolne.md`
 - `docs/CITIZENS/people/lower_town/hillegund_corte.md`
+- `docs/CITIZENS/people/lower_town/hindrek_andrese_poeg.md`
 - `docs/CITIZENS/people/lower_town/hindrek_gerdti_poeg.md`
 - `docs/CITIZENS/people/lower_town/hindrek_marteni_poeg.md`
 - `docs/CITIZENS/people/lower_town/hinrick_joosepi_poeg.md`
@@ -589,7 +510,6 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/CITIZENS/people/lower_town/jakob_aino_poeg.md`
 - `docs/CITIZENS/people/lower_town/jakob_kristjani_poeg.md`
 - `docs/CITIZENS/people/lower_town/jakob_timmerman.md`
-- `docs/CITIZENS/people/lower_town/jakob_wulf.md`
 - `docs/CITIZENS/people/lower_town/johan_kniphof.md`
 - `docs/CITIZENS/people/lower_town/johannes_fromme.md`
 - `docs/CITIZENS/people/lower_town/johannes_van_verden.md`
@@ -618,6 +538,7 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/CITIZENS/people/lower_town/kadri_peetri_tutar.md`
 - `docs/CITIZENS/people/lower_town/kadri_tanieli_tutar.md`
 - `docs/CITIZENS/people/lower_town/karin_andersdotter.md`
+- `docs/CITIZENS/people/lower_town/karin_folkesdotter.md`
 - `docs/CITIZENS/people/lower_town/karin_knutsdotter.md`
 - `docs/CITIZENS/people/lower_town/karin_larsdotter.md`
 - `docs/CITIZENS/people/lower_town/karin_torgilsdotter.md`
@@ -642,6 +563,7 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/CITIZENS/people/lower_town/kornel_everti_poeg.md`
 - `docs/CITIZENS/people/lower_town/kornel_jaani_poeg.md`
 - `docs/CITIZENS/people/lower_town/kristiina_leho_tutar.md`
+- `docs/CITIZENS/people/lower_town/kristiina_madise_tutar.md`
 - `docs/CITIZENS/people/lower_town/kristiina_mikku_tutar.md`
 - `docs/CITIZENS/people/lower_town/kristiina_niklase_tutar.md`
 - `docs/CITIZENS/people/lower_town/kristiina_partli_tutar.md`
@@ -713,6 +635,7 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/CITIZENS/people/lower_town/marga_mikku_tutar.md`
 - `docs/CITIZENS/people/lower_town/marga_partli_tutar.md`
 - `docs/CITIZENS/people/lower_town/marga_simoni_tutar.md`
+- `docs/CITIZENS/people/lower_town/margareta.md`
 - `docs/CITIZENS/people/lower_town/margareta_eerika_tutar.md`
 - `docs/CITIZENS/people/lower_town/margareta_marteni_tutar.md`
 - `docs/CITIZENS/people/lower_town/margareta_olofsdotter.md`
@@ -768,9 +691,9 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/CITIZENS/people/lower_town/paul_alberti_poeg.md`
 - `docs/CITIZENS/people/lower_town/paul_antsu_poeg.md`
 - `docs/CITIZENS/people/lower_town/paul_tolli_poeg.md`
+- `docs/CITIZENS/people/lower_town/peeter_hindreku_poeg.md`
 - `docs/CITIZENS/people/lower_town/peeter_hinricku_poeg.md`
 - `docs/CITIZENS/people/lower_town/peeter_kauri_poeg.md`
-- `docs/CITIZENS/people/lower_town/peeter_tanieli_poeg.md`
 - `docs/CITIZENS/people/lower_town/pekka_mikkonpoika.md`
 - `docs/CITIZENS/people/lower_town/per_gunnarsson.md`
 - `docs/CITIZENS/people/lower_town/per_magnusson.md`
@@ -793,7 +716,6 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/CITIZENS/people/lower_town/reimar_van_groninghe.md`
 - `docs/CITIZENS/people/lower_town/reimar_witte.md`
 - `docs/CITIZENS/people/lower_town/rein.md`
-- `docs/CITIZENS/people/lower_town/rein_kauri_poeg.md`
 - `docs/CITIZENS/people/lower_town/rein_laurentsi_poeg.md`
 - `docs/CITIZENS/people/lower_town/rein_tanieli_poeg.md`
 - `docs/CITIZENS/people/lower_town/rembert_van_brunswik.md`
@@ -839,7 +761,6 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/CITIZENS/people/lower_town/sven_svensson.md`
 - `docs/CITIZENS/people/lower_town/taleke_van_hamelen.md`
 - `docs/CITIZENS/people/lower_town/taleke_van_revele_westfal.md`
-- `docs/CITIZENS/people/lower_town/taniel_eerika_poeg.md`
 - `docs/CITIZENS/people/lower_town/taniel_kaspari_poeg.md`
 - `docs/CITIZENS/people/lower_town/telseke_van_luneborch.md`
 - `docs/CITIZENS/people/lower_town/thomas_blyde.md`
@@ -867,7 +788,6 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/CITIZENS/people/lower_town/toomas_eerika_poeg.md`
 - `docs/CITIZENS/people/lower_town/toomas_everti_poeg.md`
 - `docs/CITIZENS/people/lower_town/toomas_kauri_poeg.md`
-- `docs/CITIZENS/people/lower_town/triin.md`
 - `docs/CITIZENS/people/lower_town/triin_alberti_tutar.md`
 - `docs/CITIZENS/people/lower_town/triin_eerika_tutar.md`
 - `docs/CITIZENS/people/lower_town/triin_hinricku_tutar.md`
@@ -882,7 +802,6 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/CITIZENS/people/lower_town/ulrika_jonsdotter.md`
 - `docs/CITIZENS/people/lower_town/ulrika_knutsdotter.md`
 - `docs/CITIZENS/people/lower_town/ulrika_larsdotter.md`
-- `docs/CITIZENS/people/lower_town/ulrika_olofsdotter.md`
 - `docs/CITIZENS/people/lower_town/ulrika_torgilsdotter.md`
 - `docs/CITIZENS/people/lower_town/ulyana_dmitrievna.md`
 - `docs/CITIZENS/people/lower_town/ursula_aino_tutar.md`
@@ -994,27 +913,18 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/CITIZENS/people/viru_road/eeva_priidiku_tutar.md`
 - `docs/CITIZENS/people/viru_road/elina_tuomasntytar.md`
 - `docs/CITIZENS/people/viru_road/elsa_leho_tutar.md`
-- `docs/CITIZENS/people/viru_road/erik_bengtsson.md`
 - `docs/CITIZENS/people/viru_road/eskil_anttanpoika.md`
-- `docs/CITIZENS/people/viru_road/evert_karrenman.md`
-- `docs/CITIZENS/people/viru_road/folke_knutsson.md`
 - `docs/CITIZENS/people/viru_road/gertrud_mihkli_tutar.md`
 - `docs/CITIZENS/people/viru_road/gertrud_partli_tutar.md`
-- `docs/CITIZENS/people/viru_road/gunhild_jonsdotter.md`
-- `docs/CITIZENS/people/viru_road/gyla_fromme.md`
 - `docs/CITIZENS/people/viru_road/hele_mihkli_tutar.md`
 - `docs/CITIZENS/people/viru_road/ilona_anttantytar.md`
 - `docs/CITIZENS/people/viru_road/katrin_priidiku_tutar.md`
 - `docs/CITIZENS/people/viru_road/lars_folkesson.md`
 - `docs/CITIZENS/people/viru_road/magdalena_partli_tutar.md`
-- `docs/CITIZENS/people/viru_road/marquard_karrenman.md`
 - `docs/CITIZENS/people/viru_road/mihkel_juri_poeg.md`
-- `docs/CITIZENS/people/viru_road/partel_jaagu_poeg.md`
 - `docs/CITIZENS/people/viru_road/partel_toomase_poeg.md`
-- `docs/CITIZENS/people/viru_road/peter_karrenman.md`
 - `docs/CITIZENS/people/viru_road/sanna_tuomasntytar.md`
 - `docs/CITIZENS/people/viru_road/tuomas_tuomasnpoika.md`
-- `docs/CITIZENS/people/viru_road/yakov_fedorovich.md`
 - `docs/CITIZENS/README.md`
 - `docs/CITIZENS/TEMPLATE.md`
 - `docs/CITIZENS/WRITING_CARDS.md`
@@ -1121,6 +1031,7 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/SYSTEMS/NIGHT_SKY.md`
 - `docs/SYSTEMS/NPC_MIND.md`
 - `docs/SYSTEMS/OBJECT_CATALOG.md`
+- `docs/SYSTEMS/POST_PROCESS.md`
 - `docs/SYSTEMS/PSYCHE.md`
 - `docs/SYSTEMS/QUESTS.md`
 - `docs/SYSTEMS/README.md`

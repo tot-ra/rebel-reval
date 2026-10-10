@@ -67,8 +67,6 @@ He earns four pfennig per bale and about two marks a month. He pays Katrin three
   - [Albert van Paderborne](../../people/lower_town/albert_van_paderborne.md), shoemaker of Suur-Karja: Lars is his superior in the circle, though neither would put it that way. They never speak in the same room as others.
   - [Abele Fromme](../../people/lower_town/abele_fromme.md), spinner of Meistrite hoov: Lars recruited her a year ago with a small kindness, and she resents being treated as a debtor. He gives her space.
   - [Lutke van Rostok](../../people/lower_town/lutke_van_rostok.md), cook of Müürivahe: they were at the same funeral and heard the same whisper, and know it. A cell of two, with a third unnamed.
-  - [Yakov Fedorovich](../../people/viru_road/yakov_fedorovich.md), sailor: they trade favours in kind, Lars supplying carts and lifts, Yakov splicing ropes. The books are never even.
-- **Others:** [Peter Karrenman](../../ledger/viru_road/viru_road.md#hh-vi-viru-27), the executioner whose shed holds Lars's rope.
 
 ## Faction and belief
 He is an active member of the Hanseatic circle. His root is gratitude to the merchant who paid his father's burial; his branch is ambition. A small favour he does; a large one he does for the right price; informing is his job. He crosses himself on the quay and keeps a lead pilgrim badge on his cap.

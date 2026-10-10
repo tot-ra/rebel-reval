@@ -66,7 +66,7 @@ A good day is a barrel of herring worth three schillings; a bad one nothing. Sal
   - [Olev](../../people/kalarand/olev.md), day labourer: they know each other from the market; they greet by name and trade the day's prices.
   - [Lutsia Hindreku tütar](../../people/kalarand/lutsia_hindreku_tutar.md), household servant: they met at the church door the week of Easter and fell into the habit of walking home together; she tells him what Lower Town kitchens pay for herring.
   - [Wolter Snelle](../../people/lower_town/wolter_snelle.md), fishmonger: he recommended Tõnu to a third party and has since heard complaints that rebound on his name; Tõnu knows and brings the freshest.
-- **Others:** [Kaspar](../../people/kalarand/kaspar.md), harbour pilot, advises on shoals; [Mikk Reinu poeg](../../ledger/kalarand/western_coast_road.md#hh-kr-kalarand-11) builds boats.
+- **Others:** [Kaspar](../../people/kalarand/kaspar.md), harbour pilot, advises on shoals.
 
 ## Faction and belief
 None: the sea is neutral. A small favour is a fish; a large one depends on the tide; he would not inform. He pours the first fish-blood back into the sea.

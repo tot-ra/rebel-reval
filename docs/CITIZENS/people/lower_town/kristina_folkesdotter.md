@@ -66,7 +66,6 @@ Pay is 5 schillings a year, board and a gown. She sends nothing home; there is n
   - [Detlev Starke](detlev_starke.md), sailor: they were at the same funeral and the same whisper, and know it; a cell of two with a third unnamed; he is a link to the quay.
   - [Tibbeke van Wismar](tibbeke_van_wismar.md), retired craftsman: they were at the same funeral and the same whisper, and know it; a cell of two with a third unnamed; Tibbeke feeds her broth.
   - [Lambrecht Stenhus](lambrecht_stenhus.md), merchant: he suspects but cannot prove that Kristina leans the same way; each watches the other for a sign.
-  - [Gyla Fromme](../viru_road/gyla_fromme.md), retail trader: Kristina recruited Gyla a year ago with a small kindness; Gyla resents being treated as a debtor.
 
 ## Faction and belief
 Her tie to the Hanseatic order is that of the fed to the feeder. A small favour she grants quickly; a large one she makes hard; informing she might do if safety demanded. She keeps Swedish saints' days and blesses her bed with salt.

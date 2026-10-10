@@ -66,7 +66,6 @@ He buys bar iron and steel from Winand van Kolne, charcoal by the load, and timb
   - [Winand van Kolne](../../people/toompea_foot/winand_van_kolne.md), armourer of Western castle road: he regularly supplies Antti with iron and has twice held back stock to press an old point about a late payment. Antti has not forgotten and checks every bar for flaws.
   - [Niels Galen](../../people/toompea/niels_galen.md), armourer of Kohtu: they split the cost of a cart-hire and a day's labour at the harbour each week, and quarrel about it every week. Antti would stop if Niels did not owe him a favour.
   - [Pärtel Toomase poeg](../../people/viru_road/partel_toomase_poeg.md), carpenter: Pärtel regularly supplies handles and wood and has twice held back stock to press an old point. Antti shakes his fist at the man's back and then buys more.
-  - [Peter Karrenman](../../people/viru_road/peter_karrenman.md), Scharfrichter: Antti rents a shed from him for tools and firewood at a rate neither considers fair to themselves. Antti does not care about the trade; he cares about the rent.
 - **Others:** [Eerik Joosepi poeg](../../ledger/viru_road/viru_road.md#hh-vi-viru-03), retired craftsman nearby, who borrows tools.
 
 ## Faction and belief

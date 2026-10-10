@@ -67,7 +67,6 @@ Pärtel buys ash and oak from gate-farms and carters, and charcoal-wood by the l
   - [Eskil Anttanpoika](../../people/viru_road/eskil_anttanpoika.md), young smith: they trade favours in kind, Pärtel giving wood Eskil lacks and Eskil mending the iron work Pärtel cannot do. The books are never even, and Pärtel likes it that way.
   - [Tuomas Tuomasnpoika](../../people/viru_road/tuomas_tuomasnpoika.md), roof-tiler and thatcher: Pärtel recommended him to a third party and has since heard complaints that rebound on his own name. He feels let down and avoids the man.
   - [Mihkel Jüri poeg](../../people/viru_road/mihkel_juri_poeg.md), alewife: a boundary stake between their yards was moved by Pärtel's late father. Mihkel's household has noticed and says nothing yet; Pärtel pretends not to see the way Mihkel looks at the fence.
-  - [Erik Bengtsson](../../people/viru_road/erik_bengtsson.md), retired craftsman: he sells Pärtel small things such as bungs and wooden pegs at a fair price, and Pärtel tells others to buy from the old man.
 - **Others:** [Laurents Mihkli poeg](../../ledger/viru_road/viru_road.md#hh-vi-viru-18), woodcutter and charcoal-burner nearby.
 
 ## Faction and belief

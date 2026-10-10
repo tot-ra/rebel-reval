@@ -66,7 +66,7 @@ He is paid four marks a year by the court plus offerings; he competes with Tyde 
 - **Network:**
   - [Tyde Sasse](../../people/lower_town/tyde_sasse.md), priest at Pühavaimu: they compete for the same customers; each privately counts the other's apprentices and lamp-oil.
   - [Lambert van Dortmund](../../people/lower_town/lambert_van_dortmund.md), priest at Oleviste: Dmitri suspects him of undercutting the going fee with stolen or smuggled candle wax; no proof so far.
-  - [Berta Toomase tütar](../../people/lower_town/berta_toomase_tutar.md), dairy-woman at Oleviste: she hears his confession as a lay listener; he confessed something at Lent and has avoided her eye since.
+  - [Margareta](../../people/lower_town/margareta.md), dairy-woman at Oleviste: she hears his confession as a lay listener; he confessed something at Lent and has avoided her eye since.
   - [Beke van Luneborch](../../people/lower_town/beke_van_luneborch.md), washerwoman on Lai: he comes to her for advice more often than the sacrament requires; she suspects he is lonely or afraid.
   - [Mattes Villemi poeg](../../people/lower_town/mattes_villemi_poeg.md), clerk on Vene: they share a distant kinship through marriage that neither can trace exactly.
   - [Rein Tanieli poeg](../../people/lower_town/rein_tanieli_poeg.md), clerk on Vene: Dmitri once refused him absolution until restitution was made; Rein made it, and respects and resents him still.

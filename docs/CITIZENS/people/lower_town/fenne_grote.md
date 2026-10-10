@@ -61,7 +61,6 @@ She has no income save a small rent from the pewter moulds, about 2 schillings a
 
 ## Relationships
 - **Household:** [Ghert Kleine](../../people/lower_town/ghert_kleine.md), her nephew; [Geseke van Lemego](../../people/lower_town/geseke_van_lemego.md), his wife; great-nephew [Ropert Kleine](../../people/lower_town/ropert_kleine.md); great-niece [Ermgard Kleine](../../people/lower_town/ermgard_kleine.md); [Hebele Kleine](../../ledger/lower_town/dunkri.md#hh-lt-osm-w28129671), 7, whom she teaches rhymes; maid [Magdalena Pauli tütar](../../people/lower_town/magdalena_pauli_tutar.md).
-- **Network:** [Ellen Overdyk](../../people/lower_town/ellen_overdyk.md), spinner on Raekoja: Fenne once did her a small favour at the gate, and the memory is slightly different on each side; Fenne says she carried the bundle, Ellen says she carried it herself.
 - [Ell Mikku tütar](../../people/lower_town/ell_mikku_tutar.md), spinner on Harju: Fenne suspects but cannot prove that Ell leans the same way; each watches the other for a sign at the gate.
 
 ## Faction and belief

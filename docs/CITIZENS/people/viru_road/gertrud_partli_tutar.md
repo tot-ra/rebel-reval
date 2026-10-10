@@ -64,7 +64,6 @@ Pays for flax at two pfennig a handful; sells a skein for three. A good month ne
 - **Household:** [Pärtel Toomase poeg](../../people/viru_road/partel_toomase_poeg.md), father; [Elsa Leho tütar](../../people/viru_road/elsa_leho_tutar.md), mother; [Magdalena Pärtli tütar](../../people/viru_road/magdalena_partli_tutar.md), younger sister and bedfellow.
 - **Network:**
   - [Mihkel Jüri poeg](../../people/viru_road/mihkel_juri_poeg.md), alewife: she sells him sieve-cloth and cord at a fair price, and he tells others to buy from her. She likes him for it, though she knows her father's yard and his are at odds over a stake.
-  - [Yakov Fedorovich](../../people/viru_road/yakov_fedorovich.md), sailor: she sells him small things such as twine and sailcloth thread at a fair price, and he tells others to buy from her. She finds his clipped speech funny and his left hand unnerving.
 - **Others:** [Jaak Lembitu poeg](../../ledger/viru_road/viru_road.md#hh-vi-viru-09), carter, who buys bundles of cord.
 
 ## Faction and belief

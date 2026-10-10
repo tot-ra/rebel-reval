@@ -63,7 +63,7 @@ His trade is cloth, wax and herring between Reval and Lübeck; a good cargo nets
 ## Relationships
 - **Household:** [Gyse van Brunswik](gyse_van_brunswik.md), wife; [Ermelin van Hervorde](ermelin_van_hervorde.md), 14; [Claus van Hervorde](claus_van_hervorde.md), 12, left-handed scholar; [Ilsabe van Hervorde](ilsabe_van_hervorde.md), 5; Alheid, 4, and Lysbeth, an infant, in the [household ledger](../../ledger/lower_town/lai.md#hh-lt-osm-w200852813); [Elisabet Kauri tütar](elisabet_kauri_tutar.md), the maid.
 - **Network:**
-  - [Berta Toomase tütar](berta_toomase_tutar.md), dairy-woman: she knows Meinhard shares their sympathies; they meet briefly after mass and say nothing that could be repeated.
+  - [Margareta](margareta.md), dairy-woman: she knows Meinhard shares their sympathies; they meet briefly after mass and say nothing that could be repeated.
   - [Jaak Lauri poeg](jaak_lauri_poeg.md), cook: Meinhard sleeps badly and has twice seen Jaak leave by the back lane after curfew; he has told no one.
   - [Ain Aino poeg](ain_aino_poeg.md), porter: Ain regularly supplies Meinhard and has twice held back stock to press an old point; Meinhard has not forgotten.
   - [Heyno van Bocholt](heyno_van_bocholt.md), cooper: he too regularly supplies Meinhard and has twice held back stock to press an old point; Meinhard has not forgotten.

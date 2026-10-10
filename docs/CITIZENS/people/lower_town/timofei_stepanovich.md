@@ -67,7 +67,6 @@ He earns about eight marks a year from the court, plus board. He buys bread from
   - [Gertrud](../../people/lower_town/gertrud.md), baker on Müürivahe: she sells him small things at a fair price, and he tells others to buy from her.
   - [Irina Ontsiforovna](../../people/lower_town/irina_ontsiforovna.md), servant on Pikk: she is his superior in the circle, though neither would put it that way; they never speak in the same room as others.
   - [Olena Timofeyevna](../../people/lower_town/olena_timofeyevna.md), spinner on Tolli: they were at the same funeral and the same whisper, and know it; a cell of two, with a third unnamed.
-  - [Yakov Fedorovich](../../people/viru_road/yakov_fedorovich.md), sailor on Viru road: he knows Timofei shares their sympathies; they meet briefly after mass and say nothing that could be repeated.
 - **Others:** [Ants Pauli poeg](../../ledger/lower_town/muurivahe.md#hh-lt-osm-w227530067), knife-smith, sharpens his pens.
 
 ## Faction and belief

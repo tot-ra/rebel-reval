@@ -60,7 +60,7 @@ Born in 1280 in a Swedish farmstead near Kalmar, she came to Reval at nineteen a
 Thread sells at a schilling a hank. Linen comes from carters; wax and pitch from the candle-maker. A bad month is a missing hank.
 
 ## Relationships
-- **Household:** [Gunnar Knutsson](../../people/lower_town/gunnar_knutsson.md), husband. [Ulrika Olofsdotter](../../people/lower_town/ulrika_olofsdotter.md), maid. [Erik Jönsson](../../people/lower_town/erik_jonsson.md), servant. [Per Magnusson](../../people/lower_town/per_magnusson.md) and [Folke Jönsson](../../people/lower_town/folke_jonsson.md), journeymen. [Ingeborg Torgilsdotter](../../ledger/lower_town/munga.md#hh-lt-osm-w28187554), cook.
+- **Household:** [Gunnar Knutsson](../../people/lower_town/gunnar_knutsson.md), husband. [Karin Folkesdotter](../../people/lower_town/karin_folkesdotter.md), maid. [Erik Jönsson](../../people/lower_town/erik_jonsson.md), servant. [Per Magnusson](../../people/lower_town/per_magnusson.md) and [Folke Jönsson](../../people/lower_town/folke_jonsson.md), journeymen. [Ingeborg Torgilsdotter](../../ledger/lower_town/munga.md#hh-lt-osm-w28187554), cook.
 - **Network:**
   - [Ulrika Torgilsdotter](../../people/lower_town/ulrika_torgilsdotter.md), maid on Pikk: she suspects but cannot prove Anna leans the same way; each watches the other for a sign.
   - [Heyno van Revele Westfal](../../people/lower_town/heyno_van_revele_westfal.md), merchant on Dunkri: the same funeral and the same whisper, each knows; a cell of two with a third unnamed.

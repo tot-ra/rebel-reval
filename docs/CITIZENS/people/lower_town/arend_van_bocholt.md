@@ -65,7 +65,6 @@ Wage 3 marks a year plus board; the agent pays 2 schillings per report. A bad mo
 - **Network:**
   - [Eerik Niklase poeg](./eerik_niklase_poeg.md), sailor on the Coastal Gate quay: a distant kinship through marriage that neither can trace exactly; he lends Arend a cloak at the quay.
   - [Lambert van Dortmund](./lambert_van_dortmund.md), priest at St Olaf: Arend's confessor; Lambert once christened a child and buried kin of Arend's family, so the bond is warm but formal.
-  - [Ermelin](./ermelin.md), maid at the Rathaus: suspects but cannot prove that Arend leans the same way; each watches for a sign.
   - [Lambrecht van Minden](./lambrecht_van_minden.md), merchant: neither knows the other's allegiance, but each has noticed the other's silence at the right moments.
   - [Fedor Yeremeyevich](./fedor_yeremeyevich.md), clerk on Pikk: Arend suspects him of undercutting the going price with stolen or smuggled stock; no proof, so far.
 - **Others:** [Meinhard Brawer](../../ledger/lower_town/lai.md#hh-lt-osm-w134801478), brewer, sells him beer.

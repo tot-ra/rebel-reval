@@ -62,7 +62,6 @@ A wage in silver by weight and small tips; Sander van Deventer owes him 18 marks
 ## Relationships
 - **Household:** [Ell Jaagu tütar](../../people/lower_town/ell_jaagu_tutar.md), wife; [Anna Everti tütar](../../people/lower_town/anna_everti_tutar.md), daughter; [Kornel Everti poeg](../../people/lower_town/kornel_everti_poeg.md); [Marten Everti poeg](../../people/lower_town/marten_everti_poeg.md); [Toomas Everti poeg](../../people/lower_town/toomas_everti_poeg.md); [Triin, Tilda, Hendrik and Ede Everti](../../ledger/lower_town/kuninga.md#hh-lt-osm-w28123584), the little ones.
 - **Network:**
-  - [Jakob Wulf](../../people/lower_town/jakob_wulf.md), merchant's clerk: Evert suspects but cannot prove he leans the same way; each watches the other for a sign.
   - [Thomas Blyde](../../people/lower_town/thomas_blyde.md), merchant: Evert is his superior in the circle, though neither would put it that way; they never speak in a room with others.
   - [Ulrika Torgilsdotter](../../people/lower_town/ulrika_torgilsdotter.md), maid: he recruited her a year ago with a small kindness; she resents being treated as a debtor.
   - [Jüri Lauri poeg](../../people/lower_town/juri_lauri_poeg.md), cooper: recruited a year ago the same way; resents it the same.

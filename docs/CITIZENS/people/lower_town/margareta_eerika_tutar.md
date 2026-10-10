@@ -66,7 +66,7 @@ Wages are 4 marks a year and board; she has saved a half-mark. Tips at funerals 
   - [Made Peetri tütar](../../people/lower_town/made_peetri_tutar.md), 54, retired craftsman on Börsi käik: they share a distant kinship through marriage that neither can trace exactly; they argue amiably over which cousin married whom.
   - [Beke Stenhus](../../people/lower_town/beke_stenhus.md), 70, retired craftsman on Vaimu: they were at the same funeral and the same whisper, and know it; a cell of two, with a third unnamed.
   - [Meinhard Wise](../../people/lower_town/meinhard_wise.md), 53, long-distance merchant on Lai: neither knows the other's allegiance, but each has noticed the other's silence at the right moments.
-  - [Berta Toomase tütar](../../people/lower_town/berta_toomase_tutar.md), 37, dairy-woman on Oleviste: they were at the same funeral and the same whisper, and know it; a cell of two, with a third unnamed.
+  - [Margareta](../../people/lower_town/margareta.md), 37, dairy-woman on Oleviste: they were at the same funeral and the same whisper, and know it; a cell of two, with a third unnamed.
   - [Marquard Grote](../../people/lower_town/marquard_grote.md), 20, merchant's clerk on Pikk: the same funeral, the same whisper; a cell of two, with a third unnamed.
   - [Dietrich Zierenberg](../../people/lower_town/dietrich_zierenberg.md), 64, long-distance merchant on Lai: she recruited him a year ago with a small kindness; he resents being treated as a debtor, and she tries not to presume.
 - **Others:** The tailor Dietrich Schroder's household ([ledger](../../ledger/lower_town/pikk.md#hh-lt-osm-w134801496)) supplies cast-off thread.

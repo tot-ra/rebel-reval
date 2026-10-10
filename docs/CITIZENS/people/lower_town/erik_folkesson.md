@@ -65,7 +65,7 @@ He buys rye, salt, tar and Finnish hides at the quay and sells to bakers, brewer
 - **Network:**
   - [Henneke Overdyk](../../people/lower_town/henneke_overdyk.md), gatekeeper, neighbour: Erik's hens keep getting into his yard; settled with a jug of beer, always happens again. Erik pays cheerfully and has not mended the fence.
   - [Johannes Fromme](../../people/lower_town/johannes_fromme.md), boat-builder: Erik advanced 12 marks of grain after a failed harvest; interest unspoken and heavy. Erik thinks it fair; Fromme crosses the street.
-  - [Peeter Tanieli poeg](../../people/lower_town/peeter_tanieli_poeg.md), ropemaker: borrowed 15 marks for a dowry; the marriage went ahead and the debt remains. Erik waits for summer's rope orders.
+  - [Peeter Hindreku poeg](../../people/lower_town/peeter_hindreku_poeg.md), ropemaker: borrowed 15 marks for a dowry; the marriage went ahead and the debt remains. Erik waits for summer's rope orders.
   - [Hartwig van Minden](../../people/lower_town/hartwig_van_minden.md), merchant of Lai: suspects Erik of undercutting with stolen or smuggled stock; no proof. Erik knows and keeps his receipts tidy.
   - [Ain Aino poeg](../../people/lower_town/ain_aino_poeg.md), porter: recommended Erik to a third party (late, damp salt) and heard complaints rebound on his name. Erik sent a sack of peas.
   - [Heyno van Bocholt](../../people/lower_town/heyno_van_bocholt.md), cooper: recommended Erik likewise and carries the same embarrassment; Erik owes him a barrel order.

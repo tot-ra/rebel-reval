@@ -64,7 +64,7 @@ Wages 3 marks a year plus board. She spends a half-mark on ribbons and shoes. A 
 - **Household:** [Ulf Eriksson](../../people/lower_town/ulf_eriksson.md), master; [Kristina Larsdotter](../../people/lower_town/kristina_larsdotter.md), mistress; [Birgitta Ulfsdotter](../../ledger/lower_town/pikk.md#hh-lt-osm-w200453920), [Sven Ulfsson](../../ledger/lower_town/pikk.md#hh-lt-osm-w200453920); fellow maids [Ulrika Torgilsdotter](../../people/lower_town/ulrika_torgilsdotter.md) and [Anna Andersdotter](../../people/lower_town/anna_andersdotter.md); cooks [Ulrika Svensdotter](../../ledger/lower_town/pikk.md#hh-lt-osm-w200453920), [Gunhild Ulfsdotter](../../ledger/lower_town/pikk.md#hh-lt-osm-w200453920); apprentice [Per Gunnarsson](../../people/lower_town/per_gunnarsson.md), whom she cuffs when he is loud.
 - **Network:**
   - [Kadri Joosepi tütar](../../people/lower_town/kadri_joosepi_tutar.md), 27, maid on Pikk: they know each other from the market; they greet by name and trade the day's prices. Ragnhild likes her for never lying about eggs.
-  - [Taniel Eerika poeg](../../people/lower_town/taniel_eerika_poeg.md), 71, retired craftsman on Olevimägi: he once did her a small favour at the gate, a lifted basket; each remembers it slightly differently, he as a courtesy and she as rescue.
+  - [Hindrek Andrese poeg](../../people/lower_town/hindrek_andrese_poeg.md), 71, retired craftsman on Olevimägi: he once did her a small favour at the gate, a lifted basket; each remembers it slightly differently, he as a courtesy and she as rescue.
 - **Others:** The brewer Heine Brawer ([ledger](../../ledger/lower_town/pikk.md#hh-lt-osm-w1153885973)) sells her small beer.
 
 ## Faction and belief

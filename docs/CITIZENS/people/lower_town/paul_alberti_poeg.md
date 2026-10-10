@@ -60,7 +60,7 @@ Born in a cold spring, Paul was small and stayed small. His mother fed him extra
 He has no pay. A cook at Lai once gave him a bun.
 
 ## Relationships
-- **Household:** [Albert Villemi poeg](../../people/lower_town/albert_villemi_poeg.md), father; [Berta Toomase tütar](../../people/lower_town/berta_toomase_tutar.md), mother; [Kaur Alberti poeg](../../people/lower_town/kaur_alberti_poeg.md), brother, 9, who counts him; Kadri Alberti tütar, sister, 3 ([ledger](../../ledger/lower_town/oleviste.md#hh-lt-osm-w200516986)); [Mikk Kristjani poeg](../../people/lower_town/mikk_kristjani_poeg.md), who carries him on his shoulders; [Ursula Aino tütar](../../people/lower_town/ursula_aino_tutar.md), who wipes his nose.
+- **Household:** [Albert Villemi poeg](../../people/lower_town/albert_villemi_poeg.md), father; [Margareta](../../people/lower_town/margareta.md), mother; [Kaur Alberti poeg](../../people/lower_town/kaur_alberti_poeg.md), brother, 9, who counts him; Kadri Alberti tütar, sister, 3 ([ledger](../../ledger/lower_town/oleviste.md#hh-lt-osm-w200516986)); [Mikk Kristjani poeg](../../people/lower_town/mikk_kristjani_poeg.md), who carries him on his shoulders; [Ursula Aino tütar](../../people/lower_town/ursula_aino_tutar.md), who wipes his nose.
 - **Network:** None planned.
 - **Others:** The gander belonging to [the ropemaker on Pagari](../../ledger/lower_town/pagari.md#hh-lt-osm-w200516967).
 

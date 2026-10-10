@@ -64,7 +64,7 @@ Her thread brings about eight marks a year. She buys flax at the market by the l
 ## Relationships
 - **Household:** [Andres Laurentsi poeg](../../people/lower_town/andres_laurentsi_poeg.md), husband and potter; [Ursula Andrese tütar](../../people/lower_town/ursula_andrese_tutar.md), ten, her helper; and [Susanna Andrese tütar](../../people/lower_town/susanna_andrese_tutar.md), five, whom she watches.
 - **Network:** [Eerik Aino poeg](../../people/lower_town/eerik_aino_poeg.md), lay brother: a distant kinship through marriage that neither can trace exactly. They have tried: his late brother's wife's sister, her mother's cousin. It has never added up and they enjoy the failure.
-- [Anna Leho tütar](../../people/lower_town/anna_leho_tutar.md), retail trader: they survived the same bad winter in the same lane; hardship is a quiet bond. They shared a pot of peas in February and speak of it with a nod.
+- [Kristiina Madise tütar](../../people/lower_town/kristiina_madise_tutar.md), retail trader: they survived the same bad winter in the same lane; hardship is a quiet bond. They shared a pot of peas in February and speak of it with a nod.
 - **Others:** The barber-surgeon [Jüri Tanieli poeg](../../people/lower_town/juri_tanieli_poeg.md) next door suffers her husband's smoke; she sends him thread as an apology.
 
 ## Faction and belief

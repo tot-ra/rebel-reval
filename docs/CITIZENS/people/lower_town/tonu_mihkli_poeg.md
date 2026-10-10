@@ -64,7 +64,7 @@ His wage is board, a closet and twelve öre a quarter. His pen earns more for ot
 ## Relationships
 - **Household:** [Bertold van Stade](../../people/lower_town/bertold_van_stade.md), master, who speaks to him in memos; [Kunigunde van Wismar](../../people/lower_town/kunigunde_van_wismar.md), mistress, who trusts him with the till; [Brun van Stade](../../people/lower_town/brun_van_stade.md), whom he teaches numerals; [Gyla van Stade](../../people/lower_town/gyla_van_stade.md), who borrows his ink; [Peter van Stade](../../people/lower_town/peter_van_stade.md), whom he shows letters; Hille van Stade and Lambert van Stade in the [household ledger](../../ledger/lower_town/katariina_kaik.md#hh-lt-osm-w28187544).
 - **Network:** [Mattes Villemi poeg](../../people/lower_town/mattes_villemi_poeg.md), merchant's clerk on Vene: Tõnu is the better craftsman and Mattes the better businessperson; each believes the other has the easier life. Tõnu envies Mattes's coat, and Mattes his hand.
-- [Rein Kauri poeg](../../people/lower_town/rein_kauri_poeg.md), clerk next door: they share one rare tool, a brass ruling compass, lent back and forth; each keeps a mental ledger of how long the other has held it. It is currently with Rein, and has been nine days.
+- [Henn Mikku poeg](../../people/lower_town/henn_mikku_poeg.md), clerk next door: they share one rare tool, a brass ruling compass, lent back and forth; each keeps a mental ledger of how long the other has held it. It is currently with Henn, and has been nine days.
 - **Others:** The barber-surgeon [Jüri Tanieli poeg](../../people/lower_town/juri_tanieli_poeg.md) treats his eyes with a wash of eyebright.
 
 ## Faction and belief

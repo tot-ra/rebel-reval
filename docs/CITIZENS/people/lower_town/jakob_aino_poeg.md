@@ -63,7 +63,6 @@ He earns about 1 örtug per heavy load and clears 2 marks a month in good weathe
 ## Relationships
 - **Household:** [Sigrid Ragnvaldsdotter](sigrid_ragnvaldsdotter.md), wife; [Judit Jakobi tütar](judit_jakobi_tutar.md), daughter; [Richardis Swarte](richardis_swarte.md), lodger.
 - **Network:**
-  - [Berend Rode](../../people/lower_town/berend_rode.md), merchant of Raekoja: he regularly supplies Jakob, usually on credit settled at quarter-days; the arrangement is the backbone of both households' week.
   - [Jaan](../../people/lower_town/jaan.md), apprentice of 14 on Vana-Posti: Jakob is his superior in the circle, though neither would put it that way; they never speak in the same room as others. Jakob passes him a hemmed sack.
   - [Thomas Blyde](../../people/lower_town/thomas_blyde.md), merchant of Lai: they trade favours in kind; Thomas supplies what Jakob lacks, and Jakob returns work Thomas cannot do; the books are never even.
   - [Reimar Blyde](../../people/lower_town/reimar_blyde.md), merchant of 17: Jakob regularly carries for him and has twice held back his cart to press an old point; Reimar has not forgotten.
