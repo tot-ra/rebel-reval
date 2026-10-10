@@ -1,0 +1,13 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scenes/world/sites/hinterland_site.gd" id="1_site"]
+[ext_resource type="PackedScene" uid="uid://bs36kitagkmg5" path="res://player.tscn" id="2_player"]
+
+[node name="RebelKings" type="Node2D"]
+script = ExtResource("1_site")
+site_id = "rebel_kings"
+
+[node name="Actors" type="Node2D" parent="."]
+y_sort_enabled = true
+
+[node name="Player" parent="Actors" instance=ExtResource("2_player")]

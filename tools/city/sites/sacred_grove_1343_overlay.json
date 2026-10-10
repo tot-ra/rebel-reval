@@ -1,0 +1,627 @@
+{
+  "schema": "rr.site_overlay.v1",
+  "snapshot": "may-1343",
+  "notes": [
+    "Regional site overlay (ADR 0042) for the sacred grove (hiis) in May 1343: old oaks, lindens and ash on a low rise, cup-marked offering stones under them, a spring at the foot of the rise by the river, a meadow below and spruce and birch forest round it. No human building stands here.",
+    "Invented composite (docs/LOCATIONS/sacred_grove.md, history/dossiers/folklore/harju-hiis-sites-within-walk-1343.md): sacred groves are attested, this one is not. The terrain is EU-DEM at Kostivere (Joelahtme parish), a representative karst rise by the Joelahtme river south-east of Reval, chosen for the game; it claims nothing about Kostivere. Coordinates are metres from that origin, x east, y south.",
+    "The river course is the OSM Joelahtme joegi (way 218280416), simplified; modern settlement, industry and ditches are not used. Points of interest of kind offering_stone and spring are dressed by the site script (scenes/world/sites/hinterland_site.gd)."
+  ],
+  "site": {
+    "id": "sacred_grove",
+    "name": "Sacred grove",
+    "name_1343": "a hiis, sacred grove of the Harrian countryside",
+    "location_id": "world_sacred_grove",
+    "map_id": "world.sacred_grove",
+    "scene_id": "world_sacred_grove",
+    "origin": {
+      "lat": 59.427,
+      "lon": 25.0962
+    },
+    "origin_confidence": "representative point (Kostivere, Joelahtme parish; Nominatim village centroid), invented grove",
+    "metres_per_world_unit": 1.0,
+    "bounds_m": {
+      "x0": -250,
+      "y0": -250,
+      "x1": 250,
+      "y1": 250
+    },
+    "coast": "auto",
+    "features": {
+      "citizens": false,
+      "fauna": false,
+      "interiors": false
+    },
+    "default_spawn": "sacred_grove.spawn.meadow",
+    "inputs": {
+      "osm": "tools/city/data/osm_sacred_grove_extract.json",
+      "dem": "tools/city/data/eudem25m_sacred_grove.json",
+      "osm_bbox": [
+        59.4239,
+        25.0902,
+        59.4301,
+        25.1022
+      ],
+      "overpass_query": "[out:json][timeout:120];(way[\"waterway\"](59.4239,25.0902,59.4301,25.1022);way[\"natural\"](59.4239,25.0902,59.4301,25.1022);way[\"landuse\"](59.4239,25.0902,59.4301,25.1022);relation[\"type\"=\"multipolygon\"][\"natural\"](59.4239,25.0902,59.4301,25.1022););(._;>;);out body;",
+      "dem_grid": "api.opentopodata.org/v1/eudem25m, lats 59.4238 + 0.0004 * i (i < 17), lons 25.0898 + 0.0008 * j (j < 17)"
+    },
+    "music_theme": "",
+    "confidence": "invented (no surveyed 1343 place; terrain from a representative real point, every record authored)"
+  },
+  "terrain": {
+    "datum_margin_m": 4.0,
+    "relief": true
+  },
+  "stream": {
+    "id": "sacred_grove.river",
+    "name_1343": "the Joelahtme river",
+    "confidence": "attested course (OSM way 218280416, simplified); width and depth plausible composite",
+    "trace_m": [
+      [
+        -12,
+        256
+      ],
+      [
+        24,
+        161
+      ],
+      [
+        50,
+        90
+      ],
+      [
+        81,
+        17
+      ],
+      [
+        137,
+        -48
+      ],
+      [
+        147,
+        -99
+      ],
+      [
+        135,
+        -183
+      ],
+      [
+        126,
+        -256
+      ]
+    ],
+    "width_m": [
+      6.0,
+      6.0,
+      6.5,
+      6.5,
+      7.0,
+      7.0,
+      7.0,
+      7.0
+    ],
+    "depth_m": 0.8
+  },
+  "roads": [
+    {
+      "id": "sacred_grove.road.reval",
+      "name_1343": "footpath west toward Reval",
+      "class": "extramural_road",
+      "width_m": 1.8,
+      "confidence": "invented",
+      "points_m": [
+        [
+          -40,
+          -10
+        ],
+        [
+          -120,
+          -6
+        ],
+        [
+          -180,
+          10
+        ],
+        [
+          -254,
+          26
+        ]
+      ]
+    },
+    {
+      "id": "sacred_grove.road.harju",
+      "name_1343": "footpath north to the Harju villages",
+      "class": "extramural_road",
+      "width_m": 1.8,
+      "confidence": "invented",
+      "points_m": [
+        [
+          -40,
+          -10
+        ],
+        [
+          -34,
+          -90
+        ],
+        [
+          -26,
+          -170
+        ],
+        [
+          -20,
+          -254
+        ]
+      ]
+    },
+    {
+      "id": "sacred_grove.road.grove",
+      "name_1343": "trodden path up into the grove",
+      "class": "extramural_road",
+      "width_m": 1.4,
+      "confidence": "invented",
+      "points_m": [
+        [
+          -40,
+          -10
+        ],
+        [
+          -44,
+          30
+        ],
+        [
+          -52,
+          60
+        ]
+      ]
+    }
+  ],
+  "pastures": [
+    {
+      "id": "sacred_grove.pasture.meadow",
+      "kind": "meadow",
+      "fence": false,
+      "stock": [],
+      "polygon_m": [
+        [
+          -150,
+          -70
+        ],
+        [
+          40,
+          -80
+        ],
+        [
+          60,
+          0
+        ],
+        [
+          -20,
+          6
+        ],
+        [
+          -100,
+          16
+        ],
+        [
+          -150,
+          10
+        ]
+      ]
+    },
+    {
+      "id": "sacred_grove.pasture.spring_meadow",
+      "kind": "wet_meadow",
+      "fence": false,
+      "stock": [],
+      "polygon_m": [
+        [
+          6,
+          70
+        ],
+        [
+          40,
+          80
+        ],
+        [
+          40,
+          150
+        ],
+        [
+          10,
+          150
+        ]
+      ]
+    }
+  ],
+  "trees": {
+    "confidence": "plausible composite (old oak, linden, ash and elm in the hiis; spruce, birch and alder forest round it; alder and willow on the river)",
+    "carr": {
+      "along": "sacred_grove.river",
+      "band_m": 16.0,
+      "spacing_m": 8.0,
+      "species": [
+        "alder",
+        "willow",
+        "alder",
+        "birch"
+      ]
+    },
+    "hedgerow_spacing_m": 60.0,
+    "hedgerow_species": [
+      "birch"
+    ],
+    "garden_species": [
+      "apple"
+    ],
+    "groves": [
+      {
+        "id": "sacred_grove.grove.hiis",
+        "polygon_m": [
+          [
+            -104,
+            28
+          ],
+          [
+            -40,
+            14
+          ],
+          [
+            2,
+            60
+          ],
+          [
+            -6,
+            130
+          ],
+          [
+            -50,
+            168
+          ],
+          [
+            -110,
+            140
+          ],
+          [
+            -128,
+            80
+          ]
+        ],
+        "spacing_m": 12.0,
+        "species": [
+          "oak",
+          "oak",
+          "linden",
+          "oak",
+          "ash",
+          "elm",
+          "linden",
+          "oak"
+        ]
+      },
+      {
+        "id": "sacred_grove.grove.north",
+        "polygon_m": [
+          [
+            -250,
+            -250
+          ],
+          [
+            250,
+            -250
+          ],
+          [
+            250,
+            -110
+          ],
+          [
+            60,
+            -96
+          ],
+          [
+            -150,
+            -84
+          ],
+          [
+            -250,
+            -80
+          ]
+        ],
+        "spacing_m": 7.5,
+        "species": [
+          "spruce",
+          "birch",
+          "spruce",
+          "pine",
+          "alder"
+        ]
+      },
+      {
+        "id": "sacred_grove.grove.west",
+        "polygon_m": [
+          [
+            -250,
+            -80
+          ],
+          [
+            -150,
+            -84
+          ],
+          [
+            -150,
+            10
+          ],
+          [
+            -140,
+            190
+          ],
+          [
+            -250,
+            250
+          ]
+        ],
+        "spacing_m": 7.5,
+        "species": [
+          "spruce",
+          "birch",
+          "pine",
+          "spruce",
+          "juniper"
+        ]
+      },
+      {
+        "id": "sacred_grove.grove.south",
+        "polygon_m": [
+          [
+            -140,
+            190
+          ],
+          [
+            -30,
+            196
+          ],
+          [
+            0,
+            160
+          ],
+          [
+            40,
+            160
+          ],
+          [
+            60,
+            250
+          ],
+          [
+            -250,
+            250
+          ]
+        ],
+        "spacing_m": 7.5,
+        "species": [
+          "birch",
+          "spruce",
+          "alder",
+          "spruce",
+          "hazel"
+        ]
+      },
+      {
+        "id": "sacred_grove.grove.east",
+        "polygon_m": [
+          [
+            60,
+            0
+          ],
+          [
+            250,
+            -110
+          ],
+          [
+            250,
+            250
+          ],
+          [
+            60,
+            250
+          ],
+          [
+            44,
+            150
+          ],
+          [
+            44,
+            70
+          ]
+        ],
+        "spacing_m": 8.0,
+        "species": [
+          "spruce",
+          "birch",
+          "alder",
+          "pine"
+        ]
+      }
+    ]
+  },
+  "points_of_interest": [
+    {
+      "id": "sacred_grove.poi.great_oak",
+      "kind": "landmark",
+      "name_1343": "the old oak at the heart of the hiis",
+      "confidence": "folklore",
+      "at": [
+        -56,
+        86
+      ]
+    },
+    {
+      "id": "sacred_grove.poi.spring",
+      "kind": "spring",
+      "name_1343": "offering spring at the foot of the rise",
+      "confidence": "plausible composite",
+      "at": [
+        22,
+        112
+      ],
+      "radius_m": 2.6
+    },
+    {
+      "id": "sacred_grove.poi.meadow",
+      "kind": "meadow",
+      "name_1343": "meadow below the grove",
+      "confidence": "plausible composite",
+      "at": [
+        -40,
+        -20
+      ]
+    },
+    {
+      "id": "sacred_grove.poi.stone.01",
+      "kind": "offering_stone",
+      "name_1343": "cup-marked offering stone",
+      "confidence": "plausible composite (cup-marked boulders are common in north Harju; these are placed for the game)",
+      "at": [
+        -58,
+        70
+      ],
+      "size_m": [
+        2.4,
+        1.8,
+        1.0
+      ]
+    },
+    {
+      "id": "sacred_grove.poi.stone.02",
+      "kind": "offering_stone",
+      "name_1343": "cup-marked offering stone",
+      "confidence": "plausible composite (cup-marked boulders are common in north Harju; these are placed for the game)",
+      "at": [
+        -74,
+        96
+      ],
+      "size_m": [
+        1.6,
+        1.1,
+        0.7
+      ]
+    },
+    {
+      "id": "sacred_grove.poi.stone.03",
+      "kind": "offering_stone",
+      "name_1343": "cup-marked offering stone",
+      "confidence": "plausible composite (cup-marked boulders are common in north Harju; these are placed for the game)",
+      "at": [
+        -36,
+        104
+      ],
+      "size_m": [
+        1.6,
+        1.1,
+        0.7
+      ]
+    },
+    {
+      "id": "sacred_grove.poi.stone.04",
+      "kind": "offering_stone",
+      "name_1343": "cup-marked offering stone",
+      "confidence": "plausible composite (cup-marked boulders are common in north Harju; these are placed for the game)",
+      "at": [
+        -30,
+        42
+      ],
+      "size_m": [
+        1.6,
+        1.1,
+        0.7
+      ]
+    }
+  ],
+  "spawns": [
+    {
+      "id": "from_reval_south",
+      "record": "sacred_grove.spawn.from_reval_south",
+      "at": [
+        -222,
+        20
+      ],
+      "note": "on the footpath at the west edge"
+    },
+    {
+      "id": "from_world_harju",
+      "record": "sacred_grove.spawn.from_world_harju",
+      "at": [
+        -22,
+        -222
+      ],
+      "note": "on the footpath at the north edge"
+    },
+    {
+      "id": "sacred_grove.spawn.meadow",
+      "record": "sacred_grove.spawn.meadow",
+      "at": [
+        -44,
+        -16
+      ],
+      "note": "default arrival on the meadow below the grove"
+    }
+  ],
+  "districts": [
+    {
+      "id": "sacred_grove.district.hiis",
+      "name": "Sacred grove",
+      "name_1343": "the hiis",
+      "polygon_m": [
+        [
+          -104,
+          28
+        ],
+        [
+          -40,
+          14
+        ],
+        [
+          2,
+          60
+        ],
+        [
+          -6,
+          130
+        ],
+        [
+          -50,
+          168
+        ],
+        [
+          -110,
+          140
+        ],
+        [
+          -128,
+          80
+        ]
+      ]
+    },
+    {
+      "id": "sacred_grove.district.forest",
+      "name": "Grove forest",
+      "name_1343": "the forest round the hiis",
+      "polygon_m": [
+        [
+          -250,
+          -250
+        ],
+        [
+          250,
+          -250
+        ],
+        [
+          250,
+          250
+        ],
+        [
+          -250,
+          250
+        ]
+      ]
+    }
+  ]
+}

@@ -71,7 +71,7 @@
     },
     {
       "id": "world_sacred_grove",
-      "path": "res://scenes/world_travel/world_sacred_grove.tscn",
+      "path": "res://scenes/world/sites/sacred_grove.tscn",
       "active": true,
       "release": false,
       "spawns": [
@@ -85,7 +85,7 @@
     },
     {
       "id": "world_harju",
-      "path": "res://scenes/world_travel/world_harju.tscn",
+      "path": "res://scenes/world/sites/harju.tscn",
       "active": true,
       "release": false,
       "spawns": [
@@ -139,7 +139,7 @@
     },
     {
       "id": "world_rebel_kings",
-      "path": "res://scenes/world_travel/world_rebel_kings.tscn",
+      "path": "res://scenes/world/sites/rebel_kings.tscn",
       "active": true,
       "release": false,
       "spawns": [

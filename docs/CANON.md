@@ -245,6 +245,17 @@ The playable Padise site ([`REGIONAL_SITES.md`](./SYSTEMS/REGIONAL_SITES.md)) sh
 * **Roads east to Harju and Reval, west to Hapsal and south to Pernau** - **`plausible composite`** (courses of the modern Keila-Haapsalu road and Viikingi tee).
 * **Frame centre** 59.2276 N, 24.1407 E (the centre of the later monastery ruin, OSM relation 16395411) - chosen for the game; ADR 0042's approximate 59.229 N, 24.137 E lies about 250 m north-west of it.
 
+### Act 2 hinterland regional sites: Harju village, rebel kings' camp, sacred grove (ADR 0042, R-1527..R-1529)
+
+The playable hinterland sites ([`REGIONAL_SITES.md`](./SYSTEMS/REGIONAL_SITES.md)) are invented places on real terrain. Sources: [`harju_village.md`](./LOCATIONS/harju_village.md), [`rebel_kings_camp.md`](./LOCATIONS/rebel_kings_camp.md), [`sacred_grove.md`](./LOCATIONS/sacred_grove.md) and their dossiers; EU-DEM for the terrain; OpenStreetMap for the two river courses.
+
+* **The Harju village, the rebel kings' camp and the sacred grove as places** - **`invented`**. None is a surveyed 1343 site; the terrain comes from a representative real point chosen for the game: Rebala, Jõelähtme parish (59.4600 N, 25.0881 E) for the village, the Pirita valley at Vaskjala, Rae parish (59.3666 N, 24.9500 E) for the camp, Kostivere, Jõelähtme parish (59.4270 N, 25.0962 E) for the grove. The game claims nothing about those villages.
+* **North Harju cluster village of a few farmsteads with open strip fields, wet meadow and common pasture** - **`attested`** framework; this village, its five farmsteads, its plot pattern and its brook are **`invented`**.
+* **Barn-dwellings (`rehielamu`: smoke room and threshing floor under one roof), granaries, sheds and smoke saunas, all log and thatch, without chimneys** - **`plausible composite`** (ethnological form projected to 1343).
+* **A rebel camp in the eastern Harju corridor during the siege of Reval, led by four elected kings** - **`attested`** institution, **`plausible composite`** corridor; the camp plot, the stake fence round the kings' fire, the shelters, the field smithy, the horse lines and the plain standard are **`invented`**. The camp is not the unnamed signal hill of 23 April.
+* **Sacred groves (hiis) with offerings at trees, stones and springs** - **`attested`** existence, **`plausible composite`** customs; this grove, its old oak, its four cup-marked stones and its spring are **`invented`**/**`folklore`**. Cup-marked boulders are common in north Harju, but these are placed for the game.
+* **Pirita and Jõelähtme river courses** - **`attested`** (OpenStreetMap, simplified); width, depth and the camp's watering place are **`plausible composite`**. The modern Vaskjala reservoir, villages, fields, ditches and the Kostivere settlement are not shown.
+
 ### Notable Landmarks (1343 vs Modern Tallinn)
 *For a catalog of how popular modern tourist spots (like the Town Hall, Toompea Castle, and St. Olaf's Church) existed during the uprising and how they tie into the factional conflicts, see the [Tourist Landmarks Catalog](./TOURIST_LANDMARKS.md).*
 

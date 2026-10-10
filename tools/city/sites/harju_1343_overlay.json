@@ -1,0 +1,1186 @@
+{
+  "schema": "rr.site_overlay.v1",
+  "snapshot": "april-1343",
+  "notes": [
+    "Regional site overlay (ADR 0042) for an Estonian cluster village in northern Harria in April 1343, before St George's Night: five farmsteads round a common, smoke saunas by a brook, open strip fields, a wet meadow, a fenced common pasture and woods to the south toward the Pirita valley.",
+    "Invented composite (docs/LOCATIONS/harju_village.md, history/dossiers/hinterland/harju-village-and-manor.md): no surveyed 1343 village. The terrain is EU-DEM at Rebala (Joelahtme parish), a representative limestone-plateau village of the Iru-Rebala-Joelahtme corridor east of Reval, chosen for the game; the village is not Rebala and claims nothing about it. Coordinates are metres from that origin, x east, y south.",
+    "Farmsteads are barn-dwellings (rehielamu: smoke room and threshing floor under one thatch) with a granary and a shed; no chimneys (smoke leaves through the gable). Points of interest of kind smoke carry the plume height for the site script (scenes/world/sites/hinterland_site.gd).",
+    "OSM supplies nothing to the plan (land cover only, for the record); no modern road, building or pond is used."
+  ],
+  "site": {
+    "id": "harju",
+    "name": "Harju village",
+    "name_1343": "a village in Harrien (Harria), north Estonian countryside",
+    "location_id": "world_harju",
+    "map_id": "world.harju",
+    "scene_id": "world_harju",
+    "origin": {
+      "lat": 59.46,
+      "lon": 25.0881
+    },
+    "origin_confidence": "representative point (Rebala, Joelahtme parish; Nominatim village centroid), invented village",
+    "metres_per_world_unit": 1.0,
+    "bounds_m": {
+      "x0": -300,
+      "y0": -300,
+      "x1": 300,
+      "y1": 300
+    },
+    "coast": "auto",
+    "features": {
+      "citizens": false,
+      "fauna": false,
+      "interiors": false
+    },
+    "default_spawn": "harju.spawn.green",
+    "inputs": {
+      "osm": "tools/city/data/osm_harju_extract.json",
+      "dem": "tools/city/data/eudem25m_harju.json",
+      "osm_bbox": [
+        59.4569,
+        25.0821,
+        59.4631,
+        25.0941
+      ],
+      "overpass_query": "[out:json][timeout:120];(way[\"waterway\"](59.4569,25.0821,59.4631,25.0941);way[\"natural\"](59.4569,25.0821,59.4631,25.0941);way[\"landuse\"](59.4569,25.0821,59.4631,25.0941);relation[\"type\"=\"multipolygon\"][\"natural\"](59.4569,25.0821,59.4631,25.0941););(._;>;);out body;",
+      "dem_grid": "api.opentopodata.org/v1/eudem25m, lats 59.4568 + 0.0004 * i (i < 17), lons 25.0817 + 0.0008 * j (j < 17)"
+    },
+    "music_theme": "",
+    "confidence": "invented (no surveyed 1343 place; terrain from a representative real point, every record authored)"
+  },
+  "terrain": {
+    "datum_margin_m": 2.0,
+    "relief": true
+  },
+  "stream": {
+    "id": "harju.brook",
+    "name_1343": "village brook in the low western meadow",
+    "confidence": "invented",
+    "trace_m": [
+      [
+        -236,
+        -306
+      ],
+      [
+        -226,
+        -220
+      ],
+      [
+        -238,
+        -130
+      ],
+      [
+        -230,
+        -40
+      ],
+      [
+        -232,
+        26
+      ],
+      [
+        -248,
+        110
+      ],
+      [
+        -244,
+        200
+      ],
+      [
+        -258,
+        306
+      ]
+    ],
+    "width_m": [
+      2.6,
+      2.8,
+      3.0,
+      3.0,
+      3.2,
+      3.4,
+      3.6,
+      3.8
+    ],
+    "depth_m": 0.6,
+    "ford": "harju.road.reval"
+  },
+  "roads": [
+    {
+      "id": "harju.road.reval",
+      "name_1343": "cart road west to Reval",
+      "class": "extramural_road",
+      "width_m": 4.0,
+      "confidence": "plausible composite (direction only)",
+      "points_m": [
+        [
+          -304,
+          22
+        ],
+        [
+          -232,
+          26
+        ],
+        [
+          -170,
+          34
+        ],
+        [
+          -110,
+          40
+        ],
+        [
+          -60.0,
+          40.0
+        ]
+      ]
+    },
+    {
+      "id": "harju.road.east",
+      "name_1343": "road east toward the Joelahtme crossing and Wierland",
+      "class": "extramural_road",
+      "width_m": 4.0,
+      "confidence": "plausible composite (direction only)",
+      "points_m": [
+        [
+          -60.0,
+          40.0
+        ],
+        [
+          -10,
+          34
+        ],
+        [
+          60,
+          28
+        ],
+        [
+          150,
+          12
+        ],
+        [
+          230,
+          0
+        ],
+        [
+          304,
+          -8
+        ]
+      ]
+    },
+    {
+      "id": "harju.road.south",
+      "name_1343": "track south to the inland villages and the grove",
+      "class": "extramural_road",
+      "width_m": 3.0,
+      "confidence": "invented",
+      "points_m": [
+        [
+          -60.0,
+          40.0
+        ],
+        [
+          -56,
+          120
+        ],
+        [
+          -44,
+          200
+        ],
+        [
+          -20,
+          260
+        ],
+        [
+          -8,
+          304
+        ]
+      ]
+    },
+    {
+      "id": "harju.road.southwest",
+      "name_1343": "forest track south-west toward the Pirita valley",
+      "class": "extramural_road",
+      "width_m": 2.6,
+      "confidence": "invented",
+      "points_m": [
+        [
+          -56,
+          120
+        ],
+        [
+          -120,
+          180
+        ],
+        [
+          -190,
+          230
+        ],
+        [
+          -250,
+          270
+        ],
+        [
+          -304,
+          290
+        ]
+      ]
+    },
+    {
+      "id": "harju.road.north",
+      "name_1343": "field track north",
+      "class": "extramural_road",
+      "width_m": 2.6,
+      "confidence": "invented",
+      "points_m": [
+        [
+          -60.0,
+          40.0
+        ],
+        [
+          -74,
+          -40
+        ],
+        [
+          -88,
+          -120
+        ],
+        [
+          -100,
+          -200
+        ],
+        [
+          -110,
+          -304
+        ]
+      ]
+    }
+  ],
+  "buildings": [
+    {
+      "id": "harju.bldg.farm01.dwelling",
+      "kind": "outbuilding",
+      "type": "byre",
+      "name_1343": "barn-dwelling: smoke room (rehetuba) and threshing floor under one thatch",
+      "confidence": "plausible composite (rehielamu form after Estonian ethnology; 1343 date and plan reconstructed)",
+      "rect_m": {
+        "at": [
+          -98,
+          2
+        ],
+        "w": 15,
+        "d": 8.5,
+        "angle_deg": 25
+      },
+      "wall_h": 2.4,
+      "roof": "thatch",
+      "roof_pitch_deg": 50,
+      "material": "log",
+      "door_toward": [
+        -60.0,
+        40.0
+      ]
+    },
+    {
+      "id": "harju.bldg.farm01.granary",
+      "kind": "outbuilding",
+      "type": "store",
+      "name_1343": "granary (ait)",
+      "confidence": "plausible composite",
+      "rect_m": {
+        "at": [
+          -95.5,
+          -12.3
+        ],
+        "w": 5,
+        "d": 4,
+        "angle_deg": 25
+      },
+      "wall_h": 2.2,
+      "roof": "thatch",
+      "roof_pitch_deg": 48,
+      "material": "log"
+    },
+    {
+      "id": "harju.bldg.farm01.byre",
+      "kind": "outbuilding",
+      "type": "byre",
+      "name_1343": "cattle and sheep shed (laut)",
+      "confidence": "plausible composite",
+      "rect_m": {
+        "at": [
+          -87.2,
+          -10.6
+        ],
+        "w": 9,
+        "d": 5,
+        "angle_deg": 115
+      },
+      "wall_h": 2.0,
+      "roof": "thatch",
+      "roof_pitch_deg": 46,
+      "material": "log"
+    },
+    {
+      "id": "harju.bldg.farm02.dwelling",
+      "kind": "outbuilding",
+      "type": "byre",
+      "name_1343": "barn-dwelling: smoke room (rehetuba) and threshing floor under one thatch",
+      "confidence": "plausible composite (rehielamu form after Estonian ethnology; 1343 date and plan reconstructed)",
+      "rect_m": {
+        "at": [
+          -26,
+          -8
+        ],
+        "w": 14,
+        "d": 8,
+        "angle_deg": -20
+      },
+      "wall_h": 2.4,
+      "roof": "thatch",
+      "roof_pitch_deg": 50,
+      "material": "log",
+      "door_toward": [
+        -60.0,
+        40.0
+      ]
+    },
+    {
+      "id": "harju.bldg.farm02.granary",
+      "kind": "outbuilding",
+      "type": "store",
+      "name_1343": "granary (ait)",
+      "confidence": "plausible composite",
+      "rect_m": {
+        "at": [
+          -34.1,
+          -20.0
+        ],
+        "w": 5,
+        "d": 4,
+        "angle_deg": -20
+      },
+      "wall_h": 2.2,
+      "roof": "thatch",
+      "roof_pitch_deg": 48,
+      "material": "log"
+    },
+    {
+      "id": "harju.bldg.farm02.byre",
+      "kind": "outbuilding",
+      "type": "byre",
+      "name_1343": "cattle and sheep shed (laut)",
+      "confidence": "plausible composite",
+      "rect_m": {
+        "at": [
+          -27.5,
+          -24.5
+        ],
+        "w": 9,
+        "d": 5,
+        "angle_deg": 70
+      },
+      "wall_h": 2.0,
+      "roof": "thatch",
+      "roof_pitch_deg": 46,
+      "material": "log"
+    },
+    {
+      "id": "harju.bldg.farm03.dwelling",
+      "kind": "outbuilding",
+      "type": "byre",
+      "name_1343": "barn-dwelling: smoke room (rehetuba) and threshing floor under one thatch",
+      "confidence": "plausible composite (rehielamu form after Estonian ethnology; 1343 date and plan reconstructed)",
+      "rect_m": {
+        "at": [
+          8,
+          60
+        ],
+        "w": 14,
+        "d": 8.5,
+        "angle_deg": 80
+      },
+      "wall_h": 2.4,
+      "roof": "thatch",
+      "roof_pitch_deg": 50,
+      "material": "log",
+      "door_toward": [
+        -60.0,
+        40.0
+      ]
+    },
+    {
+      "id": "harju.bldg.farm03.granary",
+      "kind": "outbuilding",
+      "type": "store",
+      "name_1343": "granary (ait)",
+      "confidence": "plausible composite",
+      "rect_m": {
+        "at": [
+          21.2,
+          54.1
+        ],
+        "w": 5,
+        "d": 4,
+        "angle_deg": 80
+      },
+      "wall_h": 2.2,
+      "roof": "thatch",
+      "roof_pitch_deg": 48,
+      "material": "log"
+    },
+    {
+      "id": "harju.bldg.farm03.byre",
+      "kind": "outbuilding",
+      "type": "byre",
+      "name_1343": "cattle and sheep shed (laut)",
+      "confidence": "plausible composite",
+      "rect_m": {
+        "at": [
+          24.5,
+          61.4
+        ],
+        "w": 9,
+        "d": 5,
+        "angle_deg": 170
+      },
+      "wall_h": 2.0,
+      "roof": "thatch",
+      "roof_pitch_deg": 46,
+      "material": "log"
+    },
+    {
+      "id": "harju.bldg.farm04.dwelling",
+      "kind": "outbuilding",
+      "type": "byre",
+      "name_1343": "barn-dwelling: smoke room (rehetuba) and threshing floor under one thatch",
+      "confidence": "plausible composite (rehielamu form after Estonian ethnology; 1343 date and plan reconstructed)",
+      "rect_m": {
+        "at": [
+          -22,
+          100
+        ],
+        "w": 15,
+        "d": 9,
+        "angle_deg": 5
+      },
+      "wall_h": 2.4,
+      "roof": "thatch",
+      "roof_pitch_deg": 50,
+      "material": "log",
+      "door_toward": [
+        -60.0,
+        40.0
+      ]
+    },
+    {
+      "id": "harju.bldg.farm04.granary",
+      "kind": "outbuilding",
+      "type": "store",
+      "name_1343": "granary (ait)",
+      "confidence": "plausible composite",
+      "rect_m": {
+        "at": [
+          -27.0,
+          113.6
+        ],
+        "w": 5,
+        "d": 4,
+        "angle_deg": 5
+      },
+      "wall_h": 2.2,
+      "roof": "thatch",
+      "roof_pitch_deg": 48,
+      "material": "log"
+    },
+    {
+      "id": "harju.bldg.farm04.byre",
+      "kind": "outbuilding",
+      "type": "byre",
+      "name_1343": "cattle and sheep shed (laut)",
+      "confidence": "plausible composite",
+      "rect_m": {
+        "at": [
+          -18.9,
+          116.3
+        ],
+        "w": 9,
+        "d": 5,
+        "angle_deg": 95
+      },
+      "wall_h": 2.0,
+      "roof": "thatch",
+      "roof_pitch_deg": 46,
+      "material": "log"
+    },
+    {
+      "id": "harju.bldg.farm05.dwelling",
+      "kind": "outbuilding",
+      "type": "byre",
+      "name_1343": "barn-dwelling: smoke room (rehetuba) and threshing floor under one thatch",
+      "confidence": "plausible composite (rehielamu form after Estonian ethnology; 1343 date and plan reconstructed)",
+      "rect_m": {
+        "at": [
+          -112,
+          78
+        ],
+        "w": 14,
+        "d": 9,
+        "angle_deg": 70
+      },
+      "wall_h": 2.4,
+      "roof": "thatch",
+      "roof_pitch_deg": 50,
+      "material": "log",
+      "door_toward": [
+        -60.0,
+        40.0
+      ]
+    },
+    {
+      "id": "harju.bldg.farm05.granary",
+      "kind": "outbuilding",
+      "type": "store",
+      "name_1343": "granary (ait)",
+      "confidence": "plausible composite",
+      "rect_m": {
+        "at": [
+          -126.4,
+          79.5
+        ],
+        "w": 5,
+        "d": 4,
+        "angle_deg": 70
+      },
+      "wall_h": 2.2,
+      "roof": "thatch",
+      "roof_pitch_deg": 48,
+      "material": "log"
+    },
+    {
+      "id": "harju.bldg.farm05.byre",
+      "kind": "outbuilding",
+      "type": "byre",
+      "name_1343": "cattle and sheep shed (laut)",
+      "confidence": "plausible composite",
+      "rect_m": {
+        "at": [
+          -125.6,
+          87.4
+        ],
+        "w": 9,
+        "d": 5,
+        "angle_deg": 160
+      },
+      "wall_h": 2.0,
+      "roof": "thatch",
+      "roof_pitch_deg": 46,
+      "material": "log"
+    },
+    {
+      "id": "harju.bldg.sauna01",
+      "kind": "outbuilding",
+      "type": "smoke_shed",
+      "name_1343": "smoke sauna by the brook",
+      "confidence": "plausible composite",
+      "rect_m": {
+        "at": [
+          -200,
+          14
+        ],
+        "w": 4,
+        "d": 4,
+        "angle_deg": 10
+      },
+      "wall_h": 1.9,
+      "roof": "thatch",
+      "roof_pitch_deg": 40,
+      "material": "log",
+      "door_toward": [
+        -230,
+        14
+      ]
+    },
+    {
+      "id": "harju.bldg.sauna02",
+      "kind": "outbuilding",
+      "type": "smoke_shed",
+      "name_1343": "smoke sauna by the brook",
+      "confidence": "plausible composite",
+      "rect_m": {
+        "at": [
+          -204,
+          82
+        ],
+        "w": 4,
+        "d": 4,
+        "angle_deg": 10
+      },
+      "wall_h": 1.9,
+      "roof": "thatch",
+      "roof_pitch_deg": 40,
+      "material": "log",
+      "door_toward": [
+        -230,
+        82
+      ]
+    }
+  ],
+  "fields": {
+    "confidence": "plausible composite (open strip fields of the village; plot pattern invented)",
+    "blocks": [
+      {
+        "id": "harju.fields.north",
+        "polygon_m": [
+          [
+            -64,
+            -296
+          ],
+          [
+            40,
+            -296
+          ],
+          [
+            40,
+            -40
+          ],
+          [
+            -50,
+            -30
+          ]
+        ],
+        "strip_angle_deg": 82,
+        "strip_m": 14,
+        "sowing_cycle": [
+          "winter",
+          "spring",
+          "fallow"
+        ]
+      },
+      {
+        "id": "harju.fields.northwest",
+        "polygon_m": [
+          [
+            -210,
+            -296
+          ],
+          [
+            -112,
+            -296
+          ],
+          [
+            -90,
+            -60
+          ],
+          [
+            -150,
+            -40
+          ],
+          [
+            -210,
+            -60
+          ]
+        ],
+        "strip_angle_deg": 86,
+        "strip_m": 13,
+        "sowing_cycle": [
+          "spring",
+          "fallow",
+          "winter"
+        ]
+      },
+      {
+        "id": "harju.fields.east",
+        "polygon_m": [
+          [
+            60,
+            -296
+          ],
+          [
+            296,
+            -296
+          ],
+          [
+            296,
+            -20
+          ],
+          [
+            160,
+            -2
+          ],
+          [
+            60,
+            10
+          ]
+        ],
+        "strip_angle_deg": 4,
+        "strip_m": 16,
+        "sowing_cycle": [
+          "winter",
+          "fallow",
+          "spring",
+          "winter"
+        ]
+      },
+      {
+        "id": "harju.fields.southeast",
+        "polygon_m": [
+          [
+            40,
+            90
+          ],
+          [
+            296,
+            30
+          ],
+          [
+            296,
+            296
+          ],
+          [
+            40,
+            296
+          ]
+        ],
+        "strip_angle_deg": 92,
+        "strip_m": 15,
+        "sowing_cycle": [
+          "fallow",
+          "winter",
+          "spring"
+        ]
+      }
+    ]
+  },
+  "pastures": [
+    {
+      "id": "harju.pasture.brook_meadow",
+      "kind": "wet_meadow",
+      "fence": false,
+      "stock": [
+        {
+          "species": "cow",
+          "count": 6
+        },
+        {
+          "species": "sheep",
+          "count": 10
+        }
+      ],
+      "polygon_m": [
+        [
+          -296,
+          -140
+        ],
+        [
+          -196,
+          -140
+        ],
+        [
+          -180,
+          130
+        ],
+        [
+          -296,
+          140
+        ]
+      ]
+    },
+    {
+      "id": "harju.pasture.common",
+      "kind": "common",
+      "fence": true,
+      "stock": [
+        {
+          "species": "horse",
+          "count": 2
+        },
+        {
+          "species": "cow",
+          "count": 4
+        }
+      ],
+      "polygon_m": [
+        [
+          -170,
+          110
+        ],
+        [
+          -80,
+          116
+        ],
+        [
+          -74,
+          170
+        ],
+        [
+          -160,
+          172
+        ]
+      ]
+    }
+  ],
+  "trees": {
+    "confidence": "plausible composite (alder and willow on the brook, juniper and birch on field balks, spruce, pine and birch woods to the south)",
+    "carr": {
+      "along": "harju.brook",
+      "band_m": 14.0,
+      "spacing_m": 10.0,
+      "species": [
+        "alder",
+        "willow",
+        "alder",
+        "birch"
+      ]
+    },
+    "hedgerow_spacing_m": 40.0,
+    "hedgerow_species": [
+      "birch",
+      "rowan",
+      "juniper",
+      "oak",
+      "ash"
+    ],
+    "garden_species": [
+      "apple"
+    ],
+    "groves": [
+      {
+        "id": "harju.grove.south",
+        "polygon_m": [
+          [
+            -296,
+            190
+          ],
+          [
+            -60,
+            186
+          ],
+          [
+            -40,
+            296
+          ],
+          [
+            -296,
+            296
+          ]
+        ],
+        "spacing_m": 8.0,
+        "species": [
+          "spruce",
+          "pine",
+          "birch",
+          "spruce",
+          "alder"
+        ]
+      },
+      {
+        "id": "harju.grove.farmyards",
+        "polygon_m": [
+          [
+            -130,
+            -20
+          ],
+          [
+            10,
+            -30
+          ],
+          [
+            30,
+            120
+          ],
+          [
+            -130,
+            110
+          ]
+        ],
+        "spacing_m": 26.0,
+        "species": [
+          "rowan",
+          "birch",
+          "ash",
+          "oak"
+        ]
+      },
+      {
+        "id": "harju.grove.southfield_edge",
+        "polygon_m": [
+          [
+            -30,
+            200
+          ],
+          [
+            40,
+            200
+          ],
+          [
+            40,
+            296
+          ],
+          [
+            -10,
+            296
+          ]
+        ],
+        "spacing_m": 9.0,
+        "species": [
+          "birch",
+          "spruce",
+          "pine"
+        ]
+      }
+    ]
+  },
+  "points_of_interest": [
+    {
+      "id": "harju.poi.smoke.farm01",
+      "kind": "smoke",
+      "name_1343": "smoke from the smoke room",
+      "confidence": "plausible composite",
+      "at": [
+        -100.7,
+        0.7
+      ],
+      "smoke_h_m": 7.1
+    },
+    {
+      "id": "harju.poi.smoke.farm02",
+      "kind": "smoke",
+      "name_1343": "smoke from the smoke room",
+      "confidence": "plausible composite",
+      "at": [
+        -28.6,
+        -7.0
+      ],
+      "smoke_h_m": 6.8
+    },
+    {
+      "id": "harju.poi.smoke.farm03",
+      "kind": "smoke",
+      "name_1343": "smoke from the smoke room",
+      "confidence": "plausible composite",
+      "at": [
+        7.5,
+        57.2
+      ],
+      "smoke_h_m": 7.1
+    },
+    {
+      "id": "harju.poi.smoke.farm04",
+      "kind": "smoke",
+      "name_1343": "smoke from the smoke room",
+      "confidence": "plausible composite",
+      "at": [
+        -25.0,
+        99.7
+      ],
+      "smoke_h_m": 7.3999999999999995
+    },
+    {
+      "id": "harju.poi.smoke.farm05",
+      "kind": "smoke",
+      "name_1343": "smoke from the smoke room",
+      "confidence": "plausible composite",
+      "at": [
+        -113.0,
+        75.4
+      ],
+      "smoke_h_m": 7.3999999999999995
+    },
+    {
+      "id": "harju.poi.smoke.sauna01",
+      "kind": "smoke",
+      "name_1343": "smoke sauna heating",
+      "confidence": "plausible composite",
+      "at": [
+        -200,
+        14
+      ],
+      "smoke_h_m": 3.4
+    },
+    {
+      "id": "harju.poi.smoke.sauna02",
+      "kind": "smoke",
+      "name_1343": "smoke sauna heating",
+      "confidence": "plausible composite",
+      "at": [
+        -204,
+        82
+      ],
+      "smoke_h_m": 3.4
+    },
+    {
+      "id": "harju.poi.green",
+      "kind": "square",
+      "name_1343": "village common between the farmsteads",
+      "confidence": "plausible composite",
+      "at": [
+        -60.0,
+        40.0
+      ]
+    },
+    {
+      "id": "harju.poi.well",
+      "kind": "well",
+      "name_1343": "sweep well on the common",
+      "confidence": "plausible composite",
+      "at": [
+        -52,
+        30
+      ]
+    },
+    {
+      "id": "harju.poi.ford",
+      "kind": "ford",
+      "name_1343": "ford of the Reval road over the brook",
+      "confidence": "plausible composite",
+      "at": [
+        -232,
+        26
+      ]
+    },
+    {
+      "id": "harju.poi.boundary_oak",
+      "kind": "landmark",
+      "name_1343": "old oak at the field boundary",
+      "confidence": "invented",
+      "at": [
+        150,
+        30
+      ]
+    }
+  ],
+  "spawns": [
+    {
+      "id": "from_reval_east",
+      "record": "harju.spawn.from_reval_east",
+      "at": [
+        -262,
+        24
+      ],
+      "note": "on the Reval road at the west edge"
+    },
+    {
+      "id": "from_world_sojamae",
+      "record": "harju.spawn.from_world_sojamae",
+      "at": [
+        -252,
+        34
+      ],
+      "note": "on the Reval road (Sojamae lies toward Reval)"
+    },
+    {
+      "id": "from_world_rebel_kings",
+      "record": "harju.spawn.from_world_rebel_kings",
+      "at": [
+        -252,
+        259
+      ],
+      "note": "on the forest track at the south-west edge"
+    },
+    {
+      "id": "from_world_sacred_grove",
+      "record": "harju.spawn.from_world_sacred_grove",
+      "at": [
+        -16,
+        262
+      ],
+      "note": "on the south track"
+    },
+    {
+      "id": "from_world_kanavere",
+      "record": "harju.spawn.from_world_kanavere",
+      "at": [
+        262,
+        -2
+      ],
+      "note": "on the east road"
+    },
+    {
+      "id": "harju.spawn.green",
+      "record": "harju.spawn.green",
+      "at": [
+        -64,
+        52
+      ],
+      "note": "default arrival on the village common"
+    }
+  ],
+  "districts": [
+    {
+      "id": "harju.district.village",
+      "name": "Harju village",
+      "name_1343": "the village (kula)",
+      "polygon_m": [
+        [
+          -140,
+          -30
+        ],
+        [
+          40,
+          -30
+        ],
+        [
+          40,
+          130
+        ],
+        [
+          -140,
+          130
+        ]
+      ]
+    },
+    {
+      "id": "harju.district.fields",
+      "name": "Village fields",
+      "name_1343": "the open fields",
+      "polygon_m": [
+        [
+          -300,
+          -300
+        ],
+        [
+          300,
+          -300
+        ],
+        [
+          300,
+          300
+        ],
+        [
+          40,
+          300
+        ],
+        [
+          40,
+          130
+        ],
+        [
+          -300,
+          130
+        ]
+      ]
+    },
+    {
+      "id": "harju.district.woods",
+      "name": "South woods",
+      "name_1343": "the wood toward the Pirita",
+      "polygon_m": [
+        [
+          -300,
+          130
+        ],
+        [
+          40,
+          130
+        ],
+        [
+          40,
+          300
+        ],
+        [
+          -300,
+          300
+        ]
+      ]
+    }
+  ]
+}

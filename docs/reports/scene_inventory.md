@@ -8,19 +8,19 @@ Reconciled: 2026-09-10 (P0-206 grounded model and equipment integration)
 | Classification | Count | Role |
 |----------------|------:|------|
 | `working` | 50 | Active runtime scenes with verified or complete behavior |
-| `partial` | 65 | Substantial content but incomplete integration or dev-only use |
+| `partial` | 68 | Substantial content but incomplete integration or dev-only use |
 | `placeholder` | 3 | Reserved stubs or reference-only visuals, not playable |
 | `archive` | 20 | Out of vertical-slice scope; legacy open-world or event shells |
-| **Total** | **138** | Matches repository `.tscn` count |
+| **Total** | **141** | Matches repository `.tscn` count |
 
 Repository count command:
 
 ```bash
 find . -name '*.tscn' -not -path './.git/*' -not -path './.godot/*' -not -path './.a2gent-worktrees/*' | wc -l
-# Expected: 137
+# Expected: 140
 ```
 
-Inventory row count (data rows in the table below): **137**.
+Inventory row count (data rows in the table below): **140**.
 
 ## Classification criteria
 
@@ -124,6 +124,9 @@ Inventory row count (data rows in the table below): **137**.
 | 138 | `scenes/world/reval_city/reval_city.tscn` | working | ADR 0031 seamless Reval 1343 city preview (main menu "Reval (seamless)"). |
 | 161 | `scenes/world/sites/paide.tscn` | partial | ADR 0042 regional site: Paide (Wittenstein) 1343, global-map destination `world_paide`; `release=false`, no quests yet. |
 | 162 | `scenes/world/sites/padise.tscn` | partial | ADR 0042 regional site: Padise Cistercian house, April 1343, global-map destination `world_padise`; monastery controller on plan anchors; `release=false`, no quests yet. |
+| 163 | `scenes/world/sites/harju.tscn` | partial | ADR 0042 regional site: invented Harju cluster village, April 1343, global-map destination `world_harju`; `release=false`, no quests yet. |
+| 164 | `scenes/world/sites/rebel_kings.tscn` | partial | ADR 0042 regional site: invented rebel kings' camp by the Pirita, May 1343, global-map destination `world_rebel_kings`; campfires; `release=false`, no quests yet. |
+| 165 | `scenes/world/sites/sacred_grove.tscn` | partial | ADR 0042 regional site: invented sacred grove (hiis), May 1343, global-map destination `world_sacred_grove`; offering stones and spring; `release=false`, no quests yet. |
 | 139 | `tools/capture_reval_city_walk.tscn` | partial | ADR 0031 seamless-city walk acceptance host; not player-facing. |
 | 134 | `tools/verify_world_seam_walk.tscn` | partial | R-1043 WorldHost seam-walk verification host (keyboard, gamepad, mouse, fallback); not player-facing. |
 
