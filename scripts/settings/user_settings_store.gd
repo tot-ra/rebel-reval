@@ -8,8 +8,9 @@ const DialogueSettingsScript := preload("res://scripts/settings/dialogue_setting
 const GameplayAccessibilitySettingsScript := preload(
 	"res://scripts/settings/gameplay_accessibility_settings.gd"
 )
+const GraphicsSettingsScript := preload("res://scripts/settings/graphics_settings.gd")
 const InputBindingSettingsScript := preload("res://scripts/settings/input_binding_settings.gd")
-const CURRENT_VERSION := 4
+const CURRENT_VERSION := 5
 const LEGACY_VERSION := 1
 const DEFAULT_DIRECTORY := "user://settings"
 
@@ -44,6 +45,14 @@ func load_gameplay_accessibility_settings():
 	return GameplayAccessibilitySettingsScript.from_dict(value as Dictionary)
 
 
+func load_graphics_settings():
+	var envelope := _load_envelope()
+	var value: Variant = envelope.get("graphics", {})
+	if typeof(value) != TYPE_DICTIONARY:
+		return GraphicsSettingsScript.default_settings()
+	return GraphicsSettingsScript.from_dict(value as Dictionary)
+
+
 func load_audio_settings():
 	var envelope := _load_envelope()
 	var audio_value: Variant = envelope.get("audio", {})
@@ -58,6 +67,7 @@ func save_dialogue_settings(settings) -> bool:
 	return _save_all(
 		settings,
 		load_gameplay_accessibility_settings(),
+		load_graphics_settings(),
 		load_input_bindings(),
 		load_audio_settings()
 	)
@@ -67,7 +77,23 @@ func save_gameplay_accessibility_settings(settings) -> bool:
 	if settings == null:
 		return false
 	return _save_all(
-		load_dialogue_settings(), settings, load_input_bindings(), load_audio_settings()
+		load_dialogue_settings(),
+		settings,
+		load_graphics_settings(),
+		load_input_bindings(),
+		load_audio_settings()
+	)
+
+
+func save_graphics_settings(settings) -> bool:
+	if settings == null:
+		return false
+	return _save_all(
+		load_dialogue_settings(),
+		load_gameplay_accessibility_settings(),
+		settings,
+		load_input_bindings(),
+		load_audio_settings()
 	)
 
 
@@ -77,6 +103,7 @@ func save_input_bindings(bindings) -> bool:
 	return _save_all(
 		load_dialogue_settings(),
 		load_gameplay_accessibility_settings(),
+		load_graphics_settings(),
 		bindings,
 		load_audio_settings()
 	)
@@ -88,6 +115,7 @@ func save_audio_settings(settings) -> bool:
 	return _save_all(
 		load_dialogue_settings(),
 		load_gameplay_accessibility_settings(),
+		load_graphics_settings(),
 		load_input_bindings(),
 		settings
 	)
@@ -110,10 +138,13 @@ func _load_envelope() -> Dictionary:
 	return envelope
 
 
-func _save_all(dialogue_settings, gameplay_settings, input_bindings, audio_settings) -> bool:
+func _save_all(
+	dialogue_settings, gameplay_settings, graphics_settings, input_bindings, audio_settings
+) -> bool:
 	if (
 		dialogue_settings == null
 		or gameplay_settings == null
+		or graphics_settings == null
 		or input_bindings == null
 		or audio_settings == null
 		or not _ensure_directory()
@@ -124,6 +155,7 @@ func _save_all(dialogue_settings, gameplay_settings, input_bindings, audio_setti
 		"saved_at_unix": Time.get_unix_time_from_system(),
 		"dialogue": dialogue_settings.to_dict(),
 		"gameplay_accessibility": gameplay_settings.to_dict(),
+		"graphics": graphics_settings.to_dict(),
 		"input_bindings": input_bindings.to_dict(),
 		"audio": audio_settings.to_dict(),
 	}

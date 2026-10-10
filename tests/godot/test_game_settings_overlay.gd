@@ -1,5 +1,6 @@
 extends "res://tests/godot/test_case.gd"
 
+const GraphicsSettingsScript := preload("res://scripts/settings/graphics_settings.gd")
 const AudioBusServiceScript := preload("res://scripts/settings/audio_bus_service.gd")
 const ControllerScript := preload("res://scripts/ui/game_settings_controller.gd")
 const OverlayScript := preload("res://scripts/ui/game_settings_overlay.gd")
@@ -20,6 +21,7 @@ func after_each() -> void:
 	UserSettings.reload_audio_settings()
 	UserSettings.reload_dialogue_settings()
 	UserSettings.reload_gameplay_accessibility_settings()
+	UserSettings.apply_graphics_settings(GraphicsSettingsScript.default_settings(), false)
 	PlayerInputScript.reset_guard_toggle()
 	super.after_each()
 
@@ -157,6 +159,62 @@ func test_gameplay_accessibility_changes_persist_through_user_settings() -> void
 	assert_eq(loaded.guard_mode, "toggle")
 	assert_false(loaded.screenshake_enabled)
 	assert_true(loaded.reduced_flashing)
+	overlay.queue_free()
+
+
+
+func test_graphics_quality_changes_apply_immediately_and_persist() -> void:
+	var original_msaa := (_tree().root as Window).msaa_3d
+	var overlay := OverlayScript.new()
+	overlay.configure(UserSettings)
+	_tree().root.add_child(overlay)
+	overlay.open()
+
+	overlay._on_graphics_quality_selected(0)
+	assert_eq(UserSettings.graphics.quality, GraphicsSettingsScript.QUALITY_LOW)
+	assert_eq((_tree().root as Window).msaa_3d, Viewport.MSAA_DISABLED)
+	var loaded = UserSettings.store.load_graphics_settings()
+	assert_eq(loaded.quality, GraphicsSettingsScript.QUALITY_LOW)
+
+	overlay._on_graphics_quality_selected(2)
+	assert_eq(UserSettings.graphics.quality, GraphicsSettingsScript.QUALITY_HIGH)
+	assert_eq((_tree().root as Window).msaa_3d, Viewport.MSAA_4X)
+	overlay.queue_free()
+	(_tree().root as Window).msaa_3d = original_msaa
+
+
+func test_graphics_quality_defaults_and_invalid_values_normalize_to_mid() -> void:
+	assert_eq(GraphicsSettingsScript.default_settings().quality, GraphicsSettingsScript.QUALITY_MID)
+	assert_eq(GraphicsSettingsScript.from_dict({}).quality, GraphicsSettingsScript.QUALITY_MID)
+	assert_eq(
+		GraphicsSettingsScript.from_dict({"quality": "ultra"}).quality,
+		GraphicsSettingsScript.QUALITY_MID
+	)
+	assert_eq(
+		GraphicsSettingsScript.from_dict({"quality": "mid"}).msaa_3d_level(),
+		Viewport.MSAA_2X
+	)
+
+
+func test_saving_other_settings_preserves_graphics_profile() -> void:
+	var settings := GraphicsSettingsScript.default_settings()
+	settings.quality = GraphicsSettingsScript.QUALITY_HIGH
+	assert_true(UserSettings.store.save_graphics_settings(settings))
+	var dialogue = UserSettings.store.load_dialogue_settings()
+	assert_true(UserSettings.store.save_dialogue_settings(dialogue))
+	assert_eq(UserSettings.store.load_graphics_settings().quality, GraphicsSettingsScript.QUALITY_HIGH)
+	UserSettings.apply_graphics_settings(GraphicsSettingsScript.default_settings(), false)
+
+
+func test_open_settings_menu_exposes_graphics_quality_selector() -> void:
+	var overlay := OverlayScript.new()
+	overlay.configure(UserSettings)
+	_tree().root.add_child(overlay)
+	overlay.open()
+	assert_eq(overlay._graphics_quality_option.item_count, 3)
+	assert_eq(overlay._graphics_quality_option.get_item_text(0), "low")
+	assert_eq(overlay._graphics_quality_option.get_item_text(1), "mid")
+	assert_eq(overlay._graphics_quality_option.get_item_text(2), "high")
 	overlay.queue_free()
 
 

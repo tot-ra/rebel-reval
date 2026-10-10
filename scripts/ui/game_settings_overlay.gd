@@ -11,10 +11,12 @@ signal secondary_action_requested(action: StringName)
 const AudioSettingsScript := preload("res://scripts/settings/audio_settings.gd")
 const DialogueSettingsScript := preload("res://scripts/settings/dialogue_settings.gd")
 const GameplaySettingsScript := preload("res://scripts/settings/gameplay_accessibility_settings.gd")
+const GraphicsSettingsScript := preload("res://scripts/settings/graphics_settings.gd")
 const TextScaleScript := preload("res://scripts/dialogue/dialogue_text_scale.gd")
 const PANEL_MIN_SIZE := Vector2(560, 520)
 
 var _settings_owner: Node
+var _graphics_quality_option: OptionButton
 var _music_slider: HSlider
 var _music_value: Label
 var _sfx_slider: HSlider
@@ -163,10 +165,14 @@ func _build_ui() -> void:
 		commands.add_child(button)
 
 	var intro := Label.new()
-	intro.text = "Adjust audio and accessibility. Changes save outside campaign slots."
+	intro.text = "Adjust graphics, audio and accessibility. Changes save outside campaign slots."
 	intro.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	intro.add_theme_color_override("font_color", Color(0.78, 0.82, 0.9, 1.0))
 	layout.add_child(intro)
+
+	_add_section_heading(layout, "Graphics")
+	_graphics_quality_option = _add_option_row(layout, "Quality", GraphicsSettingsScript.QUALITIES)
+	_graphics_quality_option.item_selected.connect(_on_graphics_quality_selected)
 
 	_add_section_heading(layout, "Audio")
 	_add_volume_row(layout, "Music volume", true)
@@ -308,6 +314,9 @@ func _add_toggle_row(parent: VBoxContainer, label_text: String) -> CheckButton:
 
 
 func _sync_from_settings() -> void:
+	var graphics_settings = _current_graphics_settings()
+	_select_option_value(_graphics_quality_option, graphics_settings.quality)
+
 	var audio_settings = _current_audio_settings()
 	_music_slider.set_value_no_signal(audio_settings.music_volume * 100.0)
 	_sfx_slider.set_value_no_signal(audio_settings.sfx_volume * 100.0)
@@ -332,6 +341,13 @@ func _sync_from_settings() -> void:
 	_enhanced_focus_check.set_pressed_no_signal(gameplay_settings.enhanced_focus_contrast)
 	_reply_timer_check.set_pressed_no_signal(gameplay_settings.reply_timer_pressure)
 	_sight_slider.set_value_no_signal(gameplay_settings.spirit_sight_intensity * 100.0)
+
+
+func _on_graphics_quality_selected(index: int) -> void:
+	var settings = _current_graphics_settings()
+	settings.quality = _graphics_quality_option.get_item_text(index)
+	if _settings_owner != null and _settings_owner.has_method("apply_graphics_settings"):
+		_settings_owner.call("apply_graphics_settings", settings, true)
 
 
 func _on_music_changed(value: float) -> void:
@@ -461,6 +477,13 @@ func _apply_gameplay_settings(settings) -> void:
 	):
 		return
 	_settings_owner.call("apply_gameplay_accessibility_settings", settings, true)
+
+
+func _current_graphics_settings():
+	if _settings_owner == null:
+		return GraphicsSettingsScript.default_settings()
+	var value: Variant = _settings_owner.get("graphics")
+	return value if value != null else GraphicsSettingsScript.default_settings()
 
 
 func _current_audio_settings():

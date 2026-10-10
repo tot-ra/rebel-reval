@@ -3,6 +3,7 @@ extends Node
 signal audio_settings_changed(settings)
 signal dialogue_settings_changed(settings)
 signal gameplay_accessibility_changed(settings)
+signal graphics_settings_changed(settings)
 signal input_bindings_changed(bindings)
 
 ## Autoload that owns persisted player settings separate from save slots (P1-013/P1-028).
@@ -13,6 +14,7 @@ const DialogueSettingsScript := preload("res://scripts/settings/dialogue_setting
 const GameplayAccessibilitySettingsScript := preload(
 	"res://scripts/settings/gameplay_accessibility_settings.gd"
 )
+const GraphicsSettingsScript := preload("res://scripts/settings/graphics_settings.gd")
 const InputBindingSettingsScript := preload("res://scripts/settings/input_binding_settings.gd")
 const StoreScript := preload("res://scripts/settings/user_settings_store.gd")
 
@@ -20,6 +22,7 @@ var store = StoreScript.new()
 var audio = AudioSettingsScript.default_settings()
 var dialogue = DialogueSettingsScript.default_settings()
 var gameplay = GameplayAccessibilitySettingsScript.default_settings()
+var graphics = GraphicsSettingsScript.default_settings()
 var input_bindings = InputBindingSettingsScript.default_settings()
 
 func _ready() -> void:
@@ -29,6 +32,7 @@ func _ready() -> void:
 	_publish_edr_headroom(get_window().get_output_max_linear_value())
 	reload_dialogue_settings()
 	reload_gameplay_accessibility_settings()
+	reload_graphics_settings()
 	reload_input_bindings()
 	reload_audio_settings()
 
@@ -64,6 +68,11 @@ func reload_gameplay_accessibility_settings() -> void:
 	gameplay_accessibility_changed.emit(gameplay)
 
 
+func reload_graphics_settings() -> void:
+	graphics = store.load_graphics_settings()
+	_apply_graphics_settings(graphics)
+
+
 func reload_input_bindings() -> void:
 	input_bindings = store.load_input_bindings()
 	input_bindings.apply_to_input_map()
@@ -93,6 +102,22 @@ func apply_gameplay_accessibility_settings(settings, persist: bool = true) -> vo
 	gameplay_accessibility_changed.emit(gameplay)
 	if persist and not store.save_gameplay_accessibility_settings(gameplay):
 		push_warning("Failed to persist gameplay accessibility settings.")
+
+
+func apply_graphics_settings(settings, persist: bool = true) -> void:
+	if settings == null:
+		return
+	graphics = settings.duplicate_settings()
+	graphics.normalize()
+	_apply_graphics_settings(graphics)
+	graphics_settings_changed.emit(graphics)
+	if persist and not store.save_graphics_settings(graphics):
+		push_warning("Failed to persist graphics settings.")
+
+
+func _apply_graphics_settings(settings) -> void:
+	# Apply to the root viewport so the profile affects every active scene immediately.
+	get_viewport().msaa_3d = settings.msaa_3d_level()
 
 
 func apply_input_bindings(bindings, persist: bool = true) -> bool:

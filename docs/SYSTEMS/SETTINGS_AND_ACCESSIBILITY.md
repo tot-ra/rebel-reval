@@ -5,6 +5,7 @@ Status: implemented (tasks **P1-013** dialogue settings, **P1-028** input bindin
 ## Player-facing behavior
 
 - **Esc** opens the Settings overlay during play when no other modal is open (`GameSettingsController` on the player scene). Sections:
+  - **Graphics**: quality `low` (MSAA off), `mid` (2x MSAA, default), or `high` (4x MSAA). Applies immediately and persists outside campaign saves.
   - **Audio**: music volume, sound effects volume.
   - **Dialogue accessibility**: text size, text speed, high contrast, subtitle background, subtitles, bark subtitles, voice playback, always translate foreign speech (shows lines in languages the hero does not yet understand in full), reduced motion.
   - **Gameplay accessibility**: guard input `hold` / `toggle`, screen shake, reduced flashing (scales lightning flashes to 25%), enhanced focus contrast (thicker UI focus borders), reply timer pressure, spirit sight grade intensity (0-100 %, task **R-1484**; scales only the look of spirit sight, never its walk-only limits).
