@@ -348,6 +348,16 @@ if any_staged_path "content" \
   fi
 fi
 
+if any_staged_path "content/npcs" \
+  "tools/validate_named_npcs.py" \
+  "tests/python/test_named_npcs.py" \
+  "scripts/faction/faction_ledger.gd" \
+  "scripts/state/faction_candidate_seats.gd" \
+  "content/world/reval_city/plan.json"; then
+  bg_step "named NPC registry" python3 tools/validate_named_npcs.py
+  queue_python_module "tests.python.test_named_npcs"
+fi
+
 if any_staged_path "assets/SOURCES.csv" \
   "assets/materials/pbr" \
   "tools/validate_asset_sources.py" \

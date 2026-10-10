@@ -43,6 +43,8 @@ var _tag: Label3D
 var _hover: CitizenActor
 var _selected: CitizenActor
 var _interiors: CityInteriors
+## Residents a named NPC replaces (ADR 0044): never spawned, so nobody walks twice.
+var _suppressed: Dictionary = {}  # resident index -> true
 
 
 static func create(city_plan: CityPlan, kalev: Node2D) -> CityCitizens:
@@ -114,7 +116,8 @@ func _process(delta: float) -> void:
 	_pose_rigs()
 	_update_tag()
 	if _selected != null and is_instance_valid(_selected) and _panel.is_open():
-		_panel.update_now(roster.describe(_selected.index, hour()))
+		if _panel.shown_id == String(_selected.record["id"]):
+			_panel.update_now(roster.describe(_selected.index, hour()))
 
 
 ## Seat the residents who are outdoors within SPAWN_RADIUS and free the rest.
@@ -145,7 +148,7 @@ func _scan_step() -> void:
 	var interiors := interiors_node()
 	for k in range(_cursor, end):
 		var index := _candidates[k]
-		if _live.has(index):
+		if _live.has(index) or _suppressed.has(index):
 			continue
 		var state := roster.resolve(index, _scan_hour)
 		if state["visible"]:
@@ -198,6 +201,32 @@ func _spawn_wanted() -> void:
 		spawned += 1
 
 
+## Stops spawning the census residents `ids` (a named NPC is that person,
+## CityNamedNpcs) and frees any of them already in the street.
+func suppress_residents(ids: PackedStringArray) -> void:
+	for id in ids:
+		var index := roster.index_of(id)
+		if index < 0:
+			continue
+		_suppressed[index] = true
+		if _live.has(index):
+			_release(index)
+
+
+func is_suppressed(index: int) -> bool:
+	return _suppressed.has(index)
+
+
+## The information panel; CityNamedNpcs shows its people in the same one.
+func info_panel() -> CitizenInfoPanel:
+	return _panel
+
+
+## Forgets the selected resident (another spawner took over the panel).
+func clear_selection() -> void:
+	_selected = null
+
+
 ## The scene's furnished houses (CityInteriors), or null outside the city.
 func interiors_node() -> CityInteriors:
 	if _interiors == null or not is_instance_valid(_interiors):
@@ -243,7 +272,7 @@ func _style_new_rigs() -> void:
 		var model := rig.get_node_or_null("Model") as Node3D
 		if model != null:
 			model.scale = rig.model_scale * float(actor.record["height_scale"])
-		_dye(rig, actor.record)
+		dye(rig, actor.record)
 		CitizenGear.arm(rig, actor.record)
 		var proportions := rig.find_child("RealisticProportions", true, false)
 		if proportions != null:
@@ -296,7 +325,7 @@ static func _armful_scene() -> PackedScene:
 
 
 ## Garment dyes: the body ships undyed cloth; this resident's own colours replace it.
-func _dye(rig: Node, record: Dictionary) -> void:
+static func dye(rig: Node, record: Dictionary) -> void:
 	var cloth := Color(record["cloth"][0], record["cloth"][1], record["cloth"][2])
 	var under := Color(record["under"][0], record["under"][1], record["under"][2])
 	for found: Node in rig.find_children("*", "MeshInstance3D", true, false):

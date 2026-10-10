@@ -396,6 +396,28 @@ func _route(from_place: int, to_place: int) -> Dictionary:
 	return route
 
 
+## Street route between two free points (named NPCs walking between posts,
+## docs/SYSTEMS/NAMED_NPCS.md): enter and leave the census street graph at the
+## nearest nodes. {points, length}; a straight line when the graph is empty.
+func route_between(a: Vector2, b: Vector2) -> Dictionary:
+	var key := [a, b]
+	if _routes.has(key):
+		return _routes[key]
+	var points := PackedVector2Array([a])
+	if not _nodes.is_empty():
+		for node: int in _astar.get_id_path(_astar.get_closest_point(a), _astar.get_closest_point(b)):
+			points.append(_nodes[node])
+	points.append(b)
+	var route := {"points": points, "length": _polyline_length(points)}
+	_routes[key] = route
+	return route
+
+
+## Point and unit direction `distance` metres along `points`.
+static func along(points: PackedVector2Array, distance: float) -> Array:
+	return _along(points, distance)
+
+
 static func _along(points: PackedVector2Array, distance: float) -> Array:
 	var left := distance
 	for i in range(1, points.size()):

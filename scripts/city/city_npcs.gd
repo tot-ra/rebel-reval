@@ -69,6 +69,8 @@ class Walker:
 var plan: CityPlan
 var player: Node2D
 var citizens: CityCitizens
+## Registry named NPCs (docs/SYSTEMS/NAMED_NPCS.md); Reval only, null at regional sites.
+var named: CityNamedNpcs
 var _since := 0.0
 ## Site id -> the CitySiteActors present while Kalev is near that site.
 var _site_people: Dictionary = {}
@@ -91,6 +93,10 @@ func _ready() -> void:
 	_collect_field_sites()
 	citizens = CityCitizens.create(plan, player)
 	add_child(citizens)
+	# Added after the crowd so it gets clicks first (_unhandled_input runs last child first).
+	if plan.site_id == CityPlan.DEFAULT_SITE:
+		named = CityNamedNpcs.create(plan, player, citizens)
+		add_child(named)
 
 
 func _process(delta: float) -> void:

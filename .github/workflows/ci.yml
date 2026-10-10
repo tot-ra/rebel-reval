@@ -164,6 +164,12 @@ jobs:
           python3 tools/verify_bird_audio_clips.py
           python3 tools/verify_weather_audio_clips.py
 
+      - name: Named NPC registry
+        run: |
+          set -euo pipefail
+          python3 tools/validate_named_npcs.py
+          python3 -m unittest tests.python.test_named_npcs -v
+
       - name: Physical object catalog
         run: |
           set -euo pipefail
