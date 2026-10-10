@@ -443,6 +443,16 @@ func site_room_at(world_xz: Vector2) -> Dictionary:
 	return {}
 
 
+## True when the point stands under a roof: inside a landmark site room or an
+## enterable building footprint. Drives the rain gate (R-1539); the camera roof
+## cutaway does not change the answer.
+func is_under_roof(world_xz: Vector2) -> bool:
+	if not site_room_at(world_xz).is_empty():
+		return true
+	var index := building_at(world_xz)
+	return index >= 0 and bool(buildings[index].get("enterable", false))
+
+
 ## Names for the HUD: {district, street, building} at a world position.
 ## `inside` is the building index Kalev stands in (or -1).
 ## Id of the plan district containing `world_xz`, or "" outside every district.
