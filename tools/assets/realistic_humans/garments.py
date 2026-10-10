@@ -803,17 +803,31 @@ def linen_shirt(ctx):
 
 def surcoat(ctx):
     """Sleeveless wool surcoat over mail (crown retainer colours, no invented heraldry)."""
-    return tunic(ctx, "surcoat", sleeve="none", hem="knee", extra_ease=0.05, belted="plain",
-                 color_key="surcoat", flare=1.45)
+    if layer_ease(ctx) <= 0:
+        return tunic(ctx, "surcoat", sleeve="none", hem="knee", extra_ease=0.05, belted="plain",
+                     color_key="surcoat", flare=1.45)
+    # Citizen layer: no belt of its own (it would sit under the mail), and every
+    # vertex pushed out of the aketon and mail it is always worn over.
+    parts = tunic(ctx, "surcoat", sleeve="none", hem="knee", extra_ease=0.05 + layer_ease(ctx), belted=False,
+                  color_key="surcoat", flare=2.2)
+    trees = [ctx.layers[k] for k in ("gambeson", "mail_haubergeon", "mail_coif") if k in ctx.layers]
+    for part in parts:
+        for v in part.data.vertices:
+            v.co = clear_of(trees, ctx.t["hips"].y, v.co, 0.012)
+    return parts
 
 
 def gambeson(ctx):
     """Quilted linen aketon: high collar, fitted sleeves, skirt to mid-thigh."""
     t = ctx.t
-    ease = lambda p: 0.022 + (0.004 if abs(p.x) > t["upperarm.l"].x else 0.0)
+    extra = layer_ease(ctx)
+    ease = lambda p: 0.022 + extra + (0.004 if abs(p.x) > t["upperarm.l"].x else 0.0)
     obj = bodice(ctx, "Garment_gambeson", ease, t["wrist.l"].x + 0.012, t["hips"].z + 0.02,
                  neck_raise=0.03, iterations=24)
-    loft_skirt(ctx, obj, t["lowerleg.l"].z + 0.18, flare=1.3, fold_depth=0.012, folds=10, seed=7)
+    # Over a baked crowd tunic the skirt hangs lower and wider, or the tunic hem pokes through.
+    layered = extra > 0
+    loft_skirt(ctx, obj, t["lowerleg.l"].z + (0.08 if layered else 0.18), flare=1.75 if layered else 1.3,
+               fold_depth=0.012, folds=10, seed=7)
     grain_uv(ctx, obj, "quilted")
     color = ctx.palette("gambeson", (0.62, 0.56, 0.44))
     hems = hem_rolls(ctx, obj, 0.007, "gambeson", "linen", color)
@@ -824,12 +838,18 @@ def gambeson(ctx):
 def mail_haubergeon(ctx):
     """Riveted mail shirt, elbow sleeves, hem above the aketon's."""
     t = ctx.t
-    ease = lambda p: 0.034
+    extra = layer_ease(ctx)
+    ease = lambda p: 0.034 + extra
     obj = bodice(ctx, "Garment_mail_haubergeon", ease, t["lowerarm.l"].x + 0.04, t["hips"].z + 0.02,
                  neck_raise=0.02, iterations=24)
-    loft_skirt(ctx, obj, t["lowerleg.l"].z + 0.24, flare=1.28, fold_depth=0.006, folds=8, seed=9)
+    # Layered (crowd): wider than the layered aketon skirt it covers.
+    loft_skirt(ctx, obj, t["lowerleg.l"].z + (0.14 if extra > 0 else 0.24), flare=1.95 if extra > 0 else 1.28,
+               fold_depth=0.006, folds=8, seed=9)
     grain_uv(ctx, obj, "mail")
-    return [finish(ctx, obj, "mail", (0.42, 0.42, 0.44), "mail", 0.004)]
+    mail = finish(ctx, obj, "mail", (0.42, 0.42, 0.44), "mail", 0.004)
+    # Worn layers the surcoat must clear (citizen layers stack aketon -> mail -> surcoat).
+    ctx.layers["mail_haubergeon"] = BVHTree.FromObject(mail, bpy.context.evaluated_depsgraph_get())
+    return [mail]
 
 
 def hose(ctx):
@@ -935,7 +955,8 @@ def transfer_weights(ctx, obj):
 def smith_apron(ctx):
     """Heavy leather forge apron from chest to below the knee (Schurz)."""
     return apron(ctx, "Garment_smith_apron", "apron_leather", "leather",
-                 ctx.palette("smith_apron", (0.26, 0.15, 0.08)), bib=True, over="work_tunic")
+                 ctx.palette("smith_apron", (0.26, 0.15, 0.08)), bib=True,
+                 over=ctx.spec.get("apron_over", "work_tunic"))
 
 
 def waist_apron(ctx):
@@ -1273,6 +1294,404 @@ def braies(ctx):
     return finish(ctx, obj, "linen", textiles_color("linen"), "braies", 0.002)
 
 
+# --------------------------------------------------------------------------
+# Citizen layers (docs/SYSTEMS/CITIZEN_WARDROBE.md)
+#
+# Crowd bodies bake one base outfit (tunic or gown, hose, boots, belt). These
+# garments and accessories are fitted to the same body in the same run but
+# exported as separate skinned GLBs, and the census wardrobe rules pick which
+# ones a resident wears (KCD2-style layering). They clear the baked base, not
+# each other, except where a kit always stacks them (mail over the aketon, the
+# bascinet over the mail coif).
+# --------------------------------------------------------------------------
+
+def layer_ease(ctx):
+    """Extra clearance for torso layers worn over a baked tunic and belt (0 for heroes)."""
+    return float(ctx.spec.get("layer_ease", 0.0))
+
+
+def base_trees(ctx):
+    """The skin plus the baked base torso garment (tunic or gown), when there is one."""
+    trees = [ctx.bvh]
+    base = ctx.layers.get(ctx.spec.get("apron_over", ""))
+    if base is not None:
+        trees.append(base)
+    return trees
+
+
+def outer_radius(trees, origin, direction, fallback=0.16):
+    """Distance from a point inside the body to the outermost worn surface along `direction`.
+
+    Rays start inside, so the first hit is the trunk (or the garment over it),
+    never a hanging arm."""
+    best = None
+    for tree in trees:
+        hit = tree.ray_cast(origin, direction, 1.0)
+        if hit[0] is not None:
+            d = (hit[0] - origin).length
+            best = d if best is None else max(best, d)
+    return best if best is not None else fallback
+
+
+def horizontal(angle):
+    """Unit direction around the body: 0 = front (-Y), +90 degrees = the wearer's left (+X)."""
+    return Vector((math.sin(angle), -math.cos(angle), 0))
+
+
+def belt_anchor(ctx, angle, drop=0.0):
+    """Point just outside the baked belt at `angle`, and the outward direction there."""
+    t = ctx.t
+    origin = Vector((0, t["hips"].y, t["spine"].z - 0.02))
+    out = horizontal(angle)
+    skin = outer_radius([ctx.bvh], origin, out) + 0.03  # the belt sits 0.024 + 0.005 off the skin
+    worn = outer_radius(base_trees(ctx), origin, out) + 0.006
+    return origin + out * max(skin, worn) - Vector((0, 0, drop)), out
+
+
+def clear_of_body(ctx, p, pad):
+    """Push `p` horizontally out of the body and base garment by at least `pad`."""
+    origin = Vector((0, ctx.t["hips"].y, p.z))
+    flat = Vector((p.x, p.y - origin.y, 0))
+    if flat.length < 1e-5:
+        return p
+    out = flat.normalized()
+    r = outer_radius(base_trees(ctx), origin, out, fallback=0.0) + pad
+    return p if flat.length >= r else origin + out * r
+
+
+def clear_of(trees, axis_y, p, pad):
+    """Push `p` horizontally (from the body axis) outside every tree by `pad`."""
+    origin = Vector((0, axis_y, p.z))
+    flat = Vector((p.x, p.y - axis_y, 0))
+    if flat.length < 1e-5 or not trees:
+        return p
+    out = flat.normalized()
+    r = outer_radius(trees, origin, out, fallback=0.0) + pad
+    return p if flat.length >= r else origin + out * r
+
+
+def rigid_part(ctx, obj, weights, family, color, key):
+    """Weight a loose accessory mesh to bones, give it grain UVs and the textile material."""
+    for bone, w in weights.items():
+        obj.vertex_groups.new(name=bone).add([v.index for v in obj.data.vertices], w, "REPLACE")
+    grain_uv(ctx, obj, family, override=lambda p: "torso")
+    return finish(ctx, obj, family, color, key)
+
+
+def lathe(name, profile, place, segments=12):
+    """Closed surface of revolution; `profile` is [(radius, z)] top to bottom in the
+    item's frame and `place(Vector)` maps that frame onto the body."""
+    bm = bmesh.new()
+    rings = []
+    for radius, z in profile:
+        if radius <= 1e-5:
+            rings.append([bm.verts.new(place(Vector((0, 0, z))))])
+            continue
+        rings.append([bm.verts.new(place(Vector((radius * math.cos(2 * math.pi * i / segments),
+                                                  radius * math.sin(2 * math.pi * i / segments), z))))
+                      for i in range(segments)])
+    for a, b in zip(rings, rings[1:]):
+        for i in range(segments):
+            if len(a) == 1 and len(b) == 1:
+                break
+            if len(a) == 1:
+                bm.faces.new((a[0], b[(i + 1) % segments], b[i]))
+            elif len(b) == 1:
+                bm.faces.new((a[i], a[(i + 1) % segments], b[0]))
+            else:
+                bm.faces.new((a[i], a[(i + 1) % segments], b[(i + 1) % segments], b[i]))
+    for ring in (rings[0], rings[-1]):
+        if len(ring) > 2:
+            bm.faces.new(ring)
+    bmesh.ops.recalc_face_normals(bm, faces=list(bm.faces))
+    mesh = bpy.data.meshes.new(name)
+    bm.to_mesh(mesh)
+    bm.free()
+    obj = bpy.data.objects.new(name, mesh)
+    bpy.context.scene.collection.objects.link(obj)
+    return obj
+
+
+def frame_placer(origin, out, up=Vector((0, 0, 1)), squash=1.0):
+    """Item frame -> body: local X along the body surface, local Y outward
+    (flattened by `squash`), local Z along `up`."""
+    up = up.normalized()
+    out = (out - up * out.dot(up)).normalized()
+    side = up.cross(out).normalized()
+    return lambda v: origin + side * v.x + out * (v.y * squash) + up * v.z
+
+
+def keys(ctx):
+    """Iron key ring at the girdle: the housewife's authority (dossier: keys at belt)."""
+    anchor, out = belt_anchor(ctx, math.radians(58))
+    iron = ctx.palette("keys", (0.30, 0.29, 0.28))
+    hang = anchor + out * 0.005 - Vector((0, 0, 0.035))
+    parts = [rigid_part(ctx, torus("Garment_keys_ring", hang, out, 0.02, 0.0022, 14, 5),
+                        {"hips": 1.0}, "iron", iron, "keys")]
+    side = Vector((0, 0, 1)).cross(out).normalized()
+    for i, (dx, length) in enumerate(((-0.012, 0.075), (0.0, 0.095), (0.013, 0.065))):
+        top = hang + side * dx - Vector((0, 0, 0.02))
+        bow = torus(f"Garment_keys_bow{i}", top - Vector((0, 0, 0.008)), out, 0.008, 0.0018, 10, 4)
+        parts.append(rigid_part(ctx, bow, {"hips": 1.0}, "iron", iron, "keys"))
+        shank = top - Vector((0, 0, 0.016 + length / 2))
+        parts.append(rigid_box(ctx, f"Garment_keys_shank{i}", shank, (0.0045, 0.0045, length), "hips",
+                               "iron", iron, "keys"))
+        bit = shank - Vector((0, 0, length / 2 - 0.008)) + side * 0.006
+        parts.append(rigid_box(ctx, f"Garment_keys_bit{i}", bit, (0.012, 0.004, 0.014), "hips",
+                               "iron", iron, "keys"))
+    return parts
+
+
+def paternoster(ctx):
+    """Prayer beads hanging in a loop from the girdle (clergy, pious burghers)."""
+    a, out = belt_anchor(ctx, math.radians(-32))
+    b, _ = belt_anchor(ctx, math.radians(-14))
+    beads = bmesh.new()
+    count = 24
+    for i in range(count):
+        s = i / (count - 1)
+        p = a.lerp(b, s) - Vector((0, 0, 0.17 * math.sin(math.pi * s) ** 0.7))
+        p = clear_of_body(ctx, p, 0.012)
+        bmesh.ops.create_uvsphere(beads, u_segments=6, v_segments=4,
+                                  radius=0.0085 if i % 6 == 0 else 0.0062,
+                                  matrix=Matrix.Translation(p))
+    low = clear_of_body(ctx, a.lerp(b, 0.5) - Vector((0, 0, 0.2)), 0.012)
+    bmesh.ops.create_cone(beads, cap_ends=True, segments=6, radius1=0.012, radius2=0.002, depth=0.04,
+                          matrix=Matrix.Translation(low - Vector((0, 0, 0.012))))
+    mesh = bpy.data.meshes.new("Garment_paternoster")
+    beads.to_mesh(mesh)
+    beads.free()
+    obj = bpy.data.objects.new("Garment_paternoster", mesh)
+    bpy.context.scene.collection.objects.link(obj)
+    return [rigid_part(ctx, obj, {"hips": 1.0}, "leather", ctx.palette("paternoster", (0.36, 0.22, 0.10)),
+                       "paternoster")]
+
+
+def _strap_path(ctx, keypoints, pad, samples=40):
+    """A strap laid over the worn body through keypoints (Catmull-Rom), each sample
+    pushed out of the body: horizontally on the trunk, from the chest centre at
+    the shoulder."""
+    t = ctx.t
+    pts = [keypoints[0]] + keypoints + [keypoints[-1]]
+    path = []
+    for seg in range(1, len(pts) - 2):
+        p0, p1, p2, p3 = pts[seg - 1], pts[seg], pts[seg + 1], pts[seg + 2]
+        steps = max(2, samples // (len(keypoints) - 1))
+        for k in range(steps):
+            u = k / steps
+            path.append(0.5 * ((2 * p1) + (-p0 + p2) * u + (2 * p0 - 5 * p1 + 4 * p2 - p3) * u * u
+                               + (-p0 + 3 * p1 - 3 * p2 + p3) * u * u * u))
+    path.append(keypoints[-1])
+    shoulder_z = t["chest"].z + 0.06
+    centre = Vector((0, t["hips"].y, t["chest"].z))
+    trees = base_trees(ctx)
+    out = []
+    for p in path:
+        if p.z > shoulder_z:
+            d = (p - centre).normalized()
+            r = 0.0
+            for tree in trees:
+                hit = tree.ray_cast(centre + d * 0.6, -d, 0.6)
+                if hit[0] is not None:
+                    r = max(r, (hit[0] - centre).length)
+            out.append(centre + d * (max(r, (p - centre).length * 0.6) + pad))
+        else:
+            out.append(clear_of_body(ctx, p, pad))
+    return out
+
+
+def _chest_hips_weights(ctx, obj):
+    t = ctx.t
+    chest = obj.vertex_groups.new(name="chest")
+    hips = obj.vertex_groups.new(name="hips")
+    for v in obj.data.vertices:
+        w = float(surfaces.smoothstep(t["spine"].z, t["chest"].z, v.co.z))
+        chest.add([v.index], w, "REPLACE")
+        hips.add([v.index], 1.0 - w, "REPLACE")
+
+
+def _shoulder_top(ctx, x):
+    """Highest worn point over the shoulder at lateral offset x."""
+    t = ctx.t
+    best = t["chest"].z + 0.1
+    for tree in base_trees(ctx):
+        hit = tree.ray_cast(Vector((x, t["upperarm.l"].y, t["head"].z + 0.3)), Vector((0, 0, -1)), 1.0)
+        if hit[0] is not None:
+            best = max(best, hit[0].z)
+    return Vector((x, t["upperarm.l"].y, best))
+
+
+def satchel(ctx):
+    """Leather scrip on the left hip, strap over the right shoulder (clerks, pilgrims, pedlars)."""
+    t = ctx.t
+    leather = ctx.palette("satchel", (0.30, 0.19, 0.10))
+    shoulder = _shoulder_top(ctx, -t["upperarm.l"].x * 0.55)
+    hip_front, _ = belt_anchor(ctx, math.radians(78), drop=0.05)
+    hip_back, _ = belt_anchor(ctx, math.radians(112), drop=0.05)
+    chest_front = Vector((0.0, t["hips"].y - 0.3, t["chest"].z - 0.06))
+    chest_back = Vector((0.0, t["hips"].y + 0.3, t["chest"].z - 0.06))
+    path = _strap_path(ctx, [hip_front, chest_front, shoulder, chest_back, hip_back], 0.005)
+    strap = strap_tube(ctx, "Garment_satchel_strap", path, 0.03, None)
+    _chest_hips_weights(ctx, strap)
+    grain_uv(ctx, strap, "leather", override=lambda p: "torso")
+    parts = [finish(ctx, strap, "leather", leather, "satchel")]
+    anchor, out = belt_anchor(ctx, math.radians(95), drop=0.15)
+    place = frame_placer(anchor + out * 0.035, out)
+    bag = lathe("Garment_satchel_bag", [(0.0, 0.1), (0.1, 0.1), (0.12, 0.06), (0.125, -0.04),
+                                        (0.11, -0.09), (0.0, -0.095)], place, segments=10)
+    # Flatten the lathe into a pouch: thin outward, wide along the body.
+    for v in bag.data.vertices:
+        local = v.co - (anchor + out * 0.035)
+        along_out = out * local.dot(out)
+        v.co = anchor + out * 0.035 + (local - along_out) + along_out * 0.28
+    parts.append(rigid_part(ctx, bag, {"hips": 1.0}, "leather", leather, "satchel"))
+    flap = rigid_box(ctx, "Garment_satchel_flap", anchor + out * 0.07 + Vector((0, 0, 0.05)),
+                     (abs(out.y) * 0.2 + 0.006, abs(out.x) * 0.2 + 0.006, 0.09), "hips", "leather", leather,
+                     "satchel")
+    parts.append(flap)
+    return parts
+
+
+def back_sack(ctx):
+    """Grain or wool sack on the back, rope over the right shoulder (porters, carters, millers)."""
+    t = ctx.t
+    sacking = ctx.palette("back_sack", (0.62, 0.55, 0.42))
+    back = horizontal(math.pi)
+    origin = Vector((0, t["hips"].y, t["chest"].z - 0.1))
+    r = outer_radius(base_trees(ctx), origin, back)
+    centre = origin + back * (r + 0.1)
+    up = Vector((-0.28, 0.0, 1.0))
+    place = frame_placer(centre, back, up=up, squash=0.62)
+    profile = [(0.0, 0.3), (0.035, 0.29), (0.05, 0.25), (0.13, 0.19), (0.16, 0.08), (0.17, -0.06),
+               (0.155, -0.17), (0.11, -0.23), (0.0, -0.25)]
+    sack = lathe("Garment_back_sack", profile, place, segments=14)
+    # Lumpy grain: a little low-frequency noise so the sack is not a turned vase.
+    for v in sack.data.vertices:
+        d = v.co - centre
+        bump = 0.012 * math.sin(d.x * 41 + d.z * 23) + 0.008 * math.sin(d.y * 37 - d.z * 29)
+        if d.length > 1e-4:
+            v.co += d.normalized() * bump
+    parts = [rigid_part(ctx, sack, {"chest": 1.0}, "linen", sacking, "back_sack")]
+    neck = place(Vector((0, 0, 0.27)))
+    shoulder = _shoulder_top(ctx, -t["upperarm.l"].x * 0.5)
+    front = Vector((-t["upperarm.l"].x * 0.35, t["hips"].y - 0.3, t["chest"].z - 0.02))
+    rope = strap_tube(ctx, "Garment_back_sack_rope", _strap_path(ctx, [neck, shoulder, front], 0.006), 0.014,
+                      None)
+    rope.vertex_groups.new(name="chest").add([v.index for v in rope.data.vertices], 1.0, "REPLACE")
+    grain_uv(ctx, rope, "linen", override=lambda p: "torso")
+    parts.append(finish(ctx, rope, "linen", (0.55, 0.47, 0.33), "back_sack_rope"))
+    return parts
+
+
+def head_shell(ctx, name, key, family, color, ease, rim, apex=0.0, rows=12, columns=40, thickness=0.003,
+               roll=0.0):
+    """Close cap or helmet: crown down to rim(theta) degrees of elevation round the head
+    (0 = front). Radii are the outermost hit on head or hair plus ease, like head_wrap."""
+    t, lm = ctx.t, ctx.lm
+    targets = [trunk_bvh(ctx)]
+    hair = bpy.data.objects.get("Hair_Scalp")
+    if hair is not None:
+        targets.append(BVHTree.FromObject(hair, bpy.context.evaluated_depsgraph_get()))
+    eyes_mid = Vector(((lm["eye_l"] + lm["eye_r"]) / 2).tolist())
+    centre = Vector((0, t["head"].y + 0.01, eyes_mid.z + 0.01))
+
+    def outer(direction):
+        best = 0.0
+        for tree in targets:
+            hit = tree.ray_cast(centre + direction * 0.6, -direction)
+            if hit[0] is not None:
+                best = max(best, (hit[0] - centre).dot(direction))
+        return best
+
+    grid = []
+    for r in range(rows + 1):
+        s = r / rows
+        row = []
+        for c in range(columns):
+            theta = c / columns * 2 * math.pi
+            elevation = math.radians(86 - (86 - rim(theta)) * s)
+            d = horizontal(theta) * math.cos(elevation) + Vector((0, 0, math.sin(elevation)))
+            p = centre + d * (outer(d) + ease)
+            if apex:
+                # Pointed skull (bascinet): raise the crown, lean the point back.
+                p += Vector((0, 0.25 * apex, apex)) * max(0.0, 1.0 - s / 0.45) ** 2
+            row.append(p)
+        grid.append(row)
+    floor = [[(p - centre).length for p in row] for row in grid]
+    for _ in range(3):
+        grid = [[(grid[r][c] * 2 + grid[r][(c + 1) % columns] + grid[r][c - 1]
+                  + (grid[r - 1][c] if r > 0 else grid[r][c]) + (grid[r + 1][c] if r < rows else grid[r][c])) / 6
+                 for c in range(columns)] for r in range(rows + 1)]
+        grid = [[centre + (p - centre).normalized() * max((p - centre).length, floor[r][c])
+                 for c, p in enumerate(row)] for r, row in enumerate(grid)]
+    bm = bmesh.new()
+    verts = [[bm.verts.new(p) for p in row] for row in grid]
+    top = bm.verts.new(sum(grid[0], Vector()) / columns + Vector((0, 0, 0.004)))
+    for c in range(columns):
+        bm.faces.new((top, verts[0][(c + 1) % columns], verts[0][c]))
+    for r in range(rows):
+        for c in range(columns):
+            bm.faces.new((verts[r][c], verts[r][(c + 1) % columns], verts[r + 1][(c + 1) % columns],
+                          verts[r + 1][c]))
+    bmesh.ops.recalc_face_normals(bm, faces=list(bm.faces))
+    mesh = bpy.data.meshes.new(name)
+    bm.to_mesh(mesh)
+    bm.free()
+    obj = bpy.data.objects.new(name, mesh)
+    bpy.context.scene.collection.objects.link(obj)
+    obj.vertex_groups.new(name="head").add([v.index for v in obj.data.vertices], 1.0, "REPLACE")
+    grain_uv(ctx, obj, family, override=lambda p: "head")
+    parts = [finish(ctx, obj, family, color, key, thickness)]
+    if roll:
+        parts += [finish_hem(ctx, h, family, color, key) for h in hem_rolls(ctx, obj, roll, key, family, color)]
+    return parts
+
+
+def _front_rim(front_deg, side_deg, start=35.0, end=115.0):
+    """Rim elevation: `front_deg` over the brow easing to `side_deg` at the sides and back."""
+    def rim(theta):
+        front = math.degrees(min(theta, 2 * math.pi - theta))
+        return front_deg + (side_deg - front_deg) * float(surfaces.smoothstep(start, end, front))
+    return rim
+
+
+def wool_cap(ctx):
+    """Close wool cap with a rolled brim (labourers, boys, Estonian townsmen)."""
+    return head_shell(ctx, "Garment_wool_cap", "wool_cap", "wool", ctx.palette("wool_cap", (0.36, 0.29, 0.21)),
+                      ease=0.008, rim=_front_rim(24, 12), roll=0.009)
+
+
+def coif(ctx):
+    """Linen coif tied under the chin: the everyday working man's head covering."""
+    # A close cap over the brow, down over the ears to the jaw at the sides and nape:
+    # a head shell, not a hood, so nothing spreads over the shoulders.
+    return head_shell(ctx, "Garment_coif", "coif", "linen", ctx.palette("coif", (0.80, 0.77, 0.68)),
+                      ease=0.006, rim=_front_rim(30, -42, start=35, end=80), thickness=0.002, roll=0.004)
+
+
+def veil_over(ctx):
+    """Linen veil over the baked headscarf: married burgher women; black for nuns and widows."""
+    return head_wrap(ctx, "Garment_veil_over", "veil_over", "linen", ctx.palette("veil_over", (0.86, 0.84, 0.78)),
+                     head_ease=0.026, hem_below_neck=0.24, face=(56, 12, -85), cape_ease=0.045, hair=False,
+                     open_front=80, folds=0.01)
+
+
+def mail_coif(ctx):
+    """Mail coif with a short cape over the shoulders (men-at-arms, sergeants, knights)."""
+    parts = head_wrap(ctx, "Garment_mail_coif", "mail_coif", "mail", (0.42, 0.42, 0.44), head_ease=0.012,
+                      hem_below_neck=0.15, face=(44, 26, -60), cape_ease=0.05 + layer_ease(ctx), hair=True,
+                      folds=0.003)
+    # The knight's surcoat goes over the coif's cape (surcoat() clears this tree).
+    ctx.layers["mail_coif"] = BVHTree.FromObject(parts[0], bpy.context.evaluated_depsgraph_get())
+    return parts
+
+
+def bascinet(ctx):
+    """Open-faced pointed bascinet (1330s-40s), worn over the mail coif."""
+    return head_shell(ctx, "Garment_bascinet", "bascinet", "iron", (0.74, 0.73, 0.71), ease=0.032,
+                      rim=_front_rim(26, -18, start=40, end=100), apex=0.05, thickness=0.0025)
+
+
 # Wardrobe definitions: slot, hidden body regions, builder.
 WARDROBE = {
     "linen_shirt": ("torso", ["Anatomy_Torso", "Anatomy_Arms", "Anatomy_Forearms"], linen_shirt),
@@ -1302,4 +1721,14 @@ WARDROBE = {
     "work_gown": ("torso", ["Anatomy_Torso", "Anatomy_Arms", "Anatomy_Forearms", "Anatomy_Legs"],
                   lambda c: tunic(c, "work_gown", hem="calf", color_key="work_gown", flare=1.9, folds=20,
                                   belted=c.spec.get("belted", "plain"))),
+    # Citizen layers: exported separately per crowd body (citizen_bodies.LAYERS).
+    "coif": ("head", [], coif),
+    "wool_cap": ("head", [], wool_cap),
+    "veil_over": ("head", [], veil_over),
+    "mail_coif": ("head", [], mail_coif),
+    "bascinet": ("head", [], bascinet),
+    "keys": ("accessory", [], keys),
+    "paternoster": ("accessory", [], paternoster),
+    "satchel": ("accessory", [], satchel),
+    "back_sack": ("accessory", [], back_sack),
 }

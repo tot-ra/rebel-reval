@@ -14,19 +14,19 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `1189`
+- Active Markdown files scanned: `1190`
 - Markdown files excluded as archive/reference/out of active scope: `755`
-- Local/external links inspected: `13385`
-- Links to active Markdown docs: `12176`
-- Links to existing archive/reference/non-active local docs: `459`
+- Local/external links inspected: `13409`
+- Links to active Markdown docs: `12183`
+- Links to existing archive/reference/non-active local docs: `461`
 - External links skipped for reachability: `145`
-- Issues found: `1`
+- Issues found: `0`
 
 ## Issue counts
 
 | Code | Count |
 | --- | ---: |
-| `BROKEN_LINK` | 1 |
+| `BROKEN_LINK` | 0 |
 | `BROKEN_ANCHOR` | 0 |
 | `DUPLICATE_CHARACTER_NAME` | 0 |
 | `CONTRADICTORY_DATE` | 0 |
@@ -34,9 +34,7 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Issues
 
-| Code | Location | Detail |
-| --- | --- | --- |
-| `BROKEN_LINK` | `docs/SYSTEMS/README.md:18` | Local Markdown link target does not exist: `./CITIZEN_WARDROBE.md` |
+No active Markdown documentation issues found.
 
 ## Active files scanned
 
@@ -1092,6 +1090,7 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/SYSTEMS/AUDIO.md`
 - `docs/SYSTEMS/BESTIARY.md`
 - `docs/SYSTEMS/CHURCH_INTERIORS.md`
+- `docs/SYSTEMS/CITIZEN_WARDROBE.md`
 - `docs/SYSTEMS/CITIZENS.md`
 - `docs/SYSTEMS/CITY_LANDMARK_SITES.md`
 - `docs/SYSTEMS/CITY_SEA.md`

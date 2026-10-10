@@ -34,6 +34,7 @@ sys.path.insert(0, str(ROOT / "tools/assets/realistic_humans"))
 import citizen_bodies  # noqa: E402
 
 sys.path.insert(0, str(ROOT / "tools/city"))
+import citizen_wardrobe  # noqa: E402
 import gate_garrisons  # noqa: E402
 
 CENSUS = ROOT / "docs/data/city_census.json"
@@ -550,6 +551,11 @@ def build():
 
     household_xy = {h["id"]: tuple(h["xy"]) for h in census["households"] if h.get("xy")}
     patrols, _ = gate_garrisons.assign(plan, residents, household_xy, place, hash01)
+    # Layered dress after the duty roster: kits depend on the post (CITIZEN_WARDROBE.md).
+    for rec in residents:
+        _, sex, stage = rec["body"].split("_")[:3]
+        available = citizen_bodies.layers_of(sex, stage, "b" if rec["body"].endswith("_b") else "a")
+        rec["wear"], rec["wear_dye"] = citizen_wardrobe.dress(rec, available)
 
     # Households living in a plan house: what their rooms are furnished with
     # (docs/SYSTEMS/HOUSEHOLDS.md). Size counts every member, infants too.
