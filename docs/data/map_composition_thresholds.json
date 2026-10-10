@@ -275,7 +275,7 @@
       "decals_per_1000": "Authored decals per 1000 walkable cells.",
       "distinct_prop_kinds": "Distinct dressing prop kinds.",
       "max_prop_kind_share_pct": "Largest share of dressing props taken by one kind.",
-      "ground_cover_pct": "Walkable cells on grass-family terrain, under a vegetation style_variant zone, or holding a tree/bush/orchard/garden/field prop.",
+      "ground_cover_pct": "Walkable cells on grass-family terrain, under a vegetation style_variant zone, or holding a tree/bush/garden/field prop.",
       "relief_span_m": "Sampled height range; the R-951 elevation_range_min mechanism, reported under code MAP_COMPOSITION_ELEVATION_FLAT.",
       "max_identical_footprint_run": "Largest group of houses with the same whole-cell footprint (rotation-agnostic) standing at most one cell apart along a row or column.",
       "wealth_tiers / age_tiers": "Distinct wealth_tier / age_tier values on houses. Reported only; judged once R-981 lands and tier_spread_active flips."

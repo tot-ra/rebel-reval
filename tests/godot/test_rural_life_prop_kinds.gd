@@ -6,7 +6,7 @@ extends "res://tests/godot/map_view_3d_test_base.gd"
 func test_all_rural_life_kinds_are_registered() -> void:
 	assert_eq(
 		MapTypes.RURAL_LIFE_PROP_KINDS.size(),
-		15,
+		14,
 		"P0-107 rural prop-kind set plus authored field tools must stay in sync with MapTypes"
 	)
 	for kind in MapTypes.RURAL_LIFE_PROP_KINDS:
@@ -83,11 +83,22 @@ func test_authored_farm_tools_keep_readable_metric_silhouettes_and_pbr() -> void
 		assert_true(model.get_meta(&"production_medieval_hand_tool", false))
 		var metrics := _tool_metrics(model)
 		var height: Vector2 = spec["height"]
-		assert_true(metrics["bounds"].size.y >= height.x and metrics["bounds"].size.y <= height.y, "%s height must stay plausible" % kind)
+		var size_y: float = metrics["bounds"].size.y
+		assert_true(
+			size_y >= height.x and size_y <= height.y, "%s height must stay plausible" % kind
+		)
 		assert_true(metrics["bounds"].position.y >= -0.001, "%s must rest on the ground plane" % kind)
-		assert_eq(metrics["triangles"], spec["triangles"], "%s geometry must stay deterministic" % kind)
-		assert_eq(metrics["materials"], spec["materials"], "%s material identities must stay stable" % kind)
-		assert_eq(metrics["pbr_materials"], spec["materials"], "%s needs albedo, normal, and roughness on every material" % kind)
+		assert_eq(
+			metrics["triangles"], spec["triangles"], "%s geometry must stay deterministic" % kind
+		)
+		assert_eq(
+			metrics["materials"], spec["materials"], "%s material identities must stay stable" % kind
+		)
+		assert_eq(
+			metrics["pbr_materials"],
+			spec["materials"],
+			"%s needs albedo, normal, and roughness on every material" % kind
+		)
 		node.free()
 
 
@@ -110,7 +121,12 @@ func _tool_metrics(model: Node3D) -> Dictionary:
 			if material == null:
 				continue
 			materials[material.resource_name] = true
-			if material.albedo_texture != null and material.normal_enabled and material.normal_texture != null and material.roughness_texture != null:
+			if (
+				material.albedo_texture != null
+				and material.normal_enabled
+				and material.normal_texture != null
+				and material.roughness_texture != null
+			):
 				pbr_materials[material.resource_name] = true
 	return {
 		"bounds": bounds,

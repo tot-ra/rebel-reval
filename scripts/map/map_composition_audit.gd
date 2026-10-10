@@ -33,7 +33,6 @@ const VEGETATION_PROP_KINDS: Array[StringName] = [
 const GROUND_COVER_PROP_KINDS: Array[StringName] = [
 	MapTypes.PROP_KIND_TREE,
 	MapTypes.PROP_KIND_BUSH,
-	MapTypes.PROP_KIND_ORCHARD_ROW,
 	MapTypes.PROP_KIND_KITCHEN_GARDEN,
 	MapTypes.PROP_KIND_FIELD_STRIP,
 ]

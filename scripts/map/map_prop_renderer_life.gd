@@ -290,26 +290,6 @@ static func draw_rural_life_prop(
 			Draw.add_rect(
 				parent, "Door", Vector2(-8, -2), Vector2(16, 10), timber, target, time_of_day
 			)
-		MapTypes.PROP_KIND_ORCHARD_ROW:
-			for index in 3:
-				Draw.add_circle(
-					parent,
-					"Crown%d" % index,
-					Vector2(-12 + index * 12, -6),
-					7.0,
-					vegetation,
-					target,
-					time_of_day
-				)
-				Draw.add_rect(
-					parent,
-					"Trunk%d" % index,
-					Vector2(-2 + index * 12, 2),
-					Vector2(4, 8),
-					wood,
-					target,
-					time_of_day
-				)
 		MapTypes.PROP_KIND_FARM_CART:
 			Draw.add_rect(
 				parent, "Bed", Vector2(-14, -6), Vector2(28, 12), wood, target, time_of_day

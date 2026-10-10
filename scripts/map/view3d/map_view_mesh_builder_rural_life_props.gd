@@ -29,8 +29,6 @@ static func add_to(root: Node3D, kind: StringName) -> void:
 			_add_flax_drying_frame(root)
 		MapTypes.PROP_KIND_ROOT_CELLAR_MOUND:
 			_add_root_cellar_mound(root)
-		MapTypes.PROP_KIND_ORCHARD_ROW:
-			_add_orchard_row(root)
 		MapTypes.PROP_KIND_FARM_CART:
 			_add_farm_cart(root)
 		_:
@@ -192,22 +190,6 @@ static func _add_flax_drying_frame(root: Node3D) -> void:
 
 static func _add_root_cellar_mound(root: Node3D) -> void:
 	_RootCellarModels.add_model(root)
-
-
-static func _add_orchard_row(root: Node3D) -> void:
-	for index in 3:
-		var along := lerpf(-0.55, 0.55, float(index) / 2.0)
-		_Primitives.cylinder(
-			root, "Trunk%d" % index, 0.08, 0.62, Vector3(along, 0.31, 0.0), &"wood"
-		)
-		_Primitives.sphere(
-			root,
-			"Crown%d" % index,
-			0.28,
-			Vector3(along, 0.72, 0.0),
-			&"vegetation",
-			Vector3(0.95, 1.05, 0.95)
-		)
 
 
 static func _add_farm_cart(root: Node3D) -> void:
