@@ -26,6 +26,8 @@ const STONE_ALBEDO := "res://assets/materials/pbr/stone/stone_albedo.png"
 const STONE_NORMAL := "res://assets/materials/pbr/stone/stone_normal.png"
 const TIMBER_ALBEDO := "res://assets/materials/pbr/timber/timber_albedo.png"
 const TIMBER_NORMAL := "res://assets/materials/pbr/timber/timber_normal.png"
+## One sawn board, 1024x128 with the grain along U (assets/materials/pbr/bridge_timber).
+const BOARD_STEM := "res://assets/materials/pbr/bridge_timber/bridge_timber_1"
 
 ## Glazing programme per church site: the row of PROGRAMMES in
 ## city_stained_glass.gdshader that picks its window plates.
@@ -965,6 +967,20 @@ static func material_for(key: String) -> Material:
 			std.roughness = 0.82
 			std.cull_mode = BaseMaterial3D.CULL_DISABLED
 			mat = std
+		"board":
+			# Sawn oak boards with explicit UVs (CityChurchFurnishings._board):
+			# a single-board strip with the grain along U, so the grain follows
+			# each board as it was cut instead of a world-axis projection.
+			var bd := StandardMaterial3D.new()
+			bd.albedo_texture = load(BOARD_STEM + "_albedo.png")
+			bd.normal_enabled = true
+			bd.normal_texture = load(BOARD_STEM + "_normal.png")
+			bd.normal_scale = 0.8
+			# Warms the grey weathered strip towards oiled indoor oak.
+			bd.albedo_color = Color(1.35, 1.1, 0.86)
+			bd.vertex_color_use_as_albedo = true
+			bd.roughness = 0.78
+			mat = bd
 		_:
 			mat = CityBuildingBuilder.material_for_key(key)
 	_materials[key] = mat

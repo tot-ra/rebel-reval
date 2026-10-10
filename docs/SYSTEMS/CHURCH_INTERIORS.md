@@ -4,7 +4,7 @@ Status: in progress (epic task **R-1392**; glazing implemented in CI-01, task **
 
 ## Why
 
-The interiors read as primitive: stained glass was a shader of round medallions (`city_stained_glass.gdshader`, replaced by CI-01), wall decoration was a red circle with a plus sign and a zigzag frieze (both replaced by CI-04), benches are plain boxes with the grain of the shared timber plate, and the liturgical vessels are bars and boxes. Goal: figurative, historically right content, mostly authored as generated art plus small real models.
+The interiors read as primitive: stained glass was a shader of round medallions (`city_stained_glass.gdshader`, replaced by CI-01), wall decoration was a red circle with a plus sign and a zigzag frieze (both replaced by CI-04), benches were plain boxes with the grain of the shared timber plate (replaced by R-1673, see Nave benches below), and the liturgical vessels are bars and boxes. Goal: figurative, historically right content, mostly authored as generated art plus small real models.
 
 ## Period rules (apply to every item below)
 
@@ -83,6 +83,21 @@ In the city with the game's own lighting at noon (`tools/capture_reval_city.gd` 
 | ![St Olaf cutaway at noon](../reports/images/church_interiors/sunlight_game_st_olaf_cutaway.jpg) | ![St Olaf nave at noon](../reports/images/church_interiors/sunlight_game_st_olaf_interior.jpg) |
 
 Limits: the overlay cannot read the shadow map (the Compatibility renderer draws shadowed lights in extra passes), so its shade comes only from the analytic boxes above: furnishings other than piers and benches (altars, font, pulpit, rood, statues), the bench end boards, the capitals and the pointed corners of arch spandrels cast no shade in a patch, and the tracery heads and roundel do not cut it. The reveal is tested at its outer and inner faces only. The added light is a fixed level, not scaled by the surface's albedo (the screen texture read black in the city render). Fixing that screen read would not give the missing shade: the glass blocks the engine's white sun, so the shaded surface under a patch carries no shadow of the coloured light. Shafts do not stop at piers. The interior's ambient light is unchanged, so the patches read best in the cutaway view; a dimmer church interior is a separate change. More than 32 glazed windows in one building: the rest get no window light.
+
+## Nave benches
+
+Status: implemented (task **R-1673**). Scope: the model of the nave benches the Holy Spirit, St Olaf and St Nicholas builders place from their manifest `benches` entries (`at`, `len`). Out of scope: the bench decision above (which churches keep long benches), stools and choir stalls (CI-03).
+
+- **Form:** `CityChurchFurnishings.bench(shell, at, length)` builds a plain oak bench facing the altar (+x): two shaped end boards (an arched cut between the feet, a low arm with a rounded front sweeping up into the back post, a rounded post head), a seat of two boards with a hairline gap housed into the ends, an apron under the seat front, a back of two horizontal boards under a capping rail, and a middle trestle every `BENCH_SPAN` (2.2 m) on long benches. The old kneeler rail on the floor is gone (it read as a loose stick, and kneelers are not a 1343 fitting).
+- **Grain:** every board goes to the kit's `board` material (`Kit.BOARD_STEM`, the 1024x128 `bridge_timber_1` strip with the grain along U) with explicit UVs: `_board` runs U along the board's long axis (seat, apron, back boards along the bench), `_bench_end` runs it up the end boards. A per-bench hash shifts U and tone so neighbouring boards differ. Triplanar timber is no longer used, so the grain no longer crosses the boards.
+- **Light:** the seat and the back still return one occluder box each for `ChurchSunlight`.
+- **Cost:** about 344 triangles per 3.6 m bench (a few thousand per church).
+
+Verify: `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_city_sites`.
+
+| Front | Seat | Back |
+|---|---|---|
+| ![Bench front](../reports/images/church_interiors/benches_front.jpg) | ![Bench seat grain](../reports/images/church_interiors/benches_seat.jpg) | ![Benches from behind](../reports/images/church_interiors/benches_back.jpg) |
 
 ## Pipeline
 

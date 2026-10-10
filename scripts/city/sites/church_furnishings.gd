@@ -14,6 +14,19 @@ const RED := Color(0.58, 0.12, 0.1)
 const BLUE := Color(0.16, 0.24, 0.5)
 ## Retable wings stand open this far from the shrine plane.
 const WING_OPEN := deg_to_rad(55.0)
+## Metres of board one repeat of the "board" strip covers along the grain and
+## across it (the 1024x128 plate keeps its 8:1 aspect).
+const BOARD_GRAIN_M := 2.0
+const BOARD_WIDTH_M := 0.25
+## Bench joinery in bench-local metres (x towards the altar, y up from the floor).
+const BENCH_END_T := 0.055
+const BENCH_SEAT_Y := 0.45
+const BENCH_SEAT_T := 0.045
+const BENCH_SEAT_X := Vector2(-0.22, 0.2)
+const BENCH_BACK_X := Vector2(-0.27, -0.235)
+const BENCH_BACK_TOP := 0.97
+## Longest span between two supports before a middle trestle carries the seat.
+const BENCH_SPAN := 2.2
 
 
 ## Wide boards along the nave, each its own tone, with dark joints.
@@ -52,69 +65,221 @@ static func planks(
 	)
 
 
-## Oak bench facing the altar (+x): seat, back rail, end boards with a
-## rounded top (a plain form of the later pews), a kneeler rail in front.
+## Plain oak bench facing the altar (+x), joined like the later pews in a
+## simpler 14th-century form: two shaped end boards (arched cut between the
+## feet, a low arm, the back post rising to a rounded head), a seat of two
+## boards housed into them, a two-board back under a capping rail, an apron
+## under the seat front, and a middle trestle on long benches. Every board
+## gets UVs along its own length so the grain runs the way it was sawn.
 static func bench(shell: CityBuildingBuilder.Shell, at: Vector3, length: float) -> Array[AABB]:
 	var z0 := at.z - length * 0.5
 	var z1 := at.z + length * 0.5
-	var oak := Kit.OAK_DARK * 0.9
-	oak.a = 1.0
-	CitySiteProps._box(
+	var zi0 := z0 + BENCH_END_T
+	var zi1 := z1 - BENCH_END_T
+	var oak := Kit.OAK_DARK
+	var seed_value := absi(hash(Vector2(at.x, at.z)))
+	var tone := func(k: int) -> Color:
+		var c := oak * (0.9 + 0.2 * float((seed_value >> (k * 3)) % 8) / 7.0)
+		c.a = 1.0
+		return c
+	var slide := func(k: int) -> float:
+		return float((seed_value >> (k * 2)) % 97) * 0.037
+	# Board corners carry absolute z (z0..z1): the base only places x and y.
+	var b := Vector3(at.x, at.y, 0.0)
+	var top := BENCH_SEAT_Y
+	var seat_lo := top - BENCH_SEAT_T
+	# Seat: two boards with a hairline gap, overhanging the front a little.
+	var mid := (BENCH_SEAT_X.x + BENCH_SEAT_X.y) * 0.5
+	_board(
 		shell,
-		"timber",
-		Vector3(at.x - 0.2, at.y + 0.42, z0),
-		Vector3(at.x + 0.18, at.y + 0.47, z1),
-		Kit.OAK
+		b + Vector3(BENCH_SEAT_X.x, seat_lo, zi0),
+		b + Vector3(mid - 0.006, top, zi1),
+		2,
+		tone.call(0),
+		slide.call(0)
 	)
-	CitySiteProps._box(
+	_board(
 		shell,
-		"timber",
-		Vector3(at.x - 0.27, at.y + 0.47, z0),
-		Vector3(at.x - 0.22, at.y + 0.95, z1),
-		oak
+		b + Vector3(mid + 0.006, seat_lo, zi0),
+		b + Vector3(BENCH_SEAT_X.y + 0.02, top, zi1),
+		2,
+		tone.call(1),
+		slide.call(1)
 	)
-	for z: float in [z0, z1 - 0.06]:
-		CitySiteProps._box(
-			shell,
-			"timber",
-			Vector3(at.x - 0.3, at.y, z),
-			Vector3(at.x + 0.2, at.y + 0.9, z + 0.06),
-			oak
-		)
-		# Rounded top of the end board.
-		for j in 4:
-			var a0 := PI * j / 4.0
-			var a1 := PI * (j + 1) / 4.0
-			var c := Vector3(at.x - 0.05, at.y + 0.9, z + 0.03)
-			shell.tri_out(
-				"timber",
-				c + Vector3(-0.03, 0, -0.03),
-				c + Vector3(cos(a0) * 0.25, sin(a0) * 0.18, -0.03),
-				c + Vector3(cos(a1) * 0.25, sin(a1) * 0.18, -0.03),
-				oak,
-				Vector3(0, 0, -1)
-			)
-			shell.tri_out(
-				"timber",
-				c + Vector3(-0.03, 0, 0.03),
-				c + Vector3(cos(a0) * 0.25, sin(a0) * 0.18, 0.03),
-				c + Vector3(cos(a1) * 0.25, sin(a1) * 0.18, 0.03),
-				oak,
-				Vector3(0, 0, 1)
-			)
-	CitySiteProps._box(
+	# Apron under the seat front, set back from the edge.
+	_board(
 		shell,
-		"timber",
-		Vector3(at.x + 0.45, at.y, z0 + 0.06),
-		Vector3(at.x + 0.55, at.y + 0.12, z1 - 0.06),
-		oak
+		b + Vector3(BENCH_SEAT_X.y - 0.06, seat_lo - 0.11, zi0),
+		b + Vector3(BENCH_SEAT_X.y - 0.035, seat_lo, zi1),
+		2,
+		tone.call(2),
+		slide.call(2)
 	)
-	# Seat and back rail shade the window light (ChurchSunlight occluders);
-	# the end boards and the kneeler are too slim to matter.
+	# Back: two horizontal boards and a capping rail, housed in the back posts.
+	_board(
+		shell,
+		b + Vector3(BENCH_BACK_X.x, 0.55, zi0),
+		b + Vector3(BENCH_BACK_X.y, 0.73, zi1),
+		2,
+		tone.call(3),
+		slide.call(3)
+	)
+	_board(
+		shell,
+		b + Vector3(BENCH_BACK_X.x, 0.745, zi0),
+		b + Vector3(BENCH_BACK_X.y, 0.93, zi1),
+		2,
+		tone.call(4),
+		slide.call(4)
+	)
+	_board(
+		shell,
+		b + Vector3(BENCH_BACK_X.x - 0.015, 0.93, zi0),
+		b + Vector3(BENCH_BACK_X.y + 0.015, BENCH_BACK_TOP, zi1),
+		2,
+		tone.call(5),
+		slide.call(5)
+	)
+	_bench_end(shell, b, z0, tone.call(6), true)
+	_bench_end(shell, b, zi1, tone.call(7), true)
+	# Middle trestles: plain boards under the seat, tenoned into the back.
+	var spans := maxi(1, ceili((zi1 - zi0) / BENCH_SPAN))
+	for k in range(1, spans):
+		var zc := lerpf(zi0, zi1, float(k) / spans) - BENCH_END_T * 0.5
+		_bench_end(shell, b, zc, tone.call(8 + k), false)
+	# Seat and back shade the window light (ChurchSunlight occluders); the end
+	# boards are too slim to matter.
 	return [
-		AABB(Vector3(at.x - 0.2, at.y + 0.42, z0), Vector3(0.38, 0.05, length)),
-		AABB(Vector3(at.x - 0.27, at.y + 0.47, z0), Vector3(0.05, 0.48, length)),
+		AABB(
+			b + Vector3(BENCH_SEAT_X.x, seat_lo, z0),
+			Vector3(BENCH_SEAT_X.y + 0.02 - BENCH_SEAT_X.x, BENCH_SEAT_T, length)
+		),
+		AABB(
+			b + Vector3(BENCH_BACK_X.x, 0.55, z0),
+			Vector3(BENCH_BACK_X.y - BENCH_BACK_X.x, BENCH_BACK_TOP - 0.55, length)
+		),
 	]
+
+
+## Bench end board (or, with `full` false, a middle trestle that stops under
+## the seat and back), one plank thick from `z`, grain running up.
+static func _bench_end(
+	shell: CityBuildingBuilder.Shell, b: Vector3, z: float, color: Color, full: bool
+) -> void:
+	var pts := PackedVector2Array()
+	var back := BENCH_BACK_X.x - 0.05
+	pts.append(Vector2(back, 0.0))
+	pts.append(Vector2(-0.17, 0.0))
+	# Arched cut between the feet.
+	for j in range(1, 8):
+		var a := PI - PI * j / 8.0
+		pts.append(Vector2(-0.015 + cos(a) * 0.155, sin(a) * 0.13))
+	pts.append(Vector2(0.14, 0.0))
+	var front := BENCH_SEAT_X.y + 0.03 if full else BENCH_SEAT_X.y - 0.035
+	pts.append(Vector2(front, 0.0))
+	if full:
+		# Low arm with a rounded front, sweeping up into the back post.
+		pts.append(Vector2(front, 0.6))
+		for j in range(1, 4):
+			var a := PI * 0.5 * j / 4.0
+			pts.append(Vector2(front - 0.05 + cos(a) * 0.05, 0.6 + sin(a) * 0.05))
+		pts.append(Vector2(0.0, 0.65))
+		for j in range(1, 6):
+			var t := float(j) / 6.0
+			var p0 := Vector2(0.0, 0.65)
+			var p1 := Vector2(BENCH_BACK_X.y + 0.02, 0.66)
+			var p2 := Vector2(BENCH_BACK_X.y + 0.01, 0.92)
+			pts.append(p0.lerp(p1, t).lerp(p1.lerp(p2, t), t))
+		# Rounded head of the back post.
+		var head_c := Vector2((back + BENCH_BACK_X.y + 0.01) * 0.5, BENCH_BACK_TOP)
+		var head_r := (BENCH_BACK_X.y + 0.01 - back) * 0.5
+		for j in 7:
+			var a := PI * j / 6.0
+			pts.append(head_c + Vector2(cos(a) * head_r, sin(a) * head_r * 0.8))
+	else:
+		pts.append(Vector2(front, BENCH_SEAT_Y - BENCH_SEAT_T))
+		pts.append(Vector2(BENCH_BACK_X.y, BENCH_SEAT_Y - BENCH_SEAT_T))
+		pts.append(Vector2(BENCH_BACK_X.y, 0.55))
+		pts.append(Vector2(back, 0.55))
+	var tris := Geometry2D.triangulate_polygon(pts)
+	var z1 := z + BENCH_END_T
+	var uv := func(p: Vector2) -> Vector2:
+		return Vector2(p.y / BOARD_GRAIN_M, p.x / BOARD_WIDTH_M)
+	for side: float in [z, z1]:
+		var out := Vector3(0, 0, -1 if side == z else 1)
+		for t in range(0, tris.size(), 3):
+			var p0 := pts[tris[t]]
+			var p1 := pts[tris[t + 1]]
+			var p2 := pts[tris[t + 2]]
+			shell.tri_out(
+				"board",
+				b + Vector3(p0.x, p0.y, side),
+				b + Vector3(p1.x, p1.y, side),
+				b + Vector3(p2.x, p2.y, side),
+				color,
+				out,
+				uv.call(p0),
+				uv.call(p1),
+				uv.call(p2)
+			)
+	# Sawn edges round the profile.
+	var ccw := Geometry2D.is_polygon_clockwise(pts) == false
+	for k in pts.size():
+		var p: Vector2 = pts[k]
+		var q: Vector2 = pts[(k + 1) % pts.size()]
+		var e := q - p
+		var n2 := Vector2(e.y, -e.x) if ccw else Vector2(-e.y, e.x)
+		var out := Vector3(n2.x, n2.y, 0.0)
+		var ua := Vector2((p.x + p.y) / BOARD_GRAIN_M, z / BOARD_WIDTH_M)
+		var ub := Vector2((q.x + q.y) / BOARD_GRAIN_M, z / BOARD_WIDTH_M)
+		var dz := Vector2(0.0, BENCH_END_T / BOARD_WIDTH_M)
+		var pa := b + Vector3(p.x, p.y, z)
+		var pb := b + Vector3(q.x, q.y, z)
+		var pc := b + Vector3(q.x, q.y, z1)
+		var pd := b + Vector3(p.x, p.y, z1)
+		shell.tri_out("board", pa, pb, pc, color, out, ua, ub, ub + dz)
+		shell.tri_out("board", pa, pc, pd, color, out, ua, ub + dz, ua + dz)
+
+
+## Box-shaped sawn board from `lo` to `hi` whose grain runs along `axis`
+## (0 x, 1 y, 2 z): each face gets UVs with U along the grain in metres of
+## the "board" strip, `slide` shifting it so neighbouring boards differ.
+static func _board(
+	shell: CityBuildingBuilder.Shell,
+	lo: Vector3,
+	hi: Vector3,
+	axis: int,
+	color: Color,
+	slide: float
+) -> void:
+	var c := (lo + hi) * 0.5
+	var p := [
+		Vector3(lo.x, lo.y, lo.z),
+		Vector3(hi.x, lo.y, lo.z),
+		Vector3(hi.x, hi.y, lo.z),
+		Vector3(lo.x, hi.y, lo.z),
+		Vector3(lo.x, lo.y, hi.z),
+		Vector3(hi.x, lo.y, hi.z),
+		Vector3(hi.x, hi.y, hi.z),
+		Vector3(lo.x, hi.y, hi.z),
+	]
+	for f: Array in [
+		[0, 1, 2, 3], [5, 4, 7, 6], [4, 0, 3, 7], [1, 5, 6, 2], [3, 2, 6, 7], [4, 5, 1, 0]
+	]:
+		var q: Array[Vector3] = [p[f[0]], p[f[1]], p[f[2]], p[f[3]]]
+		var out: Vector3 = (q[0] + q[1] + q[2] + q[3]) * 0.25 - c
+		var normal_axis := Vector3(absf(out.x), absf(out.y), absf(out.z)).max_axis_index()
+		# Across-grain coordinate: the face's other in-plane axis (on the end
+		# grain both in-plane axes are across the grain).
+		var across := 3 - axis - normal_axis if normal_axis != axis else (axis + 1) % 3
+		var along := axis if normal_axis != axis else (axis + 2) % 3
+		var uvs: Array[Vector2] = []
+		for v: Vector3 in q:
+			uvs.append(
+				Vector2((v[along] - lo[along]) / BOARD_GRAIN_M + slide, v[across] / BOARD_WIDTH_M)
+			)
+		shell.tri_out("board", q[0], q[1], q[2], color, out, uvs[0], uvs[1], uvs[2])
+		shell.tri_out("board", q[0], q[2], q[3], color, out, uvs[0], uvs[2], uvs[3])
 
 
 static func font(shell: CityBuildingBuilder.Shell, at: Vector3) -> void:
