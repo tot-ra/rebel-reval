@@ -47,6 +47,8 @@ uniform vec4 win_e[MAX_WINDOWS];
 // Added light = panel colour (brightest channel 1) x level x direct
 // strength x cos(incidence).
 uniform float level = 0.55;
+// Exponent on the normalised panel colour (1 = as the glass, higher = deeper).
+uniform float saturation = 1.8;
 // Oriented boxes, two texels each: (centre xyz, along-wall dir x) and
 // (half extents along / up / across, along-wall dir z).
 uniform sampler2D occluders : filter_nearest, repeat_disable;
@@ -194,6 +196,10 @@ void fragment() {
 		// Keep the hue at full strength: the plates are painted dark
 		// (albedo); the leading (near black) stays dark.
 		tint = col / max(max(col.r, max(col.g, col.b)), 0.12);
+		// A long throw blurs the panel to its plate's mean, a pale mix that
+		// normalises to near white; deepen the weaker channels so the patch
+		// keeps the glass's hue (the leading stays dark: pow keeps 0 at 0).
+		tint = pow(tint, vec3(saturation));
 		hit = true;
 		break;
 	}

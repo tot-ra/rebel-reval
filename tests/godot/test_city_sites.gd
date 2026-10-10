@@ -165,6 +165,14 @@ func test_church_sunlight_through_glass() -> void:
 	)
 	var shafts := built.get_node_or_null("Church/SunShafts") as MeshInstance3D
 	assert_true(shafts != null and shafts.mesh.get_surface_count() == 1, "one shaft mesh")
+	if shafts != null:
+		# The shafts take their colour from the panels, so they carry the
+		# glass layout (CUSTOM0) and the point on the glass (CUSTOM1).
+		var arrays := (shafts.mesh as ArrayMesh).surface_get_arrays(0)
+		var layout := arrays[Mesh.ARRAY_CUSTOM0] as PackedFloat32Array
+		var verts := arrays[Mesh.ARRAY_VERTEX] as PackedVector3Array
+		assert_eq(layout.size(), verts.size() * 4, "glass layout per shaft vertex")
+		assert_true(layout[1] >= 1.0 and layout[0] > 0.0, "layout holds lights and width")
 	if overlay is ShaderMaterial:
 		var count := int((overlay as ShaderMaterial).get_shader_parameter("occluder_count"))
 		# 6 piers x 2 boxes + 2 per bench, then the wall blocks.

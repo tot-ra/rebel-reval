@@ -9,7 +9,8 @@ extends RefCounted
 ## - an overlay (city_window_sunlight.gdshader) on the interior meshes adds
 ##   the light each window lets through, in the colours of its panels;
 ## - a shaft mesh (city_window_shaft.gdshader) draws a faint dusty beam from
-##   every window, pushed along the light in the vertex shader.
+##   every window, pushed along the light in the vertex shader and coloured
+##   by the panels each part of it traces back to.
 ## All three follow the global `window_sun` (push_light), so the patches and
 ## beams move with the sun without rebuilding anything.
 
@@ -294,6 +295,8 @@ static func shafts(wins: Array[Dictionary]) -> MeshInstance3D:
 	var colors := PackedColorArray()
 	var uvs := PackedVector2Array()
 	var uv2s := PackedVector2Array()
+	var custom0 := PackedFloat32Array()
+	var custom1 := PackedFloat32Array()
 	var reach := 0.0
 	for win: Dictionary in wins:
 		var o: Vector3 = win["origin"]
@@ -306,6 +309,11 @@ static func shafts(wins: Array[Dictionary]) -> MeshInstance3D:
 		var tint := window_tint(win)
 		# Alpha carries the opening's width for the shader's reveal cut-off.
 		tint.a = clampf(float(win["width"]) / 4.0, 0.0, 1.0)
+		# The panel layout, so the shader can trace the beam back to the glass
+		# and take the colours of the panels it came through (R-1451 shafts).
+		var glass := Color(
+			float(win["w"]), float(win["lights"]), float(win["height"]), float(win["code"])
+		)
 		var depth := float(win["depth"])
 		var floor_y := float(win["floor"])
 		reach = maxf(reach, maxf(depth, o.y - floor_y + float(win["height"])) * 3.0)
@@ -314,16 +322,25 @@ static func shafts(wins: Array[Dictionary]) -> MeshInstance3D:
 		for k in pts.size():
 			var p := pts[k]
 			var q := pts[(k + 1) % pts.size()]
-			var p3 := base + d3 * (p.x - s0) + Vector3(0, p.y - o.y, 0)
-			var q3 := base + d3 * (q.x - s0) + Vector3(0, q.y - o.y, 0)
+			# Point on the glass (metres across from the left edge, up from
+			# the sill); the far end of the beam traces back to the same one.
+			var pu := Vector2(p.x - s0, p.y - o.y)
+			var qu := Vector2(q.x - s0, q.y - o.y)
+			var p3 := base + d3 * pu.x + Vector3(0, pu.y, 0)
+			var q3 := base + d3 * qu.x + Vector3(0, qu.y, 0)
 			if p3.is_equal_approx(q3):
 				continue
-			for v: Array in [[p3, 0.0], [q3, 0.0], [q3, 1.0], [p3, 0.0], [q3, 1.0], [p3, 1.0]]:
+			for v: Array in [
+				[p3, 0.0, pu], [q3, 0.0, qu], [q3, 1.0, qu], [p3, 0.0, pu], [q3, 1.0, qu], [p3, 1.0, pu]
+			]:
 				verts.append(v[0])
 				normals.append(n)
 				colors.append(tint)
 				uvs.append(Vector2(v[1], depth))
 				uv2s.append(Vector2(floor_y, float(win["thick"])))
+				var g: Vector2 = v[2]
+				custom0.append_array([glass.r, glass.g, glass.b, glass.a])
+				custom1.append_array([g.x, g.y, 0.0, 0.0])
 	var arrays := []
 	arrays.resize(Mesh.ARRAY_MAX)
 	arrays[Mesh.ARRAY_VERTEX] = verts
@@ -331,10 +348,17 @@ static func shafts(wins: Array[Dictionary]) -> MeshInstance3D:
 	arrays[Mesh.ARRAY_COLOR] = colors
 	arrays[Mesh.ARRAY_TEX_UV] = uvs
 	arrays[Mesh.ARRAY_TEX_UV2] = uv2s
+	arrays[Mesh.ARRAY_CUSTOM0] = custom0
+	arrays[Mesh.ARRAY_CUSTOM1] = custom1
 	var mesh := ArrayMesh.new()
-	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	var fmt := (
+		(Mesh.ARRAY_CUSTOM_RGBA_FLOAT << Mesh.ARRAY_FORMAT_CUSTOM0_SHIFT)
+		| (Mesh.ARRAY_CUSTOM_RGBA_FLOAT << Mesh.ARRAY_FORMAT_CUSTOM1_SHIFT)
+	)
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays, [], {}, fmt)
 	var mat := ShaderMaterial.new()
 	mat.shader = SHAFT
+	mat.set_shader_parameter("plates", load(PLATES))
 	mesh.surface_set_material(0, mat)
 	var inst := MeshInstance3D.new()
 	inst.name = "SunShafts"
