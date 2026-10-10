@@ -500,6 +500,20 @@ static func preset_for(species: StringName) -> Dictionary:
 	return PRESETS.get(species, PRESETS[&"pine"])
 
 
+## A growth form (MapViewTreeMeshes.CITY_FORMS) reuses its species' preset with
+## a few parameters changed, e.g. shorter primary limbs on a mature pine.
+## `top` replaces preset keys; `levels` maps a level index to the parameters it
+## replaces on that level.
+static func _with_overrides(preset: Dictionary, top: Dictionary, levels: Dictionary) -> Dictionary:
+	if top.is_empty() and levels.is_empty():
+		return preset
+	var merged := preset.duplicate(true)
+	merged.merge(top, true)
+	for level: int in levels:
+		(merged["levels"][level] as Dictionary).merge(levels[level], true)
+	return merged
+
+
 ## Shape ratio of the paper. `ratio` runs 1 at the crown base to 0 at the top.
 static func shape_ratio(shape: int, ratio: float) -> float:
 	var r := clampf(ratio, 0.0, 1.0)
@@ -526,7 +540,9 @@ static func shape_ratio(shape: int, ratio: float) -> float:
 ## (trunk_height, trunk_radius, crown_start; optional max_segments), so tuning
 ## of tree size in MapViewTreeMeshProfiles keeps applying.
 static func build(species: StringName, profile: Dictionary) -> Dictionary:
-	var preset := preset_for(species)
+	var preset := _with_overrides(
+		preset_for(species), profile.get("preset_overrides", {}), profile.get("level_overrides", {})
+	)
 	var levels: Array = preset["levels"]
 	# Smoothing multiplies the segments of every limb piece, so the budget scales with it.
 	var cap := int(profile.get("max_segments", MAX_WOOD_SEGMENTS)) * BRANCH_SMOOTH_SUBDIV

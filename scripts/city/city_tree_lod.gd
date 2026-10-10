@@ -175,7 +175,7 @@ func _rebuild_near(species: StringName, macro: bool) -> void:
 		),
 		transforms,
 		colors,
-		MapViewMaterials.canopy_for_species(species),
+		MapViewMaterials.canopy_for_species(MapViewTreeMeshes.base_species(species)),
 		Vector3.ZERO,
 		true
 	)

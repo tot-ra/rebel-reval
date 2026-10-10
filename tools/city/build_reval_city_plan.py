@@ -38,6 +38,7 @@ from PIL import Image, ImageDraw
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import terrain_relief  # noqa: E402
+import vegetation_habitat  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
 DATA = ROOT / "tools/city/data"
@@ -1296,9 +1297,19 @@ def build(args) -> dict:
     occupied_by = buildings + [{"footprint": poly} for so in site_out for poly in so["footprints"] + [so["reserve"]] if poly]
     wet_stream = stream_vegetation_exclusion(
         trace, hj["width_m"], [(v - sea_asl) / mpu for v in river_level], h_at_m, mpu)
-    trees, fields, pastures, woods, farmsteads, orchards = plant(overlay, occupied_by, streets, circuit_poly, toompea_edge, trace, h_at_m, mpu, x0, y0, x1, y1, wet_stream)
+    soil = vegetation_habitat.Soil(shore, h_at_m)
+    trees, fields, pastures, woods, farmsteads, orchards = plant(overlay, occupied_by, streets, circuit_poly, toompea_edge, trace, h_at_m, mpu, x0, y0, x1, y1, wet_stream, soil)
     bushes = shrubs(overlay, occupied_by, streets, circuit_poly, toompea_edge, trace, anchors, h_at_m, mpu, x0, y0, x1, y1, wet_stream)
     bushes = drop_inside([[tuple(q) for q in f["polygon"]] for f in fields + pastures + orchards], bushes)
+    # Last word on rooting (R-1617): no trunk on a road, no crown through a
+    # bridge or harbour deck. Filtering here, after every seeded loop, keeps the
+    # field, pasture and wood IDs stable.
+    clearance = vegetation_habitat.Clearance(streets, bridges, mpu)
+    trees = [t for t in trees if clearance.tree_ok((t[0] * mpu, t[1] * mpu))]
+    bushes = [b for b in bushes if clearance.bush_ok((b[0] * mpu, b[1] * mpu))]
+    for o in orchards:
+        ring = [(q[0] * mpu, q[1] * mpu) for q in o["polygon"]]
+        o["trees"] = sum(1 for t in trees if pip((t[0] * mpu, t[1] * mpu), ring))
 
     for s in streets:
         s["points"] = wu(s.pop("points_m"))
@@ -1516,8 +1527,9 @@ def footprint_cells(ring, cell, margin):
     return out
 
 
-def plant(overlay, buildings, streets, circuit_poly, toompea_edge, river, h_at_m, mpu, x0, y0, x1, y1, wet_stream):
-    """Deterministic trees and strip fields. Trees avoid footprints and streets."""
+def plant(overlay, buildings, streets, circuit_poly, toompea_edge, river, h_at_m, mpu, x0, y0, x1, y1, wet_stream, soil):
+    """Deterministic trees and strip fields. Trees avoid footprints and streets;
+    on the sandy coastal plain (`soil`) they are pine heath."""
     rng = random.Random(4013)
     occupied = {}
     cell = 6.0
@@ -1599,10 +1611,14 @@ def plant(overlay, buildings, streets, circuit_poly, toompea_edge, river, h_at_m
             continue
         if rng.random() < 0.55:
             continue
-        add(p, rng.choice(["oak", "birch", "birch", "ash", "spruce", "pine"]), rng.uniform(0.85, 1.35))
+        sp = rng.choice(["oak", "birch", "birch", "ash", "spruce", "pine"])
+        # Sand grows pine: the species is re-picked from a position hash, so
+        # the seeded sequence (and every later field ID) is unchanged.
+        add(p, vegetation_habitat.heath_species(p) if soil.heath_ground(p) else sp, rng.uniform(0.85, 1.35))
     fields, pastures, woods, farmsteads, orchards = countryside(
-        overlay, buildings, streets, circuit_poly, toompea_edge, h_at_m, mpu, x0, y0, x1, y1, free, free_static, add, rng, trees
+        overlay, buildings, streets, circuit_poly, toompea_edge, h_at_m, mpu, x0, y0, x1, y1, free, free_static, add, rng, trees, soil
     )
+    pine_heath(circuit_poly, toompea_edge, h_at_m, mpu, x0, y0, x1, y1, free, add, soil, fields + pastures + orchards, trees)
     trees.sort()
     return trees, fields, pastures, woods, farmsteads, orchards
 
@@ -1647,7 +1663,34 @@ def drop_inside(rings, items, mpu=1.0):
     return [t for t in items if not any(bx[0] <= t[0] * mpu <= bx[2] and bx[1] <= t[1] * mpu <= bx[3] and pip((t[0] * mpu, t[1] * mpu), r_) for bx, r_ in zip(boxes, rings))]
 
 
-def countryside(overlay, buildings, streets, circuit_poly, toompea_edge, h_at_m, mpu, x0, y0, x1, y1, free, free_static, add, rng, trees):
+def pine_heath(circuit_poly, toompea_edge, h_at_m, mpu, x0, y0, x1, y1, free, add, soil, farmland, trees):
+    """A pine bor on the sandy coastal plain (R-1617): mature pines a few metres
+    apart with heath glades, planted after every seeded countryside loop with
+    its own RNG, so the field, pasture and wood IDs do not move."""
+    hrng = random.Random(1617)
+    cell = 7.0
+    rings = [[tuple(q) for q in f["polygon"]] for f in farmland]
+    rings = [[(q[0] * mpu, q[1] * mpu) for q in r_] for r_ in rings]
+    town = [tuple(q) for q in resample(circuit_poly + [circuit_poly[0]], 8.0)]
+    tx = np.array([q[0] for q in town])
+    ty = np.array([q[1] for q in town])
+    for gx in range(int(x0 // cell) + 4, int(x1 // cell) - 4):
+        for gy in range(int(y0 // cell) + 4, int(y1 // cell) - 4):
+            jx, jy, size = hrng.random(), hrng.random(), hrng.uniform(0.85, 1.25)
+            p = ((gx + jx) * cell, (gy + jy) * cell)
+            if not soil.heath_ground(p) or fbm(p[0], p[1], 7031) < 0.36:
+                continue  # inland soil, or a heath glade
+            if pip(p, circuit_poly) or pip(p, toompea_edge) or not free(p, 1):
+                continue
+            if float(np.min(np.hypot(tx - p[0], ty - p[1]))) < 60.0:
+                continue  # the walls keep a clear field of view
+            if any(pip(p, r_) for r_ in rings):
+                continue
+            sp = vegetation_habitat.heath_species(p, 1618)
+            add(p, sp, size if sp != "juniper" else 0.9 + 0.3 * jx)
+
+
+def countryside(overlay, buildings, streets, circuit_poly, toompea_edge, h_at_m, mpu, x0, y0, x1, y1, free, free_static, add, rng, trees, soil):
     """Deterministic woods, strip fields, kitchen gardens, pastures and farmsteads
     outside the walls. Woods first (they claim the damp, steep and far ground),
     then fields on dry gentle land near the town, then fenced pastures."""
@@ -1692,6 +1735,9 @@ def countryside(overlay, buildings, streets, circuit_poly, toompea_edge, h_at_m,
         return (int(p[0] // cell), int(p[1] // cell)) in wood
 
     def wood_kind(p):
+        return "pine_heath" if soil.heath_ground(p) else inland_wood_kind(p)
+
+    def inland_wood_kind(p):
         h = h_at_m(*p)
         n = fbm(p[0], p[1], 7021)
         if h < 6.0:
@@ -1715,9 +1761,13 @@ def countryside(overlay, buildings, streets, circuit_poly, toompea_edge, h_at_m,
             if not free(p):
                 continue
             kind = wood_kind(p)
-            sp = crng.choice(mixes[kind])
+            # Draw from the pre-R-1617 mix so the seeded sequence is unchanged;
+            # heath ground then re-picks its species from a position hash.
+            sp = crng.choice(mixes[inland_wood_kind(p)])
             if edge and crng.random() < 0.5:
                 sp = crng.choice(["birch", "rowan", "hazel", "juniper"])
+            elif kind == "pine_heath":
+                sp = vegetation_habitat.heath_species(p)
             add(p, sp, crng.uniform(0.85, 1.4) if sp not in ("hazel", "juniper") else crng.uniform(0.9, 1.2))
             wood_trees += 1
     # connected wood components -> named records

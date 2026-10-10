@@ -77,7 +77,7 @@ func _reference_figure(at: Vector3) -> MeshInstance3D:
 
 func _shots(plan: CityPlan) -> Array[Dictionary]:
 	var shots: Array[Dictionary] = []
-	for species: String in ["spruce", "pine", "oak", "birch"]:
+	for species: String in ["spruce", "pine", "pine_tall", "oak", "birch"]:
 		var tree := _open_tree(plan, species)
 		if tree.is_empty():
 			continue
@@ -179,6 +179,7 @@ func _shots(plan: CityPlan) -> Array[Dictionary]:
 					"focus": meadow
 				}
 			)
+	shots.append_array(_heath_and_bridge_shots(plan))
 	# Shrub close-ups beside the reference figure: two drawn with the city bush
 	# variants (rose, raspberry) and elder, drawn with the shrub tree meshes.
 	for species: String in ["dog_rose", "raspberry", "elder"]:
@@ -201,6 +202,56 @@ func _shots(plan: CityPlan) -> Array[Dictionary]:
 				"focus": b
 			}
 		)
+	return shots
+
+
+## R-1617: inside the sandy-coast pine heath at eye level (the mature pines
+## beside the reference figure) and the Hareapea road bridges, whose decks no
+## tree may grow through.
+func _heath_and_bridge_shots(plan: CityPlan) -> Array[Dictionary]:
+	var shots: Array[Dictionary] = []
+	var tall: Array[Vector2] = []
+	for t: Array in plan.data.get("trees", []):
+		if String(t[2]) == "pine_tall":
+			tall.append(Vector2(t[0], t[1]))
+	var best := Vector2.ZERO
+	var best_n := -1
+	for i in range(0, tall.size(), 4):
+		var n := 0
+		for q in tall:
+			if q.distance_to(tall[i]) < 30.0:
+				n += 1
+		if n > best_n:
+			best_n = n
+			best = tall[i]
+	if best_n > 0:
+		var side := Vector2(1, 0.35).normalized()
+		var stand := best + side * 3.0
+		var sg := plan.ground_height(stand)
+		shots.append({
+			"name": "pine_heath_eye", "figure": Vector3(stand.x, sg, stand.y),
+			"eye": Vector3(stand.x + side.x * 9.0, sg + 1.7, stand.y + side.y * 9.0),
+			"look": Vector3(best.x, sg + 7.0, best.y), "fov": 70.0, "focus": best
+		})
+		shots.append({
+			"name": "pine_heath_wide",
+			"eye": Vector3(best.x + side.x * 90.0, sg + 22.0, best.y + side.y * 90.0),
+			"look": Vector3(best.x, sg + 8.0, best.y), "fov": 55.0, "focus": best
+		})
+	for b: Dictionary in plan.data.get("bridges", []):
+		var id := String(b["id"])
+		if not id.begins_with("bridge.") or id.begins_with("bridge.moat"):
+			continue
+		var at := Vector2(b["at"][0], b["at"][1])
+		var across := Vector2.from_angle(float(b["angle"])).orthogonal()
+		var eye := at + across * 34.0 + Vector2.from_angle(float(b["angle"])) * 10.0
+		var g := plan.ground_height(at)
+		# Raised above the bank alders so the whole deck is in view.
+		shots.append({
+			"name": "bridge_clear_%s" % id.trim_prefix("bridge."),
+			"eye": Vector3(eye.x, g + 14.0, eye.y), "look": Vector3(at.x, g + 1.0, at.y),
+			"fov": 60.0, "focus": at
+		})
 	return shots
 
 

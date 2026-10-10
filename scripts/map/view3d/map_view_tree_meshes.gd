@@ -112,9 +112,38 @@ const CITY_PROFILE_OVERRIDES := {
 	&"spruce": {"primary_count": 26, "crown_start": 0.34, "max_segments": 300},
 	&"pine": {"primary_count": 11, "max_segments": 200},
 }
+## City growth forms: a plan species that draws as an older tree of another
+## species. A form shares the base species' needles, bark, wind, seasons and
+## macro fronds; only its skeleton differs (profile keys and Weber-Penn
+## preset/level overrides on top of the base city profile). The mature Scots
+## pine of a sandy pine heath (R-1617) is not the 10 m pine scaled up: past ~60
+## years the lower limbs self-prune, so a 20-26 m pine carries a short, narrow
+## crown on a clear bole about two thirds of its height. Scaling the young pine
+## instead gave a ~15 m wide crown that started a third of the way up.
+const CITY_FORMS := {
+	&"pine_tall": {
+		"species": &"pine",
+		"profile": {
+			"crown_start": 2.25,
+			"primary_count": 13,
+			# Needle tufts stay tuft-sized in metres on the 2.3x taller tree.
+			"leaf_length": 0.085,
+			# Needles only on the outer third of each shoot, and of the leader:
+			# the young pine's 0.55 hung tufts halfway down the clear bole.
+			"preset_overrides": {"cluster_span": 0.32},
+			"level_overrides": {1: {"length": 0.2, "length_v": 0.04, "down_v": -40.0}},
+		},
+	},
+}
+
 
 static var _geometry_cache: Dictionary = {}
 static var _city_cache: Dictionary = {}
+
+
+## The species whose foliage, bark and materials a plan species (or form) uses.
+static func base_species(species: StringName) -> StringName:
+	return CITY_FORMS[species]["species"] if CITY_FORMS.has(species) else species
 
 
 static func wood_mesh(species: StringName) -> ArrayMesh:
@@ -147,7 +176,7 @@ static func city_wood_mesh(
 	var key := "wood:%s:%.2f:%.2f" % [species, world_scale, radius_factor]
 	if not _city_cache.has(key):
 		_city_cache[key] = _build_wood_mesh(
-			species,
+			base_species(species),
 			_skeleton_for(species),
 			radius_factor,
 			BARK_TILE_METRES / maxf(world_scale, 0.01)
@@ -169,7 +198,7 @@ static func city_canopy_macro_mesh(species: StringName, world_scale: float) -> A
 
 
 static func has_macro_crown(species: StringName) -> bool:
-	return MACRO_FRONDS.has(species)
+	return MACRO_FRONDS.has(base_species(species))
 
 
 static func city_canopy_macro_stats(species: StringName, world_scale: float) -> Dictionary:
@@ -187,16 +216,16 @@ static func _city_canopy_close_mesh(
 		_build_macro_crown(species, world_scale, key)
 	elif not _city_cache.has(key):
 		var profile := city_profile(species)
-		var conifer := species in CONIFERS
+		var conifer := base_species(species) in CONIFERS
 		var base := float(profile["leaf_length"]) * (CONIFER_CARD_SCALE if conifer else CARD_SCALE)
 		var metres := NEAR_CONIFER_CARD_METRES if conifer else NEAR_CARD_METRES
-		if species in CITY_SHRUBS:
+		if base_species(species) in CITY_SHRUBS:
 			metres = NEAR_SHRUB_CARD_METRES
 		var target := metres / maxf(world_scale, 0.01)
 		var size_factor := clampf(target / maxf(base, 0.001), 0.25, 1.0)
 		var count_factor := minf(1.0 / (size_factor * size_factor), NEAR_MAX_COUNT_FACTOR)
 		var data := _build_canopy_mesh(
-			species, profile, _skeleton_for(species), size_factor, count_factor
+			base_species(species), profile, _skeleton_for(species), size_factor, count_factor
 		)
 		var triangles := (data["mesh"] as ArrayMesh).surface_get_array_len(0) / 3
 		if triangles > NEAR_TRIANGLE_CAP:
@@ -204,7 +233,7 @@ static func _city_canopy_close_mesh(
 			# budget first; trade some density for the cap, keeping card size.
 			count_factor = maxf(1.0, count_factor * float(NEAR_TRIANGLE_CAP) / float(triangles))
 			data = _build_canopy_mesh(
-				species, profile, _skeleton_for(species), size_factor, count_factor
+				base_species(species), profile, _skeleton_for(species), size_factor, count_factor
 			)
 		_cache_close_mesh(key, data, size_factor, count_factor)
 	return _city_cache[key]
@@ -220,13 +249,13 @@ static func _build_macro_crown(species: StringName, world_scale: float, key: Str
 	var profile := city_profile(species)
 	var fronds := {"metres_to_tree": 1.0 / maxf(world_scale, 0.01), "density": 1.0}
 	var data := _build_canopy_mesh(
-		species, profile, _skeleton_for(species), size_factor, count_factor, fronds
+		base_species(species), profile, _skeleton_for(species), size_factor, count_factor, fronds
 	)
 	var frond_triangles := int(data["frond_triangles"])
 	if frond_triangles > MACRO_FROND_TRIANGLE_CAP:
 		fronds["density"] = float(MACRO_FROND_TRIANGLE_CAP) / float(frond_triangles)
 		data = _build_canopy_mesh(
-			species, profile, _skeleton_for(species), size_factor, count_factor, fronds
+			base_species(species), profile, _skeleton_for(species), size_factor, count_factor, fronds
 		)
 	_cache_close_mesh(key, data, size_factor, count_factor)
 
@@ -255,21 +284,24 @@ static func city_canopy_far_mesh(species: StringName) -> ArrayMesh:
 	var key := "far:%s" % species
 	if not _city_cache.has(key):
 		_city_cache[key] = _build_canopy_mesh(
-			species, city_profile(species), _skeleton_for(species)
+			base_species(species), city_profile(species), _skeleton_for(species)
 		)["mesh"]
 	return _city_cache[key]
 
 
 static func city_profile(species: StringName) -> Dictionary:
-	var profile := TreeMeshProfiles.profile_for(species).duplicate()
-	profile.merge(CITY_PROFILE_OVERRIDES.get(species, {}), true)
+	var base := base_species(species)
+	var profile := TreeMeshProfiles.profile_for(base).duplicate()
+	profile.merge(CITY_PROFILE_OVERRIDES.get(base, {}), true)
+	if CITY_FORMS.has(species):
+		profile.merge(CITY_FORMS[species]["profile"], true)
 	return profile
 
 
 static func _skeleton_for(species: StringName) -> Dictionary:
 	var key := "skeleton:%s" % species
 	if not _city_cache.has(key):
-		_city_cache[key] = build_skeleton(species, city_profile(species))
+		_city_cache[key] = build_skeleton(base_species(species), city_profile(species))
 	return _city_cache[key]
 
 

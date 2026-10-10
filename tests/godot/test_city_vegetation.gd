@@ -47,6 +47,34 @@ func test_city_trunks_are_thinned_to_real_diameters() -> void:
 		assert_true(crown_xz.encloses(wood_xz), "%s limbs stay inside the crown spread" % species)
 
 
+## R-1617: the pine heath's mature pine stands far above Kalev on a clear bole
+## with a short, narrow crown, not the young pine scaled up.
+func test_mature_pine_has_a_clear_bole_and_narrow_crown() -> void:
+	var species := &"pine_tall"
+	assert_eq(MapViewTreeMeshes.base_species(species), &"pine", "draws with pine needles and bark")
+	var scale := CityVegetationBuilder.species_scale(species, 1.0)
+	var crown := MapViewTreeMeshes.city_canopy_far_mesh(species).get_aabb()
+	var height := crown.end.y * scale
+	assert_almost_eq(height, float(CityVegetationBuilder.HEIGHT_M[species]), 0.05, "height")
+	assert_true(height > KALEV_HEIGHT * 10.0, "a pine bor towers over people (%.1f m)" % height)
+	var skeleton: Dictionary = MapViewTreeMeshes._skeleton_for(species)
+	var lowest := INF
+	for h: float in skeleton["primary_attachment_heights"]:
+		lowest = minf(lowest, h)
+	assert_true(lowest * scale > height * 0.55, "clear bole: lowest limb %.1f m" % (lowest * scale))
+	assert_true(crown.position.y * scale > height * 0.5, "no needles low on the bole")
+	var spread := maxf(crown.size.x, crown.size.z) * scale
+	assert_true(spread < height * 0.4, "narrow crown: %.1f m wide" % spread)
+	var factor := CityVegetationBuilder.trunk_factor(species, scale)
+	var radii: Array = MapViewTreeMeshes.geometry_stats(&"pine")["trunk_radii"]
+	assert_almost_eq(
+		float(radii[0]) * 2.0 * scale * factor,
+		float(CityVegetationBuilder.TRUNK_DIAMETER_M[species]),
+		0.02,
+		"trunk diameter"
+	)
+
+
 func test_city_wood_has_bark_tile_uvs_and_tangents() -> void:
 	var scale := CityVegetationBuilder.species_scale(&"oak", 1.0)
 	var wood := MapViewTreeMeshes.city_wood_mesh(&"oak", scale, 0.6)

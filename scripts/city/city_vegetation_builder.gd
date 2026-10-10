@@ -21,6 +21,9 @@ const HEIGHT_M := {
 	&"willow": 6.5,
 	&"spruce": 9.5,
 	&"pine": 10.0,
+	# Mature Scots pine of the sandy coastal heath (R-1617): a pine bor stands
+	# far above people; MapViewTreeMeshes.CITY_FORMS gives it a clear bole.
+	&"pine_tall": 23.0,
 	&"juniper": 2.5,
 	&"apple": 4.0,
 	&"cherry": 4.0,
@@ -45,6 +48,7 @@ const TRUNK_DIAMETER_M := {
 	&"willow": 0.5,
 	&"spruce": 0.36,
 	&"pine": 0.4,
+	&"pine_tall": 0.52,
 	&"juniper": 0.12,
 	&"apple": 0.28,
 	&"cherry": 0.22,
@@ -112,7 +116,10 @@ static func size_factor(plan_scale: float) -> float:
 
 ## Trunk radius multiplier that gives the species its TRUNK_DIAMETER_M.
 static func trunk_factor(species: StringName, world_scale: float) -> float:
-	var radii: Array = MapViewMeshBuilderPrimitives.tree_geometry_stats(species)["trunk_radii"]
+	# A growth form keeps its base species' trunk radius (CITY_FORMS).
+	var radii: Array = MapViewMeshBuilderPrimitives.tree_geometry_stats(
+		MapViewTreeMeshes.base_species(species)
+	)["trunk_radii"]
 	var base := float(radii[0]) * 2.0 * world_scale if not radii.is_empty() else 1.0
 	return clampf(float(TRUNK_DIAMETER_M.get(species, 0.4)) / maxf(base, 0.01), 0.2, 1.0)
 
@@ -158,6 +165,7 @@ static func build(plan: CityPlan, parent: Node3D) -> Node3D:
 		var transforms: Array[Transform3D] = batch["transforms"]
 		var colors: Array[Color] = batch["colors"]
 		var world_scale: float = species_scales[species]
+		var base := MapViewTreeMeshes.base_species(species)
 		var wood := MapViewMeshBuilderPrimitives.multi_mesh(
 			"Wood_%s" % species,
 			MapViewTreeMeshes.city_wood_mesh(
@@ -165,10 +173,10 @@ static func build(plan: CityPlan, parent: Node3D) -> Node3D:
 			),
 			transforms,
 			colors,
-			MapViewMaterials.bark_plate_wind(MapViewTreeSpecies.bark_plate_for(species), species),
+			MapViewMaterials.bark_plate_wind(MapViewTreeSpecies.bark_plate_for(base), base),
 			Vector3.ZERO
 		)
-		var shrub := species in MapViewTreeMeshes.CITY_SHRUBS
+		var shrub := base in MapViewTreeMeshes.CITY_SHRUBS
 		# Shader-bent crowns can reach beyond the undeformed batch AABB.
 		wood.extra_cull_margin = 12.0
 		wood.visibility_range_end = BUSH_RANGE if shrub else WOOD_RANGE
@@ -180,7 +188,7 @@ static func build(plan: CityPlan, parent: Node3D) -> Node3D:
 			MapViewTreeMeshes.city_canopy_far_mesh(species),
 			transforms,
 			colors,
-			MapViewMaterials.canopy_for_species(species),
+			MapViewMaterials.canopy_for_species(base),
 			Vector3.ZERO,
 			true
 		)
