@@ -29,7 +29,11 @@ func test_every_style_has_depth_beyond_the_wall() -> void:
 		&"slit",
 		&"surround",
 		&"leaded",
-		&"panelled"
+		&"panelled",
+		&"hood",
+		&"notched",
+		&"carved",
+		&"carved_shutters"
 	]:
 		var shell := _build(style)
 		assert_false(shell.surfaces.has("opening"), "%s has no opaque fake pane" % style)
@@ -71,3 +75,56 @@ func test_look_is_deterministic_and_rural_looks_vary() -> void:
 		town_seen[town["style"]] = true
 		assert_false(town["style"] in [&"platband", &"gable_cap"], "no late carving")
 	assert_true(town_seen.size() >= 4, "town houses also vary")
+
+
+func test_carving_adds_relief_by_wealth() -> void:
+	var plain := _build(&"plain").surface("paint").verts.size()
+	var notched := _build(&"notched").surface("paint").verts.size()
+	var carved := _build(&"carved").surface("paint").verts.size()
+	assert_true(notched > plain, "notched lintel adds teeth (%d > %d)" % [notched, plain])
+	assert_true(carved > notched * 2, "carved surround is the richest (%d)" % carved)
+	assert_true(
+		_build(&"carved_shutters").surface("paint").verts.size()
+		> _build(&"shutters_open").surface("paint").verts.size(),
+		"carved shutters add a frieze"
+	)
+
+
+func test_wealth_selects_the_window_repertoire() -> void:
+	var rich_styles := {}
+	for i in 60:
+		var poor_rng := RandomNumberGenerator.new()
+		poor_rng.seed = i
+		var poor := CityWindows.look(poor_rng, &"log", 0)
+		assert_false(
+			poor["style"] in [&"carved", &"carved_shutters", &"leaded", &"panelled", &"notched"],
+			"poor cottage has no carving (%s)" % poor["style"]
+		)
+		assert_true(poor["glazing"] in [&"open", &"horn"], "poor glazing is open or horn")
+		var rich_rng := RandomNumberGenerator.new()
+		rich_rng.seed = i
+		var rich := CityWindows.look(rich_rng, &"log", 2)
+		assert_true(
+			rich["style"] in CityWindows.TIMBER_POOLS[2], "rich timber style from its pool"
+		)
+		rich_styles[rich["style"]] = true
+		for wealth in 3:
+			for family: StringName in [&"log", &"limestone"]:
+				var rng := RandomNumberGenerator.new()
+				rng.seed = i
+				var any := CityWindows.look(rng, family, wealth)
+				assert_false(any["style"] in [&"platband", &"gable_cap"], "no late carving")
+	assert_true(rich_styles.has(&"carved"), "rich timber houses get carved boards")
+	assert_true(rich_styles.size() >= 3, "rich houses still vary (%d)" % rich_styles.size())
+
+
+func test_low_eave_drops_the_carved_head() -> void:
+	var look := CityWindows.look(RandomNumberGenerator.new(), &"log", 2)
+	look["style"] = &"carved"
+	look["pool"] = [&"carved"]
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 3
+	for w in CityWindows.placements(
+		Vector2.ZERO, Vector2(12, 0), 0.0, 2.35, Vector2(-1, -1), rng, look
+	):
+		assert_true(w["style"] != &"carved", "no carved head board above a 2.35 m eave")

@@ -1,10 +1,10 @@
 # Village and house windows
 
-Status: implemented (task **R-1434**). Scope: seeded procedural windows on seamless-city houses built by `CityBuildingBuilder`, including exterior openings, interior relief and glazing. Out of scope: animated/interactive shutters, historical household wealth simulation, church/hall lancets, custom landmark models and older `MapView` facade assets.
+Status: implemented (tasks **R-1434**, **R-1659**). Scope: seeded procedural windows on seamless-city houses built by `CityBuildingBuilder`, including exterior openings, interior relief and glazing, plus the census-wealth tier that picks the window repertoire and the timber wall plate (R-1659). Out of scope: animated/interactive shutters, an economic wealth simulation (the tier is read from the census, never changed by play), church/hall lancets, custom landmark models and older `MapView` facade assets.
 
 ## What the player sees
 
-Timber **and** stone houses vary instead of repeating fresh white frames. A building-id-seeded visual tier selects a finish, glazing and frame style. It is an art tier, not a price, census assertion or saved household statistic. About one rural window in four can use a different construction within the same restrained palette.
+Timber **and** stone houses vary instead of repeating fresh white frames. The household's census class sets a visual wealth tier (see **Wealth tiers and timber wall finishes**) that selects the finish, glazing and frame style. It is an art tier, not a price or saved household statistic. About one timber window in four uses a different construction from the same tier's pool.
 
 | Style | Appearance |
 |-------|------------|
@@ -15,8 +15,33 @@ Timber **and** stone houses vary instead of repeating fresh white frames. A buil
 | `surround` | Dressed stone jambs, lintel and sill |
 | `leaded` | Small diamond panes with a fine, two-sided dark lead lattice |
 | `panelled` | Raised panel-border shutter joinery, not pierced-heart decoration |
+| `hood` | Drip board over the head on two small brackets (middling) |
+| `notched` | Lintel board with a chip-notched row of triangular teeth (middling) |
+| `carved` | Rich timber surround: grooved side boards, head board with a frieze of six-petal chip-carved rosettes between toothed edges, toothed apron under the sill on stepped corbels |
+| `carved_shutters` | Open shutters, each leaf with a carved rosette frieze, under a notched lintel (rich) |
 
 The palette prioritises bare/weathered wood, chalky whitewash, yellow ochre and red-brown earth washes. Muted green/blue-grey are reserved for the highest visual tier; they are not labelled cheap or assigned a historical local price. The window-only wood shader adds grain, exposed wood, worn pigment and rain streaks without a repeated image atlas. Planks also vary slightly in colour and depth. Legacy `platband` and `gable_cap` geometry remains callable for older tools/tests, but neither is automatically assigned to houses.
+
+## Wealth tiers and timber wall finishes
+
+`CityHouseWealth` (`scripts/city/city_house_wealth.gd`) maps the census household in a plan building (`CitizenRoster.households[*].class`, the same split as `HouseholdLayout.TIER`) to a tier: `poor` -> 0, `master` -> 1 (middling), `merchant` / `great` -> 2 (rich). `CityBuildingBuilder.bind_ground(plan)` binds the tiers once per plan. Buildings without a household fall back deterministically: outbuildings 0, limestone 2, footprint >= 120 m2 -> 2, >= 65 m2 -> 1, otherwise 0 or 1 from the building ID.
+
+| Tier | Window pool (timber) | Window pool (stone) | Trim paints | Glazing (timber / stone) |
+|------|----------------------|---------------------|-------------|--------------------------|
+| 0 poor | plain, closed/open shutters, smoke slit | plain, shutters | bare wood, red-brown wash | open (30 % horn) / horn |
+| 1 middling | shutters, `hood`, `notched`, plain | shutters, `surround`, `hood`, `panelled` | bare, whitewash, ochre, red-brown | horn / forest |
+| 2 rich | `carved`, `carved_shutters`, `notched`, `hood` | `leaded`, `panelled`, `surround`, `carved_shutters` | all six, incl. green and blue-grey | forest / clear |
+
+A carved head board needs about 0.4 m of wall above the frame; under a lower eave the window falls back to `notched`, then `plain`, without an extra RNG draw.
+
+Timber walls no longer share one plate. Each log or plank building picks a library plate (AR-03 `building_variants`) from its tier's weighted pool by building-ID hash, and its weathering (`age` of `city_weathered_wall.gdshader`) follows the plate:
+
+| Family | Poor | Middling | Rich | Age |
+|--------|------|----------|------|-----|
+| log | mostly `logwall_weathered` | mostly `logwall_pine` | mostly `logwall_tar` | weathered 1.35, pine 1.0, tar 0.7 |
+| plank | mostly `plank_vertical` | mostly `plank_horizontal` | mostly `plank_tarred` | vertical 1.3, horizontal 1.0, tarred 0.7 |
+
+The wall material key is `wall:<family>:<stem>` (one cached material per plate); limestone and plaster keep `wall:<family>`. The per-building vertex tint also gets one of four hues (resinous, neutral, silvered, smoke-browned) from a separate hash, so neighbours on the same plate differ. None of this draws from the shared building RNG, so roofs, chimneys and window dropout do not move.
 
 ## Inside and outside are the same opening
 
@@ -47,26 +72,40 @@ Opacity varies slightly across a sheet. These are artistic profiles, not measure
 
 - **High, general medieval practice:** wooden shutters on both glazed and unglazed openings; glass was costly and many domestic windows were unglazed. Linda Hall, [Historic window shutters](https://www.buildingconservation.com/articles/shutters/shutters.htm).
 - **Medium as a northern-European material analogy, not a Reval 1343 claim:** bare timber, limewash and earth-pigment/red washes. Ben Kirk, [Paint Removal from Historic Timbers](https://www.buildingconservation.com/articles/paint-removal/paint-removal.htm). Much of that article's surviving evidence is later English work; it does not date every palette choice to 1343.
+- **Medium as an art reconstruction:** chip carving (rosettes, notched and toothed boards) is a long-lived northern-European folk woodworking technique, used here for the richest timber houses. It is not a dated Reval 1343 window find, and it is deliberately not the later pedimented Russian nalichnik.
 - **Low/local reconstruction:** exact pane distribution, horn substitutes, green/blue-grey finishes, panel borders and economic tier frequencies. These are explicitly art-direction approximations, not named historical facts. No modern opaque-white sash paint or late carved Russian nalichniki is selected automatically.
 
 ## Verify
 
 ```bash
 # Use the installed Godot 4.7 binary if godot is not on PATH.
-godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_city_windows,test_city_window_openings
+godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_city_windows,test_city_window_openings,test_city_house_wealth
 # Full regression suite:
 godot --headless --path . --script tools/run_godot_tests.gd
 # GPU captures, minimized/no-focus via the wrapper:
 tools/godot_render.sh --script tools/capture_cottage_windows.gd
 ```
 
-`tests/godot/test_city_windows.gd` covers seeded variety, relief and absence of opaque backing panes. `test_city_window_openings.gd` covers removed area on both faces, actual empty centres, interior sill depth, glass profiles/sidedness, closed shutter backs, low-wall/door clearance, deterministic integration, rotated-wall UV preservation, centre rays through actual plan-house panes and custom-site exclusion.
+`tests/godot/test_city_house_wealth.gd` covers the census mapping, the fallback, wall plates per tier and the `wall:<family>:<stem>` material key. `tests/godot/test_city_windows.gd` covers wealth-gated repertoires, carved relief and the low-eave fallback, plus seeded variety, relief and absence of opaque backing panes. `test_city_window_openings.gd` covers removed area on both faces, actual empty centres, interior sill depth, glass profiles/sidedness, closed shutter backs, low-wall/door clearance, deterministic integration, rotated-wall UV preservation, centre rays through actual plan-house panes and custom-site exclusion.
 
 Captures under `build/windows/`:
 
 - `cottage_windows.png`: seven exterior variants and glazing comparison targets.
 - `interior_windows.png`: corresponding inward view and projecting sills.
+- `timber_tiers.png`: R-1659 timber repertoire, poor to rich, each on its wall plate.
+- `wealth_houses.png`: one synthetic log house built at each tier (wall plate, roof, windows).
+- `tools/capture_city_wealth_houses.gd` (R-1659): neighbourhood views around census poor / master / great log houses in the live city, `build/wealth_houses/<id>_area.png`.
 - `plan_houses.png`: actual `CityPlan` timber/plank/stone house definitions, rebased into a review stage with original IDs/footprints. This is not a fully furnished live-city screenshot.
+
+### R-1659 captures
+
+![Timber repertoire by wealth](../reports/images/city/r1659_timber_tiers.jpg)
+
+![Poor, middling and rich log houses](../reports/images/city/r1659_wealth_houses.jpg)
+
+![Rich house: carved shutters and notched lintel](../reports/images/city/r1659_wealth_rich_closeup.jpg)
+
+![Live city: varied log and plank plates, carved window on a rich house](../reports/images/city/r1659_wealth_city_area.jpg)
 
 ## Limits
 
@@ -75,6 +114,8 @@ Captures under `build/windows/`:
 - Visual holes do not change collision: a player cannot walk through a window.
 - Alpha blending has normal transparent-surface sorting limitations. Horn-like panes tint/obscure but do not blur the outside view. Night lighting is unchanged.
 - Window meshes have no separate distance LOD beyond existing chunk building range. They are merged per material, not separate nodes per window.
+- R-1659 reuses the six AR-03 log/plank plates; their painted, slightly cartoon look is unchanged. Higher-fidelity timber plates need a separate art task (asset freeze P0-040).
+- R-1659 independent review is pending as well: the review-agent call failed with an empty provider response.
 - Independent review is pending: the single permitted review-agent call failed without returning a review. Automated tests and captures are evidence, not second-reviewer approval.
 
 ### R-1434 verification result

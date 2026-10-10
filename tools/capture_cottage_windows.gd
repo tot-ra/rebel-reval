@@ -47,6 +47,24 @@ func _run() -> void:
 	# exterior object to make transparency differences unambiguous.
 	camera.look_at_from_position(Vector3(8.4, 1.8, -9), Vector3(8.4, 1.5, 0))
 	await _save("interior_windows.png")
+	# R-1659: timber window repertoire by wealth on its wall plates, then whole
+	# poor / middling / rich log houses.
+	_reset_stage()
+	await process_frame
+	_timber_tiers()
+	camera.look_at_from_position(Vector3(7.2, 2.0, 7.4), Vector3(7.2, 1.6, 0))
+	camera.fov = 90
+	await _save("timber_tiers.png")
+	_reset_stage()
+	await process_frame
+	_wealth_houses()
+	camera.look_at_from_position(Vector3(15, 6.5, 22), Vector3(15, 2.2, 0))
+	camera.fov = 60
+	await _save("wealth_houses.png")
+	# Close look at the rich house's carved boards.
+	camera.look_at_from_position(Vector3(32, 2.2, 7.5), Vector3(31, 1.8, 3))
+	camera.fov = 50
+	await _save("wealth_rich_closeup.png")
 	stage.queue_free()
 	await process_frame
 	stage = Node3D.new()
@@ -150,6 +168,87 @@ func _variants() -> void:
 			mat.albedo_color = Color(0.72, 0.18, 0.08)
 			box.material_override = mat
 			stage.add_child(box)
+
+
+func _reset_stage() -> void:
+	stage.queue_free()
+	stage = Node3D.new()
+	viewport.add_child(stage)
+
+
+func _timber_tiers() -> void:
+	var shell := CityBuildingBuilder.Shell.new()
+	var rows := [
+		[&"plain", 0, "logwall_weathered", "Poor / bare, unglazed"],
+		[&"shutters_closed", 0, "plank_vertical", "Poor / closed boards"],
+		[&"hood", 1, "logwall_pine", "Middling / drip hood"],
+		[&"notched", 1, "plank_horizontal", "Middling / notched lintel"],
+		[&"carved", 2, "logwall_tar", "Rich / chip-carved"],
+		[&"carved_shutters", 2, "logwall_pine", "Rich / carved shutters"],
+	]
+	var windows: Array[Dictionary] = []
+	for i in rows.size():
+		var row: Array = rows[i]
+		var m := Vector2(1.2 + 2.4 * i, 0)
+		var rng := RandomNumberGenerator.new()
+		rng.seed = 11 + i
+		var house_look := CityWindows.look(rng, &"log", int(row[1]))
+		house_look["style"] = row[0]
+		windows.append(
+			{
+				"m": m,
+				"dir": Vector2.RIGHT,
+				"nrm": Vector2(0, 1),
+				"base_y": 1.05,
+				"y": 1.05,
+				"w": 0.58,
+				"h": 0.95,
+				"jitter": 0.6,
+				"style": row[0],
+				"look": house_look
+			}
+		)
+		var family := "plank" if String(row[2]).begins_with("plank") else "log"
+		shell.quad_out(
+			"wall:%s:%s" % [family, row[2]],
+			Vector3(m.x - 1.2, 0, 0),
+			Vector3(m.x + 1.2, 0, 0),
+			Vector3(m.x + 1.2, 2.9, 0),
+			Vector3(m.x - 1.2, 2.9, 0),
+			Color.WHITE,
+			Vector3.BACK
+		)
+		_label(row[3], Vector3(m.x, 3.2, 0.15))
+	Openings.cut(shell, windows, 0.32)
+	for window in windows:
+		CityWindows.add_placed(shell, window)
+	_mesh(shell)
+
+
+func _wealth_houses() -> void:
+	var ids := ["house.r1659_poor", "house.r1659_middling", "house.r1659_rich"]
+	CityHouseWealth.bind_tiers({ids[0]: 0, ids[1]: 1, ids[2]: 2})
+	for i in ids.size():
+		var ring := PackedVector2Array(
+			[Vector2(-6, -3), Vector2(6, -3), Vector2(6, 3), Vector2(-6, 3)]
+		)
+		var b := {
+			"id": ids[i],
+			"material": "log",
+			"roof": "thatch" if i == 0 else "shingle",
+			"kind": "house",
+			"base_h": 0.0,
+			"wall_h": 3.6,
+			"ridge_angle": 0.0,
+			"roof_pitch_deg": 45.0,
+			"door": [-3.5, 3.0],
+		}
+		var built := CityBuildingBuilder.build_building(b, ring, 0, false)
+		var offset := Vector3(i * 15, 0, 0)
+		_mesh(built["shell"], offset)
+		_mesh(built["roof"], offset)
+		_label(["Poor", "Middling (master)", "Rich (merchant)"][i], offset + Vector3(0, 0.4, 4.5))
+	CityHouseWealth.clear()
 
 
 func _plan_samples() -> void:
