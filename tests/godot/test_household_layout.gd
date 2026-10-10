@@ -165,3 +165,35 @@ func test_firewood_is_carried_home_from_the_woodyard() -> void:
 					assert_eq(state["dest"], "home")
 					return
 	fail("no resident on the way home from the woodyard")
+
+
+func test_village_farmhouses_keep_field_tools_by_the_door() -> void:
+	var plan := CityPlan.load_site("harju")
+	var farms := 0
+	for i in plan.buildings.size():
+		var household: Dictionary = plan.buildings[i].get("household", {})
+		if String(household.get("trade", "")) != "farmer":
+			continue
+		var layout := HouseholdLayout.build(plan, i, household)
+		var pieces := _pieces(layout)
+		for tool: StringName in [&"scythe", &"pitchfork", &"sickle"]:
+			assert_array_contains(pieces, tool)
+		for item in layout.items:
+			if item["piece"] == &"sickle":
+				assert_eq(float(item["y"]), HouseholdLayout.SICKLE_PEG_Y, "sickle hangs on a wall peg")
+			elif item["piece"] in [&"scythe", &"pitchfork"]:
+				assert_eq(float(item["y"]), 0.0, "%s leans on the wall from the floor" % item["piece"])
+		farms += 1
+	assert_true(farms >= 5, "found %d village farmhouses" % farms)
+
+
+func test_town_houses_without_a_farm_trade_have_no_field_tools() -> void:
+	var interiors := _interiors()
+	var homes := _homes(interiors)
+	for k in range(0, homes.size(), maxi(homes.size() / 20, 1)):
+		var index: int = homes[k][1]
+		if HouseholdLayout.FARM_TOOLS.has(String(interiors.household_at(index).get("trade", ""))):
+			continue
+		var pieces := _pieces(interiors.layout(index))
+		for tool: StringName in [&"scythe", &"pitchfork", &"sickle"]:
+			assert_false(tool in pieces, "%s in a non-farm house %d" % [tool, index])

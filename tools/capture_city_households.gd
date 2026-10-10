@@ -6,6 +6,7 @@ extends Node
 ## room plus the top-down gameplay camera. Host scene so autoloads resolve:
 ##   tools/godot_render.sh --resolution 1600x900 res://tools/capture_city_households.tscn \
 ##     -- --city-spawn=poi.forum --city-hour=18.2 [--tag=evening] [--houses=4]
+##        [--scene=res://scenes/world/sites/harju.tscn] [--trade=farmer]
 ## Output: docs/reports/images/city/households_<tag>_<n>.png (+ _eye.png from the
 ## doorway, _top.png from the gameplay camera); prints
 ## the pieces and who is at home doing what.
@@ -33,8 +34,12 @@ func _frames(n: int) -> void:
 func _run() -> void:
 	var tag := _arg("--tag=", "noon")
 	var count := int(_arg("--houses=", "4"))
+	# --scene=res://scenes/world/sites/harju.tscn captures a regional site's
+	# farmhouses; --trade=farmer keeps only households of that trade.
+	var scene_path := _arg("--scene=", "")
+	var trade_filter := _arg("--trade=", "")
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT_DIR))
-	var city: Node = SCENE.instantiate()
+	var city: Node = (load(scene_path) as PackedScene if scene_path != "" else SCENE).instantiate()
 	add_child(city)
 	await _frames(120)
 	var interiors: CityInteriors = city.interiors
@@ -47,15 +52,17 @@ func _run() -> void:
 	# One house per class, nearest the spawn first.
 	var picks: Array = []
 	var seen := {}
-	var near := plan.buildings_near(spawn, 160.0)
+	var near := plan.buildings_near(spawn, 160.0 if trade_filter == "" else 2000.0)
 	near.sort_custom(func(a: int, b: int) -> bool:
 		return interiors._center(a).distance_to(spawn) < interiors._center(b).distance_to(spawn))
 	for index: int in near:
 		var lay := interiors.layout(index)
 		if lay == null or lay.items.is_empty():
 			continue
+		if trade_filter != "" and String(interiors.household_at(index).get("trade", "")) != trade_filter:
+			continue
 		var cls := String(interiors.household_at(index)["class"])
-		if int(seen.get(cls, 0)) >= maxi(count / 3, 1):
+		if trade_filter == "" and int(seen.get(cls, 0)) >= maxi(count / 3, 1):
 			continue
 		seen[cls] = int(seen.get(cls, 0)) + 1
 		picks.append(index)
@@ -76,10 +83,14 @@ func _run() -> void:
 		for _f in 90:
 			await get_tree().process_frame
 			furnish.append(interiors.last_update_usec / 1000.0)
-			scan.append(citizens_node.last_scan_usec / 1000.0)
+			# Regional sites have no city population.
+			scan.append(citizens_node.last_scan_usec / 1000.0 if citizens_node != null else 0.0)
 		furnish.sort()
 		scan.sort()
-		print("   main-thread ms after arrival: interiors p50 %.2f p95 %.2f max %.2f; citizen scan p95 %.2f max %.2f" % [
+		print((
+			"   main-thread ms after arrival: interiors p50 %.2f p95 %.2f max %.2f;"
+			+ " citizen scan p95 %.2f max %.2f"
+		) % [
 			furnish[45], furnish[85], furnish[-1], scan[85], scan[-1]])
 		var pieces: Array = []
 		for item in lay.items:
@@ -89,10 +100,11 @@ func _run() -> void:
 			absf(CityBuildingBuilder.signed_area(lay.inner)), ", ".join(pieces)])
 		var citizens := city.find_child("CityCitizens", true, false) as CityCitizens
 		var home := 0
-		for actor in citizens.live_actors():
+		for actor in (citizens.live_actors() if citizens != null else []):
 			if actor.at_home:
 				home += 1
-				print("   %s (%d, %s): %s" % [actor.record["name"], actor.record["age"], actor.record["pattern"], actor.pose])
+				print("   %s (%d, %s): %s" % [
+					actor.record["name"], actor.record["age"], actor.record["pattern"], actor.pose])
 		print("   at home and shown: %d, furnished houses: %d" % [home, interiors.furnished_count()])
 		if not interiors.is_furnished(index):
 			failures += 1
@@ -110,7 +122,10 @@ func _run() -> void:
 		city.world.add_child(cam)
 		var target := Vector3(c.x, lay.floor_y + 0.6, c.y)
 		var away := (c - lay.entry).normalized()
-		cam.global_position = target + Vector3(-away.x, 0.0, -away.y) * radius * 0.25 + Vector3.UP * (radius / tan(deg_to_rad(25.0)) * 0.95 + 1.5)
+		var lift := radius / tan(deg_to_rad(25.0)) * 0.95 + 1.5
+		cam.global_position = (
+			target + Vector3(-away.x, 0.0, -away.y) * radius * 0.25 + Vector3.UP * lift
+		)
 		cam.look_at(target, Vector3.UP)
 		cam.make_current()
 		await _frames(3)

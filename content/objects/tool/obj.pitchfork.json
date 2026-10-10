@@ -13,9 +13,9 @@
   "physical": {
     "mass_kg": 2.2,
     "size_m": [
-      0.44,
-      2.02,
-      0.17
+      0.19,
+      1.98,
+      0.2
     ],
     "materials": [
       "wood",
@@ -39,7 +39,8 @@
     "mount": "floor",
     "spaces": [
       "farm",
-      "street"
+      "street",
+      "home_poor"
     ],
     "grouping": "single"
   },
@@ -48,17 +49,17 @@
     "glb": "res://assets/props/tools/pitchfork/pitchfork.glb",
     "prop_kind": "pitchfork",
     "measured_size_m": [
-      0.44,
-      2.02,
-      0.17
+      0.19,
+      1.98,
+      0.2
     ]
   },
   "visual": {
     "preview": "docs/reports/images/object_catalog/obj.pitchfork.png",
     "icon": "res://assets/objects/icons/obj.pitchfork.png",
     "icon_status": "missing",
-    "look": "Long ash shaft with a socketed three-tine iron head.",
-    "image_prompt": "Pitchfork: Long ash shaft with a socketed three-tine iron head."
+    "look": "Three forward-curling hand-forged tines on a forged crown, riveted split socket on a slightly bowed ash shaft.",
+    "image_prompt": "Pitchfork: Three forward-curling hand-forged tines on a forged crown, riveted split socket on a slightly bowed ash shaft."
   },
   "lifecycle": "usable",
   "confidence": "plausible composite",

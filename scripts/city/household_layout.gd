@@ -57,6 +57,9 @@ const PIECES := {
 	&"prep_set": {"object": "obj.set_kitchen_prep", "front": 1, "solid": false},
 	&"bread": {"object": "obj.rye_bread_loaf", "front": 1, "solid": false},
 	&"jug": {"object": "obj.jug", "front": 1, "solid": false},
+	&"scythe": {"object": "obj.scythe", "front": 1, "solid": false},
+	&"pitchfork": {"object": "obj.pitchfork", "front": 1, "solid": false},
+	&"sickle": {"object": "obj.sickle", "front": 1, "solid": false},
 }
 ## Census household class -> furnishing tier.
 const TIER := {
@@ -75,6 +78,15 @@ const HALL_GOODS := {
 	"chandler": [&"cargo_furs"],
 	"merchant": [&"cargo_cloth", &"cargo_grain", &"cargo_furs", &"cargo_herring", &"cargo_cloth"],
 }
+## Field tools a rural household keeps indoors by the door, out of the rain and
+## safe from theft: scythe and pitchfork lean on the wall, sickles hang on a peg.
+const FARM_TOOLS := {
+	"farmer": [&"scythe", &"pitchfork", &"sickle", &"sickle"],
+	"dairy": [&"pitchfork", &"sickle"],
+	"drover": [&"pitchfork"],
+}
+## Height (m above the floor) of the wall peg a sickle hangs from.
+const SICKLE_PEG_Y := 1.05
 ## A room this big (m2) has a living end round the hearth and a front hall:
 ## it is split by a partition once it is SPLIT_LENGTH long, twice past
 ## CHAMBER_AREA (hall, living room, chamber).
@@ -257,6 +269,11 @@ func _furnish(household: Dictionary, chimney: Vector2) -> void:
 			_slot(&"work", items[bench]["pos"] + _front(bench) * 0.75, -_front(bench), 0.0, bench)
 			if big:
 				_place_on_wall(&"workbench", _by_door)
+	# Farm tools by the door, where they are picked up on the way to the field.
+	for piece: StringName in FARM_TOOLS.get(trade, []):
+		var tool := _place_on_wall(piece, _by_door)
+		if tool >= 0 and piece == &"sickle":
+			items[tool]["y"] = SICKLE_PEG_Y
 	# The front hall: goods by trade (merchants keep wares here), and the
 	# season's firewood stacked where the carts unload.
 	if big:

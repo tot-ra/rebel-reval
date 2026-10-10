@@ -32,6 +32,7 @@ Status: implemented (task **R-HOUSEHOLDS-001**, proposed: create it on the task 
 - New Blender kit `assets/props/furniture/household_kit/household_furniture_kit.glb`, built by `blender --background --factory-startup --python tools/generate_household_furniture_kit.py` (deterministic; report in `generated/blender/household_furniture_kit_v1/`): `obj.bench_plank`, `obj.stool_three_leg`, `obj.bed_straw_pallet`, `obj.firewood_armful`, `obj.firewood_pile_indoor` (states `full`, `half`, `low`), and models for the formerly planned `obj.firewood_log`, `obj.basket_wicker`, `obj.clay_pot`.
 - `content/world/reval_city/citizens.json` gains `households`: `hh.<district>.<building>` → `{building, class, trade, size}` (census class `poor`, `master`, `merchant`, `great`; `size` counts infants), compiled by `tools/city/build_citizen_runtime.py`.
 - Furnishing tiers: `poor` → poor; `master` → mid; `merchant`, `great` → rich.
+- Field tools: a household whose head's trade is in `HouseholdLayout.FARM_TOOLS` keeps them indoors on the wall by the door: `farmer` (village farmsteads such as `harju.bldg.farm*.dwelling`, and gate-farm cultivators in town) gets a scythe, a pitchfork and two sickles, `dairy` a pitchfork and a sickle, `drover` a pitchfork. Scythe and pitchfork lean on the wall from the floor; sickles hang at `SICKLE_PEG_Y` (1.05 m). Pieces `scythe`, `pitchfork`, `sickle` use `obj.scythe`, `obj.pitchfork`, `obj.sickle`.
 
 ## Save and load
 
@@ -44,9 +45,10 @@ godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_hou
 python3 tools/city/build_citizen_runtime.py --check
 python3 tools/validate_object_catalog.py
 tools/godot_render.sh --resolution 1600x900 res://tools/capture_city_households.tscn -- --city-spawn=poi.forum --city-hour=18.2 --tag=evening --houses=4
+tools/godot_render.sh --resolution 1600x900 res://tools/capture_city_households.tscn -- --scene=res://scenes/world/sites/harju.tscn --trade=farmer --city-hour=12 --tag=farm_tools --houses=2
 ```
 
-The capture puts Kalev inside houses of each class, prints the pieces and who is home doing what, and writes `docs/reports/images/city/households_<tag>_<n>.png` (cutaway from above) and `_top.png` (top-down gameplay camera); it exits 1 if a house Kalev stands in is not furnished.
+The capture puts Kalev inside houses of each class, prints the pieces and who is home doing what, and writes `docs/reports/images/city/households_<tag>_<n>.png` (cutaway from above) and `_top.png` (top-down gameplay camera); it exits 1 if a house Kalev stands in is not furnished. `--scene=` captures a regional site level instead of the city and `--trade=` keeps only households of that trade (for example the Harju farmhouses: [`households_farm_tools_eye.jpg`](../reports/images/city/households_farm_tools_eye.jpg)).
 
 ## Limits
 

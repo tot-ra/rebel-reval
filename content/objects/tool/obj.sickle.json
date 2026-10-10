@@ -12,9 +12,9 @@
   "physical": {
     "mass_kg": 0.6,
     "size_m": [
-      0.54,
-      0.46,
-      0.05
+      0.28,
+      0.43,
+      0.03
     ],
     "materials": [
       "steel",
@@ -37,7 +37,8 @@
   "placement": {
     "mount": "floor",
     "spaces": [
-      "farm"
+      "farm",
+      "home_poor"
     ],
     "grouping": "single"
   },
@@ -46,17 +47,17 @@
     "glb": "res://assets/props/tools/sickle/sickle.glb",
     "prop_kind": "sickle",
     "measured_size_m": [
-      0.54,
-      0.46,
-      0.05
+      0.28,
+      0.43,
+      0.03
     ]
   },
   "visual": {
     "preview": "docs/reports/images/object_catalog/obj.sickle.png",
     "icon": "res://assets/objects/icons/obj.sickle.png",
     "icon_status": "missing",
-    "look": "Curved steel blade on a short wooden grip.",
-    "image_prompt": "Sickle: Curved steel blade on a short wooden grip."
+    "look": "Crescent reaping blade with a finely toothed inner edge, iron ferrule, and turned ash grip; hung on a wall peg.",
+    "image_prompt": "Sickle: Crescent reaping blade with a finely toothed inner edge, iron ferrule, and turned ash grip; hung on a wall peg."
   },
   "lifecycle": "usable",
   "confidence": "plausible composite",

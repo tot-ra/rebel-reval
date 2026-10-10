@@ -13,9 +13,9 @@
   "physical": {
     "mass_kg": 2.4,
     "size_m": [
-      1.03,
-      1.51,
-      0.39
+      0.79,
+      1.72,
+      0.26
     ],
     "materials": [
       "wood",
@@ -37,7 +37,8 @@
   "placement": {
     "mount": "floor",
     "spaces": [
-      "farm"
+      "farm",
+      "home_poor"
     ],
     "grouping": "single"
   },
@@ -46,17 +47,17 @@
     "glb": "res://assets/props/tools/scythe/scythe.glb",
     "prop_kind": "scythe",
     "measured_size_m": [
-      1.03,
-      1.51,
-      0.39
+      0.79,
+      1.72,
+      0.26
     ]
   },
   "visual": {
     "preview": "docs/reports/images/object_catalog/obj.scythe.png",
     "icon": "res://assets/objects/icons/obj.scythe.png",
     "icon_status": "missing",
-    "look": "Curved steel blade riveted to a long bent snath with two grip pegs.",
-    "image_prompt": "Scythe: Curved steel blade riveted to a long bent snath with two grip pegs."
+    "look": "Thin ribbed steel blade on an iron heel tang, locked by two rings to a bent ash snath with one side nib; stored blade-up against a wall.",
+    "image_prompt": "Scythe: Thin ribbed steel blade on an iron heel tang, locked by two rings to a bent ash snath with one side nib; stored blade-up against a wall."
   },
   "lifecycle": "usable",
   "confidence": "plausible composite",

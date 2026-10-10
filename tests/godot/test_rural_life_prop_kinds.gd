@@ -43,20 +43,23 @@ func test_authored_farm_tools_keep_readable_metric_silhouettes_and_pbr() -> void
 	var expected := {
 		MapTypes.PROP_KIND_PITCHFORK: {
 			"node": "PitchforkModel",
-			"height": Vector2(2.0, 2.04),
-			"triangles": 376,
+			"height": Vector2(1.96, 2.0),
+			"triangles": 1998,
+			"centered": true,
 			"materials": 2,
 		},
 		MapTypes.PROP_KIND_SCYTHE: {
 			"node": "ScytheModel",
-			"height": Vector2(1.49, 1.53),
-			"triangles": 388,
+			"height": Vector2(1.70, 1.74),
+			"triangles": 2530,
+			"centered": true,
 			"materials": 3,
 		},
 		MapTypes.PROP_KIND_SICKLE: {
 			"node": "SickleModel",
-			"height": Vector2(0.45, 0.48),
-			"triangles": 140,
+			"height": Vector2(0.42, 0.45),
+			"triangles": 1964,
+			"centered": true,
 			"materials": 3,
 		},
 		MapTypes.PROP_KIND_RAKE: {
@@ -88,6 +91,13 @@ func test_authored_farm_tools_keep_readable_metric_silhouettes_and_pbr() -> void
 			size_y >= height.x and size_y <= height.y, "%s height must stay plausible" % kind
 		)
 		assert_true(metrics["bounds"].position.y >= -0.001, "%s must rest on the ground plane" % kind)
+		if spec.get("centered", false):
+			# Household layouts put a piece's footprint centre against the wall.
+			var center: Vector3 = metrics["bounds"].get_center()
+			assert_true(
+				absf(center.x) < 0.01 and absf(center.z) < 0.01,
+				"%s footprint must be centred on its origin" % kind
+			)
 		assert_eq(
 			metrics["triangles"], spec["triangles"], "%s geometry must stay deterministic" % kind
 		)

@@ -9,7 +9,9 @@ To rebuild only selected assets while preserving previously approved binaries:
 
 The tools use known metric construction, so image-to-3D would only add topology noise.
 The set covers forge tongs, a smith's hammer and punch, a three-tine pitchfork,
-a short-bladed grass scythe and sickle, a wooden rake, and a wooden shovel.
+a grass scythe and a toothed sickle, a wooden rake, and a wooden shovel. The
+pitchfork, scythe and sickle (v3) are smooth spline sweeps and lofted thin blades,
+centred on their footprint so farmhouse interiors can lean or hang them on a wall.
 """
 
 from __future__ import annotations
@@ -26,7 +28,7 @@ from mathutils import Vector
 
 ROOT = Path(__file__).resolve().parents[1]
 BLENDER_VERSION = "Blender 5.2 LTS"
-GENERATOR_VERSION = "medieval_hand_tools_v2"
+GENERATOR_VERSION = "medieval_hand_tools_v3"
 TEXTURE_SIZE = 512
 
 
@@ -46,6 +48,10 @@ class AssetSpec:
     preview_target: tuple[float, float, float]
     preview_camera: tuple[float, float, float]
     preview_scale: float
+    # Wall-leaning tools (v3): footprint-centred so household layouts can put
+    # their back to a wall, tipped `lean_deg` toward +Y (the wall, Godot -Z).
+    centered: bool = False
+    lean_deg: float = 0.0
 
     @property
     def evidence_dir(self) -> Path:
@@ -85,11 +91,13 @@ SPECS = (
         "Pitchfork",
         hand_tool_glb("pitchfork"),
         "res://content/maps/viru_gate_foreland.rrmap#west.pitchfork",
-        (0.44, 2.02, 0.19),
-        1800,
-        (0.08, 0.0, 1.0),
+        (0.23, 1.98, 0.26),
+        3200,
+        (0.0, 0.0, 0.99),
         (2.0, -3.6, 2.05),
-        2.4,
+        2.2,
+        centered=True,
+        lean_deg=6.0,
     ),
     AssetSpec(
         "prop.scythe",
@@ -97,11 +105,13 @@ SPECS = (
         "Scythe",
         hand_tool_glb("scythe"),
         "res://content/maps/viru_gate_foreland.rrmap#east.scythe",
-        (1.02, 1.54, 0.31),
-        1800,
-        (0.12, 0.0, 0.75),
+        (0.82, 1.71, 0.39),
+        3600,
+        (0.0, 0.0, 0.86),
         (2.4, -3.8, 2.05),
         2.05,
+        centered=True,
+        lean_deg=7.0,
     ),
     AssetSpec(
         "prop.blacksmith_hammer",
@@ -133,11 +143,12 @@ SPECS = (
         "Sickle",
         hand_tool_glb("sickle"),
         "res://content/maps/viru_gate_foreland.rrmap#west.sickle",
-        (0.42, 0.48, 0.10),
-        1200,
-        (0.07, 0.0, 0.21),
+        (0.32, 0.45, 0.04),
+        2400,
+        (0.0, 0.0, 0.22),
         (0.85, -1.35, 0.78),
-        0.70,
+        0.60,
+        centered=True,
     ),
     AssetSpec(
         "prop.rake",
@@ -389,6 +400,175 @@ def _vertical_prism(
     return _link_and_parent(obj, root, material)
 
 
+# Objects whose UVs are laid out along their length (wood grain follows the
+# shaft); _prepare_meshes must not overwrite them with a smart projection.
+CUSTOM_UV_OBJECTS: set[str] = set()
+
+
+def _spline(points: list[tuple[float, float, float]], values: list[list[float]], samples: int):
+    """Catmull-Rom through `points`; each list in `values` is interpolated linearly per segment."""
+    pts = [Vector(p) for p in points]
+    ext = [pts[0] * 2.0 - pts[1], *pts, pts[-1] * 2.0 - pts[-2]]
+    path: list[Vector] = []
+    sampled: list[list[float]] = [[] for _ in values]
+    for i in range(len(pts) - 1):
+        p0, p1, p2, p3 = ext[i : i + 4]
+        for s in range(samples):
+            t = s / samples
+            t2 = t * t
+            t3 = t2 * t
+            path.append(
+                0.5 * ((2.0 * p1) + (p2 - p0) * t + (2.0 * p0 - 5.0 * p1 + 4.0 * p2 - p3) * t2 + (3.0 * p1 - p0 - 3.0 * p2 + p3) * t3)
+            )
+            for k, series in enumerate(values):
+                sampled[k].append(series[i] + (series[i + 1] - series[i]) * t)
+    path.append(pts[-1].copy())
+    for k, series in enumerate(values):
+        sampled[k].append(series[-1])
+    return path, sampled
+
+
+def _tangents(path: list[Vector]) -> list[Vector]:
+    count = len(path)
+    return [(path[min(i + 1, count - 1)] - path[max(i - 1, 0)]).normalized() for i in range(count)]
+
+
+def _mesh_object(root: bpy.types.Object, name: str, bm, materials: list[bpy.types.Material]) -> bpy.types.Object:
+    import bmesh
+
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces[:])
+    mesh = bpy.data.meshes.new(f"{name}Mesh")
+    bm.to_mesh(mesh)
+    bm.free()
+    for material in materials:
+        mesh.materials.append(material)
+    for polygon in mesh.polygons:
+        polygon.use_smooth = True
+    obj = bpy.data.objects.new(name, mesh)
+    bpy.context.collection.objects.link(obj)
+    obj.parent = root
+    return obj
+
+
+def _tube(
+    root: bpy.types.Object,
+    name: str,
+    points: list[tuple[float, float, float]],
+    radii: list[float],
+    material: bpy.types.Material,
+    *,
+    sides: int = 10,
+    samples: int = 6,
+    profile: tuple[float, float] = (1.0, 1.0),
+    caps: tuple[bool, bool] = (True, True),
+) -> bpy.types.Object:
+    """Smooth tapered sweep along a spline: one continuous shaft instead of jointed cylinders.
+
+    Frames use parallel transport so the (optionally elliptical) profile does not
+    twist; UVs run around (u) and along (v, 0.5 m per tile) so grain follows the wood.
+    """
+    import bmesh
+
+    path, (radius,) = _spline(points, [radii], samples)
+    tangents = _tangents(path)
+    ref = Vector((0.0, 0.0, 1.0)) if abs(tangents[0].z) < 0.9 else Vector((1.0, 0.0, 0.0))
+    normal = (ref - tangents[0] * ref.dot(tangents[0])).normalized()
+    bm = bmesh.new()
+    uv = bm.loops.layers.uv.new("UVMap")
+    rings = []
+    arc = [0.0]
+    for i, tangent in enumerate(tangents):
+        if i > 0:
+            normal = tangents[i - 1].rotation_difference(tangent) @ normal
+            normal = (normal - tangent * normal.dot(tangent)).normalized()
+            arc.append(arc[-1] + (path[i] - path[i - 1]).length)
+        binormal = tangent.cross(normal)
+        ring = []
+        for j in range(sides):
+            angle = math.tau * j / sides
+            offset = normal * (math.cos(angle) * profile[0]) + binormal * (math.sin(angle) * profile[1])
+            ring.append(bm.verts.new(path[i] + offset * radius[i]))
+        rings.append(ring)
+    for i in range(len(rings) - 1):
+        v0 = arc[i] / 0.5
+        v1 = arc[i + 1] / 0.5
+        for j in range(sides):
+            k = (j + 1) % sides
+            face = bm.faces.new((rings[i][j], rings[i][k], rings[i + 1][k], rings[i + 1][j]))
+            for loop, coord in zip(face.loops, ((j / sides, v0), ((j + 1) / sides, v0), ((j + 1) / sides, v1), (j / sides, v1))):
+                loop[uv].uv = coord
+    # Rounded end caps: a shallow fan dome rather than a flat sawn disc.
+    for enabled, index, direction in ((caps[0], 0, -1.0), (caps[1], len(rings) - 1, 1.0)):
+        if not enabled:
+            continue
+        tip = bm.verts.new(path[index] + tangents[index] * (direction * radius[index] * 0.55))
+        ring = rings[index]
+        for j in range(sides):
+            k = (j + 1) % sides
+            face = bm.faces.new((ring[j], ring[k], tip))
+            for loop, coord in zip(face.loops, ((j / sides, 0.0), ((j + 1) / sides, 0.0), ((j + 0.5) / sides, 0.04))):
+                loop[uv].uv = coord
+    CUSTOM_UV_OBJECTS.add(name)
+    return _mesh_object(root, name, bm, [material])
+
+
+# Half-thickness of a forged blade across its width, spine (0) to cutting edge (1):
+# a raised back rib for stiffness, a thin body, and a hammered-out edge.
+BLADE_PROFILE = ((0.0, 0.0030), (0.05, 0.0042), (0.13, 0.0034), (0.22, 0.0016), (0.55, 0.0012), (0.82, 0.0008), (1.0, 0.00025))
+BLADE_EDGE_FROM = 0.82
+
+
+def _blade(
+    root: bpy.types.Object,
+    name: str,
+    spine: list[tuple[float, float, float]],
+    widths: list[float],
+    plane_normal: tuple[float, float, float],
+    edge_hint: tuple[float, float, float],
+    iron: bpy.types.Material,
+    edge: bpy.types.Material,
+    *,
+    samples: int = 8,
+    thickness: float = 1.0,
+    serrate: float = 0.0,
+) -> bpy.types.Object:
+    """Loft a thin curved blade from its spine curve toward the cutting edge.
+
+    `plane_normal` is the blade's flat face; `edge_hint` says on which side of the
+    spine the edge lies. Faces past BLADE_EDGE_FROM use the polished edge material,
+    and `serrate` notches every other station to suggest a toothed reaping edge.
+    """
+    import bmesh
+
+    path, (width,) = _spline(spine, [widths], samples)
+    tangents = _tangents(path)
+    face_normal = Vector(plane_normal).normalized()
+    mid = len(path) // 2
+    sign = 1.0 if face_normal.cross(tangents[mid]).dot(Vector(edge_hint)) >= 0.0 else -1.0
+    bm = bmesh.new()
+    loop_points = [(f, h) for f, h in BLADE_PROFILE] + [(f, -h) for f, h in reversed(BLADE_PROFILE[1:-1])]
+    rings = []
+    for i, tangent in enumerate(tangents):
+        across = (face_normal.cross(tangent) * sign).normalized()
+        thick_dir = across.cross(tangent).normalized()
+        notch = 1.0 - serrate if i % 2 else 1.0
+        ring = []
+        for f, h in loop_points:
+            reach = f * width[i] * (notch if f >= 1.0 else 1.0)
+            ring.append(bm.verts.new(path[i] + across * reach + thick_dir * (h * thickness)))
+        rings.append(ring)
+    count = len(loop_points)
+    for i in range(len(rings) - 1):
+        for j in range(count):
+            k = (j + 1) % count
+            face = bm.faces.new((rings[i][j], rings[i][k], rings[i + 1][k], rings[i + 1][j]))
+            f_low = min(loop_points[j][0], loop_points[k][0])
+            face.material_index = 1 if f_low >= BLADE_EDGE_FROM - 1e-6 else 0
+    bm.faces.new(list(reversed(rings[0])))
+    bm.faces.new(rings[-1])
+    return _mesh_object(root, name, bm, [iron, edge])
+
+
 def _build_tongs(root: bpy.types.Object, materials: dict[str, bpy.types.Material]) -> list[bpy.types.Object]:
     iron = materials["iron"]
     edge = materials["edge"]
@@ -422,16 +602,58 @@ def _build_tongs(root: bpy.types.Object, materials: dict[str, bpy.types.Material
 def _build_pitchfork(root: bpy.types.Object, materials: dict[str, bpy.types.Material]) -> list[bpy.types.Object]:
     wood = materials["wood"]
     iron = materials["iron"]
-    objects = [_cylinder_between(root, "AshShaft", (-0.12, 0.02, 0.0), (0.115, 0.025, 1.60), 0.028, wood, 12, 0.024)]
-    objects.append(_cylinder_between(root, "Socket", (0.105, 0.025, 1.48), (0.125, 0.02, 1.66), 0.042, iron, 12, 0.031))
-    crown = (0.125, 0.02, 1.64)
-    for index, offset in enumerate((-0.15, 0.0, 0.15)):
-        shoulder = (0.125 + offset * 0.78, 0.0, 1.72)
-        bend = (0.125 + offset, -0.045, 1.86)
-        tip = (0.125 + offset * 1.08, -0.10, 2.01)
-        objects.append(_cylinder_between(root, f"ForkBranch{index}", crown, shoulder, 0.022, iron, 9, 0.019))
-        objects.append(_cylinder_between(root, f"TineLower{index}", shoulder, bend, 0.019, iron, 9, 0.012))
-        objects.append(_cylinder_between(root, f"TineTip{index}", bend, tip, 0.012, iron, 9, 0.003))
+    # A hand-forged hay fork: a split socket clenched onto a slightly bowed ash
+    # shaft by one rivet, a forged crown, and three tapering tines that curl forward.
+    objects = [
+        _tube(
+            root,
+            "AshShaft",
+            [(0.0, 0.0, 0.0), (0.012, 0.0, 0.50), (0.004, 0.0, 1.00), (0.0, 0.0, 1.43)],
+            [0.0185, 0.0175, 0.0168, 0.0162],
+            wood,
+            sides=12,
+            samples=8,
+            profile=(1.0, 0.92),
+            caps=(True, False),
+        ),
+        _tube(root, "SocketLip", [(0.0, 0.0, 1.372), (0.0, 0.0, 1.392)], [0.0228, 0.0225], iron, sides=12, samples=2),
+        _tube(
+            root,
+            "ForgedSocket",
+            [(0.0, 0.0, 1.385), (0.0, 0.0, 1.50), (0.0, 0.0, 1.565), (0.0, 0.0, 1.605)],
+            [0.0208, 0.0185, 0.0135, 0.0105],
+            iron,
+            sides=12,
+            samples=4,
+            caps=(False, False),
+        ),
+        _tube(root, "SocketRivet", [(0.0, -0.025, 1.43), (0.0, 0.025, 1.43)], [0.0048, 0.0048], iron, sides=8, samples=2),
+        _tube(
+            root,
+            "ForgedCrown",
+            [(-0.086, -0.002, 1.668), (-0.055, 0.0, 1.622), (0.0, 0.0, 1.600), (0.055, 0.0, 1.622), (0.086, -0.002, 1.668)],
+            [0.0085, 0.0098, 0.0112, 0.0098, 0.0085],
+            iron,
+            sides=8,
+            samples=5,
+            profile=(1.0, 0.8),
+        ),
+    ]
+    for index, x in enumerate((-0.086, 0.0, 0.086)):
+        base_z = 1.668 if x else 1.600
+        # Outer tines toe in slightly so the three points stay parallel, as on surviving forks.
+        objects.append(
+            _tube(
+                root,
+                f"Tine{index}",
+                [(x, -0.002, base_z), (x * 1.04, -0.006, 1.77), (x * 0.98, -0.020, 1.89), (x * 0.92, -0.048, 1.975)],
+                [0.0088, 0.0074, 0.0050, 0.0016],
+                iron,
+                sides=6,
+                samples=6,
+                caps=(False, True),
+            )
+        )
     return objects
 
 
@@ -439,35 +661,49 @@ def _build_scythe(root: bpy.types.Object, materials: dict[str, bpy.types.Materia
     wood = materials["wood"]
     iron = materials["iron"]
     edge = materials["edge"]
-    objects: list[bpy.types.Object] = []
-    shaft_points = [(-0.29, 0.06, 0.10), (-0.17, 0.04, 0.55), (0.00, 0.015, 1.05), (0.10, 0.0, 1.52)]
-    for index in range(len(shaft_points) - 1):
-        objects.append(_cylinder_between(root, f"CurvedSnath{index}", shaft_points[index], shaft_points[index + 1], 0.031, wood, 12, 0.026))
-    objects.append(_cylinder_between(root, "HandGrip", (-0.03, 0.02, 0.91), (-0.03, -0.24, 0.91), 0.023, wood, 10, 0.019))
-    objects.append(_sphere(root, "GripKnob", (-0.03, -0.255, 0.91), 0.032, wood))
-    objects.append(_cylinder_between(root, "IronSocket", (-0.31, 0.055, 0.07), (-0.22, 0.035, 0.20), 0.045, iron, 12, 0.033))
-    blade_outline = [
-        (-0.31, 0.02),
-        (-0.16, -0.035),
-        (0.10, -0.09),
-        (0.39, -0.105),
-        (0.68, -0.065),
-        (0.61, -0.005),
-        (0.35, 0.030),
-        (0.08, 0.045),
-        (-0.16, 0.055),
+    # Stored the safe way, butt on the floor and blade up against the wall. The
+    # snath has one side nib (the common Baltic single-grip form); two iron rings
+    # and a heel tang lock the blade on, and the thin blade carries a rolled back rib.
+    snath = [(0.0, 0.0, 0.0), (0.008, 0.0, 0.07), (0.035, 0.0, 0.42), (0.012, 0.0, 0.86), (0.030, 0.0, 1.25), (0.075, 0.0, 1.55)]
+    objects = [
+        _tube(root, "BentSnath", snath, [0.0205, 0.0172, 0.0182, 0.0178, 0.0170, 0.0182], wood, sides=12, samples=8, profile=(1.0, 0.86)),
+        _tube(
+            root,
+            "SideNib",
+            [(0.013, 0.0, 0.80), (0.016, -0.075, 0.828), (0.028, -0.138, 0.812)],
+            [0.0155, 0.0138, 0.0150],
+            wood,
+            sides=10,
+            samples=5,
+            caps=(False, True),
+        ),
+        _tube(root, "NibWedge", [(0.013, 0.012, 0.80), (0.013, 0.026, 0.80)], [0.006, 0.004], wood, sides=6, samples=2),
+        _tube(root, "LowerHeelRing", [(0.0596, 0.0, 1.462), (0.0640, 0.0, 1.492)], [0.0218, 0.0222], iron, sides=12, samples=2),
+        _tube(root, "UpperHeelRing", [(0.0690, 0.0, 1.518), (0.0745, 0.0, 1.548)], [0.0226, 0.0230], iron, sides=12, samples=2),
+        _tube(
+            root,
+            "HeelTang",
+            [(0.072, 0.0, 1.535), (0.086, -0.002, 1.598), (0.112, -0.010, 1.624)],
+            [0.0105, 0.0095, 0.0085],
+            iron,
+            sides=8,
+            samples=5,
+            profile=(1.0, 0.55),
+        ),
     ]
-    objects.append(_blade_prism(root, "CurvedBlade", blade_outline, 0.025, 0.055, iron))
-    edge_outline = [
-        (-0.13, -0.038),
-        (0.10, -0.092),
-        (0.39, -0.107),
-        (0.68, -0.067),
-        (0.61, -0.047),
-        (0.38, -0.080),
-        (0.11, -0.068),
-    ]
-    objects.append(_blade_prism(root, "PolishedCuttingEdge", edge_outline, 0.019, 0.028, edge))
+    objects.append(
+        _blade(
+            root,
+            "ScytheBlade",
+            [(0.108, -0.010, 1.624), (0.27, 0.010, 1.636), (0.45, 0.0, 1.652), (0.62, -0.040, 1.672), (0.765, -0.112, 1.702)],
+            [0.072, 0.084, 0.070, 0.044, 0.004],
+            (0.0, -0.35, 0.94),
+            (0.0, -1.0, 0.0),
+            iron,
+            edge,
+            samples=10,
+        )
+    )
     return objects
 
 
@@ -501,36 +737,31 @@ def _build_sickle(root: bpy.types.Object, materials: dict[str, bpy.types.Materia
     wood = materials["wood"]
     iron = materials["iron"]
     edge = materials["edge"]
-    objects = [
-        _cylinder_between(root, "ShortAshGrip", (-0.11, 0.0, 0.0), (-0.025, 0.0, 0.265), 0.027, wood, 12, 0.023),
-        _cylinder_between(root, "BladeTang", (-0.035, 0.0, 0.235), (0.055, 0.0, 0.300), 0.018, iron, 10, 0.014),
+    # A reaping sickle as it hangs on a peg: a short turned grip with an iron
+    # ferrule, the tang rising into a crescent that sweeps ~205 degrees with a
+    # finely toothed inner edge (toothed sickles dominate Baltic finds).
+    center_x, center_z = 0.125, 0.29
+    spine = [(-0.009, 0.0, 0.150), (-0.013, 0.0, 0.196)]
+    widths = [0.010, 0.017]
+    for step in range(11):
+        angle = math.radians(190.0 - step * 20.5)
+        radius = 0.155 - 0.030 * (step / 10.0)
+        spine.append((center_x + math.cos(angle) * radius, 0.0, center_z + math.sin(angle) * radius))
+        widths.append((0.024, 0.029, 0.030, 0.029, 0.027, 0.024, 0.021, 0.017, 0.012, 0.007, 0.0025)[step])
+    return [
+        _tube(
+            root,
+            "TurnedGrip",
+            [(0.0, 0.0, 0.010), (-0.004, 0.0, 0.050), (-0.006, 0.0, 0.098), (-0.008, 0.0, 0.134)],
+            [0.0135, 0.0168, 0.0165, 0.0142],
+            wood,
+            sides=12,
+            samples=5,
+        ),
+        _tube(root, "ClenchedTangEnd", [(0.0, 0.0, 0.0), (0.0, 0.0, 0.012)], [0.0060, 0.0085], iron, sides=8, samples=2),
+        _tube(root, "Ferrule", [(-0.008, 0.0, 0.126), (-0.009, 0.0, 0.152)], [0.0158, 0.0150], iron, sides=12, samples=2),
+        _blade(root, "ReapingBlade", spine, widths, (0.0, 1.0, 0.0), (0.0, 0.0, -1.0), iron, edge, samples=5, thickness=1.15, serrate=0.08),
     ]
-    # The short inward-curving reaping blade is intentionally unlike the long,
-    # two-handed scythe and suits grain or garden work beside a farm building.
-    blade_outline = [
-        (0.035, 0.275),
-        (0.115, 0.350),
-        (0.235, 0.430),
-        (0.365, 0.452),
-        (0.405, 0.424),
-        (0.330, 0.385),
-        (0.230, 0.355),
-        (0.145, 0.305),
-        (0.075, 0.245),
-    ]
-    edge_outline = [
-        (0.075, 0.260),
-        (0.150, 0.315),
-        (0.235, 0.365),
-        (0.330, 0.395),
-        (0.405, 0.424),
-        (0.365, 0.405),
-        (0.245, 0.340),
-        (0.125, 0.275),
-    ]
-    objects.append(_vertical_prism(root, "CurvedReapingBlade", blade_outline, -0.018, 0.018, iron))
-    objects.append(_vertical_prism(root, "PolishedInnerEdge", edge_outline, -0.021, -0.019, edge))
-    return objects
 
 
 def _build_rake(root: bpy.types.Object, materials: dict[str, bpy.types.Material]) -> list[bpy.types.Object]:
@@ -573,7 +804,8 @@ def _prepare_meshes(objects: list[bpy.types.Object]) -> None:
         obj.select_set(True)
         bpy.ops.object.mode_set(mode="EDIT")
         bpy.ops.mesh.select_all(action="SELECT")
-        bpy.ops.uv.smart_project(angle_limit=1.15, island_margin=0.02)
+        if obj.name not in CUSTOM_UV_OBJECTS:
+            bpy.ops.uv.smart_project(angle_limit=1.15, island_margin=0.02)
         bpy.ops.mesh.quads_convert_to_tris(quad_method="BEAUTY", ngon_method="BEAUTY")
         bpy.ops.object.mode_set(mode="OBJECT")
         obj.select_set(False)
@@ -584,6 +816,30 @@ def _ground_objects(objects: list[bpy.types.Object]) -> None:
     minimum_z = min((obj.matrix_world @ Vector(corner)).z for obj in objects for corner in obj.bound_box)
     for obj in objects:
         obj.location.z -= minimum_z
+
+
+def _lean_and_center(spec: AssetSpec, objects: list[bpy.types.Object]) -> None:
+    """Tip the tool toward the wall and centre its X/Y footprint on the origin.
+
+    Household layouts place a piece by its footprint centre with its back to the
+    wall; baking the lean into the mesh keeps the GLB root transform identity.
+    """
+    from mathutils import Matrix
+
+    lean = Matrix.Rotation(math.radians(-spec.lean_deg), 4, "X")
+    for obj in objects:
+        obj.data.transform(lean @ obj.matrix_basis)
+        obj.matrix_basis = Matrix.Identity(4)
+        obj.data.update()
+    # bound_box and matrix_world are stale until the depsgraph re-evaluates.
+    bpy.context.view_layer.update()
+    corners = [obj.matrix_world @ Vector(corner) for obj in objects for corner in obj.bound_box]
+    shift_x = (min(c.x for c in corners) + max(c.x for c in corners)) * 0.5
+    shift_y = (min(c.y for c in corners) + max(c.y for c in corners)) * 0.5
+    for obj in objects:
+        obj.location.x -= shift_x
+        obj.location.y -= shift_y
+    bpy.context.view_layer.update()
 
 
 def _metrics(spec: AssetSpec, objects: list[bpy.types.Object]) -> dict[str, object]:
@@ -753,17 +1009,19 @@ def _build(spec: AssetSpec, preview_enabled: bool) -> dict[str, object]:
     }
     builders = {
         "blacksmith_tongs": (_build_tongs, "riveted two-arm blacksmith tongs with short flat gripping jaws"),
-        "pitchfork": (_build_pitchfork, "three hand-forged tines socketed onto a long ash shaft"),
-        "scythe": (_build_scythe, "curved ash snath, side grip, iron socket, and short grass-cutting blade"),
+        "pitchfork": (_build_pitchfork, "riveted split socket, forged crown, and three forward-curling tines on a bowed ash shaft"),
+        "scythe": (_build_scythe, "bent ash snath with one side nib, two heel rings, and a thin ribbed blade stored blade-up"),
         "blacksmith_hammer": (_build_blacksmith_hammer, "one-handed ash-hafted forging hammer with a square face and cross peen"),
         "blacksmith_punch": (_build_blacksmith_punch, "short hand-forged punch with a struck head and hardened tapered point"),
-        "sickle": (_build_sickle, "short ash grip and inward-curving iron reaping blade"),
+        "sickle": (_build_sickle, "turned ash grip with iron ferrule and a toothed crescent reaping blade"),
         "rake": (_build_rake, "long ash shaft, wooden crossbar, and eight wooden hay teeth"),
         "wooden_shovel": (_build_wooden_shovel, "broad carved wooden blade, long ash shaft, and simple transverse grip"),
     }
     builder, identity = builders[spec.slug]
     objects = builder(root, materials)
     _prepare_meshes(objects)
+    if spec.centered:
+        _lean_and_center(spec, objects)
     _ground_objects(objects)
     root["asset_id"] = spec.asset_id
     root["generator"] = "tools/generate_medieval_hand_tools.py"
