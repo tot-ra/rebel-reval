@@ -29,7 +29,7 @@ func _init() -> void:
 	# Keep the opening blow hanging so only the scripted exchanges draw.
 	_host.duel.telegraph_sec = 3600.0
 	root.add_child(_host)
-	_host.open(db, state, &"dialogue.test_duel")
+	_host.open_scripted(db, state, &"dialogue.test_duel")
 	_host.vfx().allow_shake = true
 	await _plate(out + "/fireball_flight.png", _spell("pressure", 42.0), 0.2)
 	await _plate(out + "/fireball_impact.png", _spell("pressure", 42.0), 0.45)

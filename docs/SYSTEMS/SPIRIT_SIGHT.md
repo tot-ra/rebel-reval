@@ -1,6 +1,6 @@
 # Spirit sight, auras and soul lights
 
-Status: partially implemented. The spirit sight toggle SS-1 (**R-1484**), aura profile data SS-2/SS-2b (**R-1485**, **R-1496**) and the aura look SS-3 (**R-1486**) are implemented, as is the duel layer SS-6 (**R-1489**); reading, duel use and entry remain planned (epic **R-1483**, [ADR 0041](../adr/0041-spirit-sight-auras-and-soul-lights.md), accepted).
+Status: partially implemented. The spirit sight toggle SS-1 (**R-1484**), aura profile data SS-2/SS-2b (**R-1485**, **R-1496**) and the aura look SS-3 (**R-1486**) are implemented, as are the duel layer SS-6 (**R-1489**) and duel entry SS-7 (**R-1490**); reading and duel use remain planned (epic **R-1483**, [ADR 0041](../adr/0041-spirit-sight-auras-and-soul-lights.md), accepted).
 
 Scope: a spirit-sight layer the hero toggles anywhere on the same map, auras with seven soul lights on every person and animal, reading a soul, soul lights feeding the spirit duel, and duels that keep the building but hide furniture under a focused grade. Out of scope: a universal good/evil score, duels with animals, a separate spirit-world copy of the map, new art assets (P0-040). The duel rules themselves live in [`SPIRIT_DIALOGUE.md`](./SPIRIT_DIALOGUE.md).
 
@@ -206,9 +206,26 @@ The building stays: walls, floor, pillars, stairs and building shells keep their
 - **Plates:** [`docs/reports/images/spirit_duel_layer/`](../reports/images/spirit_duel_layer/) (outdoor street before, in the duel, back in sight; made by `tools/capture_spirit_duel_layer.gd`) and the almshouse hall duel (`almshouse_duel_hall.png`, from `tools/capture_almshouse_opening.gd`; before R-1489 the hall was hidden down to a bare floor disc).
 - **Limits:** the grade is a whole-screen adjustment, so aura colour is desaturated with the rest of the frame; untagged props stay visible until their spawner joins a hide group.
 
-## Entering a duel (planned, SS-7, **R-1490**)
+## Entering a duel (implemented, SS-7, **R-1490**)
 
-Challenge (interact) on a duel-ready person in spirit sight opens the in-place duel. Scripted duels (the almshouse porter, future open-world duels, SW-3) switch spirit sight on first, then open the arena. After the duel the hero stays in spirit sight.
+Status: implemented (task **R-1490**). Scope: how a duel starts from spirit sight (Challenge), how scripted duels pass through sight, and what layer the hero is in afterwards. Out of scope: new duel content and open-world duel triggers with stakes (SW-3, **R-1350**), the look of the duel (Duel layer, SS-6).
+
+A duel starts only from spirit sight and ends back in it.
+
+- **Challenge:** in spirit sight, a person with a duel record shows the prompt **Challenge** instead of their normal one. Interact (`E` / `Enter`, gamepad A) opens the duel in place and sight stays on. The duel opens in the same place on the frozen world with the arena panel. Outside sight the same person gets the normal interaction, and every other interactable still leaves sight first, then interacts (SS-1). No second challenge opens while one is running.
+- **Duel record:** the first dialogue, in id order, with a non-empty `duel` block whose `participants` contain both the person's `char.*` id and the hero (`char.apprentice`). An observed quarrel between two other people (`dialogue.prologue.almshouse_quarrel`) is not a challenge. The person behind a talk sensor is `Interactable.character_id`; a sensor without one never offers a challenge.
+- **Scripted duels:** `SpiritArenaHost.open_scripted(db, state, dialogue_id)` asks the scene's spirit-sight controller to switch sight on with its ripple (`enter_for_script`, which bypasses the toggle's availability rules), then opens the arena in the same call, so callers keep a synchronous contract. A scene without a controller only sets the transient flag. If the dialogue is not a duel, the sight it switched on is undone and nothing opens.
+- **The gate:** `SpiritArenaHost.open` returns false and changes nothing when `GameState.spirit_sight` is off. Every scripted caller (the prologue, tests, capture tools) goes through `open_scripted`. `observe` (watching a quarrel) is not gated.
+- **Almshouse porter:** the hall has no Player, so `AlmshouseOpening` mounts its own `SpiritSight` controller (manual toggle disabled) before the duel, switches sight on before the arena is mounted, and opens the duel through `open_scripted`. When Kalev walks in, dialogue closes sight with the reverse ripple; a skip leaves sight at once.
+- **After the duel:** closing the arena ends the encounter (`spirit_encounter_active` false) but leaves `GameState.spirit_sight` on, so `in_spirit_world` stays true until the player leaves sight. While a host is open it sits in the group `spirit_duel_open`, and `SpiritSight.enforce_availability` does not cancel sight for the duel's pause or modal flags.
+
+Runtime entry points: `scripts/combat/spirit_sight.gd` (`duel_for`, `challenge_dialogue`, `challenge`, `enter_for_script`, `challenge_host`, `CHALLENGE_PROMPT`), `scripts/combat/spirit_arena_host.gd` (`open` gate, `open_scripted`), `scripts/interaction/interactable.gd` (`character_id`, Challenge prompt and interact routing), `scripts/prologue/almshouse_opening.gd`. Saves nothing: sight stays transient and a loaded game starts physical.
+
+**Verify:** `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_spirit_sight_duel_entry,test_almshouse_opening`. `test_spirit_sight_duel_entry` covers the duel-record rule, the Challenge prompt only in sight, interact opening the duel with sight kept and no second challenge, the normal interaction outside sight, the `open` refusal outside sight, the scripted path turning sight on (ripple running) before `opened`, a scripted non-duel undoing sight, return to sight on close, keyboard `E` and gamepad A through `InteractionController`, and the almshouse porter duel passing through sight.
+
+**Limits:**
+- A city Challenge opens the frozen-world arena panel, not the real-time 3D disc. Mounting the disc needs the opponent's 3D rig, which the NPC presenters do not expose by character id yet. SW-3 (**R-1350**) places the first duel-ready NPCs and owns that wiring.
+- No live NPC talk sensor sets `character_id` yet, so the Challenge prompt appears in play only once SW-3 adds duel-ready people. The prologue porter is the only duel reachable today.
 
 ## Hero growth (implemented, SS-8, **R-1491**)
 

@@ -91,7 +91,7 @@ func _init() -> void:
 	var bare: Node = _host_script.new()
 	bare.freeze_world = false
 	root.add_child(bare)
-	bare.open(_session_db(), state, _opening_script.CONFRONTATION)
+	bare.open_scripted(_session_db(), state, _opening_script.CONFRONTATION)
 	bare.duel.tick(_telegraph_sec + 0.01)
 	bare.duel.answer("still_hunger")
 	bare.duel.tick(_telegraph_sec * 0.5)

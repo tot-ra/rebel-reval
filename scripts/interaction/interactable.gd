@@ -5,6 +5,8 @@ signal focused
 signal unfocused
 signal interacted(actor: Node)
 
+const SPIRIT_SIGHT := preload("res://scripts/combat/spirit_sight.gd")
+
 @export var interactable_id: StringName = &""
 @export var prompt: String = "Interact"
 @export var interaction_kind: StringName = InteractionKinds.USE
@@ -12,6 +14,9 @@ signal interacted(actor: Node)
 @export var interaction_radius: float = 115.0
 ## 2D greybox marker for harness scenes only. Gameplay maps use 3D props and prompt UI.
 @export var show_debug_body: bool = false
+## The person behind a talk sensor (`char.*`). In spirit sight a person with a duel record
+## offers Challenge instead of the normal interaction (SS-7, ADR 0041 section 2).
+@export var character_id: StringName = &""
 
 var _callback: Callable = Callable()
 var _focused: bool = false
@@ -40,6 +45,8 @@ func get_interactable_id() -> StringName:
 
 
 func get_prompt() -> String:
+	if _challenge_dialogue() != &"":
+		return SPIRIT_SIGHT.CHALLENGE_PROMPT
 	return prompt
 
 
@@ -126,13 +133,30 @@ func interact(actor: Node) -> bool:
 	if not is_actor_in_range(actor as Node2D):
 		return false
 
-	# All keyboard, facing-click and click-to-travel paths converge here.
+	# All keyboard, facing-click and click-to-travel paths converge here. In spirit sight a
+	# duel-ready person is challenged (sight stays on); anything else leaves sight first.
+	if _challenge_dialogue() != &"":
+		return bool(_spirit_sight().call(&"challenge", self))
 	if actor.has_method("leave_spirit_sight"):
 		actor.call("leave_spirit_sight")
 	interacted.emit(actor)
 	if _callback.is_valid():
 		_callback.call(actor)
 	return true
+
+
+func _spirit_sight() -> Node:
+	if character_id == &"" or not is_inside_tree():
+		return null
+	return get_tree().get_first_node_in_group(SPIRIT_SIGHT.SIGHT_GROUP)
+
+
+func _challenge_dialogue() -> StringName:
+	var sight := _spirit_sight()
+	if sight == null:
+		return &""
+	var dialogue_id: StringName = sight.call(&"challenge_dialogue", self)
+	return dialogue_id
 
 
 ## Returns the enabled interactable whose radius contains logic_position, preferring

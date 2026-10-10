@@ -144,7 +144,7 @@ func test_the_open_arena_is_a_modal_overlay_and_leaves_it_on_close() -> void:
 	host.freeze_world = false
 	tree.root.add_child(host)
 	assert_eq(tree.get_nodes_in_group(&"modal_input_overlay").size(), 0)
-	assert_true(host.open(_db, _state, DUEL))
+	assert_true(host.open_scripted(_db, _state, DUEL))
 	assert_eq(tree.get_nodes_in_group(&"modal_input_overlay").size(), 1)
 	assert_true(_state.in_spirit_world)
 	host.close()
@@ -152,14 +152,19 @@ func test_the_open_arena_is_a_modal_overlay_and_leaves_it_on_close() -> void:
 	host.free()
 
 
-func test_closing_an_arena_mid_duel_leaves_the_spirit_world() -> void:
+## SS-7 (ADR 0041): closing ends the encounter but the hero stays in spirit sight, which is
+## still the spirit world; leaving sight leaves it.
+func test_closing_an_arena_mid_duel_ends_the_encounter_and_returns_to_sight() -> void:
 	var tree := Engine.get_main_loop() as SceneTree
 	var host := SpiritArenaHost.new()
 	host.duel.hero_id = &"char.mart"
 	host.freeze_world = false
 	tree.root.add_child(host)
-	assert_true(host.open(_db, _state, DUEL))
-	assert_true(_state.in_spirit_world)
+	assert_true(host.open_scripted(_db, _state, DUEL))
+	assert_true(_state.spirit_encounter_active)
 	host.close()
+	assert_false(_state.spirit_encounter_active)
+	assert_true(_state.spirit_sight and _state.in_spirit_world)
+	_state.spirit_sight = false
 	assert_false(_state.in_spirit_world)
 	host.free()

@@ -129,7 +129,7 @@ func test_host_freezes_the_world_and_restores_it_on_close() -> void:
 	var closed: Array[Dictionary] = []
 	host.closed.connect(func(outcome: Dictionary) -> void: closed.append(outcome))
 	assert_false(tree.paused)
-	assert_true(host.open(_db, _state, DUEL_ID))
+	assert_true(host.open_scripted(_db, _state, DUEL_ID))
 	assert_true(host.is_open())
 	assert_true(tree.paused)
 	assert_true(host.visible)
@@ -148,7 +148,7 @@ func test_host_refuses_a_dialogue_that_is_not_a_duel() -> void:
 	var tree := Engine.get_main_loop() as SceneTree
 	var host := SpiritArenaHost.new()
 	tree.root.add_child(host)
-	assert_false(host.open(_db, _state, PLAIN_ID))
+	assert_false(host.open_scripted(_db, _state, PLAIN_ID))
 	assert_false(host.is_open())
 	assert_false(tree.paused)
 	host.free()

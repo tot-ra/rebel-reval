@@ -77,6 +77,7 @@ button charges instead of repeating the swing.
 | Walk (slow) | `Shift` | unbound (rebind in Controls) |
 | Spirit sight on / off (walk only while on, [`SYSTEMS/SPIRIT_SIGHT.md`](SYSTEMS/SPIRIT_SIGHT.md)) | `V` | Left stick click |
 | Interact / continue | `E`, `Enter` | A |
+| Challenge (in spirit sight, on a person with a duel record; [`SYSTEMS/SPIRIT_SIGHT.md`](SYSTEMS/SPIRIT_SIGHT.md) "Entering a duel") | `E`, `Enter` | A |
 | Attack (tap = next combo strike, hold = heavy) | left click (see above) | X |
 | Guard | `F`, right click | Left shoulder |
 | Roll (toward the held direction; none = back roll; with guard held, `A`/`D` = side roll keeping facing) | `Space` | Right trigger |
@@ -100,7 +101,7 @@ Combat moves, combo timing, roll rules and cast gestures are specified in [`SYST
 
 ### Spirit duel
 
-A spirit duel (the prologue confrontation, [`SYSTEMS/SPIRIT_DIALOGUE.md`](SYSTEMS/SPIRIT_DIALOGUE.md)) freezes the world and uses the same bindings, no separate scheme:
+A spirit duel (the prologue confrontation, [`SYSTEMS/SPIRIT_DIALOGUE.md`](SYSTEMS/SPIRIT_DIALOGUE.md)) starts only from spirit sight: Challenge a duel-ready person in sight, or a scripted duel switches sight on first. After the duel the hero is still in spirit sight; press `V` / left stick click to leave it. The duel uses the same bindings, no separate scheme:
 
 | Action | Keyboard / mouse | Gamepad |
 |---|---|---|

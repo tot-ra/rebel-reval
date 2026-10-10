@@ -41,7 +41,7 @@ func before_each() -> void:
 	_host = SpiritArenaHost.new()
 	_tree().root.add_child(_host)
 	assert_true(_host.attach_arena(_root, Vector3.ZERO, [_hero, opponent], true, _hero, opponent))
-	assert_true(_host.open(_db, _state, CONFRONT))
+	assert_true(_host.open_scripted(_db, _state, CONFRONT))
 
 
 func after_each() -> void:
@@ -167,7 +167,7 @@ func test_words_are_deterministic() -> void:
 	var opponent := _root.get_child(1) as Node3D
 	opponent.global_position = Vector3(0, 0, -5)
 	assert_true(_host.attach_arena(_root, Vector3.ZERO, [_hero, opponent], true, _hero, opponent))
-	assert_true(_host.open(_db, _state, CONFRONT))
+	assert_true(_host.open_scripted(_db, _state, CONFRONT))
 	assert_eq(_run_sequence(), first)
 
 

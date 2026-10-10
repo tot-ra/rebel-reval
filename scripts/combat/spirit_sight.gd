@@ -16,6 +16,11 @@ const DUEL_AMBIENT_ENERGY := 0.55
 const DUEL_AMBIENT_COLOR := Color(0.1, 0.14, 0.62)
 const DUEL_SUN_SCALE := 0.15
 const SIGHT_GROUP := &"spirit_sight_controller"
+## SS-7: an open SpiritArenaHost sits in this group. Its pause and modal flags would make sight
+## "unavailable", but a duel is entered from sight and returns to it, so sight holds through it.
+const DUEL_OPEN_GROUP := &"spirit_duel_open"
+const HERO_ID := &"char.apprentice"
+const CHALLENGE_PROMPT := "Challenge"
 const FIELDS: Array[StringName] = [
 	&"adjustment_enabled", &"adjustment_saturation", &"ambient_light_energy",
 	&"ambient_light_color",
@@ -33,6 +38,10 @@ var follow_session := true
 ## 0..1, owned by an open SpiritArena3D; layers the duel grade over the sight grade and
 ## keeps sight on through the duel (the host's modal flags would otherwise cancel it).
 var duel_amount := 0.0
+## Fixtures without SessionState set this; otherwise the session's ContentDB is used.
+var content_db: ContentDB
+## The arena a Challenge opened (SS-7); null when no challenge is running.
+var challenge_host: SpiritArenaHost
 
 var _environment: Environment
 var _sun: DirectionalLight3D
@@ -42,6 +51,8 @@ var _tween: Tween
 var _overlay: CanvasLayer
 var _rect: ColorRect
 var _material: ShaderMaterial
+var _duel_cache: Dictionary[StringName, StringName] = {}
+var _duel_cache_db: ContentDB
 
 
 func _ready() -> void:
@@ -101,8 +112,84 @@ func available() -> bool:
 
 
 func enforce_availability() -> void:
-	if state != null and state.spirit_sight and duel_amount <= 0.0 and not available():
+	if duel_amount > 0.0 or not get_tree().get_nodes_in_group(DUEL_OPEN_GROUP).is_empty():
+		return
+	if state != null and state.spirit_sight and not available():
 		leave_immediately()
+
+
+## Scripted duels (SS-7: the almshouse porter, SW-3 triggers) do not ask the player: sight
+## switches on with the ripple even where the toggle is unavailable, and the caller opens the
+## arena right after. Already in sight: nothing changes.
+func enter_for_script() -> void:
+	if state != null and not state.spirit_sight:
+		set_enabled(true)
+
+
+## The duel a person offers (ADR 0041 section 2): the first dialogue, in id order, with a
+## non-empty `duel` block whose participants are both `char_id` and the hero. Observed
+## quarrels between two other people are not challenges.
+static func duel_for(char_id: StringName, db: ContentDB) -> StringName:
+	if char_id == &"" or char_id == HERO_ID or db == null:
+		return &""
+	var ids: Array[StringName] = db.get_ids_by_type("dialogue")
+	var sorted_ids := ids.duplicate()
+	sorted_ids.sort()
+	for id: StringName in sorted_ids:
+		var record := db.get_dialogue(id)
+		var duel: Variant = record.get("duel", {})
+		if not (duel is Dictionary) or (duel as Dictionary).is_empty():
+			continue
+		var participants: Array = record.get("participants", [])
+		if participants.has(String(char_id)) and participants.has(String(HERO_ID)):
+			return id
+	return &""
+
+
+## The duel `interactable` offers right now: only in spirit sight, only on a person (a
+## `character_id`) with a duel record, never while another duel is open.
+func challenge_dialogue(interactable: Interactable) -> StringName:
+	if state == null or not state.spirit_sight or interactable == null:
+		return &""
+	if is_instance_valid(challenge_host) and challenge_host.is_open():
+		return &""
+	# The prompt asks every frame; the duel record of a person does not change mid-session.
+	var db := _content_db()
+	var key := interactable.character_id
+	if _duel_cache_db != db:
+		_duel_cache.clear()
+		_duel_cache_db = db
+	if not _duel_cache.has(key):
+		_duel_cache[key] = duel_for(key, db)
+	return _duel_cache[key]
+
+
+## Interact on a duel-ready person in sight: open the duel in place. The arena host freezes
+## the world (2D panel); the hero stays in sight through it and after it closes.
+func challenge(interactable: Interactable) -> bool:
+	var dialogue_id := challenge_dialogue(interactable)
+	if dialogue_id == &"":
+		return false
+	var host := SpiritArenaHost.new()
+	add_child(host)
+	if not host.open(_content_db(), state, dialogue_id):
+		host.queue_free()
+		return false
+	challenge_host = host
+	host.closed.connect(_on_challenge_closed.bind(host), CONNECT_ONE_SHOT)
+	return true
+
+
+func _on_challenge_closed(_outcome: Dictionary, host: SpiritArenaHost) -> void:
+	if challenge_host == host:
+		challenge_host = null
+	host.queue_free()
+
+
+func _content_db() -> ContentDB:
+	if content_db != null or not follow_session:
+		return content_db
+	return get_node("/root/SessionState").content_db
 
 
 func transition_duration() -> float:

@@ -19,7 +19,7 @@ func _init() -> void:
 	host.duel.hero_id = &"char.mart"
 	host.freeze_world = false
 	root.add_child(host)
-	host.open(db, GameState.new(), DUEL_ID)
+	host.open_scripted(db, GameState.new(), DUEL_ID)
 	await _frames(3)
 	await _save(out + "/telegraph.png")
 	host.duel.tick(SpiritDuel.TELEGRAPH_SEC * 0.6)

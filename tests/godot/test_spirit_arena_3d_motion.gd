@@ -192,7 +192,7 @@ func test_host_real_time_arena_keeps_world_live_and_clamps_hero() -> void:
 	_tree().root.add_child(host)
 	assert_true(host.attach_arena(_root, Vector3.ZERO, [hero, opponent], true, hero, opponent))
 	assert_false(host.freeze_world)
-	assert_true(host.open(_db, GameState.new(), DUEL_ID))
+	assert_true(host.open_scripted(_db, GameState.new(), DUEL_ID))
 	assert_false(_tree().paused, "world keeps running")
 	for node: Node in _tree().get_nodes_in_group(&"modal_input_overlay"):
 		assert_false(host.is_ancestor_of(node), "locomotion is not blocked")

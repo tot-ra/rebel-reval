@@ -37,7 +37,7 @@ func after_each() -> void:
 
 
 func test_the_porter_opens_with_the_rusted_key() -> void:
-	assert_true(_host.open(_db, _state, CONFRONT))
+	assert_true(_host.open_scripted(_db, _state, CONFRONT))
 	var form := _host.form_view()
 	assert_true(form.visible)
 	assert_eq(form.image_id, &"rusted_key")
@@ -47,7 +47,7 @@ func test_the_porter_opens_with_the_rusted_key() -> void:
 
 
 func test_a_telegraphed_blow_swells_the_image() -> void:
-	assert_true(_host.open(_db, _state, CONFRONT))
+	assert_true(_host.open_scripted(_db, _state, CONFRONT))
 	var form := _host.form_view()
 	_host.duel.tick(SpiritDuel.TELEGRAPH_SEC * 0.5)
 	form.advance(0.0)
@@ -58,7 +58,7 @@ func test_a_telegraphed_blow_swells_the_image() -> void:
 
 
 func test_lost_pressure_shrinks_and_cracks_the_image() -> void:
-	assert_true(_host.open(_db, _state, CONFRONT))
+	assert_true(_host.open_scripted(_db, _state, CONFRONT))
 	var form := _host.form_view()
 	_host.duel.tick(SpiritDuel.TELEGRAPH_SEC + 0.01)
 	form.advance(10.0)
@@ -79,7 +79,7 @@ func test_lost_pressure_shrinks_and_cracks_the_image() -> void:
 
 
 func test_the_presence_eases_instead_of_jumping() -> void:
-	assert_true(_host.open(_db, _state, CONFRONT))
+	assert_true(_host.open_scripted(_db, _state, CONFRONT))
 	var form := _host.form_view()
 	_host.duel.tick(SpiritDuel.TELEGRAPH_SEC + 0.01)
 	assert_true(_host.duel.answer("fire_hands"))
@@ -88,7 +88,7 @@ func test_the_presence_eases_instead_of_jumping() -> void:
 
 
 func test_the_landed_blow_flashes_the_spirit() -> void:
-	assert_true(_host.open(_db, _state, CONFRONT))
+	assert_true(_host.open_scripted(_db, _state, CONFRONT))
 	var form := _host.form_view()
 	form.advance(10.0)
 	_host.duel.tick(SpiritDuel.TELEGRAPH_SEC + 0.01)
@@ -97,7 +97,7 @@ func test_the_landed_blow_flashes_the_spirit() -> void:
 
 
 func test_the_rod_follows_the_next_line() -> void:
-	assert_true(_host.open(_db, _state, CONFRONT))
+	assert_true(_host.open_scripted(_db, _state, CONFRONT))
 	_host.duel.tick(SpiritDuel.TELEGRAPH_SEC + 0.01)
 	assert_true(_host.duel.answer("still_hunger"))
 	assert_eq(_host.form_view().image_id, &"rod")
@@ -105,7 +105,7 @@ func test_the_rod_follows_the_next_line() -> void:
 
 
 func test_a_broken_porter_leaves_a_shattered_image() -> void:
-	assert_true(_host.open(_db, _state, CONFRONT))
+	assert_true(_host.open_scripted(_db, _state, CONFRONT))
 	var form := _host.form_view()
 	for choice_id in ["fire_hands", "fire_lock", "fire_secret"]:
 		_host.duel.tick(SpiritDuel.TELEGRAPH_SEC + 0.01)
@@ -117,7 +117,7 @@ func test_a_broken_porter_leaves_a_shattered_image() -> void:
 
 
 func test_observation_hides_the_form_and_close_unbinds_it() -> void:
-	assert_true(_host.open(_db, _state, CONFRONT))
+	assert_true(_host.open_scripted(_db, _state, CONFRONT))
 	_host.close()
 	assert_false(_host.duel.line_presented.is_connected(_host.form_view()._on_line))
 	assert_true(_host.observe(_db, _state, &"dialogue.prologue.almshouse_quarrel"))

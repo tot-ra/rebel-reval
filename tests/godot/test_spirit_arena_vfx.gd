@@ -24,7 +24,7 @@ func before_each() -> void:
 	_host.duel.hero_id = &"char.mart"
 	_host.freeze_world = false
 	(Engine.get_main_loop() as SceneTree).root.add_child(_host)
-	assert_true(_host.open(_db, _state, DUEL_ID))
+	assert_true(_host.open_scripted(_db, _state, DUEL_ID))
 	_host.vfx().allow_shake = true
 	_host.vfx().reduced_flashing = false
 

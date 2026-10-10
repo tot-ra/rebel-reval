@@ -181,7 +181,7 @@ func test_accessibility_setting_turns_the_reply_timer_off() -> void:
 
 
 func test_telegraph_arc_prompts_with_the_bound_guard_and_dodge_keys() -> void:
-	assert_true(_host.open(_db, _state, CONFRONT))
+	assert_true(_host.open_scripted(_db, _state, CONFRONT))
 	assert_eq(_host.duel.phase, SpiritDuel.PHASE_TELEGRAPH)
 	_host._process(0.0)
 	var arc := _host.find_child("TelegraphArc", true, false) as SpiritTelegraphArc
@@ -204,7 +204,7 @@ func test_gamepad_guard_during_a_telegraph_does_not_also_cast_its_slot_spell() -
 	if guard_pad == null or not _shares_pad(&"spellforge_element_3", guard_pad):
 		skip("guard and slot 3 do not share a gamepad button")
 		return
-	assert_true(_host.open(_db, _state, CONFRONT))
+	assert_true(_host.open_scripted(_db, _state, CONFRONT))
 	assert_eq(_host.duel.phase, SpiritDuel.PHASE_TELEGRAPH)
 	guard_pad.pressed = true
 	Input.parse_input_event(guard_pad)
@@ -238,7 +238,7 @@ func test_voice_hook_plays_an_existing_clip_only() -> void:
 
 
 func _open_to_answer() -> void:
-	assert_true(_host.open(_db, _state, CONFRONT))
+	assert_true(_host.open_scripted(_db, _state, CONFRONT))
 	_host.duel.tick(SpiritDuel.TELEGRAPH_SEC + 0.01)
 	assert_eq(_host.duel.phase, SpiritDuel.PHASE_ANSWER)
 

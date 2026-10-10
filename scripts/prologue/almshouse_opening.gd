@@ -9,6 +9,9 @@ extends Node
 ## the hall is stripped to the floor disc, the boy walks (move keys), guards facing the porter
 ## (`player_guard`) and dashes out of red strike zones (`player_dodge`) while the porter moves
 ## by his lines. The duel's `topic` (the rusted key) makes on-topic replies land harder.
+## R-1490 (ADR 0041): the duel is scripted, so the opening mounts a spirit-sight controller and
+## opens the arena through `SpiritArenaHost.open_scripted` (sight and its ripple first); sight
+## ends with the reverse ripple when Kalev walks in, since dialogue closes spirit sight.
 ## The old observed quarrel and the dawn cutscene are no longer part of the flow (kept short
 ## on purpose); their records stay in content.
 
@@ -45,6 +48,7 @@ const DUEL_WILLPOWER := 8
 const FLAG_STRUCK_PORTER := &"flag.prologue.struck_porter"
 const PORTER_BLOW_ACT := &"act.almshouse_porter.blow"
 const PORTER_BLOW_CIRCUMSTANCE := &"act.unarmed_victim"
+const SpiritSightScript := preload("res://scripts/combat/spirit_sight.gd")
 
 ## Tests turn this off; the running game leaves the almshouse for the forge.
 var auto_continue := true
@@ -53,6 +57,7 @@ var stage: StringName = STAGE_TITLE
 var _state: GameState
 var _db: ContentDB
 var _host: SpiritArenaHost
+var _sight: Node
 var _runner: Node
 var _dialogue_ui: Node
 var _title_layer: CanvasLayer
@@ -109,6 +114,9 @@ func begin_duel() -> bool:
 	_state.set_magic_resource(GameState.MAGIC_RESOURCE_WILLPOWER, DUEL_WILLPOWER)
 	_set_stage(STAGE_CONFRONTATION)
 	_show_skip_hint()
+	# Sight and its ripple come first, before the arena is mounted (ADR 0041 section 1).
+	_mount_sight()
+	_sight.call(&"enter_for_script")
 	_host = SpiritArenaHost.new()
 	_host.freeze_world = false
 	add_child(_host)
@@ -116,7 +124,7 @@ func begin_duel() -> bool:
 	var staged := _stage()
 	if staged != null:
 		_mount_arena(staged)
-	if _host.open(_db, _state, CONFRONTATION):
+	if _host.open_scripted(_db, _state, CONFRONTATION):
 		_pin_spirit_form()
 		# R-1365: the staged actor an exchange hurts flinches (porter hit / hero hit).
 		if staged != null:
@@ -150,6 +158,8 @@ func skip() -> void:
 		_dialogue_ui.queue_free()
 		_dialogue_ui = null
 	record_duel_guilt(_state)
+	if _sight != null and is_instance_valid(_sight):
+		_sight.call(&"leave_immediately")
 	_state.set_flag(&"flag.prologue.apprenticed", true)
 	_finish()
 
@@ -190,6 +200,17 @@ func _mount_arena(staged: AlmshouseStage) -> void:
 		staged.frame_arena()
 
 
+## The hall has no Player (whose SpiritSight child the city uses), so the opening owns one for
+## the scripted duel. The player cannot toggle it here: the prologue decides when sight opens.
+func _mount_sight() -> void:
+	if _sight != null and is_instance_valid(_sight):
+		return
+	_sight = SpiritSightScript.new()
+	_sight.name = "SpiritSight"
+	add_child(_sight)
+	_sight.set_process_unhandled_input(false)
+
+
 ## The boy's footwork while the arena duel is open (SpiritArenaHost clamps him to the disc).
 func _drive_hero(delta: float) -> void:
 	var staged := _stage()
@@ -218,6 +239,9 @@ func _on_confrontation_closed(_outcome: Dictionary) -> void:
 
 func _begin_kalev() -> void:
 	_set_stage(STAGE_KALEV)
+	# Dialogue closes spirit sight (ADR 0041 section 2): the reverse ripple plays as he enters.
+	if _sight != null and is_instance_valid(_sight) and _state.spirit_sight:
+		_sight.call(&"set_enabled", false)
 	# Before the runner starts, so Kalev's rig is in the speaker group for his first line.
 	var staged := _stage()
 	if staged != null:

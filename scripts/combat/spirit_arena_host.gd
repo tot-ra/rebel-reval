@@ -36,6 +36,7 @@ const SPELL_ACTIONS: Array[StringName] = [
 	&"spellforge_element_4",
 	&"spellforge_element_5",
 ]
+const SpiritSightScript := preload("res://scripts/combat/spirit_sight.gd")
 
 var duel := SpiritDuel.new()
 var observation := SpiritObservation.new()
@@ -166,9 +167,11 @@ func telegraph_decal() -> SpiritTelegraphDecal:
 	return _decal
 
 
-## Open the arena for `dialogue_id`. False (and nothing changes) when it is not a duel.
+## Open the arena for `dialogue_id`. False (and nothing changes) when it is not a duel, or
+## when the hero is not in spirit sight (ADR 0041 section 1: a duel starts only from sight;
+## scripted duels go through open_scripted, which switches sight on first).
 func open(content_db: ContentDB, state: GameState, dialogue_id: StringName) -> bool:
-	if _open:
+	if _open or state == null or not state.spirit_sight:
 		return false
 	_runner = DialogueRunner.new()
 	_runner.process_mode = Node.PROCESS_MODE_ALWAYS
@@ -215,9 +218,36 @@ func open(content_db: ContentDB, state: GameState, dialogue_id: StringName) -> b
 	if is_instance_valid(opponent_aura_view):
 		opponent_aura_view.bind_duel(duel)
 	_vfx.bind(duel, self, _composure_bar, _pressure_bar)
+	add_to_group(SpiritSightScript.DUEL_OPEN_GROUP)
 	opened.emit(dialogue_id)
 	_refresh_bars()
 	return true
+
+
+## The scripted entry (SS-7): the scene's spirit-sight controller turns sight on with its
+## ripple, then the arena opens in the same call so scripts keep a synchronous contract. A
+## scene without a controller (bare fixtures) only sets the transient flag.
+func open_scripted(content_db: ContentDB, state: GameState, dialogue_id: StringName) -> bool:
+	if _open or state == null:
+		return false
+	var sight: Node = (
+		get_tree().get_first_node_in_group(SpiritSightScript.SIGHT_GROUP) if is_inside_tree() else null
+	)
+	var was_in_sight := state.spirit_sight
+	var own_sight: bool = sight != null and sight.get(&"state") == state
+	if own_sight:
+		sight.call(&"enter_for_script")
+	else:
+		state.spirit_sight = true
+	if open(content_db, state, dialogue_id):
+		return true
+	# Not a duel: nothing changes, so undo the sight this call switched on.
+	if not was_in_sight:
+		if own_sight:
+			sight.call(&"leave_immediately")
+		else:
+			state.spirit_sight = false
+	return false
 
 
 ## Watch a conflict between other people as a spirit duel (no input needed; `interact`
@@ -271,6 +301,8 @@ func close() -> void:
 	var outcome := (observation.last_outcome if _observing else duel.last_outcome).duplicate()
 	_open = false
 	_observing = false
+	# SS-7: the hero stays in spirit sight; only the duel layer goes.
+	remove_from_group(SpiritSightScript.DUEL_OPEN_GROUP)
 	_telegraph_row.visible = true
 	_caption_label.text = ""
 	_composure_bar.visible = true
