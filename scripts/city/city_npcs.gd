@@ -99,7 +99,16 @@ func _ready() -> void:
 		add_child(named)
 
 
+const PerfProbeScript := preload("res://scripts/debug/perf_probe.gd")
+
+
 func _process(delta: float) -> void:
+	var probe_start := PerfProbeScript.start()
+	_process_timed(delta)
+	PerfProbeScript.stop(&"npcs", probe_start)
+
+
+func _process_timed(delta: float) -> void:
 	_since += delta
 	if _since < 1.0 or player == null:
 		return

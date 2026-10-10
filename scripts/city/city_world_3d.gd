@@ -58,6 +58,8 @@ var sun: DirectionalLight3D
 var environment: Environment
 var world_environment: WorldEnvironment
 var sky_weather: SkyWeather3D
+## Sky/weather quality tier for setup_lighting(); null keeps the recommended tier.
+var quality_tier: Variant = null
 ## True while Kalev is under a roof; reval_city reports it from the plan every
 ## frame. Gates the same state MapView3D gates for map interiors (R-1539):
 ## exterior rain particles and rain_exterior ambience off, the muffled roof-drum
@@ -162,6 +164,8 @@ func setup_lighting(camera: Camera3D) -> void:
 	sky_weather = SkyWeather3D.new()
 	sky_weather.name = "SkyWeather"
 	add_child(sky_weather)
+	if quality_tier != null:
+		sky_weather.set_quality_tier(quality_tier)
 	sky_weather.configure(camera, environment)
 	sky_weather.rain_suppressed = enclosed_interior
 	environment.fog_enabled = true

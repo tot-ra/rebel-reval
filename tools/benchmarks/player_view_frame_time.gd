@@ -41,6 +41,10 @@ var _hide: PackedStringArray = []
 ## "view,shadow,far" ray-march steps for the god-ray pass (empty = shader defaults).
 var _godray_steps: PackedStringArray = []
 var _png_dir := ""
+## --panel: record the PerfMonitor overlay text (GPU passes, CPU systems, memory) per shot.
+var _panel := false
+## --layers: also measure what each render layer costs (PerfMonitor.measure_layers) per shot.
+var _layers := false
 
 
 func _initialize() -> void:
@@ -70,12 +74,20 @@ func _run() -> void:
 			_no_sun_shadows = true
 		elif arg.begins_with("--godray-steps="):
 			_godray_steps = arg.trim_prefix("--godray-steps=").split(",")
+		elif arg == "--layers":
+			_layers = true
+			_panel = true
+		elif arg == "--panel":
+			_panel = true
 		elif arg.begins_with("--png-dir="):
 			_png_dir = arg.trim_prefix("--png-dir=")
 		elif arg.begins_with("--hide="):
 			_hide = arg.trim_prefix("--hide=").split(",")
 		elif arg.begins_with("--only="):
 			_only = arg.trim_prefix("--only=").split(",")
+	if _panel:
+		root.get_node("PerfMonitor").mode = 2
+		root.get_node("PerfMonitor")._apply_mode()
 	if not _quality.is_empty():
 		# The player's own setting: render scale, shadows, sky tier and god-ray steps.
 		var settings := GraphicsSettingsScript.default_settings()
@@ -91,6 +103,8 @@ func _run() -> void:
 	camera.near = 0.05
 	camera.current = true
 	world.sky_weather.set_quality_tier(_tier)
+	if not _quality.is_empty():
+		GraphicsPresetsScript.apply_to_sun(world.sun, _quality)
 	if _scale != 1.0:
 		root.scaling_3d_scale = _scale
 	if _msaa >= 0:
@@ -122,6 +136,13 @@ func _run() -> void:
 		forum += Vector2(p[0], p[1])
 	forum /= forum_polygon.size()
 	var beach := quay - Vector2(60.0, -8.0)
+	var wood: Array = plan.data["woods"][0]["at"]
+	var forest := Vector2(wood[0], wood[1])
+	var field_polygon: Array = plan.data["fields"][0]["polygon"]
+	var field := Vector2.ZERO
+	for p: Array in field_polygon:
+		field += Vector2(p[0], p[1])
+	field /= field_polygon.size()
 	# (name, ground point, heading in degrees, mode, pitch override)
 	var spots: Array[Dictionary] = [
 		{"name": "forum_first", "at": forum, "heading": 0.0, "mode": "first"},
@@ -132,6 +153,10 @@ func _run() -> void:
 		{"name": "quay_sky", "at": quay, "heading": 0.0, "mode": "first", "pitch": 55.0},
 		{"name": "beach_first_sea", "at": beach, "heading": 90.0, "mode": "first"},
 		{"name": "beach_third_sea", "at": beach, "heading": 90.0, "mode": "third"},
+		{"name": "forest_first", "at": forest, "heading": 0.0, "mode": "first"},
+		{"name": "forest_third", "at": forest, "heading": 0.0, "mode": "third"},
+		{"name": "forest_edge", "at": forest + Vector2(0.0, 150.0), "heading": 0.0, "mode": "first"},
+		{"name": "field_first", "at": field, "heading": 0.0, "mode": "first"},
 	]
 	var rows: Array[Dictionary] = []
 	# Pass 0 only visits every shot so shaders, cloud LUTs and streamed chunks are warm;
@@ -213,6 +238,16 @@ func _measure(label: String) -> Dictionary:
 		"primitives": RenderingServer.get_rendering_info(
 				RenderingServer.RENDERING_INFO_TOTAL_PRIMITIVES_IN_FRAME),
 	}
+	if _panel:
+		var monitor := root.get_node("PerfMonitor")
+		for _frame in 20:
+			await process_frame
+		monitor._collect_scopes()
+		if _layers:
+			await monitor.measure_layers()
+			row["layer_cost_ms"] = monitor._layer_cost.duplicate()
+			row["layer_base_ms"] = monitor._layer_baseline
+		row["panel"] = monitor._compose().replace("[b]", "").replace("[/b]", "")
 	if not _png_dir.is_empty():
 		var dir := ProjectSettings.globalize_path(_png_dir)
 		DirAccess.make_dir_recursive_absolute(dir)
@@ -231,6 +266,7 @@ func _measure_interleaved(label: String, world: CityWorld3D) -> Array[Dictionary
 			settings.quality = quality
 			root.get_node("UserSettings").apply_graphics_settings(settings, false)
 			world.sky_weather.set_quality_tier(GraphicsPresetsScript.row(quality)["sky_tier"])
+			GraphicsPresetsScript.apply_to_sun(world.sun, quality)
 			var row := await _measure("%s|%s" % [label, quality])
 			if not best.has(quality) or row["frame_ms_median"] < best[quality]["frame_ms_median"]:
 				best[quality] = row

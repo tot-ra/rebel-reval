@@ -117,7 +117,16 @@ func uses_fft() -> bool:
 	return FFT_SUPPORTED and OceanFftSampler.ensure_loaded()
 
 
+const PerfProbeScript := preload("res://scripts/debug/perf_probe.gd")
+
+
 func _process(delta: float) -> void:
+	var probe_start := PerfProbeScript.start()
+	_process_timed(delta)
+	PerfProbeScript.stop(&"boat_float", probe_start)
+
+
+func _process_timed(delta: float) -> void:
 	if _host == null or not is_instance_valid(_host):
 		return
 	if _sky == null or not is_instance_valid(_sky):

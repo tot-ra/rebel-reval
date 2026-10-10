@@ -338,7 +338,16 @@ static func _strip_geometry_materials(node: Node) -> void:
 		_strip_geometry_materials(child)
 
 
+const PerfProbeScript := preload("res://scripts/debug/perf_probe.gd")
+
+
 func _process(delta: float) -> void:
+	var probe_start := PerfProbeScript.start()
+	_process_timed(delta)
+	PerfProbeScript.stop(&"map_view_3d", probe_start)
+
+
+func _process_timed(delta: float) -> void:
 	_sync_sea_weather()
 	_sync_puddle_visibility()
 	_cull_offscreen_smoke(delta)

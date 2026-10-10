@@ -101,7 +101,16 @@ func _ready() -> void:
 	add_child(_gust_leaves)
 
 
+const PerfProbeScript := preload("res://scripts/debug/perf_probe.gd")
+
+
 func _process(delta: float) -> void:
+	var probe_start := PerfProbeScript.start()
+	_process_timed(delta)
+	PerfProbeScript.stop(&"leaf_fall", probe_start)
+
+
+func _process_timed(delta: float) -> void:
 	_advance_shakes(delta)
 
 

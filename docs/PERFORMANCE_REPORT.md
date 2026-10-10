@@ -201,6 +201,55 @@ tools/godot_render.sh \
 5. **Separate target from host:** compare the declared profile with Godot's detected `measurement_host`. An Apple host, another non-target GPU, or any headless result is supplementary instrumentation only and cannot certify `minimum-hardware-intel-uhd-620`.
 6. **Run documentation checks without acquiring hardware:** validate the profile with `python3 -m json.tool tools/benchmarks/minimum-hardware.json`, run the relevant evidence/report checks, and finish with `git diff --check`. No acceptance decision is implied by these checks alone.
 
+## Quality tiers and player-view benchmark (2026-10-10)
+
+Status: implemented (requested directly by the maintainer; no board task yet). Hardware targets: **low** = Nintendo Switch 1 class and the Steam Deck (1280x800), **mid** = an Apple M5 Pro class laptop, **high** = discrete GPUs with 16 GB of video memory. Goal: about 30 FPS on each.
+
+**Finding: the game is fragment (GPU) bound, not draw-call or CPU bound.** Rendering at half scale per axis made a frame 3-4x faster; MSAA and sun shadows changed almost nothing. The costliest single pass of a clear day is the full-screen god-ray march (`god_ray_pass.gdshader`, about 40-60 ms at 1080p on the M5 Pro on forum and quay views); it is off at night, so night views are light. Cloud shadows plus local atmosphere cost under 3 ms, water 5-7 ms. Before this change the user's quality only set MSAA; the sky, weather and sea always ran at `recommended`.
+
+One table, `scripts/settings/graphics_presets.gd`, now drives every cost; `UserSettings` applies it to the window, `GodRayPass` follows it, and the city is created with the row's sky tier (`CityMapView.create_city(plan, tier)`).
+
+| Row | 3D scale | Sun shadow map | Shadow filter | Sun cascades | Anisotropy | Sky/sea tier | God-ray steps (view/shadow/far) | Tree crown radius (near / macro) |
+|-----|----------|----------------|---------------|--------------|-----------|--------------|--------------------------------|------|
+| low | 0.67 | 2048 | soft low | 1 | 2x | `minimum` | 6 / 3 / 4 (cloud stride 3) | 55% / none |
+| mid | 0.85 | 4096 | soft medium | 2 | 4x | `recommended` | 10 / 5 / 8 (cloud stride 2) | 80% / 50% |
+| high | 1.0 | 8192 | soft high (project default) | 4 | 4x | `recommended` | 16 / 8 / 12 | 100% / 100% |
+
+FSR 1.0 exists only on Forward+; the project's Mobile renderer upscales bilinearly, so the preset picks FSR only where the renderer has it.
+
+**Measured ratio (clear-day views, interleaved, best of three medians): high : mid : low is about 1 : 0.5 : 0.25** at 1920x1080 and at 1280x800. At 1280x800 low measured 9-20 ms on the M5 Pro. Absolute numbers are inflated by other renders on the same GPU (a night shot that took 15 ms alone measured 38-53 ms under load), so only the ratios are reliable. Mid does not yet reach 33 ms on clear-day views or in a daytime storm (the heaviest state at every row). Steam Deck and Switch hardware were not available: no 30 FPS claim is made for them.
+
+### Where the frame goes, by place (F3 layer cost, mid row, 1080p, clear day, M5 Pro under other sessions' load)
+
+| Place | Frame | Biggest layers (ms saved when off) |
+|-------|-------|------------------------------------|
+| forum, first person | 35 | god rays 19, sun shadows 5 |
+| quay, sea view | 31 | god rays 17, water 6.5, clouds 3.6 |
+| beach, sea view | 40 | god rays 16.5, trees 2.3, water 2.3 |
+| field | 34 | god rays 15, trees 9 |
+| **forest (wood.00)** | **110** | **trees 85, sun shadows 56**, god rays 16 (the layers overlap, they do not add up) |
+
+- **The forest is geometry-bound, not fragment-bound**: about 107 M triangles per frame (the beach has 5 M). A far-crown card mesh is 6-24 k triangles per tree (spruce 23.6 k, pine 13.9 k) and a macro crown is 380-515 k, each drawn again in every sun cascade. Grass is not the problem (0.4-0.7 ms).
+- **God rays are a flat 15-19 ms on every clear-day view** at mid and the largest cost outside the forest.
+- Changes from these findings: the sun cascade count follows quality (forest, 104 / 82 / 136 ms at mid / low / high became 81 / 50 / 136; high is unchanged), real-size tree crowns shrink their radius per quality and low has no macro crowns, near crowns leave the shadow pass (a shadows-only far crown casts for them).
+- **CPU**: `MapViewRuntimeActors.register_view_actors` swept the whole scene (about 30 000 nodes in the city) every frame with `find_children("*")`; it now walks the `map_view_actor` group. `runtime_actors` went from 9.6 ms to under 0.1 ms per frame, on every quality and every machine, and matters most on the Steam Deck CPU.
+- **Coarse far crowns** (`MapViewTreeMeshes.city_canopy_coarse_mesh`): beyond about `NEAR_EXIT * near_scale + 68 m` (chunk-centre distance, 110 m at high, 91 m at low) the far crowns draw every 4th leaf triangle grown by 2x about its centre, with no shadow. Forest triangles fell from 107 M to 82 M at the build's quality, and forest frames to about 66 ms (mid) and 39 ms (low) from 104 / 82. The range is read when the city loads.
+- **God rays**: the cloud shade of the air is sampled every Nth step (`cloud_stride` 3 / 2 / 1 for low / mid / high, on the view march and the far march) and reused between. Cost at mid fell from 18 to 10 ms (forum), 16.5 to 8 ms (beach). A true half-resolution pass is not possible in this pipeline: the pass reads the main viewport's depth, and a SubViewport has none without drawing the scene again.
+- **CPU, crowds**: far actors are posed every 4th / 8th frame (beyond about 70 / 140 m of the player), and at most 4 new rigs are built per frame, which removes the 100-170 ms hitch when a crowd streams in.
+- Still open: forest at high (about 120-145 ms in the noisy runs: near and macro crowns and trunks), and the sea shader.
+
+Next levers, in the order the measurements suggest: render the god-ray pass at reduced resolution, sky and cloud shader cost, sea shader cost, view-distance culling for the city, and load-time streaming. The F3 overlay ([`SYSTEMS/PERFORMANCE_MONITOR.md`](./SYSTEMS/PERFORMANCE_MONITOR.md)) shows which of them a slow place is paying.
+
+Command (needs a real GPU; never open a visible window, use the render wrapper):
+
+```bash
+tools/godot_render.sh --resolution 1920x1080 --disable-vsync \
+  --script res://tools/benchmarks/player_view_frame_time.gd -- \
+  --output=res://build/benchmarks/player_views.json --interleave=high,mid,low --rounds=3
+```
+
+Shots: forum, quay, beach, forest, field, in first person, third person and looking at the sky, in clear / rain / storm weather by day and night. Switches: `--quality=`, `--tier=`, `--frames=`, `--only=label,label`, `--scale=`, `--msaa=`, `--no-sun-shadows`, `--hide=godrays,cloudshadow,atmosphere,water`, `--godray-steps=V,S,F`, `--png-dir=`, `--panel` (records the F3 panel text per shot). Wall-clock frame time; the minimized window reports no GPU timer. Check `ps aux | grep godot` for concurrent renders first. Verify the table: `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_graphics_presets,test_god_ray_pass`.
+
 ## R-713 sky-weather quality-tier budget handoff
 
 The R-713 weather presenter has explicit `minimum` and `recommended` renderer-cost budgets for cloud resolution, shader samples, rain particles, fog quality, FFT cascade count, sky-view LUT size/cadence, ripple-sim resolution, frame time, and memory. The values and the retained measurement template live in [`r713_environment_performance.md`](reports/r713_environment_performance.md). Both isolated performance rows are currently **BLOCKED**: the declared Intel UHD 620 minimum target has not been measured (`R-653`), and the available Apple M5 / headless whole-scene reports do not isolate sky-weather tier cost (`R-822`). Keep `target_hardware` and `measurement_host` separate; do not promote a development-host or dummy-renderer observation to minimum-hardware acceptance.

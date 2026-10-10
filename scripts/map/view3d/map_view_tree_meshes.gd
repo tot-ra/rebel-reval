@@ -302,6 +302,54 @@ static func city_canopy_far_mesh(species: StringName) -> ArrayMesh:
 	return _city_cache[key]
 
 
+## Coarse crown for trees seen from far away (CityVegetationBuilder switches to it beyond
+## COARSE_CROWN_BEGIN): the far crown is a soup of 6-24 k small leaf triangles per tree, so
+## this keeps every `keep_every`-th triangle and grows it about its centre by sqrt(keep_every),
+## which holds the crown's coverage and colour at a quarter of the triangles.
+static func city_canopy_coarse_mesh(species: StringName, keep_every: int = 4) -> ArrayMesh:
+	var key := "coarse%d:%s" % [keep_every, species]
+	if not _city_cache.has(key):
+		_city_cache[key] = decimate_triangle_soup(city_canopy_far_mesh(species), keep_every)
+	return _city_cache[key]
+
+
+static func decimate_triangle_soup(source: ArrayMesh, keep_every: int) -> ArrayMesh:
+	var out := ArrayMesh.new()
+	var grow := sqrt(float(maxi(keep_every, 1)))
+	for surface in source.get_surface_count():
+		var arrays := source.surface_get_arrays(surface)
+		var verts: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
+		var triangles := verts.size() / 3
+		var kept: Array = []
+		for slot in arrays.size():
+			if arrays[slot] == null:
+				kept.append(null)
+			elif slot == Mesh.ARRAY_VERTEX:
+				kept.append(PackedVector3Array())
+			else:
+				kept.append(arrays[slot].duplicate())
+				kept[slot].clear()
+		var out_verts: PackedVector3Array = kept[Mesh.ARRAY_VERTEX]
+		for tri in range(0, triangles, keep_every):
+			var base := tri * 3
+			var centre := (verts[base] + verts[base + 1] + verts[base + 2]) / 3.0
+			for corner in 3:
+				out_verts.append(centre + (verts[base + corner] - centre) * grow)
+			for slot in arrays.size():
+				if slot == Mesh.ARRAY_VERTEX or arrays[slot] == null:
+					continue
+				var width: int = arrays[slot].size() / verts.size()
+				var source_array = arrays[slot]
+				for item in range(base * width, (base + 3) * width):
+					kept[slot].append(source_array[item])
+		kept[Mesh.ARRAY_VERTEX] = out_verts
+		var custom0 := (source.surface_get_format(surface) >> Mesh.ARRAY_FORMAT_CUSTOM0_SHIFT) & Mesh.ARRAY_FORMAT_CUSTOM_MASK
+		var flags := custom0 << Mesh.ARRAY_FORMAT_CUSTOM0_SHIFT
+		out.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, kept, [], {}, flags)
+		out.surface_set_material(surface, source.surface_get_material(surface))
+	return out
+
+
 static func city_profile(species: StringName) -> Dictionary:
 	var base := base_species(species)
 	var profile := TreeMeshProfiles.profile_for(base).duplicate()

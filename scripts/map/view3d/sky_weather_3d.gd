@@ -827,7 +827,16 @@ func _weather_for_profile(profile: Dictionary) -> StringName:
 	return weather
 
 
+const PerfProbeScript := preload("res://scripts/debug/perf_probe.gd")
+
+
 func _process(delta: float) -> void:
+	var probe_start := PerfProbeScript.start()
+	_process_timed(delta)
+	PerfProbeScript.stop(&"sky_weather", probe_start)
+
+
+func _process_timed(delta: float) -> void:
 	advance(delta * maxf(time_scale, 0.0))
 	# R-1443: scintillation runs on real time even when the weather clock is
 	# paused; it is presentation only and never saved.

@@ -162,7 +162,16 @@ func _route(a: Vector2, b: Vector2) -> Dictionary:
 	return {"points": PackedVector2Array([a, b]), "length": a.distance_to(b)}
 
 
+const PerfProbeScript := preload("res://scripts/debug/perf_probe.gd")
+
+
 func _process(delta: float) -> void:
+	var probe_start := PerfProbeScript.start()
+	_process_timed(delta)
+	PerfProbeScript.stop(&"named_npcs", probe_start)
+
+
+func _process_timed(delta: float) -> void:
 	_since += delta
 	if _since >= REFRESH_SECONDS and player != null:
 		_since = 0.0

@@ -16,7 +16,7 @@ const HIGH := "high"
 
 const PRESETS := {
 	LOW: {
-		# FSR 1.0 upscales from this fraction of the window per axis.
+		# The 3D scene renders at this fraction of the window per axis and is upscaled.
 		"render_scale": 0.67,
 		"shadow_atlas_size": 2048,
 		"shadow_filter_quality": RenderingServer.SHADOW_QUALITY_SOFT_LOW,
@@ -26,6 +26,12 @@ const PRESETS := {
 		"god_ray_view_steps": 6,
 		"god_ray_shadow_steps": 3,
 		"god_ray_far_steps": 4,
+		"god_ray_cloud_stride": 3,
+		# Fractions of CityTreeLod's near / macro crown radii (0 = no macro crowns).
+		# Sun shadow cascades: every split draws the casters again (a forest paid 56 ms for four).
+		"sun_shadow_mode": DirectionalLight3D.SHADOW_ORTHOGONAL,
+		"tree_near_scale": 0.55,
+		"tree_macro_scale": 0.0,
 	},
 	MID: {
 		"render_scale": 0.85,
@@ -36,6 +42,10 @@ const PRESETS := {
 		"god_ray_view_steps": 10,
 		"god_ray_shadow_steps": 5,
 		"god_ray_far_steps": 8,
+		"god_ray_cloud_stride": 2,
+		"sun_shadow_mode": DirectionalLight3D.SHADOW_PARALLEL_2_SPLITS,
+		"tree_near_scale": 0.8,
+		"tree_macro_scale": 0.5,
 	},
 	HIGH: {
 		"render_scale": 1.0,
@@ -47,6 +57,10 @@ const PRESETS := {
 		"god_ray_view_steps": 16,
 		"god_ray_shadow_steps": 8,
 		"god_ray_far_steps": 12,
+		"god_ray_cloud_stride": 1,
+		"sun_shadow_mode": DirectionalLight3D.SHADOW_PARALLEL_4_SPLITS,
+		"tree_near_scale": 1.0,
+		"tree_macro_scale": 1.0,
 	},
 }
 
@@ -61,11 +75,20 @@ static func row(quality: String) -> Dictionary:
 static func apply_to(window: Window, quality: String) -> void:
 	var r := row(quality)
 	var scale := float(r["render_scale"])
+	# FSR 1.0 exists only on Forward+; the Mobile renderer (the project default) upscales bilinearly.
+	var fsr := scale < 1.0 and RenderingServer.get_current_rendering_method() == "forward_plus"
 	window.scaling_3d_mode = (
-		Viewport.SCALING_3D_MODE_BILINEAR if scale >= 1.0 else Viewport.SCALING_3D_MODE_FSR
+		Viewport.SCALING_3D_MODE_FSR if fsr else Viewport.SCALING_3D_MODE_BILINEAR
 	)
 	window.scaling_3d_scale = scale
 	window.anisotropic_filtering_level = r["anisotropy"]
 	# The atlas is the largest single GPU allocation of the shadow pass; resizing frees it.
 	RenderingServer.directional_shadow_atlas_set_size(int(r["shadow_atlas_size"]), false)
 	RenderingServer.directional_soft_shadow_filter_set_quality(r["shadow_filter_quality"])
+
+
+## The cascade count of the sun follows the quality (a light, not a window setting).
+static func apply_to_sun(sun: DirectionalLight3D, quality: String) -> void:
+	var mode: DirectionalLight3D.ShadowMode = row(quality)["sun_shadow_mode"]
+	if sun != null and sun.directional_shadow_mode != mode:
+		sun.directional_shadow_mode = mode

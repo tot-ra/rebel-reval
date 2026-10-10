@@ -39,6 +39,7 @@ One page per implemented or planned feature. Each page opens with a `Status:` li
 | [Combat animation](./COMBAT_ANIMATION.md) | Implemented |
 | [HUD, menus, journal, maps](./HUD_AND_MENUS.md) | Implemented |
 | [Settings and accessibility](./SETTINGS_AND_ACCESSIBILITY.md) | Implemented |
+| [Performance monitor (F3)](./PERFORMANCE_MONITOR.md) | Implemented (developer overlay) |
 | [Magic](./MAGIC.md) | Design contract; runtime foundation and cookbook implemented |
 | [Hammer combat and night missions](./COMBAT_NIGHT.md) | Design contract |
 | [Living City](./LIVING_CITY.md) | Design contract; state only |

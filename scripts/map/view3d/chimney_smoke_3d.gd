@@ -166,7 +166,16 @@ func _update_color_ramp(night: bool) -> void:
 	process.color_ramp = ramp_texture
 
 
+const PerfProbeScript := preload("res://scripts/debug/perf_probe.gd")
+
+
 func _process(_delta: float) -> void:
+	var probe_start := PerfProbeScript.start()
+	_process_timed(_delta)
+	PerfProbeScript.stop(&"chimney_smoke", probe_start)
+
+
+func _process_timed(_delta: float) -> void:
 	if not emitting:
 		return
 	var process := process_material as ParticleProcessMaterial

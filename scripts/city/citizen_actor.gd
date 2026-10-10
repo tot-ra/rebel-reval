@@ -74,7 +74,16 @@ func _ready() -> void:
 	add_child(shape)
 
 
+const PerfProbeScript := preload("res://scripts/debug/perf_probe.gd")
+
+
 func _physics_process(delta: float) -> void:
+	var probe_start := PerfProbeScript.start()
+	_physics_process_timed(delta)
+	PerfProbeScript.stop(&"citizen_physics", probe_start)
+
+
+func _physics_process_timed(delta: float) -> void:
 	var h := float(hour_source.call())
 	var state := roster.resolve(index, h)
 	outdoors = state["visible"]

@@ -170,7 +170,16 @@ func set_wind(direction: Vector2) -> void:
 		_wind = direction.normalized()
 
 
+const PerfProbeScript := preload("res://scripts/debug/perf_probe.gd")
+
+
 func _process(delta: float) -> void:
+	var probe_start := PerfProbeScript.start()
+	_process_timed(delta)
+	PerfProbeScript.stop(&"ships", probe_start)
+
+
+func _process_timed(delta: float) -> void:
 	_time += delta
 	# Bow into the wind: the hull's +X points where the wind comes from.
 	var into_wind := atan2(_wind.y, _wind.x) + PI

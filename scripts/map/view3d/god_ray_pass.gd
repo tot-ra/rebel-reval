@@ -13,6 +13,7 @@ extends Node3D
 const PASS_SHADER := preload("res://scripts/map/view3d/god_ray_pass.gdshader")
 const Lighting := preload("res://scripts/map/view3d/map_view_lighting.gd")
 const SkyWeather := preload("res://scripts/map/view3d/sky_weather_3d.gd")
+const GraphicsPresetsScript := preload("res://scripts/settings/graphics_presets.gd")
 
 ## R-1451: drawn right after CloudShadowPass (-100) and before the water. In
 ## Compatibility the water's screen-texture copy empties `hint_depth_texture` for every
@@ -231,6 +232,33 @@ func configure(
 	_overlay.visible = false
 	add_child(_overlay)
 	_sync_height_map()
+	_follow_graphics_quality()
+
+
+## The march is the costliest full-screen pass of a clear day, so its sample counts follow
+## the player's graphics quality (GraphicsPresets rows low/mid/high).
+func apply_quality(quality: String) -> void:
+	if _material == null:
+		return
+	var row := GraphicsPresetsScript.row(quality)
+	_material.set_shader_parameter(&"view_steps", int(row["god_ray_view_steps"]))
+	_material.set_shader_parameter(&"shadow_steps", int(row["god_ray_shadow_steps"]))
+	_material.set_shader_parameter(&"far_steps", int(row["god_ray_far_steps"]))
+	_material.set_shader_parameter(&"cloud_stride", int(row["god_ray_cloud_stride"]))
+
+
+func _follow_graphics_quality() -> void:
+	var tree := Engine.get_main_loop() as SceneTree
+	var settings := tree.root.get_node_or_null("UserSettings") if tree != null else null
+	if settings == null or settings.get("graphics") == null:
+		return
+	apply_quality(String(settings.graphics.quality))
+	if not settings.graphics_settings_changed.is_connected(_on_graphics_settings_changed):
+		settings.graphics_settings_changed.connect(_on_graphics_settings_changed)
+
+
+func _on_graphics_settings_changed(settings) -> void:
+	apply_quality(String(settings.quality))
 
 
 func _exit_tree() -> void:

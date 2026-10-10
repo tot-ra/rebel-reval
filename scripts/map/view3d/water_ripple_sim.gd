@@ -307,7 +307,16 @@ func add_moving_body(
 		add_impulse(Vector2(impulse.x, impulse.y), impulse.z, impulse.w)
 
 
+const PerfProbeScript := preload("res://scripts/debug/perf_probe.gd")
+
+
 func _process(delta: float) -> void:
+	var probe_start := PerfProbeScript.start()
+	_process_timed(delta)
+	PerfProbeScript.stop(&"water_ripple", probe_start)
+
+
+func _process_timed(delta: float) -> void:
 	if not is_active():
 		return
 	if obstacle_mode:

@@ -16,6 +16,8 @@ extends "res://scripts/global/BaseLevel.gd"
 ## scenes/world/sites/site_level.gd, which overrides load_plan(), scene_id() and
 ## default_spawn(); citizens, fauna and interiors follow the plan's feature flags.
 
+const GraphicsPresetsScript := preload("res://scripts/settings/graphics_presets.gd")
+const PerfProbeScript := preload("res://scripts/debug/perf_probe.gd")
 const DEFAULT_SPAWN := "poi.forum"
 ## Travel speed for crossing the city on foot (maintainer request 2026-10-07).
 const SPEED_MULTIPLIER := 5.0
@@ -57,7 +59,7 @@ func _ready() -> void:
 	if plan.feature_enabled("citizens"):
 		_npcs = CityNpcs.create(plan, player)
 		actors.add_child(_npcs)
-	view = CityMapView.create_city(plan)
+	view = CityMapView.create_city(plan, GraphicsPresetsScript.row(UserSettings.graphics.quality)["sky_tier"])
 	world = view.world
 	# Hay stacks in the farmland are solid; their colliders live on the logic plane.
 	world.farmland.collision_parent = self
@@ -162,24 +164,42 @@ func _face_door_on_arrival(id: String) -> void:
 
 func _process(delta: float) -> void:
 	var xz := CityPlan.to_world_xz(player.global_position)
+	var t := PerfProbeScript.start()
 	_update_interior(xz)
 	_check_city_edge(xz)
+	PerfProbeScript.stop(&"city_interior_check", t)
+	t = PerfProbeScript.start()
 	world.doors.update_for(xz, delta)
+	PerfProbeScript.stop(&"doors", t)
+	t = PerfProbeScript.start()
 	interiors.update_for(xz, delta)
+	PerfProbeScript.stop(&"interiors", t)
+	t = PerfProbeScript.start()
 	world.grass.update_for(xz)
+	PerfProbeScript.stop(&"grass_update", t)
+	t = PerfProbeScript.start()
 	world.farmland.update_for(xz)
+	PerfProbeScript.stop(&"farmland_update", t)
+	t = PerfProbeScript.start()
 	world.trail.update_for(xz, delta)
 	CityTrailFeed.feed(world.trail, _npcs.citizens if _npcs != null else null, _fauna, get_tree())
+	PerfProbeScript.stop(&"ground_trail", t)
+	t = PerfProbeScript.start()
 	world.smoke.update_for(xz, delta)
+	PerfProbeScript.stop(&"chimney_smoke_update", t)
+	t = PerfProbeScript.start()
 	var camera := view.view_camera()
 	_fit_shadow_range(camera)
 	var forward := -camera.global_transform.basis.z
 	var yaw := atan2(-forward.x, -forward.z)
 	minimap.update_view(xz, player.view_facing(), yaw, inside_building)
+	PerfProbeScript.stop(&"shadow_range_minimap", t)
 	_music_timer -= delta
 	if _music_timer <= 0.0:
 		_music_timer = 0.25
+		t = PerfProbeScript.start()
 		_update_music(xz)
+		PerfProbeScript.stop(&"music_zones", t)
 
 
 ## Keeps the shadow cascades spent on what the camera can actually see: the
@@ -190,6 +210,7 @@ func _fit_shadow_range(camera: Camera3D) -> void:
 	var sun := world.sun
 	if sun == null or camera == null:
 		return
+	GraphicsPresetsScript.apply_to_sun(sun, UserSettings.graphics.quality)
 	var reach := 170.0
 	if camera.projection == Camera3D.PROJECTION_ORTHOGONAL:
 		reach = clampf(camera.size * 1.6, 40.0, 170.0)

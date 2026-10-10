@@ -8,6 +8,7 @@ const AUTOLOAD_ROOT_NAMES: Array[String] = [
 	"DisplayWindow",
 	"DoorNavigator",
 	"MusicDirector",
+	"PerfMonitor",
 	"PhaseDirector",
 	"SessionState",
 	"UserSettings",

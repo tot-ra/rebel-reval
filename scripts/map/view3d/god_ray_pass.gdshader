@@ -37,6 +37,9 @@ uniform float max_march = 90.0;
 uniform float shadow_reach = 60.0;
 uniform int view_steps = 16;
 uniform int shadow_steps = 8;
+// The cloud shade of the air changes slowly along the ray: it is sampled every Nth view step
+// (1 = every step) and reused between, the biggest saving of the quality rows.
+uniform int cloud_stride = 1;
 // R-1400: discrete clouds shade the air too, so a beam is lit only where the
 // cloud shadow on the street is open: shafts start at real cloud edges.
 global uniform sampler2D cloud_noise_tex : filter_linear_mipmap, repeat_enable;
@@ -204,12 +207,15 @@ void fragment() {
 	float lit = 0.0;
 	if (t1 > t0) {
 		float dt = (t1 - t0) / float(view_steps);
+		float cloud_lit = 1.0;
 		for (int i = 0; i < view_steps; i++) {
 			vec3 p = origin + dir * (t0 + (float(i) + jitter) * dt);
 			if (p.y <= height_at(p.xz)) {
 				break;
 			}
-			float cloud_lit = 1.0 - cloud_shadow(p, 2.0);
+			if (i % cloud_stride == 0) {
+				cloud_lit = 1.0 - cloud_shadow(p, 2.0);
+			}
 			lit += sun_visibility(p, jitter) * cloud_lit * dt;
 		}
 	}
@@ -228,12 +234,15 @@ void fragment() {
 			far_end = min(far_end, (DECK_H - origin.y) / dir.y);
 		}
 		float prev_t = 0.0;
+		float s = 0.0;
 		for (int k = 0; k < far_steps; k++) {
 			float f = (float(k) + jitter) / float(far_steps);
 			float t = far_end * f * f;
 			float w = exp(-t / far_extinction) * (t - prev_t) / far_extinction;
 			prev_t = t;
-			float s = cloud_shadow(origin + dir * t, 2.5);
+			if (k % cloud_stride == 0) {
+				s = cloud_shadow(origin + dir * t, 2.5);
+			}
 			far_lit += (1.0 - s) * w;
 			far_shade += s * w;
 		}

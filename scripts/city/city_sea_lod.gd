@@ -94,7 +94,16 @@ func _enter_tree() -> void:
 		_apply_uniforms()
 
 
+const PerfProbeScript := preload("res://scripts/debug/perf_probe.gd")
+
+
 func _process(_delta: float) -> void:
+	var probe_start := PerfProbeScript.start()
+	_process_timed(_delta)
+	PerfProbeScript.stop(&"sea_lod", probe_start)
+
+
+func _process_timed(_delta: float) -> void:
 	var viewport := get_viewport()
 	var camera := viewport.get_camera_3d() if viewport != null else null
 	if camera != null:

@@ -8,7 +8,7 @@ extends RefCounted
 const WALK_ANIMATION_MIN_SPEED := 5.0
 ## Logic px/s above which locomotion reads as running (midpoint between the
 ## player's walk and run speeds).
-const RUN_ANIMATION_MIN_SPEED := 170.0
+const RUN_ANIMATION_MIN_SPEED := 140.0
 ## World units (metres) from the player within which NPC foot plants are
 ## sampled and heard (R-1641). Past it a step is inaudible under the city bed,
 ## and skipping the skeleton update there keeps a crowd cheap.
@@ -82,11 +82,24 @@ func _bind_player_attack_feedback() -> void:
 		_player.melee_attack_resolved.connect(_on_player_melee_attack_resolved)
 
 
+## Runs every frame (sync_view_actors), so it walks the actor group, not the scene: the
+## seamless city has about 30 000 nodes and a find_children("*") sweep cost ~9 ms a frame.
 func register_view_actors(scene_root: Node) -> void:
-	for found: Node in scene_root.find_children("*", "", true, false):
-		if not found.is_in_group(&"map_view_actor") or not found is Node2D:
+	var tree := scene_root.get_tree()
+	if tree == null:
+		return
+	var created := 0
+	for found: Node in tree.get_nodes_in_group(&"map_view_actor"):
+		if not found is Node2D or not scene_root.is_ancestor_of(found):
 			continue
+		if _actor_rigs.has(found):
+			continue
+		# Building a rig (scene instance, skeleton, animations) is the one expensive step;
+		# a crowd streaming in used to build hundreds in one frame (a 170 ms hitch).
+		if created >= MAX_NEW_RIGS_PER_SWEEP and Engine.get_process_frames() > 2:
+			break
 		register_view_actor(found as Node2D)
+		created += 1
 
 
 ## Mirrors a single logic actor into the 3D view. Controllers that spawn NPCs
@@ -123,6 +136,8 @@ func sync_view_actors(delta: float) -> void:
 		return
 	if _host != null:
 		register_view_actors(_host.get_parent())
+	var frame := Engine.get_process_frames()
+	var player_pos := _player_rig.global_position if _player_rig != null else Vector3.ZERO
 	# Untyped key: a typed loop variable errors on actors freed since the last
 	# frame (e.g. people streamed out of a city site).
 	for key: Variant in _actor_rigs.keys():
@@ -136,7 +151,28 @@ func sync_view_actors(delta: float) -> void:
 		var actor := key as Node2D
 		if _sample_owning_ground and not _actor_in_current_map(actor):
 			continue
-		_sync_view_actor(actor, _actor_rigs[actor] as SharedCharacterRig, false, delta)
+		var rig := _actor_rigs[actor] as SharedCharacterRig
+		var stride := _sync_stride(rig, player_pos)
+		if stride > 1 and (frame + actor.get_instance_id()) % stride != 0:
+			continue
+		_sync_view_actor(actor, rig, false, delta * stride)
+
+
+## Rigs far from the player are posed every 4th / 8th frame (staggered per actor) with the
+## elapsed time folded into delta: a city holds hundreds of people and posing all of them
+## every frame cost ~10 ms of CPU. Near actors (about 70 m) stay at full rate.
+const MAX_NEW_RIGS_PER_SWEEP := 4
+const NEAR_SYNC_DISTANCE_SQ := 4900.0
+const MID_SYNC_DISTANCE_SQ := 19600.0
+
+
+func _sync_stride(rig: SharedCharacterRig, player_pos: Vector3) -> int:
+	if rig == null or _player_rig == null:
+		return 1
+	var d2 := rig.global_position.distance_squared_to(player_pos)
+	if d2 < NEAR_SYNC_DISTANCE_SQ:
+		return 1
+	return 4 if d2 < MID_SYNC_DISTANCE_SQ else 8
 
 
 func get_actor_rig(actor: Node2D) -> SharedCharacterRig:
@@ -151,7 +187,9 @@ func sync_player(snap: bool, delta: float = 0.0) -> void:
 	_view.sync_actor(_player_rig, _player.global_position)
 	if _sample_owning_ground:
 		_apply_owning_ground_height(_player_rig)
-	var speed := _player.velocity.length()
+	# Velocity carries the time-flow multiplier; gait choice must not.
+	var flow_scale := float(_player.get(&"time_flow_scale")) if _player.get(&"time_flow_scale") != null else 1.0
+	var speed := _player.velocity.length() / maxf(flow_scale, 0.01)
 	var moving := speed > WALK_ANIMATION_MIN_SPEED
 	if moving:
 		_last_facing = _player.velocity.normalized()

@@ -7,7 +7,7 @@ const SkyWeatherQualityScript := preload("res://scripts/map/view3d/sky_weather_q
 
 const COSTS: Array[String] = [
 	"render_scale", "shadow_atlas_size", "god_ray_view_steps", "god_ray_shadow_steps",
-	"god_ray_far_steps",
+	"god_ray_far_steps", "tree_near_scale", "tree_macro_scale", "sun_shadow_mode",
 ]
 
 
@@ -46,7 +46,12 @@ func test_apply_sets_the_window_render_scale() -> void:
 	var window := _tree().root
 	GraphicsPresetsScript.apply_to(window, "low")
 	assert_almost_eq(window.scaling_3d_scale, 0.67, 0.001)
-	assert_eq(window.scaling_3d_mode, Viewport.SCALING_3D_MODE_FSR)
+	var upscaler := (
+		Viewport.SCALING_3D_MODE_FSR
+		if RenderingServer.get_current_rendering_method() == "forward_plus"
+		else Viewport.SCALING_3D_MODE_BILINEAR
+	)
+	assert_eq(window.scaling_3d_mode, upscaler, "FSR only where the renderer has it")
 	GraphicsPresetsScript.apply_to(window, "high")
 	assert_almost_eq(window.scaling_3d_scale, 1.0, 0.001)
 	assert_eq(window.scaling_3d_mode, Viewport.SCALING_3D_MODE_BILINEAR)
@@ -71,3 +76,18 @@ func test_god_ray_steps_follow_quality() -> void:
 
 func _tree() -> SceneTree:
 	return Engine.get_main_loop() as SceneTree
+
+
+func test_low_quality_draws_no_macro_crowns_and_one_cascade() -> void:
+	var lod := CityTreeLod.new()
+	lod.apply_quality("low")
+	assert_eq(lod._macro_scale, 0.0, "low has no 500k-triangle macro crowns")
+	lod.apply_quality("high")
+	assert_eq(lod._macro_scale, 1.0)
+	lod.free()
+	var sun := DirectionalLight3D.new()
+	GraphicsPresetsScript.apply_to_sun(sun, "low")
+	assert_eq(sun.directional_shadow_mode, DirectionalLight3D.SHADOW_ORTHOGONAL)
+	GraphicsPresetsScript.apply_to_sun(sun, "high")
+	assert_eq(sun.directional_shadow_mode, DirectionalLight3D.SHADOW_PARALLEL_4_SPLITS)
+	sun.free()

@@ -282,7 +282,16 @@ func group_count() -> int:
 	return _groups.size()
 
 
+const PerfProbeScript := preload("res://scripts/debug/perf_probe.gd")
+
+
 func _process(delta: float) -> void:
+	var probe_start := PerfProbeScript.start()
+	_process_timed(delta)
+	PerfProbeScript.stop(&"fauna", probe_start)
+
+
+func _process_timed(delta: float) -> void:
 	if player == null:
 		return
 	var me := CityPlan.to_world_xz(player.global_position)

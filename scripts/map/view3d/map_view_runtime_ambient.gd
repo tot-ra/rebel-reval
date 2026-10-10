@@ -115,13 +115,28 @@ func install() -> void:
 	_install_crowd_renderer()
 
 
+const PerfProbeScript := preload("res://scripts/debug/perf_probe.gd")
+
+
 func sync(delta: float, cycle_progress: float) -> void:
+	var t := PerfProbeScript.start()
 	_sync_bird_audio(delta, cycle_progress)
+	PerfProbeScript.stop(&"ambient_bird_audio", t)
+	t = PerfProbeScript.start()
 	_sync_bird_flight(delta, cycle_progress)
+	PerfProbeScript.stop(&"ambient_bird_flight", t)
+	t = PerfProbeScript.start()
 	_sync_urban_fauna(delta)
+	PerfProbeScript.stop(&"ambient_urban_fauna", t)
+	t = PerfProbeScript.start()
 	_sync_penned_fauna(delta)
+	PerfProbeScript.stop(&"ambient_penned_fauna", t)
+	t = PerfProbeScript.start()
 	_sync_insect_audio(delta, cycle_progress)
+	PerfProbeScript.stop(&"ambient_insect_audio", t)
+	t = PerfProbeScript.start()
 	_sync_ambience(delta, cycle_progress)
+	PerfProbeScript.stop(&"ambient_soundscape", t)
 
 
 ## Foot-contact entry point handed to MapViewRuntimeActors (ADR 0035 phase 2).

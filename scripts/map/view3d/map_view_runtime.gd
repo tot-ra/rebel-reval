@@ -325,19 +325,43 @@ func _current_calendar_date() -> Dictionary:
 	return _session.current_calendar_date()
 
 
+const PerfProbeScript := preload("res://scripts/debug/perf_probe.gd")
+
+
 func _process(delta: float) -> void:
+	var probe_start := PerfProbeScript.start()
+	_process_timed(delta)
+	PerfProbeScript.stop(&"view_runtime", probe_start)
+
+
+func _process_timed(delta: float) -> void:
 	# The time controls scale (or pause) the world clock and, through the view,
 	# the sky's own cloud/weather/lightning stepping so they stay in lockstep.
 	var scaled_delta := _time_flow.scaled_delta(delta)
 	_time_flow.apply_weather_time_scale()
+	# The hero keeps walking while the clock is paused, so use the unpaused speed.
+	if _player != null and is_instance_valid(_player):
+		_player.set(&"time_flow_scale", _time_flow.time_speed)
+	var t := PerfProbeScript.start()
 	_environment.advance_cycle(scaled_delta, Callable(_session, "current_calendar_date"))
+	PerfProbeScript.stop(&"runtime_cycle_sky", t)
 	if _player == null or not is_instance_valid(_player):
 		return
+	t = PerfProbeScript.start()
 	_ambient_controller.sync(delta, cycle_progress)
+	PerfProbeScript.stop(&"runtime_ambient", t)
+	t = PerfProbeScript.start()
 	_camera_binding.apply_view_rotation(delta)
+	PerfProbeScript.stop(&"runtime_camera", t)
+	t = PerfProbeScript.start()
 	_sync_player(false, delta)
+	PerfProbeScript.stop(&"runtime_player_rig", t)
+	t = PerfProbeScript.start()
 	_actor_controller.sync_view_actors(delta)
+	PerfProbeScript.stop(&"runtime_actors", t)
+	t = PerfProbeScript.start()
 	_hosted.sync_minimap_tracker()
+	PerfProbeScript.stop(&"runtime_minimap", t)
 
 
 func get_actor_rig(actor: Node2D) -> SharedCharacterRig:

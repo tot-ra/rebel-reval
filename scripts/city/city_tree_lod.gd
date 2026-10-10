@@ -21,6 +21,7 @@ extends Node3D
 ## right beside the camera get them; card size and density match the near crown,
 ## so the swap changes needle detail, not crown mass.
 
+const GraphicsPresetsScript := preload("res://scripts/settings/graphics_presets.gd")
 const NEAR_ENTER := 34.0
 const NEAR_EXIT := 42.0
 const MACRO_ENTER := 10.0
@@ -44,6 +45,9 @@ var _macro: Dictionary = {}
 ## species -> MultiMeshInstance3D
 var _macro_nodes: Dictionary = {}
 var _timer := 0.0
+## Quality scaling of the near / macro radii (GraphicsPresets tree_near_scale / tree_macro_scale).
+var _near_scale := 1.0
+var _macro_scale := 1.0
 
 
 func register(
@@ -70,6 +74,27 @@ func register(
 		(_grid[cell] as Array).append(id)
 
 
+## Dense woods are the heaviest place in the game (a macro spruce is ~500 000 triangles),
+## so the radii that get real-size crowns follow the graphics quality.
+func apply_quality(quality: String) -> void:
+	var row := GraphicsPresetsScript.row(quality)
+	_near_scale = float(row["tree_near_scale"])
+	_macro_scale = float(row["tree_macro_scale"])
+
+
+func _enter_tree() -> void:
+	var settings := get_tree().root.get_node_or_null("UserSettings")
+	if settings == null or settings.get("graphics") == null:
+		return
+	apply_quality(String(settings.graphics.quality))
+	if not settings.graphics_settings_changed.is_connected(_on_graphics_settings_changed):
+		settings.graphics_settings_changed.connect(_on_graphics_settings_changed)
+
+
+func _on_graphics_settings_changed(settings) -> void:
+	apply_quality(String(settings.quality))
+
+
 func near_count() -> int:
 	return _near.size()
 
@@ -82,7 +107,16 @@ func is_macro(id: int) -> bool:
 	return _macro.has(id)
 
 
+const PerfProbeScript := preload("res://scripts/debug/perf_probe.gd")
+
+
 func _process(delta: float) -> void:
+	var probe_start := PerfProbeScript.start()
+	_process_timed(delta)
+	PerfProbeScript.stop(&"tree_lod", probe_start)
+
+
+func _process_timed(delta: float) -> void:
 	_timer -= delta
 	if _timer > 0.0:
 		return
@@ -101,18 +135,23 @@ func _process(delta: float) -> void:
 func update_for(focus: Vector3) -> bool:
 	var wanted := {}
 	var wanted_macro := {}
-	var reach := ceili(NEAR_EXIT / GRID)
+	var near_enter := NEAR_ENTER * _near_scale
+	var near_exit := NEAR_EXIT * _near_scale
+	var macro_enter := MACRO_ENTER * _macro_scale
+	var macro_exit := MACRO_EXIT * _macro_scale
+	var reach := ceili(near_exit / GRID)
 	var centre := Vector2i(floori(focus.x / GRID), floori(focus.z / GRID))
 	for dy in range(-reach, reach + 1):
 		for dx in range(-reach, reach + 1):
 			for id: int in _grid.get(centre + Vector2i(dx, dy), []):
 				var origin: Vector3 = (_trees[id][1] as Transform3D).origin
 				var d := Vector2(origin.x - focus.x, origin.z - focus.z).length()
-				if d < NEAR_ENTER or (_near.has(id) and d < NEAR_EXIT):
+				if d < near_enter or (_near.has(id) and d < near_exit):
 					wanted[id] = true
 				if (
-					MapViewTreeMeshes.has_macro_crown(_trees[id][0])
-					and (d < MACRO_ENTER or (_macro.has(id) and d < MACRO_EXIT))
+					macro_enter > 0.0
+					and MapViewTreeMeshes.has_macro_crown(_trees[id][0])
+					and (d < macro_enter or (_macro.has(id) and d < macro_exit))
 				):
 					wanted[id] = true
 					wanted_macro[id] = true
@@ -183,5 +222,22 @@ func _rebuild_near(species: StringName, macro: bool) -> void:
 	node.extra_cull_margin = 12.0
 	if bool(info["shrub"]):
 		node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	else:
+		# The real-size crowns are 10-100x the triangles of the far card crown, and every
+		# shadow cascade draws them again (a forest cost 56 ms of shadows). They stay out of
+		# the shadow pass; a shadows-only far crown casts the same mass instead.
+		node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		var proxy := MapViewMeshBuilderPrimitives.multi_mesh(
+			"ShadowProxy",
+			MapViewTreeMeshes.city_canopy_far_mesh(species),
+			transforms,
+			colors,
+			MapViewMaterials.canopy_for_species(MapViewTreeMeshes.base_species(species)),
+			Vector3.ZERO,
+			true
+		)
+		proxy.extra_cull_margin = 12.0
+		proxy.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_SHADOWS_ONLY
+		node.add_child(proxy)
 	add_child(node)
 	nodes[species] = node

@@ -104,7 +104,16 @@ func live_actors() -> Array[CitizenActor]:
 	return out
 
 
+const PerfProbeScript := preload("res://scripts/debug/perf_probe.gd")
+
+
 func _process(delta: float) -> void:
+	var probe_start := PerfProbeScript.start()
+	_process_timed(delta)
+	PerfProbeScript.stop(&"citizens", probe_start)
+
+
+func _process_timed(delta: float) -> void:
 	_since += delta
 	if _since >= REFRESH_SECONDS and player != null and _cursor >= _candidates.size():
 		_since = 0.0

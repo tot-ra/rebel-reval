@@ -198,7 +198,16 @@ func update_events(time: float) -> int:
 	return bursts - before
 
 
+const PerfProbeScript := preload("res://scripts/debug/perf_probe.gd")
+
+
 func _process(delta: float) -> void:
+	var probe_start := PerfProbeScript.start()
+	_process_timed(delta)
+	PerfProbeScript.stop(&"shore_spray", probe_start)
+
+
+func _process_timed(delta: float) -> void:
 	if _plan == null or _contour.is_empty() or _intensity <= 0.01:
 		return
 	_clock += delta

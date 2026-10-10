@@ -14,6 +14,7 @@ const DialogueSettingsScript := preload("res://scripts/settings/dialogue_setting
 const GameplayAccessibilitySettingsScript := preload(
 	"res://scripts/settings/gameplay_accessibility_settings.gd"
 )
+const GraphicsPresetsScript := preload("res://scripts/settings/graphics_presets.gd")
 const GraphicsSettingsScript := preload("res://scripts/settings/graphics_settings.gd")
 const InputBindingSettingsScript := preload("res://scripts/settings/input_binding_settings.gd")
 const StoreScript := preload("res://scripts/settings/user_settings_store.gd")
@@ -118,6 +119,7 @@ func apply_graphics_settings(settings, persist: bool = true) -> void:
 func _apply_graphics_settings(settings) -> void:
 	# Apply to the root viewport so the profile affects every active scene immediately.
 	get_viewport().msaa_3d = settings.msaa_3d_level()
+	GraphicsPresetsScript.apply_to(get_window(), settings.quality)
 
 
 func apply_input_bindings(bindings, persist: bool = true) -> bool:

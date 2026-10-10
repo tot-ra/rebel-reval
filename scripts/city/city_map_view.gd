@@ -27,12 +27,21 @@ var water_foam_sim: WaterFoamSim
 var _surface_sampler: CitySurfaceSampler
 
 
-static func create_city(city_plan: CityPlan) -> CityMapView:
+## `quality_tier` (SkyWeather3D QUALITY_*, null = recommended) picks the sky, weather,
+## sea FFT, shore swash and building detail cost; the player's graphics quality passes it
+## (scripts/settings/graphics_presets.gd). It is read once, so a new tier needs a new view.
+static func create_city(city_plan: CityPlan, quality_tier: Variant = null) -> CityMapView:
+	if quality_tier != null:
+		MapViewMaterials.WATER_MATERIALS.set_ocean_fft_quality_tier(quality_tier)
+		MapViewMaterials.set_shore_swash_quality_tier(quality_tier)
+		MapViewMaterials.set_building_quality_tier(quality_tier)
 	var view := CityMapView.new()
 	view.name = "MapView3D"
+	view.add_to_group(&"city_view")
 	view.plan = city_plan
 	view.definition = CityMapDefinition.from_plan(city_plan)
 	view.world = CityWorld3D.create(city_plan)
+	view.world.quality_tier = quality_tier
 	view.add_child(view.world)
 	var camera := Camera3D.new()
 	camera.name = "Camera"

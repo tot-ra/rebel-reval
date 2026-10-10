@@ -55,8 +55,17 @@ func _ready() -> void:
 		add_child(shape)
 
 
-## Standing people step aside for the player (CrowdYield) and return after.
+const PerfProbeScript := preload("res://scripts/debug/perf_probe.gd")
+
+
 func _physics_process(delta: float) -> void:
+	var probe_start := PerfProbeScript.start()
+	_physics_process_timed(delta)
+	PerfProbeScript.stop(&"site_actor_physics", probe_start)
+
+
+## Standing people step aside for the player (CrowdYield) and return after.
+func _physics_process_timed(delta: float) -> void:
 	if pose == &"sit":
 		return
 	if _player == null or not is_instance_valid(_player):
