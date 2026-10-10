@@ -198,7 +198,7 @@ The final guard passed the 16-test material contract and a further six-phase GL 
 
 ## Water realism v2 (WR-1, WR-2)
 
-Status: implemented (tasks **R-1499** WR-1 and **R-1500** WR-2; pack [WR - Water realism v2](../tasks/water_sky/WR_water_realism_v2.md), epic **R-1497**). Scope: the city sea's wave geometry and foam. Out of scope (planned in the pack): camera-distance LOD and tier presets (WR-3), depth refraction and breaker types ([WR-4](#waves-feel-the-seabed-wr-4)), wave interaction with rocks (WR-5), event-driven spray ([WR-6](#event-driven-spray-wr-6)), a persistent foam buffer (WR-7), gusts and rain on the sea (WR-8). Beach wetting is implemented in [Beach response (WR-9)](#beach-response-wr-9). District maps are unchanged: every switch below is gated on the city's `sea_physical_depth` instance flag or on `shore_crest_shape`, which `apply_shore_field` resets to 0.
+Status: implemented (tasks **R-1499** WR-1 and **R-1500** WR-2; pack [WR - Water realism v2](../tasks/water_sky/WR_water_realism_v2.md), epic **R-1497**). Scope: the city sea's wave geometry and foam. Out of scope (planned in the pack): camera-distance LOD and tier presets (WR-3), depth refraction and breaker types ([WR-4](#waves-feel-the-seabed-wr-4)), wave interaction with rocks ([WR-5](#waves-around-rocks-wr-5)), event-driven spray ([WR-6](#event-driven-spray-wr-6)), a persistent foam buffer (WR-7), gusts and rain on the sea (WR-8). Beach wetting is implemented in [Beach response (WR-9)](#beach-response-wr-9). District maps are unchanged: every switch below is gated on the city's `sea_physical_depth` instance flag or on `shore_crest_shape`, which `apply_shore_field` resets to 0.
 
 Verified on the [water sandbox](./WATER_SANDBOX.md) (synthetic coast, R-1498) and in the city.
 
@@ -246,7 +246,7 @@ Limits: boats (`BoatFloat3D`) still sample the district trough floor, so in a ci
 
 ## Waves feel the seabed (WR-4)
 
-Status: implemented (task **R-1509** WR-4; pack [WR - Water realism v2](../tasks/water_sky/WR_water_realism_v2.md)). Scope: the city's analytic shore waves (height, crest shape, breaking, surf foam, run-up drain and reflection) over the real bathymetry instead of the idealised 1:20 beach (`_swash_depth`). Out of scope: diffraction and wave shadows behind single rocks (WR-5), event spray (WR-6), the open-sea FFT spectrum (unchanged), district maps (unchanged: every branch needs `shore_bed_valid`, which only the city sets and `apply_shore_field` resets to 0).
+Status: implemented (task **R-1509** WR-4; pack [WR - Water realism v2](../tasks/water_sky/WR_water_realism_v2.md)). Scope: the city's analytic shore waves (height, crest shape, breaking, surf foam, run-up drain and reflection) over the real bathymetry instead of the idealised 1:20 beach (`_swash_depth`). Out of scope: diffraction and wave shadows behind single rocks ([WR-5](#waves-around-rocks-wr-5)), event spray (WR-6), the open-sea FFT spectrum (unchanged), district maps (unchanged: every branch needs `shore_bed_valid`, which only the city sets and `apply_shore_field` resets to 0).
 
 **Bake** (`CityShoreField.bake` -> `_bake_bed`, `scripts/city/city_shore_field.gd`). Per height node, on the shore field's grid:
 
@@ -360,6 +360,7 @@ Status: implemented (task **R-1508** WR-3; pack [WR - Water realism v2](../tasks
 | Foam detail layers (`city_foam_layers`) | 3 (no grain) | 4 | 4 |
 | Spray droplets per burst (slots, see [WR-6](#event-driven-spray-wr-6)) | 160 (5) | 420 (8) | 640 (10) |
 | Ripple sim size (from SkyWeather) | off | 256 | 256 |
+| Obstacle sim ([WR-5](#waves-around-rocks-wr-5)) | off | 128 | 256 |
 
 Root nodes are 1024 m on every tier.
 
@@ -391,6 +392,58 @@ tools/godot_render.sh --script tools/water_sandbox/capture.gd -- --tag=lod_motio
 `test_city_sea_lod` ports the vertex morph to GDScript and checks, on a synthetic lattice with an island and skirt: every shared node edge meets without a crack at four camera positions, a node at its split distance coincides with its four children (no popping), ring vertices touching the skirt stay at the 4 m lattice and level, selected coarse nodes never span a cell the rings do not own, the ring level is continuous and capped, the displacement weights per spacing and tier, the presets, the shader contract and the sandbox build (one owner per cell, finite CPU heights). The dolly clips showed no isolated frame-difference spikes (max / median of consecutive-frame difference 1.2-1.7 in a gale, smooth trend). No controls, saved fields or content IDs change.
 
 Limits: ring nodes touching the plan edge or a static cell stay at 4 m spacing or finer (the cap treats outside the lattice as not owned), so the far plan edge costs a strip of fine nodes. The CPU height ignores node snapping and the C0 horizontal scale. Changing the tier needs a rebuild of the city (like the FFT tier). Boats (`BoatFloat3D`) still sample the district path.
+
+## Waves around rocks (WR-5)
+
+Status: implemented (task **R-1510** WR-5; pack [WR - Water realism v2](../tasks/water_sky/WR_water_realism_v2.md)). Scope: how the city sea's waves meet rocks, boulders, the sea stack and quay walls near the camera: reflection, diffraction around and shadowing behind them, slosh up their faces, impact foam that wraps around them, and small rocks that the troughs uncover. Out of scope: district maps (unchanged: the sea reads the sim only with the city's `sea_physical_depth` flag and nothing binds `obstacle_window` there), the long waves (FFT C0, 16-128 m, and the WR-4 shore swell) which keep their analytic slosh at hard edges, spray from impacts (the sim never reads back to the CPU, so [WR-6](#event-driven-spray-wr-6) cannot see impacts), boats and the swimmer (they keep sampling the analytic sea), wooden piles (the city has none yet; any dome list works).
+
+What the player sees: near the camera, waves hitting a quay wall or the sea stack throw back a reflected train that crosses the incoming crests; waves bend around boulders and leave calmer water behind them; water climbs a rock face as a crest arrives; white impact foam forms on the weather side of rocks and walls and drifts round them downwind before it dissolves into lace; low rocks show through the troughs. A beach keeps its swash (no foam line along the waterline).
+
+**How it works.** A second `WaterRippleSim` (`scripts/map/view3d/water_ripple_sim.gd`, `configure_obstacles`) runs the same GL Compatibility SubViewport ping-pong as the WS-15 ripples, with the obstacle branch of `water_ripple_sim.gdshader`:
+
+- **Scattered-field wave equation.** The sea already draws the incident waves; the sim carries only what obstacles add (state R = scattered height `s` in world units, G = its vertical velocity, B = impact foam). A wall imposes no flow through it (Neumann: the total surface is level across the face), so a wall-side texel's missing neighbour is `s_c + inc(c - d) - inc(c)`: the incident's own slope, taken on the water side. Reflection, diffraction and the shadow behind a rock all come out of that one boundary condition; the window edge needs no matching because `s` fades to zero there (8-texel sponge).
+- **Driven by the analytic sea.** The incident is the FFT wind sea, cascade C1 (4-16 m), sampled exactly as the sea's `vertex()` samples it: `WaterRippleSim` copies the sea material's FFT and shore uniforms (`OBSTACLE_SEA_UNIFORMS`) into the kernel every step. C0 and the shore swell are left out of the scattering: they are longer than the 64 m window, a 1-13 m rock barely scatters them, and scattering them (tried first) drew a standing dip around every rock instead of waves. The impact foam does see the whole surface, shore breakers included.
+- **Depth and breaking.** Wave speed follows the local depth through the linear dispersion relation of an 8 m wave (`OBSTACLE_WAVELENGTH`), capped by the CFL bound (Courant 0.5). Water shallower than 0.6 units over a gentle bed damps the field (breaking), so beaches absorb; where the bed slope (over a 4-texel baseline) exceeds 0.15-0.5 there is no breaking, so steep faces reflect (WR-4's surging class). Without that slope test the quay, ramped over one 2 m height cell, broke its own reflection. Foam is born where the total surface at a steep face (water at least 0.08-0.25 units deep beside the solid texel, so not a beach waterline) stands above 0.12 units, in a two-texel band; it drifts with the wind (1.2 units/s at full strength) with the component into a rock removed, so it slides around the rock, diffuses a little and decays with a 3 s time constant.
+- **Step.** One step per rendered frame over the ocean-clock delta, capped at 1/20 s (a slower frame runs the sim slower instead of unstable); a clock jump over 1 s (scrubbing, the capture tool's warm-up) restarts the field flat. Deterministic: the same clock sequence gives the same state. Nothing is saved; the sim starts flat on every load.
+- **Obstacle mask** (`scripts/city/city_obstacle_mask.gd`, `CityObstacleMask`): one float per sim texel, the still-water depth from the plan heightfield (sampled every 1 m on a world-aligned grid, upscaled bilinearly, so every window cuts the same raster: sampled from the window corner, the quay's depth profile and with it its reflection changed eightfold with the camera pose) with every rock stamped on top as a dome (x, z, radius, top). Depth <= 0 is solid. Rocks of every size count, down to 0.12 m radius, so boulders far below the 2-3 m heightfield cells are walls too. The city takes its rocks from the shore-debris MultiMeshes `CityShore` built (`rocks_from_multimeshes`: boulders and stone clusters, not pebble patches or weed; calling `CityShore.placements_for` again would cost 1.2 s); the sandbox from its own rock list (`WaterSandbox.obstacle_mask`). The raster covers the window plus 32 texels per side and is rebuilt only when the window walks out of that margin.
+- **Sea shader** (`map_view_water.gdshader`, city sea only): `obstacle_state` / `obstacle_window` / `obstacle_texel_count`. `vertex()` adds `s` to the FFT height before the bed floor (`_fft_bed_trough`), so a trough beside a boulder still stops above the bed and the rock top shows through; `fragment()` bends the normal by the gradient of `s` (capped at 1.2) and lays the impact foam into the surf foam through the same attached foam cells (`_foam_dissolve`). Both fade out over the outer 10 % of the window.
+- **Mounting.** `CityMapView._create_city_obstacle_sim` (coastal plans only), its window centred where the camera's view meets the sea, at most 26 units ahead (`_city_obstacle_focus`); `_process` sets the foam drift from the sea's wind and sea state. `tools/water_sandbox/capture.gd` mounts it the same way.
+
+**Per tier** (fixed resolution, 64 m window; `WaterRippleSim.OBSTACLE_SIM_SIZES`, keyed by the sea LOD tier):
+
+| | minimum | recommended | high |
+|---|---|---|---|
+| Obstacle sim | off (`obstacle_window.w = 0`) | 128 x 128, 0.5 m texels | 256 x 256, 0.25 m texels |
+
+**Cost** (2026-10-10, M-series Mac, GL Compatibility, water sandbox `stack` close shot, gale, `--bench=300 --bench-shot=close`; CPU from `Time.get_ticks_usec` around `step_obstacles`, `step_usec_mean` over the run; two interleaved off / on runs per tier, wall medians; the GPU timer reads 0 on this driver):
+
+| Tier | Sim | CPU per step (mean) | Mask raster (per rebuild) | Frame wall time off / on (median, ms, two runs) |
+|---|---|---|---|---|
+| minimum | off | 0 | 0 | unchanged |
+| recommended | 128 x 128 | 15-20 us | 3.5 ms | 7.60 / 6.83, 8.46 / 6.92 |
+| high | 256 x 256 | 21 us | 3.0-3.1 ms | 8.40 / 7.95, 6.97 / 8.62 |
+
+The kernel is one full-screen pass over 128 x 128 or 256 x 256 texels per frame; the frame-time difference stays inside run-to-run noise (about 1.5 ms here; a run while other sessions rendered on the same GPU read 28-87 ms and was discarded). The CPU step is the uniform copy and the bind; the mask raster runs only when the window has moved 16 m (recommended) or 8 m (high) from where it was last built, and once on the real Reval plan took 4.9 ms (headless probe, 1 299 shore rocks). Over the 12 verification clips (clock in 1/60 s steps) the mean CPU step was 10-22 us per plate (46 us on the first, which includes the first raster).
+
+![Water sandbox, gale, same sea phase: quay side shot without and with the sim (reflected train and impact foam along the wall foot; the clouds moved during the sim's warm-up frames), sea stack close shot without and with it (the stack's foot is hidden behind the crest at this framing). Right: the sim state on the high tier for the quay (side shot window) and the stack: red / green = scattered height above / below rest, blue = impact foam, black = solid; reflection rings around the stack and foam on its weather side](../reports/images/city/water_obstacles_wr5_ab.jpg)
+
+![Quay side clip, gale, every second second (frames 0-168 of 192 at 24 Hz): foam forms at the wall foot as each crest arrives, water climbs the face and the reflected train runs back out](../reports/images/city/water_obstacles_wr5_quay_motion.jpg)
+
+GPU stability (`--stability=2000`: 2000 steps at the longest step, 1/20 s, gale, state read back every 250 steps): no NaN or growth in any run. Peak scattered height / velocity: boulders recommended 0.09 / 0.23, quay recommended 0.12 / 0.28, stack high 0.19 / 0.48 (units, units/s). The fields scale with the sea: gale about twice fresh in every dump, and the quay reflects more on high, whose 0.25 m texels resolve the wall ramp.
+
+The capture tool moves the ocean clock in steps of at most 1/60 s (one rendered frame each) while the sim runs, so a 24 Hz clip shows the waves the game shows at 60 fps: at a capture's 1/20 s step the CFL cap slowed the high tier's waves (0.25 m texels) and its scattered field fell to a tenth. Without the sim the clock moves as before (A/B plates match).
+
+Verify:
+
+```bash
+godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_water_obstacle_sim
+tools/godot_render.sh --script tools/water_sandbox/capture.gd -- --tag=wr5 --case=boulders,stack,quay --shot=close,side --wind=fresh,gale --motion=192 --dump-obstacle --stability=2000
+tools/godot_render.sh --script tools/water_sandbox/capture.gd -- --tag=wr5_off --case=boulders,stack,quay --shot=close,side --wind=gale --no-obstacle-sim
+```
+
+`test_water_obstacle_sim` covers the mask raster (the same texels from overlapping windows, bathymetry depth, quay land, an emergent boulder, a 0.6 m rock, a submerged shoal, a pebble below the size limit, rocks outside the window), rock domes from mesh instances and from built MultiMeshes, the sandbox mask (stack, quay, sub-heightfield rocks), the tier sizes, the mask rebuild margin, the ocean-clock step (wrap, jumps), a CPU mirror of the kernel over 2000 steps at 1/20 s and 1/60 s (finite, bounded, the wall scatters and foams, no late growth) and the shader contract. Headless runs have no GPU, so `--stability=N` runs the real kernel N steps in a gale and reads the state back into `stability.json`. The new capture flags: `--no-obstacle-sim` (A/B), `--dump-obstacle` (`*_obstacle.png`: red / green = `s` above / below rest at 0.5 units full scale, blue = foam, black = solid), `--stability=N`; plates log the step and raster cost and `bench.json` records them. No controls, saved fields or content IDs change.
+
+Limits: the incident is C1 only, so the long swell has no shadow behind a rock (physically small for rocks under 13 m) and quays reflect only the wind sea through the sim. The wave equation is non-dispersive: the scattered field travels at the 8 m wave's speed whatever its wavelength. Foam drift is the wind only (no wave orbital motion). The 0.5 m texel on recommended resolves rocks of about 0.5 m and larger; smaller domes still shoal the water. Changing the tier needs a rebuild of the city (like the sea LOD).
 
 ## Beach response (WR-9)
 
@@ -437,7 +490,7 @@ Limits: pebble meshes are wet or dry by a fixed line, not by the live swash (the
 
 ## Event-driven spray (WR-6)
 
-Status: implemented (task **R-1511** WR-6; pack [WR - Water realism v2](../tasks/water_sky/WR_water_realism_v2.md)). Scope: when and where the city sea throws spray, and how it is drawn. Out of scope: crest impacts on rocks and quays (needs the WR-5 impact events, not built yet), district maps (no `CityShoreSpray`).
+Status: implemented (task **R-1511** WR-6; pack [WR - Water realism v2](../tasks/water_sky/WR_water_realism_v2.md)). Scope: when and where the city sea throws spray, and how it is drawn. Out of scope: crest impacts on rocks and quays ([WR-5](#waves-around-rocks-wr-5) keeps its impacts on the GPU with no CPU readback, so spray cannot see them), district maps (no `CityShoreSpray`).
 
 **What changed.** The old emitters streamed droplets from the waterline all the time. Now each slot sits where the surf breaks and fires one burst when a crest passes.
 

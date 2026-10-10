@@ -9,11 +9,16 @@ extends MapView3D
 
 ## How far ahead of the camera (world units) the ripple window is centred.
 const CITY_RIPPLE_FOCUS_AHEAD := 6.0
+## WR-5: farthest the waves-around-rocks window centre sits ahead of the camera, where
+## its view meets the sea (world units).
+const CITY_OBSTACLE_FOCUS_AHEAD := 26.0
 
 var world: CityWorld3D
 var plan: CityPlan
 ## Kalev's current interior (building index) or -1; set by the city scene.
 var inside_building := -1
+## WR-5 waves around rocks (WaterRippleSim in obstacle mode); null when off.
+var water_obstacle_sim: WaterRippleSimScript
 
 
 static func create_city(city_plan: CityPlan) -> CityMapView:
@@ -38,6 +43,7 @@ static func create_city(city_plan: CityPlan) -> CityMapView:
 	view._occluder_bounds = view._building_bounds()
 	view._create_sky_passes()
 	view._create_city_ripple_sim()
+	view._create_city_obstacle_sim()
 	return view
 
 
@@ -57,6 +63,51 @@ func _create_city_ripple_sim() -> void:
 	_water_ripple_sim.configure(WaterRippleSimScript.sim_size_for_tier(tier))
 	_water_ripple_sim.focus_provider = _city_ripple_focus
 	_water_ripple_sim.bind_callback = _bind_city_ripples
+
+
+## WR-5: waves reflect, bend and foam around rocks, the stacks and quays near the camera
+## (docs/SYSTEMS/CITY_SEA.md "Waves around rocks"). The mask is the plan's bathymetry
+## plus every shore rock CityShore built; the sea material's swell drives the field.
+## Coastal plans only, off on the minimum sea tier (the sea keeps its window invalid).
+func _create_city_obstacle_sim() -> void:
+	var sea := MapViewMaterials.water_surface(MapTypes.TERRAIN_SHALLOW_WATER)
+	var size := WaterRippleSimScript.obstacle_sim_size_for_tier(
+		MapViewMaterials.WATER_MATERIALS.sea_lod_tier()
+	)
+	if size <= 0 or not plan.has_coast():
+		sea.set_shader_parameter(
+			"obstacle_window", Vector4(0.0, 0.0, WaterRippleSimScript.WINDOW_WORLD_SIZE, 0.0)
+		)
+		return
+	var mask := CityObstacleMask.new(plan.ground_height, 0.0)
+	mask.set_rocks(CityObstacleMask.rocks_from_multimeshes(world))
+	water_obstacle_sim = WaterRippleSimScript.new()
+	water_obstacle_sim.name = "WaterObstacleSim"
+	add_child(water_obstacle_sim)
+	water_obstacle_sim.configure_obstacles(size, mask, sea)
+	water_obstacle_sim.focus_provider = _city_obstacle_focus
+	water_obstacle_sim.bind_callback = func(
+		texture: Texture2D, window: Vector4, texels: float
+	) -> void:
+		sea.set_shader_parameter("obstacle_state", texture)
+		sea.set_shader_parameter("obstacle_window", window)
+		sea.set_shader_parameter("obstacle_texel_count", texels)
+
+
+## Where the camera's view meets the sea, at most CITY_OBSTACLE_FOCUS_AHEAD ahead.
+func _city_obstacle_focus() -> Vector3:
+	if _camera == null or not _camera.is_inside_tree():
+		return Vector3.ZERO
+	var origin := _camera.global_position
+	var forward := -_camera.global_transform.basis.z
+	var flat := Vector2(forward.x, forward.z)
+	if flat.length() < 0.01:
+		return origin
+	var reach := CITY_OBSTACLE_FOCUS_AHEAD
+	if forward.y < -0.01 and origin.y > 0.0:
+		reach = minf(reach, origin.y / -forward.y * flat.length())
+	var ahead := flat.normalized() * reach
+	return origin + Vector3(ahead.x, 0.0, ahead.y)
 
 
 ## Ground point a few units ahead of the camera along its heading: Kalev in the
@@ -131,10 +182,21 @@ func _process(delta: float) -> void:
 		_god_ray_pass.update(delta, presentation)
 	if _local_atmosphere != null:
 		_local_atmosphere.update(delta, presentation, _sky_weather.cloud_cell_clock())
+	if water_obstacle_sim != null and water_obstacle_sim.wave_source != null:
+		# Impact foam drifts downwind, faster in a rougher sea.
+		var wind: Variant = water_obstacle_sim.wave_source.get_shader_parameter("wind_direction")
+		var sea_state: Variant = water_obstacle_sim.wave_source.get_shader_parameter("shore_sea_state")
+		if wind is Vector2 and sea_state is float:
+			water_obstacle_sim.foam_wind = (wind as Vector2).normalized() * clampf(sea_state, 0.0, 1.0)
 
 
 func _exit_tree() -> void:
 	MapViewMaterials.clear_grass_interaction()
+	if water_obstacle_sim != null and water_obstacle_sim.wave_source != null:
+		# The sea material is process-wide; do not leave it reading a freed viewport.
+		water_obstacle_sim.wave_source.set_shader_parameter(
+			"obstacle_window", Vector4(0.0, 0.0, WaterRippleSimScript.WINDOW_WORLD_SIZE, 0.0)
+		)
 
 
 func apply_cycle_progress(progress: float, _sweep_sun_yaw: bool = true) -> void:

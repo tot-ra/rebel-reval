@@ -45,6 +45,8 @@ var world: Node3D
 var bay_centres: Dictionary = {}
 ## Rocks placed per case: Array of {at: Vector3, diameter: float, stamped: bool}.
 var rocks: Dictionary = {}
+## WR-5: every placed rock as a dome (x, z, radius, top y) for CityObstacleMask.
+var obstacle_rocks := PackedVector4Array()
 var _rng := RandomNumberGenerator.new()
 
 
@@ -227,6 +229,9 @@ func _build_rocks() -> void:
 				# A stack is taller than wide: stretch the boulder upward.
 				basis = Basis(Vector3.UP, 0.7).scaled(Vector3(scale, scale * 1.9, scale))
 			var at: Vector3 = rock["at"]
+			obstacle_rocks.append(
+				CityObstacleMask.rock_from_instance(mesh.get_aabb(), Transform3D(basis, at))
+			)
 			if not transforms.has(kind):
 				transforms[kind] = [[] as Array[Transform3D], [] as Array[Color]]
 			transforms[kind][0].append(Transform3D(basis, at))
@@ -237,6 +242,14 @@ func _build_rocks() -> void:
 			transforms[kind][0], transforms[kind][1], null, Vector3.ZERO
 		)
 		add_child(inst)
+
+
+## WR-5: the obstacle mask the wave sim reads: the sandbox heightfield plus every rock
+## (the stamped large ones and the small ones the 2 m grid cannot hold). Sea at y = 0.
+func obstacle_mask() -> CityObstacleMask:
+	var mask := CityObstacleMask.new(plan.ground_height, 0.0)
+	mask.set_rocks(obstacle_rocks)
+	return mask
 
 
 ## Shingle bay: three 45 m sections of small, medium and large pebbles from the

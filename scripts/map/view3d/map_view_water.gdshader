@@ -184,6 +184,14 @@ uniform float ripple_normal_strength = 25.0;
 // (dark dashed rows in the wake). The normal carries the visible ring and its troughs.
 uniform float ripple_vertex_amplitude = 0.004;
 uniform float ripple_foam_strength = 0.85;
+// WR-5 waves around rocks (WaterRippleSim obstacle mode, city sea only): R = scattered
+// height in world units (reflection, diffraction, shadow added to the incident swell),
+// G = its vertical velocity, B = impact foam. obstacle_window = (origin x, origin z,
+// size, valid); valid 0 leaves the sea exactly as without the sim.
+uniform sampler2D obstacle_state : filter_linear, repeat_disable;
+uniform vec4 obstacle_window = vec4(0.0, 0.0, 64.0, 0.0);
+uniform float obstacle_texel_count = 128.0;
+uniform float obstacle_foam_strength = 1.0;
 // Art-direction lever: under flat overcast light a bent normal alone barely changes the
 // reflected sky, so ring flanks also catch a little highlight colour (rain reads on water).
 uniform float ripple_sheen = 2.0;
@@ -331,6 +339,8 @@ const float CITY_RUNUP_SLOPE_STEP = 0.08;
 const float RIPPLE_EDGE_FADE = 0.1;
 // Steepest ripple facet the shading normal may take (about 31 degrees).
 const float RIPPLE_MAX_SLOPE = 0.6;
+// WR-5: steepest facet the obstacle field may add to the shading normal (~50 degrees).
+const float OBSTACLE_MAX_SLOPE = 1.2;
 // Rain rings, world units (0.87 m): one candidate drop per 0.3-unit cell and layer, a ring
 // growing to ~7 cm in 0.6 s. Two offset layers break up the lattice.
 const float RAIN_RING_CELL = 0.3;
@@ -899,6 +909,16 @@ vec2 _ripple_uv(vec2 world_xz) {
 }
 
 // 0 outside the window or with the sim off, 1 inside, fading near the window edge.
+// WR-5 obstacle window lookup: same layout and edge fade as the ripple window.
+vec2 _obstacle_uv(vec2 world_xz) {
+	return (world_xz - obstacle_window.xy) / max(obstacle_window.z, 0.001);
+}
+
+float _obstacle_weight(vec2 uv) {
+	vec2 edge = min(uv, vec2(1.0) - uv);
+	return obstacle_window.w * smoothstep(0.0, RIPPLE_EDGE_FADE, min(edge.x, edge.y));
+}
+
 float _ripple_weight(vec2 uv) {
 	vec2 edge = min(uv, vec2(1.0) - uv);
 	return ripple_window.w * smoothstep(0.0, RIPPLE_EDGE_FADE, min(edge.x, edge.y));
@@ -1297,6 +1317,14 @@ void vertex() {
 			// WR-1: the city bed lies metres below; troughs keep their depth.
 			float room = undisplaced_world.y + tide_height * tide_level
 				- (sea_ground_y + CITY_TROUGH_CLEARANCE);
+			// WR-5: reflected and diffracted waves from rocks and walls ride on the
+			// swell before the bed floor, so a trough beside a boulder still stops
+			// above the bed (and below the rock top, which then pokes through).
+			if (obstacle_window.w > 0.5) {
+				vec2 obstacle_uv = _obstacle_uv(wave_sample_xz);
+				displacement.y += textureLod(obstacle_state, obstacle_uv, 0.0).r
+					* _obstacle_weight(obstacle_uv);
+			}
 			displacement.y = _fft_bed_trough(displacement.y, room);
 		} else if (displacement.y < 0.0) {
 			displacement.y = -FFT_TROUGH_FLOOR * (1.0 - exp(displacement.y / FFT_TROUGH_FLOOR));
@@ -1520,6 +1548,25 @@ void fragment() {
 		world_normal = normalize(world_normal + vec3(-ripple_slope.x, 0.0, -ripple_slope.y));
 		ripple_slope_length = length(ripple_slope);
 		ripple_aeration = textureLod(ripple_state, ripple_uv, 0.0).b * ripple_weight;
+	}
+	// WR-5: the obstacle field's slopes bend the normal like the ripples; its impact foam
+	// joins the surf foam below.
+	float obstacle_foam = 0.0;
+	if (sea_physical_depth && obstacle_window.w > 0.5) {
+		vec2 obstacle_uv = _obstacle_uv(wave_sample_xz);
+		float obstacle_weight = _obstacle_weight(obstacle_uv);
+		float obstacle_du = 1.0 / max(obstacle_texel_count, 1.0);
+		float texel_world = obstacle_window.z * obstacle_du;
+		vec2 obstacle_slope = vec2(
+			textureLod(obstacle_state, obstacle_uv + vec2(obstacle_du, 0.0), 0.0).r
+				- textureLod(obstacle_state, obstacle_uv - vec2(obstacle_du, 0.0), 0.0).r,
+			textureLod(obstacle_state, obstacle_uv + vec2(0.0, obstacle_du), 0.0).r
+				- textureLod(obstacle_state, obstacle_uv - vec2(0.0, obstacle_du), 0.0).r
+		) * (0.5 / max(texel_world, 0.001) * obstacle_weight);
+		obstacle_slope /= max(1.0, length(obstacle_slope) / OBSTACLE_MAX_SLOPE);
+		world_normal = normalize(world_normal + vec3(-obstacle_slope.x, 0.0, -obstacle_slope.y));
+		obstacle_foam = textureLod(obstacle_state, obstacle_uv, 0.0).b * obstacle_weight
+			* obstacle_foam_strength;
 	}
 	// Rain rings fade out before their cells shrink to a few pixels (distance, top-down
 	// zoom), where the lattice would otherwise alias into a moire overlay.
@@ -1852,6 +1899,11 @@ void fragment() {
 			swash_bore = _foam_dissolve(city_foam.x, coverage * shore_now.valid)
 				* mix(0.7, 1.0, roller);
 		}
+	}
+	if (obstacle_foam > 0.001) {
+		// WR-5 impact foam: dense where a crest just hit the rock, lace as it wraps
+		// around and dissolves (same attached cells as the surf foam).
+		swash_bore = max(swash_bore, _foam_dissolve(city_foam.x, clamp(obstacle_foam, 0.0, 1.0)));
 	}
 	vec2 foam_uv = water_world_position.xz * 3.4 + vec2(-TIME * 0.22, TIME * 0.09) * wave_speed;
 	float foam_noise = _noise(foam_uv + _noise(foam_uv * 0.47) * 2.2);

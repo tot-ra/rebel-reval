@@ -28,6 +28,17 @@ extends Node
 ##
 ## No CPU readback: gameplay never reads ripple heights (boats keep OceanFftSampler).
 ## Nothing is persisted; the sim starts flat on every map load.
+##
+## WR-5 obstacle mode (R-1510, configure_obstacles): a second instance of this class runs
+## the same ping-pong as a camera-following wave sim for rocks, the sea stack and quays.
+## State: R = scattered height (what obstacles add to the incident swell: reflection,
+## diffraction, shadow), G = its vertical velocity, B = impact foam. The incident is the
+## sea's own FFT + shore swell, evaluated by the step shader from uniforms copied off the
+## sea material, so the sim is driven by the analytic sea at its wall boundaries and the
+## window edge needs no matching (the scattered field fades to zero there). The obstacle
+## mask (CityObstacleMask) is re-rasterised only when the window leaves its margin. It
+## steps once per rendered frame by the ocean-clock delta (captures and pauses stay
+## deterministic), and times its CPU work with Time.get_ticks_usec (step_usec_mean).
 
 const SkyWeather3DScript := preload("res://scripts/map/view3d/sky_weather_3d.gd")
 const STEP_SHADER := preload("res://scripts/map/view3d/water_ripple_sim.gdshader")
@@ -63,6 +74,32 @@ const BODY_REFERENCE_HALF_BEAM := 0.45
 ## Two steps write zero so the never-rendered partner target cannot leak its clear colour.
 const RESET_STEPS := 2
 
+## WR-5 obstacle sim texels per 64 m window side, keyed by the sea LOD tier
+## (MapViewWaterMaterials.sea_lod_tier): fixed per tier, off on minimum.
+const OBSTACLE_SIM_SIZES := {&"minimum": 0, &"recommended": 128, &"high": 256}
+## Mask texels kept beyond each window side, so a walking camera rasterises rarely.
+const OBSTACLE_MASK_MARGIN := 32
+## Longest ocean-clock step; a longer frame runs the sim slower instead of unstable.
+const OBSTACLE_DT_MAX := 1.0 / 20.0
+## A clock jump longer than this (scrubbing, reload) restarts the field flat.
+const OBSTACLE_CLOCK_JUMP := 1.0
+## Gravity in world units (0.87 m each, as the sea shaders assume).
+const OBSTACLE_GRAVITY := 9.81 / 0.87
+## Dominant incident wavelength (world units) for the depth-dependent wave speed: the
+## FFT C1 band (4-16 m) that the fine LOD rings near the camera displace.
+const OBSTACLE_WAVELENGTH := 8.0
+## Wind drift of impact foam (world units per second at full wind strength).
+const OBSTACLE_FOAM_DRIFT := 1.2
+## Sea uniforms the obstacle kernel shares with map_view_water.gdshader; copied each step.
+const OBSTACLE_SEA_UNIFORMS: Array[StringName] = [
+	&"use_fft", &"fft_c0_disp", &"fft_c1_disp", &"fft_cascade", &"fft_disp_scale",
+	&"ocean_amplitude", &"fft_cascade_count", &"choppiness", &"standing_wave_ratio",
+	&"wind_direction", &"shore_geometry_scale", &"shore_field", &"shore_field_origin",
+	&"shore_field_size", &"shore_field_valid", &"shore_sea_state", &"shore_strength",
+	&"shore_tide_offset", &"shore_runup_gain", &"shore_wave_gain", &"shore_depth_scale",
+	&"shore_foam_gain", &"shore_crest_shape", &"shore_bed_valid",
+]
+
 ## Texels per window side (256 on recommended). 0 means the sim is off.
 var sim_size := 0
 ## World XZ of the window's min corner, snapped to whole texels.
@@ -76,6 +113,17 @@ var bind_callback: Callable
 ## Last dispatched step, in window texel coordinates, for tests and captures.
 var last_impulses := PackedVector4Array()
 var last_shift := Vector2i.ZERO
+## WR-5: true when configured by configure_obstacles().
+var obstacle_mode := false
+var obstacle_mask: CityObstacleMask
+## The sea material whose swell drives the obstacle field.
+var wave_source: ShaderMaterial
+## Wind direction and strength (0..1) for the foam drift.
+var foam_wind := Vector2.ZERO
+## CPU cost of the last step and its running mean (microseconds), mask rasters included.
+var last_step_usec := 0
+var step_usec_mean := 0.0
+var mask_builds := 0
 
 var _queue := PackedVector4Array()
 var _origin_texel := Vector2i.ZERO
@@ -87,10 +135,25 @@ var _current := 0
 var _reset_steps_left := RESET_STEPS
 var _accumulator := 0.0
 
+var _mask_image: Image
+var _mask_texture: ImageTexture
+var _mask_origin := Vector2i.ZERO
+var _mask_valid := false
+var _last_ocean_time := -1.0
+
 
 ## Window side in texels for a quality tier (0 = off).
 static func sim_size_for_tier(tier: Variant) -> int:
 	return int(SkyWeather3DScript.quality_settings(tier).get("ripple_sim_size", 0))
+
+
+## WR-5 obstacle sim side in texels for a sea LOD tier (0 = off). Unknown tiers resolve
+## like SkyWeather3D (auto -> recommended).
+static func obstacle_sim_size_for_tier(tier: Variant) -> int:
+	var id := StringName(String(tier if tier != null else "").to_lower())
+	if not OBSTACLE_SIM_SIZES.has(id):
+		id = SkyWeather3DScript.resolve_quality_tier(tier)
+	return int(OBSTACLE_SIM_SIZES.get(id, 0))
 
 
 ## The sim exists only outdoors, on maps with water, on tiers that enable it.
@@ -134,6 +197,35 @@ static func moving_body_impulses(
 	impulses.append(Vector4(bow.x, bow.y, radius, strength))
 	impulses.append(Vector4(stern.x, stern.y, radius, -strength * STERN_HOLLOW_RATIO))
 	return impulses
+
+
+## WR-5: builds the obstacle sim (see the class notes). `mask` supplies bathymetry and
+## rocks, `sea` is the sea material whose swell drives it. size <= 0 builds nothing.
+func configure_obstacles(size_texels: int, mask: CityObstacleMask, sea: ShaderMaterial) -> bool:
+	obstacle_mode = true
+	obstacle_mask = mask
+	wave_source = sea
+	_mask_valid = false
+	_last_ocean_time = -1.0
+	if not configure(size_texels):
+		return false
+	var texel := texel_world_size(sim_size)
+	for material in _materials:
+		material.set_shader_parameter(&"obstacle_mode", true)
+		material.set_shader_parameter(&"obstacle_texel", texel)
+		material.set_shader_parameter(&"obstacle_gravity", OBSTACLE_GRAVITY)
+		material.set_shader_parameter(&"obstacle_k", TAU / OBSTACLE_WAVELENGTH)
+	return true
+
+
+## The obstacle mask texture of the current window (null before the first step).
+func mask_texture() -> ImageTexture:
+	return _mask_texture
+
+
+## Mask texel of the window's texel (0, 0).
+func mask_offset() -> Vector2i:
+	return _origin_texel - _mask_origin
 
 
 ## Builds the two ping-pong viewports. size <= 0 builds nothing and returns false.
@@ -218,6 +310,10 @@ func add_moving_body(
 func _process(delta: float) -> void:
 	if not is_active():
 		return
+	if obstacle_mode:
+		# One step per rendered frame, by however far the ocean clock moved.
+		step(_focus_xz())
+		return
 	_accumulator = minf(_accumulator + delta, 1.0 / STEP_HZ * 2.0)
 	if _accumulator < 1.0 / STEP_HZ:
 		return
@@ -229,6 +325,9 @@ func _process(delta: float) -> void:
 ## impulses, schedules the partner viewport and rebinds the water.
 ## Public so headless tests can drive it without a frame loop.
 func step(focus_xz: Vector2) -> void:
+	if obstacle_mode:
+		step_obstacles(focus_xz, _ocean_dt())
+		return
 	var texel := texel_world_size(sim_size)
 	var next_origin := snap_origin_texel(focus_xz, sim_size)
 	last_shift = window_shift(_origin_texel, next_origin) if _has_origin else Vector2i.ZERO
@@ -266,6 +365,98 @@ func step(focus_xz: Vector2) -> void:
 		bind_callback.call(state_texture(), window_uniform(), float(sim_size))
 
 
+## WR-5: one obstacle step of `dt` seconds of ocean time centred on `focus_xz`: scrolls
+## the window, re-rasterises the mask when the window leaves it, copies the sea's swell
+## uniforms and schedules the partner viewport. Public so tests can drive it.
+func step_obstacles(focus_xz: Vector2, dt: float) -> void:
+	var t0 := Time.get_ticks_usec()
+	var texel := texel_world_size(sim_size)
+	var next_origin := snap_origin_texel(focus_xz, sim_size)
+	last_shift = window_shift(_origin_texel, next_origin) if _has_origin else Vector2i.ZERO
+	_origin_texel = next_origin
+	_has_origin = true
+	window_origin = Vector2(next_origin) * texel
+	frame_index += 1
+	if not is_active():
+		return
+	_ensure_mask(next_origin, texel)
+	var target := 1 - _current
+	var material := _materials[target]
+	material.set_shader_parameter(&"window_shift", last_shift)
+	material.set_shader_parameter(&"reset_state", _reset_steps_left > 0)
+	material.set_shader_parameter(&"obstacle_dt", clampf(dt, 0.0, OBSTACLE_DT_MAX))
+	material.set_shader_parameter(&"obstacle_origin", window_origin)
+	material.set_shader_parameter(&"mask_offset", next_origin - _mask_origin)
+	material.set_shader_parameter(&"foam_drift", foam_wind * OBSTACLE_FOAM_DRIFT)
+	_copy_sea_uniforms(material)
+	_reset_steps_left = maxi(_reset_steps_left - 1, 0)
+	_viewports[target].render_target_update_mode = SubViewport.UPDATE_ONCE
+	_current = target
+	if bind_callback.is_valid():
+		bind_callback.call(state_texture(), window_uniform(), float(sim_size))
+	last_step_usec = Time.get_ticks_usec() - t0
+	# Exponential mean over ~60 steps: the steady-state per-frame cost.
+	step_usec_mean = (
+		float(last_step_usec) if frame_index <= 1
+		else lerpf(step_usec_mean, float(last_step_usec), 1.0 / 60.0)
+	)
+
+
+## Ocean-clock seconds since the previous obstacle step (wrap-safe). A jump restarts flat.
+func _ocean_dt() -> float:
+	var now := MapViewRuntimeEnvironment.ocean_time()
+	var previous := _last_ocean_time
+	_last_ocean_time = now
+	if previous < 0.0:
+		return 0.0
+	var dt := fposmod(now - previous, MapViewRuntimeEnvironment.OCEAN_TIME_WRAP_SECONDS)
+	if dt > OBSTACLE_CLOCK_JUMP:
+		_reset_steps_left = RESET_STEPS
+		return 0.0
+	return dt
+
+
+## Keeps the mask raster around the window: rebuilt (rocks re-stamped, bathymetry
+## re-sampled) only when the window has walked out of the margin.
+func _ensure_mask(origin_texel: Vector2i, texel: float) -> void:
+	var span := sim_size + OBSTACLE_MASK_MARGIN * 2
+	var lo := origin_texel - _mask_origin
+	if (
+		_mask_valid and lo.x >= 0 and lo.y >= 0
+		and lo.x + sim_size <= span and lo.y + sim_size <= span
+	):
+		return
+	_mask_origin = origin_texel - Vector2i(OBSTACLE_MASK_MARGIN, OBSTACLE_MASK_MARGIN)
+	if obstacle_mask != null:
+		_mask_image = obstacle_mask.rasterise(_mask_origin, span, texel)
+	else:
+		_mask_image = Image.create_empty(span, span, false, Image.FORMAT_RF)
+		_mask_image.fill(Color(100.0, 0.0, 0.0))
+	if _mask_texture == null or _mask_texture.get_size() != Vector2(span, span):
+		_mask_texture = ImageTexture.create_from_image(_mask_image)
+	else:
+		_mask_texture.update(_mask_image)
+	_mask_valid = true
+	mask_builds += 1
+	for material in _materials:
+		material.set_shader_parameter(&"obstacle_mask", _mask_texture)
+		material.set_shader_parameter(&"mask_size", Vector2i(span, span))
+
+
+func _copy_sea_uniforms(material: ShaderMaterial) -> void:
+	if wave_source == null:
+		material.set_shader_parameter(&"use_fft", false)
+		material.set_shader_parameter(&"shore_field_valid", 0.0)
+		return
+	for uniform_name in OBSTACLE_SEA_UNIFORMS:
+		material.set_shader_parameter(uniform_name, wave_source.get_shader_parameter(uniform_name))
+	# The near-shore FFT geometry share (WR-1 depth presets) the sea mesh draws there.
+	var shallow: Variant = wave_source.get_shader_parameter(&"sea_wave_shallow")
+	material.set_shader_parameter(
+		&"incident_fft_scale", (shallow as Vector4).y if shallow is Vector4 else 1.0
+	)
+
+
 func _focus_xz() -> Vector2:
 	if focus_provider.is_valid():
 		var focus: Vector3 = focus_provider.call()
@@ -287,3 +478,4 @@ func _release_viewports() -> void:
 	_viewports.clear()
 	_materials.clear()
 	_current = 0
+	_mask_valid = false
