@@ -1,0 +1,66 @@
+{
+  "generator": "build_sacred_grove_props",
+  "seed": 1343,
+  "props": {
+    "hiis_cupmark_boulder": {
+      "glb": "assets/props/environment/hiis_cupmark_boulder/hiis_cupmark_boulder.glb",
+      "triangles": 1880,
+      "size_m_blender_xyz": [
+        2.374,
+        1.739,
+        0.908
+      ],
+      "sha256": "e85091f7a5b2ba042bd3835fb0edcc160bf3d13dcfc3cd3592f59c766a2d4bf8"
+    },
+    "hiis_offerings": {
+      "glb": "assets/props/environment/hiis_offerings/hiis_offerings.glb",
+      "triangles": 896,
+      "size_m_blender_xyz": [
+        0.392,
+        0.275,
+        0.082
+      ],
+      "sha256": "d0b46a0148c33ad509e52a7bc6d52905b3ebac50de6ffb1babf96755e4aa336f"
+    },
+    "hiis_votive_band": {
+      "glb": "assets/props/environment/hiis_votive_band/hiis_votive_band.glb",
+      "triangles": 600,
+      "size_m_blender_xyz": [
+        5.624,
+        5.578,
+        1.221
+      ],
+      "sha256": "cea22d73e4571664365a7882b8db4e4ab94cfbc604d7085118417e1d888b72c2"
+    },
+    "hiis_tar_torch": {
+      "glb": "assets/props/environment/hiis_tar_torch/hiis_tar_torch.glb",
+      "triangles": 492,
+      "size_m_blender_xyz": [
+        0.335,
+        0.344,
+        1.9
+      ],
+      "sha256": "1825b418dfee37554d0f9918078c9e5438e5ae5bfce6057d00f6df061644fadf"
+    },
+    "hiis_keeper_leanto": {
+      "glb": "assets/props/environment/hiis_keeper_leanto/hiis_keeper_leanto.glb",
+      "triangles": 1148,
+      "size_m_blender_xyz": [
+        3.8,
+        4.14,
+        2.481
+      ],
+      "sha256": "7a3865b1211ccd470995c94c7c2ec157d29d3c57b273bafedd13d4ce2eeef3c5"
+    },
+    "hiis_boundary_cairn": {
+      "glb": "assets/props/environment/hiis_boundary_cairn/hiis_boundary_cairn.glb",
+      "triangles": 1120,
+      "size_m_blender_xyz": [
+        1.642,
+        1.613,
+        0.803
+      ],
+      "sha256": "fdcc0f20bf73385a78fdd6ee8d2aef313142314f7ecb5b402494f2ca68bf698a"
+    }
+  }
+}

@@ -78,7 +78,7 @@ Review plates: `docs/reports/images/city/raekoja_plats_aerial.png`, `raekoja_pla
 - **Kalev's smithy in 1343** (`site.kalev_smithy`, task **R-1643**; see [Kalev's smithy](#kalevs-smithy-task-r-1643)).
 - **Walking in:** Kalev enters through the portal and the door swings open.
 - **People:** none. Landmark sites no longer post nameless people (they could not be clicked and had no census record); only census citizens populate the city. The `people` manifest key and `CitySiteActor` remain supported but unused.
-- **Cutaway:** in the top-down and third-person cameras, while he is inside, everything above head height lifts away: upper walls, gables, banners, roof and ceiling. The wall stubs get a stone section cap, so the cameras see into the room. First person keeps the whole room, ceiling included. The lifted nodes stay in the sun's shadow pass (`CityWorld3D.set_cutaway` makes their geometry shadows-only and hides lights), so the room below stays shaded. Ordinary houses use the same cutaway ([Seamless city](./SEAMLESS_CITY.md#how-buildings-are-built)).
+- **Cutaway:** in the top-down and third-person cameras, while he is inside, everything above head height lifts away: upper walls, gables, banners, roof and ceiling. The wall stubs get a stone section cap, so the cameras see into the room. First person keeps the whole room, ceiling included. Ordinary houses use the same cutaway ([Seamless city](./SEAMLESS_CITY.md#how-buildings-are-built)).
 - **Minimap:** shows "Inside: Council hall".
 - **Collision:** the walls, posts, table, chest, lectern, storeroom partition and stores block Kalev, as do the booths, stalls and carts outside. The pillory does not (dossier: no permanent collision).
 

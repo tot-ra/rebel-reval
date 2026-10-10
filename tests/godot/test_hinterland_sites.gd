@@ -167,6 +167,59 @@ func test_grove_has_no_building_and_its_stones_and_spring() -> void:
 	assert_true(oaks.size() >= 20, "old oaks in the grove (%d)" % oaks.size())
 
 
+
+## The hiis dressing (R-1660): the holy oak stands in its own clearing with a
+## band round its bole, two stones carry offerings, the torches burn only at
+## night, and the lean-to and the cairns are drawn and solid.
+func test_grove_hiis_models_and_torches() -> void:
+	var plan := CityPlan.load_site("sacred_grove")
+	var oak_poi: Dictionary = _pois_of(plan, "holy_oak")[0]
+	var oak_at := Vector2(oak_poi["at"][0], oak_poi["at"][1])
+	for t: Array in plan.data["trees"]:
+		assert_true(
+			oak_at.distance_to(Vector2(t[0], t[1])) >= float(oak_poi["clear_m"]),
+			"no tree fill in the oak crown"
+		)
+	var scene: Node = load(_scene_path("sacred_grove")).instantiate()
+	Engine.get_main_loop().root.add_child(scene)
+	await until_ready(scene)
+	var dressing: Node3D = scene.get("dressing")
+	var oak: Node3D = dressing.find_child("HolyOak_great_oak", false, false)
+	assert_true(oak != null, "holy oak drawn")
+	assert_true(oak.find_child("hiis_votive_band", true, false) != null, "votive band on the oak")
+	assert_eq(dressing.find_children("Offerings", "", true, false).size(), 2, "offerings, two stones")
+	var torches := dressing.find_children("Torch_*", "", false, false)
+	assert_eq(torches.size(), _pois_of(plan, "torch").size())
+	assert_eq(dressing.find_children("Leanto_*", "", false, false).size(), 1)
+	var cairns := dressing.find_children("Cairn_*", "", false, false)
+	assert_eq(cairns.size(), _pois_of(plan, "boundary_cairn").size())
+	# Offerings sit on the stone, not under it or in the air.
+	var stone: Node3D = dressing.find_child("OfferingStone_01", false, false)
+	var gifts: Node3D = stone.find_child("Offerings", false, false)
+	var top := gifts.position.y
+	assert_true(top > 0.4 and top < 1.0, "offerings on the stone top (%.2f)" % top)
+	# Granite and bark take the shared PBR sets.
+	var boulder_mesh: MeshInstance3D = stone.find_children("*", "MeshInstance3D", true, false)[0]
+	var swapped := false
+	for i in boulder_mesh.mesh.get_surface_count():
+		swapped = swapped or boulder_mesh.get_surface_override_material(i) != null
+	assert_true(swapped, "granite takes the stone PBR")
+	var torch: Node3D = dressing.find_child("Torch_01", false, false)
+	var light: OmniLight3D = torch.find_children("*", "OmniLight3D", true, false)[0]
+	Hinterland.apply_dressing_cycle(dressing, 0.5)
+	assert_false(light.visible, "torches out by day")
+	Hinterland.apply_dressing_cycle(dressing, 0.0)
+	assert_true(light.visible and light.light_energy > 1.0, "torches lit at night")
+	var body: StaticBody2D = scene.find_child("HinterlandPropCollision", false, false)
+	var solid := 0
+	for shape: CollisionShape2D in body.get_children():
+		if CityPlan.to_logic(oak_at).distance_to(shape.position) < 1.0:
+			solid += 1
+	assert_eq(solid, 1, "the oak bole is solid")
+	scene.queue_free()
+	await Engine.get_main_loop().process_frame
+
+
 ## The bird sound sampler asks for the HUD location every frame; a site without
 ## buildings must not be read as standing inside building 0 (it used to index
 ## an empty array and fail on every frame at the grove).

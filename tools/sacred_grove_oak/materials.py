@@ -17,6 +17,12 @@ def _image_from_array(name: str, pixels: np.ndarray, colorspace: str = "sRGB") -
     height, width, channels = pixels.shape
     if channels == 3:
         pixels = np.concatenate((pixels, np.ones((height, width, 1), dtype=np.float32)), axis=2)
+    if colorspace == "sRGB":
+        # The bakes are linear; a byte image stores what it is given, so encode
+        # to sRGB here or the PNG reads far too dark (R-1660: leaves were black).
+        rgb = np.clip(pixels[..., :3], 0.0, 1.0)
+        pixels = pixels.copy()
+        pixels[..., :3] = np.where(rgb <= 0.0031308, rgb * 12.92, 1.055 * np.power(rgb, 1.0 / 2.4) - 0.055)
     image = bpy.data.images.new(name, width=width, height=height, alpha=True)
     image.colorspace_settings.name = colorspace
     image.file_format = "PNG"

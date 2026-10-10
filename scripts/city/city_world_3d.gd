@@ -272,34 +272,7 @@ func set_site_room_hidden(site: CitySite, room: Dictionary, hidden: bool) -> voi
 	for path: String in room.get("hide", []):
 		var target := node.get_node_or_null(path) as Node3D
 		if target != null:
-			set_cutaway(target, hidden)
-
-
-## Lifts a roof or upper storey out of the camera's view without lifting it out
-## of the sunlight. `visible = false` also drops the node from the shadow pass,
-## so a cut-away church roof let the sun pour straight through the wooden
-## ceiling onto the nave floor. Shadow-casting geometry switches to
-## shadows-only instead; geometry that casts none, lights and decals are hidden.
-## The original state is kept in meta and restored when the cutaway ends.
-static func set_cutaway(node: Node3D, hidden: bool) -> void:
-	if node is VisualInstance3D:
-		var geometry := node as GeometryInstance3D
-		if hidden and not node.has_meta(&"cutaway_restore"):
-			var cast := -1 if geometry == null else int(geometry.cast_shadow)
-			node.set_meta(&"cutaway_restore", [node.visible, cast])
-			if cast > int(GeometryInstance3D.SHADOW_CASTING_SETTING_OFF):
-				geometry.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_SHADOWS_ONLY
-			else:
-				node.visible = false
-		elif not hidden and node.has_meta(&"cutaway_restore"):
-			var saved: Array = node.get_meta(&"cutaway_restore")
-			node.remove_meta(&"cutaway_restore")
-			node.visible = bool(saved[0])
-			if geometry != null:
-				geometry.cast_shadow = int(saved[1]) as GeometryInstance3D.ShadowCastingSetting
-	for child in node.get_children():
-		if child is Node3D:
-			set_cutaway(child, hidden)
+			target.visible = not hidden
 
 
 ## Occluder index of the site building at `world_xz` (see CityMapView), or -1.
@@ -316,7 +289,7 @@ func site_occluder_index(world_xz: Vector2) -> int:
 func set_roof_hidden(index: int, hidden: bool) -> void:
 	var node: MeshInstance3D = roof_nodes.get(index)
 	if node != null:
-		set_cutaway(node, hidden)
+		node.visible = not hidden
 
 
 func _build_buildings() -> void:

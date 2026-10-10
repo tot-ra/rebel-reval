@@ -4,7 +4,7 @@
   "notes": [
     "Regional site overlay (ADR 0042) for the sacred grove (hiis) in May 1343: old oaks, lindens and ash on a low rise, cup-marked offering stones under them, a spring at the foot of the rise by the river, a meadow below and spruce and birch forest round it. No human building stands here.",
     "Invented composite (docs/LOCATIONS/sacred_grove.md, history/dossiers/folklore/harju-hiis-sites-within-walk-1343.md): sacred groves are attested, this one is not. The terrain is EU-DEM at Kostivere (Joelahtme parish), a representative karst rise by the Joelahtme river south-east of Reval, chosen for the game; it claims nothing about Kostivere. Coordinates are metres from that origin, x east, y south.",
-    "The river course is the OSM Joelahtme joegi (way 218280416), simplified; modern settlement, industry and ditches are not used. Points of interest of kind offering_stone and spring are dressed by the site script (scenes/world/sites/hinterland_site.gd)."
+    "The river course is the OSM Joelahtme joegi (way 218280416), simplified; modern settlement, industry and ditches are not used. Points of interest of kind holy_oak, offering_stone, spring, campfire, torch, leanto and boundary_cairn are dressed by the site script (scenes/world/sites/hinterland_site.gd) with the models of tools/assets/build_sacred_grove_props.py; `clear_m` keeps the tree fill off them (R-1660)."
   ],
   "site": {
     "id": "sacred_grove",
@@ -170,6 +170,10 @@
         [
           -52,
           60
+        ],
+        [
+          -53,
+          73
         ]
       ]
     }
@@ -445,13 +449,16 @@
   "points_of_interest": [
     {
       "id": "sacred_grove.poi.great_oak",
-      "kind": "landmark",
+      "kind": "holy_oak",
       "name_1343": "the old oak at the heart of the hiis",
-      "confidence": "folklore",
+      "confidence": "folklore (holy trees of a hiis, oak and linden foremost, are attested in later folk tradition; this tree is invented)",
       "at": [
         -56,
         86
-      ]
+      ],
+      "yaw_deg": 0,
+      "clear_m": 14.0,
+      "votive_band": true
     },
     {
       "id": "sacred_grove.poi.spring",
@@ -487,7 +494,9 @@
         2.4,
         1.8,
         1.0
-      ]
+      ],
+      "clear_m": 3.0,
+      "offerings": true
     },
     {
       "id": "sacred_grove.poi.stone.02",
@@ -502,7 +511,8 @@
         1.6,
         1.1,
         0.7
-      ]
+      ],
+      "clear_m": 3.0
     },
     {
       "id": "sacred_grove.poi.stone.03",
@@ -517,7 +527,9 @@
         1.6,
         1.1,
         0.7
-      ]
+      ],
+      "clear_m": 3.0,
+      "offerings": true
     },
     {
       "id": "sacred_grove.poi.stone.04",
@@ -532,7 +544,176 @@
         1.6,
         1.1,
         0.7
-      ]
+      ],
+      "clear_m": 3.0
+    },
+    {
+      "id": "sacred_grove.poi.oak_fire",
+      "kind": "campfire",
+      "name_1343": "small fire before the holy oak",
+      "confidence": "plausible composite (fires at holy places are a later folk-tradition pattern; this one is placed for the game)",
+      "at": [
+        -53,
+        76
+      ],
+      "fire_size": 0.7,
+      "clear_m": 4.0
+    },
+    {
+      "id": "sacred_grove.poi.torch.01",
+      "kind": "torch",
+      "name_1343": "tar torch at the grove path",
+      "confidence": "plausible composite (resin and birch-bark torches, torvikud; placement invented)",
+      "at": [
+        -50.3,
+        64
+      ],
+      "clear_m": 1.5
+    },
+    {
+      "id": "sacred_grove.poi.torch.02",
+      "kind": "torch",
+      "name_1343": "tar torch at the grove path",
+      "confidence": "plausible composite (resin and birch-bark torches, torvikud; placement invented)",
+      "at": [
+        -55.4,
+        63.6
+      ],
+      "clear_m": 1.5
+    },
+    {
+      "id": "sacred_grove.poi.torch.03",
+      "kind": "torch",
+      "name_1343": "tar torch by the oak fire",
+      "confidence": "plausible composite (resin and birch-bark torches, torvikud; placement invented)",
+      "at": [
+        -47.5,
+        79
+      ],
+      "clear_m": 1.5
+    },
+    {
+      "id": "sacred_grove.poi.torch.04",
+      "kind": "torch",
+      "name_1343": "tar torch by the oak fire",
+      "confidence": "plausible composite (resin and birch-bark torches, torvikud; placement invented)",
+      "at": [
+        -60,
+        77
+      ],
+      "clear_m": 1.5
+    },
+    {
+      "id": "sacred_grove.poi.keeper_leanto",
+      "kind": "leanto",
+      "name_1343": "the grove keeper's lean-to",
+      "confidence": "plausible composite (pole, bark and bough forest shelters; the keeper is invented, docs/LOCATIONS/sacred_grove.md)",
+      "at": [
+        -94,
+        36
+      ],
+      "yaw_deg": 180,
+      "clear_m": 6.0
+    },
+    {
+      "id": "sacred_grove.poi.keeper_fire",
+      "kind": "campfire",
+      "name_1343": "the keeper's fire",
+      "confidence": "plausible composite",
+      "at": [
+        -94,
+        31.5
+      ],
+      "fire_size": 0.5,
+      "clear_m": 3.0
+    },
+    {
+      "id": "sacred_grove.poi.cairn.01",
+      "kind": "boundary_cairn",
+      "name_1343": "heaped stones at the edge of the hiis",
+      "confidence": "plausible composite (heaped stones and notched trees marked a hiis edge in later folk accounts; placed for the game)",
+      "at": [
+        -80,
+        22.7
+      ],
+      "clear_m": 1.5
+    },
+    {
+      "id": "sacred_grove.poi.cairn.02",
+      "kind": "boundary_cairn",
+      "name_1343": "heaped stones at the edge of the hiis",
+      "confidence": "plausible composite (heaped stones and notched trees marked a hiis edge in later folk accounts; placed for the game)",
+      "at": [
+        -60,
+        18.4
+      ],
+      "clear_m": 1.5
+    },
+    {
+      "id": "sacred_grove.poi.cairn.03",
+      "kind": "boundary_cairn",
+      "name_1343": "heaped stones at the edge of the hiis",
+      "confidence": "plausible composite (heaped stones and notched trees marked a hiis edge in later folk accounts; placed for the game)",
+      "at": [
+        -19,
+        37
+      ],
+      "clear_m": 1.5
+    },
+    {
+      "id": "sacred_grove.poi.cairn.04",
+      "kind": "boundary_cairn",
+      "name_1343": "heaped stones at the edge of the hiis",
+      "confidence": "plausible composite (heaped stones and notched trees marked a hiis edge in later folk accounts; placed for the game)",
+      "at": [
+        -2,
+        95
+      ],
+      "clear_m": 1.5
+    },
+    {
+      "id": "sacred_grove.poi.cairn.05",
+      "kind": "boundary_cairn",
+      "name_1343": "heaped stones at the edge of the hiis",
+      "confidence": "plausible composite (heaped stones and notched trees marked a hiis edge in later folk accounts; placed for the game)",
+      "at": [
+        -28,
+        149
+      ],
+      "clear_m": 1.5
+    },
+    {
+      "id": "sacred_grove.poi.cairn.06",
+      "kind": "boundary_cairn",
+      "name_1343": "heaped stones at the edge of the hiis",
+      "confidence": "plausible composite (heaped stones and notched trees marked a hiis edge in later folk accounts; placed for the game)",
+      "at": [
+        -80,
+        154
+      ],
+      "clear_m": 1.5
+    },
+    {
+      "id": "sacred_grove.poi.cairn.07",
+      "kind": "boundary_cairn",
+      "name_1343": "heaped stones at the edge of the hiis",
+      "confidence": "plausible composite (heaped stones and notched trees marked a hiis edge in later folk accounts; placed for the game)",
+      "at": [
+        -119,
+        110
+      ],
+      "clear_m": 1.5
+    },
+    {
+      "id": "sacred_grove.poi.cairn.08",
+      "kind": "boundary_cairn",
+      "name_1343": "heaped stones at the edge of the hiis",
+      "confidence": "plausible composite (heaped stones and notched trees marked a hiis edge in later folk accounts; placed for the game)",
+      "at": [
+        -116,
+        54
+      ],
+      "clear_m": 1.5
     }
   ],
   "spawns": [
