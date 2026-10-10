@@ -10,16 +10,20 @@ extends SceneTree
 ##
 ## Usage:
 ##   godot --headless --path . --script tools/benchmarks/async_assembly_trace.gd \
-##     -- --output=build/benchmarks/async_assembly.json [--budget-ms=4.0] [--quick]
+##     -- --output=build/benchmarks/async_assembly.json [--budget-ms=4.0] [--quick] [--map=kalev_smithy]
 ## Headless uses the dummy renderer: the numbers are CPU scene-construction cost,
 ## not GPU upload. Run through tools/godot_render.sh for a GPU-backed trace.
 
 const DEFAULT_OUTPUT := "res://build/benchmarks/async_assembly.json"
+## R-1536: the Lower Town slice and the east harbour were retired with
+## scenes/reval_east (88b010506). The continuous city (ADR 0031) is not a
+## MapView3D location; these are the MapDefinition locations the game still
+## assembles. The first entry is the --quick map.
 const MAP_SCRIPTS := {
-	&"lower_town_slice": "res://scripts/map/definitions/lower_town/lower_town_slice_definition.gd",
 	&"kalev_smithy": "res://scripts/map/definitions/lower_town/kalev_smithy_definition.gd",
-	&"reval_harbor_east": "res://scripts/map/definitions/outdoor/reval_harbor_east_definition.gd",
+	&"smithy_courtyard": "res://scripts/map/smithy_courtyard_definition.gd",
 }
+const QUICK_MAP := &"kalev_smithy"
 
 
 func _initialize() -> void:
@@ -33,10 +37,15 @@ func _run() -> void:
 	var maps: Array[Dictionary] = []
 	var only := StringName(_argument_value("--map=", ""))
 	for map_id: StringName in MAP_SCRIPTS:
-		if quick and map_id != &"lower_town_slice":
+		if quick and map_id != QUICK_MAP:
 			continue
 		if only != &"" and map_id != only:
 			continue
+		var script_path := String(MAP_SCRIPTS[map_id])
+		if not ResourceLoader.exists(script_path):
+			push_error("async_assembly_trace: map script is missing: %s" % script_path)
+			quit(1)
+			return
 		maps.append(await _trace_map(map_id, budget_ms))
 	if maps.is_empty():
 		push_error("async_assembly_trace: no maps selected")

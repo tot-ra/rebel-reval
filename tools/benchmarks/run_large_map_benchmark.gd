@@ -3,7 +3,10 @@ extends Node
 ## Opt-in headless instrumentation for ADR 0010. This exercises the current
 ## production builders without adding streaming behavior to production scenes.
 
-const LowerTownDefinitionFactory := preload("res://scripts/map/definitions/lower_town/lower_town_slice_definition.gd")
+# R-1536: Kalev's smithy is the production MapDefinition pipeline still in the
+# game (the Lower Town slice was retired with scenes/reval_east in 88b010506);
+# the continuous city (ADR 0031) is measured as a production scene instead.
+const PipelineDefinitionFactory := preload("res://scripts/map/definitions/lower_town/kalev_smithy_definition.gd")
 const MapAssemblerScript := preload("res://scripts/map/map_assembler.gd")
 const MapBuilderScript := preload("res://scripts/map/map_builder.gd")
 const MapNavBuilderScript := preload("res://scripts/map/map_nav_builder.gd")
@@ -11,6 +14,8 @@ const MapSceneBootstrapScript := preload("res://scripts/map/map_scene_bootstrap.
 const ChunkPrototype := preload("res://tools/benchmarks/large_map_chunk_prototype.gd")
 
 const DEFAULT_OUTPUT := "user://large_map_benchmark.json"
+## The headline summarizes the continuous city (ADR 0031), the scene the game plays in.
+const HEADLINE_PROFILE := "reval_city_scene"
 const DEFAULT_TARGET_HARDWARE := "res://tools/benchmarks/target_hardware.json"
 const MIB := 1024.0 * 1024.0
 
@@ -44,7 +49,9 @@ func _run() -> void:
 		_frame_samples = mini(_frame_samples, 20)
 
 	var report := {
-		"schema_version": 2,
+		# 3 (R-1536): Lower Town profiles replaced by reval_city_scene,
+		# kalev_smithy_scene and kalev_smithy_pipeline; headline is the city.
+		"schema_version": 3,
 		"recorded_utc": Time.get_datetime_string_from_system(true),
 		"engine": Engine.get_version_info(),
 		# Keep the declared measurement target separate from the detected host so a
@@ -58,11 +65,13 @@ func _run() -> void:
 			"processor_name": OS.get_processor_name(),
 			"video_adapter": RenderingServer.get_video_adapter_name(),
 			"headless": DisplayServer.get_name() == "headless",
+			"rendering_method": RenderingServer.get_current_rendering_method(),
+			"rendering_driver": RenderingServer.get_current_rendering_driver_name(),
 		},
 		"git_commit": _git_commit(),
 		"config": _config,
 		"methodology": {
-			"performance_scene": "res://tools/benchmarks/lower_town_scene_benchmark.tscn",
+			"performance_scene": "res://tools/benchmarks/scene_benchmark.tscn",
 			"warmup_runs": _warmup_runs,
 			"timed_runs": _timed_runs,
 			"frame_samples": _frame_samples,
@@ -73,20 +82,25 @@ func _run() -> void:
 		"profiles": [],
 	}
 
-	print("BENCHMARK Lower Town production pipeline")
-	report["profiles"].append(await _benchmark_lower_town_pipeline())
-	print("BENCHMARK Lower Town production scene")
-	var scene_baseline_path := _argument_value("--scene-baseline=", "")
-	if scene_baseline_path.is_empty():
+	print("BENCHMARK Kalev smithy production pipeline")
+	report["profiles"].append(await _benchmark_production_pipeline())
+	print("BENCHMARK production scenes")
+	var scene_baseline_paths := _argument_values("--scene-baseline=")
+	if scene_baseline_paths.is_empty():
 		report["profiles"].append({
-			"id": "lower_town_scene",
+			"id": HEADLINE_PROFILE,
 			"kind": "production_scene_with_3d_view",
 			"available": false,
 			"reason": "Run tools/benchmarks/run_large_map_benchmark.sh to capture the scene with project autoloads.",
 			"metrics": {},
 		})
-	else:
-		report["profiles"].append(_load_scene_baseline(scene_baseline_path))
+	for scene_baseline_path in scene_baseline_paths:
+		var scene_profile := _load_scene_baseline(scene_baseline_path)
+		if not scene_profile.get("available", false):
+			# A scene phase that wrote garbage is a failed run, not a report.
+			get_tree().quit(1)
+			return
+		report["profiles"].append(scene_profile)
 	for profile_config in benchmark_config.get("synthetic_profiles", []):
 		var size_cells := int(profile_config.get("size_cells", 0))
 		print("BENCHMARK synthetic %dx%d" % [size_cells, size_cells])
@@ -108,19 +122,19 @@ func _run() -> void:
 	get_tree().quit(0)
 
 
-func _benchmark_lower_town_pipeline() -> Dictionary:
+func _benchmark_production_pipeline() -> Dictionary:
 	for ignored in _warmup_runs:
-		await _run_lower_town_pipeline_once(false)
+		await _run_production_pipeline_once(false)
 	var runs: Array[Dictionary] = []
 	for ignored in _timed_runs:
-		runs.append(await _run_lower_town_pipeline_once(true))
-	return _summarize_runs("lower_town_pipeline", "production_pipeline", LowerTownDefinitionFactory.create().size_cells, runs)
+		runs.append(await _run_production_pipeline_once(true))
+	return _summarize_runs("kalev_smithy_pipeline", "production_pipeline", PipelineDefinitionFactory.create().size_cells, runs)
 
 
-func _run_lower_town_pipeline_once(sample_frames: bool) -> Dictionary:
+func _run_production_pipeline_once(sample_frames: bool) -> Dictionary:
 	var memory_before := _memory_bytes()
 	var started := Time.get_ticks_usec()
-	var definition: MapDefinition = LowerTownDefinitionFactory.create()
+	var definition: MapDefinition = PipelineDefinitionFactory.create()
 	var compile_ms := _elapsed_ms(started)
 
 	started = Time.get_ticks_usec()
@@ -162,16 +176,19 @@ func _load_scene_baseline(path: String) -> Dictionary:
 	var source := FileAccess.get_file_as_string(path)
 	var run: Variant = JSON.parse_string(source)
 	if not run is Dictionary:
-		push_error("Invalid Lower Town scene baseline: %s" % path)
+		push_error("Invalid scene baseline: %s" % path)
 		return {
-			"id": "lower_town_scene",
+			"id": "unknown_scene",
 			"kind": "production_scene_with_3d_view",
 			"available": false,
 			"reason": "Invalid scene baseline JSON: %s" % path,
 			"metrics": {},
 		}
 	var runs: Array[Dictionary] = [run]
-	var result := _summarize_runs("lower_town_scene", "production_scene_with_3d_view", LowerTownDefinitionFactory.create().size_cells, runs)
+	var profile_id := String((run as Dictionary).get("profile_id", "unknown_scene"))
+	# Scene profiles have no single map grid (the city is continuous).
+	var result := _summarize_runs(profile_id, "production_scene_with_3d_view", Vector2i.ZERO, runs)
+	result["scene"] = String((run as Dictionary).get("scene", ""))
 	result["available"] = true
 	return result
 
@@ -376,11 +393,11 @@ func _percentile(sorted_values: Array[float], fraction: float) -> float:
 
 func _headline_metrics(profiles: Array) -> Dictionary:
 	for profile in profiles:
-		if String(profile.get("id", "")) != "lower_town_scene":
+		if String(profile.get("id", "")) != HEADLINE_PROFILE:
 			continue
 		var metrics := profile.get("metrics", {}) as Dictionary
 		return {
-			"profile_id": "lower_town_scene",
+			"profile_id": HEADLINE_PROFILE,
 			"frame_time_ms_p95": _metric_value(metrics, "frame_time_ms_p95", "median"),
 			"memory_static_bytes": roundi(_metric_value(metrics, "memory_static_bytes", "median")),
 			"memory_delta_mib": _metric_value(metrics, "memory_delta_mib", "median"),
@@ -389,7 +406,7 @@ func _headline_metrics(profiles: Array) -> Dictionary:
 			"bird_flight_peak": roundi(_metric_value(metrics, "bird_flight_peak", "max")),
 		}
 	return {
-		"profile_id": "lower_town_scene",
+		"profile_id": HEADLINE_PROFILE,
 		"available": false,
 	}
 
@@ -434,7 +451,7 @@ func _budget_summary(profiles: Array) -> Dictionary:
 			"terrain_resident_node_count": _check_budget(metrics, "terrain_resident_node_count", "median", 25.0),
 			"terrain_chunk_reload_ms": _check_budget(metrics, "terrain_chunk_reload_ms", "p95", float(budgets.get("chunk_activation_cpu_ms_p95", INF))),
 		}
-		if String(profile.get("id", "")) == "lower_town_scene":
+		if String(profile.get("kind", "")) == "production_scene_with_3d_view":
 			checks["bird_audio_peak"] = _check_budget(metrics, "bird_audio_peak", "max", float(budgets.get("bird_audio_peak", INF)))
 			checks["bird_flight_peak"] = _check_budget(metrics, "bird_flight_peak", "max", float(budgets.get("bird_flight_peak", INF)))
 		if String(profile.get("id", "")) == "synthetic_32":
@@ -463,6 +480,14 @@ func _argument_value(prefix: String, fallback: String) -> String:
 		if argument.begins_with(prefix):
 			return argument.trim_prefix(prefix)
 	return fallback
+
+
+func _argument_values(prefix: String) -> Array[String]:
+	var values: Array[String] = []
+	for argument in OS.get_cmdline_user_args():
+		if argument.begins_with(prefix):
+			values.append(argument.trim_prefix(prefix))
+	return values
 
 
 func _has_flag(flag: String) -> bool:

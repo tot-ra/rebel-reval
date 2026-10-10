@@ -112,8 +112,9 @@ class TestP0101GpuBudgetEvidence(unittest.TestCase):
         self.assertIn("Camera acceptance remains **BLOCKED**", reconciliation)
         self.assertIn("cannot be promoted to target acceptance", reconciliation)
         for source in (
-            "tools/benchmarks/lower_town_render_probe.tscn",
-            "tools/benchmarks/lower_town_render_probe.gd",
+            # Renamed from lower_town_render_probe.* in R-1536 (mounts its scene by --scene=).
+            "tools/benchmarks/render_probe.tscn",
+            "tools/benchmarks/render_probe.gd",
             "tools/benchmarks/run_large_map_benchmark.gd",
             "tools/benchmarks/minimum-hardware.json",
         ):

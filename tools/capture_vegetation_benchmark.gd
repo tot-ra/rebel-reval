@@ -10,6 +10,12 @@ extends SceneTree
 ## same per-node tests Godot's scene cull applies). A MultiMesh is culled as a
 ## whole, so every instance of a submitted MultiMesh counts, as on the GPU.
 ##
+## R-1536: the scene is the continuous Reval city (CityWorld3D, ADR 0031), where
+## all of the game's vegetation now grows; the viru_gate_foreland and
+## lower_town_slice maps it used to load were retired in 88b010506. Camera
+## positions come from stable plan IDs (pastures, fields, woods, the Kalev
+## smithy spawn), so they follow plan edits instead of pointing at stale cells.
+##
 ## It needs a real renderer: the headless dummy renderer drops MultiMesh
 ## instance data (transforms and AABB read back as zero), so frustum culling
 ## cannot be reproduced there and the tool refuses to run headless. It also
@@ -26,8 +32,7 @@ extends SceneTree
 
 const SCHEMA := "rr.vegetation_benchmark.v1"
 const DEFAULT_OUTPUT := "res://build/benchmarks/vegetation.json"
-const VIRU := "res://scripts/map/definitions/outdoor/viru_gate_foreland_definition.gd"
-const LOWER_TOWN := "res://scripts/map/definitions/lower_town/lower_town_slice_definition.gd"
+const SCENE_ID := "reval_city"
 const LAYER_META := &"veg_layer"
 ## Report order. `veg_misc` holds vegetation outside the named tiers (reeds,
 ## cattails, herbs, ferns, tree fruit); `other` is every non-vegetation node.
@@ -44,77 +49,68 @@ const LAYERS: Array[StringName] = [
 	&"veg_misc",
 	&"other",
 ]
-## First-person ground cover lives in map_view_terrain_details.gd under fixed
-## child names (TerrainDetails/FirstPerson/<name>); attribution by that path.
-const TERRAIN_DETAIL_LAYERS := {
-	&"MeadowGrass": &"grass_near",
-	&"DryGrass": &"grass_near",
-	&"Clover": &"flowers",
-	&"Ferns": &"veg_misc",
+## CityVegetationBuilder batch visibility range -> layer (see _layer_of).
+const VEGETATION_RANGE_LAYERS := {
+	CityVegetationBuilder.WOOD_RANGE: &"trees_lod0",
+	CityVegetationBuilder.CROWN_RANGE: &"trees_lod1",
+	CityVegetationBuilder.BUSH_RANGE: &"shrubs",
 }
-## Authored props keep their kind on the MapDefinition; vegetation kinds map here.
-const PROP_KIND_LAYERS := {
-	&"tree": &"trees_lod0",
-	&"bush": &"shrubs",
-	&"orchard_row": &"trees_lod0",
-	&"hedge": &"shrubs",
-}
-## Fixed camera set. Cells are map cells (1 world unit each); `look` is the aim
-## cell. Eye cameras are perspective at standing height with first-person
-## ground detail; gameplay cameras reproduce the orthographic follow camera.
+## Fixed calendar, time and weather: crop growth, crown density and wind follow them.
+const DATE := {"year": 1343, "month": 6, "day": 15}
+const NOON := 0.5
+## Streaming (grass, forbs, farmland) must finish within this many frames; a
+## camera that never settles fails the run.
+const MAX_STREAM_FRAMES := 900
+## Fixed camera set. Each camera names a plan anchor; offsets and heights are
+## world units (1 unit = 1 m in the city plan). Eye cameras are perspective at
+## standing height; gameplay cameras reproduce the orthographic follow camera.
 const CAMERAS: Array[Dictionary] = [
 	{
 		"name": "meadow_eye_level",
-		"map": VIRU,
+		"anchor": "meadow",
 		"mode": "eye",
-		"cell": Vector2(121, 31),
-		"look": Vector2(136, 22),
+		"look": Vector2(15, -9),
 		"eye_height": 1.65,
 		"look_height": 0.6,
 		"fov": 65.0,
 	},
 	{
 		"name": "meadow_gameplay",
-		"map": VIRU,
+		"anchor": "meadow",
 		"mode": "gameplay",
-		"cell": Vector2(121, 31),
 	},
 	{
 		"name": "grain_field_eye_level",
-		"map": VIRU,
+		"anchor": "grain_field",
 		"mode": "eye",
-		"cell": Vector2(36, 79),
-		"look": Vector2(30, 95),
+		"look": Vector2(-6, 16),
 		"eye_height": 1.65,
 		"look_height": 0.4,
 		"fov": 65.0,
 	},
 	{
 		"name": "woodland_interior",
-		"map": VIRU,
+		"anchor": "woodland",
 		"mode": "eye",
-		"cell": Vector2(50, 114),
-		"look": Vector2(24, 116),
+		"look": Vector2(-26, 2),
 		"eye_height": 1.65,
 		"look_height": 2.0,
 		"fov": 65.0,
 	},
 	{
 		"name": "woodland_distance",
-		"map": VIRU,
+		"anchor": "woodland_edge",
 		"mode": "eye",
-		"cell": Vector2(35, 72),
-		"look": Vector2(35, 114),
+		"look": Vector2(0, -42),
 		"eye_height": 6.0,
 		"look_height": 3.0,
 		"fov": 65.0,
 	},
 	{
 		"name": "lower_town_street",
-		"map": LOWER_TOWN,
+		"anchor": "kalev_smithy",
 		"mode": "eye",
-		"cell": Vector2(11, 85),
-		"look": Vector2(9, 82),
+		"look": Vector2(-2, -3),
 		"eye_height": 1.65,
 		"look_height": 0.35,
 		"fov": 65.0,
@@ -125,6 +121,9 @@ var _triangle_cache := {}
 ## Fixed-size render target, so the window size and display scale never change
 ## what is measured; own world so nothing else shares the scene.
 var _viewport: SubViewport
+var _plan: CityPlan
+var _world: CityWorld3D
+var _camera: Camera3D
 
 
 func _initialize() -> void:
@@ -151,28 +150,30 @@ func _run() -> void:
 	_viewport.own_world_3d = true
 	_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	root.add_child(_viewport)
+	_build_city()
+	var anchors := _anchors()
 	var reports: Array[Dictionary] = []
-	var view: MapView3D = null
-	var view_map := ""
 	for spec in CAMERAS:
 		if not only.is_empty() and spec["name"] != only:
 			continue
-		if spec["map"] != view_map:
-			if view != null:
-				view.queue_free()
-				await process_frame
-			view = await _build_view(spec["map"])
-			view_map = spec["map"]
-		reports.append(await _measure(view, spec, timed, layer_timing, frames))
-	if view != null:
-		view.queue_free()
-		await process_frame
+		if not anchors.has(spec["anchor"]):
+			push_error("capture_vegetation_benchmark: plan has no %s anchor" % spec["anchor"])
+			quit(1)
+			return
+		var entry: Dictionary = await _measure(spec, anchors[spec["anchor"]], timed, layer_timing, frames)
+		if entry.is_empty():
+			quit(1)
+			return
+		reports.append(entry)
+	_world.queue_free()
+	await process_frame
 	if reports.is_empty():
 		push_error("capture_vegetation_benchmark: no camera matched %s" % only)
 		quit(1)
 		return
 	var report := {
 		"schema": SCHEMA,
+		"scene": SCENE_ID,
 		"godot": Engine.get_version_info()["string"],
 		"renderer": RenderingServer.get_current_rendering_method(),
 		"display_server": DisplayServer.get_name(),
@@ -205,55 +206,107 @@ func _run() -> void:
 	quit(0)
 
 
-func _build_view(map_script: String) -> MapView3D:
-	var definition: MapDefinition = load(map_script).create()
-	var grid := MapBuilder.build(definition)
-	var view := MapView3D.create(definition, grid)
-	_viewport.add_child(view)
-	# Fixed season, time and weather: crown density and wind state follow them.
-	view.set_calendar_date({"year": 1343, "month": 6, "day": 15})
-	view.apply_cycle_progress(0.5)
-	await process_frame
-	return view
+func _build_city() -> void:
+	_plan = CityPlan.load_default()
+	_world = CityWorld3D.create(_plan)
+	_viewport.add_child(_world)
+	_camera = Camera3D.new()
+	_camera.far = 4000.0
+	_viewport.add_child(_camera)
+	_camera.current = true
+	_world.setup_lighting(_camera)
+	# Stop the sky clock: otherwise noon drifts and the weather evolves over a
+	# several-minute run, and time-driven city content (lamps, smoke, particles)
+	# makes `other` counts depend on how long earlier cameras took.
+	_world.sky_weather.time_scale = 0.0
+	MapViewMaterials.apply_vegetation_season(DATE)
+	_world.farmland.set_calendar_date(DATE)
+	_world.apply_time(NOON)
+
+
+## Plan anchors in world XZ, each with the stable plan ID it came from. The
+## first match by ID wins, so the choice only changes when the plan does.
+func _anchors() -> Dictionary:
+	var result := {}
+	var meadows: Array = _plan.data.get("pastures", []).filter(
+		func(p: Dictionary) -> bool: return p["kind"] == "meadow"
+	)
+	meadows.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a["id"] < b["id"])
+	if not meadows.is_empty():
+		result["meadow"] = _polygon_anchor(meadows[0])
+	var fields: Array = _plan.data.get("fields", []).filter(
+		func(f: Dictionary) -> bool: return f["crop"] == "wheat"
+	)
+	fields.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a["id"] < b["id"])
+	if not fields.is_empty():
+		result["grain_field"] = _polygon_anchor(fields[0])
+	# The largest wood; its edge camera stands outside it, looking back in.
+	var woods: Array = _plan.data.get("woods", []).duplicate()
+	woods.sort_custom(
+		func(a: Dictionary, b: Dictionary) -> bool:
+			return a["area_m2"] > b["area_m2"] or (a["area_m2"] == b["area_m2"] and a["id"] < b["id"])
+	)
+	if not woods.is_empty():
+		var wood: Dictionary = woods[0]
+		var at := Vector2(wood["at"][0], wood["at"][1])
+		result["woodland"] = {"id": wood["id"], "at": at}
+		var radius := sqrt(float(wood["area_m2"]) / PI) / _plan.metres_per_unit
+		result["woodland_edge"] = {"id": wood["id"], "at": at + Vector2(0, radius + 42.0)}
+	# The street outside Kalev's smithy door, where CityTravel spawns "kalev_smithy"
+	# (CityTravel itself needs the DoorNavigator autoload, absent under --script).
+	for b: Dictionary in _plan.buildings:
+		if b["landmark_id"] == "landmark.kalev_smithy" and b.get("door") != null:
+			var door := Vector2(b["door"][0], b["door"][1])
+			var out := Vector2(cos(float(b["door"][2])), sin(float(b["door"][2])))
+			result["kalev_smithy"] = {"id": "landmark.kalev_smithy", "at": door + out * 2.5}
+			break
+	return result
+
+
+func _polygon_anchor(feature: Dictionary) -> Dictionary:
+	var poly := CityPlan.points(feature["polygon"])
+	var centre := Vector2.ZERO
+	for p in poly:
+		centre += p
+	return {"id": feature["id"], "at": centre / maxf(poly.size(), 1.0)}
 
 
 func _measure(
-	view: MapView3D, spec: Dictionary, timed: bool, layer_timing: bool, frames: int
+	spec: Dictionary, anchor: Dictionary, timed: bool, layer_timing: bool, frames: int
 ) -> Dictionary:
-	var definition := view.definition
-	var camera := view.view_camera()
-	var cell: Vector2 = spec["cell"]
-	var focus := view.world_position(cell * definition.cell_size)
-	var entry := {"name": spec["name"], "map_id": String(definition.map_id), "mode": spec["mode"]}
+	var at: Vector2 = anchor["at"]
+	var ground := _plan.ground_height(at)
+	var entry := {
+		"name": spec["name"], "map_id": SCENE_ID, "anchor": anchor["id"], "mode": spec["mode"]
+	}
 	if spec["mode"] == "gameplay":
-		view.set_close_camera_mode(false)
-		camera.projection = Camera3D.PROJECTION_ORTHOGONAL
-		camera.rotation_degrees = Vector3(
+		_camera.projection = Camera3D.PROJECTION_ORTHOGONAL
+		_camera.rotation_degrees = Vector3(
 			MapView3D.CAMERA_PITCH_DEGREES, MapView3D.CAMERA_YAW_DEGREES, 0.0
 		)
-		camera.size = CharacterScale.GAMEPLAY_ORTHOGRAPHIC_SIZE
-		camera.position = focus + camera.transform.basis.z * MapView3D.CAMERA_DISTANCE
+		_camera.size = CharacterScale.GAMEPLAY_ORTHOGRAPHIC_SIZE
+		_camera.position = (
+			Vector3(at.x, ground, at.y) + _camera.transform.basis.z * MapView3D.CAMERA_DISTANCE
+		)
 		entry["projection"] = "orthogonal"
-		entry["size"] = camera.size
+		entry["size"] = _camera.size
 	else:
-		view.set_close_camera_mode(true)
-		camera.projection = Camera3D.PROJECTION_PERSPECTIVE
-		camera.fov = spec["fov"]
-		camera.position = focus + Vector3.UP * float(spec["eye_height"])
-		var look: Vector2 = spec["look"]
-		var target := view.world_position(look * definition.cell_size)
-		camera.look_at(target + Vector3.UP * float(spec["look_height"]))
-		view.update_terrain_detail_focus(camera.position)
+		_camera.projection = Camera3D.PROJECTION_PERSPECTIVE
+		_camera.fov = spec["fov"]
+		_camera.near = 0.05
+		_camera.position = Vector3(at.x, ground + float(spec["eye_height"]), at.y)
+		var look: Vector2 = at + (spec["look"] as Vector2)
+		_camera.look_at(Vector3(look.x, _plan.ground_height(look) + float(spec["look_height"]), look.y))
 		entry["projection"] = "perspective"
-		entry["fov"] = camera.fov
-		entry["look_cell"] = [look.x, look.y]
-	camera.current = true
-	entry["cell"] = [cell.x, cell.y]
-	entry["position"] = _round_vector(camera.position)
-	view.update_active_chunks_from_logic_positions([cell * definition.cell_size] as Array[Vector2])
-	for ignored in 6:
-		await process_frame
-	var census := _census(view, camera)
+		entry["fov"] = _camera.fov
+		entry["look_cell"] = [snappedf(look.x, 0.01), snappedf(look.y, 0.01)]
+	entry["cell"] = [snappedf(at.x, 0.01), snappedf(at.y, 0.01)]
+	entry["position"] = _round_vector(_camera.position)
+	# Stream round the anchor as the game streams round Kalev.
+	if not await _settle_streaming(at):
+		push_error("capture_vegetation_benchmark: streaming never settled at %s" % spec["name"])
+		return {}
+	var census := _census(_world, _camera)
 	entry["layers"] = census["layers"]
 	entry["totals"] = census["totals"]
 	entry["vegetation_share"] = census["vegetation_share"]
@@ -273,10 +326,78 @@ func _measure(
 	return entry
 
 
+## Drives grass, forb, farmland and tree-LOD streaming round `focus` until no
+## chunk or feature inside its build radius is missing, so the census sees the
+## steady state. Streaming is time-budgeted and empty chunks add no node, so a
+## node-count signature can stall mid-stream; the missing count cannot.
+func _settle_streaming(focus: Vector2) -> bool:
+	var tree_lod := _world.get_node_or_null("Vegetation/TreeLod") as CityTreeLod
+	await _reset_streaming(tree_lod)
+	for ignored in MAX_STREAM_FRAMES:
+		_world.grass.update_for(focus)
+		_world.farmland.update_for(focus)
+		if tree_lod != null:
+			tree_lod.update_for(_camera.global_position)
+		await process_frame
+		if _missing_streamed(focus) == 0:
+			# Chunks that left the radius were queue_free()d this frame.
+			await process_frame
+			return true
+	return false
+
+
+## Forb chunks, farmland features and near tree crowns outlive their build
+## radius (hysteresis), so without a reset the counts would depend on which
+## camera ran before and a --camera= run would not match the full set. Grass
+## chunks need no reset: their content is seeded by chunk key alone and the
+## stream frees every chunk outside the radius.
+func _reset_streaming(tree_lod: CityTreeLod) -> void:
+	var farmland := _world.farmland
+	for id: String in farmland._live.keys():
+		farmland._free_feature(id)
+	farmland._live.clear()
+	var forbs := _world.grass.forbs
+	forbs._chunks.clear()
+	forbs._centre = Vector2i(0x7fffffff, 0x7fffffff)
+	if tree_lod != null:
+		tree_lod.update_for(Vector3(1.0e7, 0.0, 1.0e7))
+	await process_frame
+
+
+## Chunks and features the city would still build round `focus`. Reads the
+## streamers' own chunk tables and radius constants (scripts/city/city_grass.gd,
+## city_forbs.gd, city_farmland.gd), so it follows their tuning.
+func _missing_streamed(focus: Vector2) -> int:
+	var grass := _world.grass
+	var missing := (
+		_missing_chunks(grass._near_chunks, focus, CityGrass.NEAR_CHUNK, CityGrass.NEAR_RADIUS_CHUNKS)
+		+ _missing_chunks(grass._mid_chunks, focus, CityGrass.MID_CHUNK, CityGrass.MID_RADIUS_CHUNKS)
+		+ _missing_chunks(grass._far_chunks, focus, CityGrass.FAR_CHUNK, CityGrass.FAR_RADIUS_CHUNKS)
+		+ _missing_chunks(grass.forbs._chunks, focus, CityForbs.CHUNK, CityForbs.RADIUS_CHUNKS)
+	)
+	var farmland := _world.farmland
+	for feature: Dictionary in farmland._features:
+		if (
+			not farmland._live.has(feature["id"])
+			and CityFarmland._edge_distance(feature, focus) <= CityFarmland.BUILD_RANGE
+		):
+			missing += 1
+	return missing
+
+
+static func _missing_chunks(chunks: Dictionary, focus: Vector2, size: float, radius: int) -> int:
+	var centre := Vector2i(floori(focus.x / size), floori(focus.y / size))
+	var missing := 0
+	for dy in range(-radius, radius + 1):
+		for dx in range(-radius, radius + 1):
+			if not chunks.has(centre + Vector2i(dx, dy)):
+				missing += 1
+	return missing
+
+
 ## Per-layer census of what the camera submits. Deterministic for a given build.
-func _census(view: MapView3D, camera: Camera3D) -> Dictionary:
+func _census(world: CityWorld3D, camera: Camera3D) -> Dictionary:
 	var planes := _frustum(camera)
-	var props := _prop_layers(view.definition)
 	var layers := {}
 	var nodes := {}
 	for layer in LAYERS:
@@ -285,7 +406,7 @@ func _census(view: MapView3D, camera: Camera3D) -> Dictionary:
 		}
 		nodes[layer] = [] as Array[GeometryInstance3D]
 	var other_names := {}
-	var stack: Array[Node] = [view]
+	var stack: Array[Node] = [world]
 	while not stack.is_empty():
 		var node: Node = stack.pop_back()
 		if node is Node3D and not (node as Node3D).visible:
@@ -298,7 +419,7 @@ func _census(view: MapView3D, camera: Camera3D) -> Dictionary:
 		var cost := _geometry_cost(geometry)
 		if cost.is_empty() or not _submitted(geometry, cost["aabb"], camera, planes):
 			continue
-		var layer := _layer_of(geometry, view, props)
+		var layer := _layer_of(geometry, world)
 		var bucket: Dictionary = layers[String(layer)]
 		bucket["nodes"] += 1
 		bucket["instances"] += cost["instances"]
@@ -308,7 +429,7 @@ func _census(view: MapView3D, camera: Camera3D) -> Dictionary:
 			bucket["shadow_draw_calls"] += cost["surfaces"]
 		(nodes[layer] as Array).append(geometry)
 		if layer == &"other":
-			var key := _name_key(geometry, view)
+			var key := _name_key(geometry, world)
 			other_names[key] = int(other_names.get(key, 0)) + int(cost["triangles"])
 	var totals := {"triangles": 0, "draw_calls": 0, "instances": 0}
 	var vegetation := {"triangles": 0, "draw_calls": 0, "instances": 0}
@@ -339,32 +460,56 @@ func _census(view: MapView3D, camera: Camera3D) -> Dictionary:
 	}
 
 
-func _layer_of(geometry: GeometryInstance3D, view: MapView3D, props: Dictionary) -> StringName:
+## City attribution. An explicit `veg_layer` tag wins; otherwise the owning city
+## builder decides (its class, or the fixed root names CityVegetationBuilder and
+## CityMoatPlants give), and within an owner the fixed node-name prefixes that
+## builder writes. Anything else, fences and hay ricks included, is `other`.
+##   CityGrass: NearBlades_* grass_near; MidGrass_*/Blades and FarGrass_* grass_mid;
+##     the yarrow accents of a MidGrass chunk flowers. CityForbs: flowers.
+##   CityFarmland: Crop_* and FarFields grain. MoatPlants: veg_misc.
+##   CityTreeLod (real-size near and macro crowns): trees_lod0; CITY_SHRUBS
+##     species (by the "<Kind>_<species>" name) shrubs.
+##   Vegetation root, by the visibility range CityVegetationBuilder gives each
+##     batch (its per-chunk batches share a name, so Godot renames duplicates):
+##     WOOD_RANGE trunks trees_lod0 (the only trunk mesh), CROWN_RANGE far card
+##     crowns trees_lod1, BUSH_RANGE shrubs (bushes and shrub-species trees).
+## trees_lod2 has no city producer and stays zero.
+func _layer_of(geometry: GeometryInstance3D, world: CityWorld3D) -> StringName:
 	if geometry.has_meta(LAYER_META):
 		return StringName(geometry.get_meta(LAYER_META))
-	var parent := geometry.get_parent()
-	if parent != null and parent.name == &"FirstPerson":
-		return TERRAIN_DETAIL_LAYERS.get(geometry.name, &"veg_misc")
+	var own := String(geometry.name)
+	var under_far_fields := false
 	var node: Node = geometry
-	while node != null and node != view:
+	while node != null and node != world:
 		if node is TreeLeafFall3D:
 			return &"litter"
-		var prop_layer: Variant = props.get(node.name)
-		if prop_layer != null:
-			return prop_layer
-		node = node.get_parent()
+		var parent := node.get_parent()
+		if parent is CityForbs:
+			return &"flowers"
+		if parent is CityGrass:
+			if own.begins_with("NearBlades"):
+				return &"grass_near"
+			if own == "Blades" or own.begins_with("FarGrass"):
+				return &"grass_mid"
+			return &"flowers"
+		if node.name == &"FarFields":
+			under_far_fields = true
+		if parent is CityFarmland:
+			return &"grain" if under_far_fields or own.begins_with("Crop_") else &"other"
+		if parent is CityTreeLod:
+			return _tree_layer(own, &"trees_lod0")
+		if parent != null and parent.name == &"MoatPlants":
+			return &"veg_misc"
+		if parent != null and parent.name == &"Vegetation" and parent.get_parent() == world:
+			return VEGETATION_RANGE_LAYERS.get(geometry.visibility_range_end, &"veg_misc")
+		node = parent
 	return &"other"
 
 
-## Prop node name ("Prop_<id>") -> layer, from the authored prop kind.
-func _prop_layers(definition: MapDefinition) -> Dictionary:
-	var result := {}
-	for prop in definition.props:
-		var layer: Variant = PROP_KIND_LAYERS.get(StringName(prop.get("kind", "")))
-		if layer != null:
-			var node_name := ("Prop_%s" % String(prop.get("id", ""))).validate_node_name()
-			result[StringName(node_name)] = layer
-	return result
+## Tree batches are named "<Kind>_<species>"; city shrub species count as shrubs.
+static func _tree_layer(node_name: String, tree_layer: StringName) -> StringName:
+	var species := StringName(node_name.substr(node_name.find("_") + 1))
+	return &"shrubs" if species in MapViewTreeMeshes.CITY_SHRUBS else tree_layer
 
 
 ## Instances, triangles, surfaces and local AABB of one geometry node.
@@ -577,8 +722,8 @@ func _summary_line(entry: Dictionary) -> String:
 	)
 
 
-func _name_key(geometry: GeometryInstance3D, view: MapView3D) -> String:
-	var path := String(view.get_path_to(geometry))
+func _name_key(geometry: GeometryInstance3D, world: CityWorld3D) -> String:
+	var path := String(world.get_path_to(geometry))
 	var head := path.get_slice("/", 0)
 	return "%s/%s" % [head, String(geometry.name).rstrip("0123456789_").replace("@", "")]
 

@@ -1,8 +1,10 @@
 extends Node
 
-## Headless or windowed Lower Town renderer comparison capture for P0-142.
+## Headless or windowed renderer comparison capture for P0-142 on a production
+## scene (`--scene=`, default the continuous Reval city, ADR 0031).
 ## Run through renderer_comparison_benchmark.tscn with --rendering-method on the Godot CLI.
 
+const Target := preload("res://tools/benchmarks/benchmark_target.gd")
 const DEFAULT_OUTPUT := "user://renderer_comparison.json"
 const MIB := 1024.0 * 1024.0
 
@@ -19,6 +21,9 @@ func _ready() -> void:
 
 
 func _record() -> void:
+	var scene_root := Target.mount(get_parent())
+	if scene_root == null:
+		return
 	await get_tree().process_frame
 	var startup_ms := float(Time.get_ticks_usec() - _started_usec) / 1000.0
 	var frame_count := 120
@@ -33,7 +38,6 @@ func _record() -> void:
 
 	var frame_times: Array[float] = []
 	var previous := Time.get_ticks_usec()
-	var scene_root := get_parent().get_node("LowerTown")
 	for ignored in frame_count:
 		await get_tree().process_frame
 		var current := Time.get_ticks_usec()
@@ -47,6 +51,8 @@ func _record() -> void:
 	var display_driver := DisplayServer.get_name()
 	var report := {
 		"rendering_method": rendering_method,
+		"rendering_method_active": RenderingServer.get_current_rendering_method(),
+		"scene": Target.argument("--scene=", Target.CITY_SCENE),
 		"display_driver": display_driver,
 		"headless": display_driver == "headless",
 		"scene_startup_ms": startup_ms,

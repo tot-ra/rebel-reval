@@ -8,6 +8,11 @@ MODE="${2:-}"
 EVIDENCE_JSON="$OUTPUT_DIR/renderer_evaluation_evidence.json"
 CAPTURE_DIR="$ROOT/docs/reports/images/renderer_evaluation"
 mkdir -p "$OUTPUT_DIR" "$CAPTURE_DIR"
+# shellcheck source=tools/benchmarks/benchmark_guard.sh
+source "$ROOT/tools/benchmarks/benchmark_guard.sh"
+# R-1536: the recorder mounts the continuous Reval city (benchmark_target.gd).
+benchmark_preflight res://tools/benchmarks/renderer_comparison_benchmark.tscn \
+  res://scenes/world/reval_city/reval_city.tscn
 
 # Windowed runs need a real GPU renderer; tools/godot_render.sh keeps the window minimized and
 # unfocused so nothing pops up. Headless runs use the dummy renderer and open no window.
@@ -36,9 +41,9 @@ for renderer in "${RENDERERS[@]}"; do
   ARGS=(--rendering-method "$renderer" \
     res://tools/benchmarks/renderer_comparison_benchmark.tscn -- \
     --output="$RUN_OUTPUT" --capture="$CAPTURE_PATH" --renderer-requested="$renderer")
-  ARGS+=("${USER_ARGS[@]}")
+  ARGS+=(${USER_ARGS[@]+"${USER_ARGS[@]}"})
   echo "Running renderer comparison for $renderer ..."
-  "${GODOT_RUN[@]}" "${ARGS[@]}"
+  benchmark_run "${GODOT_RUN[@]}" "${ARGS[@]}"
   RESULTS+=("$(cat "$RUN_OUTPUT")")
   rm -f "$RUN_OUTPUT"
 done

@@ -1,17 +1,20 @@
 extends Node
 
-## Non-headless render probe for the Lower Town (workers district) scene.
+## Non-headless render probe for a production scene (`--scene=`, default the
+## continuous Reval city, ADR 0031; `--scene=res://scenes/reval_east/forge/forge.tscn`
+## for Kalev's smithy).
 ##
-## The existing lower_town_scene_baseline.gd runs under the dummy renderer, so it
+## scene_baseline.gd runs under the dummy renderer, so it
 ## cannot see GPU-side cost. This probe runs with a real rendering device and
 ## reports draw calls, primitives and a census of the visual node types that
 ## drive them, which is what actually decides frame rate on this map.
 
+const Target := preload("res://tools/benchmarks/benchmark_target.gd")
 const BirdAmbientAudio := preload("res://scripts/map/view3d/map_view_bird_ambient_audio.gd")
 const BirdFlight := preload("res://scripts/map/view3d/map_view_bird_flight.gd")
 const UrbanFauna := preload("res://scripts/map/view3d/map_view_urban_fauna.gd")
 const PennedFauna := preload("res://scripts/map/view3d/map_view_penned_fauna.gd")
-const DEFAULT_OUTPUT := "user://lower_town_render_probe.json"
+const DEFAULT_OUTPUT := "user://render_probe.json"
 const MIB := 1024.0 * 1024.0
 
 var _memory_before := 0
@@ -26,7 +29,9 @@ func _ready() -> void:
 
 
 func _record() -> void:
-	var scene_root := get_parent().get_node("LowerTown")
+	var scene_root := Target.mount(get_parent())
+	if scene_root == null:
+		return
 	# Let the map finish streaming/building before sampling steady state.
 	for ignored in 60:
 		await get_tree().process_frame
@@ -65,6 +70,8 @@ func _record() -> void:
 	_census(scene_root, census, heavy, "")
 	heavy.sort_custom(func(a, b): return int(a["surfaces"]) > int(b["surfaces"]))
 	var report := {
+		"scene": Target.argument("--scene=", Target.CITY_SCENE),
+		"rendering_method": RenderingServer.get_current_rendering_method(),
 		"draw_calls_peak": draw_calls,
 		"primitives_peak": primitives,
 		"fps": Performance.get_monitor(Performance.TIME_FPS),

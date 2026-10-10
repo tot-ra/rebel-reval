@@ -109,8 +109,8 @@ Roles `level`, `map`, and `event` have full conversion specifications later in t
 | `scenes/world/sacred_grove.tscn` | level | `archive` | `loc.sacred_grove` speculative folklore concept | Not the approved ambiguous folklore quest; never activate | none - archive |
 | `scenes/world/viljandi_castle.tscn` | level | `archive` | `loc.viljandi_castle` legacy concept | Castle infiltration campaign is excluded; never activate | none - archive |
 | `tools/benchmarks/large_map_benchmark.tscn` | test | `retain` | Large-map CI benchmark host | Developer and CI map-pipeline performance probe; never release-playable | not a map definition |
-| `tools/benchmarks/lower_town_scene_benchmark.tscn` | test | `retain` | Lower Town scene benchmark host | Developer and CI slice scene-load probe; never release-playable | not a map definition |
-| `tools/benchmarks/lower_town_render_probe.tscn` | test | `retain` | Lower Town render benchmark host | Developer and CI 3D render probe; never release-playable | not a map definition |
+| `tools/benchmarks/scene_benchmark.tscn` | test | `retain` | Production scene benchmark host (mounts the city or smithy by `--scene=`, R-1536) | Developer and CI scene-load probe; never release-playable | not a map definition |
+| `tools/benchmarks/render_probe.tscn` | test | `retain` | Production scene render benchmark host (mounts by `--scene=`, R-1536) | Developer and CI 3D render probe; never release-playable | not a map definition |
 | `tools/capture_demo_walkthrough_host.tscn` | test | `retain` | Packaged demo walkthrough capture host | Developer/CI host for D-004 frame capture; never release-playable | not a map definition |
 | `tools/capture_reval_city_walk.tscn` | test | `retain` | Seamless Reval city walk acceptance host | ADR 0031 walk over real input and physics frames (Viru, Pikk jalg, Lühike jalg, Pikk to the shore, a house door); never release-playable | not a map definition |
 | `tools/verify_world_seam_walk.tscn` | test | `retain` | WorldHost seam-walk verification host | R-1043 flag-on physical seam walk over real physics frames; never release-playable | not a map definition |

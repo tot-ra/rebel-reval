@@ -118,8 +118,8 @@ Inventory row count (data rows in the table below): **135**.
 | 68 | `scenes/comparison_room/orthogonal_4_direction.tscn` | partial | P0-035 proposed orthogonal/four-direction variant; dev verification only. |
 | 69 | `scenes/comparison_room/diamond_isometric_8_direction.tscn` | partial | P0-035 legacy diamond-isometric/eight-direction variant; dev verification only. |
 | 70 | `tools/benchmarks/large_map_benchmark.tscn` | partial | CI large-map pipeline benchmark host; not player-facing. |
-| 71 | `tools/benchmarks/lower_town_scene_benchmark.tscn` | partial | CI Lower Town scene-load benchmark host; not player-facing. |
-| 94 | `tools/benchmarks/lower_town_render_probe.tscn` | partial | CI Lower Town 3D render benchmark host; not player-facing. |
+| 71 | `tools/benchmarks/scene_benchmark.tscn` | partial | CI production scene-load benchmark host (city, smithy by `--scene=`, R-1536); not player-facing. |
+| 94 | `tools/benchmarks/render_probe.tscn` | partial | CI production scene 3D render benchmark host (`--scene=`, R-1536); not player-facing. |
 | 72 | `tools/capture_demo_walkthrough_host.tscn` | partial | D-004 packaged demo walkthrough capture host; not player-facing. |
 | 138 | `scenes/world/reval_city/reval_city.tscn` | working | ADR 0031 seamless Reval 1343 city preview (main menu "Reval (seamless)"). |
 | 139 | `tools/capture_reval_city_walk.tscn` | partial | ADR 0031 seamless-city walk acceptance host; not player-facing. |

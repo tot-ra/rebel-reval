@@ -1,13 +1,17 @@
 extends Node
 
-## Runs as a child of the real Lower Town scene, so normal project autoloads and
-## the complete production _ready chain are present during baseline capture.
+## Mounts a production scene (`--scene=`, default the continuous Reval city) as
+## its sibling, so normal project autoloads and the complete production _ready
+## chain are present during baseline capture. Run through scene_benchmark.tscn;
+## tools/benchmarks/run_large_map_benchmark.sh runs the city and Kalev's smithy.
+## Args: --scene=res://... --profile-id=reval_city_scene --output=... [--quick]
 
+const Target := preload("res://tools/benchmarks/benchmark_target.gd")
 const BirdAmbientAudio := preload("res://scripts/map/view3d/map_view_bird_ambient_audio.gd")
 const BirdFlight := preload("res://scripts/map/view3d/map_view_bird_flight.gd")
 const UrbanFauna := preload("res://scripts/map/view3d/map_view_urban_fauna.gd")
 const PennedFauna := preload("res://scripts/map/view3d/map_view_penned_fauna.gd")
-const DEFAULT_OUTPUT := "user://lower_town_scene_baseline.json"
+const DEFAULT_OUTPUT := "user://scene_baseline.json"
 const MIB := 1024.0 * 1024.0
 
 var _started_usec := Time.get_ticks_usec()
@@ -23,6 +27,9 @@ func _ready() -> void:
 
 
 func _record() -> void:
+	var scene_root := Target.mount(get_parent())
+	if scene_root == null:
+		return
 	await get_tree().process_frame
 	var startup_ms := float(Time.get_ticks_usec() - _started_usec) / 1000.0
 	var frame_count := 120
@@ -31,7 +38,6 @@ func _record() -> void:
 			frame_count = 20
 	var frame_times: Array[float] = []
 	var previous := Time.get_ticks_usec()
-	var scene_root := get_parent().get_node("LowerTown")
 	var actors_root := scene_root.get_node_or_null("Actors")
 	var view_runtime: MapViewRuntime = scene_root.get_node_or_null("MapViewRuntime")
 	var bird_audio_peak := 0
@@ -53,6 +59,9 @@ func _record() -> void:
 	var texture_memory := int(Performance.get_monitor(Performance.RENDER_TEXTURE_MEM_USED))
 	var render_memory := int(Performance.get_monitor(Performance.RENDER_VIDEO_MEM_USED))
 	var report := {
+		"profile_id": Target.argument("--profile-id=", "reval_city_scene"),
+		"scene": Target.argument("--scene=", Target.CITY_SCENE),
+		"rendering_method": RenderingServer.get_current_rendering_method(),
 		"scene_startup_ms": startup_ms,
 		"pipeline_cpu_ms": startup_ms,
 		"node_count": _count_nodes(scene_root),
@@ -80,7 +89,7 @@ func _record() -> void:
 			output_path = argument.trim_prefix("--output=")
 	var file := FileAccess.open(output_path, FileAccess.WRITE)
 	if file == null:
-		push_error("Could not write Lower Town scene baseline: %s" % output_path)
+		push_error("Could not write scene baseline: %s" % output_path)
 		get_tree().quit(1)
 		return
 	file.store_string(JSON.stringify(report, "  ") + "\n")

@@ -5,8 +5,9 @@ extends SceneTree
 ##     --disable-vsync --script res://tools/benchmarks/renderer_frame_time.gd -- \
 ##     --output=res://build/hdr_spike/frame_time_mobile.json [--frames=90]
 ##
-## WHY: tools/run_performance_report.sh and the vegetation benchmark still load retired legacy
-## scenes (scenes/reval_east, lower_town_slice) and cannot measure the current world. Shots reuse
+## tools/run_performance_report.sh runs this as its rendered frame-time phase when
+## BENCHMARK_HEADLESS=0 (R-1536) and merges the result under "renderer_frame_time"; with
+## BENCHMARK_RENDERING_METHOD the same command compares renderers. Shots reuse
 ## tools/capture_reval_city.gd so the cameras match the committed review plates.
 
 const MapView3D := preload("res://scripts/map/view3d/map_view_3d.gd")
