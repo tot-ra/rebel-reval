@@ -1,14 +1,19 @@
 class_name ForgeFlame3D
 extends Node3D
 
-## Layered furnace flame built from short-lived, tapered GPU particles. The hot
-## core and cooler outer tongues move at different rates so the fire continually
-## breaks and reforms instead of pulsing as a few solid primitive meshes.
+## Layered furnace flame: slow, overlapping GPU particle billboards whose shape
+## comes from forge_flame.gdshader (noise-torn translucent tongues), so the fire
+## reads as a soft sheet of flame licking off the coals, not as solid spikes.
+## The hot core and cooler outer tongues move at different rates.
 
 const OUTER_DAY_RATIO := 0.82
 const OUTER_NIGHT_RATIO := 1.0
 const CORE_DAY_RATIO := 0.72
 const CORE_NIGHT_RATIO := 0.92
+const BASE_ENERGY := 1.05
+const FLAME_SHADER := preload("res://scripts/map/view3d/forge_flame.gdshader")
+
+static var _noise: NoiseTexture2D
 
 var _outer_flames: GPUParticles3D
 var _hot_core: GPUParticles3D
@@ -18,12 +23,12 @@ func configure() -> void:
 	name = "ForgeFlames"
 	_outer_flames = _create_layer(
 		"OuterFlames",
-		34,
-		0.72,
-		Vector3(0.39, 0.025, 0.20),
-		Vector2(0.38, 0.92),
-		Vector2(0.74, 1.22),
-		Vector2(0.24, 0.64),
+		22,
+		0.95,
+		Vector3(0.27, 0.02, 0.15),
+		Vector2(0.16, 0.38),
+		Vector2(0.8, 1.2),
+		Vector2(0.38, 0.62),
 		Color(1.0, 0.25, 0.025),
 		_outer_color_ramp()
 	)
@@ -31,12 +36,12 @@ func configure() -> void:
 
 	_hot_core = _create_layer(
 		"HotCore",
-		24,
-		0.46,
-		Vector3(0.30, 0.018, 0.15),
-		Vector2(0.18, 0.58),
-		Vector2(0.68, 1.02),
-		Vector2(0.18, 0.42),
+		16,
+		0.62,
+		Vector3(0.19, 0.015, 0.11),
+		Vector2(0.1, 0.26),
+		Vector2(0.75, 1.05),
+		Vector2(0.26, 0.38),
 		Color(1.0, 0.64, 0.08),
 		_core_color_ramp()
 	)
@@ -48,16 +53,14 @@ func configure() -> void:
 func set_flicker(flicker: float) -> void:
 	var response := clampf((flicker - 0.85) / 0.4, 0.0, 1.0)
 	var playback_speed := lerpf(0.92, 1.1, response)
-	var emission_energy := lerpf(2.3, 3.4, response)
+	var emission_energy := lerpf(BASE_ENERGY * 0.85, BASE_ENERGY * 1.25, response)
 	for layer in [_outer_flames, _hot_core]:
 		if layer == null:
 			continue
 		layer.speed_scale = playback_speed
-		var mesh := layer.draw_pass_1 as ArrayMesh
-		if mesh != null:
-			var material := mesh.surface_get_material(0) as StandardMaterial3D
-			if material != null:
-				material.emission_energy_multiplier = emission_energy
+		var material := layer.material_override as ShaderMaterial
+		if material != null:
+			material.set_shader_parameter("energy", emission_energy)
 
 
 func set_night_blend(night: float) -> void:
@@ -107,19 +110,17 @@ static func _create_layer(
 	process.turbulence_noise_scale = 2.35
 	process.turbulence_influence_min = 0.16
 	process.turbulence_influence_max = 0.34
-	process.angle_min = -7.0
-	process.angle_max = 7.0
-	process.angular_velocity_min = -10.0
-	process.angular_velocity_max = 10.0
+	# The shader billboard ignores spin; anim_offset is its per-particle seed.
+	process.anim_offset_min = 0.0
+	process.anim_offset_max = 1.0
 	process.scale_min = scale_range.x
 	process.scale_max = scale_range.y
 	process.scale_curve = _flame_scale_curve()
 	process.color_ramp = color_ramp
 	particles.process_material = process
 
-	var mesh := _flame_mesh(flame_size)
-	mesh.surface_set_material(0, _flame_material(emission_color))
-	particles.draw_pass_1 = mesh
+	particles.draw_pass_1 = _flame_mesh(flame_size)
+	particles.material_override = _flame_material(emission_color)
 	particles.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	particles.emitting = true
 	return particles
@@ -141,9 +142,9 @@ static func _outer_color_ramp() -> GradientTexture1D:
 	var gradient := Gradient.new()
 	gradient.set_color(0, Color(1.0, 0.78, 0.22, 0.0))
 	gradient.set_color(1, Color(0.82, 0.055, 0.005, 0.0))
-	gradient.add_point(0.08, Color(1.0, 0.82, 0.24, 0.92))
-	gradient.add_point(0.34, Color(1.0, 0.42, 0.055, 0.86))
-	gradient.add_point(0.72, Color(0.96, 0.16, 0.012, 0.48))
+	gradient.add_point(0.1, Color(1.0, 0.62, 0.16, 0.62))
+	gradient.add_point(0.4, Color(1.0, 0.36, 0.05, 0.55))
+	gradient.add_point(0.75, Color(0.85, 0.14, 0.01, 0.28))
 	var texture := GradientTexture1D.new()
 	texture.gradient = gradient
 	return texture
@@ -153,66 +154,48 @@ static func _core_color_ramp() -> GradientTexture1D:
 	var gradient := Gradient.new()
 	gradient.set_color(0, Color(1.0, 0.98, 0.72, 0.0))
 	gradient.set_color(1, Color(1.0, 0.19, 0.012, 0.0))
-	gradient.add_point(0.08, Color(1.0, 0.97, 0.65, 0.96))
-	gradient.add_point(0.40, Color(1.0, 0.71, 0.17, 0.90))
-	gradient.add_point(0.78, Color(1.0, 0.33, 0.025, 0.38))
+	gradient.add_point(0.1, Color(1.0, 0.86, 0.5, 0.7))
+	gradient.add_point(0.42, Color(1.0, 0.62, 0.16, 0.6))
+	gradient.add_point(0.8, Color(1.0, 0.3, 0.03, 0.22))
 	var texture := GradientTexture1D.new()
 	texture.gradient = gradient
 	return texture
 
 
-static func _flame_mesh(size: Vector2) -> ArrayMesh:
-	# A soft-edged asymmetric fan gives each particle a recognisable lick shape.
-	# Transparent perimeter vertex colors feather overlap without a texture asset.
-	var half_width := size.x * 0.5
-	var height := size.y
-	var vertices := PackedVector3Array(
-		[
-			Vector3(0.0, height * 0.36, 0.0),
-			Vector3(-half_width * 0.30, 0.0, 0.0),
-			Vector3(half_width * 0.32, 0.0, 0.0),
-			Vector3(half_width * 0.82, height * 0.08, 0.0),
-			Vector3(half_width, height * 0.23, 0.0),
-			Vector3(half_width * 0.64, height * 0.43, 0.0),
-			Vector3(half_width * 0.44, height * 0.62, 0.0),
-			Vector3(half_width * 0.12, height * 0.78, 0.0),
-			Vector3(0.0, height, 0.0),
-			Vector3(-half_width * 0.22, height * 0.76, 0.0),
-			Vector3(-half_width * 0.48, height * 0.58, 0.0),
-			Vector3(-half_width * 0.72, height * 0.42, 0.0),
-			Vector3(-half_width, height * 0.22, 0.0),
-			Vector3(-half_width * 0.76, height * 0.07, 0.0),
-		]
-	)
-	var colors := PackedColorArray([Color.WHITE])
-	for index in range(1, vertices.size()):
-		colors.append(Color(1.0, 0.48, 0.06, 0.0))
-	var indices := PackedInt32Array()
-	for point in range(1, vertices.size()):
-		indices.append(0)
-		indices.append(point)
-		indices.append(1 if point == vertices.size() - 1 else point + 1)
-	var arrays := []
-	arrays.resize(Mesh.ARRAY_MAX)
-	arrays[Mesh.ARRAY_VERTEX] = vertices
-	arrays[Mesh.ARRAY_COLOR] = colors
-	arrays[Mesh.ARRAY_INDEX] = indices
-	var mesh := ArrayMesh.new()
-	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+static func _flame_mesh(size: Vector2) -> QuadMesh:
+	# Plain quad; forge_flame.gdshader carves the torn tongue out of it. The
+	# pivot sits at the quad base so scale-over-life grows the flame upward.
+	var mesh := QuadMesh.new()
+	mesh.size = size
+	mesh.center_offset = Vector3(0.0, size.y * 0.5, 0.0)
 	return mesh
 
 
-static func _flame_material(emission_color: Color) -> StandardMaterial3D:
-	var material := StandardMaterial3D.new()
-	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	material.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
-	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	material.vertex_color_use_as_albedo = true
-	material.albedo_color = Color.WHITE
-	material.emission_enabled = true
-	material.emission = emission_color
-	material.emission_energy_multiplier = 2.8
-	material.cull_mode = BaseMaterial3D.CULL_DISABLED
-	material.billboard_mode = BaseMaterial3D.BILLBOARD_PARTICLES
-	material.billboard_keep_scale = true
+static func _flame_material(emission_color: Color) -> ShaderMaterial:
+	var material := ShaderMaterial.new()
+	material.shader = FLAME_SHADER
+	material.set_shader_parameter("noise_tex", flame_noise())
+	material.set_shader_parameter("energy", BASE_ENERGY)
+	# Hotter layers climb faster through their own noise.
+	material.set_shader_parameter("rise_speed", lerpf(1.1, 1.6, emission_color.g))
 	return material
+
+
+## Shared seamless noise for flame and coal shaders: one small texture for every
+## furnace in the city instead of one per prop.
+static func flame_noise() -> NoiseTexture2D:
+	if _noise != null:
+		return _noise
+	var noise := FastNoiseLite.new()
+	noise.noise_type = FastNoiseLite.TYPE_SIMPLEX_SMOOTH
+	noise.frequency = 0.035
+	noise.fractal_type = FastNoiseLite.FRACTAL_FBM
+	noise.fractal_octaves = 3
+	noise.seed = 4127
+	_noise = NoiseTexture2D.new()
+	_noise.width = 128
+	_noise.height = 128
+	_noise.seamless = true
+	_noise.generate_mipmaps = true
+	_noise.noise = noise
+	return _noise

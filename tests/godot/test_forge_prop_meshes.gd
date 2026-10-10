@@ -406,7 +406,7 @@ func test_smithy_furnace_is_a_raised_hearth_under_a_hood_with_live_fire() -> voi
 	)
 	assert_false(node.has_node("Mass"), "smithy furnace must not keep the stacked-box masonry")
 	for live_node in [
-		"EmberBed", "CoalA", "ForgeFlames", "FireSparks", "FireSmoke", "ForgeFireLight"
+		"EmberBed", "CoalBed", "ForgeFlames", "FireSparks", "FireSmoke", "ForgeFireLight"
 	]:
 		assert_true(node.has_node(live_node), "authored hearth must retain dynamic %s" % live_node)
 	var ember := node.get_node("EmberBed") as MeshInstance3D

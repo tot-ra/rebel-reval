@@ -17,6 +17,8 @@ const SCRAP_HEAP_PROP_ID := &"iron_scrap_store"
 const FINISHING_BENCH_PROP_ID := &"finishing_bench"
 ## Fire centre of the procedural fallback furnace (open mouth at floor level).
 const _FALLBACK_FIRE := Vector3(0.0, 0.3, 0.6)
+const _COAL_SHADER := preload("res://scripts/map/view3d/forge_coal.gdshader")
+const _COAL_LUMP_COUNT := 90
 const _CHAIR_SCENE_PATH := "res://assets/props/furniture/smithy_chair/smithy_chair.glb"
 const CHAIR_PROP_ID := &"work_chair"
 ## Seating in Kalev's dwelling shares the one authored chair GLB. Town Hall and
@@ -30,6 +32,8 @@ const CHAIR_PROP_IDS: Array[StringName] = [
 const QUENCH_PROP_ID := &"quench"
 const _BED_SCENE_PATH := "res://assets/props/furniture/smithy_bed/smithy_bed.glb"
 const BED_PROP_ID := &"bed"
+
+static var _coal_bed_cache := {}
 
 ## Authored Kalev smithy workstation props and procedural fallbacks for other maps.
 
@@ -320,10 +324,12 @@ static func _add_furnace_ember_bed(root: Node3D, fire: Vector3, spread: float) -
 	bed.mesh = mesh
 	bed.position = fire + Vector3(0.0, 0.0, -0.02)
 	var material := StandardMaterial3D.new()
-	material.albedo_color = Color8(180, 48, 18)
+	# Deep red under-glow showing in the gaps between coal lumps; the lumps
+	# themselves carry the bright heat, so this stays dimmer and redder.
+	material.albedo_color = Color8(40, 10, 4)
 	material.emission_enabled = true
-	material.emission = Color8(255, 90, 28)
-	material.emission_energy_multiplier = 3.4
+	material.emission = Color8(255, 58, 10)
+	material.emission_energy_multiplier = 1.3
 	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	bed.material_override = material
 	bed.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
@@ -331,81 +337,77 @@ static func _add_furnace_ember_bed(root: Node3D, fire: Vector3, spread: float) -
 
 
 static func _add_furnace_coal_bed(root: Node3D, fire: Vector3, spread: float) -> void:
-	var cold := MapViewMaterials.charcoal()
-	var hot := MapViewMaterials.hot_coal()
-	for spec in [
-		{
-			"name": "CoalA",
-			"radius": 0.17,
-			"pos": Vector3(-0.28, 0.36, 0.68),
-			"scale": Vector3(1.35, 0.55, 1.15),
-			"hot": true
-		},
-		{
-			"name": "CoalB",
-			"radius": 0.15,
-			"pos": Vector3(0.24, 0.34, 0.72),
-			"scale": Vector3(1.25, 0.52, 1.1),
-			"hot": true
-		},
-		{
-			"name": "CoalC",
-			"radius": 0.14,
-			"pos": Vector3(-0.02, 0.38, 0.55),
-			"scale": Vector3(1.4, 0.5, 1.2),
-			"hot": true
-		},
-		{
-			"name": "CoalD",
-			"radius": 0.12,
-			"pos": Vector3(0.36, 0.32, 0.52),
-			"scale": Vector3(1.15, 0.45, 1.0),
-			"hot": false
-		},
-		{
-			"name": "CoalE",
-			"radius": 0.11,
-			"pos": Vector3(-0.4, 0.32, 0.5),
-			"scale": Vector3(1.1, 0.42, 0.95),
-			"hot": false
-		},
-		{
-			"name": "CoalF",
-			"radius": 0.10,
-			"pos": Vector3(0.08, 0.42, 0.7),
-			"scale": Vector3(1.1, 0.42, 1.05),
-			"hot": true
-		},
-		{
-			"name": "CoalG",
-			"radius": 0.09,
-			"pos": Vector3(-0.14, 0.4, 0.74),
-			"scale": Vector3(1.05, 0.38, 1.0),
-			"hot": true
-		},
-		{
-			"name": "CoalH",
-			"radius": 0.08,
-			"pos": Vector3(0.18, 0.4, 0.48),
-			"scale": Vector3(1.0, 0.36, 0.95),
-			"hot": true
-		},
-	]:
-		var lump := MeshInstance3D.new()
-		lump.name = spec["name"]
-		var mesh := SphereMesh.new()
-		mesh.radius = spec["radius"]
-		mesh.height = spec["radius"] * 2.0
-		mesh.radial_segments = 7
-		mesh.rings = 3
-		lump.mesh = mesh
-		# Lump offsets are authored around the fallback fire centre.
-		var offset: Vector3 = spec["pos"] - _FALLBACK_FIRE
-		lump.position = fire + Vector3(offset.x * spread, offset.y, offset.z * spread)
-		lump.scale = spec["scale"]
-		lump.material_override = hot if spec["hot"] else cold
-		lump.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-		root.add_child(lump)
+	# WHY: a handful of smooth emissive spheres read as one flat yellow blob.
+	# Charcoal is a heap of small faceted lumps with grey ash crust and heat
+	# showing through cracks and gaps (forge_coal.gdshader). Every lump is merged
+	# into one mesh and one draw call; per-lump heat rides in vertex color.
+	var bed := MeshInstance3D.new()
+	bed.name = "CoalBed"
+	bed.mesh = _coal_bed_mesh(spread)
+	bed.position = fire + Vector3(0.0, 0.04, 0.0)
+	var material := ShaderMaterial.new()
+	material.shader = _COAL_SHADER
+	material.set_shader_parameter("noise_tex", ForgeFlame3D.flame_noise())
+	bed.material_override = material
+	bed.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	root.add_child(bed)
+
+
+static func _coal_bed_mesh(spread: float) -> ArrayMesh:
+	var key := snappedf(spread, 0.01)
+	if _coal_bed_cache.has(key):
+		return _coal_bed_cache[key]
+	# Fixed seed: every furnace shows the same heap, run after run.
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 1343
+	var half := Vector2(0.52, 0.35) * spread
+	var tool := SurfaceTool.new()
+	tool.begin(Mesh.PRIMITIVE_TRIANGLES)
+	for _lump in _COAL_LUMP_COUNT:
+		# sqrt keeps lumps evenly spread over the ellipse instead of bunching
+		# at the centre; the heap is highest and hottest in the middle.
+		var angle := rng.randf() * TAU
+		var dist := sqrt(rng.randf())
+		var centre := Vector3(cos(angle) * half.x * dist, 0.0, sin(angle) * half.y * dist)
+		var radius := rng.randf_range(0.07, 0.12) * spread
+		centre.y = (1.0 - dist * dist) * 0.11 * spread + rng.randf_range(-0.01, 0.015)
+		var heat := clampf(1.05 - dist * 0.75 + rng.randf_range(-0.3, 0.15), 0.0, 1.0)
+		if dist > 0.75 and rng.randf() < 0.45:
+			heat *= 0.15
+		_append_coal_lump(tool, rng, centre, radius, heat)
+	tool.generate_normals()
+	var mesh := tool.commit()
+	_coal_bed_cache[key] = mesh
+	return mesh
+
+
+static func _append_coal_lump(
+	tool: SurfaceTool, rng: RandomNumberGenerator, centre: Vector3, radius: float, heat: float
+) -> void:
+	# Low-poly sphere with jittered radii and flat faces = a broken charcoal
+	# chunk. Seam vertices share one jitter so the lump stays watertight.
+	var sphere := SphereMesh.new()
+	sphere.radius = 1.0
+	sphere.height = 2.0
+	sphere.radial_segments = 6
+	sphere.rings = 3
+	var arrays := sphere.get_mesh_arrays()
+	var vertices: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
+	var indices: PackedInt32Array = arrays[Mesh.ARRAY_INDEX]
+	var jitter := {}
+	var stretch := Vector3(rng.randf_range(0.9, 1.35), rng.randf_range(0.55, 0.8), 1.0)
+	var basis := Basis(Vector3.UP, rng.randf() * TAU)
+	var color := Color(heat, 0.0, 0.0)
+	# Flat shading: every triangle gets its own smooth group of -1.
+	tool.set_smooth_group(-1)
+	for index in indices:
+		var vertex := vertices[index]
+		var vkey := Vector3i((vertex * 100.0).round())
+		if not jitter.has(vkey):
+			jitter[vkey] = rng.randf_range(0.72, 1.12)
+		var local: Vector3 = vertex * stretch * float(jitter[vkey]) * radius
+		tool.set_color(color)
+		tool.add_vertex(centre + basis * local)
 
 
 static func _add_furnace_flames(root: Node3D, fire: Vector3) -> Node3D:
@@ -423,7 +425,7 @@ static func _add_furnace_fire_particles(root: Node3D, fire: Vector3) -> GPUParti
 	var particles := GPUParticles3D.new()
 	particles.name = "FireSparks"
 	particles.position = fire + Vector3(0.0, 0.18, 0.02)
-	particles.amount = 28
+	particles.amount = 18
 	particles.lifetime = 1.05
 	particles.preprocess = 0.55
 	particles.explosiveness = 0.08
@@ -439,10 +441,17 @@ static func _add_furnace_fire_particles(root: Node3D, fire: Vector3) -> GPUParti
 	process.gravity = Vector3(0.0, 0.45, 0.0)
 	process.damping_min = 0.35
 	process.damping_max = 1.0
-	process.angular_velocity_min = -60.0
-	process.angular_velocity_max = 60.0
-	process.scale_min = 0.025
-	process.scale_max = 0.06
+	# WHY: round glowing balls read as bokeh, not sparks. A spark is a tiny
+	# white-hot fleck that the eye smears into a short streak along its path,
+	# so each particle is a thin rod aligned to its velocity.
+	process.particle_flag_align_y = true
+	process.turbulence_enabled = true
+	process.turbulence_noise_strength = 0.6
+	process.turbulence_noise_scale = 1.8
+	process.turbulence_influence_min = 0.05
+	process.turbulence_influence_max = 0.18
+	process.scale_min = 0.012
+	process.scale_max = 0.026
 	# WHY: sparks cool as they rise. A white-hot birth fading through orange to
 	# dead red plus shrink-over-life sells ember trajectories, not orange dots.
 	var spark_scale := Curve.new()
@@ -461,18 +470,15 @@ static func _add_furnace_fire_particles(root: Node3D, fire: Vector3) -> GPUParti
 	spark_ramp_texture.gradient = spark_ramp
 	process.color_ramp = spark_ramp_texture
 	particles.process_material = process
-	var draw := SphereMesh.new()
-	draw.radius = 0.5
-	draw.height = 1.0
-	draw.radial_segments = 6
-	draw.rings = 3
+	var draw := BoxMesh.new()
+	draw.size = Vector3(0.32, 1.9, 0.32)
 	particles.draw_pass_1 = draw
 	var spark_mat := StandardMaterial3D.new()
 	spark_mat.vertex_color_use_as_albedo = true
 	spark_mat.albedo_color = Color.WHITE
 	spark_mat.emission_enabled = true
 	spark_mat.emission = Color8(255, 140, 40)
-	spark_mat.emission_energy_multiplier = 2.4
+	spark_mat.emission_energy_multiplier = 3.2
 	spark_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	particles.material_override = spark_mat
 	root.add_child(particles)

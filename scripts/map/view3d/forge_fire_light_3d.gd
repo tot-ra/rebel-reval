@@ -67,4 +67,4 @@ func apply_cycle_progress(progress: float) -> void:
 		_flames.set_night_blend(night)
 		_flames.set_flicker(lerpf(0.96, 1.08, night))
 	if _sparks != null:
-		_sparks.amount = 34 if night > 0.45 else 24
+		_sparks.amount = 22 if night > 0.45 else 14
