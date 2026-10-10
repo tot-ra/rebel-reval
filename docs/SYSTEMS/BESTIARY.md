@@ -29,9 +29,9 @@ The validator checks the roster (unique `bst.` IDs, layer and tier enums, a reas
 ## Work plan
 
 - BST-2a / BST-2b: spirit cards, in tier order.
-- BST-3: physical adversary cards.
+- BST-3: physical adversary cards (done, task **R-1581**: street thug, saboteur, brute, road bandit, Black Cloak fighter, spirit-caller, Vanapagan cultist, wolf; bear and boar stay backlog).
 - Later: concept art, 3D models, an `EnemyArchetype` link for physical entries.
 
 ## Limits
 
-No card exists, so the card checks run only in tests. Archive image mapping follows the legacy README order and has not been reviewed visually. The layer of `kratt`, `libahunt` and `spirit_caller` as `hybrid` is a roster decision, not yet reflected in combat code.
+Eight physical and hybrid cards exist (BST-3); spirit cards are still planned. Archive image mapping follows the legacy README order and has not been reviewed visually. The layer of `kratt`, `libahunt` and `spirit_caller` as `hybrid` is a roster decision, not yet reflected in combat code.
