@@ -1,6 +1,6 @@
 # Landmark sites in the seamless city
 
-Status: implemented for `site.raekoja_plats`, `site.holy_spirit`, `site.st_olaf`, `site.st_nicholas` and `site.st_mary` ([ADR 0032](../adr/0032-bespoke-landmark-sites-in-the-city.md), accepted 2026-10-07; board task to be filed, no board access in the authoring session). Scope: a contract and runtime for bespoke, navigable models of famous Reval buildings and places in the [seamless city](./SEAMLESS_CITY.md), shown as they stood in spring 1343. Out of scope: Blender-generated GLB models (the first site uses an interim GDScript builder), multi-storey interiors, NPC behaviour on sites, the remaining sites (St Catherine, St Michael, the castle, the gates).
+Status: implemented for `site.raekoja_plats`, `site.holy_spirit`, `site.st_olaf`, `site.st_nicholas`, `site.st_mary` and `site.kalev_smithy` (task **R-1643**) ([ADR 0032](../adr/0032-bespoke-landmark-sites-in-the-city.md), accepted 2026-10-07; board task to be filed, no board access in the authoring session). Scope: a contract and runtime for bespoke, navigable models of famous Reval buildings and places in the [seamless city](./SEAMLESS_CITY.md), shown as they stood in spring 1343. Out of scope: Blender-generated GLB models (the first site uses an interim GDScript builder), multi-storey interiors, NPC behaviour on sites, the remaining sites (St Catherine, St Michael, the castle, the gates).
 
 Review plates: `docs/reports/images/city/raekoja_plats_aerial.png`, `raekoja_plats_topdown.png`, `raekoja_plats_street.png`, and the walk-in shots `walk_site_raekoja_plats_inside*.png`.
 
@@ -75,6 +75,7 @@ Review plates: `docs/reports/images/city/raekoja_plats_aerial.png`, `raekoja_pla
     - A treadwheel crane with jib, rope and a stone in a lewis; putlog scaffolds and ladders on the walls.
   - **The yards:** a masons' lodge with banker benches and templates, stone stacks, a lime pit, a cart, and a detached timber belfry with two bells.
   - **People:** a canon celebrating at the high altar, three canons in the choir stalls, the sacristan, the master mason, masons, labourers at the crane and the lime pit, and a carpenter at the centering.
+- **Kalev's smithy in 1343** (`site.kalev_smithy`, task **R-1643**; see [Kalev's smithy](#kalevs-smithy-task-r-1643)).
 - **Walking in:** Kalev enters through the portal and the door swings open.
 - **People:** none. Landmark sites no longer post nameless people (they could not be clicked and had no census record); only census citizens populate the city. The `people` manifest key and `CitySiteActor` remain supported but unused.
 - **Cutaway:** in the top-down and third-person cameras, while he is inside, everything above head height lifts away: upper walls, gables, banners, roof and ceiling. The wall stubs get a stone section cap, so the cameras see into the room. First person keeps the whole room, ceiling included. Ordinary houses use the same cutaway ([Seamless city](./SEAMLESS_CITY.md#how-buildings-are-built)).
@@ -104,6 +105,9 @@ Review plates: `docs/reports/images/city/raekoja_plats_aerial.png`, `raekoja_pla
    - `trade_goods` with `variant` (`eastern_furs_wax`, `western_cloth_salt`, `livonian_grain_flax`, `barrelled_herring_metal`);
    - `pillory`;
    - `stone_stack` (dressed blocks on skids, for a masons' yard).
+   A builder may define its own kinds; `kalev_smithy_builder.gd` reads `kit` (an old-forge GLB by `model`), `catalog` (an object-catalog id, `y` lift) and its yard pieces. Solid furniture footprints then go in `walk.solid`.
+   `spawns` (optional) lists spawn ids the site owns, with site-local `at` and `facing_deg`; `CityTravel.spawn_position` and the arrival camera use them before any other spawn kind.
+   `terrace.over_houses: true` levels the terrace again after the neighbouring house plots are cut (a small site between houses).
 9. `fabric` (optional) describes the walls once for both the model and the walk data. Each entry has an outer face line `a`→`b`, `inside`, `thick`, `y0`/`y1`, `floor`, the face keys `outer`/`inner` and `openings`. An opening has `kind` (`window`, `door`, `arch`, `niche`, `louvre`), `s`, `w`, `sill`, `spring`, an optional `apex` for a pointed head, `splay` and `glass`. `CitySiteKit` builds the walls from it, and `CitySite` derives the logic-plane walls from it, with door and arch openings at floor level left open.
 10. `visual` is either `{"kind": "builder", "script": ...}`, a script with `static func build(site: CitySite, plan: CityPlan) -> Node3D`, or `{"kind": "scene", "path": ...}`.
 11. Rebuild the plan (`python3 tools/city/build_reval_city_plan.py`), then run the validator.
@@ -124,6 +128,7 @@ Period rule: show the building as it stood in spring 1343. A later feature needs
 | `scripts/city/city_site_props.gd` (`CitySiteProps`) | Prop catalogue for dressing |
 | `scripts/city/city_site_actor.gd` (`CitySiteActor`) | A person on a site: rig, facing, pose |
 | `scripts/city/sites/site_kit.gd` (`CitySiteKit`) | Shared kit for site models. Walls from `fabric` with flat or pointed openings, splays, glass, niches and louvres; crow-stepped gables; gable and pyramid roofs; quadripartite rib vaults (`rib_vault`); square piers (`square_pier`, plastered or bare `greystone`); octagonal pillars; flag floors with ledger slabs; cut caps; materials (`bind_site_washes` binds the lime wash and painted wash of a site's meshes to its floor height and frieze frame and sets their indoor brightness) |
+| `scripts/city/sites/kalev_smithy_builder.gd` | Kalev's smithy: rubble walls with the old forge's plates, plain gables, shingle roof, gable stack, loft, shutters, shop counter, lean-to, and the old forge GLB kit with the live hearth fire. Root meta `chimneys` (site-local stack tops, always-lit smoke); fire controllers join group `city_cycle_lights` (`CityWorld3D.apply_time`) |
 | `scripts/city/sites/holy_spirit_builder.gd` | Holy Spirit church, choir, almshouse and bell turret on the kit |
 | `scripts/city/sites/st_mary_builder.gd` | St Mary's chancel, apse, vestry, finished bay, rising nave, crane, centering, scaffolds, lodge, belfry |
 | `scripts/city/sites/st_nicholas_builder.gd` | St Nicholas' hall church, chancel, sacristy, porch, low tower, buttresses, St Barbara charnel chapel, cemetery |
@@ -135,6 +140,20 @@ Period rule: show the building as it stood in spring 1343. A later feature needs
 | `scripts/city/city_tile_roof.gdshader` | Procedural monk-and-nun clay tiles from the roof UVs (metres): courses, per-tile colour, lip shadows, moss in the channels, lichen, wetness. Used by every tile roof in the city |
 | `scripts/city/city_limewash.gdshader`, `city_flagstone.gdshader` | Interior lime wash and limestone flags. Both are darkened and warmed for indoors and have no distance fog, because the GL Compatibility renderer has no ambient occlusion |
 | `scenes/world/reval_city/reval_city.gd` | Lifts site room roofs while Kalev is inside; camera occluder index |
+
+## Kalev's smithy (task R-1643)
+
+Status: implemented (task **R-1643**, maintainer request 2026-10-10). Scope: the smithy as one building of the seamless city, modelled from scratch as a landmark site, and the new-game start inside it. Out of scope: the forge gameplay (Mart, the anvil pickup, commissions, saves), the loft as a walkable floor, Blender GLB of the shell.
+
+- **Sources and period:** no Reval smithy plan of 1343 survives, so it is a plausible composite after [`smithy-workshop-layout.md`](../../history/dossiers/architecture/smithy-workshop-layout.md): a stone-footed street-front craft house, hot work in limestone (Hanseatic fire practice), forge bay about 55% of the floor behind the street door, living bay behind a stone partition, smoke out through a rubble stack in the gable. Left out per the dossier: trip-hammers, water power, brick chimney pots, glazing, a screw vice.
+- **Outside (14 × 9.4 m):** limestone rubble walls 0.62 m thick under a 48° shingle roof, plain gables, the chimney stack in the east gable with a lit plume, plank shutters folded back at every window, the street window as a shop front (fold-down counter on brackets with horseshoes, nails and a knife; awning leaf on props), a loft door in the west gable, and an open lean-to on oak posts with the charcoal crib, cordwood, a crank grindstone (Luttrell Psalter, c. 1330) and bar iron against the wall. The yard behind the yard door is the site's `reserve`.
+- **Forge bay (`room.forge`):** beaten-earth floor, sooted rubble walls, tie beams under the open rafters. The old forge's GLB kit in its old relative layout, turned so the hearth backs onto the east gable: raised hearth under the clay hood with live embers, flames, sparks and the flickering forge light (`MapViewSmithyPropBuilder.add_smithy_furnace`), great bellows on the smith's left, anvil about 2.4 m down-fire, slack tub (the quench) beside it, stock rack, scrap crate, finishing bench, charcoal bin.
+- **Living bay (`room.living`):** lime-washed walls, board floor, the boarded loft on joists with a ladder, bed, chest, table with a candle and jug, chair, bench, shelf.
+- **Art reuse:** the walls use the old smithy's photoreal plates (`MapViewKalevSmithyInterior.material_for`: limestone rubble, lime wash, beaten earth, boards), re-scaled from the old 0.87 m district unit to metres and tinted warm; the kit GLBs are mounted at 0.87 scale. Their contact-shadow cards (`ksi_loft_shadow`) are drawn clear.
+- **Start:** the almshouse prologue and every `forge` redirect arrive at spawn `kalev_smithy` (manifest `spawns`, site-local (10.5, 5.6), facing 52°): in the forge bay by the hearth, the 6 m third-person camera inside the room by the street door. The HUD reads "Inside: Kalev's smithy (forge)"; the `forge` music zone (`zone.smithy`) is centred on the site.
+- **Review plates:** `docs/reports/images/city/kalev_smithy_street.jpg`, `kalev_smithy_street_east.jpg`, `kalev_smithy_aerial.jpg`, `kalev_smithy_cutaway.jpg`, `kalev_smithy_forge_bay.jpg`, `kalev_smithy_living.jpg`, and the new-game start `kalev_smithy_new_game_start.jpg`.
+- **Verify:** `godot --headless --path . --script tools/validate_city_sites.gd`; `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_city_sites` (`test_kalev_smithy_*`); `tools/godot_render.sh --script tools/capture_reval_city.gd -- --only=kalev_smithy_street,kalev_smithy_street_east,kalev_smithy_aerial,kalev_smithy_cutaway,kalev_smithy_forge_bay,kalev_smithy_living`.
+- **Limits:** the census bathkeeper household `hh.lt.osm_r7239857` still lives on the replaced plot (needs rehoming); the forge's gameplay controllers are not mounted here (see [Seamless city limits](./SEAMLESS_CITY.md#limits)); the loft is not walkable.
 
 ## Save and load
 

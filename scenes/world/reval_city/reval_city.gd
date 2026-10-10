@@ -119,12 +119,22 @@ func arrive_at(id: String) -> void:
 	_face_door_on_arrival(id)
 
 
-## Arriving at a building spawn (the new game starts in front of Kalev's smithy)
+## Arriving at a building spawn (the street door of a house)
 ## turns the gameplay camera to look at its door, so the lane's walls stay behind
 ## the camera instead of filling the view. The smithy stands in a narrow lane, so
 ## the nearest look direction whose camera spot is clear of houses is used.
 func _face_door_on_arrival(id: String) -> void:
 	if runtime == null:
+		return
+	# A spawn inside a landmark site (the smithy's forge bay) faces its authored
+	# direction (the hearth); the cutaway keeps the room in view.
+	var inside := CityTravel.site_spawn(plan, id)
+	if not inside.is_empty():
+		var look: Vector2 = inside["facing"]
+		var look_yaw := rad_to_deg(atan2(-look.x, -look.y))
+		runtime._camera_controller.rotate_view_degrees(
+			look_yaw - view.view_camera().rotation_degrees.y
+		)
 		return
 	var index := CityTravel.building_index(plan, id)
 	if index < 0 or plan.buildings[index].get("door") == null:

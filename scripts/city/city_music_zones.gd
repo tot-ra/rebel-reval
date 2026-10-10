@@ -20,7 +20,8 @@ const ZONES: Array[Dictionary] = [
 	{"id": "zone.holy_spirit", "theme": &"holy_spirit", "at": Vector2(14.0, -79.0), "radius": 28.0},
 	{"id": "zone.st_olaf", "theme": &"oleviste", "at": Vector2(111.0, -445.0), "radius": 48.0},
 	{"id": "zone.dominican", "theme": &"monastery", "at": Vector2(164.0, -65.0), "radius": 48.0},
-	{"id": "zone.smithy", "theme": &"forge", "at": Vector2(-75.0, 190.0), "radius": 34.0},
+	# Kalev's smithy (site.kalev_smithy, the new-game start).
+	{"id": "zone.smithy", "theme": &"forge", "at": Vector2(168.0, 115.0), "radius": 16.0},
 	{"id": "zone.bishop_garden", "theme": &"garden", "at": Vector2(-330.0, 110.0), "radius": 60.0},
 	# R-1576. St Mary's sits on its plan site. The cathedral school (recorded
 	# from 1319) has no plan building yet; it is placed just north of the

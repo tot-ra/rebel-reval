@@ -12,7 +12,8 @@ const MAX_PLUMES := 28
 const LIT_SHARE := 0.35
 const REFRESH_SEC := 0.5
 
-## [Vector3 top, StringName id] of lit chimneys.
+## [Vector3 top, StringName id] of lit chimneys; a third `true` element marks a
+## chimney that is always lit (a landmark site's working hearth).
 var lit: Array = []
 var _plumes: Dictionary = {}
 var _time_of_day: StringName = MapView3D.TIME_DAY
@@ -23,7 +24,8 @@ static func create(chimneys: Array) -> CityChimneySmoke:
 	var node := CityChimneySmoke.new()
 	node.name = "ChimneySmoke"
 	for c: Array in chimneys:
-		if float(posmod(String(c[1]).hash() >> 9, 1000)) / 1000.0 < LIT_SHARE:
+		var always := c.size() > 2 and bool(c[2])
+		if always or float(posmod(String(c[1]).hash() >> 9, 1000)) / 1000.0 < LIT_SHARE:
 			node.lit.append(c)
 	return node
 

@@ -334,20 +334,8 @@ func _shots(plan: CityPlan) -> Array[Dictionary]:
 					}
 				)
 			)
-	# Generic cutaway: Kalev's smithy with its roof and upper walls lifted.
-	for i in plan.buildings.size():
-		if String(plan.buildings[i].get("landmark_id", "")) == "landmark.kalev_smithy":
-			var corner := CityPlan.points(plan.buildings[i]["footprint"])[0]
-			var fy := plan.floor_height(i)
-			shots.append(
-				{
-					"name": "smithy_cutaway",
-					"eye": Vector3(corner.x + 14.0, fy + 18.0, corner.y + 14.0),
-					"look": Vector3(corner.x - 6.0, fy, corner.y - 6.0),
-					"fov": 55.0,
-					"cutaway_building": i
-				}
-			)
+	# Kalev's smithy is a landmark site now: its manifest review_shots (street,
+	# aerial, cutaway, forge bay) come through the site loop above.
 	# Toompea Kiriku plats: St Mary's west door from the square, and from above.
 	for i in plan.buildings.size():
 		var b: Dictionary = plan.buildings[i]

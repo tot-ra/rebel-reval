@@ -315,3 +315,49 @@ func test_st_nicholas_nave_is_walkable_and_west_wall_closed() -> void:
 	for w: Dictionary in site.data["fabric"]:
 		mid_wall = mid_wall or String(w["id"]) == "nave.west.mid"
 	assert_true(mid_wall, "nave west wall runs across the tower front")
+
+
+func test_kalev_smithy_new_game_starts_inside_the_forge() -> void:
+	var plan := _plan()
+	var site := _site(&"site.kalev_smithy")
+	assert_true(site != null, "site.kalev_smithy loads from the registry")
+	for b: Dictionary in plan.buildings:
+		assert_true(String(b["id"]) != "bldg.osm.r7239857", "the generic smithy house is replaced")
+		assert_true(
+			String(b.get("landmark_id", "")) != "landmark.kalev_smithy",
+			"no generic house is tagged as the smithy any more"
+		)
+	# The new-game spawn (almshouse prologue, old forge redirect) is inside.
+	var start := CityTravel.spawn_position(plan, "kalev_smithy")
+	assert_eq(plan.site_room_at(start)["room"]["id"], &"room.forge")
+	assert_eq(plan.location_at(start)["building"], "Inside: Kalev's smithy (forge)")
+	assert_almost_eq(plan.walk_height(start), site.level + 0.12, 0.001)
+	var spawn := CityTravel.site_spawn(plan, "kalev_smithy")
+	assert_false(spawn.is_empty(), "the smithy owns the kalev_smithy spawn and its facing")
+	for poly in site.solids:
+		assert_false(
+			Geometry2D.is_point_in_polygon(start, poly), "Kalev does not start inside furniture"
+		)
+	# The partition door joins the living bay; the street door opens onto the lane.
+	var living := site.to_world(Vector2(3.0, 6.0))
+	assert_eq(plan.site_room_at(living)["room"]["id"], &"room.living")
+
+
+func test_kalev_smithy_model_reuses_the_old_forge_kit() -> void:
+	var site := _site(&"site.kalev_smithy")
+	var script := load(String(site.data["visual"]["script"])) as Script
+	var node: Node3D = script.call("build", site, _plan())
+	for path: String in ["Smithy/Lower", "Smithy/Upper", "Smithy/Roof", "Smithy/Furnishings"]:
+		assert_true(node.get_node_or_null(path) != null, "%s exists" % path)
+	var furnishings := node.get_node("Smithy/Furnishings")
+	for name: String in [
+		"forge_hearth", "forge_bellows", "forge_anvil", "forge_slack_tub", "forge_stock_rack"
+	]:
+		assert_true(furnishings.get_node_or_null(name) != null, "forge kit piece %s" % name)
+	var hearth := furnishings.get_node("forge_hearth")
+	assert_false(
+		hearth.find_children("ForgeFireLight", "", true, false).is_empty(),
+		"the hearth carries the live forge fire"
+	)
+	assert_false((node.get_meta(&"chimneys", []) as Array).is_empty(), "the stack smokes")
+	node.free()

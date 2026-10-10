@@ -26,8 +26,8 @@ const STAGE_DONE := &"done"
 const CONFRONTATION := &"dialogue.prologue.porter_confrontation"
 const KALEV_ARRIVES := &"dialogue.prologue.kalev_arrives"
 const CLOSING_CUTSCENE := &"cutscene.prologue.taken_in"
-## The new game opens in the seamless city, in the street in front of Kalev's smithy
-## (`landmark.kalev_smithy`); the smithy door leads on into the forge interior.
+## The new game opens in the seamless city, inside Kalev's smithy: the forge bay
+## of the landmark site `site.kalev_smithy`, at the hearth.
 const NEXT_SCENE_ID := &"reval_city"
 const NEXT_SPAWN_ID := &"kalev_smithy"
 ## The year card leaves on its own after this long; interact or a click leaves sooner.

@@ -215,6 +215,9 @@ func apply_time(progress: float) -> void:
 		clamp(presentation.rain_intensity * 0.8 + presentation.puddle_wetness * 0.3, 0.0, 1.0)
 	)
 	smoke.set_time_of_day(MapView3D.TIME_DAY if day_blend > 0.35 else MapView3D.TIME_NIGHT)
+	# Site fire and candle controllers (the smithy hearth) follow the same clock.
+	if is_inside_tree():
+		get_tree().call_group(&"city_cycle_lights", &"apply_cycle_progress", progress)
 
 
 ## Site building footprints (world XZ) near `ring`: generic roofs must not
@@ -250,6 +253,10 @@ func _build_sites() -> void:
 		node.transform = site.transform3d()
 		add_child(node)
 		site_nodes[site.id] = node
+		# A site with a working hearth (Kalev's smithy) lists its stack tops in
+		# site-local metres; their plumes are always lit.
+		for top: Vector3 in node.get_meta(&"chimneys", []):
+			chimneys.append([node.transform * top, StringName("%s.chimney" % site.id), true])
 
 
 ## Hides (or shows) the nodes a site room lists in `hide` (roof, ceiling).

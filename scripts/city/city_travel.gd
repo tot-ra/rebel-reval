@@ -72,6 +72,11 @@ static func consume_pending_spawn(scene_id: StringName = CITY_SCENE_ID) -> Strin
 ## interest, a landmark's door, a suburb, the head of an extramural road, or
 ## Kalev's smithy door.
 static func spawn_position(plan: CityPlan, spawn_id: String) -> Vector2:
+	# A landmark site may own the spawn: "kalev_smithy" is inside the forge bay
+	# of site.kalev_smithy, so the new game starts at the hearth, not the street.
+	var inside := site_spawn(plan, spawn_id)
+	if not inside.is_empty():
+		return inside["at"]
 	# Regional sites (ADR 0042) list their travel arrivals (`from_world_*`) in the plan.
 	var arrival := plan.arrival_spawn(spawn_id)
 	if not arrival.is_empty():
@@ -113,6 +118,21 @@ static func spawn_position(plan: CityPlan, spawn_id: String) -> Vector2:
 	if not fallback.is_empty():
 		return Vector2(fallback["at"][0], fallback["at"][1])
 	return plan.bounds.get_center()
+
+
+## A spawn a landmark site manifest lists under `spawns` (site-local `at` and
+## `facing_deg`), as {at, facing} in world XZ; {} when no site owns `spawn_id`.
+static func site_spawn(plan: CityPlan, spawn_id: String) -> Dictionary:
+	for site in plan.sites:
+		for s: Dictionary in site.data.get("spawns", []):
+			if String(s["id"]) != spawn_id:
+				continue
+			var facing := Vector2.from_angle(deg_to_rad(float(s.get("facing_deg", 0.0))))
+			return {
+				"at": site.to_world(Vector2(s["at"][0], s["at"][1])),
+				"facing": facing.rotated(site.rotation),
+			}
+	return {}
 
 
 static func building_index(plan: CityPlan, landmark_or_id: String) -> int:

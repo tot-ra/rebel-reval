@@ -257,14 +257,13 @@ func _anchors() -> Dictionary:
 		result["woodland"] = {"id": wood["id"], "at": at}
 		var radius := sqrt(float(wood["area_m2"]) / PI) / _plan.metres_per_unit
 		result["woodland_edge"] = {"id": wood["id"], "at": at + Vector2(0, radius + 42.0)}
-	# The street outside Kalev's smithy door, where CityTravel spawns "kalev_smithy"
-	# (CityTravel itself needs the DoorNavigator autoload, absent under --script).
-	for b: Dictionary in _plan.buildings:
-		if b["landmark_id"] == "landmark.kalev_smithy" and b.get("door") != null:
-			var door := Vector2(b["door"][0], b["door"][1])
-			var out := Vector2(cos(float(b["door"][2])), sin(float(b["door"][2])))
-			result["kalev_smithy"] = {"id": "landmark.kalev_smithy", "at": door + out * 2.5}
-			break
+	# The street outside Kalev's smithy door (site.kalev_smithy; the new game now
+	# starts inside, so the outdoor benchmark keeps the street spot in front).
+	for site in _plan.sites:
+		for a: Dictionary in site.data.get("anchors", []):
+			if String(a["id"]) == "anchor.kalev_smithy.street_door":
+				var at := site.to_world(Vector2(a["at"][0], a["at"][1]))
+				result["kalev_smithy"] = {"id": "landmark.kalev_smithy", "at": at}
 	return result
 
 
