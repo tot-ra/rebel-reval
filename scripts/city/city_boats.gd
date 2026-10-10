@@ -197,19 +197,11 @@ static func _oars_and_mast(root: Node3D, kind: StringName) -> void:
 
 
 static func _cargo(root: Node3D) -> void:
-	var wood := StandardMaterial3D.new()
-	wood.albedo_color = Color(0.5, 0.38, 0.27)
-	wood.roughness = 0.9
+	# Same hooped oak barrel as the shore stacks; the deck sits at y = 0.55.
 	for i in 4:
-		var barrel := MeshInstance3D.new()
-		var cyl := CylinderMesh.new()
-		cyl.top_radius = 0.34
-		cyl.bottom_radius = 0.34
-		cyl.height = 0.9
-		barrel.mesh = cyl
-		barrel.material_override = wood
-		barrel.position = Vector3(-1.6 + i * 0.85, 1.0, (i % 2) * 0.8 - 0.4)
-		root.add_child(barrel)
+		MapViewBarrelMeshes.add_barrel(
+			root, "Barrel%d" % i, Vector3(-1.6 + i * 0.85, 0.55, (i % 2) * 0.8 - 0.4), i * 1.7
+		)
 
 
 ## Overturned boat on two trestles: a hull flipped keel-up, for the boatwright

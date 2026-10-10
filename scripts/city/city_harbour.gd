@@ -161,9 +161,15 @@ static func _stack(
 	root.add_child(node)
 	match String(s["kind"]):
 		"barrel":
+			# WHY a jittered 2x2 grid: the old random scatter overlapped barrels (0.62 m
+			# wide) into one lump. Same coopered, iron-hooped oak as the barrels props.
 			for i in 4:
-				var off := Vector3(rng.randf_range(-0.9, 0.9), 0.45, rng.randf_range(-0.9, 0.9))
-				_cylinder(node, 0.34, 0.9, off, wood)
+				var off := Vector3(
+					(i % 2) * 0.72 - 0.36 + rng.randf_range(-0.05, 0.05),
+					0.0,
+					(i / 2) * 0.72 - 0.36 + rng.randf_range(-0.05, 0.05)
+				)
+				MapViewBarrelMeshes.add_barrel(node, "Barrel%d" % i, off, rng.randf() * TAU)
 		"bale":
 			for i in 3:
 				_box(
