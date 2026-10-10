@@ -322,6 +322,10 @@ const float CITY_WHITECAP_THRESHOLD = 0.5;
 const float CITY_WHITECAP_GAIN = 0.6;
 const float CITY_STREAK_SHARE = 0.35;
 // Fraction of the window over which ripples fade out, so the window edge never shows a seam.
+// World-unit baseline of the bore/crest slope difference (fragment, city sea).
+// Long enough to average the shore field's filtering steps, short against the
+// 1.4-2.4 unit crest width; the 0.12 unit front meniscus is shaded a touch softer.
+const float CITY_RUNUP_SLOPE_STEP = 0.08;
 const float RIPPLE_EDGE_FADE = 0.1;
 // Steepest ripple facet the shading normal may take (about 31 degrees).
 const float RIPPLE_MAX_SLOPE = 0.6;
@@ -988,19 +992,6 @@ float _city_runup_height(ShoreState shore, float bed_y, float ocean_y) {
 	return _city_runup_profile(shore, bed_y, ocean_y).x;
 }
 
-// Analytic surface slope in world XZ, without extra shore-field texture reads.
-vec2 _city_height_gradient(float height, vec2 xz) {
-	vec2 dx = dFdx(xz);
-	vec2 dy = dFdy(xz);
-	float det = dx.x * dy.y - dx.y * dy.x;
-	if (abs(det) < 1e-10) {
-		return vec2(0.0);
-	}
-	float hx = dFdx(height);
-	float hy = dFdy(height);
-	return vec2(hx * dy.y - hy * dx.y, hy * dx.x - hx * dy.x) / det;
-}
-
 // WR-2: city foam structure, attached to the water. The input is a Lagrangian
 // (rest) coordinate: the FFT vertex displacement already carries it with the
 // surface, and the surf passes it pre-shifted by the swash excursion, so foam
@@ -1519,9 +1510,25 @@ void fragment() {
 		float ocean_crest = tide_height * tide_level
 			+ (shore_now.height + max(shore_now.slosh, 0.0)) * shore_geometry_scale * shore_now.valid;
 		vec2 runup = _city_runup_profile(shore_now, sea_ground_y, ocean_crest);
-		vec2 slope = _city_height_gradient(runup.x, wave_sample_xz);
-		vec2 raw_bed_slope = _city_height_gradient(sea_ground_y, wave_sample_xz);
-		slope += (sea_bed_slope - raw_bed_slope) * runup.y;
+		// WHY not dFdx/dFdy of runup.x: the height comes from the filtered shore
+		// field, which steps slightly between pixels when a texel is magnified over
+		// many of them. Screen derivatives turn those steps into slope spikes, and
+		// up close (Retina, low camera) the bore face and incoming crests showed a
+		// moire of dashes and zebra stripes. A world-space difference over a
+		// fixed baseline averages the steps out. The wave profile varies along
+		// to_land, so one extra sample there carries the face; alongshore only the
+		// smooth interpolated bed slope (sea_bed_slope) contributes.
+		vec2 slope = sea_bed_slope * runup.y;
+		if (dot(shore_now.to_land, shore_now.to_land) > 0.25) {
+			vec2 step_xz = shore_now.to_land * CITY_RUNUP_SLOPE_STEP;
+			ShoreState shore_ahead = shore_state(wave_sample_xz + step_xz, ocean_time, shore_sea());
+			float crest_ahead = tide_height * tide_level
+				+ (shore_ahead.height + max(shore_ahead.slosh, 0.0)) * shore_geometry_scale * shore_ahead.valid;
+			float bed_ahead = sea_ground_y + dot(sea_bed_slope, step_xz);
+			float rise = _city_runup_height(shore_ahead, bed_ahead, crest_ahead) - runup.x;
+			vec2 along = vec2(-shore_now.to_land.y, shore_now.to_land.x);
+			slope = shore_now.to_land * (rise / CITY_RUNUP_SLOPE_STEP) + along * dot(slope, along);
+		}
 		// Include the rising bore face in the shading normal, not only FFT ripples.
 		float inland = smoothstep(-0.45, 0.12, sea_ground_y) * shore_now.beach * shore_now.valid;
 		vec2 ocean_slope = world_normal.xz / max(world_normal.y, 0.2) * (1.0 - inland);
