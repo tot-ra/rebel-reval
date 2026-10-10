@@ -22,7 +22,7 @@ Every GLB is listed with its licence in [`assets/SOURCES.csv`](../../assets/SOUR
 
 ## Concept art
 
-Status: reference only (not runtime assets, not imported by Godot; no `assets/SOURCES.csv` rows). Every card carries one photorealistic wildlife image in [`images/`](./images), generated locally with ComfyUI (DreamShaper 8 checkpoint) in the muted Baltic daylight palette shared with the character concept art in [`docs/concept/characters/`](../concept/characters/README.md). Regenerate with `python3 tools/gen_animal_concept_art.py` (idempotent, skips existing files); re-link cards with `python3 tools/add_animal_images_to_cards.py`. These are mood and anatomy reference only, not 3D or in-game textures. `images/.gdignore` keeps Godot from importing them.
+Status: reference only (not runtime assets, not imported by Godot; no `assets/SOURCES.csv` rows). Every card carries one photorealistic wildlife image in [`images/`](./images), generated locally with ComfyUI (DreamShaper 8 checkpoint) in the muted Baltic daylight palette shared with the character concept art in [`docs/concept/characters/`](../concept/characters/README.md). Prompts for manual generation are in [IMAGE_PROMPTS.md](./IMAGE_PROMPTS.md). Regenerate with `python3 tools/gen_animal_concept_art.py` (idempotent, skips existing files); re-link cards with `python3 tools/add_animal_images_to_cards.py`. These are mood and anatomy reference only, not 3D or in-game textures. `images/.gdignore` keeps Godot from importing them.
 
 ## Mammals
 

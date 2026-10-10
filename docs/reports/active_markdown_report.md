@@ -14,10 +14,10 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `1185`
+- Active Markdown files scanned: `1186`
 - Markdown files excluded as archive/reference/out of active scope: `754`
-- Local/external links inspected: `13344`
-- Links to active Markdown docs: `12154`
+- Local/external links inspected: `13345`
+- Links to active Markdown docs: `12155`
 - Links to existing archive/reference/non-active local docs: `458`
 - External links skipped for reachability: `145`
 - Issues found: `0`
@@ -119,6 +119,7 @@ No active Markdown documentation issues found.
 - `docs/ANIMALS-AND-BIRDS/hooded_crow.md`
 - `docs/ANIMALS-AND-BIRDS/horse.md`
 - `docs/ANIMALS-AND-BIRDS/house_sparrow.md`
+- `docs/ANIMALS-AND-BIRDS/IMAGE_PROMPTS.md`
 - `docs/ANIMALS-AND-BIRDS/lynx.md`
 - `docs/ANIMALS-AND-BIRDS/mallard.md`
 - `docs/ANIMALS-AND-BIRDS/mute_swan.md`
