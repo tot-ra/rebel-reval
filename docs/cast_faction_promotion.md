@@ -9,12 +9,15 @@
 
 ## Art rule (binding)
 
-Legacy portraits, pixel GIFs, and sheet art under `characters/**` are **inspiration only**. Production models use the shared rig and fidelity tiers (ADR 0007 / 0016). Do not ship legacy 2D sheets as runtime characters.
+Legacy 128 px pixel PNGs, pixel GIFs, and sheet art under `characters/**` are **inspiration only** and stay frozen (P0-040). Production models use the shared rig and fidelity tiers (ADR 0007 / 0016). Do not ship legacy 2D sheets as runtime characters.
+
+Exception ([ADR 0044](./adr/0044-named-npc-presentation-tier.md), proposed): the AI-generated painted portraits `characters/**/img/*.jpg` dated 2026-10-07 or later are runtime **dialogue avatars** and the reference for each named NPC's 3D model. They ship only as crops made by `tools/assets/import_npc_portraits.py` into `assets/characters/portraits/npc/`, each with an approved `assets/SOURCES.csv` row.
 
 | Tier | Use for promote-first cast |
 |---:|---|
-| **0 Hero** | Reserved for the seven slice-core briefs already in `docs/CHARACTERS/` (Kalev + Mart, Aita, Kaja, Henning, Jürgen, Ellen). New promotions do **not** enter Tier 0 without a separate art/ADR decision. |
-| **1 Named NPC** | Default for promote-first quest and faction faces. |
+| **0 Hero** | Reserved for the seven slice-core briefs already in `docs/CHARACTERS/` (Kalev + Mart, Aita, Kaja, Henning, Jürgen, Ellen). New promotions do **not** enter Tier 0. |
+| **1C Cinematic named NPC** | Target for every named NPC with a 2026-10-07 portrait: custom MPFB model from the portrait, close-up LOD0 at Tier 0 caps, LOD1 20k / LOD2 12k for distance ([ADR 0044](./adr/0044-named-npc-presentation-tier.md)). |
+| **1 Named NPC** | Fallback for promoted faces until their 1C model lands. |
 | **2 Crowd/battle** | Ambient townsfolk, siege ranks, unnamed Harju fighters - no individual brief required. |
 
 ---
@@ -113,10 +116,10 @@ Priority is production order inside each act wave. Content IDs are stubs for lat
 | Jürgen von League (`characters/hansa/`) | **merge** | Active brief is [`jurgen.md`](./CHARACTERS/jurgen.md) (Jürgen Witte). Fold amber-merchant hooks there; do not duplicate. |
 | Kaja Lahekivi (`characters/rebels/`) | **merge** | Active brief is [`kaja.md`](./CHARACTERS/kaja.md). Rural surname may appear as alias in dialogue, not a second cast ID. |
 | Ellen Luik (`characters/metsik_cult/`) | **merge** | Active brief is [`ellen.md`](./CHARACTERS/ellen.md). |
-| Famous off-stage roster (Algirdas, Jani Beg, Petrarch, …) | **defer** / mention | CANON historical-figures rules; no playable agency. |
+| Famous off-stage roster (Algirdas, Jani Beg, Petrarch, …) | **defer** / mention | CANON historical-figures rules; no playable agency. Portrait + mention only: no 3D model or in-game install (R-1234..R-1256, ADR 0044 scope offset). |
 | Workers-quarter ambient sheets (`characters/workers_quarter/**`) | **defer** as Tier 2 | Crowd variants; promote individuals only when a quest names them. |
 | Hostage wife/daughter grove cast | **reject** | Conflicts with [`kalev-family.md`](./CHARACTERS/kalev-family.md). |
-| Sergius of Radonezh / anachronistic saints as quest givers | **reject** or heavy **adapt** | Keep out of 1343 Reval agency unless research upgrades with confidence labels. |
+| Sergius of Radonezh / anachronistic saints as quest givers | **reject** | Rejected as named NPC and quest giver (R-1264, ADR 0044); mention only if research supports it. |
 
 ---
 

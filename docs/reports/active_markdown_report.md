@@ -16,9 +16,9 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 - Active Markdown files scanned: `1160`
 - Markdown files excluded as archive/reference/out of active scope: `753`
-- Local/external links inspected: `13139`
-- Links to active Markdown docs: `11974`
-- Links to existing archive/reference/non-active local docs: `457`
+- Local/external links inspected: `13081`
+- Links to active Markdown docs: `11980`
+- Links to existing archive/reference/non-active local docs: `456`
 - External links skipped for reachability: `145`
 - Issues found: `0`
 
@@ -80,6 +80,7 @@ No active Markdown documentation issues found.
 - `docs/adr/0041-spirit-sight-auras-and-soul-lights.md`
 - `docs/adr/0042-regional-site-plans.md`
 - `docs/adr/0043-mobile-renderer-and-hdr-output.md`
+- `docs/adr/0044-named-npc-presentation-tier.md`
 - `docs/adr/README.md`
 - `docs/AGENT_LOOPS.md`
 - `docs/ANIMAL_3D_SOURCING.md`
@@ -1092,7 +1093,6 @@ No active Markdown documentation issues found.
 - `docs/SYSTEMS/NIGHT_SKY.md`
 - `docs/SYSTEMS/NPC_MIND.md`
 - `docs/SYSTEMS/OBJECT_CATALOG.md`
-- `docs/SYSTEMS/POST_PROCESS.md`
 - `docs/SYSTEMS/PSYCHE.md`
 - `docs/SYSTEMS/QUESTS.md`
 - `docs/SYSTEMS/README.md`

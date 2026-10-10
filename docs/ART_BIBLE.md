@@ -322,6 +322,7 @@ All tiers share one skeleton and animation library. The tier determines the maxi
 | Tier | Triangle cap | Texture cap | Required read |
 |---:|---:|---:|---|
 | 0 Hero | 60,000 | 2048 px | expressive face/hands, authored hair, material-specific PBR, macro/meso/micro costume story |
+| 1C Cinematic named NPC | 60,000 LOD0 / 20,000 LOD1 / 12,000 LOD2 | 2048 px head, 1024 px body | portrait-matched face for close-ups, Tier 0 skin/eye/hair shaders at LOD0, faction accent ([ADR 0044](adr/0044-named-npc-presentation-tier.md), proposed) |
 | 1 Named NPC | 56,000 | 1024 px | distinctive face/silhouette, occupation/status detail, shared but tuned PBR zones |
 | 2 Crowd/battle | 12,000 | 512 px | strong palette/silhouette variation, simplified lit materials, clean LOD/instancing |
 

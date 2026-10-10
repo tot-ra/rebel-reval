@@ -47,5 +47,6 @@ Numbered decisions (Status / Context / Decision / Alternatives / Consequences). 
 - [ADR 0041: Spirit sight, auras and the seven soul lights](0041-spirit-sight-auras-and-soul-lights.md)
 - [ADR 0042: Regional site plans](0042-regional-site-plans.md)
 - [ADR 0043: Mobile renderer on Metal and opt-in HDR (EDR) output](0043-mobile-renderer-and-hdr-output.md)
+- [ADR 0044: Named NPC presentation tier, portrait avatars, "!" marker and faction identity](0044-named-npc-presentation-tier.md)
 
 <!-- docs-index:end -->
