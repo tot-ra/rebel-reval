@@ -11,7 +11,9 @@ const SKY_SHADER_PATH := "res://scripts/map/view3d/sky_weather_3d.gdshader"
 func test_horizon_colour_skips_the_sun_aureole() -> void:
 	var code := FileAccess.get_file_as_string(SKY_SHADER_PATH)
 	assert_true(
-		code.contains("vec3 lut_horizon = sky_lut_horizon_radiance(dir) * art;"),
+		code.contains(
+			"vec3 lut_horizon = sky_highlight_shoulder(sky_lut_horizon_radiance(dir) * art);"
+		),
 		"the column horizon colour must come from the aureole-free horizon lookup"
 	)
 	var regex := RegEx.create_from_string("const float HORIZON_AZIMUTH_FLOOR = ([0-9.]+);")

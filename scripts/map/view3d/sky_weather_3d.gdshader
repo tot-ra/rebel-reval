@@ -861,12 +861,12 @@ void sky() {
 			1.0, sky_adaptation_max_gain);
 		vec3 art = sky_exposure * sky_tint.rgb * adaptation;
 		lut_zenith *= art;
-		vec3 lut_horizon = sky_lut_horizon_radiance(dir) * art;
+		vec3 lut_horizon = sky_highlight_shoulder(sky_lut_horizon_radiance(dir) * art);
 		cloud_ambient = 0.5 * (lut_zenith + lut_horizon);
 		// Sunlight from the LUT is untouched; only the additive night floor varies.
 		float night = 1.0 - day_blend;
 		horizon = lut_horizon + night_horizon * night;
-		color = sky_lut_radiance(dir) * art
+		color = sky_highlight_shoulder(sky_lut_radiance(dir) * art)
 			+ mix(night_top, night_horizon, haze) * night;
 		// Art-controlled warm band on the sun side, now a small boost over the LUT sunset.
 		color += sunset_color.rgb * sunset_factor * pow(sun_amount, 2.0) * haze * sunset_boost;

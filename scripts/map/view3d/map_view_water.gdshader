@@ -833,13 +833,16 @@ vec3 _sky_dome_reflection(vec3 dir) {
 		pow(sky_adaptation_reference / max(zenith_luminance, 1e-6), sky_adaptation),
 		1.0, sky_adaptation_max_gain);
 	vec3 art = sky_exposure * sky_tint * adaptation;
-	vec3 lut_horizon = _sky_lut_radiance(normalize(vec3(dir.x, 0.0, dir.z) + vec3(0.0, 0.0, 1e-5))) * art;
+	// Same highlight shoulder as the dome, so the water does not mirror a brighter horizon.
+	vec3 lut_horizon = sky_highlight_shoulder(
+		_sky_lut_radiance(normalize(vec3(dir.x, 0.0, dir.z) + vec3(0.0, 0.0, 1e-5))) * art);
 	float night = 1.0 - day_blend;
 	float night_fill = reflected_night_readability();
 	vec3 night_top = mix(vec3(0.0015, 0.0020, 0.0030), night_top_color, night_fill);
 	vec3 night_horizon = mix(vec3(0.0030, 0.0040, 0.0060), night_horizon_color, night_fill);
 	vec3 horizon = lut_horizon + night_horizon * night;
-	vec3 color = _sky_lut_radiance(dir) * art + mix(night_top, night_horizon, haze) * night;
+	vec3 color = sky_highlight_shoulder(_sky_lut_radiance(dir) * art)
+		+ mix(night_top, night_horizon, haze) * night;
 	color += sunset_color * sunset_factor * pow(sun_amount, 2.0) * haze * sunset_boost;
 	color = mix(color, horizon * vec3(0.83, 0.87, 0.93), cloud_darken * 0.38);
 	color = mix(color, horizon * 0.55, clamp(-height * 3.0, 0.0, 1.0));

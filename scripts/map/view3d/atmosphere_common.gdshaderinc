@@ -123,6 +123,31 @@ float mie_phase_cornette_shanks(float cos_theta, float g) {
 }
 
 
+// Highlight shoulder for the exposed sky-view LUT background (art exposure x eye adaptation
+// already applied), shared by the dome and the water's sky reflection. WHY: with a low sun the
+// LUT's horizon under the sun grows from ~8x the zenith at noon to ~28x at 16 degrees and ~60x
+// at 7 degrees (Mie forward scatter along the long horizon path). The zenith-keyed adaptation
+// (1.13 -> 1.55 -> 1.93) and the low-sun tonemap lift (1.0 -> 1.23 -> 1.30) multiply that band
+// as well, so it reached 3-6 scene-linear and blew a white dome over a third of the frame.
+// Luminance up to the knee passes unchanged (the brightest noon sky is ~0.76, so noon is
+// barely touched); above it the excess rolls off towards the cap with the hue kept, which
+// keeps a 10-16 degree sun's horizon near UI white on SDR. The sun disk, corona and halo are
+// added after this and keep their EDR range.
+const float SKY_HIGHLIGHT_KNEE = 0.7;
+const float SKY_HIGHLIGHT_CAP = 1.0;
+
+vec3 sky_highlight_shoulder(vec3 radiance) {
+	float luminance = dot(radiance, vec3(0.2126, 0.7152, 0.0722));
+	if (luminance <= SKY_HIGHLIGHT_KNEE) {
+		return radiance;
+	}
+	float excess = luminance - SKY_HIGHLIGHT_KNEE;
+	float shaped = SKY_HIGHLIGHT_KNEE
+		+ excess / (1.0 + excess / (SKY_HIGHLIGHT_CAP - SKY_HIGHLIGHT_KNEE));
+	return radiance * (shaped / luminance);
+}
+
+
 // Tidewater viewHeight 6360.002 km: the WS-10 sky-view LUT is rendered from this height.
 const float ATMO_SKY_VIEW_HEIGHT_KM = 6360.002;
 
