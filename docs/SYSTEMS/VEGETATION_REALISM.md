@@ -1,6 +1,6 @@
 # Vegetation realism: grass, grain fields, trees
 
-Status: in progress (epic **R-1319**). Implemented: V0 benchmark and budgets (**R-1320**, section 8), V1 procedural textures (**R-1329**, section 7), V2 shared wind field (**R-1321**, section 1), V3 ecology placement (**R-1322**, section 5), seamless-city rooting rules and the coastal pine heath (**R-1617**, section 5b) and V6 tree skeletons and leaf clusters (**R-1324**, section 4); every other phase is planned. Scope: a staged upgrade of how grass, grain fields, trees, and shrubs are rendered in the 3D view, so open country and woods read as real Baltic nature. Out of scope: gameplay changes, felling or damaging trees, new biomes, imported game assets, a renderer change (GL Compatibility stays), and anything that changes saved state. This page is the spec to turn into tasks; it extends [`LIVING_VEGETATION.md`](./LIVING_VEGETATION.md) (seasons, crown shader, leaf fall) and the "Vegetation realism (P0-208)" rule in [`ART_BIBLE.md`](../ART_BIBLE.md).
+Status: in progress (epic **R-1319**). Implemented: V0 benchmark and budgets (**R-1320**, section 8), V1 procedural textures (**R-1329**, section 7), V2 shared wind field (**R-1321**, section 1), V3 ecology placement (**R-1322**, section 5), seamless-city rooting rules and the coastal pine heath (**R-1617**, section 5b) and V6 tree skeletons and leaf clusters (**R-1324**, section 4), and moss, lichen and the forest floor (**R-1661**, last section); every other phase is planned. Scope: a staged upgrade of how grass, grain fields, trees, and shrubs are rendered in the 3D view, so open country and woods read as real Baltic nature. Out of scope: gameplay changes, felling or damaging trees, new biomes, imported game assets, a renderer change (GL Compatibility stays), and anything that changes saved state. This page is the spec to turn into tasks; it extends [`LIVING_VEGETATION.md`](./LIVING_VEGETATION.md) (seasons, crown shader, leaf fall) and the "Vegetation realism (P0-208)" rule in [`ART_BIBLE.md`](../ART_BIBLE.md).
 
 Scope rule: this revises existing vegetation presentation. It adds no mechanic, area, or pillar, so it needs no ADR. A new crop mechanic (planting, harvest as gameplay) would, and is not part of this plan.
 
@@ -316,3 +316,42 @@ Trees no longer meet the ground along a hard cut line.
 - **Grass roots:** `map_view_grass.gdshader` blends the blade base into `root_tint` over a longer span, so the blade-to-ground line is softer.
 - **Verify:** `tools/godot_render.sh --script tools/capture_city_vegetation.gd -- --only=oak_base_close,pine_base_close,birch_base_close`.
 - **Limits:** flare tubes are faceted cones (no smooth normals yet); litter flecks are flat and do not react to wind or footsteps.
+
+## Moss, lichen and the forest floor (R-1661)
+
+Status: implemented (task **R-1661**). Scope: moss and lichen on the shaded (north, world -Z) side of tree trunks and building walls, moss on ground that stays in shade (north of buildings, under closed canopy), and moss cushions and seasonal fungi on the floor of the seamless city's woods. Out of scope: the woods' tall-grass understorey (R-1595), roofs (their moss is R-1465), gathering mushrooms as items, blueprint-map forest floors (they only get the bark change), and snow cover.
+
+Decision (user, 2026-10-11): moss and lichens grow on the north side of some trees and buildings where little sun reaches, on shaded ground and on the forest floor; the forest also gets some mushrooms.
+
+**What the player sees.**
+
+- **Tree trunks** (`map_view_bark_wind.gdshader`, every city and blueprint-map tree): a green moss skirt round the root that climbs highest (up to about 2.6 m) on the north side, and pale grey-green lichen crusts from shin height up. Seeded per tree from its position, so only some trunks are mossy and some carry lichen. Wet moss darkens less than wet bark. Uniforms `moss_amount` (0.6) and `lichen_amount` (0.5).
+- **Walls** (`shade_growth` in `city_weathering.gdshaderinc`, used by `city_weathered_wall.gdshader` for stone houses and fortifications and at half strength by outdoor `city_limewash.gdshader`): tufted moss in the damp foot zone of north faces, which keeps the stone texture showing through, and small sparse lichen crusts higher up. South faces stay clean.
+- **Shaded ground** (`city_ground.gdshader`): the moss grass plate (slice 9) in ragged cushions where `CityShadeMask` reports shade; bare earth there is half grown over. Trodden paths and roads stay bare.
+- **Forest floor** (`CityForestFloor`): two to four moss cushions round each tree of a closed stand (a forest tree with at least 8 forest neighbours within 15 world units), biased to its north side, plus fungi by mycorrhizal partner. Brackets and moss show all year; ground fungi only in their season:
+
+| Kind (`CityForestFloor.KIND_*`) | Species | Grows by | Days of year |
+|---|---|---|---|
+| `gyromitra` | false morel, *Gyromitra esculenta* | pine | 100-152 (April-May) |
+| `chanterelle` | *Cantharellus cibarius*, in troops of 3-7 | spruce, pine, birch | 182-280 |
+| `porcini` | *Boletus edulis* | spruce, pine, birch, oak | 196-288 |
+| `fly_agaric` | *Amanita muscaria* | birch, spruce | 205-295 |
+| `bracket` | tinder fungus, *Fomes fomentarius*, 1-3 shelves on the trunk | birch | all year |
+| `moss` | moss cushions | any forest tree | all year |
+
+On the slice's opening date (21 April 1343) the woods show moss, brackets and false morels.
+
+**Runtime.**
+
+- [`scripts/city/city_shade_mask.gd`](../../scripts/city/city_shade_mask.gd) `CityShadeMask.texture(plan)`: RG8 texture over the splat rect at 2 world units per pixel. R is the strip north of every building footprint, 0.9 of the wall height long (2-8 world units), fading from the wall; G is the forest-tree density on a 12-unit grid, bilinear-upscaled. Bound as `shade_mask` by `CityTerrainBuilder.material`.
+- [`scripts/city/city_forest_floor.gd`](../../scripts/city/city_forest_floor.gd) `CityForestFloor.build(plan, parent)`: built by `CityDressingBuilder` at `Dressing/ForestFloor`. One MultiMesh per kind and 96-unit chunk, procedural lathe meshes with sRGB vertex colours, no shadows, visible to 110 units (moss) and 70 units (fungi). Skips cart roads (road texture R channel) and the moat. `CityMapView.set_calendar_date` calls `set_calendar_date`, which only toggles kind visibility; `kinds_in_season(day)` is the season table.
+- Deterministic: every placement is seeded by tree position. No saved state.
+
+**Verify.** `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_city_forest_floor` ([`test_city_forest_floor.gd`](../../tests/godot/test_city_forest_floor.gd): season table, calendar visibility, determinism, nothing outside the woods, outward cushion normals, north strips stronger than south, woods under canopy shade). Captures: `tools/godot_render.sh --resolution 1600x900 res://tools/capture_city_moss.tscn` writes:
+
+- [north side of a birch with tinder brackets](../reports/images/vegetation/r1661_tree_north_moss.jpg)
+- [north wall of a stone house](../reports/images/vegetation/r1661_wall_north_moss.jpg), [the shaded strip in front of it](../reports/images/vegetation/r1661_shaded_ground.jpg)
+- [false morels in April](../reports/images/vegetation/r1661_forest_floor_april.jpg), [the wood in April](../reports/images/vegetation/r1661_woods_april.jpg)
+- [chanterelles in August](../reports/images/vegetation/r1661_forest_floor_august.jpg), [the wood in August](../reports/images/vegetation/r1661_woods_august.jpg)
+
+**Limits.** The woods still stand in tall meadow grass (R-1595), which hides most fungi and cushions from eye height. The north strip is a fixed southern-sun approximation (it ignores the hour, the season and neighbouring roofs), and the canopy channel is coarse (12 units). Fungi are low-poly lathes with vertex colour only; fly agaric warts are flecked vertices. Regional sites get the floor only where their plan has dense stands.

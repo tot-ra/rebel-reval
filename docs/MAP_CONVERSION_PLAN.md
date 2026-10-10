@@ -183,6 +183,7 @@ Roles `level`, `map`, and `event` have full conversion specifications later in t
 | `tools/capture_city_citizens.tscn` | test | `retain` | Capture city citizens tool scene | Developer-only capture or profiling host; never release-playable | not a map definition |
 | `tools/capture_city_households.tscn` | test | `retain` | Capture city households tool scene | Developer-only capture or profiling host; never release-playable | not a map definition |
 | `tools/capture_city_fauna.tscn` | test | `retain` | Capture city fauna tool scene | Developer-only capture or profiling host; never release-playable | not a map definition |
+| `tools/capture_city_moss.tscn` | test | `retain` | Capture city moss and forest floor tool scene | Developer-only capture or profiling host; never release-playable | not a map definition |
 | `tools/capture_site_edge_travel.tscn` | test | `retain` | Regional-site edge-to-travel-map capture host | ADR 0042 verification plate (walk into a site's edge band, global travel map opens); never release-playable | not a map definition |
 | `tools/profile_reval_city.tscn` | test | `retain` | Profile reval city tool scene | Developer-only capture or profiling host; never release-playable | not a map definition |
 
