@@ -319,6 +319,9 @@ Per [ADR 0017](./adr/0017-legacy-design-reintroduction.md), the following return
   * Contract: [`docs/SYSTEMS/SPIRIT_DIALOGUE.md`](./SYSTEMS/SPIRIT_DIALOGUE.md).
 * **Fear phantoms (Estonian folklore creatures: Kuri vaim, Näkk, Tont, Vanapagan, Kratt, Lendva)** - **`folklore`**
   * Visible only to the apprentice, as manifestations of fear around dark places and threatening people. Creature names and traits follow folklore sources; their game roles are **`invented`**.
+* **Bestiary roster (R-1578)** - **`folklore`** for every spirit-layer being, **`invented`** for human adversaries on **`attested`** road and city conditions, **`attested`** for wild animals
+  * Kept spirit beings: Kratt, Puuk, Põhja Konn, Metsavana (Metsik, absorbs Leshy), Näkk, Luupainaja, Külmking, Kodukäija, Tulihänd, Maa-alused, Hiid, Libahunt, Vanapagan, Myling (Swedish coastal settlers only), Katk, Majahaldjas, Vetevana, Tulukesed, Marras; Domovoy and Vodyanoy only as Pskov-Novgorod variants. Slavic and Scandinavian beings without that contact are rejected.
+  * Roster, layers, tiers and reasons: [`docs/BESTIARY/README.md`](./BESTIARY/README.md). Feature page: [`docs/SYSTEMS/BESTIARY.md`](./SYSTEMS/BESTIARY.md).
 * **Almshouse at the Holy Spirit parish** - parish and a priest in 1316 are **`attested`**; an orphan house there in 1343 is **`plausible composite`**.
 * **Guilt (süü) and rites** - **`invented`**
   * Three separate schools: Christian sin and absolution, folk blood-debt and cleansing, civic standing. Not a single morality score. Confession and cleansing rites are **`plausible composite`** (confession is an attested Christian practice; the game rules are invented).

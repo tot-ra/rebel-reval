@@ -33,6 +33,7 @@ One page per implemented or planned feature. Each page opens with a `Status:` li
 | [Living vegetation](./LIVING_VEGETATION.md) | Implemented (seasons, weather, leaf fall on hits) |
 | [Vegetation realism (grass, grain fields, trees)](./VEGETATION_REALISM.md) | In progress: benchmark and budgets (R-1320) and procedural vegetation textures (R-1329) implemented; later phases planned |
 | [Hoist ropes](./HOIST_ROPE.md) | Implemented (wind-swung rope and hook on hoist beams) |
+| [Bestiary: spirit and physical creature roster](./BESTIARY.md) | Planned (R-1578): roster, card template and validator implemented; no cards yet |
 | [Combat runtime](./COMBAT.md) | Foundation implemented; tower bosses unwired |
 | [Combat animation](./COMBAT_ANIMATION.md) | Implemented |
 | [HUD, menus, journal, maps](./HUD_AND_MENUS.md) | Implemented |

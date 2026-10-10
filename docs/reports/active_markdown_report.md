@@ -14,19 +14,19 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `1102`
-- Markdown files excluded as archive/reference/out of active scope: `747`
-- Local/external links inspected: `13162`
-- Links to active Markdown docs: `12076`
-- Links to existing archive/reference/non-active local docs: `451`
+- Active Markdown files scanned: `1106`
+- Markdown files excluded as archive/reference/out of active scope: `749`
+- Local/external links inspected: `13188`
+- Links to active Markdown docs: `12097`
+- Links to existing archive/reference/non-active local docs: `456`
 - External links skipped for reachability: `92`
-- Issues found: `163`
+- Issues found: `155`
 
 ## Issue counts
 
 | Code | Count |
 | --- | ---: |
-| `BROKEN_LINK` | 97 |
+| `BROKEN_LINK` | 89 |
 | `BROKEN_ANCHOR` | 66 |
 | `DUPLICATE_CHARACTER_NAME` | 0 |
 | `CONTRADICTORY_DATE` | 0 |
@@ -191,14 +191,6 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 | `BROKEN_LINK` | `docs/LOCATIONS/sacred_grove.md:50` | Local Markdown link target does not exist: `../../content/maps/south_quarter.rrmap` |
 | `BROKEN_LINK` | `docs/LOCATIONS/sacred_grove.md:179` | Local Markdown link target does not exist: `../../content/maps/world_sacred_grove.rrmap` |
 | `BROKEN_LINK` | `docs/PERFORMANCE_REPORT.md:5` | Local Markdown link target does not exist: `../agents/rebel-dev/skills/performance-loop/SKILL.md` |
-| `BROKEN_LINK` | `docs/SYSTEMS/AUDIO.md:98` | Local Markdown link target does not exist: `../reports/audio_licenses/README.md` |
-| `BROKEN_LINK` | `docs/SYSTEMS/CITY_SEA.md:220` | Local Markdown link target does not exist: `../reports/images/city/water_v2_close_shore_reverse_fresh.jpg` |
-| `BROKEN_LINK` | `docs/SYSTEMS/CITY_SEA.md:222` | Local Markdown link target does not exist: `../reports/images/city/water_v2_surf_side_storm.jpg` |
-| `BROKEN_LINK` | `docs/SYSTEMS/CITY_SEA.md:224` | Local Markdown link target does not exist: `../reports/images/city/water_v2_sea_level_storm.jpg` |
-| `BROKEN_LINK` | `docs/SYSTEMS/CITY_SEA.md:226` | Local Markdown link target does not exist: `../reports/images/city/water_v2_swash_motion.jpg` |
-| `BROKEN_LINK` | `docs/SYSTEMS/CITY_SEA.md:228` | Local Markdown link target does not exist: `../reports/images/city/water_v2_sandbox_open_gale.jpg` |
-| `BROKEN_LINK` | `docs/SYSTEMS/CITY_SEA.md:230` | Local Markdown link target does not exist: `../reports/images/city/water_v2_sandbox_matrix.jpg` |
-| `BROKEN_LINK` | `docs/SYSTEMS/SEAMLESS_CITY.md:125` | Local Markdown link target does not exist: `../reports/animal_placement_plan.md` |
 
 ## Active files scanned
 
@@ -251,6 +243,8 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/ART_BIBLE.md`
 - `docs/ASSET_INVENTORY.md`
 - `docs/ASSET_STORAGE_POLICY.md`
+- `docs/BESTIARY/README.md`
+- `docs/BESTIARY/TEMPLATE.md`
 - `docs/CANON.md`
 - `docs/cast_faction_promotion.md`
 - `docs/CHARACTER_GENERATION.md`
@@ -1170,6 +1164,7 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/SOUND_EFFECTS_TOP_100.md`
 - `docs/STORAGE_SIZE_BACKLOG.md`
 - `docs/SYSTEMS/AUDIO.md`
+- `docs/SYSTEMS/BESTIARY.md`
 - `docs/SYSTEMS/CHURCH_INTERIORS.md`
 - `docs/SYSTEMS/CITIZENS.md`
 - `docs/SYSTEMS/CITY_LANDMARK_SITES.md`
@@ -1199,6 +1194,7 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/SYSTEMS/NIGHT_SKY.md`
 - `docs/SYSTEMS/NPC_MIND.md`
 - `docs/SYSTEMS/OBJECT_CATALOG.md`
+- `docs/SYSTEMS/POST_PROCESS.md`
 - `docs/SYSTEMS/PSYCHE.md`
 - `docs/SYSTEMS/QUESTS.md`
 - `docs/SYSTEMS/README.md`
