@@ -1,6 +1,6 @@
 # Sound effects (audio)
 
-Status: implemented for Phases 0-1 (ADR 0035: policy, tooling, core runtime) and Phase 2 (slice pilot: surfaces, footsteps, doors, layered ambience - tasks **R-1357**, **R-1358**, **R-1382**, **R-1383**, partly **R-1356**). Phases 3-6 (combat, fauna, space, act expansion) are planned.
+Status: implemented for Phases 0-1 (ADR 0035: policy, tooling, core runtime) and Phase 2 (slice pilot: surfaces, footsteps, doors, layered ambience - tasks **R-1357**, **R-1358**, **R-1382**, **R-1383**, partly **R-1356**), plus weather-driven sea surf and wind (task **R-1550**). Phases 3-6 (combat, fauna, space, act expansion) are planned.
 
 Scope: every non-music sound. Music stays with [`music/README.md`](../../music/README.md) and `scripts/global/music_director.gd`. Decision record: [ADR 0035](../adr/0035-game-audio-sourcing-and-sfx-system.md).
 
@@ -9,7 +9,7 @@ Out of scope here: reverb and occlusion, ducking, combat and gear sounds, animal
 ## What exists
 
 - **Catalog** `content/audio/sfx_catalog.json` (`type: sfx_catalog`, schema `schemas/sfx_catalog.schema.json`). Stable IDs `sfx.*` and `amb.*`. Each entry names a `bus`, a `streams` pool, a `tier` (A licensed, B own recording, C AI), the `source_ids` that cover its streams in `assets/SOURCES.csv`, and optional `volume_db`, `pitch_jitter`, `volume_jitter_db`, `no_repeat`, `max_voices`, `cooldown_ms`, `spatial` (`none`, `2d`, `3d`), `max_distance`.
-- **Entries today**: `sfx.door.wood.use`, `sfx.footstep.wood.walk`, `sfx.footstep.mud.walk`, `sfx.footstep.stone.walk`, `sfx.footstep.grass.walk`, `sfx.footstep.gravel.walk`, `sfx.footstep.water_shallow.walk`, `sfx.water.emerge`, `sfx.water.submerge`, `amb.weather.rain_roof`, `amb.weather.rain_outdoor`, `amb.lower_town.bed`, `amb.forge.bed`. `sky_weather_roof_audio.gd` and `scenes/elements/door.gd` read the catalog; `nunnatorn_audio_controller.gd`, world item pickup feedback and the swim clips are still wired point by point (**R-1356**).
+- **Entries today**: `sfx.door.wood.use`, `sfx.footstep.wood.walk`, `sfx.footstep.mud.walk`, `sfx.footstep.stone.walk`, `sfx.footstep.grass.walk`, `sfx.footstep.gravel.walk`, `sfx.footstep.water_shallow.walk`, `sfx.water.emerge`, `sfx.water.submerge`, `amb.weather.rain_roof`, `amb.weather.rain_outdoor`, `amb.lower_town.bed`, `amb.forge.bed`, and the sea and wind loops `amb.sea.{calm,moderate,storm}` and `amb.wind.{light,strong,storm}` (**R-1550**). `sky_weather_roof_audio.gd` and `scenes/elements/door.gd` read the catalog; `nunnatorn_audio_controller.gd`, world item pickup feedback and the swim clips are still wired point by point (**R-1356**).
 - **Tiers in use**: in-house ffmpeg synthesis counts as tier **B** (own material, rights assigned), not tier C: tier C is model output from Stable Audio or ElevenLabs. `amb.weather.rain_roof` was relabelled from C to B for that reason.
 - **Runtime** `scripts/audio/sfx_catalog.gd` (`SfxCatalog`, loader) and `scripts/audio/sfx_player.gd` (`SfxPlayer`, a plain Node a scene owns, not an autoload). `SfxPlayer.play(&"sfx.footstep.wood.walk", position)` picks a stream, applies jitter, enforces `max_voices` and `cooldown_ms`, and routes to the entry's bus. Callers never reference files.
 - **Variation**: `pick_stream_index` avoids the last `no_repeat` picks (window clamped to pool size minus one) using the player's own seeded RNG. It does not use `AudioStreamRandomizer`, so the pick is deterministic and testable. The RNG never affects game state; nothing in the catalog is saved.
@@ -63,6 +63,36 @@ Layers are declared in `scripts/audio/ambience_profiles.gd` (`AmbienceProfiles.P
 
 Pilot profiles: `lower_town_slice` (bed `amb.lower_town.bed`, exterior rain `amb.weather.rain_outdoor`) and `kalev_smithy` (bed `amb.forge.bed`; no weather layer, the roof bed covers it). Selection uses a private seeded RNG, never touches game state, and nothing is saved: ambient timers restart on load.
 
+## Sea surf and wind (R-1550)
+
+Near the sea the player hears surf whose character follows the weather, loudest at the waterline and gone about 180 m inland; outdoors the wind rises with wind strength and gusts. Interiors hear neither.
+
+**Material.** Six CC0 field recordings from Freesound (tier **A**), cut into 52 s seamless loops by `python3 tools/audio/generate_sea_wind_beds.py`: a fixed excerpt per clip (the steadiest window by 1 s RMS), 40 Hz high-pass, and the 3 s that follow the excerpt mixed into its head with an equal-power crossfade, so the loop end flows into the start. Each tier is mastered to its own loudness, so the weather crossfade also rises in level.
+
+| ID | File | Source | Loudness |
+|----|------|--------|----------|
+| `amb.sea.calm` | `sounds/sea/sea_calm.mp3` | timsc, FS 367479, small waves on shingle | -24 LUFS |
+| `amb.sea.moderate` | `sounds/sea/sea_moderate.mp3` | leesparey, FS 653395, surf on shingle and rock | -21 LUFS |
+| `amb.sea.storm` | `sounds/sea/sea_storm.mp3` | chris_dagorne, FS 426076, storm waves on a beach | -18 LUFS |
+| `amb.wind.light` | `sounds/wind/wind_light.mp3` | kvgarlic, FS 184277, wind through pines | -27 LUFS |
+| `amb.wind.strong` | `sounds/wind/wind_strong.mp3` | felix.blume, FS 187756, wind in a tree | -22 LUFS |
+| `amb.wind.storm` | `sounds/wind/wind_storm.mp3` | DBlover, FS 505999, howling storm | -18 LUFS |
+
+Sea loops play on the `Ambience` bus, wind on `Weather`. The previews are cached in `build/audio_sources/` (gitignored, several exceed the 2 MiB cap for `sounds/`) and checked by sha256; `--print-sources` prints the `assets/SOURCES.csv` rows. Credits come from `sounds/sea/manifest.csv` and `sounds/wind/manifest.csv` through `tools/generate_credits.py`.
+
+**Gain model** (`AmbienceController`, pure static helpers so tests cover them):
+
+- `tier_weights(wind_strength)` - three tiers centred on 0, 0.5 and 1; neighbours crossfade at equal power, so a calm sea is pure `calm`, a gale is pure `storm`, and the two never mix.
+- `shore_gain(distance)` - quadratic falloff from 1 at the water to 0 at `SEA_AUDIBLE_DISTANCE` (180 m); a profile may override it with `audible_distance`.
+- `wind_level(strength, gust)` - `WIND_CALM_LEVEL` (0.35) in still air up to 1 in a gale, lifted up to 35 % by `wind_gust()`.
+- `nearest_sea_distance(origin, is_sea)` - coarse ring probe (radii 0-180 m, 16 directions), INF when no ring touches the sea. It only drives the falloff, so it is re-run every 0.5 s (about 60 us on the city plan).
+
+**Wiring.** `MapViewRuntimeAmbient._sync_exterior_weather` reads `SkyWeather3D.wind_strength()` and `wind_gust()` and calls `AmbienceController.set_exterior_weather(...)` before every `sync`. The sea test is the city plan ground below the sea surface (`CityPlan.ground_height < -0.3`, sea at y = 0) in the seamless city, and `deep_water` terrain on district maps. Interiors (`suppresses_exterior_surroundings()` or `SkyWeather3D.rain_suppressed`, which the city sets inside enclosed buildings) mute both layers. `CityRuntime._install_ambience` mounts the controller in the seamless city, which had only bird audio before.
+
+**Profiles.** `reval_city`, `prototype.reval_harbor_surroundings`, `prototype.paldiski_coastal_outpost` and `world_saaremaa` declare `sea` and `wind`; `lower_town_slice` declares `wind` only. `kalev_smithy` (interior) declares neither.
+
+Verify: `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_sfx_sea_wind` (tier selection, shore falloff, ring probe, interior mute, gusts, coastal profiles).
+
 ## License gate
 
 `python3 tools/validate_asset_sources.py` rejects approved audio rows whose `license`, `creator_or_tool` or `model_version` match the ADR denylist (NC/ND variants, BBC RemArc, AudioLDM, TangoFlux, MMAudio) and ElevenLabs rows that do not record a paid plan in `edits`. Primary license texts go under `docs/reports/audio_licenses/<source>/` ([README](../reports/audio_licenses/README.md)).
@@ -73,7 +103,7 @@ Pilot profiles: `lower_town_slice` (bed `amb.lower_town.bed`, exterior rain `amb
 2. Add or extend an entry in `content/audio/sfx_catalog.json`. A new footstep pool needs no code change: `sfx.footstep.<surface>.<gait>` is picked up by `SurfaceResolver` automatically.
 3. Run the verification below.
 
-In-house placeholder material is regenerated deterministically: `python3 tools/audio/generate_ambience_beds.py` (beds and the exterior rain overlay), `tools/audio/generate_rain_roof_clips.py` (roof loop), `python3 tools/audio/slice_footstep_oneshots.py` (wood and mud one-shots) and `python3 tools/audio/generate_footstep_oneshots.py` (stone, grass, gravel and shallow-water one-shots). The bed and slice tools write their `sounds/<dir>/manifest.csv` rows; the two footstep tools print their `assets/SOURCES.csv` rows with `--print-sources`.
+Licensed sea and wind loops are regenerated by `python3 tools/audio/generate_sea_wind_beds.py`. In-house placeholder material is regenerated deterministically: `python3 tools/audio/generate_ambience_beds.py` (beds and the exterior rain overlay), `tools/audio/generate_rain_roof_clips.py` (roof loop), `python3 tools/audio/slice_footstep_oneshots.py` (wood and mud one-shots) and `python3 tools/audio/generate_footstep_oneshots.py` (stone, grass, gravel and shallow-water one-shots). The bed and slice tools write their `sounds/<dir>/manifest.csv` rows; the two footstep tools print their `assets/SOURCES.csv` rows with `--print-sources`.
 
 ## Verify
 
@@ -83,7 +113,7 @@ python3 tools/validate_asset_sources.py
 python3 tools/verify_weather_audio_clips.py
 python3 -m unittest tests.python.test_sfx_catalog -v
 godot --headless --path . --script tools/run_godot_tests.gd -- \
-  --filter=test_sfx_catalog,test_sfx_player_no_repeat,test_sfx_surface_resolver,test_sfx_footsteps,test_sfx_ambience,test_sfx_coverage,test_weather_audio_clips
+  --filter=test_sfx_catalog,test_sfx_player_no_repeat,test_sfx_surface_resolver,test_sfx_footsteps,test_sfx_ambience,test_sfx_sea_wind,test_sfx_coverage,test_weather_audio_clips
 ```
 
 `tests/godot/test_sfx_coverage.gd` is the coverage gate: every surface and gait must resolve to an existing catalog entry, every terrain the two pilot maps author must sound, and every ID an ambience profile names must exist.
@@ -103,3 +133,4 @@ godot --headless --path . --script tools/capture_sfx_session_log.gd -- \
 - Footsteps fire for the player only. NPC and animal foot plants are not wired.
 - No separate footstep pool per shoe type, and no `sneak` gait in gameplay yet.
 - Settings expose one SFX slider; the new buses have no individual sliders.
+- Sea and wind loops (**R-1550**) have had no listening review: tier balance, the 180 m falloff and the `volume_db` trims (-6 dB sea, -8 dB wind) are set by measurement, not by ear. MP3 encoder padding can leave a few milliseconds of gap at the loop point. Surf is one non-positional stereo bed: it does not pan toward the shore, and a quay sounds like a beach (no harbour-lap tier).

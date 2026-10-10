@@ -5,7 +5,8 @@ extends RefCounted
 ## view (ADR 0031). Same wiring as MapViewRuntimeBootstrap.install(), with the
 ## district-only steps left out: no flat 2D map to hide, no grid navigation
 ## click input and no district ambient fauna except the birds: flight and song
-## run in a window that follows Kalev (see _install_birds).
+## run in a window that follows Kalev (see _install_birds). Sea and wind
+## ambience run through the shared AmbienceController (see _install_ambience).
 
 const Bootstrap := preload("res://scripts/map/view3d/map_view_runtime_bootstrap.gd")
 const RuntimeActors := preload("res://scripts/map/view3d/map_view_runtime_actors.gd")
@@ -67,6 +68,7 @@ static func install(
 	runtime._sync_music_cycle()
 	runtime._bind_environment_runtime()
 	_install_birds(runtime, view, player)
+	_install_ambience(runtime)
 	return runtime
 
 
@@ -84,6 +86,13 @@ static func _install_birds(runtime: MapViewRuntime, view: CityMapView, player: N
 		"configure", runtime._definition.map_id, &"lower_town", Vector2i(BIRD_WINDOW, BIRD_WINDOW)
 	)
 	flight.set("path_origin", _bird_origin.bind(player, view))
+
+
+## Sea surf and wind (R-1550) through the shared AmbienceController, with the
+## `reval_city` profile. Runs after _install_birds, which configures the ambient
+## helper with the city definition, view and player.
+static func _install_ambience(runtime: MapViewRuntime) -> void:
+	runtime._ambient_controller._install_ambience()
 
 
 static func _bird_origin(player: Node2D, view: CityMapView) -> Vector3:

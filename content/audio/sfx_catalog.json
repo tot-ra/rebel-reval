@@ -213,6 +213,66 @@
       "volume_db": -12.0,
       "max_voices": 1,
       "spatial": "none"
+    },
+    {
+      "id": "amb.sea.calm",
+      "bus": "Ambience",
+      "streams": ["res://sounds/sea/sea_calm.mp3"],
+      "tier": "A",
+      "source_ids": ["sounds.sea.calm"],
+      "volume_db": -6.0,
+      "max_voices": 1,
+      "spatial": "none"
+    },
+    {
+      "id": "amb.sea.moderate",
+      "bus": "Ambience",
+      "streams": ["res://sounds/sea/sea_moderate.mp3"],
+      "tier": "A",
+      "source_ids": ["sounds.sea.moderate"],
+      "volume_db": -6.0,
+      "max_voices": 1,
+      "spatial": "none"
+    },
+    {
+      "id": "amb.sea.storm",
+      "bus": "Ambience",
+      "streams": ["res://sounds/sea/sea_storm.mp3"],
+      "tier": "A",
+      "source_ids": ["sounds.sea.storm"],
+      "volume_db": -6.0,
+      "max_voices": 1,
+      "spatial": "none"
+    },
+    {
+      "id": "amb.wind.light",
+      "bus": "Weather",
+      "streams": ["res://sounds/wind/wind_light.mp3"],
+      "tier": "A",
+      "source_ids": ["sounds.wind.light"],
+      "volume_db": -8.0,
+      "max_voices": 1,
+      "spatial": "none"
+    },
+    {
+      "id": "amb.wind.strong",
+      "bus": "Weather",
+      "streams": ["res://sounds/wind/wind_strong.mp3"],
+      "tier": "A",
+      "source_ids": ["sounds.wind.strong"],
+      "volume_db": -8.0,
+      "max_voices": 1,
+      "spatial": "none"
+    },
+    {
+      "id": "amb.wind.storm",
+      "bus": "Weather",
+      "streams": ["res://sounds/wind/wind_storm.mp3"],
+      "tier": "A",
+      "source_ids": ["sounds.wind.storm"],
+      "volume_db": -8.0,
+      "max_voices": 1,
+      "spatial": "none"
     }
   ]
 }

@@ -18,6 +18,11 @@ const CrowdRenderer := preload("res://scripts/map/view3d/map_view_crowd_renderer
 const FootstepAudioScript := preload("res://scripts/audio/footstep_audio.gd")
 const AmbienceControllerScript := preload("res://scripts/audio/ambience_controller.gd")
 const AmbienceProfilesScript := preload("res://scripts/audio/ambience_profiles.gd")
+## Seconds between sea-distance probes for the sea ambience layer (R-1550).
+const SEA_PROBE_INTERVAL := 0.5
+## City ground below this (world y, sea surface at 0) counts as open sea; the
+## margin keeps wet sand at the waterline from reading as sea.
+const CITY_SEA_GROUND_Y := -0.3
 
 var _host: Node3D
 var _definition: MapDefinition
@@ -39,6 +44,8 @@ var _footstep_audio
 var _footstep_audio_enabled := true
 var _ambience
 var _ambience_enabled := true
+var _sea_distance := INF
+var _sea_probe_countdown := 0.0
 var _crowd_renderer: MapViewCrowdRenderer
 var _crowd_enabled := true
 
@@ -88,6 +95,8 @@ func rebind_map(map_definition: MapDefinition, map_view: MapView3D) -> void:
 		_ambience.configure(
 			AmbienceProfilesScript.profile_for_map(_definition.map_id), hash(_definition.map_id)
 		)
+		_sea_distance = INF
+		_sea_probe_countdown = 0.0
 	if _crowd_renderer != null:
 		_crowd_renderer.configure(200, hash(_definition.map_id))
 
@@ -329,7 +338,57 @@ func _sync_ambience(delta: float, cycle_progress: float) -> void:
 	if sky_weather != null:
 		rain_intensity = sky_weather.rain_intensity()
 		rain_suppressed = rain_suppressed or sky_weather.rain_suppressed
+	_sync_exterior_weather(delta, sky_weather, rain_suppressed)
 	_ambience.sync(delta, listener, cycle_progress, rain_intensity, rain_suppressed)
+
+
+## Sea and wind layers (R-1550): wind from the sky weather, and the distance to
+## the nearest sea re-probed every SEA_PROBE_INTERVAL (a coarse ring probe that
+## only drives a falloff curve, so per-frame precision is wasted work).
+func _sync_exterior_weather(
+	delta: float, sky_weather: SkyWeather3D, exterior_suppressed: bool
+) -> void:
+	var wind := 0.0
+	var gust := 0.0
+	if sky_weather != null:
+		wind = sky_weather.wind_strength()
+		gust = sky_weather.wind_gust()
+	if AmbienceProfilesScript.profile_for_map(_definition.map_id).has("sea"):
+		_sea_probe_countdown -= delta
+		if _sea_probe_countdown <= 0.0:
+			_sea_probe_countdown = SEA_PROBE_INTERVAL
+			_sea_distance = _probe_sea_distance()
+	else:
+		_sea_distance = INF
+	_ambience.set_exterior_weather(wind, gust, _sea_distance, exterior_suppressed)
+
+
+## World-XZ sea test: the seamless city's sea is wherever the plan ground lies
+## below the sea surface (y = 0, CityWorld3D._build_water); district maps mark it
+## with deep_water terrain.
+func _probe_sea_distance() -> float:
+	if _player == null or not is_instance_valid(_player):
+		return INF
+	var plan: Variant = _view.get("plan")
+	if plan is CityPlan:
+		var city_plan := plan as CityPlan
+		return AmbienceControllerScript.nearest_sea_distance(
+			CityPlan.to_world_xz(_player.global_position),
+			func(xz: Vector2) -> bool: return city_plan.ground_height(xz) < CITY_SEA_GROUND_Y
+		)
+	var grid := _terrain_grid()
+	if grid == null:
+		return INF
+	var cell_size := _definition.cell_size
+	var origin := MapViewBridge.logic_to_world(_player.global_position, cell_size)
+	return AmbienceControllerScript.nearest_sea_distance(
+		Vector2(origin.x, origin.z),
+		func(xz: Vector2) -> bool:
+			return (
+				grid.get_terrain(MapViewBridge.world_to_cell(Vector3(xz.x, 0.0, xz.y), cell_size))
+				== MapTypes.TERRAIN_DEEP_WATER
+			)
+	)
 
 
 func _install_crowd_renderer() -> void:
