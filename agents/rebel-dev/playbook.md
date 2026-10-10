@@ -7,7 +7,7 @@ This file contains lessons specific to the Dev role.
 
 ### Godot 4.7 contracts
 - Godot 4.7 rejects `name = value` inside call sites as assignment-in-expression. Use positional args.
-- Typed inference fails on `for side in [-1.0, 1.0]`. Declare `for side: float in [...]`. Values from `Dictionary.get()`, untyped arrays, `pop_front()`, `load()`, `load().new()`, `Node.get_class()`, and `Image.get_width()` / `get_height()` / `get_pixel()` often need an explicit `Variant` / typed local under warnings-as-errors.
+- Typed inference fails on `for side in [-1.0, 1.0]`. Declare `for side: float in [...]`. Values from `Dictionary.get()`, `Object.get()` / `call()` (also inside `a and n.get(&"p") == b`), untyped arrays, `pop_front()`, `load()`, `load().new()`, `Node.get_class()`, and `Image.get_width()` / `get_height()` / `get_pixel()` often need an explicit `Variant` / typed local under warnings-as-errors.
 - `DialogueSettings.default_settings()` is untyped. Assign it to an explicit `Variant` before reading fields.
 - Shader sampler types are case-sensitive (`sampler2D`, not `sampler2d`).
 - Godot spatial shaders reject `return` inside `fragment()` ("Using 'return' in the 'fragment' processor function is incorrect"). Branch one quad type with `if / else`, not an early return.
@@ -40,6 +40,7 @@ This file contains lessons specific to the Dev role.
 - `as ClassName` on a Node stored in meta/array errors after `queue_free` ("Trying to cast a freed object"). Call `is_instance_valid` on the Variant first, then cast. Validity after the cast is too late.
 
 ### Harness, import, and capture
+- Adding a precondition to a shared entry point (for example `SpiritArenaHost.open` requiring spirit sight) breaks every direct caller: grep `scripts/`, `tests/` and `tools/capture_*.gd` for the call before running tests, and route callers through the sanctioned entry (`open_scripted`). The harness never runs capture tools, so they fail only at the next capture.
 - On-commit Godot resolution should honor `GODOT_BIN`, then `godot` on PATH, then `/Applications/Godot.app/Contents/MacOS/Godot`.
 - `tools/run_godot_tests.gd --filter=` takes exact comma-separated file stems. `--reverse` after the user `--` runs the same set newest-name-first so SessionState leaks can be proven in both orders.
 - Do not add a public `const` / preload name on `tests/godot/test_case.gd` that a child `test_*.gd` already declares (`BindingSettings` is one). Godot then fails to parse the child. Load helpers inside the method, or pick a unique name.
