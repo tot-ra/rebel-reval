@@ -301,6 +301,8 @@ const float FOAM_MASK_CAP = 1.0;
 // 4 m grid, and the water kept above the bed at the bottom of a trough.
 const float CITY_C1_GEOMETRY = 0.0;
 const float CITY_TROUGH_CLEARANCE = 0.05;
+// Bed depth (m) below the still-water line the backwash rundown may uncover.
+const float CITY_RUNDOWN_BED = 0.3;
 // WR-3 LOD, mirrored by CitySeaLod. Grid quads per ring node side; share of each
 // ring over which it morphs into the next; morph values above SNAP count as done,
 // so float noise never leaves a micro T-junction; mesh spacing (m) where C1 is
@@ -967,7 +969,11 @@ vec2 _city_runup_profile(ShoreState shore, float bed_y, float ocean_y) {
 	float active = smoothstep(0.001, 0.04, front);
 	float edge = smoothstep(0.0, 0.12, shore.front_distance);
 	float roller_coordinate = (shore.front_distance - 0.28) / 0.32;
-	float roller = exp(-roller_coordinate * roller_coordinate);
+	// The raised roller belongs to the uprush bore. On the backwash the front is a
+	// feather-thin retreating film; keeping the roller there stood a glassy wall
+	// of water along the whole beach.
+	float roller = exp(-roller_coordinate * roller_coordinate)
+		* mix(1.0, 0.15, smoothstep(0.0, 0.25, shore.backwash));
 	float thickness = (shore.sheet_thickness * 3.0
 		+ roller * mix(0.10, 0.42, shore_sea_state)) * active * edge;
 	float u = clamp((bed_y + 0.45) / 0.57, 0.0, 1.0);
@@ -1433,15 +1439,32 @@ void fragment() {
 	float runup_drain = 1.0;
 	if (shore_live) {
 		shore_now = shore_state(wave_sample_xz, ocean_time, shore_sea());
-		if (sea_physical_depth && sea_ground_y > tide_height * tide_level + 0.002) {
-			// Actual bed height owns coverage; a filtered distance-field zero must
-			// never cut a dry crack through pixels that are below the sea plane.
+		float still_water = tide_height * tide_level;
+		if (sea_physical_depth && sea_ground_y > still_water - CITY_RUNDOWN_BED) {
+			// Above the still-water line the bed height owns coverage; a filtered
+			// distance-field zero must never cut a dry crack through it. Just
+			// below it, where waves reach, the backwash rundown may uncover the
+			// bed (shore_state front_distance < 0) until the next bore.
+			// Below it, only while the rundown is active: otherwise the bed stays
+			// covered, so the filtered field zero cannot open a standing crack.
+			bool above_still = sea_ground_y > still_water + 0.002;
 			float front = shore_now.front_distance - shore_now.distance;
-			if (shore_now.valid * shore_now.beach < 0.01 || front < 0.001
-				|| shore_now.front_distance <= 0.0) {
-				discard;
+			bool runs_up = shore_now.valid * shore_now.beach >= 0.01;
+			// Ragged, per-wave tip width: the film thins out over 0.12..0.67 m
+			// instead of ending in one crisp line along the beach.
+			float tip = runs_up
+				? smoothstep(0.0, shore_now.edge_feather, shore_now.front_distance) : 0.0;
+			if (above_still) {
+				if (!runs_up || front < 0.001 || shore_now.front_distance <= 0.0) {
+					discard;
+				}
+				city_coverage = tip;
+			} else if (runs_up) {
+				city_coverage = mix(1.0, tip, smoothstep(0.0, 0.05, shore_now.rundown));
+				if (city_coverage < 0.001) {
+					discard;
+				}
 			}
-			city_coverage = smoothstep(0.0, 0.12, shore_now.front_distance);
 		}
 	}
 	// Sample the undisplaced XZ. Evaluating Gerstner at the chopped position
@@ -2196,7 +2219,10 @@ void fragment() {
 		directional_glint_gate = sun_glint_gate * sun_light_share * (1.0 - sheet_foam);
 		local_glint_gate = 1.0 - sheet_foam;
 	}
-	ALPHA *= city_coverage * runup_drain;
+	// Foam lace at the tip stays opaque where the thinning film has faded out, so
+	// the edge reads as a broken foam line rather than a clean cut.
+	float tip_foam = shore_live ? swash_bore * smoothstep(0.0, 0.04, shore_now.front_distance) : 0.0;
+	ALPHA *= max(city_coverage, tip_foam) * runup_drain;
 	if (debug_foam_mask > 0.5) {
 		// Unlit mask: lighting and the foam tile must not hide renderer coverage.
 		vec3 mask = vec3(fft_foam.x);

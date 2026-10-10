@@ -58,7 +58,10 @@ func test_water_drains_the_runup_film_over_shingle() -> void:
 	assert_true(water.contains("shore_porosity(length(sea_bed_slope))"), "porosity from the bed slope")
 	assert_true(water.contains("drain.foam_keep"), "foam bubbles drain into the gaps")
 	assert_true(water.contains("shore_pebble_cover(film_metres, porous)"), "pebble crowns")
-	assert_true(water.contains("ALPHA *= city_coverage * runup_drain;"), "film thins over shingle")
+	assert_true(
+		water.contains("ALPHA *= max(city_coverage, tip_foam) * runup_drain;"),
+		"film thins over shingle"
+	)
 
 
 func test_ground_mirrors_every_shore_uniform_the_include_declares() -> void:

@@ -227,3 +227,80 @@ func _indices(arrays: Array) -> PackedInt32Array:
 	if arrays[Mesh.ARRAY_INDEX] != null:
 		return arrays[Mesh.ARRAY_INDEX]
 	return PackedInt32Array(range((arrays[Mesh.ARRAY_VERTEX] as PackedVector3Array).size()))
+
+
+## The run-up front is not one smooth contour: every wave lays its tongues
+## somewhere else along the beach, the tip fades over a ragged band, and both
+## repeat exactly with the 182-wave ocean_time wrap.
+func test_runup_front_changes_shape_from_wave_to_wave() -> void:
+	var low := 10.0
+	var high := 0.0
+	var total := 0.0
+	var count := 0
+	var changed := 0
+	var feather_low := 10.0
+	var feather_high := 0.0
+	for i in 400:
+		var xz := Vector2(float(i) * 0.37 - 60.0, float(i % 23) * 1.9)
+		for wave: float in [3.0, 4.0]:
+			var v := Surface.reach_variation(xz, wave)
+			low = minf(low, v)
+			high = maxf(high, v)
+			total += v
+			count += 1
+			var f := Surface.edge_feather(xz, wave, 0.3)
+			feather_low = minf(feather_low, f)
+			feather_high = maxf(feather_high, f)
+		assert_almost_eq(Surface.edge_feather(xz, 3.0, 1.0), Surface.edge_feather(xz, 4.0, 0.0), 1e-5,
+			"the tip pattern is continuous across the wave boundary")
+		var step := absf(Surface.reach_variation(xz, 3.0) - Surface.reach_variation(xz, 4.0))
+		changed += int(step > 0.05)
+		assert_almost_eq(
+			Surface.reach_variation(xz, 5.0), Surface.reach_variation(xz, 5.0 + 182.0), 1e-4,
+			"tongues repeat with the wrap"
+		)
+	assert_true(low >= 0.6 - 1e-4 and high <= 1.4 + 1e-4, "reach stays within 0.6..1.4")
+	assert_true(high - low > 0.35, "the front has real tongues, not a smooth line")
+	assert_almost_eq(total / float(count), 1.0, 0.12, "mean reach keeps the calibrated run-up")
+	assert_true(changed > 200, "most of the beach gets a different reach on the next wave")
+	assert_true(feather_low >= 0.12 - 1e-4 and feather_high <= 0.67 + 1e-4, "tip band 0.12..0.67")
+	assert_true(feather_high - feather_low > 0.25, "the fading tip is ragged")
+
+
+## The still-water line is not a fixed edge: on a beach the waves reach, the
+## backwash drains the bed just below it and the next bore floods it again.
+func test_backwash_uncovers_and_refloods_the_still_water_line() -> void:
+	var baked := _bake()
+	var plan: CityPlan = baked[0]
+	var shore: Dictionary = baked[1]
+	MapViewMaterials.apply_sea_weather(0.6, 0.0)
+	var mat := MapViewMaterials.water_surface(MapTypes.TERRAIN_SHALLOW_WATER).duplicate()
+	mat.set_shader_parameter("tide_height", 0.0)
+	mat.set_shader_parameter("shore_bed_valid", 1.0)
+	assert_true(Surface.bed_enabled(shore, mat), "city surf runs over the bathymetry")
+	var probes := 0
+	var drained := 0
+	for point: Vector2 in shore["contour"]:
+		if probes >= 12:
+			break
+		var field := Surface.field_at(shore, point)
+		if Surface.bed_at(shore, point).y < 0.0 or field.w < 0.7:
+			continue
+		var to_sea := -(Vector2(field.y, field.z) * 2.0 - Vector2.ONE).normalized()
+		var xz := point + to_sea * 0.4
+		var bed := plan.ground_height(xz)
+		if bed >= -0.002 or bed < -0.1:
+			continue
+		probes += 1
+		var lowest := 1.0
+		var highest := 0.0
+		for i in 240:
+			var r := Surface.runup_profile(
+				xz, Surface.field_at(shore, xz), 37.0 + float(i) * 0.075, mat, bed, 0.0, shore
+			)
+			lowest = minf(lowest, float(r["coverage"]))
+			highest = maxf(highest, float(r["coverage"]))
+		assert_eq(highest, 1.0, "the bore floods the still-water line again")
+		drained += int(lowest < 0.5)
+	assert_true(probes >= 6, "found beach points just below the still-water line")
+	assert_true(drained * 2 >= probes, "the backwash uncovers most of them once a wave")

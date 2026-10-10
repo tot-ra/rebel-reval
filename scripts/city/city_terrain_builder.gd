@@ -11,6 +11,9 @@ const CHUNK_CELLS := 48
 const NEAR_RANGE := 520.0
 const FAR_STEP := 6
 const FAR_DROP := 0.06
+## Vertex colour alpha that marks the far mesh for city_ground.gdshader (the
+## relief mesh uses 0, the near chunks have no colour array and read 1).
+const FAR_MARK := 0.75
 
 const TEXTURES := {
 	# Texture2DArray plates (4x3 slices) for city_grass_ground.gdshaderinc.
@@ -89,7 +92,7 @@ static func build(plan: CityPlan, parent: Node3D) -> Node3D:
 			root.add_child(inst)
 	var far := MeshInstance3D.new()
 	far.name = "FarTerrain"
-	far.mesh = _chunk_mesh(plan, 0, 0, size.x - 1, size.y - 1, FAR_STEP, FAR_DROP)
+	far.mesh = _chunk_mesh(plan, 0, 0, size.x - 1, size.y - 1, FAR_STEP, FAR_DROP, true)
 	far.material_override = mat
 	far.visibility_range_begin = NEAR_RANGE - 40.0
 	far.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
@@ -149,7 +152,7 @@ static func _skirt_mesh(plan: CityPlan) -> ArrayMesh:
 
 
 static func _chunk_mesh(
-	plan: CityPlan, x0: int, y0: int, x1: int, y1: int, step: int, drop: float
+	plan: CityPlan, x0: int, y0: int, x1: int, y1: int, step: int, drop: float, far := false
 ) -> ArrayMesh:
 	var cell := plan.height_cell()
 	var origin := plan.height_origin()
@@ -223,6 +226,11 @@ static func _chunk_mesh(
 	arrays[Mesh.ARRAY_NORMAL] = normals
 	arrays[Mesh.ARRAY_TANGENT] = tangents
 	arrays[Mesh.ARRAY_TEX_UV] = uvs
+	if far:
+		var colors := PackedColorArray()
+		colors.resize(verts.size())
+		colors.fill(Color(1.0, 1.0, 1.0, FAR_MARK))
+		arrays[Mesh.ARRAY_COLOR] = colors
 	arrays[Mesh.ARRAY_INDEX] = indices
 	var mesh := ArrayMesh.new()
 	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)

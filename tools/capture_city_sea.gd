@@ -254,6 +254,10 @@ func _surf_shots(plan: CityPlan, landing: Vector2, prefix := "") -> Array[Dictio
 	var best := contour[0]
 	var target := landing + Vector2(-25.0, 0.0)
 	for point in contour:
+		# Skip ponds below sea level behind the beach: no crest reaches them
+		# (travel time BED_OUTSIDE), so they show still water, not the surf.
+		if preload("res://scripts/city/city_water_surface.gd").bed_at(shore, point).y < 0.0:
+			continue
 		if point.distance_to(target) < best.distance_to(target):
 			best = point
 	var uphill := (
@@ -335,7 +339,7 @@ func _run() -> void:
 	viewport.own_world_3d = true
 	viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	root.add_child(viewport)
-	var view := CityMapView.create_city(plan, _tier)
+	var view := CityMapView.create_city(plan)
 	viewport.add_child(view)
 	var world := view.world
 	print("city sea capture: world ready")
@@ -380,8 +384,9 @@ func _run() -> void:
 		camera.fov = shot["fov"]
 		camera.look_at_from_position(shot["eye"], shot["look"], Vector3.UP)
 		# Independent plates must not inherit wet lens drops from the last shot.
-		view.underwater_pass().advance(10.0, NAN, {})
-		view.underwater_pass().advance(10.0, NAN, {})
+		if view.underwater_pass() != null:
+			view.underwater_pass().advance(10.0, NAN, {})
+			view.underwater_pass().advance(10.0, NAN, {})
 		world.sky_weather.set_weather(shot.get("weather", SkyWeather3D.WEATHER_CLEAR))
 		world.sky_weather.advance(SkyWeather3D.TRANSITION_SECONDS + 0.1)
 		view.apply_cycle_progress(float(shot.get("time", DAY_PROGRESS)))
@@ -410,7 +415,8 @@ func _run() -> void:
 		if world.spray != null:
 			var live := 0
 			for e in world.spray.get_children():
-				live += int(e.emitting and e.visible)
+				if e is GPUParticles3D:
+					live += int(e.emitting and e.visible)
 			print(
 				"spray emitters live: ",
 				live,
@@ -421,7 +427,8 @@ func _run() -> void:
 		var path := "%s/%s_%s.png" % [OUTPUT_DIR, shot["name"], _tag]
 		image.save_png(ProjectSettings.globalize_path(path))
 		print("captured ", path, " fish schools live: ", fish.live_count())
-		print("camera medium: ", view.underwater_pass().state)
+		if view.underwater_pass() != null:
+			print("camera medium: ", view.underwater_pass().state)
 		print("weather: %s sun elevation: %.2f wind: %.2f rain: %.2f" % [
 			world.sky_weather.weather,
 			SkyAstronomy.solar_elevation_degrees(view.cycle_progress, world.sky_weather.calendar_date),

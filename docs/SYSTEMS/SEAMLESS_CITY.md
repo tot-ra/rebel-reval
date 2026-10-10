@@ -114,7 +114,7 @@ Positions and roster from [`walls-gates-towers.md`](../../history/dossiers/topog
 |---|---|
 | `scripts/city/city_plan.gd` (`CityPlan`) | Loads the plan and heightfield; `ground_height` (interpolated on the terrain mesh's own triangles, so feet meet the visible ground; test `test_ground_height_matches_terrain_mesh_triangles`), `walk_height` (floors inside houses), `building_at`, `floor_height`, `slope_at` |
 | `scripts/city/city_world_3d.gd` (`CityWorld3D`) | Builds the view, the sky, sun and fog (shared `SkyWeather3D` and `MapViewLighting`), pushes the world wind |
-| `scripts/city/city_terrain_builder.gd` + `city_ground.gdshader` | Heightfield chunks, a far mesh, a horizon skirt; splat-blended cobble, earth, sand, mud, grass and slope rock; cart-road ruts, dust and wet clay, crest/hollow tint |
+| `scripts/city/city_terrain_builder.gd` + `city_ground.gdshader` | Heightfield chunks, a far mesh (vertex alpha `FAR_MARK`; the ground shader sinks it within `FAR_TERRAIN_CUT` 420 m of the camera so its coarse chords never poke through the near chunks or the shallows, R-1618), a horizon skirt; splat-blended cobble, earth, sand, mud, grass and slope rock; cart-road ruts, dust and wet clay, crest/hollow tint |
 | `scripts/city/city_ground_trail.gd` (`CityGroundTrail`) | Footprint, hoof and wheel-track relief window around Kalev, dust puffs |
 | `scripts/city/city_trail_feed.gd` (`CityTrailFeed`) | Feeds citizens, hoofed animals and `city_wheeled` vehicles into the trail each frame |
 | `scripts/city/city_building_builder.gd` | Buildings as described in [How buildings are built](#how-buildings-are-built): filleted wall ring, walls, door gap and steps, windows and lancets, gable roof with rolled edges and ridge cap, chimneys, interiors |

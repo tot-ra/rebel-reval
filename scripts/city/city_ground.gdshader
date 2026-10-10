@@ -445,11 +445,26 @@ void trail_mesh_vertex(inout vec3 vtx, inout vec3 nrm, inout vec3 tan, inout vec
 	bin = cross(bn, bt);
 }
 
+// FarTerrain sinks out of sight within this distance of the camera (metres).
+// WHY: its visibility range is measured to the whole plan, so on the coast (far
+// from the plan centre) it drew right under the camera together with the near
+// chunks, and its 12 m chords stood above concave beach faces as straight-edged
+// slabs through the swash. Near chunks hide only past NEAR_RANGE + margin (544 m
+// to their centre, so >= 476 m to any of their pixels); 420 leaves room for one
+// 17 m far triangle drooping towards a sunk vertex.
+const float FAR_TERRAIN_CUT = 420.0;
+
 void vertex() {
 	// The relief mesh carries vertex colour alpha 0; the chunks have no colour
-	// array, which Godot reads as white. (An instance uniform would take a global
+	// array, which Godot reads as white; the far mesh carries 0.75
+	// (CityTerrainBuilder.FAR_MARK). (An instance uniform would take a global
 	// buffer slot for every chunk and overflow it.)
-	if (COLOR.a < 0.5) {
+	if (COLOR.a > 0.5 && COLOR.a < 0.9) {
+		vec3 far_world = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
+		if (distance(far_world, INV_VIEW_MATRIX[3].xyz) < FAR_TERRAIN_CUT) {
+			VERTEX.y -= 60.0;
+		}
+	} else if (COLOR.a < 0.5) {
 		vec3 vtx = VERTEX, nrm = NORMAL, tan = TANGENT, bin = BINORMAL;
 		trail_mesh_vertex(vtx, nrm, tan, bin, MODEL_MATRIX);
 		VERTEX = vtx;

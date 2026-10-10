@@ -1,6 +1,6 @@
 # City sea, shore and harbour life
 
-Status: implemented (tasks **R-885**, **R-1437**, **R-1440**, **R-1508**, **R-1606**; city integration follow-up, 2026-10-09; ADR 0031). Scope: the Baltic off Reval and its shore in the seamless city: the sea surface and storm swell, seabed and beach relief, shore dressing, boardable boats and the working craft of the two shores; the Hareapea stream and moat water, their water plants and the wake Kalev leaves in any city water. Out of scope: swimming mechanics (ADR 0021), shipping routes, fishing as gameplay. Harbour layout and sources: [`FARMLAND.md`](./FARMLAND.md#harbour-and-kalamaja).
+Status: implemented (tasks **R-885**, **R-1437**, **R-1440**, **R-1508**, **R-1606**, **R-1618**; city integration follow-up, 2026-10-09; ADR 0031). Scope: the Baltic off Reval and its shore in the seamless city: the sea surface and storm swell, seabed and beach relief, shore dressing, boardable boats and the working craft of the two shores; the Hareapea stream and moat water, their water plants and the wake Kalev leaves in any city water. Out of scope: swimming mechanics (ADR 0021), shipping routes, fishing as gameplay. Harbour layout and sources: [`FARMLAND.md`](./FARMLAND.md#harbour-and-kalamaja).
 
 ## What the player sees
 
@@ -307,6 +307,35 @@ tools/godot_render.sh --script tools/capture_city_sea.gd -- --tag=x --advance=4 
 `test_water_realism_v2` covers the bake (crests within 4 degrees of the contours of an oblique beach, travel pace = 1 / celerity, slower inshore), bar and reef break / re-form / re-break, the breaker class per bay and wind (and xi rising as the sea calms), the seamless `ocean_time` wrap and the district reset (no extra sampler, district crest path untouched). `tools/water_sandbox/shore_parity.gd` renders `shore_state()` on the GPU (canvas shader `shore_parity.gdshader`) at 192 probe points across the four bays, two winds and four times on both sides of the wrap, and compares the camera lift, the surging share and the validity with the CPU mirror (tolerance 0.02 world units; measured 0.010). No controls, saved fields or content IDs change.
 
 Limits: refraction is the eikonal of first arrivals, so waves wrap into the lee of a headland or a reef gap without the energy loss of real diffraction (WR-5), and the refraction coefficient (ray spreading) is not applied to the height. Breaker type uses one period (9 s, the visual loop); a shorter Baltic wind sea would push every beach towards spilling. Beyond the 0.5 m surf band (about 22 m offshore) the bar breakers ride the 4 m coarse grid: their foam is per pixel, their crest geometry coarse. The wave zone reaches 80 m from the waterline; enclosed water the source line never reaches (a pool below sea level) gets no shore waves.
+
+## Living waterline (R-1618)
+
+Status: implemented (task **R-1618**). Scope: where the city sea meets a beach the waves reach: the shape of every run-up front, the fading tip of the film and the backwash below the still-water line. Out of scope: ponds below sea level behind the beach (no crest reaches them, so they stay still water with the mean-level edge), quays and rocks (slosh only), district maps (the rundown needs the city's `shore_bed_valid`; the tongues and the roller change also reach the district swash sheet).
+
+What the player sees:
+
+- **No slab through the swash.** The coarse `FarTerrain` mesh (12 m cells) drew right under the camera wherever the camera was more than about 480 m from the plan origin, which is most of the coast, because its visibility range is measured to the whole plan. On concave beach faces its chords stood above the near terrain and the water as long straight-edged slabs between the sea and the run-up. `city_ground.gdshader` now sinks every far-mesh vertex (vertex colour alpha `CityTerrainBuilder.FAR_MARK`) within `FAR_TERRAIN_CUT` (420 m) of the camera, inside the range the near chunks always cover (see [Seamless city](./SEAMLESS_CITY.md)).
+- **No fixed line.** The backwash now drains the bed just below the still-water line before the next bore floods it again (`SHORE_RUNDOWN` 0.3 of the run-up reach, over the last 40 % of the cycle and the first 12 % of the next). Before, every bed below the mean level was always covered, so that contour stood still as a hard edge, straight wherever the beach face is planar, while only the run-up above it moved.
+- **Tongues, not a contour.** Each wave's reach is `_swash_reach_variation`: a steady 9 m term plus lobes (about 4 m) and fingers (about 1 m) seeded by the wave index modulo the 182-wave wrap, so every wave lays its tongues somewhere else and the `ocean_time` wrap stays seamless. Mean 1, range 0.6..1.4 (was one smooth 0.8..1.2 noise for all waves). The wetting history and residue lines of the ground use the same per-wave reach, so the wet band and the foam lines are lobed too.
+- **Ragged tip.** The film fades out over `_swash_edge_feather` (0.12..0.67 m, per wave) behind its front instead of a 12 cm cut. Foam lace at the tip keeps its own opacity (`tip_foam`), so the edge reads as a broken foam line.
+- **Backwash is thin.** The raised roller (0.10..0.42 m) belongs to the uprush; on the backwash it drops to 15 %, so a retreating front no longer stands as a glassy wall along the beach.
+
+Runtime entry points: `scripts/map/view3d/shore_swash.gdshaderinc` (`_swash_wave_seed`, `_swash_reach_variation`, `_swash_edge_feather`, `ShoreState.edge_feather`, `ShoreState.rundown`, `SHORE_RUNDOWN`); `scripts/map/view3d/map_view_water.gdshader` (`CITY_RUNDOWN_BED` 0.3 m: the bed band below the still-water line the rundown may uncover, the city coverage rule, `tip_foam`, the roller in `_city_runup_profile`); `scripts/city/city_water_surface.gd` mirrors all of it (`reach_variation`, `edge_feather`, `RUNDOWN`, `RUNDOWN_BED`, `runup_profile`). Below the still-water line coverage only drops while the rundown is active, so the filtered field zero still cannot open a standing dry crack there (`test_true_wet_ground_cannot_be_cut_by_the_shore_field_zero`).
+
+No controls, saved fields or content IDs change; everything is a pure function of position, `ocean_time` and sea state.
+
+Verify:
+
+```bash
+godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_city_shore_field,test_water_beach_response,test_city_far_terrain
+tools/godot_render.sh --script tools/capture_city_sea.gd -- --tag=after --only=close_surf_side_fresh --motion=216
+```
+
+`test_city_far_terrain` checks the far-mesh mark and that the cut leaves no hole between near chunks and the far mesh. `test_runup_front_changes_shape_from_wave_to_wave` checks the reach range and mean, that most of the beach gets a different reach on the next wave, the wrap period and the tip band; `test_backwash_uncovers_and_refloods_the_still_water_line` checks on the baked city coast that points just below the still-water line are uncovered once a wave and flooded again. `capture_city_sea.gd` close surf shots now skip contour points whose travel time is `BED_OUTSIDE` (ponds behind the beach); they used to land on such a pond.
+
+![Fresh sea, same beach and wave phase: the far-terrain slab and the fixed edge (top) and the draining, refilling waterline with lobed run-up (bottom)](../reports/images/city/living_waterline_r1618.jpg)
+
+Limits: the camera medium and swim depth still classify by the mean waterline, so a drained strip is still "water" for gameplay. The rundown is a phase rule, not a simulated drawdown of the FFT surface. Ponds below sea level behind the beach keep a still, sharp edge.
 
 ## Sea LOD and graphics tiers (WR-3)
 

@@ -107,6 +107,9 @@ const float SHORE_SET_WAVES = 7.0;
 const int SHORE_LOOKBACK = 8;
 // Run-up clamp, just inside MapViewMeshBuilderTerrainWater.SHORE_SHEET_REACH.
 const float SHORE_MAX_RUNUP = 2.9;
+// City rundown: share of the run-up reach the backwash draws the edge below the
+// still-water line before the next bore (CityWaterSurface.RUNDOWN mirrors it).
+const float SHORE_RUNDOWN = 0.3;
 const float SHORE_NEVER_WET = 10000.0;
 // WR-4 bed-aware surf (shore_bed_valid), mirrored by CityWaterSurface.
 // Deep-water wavelength of the fixed shore period, L0 = g T^2 / (2 pi).
@@ -155,6 +158,8 @@ struct ShoreState {
 	float plunge;           // WR-4 0 spilling .. 1 plunging (Iribarren number)
 	float surging;          // WR-4 0 breaking .. 1 collapsing / surging (steep shore)
 	float backwash;         // WR-9 0 during the uprush, 0..1 progress of the backwash
+	float edge_feather;     // world units over which the film thins out behind its front
+	float rundown;          // city: world units the backwash has drawn below the still-water line
 };
 
 
@@ -184,6 +189,37 @@ float _swash_depth(float x) {
 
 float _swash_set_envelope(float wave_index) {
 	return 0.62 + 0.38 * (0.5 + 0.5 * sin(6.2831853 * wave_index / SHORE_SET_WAVES + 1.3));
+}
+
+// Per-wave noise offset. The wave index is taken modulo the 182-wave wrap so the
+// pattern repeats exactly when ocean_time wraps (seamless, like the set envelope).
+vec2 _swash_wave_seed(float wave_index) {
+	float m = mod(wave_index, SHORE_WAVES_PER_WRAP);
+	return vec2(fract(m * 0.6180340), fract(m * 0.7548777)) * 61.0;
+}
+
+// Run-up reach multiplier (mean 1, 0.6..1.4). WHY: one smooth noise shared by every
+// wave drew the front as a clean contour that came back to the same line each
+// time. Real uprush breaks into tongues and lobes (metres) with ragged fingers,
+// and each wave lays them down somewhere else. Mirrored by
+// CityWaterSurface.reach_variation. `steady` is _swash_noise(world_xz * 0.11 +
+// (0, 17.3)), passed in so the wetting-history loop evaluates it once.
+float _swash_reach_variation(vec2 world_xz, float wave_index, float steady) {
+	vec2 seed = _swash_wave_seed(wave_index);
+	float lobes = _swash_noise(world_xz * 0.23 + seed);
+	float fingers = _swash_noise(world_xz * 0.9 + seed.yx * 1.7);
+	return 0.6 + 0.25 * steady + 0.4 * lobes + 0.15 * fingers;
+}
+
+// Width (world units) of the thinning film tip, 0.12..0.67. A swash tip is a
+// broken, sand-studded film, so the water fades out over a ragged band instead
+// of ending in one sharp line. It morphs into the next wave's pattern over the
+// cycle (u), so a part-covered tip pixel never pops at the wave boundary.
+// Mirrored by CityWaterSurface.edge_feather.
+float _swash_edge_feather(vec2 world_xz, float wave_index, float u) {
+	float now = _swash_noise(world_xz * 2.7 + _swash_wave_seed(wave_index) * 0.37);
+	float next = _swash_noise(world_xz * 2.7 + _swash_wave_seed(wave_index + 1.0) * 0.37);
+	return 0.12 + 0.55 * mix(now, next, u);
 }
 
 // Sheet front (world units inland) during one cycle: ease-out uprush, then an
@@ -325,6 +361,8 @@ ShoreState shore_state(vec2 world_xz, float t, vec4 sea) {
 	s.surge = 0.0;
 	s.foam_age = SHORE_NEVER_WET;
 	s.backwash = 0.0;
+	s.edge_feather = 0.12;
+	s.rundown = 0.0;
 	s.plunge = 0.0;
 	s.surging = 0.0;
 	if (shore_field_valid < 0.5 || sea.y <= 0.0) {
@@ -474,15 +512,29 @@ ShoreState shore_state(vec2 world_xz, float t, vec4 sea) {
 		return s;
 	}
 	float land = -x;
-	float reach_variation = 0.8 + 0.4 * _swash_noise(world_xz * 0.11 + vec2(0.0, 17.3));
-	float base_reach = (
-		SHORE_RUNUP * breaker_height * 1.8 / SHORE_METERS_PER_UNIT * sea.w * reach_variation
+	float steady_reach = _swash_noise(world_xz * 0.11 + vec2(0.0, 17.3));
+	float base_reach = SHORE_RUNUP * breaker_height * 1.8 / SHORE_METERS_PER_UNIT * sea.w;
+	float reach_now = min(
+		base_reach * _swash_reach_variation(world_xz, wave_index, steady_reach)
+			* _swash_set_envelope(wave_index),
+		SHORE_MAX_RUNUP
 	);
-	float reach_now = min(base_reach * _swash_set_envelope(wave_index), SHORE_MAX_RUNUP);
+	s.edge_feather = _swash_edge_feather(world_xz, wave_index, u);
 	float front = _swash_front(u, reach_now, drain);
 	float uprush = 1.0 - step(SHORE_UPRUSH, u);
 	s.backwash = clamp((u - SHORE_UPRUSH) / (1.0 - SHORE_UPRUSH), 0.0, 1.0);
-	s.front_distance = front - land;
+	// City (bed mode): late in the backwash the water drains below the still-water
+	// line and the next bore floods it again. WHY: without it the sea always
+	// covered every bed below the mean level, so that contour stood as a fixed,
+	// sharp line (straight on planar beach faces) while only the run-up moved.
+	// Static reach terms only, so it is continuous across the wave wrap.
+	float rundown = 0.0;
+	if (bed_mode) {
+		float drained = max(smoothstep(0.6, 1.0, u), 1.0 - smoothstep(0.0, 0.12, u));
+		rundown = SHORE_RUNDOWN * base_reach * (0.6 + 0.8 * steady_reach) * drained;
+	}
+	s.rundown = rundown;
+	s.front_distance = front - rundown - land;
 	s.wet = step(0.0, land) * step(land, front) * step(0.001, front);
 	s.sheet_thickness = 0.045 * energy
 		* sqrt(clamp(s.front_distance / max(front, 0.05), 0.0, 1.0))
@@ -503,7 +555,11 @@ ShoreState shore_state(vec2 world_xz, float t, vec4 sea) {
 		bool found = false;
 		for (int k = 0; k < SHORE_LOOKBACK; k++) {
 			float m = wave_index - float(k);
-			float reach = min(base_reach * _swash_set_envelope(m), SHORE_MAX_RUNUP);
+			float reach = min(
+				base_reach * _swash_reach_variation(world_xz, m, steady_reach)
+					* _swash_set_envelope(m),
+				SHORE_MAX_RUNUP
+			);
 			float elapsed = cycle - m;
 			float since_peak = (elapsed - SHORE_UPRUSH) * period;
 			if (since_peak >= 0.0) {

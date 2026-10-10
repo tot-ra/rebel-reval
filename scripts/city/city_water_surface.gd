@@ -6,6 +6,9 @@ const PERIOD := 1638.4 / 182.0
 ## Mirrors CITY_C1_GEOMETRY / CITY_TROUGH_CLEARANCE in map_view_water.gdshader.
 const CITY_C1_GEOMETRY := 0.0
 const CITY_TROUGH_CLEARANCE := 0.05
+## Backwash rundown below the still-water line (SHORE_RUNDOWN, CITY_RUNDOWN_BED).
+const RUNDOWN := 0.3
+const RUNDOWN_BED := 0.3
 ## WR-4 bed-aware surf, mirrors the BED_* constants in shore_swash.gdshaderinc.
 const GAMMA := 0.78
 const BED_L0 := 9.81 * PERIOD * PERIOD / TAU
@@ -168,11 +171,10 @@ static func runup_profile(
 		# Run-up reach keeps the calibrated district breaker height (shore_state).
 		drain = state["surging"]
 	var u := fposmod(cycle, 1.0)
-	var variation := 0.8 + 0.4 * _noise(xz * 0.11 + Vector2(0.0, 17.3))
-	var reach := (
-		breaker_height * 1.8 / 0.87 * _float_parameter(mat, &"shore_runup_gain", 3.2) * variation
-	)
-	var envelope := 0.62 + 0.38 * (0.5 + 0.5 * sin(TAU * floor(cycle) / 7.0 + 1.3))
+	var wave_index := floorf(cycle)
+	var base_reach := breaker_height * 1.8 / 0.87 * _float_parameter(mat, &"shore_runup_gain", 3.2)
+	var reach := base_reach * reach_variation(xz, wave_index)
+	var envelope := 0.62 + 0.38 * (0.5 + 0.5 * sin(TAU * wave_index / 7.0 + 1.3))
 	reach = minf(reach * envelope, 2.9)
 	var front: float
 	if u < 0.35:
@@ -181,10 +183,19 @@ static func runup_profile(
 		var b := (u - 0.35) / 0.65
 		front = reach * (1.0 - (pow(b, lerpf(2.0, 1.2, drain)) if drain > 0.0 else b * b))
 	var distance := field.x + _float_parameter(mat, &"shore_tide_offset", 0.0)
-	var front_distance := front + distance
+	# Mirrors the bed-mode rundown in shore_state: the backwash drains below the
+	# still-water line before the next bore.
+	var rundown := 0.0
+	if bed_enabled(shore, mat):
+		var drained := maxf(smoothstep(0.6, 1.0, u), 1.0 - smoothstep(0.0, 0.12, u))
+		var steady := _noise(xz * 0.11 + Vector2(0.0, 17.3))
+		rundown = RUNDOWN * base_reach * (0.6 + 0.8 * steady) * drained
+	var front_distance := front - rundown + distance
 	var sheet := 0.045 * energy * sqrt(clampf(front_distance / maxf(front, 0.05), 0.0, 1.0))
 	sheet *= 1.0 if u < 0.35 else lerpf(0.45, 0.9, drain)
+	var backwash := clampf((u - 0.35) / 0.65, 0.0, 1.0)
 	var roller := exp(-pow((front_distance - 0.28) / 0.32, 2.0))
+	roller *= lerpf(1.0, 0.15, smoothstep(0.0, 0.25, backwash))
 	var thickness := (sheet * 3.0 + roller * lerpf(0.10, 0.42, sea))
 	thickness *= smoothstep(0.001, 0.04, front) * smoothstep(0.0, 0.12, front_distance)
 	var shore_blend := smoothstep(-0.45, 0.12, bed) * beach * valid
@@ -193,10 +204,17 @@ static func runup_profile(
 	var joined := maxf(ocean_y, bed_surface) + merge * merge * 0.03
 	var height := maxf(lerpf(ocean_y, joined, shore_blend), bed + 0.018)
 	var coverage := 1.0
-	if bed > tide + 0.002:
-		coverage = smoothstep(0.0, 0.12, front_distance)
-		if valid * beach < 0.01 or front < 0.001 or front_distance <= 0.0:
-			coverage = 0.0
+	if bed > tide - RUNDOWN_BED:
+		var runs_up := valid * beach >= 0.01
+		var tip := smoothstep(0.0, edge_feather(xz, wave_index, u), front_distance) if runs_up else 0.0
+		if bed > tide + 0.002:
+			coverage = tip
+			if not runs_up or front < 0.001 or front_distance <= 0.0:
+				coverage = 0.0
+		elif runs_up:
+			coverage = lerpf(1.0, tip, smoothstep(0.0, 0.05, rundown))
+			if coverage < 0.001:
+				coverage = 0.0
 	return {"height": height, "coverage": coverage, "front_distance": front_distance}
 
 
@@ -220,7 +238,9 @@ static func bed_profile(
 ## CPU mirror of the bed-aware branch of shore_state (shore_swash.gdshaderinc):
 ## validity, travel direction, phase, breaker class and the water-side height
 ## (world units before shore_geometry_scale). Same three bed taps as the GPU.
-static func bed_state(shore: Dictionary, xz: Vector2, time: float, mat: ShaderMaterial) -> Dictionary:
+static func bed_state(
+	shore: Dictionary, xz: Vector2, time: float, mat: ShaderMaterial
+) -> Dictionary:
 	var out := {
 		"valid": 0.0, "distance": 8.0, "beach": 0.0, "to_land": Vector2.ZERO, "plunge": 0.0,
 		"surging": 0.0, "cycle": 0.0, "height": 0.0, "breaking": 0.0, "reformed": 0.0, "xi": 0.0,
@@ -297,6 +317,29 @@ static func bed_state(shore: Dictionary, xz: Vector2, time: float, mat: ShaderMa
 	out["breaking"] = breaking
 	out["reformed"] = broke_before * (1.0 - breaking)
 	return out
+
+
+## Mirrors _swash_wave_seed: per-wave offset, periodic over the 182-wave wrap.
+static func _wave_seed(wave_index: float) -> Vector2:
+	var m := fposmod(wave_index, 182.0)
+	return Vector2(fposmod(m * 0.6180340, 1.0), fposmod(m * 0.7548777, 1.0)) * 61.0
+
+
+## Mirrors _swash_reach_variation: per-wave tongues and fingers of the run-up front.
+static func reach_variation(xz: Vector2, wave_index: float) -> float:
+	var seed := _wave_seed(wave_index)
+	var steady := _noise(xz * 0.11 + Vector2(0.0, 17.3))
+	var lobes := _noise(xz * 0.23 + seed)
+	var fingers := _noise(xz * 0.9 + Vector2(seed.y, seed.x) * 1.7)
+	return 0.6 + 0.25 * steady + 0.4 * lobes + 0.15 * fingers
+
+
+## Mirrors _swash_edge_feather: width of the thinning film tip, world units,
+## morphing into the next wave's pattern over the cycle u.
+static func edge_feather(xz: Vector2, wave_index: float, u: float) -> float:
+	var now := _noise(xz * 2.7 + _wave_seed(wave_index) * 0.37)
+	var next := _noise(xz * 2.7 + _wave_seed(wave_index + 1.0) * 0.37)
+	return 0.12 + 0.55 * lerpf(now, next, u)
 
 
 static func _hash(p: Vector2) -> float:
