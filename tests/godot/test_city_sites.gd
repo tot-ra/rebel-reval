@@ -266,3 +266,52 @@ func test_st_mary_building_site_state() -> void:
 	assert_true(heights["north.bay1"] > heights["north.bay2"], "east bay finished first")
 	assert_true(heights["north.bay3"] > heights["north.bay4"], "west front lowest")
 	assert_true(site.data["presentation"].is_empty(), "strict 1343: no presentation exceptions")
+
+
+## Player-reported stuck spot: slots between nave benches and piers must be
+## either shut or wide enough for Kalev's footprint, the middle aisle open,
+## and the nave west wall closed either side of the tower arch.
+func test_st_nicholas_nave_is_walkable_and_west_wall_closed() -> void:
+	var site := _site(&"site.st_nicholas")
+	var foot := MapVisualStyle.CHARACTER_FOOTPRINT_PX / CityPlan.LOGIC_PX_PER_UNIT
+	var nave := Rect2(-22.6, -18.6, 31.2, 21.2)
+	var boxes: Array[Rect2] = []
+	for poly: Array in site.data["walk"]["solid"]:
+		var r := Rect2(Vector2(poly[0][0], poly[0][1]), Vector2.ZERO)
+		for p: Array in poly:
+			r = r.expand(Vector2(p[0], p[1]))
+		if nave.encloses(r):
+			boxes.append(r)
+	for i in boxes.size():
+		for j in range(i + 1, boxes.size()):
+			var a := boxes[i]
+			var b := boxes[j]
+			var z_gap := maxf(b.position.y - a.end.y, a.position.y - b.end.y)
+			var x_gap := maxf(b.position.x - a.end.x, a.position.x - b.end.x)
+			if x_gap < 0.0 and z_gap > 0.0:
+				assert_true(
+					z_gap < foot.y or z_gap > foot.y + 0.25, "snag slot %s / %s" % [a, b]
+				)
+			if z_gap < 0.0 and x_gap > 0.0:
+				assert_true(
+					x_gap < foot.x or x_gap > foot.x + 0.2, "snag slot %s / %s" % [a, b]
+				)
+	# Middle aisle between the north and south nave benches.
+	var north_end := -INF
+	var south_start := INF
+	for b: Dictionary in site.data["benches"]:
+		var z := float(b["at"][1])
+		if z > -11.0 and z < -5.0:
+			if z < -8.0:
+				north_end = maxf(north_end, z + float(b["len"]) * 0.5)
+			else:
+				south_start = minf(south_start, z - float(b["len"]) * 0.5)
+	assert_true(south_start - north_end > foot.y + 0.6, "middle aisle is a real aisle")
+	var plan := _plan()
+	assert_almost_eq(
+		plan.walk_height(site.to_world(Vector2(-23.3, -8.0))), site.level + 0.12, 0.001
+	)
+	var mid_wall := false
+	for w: Dictionary in site.data["fabric"]:
+		mid_wall = mid_wall or String(w["id"]) == "nave.west.mid"
+	assert_true(mid_wall, "nave west wall runs across the tower front")
