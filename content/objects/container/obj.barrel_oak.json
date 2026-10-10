@@ -56,8 +56,8 @@
     "preview": "docs/reports/images/object_catalog/obj.barrel_oak.png",
     "icon": "res://assets/objects/icons/obj.barrel_oak.png",
     "icon_status": "missing",
-    "look": "Bulging oak barrel with three iron hoops, stained staves and a bung hole, damp at the base.",
-    "image_prompt": "Oak barrel: Bulging oak barrel with three iron hoops, stained staves and a bung hole, damp at the base."
+    "look": "Bulging oak barrel with four iron hoops, stained staves and a bung hole, damp at the base.",
+    "image_prompt": "Oak barrel: Bulging oak barrel with four iron hoops, stained staves and a bung hole, damp at the base."
   },
   "lifecycle": "usable",
   "confidence": "plausible composite",

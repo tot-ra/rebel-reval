@@ -2,7 +2,6 @@ class_name MapViewMeshBuilderPrimitives
 extends RefCounted
 
 ## Low-level mesh primitives shared by 3D map view builders.
-const BarrelMeshes := preload("res://scripts/map/view3d/map_view_barrel_meshes.gd")
 const FoliageMeshes := preload("res://scripts/map/view3d/map_view_foliage_meshes.gd")
 const TreeMeshes := preload("res://scripts/map/view3d/map_view_tree_meshes.gd")
 const MeshMath := preload("res://scripts/map/view3d/map_view_mesh_builder_math.gd")
@@ -487,20 +486,6 @@ static func box(
 	instance.position = position
 	instance.material_override = MapViewMeshBuilderPrimitives.role_material(role)
 	parent.add_child(instance)
-
-
-## Compatibility facade for prop builders. Barrel-specific geometry and cache
-## ownership live in MapViewBarrelMeshes.
-static func barrel_stave_mesh(radius: float, height: float) -> ArrayMesh:
-	return BarrelMeshes.barrel_stave_mesh(radius, height)
-
-
-static func barrel_head_mesh(radius: float, thickness: float) -> CylinderMesh:
-	return BarrelMeshes.barrel_head_mesh(radius, thickness)
-
-
-static func barrel_hoop_mesh(radius: float) -> TorusMesh:
-	return BarrelMeshes.barrel_hoop_mesh(radius)
 
 
 static func cylinder(

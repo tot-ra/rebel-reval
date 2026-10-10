@@ -13,7 +13,7 @@ const _HayMeshes := preload("res://scripts/map/view3d/map_view_hay_meshes.gd")
 ## kind retains the established mesh-builder height.
 const STAND_HEIGHT_BY_KIND := {
 	MapTypes.PROP_KIND_CARGO_CRATES: 0.62,
-	MapTypes.PROP_KIND_BARRELS: 0.72,
+	MapTypes.PROP_KIND_BARRELS: 0.9,
 	MapTypes.PROP_KIND_CART: 0.68,
 	MapTypes.PROP_KIND_HAY_STACK: 0.78,
 	MapTypes.PROP_KIND_TRADE_GOODS: 0.55,

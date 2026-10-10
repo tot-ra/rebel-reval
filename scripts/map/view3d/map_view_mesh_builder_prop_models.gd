@@ -36,6 +36,7 @@ const MedievalHandToolModels := preload(
 const MammalSpecies := preload("res://scripts/map/view3d/map_view_mammal_species.gd")
 const CartModels := preload("res://scripts/map/view3d/map_view_cart_models.gd")
 const TradeGoodsModels := preload("res://scripts/map/view3d/map_view_trade_goods_models.gd")
+const BarrelMeshes := preload("res://scripts/map/view3d/map_view_barrel_meshes.gd")
 # gdlint: ignore=max-line-length
 const SACRED_GROVE_ANCIENT_OAK_SCENE_PATH := "res://assets/props/environment/sacred_grove_ancient_oak/sacred_grove_ancient_oak.glb"
 # gdlint: ignore=max-line-length
@@ -52,68 +53,12 @@ const PLOT_DRESSING_COMPONENTS: Dictionary = {
 }
 ## Individual authored prop meshes.
 
-const BARREL_HEIGHT := 0.72
-const BARREL_BELLY_RADIUS := 0.29
-const BARREL_HEAD_RADIUS := BARREL_BELLY_RADIUS * 0.78
-const BARREL_HEAD_THICKNESS := 0.028
-## Hoop height and radius follow the coopered body profile. Paired rings around
-## the bilge and quarter sections make the silhouette read as a bound vessel,
-## rather than as a cylinder with decorative stripes.
-const BARREL_HOOP_PROFILE: Array[Vector2] = [
-	Vector2(0.06, 0.88),
-	Vector2(0.22, 0.965),
-	Vector2(0.40, 0.998),
-	Vector2(0.60, 0.998),
-	Vector2(0.78, 0.965),
-	Vector2(0.94, 0.88),
-]
+const BARREL_HEIGHT := BarrelMeshes.HEIGHT
+const BARREL_BELLY_RADIUS := BarrelMeshes.BELLY_RADIUS
 const ANCIENT_TREE_PRIMITIVE := &"ancient_tree"
 
 ## Definition key -> published height field; see _boat_rest_field().
 static var _boat_rest_fields: Dictionary = {}
-
-
-static func _add_barrel(parent: Node3D, node_name: String, position: Vector3, yaw: float) -> Node3D:
-	var barrel := Node3D.new()
-	barrel.name = node_name
-	barrel.position = position
-	barrel.rotation.y = yaw
-	parent.add_child(barrel)
-
-	var staves := MeshInstance3D.new()
-	staves.name = "Staves"
-	staves.mesh = MapViewMeshBuilderPrimitives.barrel_stave_mesh(BARREL_BELLY_RADIUS, BARREL_HEIGHT)
-	staves.material_override = MapViewMeshBuilderPrimitives.role_material(&"wood")
-	barrel.add_child(staves)
-
-	# Barrel heads sit just below the stave ends, leaving a narrow protective lip.
-	# That recess is especially important in the top-down camera, where it turns a
-	# flat cylinder cap into a visibly assembled coopered vessel.
-	for head_spec in [
-		{"name": "BottomHead", "y": BARREL_HEAD_THICKNESS * 0.75},
-		{"name": "TopHead", "y": BARREL_HEIGHT - BARREL_HEAD_THICKNESS * 0.75},
-	]:
-		var head := MeshInstance3D.new()
-		head.name = head_spec["name"]
-		head.mesh = MapViewMeshBuilderPrimitives.barrel_head_mesh(
-			BARREL_HEAD_RADIUS, BARREL_HEAD_THICKNESS
-		)
-		head.position = Vector3(0.0, float(head_spec["y"]), 0.0)
-		head.material_override = MapViewMeshBuilderPrimitives.role_material(&"wood")
-		barrel.add_child(head)
-
-	for hoop_index in BARREL_HOOP_PROFILE.size():
-		var hoop_spec := BARREL_HOOP_PROFILE[hoop_index]
-		var hoop := MeshInstance3D.new()
-		hoop.name = "Hoop%d" % hoop_index
-		hoop.mesh = MapViewMeshBuilderPrimitives.barrel_hoop_mesh(BARREL_BELLY_RADIUS * hoop_spec.y)
-		hoop.position = Vector3(0.0, BARREL_HEIGHT * hoop_spec.x, 0.0)
-		# A flattened torus gives each hoop the broad vertical face and thin radial
-		# edge of forged strap iron without filling the barrel like a solid disc.
-		hoop.scale.y = 1.55
-		hoop.material_override = MapViewMeshBuilderPrimitives.role_material(&"metal")
-		barrel.add_child(hoop)
-	return barrel
 
 
 static func build_prop(
@@ -156,8 +101,10 @@ static func build_prop(
 		MapTypes.PROP_KIND_WELL:
 			WellModels.add_model(root)
 		MapTypes.PROP_KIND_BARRELS:
-			_add_barrel(root, "BarrelA", Vector3(-0.26, 0.0, 0.08), -0.12)
-			_add_barrel(root, "BarrelB", Vector3(0.32, 0.0, -0.16), 0.19)
+			# One barrel per prop: maps set the count by placing more props. The
+			# stable ID turns the bung and staves so neighbours do not look cloned.
+			var barrel_yaw := float(String(prop["id"]).hash() % 360) * TAU / 360.0
+			BarrelMeshes.add_barrel(root, "Barrel", Vector3.ZERO, barrel_yaw)
 		MapTypes.PROP_KIND_FURNACE:
 			if StringName(prop["id"]) == SmithyPropBuilder.FURNACE_PROP_ID:
 				SmithyPropBuilder.add_smithy_furnace(root)
