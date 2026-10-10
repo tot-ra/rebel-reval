@@ -124,9 +124,9 @@ func test_tampered_manifest_is_refused() -> void:
 
 func test_prefetch_mounts_exactly_the_expected_neighbours() -> void:
 	var host := _strip_host()
-	host.update_streaming(_at(50))
+	host.update_streaming(_at(30))
 	assert_eq(host.owning_location_id(), &"map_a")
-	assert_eq(host.mounted_location_ids(), [&"map_a"], "50 cells from the seam is outside 48")
+	assert_eq(host.mounted_location_ids(), [&"map_a"], "70 cells from the seam is outside 66")
 	host.update_streaming(_at(60))
 	assert_eq(host.mounted_location_ids(), [&"map_a", &"map_b"], "40 cells: prefetch B only")
 	host.update_streaming(_at(99))
@@ -140,13 +140,13 @@ func test_eviction_respects_hysteresis() -> void:
 	assert_array_contains(host.mounted_location_ids(), &"map_b")
 	var mounts: Array[StringName] = []
 	host.location_mounted.connect(func(location_id: StringName) -> void: mounts.append(location_id))
-	# Pacing across the prefetch line (48 cells) must not thrash B.
-	for x in [53.0, 51.0, 45.0, 51.0, 40.0, 54.0]:
+	# Pacing across the prefetch line (66 cells) must not thrash B.
+	for x in [37.0, 35.0, 31.0, 35.0, 25.0, 38.0]:
 		host.update_streaming(_at(x))
 		assert_array_contains(host.mounted_location_ids(), &"map_b", "B stays at x=%s" % x)
 	assert_eq(mounts, [] as Array[StringName])
-	host.update_streaming(_at(35))
-	assert_eq(host.mounted_location_ids(), [&"map_a"], "65 cells is past the 64-cell band")
+	host.update_streaming(_at(17))
+	assert_eq(host.mounted_location_ids(), [&"map_a"], "83 cells is past the 82-cell band")
 	_dispose(host)
 
 

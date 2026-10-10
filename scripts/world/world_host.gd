@@ -24,9 +24,11 @@ signal scene_swap_fallback_requested(location_id: StringName, seam: Dictionary)
 const ADDITIVE_RESIDENCY_SETTING := "world_host/additive_residency_enabled"
 const SCENE_SWAP_FALLBACK_SETTING := "world_host/scene_swap_fallback_enabled"
 ## WB-08 streaming policy. Derivation (docs/SEAMLESS_STREAMING_PLAN.md): the
-## slowest staged location mount measured by R-979/R-1005 is ~4.7 s wall time
-## (lower_town_slice at a 4 ms budget); a running player covers 240 px/s = 7.5
-## cells/s, so 7.5 x 4.7 x ~1.35 safety = 48 cells of warning before the seam.
+## slowest staged location mount measured by R-1044 is ~6.5 s prefetch -> ready
+## (market_civic_quarter, south_quarter, 4 ms budget; was 4.7 s in R-1005); a
+## running player covers 240 px/s = 7.5 cells/s, so 7.5 x 6.5 x ~1.35 safety = 66
+## cells of warning before the seam.
+## the seam.
 const STREAMING_PREFETCH_BAND_SETTING := "world_host/streaming_prefetch_band_cells"
 ## Eviction band = prefetch + 16 cells (about 2 s of running) of hysteresis so
 ## pacing along the prefetch line cannot mount/evict the same neighbour per frame.
@@ -34,8 +36,8 @@ const STREAMING_EVICTION_BAND_SETTING := "world_host/streaming_eviction_band_cel
 ## Owner plus the two neighbours of a seam corner. Lower Town alone is already
 ## over the ADR 0019 node/memory caps, so a larger cap would only hide that.
 const STREAMING_RESIDENCY_CAP_SETTING := "world_host/streaming_residency_cap"
-const DEFAULT_PREFETCH_BAND_CELLS := 48.0
-const DEFAULT_EVICTION_BAND_CELLS := 64.0
+const DEFAULT_PREFETCH_BAND_CELLS := 66.0
+const DEFAULT_EVICTION_BAND_CELLS := 82.0
 const DEFAULT_RESIDENCY_CAP := 3
 const LOGIC_LOCATIONS_NAME := "LogicLocations"
 const VIEW_LOCATIONS_NAME := "ViewLocations"

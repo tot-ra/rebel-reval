@@ -198,8 +198,8 @@ nav byte-identity is unchanged.
 
 | Setting | Default | Derivation |
 |---|---|---|
-| `world_host/streaming_prefetch_band_cells` | 48 | slowest staged mount ~4.7 s (R-1005 `lower_town_slice`, 4 ms budget) x run speed 7.5 cells/s (240 px/s) x ~1.35 safety |
-| `world_host/streaming_eviction_band_cells` | 64 | prefetch + 16 cells (~2 s of running) of hysteresis |
+| `world_host/streaming_prefetch_band_cells` | 66 | slowest staged mount ~6.5 s prefetch to ready (R-1044 `market_civic_quarter`/`south_quarter`, 4 ms budget; R-1005 measured 4.7 s) x run speed 7.5 cells/s (240 px/s) x ~1.35 safety |
+| `world_host/streaming_eviction_band_cells` | 82 | prefetch + 16 cells (~2 s of running) of hysteresis |
 | `world_host/streaming_residency_cap` | 3 | owner + two neighbours at a seam corner; Lower Town alone already exceeds the node/memory caps |
 
 **R-1043 (2026-09-27, flag on only).** `WorldHostStreamingDriver` drives the host
@@ -355,8 +355,9 @@ yet**. The remaining causes:
 - An early mount must inspect the incomplete view on the main thread (~9 ms)
   (**R-1069**).
 - A staged mount takes ~6.5 s from prefetch to ready on market and south. That
-  is longer than the 48-cell band gives a running player (6.4 s), so running
-  crossings miss (**R-1072** re-derives the band).
+  is longer than the old 48-cell band gave a running player (6.4 s), so running
+  crossings missed. **R-1072** raised the band to 66 cells (8.8 s) and
+  eviction to 82; re-measure the trace on the minimum host once R-1069 lands.
 - One of eleven trace runs crashed (SIGSEGV) inside a worker pattern bake
   (`map_view_material_patterns.gd` `_pattern_image_at_size`) while mounts were
   staged. It did not reproduce in the next ten runs (**R-1070**; keep the flag
