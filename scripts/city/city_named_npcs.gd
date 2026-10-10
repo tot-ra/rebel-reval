@@ -169,6 +169,7 @@ func _process(delta: float) -> void:
 		refresh(CityPlan.to_world_xz(player.global_position))
 	_style_new_rigs()
 	_update_tag()
+	_update_markers(delta)
 	if _selected != null and is_instance_valid(_selected) and _panel() != null:
 		if _panel().is_open() and _panel().shown_id == _selected.npc_id():
 			_panel().update_now(describe(_selected.npc, hour()))
@@ -347,6 +348,26 @@ func pick(screen: Vector2) -> NamedNpcActor:
 			best = actor
 			best_along = along
 	return best
+
+
+## One NamedNpcMarker per live actor, parented to its mirrored rig (so it follows
+## the body and dies with it). Fades by camera distance; hidden in dialogue,
+## duels, cutscenes and spirit sight, and by the "Show NPC markers" setting.
+func _update_markers(delta: float) -> void:
+	var camera := get_viewport().get_camera_3d() if is_inside_tree() else null
+	var suppressed := NamedNpcMarker.suppressed_in(get_tree())
+	for actor: NamedNpcActor in _live.values():
+		var rig := _rig_of(actor)
+		if rig == null:
+			continue
+		var marker := rig.get_node_or_null("NamedNpcMarker") as NamedNpcMarker
+		if marker == null:
+			marker = NamedNpcMarker.new()
+			marker.name = "NamedNpcMarker"
+			rig.add_child(marker)
+			marker.setup(actor.npc, float(actor.record["height_scale"]))
+		var distance := camera.global_position.distance_to(rig.global_position) if camera != null else 0.0
+		marker.update_presence(distance, suppressed, delta)
 
 
 func _update_tag() -> void:

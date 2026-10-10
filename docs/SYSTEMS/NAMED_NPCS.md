@@ -44,6 +44,17 @@ Anchors are the ids of `points_of_interest` and `gates` in `content/world/reval_
 
 Save/load: nothing is saved. The registry is static content and positions come from the clock.
 
+## Overhead marker (task R-1564)
+
+`NamedNpcMarker` (`scripts/npc/named_npc_marker.gd`): a billboard font glyph ("!") above every live named NPC whose registry `marker` is `available`, parented to the mirrored rig by `CityNamedNpcs._update_markers`. It bobs gently, is drawn without depth test (houses and crowd never hide it), grows with camera distance (up to 2x) to stay legible in the isometric view, and fades out between 32 and 40 m.
+
+- **Shape carries the meaning, tint is decoration:** states `AVAILABLE` ("!"), `NONE` (nothing). `QUEST_READY` ("?") and `SPOKEN` (dim "!") exist for the future quest system and are not wired. The tint comes from `FACTION_TINT` (faction id, default gold), so the cue works without colour vision.
+- **Hidden** during dialogue and duels (groups `demo_dialogue_active`, `dialogue_active`, `spirit_duel_open`), cutscenes (group `cutscene_active`, reserved), and in spirit sight.
+- **Setting:** "Show NPC markers" (`GameplayAccessibilitySettings.show_npc_markers`, default on, persisted).
+- Procedural font glyph only, no HUD art (P0-040).
+- Proof: [`named_npc_markers_forum_10h.jpg`](../reports/images/city/named_npc_markers_forum_10h.jpg) (forum, 10:00, markers over named NPCs in the crowd).
+- Test: `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_named_npc_marker`.
+
 ## Verification
 
 ```bash

@@ -8,7 +8,7 @@ Status: implemented (tasks **P1-013** dialogue settings, **P1-028** input bindin
   - **Graphics**: quality `low` (MSAA off), `mid` (2x MSAA, default), or `high` (4x MSAA). Applies immediately and persists outside campaign saves.
   - **Audio**: music volume, sound effects volume.
   - **Dialogue accessibility**: text size, text speed, high contrast, subtitle background, subtitles, bark subtitles, voice playback, always translate foreign speech (shows lines in languages the hero does not yet understand in full), reduced motion.
-  - **Gameplay accessibility**: guard input `hold` / `toggle`, screen shake, reduced flashing (scales lightning flashes to 25%), enhanced focus contrast (thicker UI focus borders), reply timer pressure, spirit sight grade intensity (0-100 %, task **R-1484**; scales only the look of spirit sight, never its walk-only limits).
+  - **Gameplay accessibility**: guard input `hold` / `toggle`, screen shake, reduced flashing (scales lightning flashes to 25%), enhanced focus contrast (thicker UI focus borders), reply timer pressure, show NPC markers (overhead "!" over named NPCs, default on, task **R-1564**, [`NAMED_NPCS.md`](./NAMED_NPCS.md)), spirit sight grade intensity (0-100 %, task **R-1484**; scales only the look of spirit sight, never its walk-only limits).
 - **Quick menu → Controls** opens `ControlsOverlay`, which lists every action with its keyboard/mouse and gamepad binding and allows rebinding and restoring defaults.
 - Settings apply immediately and persist across sessions and save slots.
 

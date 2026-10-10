@@ -19,6 +19,8 @@ var reduced_flashing: bool = false
 var reply_timer_pressure: bool = true
 ## SS-1: scales the entire sight recipe, not gameplay limits.
 var spirit_sight_intensity: float = 1.0
+## Overhead "!" over named NPCs (NamedNpcMarker, R-1564). Off hides every marker.
+var show_npc_markers: bool = true
 
 
 static func default_settings() -> GameplayAccessibilitySettings:
@@ -33,6 +35,7 @@ func duplicate_settings() -> GameplayAccessibilitySettings:
 	copy.reduced_flashing = reduced_flashing
 	copy.reply_timer_pressure = reply_timer_pressure
 	copy.spirit_sight_intensity = spirit_sight_intensity
+	copy.show_npc_markers = show_npc_markers
 	return copy
 
 
@@ -75,6 +78,7 @@ func to_dict() -> Dictionary:
 		"reduced_flashing": reduced_flashing,
 		"reply_timer_pressure": reply_timer_pressure,
 		"spirit_sight_intensity": spirit_sight_intensity,
+		"show_npc_markers": show_npc_markers,
 	}
 
 
@@ -88,5 +92,6 @@ static func from_dict(data: Dictionary) -> GameplayAccessibilitySettings:
 	settings.reduced_flashing = bool(data.get("reduced_flashing", false))
 	settings.reply_timer_pressure = bool(data.get("reply_timer_pressure", true))
 	settings.spirit_sight_intensity = float(data.get("spirit_sight_intensity", 1.0))
+	settings.show_npc_markers = bool(data.get("show_npc_markers", true))
 	settings.normalize()
 	return settings

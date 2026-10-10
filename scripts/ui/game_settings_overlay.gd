@@ -34,6 +34,7 @@ var _always_translate_check: CheckButton
 var _guard_mode_option: OptionButton
 var _screen_shake_check: CheckButton
 var _reduced_flashing_check: CheckButton
+var _npc_markers_check: CheckButton
 var _enhanced_focus_check: CheckButton
 var _reply_timer_check: CheckButton
 var _sight_slider: HSlider
@@ -207,6 +208,8 @@ func _build_ui() -> void:
 	_screen_shake_check.toggled.connect(_on_screen_shake_toggled)
 	_reduced_flashing_check = _add_toggle_row(layout, "Reduced flashing")
 	_reduced_flashing_check.toggled.connect(_on_reduced_flashing_toggled)
+	_npc_markers_check = _add_toggle_row(layout, "Show NPC markers")
+	_npc_markers_check.toggled.connect(_on_npc_markers_toggled)
 	_enhanced_focus_check = _add_toggle_row(layout, "Enhanced focus contrast")
 	_enhanced_focus_check.toggled.connect(_on_enhanced_focus_toggled)
 	_reply_timer_check = _add_toggle_row(layout, "Spirit duel reply timer pressure")
@@ -338,6 +341,7 @@ func _sync_from_settings() -> void:
 	_select_option_value(_guard_mode_option, gameplay_settings.guard_mode)
 	_screen_shake_check.set_pressed_no_signal(gameplay_settings.screenshake_enabled)
 	_reduced_flashing_check.set_pressed_no_signal(gameplay_settings.reduced_flashing)
+	_npc_markers_check.set_pressed_no_signal(gameplay_settings.show_npc_markers)
 	_enhanced_focus_check.set_pressed_no_signal(gameplay_settings.enhanced_focus_contrast)
 	_reply_timer_check.set_pressed_no_signal(gameplay_settings.reply_timer_pressure)
 	_sight_slider.set_value_no_signal(gameplay_settings.spirit_sight_intensity * 100.0)
@@ -433,6 +437,12 @@ func _on_screen_shake_toggled(pressed: bool) -> void:
 func _on_reduced_flashing_toggled(pressed: bool) -> void:
 	var gameplay = _current_gameplay_settings()
 	gameplay.reduced_flashing = pressed
+	_apply_gameplay_settings(gameplay)
+
+
+func _on_npc_markers_toggled(pressed: bool) -> void:
+	var gameplay = _current_gameplay_settings()
+	gameplay.show_npc_markers = pressed
 	_apply_gameplay_settings(gameplay)
 
 
