@@ -18,6 +18,8 @@ const ARCHETYPE_CEREAL := &"cereal"
 const ARCHETYPE_STALK := &"stalk"
 const ARCHETYPE_VINE := &"vine"
 
+const ForbMeshes := preload("res://scripts/city/city_forb_meshes.gd")
+
 const SPECIES_NETTLE := &"nettle"
 const SPECIES_MUGWORT := &"mugwort"
 const SPECIES_YARROW := &"yarrow"
@@ -458,3 +460,28 @@ static func scatter_density(species: StringName) -> float:
 static func instance_tint(_species: StringName, roll: float) -> Color:
 	var shade := lerpf(0.88, 1.10, roll)
 	return Color(shade, shade, shade)
+
+
+## Species drawn with the detailed CityForbMeshes models (R-1519), the same as
+## the seamless city, instead of the generic MapViewPlantMeshes profile.
+static func uses_forb_model(species: StringName) -> bool:
+	return species in [SPECIES_PLANTAIN, SPECIES_DANDELION, SPECIES_CLOVER, SPECIES_BURDOCK]
+
+
+## Which CityForbMeshes model a scattered plant becomes. `roll` is a 0..1 hash
+## of the scatter cell, so the choice is deterministic and the plant ID
+## (plant.dandelion etc.) never changes. Blueprint maps have no calendar, so
+## this is the high-summer mix: flowering heads with some leaf-only rosettes.
+static func forb_kind_for(species: StringName, roll: float) -> StringName:
+	match species:
+		SPECIES_PLANTAIN:
+			return ForbMeshes.KIND_PLANTAIN if roll < 0.8 else ForbMeshes.KIND_PLANTAIN_LEAVES
+		SPECIES_DANDELION:
+			if roll < 0.5:
+				return ForbMeshes.KIND_DANDELION_FLOWER
+			return ForbMeshes.KIND_DANDELION_CLOCK if roll < 0.7 else ForbMeshes.KIND_DANDELION_LEAVES
+		SPECIES_CLOVER:
+			return ForbMeshes.KIND_WHITE_CLOVER if roll < 0.7 else ForbMeshes.KIND_RED_CLOVER
+		SPECIES_BURDOCK:
+			return ForbMeshes.KIND_BURDOCK_FLOWERING if roll < 0.35 else ForbMeshes.KIND_BURDOCK
+	return &""

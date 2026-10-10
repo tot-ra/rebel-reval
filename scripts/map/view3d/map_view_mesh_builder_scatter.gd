@@ -658,13 +658,23 @@ static func _append_scattered_plant(
 	if not PlantSpecies.is_known_species(species):
 		return
 	var key := String(species)
+	var scale_range := PlantSpecies.scale_range(species)
+	var forb_kind := &""
+	if PlantSpecies.uses_forb_model(species):
+		# R-1559: same models, size range and mix as the seamless city. One batch
+		# per model; the plant ID stays the species.
+		forb_kind = PlantSpecies.forb_kind_for(
+			species, MapViewMeshBuilderPrimitives.hash01(x, y, map_seed + 1901)
+		)
+		key = String(forb_kind)
+		scale_range = CityForbs.SIZE_RANGE
 	if not batches.has(key):
 		batches[key] = {
 			"transforms": [] as Array[Transform3D],
 			"colors": [] as Array[Color],
 			"species": species,
+			"forb_kind": forb_kind,
 		}
-	var scale_range := PlantSpecies.scale_range(species)
 	var batch: Dictionary = batches[key]
 	(batch["transforms"] as Array).append(
 		_scatter_transform(field, x, y, map_seed + 1879, scale_range.x, scale_range.y)
@@ -688,12 +698,17 @@ static func _emit_plant_batches(root: Node3D, batches: Dictionary) -> void:
 		if transforms.is_empty():
 			continue
 		var species: StringName = batch["species"]
+		var forb_kind: StringName = batch.get("forb_kind", &"")
 		var instances := MapViewMeshBuilderPrimitives.multi_mesh(
-			"Plants_%s" % String(species).to_pascal_case(),
-			PlantMeshes.mesh_for(species),
+			"Plants_%s" % String(forb_kind if not forb_kind.is_empty() else species).to_pascal_case(),
+			(
+				CityForbMeshes.mesh_for(forb_kind)
+				if not forb_kind.is_empty()
+				else PlantMeshes.mesh_for(species)
+			),
 			transforms,
 			colors,
-			MapViewMaterials.grass_blades(),
+			CityForbs.material_unfaded() if not forb_kind.is_empty() else MapViewMaterials.grass_blades(),
 			Vector3.ZERO
 		)
 		instances.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF

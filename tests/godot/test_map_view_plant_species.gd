@@ -26,6 +26,49 @@ func test_concrete_plant_variants_are_valid_scatter_profiles() -> void:
 		assert_true(float(profile.get("plant_chance", 0.0)) > 0.0)
 
 
+func test_forb_species_map_to_city_forb_models_deterministically() -> void:
+	# R-1559: blueprint maps share the seamless city's models; IDs stay plant.*.
+	for species in [&"plantain", &"dandelion", &"clover", &"burdock"]:
+		assert_true(MapViewPlantSpecies.uses_forb_model(species), String(species))
+		var seen: Dictionary = {}
+		for i in 100:
+			var roll := float(i) / 100.0
+			var kind := MapViewPlantSpecies.forb_kind_for(species, roll)
+			assert_true(kind in CityForbMeshes.ALL_KINDS, "%s -> %s" % [species, kind])
+			assert_eq(kind, MapViewPlantSpecies.forb_kind_for(species, roll))
+			seen[kind] = true
+		assert_true(seen.size() >= 2, "%s needs a mix of models" % species)
+	assert_false(MapViewPlantSpecies.uses_forb_model(&"nettle"))
+	assert_eq(MapViewPlantSpecies.forb_kind_for(&"nettle", 0.5), &"")
+
+
+func test_scattered_forbs_use_city_forb_mesh_and_keep_species_id() -> void:
+	var batches: Dictionary = {}
+	var field := {"flat_floor": true}
+	var root := Node3D.new()
+	for x in 12:
+		MapViewMeshBuilderScatter._append_scattered_plant(
+			batches, field, x, 3, 1343, &"dandelion"
+		)
+	MapViewMeshBuilderScatter._emit_plant_batches(root, batches)
+	assert_true(root.get_child_count() > 0)
+	for node in root.get_children():
+		var instances := node as MultiMeshInstance3D
+		assert_eq(instances.get_meta(&"plant_species"), &"dandelion")
+		assert_true(
+			instances.multimesh.mesh in _forb_meshes(), "dandelion batch must use a forb model"
+		)
+		assert_true(instances.material_override is ShaderMaterial)
+	root.free()
+
+
+func _forb_meshes() -> Array:
+	var meshes: Array = []
+	for kind in CityForbMeshes.ALL_KINDS:
+		meshes.append(CityForbMeshes.mesh_for(kind))
+	return meshes
+
+
 func test_authored_locations_use_every_tree_and_plant_model() -> void:
 	var paths := [
 		"res://content/maps/archbishops_garden.rrmap",

@@ -102,6 +102,18 @@ static func material(large: bool) -> ShaderMaterial:
 	return m
 
 
+## Same shader without the camera-distance shrink, for blueprint maps (R-1559):
+## their camera looks from far away, so the city's fade would erase every plant.
+static func material_unfaded() -> ShaderMaterial:
+	if _materials.has("unfaded"):
+		return _materials["unfaded"]
+	var m := ShaderMaterial.new()
+	m.shader = SHADER
+	m.set_shader_parameter("leaf_detail", LEAF_DETAIL)
+	_materials["unfaded"] = m
+	return m
+
+
 ## 0..1 patch field for a species at `p` (smooth simplex noise, fixed seed).
 static func patch_at(species: StringName, p: Vector2) -> float:
 	var noise: FastNoiseLite = _noise.get(species)
