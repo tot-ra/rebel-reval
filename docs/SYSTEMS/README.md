@@ -22,6 +22,7 @@ One page per implemented or planned feature. Each page opens with a `Status:` li
 | [Weather on the ground: puddles, drought and cracked earth](./WEATHER_GROUND.md) | Implemented (R-1516): drought spells, sun-baked dryness, cracked clay in dried puddle basins, rain soaks cracks before puddles return |
 | [Night sky: stars and the Milky Way](./NIGHT_SKY.md) | Implemented (R-1443): round twinkling Hipparcos stars, Milky Way placed for Tallinn in 1343, seasonal sidereal drift |
 | [Seamless Reval city (1343)](./SEAMLESS_CITY.md) | Playable preview (ADR 0031); no quests or saves yet |
+| [Regional sites (distant destinations)](./REGIONAL_SITES.md) | Implemented for the Paide pilot (R-1520, ADR 0042): site-parameterised builder and runtime, inland site with sky and weather, no sea; other sites planned |
 | [Landmark sites in the seamless city](./CITY_LANDMARK_SITES.md) | Implemented for Raekoja plats (ADR 0032); other sites planned |
 | [Church interiors](./CHURCH_INTERIORS.md) | In progress (R-1392): glazing implemented (R-1393, eight plates, per-church programmes); ornamental wall paintings (R-1396: consecration crosses, dado curtain, foliage band); liturgical objects, seating, figural murals planned |
 | [Local fog banks, horizon haze, aerial perspective, heat mirage](./LOCAL_ATMOSPHERE.md) | Implemented (R-1430, R-1482): patchy weather-driven fog near water with own lighting, perspective-only distance haze, blue/warm aerial perspective with distance blur, heat shimmer on sunny middays |

@@ -45,6 +45,19 @@ static func load_default() -> CitizenRoster:
 	return _default
 
 
+## The roster of a plan: Reval's census, a regional site's own citizens.json when
+## its `citizens` flag is on, otherwise an empty roster (ADR 0042: people at a
+## regional site come only with a later task).
+static func load_for(plan: CityPlan) -> CitizenRoster:
+	if plan.site_id == CityPlan.DEFAULT_SITE:
+		return load_default()
+	var roster := CitizenRoster.new()
+	var path := plan.file_path("citizens.json")
+	if plan.feature_enabled("citizens") and FileAccess.file_exists(path):
+		roster.load_file(path)
+	return roster
+
+
 func load_file(path: String) -> bool:
 	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
 	if not parsed is Dictionary:

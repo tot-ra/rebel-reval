@@ -16,6 +16,7 @@ Outputs (runtime, consumed by scripts/city/):
 Usage:
   python3 tools/city/build_reval_city_plan.py            # rebuild everything
   python3 tools/city/build_reval_city_plan.py --check    # fail if outputs are stale
+  python3 tools/city/build_reval_city_plan.py --site paide [--check]   # a regional site (ADR 0042)
   python3 tools/city/build_reval_city_plan.py --import-osm build/city_osm/raw.json --import-dem build/city_osm/dem.json
 
 Everything is deterministic: same inputs, same bytes.
@@ -286,8 +287,11 @@ class Frame:
         return (self.lat0 - y / self.ky, self.lon0 + x / self.kx)
 
 
-def import_osm(raw_path: Path) -> None:
-    """Trim a raw Overpass dump to what the builder needs (keeps the ODbL notice)."""
+def import_osm(raw_path: Path, out_path: Path = OSM_PATH, source="Overpass API extract, bbox 59.4290,24.7200,59.4470,24.7700",
+               natural=("cliff", "coastline", "water")) -> None:
+    """Trim a raw Overpass dump to what the builder needs (keeps the ODbL notice).
+    Regional sites (build_site_plan.py) pass their own output, source note and
+    the wider land-cover set they keep."""
     raw = json.loads(raw_path.read_text())
     keep_ways, keep_rels, need_nodes = [], [], set()
     for e in raw["elements"]:
@@ -296,7 +300,7 @@ def import_osm(raw_path: Path) -> None:
             useful = (
                 ("highway" in t and t.get("highway") not in ("cycleway", "elevator", "corridor", "platform", "busway", "proposed", "construction"))
                 or "building" in t
-                or t.get("natural") in ("cliff", "coastline", "water")
+                or t.get("natural") in natural
                 or t.get("barrier") == "city_wall"
                 or t.get("historic") in ("city_wall", "citywalls")
             )
@@ -314,29 +318,29 @@ def import_osm(raw_path: Path) -> None:
     nodes = {e["id"]: [round(e["lat"], 7), round(e["lon"], 7)] for e in raw["elements"] if e["type"] == "node" and e["id"] in need_nodes}
     out = {
         "license": "ODbL 1.0, (c) OpenStreetMap contributors, https://www.openstreetmap.org/copyright",
-        "source": "Overpass API extract, bbox 59.4290,24.7200,59.4470,24.7700",
+        "source": source,
         "timestamp_osm_base": raw.get("osm3s", {}).get("timestamp_osm_base", ""),
         "nodes": {str(k): v for k, v in sorted(nodes.items())},
         "ways": sorted(keep_ways, key=lambda w: w["id"]),
         "relations": sorted(keep_rels, key=lambda r: r["id"]),
     }
-    DATA.mkdir(parents=True, exist_ok=True)
-    OSM_PATH.write_text(json.dumps(out, ensure_ascii=False, separators=(",", ":")))
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(json.dumps(out, ensure_ascii=False, separators=(",", ":")))
     print(f"OSM extract: {len(out['ways'])} ways, {len(out['relations'])} relations, {len(nodes)} nodes")
 
 
-def import_dem(dem_path: Path) -> None:
+def import_dem(dem_path: Path, out_path: Path = DEM_PATH) -> None:
     raw = json.loads(dem_path.read_text())
     raw["license"] = "EU-DEM v1.1 (Copernicus Land Monitoring Service), via api.opentopodata.org; free use with attribution"
     raw["elev"] = [[None if v is None else round(v, 2) for v in row] for row in raw["elev"]]
-    DATA.mkdir(parents=True, exist_ok=True)
-    DEM_PATH.write_text(json.dumps(raw, separators=(",", ":")))
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(json.dumps(raw, separators=(",", ":")))
     print(f"DEM: {len(raw['lats'])} x {len(raw['lons'])}")
 
 
 class Osm:
-    def __init__(self, frame: Frame):
-        d = json.loads(OSM_PATH.read_text())
+    def __init__(self, frame: Frame, path: Path = OSM_PATH):
+        d = json.loads(path.read_text())
         self.license = d["license"]
         self.frame = frame
         self.nodes = {int(k): frame.m(v[0], v[1]) for k, v in d["nodes"].items()}
@@ -400,8 +404,8 @@ class Osm:
 
 
 class Dem:
-    def __init__(self, frame: Frame):
-        d = json.loads(DEM_PATH.read_text())
+    def __init__(self, frame: Frame, path: Path = DEM_PATH):
+        d = json.loads(path.read_text())
         self.lats = np.array(d["lats"])
         self.lons = np.array(d["lons"])
         e = np.array([[np.nan if v is None else v for v in row] for row in d["elev"]], dtype=float)
@@ -2447,22 +2451,28 @@ def render_splat(plan, mpu):
             draws[layer].ellipse([p[0] - r, p[1] - r, p[0] + r, p[1] + r], fill=255)
     # Market forum: packed earth with patches of paving (1343: "unpaved /
     # partially paved", raekoja-plats-extents-1343.md).
-    forum = plan["forum"]["polygon"]
-    draws["earth"].polygon([T(p) for p in forum], fill=235)
-    draws["paving"].polygon([T(p) for p in forum], fill=150)
+    # Regional sites (ADR 0042) may lack any feature: each is drawn only when present.
+    forum = plan.get("forum", {}).get("polygon", [])
+    if len(forum) >= 3:
+        draws["earth"].polygon([T(p) for p in forum], fill=235)
+        draws["paving"].polygon([T(p) for p in forum], fill=150)
     # Beach sand along the shore band and wet mud in the delta.
     shore = plan["shoreline"]
     sand_w = int(28 / mpu * SPLAT_PX_PER_WU)
-    draws["sand"].line([T(p) for p in shore], fill=255, width=sand_w, joint="curve")
-    hj = plan["harjapea"]
-    draws["mud"].line([T(p) for p in hj["points"]], fill=255, width=int(30 / mpu), joint="curve")
+    if len(shore) >= 2:
+        draws["sand"].line([T(p) for p in shore], fill=255, width=sand_w, joint="curve")
+    hj = plan.get("harjapea", {})
+    if len(hj.get("points", [])) >= 2:
+        draws["mud"].line([T(p) for p in hj["points"]], fill=255, width=int(hj.get("mud_m", 30) / mpu), joint="curve")
     # Ditch banks grade from grass through wet earth to mud at the waterline.
-    for scale_, fill_ in ((2.5, 70), (1.9, 130), (1.4, 190), (1.0, 245)):
-        draws["mud"].line([T(p) for p in plan["moat"]["points"]], fill=fill_, width=int(plan["moat"]["width"] * scale_), joint="curve")
+    if len(plan.get("moat", {}).get("points", [])) >= 2:
+        for scale_, fill_ in ((2.5, 70), (1.9, 130), (1.4, 190), (1.0, 245)):
+            draws["mud"].line([T(p) for p in plan["moat"]["points"]], fill=fill_, width=int(plan["moat"]["width"] * scale_), joint="curve")
     # Trampled ground: a light wash over the whole walled town, a strong band
     # around every house (eaves drip, doorstep, cart turn).
     circuit = [T(a["at"]) for a in plan["circuit"]]
-    draws["earth"].polygon(circuit, fill=70)
+    if len(circuit) >= 3:
+        draws["earth"].polygon(circuit, fill=70)
     for b in plan["buildings"]:
         ring = [T(p) for p in b["footprint"]]
         if len(ring) >= 3:
@@ -2554,16 +2564,21 @@ def render_minimap(plan, height_wu):
         dr.polygon([T(p) for p in pa["polygon"]], fill=(150, 168, 108), outline=(112, 98, 72) if pa["fence"] else None)
     for orc in plan.get("orchards", []):
         dr.polygon([T(p) for p in orc["polygon"]], fill=(132, 160, 92), outline=(112, 98, 72))
-    dr.polygon([T(a["at"]) for a in plan["circuit"]], fill=(170, 160, 135))
-    dr.polygon([T(p) for p in plan["toompea_edge"]], fill=(175, 168, 140))
-    hj = plan["harjapea"]
-    dr.line([T(p) for p in hj["points"]], fill=(92, 132, 148), width=12, joint="curve")
-    dr.line([T(p) for p in plan["moat"]["points"]], fill=(92, 132, 148), width=int(plan["moat"]["width"] * 0.9), joint="curve")
+    if len(plan["circuit"]) >= 3:
+        dr.polygon([T(a["at"]) for a in plan["circuit"]], fill=(170, 160, 135))
+    if len(plan["toompea_edge"]) >= 3:
+        dr.polygon([T(p) for p in plan["toompea_edge"]], fill=(175, 168, 140))
+    hj = plan.get("harjapea", {})
+    if len(hj.get("points", [])) >= 2:
+        dr.line([T(p) for p in hj["points"]], fill=(92, 132, 148), width=hj.get("minimap_px", 12), joint="curve")
+    if len(plan.get("moat", {}).get("points", [])) >= 2:
+        dr.line([T(p) for p in plan["moat"]["points"]], fill=(92, 132, 148), width=int(plan["moat"]["width"] * 0.9), joint="curve")
     for s in plan["streets"]:
         col = (214, 200, 168) if s["class"] != "extramural_road" else (176, 150, 112)
         dr.line([T(p) for p in s["points"]], fill=col, width=max(2, int(s["width"])), joint="curve")
-    forum = [T(p) for p in plan["forum"]["polygon"]]
-    dr.polygon(forum, fill=(214, 200, 168))
+    forum = [T(p) for p in plan.get("forum", {}).get("polygon", [])]
+    if len(forum) >= 3:
+        dr.polygon(forum, fill=(214, 200, 168))
     for t in plan["trees"]:
         x, y = T((t[0], t[1]))
         dr.ellipse([x - 2.5, y - 2.5, x + 2.5, y + 2.5], fill=(88, 112, 64))
@@ -2574,7 +2589,8 @@ def render_minimap(plan, height_wu):
         for poly, fill in zip(so["footprints"], so["minimap_fill"]):
             rgb = tuple(int(fill[k:k + 2], 16) for k in (1, 3, 5))
             dr.polygon([T(p) for p in poly], fill=rgb, outline=(60, 40, 32))
-    dr.polygon([T(p) for p in plan["castle"]["ring"]], outline=(80, 74, 66), width=3)
+    if plan.get("castle"):
+        dr.polygon([T(p) for p in plan["castle"]["ring"]], outline=(80, 74, 66), width=3)
     for c in plan["curtains"] + plan["toompea_walls"]:
         dr.line([T(c["from"]), T(c["to"])], fill=(96, 90, 80), width=max(3, int(c["thickness"] * 1.6)))
     for t in plan["towers"]:
@@ -2596,7 +2612,7 @@ def render_review(result, out_png):
     hs = np.array(Image.fromarray(h.astype(np.float32)).resize((W, H), Image.BILINEAR))
     gy, gx = np.gradient(hs)
     shade = np.clip(0.75 + (-gx * 0.6 - gy * 0.6) * 0.5, 0.35, 1.25)
-    t = np.clip(hs / 60.0, 0, 1)
+    t = np.clip(hs / plan.get("review_relief_wu", 60.0), 0, 1)
     rgb = np.stack([90 + 120 * t, 120 + 90 * t, 70 + 40 * t], -1) * shade[..., None]
     sea = hs < 0
     rgb[sea] = np.stack([30 + hs[sea] * 2, 70 + hs[sea] * 3, 120 + hs[sea] * 4], -1)
@@ -2616,7 +2632,8 @@ def render_review(result, out_png):
         if b["landmark_id"]:
             col = (235, 225, 205)
         dr.polygon([T(p) for p in b["footprint"]], fill=col, outline=(60, 50, 40))
-    dr.polygon([T(p) for p in plan["castle"]["ring"]], outline=(120, 20, 20), width=3)
+    if plan.get("castle"):
+        dr.polygon([T(p) for p in plan["castle"]["ring"]], outline=(120, 20, 20), width=3)
     for c in plan["curtains"] + plan["toompea_walls"]:
         col = {"stone": (90, 85, 80), "construction": (170, 120, 60), "palisade": (110, 70, 30)}[c["state"]]
         dr.line([T(c["from"]), T(c["to"])], fill=col, width=max(2, int(c["thickness"] * scale * 1.4)))
@@ -2680,7 +2697,13 @@ def main(argv=None):
     ap.add_argument("--check", action="store_true")
     ap.add_argument("--import-osm", type=Path)
     ap.add_argument("--import-dem", type=Path)
+    ap.add_argument("--site", default="reval_city", help="regional site id (ADR 0042); default the Reval city")
     args = ap.parse_args(argv)
+    if args.site != "reval_city":
+        # Regional sites run on the site-parameterised builder; imported lazily
+        # because that module imports this one for the shared helpers.
+        import build_site_plan
+        return build_site_plan.main(argv)
     if args.import_osm:
         import_osm(args.import_osm)
     if args.import_dem:

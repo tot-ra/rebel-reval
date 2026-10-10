@@ -111,8 +111,11 @@ func _build() -> void:
 	var t3 := Time.get_ticks_usec()
 	_build_water()
 	CityBridges.build(plan, self)
-	CityHarbour.build(plan, self)
-	add_child(CityShore.create(plan))
+	# Harbour, shore dressing and ships only where the plan has a coast; an
+	# inland regional site (ADR 0042) has none of them.
+	if plan.has_coast():
+		CityHarbour.build(plan, self)
+		add_child(CityShore.create(plan))
 	CityVegetationBuilder.build(plan, self)
 	CityDressingBuilder.build(plan, self)
 	CityWallFoot.build(plan, self)
@@ -127,8 +130,9 @@ func _build() -> void:
 	add_child(trail)
 	smoke = CityChimneySmoke.create(chimneys)
 	add_child(smoke)
-	ships = CityShips.create(plan)
-	add_child(ships)
+	if plan.has_coast():
+		ships = CityShips.create(plan)
+		add_child(ships)
 	var t4 := Time.get_ticks_usec()
 	build_stats = {
 		"terrain_ms": (t1 - t0) / 1000.0,
@@ -361,6 +365,13 @@ func _build_water() -> void:
 	var root := Node3D.new()
 	root.name = "Water"
 	add_child(root)
+	if plan.has_coast():
+		_build_sea(root)
+	_build_inland_water(root)
+
+
+## FFT sea, surf band, shore field and the open water to the horizon (coastal plans only).
+func _build_sea(root: Node3D) -> void:
 	# Sea: the surf zone is drawn by the fine band (below); the 4 m cells stitched
 	# to it stay a static "skirt" grid (vertex colour R = depth hint), and every
 	# other wet cell belongs to the camera-centred rings (WR-3, CitySeaLod).
@@ -413,6 +424,10 @@ func _build_water() -> void:
 	outer.material_override = _water_material(0.22, 0.0)
 	outer.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	root.add_child(outer)
+
+
+## The stream and the ditch pools, with their plants; every plan may have them.
+func _build_inland_water(root: Node3D) -> void:
 	# The Hareapea stream as a ribbon along its trace.
 	var hj: Dictionary = plan.data.get("harjapea", {})
 	if not hj.is_empty():

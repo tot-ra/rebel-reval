@@ -44,7 +44,7 @@ func _ready() -> void:
 	_map.size = Vector2(SIZE, SIZE)
 	_material = ShaderMaterial.new()
 	_material.shader = SHADER
-	var texture: Texture2D = load(MAP_PATH)
+	var texture: Texture2D = load(plan.minimap_path())
 	_material.set_shader_parameter("map_texture", texture)
 	_material.set_shader_parameter("view_uv", VIEW_UNITS / plan.bounds.size.x)
 	_map.material = _material

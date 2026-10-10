@@ -7,18 +7,20 @@ extends RefCounted
 ## missing or has no compiled placement is skipped with an error, and the
 ## generic buildings it would replace are already gone from the plan, so the
 ## compiler is the gate: run tools/city/build_reval_city_plan.py after editing.
+## A regional site (ADR 0042) passes its own directory; without a registry
+## there it has no landmark sites.
 
 const SITES_DIR := "res://content/world/reval_city/sites"
 
 
-static func load_for(plan_data: Dictionary) -> Array[CitySite]:
+static func load_for(plan_data: Dictionary, sites_dir: String = SITES_DIR) -> Array[CitySite]:
 	var out: Array[CitySite] = []
-	var registry := _read_json("%s/registry.json" % SITES_DIR)
+	var registry := _read_json("%s/registry.json" % sites_dir)
 	var placed: Dictionary = {}
 	for record: Dictionary in plan_data.get("sites", []):
 		placed[String(record["id"])] = record
 	for name: String in registry.get("sites", []):
-		var manifest := _read_json("%s/%s.json" % [SITES_DIR, name])
+		var manifest := _read_json("%s/%s.json" % [sites_dir, name])
 		if manifest.is_empty():
 			push_error("City site manifest missing: %s" % name)
 			continue

@@ -8,19 +8,19 @@ Reconciled: 2026-09-10 (P0-206 grounded model and equipment integration)
 | Classification | Count | Role |
 |----------------|------:|------|
 | `working` | 50 | Active runtime scenes with verified or complete behavior |
-| `partial` | 63 | Substantial content but incomplete integration or dev-only use |
+| `partial` | 64 | Substantial content but incomplete integration or dev-only use |
 | `placeholder` | 3 | Reserved stubs or reference-only visuals, not playable |
 | `archive` | 20 | Out of vertical-slice scope; legacy open-world or event shells |
-| **Total** | **136** | Matches repository `.tscn` count |
+| **Total** | **137** | Matches repository `.tscn` count |
 
 Repository count command:
 
 ```bash
 find . -name '*.tscn' -not -path './.git/*' -not -path './.godot/*' -not -path './.a2gent-worktrees/*' | wc -l
-# Expected: 135
+# Expected: 136
 ```
 
-Inventory row count (data rows in the table below): **135**.
+Inventory row count (data rows in the table below): **136**.
 
 ## Classification criteria
 
@@ -122,6 +122,7 @@ Inventory row count (data rows in the table below): **135**.
 | 94 | `tools/benchmarks/render_probe.tscn` | partial | CI production scene 3D render benchmark host (`--scene=`, R-1536); not player-facing. |
 | 72 | `tools/capture_demo_walkthrough_host.tscn` | partial | D-004 packaged demo walkthrough capture host; not player-facing. |
 | 138 | `scenes/world/reval_city/reval_city.tscn` | working | ADR 0031 seamless Reval 1343 city preview (main menu "Reval (seamless)"). |
+| 161 | `scenes/world/sites/paide.tscn` | partial | ADR 0042 regional site: Paide (Wittenstein) 1343, global-map destination `world_paide`; `release=false`, no quests yet. |
 | 139 | `tools/capture_reval_city_walk.tscn` | partial | ADR 0031 seamless-city walk acceptance host; not player-facing. |
 | 134 | `tools/verify_world_seam_walk.tscn` | partial | R-1043 WorldHost seam-walk verification host (keyboard, gamepad, mouse, fallback); not player-facing. |
 

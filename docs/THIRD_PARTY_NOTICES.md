@@ -125,12 +125,22 @@ notice.code.tidewater` comment.
 
 **Use:** Street lines, plot footprints, surviving tower positions, wall fragments and cliff lines for the seamless Reval city ([ADR 0031](adr/0031-continuous-reval-city-plan.md)); 1343 corrections are layered on top.
 
+## notice.data.openstreetmap_paide
+
+**Component:** Trimmed OpenStreetMap extract of Paide (`tools/city/data/osm_paide_extract.json`) and the regional site plan derived from it (`content/world/paide/plan.json`, `height.json`, `splat.png`, `roads.png`, `minimap.png`)
+
+**Copyright:** © OpenStreetMap contributors
+
+**License:** Open Database License (ODbL) 1.0, https://opendatacommons.org/licenses/odbl/1-0/ . The extract and the derived plan are made available under the ODbL; see https://www.openstreetmap.org/copyright
+
+**Use:** Position of the Paide castle keep for the regional site ([ADR 0042](adr/0042-regional-site-plans.md)); everything else in the plan is authored for 1343.
+
 ## notice.data.eudem
 
-**Component:** EU-DEM v1.1 elevation samples (`tools/city/data/eudem25m_reval.json`), fetched through OpenTopoData
+**Component:** EU-DEM v1.1 elevation samples (`tools/city/data/eudem25m_reval.json`, `tools/city/data/eudem25m_paide.json`), fetched through OpenTopoData
 
 **Copyright:** Produced using Copernicus data and information funded by the European Union - EU-DEM layers
 
 **License:** Free use with attribution (Copernicus data policy)
 
-**Use:** Terrain trend for the city heightfield; Toompea, the hill ways, the shore and the ditch are authored on top.
+**Use:** Terrain trend for the city and regional site heightfields; Toompea, the hill ways, the shore, the castle mounds and the ditches are authored on top.
