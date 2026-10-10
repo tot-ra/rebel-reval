@@ -38,6 +38,10 @@ static func build(plan: CityPlan, records: Array) -> Node3D:
 	var pad_colors: Array[Color] = []
 	var mats: Array[Transform3D] = []
 	var mat_colors: Array[Color] = []
+	var flowers: Array[Transform3D] = []
+	var flower_colors: Array[Color] = []
+	var fronds: Array[Transform3D] = []
+	var frond_colors: Array[Color] = []
 	for rec: Array in records:
 		var a: Vector2 = rec[0]
 		var b: Vector2 = rec[1]
@@ -112,6 +116,9 @@ static func build(plan: CityPlan, records: Array) -> Node3D:
 	_add_cattails(root, cattails, cattail_colors)
 	_add_floating(root, "LilyPads", _pad_mesh(), pads, pad_colors, Color(0.2, 0.42, 0.16))
 	_add_floating(root, "Duckweed", _mat_mesh(), mats, mat_colors, Color(0.42, 0.52, 0.16))
+	# Per-vertex colours carry the tone of these two, so the tint is white.
+	_add_floating(root, "LilyFlowers", _flower_mesh(), flowers, flower_colors, Color.WHITE)
+	_add_floating(root, "DuckweedFronds", _frond_cluster_mesh(), fronds, frond_colors, Color.WHITE)
 	return root
 
 
@@ -172,21 +179,120 @@ static func _add_floating(
 	root.add_child(inst)
 
 
-## A flat round lily leaf with a notch, face up.
+## A lily leaf: three rings of 14 segments with a V notch toward +X, a gently
+## cupped rim that curls up, and alternating darker/lighter radial bands that
+## read as veins. Vertex colours hold the vein pattern (tint is multiplied in).
 static func _pad_mesh() -> ArrayMesh:
 	var st := SurfaceTool.new()
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
-	var n := 10
-	for i in range(1, n):
-		var a0 := TAU * float(i) / n + 0.25
-		var a1 := TAU * float(i + 1) / n + 0.25
+	var segs := 14
+	var radii := [0.0, 0.38, 0.72, 1.0]
+	for ring in range(1, radii.size()):
+		for i in segs:
+			# Segment 0 is left open: the notch.
+			if i == 0:
+				continue
+			var a0 := TAU * float(i) / segs
+			var a1 := TAU * float(i + 1) / segs
+			var r0: float = radii[ring - 1]
+			var r1: float = radii[ring]
+			var vein := 0.86 if i % 2 == 0 else 1.0
+			var quad: Array[Vector3] = [
+				_pad_point(a0, r0), _pad_point(a1, r0), _pad_point(a1, r1), _pad_point(a0, r1)
+			]
+			# Inner rings are paler (young leaf centre); the rim is darker.
+			var shade := vein * (1.06 - 0.12 * float(ring))
+			var col := Color(shade, shade, shade, 1.0)
+			# Ring 1 is a fan: its inner points coincide at the hub.
+			var order := [0, 3, 2] if ring == 1 else [0, 3, 2, 0, 2, 1]
+			for idx: int in order:
+				st.set_color(col)
+				st.set_normal(Vector3.UP)
+				st.add_vertex(quad[idx])
+	return st.commit()
+
+
+## Leaf surface point: the rim rises with r^3 so the pad is a shallow dish.
+static func _pad_point(angle: float, radius: float) -> Vector3:
+	var lift := 0.05 * pow(radius, 3.0) * PAD_RADIUS
+	return Vector3(cos(angle) * radius * PAD_RADIUS, lift, sin(angle) * radius * PAD_RADIUS)
+
+
+## A white water-lily bloom: two rings of pointed petals around a yellow heart,
+## sized to sit on a pad (petal tips curl up and out).
+static func _flower_mesh() -> ArrayMesh:
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var layers := [[8, 0.17, 0.05, 0.0], [6, 0.12, 0.09, 0.26]]
+	for layer: Array in layers:
+		var count: int = layer[0]
+		var reach: float = layer[1]
+		var rise: float = layer[2]
+		var twist: float = layer[3]
+		for i in count:
+			var a := TAU * float(i) / count + twist
+			var half := TAU / count * 0.4
+			var base_l := Vector3(cos(a - half * 0.5), 0.0, sin(a - half * 0.5)) * reach * 0.2
+			var base_r := Vector3(cos(a + half * 0.5), 0.0, sin(a + half * 0.5)) * reach * 0.2
+			# Broad middle, pointed tip that lifts: a petal, not a spike.
+			var wide := Vector3(reach * 0.62, 1.0, reach * 0.62)
+			var mid_l := Vector3(cos(a - half), rise, sin(a - half)) * wide
+			var mid_r := Vector3(cos(a + half), rise, sin(a + half)) * wide
+			var tip := Vector3(cos(a), rise * 2.0, sin(a)) * Vector3(reach, 1.0, reach)
+			var white := Color(1.0, 0.98, 0.95, 1.0)
+			var blush := Color(0.98, 0.86, 0.9, 1.0)
+			for tri: Array in [
+				[base_l, base_r, mid_r, white, white, white],
+				[base_l, mid_r, mid_l, white, white, white],
+				[mid_l, mid_r, tip, white, white, blush]
+			]:
+				for k in 3:
+					st.set_color(tri[k + 3])
+					st.set_normal(Vector3.UP)
+					st.add_vertex(tri[k])
+	# Yellow stamen disc.
+	for i in 8:
+		var a0 := TAU * float(i) / 8.0
+		var a1 := TAU * float(i + 1) / 8.0
 		for v: Vector3 in [
-			Vector3.ZERO,
-			Vector3(cos(a1), 0.0, sin(a1)) * PAD_RADIUS,
-			Vector3(cos(a0), 0.0, sin(a0)) * PAD_RADIUS
+			Vector3(0.0, 0.05, 0.0),
+			Vector3(cos(a1), 0.04, sin(a1)) * 0.035,
+			Vector3(cos(a0), 0.04, sin(a0)) * 0.035
 		]:
+			st.set_color(Color(1.0, 0.82, 0.2, 1.0))
 			st.set_normal(Vector3.UP)
 			st.add_vertex(v)
+	return st.commit()
+
+
+## Duckweed (Lemna): a cluster of ~110 tiny, almost perfectly round fronds
+## (each ~5 cm across) that float flat and slightly overlap, thick in the middle
+## and thinning to scattered singles at the edge. Deterministic layout.
+static func _frond_cluster_mesh() -> ArrayMesh:
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 90210
+	var segs := 8
+	for i in 110:
+		# sqrt-free radius bias toward the centre gives a dense core.
+		var dist := pow(rng.randf(), 1.4)
+		var pos := Vector2.from_angle(rng.randf() * TAU) * dist
+		var r := rng.randf_range(0.022, 0.038)
+		var y := rng.randf_range(0.0, 0.012)
+		var shade := rng.randf_range(0.8, 1.15)
+		var col := Color(shade * 0.9, shade, shade * 0.55, 1.0)
+		for k in segs:
+			var a0 := TAU * float(k) / segs
+			var a1 := TAU * float(k + 1) / segs
+			for v: Vector3 in [
+				Vector3(pos.x, y, pos.y),
+				Vector3(pos.x + cos(a1) * r, y, pos.y + sin(a1) * r),
+				Vector3(pos.x + cos(a0) * r, y, pos.y + sin(a0) * r)
+			]:
+				st.set_color(col)
+				st.set_normal(Vector3.UP)
+				st.add_vertex(v)
 	return st.commit()
 
 

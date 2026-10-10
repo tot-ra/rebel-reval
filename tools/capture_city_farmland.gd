@@ -101,6 +101,11 @@ func _shots(plan: CityPlan) -> Array[Dictionary]:
 		var at: Vector2 = spot[1]
 		var g := plan.ground_height(at)
 		shots.append({"name": spot[0], "eye": Vector3(at.x + 14.0, g + 5.2, at.y + 8.0), "look": Vector3(at.x - 2.0, g + 1.0, at.y - 4.0), "fov": 60.0, "focus": at})  # gdlint: ignore=max-line-length
+	# Close pass over the standing water: lily pads, blooms and duckweed fronds.
+	for spot: Array in [["moat_pads", Vector2(215.0, -300.0)]]:
+		var at: Vector2 = spot[1]
+		var g := plan.ground_height(at)
+		shots.append({"name": spot[0], "eye": Vector3(at.x + 21.0, g + 3.5, at.y + 2.0), "look": Vector3(at.x + 12.0, g, at.y), "fov": 55.0, "focus": at})  # gdlint: ignore=max-line-length
 	for spot: Array in [["moat_east_a", Vector2(215.0, -300.0)], ["moat_east_b", Vector2(262.0, -60.0)], ["moat_east_c", Vector2(232.0, -470.0)]]:  # gdlint: ignore=max-line-length
 		var at: Vector2 = spot[1]
 		var g := plan.ground_height(at)
