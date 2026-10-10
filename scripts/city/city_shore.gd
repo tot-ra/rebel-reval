@@ -2,8 +2,10 @@ class_name CityShore
 extends Node3D
 
 ## Shore dressing along the whole coast (docs/SYSTEMS/CITY_SEA.md): granite
-## erratics in the shallows, stone clusters and shingle lenses above the swash,
-## wrack lines at the waterline and weed skirts on the seabed. Reuses the
+## erratics in the shallows, half-buried boulders, stone clusters and pebble beds
+## above the swash, glacial erratics on the coastal grass behind the beach, wrack
+## lines at the waterline and weed skirts on the seabed. Nothing lands on a cart
+## road, paving or a field (R-1606). Reuses the
 ## district maps' CO-02 meshes (MapViewShoreDebris). Placement is a pure function
 ## of the plan heightfield, so the same coast always carries the same stones.
 ## Visual only: no collision (a boulder in the shallows can be swum through).
@@ -21,8 +23,17 @@ const SHINGLE_BAND := Vector2(0.35, 1.7)
 const STONE_BAND := Vector2(0.5, 2.3)
 const ERRATIC_BAND := Vector2(-2.4, 0.15)
 const WEED_BAND := Vector2(-3.2, -0.25)
+## R-1606: coastal land behind the beach; erratics thin out with height.
+const HINTERLAND_BAND := Vector2(2.3, 9.0)
+## Pebble beds are small: past this they are below a pixel and the ground
+## shader's shingle carries the band.
+const PEBBLE_DRAW_RANGE := 80.0
 
 static var _block_live := false
+## Land-use rasters of the plan, cached per plan file (CityGrass reads the same).
+static var _splat: Image
+static var _roads: Image
+static var _raster_plan := ""
 var plan: CityPlan
 var counts: Dictionary = {}
 
@@ -66,7 +77,7 @@ func _build() -> void:
 			if bool(ShoreDebris.SHORE_DEBRIS_KINDS[kind][2])
 			else GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		)
-		inst.visibility_range_end = DRAW_RANGE
+		inst.visibility_range_end = PEBBLE_DRAW_RANGE if kind in [&"pebble_patch_a", &"pebble_patch_b"] else DRAW_RANGE
 		add_child(inst)
 
 
@@ -77,6 +88,7 @@ static func placements_for(city_plan: CityPlan) -> Array[Dictionary]:
 	var nx := int(r.size.x / CELL)
 	var nz := int(r.size.y / CELL)
 	var per_block := int(BLOCK / CELL)
+	_load_rasters(city_plan)
 	for j in nz:
 		for i in nx:
 			# Most of the plan is far inland or deep sea: skip whole blocks cheaply.
@@ -89,9 +101,12 @@ static func placements_for(city_plan: CityPlan) -> Array[Dictionary]:
 			rng.seed = hash(Vector2i(i, j)) ^ SEED
 			var spot := r.position + (Vector2(cell) + Vector2(rng.randf(), rng.randf())) * CELL
 			var h := city_plan.ground_height(spot)
-			if h < WEED_BAND.x or h > STONE_BAND.y:
+			if h < WEED_BAND.x or h > HINTERLAND_BAND.y:
 				continue
 			if _taken(city_plan, spot):
+				continue
+			# Above the waterline stones lie on natural ground only.
+			if h > WRACK_BAND.x and not _natural_ground(city_plan, spot):
 				continue
 			var cluster := _noise(spot / 34.0, 1.0)
 			var patch := _noise(spot / 22.0, 7.0)
@@ -109,15 +124,87 @@ static func placements_for(city_plan: CityPlan) -> Array[Dictionary]:
 				var kind := &"wrack_line_a" if rng.randf() < 0.55 else &"wrack_line_b"
 				out.append(_item(kind, city_plan, spot, rng, 0.85, 1.2, 0.02, Color(0.95, 0.88, 0.76), true))
 				continue
-			if h >= SHINGLE_BAND.x and h <= SHINGLE_BAND.y and slope < 0.4:
-				if rng.randf() < 0.2 * smoothstep(0.45, 0.65, patch):
+			# Beds lie on the beach sand (splat or the shore strip), not in the turf.
+			var on_sand := _raster_at(city_plan, _splat, spot).b > 0.3 or h < 1.0
+			if h >= SHINGLE_BAND.x and h <= SHINGLE_BAND.y and slope < 0.4 and on_sand:
+				# Pebble beds (3D stones, R-1606) follow the same strands as the ground's
+				# shingle; their own density falls off at the rim.
+				if rng.randf() < 0.35 * smoothstep(0.4, 0.65, patch):
 					var kind := &"pebble_patch_a" if rng.randf() < 0.6 else &"pebble_patch_b"
-					out.append(_item(kind, city_plan, spot, rng, 0.9, 1.3, 0.03, Color(0.74, 0.72, 0.7), true))
+					out.append(_item(kind, city_plan, spot, rng, 0.85, 1.25, 0.0, _beach_tint(rng), true))
 					continue
-			if h >= STONE_BAND.x and h <= STONE_BAND.y and rng.randf() < 0.012 * (0.4 + cluster):
-				var kind := &"stone_cluster_a" if rng.randf() < 0.5 else &"stone_cluster_b"
-				out.append(_item(kind, city_plan, spot, rng, 0.85, 1.2, 0.0, Color(0.95, 0.93, 0.92)))
+			if h >= STONE_BAND.x and h <= STONE_BAND.y:
+				var stone_roll := rng.randf()
+				# Half-buried erratics on the beach: Estonian shores are strewn with them.
+				var boulder_p := 0.045 * (0.3 + cluster)
+				if stone_roll < boulder_p:
+					_add_land_boulder(out, city_plan, spot, rng, 0.85)
+					continue
+				if stone_roll < boulder_p + 0.08 * (0.4 + cluster):
+					var kind := &"stone_cluster_a" if rng.randf() < 0.5 else &"stone_cluster_b"
+					out.append(_item(kind, city_plan, spot, rng, 0.85, 1.3, 0.0, _beach_tint(rng)))
+					continue
+			if h > STONE_BAND.y and h <= HINTERLAND_BAND.y and slope < 0.5:
+				# Glacial erratics and cleared stones in the coastal grass, thinning inland.
+				var inland := 1.0 - smoothstep(HINTERLAND_BAND.x, HINTERLAND_BAND.y, h)
+				var land_roll := rng.randf()
+				var erratic_p := 0.03 * inland * (0.3 + cluster)
+				if land_roll < erratic_p:
+					_add_land_boulder(out, city_plan, spot, rng, 0.6)
+				elif land_roll < erratic_p + 0.035 * inland:
+					var kind := &"stone_cluster_a" if rng.randf() < 0.5 else &"stone_cluster_b"
+					out.append(_item(kind, city_plan, spot, rng, 0.8, 1.15, -0.03, _beach_tint(rng)))
 	return out
+
+
+static func _load_rasters(city_plan: CityPlan) -> void:
+	if _raster_plan == city_plan.splat_path() and _splat != null:
+		return
+	_splat = (load(city_plan.splat_path()) as Texture2D).get_image()
+	_roads = (load(city_plan.roads_path()) as Texture2D).get_image()
+	for image: Image in [_splat, _roads]:
+		if image.is_compressed():
+			image.decompress()
+	_raster_plan = city_plan.splat_path()
+
+
+static func _raster_at(city_plan: CityPlan, image: Image, spot: Vector2) -> Color:
+	var t := (spot - city_plan.bounds.position) / city_plan.bounds.size * Vector2(image.get_size())
+	return image.get_pixel(clampi(int(t.x), 0, image.get_width() - 1), clampi(int(t.y), 0, image.get_height() - 1))
+
+
+## Not a cart road, paving or a ploughed field (same rasters as the ground shader),
+## probed a stone's reach round `spot` so nothing overhangs a road edge.
+static func _natural_ground(city_plan: CityPlan, spot: Vector2) -> bool:
+	for probe: Vector2 in [Vector2.ZERO, Vector2(1.5, 0.0), Vector2(-1.5, 0.0), Vector2(0.0, 1.5), Vector2(0.0, -1.5)]:
+		var at := spot + probe
+		if _raster_at(city_plan, _roads, at).r > 0.03:
+			return false
+		var s := _raster_at(city_plan, _splat, at)
+		if s.r > 0.2 or CityGrass.field_share(s) > 0.0:
+			return false
+	return true
+
+
+## Dry beach stones: weathered granite grey to limestone buff. The shared granite
+## and limestone plates are pale; a stone on the open beach is a mid tone.
+static func _beach_tint(rng: RandomNumberGenerator) -> Color:
+	return Color(0.66, 0.66, 0.67).lerp(Color(0.8, 0.75, 0.68), rng.randf())
+
+
+## A dry-land boulder bedded about a quarter of its height in the ground.
+static func _add_land_boulder(
+	out: Array[Dictionary], city_plan: CityPlan, spot: Vector2, rng: RandomNumberGenerator, medium_share: float
+) -> void:
+	var roll := rng.randf()
+	var kind := &"boulder_small"
+	if roll > 0.97:
+		kind = &"boulder_large"
+	elif roll > medium_share:
+		kind = &"boulder_medium"
+	var scale := rng.randf_range(0.6, 1.3)
+	var height := float(ShoreDebris.SHORE_DEBRIS_KINDS[kind][3]) * scale
+	out.append(_item(kind, city_plan, spot, rng, scale, scale, -0.25 * height, _beach_tint(rng)))
 
 
 static func _block_has_coast(city_plan: CityPlan, origin: Vector2) -> bool:
@@ -128,7 +215,7 @@ static func _block_has_coast(city_plan: CityPlan, origin: Vector2) -> bool:
 			var h := city_plan.ground_height(origin + Vector2(dx, dz) * (BLOCK * 0.5))
 			low = minf(low, h)
 			high = maxf(high, h)
-	return high >= WEED_BAND.x - 1.0 and low <= STONE_BAND.y + 1.0
+	return high >= WEED_BAND.x - 1.0 and low <= HINTERLAND_BAND.y + 1.0
 
 
 static func _add_boulder(

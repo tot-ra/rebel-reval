@@ -52,8 +52,13 @@ uniform float crack_scale = 0.35; // one plate repeat per ~3 m: 15-35 cm clay po
 uniform float grass_scale = 0.62;
 uniform float earth_scale = 0.55;
 uniform float sand_scale = 0.5;
-// Shingle plate (2048 px of 1-6 cm pebbles): one repeat per ~1.25 units.
+// Shingle plate (2048 px of 1-6 cm pebbles): one repeat per ~1.25 units. Only the
+// distant tone of the band now; near stones are procedural (pebble_layer()).
 uniform float shingle_scale = 0.8;
+// Lattice cell of the beach cobbles (world units): stones span ~0.5-1.5 cells.
+uniform float shingle_cell = 0.15;
+// Lattice cell of the loose stones on cart roads (~2-5 cm stones).
+uniform float road_stone_cell = 0.07;
 // Fieldstone paving shared with the district maps (fieldstone_paving.gdshaderinc).
 // 0.2 read as ~30 cm stones beside Kalev (warped Voronoi stones span more than one
 // cell); 0.14 gives ~20 cm, about a boot length. Keep equal to map_view_terrain_blend.
@@ -191,6 +196,102 @@ vec3 detiled(sampler2D tex, vec2 uv) {
 	float n = value_noise(uv * 0.11);
 	vec2 uv2 = mat2(vec2(0.8, -0.6), vec2(0.6, 0.8)) * uv * 0.73 + vec2(0.37, 0.71);
 	return mix(texture(tex, uv).rgb, texture(tex, uv2).rgb, smoothstep(0.3, 0.7, n));
+}
+
+// --- Loose stones: beach shingle and road stones (R-1606) ---------------------
+// The shingle band used to be the flat shore_shingle plate with a luminance
+// pseudo-normal: no depth next to the fieldstone streets, a hard noise edge, and
+// the same pebbles under a cart road. Stones are now drawn one by one like the
+// fieldstone paving: each lattice cell may hold one rounded stone (an ellipsoid
+// cap bedded `bury` deep in the ground) with an analytic normal, its own rock
+// colour and contact shade in the gaps. `coverage` decides per stone whether it
+// is there and how big it is, so a bed thins out stone by stone into bare ground.
+// No sampler: this shader sits at the GL Compatibility texture-unit limit.
+struct Pebbles {
+	vec3 albedo;  // stone colour where stone > 0
+	vec2 slope;   // height gradient (dimensionless)
+	float stone;  // 0 gap .. 1 stone, edge softened with the pixel footprint
+	float crown;  // 0 at the bedding line .. 1 at the top of the stone
+	float near;   // normalised distance^2 to the closest stone (contact shade)
+};
+
+// Estonian north-coast beach stones: mostly Ordovician limestone, with glacial
+// granite (grey and red), dark gneiss/diabase and the odd white quartz.
+// Muted on purpose: sand dust and weathering grey every stone, and saturated
+// red or black dots read as confetti at gameplay range.
+vec3 pebble_rock(float h, float grain) {
+	vec3 c = vec3(0.46, 0.44, 0.39); // buff-grey limestone
+	if (h > 0.97) {
+		c = vec3(0.58, 0.57, 0.54); // quartz
+	} else if (h > 0.91) {
+		c = vec3(0.3, 0.29, 0.27); // gneiss, diabase
+	} else if (h > 0.82) {
+		c = vec3(0.45, 0.39, 0.35); // red granite
+	} else if (h > 0.64) {
+		c = vec3(0.4, 0.39, 0.37); // grey granite
+	} else if (h > 0.42) {
+		c = vec3(0.52, 0.5, 0.45); // pale limestone
+	}
+	return c * (0.9 + 0.2 * grain);
+}
+
+Pebbles pebble_layer(vec2 wp, float cell, float coverage, float bury, float footprint, float salt) {
+	vec2 p = wp / cell;
+	// A gentle warp so the lattice never shows as rows.
+	p += (vec2(value_noise(p * 0.23 + salt), value_noise(p * 0.23 + salt + 9.1)) - 0.5) * 0.8;
+	vec2 base = floor(p);
+	vec2 f = fract(p);
+	Pebbles o;
+	o.albedo = vec3(0.0);
+	o.slope = vec2(0.0);
+	o.stone = 0.0;
+	o.crown = 0.0;
+	o.near = 9.0;
+	float best = 0.0;
+	for (int j = -1; j <= 1; j++) {
+		for (int i = -1; i <= 1; i++) {
+			vec2 g = vec2(float(i), float(j));
+			vec2 id = base + g + salt;
+			if (hash12(id + 3.7) >= coverage) {
+				continue;
+			}
+			vec2 v = f - (g + 0.2 + vec2(hash12(id), hash12(id + 17.3)) * 0.6);
+			float ang = hash12(id + 1.9) * 6.2832;
+			vec2 cs = vec2(cos(ang), sin(ang));
+			vec2 q = vec2(dot(v, cs), cs.x * v.y - cs.y * v.x);
+			// Lone stones at the thin edge of a bed are the smaller ones.
+			// Dense beds pack stones shoulder to shoulder (they overlap the cell).
+			float rad = (0.3 + 0.26 * hash12(id + 5.3)) * mix(0.6, 1.0, coverage);
+			vec2 axes = vec2(rad * (1.0 + 0.6 * hash12(id + 8.1)), rad);
+			vec2 qs = q / axes;
+			float d2 = dot(qs, qs);
+			o.near = min(o.near, d2);
+			float cap = sqrt(max(1.0 - d2, 0.0));
+			float vis = cap - bury;
+			// Flatness = crown height over the short radius: beach pebbles are discs.
+			float flatness = 0.4 + 0.3 * hash12(id + 2.2);
+			float h = vis * flatness * rad;
+			// Where two stones overlap the taller one lies on top.
+			if (vis <= 0.0 || h <= best) {
+				continue;
+			}
+			best = h;
+			// d(cap)/dv = -(M^T M v) / cap with M = diag(1/axes) * R.
+			vec2 mq = qs / axes;
+			vec2 gq = vec2(mq.x * cs.x - mq.y * cs.y, mq.x * cs.y + mq.y * cs.x);
+			o.slope = -gq / max(cap, 0.3) * flatness * rad;
+			o.crown = vis / max(1.0 - bury, 0.001);
+			o.stone = smoothstep(0.0, 0.06 + footprint * 0.5, vis);
+			float grain = value_noise(wp * 38.0 + id * 3.1) * 0.6 + value_noise(wp * 9.0 - id) * 0.4;
+			o.albedo = pebble_rock(hash12(id + 11.0), grain);
+		}
+	}
+	return o;
+}
+
+// Surface normal xy from a height gradient (Pebbles.slope).
+vec2 slope_normal(vec2 s) {
+	return -s / sqrt(1.0 + dot(s, s));
 }
 
 
@@ -437,17 +538,42 @@ void fragment() {
 	}
 	float wet_strand = (1.0 - smoothstep(0.2, 0.95 + (micro - 0.5) * 0.3, hy)) * sand * (1.0 - swash_live);
 	col = mix(col, col * vec3(0.52, 0.5, 0.48), wet_strand);
-	float shingle_band = smoothstep(0.3, 0.7, hy) * (1.0 - smoothstep(1.6, 2.6, hy));
-	float shingle = shingle_band * smoothstep(0.42, 0.62, value_noise(wuv * 0.31 + 3.0)) * sand;
-	vec2 shingle_uv = wuv * shingle_scale;
-	vec3 pebbles = detiled(shingle_albedo, shingle_uv);
-	col = mix(col, pebbles, shingle * 0.9);
-	// Pebble relief from the shingle plate's luminance (lit crowns, dark gaps), like
-	// the drought crust below; see the normal note at the uniforms.
-	float pl = dot(texture(shingle_albedo, shingle_uv).rgb, vec3(0.333));
-	float pl_x = dot(texture(shingle_albedo, shingle_uv + vec2(2.0 / 2048.0, 0.0)).rgb, vec3(0.333));
-	float pl_z = dot(texture(shingle_albedo, shingle_uv + vec2(0.0, 2.0 / 2048.0)).rgb, vec3(0.333));
-	nxy = mix(nxy, -vec2(pl_x - pl, pl_z - pl) * 6.0, shingle);
+	// R-1606 shingle: storm-thrown stones just above the swash, on natural ground
+	// only (never on a cart road, paving or a field). `shingle` is the stone cover
+	// 0..1; its ramp spans metres, so a bed thins stone by stone into sand and mud
+	// instead of fading a texture over a few centimetres.
+	float shingle_band = smoothstep(0.2, 0.75, hy) * (1.0 - smoothstep(1.3, 2.9, hy));
+	float off_road = (1.0 - smoothstep(0.03, 0.3, rd.r)) * (1.0 - paving) * (1.0 - field);
+	float strand = value_noise(wuv * 0.31 + 3.0) * 0.75 + value_noise(wuv * 1.3 + 8.0) * 0.25;
+	// On sand and mud only: the bed thins out across the beach, not into the turf.
+	float shingle = shingle_band * smoothstep(0.28, 0.72, strand) * smoothstep(0.2, 0.75, sand) * off_road;
+	// Derivatives and implicit-LOD fetches are undefined inside per-pixel branches,
+	// so the pixel footprint and the plate sample are taken before the branch.
+	float px = max(fwidth(wuv).x, fwidth(wuv).y);
+	vec3 shingle_plate = detiled(shingle_albedo, wuv * shingle_scale);
+	if (shingle > 0.002) {
+		// Cobbles of ~5-12 cm with ~2-5 cm pebbles in their gaps.
+		Pebbles big = pebble_layer(wuv, shingle_cell, shingle * 0.9, 0.3, px / shingle_cell, 0.0);
+		Pebbles small = pebble_layer(wuv, shingle_cell * 0.42, shingle, 0.35, px / (shingle_cell * 0.42), 41.0);
+		float near_detail = 1.0 - smoothstep(0.35, 1.0, px / shingle_cell);
+		float small_detail = 1.0 - smoothstep(0.35, 1.0, px / (shingle_cell * 0.42));
+		// Gap ground: the sand or mud the stones lie in, shaded where stones crowd it.
+		float contact = 1.0 - smoothstep(0.9, 1.7, min(big.near, small.near * 1.2));
+		// Gaps in a dense bed are deep and shaded; lone stones only shade their foot.
+		vec3 gap = col * (1.0 - (0.1 + 0.35 * shingle) * contact) * (1.0 - 0.2 * shingle);
+		vec3 near_col = gap;
+		vec2 near_n = nxy;
+		float small_cover = small.stone * small_detail * (1.0 - big.stone);
+		near_col = mix(near_col, small.albedo * mix(0.55, 1.02, small.crown), small_cover);
+		near_n = mix(near_n, slope_normal(small.slope), small_cover);
+		near_col = mix(near_col, big.albedo * mix(0.5, 1.04, big.crown), big.stone * near_detail);
+		near_n = mix(near_n, slope_normal(big.slope), big.stone * near_detail);
+		// Far away single stones are below a pixel: the CO-01 plate keeps the band's
+		// mean tone and grain there, weighted by how much of the ground is stone.
+		vec3 far_col = mix(col, shingle_plate * 0.82, shingle * 0.75);
+		col = mix(far_col, near_col, small_detail * 0.5 + near_detail * 0.5);
+		nxy = mix(nxy, near_n, near_detail);
+	}
 	// WR-9 beach response (docs/SYSTEMS/CITY_SEA.md "Beach response"): ground the
 	// last waves reached is dark and, for a few seconds after the backwash, mirrors
 	// the sky; sand dries over ~30 s, porous shingle (steep slope or the pebble
@@ -504,10 +630,20 @@ void fragment() {
 		float quiet = (1.0 - smoothstep(0.15, 0.45, rd.b)) * (1.0 - smoothstep(0.35, 0.85, rd.r));
 		float sprouts = quiet * smoothstep(0.5, 0.8, value_noise(wuv * 1.3)) * (1.0 - wet_road * 0.5);
 		road_col = mix(road_col, grass * 0.7, clamp(sprouts, 0.0, 0.35));
-		float pebbles = step(0.86, value_noise(wuv * 5.3)) * (0.4 + 0.6 * rd.b);
-		road_col = mix(road_col, road_col * 1.35 + 0.05, pebbles * 0.5);
 		col = mix(col, road_col, road);
 		nxy = mix(nxy, texture(earth_normal, wuv * earth_scale).rg * 2.0 - 1.0, road);
+		// R-1606: wheels scour out the odd small stone, bedded deep and dusted with
+		// the road's own clay (it replaced flat pale value-noise blobs). Busy
+		// stretches show more; only near the camera, where a stone can resolve.
+		float stone_detail = 1.0 - smoothstep(0.3, 0.9, px / road_stone_cell);
+		if (stone_detail > 0.0) {
+			float scatter = 0.05 + 0.1 * rd.b;
+			Pebbles rs = pebble_layer(wuv, road_stone_cell, scatter, 0.55, px / road_stone_cell, 73.0);
+			float rs_cover = rs.stone * stone_detail * road;
+			vec3 rs_col = mix(rs.albedo, road_col, 0.45 * (1.0 - wet_road)) * mix(0.7, 1.05, rs.crown);
+			col = mix(col * (1.0 - 0.18 * (1.0 - smoothstep(0.9, 1.8, rs.near)) * stone_detail * road), rs_col, rs_cover);
+			nxy = mix(nxy, slope_normal(rs.slope), rs_cover);
+		}
 	}
 	// Grassy banks too steep to hold turf show bare sand and clay before they turn to rock.
 	float bank = smoothstep(0.13, 0.3, slope) * (1.0 - paving) * (1.0 - rock);

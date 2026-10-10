@@ -16,8 +16,8 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 - Active Markdown files scanned: `1102`
 - Markdown files excluded as archive/reference/out of active scope: `747`
-- Local/external links inspected: `13128`
-- Links to active Markdown docs: `12064`
+- Local/external links inspected: `13135`
+- Links to active Markdown docs: `12066`
 - Links to existing archive/reference/non-active local docs: `451`
 - External links skipped for reachability: `92`
 - Issues found: `163`
@@ -192,12 +192,12 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 | `BROKEN_LINK` | `docs/LOCATIONS/sacred_grove.md:179` | Local Markdown link target does not exist: `../../content/maps/world_sacred_grove.rrmap` |
 | `BROKEN_LINK` | `docs/PERFORMANCE_REPORT.md:5` | Local Markdown link target does not exist: `../agents/rebel-dev/skills/performance-loop/SKILL.md` |
 | `BROKEN_LINK` | `docs/SYSTEMS/AUDIO.md:98` | Local Markdown link target does not exist: `../reports/audio_licenses/README.md` |
-| `BROKEN_LINK` | `docs/SYSTEMS/CITY_SEA.md:196` | Local Markdown link target does not exist: `../reports/images/city/water_v2_close_shore_reverse_fresh.jpg` |
-| `BROKEN_LINK` | `docs/SYSTEMS/CITY_SEA.md:198` | Local Markdown link target does not exist: `../reports/images/city/water_v2_surf_side_storm.jpg` |
-| `BROKEN_LINK` | `docs/SYSTEMS/CITY_SEA.md:200` | Local Markdown link target does not exist: `../reports/images/city/water_v2_sea_level_storm.jpg` |
-| `BROKEN_LINK` | `docs/SYSTEMS/CITY_SEA.md:202` | Local Markdown link target does not exist: `../reports/images/city/water_v2_swash_motion.jpg` |
-| `BROKEN_LINK` | `docs/SYSTEMS/CITY_SEA.md:204` | Local Markdown link target does not exist: `../reports/images/city/water_v2_sandbox_open_gale.jpg` |
-| `BROKEN_LINK` | `docs/SYSTEMS/CITY_SEA.md:206` | Local Markdown link target does not exist: `../reports/images/city/water_v2_sandbox_matrix.jpg` |
+| `BROKEN_LINK` | `docs/SYSTEMS/CITY_SEA.md:220` | Local Markdown link target does not exist: `../reports/images/city/water_v2_close_shore_reverse_fresh.jpg` |
+| `BROKEN_LINK` | `docs/SYSTEMS/CITY_SEA.md:222` | Local Markdown link target does not exist: `../reports/images/city/water_v2_surf_side_storm.jpg` |
+| `BROKEN_LINK` | `docs/SYSTEMS/CITY_SEA.md:224` | Local Markdown link target does not exist: `../reports/images/city/water_v2_sea_level_storm.jpg` |
+| `BROKEN_LINK` | `docs/SYSTEMS/CITY_SEA.md:226` | Local Markdown link target does not exist: `../reports/images/city/water_v2_swash_motion.jpg` |
+| `BROKEN_LINK` | `docs/SYSTEMS/CITY_SEA.md:228` | Local Markdown link target does not exist: `../reports/images/city/water_v2_sandbox_open_gale.jpg` |
+| `BROKEN_LINK` | `docs/SYSTEMS/CITY_SEA.md:230` | Local Markdown link target does not exist: `../reports/images/city/water_v2_sandbox_matrix.jpg` |
 | `BROKEN_LINK` | `docs/SYSTEMS/SEAMLESS_CITY.md:125` | Local Markdown link target does not exist: `../reports/animal_placement_plan.md` |
 
 ## Active files scanned

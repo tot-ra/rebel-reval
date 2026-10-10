@@ -70,29 +70,31 @@
     },
     "shore_pebble_patch_a": {
       "dimensions_m": [
-        1.721,
-        1.738,
-        0.039
+        1.147,
+        1.147,
+        0.055
       ],
       "kind": "pebble_patch",
       "materials": [
-        "shore_shingle"
+        "shore_granite",
+        "shore_limestone"
       ],
-      "sha256": "6034813a2a2c51f1efa87a9ae5bf702fbfb0a1adb3d6bcf31826ecff62198100",
-      "triangles": 180
+      "sha256": "18fdf2103242322f36472c965d1e7124ae7f780e85a55de1a3dac6456cfe07e9",
+      "triangles": 4920
     },
     "shore_pebble_patch_b": {
       "dimensions_m": [
-        3.321,
-        2.094,
-        0.039
+        2.189,
+        1.714,
+        0.06
       ],
       "kind": "pebble_patch",
       "materials": [
-        "shore_shingle"
+        "shore_granite",
+        "shore_limestone"
       ],
-      "sha256": "80d0e479a34f7ad256e5a074cfb8fa2ce4407f843ccb28e404c725e429e2adb4",
-      "triangles": 180
+      "sha256": "eb0e4b1e429b464f331d2cbea551bda25ef0054f548291f09306d7224819ba1a",
+      "triangles": 7980
     },
     "shore_stone_cluster_a": {
       "dimensions_m": [

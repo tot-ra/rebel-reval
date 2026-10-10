@@ -586,11 +586,11 @@ static func _place_dry_stone(
 	if kind == SHORE_BOULDER_SMALL:
 		transform.origin.y -= 0.12 * 0.6 * scale / MapViewMaterials.METERS_PER_WORLD_UNIT
 	elif kind in [SHORE_PEBBLE_PATCH_A, SHORE_PEBBLE_PATCH_B]:
-		# A 2-3 m lens spans real beach relief: lie it on the local slope and
-		# lift it clear, or the sand clips its faded rim into a hard cut edge.
-		transform = _ground_hugging_transform(field, spot, transform.basis, 0.03)
-		# Damp, sand-dusted shingle is darker than the clean CO-01 plate.
-		color = Color(color.r * 0.74, color.g * 0.72, color.b * 0.7, 1.0)
+		# A 1-2 m bed of loose 3D pebbles (R-1606): lie it on the local slope. The
+		# stones are already bedded below z = 0, so no lift.
+		transform = _ground_hugging_transform(field, spot, transform.basis, 0.0)
+		# Sand-dusted beach stones read a shade duller than the clean boulders.
+		color = Color(color.r * 0.9, color.g * 0.88, color.b * 0.85, 1.0)
 	(
 		placements
 		. append(

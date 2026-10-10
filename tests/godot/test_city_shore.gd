@@ -22,6 +22,26 @@ func test_placements_are_deterministic_bounded_and_banded() -> void:
 		assert_true(kinds.has(kind), "%s on the coast" % kind)
 
 
+## R-1606: stones lie on natural ground only, and the coast is strewn with them.
+func test_dry_stones_stay_off_roads_and_the_coast_has_many() -> void:
+	var plan := CityPlan.load_default()
+	var placements := CityShore.placements_for(plan)
+	var clusters := 0
+	var dry_boulders := 0
+	for p: Dictionary in placements:
+		var at := (p["transform"] as Transform3D).origin
+		var spot := Vector2(at.x, at.z)
+		var kind: StringName = p["kind"]
+		if plan.ground_height(spot) > CityShore.WRACK_BAND.x:
+			assert_true(CityShore._natural_ground(plan, spot), "%s at %s is off road, paving and fields" % [kind, spot])
+		if kind in [&"stone_cluster_a", &"stone_cluster_b"]:
+			clusters += 1
+		elif String(kind).begins_with("boulder") and plan.ground_height(spot) > CityShore.STONE_BAND.x:
+			dry_boulders += 1
+	assert_true(clusters > 300, "stone clusters along the coast, got %d" % clusters)
+	assert_true(dry_boulders > 150, "boulders on the beach and coastal grass, got %d" % dry_boulders)
+
+
 func test_anchored_hulls_can_be_boarded() -> void:
 	var plan := CityPlan.load_default()
 	var ships := CityShips.create(plan)

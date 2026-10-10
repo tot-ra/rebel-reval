@@ -3,6 +3,7 @@
 
 Run from the repository root:
     blender --background --factory-startup --python tools/build_shore_debris.py
+    blender --background --factory-startup --python tools/build_shore_debris.py -- --only=shore_pebble_patch_a
 
 Writes geometry-only GLBs plus shared seamless PBR plates under
 assets/props/environment/shore/. The GLBs carry named material slots
@@ -39,8 +40,6 @@ BASE_SEED = 0xC002
 
 # Metres of surface covered by one texture repeat on box-projected rock UVs.
 ROCK_UV_METRES = 0.9
-# The CO-01 shingle plate covers 2.4 m of ground per repeat on the terrain.
-SHINGLE_UV_METRES = 2.4
 
 # name -> (kind, parameters). Sizes are metres across (the CO-02 contract).
 PARTS: list[tuple[str, str, dict]] = [
@@ -56,8 +55,8 @@ PARTS: list[tuple[str, str, dict]] = [
     ),
     ("shore_stone_cluster_a", "cluster", {"count": 7, "seed": 53, "limestone_share": 0.0}),
     ("shore_stone_cluster_b", "cluster", {"count": 9, "seed": 67, "limestone_share": 0.45}),
-    ("shore_pebble_patch_a", "pebble_patch", {"radius": 0.85, "seed": 71}),
-    ("shore_pebble_patch_b", "pebble_patch", {"radius": 1.1, "seed": 83, "elongation": 1.6}),
+    ("shore_pebble_patch_a", "pebble_patch", {"radius": 0.75, "seed": 71}),
+    ("shore_pebble_patch_b", "pebble_patch", {"radius": 0.85, "seed": 83, "elongation": 1.6, "spacing": 0.11}),
     ("shore_wrack_line_a", "wrack", {"length": 1.8, "seed": 97, "curve": 0.18}),
     ("shore_wrack_line_b", "wrack", {"length": 2.4, "seed": 101, "curve": -0.32}),
     ("shore_algae_skirt", "algae_skirt", {"radius": 0.5, "seed": 113}),
@@ -264,48 +263,68 @@ def _build_cluster(name: str, params: dict) -> bpy.types.Object:
 
 
 def _build_pebble_patch(name: str, params: dict) -> bpy.types.Object:
-    """A low, irregular shingle lens that lies on the beach and carries the CO-01
-    shore_shingle plate, with a thin lumpy crown so it catches grazing light."""
+    """A storm-thrown bed of loose beach pebbles (R-1606). It used to be a flat
+    disc carrying the shore_shingle plate behind a vertex-alpha rim, which read as
+    a sticker with no depth and a different pebble scale from the ground. Now
+    every pebble is its own small rounded stone, half bedded in the sand, so the
+    patch has real silhouettes and contact shadow. Density and size fall off
+    towards a ragged rim, so the bed thins into scattered stones instead of
+    ending on an edge. Pebbles are granite and (mostly, on the Estonian north
+    coast) limestone; z = 0 is the ground, buried parts sit below it."""
     seed = params["seed"]
     radius = params["radius"]
     elongation = params.get("elongation", 1.0)
-    rings, segments = 5, 20
+    spacing = params.get("spacing", 0.1)
+    limestone_share = params.get("limestone_share", 0.5)
     bm = bmesh.new()
-    centre = bm.verts.new((0.0, 0.0, 0.035))
-    previous: list = []
-    for ring in range(1, rings + 1):
-        t = ring / rings
-        current = []
-        for segment in range(segments):
-            angle = math.tau * segment / segments
-            edge = 1.0 + 0.28 * _fbm3(Vector((math.cos(angle), math.sin(angle), seed)) * 1.7, seed, 3)
-            r = radius * t * (edge if ring == rings else 1.0 + (edge - 1.0) * t)
-            x = math.cos(angle) * r * elongation
-            y = math.sin(angle) * r
-            lump = 0.012 * _fbm3(Vector((x * 6.0, y * 6.0, seed)), seed + 3, 2)
-            z = max(0.0, 0.035 * (1.0 - t * t) + lump * (1.0 - t))
-            current.append(bm.verts.new((x, y, z)))
-        if ring == 1:
-            for segment in range(segments):
-                bm.faces.new((centre, current[segment], current[(segment + 1) % segments]))
-        else:
-            for segment in range(segments):
-                nxt = (segment + 1) % segments
-                bm.faces.new((previous[segment], current[segment], current[nxt], previous[nxt]))
-        previous = current
+    reach_x = radius * elongation * 1.25
+    reach_y = radius * 1.25
+    columns = int(math.ceil(2.0 * reach_x / spacing))
+    rows = int(math.ceil(2.0 * reach_y / spacing))
+    index = 0
+    for row in range(rows):
+        for column in range(columns):
+            # Jittered grid: no two pebbles stack, no visible rows.
+            x = -reach_x + (column + 0.15 + 0.7 * _hash3(column, row, 1, seed)) * spacing
+            y = -reach_y + (row + 0.15 + 0.7 * _hash3(column, row, 2, seed)) * spacing
+            reach = math.hypot(x / elongation, y) / radius
+            ragged = 0.25 * _fbm3(Vector((x * 2.5, y * 2.5, seed)), seed + 7, 2)
+            density = 1.0 - _smooth(max(0.0, min(1.0, (reach + ragged - 0.25) / 0.85)))
+            if _hash3(column, row, 3, seed) >= 0.9 * density:
+                continue
+            # Big stones gather in the middle of the bed, small ones at its rim.
+            roll = _hash3(column, row, 4, seed)
+            size = 0.028 + 0.05 * roll * (0.45 + 0.55 * density)
+            if roll > 0.94 and density > 0.6:
+                size = 0.09 + 0.05 * _hash3(column, row, 5, seed)
+            # bmesh subdivisions=1 is the bare 20-face icosahedron, which reads as a
+            # crystal close up; 2 (80 faces) is round enough. Only stones under
+            # 3.5 cm, sub-pixel at gameplay range, keep 20 faces.
+            stone = _rock_bmesh(size, 1 if size < 0.035 else 2, seed * 131 + index, squash=0.42)
+            index += 1
+            height = max(v.co.z for v in stone.verts)
+            # Bedded 30-55% deep: pebbles sit in the sand, they do not balance on it.
+            sink = height * (0.3 + 0.25 * _hash3(column, row, 6, seed))
+            yaw = math.tau * _hash3(column, row, 7, seed)
+            tilt = (_hash3(column, row, 8, seed) - 0.5) * 0.5
+            cos_y, sin_y = math.cos(yaw), math.sin(yaw)
+            cos_t, sin_t = math.cos(tilt), math.sin(tilt)
+            limestone = _hash3(column, row, 9, seed) < limestone_share
+            stone_map = {}
+            for vert in stone.verts:
+                co = vert.co
+                # Tilt about X, then yaw about Z.
+                ty = co.y * cos_t - co.z * sin_t
+                tz = co.y * sin_t + co.z * cos_t
+                rotated = Vector((co.x * cos_y - ty * sin_y, co.x * sin_y + ty * cos_y, tz))
+                stone_map[vert] = bm.verts.new(rotated + Vector((x, y, -sink)))
+            for face in stone.faces:
+                new_face = bm.faces.new([stone_map[v] for v in face.verts])
+                new_face.material_index = 1 if limestone else 0
+            stone.free()
     bm.normal_update()
-    uv_layer = bm.loops.layers.uv.verify()
-    for face in bm.faces:
-        for loop in face.loops:
-            loop[uv_layer].uv = (loop.vert.co.x / SHINGLE_UV_METRES, loop.vert.co.y / SHINGLE_UV_METRES)
-
-    def patch_alpha(co: Vector) -> float:
-        reach = math.hypot(co.x / elongation, co.y) / radius
-        ragged = 0.18 * _fbm3(Vector((co.x * 3.0, co.y * 3.0, seed)), seed + 7, 2)
-        return 1.0 - _smooth(max(0.0, min(1.0, (reach + ragged - 0.45) / 0.55)))
-
-    _set_alpha(bm, patch_alpha)
-    return _finish_object(name, bm, ["shore_shingle"])
+    _box_uv(bm, ROCK_UV_METRES * 0.25)
+    return _finish_object(name, bm, ["shore_granite", "shore_limestone"])
 
 
 def _build_wrack(name: str, params: dict) -> bpy.types.Object:
@@ -604,8 +623,17 @@ def _export_part(obj: bpy.types.Object, path: Path) -> None:
 def main() -> int:
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     _reset_scene()
+    # `-- --only=name[,name]` rebuilds just those parts and merges them into the
+    # existing report, leaving every other GLB and the shared plates untouched.
+    argv = sys.argv[sys.argv.index("--") + 1 :] if "--" in sys.argv else []
+    only = next((a[len("--only=") :].split(",") for a in argv if a.startswith("--only=")), [])
+    report_path = OUTPUT_DIR / "shore_debris_report.json"
     report = {"generator": GENERATOR_VERSION, "blender": BLENDER_VERSION, "parts": {}, "textures": {}}
+    if only and report_path.exists():
+        report = json.loads(report_path.read_text())
     for name, kind, params in PARTS:
+        if only and name not in only:
+            continue
         obj = BUILDERS[kind](name, params)
         triangles = sum(len(p.vertices) - 2 for p in obj.data.polygons)
         dims = obj.dimensions
@@ -618,8 +646,9 @@ def main() -> int:
             "materials": [m.name for m in obj.data.materials],
             "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
         }
-    report["textures"] = _write_textures()
-    (OUTPUT_DIR / "shore_debris_report.json").write_text(json.dumps(report, indent=2, sort_keys=True) + "\n")
+    if not only:
+        report["textures"] = _write_textures()
+    report_path.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n")
     print(json.dumps(report, indent=2, sort_keys=True))
     return 0
 
