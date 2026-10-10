@@ -33,6 +33,14 @@ const FETCH_OPEN_UNITS := 12.0
 const SHELTER_NEAR_UNITS := 1.5
 ## Amplitude and foam scale in the lee of a quay or headland.
 const SHELTER_LEE_SCALE := 0.38
+## R-1658 shore refraction, mirrors NEARSHORE_* in map_view_water.gdshader: signed
+## shore-field distance (field units) of the full effect and of open water, the
+## share of an alongshore or offshore wind sea left at the waterline, and the
+## cosine (30 deg off the shore normal) above which an onshore sea keeps it all.
+const NEARSHORE_FULL := 1.0
+const NEARSHORE_REACH := 6.0
+const NEARSHORE_ALONG_KEEP := 0.25
+const NEARSHORE_ONSHORE_COS := 0.87
 ## Per-call surface terms that the shader reads from the material of one water
 ## terrain: x = fft_geometry_scale, y = choppiness ratio to open sea, z = standing
 ## ratio (negative = the sea-state default). PHYSICAL_SURFACE is the unscaled
@@ -457,3 +465,19 @@ static func fetch_shelter_scale(local_distance: float, upwind_distance: float) -
 	var fetch := smoothstep(0.0, FETCH_OPEN_UNITS, upwind_distance)
 	var basin := smoothstep(SHELTER_NEAR_UNITS, FETCH_OPEN_UNITS, local_distance)
 	return lerpf(SHELTER_LEE_SCALE, 1.0, minf(fetch, basin))
+
+
+## Shore refraction of the wind sea (map_view_water.gdshader _nearshore_wind_sea).
+## Shallow water turns crests parallel to the depth contours, so near the waterline
+## only the onshore share of the downwind FFT sea survives. `shore_distance` is the
+## signed shore-field distance (water positive); `to_land` the direction to land
+## (zero or short when no shoreline is in reach: open water, scale 1).
+static func nearshore_wind_sea_scale(
+	shore_distance: float, to_land: Vector2, wind_axis: Vector2
+) -> float:
+	if to_land.length() < 0.2:
+		return 1.0
+	var onshore := wind_axis.normalized().dot(to_land.normalized())
+	var near := 1.0 - smoothstep(NEARSHORE_FULL, NEARSHORE_REACH, shore_distance)
+	var keep := lerpf(NEARSHORE_ALONG_KEEP, 1.0, smoothstep(0.0, NEARSHORE_ONSHORE_COS, onshore))
+	return lerpf(1.0, keep, near)

@@ -9,6 +9,20 @@ Status: implemented (tasks **R-885**, **R-1437**, **R-1440**, **R-1508**, **R-16
 - **Ground shader** (`city_ground.gdshader`): two sands, a dark wet strand, shingle just above the swash (see [Shingle and shore stones](#shingle-and-shore-stones-r-1606)), and below the waterline weed, mottled natural bedrock and ripple-marked sand. Land paving is suppressed below sea level; the shared masonry plate is not used for submerged rock.
 - **Shore dressing** (`CityShore`): granite erratics clustered in the shallows (with weed skirts), half-buried boulders and stone clusters on the beach, 3D pebble beds, wrack lines, and glacial erratics on the coastal grass behind the beach, reusing the district maps' CO-02 meshes. Deterministic from the plan heightfield; nothing above the waterline lands on a cart road, paving or a field.
 
+## Shore refraction of the wind sea (R-1658)
+
+Status: implemented (task **R-1658**). Scope: how the downwind FFT sea behaves near any sea shoreline (city and district maps). Out of scope: a longshore current, rip currents, oblique swash crests (the swash bake stays shore-normal), the swimmer height query (`MapView3D.water_surface_height_at` still ignores fetch and refraction).
+
+- **What was wrong.** The baked FFT ocean always travels downwind. With the wind along the coast its crests, glints, whitecaps and wind streaks streamed along the beach at wave speed, like a fast current, while the swash bores ran straight ashore.
+- **Physics.** Waves slow in shallow water (c ~ sqrt(g d)). By Snell's law sin(theta) / c is constant along a crest, so crests turn parallel to the depth contours and reach the beach nearly head-on, then break once H > 0.78 d. Energy travelling along or away from the coast does not arrive. The swash (`shore_swash.gdshaderinc`, eikonal travel time) already carries the refracted shoreward bores, so near the waterline the wind sea keeps only its onshore share.
+- **Runtime.** `_nearshore_wind_sea()` in `map_view_water.gdshader` reads the WS-08 shore field (signed distance R, direction to land GB). Between `NEARSHORE_REACH` (6 field units, 18 m in the city) and `NEARSHORE_FULL` (1 unit) it blends the wind sea towards `keep`: 1 for a wind within 30 degrees of the shore normal (`NEARSHORE_ONSHORE_COS`), down to `NEARSHORE_ALONG_KEEP` (0.25) for an alongshore or offshore wind. It scales FFT vertex displacement, the FFT shading slope and crest glow, whitecaps and wind streaks. No new sampler.
+- **Hulls.** `OceanFftSampler.nearshore_wind_sea_scale()` mirrors it; `CityWaterSurface.sea_height` applies it next to the fetch shelter. `BoatFloat3D` (district boats) does not yet, so a district hull inside the 6-unit band rides a little more swell than the drawn sea.
+- **Verify.** `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_ocean_fft_sampler` (onshore keeps the sea, alongshore and offshore drop to the floor, shader constants match); plates `tools/godot_render.sh --script tools/capture_city_sea.gd -- --only=surf_wind_along_storm,surf_wind_onshore_storm,surf_wind_offshore_storm --motion=24`. Frame-to-frame change in the surf band with an alongshore gale fell from 2.6 to 1.7 (mean grey levels), onshore stays at 2.3.
+
+![Gale blowing along the beach: before, wind-sea crests and foam run along the shallows; after, the shallows carry only the shoreward surf](../reports/images/city/sea_r1658_alongshore_storm.jpg)
+
+- **Limits.** The fade is by distance to the shore field (clamped at 8 field units), not by water depth, so a wide shallow shelf beyond 18 m still carries the full downwind sea. Swash crests do not turn with an oblique wind. District boat hulls do not mirror the scale yet (see Hulls).
+
 ## Shingle and shore stones (R-1606)
 
 Status: implemented (task **R-1606**). Scope: how beach shingle, loose road stones and dry-land shore stones look and where they lie in the seamless city. Out of scope: the district terrain blend shader (`map_view_terrain_blend.gdshader` keeps its shingle plate strands), an inland whole-map boulder scatter, and per-stone collision.

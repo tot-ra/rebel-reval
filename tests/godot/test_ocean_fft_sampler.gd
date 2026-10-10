@@ -280,3 +280,41 @@ func test_fetch_shelter_scale_matches_the_documented_lee_floor() -> void:
 		0.001,
 		"land upwind sits on the lee floor"
 	)
+
+
+func test_nearshore_wind_sea_keeps_only_the_onshore_share() -> void:
+	var to_land := Vector2(0.0, 1.0)
+	# Open water and no shoreline in reach: the full downwind sea.
+	var reach := OceanFftSampler.NEARSHORE_REACH
+	assert_almost_eq(
+		OceanFftSampler.nearshore_wind_sea_scale(reach, to_land, Vector2.RIGHT), 1.0, 0.001
+	)
+	assert_almost_eq(
+		OceanFftSampler.nearshore_wind_sea_scale(0.5, Vector2.ZERO, Vector2.RIGHT), 1.0, 0.001
+	)
+	# At the waterline an onshore wind keeps its sea; alongshore and offshore seas refract
+	# away, so they no longer stream along the beach.
+	assert_almost_eq(
+		OceanFftSampler.nearshore_wind_sea_scale(0.5, to_land, Vector2(0.0, 1.0)), 1.0, 0.001
+	)
+	assert_almost_eq(
+		OceanFftSampler.nearshore_wind_sea_scale(0.5, to_land, Vector2.RIGHT),
+		OceanFftSampler.NEARSHORE_ALONG_KEEP, 0.001, "alongshore wind"
+	)
+	assert_almost_eq(
+		OceanFftSampler.nearshore_wind_sea_scale(0.5, to_land, Vector2(0.0, -1.0)),
+		OceanFftSampler.NEARSHORE_ALONG_KEEP, 0.001, "offshore wind"
+	)
+	var oblique := OceanFftSampler.nearshore_wind_sea_scale(0.5, to_land, Vector2(1.0, 1.0))
+	assert_true(
+		oblique > OceanFftSampler.NEARSHORE_ALONG_KEEP and oblique < 1.0, "oblique wind is partial"
+	)
+	# The shader carries the same constants.
+	var code: String = load("res://scripts/map/view3d/map_view_water.gdshader").code
+	for line: String in [
+		"const float NEARSHORE_FULL = %.1f;" % OceanFftSampler.NEARSHORE_FULL,
+		"const float NEARSHORE_REACH = %.1f;" % OceanFftSampler.NEARSHORE_REACH,
+		"const float NEARSHORE_ALONG_KEEP = %.2f;" % OceanFftSampler.NEARSHORE_ALONG_KEEP,
+		"const float NEARSHORE_ONSHORE_COS = %.2f;" % OceanFftSampler.NEARSHORE_ONSHORE_COS,
+	]:
+		assert_true(code.contains(line), "shader mirrors " + line)

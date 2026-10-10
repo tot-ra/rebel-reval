@@ -322,6 +322,18 @@ func _surf_shots(plan: CityPlan, landing: Vector2, prefix := "") -> Array[Dictio
 			"eye": Vector3(swim_eye.x, 1.3, swim_eye.y),
 			"look": Vector3(swim_look.x, 0.3, swim_look.y), "fov": 75.0, "focus": best
 		})
+	# Wind-heading plates: the same storm seen from above the beach with the wind
+	# along the shore and onshore. Crests and surface texture must run shoreward,
+	# not stream along the beach (shore refraction, docs/SYSTEMS/CITY_SEA.md).
+	var high_eye := best + uphill * 9.0
+	for heading: Array in [["along", along], ["onshore", uphill], ["offshore", -uphill]]:
+		out.append({
+			"name": "surf_wind_%s_storm" % heading[0], "wind": 0.95, "rain": 0.0,
+			"wind_dir": heading[1],
+			"eye": Vector3(high_eye.x, plan.ground_height(high_eye) + 9.0, high_eye.y),
+			"look": Vector3(best.x - uphill.x * 12.0, 0.0, best.y - uphill.y * 12.0),
+			"fov": 70.0, "focus": best
+		})
 	for shot in out:
 		shot["name"] = prefix + shot["name"]
 	return out
@@ -390,9 +402,10 @@ func _run() -> void:
 		world.sky_weather.set_weather(shot.get("weather", SkyWeather3D.WEATHER_CLEAR))
 		world.sky_weather.advance(SkyWeather3D.TRANSITION_SECONDS + 0.1)
 		view.apply_cycle_progress(float(shot.get("time", DAY_PROGRESS)))
-		MapViewMaterials.apply_sea_weather(shot["wind"], shot["rain"], Vector2(0.4, -0.9))
-		MapViewMaterials.apply_world_wind(Vector2(0.4, -0.9), shot["wind"])
-		world.set_wind(Vector2(0.4, -0.9))
+		var wind_dir: Vector2 = shot.get("wind_dir", Vector2(0.4, -0.9))
+		MapViewMaterials.apply_sea_weather(shot["wind"], shot["rain"], wind_dir)
+		MapViewMaterials.apply_world_wind(wind_dir, shot["wind"])
+		world.set_wind(wind_dir)
 		if bool(shot.get("puddle", false)):
 			var ground := CityTerrainBuilder.shared_material()
 			ground.set_shader_parameter("puddles", 1.0)

@@ -123,6 +123,10 @@ static func sea_height(world: CityWorld3D, xz: Vector2) -> float:
 		if not world.sea_shore.is_empty()
 		else 1.0
 	)
+	if not world.sea_shore.is_empty():
+		shelter *= OceanFftSampler.nearshore_wind_sea_scale(
+			field.x, Vector2(field.y, field.z) * 2.0 - Vector2.ONE, wind
+		)
 	# WR-1: same geometry as the shader's city path (bed-relative troughs). WR-3:
 	# the ring LOD decides the C0/C1 share by mesh spacing and camera distance
 	# (CitySeaLod.displacement_weights mirrors _sea_lod_weights); without it the

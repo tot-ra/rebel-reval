@@ -910,6 +910,49 @@ float _sea_gust(vec2 world_xz) {
 	return 1.0 + gust_amount * 0.4 * gust - slick_amount * 0.6 * slick;
 }
 
+// Shore refraction of the wind sea (R-1658). The baked FFT ocean always travels
+// downwind, so with the wind along the coast its crests, glints and whitecaps
+// streamed along the beach like a fast current while the swash bores ran ashore.
+// Real waves slow in shallow water (c ~ sqrt(g d)); by Snell's law
+// sin(theta) / c stays constant, so crests turn parallel to the depth contours and
+// what reaches the beach runs straight in, then breaks once H > 0.78 d. Energy
+// travelling along or away from the coast never arrives. The swash (shore_swash,
+// eikonal travel time) already carries the refracted shoreward bores, so near the
+// waterline the wind sea keeps only its onshore share. Inputs are the WS-08 shore
+// field: signed distance (water positive, field units) and the unit direction to
+// land. OceanFftSampler.nearshore_wind_sea_scale mirrors this for hulls.
+const float NEARSHORE_FULL = 1.0;
+const float NEARSHORE_REACH = 6.0;
+// Share of an alongshore or offshore wind sea left at the waterline.
+const float NEARSHORE_ALONG_KEEP = 0.25;
+// cos(30 deg): a wind within 30 degrees of the shore normal keeps its full sea.
+const float NEARSHORE_ONSHORE_COS = 0.87;
+
+float _nearshore_wind_sea_scale(float shore_distance, float onshore) {
+	float near = 1.0 - smoothstep(NEARSHORE_FULL, NEARSHORE_REACH, shore_distance);
+	float keep = mix(NEARSHORE_ALONG_KEEP, 1.0, smoothstep(0.0, NEARSHORE_ONSHORE_COS, onshore));
+	return mix(1.0, keep, near);
+}
+
+float _nearshore_wind_sea(vec2 world_xz) {
+	if (shore_field_valid < 0.5) {
+		return 1.0;
+	}
+	vec2 uv = (world_xz - shore_field_origin) / max(shore_field_size, vec2(0.001));
+	if (uv.x < 0.0 || uv.y < 0.0 || uv.x > 1.0 || uv.y > 1.0) {
+		return 1.0;
+	}
+	vec4 field = textureLod(shore_field, shore_atlas_uv(uv, 0.0), 0.0);
+	vec2 to_land = field.gb * 2.0 - 1.0;
+	float to_land_length = length(to_land);
+	// No shoreline within the field clamp: open water.
+	if (to_land_length < 0.2) {
+		return 1.0;
+	}
+	vec2 wind = wind_direction / max(length(wind_direction), 0.001);
+	return _nearshore_wind_sea_scale(field.r, dot(wind, to_land / to_land_length));
+}
+
 // R-955 fetch/shelter from the WS-08 signed shore field (positive = water).
 // Short upwind fetch or a tight basin cuts FFT amplitude and foam together.
 float _fetch_shelter(vec2 world_xz) {
@@ -1319,7 +1362,8 @@ void vertex() {
 			lod_weights.y
 		) * lod_weights.x;
 		// Lee of a quay or headland: reuse the WS-08 signed shore field as fetch.
-		displacement *= _fetch_shelter(wave_sample_xz);
+		// Near the waterline only the onshore share of the wind sea survives.
+		displacement *= _fetch_shelter(wave_sample_xz) * _nearshore_wind_sea(wave_sample_xz);
 	} else {
 		_water_field(wave_sample_xz - flow_advection, TIME * wave_speed, displacement, normal_terms);
 		displacement *= wave_params.w;
@@ -1541,11 +1585,17 @@ void fragment() {
 	vec2 pixel_footprint = fwidth(wave_sample_xz);
 	// WS-06 gust/slick gain; 1 on the Gerstner fallback (rivers, ponds).
 	float sea_gust = 1.0;
+	// R-1658 shore refraction: 1 offshore, the onshore share of the wind sea near the
+	// waterline. Scales the FFT slope, crest glow, whitecaps and wind streaks.
+	float wind_sea_keep = 1.0;
 	if (use_fft) {
 		sea_gust = _sea_gust(wave_sample_xz);
+		wind_sea_keep = _nearshore_wind_sea(wave_sample_xz);
 		world_normal = _fft_normal_gust(
 			wave_sample_xz, max(pixel_footprint.x, pixel_footprint.y), sea_gust, crest_term
 		);
+		world_normal = normalize(mix(vec3(0.0, 1.0, 0.0), world_normal, wind_sea_keep));
+		crest_term *= wind_sea_keep;
 	} else {
 		_water_field(wave_sample_xz - flow_advection, TIME * wave_speed, displacement, normal_terms);
 		float crest_lift = max(1.0 - normal_terms.y * wave_height, 0.15);
@@ -2003,8 +2053,9 @@ void fragment() {
 		open_water = mix(open_water, smoothstep(0.03, 0.10, water_column), storm_streaks * 0.85);
 		// Streak foam floats on the surface, so it is laid on as white foam below
 		// instead of the sunk tint of old whitecap foam.
-		wind_streak = clamp(tile_a.b * streak_amount * storm_streaks * streak_link, 0.0, 1.0) * open_water;
-		whitecap *= open_water * whitecap_onset * _fetch_shelter(wave_sample_xz);
+		wind_streak = clamp(tile_a.b * streak_amount * storm_streaks * streak_link, 0.0, 1.0)
+			* open_water * wind_sea_keep;
+		whitecap *= open_water * whitecap_onset * _fetch_shelter(wave_sample_xz) * wind_sea_keep;
 		// The bake decays foam over time: a high raw value just broke (bright,
 		// opaque), a low one is old foam, thin and sunk under the surface.
 		// A rougher sea breaks more often than the reference bake, so the weather scale
