@@ -1433,6 +1433,8 @@ void fragment() {
 	float swash_bore = 0.0;
 	ShoreState shore_now;
 	float city_coverage = 1.0;
+	// WR-9: share of the run-up film left over shingle (drained, pebbles poking through).
+	float runup_drain = 1.0;
 	if (shore_live) {
 		shore_now = shore_state(wave_sample_xz, ocean_time, shore_sea());
 		if (sea_physical_depth && sea_ground_y > tide_height * tide_level + 0.002) {
@@ -1803,7 +1805,15 @@ void fragment() {
 			float bead_x = (behind_front - 0.35) / 0.4;
 			float bead = exp(-bead_x * bead_x);
 			float lace = exp(-behind_front / 2.5) * 0.35;
-			coverage = max(coverage, max(bead * 0.9, lace) * wet_sheet * energy);
+			// WR-9: over shingle (steep bed) the backwash sinks into the gaps: the
+			// film thins far faster than its front retreats, its bubbles pop, and
+			// pebble crowns break through once it is thinner than they are tall.
+			float porous = shore_porosity(length(sea_bed_slope)) * shore_now.beach;
+			ShoreBeach drain = shore_beach(shore_now, porous);
+			float film_metres = shore_now.sheet_thickness * drain.film_keep;
+			runup_drain = mix(1.0, drain.film_keep
+				* shore_pebble_cover(film_metres, porous), wet_sheet);
+			coverage = max(coverage, max(bead * 0.9, lace) * wet_sheet * energy * drain.foam_keep);
 			swash_bore = _foam_dissolve(city_foam.x, coverage * shore_now.valid)
 				* mix(0.7, 1.0, roller);
 		}
@@ -2174,7 +2184,7 @@ void fragment() {
 		directional_glint_gate = sun_glint_gate * sun_light_share * (1.0 - sheet_foam);
 		local_glint_gate = 1.0 - sheet_foam;
 	}
-	ALPHA *= city_coverage;
+	ALPHA *= city_coverage * runup_drain;
 	if (debug_foam_mask > 0.5) {
 		// Unlit mask: lighting and the foam tile must not hide renderer coverage.
 		vec3 mask = vec3(fft_foam.x);

@@ -884,6 +884,16 @@ static func apply_sea_weather(
 	_sync_sea_wave_blend(wave_profiles)
 
 
+## WR-8: the transient gust front (SkyWeather3D.wind_gust() / GUST_PEAK, 0 idle ..
+## 1 peak) on top of the sustained wind apply_sea_weather() already carries. It
+## raises the coverage and contrast of the shader's deterministic cat's-paw cells,
+## their whitecaps and spindrift; the cells themselves move with the ocean clock.
+static func apply_sea_gust(gust: float, wave_profiles: Dictionary) -> void:
+	var level := clampf(gust, 0.0, 1.0)
+	for terrain_id in wave_profiles.keys():
+		water_surface(terrain_id as StringName, wave_profiles).set_shader_parameter("gust_level", level)
+
+
 ## Pushes sky sun-disk visibility and day/night blend into cached water
 ## materials so specular sun glints die with the visible sun.
 static func apply_water_lighting(
@@ -1034,13 +1044,14 @@ static func apply_coastal_tide(level: float, wave_profiles: Dictionary) -> void:
 ## R-1518: the reflected sky carries the dome's rainbow. Drops far away act as if at
 ## infinity, so the reflection is the bow mirrored about the horizon.
 static func apply_water_rainbow(
-	strength: float, curtain: Vector3, droplet: float, wave_profiles: Dictionary
+	strength: float, curtain: Vector3, droplet: float, secondary: float, wave_profiles: Dictionary
 ) -> void:
 	for terrain_id in wave_profiles.keys():
 		var material := water_surface(terrain_id as StringName, wave_profiles)
 		material.set_shader_parameter("rainbow_strength", clampf(strength, 0.0, 1.0))
 		material.set_shader_parameter("rainbow_curtain", curtain)
 		material.set_shader_parameter("rainbow_droplet", clampf(droplet, 0.0, 1.0))
+		material.set_shader_parameter("rainbow_secondary", clampf(secondary, 0.0, 1.0))
 
 
 ## Pushes the sky state shared by the dome and cached water materials. Reusing

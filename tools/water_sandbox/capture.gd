@@ -10,13 +10,16 @@ extends SceneTree
 ## sheet.png (all plates in one contact sheet). --motion=N writes N frames at 24 Hz per plate;
 ## --dolly=M moves the camera M metres forward (level) over those frames, so the clip
 ## crosses sea LOD ring boundaries (WR-3 popping check). --bench=N writes bench.json:
-## mean frame time over N frames of the first case's open shot.
+## mean frame time over N frames of the first case's open shot (with --rain / --gust
+## the bench runs in rain and at the gust peak, so WR-8 costs can be compared).
 
 const SANDBOX_PATH := "res://tools/water_sandbox/water_sandbox.gd"
 const OUTPUT_ROOT := "res://build/water_sandbox"
 const WIND_DIRECTION := Vector2(0.25, 1.0)
 const WINDS := {"calm": 0.1, "fresh": 0.55, "gale": 0.95}
 const SHEET_COLUMNS := 4
+## Gust level of --gust still plates and benches (0..1, the peak of a burst).
+const STILL_GUST := 1.0
 const SHEET_THUMB := Vector2i(480, 270)
 
 var _cases: Array = []
@@ -125,7 +128,10 @@ func _run() -> void:
 						weather = SkyWeather3D.WEATHER_RAIN
 					world.sky_weather.set_weather(weather)
 					world.sky_weather.advance(SkyWeather3D.TRANSITION_SECONDS + 0.1)
-					_apply(world, float(lights[light][0]), float(WINDS[wind_name]), 0.0)
+					# WR-8: a --gust still is taken at the peak of a burst, so the cat's
+					# paws read in the plate and not only in the clip.
+					_apply(world, float(lights[light][0]), float(WINDS[wind_name]),
+						STILL_GUST if _gust else 0.0)
 					MapViewRuntimeEnvironment.set_ocean_time(_advance)
 					for i in 30:
 						MapViewRuntimeEnvironment.advance_ocean_time(0.05)
@@ -152,9 +158,9 @@ func _benchmark(viewport: SubViewport, sandbox: Node3D, camera: Camera3D, out: S
 	var pose: Array = sandbox.shots_for(String(_cases[0]))["open"]
 	camera.fov = pose[2]
 	camera.look_at_from_position(pose[0], pose[1], Vector3.UP)
-	world.sky_weather.set_weather(SkyWeather3D.WEATHER_CLEAR)
+	world.sky_weather.set_weather(SkyWeather3D.WEATHER_RAIN if _rain else SkyWeather3D.WEATHER_CLEAR)
 	world.sky_weather.advance(SkyWeather3D.TRANSITION_SECONDS + 0.1)
-	_apply(world, 0.5, float(WINDS["fresh"]), 0.0)
+	_apply(world, 0.5, float(WINDS["fresh"]), STILL_GUST if _gust else 0.0)
 	var rid := viewport.get_viewport_rid()
 	RenderingServer.viewport_set_measure_render_time(rid, true)
 	for i in 30:
@@ -174,6 +180,8 @@ func _benchmark(viewport: SubViewport, sandbox: Node3D, camera: Camera3D, out: S
 	gpu.sort()
 	var report := {
 		"tier": String(_tier),
+		"rain": _rain,
+		"gust": _gust,
 		"case": String(_cases[0]),
 		"frames": _bench,
 		"wall_ms_mean": _mean(wall),
@@ -225,6 +233,7 @@ func _apply(world: Node3D, progress: float, wind: float, gust: float) -> void:
 	)
 	MapViewMaterials.apply_world_wind(WIND_DIRECTION, strength)
 	MapViewMaterials.apply_sea_weather(strength, rain, WIND_DIRECTION)
+	world.mirror_shore_to_ground()
 	world.set_wind(WIND_DIRECTION)
 	if world.spray != null:
 		world.spray.set_wind(strength)

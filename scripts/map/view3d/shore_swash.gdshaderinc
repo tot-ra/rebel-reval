@@ -154,7 +154,9 @@ struct ShoreState {
 	float foam_age;         // WR-2 seconds since the bore passed this point (surf zone)
 	float plunge;           // WR-4 0 spilling .. 1 plunging (Iribarren number)
 	float surging;          // WR-4 0 breaking .. 1 collapsing / surging (steep shore)
+	float backwash;         // WR-9 0 during the uprush, 0..1 progress of the backwash
 };
+
 
 float _swash_hash(vec2 p) {
 	return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
@@ -322,6 +324,7 @@ ShoreState shore_state(vec2 world_xz, float t, vec4 sea) {
 	s.wall_foam = 0.0;
 	s.surge = 0.0;
 	s.foam_age = SHORE_NEVER_WET;
+	s.backwash = 0.0;
 	s.plunge = 0.0;
 	s.surging = 0.0;
 	if (shore_field_valid < 0.5 || sea.y <= 0.0) {
@@ -478,6 +481,7 @@ ShoreState shore_state(vec2 world_xz, float t, vec4 sea) {
 	float reach_now = min(base_reach * _swash_set_envelope(wave_index), SHORE_MAX_RUNUP);
 	float front = _swash_front(u, reach_now, drain);
 	float uprush = 1.0 - step(SHORE_UPRUSH, u);
+	s.backwash = clamp((u - SHORE_UPRUSH) / (1.0 - SHORE_UPRUSH), 0.0, 1.0);
 	s.front_distance = front - land;
 	s.wet = step(0.0, land) * step(land, front) * step(0.001, front);
 	s.sheet_thickness = 0.045 * energy
@@ -486,9 +490,10 @@ ShoreState shore_state(vec2 world_xz, float t, vec4 sea) {
 	// A narrow bright bead sits just behind the front, a thinner trail behind it.
 	float bead_coordinate = (s.front_distance - 0.08) / 0.06;
 	float bead = exp(-bead_coordinate * bead_coordinate);
-	float trail = smoothstep(0.0, 0.1, s.front_distance)
+	// Not named `trail`: city_ground.gdshader declares a `trail` uniform.
+	float front_trail = smoothstep(0.0, 0.1, s.front_distance)
 		* exp(-max(s.front_distance, 0.0) / 0.45) * 0.55;
-	s.front_foam = (bead + trail) * mix(0.3, 1.0, _swash_patch(world_xz, t))
+	s.front_foam = (bead + front_trail) * mix(0.3, 1.0, _swash_patch(world_xz, t))
 		* mix(0.5, 1.0, uprush) * step(0.02, front) * s.beach * (1.0 - 0.6 * drain);
 
 	if (land >= 0.0) {
@@ -522,4 +527,57 @@ ShoreState shore_state(vec2 world_xz, float t, vec4 sea) {
 		s.residue *= s.beach * _swash_patch(world_xz * 0.6, 0.0);
 	}
 	return s;
+}
+
+// WR-9 beach response. The bed reads porosity from its own slope: backwash that
+// percolates into shingle cannot carry the stones back down, so pebble beaches
+// stand at 1:8..1:4 while fine sand stays at 1:20..1:50. The same slope test
+// works in the city and the sandbox without a land-use texture.
+const float SHORE_SHINGLE_DRY_TIME = 9.0;  // seconds, wet pebbles drain and dull
+const float SHORE_GLISTEN_TIME = 4.0;      // seconds a standing film mirrors on sand
+const float SHORE_SHINGLE_GLISTEN_TIME = 0.8;
+// Nominal pebble diameter (metres) of the shingle the film runs over; tops
+// within this of the film surface break through it.
+const float SHORE_PEBBLE_SIZE = 0.05;
+
+struct ShoreBeach {
+	float wet;        // 0..1 bed darkening: 1 under water, dries over the dry time
+	float glisten;    // 0..1 standing water film just after the backwash left
+	float film_keep;  // 0..1 share of the swash film still above the bed
+	float foam_keep;  // 0..1 share of the swash foam not drained into the gaps
+};
+
+// tan(beta) of the local bed -> 0 sand .. 1 shingle.
+float shore_porosity(float tan_beta) {
+	return smoothstep(0.07, 0.11, tan_beta);
+}
+
+// Bed and film response to the analytic swash history. `porosity` 0 sand .. 1 shingle.
+ShoreBeach shore_beach(ShoreState s, float porosity) {
+	ShoreBeach b;
+	float p = clamp(porosity, 0.0, 1.0);
+	float since = s.time_since_wet;
+	// Sea side of the waterline and under the sheet: fully wet, film standing.
+	float covered = max(step(0.0, s.distance), s.wet);
+	b.wet = max(covered, exp(-since / mix(SHORE_DRY_TIME, SHORE_SHINGLE_DRY_TIME, p))) * s.valid;
+	b.glisten = max(s.wet, exp(-since / mix(SHORE_GLISTEN_TIME, SHORE_SHINGLE_GLISTEN_TIME, p)))
+		* s.beach * s.valid * step(s.distance, 0.0);
+	// Backwash over shingle sinks into the bed: the film thins far faster than
+	// the front retreats (the front itself stays analytic, so wet time agrees).
+	float drain = smoothstep(0.0, 0.55, s.backwash);
+	b.film_keep = 1.0 - p * drain * 0.85;
+	// Bubbles pop into the gaps: foam dies within the first part of the backwash
+	// over pebbles, and even the uprush bead is thinner than on sand.
+	b.foam_keep = mix(1.0, mix(0.6, 0.0, smoothstep(0.0, 0.3, s.backwash)), p);
+	return b;
+}
+
+// 0..1 share of a thin film over shingle that still hides the stones: crowns of
+// SHORE_PEBBLE_SIZE pebbles break through once the film is thinner than they are
+// tall. A mean cover, not a per-pebble pattern: on GL the bed under the film is
+// the ground texture, and holes in the film showed it as a lattice of sand dots.
+// Real stones (shore debris meshes) poke through the film by their own geometry.
+float shore_pebble_cover(float film_metres, float porosity) {
+	float cover = smoothstep(0.1 * SHORE_PEBBLE_SIZE, 0.7 * SHORE_PEBBLE_SIZE, film_metres);
+	return mix(1.0, cover, clamp(porosity, 0.0, 1.0));
 }

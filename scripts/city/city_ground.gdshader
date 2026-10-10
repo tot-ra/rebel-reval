@@ -5,7 +5,7 @@ render_mode blend_mix, depth_draw_opaque, cull_back, diffuse_burley, specular_sc
 // baked splat (R paving, G packed earth, B sand, A mud) plus slope rock, so
 // streets, yards, beaches and the Toompea klint read without tile seams.
 
-uniform sampler2D splat : source_color, filter_linear, repeat_disable;
+uniform sampler2D splat : filter_linear, repeat_disable;
 uniform vec4 splat_rect = vec4(0.0, 0.0, 1.0, 1.0); // origin.xz, size.xz in world units
 // Cart roads (tools/city/terrain_relief.py road_map): R body, G signed lateral
 // offset (128 = centreline, +-5 m), B traffic wear, A verge band. Same rect as splat.
@@ -34,8 +34,12 @@ uniform sampler2D earth_albedo : source_color, filter_linear_mipmap_anisotropic,
 uniform sampler2D earth_normal : hint_normal, filter_linear_mipmap_anisotropic, repeat_enable;
 uniform sampler2D sand_albedo : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
 uniform sampler2D sand_normal : hint_normal, filter_linear_mipmap_anisotropic, repeat_enable;
-uniform sampler2D rock_albedo : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
-uniform sampler2D rock_normal : hint_normal, filter_linear_mipmap_anisotropic, repeat_enable;
+// Shingle band plate: the CO-01 Baltic storm-beach pebbles (shore_shingle). It was the
+// masonry plate (stone_albedo, cut ashlar), which drew a brick grid on the beach.
+uniform sampler2D shingle_albedo : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
+// No shingle/rock normal: its texture unit went to shore_field (WR-9). Godot binds a unit
+// to every declared sampler, used or not, and one sampler past the current 13 makes
+// GL Compatibility drop the whole ground draw without an error on macOS.
 // R-1516 drought crust. Albedo only: this shader is near the GL Compatibility
 // sampler limit, so crack relief comes from the plate's luminance (gaps are dark).
 uniform sampler2D cracked_albedo : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
@@ -46,7 +50,8 @@ uniform float crack_scale = 0.35; // one plate repeat per ~3 m: 15-35 cm clay po
 uniform float grass_scale = 0.62;
 uniform float earth_scale = 0.55;
 uniform float sand_scale = 0.5;
-uniform float rock_scale = 0.3;
+// Shingle plate (2048 px of 1-6 cm pebbles): one repeat per ~1.25 units.
+uniform float shingle_scale = 0.8;
 // Fieldstone paving shared with the district maps (fieldstone_paving.gdshaderinc).
 // 0.2 read as ~30 cm stones beside Kalev (warped Voronoi stones span more than one
 // cell); 0.14 gives ~20 cm, about a boot length. Keep equal to map_view_terrain_blend.
@@ -65,6 +70,12 @@ uniform float puddles = 0.0;
 // basins crack open from ~0.45 (drought only, see docs/SYSTEMS/WEATHER_GROUND.md).
 uniform float ground_dryness = 0.0;
 uniform float sea_level = 0.0;
+uniform float rain_intensity = 0.0;
+global uniform float ocean_time;
+#include "res://scripts/map/view3d/water_capillary.gdshaderinc"
+// WR-9: the beach reads the same analytic swash as the sea (uniforms mirrored by
+// CityWorld3D.mirror_shore_to_ground). Adds one sampler, shore_field.
+#include "res://scripts/map/view3d/shore_swash.gdshaderinc"
 
 #include "res://scripts/map/view3d/fieldstone_paving.gdshaderinc"
 
@@ -372,6 +383,11 @@ void fragment() {
 	// Beaches and the delta margin: everything within a metre of the sea is sand or mud.
 	float shore = 1.0 - smoothstep(sea_level + 0.4, sea_level + 1.6, world_pos.y);
 	sand = max(sand, shore * 0.9);
+	// Under the sea, the sediment layer owns the bed. Land-use splat pixels
+	// can straddle the shore; they must not paint cobbled streets on the sand.
+	float dry_land = smoothstep(sea_level - 0.15, sea_level + 0.08, world_pos.y);
+	paving *= dry_land;
+	field *= dry_land;
 
 	vec2 wuv = world_pos.xz;
 	vec4 rd = texture(roads, suv);
@@ -409,20 +425,61 @@ void fragment() {
 	float hy = world_pos.y - sea_level;
 	float sand_var = smoothstep(0.35, 0.7, value_noise(wuv * 0.07 + 11.0));
 	col = mix(col, col * mix(vec3(1.06, 1.03, 0.96), vec3(0.74, 0.7, 0.62), sand_var), sand * 0.8);
-	float wet_strand = (1.0 - smoothstep(0.2, 0.95 + (micro - 0.5) * 0.3, hy)) * sand;
+	// WR-9: where a shore field is bound, the swash history below replaces the
+	// static height strand, so the wet band moves with the waves.
+	float swash_live = 0.0;
+	ShoreState swash;
+	if (shore_field_valid > 0.5 && hy > -1.0 && hy < 3.0) {
+		swash = shore_state(wuv, ocean_time, shore_sea());
+		swash_live = swash.valid * swash.beach;
+	}
+	float wet_strand = (1.0 - smoothstep(0.2, 0.95 + (micro - 0.5) * 0.3, hy)) * sand * (1.0 - swash_live);
 	col = mix(col, col * vec3(0.52, 0.5, 0.48), wet_strand);
 	float shingle_band = smoothstep(0.3, 0.7, hy) * (1.0 - smoothstep(1.6, 2.6, hy));
 	float shingle = shingle_band * smoothstep(0.42, 0.62, value_noise(wuv * 0.31 + 3.0)) * sand;
-	vec3 pebbles = texture(rock_albedo, wuv * 1.6).rgb * vec3(0.85, 0.82, 0.76);
+	vec2 shingle_uv = wuv * shingle_scale;
+	vec3 pebbles = detiled(shingle_albedo, shingle_uv);
 	col = mix(col, pebbles, shingle * 0.9);
-	nxy = mix(nxy, texture(rock_normal, wuv * 1.6).rg * 2.0 - 1.0, shingle);
+	// Pebble relief from the shingle plate's luminance (lit crowns, dark gaps), like
+	// the drought crust below; see the normal note at the uniforms.
+	float pl = dot(texture(shingle_albedo, shingle_uv).rgb, vec3(0.333));
+	float pl_x = dot(texture(shingle_albedo, shingle_uv + vec2(2.0 / 2048.0, 0.0)).rgb, vec3(0.333));
+	float pl_z = dot(texture(shingle_albedo, shingle_uv + vec2(0.0, 2.0 / 2048.0)).rgb, vec3(0.333));
+	nxy = mix(nxy, -vec2(pl_x - pl, pl_z - pl) * 6.0, shingle);
+	// WR-9 beach response (docs/SYSTEMS/CITY_SEA.md "Beach response"): ground the
+	// last waves reached is dark and, for a few seconds after the backwash, mirrors
+	// the sky; sand dries over ~30 s, porous shingle (steep slope or the pebble
+	// band) drains in ~9 s. Dry stones above the berm stay matte (see ROUGHNESS).
+	float beach_wet = 0.0;
+	float beach_glisten = 0.0;
+	float beach_porous = 0.0;
+	if (swash_live > 0.0) {
+		float tan_beta = length(world_normal.xz) / max(world_normal.y, 0.05);
+		beach_porous = max(shore_porosity(tan_beta), shingle);
+		ShoreBeach response = shore_beach(swash, beach_porous);
+		float beach = max(sand, shore) * swash_live * smoothstep(-0.6, -0.1, hy);
+		beach_wet = response.wet * beach;
+		beach_glisten = response.glisten * beach;
+		// Water fills the grain's micro-gaps that scattered white: wet sand drops to
+		// about half its albedo, wet stone darker still and more saturated.
+		vec3 wet_sand = col * vec3(0.55, 0.52, 0.48);
+		float lum = dot(col, vec3(0.299, 0.587, 0.114));
+		vec3 wet_stone = max(mix(vec3(lum), col, 1.3), vec3(0.0)) * 0.45;
+		col = mix(col, mix(wet_sand, wet_stone, beach_porous), beach_wet);
+		// A standing film levels the sand relief; pebbles keep their shape.
+		nxy *= 1.0 - beach_glisten * 0.7 * (1.0 - beach_porous);
+	}
 	float under = step(hy, 0.05);
 	float depth = max(-hy, 0.0);
 	float weed = smoothstep(0.5, 0.7, value_noise(wuv * 0.21 + 7.0)) * smoothstep(0.3, 1.2, depth) * (1.0 - smoothstep(3.0, 5.0, depth));
 	col = mix(col, vec3(0.16, 0.24, 0.13), weed * 0.7 * under);
 	float seabed_rock = smoothstep(0.62, 0.8, value_noise(wuv * 0.45 + 21.0)) * under;
-	col = mix(col, texture(rock_albedo, wuv * 0.9).rgb * vec3(0.55, 0.6, 0.58), seabed_rock * 0.8);
-	nxy = mix(nxy, texture(rock_normal, wuv * 0.9).rg * 2.0 - 1.0, seabed_rock);
+	// The shared stone plate is masonry: sampling it on the seabed exposes
+	// rectangular paving beneath clear water. Natural bedrock uses mottled grain.
+	float grain = value_noise(wuv * 3.1) * 0.7 + value_noise(wuv * 13.0) * 0.3;
+	vec3 bedrock = mix(vec3(0.18, 0.21, 0.18), vec3(0.43, 0.45, 0.37), grain);
+	col = mix(col, bedrock, seabed_rock * 0.8);
+	nxy *= 1.0 - seabed_rock * 0.65;
 	float ripples = sin(wuv.x * 2.1 + value_noise(wuv * 0.3) * 6.0) * 0.5 + 0.5;
 	col *= 1.0 - under * (1.0 - weed) * (1.0 - seabed_rock) * ripples * 0.09;
 	if (paving > 0.001) {
@@ -433,7 +490,7 @@ void fragment() {
 	}
 	// Cart roads: pale dust when dry, dark clay when wet, a trodden strip down
 	// the middle and stones where the wheels have scoured the surface.
-	float road = rd.r * (1.0 - paving);
+	float road = rd.r * (1.0 - paving) * dry_land;
 	vec3 road_prof = road_profile(wuv, rd, wet_road);
 	if (road > 0.001) {
 		vec3 clay = detiled(earth_albedo, wuv * earth_scale);
@@ -588,7 +645,7 @@ void fragment() {
 	col = mix(col, col * vec3(1.1, 1.07, 1.02) + 0.02, silt_rim * 0.5);
 	col = mix(col, crust_col, crust);
 	nxy = mix(nxy, crack_nxy, crust);
-	float wet = clamp(wetness * (1.0 - crust * 0.4) + mud * 0.35 * (1.0 - crust) + shore * 0.5 + puddles * soft * 0.5 + pressed * wet_road * 0.3, 0.0, 1.0);
+	float wet = clamp(wetness * (1.0 - crust * 0.4) + mud * 0.35 * (1.0 - crust) + shore * 0.5 * (1.0 - swash_live) + puddles * soft * 0.5 + pressed * wet_road * 0.3, 0.0, 1.0);
 	col *= mix(1.0, 0.62, wet);
 	// Soaked margin: darker, richer earth before any water is visible.
 	col = mix(col, col * vec3(0.66, 0.6, 0.55), damp_ring * 0.65);
@@ -603,8 +660,10 @@ void fragment() {
 	float rphase = fract(TIME * 0.9 + hash12(rcell));
 	float rdist = length(rloc - (vec2(hash12(rcell + 3.1), hash12(rcell + 7.7)) - 0.5) * 0.5);
 	float ring = cos((rdist - rphase * 0.7) * 38.0) * exp(-abs(rdist - rphase * 0.7) * 14.0) * (1.0 - rphase);
-	float rain_on_water = smoothstep(0.2, 0.7, wetness) * deep * detail;
+	float rain_on_water = rain_intensity * deep * detail;
 	nxy += normalize(rloc + vec2(0.0001)) * ring * 0.16 * rain_on_water;
+	float water_footprint = max(length(dFdx(wuv)), length(dFdy(wuv)));
+	nxy -= water_wind_slope(wuv, ocean_time, water_footprint) * deep * detail;
 	// Meadow relief: cavity shading and a tussock normal on pure turf only. Fades
 	// out with distance like the other micro relief so it cannot shimmer.
 	float turf = (1.0 - max(field, max(max(earth, mud), max(sand, max(road, paving))))) * (1.0 - max(rock, bank)) * (1.0 - puddle);
@@ -627,6 +686,12 @@ void fragment() {
 	// Dry limestone and sand are matte: no sky sheen on the klint faces.
 	ROUGHNESS = mix(ROUGHNESS, 0.95, max(rock, bank) * (1.0 - puddle) * (1.0 - wet * 0.5));
 	SPECULAR = mix(SPECULAR, 0.1, max(rock, bank) * (1.0 - puddle));
+	// WR-9: damp sand is satin, wet pebbles carry a sheen on every crown, the fresh
+	// film after a backwash is a mirror; dry shingle above the berm stays chalky.
+	ROUGHNESS = mix(ROUGHNESS, 0.95, shingle * (1.0 - beach_wet));
+	ROUGHNESS = mix(ROUGHNESS, mix(0.5, 0.28, beach_porous), beach_wet);
+	ROUGHNESS = mix(ROUGHNESS, 0.06, beach_glisten);
+	SPECULAR = mix(SPECULAR, 0.5, max(beach_glisten, beach_wet * beach_porous * 0.8));
 	nxy = clamp(nxy * mix(1.0, 0.75, wet) * (1.0 - rock) + rock_nxy, vec2(-0.95), vec2(0.95));
 	NORMAL_MAP = vec3(nxy, sqrt(max(1.0 - dot(nxy, nxy), 0.0))) * 0.5 + 0.5;
 }

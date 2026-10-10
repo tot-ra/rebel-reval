@@ -74,7 +74,7 @@ Earlier side-on review plates (`tools/capture_city_sea.gd`, before the continuou
 
 Verify: `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_city_shore_field`; plates `tools/godot_render.sh --script tools/capture_city_sea.gd -- --tag=x --advance=6 --only=surf_side_calm,surf_side_fresh,surf_side_storm` (`--advance` shifts the wave phase; `surf_*` are the front plates).
 
-Limits: the crest is a displaced mesh with foam, not a curling wave with a hollow face; steep silhouettes can still reveal the 0.5 m mesh. Inland run-up is visual: the existing camera medium and swim-depth queries still classify coastal positions by the mean waterline (`bed < 0`), so they do not classify a camera inside the thin inland bore as underwater. The ground shader has no wet-sand band tied to the field; spray droplets are soft billboards without a splash sprite; district quays and rocks get slosh foam only (no climbing water); in the city a reflected crest stands against the wall ([WR-4](#waves-feel-the-seabed-wr-4)).
+Limits: the crest is a displaced mesh with foam, not a curling wave with a hollow face; steep silhouettes can still reveal the 0.5 m mesh. Inland run-up is visual: the existing camera medium and swim-depth queries still classify coastal positions by the mean waterline (`bed < 0`), so they do not classify a camera inside the thin inland bore as underwater. The wet-sand band follows the field since WR-9 ([Beach response](#beach-response-wr-9)); spray droplets are soft billboards without a splash sprite; district quays and rocks get slosh foam only (no climbing water); in the city a reflected crest stands against the wall ([WR-4](#waves-feel-the-seabed-wr-4)).
 
 ## Optical and camera integration (R-885 / R-1437 follow-up)
 
@@ -174,7 +174,7 @@ The final guard passed the 16-test material contract and a further six-phase GL 
 
 ## Water realism v2 (WR-1, WR-2)
 
-Status: implemented (tasks **R-1499** WR-1 and **R-1500** WR-2; pack [WR - Water realism v2](../tasks/water_sky/WR_water_realism_v2.md), epic **R-1497**). Scope: the city sea's wave geometry and foam. Out of scope (planned in the pack): camera-distance LOD and tier presets (WR-3), depth refraction and breaker types ([WR-4](#waves-feel-the-seabed-wr-4)), wave interaction with rocks (WR-5), event-driven spray (WR-6), a persistent foam buffer (WR-7), gusts and rain on the sea (WR-8), beach wetting (WR-9). District maps are unchanged: every switch below is gated on the city's `sea_physical_depth` instance flag or on `shore_crest_shape`, which `apply_shore_field` resets to 0.
+Status: implemented (tasks **R-1499** WR-1 and **R-1500** WR-2; pack [WR - Water realism v2](../tasks/water_sky/WR_water_realism_v2.md), epic **R-1497**). Scope: the city sea's wave geometry and foam. Out of scope (planned in the pack): camera-distance LOD and tier presets (WR-3), depth refraction and breaker types ([WR-4](#waves-feel-the-seabed-wr-4)), wave interaction with rocks (WR-5), event-driven spray (WR-6), a persistent foam buffer (WR-7), gusts and rain on the sea (WR-8). Beach wetting is implemented in [Beach response (WR-9)](#beach-response-wr-9). District maps are unchanged: every switch below is gated on the city's `sea_physical_depth` instance flag or on `shore_crest_shape`, which `apply_shore_field` resets to 0.
 
 Verified on the [water sandbox](./WATER_SANDBOX.md) (synthetic coast, R-1498) and in the city.
 
@@ -338,6 +338,49 @@ tools/godot_render.sh --script tools/water_sandbox/capture.gd -- --tag=lod_motio
 `test_city_sea_lod` ports the vertex morph to GDScript and checks, on a synthetic lattice with an island and skirt: every shared node edge meets without a crack at four camera positions, a node at its split distance coincides with its four children (no popping), ring vertices touching the skirt stay at the 4 m lattice and level, selected coarse nodes never span a cell the rings do not own, the ring level is continuous and capped, the displacement weights per spacing and tier, the presets, the shader contract and the sandbox build (one owner per cell, finite CPU heights). The dolly clips showed no isolated frame-difference spikes (max / median of consecutive-frame difference 1.2-1.7 in a gale, smooth trend). No controls, saved fields or content IDs change.
 
 Limits: ring nodes touching the plan edge or a static cell stay at 4 m spacing or finer (the cap treats outside the lattice as not owned), so the far plan edge costs a strip of fine nodes. The CPU height ignores node snapping and the C0 horizontal scale. Changing the tier needs a rebuild of the city (like the FFT tier). Boats (`BoatFloat3D`) still sample the district path.
+
+## Beach response (WR-9)
+
+Status: implemented (task **R-1514** WR-9; pack [WR - Water realism v2](../tasks/water_sky/WR_water_realism_v2.md)). Scope: how the city beach ground, the run-up film and shore pebbles react to the swash. Out of scope: footprints filling with water, sand transport or berm building, per-pebble wet/dry animation on the stone meshes (see Limits). District maps are unchanged: the district terrain blend keeps its WS-08 wet sand, and every water change below sits in the city's `sea_physical_depth` branch.
+
+What the player sees:
+
+- **Wet band from the swash history.** The city ground (`scripts/city/city_ground.gdshader`) evaluates the same analytic `shore_state` as the sea. Ground that the last waves reached is dark (wet sand at about half its dry albedo) and dries over `SHORE_DRY_TIME` (28 s, about 30 s) after the backwash leaves it. For the first few seconds (`SHORE_GLISTEN_TIME`, 4 s) a standing film mirrors the sky (roughness 0.06, sand relief levelled). Because the swash comes in 7-wave sets, the band advances with each big wave and fades between sets. Where a shore field is bound, this replaces the old static "wet strand by height" and the flat `shore * 0.5` damp term. Without a field (no sea), the old height strand stays.
+- **Shingle drains.** Porosity comes from the bed slope (`shore_porosity(tan_beta)`, 0 below 1:14, 1 above 1:9). Shingle beaches are steep because backwash sinks into the gaps instead of carrying stones down, so the slope works in the city and the sandbox without a land-use texture. The ground's own pebble band (`shingle`) also counts as porous. On porous ground: wet stone dries in `SHORE_SHINGLE_DRY_TIME` (9 s), glistens only briefly (0.8 s), is darker and more saturated than wet sand, and carries a sheen (roughness 0.28, specular up). Dry shingle above the berm is forced matte (roughness 0.95).
+- **Backwash film and foam over shingle.** In the city sea's run-up, `shore_beach()` thins the film as the backwash progresses (`ShoreState.backwash`, up to 85 % less film over full porosity) while the front itself stays analytic, so the ground's wet time still matches the water. Foam lace and the bead lose up to 40 % on the uprush and vanish within the first third of the backwash (bubbles pop into the gaps). `shore_pebble_cover()` fades the film out as it gets thinner than the pebble crowns (`SHORE_PEBBLE_SIZE`, 5 cm). It is a mean cover, not a per-pebble hole pattern: under the film the GL bed is the ground texture, and holes showed it as a lattice of sand dots.
+- **Wet and dry pebbles.** `MapViewShoreDebris.wet_shore_debris_mesh(kind)` returns a copy of a shore debris mesh whose family materials are swapped for wet variants (`wet_debris_material`: roughness 0.32, specular 0.75); callers darken the instance colour by `WET_STONE_TINT` (0.55). The sandbox shingle bay uses it for pebbles seaward of `SHINGLE_WET_LINE` (z = 3.5, jittered over 2 m; the berm crest is at z = 5). Pebble scale acts through the stone meshes themselves: the film is drawn at bed height plus its thickness, so a stone breaks through wherever it is taller than the film, and the large section (1.8 x) shows more stone above a thin film than the small one (0.5 x).
+
+Runtime entry points:
+
+- `scripts/map/view3d/shore_swash.gdshaderinc`: `ShoreState.backwash`, `ShoreBeach`, `shore_beach()`, `shore_porosity()`, `shore_pebble_cover()`, the dry and glisten constants.
+- `scripts/city/city_ground.gdshader`: the beach response block after the pebble band, the roughness/specular block before the final normal.
+- `scripts/map/view3d/map_view_water.gdshader`: `runup_drain` in the city run-up coverage, applied with `city_coverage`.
+- `scripts/city/city_world_3d.gd`: `mirror_shore_to_ground()` copies every `shore_*` uniform the ground shader declares (`shore_uniform_names`) from the shared sea material to the ground after the shore field binding, surf gain and every `apply_time` (sea state, tide). The ground is not one of the shared map-view shore materials, so it needs this mirror. The sandbox capture calls it after `apply_sea_weather`.
+- `scripts/map/view3d/map_view_shore_debris.gd`: `WET_STONE_*`, `wet_shore_debris_mesh()`, `wet_debris_material()`.
+
+GL Compatibility texture-unit budget: Godot binds a texture unit to every *declared* sampler, used or not. The city ground had 13; a 14th (`shore_field`) first failed to link (17 fragment samplers with the engine's own), and once the fragment stopped using one, the draw still vanished on macOS without any error, because the extra unit collided with an engine-reserved one. `rock_normal` was therefore removed: the shingle band's pebble relief now comes from the `rock_albedo` luminance (three taps, like the drought crust). `CityTerrainBuilder` still assigns `rock_normal`; the setting is ignored. `test_ground_stays_inside_its_texture_unit_budget` keeps the count at 13 or fewer; any new sampler here needs the same kind of trade.
+
+No controls, saved fields or content IDs change. Everything is a pure function of position, `ocean_time` and sea state, so it is deterministic and the `ocean_time` wrap stays seamless.
+
+Verify:
+
+```bash
+godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_water_beach_response
+tools/godot_render.sh --script tools/water_sandbox/capture.gd -- --tag=wr9 --case=shingle,sand --shot=close,side --wind=fresh,gale --motion=192
+```
+
+`test_water_beach_response` checks the include API and dry-time ordering (sand about 30 s, shingle faster, film lasts longer on sand), that the ground uses the swash instead of the static strand, the water drain hooks, that every shore uniform the include declares is mirrored to the ground (except the vertex-only `shore_geometry_scale`), the wet stone material, the texture-unit budget and the sandbox wet/dry pebble split.
+
+Plates (water sandbox, `--tag=wr9`, noon):
+
+![Sand, gale: the wave runs up, the backwash leaves a dark wet band that dries before the next set](../reports/images/city/water_wr9_sand_wet_band.jpg)
+
+![Shingle, gale: the run-up floods the steep beach, drains into the stones and leaves a short-lived wet band](../reports/images/city/water_wr9_shingle_drain.jpg)
+
+![Shingle, fresh: dark wet stones and ground in the swash, pale matte pebbles and dry ground above the berm](../reports/images/city/water_wr9_pebbles_wet_dry.jpg)
+
+
+Limits: pebble meshes are wet or dry by a fixed line, not by the live swash (they use `StandardMaterial3D`; a swash-driven stone shader is a separate task). The porosity is a slope proxy, so a steep sand scarp reads as shingle and a flat gravel patch as sand. The film's thinning uses one nominal grain size; the sandbox's three pebble sizes differ only through their meshes, and the plates above do not isolate the three sections. The sandbox ground still paints land use (grass, a cart-track stripe on the berm) from height alone ([water sandbox](./WATER_SANDBOX.md) limit), so some sandbox wet ground is drawn over those textures; the city land use is deliberately not changed for it.
 
 ## Limits
 

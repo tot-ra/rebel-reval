@@ -20,8 +20,8 @@ const TEXTURES := {
 	"earth_normal": "res://assets/materials/pbr/mud/mud_normal.png",
 	"sand_albedo": "res://assets/materials/pbr/coast_sand/coast_sand_albedo.png",
 	"sand_normal": "res://assets/materials/pbr/coast_sand/coast_sand_normal.png",
-	"rock_albedo": "res://assets/materials/pbr/stone/stone_albedo.png",
-	"rock_normal": "res://assets/materials/pbr/stone/stone_normal.png",
+	# Natural beach pebbles for the shingle band (not the masonry stone plate).
+	"shingle_albedo": "res://assets/materials/pbr/shore_shingle/shore_shingle_albedo.png",
 	# R-1516 drought crust in dried puddle basins.
 	"cracked_albedo": "res://assets/materials/pbr/cracked_earth/cracked_earth_albedo.png",
 }

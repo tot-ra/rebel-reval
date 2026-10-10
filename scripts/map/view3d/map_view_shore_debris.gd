@@ -45,6 +45,12 @@ const SHORE_BLOCKING_MIN_METRES := 1.0
 const SHORE_DEBRIS_MAX_PER_CHUNK := 384
 ## Signed shore-distance bands (cells, + = seaward).
 const SHORE_WRACK_BAND := Vector2(-1.0, 0.25)
+## WR-9 wet stones in the swash: water fills the surface micro-gaps that scattered
+## white, so a wet stone is darker (multiply its instance colour by WET_STONE_TINT)
+## and its crowns carry a sheen. Dry stones keep the shared matte material.
+const WET_STONE_TINT := 0.55
+const WET_STONE_ROUGHNESS := 0.32
+const WET_STONE_SPECULAR := 0.75
 const SHORE_DRY_BAND := Vector2(-6.0, -1.2)
 const SHORE_SHALLOWS_BAND := Vector2(0.3, 3.0)
 const SHORE_ERRATIC_BAND := Vector2(0.6, 5.0)
@@ -113,6 +119,28 @@ static func shore_debris_mesh(kind: StringName) -> Mesh:
 		if shared != null and shared != imported:
 			mesh.surface_set_material(surface, shared)
 	return mesh
+
+
+## Same mesh as shore_debris_mesh(kind) with every family material swapped for its
+## wet variant. Rebuilt on every call, like the shared rebinding above.
+static func wet_shore_debris_mesh(kind: StringName) -> Mesh:
+	var dry := shore_debris_mesh(kind)
+	if dry == null:
+		return null
+	var wet := dry.duplicate() as Mesh
+	for surface in wet.get_surface_count():
+		wet.surface_set_material(surface, wet_debris_material(dry.surface_get_material(surface)))
+	return wet
+
+
+static func wet_debris_material(material: Material) -> Material:
+	if not material is StandardMaterial3D:
+		return material
+	var wet := (material as StandardMaterial3D).duplicate() as StandardMaterial3D
+	wet.resource_name = material.resource_name + "_wet"
+	wet.roughness = WET_STONE_ROUGHNESS
+	wet.metallic_specular = WET_STONE_SPECULAR
+	return wet
 
 
 static func _load_shore_debris_mesh(kind: StringName) -> Mesh:

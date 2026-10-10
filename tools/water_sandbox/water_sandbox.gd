@@ -33,6 +33,12 @@ const CASES := {
 	"reef": "sand beach behind a submerged rock reef (combination case)",
 }
 
+## WR-9: pebbles seaward of this line (world z) lie in the swash and are wet; the
+## berm crest of the shingle profile is at z = 5, the waterline at z = 0. A 2 m
+## jittered transition keeps the boundary from reading as a ruled line.
+const SHINGLE_WET_LINE := 3.5
+const SHINGLE_WET_BLEND := 2.0
+
 var plan: CityPlan
 var world: Node3D
 ## Case id -> bay centre x (world units).
@@ -234,7 +240,8 @@ func _build_rocks() -> void:
 
 
 ## Shingle bay: three 45 m sections of small, medium and large pebbles from the
-## berm down into the swash.
+## berm down into the swash. Wet pebbles (below the berm) use the wet stone
+## variant, darker with a sheen; dry ones above the berm keep the matte material.
 func _build_pebbles() -> void:
 	var cx: float = bay_centres["shingle"]
 	var sections := [[-45.0, 0.5], [0.0, 1.0], [45.0, 1.8]]
@@ -248,18 +255,35 @@ func _build_pebbles() -> void:
 				kind = &"pebble_patch_b" if k % 2 == 0 else &"stone_cluster_a"
 			var s: float = section[1] * _rng.randf_range(0.7, 1.3)
 			var at := Vector3(x, plan.ground_height(Vector2(x, z)) - 0.02, z)
-			if not transforms.has(kind):
-				transforms[kind] = [[] as Array[Transform3D], [] as Array[Color]]
+			var wet := shingle_pebble_wet(x, z)
+			var key := "%s%s" % [kind, "_wet" if wet else ""]
+			if not transforms.has(key):
+				transforms[key] = [[] as Array[Transform3D], [] as Array[Color], kind, wet]
 			var basis := Basis(Vector3.UP, _rng.randf() * TAU).scaled(Vector3.ONE * s)
-			transforms[kind][0].append(Transform3D(basis, at))
-			transforms[kind][1].append(Color(0.82, 0.8, 0.78))
-	for kind: StringName in transforms:
-		var mesh := ShoreDebris.shore_debris_mesh(kind)
+			transforms[key][0].append(Transform3D(basis, at))
+			var tint := Color(0.82, 0.8, 0.78)
+			if wet:
+				tint = Color(tint.r * ShoreDebris.WET_STONE_TINT, tint.g * ShoreDebris.WET_STONE_TINT,
+					tint.b * ShoreDebris.WET_STONE_TINT)
+			transforms[key][1].append(tint)
+	for key: String in transforms:
+		var entry: Array = transforms[key]
+		var mesh := (
+			ShoreDebris.wet_shore_debris_mesh(entry[2]) if entry[3]
+			else ShoreDebris.shore_debris_mesh(entry[2])
+		)
 		if mesh == null:
 			continue
 		add_child(MapViewMeshBuilderPrimitives.multi_mesh(
-			"Pebbles_%s" % kind, mesh, transforms[kind][0], transforms[kind][1], null, Vector3.ZERO
+			"Pebbles_%s" % key, mesh, entry[0], entry[1], null, Vector3.ZERO
 		))
+
+
+## WR-9: is a shingle pebble at world (x, z) in the swash (wet) or above the berm?
+## Hash jitter, not the RNG, so the pebble layout stays what it was before WR-9.
+static func shingle_pebble_wet(x: float, z: float) -> bool:
+	var jitter := fposmod(sin(x * 12.9898 + z * 78.233) * 43758.5453, 1.0) - 0.5
+	return z < SHINGLE_WET_LINE + jitter * SHINGLE_WET_BLEND
 
 
 ## Camera poses per case: eye and look target in world space.

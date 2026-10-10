@@ -56,6 +56,11 @@ var sun: DirectionalLight3D
 var environment: Environment
 var world_environment: WorldEnvironment
 var sky_weather: SkyWeather3D
+## True while Kalev is under a roof; reval_city reports it from the plan every
+## frame. Gates the same state MapView3D gates for map interiors (R-1539):
+## exterior rain particles and rain_exterior ambience off, the muffled roof-drum
+## bed on, and no sky reflections, morning mist or rain haze inside.
+var enclosed_interior := false
 ## building index -> MeshInstance3D roof node (enterable houses only)
 var roof_nodes: Dictionary = {}
 var water_materials: Array[ShaderMaterial] = []
@@ -65,10 +70,6 @@ var stream_segment_count := 0
 var sea_shore: Dictionary = {}
 ## WR-3 camera-centred sea rings (CitySeaLod); null until the sea is built.
 var sea_lod: CitySeaLod
-## _surface_grid(split_rings): 1 per 4 m cell drawn by the rings / by a static
-## sea mesh (surf band or the stitched skirt), row-major over the sea lattice.
-var _sea_ring_cells := PackedByteArray()
-var _sea_static_cells := PackedByteArray()
 var doors: CityDoors
 var grass: CityGrass
 var farmland: CityFarmland
@@ -82,6 +83,12 @@ var smoke: CityChimneySmoke
 ## Landmark site models by site id (ADR 0032).
 var site_nodes: Dictionary = {}
 var ships: CityShips
+## _surface_grid(split_rings): 1 per 4 m cell drawn by the rings / by a static
+## sea mesh (surf band or the stitched skirt), row-major over the sea lattice.
+var _sea_ring_cells := PackedByteArray()
+var _sea_static_cells := PackedByteArray()
+## WR-9 `shore_*` uniform names of the ground shader (mirror_shore_to_ground).
+var _ground_shore_uniforms := PackedStringArray()
 
 
 static func create(city_plan: CityPlan) -> CityWorld3D:
@@ -146,15 +153,27 @@ func setup_lighting(camera: Camera3D) -> void:
 	sky_weather.name = "SkyWeather"
 	add_child(sky_weather)
 	sky_weather.configure(camera, environment)
+	sky_weather.rain_suppressed = enclosed_interior
 	environment.fog_enabled = true
 	environment.fog_density = 0.0016
 	environment.fog_aerial_perspective = 0.6
 
 
+## Report whether Kalev is indoors; called every frame, so it only remembers the
+## flag and pushes the roof gate into the weather. apply_time then forwards it
+## to the lighting, which runs per frame anyway.
+func set_enclosed_interior(value: bool) -> void:
+	enclosed_interior = value
+	if sky_weather != null:
+		sky_weather.rain_suppressed = value
+
+
 func apply_time(progress: float) -> void:
 	if sun == null:
 		return
-	MapViewLighting.apply_cycle_progress(progress, sun, environment, sky_weather, false)
+	MapViewLighting.apply_cycle_progress(
+		progress, sun, environment, sky_weather, enclosed_interior
+	)
 	# Church glass throws coloured sunlight that follows this sun (R-1451).
 	ChurchSunlight.push_light(sun)
 	# One wind for everything that moves: flags, ropes, trees, grass, the sea.
@@ -164,6 +183,7 @@ func apply_time(progress: float) -> void:
 	MapViewMaterials.apply_sea_weather(
 		presentation.wind_strength, presentation.rain_intensity, presentation.wind_direction
 	)
+	mirror_shore_to_ground()
 	if spray != null:
 		spray.set_wind(presentation.wind_strength)
 	set_wind(presentation.wind_direction)
@@ -574,6 +594,7 @@ func _bind_shore_field(shore: Dictionary) -> void:
 	# WR-4: the surf feels the baked bathymetry (bars, reefs, shingle, quays).
 	var bed: Texture2D = shore["bed_texture"]
 	MapViewMaterials.apply_shore_bed(bed)
+	mirror_shore_to_ground()
 	spray = ShoreSpray.new()
 	spray.name = "ShoreSpray"
 	add_child(spray)
@@ -590,7 +611,34 @@ func _bind_shore_field(shore: Dictionary) -> void:
 				SURF_CREST_SHAPE
 			)
 			MapViewMaterials.apply_shore_bed(bed)
+			mirror_shore_to_ground()
 	)
+
+
+## WR-9: the beach (city_ground.gdshader) evaluates the same analytic swash as the
+## sea, so it needs the sea's shore uniforms. The ground is not one of the shared
+## map-view shore materials, so copy them from the sea after every shore or sea-state
+## change (field binding, surf gain, weather, tide). Every `shore_*` uniform the
+## ground declares is copied, so new swash uniforms cannot drift out of sync.
+func mirror_shore_to_ground() -> void:
+	var ground := CityTerrainBuilder.shared_material()
+	if ground == null or ground.shader == null or sea_shore.is_empty():
+		return
+	var sea := MapViewMaterials.water_surface(MapTypes.TERRAIN_SHALLOW_WATER)
+	# apply_time runs every frame: list the ground's uniforms once.
+	if _ground_shore_uniforms.is_empty():
+		_ground_shore_uniforms = shore_uniform_names(ground.shader)
+	for uniform_name in _ground_shore_uniforms:
+		ground.set_shader_parameter(uniform_name, sea.get_shader_parameter(uniform_name))
+
+
+static func shore_uniform_names(shader: Shader) -> PackedStringArray:
+	var names := PackedStringArray()
+	for uniform: Dictionary in shader.get_shader_uniform_list():
+		var uniform_name := String(uniform["name"])
+		if uniform_name.begins_with("shore_"):
+			names.append(uniform_name)
+	return names
 
 
 ## R-1400: the city sea, stream, moat and harbour water read the discrete cloud
