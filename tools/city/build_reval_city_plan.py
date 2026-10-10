@@ -1114,9 +1114,19 @@ def build(args) -> dict:
     site_out = [terrace_site(site, height_wu, h_at_m, x0, y0, mpu) for site in sites]
     fix_blocked_doors(buildings, [poly for so in site_out for poly in so["footprints"]])
     terrace_landmarks(buildings, height_wu, h_at_m, x0, y0, mpu)
-    # Kalev's smithy: the enterable house nearest the authored spot.
+    # A small site squeezed between houses (Kalev's smithy) sets `over_houses`:
+    # the neighbours' plot aprons are cut after the site terrace and would
+    # otherwise push their ground through its floor, so its terrace is levelled
+    # once more on top, with a short blend.
+    for site, so in zip(sites, site_out):
+        ter = site["terrace"]
+        if ter.get("over_houses"):
+            ring = [site_to_world(site, q) for q in ter["polygon"]]
+            flatten_ground(height_wu, ring, so["level"], 1.2, x0, y0, mpu, apron=0.4)
+    # Kalev's smithy: the enterable house nearest the authored spot, unless a
+    # landmark site (site.kalev_smithy) already models it and replaced that house.
     ks = overlay.get("kalev_smithy")
-    if ks:
+    if ks and not any(s_.get("landmark_id") == "landmark.kalev_smithy" for s_ in sites):
         target = (ks["near_m"][0] / mpu, ks["near_m"][1] / mpu)
         cands = [b_ for b_ in buildings if b_["enterable"] and not b_["landmark_id"] and b_["door"]]
         smithy = min(cands, key=lambda b_: math.dist(target, poly_centroid([tuple(q) for q in b_["footprint"]])))
@@ -1307,6 +1317,7 @@ def build(args) -> dict:
     clearance = vegetation_habitat.Clearance(streets, bridges, mpu)
     trees = [t for t in trees if clearance.tree_ok((t[0] * mpu, t[1] * mpu))]
     bushes = [b for b in bushes if clearance.bush_ok((b[0] * mpu, b[1] * mpu))]
+    harbour["fish_racks"] = kalarand_fish_racks(buildings, harbour, bridges, trees, bushes, streets, h_at_m, mpu)
     for o in orchards:
         ring = [(q[0] * mpu, q[1] * mpu) for q in o["polygon"]]
         o["trees"] = sum(1 for t in trees if pip((t[0] * mpu, t[1] * mpu), ring))
@@ -2139,9 +2150,11 @@ def harbour_features(buildings, h_at_m, nearest_street, mpu):
         deck("jetty.kalamaja.%d" % k, "beach_deck", (s_[0], s_[1] + 3.0), (0.0, -1.0), 7.0, 1.8, conf + "; short timber beach deck")
         yard_c = (s_[0] + 9.0, s_[1] + 12.0 + hrng.uniform(0, 4))
         if h_at_m(*yard_c) > 0.7:
-            racks = []
-            for r in range(4):
-                racks.append([round(yard_c[0] - 5.0 + r * 3.4, 2), round(yard_c[1] - 3.0, 2), 0.0, 3.0])
+            # R-1640: two long pole racks per yard (11 m and 9.5 m), one net
+            # draped over each, instead of four 3 m strips. Fixed offsets, no
+            # hrng draw, so every later seeded placement keeps its position.
+            racks = [[round(yard_c[0], 2), round(yard_c[1] - 2.0, 2), 0.0, 11.0],
+                     [round(yard_c[0] + 0.6, 2), round(yard_c[1] + 1.9, 2), 0.0, 9.5]]
             ring = [(yard_c[0] + sx * 7.5, yard_c[1] + sy * 4.5) for sx, sy in ((-1, -1), (1, -1), (1, 1), (-1, 1))]
             harbour["net_yards"].append({"id": "netyard.%d" % k, "polygon": [[round(q[0] / mpu, 2), round(q[1] / mpu, 2)] for q in ring], "racks": [[round(r_[0] / mpu, 2), round(r_[1] / mpu, 2), r_[2], round(r_[3] / mpu, 2)] for r_ in racks]})
             taken.append((yard_c, 8.0))
@@ -2168,6 +2181,88 @@ def harbour_features(buildings, h_at_m, nearest_street, mpu):
             harbour["boats"].append({"id": "lighter.coastal.%s%d" % (name, n), "type": "lighter", "at": [round(tip[0] / mpu + n * 10.0 - 4.0, 2), round(tip[1] / mpu - n * 8.0 - 3.0, 2)], "angle": round(math.pi / 2 + hrng.uniform(-0.2, 0.2), 3), "lift": 0.0})
     return out_b, decks, harbour
 
+
+
+def kalarand_fish_racks(buildings, harbour, bridges, trees, bushes, streets, h_at_m, mpu):
+    """R-1640: fish drying racks beside the shore-side Kalarand huts, on the open
+    ground between the huts and the beach (kalamaja-fishing-shore-1343.md:
+    drying preferred for lean spring herring). Runs after vegetation with its own
+    RNG, so no earlier id or position moves; racks dodge trees and bushes instead
+    of displacing them. Rack: id, at (centre), angle (pole axis, radians, roughly
+    shore-parallel), length (m), variant (a fish_rack.* style variant)."""
+    rng = random.Random(1343_1640)
+    conf = "plausible composite (kalamaja-fishing-shore-1343 dossier; drying racks beside fisher huts)"
+    huts = sorted((b for b in buildings if b["id"].startswith("bldg.kalarand.")), key=lambda b: b["id"])
+    polys = [[(q[0] * mpu, q[1] * mpu) for q in b["footprint"]] for b in buildings]
+    yards = [[(q[0] * mpu, q[1] * mpu) for q in y["polygon"]] for y in harbour["net_yards"]]
+    round_obstacles = [((b["at"][0] * mpu, b["at"][1] * mpu), 3.5) for b in harbour["boats"]]
+    round_obstacles += [((d["at"][0] * mpu, d["at"][1] * mpu), d["length"] * mpu / 2 + 1.5) for d in bridges if d.get("kind") in ("jetty", "beach_deck")]
+    round_obstacles += [((t[0] * mpu, t[1] * mpu), 2.2) for t in trees]
+    round_obstacles += [((b[0] * mpu, b[1] * mpu), 1.4) for b in bushes]
+    bw = harbour.get("boatwright")
+    if bw:
+        round_obstacles.append(((bw["at"][0] * mpu, bw["at"][1] * mpu), 9.0))
+    lanes = [(s["points_m"], s.get("width", 4.0) / 2) for s in streets]
+
+    def seg_d(p, a, b):
+        dx, dy = b[0] - a[0], b[1] - a[1]
+        ll = dx * dx + dy * dy
+        t = 0.0 if ll < 1e-12 else max(0.0, min(1.0, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / ll))
+        return math.hypot(p[0] - (a[0] + t * dx), p[1] - (a[1] + t * dy))
+
+    def poly_clear(p, margin):
+        for poly in polys + yards:
+            if pip(p, poly):
+                return False
+            n = len(poly)
+            for i in range(n):
+                a, b = poly[i], poly[(i + 1) % n]
+                if seg_d(p, a, b) < margin:
+                    return False
+        return True
+
+    def street_clear(p, margin):
+        for pts, half_w in lanes:
+            for i in range(len(pts) - 1):
+                if seg_d(p, pts[i], pts[i + 1]) < half_w + margin:
+                    return False
+        return True
+
+    racks, placed = [], []
+    variants = ["fish_rack.herring", "fish_rack.mixed", "fish_rack.herring", "fish_rack.mixed", "fish_rack.empty"]
+    for hut in huts:
+        c = poly_centroid([(q[0] * mpu, q[1] * mpu) for q in hut["footprint"]])
+        shore = shore_march(h_at_m, c[0], c[1], 0.0, -1.0, limit=120.0)
+        # Shore-side huts only: the front row facing the beach (sea to the north)
+        # within ~100 m; the inland rows keep their gardens.
+        if c[1] - shore[1] > 100.0:
+            continue
+        want = 2 if rng.random() < 0.35 else 1
+        got = 0
+        for attempt in range(60):
+            if got >= want:
+                break
+            ang = -math.pi / 2 + rng.uniform(-1.1, 1.1)
+            d = rng.uniform(5.5, 12.0)
+            p = (c[0] + math.cos(ang) * d, c[1] + math.sin(ang) * d)
+            length = rng.uniform(3.0, 3.8)
+            axis = rng.uniform(-0.3, 0.3)
+            ends = [(p[0] + math.cos(axis) * sx * (length / 2 + 0.2), p[1] + math.sin(axis) * sx * (length / 2 + 0.2)) for sx in (-1, 1)]
+            if min(h_at_m(*q) for q in ends + [p]) < 0.8:
+                continue
+            if not all(poly_clear(q, 1.6) for q in ends + [p]):
+                continue
+            if not all(street_clear(q, 1.5) for q in ends + [p]):
+                continue
+            if any(math.dist(q, o) < r + 0.7 for o, r in round_obstacles for q in ends + [p]):
+                continue
+            if any(math.dist(p, o) < 4.6 for o in placed):
+                continue
+            placed.append(p)
+            racks.append({"id": "fishrack.kalarand.%02d" % len(racks), "hut": hut["id"], "at": [round(p[0] / mpu, 2), round(p[1] / mpu, 2)],
+                          "angle": round(axis, 4), "length": round(length, 2), "variant": variants[len(racks) % len(variants)], "confidence": conf})
+            got += 1
+    return racks
 
 
 def clip_to_circuit(points, circuit, gates, gate_radius=12.0):

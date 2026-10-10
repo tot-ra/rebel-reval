@@ -7,9 +7,12 @@ extends RefCounted
 ## fenced net yards with drying racks and the boatwright's timber and cart. The
 ## jetties and beach decks are `bridges` (CityBridges); the sheds are plan
 ## `outbuilding` buildings; boats are CityShips. Visual only: no collision.
+## R-1640: the yards hang big grey hemp nets with wind cloth (MapViewDryingNet)
+## and the shore-side Kalarand huts get full-size fish drying racks.
 
-const NET_COLOR := Color(0.2, 0.17, 0.12)
 const DRAW_RANGE := 160.0
+## Fish racks are small and dense with catch; beyond this they are not drawn.
+const FISH_RACK_RANGE := 110.0
 
 
 static func build(plan: CityPlan, parent: Node3D) -> Node3D:
@@ -28,7 +31,9 @@ static func build(plan: CityPlan, parent: Node3D) -> Node3D:
 	for stack: Dictionary in harbour.get("stacks", []):
 		_stack(plan, root, stack, wood, hay)
 	for yard: Dictionary in harbour.get("net_yards", []):
-		_net_yard(plan, root, yard, wood, timber)
+		_net_yard(plan, root, yard)
+	for rack: Dictionary in harbour.get("fish_racks", []):
+		_fish_rack(plan, root, rack)
 	var bw: Variant = harbour.get("boatwright")
 	if bw is Dictionary:
 		_boatwright(plan, root, bw, timber, wood)
@@ -180,10 +185,9 @@ static func _stack(
 			_box(node, Vector3(0.9, 0.7, 0.7), Vector3(0.0, 1.05, 0.0), wood)
 
 
-## A fenced yard: post-and-rail on all four sides, pole racks with nets hung to dry.
-static func _net_yard(
-	plan: CityPlan, root: Node3D, yard: Dictionary, _wood: Material, timber: Material
-) -> void:
+## A fenced yard: wattle or pole fence round long pole racks, each with a big
+## grey net draped over it to dry (MapViewDryingNet, its own wind cloth).
+static func _net_yard(plan: CityPlan, root: Node3D, yard: Dictionary) -> void:
 	var poly := CityPlan.points(yard["polygon"])
 	var node := Node3D.new()
 	node.name = String(yard["id"]).replace(".", "_")
@@ -194,24 +198,45 @@ static func _net_yard(
 	if kind == CityFences.KIND_STONE:
 		kind = CityFences.KIND_POLE
 	CityFences.build(node, String(yard["id"]), poly, plan.ground_height, DRAW_RANGE, kind)
-	var net := StandardMaterial3D.new()
-	net.albedo_color = NET_COLOR
-	net.roughness = 1.0
-	net.cull_mode = BaseMaterial3D.CULL_DISABLED
-	for r: Array in yard["racks"]:
+	var racks: Array = yard["racks"]
+	for k in racks.size():
+		var r: Array = racks[k]
 		var p := Vector2(r[0], r[1])
 		var length := float(r[3])
-		var g := plan.ground_height(p)
-		for side: float in [-1.0, 1.0]:
-			_box(
-				node,
-				Vector3(0.12, 2.4, 0.12),
-				Vector3(p.x + side * length * 0.5, g + 1.2, p.y),
-				timber,
-			)
-		_box(node, Vector3(length + 0.2, 0.1, 0.1), Vector3(p.x, g + 2.35, p.y), timber)
-		# Net hung over the pole: a thin hemp-coloured sheet that sags in the middle.
-		_box(node, Vector3(length * 0.92, 1.3, 0.03), Vector3(p.x, g + 1.65, p.y), net)
+		var angle := float(r[2])
+		var id := "%s.net%d" % [yard["id"], k]
+		# WHY seeded sizes: hand-cut posts and nets of different makers never match.
+		var h := absi(hash(id))
+		var drop := 2.15 + float(h % 100) * 0.003
+		var height := 2.6 + float((h / 100) % 100) * 0.002
+		var net := MapViewDryingNet.create(id, length, drop, height)
+		# Ground under a long rack is uneven: stand it on the lower end so no post
+		# floats; the dug-in posts hide the step at the higher end.
+		var axis := Vector2(cos(angle), sin(angle)) * length * 0.5
+		var g := minf(plan.ground_height(p - axis), plan.ground_height(p + axis))
+		g = minf(g, plan.ground_height(p))
+		net.position = Vector3(p.x, g, p.y)
+		net.rotation.y = -angle
+		node.add_child(net)
+
+
+## A full-size two-tier fish drying rack beside a shore-side Kalarand hut.
+static func _fish_rack(plan: CityPlan, root: Node3D, rack: Dictionary) -> void:
+	var at := Vector2(rack["at"][0], rack["at"][1])
+	var angle := float(rack.get("angle", 0.0))
+	var length := float(rack.get("length", 3.4))
+	var axis := Vector2(cos(angle), sin(angle)) * length * 0.5
+	var g := minf(plan.ground_height(at - axis), plan.ground_height(at + axis))
+	var node := Node3D.new()
+	node.name = String(rack["id"]).replace(".", "_")
+	node.position = Vector3(at.x, minf(g, plan.ground_height(at)), at.y)
+	node.rotation.y = -angle
+	root.add_child(node)
+	MapViewFishDryingRackModels.add_shore_rack(
+		node, String(rack["id"]), length, StringName(rack.get("variant", "fish_rack.mixed"))
+	)
+	for child in node.find_children("*", "GeometryInstance3D", true, false):
+		(child as GeometryInstance3D).visibility_range_end = FISH_RACK_RANGE
 
 
 ## Boatwright ground: stacked timber, a handcart and a keel on trestles.

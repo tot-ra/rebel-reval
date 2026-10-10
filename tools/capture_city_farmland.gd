@@ -151,6 +151,19 @@ func _shots(plan: CityPlan) -> Array[Dictionary]:
 		var yc := CityPlan.points(yard["polygon"])[0]
 		shots.append({"name": "harbour_kalamaja", "eye": Vector3(yc.x - 18.0, 8.0, yc.y + 24.0), "look": Vector3(yc.x + 8.0, 1.5, yc.y - 6.0), "fov": 60.0, "focus": yc})  # gdlint: ignore=max-line-length
 		shots.append({"name": "harbour_kalamaja_eye", "eye": Vector3(yc.x + 2.0, plan.ground_height(yc) + 1.8, yc.y + 14.0), "look": Vector3(yc.x + 6.0, 1.2, yc.y - 6.0), "fov": 60.0, "focus": yc})  # gdlint: ignore=max-line-length
+		# R-1640: one big drying net up close, then the Kalarand fish racks with
+		# the huts behind them and the net yards beyond (docs/SYSTEMS/CITY_SEA.md).
+		var r0: Array = yard["racks"][0]
+		var np := Vector2(r0[0], r0[1])
+		var ng := plan.ground_height(np)
+		shots.append({"name": "harbour_net_close", "eye": Vector3(np.x - 6.5, ng + 1.7, np.y + 6.0), "look": Vector3(np.x + 1.0, ng + 1.5, np.y), "fov": 60.0, "focus": np})  # gdlint: ignore=max-line-length
+		var racks: Array = harbour.get("fish_racks", [])
+		if not racks.is_empty():
+			var fr: Dictionary = racks[mini(6, racks.size() - 1)]
+			var fp := Vector2(fr["at"][0], fr["at"][1])
+			var fg := plan.ground_height(fp)
+			shots.append({"name": "harbour_fish_racks", "eye": Vector3(fp.x + 9.0, fg + 2.6, fp.y - 9.0), "look": Vector3(fp.x, fg + 1.2, fp.y + 2.0), "fov": 60.0, "focus": fp})  # gdlint: ignore=max-line-length
+			shots.append({"name": "harbour_fish_racks_shore", "eye": Vector3(fp.x + 4.0, fg + 4.0, fp.y - 20.0), "look": Vector3(fp.x, fg + 1.0, fp.y + 4.0), "fov": 60.0, "focus": fp})  # gdlint: ignore=max-line-length
 	var orchard := _feature(plan, &"orchard")
 	if not orchard.is_empty():
 		var oc: Vector2 = orchard["centre"]
