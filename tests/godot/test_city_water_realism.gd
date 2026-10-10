@@ -116,11 +116,12 @@ func test_fish_stay_above_bed_below_surface_and_use_one_draw_per_school() -> voi
 	var centre: Dictionary = CityFish.school_centres(plan)[0]
 	var fish := CityFish.create(plan, null)
 	Engine.get_main_loop().root.add_child(fish)
-	var vertices: PackedVector3Array = fish._fish_mesh.surface_get_arrays(0)[Mesh.ARRAY_VERTEX]
 	for species: StringName in [&"herring", &"perch"]:
 		centre["species"] = species
 		var school := fish._spawn(centre)
 		assert_true(school["node"] is MultiMeshInstance3D)
+		var mesh: Mesh = (school["node"] as MultiMeshInstance3D).multimesh.mesh
+		var vertices: PackedVector3Array = mesh.surface_get_arrays(0)[Mesh.ARRAY_VERTEX]
 		for step in 20:
 			fish._time = float(step) * 3.0
 			fish._animate(school)

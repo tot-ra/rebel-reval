@@ -16,12 +16,25 @@ const SEED := 4141
 ## Preserve deterministic school IDs in the clear shallows.
 const MIN_DEPTH := 0.35
 const MAX_DEPTH := 1.1
+## Mesh part ids (UV2.y) and body loft, shared with city_fish.gdshader.
+const PART_BODY := 0.0
+const PART_CAUDAL := 1.0
+const PART_DORSAL := 2.0
+const PART_PECTORAL := 3.0
+const PART_PELVIC := 4.0
+const PART_ANAL := 5.0
+const PART_SOFT_DORSAL := 6.0
+const BODY_NOSE := 0.49
+const BODY_LENGTH := 0.91
+const BODY_RINGS := 22
+const BODY_SIDES := 16
 
 var plan: CityPlan
 var player: Node2D
 var _centres: Array[Dictionary] = []
 var _live: Dictionary = {}
 var _fish_mesh: Mesh
+var _perch_mesh: Mesh
 var _since := 1.0
 var _time := 0.0
 
@@ -65,41 +78,190 @@ static func school_centres(city_plan: CityPlan) -> Array[Dictionary]:
 
 
 func _prepare() -> void:
-	# A tapered body, forked tail and fins in one mesh; +X is forward.
-	var st := SurfaceTool.new()
-	st.begin(Mesh.PRIMITIVE_TRIANGLES)
-	var rings := 9
-	var sides := 8
-	for i in rings - 1:
-		for j in sides:
-			for ij: Vector2i in [
-				Vector2i(i, j),
-				Vector2i(i + 1, j),
-				Vector2i(i + 1, (j + 1) % sides),
-				Vector2i(i, j),
-				Vector2i(i + 1, (j + 1) % sides),
-				Vector2i(i, (j + 1) % sides)
-			]:
-				var u := float(ij.x) / float(rings - 1)
-				var a := float(ij.y) / float(sides) * TAU
-				var r := pow(sin(u * PI), 0.8)
-				st.set_color(Color(0.12, 0.24, 0.25) if sin(a) > 0.35 else Color(0.72, 0.79, 0.77))
-				st.add_vertex(Vector3(0.5 - u, sin(a) * r * 0.13, cos(a) * r * 0.07))
-	for triangle: Array in [
-		[Vector3(-0.38, 0, 0), Vector3(-0.78, 0.24, 0), Vector3(-0.64, 0, 0)],
-		[Vector3(-0.38, 0, 0), Vector3(-0.64, 0, 0), Vector3(-0.78, -0.24, 0)],
-		[Vector3(0.14, 0.1, 0), Vector3(-0.18, 0.29, 0), Vector3(-0.25, 0.1, 0)],
-		[Vector3(0.12, -0.05, 0), Vector3(-0.12, -0.08, 0.22), Vector3(-0.16, -0.06, 0)],
-		[Vector3(0.12, -0.05, 0), Vector3(-0.16, -0.06, 0), Vector3(-0.12, -0.08, -0.22)],
-	]:
-		for point: Vector3 in triangle:
-			st.set_color(Color(0.22, 0.32, 0.31))
-			st.add_vertex(point)
-	st.generate_normals()
-	_fish_mesh = st.commit()
 	var material := ShaderMaterial.new()
 	material.shader = preload("res://scripts/city/city_fish.gdshader")
+	_fish_mesh = build_mesh(false)
+	_perch_mesh = build_mesh(true)
 	_fish_mesh.surface_set_material(0, material)
+	_perch_mesh.surface_set_material(0, material)
+
+
+## One fish in mesh space: +X forward, nose at x 0.5, tail tips at x -0.78, every
+## fin inside y -0.24..0.29 and z +-0.24 (the bounds fish_transform fits to the
+## water column). UV2 = (ring height -1 belly .. 1 back, part id) drives the
+## painted look in city_fish.gdshader; UV is (along, around) on the body and
+## (base-to-edge, along-the-base) on fins.
+static func build_mesh(perch: bool) -> ArrayMesh:
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	_add_body(st, perch)
+	# Fins are flat membranes: their own smooth group keeps body normals rounded.
+	st.set_smooth_group(-1)
+	_add_tail(st, perch)
+	var dorsal_top := 0.12 if perch else 0.095
+	if perch:
+		# Spiny first dorsal (zigzag of spines) and the soft second dorsal behind it.
+		_add_dorsal(st, perch, 0.27, 0.02, dorsal_top, 9, PART_DORSAL)
+		_add_dorsal(st, perch, -0.02, -0.27, 0.085, 5, PART_SOFT_DORSAL)
+	else:
+		_add_dorsal(st, perch, 0.08, -0.12, dorsal_top, 5, PART_DORSAL)
+	for side: float in [-1.0, 1.0]:
+		_add_paired_fin(st, perch, side, 0.31, Vector2(-0.03, -0.05), PART_PECTORAL)
+		_add_paired_fin(st, perch, side, 0.12 if perch else 0.06, Vector2(-0.10, -0.12), PART_PELVIC)
+	_add_anal(st, perch)
+	st.generate_normals()
+	return st.commit()
+
+
+## Half-extents of the body ring at u (0 nose .. 1 tail stalk): (top, bottom, width).
+static func _profile(u: float, perch: bool) -> Vector3:
+	# Blunt head, deepest a third back, a thin caudal stalk that never closes.
+	var s := sin(PI * (0.05 + 0.9 * pow(clampf(u, 0.0, 1.0), 0.62)))
+	if perch:
+		var hump := 1.0 + 0.22 * exp(-pow((u - 0.32) / 0.18, 2.0))
+		return Vector3(0.125 * s * hump, 0.11 * s, 0.062 * s)
+	return Vector3(0.115 * s, 0.105 * s, 0.056 * s)
+
+
+static func _body_x(u: float) -> float:
+	return BODY_NOSE - BODY_LENGTH * u
+
+
+static func _u_at(x: float) -> float:
+	return (BODY_NOSE - x) / BODY_LENGTH
+
+
+static func _ring_point(u: float, a: float, perch: bool) -> Vector3:
+	var p := _profile(u, perch)
+	var up := sin(a)
+	var y := up * (p.x if up > 0.0 else p.y)
+	# Teardrop section: a narrower back and, on herring, the keeled belly.
+	var z := cos(a) * p.z * (1.0 - 0.3 * maxf(up, 0.0))
+	if not perch:
+		z *= 1.0 - 0.35 * pow(maxf(-up, 0.0), 2.0)
+	return Vector3(_body_x(u), y, z)
+
+
+static func _add_body(st: SurfaceTool, perch: bool) -> void:
+	var nose := Vector3(0.5, -0.004, 0.0)
+	var stalk := Vector3(_body_x(1.0) - 0.004, 0.0, 0.0)
+	for i in BODY_RINGS - 1:
+		# Denser rings at the head, where the outline curves fastest.
+		var u0 := pow(float(i) / float(BODY_RINGS - 1), 1.35)
+		var u1 := pow(float(i + 1) / float(BODY_RINGS - 1), 1.35)
+		for j in BODY_SIDES:
+			var v0 := float(j) / float(BODY_SIDES)
+			var v1 := float(j + 1) / float(BODY_SIDES)
+			var quad := [Vector2(u0, v0), Vector2(u1, v0), Vector2(u1, v1), Vector2(u0, v1)]
+			for k: int in [0, 1, 2, 0, 2, 3]:
+				var uv: Vector2 = quad[k]
+				_body_vertex(st, uv, _ring_point(uv.x, uv.y * TAU, perch))
+			if i == 0:
+				var a0 := _ring_point(0.0, v0 * TAU, perch)
+				for point: Vector3 in [nose, a0, _ring_point(0.0, v1 * TAU, perch)]:
+					_body_vertex(st, Vector2(0.0, v0), point)
+			if i == BODY_RINGS - 2:
+				var b1 := _ring_point(1.0, v1 * TAU, perch)
+				for point: Vector3 in [stalk, b1, _ring_point(1.0, v0 * TAU, perch)]:
+					_body_vertex(st, Vector2(1.0, v0), point)
+
+
+static func _body_vertex(st: SurfaceTool, uv: Vector2, point: Vector3) -> void:
+	st.set_uv(uv)
+	st.set_uv2(Vector2(sin(uv.y * TAU), PART_BODY))
+	st.add_vertex(point)
+
+
+## A flat fin strip: quads between base[k] and edge[k], rays run base to edge.
+static func _add_fin(
+	st: SurfaceTool, base: PackedVector3Array, edge: PackedVector3Array, part: float
+) -> void:
+	var n := base.size() - 1
+	for k in n:
+		var span0 := float(k) / float(n)
+		var span1 := float(k + 1) / float(n)
+		var corners := [
+			[base[k], Vector2(0.0, span0)],
+			[edge[k], Vector2(1.0, span0)],
+			[edge[k + 1], Vector2(1.0, span1)],
+			[base[k + 1], Vector2(0.0, span1)],
+		]
+		for c: int in [0, 1, 2, 0, 2, 3]:
+			st.set_uv(corners[c][1])
+			st.set_uv2(Vector2(0.0, part))
+			st.add_vertex(corners[c][0])
+
+
+static func _add_tail(st: SurfaceTool, perch: bool) -> void:
+	# Herring: deeply forked; perch: shallower fork with rounder lobes.
+	var root_x := _body_x(1.0) + 0.03
+	var notch := -0.63 if perch else -0.6
+	var base := PackedVector3Array()
+	var edge := PackedVector3Array()
+	var steps := 12
+	for k in steps + 1:
+		var t := float(k) / float(steps) * 2.0 - 1.0
+		var lobe := pow(absf(t), 0.75 if perch else 0.6)
+		base.append(Vector3(root_x, t * 0.022, 0.0))
+		var tip_x := lerpf(notch, -0.78, lobe)
+		if perch:
+			tip_x += 0.02 * (1.0 - pow(absf(t), 6.0)) * absf(t)
+		edge.append(Vector3(tip_x, t * (0.22 if perch else 0.235), 0.0))
+	_add_fin(st, base, edge, PART_CAUDAL)
+
+
+static func _add_dorsal(
+	st: SurfaceTool, perch: bool, front: float, back: float, height: float, rays: int, part: float
+) -> void:
+	var base := PackedVector3Array()
+	var edge := PackedVector3Array()
+	for k in rays + 1:
+		var f := float(k) / float(rays)
+		var x := lerpf(front, back, f)
+		var top := _profile(_u_at(x), perch).x * 0.95
+		# Tall at the front, sloping back; spines stand proud of the membrane.
+		var h := height * (0.35 + 0.65 * sin(PI * pow(f, 0.55) * 0.92))
+		if part == PART_DORSAL and perch and k % 2 == 1:
+			h *= 0.72
+		base.append(Vector3(x, top, 0.0))
+		edge.append(Vector3(x - 0.045 * h / height, minf(top + h, 0.28), 0.0))
+	_add_fin(st, base, edge, part)
+
+
+## Pectoral (behind the gill) and pelvic (under the belly) fins, swept back and out.
+static func _add_paired_fin(
+	st: SurfaceTool, perch: bool, side: float, at_x: float, drop: Vector2, part: float
+) -> void:
+	var p := _profile(_u_at(at_x), perch)
+	var y := -p.y * (0.25 if part == PART_PECTORAL else 0.85)
+	var z := p.z * (0.9 if part == PART_PECTORAL else 0.4) * side
+	var length := 0.15 if part == PART_PECTORAL else 0.12
+	var base := PackedVector3Array(
+		[Vector3(at_x, y + 0.012, z), Vector3(at_x - 0.035, y - 0.012, z)]
+	)
+	var spread := (0.075 if part == PART_PECTORAL else 0.055) * side
+	var edge := PackedVector3Array(
+		[
+			Vector3(at_x - length, y + drop.x * 0.4, z + spread),
+			Vector3(at_x - length * 0.8, y + drop.y * 0.5, z + spread * 0.7)
+		]
+	)
+	_add_fin(st, base, edge, part)
+
+
+static func _add_anal(st: SurfaceTool, perch: bool) -> void:
+	var front := -0.1 if perch else -0.14
+	var back := -0.3 if perch else -0.36
+	var base := PackedVector3Array()
+	var edge := PackedVector3Array()
+	for k in 7:
+		var f := float(k) / 6.0
+		var x := lerpf(front, back, f)
+		var bottom := -_profile(_u_at(x), perch).y * 0.95
+		var h := (0.07 if perch else 0.045) * (1.0 - 0.6 * f)
+		base.append(Vector3(x, bottom, 0.0))
+		edge.append(Vector3(x - 0.03, bottom - h, 0.0))
+	_add_fin(st, base, edge, PART_ANAL)
 
 
 func live_count() -> int:
@@ -143,7 +305,7 @@ func _spawn(c: Dictionary) -> Dictionary:
 	var perch: bool = c["species"] == &"perch"
 	var count := 5 if perch else FISH_PER_SCHOOL
 	node.multimesh.instance_count = count
-	node.multimesh.mesh = _fish_mesh
+	node.multimesh.mesh = _perch_mesh if perch else _fish_mesh
 	node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(node)
 	var fish: Array[Dictionary] = []

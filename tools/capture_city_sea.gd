@@ -94,6 +94,18 @@ func _shots(plan: CityPlan, world: CityWorld3D) -> Array[Dictionary]:
 			)
 			if mode == "under_up":
 				shots[-1]["look"] = shots[-1]["eye"] + Vector3(0.1, 1.0, -0.1)
+		# Close underwater look at the shoal, to judge fish model and paint.
+		shots.append(
+			{
+				"name": "fish_close",
+				"wind": 0.1,
+				"rain": 0.0,
+				"eye": Vector3(f.x + 0.2, -0.2, f.y + 1.7),
+				"look": Vector3(f.x, -0.22, f.y),
+				"fov": 50.0,
+				"focus": f,
+			}
+		)
 	var stream := Vector2(617.64, 294.69)
 	var stream_y := plan.ground_height(stream) + 1.75
 	shots.append(
