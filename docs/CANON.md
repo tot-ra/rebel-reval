@@ -220,6 +220,18 @@ Decisions over `story/STORY.md`. Every promoted beat carries a confidence label.
 * **Kanavere** - KAH-nah-veh-reh
 * **Harjumaa** - HAR-yoo-mah
 
+### Paide (Wittenstein) regional site (ADR 0042, R-1520)
+
+The playable Paide site ([`REGIONAL_SITES.md`](./SYSTEMS/REGIONAL_SITES.md)) shows the castle and town as follows. Sources: Hermann de Wartberge (founding); A. Tuulse, *Die Burgen in Estland und Lettland* (1942); T. Borowski, *Miasta, zamki i klasztory. Inflanty* (2010) after K. von Loewis of Menar, summarised at medievalheritage.eu; OpenStreetMap for the keep position.
+
+* **Order castle begun 1265 under Master Konrad von Mandern, seat of the Jerwen advocate** - **`attested`** (Wartberge).
+* **Raised to a commandery early in the 14th century (commander Raimar Hahn 1314-1316)** - **`attested`**; the castle is shown as a working commandery in 1343.
+* **Town charter 1291 and a market by the castle** - **`attested`** (charter); the market place on the modern Keskväljak, the timber houses, garden plots and the timber chapel are **`plausible composite`**.
+* **Octagonal main tower, about 30 m, walls about 2.4 m, battlemented fighting level** - **`attested`** form (Tuulse cross-section); its completion by 1343 is **`plausible composite`**. The modern name "Pikk Hermann" (Tall Hermann) is not attested for 1343; it is not the Toompea tower of that name.
+* **Square upper ward with a wide north wing (chapel, chapter house) and a narrow east wing (refectory); outer bailey to the south and west; west gatehouse in front of a wide ditch; north-east gate tower; south-east corner tower** - **`plausible composite`** (plan after Loewis of Menar / Borowski; the 1343 phase of each part is unverified). Dimensions follow the OSM ruin outlines.
+* **The ditch ring round the bailey, the bailey buildings (stable, granary, kitchen, smithy), the roads to Reval, Pernau and Fellin, the strip fields and the brook east of the castle** - **`plausible composite`**. The Pärnu river runs about 640 m south-east of the keep, outside the 600 m frame; the brook follows today's ditch and pond line.
+* **Frame centre** 58.88935 N, 25.57225 E (the castle mound, OSM Vallimägi) - chosen for the game; ADR 0042's approximate 58.885 N, 25.560 E lay about 1 km west of the castle.
+
 ### Notable Landmarks (1343 vs Modern Tallinn)
 *For a catalog of how popular modern tourist spots (like the Town Hall, Toompea Castle, and St. Olaf's Church) existed during the uprising and how they tie into the factional conflicts, see the [Tourist Landmarks Catalog](./TOURIST_LANDMARKS.md).*
 

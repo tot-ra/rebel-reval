@@ -1,0 +1,168 @@
+{
+  "schema": "rr.site_overlay.v1",
+  "snapshot": "may-1343",
+  "notes": [
+    "Regional site overlay (ADR 0042) for Paide / Wittenstein (Weissenstein), May 1343: the Order commandery castle, its outer bailey, ditch, the small chartered town and its fields.",
+    "Coordinates are metres from the origin (the castle keep area), x east, y south. Every id is prefixed paide. (ADR 0042 section 5).",
+    "Castle layout after the plan in Borowski (2010) from K. von Loewis of Menar and A. Tuulse (1942), summarised at medievalheritage.eu: square upper ward with a wide north wing (chapel, chapter house) and a narrow east wing (refectory), the octagonal keep in the south-west corner of the upper ward, an outer bailey to the south and west, a west gatehouse in front of a wide ditch and a north-east gate tower. The 1343 building phase of each part is unverified (raised to a commandery early in the 14th c.).",
+    "OSM supplies only the keep position (way 596093616, 'Pikk Hermann'); modern Paide streets, buildings, ponds and park paths are not used. Roads, houses and fields are overlay records with confidence labels.",
+    "The modern name 'Pikk Hermann' (Tall Hermann) is not attested for 1343; the plan calls it the keep. It is not the Toompea tower of the same name (docs/LOCATIONS/paide_castle.md)."
+  ],
+  "site": {
+    "id": "paide",
+    "name": "Paide",
+    "name_1343": "Wittenstein (Weissenstein), Order castle and town in Jerwen",
+    "location_id": "world_paide",
+    "map_id": "world.paide",
+    "scene_id": "world_paide",
+    "origin": {"lat": 58.88935, "lon": 25.57225},
+    "origin_confidence": "attested place (OSM Vallimaegi / Paide Order castle ruins, relation 15904464); frame placement chosen for the game",
+    "metres_per_world_unit": 1.0,
+    "bounds_m": {"x0": -330, "y0": -260, "x1": 270, "y1": 340},
+    "coast": "auto",
+    "features": {"citizens": false, "fauna": false, "interiors": false},
+    "default_spawn": "paide.spawn.market",
+    "inputs": {
+      "osm": "tools/city/data/osm_paide_extract.json",
+      "dem": "tools/city/data/eudem25m_paide.json",
+      "osm_bbox": [58.8850, 25.5640, 58.8940, 25.5805],
+      "overpass_query": "[out:json][timeout:120];(way(58.8850,25.5640,58.8940,25.5805);relation[\"type\"=\"multipolygon\"](58.8850,25.5640,58.8940,25.5805););(._;>;);out body;",
+      "dem_grid": "api.opentopodata.org/v1/eudem25m, lats 58.8850 + 0.0004 * i (i < 24), lons 25.5640 + 0.0008 * j (j < 22)"
+    },
+    "music_theme": "",
+    "confidence": "plausible composite"
+  },
+  "terrain": {
+    "datum_margin_m": 2.0,
+    "relief": true
+  },
+  "osm_points": {
+    "keep": {"osm": "Pikk Hermann"}
+  },
+  "circuit": {
+    "id": "paide.castle",
+    "name_1343": "Wittenstein castle: upper ward and outer bailey",
+    "confidence": "plausible composite (square upper ward and L-shaped outer bailey after Loewis of Menar / Borowski; dimensions from the OSM ruin outlines)",
+    "height_m": 8.0,
+    "thickness_m": 2.0,
+    "anchors": [
+      {"at": [-46, -44], "state": "stone"},
+      {"at": [30, -44], "state": "stone", "ref": "paide.gate.northeast", "tower": "paide.tower.northeast_gate"},
+      {"at": [42, -44], "state": "stone"},
+      {"at": [42, 52], "state": "stone", "tower": "paide.tower.southeast"},
+      {"at": [-46, 52], "state": "stone"},
+      {"at": [-46, 6], "state": "stone", "ref": "paide.gate.west", "tower": "paide.tower.west_gate"}
+    ]
+  },
+  "gates": [
+    {"id": "paide.gate.west", "name_1343": "west gate (towards the town)", "state": "present", "confidence": "plausible composite (west gatehouse with passage in front of the wide ditch, Borowski plan)"},
+    {"id": "paide.gate.northeast", "name_1343": "north-east gate", "state": "present", "confidence": "plausible composite (gate flanked by a four-sided tower, Borowski plan)"}
+  ],
+  "towers": [
+    {"id": "paide.tower.west_gate", "name": "west gatehouse", "form": "gate_rect", "state": "completed", "w": 10, "d": 9, "h": 11, "confidence": "plausible composite"},
+    {"id": "paide.tower.northeast_gate", "name": "north-east gate tower", "form": "gate_rect", "state": "completed", "w": 9, "d": 8, "h": 12, "confidence": "plausible composite"},
+    {"id": "paide.tower.southeast", "name": "south-east corner tower of the outer bailey", "form": "square", "state": "completed", "w": 8, "d": 8, "h": 13, "confidence": "plausible composite (four-sided corner tower, Borowski plan)"},
+    {"id": "paide.tower.keep", "name": "keep (main tower; modern 'Pikk Hermann')", "form": "octagonal", "state": "completed", "at": {"osm": "Pikk Hermann"}, "w": 15, "d": 15, "h": 30, "roof_h": 6, "confidence": "attested octagonal main tower of c. 30 m (Tuulse cross-section); 1343 completion plausible composite"}
+  ],
+  "inner_walls": {
+    "confidence": "plausible composite (upper-ward curtains closing the court where there is no wing)",
+    "height_m": 7.0,
+    "thickness_m": 1.8,
+    "walls": [
+      {"id": "paide.wall.upper_west", "from": [-8, -44], "to": [-8, -12]},
+      {"id": "paide.wall.upper_south", "from": [4, 4], "to": [42, 4], "openings": [{"at": [18, 4], "width": 4.0}]}
+    ]
+  },
+  "ditch": {
+    "id": "paide.ditch",
+    "name_1343": "castle ditch",
+    "confidence": "attested wide ditch before the west gate; the ring round the bailey is plausible composite",
+    "offset_m": 13.0,
+    "width_m": 14.0,
+    "depth_m": 3.4,
+    "wet_fraction": 0.25
+  },
+  "stream": {
+    "id": "paide.brook",
+    "name_1343": "brook draining to the Pernau river",
+    "confidence": "plausible composite (follows the modern ditch and pond line east of Vallimaegi; the Paernu river itself runs about 640 m south-east of the keep, outside the frame)",
+    "trace_m": [[232, -262], [222, -170], [206, -80], [196, 10], [200, 100], [216, 190], [238, 270], [252, 342]],
+    "width_m": [2.6, 3.0, 3.2, 3.4, 3.6, 3.8, 4.0, 4.2],
+    "depth_m": 1.1,
+    "ford": "paide.road.east"
+  },
+  "spaces": [
+    {"id": "paide.space.market", "name_1343": "market place of the town", "confidence": "plausible composite (modern Keskvaeljak; a market by the castle is attested with the 1291 town charter)", "polygon_m": [[-188, 212], [-122, 202], [-108, 266], [-176, 278]]}
+  ],
+  "roads": [
+    {"id": "paide.road.reval", "name_1343": "road north to Reval", "class": "extramural_road", "width_m": 6.0, "confidence": "plausible composite (crossroads of the roads from southern Livonia to Reval, attested; course of modern Tallinna street)", "points_m": [[-152, -262], [-155, -150], [-158, -40], [-156, 80], [-150, 206]]},
+    {"id": "paide.road.parnu", "name_1343": "road south-west to Pernau", "class": "extramural_road", "width_m": 6.0, "confidence": "plausible composite (course of modern Paernu street)", "points_m": [[-332, 300], [-260, 297], [-200, 284], [-176, 272]]},
+    {"id": "paide.road.fellin", "name_1343": "road south to Fellin", "class": "extramural_road", "width_m": 5.0, "confidence": "plausible composite", "points_m": [[-128, 268], [-122, 300], [-118, 342]]},
+    {"id": "paide.road.castle", "name_1343": "castle way", "class": "extramural_road", "width_m": 5.5, "confidence": "plausible composite", "points_m": [[-124, 206], [-104, 140], [-82, 70], [-64, 16], [-46, 6], [-24, 8]]},
+    {"id": "paide.road.east", "name_1343": "field way east to the brook ford", "class": "extramural_road", "width_m": 4.0, "confidence": "plausible composite", "points_m": [[30, -44], [44, -70], [96, -110], [150, -126], [210, -112], [272, -100]]},
+    {"id": "paide.road.northwest", "name_1343": "track north-west across the fields", "class": "extramural_road", "width_m": 3.5, "confidence": "plausible composite", "points_m": [[-157, -60], [-220, -96], [-280, -128], [-332, -150]]}
+  ],
+  "settlement": {
+    "confidence": "plausible composite (timber houses of the small chartered town; 1291 town charter attested, plot pattern invented)",
+    "house": {"w_m": [7.0, 9.5], "d_m": [5.5, 7.0], "setback_m": 3.5, "spacing_m": [14.0, 19.0], "wall_h_m": [2.8, 3.4]},
+    "rows": [
+      {"road": "paide.road.parnu", "from_m": 50, "to_m": 150, "sides": [-1, 1]},
+      {"road": "paide.road.castle", "from_m": 12, "to_m": 110, "sides": [-1, 1]},
+      {"road": "paide.road.reval", "from_m": 290, "to_m": 455, "sides": [-1, 1]},
+      {"road": "paide.road.fellin", "from_m": 12, "to_m": 70, "sides": [-1, 1]}
+    ],
+    "keep_clear": ["paide.space.market"]
+  },
+  "buildings": [
+    {"id": "paide.bldg.north_wing", "kind": "hall", "name_1343": "north wing (chapel and chapter house)", "confidence": "plausible composite (wider north wing, Borowski plan)", "rect_m": {"at": [17, -36.5], "w": 46, "d": 13, "angle_deg": 0}, "wall_h": 10.0, "roof": "tile", "roof_pitch_deg": 50, "material": "limestone"},
+    {"id": "paide.bldg.east_wing", "kind": "hall", "name_1343": "east wing (refectory)", "confidence": "plausible composite (narrower east wing, Borowski plan)", "rect_m": {"at": [36, -13], "w": 10, "d": 33, "angle_deg": 0}, "wall_h": 9.0, "roof": "tile", "roof_pitch_deg": 50, "material": "limestone"},
+    {"id": "paide.bldg.stable", "kind": "outbuilding", "type": "barn", "name_1343": "bailey stable", "confidence": "plausible composite (utility buildings against the bailey curtain)", "rect_m": {"at": [-28, 44], "w": 26, "d": 9, "angle_deg": 0}, "wall_h": 3.4, "roof": "shingle", "roof_pitch_deg": 42, "material": "plank"},
+    {"id": "paide.bldg.granary", "kind": "outbuilding", "type": "store", "name_1343": "bailey granary", "confidence": "plausible composite", "rect_m": {"at": [-38, 24], "w": 9, "d": 18, "angle_deg": 0}, "wall_h": 4.2, "roof": "shingle", "roof_pitch_deg": 45, "material": "log"},
+    {"id": "paide.bldg.smithy", "kind": "outbuilding", "type": "store", "name_1343": "castle smithy", "confidence": "plausible composite (docs/LOCATIONS/paide_castle.md forecourt smithy)", "rect_m": {"at": [20, 44], "w": 11, "d": 8, "angle_deg": 0}, "wall_h": 3.2, "roof": "shingle", "roof_pitch_deg": 40, "material": "limestone"},
+    {"id": "paide.bldg.kitchen", "kind": "outbuilding", "type": "store", "name_1343": "bailey kitchen and bakehouse", "confidence": "plausible composite", "rect_m": {"at": [-38, -30], "w": 9, "d": 14, "angle_deg": 0}, "wall_h": 3.4, "roof": "shingle", "roof_pitch_deg": 42, "material": "limestone"},
+    {"id": "paide.bldg.chapel_town", "kind": "chapel", "name_1343": "timber parish chapel of the town", "confidence": "plausible composite (docs/LOCATIONS/paide_castle.md wooden parish chapel)", "rect_m": {"at": [-206, 236], "w": 9, "d": 18, "angle_deg": 6}, "wall_h": 5.0, "roof": "shingle", "roof_pitch_deg": 52, "material": "log"}
+  ],
+  "fields": {
+    "confidence": "plausible composite (open strip fields of a Jerwen town and castle demesne)",
+    "blocks": [
+      {"id": "paide.fields.east", "polygon_m": [[70, -60], [176, -90], [184, 60], [188, 150], [80, 150], [64, 76]], "strip_angle_deg": 82, "strip_m": 16, "sowing_cycle": ["winter", "spring", "fallow"]},
+      {"id": "paide.fields.north", "polygon_m": [[-130, -250], [190, -250], [184, -146], [96, -132], [40, -94], [-128, -112]], "strip_angle_deg": 8, "strip_m": 18, "sowing_cycle": ["spring", "winter", "fallow", "winter"]},
+      {"id": "paide.fields.west", "polygon_m": [[-320, -140], [-178, -76], [-180, 150], [-320, 150]], "strip_angle_deg": 86, "strip_m": 15, "sowing_cycle": ["winter", "fallow", "spring"]},
+      {"id": "paide.fields.south", "polygon_m": [[-80, 200], [-20, 120], [130, 186], [176, 240], [170, 330], [-98, 330]], "strip_angle_deg": 12, "strip_m": 17, "sowing_cycle": ["fallow", "winter", "spring"]}
+    ],
+    "gardens": {"depth_m": 14.0, "crops": ["cabbage", "turnip", "pea", "onion", "flax"]}
+  },
+  "pastures": [
+    {"id": "paide.pasture.brook", "kind": "wet_meadow", "fence": false, "stock": [{"species": "cow", "count": 5}, {"species": "sheep", "count": 8}], "polygon_m": [[188, -250], [266, -250], [266, 330], [196, 330], [190, 160], [184, 30], [186, -130]]},
+    {"id": "paide.pasture.castle_common", "kind": "common", "fence": false, "stock": [{"species": "horse", "count": 3}], "polygon_m": [[-140, -90], [-80, -100], [40, -92], [60, -60], [-70, -64], [-142, -30]]}
+  ],
+  "trees": {
+    "confidence": "plausible composite (alder carr on the brook, a few field-edge oaks and birches on the Jerwen plain, gardens behind the houses)",
+    "carr": {"along": "paide.brook", "band_m": 22.0, "spacing_m": 9.0, "species": ["alder", "alder", "willow", "birch", "alder"]},
+    "hedgerow_spacing_m": 46.0,
+    "hedgerow_species": ["oak", "birch", "ash", "rowan", "linden"],
+    "garden_species": ["apple", "cherry", "plum", "apple"],
+    "groves": [
+      {"id": "paide.grove.northwest", "polygon_m": [[-330, -260], [-180, -260], [-200, -190], [-330, -170]], "spacing_m": 10.0, "species": ["birch", "spruce", "pine", "birch", "alder"]}
+    ]
+  },
+  "points_of_interest": [
+    {"id": "paide.poi.market", "kind": "market", "name_1343": "market place", "confidence": "plausible composite", "at": [-150, 240]},
+    {"id": "paide.poi.castle_court", "kind": "square", "name_1343": "upper ward court", "confidence": "plausible composite", "at": [14, -14]},
+    {"id": "paide.poi.bailey", "kind": "square", "name_1343": "outer bailey (forecourt)", "confidence": "plausible composite", "at": [-12, 30]},
+    {"id": "paide.poi.castle_well", "kind": "well", "name_1343": "bailey well", "confidence": "plausible composite (landmark_castle_well in docs/LOCATIONS/paide_castle.md)", "at": [-6, 40]},
+    {"id": "paide.poi.market_cross", "kind": "market", "name_1343": "market cross", "confidence": "invented (landmark_market_cross in docs/LOCATIONS/paide_castle.md)", "at": [-152, 236]},
+    {"id": "paide.poi.brook_ford", "kind": "ford", "name_1343": "ford over the brook", "confidence": "plausible composite", "at": [204, -114]}
+  ],
+  "spawns": [
+    {"id": "from_world_sojamae", "record": "paide.spawn.from_world_sojamae", "at": [-153, -205], "note": "on the Reval road at the north edge"},
+    {"id": "from_world_kanavere", "record": "paide.spawn.from_world_kanavere", "at": [-280, -128], "note": "on the north-west track"},
+    {"id": "from_world_parnu", "record": "paide.spawn.from_world_parnu", "at": [-280, 297], "note": "on the Pernau road at the west edge"},
+    {"id": "paide.spawn.market", "record": "paide.spawn.market", "at": [-150, 246], "note": "default arrival"}
+  ],
+  "districts": [
+    {"id": "paide.district.castle", "name": "Wittenstein castle", "name_1343": "Order castle of Wittenstein", "polygon_m": [[-64, -62], [60, -62], [60, 70], [-64, 70]]},
+    {"id": "paide.district.town", "name": "Wittenstein town", "name_1343": "the small town by the castle", "polygon_m": [[-330, 250], [-210, 180], [-170, 150], [-100, 110], [-80, 200], [-90, 330], [-330, 330]]},
+    {"id": "paide.district.fields", "name": "Jerwen fields", "name_1343": "open fields of the castle and town", "polygon_m": [[-330, -260], [270, -260], [270, 340], [-330, 340]]}
+  ]
+}

@@ -17,14 +17,14 @@
 | Fact | Label | Note |
 |---|---|---|
 | Order castle at Paide (Wittenstein / Weissenstein), Järvamaa (Jerwen) | `attested` | Mentioned from the 1260s; seat of an Order official. |
-| Stone keep-tower dominating the later castle | `plausible composite` | Which parts stand in 1343 is unverified. Show a tall rectangular keep inside a lower curtain, not the ruin as seen today. |
+| Stone keep-tower dominating the castle | form `attested`, 1343 completion `plausible composite` | Octagonal main tower of about 30 m with 2.4 m walls (Tuulse cross-section; Borowski plan), at the south-west corner of the square upper ward. Built in the regional site ([`REGIONAL_SITES.md`](../SYSTEMS/REGIONAL_SITES.md)) as an intact keep, not the ruin or the 1990s rebuild. |
 | Master Burchard von Dreileben (Master 1340-1345) lures the Four Kings under truce; talks break down; envoys killed | `attested` ([`CANON.md`](../CANON.md), Hermann de Wartberge tradition) | Names of the four kings are not recorded; game kings are `invented` composites ([`four_kings_act2_lore.md`](../lore/four_kings_act2_lore.md)). |
 | Goswin von Herike (later Master, 1345-1359) | `attested` as later Master; 1343 rank unverified | Legacy seed puts him at Paide as a senior brother. Label `plausible composite` for any 1343 office. |
 | Market settlement beside the castle, refugees inside | `plausible composite` | Town rights date unverified. [`TOURIST_LANDMARKS.md`](../TOURIST_LANDMARKS.md) lists "modest fortifications around the market". |
 | Rebel movements north of Paide in May 1343 | `attested` (context) | Day-order versus 11-14 May is contested; do not claim a settled chronology. |
 
 Phases: A (truce): castle open to envoys, market loud. B (after): gates barred, bodies removed, Order scribes writing the official version, locals silent. The Act 3 handoff reads the player's warning and survivor flags.
-Do NOT show: Tall Hermann or other Toompea tower forms, Türi windmill ridge, a ruined castle, gunpowder artillery, a town hall or guild house, late spires, "Paide Tall Tower" museum features.
+Do NOT show: Toompea's Tall Hermann or other Toompea tower forms (the Paide keep's own modern nickname "Pikk Hermann" is not used in 1343 text), Türi windmill ridge, a ruined castle, gunpowder artillery, a town hall or guild house, late spires, "Paide Tall Tower" museum features.
 
 ## 3. Landscape and layout
 
