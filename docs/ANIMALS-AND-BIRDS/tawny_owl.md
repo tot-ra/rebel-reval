@@ -2,6 +2,8 @@
 
 > Night owl of the woods and the churchyard trees.
 
+![Tawny owl](images/tawny_owl.jpg)
+
 | Field | Value |
 |---|---|
 | ID | `bird.tawny_owl` |
