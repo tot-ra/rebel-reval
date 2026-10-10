@@ -59,7 +59,8 @@ func _ready() -> void:
 	if plan.feature_enabled("citizens"):
 		_npcs = CityNpcs.create(plan, player)
 		actors.add_child(_npcs)
-	view = CityMapView.create_city(plan, GraphicsPresetsScript.row(UserSettings.graphics.quality)["sky_tier"])
+	var sky_tier: Variant = GraphicsPresetsScript.row(UserSettings.graphics.quality)["sky_tier"]
+	view = CityMapView.create_city(plan, sky_tier)
 	world = view.world
 	# Hay stacks in the farmland are solid; their colliders live on the logic plane.
 	world.farmland.collision_parent = self
@@ -259,6 +260,9 @@ func _update_interior(xz: Vector2) -> void:
 		if not room.is_empty():
 			world.set_site_room_hidden(room["site"], room["room"], cut)
 	_cut = cut
+	# R-1539: no rain particles or exterior rain bed under a roof (the roof drum
+	# plays instead). The camera cutaway does not change the answer.
+	world.set_enclosed_interior(index >= 0 or key != "")
 	view.inside_building = (
 		inside_building
 		if inside_building >= 0

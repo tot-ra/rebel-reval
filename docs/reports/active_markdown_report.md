@@ -14,19 +14,19 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `1187`
+- Active Markdown files scanned: `1189`
 - Markdown files excluded as archive/reference/out of active scope: `755`
-- Local/external links inspected: `13371`
-- Links to active Markdown docs: `12168`
+- Local/external links inspected: `13385`
+- Links to active Markdown docs: `12176`
 - Links to existing archive/reference/non-active local docs: `459`
 - External links skipped for reachability: `145`
-- Issues found: `0`
+- Issues found: `1`
 
 ## Issue counts
 
 | Code | Count |
 | --- | ---: |
-| `BROKEN_LINK` | 0 |
+| `BROKEN_LINK` | 1 |
 | `BROKEN_ANCHOR` | 0 |
 | `DUPLICATE_CHARACTER_NAME` | 0 |
 | `CONTRADICTORY_DATE` | 0 |
@@ -34,7 +34,9 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Issues
 
-No active Markdown documentation issues found.
+| Code | Location | Detail |
+| --- | --- | --- |
+| `BROKEN_LINK` | `docs/SYSTEMS/README.md:18` | Local Markdown link target does not exist: `./CITIZEN_WARDROBE.md` |
 
 ## Active files scanned
 
@@ -81,6 +83,7 @@ No active Markdown documentation issues found.
 - `docs/adr/0042-regional-site-plans.md`
 - `docs/adr/0043-mobile-renderer-and-hdr-output.md`
 - `docs/adr/0044-named-npc-presentation-tier.md`
+- `docs/adr/0045-seasons.md`
 - `docs/adr/README.md`
 - `docs/AGENT_LOOPS.md`
 - `docs/ANIMAL_3D_SOURCING.md`
@@ -1125,6 +1128,7 @@ No active Markdown documentation issues found.
 - `docs/SYSTEMS/README.md`
 - `docs/SYSTEMS/REGIONAL_SITES.md`
 - `docs/SYSTEMS/SEAMLESS_CITY.md`
+- `docs/SYSTEMS/SEASONS.md`
 - `docs/SYSTEMS/SETTINGS_AND_ACCESSIBILITY.md`
 - `docs/SYSTEMS/SHIPS.md`
 - `docs/SYSTEMS/SPIRIT_DIALOGUE.md`
