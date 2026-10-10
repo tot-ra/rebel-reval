@@ -6,8 +6,8 @@ extends Node3D
 ## Real spray is thrown when a wave breaks. Each slot sits where the analytic surf
 ## breaks (CityWaterSurface.bed_state, the CPU mirror of shore_state) and fires one
 ## burst when the crest passes (the wave phase u crosses 0), in three layers:
-## velocity-stretched centimetre droplets, a short splash sheet and a wind-blown
-## mist. In a gale, gusts also tear spray off whitecaps offshore. Nothing is emitted
+## dense velocity-stretched fine droplets, torn white-water clumps and a wind-blown
+## spume puff. In a gale, gusts also tear spray off whitecaps offshore. Nothing is emitted
 ## below WIND_ON.
 ##
 ## Cost: a fixed handful of slots near the camera (re-placed when the camera moves
@@ -26,6 +26,9 @@ const WIND_ON := 0.35
 const WIND_FULL := 0.9
 ## Sea level for the emitters, world units; crests ride above it in a gale.
 const WATERLINE_Y := 0.35
+## Extra emitter height (m) at full wind. WHY: storm crests stand above sea level, so
+## drops born at WATERLINE_Y start inside the wave and vanish before they are seen.
+const CREST_LIFT := 0.45
 ## Offshore distances (world units) scanned for the breaker line when a slot is placed.
 const SCAN_STEP := 3.0
 const SCAN_STEPS := 14
@@ -33,9 +36,13 @@ const SCAN_STEPS := 14
 const BREAK_MIN := 0.5
 ## Fallback spot offshore of the waterline when nothing breaks nearby.
 const BREAK_OFFSET := 5.0
-## Mist and sheet budgets as a share of the droplet budget (per burst, per slot).
-const MIST_SHARE := 0.25
-const SHEET_SHARE := 0.1
+## Droplets per burst as a multiple of the tier budget. WHY: real spray is thousands
+## of tiny drops; a few hundred 7 cm quads read as sparse confetti, so the
+## drops are smaller and denser (they are tiny quads, cheap to fill).
+const DROPLET_DENSITY := 2.5
+## Mist and sheet budgets as a share of the tier budget (per burst, per slot).
+const MIST_SHARE := 0.12
+const SHEET_SHARE := 0.2
 const MIN_SHEET := 8
 ## Offshore whitecap tearing: wind where it starts / is full (needs a gust at gale),
 ## crest period (s) of the tearing slots and how far offshore they sit.
@@ -92,8 +99,10 @@ func set_wind(wind: float) -> void:
 	_intensity = smoothstep(WIND_ON, WIND_FULL, wind)
 	_gale = smoothstep(GALE_ON, GALE_FULL, wind)
 	var drift := _drift()
-	var throw_min := lerpf(1.5, 3.0, _intensity)
-	var throw_max := lerpf(3.0, 9.0, _intensity)
+	# WHY low throw: shore spray hugs the breaking crest (tens of cm, about 1 m in a
+	# gale); 9 m/s threw drops 4 m into the air, far from the water.
+	var throw_min := lerpf(1.0, 2.0, _intensity)
+	var throw_max := lerpf(2.2, 4.8, _intensity)
 	for slot in _slots + _gale_slots:
 		var material := slot.droplets.process_material as ParticleProcessMaterial
 		material.initial_velocity_min = throw_min
@@ -112,6 +121,10 @@ static func gale_slot_count(budget: int) -> int:
 	return maxi(slot_count(budget) / 2, 2)
 
 
+static func droplet_budget(budget: int) -> int:
+	return int(float(budget) * DROPLET_DENSITY)
+
+
 static func mist_budget(budget: int) -> int:
 	return maxi(int(float(budget) * MIST_SHARE), MIN_SHEET)
 
@@ -122,8 +135,8 @@ static func sheet_budget(budget: int) -> int:
 
 ## Worst case particles allocated at once for a tier (every slot alive).
 static func particle_ceiling(budget: int) -> int:
-	var per_slot := budget + mist_budget(budget) + sheet_budget(budget)
-	var per_gale := budget + mist_budget(budget)
+	var per_slot := droplet_budget(budget) + mist_budget(budget) + sheet_budget(budget)
+	var per_gale := droplet_budget(budget) + mist_budget(budget)
 	return slot_count(budget) * per_slot + gale_slot_count(budget) * per_gale
 
 
@@ -242,7 +255,7 @@ func place_slots(at: Vector2) -> void:
 		slot.spot = best_spot
 		slot.active = best >= BREAK_MIN
 		slot.last_event = -2147483648
-		_aim(slot, slot.spot, WATERLINE_Y)
+		_aim(slot, slot.spot, WATERLINE_Y + CREST_LIFT * _intensity)
 	for index in _gale_slots.size():
 		var slot := _gale_slots[index]
 		slot.active = not near.is_empty()
@@ -307,9 +320,9 @@ func _stop(slots: Array) -> void:
 
 
 func _drift() -> Vector3:
-	# Mist drifts downwind and rises slightly; stronger wind carries it further.
-	var carry := lerpf(0.6, 3.5, _intensity)
-	return Vector3(_wind_direction.x * carry, 0.15, _wind_direction.y * carry)
+	# Mist is blown downwind and settles; stronger wind carries it faster.
+	var carry := lerpf(1.5, 5.0, _intensity)
+	return Vector3(_wind_direction.x * carry, -0.3, _wind_direction.y * carry)
 
 
 func _preset() -> Dictionary:
@@ -335,7 +348,7 @@ func _apply_budget(budget: int) -> void:
 
 func _make_slot(budget: int, with_sheet: bool) -> Slot:
 	var slot := Slot.new()
-	slot.droplets = _make_droplets(budget)
+	slot.droplets = _make_droplets(droplet_budget(budget))
 	slot.mist = _make_mist(mist_budget(budget))
 	_layers.add_child(slot.droplets)
 	_layers.add_child(slot.mist)
@@ -397,27 +410,28 @@ static func _quad(
 	return quad
 
 
-## Layer 1: centimetre droplets, streaked along their velocity while fast.
+## Layer 1: fine droplets (1-3 cm quads), streaked along their velocity while fast, thrown
+## low over the crest.
 static func _make_droplets(budget: int) -> GPUParticles3D:
-	var particles := _base(budget, 1.1, AABB(Vector3(-16, -2, -16), Vector3(32, 18, 32)))
-	particles.explosiveness = 0.85
+	var particles := _base(budget, 0.9, AABB(Vector3(-12, -2, -12), Vector3(24, 6, 24)))
+	particles.explosiveness = 0.8
 	var material := ParticleProcessMaterial.new()
 	material.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_BOX
 	# Along the crest line, thin across it.
-	material.emission_box_extents = Vector3(3.5, 0.15, 3.5)
+	material.emission_box_extents = Vector3(3.5, 0.08, 3.5)
 	material.direction = Vector3(0.0, 1.0, 0.0)
-	material.spread = 38.0
-	material.initial_velocity_min = 1.5
-	material.initial_velocity_max = 3.0
+	material.spread = 50.0
+	material.initial_velocity_min = 0.8
+	material.initial_velocity_max = 1.8
 	material.gravity = Vector3(0.0, -9.8, 0.0)
-	material.damping_min = 0.2
-	material.damping_max = 0.6
-	material.scale_min = 0.5
-	material.scale_max = 1.4
+	material.damping_min = 0.3
+	material.damping_max = 0.9
+	material.scale_min = 0.4
+	material.scale_max = 1.3
 	material.particle_flag_align_y = true
-	material.color_ramp = _ramp([[0.0, 0.0], [0.05, 0.9], [0.7, 0.7], [1.0, 0.0]])
+	material.color_ramp = _ramp([[0.0, 0.0], [0.04, 0.95], [0.6, 0.75], [1.0, 0.0]])
 	particles.process_material = material
-	particles.draw_pass_1 = _quad(0.07, 4.0, 2.0, true, 0.6, 0.0)
+	particles.draw_pass_1 = _quad(0.022, 5.0, 2.0, true, 0.5, 0.0)
 	return particles
 
 
@@ -434,33 +448,35 @@ static func _make_sheet(budget: int) -> GPUParticles3D:
 	material.initial_velocity_max = 2.4
 	material.gravity = Vector3(0.0, -5.0, 0.0)
 	material.scale_min = 0.5
-	material.scale_max = 1.1
-	material.scale_curve = _grow(0.4, 1.7)
-	material.color_ramp = _ramp([[0.0, 0.0], [0.15, 0.65], [1.0, 0.0]])
+	material.scale_max = 1.0
+	material.scale_curve = _grow(0.5, 1.4)
+	# WHY faint and hard-edged: a bright soft 1 m disc read as steam, not torn water.
+	material.color_ramp = _ramp([[0.0, 0.0], [0.12, 0.35], [1.0, 0.0]])
 	particles.process_material = material
-	particles.draw_pass_1 = _quad(1.0, 1.0, 0.0, false, 0.7, 1.0)
+	particles.draw_pass_1 = _quad(0.28, 1.0, 0.0, false, 0.6, 1.0)
 	return particles
 
 
-## Layer 3: wind-blown mist, large and faint, carried downwind and fading.
+## Layer 3: spume puff. WHY: a slow 3 s cloud read as fog; real breaker spume is
+## blown out fast, brakes hard in the air and is gone in about a second.
 static func _make_mist(budget: int) -> GPUParticles3D:
-	var particles := _base(budget, 3.2, AABB(Vector3(-24, -2, -24), Vector3(48, 14, 48)))
-	particles.explosiveness = 0.3
+	var particles := _base(budget, 1.3, AABB(Vector3(-16, -2, -16), Vector3(32, 6, 32)))
+	particles.explosiveness = 0.9
 	var material := ParticleProcessMaterial.new()
 	material.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_BOX
-	material.emission_box_extents = Vector3(4.0, 0.2, 4.0)
+	material.emission_box_extents = Vector3(3.5, 0.05, 3.5)
 	material.direction = Vector3(0.0, 1.0, 0.0)
-	material.spread = 60.0
-	material.initial_velocity_min = 0.3
-	material.initial_velocity_max = 1.4
+	material.spread = 75.0
+	material.initial_velocity_min = 1.5
+	material.initial_velocity_max = 3.5
 	# Overwritten by set_wind with the downwind drift.
-	material.gravity = Vector3(1.0, 0.15, 0.0)
-	material.damping_min = 0.4
-	material.damping_max = 0.9
-	material.scale_min = 0.8
-	material.scale_max = 1.8
-	material.scale_curve = _grow(0.5, 1.3)
-	material.color_ramp = _ramp([[0.0, 0.0], [0.2, 0.2], [1.0, 0.0]])
+	material.gravity = Vector3(1.5, -0.3, 0.0)
+	material.damping_min = 2.5
+	material.damping_max = 4.0
+	material.scale_min = 0.4
+	material.scale_max = 0.9
+	material.scale_curve = _grow(0.4, 1.6)
+	material.color_ramp = _ramp([[0.0, 0.0], [0.08, 0.16], [0.4, 0.07], [1.0, 0.0]])
 	particles.process_material = material
 	particles.draw_pass_1 = _quad(1.0, 1.0, 0.0, false, 1.0, 0.0)
 	return particles

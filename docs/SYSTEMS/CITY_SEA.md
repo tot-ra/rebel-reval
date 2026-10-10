@@ -390,17 +390,18 @@ Status: implemented (task **R-1511** WR-6; pack [WR - Water realism v2](../tasks
 
 - **Event source.** `CityShoreSpray.place_slots` takes `slot_count(budget)` contour points near the camera and slides each offshore along the landward normal (14 taps, 3 m apart) to the position where `CityWaterSurface.bed_state` (CPU mirror of `shore_state`) reports the strongest breaking; slots below `BREAK_MIN` (0.5) stay silent. Each frame `update_events(OceanFftSampler.ocean_time())` calls `bed_state` once per slot and fires when `floor(cycle)` grows, i.e. the bore front phase u wrapped past 0. The first sample after placement only records the crest, so a burst never fires on placement. Re-placement runs when the camera moves 12 m or the wind changes by more than 0.2, never as a scan of the whole coast.
 - **Determinism.** The burst is a function of the ocean time and the slot position; the particle seed is `burst_seed(slot, event)`, so the same crest throws the same droplets (`use_fixed_seed`).
-- **Three layers per slot** (`GPUParticles3D`, one-shot, `scripts/city/city_spray.gdshader`, lit with per-vertex lighting so spray darkens at night): *droplets* are 7 cm quads stretched 4x along their velocity (`particle_flag_align_y`; the shader builds the camera-facing quad around that axis and relaxes the streak as the drop slows); *splash sheet* is a 1 m ragged-edge disc that opens over 0.45 s; *mist* is a faint 1 m puff living 3.2 s whose gravity vector is the downwind drift (`WindField.current().direction`), so it is carried off and fades.
+- **Three layers per slot** (`GPUParticles3D`, one-shot, `scripts/city/city_spray.gdshader`, lit with per-vertex lighting so spray darkens at night): *droplets* are 2.2 cm quads stretched 5x along their velocity (`particle_flag_align_y`; the shader builds the camera-facing quad around that axis and relaxes the streak as the drop slows), thrown at 1-4.8 m/s so they stay within about 1 m of the crest; *splash sheet* is a burst of 28 cm ragged clumps of white water that open over 0.45 s; *mist* is a spume puff living 1.3 s, blown out fast and braked hard by damping, whose gravity vector is the downwind drift (`WindField.current().direction`) with a slight settle. Shore emitters sit `CREST_LIFT * intensity` (up to 0.45 m) above `WATERLINE_Y` so storm drops are not born inside the crest.
 - **Whitecaps in a gale.** `gale_slot_count` extra slots sit 24-60 m offshore and test a 2.3 s crest period; the crest tears spray (droplets and mist) with a hash chance of `0.8 * gale`, where `gale = smoothstep(0.9, 1.0, wind)`. A gale at 0.95 tears about half of the crests, the peak of a gust (1.0) most of them.
 - **Calm.** Below wind 0.35 nothing is emitted (`update_events` returns 0, emitters are stopped).
 
-**Budgets** (`MapViewWaterMaterials.sea_lod_preset()["spray_particles"]` is the droplet count of one burst at full strength; read every 0.5 s, so a tier change rebuilds the slots). `slot_count = round(3.5 + budget / 100)` clamped to 4..12, mist is 25 % and sheets 10 % of the droplets, offshore slots have no sheet. `particle_ceiling(budget)` is the number of particles allocated if every slot were alive at once; in practice a burst lives 1-3 s once per crest period (about 9 s), so a handful of slots are alive at any time:
+**Budgets** (`MapViewWaterMaterials.sea_lod_preset()["spray_particles"]` is the droplet count of one burst at full strength; read every 0.5 s, so a tier change rebuilds the slots). `slot_count = round(3.5 + budget / 100)` clamped to 4..12, droplets are `DROPLET_DENSITY` (2.5) times the budget, mist is 12 % and sheets 20 % of the budget, offshore slots have no sheet. `particle_ceiling(budget)` is the number of particles allocated if every slot were alive at once; in practice a burst lives 1-3 s once per crest period (about 9 s), so a handful of slots are alive at any time:
 
 | | minimum | recommended | high |
 |---|---|---|---|
-| Droplets per burst | 160 | 420 | 640 |
+| Tier budget (`spray_particles`) | 160 | 420 | 640 |
+| Droplets per burst | 400 | 1 050 | 1 600 |
 | Shore slots / gale slots | 5 / 2 | 8 / 4 | 10 / 5 |
-| Allocated particles (ceiling) | 1 480 | 6 636 | 12 640 |
+| Allocated particles (ceiling) | 3 093 | 13 872 | 26 420 |
 
 Burst strength scales with breaking and wind (`burst_ratio`, via `amount_ratio`), so a fresh breeze throws a fraction of a gale's burst.
 
@@ -419,6 +420,12 @@ Plates (water sandbox, `--tag=wr6`, sand, gale with gust, motion frame 54 as the
 ![Noon: lit centimetre droplets thrown above the breaker, splash and mist at the bore front](../reports/images/city/water_wr6_spray_noon.jpg)
 
 ![Night, same frame: spray follows the dark ambient, nothing glows](../reports/images/city/water_wr6_spray_night.jpg)
+
+**Spray realism pass (2026-10-10).** The plates above are the first WR-6 tuning: few 7 cm drops thrown up to 4 m and a slow 3 s mist that read as fog. Now the drops are 2.5x denser, a third of the size and stay low over the crest, the sheet is small torn clumps instead of soft 1 m glowing discs, and the mist is a 1.3 s spume puff (motion frame 48, `--tag=spray2`):
+
+![Noon gale: dense fine droplet streaks low over the breaking crest, no fog puffs](../reports/images/city/water_spray_v2_noon.jpg)
+
+![Zoom on the breaker, same frame](../reports/images/city/water_spray_v2_noon_zoom.jpg)
 
 Limits: spray is emitted at the breaker line the slot found at placement (waves that break further out at a different sea state wait for the next re-placement); only about 8 shore slots near the camera exist, so a long beach shows bursts as separate fans about 12 m apart; crest impacts on rocks and quays throw nothing yet (WR-5 impact events); droplets are camera-facing quads, not refractive; mist is lit but not shadowed or fogged by the sky beyond the scene's own fog. The stretch uses the particle life as a proxy for speed.
 

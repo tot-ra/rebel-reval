@@ -33,8 +33,10 @@ func test_tier_budgets_grow_and_are_bounded() -> void:
 		var ceiling := Spray.particle_ceiling(budget)
 		assert_true(slots > previous_slots, "slots grow with tier %d" % budget)
 		assert_true(ceiling > previous_ceiling, "ceiling grows with tier %d" % budget)
-		assert_true(ceiling < 14000, "ceiling %d stays bounded at %d" % [ceiling, budget])
-		assert_true(Spray.mist_budget(budget) < budget and Spray.sheet_budget(budget) < budget)
+		assert_true(ceiling < 30000, "ceiling %d stays bounded at %d" % [ceiling, budget])
+		var droplets := Spray.droplet_budget(budget)
+		assert_true(droplets > budget, "droplets are denser than the tier budget")
+		assert_true(Spray.mist_budget(budget) < droplets and Spray.sheet_budget(budget) < droplets)
 		previous_slots = slots
 		previous_ceiling = ceiling
 
