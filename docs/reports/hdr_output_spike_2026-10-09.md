@@ -83,6 +83,18 @@ GODOT_RENDER_VISIBLE=1 tools/godot_render.sh --rendering-method mobile --renderi
   --script tools/probe_hdr_output.gd -- --screen=1 --map=kalev_smithy
 ```
 
+**Sky sun follow-up (2026-10-10, R-1537).** In the running game the sun did not look HDR: the sky disk was calibrated to a scene-linear peak of 2.4 for SDR, a tiny dot with a halo below UI white. `scripts/map/view3d/sky_weather_3d.gdshader` now multiplies the visible disk by `sun_disk_hdr_gain` (7.0) and the aureole by `sun_halo_hdr_gain` (3.0); the radiance cubemap pass keeps gain 1 so reflections and ambient are unchanged. Measured with `--sun-map=smithy_courtyard` (cloudless noon, Mobile, XDR panel, headroom 5.9): sun peak **2.8x -> 5.6x** UI white, and the area above UI white around the disk roughly doubled in diameter. False colour (grey up to UI white, yellow 1-2x, orange 2-4x, red 4x+), before and after, then the SDR read-back after:
+
+![](images/hdr_output_spike/sun_heat_before_r1537.jpg) ![](images/hdr_output_spike/sun_heat_after_r1537.jpg)
+
+![](images/hdr_output_spike/sun_sdr_after_r1537.jpg)
+
+```bash
+tools/godot_render.sh --script tools/probe_hdr_output.gd -- --sun-map=smithy_courtyard [--sun-progress=0.5]
+```
+
+EDR headroom shrinks as the panel brightness goes up; at maximum brightness macOS grants 1.0 and the game is SDR by design. Check `output_max_linear_value` before judging the picture.
+
 ## 3. Frame time
 
 `tools/run_performance_report.sh --quick` and the vegetation benchmark cannot measure the current world: `tools/benchmarks/lower_town_scene_benchmark.tscn`, `lower_town_render_probe.tscn` and `renderer_comparison_benchmark.tscn` reference the retired `scenes/reval_east/reval_east.tscn` and hang; `capture_vegetation_benchmark.gd` loads the removed `lower_town_slice_definition.gd`. The renderer override `BENCHMARK_RENDERING_METHOD` was added to the report scripts for when they are repaired.

@@ -11,6 +11,9 @@ extends SceneTree
 ## reference white. Variants repeat the read with Filmic and additive glow so the report
 ## shows which settings clamp to SDR.
 ## Optional --map=kalev_smithy also frames the real forge hearth at night (hearth_close).
+## Optional --sun-map=smithy_courtyard frames the real sky sun disk on a clear midday
+## (R-1537 sun follow-up: the visible disk must exceed UI white, not just the patches).
+## --sun-progress=<0..1> picks the day-cycle point (default 0.5, midday; ~0.27 sunrise).
 ## --screen=<index> moves the window to that screen first (default: the screen with the
 ## largest HDR headroom, e.g. the built-in Liquid Retina XDR rather than an SDR monitor).
 
@@ -52,12 +55,18 @@ func _initialize() -> void:
 func _run() -> void:
 	var json_path := "res://build/hdr_spike/hdr_probe.json"
 	var map_id := ""
+	var sun_map_id := ""
+	var sun_progress := 0.5
 	var screen := -1
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--json="):
 			json_path = arg.trim_prefix("--json=")
 		elif arg.begins_with("--map="):
 			map_id = arg.trim_prefix("--map=")
+		elif arg.begins_with("--sun-map="):
+			sun_map_id = arg.trim_prefix("--sun-map=")
+		elif arg.begins_with("--sun-progress="):
+			sun_progress = float(arg.trim_prefix("--sun-progress="))
 		elif arg.begins_with("--screen="):
 			screen = int(arg.trim_prefix("--screen="))
 	root.size = SIZE
@@ -120,6 +129,8 @@ func _run() -> void:
 		print("HDR probe %s: ui_white %.3f, patches %s" % [variant["id"], row["ui_white"], patches])
 	if not map_id.is_empty():
 		report["map_frame"] = await _probe_map(map_id)
+	if not sun_map_id.is_empty():
+		report["sun_frame"] = await _probe_sun(sun_map_id, sun_progress)
 	var absolute := ProjectSettings.globalize_path(json_path)
 	DirAccess.make_dir_recursive_absolute(absolute.get_base_dir())
 	var file := FileAccess.open(absolute, FileAccess.WRITE)
@@ -259,3 +270,66 @@ func _probe_map(map_id: String) -> Dictionary:
 		"output_max_linear_value": root.get_output_max_linear_value(),
 		"fraction_over_ui_white": float(over) / maxf(count, 1), "ui_white": _sample(
 			root.get_texture().get_image(), _scaled(UI_RECT))}
+
+## Real sky sun disk: clear weather near midday, camera aimed at the sun. Reports the peak
+## and the UI white sample so peak / ui_white is the disk brightness in UI-white units.
+func _probe_sun(map_id: String, progress: float) -> Dictionary:
+	for child in root.get_children():
+		if child is Node3D or child is WorldEnvironment:
+			child.queue_free()
+	await process_frame
+	var definition: MapDefinition = Registry.by_id()[map_id]
+	var view := MapView3D.create(definition, MapBuilder.build(definition), MapView3D.TIME_DAY)
+	root.add_child(view)
+	await view.assemble_async(200.0)
+	view.set_weather_time_scale(0.0)
+	for node in view.find_children("*", "", true, false):
+		if node is SkyWeather3D:
+			var sky := node as SkyWeather3D
+			sky.set_weather(SkyWeather3D.WEATHER_CLOUDLESS)
+			# Finish the weather blend now; time_scale 0 above freezes it otherwise.
+			sky.advance(SkyWeather3D.TRANSITION_SECONDS + 1.0)
+	view.apply_cycle_progress(progress)
+	var sun: DirectionalLight3D = view.find_children("*", "DirectionalLight3D", true, false)[0]
+	var camera := Camera3D.new()
+	camera.fov = 60.0
+	root.add_child(camera)
+	camera.make_current()
+	camera.position = Vector3(0, 2.0, 0)
+	# A DirectionalLight3D shines along its -Z, so the sun sits along +Z.
+	camera.look_at(camera.position + sun.global_transform.basis.z, Vector3.UP)
+	for _frame in 30:
+		await process_frame
+	var image := root.get_texture().get_image()
+	var peak := 0.0
+	for y in range(0, image.get_height(), 2):
+		for x in range(0, image.get_width(), 2):
+			var c := image.get_pixel(x, y)
+			peak = maxf(peak, maxf(c.r, maxf(c.g, c.b)))
+	var ui_white := _sample(image, _scaled(UI_RECT))
+	var exr := ProjectSettings.globalize_path("res://build/hdr_spike/%s_sun_%s.exr" % [
+		RenderingServer.get_current_rendering_method(), map_id])
+	image.save_exr(exr)
+	_heat_map(image, ui_white).save_png(exr.trim_suffix(".exr") + "_heat.png")
+	image.convert(Image.FORMAT_RGBA8)
+	image.save_png(exr.trim_suffix(".exr") + ".png")
+	print("HDR probe sun %s: peak %.3f ui_white %.3f (%.2fx)" % [
+		map_id, peak, ui_white, peak / maxf(ui_white, 0.0001)])
+	return {"map_id": map_id, "shot": "sun_clear_noon", "peak": peak, "ui_white": ui_white,
+		"peak_over_ui_white": peak / maxf(ui_white, 0.0001),
+		"output_max_linear_value": root.get_output_max_linear_value(),
+		"sun_direction": sun.global_transform.basis.z}
+
+
+## False colour for screenshots, since a PNG cannot show EDR: grey up to UI white, then
+## yellow (1-2x), orange (2-4x) and red (4x and above UI white).
+func _heat_map(image: Image, ui_white: float) -> Image:
+	var heat := Image.create(image.get_width(), image.get_height(), false, Image.FORMAT_RGB8)
+	for y in image.get_height():
+		for x in image.get_width():
+			var c := image.get_pixel(x, y)
+			var v := maxf(c.r, maxf(c.g, c.b)) / maxf(ui_white, 0.0001)
+			var out := Color(1, 0.1, 0.1) if v >= 4.0 else Color(1, 0.55, 0.1) if v >= 2.0 \
+				else Color(1, 0.95, 0.2) if v > 1.0 else Color(v, v, v) * 0.6
+			heat.set_pixel(x, y, out)
+	return heat

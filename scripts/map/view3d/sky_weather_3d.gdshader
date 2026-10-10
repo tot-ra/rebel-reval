@@ -143,6 +143,13 @@ uniform float sun_illuminance = 11.0;
 // Disk radiance = sun_illuminance * T(ground, mu_sun) * scale; 0.218 keeps the noon disk at
 // the old 2.4 peak so glow and AgX see the same highlight.
 uniform float sun_disk_scale : hint_range(0.0, 1.0) = 0.218;
+// R-1537: extra disk radiance for HDR (EDR) output, visible pass only (see the sun disk).
+// 7.0 puts the noon disk centre near scene-linear 16, the probe's "sun" patch.
+uniform float sun_disk_hdr_gain : hint_range(1.0, 16.0) = 7.0;
+// R-1537: same for the aureole (forward scatter around the disk). HDR photos read the sun
+// as a bright glare a few degrees wide, not a lone dot; 3.0 lifts the inner halo above
+// UI white on EDR while the outer falloff stays below it.
+uniform float sun_halo_hdr_gain : hint_range(1.0, 8.0) = 3.0;
 // Cloud sunlight = sun_illuminance * T(cloud base, mu_sun) * scale; 0.08 keeps noon cloud tops
 // near the old near-white sun_lit tone once the LUT ambient is added.
 uniform float cloud_sun_scale : hint_range(0.0, 0.5) = 0.08;
@@ -885,7 +892,15 @@ void sky() {
 		float d_over_r = clamp(sun_distance / SUN_DISK_R, 0.0, 1.0);
 		disk *= 1.0 - 0.6 * (1.0 - sqrt(1.0 - d_over_r * d_over_r));
 	}
-	color += sun_tint * (disk * 2.4 + halo) * sun_visibility * (1.0 - clouds * 0.95);
+	// R-1537 (ADR 0043): on an EDR screen AgX maps scene-linear 2.4 to only ~1.2x UI white,
+	// so the old disk read as plain white next to the HUD. The visible disk is lifted into
+	// the range where AgX spends the headroom (~2.8x UI white at 4.0 headroom); on SDR it
+	// just clips to white. The radiance cubemap keeps the old disk and halo so sky
+	// reflections and glossy highlights do not brighten.
+	float disk_gain = AT_CUBEMAP_PASS ? 1.0 : sun_disk_hdr_gain;
+	float halo_gain = AT_CUBEMAP_PASS ? 1.0 : sun_halo_hdr_gain;
+	color += sun_tint * (disk * 2.4 * disk_gain + halo * halo_gain) * sun_visibility
+		* (1.0 - clouds * 0.95);
 
 	// R-1518: post-rain rainbow around the antisolar point (sky_rainbow.gdshaderinc).
 	// The old two-colour blue-to-red ramp was wider than the band, so the visible

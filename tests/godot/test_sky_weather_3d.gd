@@ -1129,3 +1129,16 @@ func test_shader_draws_round_twinkling_stars_and_milky_way() -> void:
 	assert_true("sky_stars.gdshaderinc" in source, "stars and Milky Way live in the sky include")
 	assert_true("star_field(" in source and "milky_way(" in source, "the dome must draw stars and the galaxy")
 	assert_true("!AT_CUBEMAP_PASS" in source, "the star search must stay out of the radiance cubemap")
+
+
+## R-1537: on EDR the sun must use the HDR headroom, but only in the visible pass; the
+## radiance cubemap keeps the SDR disk so sky reflections and ambient do not brighten.
+func test_sky_sun_disk_gets_hdr_gain_outside_the_cubemap_pass() -> void:
+	var source := FileAccess.get_file_as_string("res://scripts/map/view3d/sky_weather_3d.gdshader")
+	assert_true(source.contains("uniform float sun_disk_hdr_gain"), "disk HDR gain exposed")
+	assert_true(source.contains("uniform float sun_halo_hdr_gain"), "halo HDR gain exposed")
+	assert_true(
+		source.contains("AT_CUBEMAP_PASS ? 1.0 : sun_disk_hdr_gain")
+			and source.contains("AT_CUBEMAP_PASS ? 1.0 : sun_halo_hdr_gain"),
+		"radiance cubemap keeps the SDR disk and halo"
+	)
