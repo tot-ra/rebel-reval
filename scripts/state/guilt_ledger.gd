@@ -97,7 +97,8 @@ func record_act(act_id: StringName, circumstance: StringName, lethal: bool = fal
 	return weights
 
 
-## Add the lethal weight once for `act_id` (a death after a recorded blow). Returns the weights applied.
+## Add the lethal weight once for `act_id` (a death after a recorded blow).
+## Returns the weights applied.
 func record_kill(act_id: StringName) -> Dictionary:
 	if act_id == &"" or _recorded_acts.has(act_id):
 		return {}

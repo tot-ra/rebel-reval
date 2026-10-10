@@ -1,7 +1,7 @@
 # Padise Monastery (Padis, Cistercian abbey on the Kloostri river)
 
 **Status:** planned (design proposal, not implemented) · **Scope gate:** existing prototype `loc.world_padise` (the repo also has `loc.padise_monastery` content ids) · **Act(s):** 2 (rural news and evidence), 3 (full two-phase scene, **P6-002** / **P6-009**)
-**Map id:** `loc.world_padise` (existing: [`content/maps/world_padise.rrmap`](../../content/maps/world_padise.rrmap), already 140x90 cells, 1 cell = 1 m, `scope=prototype`, `active=false`) · **Seasons/phases:** Phase A "before" (spring 1343, up to 22 April), Phase B "after" (about 1 May 1343, burnt estate); optional Phase C "rebuilding" (1344-46, timber scaffolds and foundation trenches only)
+**Map id:** `loc.world_padise` (existing: `content/maps/world_padise.rrmap`, already 140x90 cells, 1 cell = 1 m, `scope=prototype`, `active=false`) · **Seasons/phases:** Phase A "before" (spring 1343, up to 22 April), Phase B "after" (about 1 May 1343, burnt estate); optional Phase C "rebuilding" (1344-46, timber scaffolds and foundation trenches only)
 **Confidence summary:** Cistercian house founded 1305 by monks from Dünamünde and sacked at St George's Night 1343, about 28 monks killed: `attested`. Two limestone buildings surviving from before the sack (excavations): `attested`. Timber conventual fabric, room positions, personal names, daily scenes: `plausible composite` / `invented`. Fortified quadrangle, stone church and gate towers: later (post-1343), excluded.
 
 ## 1. Why a player would want to visit
@@ -189,6 +189,6 @@ Languages heard: Latin psalmody and Mass, German murmurs, Estonian work calls; s
 
 ## 11. Sources and next steps
 
-Repo: [`padise_monastery_research_p6_009.md`](../reports/padise_monastery_research_p6_009.md), [`world_padise.rrmap`](../../content/maps/world_padise.rrmap), [`padise_monastery_massacre.md`](../../wiki/events/padise_monastery_massacre.md), [`CANON.md`](../CANON.md), [`TOURIST_LANDMARKS.md`](../TOURIST_LANDMARKS.md), [`churches-and-religious-houses.md`](../../history/dossiers/religion/churches-and-religious-houses.md), [`p6_001_act3_design.md`](../reports/p6_001_act3_design.md). External by name: Villu Kadakas, *Archaeological Studies in Padise Monastery* (AVE 2011); Padise Monastery permanent exhibition; Cistercian Rule and customary.
+Repo: [`padise_monastery_research_p6_009.md`](../reports/padise_monastery_research_p6_009.md), `world_padise.rrmap`, [`padise_monastery_massacre.md`](../../wiki/events/padise_monastery_massacre.md), [`CANON.md`](../CANON.md), [`TOURIST_LANDMARKS.md`](../TOURIST_LANDMARKS.md), [`churches-and-religious-houses.md`](../../history/dossiers/religion/churches-and-religious-houses.md), [`p6_001_act3_design.md`](../reports/p6_001_act3_design.md). External by name: Villu Kadakas, *Archaeological Studies in Padise Monastery* (AVE 2011); Padise Monastery permanent exhibition; Cistercian Rule and customary.
 
 Verification tasks: (1) reconcile research Phase 2 notes with Kadakas; (2) verify the 1305 and 1317 dates; (3) check whether the abbey held Rågervik rights in 1343; (4) author interior routes in the limestone hall; (5) liturgical Latin sourcing and recording; (6) sensitivity review of the sack scenes.

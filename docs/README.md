@@ -78,6 +78,14 @@ One page per feature, with status, behavior, code entry points, content, saved s
 #### `BESTIARY/`
 
 - [Creature card template](BESTIARY/TEMPLATE.md)
+- [Black Cloak fighter](BESTIARY/cards/black_cloak_fighter.md)
+- [Brute](BESTIARY/cards/brute.md)
+- [Road bandit](BESTIARY/cards/road_bandit.md)
+- [Saboteur](BESTIARY/cards/saboteur.md)
+- [Spirit-caller](BESTIARY/cards/spirit_caller.md)
+- [Street thug](BESTIARY/cards/street_thug.md)
+- [Vanapagan cultist](BESTIARY/cards/vanapagan_cultist.md)
+- [Wolf](BESTIARY/cards/wolf.md)
 
 #### `concept/`
 

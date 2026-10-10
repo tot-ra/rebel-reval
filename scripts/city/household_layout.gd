@@ -132,7 +132,8 @@ static func object(id: String) -> Dictionary:
 ## Measured size [x, y, z] in metres of a piece's catalog object.
 static func piece_size(piece: StringName) -> Vector3:
 	var record := object(String(PIECES[piece]["object"]))
-	var size: Array = record.get("model", {}).get("measured_size_m", record.get("physical", {}).get("size_m", [0.5, 0.5, 0.5]))
+	var fallback_size: Array = record.get("physical", {}).get("size_m", [0.5, 0.5, 0.5])
+	var size: Array = record.get("model", {}).get("measured_size_m", fallback_size)
 	return Vector3(size[0], size[1], size[2])
 
 
@@ -352,7 +353,11 @@ func _cut(along: float) -> bool:
 	var span := a.distance_to(b)
 	if span < PARTITION_GAP + 1.6:
 		return false
-	var t := clampf(0.3 if _rng.randf() < 0.5 else 0.7, (PARTITION_GAP * 0.5 + 0.7) / span, 1.0 - (PARTITION_GAP * 0.5 + 0.7) / span)
+	var t := clampf(
+		0.3 if _rng.randf() < 0.5 else 0.7,
+		(PARTITION_GAP * 0.5 + 0.7) / span,
+		1.0 - (PARTITION_GAP * 0.5 + 0.7) / span
+	)
 	var gap := a.lerp(b, t)
 	var dir := (b - a) / span
 	var walls := [[a, gap - dir * PARTITION_GAP * 0.5], [gap + dir * PARTITION_GAP * 0.5, b]]
@@ -405,7 +410,11 @@ func path_to(target: Vector2) -> PackedVector2Array:
 ## Floor area of room `k` (m2), from the room's share of the house length.
 func _room_area(k: int) -> float:
 	var length := float(rooms[-1][1])
-	return absf(CityBuildingBuilder.signed_area(inner)) * (float(rooms[k][1]) - float(rooms[k][0])) / maxf(length, 0.01)
+	return (
+		absf(CityBuildingBuilder.signed_area(inner))
+		* (float(rooms[k][1]) - float(rooms[k][0]))
+		/ maxf(length, 0.01)
+	)
 
 
 ## A piece on the open floor of room `k` (goods heaps in the hall), squared to
@@ -532,7 +541,9 @@ func _table_top(table: int, tier: StringName) -> void:
 	var top := piece_size(items[table]["piece"]).y
 	_on_top(&"eating_set", table, top)
 	var ex := Vector2(cos(items[table]["yaw"]), -sin(items[table]["yaw"]))
-	var candle := &"candle_poor" if tier == &"poor" else &"candle_rich" if tier == &"rich" else &"candle"
+	var candle := (
+		&"candle_poor" if tier == &"poor" else &"candle_rich" if tier == &"rich" else &"candle"
+	)
 	var light := _add(candle, items[table]["pos"] + ex * 0.45, items[table]["yaw"], top, true)
 	if light >= 0:
 		lights.append(light)

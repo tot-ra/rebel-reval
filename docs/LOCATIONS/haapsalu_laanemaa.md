@@ -54,7 +54,7 @@ Journey edges:
 | `road_to_harju` | `loc.world_harju` | Overland east; long road |
 | `boat_to_saaremaa` | `loc.world_saaremaa` ([map](../../content/maps/world_saaremaa.rrmap)) | Sea; Act 3 route |
 | `boat_to_vormsi` | optional sub-zone | Swedes' arrival; not a new map |
-| `road_to_padise` | `loc.world_padise` ([map](../../content/maps/world_padise.rrmap)) | Overland |
+| `road_to_padise` | `loc.world_padise` (`map`) | Overland |
 
 ## 4. Architecture and built environment
 

@@ -100,4 +100,8 @@ func _react(state: GameState, witness: Dictionary) -> Dictionary:
 		state.adjust_pressure(
 			GameState.PRESSURE_SUSPICION, int(rule["suspicion"])
 		)
-	return {"witness": String(witness_id), "faction": String(faction), "reaction": String(rule["reaction"])}
+	return {
+		"witness": String(witness_id),
+		"faction": String(faction),
+		"reaction": String(rule["reaction"]),
+	}

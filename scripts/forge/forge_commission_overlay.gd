@@ -3,7 +3,8 @@ extends CanvasLayer
 
 signal closed
 signal option_selected(option_id: String)
-## The apprentice does an option quietly (ADR 0033); only offered for options with an `apprentice_method`.
+## The apprentice does an option quietly (ADR 0033); only offered for options with an
+## `apprentice_method`.
 signal secret_option_selected(option_id: String)
 
 var _panel: PanelContainer

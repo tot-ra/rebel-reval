@@ -18,6 +18,64 @@ const DEFAULT_FACING := Vector2(0.0, 1.0)
 ## Patrols walk their route back and forth at this speed (m/s), tools/city/gate_garrisons.py.
 const PATROL_SPEED := 0.9
 
+## Fixed status line per place_label_key() while staying there.
+const _STAY_LABELS := {
+	"forum": "At the forum market",
+	"landing": "At the fish landing",
+	"granary": "Working at the granary quay",
+	"hall": "At the town hall",
+	"castle": "On duty at the castle",
+	"church": "At the church",
+	"well": "At the well",
+	"mill": "At the mill",
+	"market": "At the market",
+	"water": "Drawing water at the well",
+	"fuel": "Gathering firewood",
+	"latrine": "Emptying the slops into the gutter",
+	"school": "At school",
+	"stroll": "Out for a walk",
+	"food_market": "Buying food at the market",
+	"food_bakery": "Buying bread at the bakers' ovens",
+	"food_butcher": "Buying meat at the butchers' benches",
+	"supply_iron": "Buying iron at the smiths' street",
+	"supply_grain": "Fetching grain and malt",
+	"supply_fish": "Buying fish at the landing",
+	"supply_water": "Carrying water for the trade",
+	"supply_wood": "Fetching timber and clay",
+	"supply_market": "Shopping for the trade",
+}
+## Destination phrase per place_label_key() while on the way.
+const _DEST_LABELS := {
+	"home": "home",
+	"door": "to their work at the door",
+	"forum": "to the market",
+	"market": "to the market",
+	"landing": "to the fish landing",
+	"granary": "to the granary quay",
+	"hall": "to the town hall",
+	"castle": "to the castle",
+	"church": "to church",
+	"patrol": "to their patrol",
+	"post": "to their post",
+	"gate": "to their post",
+	"well": "to the well",
+	"water": "to the well",
+	"mill": "to the mill",
+	"fuel": "to gather firewood",
+	"latrine": "to empty the slops",
+	"school": "to school",
+	"stroll": "for a walk",
+	"food_market": "to the market for food",
+	"food_bakery": "to the bakers",
+	"food_butcher": "to the butchers",
+	"supply_iron": "to buy iron",
+	"supply_grain": "to fetch grain",
+	"supply_fish": "to buy fish",
+	"supply_water": "to fetch water",
+	"supply_wood": "to fetch timber",
+	"supply_market": "shopping for the trade",
+}
+
 static var _default: CitizenRoster
 
 var residents: Array[Dictionary] = []
@@ -218,60 +276,13 @@ func place_label_key(r: Dictionary, key: String) -> String:
 
 func _stay_label(r: Dictionary, key: String) -> String:
 	var kind := place_label_key(r, key)
-	match kind:
-		"door":
-			return "Working at their own door" if r["pattern"] == "craft" else "Outside their house"
-		"forum":
-			return "At the forum market"
-		"landing":
-			return "At the fish landing"
-		"granary":
-			return "Working at the granary quay"
-		"hall":
-			return "At the town hall"
-		"castle":
-			return "On duty at the castle"
-		"church":
-			return "At the church"
-		"patrol":
-			return "On patrol: %s" % _duty_label(r)
-		"post", "gate":
-			return "On guard duty%s" % (": " + _duty_label(r) if r.has("duty") else "")
-		"well":
-			return "At the well"
-		"mill":
-			return "At the mill"
-		"market":
-			return "At the market"
-		"water":
-			return "Drawing water at the well"
-		"fuel":
-			return "Gathering firewood"
-		"latrine":
-			return "Emptying the slops into the gutter"
-		"school":
-			return "At school"
-		"stroll":
-			return "Out for a walk"
-		"food_market":
-			return "Buying food at the market"
-		"food_bakery":
-			return "Buying bread at the bakers' ovens"
-		"food_butcher":
-			return "Buying meat at the butchers' benches"
-		"supply_iron":
-			return "Buying iron at the smiths' street"
-		"supply_grain":
-			return "Fetching grain and malt"
-		"supply_fish":
-			return "Buying fish at the landing"
-		"supply_water":
-			return "Carrying water for the trade"
-		"supply_wood":
-			return "Fetching timber and clay"
-		"supply_market":
-			return "Shopping for the trade"
-	return "Going about the day"
+	if kind == "door":
+		return "Working at their own door" if r["pattern"] == "craft" else "Outside their house"
+	if kind == "patrol":
+		return "On patrol: %s" % _duty_label(r)
+	if kind in ["post", "gate"]:
+		return "On guard duty%s" % (": " + _duty_label(r) if r.has("duty") else "")
+	return String(_STAY_LABELS.get(kind, "Going about the day"))
 
 
 ## "<role>, <post>, <shift>" of a resident on gate or patrol duty.
@@ -282,58 +293,7 @@ func _duty_label(r: Dictionary) -> String:
 
 func _label(r: Dictionary, key: String) -> String:
 	var kind := place_label_key(r, key)
-	match kind:
-		"home":
-			return "home"
-		"door":
-			return "to their work at the door"
-		"forum", "market":
-			return "to the market"
-		"landing":
-			return "to the fish landing"
-		"granary":
-			return "to the granary quay"
-		"hall":
-			return "to the town hall"
-		"castle":
-			return "to the castle"
-		"church":
-			return "to church"
-		"patrol":
-			return "to their patrol"
-		"post", "gate":
-			return "to their post"
-		"well", "water":
-			return "to the well"
-		"mill":
-			return "to the mill"
-		"fuel":
-			return "to gather firewood"
-		"latrine":
-			return "to empty the slops"
-		"school":
-			return "to school"
-		"stroll":
-			return "for a walk"
-		"food_market":
-			return "to the market for food"
-		"food_bakery":
-			return "to the bakers"
-		"food_butcher":
-			return "to the butchers"
-		"supply_iron":
-			return "to buy iron"
-		"supply_grain":
-			return "to fetch grain"
-		"supply_fish":
-			return "to buy fish"
-		"supply_water":
-			return "to fetch water"
-		"supply_wood":
-			return "to fetch timber"
-		"supply_market":
-			return "shopping for the trade"
-	return "somewhere"
+	return String(_DEST_LABELS.get(kind, "somewhere"))
 
 
 ## 0..47, stable per resident: the personal offset slot.

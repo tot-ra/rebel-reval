@@ -11,7 +11,8 @@ const ORIGIN_SCAR := &"scar"
 const ORIGINS: Array[StringName] = [ORIGIN_GIFT, ORIGIN_SCAR]
 
 ## trait id -> origin -> modifiers:
-##   reply {element: multiplier on the hero's reply damage}, incoming {kind: multiplier on blows taken},
+##   reply {element: multiplier on the hero's reply damage},
+##   incoming {kind: multiplier on blows taken},
 ##   dodge_cost_delta, parry_window_delta (seconds), composure_delta.
 const TRAITS: Dictionary = {
 	&"trait.hears_fear":
@@ -53,7 +54,8 @@ static func is_origin(origin: StringName) -> bool:
 
 
 ## Combined modifiers of the traits the hero holds:
-## {reply: {element: mult}, incoming: {kind: mult}, dodge_cost_delta, parry_window_delta, composure_delta}.
+## {reply: {element: mult}, incoming: {kind: mult},
+## dodge_cost_delta, parry_window_delta, composure_delta}.
 static func modifiers_for(state: GameState) -> Dictionary:
 	var combined := {
 		"reply": {},

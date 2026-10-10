@@ -21,7 +21,7 @@ const KITS := {
 ## Spear held upright at the side, butt on the ground. The hand slot's X axis points
 ## down, so the spear's shaft (its Y) is turned onto hand -X and the grip sits a third
 ## of the way up; scaled to a 1.8 m shaft-and-head. Measured with the idle pose.
-static var SPEAR_HELD := Transform3D(
+static var _spear_held := Transform3D(
 	Basis(Vector3.BACK, PI * 0.5).scaled(Vector3(1.25, 1.25, 1.25)), Vector3(0.415, 0.0, 0.0)
 )
 
@@ -40,6 +40,6 @@ static func arm(rig: SharedCharacterRig, record: Dictionary) -> void:
 		&"spear":
 			var spear := rig.equip(&"right_hand", SPEAR)
 			if spear != null:
-				spear.transform = SPEAR_HELD
+				spear.transform = _spear_held
 		&"sword":
 			rig.equip(&"right_hand", SWORD)

@@ -47,7 +47,9 @@ var _pending: Dictionary = {}
 var _queue: Array = []
 
 
-static func create(city_plan: CityPlan, citizen_roster: CitizenRoster, chimneys: Array) -> CityInteriors:
+static func create(
+	city_plan: CityPlan, citizen_roster: CitizenRoster, chimneys: Array
+) -> CityInteriors:
 	var node := CityInteriors.new()
 	node.name = "Interiors"
 	node.plan = city_plan
@@ -350,7 +352,9 @@ func _partitions(node: Node3D, lay: HouseholdLayout, b: Dictionary) -> Node3D:
 ## Upper partition boards follow the roof: hidden while it is lifted.
 func _sync_upper() -> void:
 	var world := get_parent()
-	var roofs: Dictionary = world.get("roof_nodes") if world != null and world.get("roof_nodes") != null else {}
+	var roofs: Dictionary = (
+		world.get("roof_nodes") if world != null and world.get("roof_nodes") != null else {}
+	)
 	for index: int in _homes:
 		var upper: Node3D = _homes[index].get("upper")
 		if upper == null:
@@ -515,7 +519,11 @@ static func _template(object_id: String, state: String) -> Node3D:
 	if scene == null:
 		return null
 	var root := scene.instantiate() as Node3D
-	var node_name := String(model.get("states", {}).get(state, "")) if state != "" else String(model.get("node", ""))
+	var node_name := (
+		String(model.get("states", {}).get(state, ""))
+		if state != ""
+		else String(model.get("node", ""))
+	)
 	if node_name == "":
 		root.position = Vector3.ZERO
 		return root
@@ -593,7 +601,10 @@ func indoor_state(index: int, hour_now: float, arrived: float) -> Dictionary:
 	var has_work := not lay.slots_of(&"work").is_empty() and k == 0
 	var act := HouseholdDay.activity(r, hour_now, index == cook_of(hh), has_work)
 	var pose: StringName = act["pose"]
-	if pose == &"hearth" and HouseholdDay.hearth_state(String(household["building"]), hour_now) != &"lit":
+	if (
+		pose == &"hearth"
+		and HouseholdDay.hearth_state(String(household["building"]), hour_now) != &"lit"
+	):
 		pose = &"stand"
 		act["slot"] = &"stand"
 	var choices := lay.slots_of(act["slot"])

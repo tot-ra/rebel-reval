@@ -97,18 +97,29 @@ func show_citizen(r: Dictionary, now: String) -> void:
 		"" if String(r["faction_role"]) == "none" else ", " + _nice(r["faction_role"]),
 	])
 	lines.append("[b]Household[/b]  %s, %s" % [_nice(r["household_role"]), r["street"]])
-	lines.append("[b]Languages[/b]  %s · literacy: %s" % [", ".join(r["languages"]), _nice(r["literacy"])])
+	lines.append(
+		"[b]Languages[/b]  %s · literacy: %s"
+		% [", ".join(r["languages"]), _nice(r["literacy"])]
+	)
 	lines.append("")
 	lines.append("[b]Looks[/b]  %d cm, %s build; %s hair, %s eyes" % [
 		int(ap["height_cm"]), ap["build"], ap["hair"], ap["eyes"]])
 	var complexion := String(ap["complexion"])
-	lines.append("%s; voice %s" % [complexion.substr(0, 1).to_upper() + complexion.substr(1), ap["voice"]])
+	lines.append(
+		"%s; voice %s"
+		% [complexion.substr(0, 1).to_upper() + complexion.substr(1), ap["voice"]]
+	)
 	if ap["facial_hair"] != null:
 		lines.append("Facial hair: %s" % ap["facial_hair"])
 	for mark: String in ap["marks"]:
 		lines.append("• %s" % mark.replace("[", "("))
 	lines.append("")
-	lines.append("[color=#8a8a8a]%s · %s[/color]" % [r["id"], "deep card: " + String(r["card"]).get_file() if not String(r["card"]).is_empty() else "census entry only"])
+	var card_note := (
+		"deep card: " + String(r["card"]).get_file()
+		if not String(r["card"]).is_empty()
+		else "census entry only"
+	)
+	lines.append("[color=#8a8a8a]%s · %s[/color]" % [r["id"], card_note])
 	_body.text = "\n".join(lines)
 
 

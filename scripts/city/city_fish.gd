@@ -5,7 +5,8 @@ extends Node3D
 ## shore-1343.md: the shore lives off spring herring). Deterministic school
 ## centres on 0.35 to 1.1 m of water; a school is only alive while Kalev is within
 ## RANGE of it, then its fish circle and dart in a tight shoal just under the
-## surface (the sea absorbs light fast, deeper fish would not be seen). Visual only: nothing here is caught, hit or saved.
+## surface (the sea absorbs light fast, deeper fish would not be seen). Visual only: nothing here
+## is caught, hit or saved.
 
 const CELL := 14.0
 const RANGE := 70.0
@@ -136,10 +137,13 @@ func _spawn(c: Dictionary) -> Dictionary:
 
 func _animate(school: Dictionary) -> void:
 	var centre: Vector2 = school["centre"]
-	var drift := Vector2(cos(_time * 0.05 + float(school["swing"])), sin(_time * 0.04 + float(school["swing"]))) * 5.0
+	var drift := Vector2(
+		cos(_time * 0.05 + float(school["swing"])), sin(_time * 0.04 + float(school["swing"]))
+	) * 5.0
 	for f: Dictionary in school["fish"]:
 		var a: float = _time * float(f["speed"]) + float(f["phase"])
-		var p := centre + drift + Vector2(cos(a), sin(a)) * float(f["r"]) * (1.0 + 0.25 * sin(_time * 0.6 + float(f["phase"])))
+		var pulse := 1.0 + 0.25 * sin(_time * 0.6 + float(f["phase"]))
+		var p := centre + drift + Vector2(cos(a), sin(a)) * float(f["r"]) * pulse
 		var node: MeshInstance3D = f["node"]
 		node.position = Vector3(p.x, -float(f["dy"]) + 0.06 * sin(_time * 3.0 + float(f["phase"])), p.y)
 		var tangent := Vector2(-sin(a), cos(a))

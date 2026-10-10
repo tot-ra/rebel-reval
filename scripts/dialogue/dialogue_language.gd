@@ -24,7 +24,9 @@ static func node_tier(node: Dictionary, state: GameState) -> int:
 
 
 ## Text the hero perceives for `text` of `node`.
-static func render(node: Dictionary, text: String, state: GameState, always_translate: bool) -> String:
+static func render(
+	node: Dictionary, text: String, state: GameState, always_translate: bool
+) -> String:
 	if always_translate or node_tier(node, state) >= FULL_TIER:
 		return text
 	if node_tier(node, state) == 1:

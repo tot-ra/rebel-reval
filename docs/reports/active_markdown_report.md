@@ -14,19 +14,19 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `1106`
-- Markdown files excluded as archive/reference/out of active scope: `749`
-- Local/external links inspected: `13188`
-- Links to active Markdown docs: `12097`
-- Links to existing archive/reference/non-active local docs: `456`
+- Active Markdown files scanned: `1113`
+- Markdown files excluded as archive/reference/out of active scope: `752`
+- Local/external links inspected: `13140`
+- Links to active Markdown docs: `12132`
+- Links to existing archive/reference/non-active local docs: `455`
 - External links skipped for reachability: `92`
-- Issues found: `155`
+- Issues found: `74`
 
 ## Issue counts
 
 | Code | Count |
 | --- | ---: |
-| `BROKEN_LINK` | 89 |
+| `BROKEN_LINK` | 8 |
 | `BROKEN_ANCHOR` | 66 |
 | `DUPLICATE_CHARACTER_NAME` | 0 |
 | `CONTRADICTORY_DATE` | 0 |
@@ -110,87 +110,6 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 | `BROKEN_LINK` | `docs/CITIZENS/ledger/lower_town/olevimagi.md:31` | Local Markdown link target does not exist: `../../people/lower_town/peeter_hindreku_poeg.md` |
 | `BROKEN_LINK` | `docs/CITIZENS/ledger/lower_town/olevimagi.md:36` | Local Markdown link target does not exist: `../../people/lower_town/hindrek_andrese_poeg.md` |
 | `BROKEN_LINK` | `docs/CITIZENS/ledger/lower_town/oleviste.md:35` | Local Markdown link target does not exist: `../../people/lower_town/margareta.md` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:27` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:27` | Local Markdown link target does not exist: `../content/maps/reval_harbor_east.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:28` | Local Markdown link target does not exist: `../content/maps/reval_harbor_east.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:29` | Local Markdown link target does not exist: `../content/maps/reval_harbor_east.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:30` | Local Markdown link target does not exist: `../content/maps/reval_harbor_north.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:31` | Local Markdown link target does not exist: `../content/maps/reval_harbor_east.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:32` | Local Markdown link target does not exist: `../content/maps/reval_harbor_east.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:33` | Local Markdown link target does not exist: `../content/maps/monastery_quarter.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:34` | Local Markdown link target does not exist: `../content/maps/monastery_quarter.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:35` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:36` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:37` | Local Markdown link target does not exist: `../content/maps/monastery_quarter.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:38` | Local Markdown link target does not exist: `../content/maps/monastery_quarter.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:39` | Local Markdown link target does not exist: `../content/maps/reval_harbor_east.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:40` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:40` | Local Markdown link target does not exist: `../content/maps/reval_harbor_north.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:41` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:42` | Local Markdown link target does not exist: `../content/maps/reval_harbor_east.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:43` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:44` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:45` | Local Markdown link target does not exist: `../content/maps/reval_harbor_north.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:46` | Local Markdown link target does not exist: `../content/maps/reval_harbor_east.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:50` | Local Markdown link target does not exist: `../tests/godot/test_map_view_tree_species.gd` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:58` | Local Markdown link target does not exist: `../content/maps/monastery_quarter.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:59` | Local Markdown link target does not exist: `../content/maps/monastery_quarter.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:59` | Local Markdown link target does not exist: `../content/maps/reval_harbor_north.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:60` | Local Markdown link target does not exist: `../content/maps/monastery_quarter.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:61` | Local Markdown link target does not exist: `../content/maps/monastery_quarter.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:61` | Local Markdown link target does not exist: `../content/maps/reval_harbor_north.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:62` | Local Markdown link target does not exist: `../content/maps/monastery_quarter.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:63` | Local Markdown link target does not exist: `../content/maps/reval_harbor_east.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:64` | Local Markdown link target does not exist: `../content/maps/reval_harbor_east.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:65` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:66` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:67` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:68` | Local Markdown link target does not exist: `../content/maps/viru_gate_foreland.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:69` | Local Markdown link target does not exist: `../content/maps/viru_gate_foreland.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:70` | Local Markdown link target does not exist: `../content/maps/viru_gate_foreland.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:71` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:72` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:73` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:74` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:75` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:76` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:77` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:78` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:79` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:80` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:81` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:82` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:83` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:84` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:85` | Local Markdown link target does not exist: `../content/maps/monastery_quarter.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:86` | Local Markdown link target does not exist: `../content/maps/monastery_quarter.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:87` | Local Markdown link target does not exist: `../content/maps/monastery_quarter.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:97` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:98` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:99` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:100` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:101` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:102` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:103` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:104` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:105` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:106` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:107` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:108` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:109` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:110` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:111` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:112` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:113` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:114` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:115` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
-| `BROKEN_LINK` | `docs/FLORA_FAUNA.md:116` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
-| `BROKEN_LINK` | `docs/LOCATIONS/haapsalu_laanemaa.md:57` | Local Markdown link target does not exist: `../../content/maps/world_padise.rrmap` |
-| `BROKEN_LINK` | `docs/LOCATIONS/padise_monastery.md:4` | Local Markdown link target does not exist: `../../content/maps/world_padise.rrmap` |
-| `BROKEN_LINK` | `docs/LOCATIONS/padise_monastery.md:192` | Local Markdown link target does not exist: `../../content/maps/world_padise.rrmap` |
-| `BROKEN_LINK` | `docs/LOCATIONS/sacred_grove.md:50` | Local Markdown link target does not exist: `../../content/maps/south_quarter.rrmap` |
-| `BROKEN_LINK` | `docs/LOCATIONS/sacred_grove.md:179` | Local Markdown link target does not exist: `../../content/maps/world_sacred_grove.rrmap` |
-| `BROKEN_LINK` | `docs/PERFORMANCE_REPORT.md:5` | Local Markdown link target does not exist: `../agents/rebel-dev/skills/performance-loop/SKILL.md` |
 
 ## Active files scanned
 
@@ -243,6 +162,14 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/ART_BIBLE.md`
 - `docs/ASSET_INVENTORY.md`
 - `docs/ASSET_STORAGE_POLICY.md`
+- `docs/BESTIARY/cards/black_cloak_fighter.md`
+- `docs/BESTIARY/cards/brute.md`
+- `docs/BESTIARY/cards/road_bandit.md`
+- `docs/BESTIARY/cards/saboteur.md`
+- `docs/BESTIARY/cards/spirit_caller.md`
+- `docs/BESTIARY/cards/street_thug.md`
+- `docs/BESTIARY/cards/vanapagan_cultist.md`
+- `docs/BESTIARY/cards/wolf.md`
 - `docs/BESTIARY/README.md`
 - `docs/BESTIARY/TEMPLATE.md`
 - `docs/CANON.md`
@@ -1194,7 +1121,6 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/SYSTEMS/NIGHT_SKY.md`
 - `docs/SYSTEMS/NPC_MIND.md`
 - `docs/SYSTEMS/OBJECT_CATALOG.md`
-- `docs/SYSTEMS/POST_PROCESS.md`
 - `docs/SYSTEMS/PSYCHE.md`
 - `docs/SYSTEMS/QUESTS.md`
 - `docs/SYSTEMS/README.md`

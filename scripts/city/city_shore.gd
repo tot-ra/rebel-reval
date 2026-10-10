@@ -77,7 +77,9 @@ func _build() -> void:
 			if bool(ShoreDebris.SHORE_DEBRIS_KINDS[kind][2])
 			else GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		)
-		inst.visibility_range_end = PEBBLE_DRAW_RANGE if kind in [&"pebble_patch_a", &"pebble_patch_b"] else DRAW_RANGE
+		inst.visibility_range_end = (
+			PEBBLE_DRAW_RANGE if kind in [&"pebble_patch_a", &"pebble_patch_b"] else DRAW_RANGE
+		)
 		add_child(inst)
 
 
@@ -170,13 +172,17 @@ static func _load_rasters(city_plan: CityPlan) -> void:
 
 static func _raster_at(city_plan: CityPlan, image: Image, spot: Vector2) -> Color:
 	var t := (spot - city_plan.bounds.position) / city_plan.bounds.size * Vector2(image.get_size())
-	return image.get_pixel(clampi(int(t.x), 0, image.get_width() - 1), clampi(int(t.y), 0, image.get_height() - 1))
+	return image.get_pixel(
+		clampi(int(t.x), 0, image.get_width() - 1), clampi(int(t.y), 0, image.get_height() - 1)
+	)
 
 
 ## Not a cart road, paving or a ploughed field (same rasters as the ground shader),
 ## probed a stone's reach round `spot` so nothing overhangs a road edge.
 static func _natural_ground(city_plan: CityPlan, spot: Vector2) -> bool:
-	for probe: Vector2 in [Vector2.ZERO, Vector2(1.5, 0.0), Vector2(-1.5, 0.0), Vector2(0.0, 1.5), Vector2(0.0, -1.5)]:
+	for probe: Vector2 in [
+		Vector2.ZERO, Vector2(1.5, 0.0), Vector2(-1.5, 0.0), Vector2(0.0, 1.5), Vector2(0.0, -1.5)
+	]:
 		var at := spot + probe
 		if _raster_at(city_plan, _roads, at).r > 0.03:
 			return false
@@ -194,7 +200,11 @@ static func _beach_tint(rng: RandomNumberGenerator) -> Color:
 
 ## A dry-land boulder bedded about a quarter of its height in the ground.
 static func _add_land_boulder(
-	out: Array[Dictionary], city_plan: CityPlan, spot: Vector2, rng: RandomNumberGenerator, medium_share: float
+	out: Array[Dictionary],
+	city_plan: CityPlan,
+	spot: Vector2,
+	rng: RandomNumberGenerator,
+	medium_share: float
 ) -> void:
 	var roll := rng.randf()
 	var kind := &"boulder_small"
@@ -219,7 +229,11 @@ static func _block_has_coast(city_plan: CityPlan, origin: Vector2) -> bool:
 
 
 static func _add_boulder(
-	out: Array[Dictionary], city_plan: CityPlan, spot: Vector2, rng: RandomNumberGenerator, cluster: float
+	out: Array[Dictionary],
+	city_plan: CityPlan,
+	spot: Vector2,
+	rng: RandomNumberGenerator,
+	_cluster: float
 ) -> void:
 	var roll := rng.randf()
 	var kind := &"boulder_small"
@@ -234,7 +248,13 @@ static func _add_boulder(
 	out.append(item)
 	# A weed skirt rides at the foot of most stones in the water.
 	if rng.randf() < 0.6:
-		out.append(_item(&"algae_skirt", city_plan, spot + Vector2(rng.randf_range(-0.6, 0.6), rng.randf_range(-0.6, 0.6)), rng, 1.0, 1.6, 0.0, Color(0.85, 0.95, 0.8)))
+		out.append(
+			_item(
+				&"algae_skirt", city_plan,
+				spot + Vector2(rng.randf_range(-0.6, 0.6), rng.randf_range(-0.6, 0.6)),
+				rng, 1.0, 1.6, 0.0, Color(0.85, 0.95, 0.8)
+			)
+		)
 
 
 static func _item(
@@ -256,9 +276,15 @@ static func _item(
 		# Flat dressing lies on the local slope.
 		var step := 0.6
 		var normal := Vector3(
-			city_plan.ground_height(spot - Vector2(step, 0.0)) - city_plan.ground_height(spot + Vector2(step, 0.0)),
+			(
+				city_plan.ground_height(spot - Vector2(step, 0.0))
+				- city_plan.ground_height(spot + Vector2(step, 0.0))
+			),
 			2.0 * step,
-			city_plan.ground_height(spot - Vector2(0.0, step)) - city_plan.ground_height(spot + Vector2(0.0, step))
+			(
+				city_plan.ground_height(spot - Vector2(0.0, step))
+				- city_plan.ground_height(spot + Vector2(0.0, step))
+			)
 		).normalized()
 		basis = Basis(Quaternion(Vector3.UP, normal)) * basis
 	else:
@@ -290,7 +316,9 @@ static func _h(p: Vector2, salt: float) -> float:
 static func _taken(city_plan: CityPlan, spot: Vector2) -> bool:
 	if city_plan.building_at(spot) >= 0 or city_plan.site_at(spot) != null:
 		return true
-	for probe: Vector2 in [Vector2.ZERO, Vector2(2.0, 0.0), Vector2(-2.0, 0.0), Vector2(0.0, 2.0), Vector2(0.0, -2.0)]:
+	for probe: Vector2 in [
+		Vector2.ZERO, Vector2(2.0, 0.0), Vector2(-2.0, 0.0), Vector2(0.0, 2.0), Vector2(0.0, -2.0)
+	]:
 		if not is_nan(city_plan.bridge_deck_height(spot + probe)):
 			return true
 	return false

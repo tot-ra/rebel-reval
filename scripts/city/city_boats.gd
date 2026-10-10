@@ -17,9 +17,18 @@ const WEATHERED := Color(0.62, 0.55, 0.46)
 ## kind -> {length, beam, depth, flat (bottom flatness 0..1), stem (rise of the ends),
 ## sheer (gunwale lift at the ends), tarred, deck_y (usable floor above the keel)}.
 const KINDS := {
-	&"clinker": {"length": 7.4, "beam": 2.2, "depth": 0.95, "flat": 0.25, "stem": 0.55, "tarred": false, "floor": 0.28},
-	&"skiff": {"length": 4.6, "beam": 1.6, "depth": 0.7, "flat": 0.35, "stem": 0.35, "tarred": false, "floor": 0.22},
-	&"lighter": {"length": 10.5, "beam": 3.6, "depth": 1.15, "flat": 0.8, "stem": 0.25, "tarred": true, "floor": 0.35},
+	&"clinker": {
+		"length": 7.4, "beam": 2.2, "depth": 0.95, "flat": 0.25, "stem": 0.55,
+		"tarred": false, "floor": 0.28,
+	},
+	&"skiff": {
+		"length": 4.6, "beam": 1.6, "depth": 0.7, "flat": 0.35, "stem": 0.35,
+		"tarred": false, "floor": 0.22,
+	},
+	&"lighter": {
+		"length": 10.5, "beam": 3.6, "depth": 1.15, "flat": 0.8, "stem": 0.25,
+		"tarred": true, "floor": 0.35,
+	},
 }
 
 static var _meshes: Dictionary = {}
@@ -90,8 +99,14 @@ static func hull_mesh(kind: StringName) -> ArrayMesh:
 	var floor_y: float = float(spec["floor"])
 	for i in 3:
 		var tx := (float(i) - 1.0) * length * 0.2
-		_box(st, Vector3(tx, floor_y + depth * 0.42, 0.0), Vector3(0.18, 0.06, beam * 0.78), PLANK.darkened(0.1))
-	_box(st, Vector3(0.0, floor_y + 0.02, 0.0), Vector3(length * 0.72, 0.04, beam * 0.5), PLANK.darkened(0.25))
+		_box(
+			st, Vector3(tx, floor_y + depth * 0.42, 0.0), Vector3(0.18, 0.06, beam * 0.78),
+			PLANK.darkened(0.1)
+		)
+	_box(
+		st, Vector3(0.0, floor_y + 0.02, 0.0), Vector3(length * 0.72, 0.04, beam * 0.5),
+		PLANK.darkened(0.25)
+	)
 	var mesh := st.commit()
 	_meshes[kind] = mesh
 	return mesh
@@ -100,11 +115,31 @@ static func hull_mesh(kind: StringName) -> ArrayMesh:
 static func _box(st: SurfaceTool, c: Vector3, size: Vector3, tone: Color) -> void:
 	var h := size * 0.5
 	var faces := [
-		[Vector3(1, 0, 0), Vector3(h.x, -h.y, -h.z), Vector3(h.x, -h.y, h.z), Vector3(h.x, h.y, h.z), Vector3(h.x, h.y, -h.z)],
-		[Vector3(-1, 0, 0), Vector3(-h.x, -h.y, h.z), Vector3(-h.x, -h.y, -h.z), Vector3(-h.x, h.y, -h.z), Vector3(-h.x, h.y, h.z)],
-		[Vector3(0, 1, 0), Vector3(-h.x, h.y, -h.z), Vector3(h.x, h.y, -h.z), Vector3(h.x, h.y, h.z), Vector3(-h.x, h.y, h.z)],
-		[Vector3(0, 0, 1), Vector3(h.x, -h.y, h.z), Vector3(-h.x, -h.y, h.z), Vector3(-h.x, h.y, h.z), Vector3(h.x, h.y, h.z)],
-		[Vector3(0, 0, -1), Vector3(-h.x, -h.y, -h.z), Vector3(h.x, -h.y, -h.z), Vector3(h.x, h.y, -h.z), Vector3(-h.x, h.y, -h.z)],
+		[
+			Vector3(1, 0, 0),
+			Vector3(h.x, -h.y, -h.z), Vector3(h.x, -h.y, h.z),
+			Vector3(h.x, h.y, h.z), Vector3(h.x, h.y, -h.z)
+		],
+		[
+			Vector3(-1, 0, 0),
+			Vector3(-h.x, -h.y, h.z), Vector3(-h.x, -h.y, -h.z),
+			Vector3(-h.x, h.y, -h.z), Vector3(-h.x, h.y, h.z)
+		],
+		[
+			Vector3(0, 1, 0),
+			Vector3(-h.x, h.y, -h.z), Vector3(h.x, h.y, -h.z),
+			Vector3(h.x, h.y, h.z), Vector3(-h.x, h.y, h.z)
+		],
+		[
+			Vector3(0, 0, 1),
+			Vector3(h.x, -h.y, h.z), Vector3(-h.x, -h.y, h.z),
+			Vector3(-h.x, h.y, h.z), Vector3(h.x, h.y, h.z)
+		],
+		[
+			Vector3(0, 0, -1),
+			Vector3(-h.x, -h.y, -h.z), Vector3(h.x, -h.y, -h.z),
+			Vector3(h.x, h.y, -h.z), Vector3(-h.x, h.y, -h.z)
+		],
 	]
 	for f: Array in faces:
 		for idx: int in [1, 2, 3, 1, 3, 4]:
@@ -144,7 +179,9 @@ static func _oars_and_mast(root: Node3D, kind: StringName) -> void:
 		mesh.size = Vector3(0.06, 0.04, 2.6 if kind == &"clinker" else 1.8)
 		oar.mesh = mesh
 		oar.material_override = wood
-		oar.position = Vector3(0.1, float(spec["depth"]) + 0.25, side * (float(spec["beam"]) * 0.5 + 0.55))
+		oar.position = Vector3(
+			0.1, float(spec["depth"]) + 0.25, side * (float(spec["beam"]) * 0.5 + 0.55)
+		)
 		oar.rotation = Vector3(0.0, 0.25 * side, 0.18)
 		root.add_child(oar)
 	if kind == &"clinker":

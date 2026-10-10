@@ -24,30 +24,30 @@ All tree IDs accept optional `.small`, `.medium`, or `.large` suffixes. Group va
 
 | Tree | Runtime ID | Status | Concrete authored evidence |
 |---|---|---|---|
-| Norway spruce | `tree.spruce` | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap), [`reval_harbor_east.rrmap`](../content/maps/reval_harbor_east.rrmap) |
-| Scots pine | `tree.pine` | modeled + used | [`reval_harbor_east.rrmap`](../content/maps/reval_harbor_east.rrmap) |
-| Silver birch | `tree.birch` | modeled + used | [`reval_harbor_east.rrmap`](../content/maps/reval_harbor_east.rrmap) |
-| Pedunculate oak | `tree.oak` | modeled + used | [`reval_harbor_north.rrmap`](../content/maps/reval_harbor_north.rrmap) |
-| Alder | `tree.alder` | modeled + used | [`reval_harbor_east.rrmap`](../content/maps/reval_harbor_east.rrmap) |
-| Eurasian aspen | `tree.aspen` | modeled + used | [`reval_harbor_east.rrmap`](../content/maps/reval_harbor_east.rrmap) |
-| Norway maple | `tree.maple` | modeled + used | [`monastery_quarter.rrmap`](../content/maps/monastery_quarter.rrmap) |
-| Small-leaved linden | `tree.linden` | modeled + used | [`monastery_quarter.rrmap`](../content/maps/monastery_quarter.rrmap) |
-| Apple | `tree.apple` | modeled + fruit + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
-| Sour cherry | `tree.cherry` | modeled + fruit + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
-| European ash | `tree.ash` | modeled + used | [`monastery_quarter.rrmap`](../content/maps/monastery_quarter.rrmap) |
-| Wych elm | `tree.elm` | modeled + used | [`monastery_quarter.rrmap`](../content/maps/monastery_quarter.rrmap) |
-| Willow | `tree.willow` | modeled + used | [`reval_harbor_east.rrmap`](../content/maps/reval_harbor_east.rrmap) |
-| Rowan | `tree.rowan` | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap), [`reval_harbor_north.rrmap`](../content/maps/reval_harbor_north.rrmap) |
-| Common hazel | `tree.hazel` | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
-| Common juniper | `tree.juniper` | modeled + used | [`reval_harbor_east.rrmap`](../content/maps/reval_harbor_east.rrmap) |
-| Plum / damson | `tree.plum` | modeled + fruit + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
-| European pear | `tree.pear` | modeled + fruit + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
-| Common hawthorn | `tree.hawthorn` | modeled + fruit + used | [`reval_harbor_north.rrmap`](../content/maps/reval_harbor_north.rrmap) |
-| Blackthorn | `tree.blackthorn` | modeled + fruit + used | [`reval_harbor_east.rrmap`](../content/maps/reval_harbor_east.rrmap) |
+| Norway spruce | `tree.spruce` | modeled + used | `archbishops_garden.rrmap`, `reval_harbor_east.rrmap` |
+| Scots pine | `tree.pine` | modeled + used | `reval_harbor_east.rrmap` |
+| Silver birch | `tree.birch` | modeled + used | `reval_harbor_east.rrmap` |
+| Pedunculate oak | `tree.oak` | modeled + used | `reval_harbor_north.rrmap` |
+| Alder | `tree.alder` | modeled + used | `reval_harbor_east.rrmap` |
+| Eurasian aspen | `tree.aspen` | modeled + used | `reval_harbor_east.rrmap` |
+| Norway maple | `tree.maple` | modeled + used | `monastery_quarter.rrmap` |
+| Small-leaved linden | `tree.linden` | modeled + used | `monastery_quarter.rrmap` |
+| Apple | `tree.apple` | modeled + fruit + used | `archbishops_garden.rrmap` |
+| Sour cherry | `tree.cherry` | modeled + fruit + used | `archbishops_garden.rrmap` |
+| European ash | `tree.ash` | modeled + used | `monastery_quarter.rrmap` |
+| Wych elm | `tree.elm` | modeled + used | `monastery_quarter.rrmap` |
+| Willow | `tree.willow` | modeled + used | `reval_harbor_east.rrmap` |
+| Rowan | `tree.rowan` | modeled + used | `archbishops_garden.rrmap`, `reval_harbor_north.rrmap` |
+| Common hazel | `tree.hazel` | modeled + used | `archbishops_garden.rrmap` |
+| Common juniper | `tree.juniper` | modeled + used | `reval_harbor_east.rrmap` |
+| Plum / damson | `tree.plum` | modeled + fruit + used | `archbishops_garden.rrmap` |
+| European pear | `tree.pear` | modeled + fruit + used | `archbishops_garden.rrmap` |
+| Common hawthorn | `tree.hawthorn` | modeled + fruit + used | `reval_harbor_north.rrmap` |
+| Blackthorn | `tree.blackthorn` | modeled + fruit + used | `reval_harbor_east.rrmap` |
 
 Sacred Grove landmark hingepuu (`primitive=ancient_tree` on the retired `world_sacred_grove.rrmap` greybox; the regional site [`sacred_grove.tscn`](../scenes/world/sites/sacred_grove.tscn) replaced it) uses the authored GLB loaded through [`map_view_mesh_builder_prop_models.gd`](../scripts/map/view3d/map_view_mesh_builder_prop_models.gd) (`sacred_grove_ancient_oak.glb`): buttressed trunk, giant primary limbs, dense canopy, and hanging moss. Grove `primitive=tree_line` buildings dress as large oak rows in 3D rather than house boxes.
 
-Tree tests: [`test_map_view_tree_species.gd`](../tests/godot/test_map_view_tree_species.gd). They enforce the catalog target, cache reuse, bounded geometry, tapered trunks, size pins, and authored species use.
+Tree tests: `test_map_view_tree_species.gd` was retired with the legacy Lower Town scenes (commit `22811a3c`); it enforced the catalog target, cache reuse, bounded geometry, tapered trunks, size pins, and authored species use.
 
 ## Plant, herb, and crop model ledger (30/30)
 
@@ -55,36 +55,36 @@ Tree tests: [`test_map_view_tree_species.gd`](../tests/godot/test_map_view_tree_
 
 | Plant | Runtime ID | Status | Concrete authored evidence |
 |---|---|---|---|
-| Stinging nettle | `plant.nettle` | modeled + used | [`monastery_quarter.rrmap`](../content/maps/monastery_quarter.rrmap) |
-| Mugwort | `plant.mugwort` | modeled + used | [`monastery_quarter.rrmap`](../content/maps/monastery_quarter.rrmap), [`reval_harbor_north.rrmap`](../content/maps/reval_harbor_north.rrmap) |
-| Yarrow | `plant.yarrow` | modeled + used | [`monastery_quarter.rrmap`](../content/maps/monastery_quarter.rrmap) |
-| Broadleaf plantain | `plant.plantain` | modeled + used | [`monastery_quarter.rrmap`](../content/maps/monastery_quarter.rrmap), [`reval_harbor_north.rrmap`](../content/maps/reval_harbor_north.rrmap) |
-| Dandelion | `plant.dandelion` | modeled + used | [`monastery_quarter.rrmap`](../content/maps/monastery_quarter.rrmap) |
-| Burdock | `plant.burdock` | modeled + used | [`reval_harbor_east.rrmap`](../content/maps/reval_harbor_east.rrmap) |
-| Creeping thistle | `plant.thistle` | modeled + used | [`reval_harbor_east.rrmap`](../content/maps/reval_harbor_east.rrmap) |
-| Red/white clover | `plant.clover` | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) as a concrete bed; `grass.clover` remains a legacy cover alias |
-| Bracken / male fern | `plant.fern` | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) as a concrete bed; `grass.fern` remains a legacy cover alias |
-| Sphagnum moss | `plant.moss` | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) as a concrete bed; `grass.mossy` remains a legacy cover alias |
-| Common reed | `plant.reed` | modeled + used | [`viru_gate_foreland.rrmap`](../content/maps/viru_gate_foreland.rrmap) |
-| Bulrush / cattail | `plant.cattail` | modeled + used | [`viru_gate_foreland.rrmap`](../content/maps/viru_gate_foreland.rrmap) |
-| White water lily | `plant.water_lily` | modeled + used | [`viru_gate_foreland.rrmap`](../content/maps/viru_gate_foreland.rrmap) |
-| Cabbage | `crop.cabbage` | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
-| Turnip | `crop.turnip` | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
-| Onion | `crop.onion` | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
-| Garlic | `crop.garlic` | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
-| Pea | `crop.pea` | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
-| Broad bean | `crop.broad_bean` | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
-| Rye | `crop.rye` | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
-| Wheat | `crop.wheat` | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
-| Barley | `crop.barley` | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
-| Oat | `crop.oat` | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
-| Flax | `crop.flax` | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
-| Hemp | `crop.hemp` | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
-| Hops | `crop.hops` | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
-| Mint | `plant.mint` | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
-| Caraway | `plant.caraway` | modeled + used | [`monastery_quarter.rrmap`](../content/maps/monastery_quarter.rrmap) |
-| Chamomile | `plant.chamomile` | modeled + used | [`monastery_quarter.rrmap`](../content/maps/monastery_quarter.rrmap) |
-| St. John's wort | `plant.st_johns_wort` | modeled + used | [`monastery_quarter.rrmap`](../content/maps/monastery_quarter.rrmap) |
+| Stinging nettle | `plant.nettle` | modeled + used | `monastery_quarter.rrmap` |
+| Mugwort | `plant.mugwort` | modeled + used | `monastery_quarter.rrmap`, `reval_harbor_north.rrmap` |
+| Yarrow | `plant.yarrow` | modeled + used | `monastery_quarter.rrmap` |
+| Broadleaf plantain | `plant.plantain` | modeled + used | `monastery_quarter.rrmap`, `reval_harbor_north.rrmap` |
+| Dandelion | `plant.dandelion` | modeled + used | `monastery_quarter.rrmap` |
+| Burdock | `plant.burdock` | modeled + used | `reval_harbor_east.rrmap` |
+| Creeping thistle | `plant.thistle` | modeled + used | `reval_harbor_east.rrmap` |
+| Red/white clover | `plant.clover` | modeled + used | `archbishops_garden.rrmap` as a concrete bed; `grass.clover` remains a legacy cover alias |
+| Bracken / male fern | `plant.fern` | modeled + used | `archbishops_garden.rrmap` as a concrete bed; `grass.fern` remains a legacy cover alias |
+| Sphagnum moss | `plant.moss` | modeled + used | `archbishops_garden.rrmap` as a concrete bed; `grass.mossy` remains a legacy cover alias |
+| Common reed | `plant.reed` | modeled + used | `viru_gate_foreland.rrmap` |
+| Bulrush / cattail | `plant.cattail` | modeled + used | `viru_gate_foreland.rrmap` |
+| White water lily | `plant.water_lily` | modeled + used | `viru_gate_foreland.rrmap` |
+| Cabbage | `crop.cabbage` | modeled + used | `archbishops_garden.rrmap` |
+| Turnip | `crop.turnip` | modeled + used | `archbishops_garden.rrmap` |
+| Onion | `crop.onion` | modeled + used | `archbishops_garden.rrmap` |
+| Garlic | `crop.garlic` | modeled + used | `archbishops_garden.rrmap` |
+| Pea | `crop.pea` | modeled + used | `archbishops_garden.rrmap` |
+| Broad bean | `crop.broad_bean` | modeled + used | `archbishops_garden.rrmap` |
+| Rye | `crop.rye` | modeled + used | `archbishops_garden.rrmap` |
+| Wheat | `crop.wheat` | modeled + used | `archbishops_garden.rrmap` |
+| Barley | `crop.barley` | modeled + used | `archbishops_garden.rrmap` |
+| Oat | `crop.oat` | modeled + used | `archbishops_garden.rrmap` |
+| Flax | `crop.flax` | modeled + used | `archbishops_garden.rrmap` |
+| Hemp | `crop.hemp` | modeled + used | `archbishops_garden.rrmap` |
+| Hops | `crop.hops` | modeled + used | `archbishops_garden.rrmap` |
+| Mint | `plant.mint` | modeled + used | `archbishops_garden.rrmap` |
+| Caraway | `plant.caraway` | modeled + used | `monastery_quarter.rrmap` |
+| Chamomile | `plant.chamomile` | modeled + used | `monastery_quarter.rrmap` |
+| St. John's wort | `plant.st_johns_wort` | modeled + used | `monastery_quarter.rrmap` |
 
 Plant tests: [`test_map_view_plant_species.gd`](../tests/godot/test_map_view_plant_species.gd). They enforce 30 registered models, cache reuse, geometry-family diversity, valid scatter profiles, and authored location coverage for all 20 trees and 30 plants.
 
@@ -94,26 +94,26 @@ Group variants `bush.dense`, `bush.scrub`, `bush.mixed`, `bush.hedge`, `bush.hea
 
 | Shrub | Runtime ID | Group | Status | Concrete authored evidence |
 |---|---|---|---|---|
-| Bilberry | `bush.bilberry` | berry | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
-| Cowberry | `bush.cowberry` | berry | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
-| Cloudberry | `bush.cloudberry` | bog | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
-| Cranberry | `bush.cranberry` | bog | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
-| Crowberry | `bush.crowberry` | heath | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
-| Wild strawberry | `bush.wild_strawberry` | berry | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
-| Raspberry | `bush.raspberry` | berry | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
-| Dog rose | `bush.dog_rose` | understory | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
-| Guelder rose | `bush.guelder_rose` | understory | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
-| Elder | `bush.elder` | understory | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
-| Sea buckthorn | `bush.sea_buckthorn` | coastal | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
-| Heather | `bush.heather` | heath | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
-| Bog rosemary | `bush.bog_rosemary` | bog | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
-| Juniper shrub | `bush.juniper_shrub` | coastal | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
-| Hazel shrub | `bush.hazel_shrub` | hedge | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
-| Hawthorn | `bush.hawthorn` | hedge | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
-| Blackthorn | `bush.blackthorn` | hedge | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
-| Willow shrub | `bush.willow_shrub` | wetland | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
-| Alder shrub | `bush.alder_shrub` | wetland | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
-| Spindle | `bush.spindle` | hedge | modeled + used | [`archbishops_garden.rrmap`](../content/maps/archbishops_garden.rrmap) |
+| Bilberry | `bush.bilberry` | berry | modeled + used | `archbishops_garden.rrmap` |
+| Cowberry | `bush.cowberry` | berry | modeled + used | `archbishops_garden.rrmap` |
+| Cloudberry | `bush.cloudberry` | bog | modeled + used | `archbishops_garden.rrmap` |
+| Cranberry | `bush.cranberry` | bog | modeled + used | `archbishops_garden.rrmap` |
+| Crowberry | `bush.crowberry` | heath | modeled + used | `archbishops_garden.rrmap` |
+| Wild strawberry | `bush.wild_strawberry` | berry | modeled + used | `archbishops_garden.rrmap` |
+| Raspberry | `bush.raspberry` | berry | modeled + used | `archbishops_garden.rrmap` |
+| Dog rose | `bush.dog_rose` | understory | modeled + used | `archbishops_garden.rrmap` |
+| Guelder rose | `bush.guelder_rose` | understory | modeled + used | `archbishops_garden.rrmap` |
+| Elder | `bush.elder` | understory | modeled + used | `archbishops_garden.rrmap` |
+| Sea buckthorn | `bush.sea_buckthorn` | coastal | modeled + used | `archbishops_garden.rrmap` |
+| Heather | `bush.heather` | heath | modeled + used | `archbishops_garden.rrmap` |
+| Bog rosemary | `bush.bog_rosemary` | bog | modeled + used | `archbishops_garden.rrmap` |
+| Juniper shrub | `bush.juniper_shrub` | coastal | modeled + used | `archbishops_garden.rrmap` |
+| Hazel shrub | `bush.hazel_shrub` | hedge | modeled + used | `archbishops_garden.rrmap` |
+| Hawthorn | `bush.hawthorn` | hedge | modeled + used | `archbishops_garden.rrmap` |
+| Blackthorn | `bush.blackthorn` | hedge | modeled + used | `archbishops_garden.rrmap` |
+| Willow shrub | `bush.willow_shrub` | wetland | modeled + used | `archbishops_garden.rrmap` |
+| Alder shrub | `bush.alder_shrub` | wetland | modeled + used | `archbishops_garden.rrmap` |
+| Spindle | `bush.spindle` | hedge | modeled + used | `archbishops_garden.rrmap` |
 
 Shrub tests: [`test_map_view_bush_species.gd`](../tests/godot/test_map_view_bush_species.gd). They enforce the 20-species catalog, cache reuse, archetype diversity, valid scatter profiles, legacy dense/scrub aliases, and authored location coverage.
 

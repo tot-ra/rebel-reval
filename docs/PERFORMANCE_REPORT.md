@@ -2,7 +2,7 @@
 
 ## Daily Brute/Caesar optimization loop
 
-The enabled daily developer loop applies one evidence-backed performance fix when a safe, clean write boundary exists. It evaluates low / mid / high graphics quality against `tools/benchmarks/minimum-hardware.json`, balancing rendered frame time (target strictly below 33.33 ms / above 30 FPS), frame-time tails, CPU, GPU, memory, loading and I/O while preserving world/gameplay features. The loop instructions and guardrails are [`agents/rebel-dev/skills/performance-loop/SKILL.md`](../agents/rebel-dev/skills/performance-loop/SKILL.md); team-loop overview is [`docs/AGENT_LOOPS.md`](./AGENT_LOOPS.md).
+The enabled daily developer loop applies one evidence-backed performance fix when a safe, clean write boundary exists. It evaluates low / mid / high graphics quality against `tools/benchmarks/minimum-hardware.json`, balancing rendered frame time (target strictly below 33.33 ms / above 30 FPS), frame-time tails, CPU, GPU, memory, loading and I/O while preserving world/gameplay features. The loop instructions and guardrails are `agents/rebel-dev/skills/performance-loop/SKILL.md`; team-loop overview is [`docs/AGENT_LOOPS.md`](./AGENT_LOOPS.md).
 
 Headless measurements are instrumentation only, not rendered FPS or GPU certification. Compare before/after on the same host, renderer, scene, resolution and workload, test every measurable tier, and report limitations; see the minimum-hardware and acceptance cautions in [P3-011](./reports/p3_011_performance_budget.md). The loop does not create project tasks or silently trade away features.
 

@@ -90,13 +90,19 @@ static func _crane(
 		for y: float in [2.2, 4.6]:
 			_box(node, Vector3(half * 2.0, 0.22, 0.22), Vector3(0.0, y, sz * half), timber)
 		_box(node, Vector3(0.18, 5.6, 0.18), Vector3(0.0, 3.6, sz * half), timber, Vector3(0.0, 0.0, 0.7))
-		_box(node, Vector3(0.18, 5.6, 0.18), Vector3(0.0, 3.6, sz * half), timber, Vector3(0.0, 0.0, -0.7))
+		_box(
+			node, Vector3(0.18, 5.6, 0.18), Vector3(0.0, 3.6, sz * half), timber,
+			Vector3(0.0, 0.0, -0.7)
+		)
 	for sx: float in [-1.0, 1.0]:
 		for y: float in [2.2, 4.6]:
 			_box(node, Vector3(0.22, 0.22, half * 2.0), Vector3(sx * half, y, 0.0), timber)
 	# Gabled shingle roof.
 	for side: float in [-1.0, 1.0]:
-		_box(node, Vector3(half * 2.6, 0.16, 3.2), Vector3(0.0, 8.0, side * 1.35), wood, Vector3(side * 0.62, 0.0, 0.0))
+		_box(
+			node, Vector3(half * 2.6, 0.16, 3.2), Vector3(0.0, 8.0, side * 1.35), wood,
+			Vector3(side * 0.62, 0.0, 0.0)
+		)
 	_box(node, Vector3(half * 2.7, 0.22, 0.22), Vector3(0.0, 8.7, 0.0), timber)
 	# The tread drum: rim, 8 spokes, tread boards, inside the frame along z.
 	var drum := Node3D.new()
@@ -106,18 +112,30 @@ static func _crane(
 	for side: float in [-1.0, 1.0]:
 		for i in 16:
 			var a := TAU * float(i) / 16.0
-			_box(drum, Vector3(0.7, 0.14, 0.14), Vector3(cos(a) * rim_r, sin(a) * rim_r, side * 0.95), timber, Vector3(0.0, 0.0, a + PI * 0.5))
+			_box(
+				drum, Vector3(0.7, 0.14, 0.14), Vector3(cos(a) * rim_r, sin(a) * rim_r, side * 0.95),
+				timber, Vector3(0.0, 0.0, a + PI * 0.5)
+			)
 		for i in 8:
 			var a := TAU * float(i) / 8.0
-			_box(drum, Vector3(rim_r * 2.0, 0.12, 0.12), Vector3(0.0, 0.0, side * 0.95), timber, Vector3(0.0, 0.0, a))
+			_box(
+				drum, Vector3(rim_r * 2.0, 0.12, 0.12), Vector3(0.0, 0.0, side * 0.95), timber,
+				Vector3(0.0, 0.0, a)
+			)
 	for i in 24:
 		var a := TAU * float(i) / 24.0
-		_box(drum, Vector3(0.12, 0.12, 1.9), Vector3(cos(a) * (rim_r - 0.05), sin(a) * (rim_r - 0.05), 0.0), wood, Vector3(0.0, 0.0, a))
+		_box(
+			drum, Vector3(0.12, 0.12, 1.9),
+			Vector3(cos(a) * (rim_r - 0.05), sin(a) * (rim_r - 0.05), 0.0), wood, Vector3(0.0, 0.0, a)
+		)
 	# Windlass axle with the hoist rope winding to the jib head.
 	_cylinder(node, 0.2, half * 2.6, Vector3(0.0, 3.8, 0.0), timber, Vector3(PI * 0.5, 0.0, 0.0))
 	# Jib: two struts rising seaward from the frame to a pulley head over the water.
 	for sz: float in [-0.9, 0.9]:
-		_box(node, Vector3(7.8, 0.28, 0.28), Vector3(half + 3.4, 7.3, sz), timber, Vector3(0.0, 0.0, -0.14))
+		_box(
+			node, Vector3(7.8, 0.28, 0.28), Vector3(half + 3.4, 7.3, sz), timber,
+			Vector3(0.0, 0.0, -0.14)
+		)
 		_box(node, Vector3(0.2, 3.6, 0.2), Vector3(half + 5.6, 5.7, sz), timber, Vector3(0.0, 0.0, 0.0))
 	_box(node, Vector3(0.5, 0.5, 2.1), Vector3(half + 7.2, 6.7, 0.0), timber)
 	_cylinder(node, 0.03, 4.9, Vector3(half + 7.2, 4.2, 0.0), wood)
@@ -164,7 +182,7 @@ static func _stack(
 
 ## A fenced yard: post-and-rail on all four sides, pole racks with nets hung to dry.
 static func _net_yard(
-	plan: CityPlan, root: Node3D, yard: Dictionary, wood: Material, timber: Material
+	plan: CityPlan, root: Node3D, yard: Dictionary, _wood: Material, timber: Material
 ) -> void:
 	var poly := CityPlan.points(yard["polygon"])
 	var node := Node3D.new()

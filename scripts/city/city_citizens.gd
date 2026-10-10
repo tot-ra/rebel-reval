@@ -21,11 +21,15 @@ const PICK_RADIUS := 0.55
 const REFRESH_SECONDS := 1.0
 const SCAN_PER_FRAME := 250
 
+static var _armful: PackedScene
+
 var plan: CityPlan
 var player: Node2D
 var roster: CitizenRoster
 ## Test and capture hook: pins the hour (0..24) instead of the city clock.
 var hour_override := -1.0
+## Main-thread cost of the last scan step (microseconds), for budget checks.
+var last_scan_usec := 0
 
 var _live: Dictionary = {}  # resident index -> CitizenActor
 var _since := REFRESH_SECONDS
@@ -39,9 +43,6 @@ var _tag: Label3D
 var _hover: CitizenActor
 var _selected: CitizenActor
 var _interiors: CityInteriors
-## Main-thread cost of the last scan step (microseconds), for budget checks.
-var last_scan_usec := 0
-static var _armful: PackedScene
 
 
 static func create(city_plan: CityPlan, kalev: Node2D) -> CityCitizens:

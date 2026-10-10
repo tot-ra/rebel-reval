@@ -16,6 +16,7 @@ Start with:
 
 - [ADR 0018 visual calibration](adr0018_visual_calibration.md)
 - [Agent file readability split plan (2026-08-13)](agent_file_readability_split_plan_2026-08-13.md)
+- [Animal models: audit and placement plan (2026-10-07)](animal_placement_plan.md)
 - [Mammal replacement — P0-209b](animal_realism_2026-09-12.md)
 - [AR-03 building surface PBR with anti-tiling (R-961)](ar03_building_surface_pbr.md)
 - [Art downstream requests (legacy redirect)](art_downstream_requests.md)
@@ -280,6 +281,10 @@ Start with:
 - [Sky and weather realism — P0-211](weather_realism_2026-09-12.md)
 - [WS-10 physical sky - evidence report](ws10_physical_sky.md)
 - [WS-15 interactive ripples and wakes - evidence](ws15_ripple_sim.md)
+
+#### `audio_licenses/`
+
+- [Audio license records](audio_licenses/README.md)
 
 #### `evidence/`
 
