@@ -238,24 +238,6 @@
       ]
     },
     {
-      "id": "world.rebel_kings",
-      "location_name": "Rebel Kings Camp developer route",
-      "scene": "scenes/world_travel/world_rebel_kings.tscn",
-      "definition": "scripts/map/definitions/outdoor/distant_location_definitions.gd",
-      "factory": "DistantLocationDefinitions.create(world_rebel_kings)",
-      "disposition": "convert",
-      "capture": "world_rebel_kings.png",
-      "mandatory_anchors": [
-        "landmark_council_camp",
-        "landmark_west_camp",
-        "landmark_east_camp"
-      ],
-      "mandatory_transitions": [
-        "road_to_harju",
-        "road_to_kanavere"
-      ]
-    },
-    {
       "id": "world.kanavere",
       "location_name": "Kanavere Bog developer route",
       "scene": "scenes/world_travel/world_kanavere.tscn",
@@ -290,25 +272,6 @@
       "mandatory_transitions": [
         "road_to_harju",
         "road_to_paide"
-      ]
-    },
-    {
-      "id": "world.paide",
-      "location_name": "Paide Castle developer route",
-      "scene": "scenes/world_travel/world_paide.tscn",
-      "definition": "scripts/map/definitions/outdoor/distant_location_definitions.gd",
-      "factory": "DistantLocationDefinitions.create(world_paide)",
-      "disposition": "convert",
-      "capture": "world_paide.png",
-      "mandatory_anchors": [
-        "landmark_gatehouse",
-        "landmark_central_keep",
-        "landmark_limestone_tower"
-      ],
-      "mandatory_transitions": [
-        "road_to_kanavere",
-        "road_to_sojamae",
-        "road_to_parnu"
       ]
     },
     {

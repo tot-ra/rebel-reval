@@ -10,7 +10,7 @@ from tools.verify_p6_002_activation import verify
 
 ROOT = Path(__file__).resolve().parents[2]
 MANIFEST = ROOT / "docs/data/p6_002_activation_manifest.json"
-TARGETS = ("world_paide", "world_saaremaa", "world_poide")
+TARGETS = ("world_saaremaa", "world_poide")
 
 
 class TestP6Act3Activation(unittest.TestCase):
@@ -49,11 +49,11 @@ class TestP6Act3Activation(unittest.TestCase):
         with self._fixture() as root:
             destinations_path = root / "content/transitions/active_destinations.json"
             destinations = json.loads(destinations_path.read_text(encoding="utf-8"))
-            paide = next(row for row in destinations["scenes"] if row["id"] == "world_paide")
-            paide["spawns"].pop()
+            poide = next(row for row in destinations["scenes"] if row["id"] == "world_poide")
+            poide["spawns"].pop()
             destinations_path.write_text(json.dumps(destinations), encoding="utf-8")
             errors = verify(root)
-            self.assertTrue(any("world_paide transition spawns drift" in error for error in errors), errors)
+            self.assertTrue(any("world_poide transition spawns drift" in error for error in errors), errors)
 
     def test_blocked_wave_requires_each_dependency(self) -> None:
         with self._fixture() as root:

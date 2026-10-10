@@ -30,7 +30,7 @@
 ## 3. Landscape and layout
 **Biome:** river valley with a glacial hill, riverside meadow and alder carr, hazel and oak groves on slopes, rye and barley fields beyond; mild continental climate. Colder and drier than Reval; fewer sea birds, more river and meadow birds.
 
-Proposed map `loc.world_tartu`, **96 x 32 cells** (same cell scale as `world_paide`: 32 px cells, see [../../content/maps/world_paide.rrmap](../../content/maps/world_paide.rrmap)).
+Proposed map `loc.world_tartu`, **96 x 32 cells** (same cell scale as the other greybox travel maps: 32 px cells, see [../../content/maps/world_poide.rrmap](../../content/maps/world_poide.rrmap)).
 
 | Zone | Cells (x y w h) | Terrain | Purpose |
 |---|---|---|---|

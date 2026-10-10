@@ -55,7 +55,7 @@ Journey edges (all explicit travel, not seamless, per [AGENTS.md](../../AGENTS.m
 |---|---|---|
 | `road_to_harju` | `loc.world_harju` ([site](../SYSTEMS/REGIONAL_SITES.md)) | West, along the Viru road |
 | `road_to_narva` | `loc.world_narva` ([page](./narva_peipus_east.md)) | East, long road; forced loading card |
-| `road_to_paide` | `loc.world_paide` ([map](../../content/maps/world_paide.rrmap)) | South-west, Act 2 finale route |
+| `road_to_paide` | `loc.world_paide` ([site](../../scenes/world/sites/paide.tscn)) | South-west, Act 2 finale route |
 
 ## 4. Architecture and built environment
 
@@ -196,6 +196,6 @@ Open questions: Does the maintainer accept the Danish-status correction? Is Wese
 
 ## 11. Sources and next steps
 
-- Repo: [CANON.md](../CANON.md), [TOURIST_LANDMARKS.md](../TOURIST_LANDMARKS.md), [global_map_mockups.md](../reports/global_map_mockups.md), [FLORA_FAUNA.md](../FLORA_FAUNA.md), [world_paide.rrmap](../../content/maps/world_paide.rrmap) (scale model), [danish_crown](../CITIZENS/factions/danish_crown.md), [harju_kings](../CITIZENS/factions/harju_kings.md).
+- Repo: [CANON.md](../CANON.md), [TOURIST_LANDMARKS.md](../TOURIST_LANDMARKS.md), [global_map_mockups.md](../reports/global_map_mockups.md), [FLORA_FAUNA.md](../FLORA_FAUNA.md), [paide.tscn](../../scenes/world/sites/paide.tscn) (scale model), [danish_crown](../CITIZENS/factions/danish_crown.md), [harju_kings](../CITIZENS/factions/harju_kings.md).
 - External by name only: Henry of Livonia (Chronicon Livoniae), Danish crown records on the Duchy of Estonia, Estonian archaeology of the Tarvanpea hillfort.
 - Verification tasks: confirm the 1346 handover details and the castle's 1343 extent; confirm Wesenberg's town charter date; confirm Viru rising events; confirm the red crown banner form; add `world_rakvere.rrmap` only after the ADR.

@@ -1,7 +1,7 @@
 # The Rebel Kings' Camp (Harju command camp, eastern Harria corridor)
 
 **Status:** planned (design proposal, not implemented) · **Scope gate:** existing prototype `loc.world_rebel_kings` · **Act(s):** 2 (hub), 3 (empty-camp aftermath only)
-**Map id:** `loc.world_rebel_kings` (existing: [`content/maps/world_rebel_kings.rrmap`](../../content/maps/world_rebel_kings.rrmap), 50x28 cells, `scope=prototype`, `active=false`) · **Seasons/phases:** siege investment (late April), sortie/supply (about 9-13 May), assault (14-16 May), emptied camp (after 14 May)
+**Map id:** `loc.world_rebel_kings` (regional site: [`scenes/world/sites/rebel_kings.tscn`](../../scenes/world/sites/rebel_kings.tscn) from [`content/world/rebel_kings/plan.json`](../../content/world/rebel_kings/plan.json), ADR 0042, R-1528; the 50x28 `world_rebel_kings.rrmap` greybox is retired and the landmark list below is design history) · **Seasons/phases:** siege investment (late April), sortie/supply (about 9-13 May), assault (14-16 May), emptied camp (after 14 May)
 **Confidence summary:** the rising, the siege, the Four Kings as an institution, the Swedish appeal `attested`; a camp in the eastern Harju corridor `plausible composite`; the exact plot, the signal hill, every named king, every shelter and the council ring `invented`.
 
 ## 1. Why a player would want to visit
@@ -195,5 +195,5 @@ Ambient: crowd murmur, hammer on the field anvil, bellows, axe on firewood, oxen
 
 ## 11. Sources and next steps
 
-Repo: [`world_rebel_kings.rrmap`](../../content/maps/world_rebel_kings.rrmap), [`scenes/events/rebel_kings.md`](../../scenes/events/rebel_kings.md) (legacy), [`global_map_mockups.md`](../reports/global_map_mockups.md), [`p5_001_act2_design.md`](../reports/p5_001_act2_design.md), [`four_kings_act2_lore.md`](../lore/four_kings_act2_lore.md), [`CITIZENS/factions/harju_kings.md`](../CITIZENS/factions/harju_kings.md), [`CANON.md`](../CANON.md), [`arms dossier`](../../history/dossiers/military/arms-and-armour-livonia-1340s.md). External, by name: Hermann de Wartberge, Hoeneke (Younger Livonian Rhymed Chronicle), Moisio on Harria fiefs.
+Repo: [`rebel_kings.tscn`](../../scenes/world/sites/rebel_kings.tscn), [`scenes/events/rebel_kings.md`](../../scenes/events/rebel_kings.md) (legacy), [`global_map_mockups.md`](../reports/global_map_mockups.md), [`p5_001_act2_design.md`](../reports/p5_001_act2_design.md), [`four_kings_act2_lore.md`](../lore/four_kings_act2_lore.md), [`CITIZENS/factions/harju_kings.md`](../CITIZENS/factions/harju_kings.md), [`CANON.md`](../CANON.md), [`arms dossier`](../../history/dossiers/military/arms-and-armour-livonia-1340s.md). External, by name: Hermann de Wartberge, Hoeneke (Younger Livonian Rhymed Chronicle), Moisio on Harria fiefs.
 Verification tasks: (1) name or leave open the fourth seat; (2) decide whether the camp sits on a dedicated map or reuses the Harju east fields; (3) review the war-state keys (`war.kings_alive`, `war.rebel_field_strength`) against the camp phase states; (4) check Swedish envoy canon; (5) pass the Pirita crossing through the Map and Canon boundary review.

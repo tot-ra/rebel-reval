@@ -7,20 +7,16 @@ extends RefCounted
 
 const RRMAP_PATHS: Dictionary = {
 	&"world_saaremaa": "res://content/maps/world_saaremaa.rrmap",
-	&"world_rebel_kings": "res://content/maps/world_rebel_kings.rrmap",
 	&"world_kanavere": "res://content/maps/world_kanavere.rrmap",
 	&"world_sojamae": "res://content/maps/world_sojamae.rrmap",
-	&"world_paide": "res://content/maps/world_paide.rrmap",
 	&"world_parnu": "res://content/maps/world_parnu.rrmap",
 	&"world_poide": "res://content/maps/world_poide.rrmap",
 }
 
 const SCENE_IDS: Array[StringName] = [
 	&"world_saaremaa",
-	&"world_rebel_kings",
 	&"world_kanavere",
 	&"world_sojamae",
-	&"world_paide",
 	&"world_parnu",
 	&"world_poide",
 ]

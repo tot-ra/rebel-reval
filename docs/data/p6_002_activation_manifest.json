@@ -12,14 +12,6 @@
   "activation_policy": "Keep Act 3 maps developer-traversable without promoting any prototype to release or production until all owning content and parity gates are accepted.",
   "targets": [
     {
-      "id": "world_paide",
-      "rrmap_id": "world.paide",
-      "scene_path": "res://scenes/world_travel/world_paide.tscn",
-      "role": "Paide Castle Act 2 to Act 3 handoff",
-      "owner_tasks": ["P5-009", "P6-006"],
-      "expected_dev_spawns": ["from_world_kanavere", "from_world_sojamae", "from_world_parnu"]
-    },
-    {
       "id": "world_saaremaa",
       "rrmap_id": "world.saaremaa",
       "scene_path": "res://scenes/world_travel/world_saaremaa.tscn",
@@ -56,7 +48,7 @@
     },
     "phase_coverage": {
       "status": "blocked",
-      "evidence": "P6-009 must author both Padise phases; Padise itself is now a regional site (R-1556)"
+      "evidence": "P6-009 must author both Padise phases; Padise and Paide are now regional sites (R-1556, R-1551)"
     }
   }
 }

@@ -20,7 +20,7 @@ find . -name '*.tscn' -not -path './.git/*' -not -path './.godot/*' -not -path '
 # Expected: 140
 ```
 
-Inventory row count (data rows in the table below): **139**.
+Inventory row count (data rows in the table below): **137**.
 
 ## Classification criteria
 
@@ -94,10 +94,8 @@ Inventory row count (data rows in the table below): **139**.
 | 89 | `scenes/ui/reflection_overlay.tscn` | working | Hingepuu reflection overlay; P2-011 Duty/Fury/Mercy conviction choice. |
 | 55 | `assets/characters/variants/townswoman.tscn` | partial | Shared-rig townswoman variant used by ambient NPC work. |
 | 82 | `scenes/world_travel/world_saaremaa.tscn` | partial | Developer global-map placeholder; island ferry via Trade Harbour; `release=false`. |
-| 83 | `scenes/world_travel/world_rebel_kings.tscn` | partial | Developer global-map placeholder; Act 2 Harju command camp; `release=false`. |
 | 84 | `scenes/world_travel/world_kanavere.tscn` | partial | Developer global-map placeholder; May 11 battlefield; `release=false`. |
 | 85 | `scenes/world_travel/world_sojamae.tscn` | partial | Developer global-map placeholder; May 14 battlefield; `release=false`. |
-| 86 | `scenes/world_travel/world_paide.tscn` | partial | Developer global-map placeholder; Act 2 Paide Castle; `release=false`. |
 | 87 | `scenes/world_travel/world_parnu.tscn` | partial | Developer global-map placeholder; southern campaign town; `release=false`. |
 | 88 | `scenes/world_travel/world_poide.tscn` | partial | Developer global-map placeholder; Act 3 Saaremaa castle; `release=false`. |
 | 56 | `scenes/world/haapsalu_castle.tscn` | archive | Empty `Node2D`; open-world location outside slice. |

@@ -1,7 +1,7 @@
 # Paide Castle (Wittenstein / Weissenstein, Paide)
 
 **Status:** planned (design proposal, not implemented) · **Scope gate:** existing prototype `loc.world_paide` · **Act(s):** 2 (finale, `mission.act2.paide`), 3 opening handoff (`transition.act2_to_act3.paide`)
-**Map id:** `loc.world_paide` (existing: [`content/maps/world_paide.rrmap`](../../content/maps/world_paide.rrmap), 50x30 cells, `scope=prototype`, `active=false`; proposal widens it to about 90x56) · **Seasons/phases:** mid-May 1343, cold thaw, standing mud; phase A "truce" (arrival, hall), phase B "after" (castle sealed, refugees, silence)
+**Map id:** `loc.world_paide` (regional site: [`scenes/world/sites/paide.tscn`](../../scenes/world/sites/paide.tscn) from [`content/world/paide/plan.json`](../../content/world/paide/plan.json), ADR 0042, R-1520; the 50x30 `world_paide.rrmap` greybox is retired (R-1551) and the cell sizes below are design history) · **Seasons/phases:** mid-May 1343, cold thaw, standing mud; phase A "truce" (arrival, hall), phase B "after" (castle sealed, refugees, silence)
 **Confidence summary:** Four Kings lured and killed at Paide under truce: `attested`. Burchard von Dreileben as Master: `attested`. Exact day-order against Kanavere/Sõjamäe: contested; Act 2 placement is `invented` framing. Castle layout, town market, all NPCs below the Master: `plausible composite` or `invented`. Goswin von Herike's 1343 post: unverified.
 
 ## 1. Why a player would want to visit

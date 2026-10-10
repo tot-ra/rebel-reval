@@ -249,22 +249,12 @@
       "source_refs": ["H24"],
       "map_class": "rural"
     },
-    "world.rebel_kings": {
-      "enforce": false,
-      "source_refs": ["H20"],
-      "map_class": "rural"
-    },
     "world.kanavere": {
       "enforce": false,
       "source_refs": ["H20"],
       "map_class": "rural"
     },
     "world.sojamae": {
-      "enforce": false,
-      "source_refs": ["H20"],
-      "map_class": "rural"
-    },
-    "world.paide": {
       "enforce": false,
       "source_refs": ["H20"],
       "map_class": "rural"

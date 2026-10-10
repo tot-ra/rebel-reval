@@ -26,6 +26,8 @@ func test_map_catalog() -> void:
 		"reval_harbor_north",
 		"reval_harbor_east",
 		"world_padise",
+		"world_paide",
+		"world_rebel_kings",
 	]:
 		if not MapCatalog.get_map(retired).is_empty():
 			_failures.append("'%s' was retired and must not be in the catalog" % retired)

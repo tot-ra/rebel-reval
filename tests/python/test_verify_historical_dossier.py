@@ -40,8 +40,8 @@ class VerifyHistoricalDossierTest(unittest.TestCase):
 
     def test_dotted_registry_ids_are_parsed(self) -> None:
         registry_ids = verifier.parse_registry_ids(self.registry)
-        self.assertIn("world.paide", registry_ids)
-        self.assertIn("world.sacred_grove", registry_ids)
+        self.assertIn("world.saaremaa", registry_ids)
+        self.assertIn("world.kanavere", registry_ids)
 
     def test_new_registry_map_requires_a_dossier_card(self) -> None:
         seeded_registry = self.registry.replace(

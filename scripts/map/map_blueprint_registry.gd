@@ -29,12 +29,6 @@ static func entries() -> Array[Dictionary]:
 			[&"landmark_island_coast", &"landmark_west_camp", &"landmark_east_camp"],
 		},
 		{
-			"id": &"world.rebel_kings",
-			"source": "res://content/maps/world_rebel_kings.rrmap",
-			"required_anchors":
-			[&"landmark_council_camp", &"landmark_west_camp", &"landmark_east_camp"],
-		},
-		{
 			"id": &"world.kanavere",
 			"source": "res://content/maps/world_kanavere.rrmap",
 			"required_anchors":
@@ -45,12 +39,6 @@ static func entries() -> Array[Dictionary]:
 			"source": "res://content/maps/world_sojamae.rrmap",
 			"required_anchors":
 			[&"landmark_battle_ridge", &"landmark_west_fieldworks", &"landmark_east_fieldworks"],
-		},
-		{
-			"id": &"world.paide",
-			"source": "res://content/maps/world_paide.rrmap",
-			"required_anchors":
-			[&"landmark_gatehouse", &"landmark_central_keep", &"landmark_limestone_tower"],
 		},
 		{
 			"id": &"world.parnu",
