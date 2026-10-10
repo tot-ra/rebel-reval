@@ -50,6 +50,13 @@ const SHOTS := {
 		["sacred_grove_day_spring", &"clear", DAY, Vector3(8, 3, 98), Vector3(22, 0, 112), 62.0],
 		["sacred_grove_day_aerial", &"clear", DAY, Vector3(170, 150, -170), Vector3(-40, 0, 40), 56.0],
 		["sacred_grove_night_grove", &"clear", NIGHT, Vector3(-44, 3, -40), Vector3(-56, 6, 80), 62.0],
+		# The hiis dressing (R-1660): holy oak, offerings, torches, the keeper's lean-to.
+		["sacred_grove_day_oak", &"clear", DAY, Vector3(-51, 2.2, 56), Vector3(-56, 5.5, 86), 66.0],
+		["sacred_grove_day_offerings", &"clear", DAY, Vector3(-56.2, 1.5, 67.6), Vector3(-58, 0.5, 70), 58.0],  # gdlint: ignore=max-line-length
+		["sacred_grove_day_votive_band", &"clear", DAY, Vector3(-52.5, 2, 92.5), Vector3(-56, 1.3, 86), 60.0],  # gdlint: ignore=max-line-length
+		["sacred_grove_day_oak_south", &"clear", DAY, Vector3(-46, 3, 108), Vector3(-56, 5, 86), 66.0],
+		["sacred_grove_day_leanto", &"clear", DAY, Vector3(-90.5, 2.2, 28), Vector3(-94, 1, 36), 62.0],
+		["sacred_grove_night_oak", &"clear", NIGHT, Vector3(-51, 2.2, 56), Vector3(-56, 4, 86), 66.0],
 	],
 	# Kaali on Saaremaa (R-1524): crater, lake, village.
 	"saaremaa":

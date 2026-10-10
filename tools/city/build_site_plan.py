@@ -663,8 +663,14 @@ def build_site(overlay: dict) -> dict:
     tr = overlay.get("trees", {})
     field_rings = [[tuple(q) for q in f["polygon"]] for f in fields]
 
+    # Points of interest with `clear_m` keep the tree fill off them (the holy oak's
+    # crown, a fire, a lean-to); the site script draws what stands there.
+    poi_clear = [(resolve(poi["at"]), poi["clear_m"]) for poi in overlay.get("points_of_interest", []) if poi.get("clear_m")]
+
     def free_for_tree(p):
         if not (x0 + 4 < p[0] < x1 - 4 and y0 + 4 < p[1] < y1 - 4):
+            return False
+        if any(math.dist(p, c) < r for c, r in poi_clear):
             return False
         if castle_zone and reval.pip(p, castle_zone):
             return False

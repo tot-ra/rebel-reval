@@ -67,6 +67,15 @@ class BuildHinterlandSitePlansTest(unittest.TestCase):
         kinds = [p["kind"] for p in grove["points_of_interest"]]
         self.assertEqual(kinds.count("offering_stone"), 4)
         self.assertEqual(kinds.count("spring"), 1)
+        # The hiis dressing (R-1660) and the tree fill kept off it.
+        self.assertEqual(kinds.count("holy_oak"), 1)
+        self.assertGreaterEqual(kinds.count("torch"), 4)
+        self.assertEqual(kinds.count("leanto"), 1)
+        self.assertGreaterEqual(kinds.count("boundary_cairn"), 6)
+        for poi in grove["points_of_interest"]:
+            if poi.get("clear_m"):
+                near = [t for t in grove["trees"] if ((t[0] - poi["at"][0]) ** 2 + (t[1] - poi["at"][1]) ** 2) ** 0.5 < poi["clear_m"]]
+                self.assertEqual(near, [], poi["id"])
 
 
 if __name__ == "__main__":
