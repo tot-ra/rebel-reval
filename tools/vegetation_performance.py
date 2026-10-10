@@ -48,6 +48,9 @@ CAMERAS = (
     "woodland_interior",
     "woodland_distance",
     "lower_town_street",
+    # R-1558: densest CityForbs windows, searched by the benchmark itself.
+    "forb_hotspot_meadow",
+    "forb_hotspot_kalev_smithy",
 )
 
 # Target budgets, derived from the 2026-10-08 M5 Pro baseline
@@ -69,10 +72,15 @@ BUDGETS: dict[str, Any] = {
         "trees_lod1": (600_000, 60),
         "trees_lod2": (100_000, 30),
         "shrubs": (150_000, 30),
-        "flowers": (60_000, 12),
+        # R-1558: holds the CityForbs sub-budget below plus the yarrow accents.
+        "flowers": (400_000, 32),
         "litter": (50_000, 8),
         "veg_misc": (100_000, 16),
     },
+    # R-1558: CityForbs alone (the `forbs` block of a camera): triangles, draw
+    # calls and the advisory CPU milliseconds of one chunk-step update_for.
+    "forbs": (350_000, 16),
+    "forb_update_ms": 20.0,
     # Frame time one layer may cost on the reference machine (paired
     # shown/hidden median, 1920x1080, GL Compatibility). Advisory.
     "layer_ms": 4.0,
@@ -211,6 +219,19 @@ def _budget_findings(
                 bucket["draw_calls"],
                 max_draws,
                 previous.get("draw_calls"),
+            )
+        forbs = camera.get("forbs")
+        if forbs:
+            max_triangles, max_draws = budgets["forbs"]
+            previous = (before or {}).get("forbs", {})
+            over(f"{name}.forbs triangles", forbs["triangles"], max_triangles, previous.get("triangles"))
+            over(f"{name}.forbs draw calls", forbs["draw_calls"], max_draws, previous.get("draw_calls"))
+            over(
+                f"{name}.forbs update_for ms",
+                forbs["update_for_step_ms"]["max"],
+                budgets["forb_update_ms"],
+                None,
+                warnings,
             )
         for layer, timing in camera.get("layer_ms", {}).items():
             saved = timing.get("frame_ms_saved", 0.0)

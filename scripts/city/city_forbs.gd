@@ -41,7 +41,7 @@ const SMALL_FADE := Vector2(24.0, 32.0)
 const LARGE_FADE := Vector2(38.0, 46.0)
 ## Chunks whose centre is within this distance of the player's chunk centre
 ## draw the near models; the rest draw the far variants.
-const NEAR_RANGE := 13.0
+const NEAR_RANGE := 9.0
 ## Chunk centre to corner, added to the fade ends when picking chunks to draw.
 const CHUNK_MARGIN := 5.7
 ## Floats per instance in a MultiMesh buffer (3x4 transform + colour).
@@ -53,7 +53,7 @@ const LARGE_KINDS: Array[StringName] = [
 ## Candidates per square metre at full suitability.
 const MAX_DENSITY := {
 	&"dandelion": 0.35,
-	Meshes.KIND_PLANTAIN: 0.60,
+	Meshes.KIND_PLANTAIN: 0.45,
 	# Each white clover mat is a dense 70-leaf patch, so fewer are needed.
 	Meshes.KIND_WHITE_CLOVER: 0.32,
 	Meshes.KIND_RED_CLOVER: 0.40,

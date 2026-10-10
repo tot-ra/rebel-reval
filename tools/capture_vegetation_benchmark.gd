@@ -61,6 +61,8 @@ const NOON := 0.5
 ## Streaming (grass, forbs, farmland) must finish within this many frames; a
 ## camera that never settles fails the run.
 const MAX_STREAM_FRAMES := 900
+## Hotspot search window round an anchor, in forb chunks (R-1558).
+const HOTSPOT_SCAN_CHUNKS := 16
 ## Fixed camera set. Each camera names a plan anchor; offsets and heights are
 ## world units (1 unit = 1 m in the city plan). Eye cameras are perspective at
 ## standing height; gameplay cameras reproduce the orthographic follow camera.
@@ -152,8 +154,10 @@ func _run() -> void:
 	root.add_child(_viewport)
 	_build_city()
 	var anchors := _anchors()
+	var cameras: Array[Dictionary] = CAMERAS.duplicate()
+	_add_forb_hotspots(cameras, anchors)
 	var reports: Array[Dictionary] = []
-	for spec in CAMERAS:
+	for spec in cameras:
 		if not only.is_empty() and spec["name"] != only:
 			continue
 		if not anchors.has(spec["anchor"]):
@@ -312,6 +316,7 @@ func _measure(
 	entry["totals"] = census["totals"]
 	entry["vegetation_share"] = census["vegetation_share"]
 	entry["unattributed_top"] = census["unattributed_top"]
+	entry["forbs"] = _forb_report(census["nodes"][&"flowers"], at)
 	var shots := _argument_value("--screenshots=", "")
 	if not shots.is_empty():
 		RenderingServer.force_draw(true, 0.0)
@@ -325,6 +330,110 @@ func _measure(
 			entry["layer_ms"] = await _layer_timing(census["nodes"], entry["gpu"], frames)
 	print(_summary_line(entry))
 	return entry
+
+
+## Forb hotspots (R-1558): the densest forb windows within reach of the meadow and
+## the smithy street, found by counting instances per forb chunk on the benchmark
+## date. They are the worst case for CityForbs: a real player standing there
+## draws and refills the most plants. Deterministic: the chunks are seeded by key.
+func _add_forb_hotspots(cameras: Array[Dictionary], anchors: Dictionary) -> void:
+	var forbs := _world.grass.forbs
+	var day := GameCalendar.day_of_year(DATE)
+	var counts := {}
+	for name: String in ["meadow", "kalev_smithy"]:
+		if not anchors.has(name):
+			continue
+		var at: Vector2 = anchors[name]["at"]
+		var centre := Vector2i(floori(at.x / CityForbs.CHUNK), floori(at.y / CityForbs.CHUNK))
+		var best_key := centre
+		var best := -1
+		for dy in range(-HOTSPOT_SCAN_CHUNKS, HOTSPOT_SCAN_CHUNKS + 1, 2):
+			for dx in range(-HOTSPOT_SCAN_CHUNKS, HOTSPOT_SCAN_CHUNKS + 1, 2):
+				var key := centre + Vector2i(dx, dy)
+				var total := 0
+				for wy in range(-CityForbs.RADIUS_CHUNKS, CityForbs.RADIUS_CHUNKS + 1):
+					for wx in range(-CityForbs.RADIUS_CHUNKS, CityForbs.RADIUS_CHUNKS + 1):
+						var ck := key + Vector2i(wx, wy)
+						if not counts.has(ck):
+							var n := 0
+							var buffers := CityForbs.chunk_buffers(_world.grass, ck, day)
+							for kind: StringName in buffers:
+								n += (buffers[kind] as PackedFloat32Array).size() / CityForbs.STRIDE
+							counts[ck] = n
+						total += counts[ck]
+				if total > best:
+					best = total
+					best_key = key
+		var spot := (Vector2(best_key) + Vector2(0.5, 0.5)) * CityForbs.CHUNK
+		anchors["forb_hotspot_" + name] = {
+			"id": "forb_hotspot_%s_%d_%d" % [name, best_key.x, best_key.y], "at": spot
+		}
+		cameras.append({
+			"name": "forb_hotspot_" + name,
+			"anchor": "forb_hotspot_" + name,
+			"mode": "eye",
+			"look": Vector2(8, 0),
+			"eye_height": 1.65,
+			"look_height": 0.3,
+			"fov": 65.0,
+		})
+	forbs._chunks.clear()
+
+
+## Forb cost at the settled camera: census counts per model from the visible
+## CityForbs MultiMeshes, and wall-clock cost (Time.get_ticks_usec, not
+## Performance monitors) of the three CPU paths the streamer runs: building one
+## chunk, refilling the layers, and a whole update_for after a chunk step.
+func _forb_report(flower_nodes: Array, at: Vector2) -> Dictionary:
+	var forbs := _world.grass.forbs
+	var models := {}
+	var instances := 0
+	var triangles := 0
+	var draws := 0
+	for geometry: GeometryInstance3D in flower_nodes:
+		if not geometry.get_parent() is CityForbs:
+			continue
+		var cost := _geometry_cost(geometry)
+		models[String(geometry.name)] = {"instances": cost["instances"], "triangles": cost["triangles"]}
+		instances += cost["instances"]
+		triangles += cost["triangles"]
+		draws += cost["surfaces"]
+	var day := GameCalendar.day_of_year(DATE)
+	var centre := Vector2i(floori(at.x / CityForbs.CHUNK), floori(at.y / CityForbs.CHUNK))
+	var build_us: Array[float] = []
+	for dy in range(-CityForbs.RADIUS_CHUNKS, CityForbs.RADIUS_CHUNKS + 1):
+		for dx in range(-CityForbs.RADIUS_CHUNKS, CityForbs.RADIUS_CHUNKS + 1):
+			var started := Time.get_ticks_usec()
+			CityForbs.chunk_buffers(_world.grass, centre + Vector2i(dx, dy), day)
+			build_us.append(float(Time.get_ticks_usec() - started))
+	var refill_us: Array[float] = []
+	for ignored in 15:
+		var started := Time.get_ticks_usec()
+		forbs._refill()
+		refill_us.append(float(Time.get_ticks_usec() - started))
+	# Step one chunk east: a new column is built (unbounded deadline) and the layers
+	# refilled, as when the player crosses a chunk border. Reset afterwards.
+	var update_us: Array[float] = []
+	var step := Vector2(CityForbs.CHUNK, 0.0)
+	for index in 6:
+		var focus := at + step * (index + 1)
+		var started := Time.get_ticks_usec()
+		forbs.update_for(focus, started + 10_000_000, false)
+		update_us.append(float(Time.get_ticks_usec() - started))
+	forbs.update_for(at, Time.get_ticks_usec() + 10_000_000, false)
+	return {
+		"instances": instances,
+		"triangles": triangles,
+		"draw_calls": draws,
+		"models": models,
+		"chunk_build_ms": {"median": _ms(_median(build_us)), "max": _ms(build_us.max())},
+		"refill_ms": {"median": _ms(_median(refill_us)), "max": _ms(refill_us.max())},
+		"update_for_step_ms": {"median": _ms(_median(update_us)), "max": _ms(update_us.max())},
+	}
+
+
+static func _ms(us: float) -> float:
+	return snappedf(us / 1000.0, 0.01)
 
 
 ## Drives grass, forb, farmland and tree-LOD streaming round `focus` until no

@@ -227,6 +227,23 @@ Status: implemented (task **R-1320**, VEGR-0). Benchmark command, camera set, la
 | `veg_misc` | 100,000 | 16 | 4,252 / 4 | Reeds, cattails, herbs and ferns |
 | **All vegetation** | **2,000,000** | **250** | 14,583,844 / 165 | The baseline measures 0.20 to 0.28 M crown triangles per ms including shadow cascades, so 2 M main-pass triangles cost about 7 to 10 ms on the reference: roughly half of a 60 fps frame, leaving the other half to the rest of the scene (Lower Town street: 15 ms total today) |
 
+**City forbs (task R-1558).** The `flowers` layer holds `CityForbs` (R-1519 clover, plantain, dandelion, burdock; about 16 MultiMeshes refilled per player chunk) plus the yarrow accents of the mid grass. Each benchmark camera now carries a `forbs` block: instances, triangles and draw calls from the visible forb MultiMeshes (per-model breakdown in the JSON), and wall-clock cost (`Time.get_ticks_usec`) of one chunk build, `_refill()`, and a `update_for` that steps a chunk east (13 new chunks built with no deadline). Two cameras, `forb_hotspot_meadow` and `forb_hotspot_kalev_smithy`, are placed by the tool itself at the densest forb window within 16 chunks of the meadow and the smithy street. Forb budget, hard gate per camera: 350,000 triangles, 16 draw calls (`BUDGETS["forbs"]`); the `flowers` layer cap rose from 60,000/12 to 400,000/32 to hold it. `update_for` step over 20 ms only warns.
+
+Measured on M5 Pro, 1920x1080, 2026-10-10 (`build/benchmarks/r1558_forbs.json`), before and after tuning (`NEAR_RANGE` 13 to 9 m, plantain `MAX_DENSITY` 0.60 to 0.45):
+
+| Camera | Instances | Triangles before | Triangles after | Draws after | `update_for` step ms (median / max) after |
+|---|---|---|---|---|---|
+| `meadow_eye_level` | 482 | 268,650 | 175,048 | 8 | 9.2 / 9.8 |
+| `meadow_gameplay` | 489 | 268,650 | 183,484 | 10 | 2.2 / 2.5 |
+| `grain_field_eye_level` | 376 | 131,126 | 103,210 | 7 | 9.4 / 9.8 |
+| `woodland_interior` | 549 | 237,478 | 181,618 | 9 | 10.2 / 11.2 |
+| `woodland_distance` | 533 | 184,480 | 153,322 | 10 | 9.1 / 9.6 |
+| `lower_town_street` | 941 | 517,808 | 337,812 | 14 | 13.3 / 14.8 |
+| `forb_hotspot_meadow` | 690 | 305,174 | 247,594 | 10 | 10.4 / 11.3 |
+| `forb_hotspot_kalev_smithy` | 889 | 497,256 | 348,574 | 12 | 10.1 / 11.3 |
+
+Findings: instance counts are small (under 1,100); the cost is triangles. Before tuning the smithy street was 1.4 times over the 350k forb budget, driven by plantain (1,756 triangles per near model, about 395 per far one: 160k near plus 170k far at the smithy hotspot). `_refill()` costs 0.08 to 0.14 ms and one chunk build 0.2 to 1.4 ms (max 1.44 ms at the meadow hotspot); in the game `update_for` is time-budgeted per frame, so the 10 to 15 ms step figure is the total work spread over several frames, not one spike. The 350k budget is new (forbs had none); it is set at the worst measured spot after tuning, about 17 percent of the 2 M vegetation cap.
+
 Frame time: no single layer should cost more than 4 ms on the reference machine (paired shown/hidden median at 1920x1080). Every non-tree layer measured at most 1.3 ms, so the placeholder holds as an advisory check; the tool prints timing findings as warnings because the tree-layer measurement varies by tens of percent between runs. The spec's placeholder share rule (vegetation at most 35 percent of a meadow) is dropped: vegetation is 93 to 97 percent of a rural frame because it is the scene, so only absolute counts are meaningful.
 
 **Decision (open question 4, R-1320).** Budgets are measured and gated on the development reference (Apple M5 Pro, `tools/benchmarks/target_hardware.json`), with counts as the portable gate. The declared minimum target, Intel UHD 620 at 1920x1080 (`tools/benchmarks/minimum-hardware.json`, P3-011), is the density floor: the count budgets above are what the default density must fit, and a lower density preset is derived from the same per-layer counts once R-653 records a real run on that hardware. Until then minimum-hardware acceptance for vegetation stays BLOCKED, as for every other R-653 row; an M5 Pro run never certifies the UHD 620 target.

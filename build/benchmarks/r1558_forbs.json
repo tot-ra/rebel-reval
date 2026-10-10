@@ -1,0 +1,1751 @@
+{
+  "schema": "rr.vegetation_benchmark.v1",
+  "scene": "reval_city",
+  "godot": "4.7.1-stable (official)",
+  "renderer": "mobile",
+  "display_server": "macOS",
+  "host": {
+    "os": "macOS",
+    "cpu": "Apple M5 Pro",
+    "arch": "arm64",
+    "gpu": "Apple M5 Pro (Apple9)"
+  },
+  "resolution": [
+    1920,
+    1080
+  ],
+  "timed": true,
+  "layer_timing": false,
+  "frames": 20,
+  "layers": [
+    "grass_near",
+    "grass_mid",
+    "grain",
+    "trees_lod0",
+    "trees_lod1",
+    "trees_lod2",
+    "shrubs",
+    "flowers",
+    "litter",
+    "veg_misc",
+    "other"
+  ],
+  "cameras": [
+    {
+      "name": "meadow_eye_level",
+      "map_id": "reval_city",
+      "anchor": "pasture.32",
+      "mode": "eye",
+      "projection": "perspective",
+      "fov": 65.0,
+      "look_cell": [
+        -363.33,
+        -812.1
+      ],
+      "cell": [
+        -378.33,
+        -803.1
+      ],
+      "position": [
+        -378.33,
+        3.88,
+        -803.1
+      ],
+      "layers": {
+        "grass_near": {
+          "nodes": 11,
+          "instances": 3166,
+          "triangles": 94980,
+          "draw_calls": 11,
+          "shadow_draw_calls": 0
+        },
+        "grass_mid": {
+          "nodes": 26,
+          "instances": 4545,
+          "triangles": 136350,
+          "draw_calls": 26,
+          "shadow_draw_calls": 0
+        },
+        "grain": {
+          "nodes": 1,
+          "instances": 4752,
+          "triangles": 456192,
+          "draw_calls": 1,
+          "shadow_draw_calls": 0
+        },
+        "trees_lod0": {
+          "nodes": 7,
+          "instances": 89,
+          "triangles": 512508,
+          "draw_calls": 7,
+          "shadow_draw_calls": 7
+        },
+        "trees_lod1": {
+          "nodes": 13,
+          "instances": 139,
+          "triangles": 1495788,
+          "draw_calls": 13,
+          "shadow_draw_calls": 13
+        },
+        "trees_lod2": {
+          "nodes": 0,
+          "instances": 0,
+          "triangles": 0,
+          "draw_calls": 0,
+          "shadow_draw_calls": 0
+        },
+        "shrubs": {
+          "nodes": 4,
+          "instances": 16,
+          "triangles": 86732,
+          "draw_calls": 4,
+          "shadow_draw_calls": 0
+        },
+        "flowers": {
+          "nodes": 16,
+          "instances": 505,
+          "triangles": 178268,
+          "draw_calls": 16,
+          "shadow_draw_calls": 0
+        },
+        "litter": {
+          "nodes": 0,
+          "instances": 0,
+          "triangles": 0,
+          "draw_calls": 0,
+          "shadow_draw_calls": 0
+        },
+        "veg_misc": {
+          "nodes": 4,
+          "instances": 4525,
+          "triangles": 1408325,
+          "draw_calls": 4,
+          "shadow_draw_calls": 0
+        },
+        "other": {
+          "nodes": 702,
+          "instances": 950,
+          "triangles": 903957,
+          "draw_calls": 710,
+          "shadow_draw_calls": 668
+        }
+      },
+      "totals": {
+        "all": {
+          "triangles": 5273100,
+          "draw_calls": 792,
+          "instances": 18687
+        },
+        "vegetation": {
+          "triangles": 4369143,
+          "draw_calls": 82,
+          "instances": 17737
+        }
+      },
+      "vegetation_share": {
+        "triangles": 0.8286,
+        "draw_calls": 0.1035
+      },
+      "unattributed_top": [
+        {
+          "node": "Water/SeaSurfBand",
+          "triangles": 497792
+        },
+        {
+          "node": "Terrain/Chunk",
+          "triangles": 87552
+        },
+        {
+          "node": "Ships/Timber",
+          "triangles": 53592
+        },
+        {
+          "node": "Ships/Hull",
+          "triangles": 43532
+        },
+        {
+          "node": "Shore/Shore_algae_skirt_-3_-",
+          "triangles": 37920
+        },
+        {
+          "node": "Terrain/FarTerrain",
+          "triangles": 34848
+        },
+        {
+          "node": "Ships/Rigging",
+          "triangles": 21368
+        },
+        {
+          "node": "Shore/Shore_algae_skirt_-4_-",
+          "triangles": 13920
+        }
+      ],
+      "forbs": {
+        "instances": 482,
+        "triangles": 175048,
+        "draw_calls": 8,
+        "models": {
+          "DandelionFlower_Near": {
+            "instances": 8,
+            "triangles": 15328
+          },
+          "DandelionFlower_Far": {
+            "instances": 42,
+            "triangles": 7980
+          },
+          "DandelionClock_Far": {
+            "instances": 44,
+            "triangles": 8624
+          },
+          "DandelionLeaves_Far": {
+            "instances": 40,
+            "triangles": 7520
+          },
+          "Plantain_Far": {
+            "instances": 22,
+            "triangles": 8712
+          },
+          "RedClover_Near": {
+            "instances": 23,
+            "triangles": 39192
+          },
+          "RedClover_Far": {
+            "instances": 299,
+            "triangles": 87308
+          },
+          "PlantainLeaves_Far": {
+            "instances": 4,
+            "triangles": 384
+          }
+        },
+        "chunk_build_ms": {
+          "median": 0.15,
+          "max": 0.34
+        },
+        "refill_ms": {
+          "median": 0.08,
+          "max": 0.14
+        },
+        "update_for_step_ms": {
+          "median": 9.2,
+          "max": 9.77
+        }
+      },
+      "gpu": {
+        "frame_ms_median": 63.96,
+        "draw_calls_peak": 872,
+        "primitives_peak": 34898742,
+        "objects_peak": 872
+      }
+    },
+    {
+      "name": "meadow_gameplay",
+      "map_id": "reval_city",
+      "anchor": "pasture.32",
+      "mode": "gameplay",
+      "projection": "orthogonal",
+      "size": 33.75,
+      "cell": [
+        -378.33,
+        -803.1
+      ],
+      "position": [
+        -323.21,
+        47.23,
+        -747.98
+      ],
+      "layers": {
+        "grass_near": {
+          "nodes": 25,
+          "instances": 7183,
+          "triangles": 215490,
+          "draw_calls": 25,
+          "shadow_draw_calls": 0
+        },
+        "grass_mid": {
+          "nodes": 42,
+          "instances": 8269,
+          "triangles": 248070,
+          "draw_calls": 42,
+          "shadow_draw_calls": 0
+        },
+        "grain": {
+          "nodes": 1,
+          "instances": 4752,
+          "triangles": 456192,
+          "draw_calls": 1,
+          "shadow_draw_calls": 0
+        },
+        "trees_lod0": {
+          "nodes": 9,
+          "instances": 223,
+          "triangles": 2152898,
+          "draw_calls": 9,
+          "shadow_draw_calls": 9
+        },
+        "trees_lod1": {
+          "nodes": 8,
+          "instances": 250,
+          "triangles": 4428596,
+          "draw_calls": 8,
+          "shadow_draw_calls": 8
+        },
+        "trees_lod2": {
+          "nodes": 0,
+          "instances": 0,
+          "triangles": 0,
+          "draw_calls": 0,
+          "shadow_draw_calls": 0
+        },
+        "shrubs": {
+          "nodes": 6,
+          "instances": 24,
+          "triangles": 113044,
+          "draw_calls": 6,
+          "shadow_draw_calls": 0
+        },
+        "flowers": {
+          "nodes": 28,
+          "instances": 540,
+          "triangles": 190624,
+          "draw_calls": 28,
+          "shadow_draw_calls": 0
+        },
+        "litter": {
+          "nodes": 0,
+          "instances": 0,
+          "triangles": 0,
+          "draw_calls": 0,
+          "shadow_draw_calls": 0
+        },
+        "veg_misc": {
+          "nodes": 0,
+          "instances": 0,
+          "triangles": 0,
+          "draw_calls": 0,
+          "shadow_draw_calls": 0
+        },
+        "other": {
+          "nodes": 20,
+          "instances": 50,
+          "triangles": 278187,
+          "draw_calls": 24,
+          "shadow_draw_calls": 13
+        }
+      },
+      "totals": {
+        "all": {
+          "triangles": 8083101,
+          "draw_calls": 143,
+          "instances": 21291
+        },
+        "vegetation": {
+          "triangles": 7804914,
+          "draw_calls": 119,
+          "instances": 21241
+        }
+      },
+      "vegetation_share": {
+        "triangles": 0.9656,
+        "draw_calls": 0.8322
+      },
+      "unattributed_top": [
+        {
+          "node": "Water/SeaSurfBand",
+          "triangles": 109440
+        },
+        {
+          "node": "Fortifications/Masonry",
+          "triangles": 75416
+        },
+        {
+          "node": "Terrain/FarTerrain",
+          "triangles": 34848
+        },
+        {
+          "node": "Terrain/Chunk",
+          "triangles": 27648
+        },
+        {
+          "node": "Water/Sea",
+          "triangles": 9405
+        },
+        {
+          "node": "Farmland/MeshInstance3D",
+          "triangles": 8076
+        },
+        {
+          "node": "Shore/Shore_algae_skirt_-4_-",
+          "triangles": 7680
+        },
+        {
+          "node": "Shore/Shore_pebble_patch_a_-4_-",
+          "triangles": 1620
+        }
+      ],
+      "forbs": {
+        "instances": 489,
+        "triangles": 183484,
+        "draw_calls": 10,
+        "models": {
+          "DandelionFlower_Near": {
+            "instances": 8,
+            "triangles": 15328
+          },
+          "DandelionFlower_Far": {
+            "instances": 42,
+            "triangles": 7980
+          },
+          "DandelionClock_Near": {
+            "instances": 3,
+            "triangles": 5076
+          },
+          "DandelionClock_Far": {
+            "instances": 44,
+            "triangles": 8624
+          },
+          "DandelionLeaves_Near": {
+            "instances": 4,
+            "triangles": 3360
+          },
+          "DandelionLeaves_Far": {
+            "instances": 40,
+            "triangles": 7520
+          },
+          "Plantain_Far": {
+            "instances": 22,
+            "triangles": 8712
+          },
+          "RedClover_Near": {
+            "instances": 23,
+            "triangles": 39192
+          },
+          "RedClover_Far": {
+            "instances": 299,
+            "triangles": 87308
+          },
+          "PlantainLeaves_Far": {
+            "instances": 4,
+            "triangles": 384
+          }
+        },
+        "chunk_build_ms": {
+          "median": 0.15,
+          "max": 0.35
+        },
+        "refill_ms": {
+          "median": 0.08,
+          "max": 0.12
+        },
+        "update_for_step_ms": {
+          "median": 2.15,
+          "max": 2.47
+        }
+      },
+      "gpu": {
+        "frame_ms_median": 51.98,
+        "draw_calls_peak": 174,
+        "primitives_peak": 24867079,
+        "objects_peak": 174
+      }
+    },
+    {
+      "name": "grain_field_eye_level",
+      "map_id": "reval_city",
+      "anchor": "field.456.0",
+      "mode": "eye",
+      "projection": "perspective",
+      "fov": 65.0,
+      "look_cell": [
+        371.57,
+        238.45
+      ],
+      "cell": [
+        377.57,
+        222.45
+      ],
+      "position": [
+        377.57,
+        15.94,
+        222.45
+      ],
+      "layers": {
+        "grass_near": {
+          "nodes": 5,
+          "instances": 690,
+          "triangles": 20700,
+          "draw_calls": 5,
+          "shadow_draw_calls": 0
+        },
+        "grass_mid": {
+          "nodes": 43,
+          "instances": 8786,
+          "triangles": 263580,
+          "draw_calls": 43,
+          "shadow_draw_calls": 0
+        },
+        "grain": {
+          "nodes": 3,
+          "instances": 18073,
+          "triangles": 4190670,
+          "draw_calls": 3,
+          "shadow_draw_calls": 0
+        },
+        "trees_lod0": {
+          "nodes": 16,
+          "instances": 42,
+          "triangles": 210220,
+          "draw_calls": 16,
+          "shadow_draw_calls": 16
+        },
+        "trees_lod1": {
+          "nodes": 21,
+          "instances": 57,
+          "triangles": 442876,
+          "draw_calls": 21,
+          "shadow_draw_calls": 21
+        },
+        "trees_lod2": {
+          "nodes": 0,
+          "instances": 0,
+          "triangles": 0,
+          "draw_calls": 0,
+          "shadow_draw_calls": 0
+        },
+        "shrubs": {
+          "nodes": 14,
+          "instances": 38,
+          "triangles": 206418,
+          "draw_calls": 14,
+          "shadow_draw_calls": 0
+        },
+        "flowers": {
+          "nodes": 17,
+          "instances": 404,
+          "triangles": 107130,
+          "draw_calls": 17,
+          "shadow_draw_calls": 0
+        },
+        "litter": {
+          "nodes": 0,
+          "instances": 0,
+          "triangles": 0,
+          "draw_calls": 0,
+          "shadow_draw_calls": 0
+        },
+        "veg_misc": {
+          "nodes": 4,
+          "instances": 4525,
+          "triangles": 1408325,
+          "draw_calls": 4,
+          "shadow_draw_calls": 0
+        },
+        "other": {
+          "nodes": 153,
+          "instances": 153,
+          "triangles": 696479,
+          "draw_calls": 297,
+          "shadow_draw_calls": 281
+        }
+      },
+      "totals": {
+        "all": {
+          "triangles": 7546398,
+          "draw_calls": 420,
+          "instances": 32768
+        },
+        "vegetation": {
+          "triangles": 6849919,
+          "draw_calls": 123,
+          "instances": 32615
+        }
+      },
+      "vegetation_share": {
+        "triangles": 0.9077,
+        "draw_calls": 0.2929
+      },
+      "unattributed_top": [
+        {
+          "node": "Farmland/Fence_wattle",
+          "triangles": 342320
+        },
+        {
+          "node": "Terrain/Chunk",
+          "triangles": 114048
+        },
+        {
+          "node": "Fortifications/Masonry",
+          "triangles": 75416
+        },
+        {
+          "node": "Terrain/FarTerrain",
+          "triangles": 34848
+        },
+        {
+          "node": "Buildings/Chunk_-",
+          "triangles": 30857
+        },
+        {
+          "node": "Buildings/Chunk",
+          "triangles": 25640
+        },
+        {
+          "node": "Water/Harjapea",
+          "triangles": 13922
+        },
+        {
+          "node": "Farmland/Fur",
+          "triangles": 10152
+        }
+      ],
+      "forbs": {
+        "instances": 376,
+        "triangles": 103210,
+        "draw_calls": 7,
+        "models": {
+          "DandelionFlower_Near": {
+            "instances": 2,
+            "triangles": 3832
+          },
+          "DandelionFlower_Far": {
+            "instances": 47,
+            "triangles": 8930
+          },
+          "DandelionClock_Far": {
+            "instances": 36,
+            "triangles": 7056
+          },
+          "DandelionLeaves_Near": {
+            "instances": 3,
+            "triangles": 2520
+          },
+          "DandelionLeaves_Far": {
+            "instances": 39,
+            "triangles": 7332
+          },
+          "Plantain_Far": {
+            "instances": 8,
+            "triangles": 3168
+          },
+          "RedClover_Far": {
+            "instances": 241,
+            "triangles": 70372
+          }
+        },
+        "chunk_build_ms": {
+          "median": 0.17,
+          "max": 0.38
+        },
+        "refill_ms": {
+          "median": 0.08,
+          "max": 0.13
+        },
+        "update_for_step_ms": {
+          "median": 9.39,
+          "max": 9.82
+        }
+      },
+      "gpu": {
+        "frame_ms_median": 40.8,
+        "draw_calls_peak": 389,
+        "primitives_peak": 11011629,
+        "objects_peak": 389
+      }
+    },
+    {
+      "name": "woodland_interior",
+      "map_id": "reval_city",
+      "anchor": "wood.05",
+      "mode": "eye",
+      "projection": "perspective",
+      "fov": 65.0,
+      "look_cell": [
+        470.51,
+        -36.55
+      ],
+      "cell": [
+        496.51,
+        -38.55
+      ],
+      "position": [
+        496.51,
+        10.89,
+        -38.55
+      ],
+      "layers": {
+        "grass_near": {
+          "nodes": 9,
+          "instances": 2592,
+          "triangles": 77760,
+          "draw_calls": 9,
+          "shadow_draw_calls": 0
+        },
+        "grass_mid": {
+          "nodes": 48,
+          "instances": 11754,
+          "triangles": 352620,
+          "draw_calls": 48,
+          "shadow_draw_calls": 0
+        },
+        "grain": {
+          "nodes": 0,
+          "instances": 0,
+          "triangles": 0,
+          "draw_calls": 0,
+          "shadow_draw_calls": 0
+        },
+        "trees_lod0": {
+          "nodes": 74,
+          "instances": 703,
+          "triangles": 5448276,
+          "draw_calls": 74,
+          "shadow_draw_calls": 74
+        },
+        "trees_lod1": {
+          "nodes": 77,
+          "instances": 686,
+          "triangles": 7108216,
+          "draw_calls": 77,
+          "shadow_draw_calls": 77
+        },
+        "trees_lod2": {
+          "nodes": 0,
+          "instances": 0,
+          "triangles": 0,
+          "draw_calls": 0,
+          "shadow_draw_calls": 0
+        },
+        "shrubs": {
+          "nodes": 18,
+          "instances": 86,
+          "triangles": 479416,
+          "draw_calls": 18,
+          "shadow_draw_calls": 0
+        },
+        "flowers": {
+          "nodes": 21,
+          "instances": 585,
+          "triangles": 186658,
+          "draw_calls": 21,
+          "shadow_draw_calls": 0
+        },
+        "litter": {
+          "nodes": 0,
+          "instances": 0,
+          "triangles": 0,
+          "draw_calls": 0,
+          "shadow_draw_calls": 0
+        },
+        "veg_misc": {
+          "nodes": 4,
+          "instances": 4525,
+          "triangles": 1408325,
+          "draw_calls": 4,
+          "shadow_draw_calls": 0
+        },
+        "other": {
+          "nodes": 2295,
+          "instances": 9481,
+          "triangles": 3487317,
+          "draw_calls": 5355,
+          "shadow_draw_calls": 5252
+        }
+      },
+      "totals": {
+        "all": {
+          "triangles": 18548588,
+          "draw_calls": 5606,
+          "instances": 30412
+        },
+        "vegetation": {
+          "triangles": 15061271,
+          "draw_calls": 251,
+          "instances": 20931
+        }
+      },
+      "vegetation_share": {
+        "triangles": 0.812,
+        "draw_calls": 0.0448
+      },
+      "unattributed_top": [
+        {
+          "node": "Buildings/Roof_bldg_osm_w",
+          "triangles": 526837
+        },
+        {
+          "node": "Buildings/Chunk_-",
+          "triangles": 415755
+        },
+        {
+          "node": "Buildings/Chunk",
+          "triangles": 322525
+        },
+        {
+          "node": "Water/SeaSurfBand",
+          "triangles": 312576
+        },
+        {
+          "node": "Buildings/Chunk_0_-",
+          "triangles": 237293
+        },
+        {
+          "node": "Buildings/Chunk_-1_-",
+          "triangles": 235800
+        },
+        {
+          "node": "Buildings/Chunk_1_-",
+          "triangles": 232020
+        },
+        {
+          "node": "Terrain/Chunk",
+          "triangles": 161280
+        }
+      ],
+      "forbs": {
+        "instances": 549,
+        "triangles": 181618,
+        "draw_calls": 9,
+        "models": {
+          "DandelionFlower_Far": {
+            "instances": 61,
+            "triangles": 11590
+          },
+          "DandelionClock_Near": {
+            "instances": 8,
+            "triangles": 13536
+          },
+          "DandelionClock_Far": {
+            "instances": 59,
+            "triangles": 11564
+          },
+          "DandelionLeaves_Near": {
+            "instances": 5,
+            "triangles": 4200
+          },
+          "DandelionLeaves_Far": {
+            "instances": 31,
+            "triangles": 5828
+          },
+          "Plantain_Far": {
+            "instances": 14,
+            "triangles": 5544
+          },
+          "RedClover_Near": {
+            "instances": 16,
+            "triangles": 27264
+          },
+          "RedClover_Far": {
+            "instances": 347,
+            "triangles": 101324
+          },
+          "PlantainLeaves_Far": {
+            "instances": 8,
+            "triangles": 768
+          }
+        },
+        "chunk_build_ms": {
+          "median": 0.82,
+          "max": 1.09
+        },
+        "refill_ms": {
+          "median": 0.1,
+          "max": 0.15
+        },
+        "update_for_step_ms": {
+          "median": 10.19,
+          "max": 11.15
+        }
+      },
+      "gpu": {
+        "frame_ms_median": 113.91,
+        "draw_calls_peak": 2748,
+        "primitives_peak": 66365541,
+        "objects_peak": 2748
+      }
+    },
+    {
+      "name": "woodland_distance",
+      "map_id": "reval_city",
+      "anchor": "wood.05",
+      "mode": "eye",
+      "projection": "perspective",
+      "fov": 65.0,
+      "look_cell": [
+        496.51,
+        140.83
+      ],
+      "cell": [
+        496.51,
+        182.83
+      ],
+      "position": [
+        496.51,
+        16.36,
+        182.83
+      ],
+      "layers": {
+        "grass_near": {
+          "nodes": 14,
+          "instances": 3193,
+          "triangles": 95790,
+          "draw_calls": 14,
+          "shadow_draw_calls": 0
+        },
+        "grass_mid": {
+          "nodes": 50,
+          "instances": 10344,
+          "triangles": 310320,
+          "draw_calls": 50,
+          "shadow_draw_calls": 0
+        },
+        "grain": {
+          "nodes": 1,
+          "instances": 4207,
+          "triangles": 1135890,
+          "draw_calls": 1,
+          "shadow_draw_calls": 0
+        },
+        "trees_lod0": {
+          "nodes": 35,
+          "instances": 299,
+          "triangles": 1607990,
+          "draw_calls": 35,
+          "shadow_draw_calls": 35
+        },
+        "trees_lod1": {
+          "nodes": 62,
+          "instances": 618,
+          "triangles": 6689020,
+          "draw_calls": 62,
+          "shadow_draw_calls": 62
+        },
+        "trees_lod2": {
+          "nodes": 0,
+          "instances": 0,
+          "triangles": 0,
+          "draw_calls": 0,
+          "shadow_draw_calls": 0
+        },
+        "shrubs": {
+          "nodes": 11,
+          "instances": 41,
+          "triangles": 205314,
+          "draw_calls": 11,
+          "shadow_draw_calls": 0
+        },
+        "flowers": {
+          "nodes": 26,
+          "instances": 579,
+          "triangles": 159762,
+          "draw_calls": 26,
+          "shadow_draw_calls": 0
+        },
+        "litter": {
+          "nodes": 0,
+          "instances": 0,
+          "triangles": 0,
+          "draw_calls": 0,
+          "shadow_draw_calls": 0
+        },
+        "veg_misc": {
+          "nodes": 4,
+          "instances": 4525,
+          "triangles": 1408325,
+          "draw_calls": 4,
+          "shadow_draw_calls": 0
+        },
+        "other": {
+          "nodes": 1357,
+          "instances": 1644,
+          "triangles": 2480105,
+          "draw_calls": 2401,
+          "shadow_draw_calls": 2329
+        }
+      },
+      "totals": {
+        "all": {
+          "triangles": 14092516,
+          "draw_calls": 2604,
+          "instances": 25450
+        },
+        "vegetation": {
+          "triangles": 11612411,
+          "draw_calls": 203,
+          "instances": 23806
+        }
+      },
+      "vegetation_share": {
+        "triangles": 0.824,
+        "draw_calls": 0.078
+      },
+      "unattributed_top": [
+        {
+          "node": "Water/SeaSurfBand",
+          "triangles": 987904
+        },
+        {
+          "node": "Buildings/Chunk_1_-",
+          "triangles": 275909
+        },
+        {
+          "node": "Buildings/Chunk_0_-",
+          "triangles": 192675
+        },
+        {
+          "node": "Buildings/Roof_bldg_osm_w",
+          "triangles": 138915
+        },
+        {
+          "node": "Terrain/Chunk",
+          "triangles": 126144
+        },
+        {
+          "node": "Buildings/Chunk_2_-",
+          "triangles": 103008
+        },
+        {
+          "node": "Buildings/Chunk_-1_-",
+          "triangles": 96535
+        },
+        {
+          "node": "Fortifications/Masonry",
+          "triangles": 75416
+        }
+      ],
+      "forbs": {
+        "instances": 533,
+        "triangles": 153322,
+        "draw_calls": 10,
+        "models": {
+          "DandelionFlower_Near": {
+            "instances": 2,
+            "triangles": 3832
+          },
+          "DandelionFlower_Far": {
+            "instances": 57,
+            "triangles": 10830
+          },
+          "DandelionClock_Far": {
+            "instances": 85,
+            "triangles": 16660
+          },
+          "DandelionLeaves_Far": {
+            "instances": 55,
+            "triangles": 10340
+          },
+          "Plantain_Far": {
+            "instances": 24,
+            "triangles": 9504
+          },
+          "WhiteClover_Far": {
+            "instances": 25,
+            "triangles": 16900
+          },
+          "RedClover_Near": {
+            "instances": 2,
+            "triangles": 3408
+          },
+          "RedClover_Far": {
+            "instances": 272,
+            "triangles": 79424
+          },
+          "Burdock_Far": {
+            "instances": 6,
+            "triangles": 1944
+          },
+          "PlantainLeaves_Far": {
+            "instances": 5,
+            "triangles": 480
+          }
+        },
+        "chunk_build_ms": {
+          "median": 0.2,
+          "max": 0.6
+        },
+        "refill_ms": {
+          "median": 0.11,
+          "max": 0.15
+        },
+        "update_for_step_ms": {
+          "median": 9.09,
+          "max": 9.57
+        }
+      },
+      "gpu": {
+        "frame_ms_median": 64.41,
+        "draw_calls_peak": 1779,
+        "primitives_peak": 29533147,
+        "objects_peak": 1779
+      }
+    },
+    {
+      "name": "lower_town_street",
+      "map_id": "reval_city",
+      "anchor": "landmark.kalev_smithy",
+      "mode": "eye",
+      "projection": "perspective",
+      "fov": 65.0,
+      "look_cell": [
+        164.62,
+        105.2
+      ],
+      "cell": [
+        166.62,
+        108.2
+      ],
+      "position": [
+        166.62,
+        15.61,
+        108.2
+      ],
+      "layers": {
+        "grass_near": {
+          "nodes": 9,
+          "instances": 469,
+          "triangles": 14070,
+          "draw_calls": 9,
+          "shadow_draw_calls": 0
+        },
+        "grass_mid": {
+          "nodes": 42,
+          "instances": 2908,
+          "triangles": 87240,
+          "draw_calls": 42,
+          "shadow_draw_calls": 0
+        },
+        "grain": {
+          "nodes": 0,
+          "instances": 0,
+          "triangles": 0,
+          "draw_calls": 0,
+          "shadow_draw_calls": 0
+        },
+        "trees_lod0": {
+          "nodes": 0,
+          "instances": 0,
+          "triangles": 0,
+          "draw_calls": 0,
+          "shadow_draw_calls": 0
+        },
+        "trees_lod1": {
+          "nodes": 0,
+          "instances": 0,
+          "triangles": 0,
+          "draw_calls": 0,
+          "shadow_draw_calls": 0
+        },
+        "trees_lod2": {
+          "nodes": 0,
+          "instances": 0,
+          "triangles": 0,
+          "draw_calls": 0,
+          "shadow_draw_calls": 0
+        },
+        "shrubs": {
+          "nodes": 6,
+          "instances": 35,
+          "triangles": 154562,
+          "draw_calls": 6,
+          "shadow_draw_calls": 0
+        },
+        "flowers": {
+          "nodes": 17,
+          "instances": 947,
+          "triangles": 338652,
+          "draw_calls": 17,
+          "shadow_draw_calls": 0
+        },
+        "litter": {
+          "nodes": 0,
+          "instances": 0,
+          "triangles": 0,
+          "draw_calls": 0,
+          "shadow_draw_calls": 0
+        },
+        "veg_misc": {
+          "nodes": 4,
+          "instances": 4525,
+          "triangles": 1408325,
+          "draw_calls": 4,
+          "shadow_draw_calls": 0
+        },
+        "other": {
+          "nodes": 2020,
+          "instances": 10616,
+          "triangles": 3460639,
+          "draw_calls": 4279,
+          "shadow_draw_calls": 4173
+        }
+      },
+      "totals": {
+        "all": {
+          "triangles": 5463488,
+          "draw_calls": 4357,
+          "instances": 19500
+        },
+        "vegetation": {
+          "triangles": 2002849,
+          "draw_calls": 78,
+          "instances": 8884
+        }
+      },
+      "vegetation_share": {
+        "triangles": 0.3666,
+        "draw_calls": 0.0179
+      },
+      "unattributed_top": [
+        {
+          "node": "Water/SeaSurfBand",
+          "triangles": 682240
+        },
+        {
+          "node": "Buildings/Roof_bldg_osm_w",
+          "triangles": 395804
+        },
+        {
+          "node": "Buildings/Chunk_1_-",
+          "triangles": 275909
+        },
+        {
+          "node": "Buildings/Chunk",
+          "triangles": 238540
+        },
+        {
+          "node": "Buildings/Chunk_0_-",
+          "triangles": 237293
+        },
+        {
+          "node": "Buildings/Chunk_-1_-",
+          "triangles": 235800
+        },
+        {
+          "node": "Buildings/Chunk_-",
+          "triangles": 179205
+        },
+        {
+          "node": "Terrain/Chunk",
+          "triangles": 142848
+        }
+      ],
+      "forbs": {
+        "instances": 941,
+        "triangles": 337812,
+        "draw_calls": 14,
+        "models": {
+          "DandelionFlower_Near": {
+            "instances": 4,
+            "triangles": 7664
+          },
+          "DandelionFlower_Far": {
+            "instances": 114,
+            "triangles": 21660
+          },
+          "DandelionClock_Near": {
+            "instances": 5,
+            "triangles": 8460
+          },
+          "DandelionClock_Far": {
+            "instances": 111,
+            "triangles": 21756
+          },
+          "DandelionLeaves_Near": {
+            "instances": 8,
+            "triangles": 6720
+          },
+          "DandelionLeaves_Far": {
+            "instances": 99,
+            "triangles": 18612
+          },
+          "Plantain_Near": {
+            "instances": 29,
+            "triangles": 50924
+          },
+          "Plantain_Far": {
+            "instances": 383,
+            "triangles": 151668
+          },
+          "WhiteClover_Far": {
+            "instances": 8,
+            "triangles": 5408
+          },
+          "RedClover_Far": {
+            "instances": 3,
+            "triangles": 876
+          },
+          "Burdock_Near": {
+            "instances": 3,
+            "triangles": 4896
+          },
+          "Burdock_Far": {
+            "instances": 88,
+            "triangles": 28512
+          },
+          "PlantainLeaves_Near": {
+            "instances": 5,
+            "triangles": 2880
+          },
+          "PlantainLeaves_Far": {
+            "instances": 81,
+            "triangles": 7776
+          }
+        },
+        "chunk_build_ms": {
+          "median": 0.29,
+          "max": 0.55
+        },
+        "refill_ms": {
+          "median": 0.12,
+          "max": 0.19
+        },
+        "update_for_step_ms": {
+          "median": 13.27,
+          "max": 14.83
+        }
+      },
+      "gpu": {
+        "frame_ms_median": 20.15,
+        "draw_calls_peak": 2459,
+        "primitives_peak": 7517487,
+        "objects_peak": 2459
+      }
+    },
+    {
+      "name": "forb_hotspot_meadow",
+      "map_id": "reval_city",
+      "anchor": "forb_hotspot_meadow_-64_-85",
+      "mode": "eye",
+      "projection": "perspective",
+      "fov": 65.0,
+      "look_cell": [
+        -500.0,
+        -676.0
+      ],
+      "cell": [
+        -508.0,
+        -676.0
+      ],
+      "position": [
+        -508.0,
+        20.08,
+        -676.0
+      ],
+      "layers": {
+        "grass_near": {
+          "nodes": 13,
+          "instances": 3744,
+          "triangles": 112320,
+          "draw_calls": 13,
+          "shadow_draw_calls": 0
+        },
+        "grass_mid": {
+          "nodes": 57,
+          "instances": 13989,
+          "triangles": 419670,
+          "draw_calls": 57,
+          "shadow_draw_calls": 0
+        },
+        "grain": {
+          "nodes": 2,
+          "instances": 13337,
+          "triangles": 2774142,
+          "draw_calls": 2,
+          "shadow_draw_calls": 0
+        },
+        "trees_lod0": {
+          "nodes": 32,
+          "instances": 612,
+          "triangles": 5489418,
+          "draw_calls": 32,
+          "shadow_draw_calls": 32
+        },
+        "trees_lod1": {
+          "nodes": 37,
+          "instances": 781,
+          "triangles": 13812640,
+          "draw_calls": 37,
+          "shadow_draw_calls": 37
+        },
+        "trees_lod2": {
+          "nodes": 0,
+          "instances": 0,
+          "triangles": 0,
+          "draw_calls": 0,
+          "shadow_draw_calls": 0
+        },
+        "shrubs": {
+          "nodes": 17,
+          "instances": 56,
+          "triangles": 326026,
+          "draw_calls": 17,
+          "shadow_draw_calls": 0
+        },
+        "flowers": {
+          "nodes": 29,
+          "instances": 747,
+          "triangles": 255574,
+          "draw_calls": 29,
+          "shadow_draw_calls": 0
+        },
+        "litter": {
+          "nodes": 0,
+          "instances": 0,
+          "triangles": 0,
+          "draw_calls": 0,
+          "shadow_draw_calls": 0
+        },
+        "veg_misc": {
+          "nodes": 4,
+          "instances": 4525,
+          "triangles": 1408325,
+          "draw_calls": 4,
+          "shadow_draw_calls": 0
+        },
+        "other": {
+          "nodes": 1792,
+          "instances": 2254,
+          "triangles": 2822257,
+          "draw_calls": 3325,
+          "shadow_draw_calls": 3255
+        }
+      },
+      "totals": {
+        "all": {
+          "triangles": 27420372,
+          "draw_calls": 3516,
+          "instances": 40045
+        },
+        "vegetation": {
+          "triangles": 24598115,
+          "draw_calls": 191,
+          "instances": 37791
+        }
+      },
+      "vegetation_share": {
+        "triangles": 0.8971,
+        "draw_calls": 0.0543
+      },
+      "unattributed_top": [
+        {
+          "node": "Water/SeaSurfBand",
+          "triangles": 814848
+        },
+        {
+          "node": "Buildings/Chunk_1_-",
+          "triangles": 275909
+        },
+        {
+          "node": "Buildings/Chunk_0_-",
+          "triangles": 237293
+        },
+        {
+          "node": "Buildings/Chunk_-1_-",
+          "triangles": 235800
+        },
+        {
+          "node": "Buildings/Roof_bldg_osm_w",
+          "triangles": 227998
+        },
+        {
+          "node": "Buildings/Chunk",
+          "triangles": 209590
+        },
+        {
+          "node": "Terrain/Chunk",
+          "triangles": 133632
+        },
+        {
+          "node": "Buildings/Chunk_2_-",
+          "triangles": 103008
+        }
+      ],
+      "forbs": {
+        "instances": 690,
+        "triangles": 247594,
+        "draw_calls": 10,
+        "models": {
+          "DandelionFlower_Near": {
+            "instances": 5,
+            "triangles": 9580
+          },
+          "DandelionFlower_Far": {
+            "instances": 93,
+            "triangles": 17670
+          },
+          "DandelionClock_Near": {
+            "instances": 13,
+            "triangles": 21996
+          },
+          "DandelionClock_Far": {
+            "instances": 98,
+            "triangles": 19208
+          },
+          "DandelionLeaves_Far": {
+            "instances": 79,
+            "triangles": 14852
+          },
+          "Plantain_Near": {
+            "instances": 3,
+            "triangles": 5268
+          },
+          "Plantain_Far": {
+            "instances": 78,
+            "triangles": 30888
+          },
+          "RedClover_Near": {
+            "instances": 27,
+            "triangles": 46008
+          },
+          "RedClover_Far": {
+            "instances": 275,
+            "triangles": 80300
+          },
+          "PlantainLeaves_Far": {
+            "instances": 19,
+            "triangles": 1824
+          }
+        },
+        "chunk_build_ms": {
+          "median": 0.84,
+          "max": 1.44
+        },
+        "refill_ms": {
+          "median": 0.12,
+          "max": 0.19
+        },
+        "update_for_step_ms": {
+          "median": 10.41,
+          "max": 11.3
+        }
+      },
+      "gpu": {
+        "frame_ms_median": 133.29,
+        "draw_calls_peak": 2084,
+        "primitives_peak": 71283841,
+        "objects_peak": 2084
+      }
+    },
+    {
+      "name": "forb_hotspot_kalev_smithy",
+      "map_id": "reval_city",
+      "anchor": "forb_hotspot_kalev_smithy_22_13",
+      "mode": "eye",
+      "projection": "perspective",
+      "fov": 65.0,
+      "look_cell": [
+        188.0,
+        108.0
+      ],
+      "cell": [
+        180.0,
+        108.0
+      ],
+      "position": [
+        180.0,
+        15.53,
+        108.0
+      ],
+      "layers": {
+        "grass_near": {
+          "nodes": 12,
+          "instances": 772,
+          "triangles": 23160,
+          "draw_calls": 12,
+          "shadow_draw_calls": 0
+        },
+        "grass_mid": {
+          "nodes": 53,
+          "instances": 6475,
+          "triangles": 194250,
+          "draw_calls": 53,
+          "shadow_draw_calls": 0
+        },
+        "grain": {
+          "nodes": 1,
+          "instances": 1391,
+          "triangles": 97370,
+          "draw_calls": 1,
+          "shadow_draw_calls": 0
+        },
+        "trees_lod0": {
+          "nodes": 17,
+          "instances": 46,
+          "triangles": 255056,
+          "draw_calls": 17,
+          "shadow_draw_calls": 16
+        },
+        "trees_lod1": {
+          "nodes": 44,
+          "instances": 231,
+          "triangles": 2588212,
+          "draw_calls": 44,
+          "shadow_draw_calls": 44
+        },
+        "trees_lod2": {
+          "nodes": 0,
+          "instances": 0,
+          "triangles": 0,
+          "draw_calls": 0,
+          "shadow_draw_calls": 0
+        },
+        "shrubs": {
+          "nodes": 14,
+          "instances": 53,
+          "triangles": 268590,
+          "draw_calls": 14,
+          "shadow_draw_calls": 0
+        },
+        "flowers": {
+          "nodes": 19,
+          "instances": 897,
+          "triangles": 349694,
+          "draw_calls": 19,
+          "shadow_draw_calls": 0
+        },
+        "litter": {
+          "nodes": 0,
+          "instances": 0,
+          "triangles": 0,
+          "draw_calls": 0,
+          "shadow_draw_calls": 0
+        },
+        "veg_misc": {
+          "nodes": 4,
+          "instances": 4525,
+          "triangles": 1408325,
+          "draw_calls": 4,
+          "shadow_draw_calls": 0
+        },
+        "other": {
+          "nodes": 534,
+          "instances": 2765,
+          "triangles": 778409,
+          "draw_calls": 732,
+          "shadow_draw_calls": 714
+        }
+      },
+      "totals": {
+        "all": {
+          "triangles": 5963066,
+          "draw_calls": 896,
+          "instances": 17155
+        },
+        "vegetation": {
+          "triangles": 5184657,
+          "draw_calls": 164,
+          "instances": 14390
+        }
+      },
+      "vegetation_share": {
+        "triangles": 0.8695,
+        "draw_calls": 0.183
+      },
+      "unattributed_top": [
+        {
+          "node": "Water/SeaSurfBand",
+          "triangles": 271488
+        },
+        {
+          "node": "Buildings/Chunk",
+          "triangles": 159942
+        },
+        {
+          "node": "Terrain/Chunk",
+          "triangles": 142848
+        },
+        {
+          "node": "Fortifications/Masonry",
+          "triangles": 75416
+        },
+        {
+          "node": "WallFoot/Tufts",
+          "triangles": 60128
+        },
+        {
+          "node": "Water/Harjapea",
+          "triangles": 13922
+        },
+        {
+          "node": "Buildings/Roof_bldg_osm_w",
+          "triangles": 11730
+        },
+        {
+          "node": "Water/Sea",
+          "triangles": 9405
+        }
+      ],
+      "forbs": {
+        "instances": 889,
+        "triangles": 348574,
+        "draw_calls": 12,
+        "models": {
+          "DandelionFlower_Near": {
+            "instances": 12,
+            "triangles": 22992
+          },
+          "DandelionFlower_Far": {
+            "instances": 105,
+            "triangles": 19950
+          },
+          "DandelionClock_Near": {
+            "instances": 7,
+            "triangles": 11844
+          },
+          "DandelionClock_Far": {
+            "instances": 96,
+            "triangles": 18816
+          },
+          "DandelionLeaves_Near": {
+            "instances": 6,
+            "triangles": 5040
+          },
+          "DandelionLeaves_Far": {
+            "instances": 96,
+            "triangles": 18048
+          },
+          "Plantain_Near": {
+            "instances": 37,
+            "triangles": 64972
+          },
+          "Plantain_Far": {
+            "instances": 347,
+            "triangles": 137412
+          },
+          "Burdock_Near": {
+            "instances": 6,
+            "triangles": 9792
+          },
+          "Burdock_Far": {
+            "instances": 87,
+            "triangles": 28188
+          },
+          "PlantainLeaves_Near": {
+            "instances": 6,
+            "triangles": 3456
+          },
+          "PlantainLeaves_Far": {
+            "instances": 84,
+            "triangles": 8064
+          }
+        },
+        "chunk_build_ms": {
+          "median": 0.31,
+          "max": 0.55
+        },
+        "refill_ms": {
+          "median": 0.12,
+          "max": 0.21
+        },
+        "update_for_step_ms": {
+          "median": 10.06,
+          "max": 11.3
+        }
+      },
+      "gpu": {
+        "frame_ms_median": 19.07,
+        "draw_calls_peak": 965,
+        "primitives_peak": 9038455,
+        "objects_peak": 965
+      }
+    }
+  ]
+}
