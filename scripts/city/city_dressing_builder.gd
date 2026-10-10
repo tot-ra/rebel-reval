@@ -6,6 +6,7 @@ extends RefCounted
 ## and the Coastal Gate, Danish crown pennants on the castle towers. Everything
 ## uses the shared world-wind materials, so flags, ropes, trees, smoke, clouds
 ## and the sea all agree on where the wind blows (tools/verify_wind_direction.gd).
+## Also hosts the forest floor (CityForestFloor, at Dressing/ForestFloor).
 
 const TownHallModel := preload("res://scripts/map/view3d/map_view_town_hall_model.gd")
 const Fort := preload("res://scripts/city/city_fortification_builder.gd")
@@ -28,6 +29,8 @@ static func build(plan: CityPlan, parent: Node3D) -> Node3D:
 			ropes += 1
 	_town_banners(plan, root)
 	_castle_pennants(plan, root)
+	# Moss cushions and seasonal fungi on the floor of the woods (R-1661).
+	CityForestFloor.build(plan, root)
 	root.set_meta(&"hoist_ropes", ropes)
 	return root
 

@@ -307,6 +307,10 @@ func set_calendar_date(date: Dictionary) -> void:
 	# Wild plants flower, seed and die back with the same date (R-1557).
 	if world != null and world.grass != null:
 		world.grass.forbs.set_calendar_date(date)
+	# Forest fungi fruit in their season (R-1661).
+	var forest_floor := world.get_node_or_null("Dressing/ForestFloor") if world != null else null
+	if forest_floor is CityForestFloor:
+		(forest_floor as CityForestFloor).set_calendar_date(date)
 
 
 func sync_actor(actor: Node3D, logic_position: Vector2) -> void:

@@ -12,6 +12,9 @@ uniform vec4 splat_rect = vec4(0.0, 0.0, 1.0, 1.0); // origin.xz, size.xz in wor
 // Cart roads (tools/city/terrain_relief.py road_map): R body, G signed lateral
 // offset (128 = centreline, +-5 m), B traffic wear, A verge band. Same rect as splat.
 uniform sampler2D roads : filter_linear, repeat_disable;
+// R-1661 CityShadeMask, same rect as splat: R the strip north of buildings,
+// G woodland canopy. Moss replaces grass where the ground stays shaded.
+uniform sampler2D shade_mask : filter_linear, repeat_disable, hint_default_black;
 // Footprints, hoofprints and wheel tracks around Kalev (CityGroundTrail): R is
 // 0.5 for undisturbed ground, below it pressed down, above it pushed up as a rim.
 uniform sampler2D trail : filter_linear, repeat_disable;
@@ -519,12 +522,31 @@ void fragment() {
 	float hollow_damp = smoothstep(0.1, 0.55, -curv);
 	grass = mix(grass, grass * vec3(1.32, 1.16, 0.78) + vec3(0.04, 0.03, 0.0), crest * 0.7);
 	grass = mix(grass, grass * vec3(0.72, 0.84, 0.66), hollow_damp * 0.8);
+	// R-1661: moss carpets ground the sun hardly reaches (north of walls, under
+	// closed canopy), in ragged cushions rather than an even decal.
+	vec2 shd = texture(shade_mask, suv).rg;
+	float shade_cover = max(shd.r, shd.g * 0.85);
+	float moss_ground = 0.0;
+	vec3 moss_plate = vec3(0.0);
+	vec2 moss_n = vec2(0.0);
+	if (shade_cover > 0.02) {
+		float cushion = value_noise(wuv * 0.45 + 7.3) * 0.65 + value_noise(wuv * 1.9) * 0.35;
+		moss_ground = smoothstep(0.1, 0.7, shade_cover) * smoothstep(0.3, 0.55, cushion + shade_cover * 0.2)
+			* (1.0 - smoothstep(0.08, 0.45, s.g + s.a)); // feet and wheels keep paths bare
+		vec2 muv = wuv * grass_ground_scale * 1.07 + vec2(0.17, 0.41);
+		moss_plate = texture(grass_ground_albedo, vec3(muv, 9.0)).rgb * grass_ground_grade
+			* vec3(0.62, 0.8, 0.42) * mix(0.8, 1.05, cushion);
+		moss_n = texture(grass_ground_normal, vec3(muv, 9.0)).rg * 2.0 - 1.0;
+		grass = mix(grass, moss_plate, moss_ground);
+	}
 	vec3 col = grass;
-	vec2 nxy = meadow.normal_xy;
+	vec2 nxy = mix(meadow.normal_xy, moss_n, moss_ground);
 	col = mix(col, detiled(earth_albedo, wuv * earth_scale) * earth_tint, earth);
 	nxy = mix(nxy, texture(earth_normal, wuv * earth_scale).rg * 2.0 - 1.0, earth);
 	col = mix(col, detiled(earth_albedo, wuv * earth_scale) * vec3(0.62, 0.55, 0.46), mud);
 	nxy = mix(nxy, texture(earth_normal, wuv * earth_scale).rg * 2.0 - 1.0, mud);
+	// Bare earth under the woods and in wall shade is half grown over with moss too.
+	col = mix(col, moss_plate * 0.85, moss_ground * max(earth, mud) * 0.6);
 	// Ploughed black earth: dark soil with lighter dry clods and stones, no turf.
 	vec2 fh = field_height(wuv);
 	vec3 soil_tex = detiled(earth_albedo, wuv * earth_scale);

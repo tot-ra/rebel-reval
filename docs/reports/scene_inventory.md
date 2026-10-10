@@ -247,3 +247,4 @@ Both commands should print `135` on a clean checkout at this revision.
 | 166 | `tools/capture_site_edge_travel.tscn` | partial | Regional-site edge-to-travel-map capture host (ADR 0042, R-1527); not player-facing. |
 | 160 | `tools/capture_city_households.tscn` | partial | Developer capture or profiling tool. |
 | 158 | `tools/profile_reval_city.tscn` | partial | Developer capture or profiling tool. |
+| 167 | `tools/capture_city_moss.tscn` | partial | Developer capture or profiling tool (R-1661 moss, lichen and forest floor). |

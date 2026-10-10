@@ -101,6 +101,8 @@ void fragment() {
 		// Whitewash outside: rain streaks under the eaves, splash dirt at the foot.
 		float streak = smoothstep(0.55, 0.9, wnoise(vec2(s * 3.0, w_pos.y * 0.15)));
 		col = mix(col, col * vec3(0.8, 0.78, 0.72), streak * 0.35);
+		// Fresh wash resists growth: half the moss and lichen of bare stone.
+		col = shade_growth(col, w_pos, w_nrm, h, 0.5);
 		ALBEDO = col;
 	} else {
 		ALBEDO = col * indoor_ao * vec3(1.06, 0.98, 0.86);

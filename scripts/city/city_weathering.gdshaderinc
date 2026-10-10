@@ -40,3 +40,33 @@ float wfbm(vec2 p) {
 float ground_at(vec2 xz) {
 	return texture(ground_height, (xz - ground_rect.xy) / ground_rect.zw).r;
 }
+
+// R-1661: moss and lichen on shaded masonry. `north` is how much the face
+// looks away from the sun (world -Z), `above` its height over the street.
+// Moss stays in the damp foot zone and the joints; lichen rosettes are small
+// pale spots on the stone above, so a wall still reads as its own colour
+// (R-1465: blotchy green reads as camouflage).
+vec3 shade_growth(vec3 col, vec3 pos, vec3 nrm, float above, float amount) {
+	float north = clamp(-nrm.z, 0.0, 1.0) * (1.0 - abs(nrm.y));
+	if (north <= 0.0 || amount <= 0.0) {
+		return col;
+	}
+	vec2 wp = vec2(dot(pos.xz, vec2(nrm.z, -nrm.x)), pos.y);
+	float ragged = wfbm(wp * 1.6);
+	float reach = 0.35 + ragged * 1.0 + north * 0.45;
+	float foot = 1.0 - smoothstep(reach * 0.5, reach, above);
+	// Fine grain breaks the moss into tufts so the stone shows between them.
+	float tufts = wnoise(wp * 14.0) * 0.6 + wnoise(wp * 37.0) * 0.4;
+	float moss = smoothstep(0.42, 0.62, ragged * 0.7 + tufts * 0.45) * foot * north * amount;
+	// Moss takes the light and shade of the stone under it: keep the texture.
+	float lum = dot(col, vec3(0.3, 0.59, 0.11));
+	vec3 moss_col = mix(vec3(0.2, 0.27, 0.09), vec3(0.3, 0.37, 0.13), tufts) * clamp(lum * 2.2, 0.55, 1.2);
+	col = mix(col, moss_col, clamp(moss, 0.0, 1.0) * 0.85);
+	// Lichen: small crusts a few centimetres across, sparse, a little paler than the stone.
+	vec2 sp = wp * 11.0;
+	float rosette = smoothstep(0.74, 0.8, wnoise(sp) * 0.75 + wnoise(sp * 2.7 + 5.0) * 0.25);
+	float lichen = rosette * smoothstep(0.6, 1.4, above) * north * amount
+		* smoothstep(0.3, 0.55, wfbm(wp * 0.4 + 3.0));
+	vec3 crust = mix(col, vec3(0.62, 0.66, 0.52), 0.65);
+	return mix(col, crust, lichen * 0.75);
+}

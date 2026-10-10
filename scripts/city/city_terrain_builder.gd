@@ -45,6 +45,8 @@ static func material(plan: CityPlan) -> ShaderMaterial:
 		mat.set_shader_parameter(key, load(TEXTURES[key]))
 	mat.set_shader_parameter("splat", load(plan.splat_path()))
 	mat.set_shader_parameter("roads", load(plan.roads_path()))
+	# R-1661: north-of-building strips and woodland canopy, where moss carpets the ground.
+	mat.set_shader_parameter("shade_mask", CityShadeMask.texture(plan))
 	mat.set_shader_parameter("ground_height", plan.height_texture())
 	mat.set_shader_parameter("ground_rect", plan.height_texture_rect())
 	mat.set_shader_parameter("trail", _neutral_trail())
