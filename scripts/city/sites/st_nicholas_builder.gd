@@ -301,6 +301,8 @@ static func _interior(
 	var occluders: Array[AABB] = []
 	Kit.flag_floor(shell, Rect2(TX + 1.4, NN + 1.4, NX - TX - 2.8, NS - NN - 2.8), FLOOR, rng, 0.14)
 	Kit.flag_floor(shell, Rect2(W0 + 2.4, AX - 2.6, 5.2, 5.2), FLOOR, rng)
+	# Through the tower arch (tower east wall plus the nave west wall).
+	Kit.flag_floor(shell, Rect2(TX - 2.4, AX - 1.5, 3.8, 3.0), FLOOR, rng)
 	Kit.flag_floor(shell, Rect2(-11.8, NN - 3.4, 3.6, 3.4), FLOOR, rng)
 	Kit.flag_floor(
 		shell, Rect2(NX, CZ0 + 1.2, CX - 1.2 - NX, CZ1 - CZ0 - 2.4), CHOIR_FLOOR, rng, 0.2

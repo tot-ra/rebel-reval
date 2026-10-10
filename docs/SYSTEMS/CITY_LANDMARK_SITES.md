@@ -57,6 +57,7 @@ Review plates: `docs/reports/images/city/raekoja_plats_aerial.png`, `raekoja_pla
   - **Unrecorded, simplified later form:**
     - Inside: bare grey limestone piers and grey vault ribs against whitewashed walls and webs, as inside today; a stone-flag floor with many tomb slabs; single lancets with stained glass; benches; candle crowns; a pulpit; a winged retable; side altars of merchant families and guilds.
     - Outside: grey limestone rubble with stepped buttresses; a whitewashed tower with pointed blind arcading under a steep shingled helm.
+  - **Walkable nave:** the nave benches (1.6 m) leave a 1.6 m middle aisle and stop 0.4 m short of the pier faces, so a bench row is entered from the aisle or the side aisle and never through a slot that only just fits Kalev's footprint (0.875 x 0.625 m). The nave west wall (`nave.west.mid`) runs across the tower front with the tower arch, and the arch has its own floor (`floor.tower_arch`). `test_st_nicholas_nave_is_walkable_and_west_wall_closed` in `tests/godot/test_city_sites.gd` checks every bench and pier gap against the footprint.
   - **St Barbara chapel:** a charnel house with bones and skulls stacked on low benches and an altar of St Barbara.
   - **Cemetery:** wooden grave crosses, slabs and mounds; the whole churchyard is levelled with the church.
   - **People:** the priest and an acolyte, merchants at their family altar and on benches, a guildsman, the sacristan, a beggar at the north porch, a gravedigger and a mourner.
