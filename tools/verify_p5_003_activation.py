@@ -21,7 +21,7 @@ MANIFEST_PATH = Path("docs/data/p5_003_activation_manifest.json")
 CATALOG_PATH = Path("scripts/map/map_catalog.gd")
 DESTINATIONS_PATH = Path("content/transitions/active_destinations.json")
 EXPECTED_APPROVAL = "docs/adr/0008-three-act-campaign-and-faction-scope.md"
-EXPECTED_TARGETS = ("world_harju", "world_rebel_kings", "world_sacred_grove")
+EXPECTED_TARGETS = ("world_harju", "world_rebel_kings")
 REQUIRED_BLOCKERS = {"P5-002"}
 
 

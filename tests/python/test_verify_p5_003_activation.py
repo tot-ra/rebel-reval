@@ -11,7 +11,7 @@ from tools.verify_p5_003_activation import verify
 
 ROOT = Path(__file__).resolve().parents[2]
 MANIFEST = ROOT / "docs/data/p5_003_activation_manifest.json"
-TARGETS = ("world_harju", "world_rebel_kings", "world_sacred_grove")
+TARGETS = ("world_harju", "world_rebel_kings")
 
 
 class TestP5WorldActivationWave(unittest.TestCase):
@@ -83,7 +83,6 @@ class TestP5WorldActivationWave(unittest.TestCase):
             rrmap_ids = {
                 "world_harju": "world.harju",
                 "world_rebel_kings": "world.rebel_kings",
-                "world_sacred_grove": "world.sacred_grove",
             }
             for scene_id, rrmap_id in rrmap_ids.items():
                 self._promote_target(root, scene_id, rrmap_id)

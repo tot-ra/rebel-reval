@@ -244,11 +244,6 @@
       "open_floor_pct": [80, 92],
       "map_class": "interior"
     },
-    "world.sacred_grove": {
-      "enforce": false,
-      "source_refs": ["H23"],
-      "map_class": "rural"
-    },
     "world.harju": {
       "enforce": false,
       "source_refs": ["H22"],

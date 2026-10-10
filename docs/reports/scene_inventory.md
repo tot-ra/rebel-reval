@@ -20,7 +20,7 @@ find . -name '*.tscn' -not -path './.git/*' -not -path './.godot/*' -not -path '
 # Expected: 140
 ```
 
-Inventory row count (data rows in the table below): **140**.
+Inventory row count (data rows in the table below): **139**.
 
 ## Classification criteria
 
@@ -93,7 +93,6 @@ Inventory row count (data rows in the table below): **140**.
 | 54 | `scenes/ui/journal_overlay.tscn` | working | Quest journal overlay; P1-016 objectives and discovered evidence. |
 | 89 | `scenes/ui/reflection_overlay.tscn` | working | Hingepuu reflection overlay; P2-011 Duty/Fury/Mercy conviction choice. |
 | 55 | `assets/characters/variants/townswoman.tscn` | partial | Shared-rig townswoman variant used by ambient NPC work. |
-| 79 | `scenes/world_travel/world_sacred_grove.tscn` | partial | Developer global-map placeholder; south road via Karja Gate; `release=false`. |
 | 80 | `scenes/world_travel/world_harju.tscn` | partial | Developer global-map placeholder; east road via Pirita (`viru_gate_foreland`); `release=false`. |
 | 81 | `scenes/world_travel/world_padise.tscn` | partial | Developer global-map placeholder; west road via Toompea; `release=false`. |
 | 82 | `scenes/world_travel/world_saaremaa.tscn` | partial | Developer global-map placeholder; island ferry via Trade Harbour; `release=false`. |

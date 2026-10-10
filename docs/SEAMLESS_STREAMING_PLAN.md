@@ -112,7 +112,7 @@ R-980 must reject a travel transition that is authored as a physical seam.
 | `world.parnu` | `world_parnu.rrmap` |
 | `world.poide` | `world_poide.rrmap` |
 | `world.kanavere` | `world_kanavere.rrmap` |
-| `world.sacred_grove` | `world_sacred_grove.rrmap` |
+| `world.sacred_grove` | `world_sacred_grove.rrmap` (retired, R-1529; regional site `scenes/world/sites/sacred_grove.tscn`) |
 | `world.rebel_kings` | `world_rebel_kings.rrmap` |
 
 ## Phases 3-5

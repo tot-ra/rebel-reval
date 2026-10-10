@@ -1,7 +1,7 @@
 # The Sacred Grove (Hiis, Metsik's oak)
 
 **Status:** planned (design proposal, not implemented) · **Scope gate:** existing prototype `loc.world_sacred_grove` · **Act(s):** 2 (`mission.act2.travel.sacred_grove`, investment phase), 3 (persecution and winter variant); an optional Act 1 glimpse via Ell and Mari
-**Map id:** `loc.world_sacred_grove` (existing: [`content/maps/world_sacred_grove.rrmap`](../../content/maps/world_sacred_grove.rrmap), 64x36 cells, `scope=prototype`, `active=false`) · **Seasons/phases:** April bare oak and wood anemone; May leaf flush; Act 3 winter (frost-white moss, black oaks)
+**Map id:** `loc.world_sacred_grove` (regional site, 500 m: [`scenes/world/sites/sacred_grove.tscn`](../../scenes/world/sites/sacred_grove.tscn) from [`content/world/sacred_grove/plan.json`](../../content/world/sacred_grove/plan.json), ADR 0042, R-1529; the 64x36 `world_sacred_grove.rrmap` greybox is retired and the landmark list below is design history) · **Seasons/phases:** April bare oak and wood anemone; May leaf flush; Act 3 winter (frost-white moss, black oaks)
 **Confidence summary:** the existence of sacred groves (*hiis*, *lucus sanctus*) `attested`; offering customs `plausible composite` (18th-c. ethnography projected back); every named spirit, the Cult's organisation, Ellen at the grove, Hingepuu link and the grove's position `invented` or `folklore`.
 
 ## 1. Why a player would want to visit

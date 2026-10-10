@@ -31,16 +31,6 @@
         "from_world_harju",
         "from_world_kanavere"
       ]
-    },
-    {
-      "id": "world_sacred_grove",
-      "rrmap_id": "world.sacred_grove",
-      "scene_path": "res://scenes/world_travel/world_sacred_grove.tscn",
-      "role": "Cult of Metsik folklore route",
-      "expected_dev_spawns": [
-        "from_reval_south",
-        "from_world_harju"
-      ]
     }
   ],
   "gates": {
@@ -65,11 +55,6 @@
           "night_capture": null
         },
         "world_rebel_kings": {
-          "status": "pending",
-          "day_capture": null,
-          "night_capture": null
-        },
-        "world_sacred_grove": {
           "status": "pending",
           "day_capture": null,
           "night_capture": null

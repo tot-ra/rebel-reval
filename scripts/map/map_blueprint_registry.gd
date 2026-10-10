@@ -23,12 +23,6 @@ static func entries() -> Array[Dictionary]:
 			],
 		},
 		{
-			"id": &"world.sacred_grove",
-			"source": "res://content/maps/world_sacred_grove.rrmap",
-			"required_anchors":
-			[&"landmark_ancient_oak", &"landmark_offering_stone", &"landmark_bog_spring"],
-		},
-		{
 			"id": &"world.harju",
 			"source": "res://content/maps/world_harju.rrmap",
 			"required_anchors":

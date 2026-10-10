@@ -219,24 +219,6 @@
       "mandatory_transitions": []
     },
     {
-      "id": "world.sacred_grove",
-      "location_name": "Sacred Grove developer route",
-      "scene": "scenes/world_travel/world_sacred_grove.tscn",
-      "definition": "scripts/map/definitions/outdoor/distant_location_definitions.gd",
-      "factory": "DistantLocationDefinitions.create(world_sacred_grove)",
-      "disposition": "convert",
-      "capture": "world_sacred_grove.png",
-      "mandatory_anchors": [
-        "landmark_ancient_oak",
-        "landmark_offering_stone",
-        "landmark_bog_spring"
-      ],
-      "mandatory_transitions": [
-        "to_reval",
-        "road_to_harju"
-      ]
-    },
-    {
       "id": "world.harju",
       "location_name": "Harju Village developer route",
       "scene": "scenes/world_travel/world_harju.tscn",
