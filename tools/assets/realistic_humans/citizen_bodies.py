@@ -68,6 +68,30 @@ SKIN = {("m", "child"): "young_caucasian_male", ("f", "child"): "young_caucasian
 OUTFITS = ("a", "b")
 
 
+# Layers fitted to each body and exported apart from it (build_human.py writes
+# assets/characters/realistic/<body>/layers/<layer>.glb); the census wardrobe
+# rules in tools/city/build_citizen_runtime.py pick which ones a resident wears
+# (docs/SYSTEMS/CITIZEN_WARDROBE.md). Order matters: aprons and accessories fit
+# over the baked base, the armour kit stacks aketon -> mail -> mail coif -> surcoat.
+LAYERS = {
+    ("m", "adult"): ("hood", "coif", "wool_cap", "smith_apron", "waist_apron", "keys", "paternoster",
+                     "satchel", "back_sack", "gambeson", "mail_haubergeon", "mail_coif", "surcoat",
+                     "kettle_hat", "bascinet"),
+    ("m", "elder"): ("hood", "coif", "wool_cap", "waist_apron", "keys", "paternoster", "satchel"),
+    ("m", "child"): ("hood", "coif", "wool_cap"),
+    ("f", "adult"): ("veil_over", "waist_apron", "keys", "paternoster", "satchel"),
+    ("f", "elder"): ("veil_over", "keys", "paternoster"),
+    ("f", "child"): (),
+}
+# Extra ease (m) for torso layers so they clear the baked tunic, its blousing and belt.
+LAYER_EASE = 0.022
+
+
+def layers_of(sex, stage, outfit="a"):
+    """Layer ids fitted to one body; the long-cut gown already bakes an apron."""
+    return tuple(g for g in LAYERS[(sex, stage)] if not (g == "waist_apron" and sex == "f" and outfit == "b"))
+
+
 def body_id(sex, stage, build, outfit="a"):
     return f"citizen_{sex}_{stage}_{build}" + ("_b" if outfit == "b" else "")
 
@@ -98,13 +122,15 @@ def _spec(person, sex, stage, build, outfit="a"):
     else:
         garments = ["work_gown", "headscarf", "boots"]
         palette = {"work_gown": CLOTH, "headscarf": LINEN, "boots": DARK}
+    layers = list(layers_of(sex, stage, outfit))
     spec = person(
         age=age, sex=sex, muscle=muscle, weight=weight, height_m=height, skin=SKIN[(sex, stage)],
         eyes="grey", hair="short01" if (male or stage == "child") else "bob01", hair_color=(0.34, 0.27, 0.19),
         brows="eyebrow002" if male else "eyebrow006", lashes="eyelashes02" if male else "eyelashes03",
         targets=targets, complexion={"tan": 0.4, "flush": 0.4},
-        garments=garments, palette=palette, outfits={"daily": garments},
-        extra={"apron_over": garments[0], "belted": True if male else "plain"}, tier=2)
+        garments=garments + layers, palette=palette, outfits={"daily": garments},
+        extra={"apron_over": garments[0], "belted": True if male else "plain", "layers": layers,
+               "layer_ease": LAYER_EASE}, tier=2)
     # `_person` converts age through the repo's 25-year scale; the citizen bodies
     # state MakeHuman's own macro so a child really is a child.
     spec["macros"]["age"] = mh_age(age)

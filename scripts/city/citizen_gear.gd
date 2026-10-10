@@ -26,15 +26,19 @@ static var _spear_held := Transform3D(
 )
 
 
-## Mounts the kit of `record["duty"]` on `rig`; a resident off duty (or any
-## civilian) is left untouched. Safe to call twice.
+## Dresses `record`'s wardrobe layers, then mounts the kit of `record["duty"]`
+## (hat fallback and weapon); a civilian gets only the layers. Safe to call twice.
 static func arm(rig: SharedCharacterRig, record: Dictionary) -> void:
+	# Layered dress first (docs/SYSTEMS/CITIZEN_WARDROBE.md): duty kits there add the
+	# aketon, mail, surcoat and a kettle hat fitted to this very body.
+	CitizenWardrobe.dress(rig, record)
 	var duty: Dictionary = record.get("duty", {})
 	if duty.is_empty() or not KITS.has(duty.get("kit", "")):
 		return
 	var kit: Dictionary = KITS[duty["kit"]]
-	# The hat is a skinned garment authored on the shared skeleton: it follows the head bone.
-	if kit["hat"]:
+	# Fallback hat (the watchman's, skinned to the shared skeleton) for a body
+	# without its own fitted kettle hat layer.
+	if kit["hat"] and not rig.has_garment(&"wear_kettle_hat"):
 		rig.equip_garment(&"duty_hat", KETTLE_HAT)
 	match kit["hand"]:
 		&"spear":

@@ -660,10 +660,11 @@ def bake_crowd_body(spec, meshes, wardrobe):
     for o in meshes:
         if o not in keep:
             bpy.data.objects.remove(o, do_unlink=True)
+    layers = set(spec.get("layers", []))
     for garment, (_, _, objects) in wardrobe.items():
         if garment in outfit:
             keep += objects
-        else:
+        elif garment not in layers:  # layers are exported apart (export_crowd_layers)
             for o in objects:
                 bpy.data.objects.remove(o, do_unlink=True)
     share = {"Anatomy_Head": 0.24, "Anatomy_Head_Eyes": 0.03, "Hair_Scalp": 0.1, "Anatomy_Hands": 0.05}
@@ -688,6 +689,39 @@ def bake_crowd_body(spec, meshes, wardrobe):
     bpy.ops.object.join()
     body.name = body.data.name = "Anatomy_CrowdBody"
     return [body]
+
+
+# Triangle budget of one exported citizen layer (docs/SYSTEMS/CITIZEN_WARDROBE.md):
+# a resident wears up to four, so a dressed crowd body stays near 15k triangles.
+LAYER_TRIANGLES = {"hood": 1400, "veil_over": 1400, "mail_coif": 1300, "coif": 900, "wool_cap": 700,
+                   "bascinet": 700, "kettle_hat": 700, "gambeson": 2600, "mail_haubergeon": 2200,
+                   "surcoat": 2000, "smith_apron": 900, "waist_apron": 800, "keys": 400,
+                   "paternoster": 700, "satchel": 700, "back_sack": 700}
+
+
+def export_crowd_layers(spec, motion, wardrobe, out):
+    """Tier 2 layers: each garment of spec["layers"] joined into one skinned mesh,
+    decimated to its budget and written to <out>/layers/<garment>.glb."""
+    for garment in spec.get("layers", []):
+        objects = [o for o in wardrobe[garment][2] if o.type == "MESH"]
+        bpy.ops.object.select_all(action="DESELECT")
+        for o in objects:
+            o.select_set(True)
+        bpy.context.view_layer.objects.active = objects[0]
+        if len(objects) > 1:
+            bpy.ops.object.join()
+        obj = objects[0]
+        obj.name = obj.data.name = f"Layer_{garment}"
+        tris = sum(len(p.vertices) - 2 for p in obj.data.polygons)
+        budget = LAYER_TRIANGLES.get(garment, 1000)
+        if tris > budget:
+            decimate(obj, budget / tris)
+        bind(obj, motion)
+        obj["garment"] = garment
+        path = out / "layers" / f"{garment}.glb"
+        export_glb(path, [motion, obj], animations=False)
+        finish_glb(path, out)
+        log(f"layer {garment}: {sum(len(p.vertices) - 2 for p in obj.data.polygons)} triangles")
 
 
 def decimate(obj, ratio):
@@ -845,7 +879,7 @@ def export_glb(path, objects, animations):
         export_all_influences=False, export_apply=False, export_yup=True)
 
 
-def build(name, only_body=False):
+def build(name, only_body=False, layers_only=False):
     spec = spec_module.SPECS[name]
     if spec.get("tier") == 2 and spec.get("beard"):
         # Crowd budget: beards are painted into the skin, not built as shells.
@@ -878,7 +912,10 @@ def build(name, only_body=False):
         rename_weights(proxy)
     collar = collar_plane(targets)
     out = OUT_ROOT / name
-    grooming, lm = surface_character(spec, body, named_proxies, shared, collar, targets, data, out / "textures")
+    # --layers-only refits the layers without touching the shipped body or its textures.
+    texture_dir = WORK / f"{name}_scratch_textures" if layers_only else out / "textures"
+    texture_dir.mkdir(parents=True, exist_ok=True)
+    grooming, lm = surface_character(spec, body, named_proxies, shared, collar, targets, data, texture_dir)
     ctx = garments.Ctx(spec=spec, body=body, rig=motion, t=targets, lm=lm, collar=collar, out=out)
     ctx.bvh = clearance_bvh(body)
     braies = garments.braies(ctx)
@@ -897,9 +934,15 @@ def build(name, only_body=False):
                 if obj.data.attributes.get(f"fx_{shape}") is not None:
                     obj.data.attributes.remove(obj.data.attributes[f"fx_{shape}"])
         meshes = bake_crowd_body(spec, meshes, wardrobe)
+        layer_wardrobe = {g: wardrobe[g] for g in spec.get("layers", [])}
         wardrobe = {}
     else:
         add_expression_keys(meshes, scale)
+    if spec.get("tier") == 2 and spec.get("layers"):
+        export_crowd_layers(spec, motion, layer_wardrobe, out)
+        if layers_only:
+            log(json.dumps({"character": name, "layers": spec["layers"]}))
+            return {"character": name, "layers": spec["layers"]}
     for obj in meshes:
         bind(obj, motion)
     export_glb(out / f"{name}.glb", [motion] + meshes, animations=True)
@@ -930,9 +973,12 @@ def main():
     argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
     parser = argparse.ArgumentParser()
     parser.add_argument("--character", default="kalev")
+    parser.add_argument("--layers-only", action="store_true",
+                        help="tier 2: export only the citizen layers, keep the shipped body GLB")
     args = parser.parse_args(argv)
-    build(args.character)
-    prune_makehuman_textures()
+    build(args.character, layers_only=args.layers_only)
+    if not args.layers_only:
+        prune_makehuman_textures()
 
 
 if __name__ == "__main__":
