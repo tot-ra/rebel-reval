@@ -8,6 +8,14 @@ const AuraManager := preload("res://scripts/combat/spirit_aura_manager.gd")
 const DURATION := 0.6
 const REDUCED_DURATION := 0.2
 const TINT := Color(0.66, 0.68, 1.0)
+## Duel grade (ADR 0041 section 5): stronger than sight. Nearly monochrome deep indigo; the
+## arena key and fill are the only lights left (SpiritArena3D switches the rest off) and the
+## sun is cut to a sliver. One recipe for every map, never per-map code.
+const DUEL_SATURATION := 0.1
+const DUEL_AMBIENT_ENERGY := 0.55
+const DUEL_AMBIENT_COLOR := Color(0.1, 0.14, 0.62)
+const DUEL_SUN_SCALE := 0.15
+const SIGHT_GROUP := &"spirit_sight_controller"
 const FIELDS: Array[StringName] = [
 	&"adjustment_enabled", &"adjustment_saturation", &"ambient_light_energy",
 	&"ambient_light_color",
@@ -22,6 +30,9 @@ var blend := 0.0
 var environment_override: Environment
 var sun_override: DirectionalLight3D
 var follow_session := true
+## 0..1, owned by an open SpiritArena3D; layers the duel grade over the sight grade and
+## keeps sight on through the duel (the host's modal flags would otherwise cancel it).
+var duel_amount := 0.0
 
 var _environment: Environment
 var _sun: DirectionalLight3D
@@ -36,6 +47,7 @@ var _material: ShaderMaterial
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	process_priority = 1000
+	add_to_group(SIGHT_GROUP)
 	actor = get_parent() as Node2D if actor == null else actor
 	if follow_session:
 		state = get_node("/root/SessionState").state
@@ -89,7 +101,7 @@ func available() -> bool:
 
 
 func enforce_availability() -> void:
-	if state != null and state.spirit_sight and not available():
+	if state != null and state.spirit_sight and duel_amount <= 0.0 and not available():
 		leave_immediately()
 
 
@@ -138,23 +150,34 @@ func compose_grade() -> void:
 	_material.set_shader_parameter("phase", blend)
 	_material.set_shader_parameter("reduced_motion", reduced_motion)
 	_update_origin()
-	if _environment == null or amount <= 0.0:
+	var duel := clampf(duel_amount, 0.0, 1.0)
+	if _environment == null or (amount <= 0.0 and duel <= 0.0):
 		return
 	for field in FIELDS:
 		_snapshot[field] = _environment.get(field)
-	_environment.adjustment_enabled = true
-	_environment.adjustment_saturation = lerpf(
-		float(_snapshot[&"adjustment_saturation"]), 0.25, amount
-	)
-	_environment.ambient_light_energy = float(_snapshot[&"ambient_light_energy"]) * (
-		1.0 - 0.4 * amount
-	)
-	_environment.ambient_light_color = (_snapshot[&"ambient_light_color"] as Color).lerp(
-		TINT, 0.35 * amount
-	)
+	grade_environment(_environment, _snapshot, amount, duel)
 	if is_instance_valid(_sun):
 		_sun_energy = _sun.light_energy
-		_sun.light_energy *= 1.0 - 0.4 * amount
+		_sun.light_energy = sun_energy_for(_sun_energy, amount, duel)
+
+
+## The environment recipe from the physical `base` snapshot: sight first, then the duel grade
+## lerped over it. Shared with SpiritArena3D, which grades stages that have no sight node.
+static func grade_environment(
+	env: Environment, base: Dictionary, sight_amount: float, duel: float
+) -> void:
+	env.adjustment_enabled = true
+	var saturation := lerpf(float(base[&"adjustment_saturation"]), 0.25, sight_amount)
+	var energy := float(base[&"ambient_light_energy"]) * (1.0 - 0.4 * sight_amount)
+	var tint := (base[&"ambient_light_color"] as Color).lerp(TINT, 0.35 * sight_amount)
+	env.adjustment_saturation = lerpf(saturation, DUEL_SATURATION, duel)
+	var duel_energy := float(base[&"ambient_light_energy"]) * DUEL_AMBIENT_ENERGY
+	env.ambient_light_energy = lerpf(energy, duel_energy, duel)
+	env.ambient_light_color = tint.lerp(DUEL_AMBIENT_COLOR, duel)
+
+
+static func sun_energy_for(base: float, sight_amount: float, duel: float) -> float:
+	return lerpf(base * (1.0 - 0.4 * sight_amount), base * DUEL_SUN_SCALE, duel)
 
 
 func _active_environment() -> Environment:

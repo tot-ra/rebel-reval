@@ -1338,6 +1338,8 @@ func _build_streamed_object(record: Dictionary) -> Node:
 				MapViewKalevSmithyInterior.adapt_prop(source, prop_node)
 			# build_prop applies visual_offset_px in world space; keep that lift when
 			# snapping the prop root to sampled terrain height.
+			# ADR 0041 SS-6: props (carts, stalls, loose items) vanish in a spirit duel.
+			prop_node.add_to_group(&"spirit_hide_prop")
 			var visual_elevation := prop_node.position.y
 			prop_node.position.y = (
 				MapViewMeshBuilder.ground_height(

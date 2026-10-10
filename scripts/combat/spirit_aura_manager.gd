@@ -15,6 +15,7 @@ const DEFAULT_SIGHT_RADIUS := 12.0
 const REFRESH_SEC := 0.25
 const HERO_RIG_NAME := &"PlayerRig"
 const HERO_ID := &"char.apprentice"
+const GROUP := &"spirit_aura_manager"
 
 var state: GameState
 ## Spirit-sight controller whose `blend` fades the auras; null = use `fade`.
@@ -28,6 +29,10 @@ var center_override: Variant = null
 ## Optional (body: Node3D) -> SpiritAuraProfile; default reads ContentDB by name.
 var profile_resolver: Callable
 
+## SS-6: while a duel arena is open only these two beings show an aura, at full strength
+## whatever the sight blend is (a prologue duel has no sight node at all).
+var duel_fighters: Array[Node3D] = []
+
 var _views: Dictionary = {}
 var _profiles: Dictionary = {}
 var _explicit: Dictionary = {}
@@ -36,6 +41,7 @@ var _refresh_left := 0.0
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	add_to_group(GROUP)
 	if sight == null and get_parent() != null and &"blend" in get_parent():
 		sight = get_parent()
 
@@ -59,7 +65,20 @@ func active() -> bool:
 	return current_fade() > 0.001
 
 
+## Fighters-only mode (SpiritArena3D open/close). An empty list returns to the sight budget;
+## the next refresh() hides every aura outside the duel.
+func set_duel_fighters(fighters: Array[Node3D]) -> void:
+	duel_fighters = fighters.duplicate()
+	_refresh_left = 0.0
+	if duel_fighters.is_empty():
+		_hide_all()
+	else:
+		refresh()
+
+
 func current_fade() -> float:
+	if not duel_fighters.is_empty():
+		return 1.0
 	if is_instance_valid(sight):
 		return clampf(float(sight.get(&"blend")), 0.0, 1.0)
 	return fade
@@ -121,10 +140,16 @@ func refresh() -> void:
 	_prune()
 	var bodies := candidates()
 	var center: Variant = _center()
-	if center == null:
+	var tiers := {}
+	if not duel_fighters.is_empty():
+		# Fighters get a full aura wherever they stand; everyone else drops out below.
+		for fighter in duel_fighters:
+			tiers[fighter] = SpiritAuraView.Tier.FULL
+	elif center == null:
 		_hide_all()
 		return
-	var tiers := assign_tiers(center as Vector3, bodies, sight_radius)
+	else:
+		tiers = assign_tiers(center as Vector3, bodies, sight_radius)
 	for body: Node3D in bodies:
 		var tier: int = tiers.get(body, SpiritAuraView.Tier.NONE)
 		var view := view_for(body)
@@ -144,6 +169,15 @@ func refresh() -> void:
 
 func candidates() -> Array:
 	var bodies: Array = []
+	if not duel_fighters.is_empty():
+		for fighter in duel_fighters:
+			if is_instance_valid(fighter):
+				bodies.append(fighter)
+		# Views that exist on other beings must be told to hide: list them too.
+		for body: Variant in _views.keys():
+			if is_instance_valid(body) and not bodies.has(body):
+				bodies.append(body)
+		return bodies
 	if is_inside_tree():
 		for node in get_tree().get_nodes_in_group(SharedCharacterRig.SPIRIT_AURA_GROUP):
 			if node is Node3D and not bodies.has(node):
@@ -202,6 +236,16 @@ func _default_profile(body: Node3D) -> SpiritAuraProfile:
 	if db != null and db.has_record(record_id):
 		return SpiritAuraProfile.for_character(record_id, db, state)
 	return SpiritAuraProfile.from_record(StringName(actor), {}, state)
+
+
+## Free every view this manager made (a private duel manager does this before it goes).
+func release_views() -> void:
+	for body: Variant in _views.keys():
+		var view: Variant = _views[body]
+		if is_instance_valid(view):
+			(view as SpiritAuraView).queue_free()
+	_views.clear()
+	_profiles.clear()
 
 
 func _hide_all() -> void:

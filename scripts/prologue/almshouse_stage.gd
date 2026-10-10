@@ -58,6 +58,8 @@ const HIT_RECOVER_SEC := 0.8
 ## Spirit disc of the duel, centred between the duellists. Large enough for the porter's
 ## retreat (SpiritArenaMotion.FAR_DISTANCE) but framed whole by the arena camera.
 const ARENA_RADIUS := 5.5
+## How far from the hall's centre line the boy may stand: inside the side walls.
+const ARENA_WALL_REACH := HALL_HALF_WIDTH - 0.5
 const ARENA_CAMERA_POSITION := Vector3(0.0, 7.4, 9.8)
 const ARENA_CAMERA_TARGET := Vector3(0.0, 0.2, 0.3)
 const ARENA_CAMERA_FOV := 50.0
@@ -136,6 +138,8 @@ func bring_in_kalev() -> Node3D:
 
 ## Frame the whole spirit disc from above the front of the hall instead of the two-shot.
 func frame_arena() -> void:
+	# The interior cut-away: the roof comes off so the raised camera looks into the hall.
+	_set_cutaway(false)
 	_camera.fov = ARENA_CAMERA_FOV
 	_camera.look_at_from_position(ARENA_CAMERA_POSITION, ARENA_CAMERA_TARGET)
 
@@ -143,6 +147,7 @@ func frame_arena() -> void:
 ## After the arena duel: both duellists back on their marks and the two-shot restored, so
 ## Kalev's scene (bring_in_kalev) frames the same hall whatever footwork the duel had.
 func end_arena() -> void:
+	_set_cutaway(true)
 	_dash_left = 0.0
 	_hero.transform = _hero_mark
 	_porter.transform = _porter_mark
@@ -164,6 +169,8 @@ func move_hero(direction: Vector2, guarding: bool, delta: float) -> void:
 		_dash_left -= delta
 		velocity = _dash_direction * HERO_DASH_SPEED
 	_hero.position += velocity * delta
+	# The hall walls stay in the duel and bound the footwork like the disc does.
+	_hero.position.x = clampf(_hero.position.x, -ARENA_WALL_REACH, ARENA_WALL_REACH)
 	var moving := velocity.length() > 0.01
 	if (guarding and not dashing) or not moving:
 		_hero.rotation_degrees.y = _yaw_toward(_hero.position, _porter.position)
@@ -339,10 +346,18 @@ func _build_hall() -> void:
 	_box("DoorLintel", Vector3(DOOR_WIDTH + 0.4, 0.16, 0.1), lintel_at, beam)
 
 
+func _set_cutaway(roof_on: bool) -> void:
+	for roof_name in ["Ceiling", "Beam0", "Beam1", "Beam2", "Beam3"]:
+		var roof := get_node_or_null(roof_name) as Node3D
+		if roof != null:
+			roof.visible = roof_on
+
+
 func _build_props() -> void:
 	# The kit holds cold / embers / lit variants on one origin; show only the lit one.
 	var hearth := HEARTH_KIT.instantiate() as Node3D
 	hearth.name = "Hearth"
+	hearth.add_to_group(SpiritArena3D.GROUP_PROP)
 	hearth.position = Vector3(-2.3, 0.0, -HALL_DEPTH + 0.25)
 	hearth.rotation_degrees.y = 180.0
 	hearth.scale = Vector3.ONE * 1.2
@@ -350,12 +365,14 @@ func _build_props() -> void:
 	_show_only(hearth, &"HearthLit")
 	var table := TABLE_KIT.instantiate() as Node3D
 	table.name = "Table"
+	table.add_to_group(SpiritArena3D.GROUP_FURNITURE)
 	table.position = Vector3(3.0, 0.0, -1.4)
 	table.rotation_degrees.y = 90.0
 	add_child(table)
 	_show_only(table, &"LongBoardTable")
 	var chest := CHEST.instantiate() as Node3D
 	chest.name = "Chest"
+	chest.add_to_group(SpiritArena3D.GROUP_FURNITURE)
 	chest.position = Vector3(1.0, 0.0, -HALL_DEPTH + 0.55)
 	add_child(chest)
 

@@ -1,6 +1,6 @@
 # Spirit sight, auras and soul lights
 
-Status: partially implemented. The spirit sight toggle SS-1 (**R-1484**), aura profile data SS-2/SS-2b (**R-1485**, **R-1496**) and the aura look SS-3 (**R-1486**) are implemented; reading, duel use and the duel layer remain planned (epic **R-1483**, [ADR 0041](../adr/0041-spirit-sight-auras-and-soul-lights.md), accepted).
+Status: partially implemented. The spirit sight toggle SS-1 (**R-1484**), aura profile data SS-2/SS-2b (**R-1485**, **R-1496**) and the aura look SS-3 (**R-1486**) are implemented, as is the duel layer SS-6 (**R-1489**); reading, duel use and entry remain planned (epic **R-1483**, [ADR 0041](../adr/0041-spirit-sight-auras-and-soul-lights.md), accepted).
 
 Scope: a spirit-sight layer the hero toggles anywhere on the same map, auras with seven soul lights on every person and animal, reading a soul, soul lights feeding the spirit duel, and duels that keep the building but hide furniture under a focused grade. Out of scope: a universal good/evil score, duels with animals, a separate spirit-world copy of the map, new art assets (P0-040). The duel rules themselves live in [`SPIRIT_DIALOGUE.md`](./SPIRIT_DIALOGUE.md).
 
@@ -194,9 +194,17 @@ All numbers are constants in `SpiritDuel`. Light and element pair as in the Aura
 - **Verify:** `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_spirit_duel_aura,test_spirit_arena,test_spirit_word_spells,test_spirit_traits,test_spirit_magic`.
 - **Limits:** nothing in play yet supplies an opponent profile; the dim and the shatter are not captured in a plate.
 
-## Duel layer (planned, SS-6, **R-1489**)
+## Duel layer (implemented, SS-6, **R-1489**)
 
-The building stays: walls, floor, pillars, stairs and building shells keep their place and collision. Furniture, props, loose items, decor and clutter are hidden through one named list of node groups, as are people outside the duel. The duel grade is nearly monochrome deep indigo with only arena key and fill lights; only the two fighters glow. Everything is restored on close. This replaces the ADR 0038 interior stripping to the floor.
+Status: implemented (task **R-1489**). Scope: what the world looks like during a 3D spirit duel and how it returns. Out of scope: starting a duel from sight (SS-7). The arena mechanics (hide list, restore, tests) are documented in [`SPIRIT_DIALOGUE.md`](./SPIRIT_DIALOGUE.md) "3D arena disc and duel layer".
+
+The building stays: walls, floor, pillars, stairs and building shells keep their place and collision. Furniture, props, loose items, decor and clutter are hidden through one named list of node groups (`SpiritArena3D.HIDE_GROUPS`), as are people outside the duel. This replaces the ADR 0038 interior stripping to the floor.
+
+- **Duel grade** (`scripts/combat/spirit_sight.gd`, `DUEL_SATURATION`, `DUEL_AMBIENT_ENERGY`, `DUEL_AMBIENT_COLOR`, `DUEL_SUN_SCALE`): nearly monochrome deep indigo, ambient light cut and tinted, sun cut to a sliver, every light but the arena key and fill off. `SpiritSight.duel_amount` (0..1, owned by the open arena) layers it over the sight grade in the same restore-then-compose pass, so closing returns exactly to the sight grade, and leaving sight afterwards restores the physical environment exactly. Sight is not cancelled by the duel's modal flags while `duel_amount > 0`. Stages without a controller (the almshouse prologue) are graded and restored by the arena through the same `grade_environment` recipe.
+- **Fighters-only auras:** `SpiritAuraManager.set_duel_fighters` (group `spirit_aura_manager`) shows the two fighters' full auras at full strength regardless of the sight blend and hides every other aura; an empty list returns to the normal budget. A scene without a manager gets a private one for the duel.
+- **Return:** closing the arena restores visibility, lights, environment and aura budget, and leaves the hero in spirit sight.
+- **Plates:** [`docs/reports/images/spirit_duel_layer/`](../reports/images/spirit_duel_layer/) (outdoor street before, in the duel, back in sight; made by `tools/capture_spirit_duel_layer.gd`) and the almshouse hall duel (`almshouse_duel_hall.png`, from `tools/capture_almshouse_opening.gd`; before R-1489 the hall was hidden down to a bare floor disc).
+- **Limits:** the grade is a whole-screen adjustment, so aura colour is desaturated with the rest of the frame; untagged props stay visible until their spawner joins a hide group.
 
 ## Entering a duel (planned, SS-7, **R-1490**)
 

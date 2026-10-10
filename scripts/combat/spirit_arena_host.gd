@@ -129,6 +129,9 @@ func attach_arena(
 		arena_3d.free()
 		arena_3d = null
 		return false
+	# The fighters' aura views are the duel's feedback surface (R-1488): follow the opponent's.
+	if not is_instance_valid(opponent_aura_view) and opponent is Node3D:
+		opponent_aura_view = arena_3d.aura_view_for(opponent as Node3D)
 	if hero != null:
 		_hero_body = hero
 		_opponent_body = opponent

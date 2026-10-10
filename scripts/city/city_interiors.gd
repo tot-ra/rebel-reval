@@ -284,6 +284,8 @@ func _build_items(index: int, budget_usec: int) -> bool:
 		holder.position = Vector3(p.x, lay.floor_y + float(item["y"]), p.y)
 		holder.rotation.y = float(item["yaw"])
 		node.add_child(holder)
+		# ADR 0041 SS-6: a spirit duel in the room hides its furnishings, not its walls.
+		holder.add_to_group(&"spirit_hide_furniture")
 		if i == lay.hearth:
 			home["hearth"] = holder
 		elif i == lay.firewood:
