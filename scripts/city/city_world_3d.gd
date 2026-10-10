@@ -556,6 +556,9 @@ func _moat_material() -> ShaderMaterial:
 	mat.shader = MOAT_WATER_SHADER
 	mat.set_shader_parameter("wave_strength", 0.025)
 	mat.set_shader_parameter("flow_speed", 0.0)
+	# Use the per-vertex water column baked in _moat_pools: the depth texture reads
+	# ~0 from first/third-person pitches, which hid the moat outside the top view.
+	mat.set_shader_parameter("vertex_depth", true)
 	mat.set_shader_parameter("vertex_depth_offset", STREAM_DEPTH_OFFSET)
 	mat.set_shader_parameter("vertex_depth_scale", STREAM_DEPTH_SCALE)
 	water_materials.append(mat)
