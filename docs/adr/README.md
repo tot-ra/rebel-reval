@@ -48,5 +48,6 @@ Numbered decisions (Status / Context / Decision / Alternatives / Consequences). 
 - [ADR 0042: Regional site plans](0042-regional-site-plans.md)
 - [ADR 0043: Mobile renderer on Metal and opt-in HDR (EDR) output](0043-mobile-renderer-and-hdr-output.md)
 - [ADR 0044: Named NPC presentation tier, portrait avatars, "!" marker and faction identity](0044-named-npc-presentation-tier.md)
+- [ADR 0045: Seasons](0045-seasons.md)
 
 <!-- docs-index:end -->

@@ -15,6 +15,7 @@ One page per implemented or planned feature. Each page opens with a `Status:` li
 | [NPC mind: reflex, decision model, local LLM](./NPC_MIND.md) | Planned (ADR 0037 proposed) |
 | [World life](./WORLD_LIFE.md) | Implemented in Lower Town; Padise and public events unwired |
 | [Citizens: census, ledger, deep cards](./CITIZENS.md) | Implemented: census residents live in the seamless city with timetables, blank bodies and a click-for-info panel |
+| [Citizen wardrobe: dress by rank, age, trade and arms](./CITIZEN_WARDROBE.md) | Implemented: per-body fitted layers (hoods, coifs, veils, aprons, aketon, mail, surcoat, helmets, keys, beads, scrips, sacks) chosen from the census; mantles, gowns, textiles, footwear planned (R-1664..R-1672) |
 | [Named NPCs: registry and city presence](./NAMED_NPCS.md) | Implemented (R-1562, R-1563): registry of Wave A/B named NPCs, clock-driven posts in the seamless city, click panel with portrait and faction; overhead marker (R-1564), faction livery, chip and badge (R-1565); models planned |
 | [Households: furnished houses and life at home](./HOUSEHOLDS.md) | Implemented in the seamless city: furniture by household, rooms, hearth and firewood day, people at home; no player use of furniture |
 | [Gate garrisons and patrols](./GATE_GARRISONS.md) | Implemented: census residents hold every gate by shift and walk the town and wall patrols, in their own clothes with a hat and spear |
@@ -57,6 +58,7 @@ One page per implemented or planned feature. Each page opens with a `Status:` li
 - [Flag cloth](FLAG_CLOTH.md)
 - [Household objects](HOUSEHOLD_OBJECTS.md)
 - [Renderer, post-process grade and HDR output](POST_PROCESS.md)
+- [Seasons](SEASONS.md)
 - [Water sandbox](WATER_SANDBOX.md)
 
 <!-- docs-index:end -->
