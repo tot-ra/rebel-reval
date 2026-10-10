@@ -5,7 +5,7 @@ Status: implemented for the vertical slice and Act 1 climax (tasks **P1-010** ph
 ## Player-facing behavior
 
 - Story time advances by phase; the sky clock and calendar ([below](#clock-and-calendar)) run alongside it. The slice runs `phase.prologue_day → phase.investigation_morning → phase.investigation_night → phase.consequence_night → phase.reflection_morning`. Act 1 adds `phase.act1_climax` (St. George's Night).
-- Kalev advances the phase by resting at a bed (`PhaseRestAnchor`, default anchor `bed_alcove` in the smithy). Quest controllers can block rest until a commitment is made (for example the prologue ledger choice).
+- Kalev advances the phase by resting at a bed (`PhaseRestAnchor`, default anchor `bed_alcove` in the smithy). Quest controllers can block rest until a commitment is made (for example the prologue ledger choice): each registers a gate with `add_rest_gate`, and the bed opens only when every gate does ([`QUESTS.md`](./QUESTS.md#player-loop)).
 - Each phase can move or hide NPCs, hide props, and switch watch patrols on or off per location. Patrols walk their authored path and bark when they pass near Kalev (every 14 s at most, 96 px radius).
 - Every phase change autosaves to slot 0 ([`STATE_AND_SAVES.md`](./STATE_AND_SAVES.md#saves)).
 

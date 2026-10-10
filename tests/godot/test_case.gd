@@ -108,6 +108,10 @@ func demo_content_ready() -> bool:
 
 
 func _release_held_actions() -> void:
+	# Input.parse_input_event buffers events until the next frame. A file without awaits
+	# (slice_input_driver taps every action, Esc included) would otherwise have them
+	# delivered inside the next file's first awaited frame, e.g. closing a forge overlay.
+	Input.flush_buffered_events()
 	for action: StringName in InputMap.get_actions():
 		if Input.is_action_pressed(action):
 			Input.action_release(action)

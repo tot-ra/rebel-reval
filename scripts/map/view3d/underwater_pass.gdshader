@@ -41,6 +41,12 @@ uniform float caustic_pattern_scale = 3.0;
 uniform int medium_state = 0;
 // Rest plane of the water under the camera: recessed mesh height plus tide.
 uniform float water_plane_y = 0.0;
+uniform bool local_surface_probe = false;
+uniform float local_surface_y = 0.0;
+uniform float metres_per_unit = 0.87;
+uniform vec3 extinction_scale = vec3(1.0);
+// Metre-scale city media may supply their own optical profile; districts opt out.
+uniform vec3 extinction_per_m = vec3(-1.0);
 uniform vec3 shallow_color : source_color = vec3(0.45, 0.62, 0.75);
 uniform vec3 deep_color : source_color = vec3(0.16, 0.30, 0.44);
 uniform vec3 deep_bed_color : source_color = vec3(0.035, 0.08, 0.11);
@@ -58,7 +64,6 @@ uniform float caustic_gain = 0.45;
 uniform float wet_lens = 0.0;
 uniform float lens_age = 0.0;
 
-const float METERS_PER_WORLD_UNIT = 0.87;
 const float MAX_MEDIUM_M = 60.0;
 // Tidewater `band 9`: meniscus half-width in pixels, dark line and lip refraction.
 const float MENISCUS_BAND_PX = 9.0;
@@ -112,7 +117,7 @@ float _ign(vec2 pixel) {
 // Intensity is the excess above the baked mean of 1, so average bed light
 // adds nothing and only the bright net lines lift the medium.
 float _caustic_at(vec3 p, bool full_quality, bool screen_grad) {
-	float h_m = max(water_plane_y - p.y, 0.0) * METERS_PER_WORLD_UNIT;
+	float h_m = max(water_plane_y - p.y, 0.0) * metres_per_unit;
 	vec3 c = _caustic_tiles_at(p.xz, h_m, sun_direction, vec2(0.0), full_quality, screen_grad);
 	return max((c.r + c.g + c.b) * (1.0 / 3.0) - 1.0, 0.0);
 }
@@ -124,7 +129,7 @@ float _caustic_at(vec3 p, bool full_quality, bool screen_grad) {
 float _shaft_beam(vec3 x, vec3 sun_refr) {
 	float depth_units = max(water_plane_y - x.y, 0.0);
 	vec2 entry = x.xz + sun_refr.xz * (depth_units / max(sun_refr.y, 0.2));
-	vec2 uv = entry * METERS_PER_WORLD_UNIT / SHAFT_PATCH_M;
+	vec2 uv = entry * metres_per_unit / SHAFT_PATCH_M;
 	vec2 wind = length(wind_direction) > 1e-3 ? normalize(wind_direction) : vec2(1.0, 0.0);
 	float wrap_phase = ocean_time / CAUSTIC_OCEAN_TIME_WRAP_SECONDS;
 	// Constant gradients pin the mip, so the loop takes no derivatives.
@@ -139,6 +144,9 @@ float _shaft_beam(vec3 x, vec3 sun_refr) {
 }
 
 float _surface_y(vec2 xz) {
+	if (local_surface_probe) {
+		return local_surface_y;
+	}
 	float y = water_plane_y;
 	if (use_fft) {
 		y += _fft_trough_floor(_fft_displacement(xz).y);
@@ -264,7 +272,10 @@ void fragment() {
 #endif
 	vec3 color = scene;
 	if (under) {
-		vec3 sigma_t = _uw_sigma_t(cloud_darken);
+		vec3 sigma_t = _uw_sigma_t(cloud_darken) * extinction_scale;
+		if (extinction_per_m.x >= 0.0) {
+			sigma_t = extinction_per_m;
+		}
 		vec3 ambient;
 		vec3 sun;
 		_uw_lighting(
@@ -273,11 +284,11 @@ void fragment() {
 		);
 		vec3 sun_refr = _uw_sun_refracted(sun_direction);
 		float sun_strength = dot(sun, vec3(0.2126, 0.7152, 0.0722));
-		float camera_depth_m = max(_surface_y(near_world.xz) - near_world.y, 0.0) * METERS_PER_WORLD_UNIT;
+		float camera_depth_m = max(_surface_y(near_world.xz) - near_world.y, 0.0) * metres_per_unit;
 
 		// Distance through the water: the scene, or the surface when the eye ray
 		// climbs into it first (the surface is then shaded here, see header).
-		float scene_d = sky ? MAX_MEDIUM_M / METERS_PER_WORLD_UNIT : distance(camera_world, scene_world);
+		float scene_d = sky ? MAX_MEDIUM_M / metres_per_unit : distance(camera_world, scene_world);
 #if CURRENT_RENDERER == RENDERER_COMPATIBILITY
 		// Overlay depth is empty/default on Compatibility (R-932 finding 3).
 		// Dummy hit at 1.5x the vertical column: looking up still hits the
@@ -291,7 +302,7 @@ void fragment() {
 #endif
 #if CURRENT_RENDERER == RENDERER_COMPATIBILITY
 		// The tint has no depth to stop at, so let the shaft march see the full range.
-		float compat_medium_d = SHAFT_RANGE_M / METERS_PER_WORLD_UNIT;
+		float compat_medium_d = SHAFT_RANGE_M / metres_per_unit;
 #endif
 		float surface_t = 1e9;
 		if (ray.y > 1e-4) {
@@ -303,7 +314,7 @@ void fragment() {
 #else
 		float d_world = min(scene_d, surface_t);
 #endif
-		float d_m = min(d_world * METERS_PER_WORLD_UNIT, MAX_MEDIUM_M);
+		float d_m = min(d_world * metres_per_unit, MAX_MEDIUM_M);
 
 #if CURRENT_RENDERER == RENDERER_COMPATIBILITY
 		// Medium only: the tint below is blended over the opaque scene and the water underside.
@@ -311,7 +322,7 @@ void fragment() {
 		// Floor the medium so downward rays over the bed stay a readable green-blue, not black.
 		color = max(
 			_uw_inscatter(ray, camera_depth_m, ambient, sun, sun_direction, sigma_t),
-			mix(deep_color, shallow_color, 0.5) * 0.9
+			mix(deep_color, shallow_color, 0.5) * mix(0.08, 0.9, day_blend)
 		);
 #else
 		if (hits_surface) {
@@ -330,7 +341,7 @@ void fragment() {
 			scene = _uw_below_color(uw, air, ray, ambient, sun, sun_direction, sigma_t, deep_bed_color);
 		} else if (!sky) {
 			// Caustics on submerged surfaces, dimmed by the light lost on the way down.
-			float p_depth_m = max(water_plane_y - scene_world.y, 0.0) * METERS_PER_WORLD_UNIT;
+			float p_depth_m = max(water_plane_y - scene_world.y, 0.0) * metres_per_unit;
 			vec3 t_down_p = exp(-sigma_t * p_depth_m);
 			scene *= vec3(1.0) + highlight_color * _caustic_at(scene_world, caustic_full_quality, true) * t_down_p * caustic_gain * sun_strength;
 		}
@@ -358,8 +369,8 @@ void fragment() {
 				}
 				float u = (float(i) + jitter) / float(steps);
 				float t_m = -SHAFT_FALLOFF_M * log(1.0 - u * span);
-				vec3 x = near_world + ray * (t_m / METERS_PER_WORLD_UNIT);
-				float x_depth_m = max(water_plane_y - x.y, 0.0) * METERS_PER_WORLD_UNIT;
+				vec3 x = near_world + ray * (t_m / metres_per_unit);
+				float x_depth_m = max(water_plane_y - x.y, 0.0) * metres_per_unit;
 				vec3 atten = exp(-sigma_t * (x_depth_m + t_m));
 				shaft += atten * _shaft_beam(x, sun_refr);
 			}

@@ -14,10 +14,9 @@ extends Node3D
 ## Cost: in AIR, with no wet lens left, the quad is hidden, so the renderer skips it and
 ## update() does one water probe. Rendering only: no gameplay state, nothing is persisted.
 ##
-## Dependencies not landed yet (see docs/tasks/water_sky/WS-13_underwater_view_pass.md):
-## - WS-05 OceanFftSampler: the camera surface height is the rest plane plus tide. The
-##   view's FFT geometry is compressed to millimetres (fft_geometry_scale), so the error is
-##   far below the hysteresis band. The shader still draws the displaced per-pixel waterline.
+## A probe may supply camera_surface_y/local_surface_y for a displaced city surface,
+## or retain the district rest-plane/tide contract. City probes use metre-scale
+## FFT and shore estimates; see CITY_SEA.md for the remaining curl approximation.
 ## WS-13f: WS-07 caustic tiles are bound here and sampled in the pass shader.
 
 signal cue_played(cue_id: StringName)
@@ -25,6 +24,7 @@ signal cue_played(cue_id: StringName)
 const AudioBusServiceScript := preload("res://scripts/settings/audio_bus_service.gd")
 const WaterMaterials := preload("res://scripts/map/view3d/map_view_water_materials.gd")
 const PASS_SHADER := preload("res://scripts/map/view3d/underwater_pass.gdshader")
+const Bubbles := preload("res://scripts/map/view3d/water_bubbles.gd")
 
 const STATE_AIR := 0
 const STATE_STRADDLE := 1
@@ -102,6 +102,7 @@ var _emerge_player: AudioStreamPlayer
 var _submerged_since_air := false
 var _emerge_pending := false
 var _lens_age := 0.0
+var _bubbles: Node3D
 
 
 ## Interiors never show water from below; maps without water never need the pass.
@@ -159,6 +160,8 @@ func configure(view_camera: Camera3D, probe: Callable, tier: StringName) -> void
 	add_child(_quad)
 	_submerge_player = _make_player("SubmergeSfx", SUBMERGE_STREAM)
 	_emerge_player = _make_player("EmergeSfx", EMERGE_STREAM)
+	_bubbles = Bubbles.new()
+	add_child(_bubbles)
 
 
 func is_pass_visible() -> bool:
@@ -206,6 +209,8 @@ func advance(delta: float, depth: float, probe: Dictionary = {}) -> void:
 		if previous != STATE_UNDER:
 			_emerge_pending = false
 			_play_cue(CUE_SUBMERGE)
+			if _bubbles != null and camera != null and camera.is_inside_tree():
+				_bubbles.start(camera.global_transform)
 		_submerged_since_air = true
 	if state == STATE_AIR and previous != STATE_AIR and _submerged_since_air:
 		_submerged_since_air = false
@@ -229,6 +234,8 @@ func advance(delta: float, depth: float, probe: Dictionary = {}) -> void:
 		_quad.visible = show
 	if show:
 		_sync_material(probe)
+	if _bubbles != null:
+		_bubbles.advance(delta, float(probe.get("surface_y", -INF)), state != STATE_AIR)
 
 
 func _probe(xz: Vector2) -> Dictionary:
@@ -241,7 +248,7 @@ func _probe(xz: Vector2) -> Dictionary:
 static func _camera_depth_from(probe: Dictionary, camera_y: float) -> float:
 	if probe.is_empty():
 		return NAN
-	return float(probe["surface_y"]) - camera_y
+	return float(probe.get("camera_surface_y", probe["surface_y"])) - camera_y
 
 
 func _camera_depth(probe: Dictionary) -> float:
@@ -267,6 +274,15 @@ func _sync_material(probe: Dictionary) -> void:
 	if _material == null:
 		return
 	var source := probe.get("material") as ShaderMaterial
+	var lighting := probe.get("lighting_material") as ShaderMaterial
+	if lighting != null:
+		for key: StringName in [&"sun_direction", &"day_blend", &"cloud_darken", &"sun_reflection_color"]:
+			var value: Variant = lighting.get_shader_parameter(key)
+			if value != null:
+				_material.set_shader_parameter(key, value)
+	# A stream has no FFT uniforms. Reset rather than retaining the previous sea
+	# state when moving between media (the material resources are shared caches).
+	_material.set_shader_parameter(&"use_fft", false)
 	if source != null:
 		for uniform_name in MIRRORED_UNIFORMS:
 			var value: Variant = source.get_shader_parameter(uniform_name)
@@ -274,6 +290,11 @@ func _sync_material(probe: Dictionary) -> void:
 				_material.set_shader_parameter(uniform_name, value)
 	if probe.has("surface_y"):
 		_material.set_shader_parameter(&"water_plane_y", float(probe["surface_y"]))
+	_material.set_shader_parameter(&"metres_per_unit", float(probe.get("metres_per_unit", 0.87)))
+	_material.set_shader_parameter(&"extinction_scale", probe.get("extinction_scale", Vector3.ONE))
+	_material.set_shader_parameter(&"extinction_per_m", probe.get("extinction_per_m", -Vector3.ONE))
+	_material.set_shader_parameter(&"local_surface_probe", probe.has("local_surface_y"))
+	_material.set_shader_parameter(&"local_surface_y", float(probe.get("local_surface_y", 0.0)))
 	_material.set_shader_parameter(&"medium_state", state)
 	_material.set_shader_parameter(&"wet_lens", wet_lens_remaining / WET_LENS_SECONDS)
 	_material.set_shader_parameter(&"lens_age", _lens_age)

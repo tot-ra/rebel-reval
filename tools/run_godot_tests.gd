@@ -298,10 +298,13 @@ func _await_function_state(state: Object, timeout_sec: float) -> bool:
 	# Why: instance.call() already started the coroutine. Await the state from
 	# a method, or poll is_valid(). A lambda `await state` never resumes here,
 	# and the completed signal did not fire on this SceneTree --script path.
+	# is_valid() turns false as soon as the coroutine resumes once, even when it
+	# awaits again (Godot hands the rest to a new state). Only `completed` on this
+	# first state marks the real end, so a test with several awaits is not cut short.
+	var done := [false]
+	state.connect(&"completed", func(_result: Variant) -> void: done[0] = true)
 	var deadline_msec := Time.get_ticks_msec() + int(timeout_sec * 1000.0)
-	while is_instance_valid(state):
-		if state.has_method("is_valid") and not bool(state.call("is_valid")):
-			return false
+	while not done[0]:
 		if Time.get_ticks_msec() >= deadline_msec:
 			return true
 		await process_frame

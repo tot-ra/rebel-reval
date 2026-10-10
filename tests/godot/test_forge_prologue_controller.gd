@@ -40,9 +40,6 @@ func test_prologue_starts_henning_visit_on_commission_resolution() -> void:
 	var forge := FORGE_SCENE.instantiate()
 	var tree := Engine.get_main_loop() as SceneTree
 	tree.root.add_child(forge)
-	# WHY: await process_frame here, not a nested helper. A helper coroutine
-	# makes the harness FunctionState look finished, so the next test starts
-	# and can free this Forge mid-method.
 	await tree.process_frame
 	await tree.process_frame
 
@@ -69,6 +66,8 @@ func test_prologue_starts_henning_visit_on_commission_resolution() -> void:
 
 func test_henning_visit_resumes_after_arrival_dialogue() -> void:
 	_prepare_prologue_state()
+	# Start past the wake-up monologue (covered above) so the runner holds Henning's arrival.
+	SessionState.state.set_flag(FLAG_WAKE_UP_MONOLOGUE_SEEN, true)
 	var forge := FORGE_SCENE.instantiate()
 	var tree := Engine.get_main_loop() as SceneTree
 	tree.root.add_child(forge)
@@ -84,9 +83,13 @@ func test_henning_visit_resumes_after_arrival_dialogue() -> void:
 	await tree.process_frame
 
 	var runner: DialogueRunner = controller.get_dialogue_runner()
+	var ui: DialogueUI = controller.get_dialogue_ui()
 	assert_true(runner.is_active())
+	# A press mid-typewriter only completes the line; finish the reveal before advancing.
+	ui.consume_line_advance()
 	runner.advance_for_test()
 	assert_true(runner.select_choice("ask_where_found"))
+	ui.consume_line_advance()
 	runner.advance_for_test()
 	await tree.process_frame
 

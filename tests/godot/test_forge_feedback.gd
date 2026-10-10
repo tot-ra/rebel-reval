@@ -16,7 +16,9 @@ const FORBIDDEN_FORGE_STATE := [
 
 
 func test_feedback_sequence_emits_five_phases_in_order() -> void:
-	var trace := ForgeFeedbackSequence.trace_phases("honest_work", {"object_name": "Watchman's buckle"})
+	var trace := ForgeFeedbackSequence.trace_phases(
+		"honest_work", {"object_name": "Watchman's buckle"}
+	)
 	assert_eq(trace.size(), EXPECTED_PHASES.size())
 	for index in EXPECTED_PHASES.size():
 		assert_eq(trace[index], EXPECTED_PHASES[index])
@@ -43,8 +45,12 @@ func test_forge_scene_trace_emits_five_feedback_events_in_order() -> void:
 	tree.root.add_child(forge)
 
 	var player := forge.get_node("Actors/Player") as Player
-	var commission_controller := player.get_node("ForgeCommissionController") as ForgeCommissionController
-	var feedback_overlay := commission_controller.get_node("ForgeFeedbackOverlay") as ForgeFeedbackOverlay
+	var commission_controller := (
+		player.get_node("ForgeCommissionController") as ForgeCommissionController
+	)
+	var feedback_overlay := (
+		commission_controller.get_node("ForgeFeedbackOverlay") as ForgeFeedbackOverlay
+	)
 	var ledger := _find_ledger_interactable(forge)
 	assert_true(ledger != null)
 	assert_true(feedback_overlay != null)
@@ -52,7 +58,9 @@ func test_forge_scene_trace_emits_five_feedback_events_in_order() -> void:
 	_activate_interactable(player, ledger)
 	assert_true(ledger.interact(player))
 
-	var commission_overlay := player.find_child("ForgeCommissionOverlay", true, false) as ForgeCommissionOverlay
+	var commission_overlay := (
+		player.find_child("ForgeCommissionOverlay", true, false) as ForgeCommissionOverlay
+	)
 	assert_true(commission_overlay != null)
 
 	var trace: Array[StringName] = []
@@ -62,7 +70,8 @@ func test_forge_scene_trace_emits_five_feedback_events_in_order() -> void:
 	commission_overlay.option_selected.emit("honest_work")
 	assert_true(feedback_overlay.is_open())
 
-	for _phase_index in EXPECTED_PHASES.size() - 1:
+	# Opening shows the first phase; one press per later phase, then one to dismiss.
+	for _phase_index in EXPECTED_PHASES.size():
 		feedback_overlay._unhandled_input(_accept_event())
 		await tree.process_frame
 
@@ -125,6 +134,8 @@ func _activate_interactable(player: Player, interactable: Interactable) -> void:
 func _accept_event() -> InputEventKey:
 	var event := InputEventKey.new()
 	event.keycode = KEY_ENTER
+	# Bindings match physical keys (InputBindingSettings._key); a real press carries both.
+	event.physical_keycode = KEY_ENTER
 	event.pressed = true
 	return event
 

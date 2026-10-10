@@ -9,6 +9,7 @@ extends MapView3D
 
 ## How far ahead of the camera (world units) the ripple window is centred.
 const CITY_RIPPLE_FOCUS_AHEAD := 6.0
+const CityWaterSurfaceScript := preload("res://scripts/city/city_water_surface.gd")
 ## WR-5: farthest the waves-around-rocks window centre sits ahead of the camera, where
 ## its view meets the sea (world units).
 const CITY_OBSTACLE_FOCUS_AHEAD := 26.0
@@ -44,7 +45,50 @@ static func create_city(city_plan: CityPlan) -> CityMapView:
 	view._create_sky_passes()
 	view._create_city_ripple_sim()
 	view._create_city_obstacle_sim()
+	view._create_city_underwater_pass()
 	return view
+
+
+func _create_city_underwater_pass() -> void:
+	_underwater_pass = UnderwaterPassScript.new()
+	add_child(_underwater_pass)
+	_underwater_pass.configure(_camera, _underwater_probe, _sky_weather.quality_tier)
+
+
+## CityPlan supplies metre-scale sea, stream and ditch heights; the district grid
+## does not exist here. Keep the optical rest plane separate from the camera wave.
+func _underwater_probe(world_xz: Vector2) -> Dictionary:
+	if inside_building >= 0 or world == null:
+		return {}
+	var probe := world.water_medium_at(world_xz)
+	if probe.is_empty():
+		return probe
+	var sea := bool(probe["sea"])
+	probe["metres_per_unit"] = 1.0
+	# The camera tests against the displaced sea the player sees, not the rest plane.
+	var surface := float(probe["surface_y"])
+	if sea and OceanFftSampler.ensure_loaded():
+		surface += CityWaterSurfaceScript.sea_height(world, world_xz)
+	probe["local_surface_y"] = surface
+	probe["camera_surface_y"] = probe["local_surface_y"]
+	probe["wave_margin"] = 0.015
+	var material: ShaderMaterial = probe["material"]
+	if sea:
+		# Same spectral profile and weather multiplier above and below the sea.
+		var extinction: Variant = material.get_shader_parameter("physical_extinction")
+		var turbidity: Variant = material.get_shader_parameter("water_turbidity")
+		probe["extinction_per_m"] = (
+			(Vector3(0.40, 0.24, 0.30) if extinction == null else extinction)
+			* (1.0 if turbidity == null else float(turbidity))
+		)
+	else:
+		# Authored humic water absorbs blue most; stream and moat stay distinct.
+		var depth: Variant = material.get_shader_parameter("deep_depth")
+		probe["extinction_per_m"] = (
+			Vector3(0.9, 1.4, 2.2) * (1.6 / (1.6 if depth == null else maxf(float(depth), 0.1)))
+		)
+	probe["lighting_material"] = MapViewMaterials.water_surface(MapTypes.TERRAIN_SHALLOW_WATER)
+	return probe
 
 
 ## WS-15 wake for the city: the district maps' ripple sim, its window centred
@@ -171,6 +215,8 @@ func _create_city_atmosphere() -> void:
 func _process(delta: float) -> void:
 	if _sky_weather == null:
 		return
+	if _underwater_pass != null:
+		_underwater_pass.update(delta)
 	var presentation := _sky_weather.presentation_snapshot(
 		cycle_progress, SkyWeather3D.daylight_blend(cycle_progress, _sky_weather.calendar_date)
 	)

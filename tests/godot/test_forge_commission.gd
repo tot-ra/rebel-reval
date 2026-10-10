@@ -168,7 +168,9 @@ func test_forge_ledger_interactable_opens_commission_overlay() -> void:
 	tree.root.add_child(forge)
 
 	var player := forge.get_node("Actors/Player") as Player
-	var commission_controller := player.get_node("ForgeCommissionController") as ForgeCommissionController
+	var commission_controller := (
+		player.get_node("ForgeCommissionController") as ForgeCommissionController
+	)
 	var ledger := _find_ledger_interactable(forge)
 	assert_true(ledger != null, "forge needs a ledger commission interactable")
 
@@ -186,7 +188,9 @@ func test_forge_ledger_commission_resolves_to_forged_record() -> void:
 	tree.root.add_child(forge)
 
 	var player := forge.get_node("Actors/Player") as Player
-	var commission_controller := player.get_node("ForgeCommissionController") as ForgeCommissionController
+	var commission_controller := (
+		player.get_node("ForgeCommissionController") as ForgeCommissionController
+	)
 	var ledger := _find_ledger_interactable(forge)
 	assert_true(ledger != null)
 
@@ -197,12 +201,17 @@ func test_forge_ledger_commission_resolves_to_forged_record() -> void:
 	assert_true(overlay != null)
 	overlay.option_selected.emit("honest_work")
 
-	var feedback_overlay := commission_controller.get_node("ForgeFeedbackOverlay") as ForgeFeedbackOverlay
+	var feedback_overlay := (
+		commission_controller.get_node("ForgeFeedbackOverlay") as ForgeFeedbackOverlay
+	)
 	assert_true(feedback_overlay != null)
 	overlay.option_selected.emit("honest_work")
-	for _phase_index in 4:
+	# One press per remaining phase plus one to dismiss the object reveal.
+	var guard := 0
+	while feedback_overlay.is_open() and guard < 12:
 		feedback_overlay._unhandled_input(_accept_event())
 		await (Engine.get_main_loop() as SceneTree).process_frame
+		guard += 1
 
 	assert_false(commission_controller.is_open())
 	assert_true(SessionState.state.has_forged_record(RECORD_HONEST))
@@ -224,7 +233,9 @@ func test_interaction_controller_blocks_while_commission_open() -> void:
 	_activate_interactable(player, ledger)
 	assert_true(ledger.interact(player))
 	controller._update_focus()
-	assert_false(controller.try_interact(), "interact should stay blocked while commission overlay is open")
+	assert_false(
+		controller.try_interact(), "interact should stay blocked while commission overlay is open"
+	)
 
 	forge.queue_free()
 
@@ -254,6 +265,8 @@ func _activate_interactable(player: Player, interactable: Interactable) -> void:
 func _accept_event() -> InputEventKey:
 	var event := InputEventKey.new()
 	event.keycode = KEY_ENTER
+	# Bindings match physical keys (InputBindingSettings._key); a real press carries both.
+	event.physical_keycode = KEY_ENTER
 	event.pressed = true
 	return event
 

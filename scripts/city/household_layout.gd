@@ -226,6 +226,14 @@ func _furnish(household: Dictionary, chimney: Vector2) -> void:
 		_bed_slots(bed)
 	# The table and its seats.
 	_place_table(tier, size)
+	# A cramped wall-table can reject both front stools. Reserve a real seat
+	# before storage/decor fill the remaining floor; keep normal fit checks.
+	if slots_of(&"sit").is_empty():
+		var seat := _place_on_wall(&"stool", _near_hearth_score)
+		if seat < 0:
+			seat = _place_near(&"stool", _centroid(), 0.0)
+		if seat >= 0:
+			_seat_slots(seat, _front(seat), [0.0])
 	# Storage.
 	var chest_piece := &"chest_poor" if tier == &"poor" else &"chest"
 	var first_bed := _first(&"bed_framed", &"bed_pallet")

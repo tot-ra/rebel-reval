@@ -5,8 +5,7 @@ extends Node3D
 ## shore-1343.md: the shore lives off spring herring). Deterministic school
 ## centres on 0.35 to 1.1 m of water; a school is only alive while Kalev is within
 ## RANGE of it, then its fish circle and dart in a tight shoal just under the
-## surface (the sea absorbs light fast, deeper fish would not be seen). Visual only: nothing here
-## is caught, hit or saved.
+## surface. Visual only: nothing here is caught, hit or saved.
 
 const CELL := 14.0
 const RANGE := 70.0
@@ -14,8 +13,7 @@ const FREE_RANGE := 95.0
 const MAX_SCHOOLS := 7
 const FISH_PER_SCHOOL := 11
 const SEED := 4141
-## The sea shader hides everything below about a metre of water, so the shoals
-## keep to the clear shallows where the bed and the fish show through.
+## Preserve deterministic school IDs in the clear shallows.
 const MIN_DEPTH := 0.35
 const MAX_DEPTH := 1.1
 
@@ -24,7 +22,6 @@ var player: Node2D
 var _centres: Array[Dictionary] = []
 var _live: Dictionary = {}
 var _fish_mesh: Mesh
-var _material: StandardMaterial3D
 var _since := 1.0
 var _time := 0.0
 
@@ -53,29 +50,56 @@ static func school_centres(city_plan: CityPlan) -> Array[Dictionary]:
 			var depth := -city_plan.ground_height(at)
 			if depth < MIN_DEPTH or depth > MAX_DEPTH:
 				continue
-			out.append(
-				{
-					"id": "school.%d.%d" % [i, j],
-					"at": at,
-					"depth": depth,
-					"species": &"perch" if rng.randf() < 0.18 else &"herring",
-				}
+			(
+				out
+				. append(
+					{
+						"id": "school.%d.%d" % [i, j],
+						"at": at,
+						"depth": depth,
+						"species": &"perch" if rng.randf() < 0.18 else &"herring",
+					}
+				)
 			)
 	return out
 
 
 func _prepare() -> void:
-	var mesh := SphereMesh.new()
-	mesh.radius = 0.5
-	mesh.height = 1.0
-	mesh.radial_segments = 8
-	mesh.rings = 4
-	_fish_mesh = mesh
-	_material = StandardMaterial3D.new()
-	_material.albedo_color = Color(0.75, 0.8, 0.84)
-	_material.metallic = 0.35
-	_material.roughness = 0.35
-	_material.cull_mode = BaseMaterial3D.CULL_DISABLED
+	# A tapered body, forked tail and fins in one mesh; +X is forward.
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var rings := 9
+	var sides := 8
+	for i in rings - 1:
+		for j in sides:
+			for ij: Vector2i in [
+				Vector2i(i, j),
+				Vector2i(i + 1, j),
+				Vector2i(i + 1, (j + 1) % sides),
+				Vector2i(i, j),
+				Vector2i(i + 1, (j + 1) % sides),
+				Vector2i(i, (j + 1) % sides)
+			]:
+				var u := float(ij.x) / float(rings - 1)
+				var a := float(ij.y) / float(sides) * TAU
+				var r := pow(sin(u * PI), 0.8)
+				st.set_color(Color(0.12, 0.24, 0.25) if sin(a) > 0.35 else Color(0.72, 0.79, 0.77))
+				st.add_vertex(Vector3(0.5 - u, sin(a) * r * 0.13, cos(a) * r * 0.07))
+	for triangle: Array in [
+		[Vector3(-0.38, 0, 0), Vector3(-0.78, 0.24, 0), Vector3(-0.64, 0, 0)],
+		[Vector3(-0.38, 0, 0), Vector3(-0.64, 0, 0), Vector3(-0.78, -0.24, 0)],
+		[Vector3(0.14, 0.1, 0), Vector3(-0.18, 0.29, 0), Vector3(-0.25, 0.1, 0)],
+		[Vector3(0.12, -0.05, 0), Vector3(-0.12, -0.08, 0.22), Vector3(-0.16, -0.06, 0)],
+		[Vector3(0.12, -0.05, 0), Vector3(-0.16, -0.06, 0), Vector3(-0.12, -0.08, -0.22)],
+	]:
+		for point: Vector3 in triangle:
+			st.set_color(Color(0.22, 0.32, 0.31))
+			st.add_vertex(point)
+	st.generate_normals()
+	_fish_mesh = st.commit()
+	var material := ShaderMaterial.new()
+	material.shader = preload("res://scripts/city/city_fish.gdshader")
+	_fish_mesh.surface_set_material(0, material)
 
 
 func live_count() -> int:
@@ -109,42 +133,78 @@ func _stream(me: Vector2) -> void:
 
 
 func _spawn(c: Dictionary) -> Dictionary:
-	var node := Node3D.new()
+	var node := MultiMeshInstance3D.new()
 	node.name = String(c["id"]).replace(".", "_")
-	add_child(node)
+	node.multimesh = MultiMesh.new()
+	node.multimesh.transform_format = MultiMesh.TRANSFORM_3D
+	node.multimesh.use_custom_data = true
 	var rng := RandomNumberGenerator.new()
 	rng.seed = hash(c["id"])
 	var perch: bool = c["species"] == &"perch"
+	var count := 5 if perch else FISH_PER_SCHOOL
+	node.multimesh.instance_count = count
+	node.multimesh.mesh = _fish_mesh
+	node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	add_child(node)
 	var fish: Array[Dictionary] = []
-	for k in FISH_PER_SCHOOL if not perch else 5:
-		var inst := MeshInstance3D.new()
-		inst.mesh = _fish_mesh
-		inst.material_override = _material
-		inst.scale = Vector3(0.34, 0.07, 0.1) if not perch else Vector3(0.28, 0.12, 0.08)
-		inst.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-		node.add_child(inst)
+	for k in count:
+		var phase := rng.randf() * TAU
+		node.multimesh.set_instance_custom_data(k, Color(phase, float(perch), 0, 0))
 		fish.append(
 			{
-				"node": inst,
-				"phase": rng.randf() * TAU,
-				"r": rng.randf_range(0.8, 3.2),
-				"dy": rng.randf_range(0.1, 0.28),
-				"speed": rng.randf_range(0.5, 1.1) * (1.0 if not perch else 0.45),
+				"phase": phase,
+				"r": rng.randf_range(0.4, 1.5),
+				"dy": rng.randf_range(0.12, 0.27),
+				"speed": rng.randf_range(0.25, 0.5),
+				"scale": Vector3(0.30, 0.42, 0.38) if perch else Vector3(0.29, 0.23, 0.25)
 			}
 		)
 	return {"node": node, "centre": c["at"], "fish": fish, "swing": rng.randf() * TAU}
 
 
+## Reject a wander into the bank instead of letting fish orbit through dry sand.
+static func wet_position(city_plan: CityPlan, centre: Vector2, candidate: Vector2) -> Vector2:
+	var p := candidate
+	for _attempt in 4:
+		if city_plan.ground_height(p) < -0.22:
+			return p
+		p = p.lerp(centre, 0.5)
+	return centre
+
+
 func _animate(school: Dictionary) -> void:
+	var node: MultiMeshInstance3D = school["node"]
+	var fish: Array = school["fish"]
+	for i in fish.size():
+		node.multimesh.set_instance_transform(i, fish_transform(plan, school, fish[i], _time))
+
+
+static func fish_transform(
+	city_plan: CityPlan, school: Dictionary, fish: Dictionary, time: float
+) -> Transform3D:
 	var centre: Vector2 = school["centre"]
-	var drift := Vector2(
-		cos(_time * 0.05 + float(school["swing"])), sin(_time * 0.04 + float(school["swing"]))
-	) * 5.0
-	for f: Dictionary in school["fish"]:
-		var a: float = _time * float(f["speed"]) + float(f["phase"])
-		var pulse := 1.0 + 0.25 * sin(_time * 0.6 + float(f["phase"]))
-		var p := centre + drift + Vector2(cos(a), sin(a)) * float(f["r"]) * pulse
-		var node: MeshInstance3D = f["node"]
-		node.position = Vector3(p.x, -float(f["dy"]) + 0.06 * sin(_time * 3.0 + float(f["phase"])), p.y)
-		var tangent := Vector2(-sin(a), cos(a))
-		node.rotation.y = -atan2(tangent.y, tangent.x)
+	var drift := (
+		Vector2(
+			cos(time * 0.15 + float(school["swing"])), sin(time * 0.12 + float(school["swing"]))
+		)
+		* 0.65
+	)
+	var a: float = time * float(fish["speed"]) + float(fish["phase"])
+	var candidate := centre + drift + Vector2(cos(a), sin(a)) * float(fish["r"])
+	var p := wet_position(city_plan, centre, candidate)
+	var basis := Basis(Vector3.UP, -atan2(cos(a), -sin(a))).scaled(fish["scale"])
+	# Fit the full fins/tail, not just the origin, between the sloping bed and
+	# the rest surface. Four footprint corners bound the small body conservatively.
+	var bed := city_plan.ground_height(p)
+	for x: float in [-0.78, 0.5]:
+		for z: float in [-0.24, 0.24]:
+			var corner := basis * Vector3(x, 0.0, z)
+			bed = maxf(bed, city_plan.ground_height(p + Vector2(corner.x, corner.z)))
+	var scale_y: float = fish["scale"].y
+	var fit := clampf((-bed - 0.10) / (0.53 * scale_y), 0.0, 1.0)
+	basis = basis.scaled(Vector3.ONE * fit)
+	var floor_y := bed + 0.05 + 0.24 * scale_y * fit
+	var ceiling_y := -0.05 - 0.29 * scale_y * fit
+	var preferred := -float(fish["dy"]) + 0.025 * sin(time * 2.0 + float(fish["phase"]))
+	var y := clampf(preferred, minf(floor_y, ceiling_y), ceiling_y)
+	return Transform3D(basis, Vector3(p.x, y, p.y))

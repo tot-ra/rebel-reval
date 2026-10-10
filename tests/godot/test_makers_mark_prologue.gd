@@ -12,6 +12,9 @@ const FLAG_PRESERVED := &"flag.forge_ledger_preserved"
 const FLAG_ALTERED := &"flag.forge_ledger_altered"
 const FLAG_DESTROYED := &"flag.forge_ledger_destroyed"
 const ITEM_HAMMER := &"item.forge_hammer"
+## _complete_commission picks honest_work, whose effects add this to rel.henning_trust
+## (commission.watch_buckle.json) before any ledger branch applies its own delta.
+const HONEST_REPAIR_HENNING_TRUST := 1
 
 
 func test_prologue_starts_quest_and_blocks_rest_until_ledger_committed() -> void:
@@ -54,7 +57,10 @@ func test_prologue_supports_all_three_ledger_branches() -> void:
 		assert_eq(SessionState.state.get_quest_state(QUEST_ID), &"ledger_committed")
 		assert_true(SessionState.state.get_flag(branch["flag"]))
 		assert_eq(SessionState.state.get_pressure(&"pressure.suspicion"), branch["pressure"])
-		assert_eq(SessionState.state.get_relationship(&"rel.henning_trust"), branch["henning"])
+		assert_eq(
+			SessionState.state.get_relationship(&"rel.henning_trust"),
+			branch["henning"] + HONEST_REPAIR_HENNING_TRUST
+		)
 		assert_eq(SessionState.state.get_relationship(&"rel.mart_trust"), branch["mart"])
 		_free_scene(forge)
 
@@ -83,6 +89,9 @@ func _prepare_prologue_state() -> void:
 	SessionState.state.bag.try_add(ITEM_HAMMER)
 	SessionState.state.equip_from_bag(&"right_hand", ITEM_HAMMER)
 	SessionState.state.set_phase(GameState.PHASE_PROLOGUE_DAY)
+	# The first-entry wake-up monologue would hold the dialogue runner and block Henning's
+	# arrival; test_forge_prologue_controller covers it, these tests start after it.
+	SessionState.state.set_flag(&"flag.wake_up_monologue_seen", true)
 	if Engine.get_main_loop().root.get_node_or_null("PhaseDirector") != null:
 		PhaseDirector.rebind_session_state()
 
@@ -101,7 +110,9 @@ func _find_prologue_controller(forge: Node):
 
 func _complete_commission(forge: Node2D) -> void:
 	var player := forge.get_node("Actors/Player") as Player
-	var commission_controller := player.get_node("ForgeCommissionController") as ForgeCommissionController
+	var commission_controller := (
+		player.get_node("ForgeCommissionController") as ForgeCommissionController
+	)
 	var ledger := _find_commission_interactable(forge)
 	assert_true(ledger != null)
 	_activate_interactable(player, ledger)
@@ -111,10 +122,16 @@ func _complete_commission(forge: Node2D) -> void:
 	assert_true(overlay != null)
 	overlay.option_selected.emit("honest_work")
 
-	var feedback_overlay := commission_controller.get_node("ForgeFeedbackOverlay") as ForgeFeedbackOverlay
-	for _phase_index in 4:
+	var feedback_overlay := (
+		commission_controller.get_node("ForgeFeedbackOverlay") as ForgeFeedbackOverlay
+	)
+	# Step until the overlay closes: the sequence length is content-driven (P2-008 added
+	# the object_reveal phase), so a fixed press count silently stops one short.
+	var guard := 0
+	while feedback_overlay.is_open() and guard < 12:
 		feedback_overlay._unhandled_input(_accept_event())
 		await _settle_frames(1)
+		guard += 1
 
 	assert_true(SessionState.state.has_forged_record(RECORD_HONEST))
 	await _settle_frames(2)
@@ -128,9 +145,9 @@ func _complete_henning_dialogue(controller) -> void:
 		guard += 1
 	assert_true(runner.is_active(), "Henning arrival dialogue should start after the commission")
 
-	runner.advance_for_test()
-	assert_true(runner.select_choice("ask_where_found"))
-	runner.advance_for_test()
+	_advance_line(controller, runner)
+	_choose(controller, runner, "ask_where_found")
+	_advance_line(controller, runner)
 	assert_false(runner.is_active())
 	assert_true(SessionState.state.get_flag(FLAG_INCIDENT))
 	assert_eq(SessionState.state.get_quest_state(QUEST_ID), &"incident_known")
@@ -144,8 +161,8 @@ func _complete_chest_discovery(controller, forge: Node2D) -> void:
 	assert_true(chest.interact(player))
 
 	var runner: DialogueRunner = controller.get_dialogue_runner()
-	runner.advance_for_test()
-	runner.advance_for_test()
+	_advance_line(controller, runner)
+	_advance_line(controller, runner)
 	assert_false(runner.is_active())
 	assert_true(SessionState.state.get_flag(FLAG_MART_MISSING))
 
@@ -162,10 +179,27 @@ func _complete_ledger_choice(
 	assert_true(ledger.interact(player))
 
 	var runner: DialogueRunner = controller.get_dialogue_runner()
-	runner.advance_for_test()
-	assert_true(runner.select_choice(choice_id))
-	runner.advance_for_test()
+	_advance_line(controller, runner)
+	_choose(controller, runner, choice_id)
+	_advance_line(controller, runner)
 	assert_false(runner.is_active())
+
+
+## Finish the line's typewriter reveal first: a press mid-reveal only completes the text
+## (DialogueUI.consume_line_advance), so advance_for_test alone would not move on.
+func _advance_line(controller, runner: DialogueRunner) -> void:
+	var ui: DialogueUI = controller.get_dialogue_ui()
+	if ui != null:
+		ui.consume_line_advance()
+	runner.advance_for_test()
+
+
+## Pick through DialogueUI like the player: the prologue controller reads the ledger
+## branch from DialogueUI.choice_selected, which runner.select_choice never emits.
+func _choose(controller, runner: DialogueRunner, choice_id: String) -> void:
+	assert_true(runner.is_waiting_for_choice(), "dialogue offers a choice before %s" % choice_id)
+	(controller.get_dialogue_ui() as DialogueUI).select_choice_for_test(choice_id)
+	assert_false(runner.is_waiting_for_choice(), "choice %s was taken" % choice_id)
 
 
 func _find_commission_interactable(forge: Node) -> Interactable:
@@ -195,6 +229,8 @@ func _activate_interactable(player: Player, interactable: Interactable) -> void:
 func _accept_event() -> InputEventKey:
 	var event := InputEventKey.new()
 	event.keycode = KEY_ENTER
+	# Bindings match physical keys (InputBindingSettings._key); a real press carries both.
+	event.physical_keycode = KEY_ENTER
 	event.pressed = true
 	return event
 

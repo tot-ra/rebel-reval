@@ -27,6 +27,13 @@ The Maker's Mark prologue (`ForgePrologueController`, wired from `scenes/reval_e
 
 Per-cycle gating (which phases allow investigation, forging, and install; the unlock flag) lives in the matching `scripts/quest/*_quest_model.gd`. Each cycle unlocks the next through a `flag.act1_<cycle>_unlocked` flag.
 
+All cycle controllers share one ledger (`ForgeCommissionAnchor`) and one bed (`PhaseRestAnchor`), so they register conditions instead of writing `enabled` themselves:
+
+- `ForgeCommissionAnchor.add_flow_gate(callable)`: the ledger is usable while **any** registered flow is active (the prologue repair, Bitter Brew, or an Act 1 cycle).
+- `PhaseRestAnchor.add_rest_gate(callable)`: the bed needs **every** gate open (it also needs a next phase). The prologue closes its gate until the ledger branch is committed; each commission flow closes its gate until its commission resolves. Controllers call `PhaseRestAnchor.sync_enabled()` when their inputs change.
+
+Picking a forging option hands the choice overlay over to the feedback overlay; that is not a cancel. The forged record is committed when the player dismisses the last beat (`object_reveal`). Esc during the beats abandons the commission (`ForgeCommissionController._on_feedback_closed`). Covered by `test_forge_commission`, `test_forge_feedback`, `test_bitter_brew_commission`, and `test_makers_mark_prologue`.
+
 ## Runtime pieces
 
 | Piece | File | Role |

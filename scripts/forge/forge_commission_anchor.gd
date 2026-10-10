@@ -13,7 +13,9 @@ const DEFAULT_ANCHOR_ID := &"ledger"
 var _player: Player
 var _interactable: Interactable
 var _scene_root: Node2D
-var _flow_gate: Callable = Callable()
+## One gate per forge flow controller; the ledger is usable while any flow is active.
+## A single shared gate let the last controller set up disable the others' flows.
+var _flow_gates: Array[Callable] = []
 
 
 func setup(scene_root: Node2D, definition: MapDefinition, player: Player) -> void:
@@ -74,8 +76,9 @@ func set_commission_id(next_id: StringName) -> void:
 	sync_interactable_identity()
 
 
-func set_flow_gate(callable: Callable) -> void:
-	_flow_gate = callable
+func add_flow_gate(callable: Callable) -> void:
+	if not _flow_gates.has(callable):
+		_flow_gates.append(callable)
 
 
 func sync_interactable_identity() -> void:
@@ -121,7 +124,7 @@ func _sync_enabled() -> void:
 func _should_enable() -> bool:
 	if _player == null:
 		return false
-	if _flow_gate.is_valid() and not bool(_flow_gate.call()):
+	if not _flow_gates.is_empty() and not _any_flow_active():
 		return false
 	var controller := (
 		_player.get_node_or_null("ForgeCommissionController") as ForgeCommissionController
@@ -131,6 +134,13 @@ func _should_enable() -> bool:
 	if not has_node("/root/SessionState"):
 		return true
 	return not ForgeCommissionModel.is_commission_resolved(SessionState.state, commission_id)
+
+
+func _any_flow_active() -> bool:
+	for gate in _flow_gates:
+		if gate.is_valid() and bool(gate.call()):
+			return true
+	return false
 
 
 func _on_interact(_actor: Node) -> void:

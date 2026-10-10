@@ -14,6 +14,10 @@ var _player: Player
 var _interactable: Interactable
 var _scene_root: Node2D
 var _connected_state: GameState
+## Each forge flow controller registers a Callable -> bool that returns false while its
+## flow still forbids rest. Rest needs every gate open: when the controllers wrote
+## `enabled` directly, the last one set up overwrote the others' locks.
+var _rest_gates: Array[Callable] = []
 
 
 func setup(scene_root: Node2D, definition: MapDefinition, player: Player) -> void:
@@ -27,6 +31,17 @@ func setup(scene_root: Node2D, definition: MapDefinition, player: Player) -> voi
 
 func get_interactable() -> Interactable:
 	return _interactable
+
+
+func add_rest_gate(gate: Callable) -> void:
+	if not _rest_gates.has(gate):
+		_rest_gates.append(gate)
+	_sync_enabled()
+
+
+## Re-evaluates the bed after a gate's inputs changed (quest state, commission result).
+func sync_enabled() -> void:
+	_sync_enabled()
 
 
 func _exit_tree() -> void:
@@ -101,11 +116,16 @@ func _sync_enabled() -> void:
 func _should_enable() -> bool:
 	if not has_node("/root/SessionState") or SessionState.state == null:
 		return false
-	return not (
+	if (
 		PhaseProfileModelScript
 		. next_phase_id(SessionState.state.get_phase(), SessionState.content_db)
 		. is_empty()
-	)
+	):
+		return false
+	for gate in _rest_gates:
+		if gate.is_valid() and not bool(gate.call()):
+			return false
+	return true
 
 
 func _on_interact(_actor: Node) -> void:

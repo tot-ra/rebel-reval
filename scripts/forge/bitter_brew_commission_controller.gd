@@ -15,7 +15,6 @@ const PROLOGUE_COMMISSION_ID := &"commission.watch_buckle_repair"
 
 const STATE_INVESTIGATION_READY := &"investigation_ready"
 
-const PhaseProfileModelScript := preload("res://scripts/phase/phase_profile_model.gd")
 
 var _commission_anchor: ForgeCommissionAnchor
 var _rest_anchor: PhaseRestAnchor
@@ -33,7 +32,9 @@ func setup(
 		)
 
 	if _commission_anchor != null:
-		_commission_anchor.set_flow_gate(Callable(self, "_commission_flow_gate"))
+		_commission_anchor.add_flow_gate(Callable(self, "_commission_flow_gate"))
+	if _rest_anchor != null:
+		_rest_anchor.add_rest_gate(Callable(self, "_rest_allowed"))
 	if (
 		_commission_controller != null
 		and not _commission_controller.commission_finished.is_connected(_on_commission_finished)
@@ -115,25 +116,15 @@ func _sync_stage() -> void:
 
 
 func _sync_rest_enabled() -> void:
-	if _rest_anchor == null or SessionState.state == null:
-		return
-	if SessionState.state.get_phase() == GameState.PHASE_PROLOGUE_DAY:
-		return
-	var interactable := _rest_anchor.get_interactable()
-	if interactable == null:
-		return
-	var has_next_phase := not (
-		PhaseProfileModelScript
-		. next_phase_id(SessionState.state.get_phase(), SessionState.content_db)
-		. is_empty()
-	)
-	var allow_rest := has_next_phase
-	if _is_investigation_commission_flow():
-		allow_rest = (
-			has_next_phase
-			and ForgeCommissionModel.is_commission_resolved(SessionState.state, COMMISSION_ID)
-		)
-	interactable.enabled = allow_rest
+	if _rest_anchor != null:
+		_rest_anchor.sync_enabled()
+
+
+## Rest gate: the bed stays locked until the crisis commission resolves.
+func _rest_allowed() -> bool:
+	if SessionState.state == null or not _is_investigation_commission_flow():
+		return true
+	return ForgeCommissionModel.is_commission_resolved(SessionState.state, COMMISSION_ID)
 
 
 func _is_investigation_commission_flow() -> bool:

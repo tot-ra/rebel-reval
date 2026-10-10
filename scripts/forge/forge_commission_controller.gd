@@ -31,6 +31,7 @@ func _ready() -> void:
 	_presenter.configure(_overlay, _runner, _feedback_overlay)
 	_runner.configure(SessionState.content_db, SessionState.state, _presenter)
 	_overlay.closed.connect(_on_overlay_closed)
+	_feedback_overlay.closed.connect(_on_feedback_closed)
 	_runner.finished.connect(_on_runner_finished)
 
 	if not SessionState.state_replaced.is_connected(_on_state_replaced):
@@ -71,7 +72,16 @@ func open_commission(commission_id: StringName) -> bool:
 
 
 func _on_overlay_closed() -> void:
-	if _runner != null and _runner.is_active():
+	# Picking an option closes the choice overlay to hand over to the forging feedback;
+	# that is not a cancel, or the pending option is dropped and no record is committed.
+	if _runner != null and _runner.is_active() and not _runner.is_forging():
+		_runner.cancel()
+
+
+## The feedback closes after committing (nothing pending then) or on Esc mid-forging,
+## which abandons the commission like closing the choice overlay does.
+func _on_feedback_closed() -> void:
+	if _runner != null and _runner.is_forging():
 		_runner.cancel()
 
 

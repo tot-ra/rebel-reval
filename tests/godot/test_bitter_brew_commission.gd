@@ -106,8 +106,12 @@ func test_forge_scene_commits_bitter_brew_commission_with_feedback() -> void:
 	tree.root.add_child(forge)
 
 	var player := forge.get_node("Actors/Player") as Player
-	var commission_controller := player.get_node("ForgeCommissionController") as ForgeCommissionController
-	var feedback_overlay := commission_controller.get_node("ForgeFeedbackOverlay") as ForgeFeedbackOverlay
+	var commission_controller := (
+		player.get_node("ForgeCommissionController") as ForgeCommissionController
+	)
+	var feedback_overlay := (
+		commission_controller.get_node("ForgeFeedbackOverlay") as ForgeFeedbackOverlay
+	)
 	var ledger := _find_ledger_interactable(forge)
 	assert_true(ledger != null)
 	assert_eq(ledger.get_interactable_id(), &"interact.commission.bitter_brew")
@@ -115,7 +119,9 @@ func test_forge_scene_commits_bitter_brew_commission_with_feedback() -> void:
 	_activate_interactable(player, ledger)
 	assert_true(ledger.interact(player))
 
-	var commission_overlay := player.find_child("ForgeCommissionOverlay", true, false) as ForgeCommissionOverlay
+	var commission_overlay := (
+		player.find_child("ForgeCommissionOverlay", true, false) as ForgeCommissionOverlay
+	)
 	assert_true(commission_overlay != null)
 	commission_overlay.option_selected.emit("honest_work")
 
@@ -145,13 +151,19 @@ func test_bed_rest_stays_disabled_until_commission_resolves() -> void:
 	assert_false(bed.is_enabled(), "bed must stay locked until the crisis commission resolves")
 
 	var player := forge.get_node("Actors/Player") as Player
-	var commission_controller := player.get_node("ForgeCommissionController") as ForgeCommissionController
+	var commission_controller := (
+		player.get_node("ForgeCommissionController") as ForgeCommissionController
+	)
 	var ledger := _find_ledger_interactable(forge)
 	_activate_interactable(player, ledger)
 	assert_true(ledger.interact(player))
-	var commission_overlay := player.find_child("ForgeCommissionOverlay", true, false) as ForgeCommissionOverlay
+	var commission_overlay := (
+		player.find_child("ForgeCommissionOverlay", true, false) as ForgeCommissionOverlay
+	)
 	commission_overlay.option_selected.emit("honest_work")
-	var feedback_overlay := commission_controller.get_node("ForgeFeedbackOverlay") as ForgeFeedbackOverlay
+	var feedback_overlay := (
+		commission_controller.get_node("ForgeFeedbackOverlay") as ForgeFeedbackOverlay
+	)
 	while feedback_overlay.is_open():
 		feedback_overlay._unhandled_input(_accept_event())
 		await tree.process_frame
@@ -213,6 +225,8 @@ func _activate_interactable(player: Player, interactable: Interactable) -> void:
 func _accept_event() -> InputEventKey:
 	var event := InputEventKey.new()
 	event.keycode = KEY_ENTER
+	# Bindings match physical keys (InputBindingSettings._key); a real press carries both.
+	event.physical_keycode = KEY_ENTER
 	event.pressed = true
 	return event
 

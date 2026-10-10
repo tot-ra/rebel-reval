@@ -1,6 +1,8 @@
 extends Node2D
 
-const DEFINITION_SCRIPT := preload("res://scripts/map/definitions/lower_town/kalev_smithy_definition.gd")
+const DEFINITION_SCRIPT := preload(
+	"res://scripts/map/definitions/lower_town/kalev_smithy_definition.gd"
+)
 const COMMISSION_ANCHOR_SCRIPT := preload("res://scripts/forge/forge_commission_anchor.gd")
 const PHASE_REST_ANCHOR_SCRIPT := preload("res://scripts/phase/phase_rest_anchor.gd")
 const PROLOGUE_CONTROLLER_SCRIPT := preload("res://scripts/forge/forge_prologue_controller.gd")
@@ -20,8 +22,12 @@ const ROOT_AND_EMBER_CONTROLLER_SCRIPT := preload(
 	"res://scripts/forge/root_and_ember_commission_controller.gd"
 )
 const ROUTINE_CONTROLLER_SCRIPT := preload("res://scripts/world/smithy_routine_controller.gd")
-const STATION_RESERVATIONS_SCRIPT := preload("res://scenes/reval_east/forge/smithy_station_reservations.gd")
-const DOMESTIC_PRESENTER_SCRIPT := preload("res://scenes/reval_east/forge/smithy_domestic_life_presenter.gd")
+const STATION_RESERVATIONS_SCRIPT := preload(
+	"res://scenes/reval_east/forge/smithy_station_reservations.gd"
+)
+const DOMESTIC_PRESENTER_SCRIPT := preload(
+	"res://scenes/reval_east/forge/smithy_domestic_life_presenter.gd"
+)
 const INTERACTABLE_SCENE := preload("res://scenes/interaction/interactable.tscn")
 const DayNightCycle := preload("res://scripts/global/day_night_cycle.gd")
 
@@ -44,13 +50,6 @@ const DOMESTIC_INTERACT_PROMPTS := {
 	&"ap.forge.quench": "Quench",
 	&"ap.ledger.inspect": "Inspect ledger",
 }
-
-@onready var map_root: Node2D = $MapRoot
-@onready var actors: Node2D = $Actors
-@onready var player: Player = $Actors/Player
-@onready var henning: SmithyHenning = $Actors/Henning
-@onready var mart: SmithyMart = $Actors/Mart
-@onready var cat: ForgeCat = $Actors/Cat
 
 var _bootstrap: Dictionary = {}
 var _world_host: WorldHost
@@ -75,6 +74,13 @@ var _last_domestic_time_band := &"any"
 # State whose forge conduit this scene bound. Kept so leaving the smithy clears
 # that exact state even if SessionState already swapped in a loaded save.
 var _forge_conduit_state: GameState
+
+@onready var map_root: Node2D = $MapRoot
+@onready var actors: Node2D = $Actors
+@onready var player: Player = $Actors/Player
+@onready var henning: SmithyHenning = $Actors/Henning
+@onready var mart: SmithyMart = $Actors/Mart
+@onready var cat: ForgeCat = $Actors/Cat
 
 
 func _ready() -> void:
@@ -164,7 +170,9 @@ func _connect_ambient_actor_refresh() -> void:
 		_refresh_smithy_ambient_actors(null)
 
 
-func _on_session_state_replaced(_previous: GameState, current: GameState, _reason: StringName) -> void:
+func _on_session_state_replaced(
+	_previous: GameState, current: GameState, _reason: StringName
+) -> void:
 	_clear_domestic_vignette(false, false)
 	_refresh_smithy_ambient_actors(current)
 	if _domestic_presenter != null:
@@ -210,12 +218,14 @@ func _setup_phase_binder(definition: MapDefinition) -> void:
 	_phase_binder = MapPhaseBinder.new()
 	_phase_binder.name = "MapPhaseBinder"
 	add_child(_phase_binder)
-	_phase_binder.setup(&"loc.kalev_smithy", definition, _view_runtime)
+	# Register before setup: setup applies the current phase profile at once, and an NPC
+	# registered after it keeps _wire_henning_navigation's hidden state until the next phase.
 	if henning != null:
 		_phase_binder.register_npc(&"henning", henning, &"ledger")
 	if mart != null:
 		# Do not default-anchor Mart to the anvil prop; that snaps him onto the iron.
 		_phase_binder.register_npc(&"mart", mart)
+	_phase_binder.setup(&"loc.kalev_smithy", definition, _view_runtime)
 
 
 func _build_interaction_prompt() -> void:
@@ -372,7 +382,7 @@ func _apply_domestic_prop_variants(prop_variants: Dictionary, state: GameState) 
 		_kalev_routine.persist_prop_variants(state, prop_variants)
 
 
-func _spawn_domestic_interactables(definition: MapDefinition) -> void:
+func _spawn_domestic_interactables(_definition: MapDefinition) -> void:
 	_clear_domestic_interactables()
 	var root := Node2D.new()
 	root.name = "DomesticInteractables"
@@ -457,7 +467,10 @@ func _on_domestic_interact(_actor: Node, activity_id: StringName) -> void:
 	if not _kalev_routine.can_begin(KALEV_ID, activity_id, context):
 		return
 	var point := _kalev_routine.get_activity_point(activity_id)
-	if point != null and not _kalev_routine.station_within_tolerance(player.global_position, activity_id):
+	if (
+		point != null
+		and not _kalev_routine.station_within_tolerance(player.global_position, activity_id)
+	):
 		return
 	_domestic_vignette_activity = activity_id
 	_domestic_vignette_seconds = point.sample_duration_sec(1343) if point != null else 2.0
@@ -497,7 +510,9 @@ func _tick_domestic_presentation(delta: float) -> void:
 		return
 	_domestic_vignette_seconds -= delta
 	if _domestic_presenter != null:
-		_domestic_presenter.global_position = _kalev_rig.global_position if _kalev_rig != null else Vector3.ZERO
+		_domestic_presenter.global_position = (
+			_kalev_rig.global_position if _kalev_rig != null else Vector3.ZERO
+		)
 	if _domestic_vignette_seconds > 0.0:
 		_persist_domestic_runtime_state()
 		return
@@ -508,7 +523,11 @@ func _clear_domestic_vignette(completed: bool, persist: bool = true) -> void:
 	if _kalev_routine != null and not _domestic_vignette_activity.is_empty():
 		_kalev_routine.complete_kalev_activity_presentation(
 			_domestic_vignette_activity,
-			ROUTINE_CONTROLLER_SCRIPT.REASON_COMPLETED if completed else ROUTINE_CONTROLLER_SCRIPT.REASON_CANCELLED
+			(
+				ROUTINE_CONTROLLER_SCRIPT.REASON_COMPLETED
+				if completed
+				else ROUTINE_CONTROLLER_SCRIPT.REASON_CANCELLED
+			)
 		)
 	if _domestic_presenter != null:
 		_domestic_presenter.clear_activity(completed)

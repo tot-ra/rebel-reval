@@ -251,7 +251,7 @@ Recorded results: [`docs/reports/startup_baseline.md`](./reports/startup_baselin
 
 ### Tests
 
-The project uses a minimal repository-owned headless harness rather than an external addon. The harness recursively discovers `tests/godot/test_*.gd`, runs zero-argument `test_*` methods, and uses a Godot `Logger` to reject parser, load, engine, and runtime diagnostics during setup, test, and teardown. Always invoke it through the checked runner: Godot can still emit shutdown diagnostics after the harness exits, and it can return exit code `0` after some parser failures.
+The project uses a minimal repository-owned headless harness rather than an external addon. The harness recursively discovers `tests/godot/test_*.gd`, runs zero-argument `test_*` methods, and uses a Godot `Logger` to reject parser, load, engine, and runtime diagnostics during setup, test, and teardown. A test that `await`s is awaited until its coroutine emits `completed`, across every `await` in it (polling `GDScriptFunctionState.is_valid()` stops at the first resume and let later assertions run, unreported, during the next test); `tests/godot/test_harness_await_fail.gd` is the self-test. Always invoke it through the checked runner: Godot can still emit shutdown diagnostics after the harness exits, and it can return exit code `0` after some parser failures.
 
 ```bash
 tools/run_godot_checked.sh --require-test-summary full-suite \

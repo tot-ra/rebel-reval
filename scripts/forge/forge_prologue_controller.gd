@@ -28,7 +28,6 @@ const RunnerScript := preload("res://scripts/dialogue/dialogue_runner.gd")
 const UiPresenterScript := preload("res://scripts/dialogue/dialogue_ui_presenter.gd")
 const UiScript := preload("res://scripts/dialogue/dialogue_ui.gd")
 const BarkPresenterScript := preload("res://scripts/dialogue/dialogue_bark_presenter.gd")
-const PhaseProfileModelScript := preload("res://scripts/phase/phase_profile_model.gd")
 const InteractableScene := preload("res://scenes/interaction/interactable.tscn")
 
 const HINTS: Array[String] = [
@@ -81,6 +80,8 @@ func setup(
 		player.get_node_or_null("ForgeCommissionController") as ForgeCommissionController
 	)
 	_rest_anchor = rest_anchor
+	if _rest_anchor != null:
+		_rest_anchor.add_rest_gate(Callable(self, "_rest_allowed"))
 	_dialogue_encounter = dialogue_encounter
 	_henning = henning
 	_interaction_controller = interaction_controller
@@ -380,10 +381,10 @@ func _sync_stage() -> void:
 		_set_hint(HINTS[4])
 		_set_interactable_enabled(_chest_interactable, false)
 		_set_interactable_enabled(_ledger_choice_interactable, false)
-		_sync_rest_enabled(true)
+		_sync_rest_enabled()
 		return
 
-	_sync_rest_enabled(false)
+	_sync_rest_enabled()
 
 	if quest_state == STATE_INCIDENT_KNOWN:
 		var mart_missing := SessionState.state.get_flag(&"flag.mart_missing")
@@ -402,18 +403,14 @@ func _sync_stage() -> void:
 	_set_interactable_enabled(_ledger_choice_interactable, false)
 
 
-func _sync_rest_enabled(allow_rest: bool) -> void:
-	if _rest_anchor == null:
-		return
-	var interactable := _rest_anchor.get_interactable()
-	if interactable == null:
-		return
-	var has_next_phase := not (
-		PhaseProfileModelScript
-		. next_phase_id(SessionState.state.get_phase(), SessionState.content_db)
-		. is_empty()
-	)
-	interactable.enabled = allow_rest and has_next_phase
+func _sync_rest_enabled() -> void:
+	if _rest_anchor != null:
+		_rest_anchor.sync_enabled()
+
+
+## Rest gate: the prologue bed stays locked until the ledger branch is committed.
+func _rest_allowed() -> bool:
+	return not _is_prologue_active() or _quest_state() == STATE_LEDGER_COMMITTED
 
 
 func _restore_demo_henning_talk(enabled: bool) -> void:
