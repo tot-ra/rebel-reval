@@ -18,5 +18,15 @@ class CropTests(unittest.TestCase):
         self.assertEqual(out.size, (100, 100))
 
 
+class MissingPortraitTests(unittest.TestCase):
+    def test_reports_null_and_dangling_portraits(self):
+        registry = {"npcs": [
+            {"id": "char.a", "portrait": None},
+            {"id": "char.b", "portrait": "res://no/such/file.png"},
+            {"id": "char.c", "portrait": "res://assets/characters/portraits/npc/martin.png"},
+        ]}
+        self.assertEqual(imp.missing_portraits(registry), ["char.a", "char.b"])
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -10,9 +10,10 @@ const KNOWN_PORTRAITS := {
 	&"char.henning": "res://assets/characters/portraits/henning.png",
 	&"char.aita": "res://assets/characters/portraits/aita.png",
 }
-## Named NPCs (R-1566): speaker `char.<slug>` maps to a portrait cropped from
+## Named NPCs (R-1566): the NamedNpcRegistry row's `portrait` field wins, because
+## registry ids (char.martin_cloaks) need not match the jpg stem (martin.png).
+## Other `char.<slug>` speakers fall back to the portrait cropped from
 ## characters/**/img/<slug>.jpg by tools/assets/import_npc_portraits.py.
-## Convention-based until NamedNpcRegistry (R-1562) lands and carries a portrait field.
 const NPC_PORTRAIT_DIR := "res://assets/characters/portraits/npc/"
 const CHAR_PREFIX := "char."
 
@@ -24,6 +25,9 @@ static func portrait_path(speaker_id: StringName) -> String:
 	if not known.is_empty():
 		return known
 	var id := String(speaker_id)
+	var registry_portrait: Variant = NamedNpcRegistry.load_default().get_npc(id).get("portrait")
+	if registry_portrait is String and not String(registry_portrait).is_empty():
+		return registry_portrait
 	if not id.begins_with(CHAR_PREFIX) or id.length() == CHAR_PREFIX.length():
 		return ""
 	return NPC_PORTRAIT_DIR + id.substr(CHAR_PREFIX.length()) + ".png"
