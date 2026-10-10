@@ -8,7 +8,8 @@ extends Node
 ##     -- --city-spawn=poi.forum --city-hour=18.2 [--tag=evening] [--houses=4]
 ##        [--scene=res://scenes/world/sites/harju.tscn] [--trade=farmer]
 ## Output: docs/reports/images/city/households_<tag>_<n>.png (+ _eye.png from the
-## doorway, _top.png from the gameplay camera); prints
+## doorway, _hearth.png close on the hearth and its chimney breast, _top.png from
+## the gameplay camera, _outside.png on the chimney from the street); prints
 ## the pieces and who is at home doing what.
 
 const SCENE := preload("res://scenes/world/reval_city/reval_city.tscn")
@@ -148,6 +149,19 @@ func _run() -> void:
 		await RenderingServer.frame_post_draw
 		get_viewport().get_texture().get_image().save_png(
 			ProjectSettings.globalize_path("%s/households_%s_%d_eye.png" % [OUTPUT_DIR, tag, n]))
+		# Close on the hearth: its hood, flue and the chimney breast above it.
+		if lay.hearth >= 0:
+			var h: Dictionary = lay.items[lay.hearth]
+			var yaw := float(h["yaw"])
+			var front := -Vector2(sin(yaw), cos(yaw))
+			var hp: Vector2 = h["pos"]
+			var eye: Vector2 = hp + front * 2.6 + front.orthogonal() * 0.9
+			cam.global_position = Vector3(eye.x, lay.floor_y + 1.4, eye.y)
+			cam.look_at(Vector3(hp.x, lay.floor_y + 1.5, hp.y), Vector3.UP)
+			await _frames(3)
+			await RenderingServer.frame_post_draw
+			get_viewport().get_texture().get_image().save_png(
+				ProjectSettings.globalize_path("%s/households_%s_%d_hearth.png" % [OUTPUT_DIR, tag, n]))
 		cam.queue_free()
 		city.view.view_camera().make_current()
 		city.runtime.set_camera_mode(MapViewRuntimeCamera.CameraMode.TOP_DOWN)
@@ -156,5 +170,44 @@ func _run() -> void:
 		get_viewport().get_texture().get_image().save_png(
 			ProjectSettings.globalize_path("%s/households_%s_%d_top.png" % [OUTPUT_DIR, tag, n]))
 		city.runtime.set_camera_mode(MapViewRuntimeCamera.CameraMode.THIRD_PERSON)
+		await _outside(city, lay, index, n, tag, spawn)
 	print("captured %d houses, %d failures" % [picks.size(), failures])
 	get_tree().quit(1 if failures > 0 or picks.is_empty() else 0)
+
+
+## From the street, with Kalev back out (the roof down): the chimney stack over
+## the gable where the hearth stands inside.
+func _outside(
+	city: Node, lay: HouseholdLayout, index: int, n: int, tag: String, spawn: Vector2
+) -> void:
+	if lay.hearth < 0:
+		return
+	var interiors: CityInteriors = city.interiors
+	var top3 := Vector3.INF
+	for c: Array in city.world.chimneys:
+		if String(c[1]) == String(city.plan.buildings[index]["id"]):
+			top3 = c[0]
+	var top := Vector2(top3.x, top3.z) if top3 != Vector3.INF else Vector2.INF
+	(city.player as Node2D).global_position = CityPlan.to_logic(spawn)
+	await _frames(20)
+	var h: Dictionary = lay.items[lay.hearth]
+	var hp: Vector2 = h["pos"]
+	var out := (hp - interiors._center(index)).normalized()
+	var cam := Camera3D.new()
+	cam.fov = 55.0
+	city.world.add_child(cam)
+	var aim := top3 if top3 != Vector3.INF else Vector3(hp.x, lay.floor_y + 4.0, hp.y)
+	var eye := Vector2(aim.x, aim.z) + out * 13.0 + out.orthogonal() * 6.0
+	cam.global_position = Vector3(eye.x, aim.y + 2.0, eye.y)
+	cam.look_at(aim - Vector3.UP * 2.5, Vector3.UP)
+	cam.make_current()
+	await _frames(3)
+	await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png(
+		ProjectSettings.globalize_path("%s/households_%s_%d_outside.png" % [OUTPUT_DIR, tag, n]))
+	var yaw := float(h["yaw"])
+	var flue := hp + Vector2(sin(yaw), cos(yaw)) * HouseholdLayout.HEARTH_FLUE_BACK
+	print("   chimney over the hearth flue: %.2f m" % (
+		top.distance_to(flue) if top != Vector2.INF else -1.0))
+	cam.queue_free()
+	city.view.view_camera().make_current()

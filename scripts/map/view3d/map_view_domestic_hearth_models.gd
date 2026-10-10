@@ -117,21 +117,25 @@ static func _apply_ember_glow(selected: Node3D, energy: float) -> void:
 		bed.material_override = emissive
 
 
+## Smoke drawn up the hood into the flue: it fades within about 0.3 m of
+## the throat, inside the brick flue and the house's chimney breast above it
+## (city_chimney_builder.gd), instead of filling the room. The plume over
+## the roof is the chimney's own (CityChimneySmoke).
 static func _attach_hood_smoke(anchor: Node3D, amount: int) -> GPUParticles3D:
 	var particles := GPUParticles3D.new()
 	particles.name = "HearthSmoke"
 	particles.amount = max(amount, 1)
-	particles.lifetime = 2.1
-	particles.preprocess = 1.2
+	particles.lifetime = 0.6
+	particles.preprocess = 0.4
 	particles.explosiveness = 0.0
 	particles.randomness = 0.45
 	particles.local_coords = true
 	particles.emitting = amount > 0
-	particles.visibility_aabb = AABB(Vector3(-0.5, -0.2, -0.5), Vector3(1.0, 2.4, 1.0))
+	particles.visibility_aabb = AABB(Vector3(-0.5, -0.2, -0.5), Vector3(1.0, 1.0, 1.0))
 	var process := ParticleProcessMaterial.new()
 	process.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_BOX
-	process.emission_box_extents = Vector3(0.12, 0.04, 0.08)
-	process.direction = Vector3(0.0, 1.0, -0.12).normalized()
+	process.emission_box_extents = Vector3(0.06, 0.03, 0.04)
+	process.direction = Vector3.UP
 	process.spread = 8.0
 	process.initial_velocity_min = 0.25
 	process.initial_velocity_max = 0.55
@@ -145,9 +149,10 @@ static func _attach_hood_smoke(anchor: Node3D, amount: int) -> GPUParticles3D:
 	smoke_ramp_texture.gradient = smoke_ramp
 	process.color_ramp = smoke_ramp_texture
 	particles.process_material = process
+	# Puffs no wider than the flue (0.34 x 0.24 m), or they show through its sides.
 	var draw := SphereMesh.new()
-	draw.radius = 0.5
-	draw.height = 1.0
+	draw.radius = 0.09
+	draw.height = 0.18
 	draw.radial_segments = 6
 	draw.rings = 3
 	particles.draw_pass_1 = draw

@@ -47,7 +47,8 @@ const WINDOW_W := 0.72
 const WINDOW_H := 0.95
 const WINDOW_SPACING := 3.4
 const MAX_ROOF_RISE := 10.5
-## Share of town houses with a chimney stack, and its plan size in metres.
+## Share of doorless houses with a chimney stack (every house with a door has
+## one over its hearth), and its plan size in metres.
 const CHIMNEY_SHARE := 0.8
 ## Interior cutaway: walls of an enterable building are cut this far above
 ## the floor while Kalev is inside (about head height), so the top-down and
@@ -74,6 +75,7 @@ const ROOF_COLORS := {
 }
 
 const WindowOpenings := preload("res://scripts/city/city_window_openings.gd")
+const Chimney := preload("res://scripts/city/city_chimney_builder.gd")
 const WINDOW_WOOD := preload("res://scripts/city/city_window_wood.gdshader")
 const WINDOW_GLASS := preload("res://scripts/city/city_window_glass.gdshader")
 
@@ -617,12 +619,23 @@ static func build_building(
 		_door_steps(shell, ring, door_edge, door_t, floor_y, ground_at, door_size(b).x)
 	# Roof halves.
 	_roof(roof, roof_key, ring, frame, roof_tint, roof_family, keep_out)
-	# Most town houses have a stone flue by 1343 (thatched country cottages keep
-	# a smoke hole); it rides with the roof node when the roof lifts.
+	# Every lived-in house has a hooded hearth (HouseholdLayout), so every house
+	# gets the stone flue that carries its smoke out; it rides with the roof node
+	# when the roof lifts. Doorless houses keep the old share of stacks.
 	var chimney := Vector3.INF
-	if String(b.get("kind", "house")) == "house" and roof_family != &"thatch":
-		if rng.randf() < CHIMNEY_SHARE:
-			chimney = _chimney(roof, ring, frame, rng)
+	var flue := {}
+	if String(b.get("kind", "house")) == "house":
+		if rng.randf() < CHIMNEY_SHARE or door != null:
+			var door_xy := Vector2(door[0], door[1]) if door != null else Vector2.INF
+			var breast := shell if enterable else null
+			flue = Chimney.build(roof, breast, ring, thick, floor_y, frame, rng, door_edge, door_xy)
+	if not flue.is_empty():
+		chimney = flue["top"]
+		# No window behind the chimney breast.
+		var wall_point: Vector2 = flue["wall"]
+		var clear := CHIMNEY_SIZE * 0.5 + 0.15
+		windows.assign(windows.filter(func(w: Dictionary) -> bool:
+			return (w["m"] as Vector2).distance_to(wall_point) > float(w["w"]) * 0.5 + clear))
 	if enterable:
 		# The ceiling belongs with the roof: both lift while Kalev is inside, so
 		# top-down and first-person views look into the room, not at boards.
@@ -645,6 +658,8 @@ static func build_building(
 		# A door lower than the cut leaves the cap whole over its lintel.
 		var cap_gap := door_size(b).x if door_size(b).y > CUT_HEIGHT else 0.0
 		wall_top_cap(shell, ring, thick, floor_y + CUT_HEIGHT, door_edge, door_t, cap_gap)
+		if not flue.is_empty():
+			Chimney.flue_cap(shell, flue, floor_y + CUT_HEIGHT)
 	else:
 		WindowOpenings.cut(shell, windows, thick)
 		for window in windows:
@@ -699,58 +714,6 @@ static func wall_top_cap(
 				section,
 				Vector3.UP
 			)
-
-
-## Stone chimney stack through the roof slope near the ridge; returns its top.
-static func _chimney(
-	roof: Shell, ring: PackedVector2Array, frame: Dictionary, rng: RandomNumberGenerator
-) -> Vector3:
-	var r: Vector2 = frame["r"]
-	var n: Vector2 = frame["n"]
-	var along := lerpf(float(frame["amin"]), float(frame["amax"]), rng.randf_range(0.22, 0.78))
-	var across := float(frame["mid"]) + float(frame["half"]) * rng.randf_range(-0.35, 0.35)
-	var c := r * along + n * across
-	if not Geometry2D.is_point_in_polygon(c, ring):
-		return Vector3.INF
-	var half := CHIMNEY_SIZE * 0.5
-	var low := INF
-	for sx: float in [-1.0, 1.0]:
-		for sy: float in [-1.0, 1.0]:
-			low = minf(low, roof_height(frame, c + r * sx * half + n * sy * half))
-	var top := float(frame["ridge"]) + rng.randf_range(0.6, 1.1)
-	var tint := Color(1, 1, 1) * rng.randf_range(0.75, 0.95)
-	tint.a = 1.0
-	var corners: Array[Vector2] = [
-		c - r * half - n * half,
-		c + r * half - n * half,
-		c + r * half + n * half,
-		c - r * half + n * half
-	]
-	for i in 4:
-		var a := corners[i]
-		var b := corners[(i + 1) % 4]
-		var out := Vector3((a + b).x * 0.5 - c.x, 0.0, (a + b).y * 0.5 - c.y)
-		roof.quad_out(
-			"stone",
-			Vector3(a.x, low - 0.2, a.y),
-			Vector3(b.x, low - 0.2, b.y),
-			Vector3(b.x, top, b.y),
-			Vector3(a.x, top, a.y),
-			tint,
-			out
-		)
-	# Dark flue mouth.
-	var m := half * 0.7
-	roof.quad_out(
-		"dark",
-		Vector3(c.x - m, top - 0.02, c.y - m),
-		Vector3(c.x + m, top - 0.02, c.y - m),
-		Vector3(c.x + m, top - 0.02, c.y + m),
-		Vector3(c.x - m, top - 0.02, c.y + m),
-		Color(1, 1, 1),
-		Vector3.UP
-	)
-	return Vector3(c.x, top, c.y)
 
 
 ## Limestone steps from the street up to a raised floor, so every door sits at

@@ -5,7 +5,7 @@ Status: implemented (task **R-HOUSEHOLDS-001**, proposed: create it on the task 
 ## What the player sees
 
 - Walk into any lived-in house (all ordinary enterable houses with a census household; about 520 of them). Within 26 m of Kalev the house is furnished; the roof and the upper part of every wall lift as before, so the top-down, third-person and first-person cameras all see the room.
-- **Hearth** on the wall under the house's chimney (or the wall farthest from the door), with the household's firewood pile, a water bucket and a pot beside it.
+- **Hearth** backed against the gable wall right under the house's chimney: its brick flue (`HEARTH_FLUE_BACK` 0.18 m behind the model origin, top at `HEARTH_FLUE_TOP` 1.66 m) opens into the stone chimney breast the building builder raises there, so the hood smoke goes up the flue and out of the stack on the roof, not into the room ([`SEAMLESS_CITY.md`](./SEAMLESS_CITY.md), step 5). Partitions keep `HEARTH_CLEAR` (1.1 m) from it with their doorway on the far side; the aisle between doorways may brush it. A house without a chimney (doorless, or no wall with room) puts the hearth on the wall farthest from the door. The firewood pile, a water bucket and a pot stand beside the hearth.
 - **Beds** for everyone (two or three share a bed, as households did): a framed bed for the head couple of a better-off house, straw-tick box beds for the rest.
 - **Table** in the open floor near the hearth with **benches** on both sides (a chair at the head in better houses), an eating set, bread, a jug and a candle on it. In a cramped room the table goes against a wall with stools in front. If both front stools are blocked, a stool is placed on the wall near the hearth (or on nearby open floor) before storage and decoration, so every house has a seat.
 - **Storage**: a plain coffer (poor) or burgher chest by the beds, an open shelf with the kitchen prep set by the hearth, a basket; rich houses add a cupboard and a strongbox.
@@ -41,14 +41,14 @@ Nothing is saved: furnishing, fire, firewood and people at home are pure functio
 ## Verify
 
 ```bash
-godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_household_layout
+godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_household_layout,test_household_chimney
 python3 tools/city/build_citizen_runtime.py --check
 python3 tools/validate_object_catalog.py
 tools/godot_render.sh --resolution 1600x900 res://tools/capture_city_households.tscn -- --city-spawn=poi.forum --city-hour=18.2 --tag=evening --houses=4
 tools/godot_render.sh --resolution 1600x900 res://tools/capture_city_households.tscn -- --scene=res://scenes/world/sites/harju.tscn --trade=farmer --city-hour=12 --tag=farm_tools --houses=2
 ```
 
-The capture puts Kalev inside houses of each class, prints the pieces and who is home doing what, and writes `docs/reports/images/city/households_<tag>_<n>.png` (cutaway from above) and `_top.png` (top-down gameplay camera); it exits 1 if a house Kalev stands in is not furnished. `--scene=` captures a regional site level instead of the city and `--trade=` keeps only households of that trade (for example the Harju farmhouses: [`households_farm_tools_eye.jpg`](../reports/images/city/households_farm_tools_eye.jpg)).
+The capture puts Kalev inside houses of each class, prints the pieces and who is home doing what, and writes `docs/reports/images/city/households_<tag>_<n>.png` (cutaway from above) `_hearth.png` (close on the hearth and its chimney breast), `_top.png` (top-down gameplay camera) and `_outside.png` (the chimney from over the street, printing its offset from the hearth flue, expected 0.00 m; example: [`households_chimney_hearth.jpg`](../reports/images/city/households_chimney_hearth.jpg), [`households_chimney_outside.jpg`](../reports/images/city/households_chimney_outside.jpg)); it exits 1 if a house Kalev stands in is not furnished. `--scene=` captures a regional site level instead of the city and `--trade=` keeps only households of that trade (for example the Harju farmhouses: [`households_farm_tools_eye.jpg`](../reports/images/city/households_farm_tools_eye.jpg)).
 
 ## Limits
 
@@ -56,6 +56,7 @@ The capture puts Kalev inside houses of each class, prints the pieces and who is
 - Sleepers are the standing idle laid flat (no lying clip); people at the hearth and workbench stand idle (no cooking or working clip). Seated people use the shared `sit_idle` clip.
 - Indoor walking is a straight line between doorways; people may cross a piece of furniture on the way. Two residents can share a slot when a house has more people than seats.
 - Partitions are only built while the house is furnished; from far away a big house has no inner walls (not visible from the street through the small windows).
+- The hood smoke is a short wisp at the throat; the plume over the roof is the streamed chimney smoke (`CityChimneySmoke`), which keeps its own per-house schedule rather than following `HouseholdDay`.
 - The table light and hearth are visible only in furnished houses; window glow of other houses at night is not wired.
 - Institutions (castle, monasteries), churches, the council hall and landmark sites are not furnished by this system.
 - Regional sites have no census. A site building may carry an authored `household` (`{class, trade, size}`) in its plan record; `CityInteriors.household_at` falls back to it and `is_lived_in` accepts such a building even when it is an `outbuilding` (the Harju smoke-room dwellings, task **R-1627**, [`REGIONAL_SITES.md`](./REGIONAL_SITES.md)). Nobody is shown at home there: the people are off, so the slots stay empty.

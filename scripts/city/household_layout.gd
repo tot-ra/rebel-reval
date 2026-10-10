@@ -14,6 +14,17 @@ extends RefCounted
 const OBJECTS_DIR := "res://content/objects"
 ## Wall thickness as built by CityBuildingBuilder, plus a hand's breadth.
 const WALL_GAP := 0.05
+## Pieces against a wall stand this far off the inner wall line.
+const WALL_STANDOFF := 0.03
+## The hearth GLB (tools/generate_medieval_hearth_kit.py): its brick flue is
+## centred this far behind the model origin, towards the wall, and ends this
+## high; the back face of its brick mass is HEARTH_BACK behind the origin.
+## CityBuildingBuilder raises the chimney breast from these.
+const HEARTH_FLUE_BACK := 0.18
+const HEARTH_FLUE_TOP := 1.66
+const HEARTH_BACK := 0.29
+## Partitions keep this far (along the house) from the chimney's hearth.
+const HEARTH_CLEAR := 1.1
 ## Kept clear inside the door: the doorway and a step into the room.
 const DOOR_CLEAR_DEPTH := 2.0
 const DOOR_CLEAR_WIDTH := 1.8
@@ -126,9 +137,13 @@ var axis := Vector2.RIGHT
 var axis_origin := Vector2.ZERO
 
 var _rng := RandomNumberGenerator.new()
+## World xz of the chimney flue while partitioning (Vector2.INF: none).
+var _chimney_at := Vector2.INF
 var _door := Vector2.ZERO
 var _door_in := Vector2.ZERO
 var _keep_outs: Array[PackedVector2Array] = []
+## _keep_outs from this index on are the aisles between doorways (-1: none yet).
+var _aisles_from := -1
 var _occupied: Array[PackedVector2Array] = []
 var _occupied_boxes: Array[Rect2] = []
 var _inner_box := Rect2()
@@ -205,7 +220,7 @@ func _build(plan: CityPlan, index: int, household: Dictionary, chimney: Vector2)
 	var deep := _door + _door_in * (thick + DOOR_CLEAR_DEPTH)
 	_keep_outs.append(PackedVector2Array([_door - side, _door + side, deep + side, deep - side]))
 	entry = _door + _door_in * (thick + 0.6)
-	_partition()
+	_partition(chimney)
 	_furnish(household, chimney)
 
 
@@ -214,9 +229,12 @@ func _furnish(household: Dictionary, chimney: Vector2) -> void:
 	var size := maxi(int(household.get("size", 2)), 1)
 	var trade := String(household.get("trade", ""))
 	var area := absf(CityBuildingBuilder.signed_area(inner))
-	# Hearth under the chimney, or on the wall farthest from the door.
-	hearth = _place_on_wall(&"hearth", func(p: Vector2, _n: Vector2) -> float:
-		return -p.distance_to(chimney) if chimney != Vector2.INF else p.distance_to(_door))
+	# Hearth with its flue right under the chimney (the builder raises the
+	# chimney breast there), else on the wall nearest it or farthest from the door.
+	hearth = _hearth_under(chimney) if chimney != Vector2.INF else -1
+	if hearth < 0:
+		hearth = _place_on_wall(&"hearth", func(p: Vector2, _n: Vector2) -> float:
+			return -p.distance_to(chimney) if chimney != Vector2.INF else p.distance_to(_door))
 	if hearth >= 0:
 		var h: Dictionary = items[hearth]
 		var front := _front(hearth)
@@ -319,7 +337,7 @@ func _furnish(household: Dictionary, chimney: Vector2) -> void:
 
 
 ## Splits a big house into rooms across its length (see `rooms`).
-func _partition() -> void:
+func _partition(chimney := Vector2.INF) -> void:
 	var area := absf(CityBuildingBuilder.signed_area(inner))
 	# Length direction: the longer extent of the room, oriented away from the door.
 	var long := _long_axis()
@@ -341,6 +359,22 @@ func _partition() -> void:
 	cuts.append(hall)
 	if area >= CHAMBER_AREA and length - hall >= SPLIT_LENGTH:
 		cuts.append(hall + (length - hall) * 0.55)
+	# A partition meeting the wall where the chimney is would leave no room
+	# for the hearth under it: move the partition clear of it.
+	_chimney_at = chimney
+	if chimney != Vector2.INF:
+		var at := chimney.dot(axis) - ext.x
+		for k in cuts.size():
+			if absf(cuts[k] - at) < HEARTH_CLEAR:
+				cuts[k] = at - HEARTH_CLEAR if cuts[k] < at else at + HEARTH_CLEAR
+		# Keep the cuts in order and every room at least a room long.
+		cuts.sort()
+		var kept: Array = []
+		for c: float in cuts:
+			var prev: float = kept[-1] if not kept.is_empty() else 0.0
+			if c - prev >= SPLIT_LENGTH * 0.5 and length - c >= SPLIT_LENGTH * 0.5:
+				kept.append(c)
+		cuts = kept
 	rooms = []
 	var from := 0.0
 	for c: float in cuts:
@@ -349,6 +383,7 @@ func _partition() -> void:
 			from = c
 	rooms.append([from, length])
 	# An aisle from the street door through the doorways stays clear.
+	_aisles_from = _keep_outs.size()
 	var way := PackedVector2Array([entry])
 	for part: Dictionary in partitions:
 		way.append(part["gap"])
@@ -378,8 +413,13 @@ func _cut(along: float) -> bool:
 	var span := a.distance_to(b)
 	if span < PARTITION_GAP + 1.6:
 		return false
+	var side := 0.3 if _rng.randf() < 0.5 else 0.7
+	# The doorway, and the aisle through it, on the side away from the hearth.
+	if _chimney_at != Vector2.INF:
+		var near_a := a.lerp(b, 0.3).distance_to(_chimney_at)
+		side = 0.3 if near_a > a.lerp(b, 0.7).distance_to(_chimney_at) else 0.7
 	var t := clampf(
-		0.3 if _rng.randf() < 0.5 else 0.7,
+		side,
 		(PARTITION_GAP * 0.5 + 0.7) / span,
 		1.0 - (PARTITION_GAP * 0.5 + 0.7) / span
 	)
@@ -679,7 +719,7 @@ func _place_on_wall(piece: StringName, score: Callable) -> int:
 		var yaw := _yaw_facing(n, front)
 		var t := size.x * 0.5 + 0.05
 		while t <= length - size.x * 0.5 - 0.05:
-			var p := a + dir * t + n * (size.z * 0.5 + 0.03)
+			var p := a + dir * t + n * (size.z * 0.5 + WALL_STANDOFF)
 			candidates.append([float(score.call(p, n)) + _rng.randf() * 0.05, p, yaw])
 			t += SCAN_STEP
 	candidates.sort_custom(func(x: Array, y: Array) -> bool: return x[0] > y[0])
@@ -687,6 +727,46 @@ func _place_on_wall(piece: StringName, score: Callable) -> int:
 		if _fits(_rect(cand[1], cand[2], size.x, size.z)):
 			return _add(piece, cand[1], cand[2], 0.0, true)
 	return -1
+
+
+## The hearth on the inner wall nearest `flue`, backed against it so its own
+## flue (HEARTH_FLUE_BACK behind the origin) stands at `flue`. -1 if it does not fit.
+func _hearth_under(flue: Vector2) -> int:
+	var best := -1
+	var best_d := INF
+	for i in inner.size():
+		var d := flue.distance_to(
+			Geometry2D.get_closest_point_to_segment(flue, inner[i], inner[(i + 1) % inner.size()])
+		)
+		if d < best_d:
+			best_d = d
+			best = i
+	if best < 0:
+		return -1
+	var a := inner[best]
+	var c := inner[(best + 1) % inner.size()]
+	var dir := (c - a).normalized()
+	var n := Vector2(-dir.y, dir.x)
+	if not Geometry2D.is_point_in_polygon((a + c) * 0.5 + n * 0.05, inner):
+		n = -n
+	var foot := Geometry2D.get_closest_point_to_segment(flue, a, c)
+	var pos := foot + n * (piece_size(&"hearth").z * 0.5 + WALL_STANDOFF)
+	var yaw := _yaw_facing(n, int(PIECES[&"hearth"]["front"]))
+	var k := _add(&"hearth", pos, yaw, 0.0)
+	if k < 0 and _aisles_from >= 0:
+		# The chimney is fixed in the walls; the aisle between doorways may
+		# brush the hearth (doorways and the street door stay clear).
+		var keep := _keep_outs
+		_keep_outs = keep.slice(0, _aisles_from)
+		k = _add(&"hearth", pos, yaw, 0.0)
+		_keep_outs = keep
+	return k
+
+
+## Distance from the inner face of a wall to the origin of a hearth backed
+## against it (CityBuildingBuilder places the chimney from this).
+static func hearth_inset() -> float:
+	return WALL_GAP + piece_size(&"hearth").z * 0.5 + WALL_STANDOFF
 
 
 ## Free floor spot within a ring round `near` (no wall needed).
