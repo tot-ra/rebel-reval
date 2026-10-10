@@ -294,15 +294,114 @@ def weld(parts, name: str):
 
 
 # ---------------------------------------------------------------- hair
+#
+# Mane, forelock and tail are hair cards: thin quad ribbons textured with a
+# strand atlas whose alpha is clipped (glTF alphaMode MASK, Godot alpha
+# scissor). Solid tubes read as plastic fringes; layered cards with a few
+# hundred painted strands each give the soft, broken silhouette of real hair
+# at a fraction of the strand-geometry cost.
 
-def strand(name: str, points, width0: float, width1: float, sides: int = 6, flat: float = 1.0):
-    """Hair clump: a tapered tube, `flat` > 1 makes it a ribbon along the profile axis."""
-    nodes = []
-    n = len(points)
-    for i, p in enumerate(points):
-        w = width0 + (width1 - width0) * i / max(n - 1, 1)
-        nodes.append((p, w, w * flat))
-    return loft(name, nodes, sides=sides)
+ATLAS_SIZE = 1024
+ATLAS_COLUMNS = 8  # each column is one strand clump; cards sample one column
+
+
+def hair_atlas(rng: random.Random):
+    """Straight-alpha RGBA strand atlas. V runs root (0) to tip (1); every
+    column holds one clump of tapered strands with ragged tip lengths."""
+    import numpy as np
+    n = ATLAS_SIZE
+    col_w = n // ATLAS_COLUMNS
+    rgb = np.zeros((n, n, 3), dtype=np.float32)
+    alpha = np.zeros((n, n), dtype=np.float32)
+    rows = np.arange(n, dtype=np.float32) / (n - 1)  # v, root to tip
+    nrng = np.random.default_rng(SEED)
+    for col in range(ATLAS_COLUMNS):
+        x0 = col * col_w
+        for _ in range(150):
+            length = rng.uniform(.55, 1.0)
+            # Strand path across the column: a drift plus a slow wave.
+            cx = rng.uniform(.10, .90) * col_w
+            drift = rng.uniform(-.18, .18) * col_w
+            wave = rng.uniform(1.0, 4.0)
+            phase = rng.uniform(0, math.tau)
+            xs = cx + drift * rows + wave * np.sin(phase + rows * rng.uniform(4, 11))
+            width = rng.uniform(.7, 1.7)
+            opacity = rng.uniform(.65, 1.0)
+            # Bay mane: near-black with a few rusty, sun-bleached strands.
+            tone = rng.random()
+            if tone < .80:
+                c = np.array([.018, .014, .012]) * rng.uniform(.8, 1.6)
+            elif tone < .95:
+                c = np.array([.055, .030, .018]) * rng.uniform(.8, 1.3)
+            else:
+                c = np.array([.12, .060, .030])
+            # Ragged roots too: strands start at slightly different heights, so
+            # the root edge of a card never reads as a cut line.
+            start = rng.uniform(0, .07)
+            live = (rows <= length) & (rows >= start)
+            taper = np.clip((length - rows) / .18, 0, 1)  # thin to a point at the tip
+            for dx in range(-2, 3):
+                px = np.floor(xs).astype(int) + dx
+                cover = np.clip(width * taper - np.abs(px + .5 - xs) + .5, 0, 1) * opacity
+                cover = np.where(live & (px >= 0) & (px < col_w), cover, 0.0)
+                cols = np.clip(px, 0, col_w - 1) + x0
+                idx = np.nonzero(cover > 0)[0]
+                if not len(idx):
+                    continue
+                prev = alpha[idx, cols[idx]]
+                # Root-to-tip shading: darker at the root, a faint sheen mid-length.
+                shade = (0.85 + 0.35 * np.sin(np.pi * rows[idx]))[:, None]
+                w = cover[idx][:, None]
+                rgb[idx, cols[idx]] = rgb[idx, cols[idx]] * (1 - w) + c * shade * w
+                alpha[idx, cols[idx]] = prev + (1 - prev) * cover[idx]
+        # Fade the clump edges so card borders never show as a straight line.
+        edge = np.minimum(np.arange(col_w), col_w - 1 - np.arange(col_w)) / (col_w * .12)
+        alpha[:, x0:x0 + col_w] *= np.clip(edge, 0, 1)[None, :]
+    # Uncovered texels take the mean strand colour so mip filtering does not
+    # bleed a light fringe around the clipped edges.
+    rgb[alpha < .01] = (.02, .015, .013)
+    rgba = np.dstack([rgb, alpha]).astype(np.float32)
+    rgba += nrng.normal(0, .002, rgba.shape).astype(np.float32) * (rgba[..., 3:4] > 0)
+    img = bpy.data.images.new('horse_hair_strands', ATLAS_SIZE, ATLAS_SIZE, alpha=True)
+    img.alpha_mode = 'STRAIGHT'
+    # Blender image rows run bottom to top; v=0 (root) is the bottom row.
+    img.pixels.foreach_set(np.clip(rgba, 0, 1).ravel())
+    img.pack()
+    return img
+
+
+class Cards:
+    """Accumulates hair cards into one bmesh with a UV layer."""
+
+    def __init__(self, name: str):
+        self.name = name
+        self.bm = bmesh.new()
+        self.uv = self.bm.loops.layers.uv.new('UVMap')
+
+    def add(self, points, outward, width0: float, width1: float, column: int):
+        """Ribbon through `points` (root first). `outward(p)` is the direction the
+        card faces; its width lies across the tangent, in the surface plane."""
+        n = len(points)
+        u0 = column / ATLAS_COLUMNS + .004
+        u1 = (column + 1) / ATLAS_COLUMNS - .004
+        rows = []
+        for i, p in enumerate(points):
+            t = (points[min(i + 1, n - 1)] - points[max(i - 1, 0)]).normalized()
+            side = t.cross(outward(p))
+            # A tangent along the facing direction has no defined width axis.
+            side = side.normalized() if side.length > 1e-5 else Vector((0.0, 1.0, 0.0))
+            w = (width0 + (width1 - width0) * i / (n - 1)) / 2
+            rows.append((self.bm.verts.new(p - side * w), self.bm.verts.new(p + side * w)))
+        for i in range(n - 1):
+            a, b = rows[i]
+            c, d = rows[i + 1]
+            face = self.bm.faces.new((a, b, d, c))
+            v0, v1 = i / (n - 1), (i + 1) / (n - 1)
+            for loop, uv in zip(face.loops, ((u0, v0), (u1, v0), (u1, v1), (u0, v1))):
+                loop[self.uv].uv = uv
+
+    def commit(self):
+        return _commit(self.name, self.bm)
 
 
 def surface_x(tree, y: float, z: float) -> float:
@@ -312,58 +411,69 @@ def surface_x(tree, y: float, z: float) -> float:
 
 
 def hair(rng: random.Random, crest, tree):
-    strands = {'mane': [], 'tail': [], 'forelock': []}
-    # Mane: short, thick, lying flat on the near (+x) side of the neck. Each
-    # clump arches over the crest, then hugs the neck surface and falls.
-    # Root mass along the crest so no skin shows between locks.
-    root = []
-    for k in range(9):
-        f = 1.02 - 0.62 * k / 8.0
-        root.append((Vector((0.0, -f, crest(f) - .008)), .034, .026))
-    strands['mane'].append(loft('mane_root', root, sides=8))
-    # Locks: each is two overlapping ribbons that arch over the crest, hug the
-    # neck, wave gently and end in staggered points.
-    for i in range(38):
-        t = i / 37.0
-        f0 = 1.02 - 0.62 * t + rng.uniform(-.006, .006)
-        length = rng.uniform(.16, .28) * (0.85 + 0.25 * math.sin(math.pi * min(1.0, t * 1.1)))
-        phase = rng.uniform(0, math.tau)
-        for ribbon in range(2):
-            f = f0 + (ribbon - .5) * .012
+    mane = Cards('mane')
+    # Mane: a cob's mane lies on the near (+x) side. Each lock rises from the
+    # crest, arches over it and falls along the neck; three layers stand off the
+    # skin a little more each so the inner ones fill and the outer ones break up.
+    side_out = lambda p: Vector((1.0, 0.0, 0.25)).normalized()
+    for layer in range(3):
+        count = (42, 36, 26)[layer]
+        stand = .006 + .010 * layer
+        for i in range(count):
+            t = (i + rng.uniform(-.3, .3)) / (count - 1)
+            f = 1.03 - 0.66 * min(1.0, max(0.0, t))
             y = -f
             top = crest(f)
-            pts = [Vector((0.0, y, top - .034))]
-            pts.append(Vector((surface_x(tree, y, top - .020) * 0.55, y, top + .006)))
-            for k in range(1, 6):
-                u = k / 5.0
-                z = top - .030 - length * u
-                wave = .010 * math.sin(phase + u * 4.2 + ribbon)
-                lift = .010 * u * u + .005 * u * (1 + math.sin(phase * 3))
-                pts.append(Vector((surface_x(tree, y, z) + .005 + lift, y + .022 * u * u + wave, z)))
-            strands['mane'].append(strand('mane', pts, .0075, .0010, sides=4, flat=4.6))
-    # Forelock: a short tuft falling down the face between the ears.
-    for i in range(7):
-        w = rng.uniform(-.014, .030)
+            length = rng.uniform(.17, .27) * (0.80 + 0.30 * math.sin(math.pi * min(1.0, t * 1.1)))
+            length *= (1.0, .92, .80)[layer]
+            # Behind the poll the mane is short (the bridle path), else it hangs over the jowl.
+            length *= .45 + .55 * min(1.0, max(0.0, (1.0 - f) / .10))
+            phase = rng.uniform(0, math.tau)
+            arch = top + rng.uniform(-.002, .008) + .003 * layer
+            pts = [Vector((-.012, y, top - .010)), Vector((surface_x(tree, y, top - .015) * .45, y, arch))]
+            for k in range(1, 7):
+                u = k / 6.0
+                z = top - .012 - length * u
+                sway = .010 * math.sin(phase + u * 3.6)
+                lift = stand + .012 * u * u
+                pts.append(Vector((surface_x(tree, y, z) + lift, y + .028 * u * u + sway, z)))
+            mane.add(pts, side_out, rng.uniform(.010, .016), rng.uniform(.040, .056), rng.randrange(ATLAS_COLUMNS))
+
+    forelock = Cards('forelock')
+    # Forelock: overlapping cards from the poll falling down the forehead.
+    face_out = (hp(0.1, 1.0) - hp(0.1, 0.0)).normalized()
+    for i in range(14):
+        w = rng.uniform(-.026, .026)
         pts = []
-        for k in range(5):
-            u = k / 4.0
-            pts.append(hp(.040 + .125 * u, .074 + .006 * u + rng.uniform(-.002, .002), w * (1 + u * 1.5)))
-        strands['forelock'].append(strand('forelock', pts, .0085, .0015, sides=5, flat=0.5))
-    # Tail: dock hair falling in a thick, slightly wavy plume close behind the
-    # buttocks, ragged at the end.
-    for i in range(96):
-        spread = rng.uniform(-.055, .055)
-        base = fz(-0.835 - rng.uniform(0, .035), 1.395 - rng.uniform(0, .05), spread * .45)
-        length = rng.uniform(.60, 0.98)
+        for k in range(6):
+            u = k / 5.0
+            pts.append(hp(-.012 + .230 * u, .050 + .014 * math.sin(math.pi * u) + .004, w * (1 + u * .8) + .006 * math.sin(i + u * 3)))
+        forelock.add(pts, lambda p: face_out, rng.uniform(.010, .016), rng.uniform(.020, .030), rng.randrange(ATLAS_COLUMNS))
+
+    tail = Cards('tail')
+    # Tail: hair grows from the whole dock, so cards root along it on a ring and
+    # fall as a plume that widens slightly and ends ragged.
+    dock_root = fz(-0.835, 1.405)
+    dock_tip = fz(-0.905, 1.15)
+    for i in range(130):
+        a = rng.uniform(0, math.tau)
+        s = rng.uniform(0.0, 1.0)
+        root = dock_root.lerp(dock_tip, s)
+        ring = Vector((math.cos(a) * .040, -abs(math.sin(a)) * .030 - .010, 0.0))
+        base = root + ring
+        length = rng.uniform(.72, 1.05) - .20 * s
         phase = rng.uniform(0, math.tau)
+        flare = Vector((math.cos(a) * .075, -.040 * abs(math.sin(a)) + .03, 0.0))
         pts = []
-        for k in range(7):
-            u = k / 6.0
-            pts.append(base + Vector((spread * (u * 1.1) + .012 * math.sin(phase + u * 5.0) * u,
-                                      .075 * math.sin(u * 1.2) + .03 * u + rng.uniform(-.03, .03) * u,
-                                      -length * u)))
-        strands['tail'].append(strand('tail', pts, .017, .0035, sides=5, flat=1.6))
-    return strands
+        for k in range(8):
+            u = k / 7.0
+            # Arch back off the dock, then hang; a slow wave breaks the plume.
+            back = Vector((0.0, .085 * math.sin(min(1.0, u * 2.2) * math.pi / 2) + .02 * u, 0.0))
+            pts.append(base + back + flare * u + Vector((.012 * math.sin(phase + u * 5.0) * u, 0.0, -length * u)))
+        centre = dock_root + Vector((0.0, .06, 0.0))
+        tail.add(pts, lambda p, c=centre: Vector((p.x - c.x, p.y - c.y, 0.0)).normalized() if (p.x - c.x) ** 2 + (p.y - c.y) ** 2 > 1e-8 else Vector((0, 1, 0)),
+                 rng.uniform(.050, .070), rng.uniform(.055, .080), rng.randrange(ATLAS_COLUMNS))
+    return {'mane': mane.commit(), 'forelock': forelock.commit(), 'tail': tail.commit()}
 
 
 def ears():
@@ -382,11 +492,82 @@ def ears():
     return out
 
 
-def eyes():
-    out = []
+EYE_RADIUS = .027  # a horse eye is about 5 cm across, among the largest of land mammals
+
+
+def eyes(tree):
+    """Eyeball set into the orbit plus an almond lid ring of dark bare skin.
+    The ball is placed from the welded head surface so it neither floats nor
+    disappears under the skin; about a third of it shows through the lids."""
+    balls, lids = [], []
+    axis = (hp(1.0) - hp(0.0)).normalized()  # poll to muzzle
     for sign in (1.0, -1.0):
-        out.append(blob('eye', hp(0.125, -0.032, .090 * sign), (.0119, .0227, .0173), rotate_x=HEAD_TILT))
-    return out
+        anchor = hp(0.128, -0.030, 0.0)
+        hit = tree.ray_cast(anchor + Vector((.5 * sign, 0, 0)), Vector((-sign, 0, 0)))
+        surface = hit[0] if hit[0] is not None else hp(0.128, -0.030, .09 * sign)
+        # Eyes face sideways and a little forward.
+        out = (Vector((sign, 0, 0)) + axis * .30).normalized()
+        centre = surface - out * EYE_RADIUS * .40
+        bm = bmesh.new()
+        bmesh.ops.create_uvsphere(bm, u_segments=48, v_segments=32, radius=EYE_RADIUS)
+        rot = out.to_track_quat('Z', 'Y').to_matrix()
+        for v in bm.verts:
+            v.co = centre + rot @ Vector((v.co.x * 1.15, v.co.y * .90, v.co.z))
+        balls.append(_commit('eye', bm))
+        # Lid ring: an elliptical torus around the visible part of the ball, its
+        # long axis along the head, upper lid heavier than the lower.
+        bm = bmesh.new()
+        ring_n, tube_n = 32, 8
+        long_axis = (axis - out * axis.dot(out)).normalized()
+        up = out.cross(long_axis).normalized()
+        if up.z < 0:
+            up = -up
+        # Ring sits where the ball surface meets the opening, half sunk in skin.
+        lid_c = centre + out * EYE_RADIUS * .34
+        grid = []
+        for i in range(ring_n):
+            a = math.tau * i / ring_n
+            upper = math.sin(a) > 0
+            ax, ay = EYE_RADIUS * 1.02, EYE_RADIUS * (.74 if upper else .62)
+            # Almond: the opening narrows toward the corners.
+            p = lid_c + long_axis * (math.cos(a) * ax) + up * (math.sin(a) * ay * (1 - .25 * abs(math.cos(a)) ** 3))
+            radial = (long_axis * math.cos(a) + up * math.sin(a)).normalized()
+            r = (.0070 if upper else .0050) * (1 - .25 * abs(math.cos(a)) ** 4)
+            row = []
+            for j in range(tube_n):
+                b = math.tau * j / tube_n
+                row.append(bm.verts.new(p + (radial * math.cos(b) + out * math.sin(b)) * r - out * r * .2))
+            grid.append(row)
+        for i in range(ring_n):
+            for j in range(tube_n):
+                bm.faces.new((grid[i][j], grid[(i + 1) % ring_n][j], grid[(i + 1) % ring_n][(j + 1) % tube_n], grid[i][(j + 1) % tube_n]))
+        bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+        lids.append(_commit('eyelid', bm))
+    return balls, lids, axis
+
+
+def paint_eye(eye, axis):
+    """Dark brown iris band with a horizontal black pupil and a thin dark rim;
+    the glossy material supplies the catch-light."""
+    mesh = eye.data
+    layer = mesh.color_attributes.new('Col', 'BYTE_COLOR', 'POINT')
+    centre = sum((v.co for v in mesh.vertices), Vector()) / len(mesh.vertices)
+    for i, v in enumerate(mesh.vertices):
+        d = v.co - centre
+        sign = 1.0 if centre.x > 0 else -1.0
+        out = (Vector((sign, 0, 0)) + axis * .30).normalized()
+        along = d.dot(out) / EYE_RADIUS  # 1 at the cornea pole
+        long_axis = (axis - out * axis.dot(out)).normalized()
+        lx = d.dot(long_axis) / EYE_RADIUS
+        ly = d.dot(out.cross(long_axis)) / EYE_RADIUS
+        c = (0.030, 0.016, 0.009)  # iris
+        if along < .55:
+            c = (0.020, 0.012, 0.008)  # dark sclera hidden by the lids
+        elif (lx / .55) ** 2 + (ly / .26) ** 2 < 1.0:
+            c = (0.004, 0.003, 0.003)  # horizontal pupil
+        elif (lx / .78) ** 2 + (ly / .62) ** 2 < 1.0:
+            c = (0.060, 0.030, 0.013)  # warm inner iris
+        layer.data[i].color = (*c, 1.0)
 
 
 # ---------------------------------------------------------------- colour
@@ -459,8 +640,8 @@ def paint_body(body, crest=None):
             if .43 < hu < .60 and abs(hv + .045) < .006 and abs(x) > .01:
                 c = _lerp(c, (0.03, 0.02, 0.018), .85)
             eye_d = math.hypot(hu - .125, (hv + .032)) 
-            if abs(x) > .06 and eye_d < .040:
-                c = _lerp(c, (0.05, 0.022, 0.012), (0.040 - eye_d) / .02)
+            if abs(x) > .06 and eye_d < .052:
+                c = _lerp(c, (0.04, 0.020, 0.012), (0.052 - eye_d) / .022)
         if x > 0 and f < -.55 and z < .27:
             c = _lerp(c, white, ((.27 - z) / .05))
         # Hooves: dark horn, lighter where the sock is.
@@ -504,6 +685,26 @@ def make_material(name: str, roughness: float):
     return mat
 
 
+def make_hair_material(atlas):
+    """Strand atlas as base colour and clipped alpha. The ROUND node is how the
+    glTF exporter recognises alpha clipping (alphaMode MASK, cutoff 0.5)."""
+    mat = bpy.data.materials.new('horse_hair')
+    mat.use_nodes = True
+    mat.use_backface_culling = False  # cards are seen from both sides
+    tree = mat.node_tree
+    bsdf = tree.nodes['Principled BSDF']
+    tex = tree.nodes.new('ShaderNodeTexImage')
+    tex.image = atlas
+    clip = tree.nodes.new('ShaderNodeMath')
+    clip.operation = 'ROUND'
+    tree.links.new(tex.outputs['Color'], bsdf.inputs['Base Color'])
+    tree.links.new(tex.outputs['Alpha'], clip.inputs[0])
+    tree.links.new(clip.outputs['Value'], bsdf.inputs['Alpha'])
+    bsdf.inputs['Roughness'].default_value = 0.75
+    bsdf.inputs['Metallic'].default_value = 0.0
+    return mat
+
+
 # ---------------------------------------------------------------- main
 
 def preview(path: Path, objs):
@@ -530,6 +731,8 @@ def preview(path: Path, objs):
         'head': (Vector((2.6, -1.2, 1.65)), Vector((0, -1.15, 1.58))),
         'head34': (Vector((1.8, -3.0, 1.9)), Vector((0, -1.1, 1.6))),
         'ref34': (Vector((5.2, -4.4, 1.9)), Vector((0, -0.2, 1.0))),
+        'eye': (Vector((0.75, -1.35, 1.80)), Vector((0.09, -1.05, 1.70))),
+        'tail': (Vector((3.2, 3.6, 1.6)), Vector((0, 0.75, 1.0))),
     }
     for name, (loc, look) in views.items():
         cam.location = loc
@@ -558,39 +761,36 @@ def main():
     for poly in body.data.polygons:
         poly.use_smooth = True
 
-    hair_mat = make_material('horse_hair', 0.9)
+    hair_mat = make_hair_material(hair_atlas(rng))
+    crest, tree = crest_height_fn(body)
     shells = []
-    for group, strands in hair(rng, *crest_height_fn(body)).items():
-        if not strands:
-            continue
-        for s in strands:
-            bpy.context.view_layer.objects.active = s
-        for obj in bpy.data.objects:
-            obj.select_set(False)
-        for s in strands:
-            s.select_set(True)
-        bpy.context.view_layer.objects.active = strands[0]
-        bpy.ops.object.join()
-        merged = bpy.context.object
-        merged.name = f'horse_{group}'
-        for poly in merged.data.polygons:
+    for group, cards in hair(rng, crest, tree).items():
+        cards.name = f'horse_{group}'
+        for poly in cards.data.polygons:
             poly.use_smooth = True
-        black = (0.016, 0.012, 0.011) if group != 'feather' else (0.035, 0.026, 0.02)
-        paint_flat(merged, black, 0.25, rng)
-        merged.data.materials.append(hair_mat)
-        shells.append(merged)
+        cards.data.materials.append(hair_mat)
+        shells.append(cards)
     for ear in ears():
         for poly in ear.data.polygons:
             poly.use_smooth = True
         paint_flat(ear, (0.15, 0.06, 0.028))
         ear.data.materials.append(make_material('horse_ear', 0.85))
         shells.append(ear)
-    for eye in eyes():
+    balls, lids, axis = eyes(tree)
+    eye_mat = make_material('horse_eye', 0.04)
+    for eye in balls:
         for poly in eye.data.polygons:
             poly.use_smooth = True
-        paint_flat(eye, (0.030, 0.014, 0.008))
-        eye.data.materials.append(make_material('horse_eye', 0.12))
+        paint_eye(eye, axis)
+        eye.data.materials.append(eye_mat)
         shells.append(eye)
+    lid_mat = make_material('horse_eyelid', 0.55)
+    for lid in lids:
+        for poly in lid.data.polygons:
+            poly.use_smooth = True
+        paint_flat(lid, (0.022, 0.014, 0.011))
+        lid.data.materials.append(lid_mat)
+        shells.append(lid)
 
     everything = [body] + shells
     if preview_dir:

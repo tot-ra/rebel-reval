@@ -140,7 +140,9 @@ def load_surface(species):
   bs.inputs['Emission Color'].default_value=(0,0,0,1)
   for port in ('Emission Color','Roughness'):
    for link in list(bs.inputs[port].links):m.node_tree.links.remove(link)
-  bs.inputs['Roughness'].default_value=.86
+  # The authored horse eye and hair cards carry their own response: a matte
+  # eye reads as a dead bead, so keep their authored roughness.
+  if m.name not in ('horse_eye','horse_hair'):bs.inputs['Roughness'].default_value=.86
   for node in m.node_tree.nodes:
    if node.type=='NORMAL_MAP':node.inputs['Strength'].default_value=.4
   # Source models occasionally pack constant metallic into a color-map channel.
