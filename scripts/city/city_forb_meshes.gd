@@ -27,6 +27,12 @@ const KIND_WHITE_CLOVER := &"white_clover"
 const KIND_RED_CLOVER := &"red_clover"
 const KIND_BURDOCK := &"burdock"
 const KIND_BURDOCK_FLOWERING := &"burdock_flowering"
+## Seasonal variants (R-1557): the same plants out of flower, and second-year
+## burdock in autumn with its burrs and leaves dried brown.
+const KIND_PLANTAIN_LEAVES := &"plantain_leaves"
+const KIND_WHITE_CLOVER_LEAVES := &"white_clover_leaves"
+const KIND_RED_CLOVER_LEAVES := &"red_clover_leaves"
+const KIND_BURDOCK_DRY := &"burdock_dry"
 
 const ALL_KINDS: Array[StringName] = [
 	KIND_DANDELION_FLOWER,
@@ -37,6 +43,10 @@ const ALL_KINDS: Array[StringName] = [
 	KIND_RED_CLOVER,
 	KIND_BURDOCK,
 	KIND_BURDOCK_FLOWERING,
+	KIND_PLANTAIN_LEAVES,
+	KIND_WHITE_CLOVER_LEAVES,
+	KIND_RED_CLOVER_LEAVES,
+	KIND_BURDOCK_DRY,
 ]
 
 # Colours are sRGB, picked from field photographs of each species.
@@ -62,6 +72,11 @@ const BURDOCK_PETIOLE := Color(0.50, 0.30, 0.26)
 const BURDOCK_STEM := Color(0.42, 0.34, 0.24)
 const BURR_GREEN := Color(0.50, 0.56, 0.30)
 const BURR_PURPLE := Color(0.62, 0.20, 0.50)
+# Dead second-year burdock in September-October: straw-brown leaves and stems,
+# hard brown burrs under greyed florets.
+const DRY_BROWN := Color(0.42, 0.32, 0.19)
+const BURR_DRY := Color(0.38, 0.27, 0.16)
+const BURR_DRY_TUFT := Color(0.55, 0.47, 0.40)
 
 ## Leaf-detail atlas tiles (tools/assets/generate_forb_leaf_atlas.py, 4 x 2).
 ## Strip tiles: u across the blade, v base to tip. Burdock: polar, petiole at
@@ -78,6 +93,9 @@ const TILE_INSET := 0.03
 static var _cache: Dictionary = {}
 ## Set only while a far variant is being built; the geometry helpers read it.
 static var _far := false
+## Set while a seasonal variant is built: no flower heads or spikes / dry burdock.
+static var _no_heads := false
+static var _dry := false
 
 
 static func mesh_for(kind: StringName, far: bool = false) -> ArrayMesh:
@@ -105,9 +123,29 @@ static func mesh_for(kind: StringName, far: bool = false) -> ArrayMesh:
 			_burdock(b, rng, false)
 		KIND_BURDOCK_FLOWERING:
 			_burdock(b, rng, true)
+		# Leaf-only and dry variants reuse their flowering kind's seed, so they are
+		# the same plant in another season.
+		KIND_PLANTAIN_LEAVES:
+			rng.seed = 1343 + hash(String(KIND_PLANTAIN))
+			_no_heads = true
+			_plantain(b, rng)
+		KIND_WHITE_CLOVER_LEAVES:
+			rng.seed = 1343 + hash(String(KIND_WHITE_CLOVER))
+			_no_heads = true
+			_white_clover(b, rng)
+		KIND_RED_CLOVER_LEAVES:
+			rng.seed = 1343 + hash(String(KIND_RED_CLOVER))
+			_no_heads = true
+			_red_clover(b, rng)
+		KIND_BURDOCK_DRY:
+			rng.seed = 1343 + hash(String(KIND_BURDOCK_FLOWERING))
+			_dry = true
+			_burdock(b, rng, true)
 		_:
 			push_error("CityForbMeshes: unknown kind %s" % kind)
 	_far = false
+	_no_heads = false
+	_dry = false
 	var mesh := b.commit()
 	_cache[key] = mesh
 	return mesh
@@ -395,6 +433,8 @@ static func _plantain(b: Builder, rng: RandomNumberGenerator) -> void:
 	# Leafless scapes ending in a long, dense, pencil-thick spike: ripe brown
 	# capsules below, a band of flowering with pale filaments and lilac anthers,
 	# green buds at the blunt top.
+	if _no_heads:
+		return
 	var spikes := rng.randi_range(3, 5)
 	for i in spikes:
 		var yaw := rng.randf() * TAU
@@ -476,6 +516,8 @@ static func _white_clover(b: Builder, rng: RandomNumberGenerator) -> void:
 			PackedFloat32Array([0.0012, 0.0011, 0.0010]), 3,
 			func(_t: float) -> Color: return Color(0.42, 0.52, 0.28), 0.0, 0.7, 0.2)
 		_trifoliate(b, leaf_rng, tip, size, 0.66, CLOVER_LEAF * tone, 0.8, TILE_WHITE_CLOVER)
+	if _no_heads:
+		return
 	for i in 5:
 		var yaw := rng.randf() * TAU
 		var root := Vector3(cos(yaw), 0.0, sin(yaw)) * rng.randf_range(0.03, 0.2)
@@ -528,7 +570,12 @@ static func _red_clover(b: Builder, rng: RandomNumberGenerator) -> void:
 				TILE_RED_CLOVER)
 		if rng.randf() < 0.25:
 			continue
-		_floret_head(b, _child_rng(rng), top + Vector3.UP * 0.012, 0.0125, 48, 0.75,
+		# Draw the head's generator even when it is skipped, so the next stem's
+		# leaves land where they do on the flowering plant.
+		var head_rng := _child_rng(rng)
+		if _no_heads:
+			continue
+		_floret_head(b, head_rng, top + Vector3.UP * 0.012, 0.0125, 48, 0.75,
 			func(up: float, roll: float) -> Color:
 				var c := RED_CLOVER_HEAD.lerp(Color(0.92, 0.62, 0.78), 0.55 * roll)
 				return c.darkened(0.25 * smoothstep(0.0, -0.8, up)),
@@ -633,7 +680,7 @@ static func _burdock(b: Builder, rng: RandomNumberGenerator, flowering: bool) ->
 		stem.append(sway * t * t + Vector3.UP * height * t)
 		radii.append(lerpf(0.014, 0.004, t))
 	_tube(b, stem, radii, 6, func(t: float) -> Color:
-		return BURDOCK_STEM.lerp(Color(0.40, 0.46, 0.26), t), 0.0, 1.6, 0.1, 0.25)
+		return _wither(BURDOCK_STEM.lerp(Color(0.40, 0.46, 0.26), t)), 0.0, 1.6, 0.1, 0.25)
 	# Stem leaves: heart-shaped, alternate, shrinking quickly upward.
 	# The lower ones nearly as large as the basal leaves, so the plant reads as
 	# a leafy bush under its burrs.
@@ -656,7 +703,7 @@ static func _burdock(b: Builder, rng: RandomNumberGenerator, flowering: bool) ->
 		var mid := origin + out * length * 0.62 + Vector3.UP * length * rise * 0.38
 		var flex := lerpf(0.9, 1.6, up)
 		_tube(b, PackedVector3Array([origin, mid, tip]), PackedFloat32Array([0.0065, 0.0045, 0.0028]),
-			4, func(_t: float) -> Color: return Color(0.44, 0.38, 0.26), flex * 0.7, flex, 0.1)
+			4, func(_t: float) -> Color: return _wither(Color(0.44, 0.38, 0.26)), flex * 0.7, flex, 0.1)
 		if length > 0.2:
 			_burdock_leaf(b, rng, mid, yaw + 0.8, 0.03, 0.09, 0.5, 0.9, 0.2, 12)
 		_burr_cluster(b, _child_rng(rng), tip, flex, rng.randi_range(5, 8))
@@ -665,7 +712,7 @@ static func _burdock(b: Builder, rng: RandomNumberGenerator, flowering: bool) ->
 		var fork := mid.lerp(tip, 0.4)
 		var twig := fork + side * length * 0.25 + Vector3.UP * length * 0.3
 		_tube(b, PackedVector3Array([fork, twig]), PackedFloat32Array([0.0022, 0.0015]), 3,
-			func(_t: float) -> Color: return Color(0.44, 0.38, 0.26), flex * 0.85, flex, 0.1)
+			func(_t: float) -> Color: return _wither(Color(0.44, 0.38, 0.26)), flex * 0.85, flex, 0.1)
 		_burr_cluster(b, _child_rng(rng), twig, flex, rng.randi_range(3, 5))
 	_burr_cluster(b, _child_rng(rng), stem[8], 1.6, 5)
 
@@ -679,7 +726,7 @@ static func _burdock_leaf(
 	# Thick channelled petiole, red at the base and green where it meets the blade.
 	_tube(b, PackedVector3Array([at, at.lerp(blade_at, 0.5) + Vector3.UP * petiole * 0.08, blade_at]),
 		PackedFloat32Array([size * 0.05, size * 0.042, size * 0.03]), 5,
-		func(t: float) -> Color: return BURDOCK_PETIOLE.lerp(Color(0.46, 0.54, 0.30), t),
+		func(t: float) -> Color: return _wither(BURDOCK_PETIOLE.lerp(Color(0.46, 0.54, 0.30), t)),
 		flex * 0.3 if at.y > 0.0 else 0.0, flex * 0.6, 0.2)
 	var tone := rng.randf_range(0.88, 1.1)
 	var wave_phase := rng.randf() * TAU
@@ -702,7 +749,7 @@ static func _burdock_leaf(
 		# The vein net comes from the detail atlas; the vertex colour only
 		# darkens the blade toward its sunken centre.
 		"color": func(f: float, _th: float) -> Color:
-			return (BURDOCK_LEAF * tone).darkened(0.12 * (1.0 - f)),
+			return _wither(BURDOCK_LEAF * tone).darkened(0.12 * (1.0 - f)),
 		"tile": TILE_BURDOCK,
 		"flex": Vector2(flex * 0.6, flex),
 		"under": 0.85,
@@ -726,11 +773,20 @@ static func _burr_cluster(
 		var seed := rng.randi() % 997
 		_blob(b, c, Vector3.ONE * radius, 3, 6, func(d: Vector3) -> Color:
 			var spike := MeshMath.hash01(int(d.x * 30.0), int(d.z * 30.0), seed)
-			return BURR_GREEN.darkened(0.1 + spike * 0.3),
+			return (BURR_DRY if _dry else BURR_GREEN).darkened(0.1 + spike * 0.3),
 			0.6, flex, 0.15)
 		if not _far:
 			_blob(b, c + Vector3.UP * radius * 0.85, Vector3(radius * 0.55, radius * 0.35, radius * 0.55),
-				2, 4, func(_d: Vector3) -> Color: return BURR_PURPLE, 0.3, flex, 0.3)
+				2, 4, func(_d: Vector3) -> Color: return BURR_DRY_TUFT if _dry else BURR_PURPLE, 0.3, flex, 0.3)
+
+
+## Burdock colour, browned when the dry autumn variant is built (greener parts
+## stay a little lighter, so the dead plant keeps some tonal variety).
+static func _wither(c: Color) -> Color:
+	if not _dry:
+		return c
+	var k := 0.85 + 0.3 * c.g
+	return c.lerp(Color(DRY_BROWN.r * k, DRY_BROWN.g * k, DRY_BROWN.b * k, c.a), 0.8)
 
 
 # --- Geometry helpers -------------------------------------------------------

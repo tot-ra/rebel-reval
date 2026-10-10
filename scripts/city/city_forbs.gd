@@ -14,6 +14,13 @@ extends Node3D
 ## Patches come from fixed-seed noise, so the same ground always grows the same
 ## plants (deterministic per chunk, nothing saved).
 ##
+## Seasons (R-1557): the model mix follows the campaign date through
+## VegetationPhenology.forb_phase - dandelion flowers in May-June and seeds in
+## June, clover and plantain flower in summer, burdock carries green then dry
+## burrs, and nothing stands above ground in winter. The season only changes
+## which model a candidate becomes (or drops it), never the random draws, so a
+## spot keeps its plant from spring to autumn.
+##
 ## Drawing: one MultiMesh per model and detail level for the whole streamed
 ## area (two per model: near detail round the player, the far variant beyond),
 ## refilled by concatenating per-chunk instance buffers whenever the player
@@ -39,7 +46,9 @@ const NEAR_RANGE := 13.0
 const CHUNK_MARGIN := 5.7
 ## Floats per instance in a MultiMesh buffer (3x4 transform + colour).
 const STRIDE := 16
-const LARGE_KINDS: Array[StringName] = [Meshes.KIND_BURDOCK, Meshes.KIND_BURDOCK_FLOWERING]
+const LARGE_KINDS: Array[StringName] = [
+	Meshes.KIND_BURDOCK, Meshes.KIND_BURDOCK_FLOWERING, Meshes.KIND_BURDOCK_DRY
+]
 
 ## Candidates per square metre at full suitability.
 const MAX_DENSITY := {
@@ -68,6 +77,10 @@ static var _noise: Dictionary = {}
 static var _materials: Dictionary = {}
 
 var grass: CityGrass
+## Campaign day of the year the plants are grown for (set_calendar_date).
+var day_of_year := GameCalendar.day_of_year(GameCalendar.DEFAULT_DATE)
+## season_key(day_of_year) the cached chunks were built for.
+var _season := ""
 var _chunks: Dictionary = {}  # Vector2i -> {kind: PackedFloat32Array}
 var _near: Dictionary = {}  # kind -> MultiMeshInstance3D
 var _far: Dictionary = {}
@@ -153,10 +166,33 @@ func _layer(kind: StringName, far: bool) -> MultiMeshInstance3D:
 	return inst
 
 
+## Grows the plants for `date`. Cached chunks are dropped only when the mix
+## changes (season_key), not on every new day; the stream rebuilds them.
+func set_calendar_date(date: Dictionary) -> void:
+	day_of_year = GameCalendar.day_of_year(date)
+	var key := season_key(day_of_year)
+	if key == _season:
+		return
+	_season = key
+	_chunks.clear()
+	_dirty = true
+
+
+## The phase of every species on `day`: chunks built on two days with the same
+## key hold the same plants.
+static func season_key(day: int) -> String:
+	var phases := PackedStringArray()
+	for species: StringName in MAX_DENSITY:
+		phases.append(String(VegetationPhenology.forb_phase(species, day)))
+	return ",".join(phases)
+
+
 ## Streams forb chunks round `world_xz` until `deadline_us` (at least one chunk
 ## unless `built_any`), then refills the layers if the chunk set or the
 ## player's chunk changed. Returns true while chunks are still missing.
 func update_for(world_xz: Vector2, deadline_us: int, built_any: bool) -> bool:
+	if _season.is_empty():
+		_season = season_key(day_of_year)
 	var centre := Vector2i(floori(world_xz.x / CHUNK), floori(world_xz.y / CHUNK))
 	if centre != _centre:
 		_centre = centre
@@ -177,7 +213,7 @@ func update_for(world_xz: Vector2, deadline_us: int, built_any: bool) -> bool:
 		if built_any and Time.get_ticks_usec() >= deadline_us:
 			pending = true
 			break
-		_chunks[key] = chunk_buffers(grass, key)
+		_chunks[key] = chunk_buffers(grass, key, day_of_year)
 		built_any = true
 		_dirty = true
 	if _dirty:
@@ -227,12 +263,16 @@ func instance_count(kind: StringName, far: bool) -> int:
 	return ((_far if far else _near)[kind] as MultiMeshInstance3D).multimesh.instance_count
 
 
-## Instance buffers of the forb chunk at `key`, by model: deterministic, pure
-## data (MultiMesh buffer layout: 3x4 transform rows, then colour).
-static func chunk_buffers(grass: CityGrass, key: Vector2i) -> Dictionary:
+## Instance buffers of the forb chunk at `key` on day `day` of the year, by
+## model: deterministic, pure data (MultiMesh buffer layout: 3x4 transform rows,
+## then colour).
+static func chunk_buffers(grass: CityGrass, key: Vector2i, day: int) -> Dictionary:
 	var origin := Vector2(key) * CHUNK
 	var out: Dictionary = {}
 	for species: StringName in MAX_DENSITY:
+		var phase := VegetationPhenology.forb_phase(species, day)
+		if phase == VegetationPhenology.FORB_NONE:
+			continue
 		var rng := RandomNumberGenerator.new()
 		rng.seed = hash(key) + hash(String(species)) * 31
 		var count := int(CHUNK * CHUNK * float(MAX_DENSITY[species]))
@@ -261,7 +301,7 @@ static func chunk_buffers(grass: CityGrass, key: Vector2i) -> Dictionary:
 			if is_nan(h):
 				continue
 			var wild := grass.wildness_at(p)
-			var kind := _kind_for(species, pick, wild)
+			var kind := _kind_for(species, pick, wild, phase)
 			var flat := 1.0
 			if species == Meshes.KIND_PLANTAIN:
 				# Trodden plantain hugs the ground.
@@ -290,15 +330,37 @@ static func _pack(t: Transform3D, c: Color) -> PackedFloat32Array:
 	])
 
 
-## Which model of a species grows here. Dandelions: mostly in flower, some gone
-## to seed, the rest leaf rosettes (mown before they flowered). Burdock flowers
-## in its second year, and only where nobody cuts it.
-static func _kind_for(species: StringName, pick: float, wild: float) -> StringName:
+## Which model of a species grows here in `phase` (VegetationPhenology.forb_phase,
+## never FORB_NONE). Dandelions in May: over half in flower, the rest leaf
+## rosettes (mown before they flowered); in June some have gone to seed.
+## Plantain: most rosettes send up spikes in season. Burdock flowers in its
+## second year, and only where nobody cuts it; out of season every burdock is a
+## rosette.
+static func _kind_for(
+	species: StringName, pick: float, wild: float, phase: StringName
+) -> StringName:
+	var leaves_only := phase == VegetationPhenology.FORB_LEAVES
 	match species:
 		&"dandelion":
-			if pick < 0.5:
+			if leaves_only:
+				return Meshes.KIND_DANDELION_LEAVES
+			if phase == VegetationPhenology.FORB_FLOWER:
+				return Meshes.KIND_DANDELION_FLOWER if pick < 0.6 else Meshes.KIND_DANDELION_LEAVES
+			if pick < 0.35:
 				return Meshes.KIND_DANDELION_FLOWER
-			return Meshes.KIND_DANDELION_CLOCK if pick < 0.72 else Meshes.KIND_DANDELION_LEAVES
+			return Meshes.KIND_DANDELION_CLOCK if pick < 0.7 else Meshes.KIND_DANDELION_LEAVES
+		Meshes.KIND_PLANTAIN:
+			if leaves_only or pick >= 0.8:
+				return Meshes.KIND_PLANTAIN_LEAVES
+			return Meshes.KIND_PLANTAIN
+		Meshes.KIND_WHITE_CLOVER:
+			return Meshes.KIND_WHITE_CLOVER_LEAVES if leaves_only else Meshes.KIND_WHITE_CLOVER
+		Meshes.KIND_RED_CLOVER:
+			return Meshes.KIND_RED_CLOVER_LEAVES if leaves_only else Meshes.KIND_RED_CLOVER
 		&"burdock":
-			return Meshes.KIND_BURDOCK_FLOWERING if pick < 0.2 + 0.4 * wild else Meshes.KIND_BURDOCK
+			if leaves_only or pick >= 0.2 + 0.4 * wild:
+				return Meshes.KIND_BURDOCK
+			if phase == VegetationPhenology.FORB_DRY_BURRS:
+				return Meshes.KIND_BURDOCK_DRY
+			return Meshes.KIND_BURDOCK_FLOWERING
 	return species

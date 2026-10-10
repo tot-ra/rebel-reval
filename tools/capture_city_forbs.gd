@@ -3,16 +3,28 @@ extends SceneTree
 ## Review plates for the wild plants of the seamless city (R-1519,
 ## docs/SYSTEMS/VEGETATION_REALISM.md): a studio lineup and close-ups of every
 ## CityForbMeshes model, then in-world shots where each habitat is strongest
-## (worn verge, wall foot, open meadow). Needs a renderer:
-##   tools/godot_render.sh --script tools/capture_city_forbs.gd [-- --tag=now] [-- --studio-only]
-## Output: build/forbs/<shot>_<tag>.png
+## (worn verge, wall foot, open meadow). The in-world shots grow the plants
+## for a campaign date (R-1557): --season=spring|early_summer|summer|autumn|winter
+## or --date=YYYY-MM-DD (default: summer). Needs a renderer:
+##   tools/godot_render.sh --script tools/capture_city_forbs.gd \
+##     [-- --season=autumn] [--tag=now] [--studio-only]
+## Output: build/forbs/<shot>_<tag>.png (tag defaults to the season name).
 
 const Meshes := preload("res://scripts/city/city_forb_meshes.gd")
 const OUTPUT_DIR := "res://build/forbs"
 const VIEWPORT_SIZE := Vector2i(1600, 900)
+## Representative dates for the forb phases (VegetationPhenology.forb_phase).
+const SEASONS := {
+	"spring": {"day": 20, "month": 5, "year": 1343},
+	"early_summer": {"day": 15, "month": 6, "year": 1343},
+	"summer": {"day": 20, "month": 7, "year": 1343},
+	"autumn": {"day": 1, "month": 10, "year": 1343},
+	"winter": {"day": 15, "month": 1, "year": 1343},
+}
 
-var _tag := "now"
+var _tag := ""
 var _studio_only := false
+var _date: Dictionary = SEASONS["summer"]
 
 
 func _initialize() -> void:
@@ -21,6 +33,24 @@ func _initialize() -> void:
 			_tag = arg.substr(6)
 		elif arg == "--studio-only":
 			_studio_only = true
+		elif arg.begins_with("--season="):
+			var season := arg.substr(9)
+			if not SEASONS.has(season):
+				push_error("unknown season %s (%s)" % [season, ", ".join(SEASONS.keys())])
+				quit(1)
+				return
+			_date = SEASONS[season]
+			if _tag.is_empty():
+				_tag = season
+		elif arg.begins_with("--date="):
+			var parts := arg.substr(7).split("-")
+			_date = {"year": int(parts[0]), "month": int(parts[1]), "day": int(parts[2])}
+			if _tag.is_empty():
+				_tag = arg.substr(7)
+	if _tag.is_empty():
+		_tag = "summer"
+	print("forbs for %s: %s" % [GameCalendar.format_date(_date), CityForbs.season_key(
+		GameCalendar.day_of_year(_date))])
 	call_deferred("_run")
 
 
@@ -85,11 +115,16 @@ func _studio() -> void:
 		Meshes.KIND_RED_CLOVER: Vector3(1.2, 0.0, 0.25),
 		Meshes.KIND_BURDOCK: Vector3(-0.4, 0.0, -1.4),
 		Meshes.KIND_BURDOCK_FLOWERING: Vector3(0.9, 0.0, -1.5),
+		# Seasonal variants in a second row 4 m to the right (shot "seasonal").
+		Meshes.KIND_PLANTAIN_LEAVES: Vector3(3.55, 0.0, 0.25),
+		Meshes.KIND_WHITE_CLOVER_LEAVES: Vector3(4.05, 0.0, -0.05),
+		Meshes.KIND_RED_CLOVER_LEAVES: Vector3(4.55, 0.0, 0.25),
+		Meshes.KIND_BURDOCK_DRY: Vector3(4.1, 0.0, -1.5),
 	}
 	for kind: StringName in spots:
 		var plant := MeshInstance3D.new()
 		plant.mesh = Meshes.mesh_for(kind)
-		var large := kind in [Meshes.KIND_BURDOCK, Meshes.KIND_BURDOCK_FLOWERING]
+		var large := kind in CityForbs.LARGE_KINDS
 		plant.material_override = CityForbs.material(large)
 		plant.position = spots[kind]
 		viewport.add_child(plant)
@@ -105,6 +140,8 @@ func _studio() -> void:
 		["plantain", Vector3(0.3, 0.42, 0.68), Vector3(0.3, 0.06, 0.25), 45.0],
 		["clover", Vector3(0.85, 0.42, 0.42), Vector3(0.9, 0.06, 0.05), 45.0],
 		["burdock", Vector3(0.3, 1.1, 0.6), Vector3(0.25, 0.45, -1.45), 50.0],
+		["seasonal", Vector3(4.1, 1.05, 2.3), Vector3(4.1, 0.25, -0.4), 50.0],
+		["burdock_dry", Vector3(4.15, 1.1, 0.6), Vector3(4.1, 0.45, -1.45), 50.0],
 	]
 	for shot: Array in shots:
 		camera.fov = shot[3]
@@ -127,6 +164,10 @@ func _in_world() -> void:
 	camera.current = true
 	world.setup_lighting(camera)
 	var grass: CityGrass = world.grass
+	# Trees, crops and wild plants all follow the capture date.
+	MapViewMaterials.apply_vegetation_season(_date)
+	world.farmland.set_calendar_date(_date)
+	grass.forbs.set_calendar_date(_date)
 	var spots := _habitat_spots(plan, grass)
 	for name: String in spots:
 		var spot: Vector2 = spots[name]["at"]

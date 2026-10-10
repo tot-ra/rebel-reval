@@ -151,6 +151,9 @@ func set_calendar_date(date: Dictionary) -> void:
 		_sky_weather.set_calendar_date(date)
 	if world != null and world.farmland != null:
 		world.farmland.set_calendar_date(date)
+	# Wild plants flower, seed and die back with the same date (R-1557).
+	if world != null and world.grass != null:
+		world.grass.forbs.set_calendar_date(date)
 
 
 func sync_actor(actor: Node3D, logic_position: Vector2) -> void:

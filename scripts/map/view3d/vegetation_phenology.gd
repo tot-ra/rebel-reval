@@ -62,6 +62,43 @@ const FRUIT_MONTHS := {
 }
 
 
+## Wild-plant (forb) phases for CityForbs (R-1557), by species. Tallinn-area
+## timings: rosettes show from mid April and die back under the November frost
+## and snow; dandelion flowers May-June and seeds in June; clover flowers June-
+## August; plantain spikes June-September; second-year burdock carries green
+## burrs July-August that dry brown in September-October.
+const FORB_NONE := &"none"
+const FORB_LEAVES := &"leaves"
+const FORB_FLOWER := &"flower"
+## Dandelion in June: flowers, seed clocks and rosettes together.
+const FORB_FLOWER_SEED := &"flower_seed"
+## Burdock: green burrs with purple tufts.
+const FORB_BURRS := &"burrs"
+const FORB_DRY_BURRS := &"dry_burrs"
+## Day-of-year span (non-leap numbering, inclusive) in which forbs are above ground.
+const FORB_GROWING := [105, 319]
+## Species -> [first day, last day, phase] windows inside the growing season;
+## days outside every window are FORB_LEAVES.
+const FORB_WINDOWS := {
+	&"dandelion": [[121, 151, FORB_FLOWER], [152, 181, FORB_FLOWER_SEED]],
+	&"plantain": [[152, 273, FORB_FLOWER]],
+	&"white_clover": [[152, 243, FORB_FLOWER]],
+	&"red_clover": [[152, 243, FORB_FLOWER]],
+	&"burdock": [[182, 243, FORB_BURRS], [244, 304, FORB_DRY_BURRS]],
+}
+
+
+## Phase of a forb species on a day of the year (GameCalendar.day_of_year).
+## Pure: the same day always gives the same phase.
+static func forb_phase(species: StringName, day: int) -> StringName:
+	if day < int(FORB_GROWING[0]) or day > int(FORB_GROWING[1]):
+		return FORB_NONE
+	for window: Array in FORB_WINDOWS.get(species, []):
+		if day >= int(window[0]) and day <= int(window[1]):
+			return window[2]
+	return FORB_LEAVES
+
+
 static func category_for(species: StringName) -> StringName:
 	if species in EVERGREEN_SPECIES:
 		return EVERGREEN

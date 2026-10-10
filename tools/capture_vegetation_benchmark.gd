@@ -221,6 +221,7 @@ func _build_city() -> void:
 	_world.sky_weather.time_scale = 0.0
 	MapViewMaterials.apply_vegetation_season(DATE)
 	_world.farmland.set_calendar_date(DATE)
+	_world.grass.forbs.set_calendar_date(DATE)
 	_world.apply_time(NOON)
 
 
