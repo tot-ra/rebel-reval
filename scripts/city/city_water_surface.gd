@@ -9,6 +9,8 @@ const CITY_TROUGH_CLEARANCE := 0.05
 ## Backwash rundown below the still-water line (SHORE_RUNDOWN, CITY_RUNDOWN_BED).
 const RUNDOWN := 0.3
 const RUNDOWN_BED := 0.3
+## Run-up film taper behind its front, field units (CITY_RUNUP_TAPER, R-1639).
+const RUNUP_TAPER := 0.4
 ## WR-4 bed-aware surf, mirrors the BED_* constants in shore_swash.gdshaderinc.
 const GAMMA := 0.78
 const BED_L0 := 9.81 * PERIOD * PERIOD / TAU
@@ -197,7 +199,7 @@ static func runup_profile(
 	var roller := exp(-pow((front_distance - 0.28) / 0.32, 2.0))
 	roller *= lerpf(1.0, 0.15, smoothstep(0.0, 0.25, backwash))
 	var thickness := (sheet * 3.0 + roller * lerpf(0.10, 0.42, sea))
-	thickness *= smoothstep(0.001, 0.04, front) * smoothstep(0.0, 0.12, front_distance)
+	thickness *= smoothstep(0.001, 0.04, front) * smoothstep(0.0, RUNUP_TAPER, front_distance)
 	var shore_blend := smoothstep(-0.45, 0.12, bed) * beach * valid
 	var bed_surface := bed + 0.018 + thickness
 	var merge := maxf(0.12 - absf(ocean_y - bed_surface), 0.0) / 0.12

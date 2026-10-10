@@ -326,6 +326,23 @@ const float CITY_SHORE_DEPTH = 2.5;
 // SCUM is the patchy residual coverage left over the surf zone between sets.
 const float CITY_SURF_FOAM_LIFE = 4.0;
 const float CITY_SURF_SCUM = 0.12;
+// Soft waterline (R-1639). The city sea is opaque-ish up to the bed contact, so the
+// waterline read as a pen line (and as a saw edge where 0.5 m triangles cut the sand).
+// A thin layer of real water is clear: the surface fades with its own thickness over
+// the bed, the depth-fade trick of most game water, computed here from the baked
+// bed height because the GL path has no reliable scene depth. FLOOR is the run-up
+// film's minimum lift above the bed (CityShoreField); the fade width wanders between
+// MIN and MAX metres along the shore so the edge is not one even gradient.
+const float CITY_EDGE_FADE_FLOOR = 0.018;
+const float CITY_EDGE_FADE_MIN = 0.15;
+const float CITY_EDGE_FADE_MAX = 0.45;
+// Shallow-water foam (Crest's "shoreline foam max depth"): bubbles stirred up by the
+// bore stay on the surface wherever the column is shallower than this (metres).
+const float CITY_SHALLOW_FOAM_DEPTH = 0.45;
+const float CITY_SHALLOW_FOAM = 0.5;
+// Field units behind the run-up front over which the film reaches full thickness
+// (CityWaterSurface.RUNUP_TAPER mirrors it).
+const float CITY_RUNUP_TAPER = 0.4;
 // Whitecaps: share of the baked foam mask that counts as breaking, its coverage
 // gain, and how much of the tile's streak channel survives as wind streaks.
 const float CITY_WHITECAP_THRESHOLD = 0.5;
@@ -999,7 +1016,10 @@ float _fresnel_dielectric(float cos_theta, float ior) {
 vec2 _city_runup_profile(ShoreState shore, float bed_y, float ocean_y) {
 	float front = shore.front_distance - shore.distance;
 	float active = smoothstep(0.001, 0.04, front);
-	float edge = smoothstep(0.0, 0.12, shore.front_distance);
+	// R-1639: the film tapers to nothing over CITY_RUNUP_TAPER field units behind its
+	// front (about 1.2 m in the city). At 0.12 it stood 10-20 cm thick right up to
+	// the tip and read as a crisp line on the sand.
+	float edge = smoothstep(0.0, CITY_RUNUP_TAPER, shore.front_distance);
 	float roller_coordinate = (shore.front_distance - 0.28) / 0.32;
 	// The raised roller belongs to the uprush bore. On the backwash the front is a
 	// feather-thin retreating film; keeping the roller there stood a glassy wall
@@ -1908,6 +1928,13 @@ void fragment() {
 			runup_drain = mix(1.0, drain.film_keep
 				* shore_pebble_cover(film_metres, porous), wet_sheet);
 			coverage = max(coverage, max(bead * 0.9, lace) * wet_sheet * energy * drain.foam_keep);
+			// Shallow-water foam follows the column, not the shore distance, so it
+			// hugs bars, the run-up and the backwash wherever water is thin. Fresh
+			// after a bore, a sparse lace between sets; _foam_dissolve below breaks
+			// it into cells the way cloud coverage erodes noise into tattered edges.
+			float shallow = 1.0 - smoothstep(0.03, CITY_SHALLOW_FOAM_DEPTH, basin_column);
+			coverage = max(coverage, shallow * CITY_SHALLOW_FOAM * mix(0.45, 1.0, trail)
+				* shore_now.beach * energy * drain.foam_keep);
 			swash_bore = _foam_dissolve(city_foam.x, coverage * shore_now.valid)
 				* mix(0.7, 1.0, roller);
 		}
@@ -2286,7 +2313,18 @@ void fragment() {
 	// Foam lace at the tip stays opaque where the thinning film has faded out, so
 	// the edge reads as a broken foam line rather than a clean cut.
 	float tip_foam = shore_live ? swash_bore * smoothstep(0.0, 0.04, shore_now.front_distance) : 0.0;
-	ALPHA *= max(city_coverage, tip_foam) * runup_drain;
+	// R-1639 soft waterline: thin water lets the wet bed through; foam stays opaque.
+	float edge_fade = 1.0;
+	if (sea_physical_depth && shore_live && !seen_from_below) {
+		float fade_width = mix(CITY_EDGE_FADE_MIN, CITY_EDGE_FADE_MAX,
+			_noise(water_world_position.xz * 0.35 + vec2(17.0, 3.0)));
+		edge_fade = smoothstep(CITY_EDGE_FADE_FLOOR, CITY_EDGE_FADE_FLOOR + fade_width, basin_column);
+		// Foam is opaque, but not up to the bed contact: there the triangles that
+		// meet the sand would draw it as a saw edge.
+		float foam_edge = smoothstep(0.0, CITY_EDGE_FADE_FLOOR, basin_column);
+		edge_fade = mix(edge_fade, foam_edge, clamp(swash_bore, 0.0, 1.0));
+	}
+	ALPHA *= max(city_coverage * edge_fade, tip_foam) * runup_drain;
 	if (debug_foam_mask > 0.5) {
 		// Unlit mask: lighting and the foam tile must not hide renderer coverage.
 		vec3 mask = vec3(fft_foam.x);

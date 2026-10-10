@@ -59,7 +59,7 @@ func test_water_drains_the_runup_film_over_shingle() -> void:
 	assert_true(water.contains("drain.foam_keep"), "foam bubbles drain into the gaps")
 	assert_true(water.contains("shore_pebble_cover(film_metres, porous)"), "pebble crowns")
 	assert_true(
-		water.contains("ALPHA *= max(city_coverage, tip_foam) * runup_drain;"),
+		water.contains("ALPHA *= max(city_coverage * edge_fade, tip_foam) * runup_drain;"),
 		"film thins over shingle"
 	)
 

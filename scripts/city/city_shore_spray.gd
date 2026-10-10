@@ -21,9 +21,11 @@ const SprayShader := preload("res://scripts/city/city_spray.gdshader")
 ## Contour is searched this far (world units) around the camera for slot spots.
 const NEAR_RANGE := 50.0
 const REPLACE_DISTANCE := 12.0
-## Wind (0..1) at which spray starts and where it is at full strength.
-const WIND_ON := 0.35
-const WIND_FULL := 0.9
+## Wind (0..1) at which spray starts and where it is at full strength. WHY 0.25: a
+## fresh breeze (0.55) already rolls white breakers in, and at 0.35..0.9 it threw
+## barely a quarter of the budget, so the surf looked dry (R-1639).
+const WIND_ON := 0.25
+const WIND_FULL := 0.8
 ## Sea level for the emitters, world units; crests ride above it in a gale.
 const WATERLINE_Y := 0.35
 ## Extra emitter height (m) at full wind. WHY: storm crests stand above sea level, so
