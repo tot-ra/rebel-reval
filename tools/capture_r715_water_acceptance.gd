@@ -21,6 +21,7 @@ const SkyWeather3D := preload("res://scripts/map/view3d/sky_weather_3d.gd")
 
 const CAPTURE_ID := "r715-water-acceptance-v1"
 const OUTPUT_DIR := "res://docs/reports/images/r715_water"
+const INT_FIELDS: Array[String] = ["schema_version", "width", "height"]
 const MANIFEST_PATH := OUTPUT_DIR + "/capture_manifest.json"
 const VIEWPORT_SIZE := Vector2i(1280, 720)
 const WARMUP_FRAMES := 16
@@ -141,7 +142,7 @@ func _capture_plate(definition: MapDefinition, plate: Dictionary) -> Dictionary:
 	viewport.add_child(view)
 	var camera := view.view_camera()
 	camera.current = true
-	var focus_cell := _first_water_cell(grid)
+	var focus_cell := _focus_water_cell(definition, grid)
 	# world_position takes logic pixels, not cells. Passing a cell lands the
 	# camera at cell/cell_size, near the origin, instead of the water (R-1090).
 	var focus := view.world_position(
@@ -232,10 +233,21 @@ func _update_plate(plate: Dictionary, image: Image, presentation: Variant) -> vo
 		"star_visibility": presentation.star_visibility,
 		"rain_suppressed": presentation.rain_suppressed,
 	}
-	_manifest["capture_status"] = "captured_pending_review"
-	_manifest["commit"] = _git_head()
-	_manifest["renderer_observed"] = DisplayServer.get_name()
-	_manifest["hardware_host"] = "%s/%s" % [OS.get_name(), Engine.get_architecture_name()]
+	# The packet stays fail-closed until every plate is captured: a one-plate run
+	# must not flip the packet-level status while other plates are still blocked
+	# (R-1156). Packet-level provenance is only stamped together with that flip.
+	if _all_plates_captured():
+		_manifest["capture_status"] = "captured_pending_review"
+		_manifest["commit"] = _git_head()
+		_manifest["renderer_observed"] = DisplayServer.get_name()
+		_manifest["hardware_host"] = "%s/%s" % [OS.get_name(), Engine.get_architecture_name()]
+
+
+func _all_plates_captured() -> bool:
+	for candidate: Dictionary in _manifest.get("plates", []):
+		if String(candidate.get("status", "")) == "blocked":
+			return false
+	return true
 
 
 func _find_plate(map_id: String, scenario_id: String, time_of_day: String) -> Dictionary:
@@ -249,13 +261,28 @@ func _find_plate(map_id: String, scenario_id: String, time_of_day: String) -> Di
 	return {}
 
 
-func _first_water_cell(grid: MapTerrainGrid) -> Vector2i:
+## Picks the water cell nearest the map's gameplay anchor so the plate frames
+## authored water near play space, not the scan-order corner cell (R-1156).
+func _focus_water_cell(definition: MapDefinition, grid: MapTerrainGrid) -> Vector2i:
+	var center := Vector2i(grid.size_cells.x / 2, grid.size_cells.y / 2)
+	var target := center
+	if definition.player_spawn != Vector2.ZERO:
+		target = Vector2i(
+			int(definition.player_spawn.x / float(definition.cell_size)),
+			int(definition.player_spawn.y / float(definition.cell_size))
+		)
+	var best := center
+	var best_distance := INF
 	for y in grid.size_cells.y:
 		for x in grid.size_cells.x:
 			var cell := Vector2i(x, y)
-			if MapTypesContract.WATER_TERRAINS.has(grid.get_terrain(cell)):
-				return cell
-	return Vector2i(grid.size_cells.x / 2, grid.size_cells.y / 2)
+			if not MapTypesContract.WATER_TERRAINS.has(grid.get_terrain(cell)):
+				continue
+			var distance := Vector2(cell - target).length_squared()
+			if distance < best_distance:
+				best_distance = distance
+				best = cell
+	return best
 
 
 func _day_blend(time_of_day: StringName) -> float:
@@ -285,7 +312,22 @@ func _load_manifest() -> Dictionary:
 	if not parsed is Dictionary:
 		push_error("Invalid R-756 manifest JSON")
 		return {}
+	_restore_int_fields(parsed)
 	return parsed
+
+
+## Godot parses every JSON number as float; restore the integer fields so a
+## rewrite does not turn 1280 into 1280.0 (R-1156).
+func _restore_int_fields(node: Variant) -> void:
+	if node is Dictionary:
+		for key: Variant in node:
+			if INT_FIELDS.has(String(key)) and node[key] is float:
+				node[key] = int(node[key])
+			else:
+				_restore_int_fields(node[key])
+	elif node is Array:
+		for item: Variant in node:
+			_restore_int_fields(item)
 
 
 func _sha256_file(resource_path: String) -> String:
@@ -313,5 +355,7 @@ func _write_manifest() -> Error:
 	if file == null:
 		push_error("Could not open R-756 manifest for writing: %s" % MANIFEST_PATH)
 		return ERR_CANT_OPEN
-	file.store_string(JSON.stringify(_manifest, "\t"))
+	# sort_keys=false keeps the committed key order, so a one-plate capture
+	# produces a one-plate diff and the contract tests' check order survives.
+	file.store_string(JSON.stringify(_manifest, "  ", false) + "\n")
 	return OK

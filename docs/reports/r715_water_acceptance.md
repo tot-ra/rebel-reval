@@ -99,3 +99,10 @@ export GODOT_BIN="/Applications/Godot.app/Contents/MacOS/Godot"
 ```
 
 A complete packet may move beyond `BLOCKED` only after all required plates are captured, checksums and dimensions verify, visual rubric results are recorded, and human review is documented. This task does not claim that state.
+
+## Capture tool behaviour (R-1156)
+
+- The manifest is written with `sort_keys=false`, 2-space indent and integer `width`/`height`/`schema_version`, so a one-plate capture changes only that plate.
+- Packet-level `capture_status`, `commit`, `renderer_observed` and `hardware_host` change only once no plate is `blocked`.
+- The camera frames the water cell nearest `MapDefinition.player_spawn`, not the first water cell in scan order.
+- Not yet verified by a live capture; the Metal-versus-Compatibility detail gap is still open (see the follow-up task).
