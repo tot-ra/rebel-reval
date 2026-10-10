@@ -4,9 +4,12 @@ extends SceneTree
 ## the town from a raised eye at clear April noon, evening low sun and rain, a hot June
 ## midday (heat shimmer), and street- and first-person-height lenses. Needs a renderer:
 ##   tools/godot_render.sh --script tools/capture_aerial_perspective.gd [-- --tag=after]
-##     [--only=<shot>[,<shot>...]] [--no-pass] [--debug=1|2|3] [--bench] [--out=res://build/aerial]
+##     [--only=<shot>[,<shot>...]] [--no-pass] [--debug=1|2|3] [--bench] [--dof]
+##     [--out=res://build/aerial]
 ## --no-pass hides the pass (before plates); --debug shows 1 haze, 2 blur, 3 the raw
-## screen copy (must match --no-pass if the screen texture is reliable).
+## screen copy (must match --no-pass if the screen texture is reliable). --dof adds the
+## gameplay far DOF of MapViewRuntimeCameraPerspective (third person for the street
+## and long shots, first person for first_person), so plates match play on Mobile.
 ## Output: <out>/aerial_<shot>_<tag>.png
 
 const VIEWPORT_SIZE := Vector2i(1280, 720)
@@ -17,6 +20,7 @@ var _only := ""
 var _tag := "after"
 var _out := "res://docs/reports/images/weather"
 var _no_pass := false
+var _dof := false
 var _debug := 0
 var _progress := 0.5
 
@@ -33,6 +37,8 @@ func _initialize() -> void:
 			_debug = int(arg.substr(8))
 		elif arg == "--no-pass":
 			_no_pass = true
+		elif arg == "--dof":
+			_dof = true
 	# Pin shader TIME so shimmer plates are comparable between runs (playbook).
 	ProjectSettings.set_setting("rendering/limits/time/time_rollover_secs", 0.000001)
 	call_deferred("_run")
@@ -170,6 +176,7 @@ func _shot(
 	camera.far = 9000.0
 	camera.near = 0.08
 	camera.look_at_from_position(eye, look, Vector3.UP)
+	camera.attributes = _dof_attributes(shot == "first_person") if _dof else null
 	for i in 8:
 		await process_frame
 	var aerial: AerialPerspectivePass = view._local_atmosphere.aerial
@@ -188,3 +195,18 @@ func _shot(
 		image.resize(VIEWPORT_SIZE.x, VIEWPORT_SIZE.y, Image.INTERPOLATE_LANCZOS)
 	image.save_png(ProjectSettings.globalize_path(path))
 	print("captured %s" % path)
+
+
+## Far-only DOF with the gameplay constants (the runtime camera is not mounted here).
+func _dof_attributes(first_person: bool) -> CameraAttributesPractical:
+	var attrs := CameraAttributesPractical.new()
+	attrs.dof_blur_far_enabled = true
+	if first_person:
+		attrs.dof_blur_amount = MapViewRuntimeCameraPerspective.FIRST_PERSON_DOF_BLUR_AMOUNT
+		attrs.dof_blur_far_distance = MapViewRuntimeCameraPerspective.FIRST_PERSON_DOF_FAR_DISTANCE
+		attrs.dof_blur_far_transition = MapViewRuntimeCameraPerspective.FIRST_PERSON_DOF_FAR_TRANSITION
+	else:
+		attrs.dof_blur_amount = MapViewRuntimeCameraPerspective.THIRD_PERSON_DOF_BLUR_AMOUNT
+		attrs.dof_blur_far_distance = MapViewRuntimeCameraPerspective.THIRD_PERSON_DOF_FAR_DISTANCE
+		attrs.dof_blur_far_transition = MapViewRuntimeCameraPerspective.THIRD_PERSON_DOF_FAR_TRANSITION
+	return attrs

@@ -8,12 +8,15 @@ const PERSPECTIVE_AUTO_EXPOSURE_ENABLED := true
 const PERSPECTIVE_AUTO_EXPOSURE_SCALE := 0.35
 const PERSPECTIVE_AUTO_EXPOSURE_SPEED := 0.5
 const PERSPECTIVE_EXPOSURE_SENSITIVITY := 100.0
-const THIRD_PERSON_DOF_BLUR_AMOUNT := 0.032
-const THIRD_PERSON_DOF_FAR_DISTANCE := 10.0
-const THIRD_PERSON_DOF_FAR_TRANSITION := 6.0
-const FIRST_PERSON_DOF_BLUR_AMOUNT := 0.028
-const FIRST_PERSON_DOF_FAR_DISTANCE := 14.0
-const FIRST_PERSON_DOF_FAR_TRANSITION := 8.0
+## Far DOF only softens the distance on top of AerialPerspectivePass haze and blur.
+## It was inert on GL Compatibility; on Mobile the old 10-16 m start smeared the
+## houses across the street, so it now begins past the street scale and stays light.
+const THIRD_PERSON_DOF_BLUR_AMOUNT := 0.012
+const THIRD_PERSON_DOF_FAR_DISTANCE := 40.0
+const THIRD_PERSON_DOF_FAR_TRANSITION := 80.0
+const FIRST_PERSON_DOF_BLUR_AMOUNT := 0.01
+const FIRST_PERSON_DOF_FAR_DISTANCE := 50.0
+const FIRST_PERSON_DOF_FAR_TRANSITION := 90.0
 
 var _controller: MapViewRuntimeCamera
 var _attributes: CameraAttributesPractical
