@@ -2,6 +2,8 @@
 
 > Field songbird that sings while hovering high up.
 
+![Skylark](images/skylark.jpg)
+
 | Field | Value |
 |---|---|
 | ID | `bird.skylark` |

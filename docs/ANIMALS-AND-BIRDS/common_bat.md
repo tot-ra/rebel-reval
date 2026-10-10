@@ -2,6 +2,8 @@
 
 > Small night flyer over the town walls and the orchards.
 
+![Common bat](images/common_bat.jpg)
+
 | Field | Value |
 |---|---|
 | ID | `fauna.common_bat` |

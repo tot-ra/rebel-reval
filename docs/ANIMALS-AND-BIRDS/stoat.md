@@ -2,6 +2,8 @@
 
 > Small, quick hunter of voles along the field edges.
 
+![Stoat](images/stoat.jpg)
+
 | Field | Value |
 |---|---|
 | ID | `fauna.stoat` |

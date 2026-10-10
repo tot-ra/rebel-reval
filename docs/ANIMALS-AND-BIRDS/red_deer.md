@@ -2,6 +2,8 @@
 
 > Forest deer of the mixed woods; a sign of good hunting ground.
 
+![Red deer](images/red_deer.jpg)
+
 | Field | Value |
 |---|---|
 | ID | `fauna.red_deer` |

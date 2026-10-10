@@ -2,6 +2,8 @@
 
 > Grey and black scavenger of the town and the fields.
 
+![Hooded crow](images/hooded_crow.jpg)
+
 | Field | Value |
 |---|---|
 | ID | `bird.hooded_crow` |

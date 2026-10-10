@@ -2,6 +2,8 @@
 
 > Red-breasted songbird of the gardens and churchyards.
 
+![European robin](images/european_robin.jpg)
+
 | Field | Value |
 |---|---|
 | ID | `bird.european_robin` |

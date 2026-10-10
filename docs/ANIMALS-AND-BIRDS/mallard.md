@@ -2,6 +2,8 @@
 
 > Wild duck of the ponds and the ditches.
 
+![Mallard](images/mallard.jpg)
+
 | Field | Value |
 |---|---|
 | ID | `bird.mallard` |

@@ -2,6 +2,8 @@
 
 > Wild grey goose that flies in skeins over the fields.
 
+![Greylag goose](images/greylag_goose.jpg)
+
 | Field | Value |
 |---|---|
 | ID | `bird.greylag_goose` |

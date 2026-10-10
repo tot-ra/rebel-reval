@@ -2,6 +2,8 @@
 
 > Hens of the pens and the yards.
 
+![Chicken](images/chicken.jpg)
+
 | Field | Value |
 |---|---|
 | ID | `fauna.chicken` |

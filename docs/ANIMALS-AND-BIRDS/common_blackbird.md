@@ -2,6 +2,8 @@
 
 > Black thrush with an orange bill that scolds from the hedges.
 
+![Common blackbird](images/common_blackbird.jpg)
+
 | Field | Value |
 |---|---|
 | ID | `bird.common_blackbird` |

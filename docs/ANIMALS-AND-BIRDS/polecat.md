@@ -2,6 +2,8 @@
 
 > Dark, foul-smelling hunter of the farm margins.
 
+![European polecat](images/polecat.jpg)
+
 | Field | Value |
 |---|---|
 | ID | `fauna.polecat` |

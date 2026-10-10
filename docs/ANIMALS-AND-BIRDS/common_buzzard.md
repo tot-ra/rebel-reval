@@ -2,6 +2,8 @@
 
 > Soaring hawk of the open fields.
 
+![Common buzzard](images/common_buzzard.jpg)
+
 | Field | Value |
 |---|---|
 | ID | `bird.common_buzzard` |

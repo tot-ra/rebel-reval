@@ -2,6 +2,8 @@
 
 > Large sea eagle over the coast and the lakes.
 
+![White-tailed eagle](images/white_tailed_eagle.jpg)
+
 | Field | Value |
 |---|---|
 | ID | `bird.white_tailed_eagle` |

@@ -2,6 +2,8 @@
 
 > Crested field bird that tumbles in display flight.
 
+![Northern lapwing](images/northern_lapwing.jpg)
+
 | Field | Value |
 |---|---|
 | ID | `bird.northern_lapwing` |

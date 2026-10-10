@@ -2,6 +2,8 @@
 
 > Town cat; the forge cat is the same model as Kalev's and dresses in another coat.
 
+![Domestic cat](images/cat.jpg)
+
 | Field | Value |
 |---|---|
 | ID | `fauna.cat` |

@@ -2,6 +2,8 @@
 
 > Small grey-headed corvid that nests in church towers.
 
+![Western jackdaw](images/western_jackdaw.jpg)
+
 | Field | Value |
 |---|---|
 | ID | `bird.western_jackdaw` |

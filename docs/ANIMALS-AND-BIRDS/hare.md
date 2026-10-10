@@ -2,6 +2,8 @@
 
 > Long-legged field hare of the foreland.
 
+![European hare](images/hare.jpg)
+
 | Field | Value |
 |---|---|
 | ID | `fauna.hare` |

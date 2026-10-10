@@ -2,6 +2,8 @@
 
 > Shaggy village dog; a generic phenotype, not a breed claim.
 
+![Domestic dog](images/dog.jpg)
+
 | Field | Value |
 |---|---|
 | ID | `fauna.dog` |

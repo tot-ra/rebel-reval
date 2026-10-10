@@ -2,6 +2,8 @@
 
 > Still-fishing wader of the reeds.
 
+![Grey heron](images/grey_heron.jpg)
+
 | Field | Value |
 |---|---|
 | ID | `bird.grey_heron` |

@@ -2,6 +2,8 @@
 
 > Slender sea bird that dives for fish.
 
+![Common tern](images/common_tern.jpg)
+
 | Field | Value |
 |---|---|
 | ID | `bird.common_tern` |

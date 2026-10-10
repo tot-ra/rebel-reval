@@ -2,6 +2,8 @@
 
 > Dam builder of the streams and mill ponds.
 
+![Beaver](images/beaver.jpg)
+
 | Field | Value |
 |---|---|
 | ID | `fauna.beaver` |

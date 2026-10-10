@@ -2,6 +2,8 @@
 
 > Tree-climbing mustelid of the conifer woods.
 
+![Pine marten](images/pine_marten.jpg)
+
 | Field | Value |
 |---|---|
 | ID | `fauna.pine_marten` |

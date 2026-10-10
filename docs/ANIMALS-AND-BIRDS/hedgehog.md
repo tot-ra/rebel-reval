@@ -2,6 +2,8 @@
 
 > Spiny night forager of garden hedges.
 
+![European hedgehog](images/hedgehog.jpg)
+
 | Field | Value |
 |---|---|
 | ID | `fauna.hedgehog` |

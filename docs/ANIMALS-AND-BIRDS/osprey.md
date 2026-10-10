@@ -2,6 +2,8 @@
 
 > Fish hawk that hovers and plunges.
 
+![Osprey](images/osprey.jpg)
+
 | Field | Value |
 |---|---|
 | ID | `bird.osprey` |

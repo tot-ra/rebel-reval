@@ -2,6 +2,8 @@
 
 > Forked-tail swallow that nests in barns.
 
+![Barn swallow](images/barn_swallow.jpg)
+
 | Field | Value |
 |---|---|
 | ID | `bird.barn_swallow` |

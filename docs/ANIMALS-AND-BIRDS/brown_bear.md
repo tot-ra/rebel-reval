@@ -2,6 +2,8 @@
 
 > A real predator of the deep forest; rare and not scheduled for the slice.
 
+![Brown bear](images/brown_bear.jpg)
+
 | Field | Value |
 |---|---|
 | ID | `fauna.brown_bear` |

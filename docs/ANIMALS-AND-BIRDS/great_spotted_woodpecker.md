@@ -2,6 +2,8 @@
 
 > Black-and-white woodpecker that drums on dead trunks.
 
+![Great spotted woodpecker](images/great_spotted_woodpecker.jpg)
+
 | Field | Value |
 |---|---|
 | ID | `bird.great_spotted_woodpecker` |

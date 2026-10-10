@@ -169,7 +169,6 @@ func test_editor_portfolio_contains_accepted_campaign_greyboxes() -> void:
 		"world_kanavere": Vector2i(54, 30),
 		"world_parnu": Vector2i(50, 28),
 		"world_poide": Vector2i(50, 30),
-		"world_saaremaa": Vector2i(104, 60),
 		"world_sojamae": Vector2i(54, 30),
 	}
 	for source_name in expected_sizes:

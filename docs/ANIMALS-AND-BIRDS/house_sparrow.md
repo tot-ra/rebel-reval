@@ -2,6 +2,8 @@
 
 > Town sparrow of the roofs and the stable yards.
 
+![House sparrow](images/house_sparrow.jpg)
+
 | Field | Value |
 |---|---|
 | ID | `bird.house_sparrow` |

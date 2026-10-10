@@ -2,6 +2,8 @@
 
 > Night singer of the thickets.
 
+![Common nightingale](images/common_nightingale.jpg)
+
 | Field | Value |
 |---|---|
 | ID | `bird.common_nightingale` |

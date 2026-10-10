@@ -2,6 +2,8 @@
 
 > Woodland finch with a bright song.
 
+![Common chaffinch](images/common_chaffinch.jpg)
+
 | Field | Value |
 |---|---|
 | ID | `bird.common_chaffinch` |

@@ -2,6 +2,8 @@
 
 > Brown landrace-like cows of the pens and the pasture.
 
+![Cattle](images/cattle.jpg)
+
 | Field | Value |
 |---|---|
 | ID | `fauna.cow` |

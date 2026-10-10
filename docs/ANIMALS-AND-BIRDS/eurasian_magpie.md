@@ -2,6 +2,8 @@
 
 > Black-and-white corvid that steals shiny things.
 
+![Eurasian magpie](images/eurasian_magpie.jpg)
+
 | Field | Value |
 |---|---|
 | ID | `bird.eurasian_magpie` |

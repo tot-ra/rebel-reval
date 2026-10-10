@@ -2,6 +2,8 @@
 
 > Tree squirrel of the conifer woods and gardens.
 
+![Red squirrel](images/squirrel.jpg)
+
 | Field | Value |
 |---|---|
 | ID | `fauna.squirrel` |

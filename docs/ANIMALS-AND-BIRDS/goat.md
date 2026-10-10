@@ -2,6 +2,8 @@
 
 > Goats on the pens and the banks.
 
+![Goat](images/goat.jpg)
+
 | Field | Value |
 |---|---|
 | ID | `fauna.goat` |

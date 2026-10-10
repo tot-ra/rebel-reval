@@ -2,6 +2,8 @@
 
 > Small falcon that hovers over the field edges.
 
+![Common kestrel](images/common_kestrel.jpg)
+
 | Field | Value |
 |---|---|
 | ID | `bird.common_kestrel` |

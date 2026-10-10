@@ -2,6 +2,8 @@
 
 > Black-capped tit of the gardens and the feeders.
 
+![Great tit](images/great_tit.jpg)
+
 | Field | Value |
 |---|---|
 | ID | `bird.great_tit` |

@@ -2,6 +2,8 @@
 
 > Bay cob of the Reval streets and carts.
 
+![Horse](images/horse.jpg)
+
 | Field | Value |
 |---|---|
 | ID | `fauna.horse` |

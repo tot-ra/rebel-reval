@@ -2,6 +2,8 @@
 
 > Large white swan of the ponds.
 
+![Mute swan](images/mute_swan.jpg)
+
 | Field | Value |
 |---|---|
 | ID | `bird.mute_swan` |

@@ -2,6 +2,8 @@
 
 > Pen pig of the farm plots.
 
+![Domestic pig](images/pig.jpg)
+
 | Field | Value |
 |---|---|
 | ID | `fauna.pig` |

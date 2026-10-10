@@ -2,6 +2,8 @@
 
 > Bristled forest pig that charges when cornered; a hunting animal.
 
+![Wild boar](images/wild_boar.jpg)
+
 | Field | Value |
 |---|---|
 | ID | `fauna.wild_boar` |

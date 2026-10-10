@@ -2,6 +2,8 @@
 
 > Ducks of the millpond and the ditches.
 
+![Domestic duck](images/domestic_duck.jpg)
+
 | Field | Value |
 |---|---|
 | ID | `fauna.duck` |

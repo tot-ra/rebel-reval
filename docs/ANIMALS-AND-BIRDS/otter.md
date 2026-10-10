@@ -2,6 +2,8 @@
 
 > Swimmer of rivers and the harbour outflows.
 
+![Eurasian otter](images/otter.jpg)
+
 | Field | Value |
 |---|---|
 | ID | `fauna.otter` |

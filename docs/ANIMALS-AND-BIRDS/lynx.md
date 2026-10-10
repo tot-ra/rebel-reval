@@ -2,6 +2,8 @@
 
 > Ambush cat of the northern forest; a rare sight near the hinterland.
 
+![Eurasian lynx](images/lynx.jpg)
+
 | Field | Value |
 |---|---|
 | ID | `fauna.lynx` |

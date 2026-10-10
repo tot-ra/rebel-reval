@@ -2,6 +2,8 @@
 
 > Small forest deer at the edge of fields and gardens.
 
+![Roe deer](images/roe_deer.jpg)
+
 | Field | Value |
 |---|---|
 | ID | `fauna.roe_deer` |

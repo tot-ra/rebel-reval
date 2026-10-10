@@ -2,6 +2,8 @@
 
 > Ice-loving seal of the northern Baltic.
 
+![Ringed seal](images/ringed_seal.jpg)
+
 | Field | Value |
 |---|---|
 | ID | `fauna.ringed_seal` |

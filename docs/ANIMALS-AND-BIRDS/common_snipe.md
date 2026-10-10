@@ -2,6 +2,8 @@
 
 > Long-billed bird of the bog edges.
 
+![Common snipe](images/common_snipe.jpg)
+
 | Field | Value |
 |---|---|
 | ID | `bird.common_snipe` |

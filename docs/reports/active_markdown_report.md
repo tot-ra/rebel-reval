@@ -14,11 +14,11 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `1160`
-- Markdown files excluded as archive/reference/out of active scope: `753`
-- Local/external links inspected: `13081`
-- Links to active Markdown docs: `11980`
-- Links to existing archive/reference/non-active local docs: `456`
+- Active Markdown files scanned: `1184`
+- Markdown files excluded as archive/reference/out of active scope: `754`
+- Local/external links inspected: `13299`
+- Links to active Markdown docs: `12133`
+- Links to existing archive/reference/non-active local docs: `457`
 - External links skipped for reachability: `145`
 - Issues found: `0`
 
@@ -152,11 +152,34 @@ No active Markdown documentation issues found.
 - `docs/ASSET_STORAGE_POLICY.md`
 - `docs/BESTIARY/cards/black_cloak_fighter.md`
 - `docs/BESTIARY/cards/brute.md`
+- `docs/BESTIARY/cards/domovoi.md`
+- `docs/BESTIARY/cards/hiid.md`
+- `docs/BESTIARY/cards/katk.md`
+- `docs/BESTIARY/cards/kodukaija.md`
+- `docs/BESTIARY/cards/kratt.md`
+- `docs/BESTIARY/cards/kulmking.md`
+- `docs/BESTIARY/cards/libahunt.md`
+- `docs/BESTIARY/cards/luupainaja.md`
+- `docs/BESTIARY/cards/maa_alused.md`
+- `docs/BESTIARY/cards/majahaldjas.md`
+- `docs/BESTIARY/cards/marras.md`
+- `docs/BESTIARY/cards/metsavana.md`
+- `docs/BESTIARY/cards/myling.md`
+- `docs/BESTIARY/cards/nakk.md`
+- `docs/BESTIARY/cards/noid.md`
+- `docs/BESTIARY/cards/pohja_konn.md`
+- `docs/BESTIARY/cards/puuk.md`
+- `docs/BESTIARY/cards/rehepapp.md`
 - `docs/BESTIARY/cards/road_bandit.md`
 - `docs/BESTIARY/cards/saboteur.md`
 - `docs/BESTIARY/cards/spirit_caller.md`
 - `docs/BESTIARY/cards/street_thug.md`
+- `docs/BESTIARY/cards/tulihand.md`
+- `docs/BESTIARY/cards/tulukesed.md`
+- `docs/BESTIARY/cards/vanapagan.md`
 - `docs/BESTIARY/cards/vanapagan_cultist.md`
+- `docs/BESTIARY/cards/vetevana.md`
+- `docs/BESTIARY/cards/vodyanoy.md`
 - `docs/BESTIARY/README.md`
 - `docs/BESTIARY/TEMPLATE.md`
 - `docs/CANON.md`
@@ -1093,6 +1116,7 @@ No active Markdown documentation issues found.
 - `docs/SYSTEMS/NIGHT_SKY.md`
 - `docs/SYSTEMS/NPC_MIND.md`
 - `docs/SYSTEMS/OBJECT_CATALOG.md`
+- `docs/SYSTEMS/POST_PROCESS.md`
 - `docs/SYSTEMS/PSYCHE.md`
 - `docs/SYSTEMS/QUESTS.md`
 - `docs/SYSTEMS/README.md`

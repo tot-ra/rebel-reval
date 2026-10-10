@@ -2,6 +2,8 @@
 
 > Spotted thrush that repeats each phrase twice.
 
+![Song thrush](images/song_thrush.jpg)
+
 | Field | Value |
 |---|---|
 | ID | `bird.song_thrush` |

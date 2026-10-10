@@ -2,6 +2,8 @@
 
 > Yellow bunting that sings from hedge tops.
 
+![Yellowhammer](images/yellowhammer.jpg)
+
 | Field | Value |
 |---|---|
 | ID | `bird.yellowhammer` |

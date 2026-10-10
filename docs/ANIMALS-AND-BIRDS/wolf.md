@@ -2,6 +2,8 @@
 
 > A real predator of the Harju woods, hungry in a hard spring, with no reason to be cruel and no way to be reasoned with.
 
+![Wolf](images/wolf.jpg)
+
 | Field | Value |
 |---|---|
 | ID | `bst.wolf` |

@@ -1,0 +1,16 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://vu3dc0oejrcd"
+
+[deps]
+
+source_file="res://tools/research/procedural_motion/runs/h2/log.csv"
+
+[params]
+
+compress=1
+delimiter=0
+unescape_keys=false
+unescape_translations=true

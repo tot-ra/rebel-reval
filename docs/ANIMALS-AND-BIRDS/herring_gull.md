@@ -2,6 +2,8 @@
 
 > Harbour gull; bold scavenger of the quays.
 
+![Herring gull](images/herring_gull.jpg)
+
 | Field | Value |
 |---|---|
 | ID | `bird.herring_gull` |

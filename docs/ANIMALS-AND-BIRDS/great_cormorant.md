@@ -2,6 +2,8 @@
 
 > Black diving bird that perches on the skerries with wings spread to dry.
 
+![Great cormorant](images/great_cormorant.jpg)
+
 | Field | Value |
 |---|---|
 | ID | `bird.great_cormorant` |

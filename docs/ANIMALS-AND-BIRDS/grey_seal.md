@@ -2,6 +2,8 @@
 
 > Seal of the open Baltic coast and the harbour skerries.
 
+![Grey seal](images/grey_seal.jpg)
+
 | Field | Value |
 |---|---|
 | ID | `fauna.grey_seal` |

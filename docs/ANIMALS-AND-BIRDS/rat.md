@@ -2,6 +2,8 @@
 
 > Harbour and cellar rat of the grain and fish stores.
 
+![Brown rat](images/rat.jpg)
+
 | Field | Value |
 |---|---|
 | ID | `fauna.rat` |

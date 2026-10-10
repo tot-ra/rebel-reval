@@ -2,6 +2,8 @@
 
 > Yard geese; loud and quick to hiss at strangers.
 
+![Domestic goose](images/domestic_goose.jpg)
+
 | Field | Value |
 |---|---|
 | ID | `fauna.goose` |

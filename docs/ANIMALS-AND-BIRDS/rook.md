@@ -2,6 +2,8 @@
 
 > Black corvid that nests in colonies.
 
+![Rook](images/rook.jpg)
+
 | Field | Value |
 |---|---|
 | ID | `bird.rook` |

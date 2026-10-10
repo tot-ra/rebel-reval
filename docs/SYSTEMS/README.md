@@ -54,6 +54,7 @@ One page per implemented or planned feature. Each page opens with a `Status:` li
 
 - [Flag cloth](FLAG_CLOTH.md)
 - [Household objects](HOUSEHOLD_OBJECTS.md)
+- [Renderer, post-process grade and HDR output](POST_PROCESS.md)
 - [Water sandbox](WATER_SANDBOX.md)
 
 <!-- docs-index:end -->

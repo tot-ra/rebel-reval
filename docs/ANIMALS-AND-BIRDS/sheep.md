@@ -2,6 +2,8 @@
 
 > Flocks on the foreland; wool and milk for the town.
 
+![Sheep](images/sheep.jpg)
+
 | Field | Value |
 |---|---|
 | ID | `fauna.sheep` |

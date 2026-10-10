@@ -2,6 +2,8 @@
 
 > Small canid of field edges and the forest margin.
 
+![Red fox](images/red_fox.jpg)
+
 | Field | Value |
 |---|---|
 | ID | `fauna.red_fox` |

@@ -2,6 +2,8 @@
 
 > Large forest deer of the bogs and lake shores.
 
+![Elk](images/elk.jpg)
+
 | Field | Value |
 |---|---|
 | ID | `fauna.elk` |

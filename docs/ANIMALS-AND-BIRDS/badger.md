@@ -2,6 +2,8 @@
 
 > Night digger of the banks and hedges.
 
+![European badger](images/badger.jpg)
+
 | Field | Value |
 |---|---|
 | ID | `fauna.badger` |

@@ -2,6 +2,8 @@
 
 > Smaller gull of the fields and the harbour.
 
+![Common gull](images/common_gull.jpg)
+
 | Field | Value |
 |---|---|
 | ID | `bird.common_gull` |
