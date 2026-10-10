@@ -321,11 +321,11 @@ const float CITY_SURF_SCUM = 0.12;
 const float CITY_WHITECAP_THRESHOLD = 0.5;
 const float CITY_WHITECAP_GAIN = 0.6;
 const float CITY_STREAK_SHARE = 0.35;
-// Fraction of the window over which ripples fade out, so the window edge never shows a seam.
 // World-unit baseline of the bore/crest slope difference (fragment, city sea).
 // Long enough to average the shore field's filtering steps, short against the
 // 1.4-2.4 unit crest width; the 0.12 unit front meniscus is shaded a touch softer.
 const float CITY_RUNUP_SLOPE_STEP = 0.08;
+// Fraction of the window over which ripples fade out, so the window edge never shows a seam.
 const float RIPPLE_EDGE_FADE = 0.1;
 // Steepest ripple facet the shading normal may take (about 31 degrees).
 const float RIPPLE_MAX_SLOPE = 0.6;
