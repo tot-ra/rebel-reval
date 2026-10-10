@@ -95,6 +95,11 @@ var _live: Dictionary = {}
 var _since := STREAM_INTERVAL
 
 
+## Wander seed per plan: `reval_city_fauna` for the city, `<site_id>_fauna` elsewhere.
+func _seed_key() -> StringName:
+	return SEED_KEY if plan.site_id == CityPlan.DEFAULT_SITE else StringName("%s_fauna" % plan.site_id)
+
+
 static func create(city_plan: CityPlan, kalev: Node2D) -> CityFauna:
 	var node := CityFauna.new()
 	node.name = "CityFauna"
@@ -347,7 +352,7 @@ func _spawn(group: Dictionary) -> void:
 		var home := Vector3(home_xz.x, actor.position.y, home_xz.y)
 		var config := _wander_config(group["behavior"], home, float(group["radius"]))
 		config["blocked_rects"] = _blocked_rects(home_xz, float(group["radius"]))
-		GroundWander.setup(actor, SEED_KEY, seed_value & 0xFFFFFF, config)
+		GroundWander.setup(actor, _seed_key(), seed_value & 0xFFFFFF, config)
 		actors.append(actor)
 	_live[group["id"]] = actors
 
@@ -391,7 +396,7 @@ func _blocked_rects(home_xz: Vector2, radius: float) -> Array[Rect2]:
 
 func _advance(actor: Node3D, listener: Vector3, delta: float) -> void:
 	var previous := actor.position
-	GroundWander.advance(actor, SEED_KEY, listener, delta)
+	GroundWander.advance(actor, _seed_key(), listener, delta)
 	actor.position.y = (
 		plan.ground_height(Vector2(actor.position.x, actor.position.z))
 		+ float(actor.get_meta(&"lift", 0.0))

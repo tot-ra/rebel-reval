@@ -14,10 +14,10 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `1101`
+- Active Markdown files scanned: `1102`
 - Markdown files excluded as archive/reference/out of active scope: `747`
-- Local/external links inspected: `13076`
-- Links to active Markdown docs: `12024`
+- Local/external links inspected: `13090`
+- Links to active Markdown docs: `12038`
 - Links to existing archive/reference/non-active local docs: `450`
 - External links skipped for reachability: `92`
 - Issues found: `158`
@@ -1197,6 +1197,7 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/SYSTEMS/PSYCHE.md`
 - `docs/SYSTEMS/QUESTS.md`
 - `docs/SYSTEMS/README.md`
+- `docs/SYSTEMS/REGIONAL_SITES.md`
 - `docs/SYSTEMS/SEAMLESS_CITY.md`
 - `docs/SYSTEMS/SETTINGS_AND_ACCESSIBILITY.md`
 - `docs/SYSTEMS/SHIPS.md`

@@ -206,9 +206,8 @@ static func _fortifications(plan: CityPlan, add_poly: Callable) -> void:
 	for t: Dictionary in plan.data["towers"]:
 		if String(t["form"]) == "gate_rect":
 			continue
-		var at := Vector2(t["at"][0], t["at"][1])
 		var along := Vector2(cos(float(t["angle"])), sin(float(t["angle"])))
-		var c := Fort._toward_field(plan, at, along, float(t["d"]) * 0.35)
+		var c := Fort.tower_centre(plan, t)
 		add_poly.call(_obox(c, along, float(t["w"]) * 0.5, float(t["d"]) * 0.5))
 	var openings := {}
 	for o: Dictionary in plan.data.get("toompea_openings", []):

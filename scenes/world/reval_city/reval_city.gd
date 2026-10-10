@@ -11,6 +11,10 @@ extends "res://scripts/global/BaseLevel.gd"
 ##
 ## Start: main menu "Start" (Kalev's smithy, whose door leads here), or
 ##   godot --path . res://scenes/world/reval_city/reval_city.tscn -- --city-spawn=gate.viru
+##
+## Regional sites (ADR 0042) run this same level through
+## scenes/world/sites/site_level.gd, which overrides load_plan(), scene_id() and
+## default_spawn(); citizens, fauna and interiors follow the plan's feature flags.
 
 const DEFAULT_SPAWN := "poi.forum"
 ## Travel speed for crossing the city on foot (maintainer request 2026-10-07).
@@ -44,25 +48,29 @@ var _cut := true
 func _ready() -> void:
 	super()
 	add_to_group(&"seamless_city")
-	plan = CityPlan.load_default()
+	plan = load_plan()
 	CityCollisionBuilder.build(plan, self)
 	player.walk_speed = int(player.walk_speed * SPEED_MULTIPLIER)
 	player.run_speed = int(player.run_speed * SPEED_MULTIPLIER)
 	var arrival := spawn_id()
 	_place_player(arrival)
-	_npcs = CityNpcs.create(plan, player)
-	actors.add_child(_npcs)
+	if plan.feature_enabled("citizens"):
+		_npcs = CityNpcs.create(plan, player)
+		actors.add_child(_npcs)
 	view = CityMapView.create_city(plan)
 	world = view.world
 	# Hay stacks in the farmland are solid; their colliders live on the logic plane.
 	world.farmland.collision_parent = self
 	runtime = CityRuntime.install(self, view, player)
-	_fauna = CityFauna.create(plan, player)
-	world.add_child(_fauna)
-	world.add_child(CityFish.create(plan, player))
-	interiors = CityInteriors.create(plan, CitizenRoster.load_default(), world.chimneys)
+	if plan.feature_enabled("fauna"):
+		_fauna = CityFauna.create(plan, player)
+		world.add_child(_fauna)
+		world.add_child(CityFish.create(plan, player))
+	interiors = CityInteriors.create(plan, CitizenRoster.load_for(plan), world.chimneys)
 	interiors.collision_parent = self
-	interiors.enabled = not "--no-interiors" in OS.get_cmdline_user_args()
+	interiors.enabled = (
+		plan.feature_enabled("interiors") and not "--no-interiors" in OS.get_cmdline_user_args()
+	)
 	world.add_child(interiors)
 	# ADR 0021 swimming: sea and moat depth come from the city's water, not a grid.
 	player.set_water_depth_provider(
@@ -78,13 +86,27 @@ func _ready() -> void:
 	_update_music(CityPlan.to_world_xz(player.global_position))
 
 
+## The plan this level shows; a regional site overrides it.
+func load_plan() -> CityPlan:
+	return CityPlan.load_default()
+
+
+## Transition-manifest scene id of this level (pending travel spawns are keyed by it).
+func scene_id() -> StringName:
+	return CityTravel.CITY_SCENE_ID
+
+
+func default_spawn() -> String:
+	return DEFAULT_SPAWN
+
+
 ## Spawn requested by the command line, a pending travel arrival or the default.
 func spawn_id() -> String:
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--city-spawn="):
 			return arg.substr(13)
-	var pending := String(CityTravel.consume_pending_spawn())
-	return pending if not pending.is_empty() else DEFAULT_SPAWN
+	var pending := String(CityTravel.consume_pending_spawn(scene_id()))
+	return pending if not pending.is_empty() else default_spawn()
 
 
 func _place_player(id: String) -> void:
@@ -137,7 +159,7 @@ func _process(delta: float) -> void:
 	world.grass.update_for(xz)
 	world.farmland.update_for(xz)
 	world.trail.update_for(xz, delta)
-	CityTrailFeed.feed(world.trail, _npcs.citizens, _fauna, get_tree())
+	CityTrailFeed.feed(world.trail, _npcs.citizens if _npcs != null else null, _fauna, get_tree())
 	world.smoke.update_for(xz, delta)
 	var camera := view.view_camera()
 	_fit_shadow_range(camera)

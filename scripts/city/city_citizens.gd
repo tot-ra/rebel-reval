@@ -49,7 +49,7 @@ static func create(city_plan: CityPlan, kalev: Node2D) -> CityCitizens:
 	node.name = "CityCitizens"
 	node.plan = city_plan
 	node.player = kalev
-	node.roster = CitizenRoster.load_default()
+	node.roster = CitizenRoster.load_for(city_plan)
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--city-hour="):
 			node.hour_override = float(arg.substr(12))

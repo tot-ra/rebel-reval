@@ -40,8 +40,8 @@ static func material(plan: CityPlan) -> ShaderMaterial:
 	mat.shader = SHADER
 	for key: String in TEXTURES:
 		mat.set_shader_parameter(key, load(TEXTURES[key]))
-	mat.set_shader_parameter("splat", load(CityPlan.SPLAT_PATH))
-	mat.set_shader_parameter("roads", load(CityPlan.ROADS_PATH))
+	mat.set_shader_parameter("splat", load(plan.splat_path()))
+	mat.set_shader_parameter("roads", load(plan.roads_path()))
 	mat.set_shader_parameter("ground_height", plan.height_texture())
 	mat.set_shader_parameter("ground_rect", plan.height_texture_rect())
 	mat.set_shader_parameter("trail", _neutral_trail())

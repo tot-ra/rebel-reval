@@ -12,14 +12,16 @@ var plan: CityPlan
 static func from_plan(city_plan: CityPlan) -> CityMapDefinition:
 	var definition := CityMapDefinition.new()
 	definition.plan = city_plan
-	definition.map_id = &"reval_city"
-	definition.location = &"loc.reval_city"
+	# Regional sites (ADR 0042) keep their travel ids (`world.paide`, `loc.world_paide`).
+	var site := city_plan.site_info()
+	definition.map_id = StringName(site.get("map_id", "reval_city"))
+	definition.location = StringName("loc.%s" % String(site.get("location_id", "reval_city")))
 	definition.scope = &"production"
 	definition.active = true
 	definition.cell_size = int(CityPlan.LOGIC_PX_PER_UNIT)
 	var end := city_plan.bounds.end
 	definition.size_cells = Vector2i(ceili(end.x), ceili(end.y))
-	definition.fingerprint = "reval_city"
+	definition.fingerprint = city_plan.site_id
 	return definition
 
 
@@ -53,8 +55,11 @@ func suppresses_exterior_surroundings() -> bool:
 ## open-country birds outside the walls, town birds elsewhere.
 func bird_context_at(logic_position: Vector2) -> StringName:
 	var xz := logic_position / float(cell_size)
-	if plan.ground_height(xz) < 2.5:
+	if plan.has_coast() and plan.ground_height(xz) < 2.5:
 		return &"harbor"
+	# A regional castle (ADR 0042) has the castle birds Toompea has.
+	if plan.district_id_at(xz).ends_with(".district.castle"):
+		return &"toompea"
 	var where := plan.location_at(xz, false)
 	match String(where.get("district", "")):
 		"Toompea", "Vassal yards below the castle":

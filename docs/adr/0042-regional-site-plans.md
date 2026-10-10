@@ -13,8 +13,8 @@ AGENTS.md scope rule that distant regions keep an explicit journey with a loadin
 
 ## Status
 
-**Proposed, 2026-10-09.** Awaiting maintainer approval. Tasks R-1520..R-1530 are blocked
-until it is accepted; nothing here is runtime truth until a task verifies it.
+**Accepted (maintainer-approved, 2026-10-10).** Tasks R-1520..R-1530 are unblocked; the
+Paide pilot (R-1520) lands first. Nothing here is runtime truth until a task verifies it.
 
 ## Context
 

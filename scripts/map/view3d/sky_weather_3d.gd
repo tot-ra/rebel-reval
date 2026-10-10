@@ -893,7 +893,9 @@ func configure_steps(camera: Camera3D, environment: Environment) -> Array[Callab
 	var stars := func() -> void:
 		_star_map = ImageTexture.create_from_image(star_image[0])
 		_material.set_shader_parameter(&"star_map", _star_map)
-		_material.set_shader_parameter(&"observer_latitude", deg_to_rad(OBSERVER_LATITUDE_DEGREES))
+		_material.set_shader_parameter(
+			&"observer_latitude", deg_to_rad(SkyAstronomy.observer_latitude_degrees)
+		)
 		var galaxy := SKY_RESOURCES.galactic_frame(STAR_CATALOG.CATALOG_EPOCH, SKY_EPOCH_YEAR)
 		_material.set_shader_parameter(&"galactic_pole", galaxy["pole"])
 		_material.set_shader_parameter(&"galactic_center", galaxy["center"])

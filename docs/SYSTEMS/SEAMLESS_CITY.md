@@ -2,7 +2,7 @@
 
 Status: implemented as the game's Reval ([ADR 0031](../adr/0031-continuous-reval-city-plan.md), accepted 2026-10-07; board task to be filed, no board access in the authoring session). Attribution: `CREDITS.md` and `docs/THIRD_PARTY_NOTICES.md`. Scope: the whole walled Lower Town, Toompea, the shore to the 1343 waterline, the Härjapea and the near suburbs and fields as one continuous scene with real relief, the 1343 fortifications, enterable houses and churches, people, shipping, swimming, chimney smoke and one shared wind; every old Reval district destination now arrives here. Out of scope here: quests, dialogue and saves inside the city scene (the forge interior keeps them; see [Limits](#limits)).
 
-Countryside (fields, pastures, woods): [`FARMLAND.md`](./FARMLAND.md). Review plates: [`docs/reports/reval_city_plan_2026-10-07.md`](../reports/reval_city_plan_2026-10-07.md).
+Countryside (fields, pastures, woods): [`FARMLAND.md`](./FARMLAND.md). Distant travel destinations (Paide first) run on this builder and runtime as regional sites: [`REGIONAL_SITES.md`](./REGIONAL_SITES.md). Review plates: [`docs/reports/reval_city_plan_2026-10-07.md`](../reports/reval_city_plan_2026-10-07.md).
 
 ## What the player can do
 
