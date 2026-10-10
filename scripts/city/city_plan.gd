@@ -5,7 +5,16 @@ extends RefCounted
 ## heightfield written by tools/city/build_reval_city_plan.py. Coordinates are
 ## world units (0.87 m): x east, z south; the logic plane uses x and y = z,
 ## scaled by LOGIC_PX_PER_UNIT. Everything here is read-only data.
+##
+## Regional sites (ADR 0042, docs/SYSTEMS/REGIONAL_SITES.md) are plans of the
+## same schema in their own directory `content/world/<site_id>/`, written by
+## tools/city/build_site_plan.py. load_site() picks the directory; every file the
+## runtime reads (splat, roads, minimap, citizens, landmark sites) then comes
+## from that directory, and the plan's `site` block carries the ids and flags.
 
+## The seamless Reval city; load_default() is load_site(DEFAULT_SITE).
+const DEFAULT_SITE := "reval_city"
+const SITES_ROOT := "res://content/world"
 const PLAN_PATH := "res://content/world/reval_city/plan.json"
 const HEIGHT_PATH := "res://content/world/reval_city/height.json"
 const SPLAT_PATH := "res://content/world/reval_city/splat.png"
@@ -24,9 +33,13 @@ const STREET_LABEL_RADIUS := 6.0
 ## meet the bank where the sloping ditch wall rises through the waterline.
 const MOAT_WATER_HALF_FACTOR := 0.65
 
-static var _cached: CityPlan
+## Loaded plans by site id.
+static var _by_site: Dictionary = {}
 
 var data: Dictionary = {}
+## Site id and directory this plan was loaded from (`reval_city` for the city).
+var site_id := DEFAULT_SITE
+var site_dir := "%s/%s" % [SITES_ROOT, DEFAULT_SITE]
 var bounds := Rect2()
 var metres_per_unit := 0.87
 var buildings: Array = []
@@ -50,12 +63,19 @@ var _moat_bounds := Rect2()
 
 
 static func load_default() -> CityPlan:
-	if _cached == null:
-		_cached = CityPlan.new()
-		var error := _cached.load_files(PLAN_PATH, HEIGHT_PATH)
+	return load_site(DEFAULT_SITE)
+
+
+## The plan of a site id (`reval_city` or a regional site such as `paide`), cached.
+static func load_site(id: String) -> CityPlan:
+	if not _by_site.has(id):
+		var plan := CityPlan.new()
+		var dir := "%s/%s" % [SITES_ROOT, id]
+		var error := plan.load_files("%s/plan.json" % dir, "%s/height.json" % dir)
 		if error != OK:
-			push_error("CityPlan: cannot load %s (%s)" % [PLAN_PATH, error_string(error)])
-	return _cached
+			push_error("CityPlan: cannot load %s/plan.json (%s)" % [dir, error_string(error)])
+		_by_site[id] = plan
+	return _by_site[id]
 
 
 ## Ground heights as a float texture for shaders (rising damp, puddles), with
@@ -76,7 +96,61 @@ func height_texture_rect() -> Vector4:
 
 
 static func clear_cache() -> void:
-	_cached = null
+	_by_site.clear()
+
+
+## A file of this plan's directory (splat.png, roads.png, minimap.png, citizens.json).
+func file_path(file_name: String) -> String:
+	return "%s/%s" % [site_dir, file_name]
+
+
+func splat_path() -> String:
+	return file_path("splat.png")
+
+
+func roads_path() -> String:
+	return file_path("roads.png")
+
+
+func minimap_path() -> String:
+	return file_path("minimap.png")
+
+
+## The `site` block of a regional plan (ids, flags, datum); empty for Reval.
+func site_info() -> Dictionary:
+	return data.get("site", {})
+
+
+## True when the plan has a coast: sea, shore field, surf, ships and harbour
+## mount only then (ADR 0042 section 3). A regional plan says so in its `site`
+## block (the builder sets it from the shoreline it drew); plans without one,
+## Reval and the synthetic water sandbox, are coastal.
+func has_coast() -> bool:
+	return bool(site_info().get("coast", true))
+
+
+## Feature flag of a regional site (`citizens`, `fauna`, `interiors`); the
+## Reval plan has no site block, so everything stays on there.
+func feature_enabled(feature: String) -> bool:
+	return bool(site_info().get("features", {}).get(feature, true))
+
+
+## Latitude and longitude of the plan origin, for the sun, moon and stars.
+func origin_latitude() -> float:
+	return float(data.get("origin", {}).get("lat", SkyAstronomy.OBSERVER_LATITUDE_DEGREES))
+
+
+func origin_longitude() -> float:
+	return float(data.get("origin", {}).get("lon", SkyAstronomy.OBSERVER_LONGITUDE_DEGREES))
+
+
+## An arrival spawn of a regional plan by its travel id (`from_world_sojamae`)
+## or record id (`paide.spawn.from_world_sojamae`); empty when absent.
+func arrival_spawn(id: String) -> Dictionary:
+	for s: Dictionary in data.get("spawns", []):
+		if String(s["id"]) == id or String(s.get("record", "")) == id:
+			return s
+	return {}
 
 
 func load_files(plan_path: String, height_path: String) -> Error:
@@ -87,6 +161,8 @@ func load_files(plan_path: String, height_path: String) -> Error:
 	if not parsed is Dictionary or String((parsed as Dictionary).get("schema", "")) != SCHEMA:
 		return ERR_PARSE_ERROR
 	data = parsed
+	site_dir = plan_path.get_base_dir()
+	site_id = String(site_info().get("id", site_dir.get_file()))
 	var b: Array = data["bounds"]
 	bounds = Rect2(
 		Vector2(b[0], b[1]), Vector2(float(b[2]) - float(b[0]), float(b[3]) - float(b[1]))
@@ -94,7 +170,7 @@ func load_files(plan_path: String, height_path: String) -> Error:
 	metres_per_unit = float(data.get("metres_per_world_unit", 0.87))
 	buildings = data.get("buildings", [])
 	streets = data.get("streets", [])
-	sites = CitySiteRegistry.load_for(data)
+	sites = CitySiteRegistry.load_for(data, file_path("sites"))
 	var error := _load_heights(height_path)
 	if error != OK:
 		return error

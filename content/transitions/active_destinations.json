@@ -184,7 +184,7 @@
     },
     {
       "id": "world_paide",
-      "path": "res://scenes/world_travel/world_paide.tscn",
+      "path": "res://scenes/world/sites/paide.tscn",
       "active": true,
       "release": false,
       "spawns": [

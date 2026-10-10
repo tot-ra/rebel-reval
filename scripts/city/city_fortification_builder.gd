@@ -864,8 +864,10 @@ static func _tower(shell: CityBuildingBuilder.Shell, plan: CityPlan, t: Dictiona
 	var form := String(t["form"])
 	if form == "gate_rect":
 		return  # the gate house carries it
-	# Project outward (field side) by part of the depth.
-	var c := _toward_field(plan, at, along, d * 0.35)
+	var c := tower_centre(plan, t)
+	if form == "octagonal":
+		_octagonal_keep(shell, c, w * 0.5, h, float(t.get("roof_h", w * 0.4)), ground)
+		return
 	if form == "horseshoe" or form == "round":
 		var r := w * 0.5
 		# Battered foot, then the drum, slit windows and a tile cone.
@@ -897,6 +899,49 @@ static func _tower(shell: CityBuildingBuilder.Shell, plan: CityPlan, t: Dictiona
 	else:
 		_obox(shell, "stone", c, along, w * 0.5, d * 0.5, ground - 1.6, ground + h)
 		_pyramid(shell, "tile", c, along, w * 0.5 + 0.5, d * 0.5 + 0.5, ground + h, w * 1.1)
+
+
+## Centre of a tower's body. Wall towers project outward (field side) by part
+## of their depth; a free-standing keep (`octagonal`, ADR 0042 regional sites)
+## stands on its own point. Shared with the collision builder.
+static func tower_centre(plan: CityPlan, t: Dictionary) -> Vector2:
+	var at := Vector2(t["at"][0], t["at"][1])
+	if String(t["form"]) == "octagonal":
+		return at
+	var along := Vector2(cos(float(t["angle"])), sin(float(t["angle"])))
+	return _toward_field(plan, at, along, float(t["d"]) * 0.35)
+
+
+## Free-standing octagonal keep (the Paide main tower, about 30 m with 2.4 m
+## walls after Tuulse): a battered plinth, the eight-sided shaft with slit
+## windows on every face, a corbelled fighting level behind a parapet, and a
+## low eight-sided cap.
+static func _octagonal_keep(
+	shell: CityBuildingBuilder.Shell, c: Vector2, r: float, h: float, roof_h: float, ground: float
+) -> void:
+	_drum(shell, c, r + 0.5, ground - 2.0, ground + 2.0, 8)
+	_drum(shell, c, r, ground + 2.0, ground + h - 2.2, 8)
+	for k in 8:
+		var ang := TAU * (float(k) + 0.5) / 8.0
+		var dir := Vector2(cos(ang), sin(ang))
+		# Face midpoint of the octagon (apothem), slightly proud of the wall.
+		var pos := c + dir * (r * cos(PI / 8.0) + 0.03)
+		var tang := Vector2(-dir.y, dir.x)
+		for level: float in [0.3, 0.5, 0.7]:
+			var y := ground + h * level
+			var a := pos - tang * 0.18
+			var b := pos + tang * 0.18
+			shell.quad_out(
+				"dark",
+				Vector3(a.x, y, a.y),
+				Vector3(b.x, y, b.y),
+				Vector3(b.x, y + 1.3, b.y),
+				Vector3(a.x, y + 1.3, a.y),
+				Color(1, 1, 1),
+				Vector3(dir.x, 0, dir.y)
+			)
+	_drum(shell, c, r + 0.55, ground + h - 2.2, ground + h, 8)
+	_cone(shell, "tile", c, r + 0.9, ground + h, roof_h, 8)
 
 
 static func _toward_field(plan: CityPlan, at: Vector2, along: Vector2, offset: float) -> Vector2:

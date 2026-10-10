@@ -57,9 +57,11 @@ static func redirect(scene_id: StringName, spawn_id: StringName) -> Array:
 	return [CITY_SCENE_ID, city_spawn]
 
 
-static func consume_pending_spawn() -> StringName:
+## `scene_id` is the scene asking: the city, or a regional site scene such as
+## `world_paide` (ADR 0042) whose arrival spawns come from the travel manifest.
+static func consume_pending_spawn(scene_id: StringName = CITY_SCENE_ID) -> StringName:
 	var spawn := pending_spawn
-	if spawn.is_empty() and DoorNavigator.pending_spawn_scene_id == CITY_SCENE_ID:
+	if spawn.is_empty() and DoorNavigator.pending_spawn_scene_id == scene_id:
 		spawn = DoorNavigator.pending_spawn_id
 		DoorNavigator.clear_pending_spawn()
 	pending_spawn = &""
@@ -70,6 +72,10 @@ static func consume_pending_spawn() -> StringName:
 ## interest, a landmark's door, a suburb, the head of an extramural road, or
 ## Kalev's smithy door.
 static func spawn_position(plan: CityPlan, spawn_id: String) -> Vector2:
+	# Regional sites (ADR 0042) list their travel arrivals (`from_world_*`) in the plan.
+	var arrival := plan.arrival_spawn(spawn_id)
+	if not arrival.is_empty():
+		return Vector2(arrival["at"][0], arrival["at"][1])
 	var outside := spawn_id.ends_with(".outside")
 	var id := spawn_id.trim_suffix(".outside")
 	var g := plan.gate(id)
@@ -101,7 +107,12 @@ static func spawn_position(plan: CityPlan, spawn_id: String) -> Vector2:
 		if String(s["id"]) == id:
 			return Vector2(s["points"][0][0], s["points"][0][1])
 	var forum := plan.point_of_interest(String(DEFAULT_SPAWN))
-	return Vector2(forum["at"][0], forum["at"][1])
+	if not forum.is_empty():
+		return Vector2(forum["at"][0], forum["at"][1])
+	var fallback := plan.arrival_spawn(String(plan.site_info().get("default_spawn", "")))
+	if not fallback.is_empty():
+		return Vector2(fallback["at"][0], fallback["at"][1])
+	return plan.bounds.get_center()
 
 
 static func building_index(plan: CityPlan, landmark_or_id: String) -> int:

@@ -23,12 +23,29 @@ const SOLAR_TIDE_FORCE_RATIO := 0.46
 const TIDE_BASIN_LAG_PROGRESS := 1.5 / 24.0
 ## Astronomical reference for Reval (Tallinn) on St George's Night.
 const OBSERVER_LATITUDE_DEGREES := 59.437
+const OBSERVER_LONGITUDE_DEGREES := 24.745
 const SKY_EPOCH_YEAR := 1343.0
 const REFERENCE_DATE := "1343-04-23"
 const MIDNIGHT_SIDEREAL_DEGREES := 218.31
 const SIDEREAL_ROTATIONS_PER_SOLAR_DAY := 1.00273790935
 const SUN_DISK_FADE_START := -0.05
 const SUN_DISK_FADE_END := 0.05
+
+## The observer the sky is computed for. Reval by default; a regional site
+## (ADR 0042) sets its plan origin on load and resets on exit, so the sun and
+## moon stand where they would over Paide or Kaali. Progress stays local solar
+## time, so only the latitude moves the sun; the longitude turns the stars.
+static var observer_latitude_degrees := OBSERVER_LATITUDE_DEGREES
+static var observer_longitude_degrees := OBSERVER_LONGITUDE_DEGREES
+
+
+static func set_observer(latitude_degrees: float, longitude_degrees: float) -> void:
+	observer_latitude_degrees = latitude_degrees
+	observer_longitude_degrees = longitude_degrees
+
+
+static func reset_observer() -> void:
+	set_observer(OBSERVER_LATITUDE_DEGREES, OBSERVER_LONGITUDE_DEGREES)
 
 ## Solar declination follows the campaign's Julian calendar. The approximation is
 ## intentionally deterministic and is accurate enough to reproduce Reval's long
@@ -46,7 +63,7 @@ static func solar_declination_degrees(date: Dictionary) -> float:
 ## Local ENU direction for a body with the given equatorial declination.
 ## +X east, -Z north, and +Y up. Progress 0.5 is local meridian transit.
 static func celestial_direction(progress: float, declination_degrees: float) -> Vector3:
-	var latitude := deg_to_rad(OBSERVER_LATITUDE_DEGREES)
+	var latitude := deg_to_rad(observer_latitude_degrees)
 	var declination := deg_to_rad(declination_degrees)
 	var hour_angle := (wrapf(progress, 0.0, 1.0) - 0.5) * TAU
 	var east := -cos(declination) * sin(hour_angle)
@@ -66,8 +83,10 @@ static func sidereal_angle_for_progress(progress: float, date: Dictionary = {}) 
 	var days_from_reference := 0.0
 	if not date.is_empty():
 		days_from_reference = julian_day(date) - julian_day(_reference_date())
+	# Local sidereal time runs ahead by the longitude east of Reval (exactly 0 there).
 	return (
 		deg_to_rad(MIDNIGHT_SIDEREAL_DEGREES)
+		+ deg_to_rad(observer_longitude_degrees - OBSERVER_LONGITUDE_DEGREES)
 		+ days_from_reference * TAU * (SIDEREAL_ROTATIONS_PER_SOLAR_DAY - 1.0)
 		+ wrapf(progress, 0.0, 1.0) * TAU * SIDEREAL_ROTATIONS_PER_SOLAR_DAY
 	)
@@ -97,7 +116,7 @@ static func sun_disk_visibility(sun_direction: Vector3) -> float:
 
 static func sunrise_sunset_hours(date: Dictionary = {}) -> Dictionary:
 	var effective_date := GAME_CALENDAR.DEFAULT_DATE if date.is_empty() else date
-	var latitude := deg_to_rad(OBSERVER_LATITUDE_DEGREES)
+	var latitude := deg_to_rad(observer_latitude_degrees)
 	var declination := deg_to_rad(solar_declination_degrees(effective_date))
 	var horizon_hour_angle := acos(clampf(-tan(latitude) * tan(declination), -1.0, 1.0))
 	var half_day_hours := rad_to_deg(horizon_hour_angle) / 15.0

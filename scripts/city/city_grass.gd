@@ -96,10 +96,10 @@ static func create(city_plan: CityPlan) -> CityGrass:
 	var node := CityGrass.new()
 	node.name = "Grass"
 	node.plan = city_plan
-	node._splat = (load(CityPlan.SPLAT_PATH) as Texture2D).get_image()
+	node._splat = (load(city_plan.splat_path()) as Texture2D).get_image()
 	if node._splat.is_compressed():
 		node._splat.decompress()
-	node._roads = (load(CityPlan.ROADS_PATH) as Texture2D).get_image()
+	node._roads = (load(city_plan.roads_path()) as Texture2D).get_image()
 	if node._roads.is_compressed():
 		node._roads.decompress()
 	node._blade_mesh = MapViewMeshBuilderPrimitives.grass_blade_clump_mesh()
