@@ -337,3 +337,4 @@ This file contains lessons specific to the Dev role.
 - Commit plan-compiler edits, regenerated plan outputs and the site manifests in one commit as soon as they work: a concurrent session's commit can sweep half of them, leaving origin with a plan whose site has no manifest.
 
 - Mesh-joint tests that match ring vertices by distance must select both sections' ring planes (current and next axis) and skip skeleton segments that do not start at the previous end (oak/cherry list mid-trunk limbs at depth 0); otherwise bent joints give false UV failures.
+- Choosing Foley without listening: render log-frequency spectrograms (`showspectrumpic=fscale=log`) of candidate stretches next to the current pool and reject recordings with a continuous band under ~150 Hz (river flow, GoPro housing, wind); they read as rumble after levelling. Build ffmpeg `-filter_complex` strings with `[0][1]` labels in Python, not a zsh loop: zsh mangles `[$i]` and the graph fails as `papad`.

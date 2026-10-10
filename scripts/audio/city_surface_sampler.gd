@@ -6,7 +6,8 @@ extends RefCounted
 ## the plan's land-use rasters, so this reads the same rasters the shader reads
 ## and answers with a SurfaceResolver surface. Nothing here touches game state.
 ##
-## Priority, first match wins: water the foot stands in, a bridge deck, an
+## Priority, first match wins: water the foot stands in (splash or wade by
+## depth, R-1648), a bridge deck, an
 ## interior site floor, a building floor, the painted ground, and a rain puddle
 ## on that ground.
 
@@ -43,8 +44,9 @@ func surface_at(foot: Vector3, puddles: float = 0.0, ground_dryness: float = 0.0
 	if plan == null:
 		return &""
 	var xz := Vector2(foot.x, foot.z)
-	if water_depth.is_valid() and float(water_depth.call(xz)) > 0.0:
-		return SurfaceResolver.SURFACE_WATER_SHALLOW
+	var depth := float(water_depth.call(xz)) if water_depth.is_valid() else 0.0
+	if depth > 0.0:
+		return SurfaceResolver.water_surface_for_depth(depth)
 	if not is_nan(plan.bridge_deck_height(xz)):
 		return SurfaceResolver.SURFACE_WOOD
 	var site := plan.site_at(xz)

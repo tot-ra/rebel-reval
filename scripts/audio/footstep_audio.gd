@@ -16,6 +16,8 @@ extends Node
 ## crowd can never steal the player's own steps.
 
 const SfxPlayerScript := preload("res://scripts/audio/sfx_player.gd")
+## A treading swimmer only sculls; the same arm-pull pool plays softer.
+const TREAD_STROKE_VOLUME_OFFSET_DB := -7.0
 
 ## Added to every voice; NPC steps sit under the player's own.
 var volume_offset_db := 0.0
@@ -96,6 +98,25 @@ func on_foot_plant(
 	_played_count += 1
 	_last_sound_id = sound_id
 	return sound_id
+
+
+## One swim stroke (R-1648): the swimmer presenter reports an arm entering
+## the water while the feet are off the bed, so no foot plant plays. `style` is
+## &"crawl" or &"tread". `sound_position` is global, like on_foot_plant's.
+func on_swim_stroke(sound_position: Vector3, style: StringName) -> StringName:
+	if not _audio_enabled or _sfx == null:
+		return &""
+	var voice := _sfx.play(SurfaceResolver.SWIM_STROKE_SOUND_ID, sound_position)
+	if voice == null:
+		return &""
+	var offset := volume_offset_db
+	if style == &"tread":
+		offset += TREAD_STROKE_VOLUME_OFFSET_DB
+	if not is_zero_approx(offset):
+		voice.set(&"volume_db", float(voice.get(&"volume_db")) + offset)
+	_played_count += 1
+	_last_sound_id = SurfaceResolver.SWIM_STROKE_SOUND_ID
+	return SurfaceResolver.SWIM_STROKE_SOUND_ID
 
 
 func surface_under(foot_world_position: Vector3) -> StringName:

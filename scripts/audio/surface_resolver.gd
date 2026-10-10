@@ -20,6 +20,10 @@ const SURFACE_GRASS := &"grass"
 ## gravel and sand share one surface.
 const SURFACE_GRAVEL := &"gravel"
 const SURFACE_WATER_SHALLOW := &"water_shallow"
+## Shin-deep and deeper: the leg is pulled out and pushed back through the
+## water, a long gurgling slosh instead of a splash (R-1648). No terrain maps to
+## it: the view picks it from the water column under the foot.
+const SURFACE_WATER_WADE := &"water_wade"
 ## Standing rain water over another surface. No terrain maps to it: the view
 ## reports it where a visible puddle lies under the foot (R-1641).
 const SURFACE_PUDDLE := &"puddle"
@@ -32,6 +36,7 @@ const SURFACES: Array[StringName] = [
 	SURFACE_GRASS,
 	SURFACE_GRAVEL,
 	SURFACE_WATER_SHALLOW,
+	SURFACE_WATER_WADE,
 	SURFACE_PUDDLE,
 ]
 
@@ -43,6 +48,16 @@ const GAITS: Array[StringName] = [GAIT_WALK, GAIT_RUN, GAIT_SNEAK]
 ## Logic px/s above which locomotion reads as running. Mirrors
 ## MapViewRuntimeActors.RUN_ANIMATION_MIN_SPEED so sound and animation agree.
 const RUN_SPEED_THRESHOLD := 170.0
+
+## Water column (world units, Kalev about 2 tall) from which a step wades
+## instead of splashing: mid-shin, where the leg starts to push water aside.
+## Deeper than PlayerSwimState.SWIM_ENTER_DEPTH the feet leave the bed and no
+## step plays at all; the swimmer presenter plays strokes instead.
+const WADE_SURFACE_DEPTH := 0.3
+
+## One arm pull of a swimmer (R-1648); played by the swimmer presenter, not by a
+## foot plant, so it is not a footstep surface.
+const SWIM_STROKE_SOUND_ID := &"sfx.water.swim_stroke"
 
 ## Every MapTypes terrain maps to exactly one surface, or to &"" when footsteps
 ## must stay silent (deep water is swimming; the swimmer owns those sounds).
@@ -95,6 +110,7 @@ const SURFACE_FALLBACKS: Dictionary = {
 	SURFACE_MUD: [],
 	SURFACE_GRASS: [],
 	SURFACE_WATER_SHALLOW: [],
+	SURFACE_WATER_WADE: [],
 	SURFACE_PUDDLE: [],
 }
 
@@ -133,6 +149,13 @@ static func with_puddle(surface: StringName, in_puddle: bool) -> StringName:
 	if in_puddle and surface in PUDDLE_HOSTS:
 		return SURFACE_PUDDLE
 	return surface
+
+
+## The water surface a foot hears in a column `depth` deep: a splash up to
+## mid-shin, wading above it. The column, not the terrain ID, decides, so the
+## shelving edge of the sea splashes and its deeper water wades on every map.
+static func water_surface_for_depth(depth: float) -> StringName:
+	return SURFACE_WATER_WADE if depth >= WADE_SURFACE_DEPTH else SURFACE_WATER_SHALLOW
 
 
 static func gait_for_speed(speed: float, run_threshold: float = RUN_SPEED_THRESHOLD) -> StringName:

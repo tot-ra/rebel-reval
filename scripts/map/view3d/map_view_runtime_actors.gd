@@ -32,6 +32,8 @@ var _request_screen_shake: Callable
 var _footstep_callback: Callable
 ## Set to MapViewRuntimeAmbient.play_npc_footstep (R-1641).
 var _npc_footstep_callback: Callable
+## Set to MapViewRuntimeAmbient.play_swim_stroke (R-1648).
+var _swim_stroke_callback: Callable
 var _sample_owning_ground := false
 var _swimmer := MapViewSwimmerPresenter.new()
 
@@ -60,9 +62,12 @@ func rebind_view(map_definition: MapDefinition, map_view: MapView3D) -> void:
 	_sample_owning_ground = true
 
 
-func set_footstep_callback(callback: Callable, npc_callback: Callable = Callable()) -> void:
+func set_footstep_callback(
+	callback: Callable, npc_callback: Callable = Callable(), swim_callback: Callable = Callable()
+) -> void:
 	_footstep_callback = callback
 	_npc_footstep_callback = npc_callback
+	_swim_stroke_callback = swim_callback
 
 
 func set_screen_shake_callback(callback: Callable) -> void:
@@ -174,6 +179,9 @@ func sync_player(snap: bool, delta: float = 0.0) -> void:
 	elif moving:
 		wanted = &"run" if speed > RUN_ANIMATION_MIN_SPEED else &"walk"
 	var in_water := _apply_swimmer(delta)
+	var stroke := _swimmer.consume_stroke()
+	if in_water and not String(stroke).is_empty() and _swim_stroke_callback.is_valid():
+		_swim_stroke_callback.call(_player_rig.global_position, stroke)
 	if in_water and _swimmer.is_stroking():
 		# The procedural stroke poses the limbs over a calm base clip.
 		wanted = &"idle"

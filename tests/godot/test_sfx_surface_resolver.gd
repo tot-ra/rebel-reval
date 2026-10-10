@@ -148,6 +148,24 @@ func test_shipped_catalog_resolves_each_surface_to_its_own_material() -> void:
 		)
 
 
+## Depth, not terrain, tells a splash from wading (R-1648).
+func test_water_depth_picks_splash_or_wade() -> void:
+	assert_eq(SurfaceResolver.water_surface_for_depth(0.05), SurfaceResolver.SURFACE_WATER_SHALLOW)
+	assert_eq(
+		SurfaceResolver.water_surface_for_depth(SurfaceResolver.WADE_SURFACE_DEPTH - 0.01),
+		SurfaceResolver.SURFACE_WATER_SHALLOW
+	)
+	assert_eq(
+		SurfaceResolver.water_surface_for_depth(SurfaceResolver.WADE_SURFACE_DEPTH),
+		SurfaceResolver.SURFACE_WATER_WADE
+	)
+	assert_eq(SurfaceResolver.water_surface_for_depth(1.0), SurfaceResolver.SURFACE_WATER_WADE)
+	assert_true(SurfaceResolver.WADE_SURFACE_DEPTH > PlayerSwimState.WADE_MIN_DEPTH)
+	assert_true(SurfaceResolver.WADE_SURFACE_DEPTH < PlayerSwimState.SWIM_ENTER_DEPTH)
+	assert_true(SurfaceResolver.SURFACE_WATER_WADE in SurfaceResolver.SURFACES)
+	assert_false(SurfaceResolver.SURFACE_WATER_WADE in SurfaceResolver.PUDDLE_HOSTS)
+
+
 ## A filled puddle under the sole is heard over the ground it lies on, but
 ## never turns a board or a stream into a puddle (R-1641).
 func test_puddle_overrides_only_ground_surfaces() -> void:

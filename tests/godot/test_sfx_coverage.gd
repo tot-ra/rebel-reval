@@ -73,7 +73,11 @@ func test_pilot_maps_have_profiles_with_a_bed() -> void:
 func test_one_shot_pools_hold_one_shots() -> void:
 	var catalog := SfxCatalog.load_default()
 	for sound_id: StringName in [
-		&"sfx.footstep.wood.walk", &"sfx.footstep.mud.walk", &"sfx.door.wood.use"
+		&"sfx.footstep.wood.walk",
+		&"sfx.footstep.mud.walk",
+		&"sfx.footstep.water_wade.walk",
+		&"sfx.water.swim_stroke",
+		&"sfx.door.wood.use",
 	]:
 		var entry := catalog.get_entry(sound_id)
 		assert_true(entry.has("streams"), "missing one-shot entry %s" % sound_id)

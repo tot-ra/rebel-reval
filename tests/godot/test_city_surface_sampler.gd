@@ -70,12 +70,36 @@ func test_smithy_floor_is_beaten_earth() -> void:
 	assert_true(false, "the plan must place Kalev's smithy with a floor")
 
 
-## Water the foot stands in wins over every floor and the painted ground.
+## Water the foot stands in wins over every floor and the painted ground, and
+## its depth picks a splash or wading (R-1648).
 func test_water_wins_over_ground() -> void:
 	var plan := _plan()
-	var sampler := CitySurfaceSampler.new(plan, func(_xz: Vector2) -> float: return 0.3)
 	var at := _centroid(plan.footprint(0))
-	assert_eq(sampler.surface_at(_foot(at)), SurfaceResolver.SURFACE_WATER_SHALLOW)
+	var ankle := CitySurfaceSampler.new(plan, func(_xz: Vector2) -> float: return 0.1)
+	assert_eq(ankle.surface_at(_foot(at)), SurfaceResolver.SURFACE_WATER_SHALLOW)
+	var thigh := CitySurfaceSampler.new(plan, func(_xz: Vector2) -> float: return 0.8)
+	assert_eq(thigh.surface_at(_foot(at)), SurfaceResolver.SURFACE_WATER_WADE)
+
+
+## The real sea wades a little way out from the beach (R-1648): somewhere the
+## plan's water is deep enough, the foot hears wading, not a splash.
+func test_sea_shelf_wades() -> void:
+	var plan := _plan()
+	if not plan.has_coast():
+		return
+	var sea_depth := func(xz: Vector2) -> float: return maxf(-plan.walk_height(xz), 0.0)
+	var sampler := CitySurfaceSampler.new(plan, sea_depth)
+	var found_wade := false
+	for gx in range(121):
+		for gz in range(121):
+			var xz := plan.bounds.position + plan.bounds.size * Vector2(gx, gz) / 120.0
+			var depth := float(sea_depth.call(xz))
+			if depth <= 0.0 or depth >= PlayerSwimState.SWIM_ENTER_DEPTH:
+				continue
+			var surface := sampler.surface_at(_foot(xz))
+			if depth >= SurfaceResolver.WADE_SURFACE_DEPTH:
+				found_wade = found_wade or surface == SurfaceResolver.SURFACE_WATER_WADE
+	assert_true(found_wade, "wadeable sea must be heard as wading somewhere on the coast")
 
 
 ## Every painted layer the shader draws is heard as its own surface somewhere

@@ -10,7 +10,8 @@ Material:
 - Kenney "Impact Sounds" (CC0): wood, concrete and grass steps that already
   ship as single one-shots; they are only mixed to mono and levelled.
 - Freesound HQ previews (CC0): continuous walks on gravel, packed dirt, mud,
-  a puddle and shallow water. Single steps are cut out at fixed offsets
+  a puddle, shallow water and knee-deep wading, plus a swimmer's strokes
+  (R-1648; the stroke pool rides along because it is cut the same way). Single steps are cut out at fixed offsets
   (constants below, picked as strong onsets with a clean gap to the next step).
 
 Each clip is mono (the pools play through AudioStreamPlayer3D, where a baked
@@ -117,6 +118,22 @@ SOURCES = {
         "page": "https://freesound.org/people/aglinder/sounds/265582/",
         "url": "https://cdn.freesound.org/previews/265/265582_1042839-hq.mp3",
     },
+    "fs_342932": {
+        "kind": "preview",
+        "title": "Wading in Shallow Water",
+        "author": "ryansitz",
+        "fs_id": 342932,
+        "page": "https://freesound.org/people/ryansitz/sounds/342932/",
+        "url": "https://cdn.freesound.org/previews/342/342932_5800259-hq.mp3",
+    },
+    "fs_438845": {
+        "kind": "preview",
+        "title": "G54-26-Person Swimming",
+        "author": "craigsmith",
+        "fs_id": 438845,
+        "page": "https://freesound.org/people/craigsmith/sounds/438845/",
+        "url": "https://cdn.freesound.org/previews/438/438845_2524442-hq.mp3",
+    },
 }
 
 # Freesound preview digests, pinned so a changed CDN file fails loudly instead
@@ -129,6 +146,8 @@ PREVIEW_SHA256 = {
     "fs_106395": "e149bb9ed789cc1f441c32f10ac31af6f13de2221cb70e4d046e4a2233058f97",
     "fs_861369": "f9f67010299d84663bdaca507e1a9696fa2e659311c852db3d5e2b8b155c99e3",
     "fs_265582": "6a6bd7bb2ee0c165c4b7293d707a0bc7591c01c4d78c9f419b7a84002d5ab1e5",
+    "fs_342932": "45146fdb33646cb5ca73ada1058a9ed059d64a3339f633e78086b859ee6c7fa1",
+    "fs_438845": "5bc55a68068331968f6d840323f91fff2ef6998fb85ac0d9ebeedaae01a113ad",
 }
 
 # surface -> (peak-window target dBFS, high-pass Hz, [(source, member or offset, length)])
@@ -200,7 +219,48 @@ POOLS = {
             ("fs_265582", 9.320, 0.50),
         ],
     ),
+    # R-1648: knee-deep and deeper. A leg pulled out of the water and pushed back
+    # in is a long gurgling slosh, not the short slap of a puddle or ankle-deep
+    # splash, so the cuts keep the plunge plus the other leg's lift after it.
+    # The cuts are the low, long plunges (the short bright onsets between them
+    # are the lift-outs). Quieter than a splash: the water damps the impact.
+    "water_wade": (
+        -16.0,
+        70,
+        [
+            ("fs_342932", 3.900, 0.65),
+            ("fs_342932", 4.890, 0.60),
+            ("fs_342932", 12.510, 0.60),
+            ("fs_342932", 13.700, 0.60),
+            ("fs_342932", 15.580, 0.65),
+            ("fs_342932", 16.710, 0.65),
+            ("fs_342932", 18.970, 0.65),
+            ("fs_342932", 21.600, 0.65),
+        ],
+    ),
+    # R-1648: one arm pull of a crawl or a sculling sweep, played by the swimmer
+    # presenter once per stroke (feet leave the bed, so no step plays). The
+    # opening second of the source is a jump-in splash and is skipped.
+    "swim": (
+        -18.0,
+        60,
+        [
+            ("fs_438845", 2.610, 0.80),
+            ("fs_438845", 3.850, 0.80),
+            ("fs_438845", 6.670, 0.80),
+            ("fs_438845", 8.910, 0.80),
+            ("fs_438845", 15.320, 0.80),
+            ("fs_438845", 19.000, 0.80),
+            ("fs_438845", 22.320, 0.80),
+            ("fs_438845", 31.860, 0.80),
+        ],
+    ),
 }
+
+# Pools added after R-1641 carry their own task in the provenance rows.
+POOL_TASKS = {"water_wade": "R-1648", "swim": "R-1648"}
+# Swim strokes are not steps; every other pool is named <surface>_step_NN.
+POOL_FILE_STEMS = {"swim": "swim_stroke"}
 
 
 def _sha256(path: Path) -> str:
@@ -301,7 +361,8 @@ def _clips() -> list[dict]:
                     "source_id": source_id,
                     "member": member,
                     "length": length,
-                    "file": f"{surface}_step_{index:02d}.mp3",
+                    "file": f"{POOL_FILE_STEMS.get(surface, surface + '_step')}_{index:02d}.mp3",
+                    "task": POOL_TASKS.get(surface, TASK),
                 }
             )
     return clips
@@ -329,8 +390,11 @@ def _notes(clip: dict) -> str:
         cut = f"whole one-shot {clip['member']}"
     else:
         cut = f"single step cut at {float(clip['member']):.3f} s, {clip['length'] * 1000:.0f} ms"
+    kind = "swim stroke" if clip["surface"] == "swim" else f"{clip['surface']} footstep"
+    if clip["surface"] == "swim":
+        cut = cut.replace("single step", "single stroke")
     return (
-        f"{TASK} {clip['surface']} footstep from CC0 {source['title']}; {cut}; mono, "
+        f"{clip['task']} {kind} from CC0 {source['title']}; {cut}; mono, "
         f"{clip['highpass']} Hz high-pass, loudest 50 ms at {clip['target']:.0f} dBFS"
     )
 
@@ -371,7 +435,7 @@ def _source_rows() -> list[list[str]]:
                 str(source.get("fs_id", "not applicable")),
                 "CC0 1.0",
                 f"{_notes(clip)}; mono 44.1 kHz 128 kbps; source sha256 {_expected_sha(clip['source_id'])}.",
-                f"approved - {TASK} CC0 Foley recording (maintainer request 2026-10-10)",
+                f"approved - {clip['task']} CC0 Foley recording (maintainer request 2026-10-10)",
             ]
         )
     return rows

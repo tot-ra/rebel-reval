@@ -461,7 +461,18 @@ func footstep_surface_at(foot_position: Vector3) -> StringName:
 	if definition == null or grid == null:
 		return &""
 	var logic := MapViewBridge.world_to_logic(foot_position, definition.cell_size)
-	var surface := SurfaceResolver.surface_at_logic_position(grid, definition.cell_size, logic)
+	var cell := Vector2i(
+		floori(logic.x / float(definition.cell_size)), floori(logic.y / float(definition.cell_size))
+	)
+	# Water the player can walk into is heard by its column (R-1648): the sea's
+	# deep_water terrain has a wadeable shelf before the swimmer takes over, and
+	# shallow water deepens into basins, so the terrain ID alone cannot tell a
+	# splash from wading.
+	if PlayerWaterTraversal.is_traversable_terrain(grid.get_terrain(cell)):
+		var depth := PlayerWaterTraversal.depth_at(definition, grid, logic)
+		if depth > 0.0:
+			return SurfaceResolver.water_surface_for_depth(depth)
+	var surface := SurfaceResolver.surface_at_cell(grid, cell)
 	return SurfaceResolver.with_puddle(surface, _foot_in_filled_puddle(foot_position))
 
 

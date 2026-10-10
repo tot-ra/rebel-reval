@@ -246,6 +246,68 @@
       "spatial": "3d"
     },
     {
+      "id": "sfx.footstep.water_wade.walk",
+      "bus": "Footsteps",
+      "streams": [
+        "res://sounds/footsteps/water_wade_step_01.mp3",
+        "res://sounds/footsteps/water_wade_step_02.mp3",
+        "res://sounds/footsteps/water_wade_step_03.mp3",
+        "res://sounds/footsteps/water_wade_step_04.mp3",
+        "res://sounds/footsteps/water_wade_step_05.mp3",
+        "res://sounds/footsteps/water_wade_step_06.mp3",
+        "res://sounds/footsteps/water_wade_step_07.mp3",
+        "res://sounds/footsteps/water_wade_step_08.mp3"
+      ],
+      "tier": "A",
+      "source_ids": [
+        "sounds.footsteps.water_wade_step_01",
+        "sounds.footsteps.water_wade_step_02",
+        "sounds.footsteps.water_wade_step_03",
+        "sounds.footsteps.water_wade_step_04",
+        "sounds.footsteps.water_wade_step_05",
+        "sounds.footsteps.water_wade_step_06",
+        "sounds.footsteps.water_wade_step_07",
+        "sounds.footsteps.water_wade_step_08"
+      ],
+      "pitch_jitter": 0.06,
+      "volume_jitter_db": 1.5,
+      "no_repeat": 2,
+      "max_voices": 3,
+      "cooldown_ms": 90,
+      "spatial": "3d"
+    },
+    {
+      "id": "sfx.water.swim_stroke",
+      "bus": "Footsteps",
+      "streams": [
+        "res://sounds/footsteps/swim_stroke_01.mp3",
+        "res://sounds/footsteps/swim_stroke_02.mp3",
+        "res://sounds/footsteps/swim_stroke_03.mp3",
+        "res://sounds/footsteps/swim_stroke_04.mp3",
+        "res://sounds/footsteps/swim_stroke_05.mp3",
+        "res://sounds/footsteps/swim_stroke_06.mp3",
+        "res://sounds/footsteps/swim_stroke_07.mp3",
+        "res://sounds/footsteps/swim_stroke_08.mp3"
+      ],
+      "tier": "A",
+      "source_ids": [
+        "sounds.footsteps.swim_stroke_01",
+        "sounds.footsteps.swim_stroke_02",
+        "sounds.footsteps.swim_stroke_03",
+        "sounds.footsteps.swim_stroke_04",
+        "sounds.footsteps.swim_stroke_05",
+        "sounds.footsteps.swim_stroke_06",
+        "sounds.footsteps.swim_stroke_07",
+        "sounds.footsteps.swim_stroke_08"
+      ],
+      "pitch_jitter": 0.08,
+      "volume_jitter_db": 1.5,
+      "no_repeat": 2,
+      "max_voices": 2,
+      "cooldown_ms": 200,
+      "spatial": "3d"
+    },
+    {
       "id": "sfx.water.emerge",
       "bus": "SFX",
       "streams": ["res://sounds/water/emerge.mp3"],

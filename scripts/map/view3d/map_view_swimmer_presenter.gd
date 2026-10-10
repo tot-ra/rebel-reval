@@ -58,6 +58,9 @@ var _was_in_water := false
 var _previous_medium := 0
 var _camera_lift := Vector3.ZERO
 var _camera_boom_scale := 1.0
+## Stroke style (&"crawl" or &"tread") of an arm entry since the last
+## consume_stroke(), or &"" (R-1648).
+var _stroke_event := &""
 
 
 ## Places and poses `rig` for the player's current water medium. Returns true while
@@ -137,6 +140,15 @@ func apply(
 
 func is_stroking() -> bool:
 	return _modifier != null and _modifier.influence > 0.02
+
+
+## The stroke that sounded since the last call, then clears it: &"crawl",
+## &"tread" or &"". The stroke sound follows the posed arms the way footsteps
+## follow foot plants, so its cadence always matches what the player sees.
+func consume_stroke() -> StringName:
+	var event := _stroke_event
+	_stroke_event = &""
+	return event
 
 
 func _release(rig: SharedCharacterRig) -> void:
@@ -227,8 +239,15 @@ func _sync_stroke(
 			logic_speed / 80.0, 0.0, 1.0
 		)
 		hz = lerpf(CRAWL_HZ_MIN, CRAWL_HZ_MAX, speed_ratio)
+	var previous_phase := _phase
 	_phase = fposmod(_phase + TAU * hz * delta, TAU * 8.0)
 	_modifier.phase = _phase
+	# The arms are half a cycle apart, so a hand enters the water (crawl phi = 0)
+	# or a sculling sweep turns (tread) every PI of phase. Only once the stroke
+	# pose has mostly blended in: wading into deep water must not splash arms.
+	if swimming and _modifier.influence > 0.5:
+		if floori(_phase / PI) != floori(previous_phase / PI):
+			_stroke_event = &"crawl" if crawl else &"tread"
 	var target := 1.0 if swimming else 0.0
 	_modifier.influence = move_toward(_modifier.influence, target, INFLUENCE_RATE * delta)
 

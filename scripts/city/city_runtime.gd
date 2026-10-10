@@ -104,7 +104,8 @@ static func _install_footsteps(runtime: MapViewRuntime) -> void:
 	runtime._ambient_controller._install_footstep_audio()
 	runtime._actor_controller.set_footstep_callback(
 		Callable(runtime._ambient_controller, "play_footstep"),
-		Callable(runtime._ambient_controller, "play_npc_footstep")
+		Callable(runtime._ambient_controller, "play_npc_footstep"),
+		Callable(runtime._ambient_controller, "play_swim_stroke")
 	)
 
 

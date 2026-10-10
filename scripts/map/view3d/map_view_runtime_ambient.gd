@@ -145,6 +145,14 @@ func play_npc_footstep(
 	return _npc_footstep_audio.on_foot_plant(foot_world_position, speed, sound_position)
 
 
+## A swimming player's arm stroke (R-1648), on the player's footstep voices:
+## the feet are off the bed, so the stroke replaces the step.
+func play_swim_stroke(sound_position: Vector3, style: StringName) -> StringName:
+	if _footstep_audio == null:
+		return &""
+	return _footstep_audio.on_swim_stroke(sound_position, style)
+
+
 func set_footstep_audio_enabled(enabled: bool) -> void:
 	_footstep_audio_enabled = enabled
 	for audio: Variant in [_footstep_audio, _npc_footstep_audio]:

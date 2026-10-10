@@ -20,6 +20,12 @@ func _catalog() -> SfxCatalog:
 					"spatial": "3d",
 				},
 				{
+					"id": "sfx.water.swim_stroke",
+					"bus": "Footsteps",
+					"streams": ["res://sounds/footsteps/swim_stroke_01.mp3"],
+					"spatial": "3d",
+				},
+				{
 					"id": "sfx.footstep.grass.walk",
 					"bus": "Footsteps",
 					"streams": ["res://sounds/footsteps/grass_step_01.mp3"],
@@ -129,4 +135,25 @@ func test_volume_offset_and_sound_position_apply_to_the_voice() -> void:
 	if voice != null:
 		assert_true(voice.volume_db <= -4.0, "the NPC offset must lower the voice")
 		assert_eq(voice.position, sound_at)
+	footsteps.queue_free()
+
+
+## A swimmer's arm stroke plays the stroke pool at the given point; treading
+## water sculls softer than a crawl (R-1648).
+func test_swim_stroke_plays_and_treading_is_softer() -> void:
+	var footsteps := _install()
+	var at := Vector3(4.0, -0.5, 7.0)
+	assert_eq(footsteps.on_swim_stroke(at, &"crawl"), SurfaceResolver.SWIM_STROKE_SOUND_ID)
+	assert_eq(footsteps.on_swim_stroke(at, &"tread"), SurfaceResolver.SWIM_STROKE_SOUND_ID)
+	var voices: Array[AudioStreamPlayer3D] = []
+	for child in footsteps.find_children("*", "AudioStreamPlayer3D", true, false):
+		voices.append(child as AudioStreamPlayer3D)
+	assert_eq(voices.size(), 2, "both strokes must play")
+	if voices.size() == 2:
+		assert_eq(voices[0].position, at)
+		assert_true(
+			voices[1].volume_db < voices[0].volume_db - 3.0, "treading must sound softer"
+		)
+	footsteps.set_audio_enabled(false)
+	assert_eq(footsteps.on_swim_stroke(at, &"crawl"), &"")
 	footsteps.queue_free()

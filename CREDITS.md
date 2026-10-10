@@ -114,9 +114,11 @@ CC0 Foley recordings, cut into single steps for each ground surface.
 - Footsteps Water 01 - recorded by aglinder. CC0 1.0 (Public Domain). Source: https://freesound.org/people/aglinder/sounds/265582/
 - Footsteps_Mud_01 - recorded by BenDrain. CC0 1.0 (Public Domain). Source: https://freesound.org/people/BenDrain/sounds/488068/
 - Footsteps_Mud_02 - recorded by BenDrain. CC0 1.0 (Public Domain). Source: https://freesound.org/people/BenDrain/sounds/488069/
+- G54-26-Person Swimming - recorded by craigsmith. CC0 1.0 (Public Domain). Source: https://freesound.org/people/craigsmith/sounds/438845/
 - Impact Sounds (footstep set) - recorded by Kenney. CC0 1.0 (Public Domain). Source: https://kenney.nl/assets/impact-sounds
 - SFX_Steps_Gravel_Walk - recorded by GiocoSound. CC0 1.0 (Public Domain). Source: https://freesound.org/people/GiocoSound/sounds/401345/
 - Splashing Footsteps Shallow Water - recorded by ChristopherJngs. CC0 1.0 (Public Domain). Source: https://freesound.org/people/ChristopherJngs/sounds/861369/
+- Wading in Shallow Water - recorded by ryansitz. CC0 1.0 (Public Domain). Source: https://freesound.org/people/ryansitz/sounds/342932/
 - puddlewalk - recorded by j1987. CC0 1.0 (Public Domain). Source: https://freesound.org/people/j1987/sounds/106395/
 
 ## Map and elevation data

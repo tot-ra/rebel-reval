@@ -100,7 +100,8 @@ static func install(
 	# while the audio itself lives with the other ambient installers.
 	runtime._actor_controller.set_footstep_callback(
 		Callable(runtime._ambient_controller, "play_footstep"),
-		Callable(runtime._ambient_controller, "play_npc_footstep")
+		Callable(runtime._ambient_controller, "play_npc_footstep"),
+		Callable(runtime._ambient_controller, "play_swim_stroke")
 	)
 	runtime._input.install_click_input()
 	return runtime
@@ -186,7 +187,8 @@ static func install_hosted(
 	# while the audio itself lives with the other ambient installers.
 	runtime._actor_controller.set_footstep_callback(
 		Callable(runtime._ambient_controller, "play_footstep"),
-		Callable(runtime._ambient_controller, "play_npc_footstep")
+		Callable(runtime._ambient_controller, "play_npc_footstep"),
+		Callable(runtime._ambient_controller, "play_swim_stroke")
 	)
 	runtime._input.install_click_input()
 	# Seed location-space terrain sampling. Full consumer rebind waits for a
