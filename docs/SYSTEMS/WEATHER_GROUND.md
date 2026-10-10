@@ -1,6 +1,6 @@
 # Weather on the ground: puddles, drought and cracked earth
 
-Status: implemented (task **R-1516**). Scope: the seamless Reval city ground (`city_ground.gdshader`). Rain fills puddles in the hollows, ruts and prints of bare soil; long sunny spells can turn into a drought that bakes those same basins into cracked clay; rain soaks the cracks back to loose earth before puddles form again. Out of scope: the district-map puddle shader (`map_view_puddle.gdshader`), vegetation wilting, gameplay effects of drought (crops, wells, NPC talk), and seasons (the odds do not yet follow the calendar month).
+Status: implemented (task **R-1516**). Scope: the seamless Reval city ground (`city_ground.gdshader`) and the district-map puddle decals (`MapView3D`, `map_view_puddle.gdshader`). Rain fills puddles in the hollows, ruts and prints of bare soil; long sunny spells can turn into a drought that bakes those same basins into cracked clay; rain soaks the cracks back to loose earth before puddles form again. Out of scope: vegetation wilting, gameplay effects of drought (crops, wells, NPC talk), and seasons (the odds do not yet follow the calendar month).
 
 ## What the player sees
 
@@ -41,6 +41,20 @@ All rates are per weather second, so `time_scale` speeds or pauses them consiste
 - Crack gradation: the shader samples the same plate twice, coarse (`crack_scale`) and fine (`crack_scale * 3.5`). `crack_age` = `smoothstep(0.3, 0.95, crack_amount)` times how deep the point lies inside the crust, so the basin centre matures first. Fine cracks carry weak relief and fade to half as `crack_age` grows; the coarse plate's contrast exponent rises from 0 to 1.6 with age, so furrow shoulders darken in turn and the gaps widen rather than fade in. Plate: `low_crack_gradation.jpg` (dryness 0.55 / 0.75 / 1.0).
 - Source plate: OpenAI `gpt-image-1` (Leonardo had no tokens), processed by `tools/process_leonardo_terrain_textures.py --only cracked_earth` (family `cracked_earth`, `albedo_only`). Prompt and provenance: `assets/materials/pbr/cracked_earth/prompt.json`, `assets/SOURCES.csv`.
 
+## District maps (`MapView3D`, `scripts/map/view3d/map_view_puddle.gdshader`)
+
+District maps have no basin mask in their terrain shader; their puddles are prebuilt decals (the `Puddles` MultiMesh in each scatter chunk). The same decals now carry both ground states:
+
+- Visibility: `MapView3D._sync_puddle_visibility()` shows the `Puddles` nodes while `puddle_wetness() > 0.001` (water) or `ground_dryness() > PUDDLE_CRUST_DRYNESS` (0.45, crust); `MapView3D.puddle_layer_visible(wetness, dryness)` is the rule. A fair spell (dryness up to 0.4) shows no basins.
+- Uniforms: the same sync pushes `puddle_wetness` and `ground_dryness` into the shared puddle material through `MapViewWaterMaterials.apply_ground_water()` (only when a value changed). The water film fades in with `puddle_wetness`.
+- Crust: `crack_amount = smoothstep(0.45, 1.0, ground_dryness)`. The crust grows from the basin centre outwards (35% of the waterline radius at the onset, the full basin at dryness 1), with a faint silt rim just outside. Crack maturity follows the city shader: a fine hairline net first, coarse furrows from the centre as dryness nears 1. As rain soaks the ground, dryness falls, the crust shrinks and fades out at 0.45, and water appears only once dryness is 0.
+- Texture: the same `cracked_earth_albedo.png`, sampled in world space (`crack_scale` 1.1 per world unit, denser than the city's 0.35 because district puddles are only ~0.3-0.7 wu across), so neighbouring basins share one crack field. Relief comes from the plate's luminance by finite differences. It is the shader's only sampler, well under the GL Compatibility limit of 16.
+- Local soil tint: the decal is alpha-blended and cannot read the ground beneath it, so the scatter builder writes the soil tone into each puddle's instance colour (`MapViewMeshBuilderConfig.PUDDLE_CRUST_SOIL`: mud, dirt, farm soil; alpha 1 = may crack). Plates draw at low alpha so the real ground shows through; gaps darken the soil tone. Puddles on cobblestone and castle paving have alpha 0: a dry puddle on stone simply vanishes.
+
+Review plate (top: gameplay camera, bottom: close camera; left to right: rain, drought at dryness 1, early drought at 0.62):
+
+![District puddles: rain, drought, early drought](../reports/images/r1516_drought/district_puddle_rain_drought_early.jpg)
+
 ## Save and load
 
 `SkyWeatherState` saves `ground_dryness`, `drought_seconds_left` and `drought_rng_state` (contract: [`SKY_WEATHER_STATE_CONTRACT.md`](../SKY_WEATHER_STATE_CONTRACT.md)). Saves from before R-1516 load with dryness 0 and no drought.
@@ -49,10 +63,12 @@ All rates are per weather second, so `time_scale` speeds or pauses them consiste
 
 - `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_ground_drought` (fair spell never cracks, puddles block baking, drought cracks and they outlast it, rain soaks before puddles, drought sky never rains, drought onset rules, save round trip, old saves).
 - `--filter=test_sky_weather_state` (payload field list).
+- `--filter=test_puddle_drought_crust` (district-map `Puddles` node visible in a drought with the crust uniforms and crack plate set; hidden on dry or fair-dusted ground).
+- District plates: `tools/godot_render.sh --script tools/capture_puddle_drought.gd` (all-mud test district, rain / dry / drought / early drought, gameplay, low and close cameras; `-- --base=dirt` for dirt). Output in `build/puddle_drought/`.
 - Plates: `tools/godot_render.sh --script tools/capture_city_mud.gd -- --tag=drought --wet=0 --puddles=0 --dryness=1` (also `--tag=soak --wet=0.6 --puddles=0 --dryness=0.6`). Output in `build/mud/`.
 
 ## Limits
 
 - Weather "stay" outcomes in `_pick_next_weather` do not reset the state timer (pre-existing), so a stay re-rolls every frame until the sky changes. The drought roll is tied to real weather changes to stay independent of that.
 - Drought odds are the same in every month; there is no seasonal or calendar bias yet.
-- District maps (`MapView3D`) still use `map_view_puddle.gdshader` and show no cracks.
+- District-map crust exists only where a puddle decal was scattered (`PUDDLE_CHANCE`); there is no dusty-soil tint on district terrain below the crack threshold.

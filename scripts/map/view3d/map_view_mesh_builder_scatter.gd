@@ -203,7 +203,15 @@ static func collect_rows(state: Dictionary, until_row: int) -> bool:
 						0.9
 						+ MapViewMeshBuilderPrimitives.hash01(x, y, definition.seed + 1929) * 0.14
 					)
-					puddle_colors.append(Color(puddle_tint, puddle_tint, puddle_tint + 0.03))
+					# rgb = local soil tone for the drought crust, a = crust allowed.
+					var soil: Color = MapViewMeshBuilderConfig.PUDDLE_CRUST_SOIL.get(
+						terrain, Color(0.0, 0.0, 0.0, 0.0)
+					)
+					puddle_colors.append(
+						Color(
+							soil.r * puddle_tint, soil.g * puddle_tint, soil.b * puddle_tint, soil.a
+						)
+					)
 
 			var hay_stubble_chance := float(
 				MapViewMeshBuilderConfig.SCATTER_HAY_STUBBLE_CHANCE.get(terrain, 0.0)
