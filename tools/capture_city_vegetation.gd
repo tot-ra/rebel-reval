@@ -135,6 +135,21 @@ func _shots(plan: CityPlan) -> Array[Dictionary]:
 					"focus": p
 				}
 			)
+		if species in ["pine", "pine_tall"]:
+			# The first trunk joint (a quarter of the height), from three sides:
+			# where a bark ring seam used to show on the long, bare pine bole.
+			var joint := g + h * 0.25
+			for turn: int in 3:
+				var dir := side.rotated(TAU * float(turn) / 3.0)
+				shots.append(
+					{
+						"name": "%s_bark_joint_%d" % [species, turn],
+						"eye": Vector3(p.x + dir.x * 1.6, joint + 0.3, p.y + dir.y * 1.6),
+						"look": Vector3(p.x, joint, p.y),
+						"fov": 55.0,
+						"focus": p
+					}
+				)
 		shots.append(
 			{
 				"name": "%s_bark_close" % species,

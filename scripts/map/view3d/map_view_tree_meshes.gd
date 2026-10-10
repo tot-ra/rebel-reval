@@ -363,7 +363,9 @@ static func _build_wood_mesh(
 	var surface := SurfaceTool.new()
 	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
 	var segments: Array = skeleton["segments"]
-	var v_at_end: Dictionary = {}
+	# Bark state at each limb-section end, keyed [point, depth]: v, tiles around
+	# and ring frame, continued by the next section of the same limb.
+	var bark_at_end: Dictionary = {}
 	# Segment ends keyed with depth: a segment whose start is not the end of a
 	# same-depth segment is a branch base needing a collar (limb sections continue
 	# at equal depth; a base may touch a parent end of a lower depth).
@@ -381,21 +383,37 @@ static func _build_wood_mesh(
 		var start: Vector3 = segment["start"]
 		var end: Vector3 = segment["end"]
 		var uv_rect := Rect2()
+		var side := Vector3.ZERO
 		if bark_tile > 0.0:
-			var v0: float = v_at_end.get(_point_key(start), _hash(segment_index, depth, 331) * 4.0)
-			var v1 := v0 + start.distance_to(end) / bark_tile
-			v_at_end[_point_key(end)] = v1
-			var around := TAU * float(segment["start_radius"]) * factor / bark_tile
-			uv_rect = Rect2(0.0, v0, maxf(1.0, roundf(around)), v1 - v0)
-		_append_tapered_tube(
+			# WHY: a bark ring seam showed where trunk sections meet. Each section
+			# used to re-pick its tile count (pine_tall: 5, 2, 2, 1) and its ring
+			# start (axis x UP flips on a near-vertical trunk). A limb now keeps
+			# its tile count and parallel-transports the ring frame; plate height
+			# follows plate width instead, which changes smoothly up the limb.
+			var previous: Dictionary = bark_at_end.get([_point_key(start), depth], {})
+			var tiles: float = previous.get(
+				"tiles", maxf(1.0, roundf(TAU * float(segment["start_radius"]) * factor / bark_tile))
+			)
+			var mean_radius := (float(segment["start_radius"]) + float(segment["end_radius"])) * 0.5 * factor
+			var plate_height := bark_tile * clampf(TAU * mean_radius / (tiles * bark_tile), 0.25, 1.5)
+			var v0: float = previous.get("v", _hash(segment_index, depth, 331) * 4.0)
+			var v1 := v0 + start.distance_to(end) / plate_height
+			side = previous.get("side", Vector3.ZERO)
+			uv_rect = Rect2(0.0, v0, tiles, v1 - v0)
+		side = _append_tapered_tube(
 			surface,
 			start,
 			end,
 			float(segment["start_radius"]) * factor,
 			float(segment["end_radius"]) * factor,
 			wood_color,
-			uv_rect
+			uv_rect,
+			side
 		)
+		if bark_tile > 0.0:
+			bark_at_end[[_point_key(end), depth]] = {
+				"v": uv_rect.end.y, "tiles": uv_rect.size.x, "side": side
+			}
 		if depth > 0 and not chain_ends.has([_point_key(start), depth]):
 			_append_branch_collar(
 				surface,
@@ -404,7 +422,8 @@ static func _build_wood_mesh(
 				float(segment["start_radius"]) * factor,
 				_parent_radius_at(segments, start, depth) * factor,
 				wood_color,
-				uv_rect
+				uv_rect,
+				side
 			)
 	if bark_tile > 0.0:
 		surface.generate_tangents()
@@ -423,7 +442,8 @@ static func _append_branch_collar(
 	radius: float,
 	parent_radius: float,
 	color: Color,
-	uv_rect: Rect2
+	uv_rect: Rect2,
+	side := Vector3.ZERO
 ) -> void:
 	# Radii in tree units: twigs ~0.004, primary limbs 0.02-0.05.
 	# The first ring must stay inside the parent, or it shows as a flange.
@@ -446,7 +466,8 @@ static func _append_branch_collar(
 			radius * float(scales[i]),
 			radius * float(scales[i + 1]),
 			color,
-			uv_rect
+			uv_rect,
+			side
 		)
 
 
@@ -1004,13 +1025,19 @@ static func _append_tapered_tube(
 	start_radius: float,
 	end_radius: float,
 	color: Color,
-	uv_rect := Rect2()
-) -> void:
+	uv_rect := Rect2(),
+	side_hint := Vector3.ZERO
+) -> Vector3:
 	var axis := end - start
 	if axis.length_squared() < 0.000001:
-		return
+		return side_hint
 	axis = axis.normalized()
-	var side := TreeMeshSkeleton.perpendicular(axis)
+	# `side_hint` is the previous section's ring start; projecting it onto this
+	# ring's plane keeps the bark from twisting at the joint. Returned for the next.
+	var side := side_hint - axis * side_hint.dot(axis)
+	if side.length_squared() < 0.0001:
+		side = TreeMeshSkeleton.perpendicular(axis)
+	side = side.normalized()
 	var forward := axis.cross(side).normalized()
 	for radial_index in WOOD_RADIAL_SEGMENTS:
 		var next_index := (radial_index + 1) % WOOD_RADIAL_SEGMENTS
@@ -1067,6 +1094,7 @@ static func _append_tapered_tube(
 			Vector2(ub, v0),
 			PackedColorArray([start_color, end_color, start_color])
 		)
+	return side
 
 
 static func _append_octahedron(

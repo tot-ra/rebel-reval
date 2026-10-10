@@ -291,7 +291,10 @@ What the player sees:
   0.7 m, birch 0.3 m; branches thin less so they never outgrow the bole) and carry
   photographic **bark plates** (birch, oak, grey for ash/linden/elm/maple/alder/willow,
   pine, spruce, cherry for orchard trees) with normal maps, tiled every 0.55 m up each
-  limb. Rain darkens them like the old bark.
+  limb. Rain darkens them like the old bark. A limb keeps its tile count round the
+  circumference from its base and carries its ring frame from section to section, so
+  the bark runs on without a ring seam where sections meet; plates get shorter as the
+  limb thins instead of changing width.
 - **Near crowns** (trees within 34 m of the camera, released at 42 m) use real-size
   cluster cards (0.62 m deciduous, 0.58 m conifer) with up to 3.5x more cards, and single
   folded leaves at 0.4x, so leaves read at leaf size when Kalev stands under a tree.
@@ -345,9 +348,11 @@ tools/godot_render.sh --script tools/capture_city_vegetation.gd -- --tag=after  
 [`test_city_vegetation.gd`](../../tests/godot/test_city_vegetation.gd) checks heights against
 Kalev, trunk diameters, bark-tile UVs and tangents, bark plates, near card size, density and
 triangle budget, the city spruce whorls, the unchanged district spruce, the LOD swap and its
-hysteresis, the grass-plate import contract and tuft size. The capture tool frames the most
+hysteresis, the grass-plate import contract and tuft size.
+[`test_tree_wood_wind.gd`](../../tests/godot/test_tree_wood_wind.gd) checks that bark UVs
+stay continuous across the pine trunk joints. The capture tool frames the most
 open spruce, pine, oak and birch next to a 1.83 m reference figure, plus needle, bark and
-grass close-ups and a far stand.
+grass close-ups, the first pine trunk joint from three sides (`pine_bark_joint_*`) and a far stand.
 
 Before / after (Godot 4.7.1 GL Compatibility, Apple M5 Pro, 15 July, late morning):
 [spruce](../reports/images/vegetation/veg_city_spruce_scale.jpg),
