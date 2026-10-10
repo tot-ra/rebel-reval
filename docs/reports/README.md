@@ -241,6 +241,7 @@ Start with:
 - [R-928 Air Gust gameplay-scale wedge](r928_air_gust_gameplay_scale.md)
 - [R-929 Harbor East and Saaremaa crib visual review](r929_crib_visual_review.md)
 - [R-938 cloudy continuity visual review](r938_cloudy_continuity_visual_review.md)
+- [R-997 interior wall plaster density: smithy evidence](r997_interior_wall_density.md)
 - [R-999: map-pipeline parity and routes](r999_map_pipeline_parity.md)
 - [Realistic human characters — Kalev first (ADR 0022), 2026-09-26](realistic_humans_2026-09-26.md)
 - [Relief traversal (WB-03, R-975)](relief_traversal_2026-09-26.md)
