@@ -3,7 +3,11 @@
 // street it is: rising damp, splash dirt and green algae collect at the foot,
 // rain streaks run down from eaves and sills, roofs gather moss and lichen.
 
+#ifdef CITY_ROOF_PLATE
+uniform sampler2D albedo_tex : CITY_PLATE filter_linear_mipmap_anisotropic, repeat_enable;
+#else
 uniform sampler2D albedo_tex : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
+#endif
 uniform sampler2D normal_tex : hint_normal, filter_linear_mipmap_anisotropic, repeat_enable;
 uniform sampler2D ground_height : filter_linear, repeat_disable;
 uniform vec4 ground_rect = vec4(0.0, 0.0, 1.0, 1.0); // origin.xz, size.xz (world units)

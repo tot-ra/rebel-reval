@@ -1,6 +1,8 @@
 shader_type spatial;
 render_mode blend_mix, depth_draw_opaque, cull_disabled, diffuse_burley, specular_schlick_ggx;
 
+#include "res://scripts/city/city_plate_hint.gdshaderinc"
+#define CITY_ROOF_PLATE
 #include "res://scripts/city/city_weathering.gdshaderinc"
 
 uniform float moss = 0.5; // shingle and tile gather moss, thatch greys
@@ -24,7 +26,7 @@ void fragment() {
 	col = mix(col, vec3(0.24, 0.29, 0.14) * (0.8 + patch * 0.4), m * 0.6);
 	col = mix(col, vec3(0.62, 0.6, 0.5), lichen * 0.18 * age);
 	col *= mix(0.84, 1.08, wfbm(w_pos.xz * 0.12 + 5.0));
-	ALBEDO = col * mix(1.0, 0.72, wetness);
+	ALBEDO = city_albedo(col * mix(1.0, 0.72, wetness));
 	ROUGHNESS = mix(roughness_base, 0.4, wetness);
 	NORMAL_MAP = texture(normal_tex, uv).rgb;
 	NORMAL_MAP_DEPTH = mix(1.0, 0.6, wetness);

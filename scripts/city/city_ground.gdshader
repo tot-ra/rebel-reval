@@ -1,6 +1,8 @@
 shader_type spatial;
 render_mode blend_mix, depth_draw_opaque, cull_back, diffuse_burley, specular_schlick_ggx;
 
+#include "res://scripts/city/city_plate_hint.gdshaderinc"
+
 // ADR 0031 city ground: one continuous heightfield, surfaces blended from the
 // baked splat (R paving, G packed earth, B sand, A mud) plus slope rock, so
 // streets, yards, beaches and the Toompea klint read without tile seams.
@@ -30,19 +32,19 @@ uniform float trail_sink = 0.4; // > deepest print plus rut at trail_mesh_depth
 // is exaggerated so a print reads from above, real geometry that deep looks dug.
 uniform float trail_mesh_depth = 0.6;
 
-uniform sampler2D earth_albedo : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
+uniform sampler2D earth_albedo : CITY_PLATE filter_linear_mipmap_anisotropic, repeat_enable;
 uniform sampler2D earth_normal : hint_normal, filter_linear_mipmap_anisotropic, repeat_enable;
-uniform sampler2D sand_albedo : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
+uniform sampler2D sand_albedo : CITY_PLATE filter_linear_mipmap_anisotropic, repeat_enable;
 uniform sampler2D sand_normal : hint_normal, filter_linear_mipmap_anisotropic, repeat_enable;
 // Shingle band plate: the CO-01 Baltic storm-beach pebbles (shore_shingle). It was the
 // masonry plate (stone_albedo, cut ashlar), which drew a brick grid on the beach.
-uniform sampler2D shingle_albedo : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
+uniform sampler2D shingle_albedo : CITY_PLATE filter_linear_mipmap_anisotropic, repeat_enable;
 // No shingle/rock normal: its texture unit went to shore_field (WR-9). Godot binds a unit
 // to every declared sampler, used or not, and one sampler past the current 13 makes
 // GL Compatibility drop the whole ground draw without an error on macOS.
 // R-1516 drought crust. Albedo only: this shader is near the GL Compatibility
 // sampler limit, so crack relief comes from the plate's luminance (gaps are dark).
-uniform sampler2D cracked_albedo : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
+uniform sampler2D cracked_albedo : CITY_PLATE filter_linear_mipmap_anisotropic, repeat_enable;
 uniform float crack_scale = 0.35; // one plate repeat per ~3 m: 15-35 cm clay polygons
 
 // Texture repeats per world unit. The plates cover ~1 m of ground, so a blade
@@ -688,7 +690,7 @@ void fragment() {
 	col *= 1.0 + (gh - 0.5) * grass_relief_shade * turf;
 	vec2 gslope = vec2(grass_height(wuv + e.xy) - gh, grass_height(wuv + e.yx) - gh) / e.x;
 	nxy += -gslope * grass_relief_normal * turf * detail;
-	ALBEDO = col;
+	ALBEDO = city_albedo(col);
 	ROUGHNESS = mix(mix(0.95, 0.6, wet * (1.0 - rock * 0.5)), 0.5, damp_ring * 0.5);
 	ROUGHNESS = mix(ROUGHNESS, mix(0.16, 0.025, deep), puddle);
 	// Dust is the roughest thing there is; slick clay shines in the ruts.

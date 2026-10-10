@@ -1,5 +1,6 @@
 // City grass ground from twelve seamless plates (R-1103, VEG-4).
-// Included by city_ground.gdshader after hash12/value_noise.
+// Included by city_ground.gdshader after hash12/value_noise and
+// city_plate_hint.gdshaderinc (CITY_PLATE, R-1535).
 //
 // Why: one grass plate repeated every 1.6 m showed as a grid from any height,
 // and its texels were twice real size next to Kalev. Here every plate covers
@@ -13,7 +14,7 @@
 // Slice order (tools/assets/build_vegetation_plates.py GRASS):
 //   0-7 green meadows, 8 dry summer, 9 moss in shade, 10 leaf litter, 11 trodden.
 
-uniform sampler2DArray grass_ground_albedo : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
+uniform sampler2DArray grass_ground_albedo : CITY_PLATE filter_linear_mipmap_anisotropic, repeat_enable;
 uniform sampler2DArray grass_ground_normal : hint_normal, filter_linear_mipmap_anisotropic, repeat_enable;
 uniform float grass_ground_scale = 0.75; // plate repeats per world unit (1 wu = 1 m)
 uniform float grass_ground_cell = 4.5; // lattice cell in world units
