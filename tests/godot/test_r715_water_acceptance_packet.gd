@@ -19,7 +19,6 @@ const EXPECTED_MAPS: Dictionary = {
 	"prototype.swedish_arrival": ["shallow_water", "deep_water"],
 	"world.sacred_grove": ["shallow_water"],
 	"world.padise": ["water", "river_water", "shallow_water"],
-	"world.saaremaa": ["shallow_water", "deep_water"],
 }
 const EXPECTED_SCENARIOS: Array[String] = ["clear", "overcast", "rain", "storm", "post_rain"]
 const EXPECTED_TIMES: Array[String] = ["day", "night"]

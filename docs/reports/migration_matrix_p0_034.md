@@ -50,7 +50,6 @@ This matrix classifies current slice-relevant artifacts for migration toward the
 | `scenes/reval_north/reval_north.tscn` | `convert` | Inactive programmatic north quarter prototype; developer traversal only. |
 | `scenes/reval_south/reval_south.tscn` | `convert` | Inactive southern quarter prototype; developer traversal only. |
 | `scenes/reval_toompea/reval_toompea.tscn` | `convert` | Inactive Toompea Upper Town prototype; developer traversal only. |
-| `scenes/world_travel/world_saaremaa.tscn` | `convert` | Saaremaa developer route; developer-only P1-037/P1-037a traversal wrapper, kept `release=false`. |
 | `scenes/world_travel/world_kanavere.tscn` | `convert` | Kanavere Bog developer route; developer-only P1-037/P1-037a traversal wrapper, kept `release=false`. |
 | `scenes/world_travel/world_sojamae.tscn` | `convert` | Sõjamäe Battlefield developer route; developer-only P1-037/P1-037a traversal wrapper, kept `release=false`. |
 | `scenes/world_travel/world_parnu.tscn` | `convert` | Pärnu developer route; developer-only P1-037/P1-037a traversal wrapper, kept `release=false`. |

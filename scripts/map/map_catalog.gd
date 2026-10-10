@@ -4,12 +4,6 @@ extends RefCounted
 const MAPS: Dictionary = {
 	"forge":
 	{"path": "res://scenes/reval_east/forge/forge.tscn", "scope": "production", "active": true},
-	"world_saaremaa":
-	{
-		"path": "res://scenes/world_travel/world_saaremaa.tscn",
-		"scope": "prototype",
-		"active": false
-	},
 	"world_kanavere":
 	{
 		"path": "res://scenes/world_travel/world_kanavere.tscn",

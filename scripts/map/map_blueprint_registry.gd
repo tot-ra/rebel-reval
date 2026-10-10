@@ -23,12 +23,6 @@ static func entries() -> Array[Dictionary]:
 			],
 		},
 		{
-			"id": &"world.saaremaa",
-			"source": "res://content/maps/world_saaremaa.rrmap",
-			"required_anchors":
-			[&"landmark_island_coast", &"landmark_west_camp", &"landmark_east_camp"],
-		},
-		{
 			"id": &"world.kanavere",
 			"source": "res://content/maps/world_kanavere.rrmap",
 			"required_anchors":

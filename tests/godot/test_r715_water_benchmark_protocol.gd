@@ -18,7 +18,7 @@ func test_protocol_declares_two_water_only_tiers_and_full_matrix() -> void:
 	assert_eq((config["tiers"] as Dictionary).keys().size(), 2)
 	assert_true((config["tiers"] as Dictionary).has("minimum"))
 	assert_true((config["tiers"] as Dictionary).has("recommended"))
-	assert_eq((config["map_matrix"] as Array).size(), 13)
+	assert_eq((config["map_matrix"] as Array).size(), 12)
 	assert_true((config["external_boundaries"] as Dictionary).has("R-529"))
 	assert_true((config["external_boundaries"] as Dictionary).has("R-713"))
 	assert_true(WaterBenchmark.validate_config(config).is_empty())

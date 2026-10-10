@@ -52,11 +52,10 @@ The focused test builds every definition returned by [`MapAuditRegistry.all()`](
 | `prototype.swedish_arrival` | [`scripts/map/definitions/outdoor/wilderness_event_definitions.gd`](../../scripts/map/definitions/outdoor/wilderness_event_definitions.gd) | `shallow_water`, `deep_water` |
 | `world.sacred_grove` | [`content/maps/world_sacred_grove.rrmap`](../../content/maps/world_sacred_grove.rrmap) via [`DistantLocationDefinitions`](../../scripts/map/definitions/outdoor/distant_location_definitions.gd) | `shallow_water` |
 | `world.padise` | [`content/maps/world_padise.rrmap`](../../content/maps/world_padise.rrmap) via [`DistantLocationDefinitions`](../../scripts/map/definitions/outdoor/distant_location_definitions.gd) | `water`, `river_water`, `shallow_water` |
-| `world.saaremaa` | [`content/maps/world_saaremaa.rrmap`](../../content/maps/world_saaremaa.rrmap) via [`DistantLocationDefinitions`](../../scripts/map/definitions/outdoor/distant_location_definitions.gd) | `shallow_water`, `deep_water` |
 
 `monastery_quarter` is inventoried because its authored `outer_wall.ditch` contains `water`. R-529 keeps that ditch inside the authored mask so the dirt causeway and outer travel openings stay dry.
 
-The two sacred-grove and two Saaremaa rows are intentionally separate: `prototype.*` definitions are event/prototype packages, while `world.*` definitions are the developer-traversable RRMap layer. Stable map IDs are not merged or renamed.
+The sacred-grove rows and the Saaremaa row are intentionally separate: `prototype.*` definitions are event/prototype packages, while `world.*` definitions are the developer-traversable RRMap layer. Stable map IDs are not merged or renamed.
 
 ## R-752 shared view rollout matrix
 
@@ -79,7 +78,6 @@ The focused exception and handoff audit is [`tests/godot/test_r715_water_excepti
 | `prototype.swedish_arrival` | `shallow_water`, `deep_water` | shared water terrain loop | inactive prototype preserved |
 | `world.sacred_grove` | `shallow_water` | `Terrain/Terrain_shallow_water` | world-travel layer unchanged |
 | `world.padise` | `water`, `river_water`, `shallow_water` | three shared terrain surfaces | world-travel layer unchanged |
-| `world.saaremaa` | `shallow_water`, `deep_water` | two shared terrain surfaces | world-travel layer unchanged |
 
 Focused coverage is [`tests/godot/test_r715_water_map_rollout.gd`](../../tests/godot/test_r715_water_map_rollout.gd). It enumerates the registry rather than hard-coding view construction per map, verifies the shared material for each generated surface, asserts exactly one `ViewEnvironment` and one `SkyWeather3D`, and compares terrain fingerprints plus walkability signatures before and after view construction.
 

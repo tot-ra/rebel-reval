@@ -38,7 +38,6 @@ const DISPLAY_NAMES: Dictionary = {
 	&"world.sacred_grove": "Sacred Grove",
 	&"world.harju": "Harju Village",
 	&"world.padise": "Padise Monastery",
-	&"world.saaremaa": "Saaremaa",
 	&"world.rebel_kings": "Rebel Kings' Camp",
 	&"world.kanavere": "Kanavere Bog",
 	&"world.sojamae": "Sõjamäe",

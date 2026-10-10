@@ -1,8 +1,7 @@
 # Saaremaa location design: the Kaali crater coast
 
-**Map:** [`content/maps/world_saaremaa.rrmap`](../../content/maps/world_saaremaa.rrmap)
-**Scene:** `scenes/world_travel/world_saaremaa.tscn`
-**Scope:** `prototype`, `active=false`, `release=false` - developer global-map node, not a shipping level.
+**Map (retired, R-1636):** the 104 x 60 greybox `content/maps/world_saaremaa.rrmap` and `scenes/world_travel/world_saaremaa.tscn` are removed; this design is historical. The location is now the Kaali regional site, [`scenes/world/sites/saaremaa.tscn`](../../scenes/world/sites/saaremaa.tscn) (R-1524).
+**Scope:** `release=false` developer global-map node, not a shipping level.
 
 ## Why the previous map failed
 

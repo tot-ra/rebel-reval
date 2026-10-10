@@ -106,7 +106,7 @@ R-980 must reject a travel transition that is authored as a physical seam.
 
 | Map id | Source |
 |---|---|
-| `world.saaremaa` | `world_saaremaa.rrmap` |
+| `world.saaremaa` | `scenes/world/sites/saaremaa.tscn` (site plan; greybox rrmap retired, R-1636) |
 | `world.padise` | `world_padise.rrmap` |
 | `world.paide` | `world_paide.rrmap` (retired, R-1551; regional site `scenes/world/sites/paide.tscn`) |
 | `world.parnu` | `world_parnu.rrmap` |

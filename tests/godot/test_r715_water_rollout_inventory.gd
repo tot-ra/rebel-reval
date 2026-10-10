@@ -24,7 +24,6 @@ const EXPECTED_WATER_MAPS := {
 	&"prototype.swedish_arrival": [&"shallow_water", &"deep_water"],
 	&"world.sacred_grove": [&"shallow_water"],
 	&"world.padise": [&"water", &"river_water", &"shallow_water"],
-	&"world.saaremaa": [&"shallow_water", &"deep_water"],
 }
 
 

@@ -142,8 +142,8 @@ static func validate_config(config: Dictionary) -> Array[String]:
 	if not fallback is Dictionary or fallback.get("id") != "compatibility_water_surface":
 		errors.append("R-715 benchmark requires compatibility_water_surface fallback")
 	var matrix: Variant = config.get("map_matrix")
-	if not matrix is Array or matrix.size() != 13:
-		errors.append("R-715 benchmark map_matrix must contain 13 rollout maps")
+	if not matrix is Array or matrix.size() != 12:
+		errors.append("R-715 benchmark map_matrix must contain 12 rollout maps")
 	return errors
 
 

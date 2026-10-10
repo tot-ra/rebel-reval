@@ -6,7 +6,6 @@ extends RefCounted
 ## assembly, stable transitions, and audits cannot drift into separate versions.
 
 const RRMAP_PATHS: Dictionary = {
-	&"world_saaremaa": "res://content/maps/world_saaremaa.rrmap",
 	&"world_kanavere": "res://content/maps/world_kanavere.rrmap",
 	&"world_sojamae": "res://content/maps/world_sojamae.rrmap",
 	&"world_parnu": "res://content/maps/world_parnu.rrmap",
@@ -14,7 +13,6 @@ const RRMAP_PATHS: Dictionary = {
 }
 
 const SCENE_IDS: Array[StringName] = [
-	&"world_saaremaa",
 	&"world_kanavere",
 	&"world_sojamae",
 	&"world_parnu",

@@ -12,14 +12,6 @@
   "activation_policy": "Keep Act 3 maps developer-traversable without promoting any prototype to release or production until all owning content and parity gates are accepted.",
   "targets": [
     {
-      "id": "world_saaremaa",
-      "rrmap_id": "world.saaremaa",
-      "scene_path": "res://scenes/world_travel/world_saaremaa.tscn",
-      "role": "Saaremaa campaign corridor",
-      "owner_tasks": ["P6-004"],
-      "expected_dev_spawns": ["from_reval_harbor", "from_world_parnu", "from_world_poide"]
-    },
-    {
       "id": "world_poide",
       "rrmap_id": "world.poide",
       "scene_path": "res://scenes/world_travel/world_poide.tscn",

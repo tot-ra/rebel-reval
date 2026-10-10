@@ -219,25 +219,6 @@
       "mandatory_transitions": []
     },
     {
-      "id": "world.saaremaa",
-      "location_name": "Saaremaa developer route",
-      "scene": "scenes/world_travel/world_saaremaa.tscn",
-      "definition": "scripts/map/definitions/outdoor/distant_location_definitions.gd",
-      "factory": "DistantLocationDefinitions.create(world_saaremaa)",
-      "disposition": "convert",
-      "capture": "world_saaremaa.png",
-      "mandatory_anchors": [
-        "landmark_island_coast",
-        "landmark_kaali_crater",
-        "landmark_muster_camp"
-      ],
-      "mandatory_transitions": [
-        "ferry_to_reval",
-        "ferry_to_parnu",
-        "road_to_poide"
-      ]
-    },
-    {
       "id": "world.kanavere",
       "location_name": "Kanavere Bog developer route",
       "scene": "scenes/world_travel/world_kanavere.tscn",

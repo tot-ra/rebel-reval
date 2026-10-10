@@ -58,11 +58,10 @@
     {"map_id": "prototype.saaremaa", "terrains": ["shallow_water", "deep_water"]},
     {"map_id": "prototype.swedish_arrival", "terrains": ["shallow_water", "deep_water"]},
     {"map_id": "world.sacred_grove", "terrains": ["shallow_water"]},
-    {"map_id": "world.padise", "terrains": ["water", "river_water", "shallow_water"]},
-    {"map_id": "world.saaremaa", "terrains": ["shallow_water", "deep_water"]}
+    {"map_id": "world.padise", "terrains": ["water", "river_water", "shallow_water"]}
   ],
   "external_boundaries": {
-    "R-529": "Monastery east-ditch exception remains excluded from the 13-map benchmark matrix.",
+    "R-529": "Monastery east-ditch exception remains excluded from the 12-map benchmark matrix.",
     "R-713": "Shared sky and weather state remains externally owned; this protocol samples water presentation only."
   }
 }

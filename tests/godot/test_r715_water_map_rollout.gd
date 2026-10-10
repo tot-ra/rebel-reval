@@ -21,7 +21,6 @@ const EXPECTED_WATER_MAP_IDS: Array[StringName] = [
 	&"prototype.swedish_arrival",
 	&"world.sacred_grove",
 	&"world.padise",
-	&"world.saaremaa",
 ]
 
 
