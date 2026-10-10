@@ -63,6 +63,9 @@ const ARENA_WALL_REACH := HALL_HALF_WIDTH - 0.5
 const ARENA_CAMERA_POSITION := Vector3(0.0, 7.4, 9.8)
 const ARENA_CAMERA_TARGET := Vector3(0.0, 0.2, 0.3)
 const ARENA_CAMERA_FOV := 50.0
+## On the disc the boy stands toward the camera (bottom of the screen) and the porter across
+## the disc from him (top); the rigs face +Z, so the boy turns 180 degrees.
+const ARENA_HALF_GAP := 1.8
 const HERO_WALK_SPEED := 2.4
 const HERO_GUARD_SPEED := 1.2
 ## The arena dodge is a short dash, long enough to clear an attack arc's edge.
@@ -134,6 +137,15 @@ func bring_in_kalev() -> Node3D:
 	add_child(key)
 	_camera.look_at_from_position(KALEV_CAMERA_POSITION, KALEV_CAMERA_TARGET)
 	return _kalev
+
+
+## Arena start marks: hero at the bottom of the screen, porter at the top. Call before the
+## arena host reads the fighters' positions; end_arena() restores the two-shot marks.
+func place_arena_marks() -> void:
+	_hero.position = Vector3(0.0, 0.0, ARENA_HALF_GAP)
+	_hero.rotation_degrees.y = 180.0
+	_porter.position = Vector3(0.0, 0.0, -ARENA_HALF_GAP)
+	_porter.rotation_degrees.y = 0.0
 
 
 ## Frame the whole spirit disc from above the front of the hall instead of the two-shot.
@@ -282,7 +294,7 @@ func _build_environment() -> void:
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 	env.ambient_light_color = Color(0.32, 0.30, 0.38)
 	env.ambient_light_energy = 0.35
-	env.tonemap_mode = Environment.TONE_MAPPER_FILMIC
+	env.tonemap_mode = Environment.TONE_MAPPER_AGX
 	env.glow_enabled = true
 	env.glow_intensity = 0.6
 	env.fog_enabled = true

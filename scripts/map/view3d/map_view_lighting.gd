@@ -158,7 +158,7 @@ static func configure_post_process(environment: Environment) -> void:
 	environment.tonemap_mode = TONEMAP_MODE
 	environment.adjustment_enabled = true
 	environment.glow_enabled = true
-	environment.glow_blend_mode = Environment.GLOW_BLEND_MODE_SOFTLIGHT
+	environment.glow_blend_mode = Environment.GLOW_BLEND_MODE_SCREEN
 	environment.glow_hdr_threshold = GLOW_HDR_THRESHOLD
 	environment.glow_bloom = GLOW_BLOOM
 	environment.glow_strength = GLOW_STRENGTH
@@ -284,7 +284,7 @@ static func apply_cycle_progress(
 			* glint_haze_transmittance(presentation.moon_direction.y, mist, rain_haze),
 		presentation.star_visibility
 			* glint_haze_transmittance(GLINT_STAR_MEAN_ELEVATION_SIN, mist, rain_haze),
-		deg_to_rad(SkyWeather3D.OBSERVER_LATITUDE_DEGREES),
+		deg_to_rad(SkyAstronomy.observer_latitude_degrees),
 		presentation.sidereal_angle,
 		presentation.sun_reflection_color,
 		presentation.sunset_factor,
@@ -297,7 +297,9 @@ static func apply_cycle_progress(
 	# R-1518: calm water mirrors the post-rain bow. Interiors see no sky.
 	MapViewMaterials.apply_water_rainbow(
 		0.0 if enclosed_interior else presentation.rainbow_strength,
-		presentation.rainbow_curtain
+		presentation.rainbow_curtain,
+		0.85,
+		presentation.rainbow_secondary
 	)
 	apply_post_grade_snapshot(environment, presentation)
 	return presentation.day_blend < 0.5

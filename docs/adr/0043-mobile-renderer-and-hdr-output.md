@@ -1,6 +1,6 @@
 # ADR 0043: Mobile renderer on Metal and opt-in HDR (EDR) output
 
-- **Status:** Proposed (2026-10-09, from the P0-142 HDR spike). Needs maintainer approval before `project.godot` or `export_presets.cfg` change.
+- **Status:** Accepted (2026-10-10, maintainer: "turn HDR on in the project"). R-1535 city shader regressions are still open and tracked.
 - **Amends:** the P0-142 "stay on GL Compatibility" recommendation in [renderer_evaluation.md](../reports/renderer_evaluation.md) and the Renderer row of [VISUAL_FIDELITY_PLAN.md](../VISUAL_FIDELITY_PLAN.md). Keeps [ADR 0018](./0018-saturated-hdr-fantasy-anime-visual-direction.md) grade values (AgX) as the starting point.
 
 ## Context
