@@ -1,6 +1,18 @@
 # Normalize EOL for all files that Git considers text files.
 * text=auto eol=lf
 archive/music/**/*.mp3 filter=lfs diff=lfs merge=lfs -text
+# R-1576: tracks restored from archive/music/ stay in LFS at their runtime path.
+# ([1-79]) skips the hard-coded slice take "Apothecary (8).mp3", which is a plain blob.
+music/**/*[[:space:]]([1-79]).mp3 filter=lfs diff=lfs merge=lfs -text
+music/cathedral_of_saint_mary/**/*.mp3 filter=lfs diff=lfs merge=lfs -text
+music/dome_school/**/*.mp3 filter=lfs diff=lfs merge=lfs -text
+music/revel_center/apotheca/*.mp3 filter=lfs diff=lfs merge=lfs -text
+music/revel_east/tavern/*.mp3 filter=lfs diff=lfs merge=lfs -text
+music/forge/The[[:space:]]Smith's[[:space:]]Song*.mp3 filter=lfs diff=lfs merge=lfs -text
+music/revel_east/2.mp3 filter=lfs diff=lfs merge=lfs -text
+music/revel_east/intro.mp3 filter=lfs diff=lfs merge=lfs -text
+music/revel_east/streets*.mp3 filter=lfs diff=lfs merge=lfs -text
+music/revel_east/The[[:space:]]Shaman's[[:space:]]Trance.mp3 filter=lfs diff=lfs merge=lfs -text
 music/garden/**/*.mp3 filter=lfs diff=lfs merge=lfs -text
 music/revel_center/holy[[:space:]]spirit[[:space:]]church/*.mp3 filter=lfs diff=lfs merge=lfs -text
 music/revel_center/raekoda/*.mp3 filter=lfs diff=lfs merge=lfs -text

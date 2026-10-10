@@ -140,7 +140,9 @@ Positions and roster from [`walls-gates-towers.md`](../../history/dossiers/topog
 
 ## Music
 
-Music follows where Kalev is, not a scene path (`reval_city.tscn` has an empty entry in `MusicDirector.SCENE_THEME_ROUTES`). Every 0.25 s the scene asks `CityMusicZones.update(xz, district_id)` and hands the result to `MusicDirector.set_zone_theme_override()` (or clears it). The most specific zone around Kalev wins (smallest radius): the council hall beats the forum, the forum beats the wider quarter. A theme already playing holds on for 1.25 x its radius. Where no zone reaches, the plan district decides (`CityPlan.district_id_at`); fields and far suburbs have no theme and the music fades out. Themes are the existing folders under `music/` (`center`, `raekoda`, `holy_spirit`, `north`, `oleviste`, `monastery`, `south`, `town`, `forge`, `garden`, `harbor`, `toompea`); each theme keeps its own playlist, so nothing is mixed into one random list.
+Music follows where Kalev is, not a scene path (`reval_city.tscn` has an empty entry in `MusicDirector.SCENE_THEME_ROUTES`). Every 0.25 s the scene asks `CityMusicZones.update(xz, district_id)` and hands the result to `MusicDirector.set_zone_theme_override()` (or clears it). The most specific zone around Kalev wins (smallest radius): the council hall beats the forum, the forum beats the wider quarter. A theme already playing holds on for 1.25 x its radius. Where no zone reaches, the plan district decides (`CityPlan.district_id_at`); fields and far suburbs have no theme and the music fades out. Themes are the existing folders under `music/` (`center`, `raekoda`, `holy_spirit`, `north`, `oleviste`, `monastery`, `south`, `viru`, `forge`, `garden`, `harbor`, `toompea`); each theme keeps its own playlist, so nothing is mixed into one random list.
+
+**R-1576** restored the whole `archive/music/` tree to its original `music/` paths. Numbered alternate takes now join their folder's shuffled playlist, and new zones route the restored location sets: `zone.st_mary` (St Mary's cathedral, `st_mary` theme, day and night folders under `music/cathedral_of_saint_mary/`), `zone.dome_school` (cathedral school, `dome_school`, day and night under `music/dome_school/`; placed just north of the church as a plausible composite, since the plan has no school building), and `zone.vene_tavern` (`tavern`, `music/revel_east/tavern/`, on the Vene malt house POI). The Viru quarter (`zone.viru`, `district.viru`) plays the new `viru` theme, which scans all of `music/revel_east/`; the slice `town` theme keeps its two hard-coded tracks for the P2-014 budget. At night the smithy (`forge`) adds The Smith's Song takes to Fireside Tale. The `apothecary` theme (`music/revel_center/apotheca/`) is registered for map fade volumes only: the council apothecary is first recorded in 1422, so it has no 1343 city zone.
 
 `MusicDirector` crossfades between themes (3 s, a second `OutgoingThemePlayer`), also on district scene changes. The scene's day clock is pushed to `MusicDirector.set_cycle_progress()` so night playlists and the night ducking apply.
 
@@ -207,3 +209,20 @@ tools/godot_render.sh --rendering-method <gl_compatibility|mobile|forward_plus> 
 ```
 
 Evidence (left to right Compatibility, Mobile, Forward+): [`sheet_town_forum_day_r1535.jpg`](../reports/images/hdr_output_spike/sheet_town_forum_day_r1535.jpg), [`sheet_town_roofs_day_r1535.jpg`](../reports/images/hdr_output_spike/sheet_town_roofs_day_r1535.jpg); measurement in the [HDR output spike report](../reports/hdr_output_spike_2026-10-09.md). Limits: parity is of tone balance, not pixels: GL lights the raw-space albedo while RD lights its decode, so RD stays a little darker and more saturated; the remaining lighting difference is R4.
+
+
+## Rain under roofs (task R-1539)
+
+Status: implemented (task **R-1539**). Scope: the seamless city only.
+
+While Kalev stands under a roof (a landmark site room or a building interior,
+`CityPlan.is_under_roof`), `reval_city` reports `CityWorld3D.set_enclosed_interior`
+every frame. That gates the shared `SkyWeather3D.rain_suppressed`: the falling-rain
+particle emitter and the exterior rain ambience stop, the muffled roof-drum bed
+takes over, and `MapViewLighting.apply_cycle_progress` receives `enclosed_interior`
+(so there are no sky reflections, morning mist, or rain haze inside). The roof
+cutaway is a camera trick and does not change the answer.
+
+Verify: `godot --headless --path . --script tools/run_godot_tests.gd`
+(`tests/godot/test_city_interior_weather.gd`). Out of scope: per-location rain
+suppression for map-hosted layouts (deferred seam work, R-980).

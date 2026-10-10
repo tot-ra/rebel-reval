@@ -3,7 +3,7 @@
   "duration_budget_seconds": 720,
   "release_theme_ids": ["menu", "forge", "town"],
   "retained_libraries": {
-    "music/battle": "Shared combat library, unassigned until battle scenes are routed. Canonical takes only; numbered alternate takes live under archive/music/battle/ (P0-180)."
+    "music/battle": "Shared combat library, unassigned until battle scenes are routed. Includes the numbered alternate takes restored from archive/music/battle/ by R-1576."
   },
   "themes": {
     "menu": {

@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://defb7hjwwciwl"
+path="res://.godot/imported/Blackheads' Charge (1).mp3-98671ba970c65476d2bf3c1ea275c937.mp3str"
+
+[deps]
+
+source_file="res://music/battle/Blackheads' Charge (1).mp3"
+dest_files=["res://.godot/imported/Blackheads' Charge (1).mp3-98671ba970c65476d2bf3c1ea275c937.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

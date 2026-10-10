@@ -6,7 +6,7 @@ This document contains prompts for the game's soundtrack, designed to guide comp
 
 All battle-scene tracks are stored in `music/battle/`. Track titles retain their historic district context, while the file layout keeps the shared combat library in one location.
 
-P0-180: `music/battle/` is a retained unassigned library. Numbered alternate takes (`Track (N).mp3`) and unused district extras live under `archive/music/` (LFS-skip). Runtime theme folders keep the canonical take plus hard-coded slice tracks (`Apothecary.mp3`, `Apothecary (8).mp3`).
+P0-180: `music/battle/` is a retained unassigned library. R-1576 restored the numbered alternate takes (`Track (N).mp3`) and the district extras from `archive/music/` to their original paths, so every theme folder plays all its takes shuffled. Restored tracks stay in Git LFS (see `.gitattributes`). Location routing for the seamless city lives in `scripts/city/city_music_zones.gd`; see `docs/SYSTEMS/SEAMLESS_CITY.md#music`.
 
 ## Main Menu Theme
 

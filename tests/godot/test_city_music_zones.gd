@@ -28,6 +28,10 @@ func test_music_follows_position() -> void:
 	assert_eq(CityMusicZones.theme_at(Vector2(111, -445), "district.lower_town"), &"oleviste")
 	assert_eq(CityMusicZones.theme_at(Vector2(230, -640)), &"harbor")
 	assert_eq(CityMusicZones.theme_at(Vector2(-400, 100), "district.toompea"), &"toompea")
+	assert_eq(CityMusicZones.theme_at(Vector2(-342, 24), "district.toompea"), &"st_mary")
+	assert_eq(CityMusicZones.theme_at(Vector2(-332, -26), "district.toompea"), &"dome_school")
+	assert_eq(CityMusicZones.theme_at(Vector2(170, -180), "district.lower_town"), &"tavern")
+	assert_eq(CityMusicZones.theme_at(Vector2(200, 40), "district.viru"), &"viru")
 
 
 func test_district_is_the_fallback_and_fields_are_silent() -> void:
@@ -42,9 +46,13 @@ func test_hysteresis_holds_theme_just_outside_its_radius() -> void:
 	var radius: float = zone["radius"]
 	var just_out := at + Vector2(radius * 1.1, 0.0)
 	assert_ne(CityMusicZones.theme_at(just_out, ""), zone["theme"], "fresh visit leaves at the radius")
-	assert_eq(CityMusicZones.theme_at(just_out, "", zone["theme"]), zone["theme"], "held while leaving")
+	assert_eq(
+		CityMusicZones.theme_at(just_out, "", zone["theme"]), zone["theme"], "held while leaving"
+	)
 	var far := at + Vector2(radius * 1.5, 0.0)
-	assert_ne(CityMusicZones.theme_at(far, "", zone["theme"]), zone["theme"], "released once clearly out")
+	assert_ne(
+		CityMusicZones.theme_at(far, "", zone["theme"]), zone["theme"], "released once clearly out"
+	)
 
 
 func test_city_scene_has_no_scene_theme() -> void:

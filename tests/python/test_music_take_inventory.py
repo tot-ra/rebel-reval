@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""P0-180: runtime music/ holds authored playlists, not unused numbered takes."""
+"""P0-180 / R-1576: every runtime music/ track is hard-coded, directory-scanned, or battle library.
+
+R-1576 restored the numbered takes from archive/music/ into the scanned theme
+folders, so takes are allowed as long as a MusicDirector playlist reaches them.
+"""
 
 from __future__ import annotations
 
@@ -17,8 +21,9 @@ HARD_CODED = {
     "music/forge/Fireside Tale.mp3",
     "music/revel_east/Apothecary (8).mp3",
     "music/revel_east/Apothecary.mp3",
+    # Prologue cutscene underscore, loaded by the cutscene player, not MusicDirector.
+    "music/intro/The Weight of Centuries.mp3",
 }
-ALT_RE = re.compile(r"^(.*) \((\d+)\)\.mp3$")
 DIR_CONST_RE = re.compile(
     r'const THEME_(?:DAY|NIGHT)_DIRS: Dictionary = \{(?P<body>.*?)\}',
     re.DOTALL,
@@ -51,16 +56,6 @@ class MusicTakeInventoryTest(unittest.TestCase):
                 continue
             leftover.append(rel)
         self.assertEqual(leftover, [], msg="unreferenced runtime tracks:\n" + "\n".join(leftover))
-
-    def test_numbered_alternates_are_archived_except_hardcoded_takes(self) -> None:
-        leftover: list[str] = []
-        for path in sorted(MUSIC.rglob("*.mp3")):
-            rel = path.relative_to(ROOT).as_posix()
-            if rel in HARD_CODED:
-                continue
-            if ALT_RE.match(path.name):
-                leftover.append(rel)
-        self.assertEqual(leftover, [], msg="unused numbered takes still in music/:\n" + "\n".join(leftover))
 
     def test_slice_manifest_names_the_battle_retained_library(self) -> None:
         payload = MANIFEST.read_text(encoding="utf-8")

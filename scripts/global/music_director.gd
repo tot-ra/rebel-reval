@@ -37,12 +37,24 @@ const THEME_DAY_DIRS: Dictionary = {
 	&"toompea": "res://music/domberg/day/",
 	&"garden": "res://music/garden/day/",
 	&"south": "res://music/revel_south/",
+	# R-1576: themes restored from archive/music/. `viru` scans the whole
+	# revel_east folder for the seamless city, while `town` keeps the two
+	# hard-coded slice tracks that the P2-014 soundtrack budget counts.
+	&"viru": "res://music/revel_east/",
+	&"tavern": "res://music/revel_east/tavern/",
+	&"st_mary": "res://music/cathedral_of_saint_mary/day/",
+	&"dome_school": "res://music/dome_school/day/",
+	# No 1343 city zone: the council apothecary is first recorded in 1422, so
+	# this theme waits for an interior fade volume that asks for it.
+	&"apothecary": "res://music/revel_center/apotheca/",
 }
 const THEME_NIGHT_DIRS: Dictionary = {
-	&"forge": "res://music/forge/night/",
-	&"town": "res://music/revel_east/night/",
+	# Night at the smithy adds The Smith's Song takes to Fireside Tale.
+	&"forge": "res://music/forge/",
 	&"toompea": "res://music/domberg/night/",
 	&"garden": "res://music/garden/night/",
+	&"st_mary": "res://music/cathedral_of_saint_mary/night/",
+	&"dome_school": "res://music/dome_school/night/",
 }
 
 var _player: AudioStreamPlayer
@@ -55,7 +67,7 @@ var _zone_theme_override := &""
 var _active_theme := &""
 var _playing_night := false
 var _cycle_active := false
-var _cycle_progress := DayNightCycle.system_progress()
+var _cycle_progress := DayNightCycle.DEFAULT_PROGRESS
 var _cycle_elapsed_days := 0
 var _stream_cache: Dictionary = {}
 
@@ -222,7 +234,7 @@ func announce_calendar_date() -> void:
 
 func clear_cycle_progress() -> void:
 	_cycle_active = false
-	_cycle_progress = DayNightCycle.system_progress()
+	_cycle_progress = DayNightCycle.DEFAULT_PROGRESS
 	_cycle_elapsed_days = 0
 	_refresh_volume()
 	_maybe_switch_night_tracks()

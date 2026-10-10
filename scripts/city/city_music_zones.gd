@@ -22,11 +22,17 @@ const ZONES: Array[Dictionary] = [
 	{"id": "zone.dominican", "theme": &"monastery", "at": Vector2(164.0, -65.0), "radius": 48.0},
 	{"id": "zone.smithy", "theme": &"forge", "at": Vector2(-75.0, 190.0), "radius": 34.0},
 	{"id": "zone.bishop_garden", "theme": &"garden", "at": Vector2(-330.0, 110.0), "radius": 60.0},
+	# R-1576. St Mary's sits on its plan site. The cathedral school (recorded
+	# from 1319) has no plan building yet; it is placed just north of the
+	# church as a plausible composite. The tavern uses the Vene malt house POI.
+	{"id": "zone.st_mary", "theme": &"st_mary", "at": Vector2(-342.0, 24.5), "radius": 36.0},
+	{"id": "zone.dome_school", "theme": &"dome_school", "at": Vector2(-332.0, -26.0), "radius": 16.0},
+	{"id": "zone.vene_tavern", "theme": &"tavern", "at": Vector2(170.0, -180.0), "radius": 18.0},
 	# Quarters.
 	{"id": "zone.forum", "theme": &"center", "at": Vector2(5.0, -10.0), "radius": 95.0},
 	{"id": "zone.pikk", "theme": &"north", "at": Vector2(100.0, -330.0), "radius": 150.0},
 	{"id": "zone.south", "theme": &"south", "at": Vector2(-117.0, 163.0), "radius": 115.0},
-	{"id": "zone.viru", "theme": &"town", "at": Vector2(200.0, 40.0), "radius": 130.0},
+	{"id": "zone.viru", "theme": &"viru", "at": Vector2(200.0, 40.0), "radius": 130.0},
 	{"id": "zone.harbour", "theme": &"harbor", "at": Vector2(230.0, -640.0), "radius": 140.0},
 	{"id": "zone.castle", "theme": &"toompea", "at": Vector2(-400.0, 100.0), "radius": 170.0},
 ]
@@ -37,7 +43,7 @@ const DISTRICT_THEMES: Dictionary = {
 	"district.toompea": &"toompea",
 	"district.toompea_foot": &"toompea",
 	"district.lower_town": &"center",
-	"district.viru": &"town",
+	"district.viru": &"viru",
 	"district.kalarand": &"harbor",
 }
 

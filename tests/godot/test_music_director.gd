@@ -11,6 +11,7 @@ const DISTRICT_SCENE_THEMES: Dictionary = {
 const CITY_ZONE_THEMES: Array[StringName] = [
 	&"center", &"raekoda", &"holy_spirit", &"north", &"oleviste", &"monastery", &"south",
 	&"town", &"forge", &"garden", &"harbor", &"toompea",
+	&"viru", &"tavern", &"st_mary", &"dome_school",
 ]
 
 
@@ -56,7 +57,7 @@ func test_volume_db_follows_cycle_progress() -> void:
 
 func test_cycle_progress_is_exposed_for_hud_animation() -> void:
 	MusicDirector.clear_cycle_progress()
-	assert_true(absf(MusicDirector.get_cycle_progress() - DayNightCycle.system_progress()) < 0.01)
+	assert_true(is_equal_approx(MusicDirector.get_cycle_progress(), DayNightCycle.DEFAULT_PROGRESS))
 
 
 func test_is_cycle_active_tracks_set_and_clear() -> void:
@@ -102,28 +103,56 @@ func test_active_slice_themes_use_manifest_track_lists() -> void:
 
 func test_holy_spirit_church_uses_dedicated_hymn_playlist() -> void:
 	var track_paths := MusicDirectorScript.day_track_paths_for_theme(&"holy_spirit")
-	assert_eq(track_paths.size(), 1, "Holy Spirit chapel should use the canonical hymn take")
-	assert_eq(
-		track_paths[0],
-		"res://music/revel_center/holy spirit church/Hymn of the Holy Spirit.mp3"
+	assert_true(
+		track_paths.has("res://music/revel_center/holy spirit church/Hymn of the Holy Spirit.mp3"),
+		"Holy Spirit chapel should play the hymn"
 	)
-	assert_true(ResourceLoader.exists(track_paths[0]), "hymn track should load")
+	for track_path: String in track_paths:
+		assert_true(track_path.contains("Hymn of the Holy Spirit"), "chapel plays only hymn takes")
+		assert_true(ResourceLoader.exists(track_path), "hymn track should load: %s" % track_path)
 
 
-func test_active_slice_themes_have_no_night_tracks_yet() -> void:
-	for theme_id: StringName in [&"forge", &"town"]:
-		assert_true(
-			MusicDirectorScript.night_track_paths_for_theme(theme_id).is_empty(),
-			"active slice themes have no approved night folders yet"
-		)
+func test_town_slice_theme_has_no_night_tracks() -> void:
+	assert_true(
+		MusicDirectorScript.night_track_paths_for_theme(&"town").is_empty(),
+		"the slice town theme has no approved night folder"
+	)
 
 
-func test_toompea_has_distinct_day_and_night_playlists() -> void:
-	var day_paths := MusicDirectorScript.day_track_paths_for_theme(&"toompea")
-	var night_paths := MusicDirectorScript.night_track_paths_for_theme(&"toompea")
-	assert_false(day_paths.is_empty(), "Toompea should have restored daytime music")
-	assert_false(night_paths.is_empty(), "Toompea should have restored nighttime music")
-	assert_ne(day_paths, night_paths, "Toompea day and night playlists should stay distinct")
+## R-1576: the smithy adds The Smith's Song at night; the day list stays the slice track.
+func test_forge_night_adds_smiths_song() -> void:
+	var night_paths := MusicDirectorScript.night_track_paths_for_theme(&"forge")
+	assert_true(night_paths.has("res://music/forge/Fireside Tale.mp3"), "night keeps Fireside Tale")
+	assert_true(
+		night_paths.has("res://music/forge/The Smith's Song.mp3"), "night adds The Smith's Song"
+	)
+	for track_path: String in night_paths:
+		assert_true(ResourceLoader.exists(track_path), "forge night track should load: %s" % track_path)
+
+
+## R-1576: the seamless Viru quarter plays every revel_east track, not just the two slice tracks.
+func test_viru_theme_scans_the_restored_east_folder() -> void:
+	var viru_paths := MusicDirectorScript.day_track_paths_for_theme(&"viru")
+	var town_paths := MusicDirectorScript.day_track_paths_for_theme(&"town")
+	for track_path: String in town_paths:
+		assert_true(viru_paths.has(track_path), "viru should include slice track %s" % track_path)
+	assert_true(viru_paths.size() > town_paths.size(), "viru should add the restored east tracks")
+
+
+func test_day_night_themes_have_distinct_playlists() -> void:
+	for theme_id: StringName in [&"toompea", &"st_mary", &"dome_school"]:
+		var day_paths := MusicDirectorScript.day_track_paths_for_theme(theme_id)
+		var night_paths := MusicDirectorScript.night_track_paths_for_theme(theme_id)
+		assert_false(day_paths.is_empty(), "%s should have daytime music" % theme_id)
+		assert_false(night_paths.is_empty(), "%s should have nighttime music" % theme_id)
+		assert_ne(day_paths, night_paths, "%s day and night playlists should stay distinct" % theme_id)
+		for track_path: String in night_paths:
+			assert_true(ResourceLoader.exists(track_path), "night track should load: %s" % track_path)
+
+
+func test_apothecary_theme_is_registered_for_interiors() -> void:
+	assert_true(MusicDirectorScript.has_theme(&"apothecary"))
+	assert_false(MusicDirectorScript.day_track_paths_for_theme(&"apothecary").is_empty())
 
 
 func test_night_track_paths_fallback_to_day_when_missing() -> void:
