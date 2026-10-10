@@ -338,8 +338,10 @@ static func cattail_cluster_mesh() -> ArrayMesh:
 			* (0.015 + MeshMath.hash01(stalk_index, 19, 337) * 0.025)
 		)
 		var top := base + Vector3.UP * height + lean
-		var stem_color := Color(0.76, 0.80, 0.43).lerp(
-			Color(0.58, 0.66, 0.31), MeshMath.hash01(stalk_index, 23, 347)
+		# Linear values (see head_color): a muted light green, sRGB ~(0.45, 0.52, 0.29)
+		# ..(0.36, 0.44, 0.22), instead of the old near-lime that rendered pale.
+		var stem_color := Color(0.171, 0.234, 0.069).lerp(
+			Color(0.107, 0.162, 0.040), MeshMath.hash01(stalk_index, 23, 347)
 		)
 		_add_tapered_stem(surface, base, top, 0.008, 0.0055, 6, stem_color, 0.0, 1.0)
 		if head_scale > 0.0:
@@ -368,8 +370,11 @@ static func cattail_cluster_mesh() -> ArrayMesh:
 			_leaf_curve(root, direction, leaf_height, lean),
 			PackedFloat32Array([half_width, half_width, half_width * 0.72, half_width * 0.34, 0.0]),
 			Vector3(direction.z, 0.0, -direction.x),
-			Color(0.72, 0.80, 0.43).lerp(Color(0.57, 0.68, 0.32), green_variation),
-			Color(0.58, 0.65, 0.28).lerp(Color(0.42, 0.52, 0.22), green_variation),
+			# Linear values: Typha leaves are a greyish mid-to-deep green,
+			# sRGB root ~(0.40, 0.48, 0.27)..(0.31, 0.40, 0.20), tip ~(0.33, 0.42, 0.22)
+			# ..(0.24, 0.33, 0.16).
+			Color(0.133, 0.196, 0.060).lerp(Color(0.078, 0.133, 0.033), green_variation),
+			Color(0.089, 0.147, 0.040).lerp(Color(0.047, 0.089, 0.022), green_variation),
 			0.0,
 			0.86
 		)
