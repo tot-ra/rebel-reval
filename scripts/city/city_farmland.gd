@@ -13,6 +13,8 @@ extends Node3D
 
 const PlantMeshes := preload("res://scripts/map/view3d/map_view_plant_meshes.gd")
 const HayMeshes := preload("res://scripts/map/view3d/map_view_hay_meshes.gd")
+const KitchenGardenModels := preload("res://scripts/map/view3d/map_view_kitchen_garden_models.gd")
+const Shore := preload("res://scripts/city/city_shore.gd")
 
 const BUILD_RANGE := 95.0
 const FREE_RANGE := 135.0
@@ -65,6 +67,21 @@ const FAR_GOLD := {
 	&"oat": Color(0.8, 0.66, 0.3),
 }
 const RIPE_COLOR := Color(1.25, 1.0, 0.55)
+## Kitchen gardens (R-1645): a patch of wattle-edged beds beside each farmhouse,
+## behind it when there is room, else at a gable end or the front. Beds are
+## GARDEN_BED (length, width) with GARDEN_PATH between them, GARDEN_GAP from the
+## wall; the patch keeps GARDEN_CLEAR from every other building, road, field,
+## pasture, orchard and tree, and only sits on ground flat enough for a level bed.
+const GARDEN_BED := Vector2(3.4, 1.0)
+const GARDEN_PATH := 0.45
+const GARDEN_GAP := 1.4
+const GARDEN_CLEAR := 0.8
+const GARDEN_TREE_CLEAR := 1.2
+const GARDEN_MAX_RISE := 0.2
+const GARDEN_MIN_GROUND := 0.8
+const GARDEN_ROAD_BODY := 0.15
+## Tree lookup grid (metres) for the garden clearance test.
+const TREE_BUCKET := 16.0
 const STUBBLE_GROWTH := 0.14
 
 var plan: CityPlan
@@ -164,7 +181,168 @@ static func features_for(city_plan: CityPlan) -> Array[Dictionary]:
 				"radius": _radius(poly, centre),
 			}
 		)
+	out.append_array(kitchen_gardens_for(city_plan, out))
 	return out
+
+
+## One kitchen-garden patch per farmhouse (plan `farmsteads` whose building is a
+## house; barns and sheds get none). Pure and deterministic from the farmstead id.
+## `land` is the field/pasture/orchard features the patch must keep clear of. A
+## house whose yard has no clear, level spot gets no garden rather than one on a
+## road or in a neighbour's wall.
+static func kitchen_gardens_for(city_plan: CityPlan, land: Array[Dictionary]) -> Array[Dictionary]:
+	var out: Array[Dictionary] = []
+	var trees := _tree_buckets(city_plan)
+	for f: Dictionary in city_plan.data.get("farmsteads", []):
+		var index := city_plan.building_index_by_id(String(f["building"]))
+		if index < 0 or String(city_plan.buildings[index].get("kind", "")) != "house":
+			continue
+		var id := "garden.%s" % String(f["id"])
+		var beds := 2 + absi(hash(id)) % 2
+		var patch := KitchenGardenModels.patch_size(GARDEN_BED, beds, GARDEN_PATH)
+		for spot in _garden_candidates(city_plan, index, patch):
+			var poly := _rect(spot["centre"], spot["yaw"], patch * 0.5)
+			if not _garden_fits(city_plan, poly, land, trees):
+				continue
+			var heights: Array[float] = []
+			for p in poly:
+				heights.append(city_plan.ground_height(p))
+			out.append(
+				{
+					"id": id,
+					"kind": &"kitchen_garden",
+					"farmstead": String(f["id"]),
+					"beds": beds,
+					"yaw": float(spot["yaw"]),
+					# The lowest corner, so no bed floats; the rise is capped.
+					"height": heights.min(),
+					"polygon": poly,
+					"centre": spot["centre"],
+					"radius": _radius(poly, spot["centre"]),
+				}
+			)
+			break
+	return out
+
+
+## Candidate patch centres round house `index`, in order of preference: behind
+## the house (away from the door), at either gable end, then in front beside the
+## door. Each patch lies along the wall it faces. Returns [{centre, yaw}].
+static func _garden_candidates(
+	city_plan: CityPlan, index: int, patch: Vector2
+) -> Array[Dictionary]:
+	var b: Dictionary = city_plan.buildings[index]
+	var ring := city_plan.footprint(index)
+	var u := Vector2.from_angle(float(b.get("ridge_angle", 0.0)))
+	var v := Vector2(-u.y, u.x)
+	var lo := Vector2(INF, INF)
+	var hi := Vector2(-INF, -INF)
+	for p in ring:
+		var q := Vector2(p.dot(u), p.dot(v))
+		lo = lo.min(q)
+		hi = hi.max(q)
+	var mid := (lo + hi) * 0.5
+	var half := (hi - lo) * 0.5
+	var centre := u * mid.x + v * mid.y
+	var front := v
+	var door: Variant = b.get("door")
+	if door is Array:
+		var to_door := Vector2(door[0], door[1]) - centre
+		front = v if to_door.dot(v) >= 0.0 else -v
+	var side := u
+	var out: Array[Dictionary] = []
+	# Long walls: the patch's long axis runs along the ridge (u).
+	var back_off := half.y + GARDEN_GAP + patch.y * 0.5
+	out.append({"centre": centre - front * back_off, "yaw": u.angle()})
+	# Gable ends: the patch turns to run across the house (v).
+	var end_off := half.x + GARDEN_GAP + patch.y * 0.5
+	for s: float in [1.0, -1.0]:
+		out.append({"centre": centre + side * s * end_off, "yaw": v.angle()})
+	# In front, shifted along the wall so the door path stays open.
+	var shift := half.x * 0.5 + patch.x * 0.25
+	for s: float in [1.0, -1.0]:
+		out.append({"centre": centre + front * back_off + side * s * shift, "yaw": u.angle()})
+	return out
+
+
+static func _rect(centre: Vector2, yaw: float, half: Vector2) -> PackedVector2Array:
+	var u := Vector2.from_angle(yaw)
+	var v := Vector2(-u.y, u.x)
+	return PackedVector2Array(
+		[
+			centre - u * half.x - v * half.y,
+			centre + u * half.x - v * half.y,
+			centre + u * half.x + v * half.y,
+			centre - u * half.x + v * half.y,
+		]
+	)
+
+
+static func _garden_fits(
+	city_plan: CityPlan,
+	poly: PackedVector2Array,
+	land: Array[Dictionary],
+	trees: Dictionary
+) -> bool:
+	var centre := _centroid(poly)
+	var grown := Geometry2D.offset_polygon(poly, GARDEN_CLEAR)
+	if grown.is_empty():
+		return false
+	var halo: PackedVector2Array = grown[0]
+	if city_plan.site_at(centre) != null:
+		return false
+	var low := INF
+	var high := -INF
+	for p in poly:
+		var h := city_plan.ground_height(p)
+		low = minf(low, h)
+		high = maxf(high, h)
+		if h < GARDEN_MIN_GROUND or city_plan.in_moat(p, 1.5):
+			return false
+	if high - low > GARDEN_MAX_RISE:
+		return false
+	# Roads: probe the halo outline, its edge midpoints and the centre.
+	var probes := PackedVector2Array([centre])
+	for i in halo.size():
+		probes.append(halo[i])
+		probes.append((halo[i] + halo[(i + 1) % halo.size()]) * 0.5)
+	for p in probes:
+		if Shore.road_raster_at(city_plan, p).r > GARDEN_ROAD_BODY:
+			return false
+	for other in city_plan.buildings_near(centre, _radius(poly, centre) + GARDEN_CLEAR + 30.0):
+		if not Geometry2D.intersect_polygons(halo, city_plan.footprint(other)).is_empty():
+			return false
+	for f: Dictionary in land:
+		if (f["centre"] as Vector2).distance_to(centre) > float(f["radius"]) + 10.0:
+			continue
+		if not Geometry2D.intersect_polygons(halo, f["polygon"]).is_empty():
+			return false
+	var key := Vector2i((centre / TREE_BUCKET).floor())
+	for dx in range(-1, 2):
+		for dy in range(-1, 2):
+			for t: Vector2 in trees.get(key + Vector2i(dx, dy), []):
+				if Geometry2D.is_point_in_polygon(t, poly) or _distance_to_polygon(t, poly) < GARDEN_TREE_CLEAR:  # gdlint: ignore=max-line-length
+					return false
+	return true
+
+
+static func _tree_buckets(city_plan: CityPlan) -> Dictionary:
+	var out := {}
+	for t: Array in city_plan.data.get("trees", []):
+		var p := Vector2(t[0], t[1])
+		var key := Vector2i((p / TREE_BUCKET).floor())
+		if not out.has(key):
+			out[key] = []
+		(out[key] as Array).append(p)
+	return out
+
+
+static func _distance_to_polygon(p: Vector2, poly: PackedVector2Array) -> float:
+	var best := INF
+	for i in poly.size():
+		var q := Geometry2D.get_closest_point_to_segment(p, poly[i], poly[(i + 1) % poly.size()])
+		best = minf(best, p.distance_to(q))
+	return best
 
 
 func set_calendar_date(date: Dictionary) -> void:
@@ -262,6 +440,8 @@ func _build(feature: Dictionary) -> Node3D:
 		_plant_field(root, feature, rng)
 		if feature["sowing"] == &"fallow" and rng.randf() < 0.4:
 			_hay_rick(root, feature, rng)
+	elif feature["kind"] == &"kitchen_garden":
+		_kitchen_garden(root, feature)
 	elif feature["kind"] == &"orchard":
 		if feature["fence"]:
 			_fence(root, feature)
@@ -329,6 +509,27 @@ func _plant_field(root: Node3D, feature: Dictionary, rng: RandomNumberGenerator)
 static func growth_scale(amount: float, rng: RandomNumberGenerator) -> Vector2:
 	var variety := rng.randf_range(0.88, 1.12)
 	return Vector2(lerpf(0.55, 1.0, amount) * variety, amount * variety)
+
+
+## Kitchen-garden beds at the patch's lowest corner, grown to the garden
+## calendar (seedlings on the slice's 21 April opening).
+func _kitchen_garden(root: Node3D, feature: Dictionary) -> void:
+	var patch := Node3D.new()
+	patch.name = "KitchenGarden"
+	var centre: Vector2 = feature["centre"]
+	patch.position = Vector3(centre.x, float(feature["height"]), centre.y)
+	# Model beds run along +X; the plan yaw is measured in the xz plane (z = plan y).
+	patch.rotation.y = -float(feature["yaw"])
+	root.add_child(patch)
+	KitchenGardenModels.add_model(
+		patch,
+		String(feature["id"]),
+		GARDEN_BED,
+		int(feature["beds"]),
+		GARDEN_PATH,
+		growth(&"garden", day_of_year),
+		DRAW_RANGE
+	)
 
 
 ## Enclosure fence: wattle, pole or dry-stone by pastures' id (CityFences).

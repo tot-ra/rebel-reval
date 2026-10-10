@@ -128,6 +128,20 @@ func _shots(plan: CityPlan) -> Array[Dictionary]:
 			shots.append({"name": "yard_%s" % want, "eye": Vector3(at.x + 22.0, g + 9.0, at.y + 22.0), "look": Vector3(at.x, g + 1.5, at.y), "fov": 60.0, "focus": at})  # gdlint: ignore=max-line-length
 			shots.append({"name": "yard_%s_close" % want, "eye": Vector3(at.x + 9.0, g + 2.4, at.y + 9.0), "look": Vector3(at.x, g + 1.2, at.y), "fov": 60.0, "focus": at})  # gdlint: ignore=max-line-length
 			break
+	# Kitchen garden beside the nearest farmhouse (R-1645), seen from the side
+	# away from the house so its roof does not hide the beds.
+	var garden := _feature(plan, &"kitchen_garden")
+	if not garden.is_empty():
+		var c: Vector2 = garden["centre"]
+		var g := plan.ground_height(c)
+		var away := Vector2(1, 1).normalized()
+		for f: Dictionary in plan.data["farmsteads"]:
+			if String(f["id"]) == String(garden["farmstead"]):
+				away = (c - Vector2(f["at"][0], f["at"][1])).normalized()
+		var wide := c + away * 13.0
+		var close := c + away * 4.5
+		shots.append({"name": "kitchen_garden", "eye": Vector3(wide.x, g + 8.0, wide.y), "look": Vector3(c.x - away.x * 3.0, g + 0.5, c.y - away.y * 3.0), "fov": 60.0, "focus": c})  # gdlint: ignore=max-line-length
+		shots.append({"name": "kitchen_garden_close", "eye": Vector3(close.x, g + 2.6, close.y), "look": Vector3(c.x, g + 0.2, c.y), "fov": 55.0, "focus": c})  # gdlint: ignore=max-line-length
 	# Harbour: the merchant landing and the Kalamaja fishing shore.
 	var harbour: Dictionary = plan.data.get("harbour", {})
 	if not harbour.is_empty():

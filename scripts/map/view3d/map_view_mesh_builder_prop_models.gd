@@ -201,7 +201,7 @@ static func build_prop(
 			elif prop["kind"] in MapTypes.DISTRICT_LIFE_PROP_KINDS:
 				DistrictLifeProps.add_to(root, prop["kind"], prop)
 			elif prop["kind"] in MapTypes.RURAL_LIFE_PROP_KINDS:
-				RuralLifeProps.add_to(root, prop["kind"])
+				RuralLifeProps.add_to(root, prop["kind"], String(prop.get("id", "")))
 			else:
 				MapViewMeshBuilderPrimitives.box(
 					root, "Marker", Vector3(0.5, 0.5, 0.5), Vector3(0.0, 0.25, 0.0), &"ink"

@@ -274,7 +274,7 @@ prop barn_rick hay_stack 38 42 rect=2,2 style_variant=hay_stack.tall
 
 | Kind | Typical footprint | P0-072 sourcing note |
 |---|---|---|
-| `kitchen_garden` | `rect=2,1` | Kitchen-garden beds beside crofts and service yards (**B**) |
+| `kitchen_garden` | `rect=2,1` | Two wattle-edged vegetable beds (cabbage, turnip, onion) beside crofts and service yards (**B**, model R-1645) |
 | `field_strip` | `rect=2,1` | Narrow cereal/flax strips on `farm_soil` margins (**B**) |
 | `hay_wagon` | `rect=2,2` | Loaded hay cart beside meadows and barn aprons (**B**) |
 | `pasture_fence` | `rect=3,1` | Wattle or rail fencing around pasture strips (**B/U**) |

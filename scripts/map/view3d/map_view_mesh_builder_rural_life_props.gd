@@ -9,12 +9,16 @@ const _Primitives := preload("res://scripts/map/view3d/map_view_mesh_builder_pri
 const _HayMeshes := preload("res://scripts/map/view3d/map_view_hay_meshes.gd")
 const _CartModels := preload("res://scripts/map/view3d/map_view_cart_models.gd")
 const _RootCellarModels := preload("res://scripts/map/view3d/map_view_root_cellar_models.gd")
+const _KitchenGardenModels := preload(
+	"res://scripts/map/view3d/map_view_kitchen_garden_models.gd"
+)
 
 
-static func add_to(root: Node3D, kind: StringName) -> void:
+## `prop_id` (the stable prop ID) seeds per-instance variation where a model has it.
+static func add_to(root: Node3D, kind: StringName, prop_id: String = "") -> void:
 	match kind:
 		MapTypes.PROP_KIND_KITCHEN_GARDEN:
-			_add_kitchen_garden(root)
+			_add_kitchen_garden(root, prop_id)
 		MapTypes.PROP_KIND_FIELD_STRIP:
 			_add_field_strip(root)
 		MapTypes.PROP_KIND_HAY_WAGON:
@@ -35,29 +39,15 @@ static func add_to(root: Node3D, kind: StringName) -> void:
 			_Primitives.box(root, "Marker", Vector3(0.5, 0.5, 0.5), Vector3(0.0, 0.25, 0.0), &"ink")
 
 
-static func _add_kitchen_garden(root: Node3D) -> void:
-	_Primitives.box(
-		root, "BedNorth", Vector3(1.35, 0.08, 0.42), Vector3(0.0, 0.04, -0.28), &"stone"
-	)
-	_Primitives.box(root, "BedSouth", Vector3(1.35, 0.08, 0.42), Vector3(0.0, 0.04, 0.28), &"stone")
-	for index in 4:
-		var along := lerpf(-0.48, 0.48, float(index) / 3.0)
-		_Primitives.sphere(
-			root,
-			"Leaf%d" % index,
-			0.12,
-			Vector3(along, 0.16, -0.28),
-			&"vegetation",
-			Vector3(0.9, 1.2, 0.9)
-		)
-		_Primitives.sphere(
-			root,
-			"LeafB%d" % index,
-			0.1,
-			Vector3(along + 0.08, 0.14, 0.3),
-			&"vegetation",
-			Vector3(0.85, 1.1, 0.85)
-		)
+## Two wattle-edged beds of grown cabbage, turnip or onion inside the 2x1 cell
+## footprint (R-1645). The map view scale is about 0.9 m per unit, so the beds
+## are authored small and the whole patch is scaled up to read at gameplay zoom.
+static func _add_kitchen_garden(root: Node3D, seed_id: String) -> void:
+	var patch := Node3D.new()
+	patch.name = "KitchenGarden"
+	patch.scale = Vector3.ONE * 0.62
+	root.add_child(patch)
+	_KitchenGardenModels.add_model(patch, seed_id, Vector2(2.6, 0.62), 2, 0.3, 1.0)
 
 
 static func _add_field_strip(root: Node3D) -> void:
