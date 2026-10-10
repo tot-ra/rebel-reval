@@ -346,8 +346,12 @@ static func cattail_cluster_mesh() -> ArrayMesh:
 			var head_height := 0.165 * head_scale
 			var head_base := top - Vector3.UP * (head_height + 0.035)
 			var head_radius := 0.034 * head_scale
-			var head_color := Color(0.76, 0.39, 0.16).lerp(
-				Color(0.56, 0.25, 0.09), MeshMath.hash01(stalk_index, 29, 349)
+			# Cattail materials read vertex colors as linear (vertex_color_is_srgb is
+			# off), so these are linear values: they display as the dark chocolate
+			# brown of a ripe Typha spike, sRGB ~(0.42, 0.24, 0.11)..(0.28, 0.15, 0.07).
+			# The old sRGB-looking values rendered as a pale tan barrel.
+			var head_color := Color(0.147, 0.047, 0.012).lerp(
+				Color(0.064, 0.019, 0.006), MeshMath.hash01(stalk_index, 29, 349)
 			)
 			_add_cattail_head(surface, head_base, head_height, head_radius, head_color)
 
