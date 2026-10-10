@@ -1,6 +1,6 @@
 # Bestiary
 
-Status: planned (task **R-1578**, epic **R-1577**). The roster, card format and validator are implemented; there are no creature cards yet and no runtime code reads the bestiary. Out of scope here: full cards (BST-2a/2b/3), concept art, 3D models, in-game spawning.
+Status: planned (task **R-1578**, epic **R-1577**). The roster, card format and validator are implemented; cards exist for every kept creature (30 in total, spirit and hybrid cards written from folklore and the legacy notes) and no runtime code reads the bestiary. Out of scope here: full cards (BST-2a/2b/3), concept art, 3D models, in-game spawning.
 
 ## What it is
 
@@ -12,7 +12,8 @@ One authoritative list of the beings the apprentice can meet, split by combat la
 |---|---|
 | [`docs/BESTIARY/README.md`](../BESTIARY/README.md) | Roster table and the keep/reject reasoning |
 | [`docs/BESTIARY/TEMPLATE.md`](../BESTIARY/TEMPLATE.md) | Card format |
-| `docs/BESTIARY/cards/<slug>.md` | One card per creature (none yet) |
+| `docs/BESTIARY/cards/<slug>.md` | One card per kept creature |
+| [`docs/BESTIARY/inspiration/`](../BESTIARY/inspiration/) | Legacy pixel-art sketches kept only as inspiration (`.gdignore`d, not runtime art); roster Images column refers to these |
 | [`assets/bestiary/README.md`](../../assets/bestiary/README.md) | Legacy archived list, points to the roster |
 | `tools/validate_bestiary_cards.py` | Validator |
 | `tests/python/test_validate_bestiary_cards.py` | Validator tests |
