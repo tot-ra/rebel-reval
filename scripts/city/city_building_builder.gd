@@ -75,6 +75,7 @@ const ROOF_COLORS := {
 }
 
 const WindowOpenings := preload("res://scripts/city/city_window_openings.gd")
+const HouseWealth := preload("res://scripts/city/city_house_wealth.gd")
 const Chimney := preload("res://scripts/city/city_chimney_builder.gd")
 const WINDOW_WOOD := preload("res://scripts/city/city_window_wood.gdshader")
 const WINDOW_GLASS := preload("res://scripts/city/city_window_glass.gdshader")
@@ -97,6 +98,7 @@ static func bind_ground(plan: CityPlan) -> void:
 	_ground_texture = plan.height_texture()
 	_ground_rect = plan.height_texture_rect()
 	_materials.clear()
+	HouseWealth.bind(plan)
 
 
 ## Weathered wall material from a library plate (texture, normal, density).
@@ -140,11 +142,25 @@ static func set_wetness(value: float) -> void:
 			(mat as ShaderMaterial).set_shader_parameter("wetness", value)
 
 
-static func wall_material(family: StringName) -> Material:
-	var key := "wall:%s" % family
+## `stem` pins a timber wall to one library plate (CityHouseWealth); without
+## it the family keeps its single shared plate.
+static func wall_material(family: StringName, stem := "") -> Material:
+	var key := "wall:%s" % family if stem.is_empty() else "wall:%s:%s" % [family, stem]
 	if not _materials.has(key):
 		var plate := MapViewMaterials.wall_surface_triplanar(family, Color.WHITE)
-		_materials[key] = weathered_wall(plate, WALL_COLORS.get(family, Color.WHITE))
+		var age := 1.0
+		var tint: Color = WALL_COLORS.get(family, Color.WHITE)
+		if not stem.is_empty():
+			plate = (
+				MapViewMaterials
+				. BUILDING_MATERIALS
+				. library_surface_for_building("wall_surface", StringName(stem), stem, Color.WHITE)
+				. duplicate() as StandardMaterial3D
+			)
+			plate.uv1_scale = MapViewMaterials.BUILDING_MATERIALS.library_world_uv_density(stem)
+			age = float(HouseWealth.STEM_AGE.get(stem, 1.0))
+			tint = HouseWealth.STEM_TINT.get(stem, tint)
+		_materials[key] = weathered_wall(plate, tint, age)
 	return _materials[key]
 
 
@@ -425,7 +441,9 @@ static func material_for_key(key: String) -> Material:
 	var family := StringName(parts[1]) if parts.size() > 1 else &""
 	match parts[0]:
 		"wall":
-			return wall_material(family if family != &"" else &"plaster")
+			return wall_material(
+				family if family != &"" else &"plaster", parts[2] if parts.size() > 2 else ""
+			)
 		"roof":
 			return roof_material(family if family != &"" else &"shingle")
 		"tile":
@@ -580,7 +598,13 @@ static func build_building(
 	# draws that drive roof tint, chimney and window dropout above/below.
 	var look_rng := RandomNumberGenerator.new()
 	look_rng.seed = hash(b["id"]) + 7919
-	var look := CityWindows.look(look_rng, family)
+	# Census wealth picks the timber wall plate and the window repertoire (R-1659).
+	var wealth := HouseWealth.tier_of(b, ring)
+	var stem := HouseWealth.wall_stem(b, family, wealth)
+	if not stem.is_empty():
+		wall_key = "wall:%s:%s" % [family, stem]
+		tint = HouseWealth.wall_tint(b, tint)
+	var look := CityWindows.look(look_rng, family, wealth)
 	var bottom := float(b["base_h"]) - SINK
 	var eave := floor_y + float(b["wall_h"])
 	var frame := roof_frame(ring, float(b["ridge_angle"]), eave, float(b["roof_pitch_deg"]))

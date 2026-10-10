@@ -1,9 +1,11 @@
 class_name CityWindows
 extends RefCounted
 
-## Seeded house windows, matching interior relief and glazing. Late carved
-## platbands remain callable for legacy tools, never automatically selected.
-## See docs/SYSTEMS/COTTAGE_WINDOWS.md.
+## Seeded house windows, matching interior relief and glazing. The census
+## wealth tier (CityHouseWealth) picks the repertoire: bare openings for the
+## poor, hoods and notched boards for masters, chip-carved boards for the rich.
+## Late carved platbands remain callable for legacy tools, never automatically
+## selected. See docs/SYSTEMS/COTTAGE_WINDOWS.md.
 
 ## Conservative earth-pigment palette. These are visual reconstructions, not
 ## claims that blue/green paint was cheap in Reval in 1343.
@@ -23,12 +25,34 @@ const TOWN_STYLES: Array[StringName] = [
 	&"plain", &"shutters_open", &"shutters_closed", &"surround", &"leaded", &"panelled"
 ]
 const GLAZING: Array[StringName] = [&"open", &"horn", &"forest", &"clear"]
+## Window repertoire by wealth tier (poor, middling, rich). Repeats weight the
+## draw. A house uses one style, and about one window in four swaps to another
+## from the same pool, so a rich house never sprouts a bare slit.
+const TIMBER_POOLS := [
+	[&"plain", &"plain", &"shutters_closed", &"shutters_open", &"slit"],
+	[&"shutters_open", &"shutters_closed", &"hood", &"notched", &"notched", &"plain"],
+	[&"carved", &"carved", &"carved_shutters", &"notched", &"hood"],
+]
+const STONE_POOLS := [
+	[&"plain", &"shutters_open", &"shutters_closed"],
+	[&"shutters_open", &"surround", &"hood", &"panelled"],
+	[&"leaded", &"panelled", &"surround", &"carved_shutters"],
+]
+## Trim palette entries reachable per tier: the poor keep bare or red-washed
+## wood; only the rich reach the costlier green and blue-grey.
+const TIER_PALETTE := [[0, 0, 3], [0, 1, 2, 3], [0, 1, 2, 3, 4, 5]]
 
 
-static func look(look_rng: RandomNumberGenerator, family: StringName) -> Dictionary:
+## `wealth` (0..2, CityHouseWealth) selects the tier's pools; -1 keeps the
+## older purely random tier for tools without a plan.
+static func look(
+	look_rng: RandomNumberGenerator, family: StringName, wealth := -1
+) -> Dictionary:
 	var rural := family == &"log" or family == &"plank"
 	# Wealth is a visual tier only, never a new household/save-state value.
 	var tier := look_rng.randi_range(0, 1) if rural else look_rng.randi_range(0, 2)
+	if wealth >= 0:
+		return _wealth_look(look_rng, rural, clampi(wealth, 0, 2))
 	var palette := look_rng.randi() % (4 if tier < 2 else TRIM_PAINTS.size())
 	var styles := RURAL_STYLES if rural else TOWN_STYLES
 	var style: StringName = styles[look_rng.randi() % styles.size()]
@@ -49,6 +73,26 @@ static func look(look_rng: RandomNumberGenerator, family: StringName) -> Diction
 			if rural
 			else (&"horn" if tier == 0 else &"forest" if tier == 1 else &"clear")
 		),
+	}
+
+
+static func _wealth_look(look_rng: RandomNumberGenerator, rural: bool, tier: int) -> Dictionary:
+	var pool: Array = (TIMBER_POOLS if rural else STONE_POOLS)[tier]
+	var palette: Array = TIER_PALETTE[tier]
+	var glazings: Array = [&"open", &"horn", &"forest"] if rural else [&"horn", &"forest", &"clear"]
+	var glazing: StringName = glazings[tier]
+	# Some poor cottages afford a horn pane; most keep the bare opening.
+	if rural and tier == 0 and look_rng.randf() < 0.3:
+		glazing = &"horn"
+	return {
+		"rural": rural,
+		"tier": tier,
+		"trim": TRIM_PAINTS[palette[look_rng.randi() % palette.size()]],
+		"shutter": SHUTTER_PAINTS[palette[look_rng.randi() % palette.size()]],
+		"style": pool[look_rng.randi() % pool.size()],
+		"pool": pool,
+		"panes": 1 + tier,
+		"glazing": glazing,
 	}
 
 
@@ -85,7 +129,9 @@ static func placements(
 				continue
 			var style: StringName = house_look["style"]
 			if rural and rng.randf() < 0.25:
-				style = RURAL_STYLES[rng.randi() % RURAL_STYLES.size()]
+				# Same two draws as before; a wealth look swaps within its own pool.
+				var swap: Array = house_look.get("pool", RURAL_STYLES)
+				style = swap[rng.randi() % swap.size()]
 			var jitter := rng.randf()
 			var w := CityBuildingBuilder.WINDOW_W * (0.8 if rural else 1.0)
 			var h := CityBuildingBuilder.WINDOW_H * (0.85 + jitter * 0.25)
@@ -97,6 +143,12 @@ static func placements(
 			# Include the lintel and sill, not just the old nominal pane height.
 			if wy + h + 0.18 > eave - 0.05:
 				continue
+			# The carved head board needs ~0.4 m of wall above the frame;
+			# under a low eave it falls back to a notched lintel (no RNG draw).
+			if style in [&"carved", &"carved_shutters", &"hood"] and wy + h + 0.45 > eave:
+				style = &"notched" if wy + h + 0.3 <= eave else &"plain"
+			elif style == &"notched" and wy + h + 0.3 > eave:
+				style = &"plain"
 			(
 				result
 				. append(
@@ -354,6 +406,22 @@ static func add_window(
 			_shutters(shell, m, dir, nrm, y0, hw + fr, h, shut, false)
 			if style == &"panelled":
 				_panel_details(shell, m, dir, nrm, y0, hw + fr, h, shut)
+		&"hood":
+			_hood(shell, m, dir, nrm, y0 + h + fr, hw + fr, trim)
+		&"notched":
+			_notched_lintel(shell, m, dir, nrm, y0 + h + fr, hw + fr, trim)
+		&"carved":
+			_carved_surround(shell, m, dir, nrm, y0, w, h, trim)
+		&"carved_shutters":
+			_shutters(shell, m, dir, nrm, y0, hw + fr, h, shut, false)
+			for side: float in [-1.0, 1.0]:
+				# Carved frieze across the head of each open leaf.
+				var u0 := side * (hw + fr + 0.03)
+				var u1 := side * (hw + fr + 0.03 + (hw + fr) * 0.98)
+				_carved_frieze(
+					shell, m, dir, nrm, minf(u0, u1), maxf(u0, u1), y0 + h - 0.16, 0.065, shut
+				)
+			_notched_lintel(shell, m, dir, nrm, y0 + h + fr, hw + fr, trim)
 		&"shutters_closed":
 			_shutters(shell, m, dir, nrm, y0, hw + fr, h, shut, true)
 		&"surround":
@@ -667,3 +735,177 @@ static func _lead_lattice(
 				verts.append(Vector3(q.x, y + point.y, q.y))
 			shell.quad_out("iron", verts[0], verts[1], verts[2], verts[3], Color.WHITE, out)
 			shell.quad_out("iron", verts[3], verts[2], verts[1], verts[0], Color.WHITE, -out)
+
+
+## Point in a window's local frame: u along the wall, y up, z out of the wall.
+static func _wp(m: Vector2, dir: Vector2, nrm: Vector2, u: float, y: float, z: float) -> Vector3:
+	var q: Vector2 = m + dir * u + nrm * z
+	return Vector3(q.x, y, q.y)
+
+
+## Plain drip board over the head on two small brackets: sheds rain off the
+## frame. The common middling-house upgrade.
+static func _hood(
+	shell: CityBuildingBuilder.Shell,
+	m: Vector2,
+	dir: Vector2,
+	nrm: Vector2,
+	y: float,
+	hw: float,
+	color: Color
+) -> void:
+	_wbox(shell, "paint", m, dir, nrm, -hw - 0.12, hw + 0.12, y + 0.04, y + 0.09, 0.0, 0.2, color)
+	for u: float in [-hw - 0.06, hw + 0.06]:
+		_wbox(
+			shell,
+			"paint",
+			m,
+			dir,
+			nrm,
+			u - 0.03,
+			u + 0.03,
+			y - 0.08,
+			y + 0.04,
+			0.0,
+			0.15,
+			color.darkened(0.08)
+		)
+
+
+## Lintel board whose lower edge is chip-notched into a row of triangular
+## teeth, the simplest carving a householder could cut with an axe and knife.
+static func _notched_lintel(
+	shell: CityBuildingBuilder.Shell,
+	m: Vector2,
+	dir: Vector2,
+	nrm: Vector2,
+	y: float,
+	hw: float,
+	color: Color
+) -> void:
+	var left := -hw - 0.1
+	var right := hw + 0.1
+	_wbox(shell, "paint", m, dir, nrm, left, right, y + 0.03, y + 0.17, 0.0, 0.06, color)
+	_teeth(shell, m, dir, nrm, left, right, y + 0.03, -0.07, 0.06, color, 7)
+
+
+## Downward (rise < 0) or upward teeth hanging from a board edge at `y`.
+static func _teeth(
+	shell: CityBuildingBuilder.Shell,
+	m: Vector2,
+	dir: Vector2,
+	nrm: Vector2,
+	left: float,
+	right: float,
+	y: float,
+	rise: float,
+	z: float,
+	color: Color,
+	count: int
+) -> void:
+	var out := Vector3(nrm.x, 0, nrm.y)
+	var tw := (right - left) / float(count)
+	for i in count:
+		var u := left + float(i) * tw
+		var tip := _wp(m, dir, nrm, u + tw * 0.5, y + rise, z)
+		var a := _wp(m, dir, nrm, u, y, z)
+		var b := _wp(m, dir, nrm, u + tw, y, z)
+		shell.tri_out("paint", a, b, tip, color, out)
+		# Back face so the tooth is not a one-sided decal from below/inside.
+		var a0 := _wp(m, dir, nrm, u, y, z - 0.03)
+		var b0 := _wp(m, dir, nrm, u + tw, y, z - 0.03)
+		var tip0 := _wp(m, dir, nrm, u + tw * 0.5, y + rise, z - 0.03)
+		shell.tri_out("paint", a0, b0, tip0, color, -out)
+		shell.quad_out("paint", a, tip, tip0, a0, color.darkened(0.2), Vector3(-dir.x, 0, -dir.y))
+		shell.quad_out("paint", tip, b, b0, tip0, color.darkened(0.2), Vector3(dir.x, 0, dir.y))
+
+
+## Six-petal chip-carved rosette: a disc of wedge facets cut alternately deep
+## and shallow, so it reads as incised relief under raking light.
+static func _rosette(
+	shell: CityBuildingBuilder.Shell,
+	m: Vector2,
+	dir: Vector2,
+	nrm: Vector2,
+	u: float,
+	y: float,
+	r: float,
+	z: float,
+	color: Color
+) -> void:
+	var out := Vector3(nrm.x, 0, nrm.y)
+	var segments := 12
+	var centre := _wp(m, dir, nrm, u, y, z + 0.012)
+	for i in segments:
+		var a0 := TAU * float(i) / float(segments)
+		var a1 := TAU * float(i + 1) / float(segments)
+		var p0 := _wp(m, dir, nrm, u + cos(a0) * r, y + sin(a0) * r, z)
+		var p1 := _wp(m, dir, nrm, u + cos(a1) * r, y + sin(a1) * r, z)
+		var shade := color.darkened(0.32) if i % 2 == 0 else color.lightened(0.06)
+		shell.tri_out("paint", centre, p0, p1, shade, out)
+
+
+## Rich timber window: broad side boards, a carved head board with rosettes
+## between notched edges, a toothed apron under the sill on stepped corbels.
+## Chip carving in the Baltic/Scandinavian medieval manner, not a later
+## pedimented nalichnik (that stays the manual `platband`).
+static func _carved_surround(
+	shell: CityBuildingBuilder.Shell,
+	m: Vector2,
+	dir: Vector2,
+	nrm: Vector2,
+	y0: float,
+	w: float,
+	h: float,
+	color: Color
+) -> void:
+	var hw := w * 0.5 + 0.06
+	var bw := 0.13
+	var top := y0 + h + 0.06
+	var cut := color.darkened(0.3)
+	# Side boards with an incised groove down the middle.
+	for side: float in [-1.0, 1.0]:
+		var u0 := -hw - bw if side < 0.0 else hw
+		_wbox(shell, "paint", m, dir, nrm, u0, u0 + bw, y0 - 0.1, top, 0.0, 0.05, color)
+		var g := u0 + bw * 0.5
+		_wbox(shell, "paint", m, dir, nrm, g - 0.012, g + 0.012, y0, top - 0.04, 0.05, 0.056, cut)
+	# Head board with a rosette frieze, notched below and toothed on top.
+	var head := 0.26
+	var edge := hw + bw + 0.04
+	_wbox(shell, "paint", m, dir, nrm, -edge, edge, top, top + head, 0.0, 0.06, color)
+	var span := 2.0 * (hw + bw)
+	var count := maxi(2, int(span / 0.26))
+	for i in count:
+		var u := -hw - bw + span * (float(i) + 0.5) / float(count)
+		_rosette(shell, m, dir, nrm, u, top + head * 0.5, 0.085, 0.061, color)
+	_teeth(shell, m, dir, nrm, -edge, edge, top, -0.06, 0.06, color, count * 2)
+	_teeth(shell, m, dir, nrm, -edge, edge, top + head, 0.07, 0.05, color, count)
+	# Apron board under the sill with a toothed lower edge, on two corbels.
+	var apron := y0 - 0.12
+	_wbox(shell, "paint", m, dir, nrm, -hw - bw, hw + bw, apron - 0.14, apron, 0.0, 0.05, color)
+	_teeth(shell, m, dir, nrm, -hw - bw, hw + bw, apron - 0.14, -0.08, 0.05, color, count * 2)
+	for u: float in [-hw - bw * 0.5, hw + bw * 0.5]:
+		var upper := color.darkened(0.1)
+		var lower := color.darkened(0.14)
+		_wbox(shell, "paint", m, dir, nrm, u - 0.05, u + 0.05, apron - 0.1, apron, 0.0, 0.17, upper)
+		_wbox(shell, "paint", m, dir, nrm, u - 0.04, u + 0.04, apron - 0.2, apron - 0.1, 0.0, 0.11, lower)
+
+
+## Narrow carved band across a shutter leaf: a notched rail with small rosettes.
+static func _carved_frieze(
+	shell: CityBuildingBuilder.Shell,
+	m: Vector2,
+	dir: Vector2,
+	nrm: Vector2,
+	left: float,
+	right: float,
+	y: float,
+	z: float,
+	color: Color
+) -> void:
+	_wbox(shell, "paint", m, dir, nrm, left, right, y, y + 0.12, z, z + 0.03, color.lightened(0.05))
+	var count := maxi(1, int((right - left) / 0.16))
+	for i in count:
+		var u := left + (right - left) * (float(i) + 0.5) / float(count)
+		_rosette(shell, m, dir, nrm, u, y + 0.06, 0.045, z + 0.031, color)
+	_teeth(shell, m, dir, nrm, left, right, y, -0.04, z + 0.03, color, count * 2)
