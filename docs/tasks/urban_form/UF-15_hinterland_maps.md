@@ -1,4 +1,6 @@
 # UF-15: Hinterland maps and second world layout
+> **Re-scope (R-1527, 2026-10-10):** [ADR 0042](../../adr/0042-regional-site-plans.md) amends ADR 0027: `world.harju` stays explicit travel and is the regional site `scenes/world/sites/harju.tscn`; its `world_harju.rrmap` greybox is retired. Out of this contract: `harju_approach_road` joining `world.harju`, the `world.harju road_to_sojamae` / `world.sojamae road_to_harju` seam-side fix, and every `world_harju.rrmap` edit below. R-1213 (Harju Gate aperture) is no longer a prerequisite of any Harju seam; the seamless Reval city (ADR 0031) already draws `gate.harju`. The remaining connectors need a Producer re-scope against ADR 0031 before claim. The text below is the original contract.
+
 Board row: **R-1133**. Priority: high. Depends on: **R-1129 (ADR 0027 accepted), R-980, R-1213, R-1215, R-1216, R-1217**, plus the UF-08 seam-continuity gate (shipped as `tools/verify_seam_continuity.gd`, follow-up **R-1166**) and relief (**R-976** pack id; no board row).
 
 ## Claim gate

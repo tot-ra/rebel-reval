@@ -68,19 +68,6 @@
       "fortification_seams": [{"id": "toompea_lower_town_hill_barrier", "reciprocal_footprints": false, "captures": {"day": {}, "night": {}}}],
       "population": {"status": "BLOCKED", "profile_ids": [], "activity_profile_ids": []},
       "gameplay": {"status": "BLOCKED", "loop_ids": [], "interaction_ids": []}
-    },
-    {
-      "map_id": "world.harju",
-      "owner": "P5-003",
-      "implementation_delivered": false,
-      "urban": false,
-      "composition": {"enforce": false, "status": "BLOCKED", "evidence": "docs/data/map_composition_thresholds.json#maps.world.harju"},
-      "focused_suites": {"compile": "PASS", "navigation": "PASS", "transitions": "BLOCKED", "patrols": "BLOCKED"},
-      "mandatory_anchors": {"status": "PASS", "blocked": [], "evidence": "tests/godot/test_harju_rural_architecture.gd::test_harju_required_anchors_are_clear_and_reachable; cells=(25,15),(35,12),(42,6)"},
-      "landmarks": {"required": [], "present": [], "required_affordances": [], "present_affordances": []},
-      "fortification_seams": [],
-      "population": {"status": "NOT_APPLICABLE", "profile_ids": [], "activity_profile_ids": []},
-      "gameplay": {"status": "BLOCKED", "loop_ids": [], "interaction_ids": []}
     }
   ]
 }

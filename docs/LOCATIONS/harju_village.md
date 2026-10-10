@@ -1,7 +1,7 @@
 # Harju Village and Countryside (Harria / Harrien, Rävala)
 
 **Status:** planned (design proposal, not implemented) · **Scope gate:** existing prototype `loc.world_harju` (core); optional sub-zones are `new (needs ADR + task)` · **Act(s):** 1 (end), 2, 3
-**Map id:** `loc.world_harju` (existing: [`content/maps/world_harju.rrmap`](../../content/maps/world_harju.rrmap), 52x30 cells, `scope=prototype`, `active=false`) · **Seasons/phases:** spring 1343 (pre-23 Apr boon-day phase; 23 Apr-14 May burned-manor and refugee phase; post-Sõjamäe punitive phase); Act 3 reconstruction under Order-enforced dues, 1343-1346
+**Map id:** `loc.world_harju` (built as the 700 m regional site `scenes/world/sites/harju.tscn`, see [`REGIONAL_SITES.md`](../SYSTEMS/REGIONAL_SITES.md), R-1527; the 52x30 `world_harju.rrmap` greybox is retired) · **Seasons/phases:** spring 1343 (pre-23 Apr boon-day phase; 23 Apr-14 May burned-manor and refugee phase; post-Sõjamäe punitive phase); Act 3 reconstruction under Order-enforced dues, 1343-1346
 **Confidence summary:** settlement form, dues and field economy `attested` framework; farm graph, facades and the manor node `plausible composite`; signal hill, hamlet names and every named NPC `invented`; folk belief `folklore`.
 
 ## 1. Why a player would want to visit
@@ -196,5 +196,5 @@ Ambient: wind in thatch, cattle lowing, axe on wood, cartwheels in mud, rooks, s
 
 ## 11. Sources and next steps
 
-Repo: [`world_harju.rrmap`](../../content/maps/world_harju.rrmap), [`scenes/world/harju_village.md`](../../scenes/world/harju_village.md) (legacy), [`global_map_mockups.md`](../reports/global_map_mockups.md), [`CANON.md`](../CANON.md), [`FLORA_FAUNA.md`](../FLORA_FAUNA.md), [`ADR 0027`](../adr/0027-reval-hinterland-streaming-group.md), [`ADR 0033`](../adr/0033-teen-protagonist-and-spirit-dialogue-combat.md), dossiers cited above. External, by name: Liber Census Daniae, Moisio on Harria fiefs, Estonian Open-Air Museum rehielamu comparanda (18th-19th c.), Tacuinum Sanitatis.
+Repo: [`REGIONAL_SITES.md`](../SYSTEMS/REGIONAL_SITES.md) (the built site), [`harju_1343_overlay.json`](../../tools/city/sites/harju_1343_overlay.json), [`scenes/world/harju_village.md`](../../scenes/world/harju_village.md) (legacy), [`global_map_mockups.md`](../reports/global_map_mockups.md), [`CANON.md`](../CANON.md), [`FLORA_FAUNA.md`](../FLORA_FAUNA.md), [`ADR 0027`](../adr/0027-reval-hinterland-streaming-group.md), [`ADR 0033`](../adr/0033-teen-protagonist-and-spirit-dialogue-combat.md), dossiers cited above. External, by name: Liber Census Daniae, Moisio on Harria fiefs, Estonian Open-Air Museum rehielamu comparanda (18th-19th c.), Tacuinum Sanitatis.
 Verification tasks: (1) confirm Swedish/Finnish presence on the Viimsi shore in the 14th c.; (2) decide sub-zone A as inset or map; (3) review the burn-state kit budget; (4) check `flag.manor_oppression` against the quest id registry; (5) run the map-authoring gate if a blueprint is added ([`MAP_AUTHORING.md`](../MAP_AUTHORING.md)).

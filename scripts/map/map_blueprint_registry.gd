@@ -23,12 +23,6 @@ static func entries() -> Array[Dictionary]:
 			],
 		},
 		{
-			"id": &"world.harju",
-			"source": "res://content/maps/world_harju.rrmap",
-			"required_anchors":
-			[&"landmark_village_well", &"landmark_threshing_barn", &"landmark_split_fields"],
-		},
-		{
 			"id": &"world.padise",
 			"source": "res://content/maps/world_padise.rrmap",
 			"required_anchors":

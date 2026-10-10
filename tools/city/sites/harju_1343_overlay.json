@@ -21,10 +21,10 @@
     "origin_confidence": "representative point (Rebala, Joelahtme parish; Nominatim village centroid), invented village",
     "metres_per_world_unit": 1.0,
     "bounds_m": {
-      "x0": -300,
-      "y0": -300,
-      "x1": 300,
-      "y1": 300
+      "x0": -350,
+      "y0": -350,
+      "x1": 350,
+      "y1": 350
     },
     "coast": "auto",
     "features": {
@@ -59,7 +59,7 @@
     "trace_m": [
       [
         -236,
-        -306
+        -356
       ],
       [
         -226,
@@ -87,7 +87,7 @@
       ],
       [
         -258,
-        306
+        356
       ]
     ],
     "width_m": [
@@ -112,7 +112,7 @@
       "confidence": "plausible composite (direction only)",
       "points_m": [
         [
-          -304,
+          -354,
           22
         ],
         [
@@ -161,7 +161,7 @@
           0
         ],
         [
-          304,
+          354,
           -8
         ]
       ]
@@ -191,7 +191,7 @@
         ],
         [
           -8,
-          304
+          354
         ]
       ]
     },
@@ -219,8 +219,8 @@
           270
         ],
         [
-          -304,
-          290
+          -354,
+          340
         ]
       ]
     },
@@ -249,7 +249,7 @@
         ],
         [
           -110,
-          -304
+          -354
         ]
       ]
     }
@@ -632,11 +632,11 @@
         "polygon_m": [
           [
             -64,
-            -296
+            -346
           ],
           [
             40,
-            -296
+            -346
           ],
           [
             40,
@@ -660,11 +660,11 @@
         "polygon_m": [
           [
             -210,
-            -296
+            -346
           ],
           [
             -112,
-            -296
+            -346
           ],
           [
             -90,
@@ -692,14 +692,14 @@
         "polygon_m": [
           [
             60,
-            -296
+            -346
           ],
           [
-            296,
-            -296
+            346,
+            -346
           ],
           [
-            296,
+            346,
             -20
           ],
           [
@@ -728,16 +728,16 @@
             90
           ],
           [
-            296,
+            346,
             30
           ],
           [
-            296,
-            296
+            346,
+            346
           ],
           [
             40,
-            296
+            346
           ]
         ],
         "strip_angle_deg": 92,
@@ -767,7 +767,7 @@
       ],
       "polygon_m": [
         [
-          -296,
+          -346,
           -140
         ],
         [
@@ -779,7 +779,7 @@
           130
         ],
         [
-          -296,
+          -346,
           140
         ]
       ]
@@ -847,7 +847,7 @@
         "id": "harju.grove.south",
         "polygon_m": [
           [
-            -296,
+            -346,
             190
           ],
           [
@@ -856,11 +856,11 @@
           ],
           [
             -40,
-            296
+            346
           ],
           [
-            -296,
-            296
+            -346,
+            346
           ]
         ],
         "spacing_m": 8.0,
@@ -913,11 +913,11 @@
           ],
           [
             40,
-            296
+            346
           ],
           [
             -10,
-            296
+            346
           ]
         ],
         "spacing_m": 9.0,
@@ -1053,8 +1053,8 @@
       "id": "from_reval_east",
       "record": "harju.spawn.from_reval_east",
       "at": [
-        -262,
-        24
+        -312,
+        23
       ],
       "note": "on the Reval road at the west edge"
     },
@@ -1062,8 +1062,8 @@
       "id": "from_world_sojamae",
       "record": "harju.spawn.from_world_sojamae",
       "at": [
-        -252,
-        34
+        -292,
+        24
       ],
       "note": "on the Reval road (Sojamae lies toward Reval)"
     },
@@ -1071,8 +1071,8 @@
       "id": "from_world_rebel_kings",
       "record": "harju.spawn.from_world_rebel_kings",
       "at": [
-        -252,
-        259
+        -304,
+        306
       ],
       "note": "on the forest track at the south-west edge"
     },
@@ -1080,8 +1080,8 @@
       "id": "from_world_sacred_grove",
       "record": "harju.spawn.from_world_sacred_grove",
       "at": [
-        -16,
-        262
+        -13,
+        312
       ],
       "note": "on the south track"
     },
@@ -1089,8 +1089,8 @@
       "id": "from_world_kanavere",
       "record": "harju.spawn.from_world_kanavere",
       "at": [
-        262,
-        -2
+        312,
+        -5
       ],
       "note": "on the east road"
     },
@@ -1134,27 +1134,27 @@
       "name_1343": "the open fields",
       "polygon_m": [
         [
-          -300,
-          -300
+          -350,
+          -350
         ],
         [
-          300,
-          -300
+          350,
+          -350
         ],
         [
-          300,
-          300
+          350,
+          350
         ],
         [
           40,
-          300
+          350
         ],
         [
           40,
           130
         ],
         [
-          -300,
+          -350,
           130
         ]
       ]
@@ -1165,7 +1165,7 @@
       "name_1343": "the wood toward the Pirita",
       "polygon_m": [
         [
-          -300,
+          -350,
           130
         ],
         [
@@ -1174,11 +1174,11 @@
         ],
         [
           40,
-          300
+          350
         ],
         [
-          -300,
-          300
+          -350,
+          350
         ]
       ]
     }

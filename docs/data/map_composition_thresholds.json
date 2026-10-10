@@ -244,11 +244,6 @@
       "open_floor_pct": [80, 92],
       "map_class": "interior"
     },
-    "world.harju": {
-      "enforce": false,
-      "source_refs": ["H22"],
-      "map_class": "rural"
-    },
     "world.padise": {
       "enforce": false,
       "source_refs": ["H21"],

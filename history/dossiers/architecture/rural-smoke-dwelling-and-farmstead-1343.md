@@ -118,8 +118,8 @@ remain the map source of truth.
 
 ## Production hooks
 
-- **Implemented first slice:** `world_harju.rrmap` assigns all three primitives, retains stable
-  building IDs, and adds working livestock to the existing enclosure.
+- **Implemented first slice (retired by R-1527; the regional site `tools/city/sites/harju_1343_overlay.json` replaces it):** `world_harju.rrmap` assigned all three primitives, retained stable
+  building IDs, and added working livestock to the existing enclosure.
 - **Map:** use farm clusters, narrow trampled paths, manure/fodder work zones and fields beyond the
   yard. Do not distribute isolated white cottages evenly across empty terrain.
 - **Art:** an authored model pass should concentrate on log variation, corner joinery, doors, thick

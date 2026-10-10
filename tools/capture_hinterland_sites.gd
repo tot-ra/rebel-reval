@@ -21,6 +21,7 @@ const NIGHT := 0.865
 const SHOTS := {
 	"harju":
 	[
+		["harju_day_arrival", &"clear", DAY, Vector3(-322, 2.2, 23), Vector3(-200, 3, 32), 62.0],
 		["harju_day_village", &"clear", DAY, Vector3(-150, 24, -60), Vector3(-50, 2, 40), 55.0],
 		["harju_day_farmstead", &"clear", DAY, Vector3(-40, 4.5, 20), Vector3(-26, 2.5, -8), 64.0],
 		["harju_dusk_fields", &"clear", DUSK, Vector3(10, 9, 30), Vector3(180, 0, -140), 62.0],

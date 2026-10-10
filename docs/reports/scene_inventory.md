@@ -93,7 +93,6 @@ Inventory row count (data rows in the table below): **139**.
 | 54 | `scenes/ui/journal_overlay.tscn` | working | Quest journal overlay; P1-016 objectives and discovered evidence. |
 | 89 | `scenes/ui/reflection_overlay.tscn` | working | Hingepuu reflection overlay; P2-011 Duty/Fury/Mercy conviction choice. |
 | 55 | `assets/characters/variants/townswoman.tscn` | partial | Shared-rig townswoman variant used by ambient NPC work. |
-| 80 | `scenes/world_travel/world_harju.tscn` | partial | Developer global-map placeholder; east road via Pirita (`viru_gate_foreland`); `release=false`. |
 | 81 | `scenes/world_travel/world_padise.tscn` | partial | Developer global-map placeholder; west road via Toompea; `release=false`. |
 | 82 | `scenes/world_travel/world_saaremaa.tscn` | partial | Developer global-map placeholder; island ferry via Trade Harbour; `release=false`. |
 | 83 | `scenes/world_travel/world_rebel_kings.tscn` | partial | Developer global-map placeholder; Act 2 Harju command camp; `release=false`. |
@@ -234,5 +233,6 @@ Both commands should print `135` on a clean checkout at this revision.
 | 159 | `scenes/prologue/almshouse_stage.tscn` | working | Prologue cutscene or almshouse opening. |
 | 156 | `tools/capture_city_citizens.tscn` | partial | Developer capture or profiling tool. |
 | 157 | `tools/capture_city_fauna.tscn` | partial | Developer capture or profiling tool. |
+| 166 | `tools/capture_site_edge_travel.tscn` | partial | Regional-site edge-to-travel-map capture host (ADR 0042, R-1527); not player-facing. |
 | 160 | `tools/capture_city_households.tscn` | partial | Developer capture or profiling tool. |
 | 158 | `tools/profile_reval_city.tscn` | partial | Developer capture or profiling tool. |

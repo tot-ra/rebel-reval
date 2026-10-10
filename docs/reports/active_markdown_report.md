@@ -16,17 +16,17 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 - Active Markdown files scanned: `1102`
 - Markdown files excluded as archive/reference/out of active scope: `747`
-- Local/external links inspected: `13106`
-- Links to active Markdown docs: `12053`
-- Links to existing archive/reference/non-active local docs: `450`
+- Local/external links inspected: `13128`
+- Links to active Markdown docs: `12064`
+- Links to existing archive/reference/non-active local docs: `451`
 - External links skipped for reachability: `92`
-- Issues found: `158`
+- Issues found: `160`
 
 ## Issue counts
 
 | Code | Count |
 | --- | ---: |
-| `BROKEN_LINK` | 92 |
+| `BROKEN_LINK` | 94 |
 | `BROKEN_ANCHOR` | 66 |
 | `DUPLICATE_CHARACTER_NAME` | 0 |
 | `CONTRADICTORY_DATE` | 0 |
@@ -186,6 +186,8 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 | `BROKEN_LINK` | `docs/FLORA_FAUNA.md:115` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
 | `BROKEN_LINK` | `docs/FLORA_FAUNA.md:116` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
 | `BROKEN_LINK` | `docs/LOCATIONS/sacred_grove.md:50` | Local Markdown link target does not exist: `../../content/maps/south_quarter.rrmap` |
+| `BROKEN_LINK` | `docs/LOCATIONS/sacred_grove.md:179` | Local Markdown link target does not exist: `../../content/maps/world_sacred_grove.rrmap` |
+| `BROKEN_LINK` | `docs/PERFORMANCE_REPORT.md:5` | Local Markdown link target does not exist: `../agents/rebel-dev/skills/performance-loop/SKILL.md` |
 | `BROKEN_LINK` | `docs/SYSTEMS/AUDIO.md:98` | Local Markdown link target does not exist: `../reports/audio_licenses/README.md` |
 | `BROKEN_LINK` | `docs/SYSTEMS/CITY_SEA.md:196` | Local Markdown link target does not exist: `../reports/images/city/water_v2_close_shore_reverse_fresh.jpg` |
 | `BROKEN_LINK` | `docs/SYSTEMS/CITY_SEA.md:198` | Local Markdown link target does not exist: `../reports/images/city/water_v2_surf_side_storm.jpg` |

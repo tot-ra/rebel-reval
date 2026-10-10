@@ -70,7 +70,6 @@ greyboxes derived from the accepted campaign documents:
 |---|---:|---|
 | `st_olafs_guild_hall` | 32 x 20 | guild dais, long tables, hearth, return door |
 | `world_sacred_grove` | 46 x 28 | oak ring, offering stone, bog spring |
-| `world_harju` | 52 x 30 | split fields, farmsteads, well, road junction |
 | `world_padise` | 140 x 90 | open pre-quadrangle estate: early western stone house, detached timber conventual buildings, grange, surrounding fields, river and ford |
 | `world_saaremaa` | 50 x 28 | coastal water, camps, ferry/road junction |
 | `world_rebel_kings` | 50 x 28 | council camp, supply shelter, two roads |

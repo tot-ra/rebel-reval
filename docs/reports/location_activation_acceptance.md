@@ -33,7 +33,7 @@ A candidate can become GREEN only after its owning environment row is delivered 
 | Gameplay fixture | **PASS** | empty loops/interactions produce `GAMEPLAY_EVIDENCE_MISSING` |
 | Inventory mode | **PASS** | checker records six RED verdicts and exits 0 without claiming activation |
 | Selected candidate mode | **PASS** | `--map=south_quarter` reports RED and exits 1 |
-| Harju focused rural suite | **PASS** | `test_harju_rural_architecture`; 7/7 tests, including clear/reachable anchors at `(25,15)`, `(35,12)`, and `(42,6)`; compile/navigation evidence refreshed, transitions and patrols remain blocked |
+| Harju focused rural suite | **RETIRED** (R-1527: greybox and suite removed; Harju is the regional site `scenes/world/sites/harju.tscn`) | was `test_harju_rural_architecture`; 7/7 tests, including clear/reachable anchors at `(25,15)`, `(35,12)`, and `(42,6)`; compile/navigation evidence refreshed, transitions and patrols remain blocked |
 
 ## Current verdicts
 

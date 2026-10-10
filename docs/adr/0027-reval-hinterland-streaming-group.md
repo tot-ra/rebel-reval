@@ -8,6 +8,8 @@
 
 Acceptance is a membership and contract decision only. It does not enable runtime behaviour. Streaming flags stay off until the [R-980 release criteria](../SEAMLESS_STREAMING_PLAN.md#r-980-release-criteria) pass inside `reval_outdoor` and then pass again for every hinterland seam. R-1129 stays open until R-980 proves the first group. Interiors are decided separately in [ADR 0028](0028-seamless-building-interiors.md).
 
+**Amended by [ADR 0042](0042-regional-site-plans.md) (accepted 2026-10-10).** `world.harju` and `world.sojamae` leave the planned `reval_hinterland` membership below: they stay explicit travel and load as regional sites. Harju is built (R-1527: `scenes/world/sites/harju.tscn`; the `world_harju.rrmap` greybox is retired), Sõjamäe follows in R-1526. `harju_approach_road` and `sojamae_approach_road` no longer end on a hinterland map, the `world.harju road_to_sojamae` / `world.sojamae road_to_harju` seam-side fix is void, and the Harju parts of UF-15 (R-1133) and UF-15a (R-1213) are re-scoped (notes on both rows and in [`UF-15_hinterland_maps.md`](../tasks/urban_form/UF-15_hinterland_maps.md)). The Kalamaja, Pirita and Viru-approach connectors are unaffected. The sections below keep their 2026-09-30 text.
+
 ## Context
 
 ADR 0019 makes the ten physically adjacent Reval districts and harbours one streaming group, `reval_outdoor`. Its census assigns every `world.*` map to explicit travel, including the two small nearby prototypes `world.harju` (52 x 30 = 1,560 cells) and `world.sojamae` (54 x 30 = 1,620 cells). The maintainer asked for seamless movement in Tallinn *and the surrounding areas*. Extending seamlessness past the wall is a scope decision, not a broken seam.

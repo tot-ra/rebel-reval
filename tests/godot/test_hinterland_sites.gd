@@ -17,7 +17,7 @@ const SEA_NODES: Array[String] = [
 ]
 ## site id -> [frame size m, origin latitude, location id, map id, manifest spawn count]
 const SITES := {
-	"harju": [600.0, 59.46, &"world_harju", &"world.harju", 5],
+	"harju": [700.0, 59.46, &"world_harju", &"world.harju", 5],
 	"rebel_kings": [500.0, 59.3666, &"world_rebel_kings", &"world.rebel_kings", 2],
 	"sacred_grove": [500.0, 59.427, &"world_sacred_grove", &"world.sacred_grove", 2],
 }

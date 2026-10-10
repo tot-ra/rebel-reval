@@ -11,7 +11,7 @@ from tools.verify_p5_003_activation import verify
 
 ROOT = Path(__file__).resolve().parents[2]
 MANIFEST = ROOT / "docs/data/p5_003_activation_manifest.json"
-TARGETS = ("world_harju", "world_rebel_kings")
+TARGETS = ("world_rebel_kings",)
 
 
 class TestP5WorldActivationWave(unittest.TestCase):
@@ -20,7 +20,7 @@ class TestP5WorldActivationWave(unittest.TestCase):
 
     def test_partial_target_activation_is_rejected(self) -> None:
         with self._fixture() as root:
-            path = root / "content/maps/world_harju.rrmap"
+            path = root / "content/maps/world_rebel_kings.rrmap"
             path.write_text(
                 path.read_text(encoding="utf-8").replace(
                     "scope=prototype active=false", "scope=production active=true", 1
@@ -29,24 +29,18 @@ class TestP5WorldActivationWave(unittest.TestCase):
             )
             errors = verify(root)
             self.assertTrue(
-                any("partial activation for world_harju" in error for error in errors),
+                any("partial activation for world_rebel_kings" in error for error in errors),
                 errors,
             )
 
-    def test_catalog_fixture_promotes_compact_and_multiline_entries(self) -> None:
+    def test_catalog_fixture_promotes_multiline_entry(self) -> None:
         with self._fixture() as root:
-            self._promote_target(root, "world_harju", "world.harju")
             self._promote_target(root, "world_rebel_kings", "world.rebel_kings")
             catalog = (root / "scripts/map/map_catalog.gd").read_text(encoding="utf-8")
-            compact_entry = re.search(
-                r'"world_harju":\s*\{[^}]+\}', catalog, re.DOTALL
-            )
             multiline_entry = re.search(
                 r'"world_rebel_kings":\s*\{[^}]+\}', catalog, re.DOTALL
             )
-            self.assertIsNotNone(compact_entry)
             self.assertIsNotNone(multiline_entry)
-            self.assertIn('"scope": "production", "active": true', compact_entry.group())
             self.assertRegex(
                 multiline_entry.group(),
                 r'"scope":\s*"production",\s*"active":\s*true',
@@ -80,12 +74,7 @@ class TestP5WorldActivationWave(unittest.TestCase):
 
     def test_production_wave_requires_all_runtime_and_parity_gates(self) -> None:
         with self._fixture() as root:
-            rrmap_ids = {
-                "world_harju": "world.harju",
-                "world_rebel_kings": "world.rebel_kings",
-            }
-            for scene_id, rrmap_id in rrmap_ids.items():
-                self._promote_target(root, scene_id, rrmap_id)
+            self._promote_target(root, "world_rebel_kings", "world.rebel_kings")
             errors = verify(root)
             self.assertTrue(any("decision=approved" in error for error in errors), errors)
             self.assertTrue(any("transition_verifier=pass" in error for error in errors), errors)
@@ -96,14 +85,6 @@ class TestP5WorldActivationWave(unittest.TestCase):
                     any(f"accepted parity for {scene_id}" in error for error in errors),
                     errors,
                 )
-
-    def test_partial_wave_promotion_is_rejected(self) -> None:
-        with self._fixture() as root:
-            self._promote_target(root, "world_harju", "world.harju")
-            errors = verify(root)
-            self.assertTrue(
-                any("partial wave activation" in error for error in errors), errors
-            )
 
     def _promote_target(self, root: Path, scene_id: str, rrmap_id: str) -> None:
         rrmap = root / "content/maps" / f"{scene_id}.rrmap"

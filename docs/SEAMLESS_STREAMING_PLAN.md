@@ -60,7 +60,7 @@ seams; their map IDs do not change.
 
 | Map id | Source | Catalog `active` | Why it streams |
 |---|---|---|---|
-| `world.harju` | `world_harju.rrmap` | false | Nearby Harju village, reached by the Harju gate approach road |
+| `world.harju` | `world_harju.rrmap` (retired, R-1527; ADR 0042 keeps Harju explicit travel to the regional site `scenes/world/sites/harju.tscn`) | false | Nearby Harju village, reached by the Harju gate approach road |
 | `world.sojamae` | `world_sojamae.rrmap` | false | Sõjamäe, reached from the Viru road junction |
 
 Planned connectors (no source file yet, so they are outside the 29-map count):

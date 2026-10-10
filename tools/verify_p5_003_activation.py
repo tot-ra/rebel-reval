@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Fail-closed activation gate for the P5-003 Act 2 outdoor wave.
 
-The three locations form one travel wave. Their RRMaps, catalog entries, release
+The wave's locations (world_rebel_kings since R-1527 and R-1529 retired the
+Harju and sacred-grove greyboxes) form one travel wave. Their RRMaps, catalog entries, release
 manifest, dependency decision, and parity evidence must therefore promote
 atomically rather than exposing a partially approved Act 2 route.
 """
@@ -21,7 +22,7 @@ MANIFEST_PATH = Path("docs/data/p5_003_activation_manifest.json")
 CATALOG_PATH = Path("scripts/map/map_catalog.gd")
 DESTINATIONS_PATH = Path("content/transitions/active_destinations.json")
 EXPECTED_APPROVAL = "docs/adr/0008-three-act-campaign-and-faction-scope.md"
-EXPECTED_TARGETS = ("world_harju", "world_rebel_kings")
+EXPECTED_TARGETS = ("world_rebel_kings",)
 REQUIRED_BLOCKERS = {"P5-002"}
 
 

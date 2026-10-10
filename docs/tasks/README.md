@@ -70,6 +70,7 @@ Detailed specifications for multi-task streams. The live queue is the project ta
 
 #### `water_sky/`
 
+- [WR - Water realism v2 (task pack)](water_sky/WR_water_realism_v2.md)
 - [WS-01 — Refracted water column (Snell path to the bed)](water_sky/WS-01_refracted_water_column.md)
 - [WS-02 — Physically based sun and moon glint on water](water_sky/WS-02_ggx_sun_glint.md)
 - [WS-03 — Offline FFT ocean bake tool (looping JONSWAP cascades)](water_sky/WS-03_fft_ocean_bake_tool.md)

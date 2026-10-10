@@ -53,7 +53,7 @@ Journey edges (all explicit travel, not seamless, per [AGENTS.md](../../AGENTS.m
 
 | Edge id (proposed) | To | Notes |
 |---|---|---|
-| `road_to_harju` | `loc.world_harju` ([map](../../content/maps/world_harju.rrmap)) | West, along the Viru road |
+| `road_to_harju` | `loc.world_harju` ([site](../SYSTEMS/REGIONAL_SITES.md)) | West, along the Viru road |
 | `road_to_narva` | `loc.world_narva` ([page](./narva_peipus_east.md)) | East, long road; forced loading card |
 | `road_to_paide` | `loc.world_paide` ([map](../../content/maps/world_paide.rrmap)) | South-west, Act 2 finale route |
 
