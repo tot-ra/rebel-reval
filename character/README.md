@@ -11,7 +11,7 @@ Early build, combat, magic, and psyche notes for Kalev. The reconciled versions 
 - [The Influence of the Psyche](BUILD.md)
 - [🙏 Divine Rites: The New Faith](CHRISTIAN-MAGIC.md)
 - [⚔️ Combat Mechanics](COMBAT.md)
-- [Character Template (for .clinerules compliance)](Lembit_Helme.md)
+- [Lembit Helme (design note, superseded)](Lembit_Helme.md)
 - [🔮 The Elements of Philosophy](MAGIC-ELEMENTS.md)
 - [🌳 Pagan Magic: The Old Ways](PAGAN-MAGIC.md)
 - [🌳 The Inner World: The Hingepuu](PSYCHE.md)
