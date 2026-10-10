@@ -9,9 +9,9 @@ extends Node
 
 const MAX_FULL := 12
 const GLOW_RANGE := 40.0
-## Base sight radius (ADR 0041 section 8). SS-8 (R-1491) widens it with the
-## hero's awareness light; until then it is this fixed value.
-const DEFAULT_SIGHT_RADIUS := 12.0
+## Base sight radius (ADR 0041 section 8). While following the session, SS-8 (R-1491)
+## widens it with the hero's awareness light; detached fixtures keep what they set.
+const DEFAULT_SIGHT_RADIUS := SpiritAuraProfile.SIGHT_RADIUS_BASE
 const REFRESH_SEC := 0.25
 const HERO_RIG_NAME := &"PlayerRig"
 const HERO_ID := &"char.apprentice"
@@ -279,6 +279,10 @@ func _read_settings() -> void:
 	var session := get_node_or_null("/root/SessionState")
 	if session != null:
 		state = session.get(&"state") as GameState
+		# Read live so a Hingepuu spend or a loaded save widens sight on the next frame.
+		sight_radius = SpiritAuraProfile.sight_radius_for_level(
+			SpiritAuraProfile.hero_awareness_level(state)
+		)
 	var settings := get_node_or_null("/root/UserSettings")
 	if settings != null:
 		reduced_flashing = settings.gameplay.reduced_flashing

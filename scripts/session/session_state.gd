@@ -33,7 +33,7 @@ const DebugStateInspectorScript := preload("res://scripts/debug/debug_state_insp
 const STATE_REPLACE_REASON_MANUAL_LOAD := &"manual_load"
 const STATE_REPLACE_REASON_DEBUG_PRESET := &"debug_preset"
 
-var state: GameState = GameState.new()
+var state: GameState = GameState.new_apprentice_game()
 var content_db: ContentDB = ContentDB.new()
 var act2_mission_host: Act2MissionHost = Act2MissionHost.new(content_db, state)
 var save_service: SaveService = SaveService.new()

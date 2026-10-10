@@ -59,7 +59,16 @@ const LANGUAGE_IDS: Array[StringName] = [
 ## Where the orphan starts: a little church Latin and street German and Russian.
 const LANGUAGE_START: Dictionary = {&"lang.german": 10, &"lang.latin": 20, &"lang.russian": 10}
 const LANGUAGE_TIER_THRESHOLDS: Array[int] = [20, 50, 80]
+## Neutral rank: a bare GameState and any aspect missing from a loaded save use it.
 const NATURAL_ASPECT_BASELINE := 5
+## The apprentice's new-game ranks (ADR 0041 section 6): the clairvoyant gift shows as
+## awareness 15, a rooted, attached orphan as nature and unity 10. Unlisted aspects keep
+## the neutral baseline. Applied only by new_apprentice_game(), never to a loaded save.
+const APPRENTICE_NATURAL_BASELINE: Dictionary[StringName, int] = {
+	&"aspect.nature": 10,
+	&"aspect.unity": 10,
+	&"aspect.awareness": 15,
+}
 const NATURAL_ASPECT_CAP := 50
 const NATURAL_INITIAL_POINTS := 10
 const NATURAL_ASPECT_IDS: Array[StringName] = [
@@ -172,6 +181,16 @@ func _init() -> void:
 		_psyche_face_integration[face_id] = 0
 
 
+## The state a New Game starts from. A bare GameState.new() stays neutral (flat 5) because
+## the save loader, debug presets and scratch states build on it and must not inherit the
+## apprentice's gift; old saves therefore keep exactly the ranks they stored.
+static func new_apprentice_game() -> GameState:
+	var state := GameState.new()
+	for aspect_id: StringName in APPRENTICE_NATURAL_BASELINE:
+		state._natural_aspects[aspect_id] = APPRENTICE_NATURAL_BASELINE[aspect_id]
+	return state
+
+
 ## NATURAL stores authored aspect ranks only; psyche modifiers are composed at read time.
 func get_natural_aspect_rank(aspect_id: StringName) -> int:
 	if not NATURAL_ASPECT_IDS.has(aspect_id):
@@ -220,7 +239,8 @@ func get_language_comprehension(language_id: StringName) -> int:
 	return int(_language_comprehension.get(language_id, LANGUAGE_START.get(language_id, 0)))
 
 
-## Raise comprehension by `amount` (capped at 100). Returns the new value, or -1 for an unknown language.
+## Raise comprehension by `amount` (capped at 100).
+## Returns the new value, or -1 for an unknown language.
 func train_language(language_id: StringName, amount: int) -> int:
 	if not LANGUAGE_IDS.has(language_id) or language_id == LANGUAGE_NATIVE or amount < 1:
 		return -1
@@ -238,7 +258,8 @@ func language_tier(language_id: StringName) -> int:
 	return tier
 
 
-## Grant a trait with the way it was gained. False for an unknown trait/origin or a trait already held.
+## Grant a trait with the way it was gained.
+## False for an unknown trait/origin or a trait already held.
 func grant_trait(trait_id: StringName, origin: StringName) -> bool:
 	if not SpiritTraits.is_trait(trait_id) or not SpiritTraits.is_origin(origin):
 		return false

@@ -10,6 +10,11 @@ const ELEMENTS: Dictionary = {
 }
 ## Minimum NATURAL rank for each level, ascending; capped at level 5.
 const RANK_BANDS: Array[int] = [5, 10, 15, 25, 40]
+## Spirit-sight aura radius (ADR 0041 section 6): base metres at awareness level 2 and
+## below, plus metres for each level above it.
+const SIGHT_RADIUS_BASE := 12.0
+const SIGHT_RADIUS_PER_LEVEL := 4.0
+const SIGHT_RADIUS_BASE_LEVEL := 2
 ## Nature, unity, awareness; all other animal lights stay closed. Unknown species use default.
 const SPECIES_LEVELS: Dictionary = {
 	"default": [2, 2, 0],
@@ -79,6 +84,21 @@ static func level_for_rank(rank: int, locked: bool = false) -> int:
 		if rank >= threshold:
 			result += 1
 	return result
+
+
+## The hero's awareness light from the stored rank, the same source as his aura. A null
+## state is the neutral baseline.
+static func hero_awareness_level(state: GameState) -> int:
+	var rank := GameState.NATURAL_ASPECT_BASELINE
+	if state != null:
+		rank = state.get_natural_aspect_rank(&"aspect.awareness")
+	return level_for_rank(rank)
+
+
+## Levels at or below 2 keep the base radius; a dim gift never shrinks sight below it.
+static func sight_radius_for_level(awareness_level: int) -> float:
+	var above := maxi(0, awareness_level - SIGHT_RADIUS_BASE_LEVEL)
+	return SIGHT_RADIUS_BASE + SIGHT_RADIUS_PER_LEVEL * float(above)
 
 
 static func for_species(species: String) -> SpiritAuraProfile:

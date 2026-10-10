@@ -57,13 +57,13 @@ Stable content IDs use the form `aspect.<slug>`. Display names stay English for 
 
 | Field | Value |
 |---|---|
-| Starting rank per aspect | `5` |
+| Starting rank per aspect | apprentice new game: nature `10`, unity `10`, awareness `15`, the other four `5` (`GameState.APPRENTICE_NATURAL_BASELINE`, R-1491); neutral `5` for a bare `GameState` and for aspects missing from a loaded save |
 | Discretionary points at first allocation | `10` |
-| Max rank after first allocation (per aspect) | `10` (5 base + up to 5 of the 10 discretionary) |
+| Max rank after first allocation (per aspect) | base + up to 5 of the 10 discretionary (`10` for a base-5 aspect) |
 | Hard cap per aspect | `50` |
 | Points granted on each later advancement beat | `1` (default) unless content specifies otherwise |
 
-First allocation is a **Hingepuu beat**, not a menu before New Game. Until the player completes `flag.natural.initial_allocation`, ranks stay at baseline 5/5/5/5/5/5/5 and magic uses multiplier 1.0 for aspect scaling (per MAGIC.md).
+First allocation is a **Hingepuu beat**, not a menu before New Game. Until the player completes `flag.natural.initial_allocation`, ranks stay at the starting ranks above (the apprentice's 10/5/5/10/5/15/5 in aspect order) and magic uses multiplier 1.0 for aspect scaling (per MAGIC.md).
 
 ### 3.2 Grant and spend
 
@@ -102,7 +102,7 @@ Psyche states from [`PSYCHE.md`](./PSYCHE.md) may apply **temporary deltas** to 
 
 ## 3.5 Soul lights: the aspects seen in spirit sight
 
-Status: planned ([ADR 0041](../adr/0041-spirit-sight-auras-and-soul-lights.md), accepted; tasks **R-1496** SS-2b, **R-1491** SS-8). Feature page: [`SPIRIT_SIGHT.md`](./SPIRIT_SIGHT.md).
+Status: implemented (tasks **R-1496** SS-2b, **R-1491** SS-8; [ADR 0041](../adr/0041-spirit-sight-auras-and-soul-lights.md), accepted). Feature page: [`SPIRIT_SIGHT.md`](./SPIRIT_SIGHT.md).
 
 The seven aspects are also the seven soul lights (*hingetuled*) that every person and animal shows in spirit sight: the Hingepuu tiers laid along the body, from the pelvis (roots) to above the head (sky). There is one set of seven, not two.
 
@@ -117,8 +117,8 @@ The seven aspects are also the seven soul lights (*hingetuled*) that every perso
 | `aspect.light` | sky above tree | above the head | faith | violet |
 
 - **Hero:** the light level (0..5) is read from the aspect rank: below 5 or locked = 0, 5-9 = 1, 10-14 = 2, 15-24 = 3, 25-39 = 4, 40-50 = 5. No separate light currency or save field; spending a NATURAL point at the Hingepuu is how a light grows.
-- **Apprentice baseline (planned, SS-8):** nature 10, unity 10, awareness 15 (the clairvoyant gift), the other four 5, so his lights start at 2 / 2 / 3 / 1. This replaces the flat baseline 5 of section 3.1 for the apprentice once SS-8 lands; the first-allocation rules are unchanged.
-- **Awareness** also sets the spirit-sight radius and how deeply the hero reads other souls; **light** keeps feeding `resource.willpower`.
+- **Apprentice baseline (implemented, SS-8, R-1491):** nature 10, unity 10, awareness 15 (the clairvoyant gift), the other four 5, so his lights start at 2 / 2 / 3 / 1. `SessionState` starts every New Game from `GameState.new_apprentice_game()`; loaded saves keep the ranks they stored. The first-allocation rules are unchanged.
+- **Awareness** also sets the spirit-sight radius (12 m + 4 m per level above 2: 16 m at the apprentice's level 3) and how deeply the hero reads other souls; **light** keeps feeding `resource.willpower`.
 - **NPCs** have no NATURAL ranks; their light levels are content (`aura` block on the character record) or derived deterministically.
 - **No morality:** a bright or dim light shows strength or a weak point, never goodness (same rule as section 1).
 - **No double counting:** spells keep the aspect scaling of section 4; only spoken words and replies in a spirit duel use the light level.

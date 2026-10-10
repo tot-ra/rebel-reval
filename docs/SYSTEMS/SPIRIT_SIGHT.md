@@ -150,7 +150,7 @@ What the player sees when sight fades in (the auras fade with the sight `blend`,
 | Light shader | `scripts/combat/spirit_aura_light.gdshader` | The seven billboarded lights and the sky beam (quad 7, upright billboard, `beam_strength`) in one draw call, or one soft glow (`glow_only`). |
 | Anchor list | `SharedCharacterRig.SPIRIT_AURA_ANCHORS` | The one const list of anchors: a point along a bone segment (`hips`, `spine`, `chest`, `head`; the rig has no neck bone) plus a forward offset. Rigs join group `spirit_aura_bearer`. |
 
-- **Budget** (`SpiritAuraManager.assign_tiers`): nearest first from the hero rig (`PlayerRig`), ties in candidate order. The 12 nearest within the sight radius get a full aura, every other being within 40 m gets a single soft glow, nothing beyond. The radius is 12 m until SS-8 ties it to the awareness light. Tiers are re-ranked every 0.25 s; bone anchors follow every frame. Views are created on first need, kept with their body (a child, freed with it) and hidden, not rebuilt, when sight closes.
+- **Budget** (`SpiritAuraManager.assign_tiers`): nearest first from the hero rig (`PlayerRig`), ties in candidate order. The 12 nearest within the sight radius get a full aura, every other being within 40 m gets a single soft glow, nothing beyond. The radius follows the hero's awareness light (see Hero growth). Tiers are re-ranked every 0.25 s; bone anchors follow every frame. Views are created on first need, kept with their body (a child, freed with it) and hidden, not rebuilt, when sight closes.
 - **Profiles:** `PlayerRig` gets the hero profile (`char.apprentice`, live guilt clarity, re-read on every re-rank). Actor rigs are named `<Actor>Rig`; a ContentDB record `char.<actor>` supplies authored data, otherwise the stable id-only derivation of SS-2 applies. `register(body, profile)` adds or overrides any body.
 - **GL Compatibility:** plain vertex/fragment shaders, uniform arrays, no compute, no Decal, no textures (P0-040). The lights and the spine run are biased toward the camera so the torso does not hide them; buildings still occlude.
 - **Reduced flashing** (`gameplay.reduced_flashing`): shimmer drops to 15 %, the breathing pulse and the corona drift to 15 %, and the knot cracks stop flickering.
@@ -210,9 +210,18 @@ The building stays: walls, floor, pillars, stairs and building shells keep their
 
 Challenge (interact) on a duel-ready person in spirit sight opens the in-place duel. Scripted duels (the almshouse porter, future open-world duels, SW-3) switch spirit sight on first, then open the arena. After the duel the hero stays in spirit sight.
 
-## Hero growth (planned, SS-8, **R-1491**)
+## Hero growth (implemented, SS-8, **R-1491**)
 
-Hero lights are his NATURAL ranks seen as levels: rank below 5 or a locked aspect = 0, 5-9 = 1, 10-14 = 2, 15-24 = 3, 25-39 = 4, 40-50 = 5. They grow only through NATURAL (`natural.grant_points`, `natural.spend_point` at the Hingepuu); there is no separate light currency or save field. The apprentice's NATURAL baseline is nature 10, unity 10, awareness 15 (the clairvoyant gift), the rest 5, i.e. levels 2 / 2 / 3 / 1. Awareness sets the sight radius (12 m + 4 m per level above 2) and the reading depth.
+Status: implemented (task **R-1491**). Scope: the apprentice's starting lights, growth through NATURAL and the awareness-driven sight radius. Out of scope: a separate light currency, cap or save section (ADR 0041 revision 2026-10-09), `natural.lock_aspect` (not implemented in `GameState` yet).
+
+Hero lights are his NATURAL ranks seen as levels: rank below 5 or a locked aspect = 0, 5-9 = 1, 10-14 = 2, 15-24 = 3, 25-39 = 4, 40-50 = 5 (`SpiritAuraProfile.level_for_rank`). They grow only through NATURAL (`natural.grant_points`, `natural.spend_point` at the Hingepuu): a spend that crosses a band brightens the light on the next aura refresh.
+
+- **Starting lights:** `SessionState` starts a New Game from `GameState.new_apprentice_game()`: nature 10, unity 10, awareness 15 (the clairvoyant gift), the rest 5, i.e. levels 2 / 1 / 1 / 2 / 1 / 3 / 1 bottom-up. A bare `GameState.new()` stays at a flat 5, because the save loader, debug presets and scratch states build on it.
+- **Sight radius:** `SpiritAuraProfile.sight_radius_for_level(level)` = 12 m + 4 m per awareness level above 2 (never below 12 m): 16 m at the start, 20 m at level 4, 24 m at 5. `SpiritAuraManager` re-reads it from the session state each frame while it follows the session; detached fixtures keep the `sight_radius` they set. The 12-aura and 40 m glow budget is unchanged.
+- **Reading depth:** the same awareness level (`SpiritReading`, see Reading a soul).
+- **Saves:** nothing new. Ranks travel in the existing `natural` section; old saves keep their stored ranks (aspects missing from a save load as 5), so a Kalev-era save starts with lights 1 and a 12 m radius.
+- **Verify:** `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_soul_lights_state,test_p7_011_natural_psyche,test_magic_natural_scaling` (baseline, band edges, locked = 0, a spend crossing a band, save round trip, old save, awareness -> radius).
+- **Limits:** returning to the main menu and choosing New Game in the same process does not rebuild `SessionState.state` (pre-existing behaviour), so the baseline applies to the first New Game of each launch; a second New Game in that process inherits the previous run's ranks.
 
 ## Save state and IDs
 
@@ -226,7 +235,6 @@ Each task names its filter: `test_spirit_sight`, `test_spirit_aura_profile`, `te
 ## Limits
 
 - Animals are drawn only when registered with `SpiritAuraManager.register` (as the capture does). Ambient animal actors do not join the aura group yet; wiring them needs a task that may touch the animal presenters.
-- The sight radius is a fixed 12 m until SS-8 (**R-1491**).
 - Anchor offsets are tuned for the shared adult rig; very short or seated bodies keep the same offsets.
 
 Open balance questions: light-level multipliers, the 12-aura budget in dense crowds, and how many NPCs get an authored `aura` block versus a derived one.

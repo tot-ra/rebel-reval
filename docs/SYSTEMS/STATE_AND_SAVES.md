@@ -19,7 +19,7 @@ Status: implemented (tasks **P1-007** session state, **P1-008** save envelope, *
 | Inventory bag, equipment | `InventoryBag` 8×5 grid, 28 kg cap | [`INVENTORY_MECHANICS.md`](../INVENTORY_MECHANICS.md) |
 | Forge technique | Iron / Ember / Root or none | quick menu technique toggle |
 | Magic resources, grants | willpower etc. | [`MAGIC.md`](./MAGIC.md) |
-| NATURAL aspect ranks, psyche states | baseline 5, cap 50 | [`NATURAL.md`](./NATURAL.md), [`PSYCHE.md`](./PSYCHE.md) |
+| NATURAL aspect ranks, psyche states | new game: apprentice baseline nature 10 / unity 10 / awareness 15 / rest 5 (`GameState.new_apprentice_game()`, R-1491); a bare state and aspects missing from a loaded save: 5; cap 50 | [`NATURAL.md`](./NATURAL.md), [`PSYCHE.md`](./PSYCHE.md) |
 | Guilt per school (`guilt.church`, `guilt.folk`, `guilt.civic`), recorded act IDs, used rite IDs | level 0..10 per school; saved under `guilt` (optional in older saves) | [`SPIRIT_DIALOGUE.md`](./SPIRIT_DIALOGUE.md#guilt-implemented-sd-03) |
 | Learned spirit-duel moves (`move.<kind>.<element>`) | set of ids; saved under `learned_moves` (optional in older saves) | [`SPIRIT_DIALOGUE.md`](./SPIRIT_DIALOGUE.md#observation-mode-implemented-prototype-sd-06) |
 | Language comprehension (`lang.*`) | 0..100 per language, Estonian fixed at 100; saved under `language_comprehension` (optional in older saves) | [`SPIRIT_DIALOGUE.md`](./SPIRIT_DIALOGUE.md#language-comprehension-implemented-sd-08) |
