@@ -1142,3 +1142,19 @@ func test_sky_sun_disk_gets_hdr_gain_outside_the_cubemap_pass() -> void:
 			and source.contains("AT_CUBEMAP_PASS ? 1.0 : sun_halo_hdr_gain"),
 		"radiance cubemap keeps the SDR disk and halo"
 	)
+	# The corona is HDR-only: on SDR (headroom 1) it would clip to a large flat white disk.
+	assert_true(source.contains("global uniform float edr_headroom"), "corona reads headroom")
+	assert_true(
+		source.contains("smoothstep(1.0, 2.0, edr_headroom)"), "corona fades out on SDR screens"
+	)
+	assert_true(
+		ProjectSettings.has_setting("shader_globals/edr_headroom"),
+		"edr_headroom is a declared shader global"
+	)
+	var settings_source := FileAccess.get_file_as_string(
+		"res://scripts/settings/user_settings.gd"
+	)
+	assert_true(
+		settings_source.contains("output_max_linear_value_changed.connect"),
+		"UserSettings republishes the headroom when macOS changes it"
+	)

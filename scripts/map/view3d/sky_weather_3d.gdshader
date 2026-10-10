@@ -144,8 +144,16 @@ uniform float sun_illuminance = 11.0;
 // the old 2.4 peak so glow and AgX see the same highlight.
 uniform float sun_disk_scale : hint_range(0.0, 1.0) = 0.218;
 // R-1537: extra disk radiance for HDR (EDR) output, visible pass only (see the sun disk).
-// 7.0 puts the noon disk centre near scene-linear 16, the probe's "sun" patch.
-uniform float sun_disk_hdr_gain : hint_range(1.0, 16.0) = 7.0;
+// Large enough that AgX puts the disk at (nearly) the full EDR headroom.
+uniform float sun_disk_hdr_gain : hint_range(1.0, 64.0) = 20.0;
+// R-1537: bright aureole hugging the disk, visible pass only. Scene-linear radiance at the
+// limb (times the sun colour) and its Gaussian falloff in sun-disk radii; tuned so the
+// ring reads at ~60-70% of the disk on an EDR screen (probe --sun-map aureole rings).
+uniform float sun_corona_strength : hint_range(0.0, 64.0) = 4.5;
+uniform float sun_corona_width : hint_range(0.1, 8.0) = 3.0;
+// R-1537: live EDR headroom (Window.get_output_max_linear_value), published by UserSettings.
+// 1.0 on SDR screens, so the corona fades out there instead of clipping to a big white disk.
+global uniform float edr_headroom;
 // R-1537: same for the aureole (forward scatter around the disk). HDR photos read the sun
 // as a bright glare a few degrees wide, not a lone dot; 3.0 lifts the inner halo above
 // UI white on EDR while the outer falloff stays below it.
@@ -899,7 +907,16 @@ void sky() {
 	// reflections and glossy highlights do not brighten.
 	float disk_gain = AT_CUBEMAP_PASS ? 1.0 : sun_disk_hdr_gain;
 	float halo_gain = AT_CUBEMAP_PASS ? 1.0 : sun_halo_hdr_gain;
-	color += sun_tint * (disk * 2.4 * disk_gain + halo * halo_gain) * sun_visibility
+	// The corona starts at the limb and only lives outside the disk. It shares sun_tint
+	// with the disk, so it reddens and dims with the air mass like the disk does.
+	float corona = 0.0;
+	if (!AT_CUBEMAP_PASS) {
+		float outside = smoothstep(SUN_DISK_R - 0.0011, SUN_DISK_R, sun_distance);
+		// Gaussian, not exponential: a near-flat bright ring at the limb, then a soft edge.
+		float x = max(sun_distance - SUN_DISK_R, 0.0) / (SUN_DISK_R * sun_corona_width);
+		corona = sun_corona_strength * outside * exp(-x * x) * smoothstep(1.0, 2.0, edr_headroom);
+	}
+	color += sun_tint * (disk * 2.4 * disk_gain + halo * halo_gain + corona) * sun_visibility
 		* (1.0 - clouds * 0.95);
 
 	// R-1518: post-rain rainbow around the antisolar point (sky_rainbow.gdshaderinc).

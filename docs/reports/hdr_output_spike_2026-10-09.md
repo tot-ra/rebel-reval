@@ -93,6 +93,10 @@ GODOT_RENDER_VISIBLE=1 tools/godot_render.sh --rendering-method mobile --renderi
 tools/godot_render.sh --script tools/probe_hdr_output.gd -- --sun-map=smithy_courtyard [--sun-progress=0.5]
 ```
 
+**Max sun and corona (2026-10-10, R-1537).** Requested: sun at the maximum, aureole at 60-70% of it. `sun_disk_hdr_gain` is now 20 (the disk saturates the headroom: peak 108% of `output_max_linear_value` 6.07, i.e. clipped at the panel limit) and a Gaussian corona hugs the limb (`sun_corona_strength` 4.5 scene-linear, `sun_corona_width` 3 disk radii). Probe rings, share of the peak: 1.25 R 82%, 1.5 R 73%, 2 R 62%, 3 R 53%, 5 R 26%; the inner rings include the disk's glow. The corona is HDR-only: it is multiplied by `smoothstep(1, 2, edr_headroom)`, a shader global that `UserSettings` publishes from `Window.output_max_linear_value_changed`, so an SDR screen keeps the small disk instead of a large clipped white circle. False colour on EDR, then the SDR read-back (headroom 1):
+
+![](images/hdr_output_spike/sun_heat_corona_r1537.jpg) ![](images/hdr_output_spike/sun_sdr_corona_r1537.jpg)
+
 EDR headroom shrinks as the panel brightness goes up; at maximum brightness macOS grants 1.0 and the game is SDR by design. Check `output_max_linear_value` before judging the picture.
 
 ## 3. Frame time

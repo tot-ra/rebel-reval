@@ -14,6 +14,7 @@ extends SceneTree
 ## Optional --sun-map=smithy_courtyard frames the real sky sun disk on a clear midday
 ## (R-1537 sun follow-up: the visible disk must exceed UI white, not just the patches).
 ## --sun-progress=<0..1> picks the day-cycle point (default 0.5, midday; ~0.27 sunrise).
+## --edr-headroom=<x> overrides the edr_headroom shader global (1 = what SDR screens get).
 ## --screen=<index> moves the window to that screen first (default: the screen with the
 ## largest HDR headroom, e.g. the built-in Liquid Retina XDR rather than an SDR monitor).
 
@@ -39,6 +40,9 @@ const VARIANTS: Array[Dictionary] = [
 	{"id": "filmic_prologue", "tonemap": Environment.TONE_MAPPER_FILMIC,
 		"glow": Environment.GLOW_BLEND_MODE_SOFTLIGHT},
 ]
+## Must match SUN_DISK_R in sky_weather_3d.gdshader; aureole rings in disk radii.
+const SUN_DISK_R := 0.0230
+const SUN_RINGS: Array[float] = [1.25, 1.5, 2.0, 3.0, 5.0]
 const SIZE := Vector2i(1280, 720)
 const PATCH_SPACING := 1.6
 const UI_RECT := Rect2(40, 40, 120, 60)
@@ -57,6 +61,7 @@ func _run() -> void:
 	var map_id := ""
 	var sun_map_id := ""
 	var sun_progress := 0.5
+	var forced_headroom := 0.0
 	var screen := -1
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--json="):
@@ -67,6 +72,8 @@ func _run() -> void:
 			sun_map_id = arg.trim_prefix("--sun-map=")
 		elif arg.begins_with("--sun-progress="):
 			sun_progress = float(arg.trim_prefix("--sun-progress="))
+		elif arg.begins_with("--edr-headroom="):
+			forced_headroom = float(arg.trim_prefix("--edr-headroom="))
 		elif arg.begins_with("--screen="):
 			screen = int(arg.trim_prefix("--screen="))
 	root.size = SIZE
@@ -130,7 +137,7 @@ func _run() -> void:
 	if not map_id.is_empty():
 		report["map_frame"] = await _probe_map(map_id)
 	if not sun_map_id.is_empty():
-		report["sun_frame"] = await _probe_sun(sun_map_id, sun_progress)
+		report["sun_frame"] = await _probe_sun(sun_map_id, sun_progress, forced_headroom)
 	var absolute := ProjectSettings.globalize_path(json_path)
 	DirAccess.make_dir_recursive_absolute(absolute.get_base_dir())
 	var file := FileAccess.open(absolute, FileAccess.WRITE)
@@ -273,7 +280,7 @@ func _probe_map(map_id: String) -> Dictionary:
 
 ## Real sky sun disk: clear weather near midday, camera aimed at the sun. Reports the peak
 ## and the UI white sample so peak / ui_white is the disk brightness in UI-white units.
-func _probe_sun(map_id: String, progress: float) -> Dictionary:
+func _probe_sun(map_id: String, progress: float, forced_headroom: float) -> Dictionary:
 	for child in root.get_children():
 		if child is Node3D or child is WorldEnvironment:
 			child.queue_free()
@@ -298,6 +305,10 @@ func _probe_sun(map_id: String, progress: float) -> Dictionary:
 	camera.position = Vector3(0, 2.0, 0)
 	# A DirectionalLight3D shines along its -Z, so the sun sits along +Z.
 	camera.look_at(camera.position + sun.global_transform.basis.z, Vector3.UP)
+	# --script runs skip autoloads, so publish the headroom the way UserSettings does in game.
+	# --edr-headroom=1 previews what an SDR screen gets.
+	var published := forced_headroom if forced_headroom > 0.0 else root.get_output_max_linear_value()
+	RenderingServer.global_shader_parameter_set(&"edr_headroom", published)
 	for _frame in 30:
 		await process_frame
 	var image := root.get_texture().get_image()
@@ -307,18 +318,43 @@ func _probe_sun(map_id: String, progress: float) -> Dictionary:
 			var c := image.get_pixel(x, y)
 			peak = maxf(peak, maxf(c.r, maxf(c.g, c.b)))
 	var ui_white := _sample(image, _scaled(UI_RECT))
+	# Aureole read-back: mean brightness on rings around the disk centre (image centre),
+	# radii in sun-disk radii (SUN_DISK_R in the sky shader), as a share of the peak.
+	var headroom := root.get_output_max_linear_value()
+	var rings := {}
+	for radii: float in SUN_RINGS:
+		var ring := _ring_mean(image, camera.fov, SUN_DISK_R * radii)
+		rings["r%.2f" % radii] = {"value": ring, "of_peak": ring / maxf(peak, 0.0001),
+			"of_headroom": ring / maxf(headroom, 0.0001)}
 	var exr := ProjectSettings.globalize_path("res://build/hdr_spike/%s_sun_%s.exr" % [
 		RenderingServer.get_current_rendering_method(), map_id])
 	image.save_exr(exr)
 	_heat_map(image, ui_white).save_png(exr.trim_suffix(".exr") + "_heat.png")
 	image.convert(Image.FORMAT_RGBA8)
 	image.save_png(exr.trim_suffix(".exr") + ".png")
-	print("HDR probe sun %s: peak %.3f ui_white %.3f (%.2fx)" % [
-		map_id, peak, ui_white, peak / maxf(ui_white, 0.0001)])
+	print("HDR probe sun %s: peak %.3f (%.0f%% of headroom %.2f) ui_white %.3f (%.2fx)" % [
+		map_id, peak, 100.0 * peak / maxf(headroom, 0.0001), headroom, ui_white,
+		peak / maxf(ui_white, 0.0001)])
+	for key: String in rings:
+		print("  aureole %s: %.3f = %.0f%% of peak" % [
+			key, rings[key]["value"], 100.0 * rings[key]["of_peak"]])
 	return {"map_id": map_id, "shot": "sun_clear_noon", "peak": peak, "ui_white": ui_white,
 		"peak_over_ui_white": peak / maxf(ui_white, 0.0001),
-		"output_max_linear_value": root.get_output_max_linear_value(),
+		"peak_of_headroom": peak / maxf(headroom, 0.0001), "aureole_rings": rings,
+		"output_max_linear_value": headroom,
 		"sun_direction": sun.global_transform.basis.z}
+
+
+## Mean max-channel value on a ring `angle` radians from the image centre (vertical FOV).
+func _ring_mean(image: Image, fov_degrees: float, angle: float) -> float:
+	var centre := Vector2(image.get_size()) * 0.5
+	var radius := centre.y / tan(deg_to_rad(fov_degrees) * 0.5) * tan(angle)
+	var total := 0.0
+	for step in 64:
+		var at := centre + Vector2.from_angle(TAU * step / 64.0) * radius
+		var c := image.get_pixelv(Vector2i(at))
+		total += maxf(c.r, maxf(c.g, c.b))
+	return total / 64.0
 
 
 ## False colour for screenshots, since a PNG cannot show EDR: grey up to UI white, then

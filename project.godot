@@ -181,6 +181,10 @@ textures/default_filters/anisotropic_filtering_level=4
 
 [shader_globals]
 
+edr_headroom={
+"type": "float",
+"value": 1.0
+}
 window_sun={
 "type": "vec4",
 "value": Vector4(0, 1, 0, 0)

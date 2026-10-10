@@ -23,10 +23,18 @@ var gameplay = GameplayAccessibilitySettingsScript.default_settings()
 var input_bindings = InputBindingSettingsScript.default_settings()
 
 func _ready() -> void:
+	# R-1537: HDR-only shader effects (the sky sun corona) scale with the live EDR headroom,
+	# which macOS changes with panel brightness and screen moves; never cache it.
+	get_window().output_max_linear_value_changed.connect(_publish_edr_headroom)
+	_publish_edr_headroom(get_window().get_output_max_linear_value())
 	reload_dialogue_settings()
 	reload_gameplay_accessibility_settings()
 	reload_input_bindings()
 	reload_audio_settings()
+
+
+func _publish_edr_headroom(max_linear_value: float) -> void:
+	RenderingServer.global_shader_parameter_set(&"edr_headroom", max_linear_value)
 
 
 func _input(event: InputEvent) -> void:
