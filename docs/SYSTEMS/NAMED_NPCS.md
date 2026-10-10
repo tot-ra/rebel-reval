@@ -1,12 +1,12 @@
 # Named NPCs: registry and city presence
 
-Status: implemented (tasks **R-1562** registry, **R-1563** seamless-city spawn and info panel; epic **R-1560**, [ADR 0044](../adr/0044-named-npc-presentation-tier.md) proposed). Scope: one data registry of the politically and professionally notable people from `characters/**`, and their presence in the seamless Reval city at posts that follow the clock, with a click panel showing portrait, title and faction. Out of scope here: the overhead `!` marker (NPC-4 **R-1564**), faction colours and emblem chips (NPC-5 **R-1565**), dialogue portraits (NPC-6 **R-1566**), custom 3D models (NPC-7 **R-1567**), dialogue and quests.
+Status: implemented (tasks **R-1562** registry, **R-1563** seamless-city spawn and info panel; epic **R-1560**, [ADR 0044](../adr/0044-named-npc-presentation-tier.md) proposed). Scope: one data registry of the politically and professionally notable people from `characters/**`, and their presence in the seamless Reval city at posts that follow the clock, with a click panel showing portrait, title and faction. Out of scope here: the overhead `!` marker (NPC-4 **R-1564**), dialogue portraits (NPC-6 **R-1566**), custom 3D models (NPC-7 **R-1567**), dialogue and quests.
 
 ## In the city
 
 - Walking Reval, the player meets named NPCs at believable places and hours: Konrad Preen at the castle on Toompea, Hinrik the Cartographer at the fish landing, Martin at the smiths' street, Johann von Minden and Mart Weaver at the forum in the morning, the Town Guard Captain at the council watch by day and at the Coastal Gate in the evening.
 - Each stands on its own spot round its post, facing it, and walks the census street graph between posts (1.2 m/s). Going `home` it walks to its `home_anchor` and disappears on arrival; it reappears from there for the next post.
-- Click a named NPC (left mouse) or press `interact` within 3 m (keyboard or gamepad) to open the citizen information panel with the portrait (when the registry has one), title, faction name with an empty `FactionBadge` slot for NPC-5, what it is doing now, and its id and source sheet. Hover or select shows the name above the head. `Esc` or the × closes it.
+- Click a named NPC (left mouse) or press `interact` within 3 m (keyboard or gamepad) to open the citizen information panel with the portrait (when the registry has one), title, faction name with the faction chip in `FactionBadge` (R-1565), what it is doing now, and its id and source sheet. Hover or select shows the name above the head. `Esc` or the × closes it.
 - Named NPCs take clicks before the census crowd (a hit is consumed; a miss falls through to `CityCitizens`). They have their own cap of 12 live actors, separate from the 30-resident crowd cap, so the crowd budget never culls them within the 62 m spawn radius (freed beyond 80 m).
 - A census resident that a named NPC `replaces` is never spawned by `CityCitizens`, so the same person never walks twice; the named NPC wears that resident's body and clothes and the panel adds the resident's trade and household.
 - Only NPCs whose `act_gate` is at most the current act appear. The campaign has no act state yet, so the city uses act 1 (Wave A); `--city-act=N` on the command line pins it for review.
@@ -55,6 +55,10 @@ Save/load: nothing is saved. The registry is static content and positions come f
 - Proof: [`named_npc_markers_forum_10h.jpg`](../reports/images/city/named_npc_markers_forum_10h.jpg) (forum, 10:00, markers over named NPCs in the crowd).
 - Test: `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_named_npc_marker`.
 
+## Faction identity (task R-1565)
+
+Named NPCs wear their faction's livery (tunic and hose dyes plus an emblem decal), the marker carries a faction chip and tint, and the panel shows the chip beside the faction name. Data, rules and proof plate are in [`FACTIONS_AND_ECONOMY.md`](./FACTIONS_AND_ECONOMY.md#faction-visual-identity-task-r-1565).
+
 ## Verification
 
 ```bash
@@ -71,4 +75,5 @@ The validator also checks that sheets, portraits and model scenes exist, that an
 - No act state in the campaign yet: the city always runs act 1 unless `--city-act` is passed, so Wave B rows never appear in play.
 - Named NPCs are always outdoors at their posts; they are not shown inside furnished houses (`HOUSEHOLDS.md`) and do not sit or sleep.
 - A `replaces` row uses its registry schedule, not the resident's census timetable.
+- Faction accents are emblem decals on the blank bodies, not modelled garments; Black Cloaks show no emblem or chip.
 - Portraits are `candidate` rows in `assets/SOURCES.csv` until ADR 0044 is accepted and each passes its visual check.

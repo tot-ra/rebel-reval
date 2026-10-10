@@ -213,14 +213,17 @@ func _spawn(npc: Dictionary) -> void:
 ## body and clothes), else one built from the registry `body`.
 func style_record(npc: Dictionary) -> Dictionary:
 	var census := census_record(npc)
-	if not census.is_empty():
-		return census
-	var body: Dictionary = npc["body"]
-	return {
-		"id": npc["id"], "name": npc["display_name"], "body": body["variant"],
-		"height_scale": body["height_scale"], "head_scale": body["head_scale"],
-		"cloth": body["cloth"], "under": body["under"],
-	}
+	var record := census
+	if census.is_empty():
+		var body: Dictionary = npc["body"]
+		record = {
+			"id": npc["id"], "name": npc["display_name"], "body": body["variant"],
+			"height_scale": body["height_scale"], "head_scale": body["head_scale"],
+			"cloth": body["cloth"], "under": body["under"],
+		}
+	# Faction livery over the base look: primary on the tunic, secondary on hose and
+	# headwear (R-1565). Factions without identity keep their registry dyes.
+	return FactionIdentity.styled_record(record, npc.get("faction"))
 
 
 func census_record(npc: Dictionary) -> Dictionary:
@@ -272,6 +275,7 @@ func _style_new_rigs() -> void:
 		if model != null:
 			model.scale = rig.model_scale * float(actor.record["height_scale"])
 		CityCitizens.dye(rig, actor.record)
+		FactionIdentity.attach_accent(rig, actor.npc.get("faction"), float(actor.record["height_scale"]))
 		var proportions := rig.find_child("RealisticProportions", true, false)
 		if proportions != null:
 			proportions.set("head_scale", float(actor.record["head_scale"]))

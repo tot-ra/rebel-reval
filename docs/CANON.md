@@ -124,6 +124,26 @@ Decisions over `story/STORY.md`. Every promoted beat carries a confidence label.
 
 ---
 
+## Faction heraldry and livery (R-1565)
+
+Visual identity of the named NPCs ([`content/factions/faction_identity.json`](../content/factions/faction_identity.json), [ADR 0044](./adr/0044-named-npc-presentation-tier.md) section 4, [`SYSTEMS/FACTIONS_AND_ECONOMY.md`](./SYSTEMS/FACTIONS_AND_ECONOMY.md)). Each row has a confidence label for the **heraldic claim**; the emblem drawing itself is always a project icon, not a period source. Colours are dye-plausible wool and are retuned only for contrast under the ADR 0018 grade. `tools/validate_faction_identity.py` requires one row here per faction id and the same label as the JSON.
+
+| Faction | Claim | Label |
+|---|---|---|
+| `faction.danish_crown` | White cross on red. The Dannebrog banner is first documented in 14th-century armorials, not for 1343 Reval itself; used as the Crown's colours of record. | `plausible` |
+| `faction.livonian_order` | Black cross on a white mantle, worn by knight-brothers of the Teutonic Order's Livonian branch (since 1237); half-brothers wear grey. | `attested` |
+| `faction.hanseatic` | Cog ship as town and merchant device (city seals of Lübeck, Stralsund and others show cogs); brick red and linen are our choice, the shared Hansa "emblem" is a project invention. | `plausible` |
+| `faction.harju_kings` | Indigo belt and oak leaf for the Harju rebel leadership. No period source for a rebel livery. | `invented` |
+| `faction.black_cloaks` | Knotted cord and charcoal hood for the clandestine cell. Hidden in public, shown in the panel only once revealed. | `invented` |
+| `faction.cult_metsik` | Rye sheaf and straw or birch-bark ornaments: harvest and forest-spirit custom in Estonian folk belief, no organised "cult" livery. | `folklore` |
+| `faction.pskov_novgorod` | Orthodox three-bar cross, long kaftan with standing collar and fur cap for Rus merchants and envoys. Madder red and gold are typical dye and trim. | `plausible` |
+| `faction.vitalienbruder` | Broken ring chip: outlaws have no heraldry. The name "Vitalienbrüder" is anachronistic (1390s) and accepted only as a launch label. | `invented` |
+| `faction.blackheads` | Lance with pennant for St Maurice. The Tallinn Blackheads brotherhood is recorded from 1399, so for 1343 this is a candidate seat; black chaperon with gold trim. Never a caricatured head. | `plausible` |
+| `faction.osel_wiek` | Crozier on blue for the Bishopric of Ösel-Wiek. Colours are a project choice. | `invented` |
+| `faction.dorpat` | Crossed key and sword for the Bishopric of Dorpat (arms attested; red and silver livery is `plausible`). | `attested` |
+
+Hero crimson `#D9364D` is reserved for Kalev and priority reads; no faction uses it. Clergy and NPCs without a ledger seat get no chip.
+
 ## Terminology
 
 * **Reval** - **`attested`** 

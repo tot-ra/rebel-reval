@@ -117,7 +117,9 @@ func test_interact_reach_and_panel_shows_portrait_and_faction() -> void:
 	assert_eq(panel.shown_id, "char.johann_von_minden")
 	assert_true(panel.portrait_texture() != null, "portrait shown")
 	assert_eq(panel.faction_text(), "Brotherhood of Blackheads")
-	assert_true(panel.faction_badge != null, "badge slot for NPC-5")
+	assert_true(
+		panel.faction_badge != null and panel.faction_badge.visible, "chip shown for Blackheads"
+	)
 	kalev.free()
 	named.citizens.queue_free()
 	await tree.process_frame

@@ -15,7 +15,7 @@ One page per implemented or planned feature. Each page opens with a `Status:` li
 | [NPC mind: reflex, decision model, local LLM](./NPC_MIND.md) | Planned (ADR 0037 proposed) |
 | [World life](./WORLD_LIFE.md) | Implemented in Lower Town; Padise and public events unwired |
 | [Citizens: census, ledger, deep cards](./CITIZENS.md) | Implemented: census residents live in the seamless city with timetables, blank bodies and a click-for-info panel |
-| [Named NPCs: registry and city presence](./NAMED_NPCS.md) | Implemented (R-1562, R-1563): registry of Wave A/B named NPCs, clock-driven posts in the seamless city, click panel with portrait and faction; marker, faction visuals and models planned |
+| [Named NPCs: registry and city presence](./NAMED_NPCS.md) | Implemented (R-1562, R-1563): registry of Wave A/B named NPCs, clock-driven posts in the seamless city, click panel with portrait and faction; overhead marker (R-1564), faction livery, chip and badge (R-1565); models planned |
 | [Households: furnished houses and life at home](./HOUSEHOLDS.md) | Implemented in the seamless city: furniture by household, rooms, hearth and firewood day, people at home; no player use of furniture |
 | [Gate garrisons and patrols](./GATE_GARRISONS.md) | Implemented: census residents hold every gate by shift and walk the town and wall patrols, in their own clothes with a hat and spear |
 | [World presentation (3D view)](./WORLD_PRESENTATION.md) | Implemented |

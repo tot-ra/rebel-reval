@@ -29,7 +29,7 @@ func test_shape_carries_the_meaning() -> void:
 	assert_eq(NamedNpcMarker.glyph_for(NamedNpcMarker.State.SPOKEN), "!")
 	assert_eq(NamedNpcMarker.glyph_for(NamedNpcMarker.State.NONE), "")
 	# Every faction tint keeps the same glyph: colour is decoration only.
-	for faction: String in NamedNpcMarker.FACTION_TINT:
+	for faction: String in FactionIdentity.ids():
 		var marker := _marker({"id": "char.x", "faction": faction, "marker": "available"})
 		assert_eq(marker._glyph.text, "!", "glyph for %s" % faction)
 		marker.free()
@@ -37,9 +37,10 @@ func test_shape_carries_the_meaning() -> void:
 
 func test_tint_differs_by_faction_and_falls_back() -> void:
 	assert_true(
-		NamedNpcMarker.tint_for("faction.church") != NamedNpcMarker.tint_for("faction.hanseatic")
+		NamedNpcMarker.tint_for("faction.danish_crown") != NamedNpcMarker.tint_for("faction.hanseatic")
 	)
 	assert_eq(NamedNpcMarker.tint_for(null), NamedNpcMarker.DEFAULT_TINT)
+	assert_eq(NamedNpcMarker.tint_for("faction.church"), NamedNpcMarker.DEFAULT_TINT)
 
 
 func test_distance_fade_and_scale() -> void:

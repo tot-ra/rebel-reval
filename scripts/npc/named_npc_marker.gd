@@ -19,6 +19,9 @@ const BOB_AMPLITUDE := 0.05
 const BOB_SPEED := 2.2
 const HEAD_PADDING := 0.45
 const SPOKEN_ALPHA := 0.45
+## Chip: 64 px at 0.0035 m = 0.22 m, hanging just below the glyph.
+const CHIP_PIXEL_SIZE := 0.0035
+const CHIP_OFFSET := -0.27
 const DEFAULT_TINT := Color(1.0, 0.86, 0.35)
 ## Groups that mean "the player is talking or watching a scene": no markers then.
 const SpiritSightScript := preload("res://scripts/combat/spirit_sight.gd")
@@ -26,22 +29,11 @@ const SUPPRESS_GROUPS: Array[StringName] = [
 	&"demo_dialogue_active", &"dialogue_active", &"cutscene_active",
 	SpiritSightScript.DUEL_OPEN_GROUP,
 ]
-const FACTION_TINT := {
-	"faction.hanseatic": Color(0.95, 0.8, 0.3),
-	"faction.danish_crown": Color(0.9, 0.35, 0.3),
-	"faction.church": Color(0.85, 0.85, 0.95),
-	"faction.livonian_order": Color(0.9, 0.9, 0.9),
-	"faction.black_cloaks": Color(0.7, 0.45, 0.9),
-	"faction.cult_metsik": Color(0.45, 0.85, 0.5),
-	"faction.harju_kings": Color(0.5, 0.75, 0.95),
-	"faction.pskov_novgorod": Color(0.95, 0.6, 0.35),
-	"faction.vitalienbruder": Color(0.4, 0.8, 0.85),
-	"faction.blackheads": Color(0.95, 0.55, 0.65),
-}
 
 var state: State = State.NONE
 var faction := ""
 var _glyph: Label3D
+var _chip: Sprite3D
 var _phase := 0.0
 var _base_height := 2.0
 
@@ -61,7 +53,7 @@ static func glyph_for(marker_state: State) -> String:
 
 
 static func tint_for(npc_faction: Variant) -> Color:
-	return FACTION_TINT.get(npc_faction, DEFAULT_TINT) if npc_faction != null else DEFAULT_TINT
+	return FactionIdentity.marker_tint(npc_faction, DEFAULT_TINT)
 
 
 ## 1 up to FADE_START, 0 from FADE_END, linear between.
@@ -116,7 +108,26 @@ func setup(npc: Dictionary, height_scale: float) -> void:
 	_glyph.outline_modulate = Color(0.08, 0.05, 0.03, 0.95)
 	_glyph.render_priority = 5
 	add_child(_glyph)
+	_add_chip()
 	apply_state(state)
+
+
+## Faction chip (emblem on a plate, R-1565) under the glyph: the shape that tells
+## factions apart without colour. Absent for clergy, no-seat NPCs and the Black
+## Cloaks (hidden emblem).
+func _add_chip() -> void:
+	if not FactionIdentity.is_public(faction):
+		return
+	_chip = Sprite3D.new()
+	_chip.name = "FactionChip"
+	_chip.texture = FactionIdentity.chip_texture(faction)
+	_chip.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	_chip.no_depth_test = true
+	_chip.shaded = false
+	_chip.pixel_size = CHIP_PIXEL_SIZE
+	_chip.position = Vector3(0.0, CHIP_OFFSET, 0.0)
+	_chip.render_priority = 5
+	add_child(_chip)
 
 
 func apply_state(new_state: State) -> void:
@@ -141,3 +152,5 @@ func update_presence(distance: float, suppressed: bool, delta: float) -> void:
 	var shade := _glyph.modulate
 	shade.a = distance_alpha(distance) * (SPOKEN_ALPHA if state == State.SPOKEN else 1.0)
 	_glyph.modulate = shade
+	if _chip != null:
+		_chip.modulate.a = shade.a

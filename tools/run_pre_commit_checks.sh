@@ -358,6 +358,15 @@ if any_staged_path "content/npcs" \
   queue_python_module "tests.python.test_named_npcs"
 fi
 
+if any_staged_path "content/factions" \
+  "tools/validate_faction_identity.py" \
+  "tests/python/test_faction_identity.py" \
+  "assets/UI/factions" \
+  "docs/CANON.md"; then
+  bg_step "faction identity" python3 tools/validate_faction_identity.py
+  queue_python_module "tests.python.test_faction_identity"
+fi
+
 if any_staged_path "assets/SOURCES.csv" \
   "assets/materials/pbr" \
   "tools/validate_asset_sources.py" \

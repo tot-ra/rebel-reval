@@ -169,6 +169,8 @@ jobs:
           set -euo pipefail
           python3 tools/validate_named_npcs.py
           python3 -m unittest tests.python.test_named_npcs -v
+          python3 tools/validate_faction_identity.py
+          python3 -m unittest tests.python.test_faction_identity -v
 
       - name: Physical object catalog
         run: |

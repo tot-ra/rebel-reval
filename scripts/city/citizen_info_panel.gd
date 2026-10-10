@@ -16,7 +16,7 @@ const FACTION_NAMES := {
 	"livonian_order": "Livonian Order", "vitalienbruder": "Vitalienbrüder", "blackheads": "Blackheads",
 }
 
-## Empty slot for the faction emblem chip (ADR 0044 section 4, task R-1565).
+## Faction emblem chip (ADR 0044 section 4, task R-1565); hidden without a public emblem.
 var faction_badge: Control
 ## Stable id (cit.* or char.*) of the person shown; spawners only refresh their own.
 var shown_id := ""
@@ -170,6 +170,7 @@ func show_named(npc: Dictionary, census: Dictionary, now: String) -> void:
 	_portrait.texture = load(String(portrait)) as Texture2D if portrait != null else null
 	_portrait.visible = _portrait.texture != null
 	_faction_label.text = faction_name(npc.get("faction"))
+	FactionIdentity.fill_badge(faction_badge, npc.get("faction"))
 	_identity.visible = true
 	update_now(now)
 	var lines: PackedStringArray = []
