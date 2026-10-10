@@ -62,7 +62,7 @@ The sea shader draws all surf (breaker foam, wave crest, run-up film, quay slosh
 - **Continuous surf and run-up** (`CityShoreField.build_band`): the 4 m coarse sea grid joins an indexed 0.5 m mesh in 128 m tiles, extending about 22.5 m offshore and 10.5 m inland. Both use one coarse-cell ownership predicate (`covers_coarse_cell`), preventing overlapping transparent triangles. Coarse boundary cells subdivide their shared edge at 0.5 m intervals and fan triangles to the centre, so their displaced edges meet the fine mesh without cracks. The inland extension belongs to this same surface: the separate city `ShoreSwashSheet` and its mesh builder have been removed.
 - **Raised advancing front:** signed terrain height in `UV2.y`, with fine triangles matching the terrain's parent diagonal, carries the sea up the sand. Horizontal chop fades before the bank; the front gains 0.10–0.42 m of wind-dependent roller height plus the thinning water layer. Its shading normal follows that rise, using an interpolated bed gradient so reflections do not expose the terrain triangle diagonals. All potential run-up vertices retain a floor 1.8 cm above the encoded bed, including dry corners of triangles that cross the moving front; partial beach weights cannot sink wet triangles into the sand. Actual bed height controls permanent sea coverage; filtered shore distance controls only the advancing inland edge. Disagreement between the two zero contours can no longer expose a dry strip between meshes. Foam uses one multiscale patch pattern on the sea, breaking crest and run-up, with denser foam at the front and a fading trail. Existing tile channels provide metre-scale clumps, irregular lace and centimetre-scale grain; large circular rims are no longer the main close-camera pattern. The common foam mask suppresses mirror reflection and specular light and raises roughness. The shader displacement has a 6 m culling margin.
 - **Surf strength** (`CityWorld3D.SURF_*`, applied through `MapViewMaterials.apply_surf_gain`): breaker height gain 2.0, run-up gain 1.8, crest geometry scale 1.3 (district 0.12), foam gain 2.2, depth scale 3. `apply_shore_field` resets all of them for district maps. The sea state, so the wind, scales the energy: a calm day laps, a fresh wind rolls breakers in with white crests, a gale floods the beach.
-- **Spray** (`CityShoreSpray`, `scripts/city/city_shore_spray.gd`): 10 GPU particle emitters keep to the waterline nearest the camera, 5 units offshore, throwing droplets up and landward. Wind 0.35 starts them, 0.9 is full strength (`CityWorld3D.apply_time` feeds `set_wind`).
+- **Spray** (`CityShoreSpray`, `scripts/city/city_shore_spray.gd`): thrown at breaking waves, not continuously ([WR-6](#event-driven-spray-wr-6)). Wind 0.35 starts it, 0.9 is full strength (`CityWorld3D.apply_time` feeds `set_wind`).
 
 Earlier side-on review plates (`tools/capture_city_sea.gd`, before the continuous-surface correction below):
 
@@ -74,7 +74,7 @@ Earlier side-on review plates (`tools/capture_city_sea.gd`, before the continuou
 
 Verify: `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_city_shore_field`; plates `tools/godot_render.sh --script tools/capture_city_sea.gd -- --tag=x --advance=6 --only=surf_side_calm,surf_side_fresh,surf_side_storm` (`--advance` shifts the wave phase; `surf_*` are the front plates).
 
-Limits: the crest is a displaced mesh with foam, not a curling wave with a hollow face; steep silhouettes can still reveal the 0.5 m mesh. Inland run-up is visual: the existing camera medium and swim-depth queries still classify coastal positions by the mean waterline (`bed < 0`), so they do not classify a camera inside the thin inland bore as underwater. The wet-sand band follows the field since WR-9 ([Beach response](#beach-response-wr-9)); spray droplets are soft billboards without a splash sprite; district quays and rocks get slosh foam only (no climbing water); in the city a reflected crest stands against the wall ([WR-4](#waves-feel-the-seabed-wr-4)).
+Limits: the crest is a displaced mesh with foam, not a curling wave with a hollow face; steep silhouettes can still reveal the 0.5 m mesh. Inland run-up is visual: the existing camera medium and swim-depth queries still classify coastal positions by the mean waterline (`bed < 0`), so they do not classify a camera inside the thin inland bore as underwater. The wet-sand band follows the field since WR-9 ([Beach response](#beach-response-wr-9)); district quays and rocks get slosh foam only (no climbing water); in the city a reflected crest stands against the wall ([WR-4](#waves-feel-the-seabed-wr-4)).
 
 ## Optical and camera integration (R-885 / R-1437 follow-up)
 
@@ -174,7 +174,7 @@ The final guard passed the 16-test material contract and a further six-phase GL 
 
 ## Water realism v2 (WR-1, WR-2)
 
-Status: implemented (tasks **R-1499** WR-1 and **R-1500** WR-2; pack [WR - Water realism v2](../tasks/water_sky/WR_water_realism_v2.md), epic **R-1497**). Scope: the city sea's wave geometry and foam. Out of scope (planned in the pack): camera-distance LOD and tier presets (WR-3), depth refraction and breaker types ([WR-4](#waves-feel-the-seabed-wr-4)), wave interaction with rocks (WR-5), event-driven spray (WR-6), a persistent foam buffer (WR-7), gusts and rain on the sea (WR-8). Beach wetting is implemented in [Beach response (WR-9)](#beach-response-wr-9). District maps are unchanged: every switch below is gated on the city's `sea_physical_depth` instance flag or on `shore_crest_shape`, which `apply_shore_field` resets to 0.
+Status: implemented (tasks **R-1499** WR-1 and **R-1500** WR-2; pack [WR - Water realism v2](../tasks/water_sky/WR_water_realism_v2.md), epic **R-1497**). Scope: the city sea's wave geometry and foam. Out of scope (planned in the pack): camera-distance LOD and tier presets (WR-3), depth refraction and breaker types ([WR-4](#waves-feel-the-seabed-wr-4)), wave interaction with rocks (WR-5), event-driven spray ([WR-6](#event-driven-spray-wr-6)), a persistent foam buffer (WR-7), gusts and rain on the sea (WR-8). Beach wetting is implemented in [Beach response (WR-9)](#beach-response-wr-9). District maps are unchanged: every switch below is gated on the city's `sea_physical_depth` instance flag or on `shore_crest_shape`, which `apply_shore_field` resets to 0.
 
 Verified on the [water sandbox](./WATER_SANDBOX.md) (synthetic coast, R-1498) and in the city.
 
@@ -191,7 +191,7 @@ Verified on the [water sandbox](./WATER_SANDBOX.md) (synthetic coast, R-1498) an
 - **Surf foam moves with the swash.** `shore_state` exports `surge`: the shallow-water excursion of water under a broken wave (about H/2 sqrt(g/h) T / 2 pi, capped at 4 m), with a quick landward lunge as the bore passes and a slow return. The surf samples its foam at the rest position minus that surge, so foam surges in and out with every breaker. On the run-up sheet the coordinate follows the swash front instead, carrying foam up the sand and back with the backwash.
 - **Foam ages into lace.** `_foam_dissolve` keeps only the brightest part of the structure as coverage falls, so dying foam shrinks to rims and holes instead of fading as a sheet. Its edge widens with `fwidth`, so distant and grazing foam averages instead of producing moire. Surf coverage follows the bore's age (`shore_state.foam_age`): a dense roller about 0.35 s behind the front, lace that decays over `CITY_SURF_FOAM_LIFE` (4 s), and a 12 % patchy scum over the surf zone between sets. Quays and rocks keep their slosh foam. The run-up film is a narrow bead at its leading edge plus sparse lace, no longer a white blanket. The scrolling edge ribbons (`edge_foam`) are off on the city sea.
 - **Whitecap coverage.** Only the part of the baked fold mask above `CITY_WHITECAP_THRESHOLD` (0.5) breaks, dissolved at gain 0.6. In the sandbox, the open sea shows isolated caps in a fresh breeze and large foam fields with dark water between them in a gale, the Beaufort 3-4 versus 8-9 progression. Wind streaks keep 35 % of the tile's streak channel and meander with the warp.
-- **Interim spray.** Shore spray droplets shrank from 0.45 m to 0.11 m quads (twice as many) and are lit (`SHADING_MODE_PER_VERTEX`) instead of unshaded, so they no longer look like floating cotton balls or glow at night. Event-driven spray is WR-6.
+- **Interim spray.** Shore spray droplets shrank from 0.45 m to 0.11 m quads (twice as many) and are lit (`SHADING_MODE_PER_VERTEX`) instead of unshaded, so they no longer look like floating cotton balls or glow at night. Replaced by event-driven spray in [WR-6](#event-driven-spray-wr-6).
 
 ![Before and after, fresh breeze along the strand: a white foam skin becomes clear water with attached lace](../reports/images/city/water_v2_close_shore_reverse_fresh.jpg)
 
@@ -218,7 +218,7 @@ tools/godot_render.sh --script tools/capture_city_sea.gd -- --tag=x --advance=4 
 
 `test_water_realism_v2` covers the bed trough (deep troughs kept, shallow ones eased onto the bed, continuous), C1 weighting, the shader contracts (city-only band limit, bed trough, clock-free foam cells, surge and age-driven coverage), the crest-shape reset for district maps and the sandbox build. No controls, saved fields or content IDs change.
 
-Limits: boats (`BoatFloat3D`) still sample the district trough floor, so in a city gale a hull can sit above a deep trough instead of dropping into it. Foam coverage is analytic: it has no memory between waves (WR-7). Wave height is not attenuated behind rocks or reefs below the 2 m height grid (WR-5). Gale whitecap coverage was tuned by eye in sandbox plates, not measured against photographs (WR-10). Spray is still emitted continuously at the waterline near the camera, not at breaking events.
+Limits: boats (`BoatFloat3D`) still sample the district trough floor, so in a city gale a hull can sit above a deep trough instead of dropping into it. Foam coverage is analytic: it has no memory between waves (WR-7). Wave height is not attenuated behind rocks or reefs below the 2 m height grid (WR-5). Gale whitecap coverage was tuned by eye in sandbox plates, not measured against photographs (WR-10).
 
 ## Waves feel the seabed (WR-4)
 
@@ -305,7 +305,7 @@ Status: implemented (task **R-1508** WR-3; pack [WR - Water realism v2](../tasks
 | Rings (coarsest spacing) | 6 (64 m) | 7 (64 m) | 8 (64 m) |
 | Cascades in the mesh | C0 | C0 + C1 | C0 + C1 |
 | Foam detail layers (`city_foam_layers`) | 3 (no grain) | 4 | 4 |
-| Spray particles per emitter | 160 | 420 | 640 |
+| Spray droplets per burst (slots, see [WR-6](#event-driven-spray-wr-6)) | 160 (5) | 420 (8) | 640 (10) |
 | Ripple sim size (from SkyWeather) | off | 256 | 256 |
 
 Root nodes are 1024 m on every tier.
@@ -381,6 +381,46 @@ Plates (water sandbox, `--tag=wr9`, noon):
 
 
 Limits: pebble meshes are wet or dry by a fixed line, not by the live swash (they use `StandardMaterial3D`; a swash-driven stone shader is a separate task). The porosity is a slope proxy, so a steep sand scarp reads as shingle and a flat gravel patch as sand. The film's thinning uses one nominal grain size; the sandbox's three pebble sizes differ only through their meshes, and the plates above do not isolate the three sections. The sandbox ground still paints land use (grass, a cart-track stripe on the berm) from height alone ([water sandbox](./WATER_SANDBOX.md) limit), so some sandbox wet ground is drawn over those textures; the city land use is deliberately not changed for it.
+
+## Event-driven spray (WR-6)
+
+Status: implemented (task **R-1511** WR-6; pack [WR - Water realism v2](../tasks/water_sky/WR_water_realism_v2.md)). Scope: when and where the city sea throws spray, and how it is drawn. Out of scope: crest impacts on rocks and quays (needs the WR-5 impact events, not built yet), district maps (no `CityShoreSpray`).
+
+**What changed.** The old emitters streamed droplets from the waterline all the time. Now each slot sits where the surf breaks and fires one burst when a crest passes.
+
+- **Event source.** `CityShoreSpray.place_slots` takes `slot_count(budget)` contour points near the camera and slides each offshore along the landward normal (14 taps, 3 m apart) to the position where `CityWaterSurface.bed_state` (CPU mirror of `shore_state`) reports the strongest breaking; slots below `BREAK_MIN` (0.5) stay silent. Each frame `update_events(OceanFftSampler.ocean_time())` calls `bed_state` once per slot and fires when `floor(cycle)` grows, i.e. the bore front phase u wrapped past 0. The first sample after placement only records the crest, so a burst never fires on placement. Re-placement runs when the camera moves 12 m or the wind changes by more than 0.2, never as a scan of the whole coast.
+- **Determinism.** The burst is a function of the ocean time and the slot position; the particle seed is `burst_seed(slot, event)`, so the same crest throws the same droplets (`use_fixed_seed`).
+- **Three layers per slot** (`GPUParticles3D`, one-shot, `scripts/city/city_spray.gdshader`, lit with per-vertex lighting so spray darkens at night): *droplets* are 7 cm quads stretched 4x along their velocity (`particle_flag_align_y`; the shader builds the camera-facing quad around that axis and relaxes the streak as the drop slows); *splash sheet* is a 1 m ragged-edge disc that opens over 0.45 s; *mist* is a faint 1 m puff living 3.2 s whose gravity vector is the downwind drift (`WindField.current().direction`), so it is carried off and fades.
+- **Whitecaps in a gale.** `gale_slot_count` extra slots sit 24-60 m offshore and test a 2.3 s crest period; the crest tears spray (droplets and mist) with a hash chance of `0.8 * gale`, where `gale = smoothstep(0.9, 1.0, wind)`. A gale at 0.95 tears about half of the crests, the peak of a gust (1.0) most of them.
+- **Calm.** Below wind 0.35 nothing is emitted (`update_events` returns 0, emitters are stopped).
+
+**Budgets** (`MapViewWaterMaterials.sea_lod_preset()["spray_particles"]` is the droplet count of one burst at full strength; read every 0.5 s, so a tier change rebuilds the slots). `slot_count = round(3.5 + budget / 100)` clamped to 4..12, mist is 25 % and sheets 10 % of the droplets, offshore slots have no sheet. `particle_ceiling(budget)` is the number of particles allocated if every slot were alive at once; in practice a burst lives 1-3 s once per crest period (about 9 s), so a handful of slots are alive at any time:
+
+| | minimum | recommended | high |
+|---|---|---|---|
+| Droplets per burst | 160 | 420 | 640 |
+| Shore slots / gale slots | 5 / 2 | 8 / 4 | 10 / 5 |
+| Allocated particles (ceiling) | 1 480 | 6 636 | 12 640 |
+
+Burst strength scales with breaking and wind (`burst_ratio`, via `amount_ratio`), so a fresh breeze throws a fraction of a gale's burst.
+
+**Verify:**
+
+```bash
+godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_city_shore_spray
+godot --headless --path . --script tools/water_sandbox/spray_probe.gd
+tools/godot_render.sh --script tools/water_sandbox/capture.gd -- --tag=wr6 --case=stack,reef,sand --shot=close,side --light=noon,night --wind=gale --gust --motion=192
+```
+
+`test_city_shore_spray` checks the crest-event rule (fires once per crest, never on the first sample, never backwards), tier slot and ceiling growth, seed determinism, that a gale on the real city coast fires bursts identically in two runs, and that calm fires none. `spray_probe.gd` prints the active slots and burst counts per sandbox case.
+
+Plates (water sandbox, `--tag=wr6`, sand, gale with gust, motion frame 54 as the crest breaks):
+
+![Noon: lit centimetre droplets thrown above the breaker, splash and mist at the bore front](../reports/images/city/water_wr6_spray_noon.jpg)
+
+![Night, same frame: spray follows the dark ambient, nothing glows](../reports/images/city/water_wr6_spray_night.jpg)
+
+Limits: spray is emitted at the breaker line the slot found at placement (waves that break further out at a different sea state wait for the next re-placement); only about 8 shore slots near the camera exist, so a long beach shows bursts as separate fans about 12 m apart; crest impacts on rocks and quays throw nothing yet (WR-5 impact events); droplets are camera-facing quads, not refractive; mist is lit but not shadowed or fogged by the sky beyond the scene's own fog. The stretch uses the particle life as a proxy for speed.
 
 ## Limits
 

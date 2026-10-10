@@ -48,6 +48,8 @@ godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_wat
 tools/godot_render.sh --script tools/water_sandbox/capture.gd -- --tag=check --shot=close --wind=fresh
 ```
 
+`godot --headless --path . --script tools/water_sandbox/spray_probe.gd` prints, per bay, the shore spray slots and the bursts fired in 27 s of ocean time ([WR-6](./CITY_SEA.md#event-driven-spray-wr-6)).
+
 The headless test builds the sandbox and checks every bay has sea offshore and land inshore, that large boulders are stamped into the ground, and that the runtime shore field and sea mesh exist. `test_city_sea_lod` also builds it and checks the ring/static cell ownership and the CPU sea height.
 
 ## Limits
