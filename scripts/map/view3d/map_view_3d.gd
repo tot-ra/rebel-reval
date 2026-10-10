@@ -14,6 +14,13 @@ const MudFootprints3D := preload("res://scripts/map/view3d/mud_footprints_3d.gd"
 ## R-1516: dryness above which the puddle decals show as drought crust. Matches
 ## the 0.45 crack onset in map_view_puddle.gdshader and city_ground.gdshader.
 const PUDDLE_CRUST_DRYNESS := 0.45
+## Water wetness above which a footstep in a puddle decal splashes. The decal
+## shader fades the water in over 0.0005..0.04 (map_view_puddle.gdshader).
+const PUDDLE_STEP_MIN_WETNESS := 0.02
+## Waterline radius in decal UV space (edge_radius in map_view_puddle.gdshader,
+## without its +-0.07 outline noise) and the plane half-size it scales.
+const PUDDLE_WATER_RADIUS := 0.70
+const PUDDLE_PLANE_HALF := 0.51
 const WaterRippleSimScript := preload("res://scripts/map/view3d/water_ripple_sim.gd")
 const UnderwaterPassScript := preload("res://scripts/map/view3d/underwater_pass.gd")
 const Assembly := preload("res://scripts/map/view3d/map_view_assembly.gd")
@@ -444,6 +451,41 @@ func _sync_puddle_visibility(force: bool = false) -> void:
 ## dryness past the crack threshold; between the two the ground shows no basin.
 static func puddle_layer_visible(wetness: float, dryness: float) -> bool:
 	return wetness > 0.001 or dryness > PUDDLE_CRUST_DRYNESS
+
+
+## Footstep surface under a planted foot (view-local space, the space
+## add_mud_footprint_at uses): the terrain cell, or a puddle when the foot lands
+## inside a puddle decal that rain has filled (R-1641). CityMapView overrides
+## this with the city's land-use rasters.
+func footstep_surface_at(foot_position: Vector3) -> StringName:
+	if definition == null or grid == null:
+		return &""
+	var logic := MapViewBridge.world_to_logic(foot_position, definition.cell_size)
+	var surface := SurfaceResolver.surface_at_logic_position(grid, definition.cell_size, logic)
+	return SurfaceResolver.with_puddle(surface, _foot_in_filled_puddle(foot_position))
+
+
+func _foot_in_filled_puddle(foot_position: Vector3) -> bool:
+	if _sky_weather == null or _scatter_root == null:
+		return false
+	if _sky_weather.puddle_wetness() < PUDDLE_STEP_MIN_WETNESS:
+		return false
+	var foot_global := global_transform * foot_position if is_inside_tree() else foot_position
+	for chunk in _scatter_root.get_children():
+		var puddles := chunk.get_node_or_null("Puddles") as MultiMeshInstance3D
+		if puddles == null or puddles.multimesh == null:
+			continue
+		var local := puddles.global_transform.affine_inverse() * foot_global
+		# Cheap reject: chunks are tens of cells wide, the foot is in one of them.
+		var bounds := puddles.multimesh.get_aabb().grow(0.5)
+		if not bounds.has_point(Vector3(local.x, bounds.get_center().y, local.z)):
+			continue
+		for index in puddles.multimesh.instance_count:
+			var decal := puddles.multimesh.get_instance_transform(index)
+			var uv := decal.affine_inverse() * local
+			if Vector2(uv.x, uv.z).length() < PUDDLE_WATER_RADIUS * PUDDLE_PLANE_HALF:
+				return true
+	return false
 
 
 func set_time_of_day(next_time: StringName) -> void:

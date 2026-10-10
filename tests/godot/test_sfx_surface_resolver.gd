@@ -37,7 +37,7 @@ func test_surface_families_fold_as_documented() -> void:
 		SurfaceResolver.SURFACE_STONE
 	)
 	assert_eq(
-		SurfaceResolver.surface_for_terrain(MapTypes.TERRAIN_MUD), SurfaceResolver.SURFACE_DIRT
+		SurfaceResolver.surface_for_terrain(MapTypes.TERRAIN_MUD), SurfaceResolver.SURFACE_MUD
 	)
 	assert_eq(
 		SurfaceResolver.surface_for_terrain(MapTypes.TERRAIN_HAY), SurfaceResolver.SURFACE_GRASS
@@ -60,7 +60,7 @@ func test_logic_position_samples_the_cell_under_the_foot() -> void:
 	)
 	assert_eq(
 		SurfaceResolver.surface_at_logic_position(grid, 32, Vector2(40.0, 10.0)),
-		SurfaceResolver.SURFACE_DIRT
+		SurfaceResolver.SURFACE_MUD
 	)
 	# Outside the grid and a missing grid must not invent a surface.
 	assert_eq(SurfaceResolver.surface_at_logic_position(grid, 32, Vector2(-8.0, 0.0)), &"")
@@ -129,29 +129,37 @@ func test_fallback_chain_prefers_the_exact_entry() -> void:
 ## onto the wood pool and grass onto the mud pool, so world_saaremaa knocked
 ## like a plank on its beaches and squelched like a swamp on its meadows.
 func test_stand_ins_never_name_another_material() -> void:
-	# dirt is the one documented fold: the first cut puts mud and dirt on one
-	# surface, so the mud pool is dirt's own pool.
-	var allowed: Dictionary = {SurfaceResolver.SURFACE_DIRT: [SurfaceResolver.VOCABULARY_MUD]}
+	# R-1641 gave dirt and mud recorded pools of their own, so no chain is left.
 	for surface: StringName in SurfaceResolver.SURFACES:
 		var chain: Array = SurfaceResolver.SURFACE_FALLBACKS.get(surface, [])
-		assert_eq(
-			chain,
-			allowed.get(surface, []),
-			"surface %s must not borrow another material's pool" % surface
-		)
+		assert_eq(chain, [], "surface %s must not borrow another material's pool" % surface)
 
 
-## In the shipped catalog every surface must resolve to a pool of its own
-## material. dirt is the one documented exception: the first cut folds mud and
-## dirt together, so dirt plays the mud pool.
+## In the shipped catalog every surface, puddle included, resolves to a pool of
+## its own material (R-1641).
 func test_shipped_catalog_resolves_each_surface_to_its_own_material() -> void:
 	var catalog := SfxCatalog.load_default()
 	for surface: StringName in SurfaceResolver.SURFACES:
 		var expected := surface
-		if surface == SurfaceResolver.SURFACE_DIRT:
-			expected = SurfaceResolver.VOCABULARY_MUD
 		assert_eq(
 			SurfaceResolver.resolve_footstep_sound_id(catalog, surface),
 			StringName("sfx.footstep.%s.walk" % expected),
 			"%s must play its own pool" % surface
 		)
+
+
+## A filled puddle under the sole is heard over the ground it lies on, but
+## never turns a board or a stream into a puddle (R-1641).
+func test_puddle_overrides_only_ground_surfaces() -> void:
+	for host: StringName in SurfaceResolver.PUDDLE_HOSTS:
+		assert_eq(SurfaceResolver.with_puddle(host, true), SurfaceResolver.SURFACE_PUDDLE)
+		assert_eq(SurfaceResolver.with_puddle(host, false), host)
+	assert_eq(
+		SurfaceResolver.with_puddle(SurfaceResolver.SURFACE_WOOD, true),
+		SurfaceResolver.SURFACE_WOOD
+	)
+	assert_eq(
+		SurfaceResolver.with_puddle(SurfaceResolver.SURFACE_WATER_SHALLOW, true),
+		SurfaceResolver.SURFACE_WATER_SHALLOW
+	)
+	assert_eq(SurfaceResolver.with_puddle(&"", true), &"")

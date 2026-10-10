@@ -4,8 +4,8 @@
 Why: every field recording we ship is Creative Commons licensed and therefore
 carries an attribution (BY) obligation. This script is the single source of
 truth that turns the machine-readable manifests (sounds/birds/manifest.csv,
-sounds/insects/manifest.csv, sounds/water/manifest.csv, and the R-1550
-sounds/sea and sounds/wind manifests) and the CC BY animal
+sounds/insects/manifest.csv, sounds/water/manifest.csv, the R-1550
+sounds/sea and sounds/wind manifests, and the R-1641 sounds/footsteps manifest) and the CC BY animal
 model manifest (assets/storybook/mammal_sources.json) into the human-readable
 CREDITS.md that is both committed to the repo and displayed in-game
 (Main Menu -> Credits).
@@ -196,6 +196,27 @@ def main() -> None:
             lic = license_name(row.get("license") or "")
             src = (row.get("page") or "").strip()
             line = f"- {title} - recorded by {author}. {lic}."
+            if src:
+                line += f" Source: {src}"
+            lines.append(line)
+        lines.append("")
+
+    # --- Footsteps (R-1641) ---------------------------------------------
+    steps_path = os.path.join(ROOT, "sounds/footsteps/manifest.csv")
+    if os.path.exists(steps_path):
+        # One manifest row per cut step; credit each recording once.
+        recordings = {}
+        for row in read_csv(steps_path):
+            key = ((row.get("page") or "").strip(), (row.get("title") or "").strip())
+            recordings.setdefault(key, row)
+        lines.append("## Footsteps")
+        lines.append("")
+        lines.append("CC0 Foley recordings, cut into single steps for each ground surface.")
+        lines.append("")
+        for (src, title), row in sorted(recordings.items(), key=lambda item: item[0][1]):
+            author = (row.get("author") or "Unknown author").strip()
+            lic = license_name(row.get("license") or "")
+            line = f"- {title or 'Untitled clip'} - recorded by {author}. {lic}."
             if src:
                 line += f" Source: {src}"
             lines.append(line)

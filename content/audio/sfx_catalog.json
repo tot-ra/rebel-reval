@@ -41,47 +41,24 @@
       "id": "sfx.footstep.wood.walk",
       "bus": "Footsteps",
       "streams": [
-        "res://sounds/footsteps/wood_walk_01.mp3",
-        "res://sounds/footsteps/wood_walk_02.mp3",
-        "res://sounds/footsteps/wood_walk_03.mp3",
-        "res://sounds/footsteps/wood_walk_04.mp3",
-        "res://sounds/footsteps/wood_walk_05.mp3"
+        "res://sounds/footsteps/wood_step_01.mp3",
+        "res://sounds/footsteps/wood_step_02.mp3",
+        "res://sounds/footsteps/wood_step_03.mp3",
+        "res://sounds/footsteps/wood_step_04.mp3",
+        "res://sounds/footsteps/wood_step_05.mp3"
       ],
-      "tier": "C",
+      "tier": "A",
       "source_ids": [
-        "sounds.footsteps.wood_walk_01",
-        "sounds.footsteps.wood_walk_02",
-        "sounds.footsteps.wood_walk_03",
-        "sounds.footsteps.wood_walk_04",
-        "sounds.footsteps.wood_walk_05"
+        "sounds.footsteps.wood_step_01",
+        "sounds.footsteps.wood_step_02",
+        "sounds.footsteps.wood_step_03",
+        "sounds.footsteps.wood_step_04",
+        "sounds.footsteps.wood_step_05"
       ],
-      "pitch_jitter": 0.08,
-      "volume_jitter_db": 2.0,
+      "pitch_jitter": 0.06,
+      "volume_jitter_db": 1.5,
       "no_repeat": 2,
-      "max_voices": 2,
-      "cooldown_ms": 90,
-      "spatial": "3d"
-    },
-    {
-      "id": "sfx.footstep.mud.walk",
-      "bus": "Footsteps",
-      "streams": [
-        "res://sounds/footsteps/mud_walk_01.mp3",
-        "res://sounds/footsteps/mud_walk_02.mp3",
-        "res://sounds/footsteps/mud_walk_03.mp3",
-        "res://sounds/footsteps/mud_walk_04.mp3"
-      ],
-      "tier": "C",
-      "source_ids": [
-        "sounds.footsteps.mud_walk_01",
-        "sounds.footsteps.mud_walk_02",
-        "sounds.footsteps.mud_walk_03",
-        "sounds.footsteps.mud_walk_04"
-      ],
-      "pitch_jitter": 0.08,
-      "volume_jitter_db": 2.0,
-      "no_repeat": 2,
-      "max_voices": 2,
+      "max_voices": 3,
       "cooldown_ms": 90,
       "spatial": "3d"
     },
@@ -89,22 +66,24 @@
       "id": "sfx.footstep.stone.walk",
       "bus": "Footsteps",
       "streams": [
-        "res://sounds/footsteps/stone_walk_01.mp3",
-        "res://sounds/footsteps/stone_walk_02.mp3",
-        "res://sounds/footsteps/stone_walk_03.mp3",
-        "res://sounds/footsteps/stone_walk_04.mp3"
+        "res://sounds/footsteps/stone_step_01.mp3",
+        "res://sounds/footsteps/stone_step_02.mp3",
+        "res://sounds/footsteps/stone_step_03.mp3",
+        "res://sounds/footsteps/stone_step_04.mp3",
+        "res://sounds/footsteps/stone_step_05.mp3"
       ],
-      "tier": "B",
+      "tier": "A",
       "source_ids": [
-        "sounds.footsteps.stone_walk_01",
-        "sounds.footsteps.stone_walk_02",
-        "sounds.footsteps.stone_walk_03",
-        "sounds.footsteps.stone_walk_04"
+        "sounds.footsteps.stone_step_01",
+        "sounds.footsteps.stone_step_02",
+        "sounds.footsteps.stone_step_03",
+        "sounds.footsteps.stone_step_04",
+        "sounds.footsteps.stone_step_05"
       ],
-      "pitch_jitter": 0.08,
-      "volume_jitter_db": 2.0,
+      "pitch_jitter": 0.06,
+      "volume_jitter_db": 1.5,
       "no_repeat": 2,
-      "max_voices": 2,
+      "max_voices": 3,
       "cooldown_ms": 90,
       "spatial": "3d"
     },
@@ -112,22 +91,24 @@
       "id": "sfx.footstep.grass.walk",
       "bus": "Footsteps",
       "streams": [
-        "res://sounds/footsteps/grass_walk_01.mp3",
-        "res://sounds/footsteps/grass_walk_02.mp3",
-        "res://sounds/footsteps/grass_walk_03.mp3",
-        "res://sounds/footsteps/grass_walk_04.mp3"
+        "res://sounds/footsteps/grass_step_01.mp3",
+        "res://sounds/footsteps/grass_step_02.mp3",
+        "res://sounds/footsteps/grass_step_03.mp3",
+        "res://sounds/footsteps/grass_step_04.mp3",
+        "res://sounds/footsteps/grass_step_05.mp3"
       ],
-      "tier": "B",
+      "tier": "A",
       "source_ids": [
-        "sounds.footsteps.grass_walk_01",
-        "sounds.footsteps.grass_walk_02",
-        "sounds.footsteps.grass_walk_03",
-        "sounds.footsteps.grass_walk_04"
+        "sounds.footsteps.grass_step_01",
+        "sounds.footsteps.grass_step_02",
+        "sounds.footsteps.grass_step_03",
+        "sounds.footsteps.grass_step_04",
+        "sounds.footsteps.grass_step_05"
       ],
-      "pitch_jitter": 0.08,
-      "volume_jitter_db": 2.0,
+      "pitch_jitter": 0.06,
+      "volume_jitter_db": 1.5,
       "no_repeat": 2,
-      "max_voices": 2,
+      "max_voices": 3,
       "cooldown_ms": 90,
       "spatial": "3d"
     },
@@ -135,22 +116,105 @@
       "id": "sfx.footstep.gravel.walk",
       "bus": "Footsteps",
       "streams": [
-        "res://sounds/footsteps/gravel_walk_01.mp3",
-        "res://sounds/footsteps/gravel_walk_02.mp3",
-        "res://sounds/footsteps/gravel_walk_03.mp3",
-        "res://sounds/footsteps/gravel_walk_04.mp3"
+        "res://sounds/footsteps/gravel_step_01.mp3",
+        "res://sounds/footsteps/gravel_step_02.mp3",
+        "res://sounds/footsteps/gravel_step_03.mp3",
+        "res://sounds/footsteps/gravel_step_04.mp3",
+        "res://sounds/footsteps/gravel_step_05.mp3",
+        "res://sounds/footsteps/gravel_step_06.mp3"
       ],
-      "tier": "B",
+      "tier": "A",
       "source_ids": [
-        "sounds.footsteps.gravel_walk_01",
-        "sounds.footsteps.gravel_walk_02",
-        "sounds.footsteps.gravel_walk_03",
-        "sounds.footsteps.gravel_walk_04"
+        "sounds.footsteps.gravel_step_01",
+        "sounds.footsteps.gravel_step_02",
+        "sounds.footsteps.gravel_step_03",
+        "sounds.footsteps.gravel_step_04",
+        "sounds.footsteps.gravel_step_05",
+        "sounds.footsteps.gravel_step_06"
       ],
-      "pitch_jitter": 0.08,
-      "volume_jitter_db": 2.0,
+      "pitch_jitter": 0.06,
+      "volume_jitter_db": 1.5,
       "no_repeat": 2,
-      "max_voices": 2,
+      "max_voices": 3,
+      "cooldown_ms": 90,
+      "spatial": "3d"
+    },
+    {
+      "id": "sfx.footstep.dirt.walk",
+      "bus": "Footsteps",
+      "streams": [
+        "res://sounds/footsteps/dirt_step_01.mp3",
+        "res://sounds/footsteps/dirt_step_02.mp3",
+        "res://sounds/footsteps/dirt_step_03.mp3",
+        "res://sounds/footsteps/dirt_step_04.mp3",
+        "res://sounds/footsteps/dirt_step_05.mp3"
+      ],
+      "tier": "A",
+      "source_ids": [
+        "sounds.footsteps.dirt_step_01",
+        "sounds.footsteps.dirt_step_02",
+        "sounds.footsteps.dirt_step_03",
+        "sounds.footsteps.dirt_step_04",
+        "sounds.footsteps.dirt_step_05"
+      ],
+      "pitch_jitter": 0.06,
+      "volume_jitter_db": 1.5,
+      "no_repeat": 2,
+      "max_voices": 3,
+      "cooldown_ms": 90,
+      "spatial": "3d"
+    },
+    {
+      "id": "sfx.footstep.mud.walk",
+      "bus": "Footsteps",
+      "streams": [
+        "res://sounds/footsteps/mud_step_01.mp3",
+        "res://sounds/footsteps/mud_step_02.mp3",
+        "res://sounds/footsteps/mud_step_03.mp3",
+        "res://sounds/footsteps/mud_step_04.mp3",
+        "res://sounds/footsteps/mud_step_05.mp3",
+        "res://sounds/footsteps/mud_step_06.mp3"
+      ],
+      "tier": "A",
+      "source_ids": [
+        "sounds.footsteps.mud_step_01",
+        "sounds.footsteps.mud_step_02",
+        "sounds.footsteps.mud_step_03",
+        "sounds.footsteps.mud_step_04",
+        "sounds.footsteps.mud_step_05",
+        "sounds.footsteps.mud_step_06"
+      ],
+      "pitch_jitter": 0.06,
+      "volume_jitter_db": 1.5,
+      "no_repeat": 2,
+      "max_voices": 3,
+      "cooldown_ms": 90,
+      "spatial": "3d"
+    },
+    {
+      "id": "sfx.footstep.puddle.walk",
+      "bus": "Footsteps",
+      "streams": [
+        "res://sounds/footsteps/puddle_step_01.mp3",
+        "res://sounds/footsteps/puddle_step_02.mp3",
+        "res://sounds/footsteps/puddle_step_03.mp3",
+        "res://sounds/footsteps/puddle_step_04.mp3",
+        "res://sounds/footsteps/puddle_step_05.mp3",
+        "res://sounds/footsteps/puddle_step_06.mp3"
+      ],
+      "tier": "A",
+      "source_ids": [
+        "sounds.footsteps.puddle_step_01",
+        "sounds.footsteps.puddle_step_02",
+        "sounds.footsteps.puddle_step_03",
+        "sounds.footsteps.puddle_step_04",
+        "sounds.footsteps.puddle_step_05",
+        "sounds.footsteps.puddle_step_06"
+      ],
+      "pitch_jitter": 0.06,
+      "volume_jitter_db": 1.5,
+      "no_repeat": 2,
+      "max_voices": 3,
       "cooldown_ms": 90,
       "spatial": "3d"
     },
@@ -158,22 +222,26 @@
       "id": "sfx.footstep.water_shallow.walk",
       "bus": "Footsteps",
       "streams": [
-        "res://sounds/footsteps/water_shallow_walk_01.mp3",
-        "res://sounds/footsteps/water_shallow_walk_02.mp3",
-        "res://sounds/footsteps/water_shallow_walk_03.mp3",
-        "res://sounds/footsteps/water_shallow_walk_04.mp3"
+        "res://sounds/footsteps/water_shallow_step_01.mp3",
+        "res://sounds/footsteps/water_shallow_step_02.mp3",
+        "res://sounds/footsteps/water_shallow_step_03.mp3",
+        "res://sounds/footsteps/water_shallow_step_04.mp3",
+        "res://sounds/footsteps/water_shallow_step_05.mp3",
+        "res://sounds/footsteps/water_shallow_step_06.mp3"
       ],
-      "tier": "B",
+      "tier": "A",
       "source_ids": [
-        "sounds.footsteps.water_shallow_walk_01",
-        "sounds.footsteps.water_shallow_walk_02",
-        "sounds.footsteps.water_shallow_walk_03",
-        "sounds.footsteps.water_shallow_walk_04"
+        "sounds.footsteps.water_shallow_step_01",
+        "sounds.footsteps.water_shallow_step_02",
+        "sounds.footsteps.water_shallow_step_03",
+        "sounds.footsteps.water_shallow_step_04",
+        "sounds.footsteps.water_shallow_step_05",
+        "sounds.footsteps.water_shallow_step_06"
       ],
-      "pitch_jitter": 0.08,
-      "volume_jitter_db": 2.0,
+      "pitch_jitter": 0.06,
+      "volume_jitter_db": 1.5,
       "no_repeat": 2,
-      "max_voices": 2,
+      "max_voices": 3,
       "cooldown_ms": 90,
       "spatial": "3d"
     },

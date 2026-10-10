@@ -9,6 +9,10 @@ const WALK_ANIMATION_MIN_SPEED := 5.0
 ## Logic px/s above which locomotion reads as running (midpoint between the
 ## player's walk and run speeds).
 const RUN_ANIMATION_MIN_SPEED := 170.0
+## World units (metres) from the player within which NPC foot plants are
+## sampled and heard (R-1641). Past it a step is inaudible under the city bed,
+## and skipping the skeleton update there keeps a crowd cheap.
+const NPC_FOOTSTEP_RADIUS := 16.0
 
 var _host: Node3D
 var _definition: MapDefinition
@@ -26,6 +30,8 @@ var _content_db: ContentDB
 var _request_screen_shake: Callable
 ## Set by MapViewRuntime to MapViewRuntimeAmbient.play_footstep (ADR 0035).
 var _footstep_callback: Callable
+## Set to MapViewRuntimeAmbient.play_npc_footstep (R-1641).
+var _npc_footstep_callback: Callable
 var _sample_owning_ground := false
 var _swimmer := MapViewSwimmerPresenter.new()
 
@@ -54,8 +60,9 @@ func rebind_view(map_definition: MapDefinition, map_view: MapView3D) -> void:
 	_sample_owning_ground = true
 
 
-func set_footstep_callback(callback: Callable) -> void:
+func set_footstep_callback(callback: Callable, npc_callback: Callable = Callable()) -> void:
 	_footstep_callback = callback
+	_npc_footstep_callback = npc_callback
 
 
 func set_screen_shake_callback(callback: Callable) -> void:
@@ -185,14 +192,13 @@ func sync_player(snap: bool, delta: float = 0.0) -> void:
 	if moving:
 		var planted_foot := _player_rig.consume_foot_plant()
 		if not planted_foot.is_empty():
-			var foot := _player_rig.foot_world_position(planted_foot)
-			if _sample_owning_ground:
-				foot = _local_world(foot)
+			var global_foot := _player_rig.foot_world_position(planted_foot)
+			var foot := _local_world(global_foot) if _sample_owning_ground else global_foot
 			_view.add_mud_footprint_at(foot, _player.velocity.normalized())
 			# Same contact event and the same sampling point as the mud print,
 			# so the sound matches the ground the sole actually hits.
 			if _footstep_callback.is_valid():
-				_footstep_callback.call(foot, speed)
+				_footstep_callback.call(foot, speed, global_foot)
 	else:
 		_player_rig.consume_foot_plant()
 	_sync_actor_health_ring(_player_rig, _player)
@@ -275,6 +281,25 @@ func _sync_view_actor(actor: Node2D, rig: SharedCharacterRig, snap: bool, delta:
 	rig.set_locomotion_speed(
 		actor_velocity.length() * MapViewBridge.world_scale(_definition.cell_size)
 	)
+	_emit_npc_footstep(rig, actor_velocity.length())
+
+
+## NPC steps ride the same rig contact event as the player's (R-1641), so a
+## walker's sound matches its stride on every map. Only rigs within
+## NPC_FOOTSTEP_RADIUS of the player are sampled.
+func _emit_npc_footstep(rig: SharedCharacterRig, speed: float) -> void:
+	if not _npc_footstep_callback.is_valid() or _player_rig == null:
+		return
+	if speed <= WALK_ANIMATION_MIN_SPEED or not rig.visible:
+		return
+	if rig.global_position.distance_to(_player_rig.global_position) > NPC_FOOTSTEP_RADIUS:
+		return
+	var planted_foot := rig.consume_foot_plant()
+	if planted_foot.is_empty():
+		return
+	var global_foot := rig.foot_world_position(planted_foot)
+	var foot := _local_world(global_foot) if _sample_owning_ground else global_foot
+	_npc_footstep_callback.call(foot, speed, global_foot)
 
 
 func _actor_in_current_map(actor: Node2D) -> bool:

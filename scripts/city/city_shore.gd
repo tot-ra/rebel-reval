@@ -170,6 +170,19 @@ static func _load_rasters(city_plan: CityPlan) -> void:
 	_raster_plan = city_plan.splat_path()
 
 
+## Land-use splat at `spot` (R paving, G packed earth, B sand, A mud), from the
+## shared raster cache; CitySurfaceSampler reads it for footsteps (R-1641).
+static func land_use_at(city_plan: CityPlan, spot: Vector2) -> Color:
+	_load_rasters(city_plan)
+	return _raster_at(city_plan, _splat, spot)
+
+
+## Road raster at `spot` (R body, G lateral offset, B wear, A verge).
+static func road_raster_at(city_plan: CityPlan, spot: Vector2) -> Color:
+	_load_rasters(city_plan)
+	return _raster_at(city_plan, _roads, spot)
+
+
 static func _raster_at(city_plan: CityPlan, image: Image, spot: Vector2) -> Color:
 	var t := (spot - city_plan.bounds.position) / city_plan.bounds.size * Vector2(image.get_size())
 	return image.get_pixel(

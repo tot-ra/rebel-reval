@@ -20,6 +20,7 @@ var plan: CityPlan
 var inside_building := -1
 ## WR-5 waves around rocks (WaterRippleSim in obstacle mode); null when off.
 var water_obstacle_sim: WaterRippleSimScript
+var _surface_sampler: CitySurfaceSampler
 
 
 static func create_city(city_plan: CityPlan) -> CityMapView:
@@ -299,6 +300,16 @@ func add_mud_footprint_at(
 
 func mud_wetness() -> float:
 	return 0.0
+
+
+## Footstep surface from the city's land-use rasters (R-1641); the district
+## grid lookup in MapView3D has no grid to read here.
+func footstep_surface_at(foot_position: Vector3) -> StringName:
+	if _surface_sampler == null:
+		_surface_sampler = CitySurfaceSampler.new(plan, water_depth_at)
+	var puddles := _sky_weather.puddle_wetness() if _sky_weather != null else 0.0
+	var dryness := _sky_weather.ground_dryness() if _sky_weather != null else 0.0
+	return _surface_sampler.surface_at(foot_position, puddles, dryness)
 
 
 func strike_vegetation(

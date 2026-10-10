@@ -6,10 +6,10 @@ uid="uid://cvbe0unuoa63a"
 
 [deps]
 
-files=["res://sounds/footsteps/manifest.file.translation", "res://sounds/footsteps/manifest.license.translation", "res://sounds/footsteps/manifest.source.translation", "res://sounds/footsteps/manifest.notes.translation"]
+files=["res://sounds/footsteps/manifest.title.translation", "res://sounds/footsteps/manifest.author.translation", "res://sounds/footsteps/manifest.license.translation", "res://sounds/footsteps/manifest.page.translation", "res://sounds/footsteps/manifest.file.translation", "res://sounds/footsteps/manifest.notes.translation"]
 
 source_file="res://sounds/footsteps/manifest.csv"
-dest_files=["res://sounds/footsteps/manifest.file.translation", "res://sounds/footsteps/manifest.license.translation", "res://sounds/footsteps/manifest.source.translation", "res://sounds/footsteps/manifest.notes.translation"]
+dest_files=["res://sounds/footsteps/manifest.title.translation", "res://sounds/footsteps/manifest.author.translation", "res://sounds/footsteps/manifest.license.translation", "res://sounds/footsteps/manifest.page.translation", "res://sounds/footsteps/manifest.file.translation", "res://sounds/footsteps/manifest.notes.translation"]
 
 [params]
 

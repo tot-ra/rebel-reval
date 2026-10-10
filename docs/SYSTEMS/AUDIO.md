@@ -1,6 +1,6 @@
 # Sound effects (audio)
 
-Status: implemented for Phases 0-1 (ADR 0035: policy, tooling, core runtime) and Phase 2 (slice pilot: surfaces, footsteps, doors, layered ambience - tasks **R-1357**, **R-1358**, **R-1382**, **R-1383**, partly **R-1356**), plus weather-driven sea surf and wind (task **R-1550**). Phases 3-6 (combat, fauna, space, act expansion) are planned.
+Status: implemented for Phases 0-1 (ADR 0035: policy, tooling, core runtime) and Phase 2 (slice pilot: surfaces, footsteps, doors, layered ambience - tasks **R-1357**, **R-1358**, **R-1382**, **R-1383**, partly **R-1356**; footsteps on every map and for NPCs with recorded pools - **R-1641**), plus weather-driven sea surf and wind (task **R-1550**). Phases 3-6 (combat, fauna, space, act expansion) are planned.
 
 Scope: every non-music sound. Music stays with [`music/README.md`](../../music/README.md) and `scripts/global/music_director.gd`. Decision record: [ADR 0035](../adr/0035-game-audio-sourcing-and-sfx-system.md).
 
@@ -9,46 +9,68 @@ Out of scope here: reverb and occlusion, ducking, combat and gear sounds, animal
 ## What exists
 
 - **Catalog** `content/audio/sfx_catalog.json` (`type: sfx_catalog`, schema `schemas/sfx_catalog.schema.json`). Stable IDs `sfx.*` and `amb.*`. Each entry names a `bus`, a `streams` pool, a `tier` (A licensed, B own recording, C AI), the `source_ids` that cover its streams in `assets/SOURCES.csv`, and optional `volume_db`, `pitch_jitter`, `volume_jitter_db`, `no_repeat`, `max_voices`, `cooldown_ms`, `spatial` (`none`, `2d`, `3d`), `max_distance`.
-- **Entries today**: `sfx.door.wood.use`, `sfx.footstep.wood.walk`, `sfx.footstep.mud.walk`, `sfx.footstep.stone.walk`, `sfx.footstep.grass.walk`, `sfx.footstep.gravel.walk`, `sfx.footstep.water_shallow.walk`, `sfx.water.emerge`, `sfx.water.submerge`, `amb.weather.rain_roof`, `amb.weather.rain_outdoor`, `amb.lower_town.bed`, `amb.forge.bed`, and the sea and wind loops `amb.sea.{calm,moderate,storm}` and `amb.wind.{light,strong,storm}` (**R-1550**). `sky_weather_roof_audio.gd` and `scenes/elements/door.gd` read the catalog; world item pickup (`sfx.item.pickup`, item field `gameplay.pickup.sfx_id`), the Harju Kings reputation cheer (`sfx.social.reaction.harju_kings_trusted`), the swim cues (`sfx.water.submerge`/`emerge` in `underwater_pass.gd`) and the Nunnatorn roof bed (`amb.weather.rain_roof`) were migrated onto the catalog by **R-1356**; entries may set a base `pitch` (default 1.0) beside `pitch_jitter`.
+- **Entries today**: `sfx.door.wood.use`, `sfx.footstep.{wood,stone,grass,gravel,dirt,mud,puddle,water_shallow}.walk`, `sfx.water.emerge`, `sfx.water.submerge`, `amb.weather.rain_roof`, `amb.weather.rain_outdoor`, `amb.lower_town.bed`, `amb.forge.bed`, and the sea and wind loops `amb.sea.{calm,moderate,storm}` and `amb.wind.{light,strong,storm}` (**R-1550**). `sky_weather_roof_audio.gd` and `scenes/elements/door.gd` read the catalog; world item pickup (`sfx.item.pickup`, item field `gameplay.pickup.sfx_id`), the Harju Kings reputation cheer (`sfx.social.reaction.harju_kings_trusted`), the swim cues (`sfx.water.submerge`/`emerge` in `underwater_pass.gd`) and the Nunnatorn roof bed (`amb.weather.rain_roof`) were migrated onto the catalog by **R-1356**; entries may set a base `pitch` (default 1.0) beside `pitch_jitter`.
 - **Tiers in use**: in-house ffmpeg synthesis counts as tier **B** (own material, rights assigned), not tier C: tier C is model output from Stable Audio or ElevenLabs. `amb.weather.rain_roof` was relabelled from C to B for that reason.
 - **Runtime** `scripts/audio/sfx_catalog.gd` (`SfxCatalog`, loader) and `scripts/audio/sfx_player.gd` (`SfxPlayer`, a plain Node a scene owns, not an autoload). `SfxPlayer.play(&"sfx.footstep.wood.walk", position)` picks a stream, applies jitter, enforces `max_voices` and `cooldown_ms`, and routes to the entry's bus. Callers never reference files.
 - **Variation**: `pick_stream_index` avoids the last `no_repeat` picks (window clamped to pool size minus one) using the player's own seeded RNG. It does not use `AudioStreamRandomizer`, so the pick is deterministic and testable. The RNG never affects game state; nothing in the catalog is saved.
 - **Buses**: `Ambience`, `Weather`, `Footsteps`, `Combat`, `UI` are children of `SFX` in `audio/default_bus_layout.tres`, which `project.godot` names under `[audio] buses/default_bus_layout`. That path must stay inside version control: `/build/` is gitignored, so a layout kept there is absent from a fresh clone, from CI and from the export, and Godot then routes every catalog sound straight to `Master`, past the SFX slider (**R-1382**). The settings screen still exposes only Music, SFX and Voice sliders.
 
-## Surfaces and footsteps (Phase 2, **R-1357**)
+## Surfaces and footsteps (Phase 2, **R-1357**, **R-1641**)
 
-`scripts/audio/surface_resolver.gd` (`SurfaceResolver`) folds the twenty authored terrain IDs into the six first-cut surfaces. Listeners classify surface *type* reliably and materials inside a type poorly, so the folding is inaudible:
+The player and every walking NPC near the player make one footstep per foot contact, on every map: district and debug maps, streamed locations and the seamless city. The sound follows what the sole lands on - flagstone, boards, turf, packed earth, wet mud, gravel and sand, a rain puddle, shallow water.
+
+`scripts/audio/surface_resolver.gd` (`SurfaceResolver`) defines eight surfaces and folds the twenty authored terrain IDs into them. Listeners classify surface *type* reliably and materials inside a type poorly, so the folding is inaudible:
 
 | Surface | Terrains |
 |---------|----------|
 | `wood` | `timber_floor` |
 | `stone` | `stone`, `cobblestone`, `castle_paving`, `plaster` |
-| `dirt` | `dirt`, `mud`, `farm_soil`, `bog`, `forest_floor` |
+| `dirt` | `dirt`, `farm_soil`, `forest_floor` |
+| `mud` | `mud`, `bog` |
 | `grass` | `grass`, `meadow`, `hay`, `straw` |
 | `gravel` | `sand`, `coast_sand`, `ash` |
 | `water_shallow` | `shallow_water`, `water`, `river_water` |
+| `puddle` | none: reported where a filled puddle lies under the foot |
 
-`deep_water` resolves to `&""` (silent): that is swimming, and `PlayerSwimState` owns those sounds. An unknown terrain is silent rather than guessed.
+`deep_water` resolves to `&""` (silent): that is swimming, and `PlayerSwimState` owns those sounds. An unknown terrain is silent rather than guessed. `SurfaceResolver.with_puddle(surface, in_puddle)` turns a ground surface (`PUDDLE_HOSTS`: stone, dirt, mud, grass, gravel) into `puddle`; a board or a stream never becomes a puddle.
 
-Sound IDs are `sfx.footstep.<surface>.<gait>` with gaits `walk`, `run`, `sneak`; gait comes from logic speed (`RUN_SPEED_THRESHOLD`, the same threshold the run animation uses).
+Sound IDs are `sfx.footstep.<surface>.<gait>` with gaits `walk`, `run`, `sneak`; gait comes from logic speed (`RUN_SPEED_THRESHOLD`, the same threshold the run animation uses). Only `walk` pools exist; `run` falls back to the same surface at a walk.
 
-**A stand-in may only name the same material** (**R-1383**). `SURFACE_FALLBACKS` is empty for every surface except `dirt`, which chains to the `mud` pool because the first cut deliberately folds those two terrains into one surface. A missing pool therefore resolves to `&""` and the step is silent.
+**A stand-in may only name the same material** (**R-1383**). Every surface has a pool of its own since **R-1641**, so `SURFACE_FALLBACKS` is empty and a missing pool resolves to `&""` (silent). Earlier phases borrowed across materials and the result was audible as a defect (`world_saaremaa` knocked like a plank on its beaches); a wrong surface type is heard immediately, a missing step is not. Adding a catalog entry retires a silent surface with no code change.
 
-Earlier phases borrowed across materials (`stone` and `gravel` on the `wood` pool, `grass` on the `mud` pool) and the result was audible as a defect outside the slice: walking `world_saaremaa` knocked like a plank on its beaches and squelched like a swamp on its meadows. Listeners classify surface *type* reliably, so a wrong type is heard immediately, while a missing step is not heard as a defect. Silence is the correct placeholder; a neighbour's pool is not.
+### Where the surface comes from
 
-Chains are flat data and are not resolved recursively. **Adding the real entry to the catalog retires the placeholder with no code change** - that is the ADR's replaceability rule, so licensed or recorded pools can land through `AUDIO-4` alone.
+`FootstepAudio` asks the map view: `MapView3D.footstep_surface_at(foot_position)` (view-local space, the space `add_mud_footprint_at` uses).
+
+- **District, debug and streamed maps** (`MapView3D`): the terrain cell under the foot, then `puddle` when the foot lands inside a scatter puddle decal (`Puddles` MultiMesh per chunk) while `SkyWeather3D.puddle_wetness()` is at least `PUDDLE_STEP_MIN_WETNESS` (0.02, where the decal shader shows water). The waterline radius matches `map_view_puddle.gdshader` without its outline noise.
+- **Seamless city** (`CityMapView` → `scripts/audio/city_surface_sampler.gd`, `CitySurfaceSampler`): the city has no terrain grid, so the sampler reads what `city_ground.gdshader` paints. First match wins: water over the walking surface (`water_depth_at`) → `water_shallow`; a bridge deck → `wood`; an interior site floor → `stone`, except `site.kalev_smithy` (beaten earth, `dirt`); any other building shell → `wood`, `church`/`chapel` → `stone`; ground below 1 m on a coastal plan → `gravel` (beach sand); otherwise the splat layer with the largest share above 0.5 (R paving `stone`, G packed earth, fields and cart roads `dirt`, B sand `gravel`, A mud `mud`), else `grass`. Rasters come from `CityShore.land_use_at` / `road_raster_at`, the cache `CityShore` and `CityGrass` already use. On `dirt` and `mud` a rain puddle is heard where the shader's earth basins hold water: `puddle_depth` ports the `hollow * soft` basin, its noise (`hash12`, `value_noise`, `mud_height`) and the water level `1.05 - puddles * 0.75`, and baked ground (`ground_dryness` above 0.3) holds none. Rut and footprint pools, which the shader only fills near the camera, are left out.
+
+### Who makes steps
+
+`MapViewRuntimeActors` consumes `SharedCharacterRig.consume_foot_plant()` - the rig's own contact event, never a timer - for the player and for each registered NPC rig (citizens, named NPCs, site people, guards). The player event also places the mud print. NPC rigs are sampled only while moving and within `NPC_FOOTSTEP_RADIUS` (16 m) of the player, which keeps a crowd cheap. Animals and the instanced crowd (`CrowdRenderer`, no skeleton) make no steps.
+
+`MapViewRuntimeAmbient` owns two `FootstepAudio` nodes: `FootstepAudio` for the player and `NpcFootstepAudio` for NPCs, with its own variation RNG, its own voice budget (each pool caps at `max_voices` 3 per `SfxPlayer`, so a crowd never steals the player's steps) and `NPC_FOOTSTEP_VOLUME_OFFSET_DB` (-5 dB). Voices are `AudioStreamPlayer3D` at the foot's global position (`sound_position`), so a step on a streamed location offset from the world origin still plays where the foot is. `MapViewRuntimeBootstrap` wires both callbacks on district and hosted maps; `CityRuntime._install_footsteps` wires them in the seamless city, which had no footstep audio before **R-1641**. Disable with `MapViewRuntime.set_footstep_audio_enabled(false)`; read `footstep_played_count()`, `last_footstep_sound_id()` and `last_footstep_surface()` for logs and the debug overlay (player steps only).
 
 ### One-shots only
 
-A footstep or door entry is played once per event, so **every stream in a `sfx.footstep.*` or `sfx.door.*` pool must be a single impact**, not a walk cycle or a loop. `tools/validate_sfx_catalog.py` enforces a `ONE_SHOT_MAX_SECONDS` (1.5 s) cap per stream, reading durations with the MPEG frame parser in `tools/verify_runtime_audio_budget.py` (no ffprobe, so it runs in CI); `tests/godot/test_sfx_coverage.gd::test_one_shot_pools_hold_one_shots` repeats the check against what Godot imported.
+A footstep or door entry is played once per event, so **every stream in a `sfx.footstep.*` or `sfx.door.*` pool must be a single impact**, not a walk cycle or a loop. `tools/validate_sfx_catalog.py` enforces a `ONE_SHOT_MAX_SECONDS` (1.5 s) cap per stream, reading durations with the MPEG frame parser in `tools/verify_runtime_audio_budget.py` (no ffprobe, so it runs in CI); `tests/godot/test_sfx_coverage.gd::test_one_shot_pools_hold_one_shots` repeats the check against what Godot imported. (The first phase-2 catalog pointed the pools at the 5-8 s walk cycles `sounds/walk_wood.mp3` and `sounds/walking_on_mud_stable_audio_3.mp3`; every foot plant started a whole cycle. Those clips stay in `sounds/` and must never be named by a one-shot entry.)
 
-This is a guard against a real defect: the first phase-2 catalog pointed both footstep pools at `sounds/walk_wood.mp3` (5.0 s) and `sounds/walking_on_mud_stable_audio_3.mp3` (8.0 s), which are continuous *walk cycles*. Every foot plant started a whole cycle, up to `max_voices` of them overlapped, and they kept sounding after the player stopped. Those two clips remain in `sounds/` as cycle material and must never be named by a one-shot entry again.
+### Footstep material (R-1641)
 
-The `wood` and `mud` pools are single steps cut out of those cycles by `python3 tools/audio/slice_footstep_oneshots.py`: `sounds/footsteps/wood_walk_01..05.mp3` (115-260 ms) and `mud_walk_01..04.mp3`. The cut offsets are documented constants, so regeneration is byte-stable; each slice is mono (the pools play through `AudioStreamPlayer3D`, where a baked stereo image fights positional panning) and RMS-matched so variations do not jump in level. The mud pool is smaller because that source is a dense continuous squelch with only four separable steps.
+Every pool is a recording of real steps, tier **A**, CC0, built by `python3 tools/audio/build_footstep_pools.py` into `sounds/footsteps/<surface>_step_NN.mp3` (5-6 variations per surface, 105-780 ms, mono 44.1 kHz 128 kbps):
 
-The other four pools are synthesised by `python3 tools/audio/generate_footstep_oneshots.py` (**R-1383**): `sounds/footsteps/{stone,grass,gravel,water_shallow}_walk_01..04.mp3`, four variations each, 120-275 ms. Each clip is one shaped noise burst - two layers for water, spray over the low slap of displaced water - with a percussive attack and an exponential decay, filtered to the material (bright transient with a mid ring for flagstone, band-limited rustle with no low end for grass, a fast tremolo that chops the noise into grains for gravel and sand). Levels are matched to the sliced pools by gain to an RMS target plus a limiter at the peak ceiling, because a synthesised impact has a much higher crest factor and a peak-capped gain would leave these pools audibly quieter. Seeds are constants, so regeneration is byte-stable, and `--print-sources` prints the `assets/SOURCES.csv` rows. These are tier **B** placeholders for recorded or licensed Foley, not a final sound.
+| Surface | Source |
+|---------|--------|
+| `wood`, `stone`, `grass` | Kenney, *Impact Sounds* (footstep_wood, footstep_concrete, footstep_grass one-shots) |
+| `gravel` | GiocoSound, FS 401345 *SFX_Steps_Gravel_Walk* |
+| `dirt` | aglinder, FS 264469 *Footsteps Dirt 01* |
+| `mud` | BenDrain, FS 488068 and 488069 *Footsteps_Mud_01/02* |
+| `puddle` | j1987, FS 106395 *puddlewalk*; ChristopherJngs, FS 861369 *Splashing Footsteps Shallow Water* |
+| `water_shallow` | aglinder, FS 265582 *Footsteps Water 01* |
 
-`scripts/audio/footstep_audio.gd` (`FootstepAudio`) plays one voice per animation foot plant. `MapViewRuntimeActors.sync_player` already consumes `SharedCharacterRig.consume_foot_plant()` for mud prints and now calls the same event through `MapViewRuntime` → `MapViewRuntimeAmbient.play_footstep`, sampling terrain under the planted foot (not under the actor pivot). Cadence therefore comes from the rig, never from a timer inside a clip. Disable with `MapViewRuntime.set_footstep_audio_enabled(false)`; read `footstep_played_count()`, `last_footstep_sound_id()` and `last_footstep_surface()` for logs and the debug overlay.
+Kenney clips are already single steps; Freesound walks are cut at fixed onset offsets (constants in the tool, each a strong step with a clean gap to the next). Each clip is high-passed (50-90 Hz: several walks carry handling rumble below 60 Hz), faded in over 3 ms and out over its last 40 %, and levelled so its loudest 50 ms window meets a per-surface target (-14 dBFS for wood, stone, puddle and water, -16 to -17 for gravel, mud and dirt, -19 for grass: a step on turf is quieter than a heel on flagstone). Gain is capped at a -3 dBFS peak instead of limited, to keep the transient. Sources are cached in `build/audio_sources/` and pinned by sha256; the tool writes `sounds/footsteps/manifest.csv` (credited in `CREDITS.md`) and prints the `assets/SOURCES.csv` rows with `--print-sources`. It replaced the placeholder tools `slice_footstep_oneshots.py` (AI walk-cycle cuts) and `generate_footstep_oneshots.py` (noise synthesis).
+
+Before/after spectrograms of every pool: [footstep_pools_r1641.png](../reports/images/footstep_pools_r1641.png).
 
 ## Ambience layers (Phase 2, **R-1358**)
 
@@ -103,7 +125,7 @@ Verify: `godot --headless --path . --script tools/run_godot_tests.gd -- --filter
 2. Add or extend an entry in `content/audio/sfx_catalog.json`. A new footstep pool needs no code change: `sfx.footstep.<surface>.<gait>` is picked up by `SurfaceResolver` automatically.
 3. Run the verification below.
 
-Licensed sea and wind loops are regenerated by `python3 tools/audio/generate_sea_wind_beds.py`. In-house placeholder material is regenerated deterministically: `python3 tools/audio/generate_ambience_beds.py` (beds and the exterior rain overlay), `tools/audio/generate_rain_roof_clips.py` (roof loop), `python3 tools/audio/slice_footstep_oneshots.py` (wood and mud one-shots) and `python3 tools/audio/generate_footstep_oneshots.py` (stone, grass, gravel and shallow-water one-shots). The bed and slice tools write their `sounds/<dir>/manifest.csv` rows; the two footstep tools print their `assets/SOURCES.csv` rows with `--print-sources`.
+Licensed sea and wind loops are regenerated by `python3 tools/audio/generate_sea_wind_beds.py`. In-house placeholder material is regenerated deterministically: `python3 tools/audio/generate_ambience_beds.py` (beds and the exterior rain overlay) and `tools/audio/generate_rain_roof_clips.py` (roof loop); the bed tool writes its `sounds/<dir>/manifest.csv` rows. Recorded footstep pools are rebuilt by `python3 tools/audio/build_footstep_pools.py` (see Footstep material).
 
 ## Verify
 
@@ -113,12 +135,12 @@ python3 tools/validate_asset_sources.py
 python3 tools/verify_weather_audio_clips.py
 python3 -m unittest tests.python.test_sfx_catalog -v
 godot --headless --path . --script tools/run_godot_tests.gd -- \
-  --filter=test_sfx_catalog,test_sfx_player_no_repeat,test_sfx_surface_resolver,test_sfx_footsteps,test_sfx_ambience,test_sfx_sea_wind,test_sfx_coverage,test_weather_audio_clips
+  --filter=test_sfx_catalog,test_sfx_player_no_repeat,test_sfx_surface_resolver,test_sfx_footsteps,test_city_surface_sampler,test_sfx_ambience,test_sfx_sea_wind,test_sfx_coverage,test_weather_audio_clips
 ```
 
 `tests/godot/test_sfx_coverage.gd` is the coverage gate: every surface and gait must resolve to an existing catalog entry, every terrain the two pilot maps author must sound, and every ID an ambience profile names must exist.
 
-Session log (evidence for the phase-2 verify lines and the input to a listening review) - boots both pilot locations, walks a square circuit, records the triggered IDs:
+Session log (evidence for the phase-2 verify lines and the input to a listening review) - boots the forge and the seamless city, walks a square circuit, records the triggered player IDs and surfaces and the NPC step count:
 
 ```bash
 godot --headless --path . --script tools/capture_sfx_session_log.gd -- \
@@ -128,9 +150,11 @@ godot --headless --path . --script tools/capture_sfx_session_log.gd -- \
 ## Limits
 
 - ADR Open questions 1, 2 and 4-6 (xeno-canto share-alike, **budget**, disclosure, Sonniss text, loudness) are unresolved. Open question 3 (voice) is answered in the ADR.
-- **Placeholder audio.** All six surfaces now have a pool of their own material, but only `wood` and `mud` come from recorded-style material (cut from two AI-generated walk cycles); `stone`, `grass`, `gravel` and `water_shallow` are in-house noise synthesis and have not had a listening review. The three beds (`amb.lower_town.bed`, `amb.forge.bed`, `amb.weather.rain_outdoor`) are in-house synthesis, not recordings. Mid and spot layers are implemented and tested but have no content. Forge tool sounds (hammer, anvil, bellows, quench) do not exist. All of this is content, waiting on the budget decision (**R-1359**).
-- Footstep levels have not had a listening pass. The pools are RMS-matched to each other, but the `Footsteps` bus trim against ambience and music is still at 0 dB and no catalog `volume_db` is set.
-- Footsteps fire for the player only. NPC and animal foot plants are not wired.
-- No separate footstep pool per shoe type, and no `sneak` gait in gameplay yet.
+- **Placeholder audio.** Footstep pools are recorded CC0 Foley since **R-1641**, but have had no listening review in game. The three beds (`amb.lower_town.bed`, `amb.forge.bed`, `amb.weather.rain_outdoor`) are in-house synthesis, not recordings. Mid and spot layers are implemented and tested but have no content. Forge tool sounds (hammer, anvil, bellows, quench) do not exist. All of this is content, waiting on the budget decision (**R-1359**).
+- Footstep levels are set by measurement (per-surface peak-window targets), not by ear; the `Footsteps` bus trim against ambience and music is still at 0 dB and no catalog `volume_db` is set. `NPC_FOOTSTEP_VOLUME_OFFSET_DB` (-5 dB) is likewise untuned.
+- Animals and the instanced crowd make no footsteps; NPC rigs beyond 16 m from the player are not sampled.
+- Only `walk` pools exist: running reuses them (no heavier run steps), there is no `sneak` gait in gameplay, and no pool per shoe type (Kenney steps are hard soles, the Freesound walks boots).
+- City puddles follow the shader's earth basins only; water standing in cart ruts and footprints near the camera is silent. District puddles test the decal's mean waterline, not its noisy outline.
+- Interior floors are inferred from building kind and site (houses wood, churches and site floors stone, the smithy earth); `content/world/*/sites/*.json` floors carry no material field yet.
 - Settings expose one SFX slider; the new buses have no individual sliders.
 - Sea and wind loops (**R-1550**) have had no listening review: tier balance, the 180 m falloff and the `volume_db` trims (-6 dB sea, -8 dB wind) are set by measurement, not by ear. MP3 encoder padding can leave a few milliseconds of gap at the loop point. Surf is one non-positional stereo bed: it does not pan toward the shore, and a quay sounds like a beach (no harbour-lap tier).

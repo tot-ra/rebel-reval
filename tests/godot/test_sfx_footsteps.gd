@@ -22,7 +22,7 @@ func _catalog() -> SfxCatalog:
 				{
 					"id": "sfx.footstep.grass.walk",
 					"bus": "Footsteps",
-					"streams": ["res://sounds/footsteps/grass_walk_01.mp3"],
+					"streams": ["res://sounds/footsteps/grass_step_01.mp3"],
 					"spatial": "3d",
 				},
 			]
@@ -95,4 +95,38 @@ func test_unconfigured_controller_is_silent() -> void:
 	var footsteps: FootstepAudio = FootstepAudioScript.new()
 	(Engine.get_main_loop() as SceneTree).root.add_child(footsteps)
 	assert_eq(footsteps.on_foot_plant(Vector3.ZERO, 60.0), &"")
+	footsteps.queue_free()
+
+
+## The map view answers the surface on every map (R-1641): a bound provider
+## wins over the grid, which is how the seamless city, with no grid at all,
+## gets its steps.
+func test_surface_provider_overrides_the_grid() -> void:
+	var footsteps := _install()
+	var definition := MapDefinition.new()
+	definition.cell_size = CELL_SIZE
+	footsteps.configure(
+		definition, null, func(_foot: Vector3) -> StringName: return SurfaceResolver.SURFACE_GRASS
+	)
+	assert_eq(footsteps.on_foot_plant(_foot_in_cell(0), 60.0), &"sfx.footstep.grass.walk")
+	assert_eq(footsteps.last_surface(), SurfaceResolver.SURFACE_GRASS)
+	footsteps.queue_free()
+
+
+## NPC steps play on their own instance, lowered by volume_offset_db, and at
+## the global sound position when one is given.
+func test_volume_offset_and_sound_position_apply_to_the_voice() -> void:
+	var footsteps := _install()
+	footsteps.volume_offset_db = -5.0
+	var sound_at := Vector3(100.0, 2.0, -40.0)
+	assert_eq(
+		footsteps.on_foot_plant(_foot_in_cell(0), 60.0, sound_at), &"sfx.footstep.wood.walk"
+	)
+	var voice: AudioStreamPlayer3D = null
+	for child in footsteps.find_children("*", "AudioStreamPlayer3D", true, false):
+		voice = child as AudioStreamPlayer3D
+	assert_true(voice != null, "a 3D voice must play")
+	if voice != null:
+		assert_true(voice.volume_db <= -4.0, "the NPC offset must lower the voice")
+		assert_eq(voice.position, sound_at)
 	footsteps.queue_free()

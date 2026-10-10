@@ -23,6 +23,8 @@ const SEA_PROBE_INTERVAL := 0.5
 ## City ground below this (world y, sea surface at 0) counts as open sea; the
 ## margin keeps wet sand at the waterline from reading as sea.
 const CITY_SEA_GROUND_Y := -0.3
+## NPC steps sit this far under the player's own (R-1641): heard, not leading.
+const NPC_FOOTSTEP_VOLUME_OFFSET_DB := -5.0
 
 var _host: Node3D
 var _definition: MapDefinition
@@ -41,6 +43,7 @@ var _insect_audio
 var _insect_audio_enabled := true
 var _music_zone_binder
 var _footstep_audio
+var _npc_footstep_audio
 var _footstep_audio_enabled := true
 var _ambience
 var _ambience_enabled := true
@@ -89,8 +92,7 @@ func rebind_map(map_definition: MapDefinition, map_view: MapView3D) -> void:
 		_insect_audio.configure(_definition.map_id, insect_context)
 	if _music_zone_binder != null:
 		_music_zone_binder.configure(_definition, _player)
-	if _footstep_audio != null:
-		_footstep_audio.configure(_definition, _terrain_grid())
+	_configure_footstep_audio()
 	if _ambience != null:
 		_ambience.configure(
 			AmbienceProfilesScript.profile_for_map(_definition.map_id), hash(_definition.map_id)
@@ -125,22 +127,41 @@ func sync(delta: float, cycle_progress: float) -> void:
 ## Foot-contact entry point handed to MapViewRuntimeActors (ADR 0035 phase 2).
 ## Returns the catalog ID that played, or &"" when nothing did, so the headless
 ## footstep log can record the triggered IDs.
-func play_footstep(foot_world_position: Vector3, speed: float) -> StringName:
+func play_footstep(
+	foot_world_position: Vector3, speed: float, sound_position: Variant = null
+) -> StringName:
 	if _footstep_audio == null:
 		return &""
-	return _footstep_audio.on_foot_plant(foot_world_position, speed)
+	return _footstep_audio.on_foot_plant(foot_world_position, speed, sound_position)
+
+
+## Same contact event for a walking NPC near the listener (R-1641), on its own
+## quieter voice budget.
+func play_npc_footstep(
+	foot_world_position: Vector3, speed: float, sound_position: Variant = null
+) -> StringName:
+	if _npc_footstep_audio == null:
+		return &""
+	return _npc_footstep_audio.on_foot_plant(foot_world_position, speed, sound_position)
 
 
 func set_footstep_audio_enabled(enabled: bool) -> void:
 	_footstep_audio_enabled = enabled
-	if _footstep_audio != null:
-		_footstep_audio.set_audio_enabled(enabled)
+	for audio: Variant in [_footstep_audio, _npc_footstep_audio]:
+		if audio != null:
+			audio.set_audio_enabled(enabled)
 
 
 func footstep_played_count() -> int:
 	if _footstep_audio == null:
 		return 0
 	return _footstep_audio.played_count()
+
+
+func npc_footstep_played_count() -> int:
+	if _npc_footstep_audio == null:
+		return 0
+	return _npc_footstep_audio.played_count()
 
 
 func last_footstep_sound_id() -> StringName:
@@ -307,8 +328,24 @@ func _install_footstep_audio() -> void:
 	_footstep_audio = FootstepAudioScript.new()
 	_footstep_audio.name = "FootstepAudio"
 	_host.add_child(_footstep_audio)
-	_footstep_audio.configure(_definition, _terrain_grid())
-	_footstep_audio.set_audio_enabled(_footstep_audio_enabled)
+	_npc_footstep_audio = FootstepAudioScript.new()
+	_npc_footstep_audio.name = "NpcFootstepAudio"
+	_npc_footstep_audio.rng_label = "npc_footsteps"
+	_npc_footstep_audio.volume_offset_db = NPC_FOOTSTEP_VOLUME_OFFSET_DB
+	_host.add_child(_npc_footstep_audio)
+	_configure_footstep_audio()
+	set_footstep_audio_enabled(_footstep_audio_enabled)
+
+
+## The view answers the surface (terrain grid plus puddles on district maps,
+## land-use rasters in the city), so both maps share one footstep path.
+func _configure_footstep_audio() -> void:
+	var provider := Callable()
+	if _view != null and is_instance_valid(_view):
+		provider = Callable(_view, &"footstep_surface_at")
+	for audio: Variant in [_footstep_audio, _npc_footstep_audio]:
+		if audio != null:
+			audio.configure(_definition, _terrain_grid(), provider)
 
 
 func _install_ambience() -> void:

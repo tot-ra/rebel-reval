@@ -106,6 +106,19 @@ CC0 field recordings of surf and wind, cut into seamless loops that crossfade wi
 - Storm waves breaking on a beach - recorded by chris_dagorne. CC0 1.0 (Public Domain). Source: https://freesound.org/people/chris_dagorne/sounds/426076/
 - Strong wind in a tree - recorded by felix.blume. CC0 1.0 (Public Domain). Source: https://freesound.org/people/felix.blume/sounds/187756/
 
+## Footsteps
+
+CC0 Foley recordings, cut into single steps for each ground surface.
+
+- Footsteps Dirt 01 - recorded by aglinder. CC0 1.0 (Public Domain). Source: https://freesound.org/people/aglinder/sounds/264469/
+- Footsteps Water 01 - recorded by aglinder. CC0 1.0 (Public Domain). Source: https://freesound.org/people/aglinder/sounds/265582/
+- Footsteps_Mud_01 - recorded by BenDrain. CC0 1.0 (Public Domain). Source: https://freesound.org/people/BenDrain/sounds/488068/
+- Footsteps_Mud_02 - recorded by BenDrain. CC0 1.0 (Public Domain). Source: https://freesound.org/people/BenDrain/sounds/488069/
+- Impact Sounds (footstep set) - recorded by Kenney. CC0 1.0 (Public Domain). Source: https://kenney.nl/assets/impact-sounds
+- SFX_Steps_Gravel_Walk - recorded by GiocoSound. CC0 1.0 (Public Domain). Source: https://freesound.org/people/GiocoSound/sounds/401345/
+- Splashing Footsteps Shallow Water - recorded by ChristopherJngs. CC0 1.0 (Public Domain). Source: https://freesound.org/people/ChristopherJngs/sounds/861369/
+- puddlewalk - recorded by j1987. CC0 1.0 (Public Domain). Source: https://freesound.org/people/j1987/sounds/106395/
+
 ## Map and elevation data
 
 The seamless Reval city follows the surviving street plan, plot boundaries, towers and cliff lines of Tallinn Old Town, corrected to spring 1343 by the Reval Rebel authors.

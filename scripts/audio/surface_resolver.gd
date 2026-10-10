@@ -2,30 +2,37 @@ class_name SurfaceResolver
 extends RefCounted
 
 ## Maps authored terrain IDs onto the footstep surface vocabulary (ADR 0035
-## phase 2). The first cut covers six surfaces; the terrain palette has twenty,
-## so several terrains share one surface. Listeners classify surface *type*
-## reliably and materials inside a type poorly (Turchet/Nordahl/Serafin), so
-## folding hay into grass or farm soil into dirt is cheap and inaudible.
+## phase 2). Eight surfaces cover the twenty-terrain palette, so several
+## terrains share one surface. Listeners classify surface *type* reliably and
+## materials inside a type poorly (Turchet/Nordahl/Serafin), so folding hay into
+## grass or farm soil into dirt is cheap and inaudible. Wet mud and a puddle are
+## different types to the ear (squelch, splash), so they are surfaces of their
+## own since R-1641.
 ##
 ## Nothing here touches game state: callers pass a terrain grid or a terrain ID
 ## and get a StringName back.
 
 const SURFACE_WOOD := &"wood"
 const SURFACE_STONE := &"stone"
-## dirt and mud share one surface in the first cut.
 const SURFACE_DIRT := &"dirt"
+const SURFACE_MUD := &"mud"
 const SURFACE_GRASS := &"grass"
-## gravel and sand share one surface in the first cut.
+## gravel and sand share one surface.
 const SURFACE_GRAVEL := &"gravel"
 const SURFACE_WATER_SHALLOW := &"water_shallow"
+## Standing rain water over another surface. No terrain maps to it: the view
+## reports it where a visible puddle lies under the foot (R-1641).
+const SURFACE_PUDDLE := &"puddle"
 
 const SURFACES: Array[StringName] = [
 	SURFACE_WOOD,
 	SURFACE_STONE,
 	SURFACE_DIRT,
+	SURFACE_MUD,
 	SURFACE_GRASS,
 	SURFACE_GRAVEL,
 	SURFACE_WATER_SHALLOW,
+	SURFACE_PUDDLE,
 ]
 
 const GAIT_WALK := &"walk"
@@ -46,9 +53,9 @@ const TERRAIN_SURFACES: Dictionary = {
 	MapTypes.TERRAIN_CASTLE_PAVING: SURFACE_STONE,
 	MapTypes.TERRAIN_PLASTER: SURFACE_STONE,
 	MapTypes.TERRAIN_DIRT: SURFACE_DIRT,
-	MapTypes.TERRAIN_MUD: SURFACE_DIRT,
+	MapTypes.TERRAIN_MUD: SURFACE_MUD,
 	MapTypes.TERRAIN_FARM_SOIL: SURFACE_DIRT,
-	MapTypes.TERRAIN_BOG: SURFACE_DIRT,
+	MapTypes.TERRAIN_BOG: SURFACE_MUD,
 	MapTypes.TERRAIN_FOREST_FLOOR: SURFACE_DIRT,
 	MapTypes.TERRAIN_GRASS: SURFACE_GRASS,
 	MapTypes.TERRAIN_MEADOW: SURFACE_GRASS,
@@ -62,11 +69,6 @@ const TERRAIN_SURFACES: Dictionary = {
 	MapTypes.TERRAIN_RIVER_WATER: SURFACE_WATER_SHALLOW,
 	MapTypes.TERRAIN_DEEP_WATER: &"",
 }
-
-## Wet mud is a vocabulary surface that the six-surface first cut folds into
-## dirt. Phase 1 seeded its pool (sfx.footstep.mud.walk), so it stays a valid
-## fallback target even though it is not a first-cut surface.
-const VOCABULARY_MUD := &"mud"
 
 ## Stand-ins while a surface has no pool of its own. Chains are flat data, not a
 ## guess at play time, and are not resolved recursively: list every step. ADR
@@ -82,17 +84,25 @@ const VOCABULARY_MUD := &"mud"
 ## missing steps are not heard as a defect. Silence is therefore the correct
 ## placeholder until the pool exists.
 ##
-## Only dirt keeps a chain: the six-surface first cut deliberately folds mud
-## into dirt, so sfx.footstep.mud.walk is that surface's own pool, not a
-## neighbour's.
+## Every surface has its own recorded pool since R-1641, so no chain is left.
+## The table stays as the documented seam for a future surface whose pool lands
+## later than its terrain.
 const SURFACE_FALLBACKS: Dictionary = {
 	SURFACE_WOOD: [],
 	SURFACE_STONE: [],
 	SURFACE_GRAVEL: [],
-	SURFACE_DIRT: [VOCABULARY_MUD],
+	SURFACE_DIRT: [],
+	SURFACE_MUD: [],
 	SURFACE_GRASS: [],
 	SURFACE_WATER_SHALLOW: [],
+	SURFACE_PUDDLE: [],
 }
+
+## Surfaces a puddle can lie on. A step onto a board or into a stream is never
+## a puddle, whatever the rain did.
+const PUDDLE_HOSTS: Array[StringName] = [
+	SURFACE_STONE, SURFACE_DIRT, SURFACE_MUD, SURFACE_GRASS, SURFACE_GRAVEL
+]
 
 
 static func surface_for_terrain(terrain_id: StringName) -> StringName:
@@ -115,6 +125,14 @@ static func surface_at_logic_position(
 		floori(logic_position.x / float(cell_size)), floori(logic_position.y / float(cell_size))
 	)
 	return surface_at_cell(grid, cell)
+
+
+## The surface a foot hears: a visible puddle under the sole wins over the
+## ground it lies on.
+static func with_puddle(surface: StringName, in_puddle: bool) -> StringName:
+	if in_puddle and surface in PUDDLE_HOSTS:
+		return SURFACE_PUDDLE
+	return surface
 
 
 static func gait_for_speed(speed: float, run_threshold: float = RUN_SPEED_THRESHOLD) -> StringName:

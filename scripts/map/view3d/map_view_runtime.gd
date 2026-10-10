@@ -215,6 +215,10 @@ func last_footstep_sound_id() -> StringName:
 	return _ambient_controller.last_footstep_sound_id()
 
 
+func npc_footstep_played_count() -> int:
+	return _ambient_controller.npc_footstep_played_count()
+
+
 func last_footstep_surface() -> StringName:
 	return _ambient_controller.last_footstep_surface()
 

@@ -15,6 +15,7 @@
 /sounds/water/manifest.*.translation
 /sounds/sea/manifest.*.translation
 /sounds/wind/manifest.*.translation
+/sounds/footsteps/manifest.*.translation
 # Local export artifacts and generated benchmark reports
 /build/
 /bin/

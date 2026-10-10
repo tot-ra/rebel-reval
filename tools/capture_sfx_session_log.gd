@@ -13,7 +13,9 @@ extends SceneTree
 
 const SCENES: Array[Dictionary] = [
 	{"map": "kalev_smithy", "path": "res://scenes/reval_east/forge/forge.tscn"},
-	{"map": "lower_town_slice", "path": "res://scenes/reval_east/reval_east.tscn"},
+	# R-1641: the Lower Town district scene was retired into the seamless city,
+	# which has its own runtime wiring and surface sampler.
+	{"map": "reval_city", "path": "res://scenes/world/reval_city/reval_city.tscn"},
 ]
 ## Frames per leg of the square circuit.
 const WALK_FRAMES := 90
@@ -44,7 +46,10 @@ func _init() -> void:
 
 
 func _capture(scene: Dictionary) -> Dictionary:
-	var location := (load(String(scene["path"])) as PackedScene).instantiate()
+	var packed := load(String(scene["path"])) as PackedScene
+	if packed == null:
+		return {"map": scene["map"], "scene": scene["path"], "error": "scene failed to load"}
+	var location := packed.instantiate()
 	root.add_child(location)
 	await _frames(SETTLE_FRAMES)
 	var runtime := location.get_node_or_null("MapViewRuntime") as MapViewRuntime
@@ -85,6 +90,7 @@ func _capture(scene: Dictionary) -> Dictionary:
 	ids.sort()
 	record["footstep_ids"] = ids
 	record["footstep_count"] = runtime.footstep_played_count()
+	record["npc_footstep_count"] = runtime.npc_footstep_played_count()
 	var layers: Array = []
 	for layer_id: StringName in runtime.ambience_active_layer_ids():
 		layers.append(String(layer_id))

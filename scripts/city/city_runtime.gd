@@ -6,7 +6,8 @@ extends RefCounted
 ## district-only steps left out: no flat 2D map to hide, no grid navigation
 ## click input and no district ambient fauna except the birds: flight and song
 ## run in a window that follows Kalev (see _install_birds). Sea and wind
-## ambience run through the shared AmbienceController (see _install_ambience).
+## ambience run through the shared AmbienceController (see _install_ambience),
+## and footsteps through the shared FootstepAudio (see _install_footsteps).
 
 const Bootstrap := preload("res://scripts/map/view3d/map_view_runtime_bootstrap.gd")
 const RuntimeActors := preload("res://scripts/map/view3d/map_view_runtime_actors.gd")
@@ -69,6 +70,7 @@ static func install(
 	runtime._bind_environment_runtime()
 	_install_birds(runtime, view, player)
 	_install_ambience(runtime)
+	_install_footsteps(runtime)
 	return runtime
 
 
@@ -93,6 +95,17 @@ static func _install_birds(runtime: MapViewRuntime, view: CityMapView, player: N
 ## helper with the city definition, view and player.
 static func _install_ambience(runtime: MapViewRuntime) -> void:
 	runtime._ambient_controller._install_ambience()
+
+
+## Player and NPC footsteps (R-1641): the district wiring, with the surface
+## answered by CityMapView.footstep_surface_at from the land-use rasters. Runs
+## after _install_birds, which configures the ambient helper.
+static func _install_footsteps(runtime: MapViewRuntime) -> void:
+	runtime._ambient_controller._install_footstep_audio()
+	runtime._actor_controller.set_footstep_callback(
+		Callable(runtime._ambient_controller, "play_footstep"),
+		Callable(runtime._ambient_controller, "play_npc_footstep")
+	)
 
 
 static func _bird_origin(player: Node2D, view: CityMapView) -> Vector3:
