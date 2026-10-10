@@ -2629,9 +2629,15 @@ def render_minimap(plan, height_wu):
     forum = [T(p) for p in plan.get("forum", {}).get("polygon", [])]
     if len(forum) >= 3:
         dr.polygon(forum, fill=(214, 200, 168))
+    # Crowns are only ~5 px wide: drawn directly PIL rasterises them as squares,
+    # so paint a 4x coverage mask and box-downsample it into antialiased discs.
+    ss = 4
+    crowns = Image.new("L", (W * ss, H * ss), 0)
+    cdr = ImageDraw.Draw(crowns)
     for t in plan["trees"]:
         x, y = T((t[0], t[1]))
-        dr.ellipse([x - 2.5, y - 2.5, x + 2.5, y + 2.5], fill=(88, 112, 64))
+        cdr.ellipse([(x - 2.5) * ss, (y - 2.5) * ss, (x + 2.5) * ss, (y + 2.5) * ss], fill=255)
+    img.paste((88, 112, 64), (0, 0), crowns.resize((W, H), Image.BOX))
     roof = {"tile": (176, 84, 58), "shingle": (112, 92, 76), "thatch": (178, 150, 92)}
     for b in plan["buildings"]:
         dr.polygon([T(p) for p in b["footprint"]], fill=roof.get(b["roof"], (150, 120, 100)), outline=(70, 52, 40))
