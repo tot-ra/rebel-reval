@@ -137,6 +137,12 @@ const CITY_FORMS := {
 }
 
 
+## Species with visible surface roots (WHY: only some trees show them; conifers
+## on thin soil and old broadleaves do, orchard and shrub forms stay clean).
+const ROOTED_SPECIES := {
+	&"oak": 5, &"spruce": 4, &"pine": 4, &"ash": 4, &"elm": 5, &"linden": 4,
+	&"alder": 3, &"willow": 5, &"birch": 3, &"aspen": 3,
+}
 static var _geometry_cache: Dictionary = {}
 static var _city_cache: Dictionary = {}
 
@@ -358,7 +364,7 @@ static func _geometry_for(species: StringName) -> Dictionary:
 ## round the limb, v runs up the limb in tiles, continuing from the parent
 ## segment) and adds tangents; 0 keeps the legacy per-segment 0..1 UVs.
 static func _build_wood_mesh(
-	_species: StringName, skeleton: Dictionary, radius_factor := 1.0, bark_tile := 0.0
+	species: StringName, skeleton: Dictionary, radius_factor := 1.0, bark_tile := 0.0
 ) -> ArrayMesh:
 	var surface := SurfaceTool.new()
 	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
@@ -425,9 +431,93 @@ static func _build_wood_mesh(
 				uv_rect,
 				side
 			)
+	_append_root_base(surface, species, segments, radius_factor, bark_tile)
 	if bark_tile > 0.0:
 		surface.generate_tangents()
 	return surface.commit()
+
+
+## Hides the hard line where a straight trunk meets the ground: a concave flare
+## widens the bole toward y = 0 (buried slightly so the ring never floats), and
+## for ROOTED_SPECIES a few buttress roots run out and down into the soil. The
+## base is read from the lowest depth-0 segment so legacy and Weber-Penn
+## skeletons both get it without changing their segment lists.
+static func _append_root_base(
+	surface: SurfaceTool,
+	species: StringName,
+	segments: Array,
+	radius_factor: float,
+	bark_tile: float
+) -> void:
+	var base: Dictionary = {}
+	var base_index := 0
+	for index in segments.size():
+		var segment: Dictionary = segments[index]
+		var lowest := base.is_empty() or (segment["start"] as Vector3).y < (base["start"] as Vector3).y
+		if int(segment["depth"]) == 0 and lowest:
+			base = segment
+			base_index = index
+	if base.is_empty():
+		return
+	var start: Vector3 = base["start"]
+	if start.y > 0.05:
+		return
+	var radius := float(base["start_radius"]) * radius_factor
+	var color := Color(1.0, 0.98, 0.94)
+	# Bark UVs continue the trunk's: same tile count round the ring and the flare
+	# top at the trunk's first v, running down (WHY: a different tile count showed
+	# a texture seam where the flare meets the bole).
+	var tiles := 0.0
+	var v_top := 0.0
+	var plate := 1.0
+	if bark_tile > 0.0:
+		tiles = maxf(1.0, roundf(TAU * radius / bark_tile))
+		v_top = _hash(base_index, 0, 331) * 4.0
+		plate = bark_tile * clampf(TAU * radius / (tiles * bark_tile), 0.25, 1.5)
+	# Concave flare: ring radii and heights in trunk radii above the soil line.
+	# The flare must end at the trunk's real radius: the base segment can taper
+	# within a few radii (it did on oak), which showed as a ledge above the flare.
+	var base_length := start.distance_to(base["end"])
+	var reach_h := minf(3.2 * radius, base_length * 0.9)
+	var top_radius := lerpf(
+		float(base["start_radius"]),
+		float(base["end_radius"]),
+		reach_h / maxf(base_length, 0.0001)
+	)
+	var top_scale := top_radius / float(base["start_radius"])
+	var unit := reach_h / (3.2 * radius)
+	var heights := [-0.5, 0.0, 0.7 * unit, 1.7 * unit, 3.2 * unit]
+	var scales := [1.85, 1.7, 1.38, 1.14, top_scale]
+	var side := Vector3.ZERO
+	for i in heights.size() - 1:
+		var uv := Rect2()
+		if bark_tile > 0.0:
+			var v_a := v_top - radius * (float(heights[-1]) - float(heights[i])) / plate
+			var v_b := v_top - radius * (float(heights[-1]) - float(heights[i + 1])) / plate
+			uv = Rect2(0.0, v_a, tiles, v_b - v_a)
+		side = _append_tapered_tube(
+			surface,
+			start + Vector3(0.0, radius * float(heights[i]), 0.0),
+			start + Vector3(0.0, radius * float(heights[i + 1]), 0.0),
+			radius * float(scales[i]),
+			radius * float(scales[i + 1]),
+			color,
+			uv,
+			side
+		)
+	var uv := Rect2(0.0, 0.0, tiles, 1.0) if bark_tile > 0.0 else Rect2()
+	var count: int = ROOTED_SPECIES.get(species, 0)
+	var seed_value := absi(String(species).hash()) + 4241
+	for i in count:
+		var yaw := TAU * (float(i) + _hash(i, seed_value, 7) * 0.8) / float(count)
+		var out := Vector3(cos(yaw), 0.0, sin(yaw))
+		var reach := radius * lerpf(2.8, 4.2, _hash(i, seed_value, 13))
+		var top := start + out * radius * 0.8 + Vector3(0.0, radius * 1.6, 0.0)
+		var mid := start + out * reach * 0.55 + Vector3(0.0, radius * 0.3, 0.0)
+		var tip := start + out * reach + Vector3(0.0, -radius * 0.4, 0.0)
+		var root_color := Color(0.86, 0.82, 0.76)
+		side = _append_tapered_tube(surface, top, mid, radius * 0.62, radius * 0.4, root_color, uv, side)
+		side = _append_tapered_tube(surface, mid, tip, radius * 0.4, radius * 0.12, root_color, uv, side)
 
 
 ## Flared, concave collar where a branch leaves its parent, so the limb flows

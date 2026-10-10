@@ -151,8 +151,8 @@ void fragment() {
 		albedo = mix(albedo, straw_color * (0.7 + 0.5 * tex.g), v_dry * greenness);
 		// Root to tip: shaded base melted into the ground plate, bright tips.
 		albedo *= mix(0.62, 1.08, smoothstep(0.0, 0.85, blade));
-		float root = 1.0 - smoothstep(0.0, 0.30, blade);
-		albedo = mix(albedo, root_tint * COLOR.rgb, root * 0.75);
+		float root = 1.0 - smoothstep(0.0, 0.48, blade);
+		albedo = mix(albedo, root_tint * COLOR.rgb, root * 0.92);
 		albedo = mix(albedo, albedo * vec3(1.32, 1.30, 1.12), v_sheen * 0.8 * blade);
 		ALBEDO = albedo;
 		// Soft sky-lit shading: lean normals toward up so cards do not flip dark.
@@ -168,7 +168,7 @@ void fragment() {
 		albedo = mix(albedo, albedo * vec3(1.14, 1.10, 0.78), smoothstep(0.45, 1.0, blade) * 0.5);
 		albedo = mix(albedo, straw_color * 0.9, smoothstep(0.7, 1.0, blade) * v_dry * tip_dry * 2.0);
 		// Roots melt into the ground colour so no grass/soil seam shows.
-		albedo = mix(albedo, root_tint * COLOR.rgb, (1.0 - smoothstep(0.0, 0.18, blade)) * 0.6);
+		albedo = mix(albedo, root_tint * COLOR.rgb, (1.0 - smoothstep(0.0, 0.34, blade)) * 0.85);
 		albedo = mix(albedo, albedo * vec3(1.32, 1.30, 1.12), v_sheen * 0.8 * blade);
 		ALBEDO = albedo * (1.0 + midrib * 0.10);
 		// Round the flat strip: tilt the normal across the width so one blade

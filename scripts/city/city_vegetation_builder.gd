@@ -103,6 +103,71 @@ const BUSH_SIZE_M := {
 const BushMeshes := preload("res://scripts/map/view3d/map_view_bush_meshes.gd")
 
 
+const LITTER_SHARE := 0.65
+## Litter disc radius in metres per species; conifers drop a wider needle mat.
+const LITTER_RADIUS_M := {
+	&"spruce": 2.6, &"pine": 2.2, &"juniper": 1.4, &"oak": 3.0, &"linden": 2.8,
+	&"elm": 2.8, &"ash": 2.6, &"willow": 2.8,
+}
+const CONIFERS := [&"spruce", &"pine", &"juniper"]
+static var _litter_meshes: Dictionary = {}
+static var _litter_mat: StandardMaterial3D
+
+
+## Scatter of fallen leaves or needle strokes around the trunk, thickest at the
+## foot and thinning out to nothing. Opaque flecks, not a translucent sheet
+## (WHY: a sheet covers the grass roots and reads as a puddle, and any disc
+## outline is the same seam we are removing). `radius` is in tree units; fleck
+## size follows it so a metre of litter stays a metre.
+static func litter_mesh(species: StringName, radius: float) -> ArrayMesh:
+	var key := "%s:%.3f" % [species, radius]
+	if _litter_meshes.has(key):
+		return _litter_meshes[key]
+	var conifer := species in CONIFERS
+	var metre := radius / float(LITTER_RADIUS_M.get(species, 2.2))
+	var rng := RandomNumberGenerator.new()
+	rng.seed = absi(String(species).hash()) + 811
+	var surface := SurfaceTool.new()
+	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
+	surface.set_normal(Vector3.UP)
+	var count := 320 if conifer else 240
+	for i in count:
+		# Squared radius sampling packs flecks near the trunk.
+		var dist := radius * pow(rng.randf(), 1.7)
+		var ang := rng.randf() * TAU
+		var centre := Vector3(cos(ang) * dist, rng.randf() * 0.01 * metre, sin(ang) * dist)
+		var yaw := rng.randf() * TAU
+		var half_len := (0.07 if conifer else 0.05) * metre * rng.randf_range(0.7, 1.4)
+		var half_wid := (0.012 if conifer else 0.04) * metre
+		var along := Vector3(cos(yaw), 0.0, sin(yaw)) * half_len
+		var across := Vector3(-sin(yaw), 0.0, cos(yaw)) * half_wid
+		var shade := rng.randf_range(0.7, 1.15)
+		var tint := Color(0.24, 0.15, 0.08)
+		if not conifer:
+			tint = Color(0.30, 0.20, 0.07).lerp(Color(0.22, 0.22, 0.07), rng.randf() * 0.5)
+		surface.set_color(Color(tint.r * shade, tint.g * shade, tint.b * shade))
+		var corners := [
+			-along - across, along - across, along + across,
+			-along - across, along + across, -along + across,
+		]
+		for corner: Vector3 in corners:
+			surface.add_vertex(centre + corner)
+	var mesh := surface.commit()
+	_litter_meshes[key] = mesh
+	return mesh
+
+
+static func litter_material() -> StandardMaterial3D:
+	if _litter_mat == null:
+		_litter_mat = StandardMaterial3D.new()
+		_litter_mat.vertex_color_use_as_albedo = true
+		_litter_mat.vertex_color_is_srgb = true
+		_litter_mat.cull_mode = BaseMaterial3D.CULL_DISABLED
+		_litter_mat.roughness = 1.0
+		_litter_mat.specular_mode = BaseMaterial3D.SPECULAR_DISABLED
+	return _litter_mat
+
+
 static func species_scale(species: StringName, metres_per_unit: float) -> float:
 	var crown := MapViewTreeMeshes.city_canopy_far_mesh(species).get_aabb()
 	var height := maxf(crown.end.y, 0.5)
@@ -146,7 +211,9 @@ static func build(plan: CityPlan, parent: Node3D) -> Node3D:
 		var bucket := [species, Vector2i(floori(p.x / CHUNK), floori(p.y / CHUNK))]
 		if not by_species.has(bucket):
 			by_species[bucket] = {
-				"transforms": [] as Array[Transform3D], "colors": [] as Array[Color]
+				"transforms": [] as Array[Transform3D],
+				"colors": [] as Array[Color],
+				"litter": [] as Array[Transform3D],
 			}
 		var scale := size_factor(float(t[3])) * float(species_scales[species])
 		var rng := RandomNumberGenerator.new()
@@ -156,6 +223,13 @@ static func build(plan: CityPlan, parent: Node3D) -> Node3D:
 		(by_species[bucket]["transforms"] as Array[Transform3D]).append(xf)
 		var tone := rng.randf_range(0.85, 1.1)
 		(by_species[bucket]["colors"] as Array[Color]).append(Color(tone, tone, tone, 1.0))
+		# Fallen leaves or needles under about two thirds of the trees; the
+		# rest keep bare earth so the carpet reads as natural, not as a decal.
+		if rng.randf() < LITTER_SHARE and not SHRUB_AS_TREE.values().has(String(species)):
+			var litter_basis := Basis(Vector3.UP, rng.randf() * TAU).scaled(Vector3.ONE * scale)
+			(by_species[bucket]["litter"] as Array[Transform3D]).append(
+				Transform3D(litter_basis, xf.origin + Vector3(0.0, 0.25, 0.0))
+			)
 	var buckets := by_species.keys()
 	buckets.sort_custom(func(a: Array, b: Array) -> bool: return str(a) < str(b))
 	for bucket: Array in buckets:
@@ -182,6 +256,23 @@ static func build(plan: CityPlan, parent: Node3D) -> Node3D:
 		if shrub:
 			wood.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		root.add_child(wood)
+		var litter: Array[Transform3D] = batch["litter"]
+		if not shrub and not litter.is_empty():
+			var litter_colors: Array[Color] = []
+			litter_colors.resize(litter.size())
+			litter_colors.fill(Color.WHITE)
+			var litter_m := LITTER_RADIUS_M.get(species, 2.2) as float
+			var litter_node := MapViewMeshBuilderPrimitives.multi_mesh(
+				"Litter_%s" % species,
+				litter_mesh(species, litter_m / plan.metres_per_unit / world_scale),
+				litter,
+				litter_colors,
+				litter_material(),
+				Vector3.ZERO
+			)
+			litter_node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+			litter_node.visibility_range_end = BUSH_RANGE
+			root.add_child(litter_node)
 		var crown := MapViewMeshBuilderPrimitives.multi_mesh(
 			"Crown_%s" % species,
 			MapViewTreeMeshes.city_canopy_far_mesh(species),

@@ -181,6 +181,17 @@ func _shots(plan: CityPlan) -> Array[Dictionary]:
 				"focus": p
 			}
 		)
+		# Trunk foot: root flare, buttress roots and leaf or needle litter, seen
+		# from low and close (the grass hides it from the gameplay camera).
+		shots.append(
+			{
+				"name": "%s_base_close" % species,
+				"eye": Vector3(p.x + side.x * 2.6, g + 0.9, p.y + side.y * 2.6),
+				"look": Vector3(p.x, g + 0.2, p.y),
+				"fov": 55.0,
+				"focus": p
+			}
+		)
 		if species == "oak":
 			# Far view of a whole stand: exercises the far crown LOD.
 			shots.append(

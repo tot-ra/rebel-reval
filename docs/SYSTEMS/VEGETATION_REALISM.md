@@ -305,3 +305,14 @@ Each task also updates this page and `LIVING_VEGETATION.md`, per the mandatory f
 ## Verification of this page
 
 `python3 tools/docs_index.py --check` and `python3 tools/generate_active_docs_report.py --check`.
+
+## Ground contact: root flare, roots, litter
+
+Trees no longer meet the ground along a hard cut line.
+
+- **Root flare:** `MapViewTreeMeshes._append_root_base` widens the bole toward the soil (concave, ends at the trunk's real radius, bark UVs continue the trunk's). Applies to every wood mesh, legacy and Weber-Penn skeletons alike.
+- **Surface roots:** only species in `MapViewTreeMeshes.ROOTED_SPECIES` get 3-5 buttress roots running out and down into the soil.
+- **Litter:** `CityVegetationBuilder.litter_mesh` scatters opaque leaf flecks (broadleaf) or needle strokes (conifers, `CONIFERS`) around about 65% of trees (`LITTER_SHARE`), thickest at the foot. Not drawn for shrubs.
+- **Grass roots:** `map_view_grass.gdshader` blends the blade base into `root_tint` over a longer span, so the blade-to-ground line is softer.
+- **Verify:** `tools/godot_render.sh --script tools/capture_city_vegetation.gd -- --only=oak_base_close,pine_base_close,birch_base_close`.
+- **Limits:** flare tubes are faceted cones (no smooth normals yet); litter flecks are flat and do not react to wind or footsteps.
