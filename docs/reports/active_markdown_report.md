@@ -14,12 +14,12 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `1098`
+- Active Markdown files scanned: `1160`
 - Markdown files excluded as archive/reference/out of active scope: `753`
-- Local/external links inspected: `12891`
-- Links to active Markdown docs: `11891`
-- Links to existing archive/reference/non-active local docs: `455`
-- External links skipped for reachability: `92`
+- Local/external links inspected: `13064`
+- Links to active Markdown docs: `11967`
+- Links to existing archive/reference/non-active local docs: `456`
+- External links skipped for reachability: `145`
 - Issues found: `0`
 
 ## Issue counts
@@ -83,6 +83,68 @@ No active Markdown documentation issues found.
 - `docs/adr/README.md`
 - `docs/AGENT_LOOPS.md`
 - `docs/ANIMAL_3D_SOURCING.md`
+- `docs/ANIMALS-AND-BIRDS/badger.md`
+- `docs/ANIMALS-AND-BIRDS/barn_swallow.md`
+- `docs/ANIMALS-AND-BIRDS/beaver.md`
+- `docs/ANIMALS-AND-BIRDS/brown_bear.md`
+- `docs/ANIMALS-AND-BIRDS/cat.md`
+- `docs/ANIMALS-AND-BIRDS/cattle.md`
+- `docs/ANIMALS-AND-BIRDS/chicken.md`
+- `docs/ANIMALS-AND-BIRDS/common_bat.md`
+- `docs/ANIMALS-AND-BIRDS/common_blackbird.md`
+- `docs/ANIMALS-AND-BIRDS/common_buzzard.md`
+- `docs/ANIMALS-AND-BIRDS/common_chaffinch.md`
+- `docs/ANIMALS-AND-BIRDS/common_gull.md`
+- `docs/ANIMALS-AND-BIRDS/common_kestrel.md`
+- `docs/ANIMALS-AND-BIRDS/common_nightingale.md`
+- `docs/ANIMALS-AND-BIRDS/common_snipe.md`
+- `docs/ANIMALS-AND-BIRDS/common_tern.md`
+- `docs/ANIMALS-AND-BIRDS/dog.md`
+- `docs/ANIMALS-AND-BIRDS/domestic_duck.md`
+- `docs/ANIMALS-AND-BIRDS/domestic_goose.md`
+- `docs/ANIMALS-AND-BIRDS/elk.md`
+- `docs/ANIMALS-AND-BIRDS/eurasian_magpie.md`
+- `docs/ANIMALS-AND-BIRDS/european_robin.md`
+- `docs/ANIMALS-AND-BIRDS/goat.md`
+- `docs/ANIMALS-AND-BIRDS/great_cormorant.md`
+- `docs/ANIMALS-AND-BIRDS/great_spotted_woodpecker.md`
+- `docs/ANIMALS-AND-BIRDS/great_tit.md`
+- `docs/ANIMALS-AND-BIRDS/grey_heron.md`
+- `docs/ANIMALS-AND-BIRDS/grey_seal.md`
+- `docs/ANIMALS-AND-BIRDS/greylag_goose.md`
+- `docs/ANIMALS-AND-BIRDS/hare.md`
+- `docs/ANIMALS-AND-BIRDS/hedgehog.md`
+- `docs/ANIMALS-AND-BIRDS/herring_gull.md`
+- `docs/ANIMALS-AND-BIRDS/hooded_crow.md`
+- `docs/ANIMALS-AND-BIRDS/horse.md`
+- `docs/ANIMALS-AND-BIRDS/house_sparrow.md`
+- `docs/ANIMALS-AND-BIRDS/lynx.md`
+- `docs/ANIMALS-AND-BIRDS/mallard.md`
+- `docs/ANIMALS-AND-BIRDS/mute_swan.md`
+- `docs/ANIMALS-AND-BIRDS/northern_lapwing.md`
+- `docs/ANIMALS-AND-BIRDS/osprey.md`
+- `docs/ANIMALS-AND-BIRDS/otter.md`
+- `docs/ANIMALS-AND-BIRDS/pig.md`
+- `docs/ANIMALS-AND-BIRDS/pine_marten.md`
+- `docs/ANIMALS-AND-BIRDS/polecat.md`
+- `docs/ANIMALS-AND-BIRDS/rat.md`
+- `docs/ANIMALS-AND-BIRDS/README.md`
+- `docs/ANIMALS-AND-BIRDS/red_deer.md`
+- `docs/ANIMALS-AND-BIRDS/red_fox.md`
+- `docs/ANIMALS-AND-BIRDS/ringed_seal.md`
+- `docs/ANIMALS-AND-BIRDS/roe_deer.md`
+- `docs/ANIMALS-AND-BIRDS/rook.md`
+- `docs/ANIMALS-AND-BIRDS/sheep.md`
+- `docs/ANIMALS-AND-BIRDS/skylark.md`
+- `docs/ANIMALS-AND-BIRDS/song_thrush.md`
+- `docs/ANIMALS-AND-BIRDS/squirrel.md`
+- `docs/ANIMALS-AND-BIRDS/stoat.md`
+- `docs/ANIMALS-AND-BIRDS/tawny_owl.md`
+- `docs/ANIMALS-AND-BIRDS/western_jackdaw.md`
+- `docs/ANIMALS-AND-BIRDS/white_tailed_eagle.md`
+- `docs/ANIMALS-AND-BIRDS/wild_boar.md`
+- `docs/ANIMALS-AND-BIRDS/wolf.md`
+- `docs/ANIMALS-AND-BIRDS/yellowhammer.md`
 - `docs/ARCHITECTURE.md`
 - `docs/ART_BIBLE.md`
 - `docs/ASSET_INVENTORY.md`
@@ -94,7 +156,6 @@ No active Markdown documentation issues found.
 - `docs/BESTIARY/cards/spirit_caller.md`
 - `docs/BESTIARY/cards/street_thug.md`
 - `docs/BESTIARY/cards/vanapagan_cultist.md`
-- `docs/BESTIARY/cards/wolf.md`
 - `docs/BESTIARY/README.md`
 - `docs/BESTIARY/TEMPLATE.md`
 - `docs/CANON.md`
@@ -1031,6 +1092,7 @@ No active Markdown documentation issues found.
 - `docs/SYSTEMS/NIGHT_SKY.md`
 - `docs/SYSTEMS/NPC_MIND.md`
 - `docs/SYSTEMS/OBJECT_CATALOG.md`
+- `docs/SYSTEMS/POST_PROCESS.md`
 - `docs/SYSTEMS/PSYCHE.md`
 - `docs/SYSTEMS/QUESTS.md`
 - `docs/SYSTEMS/README.md`

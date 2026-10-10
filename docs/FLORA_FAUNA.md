@@ -2,6 +2,8 @@
 
 This is the implementation ledger for Reval vegetation. It distinguishes concrete botanical models from generic terrain-cover styles and links every status to runtime code and authored locations.
 
+Per-species cards for every animal and bird, with their 3D model files and sources, are in [`ANIMALS-AND-BIRDS/`](ANIMALS-AND-BIRDS/README.md).
+
 ## System status
 
 - **Trees: 20/20 target species modeled and authored.** Catalog and visual traits: [`map_view_tree_species.gd`](../scripts/map/view3d/map_view_tree_species.gd). Bounded branching, leaves, and fruit: [`map_view_tree_meshes.gd`](../scripts/map/view3d/map_view_tree_meshes.gd). Seasons, weather response, and leaf fall on weapon hits: [`SYSTEMS/LIVING_VEGETATION.md`](SYSTEMS/LIVING_VEGETATION.md). Reference sheet: [`p0_103_tree_reference_sheet.png`](reports/images/fauna/p0_103_tree_reference_sheet.png). District mix weights are documented under shared constraint 9 in [`HISTORICAL_AUDIT.md`](HISTORICAL_AUDIT.md).

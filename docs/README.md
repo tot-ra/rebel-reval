@@ -22,7 +22,7 @@ One page per feature, with status, behavior, code entry points, content, saved s
 | Map system | [Map authoring (blueprints, compiler, stable IDs)](./MAP_AUTHORING.md) · [Map conversion plan](./MAP_CONVERSION_PLAN.md) · [Map alignment editor](./MAP_ALIGNMENT_EDITOR.md) · [Large-map chunking](./LARGE_MAP_CHUNKING_PLAN.md) · [Seamless streaming](./SEAMLESS_STREAMING_PLAN.md) |
 | Locations beyond Reval (journey nodes, variety, resources to generate) | [Locations hub](./LOCATIONS/README.md) |
 | City and landmarks | [Landmark narrative integration](./LANDMARK_NARRATIVE_INTEGRATION.md) · [Tourist landmarks](./TOURIST_LANDMARKS.md) · [1343 fortifications](./reports/reval_fortifications_1343.md) · [Legacy location notes](../scenes/README.md) |
-| Nature | [Flora and fauna of 1343](./FLORA_FAUNA.md) · [Animal 3D sourcing and animation strategy](./ANIMAL_3D_SOURCING.md) · [Muscle-driven procedural locomotion](./SYSTEMS/MUSCLE_LOCOMOTION.md) |
+| Nature | [Flora and fauna of 1343](./FLORA_FAUNA.md) · [Animals and birds: one card per species with 3D model links](./ANIMALS-AND-BIRDS/README.md) · [Animal 3D sourcing and animation strategy](./ANIMAL_3D_SOURCING.md) · [Muscle-driven procedural locomotion](./SYSTEMS/MUSCLE_LOCOMOTION.md) |
 | Task specs by stream | [World tasks](./tasks/README.md) (architecture, coast, urban form, water/sky, world) |
 
 ## Characters
@@ -85,7 +85,6 @@ One page per feature, with status, behavior, code entry points, content, saved s
 - [Spirit-caller](BESTIARY/cards/spirit_caller.md)
 - [Street thug](BESTIARY/cards/street_thug.md)
 - [Vanapagan cultist](BESTIARY/cards/vanapagan_cultist.md)
-- [Wolf](BESTIARY/cards/wolf.md)
 
 #### `concept/`
 

@@ -19,14 +19,14 @@
 - Odd detail: avoids iron and fire more than people.
 
 ## Folklore origin
-Ecological basis: grey wolves were common in medieval Livonia and Estonia (`attested`); there is no folklore claim in this card (the werewolf case is `bst.libahunt`). See [folklore notes](../../lore/estonian_folklore.md) for the human-wolf cases, which are not this card.
+Ecological basis: grey wolves were common in medieval Livonia and Estonia (`attested`); there is no folklore claim in this card (the werewolf case is `bst.libahunt`). See [folklore notes](../lore/estonian_folklore.md) for the human-wolf cases, which are not this card.
 
 ## Appearance
 - **Body:** 0.7-0.8 m at the shoulder, 35-45 kg, long legs; trots, circles, bursts to a sprint.
 - **Materials and colours:** Grey-brown winter coat, pale muzzle and belly, dark saddle; amber eyes; palette of grey, tawny, off-white.
 - **What a model must get right:** Long legs, deep chest, narrow head, bushy tail carried low; not a dog and not a monster.
 - **Concept-art prompt:** Full-body concept of an adult grey wolf in winter coat, long-legged and lean, grey-brown with pale muzzle and belly, amber eyes, low head circling stance, snow-flecked forest floor suggested but background plain neutral grey, even lighting, realistic painted style.
-- **Model notes:** Quadruped rig; reuse the wolf asset from `tools/assets/build_*` if present; scale 1.0; separate pack AI.
+- **Model notes:** Quadruped rig; no wolf GLB exists in the repo yet (the runtime uses the procedural `fauna.wolf` mesh, see [3D models](./README.md#3d-model-status)); the mammal shared rig and clip set in [`assets/storybook/mammal_sources.json`](../../assets/storybook/mammal_sources.json) is the intended target; scale 1.0; separate pack AI.
 
 ## Motivation
 Food. Fears fire and iron. No contradiction: it is an animal. Released by fire, a thrown loaf, or a clear retreat path.
@@ -43,7 +43,7 @@ Guilt per school (christian / folk blood-debt / civic), deterministic: wolf kill
 Barks: snarl, short bark, the pack answering from the dark.
 
 ## Relationships and factions
-No faction. [Metsik cult](../../CITIZENS/factions/cult_metsik.md) revere the wolf; the spirit-caller can send real wolves.
+No faction. [Metsik cult](../CITIZENS/factions/cult_metsik.md) revere the wolf; the spirit-caller can send real wolves.
 
 ## Game hooks
 Real wolves are the first physical fight outside the city, a no-guilt teacher of combat (Act 1). The spectral wolves of `bst.spirit_caller` and the cursed `bst.libahunt` are separate entries.

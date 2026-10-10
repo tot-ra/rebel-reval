@@ -43,6 +43,7 @@ INDEXES: list[tuple[str, str]] = [
     ("docs/CITIZENS/people/README.md", "docs/CITIZENS/people"),
     ("docs/CITIZENS/ledger/README.md", "docs/CITIZENS/ledger"),
     ("docs/CITIZENS/factions/README.md", "docs/CITIZENS/factions"),
+    ("docs/ANIMALS-AND-BIRDS/README.md", "docs/ANIMALS-AND-BIRDS"),
     ("characters/README.md", "characters"),
     ("character/README.md", "character"),
     ("scenes/README.md", "scenes"),

@@ -58,7 +58,7 @@ Card column: a link once the card exists, `planned` before. Images are numbers i
 | `bst.black_cloak_fighter` | Black Cloak fighter | physical | act2 | Lower Town, sewers, rooftops | black_cloaks | invented | image-48, image-52 | [card](./cards/black_cloak_fighter.md) | Urban rebel using the city as a weapon; guilt-sensitive because he is a potential ally. |
 | `bst.spirit_caller` | Spirit-caller | hybrid | act2 | hinterland groves | cult_metsik | invented | image-47 | [card](./cards/spirit_caller.md) | Shaman with a ranged curse; the human anchor for a summoned spirit. Physical wolves are real wolves; spectral ones belong to the spirit layer. |
 | `bst.vanapagan_cultist` | Vanapagan cultist | hybrid | act2 | monastery cellars, cult rites | cult_metsik, church | invented | image-46, image-49, image-50 | [card](./cards/vanapagan_cultist.md) | A human who has traded his soul; fought physically, seen darker in the spirit layer. Absorbs the Rock-Thrower. |
-| `bst.wolf` | Wolf | physical | act1 | forests, winter roads | - | attested | - | [card](./cards/wolf.md) | Real predator of the Harju woods. New; no archive art. |
+| `bst.wolf` | Wolf | physical | act1 | forests, winter roads | - | attested | - | [card](../ANIMALS-AND-BIRDS/wolf.md) | Real predator of the Harju woods. New; no archive art. |
 | `bst.bear` | Bear | physical | backlog | deep forest | - | attested | - | planned | Real predator; rare and not scheduled. New; no archive art. |
 | `bst.boar` | Wild boar | physical | backlog | hinterland woods | - | attested | - | planned | Real hunting animal. New; no archive art. |
 | `bst.rusalka` | Rusalka | rejected | - | - | - | - | - | - | Duplicate of Näkk; no Pskov contact reason beyond the water father. |
