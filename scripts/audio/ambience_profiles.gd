@@ -20,6 +20,24 @@ extends RefCounted
 ## and spot layers stay empty until licensed crowd and spot material exists
 ## (AUDIO-4 / R-1359). Birds and insects already run as their own controllers,
 ## so day and night variation comes from them, not from separate beds.
+##
+## R-1550 adds two weather-driven layers, each a three-tier crossfade by wind
+## strength (AmbienceController.tier_weights):
+##   sea    {"calm", "moderate", "storm"} surf, scaled by distance to the sea
+##   wind   {"light", "strong", "storm"} exterior wind, lifted by gusts
+## Coastal maps get both; inland exterior maps get wind only. Interiors get
+## neither (suppresses_exterior_surroundings mutes them anyway).
+
+const SEA: Dictionary = {
+	"calm": &"amb.sea.calm",
+	"moderate": &"amb.sea.moderate",
+	"storm": &"amb.sea.storm",
+}
+const WIND: Dictionary = {
+	"light": &"amb.wind.light",
+	"strong": &"amb.wind.strong",
+	"storm": &"amb.wind.storm",
+}
 
 const PROFILES: Dictionary = {
 	&"lower_town_slice":
@@ -28,6 +46,36 @@ const PROFILES: Dictionary = {
 		"mid": [],
 		"spot": [],
 		"weather": {"rain_exterior": &"amb.weather.rain_outdoor"},
+		"wind": WIND,
+	},
+	# Seamless city (ADR 0031): Kalarand strand, harbour and the bay shore. No
+	# bed: the city's districts get their own beds under R-1470.
+	&"reval_city":
+	{
+		"bed": [],
+		"mid": [],
+		"spot": [],
+		"weather": {"rain_exterior": &"amb.weather.rain_outdoor"},
+		"sea": SEA,
+		"wind": WIND,
+	},
+	&"prototype.reval_harbor_surroundings":
+	{
+		"weather": {"rain_exterior": &"amb.weather.rain_outdoor"},
+		"sea": SEA,
+		"wind": WIND,
+	},
+	&"prototype.paldiski_coastal_outpost":
+	{
+		"weather": {"rain_exterior": &"amb.weather.rain_outdoor"},
+		"sea": SEA,
+		"wind": WIND,
+	},
+	&"world_saaremaa":
+	{
+		"weather": {"rain_exterior": &"amb.weather.rain_outdoor"},
+		"sea": SEA,
+		"wind": WIND,
 	},
 	&"kalev_smithy":
 	{
@@ -60,6 +108,10 @@ static func referenced_sound_ids() -> Array[StringName]:
 				ids[StringName(entry.get("id", &""))] = true
 		for weather_id: Variant in profile.get("weather", {}).values():
 			ids[StringName(weather_id)] = true
+		for layer_name: String in ["sea", "wind"]:
+			for tier_id: Variant in profile.get(layer_name, {}).values():
+				if tier_id is StringName:
+					ids[tier_id] = true
 	ids.erase(&"")
 	var out: Array[StringName] = []
 	out.assign(ids.keys())

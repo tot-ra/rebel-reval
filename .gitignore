@@ -13,6 +13,8 @@
 /sounds/weather/manifest.*.translation
 /sounds/water/manifest.csv.import
 /sounds/water/manifest.*.translation
+/sounds/sea/manifest.*.translation
+/sounds/wind/manifest.*.translation
 # Local export artifacts and generated benchmark reports
 /build/
 /bin/

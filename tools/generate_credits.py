@@ -4,7 +4,8 @@
 Why: every field recording we ship is Creative Commons licensed and therefore
 carries an attribution (BY) obligation. This script is the single source of
 truth that turns the machine-readable manifests (sounds/birds/manifest.csv,
-sounds/insects/manifest.csv, and sounds/water/manifest.csv) and the CC BY animal
+sounds/insects/manifest.csv, sounds/water/manifest.csv, and the R-1550
+sounds/sea and sounds/wind manifests) and the CC BY animal
 model manifest (assets/storybook/mammal_sources.json) into the human-readable
 CREDITS.md that is both committed to the repo and displayed in-game
 (Main Menu -> Credits).
@@ -175,6 +176,31 @@ def main() -> None:
             lines.append(line)
         lines.append("")
 
+    # --- Sea and wind ambience loops (R-1550) ---------------------------
+    sea_wind = []
+    for rel in ("sounds/sea/manifest.csv", "sounds/wind/manifest.csv"):
+        path = os.path.join(ROOT, rel)
+        if os.path.exists(path):
+            sea_wind.extend(read_csv(path))
+    if sea_wind:
+        lines.append("## Sea and wind ambience")
+        lines.append("")
+        lines.append(
+            "CC0 field recordings of surf and wind, cut into seamless loops that "
+            "crossfade with the weather."
+        )
+        lines.append("")
+        for row in sorted(sea_wind, key=lambda item: item.get("title") or item.get("clip_id") or ""):
+            title = (row.get("title") or row.get("clip_id") or "Untitled clip").strip()
+            author = (row.get("author") or "Unknown author").strip()
+            lic = license_name(row.get("license") or "")
+            src = (row.get("page") or "").strip()
+            line = f"- {title} - recorded by {author}. {lic}."
+            if src:
+                line += f" Source: {src}"
+            lines.append(line)
+        lines.append("")
+
     # --- Map and elevation data (ADR 0031) -------------------------------
     lines.append("## Map and elevation data")
     lines.append("")
@@ -217,7 +243,7 @@ def main() -> None:
         f.write("\n".join(lines))
     print(
         f"Wrote {out} ({len(birds)} birds, {len(insects)} insects, "
-        f"{len(water)} water clips, 3D model credits)"
+        f"{len(water)} water clips, {len(sea_wind)} sea/wind loops, 3D model credits)"
     )
 
 

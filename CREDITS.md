@@ -95,6 +95,17 @@ CC0 field-recording one-shots for the underwater camera pass. Trimmed and loudno
 - Harbour emerge splash - recorded by morganveilleux. CC0 1.0 (Public Domain). Source: https://freesound.org/people/morganveilleux/sounds/389987/
 - Harbour submerge splash - recorded by blaukreuz. CC0 1.0 (Public Domain). Source: https://freesound.org/people/blaukreuz/sounds/195877/
 
+## Sea and wind ambience
+
+CC0 field recordings of surf and wind, cut into seamless loops that crossfade with the weather.
+
+- Calm sea, small waves on shingle - recorded by timsc. CC0 1.0 (Public Domain). Source: https://freesound.org/people/timsc/sounds/367479/
+- Howling storm wind - recorded by DBlover. CC0 1.0 (Public Domain). Source: https://freesound.org/people/DBlover/sounds/505999/
+- Light wind through pines - recorded by kvgarlic. CC0 1.0 (Public Domain). Source: https://freesound.org/people/kvgarlic/sounds/184277/
+- Moderate surf on shingle and rock - recorded by leesparey. CC0 1.0 (Public Domain). Source: https://freesound.org/people/leesparey/sounds/653395/
+- Storm waves breaking on a beach - recorded by chris_dagorne. CC0 1.0 (Public Domain). Source: https://freesound.org/people/chris_dagorne/sounds/426076/
+- Strong wind in a tree - recorded by felix.blume. CC0 1.0 (Public Domain). Source: https://freesound.org/people/felix.blume/sounds/187756/
+
 ## Map and elevation data
 
 The seamless Reval city follows the surviving street plan, plot boundaries, towers and cliff lines of Tallinn Old Town, corrected to spring 1343 by the Reval Rebel authors.
