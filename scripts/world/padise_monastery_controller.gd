@@ -5,8 +5,7 @@ extends Node
 ## The Padise site plan (content/world/padise, ADR 0042) owns collision, terrain
 ## and buildings; its points of interest carry the greybox anchor ids in
 ## `anchor_id` (definition_from_plan). This node owns only phase-specific people
-## and the location soundscape. The greybox world_padise.rrmap keeps the same
-## anchor contract until it is retired.
+## and the location soundscape.
 
 const MonkActor := preload("res://scripts/world/padise_monk_actor.gd")
 const MusicDirectorScript := preload("res://scripts/global/music_director.gd")

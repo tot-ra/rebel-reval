@@ -169,7 +169,7 @@ preview was rendering Toompea's city wall in the abbey's own field.
 
 ### Evidence plates
 
-Captured with `godot --path . --rendering-driver metal --script tools/capture_padise_view.gd`.
+Captured with `tools/capture_padise_view.gd` (greybox tool, removed with the greybox in R-1556).
 
 | Plate | Shows |
 | --- | --- |

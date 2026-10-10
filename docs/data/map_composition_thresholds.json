@@ -244,11 +244,6 @@
       "open_floor_pct": [80, 92],
       "map_class": "interior"
     },
-    "world.padise": {
-      "enforce": false,
-      "source_refs": ["H21"],
-      "map_class": "rural"
-    },
     "world.saaremaa": {
       "enforce": false,
       "source_refs": ["H24"],

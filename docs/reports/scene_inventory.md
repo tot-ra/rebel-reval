@@ -93,7 +93,6 @@ Inventory row count (data rows in the table below): **139**.
 | 54 | `scenes/ui/journal_overlay.tscn` | working | Quest journal overlay; P1-016 objectives and discovered evidence. |
 | 89 | `scenes/ui/reflection_overlay.tscn` | working | Hingepuu reflection overlay; P2-011 Duty/Fury/Mercy conviction choice. |
 | 55 | `assets/characters/variants/townswoman.tscn` | partial | Shared-rig townswoman variant used by ambient NPC work. |
-| 81 | `scenes/world_travel/world_padise.tscn` | partial | Developer global-map placeholder; west road via Toompea; `release=false`. |
 | 82 | `scenes/world_travel/world_saaremaa.tscn` | partial | Developer global-map placeholder; island ferry via Trade Harbour; `release=false`. |
 | 83 | `scenes/world_travel/world_rebel_kings.tscn` | partial | Developer global-map placeholder; Act 2 Harju command camp; `release=false`. |
 | 84 | `scenes/world_travel/world_kanavere.tscn` | partial | Developer global-map placeholder; May 11 battlefield; `release=false`. |

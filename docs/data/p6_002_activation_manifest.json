@@ -12,26 +12,6 @@
   "activation_policy": "Keep Act 3 maps developer-traversable without promoting any prototype to release or production until all owning content and parity gates are accepted.",
   "targets": [
     {
-      "id": "world_padise",
-      "rrmap_id": "world.padise",
-      "scene_path": "res://scenes/world_travel/world_padise.tscn",
-      "role": "Padise monastery phases",
-      "owner_tasks": ["P6-002", "P6-009"],
-      "expected_dev_spawns": ["from_reval_west", "from_world_parnu"],
-      "phases": [
-        {
-          "id": "padise.before_sack",
-          "status": "blocked",
-          "source": null
-        },
-        {
-          "id": "padise.after_sack",
-          "status": "blocked",
-          "source": "content/maps/world_padise.rrmap"
-        }
-      ]
-    },
-    {
       "id": "world_paide",
       "rrmap_id": "world.paide",
       "scene_path": "res://scenes/world_travel/world_paide.tscn",
@@ -67,7 +47,7 @@
     },
     "traversal_collision": {
       "status": "pending",
-      "evidence": "tests/godot/test_world_padise_1343.gd and target map traversal suites"
+      "evidence": "tests/godot/test_padise_site.gd and target map traversal suites"
     },
     "day_night_parity": {
       "status": "blocked",
@@ -76,7 +56,7 @@
     },
     "phase_coverage": {
       "status": "blocked",
-      "evidence": "P6-009 must author both Padise phases before promotion"
+      "evidence": "P6-009 must author both Padise phases; Padise itself is now a regional site (R-1556)"
     }
   }
 }

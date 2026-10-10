@@ -21,7 +21,7 @@ MANIFEST_PATH = Path("docs/data/p6_002_activation_manifest.json")
 CATALOG_PATH = Path("scripts/map/map_catalog.gd")
 DESTINATIONS_PATH = Path("content/transitions/active_destinations.json")
 EXPECTED_APPROVAL = "docs/adr/0008-three-act-campaign-and-faction-scope.md"
-EXPECTED_TARGETS = ("world_padise", "world_paide", "world_saaremaa", "world_poide")
+EXPECTED_TARGETS = ("world_paide", "world_saaremaa", "world_poide")
 
 
 def _read_json(path: Path, label: str) -> tuple[dict[str, Any] | None, list[str]]:

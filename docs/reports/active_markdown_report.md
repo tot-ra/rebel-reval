@@ -20,13 +20,13 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - Links to active Markdown docs: `12064`
 - Links to existing archive/reference/non-active local docs: `451`
 - External links skipped for reachability: `92`
-- Issues found: `160`
+- Issues found: `163`
 
 ## Issue counts
 
 | Code | Count |
 | --- | ---: |
-| `BROKEN_LINK` | 94 |
+| `BROKEN_LINK` | 97 |
 | `BROKEN_ANCHOR` | 66 |
 | `DUPLICATE_CHARACTER_NAME` | 0 |
 | `CONTRADICTORY_DATE` | 0 |
@@ -185,6 +185,9 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 | `BROKEN_LINK` | `docs/FLORA_FAUNA.md:114` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
 | `BROKEN_LINK` | `docs/FLORA_FAUNA.md:115` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
 | `BROKEN_LINK` | `docs/FLORA_FAUNA.md:116` | Local Markdown link target does not exist: `../content/maps/archbishops_garden.rrmap` |
+| `BROKEN_LINK` | `docs/LOCATIONS/haapsalu_laanemaa.md:57` | Local Markdown link target does not exist: `../../content/maps/world_padise.rrmap` |
+| `BROKEN_LINK` | `docs/LOCATIONS/padise_monastery.md:4` | Local Markdown link target does not exist: `../../content/maps/world_padise.rrmap` |
+| `BROKEN_LINK` | `docs/LOCATIONS/padise_monastery.md:192` | Local Markdown link target does not exist: `../../content/maps/world_padise.rrmap` |
 | `BROKEN_LINK` | `docs/LOCATIONS/sacred_grove.md:50` | Local Markdown link target does not exist: `../../content/maps/south_quarter.rrmap` |
 | `BROKEN_LINK` | `docs/LOCATIONS/sacred_grove.md:179` | Local Markdown link target does not exist: `../../content/maps/world_sacred_grove.rrmap` |
 | `BROKEN_LINK` | `docs/PERFORMANCE_REPORT.md:5` | Local Markdown link target does not exist: `../agents/rebel-dev/skills/performance-loop/SKILL.md` |

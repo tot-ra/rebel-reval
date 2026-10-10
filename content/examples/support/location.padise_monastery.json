@@ -11,7 +11,7 @@
   },
   "description": "A Cistercian monastery estate shown before the April 1343 attack and as a burned, silent site after it.",
   "gameplay_space": true,
-  "scene_path": "res://scenes/world_travel/world_padise.tscn",
+  "scene_path": "res://scenes/world/sites/padise.tscn",
   "spawn_ids": [
     "prototype_inspection",
     "from_world_padise"

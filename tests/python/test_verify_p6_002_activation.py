@@ -10,7 +10,7 @@ from tools.verify_p6_002_activation import verify
 
 ROOT = Path(__file__).resolve().parents[2]
 MANIFEST = ROOT / "docs/data/p6_002_activation_manifest.json"
-TARGETS = ("world_padise", "world_paide", "world_saaremaa", "world_poide")
+TARGETS = ("world_paide", "world_saaremaa", "world_poide")
 
 
 class TestP6Act3Activation(unittest.TestCase):
@@ -19,7 +19,7 @@ class TestP6Act3Activation(unittest.TestCase):
 
     def test_partial_rrmap_activation_is_rejected(self) -> None:
         with self._fixture() as root:
-            path = root / "content/maps/world_padise.rrmap"
+            path = root / "content/maps/world_saaremaa.rrmap"
             path.write_text(
                 path.read_text(encoding="utf-8").replace(
                     "scope=prototype active=false", "scope=production active=true", 1
@@ -28,7 +28,7 @@ class TestP6Act3Activation(unittest.TestCase):
             )
             errors = verify(root)
             self.assertTrue(
-                any("world_padise RRMap must remain scope=prototype active=false" in error for error in errors),
+                any("world_saaremaa RRMap must remain scope=prototype active=false" in error for error in errors),
                 errors,
             )
 
@@ -36,12 +36,12 @@ class TestP6Act3Activation(unittest.TestCase):
         with self._fixture() as root:
             destinations_path = root / "content/transitions/active_destinations.json"
             destinations = json.loads(destinations_path.read_text(encoding="utf-8"))
-            padise = next(row for row in destinations["scenes"] if row["id"] == "world_padise")
-            padise["release"] = True
+            saaremaa = next(row for row in destinations["scenes"] if row["id"] == "world_saaremaa")
+            saaremaa["release"] = True
             destinations_path.write_text(json.dumps(destinations), encoding="utf-8")
             errors = verify(root)
             self.assertTrue(
-                any("world_padise must remain active developer traversal with release=false" in error for error in errors),
+                any("world_saaremaa must remain active developer traversal with release=false" in error for error in errors),
                 errors,
             )
 

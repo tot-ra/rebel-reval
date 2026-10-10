@@ -219,26 +219,6 @@
       "mandatory_transitions": []
     },
     {
-      "id": "world.padise",
-      "location_name": "Padise Monastery developer route",
-      "scene": "scenes/world_travel/world_padise.tscn",
-      "definition": "scripts/map/definitions/outdoor/distant_location_definitions.gd",
-      "factory": "DistantLocationDefinitions.create(world_padise)",
-      "disposition": "convert",
-      "capture": "world_padise.png",
-      "mandatory_anchors": [
-        "landmark_early_stone_house",
-        "landmark_timber_oratory",
-        "landmark_fire_damage",
-        "landmark_work_yard",
-        "landmark_monastery_well"
-      ],
-      "mandatory_transitions": [
-        "road_to_reval",
-        "road_to_parnu"
-      ]
-    },
-    {
       "id": "world.saaremaa",
       "location_name": "Saaremaa developer route",
       "scene": "scenes/world_travel/world_saaremaa.tscn",

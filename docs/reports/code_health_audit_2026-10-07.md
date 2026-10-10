@@ -15,7 +15,7 @@ Scope: every GDScript file under `scripts/` and `scenes/`, every scene, and ever
 |---|---|---|---|
 | Tower boss encounters (Nunnatorn, Kuldjala, Rentenitorn) | `scripts/combat/{nunnatorn,kuldjala,rentenitorn}_{boss_encounter,state_model}.gd` | Only tests and `tools/verify_nunnatorn_acceptance.py` use them; interior scenes in `scenes/reval_monastery/`, `scenes/reval_north/` never instantiate them | Mount each encounter in its interior scene and add a scene test. See [`SYSTEMS/COMBAT.md`](../SYSTEMS/COMBAT.md#towers-and-bosses) |
 | Act 2 mission allies | `scripts/combat/mission_ally_{controller,script}.gd` | Tests only | Mount in Act 2 mission scenes when they exist |
-| Padise monastery communities | `scripts/world/padise_monastery_controller.gd`, `padise_monk_actor.gd` | `scenes/world_travel/world_padise.tscn` does not use them | Mount in the Padise scene, or delete |
+| Padise monastery communities | `scripts/world/padise_monastery_controller.gd`, `padise_monk_actor.gd` | `scenes/world_travel/world_padise.tscn` did not use them (greybox retired, R-1556; now mounted by `scenes/world/sites/padise_site.gd`) | Done |
 | Public-event overlays (festivals, processions) | `scripts/world/event_overlay_model.gd` | Tests only; no controller | Add a controller or delete |
 | Act 2 finale, Act 3 ending | `scripts/quest/paide_finale_model.gd`, `act3_ending_model.gd` | Tests only | Expected until Act 2/3 scenes exist; keep, already documented in [`SYSTEMS/QUESTS.md`](../SYSTEMS/QUESTS.md#limits) |
 | Investigative quest tiers | `scripts/quest/investigative_quest_model.gd` | Used by tests and `quest.stolen_iron`; no scene consumes the tiers | Wire into an investigation or delete |

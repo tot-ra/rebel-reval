@@ -9,9 +9,9 @@
     "status": "draft",
     "reviewer": "P6-002"
   },
-  "description": "Support copy of the inactive world_padise distant-location map for example-corpus reference checks.",
+  "description": "Support copy of the world_padise regional site location for example-corpus reference checks.",
   "gameplay_space": true,
-  "scene_path": "res://scenes/world_travel/world_padise.tscn",
+  "scene_path": "res://scenes/world/sites/padise.tscn",
   "spawn_ids": [
     "from_world_padise",
     "from_reval_west",
@@ -37,9 +37,9 @@
   "source_notes": [
     {
       "confidence": "plausible composite",
-      "summary": "Support location for the inactive world_padise prototype map.",
+      "summary": "Support location for the world_padise regional site (ADR 0042).",
       "citations": [
-        "content/maps/world_padise.rrmap",
+        "content/world/padise/plan.json",
         "docs/reports/padise_monastery_research_p6_009.md"
       ]
     }
