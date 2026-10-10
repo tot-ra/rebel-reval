@@ -114,6 +114,13 @@ nodes or new material surfaces. Stable species IDs and save data are unchanged.
 There are no new controls; the existing calendar, wind, rain and melee interactions
 apply to the cards too. No input or save-format changes are involved.
 
+- Folded leaves are attached: each petiole sits on the shoot, stepping back from
+  the skeleton anchor by up to half the profile `leaf_spread`, and the blade
+  points out from there. They used to be offset radially by the full
+  `leaf_spread` (birch 0.48 tree units, about 1.5-2 m in the city), which left
+  rings of leaves hanging in the air with no twig to them
+  ([before](../reports/images/vegetation/birch_attached_leaves_before.jpg),
+  [after](../reports/images/vegetation/birch_attached_leaves_after.jpg)).
 - Cards tag `UV2 = (1, 1)`; folded leaves retain `(1, 0)`. All twelve card vertices
   share `CUSTOM0 = (petiole xyz, seed)`, but separate cards have separate seeds.
   `COLOR.a` remains crown AO. A whole cluster scales/collapses together, so spring

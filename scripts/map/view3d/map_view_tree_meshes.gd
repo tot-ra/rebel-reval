@@ -251,9 +251,16 @@ static func _build_macro_crown(species: StringName, world_scale: float, key: Str
 	var data := _build_canopy_mesh(
 		base_species(species), profile, _skeleton_for(species), size_factor, count_factor, fronds
 	)
-	var frond_triangles := int(data["frond_triangles"])
-	if frond_triangles > MACRO_FROND_TRIANGLE_CAP:
-		fronds["density"] = float(MACRO_FROND_TRIANGLE_CAP) / float(frond_triangles)
+	# Needle counts round per shoot (and never drop below two), so a proportional
+	# pass can land a little over the cap; aim 1% under and retry once if needed.
+	for _pass in 2:
+		var frond_triangles := int(data["frond_triangles"])
+		if frond_triangles <= MACRO_FROND_TRIANGLE_CAP:
+			break
+		fronds["density"] = (
+			float(fronds["density"]) * float(MACRO_FROND_TRIANGLE_CAP) * 0.99
+			/ float(frond_triangles)
+		)
 		data = _build_canopy_mesh(
 			base_species(species), profile, _skeleton_for(species), size_factor, count_factor, fronds
 		)
@@ -503,10 +510,6 @@ static func _build_canopy_mesh(
 				+ _hash(leaf_index, seed, 401) * 0.72
 			)
 			var radial := TreeMeshSkeleton.radial_around(branch_direction, yaw)
-			var spread := (
-				float(profile["leaf_spread"]) * lerpf(0.62, 1.08, _hash(leaf_index, seed, 409))
-			)
-			var center := anchor + radial * spread + branch_direction * spread * 0.28
 			var leaf_direction := (
 				(radial * 0.72 + branch_direction * 0.42 + Vector3.UP * 0.20).normalized()
 			)
@@ -516,6 +519,13 @@ static func _build_canopy_mesh(
 				* (NEAR_FOLDED_LEAF_SHRINK if size_factor < 1.0 else 1.0)
 				* lerpf(0.72, 1.16, _hash(leaf_index, seed, 419))
 			)
+			# The petiole sits on the shoot: leaves step back along the shoot from
+			# the anchor instead of floating out round it. The old radial offset of
+			# `leaf_spread` (birch 0.48, ~1.5-2 m in the city) left rings of leaves
+			# hanging in the air with no twig to them.
+			var along := float(profile["leaf_spread"]) * 0.5 * _hash(leaf_index, seed, 409)
+			var petiole := anchor - branch_direction * along
+			var center := petiole + leaf_direction * leaf_length * 0.48
 			var width_ratio := 0.16 if species in [&"spruce", &"pine", &"juniper"] else 0.60
 			if species in [&"willow", &"ash", &"rowan"]:
 				width_ratio = 0.26
