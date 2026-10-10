@@ -212,6 +212,25 @@ vec3 sky_lut_radiance(vec3 dir) {
 	return texture(sky_view_lut, atmosphere_sky_view_uv(dir, sun_direction, sky_lut_size)).rgb;
 }
 
+// sin(half angle) of the closest azimuth to the sun that the horizon colour may sample.
+const float HORIZON_AZIMUTH_FLOOR = 0.22;
+
+// Horizon radiance below `dir` for the whole vertical column (ambient, overcast tint,
+// below-horizon fade). WHY: with a low sun the LUT's horizon row holds the sharp Mie
+// aureole within a few degrees of the sun's azimuth, and one row reused for every
+// elevation stretched that peak into a narrow vertical pillar up to the zenith. The
+// azimuth coordinate (sin of half the angle to the sun) gets a smooth floor, so the
+// column keeps the broad sunset glow but never the aureole itself.
+vec3 sky_lut_horizon_radiance(vec3 dir) {
+	vec2 uv = atmosphere_sky_view_uv(
+		normalize(vec3(dir.x, 0.0, dir.z) + vec3(0.0, 0.0, 1e-5)), sun_direction, sky_lut_size);
+	float unit_x = atmosphere_sub_uv_to_unit(uv.x, sky_lut_size.x);
+	float floor_sq = HORIZON_AZIMUTH_FLOOR * HORIZON_AZIMUTH_FLOOR;
+	unit_x = sqrt((unit_x * unit_x + floor_sq) / (1.0 + floor_sq));
+	uv.x = atmosphere_unit_to_sub_uv(unit_x, sky_lut_size.x);
+	return texture(sky_view_lut, uv).rgb;
+}
+
 
 vec3 sun_transmittance_at(float altitude_km) {
 	float r = ATMO_RG + altitude_km;
@@ -842,7 +861,7 @@ void sky() {
 			1.0, sky_adaptation_max_gain);
 		vec3 art = sky_exposure * sky_tint.rgb * adaptation;
 		lut_zenith *= art;
-		vec3 lut_horizon = sky_lut_radiance(normalize(vec3(dir.x, 0.0, dir.z) + vec3(0.0, 0.0, 1e-5))) * art;
+		vec3 lut_horizon = sky_lut_horizon_radiance(dir) * art;
 		cloud_ambient = 0.5 * (lut_zenith + lut_horizon);
 		// Sunlight from the LUT is untouched; only the additive night floor varies.
 		float night = 1.0 - day_blend;
