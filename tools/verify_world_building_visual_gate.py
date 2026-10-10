@@ -74,6 +74,13 @@ EXTERIOR_SCENE_EXCLUSIONS = frozenset({
     "forge",
     "nunnatorn_interior",
 })
+# ADR 0042 regional sites are built from content/world/<site>/plan.json, not an
+# RRMap, so the RRMap density/capture rows of this gate cannot describe them.
+# They are gated by their own plan --check, Godot tests and review plates (see
+# docs/SYSTEMS/REGIONAL_SITES.md). Matching by scene path keeps a future site
+# out of the matrix without a per-ID list; their map IDs are also dropped from
+# the candidate manifests so a stale candidate row cannot re-add them.
+REGIONAL_SITE_SCENE_PREFIX = "res://scenes/world/sites/"
 
 
 def _check_iso_timestamp(value: Any, context: str, errors: list[str]) -> None:
@@ -165,11 +172,29 @@ def _active_registry_ids(root: Path) -> tuple[set[str], list[str]]:
             continue
         if scene.get("active") is True and isinstance(scene.get("id"), str):
             scene_id = scene["id"]
-            if scene_id not in EXTERIOR_SCENE_EXCLUSIONS:
+            if scene_id not in EXTERIOR_SCENE_EXCLUSIONS and not _is_regional_site(scene):
                 scene_ids.add(_canonical_map_id(scene_id))
     if not scene_ids:
         return set(), ["active destination registry contains no active scene IDs"]
     return scene_ids, []
+
+
+def _is_regional_site(scene: dict[str, Any]) -> bool:
+    path = scene.get("path")
+    return isinstance(path, str) and path.startswith(REGIONAL_SITE_SCENE_PREFIX)
+
+
+def regional_site_ids(root: Path = ROOT) -> set[str]:
+    """Return map IDs whose registry scene is an ADR 0042 regional site."""
+
+    payload, errors = _load_json(root / "content" / "transitions" / "active_destinations.json", "active destination registry")
+    if errors or not isinstance(payload, dict):
+        return set()
+    return {
+        _canonical_map_id(scene["id"])
+        for scene in _as_list(payload.get("scenes"))
+        if isinstance(scene, dict) and isinstance(scene.get("id"), str) and _is_regional_site(scene)
+    }
 
 
 def _candidate_ids(root: Path) -> tuple[set[str], list[str]]:
@@ -197,11 +222,13 @@ def _candidate_ids(root: Path) -> tuple[set[str], list[str]]:
 
 
 def expected_map_ids(root: Path = ROOT) -> tuple[set[str], list[str]]:
-    """Return the union of active runtime scenes and candidate exterior maps."""
+    """Return the union of active runtime scenes and candidate exterior maps,
+    minus regional sites."""
 
     active_ids, active_errors = _active_registry_ids(root)
     candidate_ids, candidate_errors = _candidate_ids(root)
-    return active_ids | candidate_ids, active_errors + candidate_errors
+    expected = (active_ids | candidate_ids) - regional_site_ids(root)
+    return expected, active_errors + candidate_errors
 
 
 def _safe_evidence_path(root: Path, value: Any, context: str, errors: list[str]) -> Path | None:

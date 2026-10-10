@@ -116,9 +116,14 @@ python3 -m unittest tests.python.test_build_site_plan tests.python.test_build_re
 godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_regional_site_plan,test_hinterland_sites
 tools/godot_render.sh --script tools/capture_regional_sites.gd
 tools/godot_render.sh --script tools/capture_hinterland_sites.gd
+python3 -m unittest tests.python.test_verify_world_building_visual_gate   # sites stay out of the RRMap gate
 ```
 
 `test_regional_site_plan.gd` loads the Paide plan and scene, checks that no sea node exists while sky, sun and weather do, that every manifest spawn is a plan arrival inside the edge, that ids are site-prefixed, that the noon sun follows the site latitude and is restored on exit, and that walking into the edge opens the travel map.
+
+### Visual gate
+
+Decision (2026-10-10, task **R-1619**): regional sites get no row in `docs/data/world_building_visual_benchmark.json`. That matrix is RRMap-based: its `automated_density` row comes from `tools/verify_map_composition.py` over a compiled RRMap, and a site has none (it is `content/world/<site>/plan.json`). `tools/verify_world_building_visual_gate.py` therefore leaves out every registry scene whose path starts with `res://scenes/world/sites/` (`REGIONAL_SITE_SCENE_PREFIX`), and drops the same map ids (`world.harju`, `world.sacred_grove`, `world.rebel_kings`, `world.padise`, `world.paide`) from the candidate manifests. A new site is excluded by its scene path alone. Its visual evidence is the `--check` build, the Godot tests and the review plates in `docs/reports/images/sites/` listed above. Alternative rejected: site rows pointing at `plan.json` and the plates, which would leave the density row permanently failing or need a second, plan-based density metric. Test: `tests/python/test_verify_world_building_visual_gate.py` (`test_regional_sites_are_not_rrmap_benchmark_rows`, `test_site_exclusion_is_by_scene_path_and_overrides_candidates`).
 
 ## Limits
 

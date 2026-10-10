@@ -34,7 +34,7 @@ Evidence paths must remain repository-relative. The manifest also requires separ
 
 Reviewers mark each row against geometry silhouette, PBR response, texture density, lighting and atmosphere, water, vegetation, animation/temporal behavior, historical coherence, repetition, seams, temporal stability, and performance tier. The human review requires a named reviewer, ISO date, and an evidence path. `approved` is distinct from an automated `pass` so automated checks cannot silently substitute for art-direction review.
 
-The matrix is derived against active scene IDs in `content/transitions/active_destinations.json`, candidate maps in `docs/data/location_activation_manifest.json`, and Act 3 candidates in `docs/data/p6_002_activation_manifest.json`. Scene-style `world_*` IDs are normalized to the `world.*` RRMap namespace. Interior-only and landmark-only destinations are excluded from this exterior gate.
+The matrix is derived against active scene IDs in `content/transitions/active_destinations.json`, candidate maps in `docs/data/location_activation_manifest.json`, and Act 3 candidates in `docs/data/p6_002_activation_manifest.json`. Scene-style `world_*` IDs are normalized to the `world.*` RRMap namespace. Interior-only and landmark-only destinations are excluded from this exterior gate. Regional sites (registry scenes under `res://scenes/world/sites/`, [ADR 0042](adr/0042-regional-site-plans.md)) are excluded too, also when a candidate manifest still names them: they have no RRMap, so they are gated by the checks in [`REGIONAL_SITES.md`](SYSTEMS/REGIONAL_SITES.md#visual-gate) (task **R-1619**).
 
 ## Release decision
 

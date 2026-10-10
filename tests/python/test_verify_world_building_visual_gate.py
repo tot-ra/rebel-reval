@@ -17,6 +17,8 @@ if str(TOOLS) not in sys.path:
 from verify_world_building_visual_gate import (  # noqa: E402
     REQUIRED_CAPTURE_CATEGORIES,
     REQUIRED_RUBRIC_CRITERIA,
+    expected_map_ids,
+    regional_site_ids,
     verify_manifest,
 )
 
@@ -140,6 +142,47 @@ class WorldBuildingVisualGateTests(unittest.TestCase):
         result = verify_manifest(ROOT, manifest)
         self.assertFalse(result.valid)
         self.assertTrue(any("repository-relative" in error for error in result.errors))
+
+    def test_regional_sites_are_not_rrmap_benchmark_rows(self) -> None:
+        # ADR 0042 sites (scenes/world/sites/*.tscn) replaced their greyboxes;
+        # they are gated by REGIONAL_SITES.md checks, not by this matrix.
+        sites = regional_site_ids(ROOT)
+        self.assertTrue({"world.harju", "world.sacred_grove"} <= sites)
+        expected, errors = expected_map_ids(ROOT)
+        self.assertEqual(errors, [])
+        self.assertFalse(sites & expected)
+        result = verify_manifest(ROOT, self.manifest)
+        missing = [error for error in result.errors if "missing active/candidate map IDs" in error]
+        for site_id in sites:
+            self.assertFalse(any(site_id in error for error in missing), missing)
+
+    def test_site_exclusion_is_by_scene_path_and_overrides_candidates(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            registry = {
+                "scenes": [
+                    {"id": "world_site_a", "path": "res://scenes/world/sites/site_a.tscn", "active": True},
+                    {"id": "world_rrmap_b", "path": "res://scenes/world_travel/world_rrmap_b.tscn", "active": True},
+                ]
+            }
+            files = {
+                "content/transitions/active_destinations.json": registry,
+                # A stale candidate row must not pull a site back into the matrix.
+                "docs/data/location_activation_manifest.json": {"maps": [{"map_id": "world.site_a"}]},
+                "docs/data/p6_002_activation_manifest.json": {"targets": []},
+            }
+            for relative, payload in files.items():
+                target = root / relative
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_text(json.dumps(payload), encoding="utf-8")
+            expected, errors = expected_map_ids(root)
+            self.assertEqual(errors, [])
+            self.assertEqual(expected, {"world.rrmap_b"})
+            result = verify_manifest(root, {**copy.deepcopy(self.manifest), "maps": []})
+            self.assertTrue(any(
+                error == "benchmark matrix is missing active/candidate map IDs: world.rrmap_b"
+                for error in result.errors
+            ), result.errors)
 
 
 if __name__ == "__main__":
