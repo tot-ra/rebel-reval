@@ -19,7 +19,7 @@ Status: implemented (tasks **P1-011** runner, **P1-012** UI, **P1-013** settings
 | `DialoguePresenter` / `DialogueUiPresenter` | `scripts/dialogue/` | Presenter contract between runner and UI (tests use `tests/godot/dialogue_test_presenter.gd`). |
 | `DialogueUI` | `scripts/dialogue/dialogue_ui.gd` | The panel, with helpers `DialogueUiBuilder` (node tree), `DialogueUiChoices`, `DialogueUiInput`, `DialogueUiReveal` (typewriter), `DialogueUiTheme` (colors), `DialogueTextScale`, `DialogueTextLayout` (overflow geometry). |
 | `DialogueBarkPresenter` | `scripts/dialogue/dialogue_bark_presenter.gd` | World-anchored bark bubble. |
-| `DialoguePortraitResolver` | `scripts/dialogue/dialogue_portrait_resolver.gd` | Portraits for Mart, Kalev, Henning, and Aita from `assets/characters/portraits/`. Others show no portrait. |
+| `DialoguePortraitResolver` | `scripts/dialogue/dialogue_portrait_resolver.gd` | Portraits for Mart, Kalev, Henning, and Aita from `assets/characters/portraits/` (`KNOWN_PORTRAITS`); any other `char.<slug>` falls back to `assets/characters/portraits/npc/<slug>.png` (task **R-1566**). No file means no portrait. |
 | `DialogueTextFormatter` | `scripts/dialogue/dialogue_text_formatter.gd` | Expands runtime tokens (below). |
 | `DialogueLocalization`, `DialoguePseudoLocalization` | `scripts/dialogue/` | Catalog lookup and the layout stress mode. |
 
@@ -51,4 +51,8 @@ python3 tools/dialogue_voice_manifest.py --content content/examples/valid --cont
 ## Limits
 
 - The demo Mart street conversation (`DemoMartEncounter`) and the forge Henning/cat conversations (`scenes/reval_east/forge/forge_dialogue_encounter.gd`) still use the linear `DemoDialogueRunner` + `DemoDialogueBox` from D-002, which the script header marks superseded by `DialogueRunner`. Migrating them is open work ([`docs/reports/code_health_audit_2026-10-07.md`](../reports/code_health_audit_2026-10-07.md)).
-- Portraits exist for four speakers only.
+- Portraits: four core speakers plus 98 named NPCs imported from `characters/**/img/<slug>.jpg`.
+
+## Named NPC portraits (R-1566)
+
+`python3 tools/assets/import_npc_portraits.py` crops each `characters/**/img/<slug>.jpg` to a top-aligned square (head and shoulders, 256 px max, sRGB PNG) into `assets/characters/portraits/npc/`. It is idempotent and fails on duplicate slugs. Provenance rows live in `assets/SOURCES.csv` (candidate, art approval pending per ADR 0044). `DialoguePortraitResolver.portrait_path()` maps `char.<slug>` to the file by naming convention. Limits: the speaker id must equal the jpg stem; the registry `portrait` field (R-1562) will replace the convention. Tests: `tests/godot/test_dialogue_portrait_resolver.gd`, `tests/python/test_import_npc_portraits.py`.
