@@ -15,6 +15,7 @@ Keep this file short. Append a durable reusable rule, not a dated incident log. 
 ### Edits
 - Never run parallel edits against the same file. Serialize replacements and re-read the saved block.
 - Before an exact edit, read the live unique block. After any nearby change, re-read again. Stale context is the usual no-match cause.
+- In Python, `open(p, "w").write(f(open(p).read()))` truncates `p` before the read and destroys the file, including other sessions' unsaved hunks that no git object holds. Read into a variable first, then open for writing; for a shared dirty file, copy it to `/tmp` before any scripted rewrite.
 - Pass the complete file path, not a directory. `read` takes one path per call. `start_line` must be `<= end_line`.
 - After inserting a test or helper, re-read neighboring method boundaries and confirm the next `func` / `def` header is still present. Replacing only a header can absorb the following body.
 - Discover the actual path before reading. Do not infer filenames from class names, task summaries, or the connected-skills directory. The active guide is root `AGENTS.md`.
