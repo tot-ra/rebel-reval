@@ -1,6 +1,6 @@
 # Regional sites: distant destinations on the seamless-city pipeline
 
-Status: implemented for the Paide pilot (task **R-1520**, [ADR 0042](../adr/0042-regional-site-plans.md)), Padise (**R-1522**) and the Act 2 hinterland sites Harju, the rebel kings' camp and the sacred grove (**R-1527**..**R-1529**); the other sites are planned (R-1521, R-1523..R-1526).
+Status: implemented for the Paide pilot (task **R-1520**, [ADR 0042](../adr/0042-regional-site-plans.md)), Padise (**R-1522**) and the Act 2 hinterland sites Harju, the rebel kings' camp and the sacred grove (**R-1527**..**R-1529**) and Saaremaa (Kaali, **R-1524**); the other sites are planned (R-1521, R-1523, R-1525, R-1526).
 
 Scope: every distant travel destination is a georeferenced plan built by the same builder and shown by the same runtime as the seamless Reval city ([SEAMLESS_CITY.md](./SEAMLESS_CITY.md)): terrain from EU-DEM, sky with sun, moon and stars over the site's own latitude, clouds, weather, one wind, rain wetness and puddles, ground splat and road wear, vegetation, farmland, streams and ditches, fortifications and buildings. A new site is data only: an overlay, two trimmed input extracts and a two-node scene.
 
@@ -49,6 +49,25 @@ Review plates (`tools/godot_render.sh --script tools/capture_hinterland_sites.gd
 
 Limits: plumes reuse the chimney streamer's per-id schedule, so about one plume in three burns only by day, only at night or never; shelters are thatched outbuildings, not bough or hide models; the great oak is a point of interest, not a modelled tree (the grove's oaks come from the grove fill); there is no well model on the Harju common, no standard pole, carts or horses (fauna off); Harju's yards have no fences, kitchen gardens or yard clutter, the smoke room has the town household furniture set (pallets, coffer, table) rather than an authored stone heap oven, plank bunks along the walls or a threshing floor with flails, and the cut wall tops show the shared stone section cap; the spring pool is a flat disc on the ground, not a carved basin.
 
+## Saaremaa: Kaali (July 1343)
+
+Status: implemented (task **R-1524**). Scope: the Kaali main crater, its lake, a grove on the rim and a small farming village with fields round it, 500 m frame centred on the crater lake (58.3728 N, 22.6694 E, OSM way 70930971). Out of scope: the north-coast ferry landing (about 18 km away; the crossing from Reval is the journey), the eight smaller craters, the prehistoric stone enclosure on the rim, quests and dialogue (`quest.saaremaa_omen` is not wired), citizens, fauna and interiors. The `world_saaremaa` greybox (`content/maps/world_saaremaa.rrmap`, `scenes/world_travel/world_saaremaa.tscn`) is no longer routed but is not retired yet: water tests and benchmarks still load it (follow-up task).
+
+- Choosing **Saaremaa** on the global travel map loads `scenes/world/sites/saaremaa.tscn` (`world_saaremaa`, map `world.saaremaa`). The player arrives on the north road from the coast (`from_reval_harbor`), on the east road from Pöide (`from_world_poide`) or on the road at the south edge (`from_world_parnu`); started directly, on the village road east of the crater (`saaremaa.spawn.village`).
+- The crater: a bowl about 110 m across with a raised rim 6 m over the plain; oak, linden, ash, birch and rowan grow over the rim and down the slopes. In the bottom lies a still green lake about 39 m across and 4 m deep, with a muddy shore and an offering stone on its south-west bank. A footpath leads down from the village. Kalev can wade in and swim (the lake is a swim record like the stream).
+- East and south-east of the crater four farmsteads (smoke-room dwelling, granary and shed round a yard, smoke plumes); strip fields north, east and south; a fenced sheep common south-west; pine, juniper, spruce and birch wood along the west edge.
+- Walking into the edge band opens the global travel map.
+
+How the crater and lake are built:
+
+- Overlay `crater` (`at_m`, `rim_radius_m`, `rim_height_m`, `floor_depth_m`, `floor_fraction`, `apron_m`): `build_site_plan.py` replaces the EU-DEM inside rim plus apron with a smoothstep bowl and rim, measured from the median plain in a 40 m ring outside the apron, before the datum is taken. The open-country relief keeps out of the crater; fields keep 4 m outside the rim.
+- Overlay `lake` (`level_m` relative to that plain): the builder probes the final ground in 64 directions for the waterline and writes plan `lakes[]` = `{id, name_1343, confidence, at, radius, surface}` (the key is absent on every other plan, so they stay byte-identical). Trees keep 1.5 m off the water. The shared splat and minimap renderers (`build_reval_city_plan.py`) draw a lake as mud under the water and a wet ring round it, and as a water disc on the minimap.
+- Runtime: `CityWorld3D._build_inland_water` draws each lake as a polar-grid disc (`_lake_mesh`, `LAKE_SECTORS` spokes) at its surface with the water column baked per vertex (`vertex_depth` on in `_lake_material`; the depth texture read zero there) and appends one swim record whose two ends coincide, so `water_surface_at` and `water_medium_at` treat it as a circle of the lake's radius. `lake_segment_end` tells `water_medium_at` which records use `lake_material`.
+
+Review plates (`tools/godot_render.sh --script tools/capture_hinterland_sites.gd -- --only=<shot>`): `docs/reports/images/sites/saaremaa_day_arrival.png` (the rim from the north road), `saaremaa_day_crater_rim.png`, `saaremaa_day_lake_shore.png`, `saaremaa_day_village.png`, `saaremaa_day_aerial.png`, `saaremaa_night_crater.png`, `saaremaa_rain_crater.png`; plan review `saaremaa_plan.png`. Tests: `tests/godot/test_saaremaa_site.gd` (routing and ids, spawns inside the edge, bowl and lake depths, no trees in the water, sky and lake water without sea, swim depth in the middle and none on the bank, edge to travel map) and `tests/python/test_build_site_plan_saaremaa.py`.
+
+Limits: the lake has no reeds (the moat-plant pass reads the lake's single record as a point); the bowl is a smooth profile, not the stepped inner slope of the real crater; the rim grove is the generic grove fill; houses keep the generic timber footprints and closed doors.
+
 ## Sky, night and far ground at the sites (shared systems)
 
 The site sky uses the site's own origin as the `SkyAstronomy` observer (59.37 N for the hinterland, Paide and Padise), so the sun curve is already right for the latitude: the review plates' night shot (cycle progress 0.865) is a sun at about -6 degrees and 0.96 about -15 degrees in late April. What looked wrong was the shared look of that twilight, fixed once for every map and site:
@@ -82,7 +101,7 @@ The `site` block of the overlay:
 | `inputs` | Extract paths, the OSM bbox, the Overpass query and the DEM grid used to fetch them |
 | `music_theme` | MusicDirector theme id, or empty for none |
 
-Every overlay section is optional, so a site may have no wall circuit, no ditch, no stream, no settlement or no fields. A castle is a `circuit` (anchors, gate refs, tower refs), free-standing `towers` (form `octagonal` for a keep, `square` for a corner tower, `gate_rect` carried by a gate), and `inner_walls` with openings. Heights are stored above a local datum a little under the lowest ground (`site.datum_asl` in the plan), so no inland ground falls below the runtime's sea level.
+Every overlay section is optional, so a site may have no wall circuit, no ditch, no stream, no settlement or no fields. A `crater` with its `lake` is described in the Saaremaa section. A castle is a `circuit` (anchors, gate refs, tower refs), free-standing `towers` (form `octagonal` for a keep, `square` for a corner tower, `gate_rect` carried by a gate), and `inner_walls` with openings. Heights are stored above a local datum a little under the lowest ground (`site.datum_asl` in the plan), so no inland ground falls below the runtime's sea level.
 
 ## Stable IDs
 
@@ -98,7 +117,7 @@ Every overlay section is optional, so a site may have no wall circuit, no ditch,
 | `scenes/world/sites/hinterland_site.gd` | Script of the Harju, rebel kings' camp and sacred grove scenes: dresses `smoke`, `campfire`, `offering_stone` and `spring` points of interest (see the Act 2 hinterland section) |
 | `scenes/world/sites/<site_id>.tscn` | Two nodes like the city scene, with `site_id` exported |
 | `CityPlan.load_site(id)` | Loads `content/world/<id>/`; `site_dir`, `site_id`, `file_path()`, `has_coast()` (the `site.coast` flag), `feature_enabled()`, `origin_latitude()`, `origin_longitude()`, `arrival_spawn()` |
-| `CityWorld3D` | Builds the sea, shore field, harbour, shore dressing and ships only when `has_coast()` |
+| `CityWorld3D` | Builds the sea, shore field, harbour, shore dressing and ships only when `has_coast()`; draws plan `lakes[]` as still water discs (Kaali) |
 | `CityMapDefinition` | Map and location ids from the plan's `site` block; ditch ground is not read as harbour for birds |
 | `CityTravel.spawn_position` / `consume_pending_spawn(scene_id)` | Plan arrivals before Reval gates and places; pending spawns keyed by the site's scene id |
 | `SkyAstronomy.set_observer` / `reset_observer` | Sun, moon and sunrise follow the observer latitude; the stars turn by the longitude east of Reval |
@@ -121,7 +140,7 @@ Saves need nothing new: the travel destination and spawn are the same ids the gr
 
 ```bash
 python3 tools/city/build_site_plan.py --site paide --check
-for s in harju rebel_kings sacred_grove; do python3 tools/city/build_site_plan.py --site $s --check; done
+for s in harju rebel_kings sacred_grove saaremaa; do python3 tools/city/build_site_plan.py --site $s --check; done
 python3 tools/city/build_reval_city_plan.py --check          # Reval byte-identical
 python3 -m unittest tests.python.test_build_site_plan tests.python.test_build_reval_city_plan
 godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_regional_site_plan,test_hinterland_sites

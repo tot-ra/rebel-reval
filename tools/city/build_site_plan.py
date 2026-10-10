@@ -256,6 +256,27 @@ def build_site(overlay: dict) -> dict:
     gy = y0 + np.arange(ny) * HEIGHT_CELL_WU * mpu
     X, Y = np.meshgrid(gx, gy)
     asl = dem.sample(X, Y)
+    # Crater: EU-DEM's 25 m cells smear a ~110 m impact crater into a low mound,
+    # so an authored profile (bowl, raised rim, ejecta apron) replaces the DEM
+    # out to the apron, measured from the plain round it. Before the datum, so
+    # the bowl floor stays above the runtime's sea level.
+    crater = overlay.get("crater")
+    crater_c = None
+    crater_d = np.full(X.shape, 1e9)
+    crater_plain = 0.0
+    if crater:
+        crater_c = resolve(crater["at_m"])
+        rim_r = crater["rim_radius_m"]
+        reach = rim_r + crater["apron_m"]
+        crater_d = np.hypot(X - crater_c[0], Y - crater_c[1])
+        crater_plain = float(np.median(asl[(crater_d > reach) & (crater_d < reach + 40.0)]))
+        floor_r = rim_r * crater["floor_fraction"]
+        t_in = np.clip((crater_d - floor_r) / (rim_r - floor_r), 0.0, 1.0)
+        t_out = np.clip((crater_d - rim_r) / crater["apron_m"], 0.0, 1.0)
+        fade = 1.0 - t_out * t_out * (3 - 2 * t_out)
+        bowl = -crater["floor_depth_m"] + (crater["rim_height_m"] + crater["floor_depth_m"]) * t_in * t_in * (3 - 2 * t_in)
+        profile = np.where(crater_d <= rim_r, bowl, crater["rim_height_m"] * fade)
+        asl = asl * (1.0 - fade) + (crater_plain + profile) * fade
     # Inland sites have no sea to measure from: heights are kept above a local
     # datum a little under the lowest ground, so the runtime's sea tests (< 0)
     # never fire and the numbers stay small.
@@ -329,6 +350,8 @@ def build_site(overlay: dict) -> dict:
     inside_walls = reval.point_in_poly(X, Y, circuit_poly) if circuit_poly else np.zeros(X.shape, dtype=bool)
     if overlay.get("terrain", {}).get("relief", True):
         keepout = [reval.smoothstep01(river_d - river_w * 0.5, 4.0, 30.0)]
+        if crater:
+            keepout.append(reval.smoothstep01(crater_d - crater["rim_radius_m"] - crater["apron_m"], 4.0, 30.0))
         for sp in overlay.get("spaces", []):
             poly = [resolve(q) for q in sp["polygon_m"]]
             keepout.append(np.where(reval.point_in_poly(X, Y, poly), 0.0, reval.smoothstep01(terrain_relief.poly_distance(X, Y, poly, reval.dist_point_seg), 4.0, 28.0)))
@@ -350,6 +373,23 @@ def build_site(overlay: dict) -> dict:
 
     def h_at_m(px, py):
         return bilinear(height_wu, px, py)
+
+    # Crater lake: still water at an authored level under the plain, out to
+    # where the final ground climbs above it (the widest waterline is the
+    # runtime's swim radius).
+    lakes = []
+    lake_r = 0.0
+    lake = overlay.get("lake")
+    if lake and crater_c:
+        surface = (crater_plain + lake["level_m"] - datum) / mpu
+        for k in range(64):
+            a = k * math.tau / 64
+            r_ = 0.0
+            while r_ < crater["rim_radius_m"] and h_at_m(crater_c[0] + math.cos(a) * r_, crater_c[1] + math.sin(a) * r_) < surface:
+                r_ += 0.25
+            lake_r = max(lake_r, r_)
+        lakes.append({"id": lake["id"], "name_1343": lake["name_1343"], "confidence": lake["confidence"],
+                      "at": wpt(crater_c), "radius": round(lake_r / mpu, 3), "surface": round(surface, 3)})
 
     # ---------------- streets ----------------
     streets = []
@@ -552,6 +592,8 @@ def build_site(overlay: dict) -> dict:
             return True
         if trace and polyline_dist(p, trace) < 10.0:
             return True
+        if crater_c and math.dist(p, crater_c) < crater["rim_radius_m"] + 4.0:
+            return True
         if any(reval.pip(p, cp) for cp in clear_polys):
             return True
         return any(reval.pip(p, ring) for ring in occupied)
@@ -629,6 +671,8 @@ def build_site(overlay: dict) -> dict:
         if any(polyline_dist(p, r["pts"]) < r["width_m"] * 0.5 + 2.5 for r in roads):
             return False
         if trace and polyline_dist(p, trace) < 4.5:
+            return False
+        if lake_r and math.dist(p, crater_c) < lake_r + 1.5:
             return False
         if any(reval.pip(p, cp) for cp in clear_polys) or any(reval.pip(p, ring) for ring in occupied):
             return False
@@ -758,6 +802,10 @@ def build_site(overlay: dict) -> dict:
         "flows": [],
         "review_relief_wu": 20.0,
     }
+
+    # Only lake sites carry the key, so every other plan stays byte-identical.
+    if lakes:
+        plan["lakes"] = lakes
 
     q = np.round(height_wu * 100).astype(np.int64) + HEIGHT_OFFSET_CM
     q = np.clip(q, 0, 65535).astype("<u2")

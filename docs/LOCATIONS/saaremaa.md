@@ -2,6 +2,7 @@
 
 **Status:** planned (design proposal, not implemented) · **Scope gate:** existing prototype `loc.world_saaremaa` · **Act(s):** 3 (July 1343 muster, winter 1343-44, 1345 pacification aftermath)
 **Map id:** `loc.world_saaremaa` (existing: [`content/maps/world_saaremaa.rrmap`](../../content/maps/world_saaremaa.rrmap), 104x60 cells, `scope=prototype`, `active=false`) · **Seasons/phases:** A "muster" (July 1343, dry grass, long light), B "frozen sea" (Feb 1344, ice, snow on limestone), C "after" (winter 1345, submission and demolition of island works); the existing map is phase A only
+**Playable today (R-1524):** travel to Saaremaa loads the Kaali regional site (crater, lake, village; [`REGIONAL_SITES.md`](../SYSTEMS/REGIONAL_SITES.md#saaremaa-kaali-july-1343)); the coast, camps and ferry landing below remain design only, and the greybox map is no longer routed.
 **Confidence summary:** July 1343 rising, killing of German lords, march on Pöide, Vesse as rebel leader: `attested`. Tharapita as the god of the Oeselians in Henry of Livonia's 13th-century chronicle: `attested` (belief in 1343 `folklore`). Kaali as a prehistoric cult site with stone enclosure: `attested` (archaeology); its 1343 use: `plausible composite`. Dialect forms, individual NPCs, hamlet layout: `plausible composite` / `invented`. Design basis: [`saaremaa_kaali_location_design.md`](../reports/saaremaa_kaali_location_design.md).
 
 ## 1. Why a player would want to visit

@@ -155,9 +155,19 @@ notice.code.tidewater` comment.
 
 **Use:** The Pirita and Jõelähtme river courses, traced into the rebel kings' camp and sacred grove sites ([ADR 0042](adr/0042-regional-site-plans.md)); everything else in the three plans is authored for 1343.
 
+## notice.data.openstreetmap_kaali
+
+**Component:** Trimmed OpenStreetMap extract of Kaali, Saaremaa (`tools/city/data/osm_saaremaa_extract.json`) and the regional site plan derived from it (`content/world/saaremaa/plan.json`, `height.json`, `splat.png`, `roads.png`, `minimap.png`)
+
+**Copyright:** © OpenStreetMap contributors
+
+**License:** Open Database License (ODbL) 1.0, https://opendatacommons.org/licenses/odbl/1-0/ . The extract and the derived plan are made available under the ODbL; see https://www.openstreetmap.org/copyright
+
+**Use:** The centre of the Kaali crater lake (way 70930971) as the site origin and the direction of the roads round the crater, in the Saaremaa regional site ([ADR 0042](adr/0042-regional-site-plans.md)); the crater profile, lake level, village and land use are authored for 1343.
+
 ## notice.data.eudem
 
-**Component:** EU-DEM v1.1 elevation samples (`tools/city/data/eudem25m_reval.json`, `tools/city/data/eudem25m_paide.json`, `tools/city/data/eudem25m_padise.json`, `tools/city/data/eudem25m_harju.json`, `tools/city/data/eudem25m_rebel_kings.json`, `tools/city/data/eudem25m_sacred_grove.json`), fetched through OpenTopoData
+**Component:** EU-DEM v1.1 elevation samples (`tools/city/data/eudem25m_reval.json`, `tools/city/data/eudem25m_paide.json`, `tools/city/data/eudem25m_padise.json`, `tools/city/data/eudem25m_harju.json`, `tools/city/data/eudem25m_rebel_kings.json`, `tools/city/data/eudem25m_sacred_grove.json`, `tools/city/data/eudem25m_saaremaa.json`), fetched through OpenTopoData
 
 **Copyright:** Produced using Copernicus data and information funded by the European Union - EU-DEM layers
 

@@ -122,7 +122,7 @@
     },
     {
       "id": "world_saaremaa",
-      "path": "res://scenes/world_travel/world_saaremaa.tscn",
+      "path": "res://scenes/world/sites/saaremaa.tscn",
       "active": true,
       "release": false,
       "spawns": [

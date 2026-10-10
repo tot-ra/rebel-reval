@@ -2514,6 +2514,14 @@ def render_splat(plan, mpu):
     hj = plan.get("harjapea", {})
     if len(hj.get("points", [])) >= 2:
         draws["mud"].line([T(p) for p in hj["points"]], fill=255, width=int(hj.get("mud_m", 30) / mpu), joint="curve")
+    # Lakes (regional sites only): mud under the water (no grass grows there)
+    # and a wet band round the waterline.
+    for lk in plan.get("lakes", []):
+        cx, cy = T(lk["at"])
+        rr = (lk["radius"] + 3.0) * SPLAT_PX_PER_WU
+        draws["mud"].ellipse([cx - rr, cy - rr, cx + rr, cy + rr], fill=200)
+        rr = (lk["radius"] + 0.5) * SPLAT_PX_PER_WU
+        draws["mud"].ellipse([cx - rr, cy - rr, cx + rr, cy + rr], fill=255)
     # Ditch banks grade from grass through wet earth to mud at the waterline.
     if len(plan.get("moat", {}).get("points", [])) >= 2:
         for scale_, fill_ in ((2.5, 70), (1.9, 130), (1.4, 190), (1.0, 245)):
@@ -2621,6 +2629,9 @@ def render_minimap(plan, height_wu):
     hj = plan.get("harjapea", {})
     if len(hj.get("points", [])) >= 2:
         dr.line([T(p) for p in hj["points"]], fill=(92, 132, 148), width=hj.get("minimap_px", 12), joint="curve")
+    for lk in plan.get("lakes", []):
+        cx, cy = T(lk["at"])
+        dr.ellipse([cx - lk["radius"], cy - lk["radius"], cx + lk["radius"], cy + lk["radius"]], fill=(92, 132, 148))
     if len(plan.get("moat", {}).get("points", [])) >= 2:
         dr.line([T(p) for p in plan["moat"]["points"]], fill=(92, 132, 148), width=int(plan["moat"]["width"] * 0.9), joint="curve")
     for s in plan["streets"]:

@@ -8,10 +8,10 @@ Reconciled: 2026-09-10 (P0-206 grounded model and equipment integration)
 | Classification | Count | Role |
 |----------------|------:|------|
 | `working` | 50 | Active runtime scenes with verified or complete behavior |
-| `partial` | 68 | Substantial content but incomplete integration or dev-only use |
+| `partial` | 69 | Substantial content but incomplete integration or dev-only use |
 | `placeholder` | 3 | Reserved stubs or reference-only visuals, not playable |
 | `archive` | 20 | Out of vertical-slice scope; legacy open-world or event shells |
-| **Total** | **141** | Matches repository `.tscn` count |
+| **Total** | **142** | Matches repository `.tscn` count |
 
 Repository count command:
 
@@ -93,7 +93,7 @@ Inventory row count (data rows in the table below): **137**.
 | 54 | `scenes/ui/journal_overlay.tscn` | working | Quest journal overlay; P1-016 objectives and discovered evidence. |
 | 89 | `scenes/ui/reflection_overlay.tscn` | working | Hingepuu reflection overlay; P2-011 Duty/Fury/Mercy conviction choice. |
 | 55 | `assets/characters/variants/townswoman.tscn` | partial | Shared-rig townswoman variant used by ambient NPC work. |
-| 82 | `scenes/world_travel/world_saaremaa.tscn` | partial | Developer global-map placeholder; island ferry via Trade Harbour; `release=false`. |
+| 82 | `scenes/world_travel/world_saaremaa.tscn` | partial | Former developer global-map placeholder; no longer routed (travel loads `scenes/world/sites/saaremaa.tscn`, R-1524); kept for water tests until retired. |
 | 84 | `scenes/world_travel/world_kanavere.tscn` | partial | Developer global-map placeholder; May 11 battlefield; `release=false`. |
 | 85 | `scenes/world_travel/world_sojamae.tscn` | partial | Developer global-map placeholder; May 14 battlefield; `release=false`. |
 | 87 | `scenes/world_travel/world_parnu.tscn` | partial | Developer global-map placeholder; southern campaign town; `release=false`. |
@@ -122,6 +122,7 @@ Inventory row count (data rows in the table below): **137**.
 | 163 | `scenes/world/sites/harju.tscn` | partial | ADR 0042 regional site: invented Harju cluster village, April 1343, global-map destination `world_harju`; `release=false`, no quests yet. |
 | 164 | `scenes/world/sites/rebel_kings.tscn` | partial | ADR 0042 regional site: invented rebel kings' camp by the Pirita, May 1343, global-map destination `world_rebel_kings`; campfires; `release=false`, no quests yet. |
 | 165 | `scenes/world/sites/sacred_grove.tscn` | partial | ADR 0042 regional site: invented sacred grove (hiis), May 1343, global-map destination `world_sacred_grove`; offering stones and spring; `release=false`, no quests yet. |
+| 167 | `scenes/world/sites/saaremaa.tscn` | partial | ADR 0042 regional site: Kaali on Saaremaa, July 1343, crater bowl, swimmable crater lake and village; global-map destination `world_saaremaa`; `release=false`, no quests yet. |
 | 139 | `tools/capture_reval_city_walk.tscn` | partial | ADR 0031 seamless-city walk acceptance host; not player-facing. |
 | 134 | `tools/verify_world_seam_walk.tscn` | partial | R-1043 WorldHost seam-walk verification host (keyboard, gamepad, mouse, fallback); not player-facing. |
 

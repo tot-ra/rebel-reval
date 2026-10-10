@@ -256,6 +256,15 @@ The playable hinterland sites ([`REGIONAL_SITES.md`](./SYSTEMS/REGIONAL_SITES.md
 * **Sacred groves (hiis) with offerings at trees, stones and springs** - **`attested`** existence, **`plausible composite`** customs; this grove, its old oak, its four cup-marked stones and its spring are **`invented`**/**`folklore`**. Cup-marked boulders are common in north Harju, but these are placed for the game.
 * **Pirita and Jõelähtme river courses** - **`attested`** (OpenStreetMap, simplified); width, depth and the camp's watering place are **`plausible composite`**. The modern Vaskjala reservoir, villages, fields, ditches and the Kostivere settlement are not shown.
 
+### Saaremaa regional site: Kaali (ADR 0042, R-1524)
+
+The playable Saaremaa site ([`REGIONAL_SITES.md`](./SYSTEMS/REGIONAL_SITES.md)) is Kaali, framed on the crater lake (58.3728 N, 22.6694 E, OSM way 70930971). Sources: [`saaremaa.md`](./LOCATIONS/saaremaa.md), [`saaremaa_kaali_location_design.md`](./reports/saaremaa_kaali_location_design.md); EU-DEM for the plain; OpenStreetMap for the lake centre and the direction of the roads.
+
+* **The Kaali main crater (about 110 m across, about 22 m deep) with a lake in its bowl and a raised rim** - **`attested`** (geology); the game's profile (rim radius 55 m, rim 6 m over the plain, bed 17 m under it, water 13 m under it, a lake about 39 m across) is **`plausible composite`**: EU-DEM's 25 m cells cannot resolve the bowl, so it is authored over the DEM.
+* **Kaali as a cult place with offerings into the Middle Ages** - **`attested`** (archaeology); the offering stone on the shore and the grove of oak, linden and ash on the rim are **`plausible composite`**. The prehistoric stone enclosure on the rim is **`attested`** but not modelled.
+* **A small farming village east of the crater with strip fields, a sheep common and juniper-pine wood to the west** - **`plausible composite`**; its four farmsteads, roads and plot pattern are **`invented`** (road directions follow today's Masa-Kaali road and field tracks).
+* **The north-coast ferry landing** - not part of the site: about 18 km from Kaali, it is the journey from Reval (ADR 0042).
+
 ### Notable Landmarks (1343 vs Modern Tallinn)
 *For a catalog of how popular modern tourist spots (like the Town Hall, Toompea Castle, and St. Olaf's Church) existed during the uprising and how they tie into the factional conflicts, see the [Tourist Landmarks Catalog](./TOURIST_LANDMARKS.md).*
 

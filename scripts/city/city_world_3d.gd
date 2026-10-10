@@ -44,6 +44,8 @@ const STREAM_PROBE_MAX := 16.0
 const TREE_WATERLINE_CLEARANCE := 0.25
 ## Stream grid spacing (world units) along and across the water.
 const STREAM_GRID_STEP := 1.5
+## Spokes of a lake disc (CityWorld3D._lake_mesh).
+const LAKE_SECTORS := 48
 ## Stream vertex depth encoding: COLOR.r = (depth + OFFSET) / SCALE, so the
 ## bank above the waterline (negative depth) still fades smoothly to zero.
 const STREAM_DEPTH_OFFSET := 0.5
@@ -67,6 +69,10 @@ var water_materials: Array[ShaderMaterial] = []
 var stream_material: ShaderMaterial
 var moat_material: ShaderMaterial
 var stream_segment_count := 0
+## Still lake water (a crater lake, regional sites only).
+var lake_material: ShaderMaterial
+## moat_water records [stream_segment_count, lake_segment_end) are lakes.
+var lake_segment_end := 0
 var sea_shore: Dictionary = {}
 ## WR-3 camera-centred sea rings (CitySeaLod); null until the sea is built.
 var sea_lod: CitySeaLod
@@ -443,6 +449,24 @@ func _build_inland_water(root: Node3D) -> void:
 		r_inst.material_override = stream_material
 		r_inst.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		root.add_child(r_inst)
+	# Still lakes (plan "lakes", e.g. the Kaali crater lake): a disc out to the
+	# waterline. Each is one swim record whose two ends coincide, so
+	# water_surface_at reads it as a circle of the lake's widest radius; on the
+	# dry bank inside that circle the ground is above the surface (no water).
+	for lake: Dictionary in plan.data.get("lakes", []):
+		var centre := Vector2(lake["at"][0], lake["at"][1])
+		var surface := float(lake["surface"])
+		var reach := float(lake["radius"]) + STREAM_BANK_OVERLAP
+		moat_water.append([centre, centre, surface, surface, reach])
+		if lake_material == null:
+			lake_material = _lake_material()
+		var l_inst := MeshInstance3D.new()
+		l_inst.name = "Lake_%s" % String(lake.get("id", "")).replace(".", "_")
+		l_inst.mesh = _lake_mesh(centre, surface, reach)
+		l_inst.material_override = lake_material
+		l_inst.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		root.add_child(l_inst)
+	lake_segment_end = moat_water.size()
 	# Moat pools in the lowest stretches of the ditch (1343: mostly dry).
 	var moat: Dictionary = plan.data.get("moat", {})
 	if not moat.is_empty():
@@ -553,6 +577,59 @@ func _stream_material() -> ShaderMaterial:
 	mat.set_shader_parameter("vertex_depth_offset", STREAM_DEPTH_OFFSET)
 	mat.set_shader_parameter("vertex_depth_scale", STREAM_DEPTH_SCALE)
 	return mat
+
+
+## Still, clear-green crater lake water (no flow). Kaali's water is greenish
+## from algae today; the tint is an art choice, not a 1343 measurement.
+func _lake_material() -> ShaderMaterial:
+	var mat := _moat_material()
+	mat.set_shader_parameter("shallow_color", Color(0.25, 0.31, 0.21))
+	mat.set_shader_parameter("deep_color", Color(0.05, 0.10, 0.08))
+	mat.set_shader_parameter("mud_color", Color(0.27, 0.24, 0.17))
+	mat.set_shader_parameter("deep_depth", 2.5)
+	mat.set_shader_parameter("edge_soft", 0.4)
+	mat.set_shader_parameter("wave_strength", 0.015)
+	# The column is baked per vertex (_lake_mesh): the depth texture read ~0 here
+	# and left the lake fully clear over its bed.
+	mat.set_shader_parameter("vertex_depth", true)
+	return mat
+
+
+## A lake disc as a polar grid (rings every STREAM_GRID_STEP, LAKE_SECTORS
+## spokes) at `surface`, each vertex carrying its water column like the stream
+## (COLOR.r, STREAM_DEPTH_SCALE) so the edge fades where the bank rises.
+func _lake_mesh(centre: Vector2, surface: float, reach: float) -> ArrayMesh:
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var rings := maxi(int(ceil(reach / STREAM_GRID_STEP)), 1)
+	var points: Array[Vector3] = [Vector3(centre.x, surface, centre.y)]
+	for r in range(1, rings + 1):
+		var radius := reach * float(r) / float(rings)
+		for k in LAKE_SECTORS:
+			var a := TAU * float(k) / float(LAKE_SECTORS)
+			var q := centre + Vector2(cos(a), sin(a)) * radius
+			points.append(Vector3(q.x, surface, q.y))
+	var colors: Array[Color] = []
+	for v in points:
+		var depth := surface - plan.ground_height(Vector2(v.x, v.z))
+		colors.append(
+			Color(clampf((depth + STREAM_DEPTH_OFFSET) / STREAM_DEPTH_SCALE, 0.0, 1.0), 0, 0)
+		)
+	var tris: Array[int] = []
+	for k in LAKE_SECTORS:
+		tris.append_array([0, 1 + (k + 1) % LAKE_SECTORS, 1 + k])
+	for r in range(1, rings):
+		var inner := 1 + (r - 1) * LAKE_SECTORS
+		var outer := 1 + r * LAKE_SECTORS
+		for k in LAKE_SECTORS:
+			var k1 := (k + 1) % LAKE_SECTORS
+			tris.append_array([inner + k, inner + k1, outer + k1, inner + k, outer + k1, outer + k])
+	for idx in tris:
+		st.set_color(colors[idx])
+		st.set_uv(Vector2(points[idx].x, points[idx].z) / 10.0)
+		st.set_normal(Vector3.UP)
+		st.add_vertex(points[idx])
+	return st.commit()
 
 
 func _water_material(wave: float, flow: float) -> ShaderMaterial:
@@ -929,6 +1006,13 @@ func water_surface_at(world_xz: Vector2) -> float:
 	return -INF
 
 
+## Water material of moat_water record `i`: stream, then lakes, then the moat.
+func _segment_material(i: int) -> ShaderMaterial:
+	if i < stream_segment_count:
+		return stream_material
+	return lake_material if i < lake_segment_end else moat_material
+
+
 ## Rendering medium at the camera. Dry ribbon overlap is not underwater.
 func water_medium_at(world_xz: Vector2) -> Dictionary:
 	var bed := plan.ground_height(world_xz)
@@ -952,6 +1036,6 @@ func water_medium_at(world_xz: Vector2) -> Dictionary:
 			return {
 				"surface_y": surface,
 				"sea": false,
-				"material": stream_material if i < stream_segment_count else moat_material
+				"material": _segment_material(i)
 			}
 	return {}

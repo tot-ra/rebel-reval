@@ -1,7 +1,7 @@
 extends SceneTree
 
 ## Review plates for the Act 2 hinterland sites (docs/SYSTEMS/REGIONAL_SITES.md):
-## the Harju village, the rebel kings' camp and the sacred grove under their own
+## the Harju village, the rebel kings' camp, the sacred grove and Kaali under their own
 ## sky, by day, at dusk, at night and in rain, with the point-of-interest
 ## dressing (smoke, fires, stones, spring) from hinterland_site.gd. Same view
 ## path as tools/capture_regional_sites.gd, kept separate so parallel site
@@ -50,6 +50,17 @@ const SHOTS := {
 		["sacred_grove_day_spring", &"clear", DAY, Vector3(8, 3, 98), Vector3(22, 0, 112), 62.0],
 		["sacred_grove_day_aerial", &"clear", DAY, Vector3(170, 150, -170), Vector3(-40, 0, 40), 56.0],
 		["sacred_grove_night_grove", &"clear", NIGHT, Vector3(-44, 3, -40), Vector3(-56, 6, 80), 62.0],
+	],
+	# Kaali on Saaremaa (R-1524): crater, lake, village.
+	"saaremaa":
+	[
+		["saaremaa_day_arrival", &"clear", DAY, Vector3(-8, 2.2, -200), Vector3(10, 4, -60), 62.0],
+		["saaremaa_day_crater_rim", &"clear", DAY, Vector3(0, 4, -32), Vector3(0, 6, 10), 70.0],
+		["saaremaa_day_lake_shore", &"clear", DAY, Vector3(-17, 1.7, 17), Vector3(12, 0.5, -12), 66.0],
+		["saaremaa_day_village", &"clear", DAY, Vector3(240, 18, 10), Vector3(110, 2, 110), 56.0],
+		["saaremaa_day_aerial", &"clear", DAY, Vector3(190, 150, -190), Vector3(10, 0, 20), 56.0],
+		["saaremaa_night_crater", &"clear", NIGHT, Vector3(0, 4, -32), Vector3(0, 6, 10), 70.0],
+		["saaremaa_rain_crater", &"rain", DAY, Vector3(0, 4, -32), Vector3(0, 6, 10), 70.0],
 	],
 }
 
