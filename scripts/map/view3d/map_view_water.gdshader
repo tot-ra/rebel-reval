@@ -819,8 +819,10 @@ vec3 _sky_lut_radiance(vec3 dir) {
 vec3 _with_reflected_rainbow(vec3 color, vec3 dir) {
 	vec3 light = sun_reflection_color
 		/ max(max(sun_reflection_color.r, max(sun_reflection_color.g, sun_reflection_color.b)), 1e-4);
+	// rainbow_secondary is pushed but not passed: the committed sky_rainbow.gdshaderinc
+	// has no secondary-bow argument yet (R-1547), and the sky dome calls it the same way.
 	return rainbow_apply(color, dir, sun_direction, rainbow_strength * (1.0 - cloud_darken),
-		rainbow_droplet, rainbow_secondary, rainbow_curtain, light * rainbow_gain);
+		rainbow_droplet, rainbow_curtain, light * rainbow_gain);
 }
 
 vec3 _sky_dome_reflection(vec3 dir) {

@@ -115,6 +115,20 @@ func test_grove_has_no_building_and_its_stones_and_spring() -> void:
 	assert_true(oaks.size() >= 20, "old oaks in the grove (%d)" % oaks.size())
 
 
+## The bird sound sampler asks for the HUD location every frame; a site without
+## buildings must not be read as standing inside building 0 (it used to index
+## an empty array and fail on every frame at the grove).
+func test_bird_context_works_on_a_site_without_buildings() -> void:
+	var plan := CityPlan.load_site("sacred_grove")
+	var definition := CityMapDefinition.from_plan(plan)
+	var meadow := plan.point_of_interest("sacred_grove.spawn.meadow")
+	var xz := plan.bounds.get_center()
+	if not meadow.is_empty():
+		xz = Vector2(meadow["at"][0], meadow["at"][1])
+	assert_eq(plan.location_at(xz).get("building", "?"), "")
+	assert_false(definition.bird_context_at(xz * float(definition.cell_size)) == &"")
+
+
 func test_scenes_have_sky_weather_dressing_and_no_sea() -> void:
 	for site: String in SITES:
 		var scene: Node = load(_scene_path(site)).instantiate()

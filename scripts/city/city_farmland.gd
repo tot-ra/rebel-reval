@@ -69,6 +69,9 @@ const STUBBLE_GROWTH := 0.14
 
 var plan: CityPlan
 var day_of_year := 111
+## Logic-plane parent for stack colliders (the city scene). Null in tools and tests
+## that only look at the view: stacks are then drawn without blocking anyone.
+var collision_parent: Node2D
 var _features: Array[Dictionary] = []
 var _live: Dictionary = {}
 var _far: MeshInstance3D

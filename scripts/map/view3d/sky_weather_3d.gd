@@ -474,6 +474,9 @@ class WeatherPresentation extends RefCounted:
 	## R-1518: post-rain bow for the water reflection (same values the dome draws).
 	var rainbow_strength := 0.0
 	var rainbow_curtain := Vector3.ZERO
+	## Secondary-bow gain read by map_view_lighting.gd; nothing sets it yet, so it
+	## stays at the water material's default.
+	var rainbow_secondary := 1.0
 var weather: StringName = WEATHER_CLEAR
 ## When false the current state holds until set_weather() is called.
 var auto_weather := true

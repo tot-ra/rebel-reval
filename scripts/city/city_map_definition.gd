@@ -60,7 +60,7 @@ func bird_context_at(logic_position: Vector2) -> StringName:
 	# A regional castle (ADR 0042) has the castle birds Toompea has.
 	if plan.district_id_at(xz).ends_with(".district.castle"):
 		return &"toompea"
-	var where := plan.location_at(xz, false)
+	var where := plan.location_at(xz)
 	match String(where.get("district", "")):
 		"Toompea", "Vassal yards below the castle":
 			return &"toompea"

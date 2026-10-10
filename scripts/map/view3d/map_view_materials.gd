@@ -374,6 +374,13 @@ static func apply_water_sky_reflection(
 	)
 
 
+## R-1518: post-rain rainbow mirrored by the water's sky reflection.
+static func apply_water_rainbow(
+	strength: float, curtain: Vector3, droplet: float = 0.85, secondary: float = 1.0
+) -> void:
+	WATER_MATERIALS.apply_water_rainbow(strength, curtain, droplet, secondary, WATER_WAVE_BASE)
+
+
 ## Wind-driven vegetation and cloth APIs remain here for existing builders and
 ## tests. Their independent cache lives in WIND_MATERIALS.
 static func hay_stack(layer: int) -> ShaderMaterial:
