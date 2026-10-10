@@ -341,3 +341,5 @@ This file contains lessons specific to the Dev role.
 
 - An rrmap may declare exactly one plain `spawn`; extra arrival spawns must come from a transition's `spawn=` (a door). Anchors must not sit inside building footprints (`MAP_ANCHOR_BLOCKED`), and a transition `to=` must be an active manifest scene (use `reval_city` plus a city spawn, not retired gate scenes).
 - `godot --script` cannot compile code that names autoloads (`DoorNavigator`, `MusicDirector`); write the capture as a scene (`tools/capture_global_map.tscn`) and run it through `tools/godot_render.sh res://...tscn`. `tools/capture_map_audit.gd` re-renders every map; check out unrelated PNG diffs afterwards.
+
+- Ground-contact decals (litter, dirt): never use a translucent sheet over grass, it reads as a puddle and hides blade roots. Scatter small opaque flecks instead, and set `vertex_color_is_srgb = true` or authored colors render washed out. Zsh does not word-split `$VAR` file lists in `git add`; pass paths literally.
