@@ -8,7 +8,7 @@ Status: implemented (task **R-1516**). Scope: the seamless Reval city ground (`c
 |---|---|---|
 | Puddles | During and after rain | Water stands in the deepest hollows, ruts and prints first and widens as rain goes on; dries at `PUDDLE_DRY_PER_SECOND` after the rain stops. |
 | Dusty | Sunny weather after the puddles are gone | Bare soil turns paler and more matte (`ground_dryness` up to `DRYNESS_FAIR_CAP` = 0.4). No cracks. |
-| Cracked | Only in a drought | The basins that hold puddles bake into polygonal cracked clay, deepest basins first, spreading as dryness climbs past ~0.45. A pale silt rim lies just outside the crust. |
+| Cracked | Only in a drought | The basins that hold puddles bake into polygonal cracked clay, deepest basins first, spreading as dryness climbs past ~0.45. Cracks grade with age: a fine hairline net (4-10 cm cells) first, then deep furrows between 15-35 cm polygons open from the basin centre outwards as dryness nears 1. A pale silt rim lies just outside the crust. |
 | Soaking | First rain on dry ground | The rain is absorbed first: dryness falls, the crust darkens and shrinks back into loose earth. No puddle and no water film in the ruts until the ground is soaked (dryness 0). |
 | Puddles again | Rain continues on soaked ground | Normal puddle fill resumes. |
 
@@ -18,6 +18,10 @@ Review plates (cart road; top-left rain, top-right dry, bottom-left drought, bot
 
 ![Gameplay camera](../reports/images/r1516_drought/game_rain_dry_drought_soak.jpg)
 ![Low camera](../reports/images/r1516_drought/low_rain_dry_drought_soak.jpg)
+
+Crack gradation, low camera, dryness 0.55 / 0.75 / 1.0:
+
+![Crack gradation](../reports/images/r1516_drought/low_crack_gradation.jpg)
 
 ## Simulation (`scripts/map/view3d/sky_weather_3d.gd`)
 
@@ -34,6 +38,7 @@ All rates are per weather second, so `time_scale` speeds or pauses them consiste
 - Uniform `ground_dryness`, pushed each frame by `CityWorld3D.apply_time` from `WeatherPresentation.ground_dryness`.
 - The crust uses the same basin mask as puddles (`hollow * soft`, deep ruts, on flat ground) with a level that rises with dryness, mirroring how the water level rises with `puddles`.
 - Texture: `cracked_albedo` = `assets/materials/pbr/cracked_earth/cracked_earth_albedo.png` (1024 px, seamless, `crack_scale` 0.35 repeats per world unit). Only an albedo ships: the shader is near the GL Compatibility sampler limit, so crack relief is derived from the plate's luminance by finite differences. The plate's mean tone is divided out so the crust keeps the local soil colour, then pulled towards pale silt.
+- Crack gradation: the shader samples the same plate twice, coarse (`crack_scale`) and fine (`crack_scale * 3.5`). `crack_age` = `smoothstep(0.3, 0.95, crack_amount)` times how deep the point lies inside the crust, so the basin centre matures first. Fine cracks carry weak relief and fade to half as `crack_age` grows; the coarse plate's contrast exponent rises from 0 to 1.6 with age, so furrow shoulders darken in turn and the gaps widen rather than fade in. Plate: `low_crack_gradation.jpg` (dryness 0.55 / 0.75 / 1.0).
 - Source plate: OpenAI `gpt-image-1` (Leonardo had no tokens), processed by `tools/process_leonardo_terrain_textures.py --only cracked_earth` (family `cracked_earth`, `albedo_only`). Prompt and provenance: `assets/materials/pbr/cracked_earth/prompt.json`, `assets/SOURCES.csv`.
 
 ## Save and load

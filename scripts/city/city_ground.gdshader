@@ -626,19 +626,36 @@ void fragment() {
 	float basin = max(hollow * soft, rut_pool) * flat_ground;
 	float crust_depth = basin + (value_noise(wuv * 1.7) - 0.5) * 0.08 - (1.05 - crack_amount * 0.9);
 	float crust = smoothstep(-0.08, 0.14, crust_depth) * bare * step(0.001, crack_amount) * (1.0 - puddle);
+	// Crack maturity: real clay first splits into a fine hairline net, and only a long
+	// bake opens the deep furrows between big polygons. The basin centre dried first, so
+	// it matures first; the crust edge keeps the fine net longest.
+	float crack_age = smoothstep(0.3, 0.95, crack_amount) * smoothstep(-0.04, 0.3, crust_depth);
+	// Same plate at two scales: coarse (15-35 cm polygons) and fine (~3.5x smaller,
+	// 4-10 cm), so the pattern stays one material and no second sampler is needed.
 	vec2 cuv = wuv * crack_scale;
+	vec2 fuv = wuv * crack_scale * 3.5;
 	vec3 crk = detiled(cracked_albedo, cuv);
+	vec3 crk_f = detiled(cracked_albedo, fuv + vec2(0.43, 0.17));
 	// Luminance relief: a gap is a dark trench between raised, slightly curled plates.
 	float co = 1.5 / 1024.0;
 	float cl = dot(texture(cracked_albedo, cuv).rgb, vec3(0.333));
 	float cl_x = dot(texture(cracked_albedo, cuv + vec2(co, 0.0)).rgb, vec3(0.333));
 	float cl_z = dot(texture(cracked_albedo, cuv + vec2(0.0, co)).rgb, vec3(0.333));
-	vec2 crack_nxy = -vec2(cl_x - cl, cl_z - cl) * 9.0 * detail;
+	float fl = dot(texture(cracked_albedo, fuv).rgb, vec3(0.333));
+	float fl_x = dot(texture(cracked_albedo, fuv + vec2(co, 0.0)).rgb, vec3(0.333));
+	float fl_z = dot(texture(cracked_albedo, fuv + vec2(0.0, co)).rgb, vec3(0.333));
+	// Fine cracks are shallow: weaker relief, fading under the furrows as they open.
+	vec2 crack_nxy = (-vec2(cl_x - cl, cl_z - cl) * 9.0 * crack_age
+		- vec2(fl_x - fl, fl_z - fl) * 4.0 * (1.0 - crack_age * 0.6)) * detail;
 	// The plate only carries pattern: divide out its mean tone so the crust keeps the
 	// local soil colour (road dust, black field earth), a shade paler where it baked.
 	// Dried pool silt is greyer and paler than the soil round it; gaps get extra
-	// contrast so the polygons read at gameplay distance.
-	vec3 crk_rel = pow(crk / vec3(0.61, 0.54, 0.455), vec3(1.5));
+	// contrast so the polygons read at gameplay distance. The coarse contrast exponent
+	// grows with age: furrow shoulders darken in turn, so gaps widen instead of fading in.
+	vec3 plate_mean = vec3(0.61, 0.54, 0.455);
+	vec3 crk_rel_c = pow(crk / plate_mean, vec3(1.6 * crack_age));
+	vec3 crk_rel_f = pow(crk_f / plate_mean, vec3(mix(0.9, 0.45, crack_age)));
+	vec3 crk_rel = crk_rel_c * crk_rel_f;
 	vec3 crust_col = mix(col * vec3(1.08, 1.05, 1.0), vec3(0.62, 0.57, 0.5), 0.4) * crk_rel;
 	// Silt settled last at the bottom of the pool: a pale rim just outside the crust.
 	float silt_rim = smoothstep(-0.2, -0.06, crust_depth) * (1.0 - crust) * bare * step(0.001, crack_amount);
