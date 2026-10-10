@@ -43,6 +43,7 @@ var _seed: int = 0
 var _actor_positions: Dictionary = {}  # actor_id -> Vector3
 var _actor_tints: Dictionary = {}  # actor_id -> Color
 var _actor_bases: Dictionary = {}  # actor_id -> Basis (fauna heading/bank)
+var _actor_alphas: Dictionary = {}  # actor_id -> instance colour alpha (fauna fade)
 var _part_instances: Array[MultiMeshInstance3D] = []
 var _part_offsets: Array[Transform3D] = []
 var _tint_mode := TINT_PALETTE
@@ -298,8 +299,10 @@ func set_actor_transform(actor_id: int, xform: Transform3D) -> void:
 
 ## Replace the whole actor set with one MultiMesh upload. Flocks and herds
 ## move every frame; per-actor `set_actor_*` calls would re-upload the buffer
-## once per actor. Tints survive for ids that stay registered.
-func replace_actor_transforms(transforms: Dictionary) -> void:
+## once per actor. Tints survive for ids that stay registered. `alphas`
+## (actor_id -> 0..1, default 1) goes out as the instance colour alpha, which
+## fade-ready materials use to dither a distant bird out (R-1628).
+func replace_actor_transforms(transforms: Dictionary, alphas: Dictionary = {}) -> void:
 	if transforms.is_empty() and _actor_positions.is_empty():
 		return  # idle flock/herd layer: skip re-uploading parked slots
 	for actor_id: int in _actor_tints.keys():
@@ -307,6 +310,7 @@ func replace_actor_transforms(transforms: Dictionary) -> void:
 			_actor_tints.erase(actor_id)
 	_actor_positions.clear()
 	_actor_bases.clear()
+	_actor_alphas = alphas
 	for actor_id: int in transforms:
 		_store_actor_transform(actor_id, transforms[actor_id])
 	_sync_multimesh()
@@ -332,6 +336,7 @@ func clear_actors() -> void:
 	_actor_positions.clear()
 	_actor_bases.clear()
 	_actor_tints.clear()
+	_actor_alphas = {}
 	_sync_multimesh()
 
 
@@ -393,6 +398,7 @@ func _apply_to_lod(
 			var actor_id: int = ids[i]
 			var pos: Vector3 = _actor_positions[actor_id]
 			var tint: Color = _actor_tints[actor_id]
+			tint.a = float(_actor_alphas.get(actor_id, tint.a))
 			var basis: Basis = _actor_bases.get(actor_id, Basis.IDENTITY)
 			mm.set_instance_transform(i, Transform3D(basis, pos) * offset)
 			mm.set_instance_color(i, tint)

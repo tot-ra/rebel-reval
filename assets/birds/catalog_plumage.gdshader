@@ -32,4 +32,9 @@ void fragment() {
 	SPECULAR = mix(mix(0.2, 0.38, keratin), 0.72, eye);
 	NORMAL_MAP = vec3(0.5 + barb * 0.07 * feather, 0.5 + shaft * 0.09 * feather + keratin * ridge * 0.06, 1.0);
 	NORMAL_MAP_DEPTH = 0.5;
+	// Distant flipbook birds dissolve through their MultiMesh instance alpha
+	// (R-1628). Alpha hash dithers in the opaque pass, so there is no sorting;
+	// vertex alpha is 1, so rigged birds and unfaded instances stay solid.
+	ALPHA = COLOR.a;
+	ALPHA_HASH_SCALE = 1.0;
 }

@@ -82,10 +82,17 @@ const FLOCK_FOLLOWERS_MIN := 3
 const FLOCK_FOLLOWERS_MAX := 9
 ## Concurrent cap for instanced followers across all flocks on a map.
 const MAX_FLOCK_FOLLOWERS := 24
-## Rigged leaders and instanced followers share one far cull distance so a
-## flock never loses its leader while the followers are still drawn.
-const BIRD_DETAIL_RANGE := 110.0
-const FLOCK_VISIBILITY_RANGE := 110.0
+## Safety cull for rigged leaders only. Leaders are rigged just while they cross
+## the flight window (see FADE_DEPTH), so this sits well beyond it and never
+## pops a bird mid-crossing; flipbook birds are not range-culled at all, they
+## dissolve through their own fade.
+const BIRD_DETAIL_RANGE := 220.0
+## Distant flight (R-1628). Birds keep a constant speed and never brake: each
+## path starts FADE_DEPTH metres before the flight window and runs FADE_DEPTH
+## past it, so a bird flies in from the distance and on out of it. On those two
+## legs the rigged leader hands over to its flipbook instance (still beating
+## its wings) and the whole flock dithers in or out through instance alpha.
+const FADE_DEPTH := 45.0
 const FLOCK_SPACING := 1.15
 ## Slow positional drift that keeps the formation loose; the wingbeat heave is
 ## added separately so followers bob in time with their own wings.
@@ -94,6 +101,9 @@ const FLOCK_DRIFT_AMPLITUDE := 0.06
 ## one rest pose (glide or folded) for the pauses between bouts. Each pose is
 ## one MultiMesh draw per species, so followers stay instanced (P0-159).
 const FLOCK_FLAP_FRAMES := 8
+## Flipbook actor id slot (bird_index * 64 + slot) of a simplified leader;
+## followers use their rank, which stays below FLOCK_FOLLOWERS_MAX.
+const LEADER_RANK_ID := 63
 
 ## Flipbook mesh parts shared by every map this session (see _pose_cache_key).
 static var _pose_cache: Dictionary = {}
@@ -342,6 +352,17 @@ func _should_spawn() -> bool:
 	return _flight_enabled and not _context.is_empty() and _world_max.x > EDGE_MARGIN * 2.0
 
 
+## Opacity 0..1 of a bird `traveled` metres along a `path_length` path: it
+## ramps up over the first FADE_DEPTH and down over the last (R-1628).
+static func fade_at(traveled: float, path_length: float) -> float:
+	return clampf(minf(traveled, path_length - traveled) / FADE_DEPTH, 0.0, 1.0)
+
+
+## True while `bird` is drawn by its flipbook instance instead of its rig.
+static func is_simplified(bird: Node3D) -> bool:
+	return bool(bird.get_meta(&"simplified", false))
+
+
 func _advance_active_birds(delta: float) -> void:
 	for bird in _birds:
 		if not bird.visible:
@@ -354,6 +375,11 @@ func _advance_active_birds(delta: float) -> void:
 			bird.visible = false
 			bird.remove_meta(&"flock_offsets")
 			continue
+		var fade := fade_at(traveled, path_length)
+		bird.set_meta(&"fade", fade)
+		# Simplify only once the flipbook exists; until then the rig flies on.
+		var species: StringName = bird.get_meta(&"species", &"")
+		_set_simplified(bird, fade < 1.0 and not flock_renderers_for(species).is_empty())
 		var t := traveled / path_length
 		var position := _flight_position(bird, t)
 		var look_ahead := _flight_position(bird, minf(t + 0.02, 1.0))
@@ -367,6 +393,17 @@ func _advance_active_birds(delta: float) -> void:
 		var bank := sin(t * TAU * sway_frequency + sway_phase) * sway_amplitude * 0.65 * sin(t * PI)
 		bird.rotate_object_local(Vector3.FORWARD, bank)
 		bird.set_meta(&"traveled", traveled)
+
+
+## Hide the rig's geometry (the actor node stays visible: it is the bird's
+## active flag) while its flipbook instance stands in for it.
+func _set_simplified(bird: Node3D, simplified: bool) -> void:
+	if is_simplified(bird) == simplified:
+		return
+	bird.set_meta(&"simplified", simplified)
+	for child: Node in bird.get_children():
+		if child is Node3D:
+			(child as Node3D).visible = not simplified
 
 
 func _orient_bird_if_distinct(bird: Node3D, target: Vector3) -> void:
@@ -471,19 +508,17 @@ func _flight_position(bird: Node3D, t: float) -> Vector3:
 	var sway_phase := float(bird.get_meta(&"sway_phase", 0.0))
 	var sway_amplitude := float(bird.get_meta(&"sway_amplitude", 0.3))
 	var sway_frequency := float(bird.get_meta(&"sway_frequency", 1.0))
-	# Smoothstep eases entry/exit while the two harmonics produce a shallow,
-	# wind-carved S-curve rather than a predictable up/down elevator motion.
-	var eased_t := smoothstep(0.0, 1.0, t)
-	var base := start.lerp(end, eased_t)
-	var envelope := sin(eased_t * PI)
-	var lateral := sin(eased_t * TAU * sway_frequency + sway_phase) * sway_amplitude * envelope
+	# Linear in t: a flying bird holds its cruise speed. (A smoothstep here made
+	# every bird brake to a hover at the path end, then pop out, R-1628.) The
+	# two harmonics give a shallow, wind-carved S-curve rather than a
+	# predictable up/down elevator motion.
+	var base := start.lerp(end, t)
+	var envelope := sin(t * PI)
+	var lateral := sin(t * TAU * sway_frequency + sway_phase) * sway_amplitude * envelope
 	lateral += (
-		sin(eased_t * TAU * sway_frequency * 0.47 + sway_phase * 1.7)
-		* sway_amplitude
-		* 0.32
-		* envelope
+		sin(t * TAU * sway_frequency * 0.47 + sway_phase * 1.7) * sway_amplitude * 0.32 * envelope
 	)
-	var vertical := sin(eased_t * PI + sway_phase * 0.61) * sway_amplitude * 0.34 * envelope
+	var vertical := sin(t * PI + sway_phase * 0.61) * sway_amplitude * 0.34 * envelope
 	return base + side * lateral + up * vertical
 
 
@@ -503,8 +538,14 @@ func _spawn_bird() -> void:
 		var origin: Vector3 = path_origin.call()
 		start += origin
 		end += origin
+	# Window-edge to window-edge, extended into the distance on both sides.
+	var heading := (end - start).normalized()
+	start -= heading * FADE_DEPTH
+	end += heading * FADE_DEPTH
 	bird.position = start
-	_orient_bird_if_distinct(bird, start + (end - start).normalized())
+	_orient_bird_if_distinct(bird, start + heading)
+	bird.set_meta(&"simplified", false)
+	bird.set_meta(&"fade", 0.0)
 	bird.visible = true
 	bird.set_meta(&"start", start)
 	bird.set_meta(&"end", end)
@@ -520,7 +561,10 @@ func _spawn_bird() -> void:
 	bird.set_meta(&"species", species)
 	_advance_flap(bird, 0.0)
 	bird.remove_meta(&"flock_offsets")
-	if is_flocking_species(species) and not _ensure_flock_renderer(species).is_empty():
+	# Every species gets a flipbook now: it is the leader's distant LOD too.
+	var has_flipbook := not _ensure_flock_renderer(species).is_empty()
+	_set_simplified(bird, has_flipbook)
+	if is_flocking_species(species) and has_flipbook:
 		var offsets := flock_offsets(
 			_seed_key, _spawn_tick, MAX_FLOCK_FOLLOWERS - active_flock_follower_count()
 		)
@@ -613,7 +657,9 @@ func _advance_flap(bird: Node3D, delta: float) -> void:
 	var profile := flap_profile(species)
 	var phase := flap_phase_at(time, profile)
 	var pose := wing_pose(phase, profile)
-	if bird.has_meta(&"flight_player"):
+	if is_simplified(bird):
+		pass  # the hidden rig is not posed; its flipbook reads this clock
+	elif bird.has_meta(&"flight_player"):
 		var player := bird.get_meta(&"flight_player") as AnimationPlayer
 		var clip := &"Glide" if phase < 0.0 else &"Fly"
 		if player.current_animation != clip:
@@ -670,14 +716,21 @@ func _sync_flocks() -> void:
 		for _frame in (_flock_renderers[species] as Array).size():
 			frames.append({})
 		per_species[species] = frames
+	var alphas: Dictionary = {}  # species -> {actor_id: fade}, shared by every pose
+	for species: StringName in per_species:
+		alphas[species] = {}
 	for bird_index in _birds.size():
 		var bird := _birds[bird_index]
-		if not bird.visible or not bird.has_meta(&"flock_offsets"):
+		if not bird.visible:
 			continue
 		var species: StringName = bird.get_meta(&"species", &"")
 		if not per_species.has(species):
 			continue
+		var simplified := is_simplified(bird)
+		if not simplified and not bird.has_meta(&"flock_offsets"):
+			continue
 		var frames: Array = per_species[species]
+		var fade := float(bird.get_meta(&"fade", 1.0))
 		var profile := flap_profile(species)
 		var heave_scale := BirdSpecies.scale_m(species) * BODY_HEAVE
 		# Open the formation for big birds so neighbouring wings never cross
@@ -689,8 +742,19 @@ func _sync_flocks() -> void:
 		leader.origin -= Vector3.UP * float(bird.get_meta(&"flap_heave", 0.0))
 		var traveled := float(bird.get_meta(&"traveled", 0.0))
 		var leader_time := float(bird.get_meta(&"flap_time", 0.0))
-		var offsets: Array = bird.get_meta(&"flock_offsets")
+		var offsets: Array = bird.get_meta(&"flock_offsets", [])
+		var species_alphas: Dictionary = alphas[species]
+		if simplified:
+			# The leader's own flipbook stand-in, on the leader's wingbeat clock.
+			var leader_phase := flap_phase_at(leader_time, flap_profile(species))
+			var leader_frame := FLOCK_FLAP_FRAMES
+			if leader_phase >= 0.0:
+				leader_frame = floori(leader_phase * FLOCK_FLAP_FRAMES) % FLOCK_FLAP_FRAMES
+			var leader_id := bird_index * 64 + LEADER_RANK_ID
+			(frames[leader_frame] as Dictionary)[leader_id] = bird.transform
+			species_alphas[leader_id] = fade
 		for rank in offsets.size():
+			species_alphas[bird_index * 64 + rank] = fade
 			var offset: Vector3 = offsets[rank]
 			# Each follower beats on its own clock: a fixed lag plus a few
 			# percent of tempo drift, so the skein ripples instead of beating
@@ -711,7 +775,9 @@ func _sync_flocks() -> void:
 		var renderers: Array = _flock_renderers[species]
 		var frames: Array = per_species[species]
 		for frame in renderers.size():
-			(renderers[frame] as MapViewCrowdRenderer).replace_actor_transforms(frames[frame])
+			(renderers[frame] as MapViewCrowdRenderer).replace_actor_transforms(
+				frames[frame], alphas[species]
+			)
 
 
 ## Flipbook renderers for `species`, built on its first flock and kept for
@@ -729,14 +795,14 @@ func _ensure_flock_renderer(species: StringName) -> Array:
 		var catalogue_poses := _catalogue_pose_parts(species)
 		if catalogue_poses.is_empty():
 			return []
-		_pose_cache[key] = catalogue_poses
+		_pose_cache[key] = _with_fade_materials(catalogue_poses)
 	var poses: Array = _pose_cache[key]
 	var renderers: Array = []
 	for frame in poses.size():
 		var renderer := CrowdRenderer.new()
 		renderer.name = "Flock_%s_%d" % [species, frame]
 		renderer.configure_parts(
-			poses[frame], MAX_FLOCK_FOLLOWERS, 0.0, FLOCK_VISIBILITY_RANGE, false
+			poses[frame], MAX_FLOCK_FOLLOWERS + MAX_CONCURRENT_BIRDS, 0.0, 0.0, false
 		)
 		add_child(renderer)
 		renderers.append(renderer)
@@ -752,7 +818,8 @@ static func _pose_cache_key(species: StringName) -> String:
 	return String(species)
 
 
-## Queue the map's gregarious skinned species for background baking.
+## Queue the map's skinned species for background baking: flocks need the
+## flipbook for followers, and every leader uses it as its distant LOD.
 func _queue_flock_warmup() -> void:
 	if _warm_model != null:
 		remove_child(_warm_model)
@@ -763,8 +830,7 @@ func _queue_flock_warmup() -> void:
 	_warm_queue.clear()
 	for species in BirdSpecies.ALL_SPECIES:
 		if (
-			is_flocking_species(species)
-			and BirdAssets.has_animated_model(species)
+			BirdAssets.has_animated_model(species)
 			and BirdSpecies.spawn_weight(species, _context) > 0.0
 			and not _pose_cache.has(_pose_cache_key(species))
 		):
@@ -790,7 +856,7 @@ func _warm_flock_poses_step() -> void:
 		return
 	_warm_poses.append(_storybook_pose_parts(_warm_model, _warm_poses.size()))
 	if _warm_poses.size() > FLOCK_FLAP_FRAMES:
-		_pose_cache[_pose_cache_key(_warm_species)] = _warm_poses
+		_pose_cache[_pose_cache_key(_warm_species)] = _with_fade_materials(_warm_poses)
 		remove_child(_warm_model)
 		_warm_model.free()
 		_warm_model = null
@@ -831,6 +897,56 @@ func _catalogue_pose_parts(species: StringName) -> Array:
 		poses.append([{"mesh": _merged_rig_mesh(rig), "transform": Transform3D.IDENTITY}])
 	rig.free()
 	return poses
+
+
+## Flipbook copies of `poses` whose materials fade by instance alpha (see
+## `_sync_flocks`). Alpha hash keeps them in the opaque pass, so a dissolving
+## bird dithers out with no sorting cost. Catalogue birds need no copy: their
+## plumage shader (`catalog_plumage.gdshader`) already hashes by COLOR.a. For
+## standard materials (storybook GLBs) materials that already blend keep their
+## mode, and vertex colour is switched on as albedo only where the mesh has
+## none, so the multiplier is the white default times the instance colour.
+static func _with_fade_materials(poses: Array) -> Array:
+	var faded_materials: Dictionary = {}  # [source material, has colour] -> fade copy
+	var faded_poses: Array = []
+	for parts: Array in poses:
+		var faded_parts: Array = []
+		for part: Dictionary in parts:
+			var faded_part := part.duplicate()
+			var mesh := part.get("mesh") as ArrayMesh
+			if mesh != null:
+				var copy := mesh.duplicate() as ArrayMesh
+				for surface in copy.get_surface_count():
+					var has_color := (
+						copy.surface_get_format(surface) & Mesh.ARRAY_FORMAT_COLOR
+					) != 0
+					var source := copy.surface_get_material(surface)
+					var fade := _fade_material(source, has_color, faded_materials)
+					if fade != null:
+						copy.surface_set_material(surface, fade)
+				faded_part["mesh"] = copy
+			faded_parts.append(faded_part)
+		faded_poses.append(faded_parts)
+	return faded_poses
+
+
+static func _fade_material(source: Material, has_color: bool, cache: Dictionary) -> Material:
+	var base := source as BaseMaterial3D
+	if base == null:
+		return null
+	var key := [base, has_color]
+	if cache.has(key):
+		return cache[key]
+	var fade: BaseMaterial3D = null
+	# A mesh whose vertex colour is not albedo would be recoloured by it; that
+	# surface keeps its look and simply stops drawing at the end of its leg.
+	if base.vertex_color_use_as_albedo or not has_color:
+		fade = base.duplicate() as BaseMaterial3D
+		fade.vertex_color_use_as_albedo = true
+		if fade.transparency == BaseMaterial3D.TRANSPARENCY_DISABLED:
+			fade.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_HASH
+	cache[key] = fade
+	return fade
 
 
 ## Bake the posed modular rig into one mesh so each follower pose is a single
