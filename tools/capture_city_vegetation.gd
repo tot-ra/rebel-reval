@@ -75,9 +75,20 @@ func _reference_figure(at: Vector3) -> MeshInstance3D:
 	return node
 
 
+## Height of the first trunk joint as a fraction of the skeleton's height.
+func _first_joint_fraction(species: StringName) -> float:
+	var top := 0.001
+	var first := -1.0
+	for s: Dictionary in MapViewTreeMeshes._skeleton_for(species)["segments"]:
+		top = maxf(top, (s["end"] as Vector3).y)
+		if first < 0.0 and int(s["depth"]) == 0:
+			first = (s["end"] as Vector3).y
+	return clampf(first / top, 0.05, 0.6)
+
+
 func _shots(plan: CityPlan) -> Array[Dictionary]:
 	var shots: Array[Dictionary] = []
-	for species: String in ["spruce", "pine", "pine_tall", "oak", "birch"]:
+	for species: String in ["spruce", "pine", "pine_tall", "oak", "birch", "cherry"]:
 		var tree := _open_tree(plan, species)
 		if tree.is_empty():
 			continue
@@ -135,21 +146,32 @@ func _shots(plan: CityPlan) -> Array[Dictionary]:
 					"focus": p
 				}
 			)
-		if species in ["pine", "pine_tall"]:
-			# The first trunk joint (a quarter of the height), from three sides:
-			# where a bark ring seam used to show on the long, bare pine bole.
-			var joint := g + h * 0.25
-			for turn: int in 3:
-				var dir := side.rotated(TAU * float(turn) / 3.0)
-				shots.append(
-					{
-						"name": "%s_bark_joint_%d" % [species, turn],
-						"eye": Vector3(p.x + dir.x * 1.6, joint + 0.3, p.y + dir.y * 1.6),
-						"look": Vector3(p.x, joint, p.y),
-						"fov": 55.0,
-						"focus": p
-					}
-				)
+		# The first trunk joint, from three sides: where a bark ring seam used to
+		# show. Its height is the skeleton's first depth-0 joint, as a fraction of
+		# the tree, so every species is framed on its own joint.
+		var joint := g + h * _first_joint_fraction(StringName(species))
+		for turn: int in 3:
+			var dir := side.rotated(TAU * float(turn) / 3.0)
+			shots.append(
+				{
+					"name": "%s_bark_joint_%d" % [species, turn],
+					"eye": Vector3(p.x + dir.x * 1.6, joint + 0.3, p.y + dir.y * 1.6),
+					"look": Vector3(p.x, joint, p.y),
+					"fov": 55.0,
+					"focus": p
+				}
+			)
+		# Thin upper limbs (plate height follows width) and the crown's branch
+		# bases under their collars: looked at from the side, near the crown.
+		shots.append(
+			{
+				"name": "%s_upper_limbs" % species,
+				"eye": Vector3(p.x + side.x * 3.0, g + h * 0.62, p.y + side.y * 3.0),
+				"look": Vector3(p.x, g + h * 0.62, p.y),
+				"fov": 55.0,
+				"focus": p
+			}
+		)
 		shots.append(
 			{
 				"name": "%s_bark_close" % species,

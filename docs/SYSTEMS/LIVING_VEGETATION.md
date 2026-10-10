@@ -351,9 +351,34 @@ Kalev, trunk diameters, bark-tile UVs and tangents, bark plates, near card size,
 triangle budget, the city spruce whorls, the unchanged district spruce, the LOD swap and its
 hysteresis, the grass-plate import contract and tuft size.
 [`test_tree_wood_wind.gd`](../../tests/godot/test_tree_wood_wind.gd) checks that bark UVs
-stay continuous across the pine trunk joints. The capture tool frames the most
-open spruce, pine, oak and birch next to a 1.83 m reference figure, plus needle, bark and
-grass close-ups, the first pine trunk joint from three sides (`pine_bark_joint_*`) and a far stand.
+stay continuous across the trunk joints of pine, pine_tall, spruce, oak, birch and cherry
+(only sections that start where the previous one ends count; oak and cherry list their
+mid-trunk limbs at depth 0 too). The capture tool frames the most
+open spruce, pine, oak, birch and orchard cherry next to a 1.83 m reference figure, plus needle, bark and
+grass close-ups, the first trunk joint from three sides (`<species>_bark_joint_*`, framed on the
+skeleton's own first joint), the thin upper limbs (`<species>_upper_limbs`) and a far stand.
+
+### Bark joint review across species (follow-up to 76a895c8)
+
+Rendered `--tag=before` (parent of 76a895c8) and `--tag=after` with
+`tools/godot_render.sh --script tools/capture_city_vegetation.gd -- --tag=<tag> --only=...`.
+Images: [oak](../reports/images/vegetation/veg_bark_joint_oak_before_after.jpg),
+[spruce](../reports/images/vegetation/veg_bark_joint_spruce_before_after.jpg),
+[birch](../reports/images/vegetation/veg_bark_joint_birch_before_after.jpg),
+[cherry](../reports/images/vegetation/veg_bark_joint_cherry_before_after.jpg) (top row before,
+bottom row after; columns are the three joint views and the upper limbs).
+
+- **Seam:** the UV test passes for all six species. Before/after, oak's bark ring seam is gone;
+  spruce, birch and cherry show no seam.
+- **Risk 1, short plates on thin upper limbs:** no vertical stretching and no overly fine bark seen
+  on spruce, oak, birch or cherry upper limbs at 3 m. Birch and cherry limbs are thin enough that
+  the plate texture is hardly resolved either way.
+- **Risk 2, branch bases under the collar:** spruce and birch limb bases show no visible v jump.
+- **Found, not fixed (pre-existing):** at the oak trunk joint a wedge-shaped gap opens on the
+  outside of the bend (grass shows through), identical before and after the UV fix
+  ([crop](../reports/images/vegetation/veg_oak_joint_gap_before_after.jpg)). Cause: each section's end
+  ring is perpendicular to its own axis, so a bent joint is not mitred. Needs a mitred shared ring
+  in `_append_tapered_tube`; cherry, birch and spruce joints are too straight to show it.
 
 Before / after (Godot 4.7.1 GL Compatibility, Apple M5 Pro, 15 July, late morning):
 [spruce](../reports/images/vegetation/veg_city_spruce_scale.jpg),

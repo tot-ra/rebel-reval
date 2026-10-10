@@ -28,7 +28,7 @@ func test_wood_alpha_stores_limb_flexibility_thin_over_thick() -> void:
 ## joint ring has a twin on the other section's ring with the same UV (the user
 ## saw a bark ring seam on the pine bole).
 func test_bark_uv_is_continuous_across_trunk_joints() -> void:
-	for species: StringName in [&"pine", &"pine_tall"]:
+	for species: StringName in [&"pine", &"pine_tall", &"spruce", &"oak", &"birch", &"cherry"]:
 		var scale := CityVegetationBuilder.species_scale(species, 1.0)
 		var factor := CityVegetationBuilder.trunk_factor(species, scale)
 		var arrays := MapViewTreeMeshes.city_wood_mesh(species, scale, factor).surface_get_arrays(0)
@@ -40,12 +40,24 @@ func test_bark_uv_is_continuous_across_trunk_joints() -> void:
 		var joints := 0
 		for i in trunk.size() - 1:
 			var joint: Vector3 = trunk[i]["end"]
+			# Depth-0 limbs (oak, cherry) also start mid-trunk: only a section that
+			# starts where this one ends is a trunk joint.
+			if (trunk[i + 1]["start"] as Vector3).distance_to(joint) > 0.001:
+				continue
 			var radius := float(trunk[i]["end_radius"]) * factor
 			var axis: Vector3 = ((trunk[i]["end"] as Vector3) - trunk[i]["start"]).normalized()
+			# The next section may bend away: its ring lies in its own plane.
+			var next_axis: Vector3 = (
+				((trunk[i + 1]["end"] as Vector3) - trunk[i + 1]["start"]).normalized()
+			)
 			var ring: Array[int] = []
 			for v in vertices.size():
 				var offset := vertices[v] - joint
-				if absf(offset.dot(axis)) < radius * 0.2 and absf(offset.length() - radius) < radius * 0.1:
+				var in_plane := (
+					absf(offset.dot(axis)) < radius * 0.2
+					or absf(offset.dot(next_axis)) < radius * 0.2
+				)
+				if in_plane and absf(offset.length() - radius) < radius * 0.1:
 					ring.append(v)
 			# Branch collars can graze a thin joint; keep only the trunk's joint v.
 			var v_counts := {}
@@ -71,7 +83,7 @@ func test_bark_uv_is_continuous_across_trunk_joints() -> void:
 					"%s joint %d bark UV continuous (%s vs %s)" % [species, i, uvs[a], uvs[twin]]
 				)
 			joints += 1
-		assert_true(joints >= 2, "%s trunk has joints" % species)
+		assert_true(joints >= 1, "%s trunk has joints" % species)
 
 
 func test_limb_flex_falls_with_radius() -> void:

@@ -335,3 +335,5 @@ This file contains lessons specific to the Dev role.
 - A landmark site wedged between houses gets its floor punctured by the neighbours' plot aprons (cut after site terraces); set `terrace.over_houses` and probe `plan.ground_height` under the floor before rendering.
 - Spawning inside a small room: the third-person camera sits 6 m behind Kalev at ~2.5 m, above the 2.3 m cutaway, so pick spawn `at`/`facing_deg` so that point stays inside the room (check with a `tools/godot_render.sh` host-scene probe screenshot).
 - Commit plan-compiler edits, regenerated plan outputs and the site manifests in one commit as soon as they work: a concurrent session's commit can sweep half of them, leaving origin with a plan whose site has no manifest.
+
+- Mesh-joint tests that match ring vertices by distance must select both sections' ring planes (current and next axis) and skip skeleton segments that do not start at the previous end (oak/cherry list mid-trunk limbs at depth 0); otherwise bent joints give false UV failures.
