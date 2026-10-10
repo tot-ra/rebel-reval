@@ -296,3 +296,4 @@ Keep this file short. Append a durable reusable rule, not a dated incident log. 
 
 - zsh does not word-split unquoted `$var`: `set -- $cfg` or `for a b in $pairs` passes one string, and a `sed -E "s/= [^;]+;/= $1;/"` sweep then writes garbage (or an empty value) into the file. For parameter sweeps call a function with explicit arguments (`run 4.0 2.5`) and edit with a Python regex that tolerates an empty value; `grep` the edited line before each run.
 - When the local `main` has diverged from `origin/main` and the tree is dirty, do not rebase or stash: `git worktree add /tmp/<name> origin/main --detach`, run `Godot --headless --path <wt> --import` once, work and push from there. Verify "no new failures" by diffing the failing-test list with `git stash -u` in that worktree.
+- In zsh never name a loop variable `path` (`while read oid path`): it is tied to `PATH`, and every later command fails with `command not found`. Use `fpath`/`file`.
