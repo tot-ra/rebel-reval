@@ -157,13 +157,10 @@ func test_showcases_include_review_variants_and_animation_catalogs() -> void:
 		"danish_warrior.tscn",
 	]
 	for required_scene: String in required_scenes:
-		assert_true(
-			AssetShowcase.HUMANOID_SCENES.any(
-				func(scene: PackedScene) -> bool:
-					return scene.resource_path.ends_with(required_scene)
-			),
-			"debug showcase must include %s" % required_scene
-		)
+		var found := false
+		for scene: PackedScene in AssetShowcase.HUMANOID_SCENES:
+			found = found or scene.resource_path.ends_with(required_scene)
+		assert_true(found, "debug showcase must include %s" % required_scene)
 	assert_true(
 		SharedCharacterRig.CANONICAL_ANIMATIONS.size() >= 15,
 		"shared rig must retain the full canonical animation minimum"
