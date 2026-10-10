@@ -2,7 +2,6 @@ extends "res://tests/godot/test_case.gd"
 
 const Controller := preload("res://scripts/world/padise_monastery_controller.gd")
 const MusicDirectorScript := preload("res://scripts/global/music_director.gd")
-const MAP_PATH := "res://content/maps/world_padise.rrmap"
 
 
 func test_padise_manifest_distinguishes_brother_communities_before_attack() -> void:
@@ -31,18 +30,16 @@ func test_padise_after_attack_clears_monastic_population() -> void:
 
 
 func test_padise_contract_covers_navigable_rooms_and_landmarks() -> void:
-	var parsed := MapRrmapParser.parse_file(MAP_PATH)
-	assert_true(parsed.is_ok(), str(parsed.formatted_diagnostics()))
-	if not parsed.is_ok():
-		return
-	var definition: MapDefinition = parsed.definition
+	# The anchors live in the Padise site plan (ADR 0042) under the greybox ids.
+	var definition := Controller.definition_from_plan(CityPlan.load_site("padise"))
 	assert_true(Controller.validate_definition(definition).is_empty())
 	for anchor_id in Controller.required_anchor_ids():
 		assert_true(MapVerification.has_anchor(definition, anchor_id))
 	for landmark_id in Controller.required_view_landmark_ids():
 		assert_true(definition.view_landmarks.any(func(item): return item.get("id") == landmark_id))
 	assert_true(
-		definition.props.any(func(item): return item.get("kind") == MapTypes.PROP_KIND_WELL)
+		definition.interaction_anchors.any(func(item): return item.get("kind") == &"well"),
+		"the monastery well is a plan point of interest"
 	)
 
 

@@ -55,7 +55,7 @@ godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_sup
 
 ## Limits
 
-- `PadiseMonasteryController` and `PadiseMonkActor` (two-phase monastic communities and soundscape for Padise) are not mounted by `scenes/world_travel/world_padise.tscn`; only tests use them.
+- `PadiseMonasteryController` and `PadiseMonkActor` (two-phase monastic communities and soundscape for Padise) are mounted by the Padise regional site `scenes/world/sites/padise.tscn` on the plan's anchor points of interest ([REGIONAL_SITES.md](./REGIONAL_SITES.md#padise-april-1343)).
 - `EventOverlayModel` (calendar-bound public festivals and processions) is tested but no controller consumes it.
 - Urban population runs in Lower Town only.
 

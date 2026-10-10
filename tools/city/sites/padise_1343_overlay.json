@@ -1,0 +1,1430 @@
+{
+  "schema": "rr.site_overlay.v1",
+  "snapshot": "april-1343",
+  "notes": [
+    "Regional site overlay (ADR 0042) for Padise (Padis), the Cistercian house in Harjumaa, April 1343, before the St George's Night attack: the open monastic estate before the quadrangle, its low precinct wall, the grange, the watermill and mill pond on the Kloostri river, fields, woods and the roads east to Harju and Reval, west to Hapsal and south to Pernau.",
+    "Coordinates are metres from the origin (the centre of the later monastery ruin, OSM relation 16395411), x east, y south. Every record id is prefixed padise. (ADR 0042 section 5). Points of interest that the Padise monastery controller reads carry the greybox anchor id unchanged in `anchor_id`.",
+    "Period rule: the fortified quadrangle, the stone church (consecrated 1448), the gate and gun towers and the moat are later than 1343 and are excluded. Villu Kadakas (AVE 2011, history/AVE2011_Kadakas_Padise.pdf) dates the northern, eastern and southern ranges to about 1350-1400 and places only two masonry buildings before them: the stone house later buried under the western range and the building with arched niches south of it. Everything else here is timber and an uncertainty-aware reconstruction.",
+    "OSM supplies the course of the Kloostri river, the river crossing (modern Kloostri sild), the Keila-Haapsalu and Viikingi tee road lines and the ruined manor watermill used as the mill site; they are traced into the overlay records below. Modern manor buildings, the distillery, the park and the gate tower are not used.",
+    "The builder has no separate pond record: the mill pond is the widened river reach above the mill (stream widths), a plausible composite of a Cistercian mill dam.",
+    "No precinct wall and no paved yard: the pipeline draws free-standing walls as crenellated curtains and a site space as market paving, both of which read as the later fortified, urban monastery. Kadakas describes an open estate in 1343, so the close is open ground; the cart-gate anchor marks where the lane enters it.",
+    "Terrain is the EU-DEM trend and the river cut only (terrain.relief false): the shared open-country swells put a 2-3 m hollow under the monastery plateau."
+  ],
+  "site": {
+    "id": "padise",
+    "name": "Padise",
+    "name_1343": "Padis, Cistercian monastery in Harrien",
+    "location_id": "world_padise",
+    "map_id": "world.padise",
+    "scene_id": "world_padise",
+    "origin": {
+      "lat": 59.2276,
+      "lon": 24.1407
+    },
+    "origin_confidence": "attested place (OSM Padise klooster ruins, relation 16395411; wikidata Q1435315); frame placement chosen for the game",
+    "metres_per_world_unit": 1.0,
+    "bounds_m": {
+      "x0": -320,
+      "y0": -290,
+      "x1": 280,
+      "y1": 310
+    },
+    "coast": "auto",
+    "features": {
+      "citizens": false,
+      "fauna": false,
+      "interiors": false
+    },
+    "default_spawn": "padise.spawn.close",
+    "inputs": {
+      "osm": "tools/city/data/osm_padise_extract.json",
+      "dem": "tools/city/data/eudem25m_padise.json",
+      "osm_bbox": [
+        59.2243,
+        24.134,
+        59.2306,
+        24.1462
+      ],
+      "overpass_query": "[out:json][timeout:120];(way(59.2243,24.1340,59.2306,24.1462);relation[\"type\"=\"multipolygon\"](59.2243,24.1340,59.2306,24.1462););(._;>;);out body;",
+      "dem_grid": "api.opentopodata.org/v1/eudem25m, lats 59.2242 + 0.0004 * i (i < 17), lons 24.1336 + 0.0008 * j (j < 17)"
+    },
+    "music_theme": "",
+    "confidence": "plausible composite"
+  },
+  "terrain": {
+    "datum_margin_m": 2.0,
+    "relief": false
+  },
+  "stream": {
+    "id": "padise.river",
+    "name_1343": "Kloostri river, with the mill pond above the mill",
+    "confidence": "attested course (OSM Kloostri joegi, ways 205781699 and 1411247304, simplified); width and the mill pond reach plausible composite",
+    "trace_m": [
+      [
+        30,
+        316
+      ],
+      [
+        44,
+        292
+      ],
+      [
+        40,
+        266
+      ],
+      [
+        28,
+        246
+      ],
+      [
+        8,
+        237
+      ],
+      [
+        -20,
+        221
+      ],
+      [
+        -40,
+        196
+      ],
+      [
+        -48,
+        172
+      ],
+      [
+        -40,
+        148
+      ],
+      [
+        -18,
+        134
+      ],
+      [
+        8,
+        124
+      ],
+      [
+        26,
+        108
+      ],
+      [
+        28,
+        84
+      ],
+      [
+        22,
+        62
+      ],
+      [
+        4,
+        52
+      ],
+      [
+        -24,
+        46
+      ],
+      [
+        -46,
+        36
+      ],
+      [
+        -54,
+        10
+      ],
+      [
+        -62,
+        -28
+      ],
+      [
+        -62,
+        -56
+      ],
+      [
+        -64,
+        -90
+      ],
+      [
+        -66,
+        -126
+      ],
+      [
+        -76,
+        -160
+      ],
+      [
+        -72,
+        -186
+      ],
+      [
+        -84,
+        -220
+      ],
+      [
+        -82,
+        -254
+      ],
+      [
+        -78,
+        -294
+      ]
+    ],
+    "width_m": [
+      9.0,
+      20.0,
+      24.0,
+      12.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.5,
+      7.5,
+      7.5,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0
+    ],
+    "depth_m": 1.1,
+    "ford": "padise.road.harju"
+  },
+  "roads": [
+    {
+      "id": "padise.road.harju",
+      "name_1343": "road east to Harju and Reval, fording the river below the house",
+      "class": "extramural_road",
+      "width_m": 6.0,
+      "confidence": "plausible composite (the Reval-Hapsal road crossing at the ford is the recorded reason for the site, Kadakas 2011; course of the modern Keila-Haapsalu road)",
+      "points_m": [
+        [
+          284,
+          -8
+        ],
+        [
+          236,
+          -36
+        ],
+        [
+          187,
+          -63
+        ],
+        [
+          130,
+          -94
+        ],
+        [
+          63,
+          -101
+        ],
+        [
+          7,
+          -85
+        ],
+        [
+          -55,
+          -66
+        ],
+        [
+          -90,
+          -57
+        ],
+        [
+          -120,
+          -52
+        ]
+      ]
+    },
+    {
+      "id": "padise.road.hapsal",
+      "name_1343": "road west to Hapsal",
+      "class": "extramural_road",
+      "width_m": 5.5,
+      "confidence": "plausible composite (course of the modern Keila-Haapsalu road)",
+      "points_m": [
+        [
+          -120,
+          -52
+        ],
+        [
+          -172,
+          -47
+        ],
+        [
+          -199,
+          -47
+        ],
+        [
+          -260,
+          -40
+        ],
+        [
+          -322,
+          -30
+        ]
+      ]
+    },
+    {
+      "id": "padise.road.parnu",
+      "name_1343": "road south to Pernau",
+      "class": "extramural_road",
+      "width_m": 5.0,
+      "confidence": "plausible composite (course of the modern Viikingi tee)",
+      "points_m": [
+        [
+          -120,
+          -52
+        ],
+        [
+          -114,
+          -5
+        ],
+        [
+          -106,
+          17
+        ],
+        [
+          -106,
+          67
+        ],
+        [
+          -108,
+          110
+        ],
+        [
+          -111,
+          164
+        ],
+        [
+          -115,
+          209
+        ],
+        [
+          -120,
+          246
+        ],
+        [
+          -119,
+          299
+        ],
+        [
+          -114,
+          312
+        ]
+      ]
+    },
+    {
+      "id": "padise.road.close",
+      "name_1343": "lane to the precinct gate",
+      "class": "extramural_road",
+      "width_m": 4.0,
+      "confidence": "plausible composite",
+      "points_m": [
+        [
+          7,
+          -85
+        ],
+        [
+          2,
+          -62
+        ],
+        [
+          0,
+          -40
+        ]
+      ]
+    },
+    {
+      "id": "padise.road.grange",
+      "name_1343": "cart way to the grange and the east wicket",
+      "class": "extramural_road",
+      "width_m": 4.0,
+      "confidence": "plausible composite",
+      "points_m": [
+        [
+          118,
+          -96
+        ],
+        [
+          110,
+          -60
+        ],
+        [
+          100,
+          -24
+        ],
+        [
+          84,
+          2
+        ],
+        [
+          66,
+          8
+        ]
+      ]
+    },
+    {
+      "id": "padise.road.mill",
+      "name_1343": "mill way from the south wicket",
+      "class": "extramural_road",
+      "width_m": 3.5,
+      "confidence": "plausible composite",
+      "points_m": [
+        [
+          34,
+          42
+        ],
+        [
+          48,
+          80
+        ],
+        [
+          54,
+          150
+        ],
+        [
+          48,
+          196
+        ],
+        [
+          38,
+          210
+        ]
+      ]
+    }
+  ],
+  "settlement": {
+    "confidence": "plausible composite (a few tenant farmsteads of the monastery by the Reval road; plot pattern invented)",
+    "house": {
+      "w_m": [
+        7.0,
+        9.0
+      ],
+      "d_m": [
+        5.5,
+        6.5
+      ],
+      "setback_m": 4.0,
+      "spacing_m": [
+        18.0,
+        26.0
+      ],
+      "wall_h_m": [
+        2.6,
+        3.2
+      ]
+    },
+    "rows": [
+      {
+        "road": "padise.road.harju",
+        "from_m": 24,
+        "to_m": 116,
+        "sides": [
+          -1,
+          1
+        ]
+      }
+    ]
+  },
+  "buildings": [
+    {
+      "id": "padise.bldg.stone_house",
+      "kind": "hall",
+      "name_1343": "early stone house (later buried under the western range)",
+      "confidence": "attested building before the quadrangle (Kadakas 2011); footprint, height and roof plausible composite",
+      "rect_m": {
+        "at": [
+          -20,
+          -2
+        ],
+        "w": 11,
+        "d": 26,
+        "angle_deg": 0
+      },
+      "wall_h": 7.5,
+      "roof": "shingle",
+      "roof_pitch_deg": 48,
+      "material": "limestone",
+      "door_toward": [
+        0,
+        -2
+      ]
+    },
+    {
+      "id": "padise.bldg.niche_house",
+      "kind": "hall",
+      "name_1343": "building with arched niches",
+      "confidence": "attested early building projecting south of the stone house (Kadakas 2011); footprint and roof plausible composite",
+      "rect_m": {
+        "at": [
+          -12,
+          31
+        ],
+        "w": 16,
+        "d": 7,
+        "angle_deg": 0
+      },
+      "wall_h": 5.0,
+      "roof": "shingle",
+      "roof_pitch_deg": 45,
+      "material": "limestone",
+      "door_toward": [
+        -12,
+        20
+      ]
+    },
+    {
+      "id": "padise.bldg.oratory",
+      "kind": "chapel",
+      "name_1343": "timber oratory of the choir monks",
+      "confidence": "plausible composite (no church before the 1448 consecration; a timber oratory on the later church site)",
+      "rect_m": {
+        "at": [
+          4,
+          -24
+        ],
+        "w": 22,
+        "d": 9,
+        "angle_deg": 0
+      },
+      "wall_h": 5.2,
+      "roof": "shingle",
+      "roof_pitch_deg": 52,
+      "material": "log",
+      "door_toward": [
+        4,
+        -4
+      ]
+    },
+    {
+      "id": "padise.bldg.east_range",
+      "kind": "house",
+      "name_1343": "timber east range (chapter room, dormitory over)",
+      "confidence": "plausible composite (timber conventual range before the masonry east range of c. 1350-1400)",
+      "rect_m": {
+        "at": [
+          26,
+          0
+        ],
+        "w": 9,
+        "d": 26,
+        "angle_deg": 0
+      },
+      "wall_h": 4.6,
+      "roof": "shingle",
+      "roof_pitch_deg": 48,
+      "material": "log",
+      "door_toward": [
+        6,
+        0
+      ]
+    },
+    {
+      "id": "padise.bldg.south_range",
+      "kind": "house",
+      "name_1343": "timber south range (refectory and kitchen)",
+      "confidence": "plausible composite (timber range before the masonry south range)",
+      "rect_m": {
+        "at": [
+          12,
+          24
+        ],
+        "w": 22,
+        "d": 8,
+        "angle_deg": 0
+      },
+      "wall_h": 3.8,
+      "roof": "shingle",
+      "roof_pitch_deg": 46,
+      "material": "log",
+      "door_toward": [
+        12,
+        6
+      ]
+    },
+    {
+      "id": "padise.bldg.lay_range",
+      "kind": "house",
+      "name_1343": "lay brothers' range",
+      "confidence": "plausible composite",
+      "rect_m": {
+        "at": [
+          -24,
+          -36
+        ],
+        "w": 16,
+        "d": 7,
+        "angle_deg": 0
+      },
+      "wall_h": 3.2,
+      "roof": "thatch",
+      "roof_pitch_deg": 48,
+      "material": "log",
+      "door_toward": [
+        -24,
+        -26
+      ]
+    },
+    {
+      "id": "padise.bldg.guest_house",
+      "kind": "house",
+      "name_1343": "guest house (burned on St George's Night)",
+      "confidence": "plausible composite (burned buildings of the 1343 attack, chronicle tradition; which ones is invented)",
+      "rect_m": {
+        "at": [
+          46,
+          -34
+        ],
+        "w": 14,
+        "d": 8,
+        "angle_deg": 0
+      },
+      "wall_h": 3.4,
+      "roof": "shingle",
+      "roof_pitch_deg": 46,
+      "material": "plank",
+      "door_toward": [
+        46,
+        -24
+      ]
+    },
+    {
+      "id": "padise.bldg.infirmary",
+      "kind": "house",
+      "name_1343": "infirmary",
+      "confidence": "plausible composite",
+      "rect_m": {
+        "at": [
+          48,
+          -8
+        ],
+        "w": 10,
+        "d": 9,
+        "angle_deg": 0
+      },
+      "wall_h": 3.2,
+      "roof": "shingle",
+      "roof_pitch_deg": 46,
+      "material": "log",
+      "door_toward": [
+        48,
+        4
+      ]
+    },
+    {
+      "id": "padise.bldg.brewhouse",
+      "kind": "house",
+      "name_1343": "brewhouse and bakehouse",
+      "confidence": "plausible composite",
+      "rect_m": {
+        "at": [
+          46,
+          28
+        ],
+        "w": 14,
+        "d": 7,
+        "angle_deg": 0
+      },
+      "wall_h": 3.0,
+      "roof": "thatch",
+      "roof_pitch_deg": 46,
+      "material": "plank",
+      "door_toward": [
+        46,
+        18
+      ]
+    },
+    {
+      "id": "padise.bldg.barn",
+      "kind": "outbuilding",
+      "type": "barn",
+      "name_1343": "grange barn",
+      "confidence": "plausible composite (the working grange that fed the house; northern-court occupation layer, Kadakas 2011)",
+      "rect_m": {
+        "at": [
+          100,
+          -42
+        ],
+        "w": 22,
+        "d": 9,
+        "angle_deg": 0
+      },
+      "wall_h": 3.8,
+      "roof": "thatch",
+      "roof_pitch_deg": 46,
+      "material": "plank"
+    },
+    {
+      "id": "padise.bldg.granary",
+      "kind": "outbuilding",
+      "type": "store",
+      "name_1343": "grange granary",
+      "confidence": "plausible composite",
+      "rect_m": {
+        "at": [
+          90,
+          -16
+        ],
+        "w": 9,
+        "d": 12,
+        "angle_deg": 0
+      },
+      "wall_h": 3.6,
+      "roof": "shingle",
+      "roof_pitch_deg": 45,
+      "material": "log"
+    },
+    {
+      "id": "padise.bldg.byre",
+      "kind": "outbuilding",
+      "type": "byre",
+      "name_1343": "grange byre and stable",
+      "confidence": "plausible composite",
+      "rect_m": {
+        "at": [
+          124,
+          -8
+        ],
+        "w": 20,
+        "d": 8,
+        "angle_deg": 0
+      },
+      "wall_h": 3.0,
+      "roof": "thatch",
+      "roof_pitch_deg": 46,
+      "material": "log"
+    },
+    {
+      "id": "padise.bldg.smithy",
+      "kind": "outbuilding",
+      "type": "store",
+      "name_1343": "grange smithy",
+      "confidence": "plausible composite",
+      "rect_m": {
+        "at": [
+          104,
+          18
+        ],
+        "w": 8,
+        "d": 6,
+        "angle_deg": 0
+      },
+      "wall_h": 2.8,
+      "roof": "shingle",
+      "roof_pitch_deg": 40,
+      "material": "limestone"
+    },
+    {
+      "id": "padise.bldg.mill",
+      "kind": "house",
+      "name_1343": "watermill below the mill pond",
+      "confidence": "plausible composite (mill site of the later manor watermill, OSM way 486835525; a Cistercian mill here in 1343 is not attested)",
+      "rect_m": {
+        "at": [
+          28,
+          222
+        ],
+        "w": 10,
+        "d": 8,
+        "angle_deg": 20
+      },
+      "wall_h": 3.6,
+      "roof": "shingle",
+      "roof_pitch_deg": 44,
+      "material": "plank",
+      "door_toward": [
+        40,
+        208
+      ]
+    }
+  ],
+  "fields": {
+    "confidence": "plausible composite (open strip fields of the monastery demesne and its tenants)",
+    "blocks": [
+      {
+        "id": "padise.fields.east",
+        "polygon_m": [
+          [
+            140,
+            34
+          ],
+          [
+            210,
+            24
+          ],
+          [
+            276,
+            40
+          ],
+          [
+            276,
+            160
+          ],
+          [
+            96,
+            160
+          ],
+          [
+            86,
+            60
+          ]
+        ],
+        "strip_angle_deg": 84,
+        "strip_m": 16,
+        "sowing_cycle": [
+          "winter",
+          "spring",
+          "fallow"
+        ]
+      },
+      {
+        "id": "padise.fields.north",
+        "polygon_m": [
+          [
+            -40,
+            -286
+          ],
+          [
+            276,
+            -286
+          ],
+          [
+            276,
+            -126
+          ],
+          [
+            150,
+            -124
+          ],
+          [
+            60,
+            -128
+          ],
+          [
+            -40,
+            -122
+          ]
+        ],
+        "strip_angle_deg": 6,
+        "strip_m": 18,
+        "sowing_cycle": [
+          "spring",
+          "winter",
+          "fallow",
+          "winter"
+        ]
+      },
+      {
+        "id": "padise.fields.west",
+        "polygon_m": [
+          [
+            -316,
+            -18
+          ],
+          [
+            -132,
+            -34
+          ],
+          [
+            -132,
+            144
+          ],
+          [
+            -316,
+            144
+          ]
+        ],
+        "strip_angle_deg": 88,
+        "strip_m": 15,
+        "sowing_cycle": [
+          "winter",
+          "fallow",
+          "spring"
+        ]
+      },
+      {
+        "id": "padise.fields.south",
+        "polygon_m": [
+          [
+            70,
+            174
+          ],
+          [
+            276,
+            174
+          ],
+          [
+            276,
+            306
+          ],
+          [
+            72,
+            306
+          ],
+          [
+            62,
+            240
+          ]
+        ],
+        "strip_angle_deg": 10,
+        "strip_m": 17,
+        "sowing_cycle": [
+          "fallow",
+          "winter",
+          "spring"
+        ]
+      }
+    ],
+    "gardens": {
+      "depth_m": 12.0,
+      "crops": [
+        "cabbage",
+        "turnip",
+        "pea",
+        "onion",
+        "flax"
+      ]
+    }
+  },
+  "pastures": [
+    {
+      "id": "padise.pasture.river_meadow",
+      "kind": "wet_meadow",
+      "fence": false,
+      "stock": [
+        {
+          "species": "cow",
+          "count": 4
+        },
+        {
+          "species": "sheep",
+          "count": 6
+        }
+      ],
+      "polygon_m": [
+        [
+          -30,
+          150
+        ],
+        [
+          2,
+          138
+        ],
+        [
+          22,
+          152
+        ],
+        [
+          14,
+          196
+        ],
+        [
+          -10,
+          212
+        ],
+        [
+          -30,
+          188
+        ]
+      ]
+    },
+    {
+      "id": "padise.pasture.west_bank",
+      "kind": "common",
+      "fence": false,
+      "stock": [
+        {
+          "species": "horse",
+          "count": 3
+        }
+      ],
+      "polygon_m": [
+        [
+          -96,
+          -36
+        ],
+        [
+          -74,
+          -42
+        ],
+        [
+          -66,
+          30
+        ],
+        [
+          -74,
+          120
+        ],
+        [
+          -96,
+          120
+        ]
+      ]
+    }
+  ],
+  "trees": {
+    "confidence": "plausible composite (alder and willow on the river, field-edge trees, spruce and pine woods on the poorer ground west of the river)",
+    "carr": {
+      "along": "padise.river",
+      "band_m": 18.0,
+      "spacing_m": 9.0,
+      "species": [
+        "alder",
+        "alder",
+        "willow",
+        "birch",
+        "alder"
+      ]
+    },
+    "hedgerow_spacing_m": 44.0,
+    "hedgerow_species": [
+      "oak",
+      "birch",
+      "ash",
+      "rowan",
+      "linden"
+    ],
+    "garden_species": [
+      "apple",
+      "cherry",
+      "plum",
+      "apple"
+    ],
+    "groves": [
+      {
+        "id": "padise.grove.northwest",
+        "polygon_m": [
+          [
+            -322,
+            -292
+          ],
+          [
+            -100,
+            -292
+          ],
+          [
+            -104,
+            -150
+          ],
+          [
+            -150,
+            -100
+          ],
+          [
+            -322,
+            -78
+          ]
+        ],
+        "spacing_m": 10.0,
+        "species": [
+          "spruce",
+          "pine",
+          "birch",
+          "spruce",
+          "alder"
+        ]
+      },
+      {
+        "id": "padise.grove.southwest",
+        "polygon_m": [
+          [
+            -322,
+            160
+          ],
+          [
+            -132,
+            160
+          ],
+          [
+            -134,
+            312
+          ],
+          [
+            -322,
+            312
+          ]
+        ],
+        "spacing_m": 10.0,
+        "species": [
+          "pine",
+          "spruce",
+          "birch",
+          "pine",
+          "juniper"
+        ]
+      },
+      {
+        "id": "padise.grove.orchard",
+        "polygon_m": [
+          [
+            70,
+            50
+          ],
+          [
+            96,
+            50
+          ],
+          [
+            96,
+            90
+          ],
+          [
+            70,
+            90
+          ]
+        ],
+        "spacing_m": 8.0,
+        "species": [
+          "apple",
+          "apple",
+          "cherry",
+          "plum"
+        ]
+      }
+    ]
+  },
+  "points_of_interest": [
+    {
+      "id": "padise.poi.garth",
+      "anchor_id": "room_cloister_garth",
+      "kind": "square",
+      "name_1343": "garth between the timber ranges",
+      "confidence": "plausible composite",
+      "at": [
+        2,
+        -2
+      ]
+    },
+    {
+      "id": "padise.poi.oratory",
+      "anchor_id": "landmark_timber_oratory",
+      "kind": "chapel",
+      "name_1343": "before the timber oratory",
+      "confidence": "plausible composite",
+      "at": [
+        4,
+        -15
+      ]
+    },
+    {
+      "id": "padise.poi.stone_house",
+      "anchor_id": "landmark_early_stone_house",
+      "kind": "hall",
+      "name_1343": "early stone house",
+      "confidence": "attested building (Kadakas 2011); position plausible composite",
+      "at": [
+        -11,
+        -6
+      ]
+    },
+    {
+      "id": "padise.poi.niche_house",
+      "anchor_id": "landmark_arched_niche_house",
+      "kind": "hall",
+      "name_1343": "building with arched niches",
+      "confidence": "attested building (Kadakas 2011); position plausible composite",
+      "at": [
+        -12,
+        23
+      ]
+    },
+    {
+      "id": "padise.poi.chapter_house",
+      "anchor_id": "room_chapter_range",
+      "kind": "hall",
+      "name_1343": "chapter room in the east range",
+      "confidence": "plausible composite",
+      "at": [
+        18,
+        -8
+      ]
+    },
+    {
+      "id": "padise.poi.refectory",
+      "anchor_id": "room_refectory",
+      "kind": "hall",
+      "name_1343": "refectory in the south range",
+      "confidence": "plausible composite",
+      "at": [
+        12,
+        16
+      ]
+    },
+    {
+      "id": "padise.poi.lay_brothers",
+      "anchor_id": "room_lay_brothers",
+      "kind": "hall",
+      "name_1343": "lay brothers' range",
+      "confidence": "plausible composite",
+      "at": [
+        -24,
+        -28
+      ]
+    },
+    {
+      "id": "padise.poi.infirmary",
+      "anchor_id": "room_infirmary",
+      "kind": "hall",
+      "name_1343": "infirmary",
+      "confidence": "plausible composite",
+      "at": [
+        48,
+        0
+      ]
+    },
+    {
+      "id": "padise.poi.brewhouse",
+      "anchor_id": "room_brewhouse",
+      "kind": "hall",
+      "name_1343": "brewhouse and bakehouse",
+      "confidence": "plausible composite",
+      "at": [
+        46,
+        20
+      ]
+    },
+    {
+      "id": "padise.poi.well",
+      "anchor_id": "landmark_monastery_well",
+      "kind": "well",
+      "name_1343": "monastery well",
+      "confidence": "plausible composite",
+      "at": [
+        6,
+        8
+      ]
+    },
+    {
+      "id": "padise.poi.precinct_gate",
+      "anchor_id": "precinct_gate_anchor",
+      "kind": "gate",
+      "name_1343": "entrance to the close from the lane",
+      "confidence": "plausible composite",
+      "at": [
+        0,
+        -50
+      ]
+    },
+    {
+      "id": "padise.poi.cemetery",
+      "anchor_id": "landmark_monks_cemetery",
+      "kind": "cemetery",
+      "name_1343": "monks' cemetery",
+      "confidence": "plausible composite",
+      "at": [
+        26,
+        -36
+      ]
+    },
+    {
+      "id": "padise.poi.guest_house",
+      "anchor_id": "landmark_fire_damage",
+      "kind": "guest_house",
+      "name_1343": "guest house (burned on St George's Night)",
+      "confidence": "plausible composite",
+      "at": [
+        46,
+        -26
+      ]
+    },
+    {
+      "id": "padise.poi.work_yard",
+      "anchor_id": "landmark_work_yard",
+      "kind": "work_yard",
+      "name_1343": "grange work yard",
+      "confidence": "plausible composite",
+      "at": [
+        108,
+        -24
+      ]
+    },
+    {
+      "id": "padise.poi.mill",
+      "anchor_id": "landmark_watermill",
+      "kind": "mill",
+      "name_1343": "watermill",
+      "confidence": "plausible composite",
+      "at": [
+        40,
+        208
+      ]
+    },
+    {
+      "id": "padise.poi.mill_pond",
+      "kind": "pond",
+      "name_1343": "mill pond",
+      "confidence": "plausible composite",
+      "at": [
+        44,
+        276
+      ]
+    },
+    {
+      "id": "padise.poi.ford",
+      "anchor_id": "landmark_river_ford",
+      "kind": "ford",
+      "name_1343": "ford of the Reval-Hapsal road",
+      "confidence": "attested crossing place (Kadakas 2011; modern Kloostri sild)",
+      "at": [
+        -63,
+        -70
+      ]
+    },
+    {
+      "id": "padise.poi.cloister_walk_north",
+      "anchor_id": "cloister_walk_north",
+      "kind": "cloister_walk",
+      "name_1343": "north walk by the oratory",
+      "confidence": "plausible composite",
+      "at": [
+        3,
+        -17
+      ]
+    },
+    {
+      "id": "padise.poi.cloister_walk_south",
+      "anchor_id": "cloister_walk_south",
+      "kind": "cloister_walk",
+      "name_1343": "south walk by the refectory",
+      "confidence": "plausible composite",
+      "at": [
+        8,
+        17
+      ]
+    },
+    {
+      "id": "padise.poi.cloister_walk_west",
+      "anchor_id": "cloister_walk_west",
+      "kind": "cloister_walk",
+      "name_1343": "west walk by the stone house",
+      "confidence": "plausible composite",
+      "at": [
+        -12,
+        2
+      ]
+    },
+    {
+      "id": "padise.poi.cloister_walk_east",
+      "anchor_id": "cloister_walk_east",
+      "kind": "cloister_walk",
+      "name_1343": "east walk by the chapter room",
+      "confidence": "plausible composite",
+      "at": [
+        19,
+        2
+      ]
+    }
+  ],
+  "spawns": [
+    {
+      "id": "from_reval_west",
+      "record": "padise.spawn.from_reval_west",
+      "at": [
+        238,
+        -34
+      ],
+      "note": "on the Reval road at the east edge"
+    },
+    {
+      "id": "from_world_parnu",
+      "record": "padise.spawn.from_world_parnu",
+      "at": [
+        -118,
+        272
+      ],
+      "note": "on the Pernau road at the south edge"
+    },
+    {
+      "id": "padise.spawn.close",
+      "record": "padise.spawn.close",
+      "at": [
+        -6,
+        -38
+      ],
+      "note": "default arrival inside the cart gate"
+    }
+  ],
+  "districts": [
+    {
+      "id": "padise.district.monastery",
+      "name": "Padise monastery",
+      "name_1343": "the close of the Cistercians of Padis",
+      "polygon_m": [
+        [
+          -46,
+          -52
+        ],
+        [
+          72,
+          -52
+        ],
+        [
+          72,
+          50
+        ],
+        [
+          -46,
+          50
+        ]
+      ]
+    },
+    {
+      "id": "padise.district.grange",
+      "name": "Padise grange",
+      "name_1343": "the monastery grange",
+      "polygon_m": [
+        [
+          74,
+          -64
+        ],
+        [
+          150,
+          -64
+        ],
+        [
+          150,
+          40
+        ],
+        [
+          74,
+          40
+        ]
+      ]
+    },
+    {
+      "id": "padise.district.fields",
+      "name": "Padise fields",
+      "name_1343": "fields and woods of the monastery",
+      "polygon_m": [
+        [
+          -320,
+          -290
+        ],
+        [
+          280,
+          -290
+        ],
+        [
+          280,
+          310
+        ],
+        [
+          -320,
+          310
+        ]
+      ]
+    }
+  ]
+}

@@ -17,6 +17,20 @@ Out of scope: quests, dialogue, NPC schedules or battles inside a site; people a
 
 Review plates (`tools/capture_regional_sites.gd`): `docs/reports/images/sites/paide_day_castle.png`, `paide_day_keep_from_town.png`, `paide_day_aerial.png`, `paide_night_castle.png`, `paide_rain_castle.png`, and `reval_day_aerial.png` (the city through the same path, sea and ships present).
 
+## Padise (April 1343)
+
+Status: implemented (task **R-1522**). Scope: the Cistercian house of Padise before the St George's Night attack, as an open estate on the river plateau, on the shared site pipeline. Out of scope: the later quadrangle, stone church (1448), gate and gun towers and moat (period rule); monastery interiors and the P6-009 vaulted routes (**R-322**); burnt shells after the attack (the plan is one state; the controller's after-attack phase only empties the house); retiring the greybox `world_padise.rrmap` and its scene.
+
+- Choosing **Padise Monastery** on the global travel map loads `scenes/world/sites/padise.tscn` (`world_padise`). The player arrives on the Reval road at the east edge (`from_reval_west`) or on the Pernau road at the south edge (`from_world_parnu`); started directly, inside the cart gate of the close (`padise.spawn.close`). The 600 m frame is centred on the later monastery ruin (59.2276 N, 24.1407 E).
+- On the plateau east of the Kloostri river: the early limestone house (later buried under the west range) and the building with arched niches south of it, the two masonry buildings Kadakas (AVE 2011) places before the quadrangle; round a grass garth the timber oratory, the timber east range (chapter room) and south range (refectory); the lay brothers' range, the guest house, the infirmary and the brewhouse. No wall closes the estate.
+- East of the close the grange (barn, granary, byre, smithy) with its work yard and a small orchard; a few tenant farmsteads with gardens on the Reval road. The river bends round the plateau's west and south; the road east to Harju and Reval fords it below the house (today's Kloostri bridge) and runs on west to Hapsal; the Pernau road leaves south. South of the river loop the watermill stands below the mill pond, a widened river reach (the builder has no separate pond record). Strip fields north, east, south and west, a wet meadow inside the loop, spruce and pine woods west of the river.
+- `scenes/world/sites/padise_site.gd` extends the site level and mounts `PadiseMonasteryController`. `PadiseMonasteryController.definition_from_plan(plan)` turns every plan point of interest with an `anchor_id` into an interaction anchor under the greybox id (`room_cloister_garth`, `landmark_timber_oratory`, `room_lay_brothers`, `room_infirmary`, `room_brewhouse`, `landmark_monastery_well`, ...); the four `cloister_walk_*` points are view landmarks. Before `phase.act1_climax` a choir monk stands before the oratory and a lay brother at the lay range (`PadiseMonkActor`, mirrored into 3D by the runtime); from `phase.act1_climax` on the house is empty. The controller owns the music (`holy_spirit`, then `monastery`); the site plays no zone theme of its own.
+- Terrain is the EU-DEM trend and the river cut only (`terrain.relief` false: the shared open-country swells put a hollow under the plateau).
+
+Review plates (`tools/godot_render.sh --script tools/capture_padise_site.gd`): `docs/reports/images/sites/padise_day_monastery.png`, `padise_day_close.png`, `padise_day_mill.png`, `padise_day_aerial.png`, `padise_night_monastery.png`, `padise_rain_monastery.png`; the plan review is `padise_plan.png`. Tests: `tests/godot/test_padise_site.gd` (plan, ids, 1343 state, anchor contract, sky and weather without sea, monks before and after the attack, spawns, edge to travel map, travel neighbours) and `tests/godot/test_padise_monastery_controller.gd`.
+
+Limits: the plan points of interest are anchors, not props: there is no well model, cloister walk roof or cemetery cross yet; generic timber footprints stand in for the AR-08 building set (**R-966**); the monks keep the greybox rigs (townswoman, watchman variants).
+
 ## Data and pipeline
 
 | File | What it is |

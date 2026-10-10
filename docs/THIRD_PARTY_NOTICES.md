@@ -135,9 +135,19 @@ notice.code.tidewater` comment.
 
 **Use:** Position of the Paide castle keep for the regional site ([ADR 0042](adr/0042-regional-site-plans.md)); everything else in the plan is authored for 1343.
 
+## notice.data.openstreetmap_padise
+
+**Component:** Trimmed OpenStreetMap extract of Padise (`tools/city/data/osm_padise_extract.json`) and the regional site plan derived from it (`content/world/padise/plan.json`, `height.json`, `splat.png`, `roads.png`, `minimap.png`)
+
+**Copyright:** © OpenStreetMap contributors
+
+**License:** Open Database License (ODbL) 1.0, https://opendatacommons.org/licenses/odbl/1-0/ . The extract and the derived plan are made available under the ODbL; see https://www.openstreetmap.org/copyright
+
+**Use:** Positions of the monastery ruin, the Kloostri river, the river crossing, the road lines and the mill site, traced into the Padise regional site ([ADR 0042](adr/0042-regional-site-plans.md)); the buildings and land use are authored for 1343.
+
 ## notice.data.eudem
 
-**Component:** EU-DEM v1.1 elevation samples (`tools/city/data/eudem25m_reval.json`, `tools/city/data/eudem25m_paide.json`), fetched through OpenTopoData
+**Component:** EU-DEM v1.1 elevation samples (`tools/city/data/eudem25m_reval.json`, `tools/city/data/eudem25m_paide.json`, `tools/city/data/eudem25m_padise.json`), fetched through OpenTopoData
 
 **Copyright:** Produced using Copernicus data and information funded by the European Union - EU-DEM layers
 

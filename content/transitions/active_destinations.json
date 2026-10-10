@@ -108,7 +108,7 @@
     },
     {
       "id": "world_padise",
-      "path": "res://scenes/world_travel/world_padise.tscn",
+      "path": "res://scenes/world/sites/padise.tscn",
       "active": true,
       "release": false,
       "spawns": [

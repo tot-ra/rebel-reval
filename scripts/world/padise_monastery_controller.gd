@@ -2,8 +2,11 @@ class_name PadiseMonasteryController
 extends Node
 
 ## Runtime composition boundary for the two Padise phases.
-## The RRMap owns collision, anchors, landmarks, and route geometry; this node
-## owns only phase-specific people and the location soundscape.
+## The Padise site plan (content/world/padise, ADR 0042) owns collision, terrain
+## and buildings; its points of interest carry the greybox anchor ids in
+## `anchor_id` (definition_from_plan). This node owns only phase-specific people
+## and the location soundscape. The greybox world_padise.rrmap keeps the same
+## anchor contract until it is retired.
 
 const MonkActor := preload("res://scripts/world/padise_monk_actor.gd")
 const MusicDirectorScript := preload("res://scripts/global/music_director.gd")
@@ -82,6 +85,26 @@ static func required_anchor_ids() -> Array[StringName]:
 
 static func required_view_landmark_ids() -> Array[StringName]:
 	return REQUIRED_VIEW_LANDMARKS.duplicate()
+
+
+## Anchor contract of the Padise site plan: every point of interest with an
+## `anchor_id` becomes an interaction anchor at its logic position; the cloister
+## walks are view landmarks as in the greybox. Ids are the greybox ids, so
+## validate_definition() and the phase manifest read both sources alike.
+static func definition_from_plan(plan: CityPlan) -> MapDefinition:
+	var definition := MapDefinition.new()
+	definition.map_id = StringName(String(plan.site_info().get("map_id", "")))
+	for poi: Dictionary in plan.data.get("points_of_interest", []):
+		var anchor_id := StringName(String(poi.get("anchor_id", "")))
+		if anchor_id.is_empty():
+			continue
+		var at := CityPlan.to_logic(Vector2(poi["at"][0], poi["at"][1]))
+		definition.interaction_anchors.append(
+			{"id": anchor_id, "position": at, "kind": StringName(String(poi.get("kind", "")))}
+		)
+		if String(poi.get("kind", "")) == "cloister_walk":
+			definition.view_landmarks.append({"id": anchor_id, "position": at})
+	return definition
 
 
 static func validate_definition(definition: MapDefinition) -> Array[String]:

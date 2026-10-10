@@ -232,6 +232,19 @@ The playable Paide site ([`REGIONAL_SITES.md`](./SYSTEMS/REGIONAL_SITES.md)) sho
 * **The ditch ring round the bailey, the bailey buildings (stable, granary, kitchen, smithy), the roads to Reval, Pernau and Fellin, the strip fields and the brook east of the castle** - **`plausible composite`**. The Pärnu river runs about 640 m south-east of the keep, outside the 600 m frame; the brook follows today's ditch and pond line.
 * **Frame centre** 58.88935 N, 25.57225 E (the castle mound, OSM Vallimägi) - chosen for the game; ADR 0042's approximate 58.885 N, 25.560 E lay about 1 km west of the castle.
 
+### Padise regional site (ADR 0042, R-1522)
+
+The playable Padise site ([`REGIONAL_SITES.md`](./SYSTEMS/REGIONAL_SITES.md)) shows the Cistercian house in April 1343, before the St George's Night attack, as follows. Sources: V. Kadakas, "Archaeological Studies in Padise Monastery", *Archaeological Fieldwork in Estonia* 2011 (`history/AVE2011_Kadakas_Padise.pdf`); chronicle tradition for the attack (`history/HISTORY.md`); OpenStreetMap for the ruin, river, road and mill positions.
+
+* **Cistercian house on the plateau above the Kloostri river, at the crossing of the Reval-Hapsal road** - **`attested`** (Kadakas, fig. 2); the ford is shown at today's Kloostri bridge. The river is the Kloostri jõgi (it later fed the monastery moat), not the Vihterpalu, which runs further west.
+* **Rebels attack the house on St George's Night (23 April) 1343 and kill the monks who stayed** - **`attested`** (chronicle tradition); which buildings burned (the guest house is the anchor) is **`plausible composite`**.
+* **Two masonry buildings before the quadrangle: the stone house later buried under the western range and the building with arched niches south of it** - **`attested`** (Kadakas); their footprints, heights and shingle roofs are **`plausible composite`**.
+* **The quadrangle ranges (c. 1350-1400), the stone church (consecrated 1448), gate and gun towers and the moat** - **`attested`** as later than 1343 and **excluded** (period rule).
+* **Timber oratory, timber east and south ranges round a garth, lay brothers' range, guest house, infirmary, brewhouse, the grange east of the close, the tenant farmsteads and the open (unwalled) close** - **`plausible composite`**.
+* **Watermill on the site of the later manor watermill, with a mill pond on the river above it** - **`plausible composite`**; a Cistercian mill at this spot in 1343 is not attested.
+* **Roads east to Harju and Reval, west to Hapsal and south to Pernau** - **`plausible composite`** (courses of the modern Keila-Haapsalu road and Viikingi tee).
+* **Frame centre** 59.2276 N, 24.1407 E (the centre of the later monastery ruin, OSM relation 16395411) - chosen for the game; ADR 0042's approximate 59.229 N, 24.137 E lies about 250 m north-west of it.
+
 ### Notable Landmarks (1343 vs Modern Tallinn)
 *For a catalog of how popular modern tourist spots (like the Town Hall, Toompea Castle, and St. Olaf's Church) existed during the uprising and how they tie into the factional conflicts, see the [Tourist Landmarks Catalog](./TOURIST_LANDMARKS.md).*
 
