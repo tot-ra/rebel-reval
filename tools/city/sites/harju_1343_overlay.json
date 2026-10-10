@@ -2,9 +2,9 @@
   "schema": "rr.site_overlay.v1",
   "snapshot": "april-1343",
   "notes": [
-    "Regional site overlay (ADR 0042) for an Estonian cluster village in northern Harria in April 1343, before St George's Night: five farmsteads round a common, smoke saunas by a brook, open strip fields, a wet meadow, a fenced common pasture and woods to the south toward the Pirita valley.",
+    "Regional site overlay (ADR 0042) for an Estonian village in northern Harria in April 1343, before St George's Night: five farmsteads in a loose cluster round a common, each with its own yard 75-130 m from the next, two outlying single farmsteads on their own land (one in the east fields, one in a clearing of the south wood), smoke saunas by a brook, open strip fields, a wet meadow, a fenced common pasture and woods to the south toward the Pirita valley.",
     "Invented composite (docs/LOCATIONS/harju_village.md, history/dossiers/hinterland/harju-village-and-manor.md): no surveyed 1343 village. The terrain is EU-DEM at Rebala (Joelahtme parish), a representative limestone-plateau village of the Iru-Rebala-Joelahtme corridor east of Reval, chosen for the game; the village is not Rebala and claims nothing about it. Coordinates are metres from that origin, x east, y south.",
-    "Farmsteads are barn-dwellings (rehielamu: smoke room and threshing floor under one thatch) with a granary and a shed; no chimneys (smoke leaves through the gable). Points of interest of kind smoke carry the plume height for the site script (scenes/world/sites/hinterland_site.gd).",
+    "Farmsteads (R-1627) follow the 1343 stage of the Estonian farm, not the 18th-19th c. buildings of the Open Air Museum: the dwelling is an elurehi (a log smoke room with a stone heap oven, kerisahi, that also dried the grain, and a threshing anteroom under one roof); the high-thatched three-part rehielamu with chambers is 15th-17th c. (Lavi 2001). Roofs are low split boards under birch bark. A granary (ait) and a cattle shed (laut) frame each yard; every building has a door and can be entered, and each dwelling names its household for the furnishing. No chimneys (smoke leaves by the door and the eaves). Points of interest of kind smoke carry the plume height for the site script (scenes/world/sites/hinterland_site.gd).",
     "OSM supplies nothing to the plan (land cover only, for the record); no modern road, building or pond is used."
   ],
   "site": {
@@ -30,7 +30,7 @@
     "features": {
       "citizens": false,
       "fauna": false,
-      "interiors": false
+      "interiors": true
     },
     "default_spawn": "harju.spawn.green",
     "inputs": {
@@ -252,334 +252,595 @@
           -354
         ]
       ]
+    },
+    {
+      "id": "harju.road.farm06",
+      "name_1343": "cart track to the outlying farmstead in the east fields",
+      "class": "extramural_road",
+      "width_m": 2.4,
+      "confidence": "invented",
+      "points_m": [
+        [
+          212,
+          3
+        ],
+        [
+          212,
+          120
+        ],
+        [
+          232,
+          140
+        ]
+      ]
+    },
+    {
+      "id": "harju.road.farm07",
+      "name_1343": "track to the clearing farmstead in the south wood",
+      "class": "extramural_road",
+      "width_m": 2.2,
+      "confidence": "invented",
+      "points_m": [
+        [
+          -150,
+          201
+        ],
+        [
+          -146,
+          222
+        ],
+        [
+          -142,
+          240
+        ]
+      ]
     }
   ],
   "buildings": [
     {
       "id": "harju.bldg.farm01.dwelling",
       "kind": "outbuilding",
-      "type": "byre",
-      "name_1343": "barn-dwelling: smoke room (rehetuba) and threshing floor under one thatch",
-      "confidence": "plausible composite (rehielamu form after Estonian ethnology; 1343 date and plan reconstructed)",
+      "type": "smoke_room",
+      "name_1343": "smoke-room dwelling (elurehi): smoke room with a stone heap oven and a threshing anteroom under one roof",
+      "confidence": "plausible composite (the elurehi stage of the barn-dwelling: a heated smoke room that also dried grain, with a threshing anteroom; Lavi 2001. The high-thatched three-part rehielamu of the Open Air Museum is 15th-17th c. and is not shown)",
       "rect_m": {
         "at": [
-          -98,
-          2
+          -119.1,
+          -12.3
         ],
-        "w": 15,
-        "d": 8.5,
-        "angle_deg": 25
+        "w": 12.5,
+        "d": 7.0,
+        "angle_deg": -48.5
       },
-      "wall_h": 2.4,
-      "roof": "thatch",
-      "roof_pitch_deg": 50,
+      "wall_h": 2.3,
+      "roof": "shingle",
+      "roof_pitch_deg": 30,
       "material": "log",
       "door_toward": [
-        -60.0,
-        40.0
-      ]
+        -112,
+        -6
+      ],
+      "household": {
+        "class": "poor",
+        "trade": "farmer",
+        "size": 8
+      }
     },
     {
       "id": "harju.bldg.farm01.granary",
       "kind": "outbuilding",
-      "type": "store",
+      "type": "granary",
       "name_1343": "granary (ait)",
       "confidence": "plausible composite",
       "rect_m": {
         "at": [
-          -95.5,
-          -12.3
+          -121.4,
+          1.7
         ],
-        "w": 5,
+        "w": 4.5,
         "d": 4,
-        "angle_deg": 25
+        "angle_deg": 41.5
       },
-      "wall_h": 2.2,
-      "roof": "thatch",
-      "roof_pitch_deg": 48,
-      "material": "log"
+      "wall_h": 2.1,
+      "roof": "shingle",
+      "roof_pitch_deg": 32,
+      "material": "log",
+      "door_toward": [
+        -112,
+        -6
+      ]
     },
     {
       "id": "harju.bldg.farm01.byre",
       "kind": "outbuilding",
-      "type": "byre",
+      "type": "cattle_shed",
       "name_1343": "cattle and sheep shed (laut)",
       "confidence": "plausible composite",
       "rect_m": {
         "at": [
-          -87.2,
-          -10.6
+          -104.5,
+          -16.0
         ],
-        "w": 9,
+        "w": 8.5,
         "d": 5,
-        "angle_deg": 115
+        "angle_deg": 41.5
       },
       "wall_h": 2.0,
-      "roof": "thatch",
-      "roof_pitch_deg": 46,
-      "material": "log"
+      "roof": "shingle",
+      "roof_pitch_deg": 30,
+      "material": "log",
+      "door_toward": [
+        -112,
+        -6
+      ]
     },
     {
       "id": "harju.bldg.farm02.dwelling",
       "kind": "outbuilding",
-      "type": "byre",
-      "name_1343": "barn-dwelling: smoke room (rehetuba) and threshing floor under one thatch",
-      "confidence": "plausible composite (rehielamu form after Estonian ethnology; 1343 date and plan reconstructed)",
+      "type": "smoke_room",
+      "name_1343": "smoke-room dwelling (elurehi): smoke room with a stone heap oven and a threshing anteroom under one roof",
+      "confidence": "plausible composite (the elurehi stage of the barn-dwelling: a heated smoke room that also dried grain, with a threshing anteroom; Lavi 2001. The high-thatched three-part rehielamu of the Open Air Museum is 15th-17th c. and is not shown)",
       "rect_m": {
         "at": [
-          -26,
-          -8
+          -8.3,
+          -29.6
         ],
-        "w": 14,
-        "d": 8,
-        "angle_deg": -20
+        "w": 12.0,
+        "d": 7.0,
+        "angle_deg": 36.6
       },
-      "wall_h": 2.4,
-      "roof": "thatch",
-      "roof_pitch_deg": 50,
+      "wall_h": 2.3,
+      "roof": "shingle",
+      "roof_pitch_deg": 30,
       "material": "log",
       "door_toward": [
-        -60.0,
-        40.0
-      ]
+        -14,
+        -22
+      ],
+      "household": {
+        "class": "poor",
+        "trade": "farmer",
+        "size": 7
+      }
     },
     {
       "id": "harju.bldg.farm02.granary",
       "kind": "outbuilding",
-      "type": "store",
+      "type": "granary",
       "name_1343": "granary (ait)",
       "confidence": "plausible composite",
       "rect_m": {
         "at": [
-          -34.1,
-          -20.0
+          -22.4,
+          -30.8
         ],
-        "w": 5,
+        "w": 4.5,
         "d": 4,
-        "angle_deg": -20
+        "angle_deg": 126.6
       },
-      "wall_h": 2.2,
-      "roof": "thatch",
-      "roof_pitch_deg": 48,
-      "material": "log"
+      "wall_h": 2.1,
+      "roof": "shingle",
+      "roof_pitch_deg": 32,
+      "material": "log",
+      "door_toward": [
+        -14,
+        -22
+      ]
     },
     {
       "id": "harju.bldg.farm02.byre",
       "kind": "outbuilding",
-      "type": "byre",
+      "type": "cattle_shed",
       "name_1343": "cattle and sheep shed (laut)",
       "confidence": "plausible composite",
       "rect_m": {
         "at": [
-          -27.5,
-          -24.5
+          -3.4,
+          -15.4
         ],
-        "w": 9,
+        "w": 8.5,
         "d": 5,
-        "angle_deg": 70
+        "angle_deg": 126.6
       },
       "wall_h": 2.0,
-      "roof": "thatch",
-      "roof_pitch_deg": 46,
-      "material": "log"
+      "roof": "shingle",
+      "roof_pitch_deg": 30,
+      "material": "log",
+      "door_toward": [
+        -14,
+        -22
+      ]
     },
     {
       "id": "harju.bldg.farm03.dwelling",
       "kind": "outbuilding",
-      "type": "byre",
-      "name_1343": "barn-dwelling: smoke room (rehetuba) and threshing floor under one thatch",
-      "confidence": "plausible composite (rehielamu form after Estonian ethnology; 1343 date and plan reconstructed)",
+      "type": "smoke_room",
+      "name_1343": "smoke-room dwelling (elurehi): smoke room with a stone heap oven and a threshing anteroom under one roof",
+      "confidence": "plausible composite (the elurehi stage of the barn-dwelling: a heated smoke room that also dried grain, with a threshing anteroom; Lavi 2001. The high-thatched three-part rehielamu of the Open Air Museum is 15th-17th c. and is not shown)",
       "rect_m": {
         "at": [
-          8,
-          60
+          29.3,
+          56.8
         ],
-        "w": 14,
-        "d": 8.5,
-        "angle_deg": 80
+        "w": 12.0,
+        "d": 7.0,
+        "angle_deg": 100.6
       },
-      "wall_h": 2.4,
-      "roof": "thatch",
-      "roof_pitch_deg": 50,
+      "wall_h": 2.3,
+      "roof": "shingle",
+      "roof_pitch_deg": 30,
       "material": "log",
       "door_toward": [
-        -60.0,
-        40.0
-      ]
+        20,
+        55
+      ],
+      "household": {
+        "class": "poor",
+        "trade": "farmer",
+        "size": 6
+      }
     },
     {
       "id": "harju.bldg.farm03.granary",
       "kind": "outbuilding",
-      "type": "store",
+      "type": "granary",
       "name_1343": "granary (ait)",
       "confidence": "plausible composite",
       "rect_m": {
         "at": [
-          21.2,
-          54.1
+          24.2,
+          43.6
         ],
-        "w": 5,
+        "w": 4.5,
         "d": 4,
-        "angle_deg": 80
+        "angle_deg": 190.6
       },
-      "wall_h": 2.2,
-      "roof": "thatch",
-      "roof_pitch_deg": 48,
-      "material": "log"
+      "wall_h": 2.1,
+      "roof": "shingle",
+      "roof_pitch_deg": 32,
+      "material": "log",
+      "door_toward": [
+        20,
+        55
+      ]
     },
     {
       "id": "harju.bldg.farm03.byre",
       "kind": "outbuilding",
-      "type": "byre",
+      "type": "cattle_shed",
       "name_1343": "cattle and sheep shed (laut)",
       "confidence": "plausible composite",
       "rect_m": {
         "at": [
-          24.5,
-          61.4
+          18.7,
+          67.5
         ],
-        "w": 9,
+        "w": 8.5,
         "d": 5,
-        "angle_deg": 170
+        "angle_deg": 190.6
       },
       "wall_h": 2.0,
-      "roof": "thatch",
-      "roof_pitch_deg": 46,
-      "material": "log"
+      "roof": "shingle",
+      "roof_pitch_deg": 30,
+      "material": "log",
+      "door_toward": [
+        20,
+        55
+      ]
     },
     {
       "id": "harju.bldg.farm04.dwelling",
       "kind": "outbuilding",
-      "type": "byre",
-      "name_1343": "barn-dwelling: smoke room (rehetuba) and threshing floor under one thatch",
-      "confidence": "plausible composite (rehielamu form after Estonian ethnology; 1343 date and plan reconstructed)",
+      "type": "smoke_room",
+      "name_1343": "smoke-room dwelling (elurehi): smoke room with a stone heap oven and a threshing anteroom under one roof",
+      "confidence": "plausible composite (the elurehi stage of the barn-dwelling: a heated smoke room that also dried grain, with a threshing anteroom; Lavi 2001. The high-thatched three-part rehielamu of the Open Air Museum is 15th-17th c. and is not shown)",
       "rect_m": {
         "at": [
-          -22,
-          100
+          -9.1,
+          128.5
         ],
-        "w": 15,
-        "d": 9,
-        "angle_deg": 5
+        "w": 13.0,
+        "d": 7.5,
+        "angle_deg": 150.1
       },
-      "wall_h": 2.4,
-      "roof": "thatch",
-      "roof_pitch_deg": 50,
+      "wall_h": 2.3,
+      "roof": "shingle",
+      "roof_pitch_deg": 30,
       "material": "log",
       "door_toward": [
-        -60.0,
-        40.0
-      ]
+        -14,
+        120
+      ],
+      "household": {
+        "class": "poor",
+        "trade": "farmer",
+        "size": 9
+      }
     },
     {
       "id": "harju.bldg.farm04.granary",
       "kind": "outbuilding",
-      "type": "store",
+      "type": "granary",
       "name_1343": "granary (ait)",
       "confidence": "plausible composite",
       "rect_m": {
         "at": [
-          -27.0,
-          113.6
+          -2.6,
+          115.8
         ],
-        "w": 5,
+        "w": 4.5,
         "d": 4,
-        "angle_deg": 5
+        "angle_deg": 240.1
       },
-      "wall_h": 2.2,
-      "roof": "thatch",
-      "roof_pitch_deg": 48,
-      "material": "log"
+      "wall_h": 2.1,
+      "roof": "shingle",
+      "roof_pitch_deg": 32,
+      "material": "log",
+      "door_toward": [
+        -14,
+        120
+      ]
     },
     {
       "id": "harju.bldg.farm04.byre",
       "kind": "outbuilding",
-      "type": "byre",
+      "type": "cattle_shed",
       "name_1343": "cattle and sheep shed (laut)",
       "confidence": "plausible composite",
       "rect_m": {
         "at": [
-          -18.9,
-          116.3
+          -24.3,
+          127.1
         ],
-        "w": 9,
+        "w": 8.5,
         "d": 5,
-        "angle_deg": 95
+        "angle_deg": 240.1
       },
       "wall_h": 2.0,
-      "roof": "thatch",
-      "roof_pitch_deg": 46,
-      "material": "log"
+      "roof": "shingle",
+      "roof_pitch_deg": 30,
+      "material": "log",
+      "door_toward": [
+        -14,
+        120
+      ]
     },
     {
       "id": "harju.bldg.farm05.dwelling",
       "kind": "outbuilding",
-      "type": "byre",
-      "name_1343": "barn-dwelling: smoke room (rehetuba) and threshing floor under one thatch",
-      "confidence": "plausible composite (rehielamu form after Estonian ethnology; 1343 date and plan reconstructed)",
+      "type": "smoke_room",
+      "name_1343": "smoke-room dwelling (elurehi): smoke room with a stone heap oven and a threshing anteroom under one roof",
+      "confidence": "plausible composite (the elurehi stage of the barn-dwelling: a heated smoke room that also dried grain, with a threshing anteroom; Lavi 2001. The high-thatched three-part rehielamu of the Open Air Museum is 15th-17th c. and is not shown)",
       "rect_m": {
         "at": [
-          -112,
-          78
+          -129.6,
+          91.7
         ],
-        "w": 14,
-        "d": 9,
-        "angle_deg": 70
+        "w": 12.0,
+        "d": 7.0,
+        "angle_deg": -126.6
       },
-      "wall_h": 2.4,
-      "roof": "thatch",
-      "roof_pitch_deg": 50,
+      "wall_h": 2.3,
+      "roof": "shingle",
+      "roof_pitch_deg": 30,
       "material": "log",
       "door_toward": [
-        -60.0,
-        40.0
-      ]
+        -122,
+        86
+      ],
+      "household": {
+        "class": "poor",
+        "trade": "farmer",
+        "size": 7
+      }
     },
     {
       "id": "harju.bldg.farm05.granary",
       "kind": "outbuilding",
-      "type": "store",
+      "type": "granary",
       "name_1343": "granary (ait)",
       "confidence": "plausible composite",
       "rect_m": {
         "at": [
-          -126.4,
-          79.5
+          -116.5,
+          96.8
         ],
-        "w": 5,
+        "w": 4.5,
         "d": 4,
-        "angle_deg": 70
+        "angle_deg": -36.6
       },
-      "wall_h": 2.2,
-      "roof": "thatch",
-      "roof_pitch_deg": 48,
-      "material": "log"
+      "wall_h": 2.1,
+      "roof": "shingle",
+      "roof_pitch_deg": 32,
+      "material": "log",
+      "door_toward": [
+        -122,
+        86
+      ]
     },
     {
       "id": "harju.bldg.farm05.byre",
       "kind": "outbuilding",
-      "type": "byre",
+      "type": "cattle_shed",
       "name_1343": "cattle and sheep shed (laut)",
       "confidence": "plausible composite",
       "rect_m": {
         "at": [
-          -125.6,
-          87.4
+          -130.3,
+          76.6
         ],
-        "w": 9,
+        "w": 8.5,
         "d": 5,
-        "angle_deg": 160
+        "angle_deg": -36.6
       },
       "wall_h": 2.0,
-      "roof": "thatch",
-      "roof_pitch_deg": 46,
-      "material": "log"
+      "roof": "shingle",
+      "roof_pitch_deg": 30,
+      "material": "log",
+      "door_toward": [
+        -122,
+        86
+      ]
+    },
+    {
+      "id": "harju.bldg.farm06.dwelling",
+      "kind": "outbuilding",
+      "type": "smoke_room",
+      "name_1343": "smoke-room dwelling (elurehi): smoke room with a stone heap oven and a threshing anteroom under one roof",
+      "confidence": "plausible composite (the elurehi stage of the barn-dwelling: a heated smoke room that also dried grain, with a threshing anteroom; Lavi 2001. The high-thatched three-part rehielamu of the Open Air Museum is 15th-17th c. and is not shown)",
+      "rect_m": {
+        "at": [
+          251.1,
+          159.4
+        ],
+        "w": 12.0,
+        "d": 7.0,
+        "angle_deg": 173.1
+      },
+      "wall_h": 2.3,
+      "roof": "shingle",
+      "roof_pitch_deg": 30,
+      "material": "log",
+      "door_toward": [
+        250,
+        150
+      ],
+      "household": {
+        "class": "poor",
+        "trade": "farmer",
+        "size": 6
+      }
+    },
+    {
+      "id": "harju.bldg.farm06.granary",
+      "kind": "outbuilding",
+      "type": "granary",
+      "name_1343": "granary (ait)",
+      "confidence": "plausible composite",
+      "rect_m": {
+        "at": [
+          262.2,
+          150.5
+        ],
+        "w": 4.5,
+        "d": 4,
+        "angle_deg": 263.1
+      },
+      "wall_h": 2.1,
+      "roof": "shingle",
+      "roof_pitch_deg": 32,
+      "material": "log",
+      "door_toward": [
+        250,
+        150
+      ]
+    },
+    {
+      "id": "harju.bldg.farm06.byre",
+      "kind": "outbuilding",
+      "type": "cattle_shed",
+      "name_1343": "cattle and sheep shed (laut)",
+      "confidence": "plausible composite",
+      "rect_m": {
+        "at": [
+          237.7,
+          152.5
+        ],
+        "w": 8.5,
+        "d": 5,
+        "angle_deg": 263.1
+      },
+      "wall_h": 2.0,
+      "roof": "shingle",
+      "roof_pitch_deg": 30,
+      "material": "log",
+      "door_toward": [
+        250,
+        150
+      ]
+    },
+    {
+      "id": "harju.bldg.farm07.dwelling",
+      "kind": "outbuilding",
+      "type": "smoke_room",
+      "name_1343": "smoke-room dwelling (elurehi): smoke room with a stone heap oven and a threshing anteroom under one roof",
+      "confidence": "plausible composite (the elurehi stage of the barn-dwelling: a heated smoke room that also dried grain, with a threshing anteroom; Lavi 2001. The high-thatched three-part rehielamu of the Open Air Museum is 15th-17th c. and is not shown)",
+      "rect_m": {
+        "at": [
+          -138.5,
+          261.4
+        ],
+        "w": 11.5,
+        "d": 7.0,
+        "angle_deg": 170.9
+      },
+      "wall_h": 2.3,
+      "roof": "shingle",
+      "roof_pitch_deg": 30,
+      "material": "log",
+      "door_toward": [
+        -140,
+        252
+      ],
+      "household": {
+        "class": "poor",
+        "trade": "farmer",
+        "size": 5
+      }
+    },
+    {
+      "id": "harju.bldg.farm07.granary",
+      "kind": "outbuilding",
+      "type": "granary",
+      "name_1343": "granary (ait)",
+      "confidence": "plausible composite",
+      "rect_m": {
+        "at": [
+          -127.8,
+          252.1
+        ],
+        "w": 4.5,
+        "d": 4,
+        "angle_deg": 260.9
+      },
+      "wall_h": 2.1,
+      "roof": "shingle",
+      "roof_pitch_deg": 32,
+      "material": "log",
+      "door_toward": [
+        -140,
+        252
+      ]
+    },
+    {
+      "id": "harju.bldg.farm07.byre",
+      "kind": "outbuilding",
+      "type": "cattle_shed",
+      "name_1343": "cattle and sheep shed (laut)",
+      "confidence": "plausible composite",
+      "rect_m": {
+        "at": [
+          -152.2,
+          255.0
+        ],
+        "w": 8.5,
+        "d": 5,
+        "angle_deg": 260.9
+      },
+      "wall_h": 2.0,
+      "roof": "shingle",
+      "roof_pitch_deg": 30,
+      "material": "log",
+      "door_toward": [
+        -140,
+        252
+      ]
     },
     {
       "id": "harju.bldg.sauna01",
       "kind": "outbuilding",
-      "type": "smoke_shed",
-      "name_1343": "smoke sauna by the brook",
+      "type": "sauna",
+      "name_1343": "smoke sauna (suitsusaun)",
       "confidence": "plausible composite",
       "rect_m": {
         "at": [
@@ -591,8 +852,8 @@
         "angle_deg": 10
       },
       "wall_h": 1.9,
-      "roof": "thatch",
-      "roof_pitch_deg": 40,
+      "roof": "shingle",
+      "roof_pitch_deg": 28,
       "material": "log",
       "door_toward": [
         -230,
@@ -602,8 +863,8 @@
     {
       "id": "harju.bldg.sauna02",
       "kind": "outbuilding",
-      "type": "smoke_shed",
-      "name_1343": "smoke sauna by the brook",
+      "type": "sauna",
+      "name_1343": "smoke sauna (suitsusaun)",
       "confidence": "plausible composite",
       "rect_m": {
         "at": [
@@ -615,12 +876,36 @@
         "angle_deg": 10
       },
       "wall_h": 1.9,
-      "roof": "thatch",
-      "roof_pitch_deg": 40,
+      "roof": "shingle",
+      "roof_pitch_deg": 28,
       "material": "log",
       "door_toward": [
         -230,
         82
+      ]
+    },
+    {
+      "id": "harju.bldg.sauna07",
+      "kind": "outbuilding",
+      "type": "sauna",
+      "name_1343": "smoke sauna (suitsusaun)",
+      "confidence": "plausible composite",
+      "rect_m": {
+        "at": [
+          -168,
+          238
+        ],
+        "w": 4,
+        "d": 4,
+        "angle_deg": 10
+      },
+      "wall_h": 1.9,
+      "roof": "shingle",
+      "roof_pitch_deg": 28,
+      "material": "log",
+      "door_toward": [
+        -140,
+        252
       ]
     }
   ],
@@ -640,11 +925,11 @@
           ],
           [
             40,
-            -40
+            -62
           ],
           [
-            -50,
-            -30
+            -56,
+            -56
           ]
         ],
         "strip_angle_deg": 82,
@@ -663,11 +948,11 @@
             -346
           ],
           [
-            -112,
+            -122,
             -346
           ],
           [
-            -90,
+            -96,
             -60
           ],
           [
@@ -724,8 +1009,36 @@
         "id": "harju.fields.southeast",
         "polygon_m": [
           [
-            40,
-            90
+            44,
+            92
+          ],
+          [
+            206,
+            64
+          ],
+          [
+            206,
+            346
+          ],
+          [
+            44,
+            346
+          ]
+        ],
+        "strip_angle_deg": 92,
+        "strip_m": 15,
+        "sowing_cycle": [
+          "fallow",
+          "winter",
+          "spring"
+        ]
+      },
+      {
+        "id": "harju.fields.southeast_far",
+        "polygon_m": [
+          [
+            290,
+            42
           ],
           [
             346,
@@ -736,16 +1049,71 @@
             346
           ],
           [
-            40,
+            290,
             346
           ]
         ],
         "strip_angle_deg": 92,
         "strip_m": 15,
         "sowing_cycle": [
-          "fallow",
           "winter",
-          "spring"
+          "spring",
+          "fallow"
+        ]
+      },
+      {
+        "id": "harju.fields.farm06",
+        "polygon_m": [
+          [
+            220,
+            190
+          ],
+          [
+            284,
+            190
+          ],
+          [
+            284,
+            346
+          ],
+          [
+            220,
+            346
+          ]
+        ],
+        "strip_angle_deg": 92,
+        "strip_m": 14,
+        "sowing_cycle": [
+          "spring",
+          "winter",
+          "fallow"
+        ]
+      },
+      {
+        "id": "harju.fields.farm07_clearing",
+        "polygon_m": [
+          [
+            -182,
+            270
+          ],
+          [
+            -104,
+            270
+          ],
+          [
+            -104,
+            300
+          ],
+          [
+            -182,
+            300
+          ]
+        ],
+        "strip_angle_deg": 0,
+        "strip_m": 10,
+        "sowing_cycle": [
+          "spring",
+          "winter"
         ]
       }
     ]
@@ -851,11 +1219,11 @@
             190
           ],
           [
-            -60,
-            186
+            -190,
+            189
           ],
           [
-            -40,
+            -190,
             346
           ],
           [
@@ -876,20 +1244,28 @@
         "id": "harju.grove.farmyards",
         "polygon_m": [
           [
-            -130,
-            -20
+            -150,
+            -40
           ],
           [
-            10,
-            -30
+            22,
+            -48
           ],
           [
-            30,
-            120
+            34,
+            150
           ],
           [
-            -130,
-            110
+            -74,
+            160
+          ],
+          [
+            -74,
+            112
+          ],
+          [
+            -150,
+            106
           ]
         ],
         "spacing_m": 26.0,
@@ -926,6 +1302,64 @@
           "spruce",
           "pine"
         ]
+      },
+      {
+        "id": "harju.grove.south_east",
+        "polygon_m": [
+          [
+            -96,
+            187
+          ],
+          [
+            -60,
+            186
+          ],
+          [
+            -40,
+            346
+          ],
+          [
+            -96,
+            346
+          ]
+        ],
+        "spacing_m": 8.0,
+        "species": [
+          "spruce",
+          "pine",
+          "birch",
+          "spruce",
+          "alder"
+        ]
+      },
+      {
+        "id": "harju.grove.south_beyond_clearing",
+        "polygon_m": [
+          [
+            -190,
+            306
+          ],
+          [
+            -96,
+            306
+          ],
+          [
+            -96,
+            346
+          ],
+          [
+            -190,
+            346
+          ]
+        ],
+        "spacing_m": 8.0,
+        "species": [
+          "spruce",
+          "pine",
+          "birch",
+          "spruce",
+          "alder"
+        ]
       }
     ]
   },
@@ -936,10 +1370,10 @@
       "name_1343": "smoke from the smoke room",
       "confidence": "plausible composite",
       "at": [
-        -100.7,
-        0.7
+        -121.2,
+        -10.0
       ],
-      "smoke_h_m": 7.1
+      "smoke_h_m": 4.8
     },
     {
       "id": "harju.poi.smoke.farm02",
@@ -947,10 +1381,10 @@
       "name_1343": "smoke from the smoke room",
       "confidence": "plausible composite",
       "at": [
-        -28.6,
-        -7.0
+        -10.7,
+        -31.4
       ],
-      "smoke_h_m": 6.8
+      "smoke_h_m": 4.8
     },
     {
       "id": "harju.poi.smoke.farm03",
@@ -958,10 +1392,10 @@
       "name_1343": "smoke from the smoke room",
       "confidence": "plausible composite",
       "at": [
-        7.5,
-        57.2
+        29.9,
+        53.8
       ],
-      "smoke_h_m": 7.1
+      "smoke_h_m": 4.8
     },
     {
       "id": "harju.poi.smoke.farm04",
@@ -969,10 +1403,10 @@
       "name_1343": "smoke from the smoke room",
       "confidence": "plausible composite",
       "at": [
-        -25.0,
-        99.7
+        -6.3,
+        126.8
       ],
-      "smoke_h_m": 7.3999999999999995
+      "smoke_h_m": 4.8
     },
     {
       "id": "harju.poi.smoke.farm05",
@@ -980,10 +1414,43 @@
       "name_1343": "smoke from the smoke room",
       "confidence": "plausible composite",
       "at": [
-        -113.0,
-        75.4
+        -127.8,
+        94.1
       ],
-      "smoke_h_m": 7.3999999999999995
+      "smoke_h_m": 4.8
+    },
+    {
+      "id": "harju.poi.smoke.farm06",
+      "kind": "smoke",
+      "name_1343": "smoke from the smoke room",
+      "confidence": "plausible composite",
+      "at": [
+        254.1,
+        159.1
+      ],
+      "smoke_h_m": 4.8
+    },
+    {
+      "id": "harju.poi.smoke.farm07",
+      "kind": "smoke",
+      "name_1343": "smoke from the smoke room",
+      "confidence": "plausible composite",
+      "at": [
+        -135.7,
+        260.9
+      ],
+      "smoke_h_m": 4.8
+    },
+    {
+      "id": "harju.poi.smoke.sauna07",
+      "kind": "smoke",
+      "name_1343": "smoke sauna heating",
+      "confidence": "invented",
+      "at": [
+        -168,
+        238
+      ],
+      "smoke_h_m": 3.4
     },
     {
       "id": "harju.poi.smoke.sauna01",
@@ -1045,6 +1512,76 @@
       "at": [
         150,
         30
+      ]
+    },
+    {
+      "id": "harju.poi.yard.farm01",
+      "kind": "yard",
+      "name_1343": "farmstead yard",
+      "confidence": "plausible composite",
+      "at": [
+        -112,
+        -6
+      ]
+    },
+    {
+      "id": "harju.poi.yard.farm02",
+      "kind": "yard",
+      "name_1343": "farmstead yard",
+      "confidence": "plausible composite",
+      "at": [
+        -14,
+        -22
+      ]
+    },
+    {
+      "id": "harju.poi.yard.farm03",
+      "kind": "yard",
+      "name_1343": "farmstead yard",
+      "confidence": "plausible composite",
+      "at": [
+        20,
+        55
+      ]
+    },
+    {
+      "id": "harju.poi.yard.farm04",
+      "kind": "yard",
+      "name_1343": "farmstead yard",
+      "confidence": "plausible composite",
+      "at": [
+        -14,
+        120
+      ]
+    },
+    {
+      "id": "harju.poi.yard.farm05",
+      "kind": "yard",
+      "name_1343": "farmstead yard",
+      "confidence": "plausible composite",
+      "at": [
+        -122,
+        86
+      ]
+    },
+    {
+      "id": "harju.poi.yard.farm06",
+      "kind": "yard",
+      "name_1343": "yard of an outlying single farmstead",
+      "confidence": "invented",
+      "at": [
+        250,
+        150
+      ]
+    },
+    {
+      "id": "harju.poi.yard.farm07",
+      "kind": "yard",
+      "name_1343": "yard of an outlying single farmstead",
+      "confidence": "invented",
+      "at": [
+        -140,
+        252
       ]
     }
   ],
@@ -1111,20 +1648,20 @@
       "name_1343": "the village (kula)",
       "polygon_m": [
         [
-          -140,
-          -30
+          -150,
+          -45
         ],
         [
-          40,
-          -30
+          45,
+          -45
         ],
         [
-          40,
-          130
+          45,
+          160
         ],
         [
-          -140,
-          130
+          -150,
+          160
         ]
       ]
     },
@@ -1146,16 +1683,16 @@
           350
         ],
         [
-          40,
+          45,
           350
         ],
         [
-          40,
-          130
+          45,
+          160
         ],
         [
           -350,
-          130
+          160
         ]
       ]
     },
@@ -1166,14 +1703,14 @@
       "polygon_m": [
         [
           -350,
-          130
+          160
         ],
         [
-          40,
-          130
+          45,
+          160
         ],
         [
-          40,
+          45,
           350
         ],
         [

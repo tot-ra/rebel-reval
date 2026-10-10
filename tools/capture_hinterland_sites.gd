@@ -23,8 +23,14 @@ const SHOTS := {
 	[
 		["harju_day_arrival", &"clear", DAY, Vector3(-322, 2.2, 23), Vector3(-200, 3, 32), 62.0],
 		["harju_day_village", &"clear", DAY, Vector3(-150, 24, -60), Vector3(-50, 2, 40), 55.0],
-		["harju_day_farmstead", &"clear", DAY, Vector3(-40, 4.5, 20), Vector3(-26, 2.5, -8), 64.0],
+		["harju_day_farmstead", &"clear", DAY, Vector3(-18.5, 2.4, -14), Vector3(-9.5, 1.4, -28.5), 66.0],
+		# Optional 7th entry: a building whose roof lifts and whose room is furnished (R-1627).
+		["harju_day_interior", &"clear", DAY, Vector3(-1, 7.5, -21), Vector3(-8.5, 0.2, -30), 60.0, "harju.bldg.farm02.dwelling"],  # gdlint: ignore=max-line-length
+		["harju_day_granary_inside", &"clear", DAY, Vector3(-17, 5.5, -25), Vector3(-22.4, 0.2, -30.8), 60.0, "harju.bldg.farm02.granary"],  # gdlint: ignore=max-line-length
+		["harju_day_clearing_farm", &"clear", DAY, Vector3(-152, 3.5, 222), Vector3(-138, 2, 260), 62.0],
+		["harju_day_fields_road", &"clear", DAY, Vector3(-86, 3.2, -110), Vector3(-104, 0.5, -240), 62.0],
 		["harju_dusk_fields", &"clear", DUSK, Vector3(10, 9, 30), Vector3(180, 0, -140), 62.0],
+		["harju_day_overhead", &"clear", DAY, Vector3(-40, 420, 70), Vector3(-40, 0, 30), 60.0],
 		["harju_day_aerial", &"clear", DAY, Vector3(220, 160, 260), Vector3(-30, 0, 20), 56.0],
 		["harju_night_village", &"clear", NIGHT, Vector3(-150, 24, -60), Vector3(-50, 2, 40), 55.0],
 		["harju_rain_village", &"rain", DAY, Vector3(-96, 6, 46), Vector3(-30, 3, 30), 60.0],
@@ -72,6 +78,10 @@ func _run() -> void:
 		var view := CityMapView.create_city(plan)
 		root.add_child(view)
 		var dressing: Node3D = Hinterland.dress(plan, view.world)
+		# Furnished rooms, as the level mounts them when interiors are on.
+		var interiors := CityInteriors.create(plan, CitizenRoster.load_for(plan), view.world.chimneys)
+		interiors.enabled = plan.feature_enabled("interiors")
+		view.world.add_child(interiors)
 		for shot: Array in wanted:
 			var sky: SkyWeather3D = view._sky_weather
 			sky.auto_weather = false
@@ -83,7 +93,15 @@ func _run() -> void:
 			Hinterland.apply_dressing_cycle(dressing, shot[2])
 			var eye := _above_ground(plan, shot[3])
 			var look := _above_ground(plan, shot[4])
+			var room := plan.building_index_by_id(String(shot[6])) if shot.size() > 6 else -1
+			if room >= 0:
+				view.world.set_roof_hidden(room, true)
+				for i in 30:
+					interiors.update_for(Vector2(look.x, look.z), 0.1)
+					await process_frame
 			await _shot(view, shot[0], eye, look, shot[5])
+			if room >= 0:
+				view.world.set_roof_hidden(room, false)
 		view.queue_free()
 		await process_frame
 		SkyAstronomy.reset_observer()

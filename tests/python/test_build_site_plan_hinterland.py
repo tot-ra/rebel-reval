@@ -57,7 +57,9 @@ class BuildHinterlandSitePlansTest(unittest.TestCase):
 
     def test_village_camp_and_grove_content(self):
         harju, camp, grove = self.plans["harju"], self.plans["rebel_kings"], self.plans["sacred_grove"]
-        self.assertTrue(all(b["roof"] == "thatch" for b in harju["buildings"]))
+        self.assertTrue(all(b["roof"] == "shingle" for b in harju["buildings"]))
+        self.assertTrue(all(b["enterable"] and b["door"] for b in harju["buildings"]))
+        self.assertEqual(sum("household" in b for b in harju["buildings"]), 7)
         self.assertGreater(len(harju["fields"]), 20)
         self.assertEqual({c["state"] for c in camp["curtains"]}, {"palisade"})
         self.assertGreaterEqual(sum(p["kind"] == "campfire" for p in camp["points_of_interest"]), 8)

@@ -83,12 +83,16 @@ func _progress() -> float:
 	return DayNightCycle.DEFAULT_PROGRESS
 
 
-## The household living in plan building `index`, or {}.
+## The household living in plan building `index`, or {}. Regional sites have no
+## census: a site dwelling carries its authored household ({class, trade, size})
+## in the plan record instead (docs/SYSTEMS/REGIONAL_SITES.md).
 func household_at(index: int) -> Dictionary:
 	if index < 0:
 		return {}
 	var hh := String(roster.household_of_building.get(String(plan.buildings[index]["id"]), ""))
-	return roster.households.get(hh, {})
+	if roster.households.has(hh):
+		return roster.households[hh]
+	return plan.buildings[index].get("household", {})
 
 
 ## The furnishing of plan building `index` (built once, then cached), or null
@@ -105,12 +109,13 @@ func layout(index: int) -> HouseholdLayout:
 	return _layouts[index]
 
 
-## An ordinary enterable house with a census household (and not Kalev's forge).
+## An ordinary enterable house with a census household (and not Kalev's forge),
+## or a site farmstead dwelling with an authored household.
 func is_lived_in(index: int) -> bool:
 	var b: Dictionary = plan.buildings[index]
 	return (
 		bool(b.get("enterable", false))
-		and String(b.get("kind", "")) == "house"
+		and (String(b.get("kind", "")) == "house" or b.has("household"))
 		and not String(b.get("landmark_id", "")) in SKIP_LANDMARKS
 		and not household_at(index).is_empty()
 	)

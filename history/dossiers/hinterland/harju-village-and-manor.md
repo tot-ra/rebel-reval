@@ -50,12 +50,14 @@ The **Harju–Viru knighthood** (*ritterschaft*) and **Landtag** traditions (12 
 
 | Element | 1343 depiction | Evidence | Confidence |
 |---|---|---|---|
-| **Farmhouses** | Log *rehielamu* tradition — dwelling + threshing under one long roof; **lower walls, high thatch** | Ethnographic continuity from LCD-era settlement names; standing buildings are **18th–19th c.** | plausible composite [1][2][26] |
+| **Farmhouses** | **Elurehi** stage of the *rehielamu*: a log smoke room (*rehetuba*) with a stone heap oven (*kerisahi*) that also dried the grain, with a threshing anteroom under one roof; **low walls, low split-board roof under birch bark or turf**. No chambers (*kambrid*, first named 17th c.), no high thatch (spreads 15th–16th c.) | Lavi 2001 (archaeology of the *rehielamu*): form emerging from the end of the 1st millennium, first named in the **14th c.**, threshing-floor buildings excavated from the **15th–16th c.** (Varbola, Olustvere), classic form **late 15th–17th c.**; Open Air Museum examples are **18th–19th c.** (Sassi-Jaani 1803) [32][33] | plausible composite (R-1627) |
 | **Threshing barn (*rehi*)** | Separate or attached; **smoke-blackened threshing room**, double gates for draft | Voore (Harju) and museum comparanda **19th–20th c.** | plausible composite [27] |
 | **Field system** | **Open strips** — spring ploughing, fallow, meadow hay; kitchen garden at croft | Henry of Livonia on cleared fields; spring phenology dossier | attested framework [1][12] |
 | **Common well / cattle pen** | Central well, **timber palisade** enclosure | HISTORICAL_AUDIT rural wrapper targets [3] | plausible composite [3] |
 | **Church** | **Wooden or stone** parish chapel at kihelkond centre — **not** every hamlet | Bishopric network **1240+**; many stone churches **later** | plausible composite [24] |
 | **Manor core** | **Fortified timber yard**, stone cellar/tower, granary, mill — lord often absent in town or on Toompea | Fief density [7]; Padise as stone exception | plausible composite [7][8] |
+
+**Cluster or single farms (R-1627).** The LCD counts *villages* with ploughlands in Harria, and the northern Estonian settlement type is the cluster village; dispersed single farmsteads (*hajatalud*, *üksiktalud*) are typical of south Estonia and of later colonisation and resettlement (17th–19th c., 1920s land reform). A north Harju village of 1343 is therefore a **loose cluster** of farmsteads, each with its own yard (not a tight row), with **at most a few outlying farms** on cleared land at the wood edge. The game's Harju village follows that: five yards 80–170 m apart round the common plus two outlying farms (`plausible composite`).
 
 **Linnaaluste** (14 ploughlands in LCD near ancient **Keava/Varbola** power zone) shows LCD names **tax units** without physical plans — do not invent measured plot maps from LCD alone [6].
 
@@ -181,3 +183,5 @@ No licensed plate gives a **measured 1343 hamlet plan** or **attested signal-hil
 29. Lauri Vahtre, "Padise maantee" studies, 2021 PDF — interior Harju road network (Estonian).
 30. [`harbour-and-shoreline.md`](../topography/harbour-and-shoreline.md) — coastal labour belt (project dossier).
 31. [`four_kings_act2_lore.md`](../../../docs/lore/four_kings_act2_lore.md) — character invention on attested council of kings (project lore).
+32. Ain Lavi, "Rehielamu kujunemisloost arheoloogia andmetel", *Eesti Arheoloogia Ajakiri* 5:1 (2001), 63–73, as summarised in Eesti Vikipeedia, "Rehielamu", https://et.wikipedia.org/wiki/Rehielamu (read 2026-10-10) — elurehi stage, threshing floor, high thatch and chamber chronology (Estonian).
+33. Eesti Vabaõhumuuseum, "Sassi-Jaani farm", https://evm.ee/exhibition/western-estonia/sassi-jaani-farm — the museum's barn-dwellings are 18th–19th c. (Sassi-Jaani built about 1803).

@@ -28,7 +28,7 @@
 | Salt pans on the Maardu/Viimsi coast | `invented` (doubtful) | contradicts [kalamaja dossier](../../history/dossiers/topography/kalamaja-fishing-shore-1343.md): salt there is imported Hanseatic stock | See section 3 sub-zone C; flagged in section 10 |
 
 **Phases.** (A) to 22 Apr: boon day, ploughing, lambing, Lent tail, St George's feast eve. (B) 23 Apr-13 May: manor yard burned or looted, German refugees on the road, rebel recruiters, hidden grain. (C) after 14 May: Order columns and a punitive levy; roofs burned, strips unsown; (Act 3) thin re-sowing, Order-enforced dues.
-**Do not show:** a plastered Baltic-German manor palace, 19th-c. *mõis* park, Lutheran church, street-row village, chimneys on peasant roofs, glazed windows, chamber rows (*kambrid*; first evidence early 17th c.), tidy "museum" farms copied from the Open-Air Museum.
+**Do not show:** a plastered Baltic-German manor palace, 19th-c. *mõis* park, Lutheran church, street-row village, chimneys on peasant roofs, glazed windows, chamber rows (*kambrid*; first evidence early 17th c.), tidy "museum" farms copied from the Open-Air Museum, the high-thatched three-part *rehielamu* with chambers and the 18th-19th c. buildings of the Open Air Museum as 1343 forms, a tight street of houses touching each other.
 
 ## 3. Landscape and layout
 
@@ -64,7 +64,7 @@ Landmarks (existing ids kept): `landmark_village_well` (25,15), `landmark_thresh
 | Type | Form | Materials | State by phase | Label |
 |---|---|---|---|---|
 | Smoke cottage (*suitsutuba*, small) | One heated room, corner stone oven, no chimney, one low boarded door, no windows | Horizontal round logs, split-board or thatch roof | A: smoke at the door; C: collapsed ridge | `plausible composite` (matches `smoke_cottage_1343` style) |
-| Barn-dwelling (*rehielamu*) | Two-part: heated living room (*rehetuba*) plus threshing floor (*rehealune*); broad boarded gate | Log, steep thatch (roof 60-70 % of wall+roof height), earth floor | Elder's farmstead; B: grain hidden in the floor | `plausible composite` (matches `barn_dwelling_1343`) |
+| Smoke-room dwelling (*elurehi*, the 1343 stage of the *rehielamu*) | Heated smoke room (*rehetuba*) with a stone heap oven that also dries the grain, plus a threshing anteroom under the same roof; low door with a high sill | Log, low split-board roof under birch bark (about 30 degrees), limestone-slab or rammed-earth floor | Every farmstead (built: R-1627, walk-in and furnished); B: grain hidden in the floor | `plausible composite` (Lavi 2001; the high-thatched three-part *rehielamu* is 15th-17th c.) |
 | Threshing barn (*rehi*) | Double-gated, smoke-dark | Log, thatch | A: flail work; B: cart staging | `plausible composite` (matches `rural_barn_1343`) |
 | Root cellar mound, granary stilt-store | Earth-covered cellar; raised store on stone pads | Turf, log | Hiding place | `plausible composite`; mound already in `assets/props/environment/root_cellar_mound` |
 | Cattle pen, wattle and palisade fences | Low palisade, wattle field edges | Split stakes, withies | B: gaps cut by raiders | `plausible composite` |
@@ -72,7 +72,7 @@ Landmarks (existing ids kept): `landmark_village_well` (25,15), `landmark_thresh
 | Wayside cross, village chapel | Timber cross; chapel only at the parish centre, not every hamlet | Timber (stone later) | - | `plausible composite` |
 | Manor yard (sub-zone A) | Palisaded timber yard, stone cellar or short tower, granary, mill, chapel | Timber, limestone cellar | A: boon day; B: burned, dead livestock props; C: Order garrison tent | `plausible composite`; no baroque wings |
 
-Distinguishing rule vs other nodes: no stone above the foundation, no plaster, low walls and very high thatch, silhouettes read as long horizontal ridges. Padise (stone) and Paide (Order castle) are the stone counter-examples; do not use their kits here.
+Distinguishing rule vs other nodes: no stone above the foundation, no plaster, low log walls under low board-and-bark roofs, smoke at doors and eaves, farmsteads spread round their own yards. (Earlier drafts asked for very high thatch; that roof spreads only from the 15th-16th c., R-1627.) Padise (stone) and Paide (Order castle) are the stone counter-examples; do not use their kits here.
 
 ## 5. Cultures, languages, and people
 

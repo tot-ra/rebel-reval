@@ -156,3 +156,49 @@ func test_both_shores_are_dressed_from_the_dossiers() -> void:
 			types[b["type"]] = true
 	for type in ["cargo_shed", "smoke_shed", "salt_shed"]:
 		assert_true(types.has(type), "%s stands on the shore" % type)
+
+
+## Regional-site strips are clipped to their block (5 or 6 corners). Their frame
+## runs along the strip angle and bounds the polygon, so crops and the far sheet
+## (kept only inside the polygon) cannot leave the strip; reading the first
+## corners as a rectangle drew them across the neighbouring road at Harju (R-1627).
+## The headless dummy renderer keeps no multimesh transforms, so the frame is
+## what is checked here.
+func test_clipped_site_strips_frame_along_the_strip_and_bound_it() -> void:
+	var plan := CityPlan.load_site("harju")
+	var clipped := 0
+	var off_frame := 0
+	for f in CityFarmland.features_for(plan):
+		if f["kind"] != &"field":
+			continue
+		var poly: PackedVector2Array = f["polygon"]
+		var frame := CityFarmland.strip_frame(poly, f["angle"])
+		if not bool(frame["clipped"]):
+			continue
+		clipped += 1
+		var u: Vector2 = frame["u"]
+		var v: Vector2 = frame["v"]
+		assert_true(u.is_equal_approx(Vector2(cos(f["angle"]), sin(f["angle"]))), "%s along" % f["id"])
+		for q in poly:
+			var local: Vector2 = q - (frame["origin"] as Vector2)
+			assert_true(local.dot(u) > -0.01 and local.dot(u) < float(frame["length"]) + 0.01)
+			assert_true(local.dot(v) > -0.01 and local.dot(v) < float(frame["width"]) + 0.01)
+		# The old reading: the corner opposite poly[0] of the poly[0], poly[1], poly[3] box.
+		var far := poly[1] + poly[3] - poly[0]
+		if not Geometry2D.is_point_in_polygon(far, poly):
+			off_frame += 1
+	assert_true(clipped >= 10, "clipped strips checked (%d)" % clipped)
+	assert_true(off_frame > 0, "the old rectangle reading left the strip")
+	var farmland := CityFarmland.create(plan)
+	assert_true(farmland.get_node_or_null("FarFields") != null, "far crop sheet built")
+	farmland.free()
+
+
+func test_reval_strips_keep_their_rectangle_frame() -> void:
+	for f in CityFarmland.features_for(_plan()):
+		if f["kind"] != &"field":
+			continue
+		var poly: PackedVector2Array = f["polygon"]
+		var frame := CityFarmland.strip_frame(poly, f["angle"])
+		assert_false(bool(frame["clipped"]), "%s is a rectangle" % f["id"])
+		assert_true((frame["origin"] as Vector2).is_equal_approx(poly[0]))

@@ -36,6 +36,12 @@ const OUTBUILDING_DOORS := {
 	&"salt_shed": Vector2(0.85, 1.6),
 	&"smoke_shed": Vector2(0.75, 1.5),
 	&"cargo_shed": Vector2(1.5, 1.9),
+	# Walk-in farmstead buildings of the regional sites (Harju, R-1627): low
+	# doors, but wide enough for Kalev's 1 m collision capsule to pass.
+	&"smoke_room": Vector2(1.3, 1.8),
+	&"granary": Vector2(1.2, 1.75),
+	&"cattle_shed": Vector2(1.4, 1.75),
+	&"sauna": Vector2(1.2, 1.65),
 }
 const WINDOW_W := 0.72
 const WINDOW_H := 0.95
@@ -47,6 +53,9 @@ const CHIMNEY_SHARE := 0.8
 ## the floor while Kalev is inside (about head height), so the top-down and
 ## first-person cameras see the room instead of tall walls and gables.
 const CUT_HEIGHT := 2.2
+## Inside a farmstead building: smoke-blackened logs and grey limestone slabs.
+const RURAL_SMOKED := Color(0.42, 0.36, 0.31)
+const RURAL_FLOOR := Color(0.58, 0.56, 0.52)
 const CHIMNEY_SIZE := 0.75
 const CHUNK := 64.0
 const STONE_WALL := 0.62
@@ -617,7 +626,13 @@ static func build_building(
 	if enterable:
 		# The ceiling belongs with the roof: both lift while Kalev is inside, so
 		# top-down and first-person views look into the room, not at boards.
-		_interior(shell, ring, thick, floor_y, eave, frame, door_edge, door_t, roof)
+		# Farmstead buildings (only enterable at regional sites): log walls
+		# blackened by the smoke room and a limestone-slab floor, not a town
+		# house's limewash and boards; door reveal sized to the low door (R-1627).
+		var rural := String(b.get("kind", "")) == "outbuilding"
+		_interior(
+			shell, ring, thick, floor_y, eave, frame, door_edge, door_t, roof, door_size(b), rural
+		)
 		WindowOpenings.cut(shell, windows, thick)
 		for window in windows:
 			CityWindows.add_placed(shell, window)
@@ -627,7 +642,9 @@ static func build_building(
 		var parts := shell.split_at(floor_y + CUT_HEIGHT)
 		shell = parts[0]
 		roof.merge(parts[1])
-		wall_top_cap(shell, ring, thick, floor_y + CUT_HEIGHT, door_edge, door_t)
+		# A door lower than the cut leaves the cap whole over its lintel.
+		var cap_gap := door_size(b).x if door_size(b).y > CUT_HEIGHT else 0.0
+		wall_top_cap(shell, ring, thick, floor_y + CUT_HEIGHT, door_edge, door_t, cap_gap)
 	else:
 		WindowOpenings.cut(shell, windows, thick)
 		for window in windows:
@@ -641,7 +658,13 @@ static func build_building(
 ## Section cap on walls cut at `y` for the interior cutaway: one quad per
 ## ring edge from the outer face `thick` inward, leaving the door gap open.
 static func wall_top_cap(
-	shell: Shell, ring: PackedVector2Array, thick: float, y: float, door_edge: int, door_t: float
+	shell: Shell,
+	ring: PackedVector2Array,
+	thick: float,
+	y: float,
+	door_edge: int,
+	door_t: float,
+	door_width: float = DOOR_WIDTH
 ) -> void:
 	var center := Vector2.ZERO
 	for p in ring:
@@ -659,8 +682,8 @@ static func wall_top_cap(
 		if n.dot(center - (a + c) * 0.5) < 0.0:
 			n = -n
 		var spans: Array[Vector2] = [Vector2(0.0, 1.0)]
-		if i == door_edge:
-			var half_gap := minf(DOOR_WIDTH * 0.5, length * 0.35) / maxf(length, 0.01)
+		if i == door_edge and door_width > 0.0:
+			var half_gap := minf(door_width * 0.5, length * 0.35) / maxf(length, 0.01)
 			spans = [Vector2(0.0, door_t - half_gap), Vector2(door_t + half_gap, 1.0)]
 		for sp in spans:
 			var p0 := a.lerp(c, sp.x)
@@ -1186,7 +1209,9 @@ static func _cap(
 			shell.tri(key, va, vc, vb, tint)
 
 
-static func _floor(shell: Shell, ring: PackedVector2Array, y: float) -> void:
+static func _floor(
+	shell: Shell, ring: PackedVector2Array, y: float, key := "floor", tint := Color(1, 1, 1)
+) -> void:
 	var tris := Geometry2D.triangulate_polygon(ring)
 	for i in range(0, tris.size(), 3):
 		var a := ring[tris[i]]
@@ -1196,9 +1221,9 @@ static func _floor(shell: Shell, ring: PackedVector2Array, y: float) -> void:
 		var vb := Vector3(b.x, y, b.y)
 		var vc := Vector3(c.x, y, c.y)
 		if (vc - va).cross(vb - va).y > 0.0:
-			shell.tri("floor", va, vb, vc, Color(1, 1, 1))
+			shell.tri(key, va, vb, vc, tint)
 		else:
-			shell.tri("floor", va, vc, vb, Color(1, 1, 1))
+			shell.tri(key, va, vc, vb, tint)
 
 
 ## Inner faces, floor, ceiling and door reveal. Inner dimensions equal the outer
@@ -1212,15 +1237,25 @@ static func _interior(
 	_frame: Dictionary,
 	door_edge: int,
 	door_t: float,
-	ceiling_shell: Shell = null
+	ceiling_shell: Shell = null,
+	door: Vector2 = Vector2(DOOR_WIDTH, DOOR_HEIGHT),
+	rural := false
 ) -> void:
 	var inset := Geometry2D.offset_polygon(ring, -thick, Geometry2D.JOIN_MITER)
 	if inset.is_empty():
 		return
 	var inner: PackedVector2Array = normalized_ring(inset[0])
-	_floor(shell, inner, floor_y)
+	if rural:
+		_floor(shell, inner, floor_y, "stone", RURAL_FLOOR)
+	else:
+		_floor(shell, inner, floor_y)
 	var ceiling := eave - 0.05
-	var col := Color(1, 1, 1)
+	var key := "wall:log" if rural else "interior"
+	var col := RURAL_SMOKED if rural else Color(1, 1, 1)
+	var door_w := door.x
+	# A town door may rise past a low ceiling (the lintel sits in the gable);
+	# a farmstead door always stays under it.
+	var door_h := minf(door.y, ceiling - 0.05) if rural else door.y
 	# Door position projected onto the inner ring.
 	var door_inner_edge := -1
 	var door_point := Vector2.ZERO
@@ -1237,12 +1272,12 @@ static func _interior(
 			var t := clampf(
 				(door_point - a).dot(c - a) / maxf((c - a).length_squared(), 0.001), 0.15, 0.85
 			)
-			var hg := minf(DOOR_WIDTH * 0.5, length * 0.35) / maxf(length, 0.01)
+			var hg := minf(door_w * 0.5, length * 0.35) / maxf(length, 0.01)
 			var g0 := a.lerp(c, t - hg)
 			var g1 := a.lerp(c, t + hg)
 			# Inner faces look inward: reverse the outward winding.
 			shell.quad(
-				"interior",
+				key,
 				Vector3(g0.x, floor_y, g0.y),
 				Vector3(a.x, floor_y, a.y),
 				Vector3(a.x, ceiling, a.y),
@@ -1250,7 +1285,7 @@ static func _interior(
 				col
 			)
 			shell.quad(
-				"interior",
+				key,
 				Vector3(c.x, floor_y, c.y),
 				Vector3(g1.x, floor_y, g1.y),
 				Vector3(g1.x, ceiling, g1.y),
@@ -1258,9 +1293,9 @@ static func _interior(
 				col
 			)
 			shell.quad(
-				"interior",
-				Vector3(g1.x, floor_y + DOOR_HEIGHT, g1.y),
-				Vector3(g0.x, floor_y + DOOR_HEIGHT, g0.y),
+				key,
+				Vector3(g1.x, floor_y + door_h, g1.y),
+				Vector3(g0.x, floor_y + door_h, g0.y),
 				Vector3(g0.x, ceiling, g0.y),
 				Vector3(g1.x, ceiling, g1.y),
 				col
@@ -1269,31 +1304,31 @@ static func _interior(
 			var oa := ring[door_edge]
 			var oc := ring[(door_edge + 1) % ring.size()]
 			var olen := oa.distance_to(oc)
-			var ohg := minf(DOOR_WIDTH * 0.5, olen * 0.35) / maxf(olen, 0.01)
+			var ohg := minf(door_w * 0.5, olen * 0.35) / maxf(olen, 0.01)
 			var o0 := oa.lerp(oc, door_t - ohg)
 			var o1 := oa.lerp(oc, door_t + ohg)
 			shell.quad(
 				"timber",
 				Vector3(g0.x, floor_y, g0.y),
 				Vector3(o0.x, floor_y, o0.y),
-				Vector3(o0.x, floor_y + DOOR_HEIGHT, o0.y),
-				Vector3(g0.x, floor_y + DOOR_HEIGHT, g0.y),
+				Vector3(o0.x, floor_y + door_h, o0.y),
+				Vector3(g0.x, floor_y + door_h, g0.y),
 				Color(0.8, 0.7, 0.6)
 			)
 			shell.quad(
 				"timber",
 				Vector3(o1.x, floor_y, o1.y),
 				Vector3(g1.x, floor_y, g1.y),
-				Vector3(g1.x, floor_y + DOOR_HEIGHT, g1.y),
-				Vector3(o1.x, floor_y + DOOR_HEIGHT, o1.y),
+				Vector3(g1.x, floor_y + door_h, g1.y),
+				Vector3(o1.x, floor_y + door_h, o1.y),
 				Color(0.8, 0.7, 0.6)
 			)
 			shell.quad(
 				"timber",
-				Vector3(o0.x, floor_y + DOOR_HEIGHT, o0.y),
-				Vector3(o1.x, floor_y + DOOR_HEIGHT, o1.y),
-				Vector3(g1.x, floor_y + DOOR_HEIGHT, g1.y),
-				Vector3(g0.x, floor_y + DOOR_HEIGHT, g0.y),
+				Vector3(o0.x, floor_y + door_h, o0.y),
+				Vector3(o1.x, floor_y + door_h, o1.y),
+				Vector3(g1.x, floor_y + door_h, g1.y),
+				Vector3(g0.x, floor_y + door_h, g0.y),
 				Color(0.8, 0.7, 0.6)
 			)
 			# Threshold step.
@@ -1307,7 +1342,7 @@ static func _interior(
 			)
 		else:
 			shell.quad(
-				"interior",
+				key,
 				Vector3(c.x, floor_y, c.y),
 				Vector3(a.x, floor_y, a.y),
 				Vector3(a.x, ceiling, a.y),

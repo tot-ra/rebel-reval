@@ -221,6 +221,37 @@ static func _radius(points: PackedVector2Array, centre: Vector2) -> float:
 	return r
 
 
+## The strip's own frame: origin, unit vectors along (`u`) and across (`v`) the
+## strip, and its length and width. Reval strips are rectangles whose first edge
+## runs along the strip, so the frame is that rectangle. Regional-site strips are
+## clipped to their field block and can have 5 or 6 corners with the first edge
+## on the block boundary; there the frame is the strip angle's bounding box, and
+## callers keep only what lies inside the polygon (`clipped`). WHY: reading
+## poly[0], poly[1], poly[3] as a rectangle on a clipped strip drew rows and the
+## far sheet across the neighbouring road (Harju, R-1627).
+static func strip_frame(poly: PackedVector2Array, angle: float) -> Dictionary:
+	var dir := Vector2(cos(angle), sin(angle))
+	var along := poly[1] - poly[0]
+	if poly.size() == 4 and along.length() > 0.01 and absf(along.normalized().cross(dir)) < 0.01:
+		var across := poly[3] - poly[0]
+		return {
+			"origin": poly[0], "u": along.normalized(), "v": across.normalized(),
+			"length": along.length(), "width": across.length(), "clipped": false,
+		}
+	var u := dir
+	var v := Vector2(-dir.y, dir.x)
+	var lo := Vector2(INF, INF)
+	var hi := Vector2(-INF, -INF)
+	for p in poly:
+		var q := Vector2(p.dot(u), p.dot(v))
+		lo = lo.min(q)
+		hi = hi.max(q)
+	return {
+		"origin": u * lo.x + v * lo.y, "u": u, "v": v,
+		"length": hi.x - lo.x, "width": hi.y - lo.y, "clipped": true,
+	}
+
+
 func _build(feature: Dictionary) -> Node3D:
 	var root := Node3D.new()
 	root.name = "Farm_%s" % String(feature["id"]).replace(".", "_")
@@ -249,12 +280,13 @@ func _plant_field(root: Node3D, feature: Dictionary, rng: RandomNumberGenerator)
 	if crop.is_empty() or amount < MIN_GROWTH:
 		return
 	var poly: PackedVector2Array = feature["polygon"]
-	var along := (poly[1] - poly[0])
-	var across := (poly[3] - poly[0])
-	var length := along.length()
-	var width := across.length()
-	var u := along / maxf(length, 0.001)
-	var v := across / maxf(width, 0.001)
+	var frame := strip_frame(poly, float(feature["angle"]))
+	var origin: Vector2 = frame["origin"]
+	var length: float = frame["length"]
+	var width: float = frame["width"]
+	var u: Vector2 = frame["u"]
+	var v: Vector2 = frame["v"]
+	var clipped: bool = frame["clipped"]
 	var species: StringName = crop["species"]
 	var base_scale := float(crop["width"])
 	var transforms: Array[Transform3D] = []
@@ -267,11 +299,14 @@ func _plant_field(root: Node3D, feature: Dictionary, rng: RandomNumberGenerator)
 	for r in rows:
 		for c in per_row:
 			var jitter := Vector2(rng.randf_range(-0.12, 0.12), rng.randf_range(-0.1, 0.1))
-			var p := poly[0] + u * (HEADLAND + c * step + jitter.x) + v * (HEADLAND + r * row_gap + jitter.y)
+			var p := origin + u * (HEADLAND + c * step + jitter.x) + v * (HEADLAND + r * row_gap + jitter.y)
 			var size := growth_scale(amount, rng)
 			var basis := Basis(Vector3.UP, rng.randf() * TAU).scaled(
 				Vector3(size.x * base_scale, size.y, size.x * base_scale)
 			)
+			# Only clipped (site) strips skip: Reval rectangles keep their exact RNG sequence.
+			if clipped and not Geometry2D.is_point_in_polygon(p, poly):
+				continue
 			transforms.append(Transform3D(basis, Vector3(p.x, plan.ground_height(p) - 0.03, p.y)))
 			var shade := rng.randf_range(0.88, 1.08)
 			colors.append(Color(colour.r * shade, colour.g * shade, colour.b * shade, 1.0))
@@ -339,19 +374,27 @@ func _rebuild_far() -> void:
 		if cover <= 0.02:
 			continue
 		var poly: PackedVector2Array = f["polygon"]
-		var u := poly[1] - poly[0]
-		var v := poly[3] - poly[0]
-		var cols := maxi(int(u.length() / FAR_STEP), 1)
-		var rows := maxi(int(v.length() / FAR_BAND), 1)
-		var length := u.length()
-		var width := v.length()
+		var frame := strip_frame(poly, float(f["angle"]))
+		var length: float = frame["length"]
+		var width: float = frame["width"]
+		var u: Vector2 = frame["u"] * length
+		var v: Vector2 = frame["v"] * width
+		var clipped: bool = frame["clipped"]
+		var cols := maxi(int(length / FAR_STEP), 1)
+		var rows := maxi(int(width / FAR_BAND), 1)
 		for r in rows:
 			var shade := 1.0 if r % 2 == 0 else 0.93
 			for c in cols:
-				var a := poly[0] + u * (float(c) / cols) + v * (float(r) / rows)
+				var a: Vector2 = frame["origin"] + u * (float(c) / cols) + v * (float(r) / rows)
 				var b := a + u / cols
 				var d := a + v / rows
 				var e := b + v / rows
+				# A clipped strip keeps only cells wholly inside it: none reaches a road.
+				if clipped and not (
+					Geometry2D.is_point_in_polygon(a, poly) and Geometry2D.is_point_in_polygon(b, poly)
+					and Geometry2D.is_point_in_polygon(d, poly) and Geometry2D.is_point_in_polygon(e, poly)
+				):
+					continue
 				var corners: Array[Vector2] = [a, b, e, a, e, d]
 				var fractions: Array[Vector2] = [
 					Vector2(float(c) / cols, float(r) / rows),

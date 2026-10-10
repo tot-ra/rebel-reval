@@ -43,8 +43,10 @@ func test_plans_load_from_their_own_directories() -> void:
 		assert_almost_eq(plan.bounds.size.y, row[0], 0.01, "%s frame" % site)
 		assert_almost_eq(plan.origin_latitude(), row[1], 0.01, "%s origin is its own" % site)
 		assert_false(plan.has_coast(), "%s is inland" % site)
-		for feature: String in ["citizens", "fauna", "interiors"]:
+		for feature: String in ["citizens", "fauna"]:
 			assert_false(plan.feature_enabled(feature), "%s %s off" % [site, feature])
+		# Harju's farmsteads can be walked into (R-1627); the camp and grove cannot.
+		assert_eq(plan.feature_enabled("interiors"), site == "harju", "%s interiors" % site)
 		assert_false((plan.data["harjapea"] as Dictionary).is_empty(), "%s has its water" % site)
 
 
@@ -77,18 +79,68 @@ func test_every_manifest_spawn_is_a_plan_arrival_inside_the_edge() -> void:
 			assert_true(String(arrival["record"]).begins_with(site + ".spawn."))
 
 
-func test_village_is_barn_dwellings_without_chimneys() -> void:
+func test_village_is_smoke_room_farmsteads_without_chimneys() -> void:
 	var plan := CityPlan.load_site("harju")
 	var dwellings := 0
 	for b: Dictionary in plan.data["buildings"]:
-		assert_eq(b["roof"], "thatch", "%s is thatched" % b["id"])
+		# 1343: split boards under birch bark; the high thatch is 15th-16th c. (R-1627).
+		assert_eq(b["roof"], "shingle", "%s has a board roof" % b["id"])
 		assert_eq(b["kind"], "outbuilding", "%s has no glazed windows or chimney" % b["id"])
 		if String(b["id"]).ends_with(".dwelling"):
 			dwellings += 1
-	assert_eq(dwellings, 5, "five farmsteads")
-	assert_true(_pois_of(plan, "smoke").size() >= 5, "smoke over every smoke room")
+			assert_eq(b["type"], "smoke_room")
+	assert_eq(dwellings, 7, "five village farmsteads and two outlying ones")
+	assert_true(_pois_of(plan, "smoke").size() >= 7, "smoke over every smoke room")
 	assert_false((plan.data["fields"] as Array).is_empty(), "strip fields")
 	assert_true((plan.data["curtains"] as Array).is_empty(), "no fortification")
+
+
+## Every Harju building has a door Kalev's 1 m capsule fits through and can be
+## entered; every dwelling is furnished from its authored household (R-1627).
+func test_every_harju_building_is_enterable_and_dwellings_furnished() -> void:
+	var plan := CityPlan.load_site("harju")
+	var interiors := CityInteriors.create(plan, CitizenRoster.load_for(plan), [])
+	for i in plan.buildings.size():
+		var b: Dictionary = plan.buildings[i]
+		assert_true(bool(b["enterable"]), "%s enterable" % b["id"])
+		assert_true(b["door"] != null, "%s has a door" % b["id"])
+		assert_true(CityBuildingBuilder.door_size(b).x >= 1.2, "%s door wide enough" % b["id"])
+		if not String(b["id"]).ends_with(".dwelling"):
+			assert_false(interiors.is_lived_in(i), "%s is not lived in" % b["id"])
+			continue
+		assert_true(interiors.is_lived_in(i), "%s lived in" % b["id"])
+		var layout := interiors.layout(i)
+		assert_true(layout != null and layout.hearth >= 0, "%s has a hearth" % b["id"])
+		assert_false(layout.slots_of(&"sleep").is_empty(), "%s has beds" % b["id"])
+	interiors.free()
+
+
+## Farmsteads stand apart: yards of the loose village cluster 75 m or more from
+## each other, and no crop strip reaches a road surface.
+func test_farmsteads_spread_and_fields_clear_of_roads() -> void:
+	var plan := CityPlan.load_site("harju")
+	var centres: Array[Vector2] = []
+	for i in plan.buildings.size():
+		if String(plan.buildings[i]["id"]).ends_with(".dwelling"):
+			centres.append(_centre(plan.footprint(i)))
+	for a in centres.size():
+		for c in range(a + 1, centres.size()):
+			assert_true(centres[a].distance_to(centres[c]) >= 75.0, "farmsteads %d and %d apart" % [a, c])
+	for f: Dictionary in plan.data["fields"]:
+		var poly := CityPlan.points(f["polygon"])
+		for s: Dictionary in plan.streets:
+			var pts := CityPlan.points(s["points"])
+			for k in pts.size() - 1:
+				for q in poly:
+					var d := Geometry2D.get_closest_point_to_segment(q, pts[k], pts[k + 1]).distance_to(q)
+					assert_true(d >= float(s["width"]) * 0.5, "%s off %s" % [f["id"], s["id"]])
+
+
+func _centre(poly: PackedVector2Array) -> Vector2:
+	var sum := Vector2.ZERO
+	for p in poly:
+		sum += p
+	return sum / poly.size()
 
 
 func test_camp_has_a_stake_fence_fires_and_horse_lines() -> void:

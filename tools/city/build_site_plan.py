@@ -448,6 +448,10 @@ def build_site(overlay: dict) -> dict:
                     })
 
     # ---------------- buildings ----------------
+    # Interiors (ADR 0028 walk-in houses) are per site: with `features.interiors`
+    # every building that has a door is enterable (Harju, R-1627); elsewhere none is.
+    interiors = bool(site.get("features", {}).get("interiors", False))
+
     def building_record(bid, kind, ring, wall_h, roof, pitch, material, name, confidence, street_point=None, typ=None):
         hs = [h_at_m(*q) for q in ring]
         L01 = math.dist(ring[0], ring[1])
@@ -462,8 +466,7 @@ def build_site(overlay: dict) -> dict:
             "footprint": wu(ring), "base_h": round(min(hs), 3), "base_span": round(max(hs) - min(hs), 3),
             "wall_h": round(wall_h / mpu, 3), "roof": roof, "roof_pitch_deg": pitch, "ridge_angle": round(ridge, 4),
             "material": material, "street_id": nearest_street(reval.poly_centroid(ring)), "door": door,
-            # Interiors are off at regional sites until a task furnishes them.
-            "enterable": False, "tower_h": 0.0,
+            "enterable": interiors and door is not None, "tower_h": 0.0,
         }
         if typ:
             rec["type"] = typ
@@ -479,9 +482,14 @@ def build_site(overlay: dict) -> dict:
         if spec["kind"] in ("chapel", "church", "house") or spec.get("door_toward"):
             street_point = resolve(spec["door_toward"]) if spec.get("door_toward") else min(
                 (pt for r in roads for pt in reval.resample(r["pts"], 4.0)), key=lambda pt: math.dist(pt, centre))
-        buildings.append(building_record(
+        rec = building_record(
             spec["id"], spec["kind"], ring, spec["wall_h"], spec["roof"], spec["roof_pitch_deg"], spec["material"],
-            spec["name_1343"], spec["confidence"], street_point, spec.get("type")))
+            spec["name_1343"], spec["confidence"], street_point, spec.get("type"))
+        # Sites have no census: a lived-in building names its household for the
+        # interior furnishing (CityInteriors.household_at).
+        if spec.get("household"):
+            rec["household"] = spec["household"]
+        buildings.append(rec)
     # Keep the masonry clear: a building must not overlap the keep or a wall line.
     keep_rings = [rect_ring(t_["at"][0] * mpu, t_["at"][1] * mpu, t_["w"] * mpu + 2, t_["d"] * mpu + 2, 0.0) for t_ in towers if t_["form"] == "octagonal"]
 
