@@ -1,11 +1,12 @@
 class_name DayNightCycle
 extends RefCounted
 
-## World clock pacing. The in-game day is synced to the player's system clock:
-## one game day lasts a real day, and new clocks start at the local time of day
-## (see system_progress). Time-flow controls can still scale it for dev review.
+## World clock pacing. A full in-game day advances in CYCLE_DURATION_SECONDS of
+## real time so the sun/moon rotation and day/night change are visible while
+## playing. A real-day pace (86400.0) froze the sky and looked like a broken
+## cycle. New clocks still start at the local time of day (see system_progress).
 
-const CYCLE_DURATION_SECONDS := 86400.0
+const CYCLE_DURATION_SECONDS := 60.0
 const HOURS_PER_REAL_SECOND := 24.0 / CYCLE_DURATION_SECONDS
 
 ## Fallback only (tests, pinned scenes). Live clocks seed from system_progress().
