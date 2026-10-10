@@ -416,6 +416,8 @@ class WeatherPresentation extends RefCounted:
 	var moon_direction := Vector3.UP
 	var wind_direction := Vector2.RIGHT
 	var wind_strength := 0.0
+	## WR-8: transient gust front as a 0..1 share of its peak (wind_gust() / GUST_PEAK).
+	var wind_gust_level := 0.0
 	var rain_intensity := 0.0
 	var puddle_wetness := 0.0
 	## R-1516: 0..1 baked-dry bare soil; cracks open above ~0.45.
@@ -1276,6 +1278,7 @@ func presentation_snapshot(progress: float, day_blend: float) -> WeatherPresenta
 	snapshot.lightning = float(modifiers["lightning"])
 	snapshot.fog_quality = fog_quality()
 	snapshot.sunset_factor = sunset_factor
+	snapshot.wind_gust_level = clampf(_gust / GUST_PEAK, 0.0, 1.0)
 	snapshot.sunset_tint = float(modifiers["sunset_tint"])
 	snapshot.sun_energy = float(modifiers["sun_energy"])
 	snapshot.ambient_energy = float(modifiers["ambient_energy"])

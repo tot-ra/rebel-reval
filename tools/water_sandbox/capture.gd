@@ -417,6 +417,7 @@ func _record(
 		if _dolly != 0.0:
 			camera.global_position = start.origin + forward * _dolly * float(i) / maxf(_motion - 1, 1)
 		var t := float(i) / 24.0
+	MapViewMaterials.apply_sea_gust(gust)
 		if _gust:
 			var burst := exp(-pow((t - 2.0) / 1.2, 2.0)) + 0.6 * exp(-pow((t - 6.0) / 0.8, 2.0))
 			_apply(world, progress, wind, burst)

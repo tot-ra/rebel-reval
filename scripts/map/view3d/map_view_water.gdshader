@@ -289,6 +289,10 @@ const float OCEAN_TIME_WRAP_SECONDS = 1638.4;
 // WS-01: 1 world unit = 1 map cell = 0.87 m (MapViewBuildingMaterials.METERS_PER_WORLD_UNIT).
 const float WATER_METERS_PER_UNIT = 0.87;
 // Foam tile drift downwind: ~0.27 m/s and ~0.29 m/s, slow against the wave phase
+// WR-8: transient gust front, 0 idle .. 1 peak (MapViewWaterMaterials.apply_sea_gust). It
+// widens and strengthens the cat's-paw cells; the cells themselves are fixed by position
+// and the ocean clock, so a gust never reshuffles them.
+uniform float gust_level = 0.0;
 // speed, so a foam patch still rides its crest.
 const float FOAM_DRIFT_A_TILES_PER_WRAP = 40.0;
 const float FOAM_DRIFT_B_TILES_PER_WRAP = 100.0;
@@ -299,9 +303,15 @@ const float FOAM_DRIFT_B_TILES_PER_WRAP = 100.0;
 const float CAUSTIC_APPARENT_SCALE = 15.0;
 // Floor of the bed light gain: the skylight share a caustic shadow cell still receives.
 const float CAUSTIC_MIN_GAIN = 0.35;
-// Gust field period along the wind (lattice cells) and its drift (~2.3 units/s).
+// Gust field period along the wind (lattice cells) and its drift (~7 units/s, about a
+// cat's-paw speed of 6 m/s: they race across the water, far faster than the waves' groups).
+// 192 and 576 are whole multiples of the 16 and 48 cell periods, so the wrap never pops.
 const float GUST_PERIOD_CELLS = 16.0;
-const float GUST_DRIFT_CELLS_PER_WRAP = 64.0;
+const float GUST_DRIFT_CELLS_PER_WRAP = 192.0;
+// WR-8: extra C2/detail gain, whitecap boost and spindrift a gust cell carries at full gust_level.
+const float GUST_LEVEL_GAIN = 0.55;
+const float GUST_WHITECAP_BOOST = 1.1;
+const float GUST_SPINDRIFT = 0.55;
 // Highest effective whitecap mask. At 1.0 the darker half of the tile stays open, so the
 // freshest foam still reads as clustered bubbles.
 const float FOAM_MASK_CAP = 1.0;
@@ -375,6 +385,19 @@ varying vec3 water_world_position;
 // look. Sampled per vertex on purpose: the fragment stage already uses all 16 sampler units
 // GL Compatibility allows (Godot adds shadow, radiance and light samplers), and the basin
 // depth is one texel per cell, so vertex interpolation loses nothing.
+// WR-8: three layers at about 1.0 of the cells firing at full rain (it was two at 0.85), the
+// splash crown's life as a share of the ring life, and its radius and width in cell units.
+const float RAIN_RING_DENSITY = 1.0;
+const float RAIN_CROWN_LIFE = 0.28;
+const float RAIN_CROWN_RADIUS = 0.1;
+const float RAIN_CROWN_WIDTH = 0.04;
+// Rain flattens centimetre waves: share of the capillary/detail gain left at full rain, and
+// the extra roughness variance raindrops add (the sea_variance range is 0.0015 .. 0.02).
+const float RAIN_CAPILLARY_KEEP = 0.55;
+const float RAIN_ROUGHNESS_VARIANCE = 0.012;
+// Far sea in heavy rain: share desaturated towards a grey veil, and the lift of that veil.
+const float RAIN_FAR_GREY = 0.6;
+const float RAIN_FAR_VEIL = 0.1;
 varying float sea_depth_t;
 // Signed, triangle-matched terrain height, supplied by every city sea vertex.
 varying float sea_ground_y;
@@ -900,14 +923,18 @@ vec3 _sky_dome_reflection(vec3 dir) {
 // Above 1 a gust roughens the water into a dark patch; below 1 a slick flattens it
 // into a glassy streak that mirrors the sky. Lives in the wind frame and drifts
 // downwind, so the patches cross the water with the wind.
-float _sea_gust(vec2 world_xz) {
+// `cell` (0..1) is the cat's-paw share and `slick` (0..1) the glassy share, for the foam.
+float _sea_gust(vec2 world_xz, out float cell, out float slick) {
 	vec2 p = _fft_to_wind(world_xz, _fft_wind_axis()) * gust_scale;
 	float drift = ocean_time * GUST_DRIFT_CELLS_PER_WRAP / OCEAN_TIME_WRAP_SECONDS;
 	float n = _noise_periodic_x(p - vec2(drift, 0.0), GUST_PERIOD_CELLS) * 0.7
 		+ _noise_periodic_x(p * 3.0 - vec2(drift * 3.0, 0.0) + vec2(0.0, 7.3), GUST_PERIOD_CELLS * 3.0) * 0.3;
-	float gust = smoothstep(0.52, 0.72, n);
-	float slick = 1.0 - smoothstep(0.30, 0.46, n);
-	return 1.0 + gust_amount * 0.4 * gust - slick_amount * 0.6 * slick;
+	// A gust front lowers the threshold: more of the sea is inside a cell, and the
+	// calm lanes between them widen a little (cells push the slicks aside).
+	float gust = smoothstep(0.52 - 0.14 * gust_level, 0.72 - 0.10 * gust_level, n);
+	slick = (1.0 - smoothstep(0.30, 0.46, n)) * (1.0 - gust);
+	cell = gust;
+	return 1.0 + gust_amount * (0.4 + GUST_LEVEL_GAIN * gust_level) * gust - slick_amount * 0.6 * slick;
 }
 
 // Shore refraction of the wind sea (R-1658). The baked FFT ocean always travels
@@ -999,9 +1026,12 @@ float _ripple_weight(vec2 uv) {
 // Rain rings: surface slope (d height / dx, dz) of expanding, fading drop rings. Each cell of
 // each layer holds at most one drop per period, centred so its ring never leaves the cell;
 // rain_ring_intensity sets the share of cells that fire.
-vec2 _rain_ring_slope(vec2 world_xz, float time) {
+// WR-8: `crown` (0..1) is the splash a drop throws in its first ~0.15 s: a thin bright
+// annulus plus the central spike. It only reads close up, so the caller fades it by distance.
+vec2 _rain_ring_slope(vec2 world_xz, float time, out float crown) {
 	vec2 slope = vec2(0.0);
-	for (int layer = 0; layer < 2; layer++) {
+	crown = 0.0;
+	for (int layer = 0; layer < 3; layer++) {
 		float layer_f = float(layer);
 		vec2 q = world_xz / RAIN_RING_CELL + vec2(0.5, 0.37) * layer_f;
 		vec2 cell = floor(q);
@@ -1009,7 +1039,7 @@ vec2 _rain_ring_slope(vec2 world_xz, float time) {
 		float cycle = time / RAIN_RING_PERIOD + _hash(seed + vec2(-3.7, 2.9));
 		// A fresh coin per cycle so a cell does not ring at the same spot every period.
 		float cycle_index = floor(cycle);
-		if (_hash(seed + vec2(cycle_index * 0.137, 8.1)) > rain_ring_intensity * 0.85) {
+		if (_hash(seed + vec2(cycle_index * 0.137, 8.1)) > rain_ring_intensity * RAIN_RING_DENSITY) {
 			continue;
 		}
 		float age = fract(cycle) * RAIN_RING_PERIOD / RAIN_RING_LIFE;
@@ -1055,7 +1085,14 @@ float _fresnel_dielectric(float cos_theta, float ior) {
 
 // One continuous city surface: offshore waves rise into a finite-depth bore
 // over the sand. Coverage is resolved in fragment from this same shore phase.
+		if (age < RAIN_CROWN_LIFE) {
+			float young = 1.0 - age / RAIN_CROWN_LIFE;
+			float xc = (r - age * RAIN_CROWN_RADIUS) / RAIN_CROWN_WIDTH;
+			float spike = r / RAIN_CROWN_WIDTH;
+			crown += young * (exp(-xc * xc) * 0.8 + exp(-spike * spike) * 0.6);
+		}
 // Returns height and its partial derivative with respect to bed height.
+	crown = min(crown, 1.0);
 vec2 _city_runup_profile(ShoreState shore, float bed_y, float ocean_y) {
 	float front = shore.front_distance - shore.distance;
 	float active = smoothstep(0.001, 0.04, front);
@@ -1589,10 +1626,10 @@ void fragment() {
 	// waterline. Scales the FFT slope, crest glow, whitecaps and wind streaks.
 	float wind_sea_keep = 1.0;
 	if (use_fft) {
-		sea_gust = _sea_gust(wave_sample_xz);
+		sea_gust = _sea_gust(wave_sample_xz, gust_cell, gust_slick);
 		wind_sea_keep = _nearshore_wind_sea(wave_sample_xz);
 		world_normal = _fft_normal_gust(
-			wave_sample_xz, max(pixel_footprint.x, pixel_footprint.y), sea_gust, crest_term
+			wave_sample_xz, max(pixel_footprint.x, pixel_footprint.y), sea_gust * capillary_keep, crest_term
 		);
 		world_normal = normalize(mix(vec3(0.0, 1.0, 0.0), world_normal, wind_sea_keep));
 		crest_term *= wind_sea_keep;
@@ -1610,11 +1647,15 @@ void fragment() {
 	// The low-sun relief clamp still applies below, preventing sharp glint bands at
 	// sunrise while preserving the small-scale broken reflection at daytime angles.
 	vec3 detail_normal = _water_detail_normal(water_world_position.xz, TIME * wave_speed);
-	world_normal = normalize(mix(world_normal, detail_normal, clamp(detail_normal_strength * sea_gust, 0.0, 1.0)));
+	world_normal = normalize(mix(world_normal, detail_normal, clamp(detail_normal_strength * sea_gust * capillary_keep, 0.0, 1.0)));
 	// WS-15: ripple slopes from central differences, added on top of the FFT and detail
 	// normals so rings bend reflections and glints. Aeration feeds the foam mask below.
 	float ripple_aeration = 0.0;
 	float ripple_slope_length = 0.0;
+	float gust_cell = 0.0;
+	float gust_slick = 0.0;
+	// WR-8: rain damps the short waves (a downpour flattens the capillary cascade).
+	float capillary_keep = mix(1.0, RAIN_CAPILLARY_KEEP, rain_ring_intensity);
 	if (ripple_window.w > 0.5) {
 		vec2 ripple_uv = _ripple_uv(wave_sample_xz);
 		float ripple_weight = _ripple_weight(ripple_uv);
@@ -1656,7 +1697,11 @@ void fragment() {
 		? smoothstep(RAIN_RING_MIN_CELL_PX, RAIN_RING_FULL_CELL_PX, rain_cell_px)
 		: 0.0;
 	if (rain_ring_fade > 0.001) {
-		vec2 rain_slope = _rain_ring_slope(water_world_position.xz, TIME) * rain_ring_fade;
+		float rain_crown;
+		vec2 rain_slope = _rain_ring_slope(water_world_position.xz, TIME, rain_crown) * rain_ring_fade;
+		// Splash crowns: only where a cell is more than a few dozen pixels wide.
+		ripple_aeration = max(ripple_aeration,
+			rain_crown * smoothstep(24.0, 60.0, rain_cell_px) * rain_ring_intensity * 0.8);
 		world_normal = normalize(world_normal + vec3(-rain_slope.x, 0.0, -rain_slope.y));
 		ripple_slope_length = max(ripple_slope_length, length(rain_slope));
 	}
@@ -2032,7 +2077,10 @@ void fragment() {
 			foam_texture = mix(tile_a.r, tile_b.r, 0.5) * mix(0.7, 1.0, tile_a.g);
 		}
 		// Capped so even a storm crest keeps bubble holes instead of a flat white sheet.
-		float foam_mask = min(fft_foam.x * storm_foam_coverage * foam_coverage, FOAM_MASK_CAP);
+		// WR-8: more crests break inside a gust cell, fewer on the glassy lanes between.
+		float gust_foam = 1.0 + gust_cell * GUST_WHITECAP_BOOST * (0.35 + 0.65 * gust_level)
+			- gust_slick * 0.4;
+		float foam_mask = min(fft_foam.x * storm_foam_coverage * foam_coverage * gust_foam, FOAM_MASK_CAP);
 		whitecap = clamp((foam_mask - (1.0 - foam_texture)) * foam_sharpness, 0.0, 1.0);
 		if (sea_physical_depth) {
 			// WR-2: the baked mask is broad (it carries every decaying patch), so the
@@ -2053,9 +2101,9 @@ void fragment() {
 		open_water = mix(open_water, smoothstep(0.03, 0.10, water_column), storm_streaks * 0.85);
 		// Streak foam floats on the surface, so it is laid on as white foam below
 		// instead of the sunk tint of old whitecap foam.
-		wind_streak = clamp(tile_a.b * streak_amount * storm_streaks * streak_link, 0.0, 1.0)
+		wind_streak = clamp(tile_a.b * streak_amount * max(storm_streaks, gust_cell * GUST_SPINDRIFT * gust_level) * streak_link, 0.0, 1.0)
 			* open_water * wind_sea_keep;
-		whitecap *= open_water * whitecap_onset * _fetch_shelter(wave_sample_xz) * wind_sea_keep;
+		whitecap *= open_water * max(whitecap_onset, gust_cell * gust_level) * _fetch_shelter(wave_sample_xz) * wind_sea_keep;
 		// The bake decays foam over time: a high raw value just broke (bright,
 		// opaque), a low one is old foam, thin and sunk under the surface.
 		// A rougher sea breaks more often than the reference bake, so the weather scale
@@ -2175,7 +2223,12 @@ void fragment() {
 	float gust_tone = sea_gust - 1.0;
 	sky_reflection_weight = clamp(sky_reflection_weight * (1.0 - gust_tone * 0.5), 0.0, 0.92);
 	water_color = mix(water_color, sky_reflection, sky_reflection_weight);
-	water_color *= 1.0 - max(gust_tone, 0.0) * 0.3;
+	water_color *= 1.0 - max(gust_tone, 0.0) * (0.3 + 0.25 * gust_level);
+	// WR-8 rain: raindrop hiss greys the sea at the distance where rings are too small to see
+	// (rain_ring_fade is their near share), stronger in heavy rain, and lifts it a little.
+	float rain_far = rain_ring_intensity * (1.0 - rain_ring_fade) * smoothstep(0.35, 1.0, rain_ring_intensity);
+	float water_luma = dot(water_color, vec3(0.299, 0.587, 0.114));
+	water_color = mix(water_color, vec3(water_luma + RAIN_FAR_VEIL * water_luma), rain_far * RAIN_FAR_GREY);
 	// The film sits on top of the mirror, lit like a diffuse leaf surface.
 	water_color = mix(water_color, scum_color * mix(0.55, 1.0, day_blend), scum_cover);
 
@@ -2286,7 +2339,8 @@ void fragment() {
 	float rough_water = max(step(0.001, flow_strength), clamp(foam, 0.0, 1.0));
 	float base_alpha = mix(0.03, 0.08, rough_water);
 	// choppiness x wave_chaos spans ~0.5 (calm) to ~1.9 (storm) under apply_sea_weather.
-	float sea_variance = mix(0.0015, 0.02, smoothstep(0.45, 1.8, choppiness * wave_chaos));
+	float sea_variance = mix(0.0015, 0.02, smoothstep(0.45, 1.8, choppiness * wave_chaos))
+		+ RAIN_ROUGHNESS_VARIANCE * rain_ring_intensity;
 	ROUGHNESS = sqrt(sqrt(base_alpha * base_alpha + sea_variance + unresolved_slope));
 	// Godot maps SPECULAR to dielectric F0; 0.25 is approximately water's 0.02.
 	// With the custom light() it only scales ambient and reflection-probe specular.

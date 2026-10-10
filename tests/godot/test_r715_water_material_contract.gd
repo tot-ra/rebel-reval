@@ -404,7 +404,7 @@ func test_fft_whitecaps_come_from_baked_foam_and_the_foam_tile() -> void:
 	)
 	assert_true(
 		whitecap_block.contains(
-			"min(fft_foam.x * storm_foam_coverage * foam_coverage, FOAM_MASK_CAP)"
+			"min(fft_foam.x * storm_foam_coverage * foam_coverage * gust_foam, FOAM_MASK_CAP)"
 		),
 		"the weighted baked mask scales with weather and coverage",
 	)
@@ -439,7 +439,7 @@ func test_fft_whitecaps_come_from_baked_foam_and_the_foam_tile() -> void:
 	assert_false(include.contains("_fft_signed(s0, fft_disp_scale[0]).a"), "foam is never decoded")
 	assert_true(source.contains("_fft_normal_gust("), "gusts and slicks scale the ripple cascade")
 	assert_true(
-		source.contains("clamp(detail_normal_strength * sea_gust, 0.0, 1.0)"),
+		source.contains("clamp(detail_normal_strength * sea_gust * capillary_keep, 0.0, 1.0)"),
 		"gusts and slicks scale the detail normal",
 	)
 
@@ -454,11 +454,11 @@ func test_fft_foam_drifts_are_seamless_over_the_ocean_clock_wrap() -> void:
 	for constant: String in [
 		"FOAM_DRIFT_A_TILES_PER_WRAP = 40.0",
 		"FOAM_DRIFT_B_TILES_PER_WRAP = 100.0",
-		"GUST_DRIFT_CELLS_PER_WRAP = 64.0",
+		"GUST_DRIFT_CELLS_PER_WRAP = 192.0",
 		"GUST_PERIOD_CELLS = 16.0",
 	]:
 		assert_true(source.contains(constant), "drift constant %s is a whole period count" % constant)
-	assert_eq(fmod(64.0, 16.0), 0.0, "the gust drift is a whole number of noise periods per wrap")
+	assert_eq(fmod(192.0, 16.0), 0.0, "the gust drift is a whole number of noise periods per wrap")
 
 
 func test_fft_foam_follows_sea_weather() -> void:

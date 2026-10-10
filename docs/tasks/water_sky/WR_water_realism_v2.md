@@ -49,7 +49,7 @@ Constraint shared by all rows: Godot 4.7 **GL Compatibility** (no compute shader
 | R-1510 | WR-5 waves around rocks and obstacles: local GPU wave sim with obstacle mask ([page](../../SYSTEMS/CITY_SEA.md#waves-around-rocks-wr-5)) | implemented |
 | R-1511 | WR-6 event-driven spray, splash and mist | planned |
 | R-1512 | WR-7 persistent foam buffer (born, advected, decayed), high tier | planned |
-| R-1513 | WR-8 wind gusts (cat's paws) and rain on the open sea | planned |
+| R-1513 | WR-8 wind gusts (cat's paws) and rain on the open sea | implemented |
 | R-1514 | WR-9 pebble and sand beach response | planned |
 | R-1515 | WR-10 acceptance: sandbox matrix review, per-tier budgets, in-city check | planned |
 

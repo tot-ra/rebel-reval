@@ -228,6 +228,7 @@ static func apply_weather_presentation(
 	apply_sea_weather(
 		presentation.wind_strength, presentation.rain_intensity, presentation.wind_direction
 	)
+	apply_sea_gust(presentation.wind_gust_level)
 	apply_mud_wetness(presentation.puddle_wetness)
 	apply_world_wind(presentation.wind_direction, presentation.wind_strength)
 	# Leaves and bark wet faster than ground pools: active rain counts directly.
@@ -252,6 +253,11 @@ static func puddle_surface() -> ShaderMaterial:
 
 static func water_surface(terrain_id: StringName) -> ShaderMaterial:
 	return WATER_MATERIALS.water_surface(terrain_id, WATER_WAVE_BASE)
+
+
+## WR-8: transient gust front (0..1 of its peak) for the sea's cat's-paw cells.
+static func apply_sea_gust(gust: float) -> void:
+	WATER_MATERIALS.apply_sea_gust(gust, WATER_WAVE_BASE)
 
 
 static func apply_sea_weather(
