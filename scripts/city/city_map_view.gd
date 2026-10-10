@@ -13,6 +13,8 @@ const CityWaterSurfaceScript := preload("res://scripts/city/city_water_surface.g
 ## WR-5: farthest the waves-around-rocks window centre sits ahead of the camera, where
 ## its view meets the sea (world units).
 const CITY_OBSTACLE_FOCUS_AHEAD := 26.0
+## WR-7: farthest the foam buffer window centre sits ahead of the camera.
+const CITY_FOAM_FOCUS_AHEAD := 40.0
 
 var world: CityWorld3D
 var plan: CityPlan
@@ -20,6 +22,8 @@ var plan: CityPlan
 var inside_building := -1
 ## WR-5 waves around rocks (WaterRippleSim in obstacle mode); null when off.
 var water_obstacle_sim: WaterRippleSimScript
+## WR-7 foam with memory (WaterFoamSim); null on the minimum sea tier and inland plans.
+var water_foam_sim: WaterFoamSim
 var _surface_sampler: CitySurfaceSampler
 
 
@@ -55,6 +59,7 @@ func _create_city_underwater_pass() -> void:
 	add_child(_underwater_pass)
 	_underwater_pass.configure(_camera, _underwater_probe, _sky_weather.quality_tier)
 
+	view._create_city_foam_sim()
 
 ## CityPlan supplies metre-scale sea, stream and ditch heights; the district grid
 ## does not exist here. Keep the optical rest plane separate from the camera wave.
@@ -148,6 +153,33 @@ func _city_obstacle_focus() -> Vector3:
 	var flat := Vector2(forward.x, forward.z)
 	if flat.length() < 0.01:
 		return origin
+## WR-7: persistent foam for the sea (docs/SYSTEMS/CITY_SEA.md "Foam memory"). The sim
+## owns the sea's `ripple_state` binding (an atlas of ripple + foam), so it must exist
+## before the first ripple step is bound. Coastal plans on tiers with a foam window only.
+func _create_city_foam_sim() -> void:
+	var tier: Variant = MapViewMaterials.WATER_MATERIALS.sea_lod_tier()
+	if not WaterFoamSim.should_create(tier, false, plan.has_coast()):
+		return
+	var sea := MapViewMaterials.water_surface(MapTypes.TERRAIN_SHALLOW_WATER)
+	water_foam_sim = WaterFoamSim.new()
+	water_foam_sim.name = "WaterFoamSim"
+	add_child(water_foam_sim)
+	if not water_foam_sim.configure(tier):
+		remove_child(water_foam_sim)
+		water_foam_sim.free()
+		water_foam_sim = null
+		return
+	water_foam_sim.source_material = sea
+	water_foam_sim.sea_materials = [sea]
+	water_foam_sim.focus_provider = _city_foam_focus
+
+
+func _city_foam_focus() -> Vector3:
+	if _camera == null or not _camera.is_inside_tree():
+		return Vector3.ZERO
+	return WaterFoamSim.view_focus(_camera.global_transform, CITY_FOAM_FOCUS_AHEAD)
+
+
 	var reach := CITY_OBSTACLE_FOCUS_AHEAD
 	if forward.y < -0.01 and origin.y > 0.0:
 		reach = minf(reach, origin.y / -forward.y * flat.length())
@@ -188,6 +220,9 @@ func _bind_city_ripples(texture: Texture2D, window: Vector4, texel_count: float)
 ## texel over the whole city would stall the first visible frame.
 func _create_sky_passes() -> void:
 	_create_cloud_shadow_pass()
+	if water_foam_sim != null:
+		# Last, so the sea's ripple_state ends up as the ripple + foam atlas, not the plain state.
+		water_foam_sim.set_ripple_source(texture, window, texel_count)
 	_create_city_atmosphere()
 	if _sky_weather == null or not GodRayPassScript.should_create(false):
 		return

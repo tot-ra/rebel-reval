@@ -5,7 +5,7 @@ extends SceneTree
 ##     [--case=sand,quay] [--shot=close,side,wide,swim,open] [--light=noon,sunset,night,overcast] \
 ##     [--wind=calm,fresh,gale] [--rain] [--gust] [--motion=N] [--advance=S]
 ##     [--tier=recommended] [--size=1280x720] [--tag=x] [--dolly=M] [--bench=N]
-##     [--no-obstacle-sim] [--stability=N] [--dump-obstacle] [--bench-shot=open]
+##     [--no-obstacle-sim] [--no-foam-sim] [--stability=N] [--dump-obstacle] [--bench-shot=open]
 ## Every list argument is a comma list; the run covers the full cross product.
 ## Output: build/water_sandbox/<tag>/<case>_<shot>_<light>_<wind>[_rain][_gust].png plus
 ## sheet.png (all plates in one contact sheet). --motion=N writes N frames at 24 Hz per plate;
@@ -57,6 +57,8 @@ var _stability := 0
 var _dump_obstacle := false
 var _bench_shot := "open"
 var _obstacle_sim: WaterRippleSim
+var _foam_enabled := true
+var _foam_sim: WaterFoamSim
 
 
 func _initialize() -> void:
@@ -90,6 +92,8 @@ func _initialize() -> void:
 			_bench_shot = value
 		elif arg == "--dump-obstacle":
 			_dump_obstacle = true
+		elif arg == "--no-foam-sim":
+			_foam_enabled = false
 		elif arg == "--no-obstacle-sim":
 			_obstacle_enabled = false
 		elif arg.begins_with("--tag="):
@@ -128,6 +132,7 @@ func _run() -> void:
 	world.sky_weather.auto_weather = false
 	world.sky_weather.set_process(false)
 	_create_obstacle_sim(sandbox, camera)
+	_create_foam_sim(sandbox, camera)
 	var build_ms := Time.get_ticks_msec() - t0
 	print("water sandbox: built in %d ms, %d cases" % [build_ms, sandbox.case_ids().size()])
 	if _cases.is_empty():
@@ -163,7 +168,7 @@ func _run() -> void:
 					# paws read in the plate and not only in the clip.
 					_apply(world, float(lights[light][0]), float(WINDS[wind_name]),
 						STILL_GUST if _gust else 0.0)
-					if _obstacle_sim != null:
+					if _obstacle_sim != null or _foam_sim != null:
 						# Warm the field up so that the plate lands on the same sea phase.
 						# Moving the clock back is a jump: the sim restarts flat for this pose.
 						MapViewRuntimeEnvironment.set_ocean_time(_advance - WARMUP_SECONDS)
@@ -279,7 +284,9 @@ static func _sea_vertices(world: Node3D) -> int:
 ## rendered frame each: the sim steps once per frame, and at a capture's 1/24 s or 1/20 s
 ## its CFL cap (0.25 m texels on high) would slow the waves the game shows at 60 fps.
 func _advance_clock(seconds: float) -> void:
-	var steps := 1 if _obstacle_sim == null else maxi(ceili(seconds / SIM_FRAME_DT - 0.001), 1)
+	var steps := 1
+	if _obstacle_sim != null or _foam_sim != null:
+		steps = maxi(ceili(seconds / SIM_FRAME_DT - 0.001), 1)
 	for i in steps:
 		MapViewRuntimeEnvironment.advance_ocean_time(seconds / float(steps))
 		await process_frame
@@ -366,6 +373,28 @@ func _create_obstacle_sim(sandbox: Node3D, camera: Camera3D) -> void:
 		sea.set_shader_parameter(&"obstacle_texel_count", texels)
 
 
+## WR-7: the foam-memory sim as CityMapView mounts it (sea LOD tier, camera-following
+## window). Off with --no-foam-sim (A/B plates against the analytic WR-2 foam) or on the
+## minimum tier. The sandbox runs no WS-15 ripple sim, so the atlas holds the foam only.
+func _create_foam_sim(sandbox: Node3D, camera: Camera3D) -> void:
+	var sea := MapViewMaterials.water_surface(MapTypes.TERRAIN_SHALLOW_WATER)
+	var tier := MapViewMaterials.WATER_MATERIALS.sea_lod_tier()
+	if not _foam_enabled or not WaterFoamSim.should_create(tier, false, true):
+		WaterFoamSim.unbind_materials([sea])
+		return
+	_foam_sim = WaterFoamSim.new()
+	_foam_sim.name = "WaterFoamSim"
+	sandbox.add_child(_foam_sim)
+	if not _foam_sim.configure(tier):
+		_foam_sim.queue_free()
+		_foam_sim = null
+		return
+	_foam_sim.source_material = sea
+	_foam_sim.sea_materials = [sea]
+	_foam_sim.focus_provider = func() -> Vector3:
+		return WaterFoamSim.view_focus(camera.global_transform, 40.0)
+
+
 ## Where the camera's view meets the sea, at most OBSTACLE_FOCUS_AHEAD ahead (level).
 static func _obstacle_focus(camera: Camera3D) -> Vector3:
 	var origin := camera.global_position
@@ -390,6 +419,7 @@ func _apply(world: Node3D, progress: float, wind: float, gust: float) -> void:
 	)
 	MapViewMaterials.apply_world_wind(WIND_DIRECTION, strength)
 	MapViewMaterials.apply_sea_weather(strength, rain, WIND_DIRECTION)
+	MapViewMaterials.apply_sea_gust(gust)
 	world.mirror_shore_to_ground()
 	world.set_wind(WIND_DIRECTION)
 	if _obstacle_sim != null:
@@ -417,7 +447,6 @@ func _record(
 		if _dolly != 0.0:
 			camera.global_position = start.origin + forward * _dolly * float(i) / maxf(_motion - 1, 1)
 		var t := float(i) / 24.0
-	MapViewMaterials.apply_sea_gust(gust)
 		if _gust:
 			var burst := exp(-pow((t - 2.0) / 1.2, 2.0)) + 0.6 * exp(-pow((t - 6.0) / 0.8, 2.0))
 			_apply(world, progress, wind, burst)

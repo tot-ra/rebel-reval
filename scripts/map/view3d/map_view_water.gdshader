@@ -177,6 +177,14 @@ global uniform vec3 cloud_sun_dir;
 uniform sampler2D ripple_state : filter_linear, repeat_disable;
 uniform vec4 ripple_window = vec4(0.0, 0.0, 64.0, 0.0);
 uniform float ripple_texel_count = 256.0;
+// WR-7 foam memory (WaterFoamSim): the city sea's ripple_state is an atlas holding the
+// ripple state and the foam state side by side (the fragment stage has no free sampler
+// unit). Rects are (u0, v0, du, dv) of each region; the default is the plain ripple
+// texture. foam_window = (origin x, origin z, size, valid); valid 0 (minimum tier, no
+// sim, state not drawn yet) keeps the analytic WR-2 foam everywhere.
+uniform vec4 ripple_atlas_rect = vec4(0.0, 0.0, 1.0, 1.0);
+uniform vec4 foam_atlas_rect = vec4(0.0, 0.0, 1.0, 1.0);
+uniform vec4 foam_window = vec4(0.0, 0.0, 128.0, 0.0);
 // Shading slope per unit of height difference between neighbouring texels.
 uniform float ripple_normal_strength = 25.0;
 // Geometric lift per unit height. Kept tiny and crest-only: the FFT trough floor leaves just
@@ -1007,6 +1015,27 @@ vec2 _ripple_uv(vec2 world_xz) {
 	return (world_xz - ripple_window.xy) / max(ripple_window.z, 0.001);
 }
 
+// Window uv -> atlas uv of a region. The clamp keeps a lookup past the window edge
+// (weight 0 there) from reading the neighbouring region.
+vec2 _atlas_uv(vec2 uv, vec4 rect) {
+	return rect.xy + clamp(uv, vec2(0.0), vec2(1.0)) * rect.zw;
+}
+
+// WR-7: foam state at a rest coordinate. xyz = density, fresh, windrow; w = how much of the
+// buffer to trust (0 outside the window and with the sim off, fading over the outer 20 %).
+vec4 _foam_memory(vec2 rest_xz) {
+	if (foam_window.w < 0.5) {
+		return vec4(0.0);
+	}
+	vec2 uv = (rest_xz - foam_window.xy) / max(foam_window.z, 0.001);
+	vec2 edge = min(uv, vec2(1.0) - uv);
+	float weight = smoothstep(0.0, 0.2, min(edge.x, edge.y));
+	if (weight <= 0.0) {
+		return vec4(0.0);
+	}
+	return vec4(textureLod(ripple_state, _atlas_uv(uv, foam_atlas_rect), 0.0).rgb, weight);
+}
+
 // 0 outside the window or with the sim off, 1 inside, fading near the window edge.
 // WR-5 obstacle window lookup: same layout and edge fade as the ripple window.
 vec2 _obstacle_uv(vec2 world_xz) {
@@ -1445,7 +1474,8 @@ void vertex() {
 	}
 	if (ripple_window.w > 0.5) {
 		vec2 ripple_uv = _ripple_uv(wave_sample_xz);
-		float ripple_h = textureLod(ripple_state, ripple_uv, 0.0).r * ripple_vertex_amplitude;
+		float ripple_h = textureLod(ripple_state, _atlas_uv(ripple_uv, ripple_atlas_rect), 0.0).r
+			* ripple_vertex_amplitude;
 		displacement.y += max(ripple_h * _ripple_weight(ripple_uv), 0.0);
 	}
 	if (shore_field_valid > 0.5 && shore_strength > 0.0) {
@@ -1660,17 +1690,20 @@ void fragment() {
 		vec2 ripple_uv = _ripple_uv(wave_sample_xz);
 		float ripple_weight = _ripple_weight(ripple_uv);
 		vec2 ripple_du = vec2(1.0 / max(ripple_texel_count, 1.0), 0.0);
-		float ripple_hx = textureLod(ripple_state, ripple_uv + ripple_du.xy, 0.0).r
-			- textureLod(ripple_state, ripple_uv - ripple_du.xy, 0.0).r;
-		float ripple_hz = textureLod(ripple_state, ripple_uv + ripple_du.yx, 0.0).r
-			- textureLod(ripple_state, ripple_uv - ripple_du.yx, 0.0).r;
+		vec2 ripple_atlas = _atlas_uv(ripple_uv, ripple_atlas_rect);
+		vec2 ripple_dx = ripple_du.xy * ripple_atlas_rect.zw;
+		vec2 ripple_dz = ripple_du.yx * ripple_atlas_rect.zw;
+		float ripple_hx = textureLod(ripple_state, ripple_atlas + ripple_dx, 0.0).r
+			- textureLod(ripple_state, ripple_atlas - ripple_dx, 0.0).r;
+		float ripple_hz = textureLod(ripple_state, ripple_atlas + ripple_dz, 0.0).r
+			- textureLod(ripple_state, ripple_atlas - ripple_dz, 0.0).r;
 		vec2 ripple_slope = vec2(ripple_hx, ripple_hz) * (0.5 * ripple_normal_strength * ripple_weight);
 		// A hull crest can be several times a raindrop ring; unbounded slopes lay the normal
 		// flat and mirror the dark lower hemisphere as black streaks.
 		ripple_slope /= max(1.0, length(ripple_slope) / RIPPLE_MAX_SLOPE);
 		world_normal = normalize(world_normal + vec3(-ripple_slope.x, 0.0, -ripple_slope.y));
 		ripple_slope_length = length(ripple_slope);
-		ripple_aeration = textureLod(ripple_state, ripple_uv, 0.0).b * ripple_weight;
+		ripple_aeration = textureLod(ripple_state, ripple_atlas, 0.0).b * ripple_weight;
 	}
 	// WR-5: the obstacle field's slopes bend the normal like the ripples; its impact foam
 	// joins the surf foam below.
@@ -1944,6 +1977,9 @@ void fragment() {
 	}
 
 	vec2 city_foam = vec2(0.0);
+	// WR-7: persistent foam at the same rest coordinate (shifted by the surge below, so
+	// it rides the swash like the WR-2 structure). a = 0 keeps the analytic foam.
+	vec4 foam_memory = vec4(0.0);
 	if (sea_physical_depth) {
 		vec2 advected = wave_sample_xz;
 		if (shore_live) {
@@ -1955,6 +1991,7 @@ void fragment() {
 			advected -= shore_now.to_land * shift * shore_now.valid;
 		}
 		city_foam = _city_foam_cells(advected);
+		foam_memory = _foam_memory(advected);
 	}
 	// COLOR.r is baked from the same smooth contour that clips the mesh. A pair
 	// of advancing breaker bands now travels into that contour, crests, and fades
@@ -2039,6 +2076,13 @@ void fragment() {
 		// around and dissolves (same attached cells as the surf foam).
 		swash_bore = max(swash_bore, _foam_dissolve(city_foam.x, clamp(obstacle_foam, 0.0, 1.0)));
 	}
+	if (shore_live && foam_memory.a > 0.0) {
+		// WR-7: surf and slosh foam the buffer still holds past the analytic roller, so
+		// a breaker leaves a trail that drifts and thins instead of vanishing with it.
+		float memory_surf = foam_memory.r * foam_memory.a * shore_now.valid
+			* smoothstep(0.03, 0.10, basin_column);
+		swash_bore = max(swash_bore, _foam_dissolve(city_foam.x, memory_surf * 0.85));
+	}
 	vec2 foam_uv = water_world_position.xz * 3.4 + vec2(-TIME * 0.22, TIME * 0.09) * wave_speed;
 	float foam_noise = _noise(foam_uv + _noise(foam_uv * 0.47) * 2.2);
 	float foam_ribbon = 0.5 + 0.5 * sin(
@@ -2089,11 +2133,13 @@ void fragment() {
 			// towards a fifth of the sea in a gale (Monahan-like), as lace.
 			float breaking = clamp((foam_mask - CITY_WHITECAP_THRESHOLD)
 				/ (1.0 - CITY_WHITECAP_THRESHOLD), 0.0, 1.0);
-			whitecap = _foam_dissolve(foam_texture, breaking * CITY_WHITECAP_GAIN);
+			whitecap = _foam_dissolve(foam_texture,
+				mix(breaking * CITY_WHITECAP_GAIN, foam_memory.r, foam_memory.a));
 		}
 		// Storm streaks: the tile's B channel is stretched 6:1 along +X, which is
 		// downwind in the wind frame. The coarse C0 mask links them to whitecaps.
-		float streak_link = smoothstep(0.02, 0.3, fft_foam.z * storm_foam_coverage);
+		float streak_link = mix(smoothstep(0.02, 0.3, fft_foam.z * storm_foam_coverage),
+			smoothstep(0.02, 0.3, foam_memory.b), foam_memory.a);
 		float open_water = smoothstep(0.14, 0.48, shore_factor) * smoothstep(0.03, 0.10, water_column);
 		// WHY: calm shallows stay clear, but a storm sea breaks hardest where it
 		// shoals, so the surf zone must foam instead of reading like a calm lagoon.
@@ -2108,7 +2154,8 @@ void fragment() {
 		// opaque), a low one is old foam, thin and sunk under the surface.
 		// A rougher sea breaks more often than the reference bake, so the weather scale
 		// also lowers the bar for foam to count as freshly broken.
-		whitecap_fresh = whitecap * smoothstep(0.35, 0.8, fft_foam.y * storm_foam_coverage);
+		whitecap_fresh = whitecap * smoothstep(0.35, 0.8,
+			mix(fft_foam.y * storm_foam_coverage, foam_memory.g, foam_memory.a));
 		// The decayed tail of the baked foam falls below the whitecap threshold within
 		// about a second; this thin lace over the brightest bubble rims keeps it
 		// visible for the few seconds the bake still carries it.

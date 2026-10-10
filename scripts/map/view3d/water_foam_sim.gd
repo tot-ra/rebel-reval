@@ -33,6 +33,7 @@ extends Node
 ## longer than MAX_STEP_GAP (load, time skip) reseeds the window from the analytic foam.
 
 const SkyWeather3DScript := preload("res://scripts/map/view3d/sky_weather_3d.gd")
+const PerfProbeScript := preload("res://scripts/debug/perf_probe.gd")
 const STEP_SHADER := preload("res://scripts/map/view3d/water_foam_sim.gdshader")
 const WATER_MATERIALS := preload("res://scripts/map/view3d/map_view_water_materials.gd")
 const OCEAN_TIME_WRAP_SECONDS := MapViewRuntimeEnvironment.OCEAN_TIME_WRAP_SECONDS
@@ -334,6 +335,12 @@ func request_reset() -> void:
 
 
 func _process(_delta: float) -> void:
+	var probe_start := PerfProbeScript.start()
+	_process_timed(_delta)
+	PerfProbeScript.stop(&"water_foam", probe_start)
+
+
+func _process_timed(_delta: float) -> void:
 	if not is_active():
 		return
 	var frame := Engine.get_process_frames()

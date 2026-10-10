@@ -144,20 +144,35 @@ func test_step_kernel_mirrors_the_sea_and_compiles() -> void:
 	sim.free()
 
 
-func test_sea_reads_the_buffer_in_vertex_only_and_falls_back_outside() -> void:
+func test_sea_reads_the_buffer_through_the_ripple_atlas_and_falls_back_outside() -> void:
 	var source := FileAccess.get_file_as_string(WATER_SHADER)
-	var vertex_start := source.find("void vertex()")
-	var fragment_start := source.find("void fragment()")
-	var read := source.find("textureLod(foam_state")
-	assert_true(read > vertex_start and read < fragment_start, "foam_state read in vertex()")
-	assert_eq(source.count("foam_state,"), 1, "one read: the fragment stage has no free sampler")
+	assert_false(source.contains("sampler2D foam_state"), "no extra sampler: all 16 units are used")
+	assert_true(source.contains("uniform vec4 foam_window"), "foam window uniform")
+	assert_true(source.contains("uniform vec4 foam_atlas_rect"), "foam atlas rect uniform")
 	assert_true(source.contains("mix(breaking * CITY_WHITECAP_GAIN, foam_memory.r, foam_memory.a)"),
 		"whitecaps dissolve by the memory inside the window, analytic outside")
 	var material := ShaderMaterial.new()
 	material.shader = load(WATER_SHADER)
-	WaterFoamSim.bind_materials([material], null, Vector4(1.0, 2.0, 128.0, 1.0))
+	material.set_shader_parameter(&"foam_window", Vector4(1.0, 2.0, 128.0, 1.0))
+	WaterFoamSim.unbind_materials([material])
 	var window: Vector4 = material.get_shader_parameter(&"foam_window")
-	assert_almost_eq(window.w, 0.0, 0.0001, "no texture: analytic foam")
+	assert_almost_eq(window.w, 0.0, 0.0001, "unbound: analytic foam")
+	var rect: Vector4 = material.get_shader_parameter(&"ripple_atlas_rect")
+	assert_true(rect.is_equal_approx(Vector4(0.0, 0.0, 1.0, 1.0)), "plain ripple rect")
+
+
+func test_atlas_layout_puts_foam_and_ripples_side_by_side() -> void:
+	var layout := WaterFoamSim.atlas_layout(256, 128)
+	assert_eq(layout["size"], Vector2i(384, 256), "width sums, height is the taller")
+	var foam: Vector4 = layout["foam"]
+	var ripple: Vector4 = layout["ripple"]
+	assert_almost_eq(foam.x, 0.0, 0.0001, "foam at x 0")
+	assert_almost_eq(foam.z, 256.0 / 384.0, 0.0001, "foam width share")
+	assert_almost_eq(ripple.x, 256.0 / 384.0, 0.0001, "ripples right of foam")
+	assert_almost_eq(ripple.w, 0.5, 0.0001, "shorter ripple region")
+	var no_ripple := WaterFoamSim.atlas_layout(256, 0)
+	assert_true((no_ripple["ripple"] as Vector4).is_equal_approx(Vector4(0.0, 0.0, 1.0, 1.0)),
+		"no ripple sim keeps the identity rect")
 
 
 func test_view_focus_lands_on_the_sea_ahead_of_the_camera() -> void:
