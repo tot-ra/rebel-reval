@@ -182,6 +182,18 @@ func set_enclosed_interior(value: bool) -> void:
 		sky_weather.rain_suppressed = value
 
 
+## ADR 0045: seasonal look of the ground from the campaign date: turf goes dormant
+## through winter and snow settles on it. Same snow curve as the grass blades.
+func apply_season(date: Dictionary) -> void:
+	var ground := CityTerrainBuilder.shared_material()
+	if ground == null:
+		return
+	var weights := SeasonState.season_weights(SeasonState.day_of_year_for(date))
+	var dormancy := float(weights[SeasonState.WINTER]) + 0.35 * float(weights[SeasonState.AUTUMN])
+	ground.set_shader_parameter("winter", clampf(dormancy, 0.0, 1.0))
+	ground.set_shader_parameter("snow_cover", VegetationPhenology.snow_cover_for(date))
+
+
 func apply_time(progress: float) -> void:
 	if sun == null:
 		return

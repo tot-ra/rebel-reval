@@ -79,6 +79,11 @@ uniform float puddles = 0.0;
 // Sun-baked bare soil (SkyWeather3D.ground_dryness()): dusty above 0, the puddle
 // basins crack open from ~0.45 (drought only, see docs/SYSTEMS/WEATHER_GROUND.md).
 uniform float ground_dryness = 0.0;
+// ADR 0045: winter dormancy of turf (0..1) and settled snow cover (0..1), set by
+// CityWorld3D.apply_season from the campaign date.
+uniform float winter = 0.0;
+uniform float snow_cover = 0.0;
+uniform vec3 snow_color : source_color = vec3(0.86, 0.9, 0.95);
 uniform float sea_level = 0.0;
 uniform float rain_intensity = 0.0;
 global uniform float ocean_time;
@@ -863,6 +868,19 @@ void fragment() {
 	col *= 1.0 + (gh - 0.5) * grass_relief_shade * turf;
 	vec2 gslope = vec2(grass_height(wuv + e.xy) - gh, grass_height(wuv + e.yx) - gh) / e.x;
 	nxy += -gslope * grass_relief_normal * turf * detail;
+	// Winter: dormant turf turns pale straw-brown, then snow settles in patches that
+	// thin out on trodden roads, paving, standing water and steep rock.
+	float luma = dot(col, vec3(0.299, 0.587, 0.114));
+	vec3 dormant_turf = vec3(luma) * vec3(1.22, 1.04, 0.80) + vec3(0.03, 0.025, 0.012);
+	col = mix(col, dormant_turf, winter * turf * 0.85);
+	float snow_noise = macro * 0.55 + micro * 0.45;
+	float snow_amount = clamp((snow_cover * 1.18 - (1.0 - snow_noise)) * 5.0, 0.0, 1.0);
+	snow_amount *= 1.0 - 0.75 * max(road, paving) - 0.9 * puddle - 0.7 * rock;
+	snow_amount *= dry_land;
+	snow_amount = clamp(snow_amount, 0.0, 1.0);
+	col = mix(col, snow_color * (0.92 + 0.08 * micro), snow_amount);
+	// Snow fills the fine relief.
+	nxy *= 1.0 - snow_amount * 0.6;
 	ALBEDO = city_albedo(col);
 	ROUGHNESS = mix(mix(0.95, 0.6, wet * (1.0 - rock * 0.5)), 0.5, damp_ring * 0.5);
 	ROUGHNESS = mix(ROUGHNESS, mix(0.16, 0.025, deep), puddle);
@@ -884,6 +902,8 @@ void fragment() {
 	ROUGHNESS = mix(ROUGHNESS, mix(0.5, 0.28, beach_porous), beach_wet);
 	ROUGHNESS = mix(ROUGHNESS, 0.06, beach_glisten);
 	SPECULAR = mix(SPECULAR, 0.5, max(beach_glisten, beach_wet * beach_porous * 0.8));
+	ROUGHNESS = mix(ROUGHNESS, 0.88, snow_amount);
+	SPECULAR = mix(SPECULAR, 0.28, snow_amount);
 	nxy = clamp(nxy * mix(1.0, 0.75, wet) * (1.0 - rock) + rock_nxy, vec2(-0.95), vec2(0.95));
 	NORMAL_MAP = vec3(nxy, sqrt(max(1.0 - dot(nxy, nxy), 0.0))) * 0.5 + 0.5;
 }

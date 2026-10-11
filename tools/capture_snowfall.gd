@@ -10,11 +10,11 @@ const SkyWeather := preload("res://scripts/map/view3d/sky_weather_3d.gd")
 const OUTPUT_DIR := "res://build/snowfall"
 const VIEWPORT_SIZE := Vector2i(1280, 720)
 const MAP_CELLS := 24
-## [kind, intensity, wind, slant]
+## [kind, intensity, wind 0..1]
 const KINDS := [
-	["fine", 0.3, 0.1, Vector2(0.05, 0.0)],
-	["flakes", 0.55, 0.2, Vector2(0.05, 0.0)],
-	["heavy", 0.95, 0.7, Vector2(0.35, 0.1)],
+	["fine", 0.3, 0.1],
+	["flakes", 0.55, 0.2],
+	["heavy", 0.95, 0.7],
 ]
 const CAMERAS := [
 	["game", Vector3(0.0, 9.0, 7.5)],
@@ -63,9 +63,10 @@ func _run() -> void:
 			camera.look_at(centre, Vector3.UP)
 			camera.make_current()
 			snow.visible = true
-			snow.update_snowfall(float(kind[1]), float(kind[2]), kind[3], 1.0)
-			snow.global_position = snow.emitter_position(
-				camera.global_position, -camera.global_transform.basis.z, kind[3], snow.EMIT_HEIGHT
+			snow.update_snowfall(float(kind[1]), float(kind[2]), Vector2(0.8, 0.6), 1.0)
+			snow.place(
+				camera.global_position, -camera.global_transform.basis.z,
+				Vector2(0.8, 0.6) * float(kind[2]) * 16.0
 			)
 			# Frames can outrun the clock in a minimized window, so simulate one
 			# full lifetime up front instead of waiting for the volume to fill.

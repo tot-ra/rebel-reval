@@ -58,3 +58,24 @@ func test_emitter_changes_look_and_stays_in_budget() -> void:
 	assert_true(snow.lifetime < fine_lifetime, "heavy snow falls faster, so lives shorter")
 	assert_true(snow.amount_ratio <= 1.0 and snow.amount == 700)
 	snow.free()
+
+
+func test_frozen_ground_does_not_bake_or_crack() -> void:
+	var sky = SkyWeather.new()
+	sky.auto_weather = false
+	sky.set_calendar_date(JANUARY)
+	sky.set_weather(SkyWeather.WEATHER_CLEAR)
+	sky.advance(SkyWeather.TRANSITION_SECONDS + 1.0)
+	sky._ground_dryness = 0.8
+	sky.advance(600.0)
+	assert_true(sky.ground_dryness() < 0.8, "cold soil takes up damp again, never cracks more")
+	assert_almost_eq(sky.ground_warmth(), 0.0, 0.001)
+	sky.free()
+
+
+func test_summer_ground_still_bakes() -> void:
+	var sky = SkyWeather.new()
+	sky.auto_weather = false
+	sky.set_calendar_date({"day": 15, "month": 7, "year": 1343})
+	assert_true(sky.ground_warmth() > 0.99)
+	sky.free()

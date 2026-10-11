@@ -382,6 +382,10 @@ const PUDDLE_DRY_PER_SECOND := 0.004
 const DRYNESS_GAIN_PER_SECOND := 0.0025
 const DRYNESS_DROUGHT_GAIN := 2.5
 const DRYNESS_FAIR_CAP := 0.4
+## ADR 0045: cold ground does not bake or crack. Below freezing the soil takes up
+## damp again (dryness falls this much per weather second) and puddles linger.
+const COLD_DAMP_PER_SECOND := 0.02
+const COLD_PUDDLE_DRY_SHARE := 0.15
 const DRYNESS_SOAK_PER_SECOND := 0.06
 const DROUGHT_ONSET_DRYNESS := 0.3
 const DROUGHT_START_CHANCE := 0.25
@@ -1295,7 +1299,8 @@ func presentation_snapshot(progress: float, day_blend: float) -> WeatherPresenta
 	snapshot.wind_direction = wind_direction_xz()
 	snapshot.wind_strength = wind_strength()
 	snapshot.wind_gust_level = clampf(_gust / GUST_PEAK, 0.0, 1.0)
-	snapshot.rain_intensity = rain_intensity()
+	# Snow does not wet the ground, ring puddles or darken walls (ADR 0045).
+	snapshot.rain_intensity = rain_intensity() * (1.0 - precipitation_snow_share())
 	snapshot.puddle_wetness = puddle_wetness()
 	snapshot.ground_dryness = ground_dryness()
 	snapshot.cloud_coverage = cloud_coverage()
@@ -1575,6 +1580,8 @@ func start_drought(seconds: float) -> void:
 func _maybe_start_drought() -> void:
 	if drought_active() or not (weather == WEATHER_CLEAR or weather == WEATHER_CLOUDLESS):
 		return
+	if ground_warmth() < 0.5:
+		return
 	# A shower still easing out of the blend would cancel the drought next frame.
 	if _ground_dryness < DROUGHT_ONSET_DRYNESS or rain_intensity() > 0.001:
 		return
@@ -1599,7 +1606,12 @@ func _advance_ground_water(delta: float) -> void:
 		_drought_seconds_left = maxf(_drought_seconds_left - delta, 0.0)
 		if _puddle_wetness <= 0.0:
 			_ground_dryness = _bake_dryness(_ground_dryness, delta)
+	# Cold soil re-dampens instead of cracking, and cold puddles hardly evaporate.
+	var warmth := ground_warmth()
+	if warmth < 1.0:
+		_ground_dryness = maxf(_ground_dryness - COLD_DAMP_PER_SECOND * (1.0 - warmth) * delta, 0.0)
 	var drying := PUDDLE_DRY_PER_SECOND if rain <= 0.001 else 0.0
+	drying *= lerpf(COLD_PUDDLE_DRY_SHARE, 1.0, warmth)
 	_puddle_wetness = clampf(_puddle_wetness + (rain_fill - drying) * delta, 0.0, 1.0)
 	if rain > 0.001:
 		_seconds_since_rain = 0.0
@@ -1841,7 +1853,7 @@ func _pick_next_weather() -> void:
 ## drought. Nothing lowers it except rain: cracks outlast the drought that made them.
 func _bake_dryness(dryness: float, delta: float) -> float:
 	var sun := smoothstep(0.0, 0.35, _sun_direction.y) * (1.0 - 0.85 * cloud_coverage())
-	var gain := DRYNESS_GAIN_PER_SECOND * sun
+	var gain := DRYNESS_GAIN_PER_SECOND * sun * ground_warmth()
 	var cap := DRYNESS_FAIR_CAP
 	if drought_active():
 		gain *= DRYNESS_DROUGHT_GAIN
@@ -2042,6 +2054,13 @@ func _update_rain(delta: float = 0.0) -> void:
 		_roof_audio.sync(rain_suppressed, local_rain * (1.0 - 0.9 * snow_share), delta)
 
 
+## ADR 0045: 0 on frozen ground (mean temperature at or below 1 C), 1 once it is
+## clearly warm (9 C): scales sun-baking, drought and puddle evaporation.
+func ground_warmth() -> float:
+	var doy := SeasonState.day_of_year_for(calendar_date)
+	return smoothstep(1.0, 9.0, SeasonState.mean_temperature_c(doy))
+
+
 ## ADR 0045: share (0..1) of the precipitation that falls as snow on the campaign
 ## date, from the Tallinn climate. 0 in warm months, 1 in deep winter.
 func precipitation_snow_share() -> float:
@@ -2062,11 +2081,12 @@ func _update_snow(local_rain: float, snowing: bool) -> void:
 		return
 	# Flakes are unshaded, so dim them with the sun: grey-blue at night.
 	var brightness := lerpf(0.42, 1.0, smoothstep(-0.12, 0.25, _sun_direction.y))
-	_snow.update_snowfall(local_rain, wind_strength(), rain_slant(), brightness)
+	var heading := wind_direction_xz()
+	_snow.update_snowfall(local_rain, wind_strength(), heading, brightness)
 	if _camera != null:
-		_snow.global_position = SnowfallScript.emitter_position(
+		_snow.place(
 			_camera.global_position, -_camera.global_transform.basis.z,
-			rain_slant(), SnowfallScript.EMIT_HEIGHT
+			heading * wind_strength() * SnowfallScript.WIND_MS_AT_FULL
 		)
 
 

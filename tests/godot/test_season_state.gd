@@ -62,3 +62,22 @@ func test_days_until_wraps_to_next_year() -> void:
 	var target := GameCalendar.add_days(april, GameCalendar.days_until(april, 1, 15))
 	assert_eq(int(target["month"]), 1)
 	assert_eq(int(target["year"]), 1344)
+
+
+func test_grass_goes_dormant_in_winter_and_regrows() -> void:
+	MapViewMaterials.apply_vegetation_season({"day": 15, "month": 1, "year": 1343})
+	var grass := MapViewMaterials.grass_blades()
+	assert_true(float(grass.get_shader_parameter("dormancy")) > 0.9, "winter grass is dormant")
+	MapViewMaterials.apply_vegetation_season({"day": 15, "month": 7, "year": 1343})
+	assert_almost_eq(float(grass.get_shader_parameter("dormancy")), 0.0, 0.01)
+	MapViewMaterials.apply_vegetation_season(GameCalendar.DEFAULT_DATE)
+
+
+func test_city_view_applies_the_season_to_trees_and_grass() -> void:
+	# CityMapView overrides MapView3D.set_calendar_date; without this call the
+	# city's crowns, grass and ground stayed at their April look for ever.
+	var source := FileAccess.get_file_as_string("res://scripts/city/city_map_view.gd")
+	var start := source.find("func set_calendar_date")
+	var body := source.substr(start, source.find("\nfunc ", start + 1) - start)
+	assert_true(body.contains("MapViewMaterials.apply_vegetation_season(date)"))
+	assert_true(body.contains("world.apply_season(date)"))

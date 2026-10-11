@@ -302,6 +302,11 @@ func set_time_of_day(_next_time: StringName) -> void:
 func set_calendar_date(date: Dictionary) -> void:
 	if _sky_weather != null:
 		_sky_weather.set_calendar_date(date)
+	# Tree crowns, fruit, grass dormancy and snow-covered blades follow the date.
+	# (This override replaces MapView3D's, which is where the call normally lives.)
+	MapViewMaterials.apply_vegetation_season(date)
+	if world != null:
+		world.apply_season(date)
 	if world != null and world.farmland != null:
 		world.farmland.set_calendar_date(date)
 	# Wild plants flower, seed and die back with the same date (R-1557).

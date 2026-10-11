@@ -166,6 +166,7 @@ func _in_world() -> void:
 	var grass: CityGrass = world.grass
 	# Trees, crops and wild plants all follow the capture date.
 	MapViewMaterials.apply_vegetation_season(_date)
+	world.apply_season(_date)
 	world.farmland.set_calendar_date(_date)
 	grass.forbs.set_calendar_date(_date)
 	var spots := _habitat_spots(plan, grass)

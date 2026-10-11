@@ -125,6 +125,8 @@ func test_malformed_snapshot_falls_back_without_mutating_presenter() -> void:
 func test_puddles_form_only_after_rain_and_dry_afterward() -> void:
 	var sky = SkyWeather.new()
 	sky.auto_weather = false
+	# Puddles evaporate at full speed only in warm weather (ADR 0045).
+	sky.set_calendar_date({"day": 15, "month": 7, "year": 1343})
 	assert_eq(sky.puddle_wetness(), 0.0, "a fresh weather cycle must start with dry ground")
 	sky.advance(120.0)
 	assert_eq(sky.puddle_wetness(), 0.0, "clear weather must not create puddles")

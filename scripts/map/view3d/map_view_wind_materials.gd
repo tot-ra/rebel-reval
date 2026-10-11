@@ -56,6 +56,7 @@ static var _cache: Dictionary = {}
 static var _trail := VegetationInteractionBuffer.new()
 ## Last snow cover pushed to the grass (R-1327), for materials built later.
 static var _snow_cover := 0.0
+static var _dormancy := 0.0
 ## R-1187: last calendar date and wetness pushed into vegetation. Kept here so a
 ## species canopy material created later (streamed chunk, reset cache) starts
 ## in the current season instead of the summer defaults.
@@ -166,6 +167,7 @@ static func _grass_material(
 	material.set_shader_parameter("interact_push", Vector2.ZERO)
 	material.set_shader_parameter("trail", empty_trail())
 	material.set_shader_parameter("snow_cover", _snow_cover)
+	material.set_shader_parameter("dormancy", _dormancy)
 	material.set_shader_parameter("fade_start", fade_start)
 	material.set_shader_parameter("fade_end", fade_end)
 	material.set_shader_parameter("fade_in_start", fade_in_start)
@@ -323,6 +325,7 @@ static func apply_vegetation_season(date: Dictionary) -> void:
 ## Winter snow on grass blades; the ground tint is pushed by the same caller.
 static func apply_snow_cover(cover: float) -> void:
 	_snow_cover = snappedf(clampf(cover, 0.0, 1.0), 0.01)
+	apply_grass_dormancy(_season_date)
 	for material in _grass_interaction_materials():
 		material.set_shader_parameter("snow_cover", _snow_cover)
 
@@ -334,6 +337,20 @@ static func vegetation_season_date() -> Dictionary:
 ## Rain wetness for leaves (bark is handled by MapViewPropMaterials). Values are
 ## quantised so the per-frame weather fan-out does not touch uniforms needlessly.
 static func apply_vegetation_wetness(wetness: float) -> void:
+## ADR 0045: grass goes short, pale and straw-brown through winter and greens
+## again as the year warms (SeasonState weights: all of winter, a third of autumn).
+static func apply_grass_dormancy(date: Dictionary) -> void:
+	var weights := SeasonState.season_weights(SeasonState.day_of_year_for(date))
+	var dormancy := float(weights[SeasonState.WINTER]) + 0.35 * float(weights[SeasonState.AUTUMN])
+	_dormancy = snappedf(clampf(dormancy, 0.0, 1.0), 0.01)
+	for material in _grass_interaction_materials():
+		material.set_shader_parameter("dormancy", _dormancy)
+
+
+static func grass_dormancy() -> float:
+	return _dormancy
+
+
 	var value := snappedf(clampf(wetness, 0.0, 1.0), 0.02)
 	if is_equal_approx(value, _vegetation_wetness):
 		return

@@ -34,6 +34,10 @@ uniform float fade_in_end = 0.0;
 uniform float tip_dry = 0.35;
 // R-1327: winter snow lying on the ground; presses blades down and whitens tips.
 uniform float snow_cover = 0.0;
+// ADR 0045: 0 in the growing season, 1 in deep winter. Grass lies short, pale and
+// straw-brown; set from SeasonState by MapViewWindMaterials.apply_vegetation_season.
+uniform float dormancy = 0.0;
+uniform vec3 dormant_color : source_color = vec3(0.55, 0.50, 0.38);
 uniform vec3 snow_color : source_color = vec3(0.90, 0.93, 0.97);
 
 varying flat float v_cell;
@@ -55,14 +59,15 @@ void vertex() {
 	float card = floor(UV2.x + 0.5);
 	v_cell = card < 0.5 ? 0.0 : (card < 1.5 ? 2.0 : (card < 2.5 ? (h < 0.5 ? 0.0 : 2.0)
 		: (h < 0.55 ? 1.0 : (h < 0.85 ? 0.0 : 3.0))));
-	v_dry = h2 * h2 * max_dryness;
+	v_dry = mix(h2 * h2 * max_dryness, 0.6 + 0.4 * h2, dormancy);
 	v_atlas = UV2.y;
 	// Per-tuft size and tint variety from the planted position, so neighbours
 	// differ in height, width and hue instead of repeating one big stamp.
 	float h3 = fract(h * 3.17 + h2 * 5.91);
 	float size = mix(0.62, 1.22, h3);
 	VERTEX.xz *= size * mix(0.85, 1.2, h2);
-	VERTEX.y *= mix(0.55, 1.3, fract(h2 * 4.13 + h));
+	VERTEX.y *= mix(0.55, 1.3, fract(h2 * 4.13 + h)) * mix(1.0, 0.25, dormancy);
+	VERTEX.xz *= mix(1.0, 0.8, dormancy);
 	// Looking straight down, every tuft shows its full footprint and the cards
 	// read as fat green blobs. Slim the footprint as the camera pitches toward
 	// vertical (forward.y -> -1) so the ground and individual blades show through.
@@ -157,8 +162,9 @@ void fragment() {
 		// Root to tip: shaded base melted into the ground plate, bright tips.
 		albedo *= mix(0.62, 1.08, smoothstep(0.0, 0.85, blade));
 		float root = 1.0 - smoothstep(0.0, 0.48, blade);
-		albedo = mix(albedo, root_tint * COLOR.rgb, root * 0.92);
+		albedo = mix(albedo, mix(root_tint, dormant_color * 0.5, dormancy) * COLOR.rgb, root * 0.92);
 		albedo = mix(albedo, albedo * vec3(1.32, 1.30, 1.12), v_sheen * 0.8 * blade);
+		albedo = mix(albedo, dormant_color * (0.55 + 0.6 * blade), dormancy * 0.75);
 		albedo = mix(albedo, snow_color, snow_cover * smoothstep(0.15, 0.8, blade) * 0.85);
 		ALBEDO = albedo;
 		// Soft sky-lit shading: lean normals toward up so cards do not flip dark.
@@ -176,6 +182,7 @@ void fragment() {
 		// Roots melt into the ground colour so no grass/soil seam shows.
 		albedo = mix(albedo, root_tint * COLOR.rgb, (1.0 - smoothstep(0.0, 0.34, blade)) * 0.85);
 		albedo = mix(albedo, albedo * vec3(1.32, 1.30, 1.12), v_sheen * 0.8 * blade);
+		albedo = mix(albedo, dormant_color * (0.55 + 0.6 * blade), dormancy * 0.75);
 		albedo = mix(albedo, snow_color, snow_cover * smoothstep(0.15, 0.8, blade) * 0.85);
 		ALBEDO = albedo * (1.0 + midrib * 0.10);
 		// Round the flat strip: tilt the normal across the width so one blade

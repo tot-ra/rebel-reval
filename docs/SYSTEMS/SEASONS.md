@@ -44,11 +44,23 @@ Every visual task must record High (25 fps) and Medium (30 fps) results from the
 Status: implemented (precipitation only; ground and roof snow are the next tasks).
 
 - When the weather state rains and the date's `snow_share` is 0.5 or more (about November to early April), `SkyWeather3D` shows the snow emitter instead of the rain streaks. `precipitation_snow_share()`, `snow_emitter_visible()`.
-- Three looks picked from intensity and wind, no RNG (`Snowfall3D.kind_for`): **fine** (small, light, slow), **flakes** (big soft flakes sinking slowly), **heavy** (dense, fast, wind-driven blizzard). Wind slant uses the same `rain_slant()` as rain.
+- Three looks picked from intensity and wind, no RNG (`Snowfall3D.kind_for`): **fine** (small, light, slow), **flakes** (big soft flakes sinking slowly), **heavy** (dense, fast, wind-driven blizzard). Wind drives it (below).
+- **Wind:** `snowfall_particles.gdshader` is a small custom particle shader. Each flake's velocity relaxes toward "wind plus fall" every frame, so a gust shoves every flake in the air at once; wind strength also decides the look (`kind_for`). Rain was already wind-driven: `rain_slant()` leans the streaks with sustained wind and gusts (R-1501).
 - Snow does not fill puddles (`_advance_ground_water` uses the liquid share only) and drums a tenth as loud on roofs.
 - Cost: one `GPUParticles3D`, the rain tier's particle budget (700 Medium-class minimum, 2200 recommended), one billboard quad each. The rain emitter is hidden while it snows, so total particle cost does not add up. Flakes dim with the sun so unshaded flakes do not glow at night.
-- Gotchas found while building it (keep): `billboard_keep_scale = true` is required or flake size is dropped; `ParticleProcessMaterial` turbulence made flakes vanish in the Mobile renderer, so wobble is a `spread` cone instead; the follow camera looks down, so the flake column runs 8 m above to 12 m below the lens and sits 10 m ahead of it.
+- Gotchas found while building it (keep): `billboard_keep_scale = true` is required or flake size is dropped; `ParticleProcessMaterial` turbulence made flakes vanish in the Mobile renderer, so the motion is a custom particle shader; `RANDOM_SEED` is the same for every flake in a particles shader, so positions are hashed from `INDEX` and spawn time; the follow camera looks down, so the flake column runs 8 m above to 8 m below the lens and sits 10 m ahead of it.
 - Not yet measured in the city with the F3 monitor (task 10 gate: 25 fps High, 30 fps Medium).
+
+## Winter ground, grass and trees
+
+Status: implemented for the seamless city (the date drives all of it).
+
+- **Trees:** crowns follow `VegetationPhenology` through `MapViewMaterials.apply_vegetation_season`. The city view overrode `set_calendar_date` without calling it, so city trees never changed; `CityMapView.set_calendar_date` now applies it (regression test in `test_season_state.gd`).
+- **Grass:** `map_view_grass.gdshader` has `dormancy` (0 growing season, 1 deep winter, from `SeasonState` weights: all of winter plus a third of autumn). Dormant blades are a quarter of summer height, straw-brown with brown roots. `snow_cover` (existing R-1327 curve) presses blades down and whitens tips.
+- **Ground:** `city_ground.gdshader` has `winter` (turf turns pale straw) and `snow_cover` (snow settles in patches, thinner on roads, paving, puddles and rock). Pushed by `CityWorld3D.apply_season(date)`.
+- **Cold ground:** below freezing the sun no longer bakes soil or starts droughts, soil re-dampens and puddles evaporate at 15% speed (`SkyWeather3D.ground_warmth()`), so winter shows no cracked crust. Puddles freezing over is the ice task.
+- **Snow is not rain:** the weather presentation's `rain_intensity` is scaled by the liquid share, so snowfall does not wet the ground, ring puddles or darken walls.
+- Review plates: `tools/godot_render.sh --script tools/capture_city_forbs.gd -- --date=1343-12-10 --tag=dec` (writes `build/forbs/*_dec.png`).
 
 ## Debug controls
 
