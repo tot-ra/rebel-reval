@@ -20,6 +20,8 @@ Captures: `docs/reports/images/historical_walk/`, produced with two scratch scri
 | St Olaf's | `site.st_olaf` | 2026-10-11 | 3 | 1 | 2 | 1 | - | 1.8 | R-1650, R-1653, R-1655, R-1656, R-1657, R-1613, R-1614, R-1470 |
 | St Nicholas' | `site.st_nicholas` | 2026-10-11 | 3 | 2 | 1 | 1 | - | 1.8 | R-1651, R-1652, R-1654, R-1657, R-1613, R-1614, R-1470; legacy R-1119 (retarget note) |
 | St Mary's (Dome church building site) | `site.st_mary` | 2026-10-11 (captured; visual review pending) | 4* | 3* | - | 2* | - | 3.0* | R-1678, R-1679; shared checks R-1613, R-1614 |
+| St Catherine's Dominican friary | `landmark.st_catherine` | 2026-10-11 | 2 | 1 | 1 | 1 | - | 1.3 | R-1718, R-1721, R-1722, R-1723; legacy-targeted R-1124 (retarget note) |
+| St Michael's Cistercian nunnery | `landmark.st_michael` | 2026-10-11 | 2 | 1 | 1 | 1 | - | 1.3 | R-1719, R-1720, R-1721, R-1722, R-1323; legacy-targeted R-1130 (retarget note) |
 | Harbour and Coastal Gate | `harbour`, `gate.coastal` | 2026-10-10 | 3 | 2 | 1 | 2 | - | 2.0 | R-1542, R-1543, R-1465, R-1470; legacy-targeted R-206, R-208, R-298 |
 | Viru road suburb | `district.viru` | 2026-10-09 | 2 | 1 | 2 | 2 | - | 1.8 | R-1504, R-1545, R-1434, R-1470 |
 | Cattle-road farmsteads | `district.karja` | 2026-10-10 | 2 | 1 | 2 | 2 | - | 1.8 | R-1544, R-1545, R-1546, R-1465, R-1434, R-1323 |
@@ -117,3 +119,19 @@ Representative evidence (awaiting pixel-level review):
 ![St Mary construction overview](images/historical_walk/hw7_st_mary_aerial.jpg)
 
 ![Pikk gameplay-camera sample](images/historical_walk/hw7_rt_pikk.jpg)
+
+### 2026-10-11 - Walk 8: St Catherine's Dominican friary and St Michael's Cistercian nunnery
+
+Captures: `hw8_cath_aerial`, `hw8_cath_east`, `hw8_mich_aerial`, `hw8_mich_south_door`, `hw8_mich_west`, `hw8_mich_east` (static, `tools/capture_reval_city.gd` override), `hw8_rt_mich_south`, `hw8_rt_mich_west` (gameplay camera, clock pinned at 0.45 and citizen hour 10:00). Scratch scripts in `build/hw8/` follow the walk 7 manifest pattern. Five more views (St Catherine north door, south and west; St Michael north; St Catherine runtime) landed inside or against houses that stand hard against both churches, which is itself the main finding; they were dropped. Images were reviewed at pixel level this time. Audio not listened to. Interiors not walked.
+
+**St Catherine's.** Neither precinct is an ADR 0032 site: the friary is the generic plan church shell (`bldg.osm.w26885940`, about 33 x 25 m, no tower) with 36 ordinary log and plank houses within 70 m, some touching its walls, and the only friary data is `poi.well.dominican`. There is no cloister, claustral range, precinct wall or service yard. `history/dossiers/religion/ecclesiastical-precinct-boundaries-1343.md` asks for an enclosed close between Vene and the curtain with the church south, a cloister garth north, and no strip housing inside; `dominican-brewery-fish-yard-1343.md` adds the brewery, stable and fish-transfer yard (R-1718). The church exterior itself (buttressed limestone hall, lancets, tile) is a fair simplified form.
+
+**St Michael's.** The same shell (`bldg.osm.w26889132`) stands in meadow grass among 17 ordinary houses, with no close wall, gate, nuns' range, service wing, garden or orchard, where the dossier's art line is "garden, wall, service wings" (R-1719). All 35 curtain segments are finished stone; the 1340s nunnery-wall tie-in should be an active building site in April 1343 (R-1720, research first to name the segments). Knee-high grass round the church is the April sward issue (R-1323).
+
+**Both, people.** All 38 friary and 40 nunnery residents have the church door as `home` (`citizens.json` places 586 and 587), so at 10:00 about 25 people stand in one clump at St Michael's door (`hw8_rt_mich_south`). Of the nunnery, 25 have well errands, 20 market errands and 23 stroll, choir nuns included, which breaks enclosure (R-1721, same institution-binding family as R-1678). Friars and nuns wear the generic dark brown cleric cloth, with no white habit, black cappa or veil to set them apart (R-1722, `clothing-and-status-markers.md`). New idea: Dominican preaching and alms-questing in the eastern lanes with the existing scheduler (R-1723). R-1124 and R-1130 still target retired rrmaps and got retarget notes.
+
+**Consistency gap.** The four parish churches and St Mary's are bespoke ADR 0032 sites with builders, terraces, scaffolds and dossier notes. The two religious houses, which together hold about 80 residents and two of the largest precincts of the 1343 town, are untouched generic shells in strip housing (average 1.3, lowest in the ledger). The landmark-site programme stopped at the parishes. Adding both precincts as sites (R-1718, R-1719) is the prerequisite for everything else here, and for R-1678's institution binding. Next walks: revisit Toompea and Kalarand (oldest rows, 2026-10-09), then the Viru and Toompea-foot rows.
+
+![St Michael's nunnery: a generic church among houses, no close](images/historical_walk/hw8_mich_aerial.jpg)
+
+![St Michael's door at 10:00: the nunnery household clumped at its home anchor](images/historical_walk/hw8_rt_mich_south.jpg)
