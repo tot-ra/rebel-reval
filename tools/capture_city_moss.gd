@@ -22,14 +22,19 @@ func _ready() -> void:
 	call_deferred("_run")
 
 
+## Holds the clock on noon every frame: a game day lasts 60 real seconds
+## (DayNightCycle.CYCLE_DURATION_SECONDS), so a single `cycle_progress = 0.5`
+## drifted into dusk or night over the ~100 settle frames of a slow, streaming
+## render. No day rollover also keeps the runtime from re-applying its own date.
 func _frames(n: int) -> void:
 	for _i in n:
+		if city != null and city.runtime != null:
+			city.runtime.cycle_progress = 0.5
 		await get_tree().process_frame
 
 
 func _shot(at: Vector2, eye: Vector3, target: Vector3, file: String, fov := 55.0) -> void:
 	city.player.global_position = CityPlan.to_logic(at)
-	city.runtime.cycle_progress = 0.5
 	if not date.is_empty():
 		city.view.set_calendar_date(date)
 	await _frames(90)
