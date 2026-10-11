@@ -1,6 +1,6 @@
 # Weather on the ground: puddles, drought and cracked earth
 
-Status: implemented (task **R-1516**). Scope: the seamless Reval city ground (`city_ground.gdshader`) and the district-map puddle decals (`MapView3D`, `map_view_puddle.gdshader`). Rain fills puddles in the hollows, ruts and prints of bare soil; long sunny spells can turn into a drought that bakes those same basins into cracked clay; rain soaks the cracks back to loose earth before puddles form again. Out of scope: vegetation wilting, gameplay effects of drought (crops, wells, NPC talk), and seasons (the odds do not yet follow the calendar month).
+Status: implemented (task **R-1516**). Scope: the seamless Reval city ground (`city_ground.gdshader`) and the district-map puddle decals (`MapView3D`, `map_view_puddle.gdshader`). Rain fills puddles in the hollows, ruts and prints of bare soil; long sunny spells can turn into a drought that bakes those same basins into cracked clay; rain soaks the cracks back to loose earth before puddles form again. Out of scope: vegetation wilting and gameplay effects of drought (crops, wells, NPC talk). Winter ground (snow, cold soil, ice) is summarised under **Snow and ice** below; its owning page is [`SEASONS.md`](SEASONS.md) ([ADR 0045](../adr/0045-seasons.md)).
 
 ## What the player sees
 
@@ -55,6 +55,29 @@ Review plate (top: gameplay camera, bottom: close camera; left to right: rain, d
 
 ![District puddles: rain, drought, early drought](../reports/images/r1516_drought/district_puddle_rain_drought_early.jpg)
 
+## Snow and ice
+
+Status: partial (ADR 0045). Snow on the ground and ice on the moat, stream and lakes are implemented; ice on puddles and the sea is planned (SEASONS task 6). Full detail lives in [`SEASONS.md`](SEASONS.md); this section records how winter meets the ground water above.
+
+| Ground state | When | Look | Status |
+|---|---|---|---|
+| Cold soil | Mean temperature below 9 C (`SkyWeather3D.ground_warmth()`, smoothstep 1..9 C) | Sun-baking scales with warmth and soil re-dampens by `COLD_DAMP_PER_SECOND * (1 - warmth)`; below about 5 C no drought starts, at 1 C or below the sun no longer dries soil at all, so winter never shows cracked crust. Puddles evaporate at down to 15% speed (`COLD_PUDDLE_DRY_SHARE`) and linger. | implemented |
+| Snowfall | Rain weather while the date's `snow_share` is 0.5 or more (about November to early April) | Snow emitter replaces rain streaks. Only the liquid share wets soil or fills puddles (`_advance_ground_water`), so snowfall leaves dryness and puddles alone. | implemented |
+| Settled snow | Date's snow cover (`SeasonState.snapshot`), not the live snowfall | `city_ground.gdshader` lifts the ground by the baked `CitySnow` depth: drifts, bare paving and roofs, deeper in woods. Snow is thinned over puddle basins (`1 - 0.9 * puddle`) and rock. Walking leaves trenches and prints, footsteps crunch. | implemented |
+| Ice on moat, stream, lakes | `SeasonState.ice_cover_target(ICE_FRESH)` | Shallows freeze first, then open water; running water later; waves die out; snow and cracks on the ice. | implemented |
+| Ice on puddles | `SeasonState.ice_puddle` (freezes at -0.5 C, no lag) | Not rendered yet: a winter puddle in the city or a district decal still draws as open water. | planned |
+| Sea ice | `SeasonState.ice_sea` | Not rendered yet. | planned |
+
+Settled snow in January (left: trench walked through a drift, right: low camera along the trench):
+
+![Snow trench, wide and low](../reports/images/weather_winter/snow_trench_wide_low.jpg)
+
+Moat through the year (left: 15 July, right: 15 January; top: bank camera, bottom: high camera). In January the water is frozen with snow on the ice, and reeds and lilies are gone:
+
+![Moat in July and January](../reports/images/weather_winter/moat_july_january.jpg)
+
+Plates: `tools/godot_render.sh --script tools/capture_snow_prints.gd -- --date=1343-01-15` and `tools/godot_render.sh --script tools/capture_city_season.gd -- --date=1343-01-15` (also `1343-07-15`). Output in `build/season/`. Snowfall looks: `tools/capture_snowfall.gd` (see SEASONS).
+
 ## Save and load
 
 `SkyWeatherState` saves `ground_dryness`, `drought_seconds_left` and `drought_rng_state` (contract: [`SKY_WEATHER_STATE_CONTRACT.md`](../SKY_WEATHER_STATE_CONTRACT.md)). Saves from before R-1516 load with dryness 0 and no drought.
@@ -70,5 +93,6 @@ Review plate (top: gameplay camera, bottom: close camera; left to right: rain, d
 ## Limits
 
 - Weather "stay" outcomes in `_pick_next_weather` do not reset the state timer (pre-existing), so a stay re-rolls every frame until the sky changes. The drought roll is tied to real weather changes to stay independent of that.
-- Drought odds are the same in every month; there is no seasonal or calendar bias yet.
+- Drought odds follow the calendar only through cold soil (`ground_warmth`): no drought below about 5 C mean, otherwise the same odds in every warm month. No test covers the cold-soil rules yet.
+- Puddles do not freeze and there is no sea ice (see **Snow and ice**). Settled snow follows the date's cover curve, not the snow that actually fell, so a snowfall does not deepen it.
 - District-map crust exists only where a puddle decal was scattered (`PUDDLE_CHANCE`); there is no dusty-soil tint on district terrain below the crack threshold.
