@@ -18,6 +18,7 @@ One page per implemented or planned feature. Each page opens with a `Status:` li
 | [Citizen wardrobe: dress by rank, age, trade and arms](./CITIZEN_WARDROBE.md) | Implemented: per-body fitted layers (hoods, coifs, veils, aprons, aketon, mail, surcoat, helmets, keys, beads, scrips, sacks) chosen from the census; mantles, gowns, textiles, footwear planned (R-1664..R-1672) |
 | [Named NPCs: registry and city presence](./NAMED_NPCS.md) | Implemented (R-1562, R-1563): registry of Wave A/B named NPCs, clock-driven posts in the seamless city, click panel with portrait and faction; overhead marker (R-1564), faction livery, chip and badge (R-1565); models planned |
 | [Households: furnished houses and life at home](./HOUSEHOLDS.md) | Implemented in the seamless city: furniture by household, rooms, hearth and firewood day, people at home; no player use of furniture |
+| [Water supply: wells, buckets and household water](./WATER_SUPPLY.md) | Planned (epic R-1815): well types, vessels, citizens fetching water, household tubs; today one well model used only by legacy district maps |
 | [Gate garrisons and patrols](./GATE_GARRISONS.md) | Implemented: census residents hold every gate by shift and walk the town and wall patrols, in their own clothes with a hat and spear |
 | [World presentation (3D view)](./WORLD_PRESENTATION.md) | Implemented |
 | [Cloud cells, seasonal cumulus, shadows and storm lightning](./CLOUD_CELLS.md) | Implemented: discrete clouds and weather phenomena visual atlas with seasonal cumulus scaling |
