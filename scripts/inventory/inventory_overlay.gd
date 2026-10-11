@@ -8,6 +8,7 @@ const InventoryEquipmentInteractionScene := preload(
 )
 const InventoryOverlayBuilder := preload("res://scripts/inventory/inventory_overlay_builder.gd")
 const InventoryUiThemeScene := preload("res://scripts/inventory/inventory_ui_theme.gd")
+const MenuStyle := preload("res://scripts/ui/pause_menu_style.gd")
 const CELL_SIZE := 60
 const DRAG_KIND_BAG := &"bag"
 const DRAG_KIND_EQUIPPED := &"equipped"
@@ -18,6 +19,8 @@ var _state: GameState
 var _equipment_interaction := InventoryEquipmentInteractionScene.new()
 var _selected: InventoryPlacement = null
 var _focus_cell := Vector2i.ZERO
+var _root: Control
+var _dim: ColorRect
 var _panel: PanelContainer
 var _grid: GridContainer
 var _silhouette: Control
@@ -60,6 +63,7 @@ func _ready() -> void:
 
 
 func open() -> void:
+	MenuStyle.apply_overlay(_root, _panel, _dim)
 	visible = true
 	# WHY: map click routing treats this group as interactive UI so bag cells
 	# with FOCUS_NONE still own drag/click instead of world drop/move.
@@ -180,6 +184,8 @@ func drop_on_cell(cell_x: int, cell_y: int, data: Dictionary) -> void:
 
 func _build_ui() -> void:
 	var nodes := InventoryOverlayBuilder.build(self)
+	_root = nodes["root"]
+	_dim = nodes["dim"]
 	_panel = nodes["panel"]
 	_grid = nodes["grid"]
 	_silhouette = nodes["silhouette"]

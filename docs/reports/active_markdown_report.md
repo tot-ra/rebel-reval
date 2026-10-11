@@ -16,17 +16,17 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 - Active Markdown files scanned: `1200`
 - Markdown files excluded as archive/reference/out of active scope: `761`
-- Local/external links inspected: `13952`
-- Links to active Markdown docs: `12416`
+- Local/external links inspected: `13983`
+- Links to active Markdown docs: `12418`
 - Links to existing archive/reference/non-active local docs: `530`
 - External links skipped for reachability: `194`
-- Issues found: `1`
+- Issues found: `2`
 
 ## Issue counts
 
 | Code | Count |
 | --- | ---: |
-| `BROKEN_LINK` | 1 |
+| `BROKEN_LINK` | 2 |
 | `BROKEN_ANCHOR` | 0 |
 | `DUPLICATE_CHARACTER_NAME` | 0 |
 | `CONTRADICTORY_DATE` | 0 |
@@ -36,6 +36,7 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 | Code | Location | Detail |
 | --- | --- | --- |
+| `BROKEN_LINK` | `docs/SYSTEMS/CITY_SEA.md:71` | Local Markdown link target does not exist: `../reports/images/city/fish_textured_models.jpg` |
 | `BROKEN_LINK` | `docs/SYSTEMS/SEAMLESS_CITY.md:88` | Local Markdown link target does not exist: `../reports/images/vegetation/r1684_roof_shingle.jpg` |
 
 ## Active files scanned

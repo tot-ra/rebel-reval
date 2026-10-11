@@ -10,6 +10,7 @@ signal remove_requested
 signal cast_requested
 signal close_requested
 
+const MenuStyle := preload("res://scripts/ui/pause_menu_style.gd")
 const PANEL_SIZE := Vector2(720.0, 620.0)
 ## No authored maximum exists yet; the orb is full at the starting reserve.
 const ORB_BASELINE_MAX := 8
@@ -18,6 +19,8 @@ const QUICK_HUD_SPIRIT_LAYER := 85  # above SpiritArenaHost (80)
 
 var _model: SpellforgeModel
 var _collection_root: Control
+var _collection_dim: ColorRect
+var _collection_panel: PanelContainer
 var _quick_spell_column: VBoxContainer
 var _quick_willpower_label: Label
 var _mana_orb: ManaOrb
@@ -66,6 +69,7 @@ func _process(_delta: float) -> void:
 
 func open() -> void:
 	refresh()
+	MenuStyle.apply_overlay(_collection_root, _collection_panel, _collection_dim)
 	_collection_root.visible = true
 	add_to_group(&"modal_input_overlay")
 	if _first_element_button != null:
@@ -144,7 +148,7 @@ func _build_ui() -> void:
 
 	var dim := ColorRect.new()
 	dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	dim.color = Color(0.018, 0.022, 0.032, 0.9)
+	_collection_dim = dim
 	dim.mouse_filter = Control.MOUSE_FILTER_STOP
 	root.add_child(dim)
 
@@ -156,6 +160,9 @@ func _build_ui() -> void:
 	panel.name = "SpellforgePanel"
 	panel.custom_minimum_size = PANEL_SIZE
 	center.add_child(panel)
+	_collection_panel = panel
+	# WHY: only the collection root is themed; the in-world quick HUD keeps its own look.
+	MenuStyle.apply_overlay(root, panel, dim)
 
 	var margin := MarginContainer.new()
 	for side in ["left", "right", "top", "bottom"]:
@@ -168,13 +175,12 @@ func _build_ui() -> void:
 
 	var title := Label.new()
 	title.text = "SPELLFORGE"
-	title.add_theme_font_size_override("font_size", 28)
-	title.add_theme_color_override("font_color", Color(0.96, 0.67, 0.3))
+	MenuStyle.apply_title(title, 28)
 	layout.add_child(title)
 
 	var subtitle := Label.new()
 	subtitle.text = "Shape an ordered recipe from learned elements (maximum 3)."
-	subtitle.add_theme_color_override("font_color", Color(0.75, 0.79, 0.84))
+	MenuStyle.apply_muted(subtitle)
 	layout.add_child(subtitle)
 
 	_resource_label = Label.new()
@@ -216,7 +222,7 @@ func _build_ui() -> void:
 	_feedback_label = Label.new()
 	_feedback_label.name = "FeedbackLabel"
 	_feedback_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_feedback_label.add_theme_color_override("font_color", Color(0.98, 0.79, 0.44))
+	_feedback_label.add_theme_color_override("font_color", MenuStyle.TEXT_BRIGHT)
 	layout.add_child(_feedback_label)
 
 	var separator := HSeparator.new()
@@ -225,6 +231,7 @@ func _build_ui() -> void:
 	var cookbook_title := Label.new()
 	cookbook_title.text = "COOKBOOK"
 	cookbook_title.add_theme_font_size_override("font_size", 18)
+	cookbook_title.add_theme_color_override("font_color", MenuStyle.GOLD)
 	layout.add_child(cookbook_title)
 
 	var scroll := ScrollContainer.new()
@@ -371,7 +378,7 @@ func _rebuild_cookbook() -> void:
 			]
 		)
 		entry.add_theme_color_override(
-			"font_color", Color(0.84, 0.9, 0.72) if bool(row["learned"]) else Color(0.5, 0.52, 0.56)
+			"font_color", MenuStyle.TEXT if bool(row["learned"]) else MenuStyle.TEXT_DISABLED
 		)
 		_cookbook.add_child(entry)
 

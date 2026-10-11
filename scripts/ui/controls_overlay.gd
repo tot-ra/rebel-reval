@@ -6,6 +6,7 @@ extends CanvasLayer
 signal closed
 
 const BindingSettingsScript := preload("res://scripts/settings/input_binding_settings.gd")
+const MenuStyle := preload("res://scripts/ui/pause_menu_style.gd")
 const PANEL_MIN_SIZE := Vector2(1040, 800)
 
 ## Mouse rules are camera-dependent, so they are shown as a legend rather than as
@@ -19,6 +20,9 @@ const MOUSE_LEGEND_TEXT := """Mouse
 - Right click guards (hold) and, while dragging, orbits the camera. Wheel zooms between first-person, third-person, and top-down."""
 
 var _settings_owner: Node
+var _root: Control
+var _dim: ColorRect
+var _panel: PanelContainer
 var _binding_buttons: Dictionary = {}
 var _first_binding_button: Button
 var _restore_defaults_button: Button
@@ -50,6 +54,7 @@ func open() -> void:
 	_waiting_button = null
 	_refresh_binding_labels()
 	_status_label.text = "Select a binding, then press the replacement input."
+	MenuStyle.apply_overlay(_root, _panel, _dim)
 	visible = true
 	add_to_group(&"modal_input_overlay")
 	if _first_binding_button != null:
@@ -158,13 +163,14 @@ func _on_restore_defaults() -> void:
 func _build_ui() -> void:
 	var root := Control.new()
 	root.name = "ControlsRoot"
+	_root = root
 	root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	root.mouse_filter = Control.MOUSE_FILTER_STOP
 	add_child(root)
 
 	var dim := ColorRect.new()
 	dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	dim.color = Color(0.025, 0.03, 0.045, 0.92)
+	_dim = dim
 	dim.mouse_filter = Control.MOUSE_FILTER_STOP
 	root.add_child(dim)
 
@@ -176,6 +182,8 @@ func _build_ui() -> void:
 	panel.name = "ControlsPanel"
 	panel.custom_minimum_size = PANEL_MIN_SIZE
 	center.add_child(panel)
+	_panel = panel
+	MenuStyle.apply_overlay(root, panel, dim)
 
 	var margin := MarginContainer.new()
 	for side: StringName in [&"margin_left", &"margin_right", &"margin_top", &"margin_bottom"]:
@@ -193,8 +201,7 @@ func _build_ui() -> void:
 	var title := Label.new()
 	title.text = "Controls"
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	title.add_theme_font_size_override("font_size", 26)
-	title.add_theme_color_override("font_color", Color(0.94, 0.81, 0.5, 1.0))
+	MenuStyle.apply_title(title, 26)
 	header.add_child(title)
 
 	_restore_defaults_button = _make_button("RestoreDefaultsButton", "Restore defaults")
@@ -209,7 +216,7 @@ func _build_ui() -> void:
 	# gdlint: ignore=max-line-length
 	intro.text = "Every vertical-slice action has separate keyboard/mouse and gamepad bindings. Changes save outside campaign slots."
 	intro.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	intro.add_theme_color_override("font_color", Color(0.78, 0.82, 0.9, 1.0))
+	MenuStyle.apply_muted(intro)
 	layout.add_child(intro)
 
 	# The primary click is context-sensitive and cannot be expressed as a single
@@ -218,7 +225,6 @@ func _build_ui() -> void:
 	mouse_legend.name = "MouseLegendLabel"
 	mouse_legend.text = MOUSE_LEGEND_TEXT
 	mouse_legend.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	mouse_legend.add_theme_color_override("font_color", Color(0.86, 0.9, 0.96, 1.0))
 	layout.add_child(mouse_legend)
 
 	var column_header := HBoxContainer.new()
@@ -247,7 +253,7 @@ func _build_ui() -> void:
 			var category_label := Label.new()
 			category_label.text = category
 			category_label.add_theme_font_size_override("font_size", 17)
-			category_label.add_theme_color_override("font_color", Color(0.94, 0.81, 0.5, 1.0))
+			category_label.add_theme_color_override("font_color", MenuStyle.GOLD)
 			rows.add_child(category_label)
 			previous_category = category
 		_add_binding_row(rows, definition)
@@ -258,7 +264,7 @@ func _build_ui() -> void:
 	_status_label.name = "StatusLabel"
 	_status_label.text = "Select a binding, then press the replacement input."
 	_status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_status_label.add_theme_color_override("font_color", Color(0.8, 0.86, 0.92, 1.0))
+	MenuStyle.apply_muted(_status_label)
 	layout.add_child(_status_label)
 
 
