@@ -13,9 +13,30 @@ const DistantLocationDefinitions := preload(
 ## Geographic-ish normalized positions so the overlay reads as Reval districts.
 ## Unknown active scenes fall back to a bottom row so nothing is silently dropped.
 const LAYOUT_BY_SCENE: Dictionary = {
-	&"forge": Vector2(0.88, 0.58),
 	&"reval_city": Vector2(0.62, 0.30),
 }
+
+## Key places of the seamless city (ADR 0031) shown as fast-travel nodes in place
+## of the single `reval_city` node. `id` is the node id (no dots: it becomes a
+## Godot node name), `spawn` a spawn registered for `reval_city`, `pos` a
+## schematic position (north up, Toompea west, Viru east), not surveyed.
+const CITY_PLACES: Array[Dictionary] = [
+	{"id": &"city_fish_landing", "spawn": &"poi.fish_landing", "pos": Vector2(0.62, 0.07)},
+	{"id": &"city_coastal_gate", "spawn": &"gate.coastal", "pos": Vector2(0.62, 0.20)},
+	{"id": &"city_kalarand", "spawn": &"suburb.kalarand", "pos": Vector2(0.20, 0.10)},
+	{"id": &"city_st_olaf", "spawn": &"landmark.st_olaf", "pos": Vector2(0.38, 0.27)},
+	{"id": &"city_pikk_granary", "spawn": &"poi.granary.pikk", "pos": Vector2(0.58, 0.34)},
+	{"id": &"city_viru_gate", "spawn": &"gate.viru", "pos": Vector2(0.80, 0.42)},
+	{"id": &"city_viru_outside", "spawn": &"gate.viru.outside", "pos": Vector2(0.88, 0.57)},
+	{"id": &"city_forum", "spawn": &"poi.forum", "pos": Vector2(0.48, 0.47)},
+	{"id": &"city_kalev_smithy", "spawn": &"kalev_smithy", "pos": Vector2(0.66, 0.60)},
+	{"id": &"city_bishop_garden", "spawn": &"poi.well.bishop_garden", "pos": Vector2(0.16, 0.50)},
+	{"id": &"city_st_nicholas", "spawn": &"landmark.st_nicholas", "pos": Vector2(0.32, 0.64)},
+	{"id": &"city_castle_barracks", "spawn": &"poi.barracks.castle", "pos": Vector2(0.14, 0.68)},
+	{"id": &"city_toompea_road", "spawn": &"road.toompea_west", "pos": Vector2(0.14, 0.86)},
+	{"id": &"city_karja_outside", "spawn": &"gate.karja.outside", "pos": Vector2(0.58, 0.82)},
+	{"id": &"city_harju_outside", "spawn": &"gate.harju.outside", "pos": Vector2(0.38, 0.90)},
+]
 
 
 ## WHY: temporary debug unlock so designers can jump to any active district without
@@ -24,12 +45,41 @@ static func allow_all_active_travel() -> bool:
 	return OS.is_debug_build()
 
 
+static func is_city_place(node_id: StringName) -> bool:
+	return not city_place(node_id).is_empty()
+
+
+static func city_place(node_id: StringName) -> Dictionary:
+	for place in CITY_PLACES:
+		if place["id"] == node_id:
+			return place
+	return {}
+
+
+## WHY: debug builds list every place so designers can jump anywhere. Exploration
+## gating (a place appears once the player has found it) plugs in here later.
+static func city_place_discovered(_place: Dictionary) -> bool:
+	return true
+
+
 static func active_scene_ids() -> Array[StringName]:
 	# WHY: distant Estonia placeholders stay on the global map tab only so the
 	# Reval district graph does not absorb island/road destinations.
 	var ids: Array[StringName] = []
 	for scene_id in DoorNavigator.get_active_scene_ids():
 		if GlobalMapCatalog.is_distant_scene(scene_id):
+			continue
+		# The 2D smithy is retired from travel: CityTravel redirects it into the city.
+		if CityTravel.REDIRECTS.has(scene_id):
+			continue
+		# The city is shown as its key places instead of one node.
+		if scene_id == CityTravel.CITY_SCENE_ID:
+			for place in CITY_PLACES:
+				if (
+					city_place_discovered(place)
+					and DoorNavigator.has_spawn(scene_id, place["spawn"])
+				):
+					ids.append(place["id"])
 			continue
 		ids.append(scene_id)
 	return ids
@@ -53,6 +103,8 @@ static func connections() -> Array[Dictionary]:
 	var seen: Dictionary = {}
 	var edges: Array[Dictionary] = []
 	for scene_id in active.keys():
+		if is_city_place(scene_id):
+			continue
 		var definition := create_definition(scene_id)
 		if definition == null:
 			continue
@@ -84,6 +136,10 @@ static func resolve_travel_spawn(from_scene_id: StringName, to_scene_id: StringN
 		return &""
 	if from_scene_id == to_scene_id:
 		return &""
+	var place := city_place(to_scene_id)
+	if not place.is_empty():
+		var registered := DoorNavigator.has_spawn(CityTravel.CITY_SCENE_ID, place["spawn"])
+		return place["spawn"] if registered else &""
 	if not DoorNavigator.has_active_scene(to_scene_id):
 		return &""
 	# District fast-travel never jumps onto the global placeholder layer.
@@ -125,8 +181,9 @@ static func plan_travel(from_scene_id: StringName, to_scene_id: StringName) -> D
 	var spawn := resolve_travel_spawn(from_scene_id, to_scene_id)
 	if spawn.is_empty():
 		return {}
+	var place := city_place(to_scene_id)
 	return {
-		"scene_id": to_scene_id,
+		"scene_id": CityTravel.CITY_SCENE_ID if not place.is_empty() else to_scene_id,
 		"spawn_id": spawn,
 	}
 
@@ -148,6 +205,10 @@ static func layout_positions(scene_ids: Array[StringName]) -> Dictionary:
 	var positions: Dictionary = {}
 	var fallback_index := 0
 	for scene_id in scene_ids:
+		var place := city_place(scene_id)
+		if not place.is_empty():
+			positions[scene_id] = place["pos"]
+			continue
 		if LAYOUT_BY_SCENE.has(scene_id):
 			positions[scene_id] = LAYOUT_BY_SCENE[scene_id]
 			continue
