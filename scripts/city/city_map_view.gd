@@ -10,6 +10,7 @@ extends MapView3D
 ## How far ahead of the camera (world units) the ripple window is centred.
 const CITY_RIPPLE_FOCUS_AHEAD := 6.0
 const CityWaterSurfaceScript := preload("res://scripts/city/city_water_surface.gd")
+const AmbientOcclusionPassScript := preload("res://scripts/map/view3d/ambient_occlusion_pass.gd")
 ## WR-5: farthest the waves-around-rocks window centre sits ahead of the camera, where
 ## its view meets the sea (world units).
 const CITY_OBSTACLE_FOCUS_AHEAD := 26.0
@@ -30,6 +31,7 @@ var _leaf_fall: CityLeafFall
 var _roof_cutaway_on := false
 ## Settled snow cover (0..1) for the campaign date; footsteps read it.
 var _snow_cover := 0.0
+var _ambient_occlusion_pass: AmbientOcclusionPassScript
 
 
 ## `quality_tier` (SkyWeather3D QUALITY_*, null = recommended) picks the sky, weather,
@@ -248,6 +250,7 @@ func _bind_city_ripples(texture: Texture2D, window: Vector4, texel_count: float)
 ## on the origin). Terrain is left out of that raster: sampling the relief per
 ## texel over the whole city would stall the first visible frame.
 func _create_sky_passes() -> void:
+	_create_ambient_occlusion_pass()
 	_create_cloud_shadow_pass()
 	_create_city_atmosphere()
 	if _sky_weather == null or not GodRayPassScript.should_create(false):
@@ -258,6 +261,25 @@ func _create_sky_passes() -> void:
 		_camera, plan.bounds.size, func() -> Array[AABB]: return _occluder_bounds, Callable(),
 		plan.bounds.position
 	)
+
+
+## R-1748: depth-only screen-space AO (the Mobile renderer has no SSAO).
+func _create_ambient_occlusion_pass() -> void:
+	if not AmbientOcclusionPassScript.should_create(false):
+		return
+	_ambient_occlusion_pass = AmbientOcclusionPassScript.new()
+	add_child(_ambient_occlusion_pass)
+	_ambient_occlusion_pass.configure()
+
+
+func ambient_occlusion_pass() -> AmbientOcclusionPassScript:
+	return _ambient_occlusion_pass
+
+
+## Review captures toggle the pass for in-build before/after plates.
+func set_ambient_occlusion_enabled(value: bool) -> void:
+	if _ambient_occlusion_pass != null:
+		_ambient_occlusion_pass.set_enabled(value)
 
 
 ## Patchy fog on the shore, moat and stream, and horizon heat shimmer. The city always
@@ -295,6 +317,8 @@ func _process(delta: float) -> void:
 	)
 	if _cloud_shadow_pass != null:
 		_cloud_shadow_pass.update_share(presentation)
+	if _ambient_occlusion_pass != null:
+		_ambient_occlusion_pass.update(presentation)
 	if world != null:
 		world.apply_cloud_cells(presentation.cloud_cells)
 	if _god_ray_pass != null:

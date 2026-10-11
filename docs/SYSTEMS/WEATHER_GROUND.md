@@ -7,6 +7,7 @@ Status: implemented (task **R-1516**). Scope: the seamless Reval city ground (`c
 | Ground state | When | Look |
 |---|---|---|
 | Puddles | During and after rain | Water stands in the deepest hollows, ruts and prints first and widens as rain goes on; dries at `PUDDLE_DRY_PER_SECOND` after the rain stops. |
+| After rain on cobbles (R-1748) | While `puddle_wetness` holds | Cobbled streets and squares stay dark-wet and glossy (polished stone crowns low roughness, sand joints duller), water stands in sunken patches of the paving with ragged edges, and the joints round each pool brim with a mirror film. Pools reflect the sky. |
 | Dusty | Sunny weather after the puddles are gone | Bare soil turns paler and more matte (`ground_dryness` up to `DRYNESS_FAIR_CAP` = 0.4). No cracks. |
 | Cracked | Only in a drought | The basins that hold puddles bake into polygonal cracked clay, deepest basins first, spreading as dryness climbs past ~0.45. Cracks grade with age: a fine hairline net (4-10 cm cells) first, then deep furrows between 15-35 cm polygons open from the basin centre outwards as dryness nears 1. A pale silt rim lies just outside the crust. |
 | Soaking | First rain on dry ground | The rain is absorbed first: dryness falls, the crust darkens and shrinks back into loose earth. No puddle and no water film in the ruts until the ground is soaked (dryness 0). |
@@ -40,6 +41,17 @@ All rates are per weather second, so `time_scale` speeds or pauses them consiste
 - Texture: `cracked_albedo` = `assets/materials/pbr/cracked_earth/cracked_earth_albedo.png` (1024 px, seamless, `crack_scale` 0.35 repeats per world unit). Only an albedo ships: the shader is near the GL Compatibility sampler limit, so crack relief is derived from the plate's luminance by finite differences. The plate's mean tone is divided out so the crust keeps the local soil colour, then pulled towards pale silt.
 - Crack gradation: the shader samples the same plate twice, coarse (`crack_scale`) and fine (`crack_scale * 3.5`). `crack_age` = `smoothstep(0.3, 0.95, crack_amount)` times how deep the point lies inside the crust, so the basin centre matures first. Fine cracks carry weak relief and fade to half as `crack_age` grows; the coarse plate's contrast exponent rises from 0 to 1.6 with age, so furrow shoulders darken in turn and the gaps widen rather than fade in. Plate: `low_crack_gradation.jpg` (dryness 0.55 / 0.75 / 1.0).
 - Source plate: OpenAI `gpt-image-1` (Leonardo had no tokens), processed by `tools/process_leonardo_terrain_textures.py --only cracked_earth` (family `cracked_earth`, `albedo_only`). Prompt and provenance: `assets/materials/pbr/cracked_earth/prompt.json`, `assets/SOURCES.csv`.
+
+### Cobbled paving (R-1748)
+
+Before R-1748 the water level was multiplied by `1 - paving`, so a wet town square stayed dry. Now `water_depth` mixes the soft-ground basin with a paving basin by `paving`:
+
+- `cobble_sink`: three octaves of value noise (0.13, 0.47 and 1.9 per world unit) mark shallow sunken patches a few metres across with a ragged rim. `cobble_pool` adds 15% in the sand joints (`FieldStone.stone`, kept as `paving_stone`). The waterline sits higher than on earth (`1.3 - puddles * 0.72`): stone drains through its joints, so only the deepest patches fill.
+- `joint_film`: once `puddles` passes ~0.3, the joints within reach of a pool hold a film (75% of the puddle look).
+- Wet paving: `wet` gains `puddles * paving * 0.6`, so stone stays dark while puddles stand; `wet_paving` lowers roughness to 0.24 on stone crowns and 0.5 in joints and lifts specular to 0.5.
+- Reflections come from the sky radiance (Mobile has no screen-space reflections), so pools mirror the sky but not the houses.
+
+Plate: [after rain before/after](../reports/images/city_lighting/after_rain_before_after.jpg) (`tools/godot_render.sh --resolution 1600x900 res://tools/capture_city_lighting.tscn -- --states=after_rain`).
 
 ## District maps (`MapView3D`, `scripts/map/view3d/map_view_puddle.gdshader`)
 
@@ -91,6 +103,8 @@ Plates: `tools/godot_render.sh --script tools/capture_snow_prints.gd -- --date=1
 - Plates: `tools/godot_render.sh --script tools/capture_city_mud.gd -- --tag=drought --wet=0 --puddles=0 --dryness=1` (also `--tag=soak --wet=0.6 --puddles=0 --dryness=0.6`). Output in `build/mud/`.
 
 ## Limits
+
+- Cobble puddles (R-1748) reflect only the sky, not buildings or people, and the paving basins are noise, not real street drainage (gutters, kennels).
 
 - Weather "stay" outcomes in `_pick_next_weather` do not reset the state timer (pre-existing), so a stay re-rolls every frame until the sky changes. The drought roll is tied to real weather changes to stay independent of that.
 - Drought odds follow the calendar only through cold soil (`ground_warmth`): no drought below about 5 C mean, otherwise the same odds in every warm month. No test covers the cold-soil rules yet.

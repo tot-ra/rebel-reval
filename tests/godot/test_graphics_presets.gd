@@ -8,6 +8,7 @@ const SkyWeatherQualityScript := preload("res://scripts/map/view3d/sky_weather_q
 const COSTS: Array[String] = [
 	"render_scale", "shadow_atlas_size", "god_ray_view_steps", "god_ray_shadow_steps",
 	"god_ray_far_steps", "tree_near_scale", "tree_macro_scale", "sun_shadow_mode",
+	"ao_contact_samples", "ao_area_samples", "sun_angular_distance",
 ]
 
 
@@ -100,5 +101,7 @@ func test_quality_rows_set_the_dome_cloud_march() -> void:
 	GraphicsPresetsScript.apply_to_sky(sky, "mid")
 	var mid := GraphicsPresetsScript.row("mid")
 	assert_eq(sky._cell_march_override["steps"], mid["sky_cell_steps"])
-	assert_eq(sky._cell_march_override["ray"], 0, "sky-beam march off on mid: it doubles the dome cost")
+	assert_eq(
+		sky._cell_march_override["ray"], 0, "sky-beam march off on mid: it doubles the dome cost"
+	)
 	sky.free()

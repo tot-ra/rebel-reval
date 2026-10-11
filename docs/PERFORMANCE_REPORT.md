@@ -255,6 +255,19 @@ tools/godot_render.sh --resolution 1920x1080 --disable-vsync \
 
 Shots: forum, quay, beach, forest, field, in first person, third person and looking at the sky, in clear / rain / storm weather by day and night. Switches: `--quality=`, `--tier=`, `--frames=`, `--only=label,label`, `--scale=`, `--msaa=`, `--no-sun-shadows`, `--hide=godrays,cloudshadow,atmosphere,water`, `--godray-steps=V,S,F`, `--png-dir=`, `--panel` (records the F3 panel text per shot). Wall-clock frame time; the minimized window reports no GPU timer. Check `ps aux | grep godot` for concurrent renders first. Verify the table: `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_graphics_presets,test_god_ray_pass`.
 
+### R-1748 lighting rows (2026-10-11)
+
+Task **R-1748** added two rows to the same table: screen-space AO taps (`ao_contact_samples` / `ao_area_samples`: low 0 / 0 = off, mid 4 / 4, high 6 / 6) and the sun's angular size for soft shadows (`sun_angular_distance`: low 0.5, mid 1.0, high 1.5 degrees). Cost on the city forum at 10h, clear sky, 1920x1080, vsync off, best median of four alternating on/off rounds in one run (scratch host-scene probes on `reval_city.tscn` toggling `AmbientOcclusionPass.set_enabled()` and `sun.light_angular_distance`; other sessions' captures were running, so treat as upper bounds):
+
+| Row | Camera | AO on / off (ms) | AO cost | Soft sun / 0.5 deg (ms) | Soft-shadow cost |
+|-----|--------|------------------|---------|-------------------------|------------------|
+| high | third person | 28.5 / 24.9 | +3.6 | 29.0 / 26.5 | +2.5 |
+| high | painted iso | 26.5 / 23.4 | +3.1 | 25.5 / 23.6 | +2.0 |
+| mid | third person | 19.5 / 18.7 | +0.8 | 18.8 / 17.7 | +1.1 |
+| mid | painted iso | 16.8 / 15.6 | +1.1 | 16.0 / 14.9 | +1.1 |
+
+`tools/run_performance_report.sh build/benchmarks/r1748_perf_quick.json --quick` (with `GODOT_BIN` set): `reval_city_scene` p95 81.5 ms against 90.2 ms in the 2026-10-11 morning traversal run; the minimized-window p95 is noisy and shows no regression. `player_view_frame_time.gd --hide=ao` is the intended A/B, but that SceneTree script currently fails to compile (`DoorNavigator` autoload) and hangs.
+
 ## R-713 sky-weather quality-tier budget handoff
 
 The R-713 weather presenter has explicit `minimum` and `recommended` renderer-cost budgets for cloud resolution, shader samples, rain particles, fog quality, FFT cascade count, sky-view LUT size/cadence, ripple-sim resolution, frame time, and memory. The values and the retained measurement template live in [`r713_environment_performance.md`](reports/r713_environment_performance.md). Both isolated performance rows are currently **BLOCKED**: the declared Intel UHD 620 minimum target has not been measured (`R-653`), and the available Apple M5 / headless whole-scene reports do not isolate sky-weather tier cost (`R-822`). Keep `target_hardware` and `measurement_host` separate; do not promote a development-host or dummy-renderer observation to minimum-hardware acceptance.

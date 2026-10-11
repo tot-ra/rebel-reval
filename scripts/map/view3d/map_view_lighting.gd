@@ -13,12 +13,15 @@ const SUN_DAY_COLOR := Color8(255, 243, 222)
 ## Daylight RPG references (KCD2, Witcher 3) sit near 100-130 with readable shade.
 const SUN_DAY_ENERGY := 2.2
 const AMBIENT_DAY_COLOR := Color8(168, 178, 189)
-const AMBIENT_DAY_ENERGY := 1.7
+## R-1748: 1.7 left street shade near-black under AgX (alleys, the iso square). More fill,
+## with the screen-space AO pass (ambient_occlusion_pass.gd) taking it back in crevices,
+## gives the painted references' readable warm shade and dark contact lines instead.
+const AMBIENT_DAY_ENERGY := 2.1
 ## Outdoor shade is lit by the sky and by sunlit ground and walls. Pure sky hue
 ## painted every shadowed facade blue; a warm limestone/earth bounce at similar
 ## luminance keeps the shade neutral and the albedo readable.
 const AMBIENT_GROUND_BOUNCE_COLOR := Color8(190, 178, 156)
-const AMBIENT_GROUND_BOUNCE_WEIGHT := 0.4
+const AMBIENT_GROUND_BOUNCE_WEIGHT := 0.55
 const BACKGROUND_DAY_COLOR := Color8(31, 30, 28)
 
 ## Top-down interior gameplay hides the ceiling; a flat black clear color keeps
@@ -43,7 +46,8 @@ const INTERIOR_BOUNCE_WEIGHT := 0.85
 ## The exposure pass doubled outdoor fill; rooms are lit through a door and
 ## small windows, so keep roofed interiors near the earlier fill and let hearth
 ## and candle light stay the accent.
-const INTERIOR_AMBIENT_ENERGY_SCALE := 0.6
+## R-1748: 0.6 at the old 1.7 day fill; rescaled so rooms keep that fill (0.6 * 1.7 / 2.1).
+const INTERIOR_AMBIENT_ENERGY_SCALE := 0.486
 
 ## Golden-hour and weather tints blended over the day/night baseline.
 const SUNSET_LIGHT_COLOR := Color8(255, 148, 64)
@@ -59,8 +63,12 @@ const LIGHTNING_AMBIENT_ENERGY := 0.9
 ## AMBIENT_DAY_COLOR and FOG_MORNING_COLOR remain the fallback when the LUTs are missing and
 ## stay until the WS-11 capture review accepts the physical look. The overcast and lightning
 ## lerps still apply on top: weather stays authoritative.
-const SUN_ART_TINT := Color.WHITE
-const AMBIENT_ART_TINT := Color.WHITE
+## R-1748: the art direction (painted references, ~/Desktop "Medieval Tallinn ...") is a warm
+## sun and warm-neutral shade, not the physical blue noon: a gentle amber on the sun (a low
+## sun is already orange and only deepens) and a cream hue on the sky fill (hue only: the
+## fill keeps its calibrated luminance, see ambient_day_color).
+const SUN_ART_TINT := Color(1.0, 0.94, 0.84)
+const AMBIENT_ART_TINT := Color(1.0, 0.93, 0.84)
 const FOG_ART_TINT := Color.WHITE
 ## Physical sun energy relative to noon, clamped so a horizon sun still models form.
 const PHYSICAL_SUN_ENERGY_MIN := 0.15
@@ -135,11 +143,19 @@ const TONEMAP_MODE := Environment.TONE_MAPPER_AGX
 const GRADE_DAY_EXPOSURE := 1.05
 ## ADR 0022: naturalistic (KCD2-like) grade; colour comes from albedo and light, not a boost.
 const GRADE_DAY_SATURATION := 0.98
-const GRADE_DAY_CONTRAST := 1.04
+## R-1748: a touch more contrast so the warmer, brighter fill does not read flat.
+const GRADE_DAY_CONTRAST := 1.06
 const GRADE_DAY_BRIGHTNESS := 1.04
 ## Low-sun exposure lift (see low_sun_exposure_factor): none at 35 deg and above,
 ## full between the horizon and 8 deg.
 const LOW_SUN_EXPOSURE_BOOST := 0.3
+## R-1748: outdoor daylight exposure gain. On Mobile (ADR 0043) the city materials convert
+## their sRGB-authored colours to linear (city_plate_hint.gdshaderinc `city_albedo`), which
+## is correct but darkened every street ~2.5x against the GL Compatibility tuning: daylight
+## gameplay frames measured 25-50/255 mean luma against ~75 for the painted reference.
+## Applied outdoors only and scaled by the day fill, so night, twilight and rooms keep the
+## grade R-1537 calibrated.
+const OUTDOOR_DAY_EXPOSURE_GAIN := 1.9
 const LOW_SUN_EXPOSURE_FULL_ELEVATION := 8.0
 const LOW_SUN_EXPOSURE_NONE_ELEVATION := 35.0
 const GRADE_NIGHT_EXPOSURE := 0.94
@@ -305,6 +321,8 @@ static func apply_cycle_progress(
 		presentation.rainbow_secondary
 	)
 	apply_post_grade_snapshot(environment, presentation)
+	if not enclosed_interior:
+		environment.tonemap_exposure *= outdoor_exposure_gain(fill_blend)
 	return presentation.day_blend < 0.5
 
 
@@ -348,7 +366,10 @@ static func sun_light_energy(presentation: SkyWeather3D.WeatherPresentation) -> 
 static func ambient_day_color(presentation: SkyWeather3D.WeatherPresentation) -> Color:
 	if not presentation.atmosphere_available:
 		return AMBIENT_DAY_COLOR
-	return physical_hue(presentation.sky_irradiance, AMBIENT_DAY_COLOR) * AMBIENT_ART_TINT
+	# R-1748: the art tint shifts the hue only; physical_hue then restores the calibrated
+	# luminance, so warming the shade does not darken it.
+	var tinted := presentation.sky_irradiance * AMBIENT_ART_TINT.srgb_to_linear()
+	return physical_hue(tinted, AMBIENT_DAY_COLOR)
 
 
 ## Rescales a linear physical colour to `reference`'s linear luminance and returns it
@@ -418,6 +439,11 @@ static func apply_post_grade_snapshot(
 	# Wet air reduces distant contrast; retain local material color and exposure.
 	environment.adjustment_saturation -= presentation.overcast * 0.12
 	environment.adjustment_contrast -= presentation.overcast * 0.07
+
+
+## Outdoor-only daylight exposure lift (R-1748): 1 at night, OUTDOOR_DAY_EXPOSURE_GAIN by day.
+static func outdoor_exposure_gain(fill_blend: float) -> float:
+	return lerpf(1.0, OUTDOOR_DAY_EXPOSURE_GAIN, clampf(fill_blend, 0.0, 1.0))
 
 
 ## Stand-in for eye adaptation, which GL Compatibility lacks. A low sun throws

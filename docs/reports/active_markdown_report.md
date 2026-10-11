@@ -16,17 +16,17 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 - Active Markdown files scanned: `1200`
 - Markdown files excluded as archive/reference/out of active scope: `757`
-- Local/external links inspected: `13816`
-- Links to active Markdown docs: `12389`
+- Local/external links inspected: `13829`
+- Links to active Markdown docs: `12390`
 - Links to existing archive/reference/non-active local docs: `523`
 - External links skipped for reachability: `180`
-- Issues found: `8`
+- Issues found: `7`
 
 ## Issue counts
 
 | Code | Count |
 | --- | ---: |
-| `BROKEN_LINK` | 8 |
+| `BROKEN_LINK` | 7 |
 | `BROKEN_ANCHOR` | 0 |
 | `DUPLICATE_CHARACTER_NAME` | 0 |
 | `CONTRADICTORY_DATE` | 0 |
@@ -39,7 +39,6 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 | `BROKEN_LINK` | `docs/README.md:21` | Local Markdown link target does not exist: `./SYSTEMS/SKY_ATMOSPHERE.md` |
 | `BROKEN_LINK` | `docs/SYSTEMS/CLOUD_CELLS.md:3` | Local Markdown link target does not exist: `./SKY_ATMOSPHERE.md` |
 | `BROKEN_LINK` | `docs/SYSTEMS/CLOUD_CELLS.md:92` | Local Markdown link target does not exist: `./SKY_ATMOSPHERE.md` |
-| `BROKEN_LINK` | `docs/SYSTEMS/README.md:61` | Local Markdown link target does not exist: `SKY_ATMOSPHERE.md` |
 | `BROKEN_LINK` | `docs/SYSTEMS/SEAMLESS_CITY.md:88` | Local Markdown link target does not exist: `../reports/images/vegetation/r1684_roof_shingle.jpg` |
 | `BROKEN_LINK` | `docs/SYSTEMS/WORLD_PRESENTATION.md:26` | Local Markdown link target does not exist: `SKY_ATMOSPHERE.md#weather-and-the-look-of-the-sky` |
 | `BROKEN_LINK` | `docs/SYSTEMS/WORLD_PRESENTATION.md:31` | Local Markdown link target does not exist: `./SKY_ATMOSPHERE.md` |

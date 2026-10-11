@@ -49,11 +49,13 @@ var _panel := false
 var _layers := false
 ## --no-shade-map: the god-ray pass evaluates the cloud noise directly (to compare images).
 var _no_shade_map := false
-## --shade-ab: also save each shot with the direct cloud evaluation (label_direct.png) a few frames later.
+## --shade-ab: also save each shot with the direct cloud evaluation (label_direct.png) a few
+## frames later.
 var _shade_ab := false
 ## --radiance=64 --sky-mode=incremental|realtime|quality|automatic: sky radiance cube settings.
 var _radiance := 0
-## --march-variants=12/10/2/8,6/5/1/3: interleave sky cloud-march settings (steps/fine/light/ray) at mid.
+## --march-variants=12/10/2/8,6/5/1/3: interleave sky cloud-march settings
+## (steps/fine/light/ray) at mid.
 var _march_variants: PackedStringArray = []
 var _sky_mode := ""
 
@@ -136,9 +138,15 @@ func _run() -> void:
 		world.sun.shadow_enabled = false
 	var dome: Sky = view._world_environment.environment.sky
 	if _radiance > 0 and dome != null:
-		dome.radiance_size = {64: Sky.RADIANCE_SIZE_64, 128: Sky.RADIANCE_SIZE_128, 256: Sky.RADIANCE_SIZE_256, 32: Sky.RADIANCE_SIZE_32}[_radiance]
+		dome.radiance_size = {
+			64: Sky.RADIANCE_SIZE_64, 128: Sky.RADIANCE_SIZE_128,
+			256: Sky.RADIANCE_SIZE_256, 32: Sky.RADIANCE_SIZE_32,
+		}[_radiance]
 	if not _sky_mode.is_empty() and dome != null:
-		dome.process_mode = {"incremental": Sky.PROCESS_MODE_INCREMENTAL, "realtime": Sky.PROCESS_MODE_REALTIME, "quality": Sky.PROCESS_MODE_QUALITY, "automatic": Sky.PROCESS_MODE_AUTOMATIC}[_sky_mode]
+		dome.process_mode = {
+			"incremental": Sky.PROCESS_MODE_INCREMENTAL, "realtime": Sky.PROCESS_MODE_REALTIME,
+			"quality": Sky.PROCESS_MODE_QUALITY, "automatic": Sky.PROCESS_MODE_AUTOMATIC,
+		}[_sky_mode]
 	_god_ray = view._god_ray_pass
 	if _no_shade_map and view._god_ray_pass != null:
 		view._god_ray_pass.use_shade_map = false
@@ -147,9 +155,10 @@ func _run() -> void:
 		material.set_shader_parameter(&"view_steps", int(_godray_steps[0]))
 		material.set_shader_parameter(&"shadow_steps", int(_godray_steps[1]))
 		material.set_shader_parameter(&"far_steps", int(_godray_steps[2]))
-	# --hide=godrays,cloudshadow,atmosphere,water,fauna
+	# --hide=godrays,cloudshadow,ao,atmosphere,water,fauna
 	var hideable := {
 		"godrays": view._god_ray_pass, "cloudshadow": view._cloud_shadow_pass,
+		"ao": view._ambient_occlusion_pass,
 		"atmosphere": view._local_atmosphere, "water": world.get_node_or_null("Water"),
 	}
 	for key: String in _hide:

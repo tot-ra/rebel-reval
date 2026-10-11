@@ -17,7 +17,10 @@ func test_post_process_grade_is_enabled_with_frozen_values() -> void:
 	assert_true(is_equal_approx(env.glow_mix, MapView3D.GLOW_MIX))
 
 	view.apply_cycle_progress(0.5)
-	assert_true(is_equal_approx(env.tonemap_exposure, MapView3D.GRADE_DAY_EXPOSURE))
+	# R-1748: open-air daylight carries the outdoor exposure gain on top of the grade.
+	assert_true(is_equal_approx(
+		env.tonemap_exposure, MapView3D.GRADE_DAY_EXPOSURE * Lighting.outdoor_exposure_gain(1.0)
+	))
 	assert_true(is_equal_approx(env.adjustment_saturation, MapView3D.GRADE_DAY_SATURATION))
 	assert_true(is_equal_approx(env.adjustment_contrast, MapView3D.GRADE_DAY_CONTRAST))
 	assert_true(is_equal_approx(env.adjustment_brightness, MapView3D.GRADE_DAY_BRIGHTNESS))

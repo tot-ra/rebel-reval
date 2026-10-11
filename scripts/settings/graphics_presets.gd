@@ -39,6 +39,11 @@ const PRESETS := {
 		"sky_cell_ray_samples": 0,
 		"tree_near_scale": 0.55,
 		"tree_macro_scale": 0.0,
+		# R-1748 screen-space AO taps per ring (contact ~0.35 m, area ~2.4 m); 0 + 0 = pass off.
+		# Sun angular diameter in degrees: wider = softer PCSS penumbra, dearer blocker search.
+		"ao_contact_samples": 0,
+		"ao_area_samples": 0,
+		"sun_angular_distance": 0.5,
 	},
 	MID: {
 		"render_scale": 0.85,
@@ -57,6 +62,9 @@ const PRESETS := {
 		"sky_cell_ray_samples": 0,
 		"tree_near_scale": 0.7,
 		"tree_macro_scale": 0.2,
+		"ao_contact_samples": 4,
+		"ao_area_samples": 4,
+		"sun_angular_distance": 1.0,
 	},
 	HIGH: {
 		"render_scale": 1.0,
@@ -76,6 +84,9 @@ const PRESETS := {
 		"sky_cell_ray_samples": 0,
 		"tree_near_scale": 0.8,
 		"tree_macro_scale": 0.25,
+		"ao_contact_samples": 6,
+		"ao_area_samples": 6,
+		"sun_angular_distance": 1.5,
 	},
 }
 
@@ -102,11 +113,14 @@ static func apply_to(window: Window, quality: String) -> void:
 	RenderingServer.directional_soft_shadow_filter_set_quality(r["shadow_filter_quality"])
 
 
-## The cascade count of the sun follows the quality (a light, not a window setting).
+## The cascade count and shadow softness of the sun follow the quality (a light, not a
+## window setting).
 static func apply_to_sun(sun: DirectionalLight3D, quality: String) -> void:
 	var mode: DirectionalLight3D.ShadowMode = row(quality)["sun_shadow_mode"]
 	if sun != null and sun.directional_shadow_mode != mode:
 		sun.directional_shadow_mode = mode
+	if sun != null:
+		sun.light_angular_distance = float(row(quality)["sun_angular_distance"])
 
 
 ## Sets the dome's cloud march from the quality row (the sky tier covers the rest).

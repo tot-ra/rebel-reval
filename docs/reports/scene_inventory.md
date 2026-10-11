@@ -250,3 +250,4 @@ Both commands should print `135` on a clean checkout at this revision.
 | 167 | `tools/capture_city_moss.tscn` | partial | Developer capture or profiling tool (R-1661 moss, lichen and forest floor). |
 | 168 | `tools/capture_hud_gameplay_host.tscn` | partial | Developer capture host for HUD gameplay plates (R-1698); not player-facing. |
 | 169 | `tools/capture_city_painted_iso.tscn` | partial | Developer capture tool (R-1744 painted-iso camera preset and roof cutaway). |
+| 170 | `tools/capture_city_lighting.tscn` | partial | Developer capture tool (R-1748 city lighting before/after plates at 10h, 18h and after rain). |

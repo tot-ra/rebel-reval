@@ -708,11 +708,14 @@ void fragment() {
 	nxy *= 1.0 - seabed_rock * 0.65;
 	float ripples = sin(wuv.x * 2.1 + value_noise(wuv * 0.3) * 6.0) * 0.5 + 0.5;
 	col *= 1.0 - under * (1.0 - weed) * (1.0 - seabed_rock) * ripples * 0.09;
+	// Stone face (1) versus sand joint (0); the after-rain film collects in the joints.
+	float paving_stone = 1.0;
 	if (paving > 0.001) {
 		vec2 world_step = fwidth(wuv);
 		FieldStone field = compute_fieldstone(wuv, max(world_step.x, world_step.y) / cobble_cell_size);
 		col = mix(col, field.albedo, paving);
 		nxy = mix(nxy, field.normal_xy, paving);
+		paving_stone = field.stone;
 	}
 	// Cart roads: pale dust when dry, dark clay when wet, a trodden strip down
 	// the middle and stones where the wheels have scoured the surface.
@@ -835,7 +838,16 @@ void fragment() {
 	// Water has a level, not a switch: rain raises it through the hollows, so the
 	// deepest basins fill first and the pools widen as `puddles` grows. `water_depth` is
 	// the water standing over each point (negative = still above the waterline).
-	float water_depth = (pool - (1.05 - puddles * 0.75)) * (1.0 - paving);
+	// R-1748: cobbled streets hold water too. Hand-laid paving settles into shallow
+	// sunken patches (low-frequency basins, a few metres across); they fill first and
+	// widen with `puddles`, at a higher threshold than soft earth because stone drains
+	// through its joints. Paving used to be excluded, so a wet town square stayed dry.
+	// The 1.9 octave breaks the waterline into a ragged shore instead of smooth blobs.
+	float cobble_sink = 1.0 - smoothstep(0.28, 0.52,
+		value_noise(wuv * 0.13 + vec2(4.1, 9.7)) * 0.62 + value_noise(wuv * 0.47 + vec2(2.3, 5.5)) * 0.26
+		+ value_noise(wuv * 1.9 + vec2(7.7, 1.3)) * 0.12);
+	float cobble_pool = cobble_sink * (1.0 + (1.0 - paving_stone) * 0.15) * flat_ground;
+	float water_depth = mix(pool - (1.05 - puddles * 0.75), cobble_pool - (1.3 - puddles * 0.72), paving);
 	// Gradation, driest to wettest: damp earth round the pool, a thin wet film that
 	// still shows the bed, then standing water that hides it and mirrors the sky.
 	float damp_ring = smoothstep(-0.32, 0.0, water_depth) * step(0.001, puddles);
@@ -848,7 +860,11 @@ void fragment() {
 	// standing puddle has formed yet: a film only, never deep water.
 	float seep = smoothstep(0.55, 0.9, max(pressed, in_rut * 0.7 * smoothstep(0.35, 0.7, value_noise(wuv * 0.4)))) * smoothstep(0.45, 0.9, wet_road) * (1.0 - paving) * flat_ground;
 	seep *= soaked;
-	float puddle = max(film, seep * 0.8);
+	// Sand joints round a cobble pool stay brimming after rain: a mirror net between
+	// stones that are already out of the water.
+	float joint_film = (1.0 - paving_stone) * paving * smoothstep(0.3, 0.8, puddles)
+		* smoothstep(-0.3, 0.0, water_depth) * flat_ground * soaked;
+	float puddle = max(film, max(seep * 0.8, joint_film * 0.75));
 	// Drought: the same basins that hold puddles after rain bake into cracked clay,
 	// deepest first, widening as `ground_dryness` grows, on bare soil only (never turf,
 	// sand, rock or paving). Rain lowers `ground_dryness` before any puddle forms, so the
@@ -898,7 +914,8 @@ void fragment() {
 	col = mix(col, col * vec3(1.1, 1.07, 1.02) + 0.02, silt_rim * 0.5);
 	col = mix(col, crust_col, crust);
 	nxy = mix(nxy, crack_nxy, crust);
-	float wet = clamp(wetness * (1.0 - crust * 0.4) + mud * 0.35 * (1.0 - crust) + shore * 0.5 * (1.0 - swash_live) + puddles * soft * 0.5 + pressed * wet_road * 0.3, 0.0, 1.0);
+	// Paving stays dark-wet while puddles stand (R-1748): stone dries slower than the air.
+	float wet = clamp(wetness * (1.0 - crust * 0.4) + mud * 0.35 * (1.0 - crust) + shore * 0.5 * (1.0 - swash_live) + puddles * soft * 0.5 + pressed * wet_road * 0.3 + puddles * paving * 0.6, 0.0, 1.0);
 	col *= mix(1.0, 0.62, wet);
 	// Soaked margin: darker, richer earth before any water is visible.
 	col = mix(col, col * vec3(0.66, 0.6, 0.55), damp_ring * 0.65);
@@ -958,6 +975,11 @@ void fragment() {
 	// Turf scatters light diffusely: no glint and no wet-gloss on dry-looking grass.
 	ROUGHNESS = mix(ROUGHNESS, 1.0, turf * 0.85);
 	SPECULAR = mix(mix(0.3, grass_specular, turf), mix(0.4, 0.6, deep), puddle);
+	// R-1748: wet cobbles mirror the sky in streaks: traffic-polished crowns go glossy,
+	// sand joints stay duller. Lasts while `puddles` holds (the street dries with them).
+	float wet_paving = wet * paving * (1.0 - puddle);
+	ROUGHNESS = mix(ROUGHNESS, mix(0.5, 0.24, paving_stone), wet_paving * 0.85);
+	SPECULAR = mix(SPECULAR, 0.5, wet_paving);
 	// Dry limestone and sand are matte: no sky sheen on the klint faces.
 	ROUGHNESS = mix(ROUGHNESS, 0.95, max(rock, bank) * (1.0 - puddle) * (1.0 - wet * 0.5));
 	SPECULAR = mix(SPECULAR, 0.1, max(rock, bank) * (1.0 - puddle));
