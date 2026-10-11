@@ -16,11 +16,18 @@ Status: implemented. Scope: every player-visible screen outside dialogue and for
 
 ## In-game quick-access bar
 
-`QuickAccessMenu` (`scripts/ui/quick_access_menu.gd`) is the persistent action bar at the bottom of the screen. Every player-visible action has a button here, plus a hotkey where one exists:
+`QuickAccessMenu` (`scripts/ui/quick_access_menu.gd`) owns the handlers for every player-visible action. Its bottom-right bar is hidden for immersion; the buttons stay as the single handler route that the Escape menu and the hotkeys call:
 
 **Inventory [I]**, **Journal [J]**, **Reflect** (Hingepuu), **Map [M]**, **Camera [C]** (third-person → first-person → top-down), **Controls [K]**, **Iron** (forge technique toggle), **Magic [R]** (spell cookbook), **Save game**, **Debug**.
 
-Esc opens Settings ([`SETTINGS_AND_ACCESSIBILITY.md`](./SETTINGS_AND_ACCESSIBILITY.md)).
+## Escape menu
+
+Status: implemented (task **R-1698**). Esc opens `GameSettingsOverlay` (`scripts/ui/game_settings_overlay.gd`, opened by `GameSettingsController`) as a full-screen two-column menu inspired by the Witcher 3 pause screen, with original art only:
+
+- **Left column** (`SecondaryActions`, about 300 px): game title, then **Resume** (initial focus), Save game, Inventory, Journal, Map, Spellforge, Reflect, Iron technique, Change view, Debug. Each action closes the menu and calls the matching `QuickAccessMenu` handler.
+- **Right panel** (`SettingsPanel`): a scrolling settings page (graphics, audio, accessibility, Remap controls) as listed in [`SETTINGS_AND_ACCESSIBILITY.md`](./SETTINGS_AND_ACCESSIBILITY.md). An empty right margin (stretch ratio 0.35) keeps values close to their labels on wide screens.
+- **Style**: `scripts/ui/pause_menu_style.gd` builds one charcoal and bronze `Theme` (no new textures or fonts). Focus borders follow `UiFocusTheme`, so the enhanced focus contrast setting still applies; the theme is rebuilt on open and when that setting changes.
+- **Input**: keyboard and gamepad move focus up and down each column; Right on Resume jumps to the first setting, Left on it jumps back. Esc or Resume closes the menu.
 
 ## HUD elements
 
@@ -28,7 +35,8 @@ Esc opens Settings ([`SETTINGS_AND_ACCESSIBILITY.md`](./SETTINGS_AND_ACCESSIBILI
 |---|---|---|
 | Minimap | `scripts/ui/minimap_hud.gd` (+ `MinimapTextureBuilder`, `MinimapPalette`) | Circular map built from the compiled `MapDefinition` (one pixel per cell), player marker, bronze rim art (`assets/UI/minimap/minimap_rim.png`, AI-generated slim bronze ring, shared with the seamless-city `CityMinimap`), location name (`LocationHud` naming table) |
 | Quest pouch | `scripts/inventory/quest_pouch_hud.gd` | Up to three quest tools (`gameplay.visible_in_pouch`) beside the satchel |
-| Health bars | `character_health_ring.gd` (2D), `character_health_ring_3d.gd` (over rigs) | Combat vitals |
+| Player vitals | `scripts/ui/player_vitals_hud.gd` (`PlayerVitalsHud`, mounted in `player.tscn`) | Bottom-left red health bar and gold stamina bar in bronze-edged frames, with `HEALTH 64 / 100` style labels. Polls the parent `Player` (`health`, `max_health`, `stamina`, `max_stamina`) each frame, so damage, regeneration and restores all show. Click-through. Task **R-1698** |
+| Health bars (others) | `character_health_ring.gd` (2D), `character_health_ring_3d.gd` (over rigs) | Overhead bars for enemies and NPCs. The player's 2D `HealthRing`/`StaminaBar` are hidden and its 3D rig ring is removed in `MapViewRuntimeActors.configure` |
 | Mana orb | `scripts/ui/mana_orb.gd` | Magic resource ([`MAGIC.md`](./MAGIC.md)) |
 | Combat feedback | `scripts/combat/combat_feedback_hud.gd` | Hit and stagger feedback ([`COMBAT.md`](./COMBAT.md)) |
 | Interaction prompt | `InteractableWorldIndicator`, `InteractableViewBinder` | Bobbing glyph and floor ring over the focused interactable in 3D |
@@ -61,6 +69,32 @@ Doors and transitions: `DoorNavigator` autoload and `content/transitions/active_
 
 Grid satchel, equipment paper-doll, and quest pouch: [`INVENTORY_MECHANICS.md`](../INVENTORY_MECHANICS.md).
 
+## UI review (October 2026)
+
+Captures: `tools/godot_render.sh res://tools/capture_hud_gameplay_host.tscn` (real game: main menu, seamless city HUD with health 64 and stamina 38, open Escape menu) and `tools/godot_render.sh --script tools/capture_hud_menus.gd [-- --before]` (neutral review stage at 1280x720 and 1920x1080; `--before` only on the pre-R-1698 revision).
+
+| Screen | Capture |
+|---|---|
+| Main menu (unchanged) | [game_main_menu.jpg](../reports/images/hud_menus/game_main_menu.jpg) |
+| HUD in the city | [game_hud_city.jpg](../reports/images/hud_menus/game_hud_city.jpg) |
+| Escape menu in the city | [game_escape_menu.jpg](../reports/images/hud_menus/game_escape_menu.jpg) |
+| Escape menu before / after (stage, 1920) | [before](../reports/images/hud_menus/escape_before_1920.png), [after](../reports/images/hud_menus/escape_after_1920.png) |
+| Escape menu before / after (stage, 1280) | [before](../reports/images/hud_menus/escape_before_1280.png), [after](../reports/images/hud_menus/escape_after_1280.png) |
+| Vitals before / after (stage) | [before](../reports/images/hud_menus/vitals_before_1920.png), [after](../reports/images/hud_menus/vitals_after_1920.png), [after 1280](../reports/images/hud_menus/vitals_after_1280.png) |
+
+**Current approach.** The HUD is minimal and diegetic-leaning: the bronze-rimmed minimap with location lines (top right), the quest-tool pouch (top left), the vitals (bottom left), interaction glyphs in the world, and no permanent action bar. Every command lives in the Escape menu or on a hotkey. All UI is built in code (no `.tscn` per screen) with per-screen colour overrides; the minimap rim is the only painted UI asset.
+
+**What works.** The minimap: painted rim, rotating map, clear location hierarchy. The empty playfield. One handler route per action (`QuickAccessMenu`), shared by hotkeys, menu and tests.
+
+**Problems found.**
+
+1. Visual language is split. Minimap and vitals are bronze and painted; the journal, inventory, spellforge and controls overlays still use default Godot panels with ad-hoc colours. `pause_menu_style.gd` should become the shared theme for all overlays.
+2. The main menu is a centred stack of yellow (`#FAD606`) `RichTextLabel`s over the intro video with no hover or focus state beyond the cursor. It should get the same left-aligned list, bronze focus bar and type scale as the Escape menu, plus Continue (latest save) as the first entry.
+3. No display typeface. Everything uses Noto Sans; titles would read better in a licensed serif or blackletter display face (needs an asset task and a `SOURCES.csv` row).
+4. The Escape menu is one long settings page. Split it into tabs (Game / Graphics / Audio / Accessibility / Controls) once there are more than about 20 rows, and move Debug out of the player list in release builds.
+5. The vitals frames are drawn with flat polygons. A painted bronze frame (same family as the minimap rim) and a delayed "damage taken" trail on the health bar would match the reference better.
+6. Willpower (mana orb) appears only in the spirit world and sits in the same corner; when it gets a world presence it should join the vitals block instead of stacking above it.
+
 ## Verify
 
 ```bash
@@ -68,9 +102,12 @@ godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_qui
 godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_journal
 godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_world_map
 godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_minimap
+godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_hud_menu_redesign,test_game_settings_overlay
 ```
 
 ## Limits
+
+- `PlayerVitalsHud` (layer 21) stays visible under dialogue (`DialogueUi`, layer 45); cutscenes (95) and the spirit arena (80) cover it. It has no fade-out when health and stamina are full.
 
 - `scenes/elements/gameplay_help_hud.tscn` and `scripts/ui/gameplay_help_hud.gd` are deprecated and mounted nowhere. Removal is tracked in the [code-health audit](../reports/code_health_audit_2026-10-07.md).
 - Global-map destinations are developer placeholders until their acts activate. Planned markers are positions only; promote one by removing its `planned` flag and adding neighbors and a gate in `GlobalMapCatalog`.

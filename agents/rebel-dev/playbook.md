@@ -37,6 +37,7 @@ This file contains lessons specific to the Dev role.
 - Persistent HUD strips must not share a screen band. Quick Access is bottom-right and 780px wide; its help labels composite through a center overlay and look like a broken font. Keep the spell bar bottom-left and list granted recipes, not the full element catalog.
 - `set_input_as_handled()` does not stop sibling `_input` handlers. Do not bind `spellforge_cast` to LMB: `MapClickInputController` already owns left click for attack / interact / travel. Number keys cast learned slots; the cookbook uses Enter and on-screen buttons.
 - The 3D map hides the 2D logic root, so `MagicProjectile2D._draw` is invisible in play. Mirror deliveries in `MapViewMagicVfx` (orb, pulse ring, knockback cone) without naming a spell.
+- UI captures that need autoloads (`UserSettings`, `SessionState`, `DoorNavigator`) cannot run as `extends SceneTree` `--script`: any script naming an autoload identifier fails to compile there and the render run can hang. Use a host `.tscn` run as the main scene (`tools/capture_hud_gameplay_host.tscn`) and wrap capture runs in a watchdog. In-game captures land in `reval_city` / `kalev_smithy`; `reval_east` is no longer in the transition manifest.
 - `as ClassName` on a Node stored in meta/array errors after `queue_free` ("Trying to cast a freed object"). Call `is_instance_valid` on the Variant first, then cast. Validity after the cast is too late.
 
 ### Harness, import, and capture

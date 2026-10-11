@@ -13,7 +13,7 @@ const DialogueSettingsScript := preload("res://scripts/settings/dialogue_setting
 const GameplaySettingsScript := preload("res://scripts/settings/gameplay_accessibility_settings.gd")
 const GraphicsSettingsScript := preload("res://scripts/settings/graphics_settings.gd")
 const TextScaleScript := preload("res://scripts/dialogue/dialogue_text_scale.gd")
-const PANEL_MIN_SIZE := Vector2(560, 520)
+const MenuStyle := preload("res://scripts/ui/pause_menu_style.gd")
 
 var _settings_owner: Node
 var _graphics_quality_option: OptionButton
@@ -57,11 +57,12 @@ func _ready() -> void:
 
 
 func open() -> void:
+	get_node("SettingsRoot").theme = MenuStyle.make_theme()
 	_sync_from_settings()
 	visible = true
 	add_to_group(&"modal_input_overlay")
-	if _music_slider != null:
-		_music_slider.grab_focus()
+	if _close_button != null:
+		_close_button.grab_focus()
 
 
 func close() -> void:
@@ -93,67 +94,58 @@ func _build_ui() -> void:
 
 	var dim := ColorRect.new()
 	dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	dim.color = Color(0.025, 0.03, 0.045, 0.92)
+	dim.color = Color(0.025, 0.03, 0.028, 0.88)
 	dim.mouse_filter = Control.MOUSE_FILTER_STOP
 	root.add_child(dim)
 
-	var center := CenterContainer.new()
-	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	root.add_child(center)
+	# A bounded two-column shell keeps navigation visible while settings scroll.
+	root.theme = MenuStyle.make_theme()
+	var shell := HBoxContainer.new()
+	shell.name = "MenuColumns"
+	shell.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	shell.offset_left = 48
+	shell.offset_top = 40
+	shell.offset_right = -48
+	shell.offset_bottom = -40
+	shell.add_theme_constant_override("separation", 48)
+	root.add_child(shell)
 
-	var panel := PanelContainer.new()
-	panel.name = "SettingsPanel"
-	panel.custom_minimum_size = PANEL_MIN_SIZE
-	center.add_child(panel)
-
-	var margin := MarginContainer.new()
-	for side: StringName in [&"margin_left", &"margin_right", &"margin_top", &"margin_bottom"]:
-		margin.add_theme_constant_override(side, 22)
-	panel.add_child(margin)
-
-	var scroll := ScrollContainer.new()
-	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	margin.add_child(scroll)
-
-	var layout := VBoxContainer.new()
-	layout.add_theme_constant_override("separation", 14)
-	layout.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	scroll.add_child(layout)
-
-	var header := HBoxContainer.new()
-	header.add_theme_constant_override("separation", 12)
-	layout.add_child(header)
-
-	var title := Label.new()
-	title.text = "Settings"
-	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	title.add_theme_font_size_override("font_size", 26)
-	title.add_theme_color_override("font_color", Color(0.94, 0.81, 0.5, 1.0))
-	header.add_child(title)
+	var navigation_scroll := ScrollContainer.new()
+	navigation_scroll.custom_minimum_size.x = 300
+	navigation_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	navigation_scroll.follow_focus = true
+	shell.add_child(navigation_scroll)
+	var navigation := VBoxContainer.new()
+	navigation.name = "SecondaryActions"
+	navigation.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	navigation.add_theme_constant_override("separation", 6)
+	navigation_scroll.add_child(navigation)
+	var brand := Label.new()
+	brand.text = "REVAL REBEL"
+	brand.add_theme_font_size_override("font_size", 30)
+	brand.add_theme_color_override("font_color", MenuStyle.GOLD)
+	navigation.add_child(brand)
+	var subtitle := Label.new()
+	subtitle.text = "JOURNEY  /  MENU"
+	subtitle.add_theme_font_size_override("font_size", 13)
+	subtitle.custom_minimum_size.y = 38
+	navigation.add_child(subtitle)
 
 	_close_button = Button.new()
 	_close_button.name = "CloseButton"
-	_close_button.text = "Close"
-	_close_button.focus_mode = Control.FOCUS_ALL
+	_close_button.text = "Resume"
+	_close_button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	_close_button.custom_minimum_size.y = 44
 	_close_button.pressed.connect(close)
-	header.add_child(_close_button)
-
-	# WHY: non-combat commands belong in Esc, not in the permanent playfield.
-	var commands := HFlowContainer.new()
-	commands.name = "SecondaryActions"
-	commands.add_theme_constant_override("h_separation", 10)
-	commands.add_theme_constant_override("v_separation", 8)
-	layout.add_child(commands)
+	navigation.add_child(_close_button)
 	var labels := {
+		&"save": "Save game",
 		&"inventory": "Inventory",
 		&"journal": "Journal",
 		&"map": "Map",
 		&"magic": "Spellforge",
 		&"reflection": "Reflect",
 		&"iron": "Iron technique",
-		&"save": "Save game",
 		&"camera": "Change view",
 		&"debug": "Debug",
 	}
@@ -161,9 +153,41 @@ func _build_ui() -> void:
 		var button := Button.new()
 		button.name = "%sAction" % String(action).capitalize()
 		button.text = labels[action]
-		button.focus_mode = Control.FOCUS_ALL
+		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		button.custom_minimum_size.y = 42
 		button.pressed.connect(_request_secondary_action.bind(action))
-		commands.add_child(button)
+		navigation.add_child(button)
+
+	var panel := PanelContainer.new()
+	panel.name = "SettingsPanel"
+	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	panel.add_theme_stylebox_override("panel", MenuStyle.panel(Color(0.05, 0.06, 0.06, 0.8)))
+	shell.add_child(panel)
+	# WHY: on wide screens an unbounded panel pushes values far from their labels.
+	var right_margin := Control.new()
+	right_margin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	right_margin.size_flags_stretch_ratio = 0.35
+	right_margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	shell.add_child(right_margin)
+	var content := VBoxContainer.new()
+	content.add_theme_constant_override("separation", 18)
+	panel.add_child(content)
+	var title := Label.new()
+	title.text = "SETTINGS"
+	title.add_theme_font_size_override("font_size", 28)
+	title.add_theme_color_override("font_color", MenuStyle.GOLD)
+	content.add_child(title)
+	content.add_child(HSeparator.new())
+	var scroll := ScrollContainer.new()
+	scroll.name = "SettingsScroll"
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.follow_focus = true
+	content.add_child(scroll)
+	var layout := VBoxContainer.new()
+	layout.add_theme_constant_override("separation", 14)
+	layout.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.add_child(layout)
 
 	var intro := Label.new()
 	intro.text = "Adjust graphics, audio and accessibility. Changes save outside campaign slots."
@@ -220,6 +244,7 @@ func _build_ui() -> void:
 	_sight_slider.max_value = 100.0
 	_sight_slider.step = 5.0
 	_sight_slider.focus_mode = Control.FOCUS_ALL
+	_sight_slider.custom_minimum_size.x = 320
 	layout.add_child(_sight_slider)
 	_sight_slider.value_changed.connect(_on_sight_intensity_changed)
 
@@ -235,9 +260,9 @@ func _build_ui() -> void:
 	hint.add_theme_color_override("font_color", Color(0.72, 0.76, 0.82, 1.0))
 	layout.add_child(hint)
 
-	if _music_slider != null and _close_button != null:
-		_music_slider.focus_neighbor_top = _music_slider.get_path_to(_close_button)
-		_close_button.focus_neighbor_bottom = _close_button.get_path_to(_music_slider)
+	# Explicit left/right routes complement Tab and vertical navigation.
+	_close_button.focus_neighbor_right = _close_button.get_path_to(_graphics_quality_option)
+	_graphics_quality_option.focus_neighbor_left = _graphics_quality_option.get_path_to(_close_button)
 
 
 func _request_secondary_action(action: StringName) -> void:
@@ -277,6 +302,7 @@ func _add_volume_row(parent: VBoxContainer, label_text: String, is_music: bool) 
 	slider.max_value = 100.0
 	slider.step = 1.0
 	slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	slider.custom_minimum_size.x = 320
 	slider.focus_mode = Control.FOCUS_ALL
 	if is_music:
 		slider.value_changed.connect(_on_music_changed)
@@ -450,6 +476,7 @@ func _on_enhanced_focus_toggled(pressed: bool) -> void:
 	var gameplay = _current_gameplay_settings()
 	gameplay.enhanced_focus_contrast = pressed
 	_apply_gameplay_settings(gameplay)
+	get_node("SettingsRoot").theme = MenuStyle.make_theme()
 
 
 func _on_sight_intensity_changed(value: float) -> void:

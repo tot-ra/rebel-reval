@@ -13,6 +13,13 @@ const RUN_ANIMATION_MIN_SPEED := 140.0
 ## sampled and heard (R-1641). Past it a step is inaudible under the city bed,
 ## and skipping the skeleton update there keeps a crowd cheap.
 const NPC_FOOTSTEP_RADIUS := 16.0
+## Rigs far from the player are posed every 4th / 8th frame (staggered per actor) with the
+## elapsed time folded into delta: a city holds hundreds of people and posing all of them
+## every frame cost ~10 ms of CPU. Near actors (about 70 m) stay at full rate.
+const PerfProbeScript := preload("res://scripts/debug/perf_probe.gd")
+const MAX_NEW_RIGS_PER_SWEEP := 2
+const NEAR_SYNC_DISTANCE_SQ := 4900.0
+const MID_SYNC_DISTANCE_SQ := 19600.0
 
 var _host: Node3D
 var _definition: MapDefinition
@@ -24,6 +31,9 @@ var _logic_direction_toward_camera: Callable
 var _last_facing := Vector2.ZERO
 var _last_player_health := -1.0
 var _actor_rigs: Dictionary = {}
+## actor -> [last logic position, rig position computed for it]
+## (idle actors skip the terrain lookup).
+var _ground_cache: Dictionary = {}
 var _actors_without_rig: Dictionary = {}
 var _equipment_state: GameState
 var _content_db: ContentDB
@@ -51,6 +61,12 @@ func configure(
 	_definition = map_definition
 	_player = logic_player
 	_player_rig = runtime_player_rig
+	# The player uses screen-space vitals. Remove only its presentation ring so
+	# swimming cannot show it again; enemy and NPC rings remain untouched.
+	var player_ring := _player_rig.get_node_or_null("HealthRing")
+	if player_ring != null:
+		_player_rig.remove_child(player_ring)
+		player_ring.queue_free()
 	_view = map_view
 	_follow_player = follow_player
 	_logic_direction_toward_camera = logic_direction_toward_camera
@@ -88,18 +104,25 @@ func register_view_actors(scene_root: Node) -> void:
 	var tree := scene_root.get_tree()
 	if tree == null:
 		return
-	var created := 0
+	var pending: Array[Node2D] = []
 	for found: Node in tree.get_nodes_in_group(&"map_view_actor"):
-		if not found is Node2D or not scene_root.is_ancestor_of(found):
+		if not found is Node2D or _actor_rigs.has(found) or not scene_root.is_ancestor_of(found):
 			continue
-		if _actor_rigs.has(found):
-			continue
-		# Building a rig (scene instance, skeleton, animations) is the one expensive step;
-		# a crowd streaming in used to build hundreds in one frame (a 170 ms hitch).
-		if created >= MAX_NEW_RIGS_PER_SWEEP and Engine.get_process_frames() > 2:
-			break
-		register_view_actor(found as Node2D)
-		created += 1
+		pending.append(found as Node2D)
+	if pending.is_empty():
+		return
+	# Building a rig (scene instance, skeleton, animations) is the one expensive step (~7 ms);
+	# a crowd streaming in used to build hundreds in one frame (a 170 ms hitch). After the first
+	# frames only the nearest few are built per frame.
+	if pending.size() > MAX_NEW_RIGS_PER_SWEEP and Engine.get_process_frames() > 2:
+		var from := _player.global_position if _player != null else Vector2.ZERO
+		pending.sort_custom(
+			func(a: Node2D, b: Node2D) -> bool:
+				return a.global_position.distance_squared_to(from) < b.global_position.distance_squared_to(from)
+		)
+		pending.resize(MAX_NEW_RIGS_PER_SWEEP)
+	for actor: Node2D in pending:
+		register_view_actor(actor)
 
 
 ## Mirrors a single logic actor into the 3D view. Controllers that spawn NPCs
@@ -134,9 +157,13 @@ func sync_view_actors(delta: float) -> void:
 	# every quest controller to know about 3D presentation internals.
 	if _view == null or not is_instance_valid(_view):
 		return
+	var t := PerfProbeScript.start()
 	if _host != null:
 		register_view_actors(_host.get_parent())
+	PerfProbeScript.stop(&"view_runtime/actors/register", t)
 	var frame := Engine.get_process_frames()
+	var posed := 0
+	var skipped := 0
 	var player_pos := _player_rig.global_position if _player_rig != null else Vector3.ZERO
 	# Untyped key: a typed loop variable errors on actors freed since the last
 	# frame (e.g. people streamed out of a city site).
@@ -146,6 +173,7 @@ func sync_view_actors(delta: float) -> void:
 			if is_instance_valid(stale_rig):
 				(stale_rig as Node).queue_free()
 			_actor_rigs.erase(key)
+			_ground_cache.erase(key)
 			_actors_without_rig.erase(key)
 			continue
 		var actor := key as Node2D
@@ -154,16 +182,13 @@ func sync_view_actors(delta: float) -> void:
 		var rig := _actor_rigs[actor] as SharedCharacterRig
 		var stride := _sync_stride(rig, player_pos)
 		if stride > 1 and (frame + actor.get_instance_id()) % stride != 0:
+			skipped += 1
 			continue
+		posed += 1
 		_sync_view_actor(actor, rig, false, delta * stride)
-
-
-## Rigs far from the player are posed every 4th / 8th frame (staggered per actor) with the
-## elapsed time folded into delta: a city holds hundreds of people and posing all of them
-## every frame cost ~10 ms of CPU. Near actors (about 70 m) stay at full rate.
-const MAX_NEW_RIGS_PER_SWEEP := 4
-const NEAR_SYNC_DISTANCE_SQ := 4900.0
-const MID_SYNC_DISTANCE_SQ := 19600.0
+	PerfProbeScript.note(
+		&"actors", "%d rigs, %d posed, %d skipped this frame" % [_actor_rigs.size(), posed, skipped]
+	)
 
 
 func _sync_stride(rig: SharedCharacterRig, player_pos: Vector3) -> int:
@@ -188,7 +213,8 @@ func sync_player(snap: bool, delta: float = 0.0) -> void:
 	if _sample_owning_ground:
 		_apply_owning_ground_height(_player_rig)
 	# Velocity carries the time-flow multiplier; gait choice must not.
-	var flow_scale := float(_player.get(&"time_flow_scale")) if _player.get(&"time_flow_scale") != null else 1.0
+	var raw_flow: Variant = _player.get(&"time_flow_scale")
+	var flow_scale := float(raw_flow) if raw_flow != null else 1.0
 	var speed := _player.velocity.length() / maxf(flow_scale, 0.01)
 	var moving := speed > WALK_ANIMATION_MIN_SPEED
 	if moving:
@@ -292,7 +318,7 @@ func disconnect_equipment_state() -> void:
 
 
 static func hide_player_canvas(player: CharacterBody2D) -> void:
-	# The rig replaces the greybox rectangle; the 3D overhead health bar mirrors logic health.
+	# The rig replaces the greybox rectangle; screen-space PlayerVitalsHud presents health and stamina.
 	for node_name in ["GreyboxVisual", "HealthRing", "StaminaBar"]:
 		var node := player.get_node_or_null(node_name) as CanvasItem
 		if node != null:
@@ -300,13 +326,26 @@ static func hide_player_canvas(player: CharacterBody2D) -> void:
 
 
 func _sync_view_actor(actor: Node2D, rig: SharedCharacterRig, snap: bool, delta: float) -> void:
-	_view.sync_actor(rig, actor.global_position)
-	if _sample_owning_ground:
-		_apply_owning_ground_height(rig)
+	var t := PerfProbeScript.start()
+	# Terrain height and wall-walk / prop elevation cost ~50 us per actor; a person standing
+	# still keeps its pose, so it is only recomputed when the actor has moved.
+	var logic := actor.global_position
+	var cached: Array = _ground_cache.get(actor, [])
+	if not snap and cached.size() == 2 and logic.is_equal_approx(cached[0]):
+		rig.position = cached[1]
+	else:
+		_view.sync_actor(rig, logic)
+		if _sample_owning_ground:
+			_apply_owning_ground_height(rig)
+		_ground_cache[actor] = [logic, rig.position]
 	# Actors whose pose sits on furniture (CitySiteActor) lift or lower the rig.
 	if actor.has_method(&"view_height_offset"):
 		rig.position.y += float(actor.call(&"view_height_offset"))
+	PerfProbeScript.stop(&"view_runtime/actors/ground", t)
+	t = PerfProbeScript.start()
 	_sync_actor_health_ring(rig, actor)
+	PerfProbeScript.stop(&"view_runtime/actors/health_ring", t)
+	t = PerfProbeScript.start()
 	var facing := Vector2.DOWN
 	if actor.has_method("view_facing"):
 		facing = actor.call("view_facing") as Vector2
@@ -314,12 +353,15 @@ func _sync_view_actor(actor: Node2D, rig: SharedCharacterRig, snap: bool, delta:
 		rig.set_facing(facing)
 	else:
 		rig.face_toward(facing, delta)
+	PerfProbeScript.stop(&"view_runtime/actors/facing", t)
+	t = PerfProbeScript.start()
 	var wanted := &"idle"
 	if actor.has_method("view_animation"):
 		wanted = actor.call("view_animation") as StringName
 	# Newly added rigs enter the tree on add_child(), so their AnimationPlayer
 	# is ready before we ask for a canonical state.
 	if not rig.is_node_ready():
+		PerfProbeScript.stop(&"view_runtime/actors/animation", t)
 		return
 	if rig.current_canonical_animation() != wanted:
 		rig.play_animation(wanted)
@@ -327,7 +369,10 @@ func _sync_view_actor(actor: Node2D, rig: SharedCharacterRig, snap: bool, delta:
 	rig.set_locomotion_speed(
 		actor_velocity.length() * MapViewBridge.world_scale(_definition.cell_size)
 	)
+	PerfProbeScript.stop(&"view_runtime/actors/animation", t)
+	t = PerfProbeScript.start()
 	_emit_npc_footstep(rig, actor_velocity.length())
+	PerfProbeScript.stop(&"view_runtime/actors/footstep", t)
 
 
 ## NPC steps ride the same rig contact event as the player's (R-1641), so a
