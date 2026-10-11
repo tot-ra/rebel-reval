@@ -149,6 +149,7 @@ Start with:
 - [Pirita in 1343 - research and map translation](pirita_1343_research.md)
 - [Procedural motion report](procedural_motion_report.md)
 - [QA daily smoke 2026-10-10](qa_smoke_2026-10-10.md)
+- [QA daily smoke 2026-10-11](qa_smoke_2026-10-11.md)
 - [R-1021 second-reviewer sign-off of R-1003 shore-relative water recess](r1021_r1003_water_recess_review.md)
 - [R-1029 second-reviewer sign-off of R-1010 WB-07d worker-thread material bakes](r1029_r1010_cold_materials_review.md)
 - [R-1030 second-reviewer sign-off of R-1027 WB-07e building-material worker bakes](r1030_r1027_building_materials_review.md)
