@@ -108,6 +108,17 @@ static func add_days(date: Dictionary, day_offset: int) -> Dictionary:
 	return {"day": day, "month": month, "year": year}
 
 
+## Whole days forward (1..366) from `date` to the next occurrence of month/day.
+## Debug date jumps use it because elapsed campaign days never go negative.
+static func days_until(date: Dictionary, month: int, day: int) -> int:
+	var cursor := normalize_date(date)
+	for step in range(1, 367):
+		cursor = add_days(cursor, 1)
+		if int(cursor["month"]) == month and int(cursor["day"]) == day:
+			return step
+	return 0
+
+
 static func date_for_phase_and_elapsed_days(phase_id: StringName, elapsed_days: int) -> Dictionary:
 	return add_days(date_for_phase(phase_id), maxi(elapsed_days, 0))
 

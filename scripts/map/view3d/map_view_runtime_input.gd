@@ -76,9 +76,23 @@ func handle_unhandled_input(event: InputEvent) -> void:
 
 
 func _handle_time_control_key(keycode: Key) -> bool:
+	var shift := Input.is_key_pressed(KEY_SHIFT)
 	match keycode:
 		KEY_BACKSLASH:
 			_host.reset_time_flow()
+		# Debug date: [ ] step a day (Shift: a month); F5..F8 jump to a season.
+		KEY_BRACKETLEFT:
+			_host.shift_calendar_days(-30 if shift else -1)
+		KEY_BRACKETRIGHT:
+			_host.shift_calendar_days(30 if shift else 1)
+		KEY_F5:
+			_host.jump_to_season(&"winter")
+		KEY_F6:
+			_host.jump_to_season(&"spring")
+		KEY_F7:
+			_host.jump_to_season(&"summer")
+		KEY_F8:
+			_host.jump_to_season(&"autumn")
 		_:
 			return false
 	return true

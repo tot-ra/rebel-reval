@@ -53,3 +53,12 @@ func test_heating_and_clothing_scale_with_cold() -> void:
 	assert_true(winter_heat > summer_heat * 3.0)
 	assert_true(SeasonState.clothing_warmth(_doy(1, 15)) > 0.8)
 	assert_true(SeasonState.clothing_warmth(_doy(7, 15)) < 0.1)
+
+
+func test_days_until_wraps_to_next_year() -> void:
+	var april := {"day": 21, "month": 4, "year": 1343}
+	assert_eq(GameCalendar.days_until(april, 4, 22), 1)
+	assert_eq(GameCalendar.days_until(april, 4, 21), 366)
+	var target := GameCalendar.add_days(april, GameCalendar.days_until(april, 1, 15))
+	assert_eq(int(target["month"]), 1)
+	assert_eq(int(target["year"]), 1344)

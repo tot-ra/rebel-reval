@@ -12,6 +12,14 @@ const GameCalendarScript := preload("res://scripts/global/game_calendar.gd")
 const OCEAN_TIME_WRAP_SECONDS := 25.6 * 64.0
 const OCEAN_TIME_GLOBAL := &"ocean_time"
 
+## Month/day each season key jumps to (Tallinn climate, SeasonState).
+const SEASON_DEBUG_DAYS := {
+	&"winter": Vector2i(1, 15),
+	&"spring": Vector2i(4, 21),
+	&"summer": Vector2i(7, 15),
+	&"autumn": Vector2i(10, 15),
+}
+
 ## One sea clock shared by the water shader (global uniform) and CPU wave queries
 ## (WS-05 boats). Static because only one map runtime drives the sea at a time and
 ## CPU readers must not depend on a scene path to the host.
@@ -117,6 +125,35 @@ func set_time_of_day(next_time: StringName) -> void:
 		return
 	map_view.set_time_of_day(next_time)
 	cycle_progress = 0.5 if next_time == MapView3D.TIME_DAY else 0.0
+	_publish_to_world_host()
+	sync_music_cycle()
+
+
+## Debug (ADR 0045): moves the campaign date by whole days. Elapsed days only
+## grow, so a step back wraps forward to the same calendar day next year.
+func shift_calendar_days(days: int, calendar_date_provider: Callable) -> void:
+	if days == 0:
+		return
+	var current: Dictionary = calendar_date_provider.call()
+	if days < 0:
+		var target := GameCalendarScript.add_days(current, days)
+		days = GameCalendarScript.days_until(current, int(target["month"]), int(target["day"]))
+	_apply_elapsed_days(cycle_elapsed_days + days, calendar_date_provider)
+
+
+## Debug: jumps forward to the next 15th-ish representative day of `season`.
+func jump_to_season(season: StringName, calendar_date_provider: Callable) -> void:
+	var anchor: Vector2i = SEASON_DEBUG_DAYS.get(season, Vector2i(4, 21))
+	var current: Dictionary = calendar_date_provider.call()
+	var days := GameCalendarScript.days_until(current, anchor.x, anchor.y)
+	_apply_elapsed_days(cycle_elapsed_days + days, calendar_date_provider)
+
+
+func _apply_elapsed_days(elapsed_days: int, calendar_date_provider: Callable) -> void:
+	cycle_elapsed_days = maxi(elapsed_days, 0)
+	var map_view := _map_view()
+	if map_view != null:
+		map_view.set_calendar_date(calendar_date_provider.call())
 	_publish_to_world_host()
 	sync_music_cycle()
 

@@ -21,6 +21,7 @@ const RuntimeInput := preload("res://scripts/map/view3d/map_view_runtime_input.g
 const RuntimeActors := preload("res://scripts/map/view3d/map_view_runtime_actors.gd")
 const RuntimeAmbient := preload("res://scripts/map/view3d/map_view_runtime_ambient.gd")
 const RuntimeTimeFlow := preload("res://scripts/map/view3d/map_view_runtime_time_flow.gd")
+const PerfProbeScript := preload("res://scripts/debug/perf_probe.gd")
 const RuntimeEnvironment := preload("res://scripts/map/view3d/map_view_runtime_environment.gd")
 const RuntimeFlatMap := preload("res://scripts/map/view3d/map_view_runtime_flat_map.gd")
 const RuntimeSession := preload("res://scripts/map/view3d/map_view_runtime_session.gd")
@@ -293,6 +294,15 @@ func reset_time_flow() -> void:
 	_time_flow.reset_time_flow()
 
 
+## Debug date control (ADR 0045): whole-day steps and season jumps.
+func shift_calendar_days(days: int) -> void:
+	_environment.shift_calendar_days(days, Callable(_session, "current_calendar_date"))
+
+
+func jump_to_season(season: StringName) -> void:
+	_environment.jump_to_season(season, Callable(_session, "current_calendar_date"))
+
+
 func _emit_time_flow_changed(speed: float, paused: bool) -> void:
 	time_flow_changed.emit(speed, paused)
 
@@ -323,9 +333,6 @@ func environment_weather() -> Node:
 
 func _current_calendar_date() -> Dictionary:
 	return _session.current_calendar_date()
-
-
-const PerfProbeScript := preload("res://scripts/debug/perf_probe.gd")
 
 
 func _process(delta: float) -> void:

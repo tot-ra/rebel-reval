@@ -26,7 +26,7 @@ Status: partial (core **SeasonState** implemented; presentation tasks planned, [
 | # | Task | Notes |
 |---|---|---|
 | 1 | Core `SeasonState` | done |
-| 2 | Debug season/date control | forces date; speeds clock |
+| 2 | Debug season/date control | done: `[` `]` step a day (Shift: 30 days), `F5`..`F8` jump to winter/spring/summer/autumn; clock speed already on the existing ladder |
 | 3 | Snowfall weather | three looks, GPU particles, shared with rain budget |
 | 4 | Ground snow, roof snow, icicles, melt | shader `snow_depth` uniforms, thaw by temperature |
 | 5 | Movement in snow and footprints | extends the mud trail |
@@ -37,6 +37,10 @@ Status: partial (core **SeasonState** implemented; presentation tasks planned, [
 | 10 | Chimney smoke by `heating_demand`; wall weathering; save; docs | |
 
 Every visual task must record High (25 fps) and Medium (30 fps) results from the F3 monitor.
+
+## Debug controls
+
+In the 3D runtime: `[` / `]` move the campaign date one day back / forward (Shift: 30 days); `F5` winter (15 Jan), `F6` spring (21 Apr), `F7` summer (15 Jul), `F8` autumn (15 Oct) jump forward to that day. Elapsed days never go negative, so a step back wraps to the same calendar day next year (`GameCalendar.days_until`). The sun, HUD date, phenology, farmland and forbs follow through `set_calendar_date`. Entry points: `MapViewRuntime.shift_calendar_days` / `jump_to_season`, keys in `map_view_runtime_input.gd`.
 
 ## Verify
 
