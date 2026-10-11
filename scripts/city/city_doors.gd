@@ -54,7 +54,7 @@ func _build() -> void:
 			look["paint"],
 			CityBuildingBuilder.door_size(b).y - 0.05,
 			double,
-			look["variant"]
+			{"variant": look["variant"]}
 		)
 		doors[i]["enterable"] = bool(b.get("enterable", false))
 	# Landmark site doors (ADR 0032), keyed "site:<door id>".
@@ -66,18 +66,48 @@ func _build() -> void:
 				if f["id"] == d["floor"]:
 					floor_y = float(f["height"])
 			var key := "site:%s" % d["id"]
+			var hang := portal_hang(site, d, floor_y)
 			doors[key] = _hang(
 				key.replace(".", "_").replace(":", "_"),
-				d["a"],
-				d["b"],
+				hang["a"],
+				hang["b"],
 				floor_y,
 				d["inward"],
 				Details.site_style(d),
 				d["paint"],
-				float(d["height"]) - 0.05,
-				width > 2.2
+				hang["height"],
+				width > 2.2,
+				{"head": hang["head"]}
 			)
 			doors[key]["site_floor"] = d["floor"]
+			# Proximity stays on the authored door line, not the recessed leaf.
+			doors[key]["center"] = (d["a"] + d["b"]) * 0.5
+			doors[key]["angle"] = hang["angle"]
+
+
+## Where and how a site door's leaves hang: {a, b, height, head, angle}. In a
+## profiled portal (R-1693) the leaves sit deeper, behind the stop they overlap,
+## are cut to the pointed head and open flat against the rear arch.
+static func portal_hang(site: CitySite, d: Dictionary, floor_y: float) -> Dictionary:
+	var frame := CitySitePortals.leaf(site, StringName(d["id"]), floor_y)
+	if frame.is_empty():
+		return {
+			"a": d["a"],
+			"b": d["b"],
+			"height": float(d["height"]) - 0.05,
+			"head": Vector2.ZERO,
+			"angle": OPEN_ANGLE,
+		}
+	var along: Vector2 = (d["b"] - d["a"]).normalized()
+	var shift: Vector2 = d["inward"] * float(frame["depth_shift"])
+	var ov := float(frame["overlap"])
+	return {
+		"a": d["a"] + shift - along * ov,
+		"b": d["b"] + shift + along * ov,
+		"height": float(frame["spring"]),
+		"head": Vector2(frame["span"], frame["apex"]),
+		"angle": CitySitePortals.OPEN_ANGLE,
+	}
 
 
 ## Hangs one or two leaves in the gap a-b on `floor_y`; returns the door record.
@@ -91,8 +121,11 @@ func _hang(
 	paint: Color,
 	height: float,
 	double: bool,
-	variant := 0
+	shape := {}
 ) -> Dictionary:
+	# `shape`: {variant (board variant), head (arch span, apex) for portal leaves}.
+	var variant: int = shape.get("variant", 0)
+	var head: Vector2 = shape.get("head", Vector2.ZERO)
 	var leaves := 2 if double else 1
 	var leaf_w := a.distance_to(b) / leaves
 	var hinge_nodes: Array[Node3D] = []
@@ -104,7 +137,7 @@ func _hang(
 		hinge.position = Vector3(from.x, floor_y, from.y)
 		hinge.basis = Basis(Vector3.UP, atan2(-toward.y, toward.x))
 		var leaf := MeshInstance3D.new()
-		leaf.mesh = Details.mesh(style, leaf_w, height, variant)
+		leaf.mesh = Details.mesh(style, leaf_w, height, variant, head)
 		for surface in leaf.mesh.get_surface_count():
 			if leaf.mesh.surface_get_name(surface) == "wood":
 				leaf.set_surface_override_material(surface, _material(paint))
@@ -203,7 +236,7 @@ func update_for(world_xz: Vector2, delta: float) -> void:
 			var leaf := hinges[k].get_child(0) as Node3D
 			# Swing inward: positive yaw turns +X toward the house for the first leaf.
 			var sign := _inward_sign(hinges[k], d["inward"])
-			leaf.rotation.y = sign * OPEN_ANGLE * eased
+			leaf.rotation.y = sign * float(d.get("angle", OPEN_ANGLE)) * eased
 
 
 ## `index` is a building index, or "site:<door id>" for a landmark site door.

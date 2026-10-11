@@ -25,6 +25,9 @@ const SO := 8.0
 const AN := -10.5
 const AS := 0.5
 const SCREEN := -14.8
+## Transverse rib of the chancel's two vault bays and its south buttress. East
+## of the priests' door (x 3.25..4.75), not in front of it (R-1693).
+const CHANCEL_BAY := 6.0
 const EAST := -6.0
 const CE := 14.0
 const AX := -5.0
@@ -148,8 +151,7 @@ static func _buttresses(shell: CityBuildingBuilder.Shell) -> void:
 		for x: float in [-27.8, -21.0]:
 			var h := 3.5 if x < -25.0 else 6.0
 			_buttress(shell, Vector3(x, 0.0, z_face), Vector3(0, 0, out), 1.2, 1.4, h)
-	for x: float in [4.0]:
-		_buttress(shell, Vector3(x, 0.0, AS), Vector3(0, 0, 1), 1.1, 1.3, 11.0)
+	_buttress(shell, Vector3(CHANCEL_BAY, 0.0, AS), Vector3(0, 0, 1), 1.1, 1.3, 11.0)
 	for k in range(1, APSE.size() - 1):
 		var p := APSE[k]
 		var o := (p - Vector2(14.0, AX)).normalized()
@@ -315,9 +317,9 @@ static func _vaults(roof: CityBuildingBuilder.Shell) -> void:
 	Kit.rib_vault(roof, Rect2(SCREEN, AN + 0.6, EAST - SCREEN, AS - AN - 1.2), 10.6, 14.4, RIB)
 	Kit.rib_vault(roof, Rect2(SCREEN, NO + 1.4, EAST - SCREEN, AN - 0.6 - NO - 1.4), 6.6, 9.4, RIB)
 	Kit.rib_vault(roof, Rect2(SCREEN, AS + 0.6, EAST - SCREEN, SO - 1.4 - AS - 0.6), 6.6, 9.4, RIB)
-	Kit.rib_vault(roof, Rect2(EAST, AN + 1.3, 10.0, AS - AN - 2.6), 9.6, 13.2, RIB)
+	Kit.rib_vault(roof, Rect2(EAST, AN + 1.3, CHANCEL_BAY - EAST, AS - AN - 2.6), 9.6, 13.2, RIB)
 	Kit.rib_vault(
-		roof, Rect2(EAST + 10.0, AN + 1.3, CE - EAST - 10.0, AS - AN - 2.6), 9.6, 13.2, RIB
+		roof, Rect2(CHANCEL_BAY, AN + 1.3, CE - CHANCEL_BAY, AS - AN - 2.6), 9.6, 13.2, RIB
 	)
 
 
