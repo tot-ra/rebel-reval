@@ -70,15 +70,10 @@ vec3 shade_growth(vec3 col, inout vec3 nm, inout float rough, vec3 pos, vec3 nrm
 	// Recessed (darker) mortar and hollows hold water: moss starts there.
 	float lum = dot(col, vec3(0.3, 0.59, 0.11));
 	cover = clamp(cover + (0.28 - lum) * 0.4 * step(0.02, cover), 0.0, 1.0);
-	// Two rotated samples at unrelated scales break the tile repeat; the
-	// higher cushion wins, as overlapping colonies do.
-	vec2 uv_a = wp / 0.32;
-	vec2 uv_b = mat2(vec2(0.8, 0.6), vec2(-0.6, 0.8)) * wp / 0.47 + 0.37;
-	vec4 ma = texture(moss_tex, uv_a);
-	vec4 mb = texture(moss_tex, uv_b);
-	float pick = smoothstep(-0.08, 0.08, mb.a - ma.a + (wnoise(wp * 2.3) - 0.5) * 0.6);
-	vec4 moss_s = mix(ma, mb, pick);
-	vec3 moss_n = mix(texture(moss_normal_tex, uv_a).rgb, texture(moss_normal_tex, uv_b).rgb, pick);
+	// R-1747: shared multi-species sample (feather carpet, small domed
+	// cushions, hoary grimmia), warped and colony-mixed against tile repeat.
+	vec3 moss_n;
+	vec4 moss_s = growth_moss_sample(wp, GROWTH_WALL_SPECIES, moss_n);
 	// The cushion height is the edge: low cover leaves only crowns standing.
 	float moss = smoothstep(1.0 - cover - 0.06, 1.0 - cover + 0.06, moss_s.a);
 	// Damp halo: stone round the colonies stays wet and dark.
@@ -86,7 +81,7 @@ vec3 shade_growth(vec3 col, inout vec3 nm, inout float rough, vec3 pos, vec3 nrm
 	// Shaded north moss is deeper than the sunlit plate; higher, drier
 	// cushions yellow and brown at the tips.
 	float dry = smoothstep(0.3, 1.0, above / max(reach, 0.1)) * (0.5 + wnoise(wp * 0.9 + 4.0) * 0.5);
-	vec3 moss_col = moss_s.rgb * mix(vec3(0.62, 0.7, 0.5), vec3(0.78, 0.72, 0.5), dry);
+	vec3 moss_col = growth_season(moss_s.rgb * mix(vec3(0.62, 0.7, 0.5), vec3(0.78, 0.72, 0.5), dry), moss_s.a);
 	col = mix(col, moss_col, moss);
 	nm = mix(nm, moss_n, moss);
 	rough = mix(rough, 0.97, moss);

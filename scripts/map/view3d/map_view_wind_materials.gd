@@ -51,6 +51,29 @@ const TREE_SLENDER := {
 	&"juniper": 0.7, &"apple": 0.8,
 }
 
+## Moss and lichen plates (city_growth_plates.gdshaderinc uniform -> texture),
+## shared by bark here and by walls and roofs via CityBuildingBuilder.bind_ground.
+const GROWTH_PLATES := {
+	"moss_tex": preload("res://assets/materials/pbr/wall_growth/wall_moss_albedo.png"),
+	"moss_normal_tex": preload("res://assets/materials/pbr/wall_growth/wall_moss_normal.png"),
+	"moss_feather_tex": preload("res://assets/materials/pbr/wall_growth/wall_moss_feather_albedo.png"),
+	"moss_feather_normal_tex":
+	preload("res://assets/materials/pbr/wall_growth/wall_moss_feather_normal.png"),
+	"moss_grimmia_tex": preload("res://assets/materials/pbr/wall_growth/wall_moss_grimmia_albedo.png"),
+	"moss_grimmia_normal_tex":
+	preload("res://assets/materials/pbr/wall_growth/wall_moss_grimmia_normal.png"),
+	"lichen_tex": preload("res://assets/materials/pbr/wall_growth/wall_lichen.png"),
+}
+## R-1747 moss colour per season (rgb multiplies the plate, a = drought that
+## browns the shoot tips): fresh flush in spring, dry tips in summer, deep
+## green after the autumn rains, dull dark olive under frost.
+const MOSS_SEASON := {
+	&"spring": Vector4(1.0, 1.08, 0.88, 0.0),
+	&"summer": Vector4(1.08, 0.98, 0.82, 0.5),
+	&"autumn": Vector4(0.94, 1.04, 0.94, 0.08),
+	&"winter": Vector4(0.8, 0.76, 0.7, 0.3),
+}
+
 static var _cache: Dictionary = {}
 ## Recent footfalls pressing the grass down (R-1327).
 static var _trail := VegetationInteractionBuffer.new()
@@ -62,6 +85,8 @@ static var _dormancy := 0.0
 ## in the current season instead of the summer defaults.
 static var _season_date: Dictionary = GameCalendar.DEFAULT_DATE.duplicate()
 static var _vegetation_wetness := 0.0
+## Last value pushed to the `moss_season_g` shader global (R-1747).
+static var _moss_season := Vector4(1, 1, 1, 0)
 
 
 static func reset() -> void:
@@ -298,12 +323,8 @@ static func bark_plate_wind(plate: StringName, species: StringName = &"") -> Sha
 	material.set_shader_parameter("albedo_tex", plain.albedo_texture)
 	material.set_shader_parameter("normal_tex", plain.normal_texture)
 	# Bind here as blueprint trees do not pass through CityBuildingBuilder.bind_ground.
-	material.set_shader_parameter("moss_tex",
-		preload("res://assets/materials/pbr/wall_growth/wall_moss_albedo.png"))
-	material.set_shader_parameter("moss_normal_tex",
-		preload("res://assets/materials/pbr/wall_growth/wall_moss_normal.png"))
-	material.set_shader_parameter("lichen_tex",
-		preload("res://assets/materials/pbr/wall_growth/wall_lichen.png"))
+	for uniform: String in GROWTH_PLATES:
+		material.set_shader_parameter(uniform, GROWTH_PLATES[uniform])
 	material.set_shader_parameter("roughness_value", plain.get_meta(&"dry_roughness", plain.roughness))
 	if species != &"":
 		_apply_tree_flexibility(material, species)
@@ -326,8 +347,23 @@ static func apply_vegetation_season(date: Dictionary) -> void:
 	_season_date = GameCalendar.normalize_date(date)
 	apply_snow_cover(VegetationPhenology.snow_cover_for(_season_date))
 	apply_grass_dormancy(_season_date)
+	_moss_season = moss_season(_season_date)
+	RenderingServer.global_shader_parameter_set(&"moss_season_g", _moss_season)
 	for material in _species_canopies():
 		_apply_season_to(material, material.get_meta(&"tree_species"), _season_date)
+
+
+## Season-weighted moss tint for the `moss_season_g` shader global.
+static func moss_season(date: Dictionary) -> Vector4:
+	var weights := SeasonState.season_weights(SeasonState.day_of_year_for(date))
+	var tint := Vector4.ZERO
+	for season: StringName in MOSS_SEASON:
+		tint += (MOSS_SEASON[season] as Vector4) * float(weights[season])
+	return tint
+
+
+static func moss_season_tint() -> Vector4:
+	return _moss_season
 
 
 ## Winter snow on grass blades; the ground tint is pushed by the same caller.

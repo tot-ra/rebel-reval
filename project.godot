@@ -234,6 +234,10 @@ cloud_shadow_strength={
 "type": "float",
 "value": 0.55
 }
+moss_season_g={
+"type": "vec4",
+"value": Vector4(1, 1, 1, 0)
+}
 wind_dir_g={
 "type": "vec2",
 "value": Vector2(0.9285, 0.3714)

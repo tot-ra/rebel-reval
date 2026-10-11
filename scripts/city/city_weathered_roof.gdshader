@@ -28,7 +28,7 @@ void fragment() {
 	vec3 nm = texture(normal_tex, uv).rgb;
 	float rough = roughness_base;
 	shade_growth_plates(col, nm, rough, UV, m * 0.6, lichen * 0.18 * age,
-		vec3(0.62, 0.7, 0.5));
+		vec3(0.62, 0.7, 0.5), GROWTH_ROOF_SPECIES);
 	col *= mix(0.84, 1.08, wfbm(w_pos.xz * 0.12 + 5.0));
 	ALBEDO = city_albedo(col * mix(1.0, 0.72, wetness));
 	ROUGHNESS = mix(rough, 0.4, wetness);

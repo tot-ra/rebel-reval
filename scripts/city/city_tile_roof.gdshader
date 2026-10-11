@@ -68,7 +68,7 @@ void fragment() {
 	float lichen = smoothstep(0.7, 0.85, wnoise(uv * 9.0 + course)) * monk;
 	float rough = 0.82;
 	shade_growth_plates(col, nm, rough, uv, clamp(m * 1.4, 0.0, 0.85),
-		lichen * 0.35 * age, vec3(0.62, 0.7, 0.5));
+		lichen * 0.35 * age, vec3(0.62, 0.7, 0.5), GROWTH_ROOF_SPECIES);
 	NORMAL_MAP = nm;
 	ALBEDO = col * mix(1.0, 0.68, wetness);
 	ROUGHNESS = mix(rough, 0.3, wetness);

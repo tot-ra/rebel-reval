@@ -88,7 +88,7 @@ void fragment() {
 	// Bark mesh UVs use 0.55 m tiles (MapViewTreeMeshes.BARK_TILE_METRES).
 	// Reusing that tangent frame keeps photographic cushions rooted while swaying.
 	moss = shade_growth_plates(albedo, nm, rough, UV * 0.55 + bark_seed,
-		moss * 0.92, lichen * 0.85, vec3(0.62, 0.7, 0.5));
+		moss * 0.92, lichen * 0.85, vec3(0.62, 0.7, 0.5), GROWTH_BARK_SPECIES);
 	// Moss soaks up rain and darkens less than bare bark glosses.
 	ALBEDO = albedo * mix(1.0, mix(0.58, 0.75, moss), wetness);
 	NORMAL_MAP = nm;

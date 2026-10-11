@@ -67,7 +67,7 @@ Start with the visual symptom, then edit the responsible layer. Do not change pl
 | Storm movement | `WindField`, `tree_wind.gdshaderinc`, species `sway_strength` | Calm and storm, bark and foliage, every crown tier |
 | Grass density, height or range | `CityGrass` tier constants, `map_view_grass.gdshader` | Tier seams at 12, 46 and 118 m; `grass_near` budget |
 | Wild-plant look, habitat or season | `CityForbMeshes`, `CityForbs`, `forb_phase` | Near and far variants; season table; forb budget |
-| Moss, lichen, fungi | `city_growth_plates.gdshaderinc`, `CityShadeMask`, `CityForestFloor` | North vs south faces; April vs August |
+| Moss, lichen, fungi | `city_growth_plates.gdshaderinc` (species mixes, `moss_season_g`), `MapViewWindMaterials.MOSS_SEASON`, `CityShadeMask`, `CityForestFloor` | North vs south faces; April, July, January; no repeating tile at the wall foot |
 | Expensive woodland | `CityTreeLod`, graphics settings, batching/shadows | Frame time and overdraw in a dense stand |
 
 For a model edit: **(1)** identify species and runtime path, **(2)** capture the current shape, **(3)** change the owning layer, **(4)** compare silhouette, bare wood and close detail, **(5)** check seasons and LOD transitions, **(6)** update this page. Adding a species also needs registry/pools, profiles/presets, leaf and bark mappings, phenology, placement and checks. Preserve existing IDs.

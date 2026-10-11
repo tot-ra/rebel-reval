@@ -6,14 +6,16 @@ extends Node
 ## in front of it, and the woods floor in April (false morels) and August
 ## (chanterelle, porcini, fly agaric). Host scene so autoloads resolve:
 ##   tools/godot_render.sh --resolution 1600x900 res://tools/capture_city_moss.tscn
-## Append `-- --walls` to stop after the wall shots.
-## Output: docs/reports/images/vegetation/r1661_<shot>.png
+## Append `-- --walls` to stop after the wall shots. `-- --date=1-15` sets the
+## calendar (seasonal moss colour, R-1747) and suffixes each file with the date.
+## Output: docs/reports/images/vegetation/r1661_<shot>[_<month>_<day>].png
 
 const SCENE := preload("res://scenes/world/reval_city/reval_city.tscn")
 const OUTPUT_DIR := "res://docs/reports/images/vegetation"
 
 var city: Node
 var cam: Camera3D
+var date := {}
 
 
 func _ready() -> void:
@@ -28,6 +30,8 @@ func _frames(n: int) -> void:
 func _shot(at: Vector2, eye: Vector3, target: Vector3, file: String, fov := 55.0) -> void:
 	city.player.global_position = CityPlan.to_logic(at)
 	city.runtime.cycle_progress = 0.5
+	if not date.is_empty():
+		city.view.set_calendar_date(date)
 	await _frames(90)
 	# Step Kalev out of frame; the streamed chunks round the spot stay loaded.
 	city.player.global_position = CityPlan.to_logic(at + Vector2(14.0, 14.0))
@@ -38,12 +42,18 @@ func _shot(at: Vector2, eye: Vector3, target: Vector3, file: String, fov := 55.0
 	cam.make_current()
 	await _frames(4)
 	await RenderingServer.frame_post_draw
+	if not date.is_empty():
+		file += "_%d_%d" % [date["month"], date["day"]]
 	var path := ProjectSettings.globalize_path("%s/%s.png" % [OUTPUT_DIR, file])
 	get_viewport().get_texture().get_image().save_png(path)
 	print("saved ", path)
 
 
 func _run() -> void:
+	for arg in OS.get_cmdline_user_args():
+		if arg.begins_with("--date="):
+			var parts := arg.substr(7).split("-")
+			date = {"year": 1343, "month": int(parts[0]), "day": int(parts[1])}
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT_DIR))
 	city = SCENE.instantiate()
 	add_child(city)
