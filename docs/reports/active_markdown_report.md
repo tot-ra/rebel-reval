@@ -14,10 +14,10 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `1191`
-- Markdown files excluded as archive/reference/out of active scope: `759`
-- Local/external links inspected: `13601`
-- Links to active Markdown docs: `12277`
+- Active Markdown files scanned: `1193`
+- Markdown files excluded as archive/reference/out of active scope: `758`
+- Local/external links inspected: `13617`
+- Links to active Markdown docs: `12287`
 - Links to existing archive/reference/non-active local docs: `486`
 - External links skipped for reachability: `151`
 - Issues found: `0`
@@ -1096,6 +1096,7 @@ No active Markdown documentation issues found.
 - `docs/SYSTEMS/CITY_DOORS.md`
 - `docs/SYSTEMS/CITY_LANDMARK_SITES.md`
 - `docs/SYSTEMS/CITY_SEA.md`
+- `docs/SYSTEMS/CLOUD_CELLS.md`
 - `docs/SYSTEMS/COMBAT.md`
 - `docs/SYSTEMS/COMBAT_ANIMATION.md`
 - `docs/SYSTEMS/COMBAT_NIGHT.md`
@@ -1135,6 +1136,7 @@ No active Markdown documentation issues found.
 - `docs/SYSTEMS/SPIRIT_SIGHT.md`
 - `docs/SYSTEMS/STATE_AND_SAVES.md`
 - `docs/SYSTEMS/TIME_AND_PHASES.md`
+- `docs/SYSTEMS/VEGETATION_ENGINEERING.md`
 - `docs/SYSTEMS/VEGETATION_REALISM.md`
 - `docs/SYSTEMS/WATER_SANDBOX.md`
 - `docs/SYSTEMS/WEATHER_GROUND.md`

@@ -7,6 +7,10 @@ extends SceneTree
 ## earth), a whole soul (a pillar to the sky), a whole soul with a narrow crown
 ## (only a thread), a crowd (12 full auras, the rest as distant glows) and a
 ## dog. The real SpiritAuraManager picks the tiers.
+## Doc legend plates (SPIRIT_SIGHT.md): the seven lights labelled, levels 0..5,
+## clarity high to low, the apprentice's starting lights and the duel feedback
+## (a word dims a light, pressure drains clarity, a broken soul shatters).
+## Render a subset with --only=name[,name] (plate file names without .png).
 ## Frame budget in the same crowd, sight off vs on (add --disable-vsync):
 ##   tools/godot_render.sh --resolution 1280x720 --disable-vsync \
 ##     --script tools/capture_spirit_auras.gd -- --bench
@@ -18,6 +22,8 @@ const Animals := preload("res://scripts/map/view3d/map_view_medieval_animal_mode
 var _stage: Node3D
 var _camera: Camera3D
 var _manager: Node
+var _late := Callable()
+var _early := Callable()
 
 
 func _init() -> void:
@@ -31,12 +37,20 @@ func _init() -> void:
 		await _bench()
 		quit()
 		return
-	await _plate(out + "/bright_clear_soul.png", _bright_clear)
-	await _plate(out + "/dim_murky_soul.png", _dim_murky)
-	await _plate(out + "/whole_soul.png", _whole)
-	await _plate(out + "/narrow_crown.png", _narrow_crown)
-	await _plate(out + "/crowd.png", _crowd)
-	await _plate(out + "/animal_dog.png", _animal)
+	var only := PackedStringArray()
+	for arg in OS.get_cmdline_user_args():
+		if arg.begins_with("--only="):
+			only = arg.trim_prefix("--only=").split(",", false)
+	var plates := {
+		"bright_clear_soul": _bright_clear, "dim_murky_soul": _dim_murky,
+		"whole_soul": _whole, "narrow_crown": _narrow_crown, "crowd": _crowd,
+		"animal_dog": _animal, "seven_lights_legend": _legend,
+		"levels_0_to_5": _levels, "clarity_scale": _clarity,
+		"apprentice_start": _apprentice, "duel_feedback": _duel_feedback,
+	}
+	for plate_name: String in plates:
+		if only.is_empty() or plate_name in only:
+			await _plate(out + "/" + plate_name + ".png", plates[plate_name])
 	quit()
 
 
@@ -49,11 +63,20 @@ func _plate(path: String, build: Callable) -> void:
 	_manager.state = GameState.new()
 	_manager.fade = 1.0
 	_stage.add_child(_manager)
+	_late = Callable()
+	_early = Callable()
 	build.call()
 	await _wait(0.4)
 	_manager.refresh()
+	# Slow effects (the 0.8 s shatter) start here so they finish before the grab.
+	if _early.is_valid():
+		_early.call()
 	# Let the comets run and the lights breathe before grabbing the frame.
 	await _wait(1.6)
+	# Duel feedback fades within a second, so it is triggered just before the grab.
+	if _late.is_valid():
+		_late.call()
+		await _wait(0.3)
 	await RenderingServer.frame_post_draw
 	var image := root.get_texture().get_image()
 	# Retina viewports may double CLI resolution; evidence follows the 720p policy.
@@ -174,6 +197,102 @@ func _animal() -> void:
 	_manager.register(dog, SpiritAuraProfile.for_species("dog"))
 	_manager.center_override = Vector3.ZERO
 	_close_camera(Vector3(0.0, 0.55, 0.0), 2.6)
+
+
+## The bright clear soul with each light named: aspect, the duel element it
+## guards, and where it sits on the body.
+func _legend() -> void:
+	var rig := _rig("PlayerRig", Vector3.ZERO, 0.0)
+	_manager.register(rig, _profile([3, 3, 3, 3, 3, 3, 3], 1.0))
+	_close_camera(Vector3(0.0, 1.3, 0.0), 4.2)
+	var names := [
+		"1 nature - fear - pelvis", "2 affection - coin - lower spine",
+		"3 tenacity - duty - mid spine", "4 unity - love - chest",
+		"5 resonance - shame - neck", "6 awareness - sight - brow",
+		"7 light - faith - crown",
+	]
+	_late = func() -> void:
+		var view: SpiritAuraView = _manager.view_for(rig)
+		var right := _camera.global_transform.basis.x
+		for i in names.size():
+			# Labels sit in a column to the right of the body, level with their light.
+			var label := _caption(names[i], view.anchors[i] + right * 0.55, 30)
+			label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+			label.modulate = SpiritAuraView.COLORS[i].lightened(0.35)
+
+
+## Six people side by side, every light at the same level 0..5.
+func _levels() -> void:
+	for level in 6:
+		var at := Vector3(float(level) * 1.6 - 4.0, 0.0, 0.0)
+		var rig := _rig("Level%dRig" % level, at, 0.0)
+		_manager.register(rig, _profile([level, level, level, level, level, level, level], 1.0))
+		_caption("level %d" % level, at + Vector3(0.0, -0.25, 0.6), 48)
+	_manager.center_override = Vector3.ZERO
+	_front_camera(Vector3(0.0, 2.6, 0.0), 7.2)
+
+
+## The same mid-level soul at clarity 1.0, 0.4 and 0.0.
+func _clarity() -> void:
+	var clarities := [1.0, 0.4, 0.0]
+	for i in clarities.size():
+		var at := Vector3(float(i) * 1.8 - 1.8, 0.0, 0.0)
+		var rig := _rig("Clarity%dRig" % i, at, 0.0)
+		_manager.register(rig, _profile([3, 3, 3, 3, 3, 3, 3], clarities[i]))
+		_caption("clarity %.1f" % clarities[i], at + Vector3(0.0, -0.1, 0.6), 44)
+	_manager.center_override = Vector3.ZERO
+	_front_camera(Vector3(0.0, 1.4, 0.0), 4.4)
+
+
+## The New Game apprentice: nature 10, unity 10, awareness 15, the rest 5.
+func _apprentice() -> void:
+	var rig := _rig("PlayerRig", Vector3.ZERO, 0.0)
+	var state := GameState.new_apprentice_game()
+	_manager.register(rig, SpiritAuraProfile.for_character(&"char.apprentice", null, state))
+	_close_camera(Vector3(0.0, 1.35, 0.0), 4.6)
+
+
+## One opponent soul four times: calm, a love word just landed (green dims),
+## pressure at a quarter (clarity drains), and breaking (the shatter).
+func _duel_feedback() -> void:
+	var titles := ["calm", "love word lands", "pressure 25 %", "broken"]
+	var rigs: Array[SharedCharacterRig] = []
+	for i in titles.size():
+		var at := Vector3(float(i) * 1.8 - 2.7, 0.0, 0.0)
+		var rig := _rig("Duel%dRig" % i, at, 0.0)
+		_manager.register(rig, _profile([3, 2, 3, 4, 3, 3, 3], 1.0))
+		_caption(titles[i], at + Vector3(0.0, -0.25, 0.6), 44)
+		rigs.append(rig)
+	_manager.center_override = Vector3.ZERO
+	_front_camera(Vector3(0.0, 1.5, 0.0), 4.2)
+	_late = func() -> void:
+		_manager.view_for(rigs[1]).dim_light(&"aspect.unity")
+		_manager.view_for(rigs[2]).set_pressure_fraction(0.25)
+	_early = func() -> void:
+		_manager.view_for(rigs[3]).shatter_now()
+
+
+func _caption(text: String, at: Vector3, size: int) -> Label3D:
+	var label := Label3D.new()
+	label.text = text
+	label.font_size = size
+	label.pixel_size = 0.004
+	label.outline_size = 8
+	label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	label.no_depth_test = true
+	_stage.add_child(label)
+	label.global_position = at
+	return label
+
+
+## A near-frontal orthographic view so a row of bodies lines up for comparison.
+func _front_camera(target: Vector3, size: float) -> void:
+	_camera = Camera3D.new()
+	_camera.projection = Camera3D.PROJECTION_ORTHOGONAL
+	_camera.size = size
+	_stage.add_child(_camera)
+	_camera.global_position = target + Vector3(0.0, 0.6, 10.0)
+	_camera.look_at(target)
 
 
 func _rig(rig_name: String, at: Vector3, yaw: float) -> SharedCharacterRig:

@@ -33,6 +33,7 @@ One page per implemented or planned feature. Each page opens with a `Status:` li
 | [Village and house windows](./COTTAGE_WINDOWS.md) | Implemented (7 styles: platbands, shutters, slit, stone surround) |
 | [Farmland, pastures and woods](./FARMLAND.md) | Implemented (fields, crops by date, pastures, woods; no far-field LOD yet) |
 | [Living vegetation: trees, shrubs, grass and ground cover](./LIVING_VEGETATION.md) | Implemented: 20 tree species, shrubs, blade grass, 3D wild plants, ecology placement, moss and fungi, seasons, shared wind, budgets, animated visual tour; grain fields and tree LOD chain planned (R-1319) |
+| [Vegetation engineering: budgets, workflow, roadmap](./VEGETATION_ENGINEERING.md) | Implemented (R-1320, R-1329): procedural texture pipeline, performance budgets, change workflow, capture and test commands, known limits, grain/LOD roadmap |
 | [Hoist ropes](./HOIST_ROPE.md) | Implemented (wind-swung rope and hook on hoist beams) |
 | [Bestiary: spirit and physical creature roster](./BESTIARY.md) | Planned (R-1578): roster, card template and validator implemented; no cards yet |
 | [Combat runtime](./COMBAT.md) | Foundation implemented; tower bosses unwired |
