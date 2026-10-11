@@ -12,6 +12,13 @@
 | Faction ties | black_cloaks |
 | Archive reference images | none |
 
+![tulukesed concept art](../inspiration/tulukesed_concept.jpg)
+
+**Illustration:** Generated with OpenAI Images, `gpt-image-1`. Documentation concept art only; folklore reference, not a claim of historical documentation.
+
+**Generation prompt:** Create a high-quality folkloric creature concept photograph / cinematic still for an Estonian spirit called Tulukesed, grave-lights that lure grave robbers toward buried treasure. A quiet, historically grounded old burial ground at night: uneven dark peat and grave earth, sparse native grass, a few indistinct low grave mounds. Above the earth float exactly three small separated, living fire-lights, each an unmistakably nonphysical spirit phenomenon: translucent flame-like wisps with cold blue-green luminous cores, faint restrained amber rims, delicate trailing vapor and subtle ghostly distortion, no visible source, casting tiny eerie pools of light. The lights should feel intelligent and beckoning, not like ordinary fire, candles, lanterns or will-o'-the-wisps from fantasy clichés. Grounded photographic realism in the environment, strong visual readability, moody quiet slate-grey-black night, natural cinematic low-light photography, detailed damp soil and grass, composition with lights centered in upper middle and substantial dark space around them. Spirit-layer identity is clear through translucence, impossible hovering, vapor trails and cool supernatural glow. No people, no bones, no monsters, no buildings, no text, no frame, no painterly brush strokes, no illustration look.
+**Negative prompt:** fairies, firefly swarm, lantern, humanoid, cute, fantasy portal, text, watermark, neon
+
 ## At a glance
 - Pale lights at night over buried treasure or old burials.
 - Lure the greedy toward rebel caches.
