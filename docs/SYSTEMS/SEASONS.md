@@ -83,6 +83,16 @@ Status: implemented for the moat, the Hareapea stream and lakes (sea ice is plan
 - **Ice:** `city_moat_water.gdshader` has `ice` (thickness 0..1 from `SeasonState.ice_cover_target(ICE_FRESH)`) and `ice_snow`. The shallows freeze first, then the open water; running water (the stream) freezes later; waves die out; cracks and snow on the ice show. Pushed to every moat/stream/lake material by `CityWorld3D.apply_season`.
 - Plates: `tools/godot_render.sh --script tools/capture_city_season.gd -- --date=1343-01-15` (also `1343-07-15`, `1343-10-20`).
 
+## Snow footprints and the crunch
+
+Status: implemented for the seamless city (Kalev, NPCs, hooves and wheels all use it).
+
+- **Prints:** snow takes a print like wet clay does. `CitySnow.patch(xz, cover)` (GDScript) mirrors the patch rule of `city_ground.gdshader` (`snow_patch`), so the prints, the footsteps and the picture agree on where snow lies. `CityGroundTrail.snow_cover` (set by `CityWorld3D.apply_season`) makes snow count as "give" even on paved ground (only fully paved ground stays hard), deepens the stamp (`_weight(snow)`), and a boot in snow kicks up a small white powder puff. In the shader a print thins the snow and shades the packed floor blue-grey; the relief mesh lifts it into real geometry like mud prints.
+- **Crunch:** new footstep surface `snow` (`SurfaceResolver.SURFACE_SNOW`, `with_snow`): turf, earth, mud and gravel under settled snow answer `sfx.footstep.snow.walk` (6 steps, `sounds/footsteps/snow_step_NN.mp3`). `CitySurfaceSampler.surface_at(..., snow_cover)` decides, `CityMapView.footstep_surface_at` passes the date's cover. Boards, flagstones and water stay as they were.
+- **The clips are synthesised** (no CC0 snow recording is cleared): `python3 tools/audio/generate_snow_footsteps.py` builds a low "press" plus 90-260 crystal grains per step, mono 44.1 kHz, -17 dBFS loudest 50 ms, 128 kbps; rows in `assets/SOURCES.csv` (`--print-sources`). Replace by catalog ID with a real recording if one is cleared later.
+- **Limits:** prints do not fill in under new snowfall or melt away on their own (the shader hides them as the snow thins, like mud prints it is a window image); no wind-blown drift; the crunch has not been judged by ear yet.
+- Plate: `tools/godot_render.sh --script tools/capture_snow_prints.gd`.
+
 ## Debug controls
 
 - **Debug overlay (mouse).** Open the quick menu and press **Debug**. The panel has a **Date and Season** block: the current date, season and mean temperature, buttons `-30d`, `-1d`, `+1d`, `+30d`, and `Winter`, `Spring`, `Summer`, `Autumn` that jump forward to 15 Jan, 21 Apr, 15 Jul and 15 Oct. Clock speed and pause are in the **Time Controls** block above it.

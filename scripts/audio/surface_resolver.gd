@@ -27,6 +27,9 @@ const SURFACE_WATER_WADE := &"water_wade"
 ## Standing rain water over another surface. No terrain maps to it: the view
 ## reports it where a visible puddle lies under the foot (R-1641).
 const SURFACE_PUDDLE := &"puddle"
+## Settled snow over turf, earth, mud or gravel: a dry crunch (ADR 0045). No terrain
+## maps to it: the city view reports it where snow lies under the foot.
+const SURFACE_SNOW := &"snow"
 
 const SURFACES: Array[StringName] = [
 	SURFACE_WOOD,
@@ -38,6 +41,7 @@ const SURFACES: Array[StringName] = [
 	SURFACE_WATER_SHALLOW,
 	SURFACE_WATER_WADE,
 	SURFACE_PUDDLE,
+	SURFACE_SNOW,
 ]
 
 const GAIT_WALK := &"walk"
@@ -112,6 +116,7 @@ const SURFACE_FALLBACKS: Dictionary = {
 	SURFACE_WATER_SHALLOW: [],
 	SURFACE_WATER_WADE: [],
 	SURFACE_PUDDLE: [],
+	SURFACE_SNOW: [],
 }
 
 ## Surfaces a puddle can lie on. A step onto a board or into a stream is never
@@ -119,6 +124,18 @@ const SURFACE_FALLBACKS: Dictionary = {
 const PUDDLE_HOSTS: Array[StringName] = [
 	SURFACE_STONE, SURFACE_DIRT, SURFACE_MUD, SURFACE_GRASS, SURFACE_GRAVEL
 ]
+
+
+## Ground snow can bury: turf, earth, mud and gravel. Boards, flagstones and water
+## stay what they are (a path is swept; a bridge is not snow).
+const SNOW_HOSTS: Array[StringName] = [SURFACE_DIRT, SURFACE_MUD, SURFACE_GRASS, SURFACE_GRAVEL]
+
+
+## The surface a foot hears when snow lies on the ground it stands on.
+static func with_snow(surface: StringName, in_snow: bool) -> StringName:
+	if in_snow and surface in SNOW_HOSTS:
+		return SURFACE_SNOW
+	return surface
 
 
 static func surface_for_terrain(terrain_id: StringName) -> StringName:

@@ -74,3 +74,75 @@ func test_moat_freezes_by_temperature() -> void:
 	assert_true(SeasonState.ice_cover_target(SeasonState.ICE_FRESH, _doy(JAN)) > 0.2)
 	var feb := {"day": 15, "month": 2, "year": 1343}
 	assert_true(SeasonState.ice_cover_target(SeasonState.ICE_FRESH, _doy(feb)) > 0.5)
+
+
+func test_snow_patches_follow_cover() -> void:
+	var spot := Vector2(123.4, -56.7)
+	assert_eq(CitySnow.patch(spot, 0.0), 0.0)
+	assert_almost_eq(CitySnow.patch(spot, 1.0), 1.0, 0.001, "deep winter covers everything")
+	assert_eq(CitySnow.patch(spot, 0.5), CitySnow.patch(spot, 0.5), "deterministic")
+	var covered := 0
+	for i in 200:
+		if CitySnow.patch(Vector2(i * 7.3, i * 3.1), 0.45) > CitySnow.LYING:
+			covered += 1
+	assert_true(covered > 10 and covered < 190, "half cover is patchy, got %d/200" % covered)
+
+
+func test_snow_takes_footprints_where_paving_would_not() -> void:
+	var plan := CityPlan.load_default()
+	var paved := func(_p: Vector2) -> Color: return Color(1, 0, 0, 0)
+	var bare := CityGroundTrail.create(plan, paved)
+	bare.update_for(Vector2(0, -400), 0.016)
+	var snowy := CityGroundTrail.create(plan, paved)
+	snowy.snow_cover = 1.0
+	snowy.update_for(Vector2(0, -400), 0.016)
+	var pos := Vector2(0, -400)
+	for i in 80:
+		pos += Vector2(0.25, 0.0)
+		bare.update_for(pos, 0.016)
+		snowy.update_for(pos, 0.016)
+	var pressed_bare := 0
+	var pressed_snow := 0
+	var x := 0.0
+	while x < 20.0:
+		var at := Vector2(x, -400.0 + CityGroundTrail.FOOT_SPREAD)
+		if bare.value_at(at) < 0.4:
+			pressed_bare += 1
+		if snowy.value_at(at) < 0.4:
+			pressed_snow += 1
+		x += CityGroundTrail.CELL
+	assert_eq(pressed_bare, 0, "paving takes no print")
+	assert_true(pressed_snow > 10, "snow takes prints, counted %d cells" % pressed_snow)
+	bare.free()
+	snowy.free()
+
+
+func test_footsteps_in_snow_crunch() -> void:
+	var plan := CityPlan.load_default()
+	var sampler := CitySurfaceSampler.new(plan)
+	var checked := 0
+	var y := plan.bounds.position.y + plan.bounds.size.y * 0.3
+	while y < plan.bounds.end.y and checked < 20:
+		var x := plan.bounds.position.x
+		while x < plan.bounds.end.x and checked < 20:
+			var xz := Vector2(x, y)
+			var foot := Vector3(xz.x, 0.0, xz.y)
+			if (
+				plan.ground_height(xz) > 3.0
+				and plan.building_at(xz) < 0
+				and plan.site_at(xz) == null
+				and is_nan(plan.bridge_deck_height(xz))
+				and sampler.ground_surface(xz) == SurfaceResolver.SURFACE_GRASS
+			):
+				checked += 1
+				assert_eq(sampler.surface_at(foot, 0.0, 0.0, 0.0), SurfaceResolver.SURFACE_GRASS)
+				assert_eq(sampler.surface_at(foot, 0.0, 0.0, 1.0), SurfaceResolver.SURFACE_SNOW)
+			x += 9.7
+		y += 9.7
+	assert_true(checked > 5, "the scan must reach open turf")
+	# Boards and flagstones are never snow.
+	for kept: StringName in [SurfaceResolver.SURFACE_WOOD, SurfaceResolver.SURFACE_STONE]:
+		assert_eq(SurfaceResolver.with_snow(kept, true), kept)
+	assert_eq(
+		SurfaceResolver.with_snow(SurfaceResolver.SURFACE_MUD, true), SurfaceResolver.SURFACE_SNOW
+	)

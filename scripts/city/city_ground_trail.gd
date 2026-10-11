@@ -16,6 +16,9 @@ extends Node3D
 ## Near Kalev a fine relief mesh (`_relief`, the ground shader's trail mesh mode)
 ## lifts the prints into real geometry so a grazing camera sees their silhouette.
 
+const DUST_COLOR := Color(0.74, 0.66, 0.52)
+## A boot in settled snow kicks up a small white powder puff.
+const SNOW_PUFF_COLOR := Color(0.93, 0.95, 1.0)
 const WINDOW_CELLS := 1024
 ## One cell in world units: a boot is ~0.13 wu wide, so 0.04 gives it 3-4 cells.
 ## 1024 cells * 0.04 = a 41 wu window.
@@ -65,6 +68,9 @@ const HOOVES := {
 }
 
 var wetness := 0.0
+## ADR 0045: settled snow cover 0..1 (CityWorld3D.apply_season). Snow takes prints like
+## wet clay does, in the patches CitySnow says it lies.
+var snow_cover := 0.0
 
 var _plan: CityPlan
 var _surface: Callable
@@ -76,6 +82,7 @@ var _travelled := 0.0
 var _left_foot := true
 var _dirty := false
 var _dust: CPUParticles3D
+var _dust_material: StandardMaterial3D
 ## Walkers seen this frame: key -> {at, travelled, left, seen}. A walker that
 ## stops being fed (out of range, despawned) is forgotten after a frame.
 var _marks: Dictionary = {}
@@ -270,14 +277,16 @@ func _softness_at(world_xz: Vector2) -> Vector2:
 	var s: Color = _surface.call(world_xz)
 	var softness := clampf(maxf(s.g, s.a) - s.r, 0.0, 1.0)
 	var give := maxf(softness, (1.0 - s.r) * 0.25)
+	# Snow buries paving's neighbours too: only fully paved ground stays hard.
+	give = maxf(give, CitySnow.patch(world_xz, snow_cover) * clampf(1.0 - s.r * 0.8, 0.0, 1.0))
 	if _plan.ground_height(world_xz) < 0.4:
 		give = 0.0
 	return Vector2(give, softness)
 
 
 ## Dry ground only crumbles; wet clay gives under the full weight.
-func _weight() -> float:
-	return 0.4 + 1.15 * clampf(wetness, 0.0, 1.0)
+func _weight(snow := 0.0) -> float:
+	return maxf(0.4 + 1.15 * clampf(wetness, 0.0, 1.0), 0.5 + 0.9 * snow)
 
 
 ## Update a walker's mark with its new position. Returns the mark (with the
@@ -331,8 +340,11 @@ func _footfall(world_xz: Vector2, facing: Vector2) -> void:
 	var foot_sign := 1.0 if _left_foot else -1.0
 	var foot := world_xz + side * FOOT_SPREAD * foot_sign
 	_left_foot = not _left_foot
-	stamp_foot(foot, facing.rotated(TOE_OUT * foot_sign), _weight())
-	if wetness < DRY_WETNESS and softness >= 0.4:
+	var snow := CitySnow.patch(foot, snow_cover)
+	stamp_foot(foot, facing.rotated(TOE_OUT * foot_sign), _weight(snow))
+	if snow > CitySnow.LYING:
+		_puff(foot, true)
+	elif wetness < DRY_WETNESS and softness >= 0.4:
 		_puff(foot)
 
 
@@ -512,7 +524,8 @@ func _build_dust() -> void:
 	mat.billboard_mode = BaseMaterial3D.BILLBOARD_PARTICLES
 	mat.vertex_color_use_as_albedo = true
 	mat.albedo_texture = sprite
-	mat.albedo_color = Color(0.74, 0.66, 0.52)
+	mat.albedo_color = DUST_COLOR
+	_dust_material = mat
 	quad.material = mat
 	_dust = CPUParticles3D.new()
 	_dust.name = "Dust"
@@ -539,9 +552,10 @@ func _build_dust() -> void:
 	add_child(_dust)
 
 
-func _puff(world_xz: Vector2) -> void:
+func _puff(world_xz: Vector2, snowy := false) -> void:
 	if not is_inside_tree():
 		return
+	_dust_material.albedo_color = SNOW_PUFF_COLOR if snowy else DUST_COLOR
 	_dust.position = Vector3(world_xz.x, _plan.ground_height(world_xz) + 0.05, world_xz.y)
 	_dust.restart()
 	_dust.emitting = true

@@ -39,8 +39,11 @@ func _init(city_plan: CityPlan, water_depth_at: Callable = Callable()) -> void:
 
 
 ## `puddles` and `ground_dryness` are SkyWeather3D.puddle_wetness() and
-## ground_dryness(), the values city_world_3d.gd hands the ground shader.
-func surface_at(foot: Vector3, puddles: float = 0.0, ground_dryness: float = 0.0) -> StringName:
+## ground_dryness(), the values city_world_3d.gd hands the ground shader;
+## `snow_cover` is the settled-snow cover (0..1) it hands the same shader.
+func surface_at(
+	foot: Vector3, puddles: float = 0.0, ground_dryness: float = 0.0, snow_cover: float = 0.0
+) -> StringName:
 	if plan == null:
 		return &""
 	var xz := Vector2(foot.x, foot.z)
@@ -61,6 +64,11 @@ func surface_at(foot: Vector3, puddles: float = 0.0, ground_dryness: float = 0.0
 			else SurfaceResolver.SURFACE_WOOD
 		)
 	var surface := ground_surface(xz)
+	# Settled snow buries soft ground (the same patches the shader paints).
+	if snow_cover > 0.0 and CitySnow.patch(xz, snow_cover) > CitySnow.LYING:
+		var snowy := SurfaceResolver.with_snow(surface, true)
+		if snowy != surface:
+			return snowy
 	var in_puddle := puddle_depth(xz, puddles, ground_dryness) > PUDDLE_MIN_DEPTH
 	return SurfaceResolver.with_puddle(surface, in_puddle)
 

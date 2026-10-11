@@ -62,7 +62,7 @@ A footstep or door entry is played once per event, so **every stream in a `sfx.f
 
 ### Footstep material (R-1641)
 
-Every pool is a recording of real steps, tier **A**, CC0, built by `python3 tools/audio/build_footstep_pools.py` into `sounds/footsteps/<surface>_step_NN.mp3` (5-6 variations per surface, 105-780 ms, mono 44.1 kHz 128 kbps):
+Every pool except `snow` is a recording of real steps, tier **A**, CC0 (`snow` is synthesised, see [`SEASONS.md`](./SEASONS.md#snow-footprints-and-the-crunch)), built by `python3 tools/audio/build_footstep_pools.py` into `sounds/footsteps/<surface>_step_NN.mp3` (5-6 variations per surface, 105-780 ms, mono 44.1 kHz 128 kbps):
 
 | Surface | Source |
 |---------|--------|

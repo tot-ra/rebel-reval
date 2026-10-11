@@ -192,6 +192,33 @@
       "spatial": "3d"
     },
     {
+      "id": "sfx.footstep.snow.walk",
+      "bus": "Footsteps",
+      "streams": [
+        "res://sounds/footsteps/snow_step_01.mp3",
+        "res://sounds/footsteps/snow_step_02.mp3",
+        "res://sounds/footsteps/snow_step_03.mp3",
+        "res://sounds/footsteps/snow_step_04.mp3",
+        "res://sounds/footsteps/snow_step_05.mp3",
+        "res://sounds/footsteps/snow_step_06.mp3"
+      ],
+      "tier": "A",
+      "source_ids": [
+        "sounds.footsteps.snow_step_01",
+        "sounds.footsteps.snow_step_02",
+        "sounds.footsteps.snow_step_03",
+        "sounds.footsteps.snow_step_04",
+        "sounds.footsteps.snow_step_05",
+        "sounds.footsteps.snow_step_06"
+      ],
+      "pitch_jitter": 0.08,
+      "volume_jitter_db": 1.5,
+      "no_repeat": 2,
+      "max_voices": 3,
+      "cooldown_ms": 90,
+      "spatial": "3d"
+    },
+    {
       "id": "sfx.footstep.puddle.walk",
       "bus": "Footsteps",
       "streams": [

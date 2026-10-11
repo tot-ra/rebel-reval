@@ -201,7 +201,10 @@ func apply_season(date: Dictionary) -> void:
 	var weights := SeasonState.season_weights(SeasonState.day_of_year_for(date))
 	var dormancy := float(weights[SeasonState.WINTER]) + 0.35 * float(weights[SeasonState.AUTUMN])
 	ground.set_shader_parameter("winter", clampf(dormancy, 0.0, 1.0))
-	ground.set_shader_parameter("snow_cover", VegetationPhenology.snow_cover_for(date))
+	var cover := VegetationPhenology.snow_cover_for(date)
+	ground.set_shader_parameter("snow_cover", cover)
+	if trail != null:
+		trail.snow_cover = cover
 
 
 func apply_time(progress: float) -> void:

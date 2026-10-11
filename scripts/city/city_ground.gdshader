@@ -388,6 +388,13 @@ float grid_sink(ivec2 g, vec2 origin, float cell) {
 	return (trail_mesh_rect.w > 0.5 && max(off.x, off.y) <= trail_mesh_rect.z) ? trail_sink : 0.0;
 }
 
+// Snow lying at p (0..1): the patch rule of the fragment's snow block and of
+// CitySnow.patch (GDScript), so footprints, footsteps and the eye agree.
+float snow_patch(vec2 p) {
+	float n = value_noise(p * 0.035) * 0.55 + value_noise(p * 0.6) * 0.45;
+	return clamp((snow_cover * 1.18 - (1.0 - n)) * 5.0, 0.0, 1.0);
+}
+
 // Relief height the mesh lifts into geometry at p: the trail prints scaled by
 // the fragment's `give` (soft ground takes prints, paving and rock do not) plus
 // the cart-road rut profile, both without the per-pixel noise of the blend.
@@ -401,7 +408,10 @@ float vertex_relief(vec2 p, vec3 n, float tr, float wet_road) {
 	float sand = smoothstep(0.2, 0.7, s.b);
 	float rock = smoothstep(0.24, 0.4, 1.0 - clamp(n.y, 0.0, 1.0));
 	float give = clamp(soft + (1.0 - soft) * (1.0 - sand) * 0.3 * grass_step(n), 0.0, 1.0) * (1.0 - rock);
-	return tr * give * (0.45 + 1.3 * wet_road) + road_profile(p, rd, wet_road).x * road;
+	// Snow takes a print like wet clay does.
+	float snow = snow_patch(p) * (1.0 - paving) * (1.0 - rock);
+	give = max(give, snow);
+	return tr * give * (0.45 + 1.3 * max(wet_road, snow * 0.9)) + road_profile(p, rd, wet_road).x * road;
 }
 
 void trail_mesh_vertex(inout vec3 vtx, inout vec3 nrm, inout vec3 tan, inout vec3 bin, mat4 model) {
@@ -733,6 +743,9 @@ void fragment() {
 	// ruts, and the trail map adds every footprint Kalev has left nearby.
 	float soft = clamp(earth + mud + field + road, 0.0, 1.0) * (1.0 - paving);
 	float give = clamp(soft + (1.0 - soft) * (1.0 - sand) * 0.3 * grass_step(world_normal), 0.0, 1.0) * (1.0 - rock);
+	// Snow takes a print like wet clay does (footprints, wheels, hooves).
+	float snow_lie = snow_patch(wuv) * (1.0 - paving) * (1.0 - rock);
+	give = max(give, snow_lie);
 	// Far pixels see sub-texel relief as noise: fade it out with distance.
 	float detail = 1.0 - smoothstep(0.1, 0.4, length(fwidth(wuv)));
 	vec2 e = vec2(0.06, 0.0);
@@ -744,7 +757,7 @@ void fragment() {
 	vec2 fslope = vec2(field_height(wuv + e.xy).x - f0, field_height(wuv + e.yx).x - f0) / e.x;
 	nxy += -fslope * 0.16 * field * detail;
 	// Road and footprint relief by finite differences of the same height function.
-	float prints_scale = give * (0.45 + 1.3 * wet_road) * detail;
+	float prints_scale = give * (0.45 + 1.3 * max(wet_road, snow_lie * 0.9)) * detail;
 	float tr0 = trail_height(wuv);
 	float tr_x = trail_height(wuv + e.xy);
 	float tr_z = trail_height(wuv + e.yx);
@@ -877,8 +890,11 @@ void fragment() {
 	float snow_amount = clamp((snow_cover * 1.18 - (1.0 - snow_noise)) * 5.0, 0.0, 1.0);
 	snow_amount *= 1.0 - 0.75 * max(road, paving) - 0.9 * puddle - 0.7 * rock;
 	snow_amount *= dry_land;
+	// A print in snow shows the ground under it, shaded where the snow is packed.
+	snow_amount *= 1.0 - 0.6 * pressed;
 	snow_amount = clamp(snow_amount, 0.0, 1.0);
 	col = mix(col, snow_color * (0.92 + 0.08 * micro), snow_amount);
+	col = mix(col, col * vec3(0.78, 0.85, 0.95), pressed * snow_lie * 0.55);
 	// Snow fills the fine relief.
 	nxy *= 1.0 - snow_amount * 0.6;
 	ALBEDO = city_albedo(col);

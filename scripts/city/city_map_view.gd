@@ -27,6 +27,8 @@ var water_foam_sim: WaterFoamSim
 var _surface_sampler: CitySurfaceSampler
 ## Autumn leaves shed by the trees around the player (ADR 0045).
 var _leaf_fall: CityLeafFall
+## Settled snow cover (0..1) for the campaign date; footsteps read it.
+var _snow_cover := 0.0
 
 
 ## `quality_tier` (SkyWeather3D QUALITY_*, null = recommended) picks the sky, weather,
@@ -328,6 +330,7 @@ func set_calendar_date(date: Dictionary) -> void:
 	# Tree crowns, fruit, grass dormancy and snow-covered blades follow the date.
 	# (This override replaces MapView3D's, which is where the call normally lives.)
 	MapViewMaterials.apply_vegetation_season(date)
+	_snow_cover = VegetationPhenology.snow_cover_for(date)
 	if world != null:
 		world.apply_season(date)
 	if world != null and world.farmland != null:
@@ -385,7 +388,7 @@ func footstep_surface_at(foot_position: Vector3) -> StringName:
 		_surface_sampler = CitySurfaceSampler.new(plan, water_depth_at)
 	var puddles := _sky_weather.puddle_wetness() if _sky_weather != null else 0.0
 	var dryness := _sky_weather.ground_dryness() if _sky_weather != null else 0.0
-	return _surface_sampler.surface_at(foot_position, puddles, dryness)
+	return _surface_sampler.surface_at(foot_position, puddles, dryness, _snow_cover)
 
 
 func strike_vegetation(
