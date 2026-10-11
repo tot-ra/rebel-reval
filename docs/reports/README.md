@@ -283,6 +283,7 @@ Start with:
 - [Lower Town water-region merge benchmark](water_region_merge_benchmark.md)
 - [Compatibility vs Metal water renderer parity (R-932)](water_renderer_parity.md)
 - [Sky and weather realism — P0-211](weather_realism_2026-09-12.md)
+- [Witcher-style backlit forest: gap analysis (2026-10-11)](witcher_backlit_forest_gap_2026-10-11.md)
 - [WS-10 physical sky - evidence report](ws10_physical_sky.md)
 - [WS-15 interactive ripples and wakes - evidence](ws15_ripple_sim.md)
 

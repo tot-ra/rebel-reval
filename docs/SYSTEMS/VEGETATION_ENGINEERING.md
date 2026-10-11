@@ -110,6 +110,7 @@ tools/godot_render.sh --script tools/capture_city_vegetation.gd -- --only=pine_t
 tools/godot_render.sh --script tools/capture_city_vegetation.gd -- --only=oak_base_close,pine_base_close,birch_base_close
 tools/godot_render.sh --script tools/capture_tree_storm.gd
 tools/godot_render.sh --script tools/capture_wind_front.gd
+tools/godot_render.sh --script tools/capture_backlit_forest.gd   # golden-hour backlight, stock vs tuned grade
 
 # Grass, wild plants, ecology, moss.
 tools/godot_render.sh --script tools/capture_city_grass.gd                          # build/grass/
@@ -147,6 +148,7 @@ Ecology changes also run the map gate from [`AGENTS.md`](../../AGENTS.md#map-aut
 - **Ecology.** District maps draw no bushes, so shrub density and the juniper understory are computed but invisible. `MapViewTerrainDetails` and the seamless city do not read the ecology, so near-camera grass is mostly unchanged. Slope is not an input; litter is computed but not drawn. The city soil mask is two thresholds, not a geological map.
 - **Moss and fungi.** The woods stand in tall meadow grass (R-1595) that hides most fungi. The north strip is a fixed southern-sun approximation; the canopy channel is coarse (12 units). Fungi are low-poly lathes with vertex colour.
 - **Textures.** Normal, surface, bark, ground and ear textures from R-1329 are built but not yet bound.
+- **Backlit golden hour.** A Witcher-style backlit wood is not reachable yet: the outdoor grade flat-lights shots against the sun, sky ambient ignores canopy cover, god rays ignore trees, and there is no veteran oak form. Gap analysis and plates: [witcher_backlit_forest_gap_2026-10-11.md](../reports/witcher_backlit_forest_gap_2026-10-11.md).
 - No felling, breakage, harvesting, persistent particle accumulation or elastic simulation. Independent visual acceptance of the crown and storm work remains incomplete.
 
 ## Roadmap
