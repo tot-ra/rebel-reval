@@ -1,4 +1,0 @@
-runs/
-.venv/
-__pycache__/
-*.partial

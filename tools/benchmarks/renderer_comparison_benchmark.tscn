@@ -1,8 +1,0 @@
-[gd_scene load_steps=2 format=3]
-
-[ext_resource type="Script" path="res://tools/benchmarks/renderer_comparison.gd" id="1_renderer_comparison"]
-
-[node name="RendererComparisonBenchmark" type="Node"]
-
-[node name="RendererComparisonRecorder" type="Node" parent="."]
-script = ExtResource("1_renderer_comparison")

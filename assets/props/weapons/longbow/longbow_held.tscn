@@ -1,8 +1,0 @@
-[gd_scene load_steps=2 format=3]
-
-[ext_resource type="PackedScene" path="res://assets/props/weapons/longbow/longbow.glb" id="1"]
-
-[node name="LongbowHeld" type="Node3D"]
-rotation = Vector3(3.665191, 5.497787, 4.450590)
-
-[node name="Visual" parent="." instance=ExtResource("1")]

@@ -1,7 +1,0 @@
-[gd_scene format=3 uid="uid://dt4dtkf6rshy7"]
-
-[ext_resource type="Script" path="res://scripts/forge/forge_commission_overlay.gd" id="1_overlay"]
-
-[node name="ForgeCommissionOverlay" type="CanvasLayer"]
-visible = false
-script = ExtResource("1_overlay")

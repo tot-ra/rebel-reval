@@ -1,8 +1,0 @@
-[gd_scene load_steps=2 format=3]
-
-[ext_resource type="PackedScene" path="res://assets/props/weapons/heater_shield/heater_shield.glb" id="1"]
-
-[node name="HeaterShieldGround" type="Node3D"]
-
-[node name="Visual" parent="." instance=ExtResource("1")]
-transform = Transform3D(6.03021e-17, 1.06329e-17, -1, -0.173648, 0.984808, 0, 0.984808, 0.173648, 6.12323e-17, -0.0642498, 0.369379, -0)

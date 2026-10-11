@@ -293,6 +293,19 @@ The playable Saaremaa site ([`REGIONAL_SITES.md`](./SYSTEMS/REGIONAL_SITES.md)) 
 * **A small farming village east of the crater with strip fields, a sheep common and juniper-pine wood to the west** - **`plausible composite`**; its four farmsteads, roads and plot pattern are **`invented`** (road directions follow today's Masa-Kaali road and field tracks).
 * **The north-coast ferry landing** - not part of the site: about 18 km from Kaali, it is the journey from Reval (ADR 0042).
 
+### Building stone: Lasnamäe quarry, lime, moat spoil, fieldstone (research only, no site yet)
+
+Source: [`reval-building-stone-sources.md`](../history/dossiers/architecture/reval-building-stone-sources.md). The Toompea plateau quarry is covered in [`toompea-castle-and-upper-town.md`](../history/dossiers/architecture/toompea-castle-and-upper-town.md).
+
+* **Medieval Reval built from local limestone; Lasnamäe known in the Middle Ages mainly for its quarries** - **`attested`**.
+* **A medieval quarry under today's Kivimurru Street (*Steinbruchstrasse*), about 2.3 km ESE of the Viru Gate, beside the road that climbs the klint toward Narva** - **`attested`** as toponymic tradition (A. Kivi 1972); its 1343 extent is unknown, so the game shows a small shallow rim cut, **`plausible composite (simplified later form)`**. The deep North and South Quarries and the Pae park lake are later and excluded.
+* **The hill's name *Lakederberg(e)* / *Laksberg*** - **`attested`** only from 1370-1372 (after 1343); used as the simplified later form of the town's name for the hill, not as a 1343 record.
+* **Town (council) ownership of the quarry, its overseer and workforce of Estonian peasants and town labourers** - **`plausible composite`**; no 1343 record. A stonemasons' brotherhood "by 1340" is unverified and not used.
+* **A wood-fired limestone lime kiln with a slaking pit at the quarry** - **`plausible composite`** (Estonian lime burning from the 13th c. is **`attested`**; the Lasnamäe kilns are attested only from the 18th c. and are excluded).
+* **Moat digging in the 1340s as a source of rubble stone** - moat works **`attested`** (Ülemiste water 1345), re-use of spoil **`plausible composite`**.
+* **Fieldstone (granite erratics) for foundations, rubble cores and local cobble patches; carts in the open season, sledges in winter** - **`plausible composite`**.
+* **A shear-legs hoist at the quarry face** - **`plausible composite`**; a treadwheel crane at a shallow rim quarry would be **`invented`** and is not recommended.
+
 ### Notable Landmarks (1343 vs Modern Tallinn)
 *For a catalog of how popular modern tourist spots (like the Town Hall, Toompea Castle, and St. Olaf's Church) existed during the uprising and how they tie into the factional conflicts, see the [Tourist Landmarks Catalog](./TOURIST_LANDMARKS.md).*
 
