@@ -15,19 +15,19 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 ## Summary
 
 - Active Markdown files scanned: `1200`
-- Markdown files excluded as archive/reference/out of active scope: `758`
-- Local/external links inspected: `13857`
-- Links to active Markdown docs: `12393`
+- Markdown files excluded as archive/reference/out of active scope: `757`
+- Local/external links inspected: `13805`
+- Links to active Markdown docs: `12385`
 - Links to existing archive/reference/non-active local docs: `522`
 - External links skipped for reachability: `180`
-- Issues found: `13`
+- Issues found: `8`
 
 ## Issue counts
 
 | Code | Count |
 | --- | ---: |
-| `BROKEN_LINK` | 0 |
-| `BROKEN_ANCHOR` | 13 |
+| `BROKEN_LINK` | 8 |
+| `BROKEN_ANCHOR` | 0 |
 | `DUPLICATE_CHARACTER_NAME` | 0 |
 | `CONTRADICTORY_DATE` | 0 |
 | `MISSING_REFERENCE` | 0 |
@@ -36,19 +36,14 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 | Code | Location | Detail |
 | --- | --- | --- |
-| `BROKEN_ANCHOR` | `docs/CHARACTERS/apprentice.md:29` | Local Markdown link anchor `#guilt-implemented-sd-03` not found in `docs/SYSTEMS/SPIRIT_DIALOGUE.md` |
-| `BROKEN_ANCHOR` | `docs/SYSTEMS/COMBAT.md:8` | Local Markdown link anchor `#spirit-arena-implemented-prototype-sd-04` not found in `docs/SYSTEMS/SPIRIT_DIALOGUE.md` |
-| `BROKEN_ANCHOR` | `docs/SYSTEMS/COMBAT.md:48` | Local Markdown link anchor `#hybrid-combat-and-guilt-implemented-sd-07` not found in `docs/SYSTEMS/SPIRIT_DIALOGUE.md` |
-| `BROKEN_ANCHOR` | `docs/SYSTEMS/DIALOGUE.md:31` | Local Markdown link anchor `#language-comprehension-implemented-sd-08` not found in `docs/SYSTEMS/SPIRIT_DIALOGUE.md` |
-| `BROKEN_ANCHOR` | `docs/SYSTEMS/DIALOGUE.md:32` | Local Markdown link anchor `#dialogue-move-tags-implemented-sd-02` not found in `docs/SYSTEMS/SPIRIT_DIALOGUE.md` |
-| `BROKEN_ANCHOR` | `docs/SYSTEMS/FACTIONS_AND_ECONOMY.md:82` | Local Markdown link anchor `#talking-to-yourself-implemented-sd-09` not found in `docs/SYSTEMS/SPIRIT_DIALOGUE.md` |
-| `BROKEN_ANCHOR` | `docs/SYSTEMS/MAGIC.md:9` | Local Markdown link anchor `#magic-in-the-spirit-world-implemented-sd-14` not found in `docs/SYSTEMS/SPIRIT_DIALOGUE.md` |
-| `BROKEN_ANCHOR` | `docs/SYSTEMS/MAGIC.md:9` | Local Markdown link anchor `#magic-in-the-spirit-world-implemented-sd-14` not found in `docs/SYSTEMS/SPIRIT_DIALOGUE.md` |
-| `BROKEN_ANCHOR` | `docs/SYSTEMS/QUESTS.md:83` | Local Markdown link anchor `#the-apprentice-at-the-anvil-implemented-sd-12` not found in `docs/SYSTEMS/SPIRIT_DIALOGUE.md` |
-| `BROKEN_ANCHOR` | `docs/SYSTEMS/STATE_AND_SAVES.md:23` | Local Markdown link anchor `#guilt-implemented-sd-03` not found in `docs/SYSTEMS/SPIRIT_DIALOGUE.md` |
-| `BROKEN_ANCHOR` | `docs/SYSTEMS/STATE_AND_SAVES.md:24` | Local Markdown link anchor `#observation-mode-implemented-prototype-sd-06` not found in `docs/SYSTEMS/SPIRIT_DIALOGUE.md` |
-| `BROKEN_ANCHOR` | `docs/SYSTEMS/STATE_AND_SAVES.md:25` | Local Markdown link anchor `#language-comprehension-implemented-sd-08` not found in `docs/SYSTEMS/SPIRIT_DIALOGUE.md` |
-| `BROKEN_ANCHOR` | `docs/SYSTEMS/STATE_AND_SAVES.md:26` | Local Markdown link anchor `#traits-and-temperaments-implemented-sd-15` not found in `docs/SYSTEMS/SPIRIT_DIALOGUE.md` |
+| `BROKEN_LINK` | `docs/README.md:21` | Local Markdown link target does not exist: `./SYSTEMS/SKY_ATMOSPHERE.md` |
+| `BROKEN_LINK` | `docs/SYSTEMS/CLOUD_CELLS.md:3` | Local Markdown link target does not exist: `./SKY_ATMOSPHERE.md` |
+| `BROKEN_LINK` | `docs/SYSTEMS/CLOUD_CELLS.md:92` | Local Markdown link target does not exist: `./SKY_ATMOSPHERE.md` |
+| `BROKEN_LINK` | `docs/SYSTEMS/README.md:61` | Local Markdown link target does not exist: `SKY_ATMOSPHERE.md` |
+| `BROKEN_LINK` | `docs/SYSTEMS/SEAMLESS_CITY.md:88` | Local Markdown link target does not exist: `../reports/images/vegetation/r1684_roof_shingle.jpg` |
+| `BROKEN_LINK` | `docs/SYSTEMS/WORLD_PRESENTATION.md:26` | Local Markdown link target does not exist: `SKY_ATMOSPHERE.md#weather-and-the-look-of-the-sky` |
+| `BROKEN_LINK` | `docs/SYSTEMS/WORLD_PRESENTATION.md:31` | Local Markdown link target does not exist: `./SKY_ATMOSPHERE.md` |
+| `BROKEN_LINK` | `docs/SYSTEMS/WORLD_PRESENTATION.md:32` | Local Markdown link target does not exist: `./SKY_ATMOSPHERE.md` |
 
 ## Active files scanned
 
@@ -1135,6 +1130,7 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/SYSTEMS/LIVING_CITY.md`
 - `docs/SYSTEMS/LIVING_VEGETATION.md`
 - `docs/SYSTEMS/LIVING_WORLD.md`
+- `docs/SYSTEMS/LOCAL_ATMOSPHERE.md`
 - `docs/SYSTEMS/MAGIC.md`
 - `docs/SYSTEMS/MUSCLE_LOCOMOTION.md`
 - `docs/SYSTEMS/NAMED_NPCS.md`
@@ -1152,7 +1148,6 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/SYSTEMS/SEASONS.md`
 - `docs/SYSTEMS/SETTINGS_AND_ACCESSIBILITY.md`
 - `docs/SYSTEMS/SHIPS.md`
-- `docs/SYSTEMS/SKY_ATMOSPHERE.md`
 - `docs/SYSTEMS/SPIRIT_DIALOGUE.md`
 - `docs/SYSTEMS/SPIRIT_SIGHT.md`
 - `docs/SYSTEMS/STATE_AND_SAVES.md`

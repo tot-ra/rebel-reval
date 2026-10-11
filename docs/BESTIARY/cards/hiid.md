@@ -43,7 +43,7 @@ Spirit duel ([ADR 0033](../../adr/0033-teen-protagonist-and-spirit-dialogue-comb
 - (storm) "Loud little people."
 
 ## Relationships and factions
-Tied to the Harju kings' memory. Related: [maa_alused](./maa_alused.md), [pohja_konn](./pohja_konn.md).
+Tied to the Harju kings' memory. Related: [maa_alused](./maa_alused.md), [pohja_konn](./pohja_konn.md), [hiie_hirv](./hiie_hirv.md).
 
 ## Game hooks
 Act 3 seed: a Harju king's hillfort legend is true. First meet: a boulder-field pass.

@@ -10,7 +10,7 @@
 | Confidence | `folklore` |
 | Habitat | sacred grove, forest edge |
 | Faction ties | cult_metsik |
-| Archive reference images | leshy2.png, image-1 |
+| Archive reference images | leshy2.png |
 
 ## At a glance
 - A towering figure of twisted wood, vines and moss with a hollow trunk-face and amber eyes.
@@ -43,7 +43,7 @@ Spirit duel ([ADR 0033](../../adr/0033-teen-protagonist-and-spirit-dialogue-comb
 - (wrath) "No more axes."
 
 ## Relationships and factions
-Patron of the [Metsik cult](../../CITIZENS/factions/cult_metsik.md); wary of the Vanapagan rite. Enemy of the Order's loggers. Related: [pohja_konn](./pohja_konn.md), [vanapagan](./vanapagan.md).
+Patron of the [Metsik cult](../../CITIZENS/factions/cult_metsik.md); wary of the Vanapagan rite. Enemy of the Order's loggers. Related: [pohja_konn](./pohja_konn.md), [vanapagan](./vanapagan.md), [hiie_hirv](./hiie_hirv.md).
 
 ## Game hooks
 Quest seeds: "The Whispering Woods" (clear Order soldiers), "Rooted Justice" (illegal felling near the grove). Forge hook: charcoal and tool wood commissions that cost it something.
