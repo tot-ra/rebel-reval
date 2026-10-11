@@ -323,6 +323,9 @@ static func apply_cycle_progress(
 	apply_post_grade_snapshot(environment, presentation)
 	if not enclosed_interior:
 		environment.tonemap_exposure *= outdoor_exposure_gain(fill_blend)
+	sky_weather.set_exposure_gain_compensation(
+		sky_exposure_gain_compensation(fill_blend, enclosed_interior)
+	)
 	return presentation.day_blend < 0.5
 
 
@@ -444,6 +447,14 @@ static func apply_post_grade_snapshot(
 ## Outdoor-only daylight exposure lift (R-1748): 1 at night, OUTDOOR_DAY_EXPOSURE_GAIN by day.
 static func outdoor_exposure_gain(fill_blend: float) -> float:
 	return lerpf(1.0, OUTDOOR_DAY_EXPOSURE_GAIN, clampf(fill_blend, 0.0, 1.0))
+
+
+## R-1766: factor the sky dome applies so it keeps the pre-R-1748 exposure: 1 / the outdoor
+## gain by day, 1 at night and in enclosed rooms (which get no gain).
+static func sky_exposure_gain_compensation(fill_blend: float, enclosed_interior: bool) -> float:
+	if enclosed_interior:
+		return 1.0
+	return 1.0 / outdoor_exposure_gain(fill_blend)
 
 
 ## Stand-in for eye adaptation, which GL Compatibility lacks. A low sun throws

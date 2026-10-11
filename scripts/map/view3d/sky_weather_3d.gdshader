@@ -138,6 +138,14 @@ uniform vec2 sky_lut_size = vec2(192.0, 108.0);
 // 0.7 puts the 60-degree-sun horizon at the old day_horizon_color luminance.
 uniform float sky_exposure : hint_range(0.0, 4.0) = 0.7;
 uniform vec4 sky_tint : source_color = vec4(1.0, 1.0, 1.0, 1.0);
+// R-1766: the outdoor daylight exposure gain (MapViewLighting.OUTDOOR_DAY_EXPOSURE_GAIN,
+// R-1748) lifts the whole frame, so cumulus clipped to flat white and the zenith went pale.
+// The script passes 1 / gain here (1 at night and indoors) and the visible dome divides it
+// back out, so the sky keeps its pre-R-1748 exposure while the city stays bright. The
+// compensation fades in above the horizon: fog and aerial haze on far ground still carry
+// the gain, and a fully compensated horizon would print a dark seam against them.
+uniform float sky_gain_compensation : hint_range(0.0, 1.0) = 1.0;
+uniform float sky_gain_horizon_band : hint_range(0.01, 1.0) = 0.18;
 // Partial eye adaptation: the fixed scene grade would leave the physical dusk sky ~10x dimmer
 // than noon. Gain = clamp((reference / zenith luminance)^sky_adaptation, 1, max_gain), where
 // the reference is the raw LUT zenith luminance at a 60-degree sun (gain 1 at the calibration
@@ -1242,5 +1250,10 @@ void sky() {
 			* 4.0 * lightning_density * (1.0 - cell_cover * 0.85);
 	}
 
+	// R-1766: reflections and ambient read the radiance cubemap, which lights city
+	// materials, so only the visible dome is compensated.
+	if (!AT_CUBEMAP_PASS) {
+		color *= mix(1.0, sky_gain_compensation, smoothstep(0.0, sky_gain_horizon_band, height));
+	}
 	COLOR = color;
 }

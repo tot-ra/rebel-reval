@@ -15,18 +15,18 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 ## Summary
 
 - Active Markdown files scanned: `1200`
-- Markdown files excluded as archive/reference/out of active scope: `757`
-- Local/external links inspected: `13836`
-- Links to active Markdown docs: `12396`
-- Links to existing archive/reference/non-active local docs: `523`
+- Markdown files excluded as archive/reference/out of active scope: `760`
+- Local/external links inspected: `13868`
+- Links to active Markdown docs: `12408`
+- Links to existing archive/reference/non-active local docs: `527`
 - External links skipped for reachability: `180`
-- Issues found: `7`
+- Issues found: `1`
 
 ## Issue counts
 
 | Code | Count |
 | --- | ---: |
-| `BROKEN_LINK` | 7 |
+| `BROKEN_LINK` | 1 |
 | `BROKEN_ANCHOR` | 0 |
 | `DUPLICATE_CHARACTER_NAME` | 0 |
 | `CONTRADICTORY_DATE` | 0 |
@@ -36,13 +36,7 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 | Code | Location | Detail |
 | --- | --- | --- |
-| `BROKEN_LINK` | `docs/README.md:21` | Local Markdown link target does not exist: `./SYSTEMS/SKY_ATMOSPHERE.md` |
-| `BROKEN_LINK` | `docs/SYSTEMS/CLOUD_CELLS.md:3` | Local Markdown link target does not exist: `./SKY_ATMOSPHERE.md` |
-| `BROKEN_LINK` | `docs/SYSTEMS/CLOUD_CELLS.md:92` | Local Markdown link target does not exist: `./SKY_ATMOSPHERE.md` |
 | `BROKEN_LINK` | `docs/SYSTEMS/SEAMLESS_CITY.md:88` | Local Markdown link target does not exist: `../reports/images/vegetation/r1684_roof_shingle.jpg` |
-| `BROKEN_LINK` | `docs/SYSTEMS/WORLD_PRESENTATION.md:26` | Local Markdown link target does not exist: `SKY_ATMOSPHERE.md#weather-and-the-look-of-the-sky` |
-| `BROKEN_LINK` | `docs/SYSTEMS/WORLD_PRESENTATION.md:31` | Local Markdown link target does not exist: `./SKY_ATMOSPHERE.md` |
-| `BROKEN_LINK` | `docs/SYSTEMS/WORLD_PRESENTATION.md:32` | Local Markdown link target does not exist: `./SKY_ATMOSPHERE.md` |
 
 ## Active files scanned
 
@@ -1129,7 +1123,6 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/SYSTEMS/LIVING_CITY.md`
 - `docs/SYSTEMS/LIVING_VEGETATION.md`
 - `docs/SYSTEMS/LIVING_WORLD.md`
-- `docs/SYSTEMS/LOCAL_ATMOSPHERE.md`
 - `docs/SYSTEMS/MAGIC.md`
 - `docs/SYSTEMS/MUSCLE_LOCOMOTION.md`
 - `docs/SYSTEMS/NAMED_NPCS.md`
@@ -1147,6 +1140,7 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/SYSTEMS/SEASONS.md`
 - `docs/SYSTEMS/SETTINGS_AND_ACCESSIBILITY.md`
 - `docs/SYSTEMS/SHIPS.md`
+- `docs/SYSTEMS/SKY_ATMOSPHERE.md`
 - `docs/SYSTEMS/SPIRIT_DIALOGUE.md`
 - `docs/SYSTEMS/SPIRIT_SIGHT.md`
 - `docs/SYSTEMS/STATE_AND_SAVES.md`

@@ -35,6 +35,32 @@ func test_post_process_grade_is_enabled_with_frozen_values() -> void:
 	view.free()
 
 
+func test_sky_gain_compensation_cancels_the_outdoor_gain_by_day_only() -> void:
+	# R-1766: the dome divides the R-1748 daylight gain back out; night and rooms get none.
+	var day_gain := Lighting.outdoor_exposure_gain(1.0)
+	assert_true(day_gain > 1.0, "the day gain must still lift the city")
+	assert_true(is_equal_approx(Lighting.sky_exposure_gain_compensation(1.0, false), 1.0 / day_gain))
+	assert_true(is_equal_approx(Lighting.sky_exposure_gain_compensation(0.0, false), 1.0))
+	assert_true(is_equal_approx(Lighting.sky_exposure_gain_compensation(1.0, true), 1.0))
+	assert_true(is_equal_approx(
+		Lighting.sky_exposure_gain_compensation(0.5, false), 1.0 / Lighting.outdoor_exposure_gain(0.5)
+	))
+
+	var definition := SmithyCourtyard.create()
+	var view := MapView3D.create(definition, MapBuilder.build(definition), MapView3D.TIME_DAY)
+	var material := view._sky_weather._material
+	view.apply_cycle_progress(0.5)
+	var day_value: float = material.get_shader_parameter(&"sky_gain_compensation")
+	assert_true(is_equal_approx(day_value, 1.0 / day_gain), "noon sky uniform must be 1 / gain")
+	# The default 21 April midnight is still astronomical twilight (fill ~0.13 at -16 deg);
+	# a winter midnight is full night.
+	view._sky_weather.set_calendar_date({"year": 1343, "month": 12, "day": 21})
+	view.apply_cycle_progress(0.0)
+	var night_value: float = material.get_shader_parameter(&"sky_gain_compensation")
+	assert_true(is_equal_approx(night_value, 1.0), "midnight sky uniform must be 1")
+	view.free()
+
+
 func test_post_grade_night_stays_at_least_twenty_percent_darker_than_day() -> void:
 	var day_proxy := Lighting.post_grade_luminance_proxy(1.0)
 	var night_proxy := Lighting.post_grade_luminance_proxy(0.0)

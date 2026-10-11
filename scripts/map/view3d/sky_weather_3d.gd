@@ -1214,6 +1214,13 @@ func cell_sun_edge(sun_dir: Vector3) -> float:
 	return clampf(hi - lo, 0.0, 1.0)
 
 
+## R-1766: the visible dome multiplies its radiance by `compensation` (1 / the outdoor
+## exposure gain) so the frame-wide daylight lift does not wash out the sky and clouds.
+func set_exposure_gain_compensation(compensation: float) -> void:
+	if _material != null:
+		_material.set_shader_parameter(&"sky_gain_compensation", clampf(compensation, 0.0, 1.0))
+
+
 ## True when the sky is drawn through a perspective camera (third/first person), the
 ## only lens that shows a horizon; the orthographic overview must not get distance haze.
 func view_is_perspective() -> bool:
