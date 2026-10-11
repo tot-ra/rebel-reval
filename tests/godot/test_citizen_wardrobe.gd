@@ -1,6 +1,6 @@
 extends "res://tests/godot/test_case.gd"
 
-## Layered citizen dress (docs/SYSTEMS/CITIZEN_WARDROBE.md, tasks R-1663, R-1667).
+## Layered citizen dress (docs/SYSTEMS/CITIZEN_WARDROBE.md, tasks R-1663, R-1665, R-1667).
 
 const BODY := "citizen_m_adult_sturdy"
 
@@ -239,3 +239,59 @@ func test_shield_is_carried_on_the_left_hand() -> void:
 	for kind: String in ["order", "crown", "field", "plain"]:
 		var scene := CitizenShield.scene(kind, Color(0.2, 0.3, 0.5))
 		assert_true(scene != null, "%s shield scene" % kind)
+
+
+func test_women_head_layers_exist_per_outfit() -> void:
+	# WD-3: grown women carry the braid and the headscarf as layers; the head cloth is
+	# fitted to the Estonian outfit only; elders have the headscarf and no braid.
+	for build: String in ["thin", "average", "sturdy", "heavy"]:
+		for outfit: String in ["", "_b", "_c", "_d"]:
+			var body := "citizen_f_adult_%s%s" % [build, outfit]
+			for layer: String in ["braids", "headscarf"]:
+				assert_true(ResourceLoader.exists(CitizenWardrobe.LAYER_PATH % [body, layer]), body + " " + layer)
+			assert_eq(
+				ResourceLoader.exists(CitizenWardrobe.LAYER_PATH % [body, "head_cloth"]),
+				outfit == "_d",
+				body + " head cloth only with the wrap skirt"
+			)
+	for body: String in ["citizen_f_elder_thin", "citizen_f_elder_heavy"]:
+		assert_true(ResourceLoader.exists(CitizenWardrobe.LAYER_PATH % [body, "headscarf"]), body)
+		assert_false(ResourceLoader.exists(CitizenWardrobe.LAYER_PATH % [body, "braids"]), body)
+
+
+func test_surcoat_and_kirtle_take_two_dyes() -> void:
+	var rig := _rig("citizen_f_adult_average_c")
+	var record := {
+		"id": "t.c", "body": "citizen_f_adult_average_c", "status": "patrician", "trade": "merchant",
+		"cloth": [0.42, 0.13, 0.1], "under": [0.17, 0.24, 0.38], "wear": ["braids"],
+	}
+	CitizenWardrobe.dress(rig, record)
+	var surcoat := _body_cloth(rig, "_sideless_surcoat")
+	var kirtle := _body_cloth(rig, "_kirtle")
+	assert_false(surcoat.is_empty() or kirtle.is_empty(), "surcoat and kirtle are woven cloth")
+	if not surcoat.is_empty() and not kirtle.is_empty():
+		assert_eq(_grade(surcoat[1]), "scarlet", "rich surcoat in scarlet")
+		assert_eq(_grade(kirtle[1]), "broadcloth", "kirtle beneath in broadcloth")
+		var under: Color = (kirtle[0] as MeshInstance3D).get_instance_shader_parameter(&"dye_under")
+		assert_true(under.is_equal_approx(_linear(Color(0.17, 0.24, 0.38))), "kirtle takes the under dye")
+	assert_false(_layer_meshes(rig, "braids").is_empty(), "the braid is mounted")
+	rig.queue_free()
+
+
+func test_wrap_skirt_dyed_shift_stays_linen() -> void:
+	var rig := _rig("citizen_f_adult_thin_d")
+	var record := {
+		"id": "t.d", "body": "citizen_f_adult_thin_d", "status": "servant", "trade": "maid",
+		"cloth": [0.3, 0.21, 0.14], "under": [0.2, 0.2, 0.2], "wear": ["head_cloth"],
+		"wear_dye": {"head_cloth": [0.88, 0.86, 0.8]},
+	}
+	CitizenWardrobe.dress(rig, record)
+	var skirt := _body_cloth(rig, "_wrap_skirt")
+	assert_false(skirt.is_empty(), "wrap skirt is woven cloth")
+	if not skirt.is_empty():
+		assert_eq(_grade(skirt[1]), "homespun", "poor wool")
+		var outer: Color = (skirt[0] as MeshInstance3D).get_instance_shader_parameter(&"dye_outer")
+		assert_true(outer.is_equal_approx(_linear(Color(0.3, 0.21, 0.14))), "wrap skirt dyed")
+	assert_eq(CitizenWardrobe.dye_slot("citizen_f_adult_thin_d_linen_shift", ""), 0, "shift keeps its linen")
+	assert_false(_layer_meshes(rig, "head_cloth").is_empty(), "head cloth mounted")
+	rig.queue_free()

@@ -1,6 +1,7 @@
 extends SceneTree
 
 ## Wardrobe plate (docs/SYSTEMS/CITIZEN_WARDROBE.md): one citizen body per kit,
+## then the armour rows (WD-4) and the women's gown rows and female body plate (WD-3),
 ## dressed through CitizenWardrobe exactly as in the city, front and back three-quarter.
 ## Requires a rendering run:
 ##   tools/godot_render.sh --script tools/capture_citizen_wardrobe.gd \
@@ -99,43 +100,43 @@ const ROWS := [
 			"maid",
 			"citizen_f_adult_thin",
 			[0.36, 0.28, 0.2],
-			["waist_apron"],
+			["waist_apron", "braids"],
 			{"waist_apron": [0.74, 0.7, 0.6]},
 		],
 		[
 			"wife",
 			"citizen_f_adult_average_b",
 			[0.27, 0.35, 0.46],
-			["veil_over", "keys"],
-			{"veil_over": WHITE},
+			["headscarf", "veil_over", "keys"],
+			{"headscarf": WHITE, "veil_over": WHITE},
 		],
 		[
 			"patrician",
-			"citizen_f_adult_heavy_b",
+			"citizen_f_adult_heavy_c",
 			[0.42, 0.13, 0.1],
-			["veil_over", "keys", "paternoster"],
-			{"veil_over": WHITE, "paternoster": [0.7, 0.42, 0.12]},
+			["headscarf", "veil_over", "keys", "paternoster"],
+			{"headscarf": WHITE, "veil_over": WHITE, "paternoster": [0.7, 0.42, 0.12]},
 		],
 		[
 			"nun",
 			"citizen_f_adult_sturdy_b",
 			BLACK,
-			["veil_over", "paternoster"],
-			{"veil_over": BLACK},
+			["headscarf", "veil_over", "paternoster"],
+			{"headscarf": WHITE, "veil_over": BLACK},
 		],
 		[
 			"midwife",
 			"citizen_f_adult_average",
 			[0.35, 0.4, 0.28],
-			["satchel", "waist_apron"],
-			{},
+			["satchel", "waist_apron", "headscarf"],
+			{"headscarf": [0.74, 0.7, 0.6]},
 		],
 		[
 			"widow",
 			"citizen_f_elder_thin",
 			[0.2, 0.17, 0.15],
-			["veil_over", "paternoster"],
-			{"veil_over": [0.74, 0.7, 0.6]},
+			["headscarf", "veil_over", "paternoster"],
+			{"headscarf": [0.74, 0.7, 0.6], "veil_over": [0.74, 0.7, 0.6]},
 		],
 		[
 			"elder",
@@ -254,6 +255,96 @@ const ARMOUR_KITS := [
 ]
 
 
+## Women's dress range (WD-3): rank, ethnicity and marriage read from gown and head.
+## [label, body, cloth dye, wear, wear_dye, shield, under dye (the kirtle of outfit c)]
+const GOWN_ROW := [
+	["maiden", "citizen_f_adult_average", [0.35, 0.4, 0.28], ["braids"], {}, "", [0.22, 0.2, 0.17]],
+	[
+		"wife",
+		"citizen_f_adult_average",
+		[0.35, 0.4, 0.28],
+		["headscarf", "waist_apron"],
+		{"headscarf": [0.74, 0.7, 0.6], "waist_apron": [0.74, 0.7, 0.6]},
+		"",
+		[0.22, 0.2, 0.17],
+	],
+	[
+		"burgher wife",
+		"citizen_f_adult_sturdy_b",
+		[0.27, 0.35, 0.46],
+		["headscarf", "veil_over", "keys"],
+		{"headscarf": WHITE, "veil_over": WHITE},
+		"",
+		[0.22, 0.2, 0.17],
+	],
+	[
+		"patrician maid",
+		"citizen_f_adult_thin_c",
+		[0.17, 0.24, 0.38],
+		["braids", "paternoster"],
+		{"paternoster": [0.62, 0.16, 0.12]},
+		"",
+		[0.42, 0.13, 0.1],
+	],
+	[
+		"patrician wife",
+		"citizen_f_adult_average_c",
+		[0.42, 0.13, 0.1],
+		["headscarf", "veil_over", "keys"],
+		{"headscarf": WHITE, "veil_over": WHITE},
+		"",
+		[0.24, 0.3, 0.2],
+	],
+	["noblewoman", "citizen_f_adult_heavy_c", [0.3, 0.15, 0.3], ["braids"], {}, "", [0.84, 0.82, 0.76]],
+	["Estonian maid", "citizen_f_adult_thin_d", [0.3, 0.21, 0.14], ["braids"], {}, "", [0.22, 0.2, 0.17]],
+	[
+		"Estonian wife",
+		"citizen_f_adult_average_d",
+		[0.2, 0.17, 0.15],
+		["head_cloth", "waist_apron"],
+		{"head_cloth": WHITE, "waist_apron": [0.74, 0.7, 0.6]},
+		"",
+		[0.22, 0.2, 0.17],
+	],
+	[
+		"Estonian wife",
+		"citizen_f_adult_sturdy_d",
+		[0.27, 0.35, 0.46],
+		["headscarf", "keys"],
+		{"headscarf": [0.74, 0.7, 0.6]},
+		"",
+		[0.22, 0.2, 0.17],
+	],
+	[
+		"widow",
+		"citizen_f_elder_heavy",
+		[0.2, 0.17, 0.15],
+		["headscarf", "veil_over"],
+		{"headscarf": WHITE, "veil_over": [0.74, 0.7, 0.6]},
+		"",
+		[0.22, 0.2, 0.17],
+	],
+	["girl", "citizen_f_child_average", [0.36, 0.4, 0.28], [], {}, "", [0.22, 0.2, 0.17]],
+]
+## Every female body (body plate): adults bareheaded with braids, elders covered.
+const FEMALE_BUILDS := [["thin", "average"], ["sturdy", "heavy"]]
+
+
+func _gown_rows() -> Array:
+	var rows: Array = [GOWN_ROW]
+	for pair: Array in FEMALE_BUILDS:
+		var row: Array = []
+		for build: String in pair:
+			for outfit: String in ["", "_b", "_c", "_d"]:
+				var body := "citizen_f_adult_%s%s" % [build, outfit]
+				row.append([build + outfit, body, [0.46, 0.42, 0.35], ["braids"], {}, "", [0.3, 0.21, 0.14]])
+		rows.append(row)
+	rows[2].append(["elder thin", "citizen_f_elder_thin", [0.46, 0.42, 0.35], ["headscarf"], {}, "", []])
+	rows[2].append(["elder heavy", "citizen_f_elder_heavy", [0.46, 0.42, 0.35], ["headscarf"], {}, "", []])
+	rows[2].append(["child", "citizen_f_child_average", [0.46, 0.42, 0.35], [], {}, "", []])
+	return rows
+
+
 func _armour_rows() -> Array:
 	var rows: Array = []
 	for body: String in ARMOUR_BUILDS:
@@ -289,6 +380,7 @@ func _run() -> void:
 	var labels: Array = []
 	var rows: Array = ROWS.duplicate()
 	rows.append_array(_armour_rows())
+	rows.append_array(_gown_rows())
 	for row_index in rows.size():
 		var row: Array = rows[row_index]
 		for i in row.size():
@@ -318,8 +410,10 @@ func _run() -> void:
 			"wear": entry[3],
 			"wear_dye": entry[4],
 		}
-		if entry.size() > 5:
+		if entry.size() > 5 and entry[5] != "":
 			record["shield"] = entry[5]
+		if entry.size() > 6 and not entry[6].is_empty():
+			record["under"] = entry[6]
 		CityCitizens.dye(rig, record)
 		CitizenGear.arm(rig, record)
 		if walk:

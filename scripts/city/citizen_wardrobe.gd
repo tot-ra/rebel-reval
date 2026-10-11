@@ -101,6 +101,8 @@ const TRADE_WEAR := {
 ## material name suffix -> dye slot (1 `cloth`, 2 `under`). Keep in step with it.
 const BODY_DYE_SLOT := {
 	"_short_tunic": 1, "_wool_tunic": 1, "_work_gown": 1, "_gown": 1, "_hose": 2, "_headscarf": 2,
+	# Women's gowns (R-1665): surcoat and wrap skirt take the main dye, the kirtle the second.
+	"_sideless_surcoat": 1, "_wrap_skirt": 1, "_kirtle": 2,
 }
 
 ## Layer path -> PackedScene, or null for a layer the body was not fitted with.

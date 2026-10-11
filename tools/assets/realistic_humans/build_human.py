@@ -655,12 +655,14 @@ def bake_crowd_body(spec, meshes, wardrobe):
     budget (the face keeps the largest share)."""
     outfit = next(iter(spec["outfits"].values()))
     covered = {c for g in outfit for c in garments.WARDROBE[g][1]}
-    keep = [o for o in meshes if not o.name.startswith("Anatomy_Head_Teeth")
-            and not any(o.name.startswith(c) for c in covered)]
-    for o in meshes:
-        if o not in keep:
-            bpy.data.objects.remove(o, do_unlink=True)
     layers = set(spec.get("layers", []))
+    # A layer may claim a body part (a woman's braid, WD-3): it is exported apart, not baked.
+    claimed = {o.name for g in layers if g in wardrobe for o in wardrobe[g][2]}
+    keep = [o for o in meshes if not o.name.startswith("Anatomy_Head_Teeth")
+            and not any(o.name.startswith(c) for c in covered) and o.name not in claimed]
+    for o in meshes:
+        if o not in keep and o.name not in claimed:
+            bpy.data.objects.remove(o, do_unlink=True)
     for garment, (_, _, objects) in wardrobe.items():
         if garment in outfit:
             keep += objects
@@ -698,7 +700,8 @@ LAYER_TRIANGLES = {"hood": 1400, "veil_over": 1400, "mail_coif": 1300, "coif": 9
                    "surcoat": 2000, "smith_apron": 900, "waist_apron": 800, "keys": 400,
                    "paternoster": 700, "satchel": 700, "back_sack": 700, "coat_of_plates": 2800,
                    "aventail": 1500, "great_helm": 1100, "mail_chausses": 2200, "gauntlets": 1400,
-                   "order_mantle": 3200}
+                   "order_mantle": 3200,
+                   "braids": 1800, "headscarf": 1200, "head_cloth": 1400}
 
 
 def export_crowd_layers(spec, motion, wardrobe, out, only=None):
@@ -708,6 +711,9 @@ def export_crowd_layers(spec, motion, wardrobe, out, only=None):
         if only and garment not in only:
             continue  # --only refits just these layers (keeps the other shipped GLBs byte-identical)
         objects = [o for o in wardrobe[garment][2] if o.type == "MESH"]
+        if not objects:
+            log(f"layer {garment}: nothing to export")
+            continue
         bpy.ops.object.select_all(action="DESELECT")
         for o in objects:
             o.select_set(True)

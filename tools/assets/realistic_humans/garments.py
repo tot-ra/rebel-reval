@@ -621,11 +621,12 @@ def hem_height(ctx, hem):
 
 
 def tunic(ctx, key, sleeve="full", hem="knee", extra_ease=0.0, belted=True, color_key="wool_tunic",
-          flare=1.55, folds=16, family="wool"):
+          flare=1.55, folds=16, family="wool", post=None):
     """Gored wool tunic (Rock) or gown (Kleid).
 
     `sleeve`: full (to wrist), rolled (pushed up for work) or none; `hem`: thigh,
-    knee, calf or ankle (status by length, per the clothing dossier)."""
+    knee, calf or ankle (status by length, per the clothing dossier). `post(obj)`
+    reshapes the cloth before its UVs and hems are made (openings get bound edges)."""
     t = ctx.t
     color = ctx.palette(color_key, textiles_color("undyed"))
     wrist = t["wrist.l"].x + 0.012
@@ -651,6 +652,8 @@ def tunic(ctx, key, sleeve="full", hem="knee", extra_ease=0.0, belted=True, colo
             radial = Vector((v.co.x, v.co.y - t["hips"].y, 0))
             if radial.length > 1e-4:
                 v.co += radial.normalized() * 0.008 * bump
+    if post is not None:
+        post(obj)
     grain_uv(ctx, obj, family)
     hems = hem_rolls(ctx, obj, 0.0035, color_key, family, color)
     parts = [finish(ctx, obj, family, color, color_key, thickness=0.003)]
@@ -987,8 +990,11 @@ def apron(ctx, name, key, family, color, bib, over):
         for c in range(cols + 1):
             x = -width + 2 * width * c / cols
             front = front_surface_y(ctx, z, x, width)
-            wrap = (abs(x) / width) ** 2 * 0.05
-            v = bm.verts.new((x, front - 0.012 + wrap, z))
+            # `apron_gap`: over the wide, deeply folded wrap skirt the apron hangs flatter
+            # and further out, or its curled-back sides sink into the skirt.
+            gap = ctx.spec.get("apron_gap", 0.012)
+            wrap = (abs(x) / width) ** 2 * (0.05 if gap <= 0.012 else 0.015)
+            v = bm.verts.new((x, front - gap + wrap, z))
             row.append(v)
         verts.append(row)
     for r in range(rows):
@@ -1314,11 +1320,13 @@ def layer_ease(ctx):
 
 
 def base_trees(ctx):
-    """The skin plus the baked base torso garment (tunic or gown), when there is one."""
+    """The skin plus the baked base torso garments (tunic or gown; kirtle and the sideless
+    surcoat, whose side openings show the kirtle; shift and wrap skirt)."""
     trees = [ctx.bvh]
-    base = ctx.layers.get(ctx.spec.get("apron_over", ""))
-    if base is not None:
-        trees.append(base)
+    outfit = next(iter(ctx.spec.get("outfits", {}).values()), [])
+    for key in [ctx.spec.get("apron_over", "")] + [g for g in outfit if g != ctx.spec.get("apron_over")]:
+        if key in ctx.layers:
+            trees.append(ctx.layers[key])
     return trees
 
 
@@ -1975,6 +1983,177 @@ def order_mantle(ctx):
             _cross_patch(ctx, "Garment_order_cross_breast", tree, 34.0, top_z - 0.2, 0.11, top_z, hem_z)]
 
 
+# --------------------------------------------------------------------------
+# Women's dress range (WD-3, docs/SYSTEMS/CITIZEN_WARDROBE.md)
+# --------------------------------------------------------------------------
+
+def kirtle(ctx):
+    """Fitted wool kirtle (Kotte) to the ankle, sleeves buttoned elbow to wrist (1340s)."""
+    t = ctx.t
+    parts = tunic(ctx, "kirtle", hem="ankle", extra_ease=-0.008, belted="plain", color_key="kirtle",
+                  flare=2.0, folds=20)
+    sleeve = BVHTree.FromObject(parts[0], bpy.context.evaluated_depsgraph_get())
+    pewter = ctx.palette("kirtle_buttons", (0.56, 0.55, 0.51))
+    for s in ("l", "r"):
+        elbow, wrist = t[f"lowerarm.{s}"], t[f"wrist.{s}"]
+        buttons = bmesh.new()
+        for k in range(7):
+            # A row along the top of the T-posed forearm: the outer seam once the arm hangs.
+            p = elbow.lerp(wrist, 0.18 + 0.76 * k / 6)
+            hit = sleeve.ray_cast(p + Vector((0, 0, 0.15)), Vector((0, 0, -1)), 0.3)
+            top = (hit[0] if hit[0] is not None else p + Vector((0, 0, 0.045))) + Vector((0, 0, 0.003))
+            bmesh.ops.create_uvsphere(buttons, u_segments=6, v_segments=4, radius=0.0045,
+                                      matrix=Matrix.Translation(top))
+        mesh = bpy.data.meshes.new(f"Garment_kirtle_buttons_{s}")
+        buttons.to_mesh(mesh)
+        buttons.free()
+        obj = bpy.data.objects.new(mesh.name, mesh)
+        bpy.context.scene.collection.objects.link(obj)
+        parts.append(rigid_part(ctx, obj, {f"lowerarm.{s}": 1.0}, "iron", pewter, "kirtle_buttons"))
+    return parts
+
+
+def sideless_surcoat(ctx):
+    """Sideless surcoat over the kirtle: floor length, open at the sides from the
+    armhole to the hip so the fitted kirtle and its girdle show (1340s)."""
+    t = ctx.t
+    # Down past the hip: the girdle rides low in the 1340s, its purse and keys hang in the opening.
+    top, low = t["upperarm.l"].z - 0.01, t["hips"].z - 0.14
+    shoulder = t["upperarm.l"].x + 0.04
+
+    def windows(obj):
+        bm = bmesh.new()
+        bm.from_mesh(obj.data)
+        doomed = []
+        for f in bm.faces:
+            c = f.calc_center_median()
+            if not low < c.z < top or abs(c.x) > shoulder:
+                continue
+            # Angle from the front: the plackard keeps about 48 degrees either side
+            # of the centre front and back (a strip about a foot wide).
+            side = math.degrees(abs(math.atan2(c.x, -(c.y - t["hips"].y))))
+            if 48.0 < side < 132.0:
+                doomed.append(f)
+        bmesh.ops.delete(bm, geom=doomed, context="FACES")
+        bmesh.ops.delete(bm, geom=[v for v in bm.verts if not v.link_faces], context="VERTS")
+        # Deleted faces leave a stepped edge: straighten it along the boundary, as a cut line.
+        edge = [v for v in bm.verts if v.is_boundary and low - 0.03 < v.co.z < top + 0.03]
+        for _ in range(8):
+            moved = {}
+            for v in edge:
+                ring = [e.other_vert(v) for e in v.link_edges if e.is_boundary]
+                if len(ring) == 2:
+                    moved[v] = v.co * 0.5 + (ring[0].co + ring[1].co) * 0.25
+            for v, co in moved.items():
+                v.co = co
+        bm.to_mesh(obj.data)
+        bm.free()
+
+    parts = tunic(ctx, "sideless_surcoat", sleeve="none", hem="ankle", extra_ease=0.026, belted=False,
+                  color_key="sideless_surcoat", flare=2.5, folds=22, post=windows)
+    kirtle_tree = ctx.layers.get("kirtle")
+    if kirtle_tree is not None:
+        for part in parts:
+            for v in part.data.vertices:
+                v.co = clear_of([kirtle_tree], t["hips"].y, v.co, 0.006)
+    return parts
+
+
+def linen_shift(ctx):
+    """Estonian woman's linen shift (sark): full sleeves, under the wrap skirt.
+
+    Only the part above the hip is built: the skirt always covers the rest, and a
+    hidden shift skirt pokes through the wrap skirt once both are decimated."""
+    cut = ctx.t["hips"].z + 0.01  # above the shift's lofted skirt, under the wrap skirt's fitted top
+    return tunic(ctx, "linen_shift", hem="thigh", extra_ease=-0.004, belted=False, color_key="linen_shift",
+                 flare=1.1, folds=12, family="linen", post=lambda obj: bisect(obj, (0, 0, cut), (0, 0, -1)))
+
+
+def wrap_skirt(ctx):
+    """Wool wrap skirt over the shift, waist to calf, the overlap edge at the front and a
+    woven sash at the waist (Estonian women's dress, plausible composite)."""
+    t = ctx.t
+    waist_z = t["spine"].z - 0.02
+    hip_cut = t["hips"].z + 0.02
+    obj = extract_shell(ctx, "Garment_wrap_skirt",
+                        # The lower belly is weighted to the thighs: keep it, or the skirt has a hole in front.
+                        lambda v, b: (b in ("hips", "spine") or b.startswith("upperleg"))
+                        and hip_cut - 0.05 < v.co.z < waist_z + 0.08)
+    bisect(obj, (0, 0, waist_z), (0, 0, 1))
+    bisect(obj, (0, 0, hip_cut), (0, 0, -1))
+    # Over the shift (its ease is ~0.026 at the waist, plus the blousing).
+    ease = lambda p: 0.036
+    hull_fit(ctx, obj, ease)
+    relax(ctx, obj, 6, lambda p: 0.032, strength=0.5, drape=20)
+    loft_skirt(ctx, obj, hem_height(ctx, "calf") - 0.03, flare=1.75, fold_depth=0.014, folds=12, rings=14,
+               seed=11)
+    shift = [ctx.layers[k] for k in ("linen_shift",) if k in ctx.layers]
+    for v in obj.data.vertices:
+        v.co = clear_of(shift, t["hips"].y, v.co, 0.006)
+    color = ctx.palette("wrap_skirt", textiles_color("undyed"))
+    skirt_tree = BVHTree.FromObject(obj, bpy.context.evaluated_depsgraph_get())
+    # The wrapped panel's front edge, a little right of centre front. Joined into the
+    # skirt so the registered surface (aprons, keys) includes its ridge.
+    edge = []
+    hem_z = hem_height(ctx, "calf") - 0.03
+    for k in range(24):
+        z = waist_z - 0.01 + (hem_z + 0.01 - waist_z) * k / 23
+        origin = Vector((0, t["hips"].y, z))
+        out = horizontal(math.radians(-22))
+        edge.append(origin + out * (outer_radius([skirt_tree], origin, out) + 0.003))
+    tube = strap_tube(ctx, "Garment_wrap_skirt_edge", edge, 0.01, None)
+    copy_nearest_weights(obj, tube, list(range(len(obj.data.vertices))))
+    activate(obj)
+    tube.select_set(True)
+    bpy.ops.object.join()
+    grain_uv(ctx, obj, "wool")
+    hems = hem_rolls(ctx, obj, 0.0035, "wrap_skirt", "wool", color)
+    parts = [finish(ctx, obj, "wool", color, "wrap_skirt", thickness=0.003)]
+    parts += [finish_hem(ctx, h, "wool", color, "wrap_skirt") for h in hems]
+    # Woven sash (voo): a red band round the skirt's waist.
+    sash = []
+    for k in range(48):
+        a = k / 48 * 2 * math.pi
+        origin = Vector((0, t["hips"].y, waist_z - 0.025))
+        out = horizontal(a)
+        sash.append(origin + out * (outer_radius([skirt_tree], origin, out) + 0.006))
+    band_obj = band("Garment_wrap_skirt_sash", sash, width=0.045, thickness=0.006)
+    band_obj.vertex_groups.new(name="hips").add([v.index for v in band_obj.data.vertices], 1.0, "REPLACE")
+    grain_uv(ctx, band_obj, "wool")
+    parts.append(finish(ctx, band_obj, "wool", ctx.palette("sash", (0.52, 0.13, 0.10)), "sash"))
+    return parts
+
+
+def solg(ctx):
+    """Silver penannular brooch (solg) pinning the shift's neck slit at the breast."""
+    t = ctx.t
+    front_y = ctx.lm["chin"][1] + 0.02
+    origin = Vector((0, t["hips"].y, ctx.collar(front_y) - 0.05))
+    out = horizontal(0.0)
+    trees = [ctx.layers[k] for k in ("linen_shift",) if k in ctx.layers] or [ctx.bvh]
+    centre = origin + out * (outer_radius(trees, origin, out) + 0.005)
+    silver = ctx.palette("solg", (0.78, 0.77, 0.73))
+    ring = torus("Garment_solg_ring", centre, out, 0.028, 0.0036, 24, 6)
+    parts = [rigid_part(ctx, ring, {"chest": 1.0}, "iron", silver, "solg")]
+    pin = rigid_box(ctx, "Garment_solg_pin", centre + out * 0.004 + Vector((0, 0, 0.004)),
+                    (0.064, 0.0035, 0.0035), "chest", "iron", silver, "solg")
+    return parts + [pin]
+
+
+def braids(ctx):
+    """The maiden's braid (MakeHuman braid01 hair cards) as a citizen layer, so a
+    married woman's headscarf can take its place (dossier: maidens bareheaded)."""
+    hair = bpy.data.objects.get("Hair_Scalp")
+    return [hair] if hair is not None else []
+
+
+def head_cloth(ctx):
+    """Estonian wife's white linen head cloth: over the brow, a long tail down the back."""
+    return head_wrap(ctx, "Garment_head_cloth", "head_cloth", "linen",
+                     ctx.palette("head_cloth", (0.86, 0.84, 0.78)), head_ease=0.014, hem_below_neck=0.32,
+                     face=(48, 6, -58), cape_ease=0.03, hair=False, open_front=125, folds=0.012)
+
+
 # Wardrobe definitions: slot, hidden body regions, builder.
 WARDROBE = {
     "linen_shirt": ("torso", ["Anatomy_Torso", "Anatomy_Arms", "Anatomy_Forearms"], linen_shirt),
@@ -2021,4 +2200,14 @@ WARDROBE = {
     "paternoster": ("accessory", [], paternoster),
     "satchel": ("accessory", [], satchel),
     "back_sack": ("accessory", [], back_sack),
+    # Women's dress range (WD-3): base outfits "c" and "d" and the head layers.
+    # Torso-slot garments register their surface, so the next one and the layers clear them.
+    "kirtle": ("torso", ["Anatomy_Torso", "Anatomy_Arms", "Anatomy_Forearms", "Anatomy_Legs", "Anatomy_Calves"],
+               kirtle),
+    "sideless_surcoat": ("torso", [], sideless_surcoat),
+    "linen_shift": ("torso", ["Anatomy_Torso", "Anatomy_Arms", "Anatomy_Forearms"], linen_shift),
+    "wrap_skirt": ("torso", ["Anatomy_Legs"], wrap_skirt),
+    "solg": ("accessory", [], solg),
+    "braids": ("head", [], braids),
+    "head_cloth": ("head", [], head_cloth),
 }

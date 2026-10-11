@@ -1,15 +1,16 @@
 """Wardrobe rules for the census residents of Reval (docs/SYSTEMS/CITIZEN_WARDROBE.md).
 
 A resident is a blank body with one baked base outfit (tunic or gown, hose,
-boots, belt with purse) plus layers fitted to that body
+boots, belt with purse; for women also the kirtle with sideless surcoat or the
+Estonian shift and wrap skirt) plus layers fitted to that body
 (tools/assets/realistic_humans/citizen_bodies.LAYERS). These rules pick the
 layers and their dyes from what the census knows: sex, age, status, trade,
 household role, faction and duty. Every pick is a stable hash of the resident
 id, so the same person always wears the same things.
 
 The rules follow history/dossiers/dailylife/clothing-and-status-markers.md:
-hems, fur and dyes by rank; married women covered, burgher wives veiled and
-keyed; smiths in leather aprons; watch in aketon and kettle hat; crown men in
+hems, fur and dyes by rank; married women covered (headscarf, or the Estonian
+head cloth), maidens bareheaded with braids, burgher wives veiled and keyed; smiths in leather aprons; watch in aketon and kettle hat; crown men in
 mail under red; no armour on burghers, no veil on labourers.
 
 Pure Python, no Blender: imported by tools/city/build_citizen_runtime.py and
@@ -83,13 +84,19 @@ DUTY_KITS = {
     "keeper": ("keys",),
 }
 HEADWEAR = ("hood", "coif", "wool_cap", "veil_over", "kettle_hat", "bascinet", "mail_coif", "aventail",
-            "great_helm")
+            "great_helm", "headscarf", "head_cloth", "braids")
 # Heads that may stack: mail under an iron head piece (coif or aventail under bascinet, helm or hat).
 ARMOUR_HEADS = {"mail_coif", "aventail", "bascinet", "great_helm", "kettle_hat"}
 # Knightly harness (WD-4): only a knight of noble status wears it. Mail chausses also go to
 # crown men-at-arms; nothing here is ever worn by a burgher, master, journeyman or labourer.
 KNIGHT_ONLY = {"coat_of_plates", "great_helm", "aventail", "bascinet", "gauntlets", "order_mantle"}
 ARMOUR = KNIGHT_ONLY | {"gambeson", "mail_haubergeon", "mail_coif", "surcoat", "kettle_hat", "mail_chausses"}
+# A grown woman's head (WD-3): exactly one of these; the veil only ever goes over the headscarf.
+WOMAN_HEAD = ("braids", "headscarf", "head_cloth")
+# Working maids and alewives tie a kerchief over their braids at work (dossier: servant girl,
+# alewife "headscarf always"); this share of the unmarried ones does.
+KERCHIEF_TRADES = {"maid": 0.35, "servant": 0.3, "cook": 0.5, "castle_cook": 0.5, "alewife": 0.8,
+                   "washerwoman": 0.5, "dairy": 0.4, "castle_servant": 0.3}
 STRAPS = ("satchel", "back_sack")  # both cross the right shoulder: one at a time
 
 
@@ -205,17 +212,34 @@ def dress(person: dict, available: tuple) -> tuple[list[str], dict]:
             LINEN_WHITE if trade in ("baker", "cook", "castle_cook", "dairy") else
             LINEN_NATURAL if roll("apron_tone") < 0.6 else LINEN_GREY)
 
-    # Head coverings.
+    # Head coverings. A woman's head follows marriage (WD-3): wives and widows are
+    # covered, maidens go bareheaded with their braids; girls' braids are baked in.
     if sex == "f":
-        married = person.get("household_role") in ("spouse", "head", "elder") or stage == "elder"
-        if trade in NUNS:
-            put("veil_over", HABIT_BLACK)
-        elif married and wealth == "rich":
-            put("veil_over", LINEN_WHITE)
-        elif married and wealth == "mid" and roll("veil") < 0.55:
-            put("veil_over", LINEN_WHITE if roll("veil_tone") < 0.5 else LINEN_NATURAL)
-        elif stage == "elder" and roll("veil") < 0.35:
-            put("veil_over", LINEN_NATURAL)
+        if stage != "child":  # girls never cover their (baked) braids
+            married = person.get("household_role") in ("spouse", "head", "elder") or stage == "elder"
+            scarf = LINEN_WHITE if wealth == "rich" else LINEN_NATURAL if roll("scarf_tone") < 0.6 else LINEN_GREY
+            if trade in NUNS:
+                put("headscarf", LINEN_WHITE)  # the wimple under the black veil
+                put("veil_over", HABIT_BLACK)
+            elif married:
+                # The Estonian wife's long white head cloth goes with her wrap skirt (outfit "d").
+                if "head_cloth" in available and roll("head_cloth") < 0.75:
+                    put("head_cloth", LINEN_WHITE if roll("cloth_tone") < 0.6 else LINEN_NATURAL)
+                else:
+                    put("headscarf", scarf)
+                if "headscarf" in wear:
+                    if wealth == "rich":
+                        put("veil_over", LINEN_WHITE)
+                    elif wealth == "mid" and roll("veil") < 0.55:
+                        put("veil_over", LINEN_WHITE if roll("veil_tone") < 0.5 else LINEN_NATURAL)
+                    elif stage == "elder" and roll("veil") < 0.35:
+                        put("veil_over", LINEN_NATURAL)
+            elif roll("kerchief") < KERCHIEF_TRADES.get(trade, 0.0):
+                put("headscarf", scarf)
+            if not any(h in wear for h in WOMAN_HEAD):
+                put("braids")
+            if not any(h in wear for h in WOMAN_HEAD) and "headscarf" in available:
+                put("headscarf", scarf)  # a body without a braid (elders) is never bareheaded
     elif head_free():
         r = roll("head")
         if trade in MONASTIC:
