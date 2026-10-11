@@ -82,7 +82,29 @@ static func ice_cover_target(kind: StringName, day_of_year: float) -> float:
 	var lag: float = ICE_LAG_DAYS.get(kind, 0.0)
 	var freeze: float = ICE_FREEZE_C.get(kind, -1.0)
 	var cold := freeze - mean_temperature_c(day_of_year - lag)
-	return clampf(cold / 6.0, 0.0, 1.0)
+	return clampf(cold / 3.0, 0.0, 1.0)
+
+
+## Floating water plants (lilies, duckweed) and lily flowers: 0 once the water is
+## cold, 1 in warm water. Water trails the air by about a week and a half.
+static func water_plant_vigour(day_of_year: float) -> float:
+	return smoothstep(3.0, 11.0, mean_temperature_c(day_of_year - 8.0))
+
+
+static func lily_flower_share(day_of_year: float) -> float:
+	return smoothstep(12.0, 17.0, mean_temperature_c(day_of_year - 8.0))
+
+
+## Share of reed and cattail stems still standing: they yellow and lodge through
+## autumn and are gone (under ice, cut by frost) once the winter is hard.
+static func reed_standing(day_of_year: float) -> float:
+	return smoothstep(-3.0, 4.0, mean_temperature_c(day_of_year - 10.0))
+
+
+## 0 green .. 1 dead straw-brown: autumn and winter weight of the season blend.
+static func reed_dead_share(day_of_year: float) -> float:
+	var weights := season_weights(day_of_year)
+	return clampf(float(weights[AUTUMN]) * 1.4 + float(weights[WINTER]), 0.0, 1.0)
 
 
 ## 0.15 in midsummer (cooking fires only) up to 1 in deep winter: scales chimney smoke.

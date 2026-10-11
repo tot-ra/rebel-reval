@@ -18,6 +18,11 @@ uniform vec2 wind_dir = vec2(0.8, 0.6);
 uniform float wave_strength = 0.12;
 uniform float flow_speed = 0.0; // > 0 for the stream: water runs along UV.x
 uniform float time_scale = 1.0;
+// ADR 0045: ice thickness 0..1 (SeasonState.ice_cover_target) and the snow lying
+// on it. Shallows freeze first, then the open water; moving water freezes later.
+uniform float ice = 0.0;
+uniform float ice_snow = 0.0;
+uniform vec3 ice_color : source_color = vec3(0.62, 0.74, 0.80);
 // Water column from the mesh instead of the depth texture: COLOR.r =
 // (depth + vertex_depth_offset) / vertex_depth_scale, baked by CityWorld3D for
 // the stream (the depth-texture column reads ~0 in perspective there).
@@ -70,7 +75,7 @@ float waves(vec2 p, float t) {
 void vertex() {
 	world_pos = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
 	float t = TIME * time_scale;
-	VERTEX.y += waves(world_pos.xz, t) * wave_strength;
+	VERTEX.y += waves(world_pos.xz, t) * wave_strength * (1.0 - ice * 0.95);
 }
 
 void fragment() {
@@ -125,4 +130,20 @@ void fragment() {
 	cloud_cell_shadow = city_water_cloud_shadow(world_pos);
 	float rim = smoothstep(0.0, edge_soft, column);
 	ALPHA = rim * mix(opacity * mix(0.78, 1.0, depth_hint), 1.0, fres * 0.4);
+	if (ice > 0.001) {
+		float skin = ice * (1.0 - min(flow_speed, 1.0) * 0.4);
+		float patches = noise(world_pos.xz * 0.42) * 0.6 + noise(world_pos.xz * 1.9) * 0.4;
+		float frozen = clamp(skin * 1.7 - depth_hint * 0.8 + (patches - 0.5) * 0.5, 0.0, 1.0);
+		frozen = smoothstep(0.15, 0.7, frozen);
+		// Cracks: thin dark lines where two noise fields cross.
+		float crack = 1.0 - smoothstep(0.0, 0.035, abs(noise(world_pos.xz * 1.3) - noise(world_pos.xz * 1.3 + 7.1)));
+		vec3 sheet = ice_color * (0.82 + 0.25 * patches) * (1.0 - crack * 0.35);
+		sheet = mix(sheet, vec3(0.9, 0.93, 0.97), ice_snow * smoothstep(0.15, 0.55, patches) * 0.9);
+		ALBEDO = mix(ALBEDO, sheet, frozen);
+		ROUGHNESS = mix(ROUGHNESS, mix(0.1, 0.8, ice_snow), frozen);
+		SPECULAR = mix(SPECULAR, 0.5, frozen);
+		ALPHA = mix(ALPHA, max(ALPHA, 0.97) * rim + (1.0 - rim) * 0.0, frozen);
+		vec3 flat_n = normalize(mix(n, vec3(0.0, 1.0, 0.0), frozen * 0.93));
+		NORMAL = normalize((VIEW_MATRIX * vec4(flat_n, 0.0)).xyz);
+	}
 }

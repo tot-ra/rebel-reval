@@ -23,6 +23,11 @@ const STREAM_FLOAT_SHARE := 0.4
 ## Floating plants need the bed at least this far under the surface.
 const FLOAT_MIN_DEPTH := 0.5
 const PAD_RADIUS := 0.3
+const REED_GREEN := Color(0.42, 0.5, 0.2)
+const REED_STRAW := Color(0.62, 0.5, 0.26)
+const PAD_GREEN := Color(0.2, 0.42, 0.16)
+const PAD_AUTUMN := Color(0.5, 0.4, 0.14)
+const CATTAIL_STRAW := Color(0.78, 0.66, 0.44)
 
 
 static func build(plan: CityPlan, records: Array) -> Node3D:
@@ -112,9 +117,14 @@ static func build(plan: CityPlan, records: Array) -> Node3D:
 					)
 					var g := rng.randf_range(0.85, 1.1)
 					mat_colors.append(Color(g, g, g * 0.8, 1.0))
+	# Shuffle each group so dying back thins the stand evenly, not along the bank.
+	_shuffle_together(rng, reeds, reed_colors)
+	_shuffle_together(rng, cattails, cattail_colors)
+	_shuffle_together(rng, pads, pad_colors)
+	_shuffle_together(rng, mats, mat_colors)
 	_add_reeds(root, reeds, reed_colors)
 	_add_cattails(root, cattails, cattail_colors)
-	_add_floating(root, "LilyPads", _pad_mesh(), pads, pad_colors, Color(0.2, 0.42, 0.16))
+	_add_floating(root, "LilyPads", _pad_mesh(), pads, pad_colors, PAD_GREEN)
 	_add_floating(root, "Duckweed", _mat_mesh(), mats, mat_colors, Color(0.42, 0.52, 0.16))
 	# Per-vertex colours carry the tone of these two, so the tint is white.
 	_add_floating(root, "LilyFlowers", _flower_mesh(), flowers, flower_colors, Color.WHITE)
@@ -122,11 +132,66 @@ static func build(plan: CityPlan, records: Array) -> Node3D:
 	return root
 
 
+static func _shuffle_together(
+	rng: RandomNumberGenerator, xf: Array[Transform3D], colors: Array[Color]
+) -> void:
+	for i in range(xf.size() - 1, 0, -1):
+		var j := rng.randi_range(0, i)
+		var t := xf[i]
+		xf[i] = xf[j]
+		xf[j] = t
+		var c := colors[i]
+		colors[i] = colors[j]
+		colors[j] = c
+
+
+## ADR 0045: seasons for the water plants. Reeds and cattails yellow, then brown,
+## then thin out to nothing in a hard winter; lily pads, flowers and duckweed die
+## back with the cold water. Cheap: visible_instance_count and one tint per node.
+static func apply_season(root: Node3D, day_of_year: float) -> void:
+	if root == null:
+		return
+	var standing := SeasonState.reed_standing(day_of_year)
+	var dead := SeasonState.reed_dead_share(day_of_year)
+	var vigour := SeasonState.water_plant_vigour(day_of_year)
+	var flowers := SeasonState.lily_flower_share(day_of_year)
+	for child in root.get_children():
+		var inst := child as MultiMeshInstance3D
+		if inst == null or inst.multimesh == null:
+			continue
+		var count := inst.multimesh.instance_count
+		match String(inst.name):
+			"Reeds":
+				_set_share(inst, count, standing)
+				var mat := inst.material_override as StandardMaterial3D
+				if mat == null:
+					mat = inst.multimesh.mesh.surface_get_material(0) as StandardMaterial3D
+				if mat != null:
+					mat.albedo_color = REED_GREEN.lerp(REED_STRAW, dead)
+			"Cattails":
+				_set_share(inst, count, standing)
+				var cat_mat := inst.material_override as StandardMaterial3D
+				if cat_mat != null:
+					cat_mat.albedo_color = Color.WHITE.lerp(CATTAIL_STRAW, dead)
+			"LilyFlowers":
+				_set_share(inst, count, flowers)
+			"LilyPads", "Duckweed", "DuckweedFronds":
+				_set_share(inst, count, vigour)
+				var float_mat := inst.material_override as StandardMaterial3D
+				if float_mat != null and inst.name == &"LilyPads":
+					float_mat.albedo_color = PAD_GREEN.lerp(PAD_AUTUMN, dead)
+
+
+static func _set_share(inst: MultiMeshInstance3D, count: int, share: float) -> void:
+	inst.multimesh.visible_instance_count = int(round(float(count) * clampf(share, 0.0, 1.0)))
+	inst.visible = inst.multimesh.visible_instance_count > 0
+
+
 static func _add_reeds(root: Node3D, xf: Array[Transform3D], colors: Array[Color]) -> void:
 	if xf.is_empty():
 		return
 	var material := StandardMaterial3D.new()
-	material.albedo_color = Color(0.42, 0.5, 0.2)
+	material.albedo_color = REED_GREEN
 	material.vertex_color_use_as_albedo = false
 	material.cull_mode = BaseMaterial3D.CULL_DISABLED
 	material.roughness = 0.9

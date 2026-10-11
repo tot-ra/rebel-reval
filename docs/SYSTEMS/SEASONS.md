@@ -62,6 +62,27 @@ Status: implemented for the seamless city (the date drives all of it).
 - **Snow is not rain:** the weather presentation's `rain_intensity` is scaled by the liquid share, so snowfall does not wet the ground, ring puddles or darken walls.
 - Review plates: `tools/godot_render.sh --script tools/capture_city_forbs.gd -- --date=1343-12-10 --tag=dec` (writes `build/forbs/*_dec.png`).
 
+## Autumn leaf fall
+
+Status: implemented for the seamless city.
+
+- `CityLeafFall` (`scripts/city/city_leaf_fall.gd` + `city_leaf_fall.gdshader`) is one pooled GPUParticles3D (900 slots). Every 0.3 s it reads the trees within 36 m of the player from `CityTreeLod.trees_near`, weighs them by view direction and shedding, and uploads the top 16 as crown centres, leaf colours and ground heights.
+- A tree sheds in proportion to the leaves it still carries (`VegetationPhenology.state_for`: `leaf_density`, `fall_rate`) and the wind (`CityLeafFall.shed_weight`): a bare crown drops nothing, an October crown a steady trickle, a stiff wind or a gale much more (a gale even strips summer crowns). Leaf colours match the species' crown today.
+- Leaves ride the shared wind (velocity chases wind plus fall each frame, so gusts shove them), tumble and flutter, and vanish when they reach the ground they were shed over: nothing lies around.
+- Cost: one particle draw, two triangles per leaf, nothing when no leafed tree is near. Not yet measured with the F3 monitor.
+- Gotchas: `CUSTOM` is not preserved between frames in a particle shader (recompute from `INDEX`); `return` is not allowed in `start()`; frames outrun the clock in a minimized capture window, so the plate tool preprocesses 10 s.
+- Plate: `tools/godot_render.sh --script tools/capture_city_leaves.gd -- --date=1343-10-20 --wind=0.6`.
+- Older `TreeLeafFall3D` (hit bursts, district maps) is unchanged; the city never used it for ambient leaves (its trees are not in the canopy groups).
+
+## Water, reeds, lilies and ice
+
+Status: implemented for the moat, the Hareapea stream and lakes (sea ice is planned).
+
+- **Reeds and cattails** (`CityMoatPlants.apply_season`) yellow through autumn (`SeasonState.reed_dead_share`), lose stems as the water cools and are gone in a hard winter (`reed_standing`, via `MultiMesh.visible_instance_count` over a shuffled stand, so it thins evenly).
+- **Lily pads and duckweed** fade with `water_plant_vigour` (water trails the air by about a week and a half); pads turn brown in autumn; **lily flowers** need warmer water than the pads.
+- **Ice:** `city_moat_water.gdshader` has `ice` (thickness 0..1 from `SeasonState.ice_cover_target(ICE_FRESH)`) and `ice_snow`. The shallows freeze first, then the open water; running water (the stream) freezes later; waves die out; cracks and snow on the ice show. Pushed to every moat/stream/lake material by `CityWorld3D.apply_season`.
+- Plates: `tools/godot_render.sh --script tools/capture_city_season.gd -- --date=1343-01-15` (also `1343-07-15`, `1343-10-20`).
+
 ## Debug controls
 
 - **Debug overlay (mouse).** Open the quick menu and press **Debug**. The panel has a **Date and Season** block: the current date, season and mean temperature, buttons `-30d`, `-1d`, `+1d`, `+30d`, and `Winter`, `Spring`, `Summer`, `Autumn` that jump forward to 15 Jan, 21 Apr, 15 Jul and 15 Oct. Clock speed and pause are in the **Time Controls** block above it.

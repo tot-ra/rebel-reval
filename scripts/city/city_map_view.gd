@@ -25,6 +25,8 @@ var water_obstacle_sim: WaterRippleSimScript
 ## WR-7 foam with memory (WaterFoamSim); null on the minimum sea tier and inland plans.
 var water_foam_sim: WaterFoamSim
 var _surface_sampler: CitySurfaceSampler
+## Autumn leaves shed by the trees around the player (ADR 0045).
+var _leaf_fall: CityLeafFall
 
 
 ## `quality_tier` (SkyWeather3D QUALITY_*, null = recommended) picks the sky, weather,
@@ -61,9 +63,19 @@ static func create_city(city_plan: CityPlan, quality_tier: Variant = null) -> Ci
 	view._create_city_obstacle_sim()
 	view._create_city_underwater_pass()
 	return view
+	view._create_city_leaf_fall()
 
 
 func _create_city_underwater_pass() -> void:
+func _create_city_leaf_fall() -> void:
+	var lod := world.get_node_or_null("Vegetation/TreeLod")
+	if lod == null:
+		return
+	_leaf_fall = CityLeafFall.new()
+	add_child(_leaf_fall)
+	_leaf_fall.configure(lod)
+
+
 	_underwater_pass = UnderwaterPassScript.new()
 	add_child(_underwater_pass)
 	_underwater_pass.configure(_camera, _underwater_probe, _sky_weather.quality_tier)
@@ -262,6 +274,17 @@ func _process(delta: float) -> void:
 		return
 	if _underwater_pass != null:
 		_underwater_pass.update(delta)
+	if _leaf_fall != null:
+		var rig := get_tree().get_first_node_in_group(&"player_view_rig") as Node3D
+		var focus := rig.global_position if rig != null else _camera.global_position
+		_leaf_fall.update_leaves(
+			focus,
+			_sky_weather.calendar_date,
+			MapViewMaterials.WIND_MATERIALS.world_wind_direction(),
+			MapViewMaterials.WIND_MATERIALS.world_wind_strength(),
+			delta,
+			-_camera.global_transform.basis.z
+		)
 	var presentation := _sky_weather.presentation_snapshot(
 		cycle_progress, SkyWeather3D.daylight_blend(cycle_progress, _sky_weather.calendar_date)
 	)

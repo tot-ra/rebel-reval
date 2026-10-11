@@ -70,6 +70,8 @@ var roof_nodes: Dictionary = {}
 var water_materials: Array[ShaderMaterial] = []
 var stream_material: ShaderMaterial
 var moat_material: ShaderMaterial
+## Reeds, cattails and floating plants; seasons thin and tint them (apply_season).
+var moat_plants: Node3D
 var stream_segment_count := 0
 ## Still lake water (a crater lake, regional sites only).
 var lake_material: ShaderMaterial
@@ -185,6 +187,14 @@ func set_enclosed_interior(value: bool) -> void:
 ## ADR 0045: seasonal look of the ground from the campaign date: turf goes dormant
 ## through winter and snow settles on it. Same snow curve as the grass blades.
 func apply_season(date: Dictionary) -> void:
+	var doy := SeasonState.day_of_year_for(date)
+	# Fresh water freezes with the cold (moat, stream, lake): shallows first.
+	var ice := SeasonState.ice_cover_target(SeasonState.ICE_FRESH, doy)
+	var ice_snow := VegetationPhenology.snow_cover_for(date)
+	for water: ShaderMaterial in water_materials:
+		water.set_shader_parameter("ice", ice)
+		water.set_shader_parameter("ice_snow", ice_snow)
+	MoatPlants.apply_season(moat_plants, doy)
 	var ground := CityTerrainBuilder.shared_material()
 	if ground == null:
 		return
@@ -540,7 +550,8 @@ func _build_inland_water(root: Node3D) -> void:
 			root.add_child(m_inst)
 	# Reeds, cattails and floating plants in the moat and along the stream banks.
 	if not moat_water.is_empty():
-		root.add_child(MoatPlants.build(plan, moat_water))
+		moat_plants = MoatPlants.build(plan, moat_water)
+		root.add_child(moat_plants)
 	_clear_wet_trees()
 
 

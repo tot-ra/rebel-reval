@@ -28,12 +28,14 @@ const MACRO_ENTER := 10.0
 const MACRO_EXIT := 13.0
 const GRID := 32.0
 const UPDATE_INTERVAL := 0.15
+const PerfProbeScript := preload("res://scripts/debug/perf_probe.gd")
 
 ## Optional fixed viewpoint (captures and tests); otherwise the active camera.
 var focus_override := Vector3.INF
 ## species -> {"world_scale", "shrub"}
 var _species: Dictionary = {}
-## tree id -> [species, Transform3D, Color, MultiMesh far, int far index, Array[MultiMesh] hidden with it]
+## tree id -> [species, Transform3D, Color, MultiMesh far, int far index,
+## Array[MultiMesh] hidden with it]
 var _trees: Array = []
 ## Vector2i grid cell -> Array[int] tree ids
 var _grid: Dictionary = {}
@@ -75,6 +77,26 @@ func register(
 		(_grid[cell] as Array).append(id)
 
 
+## Real trees (not shrubs) within `radius` of `focus` on the ground plane, as
+## [species, foot origin, scale] rows, for ambient leaf fall (ADR 0045).
+func trees_near(focus: Vector3, radius: float) -> Array:
+	var out: Array = []
+	var reach := ceili(radius / GRID)
+	var centre := Vector2i(floori(focus.x / GRID), floori(focus.z / GRID))
+	var radius_squared := radius * radius
+	for dy in range(-reach, reach + 1):
+		for dx in range(-reach, reach + 1):
+			for id: int in _grid.get(centre + Vector2i(dx, dy), []):
+				var tree: Array = _trees[id]
+				if bool((_species[tree[0]] as Dictionary).get("shrub", false)):
+					continue
+				var xf: Transform3D = tree[1]
+				var offset := Vector2(xf.origin.x - focus.x, xf.origin.z - focus.z)
+				if offset.length_squared() <= radius_squared:
+					out.append([tree[0], xf.origin, xf.basis.get_scale().y])
+	return out
+
+
 ## Dense woods are the heaviest place in the game (a macro spruce is ~500 000 triangles),
 ## so the radii that get real-size crowns follow the graphics quality.
 func apply_quality(quality: String) -> void:
@@ -107,8 +129,6 @@ func is_near(id: int) -> bool:
 func is_macro(id: int) -> bool:
 	return _macro.has(id)
 
-
-const PerfProbeScript := preload("res://scripts/debug/perf_probe.gd")
 
 
 func _process(delta: float) -> void:
