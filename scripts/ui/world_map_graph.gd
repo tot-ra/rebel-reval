@@ -164,7 +164,10 @@ static func resolve_current_scene_id(scene: Node) -> StringName:
 	var path := scene.scene_file_path
 	if path.is_empty():
 		return &""
-	for scene_id in active_scene_ids():
+	# WHY: search every active scene, distant ones included. active_scene_ids()
+	# hides them from the district graph, so using it here left the id empty in
+	# a world_* location and the map could not plan the trip back to Reval.
+	for scene_id in DoorNavigator.get_active_scene_ids():
 		if DoorNavigator.get_scene_path(scene_id) == path:
 			return scene_id
 	return &""

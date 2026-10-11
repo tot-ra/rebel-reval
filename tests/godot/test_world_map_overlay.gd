@@ -365,6 +365,19 @@ func test_resolve_current_scene_id_from_scene_path() -> void:
 	)
 	forge_scene.free()
 
+	# Regression: distant locations must resolve too, or the way back to Reval is lost.
+	for distant_id in [&"world_harju", &"world_padise"]:
+		var distant_path := DoorNavigator.get_scene_path(distant_id)
+		if distant_path.is_empty() or not DoorNavigator.has_active_scene(distant_id):
+			continue
+		var distant_scene: Node = load(distant_path).instantiate()
+		assert_eq(
+			WorldMapGraph.resolve_current_scene_id(distant_scene),
+			distant_id,
+			"distant scene %s must resolve to its own id" % distant_id
+		)
+		distant_scene.free()
+
 	var unknown := Node.new()
 	assert_eq(
 		WorldMapGraph.resolve_current_scene_id(unknown),
