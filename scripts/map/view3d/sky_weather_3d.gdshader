@@ -65,6 +65,9 @@ uniform vec2 cloud_detail_offset = vec2(0.0);
 uniform float cloud_chaos : hint_range(0.0, 1.0) = 0.35;
 // Compatibility uniform: quality selects twice this many cloud depth samples.
 uniform int cloud_shadow_samples : hint_range(1, 4) = 4;
+// R-1768: 0 = flat deck (minimum tier), 1 = lit 2.5D deck (recommended): lobed
+// silhouettes, bump normals and sun-ward self-shadow (sky_clouds.gdshaderinc).
+uniform int cloud_deck_mode : hint_range(0, 1) = 1;
 // Quality tier controls the fixed upper bound of the distant rain march.
 uniform int rain_shaft_samples : hint_range(1, 6) = 6;
 // Missing procedural textures fail closed to the readable gradient instead of
@@ -255,6 +258,11 @@ vec3 sun_transmittance_at(float altitude_km) {
 }
 
 
+// R-1768 lit deck tuning (mirrored in SkyWeather3D._cloud_slab_clear).
+const float LIT_DECK_SLAB_DEPTH = 0.06;
+// Extra darkening of the lit deck's shade side; the cells keep cloud_shadow as is.
+const float LIT_DECK_SHADE = 0.72;
+
 vec3 cloud_field(vec3 dir) {
 	if (cloud_fallback || dir.y < -0.025) {
 		return vec3(0.0);
@@ -265,6 +273,9 @@ vec3 cloud_field(vec3 dir) {
 	// Integrate through a finite cloud slab. Height-dependent erosion gives
 	// broad bases and rounded tops, rather than opaque cutouts on one plane.
 	int steps = cloud_shadow_samples * 2;
+	// R-1768: the lit deck shades its own volume, so its slab is shallower: the deep
+	// slab's height steps fan out radially from the zenith and smear the heaps.
+	float slab_depth = cloud_deck_mode == 1 ? LIT_DECK_SLAB_DEPTH : 0.14;
 	float step_length = 1.0 / float(steps);
 	float optical_step = step_length * mix(9.0, 15.0, local_storm)
 		/ max(sqrt(max(dir.y, 0.0)), 0.38);
@@ -275,10 +286,13 @@ vec3 cloud_field(vec3 dir) {
 	for (int i = 0; i < 8; i++) {
 		if (i >= steps) { break; }
 		float h = (float(i) + 0.5) * step_length;
-		vec2 sample_uv = cloud_uv(dir, 1.0 + h * mix(0.14, 0.32, local_storm));
+		vec2 sample_uv = cloud_uv(dir, 1.0 + h * mix(slab_depth, 0.32, local_storm));
 		// Height shear adds depth without animation noise or temporal jitter.
 		sample_uv += wind_dir * h * 0.008;
 		float body = cloud_opacity(sample_uv, cover);
+		if (cloud_deck_mode == 1) {
+			body = sky_cloud_lobe_erode(body, sky_cloud_lobes(sample_uv, cloud_shape, cloud_detail_offset));
+		}
 		float profile = smoothstep(0.0, 0.16, h)
 			* (1.0 - smoothstep(0.48, 1.0, h));
 		float billows = texture(cloud_noise, sample_uv * 5.2 + cloud_detail_offset + h * 0.12).r;
@@ -296,6 +310,16 @@ vec3 cloud_field(vec3 dir) {
 	}
 	float density = 1.0 - transmittance;
 	float light = illumination / max(density, 0.001);
+	if (cloud_deck_mode == 1 && density > 0.002) {
+		// R-1768: shade the deck as heaped tops with lobes. The lobe erosion above is
+		// mirrored by the ground-shadow pass and the CPU occlusion mirror.
+		float texel = max(fwidth(uv.x), fwidth(uv.y));
+		float lit = sky_cloud_lit_share(uv, cover, cloud_shape, cloud_detail_offset,
+			sun_direction, dir.y, texel);
+		// Lobes finer than a pixel would alias into grain near the horizon.
+		lit = mix(lit, light, smoothstep(0.03, 0.12, texel));
+		light = mix(light, lit * mix(0.20, 1.0, sun_up), 0.85);
+	}
 	// High thin cloud lies behind the low deck and uses a sheared wind.
 	vec2 high_uv = cloud_uv(dir, 2.1) + cloud_offset * 0.65;
 	vec2 high_wind = vec2(wind_dir.x * 0.825 - wind_dir.y * 0.565,
@@ -1157,7 +1181,8 @@ void sky() {
 		* mix(vec3(0.88, 0.95, 1.12), horizon_hue, gold);
 	vec3 dusk_shadow = mix(vec3(0.30, 0.26, 0.40), vec3(0.46, 0.40, 0.52), day_blend) * mix(1.0, 0.5, local_storm);
 	vec3 cloud_shadow = mix(day_shadow, dusk_shadow, pink_ramp);
-	vec3 cloud_col = mix(cloud_shadow, cloud_top, cloud_light);
+	vec3 deck_shade = cloud_shadow * (cloud_deck_mode == 1 ? LIT_DECK_SHADE : 1.0);
+	vec3 cloud_col = mix(deck_shade, cloud_top, cloud_light);
 	// Hot rim where a lit cloud faces the low sun — the fiery sunset edge.
 	vec3 rim = mix(cloud_sun_color, dusk_hot, pink_ramp);
 	cloud_col += rim * pow(sun_amount, 5.0) * cloud_light * (0.04 + 0.48 * pink_ramp) * sun_visibility;

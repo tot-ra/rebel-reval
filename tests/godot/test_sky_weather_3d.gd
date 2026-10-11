@@ -1036,6 +1036,7 @@ func _assert_quality_tier_budget_row(minimum: Dictionary, recommended: Dictionar
 		"cloud_noise_resolution",
 		"cloud_shape_resolution",
 		"cloud_shadow_samples",
+		"cloud_deck_mode",
 		"cloud_shadow_ground_samples",
 		"cloud_shadow_enabled",
 		"rain_shaft_samples",
@@ -1057,6 +1058,8 @@ func _assert_quality_tier_budget_row(minimum: Dictionary, recommended: Dictionar
 		assert_true(recommended.has(key), "recommended QUALITY_TIERS must publish %s" % key)
 	assert_eq(minimum["cloud_shadow_samples"], 2)
 	assert_eq(recommended["cloud_shadow_samples"], 4)
+	assert_eq(minimum["cloud_deck_mode"], 0, "R-1768: the minimum tier keeps the flat deck")
+	assert_eq(recommended["cloud_deck_mode"], 1, "R-1768: recommended draws the lit deck")
 	assert_eq(minimum["cloud_shadow_ground_samples"], 1)
 	assert_eq(recommended["cloud_shadow_ground_samples"], 3)
 	assert_eq(minimum["rain_shaft_samples"], 3)
@@ -1163,3 +1166,43 @@ func test_sky_sun_disk_gets_hdr_gain_outside_the_cubemap_pass() -> void:
 		settings_source.contains("output_max_linear_value_changed.connect"),
 		"UserSettings republishes the headroom when macOS changes it"
 	)
+
+
+## R-1768: the lit deck's lobe erosion leaves open sky open and dense cores whole, bulges
+## an edge on a lobe and bites it between lobes, and is neutral at the mean lobe.
+func test_lit_deck_lobe_erosion_shapes_only_edges() -> void:
+	var mean := SkyWeather.CLOUD_LOBE_MEAN
+	assert_eq(SkyWeather.lobe_erode(0.0, 1.0), 0.0, "open sky must stay open")
+	assert_eq(SkyWeather.lobe_erode(1.0, 0.0), 1.0, "a dense core must stay whole")
+	assert_true(is_equal_approx(SkyWeather.lobe_erode(0.4, mean), 0.4), "the mean lobe is neutral")
+	assert_true(SkyWeather.lobe_erode(0.4, 1.0) > 0.4, "an edge bulges where a lobe sits")
+	assert_true(SkyWeather.lobe_erode(0.4, 0.2) < 0.4, "an edge is bitten between lobes")
+
+
+## R-1768: the lit deck is on for recommended only, reaches the shadow pass through the
+## shared presentation, and keeps weather state identical across tiers.
+func test_lit_deck_follows_the_tier_and_reaches_the_shadow_pass() -> void:
+	var sky := SkyWeather.new()
+	sky.auto_weather = false
+	sky.set_quality_tier(SkyWeather.QUALITY_RECOMMENDED)
+	assert_true(sky.cloud_deck_lit(), "recommended draws the lit deck")
+	assert_true(sky.presentation_snapshot(0.5, 1.0).cloud_deck_lobes, "ground shadows take the lobes")
+	sky.set_quality_tier(SkyWeather.QUALITY_MINIMUM)
+	assert_false(sky.cloud_deck_lit(), "minimum keeps the flat deck")
+	assert_false(sky.presentation_snapshot(0.5, 1.0).cloud_deck_lobes, "flat deck: plain shadows")
+	sky.free()
+
+
+## R-1768: the CPU mirror and both shaders share one set of lit-deck constants.
+func test_lit_deck_constants_match_the_shaders() -> void:
+	var inc := FileAccess.get_file_as_string("res://scripts/map/view3d/sky_clouds.gdshaderinc")
+	var dome := FileAccess.get_file_as_string("res://scripts/map/view3d/sky_weather_3d.gdshader")
+	var shadow := FileAccess.get_file_as_string("res://scripts/map/view3d/cloud_shadow_pass.gdshader")
+	assert_true(inc.contains("const float SKY_CLOUD_LOBE_SCALE = %s;" % SkyWeather.CLOUD_LOBE_SCALE))
+	assert_true(inc.contains("const float SKY_CLOUD_LOBE_MEAN = %s;" % SkyWeather.CLOUD_LOBE_MEAN))
+	assert_true(inc.contains("* 1.6 * edge"), "erosion gain must match SkyWeather.lobe_erode")
+	assert_true(dome.contains("const float LIT_DECK_SLAB_DEPTH = %s;" % SkyWeather.LIT_DECK_SLAB_DEPTH))
+	assert_true(dome.contains("uniform int cloud_deck_mode"))
+	assert_true(dome.contains("sky_cloud_lit_share("), "the dome shades the lit deck")
+	assert_true(shadow.contains("uniform bool deck_lobes"))
+	assert_true(shadow.contains("sky_cloud_lobe_erode("), "ground shadows erode like the dome")

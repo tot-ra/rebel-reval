@@ -6,7 +6,13 @@ extends SceneTree
 ##   tools/godot_render.sh --script tools/capture_sky_reference.gd
 ##   tools/godot_render.sh --script tools/capture_sky_reference.gd -- --out=res://build/sky_before
 ##   tools/godot_render.sh --script tools/capture_sky_reference.gd -- --only=noon_side_clear
+##   tools/godot_render.sh --disable-vsync --script tools/capture_sky_reference.gd -- --bench=120 --decks=0,1
 ## Output: docs/reports/images/weather/sky_reference_<shot>.png (or <out>/sky_reference_<shot>.png)
+## R-1768: --deck=N captures with that `cloud_deck_mode` (0 flat deck, 1 lit 2.5D deck);
+## --ab captures every mode in --decks per shot in one run (sky_reference_<shot>_deck<N>.png);
+## --bench=N skips the PNGs and prints the mean wall-clock frame time of N frames per
+## shot for each mode in --decks (alternating rounds, best of three), so the deck cost
+## is the difference between modes on the same view.
 
 const DEFAULT_OUT := "res://docs/reports/images/weather"
 const SIZE := Vector2i(1280, 720)
@@ -14,6 +20,8 @@ const SIZE := Vector2i(1280, 720)
 const SHOTS := [
 	["noon_side_clear", SkyWeather3D.WEATHER_CLEAR, 0.42, 70.0, 14.0, 80.0],
 	["aft_side_cloudy", SkyWeather3D.WEATHER_CLOUDY, 0.71, 60.0, 18.0, 85.0],
+	# R-1768: steep view so the deck fills the frame (overhead lobes, bench worst case).
+	["up_cloudy", SkyWeather3D.WEATHER_CLOUDY, 0.71, 60.0, 50.0, 85.0],
 	["gold_side_cloudy", SkyWeather3D.WEATHER_CLOUDY, 0.80, 70.0, 14.0, 80.0],
 	# R-1767 golden-hour series: sun roughly 22 / 14 / 8 deg high, same side-on framing.
 	["gold_070_cloudy", SkyWeather3D.WEATHER_CLOUDY, 0.70, 70.0, 14.0, 80.0],
@@ -23,6 +31,10 @@ const SHOTS := [
 
 var _out := DEFAULT_OUT
 var _only := ""
+var _deck := -2
+var _bench := 0
+var _decks: PackedStringArray = ["0", "1"]
+var _ab := false
 
 
 func _initialize() -> void:
@@ -31,6 +43,14 @@ func _initialize() -> void:
 			_only = arg.substr(7)
 		elif arg.begins_with("--out="):
 			_out = arg.substr(6)
+		elif arg.begins_with("--deck="):
+			_deck = int(arg.substr(7))
+		elif arg.begins_with("--bench="):
+			_bench = int(arg.substr(8))
+		elif arg.begins_with("--decks="):
+			_decks = arg.substr(8).split(",")
+		elif arg == "--ab":
+			_ab = true
 	call_deferred("_run")
 
 
@@ -65,10 +85,46 @@ func _run() -> void:
 		# Several frames so the sky radiance cubemap and screen passes settle.
 		for i in 8:
 			await process_frame
-		var image := root.get_texture().get_image()
-		if image.get_size() != SIZE:
-			image.resize(SIZE.x, SIZE.y, Image.INTERPOLATE_LANCZOS)
-		var path := ProjectSettings.globalize_path("%s/sky_reference_%s.png" % [_out, s[0]])
-		image.save_png(path)
-		print("captured %s sun=%s" % [path, sun])
+		# Read the material per shot: the staged city build binds it after create_city.
+		var sky_material: ShaderMaterial = sky._material
+		if _bench > 0:
+			await _bench_shot(s[0], sky_material)
+			continue
+		if _ab:
+			# Same run, same frames: the A/B differs only in the deck mode.
+			for mode in _decks:
+				await _capture(sky_material, int(mode), "%s_deck%s" % [s[0], mode], sun)
+		else:
+			await _capture(sky_material, _deck, s[0], sun)
 	quit()
+
+
+func _capture(sky_material: ShaderMaterial, deck: int, label: String, sun: Vector3) -> void:
+	if deck > -2:
+		sky_material.set_shader_parameter(&"cloud_deck_mode", deck)
+		for i in 4:
+			await process_frame
+	var image := root.get_texture().get_image()
+	if image.get_size() != SIZE:
+		image.resize(SIZE.x, SIZE.y, Image.INTERPOLATE_LANCZOS)
+	var path := ProjectSettings.globalize_path("%s/sky_reference_%s.png" % [_out, label])
+	image.save_png(path)
+	print("captured %s sun=%s" % [path, sun])
+
+
+func _bench_shot(shot: String, sky_material: ShaderMaterial) -> void:
+	var best := {}
+	for round in 3:
+		for mode in _decks:
+			sky_material.set_shader_parameter(&"cloud_deck_mode", int(mode))
+			for i in 10:
+				await process_frame
+			var start := Time.get_ticks_usec()
+			for i in _bench:
+				await process_frame
+			var ms := float(Time.get_ticks_usec() - start) / 1000.0 / float(_bench)
+			best[mode] = minf(float(best.get(mode, INF)), ms)
+	var parts: PackedStringArray = []
+	for mode in _decks:
+		parts.append("deck%s=%.2f ms" % [mode, best[mode]])
+	print("bench %s %dx%d: %s" % [shot, root.size.x, root.size.y, ", ".join(parts)])

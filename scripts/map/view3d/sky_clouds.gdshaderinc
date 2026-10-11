@@ -92,3 +92,73 @@ float sky_cloud_shadow_soft(
 	cloud = sky_cloud_remap(cloud, detail * mix(0.18, 0.42, chaos), 1.0, 0.0, 1.0);
 	return clamp(cloud, 0.0, 1.0);
 }
+
+
+
+// R-1768 lit 2.5D deck (recommended tier; the minimum tier keeps the flat deck).
+// Lobes come from the same cellular shape texture at a finer scale (bright = puff
+// centre), sliding with the detail offset, so every caller that has the deck's
+// textures (dome, ground-shadow pass, CPU mirror) can erode the deck identically.
+const float SKY_CLOUD_LOBE_SCALE = 1.7;
+// One lobe across in deck uv (the shape texture holds ~6 cells per tile).
+const float SKY_CLOUD_LOBE_WIDTH = 0.17 / SKY_CLOUD_LOBE_SCALE;
+// Mean of sky_cloud_lobes over the baked shape texture, so erosion keeps coverage.
+const float SKY_CLOUD_LOBE_MEAN = 0.72;
+
+float sky_cloud_lobes(vec2 uv, sampler2D shape_tex, vec2 detail_offset) {
+	float d = texture(shape_tex, uv * SKY_CLOUD_LOBE_SCALE + detail_offset * 0.35).r;
+	// 1 - d^2, not 1 - d: a cell distance is a cone, which shades as facets; the
+	// parabola gives each lobe a rounded crown and keeps the creases between lobes.
+	return 1.0 - d * d;
+}
+
+
+// Rounded, lobed silhouettes: an edge bulges out where a lobe sits and is bitten
+// in between lobes. Roughly coverage-neutral (centred on the lobe mean), so fair-weather
+// puffs do not vanish; open sky (cloud 0) stays open and dense cores are untouched.
+float sky_cloud_lobe_erode(float cloud, float lobes) {
+	float edge = smoothstep(0.0, 0.2, cloud) * (1.0 - cloud);
+	return clamp(cloud + (lobes - SKY_CLOUD_LOBE_MEAN) * 1.6 * edge, 0.0, 1.0);
+}
+
+
+// Height of the heaped deck top: square-root dome over the bulk (thin edges rise
+// steeply, thick centres are rounded crowns), bumped by the lobes.
+float sky_cloud_lobe_height(vec2 uv, float cover, sampler2D shape_tex, vec2 detail_offset) {
+	float bulk = sky_cloud_bulk(uv, cover, shape_tex);
+	float lobes = sky_cloud_lobes(uv, shape_tex, detail_offset);
+	return sqrt(bulk) * (0.45 + 0.55 * lobes);
+}
+
+
+// Lit share 0..1 of a deck pixel. `sun` is the world sun direction (deck xz = world
+// xz, y up), `view_up` the eye ray's y, `texel` the uv footprint of the pixel.
+// Overhead the eye sees the flat base, lit through the cloud (thin rims bright,
+// thick cores grey); toward the horizon it sees the heaped sides, shaded by the
+// bump normal and by heaps that rise between the point and the sun (two steps of
+// a height-field shadow march).
+float sky_cloud_lit_share(
+	vec2 uv, float cover, sampler2D shape_tex, vec2 detail_offset, vec3 sun, float view_up, float texel
+) {
+	float e = max(texel, 0.004);
+	float h = sky_cloud_lobe_height(uv, cover, shape_tex, detail_offset);
+	float hx = sky_cloud_lobe_height(uv + vec2(e, 0.0), cover, shape_tex, detail_offset);
+	float hz = sky_cloud_lobe_height(uv + vec2(0.0, e), cover, shape_tex, detail_offset);
+	// A lobe rises about one height unit over its width.
+	vec3 n = normalize(vec3(-(hx - h) / e, 1.0, -(hz - h) / e) * vec3(SKY_CLOUD_LOBE_WIDTH, 1.0, SKY_CLOUD_LOBE_WIDTH));
+	float sun_up = max(sun.y, 0.06);
+	vec2 to_sun = normalize(sun.xz + vec2(1e-5));
+	float occ = 0.0;
+	for (int i = 1; i <= 2; i++) {
+		float d = 0.7 * SKY_CLOUD_LOBE_WIDTH * float(i);
+		float hs = sky_cloud_lobe_height(uv + to_sun * d, cover, shape_tex, detail_offset);
+		// The sun ray from this crown climbs d * slope; a higher heap there shades it.
+		occ += max(hs - h - d / SKY_CLOUD_LOBE_WIDTH * sun_up * 0.5, 0.0);
+	}
+	float self_shadow = exp(-occ * 3.0);
+	float wrap = clamp((dot(n, sun) + 0.3) / 1.3, 0.0, 1.0);
+	float sides = wrap * self_shadow;
+	// Base seen from below: light diffuses through the thickness, so cores go grey.
+	float base = mix(1.0, 0.25, smoothstep(0.2, 0.9, h)) * mix(0.6, 1.0, self_shadow);
+	return mix(sides, base, smoothstep(0.15, 0.6, view_up) * 0.4);
+}
