@@ -5,6 +5,46 @@
 - **Amends:** ADR 0041 in two narrow points: the hero's clarity (today `1 - max guilt tier / 3`) is multiplied by a soot factor, and the sky beam and earth tethers read soot-effective float levels instead of integer levels. Everything else stays: light levels remain NATURAL-driven and soot is a second, dynamic layer on top.
 - **Does not supersede:** ADR 0003 (offline authored dialogue), the ban on a universal good/evil morality score, the asset freeze (P0-040).
 
+## Situations at a glance (concept art)
+
+Nine concept images to scan the design before reading the rules. They are AI-generated mood boards (Leonardo: Nano Banana and GPT Image 1.5, 2026-10-11), not runtime assets and not the target render: the game draws the lights, threads and column with the procedural ADR 0041 aura shaders. Rainbow orbs bottom to top are the seven `aspect.*` lights (nature red at the pelvis ... light violet above the head); black smoke is soot.
+
+**1. Soot scale (section 1).** Same soul, clean, half sooty, near the cap. Soot veils the lights, thins the sky beam and grows earth tethers; the levels underneath do not change.
+
+![Three hooded figures: bright lights and a strong beam, lights veiled in soot, lights smothered with tethers into the ground](../concept/church_services/01_soot_scale.jpg)
+
+**2. Church only vs folk rites only (section 5).** The church cleans the upper lights, folk rites the root. Someone who keeps only one is bright on one half and dark on the other.
+
+![A townsman with a bright crown beam and sooty roots next to a village woman with warm rooted lower lights and a faint beam](../concept/church_services/02_church_vs_folk.jpg)
+
+**3. The bell call (sections 2-3).** Sunday 08:45, physical view: bells in the belfry, the whole parish walks to its nearest church. No spirit effects in the physical layer.
+
+![Families in wool and linen coifs walking down a limestone lane toward a church tower with swinging bells](../concept/church_services/03_bell_call.jpg)
+
+**4. A good mass: the priest conducts (section 4).** Every crown beam bends into a thread toward the priest; his beam becomes a column through the vault. Thread width follows each person's own beam.
+
+![Spirit sight in a nave: golden threads from each congregant's crown converge on the priest and rise as one column through the vault](../concept/church_services/04_mass_conductor.jpg)
+
+**5. Elevation peak (section 4).** At the three-stroke elevation bell the column swells for about 4 s and the pulses beat in step. Reduced flashing: a slow brighten instead.
+
+![The priest lifts the Host, an altar boy rings the bell, the column floods the vault](../concept/church_services/05_elevation_peak.jpg)
+
+**6. Weak conductor at vespers (sections 2, 4-5).** A few devout, a tired priest with low clarity: faint broken threads and a thin, stuttering column. Small cleansing.
+
+![A near-empty nave at dusk with faint threads and a flickering broken column above an old priest](../concept/church_services/06_weak_vespers.jpg)
+
+**7. Corrupt conductor drains (section 5).** Closed faith light or clarity below 0.25: the pulse runs backward along the threads, the congregation's upper lights cloud, tether knots coil under the altar, no column rises.
+
+![Dark red-black threads flowing from a dark priest into the congregation, knots of tethers at the altar steps](../concept/church_services/07_corrupt_drain.jpg)
+
+**8. Folk counter-rite: the sauna (section 5).** Steam lifts soot off the root lights; the upper lights stay as they were. The hiis and the offering stone (through `faction.cult_metsik`) do the same for the hero and also lower `guilt.folk`.
+
+![Spirit sight in a smoke sauna: soot flakes leave the lower lights in the steam, an offering stone with ribbons through the door](../concept/church_services/08_folk_sauna.jpg)
+
+**9. The hero's annual confession (section 6).** Authored dialogue with a parish priest, open confession without a booth. Up to 4 levels of `guilt.church` and upper-light soot fall away; no NATURAL points.
+
+![The apprentice kneels by a seated priest in a side chapel, soot flakes rise from his upper lights as his crown beam returns](../concept/church_services/09_confession.jpg)
+
 ## Context
 
 The maintainer wants churches to be a place of regular gathering: clergy in them, services on a schedule, and a reason for the hero and the NPCs to come. A service should use the spirit layer: the priest is the conductor of a collective channeling, and in spirit sight the congregation's energy rises as a column of light to God. What a service does to each participant, and to the hero, must be worked out, together with the question it raises: if church cleans souls, how do they get dirty, and why is not everybody clean all the time?
