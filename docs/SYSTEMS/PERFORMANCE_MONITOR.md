@@ -9,7 +9,7 @@ Status: implemented (requested directly by the maintainer 2026-10-10; no board t
 | **F3** | cycle off, compact, full |
 | **F4** (full mode) | measure what each layer costs: switches every layer off in turn for about 24 frames and lists the milliseconds and share of the frame each one saves. Stand still while it runs |
 | **Shift+F3** | write a JSON snapshot to `user://perf_snapshots/` (the path is printed) |
-| **Alt+1 .. Alt+0** (full mode) | switch a render layer off or on: grass, fields, trees, buildings, sea/water, shore spray, god rays, cloud shadow + fog, people + fauna, sun shadows; F4 also measures the sky dome (no key) |
+| **Alt+1 .. Alt+0** (full mode; Shift or Cmd also work, read by physical key so macOS Option works) | switch a render layer off or on: grass, fields, trees, buildings, sea/water, shore spray, god rays, cloud shadow + fog, people + fauna, sun shadows; F4 also measures the sky dome (no key) |
 | `--perf-overlay` (game argument) | start with the full panel |
 
 Closing the panel puts every layer back. Nothing else changes in gameplay: the overlay reads timers, it does not alter simulation.
@@ -20,7 +20,7 @@ Closing the panel puts every layer back. Nothing else changes in gameplay: the o
 - **Render CPU / GPU / script / physics** milliseconds, and a one-line verdict: GPU bound, CPU bound or balanced. GPU time is `n/a` where the driver or window reports none (a minimized window reports zero).
 - **Where you are**: world position, nearest point of interest or wood, water depth, weather and time of day, the active quality row, resolution and render scale, renderer and GPU name. This makes a screenshot reproducible.
 - **Layer cost** (after F4, with the triangles each layer holds): the frame time each render layer takes, biggest first. This is the answer to "is it the grass, the sea or the sky" on a GPU-bound frame, because Godot does not expose per-pass GPU times to scripts (its pass timestamps exist only while the editor profiler runs). The panel lists per-pass GPU time too if a driver ever reports it.
-- **CPU systems**: every probed system, slowest first, milliseconds per frame (average / recent peak) of the probed systems: city update steps (grass, fields, doors, interiors, ground trail, smoke, shadow range and minimap, music zones), citizens, named NPCs, fauna, fish, ships, tree LOD, sea LOD, shore spray, sky and weather, map view, runtime, water simulations, chimney smoke, boats, leaf fall, and the physics steps of the actors.
+- **CPU systems**: a tree of probed systems (`view_runtime/actors/ground` is shown as `actors` under `view_runtime`), siblings slowest first, a parent's time includes its parts. "probed total" adds only the top-level nodes. It is script time we measured, not the frame: a frame much longer than the total is waiting (on the GPU) or running unprobed code. Counts such as "rigs, posed, skipped" follow the list. Milliseconds per frame (average / recent peak) of the probed systems: city update steps (grass, fields, doors, interiors, ground trail, smoke, shadow range and minimap, music zones), citizens, named NPCs, fauna, fish, ships, tree LOD, sea LOD, shore spray, sky and weather, map view, runtime, water simulations, chimney smoke, boats, leaf fall, and the physics steps of the actors.
 - **Memory**: RAM, video memory (textures and buffers), draw calls, objects, triangles, nodes, orphan nodes, resources and pipeline compilations (a spike there is shader stutter).
 
 ## Telling grass from sea from sky

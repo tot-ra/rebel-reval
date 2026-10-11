@@ -2,7 +2,7 @@ extends CanvasLayer
 
 ## Developer performance overlay (docs/SYSTEMS/PERFORMANCE_MONITOR.md). Autoload `PerfMonitor`.
 ##   F3          cycle off -> compact -> full
-##   Alt+1..0    in "full": switch a render layer off/on to see what it costs
+##   Alt+1..0    in "full" (Shift or Cmd also work): switch a render layer off/on to see what it costs
 ##   F4          in "full": measure what each layer costs (switches them off one by one)
 ##   Shift+F3    write a JSON snapshot to user://perf_snapshots/ (path is printed)
 ## The panel is built to be screenshotted: where the player stands, the quality row, frame
@@ -22,7 +22,7 @@ const MEASURE_SETTLE_FRAMES := 6
 const MEASURE_FRAMES := 18
 const SNAPSHOT_DIR := "user://perf_snapshots"
 const MAX_PASSES := 9
-const PANEL_WIDTH := 430.0
+const PANEL_WIDTH := 490.0
 const FONT_SIZE := 12
 const COLOR_OK := Color(0.55, 0.9, 0.55)
 const COLOR_WARN := Color(1.0, 0.82, 0.3)
@@ -75,22 +75,31 @@ func _ready() -> void:
 		_apply_mode()
 
 
-func _unhandled_input(event: InputEvent) -> void:
+## `_input`, not `_unhandled_input`: a focused menu or the game's own handlers must not swallow
+## the keys. The physical key is used because on macOS Option+1 types a symbol, so `keycode`
+## is not KEY_1 there.
+func _input(event: InputEvent) -> void:
 	var key := event as InputEventKey
 	if key == null or not key.pressed or key.echo:
 		return
-	if key.keycode == KEY_F3:
+	var code: Key = key.physical_keycode if key.physical_keycode != KEY_NONE else key.keycode
+	if code == KEY_F3:
 		if key.shift_pressed:
 			write_snapshot()
 		else:
 			mode = (mode + 1) % 3
 			_apply_mode()
 		get_viewport().set_input_as_handled()
-	elif mode == FULL and key.keycode == KEY_F4:
+	elif mode == FULL and code == KEY_F4:
 		measure_layers()
 		get_viewport().set_input_as_handled()
-	elif mode == FULL and key.alt_pressed and key.keycode >= KEY_0 and key.keycode <= KEY_9:
-		var index := key.keycode - KEY_1 if key.keycode != KEY_0 else 9
+	elif (
+		mode == FULL
+		and (key.alt_pressed or key.shift_pressed or key.meta_pressed)
+		and code >= KEY_0
+		and code <= KEY_9
+	):
+		var index := code - KEY_1 if code != KEY_0 else 9
 		if index >= 0 and index < LAYERS.size():
 			toggle_layer(String(LAYERS[index]["id"]))
 			get_viewport().set_input_as_handled()
@@ -156,12 +165,25 @@ func _apply_mode() -> void:
 		return
 	visible = mode != OFF
 	_text.visible = true
-	_graph.visible = mode == FULL
+	_graph.visible = mode != OFF
 	PerfProbeScript.enabled = mode == FULL
 	_set_measuring(mode != OFF)
-	_panel.reset_size()
+	_fit_panel()
 	if mode == OFF:
 		_restore_layers()
+
+
+## Compact: the panel is as tall as its text. Full: it takes the window height, the graph stays
+## on top and the text below it scrolls off at the bottom (the slowest systems come first).
+func _fit_panel() -> void:
+	var full := mode == FULL
+	_text.fit_content = not full
+	_text.size_flags_vertical = Control.SIZE_EXPAND_FILL if full else Control.SIZE_FILL
+	var height := get_viewport().get_visible_rect().size.y - 16.0 if full else 0.0
+	_panel.custom_minimum_size = Vector2(PANEL_WIDTH, height)
+	_panel.reset_size()
+	if full:
+		_panel.size = Vector2(PANEL_WIDTH, height)
 
 
 func _set_measuring(on: bool) -> void:
@@ -172,6 +194,8 @@ func _set_measuring(on: bool) -> void:
 
 
 func _process(_delta: float) -> void:
+	if mode == FULL and absf(_panel.size.y - (get_viewport().get_visible_rect().size.y - 16.0)) > 1.0:
+		_fit_panel()
 	var now := Time.get_ticks_usec()
 	if mode == OFF:
 		_last_usec = now
@@ -255,13 +279,14 @@ func _compose() -> String:
 	lines.append("")
 	lines.append_array(_context_lines())
 	lines.append("")
-	lines.append_array(_pass_lines())
-	lines.append_array(_scope_lines())
-	lines.append("")
 	lines.append_array(_memory_lines())
 	lines.append("")
 	lines.append_array(_layer_lines())
-	lines.append("[color=#8899aa]F3 mode  Shift+F3 snapshot  Alt+1..0 layers[/color]")
+	lines.append("[color=#8899aa]F3 mode  F4 layer cost  Shift+F3 snapshot  Alt+1..0 layers[/color]")
+	lines.append("")
+	lines.append_array(_pass_lines())
+	# The long list goes last: if the panel is shorter than the list, only its tail is cut.
+	lines.append_array(_scope_lines())
 	return "\n".join(lines)
 
 
@@ -271,9 +296,7 @@ func _compose() -> String:
 func _bound_hint(avg: float, cpu_ms: float, gpu_ms: float) -> String:
 	if avg <= 0.0:
 		return ""
-	var probed := 0.0
-	for scope: StringName in _scopes:
-		probed += float(_scopes[scope])
+	var probed: float = _scope_tree()["total"]
 	var busy := cpu_ms + probed
 	if gpu_ms > 0.0 and gpu_ms > busy * 1.2:
 		return "[color=#ff6659]GPU bound[/color]: GPU %.1f ms, CPU work %.1f ms" % [gpu_ms, busy]
@@ -392,24 +415,71 @@ func _gpu_passes() -> Array:
 	return rows
 
 
-func _scope_lines() -> PackedStringArray:
-	var out: PackedStringArray = ["", "[b]CPU systems[/b] (script time per frame, avg / peak)"]
-	var rows: Array = []
-	var total := 0.0
+## Scopes are paths ("view_runtime/actors/ground"): the list is a tree, siblings slowest first.
+## A parent's time is what it measured itself, or the sum of its children when it has no scope.
+## The total adds only the top-level nodes, so a part is never counted with its parent.
+func _scope_tree() -> Dictionary:
+	var own: Dictionary = {}
+	var peak: Dictionary = {}
 	for scope: StringName in _scopes:
-		var ms: float = _scopes[scope]
-		if ms > 0.0005:
-			rows.append([String(scope), ms, float(_scope_peak.get(scope, ms))])
-			total += ms
-	rows.sort_custom(func(a: Array, b: Array) -> bool: return a[1] > b[1])
-	if rows.is_empty():
+		if float(_scopes[scope]) > 0.0005:
+			own[String(scope)] = float(_scopes[scope])
+			peak[String(scope)] = float(_scope_peak.get(scope, _scopes[scope]))
+	var children: Dictionary = {}
+	for path: String in own:
+		var parts := path.split("/")
+		for depth in parts.size():
+			var node_path := "/".join(parts.slice(0, depth + 1))
+			var parent_path := "/".join(parts.slice(0, depth))
+			if not children.has(parent_path):
+				children[parent_path] = {}
+			(children[parent_path] as Dictionary)[node_path] = true
+	var total := 0.0
+	for node_path: String in children.get("", {}):
+		total += _node_ms(node_path, own, children)
+	return {"own": own, "peak": peak, "children": children, "total": total}
+
+
+func _scope_lines() -> PackedStringArray:
+	var tree := _scope_tree()
+	var frame_ms: float = _frame_stats()["avg"]
+	# The total and the counts lead the list: the bottom of a long list is what gets cut.
+	var out: PackedStringArray = [
+		(
+			"[b]CPU systems[/b]  probed total %s of the %s frame (avg / peak, slowest first)"
+			% [_ms(tree["total"]), _ms(frame_ms)]
+		)
+	]
+	for key: StringName in PerfProbeScript.notes:
+		out.append("  %s: %s" % [key, PerfProbeScript.notes[key]])
+	if (tree["own"] as Dictionary).is_empty():
 		out.append("  [color=#8899aa]no probed system ran yet[/color]")
-	# Every probed system, slowest first; runtime_* scopes are parts of view_runtime.
-	for row: Array in rows:
-		var note := "  (inside view_runtime)" if String(row[0]).begins_with("runtime_") or String(row[0]).begins_with("ambient_") else ""
-		out.append("  %s / %s  %s%s" % [_ms(row[1]), _ms(row[2]), row[0], note])
-	out.append("  total %s (nested scopes counted twice)" % _ms(total))
+	_append_tree("", 0, tree["own"], tree["peak"], tree["children"], out)
 	return out
+
+
+func _node_ms(path: String, own: Dictionary, children: Dictionary) -> float:
+	if own.has(path):
+		return float(own[path])
+	var sum := 0.0
+	for child: String in children.get(path, {}):
+		sum += _node_ms(child, own, children)
+	return sum
+
+
+func _append_tree(
+	parent: String, depth: int, own: Dictionary, peak: Dictionary, children: Dictionary, out: PackedStringArray
+) -> void:
+	var kids: Array = []
+	for child: String in children.get(parent, {}):
+		kids.append([child, _node_ms(child, own, children)])
+	kids.sort_custom(func(a: Array, b: Array) -> bool: return a[1] > b[1])
+	for kid: Array in kids:
+		var path: String = kid[0]
+		var label := path.get_slice("/", path.count("/"))
+		var peak_ms: float = float(peak.get(path, kid[1]))
+		out.append("  %s / %s  %s%s" % [_ms(kid[1]), _ms(peak_ms), "  ".repeat(depth), label])
+		_append_tree(path, depth + 1, own, peak, children, out)
 
 
 func _memory_lines() -> PackedStringArray:
@@ -679,12 +749,13 @@ func _build_ui() -> void:
 	_text.add_theme_font_override("bold_font", mono)
 	_text.add_theme_font_size_override("normal_font_size", FONT_SIZE)
 	_text.add_theme_font_size_override("bold_font_size", FONT_SIZE)
-	column.add_child(_text)
 	_graph = Control.new()
 	_graph.custom_minimum_size = Vector2(PANEL_WIDTH - 16, 56)
 	_graph.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_graph.draw.connect(_draw_graph)
 	column.add_child(_graph)
+	_text.clip_contents = true
+	column.add_child(_text)
 
 
 ## Frame-time bars, newest on the right; the line marks the 30 FPS budget.

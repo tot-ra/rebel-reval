@@ -81,8 +81,26 @@ func _press(monitor: Node, keycode: Key) -> void:
 	var event := InputEventKey.new()
 	event.keycode = keycode
 	event.pressed = true
-	monitor._unhandled_input(event)
+	monitor._input(event)
 
 
 func _tree() -> SceneTree:
 	return Engine.get_main_loop() as SceneTree
+
+
+func test_number_keys_toggle_layers_by_physical_key_with_option_held() -> void:
+	var monitor := PerfMonitorScript.new()
+	_tree().root.add_child(monitor)
+	monitor.mode = PerfMonitorScript.FULL
+	monitor._apply_mode()
+	# macOS: Option+1 reports a symbol keycode, the physical key stays KEY_1.
+	var event := InputEventKey.new()
+	event.keycode = KEY_EXCLAM
+	event.physical_keycode = KEY_1
+	event.alt_pressed = true
+	event.pressed = true
+	monitor._input(event)
+	assert_true(bool(monitor._layer_off.get("grass", false)), "Alt+1 switches the first layer")
+	monitor.mode = PerfMonitorScript.OFF
+	monitor._apply_mode()
+	monitor.free()

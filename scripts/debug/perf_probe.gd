@@ -7,6 +7,8 @@ extends RefCounted
 
 static var enabled := false
 static var _usec: Dictionary = {}
+## Latest counts the overlay prints next to the timers (e.g. how many actors were posed).
+static var notes: Dictionary = {}
 
 
 static func start() -> int:
@@ -17,6 +19,11 @@ static func stop(scope: StringName, started: int) -> void:
 	if started == 0:
 		return
 	_usec[scope] = int(_usec.get(scope, 0)) + Time.get_ticks_usec() - started
+
+
+static func note(key: StringName, value: Variant) -> void:
+	if enabled:
+		notes[key] = value
 
 
 ## Microseconds spent per scope since the last call; resets the counters.
