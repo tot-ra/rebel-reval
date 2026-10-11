@@ -56,6 +56,10 @@ const NEAR_MAX_COUNT_FACTOR := 3.5
 const NEAR_TRIANGLE_CAP := 56000
 ## Bark plates (assets/materials/pbr/bark_*) cover about this much trunk.
 const BARK_TILE_METRES := 0.55
+## Longest straight wood section in the wind-bent city mesh (see _build_wood_mesh).
+const WIND_SECTION_METRES := 0.3
+const WIND_MAX_PIECES := 12
+const CUSTOM0_FORMAT_BITS := Mesh.ARRAY_FORMAT_CUSTOM_MASK << Mesh.ARRAY_FORMAT_CUSTOM0_SHIFT
 ## Macro crown (conifers within CityTreeLod.MACRO_ENTER of the camera): the
 ## outer needle cards are replaced by real 3D fronds, a leader shoot with side
 ## shoots, every needle a small round three-sided prism. Cards are flat planks
@@ -246,8 +250,8 @@ static func trunk_only(source: ArrayMesh) -> ArrayMesh:
 					packed.append(arrays[slot][item])
 			kept[slot] = packed
 		kept[Mesh.ARRAY_INDEX] = null
-		var custom0 := (source.surface_get_format(surface) >> Mesh.ARRAY_FORMAT_CUSTOM0_SHIFT) & Mesh.ARRAY_FORMAT_CUSTOM_MASK
-		out.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, kept, [], {}, custom0 << Mesh.ARRAY_FORMAT_CUSTOM0_SHIFT)
+		var custom0 := source.surface_get_format(surface) & CUSTOM0_FORMAT_BITS
+		out.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, kept, [], {}, custom0)
 		out.surface_set_material(out.get_surface_count() - 1, source.surface_get_material(surface))
 	return out
 
@@ -405,8 +409,7 @@ static func decimate_triangle_soup(source: ArrayMesh, keep_every: int) -> ArrayM
 				for item in range(base * width, (base + 3) * width):
 					kept[slot].append(source_array[item])
 		kept[Mesh.ARRAY_VERTEX] = out_verts
-		var custom0 := (source.surface_get_format(surface) >> Mesh.ARRAY_FORMAT_CUSTOM0_SHIFT) & Mesh.ARRAY_FORMAT_CUSTOM_MASK
-		var flags := custom0 << Mesh.ARRAY_FORMAT_CUSTOM0_SHIFT
+		var flags := source.surface_get_format(surface) & CUSTOM0_FORMAT_BITS
 		out.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, kept, [], {}, flags)
 		out.surface_set_material(surface, source.surface_get_material(surface))
 	return out
@@ -516,16 +519,30 @@ static func _build_wood_mesh(
 			var v1 := v0 + start.distance_to(end) / plate_height
 			side = previous.get("side", Vector3.ZERO)
 			uv_rect = Rect2(0.0, v0, tiles, v1 - v0)
-		side = _append_tapered_tube(
-			surface,
-			start,
-			end,
-			float(segment["start_radius"]) * factor,
-			float(segment["end_radius"]) * factor,
-			wood_color,
-			uv_rect,
-			side
-		)
+		# WHY: the wind shader bends per vertex and a tube has rings only at its
+		# ends, so 2.5 m trunk sections bent as a broken polyline. City wood gets
+		# rings every WIND_SECTION_METRES; the rest pose is unchanged.
+		var pieces := 1
+		if bark_tile > 0.0:
+			var max_section := bark_tile * WIND_SECTION_METRES / BARK_TILE_METRES
+			pieces = clampi(ceili(start.distance_to(end) / max_section), 1, WIND_MAX_PIECES)
+		for piece in pieces:
+			var t0 := float(piece) / float(pieces)
+			var t1 := float(piece + 1) / float(pieces)
+			var piece_uv := Rect2(
+				uv_rect.position + Vector2(0.0, uv_rect.size.y * t0),
+				uv_rect.size * Vector2(1.0, t1 - t0)
+			)
+			side = _append_tapered_tube(
+				surface,
+				start.lerp(end, t0),
+				start.lerp(end, t1),
+				lerpf(float(segment["start_radius"]), float(segment["end_radius"]), t0) * factor,
+				lerpf(float(segment["start_radius"]), float(segment["end_radius"]), t1) * factor,
+				wood_color,
+				piece_uv,
+				side
+			)
 		if bark_tile > 0.0:
 			bark_at_end[[_point_key(end), depth]] = {
 				"v": uv_rect.end.y, "tiles": uv_rect.size.x, "side": side

@@ -24,6 +24,40 @@ func test_wood_alpha_stores_limb_flexibility_thin_over_thick() -> void:
 	assert_true(low_count > 0 and low_flex_sum / low_count < 0.3, "the bole near the ground is stiff")
 
 
+## The wind shader bends per vertex, so long straight sections bend as a broken
+## polyline (the user saw kinked trunks in a storm). No triangle may span more
+## than one WIND_SECTION_METRES ring step along the limb.
+func test_city_wood_rings_are_dense_enough_to_bend_smoothly() -> void:
+	for species: StringName in [&"pine", &"birch", &"oak", &"spruce"]:
+		var scale := CityVegetationBuilder.species_scale(species, 1.0)
+		var factor := CityVegetationBuilder.trunk_factor(species, scale)
+		var vertices: PackedVector3Array = MapViewTreeMeshes.city_wood_mesh(
+			species, scale, factor
+		).surface_get_arrays(0)[Mesh.ARRAY_VERTEX]
+		var max_section := MapViewTreeMeshes.WIND_SECTION_METRES / scale
+		# Bole triangles above the root flare: their height is one ring step (plus a
+		# little ring tilt where the bole leans or a collar meets it).
+		var tallest := 0.0
+		var bole_triangles := 0
+		for tri in range(0, vertices.size(), 3):
+			var low := INF
+			var high := -INF
+			var on_bole := true
+			for k in 3:
+				var v := vertices[tri + k]
+				low = minf(low, v.y)
+				high = maxf(high, v.y)
+				on_bole = on_bole and Vector2(v.x, v.z).length() * scale < 0.4 and v.y * scale > 1.0
+			if on_bole:
+				bole_triangles += 1
+				tallest = maxf(tallest, high - low)
+		assert_true(bole_triangles > 0, "%s has bole triangles" % species)
+		assert_true(
+			tallest <= max_section * 1.15,
+			"%s bole ring step %.2f m (max %.2f m)" % [species, tallest * scale, max_section * scale]
+		)
+
+
 ## Where two trunk sections meet, the bark must not jump: each vertex of the
 ## joint ring has a twin on the other section's ring with the same UV (the user
 ## saw a bark ring seam on the pine bole).
