@@ -31,7 +31,7 @@ Repeat with `day`, both townsmen and both townswomen; Kalev's scene is
 The committed sheets use `iso_idle` and `front_idle`, resized with Pillow LANCZOS
 to 360x450, pasted in the above order with labelled headers (1800x486 sheet).
 The remaining source poses and run logs are local evidence under `build/r1674/`.
-Tool contract and limits: [World presentation](../SYSTEMS/WORLD_PRESENTATION.md#character-close-up-review-lighting-r-1674).
+Tool contract and limits: [Character generation](../CHARACTER_GENERATION.md#character-close-up-review-lighting-r-1674).
 
 ## Plate validity and verification
 

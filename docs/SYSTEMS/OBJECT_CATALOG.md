@@ -74,7 +74,16 @@ python3 tools/validate_object_catalog.py                      # must print 0 pro
 
 To add an object: copy the closest existing JSON into the right category folder, change `id`, text, stats and `model`, run `sync`, then `render_object_previews.py`, `index` and the validator. To add a new GLB: either catalogue it or add an exclusion with a reason, otherwise the coverage check fails. To change a stat, edit the JSON (or `set`); never edit the preview or the index by hand.
 
-Household needs per wealth tier and the TOP-20 home objects: [`HOUSEHOLD_OBJECTS.md`](./HOUSEHOLD_OBJECTS.md).
+## Household needs (R-1367)
+
+Status: data implemented, runtime planned (task **R-1367**, HOMEOBJ-1, parent **R-1366**). Scope: a closed vocabulary of household needs and the objects that serve them per wealth tier. Out of scope: art for the planned objects, player verbs, and layout code that reads the table (later HOMEOBJ tasks).
+
+- `content/objects/_household_needs.json`: 14 needs (sleep, eat, drink, wash, warmth, light, cook, clothe, store, work, faith, safety, money, child), each with `poor`, `mid` and `rich` lists of at most 3 distinct catalog objects. `count_per_resident` is a quota (0.25 means one shared fixture per four residents). Counts are authoring estimates, not historical claims. Structure: `schemas/household_needs.schema.json`.
+- `ContentDB` skips JSON files whose name starts with `_`: they are authoring tables, not typed records.
+- TOP-20 home objects by need served: blanket_wool, bolster_straw (sleep); chamber_pot (wash); tunic_wool, kirtle_wool, leather_boots (clothe); wall_peg_rail, iron_key (store); pot_crane, ladle_wood (cook); tinderbox (light); hatchet (warmth, safety); dagger_belt, sword_cruciform (safety); coin_purse (money); ale_tankard (drink); sack_grain, root_veg_basket (eat); spindle_distaff (work); crucifix_wall (faith). Which of them are still `planned` is in the [inventory](#current-inventory).
+- Follow-ups, each its own task: cradle, shears and needle kit, wax tablet, saint figure, protective charm, crossbow, wall_torch, hanging lantern, cheese, apple, honey, smoked fish.
+- Verify: `python3 -m unittest tests.python.test_object_catalog -v` (`HouseholdNeedsTests`: unknown and duplicate ids, missing need or tier, empty or over-full lists, bad counts, malformed files).
+- Limit: `HouseholdLayout` does not read the table yet.
 
 ### Household coverage gates (R-1379)
 
@@ -306,6 +315,61 @@ Save/load: the catalog is static content and adds no saved state. A bag or world
 | `obj.sword_cruciform` | Cruciform sword | weapon | carry_one_hand | 1.45 | take, equip |  | `storybook/equipment/sword.glb` | usable |
 
 <!-- object-catalog-index:end -->
+
+## Model notes
+
+This page is the single card file for objects. The JSON record owns the stats; a model note here owns what the record cannot hold: how a bespoke model is built, the placement rule its look depends on, how to check it, and a screenshot. Add a note when an object gets a bespoke model, under a `### Name (`obj.*` ID)` heading, and do not describe the same model on another page: link here instead.
+
+Things that are not catalog objects keep their card on the owning page:
+
+| Thing | Owning page |
+|---|---|
+| Animals and birds (models, motion, species) | [`FLORA_FAUNA.md`](../FLORA_FAUNA.md), one card per species in [`ANIMALS-AND-BIRDS/`](../ANIMALS-AND-BIRDS/README.md) |
+| Creatures and enemies | [`BESTIARY.md`](./BESTIARY.md) |
+| Trees, bushes, grass, wild plants | [`LIVING_VEGETATION.md`](./LIVING_VEGETATION.md) |
+| Fields, kitchen gardens, farmsteads | [`FARMLAND.md`](./FARMLAND.md) |
+| Boats and ships | [`CITY_SEA.md`](./CITY_SEA.md#district-map-water-boats-and-swimming), [`SHIPS.md`](./SHIPS.md) |
+| Buildings, landmarks, doors, church interiors | [`CITY_LANDMARK_SITES.md`](./CITY_LANDMARK_SITES.md), [`CITY_DOORS.md`](./CITY_DOORS.md), [`CHURCH_INTERIORS.md`](./CHURCH_INTERIORS.md) |
+| People, clothing on bodies | [`CHARACTER_GENERATION.md`](../CHARACTER_GENERATION.md), [`CITIZEN_WARDROBE.md`](./CITIZEN_WARDROBE.md) |
+
+### Oak barrel (`obj.barrel_oak`)
+
+![Oak barrel before and after](../reports/images/props/barrel_before_after.jpg)
+
+- **Placement rule:** one `barrels` prop is one barrel. A map sets how many barrels stand somewhere by placing that many props, each with its own stable ID. Older definitions that placed one prop for a pair (`barrel_pair` in the smithy courtyard prototype) now show a single barrel. The stable ID picks a deterministic turn, so neighbours do not look cloned.
+- **Model:** `map_view_barrel_meshes.gd`, a 0.9 m by 0.62 m cask: 18 staves with a parabolic bilge, recessed seams and per-stave tone, a damp-darkened foot, a chime lip above inset heads of four jointed boards (a bung on the top head, a plug on the bilge), and four flat forged-iron hoops that follow the profile. Wood uses the seamless door grain with vertex colours, iron its own dark material; every mesh is cached and shared.
+- **Also used by:** harbour cargo stacks in the seamless city (`city_harbour.gd`, stack kind `barrel`, a jittered 2x2 group) and boat-deck cargo (`city_boats.gd`), both through `MapViewBarrelMeshes.add_barrel`.
+- **Gameplay:** the player can stand on it (`MapClimbableProps`, 0.9 m). View-only otherwise: the map definition owns the footprint.
+- **Check:** `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_barrel_prop_model`; captures `tools/godot_render.sh --script tools/capture_barrel_preview.gd` (`build/previews/barrel_preview*.png`) and `tools/godot_render.sh --script tools/capture_city_shore_barrels.gd` (`build/shore_barrels/`).
+
+### Public draw-well (`obj.well_stone`)
+
+![Stone well](../reports/images/props/well_stone.jpg)
+
+- **Model:** `map_view_well_models.gd` (`well` prop kind): coursed limestone with recessed mortar, a ring of curb slabs, a log windlass on an iron axle and crank, hemp rope wound on the drum and slack to a tinned-iron bucket on the curb, and an old-board gable roof.
+- **Shaft:** the mouth is a disc drawn by `map_view_well_shaft.gdshader`, which ray-traces a virtual 3 m shaft that darkens with depth and ends in still water, because the opaque terrain hides real geometry below ground.
+- **Check:** `godot --headless --path . --script tools/smoke_well_model.gd`; captures `tools/godot_render.sh --script tools/capture_well_preview.gd` (`build/previews/well_preview*.png`).
+
+### Farm hand tools (`obj.pitchfork`, `obj.scythe`, `obj.sickle`)
+
+![Farm hand tools before and after](../reports/images/props/farm_tools_before_after.jpg)
+
+- **Model:** GLBs from `blender --background --factory-startup --python tools/generate_medieval_hand_tools.py -- --preview --only=pitchfork,scythe,sickle` (generator v3). Shafts are tapered spline sweeps with grain-aligned UVs; blades are lofted thin steel with a raised back rib and a polished edge band.
+- **Look:** the scythe stands blade-up as it was stored, with a bent ash snath, one nib, two heel rings and a tang; the pitchfork has a riveted split socket, a forged crown and three forward-curling tines; the sickle is a toothed crescent on a turned grip with an iron ferrule.
+- **Placement rule:** all three are centred on their footprint and the long ones lean 6-7 degrees toward local -Z, so a household layout can put their back to a wall.
+- **Check:** `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_rural_life_prop_kinds`.
+
+### Forge fire (`obj.hearth_smithy`)
+
+![Forge fire after the rework](../reports/images/props/forge_fire_after.jpg)
+
+The hearth GLB is the masonry; the fire on it is built in code by `MapViewSmithyPropBuilder` (`furnace` prop kind). Before: [`forge_fire_before.jpg`](../reports/images/props/forge_fire_before.jpg).
+
+- **Coals:** a heaped `CoalBed` of about 90 faceted charcoal lumps merged into one mesh (fixed seed 1343, cached per pot size). `forge_coal.gdshader` draws an ash crust with heat glowing through noise-ridge cracks and lower faces, per-lump heat in vertex colour, slowly breathing. `EmberBed` is only a dim red glow between lumps.
+- **Flames:** `ForgeFlame3D` (`OuterFlames`, `HotCore`) are slow camera-facing quads shaped by `forge_flame.gdshader`: a teardrop mask torn by two upward-scrolling noise octaves, so tongues split and detach at the tip. One shared `ForgeFlame3D.flame_noise()` texture serves flames and coals. `FireSparks` are thin velocity-aligned streaks.
+- **Light:** `ForgeFireLight3D` drives flame energy, playback speed and spark count with the light flicker.
+- **Check:** `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_forge_prop_meshes`; preview `tools/godot_render.sh --script tools/capture_forge_fire_preview.gd`.
+- **Limit:** flames are additive billboards, so from a steep top-down camera they read as a glow patch rather than tongues.
 
 ## Limits
 

@@ -252,6 +252,24 @@ python3 tools/validate_asset_sources.py
 
 Bone-level changes shift the generator's reported `BODY_STATURE`; `SharedCharacterRig.HEROIC_MODEL_SCALE` must be updated to `2.0 / BODY_STATURE` in the same change.
 
+### Character close-up review lighting (R-1674)
+
+Status: implemented (task **R-1674**). Scope: controlled character-review captures; live world lighting, asset rebuilds and human art approval are out of scope.
+
+`tools/capture_character_closeup.gd` renders a `SharedCharacterRig` scene in an isolated SubViewport at 720x900, with the gameplay isometric camera direction and front/profile views, seven fixed idle/walk/run/action poses. Run it only through the minimized GPU wrapper:
+
+```bash
+tools/godot_render.sh --script tools/capture_character_closeup.gd -- \
+  --scene=res://assets/characters/variants/crowd_townsman_01.tscn \
+  --lighting=night --output-dir=res://build/character_review/night
+```
+
+- `--lighting=day` (the default) keeps the warm studio sun (energy 1.15) and ambient (0.42). `--lighting=night` uses a cool audit key (energy 0.45) and ambient (0.22); camera, geometry, pose times and shadows are the same. Any other value exits 1 before writing outputs.
+- Filenames stay `closeup_<pose>.png`, so choose a different `--output-dir` per light and body. Default directory and Kalev scene are unchanged.
+- `--wearable=res://...tres` equips the requested `CharacterWearable`. The tool only reads scene and variant IDs and writes PNGs: it never mutates assets, campaign state or save slots.
+- Verify: `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_capture_character_closeup` (argument validation, retained day parameters, dimmer and cooler night lighting with unchanged geometry). Day/night sheets and review decisions: [`crowd_variation_p0_153.md`](reports/crowd_variation_p0_153.md).
+- Limits: portrait-distance studio captures, not gameplay-distance or city night acceptance. GPU output can vary slightly between runs. Named human approval is **R-945**.
+
 ## Modular body and wearable authoring (P0-199)
 
 The generator now separates the torso into `Clothing_Torso`,

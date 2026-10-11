@@ -1,6 +1,6 @@
 # World presentation: the 3D view
 
-Status: implemented. Scope: everything `MapView3D` draws on top of the authoritative 2D logic plane: camera, sky and weather, lighting, water and swimming, terrain and buildings, vegetation, fauna, crowds, and effects. This page indexes the subsystems and points to their contracts. Map data and authoring are in [`MAP_AUTHORING.md`](../MAP_AUTHORING.md); the logic/view boundary is in [`ARCHITECTURE.md`](../ARCHITECTURE.md#logic-and-3d-view-boundary).
+Status: implemented. Scope: everything `MapView3D` draws on top of the authoritative 2D logic plane: camera, sky and weather, lighting, water and swimming, terrain and buildings, vegetation, fauna, crowds, and effects. This page is an index: it names the subsystems and links the page that owns each one. Put new detail on the owning page, not here. Map data and authoring are in [`MAP_AUTHORING.md`](../MAP_AUTHORING.md); the logic/view boundary is in [`ARCHITECTURE.md`](../ARCHITECTURE.md#logic-and-3d-view-boundary).
 
 ## Principle
 
@@ -31,20 +31,12 @@ Third-person by default ([ADR 0015](../adr/0015-default-third-person-camera.md))
 - **Cloud cells**: individual world-space cumulus and cumulonimbus (`CloudCells`) that the dome ray-marches, that cast their own ground shadows and cut god rays, and that are the only source of lightning. See [`SKY_ATMOSPHERE.md`](./SKY_ATMOSPHERE.md).
 - **Local atmosphere**: patchy ground fog near water with its own lighting, perspective-only distance haze and a midsummer heat mirage, all driven by the same presentation snapshot. See [`SKY_ATMOSPHERE.md`](./SKY_ATMOSPHERE.md).
 - **Lighting**: `MapViewLighting` owns the day/night response. Practical lights: forge fire, candles, domestic hearths, interior and building window glow (evening fade), chimney smoke driven by weather wind.
-- **Forge fire** (furnace props, `MapViewSmithyPropBuilder`): a heaped `CoalBed` of ~90 faceted charcoal lumps merged into one mesh (fixed seed 1343, cached per pot size); `forge_coal.gdshader` draws a dark ash crust with heat glowing through noise-ridge cracks and lower faces, per-lump heat in vertex color, slowly breathing. `ForgeFlame3D` (`OuterFlames`, `HotCore`) are slow camera-facing particle quads shaped by `forge_flame.gdshader`: a teardrop mask torn by two upward-scrolling noise octaves, so tongues split and detach at the tip; one shared `ForgeFlame3D.flame_noise()` texture serves flames and coals. `FireSparks` are thin velocity-aligned streaks, `EmberBed` is only a dim red under-glow between lumps. `ForgeFireLight3D` drives flame energy (`energy` shader parameter), playback speed and spark count with the light flicker. Preview: `tools/godot_render.sh --script tools/capture_forge_fire_preview.gd`; before/after [`forge_fire_before.jpg`](../reports/images/props/forge_fire_before.jpg), [`forge_fire_after.jpg`](../reports/images/props/forge_fire_after.jpg). Guarded by `--filter=test_forge_prop_meshes`. Limit: flames are additive billboards, so from a steep top-down camera they read as a glow patch rather than tongues.
+- **Forge fire** on the smithy hearth: [`OBJECT_CATALOG.md`](./OBJECT_CATALOG.md#forge-fire-objhearth_smithy).
 - Day/night clock and calendar: [`TIME_AND_PHASES.md`](./TIME_AND_PHASES.md#clock-and-calendar). Task specs: [`docs/tasks/water_sky/`](../tasks/water_sky/README.md).
 
 ## Water and swimming
 
-- Sea: baked FFT ocean (`ocean_fft_sampler.gd` mirrors the shader on the CPU), whitecaps, caustics, shore swash, refraction, and GGX sun glint (`map_view_water_materials.gd`). Rivers follow an authored channel current that slows at the banks (`map_view_river_flow.gd`). Interactive ripples come from `water_ripple_sim.gd`.
-- Sea depth is gradual. The WS-13b rendered basin shelves deep water down from the shallow-water depth over `SEA_BASIN_DEEP_RAMP_CELLS` (9) cells instead of stepping 1.0 → 3.6 units at the authored `shallow_water`/`deep_water` line (`_ramp_deep_basin_targets` in `map_view_mesh_builder_terrain.gd`). `MapView3D.sea_depth_image()` bakes that depth (one texel per cell) and `MapViewWaterMaterials.apply_sea_depth_map()` binds it to both sea materials, which then blend colour, absorption and wave parameters (`sea_wave_shallow`/`sea_wave_deep`) by depth. The depth is sampled in `vertex()`, because the fragment stage already uses all 16 GL Compatibility sampler units. The shared wave parameters also keep the two sea meshes' border vertices together, so no crack opens on the seam. Ground scatter (grass, plants, bushes) never grows on water cells. Gameplay is unchanged: the gameplay bed stays flat (ADR 0021).
-- Moats and ponds (`TERRAIN_WATER`) are stagnant: `map_view_water_materials.gd` sets `pond_murk`/`pond_scum` and silty bed colours, and `map_view_water.gdshader` tints the column olive-brown, greens the mirrored sky, lays a drifting duckweed and leaf film, and fades a muddy shelf in at the bank. Banks need dry cells: `south_quarter` ditches stop two cells short of the map edge with a `south_wall.outer_bank` mud strip, because water cut by the map edge has no shore ramp. The ditches are also real cuts: `relief_ditch south_wall.cut.*` / `east_wall.cut` (width 10, depth 1.2) sink the water below the surrounding ground and slope the banks, which carry `south_wall.bank_grass` turf instead of bare mud. Plate: `tools/godot_render.sh --script tools/capture_moat_water.gd -- --label after` ([gameplay](../reports/images/moat_water_gameplay_after.png), [close](../reports/images/moat_water_close_after.png)).
-- Rain on water is drawn by `map_view_water.gdshader` as centimetre-scale procedural rings (`rain_ring_intensity`, set by `apply_sea_weather`). The rings fade out before their cells shrink to a few pixels, so they do not alias into moire. The ripple sim no longer takes rain, because its 25 cm texels turned drops into metre-wide rings that stopped at the 64-unit window edge. The underwater wet-lens drops are small and sparse (16 rows, about 40% of cells).
-- Visual wind is slewed: `SkyWeather3D` follows the weather/gust wind target at <=1.5 deg/s for heading and an 8 s low-pass for cloud-drift strength (`_advance_wind_smoothing`). The sea rotates its whole wave field with the wind heading, so an unbounded heading swing during a weather transition made the water and cirrus visibly race.
-- Boats and cogs float on the same wave field and heel into the wind (`boat_float_3d.gd`).
-- Boats are solid (task **R-1214**). The inshore fishing boat (`map_view_fishing_boat_builder.gd`) is a ~5.2 m four-oared clinker hull scaled against the 2-unit actor, with bottom boards above the waterline and an inner shell so the sea never shows inside, and oars shipped fore-and-aft on the thwarts. Because ADR 0021 lets Kalev wade and swim, `MapSceneBootstrap._create_boat_blocks` adds one `CapsuleShape2D` per `fishing_boat` / `merchant_boat` prop on `CollisionLayers.WORLD` (body `BoatBlocks`, group `map_boat_collision`), sized from each builder's `HULL_HALF_LENGTH` / `HULL_HALF_BEAM` and turned like the 3D hull. Navigation is unchanged. `BoatFloat3D.configure` takes the same hull extents so wave sampling spans the real bow and stern. Verify with `--filter=test_boat_collision,test_map_view_fishing_boat,test_boat_float_3d` and `tools/godot_render.sh --rendering-method mobile --rendering-driver metal --script tools/capture_ws05_boat_waterline.gd -- --boat=kalamaja` ([plate](../reports/images/ws05_metal_clear_kalamaja_clip.png)). Limits: the capsule is static at the rest pose (float heave and surge are view-only), and boats cannot be boarded.
-- Swimming and diving ([ADR 0021](../adr/0021-swimming-and-diving.md)): walk → wade → swim → dive is a pure function of water depth plus the dive input (`PlayerSwimState`, `PlayerWaterTraversal`). `MapViewSwimmerPresenter` poses the rig; `underwater_pass.gd` renders the underwater view. While diving, the third-person boom shortens to `CAMERA_DIVE_BOOM_SCALE` (0.5), so the diver stays visible through underwater extinction. Over open sea, camera safety (`MapViewRuntimeCameraSafety.rendered_floor_height`) clamps the lens to the rendered basin bed, not the flat gameplay bed, so the camera can follow a diver below the surface. Verify with `--filter=test_ws13b_sea_basin_depth` and `tools/godot_render.sh --script tools/capture_swim.gd -- --out=build/swim --weather=rain`.
-- Coast work: [`docs/tasks/coast/`](../tasks/coast/README.md).
+Sea, rivers, moats and ponds, rain on water, floating and solid boats, swimming and diving: [`CITY_SEA.md`](./CITY_SEA.md#district-map-water-boats-and-swimming) (district maps) and the rest of that page (seamless city). Swimming rules: [ADR 0021](../adr/0021-swimming-and-diving.md). The cog: [`SHIPS.md`](./SHIPS.md).
 
 ## Terrain, streets, and buildings
 
@@ -52,10 +44,7 @@ Third-person by default ([ADR 0015](../adr/0015-default-third-person-camera.md))
 - Streets are an authored network ([ADR 0026](../adr/0026-streets-as-authored-network.md); [`docs/tasks/urban_form/`](../tasks/urban_form/README.md)).
 - Buildings come from `map_view_mesh_builder_*.gd` (houses, churches, fortifications, landmarks, interiors) and hand-built landmark models such as the 1343 Town Hall (`map_view_town_hall_model.gd`). Pipeline: [ADR 0025](../adr/0025-architectural-asset-pipeline.md), [`docs/tasks/architecture/`](../tasks/architecture/README.md), [`ASSET_INVENTORY.md`](../ASSET_INVENTORY.md). Materials: [`MATERIAL_STYLE_LOCK_KIT.md`](../MATERIAL_STYLE_LOCK_KIT.md), [`TEXTURE_AI_GENERATION.md`](../TEXTURE_AI_GENERATION.md).
 - Fog of war: `map_fog_of_war.gd` remembers explored areas in the orthographic view.
-- Public draw-well (`well` prop kind): `map_view_well_models.gd` builds coursed limestone slabs with recessed mortar, a ring of curb slabs, a log windlass on an iron axle and crank, hemp rope wound on the drum and slack to a tinned-iron bucket on the curb, and an old-board gable roof. The shaft mouth is a disc drawn by `map_view_well_shaft.gdshader`: it ray-traces a virtual 3 m shaft that darkens with depth and ends in still water, because the opaque terrain hides real geometry below ground. View-only: the map definition still owns the footprint. Check with `godot --headless --path . --script tools/smoke_well_model.gd` and the captures from `tools/godot_render.sh --script tools/capture_well_preview.gd` (`build/previews/well_preview*.png`).
-- Oak barrel (`barrels` prop kind, catalog `obj.barrel_oak`): one prop is **one barrel**, so a map sets how many barrels stand somewhere by placing that many props (each with its own stable ID). `map_view_barrel_meshes.gd` builds a 0.9 m by 0.62 m cask: 18 staves with a parabolic bilge, recessed seams and per-stave tone, a damp-darkened foot, thick stave ends with a chime lip above inset heads of four jointed boards (a bung on the top head and a plug on the bilge), and four flat forged-iron hoops that hug the profile. Wood uses the seamless longitudinal door grain with vertex colours on, iron its own dark material, and every mesh is cached and shared. The prop's stable ID picks a deterministic turn so neighbours do not look cloned. Players can stand on it (`MapClimbableProps`, 0.9 m). View-only: the map definition still owns the footprint; older definitions that placed one `barrels` prop for a pair (for example `barrel_pair` in the smithy courtyard prototype) now show a single barrel. Check with `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_barrel_prop_model` and the captures from `tools/godot_render.sh --script tools/capture_barrel_preview.gd` (`build/previews/barrel_preview*.png`); before/after: [`barrel_before_after.jpg`](../reports/images/props/barrel_before_after.jpg). The seamless city's harbour cargo stacks (`city_harbour.gd`, stack kind `barrel`, a jittered 2x2 group) and the cargo on boat decks (`city_boats.gd`) use the same model through `MapViewBarrelMeshes.add_barrel`; check with `tools/godot_render.sh --script tools/capture_city_shore_barrels.gd` (`build/shore_barrels/`).
-- Kitchen garden (`kitchen_garden` prop kind, R-1645): two raised beds of dark tilled soil in woven wattle with rows of cabbage, turnip or onion, built by `map_view_kitchen_garden_models.gd`, the same model the open city plants beside every farmhouse. Details, placement rules and checks: [FARMLAND.md](FARMLAND.md#kitchen-gardens).
-- Farm hand tools (`pitchfork`, `scythe`, `sickle` prop kinds, catalog `obj.pitchfork`, `obj.scythe`, `obj.sickle`): GLBs built by `blender --background --factory-startup --python tools/generate_medieval_hand_tools.py -- --preview --only=pitchfork,scythe,sickle` (generator v3). Shafts are smooth tapered spline sweeps with grain-aligned UVs instead of jointed cylinders, and blades are lofted thin steel with a raised back rib and a polished edge band. The scythe stands blade-up as it was stored, with a bent ash snath, one side nib, two heel rings and a heel tang; the pitchfork has a riveted split socket, a forged crown and three forward-curling tapered tines; the sickle is a toothed crescent on a turned grip with an iron ferrule. All three are centred on their footprint and the long ones lean 6-7 degrees toward local -Z, so a household layout can put their back to a wall. Check with `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_rural_life_prop_kinds`; before/after: [`farm_tools_before_after.jpg`](../reports/images/props/farm_tools_before_after.jpg).
+- **Props** (barrels, wells, tools, furniture, forge fire and every other placeable object): one card file, [`OBJECT_CATALOG.md`](./OBJECT_CATALOG.md#model-notes). Kitchen gardens and farm dressing: [`FARMLAND.md`](./FARMLAND.md).
 
 ## Vegetation
 
@@ -63,7 +52,7 @@ Estonian trees, bushes, and plants by species (`map_view_tree_species.gd`, `map_
 
 District maps draw no bushes since the legacy shrub mesh was removed ([`LIVING_VEGETATION.md`](./LIVING_VEGETATION.md#legacy-shrub-mesh-removed)).
 
-**Scatter exclusions.** Ground scatter (grass tufts, plants, scatter trees) is view-only: `map_view_mesh_builder_scatter.gd` walks the terrain cells of a `MapDefinition` and skips any cell that `MapViewMeshBuilderPrimitives.cell_blocked` reports. Blocked cells come from building footprints (`building_cell_rects`) plus solid props (`prop_cell_rects`): wash tubs, wells, barrels, stalls, carts, crates, trade goods and pallets, splitting tables, bales, sack and keg piles, staves, firewood, hay, tables, forge-yard anvils, charcoal and iron scrap piles, harbour salt piles, rope coils and boat timber stacks, and farm hay wagons, farm carts, root cellar mounds, privies and well sweeps, listed in `SCATTER_BLOCKING_PROP_KINDS`. Flat or soft props (fences, fields, plots, animals) and open-legged frames (fish, smoke and herb drying racks, tanning frames) stay out of the list so verges keep their planting under them. Interior-only kinds (bed, shelf, hearth, chest) need no entry: `begin_scatter` returns early and ground cover is skipped when `suppresses_exterior_surroundings()` is true. Prop footprints and positions are authored in logic units; a prop with no rect claims the single cell around its position. The same exclusion runs for the dense first-person ground cover in `map_view_terrain_details.gd`, so the eye-level layer that produced the original tuft-through-basin defect is covered too. Verify with `--filter=test_vegetation_prop_exclusion` (the exclusion contract, both layers, a red/green meadow run per added forge/harbour/farm kind, the open-frame soft list, and a map-level guard on `market_civic_quarter`) plus `--filter=test_market_prototype_maps` (`test_market_civic_quarter_tufts_avoid_prop_footprints`) and the eye-level plates from `tools/godot_render.sh --script tools/capture_forum_prop_vegetation.gd` (`docs/reports/images/forum_prop_vegetation_*.png` for the forum, `yard_prop_vegetation_*.png` for the `world_padise` forge yard).
+Ground scatter (grass, plants, scatter trees) never grows under solid props: [`MAP_AUTHORING.md`](../MAP_AUTHORING.md#prop-orientation-and-surface-placement).
 
 ## Fauna and crowds
 
@@ -75,7 +64,7 @@ District maps draw no bushes since the legacy shrub mesh was removed ([`LIVING_V
 
 ## Characters
 
-Human rigs, wardrobe, and the crowd shader: [`CHARACTER_GENERATION.md`](../CHARACTER_GENERATION.md) ([ADR 0022](../adr/0022-realistic-human-characters.md), [ADR 0016](../adr/0016-tiered-character-fidelity.md)). Fidelity backlog: [`VISUAL_FIDELITY_PLAN.md`](../VISUAL_FIDELITY_PLAN.md), [`CHARACTER_REALISM_BACKLOG.md`](../CHARACTER_REALISM_BACKLOG.md).
+Human rigs, wardrobe, the crowd shader and close-up review captures: [`CHARACTER_GENERATION.md`](../CHARACTER_GENERATION.md) ([ADR 0022](../adr/0022-realistic-human-characters.md), [ADR 0016](../adr/0016-tiered-character-fidelity.md)). Fidelity backlog: [`VISUAL_FIDELITY_PLAN.md`](../VISUAL_FIDELITY_PLAN.md), [`CHARACTER_REALISM_BACKLOG.md`](../CHARACTER_REALISM_BACKLOG.md).
 
 ## Effects
 
@@ -96,41 +85,3 @@ Visual changes need captures through `tools/godot_render.sh` and the gate in [`W
 ## Limits
 
 - `ProceduralChickenModel`, `MapViewEnvironmentKit`, and `MapViewNunnatornInterior` are referenced only by tests and tools. See the [code-health audit](../reports/code_health_audit_2026-10-07.md).
-
-## Character close-up review lighting (R-1674)
-
-Status: implemented (task **R-1674**). Scope: controlled character-review
-captures; live world lighting, asset rebuilds and human art approval are out of scope.
-
-`tools/capture_character_closeup.gd` renders a `SharedCharacterRig` scene in an
-isolated SubViewport at 720x900, with the gameplay isometric camera direction
-and front/profile views, seven fixed idle/walk/run/action poses. Run it only
-through the minimized GPU wrapper:
-
-```bash
-tools/godot_render.sh --script tools/capture_character_closeup.gd -- \
-  --scene=res://assets/characters/variants/crowd_townsman_01.tscn \
-  --lighting=night --output-dir=res://build/character_review/night
-```
-
-- `--lighting=day` (also the default when omitted) preserves the existing warm
-  studio sun (energy 1.15) and ambient (0.42).
-- `--lighting=night` uses a cool audit key (energy 0.45) and ambient (0.22).
-  Camera, geometry, pose times and shadow settings are the same as day.
-- Any other lighting value exits 1 before creating outputs. Choose different
-  `--output-dir` values for each light/body: filenames remain `closeup_<pose>.png`
-  to preserve existing callers. Default directory and Kalev scene are unchanged.
-- `--wearable=res://...tres` still equips the requested `CharacterWearable`.
-  The tool only reads scene/variant IDs and writes PNGs. It never mutates assets,
-  campaign state or save slots, and adds no player inputs or autoloads.
-
-Verification: `godot --headless --path . --script tools/run_godot_tests.gd --
---filter=test_capture_character_closeup` covers argument validation, retained day
-parameters and dimmer/cooler night lighting with unchanged geometry.
-[Five-body day/night sheets and review decisions](../reports/crowd_variation_p0_153.md)
-include non-black frame measurements and default-output comparison.
-
-Limits: these are portrait-distance studio captures, not live gameplay-distance
-or city night acceptance. GPU idle-frame output can vary slightly between runs;
-identical lighting parameters do not guarantee byte-identical PNGs. Named human
-approval remains the responsibility of **R-945**.
