@@ -89,6 +89,10 @@ uniform vec3 snow_color : source_color = vec3(0.86, 0.9, 0.95);
 uniform sampler2D snow_depth_map : filter_linear, repeat_disable, hint_default_white;
 uniform vec4 snow_map_rect = vec4(0.0, 0.0, 1.0, 1.0); // origin.xz, size.xz in world units
 uniform float snow_depth_m = 0.0;
+// CitySnow roof shelter mask (1 m texels, R = 1 under a roof or its eaves): the 8 m
+// depth map is too coarse to stop at a wall, so this keeps snow out of interiors.
+uniform sampler2D snow_shelter_map : filter_linear, repeat_disable, hint_default_black;
+uniform vec4 snow_shelter_rect = vec4(0.0, 0.0, 1.0, 1.0); // origin.xz, size.xz
 uniform float sea_level = 0.0;
 uniform float rain_intensity = 0.0;
 global uniform float ocean_time;
@@ -394,14 +398,16 @@ float grid_sink(ivec2 g, vec2 origin, float cell) {
 }
 
 // Settled snow depth at p in world units (== metres): the baked CitySnow factor map
-// scaled by the season. Zero outside the map and wherever the map is bare (paving,
-// water, roofs, steep slopes).
+// scaled by the season. Zero outside the map, wherever the map is bare (paving,
+// water, steep slopes) and under roofs (shelter mask).
 float snow_height_lod(vec2 p) {
 	vec2 uv = (p - snow_map_rect.xy) / snow_map_rect.zw;
 	if (snow_depth_m <= 0.0 || uv.x <= 0.0 || uv.y <= 0.0 || uv.x >= 1.0 || uv.y >= 1.0) {
 		return 0.0;
 	}
 	float factor = textureLod(snow_depth_map, uv, 0.0).r * 2.0;
+	vec2 shelter_uv = (p - snow_shelter_rect.xy) / snow_shelter_rect.zw;
+	factor *= 1.0 - textureLod(snow_shelter_map, shelter_uv, 0.0).r;
 	return max(snow_depth_m * factor - 0.04, 0.0);
 }
 

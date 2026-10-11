@@ -219,6 +219,8 @@ func _bake_snow_map(ground: ShaderMaterial) -> void:
 	var texture := CitySnow.bake(plan, grass.surface_at, plan.data.get("trees", []), moat_water)
 	ground.set_shader_parameter("snow_depth_map", texture)
 	ground.set_shader_parameter("snow_map_rect", CitySnow.map_rect())
+	ground.set_shader_parameter("snow_shelter_map", CitySnow.shelter_texture())
+	ground.set_shader_parameter("snow_shelter_rect", CitySnow.shelter_rect())
 
 
 func apply_time(progress: float) -> void:

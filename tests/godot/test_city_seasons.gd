@@ -201,3 +201,36 @@ func test_snow_map_is_bare_on_paving_and_deeper_in_woods() -> void:
 		paved_max = maxf(paved_max, CitySnow.factor_at(plan.bounds.position + Vector2(i * 7.1, i * 7.9)))
 	assert_true(paved_max < 0.15, "paving stays clear, got %.2f" % paved_max)
 	CitySnow.clear_map()
+
+
+## The 8 m depth map bled snow through walls and lifted the ground above interior
+## floors; the 1 m shelter mask must keep every enterable house and site room dry.
+func test_snow_never_lies_indoors() -> void:
+	var plan := CityPlan.load_default()
+	var turf := func(_p: Vector2) -> Color: return Color(0, 1, 0, 0)
+	CitySnow.bake(plan, turf, plan.data.get("trees", []), [])
+	var polygons: Array[PackedVector2Array] = []
+	for i in plan.buildings.size():
+		if bool(plan.buildings[i].get("enterable", false)):
+			polygons.append(plan.footprint(i))
+	for site in plan.sites:
+		for room: Dictionary in site.rooms:
+			polygons.append(room["polygon"])
+	assert_true(polygons.size() > 50)
+	var checked := 0
+	var snowy := 0
+	for ring in polygons:
+		var box := Rect2(ring[0], Vector2.ZERO)
+		for q in ring:
+			box = box.expand(q)
+		for y in range(int(box.position.y), int(box.end.y) + 1, 2):
+			for x in range(int(box.position.x), int(box.end.x) + 1, 2):
+				var p := Vector2(x, y)
+				if not Geometry2D.is_point_in_polygon(p, ring):
+					continue
+				checked += 1
+				if CitySnow.depth_at(p, 1.0) > 0.0:
+					snowy += 1
+	assert_true(checked > 1000, "sampled %d interior points" % checked)
+	assert_eq(snowy, 0, "interior points under snow")
+	CitySnow.clear_map()

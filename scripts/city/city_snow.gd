@@ -4,9 +4,13 @@ extends RefCounted
 ## Snow lying on the city ground: how deep, where. One baked map (`bake`) holds a
 ## relative depth FACTOR per 8 m texel (wind drifts from layered noise, deeper in
 ## woods where it is sheltered, bare on paving, steep slopes, water and under
-## roofs). The ground shader lifts the terrain by the same map, and the CPU reads
-## it for walking drag, footprints and the crunch, so what you see, what slows
-## you and what you hear agree. Depth in world units (1 unit = 1 m here):
+## roofs). An 8 m texel is coarser than a house, so a second, 1 m "shelter" mask
+## rasterised from building and site footprints zeroes the snow under every roof
+## and its eaves: without it the bilinear depth bled from the street through
+## walls and lifted the ground above interior floors. The ground shader lifts
+## the terrain by the same maps, and the CPU reads them for walking drag,
+## footprints and the crunch, so what you see, what slows you and what you hear
+## agree. Depth in world units (1 unit = 1 m here):
 ##
 ##   depth = max(cover * MAX_DEPTH_M * factor - EDGE, 0)
 ##
@@ -32,11 +36,21 @@ const DRAG_KNEE_SPEED := 0.45
 const DRAG_DEEP_SPEED := 0.08
 ## Trees within this of a texel count towards the wood.
 const FOREST_TREES_FULL := 5.0
+## Shelter mask resolution and how far past a wall it reaches (eaves). The growth
+## exceeds one texel diagonal (1.41 m) so the bilinear mask is exactly 1 at every
+## point inside a footprint: no snow indoors, not even along the walls.
+const SHELTER_TEXEL := 1.0
+const SHELTER_GROW := 1.5
 
 static var _grid := PackedFloat32Array()
 static var _cols := 0
 static var _rows := 0
 static var _origin := Vector2.ZERO
+## Shelter mask: 1 byte per SHELTER_TEXEL texel, 255 = under a roof.
+static var _shelter := PackedByteArray()
+static var _shelter_cols := 0
+static var _shelter_rows := 0
+static var _shelter_texture: ImageTexture
 
 
 static func _fract(x: float) -> float:
@@ -137,8 +151,83 @@ static func bake(
 	_cols = cols
 	_rows = rows
 	_grid = grid
+	_bake_shelter(plan)
 	var image := Image.create_from_data(cols, rows, false, Image.FORMAT_R8, data)
 	return ImageTexture.create_from_image(image)
+
+
+## Rasterises every building footprint, site building and site room (grown by
+## SHELTER_GROW) into the shelter mask over the same rect as the depth map.
+static func _bake_shelter(plan: CityPlan) -> void:
+	var origin := plan.bounds.position
+	var cols := int(ceil(plan.bounds.size.x / SHELTER_TEXEL))
+	var rows := int(ceil(plan.bounds.size.y / SHELTER_TEXEL))
+	var mask := PackedByteArray()
+	mask.resize(cols * rows)
+	var rings: Array[PackedVector2Array] = []
+	for i in plan.buildings.size():
+		rings.append(plan.footprint(i))
+	for site in plan.sites:
+		for poly: Array in site.placed.get("footprints", []):
+			rings.append(CityPlan.points(poly))
+		for room: Dictionary in site.rooms:
+			rings.append(room["polygon"])
+	for ring in rings:
+		if ring.size() < 3:
+			continue
+		for grown: PackedVector2Array in Geometry2D.offset_polygon(ring, SHELTER_GROW):
+			var box := Rect2(grown[0], Vector2.ZERO)
+			for q in grown:
+				box = box.expand(q)
+			var x0 := maxi(floori((box.position.x - origin.x) / SHELTER_TEXEL), 0)
+			var y0 := maxi(floori((box.position.y - origin.y) / SHELTER_TEXEL), 0)
+			var x1 := mini(ceili((box.end.x - origin.x) / SHELTER_TEXEL), cols - 1)
+			var y1 := mini(ceili((box.end.y - origin.y) / SHELTER_TEXEL), rows - 1)
+			for cy in range(y0, y1 + 1):
+				for cx in range(x0, x1 + 1):
+					var index := cy * cols + cx
+					if mask[index] != 0:
+						continue
+					var p := origin + Vector2((cx + 0.5) * SHELTER_TEXEL, (cy + 0.5) * SHELTER_TEXEL)
+					if Geometry2D.is_point_in_polygon(p, grown):
+						mask[index] = 255
+	_shelter = mask
+	_shelter_cols = cols
+	_shelter_rows = rows
+	_shelter_texture = ImageTexture.create_from_image(
+		Image.create_from_data(cols, rows, false, Image.FORMAT_R8, mask)
+	)
+
+
+## The roof shelter mask from the last bake (R = 1 under a roof), for the ground
+## shader; same world rect as `map_rect()` up to the texel rounding of its size.
+static func shelter_texture() -> ImageTexture:
+	return _shelter_texture
+
+
+## World rect the shelter texture covers: origin xz, size xz.
+static func shelter_rect() -> Vector4:
+	return Vector4(
+		_origin.x, _origin.y,
+		float(_shelter_cols) * SHELTER_TEXEL, float(_shelter_rows) * SHELTER_TEXEL
+	)
+
+
+## 0..1 roof shelter at `p`, bilinear over the mask (0 without one).
+static func shelter_at(p: Vector2) -> float:
+	if _shelter_cols == 0:
+		return 0.0
+	var f := (p - _origin) / SHELTER_TEXEL - Vector2(0.5, 0.5)
+	var x0 := clampi(floori(f.x), 0, _shelter_cols - 1)
+	var y0 := clampi(floori(f.y), 0, _shelter_rows - 1)
+	var x1 := mini(x0 + 1, _shelter_cols - 1)
+	var y1 := mini(y0 + 1, _shelter_rows - 1)
+	var tx := clampf(f.x - float(x0), 0.0, 1.0)
+	var ty := clampf(f.y - float(y0), 0.0, 1.0)
+	var c := _shelter_cols
+	var top := lerpf(float(_shelter[y0 * c + x0]), float(_shelter[y0 * c + x1]), tx)
+	var bottom := lerpf(float(_shelter[y1 * c + x0]), float(_shelter[y1 * c + x1]), tx)
+	return lerpf(top, bottom, ty) / 255.0
 
 
 ## World rect the baked texture covers: origin xz, size xz.
@@ -152,12 +241,20 @@ static func clear_map() -> void:
 	_grid = PackedFloat32Array()
 	_cols = 0
 	_rows = 0
+	_shelter = PackedByteArray()
+	_shelter_cols = 0
+	_shelter_rows = 0
+	_shelter_texture = null
 
 
-## Relative depth at `p`, bilinear over the baked map (noise alone without one).
+## Relative depth at `p`, bilinear over the baked map (noise alone without one),
+## cut by the roof shelter mask so nothing lies indoors.
 static func factor_at(p: Vector2) -> float:
 	if _cols == 0:
 		return drift_factor(p)
+	var open := 1.0 - shelter_at(p)
+	if open <= 0.0:
+		return 0.0
 	var f := (p - _origin) / TEXEL - Vector2(0.5, 0.5)
 	var x0 := clampi(floori(f.x), 0, _cols - 1)
 	var y0 := clampi(floori(f.y), 0, _rows - 1)
@@ -167,7 +264,7 @@ static func factor_at(p: Vector2) -> float:
 	var ty := clampf(f.y - float(y0), 0.0, 1.0)
 	var top := lerpf(_grid[y0 * _cols + x0], _grid[y0 * _cols + x1], tx)
 	var bottom := lerpf(_grid[y1 * _cols + x0], _grid[y1 * _cols + x1], tx)
-	return lerpf(top, bottom, ty)
+	return lerpf(top, bottom, ty) * open
 
 
 ## Settled snow depth in metres at `world_xz` for a season cover of 0..1.
