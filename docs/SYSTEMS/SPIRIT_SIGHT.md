@@ -1,6 +1,6 @@
 # Spirit sight, auras and soul lights
 
-Status: partially implemented. The spirit sight toggle SS-1 (**R-1484**), aura profile data SS-2/SS-2b (**R-1485**, **R-1496**), the aura look SS-3 (**R-1486**), soul lights in a duel SS-5 (**R-1488**), the duel layer SS-6 (**R-1489**), duel entry SS-7 (**R-1490**) and hero growth SS-8 (**R-1491**) are implemented. Reading a soul SS-4 (**R-1487**) is planned. Epic **R-1483**, [ADR 0041](../adr/0041-spirit-sight-auras-and-soul-lights.md) (accepted).
+Status: partially implemented. Duel readability (**R-1764**) is implemented. The spirit sight toggle SS-1 (**R-1484**), aura profile data SS-2/SS-2b (**R-1485**, **R-1496**), the aura look SS-3 (**R-1486**), soul lights in a duel SS-5 (**R-1488**), the duel layer SS-6 (**R-1489**), duel entry SS-7 (**R-1490**) and hero growth SS-8 (**R-1491**) are implemented. Reading a soul SS-4 (**R-1487**) is planned. Epic **R-1483**, [ADR 0041](../adr/0041-spirit-sight-auras-and-soul-lights.md) (accepted).
 
 Scope: a spirit-sight layer the hero toggles anywhere on the same map, auras with seven soul lights on every person and animal, reading a soul, soul lights feeding the spirit duel, and duels that keep the building but hide furniture under a focused grade. Out of scope: a universal good/evil score, duels with animals, a separate spirit-world copy of the map, new art assets (P0-040). The duel rules themselves live in [`SPIRIT_DIALOGUE.md`](./SPIRIT_DIALOGUE.md).
 
@@ -178,7 +178,25 @@ All numbers are constants in `SpiritDuel`. Light and element pair as in [the sev
 - **Aura feedback** (`SpiritAuraView.bind_duel`): a landed reply or word dims the light that guards its element (`dim_light`, 70 % at most, recovers in under a second); falling opponent pressure lowers clarity down to 35 % (`set_pressure_fraction`, more turbulence); a broken opponent shatters the aura over 0.8 s (`shatter_now`, levels to 0, turbulence to 1), mirroring the SD-19 crack of `SpiritFormView`. Exchange results also carry `element` and `light_id`.
 - **Colours:** `SpiritSpellCard.ELEMENT_COLORS` follow the soul lights: fear red, coin orange, duty yellow, love green, shame blue, faith violet.
 - **Verify:** `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_spirit_duel_aura,test_spirit_arena,test_spirit_word_spells,test_spirit_traits,test_spirit_magic`.
-- **Limits:** nothing in play yet supplies an opponent profile. The sky beam reads the profile's integer levels, so a shattered aura keeps its beam (visible in the "broken" panel).
+- **Limits:** only the almshouse porter duel supplies an opponent profile in play (R-1764, below); city Challenge duels still fight a neutral soul. The sky beam reads the profile's integer levels, so a shattered aura keeps its beam (visible in the "broken" panel).
+
+### Reading a duel: words strike soul lights (R-1764)
+
+Status: implemented (task **R-1764**). Scope: making the porter duel readable: which light a word hits, what it did, when the duel ends. Out of scope: aiming at a light other than the word's own, new art (P0-040), balance changes.
+
+![A faith word lands on the porter's crown light: flash and "Faith light -8" beside it; the hint states the rule](../reports/images/spirit_duel_layer/light_hit.png)
+
+![The won duel: centred banner, the porter's aura shattering, then the arena closes itself](../reports/images/spirit_duel_layer/duel_won.png)
+
+- **One rule, stated on screen:** each word (slots 1..5: fear, shame, duty, love, faith) strikes the opponent's soul light of its colour, per the table above (`SpiritDuel.light_for_element`). The hint under the words says so: "Each word strikes the soul light of its colour. Dim lights are weak points." (`SpiritArenaHost.LIGHT_RULE_HINT`).
+- **The word flies at the light:** `SpiritArenaHost.light_target(element)` returns the world anchor of that light on the opponent's aura view; the bolt ends there (`SpiritWordBolt.setup(..., target_lift = 0)`). Without an aura view the bolt flies at the body as before.
+- **The hit is marked at the light:** on arrival `mark_light_hit` flashes the light in its colour, dims it (`SpiritAuraView.dim_light`) and floats a label beside it, e.g. `Love light  -9`, with `weak point  x1.5` (closed light) or `x1.25` (ember) when the word found a weak point, or `no effect` when nothing was dealt. An answering word deals its pressure when cast (the dialogue moves on at once); its amount is shown when its bolt arrives. The opponent flinches on word hits as on replies (`AlmshouseStage.react_to_exchange`). Marks rise and fade over `HIT_MARK_SEC` (1.6 s).
+- **Weak points on the cast bar:** a slot whose light is level 0..1 on the opponent carries a `weak` tag over its tile (`SpiritCastBar`, slot field `weak`, `SpiritArenaHost.is_weak_light`).
+- **The porter's real soul:** `AlmshouseOpening` feeds the porter's visible aura profile into the duel (`SpiritArenaHost.opponent_aura`), so the lights the player sees are the ones scored (pool size, weak-point factors). Before R-1764 the porter fought as a neutral soul.
+- **No orbiting:** the opponent no longer circles the hero on `feint` or unlabelled lines; it holds (`SpiritArenaMotion.BEHAVIOUR_BY_KIND`). Players read the circling as the duel rotating for no reason.
+- **A clear end:** a won duel shows a centred banner ("The duel is won", subtitle "Their will breaks." or "The dispute is settled.") and the arena closes itself after `WIN_AUTO_CLOSE_SEC` (2.5 s; `interact` closes sooner), so the prologue continues to Kalev without a hidden keypress. A lost duel shows "Your composure broke" with the Retry button; Retry hides the banner.
+- **Verify:** `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_spirit_word_spells,test_almshouse_opening,test_spirit_arena_3d_motion` (light aim, hit label, weak flag, hint, porter aura wiring, banner and auto-close, no orbit). Plates: `tools/godot_render.sh --resolution 1280x720 --script tools/capture_almshouse_opening.gd -- --out=res://build/almshouse_opening` (`light_hit.png`, `won.png`).
+- **Limits:** the duel grade desaturates the 3D world, so the hit labels and speech bubbles read in muted colour; the banner can overlap a speech bubble for its 2.5 s.
 
 ## Hero growth (SS-8, R-1491)
 

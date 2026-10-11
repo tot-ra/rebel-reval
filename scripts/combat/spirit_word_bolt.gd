@@ -15,11 +15,13 @@ var from := Vector3.ZERO
 var to := Vector3.ZERO
 
 
-func setup(word_element: StringName, start: Vector3, target: Vector3) -> SpiritWordBolt:
+## `target_lift` raises the end point off the floor; a bolt aimed at a soul light passes 0
+## because the light's anchor is already at body height (R-1764).
+func setup(word_element: StringName, start: Vector3, target: Vector3, target_lift := HEIGHT) -> SpiritWordBolt:  # gdlint: ignore=max-line-length
 	element = word_element
 	color = SpiritSpellCard.ELEMENT_COLORS.get(String(word_element), SpiritSpellCard.NEUTRAL_COLOR)
 	from = start + Vector3.UP * HEIGHT
-	to = target + Vector3.UP * HEIGHT
+	to = target + Vector3.UP * target_lift
 	name = "WordBolt_%s" % String(word_element)
 	var core := MeshInstance3D.new()
 	core.name = "Core"

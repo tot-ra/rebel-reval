@@ -48,8 +48,21 @@ func _init() -> void:
 	await _save(out + "/word.png")
 	await _frames(32)
 	await _save(out + "/cast.png")
+	# R-1764: a free word strike reaching the porter's faith light: flash and hit label there.
+	host.call(&"pick_slot", 4)
+	await _frames(40)
+	await _save(out + "/light_hit.png")
+	# R-1764: the won duel's banner, then the arena closes itself (no keypress).
+	for reply: String in ["still_duty", "still_mercy"]:
+		duel.call(&"tick", telegraph_sec + 0.01)
+		duel.call(&"answer", reply)
+	await _frames(30)
+	await _save(out + "/won.png")
 	# R-1365: Kalev in the hall doorway, camera reframed on him and the boy, on his first line.
-	host.call(&"close")
+	var guard := 0
+	while host != null and is_instance_valid(host) and bool(host.call(&"is_open")) and guard < 600:
+		await process_frame
+		guard += 1
 	await _frames(40)
 	await _save(out + "/kalev.png")
 	quit()

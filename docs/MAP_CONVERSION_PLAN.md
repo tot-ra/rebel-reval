@@ -177,7 +177,6 @@ Roles `level`, `map`, and `event` have full conversion specifications later in t
 | `assets/characters/variants/citizen_m_child_average.tscn` | actor | `retain` | Crowd/citizen variant citizen_m_child_average | Shared-rig ambient body; not a map destination | not a map definition |
 | `assets/characters/variants/citizen_m_elder_heavy.tscn` | actor | `retain` | Crowd/citizen variant citizen_m_elder_heavy | Shared-rig ambient body; not a map destination | not a map definition |
 | `assets/characters/variants/citizen_m_elder_thin.tscn` | actor | `retain` | Crowd/citizen variant citizen_m_elder_thin | Shared-rig ambient body; not a map destination | not a map definition |
-| `scenes/cutscene/prologue_opening.tscn` | ui | `retain` | Prologue opening scene | Prologue flow scene; not a map | not a map definition |
 | `scenes/prologue/almshouse_opening.tscn` | ui | `retain` | Almshouse opening scene | Prologue flow scene; not a map | not a map definition |
 | `scenes/prologue/almshouse_stage.tscn` | ui | `retain` | Almshouse stage scene | Prologue flow scene; not a map | not a map definition |
 | `tools/capture_city_citizens.tscn` | test | `retain` | Capture city citizens tool scene | Developer-only capture or profiling host; never release-playable | not a map definition |

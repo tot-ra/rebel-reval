@@ -215,7 +215,7 @@ func dash_hero(direction: Vector2) -> void:
 func react_to_exchange(result: Dictionary) -> Node3D:
 	var target: Node3D = null
 	match String(result.get("kind", "")):
-		"reply":
+		"reply", "word":
 			if float(result.get("damage", 0.0)) > 0.0:
 				target = _porter
 		"spell":

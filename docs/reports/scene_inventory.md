@@ -239,7 +239,6 @@ Both commands should print `135` on a clean checkout at this revision.
 | 151 | `assets/characters/variants/citizen_m_child_average.tscn` | working | Seamless city citizen or cast body (MPFB pipeline). |
 | 152 | `assets/characters/variants/citizen_m_elder_heavy.tscn` | working | Seamless city citizen or cast body (MPFB pipeline). |
 | 153 | `assets/characters/variants/citizen_m_elder_thin.tscn` | working | Seamless city citizen or cast body (MPFB pipeline). |
-| 154 | `scenes/cutscene/prologue_opening.tscn` | working | Prologue cutscene or almshouse opening. |
 | 155 | `scenes/prologue/almshouse_opening.tscn` | working | Prologue cutscene or almshouse opening. |
 | 159 | `scenes/prologue/almshouse_stage.tscn` | working | Prologue cutscene or almshouse opening. |
 | 156 | `tools/capture_city_citizens.tscn` | partial | Developer capture or profiling tool. |

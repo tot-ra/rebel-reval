@@ -56,11 +56,11 @@ func test_line_kind_picks_the_footwork() -> void:
 	motion.set_line({"kind": "defense"})
 	assert_eq(motion.behaviour, SpiritArenaMotion.BEHAVIOUR_RETREAT)
 	motion.set_line({"kind": "feint"})
-	assert_eq(motion.behaviour, SpiritArenaMotion.BEHAVIOUR_CIRCLE)
+	assert_eq(motion.behaviour, SpiritArenaMotion.BEHAVIOUR_HOLD)
 	motion.set_line({"kind": "appeal"})
 	assert_eq(motion.behaviour, SpiritArenaMotion.BEHAVIOUR_HOLD)
 	motion.set_line({})
-	assert_eq(motion.behaviour, SpiritArenaMotion.BEHAVIOUR_CIRCLE)
+	assert_eq(motion.behaviour, SpiritArenaMotion.BEHAVIOUR_HOLD)
 
 
 func test_advance_stops_close_and_retreat_stops_far() -> void:
@@ -75,12 +75,14 @@ func test_advance_stops_close_and_retreat_stops_far() -> void:
 	assert_almost_eq(_flat_distance(motion.opponent_position, Vector3.ZERO), SpiritArenaMotion.FAR_DISTANCE, 0.001)  # gdlint: ignore=max-line-length
 
 
-func test_circle_keeps_distance_and_moves_round() -> void:
-	var motion := _motion(Vector3(0, 0, -4))
-	motion.set_line({"kind": "feint"})
-	motion.step(0.5)
-	assert_almost_eq(_flat_distance(motion.opponent_position, Vector3.ZERO), 4.0, 0.001)
-	assert_true(absf(motion.opponent_position.x) > 0.5, "moved round the hero")
+func test_feint_and_unknown_lines_hold_instead_of_orbiting() -> void:
+	# R-1764: the opponent never circles the hero; that read as the whole duel rotating.
+	for move: Dictionary in [{"kind": "feint"}, {}]:
+		var motion := _motion(Vector3(0, 0, -4))
+		motion.set_line(move)
+		for i in 20:
+			motion.step(0.1)
+		assert_true(motion.opponent_position.is_equal_approx(Vector3(0, 0, -4)), str(move))
 
 
 func test_opponent_stays_on_the_disc() -> void:

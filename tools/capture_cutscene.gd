@@ -8,7 +8,6 @@ extends SceneTree
 ## letterbox, caption, chapter card and speaker plate can be reviewed against the art.
 
 const SEQUENCES: Array[StringName] = [
-	&"cutscene.prologue.conquest",
 	&"cutscene.prologue.almshouse_dawn",
 	&"cutscene.prologue.taken_in",
 ]

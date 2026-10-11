@@ -1,6 +1,7 @@
 # ADR 0034: Cutscene mode and the cinematic prologue
 
 - **Status:** Accepted (maintainer-directed, 2026-10-08). Implemented for the prologue by **R-1316**..**R-1318**; later chapters are gated by their own tasks.
+- **Amended 2026-10-11 (R-1763):** the still-image conquest chapter `cutscene.prologue.conquest` was removed from New Game with its stills and narration, to be remade as video ([`cinematics/OPENING_VISION_VIDEO_BRIEF.md`](../../cinematics/OPENING_VISION_VIDEO_BRIEF.md)); New Game opens in the almshouse.
 - **Amends:** [ADR 0033](0033-teen-protagonist-and-spirit-dialogue-combat.md) §7 (Prologue) by giving the prologue a presentation layer. Retires the legacy intro-video path in `scenes/intro/` and the Kalev-as-protagonist treatments in [`cinematics/`](../../cinematics/README.md).
 - **Does not supersede:** ADR 0003 (offline authored content, no runtime LLM), ADR 0007 (painted art direction for the playable world), ADR 0019/0027/0028 (seamless world), ADR 0022 (realistic humans), the MVP-first delivery order.
 

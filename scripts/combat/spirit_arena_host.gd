@@ -37,6 +37,19 @@ const SPELL_ACTIONS: Array[StringName] = [
 	&"spellforge_element_5",
 ]
 const SpiritSightScript := preload("res://scripts/combat/spirit_sight.gd")
+const VfxParts := preload("res://scripts/map/view3d/map_view_magic_vfx_parts.gd")
+## R-1764: a won duel closes itself after this beat (interact closes sooner), so the end reads
+## as a moment and the caller (the prologue) moves on without a hidden keypress.
+const WIN_AUTO_CLOSE_SEC := 2.5
+## R-1764: a word that reaches the opponent marks the soul light it struck: a flash in the
+## light's colour and a label naming the light and the pressure dealt, rising and fading.
+const HIT_MARK_SEC := 1.6
+const HIT_MARK_RISE := 0.6
+## The label sits beside the light (screen right in the arena camera), not over it.
+const HIT_MARK_OFFSET := Vector3(0.55, 0.1, 0.0)
+const LIGHT_RULE_HINT := (
+	"Each word strikes the soul light of its colour. Dim lights are weak points."
+)
 
 var duel := SpiritDuel.new()
 var observation := SpiritObservation.new()
@@ -101,6 +114,18 @@ var _word_bolts: Dictionary = {}
 ## The opponent's spoken blow flying at its strike zone during a telegraph.
 var _incoming_bolt: SpiritWordBolt
 var _hero_said := ""
+## Centred end-of-duel banner (title + subtitle), hidden while the duel runs.
+var _end_banner: Control
+var _end_title: Label
+var _end_subtitle: Label
+var _win_close_left := -1.0
+## Hit marks at struck soul lights: {flash: OmniLight3D, glow: MeshInstance3D, label: Label3D,
+## at: Vector3, left: float}.
+var _hit_marks: Array[Dictionary] = []
+## An answering word deals its pressure when cast (the dialogue moves on at once); the amount
+## is kept by bolt id and shown when the bolt reaches the light.
+var _bolt_damage: Dictionary = {}
+var _last_exchange: Dictionary = {}
 
 
 func _init() -> void:
@@ -206,7 +231,7 @@ func open(content_db: ContentDB, state: GameState, dialogue_id: StringName) -> b
 		var names: Array[String] = []
 		for index in mini(words.slot_count(), SPELL_ACTIONS.size()):
 			names.append("%s %s" % [_slot_key_label(SPELL_ACTIONS[index]), String(words.elements[index])])
-		_spell_hint = "Words: " + ", ".join(names)
+		_spell_hint = "Words: %s\n%s" % [", ".join(names), LIGHT_RULE_HINT]
 		# The first line, phase and replies were presented inside begin(), before the word
 		# spells existed: replay the phase hint and turn any reply cards into the cast bar.
 		_on_phase(duel.phase)
@@ -301,6 +326,7 @@ func close() -> void:
 	var outcome := (observation.last_outcome if _observing else duel.last_outcome).duplicate()
 	_open = false
 	_observing = false
+	_hide_end_banner()
 	# SS-7: the hero stays in spirit sight; only the duel layer goes.
 	remove_from_group(SpiritSightScript.DUEL_OPEN_GROUP)
 	_telegraph_row.visible = true
@@ -343,7 +369,8 @@ func _process(delta: float) -> void:
 		if motion == null and Input.is_action_just_pressed(&"player_dodge"):
 			duel.dodge()
 	elif _won_and_over():
-		if Input.is_action_just_pressed(&"interact"):
+		_win_close_left -= delta
+		if Input.is_action_just_pressed(&"interact") or _win_close_left <= 0.0:
 			close()
 	elif (
 		Input.is_action_just_pressed(&"interact")
@@ -594,7 +621,12 @@ func cast_caption() -> String:
 func cast_word(slot: int) -> bool:
 	if words == null or motion == null:
 		return false
-	var result := words.cast(slot, motion.hero_position, motion.opponent_position)
+	# R-1764: the word flies at the opponent's soul light of its colour, not at the body.
+	var light_at := light_target(words.elements[slot]) if slot >= 0 and slot < words.slot_count() else Vector3.INF  # gdlint: ignore=max-line-length
+	var aimed := light_at != Vector3.INF
+	_last_exchange = {}
+	var aim := light_at if aimed else motion.opponent_position
+	var result := words.cast(slot, motion.hero_position, aim)
 	if not bool(result.get("ok", false)):
 		_hint_label.text = String(result.get("reason", ""))
 		return false
@@ -602,8 +634,13 @@ func cast_word(slot: int) -> bool:
 	_hero_said = String(result.get("text", ""))
 	_say(&"hero", _hero_said)
 	var bolt: Dictionary = result["bolt"]
+	if not String(result.get("answered_choice_id", "")).is_empty():
+		_bolt_damage[int(bolt["id"])] = float(_last_exchange.get("damage", 0.0))
 	var node := SpiritWordBolt.new().setup(
-		StringName(String(result["element"])), bolt["from"] as Vector3, bolt["to"] as Vector3
+		StringName(String(result["element"])),
+		bolt["from"] as Vector3,
+		bolt["to"] as Vector3,
+		0.0 if aimed else SpiritWordBolt.HEIGHT
 	)
 	arena_3d.add_child(node)
 	node.set_progress(0.0)
@@ -690,6 +727,7 @@ func play_reply_voice(path: String) -> bool:
 
 
 func _on_exchange(result: Dictionary) -> void:
+	_last_exchange = result
 	if String(result.get("kind", "")) == "hesitation":
 		_hint_label.text = "You hesitate... the words come slower. Cast a reply."
 
@@ -782,8 +820,10 @@ func _on_phase(phase: StringName) -> void:
 				]
 			_hint_label.text = _spell_hint
 		SpiritDuel.PHASE_ANSWER when words != null:
-			_hint_label.text = "Speak a word [%s..%s]: a gold-rimmed word answers him." % [
-				_slot_key_label(SPELL_ACTIONS[0]), _slot_key_label(SPELL_ACTIONS[words.slot_count() - 1])
+			_hint_label.text = "Speak a word [%s..%s]: a gold-rimmed word answers him.\n%s" % [
+				_slot_key_label(SPELL_ACTIONS[0]),
+				_slot_key_label(SPELL_ACTIONS[words.slot_count() - 1]),
+				LIGHT_RULE_HINT,
 			]
 		SpiritDuel.PHASE_ANSWER:
 			# The gamepad slot buttons do not fit on the cards, so the hint names the
@@ -794,9 +834,19 @@ func _on_phase(phase: StringName) -> void:
 		SpiritDuel.PHASE_LINE:
 			_hint_label.text = "Continue"
 		SpiritDuel.PHASE_WON:
-			_hint_label.text = "The duel is over. Continue"
+			_hint_label.text = ""
+			_clear_choices()
+			_win_close_left = WIN_AUTO_CLOSE_SEC
+			_show_end_banner(
+				"The duel is won",
+				"Their will breaks." if bool(duel.last_outcome.get("broken", false)) else "The dispute is settled.",  # gdlint: ignore=max-line-length
+				Color(0.98, 0.86, 0.52)
+			)
 		SpiritDuel.PHASE_LOST:
 			_hint_label.text = "Your composure broke. Retry"
+			_show_end_banner(
+				"Your composure broke", "Gather yourself and try again.", Color(0.95, 0.45, 0.42)
+			)
 			_show_retry()
 
 
@@ -820,6 +870,7 @@ func _show_retry() -> void:
 	button.pressed.connect(
 		func() -> void:
 			if duel.retry():
+				_hide_end_banner()
 				# A word still in flight from the lost run must not land on the fresh one.
 				if words != null:
 					words.bolts.clear()
@@ -927,6 +978,7 @@ func _build_ui() -> void:
 	_hint_label.name = "Hint"
 	column.add_child(_hint_label)
 	_composure_bar = _make_bar(column, "Your composure", Color(0.40, 0.65, 0.85))
+	_build_end_banner()
 	# Above the text column so numbers and flashes read over the bars.
 	_vfx = SpiritArenaVfx.new()
 	_vfx.name = "ArenaVfx"
@@ -998,6 +1050,7 @@ func _refresh_cast_bar() -> void:
 				"cooldown": words.cooldown_fraction(index),
 				"answers": not words.answering_choice(index).is_empty(),
 				"blocked": words.block_reason(index) not in ["", SpiritWordSpells.REASON_COOLDOWN],
+				"weak": is_weak_light(words.elements[index]),
 			}
 		)
 	_cast_bar.set_slots(slots)
@@ -1008,10 +1061,18 @@ func _tick_words(delta: float) -> void:
 	if words == null:
 		return
 	for bolt: Dictionary in words.tick(delta):
-		var landed: Node = _word_bolts.get(int(bolt["id"]))
-		_word_bolts.erase(int(bolt["id"]))
+		var id := int(bolt["id"])
+		var landed: Node = _word_bolts.get(id)
+		_word_bolts.erase(id)
+		var hit_at := Vector3.INF
 		if landed != null and is_instance_valid(landed):
+			hit_at = (landed as SpiritWordBolt).to
 			landed.queue_free()
+		var dealt := float(bolt.get("dealt", _bolt_damage.get(id, 0.0)))
+		_bolt_damage.erase(id)
+		if hit_at != Vector3.INF:
+			mark_light_hit(StringName(String(bolt["element"])), hit_at, dealt)
+	_tick_hit_marks(delta)
 	for bolt: Dictionary in words.bolts:
 		var node: SpiritWordBolt = _word_bolts.get(int(bolt["id"]))
 		if node != null and is_instance_valid(node):
@@ -1085,9 +1146,181 @@ func _clear_word_nodes() -> void:
 		if is_instance_valid(bubble["label"]):
 			(bubble["label"] as Node).queue_free()
 	_bubbles.clear()
+	for mark: Dictionary in _hit_marks:
+		for key: String in ["flash", "glow", "label"]:
+			if is_instance_valid(mark[key]):
+				(mark[key] as Node).queue_free()
+	_hit_marks.clear()
+	_bolt_damage.clear()
 
 
 func _bubble_anchor(who: StringName) -> Vector3:
 	if who == &"hero":
 		return motion.hero_position + Vector3.UP * BUBBLE_HEIGHT
 	return motion.opponent_position + Vector3.UP * OPPONENT_BUBBLE_HEIGHT
+
+
+## World position of the opponent's soul light that guards `element` (R-1764), or Vector3.INF
+## when no aura view is on screen or the element has no light; words then fly at the body.
+func light_target(element: StringName) -> Vector3:
+	if not is_instance_valid(opponent_aura_view):
+		return Vector3.INF
+	var index := SpiritAuraProfile.LIGHT_IDS.find(SpiritDuel.light_for_element(element))
+	if index < 0 or index >= opponent_aura_view.anchors.size():
+		return Vector3.INF
+	return opponent_aura_view.anchors[index]
+
+
+## True when the opponent's light guarding `element` is closed or an ember (level 0..1): a word
+## there lands harder (SpiritDuel.light_word_factor), so the cast bar flags it.
+func is_weak_light(element: StringName) -> bool:
+	if SpiritDuel.light_for_element(element).is_empty():
+		return false
+	return SpiritDuel.light_level(duel.opponent_aura, element) <= 1
+
+
+## Label of a word that struck the light of `element`, e.g. "Love light  -9" with a second line
+## when the light was a weak point.
+func light_hit_text(element: StringName, damage: float) -> String:
+	var text := "%s light" % String(element).capitalize()
+	text += ("  -%d" % roundi(damage)) if damage > 0.0 else "  no effect"
+	if is_weak_light(element) and damage > 0.0:
+		var level := SpiritDuel.light_level(duel.opponent_aura, element)
+		text += "\nweak point  x%s" % (
+			str(SpiritDuel.CLOSED_LIGHT_WORD_FACTOR) if level == 0 else str(SpiritDuel.DIM_LIGHT_WORD_FACTOR)
+		)
+	return text
+
+
+## Flash the struck light at `at`, dim it on the opponent's aura and float the hit label.
+func mark_light_hit(element: StringName, at: Vector3, damage: float) -> void:
+	if arena_3d == null:
+		return
+	var color: Color = SpiritSpellCard.ELEMENT_COLORS.get(
+		String(element), SpiritSpellCard.NEUTRAL_COLOR
+	)
+	var flash := OmniLight3D.new()
+	flash.name = "LightHitFlash"
+	flash.light_color = color
+	flash.light_energy = 4.0
+	flash.omni_range = 1.8
+	var glow := MeshInstance3D.new()
+	glow.name = "LightHitGlow"
+	var quad := QuadMesh.new()
+	quad.size = Vector2(0.9, 0.9)
+	glow.mesh = quad
+	var material := VfxParts.glow_material().duplicate() as StandardMaterial3D
+	material.billboard_mode = BaseMaterial3D.BILLBOARD_ENABLED
+	material.proximity_fade_enabled = false
+	material.no_depth_test = true
+	material.albedo_color = color.lightened(0.3)
+	glow.material_override = material
+	glow.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	var label := Label3D.new()
+	label.name = "LightHitLabel"
+	label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	label.no_depth_test = true
+	label.pixel_size = 0.004
+	label.font_size = 52
+	label.outline_size = 16
+	# The duel grade desaturates the 3D world, so the text stays near white and carries the
+	# light's colour in its outline to stay readable against the indigo hall.
+	label.outline_modulate = Color(color.darkened(0.45), 0.95)
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	label.modulate = Color(1.0, 0.97, 0.9).lerp(color, 0.25)
+	label.text = light_hit_text(element, damage)
+	for node: Node3D in [flash, glow, label]:
+		arena_3d.add_child(node)
+	flash.global_position = at
+	glow.global_position = at
+	label.global_position = at + HIT_MARK_OFFSET
+	_hit_marks.append({"flash": flash, "glow": glow, "label": label, "at": at, "left": HIT_MARK_SEC})
+	if is_instance_valid(opponent_aura_view) and damage > 0.0:
+		opponent_aura_view.dim_light(SpiritDuel.light_for_element(element))
+
+
+## Hit marks currently floating (tests and captures read their labels).
+func hit_mark_texts() -> Array[String]:
+	var texts: Array[String] = []
+	for mark: Dictionary in _hit_marks:
+		if is_instance_valid(mark["label"]):
+			texts.append((mark["label"] as Label3D).text)
+	return texts
+
+
+func _tick_hit_marks(delta: float) -> void:
+	var alive: Array[Dictionary] = []
+	for mark: Dictionary in _hit_marks:
+		mark["left"] = float(mark["left"]) - delta
+		var nodes: Array[Node3D] = [mark["flash"], mark["glow"], mark["label"]]
+		if float(mark["left"]) <= 0.0:
+			for node: Node3D in nodes:
+				if is_instance_valid(node):
+					node.queue_free()
+			continue
+		alive.append(mark)
+		var t := 1.0 - float(mark["left"]) / HIT_MARK_SEC
+		var at: Vector3 = mark["at"]
+		if is_instance_valid(mark["flash"]):
+			(mark["flash"] as OmniLight3D).light_energy = 4.0 * (1.0 - t)
+		if is_instance_valid(mark["glow"]):
+			var glow := mark["glow"] as MeshInstance3D
+			glow.scale = Vector3.ONE * lerpf(0.6, 1.6, t)
+			var material := glow.material_override as StandardMaterial3D
+			material.albedo_color.a = 1.0 - t
+		if is_instance_valid(mark["label"]):
+			var label := mark["label"] as Label3D
+			if label.is_inside_tree():
+				label.global_position = at + HIT_MARK_OFFSET + Vector3.UP * HIT_MARK_RISE * t
+			label.modulate.a = 1.0 if t < 0.6 else (1.0 - t) / 0.4
+	_hit_marks = alive
+
+
+func _build_end_banner() -> void:
+	var center := CenterContainer.new()
+	center.name = "EndBanner"
+	center.set_anchors_preset(Control.PRESET_FULL_RECT)
+	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	center.visible = false
+	add_child(center)
+	var column := VBoxContainer.new()
+	column.alignment = BoxContainer.ALIGNMENT_CENTER
+	column.add_theme_constant_override("separation", 10)
+	center.add_child(column)
+	_end_title = Label.new()
+	_end_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_end_title.add_theme_font_size_override("font_size", 56)
+	_end_title.add_theme_constant_override("outline_size", 14)
+	_end_title.add_theme_color_override("font_outline_color", Color(0.03, 0.02, 0.06, 0.95))
+	column.add_child(_end_title)
+	_end_subtitle = Label.new()
+	_end_subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_end_subtitle.add_theme_font_size_override("font_size", 24)
+	_end_subtitle.add_theme_constant_override("outline_size", 10)
+	_end_subtitle.add_theme_color_override("font_outline_color", Color(0.03, 0.02, 0.06, 0.95))
+	column.add_child(_end_subtitle)
+	_end_banner = center
+
+
+## The end of the duel as one clear beat in the middle of the screen (R-1764).
+func _show_end_banner(title: String, subtitle: String, color: Color) -> void:
+	_end_title.text = title
+	_end_title.add_theme_color_override("font_color", color)
+	_end_subtitle.text = subtitle
+	_end_banner.visible = true
+	_end_banner.modulate.a = 0.0
+	if is_inside_tree():
+		create_tween().tween_property(_end_banner, "modulate:a", 1.0, 0.4)
+	else:
+		_end_banner.modulate.a = 1.0
+
+
+func _hide_end_banner() -> void:
+	_win_close_left = -1.0
+	if _end_banner != null:
+		_end_banner.visible = false
+
+
+## The end banner's title, "" while it is hidden.
+func end_banner_text() -> String:
+	return _end_title.text if _end_banner != null and _end_banner.visible else ""

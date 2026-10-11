@@ -11,11 +11,13 @@ direction and review. When they disagree, the record wins.
 
 ## Shape
 
-Three sequences, twelve shots, roughly four minutes unskipped.
+New Game opens directly in the almshouse. The still-image vision of chapter I was removed on
+2026-10-11 (task **R-1763**) and will be remade as video; its script and prompts are kept in
+[`OPENING_VISION_VIDEO_BRIEF.md`](OPENING_VISION_VIDEO_BRIEF.md).
 
 ```
 Main menu - Start
-  └─ I.  The Forging of Chains      cutscene.prologue.conquest       6 shots   1219 → spring 1343
+  └─ I.  The Forging of Chains      (removed, to be remade as video)
       └─ II. The almshouse           cutscene.prologue.almshouse_dawn 3 shots
           ├─ observed duel           dialogue.prologue.almshouse_quarrel
           ├─ first own duel          dialogue.prologue.porter_confrontation
@@ -39,6 +41,9 @@ will later meet; the shot list does not support it and ADR 0033 removed the ance
 blood-debt frame that would have.
 
 ## I. The Forging of Chains
+
+Status: removed from the game (R-1763); the table below is the beat sheet for the video remake.
+
 
 Grade `memory_cold`. Attested history, told as grievance. The Dannebrog banner is presented
 explicitly as a story the Danes told about themselves (`folklore` in
@@ -86,7 +91,7 @@ that motion - no fade.
 
 ## Art status
 
-Chapter I was generated with OpenAI `gpt-image-1` and is final. Chapters II and III are
+Chapter I's stills (OpenAI `gpt-image-1`) and narration were deleted with R-1763. Chapters II and III are
 Leonardo.ai fallbacks made after the OpenAI credit ran out mid-run; they are marked
 `provisional` in `assets/SOURCES.csv` and are listed under **Limits** in
 [`docs/SYSTEMS/CUTSCENES.md`](../docs/SYSTEMS/CUTSCENES.md) with their specific defects. The

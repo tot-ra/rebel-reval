@@ -9,7 +9,11 @@ const CONTENT_DIRS: Array[String] = [
 	"res://content/examples/valid",
 	"res://content/examples/support",
 ]
-const CONQUEST := &"cutscene.prologue.conquest"
+## R-1763 removed the only narrated sequence (the conquest vision); the voice and underscore
+## tests run on a copy of TAKEN_IN with a take and a music cue patched in.
+## Two takes alternate so advancing visibly swaps the stream.
+const FIXTURE_VOICES: Array[String] = ["res://sounds/door.mp3", "res://sounds/water/submerge.mp3"]
+const FIXTURE_MUSIC := "res://music/intro/The Weight of Centuries.mp3"
 const ALMSHOUSE := &"cutscene.prologue.almshouse_dawn"
 const TAKEN_IN := &"cutscene.prologue.taken_in"
 
@@ -31,6 +35,22 @@ func after_each() -> void:
 	super.after_each()
 
 
+## TAKEN_IN with a voice take on every line and a quiet underscore on the first shot.
+func _voiced_player() -> CutscenePlayer:
+	var record: Dictionary = _db.get_cutscene(TAKEN_IN).duplicate(true)
+	var take := 0
+	for shot: Dictionary in record["shots"]:
+		for line: Dictionary in shot.get("lines", []):
+			line["voice"] = FIXTURE_VOICES[take % FIXTURE_VOICES.size()]
+			take += 1
+	record["shots"][0]["sound"] = {"music": FIXTURE_MUSIC, "ambience": "", "music_volume_db": -11.0}
+	var player := CutscenePlayer.new()
+	player.auto_continue = false
+	_root.add_child(player)
+	player.play(CutsceneSequence.from_record(record))
+	return player
+
+
 func _player(cutscene_id: StringName) -> CutscenePlayer:
 	var player := CutscenePlayer.new()
 	player.auto_continue = false
@@ -40,23 +60,22 @@ func _player(cutscene_id: StringName) -> CutscenePlayer:
 
 
 func test_prologue_records_load_as_cutscenes() -> void:
-	for cutscene_id: StringName in [CONQUEST, ALMSHOUSE, TAKEN_IN]:
+	for cutscene_id: StringName in [ALMSHOUSE, TAKEN_IN]:
 		var record := _db.get_cutscene(cutscene_id)
 		assert_false(record.is_empty(), String(cutscene_id))
 		assert_eq(_db.get_record_type(cutscene_id), ContentDB.TYPE_CUTSCENE)
 
 
 func test_sequence_parses_shots_lines_and_chain() -> void:
-	var sequence := CutsceneSequence.from_record(_db.get_cutscene(CONQUEST))
+	var sequence := CutsceneSequence.from_record(_db.get_cutscene(TAKEN_IN))
 	assert_true(sequence != null, "sequence parses")
-	assert_eq(sequence.shot_count(), 6)
-	assert_eq(String(sequence.grade), "memory_cold")
-	assert_eq(String(sequence.shots[0].id), "s01_fleet")
-	assert_true(sequence.shots[0].lines.size() >= 2)
+	assert_eq(sequence.shot_count(), 3)
+	assert_eq(String(sequence.shots[0].id), "s01_door")
+	assert_true(sequence.shots[0].lines.size() >= 1)
 	assert_true(sequence.shots[0].duration() > 0.0)
-	assert_eq(String(sequence.next_target.get("kind", "")), "scene_file")
+	assert_eq(String(sequence.next_target.get("kind", "")), "door")
 	# Captions carry the facts a skipping player must still receive.
-	assert_eq(sequence.captions().size(), 6)
+	assert_eq(sequence.captions().size(), 3)
 
 
 func test_a_missing_record_is_refused_instead_of_half_playing() -> void:
@@ -87,12 +106,12 @@ func test_advance_walks_every_line_then_every_shot() -> void:
 
 
 func test_finished_reports_whether_the_player_skipped() -> void:
-	var player := _player(CONQUEST)
+	var player := _player(TAKEN_IN)
 	var seen: Array = []
 	player.finished.connect(func(id: StringName, skipped: bool) -> void: seen.append([id, skipped]))
 	player.skip()
 	assert_eq(seen.size(), 1)
-	assert_eq(String(seen[0][0]), String(CONQUEST))
+	assert_eq(String(seen[0][0]), String(TAKEN_IN))
 	assert_true(bool(seen[0][1]))
 	assert_false(player.is_playing)
 	# A second skip must not emit again.
@@ -121,7 +140,7 @@ func test_auto_advance_waits_for_the_line_hold() -> void:
 
 
 func test_every_shot_points_at_a_frame_that_exists() -> void:
-	for cutscene_id: StringName in [CONQUEST, ALMSHOUSE, TAKEN_IN]:
+	for cutscene_id: StringName in [ALMSHOUSE, TAKEN_IN]:
 		var sequence := CutsceneSequence.from_record(_db.get_cutscene(cutscene_id))
 		for shot: CutsceneSequence.Shot in sequence.shots:
 			var path := shot.media_path()
@@ -130,7 +149,7 @@ func test_every_shot_points_at_a_frame_that_exists() -> void:
 
 
 func test_voice_take_stretches_the_line_hold_and_stops_on_advance() -> void:
-	var player := _player(CONQUEST)
+	var player := _voiced_player()
 	var line := player.current_shot().lines[0]
 	assert_false(line.voice_path.is_empty(), "narration line carries a voice take")
 	assert_true(player._voice.playing, "voice starts with the line")
@@ -140,13 +159,8 @@ func test_voice_take_stretches_the_line_hold_and_stops_on_advance() -> void:
 	assert_true(player._voice.stream.resource_path != line.voice_path, "next line replaces the take")
 
 
-func test_conquest_narration_is_voiced_and_later_chapters_are_not() -> void:
-	var conquest := CutsceneSequence.from_record(_db.get_cutscene(CONQUEST))
-	for shot: CutsceneSequence.Shot in conquest.shots:
-		for line: CutsceneSequence.Line in shot.lines:
-			assert_true(ResourceLoader.exists(line.voice_path), line.voice_path)
+func test_present_day_chapters_are_not_narrated() -> void:
 	# From spring 1343 the story plays as "now" with no narrator (maintainer decision).
-	assert_true(conquest.shots[conquest.shots.size() - 1].lines.is_empty(), "spring shot has no narration")  # gdlint: ignore=max-line-length
 	for cutscene_id: StringName in [ALMSHOUSE, TAKEN_IN]:
 		for shot: CutsceneSequence.Shot in CutsceneSequence.from_record(_db.get_cutscene(cutscene_id)).shots:  # gdlint: ignore=max-line-length
 			for line: CutsceneSequence.Line in shot.lines:
@@ -154,7 +168,7 @@ func test_conquest_narration_is_voiced_and_later_chapters_are_not() -> void:
 
 
 func test_opening_underscore_starts_quiet_and_fades_out_at_the_end() -> void:
-	var player := _player(CONQUEST)
+	var player := _voiced_player()
 	var shot := player.current_shot()
 	assert_false(shot.music_path.is_empty(), "first shot carries the underscore")
 	assert_true(ResourceLoader.exists(shot.music_path), shot.music_path)

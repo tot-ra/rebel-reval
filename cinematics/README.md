@@ -7,6 +7,7 @@ runtime side is [`docs/SYSTEMS/CUTSCENES.md`](../docs/SYSTEMS/CUTSCENES.md); the
 | Page | Status |
 |---|---|
 | [Prologue screenplay](PROLOGUE.md) | Active - the shipped opening, shot by shot |
+| [Opening vision video brief](OPENING_VISION_VIDEO_BRIEF.md) | Planned - script and prompts for the video remake of the removed conquest vision |
 | [Cutscene prompt grammar](PROMPT_GRAMMAR.md) | Active - binding for every new shot, stills and video |
 | [1-intro.md](1-intro.md), [2-forge.md](2-forge.md) | `reference` - superseded by ADR 0033/0034, do not implement |
 

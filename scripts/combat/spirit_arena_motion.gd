@@ -1,21 +1,21 @@
 class_name SpiritArenaMotion
 extends RefCounted
-## Real-time positions inside a SpiritArena3D (ADR 0038, SA3D-2). The opponent circles,
-## advances or retreats by the move kind of the line it speaks; an incoming blow locks a strike
-## zone on the floor (an arc in front of the opponent for an attack, a circle where the hero
-## stood for pressure and feints). At impact SpiritDuel asks hit_check(): out of the zone is a
-## dodge, and a raised guard counts only while the hero faces the opponent.
+## Real-time positions inside a SpiritArena3D (ADR 0038, SA3D-2). The opponent holds, advances
+## or retreats by the move kind of the line it speaks (R-1764 removed circling: players read
+## the opponent orbiting the hero as an unexplained rotation of the duel). An incoming blow
+## locks a strike zone on the floor (an arc in front of the opponent for an attack, a circle
+## where the hero stood for pressure and feints). At impact SpiritDuel asks hit_check(): out
+## of the zone is a dodge, and a raised guard counts only while the hero faces the opponent.
 ## Deterministic: no randomness, positions advance only through step(delta).
 
 const BEHAVIOUR_HOLD := &"hold"
 const BEHAVIOUR_ADVANCE := &"advance"
 const BEHAVIOUR_RETREAT := &"retreat"
-const BEHAVIOUR_CIRCLE := &"circle"
-## Opponent footwork per move kind of its current line (no move or an unknown kind circles).
+## Opponent footwork per move kind of its current line (no move or an unknown kind holds).
 const BEHAVIOUR_BY_KIND: Dictionary = {
 	&"attack": BEHAVIOUR_ADVANCE,
 	&"pressure": BEHAVIOUR_ADVANCE,
-	&"feint": BEHAVIOUR_CIRCLE,
+	&"feint": BEHAVIOUR_HOLD,
 	&"defense": BEHAVIOUR_RETREAT,
 	&"appeal": BEHAVIOUR_HOLD,
 }
@@ -50,7 +50,7 @@ func _init(on_arena: SpiritArena3D = null) -> void:
 
 ## The opponent speaks a line: its move kind picks the footwork until the next line.
 func set_line(move: Dictionary) -> void:
-	behaviour = BEHAVIOUR_BY_KIND.get(StringName(String(move.get("kind", ""))), BEHAVIOUR_CIRCLE)
+	behaviour = BEHAVIOUR_BY_KIND.get(StringName(String(move.get("kind", ""))), BEHAVIOUR_HOLD)
 
 
 ## Freeze the strike zone of `move` at the fighters' current places (telegraph start).
@@ -128,9 +128,6 @@ func step(delta: float) -> void:
 			distance = maxf(CLOSE_DISTANCE, distance - travel) if distance > CLOSE_DISTANCE else distance
 		BEHAVIOUR_RETREAT:
 			distance = minf(FAR_DISTANCE, distance + travel) if distance < FAR_DISTANCE else distance
-		BEHAVIOUR_CIRCLE:
-			# Counter-clockwise around the hero at the current distance (arc length = travel).
-			away = away.rotated(Vector3.UP, travel / maxf(distance, CLOSE_DISTANCE))
 		_:
 			return
 	var next := hero_position + away * distance

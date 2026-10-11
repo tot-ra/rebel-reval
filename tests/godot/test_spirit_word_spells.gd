@@ -180,6 +180,43 @@ func _run_sequence() -> Array:
 	return trace
 
 
+
+## R-1764: a word flies at the opponent's soul light of its colour and, on arrival, marks it
+## with a label naming the light and the pressure it dealt.
+func test_a_landed_word_marks_the_soul_light_it_struck() -> void:
+	var aim := _host.light_target(&"faith")
+	assert_true(_host.cast_word(SLOT_FAITH))
+	var bolt := _host.arena_3d.find_children("WordBolt_faith*", "Node3D", true, false)
+	assert_eq(bolt.size(), 1)
+	if aim != Vector3.INF:
+		assert_true((bolt[0] as SpiritWordBolt).to.is_equal_approx(aim), "aimed at the faith light")
+	_host._process(1.0)
+	var marks := _host.hit_mark_texts()
+	assert_eq(marks.size(), 1)
+	assert_true(marks[0].begins_with("Faith light  -"), marks[0])
+	_host._process(SpiritArenaHost.HIT_MARK_SEC + 0.1)
+	assert_eq(_host.hit_mark_texts().size(), 0, "the mark fades out")
+
+
+func test_a_closed_light_is_flagged_weak_on_the_cast_bar_and_the_hit() -> void:
+	var aura := SpiritAuraProfile.new()
+	for light: StringName in SpiritAuraProfile.LIGHT_IDS:
+		aura.levels[light] = 2
+	aura.levels[SpiritDuel.light_for_element(&"faith")] = 0
+	_host.duel.opponent_aura = aura
+	assert_true(_host.is_weak_light(&"faith"))
+	assert_false(_host.is_weak_light(&"shame"))
+	_host._refresh_cast_bar()
+	assert_true(bool(_host.cast_bar().slots[SLOT_FAITH]["weak"]))
+	assert_false(bool(_host.cast_bar().slots[SLOT_SHAME]["weak"]))
+	assert_true(_host.light_hit_text(&"faith", 9.0).contains("weak point  x1.5"))
+	assert_false(_host.light_hit_text(&"shame", 9.0).contains("weak"))
+
+
+func test_the_hint_explains_the_soul_light_rule() -> void:
+	_to_answer()
+	assert_true(_hint().contains(SpiritArenaHost.LIGHT_RULE_HINT), _hint())
+
 ## Let the opening blow land (the hero stands in it) so the accusation's replies open.
 func _to_answer() -> void:
 	_host._process(SpiritDuel.TELEGRAPH_SEC + 0.01)

@@ -198,6 +198,10 @@ func _mount_arena(staged: AlmshouseStage) -> void:
 		staged, Vector3.ZERO, keep, true, staged.hero(), staged.porter(), 1, AlmshouseStage.ARENA_RADIUS
 	):
 		staged.frame_arena()
+		# R-1764: the porter's visible soul lights are the ones the duel scores, so a word into
+		# a dim light really lands harder (SS-5); without this the duel used a neutral soul.
+		if is_instance_valid(_host.opponent_aura_view) and _host.opponent_aura_view.profile != null:
+			_host.opponent_aura = _host.opponent_aura_view.profile
 
 
 ## The hall has no Player (whose SpiritSight child the city uses), so the opening owns one for

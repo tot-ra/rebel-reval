@@ -3,7 +3,8 @@ extends Control
 ## Compact cast bar of the real-time 3D arena (ADR 0038, SA3D-3), replacing the reply-card hotbar
 ## there: one small element-coloured tile per word-spell slot with its initial, its slot key, a
 ## dark cooldown sweep that unwinds clockwise, a gold rim on the slots whose word answers the
-## opponent now, and a dimmed tile when the word cannot be cast (no willpower, duel over).
+## opponent now, a dimmed tile when the word cannot be cast (no willpower, duel over), and a
+## "weak" tag over a word aimed at a closed or ember soul light of the opponent (R-1764).
 ## Procedural `_draw` only, no texture assets (P0-040).
 
 const TILE := 46.0
@@ -11,8 +12,9 @@ const GAP := 8.0
 const ANSWER_RIM := Color(1.0, 0.82, 0.36)
 const SWEEP_COLOR := Color(0.0, 0.0, 0.0, 0.62)
 const SWEEP_SEGMENTS := 24
+const WEAK_COLOR := Color(1.0, 0.95, 0.75)
 
-## Per slot: {element, key, cooldown (0..1), answers (bool), blocked (bool)}.
+## Per slot: {element, key, cooldown (0..1), answers (bool), blocked (bool), weak (bool)}.
 var slots: Array[Dictionary] = []
 
 
@@ -46,6 +48,8 @@ func _draw() -> void:
 			_draw_sweep(rect, cooldown)
 		var rim := ANSWER_RIM if bool(slot.get("answers", false)) else Color(0.0, 0.0, 0.0, 0.7)
 		draw_rect(rect, rim, false, 3.0 if bool(slot.get("answers", false)) else 1.0)
+		if bool(slot.get("weak", false)):
+			draw_string(font, rect.position + Vector2(0.0, -4.0), "weak", HORIZONTAL_ALIGNMENT_CENTER, TILE, 12, WEAK_COLOR)  # gdlint: ignore=max-line-length
 		draw_string(
 			font,
 			rect.position + Vector2(0.0, TILE + 14.0),

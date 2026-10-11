@@ -1,10 +1,9 @@
 extends "res://tests/godot/test_case.gd"
 
-## ADR 0033 / ADR 0034: New Game opens on the historical prologue cutscene, which chains
-## into the almshouse; the sequence reaches the forge.
+## ADR 0033: New Game opens in the almshouse (the conquest vision was removed, R-1763);
+## the sequence reaches the forge.
 
 const OPENING_SCENE := preload("res://scenes/prologue/almshouse_opening.tscn")
-const CUTSCENE_SCENE := "res://scenes/cutscene/prologue_opening.tscn"
 const ALMSHOUSE_SCENE := "res://scenes/prologue/almshouse_opening.tscn"
 
 
@@ -16,20 +15,12 @@ func _opening() -> AlmshouseOpening:
 	return opening
 
 
-func test_start_label_routes_new_game_to_the_opening_cutscene() -> void:
+func test_start_label_routes_new_game_straight_to_the_almshouse() -> void:
 	var script: GDScript = load("res://scenes/intro/start_label.gd")
-	assert_eq(script.get_script_constant_map()["OPENING_SCENE"], CUTSCENE_SCENE)
-	assert_true(ResourceLoader.exists(CUTSCENE_SCENE))
-
-
-func test_the_opening_cutscene_chains_into_the_almshouse() -> void:
-	# The chain lives in the record, not in code, so assert the record points at the scene.
-	var record := SessionState.content_db.get_cutscene(&"cutscene.prologue.conquest")
-	assert_false(record.is_empty(), "conquest cutscene is loaded in the session")
-	var next_target: Dictionary = record.get("next", {})
-	assert_eq(String(next_target.get("kind", "")), "scene_file")
-	assert_eq(String(next_target.get("scene_path", "")), ALMSHOUSE_SCENE)
+	assert_eq(script.get_script_constant_map()["OPENING_SCENE"], ALMSHOUSE_SCENE)
 	assert_true(ResourceLoader.exists(ALMSHOUSE_SCENE))
+	# R-1763: the still-image vision is gone until its video remake.
+	assert_true(SessionState.content_db.get_cutscene(&"cutscene.prologue.conquest").is_empty())
 
 
 func test_the_prologue_content_is_loaded_in_the_session() -> void:
@@ -53,7 +44,8 @@ func test_the_opening_runs_title_spell_duel_and_kalev_then_finishes() -> void:
 	# Every reply is a cast: the spell lands pressure on the porter and spends willpower.
 	var willpower_before := SessionState.state.get_magic_resource(GameState.MAGIC_RESOURCE_WILLPOWER)
 	assert_true(duel.answer("fire_hands"), "cast fireball")
-	assert_true(duel.opponent.health < SpiritDuel.PRESSURE_MAX - 18.0, "spell + reply hurt him")
+	# R-1764: the porter's own soul lights size his pressure pool, so compare with his maximum.
+	assert_true(duel.opponent.health < duel.opponent.max_health - 18.0, "spell + reply hurt him")
 	assert_true(SessionState.state.get_magic_resource(GameState.MAGIC_RESOURCE_WILLPOWER) < willpower_before)  # gdlint: ignore=max-line-length
 	duel.tick(SpiritDuel.TELEGRAPH_SEC + 0.01)
 	assert_true(duel.answer("still_duty"), "cast earth tremor")
@@ -80,6 +72,40 @@ func test_the_opening_runs_title_spell_duel_and_kalev_then_finishes() -> void:
 	assert_false(SessionState.state.in_spirit_world)
 	opening.free()
 
+
+
+## R-1764: the won duel shows a clear banner and hands over to Kalev on its own.
+func test_a_won_duel_shows_the_banner_and_moves_on_without_a_keypress() -> void:
+	var opening := _opening()
+	opening.begin_duel()
+	var host := opening.host()
+	var duel := host.duel
+	for reply: String in ["fire_hands", "still_duty", "still_mercy"]:
+		duel.tick(SpiritDuel.TELEGRAPH_SEC + 0.01)
+		assert_true(duel.answer(reply), reply)
+	assert_eq(duel.phase, SpiritDuel.PHASE_WON)
+	assert_eq(host.end_banner_text(), "The duel is won")
+	host._process(SpiritArenaHost.WIN_AUTO_CLOSE_SEC * 0.5)
+	assert_true(host.is_open(), "the win holds for a beat")
+	assert_eq(opening.stage, AlmshouseOpening.STAGE_CONFRONTATION)
+	host._process(SpiritArenaHost.WIN_AUTO_CLOSE_SEC)
+	assert_eq(opening.stage, AlmshouseOpening.STAGE_KALEV, "closed itself and Kalev walks in")
+	opening.free()
+
+
+## R-1764: on the staged porter a word flies at his soul light of its colour, and the duel
+## scores the same lights the player sees.
+func test_words_aim_at_the_porters_soul_lights() -> void:
+	var opening := _opening()
+	opening.begin_duel()
+	var host := opening.host()
+	assert_true(host.opponent_aura != null, "the porter's visible aura feeds the duel")
+	var view := host.opponent_aura_view
+	assert_true(view != null)
+	var love := SpiritAuraProfile.LIGHT_IDS.find(SpiritDuel.light_for_element(&"love"))
+	assert_true(host.light_target(&"love").is_equal_approx(view.anchors[love]))
+	assert_false(host.light_target(&"love").is_equal_approx(host.light_target(&"faith")))
+	opening.free()
 
 func test_a_spell_reply_without_willpower_is_refused_and_leaves_the_choice_open() -> void:
 	var opening := _opening()

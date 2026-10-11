@@ -5,7 +5,7 @@ extends Node
 ## its own script. Set `sequence_id` in the scene; the record's `next` block decides
 ## what runs afterwards.
 
-## Content ID of the cutscene to play, e.g. cutscene.prologue.conquest.
+## Content ID of the cutscene to play, e.g. cutscene.prologue.taken_in.
 @export var sequence_id: StringName = &""
 ## Scene to fall back to when the record is missing, so a content error never strands
 ## the player on an empty screen.

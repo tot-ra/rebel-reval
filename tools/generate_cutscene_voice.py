@@ -44,12 +44,11 @@ CINEMATIC = "[dramatic]"
 HEAVY = "[sorrowful]"
 DEFIANT = "[bitter]"
 # (cutscene id, shot, line) -> emotion tag; anything not listed falls back by sequence below.
-LINE_OVERRIDES = {
-    ("cutscene.prologue.conquest", "s05_tax", "l2"): DEFIANT,
-}
-# Only these sequences are voiced. The conquest prologue is a narrator telling history; from
-# spring 1343 on the story is "now" and plays without a voice-over (maintainer decision).
-SEQUENCE_DEFAULTS = {"cutscene.prologue.conquest": HEAVY}
+LINE_OVERRIDES: dict[tuple[str, str, str], str] = {}
+# Only these sequences are voiced. The narrated conquest vision was removed (R-1763) and will
+# be remade as video (cinematics/OPENING_VISION_VIDEO_BRIEF.md); from spring 1343 on the story
+# is "now" and plays without a voice-over (maintainer decision), so nothing is voiced today.
+SEQUENCE_DEFAULTS: dict[str, str] = {}
 
 
 def settings_for(cutscene_id: str, shot_id: str, line_id: str) -> str:

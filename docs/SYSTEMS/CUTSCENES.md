@@ -1,6 +1,6 @@
 # Cutscenes
 
-**Status:** implemented (tasks **R-1316**, **R-1317**, **R-1318**, **R-1331**; [ADR 0034](../adr/0034-cutscene-mode-and-cinematic-prologue.md))
+**Status:** implemented (tasks **R-1316**, **R-1317**, **R-1318**, **R-1331**; opening vision removed by **R-1763**; [ADR 0034](../adr/0034-cutscene-mode-and-cinematic-prologue.md))
 
 Authored cinematic sequences played as a dedicated mode: a letterboxed frame with a slow
 camera move, a place-and-date caption, a speaker plate, and a chain to whatever runs next.
@@ -14,10 +14,13 @@ and menu replay of a seen cutscene.
 
 ## What the player sees and does
 
-New Game opens on **I. The Forging of Chains**: six shots from the Danish landing at
-Lyndanisse in 1219 to Reval in spring 1343, narrated. It chains into the almshouse scene,
-whose text title card is now **II. The almshouse of the Holy Spirit** (three shots, ending
-on the matron and the porter starting their quarrel), and after Kalev takes the apprentice
+New Game opens directly in the almshouse scene (year card, then the porter duel). The
+narrated still-image vision **I. The Forging of Chains** (six shots, 1219 to spring 1343) was
+removed on 2026-10-11 (**R-1763**, maintainer decision): it will be remade as video, and its
+script and prompts are kept in
+[`cinematics/OPENING_VISION_VIDEO_BRIEF.md`](../../cinematics/OPENING_VISION_VIDEO_BRIEF.md).
+The record `cutscene.prologue.almshouse_dawn` (**II. The almshouse of the Holy Spirit**) stays
+in content but is not played by the shortened opening, and after Kalev takes the apprentice
 **III. The forge** (three shots) walks the boy to the forge door.
 
 | Input | Effect |
@@ -39,8 +42,7 @@ written for each shot.
 | `scripts/cutscene/cutscene_sequence.gd` (`CutsceneSequence`) | typed parse of a `cutscene` record into shots and lines; refuses a malformed record by returning `null` |
 | `scripts/cutscene/cutscene_player.gd` (`CutscenePlayer`) | `CanvasLayer` that presents the sequence, handles input and timing, and follows the `next` chain |
 | `scripts/cutscene/cutscene_scene_host.gd` (`CutsceneSceneHost`) | makes a sequence a `change_scene_to_file` target via an exported `sequence_id` |
-| `scenes/cutscene/prologue_opening.tscn` | the New Game entry point, playing `cutscene.prologue.conquest` |
-| `scenes/intro/start_label.gd` | main-menu **Start** points at the scene above |
+| `scenes/intro/start_label.gd` | main-menu **Start** opens `res://scenes/prologue/almshouse_opening.tscn` |
 | `scripts/prologue/almshouse_opening.gd` | plays the almshouse and forge sequences around the spirit duels |
 
 `CutscenePlayer` runs with `PROCESS_MODE_ALWAYS` and does not pause the tree, so it works
@@ -55,7 +57,6 @@ and are loaded by `ContentDB` through `SessionState.DEMO_CONTENT_DIRS`. Schema:
 
 | ID | Shots | Chain target |
 |---|---|---|
-| `cutscene.prologue.conquest` | 6 | `scene_file` → `res://scenes/prologue/almshouse_opening.tscn` |
 | `cutscene.prologue.almshouse_dawn` | 3 | `return` (the host scene continues) |
 | `cutscene.prologue.taken_in` | 3 | `door` → scene `reval_city`, spawn `kalev_smithy` |
 
@@ -91,7 +92,7 @@ JPEG; at roughly 0.5 MB each the set stays well under the 10 MiB Git LFS thresho
 
 ## Narration voice (R-1331)
 
-Only the conquest prologue (`cutscene.prologue.conquest`, shots 1-5) is narrated: from the spring 1343 shot on the story is "now" and plays without a voice-over (maintainer decision), so chapters II and III and the spring shot carry text or captions only. A line may carry an optional `voice` (`res://assets/audio/cutscene_voice/<sequence>/<shot>_<line>.mp3`).
+No shipped sequence is narrated today: the only narrated one, the conquest vision, was removed with its takes (**R-1763**), and from spring 1343 on the story is "now" and plays without a voice-over (maintainer decision), so chapters II and III carry text or captions only. The voice path below stays for the video remake; `tests/godot/test_cutscene_player.gd` exercises it on a patched copy of `cutscene.prologue.taken_in`. A line may carry an optional `voice` (`res://assets/audio/cutscene_voice/<sequence>/<shot>_<line>.mp3`).
 `CutscenePlayer` plays it on the `Voice` bus when the line starts, stops it when the line
 is advanced or skipped, and holds auto-advance until the take ends plus a 0.9 s tail (1.8 s when the line closes a shot) and never advances while audio is still playing (the
 authored `seconds` is the floor). A missing file degrades to the silent timed line.
@@ -119,9 +120,10 @@ fade-in, at `sound.music_volume_db` (default -16 dB, kept well under the narrato
 bus; tune it per shot). It keeps playing across the following shots (an empty `music` leaves
 it alone; a different path replaces it) and fades out over 3 s when the sequence ends or is
 skipped. The fade runs on the tree root so a scene change cannot cut it. The main-menu theme is
-crossfaded out by `MusicDirector` as soon as the cutscene scene loads. Shipped: *The Weight of
-Centuries* (`music/intro/`, prompt in `music/README.md`) starts with shot `s01_fleet` of
-`cutscene.prologue.conquest` at -11 dB, while the narration is trimmed by -4 dB (`VOICE_DB` in `CutscenePlayer`). Player Music-bus volume from settings still applies on top.
+crossfaded out by `MusicDirector` as soon as the cutscene scene loads. *The Weight of
+Centuries* (`music/intro/`, prompt in `music/README.md`) scored the removed conquest vision at
+-11 dB and is kept for the video remake; no shipped sequence sets `sound.music` now. Narration
+is trimmed by -4 dB (`VOICE_DB` in `CutscenePlayer`). Player Music-bus volume from settings still applies on top.
 
 ## Saved state
 
@@ -154,17 +156,17 @@ file that does not exist.
 
 ## Limits
 
-- **Only the opening is scored.** `sound.ambience` is in the schema and unused; only the
-  conquest prologue has music and narration. The voice is one narrator for every line, not yet
-  auditioned by a maintainer, so the takes are `draft`.
+- **Nothing is scored or narrated.** `sound.ambience` is in the schema and unused; the conquest
+  vision, the only sequence with music and narration, was removed (**R-1763**) pending its video
+  remake.
 - **Not localized.** Captions and lines are authored English strings in the record. The
   dialogue-localization route does not cover them yet.
 - **No menu replay.** ADR 0034 calls for replaying a seen prologue from the main menu; not
   built.
 - **Chapters II and III art is provisional.** The OpenAI image credit ran out during
   **R-1318**, so those six frames are Leonardo.ai fallbacks and are marked `provisional` in
-  `assets/SOURCES.csv`. They are visibly softer than the six `gpt-image-1` frames of chapter
-  I and contain minor anachronisms (an overhead wire in `prologue_taken_in/s02_street.jpg`,
+  `assets/SOURCES.csv`. They are visibly softer than the removed `gpt-image-1` frames of
+  chapter I and contain minor anachronisms (an overhead wire in `prologue_taken_in/s02_street.jpg`,
   modern-looking footwear in `s01_door.jpg`, window glazing bars in the almshouse frames).
   Regeneration is tracked as **R-1330**; the prompts to re-run are already in the records.
 - **No video tier.** `video` is parsed and preferred over `still` when set, but no shot sets
