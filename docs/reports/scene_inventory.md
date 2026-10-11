@@ -251,3 +251,16 @@ Both commands should print `135` on a clean checkout at this revision.
 | 168 | `tools/capture_hud_gameplay_host.tscn` | partial | Developer capture host for HUD gameplay plates (R-1698); not player-facing. |
 | 169 | `tools/capture_city_painted_iso.tscn` | partial | Developer capture tool (R-1744 painted-iso camera preset and roof cutaway). |
 | 170 | `tools/capture_city_lighting.tscn` | partial | Developer capture tool (R-1748 city lighting before/after plates at 10h, 18h and after rain). |
+| 171 | `tools/capture_forge_brawl.tscn` | partial | Developer capture tool (R-1754..R-1756 forge weapon row, pickup and equip, citizen brawl plates). |
+| 172 | `assets/props/weapons/arming_sword/arming_sword_ground.tscn` | working | Forge arming sword leaning display shown as a world pickup in Kalev's smithy (R-1754). |
+| 173 | `assets/props/weapons/arming_sword/arming_sword_held.tscn` | working | Forge arming sword hand-slot equipment scene on the shared rig (R-1754). |
+| 174 | `assets/props/weapons/bearded_axe/bearded_axe_ground.tscn` | working | Forge bearded axe leaning display shown as a world pickup in Kalev's smithy (R-1754). |
+| 175 | `assets/props/weapons/bearded_axe/bearded_axe_held.tscn` | working | Forge bearded axe hand-slot equipment scene on the shared rig (R-1754). |
+| 176 | `assets/props/weapons/heater_shield/heater_shield_ground.tscn` | working | Forge heater shield leaning display shown as a world pickup in Kalev's smithy (R-1754). |
+| 177 | `assets/props/weapons/heater_shield/heater_shield_held.tscn` | working | Forge heater shield hand-slot equipment scene on the shared rig (R-1754). |
+| 178 | `assets/props/weapons/longbow/longbow_ground.tscn` | working | Forge longbow leaning display shown as a world pickup in Kalev's smithy (R-1754). |
+| 179 | `assets/props/weapons/longbow/longbow_held.tscn` | working | Forge longbow hand-slot equipment scene on the shared rig (R-1754). |
+| 180 | `assets/props/weapons/spear/spear_ground.tscn` | working | Forge spear leaning display shown as a world pickup in Kalev's smithy (R-1754). |
+| 181 | `assets/props/weapons/spear/spear_held.tscn` | working | Forge spear hand-slot equipment scene on the shared rig (R-1754). |
+| 182 | `assets/props/weapons/war_hammer/war_hammer_ground.tscn` | working | Forge war hammer leaning display shown as a world pickup in Kalev's smithy (R-1754). |
+| 183 | `assets/props/weapons/war_hammer/war_hammer_held.tscn` | working | Forge war hammer hand-slot equipment scene on the shared rig (R-1754). |

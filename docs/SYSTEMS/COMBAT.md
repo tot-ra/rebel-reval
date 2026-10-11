@@ -1,6 +1,6 @@
 # Combat runtime
 
-Status: foundation implemented (tasks **P1-024..P1-027**, **P2-009**, **P5-008**, **R-722/R-725**); tower boss encounters are modelled and tested but not wired into their interior scenes (see [Limits](#limits)). Scope: vitals, defense, melee resolution, enemy AI, encounter outcomes and retry, forge techniques, mission allies, boss encounter packages. Related:
+Status: foundation implemented (tasks **P1-024..P1-027**, **P2-009**, **P5-008**, **R-722/R-725**); forge weapon set, axe/bow/shield classes and brawls with citizens implemented (tasks **R-1754**, **R-1755**, **R-1756**); tower boss encounters are modelled and tested but not wired into their interior scenes (see [Limits](#limits)). Scope: vitals, defense, melee resolution, enemy AI, encounter outcomes and retry, forge techniques, mission allies, boss encounter packages. Related:
 
 - Design contract for hammer combat and night missions: [`COMBAT_NIGHT.md`](./COMBAT_NIGHT.md).
 - Kalev's move sets, chains, evasion, and animation timing: [`COMBAT_ANIMATION.md`](./COMBAT_ANIMATION.md).
@@ -14,6 +14,8 @@ Status: foundation implemented (tasks **P1-024..P1-027**, **P2-009**, **P5-008**
 - Enemies telegraph before striking, retreat when wounded unless cornered, and disengage past their leash.
 - Losing a fight restores the encounter checkpoint: narrative progress made before the fight survives, the fight restarts.
 - Encounters can close lethally or non-lethally (surrender, flee, bypass, talk). Both paths write the same quest state vocabulary.
+- Six forge weapons (sword, bow, spear, shield, axe, war hammer) lean against the forge wall; pick them up, equip them from the bag, and fight with each ([Forge weapon set](#forge-weapon-set)).
+- Every city resident has health and stamina. Strike one and a physical fight starts: men fight back, others run ([Brawls with citizens](#brawls-with-citizens)).
 - **Forge techniques** (quick menu **Iron**): one equipped technique, `Iron`, `Ember`, or `Root`. Iron pierces a braced guard outside the parry window.
 
 ## Runtime pieces
@@ -33,6 +35,65 @@ Status: foundation implemented (tasks **P1-024..P1-027**, **P2-009**, **P5-008**
 | `ForgeTechnique` | `scripts/combat/forge_technique.gd` | Technique layer on attack profile and vitals. Never a parallel state machine. |
 | `MissionAllyController`, `MissionAllyScript` | `scripts/combat/` | Scripted Act 2 allies that heal or bolster automatically. No party control. |
 | `PlayerActionStateMachine` | `scripts/player/` | Player action timing ([`COMBAT_ANIMATION.md`](./COMBAT_ANIMATION.md)). |
+
+## Forge weapon set
+
+Status: implemented (tasks **R-1754** models, items and forge pickups; **R-1755** equip and attack per class). Out of scope: arrow ammunition (the bow never runs out), inventory icons, shield bash, enemy use of bows.
+
+**What the player does.** In Kalev's smithy (`loc.kalev_smithy`) six weapons lean against the forge's divider wall, between the finishing bench and the bedroom door. Click one (or stand by it and press interact) to put it in the bag. Open the bag, select the weapon and equip it: sword, axe, war hammer and spear go to the **right hand**, the bow and the shield to the **left hand**. The equipped weapon appears in the hero's hand in the 3D view. Attack as usual (tap for the light chain, hold for the heavy strike, see [`COMBAT_ANIMATION.md`](./COMBAT_ANIMATION.md)).
+
+| Item | Slot | Class | Behaviour |
+|---|---|---|---|
+| `item.forge_arming_sword` | right hand | sword | balanced cut and thrust chain |
+| `item.forge_bearded_axe` | right hand | axe | slow heavy chops; hold for a two-handed cleave |
+| `item.forge_war_hammer` | right hand | hammer | crushing blows; hold for an overhead smash |
+| `item.forge_spear` | right hand | spear | long reach; the heavy lunge pierces a guard |
+| `item.forge_longbow` | left hand (two-handed) | bow | every attack looses an arrow along the facing (~20 m), a three-shot volley; hold for a full draw (more damage, x1.3 range, pierces guard). Equipping it returns the right-hand item to the bag |
+| `item.forge_heater_shield` | left hand | - | while guarding: stamina cost per blocked damage 1.0 -> 0.45, parry window 0.18 -> 0.26 s |
+
+**Runtime pieces.**
+
+| Piece | File | Role |
+|---|---|---|
+| Weapon models | `tools/assets/build_forge_weapons.py` -> `assets/props/weapons/<slug>/<slug>.glb` | Deterministic Blender geometry; origin at the right-hand grip, long axis +Y. Rebuild: `blender --background --factory-startup --python tools/assets/build_forge_weapons.py -- --preview` |
+| Held / world scenes | `assets/props/weapons/<slug>/<slug>_held.tscn`, `<slug>_ground.tscn` | Hand-slot rotation (item `equip.scene`) and the leaning display (item `equip.world_scene`, read by `WorldItemController`) |
+| Forge pickups | `WorldItemController.SEED_GROUPS` (`scripts/world/world_item_controller.gd`) | Seeded once per save under `loc.kalev_smithy#forge_weapons`, so older saves also get the weapons; a taken weapon never respawns. Stable object ids `world.forge_<slug>` |
+| Move sets | `CombatMoveCatalog.CLASS_AXE`, `CLASS_BOW`; clips in `SharedCharacterRig.CANONICAL_ANIMATIONS` | Axe and bow rows in [`COMBAT_ANIMATION.md`](./COMBAT_ANIMATION.md) |
+| Arrow | `scripts/combat/arrow_projectile.gd` (`ArrowProjectile`) | Item `gameplay.ranged` (`range_px`, `speed_px_per_sec`) fills `AttackProfile.ranged_*`; `Player._on_attack_impact` looses an arrow instead of a melee pulse. Straight, deterministic flight; stops at the first wall (physics frames only) or the first actor on its path; hits record guilt like a blow. `MapViewMagicVfx.play_arrow` draws the shaft |
+| Shield | `scripts/combat/shield_guard.gd` (`ShieldGuard`) | Item `gameplay.shield_guard` replaces `CombatVitals.guard_stamina_per_damage` and `parry_window_sec` right before each incoming hit |
+
+**Data.** Schema fields in [`schemas/item.schema.json`](../../schemas/item.schema.json): `weapon_class` now also `axe` and `bow`; `ranged`; `shield_guard`; `two_handed` (`GameState.equip_from_bag` frees the other hand); `equip.world_scene`. Assets are listed in `assets/SOURCES.csv` (`assets.props.weapons.*`).
+
+**Save/load.** Picked-up and equipped weapons use the existing bag, equipment and world-item persistence; the seed-group flag is saved in `world_defaults_seeded`.
+
+**Verify.** `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_forge_weapons`; visual grip check `tools/godot_render.sh --script tools/capture_forge_weapons.gd` (writes `docs/reports/images/combat/forge_weapons/`, summarised in `grip_sheet.jpg`); gameplay capture of the forge row, pickup and equip, and a city brawl: `tools/godot_render.sh --resolution 1600x900 res://tools/capture_forge_brawl.tscn -- --city-spawn=poi.forum --city-hour=11`.
+
+## Brawls with citizens
+
+Status: implemented (task **R-1756**). Scope: census residents in the seamless city (`CityCitizens`). Out of scope: named NPCs (`CityNamedNpcs`) and ambient site workers, guards joining a fight, Living City Fear, legal consequences, saving injuries or the fallen (they last for the session), body looting.
+
+**What the player does.** Swing a weapon (or fists) or shoot an arrow at any resident. Nothing happens to people you do not actually hit: clicking a resident still opens the information panel, and a peaceful resident never attracts soft-lock or click attacks. Once struck:
+
+- **Men aged 16-55, and anyone on watch duty, fight back.** They close in, telegraph (guard pose), strike, back off when badly hurt, and give up when the hero is more than 10 m away. Townsmen punch; the watch uses its spear or sword. Their blows go through the hero's guard, parry and dodge.
+- **Women, children and the elderly run** directly away for up to 7 s (or until 10 m away), then walk back to where their day should take them.
+- Health and stamina bars hover over anyone fighting or fleeing (health on top, stamina below). Attacks cost the resident stamina; a winded resident cannot strike until it recovers.
+- At 0 health the resident falls (`fall`) and stays down where they fell for the session, even after walking away and coming back.
+
+**Stats.** `CitizenBrawler.stats_for(record)`: health 60 (men) or 45 (women), 25 for children under 14, -20 over 60; build +-; heavy trades (smith, brickmaker, porter, mason, ...) +10 health and stamina and harder punches; the watch kit +15. Deterministic from `content/world/reval_city/citizens.json`.
+
+**Runtime pieces.**
+
+| Piece | File | Role |
+|---|---|---|
+| `CitizenBrawler` | `scripts/city/citizen_brawler.gd` | Per-resident `CombatVitals`, mode (calm, fight, flee, return, down), the shared `EnemyCombatStateMachine` with a `enemy.townsman` archetype. Created lazily on the first blow |
+| `CitizenActor` | `scripts/city/citizen_actor.gd` | `take_damage`, `guilt_context`, `is_combat_dead`; health/stamina properties for the bars; while a brawl owns it, it moves by the fight (walls collide) instead of the timetable |
+| `CityCitizens` | `scripts/city/city_citizens.gd` | Keeps brawlers by resident index while bodies are pooled, ends a fight broken off by distance, lays the fallen back down, adds and removes the bars |
+| Bystander group | `MeleeAttackResolver.BYSTANDER_GROUP` (`combat_bystander`) | Peaceful residents: hit by real swings and arrows, ignored by `PlayerPrimaryAction` clicks and soft-lock. A resident who fights back moves to `combat_damageable` |
+| Bars | `CharacterHealthRing3D.set_stamina` | Thin stamina strip under the health bar; `MapViewRuntimeActors` feeds it from any actor with `stamina` / `max_stamina` |
+
+**Guilt.** Every blow on a resident records guilt through `PhysicalBlowGuilt` (ADR 0033): the first blow on a peaceful resident is `act.unarmed_victim` (or `act.provoked` for the armed watch); a resident who had already turned on the hero is self-defence. A fall counts as a kill.
+
+**Verify.** `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_citizen_brawl`; the gameplay capture above saves `brawl_man_fights_back_close` and `brawl_bystander_flees`.
 
 ## Where combat happens
 
@@ -77,3 +138,5 @@ godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_nun
 - The three boss encounters and state models are used only by tests and acceptance tools. The interior scenes exist (Nunnatorn and Rentenitorn have active transitions) but do not instantiate their boss encounter. Open work is listed in the [code-health audit](../reports/code_health_audit_2026-10-07.md).
 - `MissionAllyController` is exercised by tests only; no Act 2 mission scene mounts it yet.
 - Enemy move sets, root motion, and authored clips are out of scope ([`COMBAT_ANIMATION.md`](./COMBAT_ANIMATION.md) §9).
+- Forge weapons: no arrow ammunition, no inventory icons yet; the bow is canted about 36 degrees in both idle and draw (one grip transform serves both poses).
+- Brawls: only census residents take part; named NPCs, guards joining, Fear and legal consequences, and saving injuries are follow-ups.

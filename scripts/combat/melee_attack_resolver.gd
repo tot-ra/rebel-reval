@@ -2,6 +2,10 @@ class_name MeleeAttackResolver
 extends RefCounted
 
 const DAMAGEABLE_GROUP := &"combat_damageable"
+## Peaceful people (city citizens, R-1756) that a real swing or arrow can hit but
+## that never claim clicks or soft-lock: PlayerPrimaryAction only scans
+## DAMAGEABLE_GROUP, so talking to someone never turns into an attack.
+const BYSTANDER_GROUP := &"combat_bystander"
 
 ## Monotonic id shared by every take_damage call from one strike pulse.
 ## CombatVitals uses it so one swing cannot damage the same actor twice.
@@ -23,13 +27,15 @@ static func strike(
 	var hits: Array[Node2D] = []
 	if attacker == null or attacker.get_tree() == null or facing.is_zero_approx():
 		return hits
-	var swing_id := _allocate_swing_id()
+	var swing_id := allocate_swing_id()
 	var attack_direction := facing.normalized()
 	var reach_squared := reach_px * reach_px
 	# WHY: outgoing buffs live on the attacker's timed modifiers, not on
 	# AttackProfile, so every melee pulse shares one scaling seam.
-	var resolved_damage := _scale_outgoing_damage(attacker, damage)
-	for candidate_node: Node in attacker.get_tree().get_nodes_in_group(DAMAGEABLE_GROUP):
+	var resolved_damage := scale_outgoing_damage(attacker, damage)
+	var candidates: Array[Node] = attacker.get_tree().get_nodes_in_group(DAMAGEABLE_GROUP)
+	candidates.append_array(attacker.get_tree().get_nodes_in_group(BYSTANDER_GROUP))
+	for candidate_node: Node in candidates:
 		if candidate_node == attacker or not candidate_node is Node2D:
 			continue
 		var candidate := candidate_node as Node2D
@@ -67,7 +73,7 @@ static func strike_with_profile(
 	)
 
 
-static func _scale_outgoing_damage(attacker: Node2D, damage: float) -> float:
+static func scale_outgoing_damage(attacker: Node2D, damage: float) -> float:
 	var vitals: Variant = attacker.get("combat_vitals")
 	if not vitals is Object:
 		return damage
@@ -77,7 +83,7 @@ static func _scale_outgoing_damage(attacker: Node2D, damage: float) -> float:
 	return (modifiers as CombatTimedModifiers).scale_outgoing_damage(damage)
 
 
-static func _allocate_swing_id() -> int:
+static func allocate_swing_id() -> int:
 	var swing_id := _next_swing_id
 	_next_swing_id += 1
 	return swing_id

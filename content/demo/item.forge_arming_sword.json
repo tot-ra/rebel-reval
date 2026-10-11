@@ -1,0 +1,51 @@
+{
+  "type": "item",
+  "id": "item.forge_arming_sword",
+  "name": "Arming sword",
+  "category": "weapon",
+  "confidence": "plausible composite",
+  "canon_status": "draft",
+  "approval": {
+    "status": "review",
+    "notes": "Forge weapon set (R-1754). Imported steel blade on a hilt Kalev fitted himself: straight cross, wheel pommel, leather grip."
+  },
+  "material_grade": "fine",
+  "gameplay": {
+    "visible_in_pouch": true,
+    "stackable": false,
+    "uses": [
+      "Equip in the right hand: a balanced one-handed cut and thrust chain.",
+      "Pairs with the heater shield in the off hand."
+    ],
+    "carry": {
+      "weight_g": 1300,
+      "grid_width": 1,
+      "grid_height": 4
+    },
+    "equip": {
+      "slot": "right_hand",
+      "scene": "res://assets/props/weapons/arming_sword/arming_sword_held.tscn",
+      "world_scene": "res://assets/props/weapons/arming_sword/arming_sword_ground.tscn"
+    },
+    "weapon_class": "sword",
+    "attack_profile": {
+      "animation": "sword_attack",
+      "damage": 12.0,
+      "reach_px": 68.0,
+      "facing_dot": 0.35,
+      "impact_timing_sec": 0.27,
+      "attack_duration_sec": 0.64,
+      "stamina_cost": 7.0,
+      "damage_type": "slash"
+    }
+  },
+  "source_notes": [
+    {
+      "confidence": "plausible composite",
+      "summary": "A complete sword is an imported blade with smith-made furniture; burghers and knights carry it.",
+      "citations": [
+        "history/dossiers/military/arms-and-armour-livonia-1340s.md#item-ledger-materials-for-systems-and-art"
+      ]
+    }
+  ]
+}

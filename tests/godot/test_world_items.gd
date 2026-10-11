@@ -120,7 +120,11 @@ func test_drop_removes_from_bag_and_records_world_item() -> void:
 	assert_true(state.bag.try_add(ITEM_SPEARHEAD) == InventoryBag.AddResult.OK)
 	var placement := state.bag.find_placement(ITEM_SPEARHEAD)
 	assert_true(state.bag.remove(placement))
-	assert_true(state.place_world_item(LOC_SMITHY, &"world.dropped.item.seized_spearhead.0", ITEM_SPEARHEAD, Vector2(220, 180)))
+	assert_true(
+		state.place_world_item(
+			LOC_SMITHY, &"world.dropped.item.seized_spearhead.0", ITEM_SPEARHEAD, Vector2(220, 180)
+		)
+	)
 	assert_true(state.is_world_item_placed(LOC_SMITHY, &"world.dropped.item.seized_spearhead.0"))
 	assert_true(state.bag.find_placement(ITEM_SPEARHEAD) == null)
 
@@ -160,7 +164,9 @@ func test_forge_keyboard_pickup_moves_spearhead_into_bag() -> void:
 		controller._unhandled_input(event)
 	else:
 		# Headless harness does not always advance Area2D overlap in the same frame.
-		assert_true(interactable.interact(player), "pickup interact should succeed without physics overlap")
+		assert_true(
+			interactable.interact(player), "pickup interact should succeed without physics overlap"
+		)
 
 	assert_true(SessionState.state.has_item(ITEM_SPEARHEAD))
 	assert_false(SessionState.state.is_world_item_placed(LOC_SMITHY, OBJ_SPEAR))
@@ -190,7 +196,9 @@ func test_forge_gamepad_pickup_moves_spearhead_into_bag() -> void:
 	if controller.get_focused_interactable() != null:
 		controller._unhandled_input(event)
 	else:
-		assert_true(interactable.interact(player), "pickup interact should succeed without physics overlap")
+		assert_true(
+			interactable.interact(player), "pickup interact should succeed without physics overlap"
+		)
 
 	assert_true(SessionState.state.has_item(ITEM_SPEARHEAD))
 	assert_false(SessionState.state.is_world_item_placed(LOC_SMITHY, OBJ_SPEAR))
@@ -209,7 +217,9 @@ func test_forge_reload_does_not_respawn_picked_spearhead() -> void:
 	forge = FORGE_SCENE.instantiate()
 	tree.root.add_child(forge)
 	assert_true(SessionState.state.has_item(ITEM_SPEARHEAD))
-	assert_eq(_find_pickup_interactable(forge), null, "picked spearhead must stay gone after smithy re-entry")
+	assert_eq(
+		_find_pickup_interactable(forge), null, "picked spearhead must stay gone after smithy re-entry"
+	)
 	_free_forge(forge)
 
 
@@ -219,11 +229,17 @@ func test_debug_post_pickup_preset_removes_anvil_spearhead_without_reload() -> v
 	var forge: Node2D = FORGE_SCENE.instantiate()
 	tree.root.add_child(forge)
 
-	assert_true(_find_pickup_interactable(forge) != null, "fresh forge should expose the anvil spearhead")
+	assert_true(
+		_find_pickup_interactable(forge) != null, "fresh forge should expose the anvil spearhead"
+	)
 	assert_true(SessionState.apply_debug_preset("debug.reset.demo_post_pickup"))
 	assert_true(SessionState.state.has_item(ITEM_SPEARHEAD))
 	assert_false(SessionState.state.is_world_item_placed(LOC_SMITHY, OBJ_SPEAR))
-	assert_eq(_find_pickup_interactable(forge), null, "debug jump must remove the anvil spearhead without reload")
+	assert_eq(
+		_find_pickup_interactable(forge),
+		null,
+		"debug jump must remove the anvil spearhead without reload"
+	)
 	_free_forge(forge)
 
 
@@ -317,7 +333,12 @@ func _prepare_smithy_pickup_state() -> void:
 func _find_pickup_interactable(forge: Node) -> Interactable:
 	for node in forge.find_children("*", "Area2D", true, false):
 		var interactable := node as Interactable
-		if interactable != null and interactable.get_interaction_kind() == InteractionKinds.PICKUP:
+		# The forge also seeds the weapon set (R-1754); this helper wants the spearhead.
+		if (
+			interactable != null
+			and interactable.get_interaction_kind() == InteractionKinds.PICKUP
+			and interactable.interactable_id == &"interact.pickup.world.spearhead_anvil"
+		):
 			return interactable
 	return null
 

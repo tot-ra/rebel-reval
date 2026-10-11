@@ -107,6 +107,11 @@
               "type": "string",
               "pattern": "^res://.+\\.tscn$"
             },
+            "world_scene": {
+              "description": "Optional scene shown while the item lies or leans in the world (WorldItemView); defaults to the held scene.",
+              "type": "string",
+              "pattern": "^res://.+\\.tscn$"
+            },
             "garment": {
               "type": "string",
               "minLength": 1
@@ -169,7 +174,43 @@
         },
         "weapon_class": {
           "description": "Player move set (docs/SYSTEMS/COMBAT_ANIMATION.md). Presentation and per-step multipliers only; damage stays in attack_profile.",
-          "enum": ["unarmed", "hammer", "sword", "spear"]
+          "enum": ["unarmed", "hammer", "sword", "spear", "axe", "bow"]
+        },
+        "two_handed": {
+          "description": "Needs both hands: equipping it returns the other hand's item to the bag (GameState.equip_from_bag).",
+          "type": "boolean"
+        },
+        "ranged": {
+          "description": "Missile weapon (weapon_class bow): the strike looses a deterministic arrow on the logic plane instead of a melee pulse (docs/SYSTEMS/COMBAT.md).",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["range_px", "speed_px_per_sec"],
+          "properties": {
+            "range_px": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "speed_px_per_sec": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            }
+          }
+        },
+        "shield_guard": {
+          "description": "Shield carried in the off hand: replaces the bearer's guard numbers while it is equipped (docs/SYSTEMS/COMBAT.md).",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["guard_stamina_per_damage", "parry_window_sec"],
+          "properties": {
+            "guard_stamina_per_damage": {
+              "type": "number",
+              "minimum": 0
+            },
+            "parry_window_sec": {
+              "type": "number",
+              "minimum": 0
+            }
+          }
         }
       }
     },

@@ -1,0 +1,44 @@
+{
+  "type": "item",
+  "id": "item.forge_heater_shield",
+  "name": "Painted heater shield",
+  "category": "weapon",
+  "confidence": "plausible composite",
+  "canon_status": "draft",
+  "approval": {
+    "status": "review",
+    "notes": "Forge weapon set (R-1754). Glued boards, faced and painted; Kalev rivets the strap fittings. Heater shields belong to the knightly kit of the 1340s."
+  },
+  "material_grade": "common",
+  "gameplay": {
+    "visible_in_pouch": true,
+    "stackable": false,
+    "uses": [
+      "Equip in the left hand: guarding costs far less stamina and the parry window widens.",
+      "Keeps the right hand free for sword, axe, hammer or spear."
+    ],
+    "carry": {
+      "weight_g": 4000,
+      "grid_width": 3,
+      "grid_height": 4
+    },
+    "equip": {
+      "slot": "left_hand",
+      "scene": "res://assets/props/weapons/heater_shield/heater_shield_held.tscn",
+      "world_scene": "res://assets/props/weapons/heater_shield/heater_shield_ground.tscn"
+    },
+    "shield_guard": {
+      "guard_stamina_per_damage": 0.45,
+      "parry_window_sec": 0.26
+    }
+  },
+  "source_notes": [
+    {
+      "confidence": "plausible composite",
+      "summary": "The heater shield is part of the Order knight's kit in 1343; a burgher could own an older one.",
+      "citations": [
+        "history/dossiers/military/arms-and-armour-livonia-1340s.md#brief-for-dev--art--quest"
+      ]
+    }
+  ]
+}

@@ -494,6 +494,8 @@ static func _sync_actor_health_ring(rig: SharedCharacterRig, actor: Node) -> voi
 	if not ("health" in actor) or not ("max_health" in actor):
 		return
 	ring.set_health(float(actor.health), float(actor.max_health))
+	if "stamina" in actor and "max_stamina" in actor:
+		ring.set_stamina(float(actor.stamina), float(actor.max_stamina))
 
 
 func _sync_equipment_slot(slot: StringName) -> void:

@@ -187,6 +187,11 @@ func set_content_db(content_db: ContentDB) -> void:
 
 
 ## Public carry-stat lookup so equipment state can weigh worn items.
+## The bag's ContentDB (null before set_content_db); GameState reads equip rules from it.
+func content_db() -> ContentDB:
+	return _content_db
+
+
 func profile_for(item_id: StringName) -> ItemCarryProfile:
 	return _profile_for(item_id)
 

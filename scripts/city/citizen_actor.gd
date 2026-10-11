@@ -9,6 +9,7 @@ extends CharacterBody2D
 ## from the door, then asleep in bed, seated at the table, at the hearth, at the
 ## workbench or standing about (docs/SYSTEMS/HOUSEHOLDS.md).
 
+const PerfProbeScript := preload("res://scripts/debug/perf_probe.gd")
 const VARIANTS_DIR := "res://assets/characters/variants/%s.tscn"
 ## Sit_Chair_Idle on the shared rig (see CitySiteActor): the hips sit SIT_BACK
 ## behind the origin and the thighs SIT_SURFACE above it.
@@ -41,6 +42,25 @@ var rig_styled := false
 ## CityInteriors of the scene, or null (then residents vanish at their door).
 var interiors: CityInteriors
 
+## Physical fight state (R-1756), or null for a peaceful resident. CityCitizens
+## owns it so it survives the body being pooled away.
+var brawler: CitizenBrawler
+## Health and stamina for the overhead bars (MapViewRuntimeActors reads these).
+var health: float:
+	get:
+		return brawler.vitals.health if brawler != null else 0.0
+var max_health: float:
+	get:
+		return brawler.vitals.max_health if brawler != null else 0.0
+var stamina: float:
+	get:
+		return brawler.vitals.stamina if brawler != null else 0.0
+var max_stamina: float:
+	get:
+		return brawler.vitals.max_stamina if brawler != null else 0.0
+## Callable(actor, amount, attacker, swing_id, pierces_guard) -> float, set by CityCitizens.
+var hit_handler: Callable
+
 var _facing := Vector2.DOWN
 var _moving := false
 ## Sideways give-way from the player (CrowdYield), on top of the scheduled spot.
@@ -66,6 +86,9 @@ func _ready() -> void:
 	CollisionLayers.apply_crowd(self)
 	add_to_group(&"map_view_actor")
 	add_to_group(&"city_citizen")
+	# A real swing or arrow can hit a peaceful resident, but clicks and soft-lock
+	# ignore bystanders (MeleeAttackResolver.BYSTANDER_GROUP).
+	add_to_group(MeleeAttackResolver.BYSTANDER_GROUP)
 	var shape := CollisionShape2D.new()
 	var capsule := CapsuleShape2D.new()
 	capsule.radius = 8.0 * float(record["height_scale"])
@@ -73,8 +96,6 @@ func _ready() -> void:
 	shape.shape = capsule
 	add_child(shape)
 
-
-const PerfProbeScript := preload("res://scripts/debug/perf_probe.gd")
 
 
 func _physics_process(delta: float) -> void:
@@ -86,6 +107,9 @@ func _physics_process(delta: float) -> void:
 func _physics_process_timed(delta: float) -> void:
 	var h := float(hour_source.call())
 	var state := roster.resolve(index, h)
+	if brawler != null and brawler.owns_motion():
+		_step_brawl(delta, CityPlan.to_logic(state["pos"]))
+		return
 	outdoors = state["visible"]
 	carrying_wood = state["moving"] and state["dest"] == "home" and state["from"] == "fuel"
 	var moving: bool = state["moving"]
@@ -122,6 +146,84 @@ func _physics_process_timed(delta: float) -> void:
 		_facing = facing
 
 
+## The fight, not the timetable, moves the resident: chase, retreat or run in the
+## open, colliding with walls; a fallen body lies where it fell.
+func _step_brawl(delta: float, home: Vector2) -> void:
+	outdoors = true
+	at_home = false
+	pose = &"walk"
+	_yield = Vector2.ZERO
+	brawler.position = global_position
+	var wanted := brawler.step(delta, _brawl_target(), home)
+	if brawler.is_down():
+		_set_solid(false)
+		velocity = Vector2.ZERO
+		_moving = false
+		_facing = brawler.facing
+		_sync_brawl_groups()
+		return
+	_set_solid(true)
+	collision_mask = CollisionLayers.WORLD
+	velocity = wanted
+	move_and_slide()
+	brawler.position = global_position
+	_moving = not wanted.is_zero_approx()
+	_facing = brawler.facing
+	# A man who gave up the fight is a bystander again on his way home.
+	_sync_brawl_groups()
+	if not brawler.owns_motion():
+		# Back on the timetable: the crowd masks nothing again (CrowdYield).
+		collision_mask = 0
+
+
+func _brawl_target() -> Node2D:
+	if _player == null or not is_instance_valid(_player):
+		_player = CrowdYield.find_player(get_tree())
+	return _player
+
+
+## Melee and arrow contract (MeleeAttackResolver, ArrowProjectile).
+func take_damage(
+	amount: float,
+	source: Node = null,
+	_damage_type: StringName = &"",
+	swing_id: int = 0,
+	pierces_guard: bool = false
+) -> float:
+	if not hit_handler.is_valid():
+		return 0.0
+	var dealt := float(hit_handler.call(self, amount, source as Node2D, swing_id, pierces_guard))
+	_sync_brawl_groups()
+	return dealt
+
+
+## A resident who fights back is a hostile target (clicks, soft-lock); one who runs,
+## walks home or lies fallen stays a bystander.
+func _sync_brawl_groups() -> void:
+	var hostile := brawler != null and brawler.mode == CitizenBrawler.Mode.FIGHT
+	if hostile and not is_in_group(MeleeAttackResolver.DAMAGEABLE_GROUP):
+		add_to_group(MeleeAttackResolver.DAMAGEABLE_GROUP)
+		remove_from_group(MeleeAttackResolver.BYSTANDER_GROUP)
+	elif not hostile and is_in_group(MeleeAttackResolver.DAMAGEABLE_GROUP):
+		remove_from_group(MeleeAttackResolver.DAMAGEABLE_GROUP)
+		add_to_group(MeleeAttackResolver.BYSTANDER_GROUP)
+
+
+func is_combat_dead() -> bool:
+	return brawler != null and brawler.is_down()
+
+
+## PhysicalBlowGuilt: a resident struck before turning on the hero is a provoked
+## (or, unarmed, an unarmed-victim) blow.
+func guilt_context() -> Dictionary:
+	return {
+		"id": String(record.get("id", name)),
+		"aggressor": brawler != null and brawler.aggressor,
+		"armed": brawler != null and brawler.armed,
+		"defending_other": false,
+	}
+
+
 func world_xz() -> Vector2:
 	return CityPlan.to_world_xz(global_position)
 
@@ -131,6 +233,8 @@ func view_facing() -> Vector2:
 
 
 func view_animation() -> StringName:
+	if brawler != null and brawler.owns_motion():
+		return brawler.view_animation()
 	if at_home and not _moving:
 		return POSE_ANIMATION.get(pose, &"idle")
 	return &"walk" if _moving else &"idle"

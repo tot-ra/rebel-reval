@@ -15,7 +15,13 @@ const CLASS_UNARMED := &"unarmed"
 const CLASS_HAMMER := &"hammer"
 const CLASS_SWORD := &"sword"
 const CLASS_SPEAR := &"spear"
-const WEAPON_CLASSES: Array[StringName] = [CLASS_UNARMED, CLASS_HAMMER, CLASS_SWORD, CLASS_SPEAR]
+## Forge weapon set (R-1755). The bow's strike looses an arrow (ArrowProjectile)
+## instead of a melee pulse; its numbers still come from the item.
+const CLASS_AXE := &"axe"
+const CLASS_BOW := &"bow"
+const WEAPON_CLASSES: Array[StringName] = [
+	CLASS_UNARMED, CLASS_HAMMER, CLASS_SWORD, CLASS_SPEAR, CLASS_AXE, CLASS_BOW
+]
 
 ## Grace after recovery during which a new light attack still continues the
 ## chain instead of restarting it (Witcher-style rhythm, not button mashing).
@@ -103,6 +109,41 @@ const MOVE_SETS: Dictionary = {
 			"cancel_sec": 0.76, "hit_stop_sec": 0.08, "source_contact_sec": 0.45,
 			"damage_mult": 1.9, "stamina_mult": 1.6, "reach_mult": 1.25, "lunge_px": 34.0,
 			"pierces_guard": true},
+	},
+	# Contact seconds: 1H chop and 2H slice/chop as measured for the hammer rows.
+	CLASS_AXE: {
+		"light": [
+			{"id": &"axe_attack", "impact_sec": 0.36, "duration_sec": 0.80, "cancel_sec": 0.56,
+				"hit_stop_sec": 0.06, "source_contact_sec": 0.68, "lunge_px": 12.0},
+			{"id": &"axe_attack_2", "impact_sec": 0.30, "duration_sec": 0.72, "cancel_sec": 0.50,
+				"hit_stop_sec": 0.05, "source_contact_sec": 0.40, "damage_mult": 0.9,
+				"stamina_mult": 0.9, "facing_dot": 0.1, "lunge_px": 10.0},
+			{"id": &"axe_attack_3", "impact_sec": 0.44, "duration_sec": 0.96, "cancel_sec": 0.74,
+				"hit_stop_sec": 0.08, "source_contact_sec": 0.40, "damage_mult": 1.4,
+				"stamina_mult": 1.25, "reach_mult": 1.1, "lunge_px": 20.0},
+		],
+		# Damage/reach/stamina come from the item's charged_attack_profile.
+		"heavy": {"id": &"axe_heavy_attack", "impact_sec": 0.52, "duration_sec": 1.06,
+			"cancel_sec": 0.84, "hit_stop_sec": 0.10, "source_contact_sec": 0.88, "lunge_px": 16.0},
+	},
+	# 2H_Ranged_Shoot releases at 0.16 s (peak hand speed); the draw before it is
+	# stretched so the arrow leaves at impact_sec. reach_mult scales arrow range.
+	CLASS_BOW: {
+		# A volley: an aimed shot, a quicker nock-and-loose, then a steadied third shot.
+		"light": [
+			{"id": &"bow_attack", "impact_sec": 0.42, "duration_sec": 0.80, "cancel_sec": 0.62,
+				"hit_stop_sec": 0.0, "source_contact_sec": 0.16, "facing_dot": 0.9, "lunge_px": 0.0},
+			{"id": &"bow_attack_2", "impact_sec": 0.34, "duration_sec": 0.70, "cancel_sec": 0.54,
+				"hit_stop_sec": 0.0, "source_contact_sec": 0.16, "damage_mult": 0.85,
+				"stamina_mult": 0.9, "facing_dot": 0.9, "lunge_px": 0.0},
+			{"id": &"bow_attack_3", "impact_sec": 0.48, "duration_sec": 0.86, "cancel_sec": 0.68,
+				"hit_stop_sec": 0.0, "source_contact_sec": 0.32, "damage_mult": 1.2,
+				"stamina_mult": 1.15, "reach_mult": 1.1, "facing_dot": 0.9, "lunge_px": 0.0},
+		],
+		"heavy": {"id": &"bow_heavy_attack", "impact_sec": 0.78, "duration_sec": 1.10,
+			"cancel_sec": 0.92, "hit_stop_sec": 0.0, "source_contact_sec": 0.16,
+			"damage_mult": 1.8, "stamina_mult": 1.5, "reach_mult": 1.3, "facing_dot": 0.9,
+			"lunge_px": 0.0, "pierces_guard": true},
 	},
 }
 

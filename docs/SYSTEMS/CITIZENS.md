@@ -14,6 +14,10 @@ Status: implemented as data, documentation and, since 2026-10-08, runtime in the
 
 Rebuild after changing the census, plan or bodies: `python3 tools/city/build_citizen_runtime.py`; bodies `tools/assets/realistic_humans/rebuild.sh citizen_m_adult_thin ...` then `write_scenes.py`. Review plates: `tools/godot_render.sh --script tools/capture_citizen_bodies.gd` (all bodies) and `tools/godot_render.sh --resolution 1600x900 res://tools/capture_city_citizens.tscn -- --city-spawn=poi.forum --city-hour=10`.
 
+## Fights
+
+Every resident has health and stamina once struck: men fight back, others run, the fallen stay down for the session. See [Brawls with citizens](./COMBAT.md#brawls-with-citizens) (task **R-1756**).
+
 ## What exists
 
 - **Census** ([`docs/data/city_census.json`](../data/city_census.json)): 4,247 residents in 607 households (one per plot plus ten institutions) derived deterministically from `content/world/reval_city/plan.json`. Method, brackets, and a coverage check against the economy: [`docs/CITIZENS/CENSUS.md`](../CITIZENS/CENSUS.md); generated statistics: [`census_tables.md`](../CITIZENS/census_tables.md).

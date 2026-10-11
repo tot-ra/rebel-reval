@@ -253,6 +253,42 @@ func play_projectile_orb(projectile: MagicProjectile2D) -> Node3D:
 	return orb
 
 
+## A loosed bow arrow (R-1755): a thin shaft at chest height, pointing along its
+## flight. It rides the projectile tracking below and vanishes on hit or expiry.
+func play_arrow(arrow: ArrowProjectile) -> Node3D:
+	if arrow == null:
+		return null
+	var root := Node3D.new()
+	root.name = "ArrowShaft"
+	root.set_meta(&"source", arrow)
+	root.set_meta(&"fire", false)
+	var shaft := MeshInstance3D.new()
+	var mesh := CylinderMesh.new()
+	mesh.top_radius = 0.008
+	mesh.bottom_radius = 0.008
+	mesh.height = 0.75
+	mesh.radial_segments = 5
+	mesh.rings = 1
+	shaft.mesh = mesh
+	# Cylinder axis is Y; lay it along the arrow's local -Z (Node3D forward).
+	shaft.rotation = Vector3(PI * 0.5, 0.0, 0.0)
+	var material := StandardMaterial3D.new()
+	material.albedo_color = Color(0.55, 0.42, 0.26)
+	material.roughness = 0.8
+	shaft.material_override = material
+	shaft.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	root.add_child(shaft)
+	add_child(root)
+	var flat := Vector3(arrow.direction.x, 0.0, arrow.direction.y)
+	if not flat.is_zero_approx():
+		root.basis = Basis.looking_at(flat.normalized(), Vector3.UP)
+	_projectile_orbs.append(root)
+	arrow.impacted.connect(_on_projectile_impacted.bind(root))
+	arrow.expired.connect(_on_projectile_expired.bind(root))
+	_sync_projectile_orb(root)
+	return root
+
+
 ## Damage-reduction overlay level on the bound rig (0 = off). For tests and
 ## captures that cannot read shader uniforms on the dummy renderer.
 func ward_strength() -> float:
@@ -301,6 +337,10 @@ func _on_node_added(node: Node) -> void:
 	var projectile := node as MagicProjectile2D
 	if projectile != null:
 		play_projectile_orb(projectile)
+		return
+	var arrow := node as ArrowProjectile
+	if arrow != null:
+		play_arrow(arrow)
 		return
 	var pulse := node as MagicAreaPulse2D
 	if pulse == null or pulse.radius <= 0.0:
@@ -518,8 +558,9 @@ func _sync_projectile_orb(orb: Node3D) -> bool:
 	var raw: Variant = orb.get_meta(&"source", null)
 	if not is_instance_valid(raw):
 		return false
-	var source := raw as MagicProjectile2D
-	if source == null or not source.active:
+	# Spell orbs and bow arrows share the tracking: both expose `active`.
+	var source := raw as Node2D
+	if source == null or not bool(source.get("active")):
 		return false
 	var flat := MapViewBridge.logic_to_world(source.global_position, _cell_size, 0.0)
 	orb.position = flat + Vector3(0.0, _ground_y(flat) + PROJECTILE_HEIGHT, 0.0)

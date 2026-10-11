@@ -22,6 +22,30 @@ const DEFAULT_PLACEMENTS: Dictionary = {
 		},
 	],
 }
+## Placements added after a location shipped. Each group is seeded once per save
+## under its own key, so saves that already seeded DEFAULT_PLACEMENTS still get it.
+## Forge weapon set (R-1754): leaning against the forge's divider wall (cell x 15,
+## rows 9-12), the wall farthest from the iso camera so the row stays visible.
+const SEED_GROUPS: Dictionary = {
+	&"loc.kalev_smithy":
+	{
+		&"forge_weapons":
+		[
+			{"object_id": &"world.forge_arming_sword", "item_id": &"item.forge_arming_sword",
+				"anchor_id": &"anvil", "offset": Vector2(-134.4, 102.4)},
+			{"object_id": &"world.forge_bearded_axe", "item_id": &"item.forge_bearded_axe",
+				"anchor_id": &"anvil", "offset": Vector2(-134.4, 121.6)},
+			{"object_id": &"world.forge_war_hammer", "item_id": &"item.forge_war_hammer",
+				"anchor_id": &"anvil", "offset": Vector2(-134.4, 140.8)},
+			{"object_id": &"world.forge_spear", "item_id": &"item.forge_spear",
+				"anchor_id": &"anvil", "offset": Vector2(-134.4, 160.0)},
+			{"object_id": &"world.forge_longbow", "item_id": &"item.forge_longbow",
+				"anchor_id": &"anvil", "offset": Vector2(-134.4, 179.2)},
+			{"object_id": &"world.forge_heater_shield", "item_id": &"item.forge_heater_shield",
+				"anchor_id": &"anvil", "offset": Vector2(-134.4, 198.4)},
+		],
+	},
+}
 
 var location_id: StringName = &""
 var _scene_root: Node2D
@@ -121,12 +145,40 @@ func is_pickup_hover_active() -> bool:
 func _seed_defaults_if_needed() -> void:
 	if _state == null or _definition == null:
 		return
+	_seed_original_defaults()
+	# After the originals: their "location already has items" check must not see
+	# the group items and skip the spearhead on a new game.
+	_seed_groups_if_needed()
+
+
+func _seed_original_defaults() -> void:
 	if _state.are_world_defaults_seeded(location_id):
 		return
 	if not _state.get_world_items(location_id).is_empty():
 		_state.mark_world_defaults_seeded(location_id)
 		return
 	var entries: Array = DEFAULT_PLACEMENTS.get(location_id, [])
+	_place_entries(entries)
+	if not entries.is_empty():
+		_state.mark_world_defaults_seeded(location_id)
+
+
+## Seed key of a SEED_GROUPS group; also read by tests.
+static func seed_group_key(map_location_id: StringName, group_id: StringName) -> StringName:
+	return StringName("%s#%s" % [map_location_id, group_id])
+
+
+func _seed_groups_if_needed() -> void:
+	var groups: Dictionary = SEED_GROUPS.get(location_id, {})
+	for group_id: StringName in groups:
+		var key := seed_group_key(location_id, group_id)
+		if _state.are_world_defaults_seeded(key):
+			continue
+		_place_entries(groups[group_id])
+		_state.mark_world_defaults_seeded(key)
+
+
+func _place_entries(entries: Array) -> void:
 	for entry: Dictionary in entries:
 		var object_id: StringName = entry.get("object_id", &"")
 		var item_id: StringName = entry.get("item_id", &"")
@@ -138,8 +190,6 @@ func _seed_defaults_if_needed() -> void:
 		var position := MapVerification.anchor_position(_definition, anchor_id)
 		position += entry.get("offset", Vector2.ZERO)
 		_state.place_world_item(location_id, object_id, item_id, position)
-	if not entries.is_empty():
-		_state.mark_world_defaults_seeded(location_id)
 
 
 func _sync_from_state() -> void:
@@ -390,7 +440,8 @@ func _item_scene_path(item_id: StringName) -> String:
 	var record := _item_record(item_id)
 	var gameplay: Dictionary = record.get("gameplay", {})
 	var equip_info: Dictionary = gameplay.get("equip", {})
-	return String(equip_info.get("scene", ""))
+	# A held weapon is rotated for the hand; world_scene lays or leans it instead.
+	return String(equip_info.get("world_scene", equip_info.get("scene", "")))
 
 
 func _item_record(item_id: StringName) -> Dictionary:

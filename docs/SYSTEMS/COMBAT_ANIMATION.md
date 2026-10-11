@@ -73,8 +73,16 @@ Clips come from the shared 76-clip CC0 library on the shared rig (ADR 0022). `so
 | | 2 | `spear_attack_2` | `1H_Melee_Attack_Stab` | 0.28 / 0.66 / 0.46 | 0.45 | quick jab |
 | | 3 | `spear_attack_3` | `2H_Melee_Attack_Slice` | 0.34 / 0.84 / 0.62 | 0.40 | shaft sweep, wide arc, x1.25 |
 | | heavy | `spear_heavy_attack` | `2H_Melee_Attack_Stab` | 0.48 / 0.98 / 0.76 | 0.45 | long lunge, x1.25 reach, pierces guard |
+| Axe | 1 | `axe_attack` | `1H_Melee_Attack_Chop` | 0.36 / 0.80 / 0.56 | 0.68 | overhead chop (R-1755) |
+| | 2 | `axe_attack_2` | `1H_Melee_Attack_Slice_Diagonal` | 0.30 / 0.72 / 0.50 | 0.40 | diagonal cut, x0.9 |
+| | 3 | `axe_attack_3` | `2H_Melee_Attack_Slice` | 0.44 / 0.96 / 0.74 | 0.40 | two-hand finisher, x1.4 |
+| | heavy | `axe_heavy_attack` | `2H_Melee_Attack_Chop` | 0.52 / 1.06 / 0.84 | 0.88 | item `charged_attack_profile` numbers |
+| Bow | 1 | `bow_attack` | `2H_Ranged_Shoot` | 0.42 / 0.80 / 0.62 | 0.16 | aimed shot: looses an arrow (`ArrowProjectile`) |
+| | 2 | `bow_attack_2` | `2H_Ranged_Shoot` | 0.34 / 0.70 / 0.54 | 0.16 | quick follow-up shot, x0.85 |
+| | 3 | `bow_attack_3` | `2H_Ranged_Shooting` | 0.48 / 0.86 / 0.68 | 0.32 | steadied third shot, x1.2, x1.1 range |
+| | heavy | `bow_heavy_attack` | `2H_Ranged_Shoot` | 0.78 / 1.10 / 0.92 | 0.16 | full draw: x1.8 damage, x1.3 range, pierces guard |
 
-Hammer step 1 and the hammer heavy deliberately repeat the item JSON timing so existing balance keeps one answer. Content fixtures: `item.forge_hammer` (hammer), `item.plain_sword` (sword), `item.watch_spear` (spear).
+Hammer step 1 and the hammer heavy deliberately repeat the item JSON timing so existing balance keeps one answer. Content fixtures: `item.forge_hammer` (hammer), `item.plain_sword` (sword), `item.watch_spear` (spear). The forge weapon set (R-1754) adds `item.forge_arming_sword`, `item.forge_bearded_axe` (axe), `item.forge_war_hammer` (hammer), `item.forge_spear`, `item.forge_longbow` (bow) and the off-hand `item.forge_heater_shield` (no move set; it changes the guard, see [`COMBAT.md`](./COMBAT.md#forge-weapon-set)). The 2H_Ranged_Shoot contact (0.16 s) is the release recoil of both hands.
 
 ### Time warp
 

@@ -30,6 +30,10 @@ var is_heavy: bool = false
 ## Elapsed seconds after which a buffered attack chains (INF = no early chain).
 var cancel_sec: float = INF
 var lunge_px: float = 0.0
+## Missile weapons (item gameplay.ranged, R-1755): the strike looses an arrow that
+## flies this far at this speed instead of resolving a melee pulse. 0 = melee.
+var ranged_range_px: float = 0.0
+var ranged_speed_px_per_sec: float = 0.0
 
 
 static func unarmed() -> AttackProfile:
@@ -53,7 +57,13 @@ func duplicate_profile() -> AttackProfile:
 	copy.is_heavy = is_heavy
 	copy.cancel_sec = cancel_sec
 	copy.lunge_px = lunge_px
+	copy.ranged_range_px = ranged_range_px
+	copy.ranged_speed_px_per_sec = ranged_speed_px_per_sec
 	return copy
+
+
+func is_ranged() -> bool:
+	return ranged_range_px > 0.0 and ranged_speed_px_per_sec > 0.0
 
 
 static func from_content(data: Dictionary) -> AttackProfile:

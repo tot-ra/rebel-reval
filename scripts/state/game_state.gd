@@ -14,6 +14,7 @@ signal living_city_event_recorded(event_id: StringName)
 ## Fired when the campaign phase changes; SessionState autosaves on this boundary.
 signal phase_changed(previous: StringName, next: StringName)
 
+const HAND_SLOTS: Array[StringName] = [&"right_hand", &"left_hand"]
 const _PersistenceScript := preload("res://scripts/state/game_state_persistence.gd")
 const _RelationshipMemoryScript := preload("res://scripts/relationship/relationship_memory.gd")
 const COMMISSION_DEADLINE_ACTIVE := &"active"
@@ -630,7 +631,32 @@ func equip_from_bag(slot: StringName, item_id: StringName) -> bool:
 	_equipped[slot] = item_id
 	_refresh_reserved_weight()
 	equipment_changed.emit(slot)
+	_free_hands_for(slot, item_id)
 	return true
+
+
+
+## Two-handed weapons (item gameplay.two_handed, e.g. the bow, R-1755) need both
+## hands: equipping one returns the other hand's item to the bag, and equipping
+## into the other hand returns the two-handed weapon. Best effort: an item that
+## does not fit back into the bag stays equipped.
+func _free_hands_for(slot: StringName, item_id: StringName) -> void:
+	if not slot in HAND_SLOTS:
+		return
+	var other: StringName = HAND_SLOTS[1] if slot == HAND_SLOTS[0] else HAND_SLOTS[0]
+	var other_item := equipped_item(other)
+	if other_item.is_empty():
+		return
+	if is_two_handed(item_id) or is_two_handed(other_item):
+		unequip_to_bag(other)
+
+
+func is_two_handed(item_id: StringName) -> bool:
+	var db := bag.content_db()
+	if db == null or not db.is_loaded() or item_id.is_empty():
+		return false
+	var gameplay: Dictionary = db.get_item(item_id).get("gameplay", {})
+	return bool(gameplay.get("two_handed", false))
 
 
 func unequip_to_bag(slot: StringName) -> bool:

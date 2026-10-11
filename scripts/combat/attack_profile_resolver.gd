@@ -9,6 +9,8 @@ const CLASS_BY_ANIMATION_PREFIX: Dictionary = {
 	"hammer": CombatMoveCatalog.CLASS_HAMMER,
 	"sword": CombatMoveCatalog.CLASS_SWORD,
 	"spear": CombatMoveCatalog.CLASS_SPEAR,
+	"axe": CombatMoveCatalog.CLASS_AXE,
+	"bow": CombatMoveCatalog.CLASS_BOW,
 }
 
 
@@ -66,6 +68,15 @@ static func resolve_move(
 	if not is_nan(move.facing_dot):
 		profile.facing_dot = move.facing_dot
 	profile.pierces_guard = profile.pierces_guard or move.pierces_guard
+	var ranged: Dictionary = _gameplay_data(item_id, content_db).get("ranged", {})
+	if not ranged.is_empty():
+		# A fuller draw (heavy move reach_mult) and the body build carry the arrow further.
+		profile.ranged_range_px = (
+			float(ranged.get("range_px", 0.0))
+			* move.reach_mult
+			* CombatMoveCatalog.build_factor(build, "reach")
+		)
+		profile.ranged_speed_px_per_sec = float(ranged.get("speed_px_per_sec", 0.0))
 	var technique_id := &""
 	if state != null:
 		technique_id = state.equipped_forge_technique()

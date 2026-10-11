@@ -225,7 +225,12 @@ func _wait_for_scene(scene_id: StringName) -> Node:
 func _find_pickup(forge: Node) -> Interactable:
 	for node in forge.find_children("*", "Area2D", true, false):
 		var interactable := node as Interactable
-		if interactable != null and interactable.get_interaction_kind() == InteractionKinds.PICKUP:
+		# The forge also seeds the weapon set (R-1754); this helper wants the spearhead.
+		if (
+			interactable != null
+			and interactable.get_interaction_kind() == InteractionKinds.PICKUP
+			and interactable.interactable_id == &"interact.pickup.world.spearhead_anvil"
+		):
 			return interactable
 	return null
 

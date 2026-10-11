@@ -1,0 +1,61 @@
+{
+  "type": "item",
+  "id": "item.forge_bearded_axe",
+  "name": "Bearded axe",
+  "category": "weapon",
+  "confidence": "plausible composite",
+  "canon_status": "draft",
+  "approval": {
+    "status": "review",
+    "notes": "Forge weapon set (R-1754). Broad axe head with a welded steel edge on an ash haft, the farmer-rebel's weapon."
+  },
+  "material_grade": "common",
+  "gameplay": {
+    "visible_in_pouch": true,
+    "stackable": false,
+    "uses": [
+      "Equip in the right hand: slow, heavy chops.",
+      "Hold attack for a spinning two-handed cleave."
+    ],
+    "carry": {
+      "weight_g": 1500,
+      "grid_width": 2,
+      "grid_height": 3
+    },
+    "equip": {
+      "slot": "right_hand",
+      "scene": "res://assets/props/weapons/bearded_axe/bearded_axe_held.tscn",
+      "world_scene": "res://assets/props/weapons/bearded_axe/bearded_axe_ground.tscn"
+    },
+    "weapon_class": "axe",
+    "attack_profile": {
+      "animation": "axe_attack",
+      "damage": 16.0,
+      "reach_px": 58.0,
+      "facing_dot": 0.35,
+      "impact_timing_sec": 0.34,
+      "attack_duration_sec": 0.78,
+      "stamina_cost": 11.0,
+      "damage_type": "slash"
+    },
+    "charged_attack_profile": {
+      "animation": "axe_heavy_attack",
+      "damage": 27.0,
+      "reach_px": 64.0,
+      "facing_dot": 0.35,
+      "impact_timing_sec": 0.5,
+      "attack_duration_sec": 1.05,
+      "stamina_cost": 20.0,
+      "damage_type": "slash"
+    }
+  },
+  "source_notes": [
+    {
+      "confidence": "plausible composite",
+      "summary": "Axe heads with steel edges are smith work; rebel farmers fought with axes.",
+      "citations": [
+        "history/dossiers/military/arms-and-armour-livonia-1340s.md#item-ledger-materials-for-systems-and-art"
+      ]
+    }
+  ]
+}

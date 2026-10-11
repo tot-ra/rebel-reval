@@ -186,6 +186,19 @@ Roles `level`, `map`, and `event` have full conversion specifications later in t
 | `tools/capture_city_moss.tscn` | test | `retain` | Capture city moss and forest floor tool scene | Developer-only capture or profiling host; never release-playable | not a map definition |
 | `tools/capture_city_painted_iso.tscn` | test | `retain` | Capture painted-iso camera tool scene | Developer-only capture or profiling host; never release-playable | not a map definition |
 | `tools/capture_city_lighting.tscn` | test | `retain` | Capture city lighting tool scene | Developer-only capture or profiling host; never release-playable | not a map definition |
+| `tools/capture_forge_brawl.tscn` | test | `retain` | Capture forge weapons and citizen brawl tool scene | Developer-only capture or profiling host; never release-playable | not a map definition |
+| `assets/props/weapons/arming_sword/arming_sword_ground.tscn` | support | `retain` | Forge arming sword leaning display (world item view) | Forge weapon set (R-1754, docs/SYSTEMS/COMBAT.md) | not a map definition |
+| `assets/props/weapons/arming_sword/arming_sword_held.tscn` | support | `retain` | Forge arming sword hand-slot equipment mesh | Forge weapon set (R-1754, docs/SYSTEMS/COMBAT.md) | not a map definition |
+| `assets/props/weapons/bearded_axe/bearded_axe_ground.tscn` | support | `retain` | Forge bearded axe leaning display (world item view) | Forge weapon set (R-1754, docs/SYSTEMS/COMBAT.md) | not a map definition |
+| `assets/props/weapons/bearded_axe/bearded_axe_held.tscn` | support | `retain` | Forge bearded axe hand-slot equipment mesh | Forge weapon set (R-1754, docs/SYSTEMS/COMBAT.md) | not a map definition |
+| `assets/props/weapons/heater_shield/heater_shield_ground.tscn` | support | `retain` | Forge heater shield leaning display (world item view) | Forge weapon set (R-1754, docs/SYSTEMS/COMBAT.md) | not a map definition |
+| `assets/props/weapons/heater_shield/heater_shield_held.tscn` | support | `retain` | Forge heater shield hand-slot equipment mesh | Forge weapon set (R-1754, docs/SYSTEMS/COMBAT.md) | not a map definition |
+| `assets/props/weapons/longbow/longbow_ground.tscn` | support | `retain` | Forge longbow leaning display (world item view) | Forge weapon set (R-1754, docs/SYSTEMS/COMBAT.md) | not a map definition |
+| `assets/props/weapons/longbow/longbow_held.tscn` | support | `retain` | Forge longbow hand-slot equipment mesh | Forge weapon set (R-1754, docs/SYSTEMS/COMBAT.md) | not a map definition |
+| `assets/props/weapons/spear/spear_ground.tscn` | support | `retain` | Forge spear leaning display (world item view) | Forge weapon set (R-1754, docs/SYSTEMS/COMBAT.md) | not a map definition |
+| `assets/props/weapons/spear/spear_held.tscn` | support | `retain` | Forge spear hand-slot equipment mesh | Forge weapon set (R-1754, docs/SYSTEMS/COMBAT.md) | not a map definition |
+| `assets/props/weapons/war_hammer/war_hammer_ground.tscn` | support | `retain` | Forge war hammer leaning display (world item view) | Forge weapon set (R-1754, docs/SYSTEMS/COMBAT.md) | not a map definition |
+| `assets/props/weapons/war_hammer/war_hammer_held.tscn` | support | `retain` | Forge war hammer hand-slot equipment mesh | Forge weapon set (R-1754, docs/SYSTEMS/COMBAT.md) | not a map definition |
 | `tools/capture_site_edge_travel.tscn` | test | `retain` | Regional-site edge-to-travel-map capture host | ADR 0042 verification plate (walk into a site's edge band, global travel map opens); never release-playable | not a map definition |
 | `tools/capture_hud_gameplay_host.tscn` | test | `retain` | HUD gameplay capture host | Developer capture plate for the R-1698 HUD; never release-playable | not a map definition |
 | `tools/profile_reval_city.tscn` | test | `retain` | Profile reval city tool scene | Developer-only capture or profiling host; never release-playable | not a map definition |

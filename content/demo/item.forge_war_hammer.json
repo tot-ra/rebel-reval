@@ -1,0 +1,61 @@
+{
+  "type": "item",
+  "id": "item.forge_war_hammer",
+  "name": "War hammer",
+  "category": "weapon",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "review",
+    "notes": "Forge weapon set (R-1754). A smith's display piece: four-point face, back spike and langets. The back-spiked form is a later fashion, kept as an invented showpiece."
+  },
+  "material_grade": "fine",
+  "gameplay": {
+    "visible_in_pouch": true,
+    "stackable": false,
+    "uses": [
+      "Equip in the right hand: crushing blows that stagger through padding.",
+      "Hold attack for a two-handed overhead smash."
+    ],
+    "carry": {
+      "weight_g": 1600,
+      "grid_width": 2,
+      "grid_height": 3
+    },
+    "equip": {
+      "slot": "right_hand",
+      "scene": "res://assets/props/weapons/war_hammer/war_hammer_held.tscn",
+      "world_scene": "res://assets/props/weapons/war_hammer/war_hammer_ground.tscn"
+    },
+    "weapon_class": "hammer",
+    "attack_profile": {
+      "animation": "hammer_attack",
+      "damage": 15.0,
+      "reach_px": 56.0,
+      "facing_dot": 0.35,
+      "impact_timing_sec": 0.34,
+      "attack_duration_sec": 0.76,
+      "stamina_cost": 12.0,
+      "damage_type": "blunt"
+    },
+    "charged_attack_profile": {
+      "animation": "hammer_charged_attack",
+      "damage": 26.0,
+      "reach_px": 66.0,
+      "facing_dot": 0.35,
+      "impact_timing_sec": 0.5,
+      "attack_duration_sec": 1.02,
+      "stamina_cost": 22.0,
+      "damage_type": "blunt"
+    }
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Hammers for war are documented later than 1343; this one is Kalev's own showpiece, not period issue.",
+      "citations": [
+        "history/dossiers/military/arms-and-armour-livonia-1340s.md#what-a-reval-town-smith-produces-vs-imports"
+      ]
+    }
+  ]
+}

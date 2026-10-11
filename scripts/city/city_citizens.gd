@@ -9,6 +9,7 @@ extends Node2D
 ## furnished house near Kalev (CityInteriors) are shown inside it, asleep, at
 ## table or at the hearth; residents fetching firewood carry it home on their back.
 
+const PerfProbeScript := preload("res://scripts/debug/perf_probe.gd")
 const SPAWN_RADIUS := 62.0
 const DESPAWN_RADIUS := 80.0
 const MAX_LIVE := 30
@@ -45,6 +46,9 @@ var _selected: CitizenActor
 var _interiors: CityInteriors
 ## Residents a named NPC replaces (ADR 0044): never spawned, so nobody walks twice.
 var _suppressed: Dictionary = {}  # resident index -> true
+## Residents the hero has struck (R-1756): resident index -> CitizenBrawler. Kept
+## while the body is pooled away, so the wounded stay wounded and the fallen stay down.
+var _brawlers: Dictionary = {}
 
 
 static func create(city_plan: CityPlan, kalev: Node2D) -> CityCitizens:
@@ -104,8 +108,6 @@ func live_actors() -> Array[CitizenActor]:
 	return out
 
 
-const PerfProbeScript := preload("res://scripts/debug/perf_probe.gd")
-
 
 func _process(delta: float) -> void:
 	var probe_start := PerfProbeScript.start()
@@ -146,6 +148,7 @@ func refresh(me: Vector2) -> void:
 			or (actor.at_home and actor.world_xz().distance_to(me) > INDOOR_RADIUS + 4.0)
 		):
 			_release(index)
+	_spawn_fallen(me)
 
 
 func _scan_step() -> void:
@@ -157,7 +160,7 @@ func _scan_step() -> void:
 	var interiors := interiors_node()
 	for k in range(_cursor, end):
 		var index := _candidates[k]
-		if _live.has(index) or _suppressed.has(index):
+		if _live.has(index) or _suppressed.has(index) or is_fallen(index):
 			continue
 		var state := roster.resolve(index, _scan_hour)
 		if state["visible"]:
@@ -205,9 +208,59 @@ func _spawn_wanted() -> void:
 			outdoor += 1
 		var actor := CitizenActor.create(roster, int(entry[1]), Callable(self, "hour"))
 		actor.interiors = interiors
+		_attach_brawl(actor)
 		add_child(actor)
 		_live[int(entry[1])] = actor
 		spawned += 1
+
+
+## --- Brawls (R-1756, docs/SYSTEMS/COMBAT.md) --------------------------------
+
+
+## True when the resident fell in a fight this session; they lie where they fell.
+func is_fallen(index: int) -> bool:
+	var brawler: CitizenBrawler = _brawlers.get(index)
+	return brawler != null and brawler.is_down()
+
+
+func brawler_of(index: int) -> CitizenBrawler:
+	return _brawlers.get(index)
+
+
+func _attach_brawl(actor: CitizenActor) -> void:
+	actor.hit_handler = _on_citizen_hit
+	var brawler: CitizenBrawler = _brawlers.get(actor.index)
+	actor.brawler = brawler
+	if brawler != null and brawler.is_down():
+		actor.global_position = brawler.position
+
+
+## First blow creates the brawler lazily; later blows reuse it.
+func _on_citizen_hit(
+	actor: CitizenActor, amount: float, attacker: Node2D, swing_id: int, pierces_guard: bool
+) -> float:
+	var brawler: CitizenBrawler = _brawlers.get(actor.index)
+	if brawler == null:
+		brawler = CitizenBrawler.create(actor.index, actor.record)
+		_brawlers[actor.index] = brawler
+	actor.brawler = brawler
+	return brawler.take_hit(amount, attacker, actor.global_position, swing_id, pierces_guard)
+
+
+## Fallen residents are not on the timetable any more: lay them back down where
+## they fell whenever the hero comes near again.
+func _spawn_fallen(me: Vector2) -> void:
+	for index: int in _brawlers:
+		if _live.has(index) or _suppressed.has(index):
+			continue
+		var brawler: CitizenBrawler = _brawlers[index]
+		if not brawler.is_down() or CityPlan.to_world_xz(brawler.position).distance_to(me) > SPAWN_RADIUS:
+			continue
+		var actor := CitizenActor.create(roster, index, Callable(self, "hour"))
+		actor.interiors = interiors_node()
+		_attach_brawl(actor)
+		add_child(actor)
+		_live[index] = actor
 
 
 ## Stops spawning the census residents `ids` (a named NPC is that person,
@@ -249,6 +302,11 @@ func _release(index: int) -> void:
 	_live.erase(index)
 	if not is_instance_valid(actor):
 		return
+	# A fight broken off by distance ends; the wounds stay (CitizenBrawler.vitals).
+	var brawler: CitizenBrawler = _brawlers.get(index)
+	if brawler != null and not brawler.is_down() and brawler.owns_motion():
+		brawler.machine.reset()
+		brawler.mode = CitizenBrawler.Mode.CALM
 	if actor == _selected:
 		_panel.hide_panel()
 	if actor == _hover:
@@ -297,6 +355,7 @@ func _pose_rigs() -> void:
 		var rig := _rig_of(actor)
 		if rig == null:
 			continue
+		_sync_brawl_bars(rig, actor)
 		var model := rig.get_node_or_null("Model") as Node3D
 		if model != null:
 			var lying := -PI * 0.5 if actor.is_lying() else 0.0
@@ -310,6 +369,19 @@ func _pose_rigs() -> void:
 					_strap_on_back(bundle, actor.view_facing())
 			else:
 				rig.unequip(&"back")
+
+
+## Health and stamina bars hover over a resident only while they fight or flee.
+static func _sync_brawl_bars(rig: SharedCharacterRig, actor: CitizenActor) -> void:
+	var ring := rig.get_node_or_null(^"HealthRing")
+	var wanted := actor.brawler != null and actor.brawler.shows_bars()
+	if wanted and ring == null:
+		ring = CharacterHealthRing3D.new()
+		ring.name = "HealthRing"
+		rig.add_child(ring)
+	elif not wanted and ring != null:
+		rig.remove_child(ring)
+		ring.queue_free()
 
 
 ## The chest bone lives inside the scaled body: set the bundle's world

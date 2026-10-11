@@ -662,6 +662,8 @@ func take_damage(
 	pierces_guard: bool = false
 ) -> float:
 	_sync_vitals_from_fields()
+	if has_node("/root/SessionState"):
+		ShieldGuard.apply(combat_vitals, SessionState.state, SessionState.content_db)
 	var pose := CombatDefensePose.from_action_machine(
 		action_state_machine, combat_vitals.parry_window_sec
 	)
@@ -845,12 +847,28 @@ func facing_direction() -> Vector2:
 
 func _on_attack_impact() -> void:
 	var profile := _active_attack_profile
+	if profile != null and profile.is_ranged():
+		_loose_arrow(profile)
+		return
 	var targets: Array[Node2D] = MeleeAttackResolverScript.strike_with_profile(
 		self, _facing_direction, profile
 	)
 	if has_node("/root/SessionState"):
 		PhysicalBlowGuilt.record_hits(SessionState.state, targets)
 	melee_attack_resolved.emit(targets, profile)
+
+
+## The bow's strike (R-1755): an arrow flies along the facing; its hits record
+## guilt like a melee blow once they land.
+func _loose_arrow(profile: AttackProfile) -> void:
+	var arrow := ArrowProjectile.loose(self, _facing_direction, profile)
+	if arrow != null and has_node("/root/SessionState"):
+		arrow.impacted.connect(
+			func(_at: Vector2, targets: Array[Node2D]) -> void:
+				PhysicalBlowGuilt.record_hits(SessionState.state, targets)
+		)
+	var no_targets: Array[Node2D] = []
+	melee_attack_resolved.emit(no_targets, profile)
 
 
 func _on_action_state_changed(

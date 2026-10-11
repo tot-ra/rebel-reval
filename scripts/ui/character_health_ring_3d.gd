@@ -11,6 +11,11 @@ const BAR_HEIGHT := 0.07
 const BAR_Y := 2.18
 ## Push fill slightly toward the camera to avoid z-fighting with the background.
 const FILL_Z_BIAS := 0.002
+## Optional thin stamina strip under the health bar (R-1756); built on first use
+## so actors that never report stamina keep the single bar.
+const STAMINA_HEIGHT := 0.035
+const STAMINA_GAP := 0.02
+const COLOR_STAMINA := Color(0.93, 0.78, 0.25, 0.95)
 
 var current_health := 100.0
 var max_health := 100.0
@@ -19,6 +24,8 @@ var _background: MeshInstance3D
 var _fill: MeshInstance3D
 var _fill_material: StandardMaterial3D
 var _applied_ratio := -1.0
+var _stamina_fill: MeshInstance3D
+var _stamina_ratio := -1.0
 
 func _ready() -> void:
 	_build_nodes()
@@ -42,6 +49,36 @@ func set_health(current: float, maximum: float) -> void:
 	current_health = next_current
 	max_health = next_maximum
 	_update_fill()
+
+
+func set_stamina(current: float, maximum: float) -> void:
+	var ratio := clampf(current / maximum, 0.0, 1.0) if maximum > 0.0 else 0.0
+	if is_equal_approx(ratio, _stamina_ratio):
+		return
+	_stamina_ratio = ratio
+	if _stamina_fill == null:
+		if _background == null:
+			return
+		var y := -(BAR_HEIGHT + STAMINA_HEIGHT) * 0.5 - STAMINA_GAP
+		var back := MeshInstance3D.new()
+		back.name = "StaminaBackground"
+		back.mesh = _make_bar_mesh(BAR_WIDTH, STAMINA_HEIGHT)
+		back.material_override = _make_bar_material(CharacterHealthRing.COLOR_BACKGROUND)
+		back.position.y = y
+		add_child(back)
+		_stamina_fill = MeshInstance3D.new()
+		_stamina_fill.name = "StaminaFill"
+		_stamina_fill.mesh = _make_bar_mesh(BAR_WIDTH, STAMINA_HEIGHT)
+		_stamina_fill.material_override = _make_bar_material(COLOR_STAMINA)
+		_stamina_fill.position = Vector3(0.0, y, FILL_Z_BIAS)
+		add_child(_stamina_fill)
+	_stamina_fill.visible = ratio > 0.0
+	_stamina_fill.scale = Vector3(maxf(ratio, 0.001), 1.0, 1.0)
+	_stamina_fill.position.x = -0.5 * BAR_WIDTH * (1.0 - ratio)
+
+
+func get_stamina_ratio() -> float:
+	return maxf(_stamina_ratio, 0.0)
 
 
 func get_health_ratio() -> float:
