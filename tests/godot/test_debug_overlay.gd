@@ -68,3 +68,28 @@ func test_time_controls_change_runtime_without_touching_game_state() -> void:
 
 	overlay.queue_free()
 	runtime.free()
+
+
+func test_date_and_season_controls_move_the_campaign_date() -> void:
+	var runtime := MapViewRuntime.new()
+	var overlay := DebugOverlay.new()
+	var tree := Engine.get_main_loop() as SceneTree
+	tree.root.add_child(overlay)
+	overlay.set_runtime(runtime)
+	overlay.visible = true
+	var before := runtime.cycle_elapsed_days
+	(overlay.find_child("DateStep+30d", true, false) as Button).pressed.emit()
+	assert_eq(runtime.cycle_elapsed_days, before + 30, "+30d must advance the date a month")
+	(overlay.find_child("DateStep-1d", true, false) as Button).pressed.emit()
+	assert_eq(runtime.cycle_elapsed_days, before + 29, "-1d must step back a day")
+	(overlay.find_child("SeasonWinter", true, false) as Button).pressed.emit()
+	var date := GameCalendar.add_days(
+		GameCalendar.DEFAULT_DATE, runtime.cycle_elapsed_days
+	)
+	assert_eq([int(date["month"]), int(date["day"])], [1, 15], "winter jumps to 15 January")
+	var label := overlay.find_child("DateLabel", true, false) as Label
+	assert_true(label != null and label.text.contains("Winter"), "label shows the season")
+	(overlay.find_child("DateStep-30d", true, false) as Button).pressed.emit()
+	assert_true(runtime.cycle_elapsed_days >= 0, "stepping back never goes below the phase date")
+	overlay.queue_free()
+	runtime.free()

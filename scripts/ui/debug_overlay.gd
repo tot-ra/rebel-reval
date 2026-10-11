@@ -7,7 +7,7 @@ extends CanvasLayer
 
 const PANEL_MARGIN := 12.0
 const PANEL_WIDTH := 320.0
-const PANEL_HEIGHT := 380.0
+const PANEL_HEIGHT := 520.0
 const ASSET_SHOWCASE_SCENE := "res://scenes/debug/asset_showcase.tscn"
 const LARGE_ASSET_SHOWCASE_SCENE := "res://scenes/debug/asset_showcase_large.tscn"
 const CHARACTERS_ANIMALS_SHOWCASE_SCENE := "res://scenes/debug/characters_animals_showcase.tscn"
@@ -37,6 +37,7 @@ var _reset_button: Button
 var _small_asset_showcase_button: Button
 var _large_asset_showcase_button: Button
 var _characters_animals_showcase_button: Button
+var _date_label: Label
 var _runtime: MapViewRuntime
 
 
@@ -125,6 +126,7 @@ func _update_audio_info() -> void:
 
 
 func _update_time_controls() -> void:
+	_update_date_label()
 	if _runtime == null or not is_instance_valid(_runtime):
 		_time_speed_label.text = "Time: -"
 		return
@@ -239,6 +241,43 @@ func _build_ui() -> void:
 
 	_add_separator(layout)
 
+	var date_header := Label.new()
+	date_header.text = "-- Date and Season --"
+	date_header.add_theme_font_size_override("font_size", FONT_SIZE)
+	date_header.add_theme_color_override("font_color", LABEL_COLOR)
+	layout.add_child(date_header)
+
+	_date_label = _add_label(layout, "Date: -")
+	_date_label.name = "DateLabel"
+
+	var day_row := HBoxContainer.new()
+	day_row.name = "DateButtons"
+	day_row.mouse_filter = Control.MOUSE_FILTER_STOP
+	day_row.add_theme_constant_override("separation", 6)
+	layout.add_child(day_row)
+	for step: Array in [["-30d", -30], ["-1d", -1], ["+1d", 1], ["+30d", 30]]:
+		day_row.add_child(
+			_create_button(
+				"DateStep%s" % step[0], step[0], _on_date_step_pressed.bind(int(step[1]))
+			)
+		)
+
+	var season_row := HBoxContainer.new()
+	season_row.name = "SeasonButtons"
+	season_row.mouse_filter = Control.MOUSE_FILTER_STOP
+	season_row.add_theme_constant_override("separation", 6)
+	layout.add_child(season_row)
+	for season: StringName in SeasonState.SEASONS:
+		season_row.add_child(
+			_create_button(
+				"Season%s" % String(season).capitalize(),
+				String(season).capitalize(),
+				_on_season_pressed.bind(season)
+			)
+		)
+
+	_add_separator(layout)
+
 	var scene_header := Label.new()
 	scene_header.text = "-- Review Scenes --"
 	scene_header.add_theme_font_size_override("font_size", FONT_SIZE)
@@ -341,6 +380,35 @@ func _on_reset_pressed() -> void:
 	if _runtime != null and is_instance_valid(_runtime):
 		_runtime.reset_time_flow()
 		_refresh_time_controls()
+
+
+func _on_date_step_pressed(days: int) -> void:
+	_resolve_runtime()
+	if _runtime != null and is_instance_valid(_runtime):
+		_runtime.shift_calendar_days(days)
+		_update_date_label()
+
+
+func _on_season_pressed(season: StringName) -> void:
+	_resolve_runtime()
+	if _runtime != null and is_instance_valid(_runtime):
+		_runtime.jump_to_season(season)
+		_update_date_label()
+
+
+func _update_date_label() -> void:
+	if _date_label == null or _runtime == null or not is_instance_valid(_runtime):
+		return
+	var date := _runtime.calendar_date()
+	var snapshot := SeasonState.snapshot(date)
+	_date_label.text = (
+		"%s  %s  %.0f C"
+		% [
+			GameCalendar.format_date(date),
+			String(snapshot["season"]).capitalize(),
+			float(snapshot["temperature_c"]),
+		]
+	)
 
 
 func is_asset_showcase_scene() -> bool:

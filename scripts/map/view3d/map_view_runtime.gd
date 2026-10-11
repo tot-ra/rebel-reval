@@ -331,6 +331,11 @@ func environment_weather() -> Node:
 	return _environment.weather_node()
 
 
+## Campaign date the sky and HUD show right now (debug overlay, tools).
+func calendar_date() -> Dictionary:
+	return _session.current_calendar_date()
+
+
 func _current_calendar_date() -> Dictionary:
 	return _session.current_calendar_date()
 
@@ -351,24 +356,24 @@ func _process_timed(delta: float) -> void:
 		_player.set(&"time_flow_scale", _time_flow.time_speed)
 	var t := PerfProbeScript.start()
 	_environment.advance_cycle(scaled_delta, Callable(_session, "current_calendar_date"))
-	PerfProbeScript.stop(&"runtime_cycle_sky", t)
+	PerfProbeScript.stop(&"view_runtime/cycle_sky", t)
 	if _player == null or not is_instance_valid(_player):
 		return
 	t = PerfProbeScript.start()
 	_ambient_controller.sync(delta, cycle_progress)
-	PerfProbeScript.stop(&"runtime_ambient", t)
+	PerfProbeScript.stop(&"view_runtime/ambient", t)
 	t = PerfProbeScript.start()
 	_camera_binding.apply_view_rotation(delta)
-	PerfProbeScript.stop(&"runtime_camera", t)
+	PerfProbeScript.stop(&"view_runtime/camera", t)
 	t = PerfProbeScript.start()
 	_sync_player(false, delta)
-	PerfProbeScript.stop(&"runtime_player_rig", t)
+	PerfProbeScript.stop(&"view_runtime/player_rig", t)
 	t = PerfProbeScript.start()
 	_actor_controller.sync_view_actors(delta)
-	PerfProbeScript.stop(&"runtime_actors", t)
+	PerfProbeScript.stop(&"view_runtime/actors", t)
 	t = PerfProbeScript.start()
 	_hosted.sync_minimap_tracker()
-	PerfProbeScript.stop(&"runtime_minimap", t)
+	PerfProbeScript.stop(&"view_runtime/minimap", t)
 
 
 func get_actor_rig(actor: Node2D) -> SharedCharacterRig:

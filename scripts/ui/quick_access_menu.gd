@@ -183,7 +183,7 @@ func _build_ui() -> void:
 	add_child(_save_button)
 
 	_debug_button = _create_action_button(
-		"DebugButton", "Debug", "Toggle debug overlay (FPS, audio, time controls)"
+		"DebugButton", "Debug", "Toggle debug overlay (FPS, audio, time, date and season)"
 	)
 	_debug_button.pressed.connect(_on_debug_pressed)
 	_debug_button.visible = false

@@ -40,7 +40,10 @@ Every visual task must record High (25 fps) and Medium (30 fps) results from the
 
 ## Debug controls
 
-In the 3D runtime: `[` / `]` move the campaign date one day back / forward (Shift: 30 days); `F5` winter (15 Jan), `F6` spring (21 Apr), `F7` summer (15 Jul), `F8` autumn (15 Oct) jump forward to that day. Elapsed days never go negative, so a step back wraps to the same calendar day next year (`GameCalendar.days_until`). The sun, HUD date, phenology, farmland and forbs follow through `set_calendar_date`. Entry points: `MapViewRuntime.shift_calendar_days` / `jump_to_season`, keys in `map_view_runtime_input.gd`.
+- **Debug overlay (mouse).** Open the quick menu and press **Debug**. The panel has a **Date and Season** block: the current date, season and mean temperature, buttons `-30d`, `-1d`, `+1d`, `+30d`, and `Winter`, `Spring`, `Summer`, `Autumn` that jump forward to 15 Jan, 21 Apr, 15 Jul and 15 Oct. Clock speed and pause are in the **Time Controls** block above it.
+- **Keys (3D runtime).** `[` / `]` step a day back / forward (Shift: 30 days); `F5` winter, `F6` spring, `F7` summer, `F8` autumn.
+- Elapsed campaign days never go negative, so a step back past the phase's start date wraps to the same calendar day next year (`GameCalendar.days_until`). The sun, HUD date, phenology, farmland and forbs follow through `set_calendar_date`.
+- Entry points: `MapViewRuntime.shift_calendar_days`, `jump_to_season`, `calendar_date`; UI in `scripts/ui/debug_overlay.gd`; keys in `map_view_runtime_input.gd`. Test: `tests/godot/test_debug_overlay.gd`.
 
 ## Verify
 

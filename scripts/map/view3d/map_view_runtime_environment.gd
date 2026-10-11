@@ -129,13 +129,14 @@ func set_time_of_day(next_time: StringName) -> void:
 	sync_music_cycle()
 
 
-## Debug (ADR 0045): moves the campaign date by whole days. Elapsed days only
-## grow, so a step back wraps forward to the same calendar day next year.
+## Debug (ADR 0045): moves the campaign date by whole days. Elapsed days never go
+## negative, so a step back past the phase's start date wraps forward to the same
+## calendar day next year.
 func shift_calendar_days(days: int, calendar_date_provider: Callable) -> void:
 	if days == 0:
 		return
 	var current: Dictionary = calendar_date_provider.call()
-	if days < 0:
+	if days < 0 and cycle_elapsed_days + days < 0:
 		var target := GameCalendarScript.add_days(current, days)
 		days = GameCalendarScript.days_until(current, int(target["month"]), int(target["day"]))
 	_apply_elapsed_days(cycle_elapsed_days + days, calendar_date_provider)
