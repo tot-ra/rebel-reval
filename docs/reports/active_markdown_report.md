@@ -14,12 +14,12 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `1190`
+- Active Markdown files scanned: `1191`
 - Markdown files excluded as archive/reference/out of active scope: `757`
-- Local/external links inspected: `13428`
-- Links to active Markdown docs: `12185`
+- Local/external links inspected: `13447`
+- Links to active Markdown docs: `12192`
 - Links to existing archive/reference/non-active local docs: `464`
-- External links skipped for reachability: `145`
+- External links skipped for reachability: `151`
 - Issues found: `0`
 
 ## Issue counts
@@ -1092,6 +1092,7 @@ No active Markdown documentation issues found.
 - `docs/SYSTEMS/CHURCH_INTERIORS.md`
 - `docs/SYSTEMS/CITIZEN_WARDROBE.md`
 - `docs/SYSTEMS/CITIZENS.md`
+- `docs/SYSTEMS/CITY_DOORS.md`
 - `docs/SYSTEMS/CITY_LANDMARK_SITES.md`
 - `docs/SYSTEMS/CITY_SEA.md`
 - `docs/SYSTEMS/CLOUD_CELLS.md`

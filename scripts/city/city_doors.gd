@@ -5,35 +5,17 @@ extends Node3D
 ## on a hinge at one side of the door gap the building and its collision leave.
 ## Enterable houses swing their door inward when Kalev comes within OPEN_RADIUS
 ## of it and shut it again once he has moved on; other houses keep it closed.
-## Styles vary per building (deterministic by building id): plank with iron
-## strap hinges, braced boarding, studded oak, round-headed doors for stone
-## houses, and double leaves for wide halls.
+## Profiles follow census wealth and explicit landmark entrance roles (R-1692).
+## Rectangular leaves retain the authored apertures; see SYSTEMS/CITY_DOORS.md.
 
 const OPEN_RADIUS := 2.4
 const OPEN_ANGLE := deg_to_rad(100.0)
 const SWING_SPEED := deg_to_rad(220.0)
-const LEAF_THICKNESS := 0.09
 const CHECK_RADIUS := 12.0
 const TIMBER_ALBEDO := "res://assets/materials/pbr/timber/timber_albedo.png"
 const TIMBER_NORMAL := "res://assets/materials/pbr/timber/timber_normal.png"
+const Details := preload("res://scripts/city/city_door_details.gd")
 
-## Rectangular leaves only: the openings are rectangular.
-const STYLES: Array[StringName] = [&"plank", &"braced", &"studded", &"ledged"]
-## Outbuilding doors: bare weathered or tarred boards, no paint and no ironwork.
-const ROUGH_PAINTS: Array[Color] = [
-	Color(0.44, 0.40, 0.34),  # weathered grey oak
-	Color(0.36, 0.31, 0.25),  # old pine
-	Color(0.24, 0.20, 0.17),  # tarred
-]
-const PAINTS: Array[Color] = [
-	Color(0.52, 0.38, 0.25),  # oiled oak
-	Color(0.24, 0.20, 0.17),  # tarred
-	Color(0.55, 0.24, 0.17),  # ochre red
-	Color(0.30, 0.38, 0.30),  # faded verdigris green
-	Color(0.44, 0.40, 0.34),  # weathered grey oak
-]
-
-static var _mesh_cache: Dictionary = {}
 static var _materials: Dictionary = {}
 
 var plan: CityPlan
@@ -51,6 +33,7 @@ static func create(city_plan: CityPlan) -> CityDoors:
 
 
 func _build() -> void:
+	CityHouseWealth.bind(plan)
 	for i in plan.buildings.size():
 		var b: Dictionary = plan.buildings[i]
 		if b.get("door") == null:
@@ -58,22 +41,8 @@ func _build() -> void:
 		var gap := door_gap(plan, i)
 		if gap.is_empty():
 			continue
-		var rng := RandomNumberGenerator.new()
-		rng.seed = hash(String(b["id"]) + ":door")
-		var style: StringName = STYLES[rng.randi() % STYLES.size()]
-		if String(b["material"]) == "limestone" and rng.randf() < 0.5:
-			style = &"studded"
-		var paint: Color = PAINTS[rng.randi() % PAINTS.size()]
-		# WHY: sheds, sties and byres had cheap ledged boarding, not the strapped
-		# or studded doors of dwellings (their openings are also smaller, see
-		# CityBuildingBuilder.door_size).
-		var rough := (
-			String(b.get("kind", "")) == "outbuilding"
-			and CityBuildingBuilder.OUTBUILDING_DOORS.has(StringName(String(b.get("type", ""))))
-		)
-		if rough:
-			style = &"rough"
-			paint = ROUGH_PAINTS[rng.randi() % ROUGH_PAINTS.size()]
+		var tier := CityHouseWealth.tier_of(b, plan.footprint(i))
+		var look := Details.look(b, tier)
 		var double := float(gap["width"]) > 2.2 or String(b.get("landmark_id", "")) != ""
 		doors[i] = _hang(
 			"Door_%d" % i,
@@ -81,10 +50,11 @@ func _build() -> void:
 			gap["b"],
 			float(gap["floor"]),
 			gap["inward"],
-			style,
-			paint,
+			look["style"],
+			look["paint"],
 			CityBuildingBuilder.door_size(b).y - 0.05,
-			double
+			double,
+			look["variant"]
 		)
 		doors[i]["enterable"] = bool(b.get("enterable", false))
 	# Landmark site doors (ADR 0032), keyed "site:<door id>".
@@ -102,7 +72,7 @@ func _build() -> void:
 				d["b"],
 				floor_y,
 				d["inward"],
-				d["style"],
+				Details.site_style(d),
 				d["paint"],
 				float(d["height"]) - 0.05,
 				width > 2.2
@@ -120,7 +90,8 @@ func _hang(
 	style: StringName,
 	paint: Color,
 	height: float,
-	double: bool
+	double: bool,
+	variant := 0
 ) -> Dictionary:
 	var leaves := 2 if double else 1
 	var leaf_w := a.distance_to(b) / leaves
@@ -133,15 +104,19 @@ func _hang(
 		hinge.position = Vector3(from.x, floor_y, from.y)
 		hinge.basis = Basis(Vector3.UP, atan2(-toward.y, toward.x))
 		var leaf := MeshInstance3D.new()
-		leaf.mesh = _leaf_mesh(style, leaf_w, height)
-		leaf.material_override = _material(paint)
-		# Mesh spans +X from the hinge; mirror the second leaf so it opens the same way.
-		if k == 1:
+		leaf.mesh = Details.mesh(style, leaf_w, height, variant)
+		for surface in leaf.mesh.get_surface_count():
+			if leaf.mesh.surface_get_name(surface) == "wood":
+				leaf.set_surface_override_material(surface, _material(paint))
+		# The authored inward normal, not endpoint order, determines the facade.
+		# Otherwise one leaf or an entire north-facing entrance hides its ironwork.
+		if _inward_sign(hinge, inward) < 0.0:
 			leaf.scale = Vector3(1, 1, -1)
 		hinge.add_child(leaf)
 		add_child(hinge)
 		hinge_nodes.append(hinge)
 	return {
+		"style": style,
 		"hinges": hinge_nodes,
 		"inward": inward,
 		"open": 0.0,
@@ -260,124 +235,6 @@ static func _material(paint: Color) -> Material:
 	return _materials[key]
 
 
-## Leaf from the hinge (x = 0) along +X, bottom at y = 0, centred on z = 0.
-## Vertex colour darkens iron and shadows the boarding joints.
+## Kept for existing geometry probes; production materials are per surface.
 static func _leaf_mesh(style: StringName, width: float, height: float) -> ArrayMesh:
-	var key := "%s:%.2f:%.2f" % [style, width, height]
-	if _mesh_cache.has(key):
-		return _mesh_cache[key]
-	var shell := CityBuildingBuilder.Shell.new()
-	var wood := Color(1, 1, 1)
-	var iron := Color(0.16, 0.15, 0.14)
-	var t := LEAF_THICKNESS
-	var top := height
-	_box(shell, Vector3(0.0, 0.0, -t * 0.5), Vector3(width, top, t * 0.5), wood)
-	# Board joints.
-	var boards := maxi(3, int(width / 0.22))
-	for k in range(1, boards):
-		var x := width * float(k) / boards
-		_box(
-			shell,
-			Vector3(x - 0.008, 0.02, t * 0.5),
-			Vector3(x + 0.008, top * 0.97, t * 0.5 + 0.004),
-			Color(0.45, 0.45, 0.45)
-		)
-	match style:
-		&"rough":
-			# Two plain wooden ledges and a wooden latch bar; nothing forged.
-			for y: float in [0.25, top - 0.3]:
-				_box(
-					shell,
-					Vector3(0.03, y, t * 0.5),
-					Vector3(width - 0.03, y + 0.11, t * 0.5 + 0.03),
-					wood * 0.8
-				)
-			_box(
-				shell,
-				Vector3(width * 0.62, top * 0.5, t * 0.5),
-				Vector3(width * 0.9, top * 0.5 + 0.04, t * 0.5 + 0.035),
-				wood * 0.7
-			)
-			var rough_mesh := shell.to_mesh(func(_k: String) -> Material: return null)
-			_mesh_cache[key] = rough_mesh
-			return rough_mesh
-		&"plank":
-			for y: float in [0.35, top - 0.45]:
-				_box(
-					shell,
-					Vector3(0.0, y, t * 0.5),
-					Vector3(width * 0.78, y + 0.07, t * 0.5 + 0.02),
-					iron
-				)
-		&"braced":
-			for y: float in [0.3, top * 0.5, top - 0.35]:
-				_box(
-					shell,
-					Vector3(0.04, y, t * 0.5),
-					Vector3(width - 0.04, y + 0.12, t * 0.5 + 0.035),
-					wood * 0.85
-				)
-			_brace(shell, width, top, t, wood * 0.85)
-		&"studded":
-			for row in 7:
-				for col in 4:
-					var cx := width * (float(col) + 0.5) / 4.0
-					var cy := top * (float(row) + 0.7) / 7.6
-					_box(
-						shell,
-						Vector3(cx - 0.025, cy - 0.025, t * 0.5),
-						Vector3(cx + 0.025, cy + 0.025, t * 0.5 + 0.02),
-						iron
-					)
-	# Ring handle.
-	_box(
-		shell,
-		Vector3(width * 0.82, top * 0.45, t * 0.5),
-		Vector3(width * 0.86, top * 0.5, t * 0.5 + 0.05),
-		iron
-	)
-	var mesh := shell.to_mesh(func(_k: String) -> Material: return null)
-	_mesh_cache[key] = mesh
-	return mesh
-
-
-static func _box(shell: CityBuildingBuilder.Shell, lo: Vector3, hi: Vector3, color: Color) -> void:
-	var c := (lo + hi) * 0.5
-	var corners := [
-		Vector3(lo.x, lo.y, lo.z),
-		Vector3(hi.x, lo.y, lo.z),
-		Vector3(hi.x, hi.y, lo.z),
-		Vector3(lo.x, hi.y, lo.z),
-		Vector3(lo.x, lo.y, hi.z),
-		Vector3(hi.x, lo.y, hi.z),
-		Vector3(hi.x, hi.y, hi.z),
-		Vector3(lo.x, hi.y, hi.z),
-	]
-	var faces := [
-		[0, 1, 2, 3], [5, 4, 7, 6], [4, 0, 3, 7], [1, 5, 6, 2], [3, 2, 6, 7], [4, 5, 1, 0]
-	]
-	for f: Array in faces:
-		var a: Vector3 = corners[f[0]]
-		var b: Vector3 = corners[f[1]]
-		var cc: Vector3 = corners[f[2]]
-		var d: Vector3 = corners[f[3]]
-		shell.quad_out("leaf", a, b, cc, d, color, (a + b + cc + d) * 0.25 - c)
-
-
-static func _brace(
-	shell: CityBuildingBuilder.Shell, width: float, top: float, t: float, color: Color
-) -> void:
-	var a := Vector2(0.08, 0.42)
-	var b := Vector2(width - 0.08, top * 0.5 - 0.02)
-	var dir := (b - a).normalized()
-	var n := Vector2(-dir.y, dir.x) * 0.055
-	var z := t * 0.5 + 0.035
-	shell.quad_out(
-		"leaf",
-		Vector3(a.x - n.x, a.y - n.y, z),
-		Vector3(b.x - n.x, b.y - n.y, z),
-		Vector3(b.x + n.x, b.y + n.y, z),
-		Vector3(a.x + n.x, a.y + n.y, z),
-		color,
-		Vector3.BACK
-	)
+	return Details.mesh(style, width, height)

@@ -368,3 +368,9 @@ The following legacy material remains non-canon. Do not implement.
   * Superseded by Hope/Fear Living City contract and authored mission templates. See Promoted and rejected story seeds above.
 * **Kalev wife/daughter hostage climax** - **non-canon**
   * Superseded by [`docs/CHARACTERS/kalev-family.md`](./CHARACTERS/kalev-family.md).
+
+
+## Door construction and entrance hardware (R-1692)
+
+- **`attested` (later comparison, not 1343 evidence):** the King's Chapel door in Tallinn Dome has vertical pine planks, inclined bars and outer oak boarding (Läänelaid et al., *Dendrochronologia*, 2025, [DOI](https://doi.org/10.1016/j.dendro.2025.126462)). The [accessible secondary account](https://arkeonews.net/one-of-northern-europes-oldest-doors-found-estimated-to-be-650-years-old/) reports oak cut around the early 1380s. Do not silently backdate that surviving door to the playable period. Publisher full text was inaccessible in this pass.
+- **`plausible composite`:** differentiated board leaves, ledges, straps, nail heads, iron rings and restrained branched ironwork at the council hall and churches in the seamless city. No exact named entrance fitting is claimed as attested in 1343. The modern [Doors of Tallinn](https://doorsoftallinn.com/) photo collection is inspiration only, not dating evidence or a source of runtime textures. Profile decisions, IDs and limitations: [City doors](./SYSTEMS/CITY_DOORS.md).

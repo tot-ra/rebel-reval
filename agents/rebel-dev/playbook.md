@@ -355,3 +355,6 @@ This file contains lessons specific to the Dev role.
 - When wrapping a patched Python function in a test, capture the real callable before entering `patch.object`; capturing it inside the patch saves the Mock and makes a forwarding `side_effect` recurse. Rollout-mode tests should inject a fixed coverage gap rather than depend on currently unfinished art. Do not run catalog suites concurrently: existing mutation tests temporarily rewrite real catalog JSON, so a second validation can observe transient state.
 
 - Full-city GPU captures may exit 0 after shader-link or instance-uniform allocation errors. Inspect ERROR lines before accepting plates; Compatibility can hit both the 4096 instance-variable limit and the 16 fragment-sampler limit even when Mobile renders. Keep successful-renderer evidence separate from fallback diagnostics.
+
+- Keep network reference fetching separate from local evidence-page generation: an HTTP 403/400 must not abort the independent visual-review artifact. Readable abstracts or secondary accounts must be labelled as such, not described as inspected full text.
+- A successful GPU capture exit is not visual evidence by itself. Reject near-uniform white frames (inspect pixel histogram/variance), and label any replacement viewpoint and unreviewed entrance explicitly rather than implying every shot passed.
