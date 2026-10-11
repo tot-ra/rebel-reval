@@ -12,6 +12,12 @@
 | Faction ties | harju_kings |
 | Archive reference images | none |
 
+![marras concept art](../inspiration/marras_concept.jpg)
+
+**Illustration:** Generated with OpenAI Image Generation (`gpt-image-1`), 1024 x 1024. Documentation concept art only; existing archive references are retained.
+
+**Generation prompt:** Photorealistic cinematic creature concept art, like a high-end practical-effects film still photographed on location. An Estonian death omen called Marras, an omen-double. Show two unmistakably matching full figures: an ordinary 14th-century Baltic man in a coarse grey-brown wool tunic standing in profile on a muddy rural road, and his exact pale translucent supernatural double one step behind him, matching his face, clothing, posture and silhouette perfectly. Paired silhouettes central and immediately readable. Subtle translucency, cold ash-grey edges and faint doubled shadow distinguish the double while keeping it recognizably human. A tiny, faint funeral procession far in the background serves only as premonition. Bare rural medieval Estonia, damp grass, overcast cold dawn, naturalistic skin and wool, physically plausible fog and lighting, realistic lens depth of field, subdued charcoal and earth palette, nuanced film grain, believable historical costume, documentary photographic realism, sparse uncluttered frame. No stylization, painterly brushwork, gore, attack, weapons, scythe, skeleton, reaper, monster features, extra people, modern objects, text or watermark.
+
 ## At a glance
 - A person or a funeral procession seen before the real death.
 - Seen only by those near the dying.
