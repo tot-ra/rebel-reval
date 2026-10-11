@@ -14,10 +14,10 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `1193`
+- Active Markdown files scanned: `1195`
 - Markdown files excluded as archive/reference/out of active scope: `758`
-- Local/external links inspected: `13660`
-- Links to active Markdown docs: `12294`
+- Local/external links inspected: `13669`
+- Links to active Markdown docs: `12302`
 - Links to existing archive/reference/non-active local docs: `486`
 - External links skipped for reachability: `151`
 - Issues found: `0`
@@ -152,7 +152,9 @@ No active Markdown documentation issues found.
 - `docs/ART_BIBLE.md`
 - `docs/ASSET_INVENTORY.md`
 - `docs/ASSET_STORAGE_POLICY.md`
+- `docs/BESTIARY/cards/bear.md`
 - `docs/BESTIARY/cards/black_cloak_fighter.md`
+- `docs/BESTIARY/cards/boar.md`
 - `docs/BESTIARY/cards/brute.md`
 - `docs/BESTIARY/cards/domovoi.md`
 - `docs/BESTIARY/cards/hiid.md`

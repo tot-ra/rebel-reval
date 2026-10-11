@@ -78,7 +78,9 @@ One page per feature, with status, behavior, code entry points, content, saved s
 #### `BESTIARY/`
 
 - [Creature card template](BESTIARY/TEMPLATE.md)
+- [Bear](BESTIARY/cards/bear.md)
 - [Black Cloak fighter](BESTIARY/cards/black_cloak_fighter.md)
+- [Wild boar](BESTIARY/cards/boar.md)
 - [Brute](BESTIARY/cards/brute.md)
 - [Domovoy](BESTIARY/cards/domovoi.md)
 - [Hiid](BESTIARY/cards/hiid.md)

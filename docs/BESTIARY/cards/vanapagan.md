@@ -12,16 +12,8 @@
 | Faction ties | cult_metsik, church |
 | Archive reference images | image-18 |
 
-![vanapagan concept art](../inspiration/vanapagan_concept.jpg)
-
-**Illustration:** Generated with OpenAI `gpt-image-1`. Photorealistic documentation concept art for a spirit-layer creature; existing archive references are retained.
-
-**Generation prompt:** Photorealistic cinematic portrait of Vanapagan, the ancient Old Devil of Estonian folklore, not Christian Satan: an imposing, broad-shouldered Baltic peasant-like spirit with charcoal-black, naturally textured skin and a weathered human face, wearing coarse smoke-dark wool, stooped beneath a cramped 14th-century monastery cellar arch. Calm and wry, he offers a small iron key and folded parchment contract as if negotiating. Detailed pores, wrinkles, damp wool fibers, soot and aged stone; unmistakably supernatural, with his lower body and sleeve edges dissolving into dense charcoal smoke and drifting ash, subtle ember fissures beneath his blackened skin at hands and temples, and candle flames bending toward him. Restrained ember motes and cold mist, tactile photographic realism, historically grounded, full figure, cinematic candlelight, charcoal and earth tones with restrained warm embers. No horns, pitchfork, demonic cliché, text or watermark.
-
-**Negative prompt:** Christian Satan, generic devil, horns, pitchfork, wings, red skin, modern objects or clothing, painterly illustration, anime, text, watermark, gore
-
 ## At a glance
-- A tall, broad figure whose charcoal-black skin and smoke-dark robes blur at the edges; a horn-like shadow can gather behind his head, but he has no physical horns.
+- A tall figure in dark robes with horn-like silhouettes.
 - Sells souls for work: kratt, tulihänd, pacts.
 - Appears under monasteries and in the cult's rites.
 - Boss of the spirit layer in Act 3.
