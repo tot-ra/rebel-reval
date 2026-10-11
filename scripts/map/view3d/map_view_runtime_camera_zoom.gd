@@ -16,12 +16,19 @@ const PAN_SCROLL_ZOOM_SENSITIVITY := 1.0
 const THIRD_PERSON_DISTANCE := 6.0
 ## Closest boom before scroll-zoom flips into first-person.
 const THIRD_PERSON_MIN_DISTANCE := 2.0
-## Farthest boom before scroll-zoom flips into the orthographic top-down overview.
+## Farthest boom before scroll-zoom flips into the next overview (painted iso where
+## the view offers it, otherwise the orthographic top-down).
 const THIRD_PERSON_MAX_DISTANCE := 12.0
+## Painted-iso boom band (R-1744): 30-45 m of telephoto between third person and
+## the orthographic overview.
+const PAINTED_ISO_DISTANCE := 42.0
+const PAINTED_ISO_MIN_DISTANCE := 30.0
+const PAINTED_ISO_MAX_DISTANCE := 45.0
 
 var _controller: MapViewRuntimeCamera
 var _top_down_size := CharacterScale.GAMEPLAY_ORTHOGRAPHIC_SIZE
 var _third_person_distance := THIRD_PERSON_DISTANCE
+var _painted_iso_distance := PAINTED_ISO_DISTANCE
 
 
 func configure(controller: MapViewRuntimeCamera) -> void:
@@ -32,6 +39,10 @@ func configure(controller: MapViewRuntimeCamera) -> void:
 
 func third_person_distance() -> float:
 	return _third_person_distance
+
+
+func painted_iso_distance() -> float:
+	return _painted_iso_distance
 
 
 func top_down_size() -> float:
@@ -51,6 +62,10 @@ func apply_view_steps(steps: float) -> void:
 			# threshold restores third-person at the farthest boom.
 			var next_size := _controller.camera.size * pow(ZOOM_STEP_FACTOR, steps)
 			if next_size < ZOOM_MIN_ORTHOGRAPHIC_SIZE and steps > 0.0:
+				if _controller.painted_iso_available():
+					_painted_iso_distance = PAINTED_ISO_MAX_DISTANCE
+					_controller.set_camera_mode(MapViewRuntimeCamera.CameraMode.PAINTED_ISO)
+					return
 				_third_person_distance = THIRD_PERSON_MAX_DISTANCE
 				_controller.set_camera_mode(MapViewRuntimeCamera.CameraMode.THIRD_PERSON)
 				return
@@ -67,13 +82,28 @@ func apply_view_steps(steps: float) -> void:
 				_controller.set_camera_mode(MapViewRuntimeCamera.CameraMode.FIRST_PERSON)
 				return
 			if next_distance > THIRD_PERSON_MAX_DISTANCE:
-				# Crossing the far threshold enters the orthographic overview.
+				# Crossing the far threshold enters the painted iso or the ortho overview.
 				_third_person_distance = THIRD_PERSON_MAX_DISTANCE
+				if _controller.painted_iso_available():
+					_painted_iso_distance = PAINTED_ISO_MIN_DISTANCE
+					_controller.set_camera_mode(MapViewRuntimeCamera.CameraMode.PAINTED_ISO)
+					return
 				_controller.set_camera_mode(MapViewRuntimeCamera.CameraMode.TOP_DOWN)
 				return
 			_third_person_distance = clampf(
 				next_distance, THIRD_PERSON_MIN_DISTANCE, THIRD_PERSON_MAX_DISTANCE
 			)
+			_controller.follow_player(true, 0.0)
+		MapViewRuntimeCamera.CameraMode.PAINTED_ISO:
+			var next_iso := _painted_iso_distance * pow(ZOOM_STEP_FACTOR, steps)
+			if next_iso < PAINTED_ISO_MIN_DISTANCE:
+				_third_person_distance = THIRD_PERSON_MAX_DISTANCE
+				_controller.set_camera_mode(MapViewRuntimeCamera.CameraMode.THIRD_PERSON)
+				return
+			if next_iso > PAINTED_ISO_MAX_DISTANCE:
+				_controller.set_camera_mode(MapViewRuntimeCamera.CameraMode.TOP_DOWN)
+				return
+			_painted_iso_distance = next_iso
 			_controller.follow_player(true, 0.0)
 		MapViewRuntimeCamera.CameraMode.FIRST_PERSON:
 			# Scroll-out restores the closest third-person boom; scroll-in is a no-op.

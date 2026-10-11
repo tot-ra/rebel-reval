@@ -109,6 +109,7 @@ const SUN_SHADOW_SPLIT_3 := 0.4
 ## Penumbra width (PCF blur) so tree, building and actor shadows soften with the
 ## distance-independent filter instead of the old razor-hard edge.
 const SUN_SHADOW_BLUR := 1.8
+const PerfProbeScript := preload("res://scripts/debug/perf_probe.gd")
 const SUN_SHADOW_BIAS := 0.05
 const SUN_SHADOW_NORMAL_BIAS := 1.2
 
@@ -116,6 +117,9 @@ var definition: MapDefinition
 var grid: MapTerrainGrid
 var time_of_day: StringName = TIME_DAY
 var cycle_progress: float = DayNightCycle.DEFAULT_PROGRESS
+## Views that can cut roofs away over the player (CityMapView) offer the painted-iso
+## camera preset (R-1744); district views keep third person <-> top-down.
+var painted_iso_camera := false
 
 var _sun: DirectionalLight3D
 var _sky_weather: SkyWeather3D
@@ -337,8 +341,6 @@ static func _strip_geometry_materials(node: Node) -> void:
 	for child in node.get_children():
 		_strip_geometry_materials(child)
 
-
-const PerfProbeScript := preload("res://scripts/debug/perf_probe.gd")
 
 
 func _process(delta: float) -> void:
@@ -716,6 +718,12 @@ func set_close_camera_mode(enabled: bool) -> void:
 	if daylight_occluder != null:
 		daylight_occluder.visible = true
 	_sync_interior_top_down_background()
+
+
+## Painted-iso roof cutaway hook (R-1744). The runtime camera calls it every sync
+## with world positions; views without cutaway-capable roofs ignore it.
+func update_camera_cutaway(_active: bool, _player_world: Vector3, _camera_world: Vector3) -> void:
+	pass
 
 
 ## Compatibility wrapper for existing first-person callers and focused view tests.

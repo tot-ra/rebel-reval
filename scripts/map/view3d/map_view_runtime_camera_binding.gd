@@ -65,6 +65,10 @@ func is_top_down() -> bool:
 	return _host._camera_controller.camera_mode == MapViewRuntimeCamera.CameraMode.TOP_DOWN
 
 
+func is_overview() -> bool:
+	return _host._camera_controller.is_overview()
+
+
 func zoom_view_steps(steps: float) -> void:
 	var mode_before: MapViewRuntimeCamera.CameraMode = _host._camera_controller.camera_mode
 	_host._camera_controller.zoom_view_steps(steps)

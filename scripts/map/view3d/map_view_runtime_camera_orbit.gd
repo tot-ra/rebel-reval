@@ -10,6 +10,10 @@ const THIRD_PERSON_MIN_PITCH_DEGREES := -55.0
 const THIRD_PERSON_MAX_PITCH_DEGREES := 35.0
 const FIRST_PERSON_MIN_PITCH_DEGREES := -80.0
 const FIRST_PERSON_MAX_PITCH_DEGREES := 80.0
+## Painted iso tilts only inside the reference band so it never drops into a
+## street-level view or flattens into a plan.
+const PAINTED_ISO_MIN_PITCH_DEGREES := -55.0
+const PAINTED_ISO_MAX_PITCH_DEGREES := -45.0
 
 var _controller: MapViewRuntimeCamera
 var _mouse_rotation_armed := false
@@ -75,11 +79,14 @@ func look_pitch_degrees(delta_degrees: float) -> void:
 	if _controller.camera_mode == MapViewRuntimeCamera.CameraMode.THIRD_PERSON:
 		min_pitch = THIRD_PERSON_MIN_PITCH_DEGREES
 		max_pitch = THIRD_PERSON_MAX_PITCH_DEGREES
+	elif _controller.camera_mode == MapViewRuntimeCamera.CameraMode.PAINTED_ISO:
+		min_pitch = PAINTED_ISO_MIN_PITCH_DEGREES
+		max_pitch = PAINTED_ISO_MAX_PITCH_DEGREES
 	# Avoid crossing the vertical poles, which would make yaw and movement flip.
 	_controller.camera.rotation_degrees.x = clampf(
 		_controller.camera.rotation_degrees.x + delta_degrees, min_pitch, max_pitch
 	)
-	if _controller.camera_mode == MapViewRuntimeCamera.CameraMode.THIRD_PERSON:
+	if _controller.camera_mode != MapViewRuntimeCamera.CameraMode.FIRST_PERSON:
 		# Pitch changes the orbit boom; snap so the follow distance stays exact.
 		_controller.follow_player(true, 0.0)
 

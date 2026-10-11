@@ -227,7 +227,12 @@ func _fit_shadow_range(camera: Camera3D) -> void:
 		# The player lives on the 2D logic plane, so map it to the 3D world (ground level).
 		var xz := CityPlan.to_world_xz(player.global_position)
 		var distance := camera.global_position.distance_to(Vector3(xz.x, 0.0, xz.y))
-		reach = clampf(distance * 3.0 + 40.0, 60.0, 170.0)
+		if camera.fov < 40.0:
+			# Painted iso (R-1744): the telephoto frame reaches only ~50 m past
+			# Kalev, so a tight range keeps the painted-look shadows crisp.
+			reach = clampf(distance * 1.6 + 20.0, 60.0, 170.0)
+		else:
+			reach = clampf(distance * 3.0 + 40.0, 60.0, 170.0)
 	sun.directional_shadow_max_distance = lerpf(sun.directional_shadow_max_distance, reach, 0.1)
 
 

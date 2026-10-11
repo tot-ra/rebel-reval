@@ -4,6 +4,7 @@ render_mode blend_mix, depth_draw_opaque, cull_disabled, diffuse_burley, specula
 #include "res://scripts/city/city_plate_hint.gdshaderinc"
 #define CITY_ROOF_PLATE
 #include "res://scripts/city/city_weathering.gdshaderinc"
+#include "res://scripts/city/city_roof_cutaway.gdshaderinc"
 
 uniform float moss = 0.5; // shingle and tile gather moss, thatch greys
 
@@ -13,6 +14,7 @@ void vertex() {
 }
 
 void fragment() {
+	roof_cutaway(w_pos, CAMERA_POSITION_WORLD, FRAGCOORD.xy);
 	vec2 uv = UV * uv_scale.xy;
 	vec3 col = texture(albedo_tex, uv).rgb * base_tint * COLOR.rgb;
 	if (!FRONT_FACING) {

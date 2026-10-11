@@ -6,6 +6,9 @@ extends RefCounted
 
 const FOLLOW_LERP_WEIGHT := 8.0
 const SNAP_DISTANCE_WORLD := 6.0
+## The painted-iso boom glides a little slower than the close follow so the far
+## telephoto frame drifts after Kalev instead of jittering with each step.
+const PAINTED_ISO_FOLLOW_LERP_WEIGHT := 5.0
 
 var _controller: MapViewRuntimeCamera
 
@@ -32,9 +35,12 @@ func follow_player(snap: bool, delta: float) -> void:
 	if snap or camera.position.distance_to(target) > SNAP_DISTANCE_WORLD:
 		camera.position = controller._shake.apply(delta, target)
 	else:
-		var lerped := camera.position.lerp(
-			target, clampf(FOLLOW_LERP_WEIGHT * delta, 0.0, 1.0)
+		var weight := (
+			PAINTED_ISO_FOLLOW_LERP_WEIGHT
+			if controller.camera_mode == MapViewRuntimeCamera.CameraMode.PAINTED_ISO
+			else FOLLOW_LERP_WEIGHT
 		)
+		var lerped := camera.position.lerp(target, clampf(weight * delta, 0.0, 1.0))
 		camera.position = controller._shake.apply(delta, lerped)
 	controller._safety.enforce_camera_safety(
 		camera_was_inside_occluder, camera_and_player_shared_occluder, camera_was_below_ground
@@ -80,6 +86,14 @@ func _follow_target() -> Vector3:
 					+ camera.transform.basis.z
 					* (controller._zoom.third_person_distance() * _swim_boom_scale())
 				)
+			)
+		MapViewRuntimeCamera.CameraMode.PAINTED_ISO:
+			# No wall pull-in: the roof cutaway and the occlusion ghost keep Kalev
+			# readable, so the telephoto frame never lurches toward him.
+			return (
+				controller.player_rig.position
+				+ Vector3.UP * (MapViewRuntimeCamera.THIRD_PERSON_TARGET_HEIGHT + lift.z)
+				+ camera.transform.basis.z * controller._zoom.painted_iso_distance()
 			)
 		_:
 			return (

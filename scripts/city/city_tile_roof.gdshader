@@ -11,6 +11,7 @@ render_mode blend_mix, depth_draw_opaque, cull_disabled, diffuse_burley, specula
 // the channels and at the overlaps on the cooler pitches.
 
 #include "res://scripts/city/city_weathering.gdshaderinc"
+#include "res://scripts/city/city_roof_cutaway.gdshaderinc"
 
 uniform float moss = 0.3;
 uniform float tile_pitch = 0.34; // one nun + one monk, across the slope (m)
@@ -24,6 +25,7 @@ void vertex() {
 }
 
 void fragment() {
+	roof_cutaway(w_pos, CAMERA_POSITION_WORLD, FRAGCOORD.xy);
 	vec2 uv = UV;
 	float course = floor(uv.y / course_len);
 	float cv = fract(uv.y / course_len); // 0 at the course's top, 1 at its lip

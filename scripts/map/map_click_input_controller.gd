@@ -87,7 +87,7 @@ func try_handle_logic_click(logic_position: Vector2) -> bool:
 func is_character_relative_mode() -> bool:
 	if _view_runtime == null:
 		return false
-	return not _view_runtime.is_top_down()
+	return not _view_runtime.is_overview()
 
 
 func _handle_character_relative_click(event: InputEvent) -> bool:

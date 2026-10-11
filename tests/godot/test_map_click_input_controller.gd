@@ -323,6 +323,10 @@ class _StubViewRuntime:
 	func is_top_down() -> bool:
 		return top_down
 
+	# The click controller asks for any overview camera (top-down or painted iso).
+	func is_overview() -> bool:
+		return top_down
+
 
 class _StubHostile:
 	extends Node2D

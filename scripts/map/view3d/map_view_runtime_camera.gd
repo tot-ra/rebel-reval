@@ -3,10 +3,13 @@ extends RefCounted
 
 ## Gameplay camera modes, orbit, look, and top-down zoom for MapViewRuntime.
 
+## PAINTED_ISO is appended last so the stored ints of the older modes stay stable
+## (capture tools pass TOP_DOWN as 2).
 enum CameraMode {
 	THIRD_PERSON,
 	FIRST_PERSON,
 	TOP_DOWN,
+	PAINTED_ISO,
 }
 
 const CameraSafety := preload("res://scripts/map/view3d/map_view_runtime_camera_safety.gd")
@@ -59,6 +62,13 @@ const FIRST_PERSON_MAX_PITCH_DEGREES := CameraOrbit.FIRST_PERSON_MAX_PITCH_DEGRE
 const FIRST_PERSON_FOV_DEGREES := CameraModes.FIRST_PERSON_FOV_DEGREES
 const FIRST_PERSON_NEAR := CameraModes.FIRST_PERSON_NEAR
 const TOP_DOWN_NEAR := CameraModes.TOP_DOWN_NEAR
+const PAINTED_ISO_PITCH_DEGREES := CameraModes.PAINTED_ISO_PITCH_DEGREES
+const PAINTED_ISO_FOV_DEGREES := CameraModes.PAINTED_ISO_FOV_DEGREES
+const PAINTED_ISO_DISTANCE := CameraZoom.PAINTED_ISO_DISTANCE
+const PAINTED_ISO_MIN_DISTANCE := CameraZoom.PAINTED_ISO_MIN_DISTANCE
+const PAINTED_ISO_MAX_DISTANCE := CameraZoom.PAINTED_ISO_MAX_DISTANCE
+const PAINTED_ISO_MIN_PITCH_DEGREES := CameraOrbit.PAINTED_ISO_MIN_PITCH_DEGREES
+const PAINTED_ISO_MAX_PITCH_DEGREES := CameraOrbit.PAINTED_ISO_MAX_PITCH_DEGREES
 ## Re-exported so camera attribute tests keep a stable MapViewRuntimeCamera API.
 const PERSPECTIVE_AUTO_EXPOSURE_SCALE := CameraPerspective.PERSPECTIVE_AUTO_EXPOSURE_SCALE
 const PERSPECTIVE_EXPOSURE_SENSITIVITY := CameraPerspective.PERSPECTIVE_EXPOSURE_SENSITIVITY
@@ -134,7 +144,23 @@ func logic_direction_camera_faces() -> Vector2:
 
 
 func character_follows_camera() -> bool:
-	return camera_mode != CameraMode.TOP_DOWN
+	return not is_overview()
+
+
+## Overview modes look down on the street from far above: WASD is screen-relative,
+## the mouse picks ground and targets, and the character keeps its own facing.
+func is_overview() -> bool:
+	return camera_mode == CameraMode.TOP_DOWN or camera_mode == CameraMode.PAINTED_ISO
+
+
+## The painted-iso preset only joins the cycle and zoom continuum where the view
+## opts in (the seamless city, which cuts roofs away over the player).
+func painted_iso_available() -> bool:
+	return view != null and view.painted_iso_camera
+
+
+func painted_iso_distance() -> float:
+	return _zoom.painted_iso_distance()
 
 
 func follow_player(snap: bool, delta: float) -> void:

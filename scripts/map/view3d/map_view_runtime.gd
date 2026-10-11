@@ -422,6 +422,11 @@ func is_top_down() -> bool:
 	return _camera_binding.is_top_down()
 
 
+## Top-down or painted iso: the far cameras where the cursor, not the character, aims.
+func is_overview() -> bool:
+	return _camera_binding.is_overview()
+
+
 func zoom_view_steps(steps: float) -> void:
 	_camera_binding.zoom_view_steps(steps)
 

@@ -147,11 +147,54 @@ require a hands-on check; automated coverage uses synthetic input events.
 
 ## Camera
 
-- `C` cycles third-person, first-person, top-down.
+- `C` (gamepad: right stick click) cycles third-person, first-person, painted
+  iso (seamless city only), top-down. Maps without painted iso skip it.
 - The scroll wheel (or trackpad pinch/two-finger scroll) is one continuum:
-  zooming in from third-person enters first-person, zooming out enters the
-  orthographic top-down overview.
+  zooming in from third-person enters first-person, zooming out enters painted
+  iso (city) and then the orthographic top-down overview.
 - `PageUp` / `PageDown` rotate the view without the mouse.
+
+### Painted iso view
+
+Status: implemented (task **R-1744**). Scope: the seamless Reval city and the
+regional site scenes that use `CityMapView`. Out of scope: district
+`MapView3D` maps, wall cutaway, the start mode (third person stays the default).
+
+A high telephoto camera that reads like the painted isometric references
+(`docs/reports/images/city/painted_iso_compare.jpg`): a true perspective lens
+with a 30 deg FOV, pitched 50 deg down, 42 m out by default.
+
+- **Zoom:** the boom spans 30-45 m. Zooming out of third person at 12 m enters
+  iso at 30 m; past 45 m it enters top-down; zooming in from top-down resumes
+  iso at 45 m; below 30 m it returns to third person at 12 m.
+- **Orbit:** right-drag horizontally or `PageUp` / `PageDown` yaw the view;
+  right-drag vertically tilts only within 45-55 deg.
+- **Follow:** the boom glides after the player (lerp weight 5, slower than the
+  close follow's 8) and never pulls in toward walls.
+- **Input:** iso is an overview like top-down: WASD and the left stick are
+  screen-relative, the character keeps its own facing, and left click aims at
+  the cursor (click-to-move, interact, attack) instead of the facing cone.
+- **Roof cutaway:** city roofs (houses, wall-walk roofs) dither away around the
+  sight line from the player's chest to the lens, within about 3 m of it and only
+  in front of the player. Shadow passes keep the roof, so no sunlight leaks onto
+  the street. Walls rely on the existing occlusion ghost silhouette.
+- **Lens extras:** far depth of field is off (the player is past its start),
+  the near plane is 0.5 m, and the city shadow range tightens to the telephoto
+  frame.
+
+Runtime entry points: `MapViewRuntimeCamera.CameraMode.PAINTED_ISO`
+(`scripts/map/view3d/map_view_runtime_camera*.gd`), the view opt-in
+`MapView3D.painted_iso_camera` (set by `CityMapView.create`), the hook
+`MapView3D.update_camera_cutaway()`, `CityBuildingBuilder.set_roof_cutaway()`
+and `scripts/city/city_roof_cutaway.gdshaderinc`. The camera mode is not saved.
+
+Verify: `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_map_view_runtime_camera`;
+captures with `tools/godot_render.sh --resolution 1600x900 res://tools/capture_city_painted_iso.tscn`
+(Raekoja plats and the forge street, third person and iso, plus a cutaway proof).
+
+Limits: the iso frames read darker than the references because the ground and
+roofs fill the frame (no sky) and Mobile has no auto exposure; site-kit roofs
+(churches, the smithy) use their own materials and are not cut away.
 
 ## Rationale
 

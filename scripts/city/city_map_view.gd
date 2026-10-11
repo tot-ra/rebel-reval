@@ -27,6 +27,7 @@ var water_foam_sim: WaterFoamSim
 var _surface_sampler: CitySurfaceSampler
 ## Autumn leaves shed by the trees around the player (ADR 0045).
 var _leaf_fall: CityLeafFall
+var _roof_cutaway_on := false
 ## Settled snow cover (0..1) for the campaign date; footsteps read it.
 var _snow_cover := 0.0
 
@@ -42,6 +43,8 @@ static func create_city(city_plan: CityPlan, quality_tier: Variant = null) -> Ci
 	var view := CityMapView.new()
 	view.name = "MapView3D"
 	view.add_to_group(&"city_view")
+	# City roofs carry the painted-iso cutaway, so the preset joins the camera cycle.
+	view.painted_iso_camera = true
 	view.plan = city_plan
 	view.definition = CityMapDefinition.from_plan(city_plan)
 	view.world = CityWorld3D.create(city_plan)
@@ -411,6 +414,14 @@ func update_terrain_detail_focus(_world_position: Vector3) -> void:
 
 func set_close_camera_mode(_enabled: bool) -> void:
 	pass
+
+
+func update_camera_cutaway(active: bool, player_world: Vector3, camera_world: Vector3) -> void:
+	# Skip the per-frame uniform writes once the cutaway is already off.
+	if not active and not _roof_cutaway_on:
+		return
+	_roof_cutaway_on = active
+	CityBuildingBuilder.set_roof_cutaway(active, player_world, camera_world)
 
 
 func set_interior_shell_for_first_person(_enabled: bool) -> void:

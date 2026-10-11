@@ -14,6 +14,13 @@ const FIRST_PERSON_PITCH_DEGREES := -10.0
 const FIRST_PERSON_FOV_DEGREES := 75.0
 const FIRST_PERSON_NEAR := 0.05
 const TOP_DOWN_NEAR := 0.05
+## Painted-iso preset (R-1744): a high telephoto boom that reads like the painted
+## isometric references (ART_BIBLE) while staying a true perspective camera.
+## ~50 deg down and a narrow ~30 deg lens flatten the street almost to iso.
+const PAINTED_ISO_PITCH_DEGREES := -50.0
+const PAINTED_ISO_FOV_DEGREES := 30.0
+## The lens sits 30-45 m out, so a farther near plane buys depth precision.
+const PAINTED_ISO_NEAR := 0.5
 
 var _controller: MapViewRuntimeCamera
 
@@ -34,6 +41,12 @@ func cycle_camera_mode() -> void:
 		MapViewRuntimeCamera.CameraMode.THIRD_PERSON:
 			set_camera_mode(MapViewRuntimeCamera.CameraMode.FIRST_PERSON)
 		MapViewRuntimeCamera.CameraMode.FIRST_PERSON:
+			set_camera_mode(
+				MapViewRuntimeCamera.CameraMode.PAINTED_ISO
+				if _controller.painted_iso_available()
+				else MapViewRuntimeCamera.CameraMode.TOP_DOWN
+			)
+		MapViewRuntimeCamera.CameraMode.PAINTED_ISO:
 			set_camera_mode(MapViewRuntimeCamera.CameraMode.TOP_DOWN)
 		MapViewRuntimeCamera.CameraMode.TOP_DOWN:
 			set_camera_mode(MapViewRuntimeCamera.CameraMode.THIRD_PERSON)
@@ -75,6 +88,12 @@ func apply_mode() -> void:
 			camera.near = FIRST_PERSON_NEAR
 			camera.rotation_degrees.x = FIRST_PERSON_PITCH_DEGREES
 			_controller._perspective.apply_for_perspective_mode(_controller.camera_mode)
+		MapViewRuntimeCamera.CameraMode.PAINTED_ISO:
+			camera.projection = Camera3D.PROJECTION_PERSPECTIVE
+			camera.fov = PAINTED_ISO_FOV_DEGREES
+			camera.near = PAINTED_ISO_NEAR
+			camera.rotation_degrees.x = PAINTED_ISO_PITCH_DEGREES
+			_controller._perspective.apply_for_perspective_mode(_controller.camera_mode)
 		MapViewRuntimeCamera.CameraMode.TOP_DOWN:
 			camera.projection = Camera3D.PROJECTION_ORTHOGONAL
 			camera.size = _controller._zoom.top_down_size()
@@ -83,15 +102,10 @@ func apply_mode() -> void:
 			_controller._perspective.clear_for_top_down()
 	_controller.player_rig.visible = not _controller.first_person
 	# Close perspective cameras need the ceiling shell and nearby micro detail;
-	# only the distant top-down view uses the readability cutaway.
-	_controller.view.set_close_camera_mode(
-		_controller.camera_mode != MapViewRuntimeCamera.CameraMode.TOP_DOWN
-	)
+	# only the distant overview cameras use the readability cutaway.
+	_controller.view.set_close_camera_mode(not _controller.is_overview())
 	_controller.follow_player(true, 0.0)
-	if (
-		_controller.camera_mode == MapViewRuntimeCamera.CameraMode.TOP_DOWN
-		and _controller.player.has_method("set_camera_facing")
-	):
+	if _controller.is_overview() and _controller.player.has_method("set_camera_facing"):
 		_controller.player.call("set_camera_facing", Vector2.ZERO)
 	sync_player_facing_to_camera()
 
@@ -102,6 +116,8 @@ func mode_label() -> String:
 			return "Third-person view"
 		MapViewRuntimeCamera.CameraMode.FIRST_PERSON:
 			return "First-person view"
+		MapViewRuntimeCamera.CameraMode.PAINTED_ISO:
+			return "Painted iso view"
 		_:
 			return "Top-down view"
 

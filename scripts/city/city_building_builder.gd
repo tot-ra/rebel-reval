@@ -151,6 +151,22 @@ static func set_wetness(value: float) -> void:
 			(mat as ShaderMaterial).set_shader_parameter("wetness", value)
 
 
+## Painted-iso roof cutaway (R-1744, city_roof_cutaway.gdshaderinc): every city
+## roof material (houses, sites' shared shingle, wall-walk roofs) dithers away
+## around the sight line from `player` to `camera` while `active`.
+static func set_roof_cutaway(active: bool, player: Vector3, camera: Vector3) -> void:
+	for mat: Variant in _materials.values():
+		var shader_mat := mat as ShaderMaterial
+		if shader_mat == null or not (
+			shader_mat.shader == ROOF_SHADER or shader_mat.shader == TILE_ROOF_SHADER
+		):
+			continue
+		shader_mat.set_shader_parameter("cutaway_on", active)
+		if active:
+			shader_mat.set_shader_parameter("cutaway_player", player)
+			shader_mat.set_shader_parameter("cutaway_camera", camera)
+
+
 ## `stem` pins a timber wall to one library plate (CityHouseWealth); without
 ## it the family keeps its single shared plate.
 static func wall_material(family: StringName, stem := "") -> Material:

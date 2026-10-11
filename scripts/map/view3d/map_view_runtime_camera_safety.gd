@@ -91,6 +91,7 @@ func update_occlusion_ghost() -> void:
 	var camera := controller.camera
 	var view := controller.view
 	var player_rig := controller.player_rig
+	_update_roof_cutaway()
 	if (
 		controller.first_person
 		or (
@@ -109,6 +110,22 @@ func update_occlusion_ghost() -> void:
 			occluded = true
 			break
 	player_rig.set_occlusion_ghost(occluded)
+
+
+## Painted iso looks down across the eaves, so roofs between the lens and Kalev are
+## dithered away around the sight line (city roof shaders). Other modes clear it.
+func _update_roof_cutaway() -> void:
+	var controller := _controller
+	var view := controller.view
+	if view == null or not controller.camera.is_inside_tree():
+		return
+	var active := controller.camera_mode == MapViewRuntimeCamera.CameraMode.PAINTED_ISO
+	view.update_camera_cutaway(
+		active,
+		controller.player_rig.global_position
+		+ Vector3.UP * MapViewRuntimeCamera.THIRD_PERSON_TARGET_HEIGHT,
+		controller.camera.global_position
+	)
 
 
 func _clamp_above_ground(camera_was_below_ground: bool) -> void:
@@ -191,7 +208,7 @@ func _ensure_player_visible() -> void:
 	var player_pos := player_rig.position
 	if not _line_of_sight_blocked(camera.position, player_pos):
 		return
-	if controller.camera_mode == MapViewRuntimeCamera.CameraMode.TOP_DOWN:
+	if controller.is_overview():
 		return
 	var dir := camera.position - player_pos
 	var distance := dir.length()

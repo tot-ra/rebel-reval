@@ -62,6 +62,10 @@ func apply_for_perspective_mode(mode: MapViewRuntimeCamera.CameraMode) -> void:
 			_attributes.dof_blur_amount = FIRST_PERSON_DOF_BLUR_AMOUNT
 			_attributes.dof_blur_far_distance = FIRST_PERSON_DOF_FAR_DISTANCE
 			_attributes.dof_blur_far_transition = FIRST_PERSON_DOF_FAR_TRANSITION
+		MapViewRuntimeCamera.CameraMode.PAINTED_ISO:
+			# Kalev stands 30-45 m from the telephoto lens, past the far-blur start,
+			# and the painted references stay sharp corner to corner.
+			_attributes.dof_blur_far_enabled = false
 		_:
 			return
 	_controller.camera.attributes = _attributes
