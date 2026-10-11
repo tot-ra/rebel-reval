@@ -871,6 +871,10 @@ void sky() {
 	// Visible sky and material reflections must share the same night floor.
 	float readability = night_floor_readability(sun_direction.y, moon_direction.y, moon_phase);
 	float glow = twilight_glow(sun_direction.y);
+	// R-1767: sunset_factor ramps over 16 deg, so by 8 deg it is already 0.5 and the whole
+	// art dusk palette (pink, violet, broad glare) arrived while the sun was still high.
+	// Split it: golden hour (8-16 deg) is warm and narrow; true pink waits for < ~5 deg.
+	float pink_ramp = smoothstep(0.4, 0.75, sunset_factor);
 	vec3 night_top = mix(DARK_NIGHT_TOP, night_top_color.rgb, readability) + TWILIGHT_TOP * glow;
 	vec3 night_horizon = mix(DARK_NIGHT_HORIZON, night_horizon_color.rgb, readability)
 		+ TWILIGHT_HORIZON * glow;
@@ -896,7 +900,9 @@ void sky() {
 		color = sky_highlight_shoulder(sky_lut_radiance(dir) * art)
 			+ mix(night_top, night_horizon, haze) * night;
 		// Art-controlled warm band on the sun side, now a small boost over the LUT sunset.
-		color += sunset_color.rgb * sunset_factor * pow(sun_amount, 2.0) * haze * sunset_boost;
+		// Golden hour keeps the glow tight around the sun instead of a wide pink wash.
+			color += sunset_color.rgb * sunset_factor * pow(sun_amount, mix(8.0, 2.0, pink_ramp))
+				* haze * sunset_boost;
 	} else {
 		vec3 top = mix(night_top, day_top_color.rgb, day_blend);
 		horizon = mix(night_horizon, day_horizon_color.rgb, day_blend);
@@ -1127,6 +1133,14 @@ void sky() {
 		sun_lit = cloud_sun_color + cloud_ambient;
 		dusk_ramp = sunset_factor * clamp(sunset_boost * 2.0, 0.0, 1.0);
 	}
+	// R-1767 golden hour: 1 at ~8 deg, fading to 0 by 16 deg and again once true sunset
+	// (pink_ramp) takes over. Warms the lit crowns and the shade instead of tinting violet.
+	float gold = clamp(sunset_factor * 2.0, 0.0, 1.0) * (1.0 - pink_ramp);
+	dusk_ramp *= pink_ramp;
+	if (sky_lut_available) {
+		sun_lit = (cloud_sun_color * mix(vec3(1.0), vec3(1.18, 1.0, 0.72), gold)
+			* (1.0 + 0.2 * gold)) + cloud_ambient;
+	}
 	float sun_prox = pow(sun_amount, 1.5);
 	vec3 dusk_hot = vec3(1.15, 0.92, 0.60);
 	vec3 dusk_far = vec3(0.74, 0.44, 0.56);
@@ -1136,13 +1150,24 @@ void sky() {
 	vec3 cloud_top = mix(vec3(0.09, 0.11, 0.16), sun_lit, day_blend);
 	// Shadowed sides: cool blue by day, dusky violet at sunset (skylight, not sun).
 	// Storm cells darken further so a heavy raining cell reads dark under the sky.
-	vec3 day_shadow = cloud_top * mix(0.6, 0.26, local_storm) * vec3(0.88, 0.95, 1.12);
+	// Golden hour: shade follows the warm horizon hue (grey-brown) instead of cool blue.
+	vec3 horizon_hue = horizon / max(dot(horizon, vec3(0.2126, 0.7152, 0.0722)), 1e-4);
+	horizon_hue = clamp(horizon_hue, vec3(0.6), vec3(1.5)) * vec3(1.0, 0.86, 0.74);
+	vec3 day_shadow = cloud_top * mix(0.6, 0.26, local_storm)
+		* mix(vec3(0.88, 0.95, 1.12), horizon_hue, gold);
 	vec3 dusk_shadow = mix(vec3(0.30, 0.26, 0.40), vec3(0.46, 0.40, 0.52), day_blend) * mix(1.0, 0.5, local_storm);
-	vec3 cloud_shadow = mix(day_shadow, dusk_shadow, sunset_factor);
+	vec3 cloud_shadow = mix(day_shadow, dusk_shadow, pink_ramp);
 	vec3 cloud_col = mix(cloud_shadow, cloud_top, cloud_light);
 	// Hot rim where a lit cloud faces the low sun — the fiery sunset edge.
-	vec3 rim = mix(cloud_sun_color, dusk_hot, sunset_factor);
-	cloud_col += rim * pow(sun_amount, 5.0) * cloud_light * (0.12 + 0.40 * sunset_factor) * sun_visibility;
+	vec3 rim = mix(cloud_sun_color, dusk_hot, pink_ramp);
+	cloud_col += rim * pow(sun_amount, 5.0) * cloud_light * (0.04 + 0.48 * pink_ramp) * sun_visibility;
+	// R-1767: narrow Henyey-Greenstein forward-scatter lobe (g = 0.8, peak-normalised) lights
+	// crowns right beside the sun with a warm silver lining without a broad bloom.
+	float hg_g = 0.8;
+	float hg = (1.0 - hg_g * hg_g) / pow(1.0 + hg_g * hg_g - 2.0 * hg_g * sun_amount, 1.5);
+	float hg_lobe = hg * pow(1.0 - hg_g, 2.0) / (1.0 + hg_g);
+	cloud_col += cloud_sun_color * vec3(1.1, 1.0, 0.8) * hg_lobe * cloud_light
+		* (0.012 + 0.03 * gold) * sun_visibility * (1.0 - pink_ramp * 0.5);
 	// Anvil crown: the icy top of a tall storm cell catches light as a bright,
 	// cool-white cap high over its dark base — the giveaway of a thunderhead.
 	float anvil = local_storm * smoothstep(0.32, 0.62, dir.y) * cloud_light * smoothstep(0.25, 0.6, clouds);
