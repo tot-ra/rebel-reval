@@ -325,6 +325,55 @@ func test_st_nicholas_nave_is_walkable_and_west_wall_closed() -> void:
 	assert_true(mid_wall, "nave west wall runs across the tower front")
 
 
+## Player-reported: Kalev could not get between the Holy Spirit nave benches.
+## The site is turned ~26 deg, so Kalev's axis-aligned box is wider across the
+## site's gaps than its own size: every gap must be shut or clear that width.
+func test_holy_spirit_nave_benches_leave_walkable_aisles() -> void:
+	var site := _site(&"site.holy_spirit")
+	var foot := MapVisualStyle.CHARACTER_FOOTPRINT_PX / CityPlan.LOGIC_PX_PER_UNIT
+	var c := absf(cos(site.rotation))
+	var s := absf(sin(site.rotation))
+	# Box extent along the site's x and z axes.
+	var across_x := foot.x * c + foot.y * s
+	var across_z := foot.x * s + foot.y * c
+	var nave := Rect2(1.2, -7.0, 35.6, 14.0)
+	var boxes: Array[Rect2] = []
+	for poly: Array in site.data["walk"]["solid"]:
+		var r := Rect2(Vector2(poly[0][0], poly[0][1]), Vector2.ZERO)
+		for p: Array in poly:
+			r = r.expand(Vector2(p[0], p[1]))
+		if nave.encloses(r):
+			boxes.append(r)
+	# Arcade piers (1.2 m deep, south of the arcade line) and the aisle walls.
+	boxes.append(Rect2(1.2, 1.24, 35.6, 1.2))
+	boxes.append(Rect2(1.2, -8.2, 35.6, 1.2))
+	boxes.append(Rect2(1.2, 7.0, 35.6, 1.2))
+	for i in boxes.size():
+		for j in range(i + 1, boxes.size()):
+			var a := boxes[i]
+			var b := boxes[j]
+			var z_gap := maxf(b.position.y - a.end.y, a.position.y - b.end.y)
+			var x_gap := maxf(b.position.x - a.end.x, a.position.x - b.end.x)
+			if x_gap < 0.0 and z_gap > 0.0:
+				assert_true(
+					z_gap < across_z or z_gap > across_z + 0.3, "snag slot %s / %s" % [a, b]
+				)
+			if z_gap < 0.0 and x_gap > 0.0:
+				assert_true(
+					x_gap < across_x or x_gap > across_x + 0.3, "snag slot %s / %s" % [a, b]
+				)
+	# Middle aisle between the two north bench blocks.
+	var wall_end := -INF
+	var arcade_start := INF
+	for b: Dictionary in site.data["benches"]:
+		var z := float(b["at"][1])
+		if z < -3.5:
+			wall_end = maxf(wall_end, z + float(b["len"]) * 0.5)
+		elif z < 0.0:
+			arcade_start = minf(arcade_start, z - float(b["len"]) * 0.5)
+	assert_true(arcade_start - wall_end > across_z + 0.6, "middle aisle is a real aisle")
+
+
 func test_kalev_smithy_new_game_starts_inside_the_forge() -> void:
 	var plan := _plan()
 	var site := _site(&"site.kalev_smithy")

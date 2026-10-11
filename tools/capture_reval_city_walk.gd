@@ -104,6 +104,10 @@ func _run() -> void:
 		await _enter_sites(plan)
 		_finish()
 		return
+	if OS.get_cmdline_user_args().has("--only-holy-spirit-benches"):
+		await _walk_holy_spirit_benches(plan)
+		_finish()
+		return
 	await _walk("viru_inward", viru)
 	await _walk("pikk_jalg_up", pikk_jalg)
 	await _walk("luhike_jalg_up", luhike)
@@ -276,6 +280,48 @@ func _shot(name: String) -> void:
 		await get_tree().process_frame
 	var image := get_tree().root.get_viewport().get_texture().get_image()
 	image.save_png(ProjectSettings.globalize_path("%s/%s.png" % [OUTPUT_DIR, name]))
+
+
+## Holy Spirit nave (player-reported stuck spot): walk the middle aisle, the
+## slots between bench rows and the south aisle with real input. Points are
+## site-local metres (content/world/reval_city/sites/holy_spirit.json).
+func _walk_holy_spirit_benches(plan: CityPlan) -> void:
+	var player: Player = _city.player
+	var site: CitySite = null
+	for s in plan.sites:
+		if s.id == &"site.holy_spirit":
+			site = s
+	var legs := {
+		"middle_aisle": [Vector2(12.0, -3.5), Vector2(32.6, -3.5)],
+		"row_slot_north": [Vector2(21.375, -3.5), Vector2(21.375, 0.4)],
+		"row_slot_south": [Vector2(19.125, 3.1), Vector2(19.125, 6.5)],
+		"south_aisle": [Vector2(14.0, 3.1), Vector2(34.0, 3.1)],
+	}
+	for leg: String in legs:
+		var pts: Array = legs[leg]
+		var goal := site.to_world(pts[1])
+		player.global_position = CityPlan.to_logic(site.to_world(pts[0]))
+		await get_tree().physics_frame
+		Input.action_press(&"ui_up")
+		var t := 0.0
+		var stuck := 0.0
+		var last := CityPlan.to_world_xz(player.global_position)
+		while t < 20.0 and last.distance_to(goal) > 0.4:
+			await get_tree().physics_frame
+			var here := CityPlan.to_world_xz(player.global_position)
+			_steer(player, (goal - here).normalized())
+			var dt := get_physics_process_delta_time()
+			stuck = stuck + dt if here.distance_to(last) < 0.5 * dt else 0.0
+			last = here
+			t += dt
+			if stuck > STUCK_SEC:
+				break
+		Input.action_release(&"ui_up")
+		var left := last.distance_to(goal)
+		print("holy_spirit %s: %.2f m short of the goal after %.1f s" % [leg, left, t])
+		if left > 0.4:
+			_failures.append("holy_spirit %s: stuck %.2f m short" % [leg, left])
+		await _shot("walk_holy_spirit_%s" % leg)
 
 
 ## Round-3 features: people, chimney smoke, ships, swimming, fast travel and
