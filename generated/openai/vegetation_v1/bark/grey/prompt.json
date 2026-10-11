@@ -1,0 +1,11 @@
+{
+  "tool": "a2gent openai_generate_image",
+  "model": "gpt-image-1",
+  "size": "1024x1024",
+  "quality": "high",
+  "generation_id": "6c812db0-f847-48ee-8027-a277aa978e22",
+  "prompt": "Seamless tileable bark texture, flat orthographic close-up scan of a European ash or linden trunk, about 40 cm wide area: grey bark with a fine regular network of shallow interlacing vertical ridges, some pale lichen spots, vertical orientation. Even soft overcast light, no cast shadows, fills the whole frame edge to edge, no background, no perspective, photorealistic, no text.",
+  "file": "source.png",
+  "sha256": "6def12fec55bc392592a42116491e0427eab99b5b7742972e3f5c255eb87faa5",
+  "task": "R-1103/R-1101/R-1102"
+}

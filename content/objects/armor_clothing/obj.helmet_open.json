@@ -1,0 +1,80 @@
+{
+  "type": "world_object",
+  "id": "obj.helmet_open",
+  "name": "Open helmet",
+  "description": "An open-faced iron helmet with a leather liner.",
+  "category": "armor_clothing",
+  "handling": "carry_one_hand",
+  "tags": [
+    "armor",
+    "helmet",
+    "military"
+  ],
+  "physical": {
+    "mass_kg": 1.6,
+    "size_m": [
+      0.29,
+      0.08,
+      0.27
+    ],
+    "materials": [
+      "iron",
+      "leather"
+    ]
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop",
+    "equip"
+  ],
+  "economy": {
+    "base_pfennigs": 180,
+    "ownership": "garrison",
+    "legality": "restricted",
+    "theft_severity": 2
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "guard_post",
+      "forge"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/storybook/equipment/mart_helmet.glb",
+    "fitted_variants": [
+      "res://assets/storybook/equipment/aita_helmet.glb",
+      "res://assets/storybook/equipment/ellen_helmet.glb",
+      "res://assets/storybook/equipment/henning_helmet.glb",
+      "res://assets/storybook/equipment/jurgen_helmet.glb",
+      "res://assets/storybook/equipment/kaja_helmet.glb",
+      "res://assets/storybook/equipment/watchman_helmet.glb"
+    ],
+    "measured_size_m": [
+      0.29,
+      0.08,
+      0.27
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.helmet_open.png",
+    "icon": "res://assets/objects/icons/obj.helmet_open.png",
+    "icon_status": "missing",
+    "look": "Rounded iron skull with a narrow brim and a leather chinstrap.",
+    "image_prompt": "Open helmet: Rounded iron skull with a narrow brim and a leather chinstrap."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "carry": {
+    "grid_width": 2,
+    "grid_height": 2,
+    "stackable": false
+  },
+  "equip": {
+    "slot": "head",
+    "protection": "medium"
+  }
+}

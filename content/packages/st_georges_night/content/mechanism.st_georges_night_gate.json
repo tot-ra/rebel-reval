@@ -1,0 +1,88 @@
+{
+  "type": "mechanism",
+  "id": "mechanism.st_georges_night_gate",
+  "title": "St. George's Night Viru Gate climax mechanism",
+  "commission_id": "commission.bell_and_chain",
+  "object_item_id": "item.bell_and_chain_work",
+  "location_id": "loc.lower_town_slice",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-008a"
+  },
+  "responses": [
+    {
+      "id": "seal_holds",
+      "behavior": "hold",
+      "summary": "Honest chain and seal bias keep the portcullis down under ram pressure.",
+      "requires": [
+        {
+          "op": "flag_is",
+          "key": "flag.act_climax_viru_seal",
+          "value": true
+        }
+      ],
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.act_boundary.viru_seal",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "fracture_fails",
+      "behavior": "fail",
+      "summary": "Hidden fracture fails; rebels force the portcullis inward.",
+      "requires": [
+        {
+          "op": "flag_is",
+          "key": "flag.act_climax_viru_break",
+          "value": true
+        }
+      ],
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.act_boundary.viru_break",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "release_drops",
+      "behavior": "release",
+      "summary": "Concealed release pin drops the gate without cutting the chain.",
+      "requires": [
+        {
+          "op": "flag_is",
+          "key": "flag.act_climax_viru_open",
+          "value": true
+        }
+      ],
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.act_boundary.viru_open",
+          "value": true
+        }
+      ]
+    }
+  ],
+  "default_response": {
+    "id": "unresolved",
+    "behavior": "idle",
+    "summary": "St. George's Night climax has not resolved the Viru Gate yet."
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Mechanism contract mapping stacked Act 1 bias flags to gate climax behavior and act-boundary flags.",
+      "citations": [
+        "content/packages/bell_and_chain/content/mechanism.bell_and_chain_gate.json",
+        "docs/SCENES/st-georges-night-branch-map.md"
+      ]
+    }
+  ]
+}

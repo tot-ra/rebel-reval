@@ -1,0 +1,42 @@
+{
+  "type": "encounter",
+  "id": "encounter.kuldjala_boss",
+  "title": "The Golden Leg Warden above the repair chamber",
+  "quest_id": "quest.bitter_brew",
+  "resolved_flag": "flag.kuldjala_boss_resolved",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-027c",
+    "notes": "The warden identity, illicit repair ledger, enemy composition, and outcomes are gameplay authorship. The circa-1310 tower form remains bounded by the historical review."
+  },
+  "outcomes": [
+    {
+      "kind": "bypass",
+      "quest_state": "night_bypassed"
+    },
+    {
+      "kind": "kill",
+      "quest_state": "night_fought"
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "The Golden Leg Warden and repair-ledger confrontation are authored encounter identities, not attested occupants or events.",
+      "citations": [
+        "docs/reports/kuldjala_interior_review.md",
+        "scripts/combat/kuldjala_boss_encounter.gd"
+      ]
+    },
+    {
+      "confidence": "plausible composite",
+      "summary": "The encounter separates a watchman-shaped warden in the upper chamber from a crossbow guard on the adjoining wall-walk.",
+      "citations": [
+        "content/maps/kuldjala_interior.rrmap",
+        "history/dossiers/topography/walls-gates-towers.md"
+      ]
+    }
+  ]
+}

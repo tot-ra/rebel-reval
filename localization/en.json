@@ -1,0 +1,9 @@
+{
+  "locale": "en",
+  "translations": {
+    "dialogue.test_runner.intro.mart_opens": "Kalev, the street is restless tonight.",
+    "dialogue.test_runner.intro.trust_mart": "Tell me what you saw.",
+    "dialogue.test_runner.intro.doubt_mart": "Keep your rumors to yourself.",
+    "bark.prologue.wake_up_room.henning_stew_comment": "Must have been the stew."
+  }
+}

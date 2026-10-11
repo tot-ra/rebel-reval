@@ -1,0 +1,81 @@
+{
+  "type": "world_object",
+  "id": "obj.armarium_elite",
+  "name": "Elite armarium",
+  "description": "A carved armarium of a rich house or chapter: lockable cabinet for books, plate and vestments.",
+  "category": "furniture",
+  "handling": "fixed",
+  "tags": [
+    "storage",
+    "lockable",
+    "elite",
+    "documents"
+  ],
+  "physical": {
+    "mass_kg": 140,
+    "size_m": [
+      1.46,
+      1.98,
+      0.82
+    ],
+    "materials": [
+      "wood",
+      "iron",
+      "brass_bronze"
+    ],
+    "flammable": true
+  },
+  "actions": [
+    "inspect",
+    "open"
+  ],
+  "economy": {
+    "base_pfennigs": 0,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 0
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "home_noble",
+      "church",
+      "home_burgher"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/furniture/medieval_storage/elite_armarium/elite_armarium.glb",
+    "prop_kind": "shelf",
+    "variant": "shelf.elite_armarium",
+    "measured_size_m": [
+      1.46,
+      1.98,
+      0.82
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.armarium_elite.png",
+    "icon": "res://assets/objects/icons/obj.armarium_elite.png",
+    "icon_status": "missing",
+    "look": "Tall carved oak cabinet with tracery doors, brass hinges and a decorated lock, darkened by candle smoke.",
+    "image_prompt": "Elite armarium: Tall carved oak cabinet with tracery doors, brass hinges and a decorated lock, darkened by candle smoke."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "uses": [
+    "keep books, plate and vestments"
+  ],
+  "container": {
+    "capacity_l": 320,
+    "lockable": true,
+    "default_locked": true,
+    "accepts_tags": [
+      "documents",
+      "plate",
+      "vestments",
+      "valuables"
+    ]
+  }
+}

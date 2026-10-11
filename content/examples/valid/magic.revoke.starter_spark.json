@@ -1,0 +1,25 @@
+{
+  "type": "magic_grant",
+  "id": "magic.revoke.starter_spark",
+  "name": "Revoke Spark",
+  "operation": "revoke",
+  "target_id": "spell.pagan.spark",
+  "grant_flag": "flag.magic.taught_spark",
+  "resolution": "authored_lookup",
+  "runtime_combination_allowed": false,
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P7-010 fixture"
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Explicit authored revoke operation for the starter spell.",
+      "citations": [
+        "docs/SYSTEMS/MAGIC.md"
+      ]
+    }
+  ]
+}

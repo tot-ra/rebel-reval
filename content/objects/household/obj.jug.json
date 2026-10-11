@@ -1,0 +1,85 @@
+{
+  "type": "world_object",
+  "id": "obj.jug",
+  "name": "Water jug",
+  "description": "A narrow-necked jug for water or small beer.",
+  "category": "household",
+  "handling": "pocketable",
+  "tags": [
+    "kitchen",
+    "liquid"
+  ],
+  "physical": {
+    "mass_kg": 0.9,
+    "size_m": [
+      0.13,
+      0.25,
+      0.12
+    ],
+    "materials": [
+      "clay_ceramic"
+    ],
+    "fragile": true
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop",
+    "throw",
+    "open"
+  ],
+  "economy": {
+    "base_pfennigs": 6,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "home_poor",
+      "home_burgher",
+      "tavern"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/domestic/kitchenware/medieval_kitchenware_kit.glb",
+    "node": "KitchenwareJug",
+    "prop_kind": "kitchenware",
+    "variant": "kitchenware.jug",
+    "measured_size_m": [
+      0.13,
+      0.25,
+      0.12
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.jug.png",
+    "icon": "res://assets/objects/icons/obj.jug.png",
+    "icon_status": "missing",
+    "look": "Tall clay jug with a pinched spout and loop handle, dark glaze.",
+    "image_prompt": "Water jug: Tall clay jug with a pinched spout and loop handle, dark glaze."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "carry": {
+    "grid_width": 1,
+    "grid_height": 2,
+    "stackable": false
+  },
+  "throw": {
+    "range_m": 3.5,
+    "damage": 2,
+    "breaks": true,
+    "noise": "loud"
+  },
+  "container": {
+    "capacity_l": 2,
+    "lockable": false,
+    "accepts_tags": [
+      "liquid"
+    ]
+  }
+}

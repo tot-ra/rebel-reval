@@ -1,0 +1,39 @@
+{
+  "type": "dialogue",
+  "id": "dialogue.bitter_brew.mart_escaped",
+  "title": "A Bitter Brew - Mart after rebel escape",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P2-010"
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "explicit_node_id"
+  },
+  "participants": [
+    "char.kalev",
+    "char.mart"
+  ],
+  "start_node_id": "mart_emboldened",
+  "word_count_estimate": 44,
+  "nodes": [
+    {
+      "id": "mart_emboldened",
+      "speaker_id": "char.mart",
+      "text": "The watch boarded her yard and she still walked free. If steel can do that, imagine what we do with a whole street behind us."
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Mart is emboldened after the escaped aftermath.",
+      "citations": [
+        "docs/SCENES/a-bitter-brew.md"
+      ]
+    }
+  ]
+}

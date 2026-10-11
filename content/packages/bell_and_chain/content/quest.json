@@ -1,0 +1,219 @@
+{
+  "type": "quest",
+  "id": "quest.bell_and_chain",
+  "title": "The Bell and the Chain",
+  "summary": "Investigate Viru Gate wear, forge the portcullis chain and bell striker, and survive the curfew install that sets the St. George's Night gate bias.",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-001",
+    "notes": "Approved branch map and state table; playable cycle owned by P4-002."
+  },
+  "entry_conditions": [],
+  "initial_state": "investigating",
+  "states": [
+    {
+      "id": "investigating",
+      "label": "Inspecting Viru Gate evidence"
+    },
+    {
+      "id": "investigation_ready",
+      "label": "Ready to forge the chain assembly"
+    },
+    {
+      "id": "aftermath_honest",
+      "label": "Honest chain installed",
+      "terminal": true
+    },
+    {
+      "id": "aftermath_defect",
+      "label": "Hidden fracture installed",
+      "terminal": true
+    },
+    {
+      "id": "aftermath_release",
+      "label": "Secret release installed",
+      "terminal": true
+    }
+  ],
+  "transitions": [
+    {
+      "id": "complete_investigation",
+      "from_state": "investigating",
+      "to_state": "investigation_ready",
+      "effects": []
+    },
+    {
+      "id": "commit_honest_forge",
+      "from_state": "investigation_ready",
+      "to_state": "aftermath_honest",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.gate_chain_honest_work",
+          "value": true
+        },
+        {
+          "op": "set_flag",
+          "key": "flag.act_climax_viru_seal",
+          "value": true
+        },
+        {
+          "op": "record_faction_event",
+          "key": "ledger.bell_and_chain.honest_hold",
+          "value": "faction.livonian_order",
+          "amount": 1,
+          "summary": "Forged a reliable Viru Gate chain and striker for the watch."
+        }
+      ]
+    },
+    {
+      "id": "commit_defect_forge",
+      "from_state": "investigation_ready",
+      "to_state": "aftermath_defect",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.gate_chain_subtle_defect",
+          "value": true
+        },
+        {
+          "op": "set_flag",
+          "key": "flag.gate_chain_falsification_risk",
+          "value": true
+        },
+        {
+          "op": "set_flag",
+          "key": "flag.act_climax_viru_break",
+          "value": true
+        },
+        {
+          "op": "record_faction_event",
+          "key": "ledger.bell_and_chain.hidden_fracture",
+          "value": "faction.black_cloaks",
+          "amount": 1,
+          "summary": "Concealed a stress fracture in the Viru Gate portcullis chain."
+        }
+      ]
+    },
+    {
+      "id": "commit_release_forge",
+      "from_state": "investigation_ready",
+      "to_state": "aftermath_release",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.gate_chain_secret_feature",
+          "value": true
+        },
+        {
+          "op": "set_flag",
+          "key": "flag.mart_gate_release",
+          "value": true
+        },
+        {
+          "op": "set_flag",
+          "key": "flag.act_climax_viru_open",
+          "value": true
+        },
+        {
+          "op": "record_faction_event",
+          "key": "ledger.bell_and_chain.secret_release",
+          "value": "faction.harju_kings",
+          "amount": 1,
+          "summary": "Forged a concealed quick-release pin in the Viru Gate chain assembly."
+        }
+      ]
+    }
+  ],
+  "objectives": [
+    {
+      "id": "inspect_gate",
+      "text": "Inspect the portcullis groove, patrol log, bell striker, and rebel chalk marks.",
+      "state_id": "investigating"
+    },
+    {
+      "id": "forge_chain",
+      "text": "Forge the Viru Gate chain assembly before the alarm drill.",
+      "state_id": "investigation_ready"
+    }
+  ],
+  "journal_evidence": [
+    {
+      "fact_id": "fact.bell_and_chain.portcullis_wear",
+      "text": "The portcullis groove is pitted; the weekly alarm test squeals on the rusted links."
+    },
+    {
+      "fact_id": "fact.bell_and_chain.patrol_rotation",
+      "text": "Henning doubled east-wall patrols after curfew following the failed alarm test."
+    },
+    {
+      "fact_id": "fact.bell_and_chain.striker_stress",
+      "text": "Stress cracks run through the bell striker drum fittings Kalev supplied earlier."
+    },
+    {
+      "fact_id": "fact.bell_and_chain.rebel_gate_map",
+      "text": "Rebel chalk marks map the gate rotation from the Margaret wall circuit."
+    }
+  ],
+  "outcomes": [
+    {
+      "id": "honest_installed",
+      "summary": "The honest chain passes inspection and biases the Viru Gate climax toward Seal.",
+      "effects": [
+        {
+          "op": "set_quest_state",
+          "key": "quest.bell_and_chain",
+          "value": "aftermath_honest"
+        }
+      ]
+    },
+    {
+      "id": "defect_installed",
+      "summary": "The hidden fracture is installed and biases the climax toward Break.",
+      "effects": [
+        {
+          "op": "set_quest_state",
+          "key": "quest.bell_and_chain",
+          "value": "aftermath_defect"
+        }
+      ]
+    },
+    {
+      "id": "release_installed",
+      "summary": "The secret release is installed and biases the climax toward Open.",
+      "effects": [
+        {
+          "op": "set_quest_state",
+          "key": "quest.bell_and_chain",
+          "value": "aftermath_release"
+        }
+      ]
+    }
+  ],
+  "content_links": {
+    "character_ids": [
+      "char.henning",
+      "char.mart"
+    ],
+    "location_ids": [
+      "loc.lower_town_slice",
+      "loc.kalev_smithy"
+    ],
+    "commission_ids": [
+      "commission.bell_and_chain"
+    ]
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "P4-001 design contract reusing commission, mechanism, gate, patrol, and consequence systems.",
+      "citations": [
+        "docs/SCENES/the-bell-and-the-chain.md",
+        "docs/SCENES/the-bell-and-the-chain-branch-map.md",
+        "content/packages/bell_and_chain/branch_map.json"
+      ]
+    }
+  ]
+}

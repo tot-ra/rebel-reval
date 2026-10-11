@@ -1,0 +1,48 @@
+{
+  "type": "dialogue",
+  "id": "dialogue.bread_and_iron.inspect_weighbridge",
+  "title": "Bread and Iron - Civic weighbridge",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-004"
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "explicit_node_id"
+  },
+  "participants": [
+    "char.kalev"
+  ],
+  "start_node_id": "inspect_weighbridge",
+  "nodes": [
+    {
+      "id": "inspect_weighbridge",
+      "speaker_id": "char.kalev",
+      "text": "Harbour tally chits outweigh the municipal scale by a full stone. Someone is shaving the civic allotment.",
+      "effects": [
+        {
+          "op": "set_fact",
+          "key": "fact.bread_and_iron.short_weight_tally",
+          "value": true
+        },
+        {
+          "op": "add_item",
+          "key": "item.evidence.grain_tally_chit"
+        }
+      ]
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Weighbridge inspection for Bread and Iron investigation loop.",
+      "citations": [
+        "docs/SCENES/bread-and-iron.md"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "type": "magic_grant",
+  "id": "magic.grant.starter_healing_mist",
+  "name": "Teach Healing Mist",
+  "operation": "grant",
+  "target_id": "spell.pagan.healing_mist",
+  "grant_flag": "flag.magic.taught_healing_mist",
+  "resolution": "authored_lookup",
+  "runtime_combination_allowed": false,
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "R-721 Healing Mist prototype"
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Explicit authored unlock for the Healing Mist gameplay spell.",
+      "citations": [
+        "docs/SYSTEMS/MAGIC.md"
+      ]
+    }
+  ]
+}

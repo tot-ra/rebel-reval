@@ -1,0 +1,73 @@
+{
+  "type": "world_object",
+  "id": "obj.shield_round",
+  "name": "Round shield",
+  "description": "A round boss shield of planks covered in hide.",
+  "category": "weapon",
+  "handling": "carry_one_hand",
+  "tags": [
+    "weapon",
+    "shield",
+    "military"
+  ],
+  "physical": {
+    "mass_kg": 3.2,
+    "size_m": [
+      0.52,
+      0.69,
+      0.2
+    ],
+    "materials": [
+      "wood",
+      "iron",
+      "leather"
+    ]
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop",
+    "equip"
+  ],
+  "economy": {
+    "base_pfennigs": 90,
+    "ownership": "garrison",
+    "legality": "restricted",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "guard_post",
+      "forge"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/storybook/equipment/shield.glb",
+    "measured_size_m": [
+      0.52,
+      0.69,
+      0.2
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.shield_round.png",
+    "icon": "res://assets/objects/icons/obj.shield_round.png",
+    "icon_status": "missing",
+    "look": "Round wooden shield rimmed in rawhide with an iron boss and leather grip.",
+    "image_prompt": "Round shield: Round wooden shield rimmed in rawhide with an iron boss and leather grip."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "carry": {
+    "grid_width": 2,
+    "grid_height": 2,
+    "stackable": false
+  },
+  "equip": {
+    "slot": "left_hand",
+    "protection": "medium"
+  }
+}

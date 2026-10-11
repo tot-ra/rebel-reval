@@ -1,0 +1,11 @@
+{
+  "tool": "a2gent openai_generate_image",
+  "model": "gpt-image-1",
+  "size": "1024x1024",
+  "quality": "high",
+  "generation_id": "2c372362-25e3-43ac-abdb-f50311d47562",
+  "prompt": "Seamless tileable bark texture, flat orthographic close-up scan of an old wild cherry or apple tree trunk, about 30 cm wide area: dark reddish-brown smooth bark with prominent horizontal lenticel bands and a few peeling horizontal strips and small cracks, vertical orientation. Even soft overcast light, no cast shadows, fills the whole frame edge to edge, no background, no perspective, photorealistic, no text.",
+  "file": "source.png",
+  "sha256": "5148104b122f47e038eb2f000eae930318563917059dcf77fe3bddd0ee772d9d",
+  "task": "R-1103/R-1101/R-1102"
+}

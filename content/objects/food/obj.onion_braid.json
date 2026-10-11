@@ -1,0 +1,77 @@
+{
+  "type": "world_object",
+  "id": "obj.onion_braid",
+  "name": "Braid of onions",
+  "description": "A plaited string of onions hung to keep through winter.",
+  "category": "food",
+  "handling": "pocketable",
+  "tags": [
+    "vegetable",
+    "staple"
+  ],
+  "physical": {
+    "mass_kg": 0.6,
+    "size_m": [
+      0.23,
+      0.13,
+      0.07
+    ],
+    "materials": [
+      "food_organic"
+    ]
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop",
+    "hang",
+    "consume"
+  ],
+  "economy": {
+    "base_pfennigs": 4,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "hanging",
+    "spaces": [
+      "home_poor",
+      "home_burgher",
+      "market",
+      "farm"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/domestic/household/smithy_household_clutter_kit.glb",
+    "node": "ProvisionOnionBraid",
+    "prop_kind": "household_clutter",
+    "variant": "provision.onion_braid",
+    "measured_size_m": [
+      0.23,
+      0.13,
+      0.07
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.onion_braid.png",
+    "icon": "res://assets/objects/icons/obj.onion_braid.png",
+    "icon_status": "missing",
+    "look": "Plaited straw-brown onion bulbs on a tight braided stem.",
+    "image_prompt": "Braid of onions: Plaited straw-brown onion bulbs on a tight braided stem."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "carry": {
+    "grid_width": 1,
+    "grid_height": 2,
+    "stackable": false
+  },
+  "edible": {
+    "kind": "ingredient",
+    "nutrition": 15,
+    "spoils_after_days": 60
+  }
+}

@@ -1,0 +1,132 @@
+{
+  "type": "mechanism",
+  "id": "mechanism.root_and_ember_hearth",
+  "title": "Brewery-neighbor hearth install",
+  "commission_id": "commission.root_and_ember",
+  "object_item_id": "item.root_and_ember_work",
+  "location_id": "loc.lower_town_slice",
+  "confidence": "folklore",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-007"
+  },
+  "responses": [
+    {
+      "id": "ember_peace",
+      "behavior": "hold",
+      "summary": "Ember rite-hook and Ellen's song calm the household; Mercy reflection mark armed.",
+      "requires": [
+        {
+          "op": "forged_modification_is",
+          "key": "commission.root_and_ember",
+          "value": "ember_rite"
+        }
+      ],
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.household.hearth_peace",
+          "value": true
+        },
+        {
+          "op": "set_flag",
+          "key": "flag.ellen.belief_honored",
+          "value": true
+        },
+        {
+          "op": "set_flag",
+          "key": "flag.reflection.conviction_mercy",
+          "value": true
+        },
+        {
+          "op": "set_location_state",
+          "key": "loc.lower_town_slice",
+          "value": "hearth_song_peace"
+        }
+      ]
+    },
+    {
+      "id": "root_peace",
+      "behavior": "hold",
+      "summary": "Root herb ward trusted; household calm without proving spirits.",
+      "requires": [
+        {
+          "op": "forged_modification_is",
+          "key": "commission.root_and_ember",
+          "value": "root_ward"
+        }
+      ],
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.household.hearth_peace",
+          "value": true
+        },
+        {
+          "op": "set_flag",
+          "key": "flag.ellen.remedy_trusted",
+          "value": true
+        },
+        {
+          "op": "set_flag",
+          "key": "flag.reflection.conviction_mercy",
+          "value": true
+        },
+        {
+          "op": "set_location_state",
+          "key": "loc.lower_town_slice",
+          "value": "hearth_ward_peace"
+        }
+      ]
+    },
+    {
+      "id": "iron_practical",
+      "behavior": "release",
+      "summary": "Iron smoke bracket repairs the flue; Ellen respects material honesty.",
+      "requires": [
+        {
+          "op": "forged_modification_is",
+          "key": "commission.root_and_ember",
+          "value": "iron_bracket"
+        }
+      ],
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.household.hearth_practical",
+          "value": true
+        },
+        {
+          "op": "set_flag",
+          "key": "flag.ellen.skepticism_respected",
+          "value": true
+        },
+        {
+          "op": "set_flag",
+          "key": "flag.reflection.conviction_duty",
+          "value": true
+        },
+        {
+          "op": "set_location_state",
+          "key": "loc.lower_town_slice",
+          "value": "hearth_flue_repaired"
+        }
+      ]
+    }
+  ],
+  "default_response": {
+    "id": "unresolved",
+    "behavior": "idle",
+    "summary": "Kalev has not installed the hearth ward hardware yet."
+  },
+  "source_notes": [
+    {
+      "confidence": "folklore",
+      "summary": "Peaceful hearth install mapping forged records to household and reflection outcomes.",
+      "citations": [
+        "docs/SCENES/root-and-ember-branch-map.md"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,93 @@
+{
+	"save_version": 1,
+	"saved_at_unix": 1754064000,
+	"game_state": {
+		"version": 2,
+		"phase": "phase.act1_climax",
+		"player": {
+			"health": 100.0,
+			"max_health": 100.0,
+			"stamina": 100.0,
+			"max_stamina": 100.0,
+			"location_id": "reval_east",
+			"spawn_id": "street_start"
+		},
+		"bag": {
+			"placements": []
+		},
+		"equipped": {
+			"right_hand": "item.forge_hammer"
+		},
+		"facts": {},
+		"flags": {
+			"flag.forge_ledger_preserved": true,
+			"flag.act_transition.act1_recorded": true,
+			"flag.act_boundary.viru_break": true,
+			"flag.act_climax_viru_break": true
+		},
+		"relationships": {},
+		"pressures": {
+			"pressure.suspicion": 0,
+			"pressure.solidarity": 0,
+			"pressure.scarcity": 0
+		},
+		"quest_states": {
+			"quest.st_georges_night": "aftermath_break"
+		},
+		"location_states": {},
+		"items": {},
+		"forged_records": [],
+		"world_items": {
+			"loc.kalev_smithy": {
+				"world.spearhead_anvil": {
+					"object_id": "world.spearhead_anvil",
+					"item_id": "item.seized_spearhead",
+					"position": {
+						"x": 624.0,
+						"y": 200.0
+					}
+				}
+			}
+		},
+		"world_defaults_seeded": {
+			"loc.kalev_smithy": true
+		},
+		"map_world_state": {
+			"save_version": 2,
+			"world_state": {}
+		},
+		"act1_transition": {
+			"version": 1,
+			"recorded_at_phase": "phase.act1_climax",
+			"act_boundary": "break",
+			"characters": {
+				"mart": "respectful",
+				"aita": "at_brewery",
+				"kaja": "merchant_neutral",
+				"henning": "trusting_officer",
+				"jurgen": "marginal_trader",
+				"ellen": "unmet"
+			},
+			"forge": {
+				"ledger": "preserved",
+				"conviction": "duty",
+				"technique": "iron",
+				"suspicion": 0,
+				"solidarity": 0,
+				"scarcity": 0,
+				"bell_and_chain": "break",
+				"bread_and_iron": ""
+			},
+			"districts": {
+				"district.lower_town": {
+					"price_tier": "normal",
+					"patrol_speed_scale": 1.0
+				},
+				"district.north_merchant": {
+					"price_tier": "normal",
+					"patrol_speed_scale": 1.0
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,30 @@
+{
+  "model": "flux-2-klein-4b-bf16-dequant.safetensors",
+  "text_encoder": "qwen_3_4b.safetensors",
+  "license": "Apache-2.0 (FLUX.2 klein 4B)",
+  "seed": 2179,
+  "steps": 4,
+  "size": [
+    1024,
+    1536
+  ],
+  "prompt": "Frontal passport photograph of a 28-year-old lean Northern European man from fourteenth-century Estonia, head and upper shoulders, perfectly front-facing, eyes looking straight into the camera, neutral relaxed expression, mouth closed, ears visible, symmetrical framing, face centred, brown hair pulled back away from the forehead and ears, aquiline nose with a bump, gaunt hollow cheeks, heavy low brows, grey eyes, short full beard and moustache, weathered sun-tanned skin with visible pores, freckles and fine wrinkles, no make-up, bare neck, no hat, no jewellery, flat even soft studio lighting, plain neutral grey background, sharp focus, photorealistic.",
+  "landmarks": {
+    "eye_l": [
+      647,
+      516
+    ],
+    "eye_r": [
+      375,
+      515
+    ],
+    "nose_tip": [
+      512,
+      699
+    ],
+    "mouth": [
+      512,
+      837
+    ]
+  }
+}

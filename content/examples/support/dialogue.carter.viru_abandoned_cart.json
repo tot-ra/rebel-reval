@@ -1,0 +1,77 @@
+{
+  "type": "dialogue",
+  "id": "dialogue.carter.viru_abandoned_cart",
+  "title": "The Viru Queue Obstruction",
+  "confidence": "plausible composite",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-038",
+    "notes": "Siege-week Viru queue exchange; the civic remedy is a dumping fine for obstruction."
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "explicit_node_id"
+  },
+  "participants": [
+    "char.kalev",
+    "char.henning"
+  ],
+  "start_node_id": "queue_found",
+  "word_count_estimate": 72,
+  "nodes": [
+    {
+      "id": "queue_found",
+      "speaker_id": "char.henning",
+      "text": "That cart has been left in the Viru queue during siege week. Move it, or the council will call the obstruction a dumping offence and write the fine against the load.",
+      "choices": [
+        {
+          "id": "move_cart",
+          "text": "I will clear the queue.",
+          "target_node_id": "cart_removed"
+        },
+        {
+          "id": "hear_fine",
+          "text": "Let the council record its order.",
+          "target_node_id": "fine_named"
+        }
+      ]
+    },
+    {
+      "id": "cart_removed",
+      "speaker_id": "char.kalev",
+      "text": "The wheels are out of the throat. The Viru route can breathe again.",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.viru_abandoned_cart.cart_removed",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "fine_named",
+      "speaker_id": "char.henning",
+      "text": "The notice is for dumping and blockage. It is not a new passage charge on the cart.",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.viru_abandoned_cart.dumping_notice",
+          "value": true
+        }
+      ]
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "plausible composite",
+      "summary": "The Viru siege-week queue and the dumping-fine response turn the R-068/R-069 production hook into a deterministic exchange.",
+      "citations": [
+        "history/dossiers/economy/reval-cart-tolls-and-fuhr-rent-1340s.md",
+        "history/dossiers/power/reval-street-cleaning-ordinances-1340s.md"
+      ]
+    }
+  ]
+}

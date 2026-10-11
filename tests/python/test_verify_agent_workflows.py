@@ -1,0 +1,86 @@
+import importlib.util
+import unittest
+from pathlib import Path
+
+
+ROOT = Path(__file__).resolve().parents[2]
+MODULE_PATH = ROOT / "agents" / "verify_workflows.py"
+SPEC = importlib.util.spec_from_file_location("verify_agent_workflows", MODULE_PATH)
+MODULE = importlib.util.module_from_spec(SPEC)
+assert SPEC.loader is not None
+SPEC.loader.exec_module(MODULE)
+
+
+class VerifyAgentWorkflowsTest(unittest.TestCase):
+    def test_agent_definitions_satisfy_shared_protocol(self) -> None:
+        self.assertEqual([], MODULE.validate())
+
+    def test_each_work_loop_loads_shared_and_role_playbooks(self) -> None:
+        shared_playbook = ROOT / "agents" / "playbook.md"
+        self.assertTrue(shared_playbook.is_file())
+        self.assertIn(
+            "## Shared workflow and tooling",
+            shared_playbook.read_text(encoding="utf-8"),
+        )
+
+        for agent_id in sorted(MODULE.EXPECTED_AGENTS):
+            with self.subTest(agent_id=agent_id):
+                directory = ROOT / "agents" / agent_id
+                role_playbook = directory / "playbook.md"
+                loop = directory / "skills" / "work-loop" / "SKILL.md"
+                self.assertTrue(role_playbook.is_file())
+                self.assertIn(
+                    "agents/playbook.md",
+                    role_playbook.read_text(encoding="utf-8"),
+                )
+                loop_text = loop.read_text(encoding="utf-8")
+                self.assertIn("agents/playbook.md", loop_text)
+                self.assertIn(f"agents/{agent_id}/playbook.md", loop_text)
+
+    def test_tool_items_reads_flow_lists(self) -> None:
+        yaml_text = """tools:
+  mode: allow
+  enabled: [read, edit, write]
+  disabled: [delegate_to_agent, delegate_to_subagent]
+"""
+        self.assertEqual({"read", "edit", "write"}, MODULE.tool_items(yaml_text, "enabled"))
+        self.assertEqual(
+            {"delegate_to_agent", "delegate_to_subagent"},
+            MODULE.tool_items(yaml_text, "disabled"),
+        )
+
+    def test_tool_items_reads_block_lists_without_leaking_sections(self) -> None:
+        yaml_text = """tools:
+  mode: allow
+  enabled:
+    - read
+    - bash
+  disabled:
+    - delegate_to_agent
+    - delegate_to_external_agent
+networking:
+  internet_access: false
+"""
+        self.assertEqual({"read", "bash"}, MODULE.tool_items(yaml_text, "enabled"))
+        self.assertEqual(
+            {"delegate_to_agent", "delegate_to_external_agent"},
+            MODULE.tool_items(yaml_text, "disabled"),
+        )
+
+    def test_llm_target_reads_explicit_provider_and_model(self) -> None:
+        yaml_text = """runtime:
+  type: docker
+llm:
+  model: xiaomi/mimo-v2.5  # Ordering and comments are valid YAML.
+  provider: openrouter
+instructions:
+  system_file: system.md
+"""
+        self.assertEqual(
+            ("openrouter", "xiaomi/mimo-v2.5"),
+            MODULE.llm_target(yaml_text),
+        )
+
+
+if __name__ == "__main__":
+    unittest.main()

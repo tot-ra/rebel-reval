@@ -1,0 +1,63 @@
+{
+  "type": "world_object",
+  "id": "obj.well_stone",
+  "name": "Stone well",
+  "description": "A stone-rimmed well with a rope and bucket; the district's water point.",
+  "category": "structure",
+  "handling": "fixed",
+  "tags": [
+    "water",
+    "public",
+    "meeting_place"
+  ],
+  "physical": {
+    "mass_kg": 2500,
+    "size_m": [
+      1.6,
+      1.4,
+      1.6
+    ],
+    "materials": [
+      "stone",
+      "wood",
+      "hemp_rope"
+    ]
+  },
+  "actions": [
+    "inspect",
+    "use"
+  ],
+  "economy": {
+    "base_pfennigs": 0,
+    "ownership": "public",
+    "legality": "legal",
+    "theft_severity": 0
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "street",
+      "market",
+      "farm"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "procedural",
+    "prop_kind": "well",
+    "builder": "res://scripts/map/view3d/map_view_mesh_builder_prop_models.gd"
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.well_stone.png",
+    "icon": "res://assets/objects/icons/obj.well_stone.png",
+    "icon_status": "missing",
+    "look": "Round fieldstone well curb with a wooden crank, rope and wooden bucket.",
+    "image_prompt": "Stone well: Round fieldstone well curb with a wooden crank, rope and wooden bucket."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "uses": [
+    "draw water",
+    "fill buckets"
+  ]
+}

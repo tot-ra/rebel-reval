@@ -1,0 +1,74 @@
+{
+  "type": "character",
+  "id": "char.kalev",
+  "name": "Kalev",
+  "aliases": [
+    "The Smith"
+  ],
+  "role": "Protagonist and lower-town smith",
+  "is_player": true,
+  "confidence": "invented",
+  "canon_status": "active",
+  "approval": {
+    "status": "approved",
+    "reviewer": "P0-013",
+    "notes": "Brief approved before schema creation."
+  },
+  "pronunciation": "KAH-lev",
+  "brief": {
+    "want": "Keep his forge, protect Mart, and remain useful enough that every side leaves him alone.",
+    "fear": "His neutrality is cowardice, and his crafted weapons will kill someone he loves.",
+    "contradiction": "He condemns violence but takes pride when powerful people depend on his weapons.",
+    "secret_or_withheld_fact": "He knows Mart is stealing materials and alters the ledger instead of confronting him."
+  },
+  "relationships": [
+    {
+      "target_id": "char.mart",
+      "summary": "Apprentice and emotional stake; Kalev is fiercely protective.",
+      "valence": "dependent"
+    },
+    {
+      "target_id": "char.aita",
+      "summary": "Older sister and moral anchor.",
+      "valence": "family"
+    },
+    {
+      "target_id": "char.henning",
+      "summary": "Dangerous customer who suspects Kalev's loyalties.",
+      "valence": "patron"
+    }
+  ],
+  "voice": {
+    "summary": "Pragmatic, cynical, observant, and material-minded.",
+    "diction": "Short precise sentences about iron, heat, leverage, rust, and work.",
+    "languages": [
+      "English",
+      "Estonian",
+      "Low German"
+    ]
+  },
+  "outcomes": [
+    {
+      "id": "break",
+      "summary": "Destroys his forge to save lives."
+    },
+    {
+      "id": "open",
+      "summary": "Arms the rebellion."
+    },
+    {
+      "id": "seal",
+      "summary": "Fortifies the rulers."
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Approved P0-013 character brief backed by active canon.",
+      "citations": [
+        "docs/CANON.md#main-cast",
+        "docs/CHARACTERS/kalev.md"
+      ]
+    }
+  ]
+}

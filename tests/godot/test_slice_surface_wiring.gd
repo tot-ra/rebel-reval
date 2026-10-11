@@ -1,0 +1,120 @@
+extends "res://tests/godot/map_view_3d_test_base.gd"
+
+## P0-053: both playable slice maps must render textured procedural surfaces,
+## not flat placeholder colors, on ground and authored building meshes.
+
+
+func test_kalev_smithy_interior_walls_use_weathered_textures() -> void:
+	MapViewMaterials.reset()
+	var definition := KalevSmithyDefinition.create()
+	var textures: Dictionary = {}
+	for building in definition.buildings:
+		if building.get("kind", &"") != MapTypes.BUILDING_KIND_INTERIOR_WALL:
+			continue
+		var node := MapViewMeshBuilder.build_building(building, definition.cell_size)
+		var walls := node.get_node("Walls") as MeshInstance3D
+		var material := walls.material_override as StandardMaterial3D
+		assert_true(
+			material != null, "%s: interior wall needs a material override" % building["id"]
+		)
+		assert_true(
+			material.albedo_texture != null,
+			"%s: interior wall must use a procedural albedo texture" % building["id"]
+		)
+		assert_true(
+			material.uv1_triplanar, "%s: interior wall keeps triplanar projection" % building["id"]
+		)
+		# AR-03 (R-961): library textures are shared by design; the per-wall
+		# identity is the stem plus its stable UV phase.
+		var recipe := "%s@%s" % [material.albedo_texture.resource_path, material.uv1_offset]
+		assert_false(
+			textures.has(recipe),
+			"%s: interior walls must not share one baked albedo map" % building["id"]
+		)
+		textures[recipe] = building["id"]
+		var walls_mesh := walls.mesh as BoxMesh
+		assert_true(walls_mesh != null, "%s: interior wall uses a BoxMesh" % building["id"])
+		var materials := MapViewMaterials.BUILDING_MATERIALS
+		if material.has_meta(materials.LIBRARY_STEM_META):
+			var stem := String(material.get_meta(materials.LIBRARY_STEM_META))
+			var expected := materials.library_world_uv_density(stem)
+			assert_true(
+				material.uv1_scale.is_equal_approx(expected),
+				"%s: interior triplanar density is independent of wall length" % building["id"]
+			)
+			assert_false(
+				material.uv1_scale.is_equal_approx(
+					materials.library_box_uv_scale(stem, walls_mesh.size)
+				),
+				"%s: interior walls must not keep the BoxMesh atlas scale" % building["id"]
+			)
+		node.free()
+	assert_true(textures.size() >= 3, "smithy interior must expose multiple distinct wall textures")
+
+
+func test_kalev_smithy_ceiling_uses_textured_planks() -> void:
+	MapViewMaterials.reset()
+	var definition := KalevSmithyDefinition.create()
+	var view := MapView3D.create(definition, MapBuilder.build(definition))
+	var ceiling := view.get_node_or_null("InteriorShell/Ceiling") as Node3D
+	assert_true(ceiling != null, "smithy needs a first-person ceiling shell")
+	# The authored loft binds the photoreal floorboard plate to its boards.
+	var textured_boards := false
+	for child in ceiling.find_children("*", "MeshInstance3D", true, false):
+		var mesh_instance := child as MeshInstance3D
+		for surface in mesh_instance.mesh.get_surface_count():
+			var material := (
+				mesh_instance.get_surface_override_material(surface) as StandardMaterial3D
+			)
+			if material != null and material.resource_name == "ksi_boards":
+				textured_boards = material.albedo_texture != null
+	assert_true(textured_boards, "loft boards must use the textured plank plate")
+	view.free()
+
+
+func test_slice_maps_ground_uses_textured_splat_shader() -> void:
+	for definition in [KalevSmithyDefinition.create(), KalevSmithyDefinition.create()]:
+		var view := MapView3D.create(definition, MapBuilder.build(definition))
+		var ground := view.get_node("Terrain/Terrain_Ground") as MeshInstance3D
+		assert_true(ground != null, "%s: playable slice needs a ground mesh" % definition.map_id)
+		assert_true(
+			ground.material_override is ShaderMaterial,
+			"%s: ground must use the blended terrain splat shader" % definition.map_id
+		)
+		var shader_mat := ground.material_override as ShaderMaterial
+		assert_true(
+			shader_mat.get_shader_parameter("cobble_surface") != null,
+			"%s: ground shader must bind the high-resolution cobble texture" % definition.map_id
+		)
+		view.free()
+
+
+func test_slice_maps_have_no_untextured_building_walls() -> void:
+	MapViewMaterials.reset()
+	for definition in [KalevSmithyDefinition.create(), KalevSmithyDefinition.create()]:
+		for building in definition.buildings:
+			var kind: StringName = building.get("kind", MapTypes.BUILDING_KIND_HOUSE)
+			if (
+				kind
+				not in [
+					MapTypes.BUILDING_KIND_HOUSE,
+					MapTypes.BUILDING_KIND_INTERIOR_WALL,
+					MapTypes.BUILDING_KIND_WALL,
+				]
+			):
+				continue
+			var node := MapViewMeshBuilder.build_building(building, definition.cell_size)
+			var walls := node.get_node_or_null("Walls") as MeshInstance3D
+			if walls == null:
+				node.free()
+				continue
+			var material := walls.material_override
+			if material is StandardMaterial3D:
+				assert_true(
+					(material as StandardMaterial3D).albedo_texture != null,
+					(
+						"%s/%s: wall surface must carry procedural albedo detail"
+						% [definition.map_id, building["id"]]
+					)
+				)
+			node.free()

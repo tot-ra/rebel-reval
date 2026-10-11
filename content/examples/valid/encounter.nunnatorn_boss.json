@@ -1,0 +1,42 @@
+{
+  "type": "encounter",
+  "id": "encounter.nunnatorn_boss",
+  "title": "Marten of Nunnatorn at the open-backed tower",
+  "quest_id": "quest.bitter_brew",
+  "resolved_flag": "flag.nunnatorn_boss_resolved",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "R-625",
+    "notes": "Named boss, deterministic composition, and outcome mapping are gameplay authorship. Historical tower form remains bounded by the R-622 review."
+  },
+  "outcomes": [
+    {
+      "kind": "bypass",
+      "quest_state": "night_bypassed"
+    },
+    {
+      "kind": "kill",
+      "quest_state": "night_fought"
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Marten of Nunnatorn is an authored encounter identity, not an attested historical occupant.",
+      "citations": [
+        "docs/reports/nunnatorn_historical_art_review.md",
+        "docs/reports/nunnatorn_interior_contract.md"
+      ]
+    },
+    {
+      "confidence": "plausible composite",
+      "summary": "The encounter uses the reserved boss anchor and returns through the reserved tower exit; enemy composition and outcome flags are defined by the scoped runtime adapter.",
+      "citations": [
+        "content/maps/nunnatorn_interior.rrmap",
+        "scripts/combat/nunnatorn_boss_encounter.gd"
+      ]
+    }
+  ]
+}

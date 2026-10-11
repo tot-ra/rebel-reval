@@ -1,0 +1,46 @@
+{
+  "quest_id": "quest.viru_abandoned_cart",
+  "branches": [
+    {
+      "id": "clear_viru_queue",
+      "transitions": [
+        "find_abandoned_cart",
+        "clear_queue"
+      ],
+      "setup": {
+        "flag.viru_abandoned_cart.cart_abandoned": true,
+        "flag.viru_abandoned_cart.cart_removed": true
+      },
+      "require_flags": {},
+      "expect": {
+        "quest_state": "route_cleared",
+        "flags": {
+          "flag.viru_abandoned_cart.found": true,
+          "flag.viru_abandoned_cart.route_cleared": true
+        }
+      }
+    },
+    {
+      "id": "record_dumping_fine",
+      "transitions": [
+        "find_abandoned_cart",
+        "council_names_dumping_fine",
+        "record_dumping_fine"
+      ],
+      "setup": {
+        "flag.viru_abandoned_cart.cart_abandoned": true,
+        "flag.viru_abandoned_cart.dumping_notice": true,
+        "flag.viru_abandoned_cart.fine_recorded": true
+      },
+      "require_flags": {},
+      "expect": {
+        "quest_state": "fine_recorded",
+        "flags": {
+          "flag.viru_abandoned_cart.found": true,
+          "flag.viru_abandoned_cart.dumping_fine_pending": true,
+          "flag.viru_abandoned_cart.dumping_fine_recorded": true
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "type": "world_object",
+  "id": "obj.scrap_heap_smithy",
+  "name": "Smithy scrap heap",
+  "description": "A heap of worn-out iron and offcuts in the corner, a source of rough stock.",
+  "category": "material",
+  "handling": "fixed",
+  "tags": [
+    "scrap",
+    "iron",
+    "forge"
+  ],
+  "physical": {
+    "mass_kg": 60,
+    "size_m": [
+      0.84,
+      0.3,
+      0.63
+    ],
+    "materials": [
+      "iron"
+    ]
+  },
+  "actions": [
+    "inspect"
+  ],
+  "economy": {
+    "base_pfennigs": 0,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 0
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "forge"
+    ],
+    "grouping": "pile"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/forge/kalev_smithy_scrap_heap/kalev_smithy_scrap_heap.glb",
+    "measured_size_m": [
+      0.84,
+      0.3,
+      0.63
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.scrap_heap_smithy.png",
+    "icon": "res://assets/objects/icons/obj.scrap_heap_smithy.png",
+    "icon_status": "missing",
+    "look": "Pile of rusted horseshoes, nails, broken chain links and flat offcuts.",
+    "image_prompt": "Smithy scrap heap: Pile of rusted horseshoes, nails, broken chain links and flat offcuts."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "uses": [
+    "scavenge scrap iron"
+  ]
+}

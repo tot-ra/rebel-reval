@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://bn8nightencstub01"]
+
+[ext_resource type="Script" path="res://scenes/tests/night_encounter_stub.gd" id="1_script"]
+
+[node name="NightEncounterStub" type="Node2D"]
+script = ExtResource("1_script")

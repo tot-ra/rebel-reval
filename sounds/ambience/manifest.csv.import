@@ -1,0 +1,19 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://dtslipbtl1fdl"
+
+[deps]
+
+files=["res://sounds/ambience/manifest.file.translation", "res://sounds/ambience/manifest.license.translation", "res://sounds/ambience/manifest.source.translation", "res://sounds/ambience/manifest.notes.translation"]
+
+source_file="res://sounds/ambience/manifest.csv"
+dest_files=["res://sounds/ambience/manifest.file.translation", "res://sounds/ambience/manifest.license.translation", "res://sounds/ambience/manifest.source.translation", "res://sounds/ambience/manifest.notes.translation"]
+
+[params]
+
+compress=1
+delimiter=0
+unescape_keys=false
+unescape_translations=true

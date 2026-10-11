@@ -1,0 +1,44 @@
+{
+  "type": "dialogue",
+  "id": "dialogue.price_of_a_name.inspect_ropewalk_lane",
+  "title": "The Price of a Name - Ropewalk lane",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-005"
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "explicit_node_id"
+  },
+  "participants": [
+    "char.kalev"
+  ],
+  "start_node_id": "inspect_ropewalk_lane",
+  "nodes": [
+    {
+      "id": "inspect_ropewalk_lane",
+      "speaker_id": "char.kalev",
+      "text": "Henning's rope requisition ties the detention cart route to the watch boats at the Coastal Gate. The transfer leaves at first light.",
+      "effects": [
+        {
+          "op": "set_fact",
+          "key": "fact.price_of_a_name.ropewalk_route",
+          "value": true
+        }
+      ]
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Investigation dialogue for the ropewalk lane site.",
+      "citations": [
+        "docs/SCENES/the-price-of-a-name.md"
+      ]
+    }
+  ]
+}

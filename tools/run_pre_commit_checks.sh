@@ -1,0 +1,556 @@
+#!/usr/bin/env bash
+# Fast, path-aware gates that catch the CI failure classes most often introduced
+# at commit time. Full Godot import/export/map suites stay manual / CI-only.
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$ROOT_DIR"
+
+if [[ "${SKIP_PRE_COMMIT:-}" == "1" ]]; then
+  echo "SKIP_PRE_COMMIT=1 set; skipping on-commit checks."
+  exit 0
+fi
+
+MODE="${1:-staged}"
+case "$MODE" in
+  staged|all) ;;
+  *)
+    echo "Usage: $0 [staged|all]" >&2
+    echo "Set SKIP_PRE_COMMIT=1 to bypass. Set PRE_COMMIT_FULL=1 to add heavier gates." >&2
+    exit 2
+    ;;
+esac
+
+STAGED_FILE="$(mktemp)"
+PYTHON_MODULES_FILE="$(mktemp)"
+JOB_DIR="$(mktemp -d)"
+GODOT_LANE="$JOB_DIR/godot_lane.sh"
+trap 'rm -rf "$STAGED_FILE" "$PYTHON_MODULES_FILE" "$JOB_DIR"' EXIT
+
+if [[ "$MODE" == "staged" ]]; then
+  git diff --cached --name-only --diff-filter=ACMR >"$STAGED_FILE"
+else
+  git ls-files >"$STAGED_FILE"
+fi
+
+STAGED_PATHS=()
+while IFS= read -r path; do
+  STAGED_PATHS+=("$path")
+done <"$STAGED_FILE"
+
+# Return 0 when any staged path equals a candidate or lives under a candidate prefix.
+any_staged_path() {
+  local candidate path
+  for candidate in "$@"; do
+    for path in "${STAGED_PATHS[@]}"; do
+      if [[ "$path" == "$candidate" || "$path" == "$candidate"/* ]]; then
+        return 0
+      fi
+    done
+  done
+  return 1
+}
+
+run_step() {
+  local label="$1"
+  shift
+  echo "==> $label"
+  "$@"
+}
+
+# Slow independent gates run concurrently. bg_step output is buffered and
+# replayed in submission order by wait_jobs. Godot gates share one serial lane
+# (godot_step) because concurrent editors race on the .godot import cache; the
+# lane itself runs beside the Python gates.
+JOB_LABELS=()
+bg_step() {
+  local label="$1"
+  shift
+  local idx="${#JOB_LABELS[@]}"
+  JOB_LABELS+=("$label")
+  (
+    set +e
+    "$@" >"$JOB_DIR/$idx.out" 2>&1
+    echo "$?" >"$JOB_DIR/$idx.rc"
+  ) &
+}
+
+godot_step() {
+  local label="$1"
+  shift
+  {
+    printf 'echo "==> %s"\n' "$label"
+    printf '%q ' "$@"
+    printf '\n'
+  } >>"$GODOT_LANE"
+}
+
+wait_jobs() {
+  if [[ -s "$GODOT_LANE" ]]; then
+    bg_step "godot gates" bash -e "$GODOT_LANE"
+  fi
+  wait
+  local failed=0 idx=0 label
+  for label in ${JOB_LABELS[@]+"${JOB_LABELS[@]}"}; do
+    echo "==> $label"
+    cat "$JOB_DIR/$idx.out"
+    if [[ "$(cat "$JOB_DIR/$idx.rc")" != "0" ]]; then
+      failed=1
+    fi
+    idx=$((idx + 1))
+  done
+  return "$failed"
+}
+
+# Prefer GODOT_BIN, then PATH, then the standard macOS editor app. The map and
+# focused Godot gates used to require `godot` on PATH, which silently skipped
+# validation on typical macOS checkouts.
+resolve_godot() {
+  if [[ -n "${GODOT_BIN:-}" && -x "${GODOT_BIN}" ]]; then
+    printf '%s\n' "$GODOT_BIN"
+    return 0
+  fi
+  if command -v godot >/dev/null 2>&1; then
+    command -v godot
+    return 0
+  fi
+  if [[ -x /Applications/Godot.app/Contents/MacOS/Godot ]]; then
+    printf '%s\n' /Applications/Godot.app/Contents/MacOS/Godot
+    return 0
+  fi
+  return 1
+}
+
+queue_python_module() {
+  local module="$1"
+  printf '%s\n' "$module" >>"$PYTHON_MODULES_FILE"
+}
+
+# Map a staged path onto its conventional unittest module when one exists.
+# tools/foo.py and tools/a/foo.py both resolve to tests.python.test_foo.
+queue_python_module_for_path() {
+  local path="$1"
+  local base module_file
+  case "$path" in
+    tests/python/test_*.py)
+      queue_python_module "tests.python.$(basename "$path" .py)"
+      ;;
+    tools/*.py|tools/*/*.py)
+      base="$(basename "$path" .py)"
+      module_file="tests/python/test_${base}.py"
+      if [[ -f "$module_file" ]]; then
+        queue_python_module "tests.python.test_${base}"
+      fi
+      ;;
+  esac
+}
+
+# Fail fast when a scratch class_name script under build/ is visible to Godot,
+# or when the class cache already lists a path outside the allowlist.
+# Do not ignore all of build/: capture tools read and write res://build/.
+check_class_cache_guard() {
+  python3 - "$ROOT_DIR" <<'PY'
+import re
+import sys
+from pathlib import Path
+
+root = Path(sys.argv[1])
+allowed_res = (
+    "res://scripts/",
+    "res://tests/",
+    "res://tools/",
+    "res://assets/",
+    "res://scenes/",
+    "res://addons/",
+)
+offenders: list[str] = []
+
+
+def is_gdignored(path: Path) -> bool:
+    for parent in path.parents:
+        if parent == root:
+            break
+        if (parent / ".gdignore").is_file():
+            return True
+    return False
+
+
+build = root / "build"
+if build.is_dir():
+    for gd_file in build.rglob("*.gd"):
+        if not gd_file.is_file() or is_gdignored(gd_file):
+            continue
+        try:
+            text = gd_file.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+        if re.search(r"(?m)^[ \t]*class_name[ \t]+", text):
+            offenders.append(str(gd_file.relative_to(root)))
+
+cache = root / ".godot" / "global_script_class_cache.cfg"
+if cache.is_file():
+    cache_text = cache.read_text(encoding="utf-8", errors="replace")
+    for path in re.findall(r'"path": "(res://[^"]+)"', cache_text):
+        if not path.startswith(allowed_res):
+            offenders.append("cache:%s" % path)
+
+if not offenders:
+    raise SystemExit(0)
+
+print(
+    "CLASS CACHE GUARD: class_name script(s) outside "
+    "scripts/tests/tools/assets/scenes/addons, or unignored under build/:",
+    file=sys.stderr,
+)
+for item in offenders:
+    print("  %s" % item, file=sys.stderr)
+print(
+    "Godot scans build/ as res://. Put scratch under build/scratch/ "
+    "(godot_render.sh creates .gdignore there) or add .gdignore to that folder.",
+    file=sys.stderr,
+)
+print(
+    "Do not add build/.gdignore at the root: capture tools use res://build/.",
+    file=sys.stderr,
+)
+print(
+    "Then rebuild the cache: Godot --headless --editor --path . --quit-after 2",
+    file=sys.stderr,
+)
+raise SystemExit(1)
+PY
+}
+
+echo "Running on-commit checks (mode=$MODE)..."
+
+# Why: build/ is gitignored but Godot still scans it as res://. Catch scratch
+# class_name copies before any Godot process can poison the class cache.
+run_step "class_name scratch guard" check_class_cache_guard
+
+# R-1453: inspect the index, including deletion-only commits (the path list
+# below intentionally excludes deletions for lint/test selection). This cheap
+# gate must run before the staged-empty early exit and expensive sibling gates.
+if [[ "$MODE" == "all" ]] || ! git diff --cached --quiet; then
+  run_step "Godot import sidecar pairs" python3 tools/verify_import_sidecars.py
+fi
+
+if [[ "$MODE" == "staged" && ! -s "$STAGED_FILE" ]]; then
+  echo "No staged files; nothing to check."
+  exit 0
+fi
+
+# Whitespace / conflict markers on the commit payload (or whole tree in all mode).
+if [[ "$MODE" == "staged" ]]; then
+  run_step "staged whitespace (git diff --cached --check)" \
+    git diff --cached --check
+else
+  run_step "tree whitespace (git diff --check)" \
+    git diff --check
+fi
+
+# Cheap pin parity with CI's Godot version step when project metadata changes.
+if any_staged_path ".godot-version" "project.godot" "export_presets.cfg" \
+  "tests/python/test_project_configuration.py"; then
+  run_step "Godot version pin parity" bash -c '
+    set -euo pipefail
+    test "$(cat .godot-version)" = "4.7"
+    grep -F "config/features=PackedStringArray(\"4.7\", \"GL Compatibility\")" project.godot >/dev/null
+    grep -F "config/icon=\"res://scenes/menu/logo256.png\"" project.godot >/dev/null
+    grep -F "application/icon=\"res://scenes/menu/logo256.png\"" export_presets.cfg >/dev/null
+    grep -F "application/bundle_identifier=\"com.revalrebel.game\"" export_presets.cfg >/dev/null
+  '
+  queue_python_module "tests.python.test_project_configuration"
+fi
+
+if any_staged_path "export_presets.cfg" \
+  "docs/data/shipped_resource_manifest.json" \
+  "tools/verify_shipped_resources.py" \
+  "tools/pck_inventory.py" \
+  "tests/python/test_verify_shipped_resources.py"; then
+  queue_python_module "tests.python.test_verify_shipped_resources"
+  bg_step "shipped resource verifier" python3 tools/verify_shipped_resources.py --check
+fi
+
+if any_staged_path "tools/run_pre_commit_checks.sh" \
+  "tools/install_git_hooks.sh" \
+  "tools/git-hooks" \
+  ".pre-commit-config.yaml" \
+  "tests/python/test_pre_commit_hooks.py"; then
+  queue_python_module "tests.python.test_pre_commit_hooks"
+fi
+
+if any_staged_path "test_commands.sh" \
+  "tools/run_performance_report.sh" \
+  "tests/python/test_test_commands.py"; then
+  queue_python_module "tests.python.test_test_commands"
+fi
+
+if any_staged_path "content/saves" \
+  "tests/python/test_campaign_save_fixtures.py"; then
+  queue_python_module "tests.python.test_campaign_save_fixtures"
+fi
+
+# R-1017: fail-closed 6/8 slice magic budget when grant/spell/rite examples or
+# MAGIC.md change. Other content JSON still runs schema checks, not this module.
+# Print 0/1 so a helper import error is a real hook failure (set -e), not a skip.
+MAGIC_BUDGET_TRIGGER="$(python3 -c '
+import sys
+from pathlib import Path
+
+sys.path.insert(0, sys.argv[1])
+from tests.python.test_magic_budget import magic_budget_paths_trigger
+
+paths = Path(sys.argv[2]).read_text(encoding="utf-8").splitlines()
+print("1" if magic_budget_paths_trigger(paths) else "0")
+' "$ROOT_DIR" "$STAGED_FILE")"
+if [[ "$MAGIC_BUDGET_TRIGGER" == "1" ]]; then
+  queue_python_module "tests.python.test_magic_budget"
+fi
+
+if any_staged_path "tools/verify_clean_checkout_load.sh" \
+  "tests/python/test_verify_clean_checkout_load.py"; then
+  queue_python_module "tests.python.test_verify_clean_checkout_load"
+fi
+
+GD_FILES=()
+while IFS= read -r path; do
+  case "$path" in
+    *.gd) GD_FILES+=("$path") ;;
+  esac
+done <"$STAGED_FILE"
+
+if [[ ${#GD_FILES[@]} -gt 0 ]]; then
+  # Prefer the module entrypoint so user PATH does not need ~/Library/Python/.../bin.
+  if python3 -c 'import gdtoolkit.linter' >/dev/null 2>&1; then
+    bg_step "gdlint staged GDScript (${#GD_FILES[@]} file(s))" \
+      python3 -m gdtoolkit.linter "${GD_FILES[@]}"
+  elif command -v gdlint >/dev/null 2>&1; then
+    bg_step "gdlint staged GDScript (${#GD_FILES[@]} file(s))" \
+      gdlint "${GD_FILES[@]}"
+  else
+    echo "gdlint is required for staged .gd changes." >&2
+    echo "Install with: python3 -m pip install --user 'gdtoolkit==4.5.0'" >&2
+    exit 1
+  fi
+fi
+
+if any_staged_path "content" \
+  "tools/validate_content.py" \
+  "tools/validate_content_examples.py" \
+  "tests/python/test_validate_content.py"; then
+  bg_step "content schema examples" python3 tools/validate_content_examples.py
+  queue_python_module "tests.python.test_validate_content"
+  bg_step "content example corpus" \
+    python3 tools/validate_content.py content/examples/valid content/examples/support
+  if any_staged_path "content/demo"; then
+    bg_step "demo content corpus" \
+      python3 tools/validate_content.py content/demo content/examples/support content/examples/valid
+  fi
+fi
+
+if any_staged_path "content/npcs" \
+  "tools/validate_named_npcs.py" \
+  "tests/python/test_named_npcs.py" \
+  "scripts/faction/faction_ledger.gd" \
+  "scripts/state/faction_candidate_seats.gd" \
+  "content/world/reval_city/plan.json"; then
+  bg_step "named NPC registry" python3 tools/validate_named_npcs.py
+  queue_python_module "tests.python.test_named_npcs"
+fi
+
+if any_staged_path "content/factions" \
+  "tools/validate_faction_identity.py" \
+  "tests/python/test_faction_identity.py" \
+  "assets/UI/factions" \
+  "docs/CANON.md"; then
+  bg_step "faction identity" python3 tools/validate_faction_identity.py
+  queue_python_module "tests.python.test_faction_identity"
+fi
+
+if any_staged_path "assets/SOURCES.csv" \
+  "assets/materials/pbr" \
+  "tools/validate_asset_sources.py" \
+  "tools/verify_asset_lint.py" \
+  "tools/verify_storage_hygiene.py" \
+  "tools/verify_texture_prompts.py" \
+  "tests/python/test_verify_texture_prompts.py" \
+  "docs/storage_binary_exceptions.json" \
+  "docs/lfs_assets.json"; then
+  bg_step "asset provenance manifest" python3 tools/validate_asset_sources.py
+  bg_step "storage hygiene" python3 tools/verify_storage_hygiene.py
+  bg_step "asset lint" python3 tools/verify_asset_lint.py
+  bg_step "texture prompt sidecars" python3 tools/verify_texture_prompts.py
+fi
+
+if any_staged_path "music" "sounds" \
+  "docs/data/runtime_audio_budget.json" \
+  "tools/verify_runtime_audio_budget.py" \
+  "tools/optimize_runtime_audio.py" \
+  "tests/python/test_verify_runtime_audio_budget.py"; then
+  bg_step "runtime audio budget" python3 tools/verify_runtime_audio_budget.py
+  queue_python_module "tests.python.test_verify_runtime_audio_budget"
+fi
+
+if any_staged_path "assets" \
+  "docs/data/runtime_glb_budget.json" \
+  "tools/verify_runtime_glb_budget.py" \
+  "tools/optimize_runtime_glbs.py" \
+  "tests/python/test_verify_runtime_glb_budget.py"; then
+  bg_step "runtime GLB budget" python3 tools/verify_runtime_glb_budget.py
+  queue_python_module "tests.python.test_verify_runtime_glb_budget"
+fi
+
+# Active-doc check walks the live worktree. Trigger only on the report inputs /
+# generator that CI treats as the contract, not on every docs/** edit, so an
+# unrelated dirty report cannot block an otherwise scoped commit.
+if any_staged_path "README.md" "AGENTS.md" "docs/CANON.md" \
+  "docs/reports/active_markdown_report.md" \
+  "tools/generate_active_docs_report.py"; then
+  bg_step "active Markdown links and canon" \
+    python3 tools/generate_active_docs_report.py --check
+fi
+
+# Every Markdown file must stay reachable from README.md through the docs hub
+# and the generated index blocks. Any staged .md can add or orphan a page.
+STAGED_MARKDOWN=0
+for path in "${STAGED_PATHS[@]}"; do
+  if [[ "$path" == *.md || "$path" == "tools/docs_index.py" ]]; then
+    STAGED_MARKDOWN=1
+    break
+  fi
+done
+if [[ "$STAGED_MARKDOWN" == "1" ]]; then
+  bg_step "docs reachable from README (docs_index)" python3 tools/docs_index.py --check
+fi
+
+# R-1046: keep the checked-in reval_outdoor manifest in lockstep with group
+# member sources. Travel-only world.* maps are not members and do not trigger.
+if any_staged_path \
+  "content/maps/archbishops_garden.rrmap" \
+  "content/maps/lower_town_slice.rrmap" \
+  "content/maps/market_civic_quarter.rrmap" \
+  "content/maps/monastery_quarter.rrmap" \
+  "content/maps/north_quarter.rrmap" \
+  "content/maps/reval_harbor_east.rrmap" \
+  "content/maps/reval_harbor_north.rrmap" \
+  "content/maps/south_quarter.rrmap" \
+  "content/maps/toompea_quarter.rrmap" \
+  "content/maps/viru_gate_foreland.rrmap" \
+  "content/world/reval_outdoor_layout.json" \
+  "scripts/map/map_world_layout.gd" \
+  "tools/build_world_layout.gd" \
+  "tools/verify_world_layout.py"; then
+  if GODOT_BIN_RESOLVED="$(resolve_godot)"; then
+    godot_step "reval_outdoor world-layout --check" \
+      "$GODOT_BIN_RESOLVED" --headless --path . --script tools/build_world_layout.gd -- --check
+  else
+    echo "godot not on PATH and GODOT_BIN unset; skipping world-layout --check." >&2
+    echo "Manifest changes still require tools/build_world_layout.gd -- --check before push." >&2
+  fi
+  bg_step "reval_outdoor world-layout verify" python3 tools/verify_world_layout.py
+  queue_python_module "tests.python.test_verify_world_layout"
+fi
+
+# R-1117 / UF-08: compiled form must match across every reval_outdoor seam. This is
+# separate from the span/origin gate above: it compares heights, streets, frontage,
+# walls and ditches on both sides of the aperture.
+if any_staged_path "content/maps" \
+  "content/world/reval_outdoor_layout.json" \
+  "scripts/map" \
+  "docs/data/seam_continuity_budget.json" \
+  "tools/verify_seam_continuity.gd" \
+  "tests/godot/test_seam_continuity.gd"; then
+  if GODOT_BIN_RESOLVED="$(resolve_godot)"; then
+    godot_step "reval_outdoor seam form continuity" \
+      "$GODOT_BIN_RESOLVED" --headless --path . --script tools/verify_seam_continuity.gd
+  else
+    echo "godot not on PATH and GODOT_BIN unset; skipping seam continuity gate." >&2
+    echo "Map changes still require tools/verify_seam_continuity.gd before push." >&2
+  fi
+fi
+
+if any_staged_path "scripts/map" "content/maps" \
+  "tools/run_map_pipeline_ci.sh" \
+  "tools/validate_map_blueprints.gd" \
+  "tools/verify_map_audit.py" \
+  "tools/verify_map_activation.py" \
+  "tools/verify_map_conversion_plan.py" \
+  "docs/MAP_AUTHORING.md"; then
+  # The headless blueprint compile takes ~2.5 minutes, so it is opt-in at commit
+  # time (PRE_COMMIT_FULL=1) and stays in the AGENTS.md map gate / CI.
+  if [[ "${PRE_COMMIT_FULL:-}" == "1" ]]; then
+    if GODOT_BIN_RESOLVED="$(resolve_godot)"; then
+      godot_step "map blueprint validation" \
+        "$GODOT_BIN_RESOLVED" --headless --path . --script tools/validate_map_blueprints.gd
+    else
+      echo "godot not on PATH and GODOT_BIN unset; skipping map blueprint headless validation." >&2
+    fi
+  else
+    echo "Skipping map blueprint validation (slow); run with PRE_COMMIT_FULL=1 or the AGENTS.md map gate before push." >&2
+  fi
+  bg_step "map audit" python3 tools/verify_map_audit.py
+  bg_step "map activation" python3 tools/verify_map_activation.py
+  bg_step "map conversion plan" python3 tools/verify_map_conversion_plan.py
+fi
+
+# Path-matched Python tests only in staged mode. Walking every tracked file in
+# `all` mode would collect live-inventory modules that still fail on baseline
+# scene or fingerprint drift; keep those in dedicated CI/manual jobs.
+if [[ "$MODE" == "staged" ]]; then
+  for path in "${STAGED_PATHS[@]}"; do
+    queue_python_module_for_path "$path"
+  done
+fi
+
+if [[ -s "$PYTHON_MODULES_FILE" ]]; then
+  PYTHON_MODULES=()
+  while IFS= read -r module; do
+    [[ -n "$module" ]] || continue
+    PYTHON_MODULES+=("$module")
+  done < <(sort -u "$PYTHON_MODULES_FILE")
+  if [[ ${#PYTHON_MODULES[@]} -gt 0 ]]; then
+    bg_step "path-aware Python unit tests (${#PYTHON_MODULES[@]} module(s))" \
+      python3 -m unittest "${PYTHON_MODULES[@]}" -v
+  fi
+fi
+
+# When the only staged GDScript files are Godot harness tests, run that focused
+# filter instead of waiting for PRE_COMMIT_FULL or CI.
+if [[ ${#GD_FILES[@]} -gt 0 ]]; then
+  FOCUSED_STEMS=()
+  ONLY_GODOT_TESTS=1
+  for path in "${GD_FILES[@]}"; do
+    case "$path" in
+      tests/godot/test_*.gd)
+        FOCUSED_STEMS+=("$(basename "$path" .gd)")
+        ;;
+      *)
+        ONLY_GODOT_TESTS=0
+        ;;
+    esac
+  done
+  if [[ "$ONLY_GODOT_TESTS" -eq 1 && ${#FOCUSED_STEMS[@]} -gt 0 ]]; then
+    if GODOT_BIN_RESOLVED="$(resolve_godot)"; then
+      FOCUSED_FILTER="$(IFS=','; echo "${FOCUSED_STEMS[*]}")"
+      godot_step "focused Godot tests ($FOCUSED_FILTER)" \
+        tools/run_godot_checked.sh --require-test-summary pre-commit-focused \
+        "$GODOT_BIN_RESOLVED" --headless --script tools/run_godot_tests.gd -- \
+        "--filter=$FOCUSED_FILTER"
+    else
+      echo "godot not available; skipping focused Godot tests for staged tests/godot files." >&2
+    fi
+  fi
+fi
+
+if [[ "${PRE_COMMIT_FULL:-}" == "1" ]]; then
+  if ! GODOT_BIN_RESOLVED="$(resolve_godot)"; then
+    echo "PRE_COMMIT_FULL=1 requires godot on PATH, GODOT_BIN, or the macOS Godot.app." >&2
+    exit 1
+  fi
+  godot_step "full Godot headless suite" \
+    tools/run_godot_checked.sh --require-test-summary full-suite \
+    "$GODOT_BIN_RESOLVED" --headless --script tools/run_godot_tests.gd
+fi
+
+wait_jobs
+echo "On-commit checks passed."

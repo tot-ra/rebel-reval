@@ -1,0 +1,55 @@
+{
+  "save_version": 1,
+  "saved_at_unix": 1752807000,
+  "game_state": {
+    "version": 2,
+    "phase": "phase.prologue_day",
+    "player": {
+      "health": 100.0,
+      "max_health": 100.0,
+      "stamina": 100.0,
+      "max_stamina": 100.0,
+      "location_id": "forge",
+      "spawn_id": "main"
+    },
+    "bag": {
+      "placements": [
+        {
+          "item_id": "item.seized_spearhead",
+          "grid_x": 0,
+          "grid_y": 0,
+          "quantity": 1
+        }
+      ]
+    },
+    "equipped": {
+      "right_hand": "item.forge_hammer"
+    },
+    "facts": {},
+    "flags": {
+      "flag.demo_mart_spoken": true
+    },
+    "relationships": {},
+    "pressures": {
+      "pressure.suspicion": 0,
+      "pressure.solidarity": 0,
+      "pressure.scarcity": 0
+    },
+    "quest_states": {},
+    "location_states": {},
+    "items": {
+      "item.seized_spearhead": true
+    },
+    "forged_records": [],
+    "world_items": {
+      "loc.kalev_smithy": {}
+    },
+    "world_defaults_seeded": {
+      "loc.kalev_smithy": true
+    },
+    "map_world_state": {
+      "save_version": 2,
+      "world_state": {}
+    }
+  }
+}

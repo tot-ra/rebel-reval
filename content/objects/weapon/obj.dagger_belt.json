@@ -1,0 +1,69 @@
+{
+  "type": "world_object",
+  "id": "obj.dagger_belt",
+  "name": "Belt dagger",
+  "description": "A plain straight belt dagger with a small guard, leather grip and simple sheath. Planned household object; not yet a runtime model.",
+  "category": "weapon",
+  "handling": "pocketable",
+  "tags": [
+    "household",
+    "safety"
+  ],
+  "physical": {
+    "mass_kg": 0.35,
+    "size_m": [
+      0.09,
+      0.3,
+      0.04
+    ],
+    "materials": [
+      "steel",
+      "leather"
+    ]
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop",
+    "use",
+    "equip"
+  ],
+  "economy": {
+    "base_pfennigs": 36,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "hanging",
+    "spaces": [
+      "home_poor",
+      "home_burgher",
+      "home_noble"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "missing"
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.dagger_belt.png",
+    "icon": "res://assets/objects/icons/obj.dagger_belt.png",
+    "icon_status": "missing",
+    "look": "A plain straight belt dagger with a small guard, leather grip and simple sheath.",
+    "image_prompt": "Belt dagger: A plain straight belt dagger with a small guard, leather grip and simple sheath."
+  },
+  "lifecycle": "planned",
+  "confidence": "plausible composite",
+  "notes": "HOMEOBJ-1 (R-1367): mass, dimensions and pfennigs are gameplay authoring estimates, not measured geometry or attested prices. No model or icon exists yet.",
+  "carry": {
+    "grid_width": 1,
+    "grid_height": 1,
+    "stackable": false
+  },
+  "equip": {
+    "slot": "right_hand",
+    "protection": "none",
+    "damage_type": "pierce"
+  }
+}

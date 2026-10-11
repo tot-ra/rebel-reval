@@ -1,0 +1,60 @@
+{
+  "type": "world_object",
+  "id": "obj.fish_drying_rack",
+  "name": "Fish drying rack",
+  "description": "A pole rack hung with split fish, drying in the wind.",
+  "category": "craft_station",
+  "handling": "fixed",
+  "tags": [
+    "fish",
+    "drying",
+    "harbor"
+  ],
+  "physical": {
+    "mass_kg": 40,
+    "size_m": [
+      2.0,
+      1.8,
+      0.8
+    ],
+    "materials": [
+      "wood",
+      "food_organic"
+    ],
+    "flammable": true
+  },
+  "actions": [
+    "inspect"
+  ],
+  "economy": {
+    "base_pfennigs": 0,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 0
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "harbor"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "procedural",
+    "prop_kind": "fish_drying_rack",
+    "builder": "res://scripts/map/view3d/map_view_mesh_builder_district_life_props.gd",
+    "variant": "fish_rack.herring"
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.fish_drying_rack.png",
+    "icon": "res://assets/objects/icons/obj.fish_drying_rack.png",
+    "icon_status": "missing",
+    "look": "Timber rack with rows of split silver fish hung by the tails.",
+    "image_prompt": "Fish drying rack: Timber rack with rows of split silver fish hung by the tails."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "uses": [
+    "steal dried fish"
+  ]
+}

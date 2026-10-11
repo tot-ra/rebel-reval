@@ -1,0 +1,83 @@
+{
+  "type": "world_object",
+  "id": "obj.kitchen_knife",
+  "name": "Kitchen knife",
+  "description": "A broad everyday knife for cutting bread and meat.",
+  "category": "tool",
+  "handling": "pocketable",
+  "tags": [
+    "blade",
+    "kitchen",
+    "tool"
+  ],
+  "physical": {
+    "mass_kg": 0.15,
+    "size_m": [
+      0.23,
+      0.02,
+      0.03
+    ],
+    "materials": [
+      "steel",
+      "wood"
+    ]
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop",
+    "throw"
+  ],
+  "economy": {
+    "base_pfennigs": 12,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "home_poor",
+      "home_burgher",
+      "tavern",
+      "market"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/domestic/kitchenware/medieval_kitchenware_kit.glb",
+    "node": "KitchenwareKnife",
+    "prop_kind": "kitchenware",
+    "variant": "kitchenware.knife",
+    "measured_size_m": [
+      0.23,
+      0.02,
+      0.03
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.kitchen_knife.png",
+    "icon": "res://assets/objects/icons/obj.kitchen_knife.png",
+    "icon_status": "missing",
+    "look": "Plain steel blade with a wooden handle bound in a brass ring.",
+    "image_prompt": "Kitchen knife: Plain steel blade with a wooden handle bound in a brass ring."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "uses": [
+    "cut food",
+    "cut cord"
+  ],
+  "carry": {
+    "grid_width": 2,
+    "grid_height": 1,
+    "stackable": false
+  },
+  "throw": {
+    "range_m": 5.0,
+    "damage": 3,
+    "breaks": false,
+    "noise": "quiet"
+  }
+}

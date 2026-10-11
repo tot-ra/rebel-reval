@@ -1,0 +1,63 @@
+{
+  "type": "world_object",
+  "id": "obj.bed_straw_pallet",
+  "name": "Straw-tick box bed",
+  "description": "A plank box with a straw tick, a linen bolster and a grey wool blanket; two or three sleep in it.",
+  "category": "furniture",
+  "handling": "fixed",
+  "tags": [
+    "bed"
+  ],
+  "physical": {
+    "mass_kg": 45,
+    "size_m": [
+      1.93,
+      0.56,
+      1.03
+    ],
+    "materials": [
+      "wood",
+      "straw",
+      "wool"
+    ],
+    "flammable": true
+  },
+  "actions": [
+    "inspect",
+    "sit",
+    "sleep"
+  ],
+  "economy": {
+    "base_pfennigs": 60,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 0
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "home_poor",
+      "home_burgher"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/furniture/household_kit/household_furniture_kit.glb",
+    "measured_size_m": [
+      1.93,
+      0.56,
+      1.03
+    ],
+    "node": "StrawPallet"
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.bed_straw_pallet.png",
+    "icon": "res://assets/objects/icons/obj.bed_straw_pallet.png",
+    "icon_status": "missing",
+    "look": "Low dark plank bed box, lumpy straw tick, linen bolster, checked grey wool blanket turned back.",
+    "image_prompt": "Straw-tick box bed: Low dark plank bed box, lumpy straw tick, linen bolster, checked grey wool blanket turned back."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite"
+}

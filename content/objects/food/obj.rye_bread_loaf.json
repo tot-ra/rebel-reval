@@ -1,0 +1,88 @@
+{
+  "type": "world_object",
+  "id": "obj.rye_bread_loaf",
+  "name": "Rye loaf",
+  "description": "A dark sour rye loaf, the staple of Reval; price anchors the bread market (4 pfennigs).",
+  "category": "food",
+  "handling": "pocketable",
+  "tags": [
+    "bread",
+    "staple",
+    "rye"
+  ],
+  "physical": {
+    "mass_kg": 0.8,
+    "size_m": [
+      0.22,
+      0.11,
+      0.14
+    ],
+    "materials": [
+      "food_organic",
+      "grain"
+    ]
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop",
+    "throw",
+    "consume",
+    "stack"
+  ],
+  "economy": {
+    "base_pfennigs": 4,
+    "ownership": "merchant",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "home_poor",
+      "home_burgher",
+      "market",
+      "tavern",
+      "forge"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/domestic/household/smithy_household_clutter_kit.glb",
+    "node": "ProvisionRyeBreadLoaf",
+    "prop_kind": "household_clutter",
+    "variant": "provision.rye_bread_loaf",
+    "measured_size_m": [
+      0.22,
+      0.11,
+      0.14
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.rye_bread_loaf.png",
+    "icon": "res://assets/objects/icons/obj.rye_bread_loaf.png",
+    "icon_status": "missing",
+    "look": "Dense dark rye loaf with a cracked crust and flour dusting.",
+    "image_prompt": "Rye loaf: Dense dark rye loaf with a cracked crust and flour dusting."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "carry": {
+    "grid_width": 2,
+    "grid_height": 1,
+    "stackable": true,
+    "max_stack": 3
+  },
+  "throw": {
+    "range_m": 5.0,
+    "damage": 1,
+    "breaks": false,
+    "noise": "quiet"
+  },
+  "edible": {
+    "kind": "food",
+    "nutrition": 45,
+    "spoils_after_days": 5
+  }
+}

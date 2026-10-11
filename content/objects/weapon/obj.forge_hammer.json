@@ -1,0 +1,85 @@
+{
+  "type": "world_object",
+  "id": "obj.forge_hammer",
+  "name": "Forge hammer",
+  "description": "Kalev's heavy forge hammer; his working tool and his default weapon.",
+  "category": "weapon",
+  "handling": "carry_one_hand",
+  "tags": [
+    "weapon",
+    "blunt",
+    "smithing",
+    "player_start"
+  ],
+  "physical": {
+    "mass_kg": 4.5,
+    "size_m": [
+      0.26,
+      0.46,
+      0.13
+    ],
+    "materials": [
+      "iron",
+      "wood"
+    ]
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop",
+    "throw",
+    "equip"
+  ],
+  "economy": {
+    "base_pfennigs": 70,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "forge"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/storybook/equipment/hammer.glb",
+    "measured_size_m": [
+      0.26,
+      0.46,
+      0.13
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.forge_hammer.png",
+    "icon": "res://assets/objects/icons/obj.forge_hammer.png",
+    "icon_status": "missing",
+    "look": "Long-handled heavy forging hammer with a square dark iron head and leather-wrapped grip.",
+    "image_prompt": "Forge hammer: Long-handled heavy forging hammer with a square dark iron head and leather-wrapped grip."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "uses": [
+    "forge",
+    "fight"
+  ],
+  "carry": {
+    "grid_width": 2,
+    "grid_height": 2,
+    "stackable": false
+  },
+  "throw": {
+    "range_m": 3.0,
+    "damage": 6,
+    "breaks": false,
+    "noise": "loud"
+  },
+  "equip": {
+    "slot": "right_hand",
+    "damage_type": "blunt",
+    "protection": "none"
+  },
+  "item_ref": "item.forge_hammer"
+}

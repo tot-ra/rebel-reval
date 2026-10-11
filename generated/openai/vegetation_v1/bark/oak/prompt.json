@@ -1,0 +1,11 @@
+{
+  "tool": "a2gent openai_generate_image",
+  "model": "gpt-image-1",
+  "size": "1024x1024",
+  "quality": "high",
+  "generation_id": "d767e3c6-c201-4f11-aa82-b2e712886522",
+  "prompt": "Seamless tileable bark texture, flat orthographic close-up scan of an old English oak trunk, about 50 cm wide area: deep vertical furrows and thick grey-brown blocky ridges, a little green lichen in the cracks, vertical orientation. Even soft overcast light, no cast shadows, fills the whole frame edge to edge, no background, no perspective, photorealistic, no text.",
+  "file": "source.png",
+  "sha256": "886f15f58cf2c5c2d6447f48e15603550a1fd206f0d1373379f92e36d1a26424",
+  "task": "R-1103/R-1101/R-1102"
+}

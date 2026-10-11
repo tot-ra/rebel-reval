@@ -1,0 +1,77 @@
+{
+  "type": "world_object",
+  "id": "obj.stool_three_leg",
+  "name": "Three-legged stool",
+  "description": "A round stool on three splayed legs; steady on an uneven floor.",
+  "category": "furniture",
+  "handling": "carry_one_hand",
+  "tags": [
+    "seat",
+    "improvised_weapon"
+  ],
+  "physical": {
+    "mass_kg": 2.5,
+    "size_m": [
+      0.47,
+      0.45,
+      0.44
+    ],
+    "materials": [
+      "wood"
+    ],
+    "flammable": true
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop",
+    "sit",
+    "throw"
+  ],
+  "economy": {
+    "base_pfennigs": 8,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "home_poor",
+      "home_burgher",
+      "tavern",
+      "forge"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/furniture/household_kit/household_furniture_kit.glb",
+    "measured_size_m": [
+      0.47,
+      0.45,
+      0.44
+    ],
+    "node": "Stool"
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.stool_three_leg.png",
+    "icon": "res://assets/objects/icons/obj.stool_three_leg.png",
+    "icon_status": "missing",
+    "look": "Round adzed oak seat on three splayed legs.",
+    "image_prompt": "Three-legged stool: Round adzed oak seat on three splayed legs."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "carry": {
+    "grid_width": 2,
+    "grid_height": 2,
+    "stackable": false
+  },
+  "throw": {
+    "range_m": 3.5,
+    "damage": 3,
+    "breaks": false,
+    "noise": "loud"
+  }
+}

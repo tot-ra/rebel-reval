@@ -1,0 +1,75 @@
+{
+  "type": "dialogue",
+  "id": "dialogue.reputation.harju_kings_trusted",
+  "title": "Merchant gossip after Harju Kings trust",
+  "confidence": "invented",
+  "canon_status": "active",
+  "approval": {
+    "status": "approved",
+    "reviewer": "P4-034"
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "explicit_node_id",
+    "notes": "Support dialogue for P4-034 reputation-event gating."
+  },
+  "participants": [
+    "char.kalev",
+    "char.merchant_stall"
+  ],
+  "start_node_id": "merchant_default_opening",
+  "entry_variants": [
+    {
+      "node_id": "merchant_rebel_gossip",
+      "priority": 30,
+      "conditions": [
+        {
+          "op": "flag_is",
+          "key": "flag.reputation.harju_kings_trusted",
+          "value": true
+        }
+      ]
+    }
+  ],
+  "word_count_estimate": 36,
+  "nodes": [
+    {
+      "id": "merchant_rebel_gossip",
+      "speaker_id": "char.merchant_stall",
+      "text": "You heard them cheer you in the lane? Keep your head down anyway - the Order counts nods as well as coins.",
+      "choices": [
+        {
+          "id": "understood",
+          "text": "I hear you.",
+          "target_node_id": "merchant_close"
+        }
+      ]
+    },
+    {
+      "id": "merchant_default_opening",
+      "speaker_id": "char.merchant_stall",
+      "text": "Prices hold for now. Ask again when the yard has something worth whispering.",
+      "choices": [
+        {
+          "id": "acknowledge",
+          "text": "Fair enough.",
+          "target_node_id": "merchant_close"
+        }
+      ]
+    },
+    {
+      "id": "merchant_close",
+      "speaker_id": "char.merchant_stall",
+      "text": "Mind the patrol route on your way out.",
+      "choices": []
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Gossip branch unlocked only after the Harju Kings trusted reputation event fires."
+    }
+  ]
+}

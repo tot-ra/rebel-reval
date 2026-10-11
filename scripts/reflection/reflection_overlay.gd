@@ -1,0 +1,342 @@
+class_name ReflectionOverlay
+extends CanvasLayer
+
+signal closed
+signal conviction_chosen(option_id: String)
+
+var _panel: PanelContainer
+var _intro_label: Label
+var _recap_label: Label
+var _plain_summary_label: Label
+var _marks_box: HBoxContainer
+var _natural_label: Label
+var _psyche_label: Label
+var _loci_label: Label
+var _options_box: VBoxContainer
+var _snapshot: Dictionary = {}
+
+
+func _ready() -> void:
+	layer = 23
+	process_mode = Node.PROCESS_MODE_ALWAYS
+	visible = false
+	# WHY: stay out of modal_input_overlay until present(); a permanent group
+	# membership permanently blocks Player locomotion via _movement_blocked().
+	_build_ui()
+
+
+func is_open() -> bool:
+	return visible
+
+
+func present(snapshot: Dictionary) -> void:
+	_snapshot = snapshot.duplicate(true)
+	visible = true
+	add_to_group(&"modal_input_overlay")
+	_refresh()
+
+
+func close() -> void:
+	if not visible:
+		return
+	visible = false
+	remove_from_group(&"modal_input_overlay")
+	_snapshot = {}
+	_clear_options()
+	closed.emit()
+
+
+func get_plain_summary_text() -> String:
+	return String(_plain_summary_label.text) if _plain_summary_label != null else ""
+
+
+func get_mark_labels() -> Array[String]:
+	var labels: Array[String] = []
+	if _marks_box == null:
+		return labels
+	for child in _marks_box.get_children():
+		if child is Label:
+			labels.append((child as Label).text)
+	return labels
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if not visible:
+		return
+	if event.is_action_pressed(&"ui_cancel"):
+		close()
+		get_viewport().set_input_as_handled()
+
+
+func _build_ui() -> void:
+	var root := MarginContainer.new()
+	root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	root.add_theme_constant_override("margin_left", 48)
+	root.add_theme_constant_override("margin_right", 48)
+	root.add_theme_constant_override("margin_top", 36)
+	root.add_theme_constant_override("margin_bottom", 36)
+	add_child(root)
+
+	var dim := ColorRect.new()
+	dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	dim.color = Color(0.03, 0.06, 0.04, 0.78)
+	dim.mouse_filter = Control.MOUSE_FILTER_STOP
+	root.add_child(dim)
+
+	_panel = PanelContainer.new()
+	_panel.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	_panel.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	_panel.custom_minimum_size = Vector2(580, 460)
+	root.add_child(_panel)
+
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 20)
+	margin.add_theme_constant_override("margin_right", 20)
+	margin.add_theme_constant_override("margin_top", 16)
+	margin.add_theme_constant_override("margin_bottom", 16)
+	_panel.add_child(margin)
+
+	var layout := VBoxContainer.new()
+	layout.add_theme_constant_override("separation", 10)
+	margin.add_child(layout)
+
+	var header := Label.new()
+	header.text = "Hingepuu"
+	header.add_theme_font_size_override("font_size", 22)
+	layout.add_child(header)
+
+	_intro_label = Label.new()
+	_intro_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_intro_label.add_theme_font_size_override("font_size", 15)
+	_intro_label.add_theme_color_override("font_color", Color(0.86, 0.9, 0.82, 1.0))
+	layout.add_child(_intro_label)
+
+	var recap_header := Label.new()
+	recap_header.text = "What the tree remembers"
+	recap_header.add_theme_font_size_override("font_size", 15)
+	layout.add_child(recap_header)
+
+	_recap_label = Label.new()
+	_recap_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_recap_label.add_theme_font_size_override("font_size", 14)
+	layout.add_child(_recap_label)
+
+	var marks_header := Label.new()
+	marks_header.text = "Consequence marks"
+	marks_header.add_theme_font_size_override("font_size", 15)
+	layout.add_child(marks_header)
+
+	_marks_box = HBoxContainer.new()
+	_marks_box.add_theme_constant_override("separation", 8)
+	layout.add_child(_marks_box)
+
+	_plain_summary_label = Label.new()
+	_plain_summary_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_plain_summary_label.add_theme_font_size_override("font_size", 13)
+	_plain_summary_label.add_theme_color_override("font_color", Color(0.78, 0.82, 0.76, 1.0))
+	layout.add_child(_plain_summary_label)
+
+	_natural_label = Label.new()
+	_natural_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_natural_label.add_theme_font_size_override("font_size", 13)
+	_natural_label.visible = false
+	layout.add_child(_natural_label)
+
+	_psyche_label = Label.new()
+	_psyche_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_psyche_label.add_theme_font_size_override("font_size", 13)
+	_psyche_label.visible = false
+	layout.add_child(_psyche_label)
+
+	_loci_label = Label.new()
+	_loci_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_loci_label.add_theme_font_size_override("font_size", 12)
+	_loci_label.visible = false
+	layout.add_child(_loci_label)
+
+	var options_header := Label.new()
+	options_header.text = "Choose a conviction"
+	options_header.add_theme_font_size_override("font_size", 15)
+	layout.add_child(options_header)
+
+	_options_box = VBoxContainer.new()
+	_options_box.add_theme_constant_override("separation", 6)
+	layout.add_child(_options_box)
+
+
+func _refresh() -> void:
+	_intro_label.text = String(_snapshot.get("intro", ""))
+	var recap_lines: Array = _snapshot.get("recap_lines", [])
+	var recap_text := ""
+	for index in recap_lines.size():
+		if index > 0:
+			recap_text += "\n"
+		recap_text += String(recap_lines[index])
+	_recap_label.text = recap_text
+	_plain_summary_label.text = String(_snapshot.get("plain_summary", ""))
+	_refresh_marks(_snapshot.get("marks", []) as Array)
+	_refresh_natural(_snapshot)
+	_refresh_psyche(_snapshot)
+	_refresh_loci(_snapshot)
+	_refresh_options(_snapshot.get("options", []) as Array)
+	call_deferred("_seed_option_focus")
+
+
+func _refresh_natural(snapshot: Dictionary) -> void:
+	if not bool(snapshot.get("natural_enabled", false)):
+		_natural_label.text = ""
+		_natural_label.visible = false
+		return
+	var aspects: Array = snapshot.get("natural_aspects", []) as Array
+	if aspects.is_empty():
+		_natural_label.text = ""
+		_natural_label.visible = false
+		return
+	var lines := PackedStringArray()
+	lines.append(
+		"NATURAL hearths - %d point(s) unspent."
+		% int(snapshot.get("natural_unspent_points", 0))
+	)
+	for aspect_variant in aspects:
+		if not aspect_variant is Dictionary:
+			continue
+		var aspect := aspect_variant as Dictionary
+		var display := String(aspect.get("display", aspect.get("id", "")))
+		var rank := int(aspect.get("rank", 0))
+		var effective_rank := int(aspect.get("effective_rank", rank))
+		var rank_text := str(rank)
+		if effective_rank != rank:
+			rank_text += " (effective %d)" % effective_rank
+		lines.append("%s: %s" % [display, rank_text])
+	_natural_label.text = "\n".join(lines)
+	_natural_label.visible = not lines.is_empty()
+
+
+func _refresh_psyche(snapshot: Dictionary) -> void:
+	var states: Array = snapshot.get("psyche_states", []) as Array
+	if states.is_empty():
+		_psyche_label.text = ""
+		_psyche_label.visible = false
+		return
+	var lines := PackedStringArray(["Active psyche states:"])
+	for state_variant in states:
+		if not state_variant is Dictionary:
+			continue
+		var state := state_variant as Dictionary
+		var state_id := String(state.get("id", ""))
+		var line := "%s (intensity %d)" % [state_id, int(state.get("intensity", 1))]
+		var source_beat := String(state.get("source_beat", ""))
+		if not source_beat.is_empty():
+			line += " - source: %s" % source_beat
+		lines.append(line)
+	_psyche_label.text = "\n".join(lines)
+	_psyche_label.visible = lines.size() > 1
+
+
+func _refresh_loci(snapshot: Dictionary) -> void:
+	var loci: Array = snapshot.get("hingepuu_loci", []) as Array
+	if loci.is_empty():
+		_loci_label.text = ""
+		_loci_label.visible = false
+		return
+	var locus_names := PackedStringArray()
+	for locus_variant in loci:
+		if not locus_variant is Dictionary:
+			continue
+		var locus := locus_variant as Dictionary
+		var locus_id := String(locus.get("id", ""))
+		if not locus_id.is_empty():
+			locus_names.append(locus_id)
+	if locus_names.is_empty():
+		_loci_label.text = ""
+		_loci_label.visible = false
+		return
+	_loci_label.text = "Hingepuu loci (%d): %s" % [locus_names.size(), ", ".join(locus_names)]
+	_loci_label.visible = true
+
+
+func _refresh_marks(marks: Array) -> void:
+	for child in _marks_box.get_children():
+		child.queue_free()
+	if marks.is_empty():
+		var empty := Label.new()
+		empty.text = "No marks yet"
+		empty.add_theme_color_override("font_color", Color(0.7, 0.72, 0.68, 1.0))
+		_marks_box.add_child(empty)
+		return
+	for mark_variant in marks:
+		if not mark_variant is Dictionary:
+			continue
+		var mark := mark_variant as Dictionary
+		var chip := PanelContainer.new()
+		var chip_margin := MarginContainer.new()
+		chip_margin.add_theme_constant_override("margin_left", 8)
+		chip_margin.add_theme_constant_override("margin_right", 8)
+		chip_margin.add_theme_constant_override("margin_top", 4)
+		chip_margin.add_theme_constant_override("margin_bottom", 4)
+		chip.add_child(chip_margin)
+		var label := Label.new()
+		label.text = String(mark.get("label", ""))
+		label.add_theme_font_size_override("font_size", 13)
+		var color: Color = mark.get("color", Color.WHITE)
+		label.add_theme_color_override("font_color", color)
+		chip_margin.add_child(label)
+		_marks_box.add_child(chip)
+
+
+func _refresh_options(options: Array) -> void:
+	_clear_options()
+	for option_variant in options:
+		if not option_variant is Dictionary:
+			continue
+		var option := option_variant as Dictionary
+		var button := Button.new()
+		button.focus_mode = Control.FOCUS_ALL
+		button.text = (
+			"%s - %s" % [String(option.get("title", "")), String(option.get("summary", ""))]
+		)
+		button.tooltip_text = String(option.get("plain_text", ""))
+		var option_id := String(option.get("id", ""))
+		button.set_meta(&"option_id", option_id)
+		button.pressed.connect(func() -> void: conviction_chosen.emit(option_id))
+		_options_box.add_child(button)
+	_wire_option_focus_neighbors()
+
+
+func _wire_option_focus_neighbors() -> void:
+	if _options_box == null:
+		return
+	var buttons: Array[Button] = []
+	for child in _options_box.get_children():
+		if child is Button:
+			buttons.append(child as Button)
+	for index in buttons.size():
+		var button: Button = buttons[index]
+		if index > 0:
+			button.focus_neighbor_top = button.get_path_to(buttons[index - 1])
+			buttons[index - 1].focus_neighbor_bottom = buttons[index - 1].get_path_to(button)
+
+
+func focus_conviction(option_id: String) -> void:
+	if _options_box == null:
+		return
+	for child in _options_box.get_children():
+		if child is Button and String(child.get_meta(&"option_id", "")) == option_id:
+			(child as Button).grab_focus()
+			return
+
+
+func _seed_option_focus() -> void:
+	if _options_box == null:
+		return
+	for child in _options_box.get_children():
+		if child is Button:
+			(child as Button).grab_focus()
+			return
+
+
+func _clear_options() -> void:
+	if _options_box == null:
+		return
+	for child in _options_box.get_children():
+		child.queue_free()

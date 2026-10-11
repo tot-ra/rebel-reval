@@ -1,0 +1,11 @@
+{
+  "tool": "a2gent openai_generate_image",
+  "model": "gpt-image-1",
+  "size": "1024x1024",
+  "quality": "high",
+  "generation_id": "43a6700b-2c91-489c-ba1f-7977bde0a11e",
+  "prompt": "Seamless tileable ground texture, photographed straight down (orthographic top-down view) covering about one square metre: lush tangled mixed Baltic meadow grass, bent and overlapping blades in several greens, a few broadleaf plantain rosettes. Even soft overcast daylight, no cast shadows, no perspective, no horizon, no central subject, uniform density over the whole frame, photorealistic scan quality, no text.",
+  "file": "source.png",
+  "sha256": "cd465750b0d7ee827c1a15638733abfcc3601fdaf37d79b3687b6fa02c7e9a8d",
+  "task": "R-1103/R-1101/R-1102"
+}

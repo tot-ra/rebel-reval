@@ -1,0 +1,136 @@
+[gd_scene load_steps=10 format=3 uid="uid://dyl726xerhjhg"]
+
+[ext_resource type="Script" path="res://scripts/demo/packaged_demo_walkthrough.gd" id="1_packaged_walkthrough"]
+[ext_resource type="Script" path="res://scripts/demo/packaged_platform_smoke.gd" id="8_platform_smoke"]
+[ext_resource type="Script" path="res://scenes/menu/credits_label.gd" id="7_credits"]
+[ext_resource type="Script" path="res://scenes/menu/assets_library_label.gd" id="9_assets_library"]
+
+[ext_resource type="Texture2D" uid="uid://bysfalwbeyasb" path="res://scenes/menu/intro-hq.jpg" id="1_kiqgm"]
+[ext_resource type="Texture2D" uid="uid://s3dc3n3tlc3s" path="res://scenes/menu/logo256.png" id="2_kiqgm"]
+[ext_resource type="Script" uid="uid://cb84o170r3wgt" path="res://scenes/intro/start_label.gd" id="3_i2l1n"]
+[ext_resource type="Script" uid="uid://c0ajiix2ug7wp" path="res://scenes/menu/exit_label.gd" id="4_hj162"]
+[ext_resource type="Script" path="res://scenes/menu/load_label.gd" id="5_load_label"]
+[ext_resource type="VideoStream" uid="uid://drwpbbti05fcs" path="res://scenes/menu/intro.ogv" id="6_xn6kt"]
+
+[node name="Control" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="PackagedDemoWalkthrough" type="Node" parent="."]
+script = ExtResource("1_packaged_walkthrough")
+
+[node name="PackagedPlatformSmoke" type="Node" parent="."]
+script = ExtResource("8_platform_smoke")
+
+[node name="City background" type="Sprite2D" parent="."]
+visible = false
+position = Vector2(960, 490)
+scale = Vector2(0.544271, 0.496094)
+texture = ExtResource("1_kiqgm")
+
+[node name="AspectRatioContainer" type="AspectRatioContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+ratio = 1.77778
+stretch_mode = 3
+
+[node name="VideoStreamPlayer" type="VideoStreamPlayer" parent="AspectRatioContainer"]
+layout_mode = 2
+stream = ExtResource("6_xn6kt")
+autoplay = true
+expand = true
+loop = true
+
+[node name="Logo" type="Sprite2D" parent="."]
+position = Vector2(921, 520)
+scale = Vector2(1.01313, 1.01313)
+texture = ExtResource("2_kiqgm")
+
+[node name="Start label" type="RichTextLabel" parent="."]
+layout_mode = 0
+offset_left = 778.0
+offset_top = 700.0
+offset_right = 1051.0
+offset_bottom = 772.0
+focus_mode = 2
+focus_neighbor_top = NodePath("../Exit label")
+focus_neighbor_bottom = NodePath("../Load label")
+theme_override_colors/default_color = Color(0.980392, 0.839216, 0.0235294, 1)
+theme_override_font_sizes/normal_font_size = 40
+text = "Start"
+horizontal_alignment = 1
+vertical_alignment = 1
+script = ExtResource("3_i2l1n")
+
+[node name="Load label" type="RichTextLabel" parent="."]
+layout_mode = 0
+offset_left = 735.0
+offset_top = 776.0
+offset_right = 1094.0
+offset_bottom = 828.0
+focus_mode = 2
+focus_neighbor_top = NodePath("../Start label")
+focus_neighbor_bottom = NodePath("../Credits label")
+theme_override_colors/default_color = Color(0.980392, 0.839216, 0.0313726, 1)
+theme_override_font_sizes/normal_font_size = 30
+text = "Load"
+horizontal_alignment = 1
+vertical_alignment = 1
+script = ExtResource("5_load_label")
+
+[node name="Credits label" type="RichTextLabel" parent="."]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 0
+offset_left = 735.0
+offset_top = 832.0
+offset_right = 1094.0
+offset_bottom = 884.0
+focus_mode = 2
+focus_neighbor_top = NodePath("../Load label")
+focus_neighbor_bottom = NodePath("../Assets library label")
+theme_override_colors/default_color = Color(0.980392, 0.839216, 0.0313726, 1)
+theme_override_font_sizes/normal_font_size = 30
+text = "Credits"
+horizontal_alignment = 1
+script = ExtResource("7_credits")
+
+[node name="Assets library label" type="RichTextLabel" parent="."]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 0
+offset_left = 735.0
+offset_top = 888.0
+offset_right = 1094.0
+offset_bottom = 940.0
+focus_mode = 2
+focus_neighbor_top = NodePath("../Credits label")
+focus_neighbor_bottom = NodePath("../Exit label")
+theme_override_colors/default_color = Color(0.980392, 0.839216, 0.0313726, 1)
+theme_override_font_sizes/normal_font_size = 30
+text = "Assets library"
+horizontal_alignment = 1
+script = ExtResource("9_assets_library")
+
+[node name="Exit label" type="RichTextLabel" parent="."]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 0
+offset_left = 735.0
+offset_top = 944.0
+offset_right = 1094.0
+offset_bottom = 996.0
+focus_mode = 2
+focus_neighbor_top = NodePath("../Assets library label")
+focus_neighbor_bottom = NodePath("../Start label")
+theme_override_colors/default_color = Color(0.980392, 0.839216, 0.0313726, 1)
+theme_override_font_sizes/normal_font_size = 30
+text = "Exit"
+horizontal_alignment = 1
+script = ExtResource("4_hj162")
+

@@ -1,0 +1,145 @@
+{
+  "type": "quest",
+  "id": "quest.iron_shipment",
+  "title": "The North Quarter Iron",
+  "summary": "A bar-stock wagon from the north quarter must reach Lower Town market unless someone turns it back.",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-033",
+    "notes": "Supply-chain visibility fixture with intact versus disrupted route outcomes."
+  },
+  "entry_conditions": [
+    {
+      "op": "phase_is",
+      "key": "phase.investigation_morning",
+      "value": "active"
+    }
+  ],
+  "initial_state": "awaiting_convoy",
+  "states": [
+    {
+      "id": "awaiting_convoy",
+      "label": "Watching the north road cart"
+    },
+    {
+      "id": "delivered",
+      "label": "Iron reached the market",
+      "terminal": true
+    },
+    {
+      "id": "disrupted",
+      "label": "Shipment turned back",
+      "terminal": true
+    }
+  ],
+  "transitions": [
+    {
+      "id": "convoy_delivered",
+      "from_state": "awaiting_convoy",
+      "to_state": "delivered",
+      "conditions": [
+        {
+          "op": "flag_not",
+          "key": "flag.supply.iron_convoy_disrupted",
+          "value": true
+        },
+        {
+          "op": "fact_known",
+          "key": "fact.supply.iron_convoy_arrived"
+        }
+      ],
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.supply.iron_in_stock",
+          "value": true
+        },
+        {
+          "op": "adjust_relationship",
+          "key": "rel.mart_trust",
+          "amount": 1
+        }
+      ]
+    },
+    {
+      "id": "supply_disrupted",
+      "from_state": "awaiting_convoy",
+      "to_state": "disrupted",
+      "conditions": [
+        {
+          "op": "flag_is",
+          "key": "flag.supply.iron_convoy_disrupted",
+          "value": true
+        }
+      ],
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.supply.iron_shortage",
+          "value": true
+        },
+        {
+          "op": "adjust_relationship",
+          "key": "rel.mart_trust",
+          "amount": -1
+        }
+      ]
+    }
+  ],
+  "objectives": [
+    {
+      "id": "watch_convoy",
+      "text": "Watch the iron wagon from the north quarter reach Viru Street market.",
+      "state_id": "awaiting_convoy"
+    }
+  ],
+  "outcomes": [
+    {
+      "id": "intact_delivery",
+      "summary": "The bar stock reaches the stall and trade stays steady.",
+      "effects": [
+        {
+          "op": "set_quest_state",
+          "key": "quest.iron_shipment",
+          "value": "delivered"
+        }
+      ]
+    },
+    {
+      "id": "disrupted_route",
+      "summary": "Turning the wagon back leaves the market short on iron.",
+      "effects": [
+        {
+          "op": "set_quest_state",
+          "key": "quest.iron_shipment",
+          "value": "disrupted"
+        }
+      ]
+    }
+  ],
+  "content_links": {
+    "character_ids": [
+      "char.kalev",
+      "char.merchant_stall"
+    ],
+    "dialogue_ids": [
+      "dialogue.merchant.iron_shipment",
+      "dialogue.supply.iron_convoy"
+    ],
+    "location_ids": [
+      "loc.lower_town_slice"
+    ]
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "P4-033 supply-chain quest with authored convoy patrol and merchant aftermath dialogue.",
+      "citations": [
+        "scripts/world/supply_chain_model.gd",
+        "content/examples/support/dialogue.merchant.iron_shipment.json"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "tool": "a2gent openai_generate_image",
+  "model": "gpt-image-1",
+  "size": "1024x1024",
+  "quality": "high",
+  "generation_id": "649ab50a-61a2-41bd-bb9f-9a398796e1d1",
+  "prompt": "Seamless tileable ground texture, photographed straight down (orthographic top-down view) covering about one square metre: green grass with a scattering of fallen dry brown leaves and small twigs lying in it, near trees. Even soft overcast daylight, no cast shadows, no perspective, no horizon, no central subject, uniform density over the whole frame, photorealistic scan quality, no text.",
+  "file": "source.png",
+  "sha256": "eb32121139445959892d000564c82451757722a385677e1085bb29f59d12cd6f",
+  "task": "R-1103/R-1101/R-1102"
+}

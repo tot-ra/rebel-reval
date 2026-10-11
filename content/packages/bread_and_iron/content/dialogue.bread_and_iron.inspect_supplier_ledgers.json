@@ -1,0 +1,44 @@
+{
+  "type": "dialogue",
+  "id": "dialogue.bread_and_iron.inspect_supplier_ledgers",
+  "title": "Bread and Iron - Supplier ledgers",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-004"
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "explicit_node_id"
+  },
+  "participants": [
+    "char.kalev"
+  ],
+  "start_node_id": "inspect_supplier_ledgers",
+  "nodes": [
+    {
+      "id": "inspect_supplier_ledgers",
+      "speaker_id": "char.kalev",
+      "text": "Jürgen's wax tallies hide bribe lines in the civic allotment books. Every short-weight sack pays him twice.",
+      "effects": [
+        {
+          "op": "set_fact",
+          "key": "fact.bread_and_iron.supplier_ledger_fraud",
+          "value": true
+        }
+      ]
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Supplier ledger inspection for Bread and Iron investigation loop.",
+      "citations": [
+        "docs/SCENES/bread-and-iron.md"
+      ]
+    }
+  ]
+}

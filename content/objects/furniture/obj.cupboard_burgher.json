@@ -1,0 +1,76 @@
+{
+  "type": "world_object",
+  "id": "obj.cupboard_burgher",
+  "name": "Burgher cupboard",
+  "description": "A two-door oak cupboard with iron hinges for a burgher's plate, linen and provisions.",
+  "category": "furniture",
+  "handling": "fixed",
+  "tags": [
+    "storage",
+    "lockable",
+    "burgher"
+  ],
+  "physical": {
+    "mass_kg": 95,
+    "size_m": [
+      1.2,
+      1.52,
+      0.65
+    ],
+    "materials": [
+      "wood",
+      "iron"
+    ],
+    "flammable": true
+  },
+  "actions": [
+    "inspect",
+    "open"
+  ],
+  "economy": {
+    "base_pfennigs": 0,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 0
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "home_burgher"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/furniture/medieval_storage/burgher_cupboard/burgher_cupboard.glb",
+    "prop_kind": "shelf",
+    "variant": "shelf.burgher_cupboard",
+    "measured_size_m": [
+      1.2,
+      1.52,
+      0.65
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.cupboard_burgher.png",
+    "icon": "res://assets/objects/icons/obj.cupboard_burgher.png",
+    "icon_status": "missing",
+    "look": "Tall oak cupboard with two panelled doors, iron strap hinges and a wrought key lock, mellow brown wax finish.",
+    "image_prompt": "Burgher cupboard: Tall oak cupboard with two panelled doors, iron strap hinges and a wrought key lock, mellow brown wax finish."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "uses": [
+    "store household goods behind doors"
+  ],
+  "container": {
+    "capacity_l": 260,
+    "lockable": true,
+    "default_locked": false,
+    "accepts_tags": [
+      "household",
+      "linen",
+      "plate"
+    ]
+  }
+}

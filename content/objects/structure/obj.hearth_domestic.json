@@ -1,0 +1,74 @@
+{
+  "type": "world_object",
+  "id": "obj.hearth_domestic",
+  "name": "Domestic hearth",
+  "description": "A house hearth with a hood, cooking crane and cauldron; shown cold, banked embers or lit.",
+  "category": "structure",
+  "handling": "fixed",
+  "tags": [
+    "hearth",
+    "fire",
+    "cooking"
+  ],
+  "physical": {
+    "mass_kg": 800,
+    "size_m": [
+      1.01,
+      1.66,
+      1.09
+    ],
+    "materials": [
+      "brick",
+      "stone",
+      "iron"
+    ],
+    "hot_when_lit": true
+  },
+  "actions": [
+    "inspect"
+  ],
+  "economy": {
+    "base_pfennigs": 0,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 0
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "home_poor",
+      "home_burgher",
+      "tavern"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/domestic/hearth/medieval_hearth_kit.glb",
+    "states": {
+      "cold": "HearthCold",
+      "embers": "HearthEmbers",
+      "lit": "HearthLit"
+    },
+    "prop_kind": "hearth",
+    "measured_size_m": [
+      1.01,
+      1.66,
+      1.09
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.hearth_domestic.png",
+    "icon": "res://assets/objects/icons/obj.hearth_domestic.png",
+    "icon_status": "missing",
+    "look": "Brick hearth under a plastered hood with a hanging cauldron on an iron crane.",
+    "image_prompt": "Domestic hearth: Brick hearth under a plastered hood with a hanging cauldron on an iron crane."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "uses": [
+    "cook",
+    "warm up",
+    "sleep nearby"
+  ]
+}

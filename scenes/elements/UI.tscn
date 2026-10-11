@@ -1,0 +1,4 @@
+[gd_scene load_steps=1 format=3 uid="uid://mf6xvrb7vivm"]
+
+[node name="Ui" type="CanvasLayer"]
+visible = false

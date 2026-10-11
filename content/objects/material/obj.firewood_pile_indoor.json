@@ -1,0 +1,65 @@
+{
+  "type": "world_object",
+  "id": "obj.firewood_pile_indoor",
+  "name": "Firewood by the hearth",
+  "description": "The household's day pile of split logs beside the hearth; it shrinks as the fire burns and fills again when someone brings wood.",
+  "category": "material",
+  "handling": "fixed",
+  "tags": [
+    "fuel",
+    "wood"
+  ],
+  "physical": {
+    "mass_kg": 40,
+    "size_m": [
+      0.71,
+      0.4,
+      0.58
+    ],
+    "materials": [
+      "wood"
+    ],
+    "flammable": true
+  },
+  "actions": [
+    "inspect"
+  ],
+  "economy": {
+    "base_pfennigs": 0,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 0
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "home_poor",
+      "home_burgher",
+      "tavern"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/furniture/household_kit/household_furniture_kit.glb",
+    "measured_size_m": [
+      0.71,
+      0.4,
+      0.58
+    ],
+    "states": {
+      "full": "FirewoodPileFull",
+      "half": "FirewoodPileHalf",
+      "low": "FirewoodPileLow"
+    }
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.firewood_pile_indoor.png",
+    "icon": "res://assets/objects/icons/obj.firewood_pile_indoor.png",
+    "icon_status": "missing",
+    "look": "Split birch logs stacked crosswise in short courses.",
+    "image_prompt": "Firewood by the hearth: Split birch logs stacked crosswise in short courses."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite"
+}

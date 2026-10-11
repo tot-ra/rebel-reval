@@ -1,0 +1,44 @@
+{
+  "type": "dialogue",
+  "id": "dialogue.price_of_a_name.inspect_packhouse_lane",
+  "title": "The Price of a Name - Packhouse lane",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-005"
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "explicit_node_id"
+  },
+  "participants": [
+    "char.kalev"
+  ],
+  "start_node_id": "inspect_packhouse_lane",
+  "nodes": [
+    {
+      "id": "inspect_packhouse_lane",
+      "speaker_id": "char.kalev",
+      "text": "Empty barrel returns still carry smuggled spearheads along packhouse lane. The round-up is wider than one apprentice's name.",
+      "effects": [
+        {
+          "op": "set_fact",
+          "key": "fact.price_of_a_name.packhouse_spears",
+          "value": true
+        }
+      ]
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Investigation dialogue for the packhouse lane site.",
+      "citations": [
+        "docs/SCENES/the-price-of-a-name.md"
+      ]
+    }
+  ]
+}

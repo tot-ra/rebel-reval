@@ -1,0 +1,1584 @@
+class_name MapView3D
+extends Node3D
+# gdlint: disable=max-file-lines
+
+## WB-07: staged assembly finished, or cancel_assembly() stopped it.
+signal assembly_completed
+signal assembly_cancelled
+
+const DayNightCycle := preload("res://scripts/global/day_night_cycle.gd")
+const Lighting := preload("res://scripts/map/view3d/map_view_lighting.gd")
+const SkyWeather3D := preload("res://scripts/map/view3d/sky_weather_3d.gd")
+const TerrainDetails := preload("res://scripts/map/view3d/map_view_terrain_details.gd")
+const MudFootprints3D := preload("res://scripts/map/view3d/mud_footprints_3d.gd")
+## R-1516: dryness above which the puddle decals show as drought crust. Matches
+## the 0.45 crack onset in map_view_puddle.gdshader and city_ground.gdshader.
+const PUDDLE_CRUST_DRYNESS := 0.45
+## Water wetness above which a footstep in a puddle decal splashes. The decal
+## shader fades the water in over 0.0005..0.04 (map_view_puddle.gdshader).
+const PUDDLE_STEP_MIN_WETNESS := 0.02
+## Waterline radius in decal UV space (edge_radius in map_view_puddle.gdshader,
+## without its +-0.07 outline noise) and the plane half-size it scales.
+const PUDDLE_WATER_RADIUS := 0.70
+const PUDDLE_PLANE_HALF := 0.51
+const WaterRippleSimScript := preload("res://scripts/map/view3d/water_ripple_sim.gd")
+const UnderwaterPassScript := preload("res://scripts/map/view3d/underwater_pass.gd")
+const Assembly := preload("res://scripts/map/view3d/map_view_assembly.gd")
+## P0-052 3D orthographic view layer (ADR 0007). Assembles terrain, building,
+## and prop geometry from an immutable MapDefinition, framed by a fixed
+## dimetric orthographic camera under a deterministic day/night sun.
+## Pure view: it never mutates the definition, grid, fingerprints, collision,
+## navigation, or activation state, and actor positions flow one way from the
+## logic plane through MapViewBridge.
+
+const TIME_DAY := &"day"
+const TIME_NIGHT := &"night"
+const FOG_OF_WAR_SCRIPT := preload("res://scripts/map/view3d/map_fog_of_war.gd")
+const CloudShadowPassScript := preload("res://scripts/map/view3d/cloud_shadow_pass.gd")
+const GodRayPassScript := preload("res://scripts/map/view3d/god_ray_pass.gd")
+const LocalAtmosphereScript := preload("res://scripts/map/view3d/local_atmosphere.gd")
+const StaticBatcher := preload("res://scripts/map/view3d/map_view_static_batcher.gd")
+## Plume culling runs on a coarse timer: the camera pans slowly and the extra
+## margin hides the seam, so per-frame checks would only add cost.
+const SMOKE_CULL_INTERVAL := 0.25
+const SMOKE_CULL_MARGIN := 12.0
+## WS-15: farthest the ripple window centre may sit from the camera along its view ray.
+const RIPPLE_FOCUS_MAX_REACH := 24.0
+const ALL_TIMES: Array[StringName] = [TIME_DAY, TIME_NIGHT]
+## Classic isometric framing per ADR 0007; final values freeze in ART_BIBLE v2 (P0-040).
+const CAMERA_PITCH_DEGREES := -30.0
+const CAMERA_YAW_DEGREES := 45.0
+const CAMERA_DISTANCE := 90.0
+const CAMERA_MARGIN := 1.15
+const CAMERA_HEADROOM := 5.0
+## Far plane must clear the view-only surroundings ring past map edges at max
+## zoom; keep it above SURROUNDINGS_CONTINUATION_DEPTH plus CAMERA_DISTANCE.
+const CAMERA_FAR := 800.0
+## The orthographic camera can expose objects more than two 32-cell chunks away,
+## especially on wide viewports and at maximum zoom-out. Keep one extra ring
+## resident so authored district frontages never disappear inside the viewport.
+const VIEW_LOAD_RADIUS_CHUNKS := MapTerrainRenderer.DEFAULT_LOAD_RADIUS_CHUNKS + 1
+## Compatibility aliases keep MapView3D's public lighting constants stable while
+## the focused lighting module owns their implementation.
+const SUN_DAY_COLOR := Lighting.SUN_DAY_COLOR
+const SUN_DAY_ENERGY := Lighting.SUN_DAY_ENERGY
+const AMBIENT_DAY_COLOR := Lighting.AMBIENT_DAY_COLOR
+const AMBIENT_DAY_ENERGY := Lighting.AMBIENT_DAY_ENERGY
+const BACKGROUND_DAY_COLOR := Lighting.BACKGROUND_DAY_COLOR
+const BACKGROUND_INTERIOR_TOP_DOWN_COLOR := Lighting.BACKGROUND_INTERIOR_TOP_DOWN_COLOR
+const SUN_NIGHT_COLOR := Lighting.SUN_NIGHT_COLOR
+const SUN_NIGHT_ENERGY := Lighting.SUN_NIGHT_ENERGY
+const AMBIENT_NIGHT_COLOR := Lighting.AMBIENT_NIGHT_COLOR
+const AMBIENT_NIGHT_ENERGY := Lighting.AMBIENT_NIGHT_ENERGY
+const BACKGROUND_NIGHT_COLOR := Lighting.BACKGROUND_NIGHT_COLOR
+const SUNSET_LIGHT_COLOR := Lighting.SUNSET_LIGHT_COLOR
+const OVERCAST_LIGHT_COLOR := Lighting.OVERCAST_LIGHT_COLOR
+const LIGHTNING_LIGHT_COLOR := Lighting.LIGHTNING_LIGHT_COLOR
+const LIGHTNING_SUN_ENERGY := Lighting.LIGHTNING_SUN_ENERGY
+const LIGHTNING_AMBIENT_ENERGY := Lighting.LIGHTNING_AMBIENT_ENERGY
+const FOG_MORNING_COLOR := Lighting.FOG_MORNING_COLOR
+const FOG_MAX_DENSITY := Lighting.FOG_MAX_DENSITY
+const FOG_HEIGHT := Lighting.FOG_HEIGHT
+const FOG_MAX_HEIGHT_DENSITY := Lighting.FOG_MAX_HEIGHT_DENSITY
+const FOG_HOURS_BEFORE_SUNRISE := Lighting.FOG_HOURS_BEFORE_SUNRISE
+const FOG_HOURS_AFTER_SUNRISE := Lighting.FOG_HOURS_AFTER_SUNRISE
+const FOG_POTENTIAL_MIN := Lighting.FOG_POTENTIAL_MIN
+const FOG_POTENTIAL_FULL := Lighting.FOG_POTENTIAL_FULL
+const TONEMAP_MODE := Lighting.TONEMAP_MODE
+const GRADE_DAY_EXPOSURE := Lighting.GRADE_DAY_EXPOSURE
+const GRADE_DAY_SATURATION := Lighting.GRADE_DAY_SATURATION
+const GRADE_DAY_CONTRAST := Lighting.GRADE_DAY_CONTRAST
+const GRADE_DAY_BRIGHTNESS := Lighting.GRADE_DAY_BRIGHTNESS
+const GRADE_NIGHT_EXPOSURE := Lighting.GRADE_NIGHT_EXPOSURE
+const GRADE_NIGHT_SATURATION := Lighting.GRADE_NIGHT_SATURATION
+const GRADE_NIGHT_CONTRAST := Lighting.GRADE_NIGHT_CONTRAST
+const GRADE_NIGHT_BRIGHTNESS := Lighting.GRADE_NIGHT_BRIGHTNESS
+const GLOW_HDR_THRESHOLD := Lighting.GLOW_HDR_THRESHOLD
+const GLOW_INTENSITY_DAY := Lighting.GLOW_INTENSITY_DAY
+const GLOW_INTENSITY_NIGHT := Lighting.GLOW_INTENSITY_NIGHT
+const GLOW_BLOOM := Lighting.GLOW_BLOOM
+const GLOW_STRENGTH := Lighting.GLOW_STRENGTH
+const GLOW_MIX := Lighting.GLOW_MIX
+## Shadow cascades only need the max-zoom gameplay frustum, not the authored map
+## or the camera far plane. Tighter distance concentrates shadow-map texels on
+## the slice the player actually sees.
+const SUN_SHADOW_MAX_DISTANCE := MapViewRuntime.ZOOM_MAX_ORTHOGRAPHIC_SIZE * 1.35 + 8.0
+const SUN_SHADOW_SPLIT_1 := 0.05
+const SUN_SHADOW_SPLIT_2 := 0.15
+const SUN_SHADOW_SPLIT_3 := 0.4
+## Penumbra width (PCF blur) so tree, building and actor shadows soften with the
+## distance-independent filter instead of the old razor-hard edge.
+const SUN_SHADOW_BLUR := 1.8
+const PerfProbeScript := preload("res://scripts/debug/perf_probe.gd")
+const SUN_SHADOW_BIAS := 0.05
+const SUN_SHADOW_NORMAL_BIAS := 1.2
+
+var definition: MapDefinition
+var grid: MapTerrainGrid
+var time_of_day: StringName = TIME_DAY
+var cycle_progress: float = DayNightCycle.DEFAULT_PROGRESS
+## Views that can cut roofs away over the player (CityMapView) offer the painted-iso
+## camera preset (R-1744); district views keep third person <-> top-down.
+var painted_iso_camera := false
+
+var _sun: DirectionalLight3D
+var _sky_weather: SkyWeather3D
+var _last_chimney_bucket: StringName = TIME_DAY
+var _environment: Environment
+var _world_environment: WorldEnvironment
+var _environment_binding_active := true
+var _camera: Camera3D
+var _smoke_cull_timer := 0.0
+var _fog_of_war: Node3D
+var _cloud_shadow_pass: CloudShadowPassScript
+var _god_ray_pass: GodRayPassScript
+## Patchy fog near water and horizon heat shimmer (presentation only).
+var _local_atmosphere: LocalAtmosphereScript
+var _occluder_bounds: Array[AABB] = []
+var _object_index: MapChunkRuntimeIndex
+var _object_streamer: MapObjectChunkStreamer
+var _scatter_root: Node3D
+var _loaded_scatter_chunks: Dictionary = {}
+var _active_chunks: Array[Vector2i] = []
+var _last_puddle_visible := false
+var _last_puddle_wetness := -1.0
+var _last_ground_dryness := -1.0
+var _first_person_terrain_detail := false
+var _terrain_detail_focus_cell := Vector2i(2147483647, 2147483647)
+var _decals_node: Node3D
+var _mud_footprints: MudFootprints3D
+## R-1187: struck-tree shake, leaf bursts and ambient leaf fall (presentation only).
+var _tree_leaf_fall: TreeLeafFall3D
+var _water_ripple_sim: WaterRippleSimScript
+var _underwater_pass: UnderwaterPassScript
+## Lazily derived from the definition: gate passages that wall seals must not
+## grow into, and wall footprints that bound each gate's clear opening.
+var _gate_passages: Array[Rect2] = []
+var _wall_footprints: Array[Rect2] = []
+var _gate_fit_ready := false
+var _assembly := Assembly.new()
+var _assembly_initial_time: StringName = TIME_DAY
+## WB-06: set only by create_hosted(). A hosted view binds the WorldHost's single
+## sun, environment, camera and sky instead of creating its own, so two mounted
+## locations never duplicate a global. Empty keeps today's self-contained view.
+var _host_globals: Dictionary = {}
+
+static func create(
+	map_definition: MapDefinition, built_grid: MapTerrainGrid, initial_time: StringName = TIME_DAY
+) -> MapView3D:
+	var view := MapView3D.new()
+	view.name = "MapView3D_%s" % String(map_definition.map_id)
+	view.definition = map_definition
+	view.grid = built_grid
+	view._assemble()
+	view.set_time_of_day(initial_time)
+	return view
+
+
+## WB-06: same view as create(), but lighting, camera and sky are the WorldHost's
+## (keys `sun`, `environment`, `world_environment`, `camera`, `sky_weather`; see
+## WorldHost.view_globals()). The view never parents them, so unmounting it leaves
+## the globals alive. Only the additive-residency path calls this.
+static func create_hosted(
+	map_definition: MapDefinition,
+	built_grid: MapTerrainGrid,
+	host_globals: Dictionary,
+	initial_time: StringName = TIME_DAY
+) -> MapView3D:
+	var view := MapView3D.new()
+	view.name = "MapView3D_%s" % String(map_definition.map_id)
+	view.definition = map_definition
+	view.grid = built_grid
+	view._host_globals = host_globals.duplicate()
+	view._assemble()
+	view.set_time_of_day(initial_time)
+	return view
+
+
+func is_hosted() -> bool:
+	return not _host_globals.is_empty()
+
+
+## The lighting nodes a self-contained view creates, in the order it adds them.
+## WorldHost builds its single global set through the same function so hosted and
+## non-hosted lighting cannot drift apart.
+static func create_global_lighting() -> Dictionary:
+	var sun := DirectionalLight3D.new()
+	sun.name = "Sun"
+	_configure_sun_shadows(sun)
+	var environment := Environment.new()
+	environment.background_mode = Environment.BG_COLOR
+	environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
+	Lighting.configure_post_process(environment)
+	var world_environment := WorldEnvironment.new()
+	world_environment.name = "ViewEnvironment"
+	world_environment.environment = environment
+	return {"sun": sun, "environment": environment, "world_environment": world_environment}
+
+
+## WB-07: same view as create(), but nothing is built yet. The caller pays the
+## assembly cost in slices through step_assembly() or assemble_async(), so a
+## neighbouring location can mount without one multi-second main-thread stall.
+## Every unit runs the same builder code in the same order as create(), which
+## keeps the finished node tree identical to the synchronous one.
+static func create_staged(
+	map_definition: MapDefinition, built_grid: MapTerrainGrid, initial_time: StringName = TIME_DAY
+) -> MapView3D:
+	var view := MapView3D.new()
+	view.name = "MapView3D_%s" % String(map_definition.map_id)
+	view.definition = map_definition
+	view.grid = built_grid
+	view._begin_staged_assembly(initial_time)
+	return view
+
+
+## WB-08c (R-1044): create_staged() for a WorldHost neighbour. Nothing is built yet;
+## the finished view binds the host globals exactly like create_hosted(), because
+## every stage reads `_host_globals` when it runs, not when it is planned.
+static func create_hosted_staged(
+	map_definition: MapDefinition,
+	built_grid: MapTerrainGrid,
+	host_globals: Dictionary,
+	initial_time: StringName = TIME_DAY
+) -> MapView3D:
+	var view := MapView3D.new()
+	view.name = "MapView3D_%s" % String(map_definition.map_id)
+	view.definition = map_definition
+	view.grid = built_grid
+	view._host_globals = host_globals.duplicate()
+	view._begin_staged_assembly(initial_time)
+	return view
+
+
+## Stage of the next pending unit (one of MapViewAssembly.STAGES), or &"" when the
+## assembly is not running. WorldHost uses it to tell ground and buildings from
+## deferrable decoration when a player reaches a seam before the view finished.
+func next_assembly_stage() -> StringName:
+	if _assembly.state != Assembly.State.RUNNING or _assembly.units.is_empty():
+		return &""
+	return StringName(_assembly.units[0].get("stage", &""))
+
+
+## Runs pending units until budget_usec is spent; see MapViewAssembly.step().
+## Returns true once assembly is complete.
+func step_assembly(budget_usec: int) -> bool:
+	if _assembly.step(budget_usec):
+		_finish_staged_assembly()
+	return is_assembly_complete()
+
+
+## Drives step_assembly() once per process frame with the project budget. Returns
+## false when cancelled, so callers can drop the view instead of mounting it.
+## Assemble detached and mount on completion: nothing simulates or renders early.
+func assemble_async(budget_msec: float = -1.0) -> bool:
+	var budget := Assembly.frame_budget_msec() if budget_msec < 0.0 else budget_msec
+	var tree := Engine.get_main_loop() as SceneTree
+	while _assembly.state == Assembly.State.RUNNING:
+		var started := Time.get_ticks_usec()
+		step_assembly(int(budget * 1000.0))
+		_assembly.frame_usec.append(Time.get_ticks_usec() - started)
+		if _assembly.state == Assembly.State.RUNNING:
+			await tree.process_frame
+	return is_assembly_complete()
+
+
+## Stops a staged assembly. Everything already built is a child of this view, so
+## freeing the view releases it all; nothing is registered elsewhere before completion.
+func cancel_assembly() -> void:
+	if _assembly.cancel():
+		assembly_cancelled.emit()
+
+
+func is_assembly_complete() -> bool:
+	return _assembly.state == Assembly.State.COMPLETE
+
+
+func is_assembly_cancelled() -> bool:
+	return _assembly.state == Assembly.State.CANCELLED
+
+
+func pending_assembly_unit_count() -> int:
+	return _assembly.units.size()
+
+
+## Stage name -> accumulated microseconds, in stage order. Filled by both paths.
+func assembly_stage_timings_usec() -> Dictionary:
+	return _assembly.stage_usec.duplicate()
+
+
+## One entry per work unit: {"stage", "label", "usec"}, in execution order.
+func assembly_unit_timings() -> Array[Dictionary]:
+	return _assembly.unit_log.duplicate(true)
+
+
+## Main-thread microseconds spent per frame by assemble_async().
+func assembly_frame_timings_usec() -> PackedInt64Array:
+	return _assembly.frame_usec.duplicate()
+
+
+func _exit_tree() -> void:
+	# The grass material is cached across map views. Clear its dynamic player
+	# parameters before this view disappears so a menu or another map cannot
+	# retain the last character's bent patch.
+	MapViewMaterials.clear_grass_interaction()
+	# WHY: headless/dummy RenderingServer logs ERROR when MultiMeshInstance3D
+	# nodes with ShaderMaterial + instance colors are freed while their material
+	# RIDs are already invalid. Detach first so teardown stays quiet.
+	_strip_geometry_materials(self)
+
+
+static func _strip_geometry_materials(node: Node) -> void:
+	# WHY: nulling material_override while MultiMesh/Mesh still reference the
+	# RenderingServer instance triggers dummy-renderer
+	# material_get_instance_shader_parameters ERROR. Detach geometry first, leave
+	# materials alone so free() does not query a null material RID.
+	if node is MultiMeshInstance3D:
+		(node as MultiMeshInstance3D).multimesh = null
+	elif node is MeshInstance3D:
+		var mesh_instance := node as MeshInstance3D
+		mesh_instance.material_overlay = null
+		mesh_instance.mesh = null
+	for child in node.get_children():
+		_strip_geometry_materials(child)
+
+
+
+func _process(delta: float) -> void:
+	var probe_start := PerfProbeScript.start()
+	_process_timed(delta)
+	PerfProbeScript.stop(&"map_view_3d", probe_start)
+
+
+func _process_timed(delta: float) -> void:
+	_sync_sea_weather()
+	_sync_puddle_visibility()
+	_cull_offscreen_smoke(delta)
+	if _underwater_pass != null:
+		_underwater_pass.update(delta)
+	if _cloud_shadow_pass != null and _sky_weather != null:
+		var day_blend := SkyWeather3D.daylight_blend(
+			cycle_progress, _sky_weather.calendar_date
+		)
+		_cloud_shadow_pass.update_share(
+			_sky_weather.presentation_snapshot(cycle_progress, day_blend)
+		)
+	if _god_ray_pass != null and _sky_weather != null:
+		_god_ray_pass.update(
+			delta,
+			_sky_weather.presentation_snapshot(
+				cycle_progress,
+				SkyWeather3D.daylight_blend(cycle_progress, _sky_weather.calendar_date)
+			)
+		)
+	if _local_atmosphere != null and _sky_weather != null:
+		_local_atmosphere.update(
+			delta,
+			_sky_weather.presentation_snapshot(
+				cycle_progress,
+				SkyWeather3D.daylight_blend(cycle_progress, _sky_weather.calendar_date)
+			),
+			_sky_weather.cloud_cell_clock()
+		)
+	var player_rig := get_tree().get_first_node_in_group(&"player_view_rig") as Node3D
+	_sync_ambient_leaf_fall(delta, player_rig)
+	if _fog_of_war == null:
+		return
+	if player_rig == null:
+		return
+	var facing := Vector2(sin(player_rig.global_rotation.y), cos(player_rig.global_rotation.y))
+	_fog_of_war.call("update_view", player_rig.global_position, facing, delta)
+
+
+## A chimney plume costs the renderer per-system work whether or not it is on
+## screen, and a district carries dozens of them. Measured on the workers
+## quarter, drawing every plume cost ~6 ms per frame while the particle count
+## itself was irrelevant, so visibility - not particle budget - is the lever.
+func _cull_offscreen_smoke(delta: float) -> void:
+	if _camera == null:
+		return
+	_smoke_cull_timer -= delta
+	if _smoke_cull_timer > 0.0:
+		return
+	_smoke_cull_timer = SMOKE_CULL_INTERVAL
+	var buildings := get_node_or_null("Buildings")
+	if buildings == null:
+		return
+	var to_camera := _camera.global_transform.affine_inverse()
+	for building_node in buildings.get_children():
+		var smoke := building_node.get_node_or_null("ChimneySmoke") as ChimneySmoke3D
+		if smoke == null or not smoke.emitting:
+			continue
+		smoke.visible = _within_smoke_view(to_camera, smoke.global_position)
+
+
+func _within_smoke_view(to_camera: Transform3D, world_position: Vector3) -> bool:
+	var local := to_camera * world_position
+	if local.z > 0.0:
+		return false
+	if _camera.projection != Camera3D.PROJECTION_ORTHOGONAL:
+		return _camera.is_position_in_frustum(world_position)
+	var half_height := _camera.size * 0.5 + SMOKE_CULL_MARGIN
+	var viewport_size := get_viewport().get_visible_rect().size
+	var aspect := maxf(viewport_size.x / maxf(viewport_size.y, 1.0), 0.1)
+	return absf(local.x) <= half_height * aspect and absf(local.y) <= half_height
+
+
+func _sync_sea_weather() -> void:
+	if _sky_weather == null:
+		return
+	# One frame snapshot for water, mud, and wind. Separate accessors here used
+	# to re-sample mid-transition and disagree with lighting's presentation.
+	var day_blend := SkyWeather3D.daylight_blend(
+		cycle_progress, _sky_weather.calendar_date
+	)
+	MapViewMaterials.apply_weather_presentation(
+		_sky_weather.presentation_snapshot(cycle_progress, day_blend)
+	)
+
+
+## Puddle geometry remains prebuilt with each scatter chunk, but a fresh map is
+## dry. Rain-created wetness reveals it without rebuilding deterministic terrain;
+## a drought (R-1516) reveals the same decals as baked crust.
+func _sync_puddle_visibility(force: bool = false) -> void:
+	if _sky_weather == null or _scatter_root == null:
+		return
+	var wetness := _sky_weather.puddle_wetness()
+	var dryness := _sky_weather.ground_dryness()
+	if force or wetness != _last_puddle_wetness or dryness != _last_ground_dryness:
+		_last_puddle_wetness = wetness
+		_last_ground_dryness = dryness
+		MapViewMaterials.WATER_MATERIALS.apply_ground_water(wetness, dryness)
+	var puddle_visible := puddle_layer_visible(wetness, dryness)
+	if not force and puddle_visible == _last_puddle_visible:
+		return
+	_last_puddle_visible = puddle_visible
+	for chunk in _scatter_root.get_children():
+		var puddles := chunk.get_node_or_null("Puddles") as Node3D
+		if puddles != null:
+			puddles.visible = puddle_visible
+
+
+## The puddle decals draw water after rain and cracked crust once a drought pushes
+## dryness past the crack threshold; between the two the ground shows no basin.
+static func puddle_layer_visible(wetness: float, dryness: float) -> bool:
+	return wetness > 0.001 or dryness > PUDDLE_CRUST_DRYNESS
+
+
+## Footstep surface under a planted foot (view-local space, the space
+## add_mud_footprint_at uses): the terrain cell, or a puddle when the foot lands
+## inside a puddle decal that rain has filled (R-1641). CityMapView overrides
+## this with the city's land-use rasters.
+func footstep_surface_at(foot_position: Vector3) -> StringName:
+	if definition == null or grid == null:
+		return &""
+	var logic := MapViewBridge.world_to_logic(foot_position, definition.cell_size)
+	var cell := Vector2i(
+		floori(logic.x / float(definition.cell_size)), floori(logic.y / float(definition.cell_size))
+	)
+	# Water the player can walk into is heard by its column (R-1648): the sea's
+	# deep_water terrain has a wadeable shelf before the swimmer takes over, and
+	# shallow water deepens into basins, so the terrain ID alone cannot tell a
+	# splash from wading.
+	if PlayerWaterTraversal.is_traversable_terrain(grid.get_terrain(cell)):
+		var depth := PlayerWaterTraversal.depth_at(definition, grid, logic)
+		if depth > 0.0:
+			return SurfaceResolver.water_surface_for_depth(depth)
+	var surface := SurfaceResolver.surface_at_cell(grid, cell)
+	return SurfaceResolver.with_puddle(surface, _foot_in_filled_puddle(foot_position))
+
+
+func _foot_in_filled_puddle(foot_position: Vector3) -> bool:
+	if _sky_weather == null or _scatter_root == null:
+		return false
+	if _sky_weather.puddle_wetness() < PUDDLE_STEP_MIN_WETNESS:
+		return false
+	var foot_global := global_transform * foot_position if is_inside_tree() else foot_position
+	for chunk in _scatter_root.get_children():
+		var puddles := chunk.get_node_or_null("Puddles") as MultiMeshInstance3D
+		if puddles == null or puddles.multimesh == null:
+			continue
+		var local := puddles.global_transform.affine_inverse() * foot_global
+		# Cheap reject: chunks are tens of cells wide, the foot is in one of them.
+		var bounds := puddles.multimesh.get_aabb().grow(0.5)
+		if not bounds.has_point(Vector3(local.x, bounds.get_center().y, local.z)):
+			continue
+		for index in puddles.multimesh.instance_count:
+			var decal := puddles.multimesh.get_instance_transform(index)
+			var uv := decal.affine_inverse() * local
+			if Vector2(uv.x, uv.z).length() < PUDDLE_WATER_RADIUS * PUDDLE_PLANE_HALF:
+				return true
+	return false
+
+
+func set_time_of_day(next_time: StringName) -> void:
+	assert(next_time in ALL_TIMES)
+	apply_cycle_progress(0.5 if next_time == TIME_DAY else 0.0, false)
+
+
+func set_calendar_date(date: Dictionary) -> void:
+	_sky_weather.set_calendar_date(date)
+	# Tree crowns, fruit and leaf fall follow the same campaign date as the sun.
+	MapViewMaterials.apply_vegetation_season(date)
+	apply_cycle_progress(cycle_progress)
+
+
+## R-1187: a melee swing at `logic_position` facing `logic_facing` that reaches a
+## tree shakes it and knocks leaves loose. Returns the TreeLeafFall3D hit info
+## ({} when no tree was in reach). Presentation only; never affects combat.
+func strike_vegetation(
+	logic_position: Vector2,
+	logic_facing: Vector2,
+	reach_px: float,
+	facing_dot: float,
+	strength: float
+) -> Dictionary:
+	if _tree_leaf_fall == null or definition == null:
+		return {}
+	var scale := MapViewBridge.world_scale(definition.cell_size)
+	return _tree_leaf_fall.strike(
+		world_position(logic_position),
+		logic_facing,
+		reach_px * scale,
+		facing_dot,
+		strength,
+		_sky_weather.calendar_date if _sky_weather != null else GameCalendar.DEFAULT_DATE
+	)
+
+
+func _sync_ambient_leaf_fall(delta: float, player_rig: Node3D) -> void:
+	if _tree_leaf_fall == null or _sky_weather == null or player_rig == null:
+		return
+	_tree_leaf_fall.update_ambient(
+		player_rig.global_position,
+		_sky_weather.calendar_date,
+		MapViewMaterials.WIND_MATERIALS.world_wind_direction(),
+		MapViewMaterials.WIND_MATERIALS.world_wind_strength(),
+		delta
+	)
+
+
+## Scales (or, at 0, pauses) the sky's own time so clouds, weather, and lightning
+## keep step with the day/night clock under the shared time controls.
+func set_weather_time_scale(scale: float) -> void:
+	if _sky_weather != null:
+		_sky_weather.time_scale = maxf(scale, 0.0)
+
+
+func apply_cycle_progress(progress: float, _sweep_sun_yaw: bool = true) -> void:
+	cycle_progress = wrapf(progress, 0.0, 1.0)
+	if _sky_weather == null:
+		# WB-08c: a WorldHost neighbour mounted before its sky_weather unit ran
+		# (decoration deferred past activation). The host re-applies its clock
+		# when that view completes.
+		return
+	var night := Lighting.apply_cycle_progress(
+		cycle_progress,
+		_sun,
+		_environment,
+		_sky_weather,
+		uses_interior_top_down_background(),
+		definition != null and definition.suppresses_exterior_surroundings()
+	)
+	var bucket := TIME_NIGHT if night else TIME_DAY
+	if bucket != _last_chimney_bucket:
+		_last_chimney_bucket = bucket
+		time_of_day = bucket
+		_update_chimney_smokes()
+	_update_window_lights()
+
+
+func _update_chimney_smokes() -> void:
+	var buildings := get_node_or_null("Buildings")
+	if buildings == null:
+		return
+	for building_node in buildings.get_children():
+		var smoke := building_node.get_node_or_null("ChimneySmoke") as ChimneySmoke3D
+		if smoke != null:
+			smoke.apply_time_of_day(time_of_day)
+
+
+func _update_window_lights() -> void:
+	var buildings := get_node_or_null("Buildings")
+	if buildings != null:
+		for building_node in buildings.get_children():
+			var lights := building_node.get_node_or_null("WindowLights")
+			if lights != null and lights.has_method(&"apply_cycle_progress"):
+				lights.call("apply_cycle_progress", cycle_progress)
+	var landmarks := get_node_or_null("Landmarks")
+	if landmarks != null:
+		for landmark_node in landmarks.get_children():
+			var interior_lights := landmark_node.get_node_or_null("InteriorWindowLights")
+			if interior_lights != null and interior_lights.has_method(&"apply_cycle_progress"):
+				interior_lights.call("apply_cycle_progress", cycle_progress)
+	var props := get_node_or_null("Props")
+	if props != null:
+		for prop_node in props.get_children():
+			# Candles and forge hearth lights both expose apply_cycle_progress.
+			for child in prop_node.get_children():
+				if child.has_method(&"apply_cycle_progress"):
+					child.call("apply_cycle_progress", cycle_progress)
+
+
+func world_position(logic_position: Vector2, height: float = 0.0) -> Vector3:
+	return MapViewBridge.logic_to_world(logic_position, definition.cell_size, height)
+
+
+func sync_actor(actor: Node3D, logic_position: Vector2) -> void:
+	MapViewBridge.sync_actor(actor, logic_position, definition.cell_size)
+	# Actors ride the visible terrain relief; authored wall-walk access and
+	# climbable low props add only a derived view elevation while the flat
+	# logic position stays authoritative.
+	var surface_elevation := maxf(
+		MapWallWalkAccess.elevation_at(definition, logic_position),
+		MapClimbableProps.elevation_at(definition, logic_position)
+	)
+	actor.position.y = (
+		MapViewMeshBuilder.ground_height(definition, Vector2(actor.position.x, actor.position.z))
+		+ surface_elevation
+	)
+
+
+func add_mud_footprint(logic_position: Vector2, movement: Vector2) -> bool:
+	var position := world_position(logic_position)
+	return add_mud_footprint_at(position, movement, true)
+
+
+## Places a print under an animated foot bone. Terrain is sampled at that foot,
+## not at the actor pivot, so a boot crossing a mud boundary leaves contact only
+## where the sole actually lands.
+func add_mud_footprint_at(
+	foot_world_position: Vector3,
+	movement: Vector2,
+	apply_lateral_offset: bool = false
+) -> bool:
+	if _mud_footprints == null or grid == null or _sky_weather == null:
+		return false
+	var logic_position := MapViewBridge.world_to_logic(foot_world_position, definition.cell_size)
+	var cell := Vector2i(
+		floori(logic_position.x / float(definition.cell_size)),
+		floori(logic_position.y / float(definition.cell_size))
+	)
+	if grid.get_terrain(cell) != MapTypes.TERRAIN_MUD:
+		return false
+	foot_world_position.y = MapViewMeshBuilder.ground_height(
+		definition, Vector2(foot_world_position.x, foot_world_position.z)
+	)
+	return _mud_footprints.try_add(
+		foot_world_position,
+		movement,
+		_sky_weather.mud_wetness(),
+		apply_lateral_offset
+	)
+
+
+## Pushes the shared grass MultiMesh material so blades part around the player.
+## Logic velocity is scaled to world XZ so walk/run wake strength stays readable.
+func update_grass_interaction(logic_position: Vector2, logic_velocity: Vector2) -> void:
+	var world := world_position(logic_position)
+	var scale := MapViewBridge.world_scale(definition.cell_size)
+	var world_velocity := Vector2(logic_velocity.x, logic_velocity.y) * scale
+	MapViewMaterials.apply_grass_interaction(Vector2(world.x, world.z), world_velocity)
+	HayRickReaction.set_actor(Vector2(world.x, world.z), world_velocity)
+
+
+func mud_wetness() -> float:
+	return _sky_weather.mud_wetness() if _sky_weather != null else 0.0
+
+
+func anchor_world_position(anchor_id: StringName) -> Vector3:
+	return world_position(MapVerification.anchor_position(definition, anchor_id))
+
+
+func view_camera() -> Camera3D:
+	return _camera
+
+
+## Runtime toggles for authored prop stable IDs (P4-032 market-day density).
+func set_prop_visible(prop_id: StringName, visible_state: bool) -> void:
+	var props := get_node_or_null("Props") as Node3D
+	if props == null or prop_id.is_empty():
+		return
+	var prop_node := props.get_node_or_null("Prop_%s" % String(prop_id)) as Node3D
+	if prop_node != null:
+		prop_node.visible = visible_state
+
+
+## Close perspective cameras show the interior ceiling and nearby surface detail;
+## top-down orthographic gameplay hides both so the floor layout stays readable.
+## The shadows-only daylight occluder remains active in every mode.
+func set_close_camera_mode(enabled: bool) -> void:
+	set_terrain_detail_for_first_person(enabled)
+	var interior_shell := get_node_or_null("InteriorShell") as Node3D
+	if interior_shell == null:
+		return
+	for child in interior_shell.get_children():
+		if child is Node3D and child.name != &"DaylightOccluder":
+			(child as Node3D).visible = enabled
+	var daylight_occluder := interior_shell.get_node_or_null("DaylightOccluder") as Node3D
+	if daylight_occluder != null:
+		daylight_occluder.visible = true
+	_sync_interior_top_down_background()
+
+
+## Painted-iso roof cutaway hook (R-1744). The runtime camera calls it every sync
+## with world positions; views without cutaway-capable roofs ignore it.
+func update_camera_cutaway(_active: bool, _player_world: Vector3, _camera_world: Vector3) -> void:
+	pass
+
+
+## Compatibility wrapper for existing first-person callers and focused view tests.
+func set_interior_shell_for_first_person(enabled: bool) -> void:
+	set_close_camera_mode(enabled)
+
+
+## Surface micro-geometry is deliberately camera-dependent: first-person needs
+## parallax and silhouettes near the player, while top-down relies on the
+## continuous high-resolution ground material. Detail roots are rebuilt instead
+## of retaining hidden duplicate MultiMeshes for every streamed chunk.
+func set_terrain_detail_for_first_person(enabled: bool) -> void:
+	if _first_person_terrain_detail == enabled:
+		return
+	_first_person_terrain_detail = enabled
+	_terrain_detail_focus_cell = Vector2i(2147483647, 2147483647)
+	_rebuild_terrain_details()
+
+
+## Keep first-person micro geometry in a bounded cell window around the camera.
+## Moving within a small bucket does no work; crossing it rebuilds only detail,
+## not terrain, props, collisions, or rrmap-derived gameplay state.
+func update_terrain_detail_focus(world_position: Vector3) -> void:
+	if not _first_person_terrain_detail:
+		return
+	var focus_cell := Vector2i(floori(world_position.x), floori(world_position.z))
+	var step := MapViewMeshBuilderConfig.FIRST_PERSON_DETAIL_REBUILD_STEP_CELLS
+	var bucket := Vector2i(floori(float(focus_cell.x) / step), floori(float(focus_cell.y) / step))
+	var previous_bucket := Vector2i(
+		floori(float(_terrain_detail_focus_cell.x) / step),
+		floori(float(_terrain_detail_focus_cell.y) / step)
+	)
+	if bucket == previous_bucket:
+		return
+	_terrain_detail_focus_cell = focus_cell
+	_rebuild_terrain_details()
+
+
+func uses_first_person_terrain_detail() -> bool:
+	return _first_person_terrain_detail
+
+
+func is_interior_shell_visible() -> bool:
+	var ceiling := get_node_or_null("InteriorShell/Ceiling") as Node3D
+	return ceiling != null and ceiling.visible
+
+
+## Compatibility wrapper retained for focused tests and existing callers.
+static func _morning_mist_factor(hour: float, sunrise: float) -> float:
+	return Lighting.morning_mist_factor(hour, sunrise)
+
+
+func uses_interior_top_down_background() -> bool:
+	return (
+		definition != null
+		and definition.suppresses_exterior_surroundings()
+		and has_node("InteriorShell/Ceiling")
+		and not is_interior_shell_visible()
+	)
+
+
+func _sync_interior_top_down_background() -> void:
+	Lighting.sync_background(_environment, uses_interior_top_down_background())
+
+
+## True when a building or landmark mass crosses the segment. The runtime
+## probes from an actor toward the camera to decide when the occluded-actor
+## silhouette overlay should show.
+## WHY: skip volumes that already contain an endpoint. A follow camera that
+## clips into a wall AABB would otherwise always report occlusion, and solid
+## house boxes would ghost anyone standing inside their footprint.
+func is_segment_occluded(from: Vector3, to: Vector3) -> bool:
+	for bounds in _occluder_bounds:
+		if bounds.has_point(from) or bounds.has_point(to):
+			continue
+		if bounds.intersects_segment(from, to):
+			return true
+	return false
+
+
+func is_point_inside_occluder(point: Vector3) -> bool:
+	for bounds in _occluder_bounds:
+		if bounds.has_point(point):
+			return true
+	return false
+
+
+func sun_light() -> DirectionalLight3D:
+	return _sun
+
+
+func sky_weather() -> SkyWeather3D:
+	return _sky_weather
+
+
+## WS-15 interactive ripple sim, or null indoors, on maps without water, or on tiers that
+## turn it off. Moving vessels and the swimmer feed it through add_moving_body/add_impulse.
+func water_ripple_sim() -> WaterRippleSimScript:
+	return _water_ripple_sim
+
+
+## The tier is read once at build time, like the FFT cascades: switching quality rebuilds the
+## map view. Materials are cached across views, so a view without a sim resets them to flat.
+func _create_water_ripple_sim() -> void:
+	_bind_sea_depth_map()
+	var indoor := definition != null and definition.suppresses_exterior_surroundings()
+	var tier := _sky_weather.quality_tier
+	if not WaterRippleSimScript.should_create(tier, indoor, _has_water()):
+		_bind_water_ripples(null, Vector4(0.0, 0.0, WaterRippleSimScript.WINDOW_WORLD_SIZE, 0.0), 1.0)
+		return
+	_water_ripple_sim = WaterRippleSimScript.new()
+	_water_ripple_sim.name = "WaterRippleSim"
+	add_child(_water_ripple_sim)
+	_water_ripple_sim.configure(WaterRippleSimScript.sim_size_for_tier(tier))
+	_water_ripple_sim.focus_provider = _ripple_focus
+	_water_ripple_sim.bind_callback = _bind_water_ripples
+
+
+## Combined water contour at world XZ (one cell = one world unit). Same field the
+## water mesh bakes into COLOR.r. Open-water default 1.0 keeps hulls at full FFT
+## displacement when a map has no water contours.
+func water_coverage_at(world_xz: Vector2) -> float:
+	if definition == null or grid == null:
+		return 1.0
+	var field := MapViewMeshBuilder.ensure_height_field(definition, grid)
+	var contours: Variant = field.get("water_contours", {})
+	if not (contours is Dictionary) or (contours as Dictionary).is_empty():
+		return 1.0
+	return MapViewMeshBuilderTerrainWater.combined_water_coverage_at(field, world_xz)
+
+
+## WS-08 signed shore distance at world XZ. Positive is water. Open default keeps
+## hulls and the FFT fetch term at full scale when a map has no shore field.
+func shore_distance_at(world_xz: Vector2) -> float:
+	if definition == null or grid == null:
+		return 99.0
+	var field := MapViewMeshBuilder.ensure_height_field(definition, grid)
+	var shore := MapViewMeshBuilderTerrainWater.bake_shore_field(field, grid)
+	if shore.is_empty():
+		return 99.0
+	return MapViewMeshBuilderTerrainWater.shore_distance_at(shore, world_xz)
+
+
+## WS-13 underwater view pass, or null indoors and on maps without water.
+func underwater_pass() -> UnderwaterPassScript:
+	return _underwater_pass
+
+
+func cloud_shadow_pass() -> CloudShadowPassScript:
+	return _cloud_shadow_pass
+
+
+func _create_underwater_pass() -> void:
+	var indoor := definition != null and definition.suppresses_exterior_surroundings()
+	if not UnderwaterPassScript.should_create(indoor, _has_water()):
+		return
+	_underwater_pass = UnderwaterPassScript.new()
+	add_child(_underwater_pass)
+	_underwater_pass.configure(_camera, _underwater_probe, _sky_weather.quality_tier)
+
+
+func god_ray_pass() -> GodRayPassScript:
+	return _god_ray_pass
+
+
+func _create_god_ray_pass() -> void:
+	var indoor := definition != null and definition.suppresses_exterior_surroundings()
+	if _sky_weather == null or _camera == null or not GodRayPassScript.should_create(indoor):
+		return
+	_god_ray_pass = GodRayPassScript.new()
+	add_child(_god_ray_pass)
+	# The pass rasterises the same building/landmark boxes the occlusion probes use,
+	# so shafts are cut by architecture; relief maps add the terrain under them.
+	var ground := Callable()
+	if not definition.relief_heights.is_empty():
+		ground = func(world_xz: Vector2) -> float:
+			return MapViewMeshBuilder.ground_height(definition, world_xz)
+	_god_ray_pass.configure(
+		_camera, Vector2(definition.size_cells), func() -> Array[AABB]: return _occluder_bounds, ground
+	)
+
+
+## Fog banks gather where water is near, so a map with no water gets no layer; the
+## horizon shimmer is cheap and independent of water, so it mounts everywhere outdoors.
+func _create_local_atmosphere() -> void:
+	var indoor := definition != null and definition.suppresses_exterior_surroundings()
+	if _sky_weather == null or _camera == null or not LocalAtmosphereScript.should_create(indoor):
+		return
+	_local_atmosphere = LocalAtmosphereScript.new()
+	add_child(_local_atmosphere)
+	var ground := Callable()
+	if not definition.relief_heights.is_empty():
+		ground = func(world_xz: Vector2) -> float:
+			return MapViewMeshBuilder.ground_height(definition, world_xz)
+	var water := Callable(self, &"water_surface_height_at") if _has_water() else Callable()
+	_local_atmosphere.configure(_camera, water, ground)
+
+
+func _create_cloud_shadow_pass() -> void:
+	var indoor := definition != null and definition.suppresses_exterior_surroundings()
+	var enabled := _sky_weather != null and _sky_weather.cloud_shadow_enabled()
+	if not CloudShadowPassScript.should_create(indoor, enabled):
+		return
+	_cloud_shadow_pass = CloudShadowPassScript.new()
+	add_child(_cloud_shadow_pass)
+	_cloud_shadow_pass.configure(_camera, _sky_weather.cloud_shadow_ground_samples())
+
+
+## Water under world XZ for the underwater pass: the rest surface height (recessed mesh
+## plus the live tide on that material) and the material to mirror, or {} over dry land.
+## Outside the map, a water surroundings side counts as open deep water.
+## Rendered water surface height at view-local world XZ (rest plane, tide and the
+## live FFT swell the boats ride), or NAN over dry land. The swimmer presenter
+## floats Kalev on this so he bobs with the same waves as the hulls.
+func water_surface_height_at(world_xz: Vector2) -> float:
+	var probe := _underwater_probe(world_xz)
+	if probe.is_empty():
+		return NAN
+	var height := float(probe["surface_y"])
+	if OceanFftSampler.ensure_loaded():
+		var terrain_id: StringName = probe["terrain_id"]
+		var raw := OceanFftSampler.height_at(
+			world_xz, OceanFftSampler.ocean_time(), OceanFftSampler.terrain_surface(terrain_id), 2
+		)
+		height += OceanFftSampler.trough_floor(
+			raw * OceanFftSampler.shore_scale_from_coverage(water_coverage_at(world_xz))
+		)
+	return height
+
+
+func _underwater_probe(world_xz: Vector2) -> Dictionary:
+	var terrain_id: StringName = &""
+	if grid != null and definition != null:
+		var cell_size := definition.cell_size
+		var logic := MapViewBridge.world_to_logic(Vector3(world_xz.x, 0.0, world_xz.y), cell_size)
+		var cell := Vector2i(floori(logic.x / cell_size), floori(logic.y / cell_size))
+		terrain_id = grid.get_terrain(cell)
+		if terrain_id == &"" and definition.resolved_surroundings_sides().values().has(&"water"):
+			terrain_id = MapTypes.TERRAIN_DEEP_WATER
+	if not MapTypes.WATER_TERRAINS.has(terrain_id):
+		return {}
+	var material := MapViewMaterials.water_surface(terrain_id)
+	# Unset uniforms read back as null until the first tide update.
+	var tide_height: Variant = material.get_shader_parameter("tide_height")
+	var tide_level: Variant = material.get_shader_parameter("tide_level")
+	var tide := 0.0
+	if tide_height != null and tide_level != null:
+		tide = float(tide_height) * float(tide_level)
+	# R-1022: follow the shore-relative recess. World-zero -WATER_RECESS is wrong
+	# once WB-04 authors a raised moat or quay the player can enter.
+	var bed_y := -MapViewMeshBuilderConfig.WATER_RECESS
+	if definition != null and grid != null:
+		var field := MapViewMeshBuilder.ensure_height_field(definition, grid)
+		bed_y = MapViewMeshBuilderTerrain.water_gameplay_bed_y(field, world_xz)
+	return {
+		"surface_y": bed_y + MapViewMeshBuilderConfig.WATER_SURFACE_LIFT + tide,
+		"terrain_id": terrain_id,
+		# The FFT geometry is compressed onto this per-terrain Gerstner height budget.
+		"wave_margin": float(material.get_shader_parameter("wave_height")),
+		"material": material,
+	}
+
+
+## Bakes this map's WS-13b sea basin depth, one texel per cell, so the sea materials blend
+## shallow and deep water by depth. Maps without a basin (no sea, indoors) turn it off.
+func _bind_sea_depth_map() -> void:
+	var image := sea_depth_image()
+	if image == null:
+		MapViewMaterials.WATER_MATERIALS.apply_sea_depth_map(null, Vector4.ZERO)
+		return
+	# The shader samples global world XZ; cells sit at view-local world units.
+	var origin := global_position if is_inside_tree() else position
+	MapViewMaterials.WATER_MATERIALS.apply_sea_depth_map(
+		ImageTexture.create_from_image(image),
+		Vector4(origin.x, origin.z, float(image.get_width()), float(image.get_height()))
+	)
+
+
+## Basin depth below the gameplay bed at each cell centre (FORMAT_RF), or null.
+func sea_depth_image() -> Image:
+	if definition == null or grid == null or definition.suppresses_exterior_surroundings():
+		return null
+	var field := MapViewMeshBuilder.ensure_height_field(definition, grid)
+	if not field.has("basin_targets"):
+		return null
+	var size: Vector2i = field["size"]
+	var image := Image.create_empty(size.x, size.y, false, Image.FORMAT_RF)
+	for y in size.y:
+		for x in size.x:
+			var depth := MapViewMeshBuilderTerrain.basin_extra_depth(
+				field, Vector2(float(x) + 0.5, float(y) + 0.5)
+			)
+			image.set_pixel(x, y, Color(depth, 0.0, 0.0))
+	return image
+
+
+func _bind_water_ripples(texture: Texture2D, window: Vector4, texel_count: float) -> void:
+	MapViewMaterials.WATER_MATERIALS.apply_water_ripples(
+		texture, window, texel_count, MapViewMaterials.WATER_WAVE_BASE
+	)
+
+
+func _has_water() -> bool:
+	if grid != null:
+		for terrain_id in grid.used_terrain_ids():
+			if MapTypes.WATER_TERRAINS.has(terrain_id):
+				return true
+	if definition != null:
+		return definition.resolved_surroundings_sides().values().has(&"water")
+	return false
+
+
+## Camera focus on the water plane: where the view ray meets y = 0. A perspective camera
+## (third/first person) caps the reach so a level view keeps the window near the player
+## instead of at the horizon; the orthographic overview always uses the exact hit point.
+func _ripple_focus() -> Vector3:
+	if _camera == null or not _camera.is_inside_tree():
+		return Vector3.ZERO
+	var origin := _camera.global_position
+	var forward := -_camera.global_transform.basis.z
+	var reach := RIPPLE_FOCUS_MAX_REACH
+	if forward.y < -0.01:
+		var hit := origin + forward * (-origin.y / forward.y)
+		if _camera.projection == Camera3D.PROJECTION_ORTHOGONAL:
+			return hit
+		var offset := Vector2(hit.x - origin.x, hit.z - origin.z).limit_length(reach)
+		return Vector3(origin.x + offset.x, 0.0, origin.z + offset.y)
+	var flat := Vector2(forward.x, forward.z)
+	if flat.length_squared() < 0.0001:
+		return Vector3(origin.x, 0.0, origin.z)
+	var ahead := flat.normalized() * reach
+	return Vector3(origin.x + ahead.x, 0.0, origin.z + ahead.y)
+
+
+func environment_weather() -> SkyWeather3D:
+	return _sky_weather
+
+
+## The session owner keeps the simulation alive across map presenters. A view
+## only owns this renderer binding while it is the active map.
+func activate_environment_binding() -> void:
+	_environment_binding_active = true
+	set_process(true)
+	if is_hosted():
+		# A hosted view must not rebind or blank the host's single environment.
+		return
+	if _world_environment != null:
+		_world_environment.environment = _environment
+	if _sky_weather != null:
+		_sky_weather.set_process(true)
+
+
+func deactivate_environment_binding() -> void:
+	_environment_binding_active = false
+	set_process(false)
+	if is_hosted():
+		return
+	if _world_environment != null:
+		_world_environment.environment = null
+	if _sky_weather != null:
+		_sky_weather.set_process(false)
+
+
+func environment_binding_active() -> bool:
+	return _environment_binding_active
+
+
+func environment_node() -> WorldEnvironment:
+	return _world_environment
+
+
+func set_weather_rain_suppressed(suppressed: bool) -> void:
+	if _sky_weather != null:
+		_sky_weather.rain_suppressed = suppressed
+
+
+func object_streamer() -> MapObjectChunkStreamer:
+	return _object_streamer
+
+
+func update_active_chunks_from_logic_positions(logic_positions: Array[Vector2]) -> void:
+	var chunks: Array[Vector2i] = []
+	for position in logic_positions:
+		var cell := Vector2i(
+			floori(position.x / float(definition.cell_size)),
+			floori(position.y / float(definition.cell_size))
+		)
+		var center := grid.chunk_for_cell(cell)
+		for y in range(center.y - VIEW_LOAD_RADIUS_CHUNKS, center.y + VIEW_LOAD_RADIUS_CHUNKS + 1):
+			for x in range(
+				center.x - VIEW_LOAD_RADIUS_CHUNKS, center.x + VIEW_LOAD_RADIUS_CHUNKS + 1
+			):
+				var coordinates := Vector2i(x, y)
+				if grid.get_chunk(coordinates) != null and not chunks.has(coordinates):
+					chunks.append(coordinates)
+	chunks.sort_custom(
+		func(left: Vector2i, right: Vector2i) -> bool:
+			return left.y < right.y or (left.y == right.y and left.x < right.x)
+	)
+	_update_active_chunks(chunks)
+
+## Headless tests and editor preview need every streamed object and scatter
+## chunk resident; gameplay keeps the spawn-radius window from _initial_active_chunks.
+func activate_all_chunks() -> void:
+	var chunks: Array[Vector2i] = []
+	var count := grid.chunk_count()
+	for chunk_y in count.y:
+		for chunk_x in count.x:
+			if grid.get_chunk(Vector2i(chunk_x, chunk_y)) != null:
+				chunks.append(Vector2i(chunk_x, chunk_y))
+	_update_active_chunks(chunks)
+
+
+## Synchronous path: drains the same unit plan as the staged path in one call,
+## so the two can never drift apart. Timings are recorded here too.
+func _assemble() -> void:
+	_assembly.run_all(Assembly.plan_for(self, _initial_active_chunks()))
+
+
+func _begin_staged_assembly(initial_time: StringName) -> void:
+	_assembly_initial_time = initial_time
+	_assembly.start(Assembly.plan_for(self, _initial_active_chunks()))
+	# _process tolerates missing nodes, but there is nothing to animate until the
+	# sky and camera exist; completion restores the environment binding state.
+	set_process(false)
+
+
+func _finish_staged_assembly() -> void:
+	_assembly.state = Assembly.State.COMPLETE
+	set_time_of_day(_assembly_initial_time)
+	set_process(_environment_binding_active)
+	assembly_completed.emit()
+
+
+func _stage_height_field() -> Array[Dictionary]:
+	_apply_building_map_seed()
+	return MapViewMeshBuilder.height_field_units(definition, grid)
+
+
+## WHY: library stems hash (map_seed, building id) through one shared static seed. Re-apply
+## it before each house build: a staged view spans frames another view may seed.
+func _apply_building_map_seed() -> void:
+	if definition != null:
+		MapViewMaterials.apply_building_map_seed(definition.map_id)
+
+
+func _stage_surroundings() -> Array[Dictionary]:
+	return MapViewMeshBuilder.surroundings_units(definition, self)
+
+
+func _stage_terrain_mesh() -> Array[Dictionary]:
+	return MapViewMeshBuilder.terrain_units(definition, grid, self)
+
+
+func _stage_interior_shell() -> void:
+	_apply_building_map_seed()
+	var interior_shell := MapViewMeshBuilder.build_interior_shell(definition)
+	add_child(interior_shell)
+	if MapViewKalevSmithyInterior.applies_to(definition):
+		MapViewKalevSmithyInterior.install(self, interior_shell)
+
+
+## Streamed-object parents are created here, before the decals, to keep the
+## historical child order: Scatter, Buildings, Landmarks, Props, Decals.
+func _stage_containers_and_decals() -> void:
+	_scatter_root = Node3D.new()
+	_scatter_root.name = "Scatter"
+	add_child(_scatter_root)
+	for container_name in ["Buildings", "Landmarks", "Props"]:
+		var container := Node3D.new()
+		container.name = container_name
+		add_child(container)
+	# P0-157: projected decals (soot, mud, blood) from map data.
+	_decals_node = MapViewDecals.build_decals(definition, definition.cell_size)
+	add_child(_decals_node)
+
+
+func _stage_object_index() -> void:
+	_object_index = MapChunkRuntimeIndex.build(definition, grid.chunk_size_cells)
+	_object_streamer = MapObjectChunkStreamer.new()
+	_object_streamer.name = "ObjectStreamer"
+	add_child(_object_streamer)
+	(
+		_object_streamer
+		. configure(
+			_object_index,
+			_create_streamed_object,
+			{
+				&"building": get_node("Buildings"),
+				&"landmark": get_node("Landmarks"),
+				&"prop": get_node("Props"),
+			}
+		)
+	)
+
+
+## Marks the chunk resident and returns one unit per streamed object, in the
+## same order MapObjectChunkStreamer.load_chunk() would instantiate them.
+func _expand_object_chunk(chunk: Vector2i) -> Array[Dictionary]:
+	var units: Array[Dictionary] = []
+	for record in _object_streamer.begin_chunk_load(chunk):
+		var load_record := _load_object_record.bind(record)
+		units.append(Assembly.unit(&"buildings_props", String(record["id"]), load_record))
+	return units
+
+
+func _load_object_record(record: Dictionary) -> void:
+	_object_streamer.load_record(record)
+
+
+## The tail of _update_active_chunks() once every initial chunk is resident.
+## R-1095: the rest runs as follow-up units (see Assembly.finalize_units).
+func _stage_chunk_finalize(chunks: Array[Vector2i]) -> Array[Dictionary]:
+	_active_chunks = chunks.duplicate()
+	_sync_puddle_visibility(true)
+	return Assembly.finalize_units(self)
+
+
+func _stage_transition_visuals() -> void:
+	var transition_markers := Node3D.new()
+	transition_markers.name = "TransitionMarkers"
+	add_child(transition_markers)
+	var doors := Node3D.new()
+	doors.name = "Doors"
+	add_child(doors)
+	for transition in definition.transitions:
+		if bool(transition.get("highlight_area", false)):
+			transition_markers.add_child(
+				MapViewMeshBuilder.build_transition_marker(transition, definition.cell_size)
+			)
+		if (
+			not String(transition.get("destination_scene_id", "")).is_empty()
+			and (
+				transition.get("transition_visual", MapTypes.TRANSITION_VISUAL_DOOR)
+				== MapTypes.TRANSITION_VISUAL_DOOR
+			)
+			and not MapViewMeshBuilder.transition_uses_landmark_visual(definition, transition)
+		):
+			var attached_building := MapBuildingEntrance.find_building(definition, transition)
+			var wall_height := MapViewMeshBuilder.interior_shell_wall_height_world(definition)
+			if not attached_building.is_empty():
+				wall_height = (
+					MapTypes.resolved_wall_height_px(attached_building)
+					* MapViewBridge.world_scale(definition.cell_size)
+				)
+			var door := MapViewMeshBuilder.build_transition_door(
+				transition, definition.cell_size, wall_height, attached_building
+			)
+			if MapViewKalevSmithyInterior.applies_to(definition):
+				MapViewKalevSmithyInterior.adapt_door(door)
+			doors.add_child(door)
+
+
+func _stage_anchors() -> void:
+	var anchors := Node3D.new()
+	anchors.name = "Anchors"
+	add_child(anchors)
+	for anchor in definition.interaction_anchors:
+		var marker := Marker3D.new()
+		marker.name = String(anchor["id"])
+		marker.position = world_position(anchor["position"])
+		marker.set_meta("anchor_id", anchor["id"])
+		anchors.add_child(marker)
+
+
+func _stage_lighting() -> void:
+	if is_hosted():
+		# WB-06: bind, never parent. The host keeps these alive across unmounts.
+		_sun = _host_globals.get("sun") as DirectionalLight3D
+		_environment = _host_globals.get("environment") as Environment
+		_world_environment = _host_globals.get("world_environment") as WorldEnvironment
+		_camera = _host_globals.get("camera") as Camera3D
+		return
+	var lighting := create_global_lighting()
+	_sun = lighting["sun"] as DirectionalLight3D
+	add_child(_sun)
+	_environment = lighting["environment"] as Environment
+	_world_environment = lighting["world_environment"] as WorldEnvironment
+	add_child(_world_environment)
+
+	_camera = _create_camera()
+	add_child(_camera)
+
+
+func _stage_sky_weather() -> Array[Dictionary]:
+	if is_hosted():
+		# The host configured its sky once against its own camera and environment.
+		# Per-location rain suppression under a shared sky is seam work (R-980).
+		_sky_weather = _host_globals.get("sky_weather") as SkyWeather3D
+		return []
+	# Sky dome + weather cycle; replaces the flat background color with a real
+	# sky the first-person camera can see, and feeds lighting modifiers above.
+	_sky_weather = SkyWeather3D.new()
+	_sky_weather.name = "SkyWeather"
+	add_child(_sky_weather)
+	# R-1095: configure_steps() are units of their own (noise textures, star map).
+	var units: Array[Dictionary] = []
+	for step in _sky_weather.configure_steps(_camera, _environment):
+		units.append(Assembly.unit(&"sky_weather", "sky_weather_step", step))
+	# Enclosed room shells (roofed interiors like the Kalev smithy) must not rain
+	# indoors. The weather cycle keeps running for lighting and wind; only the
+	# visible rain particles are gated; roof-drum audio follows the same flag.
+	units.append(Assembly.unit(&"sky_weather", "sky_weather_rain_gate", _gate_rain))
+	return units
+
+
+func _gate_rain() -> void:
+	_sky_weather.rain_suppressed = (
+		definition != null and definition.suppresses_exterior_surroundings()
+	)
+	# Cached house materials already exist; the toggle updates them in place.
+	MapViewMaterials.set_building_quality_tier(_sky_weather.quality_tier)
+
+
+func _stage_view_effects() -> Array[Dictionary]:
+	return Assembly.view_effects_units(self)
+
+
+func _create_mud_footprints() -> void:
+	_mud_footprints = MudFootprints3D.new()
+	_mud_footprints.name = "MudFootprints"
+	add_child(_mud_footprints)
+	_tree_leaf_fall = TreeLeafFall3D.new()
+	_tree_leaf_fall.name = "TreeLeafFall"
+	add_child(_tree_leaf_fall)
+	_sync_puddle_visibility(true)
+
+
+func _create_fog_of_war() -> void:
+	# Headless uses the dummy renderer, which cannot provide the screen texture
+	# sampled by this post-process. Visibility logic remains directly testable.
+	if DisplayServer.get_name() != "headless":
+		_fog_of_war = FOG_OF_WAR_SCRIPT.new()
+		_fog_of_war.call("configure", _camera, definition)
+		add_child(_fog_of_war)
+
+
+func _create_streamed_object(record: Dictionary) -> Node:
+	_apply_building_map_seed()
+	var node := _build_streamed_object(record)
+	if node is Node3D:
+		var node_3d := node as Node3D
+		StaticBatcher.trim_small_shadow_casters(node_3d)
+		# Merging happens on the assembled view only, so builder-level tests and
+		# tools still see every authored detail node.
+		StaticBatcher.merge(node_3d)
+	return node
+
+
+func _ensure_gate_fit() -> void:
+	if _gate_fit_ready:
+		return
+	_gate_passages = MapViewMeshBuilder.gate_passage_rects(definition)
+	_wall_footprints = MapViewMeshBuilder.fortification_wall_footprints(definition)
+	_gate_fit_ready = true
+
+
+func _build_streamed_object(record: Dictionary) -> Node:
+	var source := record["source"] as Dictionary
+	match record["kind"] as StringName:
+		&"building":
+			var entrances: Array[Dictionary] = []
+			for transition in definition.transitions:
+				if transition.get("building_id", &"") == source.get("id", &""):
+					entrances.append(transition)
+			_ensure_gate_fit()
+			var building_node := MapViewMeshBuilder.build_building(
+				source,
+				definition.cell_size,
+				entrances,
+				Rect2(Vector2.ZERO, definition.world_size()),
+				_gate_passages
+			)
+			building_node.position.y = MapViewMeshBuilder.ground_height(
+				definition, Vector2(building_node.position.x, building_node.position.z)
+			)
+			if MapViewKalevSmithyInterior.applies_to(definition):
+				MapViewKalevSmithyInterior.adapt_building(source, building_node)
+			return building_node
+		&"landmark":
+			# Interior windows size their opening infill from the wall height;
+			# without it they fall back to the default and leave a sky gap
+			# between the infill top and the ceiling on taller walls.
+			_ensure_gate_fit()
+			var landmark_node := MapViewMeshBuilder.build_landmark(
+				source,
+				definition.cell_size,
+				MapViewMeshBuilder.interior_shell_wall_height_world(definition),
+				_wall_footprints
+			)
+			landmark_node.position.y = MapViewMeshBuilder.ground_height(
+				definition, Vector2(landmark_node.position.x, landmark_node.position.z)
+			)
+			if MapViewKalevSmithyInterior.applies_to(definition):
+				MapViewKalevSmithyInterior.adapt_landmark(self, source, landmark_node)
+			return landmark_node
+		&"prop":
+			var prop_node := MapViewMeshBuilder.build_prop(source, definition.cell_size, definition)
+			if MapViewKalevSmithyInterior.applies_to(definition):
+				MapViewKalevSmithyInterior.adapt_prop(source, prop_node)
+			# build_prop applies visual_offset_px in world space; keep that lift when
+			# snapping the prop root to sampled terrain height.
+			# ADR 0041 SS-6: props (carts, stalls, loose items) vanish in a spirit duel.
+			prop_node.add_to_group(&"spirit_hide_prop")
+			var visual_elevation := prop_node.position.y
+			prop_node.position.y = (
+				MapViewMeshBuilder.ground_height(
+					definition, Vector2(prop_node.position.x, prop_node.position.z)
+				)
+				+ visual_elevation
+			)
+			return prop_node
+	return null
+
+
+func _initial_active_chunks() -> Array[Vector2i]:
+	var focus_cell := Vector2i(
+		floori(definition.player_spawn.x / float(definition.cell_size)),
+		floori(definition.player_spawn.y / float(definition.cell_size))
+	)
+	var focus := grid.chunk_for_cell(focus_cell)
+	var chunks: Array[Vector2i] = []
+	for y in range(focus.y - VIEW_LOAD_RADIUS_CHUNKS, focus.y + VIEW_LOAD_RADIUS_CHUNKS + 1):
+		for x in range(focus.x - VIEW_LOAD_RADIUS_CHUNKS, focus.x + VIEW_LOAD_RADIUS_CHUNKS + 1):
+			var coordinates := Vector2i(x, y)
+			if grid.get_chunk(coordinates) != null:
+				chunks.append(coordinates)
+	return chunks
+
+
+func _update_active_chunks(chunks: Array[Vector2i]) -> void:
+	_active_chunks = chunks.duplicate()
+	_object_streamer.update_active_chunks(chunks)
+	_update_scatter_chunks(chunks)
+	_rebuild_occluder_bounds()
+	_update_chimney_smokes()
+	_update_window_lights()
+
+
+func _update_scatter_chunks(chunks: Array[Vector2i]) -> void:
+	var wanted: Dictionary = {}
+	for coordinates in chunks:
+		wanted[coordinates] = true
+	for coordinates in _loaded_scatter_chunks.keys():
+		if wanted.has(coordinates):
+			continue
+		var stale := _loaded_scatter_chunks[coordinates] as Node3D
+		_loaded_scatter_chunks.erase(coordinates)
+		_scatter_root.remove_child(stale)
+		stale.free()
+	for coordinates in chunks:
+		_load_scatter_chunk(coordinates)
+	_sync_puddle_visibility(true)
+	_rebuild_terrain_details()
+
+
+## One scatter chunk. Staged assembly passes the chunk its row-band units built.
+func _load_scatter_chunk(coordinates: Vector2i, built: Node3D = null) -> void:
+	if _loaded_scatter_chunks.has(coordinates):
+		if built != null:
+			built.free()
+		return
+	var scatter := built
+	if scatter == null:
+		scatter = MapViewMeshBuilder.build_scatter(definition, grid, grid.chunk_bounds(coordinates))
+	scatter.name = "Chunk_%d_%d" % [coordinates.x, coordinates.y]
+	_scatter_root.add_child(scatter)
+	_loaded_scatter_chunks[coordinates] = scatter
+
+
+func _rebuild_terrain_details() -> void:
+	for coordinates in _loaded_scatter_chunks:
+		var scatter := _loaded_scatter_chunks[coordinates] as Node3D
+		var current := scatter.get_node_or_null("TerrainDetails") as Node3D
+		if current != null:
+			scatter.remove_child(current)
+			current.free()
+		# Top-down needs no per-cell detail nodes: the high-resolution seamless
+		# terrain material carries the paving and grass pattern at that distance.
+		if not _first_person_terrain_detail:
+			continue
+		var radius := MapViewMeshBuilderConfig.FIRST_PERSON_DETAIL_BUILD_RADIUS_CELLS
+		var focus_bounds := Rect2i(
+			_terrain_detail_focus_cell - Vector2i(radius, radius),
+			Vector2i(radius * 2 + 1, radius * 2 + 1)
+		)
+		var bounds := grid.chunk_bounds(coordinates).intersection(focus_bounds)
+		if bounds.size == Vector2i.ZERO:
+			continue
+		scatter.add_child(TerrainDetails.build_chunk(definition, grid, bounds, true))
+
+
+func _rebuild_occluder_bounds() -> void:
+	_occluder_bounds.clear()
+	_append_occluder_slice("Buildings", 0, -1)
+	_append_occluder_slice("Landmarks", 0, -1)
+	# InteriorShell (ceiling, beams, daylight twin) is presentation/solar only.
+	# Its room-sized AABBs are not outdoor building masses and must not drive
+	# the occluded-actor silhouette.
+
+
+static func _configure_sun_shadows(sun: DirectionalLight3D) -> void:
+	sun.shadow_enabled = true
+	sun.directional_shadow_mode = DirectionalLight3D.SHADOW_PARALLEL_4_SPLITS
+	sun.directional_shadow_max_distance = SUN_SHADOW_MAX_DISTANCE
+	sun.directional_shadow_split_1 = SUN_SHADOW_SPLIT_1
+	sun.directional_shadow_split_2 = SUN_SHADOW_SPLIT_2
+	sun.directional_shadow_split_3 = SUN_SHADOW_SPLIT_3
+	sun.directional_shadow_blend_splits = true
+	sun.shadow_bias = SUN_SHADOW_BIAS
+	sun.shadow_normal_bias = SUN_SHADOW_NORMAL_BIAS
+	# Compatibility has no PCSS, so softness comes from the PCF blur plus the
+	# project-wide filter quality; angular distance only matters on Forward+.
+	sun.shadow_blur = SUN_SHADOW_BLUR
+	sun.light_angular_distance = 0.5
+
+
+## Appends the bounds of `count` children of a container from index `first`
+## (-1 = all), the same boxes the whole-container walk produces, in order.
+func _append_occluder_slice(container: String, first: int, count: int) -> void:
+	var root := get_node_or_null(container) as Node3D
+	if root == null:
+		return
+	var children := root.get_children()
+	var last := children.size() if count < 0 else mini(first + count, children.size())
+	for index in range(first, last):
+		var child := children[index] as Node3D
+		if child != null:
+			_append_mesh_bounds(child, root.transform * child.transform, _occluder_bounds)
+
+
+static func _append_mesh_bounds(
+	node: Node3D, accumulated: Transform3D, bounds: Array[AABB]
+) -> void:
+	if node is MeshInstance3D:
+		bounds.append(accumulated * (node as MeshInstance3D).get_aabb())
+	for child in node.get_children():
+		if child is Node3D:
+			_append_mesh_bounds(child, accumulated * (child as Node3D).transform, bounds)
+
+
+func _create_camera() -> Camera3D:
+	var camera := Camera3D.new()
+	camera.name = "ViewCamera"
+	camera.projection = Camera3D.PROJECTION_ORTHOGONAL
+	camera.rotation_degrees = Vector3(CAMERA_PITCH_DEGREES, CAMERA_YAW_DEGREES, 0.0)
+	var world_units := Vector2(definition.size_cells)
+	# Vertical extent of the ground diagonal under the fixed pitch, plus
+	# headroom for building mass; the final size freezes in ART_BIBLE v2.
+	var diagonal := (world_units.x + world_units.y) / sqrt(2.0)
+	camera.size = (
+		diagonal * absf(sin(deg_to_rad(CAMERA_PITCH_DEGREES))) * CAMERA_MARGIN + CAMERA_HEADROOM
+	)
+	camera.far = CAMERA_FAR
+	var center := Vector3(world_units.x * 0.5, 0.0, world_units.y * 0.5)
+	camera.position = center + camera.transform.basis.z * CAMERA_DISTANCE
+	camera.current = true
+	return camera

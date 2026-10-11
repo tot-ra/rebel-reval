@@ -1,0 +1,68 @@
+{
+  "type": "world_object",
+  "id": "obj.cargo_furs_wax",
+  "name": "Furs and wax",
+  "description": "Bales of eastern furs and blocks of wax awaiting the Hanse ship.",
+  "category": "trade_good",
+  "handling": "heavy",
+  "tags": [
+    "cargo",
+    "fur",
+    "wax",
+    "luxury"
+  ],
+  "physical": {
+    "mass_kg": 120,
+    "size_m": [
+      1.43,
+      0.52,
+      0.82
+    ],
+    "materials": [
+      "fur",
+      "wax_tallow",
+      "leather"
+    ],
+    "flammable": true
+  },
+  "actions": [
+    "inspect",
+    "push",
+    "pull"
+  ],
+  "economy": {
+    "base_pfennigs": 780,
+    "ownership": "merchant",
+    "legality": "legal",
+    "theft_severity": 3
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "harbor",
+      "warehouse",
+      "market"
+    ],
+    "grouping": "pile"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/trade/eastern_furs_wax/eastern_furs_wax.glb",
+    "prop_kind": "trade_goods",
+    "variant": "eastern_furs_wax",
+    "measured_size_m": [
+      1.43,
+      0.52,
+      0.82
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.cargo_furs_wax.png",
+    "icon": "res://assets/objects/icons/obj.cargo_furs_wax.png",
+    "icon_status": "missing",
+    "look": "Tied bundles of dark pelts beside pale yellow wax cakes.",
+    "image_prompt": "Furs and wax: Tied bundles of dark pelts beside pale yellow wax cakes."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite"
+}

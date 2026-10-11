@@ -1,0 +1,46 @@
+{
+  "type": "character",
+  "id": "char.johann_von_minden",
+  "name": "Johann von Minden",
+  "role": "Brotherhood of Blackheads merchant and candidate-seat organiser",
+  "confidence": "plausible composite",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-046",
+    "notes": "Candidate-seat support record only; pending Canon Keeper review and never a ninth launch-faction row."
+  },
+  "pronunciation": "YO-han fon MIN-den",
+  "brief": {
+    "want": "Make the city's merchant networks answer to civic interests instead of a castle or foreign war chest.",
+    "fear": "A failed bargain will close the harbour to his associates and expose local tradespeople to retaliation.",
+    "contradiction": "He speaks of city self-rule while treating people and routes as assets in a ledger.",
+    "secret_or_withheld_fact": "He promised different versions of one harbour arrangement to rival buyers to buy the Blackheads time."
+  },
+  "relationships": [],
+  "voice": {
+    "summary": "Measured, courteous, and transactional.",
+    "diction": "Short proverbs about weight, tide, and credit; names the cost before the moral argument.",
+    "languages": [
+      "Low German",
+      "Estonian"
+    ]
+  },
+  "outcomes": [
+    {
+      "id": "candidate_hook_recorded",
+      "summary": "Johann's favourable harbour-contract hook records a Blackheads candidate event without changing the launch ledger."
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "plausible composite",
+      "summary": "P7-013 Wave A brief promoted into the P4-046 candidate-seat support corpus.",
+      "citations": [
+        "docs/CHARACTERS/johann_von_minden.md",
+        "docs/data/faction_blackheads_candidate.json",
+        "docs/cast_faction_promotion.md"
+      ]
+    }
+  ]
+}

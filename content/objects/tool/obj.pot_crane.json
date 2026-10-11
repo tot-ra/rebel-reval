@@ -1,0 +1,55 @@
+{
+  "type": "world_object",
+  "id": "obj.pot_crane",
+  "name": "Hearth pot crane",
+  "description": "A plain pivoting wrought-iron hearth crane with a hooked arm for a separate cauldron. Planned household object; not yet a runtime model.",
+  "category": "tool",
+  "handling": "fixed",
+  "tags": [
+    "household",
+    "cook"
+  ],
+  "physical": {
+    "mass_kg": 6.0,
+    "size_m": [
+      0.65,
+      0.85,
+      0.08
+    ],
+    "materials": [
+      "iron"
+    ]
+  },
+  "actions": [
+    "inspect",
+    "use"
+  ],
+  "economy": {
+    "base_pfennigs": 48,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 0
+  },
+  "placement": {
+    "mount": "wall",
+    "spaces": [
+      "home_poor",
+      "home_burgher",
+      "home_noble"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "missing"
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.pot_crane.png",
+    "icon": "res://assets/objects/icons/obj.pot_crane.png",
+    "icon_status": "missing",
+    "look": "A plain pivoting wrought-iron hearth crane with a hooked arm for a separate cauldron.",
+    "image_prompt": "Hearth pot crane: A plain pivoting wrought-iron hearth crane with a hooked arm for a separate cauldron."
+  },
+  "lifecycle": "planned",
+  "confidence": "plausible composite",
+  "notes": "HOMEOBJ-1 (R-1367): mass, dimensions and pfennigs are gameplay authoring estimates, not measured geometry or attested prices. No model or icon exists yet."
+}

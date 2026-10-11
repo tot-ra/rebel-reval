@@ -1,0 +1,30 @@
+{
+  "model": "flux-2-klein-4b-bf16-dequant.safetensors",
+  "text_encoder": "qwen_3_4b.safetensors",
+  "license": "Apache-2.0 (FLUX.2 klein 4B)",
+  "seed": 98050,
+  "steps": 4,
+  "size": [
+    1024,
+    1536
+  ],
+  "prompt": "Frontal passport photograph of a 26-year-old lean Northern European woman from fourteenth-century Estonia, head and upper shoulders, perfectly front-facing, eyes looking straight into the camera, neutral relaxed expression, mouth closed, ears visible, symmetrical framing, face centred, auburn hair pulled back away from the forehead and ears, high cheekbones, blue-green eyes, weathered sun-tanned skin with visible pores, freckles and fine wrinkles, no make-up, bare neck, no hat, no jewellery, flat even soft studio lighting, plain neutral grey background, sharp focus, photorealistic.",
+  "landmarks": {
+    "eye_l": [
+      638,
+      517
+    ],
+    "eye_r": [
+      395,
+      517
+    ],
+    "nose_tip": [
+      512,
+      695
+    ],
+    "mouth": [
+      512,
+      808
+    ]
+  }
+}

@@ -1,0 +1,69 @@
+{
+  "type": "world_object",
+  "id": "obj.fish_smoked",
+  "name": "Smoked fish",
+  "description": "A hard-smoked whitefish that keeps for weeks.",
+  "category": "food",
+  "handling": "pocketable",
+  "tags": [
+    "fish",
+    "smoked",
+    "preserved"
+  ],
+  "physical": {
+    "mass_kg": 0.4,
+    "size_m": [
+      0.3,
+      0.05,
+      0.1
+    ],
+    "materials": [
+      "food_organic"
+    ]
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop",
+    "consume",
+    "stack"
+  ],
+  "economy": {
+    "base_pfennigs": 5,
+    "ownership": "merchant",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "market",
+      "harbor",
+      "home_poor"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "missing"
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.fish_smoked.png",
+    "icon": "res://assets/objects/icons/obj.fish_smoked.png",
+    "icon_status": "missing",
+    "look": "Golden-brown smoked fish with a split belly, skin glossy.",
+    "image_prompt": "A golden-brown whole smoked fish with glossy skin"
+  },
+  "lifecycle": "planned",
+  "confidence": "plausible composite",
+  "carry": {
+    "grid_width": 2,
+    "grid_height": 1,
+    "stackable": true,
+    "max_stack": 4
+  },
+  "edible": {
+    "kind": "food",
+    "nutrition": 28,
+    "spoils_after_days": 21
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "type": "world_object",
+  "id": "obj.rake",
+  "name": "Wooden rake",
+  "description": "A wooden-toothed hay rake.",
+  "category": "tool",
+  "handling": "carry_one_hand",
+  "tags": [
+    "farm",
+    "tool"
+  ],
+  "physical": {
+    "mass_kg": 1.8,
+    "size_m": [
+      0.62,
+      1.69,
+      0.16
+    ],
+    "materials": [
+      "wood"
+    ],
+    "flammable": true
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop",
+    "throw"
+  ],
+  "economy": {
+    "base_pfennigs": 10,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "farm",
+      "street"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/tools/rake/rake.glb",
+    "prop_kind": "rake",
+    "measured_size_m": [
+      0.62,
+      1.69,
+      0.16
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.rake.png",
+    "icon": "res://assets/objects/icons/obj.rake.png",
+    "icon_status": "missing",
+    "look": "Pale ash shaft with a wide head of wooden pegs.",
+    "image_prompt": "Wooden rake: Pale ash shaft with a wide head of wooden pegs."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "uses": [
+    "rake hay"
+  ],
+  "carry": {
+    "grid_width": 1,
+    "grid_height": 4,
+    "stackable": false
+  },
+  "throw": {
+    "range_m": 3.0,
+    "damage": 1,
+    "breaks": false,
+    "noise": "quiet"
+  }
+}

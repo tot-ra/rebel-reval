@@ -1,0 +1,55 @@
+{
+  "type": "world_object",
+  "id": "obj.wall_peg_rail",
+  "name": "Wall peg rail",
+  "description": "A short rough oak rail with four hand-cut wooden pegs for clothes and tools. Planned household object; not yet a runtime model.",
+  "category": "household",
+  "handling": "fixed",
+  "tags": [
+    "household",
+    "store"
+  ],
+  "physical": {
+    "mass_kg": 2.2,
+    "size_m": [
+      0.8,
+      0.1,
+      0.12
+    ],
+    "materials": [
+      "wood"
+    ]
+  },
+  "actions": [
+    "inspect",
+    "use"
+  ],
+  "economy": {
+    "base_pfennigs": 6,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 0
+  },
+  "placement": {
+    "mount": "wall",
+    "spaces": [
+      "home_poor",
+      "home_burgher",
+      "home_noble"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "missing"
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.wall_peg_rail.png",
+    "icon": "res://assets/objects/icons/obj.wall_peg_rail.png",
+    "icon_status": "missing",
+    "look": "A short rough oak rail with four hand-cut wooden pegs for clothes and tools.",
+    "image_prompt": "Wall peg rail: A short rough oak rail with four hand-cut wooden pegs for clothes and tools."
+  },
+  "lifecycle": "planned",
+  "confidence": "plausible composite",
+  "notes": "HOMEOBJ-1 (R-1367): mass, dimensions and pfennigs are gameplay authoring estimates, not measured geometry or attested prices. No model or icon exists yet."
+}

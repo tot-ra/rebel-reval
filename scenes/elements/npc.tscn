@@ -1,0 +1,121 @@
+[gd_scene load_steps=19 format=3 uid="uid://gty6ne6exn21"]
+
+[ext_resource type="Script" uid="uid://bqv0llhneaxaa" path="res://scripts/npc.gd" id="1_8hovi"]
+[ext_resource type="Script" path="res://scripts/ui/character_health_ring.gd" id="3_health_ring"]
+[ext_resource type="Texture2D" uid="uid://ec8osmtnqeuq" path="res://characters/forge_folk/old_toomas/old_toomas.png" id="2_mics8"]
+
+[sub_resource type="Animation" id="Animation_i3pqv"]
+length = 0.001
+
+[sub_resource type="Animation" id="Animation_onrkg"]
+resource_name = "idle_down"
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_hqtel"]
+_data = {
+&"RESET": SubResource("Animation_i3pqv"),
+&"idle_down": SubResource("Animation_onrkg")
+}
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_3iwfv"]
+radius = 12.0
+height = 24.0
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_dhnyt"]
+atlas = ExtResource("2_mics8")
+region = Rect2(0, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_uud22"]
+atlas = ExtResource("2_mics8")
+region = Rect2(128, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_sr636"]
+atlas = ExtResource("2_mics8")
+region = Rect2(256, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_bgckq"]
+atlas = ExtResource("2_mics8")
+region = Rect2(384, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_72ffd"]
+atlas = ExtResource("2_mics8")
+region = Rect2(512, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_guhi4"]
+atlas = ExtResource("2_mics8")
+region = Rect2(640, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_adqar"]
+atlas = ExtResource("2_mics8")
+region = Rect2(768, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_dk0dg"]
+atlas = ExtResource("2_mics8")
+region = Rect2(896, 0, 128, 128)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_tu6h0"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_dhnyt")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_uud22")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_sr636")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_bgckq")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_72ffd")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_guhi4")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_adqar")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_dk0dg")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ca1ny"]
+bg_color = Color(0, 0, 0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_t5u8q"]
+bg_color = Color(0.278431, 0.74902, 0.27451, 1)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_mics8"]
+cull_mode = 2
+polygon = PackedVector2Array(-42, -33, -23, -69, 12, -69, 43, -28, 39, 22, 24, 60, -39, 60, -47, 24)
+
+[node name="NPC" type="CharacterBody2D"]
+script = ExtResource("1_8hovi")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+&"": SubResource("AnimationLibrary_hqtel")
+}
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, 39)
+shape = SubResource("CapsuleShape2D_3iwfv")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("SpriteFrames_tu6h0")
+frame = 4
+
+[node name="NavigationAgent2D" type="NavigationAgent2D" parent="."]
+
+[node name="HealthRing" type="Node2D" parent="."]
+z_index = 1000
+position = Vector2(0, -40)
+script = ExtResource("3_health_ring")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="."]
+occluder = SubResource("OccluderPolygon2D_mics8")

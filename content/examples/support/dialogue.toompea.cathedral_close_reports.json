@@ -1,0 +1,67 @@
+{
+  "type": "dialogue",
+  "id": "dialogue.toompea.cathedral_close_reports",
+  "title": "Toompea - The Cathedral Construction Yard",
+  "confidence": "plausible composite",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-041",
+    "notes": "April cathedral-close colour; the nave remains an active construction site rather than a completed later silhouette."
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "explicit_node_id"
+  },
+  "participants": [
+    "char.kalev",
+    "char.ellen"
+  ],
+  "start_node_id": "cathedral_yard",
+  "word_count_estimate": 78,
+  "nodes": [
+    {
+      "id": "cathedral_yard",
+      "speaker_id": "char.ellen",
+      "text": "The St. Mary's Cathedral close is still a building yard. On the Domberg, masons raise the new nave beside the standing choir; lime dust lies over the path, and the unfinished pillars leave no room for a grand finished story.",
+      "choices": [
+        {
+          "id": "mark_the_work",
+          "text": "I will mark the yard, not invent a palace.",
+          "target_node_id": "cathedral_recorded"
+        }
+      ]
+    },
+    {
+      "id": "cathedral_recorded",
+      "speaker_id": "char.kalev",
+      "text": "Then the report says what April shows: a cathedral in work, a Danish hill above, and All-linn below. The stone can wait for another season.",
+      "effects": [
+        {
+          "op": "set_fact",
+          "key": "fact.toompea_hill_gate_message.cathedral_construction_seen",
+          "value": true
+        }
+      ]
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "attested",
+      "summary": "The cathedral's 1330s enlargement and the Spring 1343 construction-site reading are taken from the Toompea architecture dossier.",
+      "citations": [
+        "history/dossiers/architecture/toompea-castle-and-upper-town.md",
+        "history/dossiers/architecture/toompea-small-castle-interior.md"
+      ]
+    },
+    {
+      "confidence": "plausible composite",
+      "summary": "Ellen and Kalev turn the construction-site description into a concise April report while avoiding later cathedral fabric and any new character record.",
+      "citations": [
+        "history/dossiers/architecture/toompea-castle-and-upper-town.md"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "type": "world_object",
+  "id": "obj.banner_cloth",
+  "name": "Cloth banner",
+  "description": "A hanging cloth banner showing a guild, faction or lord's colours.",
+  "category": "scenery",
+  "handling": "fixed",
+  "tags": [
+    "banner",
+    "faction",
+    "decor"
+  ],
+  "physical": {
+    "mass_kg": 6,
+    "size_m": [
+      0.9,
+      2.2,
+      0.1
+    ],
+    "materials": [
+      "linen_cloth",
+      "wood"
+    ],
+    "flammable": true
+  },
+  "actions": [
+    "inspect"
+  ],
+  "economy": {
+    "base_pfennigs": 0,
+    "ownership": "public",
+    "legality": "legal",
+    "theft_severity": 0
+  },
+  "placement": {
+    "mount": "hanging",
+    "spaces": [
+      "street",
+      "church",
+      "guard_post",
+      "market"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "procedural",
+    "prop_kind": "banner",
+    "builder": "res://scripts/map/view3d/map_view_mesh_builder_prop_models.gd"
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.banner_cloth.png",
+    "icon": "res://assets/objects/icons/obj.banner_cloth.png",
+    "icon_status": "missing",
+    "look": "Long cloth banner on a crossbar, painted device and tassels.",
+    "image_prompt": "Cloth banner: Long cloth banner on a crossbar, painted device and tassels."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "uses": [
+    "read faction presence"
+  ]
+}

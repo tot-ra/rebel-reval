@@ -1,0 +1,245 @@
+{
+  "type": "quest",
+  "id": "quest.makers_mark",
+  "title": "The Maker's Mark",
+  "summary": "Kalev must decide what to do with the ledger evidence linking his forge to Mart's missing rejected iron.",
+  "confidence": "invented",
+  "canon_status": "active",
+  "approval": {
+    "status": "approved",
+    "reviewer": "P0-010",
+    "notes": "Outline approved; JSON is representative schema content."
+  },
+  "entry_conditions": [
+    {
+      "op": "phase_is",
+      "key": "phase.prologue_day",
+      "value": "active"
+    }
+  ],
+  "initial_state": "not_started",
+  "states": [
+    {
+      "id": "not_started",
+      "label": "Not started"
+    },
+    {
+      "id": "incident_known",
+      "label": "Henning has shown the spearhead"
+    },
+    {
+      "id": "ledger_committed",
+      "label": "Ledger branch committed",
+      "terminal": true
+    }
+  ],
+  "transitions": [
+    {
+      "id": "discover_incident",
+      "from_state": "not_started",
+      "to_state": "incident_known",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.prologue_maker_mark_incident",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "preserve_ledger",
+      "from_state": "incident_known",
+      "to_state": "ledger_committed",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.forge_ledger_preserved",
+          "value": true
+        },
+        {
+          "op": "adjust_relationship",
+          "key": "rel.henning_trust",
+          "amount": 1
+        },
+        {
+          "op": "record_faction_event",
+          "key": "ledger.makers_mark.preserve_truth",
+          "value": "faction.livonian_order",
+          "amount": 1,
+          "summary": "Kept an honest forge ledger for the watch inspection."
+        }
+      ]
+    },
+    {
+      "id": "alter_ledger",
+      "from_state": "incident_known",
+      "to_state": "ledger_committed",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.forge_ledger_altered",
+          "value": true
+        },
+        {
+          "op": "adjust_relationship",
+          "key": "rel.mart_trust",
+          "amount": 1
+        },
+        {
+          "op": "record_faction_event",
+          "key": "ledger.makers_mark.alter_for_apprentice",
+          "value": "faction.black_cloaks",
+          "amount": 1,
+          "summary": "Falsified the forge ledger to shield Mart's rejected iron."
+        }
+      ]
+    },
+    {
+      "id": "destroy_ledger",
+      "from_state": "incident_known",
+      "to_state": "ledger_committed",
+      "conditions": [
+        {
+          "op": "flag_is",
+          "key": "flag.mart_missing",
+          "value": true
+        }
+      ],
+      "effects": [
+        {
+          "op": "adjust_pressure",
+          "key": "pressure.suspicion",
+          "amount": 1
+        },
+        {
+          "op": "set_flag",
+          "key": "flag.forge_ledger_destroyed",
+          "value": true
+        },
+        {
+          "op": "record_faction_event",
+          "key": "ledger.makers_mark.destroy_evidence",
+          "value": "faction.livonian_order",
+          "amount": -1,
+          "summary": "Destroyed ledger pages the watch will notice missing."
+        }
+      ]
+    }
+  ],
+  "journal_evidence": [
+    {
+      "fact_id": "fact.seized_spearhead_seen",
+      "text": "Henning presented a seized spearhead bearing Kalev's maker mark on rejected iron."
+    }
+  ],
+  "objectives": [
+    {
+      "id": "inspect_spearhead",
+      "text": "Inspect the seized spearhead.",
+      "state_id": "incident_known"
+    },
+    {
+      "id": "commit_ledger",
+      "text": "Preserve, alter, or destroy the ledger entry.",
+      "state_id": "ledger_committed"
+    }
+  ],
+  "outcomes": [
+    {
+      "id": "preserved",
+      "summary": "Kalev keeps a truthful record but leaves evidence for Henning.",
+      "effects": [
+        {
+          "op": "set_quest_state",
+          "key": "quest.makers_mark",
+          "value": "ledger_committed"
+        },
+        {
+          "op": "set_flag",
+          "key": "flag.forge_ledger_preserved",
+          "value": true
+        },
+        {
+          "op": "adjust_relationship",
+          "key": "rel.henning_trust",
+          "amount": 1
+        }
+      ]
+    },
+    {
+      "id": "altered",
+      "summary": "Kalev falsifies the ledger to buy Mart time.",
+      "effects": [
+        {
+          "op": "set_quest_state",
+          "key": "quest.makers_mark",
+          "value": "ledger_committed"
+        },
+        {
+          "op": "set_flag",
+          "key": "flag.forge_ledger_altered",
+          "value": true
+        },
+        {
+          "op": "adjust_relationship",
+          "key": "rel.mart_trust",
+          "amount": 1
+        }
+      ]
+    },
+    {
+      "id": "destroyed",
+      "summary": "Kalev destroys evidence and raises watch suspicion.",
+      "effects": [
+        {
+          "op": "set_quest_state",
+          "key": "quest.makers_mark",
+          "value": "ledger_committed"
+        },
+        {
+          "op": "adjust_pressure",
+          "key": "pressure.suspicion",
+          "amount": 1
+        }
+      ]
+    }
+  ],
+  "content_links": {
+    "character_ids": [
+      "char.kalev",
+      "char.mart",
+      "char.henning"
+    ],
+    "dialogue_ids": [
+      "dialogue.makers_mark.henning_arrival",
+      "dialogue.makers_mark.chest_discovery",
+      "dialogue.makers_mark.ledger_choice"
+    ],
+    "bark_ids": [
+      "bark.prologue.watch_pressure"
+    ],
+    "commission_ids": [
+      "commission.watch_buckle_repair",
+      "commission.lantern_hook_rush"
+    ],
+    "item_ids": [
+      "item.seized_spearhead",
+      "item.watch_buckle",
+      "item.lantern_hook"
+    ],
+    "location_ids": [
+      "loc.kalev_smithy",
+      "loc.smithy_courtyard"
+    ]
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Playable prologue outline reconciled with canon.",
+      "citations": [
+        "docs/SCENES/the-makers-mark.md",
+        "docs/adr/0003-authored-offline-dialogue-and-prohibit-runtime-llm.md"
+      ]
+    }
+  ]
+}

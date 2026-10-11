@@ -1,0 +1,68 @@
+{
+  "type": "world_object",
+  "id": "obj.supply_cart",
+  "name": "Supply cart",
+  "description": "A covered supply cart carrying sacks for the garrison and workshops.",
+  "category": "vehicle",
+  "handling": "heavy",
+  "tags": [
+    "vehicle",
+    "transport",
+    "garrison"
+  ],
+  "physical": {
+    "mass_kg": 180,
+    "size_m": [
+      1.47,
+      1.18,
+      2.46
+    ],
+    "materials": [
+      "wood",
+      "iron",
+      "linen_cloth"
+    ],
+    "flammable": true
+  },
+  "actions": [
+    "inspect",
+    "push",
+    "pull",
+    "load_on_cart"
+  ],
+  "economy": {
+    "base_pfennigs": 320,
+    "ownership": "garrison",
+    "legality": "legal",
+    "theft_severity": 2
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "street",
+      "warehouse",
+      "guard_post"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/trade/supply_cart/supply_cart.glb",
+    "prop_kind": "cart",
+    "variant": "cart_2w",
+    "measured_size_m": [
+      1.47,
+      1.18,
+      2.46
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.supply_cart.png",
+    "icon": "res://assets/objects/icons/obj.supply_cart.png",
+    "icon_status": "missing",
+    "look": "Ash-timber cart with iron tyres, hooped canvas load and sacks stowed behind.",
+    "image_prompt": "Supply cart: Ash-timber cart with iron tyres, hooped canvas load and sacks stowed behind."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite"
+}

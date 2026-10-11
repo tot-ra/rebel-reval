@@ -1,0 +1,11 @@
+{
+  "tool": "a2gent openai_generate_image",
+  "model": "gpt-image-1",
+  "size": "1024x1024",
+  "quality": "high",
+  "generation_id": "b0eb7b34-0f24-46ea-9c5b-752accdfd2aa",
+  "prompt": "Seamless tileable bark texture, flat orthographic close-up scan of a Norway spruce trunk, about 30 cm wide area: thin grey-brown and reddish-brown bark covered in small rounded flaking scales, a few resin streaks, vertical orientation. Even soft overcast light, no cast shadows, fills the whole frame edge to edge, no background, no perspective, photorealistic, no text.",
+  "file": "source.png",
+  "sha256": "25d26f4b356b149316bba4edb24dc74f026527c56fae6df3fd435d87b334ca2a",
+  "task": "R-1103/R-1101/R-1102"
+}

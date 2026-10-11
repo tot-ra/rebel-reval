@@ -1,0 +1,61 @@
+{
+  "type": "world_object",
+  "id": "obj.spearhead_iron",
+  "name": "Iron spearhead",
+  "description": "A forged spearhead stamped with the smith's maker mark.",
+  "category": "weapon",
+  "handling": "pocketable",
+  "tags": [
+    "weapon",
+    "evidence",
+    "makers_mark"
+  ],
+  "physical": {
+    "mass_kg": 0.35,
+    "size_m": [
+      0.05,
+      0.28,
+      0.02
+    ],
+    "materials": [
+      "iron"
+    ]
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop"
+  ],
+  "economy": {
+    "base_pfennigs": 22,
+    "ownership": "garrison",
+    "legality": "restricted",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "forge",
+      "guard_post"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "missing"
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.spearhead_iron.png",
+    "icon": "res://assets/objects/icons/obj.spearhead_iron.png",
+    "icon_status": "missing",
+    "look": "Leaf-shaped iron spearhead with a socketed base and a small stamped mark.",
+    "image_prompt": "A leaf-shaped iron spearhead with a socket and a small stamped maker's mark"
+  },
+  "lifecycle": "planned",
+  "confidence": "plausible composite",
+  "carry": {
+    "grid_width": 1,
+    "grid_height": 1,
+    "stackable": false
+  },
+  "item_ref": "item.seized_spearhead"
+}

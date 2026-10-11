@@ -1,0 +1,77 @@
+{
+  "type": "world_object",
+  "id": "obj.sword_cruciform",
+  "name": "Cruciform sword",
+  "description": "A plain cruciform arming sword: a guard's or knight's blade.",
+  "category": "weapon",
+  "handling": "carry_one_hand",
+  "tags": [
+    "weapon",
+    "blade",
+    "military"
+  ],
+  "physical": {
+    "mass_kg": 1.45,
+    "size_m": [
+      0.31,
+      0.94,
+      0.05
+    ],
+    "materials": [
+      "steel",
+      "leather"
+    ]
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop",
+    "equip"
+  ],
+  "economy": {
+    "base_pfennigs": 420,
+    "ownership": "garrison",
+    "legality": "restricted",
+    "theft_severity": 2
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "guard_post",
+      "forge"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/storybook/equipment/sword.glb",
+    "measured_size_m": [
+      0.31,
+      0.94,
+      0.05
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.sword_cruciform.png",
+    "icon": "res://assets/objects/icons/obj.sword_cruciform.png",
+    "icon_status": "missing",
+    "look": "Straight double-edged steel blade with a plain iron cross-guard and a leather-wrapped grip.",
+    "image_prompt": "Cruciform sword: Straight double-edged steel blade with a plain iron cross-guard and a leather-wrapped grip."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "uses": [
+    "fight"
+  ],
+  "carry": {
+    "grid_width": 1,
+    "grid_height": 4,
+    "stackable": false
+  },
+  "equip": {
+    "slot": "right_hand",
+    "damage_type": "slash",
+    "protection": "none"
+  },
+  "item_ref": "item.plain_sword"
+}

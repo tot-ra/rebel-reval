@@ -1,0 +1,25 @@
+{
+  "type": "magic_grant",
+  "id": "magic.grant.starter_earth_tremor",
+  "name": "Teach Earth Tremor",
+  "operation": "grant",
+  "target_id": "spell.pagan.earth_tremor",
+  "grant_flag": "flag.magic.taught_earth_tremor",
+  "resolution": "authored_lookup",
+  "runtime_combination_allowed": false,
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "R-724 Earth Tremor prototype"
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Explicit authored unlock for the Earth Tremor gameplay spell.",
+      "citations": [
+        "docs/SYSTEMS/MAGIC.md"
+      ]
+    }
+  ]
+}

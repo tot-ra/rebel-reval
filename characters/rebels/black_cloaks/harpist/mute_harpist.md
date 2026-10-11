@@ -1,0 +1,9 @@
+> **Legacy status:** `archive`  
+> **Reason:** NPC roster entry outside the seven-character vertical-slice scope.  
+> **Current source of truth:** [`README.md`](../../../../README.md) - Main cast; approved character briefs in [`docs/CHARACTERS/`](../../../../docs/CHARACTERS/).
+
+![](img/mute_harpist.jpg)
+
+## The Mute Harpist
+
+A mysterious figure with silver eyes, dressed in black rags, with a bone ring on every finger. He carries a harp slung over his back and communicates through his haunting melodies.

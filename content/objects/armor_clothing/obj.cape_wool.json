@@ -1,0 +1,83 @@
+{
+  "type": "world_object",
+  "id": "obj.cape_wool",
+  "name": "Wool cape",
+  "description": "A heavy wool cloak: warmth, anonymity and a place to hide a parcel.",
+  "category": "armor_clothing",
+  "handling": "carry_one_hand",
+  "tags": [
+    "clothing",
+    "cloak"
+  ],
+  "physical": {
+    "mass_kg": 1.4,
+    "size_m": [
+      0.31,
+      0.79,
+      0.06
+    ],
+    "materials": [
+      "wool"
+    ],
+    "flammable": true
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop",
+    "equip"
+  ],
+  "economy": {
+    "base_pfennigs": 60,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "street",
+      "home_poor",
+      "home_burgher",
+      "market"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/characters/shared/hero_cape.glb",
+    "fitted_variants": [
+      "res://assets/storybook/equipment/aita_cape.glb",
+      "res://assets/storybook/equipment/ellen_cape.glb",
+      "res://assets/storybook/equipment/henning_cape.glb",
+      "res://assets/storybook/equipment/jurgen_cape.glb",
+      "res://assets/storybook/equipment/kaja_cape.glb",
+      "res://assets/storybook/equipment/mart_cape.glb",
+      "res://assets/storybook/equipment/watchman_cape.glb"
+    ],
+    "measured_size_m": [
+      0.31,
+      0.79,
+      0.06
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.cape_wool.png",
+    "icon": "res://assets/objects/icons/obj.cape_wool.png",
+    "icon_status": "missing",
+    "look": "Long dark wool cape pinned at the shoulder with a simple brooch.",
+    "image_prompt": "Wool cape: Long dark wool cape pinned at the shoulder with a simple brooch."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "carry": {
+    "grid_width": 2,
+    "grid_height": 2,
+    "stackable": false
+  },
+  "equip": {
+    "slot": "back",
+    "protection": "light"
+  },
+  "notes": "fitted_variants are the same cape cut per cast member."
+}

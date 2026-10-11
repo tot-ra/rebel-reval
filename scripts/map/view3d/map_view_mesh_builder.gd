@@ -1,0 +1,151 @@
+class_name MapViewMeshBuilder
+extends RefCounted
+
+## Converts immutable MapDefinition data into 3D view geometry (P0-052).
+## View only: no collision shapes, physics bodies, or navigation are generated
+## here - the logic plane keeps owning all gameplay geometry. All sizes are in
+## world units where one logic cell equals one unit (MapViewBridge).
+##
+## Implementation is split across focused modules; this class keeps the public
+## API stable for callers and tests.
+
+# Preload submodules so this facade parses before sibling class_name scripts register.
+const _Config := preload("res://scripts/map/view3d/map_view_mesh_builder_config.gd")
+const _Terrain := preload("res://scripts/map/view3d/map_view_mesh_builder_terrain.gd")
+const _Buildings := preload("res://scripts/map/view3d/map_view_mesh_builder_buildings.gd")
+const _BuildingRegistry := preload(
+	"res://scripts/map/view3d/map_view_mesh_builder_building_registry.gd"
+)
+const _Landmarks := preload("res://scripts/map/view3d/map_view_mesh_builder_landmarks.gd")
+const _Props := preload("res://scripts/map/view3d/map_view_mesh_builder_props.gd")
+const _Surroundings := preload("res://scripts/map/view3d/map_view_mesh_builder_surroundings.gd")
+const _Interior := preload("res://scripts/map/view3d/map_view_mesh_builder_interior.gd")
+const _TerrainStaged := preload("res://scripts/map/view3d/map_view_mesh_builder_terrain_staged.gd")
+
+# Re-export frequently referenced constants for backward compatibility.
+const TERRAIN_SUBDIVISIONS := _Config.TERRAIN_SUBDIVISIONS
+const TRANSITION_MARKER_HEIGHT := _Config.TRANSITION_MARKER_HEIGHT
+
+
+static func ensure_height_field(definition: MapDefinition, grid: MapTerrainGrid) -> Dictionary:
+	return _Terrain.ensure_height_field(definition, grid)
+
+
+static func ground_height(definition: MapDefinition, world_xz: Vector2) -> float:
+	return _Terrain.ground_height(definition, world_xz)
+
+
+static func build_terrain(definition: MapDefinition, grid: MapTerrainGrid) -> Node3D:
+	return _Terrain.build_terrain(definition, grid)
+
+
+## WB-07b (R-1005) budgeted assembly units (MapViewAssembly format). The staged
+## entry points add their root ("Terrain" / "Surroundings") to `parent` at once
+## and fill it through follow-up units; build_* drain the same units in one call.
+static func height_field_units(
+	definition: MapDefinition, grid: MapTerrainGrid
+) -> Array[Dictionary]:
+	return _TerrainStaged.height_field_units(definition, grid)
+
+
+static func terrain_units(
+	definition: MapDefinition, grid: MapTerrainGrid, parent: Node
+) -> Array[Dictionary]:
+	return _TerrainStaged.terrain_units(definition, grid, _TerrainStaged.add_root(parent, "Terrain"))
+
+
+static func surroundings_units(definition: MapDefinition, parent: Node) -> Array[Dictionary]:
+	return _Surroundings.surroundings_units(
+		definition, _TerrainStaged.add_root(parent, "Surroundings")
+	)
+
+
+static func build_building(
+	building: Dictionary,
+	cell_size: int,
+	entrances: Array[Dictionary] = [],
+	map_bounds: Rect2 = Rect2(),
+	gate_passages: Array[Rect2] = []
+) -> Node3D:
+	return _Buildings.build_building(building, cell_size, entrances, map_bounds, gate_passages)
+
+
+static func is_exceptional_building(building: Dictionary) -> bool:
+	return _BuildingRegistry.is_exceptional(building)
+
+
+static func exceptional_building_category(building: Dictionary) -> StringName:
+	return _BuildingRegistry.exceptional_category(building)
+
+
+static func build_exceptional_building(
+	building: Dictionary,
+	cell_size: int,
+	entrances: Array[Dictionary] = [],
+	map_bounds: Rect2 = Rect2()
+) -> Node3D:
+	return _Buildings.build_exceptional_building(building, cell_size, entrances, map_bounds)
+
+
+static func interior_shell_wall_height_world(definition: MapDefinition) -> float:
+	return _Landmarks.interior_shell_wall_height_world(definition)
+
+
+static func build_landmark(
+	landmark: Dictionary,
+	cell_size: int,
+	wall_height_world: float = -1.0,
+	wall_footprints: Array[Rect2] = []
+) -> Node3D:
+	return _Landmarks.build_landmark(landmark, cell_size, wall_height_world, wall_footprints)
+
+
+## Gate-arch rectangles (map px) that fortification wall seals must not grow into.
+static func gate_passage_rects(definition: MapDefinition) -> Array[Rect2]:
+	return _Landmarks.gate_passage_rects(definition)
+
+
+## Fortification wall footprints (map px) that bound each gate's clear opening.
+static func fortification_wall_footprints(definition: MapDefinition) -> Array[Rect2]:
+	return _Landmarks.fortification_wall_footprints(definition)
+
+
+static func transition_uses_landmark_visual(
+	definition: MapDefinition, transition: Dictionary
+) -> bool:
+	return _Landmarks.transition_uses_landmark_visual(definition, transition)
+
+
+static func build_transition_door(
+	transition: Dictionary,
+	cell_size: int,
+	wall_height_world: float = -1.0,
+	building: Dictionary = {}
+) -> Node3D:
+	return _Landmarks.build_transition_door(transition, cell_size, wall_height_world, building)
+
+
+static func build_transition_marker(transition: Dictionary, cell_size: int) -> Node3D:
+	return _Landmarks.build_transition_marker(transition, cell_size)
+
+
+static func build_prop(
+	prop: Dictionary, cell_size: int, definition: MapDefinition = null
+) -> Node3D:
+	return _Props.build_prop(prop, cell_size, definition)
+
+
+static func build_scatter(
+	definition: MapDefinition,
+	grid: MapTerrainGrid,
+	cell_bounds: Rect2i = Rect2i(Vector2i.ZERO, Vector2i.ZERO)
+) -> Node3D:
+	return _Props.build_scatter(definition, grid, cell_bounds)
+
+
+static func build_surroundings(definition: MapDefinition) -> Node3D:
+	return _Surroundings.build_surroundings(definition)
+
+
+static func build_interior_shell(definition: MapDefinition) -> Node3D:
+	return _Interior.build_interior_shell(definition)

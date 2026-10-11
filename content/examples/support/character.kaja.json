@@ -1,0 +1,39 @@
+{
+  "type": "character",
+  "id": "char.kaja",
+  "name": "Kaja",
+  "role": "Rebel courier",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-003"
+  },
+  "pronunciation": "KAH-yah",
+  "brief": {
+    "want": "Move messages and supplies for the Harju Kings without exposing rural kin.",
+    "fear": "A captured courier will lead the watch back to her family roads.",
+    "contradiction": "She trusts Kalev's craft but pressures him to bend civic contracts.",
+    "secret_or_withheld_fact": "She routes rebel wax seals inside diverted grain sacks through Vana Turg."
+  },
+  "relationships": [],
+  "voice": {
+    "summary": "Quiet, watchful, and precise under pressure.",
+    "diction": "Short practical sentences with rural idioms."
+  },
+  "outcomes": [
+    {
+      "id": "network_intact",
+      "summary": "Kaja's courier network keeps moving messages through the market quarter."
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Support record for Bread and Iron rebel courier references.",
+      "citations": [
+        "docs/CHARACTERS/README.md"
+      ]
+    }
+  ]
+}

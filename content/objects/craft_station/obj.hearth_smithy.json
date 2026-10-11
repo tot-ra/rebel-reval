@@ -1,0 +1,66 @@
+{
+  "type": "world_object",
+  "id": "obj.hearth_smithy",
+  "name": "Smithy forge hearth",
+  "description": "The smithy's brick forge hearth and chimney: the heat source and the game's central hub.",
+  "category": "craft_station",
+  "handling": "fixed",
+  "tags": [
+    "smithing",
+    "station",
+    "fire",
+    "forge"
+  ],
+  "physical": {
+    "mass_kg": 900,
+    "size_m": [
+      2.76,
+      4.2,
+      2.24
+    ],
+    "materials": [
+      "stone",
+      "brick",
+      "iron"
+    ],
+    "hot_when_lit": true
+  },
+  "actions": [
+    "inspect"
+  ],
+  "economy": {
+    "base_pfennigs": 0,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 0
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "forge"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/forge/kalev_smithy_hearth/kalev_smithy_hearth.glb",
+    "prop_kind": "furnace",
+    "measured_size_m": [
+      2.76,
+      4.2,
+      2.24
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.hearth_smithy.png",
+    "icon": "res://assets/objects/icons/obj.hearth_smithy.png",
+    "icon_status": "missing",
+    "look": "Big soot-black brick hearth with a raised fire pit, hood and chimney, glowing coals.",
+    "image_prompt": "Smithy forge hearth: Big soot-black brick hearth with a raised fire pit, hood and chimney, glowing coals."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "uses": [
+    "heat iron for forging"
+  ]
+}

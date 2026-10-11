@@ -1,0 +1,74 @@
+{
+  "type": "quest",
+  "id": "quest.natural_psyche",
+  "title": "NATURAL and psyche validation fixture",
+  "summary": "Offline example only; not mounted as a playable quest.",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft"
+  },
+  "entry_conditions": [],
+  "initial_state": "open",
+  "states": [
+    {
+      "id": "open",
+      "label": "Open"
+    },
+    {
+      "id": "done",
+      "label": "Done",
+      "terminal": true
+    }
+  ],
+  "transitions": [
+    {
+      "id": "complete",
+      "from_state": "open",
+      "to_state": "done",
+      "effects": [
+        {
+          "op": "natural.grant_points",
+          "amount": 2
+        },
+        {
+          "op": "natural.spend_point",
+          "key": "aspect.awareness"
+        },
+        {
+          "op": "psyche.apply_state",
+          "key": "psyche.state.pride",
+          "intensity": 1,
+          "source_beat": "beat.fixture_reflection"
+        }
+      ]
+    }
+  ],
+  "objectives": [
+    {
+      "id": "obj",
+      "text": "Do thing",
+      "state_id": "open"
+    }
+  ],
+  "outcomes": [
+    {
+      "id": "done",
+      "summary": "Done",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.quest_done",
+          "value": true
+        }
+      ]
+    }
+  ],
+  "content_links": {},
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "fixture"
+    }
+  ]
+}

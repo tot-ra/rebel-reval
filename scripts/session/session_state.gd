@@ -1,0 +1,198 @@
+extends Node
+
+## Emitted exactly once after the canonical state and its bag ContentDB binding
+## are installed. Long-lived consumers must disconnect from `previous` and bind
+## to `current` before this ordered notification returns.
+signal state_replaced(previous: GameState, current: GameState, reason: StringName)
+
+## Session-scoped GameState holder. Inventory and quest flags survive map transitions
+## within one play session and across manual save/load via SaveService (P1-007).
+
+## Demo gameplay items/dialogue plus the validated example corpus. Do not list
+## `content/demo/support` here: `content/demo` already recurses into it and
+## would register duplicate IDs. Runtime uses `content/examples/support` for
+## shared character references instead of the trimmed demo-only copies.
+const DEMO_CONTENT_DIRS: Array[String] = [
+	"res://content/demo",
+	"res://content/cutscenes",
+	"res://content/prologue",
+	"res://content/examples/support",
+	"res://content/examples/valid",
+	"res://content/objects",
+	"res://content/packages/bell_and_chain/content",
+	"res://content/packages/act2_siege_investment_rebel/content",
+	"res://content/packages/act2_siege_investment_ruler/content",
+	"res://content/packages/act2_siege_sortie_rebel/content",
+	"res://content/packages/act2_siege_sortie_ruler/content",
+	"res://content/packages/act2_siege_assault_rebel/content",
+	"res://content/packages/act2_siege_assault_ruler/content",
+]
+const Act2MissionHostScript := preload("res://scripts/quest/act2_mission_host.gd")
+const DebugStatePresetsScript := preload("res://scripts/debug/debug_state_presets.gd")
+const DebugStateInspectorScript := preload("res://scripts/debug/debug_state_inspector.gd")
+const STATE_REPLACE_REASON_MANUAL_LOAD := &"manual_load"
+const STATE_REPLACE_REASON_DEBUG_PRESET := &"debug_preset"
+
+var state: GameState = GameState.new_apprentice_game()
+var content_db: ContentDB = ContentDB.new()
+var act2_mission_host: Act2MissionHost = Act2MissionHost.new(content_db, state)
+var save_service: SaveService = SaveService.new()
+var debug_presets = DebugStatePresetsScript.new()
+
+var _demo_seeded := false
+var _environment_runtime: Node
+var _inspector: CanvasLayer
+# WHY: Fatal-hit presentation belongs to the current run, not to GameState or saves.
+# Keep it on the autoload so the deferred death-screen scene change can consume it.
+var _fatal_hit_damage_type: StringName = &""
+
+func _ready() -> void:
+	content_db.load_from_directories(DEMO_CONTENT_DIRS)
+	state.bag.set_content_db(content_db)
+	act2_mission_host = Act2MissionHost.new(content_db, state)
+	_seed_demo_bag_if_empty()
+	debug_presets.load_manifest()
+	if OS.is_debug_build():
+		_install_debug_inspector()
+
+
+func apply_debug_preset(preset_id: String) -> bool:
+	var result: Dictionary = debug_presets.apply_preset(preset_id)
+	if not bool(result.get("ok", false)):
+		push_warning("Debug preset %s failed: %s" % [preset_id, String(result.get("error", ""))])
+		return false
+	_demo_seeded = true
+	replace_state(result["state"] as GameState, STATE_REPLACE_REASON_DEBUG_PRESET)
+	return true
+
+
+func save_game(slot: int = SaveService.DEFAULT_SLOT) -> bool:
+	_capture_environment_runtime()
+	return save_service.save_game(state, slot)
+
+
+func load_game(slot: int = SaveService.DEFAULT_SLOT) -> bool:
+	var result: Dictionary = save_service.load_game(slot)
+	if not result["ok"]:
+		push_warning("Save load failed: %s" % ", ".join(result["errors"]))
+		return false
+	replace_state(result["state"] as GameState, STATE_REPLACE_REASON_MANUAL_LOAD)
+	return true
+
+
+func has_save(slot: int = SaveService.DEFAULT_SLOT) -> bool:
+	return save_service.has_save(slot)
+
+
+func set_fatal_hit_damage_type(damage_type: StringName) -> void:
+	_fatal_hit_damage_type = damage_type
+
+
+## The session owns the scene-tree-free weather payload. A runtime is only a
+## presentation binding, so a map transition can replace it without resetting
+## the deterministic weather timeline or creating a second active controller.
+func bind_environment_runtime(runtime: Node) -> bool:
+	if runtime == null:
+		return false
+	if _environment_runtime == runtime:
+		return true
+	_capture_environment_runtime()
+	if _environment_runtime != null and is_instance_valid(_environment_runtime):
+		_environment_runtime.call("deactivate_environment_binding")
+	_environment_runtime = runtime
+	var snapshot := state.get_environment_state()
+	if not snapshot.is_empty() and runtime.has_method(&"restore_environment_snapshot"):
+		if not bool(runtime.call("restore_environment_snapshot", snapshot)):
+			_environment_runtime = null
+			return false
+	if runtime.has_method(&"apply_environment_presentation"):
+		runtime.call("apply_environment_presentation")
+	if snapshot.is_empty():
+		_capture_environment_runtime()
+	return true
+
+
+func unbind_environment_runtime(runtime: Node) -> void:
+	if _environment_runtime != runtime:
+		return
+	_capture_environment_runtime()
+	_environment_runtime = null
+
+
+func active_environment_runtime() -> Node:
+	return _environment_runtime if is_instance_valid(_environment_runtime) else null
+
+
+func _capture_environment_runtime() -> void:
+	if _environment_runtime == null or not is_instance_valid(_environment_runtime):
+		return
+	if not _environment_runtime.has_method(&"environment_snapshot"):
+		return
+	var snapshot: Variant = _environment_runtime.call("environment_snapshot")
+	if snapshot is Dictionary:
+		state.set_environment_state(snapshot)
+
+
+func consume_fatal_hit_damage_type() -> StringName:
+	var damage_type := _fatal_hit_damage_type
+	_fatal_hit_damage_type = &""
+	return damage_type
+
+
+## Returns metadata for every save slot on disk, most recent first.
+func list_saves() -> Array[Dictionary]:
+	return save_service.list_saves()
+
+
+## The only live-state replacement path. Installing the canonical reference and
+## bag dependency before notifying listeners prevents consumers from observing a
+## half-bound state. Phase presentation runs last because it may hide props that
+## WorldItemController recreates in its state_replaced handler.
+func replace_state(replacement: GameState, reason: StringName) -> bool:
+	if replacement == null:
+		push_warning("Cannot replace SessionState with a null GameState")
+		return false
+	var previous := state
+	state = replacement
+	state.bag.set_content_db(content_db)
+	act2_mission_host.bind_state(state)
+	state_replaced.emit(previous, state, reason)
+	var environment_snapshot := state.get_environment_state()
+	if (
+		_environment_runtime != null
+		and is_instance_valid(_environment_runtime)
+		and not environment_snapshot.is_empty()
+	):
+		_environment_runtime.call("restore_environment_snapshot", environment_snapshot)
+	if has_node("/root/PhaseDirector"):
+		# PhaseDirector normally receives the signal above, but explicit rebinding
+		# also repairs startup/test ordering where it has not connected yet.
+		PhaseDirector.rebind_session_state()
+	return true
+
+
+func _seed_demo_bag_if_empty() -> void:
+	if _demo_seeded or not state.bag.is_empty():
+		return
+	_demo_seeded = true
+	state.bag.try_add(&"item.forge_hammer")
+	# Kalev starts with his working hammer in hand; stow it from the bag (I).
+	state.equip_from_bag(&"right_hand", &"item.forge_hammer")
+	# Magic is optional on the critical slice path. Seed the three executable
+	# starter recipes so the HUD has visible, numbered spells instead of a
+	# locked eight-element catalog.
+	for grant_id: StringName in [
+		&"magic.grant.starter_fireball",
+		&"magic.grant.starter_earth_tremor",
+		&"magic.grant.starter_iron_skin",
+	]:
+		MagicResolver.apply_grant_operation(state, content_db, grant_id)
+	state.set_magic_resource(GameState.MAGIC_RESOURCE_WILLPOWER, 8)
+	# Seized spearhead starts on the anvil; WorldItemController seeds it on forge load.
+
+
+func _install_debug_inspector() -> void:
+	_inspector = DebugStateInspectorScript.new()
+	_inspector.name = "DebugStateInspector"
+	add_child(_inspector)
+	_inspector.configure(debug_presets, Callable(self, "apply_debug_preset"))

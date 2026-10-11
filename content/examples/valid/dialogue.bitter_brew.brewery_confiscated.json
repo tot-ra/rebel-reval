@@ -1,0 +1,38 @@
+{
+  "type": "dialogue",
+  "id": "dialogue.bitter_brew.brewery_confiscated",
+  "title": "A Bitter Brew - Confiscated brewery aftermath",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P2-010"
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "explicit_node_id"
+  },
+  "participants": [
+    "char.kalev"
+  ],
+  "start_node_id": "brewery_boarded",
+  "word_count_estimate": 34,
+  "nodes": [
+    {
+      "id": "brewery_boarded",
+      "speaker_id": "char.kalev",
+      "text": "Planks seal the yard and the watch seal is fresh. Aita is gone into Kaja's shadows, and the vats stand empty."
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Visible brewery state after the escaped aftermath.",
+      "citations": [
+        "docs/SCENES/a-bitter-brew.md"
+      ]
+    }
+  ]
+}

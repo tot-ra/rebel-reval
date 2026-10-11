@@ -1,0 +1,455 @@
+extends SceneTree
+
+const TEST_ROOT := "res://tests/godot"
+const TEST_PREFIX := "test_"
+const TEST_SUFFIX := ".gd"
+const TEST_CASE_PATH := "res://tests/godot/test_case.gd"
+# Why: Godot 4.7 Object.call() of a coroutine returns this class, but the
+# name is not in the GDScript global scope. Detect with get_class().
+const FUNCTION_STATE_CLASS := "GDScriptFunctionState"
+const EXPECT_FAIL_STEMS: PackedStringArray = ["test_harness_await_fail"]
+const DEFAULT_TEST_TIMEOUT_SEC := 180.0
+# Why: build/ is gitignored but still scanned as res://. A scratch class_name
+# copy there steals the global class cache. addons/ is allowed; it is first-party.
+const CLASS_CACHE_ALLOWED_PREFIXES: PackedStringArray = [
+	"res://scripts/",
+	"res://tests/",
+	"res://tools/",
+	"res://assets/",
+	"res://scenes/",
+	"res://addons/",
+]
+
+class HarnessLogger:
+	extends Logger
+
+	var diagnostics: Array[Dictionary] = []
+
+	func _log_message(message: String, error: bool) -> void:
+		if error:
+			diagnostics.append({
+				"code": message,
+				"function": "stderr",
+				"file": "",
+				"line": 0,
+				"rationale": "",
+			})
+
+	func _log_error(
+		function: String,
+		file: String,
+		line: int,
+		code: String,
+		rationale: String,
+		_editor_notify: bool,
+		error_type: int,
+		_script_backtraces: Array[ScriptBacktrace]
+	) -> void:
+		# Warnings remain visible in Godot output, but only actual engine/script
+		# errors invalidate a test. Shutdown-only DEF-002 is handled by the shell
+		# wrapper because it is emitted after this SceneTree exits.
+		if error_type == Logger.ERROR_TYPE_WARNING:
+			return
+		diagnostics.append({
+			"code": code,
+			"function": function,
+			"file": file,
+			"line": line,
+			"rationale": rationale,
+		})
+
+	func mark() -> int:
+		return diagnostics.size()
+
+	func since(mark_value: int) -> Array[Dictionary]:
+		return diagnostics.slice(mark_value)
+
+
+var _results := {
+	"files": 0,
+	"tests": 0,
+	"failures": 0,
+	"errors": 0,
+}
+var _logger := HarnessLogger.new()
+
+
+func _initialize() -> void:
+	OS.add_logger(_logger)
+	call_deferred("_run")
+
+
+func _run() -> void:
+	if _reject_class_cache_poison():
+		_finish(1)
+		return
+
+	var test_files := _discover_tests(TEST_ROOT)
+	var filter_value := _argument_value("--filter=")
+	test_files = _filter_test_files(test_files, filter_value)
+	test_files.sort()
+	test_files = _apply_file_order(test_files, _has_flag("--reverse"))
+	if test_files.is_empty():
+		var filter_suffix := " (filter: %s)" % filter_value if not filter_value.is_empty() else ""
+		print("HARNESS ERROR: No Godot tests found under %s matching %s*%s%s" % [
+			TEST_ROOT,
+			TEST_PREFIX,
+			TEST_SUFFIX,
+			filter_suffix,
+		])
+		_finish(1)
+		return
+
+	var isolation: Variant = load(TEST_CASE_PATH).new()
+	if isolation.has_method("snapshot_harness_root"):
+		isolation.snapshot_harness_root()
+
+	print("Godot headless tests: discovered %d file(s)." % test_files.size())
+	if not await _prove_awaited_failure_is_counted():
+		_finish(1)
+		return
+	for path in test_files:
+		# Why: combat/quest files share SessionState, ContentDB, InputMap, and
+		# root hosts. A prior file can leave a narrower corpus or leftover
+		# nodes that make later files fail only in a combined run.
+		if isolation.has_method("isolate_session_globals"):
+			isolation.isolate_session_globals()
+		await _run_test_file(path)
+
+	print("Godot headless tests: %d file(s), %d test(s), %d failure(s), %d error(s)." % [
+		_results["files"],
+		_results["tests"],
+		_results["failures"],
+		_results["errors"],
+	])
+
+	_finish(0 if _results["failures"] == 0 and _results["errors"] == 0 else 1)
+
+
+func _finish(exit_code: int) -> void:
+	OS.remove_logger(_logger)
+	quit(exit_code)
+
+
+func _discover_tests(root_path: String) -> Array[String]:
+	var discovered: Array[String] = []
+	var dir := DirAccess.open(root_path)
+	if dir == null:
+		print("HARNESS ERROR: Godot test directory is missing: " + root_path)
+		_results["errors"] += 1
+		return discovered
+
+	dir.list_dir_begin()
+	var entry := dir.get_next()
+	while not entry.is_empty():
+		if entry == "." or entry == "..":
+			entry = dir.get_next()
+			continue
+
+		var path := root_path.path_join(entry)
+		if dir.current_is_dir():
+			discovered.append_array(_discover_tests(path))
+		elif path != TEST_CASE_PATH and entry.begins_with(TEST_PREFIX) and entry.ends_with(TEST_SUFFIX):
+			discovered.append(path)
+		entry = dir.get_next()
+	dir.list_dir_end()
+	return discovered
+
+
+static func _apply_file_order(test_files: Array[String], reverse_order: bool) -> Array[String]:
+	var ordered := test_files.duplicate()
+	if reverse_order:
+		ordered.reverse()
+	return ordered
+
+
+static func _filter_test_files(test_files: Array[String], filter_value: String) -> Array[String]:
+	if filter_value.is_empty():
+		return test_files.filter(func(path: String) -> bool:
+			var filename_stem := path.get_file().trim_suffix(TEST_SUFFIX)
+			return not EXPECT_FAIL_STEMS.has(filename_stem)
+		)
+
+	var filters := filter_value.split(",", false)
+	return test_files.filter(func(path: String) -> bool:
+		var filename_stem := path.get_file().trim_suffix(TEST_SUFFIX)
+		return filters.has(filename_stem)
+	)
+
+func _run_test_file(path: String) -> void:
+	var diagnostic_mark := _logger.mark()
+	var script := load(path) as Script
+	var load_diagnostics := _logger.since(diagnostic_mark)
+	if script == null or not load_diagnostics.is_empty():
+		_results["errors"] += max(1, load_diagnostics.size())
+		print("FILE ERROR %s: could not load script cleanly" % path)
+		_print_diagnostics(load_diagnostics, "load")
+		return
+
+	diagnostic_mark = _logger.mark()
+	var instance = script.new()
+	var instance_diagnostics := _logger.since(diagnostic_mark)
+	if instance == null or not instance_diagnostics.is_empty():
+		_results["errors"] += max(1, instance_diagnostics.size())
+		print("FILE ERROR %s: could not instantiate script cleanly" % path)
+		_print_diagnostics(instance_diagnostics, "instantiate")
+		return
+
+	var methods := _discover_test_methods(instance)
+	if methods.is_empty():
+		_results["errors"] += 1
+		print("FILE ERROR %s: no methods named %s*" % [path, TEST_PREFIX])
+		return
+
+	_results["files"] += 1
+	print("RUN %s (%d test(s))" % [path, methods.size()])
+	for method_name in methods:
+		await _run_test_method(path, instance, method_name)
+
+
+func _discover_test_methods(instance: Object) -> Array[String]:
+	var methods: Array[String] = []
+	for method in instance.get_method_list():
+		var name := String(method.get("name", ""))
+		# GDScript reports inherited helper assertions too; only zero-argument
+		# methods are runnable tests for this minimal harness.
+		if name.begins_with(TEST_PREFIX) and int(method.get("args", []).size()) == 0:
+			methods.append(name)
+	methods.sort()
+	return methods
+
+
+func _run_test_method(path: String, instance: Object, method_name: String) -> void:
+	_results["tests"] += 1
+	var before_failures := _get_instance_failures(instance).size()
+	var method_diagnostics: Array[Dictionary] = []
+
+	if instance.has_method("before_each"):
+		method_diagnostics.append_array(
+			await _call_and_capture(instance, "before_each", "before_each")
+		)
+
+	# A failed setup makes the test body unsafe to run, but teardown still gets a
+	# chance to release anything setup created before it was interrupted.
+	if method_diagnostics.is_empty():
+		method_diagnostics.append_array(
+			await _call_and_capture(instance, method_name, "test")
+		)
+
+	if instance.has_method("after_each"):
+		method_diagnostics.append_array(
+			await _call_and_capture(instance, "after_each", "after_each")
+		)
+
+	var skip_reason := _get_instance_skip_reason(instance)
+	if not skip_reason.is_empty():
+		print("  SKIP %s - %s" % [method_name, skip_reason])
+		return
+
+	var failures := _get_instance_failures(instance)
+	var new_failures := failures.slice(before_failures)
+	if method_diagnostics.is_empty() and new_failures.is_empty():
+		print("  PASS %s" % method_name)
+		return
+
+	if not method_diagnostics.is_empty():
+		_results["errors"] += method_diagnostics.size()
+		print("  ERROR %s::%s - %d engine/script diagnostic(s) interrupted clean completion" % [
+			path,
+			method_name,
+			method_diagnostics.size(),
+		])
+		_print_diagnostics(method_diagnostics, "test lifecycle")
+
+	_results["failures"] += new_failures.size()
+	for failure in new_failures:
+		print("  FAIL %s::%s - %s" % [path, method_name, failure])
+
+
+func _call_and_capture(instance: Object, method_name: String, phase: String) -> Array[Dictionary]:
+	var diagnostic_mark := _logger.mark()
+	var result: Variant = instance.call(method_name)
+	if _is_function_state(result):
+		var timed_out := await _await_function_state(result as Object, _test_timeout_sec())
+		if timed_out:
+			return [{
+				"code": "timed out after %.1fs" % _test_timeout_sec(),
+				"function": method_name,
+				"file": "",
+				"line": 0,
+				"rationale": "coroutine did not emit completed",
+				"phase": phase,
+			}]
+	var captured := _logger.since(diagnostic_mark)
+	for diagnostic in captured:
+		diagnostic["phase"] = phase
+	return captured
+
+
+func _is_function_state(value: Variant) -> bool:
+	return (
+		value is Object
+		and is_instance_valid(value)
+		and String((value as Object).get_class()) == FUNCTION_STATE_CLASS
+	)
+
+
+func _await_function_state(state: Object, timeout_sec: float) -> bool:
+	# Why: instance.call() already started the coroutine. Await the state from
+	# a method, or poll is_valid(). A lambda `await state` never resumes here,
+	# and the completed signal did not fire on this SceneTree --script path.
+	# is_valid() turns false as soon as the coroutine resumes once, even when it
+	# awaits again (Godot hands the rest to a new state). Only `completed` on this
+	# first state marks the real end, so a test with several awaits is not cut short.
+	var done := [false]
+	state.connect(&"completed", func(_result: Variant) -> void: done[0] = true)
+	var deadline_msec := Time.get_ticks_msec() + int(timeout_sec * 1000.0)
+	while not done[0]:
+		if Time.get_ticks_msec() >= deadline_msec:
+			return true
+		await process_frame
+	return false
+
+
+func _test_timeout_sec() -> float:
+	var raw := _argument_value("--timeout=")
+	if raw.is_empty():
+		return DEFAULT_TEST_TIMEOUT_SEC
+	var parsed := raw.to_float()
+	return parsed if parsed > 0.0 else DEFAULT_TEST_TIMEOUT_SEC
+
+
+func _prove_awaited_failure_is_counted() -> bool:
+	print("HARNESS SELF-TEST: proving awaited FAIL is counted")
+	var probe_path := "res://tests/godot/test_harness_await_fail.gd"
+	var probe_script := load(probe_path) as Script
+	if probe_script == null:
+		print("HARNESS SELF-TEST ERROR: could not load %s" % probe_path)
+		return false
+	var probe: Variant = probe_script.new()
+	if probe == null:
+		print("HARNESS SELF-TEST ERROR: could not instantiate %s" % probe_path)
+		return false
+	var saved := _results.duplicate(true)
+	_results = {"files": 0, "tests": 0, "failures": 0, "errors": 0}
+	await _run_test_method(probe_path, probe, "test_awaited_assertion_fails")
+	var counted := int(_results["failures"]) >= 1 and int(_results["errors"]) == 0
+	_results = saved
+	if counted:
+		print("HARNESS SELF-TEST: awaited failing assertion reported FAIL")
+		return true
+	print("HARNESS SELF-TEST ERROR: awaited failing assertion was not counted as FAIL")
+	return false
+
+
+func _print_diagnostics(diagnostics: Array[Dictionary], default_phase: String) -> void:
+	for diagnostic in diagnostics:
+		var location := String(diagnostic.get("file", ""))
+		var line := int(diagnostic.get("line", 0))
+		if line > 0:
+			location += ":%d" % line
+		var function := String(diagnostic.get("function", ""))
+		if not function.is_empty():
+			location += " (%s)" % function
+		var rationale := String(diagnostic.get("rationale", ""))
+		var detail := String(diagnostic.get("code", ""))
+		if not rationale.is_empty():
+			detail += " - " + rationale
+		print("    [%s] %s: %s" % [diagnostic.get("phase", default_phase), location, detail])
+
+
+func _get_instance_failures(instance: Object) -> Array[String]:
+	if instance.has_method("_get_failures"):
+		return instance.call("_get_failures")
+	return []
+
+
+func _get_instance_skip_reason(instance: Object) -> String:
+	if instance.has_method("_get_skip_reason"):
+		return String(instance.call("_get_skip_reason"))
+	return ""
+
+
+func _argument_value(prefix: String) -> String:
+	for argument in OS.get_cmdline_user_args():
+		if argument.begins_with(prefix):
+			return argument.trim_prefix(prefix)
+	return ""
+
+
+func _has_flag(flag: String) -> bool:
+	for argument in OS.get_cmdline_user_args():
+		if argument == flag:
+			return true
+	return false
+
+
+func _reject_class_cache_poison() -> bool:
+	var offenders := _class_cache_offenders()
+	if offenders.is_empty():
+		return false
+	print(
+		"HARNESS ERROR: class_name scratch is registered outside "
+		+ "scripts/tests/tools/assets/scenes/addons, or sits unignored under build:"
+	)
+	for item in offenders:
+		print("  %s" % item)
+	print("Godot scans build/ as res://. Add .gdignore to that scratch folder, not build/ root.")
+	print("Rebuild the cache with: Godot --headless --editor --path . --quit-after 2")
+	return true
+
+
+func _class_cache_offenders() -> PackedStringArray:
+	var offenders: PackedStringArray = []
+	var project_root := ProjectSettings.globalize_path("res://").rstrip("/")
+	_collect_unignored_build_class_scripts(project_root.path_join("build"), project_root, offenders)
+	var cache_path := project_root.path_join(".godot/global_script_class_cache.cfg")
+	if FileAccess.file_exists(cache_path):
+		var text := FileAccess.get_file_as_string(cache_path)
+		var regex := RegEx.new()
+		regex.compile("\"path\": \"(res://[^\"]+)\"")
+		for match_item: RegExMatch in regex.search_all(text):
+			var path := match_item.get_string(1)
+			if not _class_cache_path_allowed(path):
+				offenders.append("cache:%s" % path)
+	return offenders
+
+
+func _class_cache_path_allowed(path: String) -> bool:
+	for prefix in CLASS_CACHE_ALLOWED_PREFIXES:
+		if path.begins_with(prefix):
+			return true
+	return false
+
+
+func _collect_unignored_build_class_scripts(
+	abs_dir: String,
+	project_root: String,
+	offenders: PackedStringArray
+) -> void:
+	var dir := DirAccess.open(abs_dir)
+	if dir == null:
+		return
+	if FileAccess.file_exists(abs_dir.path_join(".gdignore")):
+		return
+	dir.list_dir_begin()
+	var entry := dir.get_next()
+	while not entry.is_empty():
+		if entry == "." or entry == "..":
+			entry = dir.get_next()
+			continue
+		var path := abs_dir.path_join(entry)
+		if dir.current_is_dir():
+			_collect_unignored_build_class_scripts(path, project_root, offenders)
+		elif entry.ends_with(".gd") and _gd_declares_class_name(path):
+			var relative := path.trim_prefix(project_root).trim_prefix("/")
+			offenders.append(relative)
+		entry = dir.get_next()
+	dir.list_dir_end()
+
+
+func _gd_declares_class_name(abs_path: String) -> bool:
+	var text := FileAccess.get_file_as_string(abs_path)
+	var regex := RegEx.new()
+	regex.compile("(?m)^[ \\t]*class_name[ \\t]+")
+	return regex.search(text) != null

@@ -1,0 +1,86 @@
+{
+  "type": "world_object",
+  "id": "obj.wash_basin_cloth",
+  "name": "Wash basin and cloth",
+  "description": "A glazed clay basin with a wiping cloth for hands and dishes.",
+  "category": "household",
+  "handling": "carry_one_hand",
+  "tags": [
+    "kitchen",
+    "wash"
+  ],
+  "physical": {
+    "mass_kg": 1.8,
+    "size_m": [
+      0.45,
+      0.12,
+      0.33
+    ],
+    "materials": [
+      "clay_ceramic",
+      "linen_cloth"
+    ],
+    "fragile": true
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop",
+    "throw",
+    "open"
+  ],
+  "economy": {
+    "base_pfennigs": 12,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "home_poor",
+      "home_burgher",
+      "forge"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/domestic/kitchenware/medieval_kitchenware_kit.glb",
+    "node": "KitchenwareBasinCloth",
+    "prop_kind": "kitchenware",
+    "variant": "kitchenware.basin_cloth",
+    "measured_size_m": [
+      0.45,
+      0.12,
+      0.33
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.wash_basin_cloth.png",
+    "icon": "res://assets/objects/icons/obj.wash_basin_cloth.png",
+    "icon_status": "missing",
+    "look": "Shallow brown-glazed clay basin with a folded off-white cloth over the rim.",
+    "image_prompt": "Wash basin and cloth: Shallow brown-glazed clay basin with a folded off-white cloth over the rim."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "carry": {
+    "grid_width": 2,
+    "grid_height": 2,
+    "stackable": false
+  },
+  "throw": {
+    "range_m": 3.0,
+    "damage": 2,
+    "breaks": true,
+    "noise": "loud"
+  },
+  "container": {
+    "capacity_l": 5,
+    "lockable": false,
+    "accepts_tags": [
+      "liquid"
+    ]
+  }
+}

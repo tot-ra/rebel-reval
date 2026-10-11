@@ -1,0 +1,151 @@
+{
+  "type": "dialogue",
+  "id": "dialogue.investigation.stolen_iron_confront",
+  "title": "Stolen iron - apprentice confrontation",
+  "confidence": "invented",
+  "canon_status": "active",
+  "approval": {
+    "status": "approved",
+    "reviewer": "P4-035"
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "explicit_node_id",
+    "notes": "Support dialogue for investigative-quest confrontation tiers."
+  },
+  "participants": [
+    "char.kalev",
+    "char.mart"
+  ],
+  "start_node_id": "confront_blind",
+  "entry_variants": [
+    {
+      "node_id": "confront_resolved",
+      "priority": 40,
+      "conditions": [
+        {
+          "op": "fact_known",
+          "key": "fact.stolen_iron.harbor_road_dry"
+        },
+        {
+          "op": "fact_known",
+          "key": "fact.stolen_iron.cooper_gauge_marks"
+        },
+        {
+          "op": "fact_known",
+          "key": "fact.stolen_iron.apprentice_sawdust"
+        }
+      ]
+    },
+    {
+      "node_id": "confront_narrow",
+      "priority": 30,
+      "conditions": [
+        {
+          "op": "fact_known",
+          "key": "fact.stolen_iron.harbor_road_dry"
+        },
+        {
+          "op": "fact_known",
+          "key": "fact.stolen_iron.cooper_gauge_marks"
+        }
+      ]
+    },
+    {
+      "node_id": "confront_partial_harbor",
+      "priority": 20,
+      "conditions": [
+        {
+          "op": "fact_known",
+          "key": "fact.stolen_iron.harbor_road_dry"
+        }
+      ]
+    },
+    {
+      "node_id": "confront_partial_sawdust",
+      "priority": 15,
+      "conditions": [
+        {
+          "op": "fact_known",
+          "key": "fact.stolen_iron.apprentice_sawdust"
+        }
+      ]
+    }
+  ],
+  "word_count_estimate": 72,
+  "nodes": [
+    {
+      "id": "confront_resolved",
+      "speaker_id": "char.mart",
+      "text": "Dry harbor road, cooper gauge marks, and his sawdust on the crate rim. Only the apprentice had motive and access.",
+      "choices": [
+        {
+          "id": "press_accusation",
+          "text": "Bring him to the yard.",
+          "target_node_id": "confront_close"
+        }
+      ]
+    },
+    {
+      "id": "confront_narrow",
+      "speaker_id": "char.mart",
+      "text": "Courier and cooper are ruled out. That leaves the apprentice, but we still need his bench trail in hand.",
+      "choices": [
+        {
+          "id": "keep_watch",
+          "text": "Keep watching the lane.",
+          "target_node_id": "confront_close"
+        }
+      ]
+    },
+    {
+      "id": "confront_partial_harbor",
+      "speaker_id": "char.mart",
+      "text": "No wet cart ruts from the harbor, so the courier story dies here. The apprentice and cooper remain.",
+      "choices": [
+        {
+          "id": "note_courier_cleared",
+          "text": "Courier is off the list.",
+          "target_node_id": "confront_close"
+        }
+      ]
+    },
+    {
+      "id": "confront_partial_sawdust",
+      "speaker_id": "char.mart",
+      "text": "Oak sawdust from his bench, but without the road and hasp reads we cannot corner him yet.",
+      "choices": [
+        {
+          "id": "gather_more",
+          "text": "We need more proof.",
+          "target_node_id": "confront_close"
+        }
+      ]
+    },
+    {
+      "id": "confront_blind",
+      "speaker_id": "char.mart",
+      "text": "Three names and no proof. Accuse the wrong one and the watch will pin it on us.",
+      "choices": [
+        {
+          "id": "walk_away",
+          "text": "Keep digging.",
+          "target_node_id": "confront_close"
+        }
+      ]
+    },
+    {
+      "id": "confront_close",
+      "speaker_id": "char.kalev",
+      "text": "Then we move carefully. Iron does not forgive a sloppy accusation."
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "P4-035 confrontation dialogue tiers keyed to collected clue facts."
+    }
+  ]
+}

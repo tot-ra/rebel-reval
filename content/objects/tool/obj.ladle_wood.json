@@ -1,0 +1,63 @@
+{
+  "type": "world_object",
+  "id": "obj.ladle_wood",
+  "name": "Wooden ladle",
+  "description": "A hand-carved wooden ladle with a deep bowl and a long worn handle. Planned household object; not yet a runtime model.",
+  "category": "tool",
+  "handling": "pocketable",
+  "tags": [
+    "household",
+    "cook",
+    "drink"
+  ],
+  "physical": {
+    "mass_kg": 0.18,
+    "size_m": [
+      0.12,
+      0.38,
+      0.08
+    ],
+    "materials": [
+      "wood"
+    ]
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop",
+    "use"
+  ],
+  "economy": {
+    "base_pfennigs": 2,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "surface",
+    "spaces": [
+      "home_poor",
+      "home_burgher",
+      "home_noble"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "missing"
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.ladle_wood.png",
+    "icon": "res://assets/objects/icons/obj.ladle_wood.png",
+    "icon_status": "missing",
+    "look": "A hand-carved wooden ladle with a deep bowl and a long worn handle.",
+    "image_prompt": "Wooden ladle: A hand-carved wooden ladle with a deep bowl and a long worn handle."
+  },
+  "lifecycle": "planned",
+  "confidence": "plausible composite",
+  "notes": "HOMEOBJ-1 (R-1367): mass, dimensions and pfennigs are gameplay authoring estimates, not measured geometry or attested prices. No model or icon exists yet.",
+  "carry": {
+    "grid_width": 1,
+    "grid_height": 1,
+    "stackable": false
+  }
+}

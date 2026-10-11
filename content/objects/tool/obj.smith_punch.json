@@ -1,0 +1,76 @@
+{
+  "type": "world_object",
+  "id": "obj.smith_punch",
+  "name": "Smith's punch",
+  "description": "A hardened punch for piercing hot iron and setting maker's marks.",
+  "category": "tool",
+  "handling": "pocketable",
+  "tags": [
+    "smithing",
+    "tool"
+  ],
+  "physical": {
+    "mass_kg": 0.4,
+    "size_m": [
+      0.06,
+      0.22,
+      0.06
+    ],
+    "materials": [
+      "steel"
+    ]
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop",
+    "throw"
+  ],
+  "economy": {
+    "base_pfennigs": 15,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "forge"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/tools/blacksmith_punch/blacksmith_punch.glb",
+    "prop_kind": "blacksmith_punch",
+    "measured_size_m": [
+      0.06,
+      0.22,
+      0.06
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.smith_punch.png",
+    "icon": "res://assets/objects/icons/obj.smith_punch.png",
+    "icon_status": "missing",
+    "look": "Short octagonal steel punch with a mushroomed head and a bright tip.",
+    "image_prompt": "Smith's punch: Short octagonal steel punch with a mushroomed head and a bright tip."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "uses": [
+    "punch holes in hot iron",
+    "strike a maker's mark"
+  ],
+  "carry": {
+    "grid_width": 1,
+    "grid_height": 1,
+    "stackable": false
+  },
+  "throw": {
+    "range_m": 4.0,
+    "damage": 2,
+    "breaks": false,
+    "noise": "quiet"
+  }
+}

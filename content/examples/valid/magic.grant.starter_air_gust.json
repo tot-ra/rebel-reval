@@ -1,0 +1,25 @@
+{
+  "type": "magic_grant",
+  "id": "magic.grant.starter_air_gust",
+  "name": "Teach Air Gust",
+  "operation": "grant",
+  "target_id": "spell.pagan.air_gust",
+  "grant_flag": "flag.magic.taught_air_gust",
+  "resolution": "authored_lookup",
+  "runtime_combination_allowed": false,
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "R-722 Air Gust prototype"
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Explicit authored unlock for the Air Gust gameplay spell; element.air stays outside the slice-safe default grants.",
+      "citations": [
+        "docs/SYSTEMS/MAGIC.md"
+      ]
+    }
+  ]
+}

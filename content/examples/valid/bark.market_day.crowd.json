@@ -1,0 +1,48 @@
+{
+  "type": "bark_pool",
+  "id": "bark.market_day.crowd",
+  "title": "Market-day crowd murmur",
+  "confidence": "invented",
+  "canon_status": "active",
+  "approval": {
+    "status": "approved",
+    "reviewer": "P4-032"
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "first_valid_in_order"
+  },
+  "selection": "first_valid_in_order",
+  "phase_ids": [
+    "phase.investigation_morning",
+    "phase.investigation_night",
+    "phase.consequence_night",
+    "phase.reflection_morning"
+  ],
+  "location_ids": [
+    "loc.lower_town_slice"
+  ],
+  "entries": [
+    {
+      "id": "crowd_murmur",
+      "speaker_id": "char.merchant_stall",
+      "text": "Voices stack along the lane - haggling, gossip, and cart wheels on cobble.",
+      "priority": 1,
+      "conditions": [
+        {
+          "op": "flag_is",
+          "key": "flag.market_day_active",
+          "value": true
+        }
+      ]
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Ambient crowd read when market-day stalls expand."
+    }
+  ]
+}

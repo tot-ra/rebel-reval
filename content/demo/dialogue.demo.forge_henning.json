@@ -1,0 +1,60 @@
+{
+  "type": "dialogue",
+  "id": "dialogue.demo.forge_henning",
+  "title": "Demo - Henning in Kalev's Smithy",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "review",
+    "notes": "Short forge demo beat showing talk initiation with Henning."
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "explicit_node_id",
+    "notes": "Linear exchange for the forge interaction demo."
+  },
+  "participants": [
+    "char.kalev",
+    "char.henning"
+  ],
+  "start_node_id": "henning_opens",
+  "word_count_estimate": 52,
+  "nodes": [
+    {
+      "id": "henning_opens",
+      "speaker_id": "char.henning",
+      "text": "Still at the anvil, smith? Good. The Watch likes a man who keeps his hands busy and his ledger honest.",
+      "next_node_id": "kalev_responds"
+    },
+    {
+      "id": "kalev_responds",
+      "speaker_id": "char.kalev",
+      "text": "Busy hands keep the quarter fed. Honest ledgers keep me out of your cells.",
+      "next_node_id": "henning_closes"
+    },
+    {
+      "id": "henning_closes",
+      "speaker_id": "char.henning",
+      "text": "See that both stay true. I will be back before the street lamps are lit.",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.demo_forge_henning_spoken",
+          "value": true
+        }
+      ]
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Forge demo dialogue between Kalev and Henning.",
+      "citations": [
+        "content/examples/support/character.henning.json",
+        "scenes/reval_east/forge/forge_dialogue_encounter.gd"
+      ]
+    }
+  ]
+}

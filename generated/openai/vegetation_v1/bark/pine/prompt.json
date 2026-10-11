@@ -1,0 +1,11 @@
+{
+  "tool": "a2gent openai_generate_image",
+  "model": "gpt-image-1",
+  "size": "1024x1024",
+  "quality": "high",
+  "generation_id": "1a2dcff4-bcf2-4fb8-88dc-0687963d84dd",
+  "prompt": "Seamless tileable bark texture, flat orthographic close-up scan of a Scots pine trunk, about 40 cm wide area: thick irregular plates of orange-red and grey-brown bark separated by dark fissures, flaky scales, vertical orientation. Even soft overcast light, no cast shadows, fills the whole frame edge to edge, no background, no perspective, photorealistic, no text.",
+  "file": "source.png",
+  "sha256": "9b634fbe77d9663d499cc91c45f9c2fe0dbeb5b13dab44b243b5f864d926cf67",
+  "task": "R-1103/R-1101/R-1102"
+}

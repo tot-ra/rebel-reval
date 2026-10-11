@@ -1,0 +1,66 @@
+{
+  "type": "world_object",
+  "id": "obj.cargo_herring_barrels",
+  "name": "Barrelled herring",
+  "description": "A stack of salted herring barrels, the northern trade's cheap protein.",
+  "category": "trade_good",
+  "handling": "heavy",
+  "tags": [
+    "cargo",
+    "fish",
+    "salted"
+  ],
+  "physical": {
+    "mass_kg": 320,
+    "size_m": [
+      1.35,
+      0.68,
+      0.98
+    ],
+    "materials": [
+      "wood",
+      "food_organic",
+      "salt"
+    ],
+    "flammable": true
+  },
+  "actions": [
+    "inspect",
+    "push",
+    "pull"
+  ],
+  "economy": {
+    "base_pfennigs": 420,
+    "ownership": "merchant",
+    "legality": "legal",
+    "theft_severity": 2
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "harbor",
+      "warehouse"
+    ],
+    "grouping": "pile"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/trade/barrelled_herring_metal/barrelled_herring_metal.glb",
+    "prop_kind": "trade_goods",
+    "variant": "barrelled_herring_metal",
+    "measured_size_m": [
+      1.35,
+      0.68,
+      0.98
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.cargo_herring_barrels.png",
+    "icon": "res://assets/objects/icons/obj.cargo_herring_barrels.png",
+    "icon_status": "missing",
+    "look": "Metal-hooped herring barrels stacked in rows with a tally tag tied to each.",
+    "image_prompt": "Barrelled herring: Metal-hooped herring barrels stacked in rows with a tally tag tied to each."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite"
+}

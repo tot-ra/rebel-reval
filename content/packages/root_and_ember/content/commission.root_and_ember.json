@@ -1,0 +1,79 @@
+{
+  "type": "commission",
+  "id": "commission.root_and_ember",
+  "title": "Forge hearth ward hardware",
+  "client_id": "char.ellen",
+  "quest_id": "quest.root_and_ember",
+  "object_item_id": "item.root_and_ember_work",
+  "location_id": "loc.kalev_smithy",
+  "confidence": "folklore",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-007"
+  },
+  "concrete_order": "Forge hearth hardware for the household beside the Foaming Mug brewery before neighbors call the watch on a kodukäija scare.",
+  "hidden_contradiction": "Whether soot came from a restless spirit or a cracked flue stays ambiguous; Kalev's craft choice decides what story the district believes.",
+  "investigation_clues": [
+    {
+      "id": "ellen",
+      "summary": "Ellen describes night terrors and old songs for frightened households.",
+      "reveals_fact_id": "fact.root_and_ember.ellen_summoned"
+    },
+    {
+      "id": "hearth",
+      "summary": "Soot and cold drafts contradict a healthy flue draw.",
+      "reveals_fact_id": "fact.root_and_ember.soot_updraft"
+    },
+    {
+      "id": "herbs",
+      "summary": "Monastery lane roots and linden bark for Ellen's wards.",
+      "reveals_fact_id": "fact.root_and_ember.herb_lane_roots"
+    }
+  ],
+  "forging_options": [
+    {
+      "id": "ember_rite",
+      "label": "Forge a warm iron hearth-hook and learn Ellen's Ember rite words.",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.root_and_ember_ember_rite",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "root_ward",
+      "label": "Forge a herb-inlaid Root ward hook with monastery lane roots.",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.root_and_ember_root_ward",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "iron_bracket",
+      "label": "Forge a plain iron smoke bracket and explain the flue crack.",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.root_and_ember_iron_bracket",
+          "value": true
+        }
+      ]
+    }
+  ],
+  "night_consequence": "Household install resolves calm through mechanism.root_and_ember_hearth without combat.",
+  "source_notes": [
+    {
+      "confidence": "folklore",
+      "summary": "Commission introducing Ember and Root forge technique equipment paths.",
+      "citations": [
+        "docs/SCENES/root-and-ember.md"
+      ]
+    }
+  ]
+}

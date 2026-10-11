@@ -1,0 +1,177 @@
+class_name UserSettingsStore
+extends RefCounted
+
+## Persists accessibility, dialogue, and input settings outside save slots.
+
+const AudioSettingsScript := preload("res://scripts/settings/audio_settings.gd")
+const DialogueSettingsScript := preload("res://scripts/settings/dialogue_settings.gd")
+const GameplayAccessibilitySettingsScript := preload(
+	"res://scripts/settings/gameplay_accessibility_settings.gd"
+)
+const GraphicsSettingsScript := preload("res://scripts/settings/graphics_settings.gd")
+const InputBindingSettingsScript := preload("res://scripts/settings/input_binding_settings.gd")
+const CURRENT_VERSION := 5
+const LEGACY_VERSION := 1
+const DEFAULT_DIRECTORY := "user://settings"
+
+var settings_directory: String = DEFAULT_DIRECTORY
+
+
+func settings_path() -> String:
+	return "%s/user_settings.json" % settings_directory.trim_suffix("/")
+
+
+func load_dialogue_settings():
+	var envelope := _load_envelope()
+	var dialogue_value: Variant = envelope.get("dialogue", {})
+	if typeof(dialogue_value) != TYPE_DICTIONARY:
+		return DialogueSettingsScript.default_settings()
+	return DialogueSettingsScript.from_dict(dialogue_value as Dictionary)
+
+
+func load_input_bindings():
+	var envelope := _load_envelope()
+	var bindings_value: Variant = envelope.get("input_bindings", {})
+	if typeof(bindings_value) != TYPE_DICTIONARY:
+		return InputBindingSettingsScript.default_settings()
+	return InputBindingSettingsScript.from_dict(bindings_value as Dictionary)
+
+
+func load_gameplay_accessibility_settings():
+	var envelope := _load_envelope()
+	var value: Variant = envelope.get("gameplay_accessibility", {})
+	if typeof(value) != TYPE_DICTIONARY:
+		return GameplayAccessibilitySettingsScript.default_settings()
+	return GameplayAccessibilitySettingsScript.from_dict(value as Dictionary)
+
+
+func load_graphics_settings():
+	var envelope := _load_envelope()
+	var value: Variant = envelope.get("graphics", {})
+	if typeof(value) != TYPE_DICTIONARY:
+		return GraphicsSettingsScript.default_settings()
+	return GraphicsSettingsScript.from_dict(value as Dictionary)
+
+
+func load_audio_settings():
+	var envelope := _load_envelope()
+	var audio_value: Variant = envelope.get("audio", {})
+	if typeof(audio_value) != TYPE_DICTIONARY:
+		return AudioSettingsScript.default_settings()
+	return AudioSettingsScript.from_dict(audio_value as Dictionary)
+
+
+func save_dialogue_settings(settings) -> bool:
+	if settings == null:
+		return false
+	return _save_all(
+		settings,
+		load_gameplay_accessibility_settings(),
+		load_graphics_settings(),
+		load_input_bindings(),
+		load_audio_settings()
+	)
+
+
+func save_gameplay_accessibility_settings(settings) -> bool:
+	if settings == null:
+		return false
+	return _save_all(
+		load_dialogue_settings(),
+		settings,
+		load_graphics_settings(),
+		load_input_bindings(),
+		load_audio_settings()
+	)
+
+
+func save_graphics_settings(settings) -> bool:
+	if settings == null:
+		return false
+	return _save_all(
+		load_dialogue_settings(),
+		load_gameplay_accessibility_settings(),
+		settings,
+		load_input_bindings(),
+		load_audio_settings()
+	)
+
+
+func save_input_bindings(bindings) -> bool:
+	if bindings == null:
+		return false
+	return _save_all(
+		load_dialogue_settings(),
+		load_gameplay_accessibility_settings(),
+		load_graphics_settings(),
+		bindings,
+		load_audio_settings()
+	)
+
+
+func save_audio_settings(settings) -> bool:
+	if settings == null:
+		return false
+	return _save_all(
+		load_dialogue_settings(),
+		load_gameplay_accessibility_settings(),
+		load_graphics_settings(),
+		load_input_bindings(),
+		settings
+	)
+
+
+func _load_envelope() -> Dictionary:
+	var path := settings_path()
+	if not FileAccess.file_exists(path):
+		return {}
+	var file := FileAccess.open(path, FileAccess.READ)
+	if file == null:
+		return {}
+	var parsed: Variant = JSON.parse_string(file.get_as_text())
+	if typeof(parsed) != TYPE_DICTIONARY:
+		return {}
+	var envelope: Dictionary = parsed
+	var version := int(envelope.get("version", 0))
+	if version < LEGACY_VERSION or version > CURRENT_VERSION:
+		return {}
+	return envelope
+
+
+func _save_all(
+	dialogue_settings, gameplay_settings, graphics_settings, input_bindings, audio_settings
+) -> bool:
+	if (
+		dialogue_settings == null
+		or gameplay_settings == null
+		or graphics_settings == null
+		or input_bindings == null
+		or audio_settings == null
+		or not _ensure_directory()
+	):
+		return false
+	var envelope := {
+		"version": CURRENT_VERSION,
+		"saved_at_unix": Time.get_unix_time_from_system(),
+		"dialogue": dialogue_settings.to_dict(),
+		"gameplay_accessibility": gameplay_settings.to_dict(),
+		"graphics": graphics_settings.to_dict(),
+		"input_bindings": input_bindings.to_dict(),
+		"audio": audio_settings.to_dict(),
+	}
+	var file := FileAccess.open(settings_path(), FileAccess.WRITE)
+	if file == null:
+		return false
+	file.store_string(JSON.stringify(envelope, "\t"))
+	file.flush()
+	file.close()
+	return true
+
+
+func _ensure_directory() -> bool:
+	var normalized := settings_directory.trim_suffix("/")
+	if normalized.is_empty():
+		return false
+	if DirAccess.dir_exists_absolute(normalized):
+		return true
+	return DirAccess.make_dir_recursive_absolute(normalized) == OK

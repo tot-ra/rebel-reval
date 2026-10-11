@@ -1,0 +1,63 @@
+{
+  "type": "location",
+  "id": "loc.lower_town_slice",
+  "name": "Viru Gate Quarter",
+  "district": "Lower Town",
+  "confidence": "plausible composite",
+  "canon_status": "active",
+  "approval": {
+    "status": "approved",
+    "reviewer": "P2-020"
+  },
+  "description": "Eastern Lower Town quarter inside Viru Gate: the town wall runs down the east and bends south-west past the Hinke tower to Karja Gate, with the wet moat and glacis outside and Muurivahe lane hugging the wall inside. Viru street runs west toward Vana turg, Suur-Karja south to Karja Gate, St. Catherine's Passage and the Dominican monastery lie to the north, with Kalev's smithy, the Foaming Mug brewery, the public well, and the Viru Watch gate post. Streets continuing into closed districts end under boundary arches.",
+  "gameplay_space": true,
+  "scene_path": "res://scenes/reval_east/reval_east.tscn",
+  "spawn_ids": [
+    "street_start",
+    "forge"
+  ],
+  "connected_location_ids": [
+    "loc.kalev_smithy"
+  ],
+  "pressure_tags": [
+    "Authority",
+    "Community",
+    "Suspicion"
+  ],
+  "phase_states": [
+    {
+      "id": "prologue_day",
+      "description": "Patrols and neighbors move through the street before the night consequence."
+    },
+    {
+      "id": "night_tension",
+      "description": "Watch pressure and crowd noise increase after the brewery commission resolves.",
+      "conditions": [
+        {
+          "op": "phase_is",
+          "value": "night"
+        }
+      ]
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "attested",
+      "summary": "Street topology follows the real eastern Old Town plan: Viru Gate ('Lehmporte', the main eastern gate of the 1310s Danish wall program) with foregate and moat, the wall bending south-west through the Hinke tower stretch to the attested Karja Gate, Viru street toward Vana turg, Muurivahe inside the wall, Vene and Suur-Karja streets, St. Catherine's Passage, and the Dominican monastery of St. Catherine (founded 1246).",
+      "citations": [
+        "scenes/revel-map.jpg",
+        "scenes/reval_walls_towers/wall-map.png",
+        "scenes/reval_walls_towers/viru_gate.md"
+      ]
+    },
+    {
+      "confidence": "plausible composite",
+      "summary": "Individual houses, the smithy work yard against the wall, and the unnamed wall towers are composites; the later Hellemann and Kuradi towers (post-1343) are represented only as generic wall towers at their sites, and the district boundary arches are a gameplay device, not attested structures.",
+      "citations": [
+        "docs/SCENES/the-makers-mark.md",
+        "docs/SCENES/a-bitter-brew.md",
+        "scripts/map/definitions/lower_town/lower_town_slice_definition.gd"
+      ]
+    }
+  ]
+}

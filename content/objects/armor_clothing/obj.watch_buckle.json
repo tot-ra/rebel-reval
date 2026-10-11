@@ -1,0 +1,62 @@
+{
+  "type": "world_object",
+  "id": "obj.watch_buckle",
+  "name": "Watchman's buckle",
+  "description": "A heavy brass-and-iron buckle from the watch uniform: a commission object.",
+  "category": "armor_clothing",
+  "handling": "carry_one_hand",
+  "tags": [
+    "commission",
+    "garrison",
+    "metalwork"
+  ],
+  "physical": {
+    "mass_kg": 1.1,
+    "size_m": [
+      0.1,
+      0.07,
+      0.03
+    ],
+    "materials": [
+      "iron",
+      "brass_bronze"
+    ]
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop"
+  ],
+  "economy": {
+    "base_pfennigs": 40,
+    "ownership": "garrison",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "forge",
+      "guard_post"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "missing"
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.watch_buckle.png",
+    "icon": "res://assets/objects/icons/obj.watch_buckle.png",
+    "icon_status": "missing",
+    "look": "Heavy brass-faced iron belt buckle with the city mark.",
+    "image_prompt": "A heavy brass-faced iron belt buckle stamped with a city mark"
+  },
+  "lifecycle": "planned",
+  "confidence": "plausible composite",
+  "carry": {
+    "grid_width": 1,
+    "grid_height": 2,
+    "stackable": false
+  },
+  "item_ref": "item.watch_buckle"
+}

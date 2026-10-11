@@ -1,0 +1,142 @@
+{
+  "type": "quest",
+  "id": "quest.act2.siege.sortie_supply.rebel",
+  "title": "Run Supply to the Rebel Camp",
+  "summary": "Move a supply load from the Harju approaches to the rebel camp during the sortie window, by force or by concealment.",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P5-006",
+    "notes": "Content-only siege mission package; the authored mission host reuses the downstream Act 2 combat and travel systems."
+  },
+  "entry_conditions": [],
+  "initial_state": "latent",
+  "states": [
+    {
+      "id": "latent",
+      "label": "Take the rebel supply brief as the sortie window opens."
+    },
+    {
+      "id": "ready",
+      "label": "At the Harju supply route"
+    },
+    {
+      "id": "direct_complete",
+      "label": "The rebel camp receives supplies after a forced sortie.",
+      "terminal": true
+    },
+    {
+      "id": "quiet_complete",
+      "label": "The rebel camp receives supplies through a concealed run.",
+      "terminal": true
+    }
+  ],
+  "transitions": [
+    {
+      "id": "brief",
+      "from_state": "latent",
+      "to_state": "ready",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.act2.siege.sortie_supply.rebel.briefed",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "resolve_direct",
+      "from_state": "ready",
+      "to_state": "direct_complete",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.act2.siege.sortie_supply.rebel.direct_resolved",
+          "value": true
+        },
+        {
+          "op": "set_flag",
+          "key": "flag.war.siege_phase.sortie_supply",
+          "value": true
+        },
+        {
+          "op": "record_faction_event",
+          "key": "ledger.act2.siege.sortie_supply.rebel.direct",
+          "value": "faction.harju_kings",
+          "amount": 1,
+          "summary": "Kalev broke the roadblock and brought supplies to the rebel camp."
+        }
+      ]
+    },
+    {
+      "id": "resolve_quiet",
+      "from_state": "ready",
+      "to_state": "quiet_complete",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.act2.siege.sortie_supply.rebel.quiet_resolved",
+          "value": true
+        },
+        {
+          "op": "set_flag",
+          "key": "flag.war.siege_phase.sortie_supply",
+          "value": true
+        },
+        {
+          "op": "record_faction_event",
+          "key": "ledger.act2.siege.sortie_supply.rebel.quiet",
+          "value": "faction.harju_kings",
+          "amount": 1,
+          "summary": "Kalev moved the rebel supplies along a concealed Harju route."
+        }
+      ]
+    }
+  ],
+  "objectives": [
+    {
+      "id": "receive_brief",
+      "text": "Take the rebel supply brief as the sortie window opens.",
+      "state_id": "latent"
+    },
+    {
+      "id": "resolve_mission",
+      "text": "Bring the supply load to camp by forcing the road or concealing the run.",
+      "state_id": "ready"
+    }
+  ],
+  "outcomes": [
+    {
+      "id": "direct",
+      "summary": "The rebel camp receives supplies after a forced sortie.",
+      "effects": []
+    },
+    {
+      "id": "quiet",
+      "summary": "The rebel camp receives supplies through a concealed run.",
+      "effects": []
+    }
+  ],
+  "content_links": {
+    "character_ids": [
+      "char.kalev",
+      "char.henning",
+      "char.kaja",
+      "char.mart"
+    ],
+    "location_ids": [
+      "loc.lower_town_slice"
+    ]
+  },
+  "source_notes": [
+    {
+      "confidence": "attested",
+      "summary": "The three siege phases and their calendar windows are attested in the Act 2 design spine; this mission framing and branch resolution are invented.",
+      "citations": [
+        "docs/reports/p5_001_act2_design.md",
+        "docs/data/act2_design_manifest.json"
+      ]
+    }
+  ]
+}

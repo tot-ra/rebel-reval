@@ -1,0 +1,55 @@
+{
+  "type": "world_object",
+  "id": "obj.iron_scrap_pile",
+  "name": "Scrap iron pile",
+  "description": "A pile of scrap iron waiting to be reforged.",
+  "category": "material",
+  "handling": "fixed",
+  "tags": [
+    "scrap",
+    "iron",
+    "pile"
+  ],
+  "physical": {
+    "mass_kg": 150,
+    "size_m": [
+      1.0,
+      0.5,
+      1.0
+    ],
+    "materials": [
+      "iron"
+    ]
+  },
+  "actions": [
+    "inspect"
+  ],
+  "economy": {
+    "base_pfennigs": 0,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 0
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "forge",
+      "street"
+    ],
+    "grouping": "pile"
+  },
+  "model": {
+    "status": "procedural",
+    "prop_kind": "iron_scrap_pile",
+    "builder": "res://scripts/map/view3d/map_view_mesh_builder_district_life_props.gd"
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.iron_scrap_pile.png",
+    "icon": "res://assets/objects/icons/obj.iron_scrap_pile.png",
+    "icon_status": "missing",
+    "look": "Rusty horseshoes, nails, rings and broken tools heaped together.",
+    "image_prompt": "Scrap iron pile: Rusty horseshoes, nails, rings and broken tools heaped together."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite"
+}

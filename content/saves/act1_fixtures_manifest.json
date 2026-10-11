@@ -1,0 +1,22 @@
+{
+  "fixtures": [
+    {
+      "id": "save.act1_boundary_seal",
+      "path": "act1/save.act1_boundary_seal.json",
+      "description": "Act 1 transition fixture after St. George's Night seal family.",
+      "act_boundary": "seal"
+    },
+    {
+      "id": "save.act1_boundary_break",
+      "path": "act1/save.act1_boundary_break.json",
+      "description": "Act 1 transition fixture after St. George's Night break family.",
+      "act_boundary": "break"
+    },
+    {
+      "id": "save.act1_boundary_open",
+      "path": "act1/save.act1_boundary_open.json",
+      "description": "Act 1 transition fixture after St. George's Night open family.",
+      "act_boundary": "open"
+    }
+  ]
+}

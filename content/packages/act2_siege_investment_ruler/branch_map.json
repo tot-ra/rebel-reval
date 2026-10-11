@@ -1,0 +1,47 @@
+{
+  "quest_id": "quest.act2.siege.investment.ruler",
+  "branches": [
+    {
+      "id": "direct_route",
+      "route": "combat",
+      "transitions": [
+        "brief",
+        "resolve_direct"
+      ],
+      "setup": {},
+      "require_flags": {},
+      "expect": {
+        "quest_state": "direct_complete",
+        "flags": {
+          "flag.act2.siege.investment.ruler.briefed": true,
+          "flag.act2.siege.investment.ruler.direct_resolved": true,
+          "flag.war.siege_phase.investment": true
+        },
+        "ledger_events": [
+          "ledger.act2.siege.investment.ruler.direct"
+        ]
+      }
+    },
+    {
+      "id": "quiet_route",
+      "route": "non_combat",
+      "transitions": [
+        "brief",
+        "resolve_quiet"
+      ],
+      "setup": {},
+      "require_flags": {},
+      "expect": {
+        "quest_state": "quiet_complete",
+        "flags": {
+          "flag.act2.siege.investment.ruler.briefed": true,
+          "flag.act2.siege.investment.ruler.quiet_resolved": true,
+          "flag.war.siege_phase.investment": true
+        },
+        "ledger_events": [
+          "ledger.act2.siege.investment.ruler.quiet"
+        ]
+      }
+    }
+  ]
+}

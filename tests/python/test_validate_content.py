@@ -1,0 +1,884 @@
+#!/usr/bin/env python3
+"""Tests for tools/validate_content.py (P1-004)."""
+
+from __future__ import annotations
+
+import contextlib
+import io
+import json
+import sys
+import tempfile
+import unittest
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[2]
+TOOLS_DIR = ROOT / "tools"
+if str(TOOLS_DIR) not in sys.path:
+    sys.path.insert(0, str(TOOLS_DIR))
+
+from validate_content import main, validate_corpus  # noqa: E402
+
+
+def _codes(diagnostics) -> list[str]:
+    return [item.code for item in diagnostics]
+
+
+def _write(path: Path, payload: dict) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+
+
+def _minimal_character(char_id: str = "char.test_a", **overrides) -> dict:
+    record = {
+        "type": "character",
+        "id": char_id,
+        "name": "Test",
+        "role": "fixture",
+        "confidence": "invented",
+        "canon_status": "draft",
+        "approval": {"status": "draft"},
+        "pronunciation": "TEST",
+        "brief": {
+            "want": "want",
+            "fear": "fear",
+            "contradiction": "contradiction",
+            "secret_or_withheld_fact": "secret",
+        },
+        "relationships": [],
+        "voice": {"summary": "voice", "diction": "diction"},
+        "outcomes": [{"id": "end", "summary": "outcome"}],
+        "source_notes": [{"confidence": "invented", "summary": "fixture"}],
+    }
+    record.update(overrides)
+    return record
+
+
+def _minimal_location(loc_id: str = "loc.test_a", scene_path: str | None = None, **overrides) -> dict:
+    record = {
+        "type": "location",
+        "id": loc_id,
+        "name": "Test Location",
+        "district": "Lower Town",
+        "confidence": "invented",
+        "canon_status": "draft",
+        "approval": {"status": "draft"},
+        "description": "fixture",
+        "gameplay_space": True,
+        "pressure_tags": ["Community"],
+        "phase_states": [{"id": "start", "description": "start"}],
+        "source_notes": [{"confidence": "invented", "summary": "fixture"}],
+    }
+    if scene_path is not None:
+        record["scene_path"] = scene_path
+    record.update(overrides)
+    return record
+
+
+def _minimal_item(item_id: str = "item.test_a", **overrides) -> dict:
+    record = {
+        "type": "item",
+        "id": item_id,
+        "name": "Test Item",
+        "category": "supply",
+        "confidence": "invented",
+        "canon_status": "draft",
+        "approval": {"status": "draft"},
+        "gameplay": {"visible_in_pouch": True, "stackable": False, "uses": ["fixture"]},
+        "source_notes": [{"confidence": "invented", "summary": "fixture"}],
+    }
+    record.update(overrides)
+    return record
+
+
+def _minimal_quest(quest_id: str = "quest.test_a", **overrides) -> dict:
+    record = {
+        "type": "quest",
+        "id": quest_id,
+        "title": "Test Quest",
+        "summary": "fixture",
+        "confidence": "invented",
+        "canon_status": "draft",
+        "approval": {"status": "draft"},
+        "entry_conditions": [],
+        "initial_state": "open",
+        "states": [
+            {"id": "open", "label": "Open"},
+            {"id": "done", "label": "Done", "terminal": True},
+        ],
+        "transitions": [
+            {
+                "id": "complete",
+                "from_state": "open",
+                "to_state": "done",
+                "effects": [{"op": "set_flag", "key": "flag.quest_done", "value": True}],
+            }
+        ],
+        "objectives": [{"id": "obj", "text": "Do thing", "state_id": "open"}],
+        "outcomes": [
+            {
+                "id": "done",
+                "summary": "Done",
+                "effects": [{"op": "set_flag", "key": "flag.quest_done", "value": True}],
+            }
+        ],
+        "content_links": {},
+        "source_notes": [{"confidence": "invented", "summary": "fixture"}],
+    }
+    record.update(overrides)
+    return record
+
+
+def _minimal_dialogue(dialogue_id: str = "dialogue.test_a", **overrides) -> dict:
+    record = {
+        "type": "dialogue",
+        "id": dialogue_id,
+        "title": "Test Dialogue",
+        "confidence": "invented",
+        "canon_status": "draft",
+        "approval": {"status": "draft"},
+        "deterministic_offline": {
+            "authored": True,
+            "runtime_llm_allowed": False,
+            "free_text_input_allowed": False,
+            "selection": "explicit_node_id",
+        },
+        "participants": ["char.test_a"],
+        "start_node_id": "start",
+        "nodes": [
+            {"id": "start", "speaker_id": "char.test_a", "text": "Hello.", "next_node_id": "end"},
+            {"id": "end", "speaker_id": "char.test_a", "text": "Goodbye."},
+        ],
+        "source_notes": [{"confidence": "invented", "summary": "fixture"}],
+    }
+    record.update(overrides)
+    return record
+
+
+def _minimal_commission(**overrides) -> dict:
+    record = {
+        "type": "commission",
+        "id": "commission.test_a",
+        "title": "Test Commission",
+        "client_id": "char.test_a",
+        "quest_id": "quest.test_a",
+        "object_item_id": "item.test_a",
+        "location_id": "loc.test_a",
+        "confidence": "invented",
+        "canon_status": "draft",
+        "approval": {"status": "draft"},
+        "concrete_order": "Make a fixture.",
+        "hidden_contradiction": "The fixture hides a test case.",
+        "investigation_clues": [{"id": "clue", "summary": "Fixture clue"}],
+        "forging_options": [
+            {"id": "honest_work", "label": "Honest", "effects": []},
+            {"id": "subtle_defect", "label": "Defect", "effects": []},
+        ],
+        "night_consequence": "Fixture consequence.",
+        "source_notes": [{"confidence": "invented", "summary": "fixture"}],
+    }
+    record.update(overrides)
+    return record
+
+
+class ValidateContentTests(unittest.TestCase):
+    def test_aura_fixtures_and_legacy_character(self) -> None:
+        self.assertEqual(validate_corpus([
+            ROOT / "content/examples/valid/character.aura.json"
+        ], project_root=ROOT), [])
+        for suffix, code in [("light", "AURA_LIGHT"), ("level", "AURA_LEVEL")]:
+            with self.subTest(suffix=suffix):
+                diagnostics = validate_corpus([
+                    ROOT / f"content/examples/invalid/character.aura_{suffix}.json"
+                ], project_root=ROOT)
+                self.assertIn(code, _codes(diagnostics))
+
+    def test_aura_levels_masks_and_schema_shape(self) -> None:
+        lights = [f"aspect.{name}" for name in
+                  ("nature", "affection", "tenacity", "unity", "resonance", "awareness", "light")]
+        levels = dict.fromkeys(lights, 0)
+        cases = [
+            ({"levels": levels}, None),
+            ({"levels": dict.fromkeys(lights, 5), "clarity": 1}, None),
+            ({"levels": levels, "clarity": 0, "closed_mask": lights}, None),
+            ({"levels": levels, "clarity": -0.1}, "SCHEMA"),
+            ({"levels": levels, "clarity": 1.1}, "SCHEMA"),
+            ({"levels": levels, "clarity": True}, "SCHEMA"),
+            ({"levels": levels, "closed_mask": ["aspect.fake"]}, "AURA_LIGHT"),
+            ({"levels": levels, "closed_mask": ["aspect.nature"] * 2}, "AURA_LIGHT"),
+            ({"levels": levels, "closed_mask": [{}]}, "AURA_LIGHT"),
+            ({"levels": dict.fromkeys(lights, 1), "closed_mask": ["aspect.nature"]}, "AURA_LEVEL"),
+            ({"levels": {}}, "SCHEMA"),
+            ({"levels": []}, "SCHEMA"),
+            ({"clarity": 1}, "SCHEMA"),
+            ({"levels": levels, "extra": 1}, "SCHEMA"),
+        ]
+        for bad in [-1, 6, 1.5, True, "3", None]:
+            cases.append(({"levels": {**levels, "aspect.unity": bad}}, "AURA_LEVEL"))
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            path = root / "char.json"
+            for aura, code in cases:
+                with self.subTest(aura=aura):
+                    _write(path, _minimal_character(aura=aura))
+                    diagnostics = validate_corpus([path], project_root=root)
+                    if code is None:
+                        self.assertEqual(diagnostics, [])
+                    else:
+                        self.assertIn(code, _codes(diagnostics))
+            # Omitting the entire optional block remains backward compatible.
+            _write(path, _minimal_character())
+            self.assertEqual(validate_corpus([path], project_root=root), [])
+
+    def test_valid_minimal_corpus_passes(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            scene = root / "scenes" / "room.tscn"
+            scene.parent.mkdir(parents=True)
+            scene.write_text("[gd_scene]\n", encoding="utf-8")
+            content = root / "content"
+            _write(content / "char.a.json", _minimal_character())
+            _write(
+                content / "loc.a.json",
+                _minimal_location(scene_path="res://scenes/room.tscn"),
+            )
+            diagnostics = validate_corpus([content], project_root=root)
+            self.assertEqual(diagnostics, [])
+
+    def test_valid_conditions_and_effects_are_classified_separately(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            content = root / "content"
+            _write(content / "char.json", _minimal_character())
+            _write(
+                content / "dialogue.json",
+                _minimal_dialogue(
+                    nodes=[
+                        {
+                            "id": "start",
+                            "speaker_id": "char.test_a",
+                            "text": "Mixed operations.",
+                            "conditions": [{"op": "flag_is", "key": "flag.open", "value": True}],
+                            "effects": [{"op": "set_flag", "key": "flag.seen", "value": True}],
+                        }
+                    ]
+                ),
+            )
+            diagnostics = validate_corpus([content], project_root=root)
+            self.assertEqual(diagnostics, [])
+
+    def test_magic_grant_revoke_records_validate(self) -> None:
+        fixtures = [
+            ROOT / "content/examples/valid/spell.pagan.spark.json",
+            ROOT / "content/examples/valid/rite.blessing.json",
+            ROOT / "content/examples/valid/magic.grant.starter_spark.json",
+            ROOT / "content/examples/valid/magic.revoke.starter_spark.json",
+            ROOT / "content/examples/valid/magic.grant.starter_blessing.json",
+            ROOT / "content/examples/valid/magic.revoke.starter_blessing.json",
+        ]
+        diagnostics = validate_corpus(fixtures, project_root=ROOT)
+        self.assertEqual(diagnostics, [])
+
+        records = [json.loads(path.read_text(encoding="utf-8")) for path in fixtures]
+        self.assertEqual(
+            [record["id"] for record in records],
+            [
+                "spell.pagan.spark",
+                "rite.blessing",
+                "magic.grant.starter_spark",
+                "magic.revoke.starter_spark",
+                "magic.grant.starter_blessing",
+                "magic.revoke.starter_blessing",
+            ],
+        )
+        self.assertEqual({records[2]["operation"], records[3]["operation"]}, {"grant", "revoke"})
+        self.assertEqual(records[4]["target_id"], "rite.blessing")
+        self.assertEqual(records[5]["target_id"], "rite.blessing")
+        self.assertFalse(records[0]["runtime_combination_allowed"])
+        self.assertTrue(records[1]["fixed_liturgy"])
+
+    def test_magic_runtime_combination_and_overlong_sequence_are_rejected(self) -> None:
+        invalid_root = ROOT / "content/examples/invalid"
+        for name, needle in (
+            ("spell.pagan.runtime_combo.json", "authored_lookup"),
+            ("spell.pagan.four_element_sequence.json", "more than 3 items"),
+        ):
+            diagnostics = validate_corpus([invalid_root / name], project_root=ROOT)
+            self.assertIn("SCHEMA", {diagnostic.code for diagnostic in diagnostics}, name)
+            self.assertTrue(
+                any(needle in diagnostic.message for diagnostic in diagnostics),
+                diagnostics,
+            )
+
+    def test_magic_grant_unknown_target_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            content = root / "content"
+            grant = json.loads(
+                (
+                    ROOT / "content/examples/valid/magic.grant.starter_spark.json"
+                ).read_text(encoding="utf-8")
+            )
+            grant["target_id"] = "spell.pagan.missing_cookbook"
+            _write(content / "grant.json", grant)
+
+            diagnostics = validate_corpus([content], project_root=root)
+            self.assertIn("REFERENCE", {diagnostic.code for diagnostic in diagnostics})
+            self.assertTrue(
+                any("spell.pagan.missing_cookbook" in diagnostic.message for diagnostic in diagnostics),
+                diagnostics,
+            )
+
+    def test_magic_contract_rejects_cross_school_and_operation_mismatch(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            content = root / "content"
+
+            spark = json.loads(
+                (ROOT / "content/examples/valid/spell.pagan.spark.json").read_text(encoding="utf-8")
+            )
+            _write(content / "spark.json", spark)
+
+            spell = json.loads(
+                (ROOT / "content/examples/valid/spell.pagan.spark.json").read_text(encoding="utf-8")
+            )
+            spell["id"] = "spell.pagan.cross_school"
+            spell["school"] = "school.divine"
+            spell.pop("sequence")
+            _write(content / "spell.json", spell)
+
+            rite = json.loads(
+                (ROOT / "content/examples/valid/rite.blessing.json").read_text(encoding="utf-8")
+            )
+            rite["sequence"] = ["element.faith"]
+            _write(content / "rite.json", rite)
+
+            grant = json.loads(
+                (
+                    ROOT / "content/examples/valid/magic.grant.starter_spark.json"
+                ).read_text(encoding="utf-8")
+            )
+            grant["operation"] = "revoke"
+            _write(content / "grant.json", grant)
+
+            diagnostics = validate_corpus([content], project_root=root)
+
+            self.assertEqual(
+                {diagnostic.code for diagnostic in diagnostics},
+                {"MAGIC_CONTRACT"},
+            )
+            messages = [diagnostic.message for diagnostic in diagnostics]
+            self.assertTrue(any("authored element sequence" in message for message in messages))
+            self.assertTrue(any("fixed tags" in message for message in messages))
+            self.assertTrue(any("must use operation grant" in message for message in messages))
+
+    def test_json_parse_error(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            bad = root / "bad.json"
+            bad.write_text("{not json", encoding="utf-8")
+            diagnostics = validate_corpus([bad], project_root=root)
+            self.assertIn("JSON_PARSE", _codes(diagnostics))
+
+    def test_schema_error(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            bad = root / "bad.json"
+            _write(bad, {"type": "character", "id": "char.bad"})
+            diagnostics = validate_corpus([bad], project_root=root)
+            self.assertIn("SCHEMA", _codes(diagnostics))
+
+    def test_duplicate_global_id(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            content = root / "content"
+            _write(content / "a.json", _minimal_character())
+            _write(content / "b.json", _minimal_character())
+            diagnostics = validate_corpus([content], project_root=root)
+            self.assertIn("DUPLICATE_ID", _codes(diagnostics))
+
+    def test_reference_missing_character(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            content = root / "content"
+            _write(
+                content / "dialogue.json",
+                _minimal_dialogue(participants=["char.missing"]),
+            )
+            diagnostics = validate_corpus([content], project_root=root)
+            self.assertIn("REFERENCE", _codes(diagnostics))
+
+    def test_dialogue_unreachable_node(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            content = root / "content"
+            _write(content / "char.json", _minimal_character())
+            _write(
+                content / "dialogue.json",
+                _minimal_dialogue(
+                    nodes=[
+                        {"id": "start", "speaker_id": "char.test_a", "text": "Hi."},
+                        {"id": "orphan", "speaker_id": "char.test_a", "text": "Never reached."},
+                    ]
+                ),
+            )
+            diagnostics = validate_corpus([content], project_root=root)
+            self.assertIn("REACHABILITY", _codes(diagnostics))
+
+    def _duel_codes(self, **overrides) -> list[str]:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            content = root / "content"
+            _write(content / "char.json", _minimal_character())
+            _write(content / "dialogue.json", _minimal_dialogue(**overrides))
+            return _codes(validate_corpus([content], project_root=root))
+
+    @staticmethod
+    def _duel_nodes(move: dict) -> list[dict]:
+        return [
+            {"id": "start", "speaker_id": "char.test_a", "text": "Shame on you.", "move": move, "next_node_id": "end"},
+            {"id": "end", "speaker_id": "char.test_a", "text": "Enough."},
+        ]
+
+    def test_duel_valid_markup_passes(self) -> None:
+        move = {"kind": "attack", "element": "shame", "stakes": ["respect"], "spirit_image_id": "chain"}
+        codes = self._duel_codes(
+            nodes=self._duel_nodes(move), duel={"stakes": ["respect", "secret"], "resolution_node_ids": ["end"]}
+        )
+        self.assertEqual(codes, [])
+
+    def test_untagged_dialogue_stays_valid(self) -> None:
+        self.assertEqual(self._duel_codes(), [])
+
+    def test_duel_move_without_duel_declaration(self) -> None:
+        codes = self._duel_codes(nodes=self._duel_nodes({"kind": "attack", "element": "fear"}))
+        self.assertIn("DUEL_MISSING", codes)
+
+    def test_duel_undeclared_stake(self) -> None:
+        move = {"kind": "feint", "element": "coin", "stakes": ["secret"]}
+        codes = self._duel_codes(
+            nodes=self._duel_nodes(move), duel={"stakes": ["respect"], "resolution_node_ids": ["end"]}
+        )
+        self.assertIn("DUEL_STAKE", codes)
+
+    def test_duel_topic_valid_and_undeclared_tags(self) -> None:
+        topic = {"id": "key", "tags": ["key"], "lines": {"shame": [{"text": "x", "relevance": ["key"]}]}}
+        move = {"kind": "attack", "element": "shame", "topic_tags": ["key"]}
+        duel = {"stakes": ["respect"], "resolution_node_ids": ["end"], "topic": topic}
+        self.assertEqual(self._duel_codes(nodes=self._duel_nodes(move), duel=duel), [])
+        bad = dict(topic, lines={"shame": [{"text": "x", "relevance": ["moon"]}]})
+        codes = self._duel_codes(nodes=self._duel_nodes(move), duel=dict(duel, topic=bad))
+        self.assertIn("DUEL_TOPIC", codes)
+        move2 = {"kind": "attack", "element": "shame", "topic_tags": ["moon"]}
+        self.assertIn("DUEL_TOPIC", self._duel_codes(nodes=self._duel_nodes(move2), duel=duel))
+
+    def test_duel_unreachable_resolution(self) -> None:
+        nodes = self._duel_nodes({"kind": "defense", "element": "duty"})
+        nodes[0].pop("next_node_id")
+        codes = self._duel_codes(nodes=nodes, duel={"stakes": ["balance"], "resolution_node_ids": ["end"]})
+        self.assertIn("REACHABILITY", codes)
+
+    def test_duel_unknown_resolution_and_untagged_duel(self) -> None:
+        codes = self._duel_codes(duel={"stakes": ["balance"], "resolution_node_ids": ["nowhere"]})
+        self.assertIn("REFERENCE", codes)
+        self.assertIn("DUEL_UNTAGGED", codes)
+
+    def test_duel_bad_move_enum_fails_schema(self) -> None:
+        codes = self._duel_codes(
+            nodes=self._duel_nodes({"kind": "stab", "element": "fear"}),
+            duel={"stakes": ["respect"], "resolution_node_ids": ["end"]},
+        )
+        self.assertTrue(codes)
+
+    def test_dialogue_bad_edge_reference(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            content = root / "content"
+            _write(content / "char.json", _minimal_character())
+            _write(
+                content / "dialogue.json",
+                _minimal_dialogue(
+                    nodes=[
+                        {
+                            "id": "start",
+                            "speaker_id": "char.test_a",
+                            "text": "Hi.",
+                            "choices": [
+                                {"id": "go", "text": "Go", "target_node_id": "missing"},
+                            ],
+                        }
+                    ]
+                ),
+            )
+            diagnostics = validate_corpus([content], project_root=root)
+            self.assertIn("REFERENCE", _codes(diagnostics))
+
+    def test_unsupported_condition_bad_key_namespace(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            content = root / "content"
+            _write(
+                content / "quest.json",
+                _minimal_quest(
+                    entry_conditions=[{"op": "flag_is", "key": "quest.wrong", "value": True}]
+                ),
+            )
+            diagnostics = validate_corpus([content], project_root=root)
+            self.assertIn("UNSUPPORTED_CONDITION", _codes(diagnostics))
+
+    def test_unsupported_condition_quest_state_value(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            content = root / "content"
+            _write(content / "quest.json", _minimal_quest())
+            _write(
+                content / "dialogue.json",
+                _minimal_dialogue(
+                    participants=["char.test_a"],
+                    nodes=[
+                        {
+                            "id": "start",
+                            "speaker_id": "char.test_a",
+                            "text": "Gate",
+                            "conditions": [
+                                {
+                                    "op": "quest_state_is",
+                                    "key": "quest.test_a",
+                                    "value": "missing_state",
+                                }
+                            ],
+                        }
+                    ],
+                ),
+            )
+            _write(content / "char.json", _minimal_character())
+            diagnostics = validate_corpus([content], project_root=root)
+            self.assertIn("UNSUPPORTED_CONDITION", _codes(diagnostics))
+
+    def test_unsupported_effect_bad_key_namespace(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            content = root / "content"
+            _write(
+                content / "quest.json",
+                _minimal_quest(
+                    outcomes=[
+                        {
+                            "id": "done",
+                            "summary": "Done",
+                            "effects": [{"op": "set_flag", "key": "char.bad", "value": True}],
+                        }
+                    ]
+                ),
+            )
+            diagnostics = validate_corpus([content], project_root=root)
+            self.assertIn("UNSUPPORTED_EFFECT", _codes(diagnostics))
+
+    def test_quest_transition_rejects_unknown_state_reference(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            content = root / "content"
+            _write(
+                content / "quest.json",
+                _minimal_quest(
+                    transitions=[
+                        {
+                            "id": "complete",
+                            "from_state": "open",
+                            "to_state": "missing",
+                            "effects": [],
+                        }
+                    ]
+                ),
+            )
+            diagnostics = validate_corpus([content], project_root=root)
+            self.assertIn("REFERENCE", _codes(diagnostics))
+
+    def test_quest_transition_rejects_duplicate_ids(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            content = root / "content"
+            transition = {
+                "id": "complete",
+                "from_state": "open",
+                "to_state": "done",
+                "effects": [],
+            }
+            _write(content / "quest.json", _minimal_quest(transitions=[transition, transition]))
+            diagnostics = validate_corpus([content], project_root=root)
+            self.assertIn("DUPLICATE_ID", _codes(diagnostics))
+
+    def test_quest_transition_rejects_direct_self_state_effect(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            content = root / "content"
+            _write(
+                content / "quest.json",
+                _minimal_quest(
+                    transitions=[
+                        {
+                            "id": "complete",
+                            "from_state": "open",
+                            "to_state": "done",
+                            "effects": [
+                                {
+                                    "op": "set_quest_state",
+                                    "key": "quest.test_a",
+                                    "value": "done",
+                                }
+                            ],
+                        }
+                    ]
+                ),
+            )
+            diagnostics = validate_corpus([content], project_root=root)
+            self.assertIn("UNSUPPORTED_EFFECT", _codes(diagnostics))
+
+    def test_missing_asset_scene_path(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            content = root / "content"
+            _write(
+                content / "loc.json",
+                _minimal_location(scene_path="res://scenes/does_not_exist.tscn"),
+            )
+            diagnostics = validate_corpus([content], project_root=root)
+            self.assertIn("MISSING_ASSET", _codes(diagnostics))
+
+    def test_local_duplicate_dialogue_node_ids(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            content = root / "content"
+            _write(content / "char.json", _minimal_character())
+            _write(
+                content / "dialogue.json",
+                _minimal_dialogue(
+                    nodes=[
+                        {"id": "start", "speaker_id": "char.test_a", "text": "One"},
+                        {"id": "start", "speaker_id": "char.test_a", "text": "Duplicate"},
+                    ]
+                ),
+            )
+            diagnostics = validate_corpus([content], project_root=root)
+            self.assertIn("DUPLICATE_ID", _codes(diagnostics))
+
+    def test_reference_missing_quest_for_quest_state_is(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            content = root / "content"
+            _write(content / "char.json", _minimal_character())
+            _write(
+                content / "dialogue.json",
+                _minimal_dialogue(
+                    nodes=[
+                        {
+                            "id": "start",
+                            "speaker_id": "char.test_a",
+                            "text": "Gate",
+                            "conditions": [
+                                {
+                                    "op": "quest_state_is",
+                                    "key": "quest.missing",
+                                    "value": "open",
+                                }
+                            ],
+                        }
+                    ],
+                ),
+            )
+            diagnostics = validate_corpus([content], project_root=root)
+            self.assertIn("REFERENCE", _codes(diagnostics))
+
+    def test_commission_requires_use_condition_semantics(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            content = root / "content"
+            _write(content / "char.json", _minimal_character())
+            _write(content / "quest.json", _minimal_quest())
+            _write(content / "item.json", _minimal_item())
+            _write(content / "loc.json", _minimal_location())
+            _write(
+                content / "commission.json",
+                _minimal_commission(
+                    forging_options=[
+                        {
+                            "id": "honest_work",
+                            "label": "Honest",
+                            "requires": [{"op": "flag_is", "key": "quest.wrong", "value": True}],
+                            "effects": [],
+                        },
+                        {"id": "subtle_defect", "label": "Defect", "effects": []},
+                    ]
+                ),
+            )
+            diagnostics = validate_corpus([content], project_root=root)
+            self.assertIn("UNSUPPORTED_CONDITION", _codes(diagnostics))
+
+    def test_duplicate_commission_forging_option_ids(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            content = root / "content"
+            _write(content / "char.json", _minimal_character())
+            _write(content / "quest.json", _minimal_quest())
+            _write(content / "item.json", _minimal_item())
+            _write(content / "loc.json", _minimal_location())
+            _write(
+                content / "commission.json",
+                _minimal_commission(
+                    forging_options=[
+                        {"id": "honest_work", "label": "One", "effects": []},
+                        {"id": "honest_work", "label": "Duplicate", "effects": []},
+                    ]
+                ),
+            )
+            diagnostics = validate_corpus([content], project_root=root)
+            self.assertIn("DUPLICATE_ID", _codes(diagnostics))
+
+    def test_reference_missing_quest_for_set_quest_state(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            content = root / "content"
+            _write(
+                content / "quest.json",
+                _minimal_quest(
+                    outcomes=[
+                        {
+                            "id": "done",
+                            "summary": "Done",
+                            "effects": [
+                                {
+                                    "op": "set_quest_state",
+                                    "key": "quest.missing",
+                                    "value": "open",
+                                }
+                            ],
+                        }
+                    ]
+                ),
+            )
+            diagnostics = validate_corpus([content], project_root=root)
+            self.assertIn("REFERENCE", _codes(diagnostics))
+
+    def test_reference_missing_location_for_set_location_state(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            content = root / "content"
+            _write(
+                content / "quest.json",
+                _minimal_quest(
+                    outcomes=[
+                        {
+                            "id": "done",
+                            "summary": "Done",
+                            "effects": [
+                                {
+                                    "op": "set_location_state",
+                                    "key": "loc.missing",
+                                    "value": "start",
+                                }
+                            ],
+                        }
+                    ]
+                ),
+            )
+            diagnostics = validate_corpus([content], project_root=root)
+            self.assertIn("REFERENCE", _codes(diagnostics))
+
+    def test_unknown_condition_op(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            content = root / "content"
+            _write(
+                content / "quest.json",
+                _minimal_quest(
+                    entry_conditions=[{"op": "totally_unknown_condition", "key": "flag.x", "value": True}]
+                ),
+            )
+            diagnostics = validate_corpus([content], project_root=root)
+            self.assertIn("UNSUPPORTED_CONDITION", _codes(diagnostics))
+            self.assertNotIn("SCHEMA", _codes(diagnostics))
+
+    def test_unknown_effect_op(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            content = root / "content"
+            _write(
+                content / "quest.json",
+                _minimal_quest(
+                    outcomes=[
+                        {
+                            "id": "done",
+                            "summary": "Done",
+                            "effects": [{"op": "totally_unknown_effect", "key": "flag.x"}],
+                        }
+                    ]
+                ),
+            )
+            diagnostics = validate_corpus([content], project_root=root)
+            self.assertIn("UNSUPPORTED_EFFECT", _codes(diagnostics))
+            self.assertNotIn("SCHEMA", _codes(diagnostics))
+
+    def test_nonexistent_path_input(self) -> None:
+        missing = Path(tempfile.gettempdir()) / "validate_content_missing_path"
+        diagnostics = validate_corpus([missing], project_root=ROOT)
+        self.assertIn("INPUT", _codes(diagnostics))
+
+    def test_duplicate_input_paths_are_validated_once(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            content = root / "content"
+            _write(content / "char.json", _minimal_character())
+
+            diagnostics = validate_corpus([content, content / "."], project_root=root)
+
+            self.assertEqual(diagnostics, [])
+
+    def test_empty_corpus_input(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            diagnostics = validate_corpus([Path(tmp)], project_root=ROOT)
+            self.assertIn("INPUT", _codes(diagnostics))
+
+    def test_cli_quiet_suppresses_diagnostics_and_preserves_failure(self) -> None:
+        missing = Path(tempfile.gettempdir()) / "validate_content_cli_quiet_missing_path"
+        output = io.StringIO()
+        with contextlib.redirect_stdout(output), contextlib.redirect_stderr(output):
+            result = main(["--quiet", str(missing)])
+        self.assertEqual(result, 1)
+        self.assertEqual(output.getvalue(), "")
+
+    def test_cli_quiet_success_is_silent(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            content = Path(tmp) / "content"
+            _write(content / "char.json", _minimal_character())
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output), contextlib.redirect_stderr(output):
+                result = main([str(content), "--quiet"])
+            self.assertEqual(result, 0)
+            self.assertEqual(output.getvalue(), "")
+
+    def test_cli_fails_on_nonexistent_path(self) -> None:
+        missing = Path(tempfile.gettempdir()) / "validate_content_cli_missing_path"
+        self.assertEqual(main([str(missing)]), 1)
+
+    def test_cli_fails_on_empty_corpus(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            self.assertEqual(main([tmp]), 1)
+
+    def test_res_path_traversal_blocked(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            outside = root.parent / f"{root.name}_outside_room.tscn"
+            outside.write_text("[gd_scene]\n", encoding="utf-8")
+            try:
+                content = root / "content"
+                _write(
+                    content / "loc.json",
+                    _minimal_location(scene_path=f"res://../{outside.name}"),
+                )
+                diagnostics = validate_corpus([content], project_root=root)
+                self.assertIn("INPUT", _codes(diagnostics))
+            finally:
+                outside.unlink(missing_ok=True)
+
+
+if __name__ == "__main__":
+    unittest.main()

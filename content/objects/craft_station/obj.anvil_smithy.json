@@ -1,0 +1,63 @@
+{
+  "type": "world_object",
+  "id": "obj.anvil_smithy",
+  "name": "Kalev's anvil",
+  "description": "The smithy's anvil on its oak stump: where every commission is worked.",
+  "category": "craft_station",
+  "handling": "fixed",
+  "tags": [
+    "smithing",
+    "station",
+    "forge"
+  ],
+  "physical": {
+    "mass_kg": 120,
+    "size_m": [
+      1.18,
+      0.8,
+      1.28
+    ],
+    "materials": [
+      "iron",
+      "wood"
+    ]
+  },
+  "actions": [
+    "inspect"
+  ],
+  "economy": {
+    "base_pfennigs": 400,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 0
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "forge"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/forge/kalev_smithy_anvil/kalev_smithy_anvil.glb",
+    "prop_kind": "anvil",
+    "measured_size_m": [
+      1.18,
+      0.8,
+      1.28
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.anvil_smithy.png",
+    "icon": "res://assets/objects/icons/obj.anvil_smithy.png",
+    "icon_status": "missing",
+    "look": "Black-faced iron anvil with a horn and hardy hole on a scorched oak block.",
+    "image_prompt": "Kalev's anvil: Black-faced iron anvil with a horn and hardy hole on a scorched oak block."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "uses": [
+    "forge and modify commissions"
+  ]
+}

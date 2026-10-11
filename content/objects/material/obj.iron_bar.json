@@ -1,0 +1,67 @@
+{
+  "type": "world_object",
+  "id": "obj.iron_bar",
+  "name": "Iron bar",
+  "description": "A bar of wrought iron: the smith's raw stock and the 'trade.iron' price anchor (24 pfennigs).",
+  "category": "material",
+  "handling": "carry_one_hand",
+  "tags": [
+    "iron",
+    "stock",
+    "smithing",
+    "restricted_trade"
+  ],
+  "physical": {
+    "mass_kg": 3.5,
+    "size_m": [
+      0.6,
+      0.04,
+      0.04
+    ],
+    "materials": [
+      "iron"
+    ]
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop",
+    "stack"
+  ],
+  "economy": {
+    "base_pfennigs": 24,
+    "ownership": "merchant",
+    "legality": "restricted",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "forge",
+      "warehouse",
+      "market"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "missing"
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.iron_bar.png",
+    "icon": "res://assets/objects/icons/obj.iron_bar.png",
+    "icon_status": "missing",
+    "look": "Dull grey square-section iron bar with a rough sheared end.",
+    "image_prompt": "A single dull grey wrought-iron bar of square section with a rough sheared end"
+  },
+  "lifecycle": "planned",
+  "confidence": "plausible composite",
+  "uses": [
+    "forge into commissions"
+  ],
+  "carry": {
+    "grid_width": 1,
+    "grid_height": 3,
+    "stackable": true,
+    "max_stack": 3
+  }
+}

@@ -1,0 +1,491 @@
+{
+  "generator": "tools/character_specs.py crowd_variant_entry",
+  "bodies": [
+    {
+      "name": "crowd_townsman_01",
+      "output": "assets/characters/shared/crowd_townsman_01.glb",
+      "template": "townsman",
+      "seed": 1,
+      "stature_factor": 0.9193,
+      "build_factor": 1.1357,
+      "gait": "Walking_B",
+      "skin_tone": 0.69,
+      "hair": "flaxen",
+      "dyes": {
+        "tunic": "weld_yellow",
+        "outerwear": "undyed_brown",
+        "pants": "woad_blue",
+        "accent": "walnut_brown",
+        "sleeves": "bleached_linen",
+        "boots": "tan",
+        "belt": "oiled"
+      },
+      "proportions": {
+        "leg_length": 1.7007,
+        "arm_length": 1.1491,
+        "torso_length": 0.809,
+        "shoulder_width": 0.8435
+      },
+      "shape": {
+        "bulk": 1.1357,
+        "chest_breadth": 1.0078,
+        "belly": 1.2558,
+        "head_scale": 1.0
+      },
+      "face": {
+        "width": 1.0275,
+        "depth": 1.0473,
+        "length": 1.0439,
+        "jaw_width": 1.0606,
+        "nose_length": 1.0601,
+        "eye_spacing": 1.0084,
+        "brow_height": 0.9897
+      },
+      "features": {
+        "hair_style": "full",
+        "beard_style": "short",
+        "sleeve_style": "long",
+        "tunic_length": "long",
+        "outerwear": "none"
+      },
+      "palette": {
+        "beard": [
+          0.5984,
+          0.484,
+          0.2992,
+          1.0
+        ],
+        "belt": [
+          0.3986,
+          0.2786,
+          0.1786,
+          1.0
+        ],
+        "boots": [
+          0.4854,
+          0.3354,
+          0.1954,
+          1.0
+        ],
+        "hair": [
+          0.68,
+          0.55,
+          0.34,
+          1.0
+        ],
+        "outerwear": [
+          0.3789,
+          0.2989,
+          0.2189,
+          1.0
+        ],
+        "pants": [
+          0.2796,
+          0.3596,
+          0.4696,
+          1.0
+        ],
+        "skin": [
+          0.7389,
+          0.5382,
+          0.4082,
+          1.0
+        ],
+        "sleeve_band": [
+          0.3338,
+          0.2438,
+          0.1738,
+          1.0
+        ],
+        "sleeves": [
+          0.8485,
+          0.8285,
+          0.7685,
+          1.0
+        ],
+        "trim": [
+          0.2596,
+          0.1696,
+          0.0996,
+          1.0
+        ],
+        "tunic": [
+          0.5715,
+          0.4915,
+          0.2515,
+          1.0
+        ]
+      },
+      "material_response": {
+        "cloth": 1.312,
+        "leather": 1.2121
+      }
+    },
+    {
+      "name": "crowd_townsman_02",
+      "output": "assets/characters/shared/crowd_townsman_02.glb",
+      "template": "townsman",
+      "seed": 2,
+      "stature_factor": 1.0393,
+      "build_factor": 1.0085,
+      "gait": "Walking_A",
+      "skin_tone": 0.5603,
+      "hair": "dark_brown",
+      "dyes": {
+        "tunic": "woad_weld_green",
+        "outerwear": "undyed_brown",
+        "pants": "walnut_brown",
+        "accent": "madder_red",
+        "sleeves": "bleached_linen",
+        "boots": "dark",
+        "belt": "oiled"
+      },
+      "proportions": {
+        "leg_length": 1.9227,
+        "arm_length": 1.2991,
+        "torso_length": 0.9146,
+        "shoulder_width": 0.784
+      },
+      "shape": {
+        "bulk": 1.0085,
+        "chest_breadth": 0.9515,
+        "belly": 1.1667,
+        "head_scale": 1.0
+      },
+      "face": {
+        "width": 0.9862,
+        "depth": 1.0453,
+        "length": 1.0052,
+        "jaw_width": 0.9639,
+        "nose_length": 0.9473,
+        "eye_spacing": 0.9434,
+        "brow_height": 1.0087
+      },
+      "features": {
+        "hair_style": "bald",
+        "beard_style": "none",
+        "sleeve_style": "long",
+        "tunic_length": "short",
+        "outerwear": "none"
+      },
+      "palette": {
+        "beard": [
+          0.22,
+          0.1496,
+          0.0968,
+          1.0
+        ],
+        "belt": [
+          0.3961,
+          0.2761,
+          0.1761,
+          1.0
+        ],
+        "boots": [
+          0.2704,
+          0.1904,
+          0.1304,
+          1.0
+        ],
+        "hair": [
+          0.25,
+          0.17,
+          0.11,
+          1.0
+        ],
+        "outerwear": [
+          0.3845,
+          0.3045,
+          0.2245,
+          1.0
+        ],
+        "pants": [
+          0.2992,
+          0.2092,
+          0.1392,
+          1.0
+        ],
+        "skin": [
+          0.7635,
+          0.5667,
+          0.4367,
+          1.0
+        ],
+        "sleeve_band": [
+          0.5566,
+          0.2866,
+          0.2166,
+          1.0
+        ],
+        "sleeves": [
+          0.8697,
+          0.8497,
+          0.7897,
+          1.0
+        ],
+        "trim": [
+          0.5084,
+          0.2384,
+          0.1684,
+          1.0
+        ],
+        "tunic": [
+          0.372,
+          0.422,
+          0.302,
+          1.0
+        ]
+      },
+      "material_response": {
+        "cloth": 0.7862,
+        "leather": 1.0482
+      }
+    },
+    {
+      "name": "crowd_townswoman_01",
+      "output": "assets/characters/shared/crowd_townswoman_01.glb",
+      "template": "townswoman",
+      "seed": 1,
+      "stature_factor": 0.9507,
+      "build_factor": 1.1138,
+      "gait": "Walking_B",
+      "skin_tone": 0.6918,
+      "hair": "auburn",
+      "dyes": {
+        "tunic": "madder_red",
+        "outerwear": "undyed_grey",
+        "pants": "undyed_brown",
+        "accent": "woad_blue",
+        "sleeves": "raw_linen",
+        "boots": "oiled",
+        "belt": "dark"
+      },
+      "proportions": {
+        "leg_length": 1.6542,
+        "arm_length": 1.1218,
+        "torso_length": 0.8176,
+        "shoulder_width": 0.6837,
+        "hip_socket_width": 0.69,
+        "head_size": 0.3,
+        "hand_size": 0.72
+      },
+      "shape": {
+        "bulk": 1.0024,
+        "chest_breadth": 0.891,
+        "belly": 1.081,
+        "head_scale": 1.0
+      },
+      "face": {
+        "width": 1.0359,
+        "depth": 1.0529,
+        "length": 0.9393,
+        "jaw_width": 0.9814,
+        "nose_length": 1.0545,
+        "eye_spacing": 1.0536,
+        "brow_height": 0.94
+      },
+      "features": {
+        "hair_style": "ponytail",
+        "beard_style": "none",
+        "sleeve_style": "long",
+        "tunic_length": "long",
+        "outerwear": "kirtle"
+      },
+      "palette": {
+        "beard": [
+          0.4576,
+          0.2376,
+          0.1232,
+          1.0
+        ],
+        "belt": [
+          0.2662,
+          0.1862,
+          0.1262,
+          1.0
+        ],
+        "boots": [
+          0.387,
+          0.267,
+          0.167,
+          1.0
+        ],
+        "hair": [
+          0.52,
+          0.27,
+          0.14,
+          1.0
+        ],
+        "outerwear": [
+          0.4241,
+          0.4041,
+          0.3641,
+          1.0
+        ],
+        "pants": [
+          0.3631,
+          0.2831,
+          0.2031,
+          1.0
+        ],
+        "skin": [
+          0.7386,
+          0.5378,
+          0.4078,
+          1.0
+        ],
+        "sleeve_band": [
+          0.2383,
+          0.3183,
+          0.4283,
+          1.0
+        ],
+        "sleeves": [
+          0.7357,
+          0.6857,
+          0.5757,
+          1.0
+        ],
+        "trim": [
+          0.2932,
+          0.3732,
+          0.4832,
+          1.0
+        ],
+        "tunic": [
+          0.5176,
+          0.2476,
+          0.1776,
+          1.0
+        ]
+      },
+      "material_response": {
+        "cloth": 1.171,
+        "leather": 1.0005
+      }
+    },
+    {
+      "name": "crowd_townswoman_02",
+      "output": "assets/characters/shared/crowd_townswoman_02.glb",
+      "template": "townswoman",
+      "seed": 2,
+      "stature_factor": 1.0137,
+      "build_factor": 0.9083,
+      "gait": "Walking_A",
+      "skin_tone": 0.9329,
+      "hair": "flaxen",
+      "dyes": {
+        "tunic": "woad_weld_green",
+        "outerwear": "undyed_brown",
+        "pants": "undyed_grey",
+        "accent": "walnut_brown",
+        "sleeves": "raw_linen",
+        "boots": "tan",
+        "belt": "dark"
+      },
+      "proportions": {
+        "leg_length": 1.7638,
+        "arm_length": 1.1962,
+        "torso_length": 0.8718,
+        "shoulder_width": 0.6048,
+        "hip_socket_width": 0.69,
+        "head_size": 0.3,
+        "hand_size": 0.72
+      },
+      "shape": {
+        "bulk": 0.8175,
+        "chest_breadth": 0.9683,
+        "belly": 0.919,
+        "head_scale": 1.0
+      },
+      "face": {
+        "width": 1.0317,
+        "depth": 1.0362,
+        "length": 1.0321,
+        "jaw_width": 1.0628,
+        "nose_length": 0.9808,
+        "eye_spacing": 1.0118,
+        "brow_height": 1.0003
+      },
+      "features": {
+        "hair_style": "bun",
+        "beard_style": "none",
+        "sleeve_style": "long",
+        "tunic_length": "long",
+        "outerwear": "none"
+      },
+      "palette": {
+        "beard": [
+          0.5984,
+          0.484,
+          0.2992,
+          1.0
+        ],
+        "belt": [
+          0.2703,
+          0.1903,
+          0.1303,
+          1.0
+        ],
+        "boots": [
+          0.4865,
+          0.3365,
+          0.1965,
+          1.0
+        ],
+        "hair": [
+          0.68,
+          0.55,
+          0.34,
+          1.0
+        ],
+        "outerwear": [
+          0.323,
+          0.243,
+          0.163,
+          1.0
+        ],
+        "pants": [
+          0.4722,
+          0.4522,
+          0.4122,
+          1.0
+        ],
+        "skin": [
+          0.6928,
+          0.4848,
+          0.3548,
+          1.0
+        ],
+        "sleeve_band": [
+          0.2833,
+          0.1933,
+          0.1233,
+          1.0
+        ],
+        "sleeves": [
+          0.7453,
+          0.6953,
+          0.5853,
+          1.0
+        ],
+        "trim": [
+          0.3489,
+          0.2589,
+          0.1889,
+          1.0
+        ],
+        "tunic": [
+          0.3453,
+          0.3953,
+          0.2753,
+          1.0
+        ]
+      },
+      "material_response": {
+        "cloth": 1.056,
+        "leather": 1.0513
+      }
+    }
+  ]
+}

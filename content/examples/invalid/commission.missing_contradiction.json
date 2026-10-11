@@ -1,0 +1,40 @@
+{
+  "type": "commission",
+  "id": "commission.bad",
+  "title": "Bad commission",
+  "client_id": "char.henning",
+  "quest_id": "quest.bad",
+  "object_item_id": "item.bad",
+  "location_id": "loc.bad",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft"
+  },
+  "concrete_order": "Fix it.",
+  "investigation_clues": [
+    {
+      "id": "clue",
+      "summary": "fixture"
+    }
+  ],
+  "forging_options": [
+    {
+      "id": "honest_work",
+      "label": "Do it",
+      "effects": []
+    },
+    {
+      "id": "subtle_defect",
+      "label": "Weaken it",
+      "effects": []
+    }
+  ],
+  "night_consequence": "fixture",
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "fixture"
+    }
+  ]
+}

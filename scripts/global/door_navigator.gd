@@ -1,0 +1,361 @@
+extends Node
+
+signal on_trigger_player_spawn
+
+const TRANSITION_MANIFEST_PATH := "res://content/transitions/active_destinations.json"
+const MAX_CACHE_SIZE := 5
+## WB-07: when on, go_to_scene() waits for a threaded load across frames instead of
+## blocking the frame that triggered the door. Off by default (ADR 0019 flags).
+const ASYNC_SCENE_LOAD_SETTING := "world_host/async_location_assembly_enabled"
+
+var pending_spawn_scene_id: StringName = &""
+var pending_spawn_id: StringName = &""
+# Kept only as a compatibility bridge for older scenes or console calls.
+# Active code should use pending_spawn_scene_id and pending_spawn_id.
+var spawn_door_tag = null
+var scene_cache := {}
+var cache_order: Array[StringName] = []
+
+var _manifest_loaded := false
+var _scenes := {}
+## Scene path -> true while a ResourceLoader threaded request is outstanding.
+## Keyed by path, not ID, so a forced manifest reload cannot orphan a request.
+var _threaded_requests := {}
+
+func _ready() -> void:
+	load_manifest()
+
+
+func load_manifest(force_reload: bool = false) -> bool:
+	if _manifest_loaded and not force_reload:
+		return true
+
+	if force_reload:
+		# A forced manifest reload may replace scene paths under an existing ID;
+		# discard resources resolved from the previous manifest before rebuilding it.
+		scene_cache.clear()
+		cache_order.clear()
+	_scenes.clear()
+	var file := FileAccess.open(TRANSITION_MANIFEST_PATH, FileAccess.READ)
+	if file == null:
+		push_error("Transition manifest is missing: " + TRANSITION_MANIFEST_PATH)
+		return false
+
+	var parsed = JSON.parse_string(file.get_as_text())
+	if typeof(parsed) != TYPE_DICTIONARY:
+		push_error("Transition manifest must be a JSON object: " + TRANSITION_MANIFEST_PATH)
+		return false
+
+	for scene_record in parsed.get("scenes", []):
+		if typeof(scene_record) != TYPE_DICTIONARY:
+			push_error("Transition manifest contains a non-object scene record")
+			continue
+
+		var scene_id := StringName(String(scene_record.get("id", "")))
+		var scene_path := String(scene_record.get("path", ""))
+		if String(scene_id).is_empty() or scene_path.is_empty():
+			push_error("Transition manifest scene records require id and path")
+			continue
+
+		var spawns := {}
+		for spawn_record in scene_record.get("spawns", []):
+			if typeof(spawn_record) != TYPE_DICTIONARY:
+				push_error(
+					(
+						"Transition manifest scene %s contains a non-object spawn record"
+						% String(scene_id)
+					)
+				)
+				continue
+			var spawn_id := StringName(String(spawn_record.get("id", "")))
+			if String(spawn_id).is_empty():
+				push_error("Transition manifest scene %s has a spawn without id" % String(scene_id))
+				continue
+			spawns[spawn_id] = true
+
+		_scenes[scene_id] = {
+			"path": scene_path,
+			"active": bool(scene_record.get("active", true)),
+			"spawns": spawns,
+		}
+
+	_manifest_loaded = true
+	return true
+
+
+func get_active_scene_ids() -> Array[StringName]:
+	load_manifest()
+	var ids: Array[StringName] = []
+	for scene_id in _scenes.keys():
+		if bool(_scenes[scene_id].get("active", false)):
+			ids.append(scene_id)
+	_sort_ids(ids)
+	return ids
+
+
+func has_active_scene(scene_id) -> bool:
+	load_manifest()
+	var key := StringName(String(scene_id))
+	return _scenes.has(key) and bool(_scenes[key].get("active", false))
+
+
+func get_scene_path(scene_id) -> String:
+	load_manifest()
+	var key := StringName(String(scene_id))
+	if not _scenes.has(key):
+		return ""
+	return String(_scenes[key].get("path", ""))
+
+
+func get_scene_spawn_ids(scene_id) -> Array[StringName]:
+	load_manifest()
+	var key := StringName(String(scene_id))
+	var ids: Array[StringName] = []
+	if not _scenes.has(key):
+		return ids
+	for spawn_id in _scenes[key].get("spawns", {}).keys():
+		ids.append(spawn_id)
+	_sort_ids(ids)
+	return ids
+
+
+func has_spawn(scene_id, spawn_id) -> bool:
+	load_manifest()
+	var scene_key := StringName(String(scene_id))
+	var spawn_key := StringName(String(spawn_id))
+	return _scenes.has(scene_key) and _scenes[scene_key].get("spawns", {}).has(spawn_key)
+
+
+func get_spawn_node(level: Node, scene_id, spawn_id) -> Door:
+	if not has_spawn(scene_id, spawn_id):
+		return null
+	return _find_spawn_door(level, StringName(String(spawn_id)))
+
+
+func go_to_scene(scene_id, spawn_id) -> void:
+	var scene_key := StringName(String(scene_id))
+	var spawn_key := StringName(String(spawn_id))
+	# ADR 0031: old Reval district destinations now arrive in the seamless city.
+	var routed: Array = CityTravel.redirect(scene_key, spawn_key)
+	scene_key = routed[0]
+	spawn_key = routed[1]
+	if not has_active_scene(scene_key):
+		push_warning("Transition scene is not active or registered: " + String(scene_key))
+		return
+	if not has_spawn(scene_key, spawn_key):
+		push_warning(
+			"Transition spawn is not registered: %s/%s" % [String(scene_key), String(spawn_key)]
+		)
+		return
+	# Fast travel inside the seamless city moves Kalev without reloading it.
+	var city := get_tree().get_first_node_in_group(&"seamless_city")
+	if city != null and city.scene_file_path == get_scene_path(scene_key):
+		city.call(&"arrive_at", String(spawn_key))
+		return
+
+	pending_spawn_scene_id = scene_key
+	pending_spawn_id = spawn_key
+	spawn_door_tag = null
+	if (
+		bool(ProjectSettings.get_setting(ASYNC_SCENE_LOAD_SETTING, false))
+		and not scene_cache.has(scene_key)
+	):
+		_change_scene_when_loaded(scene_key)
+		return
+	var scene_resource: PackedScene = _get_scene_resource(scene_key)
+	if scene_resource == null:
+		push_error("Transition scene failed to load: " + get_scene_path(scene_key))
+		clear_pending_spawn()
+		return
+
+	get_tree().call_deferred("change_scene_to_packed", scene_resource)
+
+
+## WB-08b: answer WorldHost.scene_swap_fallback_requested with today's explicit
+## transition. `location_root` is the mounted logic root of the location the
+## player is leaving (request `from_location_id`); the door is found by its
+## `transition:<id>` stable handle, never by node path, and its authored
+## destination is used unchanged. Returns {transition_id, scene_id, spawn_id,
+## started} or {} when the transition has no door or no destination. `execute`
+## false resolves without swapping scenes (tests and diagnostics).
+func answer_seam_fallback(
+	location_root: Node, request: Dictionary, execute: bool = true
+) -> Dictionary:
+	var transition_id := String(request.get("transition_id", ""))
+	if location_root == null or transition_id.is_empty():
+		return {}
+	var door := _find_transition_door(location_root, "transition:%s" % transition_id)
+	if door == null or String(door.destination_scene_id).is_empty():
+		push_warning("Seam fallback has no explicit transition: %s" % transition_id)
+		return {}
+	var answer := {
+		"transition_id": StringName(transition_id),
+		"scene_id": door.destination_scene_id,
+		"spawn_id": door.destination_spawn_id,
+		"started": false,
+	}
+	if execute:
+		go_to_scene(door.destination_scene_id, door.destination_spawn_id)
+		answer["started"] = pending_spawn_scene_id == door.destination_scene_id
+	return answer
+
+
+## Starts a background load of an active scene without blocking. Returns false when
+## the scene is unknown or its path is missing. A later _get_scene_resource() call
+## collects the result into the LRU cache.
+func request_scene_preload(scene_id) -> bool:
+	var scene_key := StringName(String(scene_id))
+	if scene_cache.has(scene_key):
+		return true
+	var scene_path := get_scene_path(scene_key)
+	if scene_path.is_empty() or not ResourceLoader.exists(scene_path):
+		return false
+	if _threaded_requests.has(scene_path):
+		return true
+	if ResourceLoader.load_threaded_request(scene_path, "PackedScene") != OK:
+		return false
+	_threaded_requests[scene_path] = true
+	return true
+
+
+## True when _get_scene_resource() for this scene would not block.
+func is_scene_resource_ready(scene_id) -> bool:
+	var scene_key := StringName(String(scene_id))
+	if scene_cache.has(scene_key):
+		return true
+	var scene_path := get_scene_path(scene_key)
+	if not _threaded_requests.has(scene_path):
+		return false
+	return (
+		ResourceLoader.load_threaded_get_status(scene_path)
+		!= ResourceLoader.THREAD_LOAD_IN_PROGRESS
+	)
+
+
+func _change_scene_when_loaded(scene_key: StringName) -> void:
+	if not request_scene_preload(scene_key):
+		push_error("Transition scene failed to load: " + get_scene_path(scene_key))
+		clear_pending_spawn()
+		return
+	while not is_scene_resource_ready(scene_key):
+		await get_tree().process_frame
+	# A newer door may have replaced the pending target while this one loaded.
+	if pending_spawn_scene_id != scene_key:
+		return
+	var scene_resource := _get_scene_resource(scene_key)
+	if scene_resource == null:
+		push_error("Transition scene failed to load: " + get_scene_path(scene_key))
+		clear_pending_spawn()
+		return
+	get_tree().call_deferred("change_scene_to_packed", scene_resource)
+
+
+func spawn_player_at_pending_spawn(level: Node) -> bool:
+	# Resolve through stable Door.spawn_id values so gameplay IDs are not tied
+	# to node names or folder layout.
+	if String(pending_spawn_id).is_empty():
+		return false
+
+	var door := get_spawn_node(level, pending_spawn_scene_id, pending_spawn_id)
+	if door == null:
+		push_warning(
+			(
+				"Pending spawn could not be resolved: %s/%s"
+				% [String(pending_spawn_scene_id), String(pending_spawn_id)]
+			)
+		)
+		return false
+	if door.spawn == null:
+		push_warning(
+			(
+				"Pending spawn door has no Spawn child: %s/%s"
+				% [String(pending_spawn_scene_id), String(pending_spawn_id)]
+			)
+		)
+		return false
+
+	trigger_player_spawn(door.spawn.global_position, door.spawn_direction)
+	clear_pending_spawn()
+	return true
+
+
+## Place at a pending door spawn when set; otherwise use authored default_spawn.
+## WHY: spawn_player_at_pending_spawn clears pending IDs on success, so scenes must
+## not treat an empty pending_spawn_id as "use default spawn" after a door transition.
+## Call only after map doors exist (after MapSceneBootstrap.assemble).
+func place_player(level: Node, player: Node2D, default_spawn: Vector2) -> bool:
+	if spawn_player_at_pending_spawn(level):
+		return true
+	if player != null:
+		player.global_position = default_spawn
+	return false
+
+
+func clear_pending_spawn() -> void:
+	pending_spawn_scene_id = &""
+	pending_spawn_id = &""
+	spawn_door_tag = null
+
+
+func trigger_player_spawn(position: Vector2, direction: String):
+	on_trigger_player_spawn.emit(position, direction)
+
+
+func _get_scene_resource(scene_id: StringName) -> PackedScene:
+	if scene_cache.has(scene_id):
+		cache_order.erase(scene_id)
+		cache_order.append(scene_id)
+		return scene_cache[scene_id]
+
+	var scene_path := get_scene_path(scene_id)
+	if not ResourceLoader.exists(scene_path):
+		push_error("Transition scene path does not exist: " + scene_path)
+		return null
+
+	# Threaded request instead of load(): an already-running preload is joined
+	# rather than restarted, and the load itself runs off the main thread.
+	if not _threaded_requests.has(scene_path):
+		if ResourceLoader.load_threaded_request(scene_path, "PackedScene") != OK:
+			return null
+		_threaded_requests[scene_path] = true
+	var scene_resource := ResourceLoader.load_threaded_get(scene_path) as PackedScene
+	_threaded_requests.erase(scene_path)
+	if scene_resource == null:
+		return null
+
+	if cache_order.size() >= MAX_CACHE_SIZE:
+		var lru_scene_id = cache_order.pop_front()
+		scene_cache.erase(lru_scene_id)
+
+	scene_cache[scene_id] = scene_resource
+	cache_order.append(scene_id)
+	return scene_resource
+
+
+## StringName sort() orders by interned pointer, not text; ids returned to tests,
+## saves and UI must be alphabetical.
+static func _sort_ids(ids: Array[StringName]) -> void:
+	ids.sort_custom(
+		func(left: StringName, right: StringName) -> bool: return String(left) < String(right)
+	)
+
+
+func _find_transition_door(node: Node, object_id: String) -> Door:
+	var handle: Variant = node.get_meta(&"stable_handle", {})
+	if node is Door and handle is Dictionary and String(handle.get("object_id", "")) == object_id:
+		return node
+	for child in node.get_children():
+		var found := _find_transition_door(child, object_id)
+		if found != null:
+			return found
+	return null
+
+
+func _find_spawn_door(node: Node, target_spawn_id: StringName) -> Door:
+	if node is Door and node.spawn_id == target_spawn_id:
+		return node
+	for child in node.get_children():
+		var found := _find_spawn_door(child, target_spawn_id)
+		if found != null:
+			return found
+	return null

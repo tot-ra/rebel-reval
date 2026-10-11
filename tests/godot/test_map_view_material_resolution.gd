@@ -1,0 +1,330 @@
+extends "res://tests/godot/test_case.gd"
+
+## Cobblestone dominates the street-level frame and must retain more source
+## detail than secondary terrain materials without inflating their texture array.
+
+
+func test_grass_and_mud_sample_native_authored_plates() -> void:
+	var material := MapViewMaterials.blended_ground(731)
+	# CO-01 (R-948): grass and mud moved into the 2048 px ground arrays; see
+	# test_terrain_material_channels for the per-family contract.
+	var ground: Texture2DArray = material.get_shader_parameter("ground_albedo")
+	assert_true(ground != null, "meadow and mud layers must sample the authored ground array")
+	assert_true(ground.get_width() > MapViewMaterials.NATURAL_GROUND_TEXTURE_SIZE)
+	assert_eq(material.get_shader_parameter("use_authored_mud"), 1.0)
+	var timber: Texture2D = material.get_shader_parameter("timber_floor_albedo")
+	assert_true(timber != null, "timber floors must sample the authored plank plate")
+	assert_eq(timber.get_width(), MapViewMaterials.NATURAL_GROUND_TEXTURE_SIZE)
+	assert_eq(timber.get_height(), MapViewMaterials.NATURAL_GROUND_TEXTURE_SIZE)
+	if ResourceLoader.exists("res://assets/materials/pbr/hay/hay_albedo.png"):
+		assert_eq(material.get_shader_parameter("use_authored_hay"), 1.0)
+		var hay: Texture2D = material.get_shader_parameter("hay_albedo")
+		assert_true(hay != null, "hay and straw must sample the authored thatch plate")
+		assert_eq(hay.get_width(), MapViewMaterials.NATURAL_GROUND_TEXTURE_SIZE)
+		assert_eq(
+			material.get_shader_parameter("hay_layer"),
+			MapViewMaterials.terrain_blend_index(MapTypes.TERRAIN_HAY)
+		)
+		assert_eq(
+			material.get_shader_parameter("straw_layer"),
+			MapViewMaterials.terrain_blend_index(MapTypes.TERRAIN_STRAW)
+		)
+
+
+func test_natural_ground_repeat_matches_character_scale() -> void:
+	var expected_repeat := (
+		MapViewMaterials.TERRAIN_TEXTURE_WORLD_SIZE / MapViewMaterials.TERRAIN_GRASS_UV_SCALE
+	)
+	assert_eq(expected_repeat, 2.0, "grass repeat should match the frozen 2.0-unit character height")
+	var material := MapViewMaterials.blended_ground(731)
+	assert_eq(
+		material.get_shader_parameter("natural_ground_uv_scale"),
+		MapViewMaterials.TERRAIN_GRASS_UV_SCALE
+	)
+
+
+func test_mud_repeat_stays_below_character_height() -> void:
+	# The Town Hall square's dirt/mud plate shows ~1 m of trodden ground; a tile
+	# wider than the 2.0-unit actor made straw tufts read waist-high.
+	var tile_world := (
+		MapViewMaterials.TERRAIN_TEXTURE_WORLD_SIZE / MapViewMaterials.TERRAIN_MUD_UV_SCALE
+	)
+	assert_true(tile_world < 1.5, "mud tile spans %.2f units, expected < 1.5" % tile_world)
+	var material := MapViewMaterials.blended_ground(731)
+	var family_scale: Vector4 = material.get_shader_parameter("ground_uv_scale")
+	# Vector4 stores float32, so compare approximately.
+	assert_true(is_equal_approx(family_scale.y, MapViewMaterials.TERRAIN_MUD_UV_SCALE))
+	# Regular (neighbor-preview) materials that repeat the mud plate must match.
+	for terrain_id: StringName in [MapTypes.TERRAIN_DIRT, MapTypes.TERRAIN_MUD]:
+		if MapViewMaterials.TERRAIN_UV_SCALE.has(terrain_id):
+			assert_eq(
+				float(MapViewMaterials.TERRAIN_UV_SCALE[terrain_id]),
+				MapViewMaterials.TERRAIN_MUD_UV_SCALE,
+				"%s regular material matches the blend repeat" % terrain_id
+			)
+	var code := MapViewMaterialShaders.TERRAIN_BLEND_SHADER.code
+	assert_true(
+		code.contains("ground_tile_break") and code.contains("textureGrad(ground_albedo"),
+		"dense ground repeat must keep stochastic tile offsets against zoom-out grids"
+	)
+
+
+func test_beach_plate_repeats_stay_below_character_height() -> void:
+	# Sand, foreshore and shingle plates each depict about one metre of beach; at
+	# the old 1.5 / 2.5 repeats ripples, shells and pebbles read oversized.
+	for scale: float in [
+		MapViewMaterials.TERRAIN_SAND_UV_SCALE,
+		MapViewMaterials.TERRAIN_COAST_SAND_UV_SCALE,
+		MapViewMaterials.TERRAIN_SHINGLE_UV_SCALE,
+	]:
+		var tile_world := MapViewMaterials.TERRAIN_TEXTURE_WORLD_SIZE / scale
+		assert_true(tile_world < 1.5, "beach tile spans %.2f units, expected < 1.5" % tile_world)
+	var material := MapViewMaterials.blended_ground(731)
+	var family_scale: Vector4 = material.get_shader_parameter("ground_uv_scale")
+	assert_true(is_equal_approx(family_scale.z, MapViewMaterials.TERRAIN_SAND_UV_SCALE))
+	assert_true(is_equal_approx(family_scale.w, MapViewMaterials.TERRAIN_COAST_SAND_UV_SCALE))
+	assert_true(
+		is_equal_approx(
+			float(material.get_shader_parameter("shingle_uv_scale")),
+			MapViewMaterials.TERRAIN_SHINGLE_UV_SCALE
+		)
+	)
+	# Standard sand materials (backdrop, single-terrain meshes) share the repeat.
+	assert_eq(
+		float(MapViewMaterials.TERRAIN_UV_SCALE[MapTypes.TERRAIN_SAND]),
+		MapViewMaterials.TERRAIN_SAND_UV_SCALE
+	)
+	assert_eq(
+		float(MapViewMaterials.TERRAIN_UV_SCALE[MapTypes.TERRAIN_COAST_SAND]),
+		MapViewMaterials.TERRAIN_COAST_SAND_UV_SCALE
+	)
+
+
+func test_hay_plate_repeat_matches_straw_scale() -> void:
+	# The hay plate depicts ~0.9 m of strewn straw; the old hard-coded 1.6 repeat
+	# spread it over 2.5 units, so stalks read finger-thick beside the actor.
+	var tile_world := (
+		MapViewMaterials.TERRAIN_TEXTURE_WORLD_SIZE / MapViewMaterials.TERRAIN_HAY_UV_SCALE
+	)
+	assert_true(tile_world < 1.5, "hay tile spans %.2f units, expected < 1.5" % tile_world)
+	var material := MapViewMaterials.blended_ground(731)
+	assert_true(
+		is_equal_approx(
+			float(material.get_shader_parameter("hay_uv_scale")),
+			MapViewMaterials.TERRAIN_HAY_UV_SCALE
+		)
+	)
+	var code := (material.shader as Shader).code
+	assert_true(
+		code.contains("base_uv * hay_uv_scale"), "hay sampling must use the hay_uv_scale uniform"
+	)
+
+
+func test_stone_repeats_follow_their_plates() -> void:
+	# Standard stone binds the limestone_rubble plate (~7 courses of ~20 cm,
+	# ~1.4 m); the shared 4.0-unit repeat made courses read ~50 cm.
+	var rubble_tile := (
+		MapViewMaterials.TERRAIN_TEXTURE_WORLD_SIZE / MapViewMaterials.TERRAIN_STONE_UV_SCALE
+	)
+	var rubble_metres := rubble_tile * MapViewMaterials.METERS_PER_WORLD_UNIT
+	assert_true(
+		rubble_metres > 1.2 and rubble_metres < 1.6,
+		"rubble tile spans %.2f m, expected ~1.4 m" % rubble_metres
+	)
+	assert_eq(
+		float(MapViewMaterials.TERRAIN_UV_SCALE[MapTypes.TERRAIN_STONE]),
+		MapViewMaterials.TERRAIN_STONE_UV_SCALE
+	)
+	# The blended stone layer samples the smithy_floor flagstone plate (~6.5
+	# flags of 25-70 cm across, ~3 m) at the shared 4.0-unit repeat (~3.5 m):
+	# measured and left unchanged, so the shader keeps scale 1.0 for it. R-1202: the
+	# plate is sampled per fragment at native resolution, not from the 128 px array.
+	var material := MapViewMaterials.blended_ground(731)
+	assert_eq(float(material.get_shader_parameter("stone_uv_scale")), 1.0)
+	assert_eq(float(material.get_shader_parameter("use_authored_stone")), 1.0)
+	var plate := material.get_shader_parameter("stone_albedo") as Texture2D
+	assert_true(plate != null and plate.get_width() >= 512, "stone plate stays native 512 px")
+
+
+func test_cobblestone_uses_a_dedicated_high_resolution_texture_array() -> void:
+	var terrain_patterns := MapViewMaterials.terrain_pattern_array(731)
+	var cobble_patterns := MapViewMaterials.cobble_pattern_array(731)
+
+	assert_eq(terrain_patterns.get_width(), MapViewMaterials.TEXTURE_SIZE)
+	assert_eq(terrain_patterns.get_height(), MapViewMaterials.TEXTURE_SIZE)
+	assert_eq(cobble_patterns.get_width(), MapViewMaterials.COBBLE_TEXTURE_SIZE)
+	assert_eq(cobble_patterns.get_height(), MapViewMaterials.COBBLE_TEXTURE_SIZE)
+	assert_eq(
+		cobble_patterns.get_layers(),
+		2,
+		"cobblestone and castle paving need high-resolution layers"
+	)
+	assert_true(
+		cobble_patterns.get_width() > terrain_patterns.get_width(),
+		"cobblestone source resolution must exceed the general terrain resolution"
+	)
+
+
+
+func test_cobblestone_surface_map_matches_high_resolution_source() -> void:
+	var surface := MapViewMaterialPatterns.cobble_surface_texture(8219)
+	assert_eq(surface.get_width(), MapViewMaterials.COBBLE_TEXTURE_SIZE)
+	assert_eq(surface.get_height(), MapViewMaterials.COBBLE_TEXTURE_SIZE)
+	var material := MapViewMaterials.blended_ground(731)
+	assert_eq(material.get_shader_parameter("cobble_surface"), surface)
+
+
+func test_stone_layer_uses_authored_smithy_floor_albedo() -> void:
+	var terrain_patterns := MapViewMaterials.terrain_pattern_array(731)
+	var stone_layer := MapViewMaterials.terrain_blend_index(MapTypes.TERRAIN_STONE)
+	var expected := MapViewMaterials.smithy_floor_albedo_image()
+	assert_eq(stone_layer, 14, "stone layer index must remain stable for terrain arrays")
+	assert_eq(expected.get_width(), MapViewMaterials.TEXTURE_SIZE)
+	assert_eq(expected.get_height(), MapViewMaterials.TEXTURE_SIZE)
+	assert_true(
+		terrain_patterns.get_layers() > stone_layer,
+		"stone layer must be present in terrain array"
+	)
+
+
+func test_timber_floor_blended_ground_repeat_is_doubled() -> void:
+	var material := MapViewMaterials.blended_ground(731)
+	assert_eq(
+		material.get_shader_parameter("timber_floor_layer"),
+		MapViewMaterials.terrain_blend_index(MapTypes.TERRAIN_TIMBER_FLOOR),
+		"timber floor shader layer must follow the stable terrain array order"
+	)
+	assert_eq(
+		material.get_shader_parameter("timber_floor_uv_scale"),
+		MapViewMaterials.TERRAIN_TIMBER_FLOOR_UV_SCALE,
+		"smithy timber floor must repeat at the smaller authored scale"
+	)
+	assert_eq(MapViewMaterials.TERRAIN_TIMBER_FLOOR_UV_SCALE, 3.0)
+
+
+func test_natural_rock_pattern_avoids_masonry_horizontal_banding() -> void:
+	var rock := MapViewMaterialPatterns.pattern_texture(
+		MapViewMaterials.PATTERN_ROCK, 9041
+	).get_image()
+	var limestone := MapViewMaterialPatterns.pattern_texture(
+		MapViewMaterials.PATTERN_LIMESTONE, 9041
+	).get_image()
+	var rock_anisotropy := _banding_anisotropy(rock)
+	var limestone_anisotropy := _banding_anisotropy(limestone)
+	assert_true(
+		limestone_anisotropy > rock_anisotropy * 2.0,
+		"limestone ashlar must band horizontally more than natural shoreline rock"
+	)
+	assert_true(
+		rock_anisotropy < 1.35,
+		"natural rock grain must stay roughly isotropic on sphere UVs"
+	)
+
+
+func test_cobblestone_high_resolution_texture_remains_seamless() -> void:
+	var image := MapViewMaterialPatterns.pattern_texture_at_size(
+		MapViewMaterials.PATTERN_COBBLE,
+		731,
+		MapViewMaterials.COBBLE_TEXTURE_SIZE
+	).get_image()
+	var boundaries_x := MapViewMaterialPatterns.COBBLE_STONES_X
+	var boundaries_y := MapViewMaterialPatterns.COBBLE_STONES_Y
+	var cell_width := float(image.get_width()) / float(boundaries_x)
+	var cell_height := float(image.get_height()) / float(boundaries_y)
+	var internal_vertical_peak := 0.0
+	var internal_horizontal_peak := 0.0
+	for boundary in range(1, boundaries_x):
+		var pixel_x := roundi(float(boundary) * cell_width)
+		internal_vertical_peak = maxf(
+			internal_vertical_peak,
+			_vertical_delta(image, pixel_x - 1, pixel_x)
+		)
+	for boundary in range(1, boundaries_y):
+		var pixel_y := roundi(float(boundary) * cell_height)
+		internal_horizontal_peak = maxf(
+			internal_horizontal_peak,
+			_horizontal_delta(image, pixel_y - 1, pixel_y)
+		)
+
+	assert_true(
+		_vertical_delta(image, image.get_width() - 1, 0) <= internal_vertical_peak * 1.05,
+		"horizontal wrapping must stay within the strongest internal stone boundary"
+	)
+	assert_true(
+		_horizontal_delta(image, image.get_height() - 1, 0) <= internal_horizontal_peak * 1.05,
+		"vertical wrapping must stay within the strongest internal stone boundary"
+	)
+
+
+func _vertical_delta(image: Image, left_x: int, right_x: int) -> float:
+	var total := 0.0
+	for y in image.get_height():
+		total += absf(image.get_pixel(left_x, y).r - image.get_pixel(right_x, y).r)
+	return total / float(image.get_height())
+
+
+func _horizontal_delta(image: Image, top_y: int, bottom_y: int) -> float:
+	var total := 0.0
+	for x in image.get_width():
+		total += absf(image.get_pixel(x, top_y).r - image.get_pixel(x, bottom_y).r)
+	return total / float(image.get_width())
+
+
+func _banding_anisotropy(image: Image) -> float:
+	var row_means: Array[float] = []
+	for y in image.get_height():
+		var mean := 0.0
+		for x in image.get_width():
+			mean += image.get_pixel(x, y).r
+		row_means.append(mean / float(image.get_width()))
+	var column_means: Array[float] = []
+	for x in image.get_width():
+		var mean := 0.0
+		for y in image.get_height():
+			mean += image.get_pixel(x, y).r
+		column_means.append(mean / float(image.get_height()))
+	return _array_variance(row_means) / maxf(_array_variance(column_means), 0.0001)
+
+
+func _array_variance(values: Array[float]) -> float:
+	if values.is_empty():
+		return 0.0
+	var mean := 0.0
+	for value in values:
+		mean += value
+	mean /= float(values.size())
+	var variance := 0.0
+	for value in values:
+		var delta := value - mean
+		variance += delta * delta
+	return variance / float(values.size())
+
+
+func _row_variance(image: Image) -> float:
+	var total := 0.0
+	for y in image.get_height():
+		var row_mean := 0.0
+		for x in image.get_width():
+			row_mean += image.get_pixel(x, y).r
+		row_mean /= float(image.get_width())
+		var row_var := 0.0
+		for x in image.get_width():
+			var delta := image.get_pixel(x, y).r - row_mean
+			row_var += delta * delta
+		total += row_var / float(image.get_width())
+	return total / float(image.get_height())
+
+
+func _column_variance(image: Image) -> float:
+	var total := 0.0
+	for x in image.get_width():
+		var column_mean := 0.0
+		for y in image.get_height():
+			column_mean += image.get_pixel(x, y).r
+		column_mean /= float(image.get_height())
+		var column_var := 0.0
+		for y in image.get_height():
+			var delta := image.get_pixel(x, y).r - column_mean
+			column_var += delta * delta
+		total += column_var / float(image.get_height())
+	return total / float(image.get_width())

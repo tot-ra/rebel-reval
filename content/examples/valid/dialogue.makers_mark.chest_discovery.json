@@ -1,0 +1,59 @@
+{
+  "type": "dialogue",
+  "id": "dialogue.makers_mark.chest_discovery",
+  "title": "The Maker's Mark - Missing Apprentice",
+  "confidence": "invented",
+  "canon_status": "active",
+  "approval": {
+    "status": "approved",
+    "reviewer": "P2-006",
+    "notes": "Prologue storage discovery beat."
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "explicit_node_id",
+    "notes": "Static discovery dialogue for the prologue tutorial."
+  },
+  "participants": [
+    "char.kalev"
+  ],
+  "start_node_id": "open_chest",
+  "word_count_estimate": 42,
+  "nodes": [
+    {
+      "id": "open_chest",
+      "speaker_id": "char.kalev",
+      "text": "Mart's bed is cold and the rejected blanks are gone from the chest.",
+      "next_node_id": "realize_absence"
+    },
+    {
+      "id": "realize_absence",
+      "speaker_id": "char.kalev",
+      "text": "He must have passed the marked rejects to the Black Cloaks before vanishing.",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.mart_missing",
+          "value": true
+        },
+        {
+          "op": "set_fact",
+          "key": "fact.rejected_blanks_missing",
+          "value": true
+        }
+      ]
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Playable prologue outline reconciled with canon.",
+      "citations": [
+        "docs/SCENES/the-makers-mark.md",
+        "docs/SCENES/the-makers-mark-branch-map.md"
+      ]
+    }
+  ]
+}

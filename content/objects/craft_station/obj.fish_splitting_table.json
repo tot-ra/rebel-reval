@@ -1,0 +1,56 @@
+{
+  "type": "world_object",
+  "id": "obj.fish_splitting_table",
+  "name": "Fish splitting table",
+  "description": "A scarred table where the catch is gutted and split.",
+  "category": "craft_station",
+  "handling": "fixed",
+  "tags": [
+    "fish",
+    "table",
+    "harbor"
+  ],
+  "physical": {
+    "mass_kg": 45,
+    "size_m": [
+      1.5,
+      0.85,
+      0.7
+    ],
+    "materials": [
+      "wood"
+    ],
+    "flammable": true
+  },
+  "actions": [
+    "inspect"
+  ],
+  "economy": {
+    "base_pfennigs": 0,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 0
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "harbor",
+      "market"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "procedural",
+    "prop_kind": "fish_splitting_table",
+    "builder": "res://scripts/map/view3d/map_view_mesh_builder_district_life_props.gd"
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.fish_splitting_table.png",
+    "icon": "res://assets/objects/icons/obj.fish_splitting_table.png",
+    "icon_status": "missing",
+    "look": "Low plank table stained dark and scattered with scales.",
+    "image_prompt": "Fish splitting table: Low plank table stained dark and scattered with scales."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite"
+}

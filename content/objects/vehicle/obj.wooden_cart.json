@@ -1,0 +1,68 @@
+{
+  "type": "world_object",
+  "id": "obj.wooden_cart",
+  "name": "Wooden handcart",
+  "description": "A two-wheeled cart for hauling goods and hay; pulled by a person or beast.",
+  "category": "vehicle",
+  "handling": "heavy",
+  "tags": [
+    "vehicle",
+    "transport",
+    "cart"
+  ],
+  "physical": {
+    "mass_kg": 160,
+    "size_m": [
+      1.16,
+      1.0,
+      2.45
+    ],
+    "materials": [
+      "wood",
+      "iron"
+    ],
+    "flammable": true
+  },
+  "actions": [
+    "inspect",
+    "push",
+    "pull",
+    "load_on_cart"
+  ],
+  "economy": {
+    "base_pfennigs": 240,
+    "ownership": "merchant",
+    "legality": "legal",
+    "theft_severity": 2
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "street",
+      "market",
+      "farm",
+      "warehouse"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/vehicles/wooden_cart.glb",
+    "prop_kind": "cart",
+    "variant": "cart_2w",
+    "measured_size_m": [
+      1.16,
+      1.0,
+      2.45
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.wooden_cart.png",
+    "icon": "res://assets/objects/icons/obj.wooden_cart.png",
+    "icon_status": "missing",
+    "look": "Plank cart bed on two spoked wheels with iron tyres and two long shafts.",
+    "image_prompt": "Wooden handcart: Plank cart bed on two spoked wheels with iron tyres and two long shafts."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite"
+}

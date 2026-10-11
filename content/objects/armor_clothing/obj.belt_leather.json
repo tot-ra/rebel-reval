@@ -1,0 +1,66 @@
+{
+  "type": "world_object",
+  "id": "obj.belt_leather",
+  "name": "Leather belt",
+  "description": "A leather belt with an iron buckle; holds a purse and knife.",
+  "category": "armor_clothing",
+  "handling": "pocketable",
+  "tags": [
+    "clothing",
+    "belt"
+  ],
+  "physical": {
+    "mass_kg": 0.3,
+    "size_m": [
+      0.9,
+      0.04,
+      0.02
+    ],
+    "materials": [
+      "leather",
+      "iron"
+    ]
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop",
+    "equip"
+  ],
+  "economy": {
+    "base_pfennigs": 8,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "street",
+      "home_poor",
+      "home_burgher"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "missing"
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.belt_leather.png",
+    "icon": "res://assets/objects/icons/obj.belt_leather.png",
+    "icon_status": "missing",
+    "look": "Narrow brown leather belt with a plain iron buckle.",
+    "image_prompt": "A narrow brown leather belt with a plain iron buckle"
+  },
+  "lifecycle": "planned",
+  "confidence": "plausible composite",
+  "carry": {
+    "grid_width": 2,
+    "grid_height": 1,
+    "stackable": false
+  },
+  "equip": {
+    "slot": "belt",
+    "protection": "none"
+  }
+}

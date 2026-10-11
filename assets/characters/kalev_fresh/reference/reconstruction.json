@@ -1,0 +1,15 @@
+{
+  "seed": 2121343,
+  "raw_mesh_sha256": "a3f9e7ca17aef9e0b3df2aa30227e7606910888714cc4ab7fcf8f390cbc4ddac",
+  "raw_mesh_bytes": 16047440,
+  "model": "hunyuan3d-dit-v2-mv_fp16.safetensors",
+  "steps": 24,
+  "cfg": 5.5,
+  "sampler": "euler",
+  "scheduler": "simple",
+  "octree_resolution": 512,
+  "inputs": [
+    "front.png",
+    "back.png"
+  ]
+}

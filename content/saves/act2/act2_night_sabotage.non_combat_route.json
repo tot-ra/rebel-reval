@@ -1,0 +1,61 @@
+{
+  "save_version": 1,
+  "saved_at_unix": 1754000006,
+  "game_state": {
+    "version": 2,
+    "phase": "phase.act2.siege.investment",
+    "player": {
+      "health": 100.0,
+      "max_health": 100.0,
+      "stamina": 100.0,
+      "max_stamina": 100.0,
+      "location_id": "reval_east",
+      "spawn_id": "street_start"
+    },
+    "bag": {
+      "placements": []
+    },
+    "equipped": {
+      "right_hand": "item.forge_hammer"
+    },
+    "facts": {},
+    "flags": {
+      "flag.act2.night.sabotage.briefed": true,
+      "flag.act2.night.sabotage.non_combat_resolved": true
+    },
+    "relationships": {},
+    "faction_events": [
+      {
+        "event_id": "ledger.act2.night.sabotage.non_combat",
+        "faction_id": "black_cloaks",
+        "delta": 1,
+        "summary": "P5-010 fixture outcome for non_combat route."
+      }
+    ],
+    "pressures": {
+      "pressure.suspicion": 0,
+      "pressure.solidarity": 0,
+      "pressure.scarcity": 0
+    },
+    "living_city": {
+      "hope": 0,
+      "fear": 0,
+      "events": []
+    },
+    "quest_states": {
+      "quest.act2.night.sabotage": "non_combat_complete"
+    },
+    "location_states": {},
+    "items": {},
+    "dialogue_nodes_seen": {},
+    "relationship_memories": {},
+    "commission_deadlines": {},
+    "forged_records": [],
+    "world_items": {},
+    "world_defaults_seeded": {},
+    "map_world_state": {
+      "save_version": 2,
+      "world_state": {}
+    }
+  }
+}

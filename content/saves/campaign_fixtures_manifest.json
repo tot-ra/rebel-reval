@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "task_id": "P6-006",
+  "description": "Cross-act save compatibility corpus. The current repository has Act 1 boundary fixtures; Act 2 and Act 3 rows are added when their authored campaign fixtures land.",
+  "intended_act1_boundaries": [
+    "seal",
+    "break",
+    "open"
+  ],
+  "fixtures": [
+    {
+      "id": "save.demo_fresh_start",
+      "path": "released/save.demo_fresh_start.json",
+      "campaign_stage": "prologue",
+      "expected_phase": "phase.prologue_day",
+      "expected_game_state_version": 2
+    },
+    {
+      "id": "save.demo_post_pickup",
+      "path": "released/save.demo_post_pickup.json",
+      "campaign_stage": "prologue",
+      "expected_phase": "phase.prologue_day",
+      "expected_game_state_version": 2
+    },
+    {
+      "id": "save.game_state_v1_legacy",
+      "path": "released/save.game_state_v1_legacy.json",
+      "campaign_stage": "prologue_legacy",
+      "expected_phase": "phase.prologue_day",
+      "expected_game_state_version": 2,
+      "source_game_state_version": 1
+    },
+    {
+      "id": "save.slice_prologue_complete",
+      "path": "released/save.slice_prologue_complete.json",
+      "campaign_stage": "act1_prologue",
+      "expected_phase": "phase.prologue_day",
+      "expected_game_state_version": 2,
+      "expected_quest_id": "quest.makers_mark",
+      "expected_quest_state": "ledger_committed"
+    },
+    {
+      "id": "save.act1_boundary_seal",
+      "path": "act1/save.act1_boundary_seal.json",
+      "campaign_stage": "act1_boundary",
+      "expected_phase": "phase.act1_climax",
+      "expected_game_state_version": 2,
+      "expected_act_boundary": "seal",
+      "expected_quest_id": "quest.st_georges_night",
+      "expected_quest_state": "aftermath_seal"
+    },
+    {
+      "id": "save.act1_boundary_break",
+      "path": "act1/save.act1_boundary_break.json",
+      "campaign_stage": "act1_boundary",
+      "expected_phase": "phase.act1_climax",
+      "expected_game_state_version": 2,
+      "expected_act_boundary": "break",
+      "expected_quest_id": "quest.st_georges_night",
+      "expected_quest_state": "aftermath_break"
+    },
+    {
+      "id": "save.act1_boundary_open",
+      "path": "act1/save.act1_boundary_open.json",
+      "campaign_stage": "act1_boundary",
+      "expected_phase": "phase.act1_climax",
+      "expected_game_state_version": 2,
+      "expected_act_boundary": "open",
+      "expected_quest_id": "quest.st_georges_night",
+      "expected_quest_state": "aftermath_open"
+    }
+  ]
+}

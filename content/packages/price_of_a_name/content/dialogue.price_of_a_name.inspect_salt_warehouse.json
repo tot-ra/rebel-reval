@@ -1,0 +1,44 @@
+{
+  "type": "dialogue",
+  "id": "dialogue.price_of_a_name.inspect_salt_warehouse",
+  "title": "The Price of a Name - Salt warehouse",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-005"
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "explicit_node_id"
+  },
+  "participants": [
+    "char.kalev"
+  ],
+  "start_node_id": "inspect_salt_warehouse",
+  "nodes": [
+    {
+      "id": "inspect_salt_warehouse",
+      "speaker_id": "char.kalev",
+      "text": "Wax-sealed dispatches hide between the salt barrels. Kaja's network still uses this drop even with the round-up.",
+      "effects": [
+        {
+          "op": "set_fact",
+          "key": "fact.price_of_a_name.salt_warehouse_drop",
+          "value": true
+        }
+      ]
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Investigation dialogue for the salt warehouse drop site.",
+      "citations": [
+        "docs/SCENES/the-price-of-a-name.md"
+      ]
+    }
+  ]
+}

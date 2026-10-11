@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="CharacterWearable" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/characters/character_wearable.gd" id="1"]
+[ext_resource type="PackedScene" path="res://assets/characters/realistic/bandit/boots/boots.glb" id="2"]
+
+[resource]
+script = ExtResource("1")
+stable_id = &"wearable.bandit.boots"
+slot = "feet"
+fitted_body = "bandit"
+scene = ExtResource("2")
+covered_meshes = Array[StringName]([&"Anatomy_Feet"])

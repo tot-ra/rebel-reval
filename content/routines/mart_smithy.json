@@ -1,0 +1,17 @@
+{
+  "map_id": "loc.kalev_smithy",
+  "activity_points_source": "res://content/routines/kalev_smithy.json",
+  "schedules": {
+    "char.mart": {
+      "phase.investigation_morning": {
+        "morning": ["ap.wash.basin", "ap.prepare.board"],
+        "midday": ["ap.eat.table", "ap.clear.table", "ap.forge.anvil"],
+        "evening": ["ap.sweep.floor", "ap.forge.bellows"]
+      },
+      "phase.reflection_morning": {
+        "morning": ["ap.wash.basin", "ap.forge.bellows"],
+        "midday": ["ap.forge.anvil", "ap.forge.quench"]
+      }
+    }
+  }
+}

@@ -1,0 +1,419 @@
+{
+  "type": "dialogue",
+  "id": "dialogue.prologue.porter_confrontation",
+  "title": "Porter confrontation (spell duel)",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "notes": "SD-05 prologue prototype (ADR 0033); reworked so every reply is a cast spell voiced by a short line. SA3D-5 (R-1389): duel.topic 'rusted_key' with topic lines per element; on-topic replies carry topic_tags."
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "explicit_node_id"
+  },
+  "participants": [
+    "char.almshouse_porter",
+    "char.apprentice"
+  ],
+  "start_node_id": "accuse",
+  "duel": {
+    "stakes": [
+      "respect",
+      "obligation",
+      "secret"
+    ],
+    "resolution_node_ids": [
+      "resolved_spared",
+      "resolved_broken",
+      "resolved_punished",
+      "resolved_struck"
+    ],
+    "topic": {
+      "id": "rusted_key",
+      "tags": [
+        "key",
+        "place",
+        "bread",
+        "orphan",
+        "hunger"
+      ],
+      "lines": {
+        "fear": [
+          {
+            "text": "You lock the cold store at night because you fear the hungry, not the thieves.",
+            "relevance": [
+              "key",
+              "hunger"
+            ]
+          },
+          {
+            "text": "One day they will take that key from you, Hanß. You know it.",
+            "relevance": [
+              "key",
+              "place"
+            ]
+          }
+        ],
+        "shame": [
+          {
+            "text": "The key is rusted and the bread is gone. Whose hand turned it?",
+            "relevance": [
+              "key",
+              "bread"
+            ]
+          },
+          {
+            "text": "You weigh the orphans' loaves and keep the heels.",
+            "relevance": [
+              "bread",
+              "orphan"
+            ]
+          },
+          {
+            "text": "Look the little ones in the eye, Hanß.",
+            "relevance": [
+              "orphan"
+            ]
+          }
+        ],
+        "duty": [
+          {
+            "text": "The bread of this house is owed to its children.",
+            "relevance": [
+              "bread",
+              "orphan"
+            ]
+          },
+          {
+            "text": "You keep the key for the house, not for your belly.",
+            "relevance": [
+              "key",
+              "place"
+            ]
+          }
+        ],
+        "love": [
+          {
+            "text": "She is four winters old and hungry. Give her the heel.",
+            "relevance": [
+              "bread",
+              "orphan",
+              "hunger"
+            ]
+          },
+          {
+            "text": "I have no mother and no father. This house is the only place I have.",
+            "relevance": [
+              "orphan",
+              "place"
+            ]
+          }
+        ],
+        "faith": [
+          {
+            "text": "The Holy Spirit fed this house before you ever held its key.",
+            "relevance": [
+              "key",
+              "place"
+            ]
+          },
+          {
+            "text": "Bread kept from orphans is bread kept from God.",
+            "relevance": [
+              "bread",
+              "orphan"
+            ]
+          }
+        ],
+        "coin": [
+          {
+            "text": "The council pays for every loaf. Who sold the missing ones?",
+            "relevance": [
+              "bread"
+            ]
+          },
+          {
+            "text": "A rusted key and a full purse, Hanß. I can count.",
+            "relevance": [
+              "key"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "nodes": [
+    {
+      "id": "accuse",
+      "speaker_id": "char.almshouse_porter",
+      "text": "A loaf is missing from the cold store. You were seen near it, boy!",
+      "move": {
+        "kind": "attack",
+        "element": "shame",
+        "stakes": [
+          "respect"
+        ],
+        "spirit_image_id": "rusted_key"
+      },
+      "choices": [
+        {
+          "id": "fire_hands",
+          "text": "Look at your own hands, Hanß. I saw where the barley went.",
+          "target_node_id": "porter_presses",
+          "move": {
+            "kind": "attack",
+            "element": "shame",
+            "stakes": [
+              "secret"
+            ],
+            "topic_tags": [
+              "bread"
+            ]
+          },
+          "spell_id": "spell.pagan.fireball"
+        },
+        {
+          "id": "ward_rod",
+          "text": "Your rod does not frighten me.",
+          "target_node_id": "porter_presses",
+          "move": {
+            "kind": "defense",
+            "element": "fear",
+            "stakes": [
+              "respect"
+            ]
+          },
+          "spell_id": "spell.pagan.iron_skin"
+        },
+        {
+          "id": "still_hunger",
+          "text": "Stand still. The little one is crying for bread.",
+          "target_node_id": "porter_presses",
+          "move": {
+            "kind": "appeal",
+            "element": "love",
+            "stakes": [
+              "obligation"
+            ],
+            "topic_tags": [
+              "bread",
+              "orphan",
+              "hunger"
+            ]
+          },
+          "spell_id": "spell.pagan.earth_tremor"
+        },
+        {
+          "id": "shove",
+          "text": "[Shove him away]",
+          "target_node_id": "resolved_struck",
+          "move": {
+            "kind": "attack",
+            "element": "fear",
+            "stakes": [
+              "respect"
+            ]
+          },
+          "effects": [
+            {
+              "op": "set_flag",
+              "key": "flag.prologue.struck_porter",
+              "value": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "porter_presses",
+      "speaker_id": "char.almshouse_porter",
+      "text": "Liars get the rod. Say it again, and look at me!",
+      "move": {
+        "kind": "pressure",
+        "element": "duty",
+        "stakes": [
+          "obligation"
+        ],
+        "spirit_image_id": "rod"
+      },
+      "choices": [
+        {
+          "id": "fire_lock",
+          "text": "Every night you lock the cold store. Who are you afraid of?",
+          "target_node_id": "porter_cornered",
+          "move": {
+            "kind": "attack",
+            "element": "fear",
+            "stakes": [
+              "secret"
+            ],
+            "topic_tags": [
+              "key"
+            ]
+          },
+          "spell_id": "spell.pagan.fireball"
+        },
+        {
+          "id": "still_duty",
+          "text": "Matron said no child goes to bed hungry. Hear it.",
+          "target_node_id": "porter_cornered",
+          "move": {
+            "kind": "appeal",
+            "element": "duty",
+            "stakes": [
+              "obligation"
+            ],
+            "topic_tags": [
+              "hunger",
+              "orphan"
+            ]
+          },
+          "spell_id": "spell.pagan.earth_tremor"
+        },
+        {
+          "id": "ward_hold",
+          "text": "Strike, then. I will not move.",
+          "target_node_id": "porter_cornered",
+          "move": {
+            "kind": "defense",
+            "element": "fear",
+            "stakes": [
+              "respect"
+            ],
+            "topic_tags": [
+              "place"
+            ]
+          },
+          "spell_id": "spell.pagan.iron_skin"
+        },
+        {
+          "id": "say_nothing",
+          "text": "[Say nothing]",
+          "target_node_id": "resolved_punished",
+          "move": {
+            "kind": "evade",
+            "element": "shame",
+            "stakes": [
+              "respect"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "porter_cornered",
+      "speaker_id": "char.almshouse_porter",
+      "text": "Enough! I will beat the truth out of you!",
+      "move": {
+        "kind": "attack",
+        "element": "fear",
+        "stakes": [
+          "respect"
+        ],
+        "spirit_image_id": "rod"
+      },
+      "choices": [
+        {
+          "id": "fire_secret",
+          "text": "The key is rusted because you feed no one but yourself.",
+          "target_node_id": "resolved_broken",
+          "move": {
+            "kind": "attack",
+            "element": "fear",
+            "stakes": [
+              "secret"
+            ],
+            "topic_tags": [
+              "key",
+              "bread"
+            ]
+          },
+          "spell_id": "spell.pagan.fireball"
+        },
+        {
+          "id": "still_mercy",
+          "text": "Take the heel of it to her yourself, Hanß. Stand still, and give.",
+          "target_node_id": "resolved_spared",
+          "move": {
+            "kind": "appeal",
+            "element": "love",
+            "stakes": [
+              "obligation"
+            ],
+            "topic_tags": [
+              "bread",
+              "orphan"
+            ]
+          },
+          "spell_id": "spell.pagan.earth_tremor"
+        },
+        {
+          "id": "ward_shame",
+          "text": "Strike me, and the whole house will see who you are.",
+          "target_node_id": "resolved_spared",
+          "move": {
+            "kind": "defense",
+            "element": "shame",
+            "stakes": [
+              "respect"
+            ],
+            "topic_tags": [
+              "place"
+            ]
+          },
+          "spell_id": "spell.pagan.iron_skin"
+        }
+      ]
+    },
+    {
+      "id": "resolved_spared",
+      "speaker_id": "char.almshouse_porter",
+      "text": "Hm. Take the heel of it to the little one. And you did not hear this from me.",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.prologue.spared_porter",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "resolved_broken",
+      "speaker_id": "char.almshouse_porter",
+      "text": "Stop it! Take the loaf. Take the key. God help me, only stop looking at me like that.",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.prologue.broke_porter",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "resolved_punished",
+      "speaker_id": "char.almshouse_porter",
+      "text": "The rod, then. Hold out your hand.",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.prologue.punished_by_porter",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "resolved_struck",
+      "speaker_id": "char.almshouse_porter",
+      "text": "You little... Matron! MATRON!"
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "plausible composite",
+      "summary": "Almshouse life tied to the Holy Spirit parish; dialogue is invented for ADR 0033."
+    }
+  ]
+}

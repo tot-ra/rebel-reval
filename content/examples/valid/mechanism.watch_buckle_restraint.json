@@ -1,0 +1,93 @@
+{
+  "type": "mechanism",
+  "id": "mechanism.watch_buckle_restraint",
+  "title": "Watch buckle restraint under strain",
+  "commission_id": "commission.watch_buckle_repair",
+  "object_item_id": "item.watch_buckle",
+  "location_id": "loc.kalev_smithy",
+  "confidence": "invented",
+  "canon_status": "active",
+  "approval": {
+    "status": "approved",
+    "reviewer": "P1-021"
+  },
+  "responses": [
+    {
+      "id": "holds",
+      "behavior": "hold",
+      "summary": "The repaired buckle holds firm under strain.",
+      "requires": [
+        {
+          "op": "forged_modification_is",
+          "key": "commission.watch_buckle_repair",
+          "value": "honest_work"
+        }
+      ],
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.watch_buckle_tested_hold",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "snaps",
+      "behavior": "fail",
+      "summary": "The weakened buckle fails under strain.",
+      "requires": [
+        {
+          "op": "forged_modification_is",
+          "key": "commission.watch_buckle_repair",
+          "value": "subtle_defect"
+        }
+      ],
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.watch_buckle_tested_fail",
+          "value": true
+        },
+        {
+          "op": "adjust_relationship",
+          "key": "rel.henning_trust",
+          "amount": -1
+        }
+      ]
+    },
+    {
+      "id": "releases",
+      "behavior": "release",
+      "summary": "The hidden catch releases on command.",
+      "requires": [
+        {
+          "op": "forged_modification_is",
+          "key": "commission.watch_buckle_repair",
+          "value": "secret_feature"
+        }
+      ],
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.watch_buckle_tested_release",
+          "value": true
+        }
+      ]
+    }
+  ],
+  "default_response": {
+    "id": "unresolved",
+    "behavior": "idle",
+    "summary": "The buckle has not been forged or tested yet."
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Representative mechanism for the watch buckle commission outcomes.",
+      "citations": [
+        "content/examples/valid/commission.watch_buckle.json",
+        "docs/SCENES/the-makers-mark.md"
+      ]
+    }
+  ]
+}

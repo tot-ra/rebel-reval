@@ -1,0 +1,134 @@
+{
+  "type": "dialogue",
+  "id": "dialogue.relationship_memory.mart",
+  "title": "Relationship memory - Mart street check-in",
+  "confidence": "invented",
+  "canon_status": "active",
+  "approval": {
+    "status": "approved",
+    "reviewer": "P4-031"
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "explicit_node_id",
+    "notes": "Support dialogue for relationship-memory regression tests."
+  },
+  "participants": [
+    "char.kalev",
+    "char.mart"
+  ],
+  "start_node_id": "mart_default_opening",
+  "entry_variants": [
+    {
+      "node_id": "mart_helped_opening",
+      "priority": 20,
+      "conditions": [
+        {
+          "op": "memory_recorded",
+          "key": "memory.mart.helped"
+        }
+      ]
+    },
+    {
+      "node_id": "mart_betrayed_opening",
+      "priority": 15,
+      "conditions": [
+        {
+          "op": "memory_recorded",
+          "key": "memory.mart.betrayed"
+        }
+      ]
+    },
+    {
+      "node_id": "mart_ignored_opening",
+      "priority": 10,
+      "conditions": [
+        {
+          "op": "memory_recorded",
+          "key": "memory.mart.ignored"
+        }
+      ]
+    }
+  ],
+  "word_count_estimate": 48,
+  "nodes": [
+    {
+      "id": "mart_helped_opening",
+      "speaker_id": "char.mart",
+      "text": "You carried water for me when the watch turned ugly. I won't forget it.",
+      "choices": [
+        {
+          "id": "share_news",
+          "text": "Any word from the brewery?",
+          "target_node_id": "mart_followup"
+        }
+      ]
+    },
+    {
+      "id": "mart_betrayed_opening",
+      "speaker_id": "char.mart",
+      "text": "You let Henning take the blame I earned. Don't pretend we're square.",
+      "choices": [
+        {
+          "id": "walk_away",
+          "text": "We talk later.",
+          "target_node_id": "mart_followup"
+        }
+      ]
+    },
+    {
+      "id": "mart_ignored_opening",
+      "speaker_id": "char.mart",
+      "text": "You walked past while the sergeant had me pinned. Cold, even for you.",
+      "choices": [
+        {
+          "id": "apologize",
+          "text": "I should have stepped in.",
+          "target_node_id": "mart_followup",
+          "conditions": [
+            {
+              "op": "memory_recorded",
+              "key": "memory.mart.ignored"
+            }
+          ],
+          "effects": [
+            {
+              "op": "record_memory",
+              "key": "memory.mart.apology_offered"
+            }
+          ]
+        },
+        {
+          "id": "deflect",
+          "text": "I had iron on the fire.",
+          "target_node_id": "mart_followup"
+        }
+      ]
+    },
+    {
+      "id": "mart_default_opening",
+      "speaker_id": "char.mart",
+      "text": "Smith. The yard's quiet, for now.",
+      "choices": [
+        {
+          "id": "nod",
+          "text": "Keep it that way.",
+          "target_node_id": "mart_followup"
+        }
+      ]
+    },
+    {
+      "id": "mart_followup",
+      "speaker_id": "char.mart",
+      "text": "Aye. I'll be here if the watch stirs again."
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "P4-031 relationship-memory regression fixture for Mart helped, betrayed, and ignored references."
+    }
+  ]
+}

@@ -1,0 +1,142 @@
+{
+  "type": "quest",
+  "id": "quest.act2.siege.sortie_supply.ruler",
+  "title": "Guard the Order Convoy",
+  "summary": "Protect a ruler-aligned convoy as the Order approaches, choosing a hard escort or a quiet diversion around the rebel road.",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P5-006",
+    "notes": "Content-only siege mission package; the authored mission host reuses the downstream Act 2 combat and travel systems."
+  },
+  "entry_conditions": [],
+  "initial_state": "latent",
+  "states": [
+    {
+      "id": "latent",
+      "label": "Receive the ruler convoy brief before the sortie reaches the roads."
+    },
+    {
+      "id": "ready",
+      "label": "On the Order convoy route"
+    },
+    {
+      "id": "direct_complete",
+      "label": "The ruler convoy arrives after a hard escort.",
+      "terminal": true
+    },
+    {
+      "id": "quiet_complete",
+      "label": "The ruler convoy arrives through a quiet diversion.",
+      "terminal": true
+    }
+  ],
+  "transitions": [
+    {
+      "id": "brief",
+      "from_state": "latent",
+      "to_state": "ready",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.act2.siege.sortie_supply.ruler.briefed",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "resolve_direct",
+      "from_state": "ready",
+      "to_state": "direct_complete",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.act2.siege.sortie_supply.ruler.direct_resolved",
+          "value": true
+        },
+        {
+          "op": "set_flag",
+          "key": "flag.war.siege_phase.sortie_supply",
+          "value": true
+        },
+        {
+          "op": "record_faction_event",
+          "key": "ledger.act2.siege.sortie_supply.ruler.direct",
+          "value": "faction.livonian_order",
+          "amount": 1,
+          "summary": "Kalev escorted the Order convoy through a rebel roadblock."
+        }
+      ]
+    },
+    {
+      "id": "resolve_quiet",
+      "from_state": "ready",
+      "to_state": "quiet_complete",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.act2.siege.sortie_supply.ruler.quiet_resolved",
+          "value": true
+        },
+        {
+          "op": "set_flag",
+          "key": "flag.war.siege_phase.sortie_supply",
+          "value": true
+        },
+        {
+          "op": "record_faction_event",
+          "key": "ledger.act2.siege.sortie_supply.ruler.quiet",
+          "value": "faction.livonian_order",
+          "amount": 1,
+          "summary": "Kalev diverted the Order convoy around the rebel road without a clash."
+        }
+      ]
+    }
+  ],
+  "objectives": [
+    {
+      "id": "receive_brief",
+      "text": "Receive the ruler convoy brief before the sortie reaches the roads.",
+      "state_id": "latent"
+    },
+    {
+      "id": "resolve_mission",
+      "text": "Bring the convoy through by fighting the road or diverting it quietly.",
+      "state_id": "ready"
+    }
+  ],
+  "outcomes": [
+    {
+      "id": "direct",
+      "summary": "The ruler convoy arrives after a hard escort.",
+      "effects": []
+    },
+    {
+      "id": "quiet",
+      "summary": "The ruler convoy arrives through a quiet diversion.",
+      "effects": []
+    }
+  ],
+  "content_links": {
+    "character_ids": [
+      "char.kalev",
+      "char.henning",
+      "char.kaja",
+      "char.mart"
+    ],
+    "location_ids": [
+      "loc.lower_town_slice"
+    ]
+  },
+  "source_notes": [
+    {
+      "confidence": "attested",
+      "summary": "The three siege phases and their calendar windows are attested in the Act 2 design spine; this mission framing and branch resolution are invented.",
+      "citations": [
+        "docs/reports/p5_001_act2_design.md",
+        "docs/data/act2_design_manifest.json"
+      ]
+    }
+  ]
+}

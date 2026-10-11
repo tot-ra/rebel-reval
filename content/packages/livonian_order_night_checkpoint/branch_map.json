@@ -1,0 +1,45 @@
+{
+  "quest_id": "quest.livonian_order_night_checkpoint",
+  "branches": [
+    {
+      "id": "combat_route",
+      "route": "combat",
+      "transitions": [
+        "brief",
+        "resolve_combat"
+      ],
+      "setup": {},
+      "require_flags": {},
+      "expect": {
+        "quest_state": "combat_complete",
+        "flags": {
+          "flag.order.night_checkpoint.briefed": true,
+          "flag.order.night_checkpoint.combat_resolved": true
+        },
+        "ledger_events": [
+          "ledger.order.night_checkpoint.combat"
+        ]
+      }
+    },
+    {
+      "id": "non_combat_route",
+      "route": "non_combat",
+      "transitions": [
+        "brief",
+        "resolve_non_combat"
+      ],
+      "setup": {},
+      "require_flags": {},
+      "expect": {
+        "quest_state": "non_combat_complete",
+        "flags": {
+          "flag.order.night_checkpoint.briefed": true,
+          "flag.order.night_checkpoint.non_combat_resolved": true
+        },
+        "ledger_events": [
+          "ledger.order.night_checkpoint.non_combat"
+        ]
+      }
+    }
+  ]
+}

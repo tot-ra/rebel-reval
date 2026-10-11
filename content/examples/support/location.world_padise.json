@@ -1,0 +1,47 @@
+{
+  "type": "location",
+  "id": "loc.world_padise",
+  "name": "Padise Road",
+  "district": "Outside Reval",
+  "confidence": "plausible composite",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P6-002"
+  },
+  "description": "Support copy of the world_padise regional site location for example-corpus reference checks.",
+  "gameplay_space": true,
+  "scene_path": "res://scenes/world/sites/padise.tscn",
+  "spawn_ids": [
+    "from_world_padise",
+    "from_reval_west",
+    "from_world_parnu"
+  ],
+  "connected_location_ids": [
+    "loc.padise_monastery"
+  ],
+  "pressure_tags": [
+    "Authority",
+    "Scarcity"
+  ],
+  "phase_states": [
+    {
+      "id": "before_attack",
+      "description": "The road still carries traffic toward the monastery estate before the April fire."
+    },
+    {
+      "id": "after_attack",
+      "description": "Travelers pass a burned, silent monastery site after the St George's Night attack."
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "plausible composite",
+      "summary": "Support location for the world_padise regional site (ADR 0042).",
+      "citations": [
+        "content/world/padise/plan.json",
+        "docs/reports/padise_monastery_research_p6_009.md"
+      ]
+    }
+  ]
+}

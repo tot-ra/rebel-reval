@@ -1,0 +1,13 @@
+{
+  "id": "material.plaster.albedo",
+  "family": "plaster",
+  "map_type": "albedo",
+  "kind": "leonardo_material_plate",
+  "target": "assets/materials/pbr/plaster/plaster_albedo.png",
+  "source": "generated/leonardo/a1dee551-67ba-44c9-bd9d-85230df47e71-1.jpg",
+  "prompt": "Seamless tileable lime plaster wall texture, warm beige cream color, slightly rough surface with subtle cracks and aging, medieval building material, PBR albedo map, photorealistic, top-down view, 512x512 tileable pattern",
+  "model_name": "Lucid Realism",
+  "generation_id": "a1dee551-67ba-44c9-bd9d-85230df47e71",
+  "processor": "tools/apply_pbr_textures.py",
+  "style_refs": ["docs/ART_BIBLE.md", "docs/MATERIAL_STYLE_LOCK_KIT.md"]
+}

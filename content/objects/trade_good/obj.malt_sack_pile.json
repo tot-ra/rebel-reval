@@ -1,0 +1,70 @@
+{
+  "type": "world_object",
+  "id": "obj.malt_sack_pile",
+  "name": "Malt sack pile",
+  "description": "A stacked heap of malt sacks at the brewhouse door.",
+  "category": "trade_good",
+  "handling": "fixed",
+  "tags": [
+    "grain",
+    "brewery",
+    "pile"
+  ],
+  "physical": {
+    "mass_kg": 180,
+    "size_m": [
+      1.26,
+      0.67,
+      0.96
+    ],
+    "materials": [
+      "grain",
+      "linen_cloth",
+      "wood"
+    ],
+    "flammable": true
+  },
+  "actions": [
+    "inspect"
+  ],
+  "economy": {
+    "base_pfennigs": 0,
+    "ownership": "guild",
+    "legality": "legal",
+    "theft_severity": 0
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "brewery",
+      "warehouse"
+    ],
+    "grouping": "pile"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/crafts/malt_sack_pile/malt_sack_pile.glb",
+    "prop_kind": "malt_sack_pile",
+    "measured_size_m": [
+      1.26,
+      0.67,
+      0.96
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.malt_sack_pile.png",
+    "icon": "res://assets/objects/icons/obj.malt_sack_pile.png",
+    "icon_status": "missing",
+    "look": "Pile of slumped linen sacks beside an open sack of golden malt and a grain scoop.",
+    "image_prompt": "Malt sack pile: Pile of slumped linen sacks beside an open sack of golden malt and a grain scoop."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "composition": [
+    {
+      "id": "obj.sack_grain",
+      "count": 5
+    }
+  ],
+  "notes": "Individual sacks (obj.sack_grain) are the takeable form."
+}

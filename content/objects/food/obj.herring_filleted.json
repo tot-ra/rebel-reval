@@ -1,0 +1,79 @@
+{
+  "type": "world_object",
+  "id": "obj.herring_filleted",
+  "name": "Filleted herring",
+  "description": "Salted herring fillets, a common supper.",
+  "category": "food",
+  "handling": "pocketable",
+  "tags": [
+    "fish",
+    "salted"
+  ],
+  "physical": {
+    "mass_kg": 0.25,
+    "size_m": [
+      0.29,
+      0.04,
+      0.06
+    ],
+    "materials": [
+      "food_organic"
+    ]
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop",
+    "consume",
+    "stack"
+  ],
+  "economy": {
+    "base_pfennigs": 3,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "home_poor",
+      "home_burgher",
+      "market",
+      "harbor",
+      "tavern"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/domestic/household/smithy_household_clutter_kit.glb",
+    "node": "ProvisionHerringFilleted",
+    "prop_kind": "household_clutter",
+    "variant": "provision.herring_filleted",
+    "measured_size_m": [
+      0.29,
+      0.04,
+      0.06
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.herring_filleted.png",
+    "icon": "res://assets/objects/icons/obj.herring_filleted.png",
+    "icon_status": "missing",
+    "look": "Two silver-skinned herring fillets laid flat on a wooden slice.",
+    "image_prompt": "Filleted herring: Two silver-skinned herring fillets laid flat on a wooden slice."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "carry": {
+    "grid_width": 1,
+    "grid_height": 1,
+    "stackable": true,
+    "max_stack": 6
+  },
+  "edible": {
+    "kind": "food",
+    "nutrition": 20,
+    "spoils_after_days": 6
+  }
+}

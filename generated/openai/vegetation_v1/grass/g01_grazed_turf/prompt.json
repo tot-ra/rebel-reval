@@ -1,0 +1,11 @@
+{
+  "tool": "a2gent openai_generate_image",
+  "model": "gpt-image-1",
+  "size": "1024x1024",
+  "quality": "high",
+  "generation_id": "4155e598-2e35-4e2b-8e8c-a41615f71f97",
+  "prompt": "Seamless tileable ground texture, photographed straight down (orthographic top-down view) covering about one square metre: short grazed Estonian pasture turf, fine fresh green grass blades with a few white clover leaves, natural mixed greens. Even soft overcast daylight, no cast shadows, no perspective, no horizon, no central subject, uniform density over the whole frame, photorealistic scan quality, no text.",
+  "file": "source.png",
+  "sha256": "bd6ea344b531c2821922dfd5952b8e0dd8432258dd31975c335c4faeb4264a95",
+  "task": "R-1103/R-1101/R-1102"
+}

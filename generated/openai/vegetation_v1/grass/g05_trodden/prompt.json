@@ -1,0 +1,11 @@
+{
+  "tool": "a2gent openai_generate_image",
+  "model": "gpt-image-1",
+  "size": "1024x1024",
+  "quality": "high",
+  "generation_id": "8ca74d40-1ae5-4ee5-aa73-1a7ac51cffd5",
+  "prompt": "Seamless tileable ground texture, photographed straight down (orthographic top-down view) covering about one square metre: trodden village grass worn thin, flattened green and yellowish blades with bare brown earth and small pebbles showing through in irregular patches. Even soft overcast daylight, no cast shadows, no perspective, no horizon, no central subject, uniform density over the whole frame, photorealistic scan quality, no text.",
+  "file": "source.png",
+  "sha256": "9f98bf6316db07642d40932081d1495b279fb6d62800b2de54b5e40d4bdb8ff0",
+  "task": "R-1103/R-1101/R-1102"
+}

@@ -1,0 +1,32 @@
+{
+  "version": 0,
+  "saved_at": 1752600000,
+  "state": {
+    "version": 1,
+    "phase": "phase.prologue_day",
+    "player": {
+      "health": 88.0,
+      "max_health": 100.0,
+      "stamina": 90.0,
+      "max_stamina": 100.0,
+      "location_id": "reval_east",
+      "spawn_id": "courtyard"
+    },
+    "bag": {"placements": []},
+    "equipped": {},
+    "facts": {},
+    "flags": {"flag.demo_mart_spoken": true},
+    "relationships": {},
+    "pressures": {
+      "pressure.suspicion": 0,
+      "pressure.solidarity": 0,
+      "pressure.scarcity": 0
+    },
+    "quest_states": {},
+    "location_states": {},
+    "items": {},
+    "forged_records": [],
+    "world_items": {},
+    "world_defaults_seeded": {}
+  }
+}

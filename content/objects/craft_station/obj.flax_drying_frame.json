@@ -1,0 +1,56 @@
+{
+  "type": "world_object",
+  "id": "obj.flax_drying_frame",
+  "name": "Flax drying frame",
+  "description": "A wooden frame where cut flax stalks are stood to dry.",
+  "category": "craft_station",
+  "handling": "fixed",
+  "tags": [
+    "flax",
+    "farm",
+    "drying"
+  ],
+  "physical": {
+    "mass_kg": 25,
+    "size_m": [
+      1.6,
+      1.4,
+      1.0
+    ],
+    "materials": [
+      "wood",
+      "straw"
+    ],
+    "flammable": true
+  },
+  "actions": [
+    "inspect"
+  ],
+  "economy": {
+    "base_pfennigs": 0,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 0
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "farm"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "procedural",
+    "prop_kind": "flax_drying_frame",
+    "builder": "res://scripts/map/view3d/map_view_mesh_builder_rural_life_props.gd"
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.flax_drying_frame.png",
+    "icon": "res://assets/objects/icons/obj.flax_drying_frame.png",
+    "icon_status": "missing",
+    "look": "A-frame of poles with bundles of pale flax stalks.",
+    "image_prompt": "Flax drying frame: A-frame of poles with bundles of pale flax stalks."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite"
+}

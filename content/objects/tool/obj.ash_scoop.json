@@ -1,0 +1,73 @@
+{
+  "type": "world_object",
+  "id": "obj.ash_scoop",
+  "name": "Ash scoop",
+  "description": "A shallow iron scoop for clearing the hearth.",
+  "category": "tool",
+  "handling": "pocketable",
+  "tags": [
+    "hearth",
+    "tool"
+  ],
+  "physical": {
+    "mass_kg": 0.7,
+    "size_m": [
+      0.28,
+      0.02,
+      0.08
+    ],
+    "materials": [
+      "iron",
+      "wood"
+    ]
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop"
+  ],
+  "economy": {
+    "base_pfennigs": 8,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "forge",
+      "home_poor",
+      "home_burgher"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/domestic/household/smithy_household_clutter_kit.glb",
+    "node": "HouseholdAshScoop",
+    "prop_kind": "household_clutter",
+    "variant": "household.ash_scoop",
+    "measured_size_m": [
+      0.28,
+      0.02,
+      0.08
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.ash_scoop.png",
+    "icon": "res://assets/objects/icons/obj.ash_scoop.png",
+    "icon_status": "missing",
+    "look": "Flat soot-black iron pan on a short wooden handle.",
+    "image_prompt": "Ash scoop: Flat soot-black iron pan on a short wooden handle."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "uses": [
+    "clear ash from a hearth"
+  ],
+  "carry": {
+    "grid_width": 2,
+    "grid_height": 1,
+    "stackable": false
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "type": "world_object",
+  "id": "obj.spear_watch",
+  "name": "Watch spear",
+  "description": "The watchman's ash spear.",
+  "category": "weapon",
+  "handling": "carry_one_hand",
+  "tags": [
+    "weapon",
+    "spear",
+    "military"
+  ],
+  "physical": {
+    "mass_kg": 2.2,
+    "size_m": [
+      0.05,
+      1.9,
+      0.05
+    ],
+    "materials": [
+      "wood",
+      "steel"
+    ]
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop",
+    "throw",
+    "equip"
+  ],
+  "economy": {
+    "base_pfennigs": 60,
+    "ownership": "garrison",
+    "legality": "restricted",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "guard_post",
+      "street"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "missing"
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.spear_watch.png",
+    "icon": "res://assets/objects/icons/obj.spear_watch.png",
+    "icon_status": "missing",
+    "look": "Long ash shaft with a leaf-shaped steel head.",
+    "image_prompt": "A long ash spear with a leaf-shaped steel head"
+  },
+  "lifecycle": "planned",
+  "confidence": "plausible composite",
+  "carry": {
+    "grid_width": 1,
+    "grid_height": 5,
+    "stackable": false
+  },
+  "throw": {
+    "range_m": 8.0,
+    "damage": 7,
+    "breaks": false,
+    "noise": "normal"
+  },
+  "equip": {
+    "slot": "right_hand",
+    "damage_type": "pierce",
+    "protection": "none"
+  },
+  "item_ref": "item.watch_spear"
+}

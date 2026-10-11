@@ -1,0 +1,153 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "phase_profile.schema.json",
+  "title": "Reval Rebel slice phase profile",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "type",
+    "id",
+    "phase_id",
+    "title",
+    "sequence_index",
+    "presentation",
+    "locations",
+    "confidence",
+    "canon_status",
+    "approval",
+    "source_notes"
+  ],
+  "properties": {
+    "type": {
+      "const": "phase_profile"
+    },
+    "id": {
+      "$ref": "common.schema.json#/$defs/content_id"
+    },
+    "phase_id": {
+      "type": "string",
+      "pattern": "^phase\\.[a-z0-9_]+$"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "sequence_index": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 16
+    },
+    "presentation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "cycle_enabled",
+        "cycle_progress"
+      ],
+      "properties": {
+        "cycle_enabled": {
+          "type": "boolean"
+        },
+        "cycle_progress": {
+          "type": "string",
+          "pattern": "^(0|1|0\\.[0-9]+|1\\.0+)$"
+        },
+        "music_night_tracks": {
+          "type": "boolean"
+        }
+      }
+    },
+    "locations": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "location_id"
+        ],
+        "properties": {
+          "location_id": {
+            "$ref": "common.schema.json#/$defs/content_id"
+          },
+          "patrols": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "patrol_id",
+                "enabled"
+              ],
+              "properties": {
+                "patrol_id": {
+                  "$ref": "common.schema.json#/$defs/local_id"
+                },
+                "enabled": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "npcs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "npc_id",
+                "visible"
+              ],
+              "properties": {
+                "npc_id": {
+                  "$ref": "common.schema.json#/$defs/local_id"
+                },
+                "anchor_id": {
+                  "$ref": "common.schema.json#/$defs/local_id"
+                },
+                "visible": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "props": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "object_id",
+                "visible"
+              ],
+              "properties": {
+                "object_id": {
+                  "$ref": "common.schema.json#/$defs/local_id"
+                },
+                "visible": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "confidence": {
+      "$ref": "common.schema.json#/$defs/confidence_label"
+    },
+    "canon_status": {
+      "$ref": "common.schema.json#/$defs/canon_status"
+    },
+    "approval": {
+      "$ref": "common.schema.json#/$defs/review_record"
+    },
+    "source_notes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "common.schema.json#/$defs/source_note"
+      }
+    }
+  }
+}

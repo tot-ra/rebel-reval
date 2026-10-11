@@ -1,0 +1,44 @@
+{
+  "type": "dialogue",
+  "id": "dialogue.bell_and_chain.inspect_striker",
+  "title": "The Bell and the Chain - Bell striker winch",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-002"
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "explicit_node_id"
+  },
+  "participants": [
+    "char.kalev"
+  ],
+  "start_node_id": "inspect_striker",
+  "nodes": [
+    {
+      "id": "inspect_striker",
+      "speaker_id": "char.kalev",
+      "text": "Stress cracks run through the bell striker drum fittings I supplied last winter.",
+      "effects": [
+        {
+          "op": "set_fact",
+          "key": "fact.bell_and_chain.striker_stress",
+          "value": true
+        }
+      ]
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Bell striker winch inspection for The Bell and the Chain investigation loop.",
+      "citations": [
+        "docs/SCENES/the-bell-and-the-chain.md"
+      ]
+    }
+  ]
+}

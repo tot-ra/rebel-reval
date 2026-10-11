@@ -1,0 +1,94 @@
+{
+  "type": "dialogue",
+  "id": "dialogue.test_duel_temperament",
+  "title": "Spirit Duel Temperament Fixture",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "review",
+    "notes": "SD-15 temperament fixture only (ADR 0033)."
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "explicit_node_id",
+    "notes": "Tagged duel fixture for DialogueRunner tests."
+  },
+  "participants": [
+    "char.mart",
+    "char.kalev"
+  ],
+  "start_node_id": "accuse",
+  "duel": {
+    "stakes": [
+      "respect",
+      "secret"
+    ],
+    "resolution_node_ids": [
+      "yield",
+      "stand"
+    ],
+    "temperament": [
+      "impulsive"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "accuse",
+      "speaker_id": "char.kalev",
+      "text": "You have been stealing iron.",
+      "move": {
+        "kind": "attack",
+        "element": "shame",
+        "stakes": [
+          "secret"
+        ],
+        "spirit_image_id": "ledger_chain"
+      },
+      "choices": [
+        {
+          "id": "deny",
+          "text": "I never touched it.",
+          "target_node_id": "stand",
+          "move": {
+            "kind": "defense",
+            "element": "fear",
+            "stakes": [
+              "respect"
+            ]
+          }
+        },
+        {
+          "id": "confess",
+          "text": "It was for a friend.",
+          "target_node_id": "yield",
+          "move": {
+            "kind": "appeal",
+            "element": "love",
+            "stakes": [
+              "secret",
+              "respect"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "yield",
+      "speaker_id": "char.kalev",
+      "text": "Then we speak of it no more tonight."
+    },
+    {
+      "id": "stand",
+      "speaker_id": "char.mart",
+      "text": "Believe what you like."
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Fixture for dialogue move tags."
+    }
+  ]
+}

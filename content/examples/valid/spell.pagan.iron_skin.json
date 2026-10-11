@@ -1,0 +1,45 @@
+{
+  "type": "spell",
+  "id": "spell.pagan.iron_skin",
+  "name": "Iron Skin",
+  "school": "school.pagan",
+  "sequence": [
+    "element.earth",
+    "element.metal"
+  ],
+  "resolution": "authored_lookup",
+  "runtime_combination_allowed": false,
+  "requires_conduit": "none",
+  "cost": {
+    "resource": "resource.willpower",
+    "amount": 2
+  },
+  "effect_summary": "Kalev hardens his skin like quenched iron, taking less damage from landed hits for a short time. Recasting refreshes the ward instead of stacking it.",
+  "effect": {
+    "delivery": {
+      "kind": "self"
+    },
+    "modifier": {
+      "kind": "damage_reduction",
+      "modifier_id": "modifier.iron_skin",
+      "amount": 0.35,
+      "duration_sec": 8.0,
+      "stacking": "replace"
+    }
+  },
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "R-725 Iron Skin prototype"
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Authored gameplay self buff for the earth plus metal forge sequence; not an attested historical rite.",
+      "citations": [
+        "docs/SYSTEMS/MAGIC.md"
+      ]
+    }
+  ]
+}

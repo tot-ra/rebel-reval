@@ -1,0 +1,458 @@
+{
+  "type": "sfx_catalog",
+  "id": "audio.sfx_catalog",
+  "entries": [
+    {
+      "id": "sfx.door.wood.use",
+      "bus": "SFX",
+      "streams": ["res://sounds/door.mp3"],
+      "tier": "C",
+      "source_ids": ["sounds.door"],
+      "pitch_jitter": 0.06,
+      "volume_jitter_db": 1.5,
+      "max_voices": 2,
+      "cooldown_ms": 250,
+      "spatial": "none"
+    },
+    {
+      "id": "sfx.item.pickup",
+      "bus": "SFX",
+      "streams": ["res://sounds/door.mp3"],
+      "tier": "C",
+      "source_ids": ["sounds.door"],
+      "volume_db": -8.0,
+      "pitch": 1.35,
+      "max_voices": 2,
+      "cooldown_ms": 120,
+      "spatial": "none"
+    },
+    {
+      "id": "sfx.social.reaction.harju_kings_trusted",
+      "bus": "SFX",
+      "streams": ["res://sounds/walk_wood.mp3"],
+      "tier": "C",
+      "source_ids": ["sounds.walk.wood"],
+      "volume_db": -14.0,
+      "pitch": 0.85,
+      "max_voices": 1,
+      "spatial": "none"
+    },
+    {
+      "id": "sfx.footstep.wood.walk",
+      "bus": "Footsteps",
+      "streams": [
+        "res://sounds/footsteps/wood_step_01.mp3",
+        "res://sounds/footsteps/wood_step_02.mp3",
+        "res://sounds/footsteps/wood_step_03.mp3",
+        "res://sounds/footsteps/wood_step_04.mp3",
+        "res://sounds/footsteps/wood_step_05.mp3"
+      ],
+      "tier": "A",
+      "source_ids": [
+        "sounds.footsteps.wood_step_01",
+        "sounds.footsteps.wood_step_02",
+        "sounds.footsteps.wood_step_03",
+        "sounds.footsteps.wood_step_04",
+        "sounds.footsteps.wood_step_05"
+      ],
+      "pitch_jitter": 0.06,
+      "volume_jitter_db": 1.5,
+      "no_repeat": 2,
+      "max_voices": 3,
+      "cooldown_ms": 90,
+      "spatial": "3d"
+    },
+    {
+      "id": "sfx.footstep.stone.walk",
+      "bus": "Footsteps",
+      "streams": [
+        "res://sounds/footsteps/stone_step_01.mp3",
+        "res://sounds/footsteps/stone_step_02.mp3",
+        "res://sounds/footsteps/stone_step_03.mp3",
+        "res://sounds/footsteps/stone_step_04.mp3",
+        "res://sounds/footsteps/stone_step_05.mp3"
+      ],
+      "tier": "A",
+      "source_ids": [
+        "sounds.footsteps.stone_step_01",
+        "sounds.footsteps.stone_step_02",
+        "sounds.footsteps.stone_step_03",
+        "sounds.footsteps.stone_step_04",
+        "sounds.footsteps.stone_step_05"
+      ],
+      "pitch_jitter": 0.06,
+      "volume_jitter_db": 1.5,
+      "no_repeat": 2,
+      "max_voices": 3,
+      "cooldown_ms": 90,
+      "spatial": "3d"
+    },
+    {
+      "id": "sfx.footstep.grass.walk",
+      "bus": "Footsteps",
+      "streams": [
+        "res://sounds/footsteps/grass_step_01.mp3",
+        "res://sounds/footsteps/grass_step_02.mp3",
+        "res://sounds/footsteps/grass_step_03.mp3",
+        "res://sounds/footsteps/grass_step_04.mp3",
+        "res://sounds/footsteps/grass_step_05.mp3"
+      ],
+      "tier": "A",
+      "source_ids": [
+        "sounds.footsteps.grass_step_01",
+        "sounds.footsteps.grass_step_02",
+        "sounds.footsteps.grass_step_03",
+        "sounds.footsteps.grass_step_04",
+        "sounds.footsteps.grass_step_05"
+      ],
+      "pitch_jitter": 0.06,
+      "volume_jitter_db": 1.5,
+      "no_repeat": 2,
+      "max_voices": 3,
+      "cooldown_ms": 90,
+      "spatial": "3d"
+    },
+    {
+      "id": "sfx.footstep.gravel.walk",
+      "bus": "Footsteps",
+      "streams": [
+        "res://sounds/footsteps/gravel_step_01.mp3",
+        "res://sounds/footsteps/gravel_step_02.mp3",
+        "res://sounds/footsteps/gravel_step_03.mp3",
+        "res://sounds/footsteps/gravel_step_04.mp3",
+        "res://sounds/footsteps/gravel_step_05.mp3",
+        "res://sounds/footsteps/gravel_step_06.mp3"
+      ],
+      "tier": "A",
+      "source_ids": [
+        "sounds.footsteps.gravel_step_01",
+        "sounds.footsteps.gravel_step_02",
+        "sounds.footsteps.gravel_step_03",
+        "sounds.footsteps.gravel_step_04",
+        "sounds.footsteps.gravel_step_05",
+        "sounds.footsteps.gravel_step_06"
+      ],
+      "pitch_jitter": 0.06,
+      "volume_jitter_db": 1.5,
+      "no_repeat": 2,
+      "max_voices": 3,
+      "cooldown_ms": 90,
+      "spatial": "3d"
+    },
+    {
+      "id": "sfx.footstep.dirt.walk",
+      "bus": "Footsteps",
+      "streams": [
+        "res://sounds/footsteps/dirt_step_01.mp3",
+        "res://sounds/footsteps/dirt_step_02.mp3",
+        "res://sounds/footsteps/dirt_step_03.mp3",
+        "res://sounds/footsteps/dirt_step_04.mp3",
+        "res://sounds/footsteps/dirt_step_05.mp3"
+      ],
+      "tier": "A",
+      "source_ids": [
+        "sounds.footsteps.dirt_step_01",
+        "sounds.footsteps.dirt_step_02",
+        "sounds.footsteps.dirt_step_03",
+        "sounds.footsteps.dirt_step_04",
+        "sounds.footsteps.dirt_step_05"
+      ],
+      "pitch_jitter": 0.06,
+      "volume_jitter_db": 1.5,
+      "no_repeat": 2,
+      "max_voices": 3,
+      "cooldown_ms": 90,
+      "spatial": "3d"
+    },
+    {
+      "id": "sfx.footstep.mud.walk",
+      "bus": "Footsteps",
+      "streams": [
+        "res://sounds/footsteps/mud_step_01.mp3",
+        "res://sounds/footsteps/mud_step_02.mp3",
+        "res://sounds/footsteps/mud_step_03.mp3",
+        "res://sounds/footsteps/mud_step_04.mp3",
+        "res://sounds/footsteps/mud_step_05.mp3",
+        "res://sounds/footsteps/mud_step_06.mp3"
+      ],
+      "tier": "A",
+      "source_ids": [
+        "sounds.footsteps.mud_step_01",
+        "sounds.footsteps.mud_step_02",
+        "sounds.footsteps.mud_step_03",
+        "sounds.footsteps.mud_step_04",
+        "sounds.footsteps.mud_step_05",
+        "sounds.footsteps.mud_step_06"
+      ],
+      "pitch_jitter": 0.06,
+      "volume_jitter_db": 1.5,
+      "no_repeat": 2,
+      "max_voices": 3,
+      "cooldown_ms": 90,
+      "spatial": "3d"
+    },
+    {
+      "id": "sfx.footstep.snow.walk",
+      "bus": "Footsteps",
+      "streams": [
+        "res://sounds/footsteps/snow_step_01.mp3",
+        "res://sounds/footsteps/snow_step_02.mp3",
+        "res://sounds/footsteps/snow_step_03.mp3",
+        "res://sounds/footsteps/snow_step_04.mp3",
+        "res://sounds/footsteps/snow_step_05.mp3",
+        "res://sounds/footsteps/snow_step_06.mp3"
+      ],
+      "tier": "A",
+      "source_ids": [
+        "sounds.footsteps.snow_step_01",
+        "sounds.footsteps.snow_step_02",
+        "sounds.footsteps.snow_step_03",
+        "sounds.footsteps.snow_step_04",
+        "sounds.footsteps.snow_step_05",
+        "sounds.footsteps.snow_step_06"
+      ],
+      "pitch_jitter": 0.08,
+      "volume_jitter_db": 1.5,
+      "no_repeat": 2,
+      "max_voices": 3,
+      "cooldown_ms": 90,
+      "spatial": "3d"
+    },
+    {
+      "id": "sfx.footstep.puddle.walk",
+      "bus": "Footsteps",
+      "streams": [
+        "res://sounds/footsteps/puddle_step_01.mp3",
+        "res://sounds/footsteps/puddle_step_02.mp3",
+        "res://sounds/footsteps/puddle_step_03.mp3",
+        "res://sounds/footsteps/puddle_step_04.mp3",
+        "res://sounds/footsteps/puddle_step_05.mp3",
+        "res://sounds/footsteps/puddle_step_06.mp3"
+      ],
+      "tier": "A",
+      "source_ids": [
+        "sounds.footsteps.puddle_step_01",
+        "sounds.footsteps.puddle_step_02",
+        "sounds.footsteps.puddle_step_03",
+        "sounds.footsteps.puddle_step_04",
+        "sounds.footsteps.puddle_step_05",
+        "sounds.footsteps.puddle_step_06"
+      ],
+      "pitch_jitter": 0.06,
+      "volume_jitter_db": 1.5,
+      "no_repeat": 2,
+      "max_voices": 3,
+      "cooldown_ms": 90,
+      "spatial": "3d"
+    },
+    {
+      "id": "sfx.footstep.water_shallow.walk",
+      "bus": "Footsteps",
+      "streams": [
+        "res://sounds/footsteps/water_shallow_step_01.mp3",
+        "res://sounds/footsteps/water_shallow_step_02.mp3",
+        "res://sounds/footsteps/water_shallow_step_03.mp3",
+        "res://sounds/footsteps/water_shallow_step_04.mp3",
+        "res://sounds/footsteps/water_shallow_step_05.mp3",
+        "res://sounds/footsteps/water_shallow_step_06.mp3"
+      ],
+      "tier": "A",
+      "source_ids": [
+        "sounds.footsteps.water_shallow_step_01",
+        "sounds.footsteps.water_shallow_step_02",
+        "sounds.footsteps.water_shallow_step_03",
+        "sounds.footsteps.water_shallow_step_04",
+        "sounds.footsteps.water_shallow_step_05",
+        "sounds.footsteps.water_shallow_step_06"
+      ],
+      "pitch_jitter": 0.06,
+      "volume_jitter_db": 1.5,
+      "no_repeat": 2,
+      "max_voices": 3,
+      "cooldown_ms": 90,
+      "spatial": "3d"
+    },
+    {
+      "id": "sfx.footstep.water_wade.walk",
+      "bus": "Footsteps",
+      "streams": [
+        "res://sounds/footsteps/water_wade_step_01.mp3",
+        "res://sounds/footsteps/water_wade_step_02.mp3",
+        "res://sounds/footsteps/water_wade_step_03.mp3",
+        "res://sounds/footsteps/water_wade_step_04.mp3",
+        "res://sounds/footsteps/water_wade_step_05.mp3",
+        "res://sounds/footsteps/water_wade_step_06.mp3",
+        "res://sounds/footsteps/water_wade_step_07.mp3",
+        "res://sounds/footsteps/water_wade_step_08.mp3"
+      ],
+      "tier": "A",
+      "source_ids": [
+        "sounds.footsteps.water_wade_step_01",
+        "sounds.footsteps.water_wade_step_02",
+        "sounds.footsteps.water_wade_step_03",
+        "sounds.footsteps.water_wade_step_04",
+        "sounds.footsteps.water_wade_step_05",
+        "sounds.footsteps.water_wade_step_06",
+        "sounds.footsteps.water_wade_step_07",
+        "sounds.footsteps.water_wade_step_08"
+      ],
+      "pitch_jitter": 0.06,
+      "volume_jitter_db": 1.5,
+      "no_repeat": 2,
+      "max_voices": 3,
+      "cooldown_ms": 90,
+      "spatial": "3d"
+    },
+    {
+      "id": "sfx.water.swim_stroke",
+      "bus": "Footsteps",
+      "streams": [
+        "res://sounds/footsteps/swim_stroke_01.mp3",
+        "res://sounds/footsteps/swim_stroke_02.mp3",
+        "res://sounds/footsteps/swim_stroke_03.mp3",
+        "res://sounds/footsteps/swim_stroke_04.mp3",
+        "res://sounds/footsteps/swim_stroke_05.mp3",
+        "res://sounds/footsteps/swim_stroke_06.mp3",
+        "res://sounds/footsteps/swim_stroke_07.mp3",
+        "res://sounds/footsteps/swim_stroke_08.mp3"
+      ],
+      "tier": "A",
+      "source_ids": [
+        "sounds.footsteps.swim_stroke_01",
+        "sounds.footsteps.swim_stroke_02",
+        "sounds.footsteps.swim_stroke_03",
+        "sounds.footsteps.swim_stroke_04",
+        "sounds.footsteps.swim_stroke_05",
+        "sounds.footsteps.swim_stroke_06",
+        "sounds.footsteps.swim_stroke_07",
+        "sounds.footsteps.swim_stroke_08"
+      ],
+      "pitch_jitter": 0.08,
+      "volume_jitter_db": 1.5,
+      "no_repeat": 2,
+      "max_voices": 2,
+      "cooldown_ms": 200,
+      "spatial": "3d"
+    },
+    {
+      "id": "sfx.water.emerge",
+      "bus": "SFX",
+      "streams": ["res://sounds/water/emerge.mp3"],
+      "tier": "A",
+      "source_ids": ["sounds.water.emerge"],
+      "pitch_jitter": 0.05,
+      "max_voices": 2,
+      "spatial": "none"
+    },
+    {
+      "id": "sfx.water.submerge",
+      "bus": "SFX",
+      "streams": ["res://sounds/water/submerge.mp3"],
+      "tier": "A",
+      "source_ids": ["sounds.water.submerge"],
+      "pitch_jitter": 0.05,
+      "max_voices": 2,
+      "spatial": "none"
+    },
+    {
+      "id": "amb.weather.rain_roof",
+      "bus": "Weather",
+      "streams": ["res://sounds/weather/rain_roof.mp3"],
+      "tier": "B",
+      "source_ids": ["sounds.weather.rain_roof"],
+      "volume_db": -6.0,
+      "max_voices": 1,
+      "spatial": "none"
+    },
+    {
+      "id": "amb.weather.rain_outdoor",
+      "bus": "Weather",
+      "streams": ["res://sounds/weather/rain_outdoor.mp3"],
+      "tier": "B",
+      "source_ids": ["sounds.weather.rain_outdoor"],
+      "volume_db": -8.0,
+      "max_voices": 1,
+      "spatial": "none"
+    },
+    {
+      "id": "amb.lower_town.bed",
+      "bus": "Ambience",
+      "streams": ["res://sounds/ambience/lower_town_bed.mp3"],
+      "tier": "B",
+      "source_ids": ["sounds.ambience.lower_town_bed"],
+      "volume_db": -14.0,
+      "max_voices": 1,
+      "spatial": "none"
+    },
+    {
+      "id": "amb.forge.bed",
+      "bus": "Ambience",
+      "streams": ["res://sounds/ambience/forge_bed.mp3"],
+      "tier": "B",
+      "source_ids": ["sounds.ambience.forge_bed"],
+      "volume_db": -12.0,
+      "max_voices": 1,
+      "spatial": "none"
+    },
+    {
+      "id": "amb.sea.calm",
+      "bus": "Ambience",
+      "streams": ["res://sounds/sea/sea_calm.mp3"],
+      "tier": "A",
+      "source_ids": ["sounds.sea.calm"],
+      "volume_db": -6.0,
+      "max_voices": 1,
+      "spatial": "none"
+    },
+    {
+      "id": "amb.sea.moderate",
+      "bus": "Ambience",
+      "streams": ["res://sounds/sea/sea_moderate.mp3"],
+      "tier": "A",
+      "source_ids": ["sounds.sea.moderate"],
+      "volume_db": -6.0,
+      "max_voices": 1,
+      "spatial": "none"
+    },
+    {
+      "id": "amb.sea.storm",
+      "bus": "Ambience",
+      "streams": ["res://sounds/sea/sea_storm.mp3"],
+      "tier": "A",
+      "source_ids": ["sounds.sea.storm"],
+      "volume_db": -6.0,
+      "max_voices": 1,
+      "spatial": "none"
+    },
+    {
+      "id": "amb.wind.light",
+      "bus": "Weather",
+      "streams": ["res://sounds/wind/wind_light.mp3"],
+      "tier": "A",
+      "source_ids": ["sounds.wind.light"],
+      "volume_db": -8.0,
+      "max_voices": 1,
+      "spatial": "none"
+    },
+    {
+      "id": "amb.wind.strong",
+      "bus": "Weather",
+      "streams": ["res://sounds/wind/wind_strong.mp3"],
+      "tier": "A",
+      "source_ids": ["sounds.wind.strong"],
+      "volume_db": -8.0,
+      "max_voices": 1,
+      "spatial": "none"
+    },
+    {
+      "id": "amb.wind.storm",
+      "bus": "Weather",
+      "streams": ["res://sounds/wind/wind_storm.mp3"],
+      "tier": "A",
+      "source_ids": ["sounds.wind.storm"],
+      "volume_db": -8.0,
+      "max_voices": 1,
+      "spatial": "none"
+    }
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "type": "bark_pool",
+  "id": "bark.root_and_ember.aftermath_watch",
+  "title": "Root and Ember aftermath street barks",
+  "owner_id": "char.mart",
+  "confidence": "folklore",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-007"
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "first_valid_in_order"
+  },
+  "selection": "first_valid_in_order",
+  "phase_ids": [
+    "phase.reflection_morning"
+  ],
+  "location_ids": [
+    "loc.lower_town_slice"
+  ],
+  "entries": [
+    {
+      "id": "ellen_song",
+      "speaker_id": "char.mart",
+      "text": "Ellen sang at the brewery household until the soot stopped. I still do not know if a spirit left or the flue learned its duty.",
+      "priority": 3,
+      "conditions": [
+        {
+          "op": "flag_is",
+          "key": "flag.ellen.belief_honored",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "ellen_herbs",
+      "speaker_id": "char.mart",
+      "text": "The neighbors trust Ellen's herb ward now. They sleep - and nobody had to call the watch.",
+      "priority": 3,
+      "conditions": [
+        {
+          "op": "flag_is",
+          "key": "flag.ellen.remedy_trusted",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "ellen_iron",
+      "speaker_id": "char.mart",
+      "text": "You fixed the smoke bracket and told them straight it was cracked stone. Ellen said that honesty costs her songs fewer listeners.",
+      "priority": 3,
+      "conditions": [
+        {
+          "op": "flag_is",
+          "key": "flag.ellen.skepticism_respected",
+          "value": true
+        }
+      ]
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "folklore",
+      "summary": "Mart street commentary after Root and Ember hearth install.",
+      "citations": [
+        "docs/SCENES/root-and-ember.md"
+      ]
+    }
+  ]
+}

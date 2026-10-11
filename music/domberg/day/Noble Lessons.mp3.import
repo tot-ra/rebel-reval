@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://blseky4flf24f"
+path="res://.godot/imported/Noble Lessons.mp3-bff29c32d27b14982e72beb3752fa88e.mp3str"
+
+[deps]
+
+source_file="res://music/domberg/day/Noble Lessons.mp3"
+dest_files=["res://.godot/imported/Noble Lessons.mp3-bff29c32d27b14982e72beb3752fa88e.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

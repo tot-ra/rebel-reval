@@ -1,0 +1,309 @@
+extends "res://tests/godot/test_case.gd"
+
+const GraphicsSettingsScript := preload("res://scripts/settings/graphics_settings.gd")
+const AudioBusServiceScript := preload("res://scripts/settings/audio_bus_service.gd")
+const ControllerScript := preload("res://scripts/ui/game_settings_controller.gd")
+const OverlayScript := preload("res://scripts/ui/game_settings_overlay.gd")
+const PlayerInputScript := preload("res://scripts/player/player_action_input.gd")
+const StoreScript := preload("res://scripts/settings/user_settings_store.gd")
+
+
+func before_each() -> void:
+	_cleanup_temp_dir()
+	_redirect_user_settings_store()
+
+
+func after_each() -> void:
+	_cleanup_temp_dir()
+	# WHY: overlay tests apply guard-toggle and other live UserSettings. Reloading
+	# only audio/dialogue left gameplay accessibility on later combat files.
+	UserSettings.store.settings_directory = StoreScript.DEFAULT_DIRECTORY
+	UserSettings.reload_audio_settings()
+	UserSettings.reload_dialogue_settings()
+	UserSettings.reload_gameplay_accessibility_settings()
+	UserSettings.apply_graphics_settings(GraphicsSettingsScript.default_settings(), false)
+	PlayerInputScript.reset_guard_toggle()
+	super.after_each()
+
+func test_overlay_starts_hidden_and_esc_closes_when_open() -> void:
+	var controller = await _make_controller()
+	assert_false(controller.is_open())
+	controller.open()
+	assert_true(controller.is_open())
+	controller._unhandled_input(_cancel_event())
+	assert_false(controller.is_open())
+	controller.queue_free()
+
+
+func test_esc_opens_settings_when_no_modal_is_active() -> void:
+	var controller = await _make_controller()
+	controller._unhandled_input(_cancel_event())
+	assert_true(controller.is_open(), "Esc must open settings when gameplay is idle")
+	controller.queue_free()
+
+
+func test_esc_does_not_open_while_dialogue_modal_group_is_active() -> void:
+	var controller = await _make_controller()
+	var blocker := Node.new()
+	blocker.add_to_group(&"demo_dialogue_active")
+	_tree().root.add_child(blocker)
+	controller._unhandled_input(_cancel_event())
+	assert_false(controller.is_open(), "Esc must not open settings during dialogue")
+	blocker.queue_free()
+	controller.queue_free()
+
+
+func test_esc_does_not_open_while_inventory_is_open() -> void:
+	var host := Node.new()
+	var inventory := InventoryController.new()
+	inventory.name = "InventoryController"
+	host.add_child(inventory)
+	var controller := ControllerScript.new()
+	controller.name = "GameSettingsController"
+	host.add_child(controller)
+	_tree().root.add_child(host)
+	inventory.open()
+	controller._unhandled_input(_cancel_event())
+	assert_false(controller.is_open(), "Esc must not open settings while inventory is open")
+	host.queue_free()
+
+
+func test_esc_save_action_closes_menu_and_uses_quick_access_save() -> void:
+	var host := Node.new()
+	var menu := QuickAccessMenu.new()
+	menu.name = "QuickAccessMenu"
+	host.add_child(menu)
+	var controller := ControllerScript.new()
+	controller.name = "GameSettingsController"
+	host.add_child(controller)
+	_tree().root.add_child(host)
+	menu.configure(null, null, Callable(self, "_save_from_esc"))
+	controller.open()
+	var save := controller.find_child("SaveAction", true, false) as Button
+	assert_true(save != null and save.visible)
+	save.pressed.emit()
+	assert_false(controller.is_open())
+	assert_eq(
+		(menu.find_child("StatusLabel", true, false) as Label).text,
+		QuickAccessMenu.STATUS_SAVED
+	)
+	host.queue_free()
+
+
+func _save_from_esc() -> bool:
+	return true
+
+
+func test_volume_slider_changes_persist_through_user_settings() -> void:
+	var overlay := OverlayScript.new()
+	overlay.configure(UserSettings)
+	_tree().root.add_child(overlay)
+	overlay.open()
+
+	overlay._on_music_changed(25.0)
+	overlay._on_sfx_changed(60.0)
+
+	assert_true(is_equal_approx(UserSettings.audio.music_volume, 0.25))
+	assert_true(is_equal_approx(UserSettings.audio.sfx_volume, 0.6))
+	var loaded = UserSettings.store.load_audio_settings()
+	assert_true(is_equal_approx(loaded.music_volume, 0.25))
+	assert_true(is_equal_approx(loaded.sfx_volume, 0.6))
+
+	var music_index := AudioServer.get_bus_index(String(AudioBusServiceScript.BUS_MUSIC))
+	assert_true(is_equal_approx(AudioServer.get_bus_volume_db(music_index), linear_to_db(0.25)))
+	overlay.queue_free()
+
+
+func test_dialogue_accessibility_changes_persist_through_user_settings() -> void:
+	var overlay := OverlayScript.new()
+	overlay.configure(UserSettings)
+	_tree().root.add_child(overlay)
+	overlay.open()
+
+	overlay._on_text_scale_selected(2)
+	overlay._on_text_speed_selected(1)
+	overlay._on_high_contrast_toggled(true)
+	overlay._on_subtitle_background_toggled(false)
+	overlay._on_reduced_motion_toggled(true)
+
+	assert_eq(UserSettings.dialogue.text_scale, "large")
+	assert_eq(UserSettings.dialogue.text_speed, "normal")
+	assert_true(UserSettings.dialogue.high_contrast)
+	assert_false(UserSettings.dialogue.subtitle_background)
+	assert_true(UserSettings.dialogue.reduced_motion)
+
+	var loaded = UserSettings.store.load_dialogue_settings()
+	assert_eq(loaded.text_scale, "large")
+	assert_true(loaded.high_contrast)
+	assert_true(loaded.reduced_motion)
+	overlay.queue_free()
+
+
+func test_gameplay_accessibility_changes_persist_through_user_settings() -> void:
+	var overlay := OverlayScript.new()
+	overlay.configure(UserSettings)
+	_tree().root.add_child(overlay)
+	overlay.open()
+
+	overlay._on_guard_mode_selected(1)
+	overlay._on_screen_shake_toggled(false)
+	overlay._on_reduced_flashing_toggled(true)
+	overlay._on_enhanced_focus_toggled(true)
+
+	assert_eq(UserSettings.gameplay.guard_mode, "toggle")
+	assert_false(UserSettings.gameplay.screenshake_enabled)
+	assert_true(UserSettings.gameplay.reduced_flashing)
+	assert_true(UserSettings.gameplay.enhanced_focus_contrast)
+
+	var loaded = UserSettings.store.load_gameplay_accessibility_settings()
+	assert_eq(loaded.guard_mode, "toggle")
+	assert_false(loaded.screenshake_enabled)
+	assert_true(loaded.reduced_flashing)
+	overlay.queue_free()
+
+
+
+func test_graphics_quality_changes_apply_immediately_and_persist() -> void:
+	var original_msaa := (_tree().root as Window).msaa_3d
+	var overlay := OverlayScript.new()
+	overlay.configure(UserSettings)
+	_tree().root.add_child(overlay)
+	overlay.open()
+
+	overlay._on_graphics_quality_selected(0)
+	assert_eq(UserSettings.graphics.quality, GraphicsSettingsScript.QUALITY_LOW)
+	assert_eq((_tree().root as Window).msaa_3d, Viewport.MSAA_DISABLED)
+	var loaded = UserSettings.store.load_graphics_settings()
+	assert_eq(loaded.quality, GraphicsSettingsScript.QUALITY_LOW)
+
+	overlay._on_graphics_quality_selected(2)
+	assert_eq(UserSettings.graphics.quality, GraphicsSettingsScript.QUALITY_HIGH)
+	assert_eq((_tree().root as Window).msaa_3d, Viewport.MSAA_4X)
+	overlay.queue_free()
+	(_tree().root as Window).msaa_3d = original_msaa
+
+
+func test_graphics_quality_defaults_and_invalid_values_normalize_to_mid() -> void:
+	assert_eq(GraphicsSettingsScript.default_settings().quality, GraphicsSettingsScript.QUALITY_MID)
+	assert_eq(GraphicsSettingsScript.from_dict({}).quality, GraphicsSettingsScript.QUALITY_MID)
+	assert_eq(
+		GraphicsSettingsScript.from_dict({"quality": "ultra"}).quality,
+		GraphicsSettingsScript.QUALITY_MID
+	)
+	assert_eq(
+		GraphicsSettingsScript.from_dict({"quality": "mid"}).msaa_3d_level(),
+		Viewport.MSAA_2X
+	)
+
+
+func test_saving_other_settings_preserves_graphics_profile() -> void:
+	var settings := GraphicsSettingsScript.default_settings()
+	settings.quality = GraphicsSettingsScript.QUALITY_HIGH
+	assert_true(UserSettings.store.save_graphics_settings(settings))
+	var dialogue = UserSettings.store.load_dialogue_settings()
+	assert_true(UserSettings.store.save_dialogue_settings(dialogue))
+	assert_eq(UserSettings.store.load_graphics_settings().quality, GraphicsSettingsScript.QUALITY_HIGH)
+	UserSettings.apply_graphics_settings(GraphicsSettingsScript.default_settings(), false)
+
+
+func test_open_settings_menu_exposes_graphics_quality_selector() -> void:
+	var overlay := OverlayScript.new()
+	overlay.configure(UserSettings)
+	_tree().root.add_child(overlay)
+	overlay.open()
+	assert_eq(overlay._graphics_quality_option.item_count, 3)
+	assert_eq(overlay._graphics_quality_option.get_item_text(0), "low")
+	assert_eq(overlay._graphics_quality_option.get_item_text(1), "mid")
+	assert_eq(overlay._graphics_quality_option.get_item_text(2), "high")
+	overlay.queue_free()
+
+
+func test_remap_controls_button_emits_signal() -> void:
+	var overlay := OverlayScript.new()
+	overlay.configure(UserSettings)
+	_tree().root.add_child(overlay)
+	var state := {"emitted": false}
+	overlay.controls_requested.connect(func(): state.emitted = true)
+	overlay._on_remap_controls_pressed()
+	assert_true(state.emitted)
+	overlay.queue_free()
+
+
+func test_opening_settings_closes_inventory_overlay() -> void:
+	var host := Node.new()
+	var inventory := InventoryController.new()
+	inventory.name = "InventoryController"
+	host.add_child(inventory)
+	var controller := ControllerScript.new()
+	controller.name = "GameSettingsController"
+	host.add_child(controller)
+	_tree().root.add_child(host)
+
+	inventory.open()
+	assert_true(inventory.is_open())
+	controller.open()
+	assert_false(inventory.is_open(), "settings must close competing overlays")
+	assert_true(controller.is_open())
+	host.queue_free()
+
+
+func _make_controller():
+	var host := Node.new()
+	var controller = ControllerScript.new()
+	controller.name = "GameSettingsController"
+	host.add_child(controller)
+	_tree().root.add_child(host)
+	await _tree().process_frame
+	return controller
+
+
+func _cancel_event() -> InputEvent:
+	var event := InputEventAction.new()
+	event.action = &"ui_cancel"
+	event.pressed = true
+	return event
+
+
+func _redirect_user_settings_store() -> void:
+	UserSettings.store.settings_directory = _temp_dir("game_settings")
+
+
+func _temp_dir(prefix: String) -> String:
+	return "user://test_%s_%d" % [prefix, Time.get_ticks_msec()]
+
+
+func _tree() -> SceneTree:
+	return Engine.get_main_loop() as SceneTree
+
+
+func _cleanup_temp_dir() -> void:
+	var root := DirAccess.open("user://")
+	if root == null:
+		return
+	root.list_dir_begin()
+	var entry := root.get_next()
+	while entry != "":
+		if entry.begins_with("test_game_settings_"):
+			_remove_tree("user://%s" % entry)
+		entry = root.get_next()
+	root.list_dir_end()
+
+
+func _remove_tree(path: String) -> void:
+	var dir := DirAccess.open(path)
+	if dir == null:
+		if FileAccess.file_exists(path):
+			DirAccess.remove_absolute(path)
+		return
+	dir.list_dir_begin()
+	var entry := dir.get_next()
+	while entry != "":
+		if entry != "." and entry != "..":
+			var child := "%s/%s" % [path.trim_suffix("/"), entry]
+			if DirAccess.dir_exists_absolute(child):
+				_remove_tree(child)
+			else:
+				DirAccess.remove_absolute(child)
+		entry = dir.get_next()
+	dir.list_dir_end()
+	DirAccess.remove_absolute(path)

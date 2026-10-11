@@ -1,0 +1,40 @@
+{
+  "type": "quest_package",
+  "id": "package.root_and_ember",
+  "schema_version": 1,
+  "title": "Act 1 Root and Ember design package",
+  "quest": "content/quest.json",
+  "support": [
+    "content/commission.root_and_ember.json",
+    "content/mechanism.root_and_ember_hearth.json",
+    "content/item.root_and_ember_work.json",
+    "content/dialogue.root_and_ember.ellen_request.json",
+    "content/dialogue.root_and_ember.inspect_hearth.json",
+    "content/dialogue.root_and_ember.inspect_herbs.json",
+    "content/bark.root_and_ember.aftermath_watch.json",
+    "../../examples/support/character.ellen.json"
+  ],
+  "branch_map": "branch_map.json",
+  "bindings": {
+    "landmark_beats": [
+      "beat.landmark.estonia.jarvi_maarja_sacred_spring"
+    ],
+    "map_anchors": [
+      {
+        "map_id": "lower_town_slice",
+        "anchor_id": "brewery_door"
+      }
+    ]
+  },
+  "source_notes": [
+    {
+      "confidence": "folklore",
+      "summary": "P4-007 ambiguous kodukäija hearth quest introducing Ellen Luik and Ember/Root forge techniques.",
+      "citations": [
+        "docs/SCENES/root-and-ember.md",
+        "docs/SCENES/root-and-ember-branch-map.md",
+        "docs/lore/estonian_folklore.md#F-8"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "type": "dialogue",
+  "id": "dialogue.root_and_ember.inspect_herbs",
+  "title": "Root and Ember - Monastery herb lane",
+  "confidence": "folklore",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-007"
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "explicit_node_id"
+  },
+  "participants": [
+    "char.kalev"
+  ],
+  "start_node_id": "inspect_herbs",
+  "nodes": [
+    {
+      "id": "inspect_herbs",
+      "speaker_id": "char.kalev",
+      "text": "Dried linden bark and monastery lane roots - the same stock Ellen uses for birth wards. She would inlay them in iron if I forge a Root ward hook.",
+      "effects": [
+        {
+          "op": "set_fact",
+          "key": "fact.root_and_ember.herb_lane_roots",
+          "value": true
+        }
+      ]
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "folklore",
+      "summary": "Herb lane inspection for Root ward commission branch.",
+      "citations": [
+        "docs/SCENES/root-and-ember.md"
+      ]
+    }
+  ]
+}

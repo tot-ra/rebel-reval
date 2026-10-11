@@ -1,0 +1,47 @@
+{
+  "quest_id": "quest.act2.siege.sortie_supply.rebel",
+  "branches": [
+    {
+      "id": "direct_route",
+      "route": "combat",
+      "transitions": [
+        "brief",
+        "resolve_direct"
+      ],
+      "setup": {},
+      "require_flags": {},
+      "expect": {
+        "quest_state": "direct_complete",
+        "flags": {
+          "flag.act2.siege.sortie_supply.rebel.briefed": true,
+          "flag.act2.siege.sortie_supply.rebel.direct_resolved": true,
+          "flag.war.siege_phase.sortie_supply": true
+        },
+        "ledger_events": [
+          "ledger.act2.siege.sortie_supply.rebel.direct"
+        ]
+      }
+    },
+    {
+      "id": "quiet_route",
+      "route": "non_combat",
+      "transitions": [
+        "brief",
+        "resolve_quiet"
+      ],
+      "setup": {},
+      "require_flags": {},
+      "expect": {
+        "quest_state": "quiet_complete",
+        "flags": {
+          "flag.act2.siege.sortie_supply.rebel.briefed": true,
+          "flag.act2.siege.sortie_supply.rebel.quiet_resolved": true,
+          "flag.war.siege_phase.sortie_supply": true
+        },
+        "ledger_events": [
+          "ledger.act2.siege.sortie_supply.rebel.quiet"
+        ]
+      }
+    }
+  ]
+}

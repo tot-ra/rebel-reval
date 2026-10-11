@@ -1,0 +1,11 @@
+{
+  "tool": "a2gent openai_generate_image",
+  "model": "gpt-image-1",
+  "size": "1024x1024",
+  "quality": "high",
+  "generation_id": "d7b9c866-da4a-4606-97c4-063e2848f6c4",
+  "prompt": "Seamless tileable ground texture, photographed straight down (orthographic top-down view) covering about one square metre: late-summer dry grass, mix of straw-yellow and green blades, dry seed stalks lying flat, some brown dead thatch. Even soft overcast daylight, no cast shadows, no perspective, no horizon, no central subject, uniform density over the whole frame, photorealistic scan quality, no text.",
+  "file": "source.png",
+  "sha256": "6cfa06a503f0090d17097d89ee7ad41e82b3b946ac88e88b519e29a03b31bf36",
+  "task": "R-1103/R-1101/R-1102"
+}

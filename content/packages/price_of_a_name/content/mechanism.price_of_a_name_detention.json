@@ -1,0 +1,103 @@
+{
+  "type": "mechanism",
+  "id": "mechanism.price_of_a_name_detention",
+  "title": "Coastal detention cart mechanism",
+  "commission_id": "commission.price_of_a_name",
+  "object_item_id": "item.price_of_a_name_work",
+  "location_id": "loc.north_quarter.merchant_court",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-005"
+  },
+  "responses": [
+    {
+      "id": "name_cleared",
+      "behavior": "hold",
+      "summary": "Honest plates clear Mart at the guild hearing and set a Duty reflection mark.",
+      "requires": [
+        {
+          "op": "forged_modification_is",
+          "key": "commission.price_of_a_name",
+          "value": "honest_work"
+        }
+      ],
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.mart.name_cleared",
+          "value": true
+        },
+        {
+          "op": "set_flag",
+          "key": "flag.reflection.conviction_duty",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "clerk_redirected",
+      "behavior": "jam",
+      "summary": "False clerk plate sends the cart after a scapegoat; Fury reflection mark is armed.",
+      "requires": [
+        {
+          "op": "forged_modification_is",
+          "key": "commission.price_of_a_name",
+          "value": "subtle_defect"
+        }
+      ],
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.kaja_harbor_emboldened",
+          "value": true
+        },
+        {
+          "op": "set_flag",
+          "key": "flag.reflection.conviction_fury",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "release_armed",
+      "behavior": "release",
+      "summary": "Concealed shackle release is armed; Mart can slip the cart if the swap stays quiet.",
+      "requires": [
+        {
+          "op": "forged_modification_is",
+          "key": "commission.price_of_a_name",
+          "value": "secret_feature"
+        }
+      ],
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.mart_detention_release",
+          "value": true
+        },
+        {
+          "op": "set_flag",
+          "key": "flag.reflection.conviction_mercy",
+          "value": true
+        }
+      ]
+    }
+  ],
+  "default_response": {
+    "id": "unresolved",
+    "behavior": "idle",
+    "summary": "Kalev has not installed the detention hardware at the Coastal Gate yet."
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Mechanism contract mapping forged detention records to coastal transfer behavior and Hingepuu reflection marks.",
+      "citations": [
+        "content/packages/price_of_a_name/content/commission.price_of_a_name.json",
+        "docs/SCENES/the-price-of-a-name-branch-map.md"
+      ]
+    }
+  ]
+}

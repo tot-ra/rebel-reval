@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "encounter.schema.json",
+  "title": "Reval Rebel encounter outcome package",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "type",
+    "id",
+    "title",
+    "quest_id",
+    "confidence",
+    "canon_status",
+    "approval",
+    "outcomes",
+    "source_notes"
+  ],
+  "properties": {
+    "type": {
+      "const": "encounter"
+    },
+    "id": {
+      "$ref": "common.schema.json#/$defs/content_id"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "quest_id": {
+      "$ref": "common.schema.json#/$defs/content_id"
+    },
+    "resolved_flag": {
+      "$ref": "common.schema.json#/$defs/content_id"
+    },
+    "confidence": {
+      "$ref": "common.schema.json#/$defs/confidence_label"
+    },
+    "canon_status": {
+      "$ref": "common.schema.json#/$defs/canon_status"
+    },
+    "approval": {
+      "$ref": "common.schema.json#/$defs/review_record"
+    },
+    "outcomes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "common.schema.json#/$defs/encounter_outcome"
+      }
+    },
+    "source_notes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "common.schema.json#/$defs/source_note"
+      }
+    }
+  }
+}

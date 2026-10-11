@@ -1,0 +1,1 @@
+.venv/bin/python catalog.py all runs/gifs > runs/all.log 2>&1  4.54s user 0.63s system 85% cpu 6.079 total

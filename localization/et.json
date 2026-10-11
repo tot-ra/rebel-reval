@@ -1,0 +1,9 @@
+{
+  "locale": "et",
+  "translations": {
+    "dialogue.test_runner.intro.mart_opens": "Kalev, tänav on täna õhtul rahutu.",
+    "dialogue.test_runner.intro.trust_mart": "Räägi, mida sa nägid.",
+    "dialogue.test_runner.intro.doubt_mart": "Hoia oma kuulujutud endale.",
+    "bark.prologue.wake_up_room.henning_stew_comment": "See pidi hautis olema."
+  }
+}

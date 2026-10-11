@@ -1,0 +1,25 @@
+{
+  "type": "magic_grant",
+  "id": "magic.revoke.starter_blessing",
+  "name": "Revoke Blessing",
+  "operation": "revoke",
+  "target_id": "rite.blessing",
+  "grant_flag": "flag.magic.taught_blessing",
+  "resolution": "authored_lookup",
+  "runtime_combination_allowed": false,
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P7-010a fixture"
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Explicit authored revoke operation for the starter divine rite.",
+      "citations": [
+        "docs/SYSTEMS/MAGIC.md"
+      ]
+    }
+  ]
+}

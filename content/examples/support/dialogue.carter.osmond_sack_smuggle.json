@@ -1,0 +1,77 @@
+{
+  "type": "dialogue",
+  "id": "dialogue.carter.osmond_sack_smuggle",
+  "title": "The Carter Under the Sack",
+  "confidence": "plausible composite",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-038",
+    "notes": "Osmond smuggling exchange; payment is a private carter bribe rather than a civic transport fee."
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "explicit_node_id"
+  },
+  "participants": [
+    "char.kalev",
+    "char.merchant_stall"
+  ],
+  "start_node_id": "sack_offer",
+  "word_count_estimate": 68,
+  "nodes": [
+    {
+      "id": "sack_offer",
+      "speaker_id": "char.merchant_stall",
+      "text": "The osmond stays under the sack. Do not look for a fee collector; find a carter who will take a private bribe and keep his eyes on the road.",
+      "choices": [
+        {
+          "id": "bribe_carter",
+          "text": "I will offer the carter a private bribe.",
+          "target_node_id": "bribe_agreed"
+        },
+        {
+          "id": "refuse_bribe",
+          "text": "I will not risk the carter.",
+          "target_node_id": "carter_refused"
+        }
+      ]
+    },
+    {
+      "id": "bribe_agreed",
+      "speaker_id": "char.kalev",
+      "text": "The carter has agreed. The sack travels as ordinary freight and the osmond passes under his protection.",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.osmond_sack_smuggle.carter_bribe_agreed",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "carter_refused",
+      "speaker_id": "char.merchant_stall",
+      "text": "Then hide the metal again. A refused bribe leaves no safe cart route tonight.",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.osmond_sack_smuggle.carter_refused",
+          "value": true
+        }
+      ]
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "plausible composite",
+      "summary": "The osmond-under-sack setup and private carter bribe are authored connective tissue for the R-068/R-069 smuggling hook.",
+      "citations": [
+        "history/dossiers/economy/reval-cart-tolls-and-fuhr-rent-1340s.md",
+        "history/dossiers/crafts/blacksmith-materials-and-techniques.md"
+      ]
+    }
+  ]
+}

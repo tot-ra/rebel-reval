@@ -1,0 +1,6 @@
+{
+  "len_range": "15-90",
+  "high_pass_hz": 80,
+  "target_lufs": "-16",
+  "clip_count": 30
+}

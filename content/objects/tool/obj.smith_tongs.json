@@ -1,0 +1,68 @@
+{
+  "type": "world_object",
+  "id": "obj.smith_tongs",
+  "name": "Smith's tongs",
+  "description": "Long-reined tongs that hold hot iron on the anvil.",
+  "category": "tool",
+  "handling": "carry_one_hand",
+  "tags": [
+    "smithing",
+    "tool"
+  ],
+  "physical": {
+    "mass_kg": 1.6,
+    "size_m": [
+      0.42,
+      0.78,
+      0.19
+    ],
+    "materials": [
+      "iron"
+    ]
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop"
+  ],
+  "economy": {
+    "base_pfennigs": 32,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "forge"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/tools/blacksmith_tongs/blacksmith_tongs.glb",
+    "prop_kind": "blacksmith_tongs",
+    "measured_size_m": [
+      0.42,
+      0.78,
+      0.19
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.smith_tongs.png",
+    "icon": "res://assets/objects/icons/obj.smith_tongs.png",
+    "icon_status": "missing",
+    "look": "Black forged tongs with flat jaws and long curved reins.",
+    "image_prompt": "Smith's tongs: Black forged tongs with flat jaws and long curved reins."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "uses": [
+    "hold hot iron"
+  ],
+  "carry": {
+    "grid_width": 1,
+    "grid_height": 3,
+    "stackable": false
+  }
+}

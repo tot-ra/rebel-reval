@@ -1,0 +1,29 @@
+{
+  "type": "location",
+  "id": "loc.bad",
+  "name": "Bad location",
+  "district": "Lower Town",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft"
+  },
+  "description": "fixture",
+  "gameplay_space": true,
+  "scene_path": "scenes/bad.tscn",
+  "pressure_tags": [
+    "Suspicion"
+  ],
+  "phase_states": [
+    {
+      "id": "start",
+      "description": "fixture"
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "fixture"
+    }
+  ]
+}

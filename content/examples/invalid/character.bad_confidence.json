@@ -1,0 +1,35 @@
+{
+  "type": "character",
+  "id": "char.bad",
+  "name": "Bad",
+  "role": "Fixture",
+  "confidence": "historical-ish",
+  "canon_status": "active",
+  "approval": {
+    "status": "draft"
+  },
+  "pronunciation": "BAD",
+  "brief": {
+    "want": "x",
+    "fear": "x",
+    "contradiction": "x",
+    "secret_or_withheld_fact": "x"
+  },
+  "relationships": [],
+  "voice": {
+    "summary": "x",
+    "diction": "x"
+  },
+  "outcomes": [
+    {
+      "id": "bad",
+      "summary": "x"
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "fixture"
+    }
+  ]
+}

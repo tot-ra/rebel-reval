@@ -1,0 +1,70 @@
+{
+  "type": "world_object",
+  "id": "obj.wooden_spoon",
+  "name": "Wooden spoon",
+  "description": "A turned wooden spoon.",
+  "category": "household",
+  "handling": "pocketable",
+  "tags": [
+    "kitchen",
+    "tableware"
+  ],
+  "physical": {
+    "mass_kg": 0.05,
+    "size_m": [
+      0.16,
+      0.02,
+      0.14
+    ],
+    "materials": [
+      "wood"
+    ],
+    "flammable": true
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop"
+  ],
+  "economy": {
+    "base_pfennigs": 1,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "home_poor",
+      "home_burgher",
+      "tavern"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/domestic/kitchenware/medieval_kitchenware_kit.glb",
+    "node": "KitchenwareSpoon",
+    "prop_kind": "kitchenware",
+    "variant": "kitchenware.spoon",
+    "measured_size_m": [
+      0.16,
+      0.02,
+      0.14
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.wooden_spoon.png",
+    "icon": "res://assets/objects/icons/obj.wooden_spoon.png",
+    "icon_status": "missing",
+    "look": "Pale birch spoon with a deep bowl, darkened with use.",
+    "image_prompt": "Wooden spoon: Pale birch spoon with a deep bowl, darkened with use."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "carry": {
+    "grid_width": 1,
+    "grid_height": 1,
+    "stackable": false
+  }
+}

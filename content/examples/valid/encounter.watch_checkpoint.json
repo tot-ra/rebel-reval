@@ -1,0 +1,42 @@
+{
+  "type": "encounter",
+  "id": "encounter.watch_checkpoint",
+  "title": "Watch checkpoint night encounter",
+  "quest_id": "quest.bitter_brew",
+  "resolved_flag": "flag.watch_checkpoint_resolved",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P1-026a",
+    "notes": "Content-authored outcome package so P2-009 / P5-004 can remap quest writes without code edits."
+  },
+  "outcomes": [
+    {
+      "kind": "surrender",
+      "quest_state": "night_surrendered"
+    },
+    {
+      "kind": "escape",
+      "quest_state": "night_escaped"
+    },
+    {
+      "kind": "bypass",
+      "quest_state": "night_bypassed"
+    },
+    {
+      "kind": "kill",
+      "quest_state": "night_fought"
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Mirrors the P1-026 watch_checkpoint hardcoded mapping for ContentDB loading.",
+      "citations": [
+        "scripts/combat/encounter_outcome_definition.gd",
+        "docs/SCENES/a-bitter-brew.md"
+      ]
+    }
+  ]
+}

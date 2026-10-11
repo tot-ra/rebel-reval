@@ -1,0 +1,19 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://bmequ03twhbqg"
+
+[deps]
+
+files=["res://sounds/sea/manifest.title.translation", "res://sounds/sea/manifest.author.translation", "res://sounds/sea/manifest.license.translation", "res://sounds/sea/manifest.page.translation", "res://sounds/sea/manifest.file.translation", "res://sounds/sea/manifest.notes.translation"]
+
+source_file="res://sounds/sea/manifest.csv"
+dest_files=["res://sounds/sea/manifest.title.translation", "res://sounds/sea/manifest.author.translation", "res://sounds/sea/manifest.license.translation", "res://sounds/sea/manifest.page.translation", "res://sounds/sea/manifest.file.translation", "res://sounds/sea/manifest.notes.translation"]
+
+[params]
+
+compress=1
+delimiter=0
+unescape_keys=false
+unescape_translations=true

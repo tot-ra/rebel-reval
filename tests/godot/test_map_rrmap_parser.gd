@@ -1,0 +1,278 @@
+extends "res://tests/godot/test_case.gd"
+# RRMap parser fixtures contain statements that must remain on one physical line.
+# gdlint: disable=max-line-length
+
+const EXAMPLE_PATH := "res://tests/fixtures/maps/rrmap_courtyard_example.rrmap"
+
+
+func test_complete_example_parses_and_compiles_through_blueprint_compiler() -> void:
+	var parsed := MapRrmapParser.parse_file(EXAMPLE_PATH)
+	assert_true(parsed.is_ok(), str(parsed.formatted_diagnostics()))
+	if not parsed.is_ok():
+		return
+	assert_eq(parsed.blueprint.map_id, &"rrmap_courtyard_example")
+	assert_eq(parsed.definition.map_id, &"rrmap_courtyard_example")
+	assert_eq(parsed.definition.buildings.size(), 3)  # House plus two wall fragments.
+	assert_eq(parsed.definition.props.size(), 2)
+	assert_eq(parsed.definition.get_meta("player_spawn_id"), &"spawn.main")
+	assert_eq(parsed.definition.source_references, ["docs/MAP_AUTHORING.md"])
+
+
+func test_wall_and_roof_material_style_keys_compile_into_buildings() -> void:
+	var source := """rrmap 1
+map materials loc.materials 12 10 grass
+style house.log wall_height=96 wall_color=806f5cff wall_material=log roof_color=453027ff roof_material=shingle door_side=south
+building house.main house 3 3 4 3 style=house.log
+spawn spawn.main 2 2
+"""
+	var parsed := MapRrmapParser.parse(source, "res://materials.rrmap")
+	assert_true(parsed.is_ok(), str(parsed.formatted_diagnostics()))
+	if not parsed.is_ok():
+		return
+	assert_eq(parsed.definition.buildings.size(), 1)
+	var building: Dictionary = parsed.definition.buildings[0]
+	assert_eq(building.get("wall_material"), &"log")
+	assert_eq(building.get("roof_material"), &"shingle")
+
+
+func test_round_tower_wall_walk_fields_compile_into_buildings() -> void:
+	var source := """rrmap 1
+map tower_walk loc.tower_walk 12 10 grass
+building tower wall 3 3 4 4 wall_height=240 tower=false round_tower=true wall_walk_axis=x interior_side=south persistent=true
+spawn spawn.main 2 2
+"""
+	var parsed := MapRrmapParser.parse(source, "res://tower_walk.rrmap")
+	assert_true(parsed.is_ok(), str(parsed.formatted_diagnostics()))
+	if not parsed.is_ok():
+		return
+	var building: Dictionary = parsed.definition.buildings[0]
+	assert_true(bool(building.get("round_tower", false)))
+	assert_true(bool(building.get("persistent", false)))
+	assert_eq(building.get("wall_walk_axis"), &"x")
+	assert_eq(building.get("interior_side"), &"south")
+
+
+func test_transition_building_id_compiles_for_reusable_facade_entrances() -> void:
+	var source := """rrmap 1
+map entrance loc.entrance 12 10 grass
+building smithy house 3 3 4 3 door_side=none
+spawn spawn.main 2 2
+transition enter 4 6 2 1 to=forge destination_spawn=door_courtyard spawn=outside building_id=smithy
+"""
+	var parsed := MapRrmapParser.parse(source, "res://entrance.rrmap")
+	assert_true(parsed.is_ok(), str(parsed.formatted_diagnostics()))
+	if parsed.is_ok():
+		assert_eq(parsed.definition.transitions[0].get("building_id"), &"smithy")
+
+
+func test_rrmap_round_trips_lighting_variant_and_rejects_modern_fuel() -> void:
+	var source := """rrmap 1
+map lighting_variants loc.lighting_variants 12 10 timber_floor
+prop work_light candle 4 5 style_variant=artisan_tallow
+spawn spawn.main 2 2
+"""
+	var parsed := MapRrmapParser.parse(source, "res://lighting_variants.rrmap")
+	assert_true(parsed.is_ok(), str(parsed.formatted_diagnostics()))
+	if not parsed.is_ok():
+		return
+	assert_eq(
+		parsed.definition.props[0].get("style_variant"), MapTypes.LIGHTING_VARIANT_ARTISAN_TALLOW
+	)
+	var canonical := MapRrmapParser.canonical_print(parsed.blueprint)
+	assert_true("style_variant=artisan_tallow" in canonical)
+	var reparsed := MapRrmapParser.parse(canonical, "res://lighting_variants.canonical.rrmap")
+	assert_true(reparsed.is_ok(), str(reparsed.formatted_diagnostics()))
+
+	var invalid := source.replace("artisan_tallow", "modern_paraffin")
+	var rejected := MapRrmapParser.parse(invalid, "res://invalid_lighting_variant.rrmap")
+	assert_false(rejected.is_ok(), "unknown candle fuel must fail compilation")
+	assert_true(
+		str(rejected.formatted_diagnostics()).contains("style_variant is unknown"),
+		"invalid lighting variant needs an actionable diagnostic"
+	)
+
+
+func test_comments_quoting_and_exact_primitive_mapping() -> void:
+	var source := """rrmap 1 # version
+map syntax_test loc.syntax_test 12 10 grass # map
+terrain mud mud 1 1 2 2 layer=3 order=4
+prop anvil.main anvil 4 5
+spawn spawn.main 2 2
+source "quoted # text"
+"""
+	var parsed := MapRrmapParser.parse(source, "res://syntax_test.rrmap")
+	assert_true(parsed.is_ok(), str(parsed.formatted_diagnostics()))
+	if not parsed.is_ok():
+		return
+	assert_eq(parsed.blueprint.primitives[0]["primitive"], &"terrain_rect")
+	assert_eq(parsed.blueprint.primitives[0]["data"]["layer"], 3)
+	assert_eq(parsed.blueprint.primitives[0]["data"]["order"], 4)
+	assert_eq(parsed.definition.source_references[0], "quoted # text")
+
+
+func test_map_elevation_round_trips_into_compiled_metadata() -> void:
+	var source := """rrmap 1
+map elevated loc.elevated 24 24 grass elevation=2.8
+spawn spawn.main 12 12
+"""
+	var parsed := MapRrmapParser.parse(source, "res://elevated.rrmap")
+	assert_true(parsed.is_ok(), str(parsed.formatted_diagnostics()))
+	if not parsed.is_ok():
+		return
+	assert_eq(parsed.blueprint.ground_elevation, 2.8)
+	assert_eq(parsed.definition.ground_elevation, 2.8)
+	var canonical := MapRrmapParser.canonical_print(parsed.blueprint)
+	assert_true("elevation=2.8" in canonical)
+	var reparsed := MapRrmapParser.parse(canonical, "res://elevated.canonical.rrmap")
+	assert_true(reparsed.is_ok(), str(reparsed.formatted_diagnostics()))
+	assert_eq(reparsed.definition.ground_elevation, 2.8)
+
+
+func test_elevation_profiles_parse_compile_and_round_trip() -> void:
+	var source := """rrmap 1
+map elevation_profiles loc.elevation_profiles 24 24 grass
+grade slope south -0.1
+elevation_area plateau 12 12 6 2.8 falloff=1.5
+elevation_ramp descent 12 12 18 12 2.8 0.0 width=3
+spawn spawn.main 4 4
+"""
+	var parsed := MapRrmapParser.parse(source, "res://elevation_profiles.rrmap")
+	assert_true(parsed.is_ok(), str(parsed.formatted_diagnostics()))
+	if not parsed.is_ok():
+		return
+	assert_eq(parsed.definition.elevation_profiles.size(), 3)
+	assert_eq(parsed.definition.elevation_profiles[0]["direction"], Vector2i.DOWN)
+	assert_eq(parsed.definition.elevation_profiles[0]["delta"], -0.1)
+	assert_eq(parsed.definition.elevation_profiles[1]["center"], Vector2i(12, 12))
+	assert_eq(parsed.definition.elevation_profiles[1]["falloff"], 1.5)
+	assert_eq(parsed.definition.elevation_profiles[2]["end"], Vector2i(18, 12))
+	assert_eq(parsed.definition.elevation_profiles[2]["width"], 3.0)
+	var canonical := MapRrmapParser.canonical_print(parsed.blueprint)
+	assert_true("grade slope south -0.1" in canonical)
+	assert_true("elevation_area plateau 12 12 6 2.8 falloff=1.5" in canonical)
+	assert_true("elevation_ramp descent 12 12 18 12 2.8 0 width=3" in canonical)
+	var reparsed := MapRrmapParser.parse(canonical, "res://elevation_profiles.canonical.rrmap")
+	assert_true(reparsed.is_ok(), str(reparsed.formatted_diagnostics()))
+	if reparsed.is_ok():
+		assert_eq(reparsed.definition.elevation_profiles, parsed.definition.elevation_profiles)
+
+
+func test_decal_statements_round_trip_kinds_radius_and_rotation() -> void:
+	var source := """rrmap 1
+map decal_test loc.decal_test 12 10 grass
+decal soot_pad soot 3 3 2 2 radius=1.8
+decal mud_door mud 5 5 2 1 radius=1.3 rotation=0.35
+decal wet_step wet_threshold 7 7 1 1
+spawn spawn.main 2 2
+"""
+	var parsed := MapRrmapParser.parse(source, "res://decal_test.rrmap")
+	assert_true(parsed.is_ok(), str(parsed.formatted_diagnostics()))
+	if not parsed.is_ok():
+		return
+	assert_eq(parsed.definition.decals.size(), 3)
+	var decals_by_id: Dictionary = {}
+	for decal in parsed.definition.decals:
+		decals_by_id[decal.get("id")] = decal
+	var soot: Dictionary = decals_by_id[&"soot_pad"]
+	assert_eq(soot.get("kind"), MapTypes.DECAL_KIND_SOOT)
+	assert_eq(soot.get("radius", 0.0), 1.8)
+	var mud: Dictionary = decals_by_id[&"mud_door"]
+	assert_eq(mud.get("kind"), MapTypes.DECAL_KIND_MUD)
+	assert_eq(mud.get("rotation", 0.0), 0.35)
+	var wet: Dictionary = decals_by_id[&"wet_step"]
+	assert_eq(wet.get("kind"), MapTypes.DECAL_KIND_WET_THRESHOLD)
+	assert_eq(wet.get("radius", 0.0), MapTypes.DECAL_DEFAULT_RADIUS)
+	var canonical := MapRrmapParser.canonical_print(parsed.blueprint)
+	assert_true("decal soot_pad soot 3 3 2 2 radius=1.8" in canonical)
+	assert_true("rotation=0.35" in canonical)
+	var reparsed := MapRrmapParser.parse(canonical, "res://decal_test.canonical.rrmap")
+	assert_true(reparsed.is_ok(), str(reparsed.formatted_diagnostics()))
+	assert_eq(reparsed.definition.decals.size(), 3)
+
+
+func test_unknown_decal_kind_is_rejected() -> void:
+	var source := """rrmap 1
+map decal_invalid loc.decal_invalid 8 8 grass
+decal bad bloodstain 2 2 1 1
+spawn spawn.main 1 1
+"""
+	var parsed := MapRrmapParser.parse(source, "res://decal_invalid.rrmap")
+	assert_false(parsed.is_ok())
+	assert_true(_has_code(parsed, &"unknown_decal_kind"))
+
+
+func test_malformed_input_reports_file_line_column_and_code() -> void:
+	var source := """rrmap 1
+map malformed loc.malformed twelve 10 grass
+spawn spawn.main 2 2
+"""
+	var parsed := MapRrmapParser.parse(source, "res://bad/malformed.rrmap")
+	assert_false(parsed.is_ok())
+	assert_true(not parsed.diagnostics.is_empty())
+	var diagnostic := parsed.diagnostics[0]
+	assert_eq(diagnostic.source_path, "res://bad/malformed.rrmap")
+	assert_eq(diagnostic.line, 2)
+	assert_eq(diagnostic.column, 29)
+	assert_eq(diagnostic.code, &"invalid_integer")
+	assert_true(
+		diagnostic.format().begins_with("res://bad/malformed.rrmap:2:29: error[invalid_integer]:")
+	)
+
+
+func test_unknown_commands_and_fields_cannot_execute_code() -> void:
+	var source := """rrmap 1
+map safe loc.safe 10 10 grass
+spawn spawn.main 2 2
+load res://malicious.gd
+building house house 3 3 2 2 script=res://malicious.gd
+"""
+	var parsed := MapRrmapParser.parse(source, "res://safe.rrmap")
+	assert_false(parsed.is_ok())
+	assert_true(_has_code(parsed, &"unknown_command"))
+	assert_true(_has_code(parsed, &"unknown_typed_field"))
+
+
+func test_version_zero_requires_explicit_migration_and_future_versions_are_rejected() -> void:
+	var old := MapRrmapParser.parse(
+		"rrmap 0\nmap old loc.old 8 8 grass\nspawn spawn.main 1 1\n", "old.rrmap"
+	)
+	assert_false(old.is_ok())
+	assert_true(_has_code(old, &"version_migration_required"))
+	assert_true(old.formatted_diagnostics()[0].contains("migrate the header to 'rrmap 1'"))
+	var future := MapRrmapParser.parse(
+		"rrmap 2\nmap future loc.future 8 8 grass\nspawn spawn.main 1 1\n", "future.rrmap"
+	)
+	assert_false(future.is_ok())
+	assert_true(_has_code(future, &"unsupported_version"))
+
+
+func test_canonical_print_is_deterministic_and_round_trips() -> void:
+	var first := MapRrmapParser.parse_file(EXAMPLE_PATH)
+	assert_true(first.is_ok(), str(first.formatted_diagnostics()))
+	if not first.is_ok():
+		return
+	var canonical := MapRrmapParser.canonical_print(first.blueprint)
+	var second := MapRrmapParser.parse(canonical, "canonical.rrmap")
+	assert_true(second.is_ok(), str(second.formatted_diagnostics()))
+	if not second.is_ok():
+		return
+	assert_eq(MapRrmapParser.canonical_print(second.blueprint), canonical)
+	assert_eq(second.definition.fingerprint, first.definition.fingerprint)
+
+
+func test_loader_recognizes_rrmap_and_returns_compiled_resource() -> void:
+	var loader := RrmapResourceFormatLoader.new()
+	assert_eq(loader._get_recognized_extensions(), PackedStringArray(["rrmap"]))
+	assert_eq(loader._get_resource_type(EXAMPLE_PATH), "RrmapResource")
+	var loaded = loader._load(EXAMPLE_PATH, EXAMPLE_PATH, false, ResourceLoader.CACHE_MODE_IGNORE)
+	assert_true(loaded is RrmapResource)
+	if loaded is RrmapResource:
+		assert_true(loaded.is_valid())
+		assert_eq(loaded.definition.map_id, &"rrmap_courtyard_example")
+
+
+func _has_code(parsed: MapRrmapParseResult, code: StringName) -> bool:
+	for diagnostic in parsed.diagnostics:
+		if diagnostic.code == code:
+			return true
+	return false

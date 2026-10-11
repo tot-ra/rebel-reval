@@ -1,0 +1,60 @@
+{
+  "type": "dialogue",
+  "id": "dialogue.demo.forge_cat",
+  "title": "Demo - Forge Cat",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "review",
+    "notes": "Playful forge demo beat with Kalev and the smithy cat."
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "explicit_node_id",
+    "notes": "Linear exchange for the forge cat interaction demo."
+  },
+  "participants": [
+    "char.kalev",
+    "char.forge_cat"
+  ],
+  "start_node_id": "kalev_greets",
+  "word_count_estimate": 38,
+  "nodes": [
+    {
+      "id": "kalev_greets",
+      "speaker_id": "char.kalev",
+      "text": "Still hunting mice, or just warming yourself by the coals again?",
+      "next_node_id": "cat_answer"
+    },
+    {
+      "id": "cat_answer",
+      "speaker_id": "char.forge_cat",
+      "text": "The cat stretches, flicks its tail once, and settles back into the warm stone as if the forge belongs to it.",
+      "next_node_id": "kalev_closes"
+    },
+    {
+      "id": "kalev_closes",
+      "speaker_id": "char.kalev",
+      "text": "Fair enough. Stay out from under the hammer.",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.demo_forge_cat_spoken",
+          "value": true
+        }
+      ]
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Forge demo dialogue with Kalev and the smithy cat.",
+      "citations": [
+        "content/examples/support/character.forge_cat.json",
+        "scenes/reval_east/forge/forge_dialogue_encounter.gd"
+      ]
+    }
+  ]
+}

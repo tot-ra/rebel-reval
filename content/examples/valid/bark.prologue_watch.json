@@ -1,0 +1,56 @@
+{
+  "type": "bark_pool",
+  "id": "bark.prologue.watch_pressure",
+  "title": "Prologue watch pressure barks",
+  "owner_id": "char.henning",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "review",
+    "notes": "Representative bark pool."
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "first_valid_in_order"
+  },
+  "selection": "first_valid_in_order",
+  "phase_ids": [
+    "phase.prologue_day"
+  ],
+  "location_ids": [
+    "loc.kalev_smithy"
+  ],
+  "entries": [
+    {
+      "id": "ledger_waiting",
+      "speaker_id": "char.henning",
+      "text": "The ledger, smith. Before the bell.",
+      "priority": 5,
+      "conditions": [
+        {
+          "op": "flag_is",
+          "key": "flag.prologue_maker_mark_incident",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "watch_mutter",
+      "speaker_id": "char.henning",
+      "text": "Every mark has an owner.",
+      "priority": 1
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Playable prologue outline reconciled with canon.",
+      "citations": [
+        "docs/SCENES/the-makers-mark.md",
+        "docs/adr/0003-authored-offline-dialogue-and-prohibit-runtime-llm.md"
+      ]
+    }
+  ]
+}

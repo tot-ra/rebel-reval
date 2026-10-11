@@ -1,0 +1,11 @@
+{
+  "tool": "a2gent openai_generate_image",
+  "model": "gpt-image-1",
+  "size": "1024x1024",
+  "quality": "high",
+  "generation_id": "711020b6-5afd-4b38-bf87-89ec7465e07a",
+  "prompt": "Seamless tileable ground texture, photographed straight down (orthographic top-down view) covering about one square metre: damp shaded grass under trees, sparse thin green blades with patches of green moss and dark humus soil showing between them. Even soft overcast daylight, no cast shadows, no perspective, no horizon, no central subject, uniform density over the whole frame, photorealistic scan quality, no text.",
+  "file": "source.png",
+  "sha256": "616b2b4bc9e658459e6a4d8ab04f5152b41ac1ef48a8775749dd0c9c45ff5330",
+  "task": "R-1103/R-1101/R-1102"
+}

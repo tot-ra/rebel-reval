@@ -1,0 +1,52 @@
+{
+  "type": "dialogue",
+  "id": "dialogue.landmark.tallinn.karja_gate_karja_varav",
+  "title": "Karja Gate patrol gap",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-018",
+    "notes": "Quest-package fixture dialogue for landmark beat binding coverage."
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "explicit_node_id",
+    "notes": "Static courier observation beat tied to beat.landmark.tallinn.karja_gate_karja_varav."
+  },
+  "participants": [
+    "char.henning"
+  ],
+  "start_node_id": "henning_patrol_note",
+  "word_count_estimate": 24,
+  "nodes": [
+    {
+      "id": "henning_patrol_note",
+      "speaker_id": "char.henning",
+      "text": "The Karja watch changes before dusk. If you are watching, remember the gap.",
+      "choices": [
+        {
+          "id": "acknowledge",
+          "text": "I will remember.",
+          "target_node_id": "end"
+        }
+      ]
+    },
+    {
+      "id": "end",
+      "speaker_id": "char.henning",
+      "text": "Good. The gate keeps score even when no one writes it down."
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Delivery fixture for beat.landmark.tallinn.karja_gate_karja_varav.",
+      "citations": [
+        "docs/data/landmark_integrations.json"
+      ]
+    }
+  ]
+}

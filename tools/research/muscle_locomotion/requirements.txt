@@ -1,0 +1,4 @@
+mujoco>=3.1
+cma>=4.0
+numpy
+matplotlib

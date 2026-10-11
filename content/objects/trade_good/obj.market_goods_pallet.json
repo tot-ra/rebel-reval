@@ -1,0 +1,60 @@
+{
+  "type": "world_object",
+  "id": "obj.market_goods_pallet",
+  "name": "Market goods pallet",
+  "description": "A low timber pallet of goods set out for sale.",
+  "category": "trade_good",
+  "handling": "heavy",
+  "tags": [
+    "market",
+    "goods",
+    "pile"
+  ],
+  "physical": {
+    "mass_kg": 70,
+    "size_m": [
+      1.2,
+      0.7,
+      0.9
+    ],
+    "materials": [
+      "wood",
+      "grain",
+      "food_organic"
+    ],
+    "flammable": true
+  },
+  "actions": [
+    "inspect",
+    "push",
+    "pull"
+  ],
+  "economy": {
+    "base_pfennigs": 150,
+    "ownership": "merchant",
+    "legality": "legal",
+    "theft_severity": 2
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "market",
+      "warehouse"
+    ],
+    "grouping": "pile"
+  },
+  "model": {
+    "status": "procedural",
+    "prop_kind": "market_goods_pallet",
+    "builder": "res://scripts/map/view3d/map_view_mesh_builder_district_life_props.gd"
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.market_goods_pallet.png",
+    "icon": "res://assets/objects/icons/obj.market_goods_pallet.png",
+    "icon_status": "missing",
+    "look": "Pale pine pallet stacked with sacks and crates.",
+    "image_prompt": "Market goods pallet: Pale pine pallet stacked with sacks and crates."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite"
+}

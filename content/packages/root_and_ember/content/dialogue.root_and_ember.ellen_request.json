@@ -1,0 +1,45 @@
+{
+  "type": "dialogue",
+  "id": "dialogue.root_and_ember.ellen_request",
+  "title": "Root and Ember - Ellen's summons",
+  "confidence": "folklore",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-007"
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "explicit_node_id"
+  },
+  "participants": [
+    "char.ellen",
+    "char.kalev"
+  ],
+  "start_node_id": "ellen_opener",
+  "nodes": [
+    {
+      "id": "ellen_opener",
+      "speaker_id": "char.ellen",
+      "text": "Kalev, the household beside the Foaming Mug cannot sleep. Their hearth throws soot up the wrong wall and pulls cold drafts at night. Neighbors whisper kodukäija. I do not ask you to swear a spirit exists - only to help before the watch hears panic.",
+      "effects": [
+        {
+          "op": "set_fact",
+          "key": "fact.root_and_ember.ellen_summoned",
+          "value": true
+        }
+      ]
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "folklore",
+      "summary": "Ellen Luik introduces the ambiguous hearth disturbance.",
+      "citations": [
+        "docs/SCENES/root-and-ember.md"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,203 @@
+{
+  "type": "quest",
+  "id": "quest.bitter_brew",
+  "title": "A Bitter Brew",
+  "summary": "Investigate tainted water in Lower Town, commit to a forge response, and survive the watch checkpoint night consequence.",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P2-007",
+    "notes": "Day investigation closed under P2-007; forge commission closed under P2-008; night encounter closed under P2-009; aftermath closed under P2-010."
+  },
+  "entry_conditions": [
+    {
+      "op": "phase_is",
+      "key": "phase.investigation_morning",
+      "value": "active"
+    }
+  ],
+  "initial_state": "investigating",
+  "states": [
+    {
+      "id": "investigating",
+      "label": "Gathering evidence"
+    },
+    {
+      "id": "investigation_ready",
+      "label": "Evidence complete",
+      "terminal": true
+    },
+    {
+      "id": "active",
+      "label": "Night encounter armed"
+    },
+    {
+      "id": "night_surrendered",
+      "label": "Surrendered at the checkpoint",
+      "terminal": true
+    },
+    {
+      "id": "night_escaped",
+      "label": "Escaped the checkpoint",
+      "terminal": true
+    },
+    {
+      "id": "night_bypassed",
+      "label": "Bypassed the checkpoint",
+      "terminal": true
+    },
+    {
+      "id": "night_fought",
+      "label": "Fought through the checkpoint",
+      "terminal": true
+    }
+  ],
+  "transitions": [
+    {
+      "id": "complete_investigation",
+      "from_state": "investigating",
+      "to_state": "investigation_ready",
+      "conditions": [
+        {
+          "op": "fact_known",
+          "key": "fact.bitter_brew.cistern_contaminated"
+        },
+        {
+          "op": "fact_known",
+          "key": "fact.bitter_brew.brewery_ale_sound"
+        },
+        {
+          "op": "fact_known",
+          "key": "fact.bitter_brew.merchant_supply_spoiled"
+        },
+        {
+          "op": "fact_known",
+          "key": "fact.bitter_brew.checkpoint_neglect"
+        }
+      ],
+      "effects": []
+    },
+    {
+      "id": "resolve_surrender",
+      "from_state": "active",
+      "to_state": "night_surrendered",
+      "effects": []
+    },
+    {
+      "id": "resolve_escape",
+      "from_state": "active",
+      "to_state": "night_escaped",
+      "effects": []
+    },
+    {
+      "id": "resolve_bypass",
+      "from_state": "active",
+      "to_state": "night_bypassed",
+      "effects": []
+    },
+    {
+      "id": "resolve_kill",
+      "from_state": "active",
+      "to_state": "night_fought",
+      "effects": []
+    }
+  ],
+  "objectives": [
+    {
+      "id": "inspect_sites",
+      "text": "Inspect the well, brewery yard, merchant supply, and watch cistern.",
+      "state_id": "investigating"
+    }
+  ],
+  "journal_evidence": [
+    {
+      "fact_id": "fact.bitter_brew.cistern_contaminated",
+      "text": "The public well carries runoff and silt instead of clean draw water."
+    },
+    {
+      "fact_id": "fact.bitter_brew.brewery_ale_sound",
+      "text": "Aita's ale is sound, but she draws from the same tainted municipal line."
+    },
+    {
+      "fact_id": "fact.bitter_brew.merchant_supply_spoiled",
+      "text": "Merchant barrels match the spoiled grain wagons quietly routed through the ward."
+    },
+    {
+      "fact_id": "fact.bitter_brew.checkpoint_neglect",
+      "text": "Henning's cistern is cracked and choked with runoff at the checkpoint."
+    }
+  ],
+  "outcomes": [
+    {
+      "id": "surrendered",
+      "summary": "Kalev surrenders at the checkpoint.",
+      "effects": [
+        {
+          "op": "set_quest_state",
+          "key": "quest.bitter_brew",
+          "value": "night_surrendered"
+        }
+      ]
+    },
+    {
+      "id": "escaped",
+      "summary": "Kalev escapes the checkpoint.",
+      "effects": [
+        {
+          "op": "set_quest_state",
+          "key": "quest.bitter_brew",
+          "value": "night_escaped"
+        }
+      ]
+    },
+    {
+      "id": "bypassed",
+      "summary": "Kalev bypasses the checkpoint without a fight.",
+      "effects": [
+        {
+          "op": "set_quest_state",
+          "key": "quest.bitter_brew",
+          "value": "night_bypassed"
+        }
+      ]
+    },
+    {
+      "id": "fought",
+      "summary": "Kalev fights through the checkpoint.",
+      "effects": [
+        {
+          "op": "set_quest_state",
+          "key": "quest.bitter_brew",
+          "value": "night_fought"
+        }
+      ]
+    }
+  ],
+  "content_links": {
+    "character_ids": [
+      "char.kalev",
+      "char.aita",
+      "char.henning"
+    ],
+    "location_ids": [
+      "loc.lower_town_slice"
+    ],
+    "commission_ids": [
+      "commission.bitter_brew"
+    ]
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "P2-007 daytime investigation with four evidence sites; night encounter contract retained for P2-009.",
+      "citations": [
+        "docs/SCENES/a-bitter-brew.md",
+        "scripts/investigation/bitter_brew_investigation.gd",
+        "scripts/forge/bitter_brew_commission_controller.gd",
+        "content/examples/valid/commission.bitter_brew.json",
+        "content/examples/valid/encounter.watch_checkpoint.json"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "type": "dialogue",
+  "id": "dialogue.blackheads.hinrik_harbour_chart",
+  "title": "Hinrik's harbour chart",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-046",
+    "notes": "P4-046 support dialogue; the candidate event remains outside the eight-faction launch journal."
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "explicit_node_id",
+    "notes": "One authored choice records the Hinrik Blackheads candidate hook."
+  },
+  "participants": [
+    "char.kalev",
+    "char.hinrik_cartographer"
+  ],
+  "start_node_id": "hinrik_opening",
+  "word_count_estimate": 50,
+  "nodes": [
+    {
+      "id": "hinrik_opening",
+      "speaker_id": "char.hinrik_cartographer",
+      "text": "The chart has one safe margin through the harbour mud. It is reconstructed from three workers' notes, so do not mistake a useful line for a stone road.",
+      "choices": [
+        {
+          "id": "keep_the_margin_open",
+          "text": "Keep the route open, and mark its uncertainty.",
+          "target_node_id": "hinrik_close",
+          "effects": [
+            {
+              "op": "record_faction_event",
+              "key": "ledger.blackheads.hinrik_harbour_chart",
+              "value": "faction.blackheads",
+              "amount": 1,
+              "summary": "Hinrik shared a harbour chart that kept a Blackheads lighter off the watch schedule."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hinrik_close",
+      "speaker_id": "char.hinrik_cartographer",
+      "text": "Good. A marked uncertainty protects the people who taught me the route."
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "P4-046 example dialogue for the P4-045 Hinrik candidate event.",
+      "citations": [
+        "docs/CHARACTERS/hinrik_cartographer.md",
+        "docs/data/faction_blackheads_candidate.json",
+        "docs/MAP_AUTHORING.md"
+      ]
+    }
+  ]
+}

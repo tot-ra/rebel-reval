@@ -1,0 +1,61 @@
+{
+  "type": "world_object",
+  "id": "obj.lantern_hook",
+  "name": "Street lantern hook",
+  "description": "A forged iron wall hook for street lanterns: commission object.",
+  "category": "tool",
+  "handling": "pocketable",
+  "tags": [
+    "commission",
+    "street",
+    "ironwork"
+  ],
+  "physical": {
+    "mass_kg": 0.9,
+    "size_m": [
+      0.15,
+      0.2,
+      0.1
+    ],
+    "materials": [
+      "iron"
+    ]
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop"
+  ],
+  "economy": {
+    "base_pfennigs": 30,
+    "ownership": "public",
+    "legality": "legal",
+    "theft_severity": 0
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "forge",
+      "street"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "missing"
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.lantern_hook.png",
+    "icon": "res://assets/objects/icons/obj.lantern_hook.png",
+    "icon_status": "missing",
+    "look": "Heavy black forged iron hook with a flat plate for mounting.",
+    "image_prompt": "A heavy black forged iron wall hook with a flat mounting plate"
+  },
+  "lifecycle": "planned",
+  "confidence": "plausible composite",
+  "carry": {
+    "grid_width": 1,
+    "grid_height": 2,
+    "stackable": false
+  },
+  "item_ref": "item.lantern_hook"
+}

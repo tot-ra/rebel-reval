@@ -1,0 +1,70 @@
+{
+  "type": "world_object",
+  "id": "obj.bed_smithy",
+  "name": "Smithy bed",
+  "description": "The apprentice-and-master box bed in the smithy loft; sleeping here advances the clock.",
+  "category": "furniture",
+  "handling": "fixed",
+  "tags": [
+    "bed",
+    "sleep",
+    "forge"
+  ],
+  "physical": {
+    "mass_kg": 60,
+    "size_m": [
+      2.38,
+      1.12,
+      1.33
+    ],
+    "materials": [
+      "wood",
+      "linen_cloth",
+      "wool"
+    ],
+    "flammable": true
+  },
+  "actions": [
+    "inspect",
+    "sleep",
+    "sit"
+  ],
+  "economy": {
+    "base_pfennigs": 0,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 0
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "forge",
+      "home_poor",
+      "home_burgher"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/furniture/smithy_bed/smithy_bed.glb",
+    "prop_kind": "bed",
+    "measured_size_m": [
+      2.38,
+      1.12,
+      1.33
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.bed_smithy.png",
+    "icon": "res://assets/objects/icons/obj.bed_smithy.png",
+    "icon_status": "missing",
+    "look": "Low oak box bed with a straw-ticking mattress, grey linen sheet and a rough wool blanket.",
+    "image_prompt": "Smithy bed: Low oak box bed with a straw-ticking mattress, grey linen sheet and a rough wool blanket."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "uses": [
+    "sleep",
+    "wait until morning"
+  ]
+}

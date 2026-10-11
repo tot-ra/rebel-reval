@@ -1,0 +1,79 @@
+{
+  "type": "world_object",
+  "id": "obj.chest_plain_coffer",
+  "name": "Plain coffer",
+  "description": "A small iron-strapped pine coffer for a poor household's linen, tools and the few coins worth hiding.",
+  "category": "container",
+  "handling": "heavy",
+  "tags": [
+    "storage",
+    "lockable",
+    "poor"
+  ],
+  "physical": {
+    "mass_kg": 18,
+    "size_m": [
+      0.81,
+      0.45,
+      0.51
+    ],
+    "materials": [
+      "wood",
+      "iron"
+    ],
+    "flammable": true
+  },
+  "actions": [
+    "inspect",
+    "push",
+    "pull",
+    "open"
+  ],
+  "economy": {
+    "base_pfennigs": 70,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "home_poor",
+      "forge"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/furniture/chest_poor_household/chest_poor_household.glb",
+    "prop_kind": "chest",
+    "variant": "chest.plain_coffer",
+    "measured_size_m": [
+      0.81,
+      0.45,
+      0.51
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.chest_plain_coffer.png",
+    "icon": "res://assets/objects/icons/obj.chest_plain_coffer.png",
+    "icon_status": "missing",
+    "look": "Low pine chest with a domed-flat lid, two black iron straps and a simple hasp, scuffed and sooty.",
+    "image_prompt": "Plain coffer: Low pine chest with a domed-flat lid, two black iron straps and a simple hasp, scuffed and sooty."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "uses": [
+    "store and hide small goods"
+  ],
+  "container": {
+    "capacity_l": 110,
+    "lockable": true,
+    "default_locked": false,
+    "accepts_tags": [
+      "household",
+      "tool",
+      "linen"
+    ]
+  }
+}

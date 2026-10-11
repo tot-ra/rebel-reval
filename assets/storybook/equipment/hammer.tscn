@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="PackedScene" path="res://assets/storybook/equipment/hammer.glb" id="1"]
+
+[node name="hammer" type="Node3D"]
+rotation = Vector3(0, 0, -1.5707963267948966)
+
+[node name="Visual" parent="." instance=ExtResource("1")]

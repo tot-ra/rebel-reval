@@ -1,0 +1,67 @@
+{
+  "type": "world_object",
+  "id": "obj.cargo_grain_flax",
+  "name": "Grain and flax",
+  "description": "Sacks of grain and bundled flax in the Livonian export trade.",
+  "category": "trade_good",
+  "handling": "heavy",
+  "tags": [
+    "cargo",
+    "grain",
+    "flax"
+  ],
+  "physical": {
+    "mass_kg": 150,
+    "size_m": [
+      1.16,
+      0.7,
+      0.9
+    ],
+    "materials": [
+      "grain",
+      "linen_cloth",
+      "hemp_rope"
+    ],
+    "flammable": true
+  },
+  "actions": [
+    "inspect",
+    "push",
+    "pull"
+  ],
+  "economy": {
+    "base_pfennigs": 260,
+    "ownership": "merchant",
+    "legality": "legal",
+    "theft_severity": 2
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "market",
+      "warehouse",
+      "harbor"
+    ],
+    "grouping": "pile"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/trade/livonian_grain_flax/livonian_grain_flax.glb",
+    "prop_kind": "trade_goods",
+    "variant": "livonian_grain_flax",
+    "measured_size_m": [
+      1.16,
+      0.7,
+      0.9
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.cargo_grain_flax.png",
+    "icon": "res://assets/objects/icons/obj.cargo_grain_flax.png",
+    "icon_status": "missing",
+    "look": "Roped sacks of grain next to sheaves of pale flax stalk.",
+    "image_prompt": "Grain and flax: Roped sacks of grain next to sheaves of pale flax stalk."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite"
+}

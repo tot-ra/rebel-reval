@@ -1,0 +1,334 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "world_object.schema.json",
+  "title": "Reval Rebel physical world object (object catalog entry)",
+  "description": "One record per physical thing a player can see, take, throw, push, use, eat, wear or steal. See docs/SYSTEMS/OBJECT_CATALOG.md. Cross-field rules (handling vs mass, actions vs blocks, GLB node exists) are enforced by tools/validate_object_catalog.py.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "type",
+    "id",
+    "name",
+    "description",
+    "category",
+    "handling",
+    "tags",
+    "physical",
+    "actions",
+    "economy",
+    "placement",
+    "model",
+    "visual",
+    "lifecycle",
+    "confidence"
+  ],
+  "properties": {
+    "type": { "const": "world_object" },
+    "id": { "type": "string", "pattern": "^obj\\.[a-z][a-z0-9_]*$" },
+    "name": { "type": "string", "minLength": 1 },
+    "description": { "type": "string", "minLength": 20 },
+    "category": {
+      "enum": [
+        "container",
+        "furniture",
+        "tool",
+        "weapon",
+        "armor_clothing",
+        "food",
+        "drink",
+        "light_source",
+        "trade_good",
+        "material",
+        "household",
+        "craft_station",
+        "structure",
+        "vehicle",
+        "scenery",
+        "composite"
+      ]
+    },
+    "handling": {
+      "enum": ["fixed", "heavy", "carry_two_hands", "carry_one_hand", "pocketable"],
+      "description": "fixed: part of the world, never moves. heavy: bulky or very heavy (usually > 25 kg), push/pull only, never lifted or bagged. carry_two_hands: 8-25 kg, lifted in both hands, not bagged. carry_one_hand: 1-8 kg, bag footprint 2+ cells. pocketable: under 1 kg, bag footprint 1x1."
+    },
+    "tags": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" }
+    },
+    "item_ref": {
+      "type": "string",
+      "pattern": "^item\\.[a-z][a-z0-9_]*$",
+      "description": "Quest/combat item record (content/*/item.*.json) this object is the physical form of."
+    },
+    "physical": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mass_kg", "size_m", "materials"],
+      "properties": {
+        "mass_kg": { "type": "number", "exclusiveMinimum": 0 },
+        "size_m": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": { "type": "number", "exclusiveMinimum": 0 },
+          "description": "Width x height x depth in metres. Derived from the GLB by `object_catalog.py sync`; do not hand-edit for objects with a GLB model."
+        },
+        "materials": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "enum": [
+              "wood",
+              "iron",
+              "steel",
+              "brass_bronze",
+              "stone",
+              "brick",
+              "clay_ceramic",
+              "glass",
+              "linen_cloth",
+              "wool",
+              "leather",
+              "hemp_rope",
+              "straw",
+              "food_organic",
+              "wax_tallow",
+              "bone_horn",
+              "parchment",
+              "salt",
+              "grain",
+              "fur",
+              "charcoal_fuel",
+              "water_liquid"
+            ]
+          }
+        },
+        "fragile": { "type": "boolean" },
+        "flammable": { "type": "boolean" },
+        "hot_when_lit": { "type": "boolean" }
+      }
+    },
+    "actions": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "inspect",
+          "take",
+          "drop",
+          "throw",
+          "push",
+          "pull",
+          "open",
+          "use",
+          "equip",
+          "consume",
+          "light",
+          "sit",
+          "sleep",
+          "stack",
+          "hang",
+          "load_on_cart",
+          "break"
+        ]
+      }
+    },
+    "uses": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "description": "Human-readable use verbs or crafting/forge roles, e.g. 'draw hot iron from the fire'."
+    },
+    "carry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["grid_width", "grid_height", "stackable"],
+      "properties": {
+        "grid_width": { "type": "integer", "minimum": 1, "maximum": 8 },
+        "grid_height": { "type": "integer", "minimum": 1, "maximum": 5 },
+        "stackable": { "type": "boolean" },
+        "max_stack": { "type": "integer", "minimum": 2, "maximum": 20 }
+      },
+      "description": "Bag footprint (weight comes from physical.mass_kg). Required for pocketable and carry_one_hand objects, forbidden otherwise."
+    },
+    "throw": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["range_m", "damage", "breaks"],
+      "properties": {
+        "range_m": { "type": "number", "exclusiveMinimum": 0 },
+        "damage": { "type": "number", "minimum": 0 },
+        "breaks": { "type": "boolean" },
+        "noise": { "enum": ["quiet", "normal", "loud"] }
+      }
+    },
+    "edible": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "nutrition"],
+      "properties": {
+        "kind": { "enum": ["food", "drink", "ingredient", "medicine"] },
+        "nutrition": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "hydration": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "intoxicating": { "type": "boolean" },
+        "spoils_after_days": { "type": ["integer", "null"], "minimum": 1 },
+        "raw_unsafe": { "type": "boolean" }
+      }
+    },
+    "container": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["capacity_l", "lockable"],
+      "properties": {
+        "capacity_l": { "type": "number", "exclusiveMinimum": 0 },
+        "lockable": { "type": "boolean" },
+        "default_locked": { "type": "boolean" },
+        "accepts_tags": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+      }
+    },
+    "light": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["radius_m", "fuel", "open_flame"],
+      "properties": {
+        "radius_m": { "type": "number", "exclusiveMinimum": 0 },
+        "burn_hours": { "type": ["number", "null"], "exclusiveMinimum": 0 },
+        "fuel": { "enum": ["tallow", "beeswax", "pine_resin", "animal_fat", "charcoal", "wood", "oil", "none"] },
+        "open_flame": { "type": "boolean" }
+      }
+    },
+    "equip": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["slot"],
+      "properties": {
+        "slot": {
+          "enum": ["head", "back", "body", "arms", "belt", "legs", "feet", "left_hand", "right_hand"]
+        },
+        "damage_type": { "enum": ["blunt", "pierce", "slash"] },
+        "protection": { "enum": ["none", "light", "medium", "heavy"] }
+      }
+    },
+    "economy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["base_pfennigs", "ownership", "legality", "theft_severity"],
+      "properties": {
+        "base_pfennigs": { "type": "integer", "minimum": 0 },
+        "ownership": {
+          "enum": ["public", "household", "merchant", "guild", "church", "garrison", "wild"]
+        },
+        "legality": { "enum": ["legal", "restricted", "contraband"] },
+        "theft_severity": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 3,
+          "description": "0 free to take, 1 petty (witnesses matter), 2 serious (watch response), 3 capital (strongboxes, church plate)."
+        },
+        "vendor_tags": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+      }
+    },
+    "placement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mount", "spaces"],
+      "properties": {
+        "mount": { "enum": ["floor", "surface", "wall", "hanging", "ground", "worn"] },
+        "spaces": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "enum": [
+              "forge",
+              "home_poor",
+              "home_burgher",
+              "home_noble",
+              "tavern",
+              "market",
+              "harbor",
+              "street",
+              "church",
+              "farm",
+              "warehouse",
+              "wild",
+              "brewery",
+              "guard_post"
+            ]
+          }
+        },
+        "grouping": { "enum": ["single", "cluster", "pile"] }
+      }
+    },
+    "composition": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "count"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^obj\\.[a-z][a-z0-9_]*$" },
+          "count": { "type": "integer", "minimum": 1 }
+        }
+      },
+      "description": "Required for category composite (dressing sets); also used by piles to name the takeable unit (a pile of sacks lists obj.sack_grain)."
+    },
+    "model": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status"],
+      "properties": {
+        "status": { "enum": ["glb", "procedural", "missing"] },
+        "glb": { "type": "string", "pattern": "^res://.+\\.glb$" },
+        "node": { "type": "string", "minLength": 1, "description": "Named node inside a kit GLB that is this object." },
+        "states": {
+          "type": "object",
+          "description": "state name -> node name, for one object with several authored states (hearth lit/cold).",
+          "additionalProperties": { "type": "string", "minLength": 1 }
+        },
+        "prop_kind": { "type": "string", "pattern": "^[a-z][a-z0-9_.]*$", "description": "MapTypes prop kind or variant id that places this object on a map." },
+        "variant": { "type": "string", "pattern": "^[a-z][a-z0-9_.]*$", "description": "style_variant / sub-variant id inside the prop kind (e.g. chest.burgher, kitchenware.jug)." },
+        "builder": { "type": "string", "pattern": "^res://.+\\.gd$", "description": "Procedural mesh builder script (status procedural)." },
+        "fitted_variants": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^res://.+\\.glb$" },
+          "description": "Per-character fitted copies of the same wearable."
+        },
+        "measured_size_m": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": { "type": "number" },
+          "description": "Bounding box of the GLB (node) in metres. Written by `object_catalog.py sync`."
+        }
+      }
+    },
+    "visual": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["preview", "icon", "icon_status", "look", "image_prompt"],
+      "properties": {
+        "preview": {
+          "type": "string",
+          "pattern": "^docs/reports/images/object_catalog/obj\\.[a-z0-9_]+\\.png$",
+          "description": "Software-rendered reference thumbnail of the model (tools/render_object_previews.py)."
+        },
+        "icon": {
+          "type": "string",
+          "pattern": "^res://assets/objects/icons/obj\\.[a-z0-9_]+\\.png$",
+          "description": "Runtime inventory/catalog icon."
+        },
+        "icon_status": { "enum": ["missing", "generated", "approved"] },
+        "look": { "type": "string", "minLength": 10, "description": "What the object looks like, material and wear, in one or two sentences." },
+        "image_prompt": { "type": "string", "minLength": 20, "description": "Prompt for the icon image generator; style suffix is added by `object_catalog.py prompts`." }
+      }
+    },
+    "lifecycle": {
+      "enum": ["planned", "usable", "complete"],
+      "description": "Derived: planned = no model, cannot be placed or granted; usable = model exists; complete = model plus icon file."
+    },
+    "confidence": {
+      "$ref": "common.schema.json#/$defs/confidence_label"
+    },
+    "notes": { "type": "string", "minLength": 1 }
+  }
+}

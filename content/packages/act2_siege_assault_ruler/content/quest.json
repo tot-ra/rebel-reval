@@ -1,0 +1,142 @@
+{
+  "type": "quest",
+  "id": "quest.act2.siege.assault.ruler",
+  "title": "Defend the Eastern Rampart",
+  "summary": "Defend the ruler-held eastern rampart during the assault window, choosing a visible stand or a quiet liaison with the Order.",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P5-006",
+    "notes": "Content-only siege mission package; the authored mission host reuses the downstream Act 2 combat and travel systems."
+  },
+  "entry_conditions": [],
+  "initial_state": "latent",
+  "states": [
+    {
+      "id": "latent",
+      "label": "Receive the ruler defence brief as the assault begins."
+    },
+    {
+      "id": "ready",
+      "label": "At the eastern rampart during assault"
+    },
+    {
+      "id": "direct_complete",
+      "label": "The ruler rampart holds after a direct defence.",
+      "terminal": true
+    },
+    {
+      "id": "quiet_complete",
+      "label": "The ruler rampart holds after a quiet Order liaison.",
+      "terminal": true
+    }
+  ],
+  "transitions": [
+    {
+      "id": "brief",
+      "from_state": "latent",
+      "to_state": "ready",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.act2.siege.assault.ruler.briefed",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "resolve_direct",
+      "from_state": "ready",
+      "to_state": "direct_complete",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.act2.siege.assault.ruler.direct_resolved",
+          "value": true
+        },
+        {
+          "op": "set_flag",
+          "key": "flag.war.siege_phase.assault",
+          "value": true
+        },
+        {
+          "op": "record_faction_event",
+          "key": "ledger.act2.siege.assault.ruler.direct",
+          "value": "faction.danish_crown",
+          "amount": 1,
+          "summary": "Kalev held the eastern rampart with the ruler defence."
+        }
+      ]
+    },
+    {
+      "id": "resolve_quiet",
+      "from_state": "ready",
+      "to_state": "quiet_complete",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.act2.siege.assault.ruler.quiet_resolved",
+          "value": true
+        },
+        {
+          "op": "set_flag",
+          "key": "flag.war.siege_phase.assault",
+          "value": true
+        },
+        {
+          "op": "record_faction_event",
+          "key": "ledger.act2.siege.assault.ruler.quiet",
+          "value": "faction.danish_crown",
+          "amount": 1,
+          "summary": "Kalev secured an Order liaison before the assault reached the rampart."
+        }
+      ]
+    }
+  ],
+  "objectives": [
+    {
+      "id": "receive_brief",
+      "text": "Receive the ruler defence brief as the assault begins.",
+      "state_id": "latent"
+    },
+    {
+      "id": "resolve_mission",
+      "text": "Keep the rampart by standing the wall or arranging a quiet Order liaison.",
+      "state_id": "ready"
+    }
+  ],
+  "outcomes": [
+    {
+      "id": "direct",
+      "summary": "The ruler rampart holds after a direct defence.",
+      "effects": []
+    },
+    {
+      "id": "quiet",
+      "summary": "The ruler rampart holds after a quiet Order liaison.",
+      "effects": []
+    }
+  ],
+  "content_links": {
+    "character_ids": [
+      "char.kalev",
+      "char.henning",
+      "char.kaja",
+      "char.mart"
+    ],
+    "location_ids": [
+      "loc.lower_town_slice"
+    ]
+  },
+  "source_notes": [
+    {
+      "confidence": "attested",
+      "summary": "The three siege phases and their calendar windows are attested in the Act 2 design spine; this mission framing and branch resolution are invented.",
+      "citations": [
+        "docs/reports/p5_001_act2_design.md",
+        "docs/data/act2_design_manifest.json"
+      ]
+    }
+  ]
+}

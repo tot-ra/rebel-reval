@@ -1,0 +1,46 @@
+{
+  "type": "character",
+  "id": "char.hinrik_cartographer",
+  "name": "Hinrik the Cartographer",
+  "role": "Harbour mapmaker, route witness, and Blackheads candidate-seat intelligence contact",
+  "confidence": "plausible composite",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-046",
+    "notes": "Candidate-seat support record only; pending Canon Keeper review and never a new faction leader or launch-roster row."
+  },
+  "pronunciation": "HIN-rik",
+  "brief": {
+    "want": "Make movement through Reval legible so workers and messengers are not trapped by false maps.",
+    "fear": "A map will become permission to seize a street, warehouse, or shoreline.",
+    "contradiction": "He distrusts military mapping while collecting details that could make a siege or patrol more effective.",
+    "secret_or_withheld_fact": "One harbour chart marks an unofficial wet-margin path whose source would be endangered if the Order knew it was known."
+  },
+  "relationships": [],
+  "voice": {
+    "summary": "Fast, concrete, and careful around dangerous route knowledge.",
+    "diction": "Bearings and measurements: left bank, second gate, after the mud turns, before the bell.",
+    "languages": [
+      "Estonian",
+      "Low German"
+    ]
+  },
+  "outcomes": [
+    {
+      "id": "candidate_hook_recorded",
+      "summary": "Hinrik's harbour-chart hook records a Blackheads candidate event without creating a new navigation system."
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "plausible composite",
+      "summary": "P7-013 Wave A brief promoted into the P4-046 candidate-seat support corpus.",
+      "citations": [
+        "docs/CHARACTERS/hinrik_cartographer.md",
+        "docs/data/faction_blackheads_candidate.json",
+        "docs/MAP_AUTHORING.md"
+      ]
+    }
+  ]
+}

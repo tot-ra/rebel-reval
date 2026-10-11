@@ -1,0 +1,78 @@
+{
+  "type": "world_object",
+  "id": "obj.chest_burgher",
+  "name": "Burgher chest",
+  "description": "A joined oak chest with iron fittings that a guild burgher keeps cloth, silver and deeds in.",
+  "category": "container",
+  "handling": "heavy",
+  "tags": [
+    "storage",
+    "lockable",
+    "burgher"
+  ],
+  "physical": {
+    "mass_kg": 38,
+    "size_m": [
+      1.0,
+      0.61,
+      0.61
+    ],
+    "materials": [
+      "wood",
+      "iron"
+    ],
+    "flammable": true
+  },
+  "actions": [
+    "inspect",
+    "push",
+    "pull",
+    "open"
+  ],
+  "economy": {
+    "base_pfennigs": 260,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 2
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "home_burgher"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/furniture/chest_burgher_household/chest_burgher_household.glb",
+    "prop_kind": "chest",
+    "variant": "chest.burgher",
+    "measured_size_m": [
+      1.0,
+      0.61,
+      0.61
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.chest_burgher.png",
+    "icon": "res://assets/objects/icons/obj.chest_burgher.png",
+    "icon_status": "missing",
+    "look": "Solid oak chest with carved front panel, forged iron corner plates and a lock escutcheon, dark waxed finish.",
+    "image_prompt": "Burgher chest: Solid oak chest with carved front panel, forged iron corner plates and a lock escutcheon, dark waxed finish."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "uses": [
+    "store valuables behind a lock"
+  ],
+  "container": {
+    "capacity_l": 200,
+    "lockable": true,
+    "default_locked": true,
+    "accepts_tags": [
+      "household",
+      "valuables",
+      "documents"
+    ]
+  }
+}

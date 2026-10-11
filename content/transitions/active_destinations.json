@@ -1,0 +1,481 @@
+{
+  "version": 2,
+  "description": "Transition scene and spawn registry. Release destinations (release=true) are the approved slice; dev destinations (release=false) enable developer traversal between prototype districts without changing Start flow.",
+  "scenes": [
+    {
+      "id": "forge",
+      "path": "res://scenes/reval_east/forge/forge.tscn",
+      "active": true,
+      "release": true,
+      "spawns": [
+        {
+          "id": "door_courtyard"
+        },
+        {
+          "id": "smithy_start"
+        }
+      ]
+    },
+    {
+      "id": "reval_city",
+      "path": "res://scenes/world/reval_city/reval_city.tscn",
+      "active": true,
+      "release": true,
+      "spawns": [
+        {
+          "id": "poi.forum"
+        },
+        {
+          "id": "kalev_smithy"
+        },
+        {
+          "id": "gate.viru"
+        },
+        {
+          "id": "gate.viru.outside"
+        },
+        {
+          "id": "gate.harju.outside"
+        },
+        {
+          "id": "gate.karja.outside"
+        },
+        {
+          "id": "gate.coastal"
+        },
+        {
+          "id": "poi.fish_landing"
+        },
+        {
+          "id": "poi.granary.pikk"
+        },
+        {
+          "id": "landmark.st_olaf"
+        },
+        {
+          "id": "landmark.st_nicholas"
+        },
+        {
+          "id": "road.toompea_west"
+        },
+        {
+          "id": "poi.barracks.castle"
+        },
+        {
+          "id": "poi.well.bishop_garden"
+        },
+        {
+          "id": "suburb.kalarand"
+        }
+      ]
+    },
+    {
+      "id": "world_sacred_grove",
+      "path": "res://scenes/world/sites/sacred_grove.tscn",
+      "active": true,
+      "release": false,
+      "spawns": [
+        {
+          "id": "from_reval_south"
+        },
+        {
+          "id": "from_world_harju"
+        }
+      ]
+    },
+    {
+      "id": "world_harju",
+      "path": "res://scenes/world/sites/harju.tscn",
+      "active": true,
+      "release": false,
+      "spawns": [
+        {
+          "id": "from_reval_east"
+        },
+        {
+          "id": "from_world_sacred_grove"
+        },
+        {
+          "id": "from_world_rebel_kings"
+        },
+        {
+          "id": "from_world_kanavere"
+        },
+        {
+          "id": "from_world_sojamae"
+        }
+      ]
+    },
+    {
+      "id": "world_padise",
+      "path": "res://scenes/world/sites/padise.tscn",
+      "active": true,
+      "release": false,
+      "spawns": [
+        {
+          "id": "from_reval_west"
+        },
+        {
+          "id": "from_world_parnu"
+        }
+      ]
+    },
+    {
+      "id": "world_saaremaa",
+      "path": "res://scenes/world/sites/saaremaa.tscn",
+      "active": true,
+      "release": false,
+      "spawns": [
+        {
+          "id": "from_reval_harbor"
+        },
+        {
+          "id": "from_world_parnu"
+        },
+        {
+          "id": "from_world_poide"
+        }
+      ]
+    },
+    {
+      "id": "world_rebel_kings",
+      "path": "res://scenes/world/sites/rebel_kings.tscn",
+      "active": true,
+      "release": false,
+      "spawns": [
+        {
+          "id": "from_world_harju"
+        },
+        {
+          "id": "from_world_kanavere"
+        }
+      ]
+    },
+    {
+      "id": "world_kanavere",
+      "path": "res://scenes/world_travel/world_kanavere.tscn",
+      "active": true,
+      "release": false,
+      "spawns": [
+        {
+          "id": "from_world_harju"
+        },
+        {
+          "id": "from_world_rebel_kings"
+        },
+        {
+          "id": "from_world_paide"
+        }
+      ]
+    },
+    {
+      "id": "world_sojamae",
+      "path": "res://scenes/world_travel/world_sojamae.tscn",
+      "active": true,
+      "release": false,
+      "spawns": [
+        {
+          "id": "from_world_harju"
+        },
+        {
+          "id": "from_world_paide"
+        }
+      ]
+    },
+    {
+      "id": "world_paide",
+      "path": "res://scenes/world/sites/paide.tscn",
+      "active": true,
+      "release": false,
+      "spawns": [
+        {
+          "id": "from_world_kanavere"
+        },
+        {
+          "id": "from_world_sojamae"
+        },
+        {
+          "id": "from_world_parnu"
+        }
+      ]
+    },
+    {
+      "id": "world_parnu",
+      "path": "res://scenes/world_travel/world_parnu.tscn",
+      "active": true,
+      "release": false,
+      "spawns": [
+        {
+          "id": "from_world_padise"
+        },
+        {
+          "id": "from_world_paide"
+        },
+        {
+          "id": "from_world_saaremaa"
+        }
+      ]
+    },
+    {
+      "id": "world_poide",
+      "path": "res://scenes/world_travel/world_poide.tscn",
+      "active": true,
+      "release": false,
+      "spawns": [
+        {
+          "id": "from_world_saaremaa"
+        }
+      ]
+    },
+    {
+      "id": "world_rakvere",
+      "path": "res://scenes/world_travel/world_rakvere.tscn",
+      "active": true,
+      "release": false,
+      "spawns": [
+        {
+          "id": "from_reval_east"
+        },
+        {
+          "id": "from_world_narva"
+        },
+        {
+          "id": "from_world_poltsamaa"
+        }
+      ]
+    },
+    {
+      "id": "world_haapsalu",
+      "path": "res://scenes/world_travel/world_haapsalu.tscn",
+      "active": true,
+      "release": false,
+      "spawns": [
+        {
+          "id": "from_reval_west"
+        },
+        {
+          "id": "from_world_lihula"
+        },
+        {
+          "id": "from_world_klint"
+        }
+      ]
+    },
+    {
+      "id": "world_lihula",
+      "path": "res://scenes/world_travel/world_lihula.tscn",
+      "active": true,
+      "release": false,
+      "spawns": [
+        {
+          "id": "from_reval_west"
+        },
+        {
+          "id": "from_world_haapsalu"
+        },
+        {
+          "id": "from_world_maasilinna"
+        },
+        {
+          "id": "from_world_soomaa"
+        }
+      ]
+    },
+    {
+      "id": "world_tartu",
+      "path": "res://scenes/world_travel/world_tartu.tscn",
+      "active": true,
+      "release": false,
+      "spawns": [
+        {
+          "id": "from_reval_south"
+        },
+        {
+          "id": "from_world_poltsamaa"
+        },
+        {
+          "id": "from_world_viljandi"
+        },
+        {
+          "id": "from_world_frontier_ugandi"
+        }
+      ]
+    },
+    {
+      "id": "world_viljandi",
+      "path": "res://scenes/world_travel/world_viljandi.tscn",
+      "active": true,
+      "release": false,
+      "spawns": [
+        {
+          "id": "from_reval_south"
+        },
+        {
+          "id": "from_world_tartu"
+        },
+        {
+          "id": "from_world_poltsamaa"
+        },
+        {
+          "id": "from_world_karksi"
+        },
+        {
+          "id": "from_world_soomaa"
+        }
+      ]
+    },
+    {
+      "id": "world_poltsamaa",
+      "path": "res://scenes/world_travel/world_poltsamaa.tscn",
+      "active": true,
+      "release": false,
+      "spawns": [
+        {
+          "id": "from_reval_south"
+        },
+        {
+          "id": "from_world_rakvere"
+        },
+        {
+          "id": "from_world_tartu"
+        },
+        {
+          "id": "from_world_viljandi"
+        }
+      ]
+    },
+    {
+      "id": "world_narva",
+      "path": "res://scenes/world_travel/world_narva.tscn",
+      "active": true,
+      "release": false,
+      "spawns": [
+        {
+          "id": "from_reval_east"
+        },
+        {
+          "id": "from_world_rakvere"
+        }
+      ]
+    },
+    {
+      "id": "world_karksi",
+      "path": "res://scenes/world_travel/world_karksi.tscn",
+      "active": true,
+      "release": false,
+      "spawns": [
+        {
+          "id": "from_reval_south"
+        },
+        {
+          "id": "from_world_viljandi"
+        },
+        {
+          "id": "from_world_helme"
+        },
+        {
+          "id": "from_world_soomaa"
+        }
+      ]
+    },
+    {
+      "id": "world_helme",
+      "path": "res://scenes/world_travel/world_helme.tscn",
+      "active": true,
+      "release": false,
+      "spawns": [
+        {
+          "id": "from_reval_south"
+        },
+        {
+          "id": "from_world_karksi"
+        },
+        {
+          "id": "from_world_frontier_ugandi"
+        }
+      ]
+    },
+    {
+      "id": "world_maasilinna",
+      "path": "res://scenes/world_travel/world_maasilinna.tscn",
+      "active": true,
+      "release": false,
+      "spawns": [
+        {
+          "id": "from_reval_harbor"
+        },
+        {
+          "id": "from_world_lihula"
+        },
+        {
+          "id": "from_world_karja"
+        }
+      ]
+    },
+    {
+      "id": "world_karja",
+      "path": "res://scenes/world_travel/world_karja.tscn",
+      "active": true,
+      "release": false,
+      "spawns": [
+        {
+          "id": "from_reval_harbor"
+        },
+        {
+          "id": "from_world_maasilinna"
+        }
+      ]
+    },
+    {
+      "id": "world_klint",
+      "path": "res://scenes/world_travel/world_klint.tscn",
+      "active": true,
+      "release": false,
+      "spawns": [
+        {
+          "id": "from_reval_west"
+        },
+        {
+          "id": "from_world_haapsalu"
+        }
+      ]
+    },
+    {
+      "id": "world_soomaa",
+      "path": "res://scenes/world_travel/world_soomaa.tscn",
+      "active": true,
+      "release": false,
+      "spawns": [
+        {
+          "id": "from_reval_south"
+        },
+        {
+          "id": "from_world_viljandi"
+        },
+        {
+          "id": "from_world_karksi"
+        },
+        {
+          "id": "from_world_lihula"
+        }
+      ]
+    },
+    {
+      "id": "world_frontier_ugandi",
+      "path": "res://scenes/world_travel/world_frontier_ugandi.tscn",
+      "active": true,
+      "release": false,
+      "spawns": [
+        {
+          "id": "from_reval_south"
+        },
+        {
+          "id": "from_world_tartu"
+        },
+        {
+          "id": "from_world_helme"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,87 @@
+{
+  "type": "world_object",
+  "id": "obj.jar_lidded",
+  "name": "Lidded jar",
+  "description": "A stoneware storage jar with a wooden stopper for dry goods, honey or fat.",
+  "category": "household",
+  "handling": "pocketable",
+  "tags": [
+    "kitchen",
+    "storage"
+  ],
+  "physical": {
+    "mass_kg": 0.7,
+    "size_m": [
+      0.11,
+      0.2,
+      0.11
+    ],
+    "materials": [
+      "clay_ceramic",
+      "wood"
+    ],
+    "fragile": true
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop",
+    "throw",
+    "open"
+  ],
+  "economy": {
+    "base_pfennigs": 7,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "home_poor",
+      "home_burgher",
+      "forge"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/domestic/kitchenware/medieval_kitchenware_kit.glb",
+    "node": "KitchenwareJarLidded",
+    "prop_kind": "kitchenware",
+    "variant": "kitchenware.jar_lidded",
+    "measured_size_m": [
+      0.11,
+      0.2,
+      0.11
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.jar_lidded.png",
+    "icon": "res://assets/objects/icons/obj.jar_lidded.png",
+    "icon_status": "missing",
+    "look": "Squat glazed jar with a short neck and a wooden disc lid tied with twine.",
+    "image_prompt": "Lidded jar: Squat glazed jar with a short neck and a wooden disc lid tied with twine."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "carry": {
+    "grid_width": 1,
+    "grid_height": 2,
+    "stackable": false
+  },
+  "throw": {
+    "range_m": 3.0,
+    "damage": 2,
+    "breaks": true,
+    "noise": "loud"
+  },
+  "container": {
+    "capacity_l": 1.5,
+    "lockable": false,
+    "accepts_tags": [
+      "food",
+      "liquid"
+    ]
+  }
+}

@@ -1,0 +1,89 @@
+class_name ForgeCommissionController
+extends Node
+
+signal commission_finished(commission_id: StringName)
+
+const OVERLAY_SCENE := preload("res://scenes/ui/forge_commission_overlay.tscn")
+const FEEDBACK_OVERLAY_SCRIPT := preload("res://scripts/forge/forge_feedback_overlay.gd")
+const RunnerScript := preload("res://scripts/forge/forge_commission_runner.gd")
+const PresenterScript := preload("res://scripts/forge/forge_commission_ui_presenter.gd")
+
+var _overlay: ForgeCommissionOverlay
+var _feedback_overlay: ForgeFeedbackOverlay
+var _runner: ForgeCommissionRunner
+var _presenter: RefCounted
+
+func _ready() -> void:
+	process_mode = Node.PROCESS_MODE_ALWAYS
+	_overlay = OVERLAY_SCENE.instantiate() as ForgeCommissionOverlay
+	_overlay.visible = false
+	add_child(_overlay)
+
+	_feedback_overlay = FEEDBACK_OVERLAY_SCRIPT.new() as ForgeFeedbackOverlay
+	_feedback_overlay.name = "ForgeFeedbackOverlay"
+	_feedback_overlay.visible = false
+	add_child(_feedback_overlay)
+
+	_runner = RunnerScript.new()
+	add_child(_runner)
+
+	_presenter = PresenterScript.new()
+	_presenter.configure(_overlay, _runner, _feedback_overlay)
+	_runner.configure(SessionState.content_db, SessionState.state, _presenter)
+	_overlay.closed.connect(_on_overlay_closed)
+	_feedback_overlay.closed.connect(_on_feedback_closed)
+	_runner.finished.connect(_on_runner_finished)
+
+	if not SessionState.state_replaced.is_connected(_on_state_replaced):
+		SessionState.state_replaced.connect(_on_state_replaced)
+
+
+func _exit_tree() -> void:
+	if SessionState.state_replaced.is_connected(_on_state_replaced):
+		SessionState.state_replaced.disconnect(_on_state_replaced)
+
+
+func _on_state_replaced(_previous: GameState, current: GameState, _reason: StringName) -> void:
+	if _runner.is_active():
+		_runner.cancel()
+	_runner.configure(SessionState.content_db, current, _presenter)
+
+
+func is_open() -> bool:
+	return (
+		(_overlay != null and _overlay.is_open())
+		or (_feedback_overlay != null and _feedback_overlay.is_open())
+	)
+
+
+func is_forging() -> bool:
+	return _runner != null and _runner.is_forging()
+
+
+func is_active() -> bool:
+	return _runner != null and _runner.is_active()
+
+
+func open_commission(commission_id: StringName) -> bool:
+	if _runner == null:
+		return false
+	_runner.configure(SessionState.content_db, SessionState.state, _presenter)
+	return _runner.open(commission_id)
+
+
+func _on_overlay_closed() -> void:
+	# Picking an option closes the choice overlay to hand over to the forging feedback;
+	# that is not a cancel, or the pending option is dropped and no record is committed.
+	if _runner != null and _runner.is_active() and not _runner.is_forging():
+		_runner.cancel()
+
+
+## The feedback closes after committing (nothing pending then) or on Esc mid-forging,
+## which abandons the commission like closing the choice overlay does.
+func _on_feedback_closed() -> void:
+	if _runner != null and _runner.is_forging():
+		_runner.cancel()
+
+
+func _on_runner_finished(commission_id: StringName) -> void:
+	commission_finished.emit(commission_id)

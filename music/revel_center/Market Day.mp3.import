@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://dfm4rx8hyk1i2"
+path="res://.godot/imported/Market Day.mp3-09b1599eae14c312b4e1f508874fbb43.mp3str"
+
+[deps]
+
+source_file="res://music/revel_center/Market Day.mp3"
+dest_files=["res://.godot/imported/Market Day.mp3-09b1599eae14c312b4e1f508874fbb43.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

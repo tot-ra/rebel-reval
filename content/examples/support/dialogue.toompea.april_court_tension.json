@@ -1,0 +1,79 @@
+{
+  "type": "dialogue",
+  "id": "dialogue.toompea.april_court_tension",
+  "title": "Toompea - April Court Colour",
+  "confidence": "plausible composite",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-041",
+    "notes": "Reported speech only for unavailable historical actors. The scene is limited to April and does not depict later castle transfer or Paide capture."
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "explicit_node_id"
+  },
+  "participants": [
+    "char.kalev",
+    "char.jurgen",
+    "char.mart"
+  ],
+  "start_node_id": "court_whispers",
+  "word_count_estimate": 116,
+  "nodes": [
+    {
+      "id": "court_whispers",
+      "speaker_id": "char.jurgen",
+      "text": "In April, Konrad Preen's court counts crown claims inside Castrum Danorum. The clerks repeat that Bishop Olaf of Roskilde is the pro-Danish voice for keeping the hill in the crown's hand. Captain Marquard Breide's pro-German party answers that the vassals must hold the say. Hear both reports as faction pressure, not as a change of rule.",
+      "choices": [
+        {
+          "id": "name_the_divide",
+          "text": "Tell it plainly: two Danish claims, one uneasy hill.",
+          "target_node_id": "report_delivered"
+        },
+        {
+          "id": "keep_to_route",
+          "text": "I will carry the words without choosing a lord.",
+          "target_node_id": "report_delivered"
+        }
+      ]
+    },
+    {
+      "id": "report_delivered",
+      "speaker_id": "char.mart",
+      "text": "Good. The report belongs at the cathedral close, not in a new court of our own. Keep the April names, the Domberg hill, and the All-linn boundary together.",
+      "effects": [
+        {
+          "op": "set_fact",
+          "key": "fact.toompea_hill_gate_message.court_colour_heard",
+          "value": true
+        },
+        {
+          "op": "set_fact",
+          "key": "fact.toompea_hill_gate_message.message_delivered",
+          "value": true
+        }
+      ]
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "attested",
+      "summary": "The April faction seam, Castrum Danorum jurisdiction, and Konrad Preen, Bishop Olaf, and Captain Marquard Breide are drawn from the Spring 1343 jurisdiction and Toompea dossiers.",
+      "citations": [
+        "history/dossiers/power/jurisdictions-of-reval.md",
+        "history/dossiers/architecture/toompea-castle-and-upper-town.md"
+      ]
+    },
+    {
+      "confidence": "plausible composite",
+      "summary": "Jurgen and Mart present the named historical actors through reported speech because those actors are not current character records. The authored scene ends in April and deliberately leaves the 16 May handover and Paide capture to Act 2.",
+      "citations": [
+        "docs/ROADMAP.md",
+        "history/dossiers/power/jurisdictions-of-reval.md"
+      ]
+    }
+  ]
+}

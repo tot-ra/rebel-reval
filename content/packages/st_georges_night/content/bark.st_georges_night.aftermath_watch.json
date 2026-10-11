@@ -1,0 +1,75 @@
+{
+  "type": "bark_pool",
+  "id": "bark.st_georges_night.aftermath_watch",
+  "title": "St. George's Night aftermath watch barks",
+  "owner_id": "char.henning",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-008a"
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "first_valid_in_order"
+  },
+  "selection": "first_valid_in_order",
+  "phase_ids": [
+    "phase.act1_climax"
+  ],
+  "location_ids": [
+    "loc.lower_town_slice"
+  ],
+  "entries": [
+    {
+      "id": "seal_family",
+      "speaker_id": "char.henning",
+      "text": "Hold the groove! The chain is true - no one lifts that portcullis tonight.",
+      "priority": 3,
+      "conditions": [
+        {
+          "op": "flag_is",
+          "key": "flag.act_boundary.viru_seal",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "break_family",
+      "speaker_id": "char.henning",
+      "text": "The links snapped! Seal the inner ward before the whole east wall goes.",
+      "priority": 3,
+      "conditions": [
+        {
+          "op": "flag_is",
+          "key": "flag.act_boundary.viru_break",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "open_family",
+      "speaker_id": "char.henning",
+      "text": "The gate dropped without a cut chain. Someone inside this wall knew the pin.",
+      "priority": 3,
+      "conditions": [
+        {
+          "op": "flag_is",
+          "key": "flag.act_boundary.viru_open",
+          "value": true
+        }
+      ]
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Patrol barks after the St. George's Night Viru Gate act-boundary resolution.",
+      "citations": [
+        "docs/SCENES/st-georges-night.md"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,70 @@
+{
+  "type": "dialogue",
+  "id": "dialogue.test_overflow",
+  "title": "Dialogue Overflow Fixture",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "review",
+    "notes": "P1-014 pseudo-localization and overflow fixture only."
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "explicit_node_id",
+    "notes": "Long lines and choices for layout stress testing."
+  },
+  "participants": [
+    "char.mart",
+    "char.kalev"
+  ],
+  "start_node_id": "long_opening",
+  "word_count_estimate": 120,
+  "nodes": [
+    {
+      "id": "long_opening",
+      "speaker_id": "char.mart",
+      "text": "Kalev, the Lower Town hears every rumor twice before dawn, and tonight the well, the brewery yard, and the watch checkpoint all carry the same bitter story about spoiled grain, missing ledger pages, and a forged maker mark that should never have left your smithy.",
+      "choices": [
+        {
+          "id": "listen",
+          "text": "Walk me through every witness account from the brewery storehouse to the western checkpoint without leaving out a single detail.",
+          "target_node_id": "long_followup"
+        },
+        {
+          "id": "refuse",
+          "text": "I cannot discuss commissions until the town council clarifies whether the watch may enter the forge without a written warrant signed by Henning.",
+          "target_node_id": "long_followup"
+        },
+        {
+          "id": "locked",
+          "text": "Produce the confiscated ledger and name every merchant who traded with the Danish quartermaster last week.",
+          "target_node_id": "long_followup",
+          "conditions": [
+            {
+              "op": "flag_is",
+              "key": "flag.test_overflow_has_ledger",
+              "value": true
+            }
+          ],
+          "disabled_reason": "You surrendered the ledger to the watch before reviewing every copied page and seal impression."
+        }
+      ]
+    },
+    {
+      "id": "long_followup",
+      "speaker_id": "char.kalev",
+      "text": "Then we will move carefully, because one wrong word in the street can turn a commission into a confession."
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "P1-014 dialogue overflow and pseudo-localization fixture.",
+      "citations": [
+        "docs/adr/0003-authored-offline-dialogue-and-prohibit-runtime-llm.md"
+      ]
+    }
+  ]
+}

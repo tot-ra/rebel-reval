@@ -1,0 +1,13 @@
+{
+  "tool": "a2gent openai_generate_image",
+  "model": "gpt-image-1",
+  "size": "1024x1024",
+  "quality": "high",
+  "generation_id": "6890df5d-6cdc-4ef4-b664-cd753dea53c9",
+  "prompt": "Botanical flat-lay photograph seen from directly above: a dense cluster of Norway spruce twigs overlapping in a fan, thick bushy dark green needles densely covering each twig, filling most of the square frame, isolated on a pure flat white background, even soft overcast light, no cast shadow, scan quality, no text.",
+  "file": "source.png",
+  "sha256": "79957c74b32e617d963b9127f7369439aba27b3736fdf45d25e820d3672d372c",
+  "task": "R-1103/R-1101/R-1102",
+  "selected": false,
+  "rejection": "fills the frame as a square block: the card silhouette would read square"
+}

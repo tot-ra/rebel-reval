@@ -1,0 +1,105 @@
+{
+  "type": "dialogue",
+  "id": "dialogue.merchant.iron_shipment",
+  "title": "Iron shipment merchant",
+  "confidence": "invented",
+  "canon_status": "active",
+  "approval": {
+    "status": "approved",
+    "reviewer": "P4-033"
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "explicit_node_id",
+    "notes": "Merchant quotes change when the north-quarter iron convoy is delivered or disrupted."
+  },
+  "participants": [
+    "char.kalev",
+    "char.merchant_stall"
+  ],
+  "start_node_id": "merchant_waiting_opening",
+  "entry_variants": [
+    {
+      "node_id": "merchant_delivered_opening",
+      "priority": 30,
+      "conditions": [
+        {
+          "op": "quest_state_is",
+          "key": "quest.iron_shipment",
+          "value": "delivered"
+        }
+      ]
+    },
+    {
+      "node_id": "merchant_disrupted_opening",
+      "priority": 25,
+      "conditions": [
+        {
+          "op": "quest_state_is",
+          "key": "quest.iron_shipment",
+          "value": "disrupted"
+        }
+      ]
+    }
+  ],
+  "word_count_estimate": 72,
+  "nodes": [
+    {
+      "id": "merchant_waiting_opening",
+      "speaker_id": "char.merchant_stall",
+      "text": "The north-quarter porter is still on the road. Until those bars reach Mart's lane I cannot quote iron for the gate stalls.",
+      "choices": [
+        {
+          "id": "acknowledge",
+          "text": "I will watch the lane.",
+          "target_node_id": "merchant_close"
+        }
+      ]
+    },
+    {
+      "id": "merchant_delivered_opening",
+      "speaker_id": "char.merchant_stall",
+      "text": "The convoy made it through. Iron is {trade_price:trade.iron} and bread stays {trade_price:trade.bread} while the bars are in stock.",
+      "choices": [
+        {
+          "id": "steady",
+          "text": "Good - keep the lane clear.",
+          "target_node_id": "merchant_close"
+        }
+      ]
+    },
+    {
+      "id": "merchant_disrupted_opening",
+      "speaker_id": "char.merchant_stall",
+      "text": "No bars today. With the convoy turned back, iron is {trade_price:trade.iron} and I am rationing every nail.",
+      "choices": [
+        {
+          "id": "shortage",
+          "text": "The lane will stay empty then.",
+          "target_node_id": "merchant_close"
+        }
+      ],
+      "effects": [
+        {
+          "op": "set_fact",
+          "key": "fact.supply.iron_shortage_noted",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "merchant_close",
+      "speaker_id": "char.merchant_stall",
+      "text": "Come back when the road is settled.",
+      "choices": []
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "P4-033 merchant quotes branch on quest.iron_shipment delivered vs disrupted states."
+    }
+  ]
+}

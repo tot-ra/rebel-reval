@@ -1,0 +1,55 @@
+{
+  "type": "world_object",
+  "id": "obj.crucifix_wall",
+  "name": "Wall crucifix",
+  "description": "A small plain carved wooden crucifix, worn at the edges, without gilding or elaborate ornament. Planned household object; not yet a runtime model.",
+  "category": "household",
+  "handling": "fixed",
+  "tags": [
+    "household",
+    "faith"
+  ],
+  "physical": {
+    "mass_kg": 0.5,
+    "size_m": [
+      0.16,
+      0.27,
+      0.035
+    ],
+    "materials": [
+      "wood"
+    ]
+  },
+  "actions": [
+    "inspect",
+    "use"
+  ],
+  "economy": {
+    "base_pfennigs": 12,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 0
+  },
+  "placement": {
+    "mount": "wall",
+    "spaces": [
+      "home_poor",
+      "home_burgher",
+      "home_noble"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "missing"
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.crucifix_wall.png",
+    "icon": "res://assets/objects/icons/obj.crucifix_wall.png",
+    "icon_status": "missing",
+    "look": "A small plain carved wooden crucifix, worn at the edges, without gilding or elaborate ornament.",
+    "image_prompt": "Wall crucifix: A small plain carved wooden crucifix, worn at the edges, without gilding or elaborate ornament."
+  },
+  "lifecycle": "planned",
+  "confidence": "plausible composite",
+  "notes": "HOMEOBJ-1 (R-1367): mass, dimensions and pfennigs are gameplay authoring estimates, not measured geometry or attested prices. No model or icon exists yet."
+}

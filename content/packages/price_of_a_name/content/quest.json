@@ -1,0 +1,243 @@
+{
+  "type": "quest",
+  "id": "quest.price_of_a_name",
+  "title": "The Price of a Name",
+  "summary": "Investigate a rebel dispatch naming Mart, forge detention-cart shackles and a brass name-plate, and decide whether the apprentice is cleared, redirected onto false evidence, or concealed through a hidden release.",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-005",
+    "notes": "Approved branch map and state table; playable cycle owned by P4-006."
+  },
+  "entry_conditions": [],
+  "initial_state": "investigating",
+  "states": [
+    {
+      "id": "investigating",
+      "label": "Inspecting north-quarter harbor evidence"
+    },
+    {
+      "id": "investigation_ready",
+      "label": "Ready to forge detention hardware"
+    },
+    {
+      "id": "aftermath_cleared",
+      "label": "Mart's name cleared",
+      "terminal": true
+    },
+    {
+      "id": "aftermath_redirected",
+      "label": "Mart's name redirected",
+      "terminal": true
+    },
+    {
+      "id": "aftermath_concealed",
+      "label": "Mart's name concealed",
+      "terminal": true
+    }
+  ],
+  "transitions": [
+    {
+      "id": "complete_investigation",
+      "from_state": "investigating",
+      "to_state": "investigation_ready",
+      "effects": []
+    },
+    {
+      "id": "commit_honest_forge",
+      "from_state": "investigation_ready",
+      "to_state": "aftermath_cleared",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.price_of_a_name_honest_work",
+          "value": true
+        },
+        {
+          "op": "set_flag",
+          "key": "flag.mart.name_cleared",
+          "value": true
+        },
+        {
+          "op": "set_location_state",
+          "key": "loc.north_quarter.merchant_court",
+          "value": "detention_fair"
+        },
+        {
+          "op": "record_faction_event",
+          "key": "ledger.price_of_a_name.name_cleared",
+          "value": "faction.livonian_order",
+          "amount": 1,
+          "summary": "Forged honest detention name-plates and testified at the St. Olaf guild hearing."
+        },
+        {
+          "op": "record_memory",
+          "key": "memory.mart.name_defended"
+        }
+      ]
+    },
+    {
+      "id": "commit_defect_forge",
+      "from_state": "investigation_ready",
+      "to_state": "aftermath_redirected",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.price_of_a_name_subtle_defect",
+          "value": true
+        },
+        {
+          "op": "set_flag",
+          "key": "flag.price_of_a_name_falsification_risk",
+          "value": true
+        },
+        {
+          "op": "set_flag",
+          "key": "flag.mart.name_redirected",
+          "value": true
+        },
+        {
+          "op": "set_location_state",
+          "key": "loc.north_quarter.merchant_court",
+          "value": "detention_redirected"
+        },
+        {
+          "op": "record_faction_event",
+          "key": "ledger.price_of_a_name.false_clerk",
+          "value": "faction.black_cloaks",
+          "amount": 1,
+          "summary": "Forged a false name-plate implicating a dead Novgorod clerk in the harbor round-up."
+        }
+      ]
+    },
+    {
+      "id": "commit_release_forge",
+      "from_state": "investigation_ready",
+      "to_state": "aftermath_concealed",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.price_of_a_name_secret_feature",
+          "value": true
+        },
+        {
+          "op": "set_flag",
+          "key": "flag.mart.name_concealed",
+          "value": true
+        },
+        {
+          "op": "set_flag",
+          "key": "flag.mart_detention_release",
+          "value": true
+        },
+        {
+          "op": "set_location_state",
+          "key": "loc.north_quarter.merchant_court",
+          "value": "detention_concealed"
+        },
+        {
+          "op": "record_faction_event",
+          "key": "ledger.price_of_a_name.name_concealed",
+          "value": "faction.harju_kings",
+          "amount": 1,
+          "summary": "Forged a concealed shackle release and swapped the detention name-plate to protect Mart."
+        },
+        {
+          "op": "record_memory",
+          "key": "memory.kaja.name_plate_swapped"
+        }
+      ]
+    }
+  ],
+  "objectives": [
+    {
+      "id": "inspect_harbor",
+      "text": "Inspect the watch tower log, salt warehouse, packhouse lane, and ropewalk route.",
+      "state_id": "investigating"
+    },
+    {
+      "id": "forge_detention_hardware",
+      "text": "Forge detention-cart shackles and a brass name-plate before the coastal transfer.",
+      "state_id": "investigation_ready"
+    }
+  ],
+  "journal_evidence": [
+    {
+      "fact_id": "fact.price_of_a_name.dispatch_name",
+      "text": "A seized rebel dispatch lists Mart as a Pikk Street harbor contact."
+    },
+    {
+      "fact_id": "fact.price_of_a_name.salt_warehouse_drop",
+      "text": "Kaja's wax-sealed dispatches hide between salt barrels in the north-quarter warehouses."
+    },
+    {
+      "fact_id": "fact.price_of_a_name.packhouse_spears",
+      "text": "Smuggled spearheads travel in empty barrel returns along packhouse lane."
+    },
+    {
+      "fact_id": "fact.price_of_a_name.ropewalk_route",
+      "text": "Henning's rope requisition ties the detention cart route to watch boats at the Coastal Gate."
+    }
+  ],
+  "outcomes": [
+    {
+      "id": "cleared",
+      "summary": "Honest name-plates clear Mart at the guild hearing and bias the next Hingepuu reflection toward Duty.",
+      "effects": [
+        {
+          "op": "set_quest_state",
+          "key": "quest.price_of_a_name",
+          "value": "aftermath_cleared"
+        }
+      ]
+    },
+    {
+      "id": "redirected",
+      "summary": "False clerk evidence redirects the round-up and biases the next Hingepuu reflection toward Fury.",
+      "effects": [
+        {
+          "op": "set_quest_state",
+          "key": "quest.price_of_a_name",
+          "value": "aftermath_redirected"
+        }
+      ]
+    },
+    {
+      "id": "concealed",
+      "summary": "A swapped plate and concealed release protect Mart and bias the next Hingepuu reflection toward Mercy.",
+      "effects": [
+        {
+          "op": "set_quest_state",
+          "key": "quest.price_of_a_name",
+          "value": "aftermath_concealed"
+        }
+      ]
+    }
+  ],
+  "content_links": {
+    "character_ids": [
+      "char.mart",
+      "char.kaja",
+      "char.henning"
+    ],
+    "location_ids": [
+      "loc.north_quarter.merchant_court",
+      "loc.kalev_smithy"
+    ],
+    "commission_ids": [
+      "commission.price_of_a_name"
+    ]
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "P4-005 design contract reusing relationships, detention, false evidence, and Hingepuu reflection hooks.",
+      "citations": [
+        "docs/SCENES/the-price-of-a-name.md",
+        "docs/SCENES/the-price-of-a-name-branch-map.md",
+        "content/packages/price_of_a_name/branch_map.json"
+      ]
+    }
+  ]
+}

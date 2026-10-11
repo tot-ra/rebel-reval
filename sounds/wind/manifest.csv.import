@@ -1,0 +1,19 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://cbpsr4n85m14j"
+
+[deps]
+
+files=["res://sounds/wind/manifest.title.translation", "res://sounds/wind/manifest.author.translation", "res://sounds/wind/manifest.license.translation", "res://sounds/wind/manifest.page.translation", "res://sounds/wind/manifest.file.translation", "res://sounds/wind/manifest.notes.translation"]
+
+source_file="res://sounds/wind/manifest.csv"
+dest_files=["res://sounds/wind/manifest.title.translation", "res://sounds/wind/manifest.author.translation", "res://sounds/wind/manifest.license.translation", "res://sounds/wind/manifest.page.translation", "res://sounds/wind/manifest.file.translation", "res://sounds/wind/manifest.notes.translation"]
+
+[params]
+
+compress=1
+delimiter=0
+unescape_keys=false
+unescape_translations=true

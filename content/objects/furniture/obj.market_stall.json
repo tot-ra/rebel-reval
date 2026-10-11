@@ -1,0 +1,64 @@
+{
+  "type": "world_object",
+  "id": "obj.market_stall",
+  "name": "Market stall",
+  "description": "A canvas-roofed stall frame where goods (fish, cloth, grain, pottery) are sold on market days.",
+  "category": "furniture",
+  "handling": "fixed",
+  "tags": [
+    "market",
+    "stall",
+    "vendor"
+  ],
+  "physical": {
+    "mass_kg": 150,
+    "size_m": [
+      2.06,
+      1.95,
+      1.57
+    ],
+    "materials": [
+      "wood",
+      "linen_cloth"
+    ],
+    "flammable": true
+  },
+  "actions": [
+    "inspect"
+  ],
+  "economy": {
+    "base_pfennigs": 0,
+    "ownership": "merchant",
+    "legality": "legal",
+    "theft_severity": 0
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "market"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/market/market_stall.glb",
+    "prop_kind": "stall",
+    "measured_size_m": [
+      2.06,
+      1.95,
+      1.57
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.market_stall.png",
+    "icon": "res://assets/objects/icons/obj.market_stall.png",
+    "icon_status": "missing",
+    "look": "Open timber frame with a striped canvas awning and a plank counter.",
+    "image_prompt": "Market stall: Open timber frame with a striped canvas awning and a plank counter."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "uses": [
+    "sell and buy goods"
+  ]
+}

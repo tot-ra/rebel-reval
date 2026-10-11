@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "household_needs.schema.json",
+  "title": "Closed household needs vocabulary (HOMEOBJ-1)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "needs"],
+  "properties": {
+    "version": {"const": 1},
+    "needs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sleep", "eat", "drink", "wash", "warmth", "light", "cook", "clothe", "store", "work", "faith", "safety", "money", "child"],
+      "properties": {
+        "sleep": {"$ref": "household_needs.schema.json#/$defs/tiers"},
+        "eat": {"$ref": "household_needs.schema.json#/$defs/tiers"},
+        "drink": {"$ref": "household_needs.schema.json#/$defs/tiers"},
+        "wash": {"$ref": "household_needs.schema.json#/$defs/tiers"},
+        "warmth": {"$ref": "household_needs.schema.json#/$defs/tiers"},
+        "light": {"$ref": "household_needs.schema.json#/$defs/tiers"},
+        "cook": {"$ref": "household_needs.schema.json#/$defs/tiers"},
+        "clothe": {"$ref": "household_needs.schema.json#/$defs/tiers"},
+        "store": {"$ref": "household_needs.schema.json#/$defs/tiers"},
+        "work": {"$ref": "household_needs.schema.json#/$defs/tiers"},
+        "faith": {"$ref": "household_needs.schema.json#/$defs/tiers"},
+        "safety": {"$ref": "household_needs.schema.json#/$defs/tiers"},
+        "money": {"$ref": "household_needs.schema.json#/$defs/tiers"},
+        "child": {"$ref": "household_needs.schema.json#/$defs/tiers"}
+      }
+    }
+  },
+  "$defs": {
+    "tiers": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["poor", "mid", "rich"],
+      "properties": {
+        "poor": {"$ref": "household_needs.schema.json#/$defs/objects"},
+        "mid": {"$ref": "household_needs.schema.json#/$defs/objects"},
+        "rich": {"$ref": "household_needs.schema.json#/$defs/objects"}
+      }
+    },
+    "objects": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "count_per_resident"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^obj\\.[a-z][a-z0-9_]*$"},
+          "count_per_resident": {"type": "number", "exclusiveMinimum": 0, "maximum": 10}
+        }
+      }
+    }
+  }
+}

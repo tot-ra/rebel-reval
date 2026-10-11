@@ -1,0 +1,19 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://4lpd6wlrwi0u"
+
+[deps]
+
+files=["res://sounds/birds/manifest.scientific.translation", "res://sounds/birds/manifest.xc.translation", "res://sounds/birds/manifest.recordist.translation", "res://sounds/birds/manifest.license.translation", "res://sounds/birds/manifest.page.translation", "res://sounds/birds/manifest.length.translation", "res://sounds/birds/manifest.quality.translation", "res://sounds/birds/manifest.country.translation", "res://sounds/birds/manifest.file.translation"]
+
+source_file="res://sounds/birds/manifest.csv"
+dest_files=["res://sounds/birds/manifest.scientific.translation", "res://sounds/birds/manifest.xc.translation", "res://sounds/birds/manifest.recordist.translation", "res://sounds/birds/manifest.license.translation", "res://sounds/birds/manifest.page.translation", "res://sounds/birds/manifest.length.translation", "res://sounds/birds/manifest.quality.translation", "res://sounds/birds/manifest.country.translation", "res://sounds/birds/manifest.file.translation"]
+
+[params]
+
+compress=1
+delimiter=0
+unescape_keys=false
+unescape_translations=true

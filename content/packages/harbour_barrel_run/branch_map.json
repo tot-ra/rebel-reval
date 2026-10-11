@@ -1,0 +1,59 @@
+{
+  "quest_id": "quest.harbour_barrel_run",
+  "branches": [
+    {
+      "id": "deliver_before_curfew",
+      "transitions": [
+        "negotiate_carter_hire",
+        "deliver_before_curfew"
+      ],
+      "setup": {
+        "flag.harbour_barrel_run.carter_hire_negotiated": true,
+        "flag.harbour_barrel_run.delivered_before_curfew": true
+      },
+      "require_flags": {},
+      "expect": {
+        "quest_state": "delivered",
+        "flags": {
+          "flag.harbour_barrel_run.hire_agreed": true,
+          "flag.harbour_barrel_run.forge_stock_delivered": true
+        }
+      }
+    },
+    {
+      "id": "curfew_before_hire",
+      "transitions": [
+        "miss_curfew"
+      ],
+      "setup": {
+        "flag.harbour_barrel_run.curfew_missed": true
+      },
+      "require_flags": {},
+      "expect": {
+        "quest_state": "curfew_failed",
+        "flags": {
+          "flag.harbour_barrel_run.curfew_failed": true
+        }
+      }
+    },
+    {
+      "id": "curfew_after_hire",
+      "transitions": [
+        "negotiate_carter_hire",
+        "miss_curfew_after_hire"
+      ],
+      "setup": {
+        "flag.harbour_barrel_run.carter_hire_negotiated": true,
+        "flag.harbour_barrel_run.curfew_missed": true
+      },
+      "require_flags": {},
+      "expect": {
+        "quest_state": "curfew_failed",
+        "flags": {
+          "flag.harbour_barrel_run.hire_agreed": true,
+          "flag.harbour_barrel_run.curfew_failed": true
+        }
+      }
+    }
+  ]
+}

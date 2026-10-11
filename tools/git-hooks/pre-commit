@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# Repository-owned pre-commit entrypoint. Installed into .git/hooks/pre-commit by
+# tools/install_git_hooks.sh so Git LFS post-* / pre-push hooks stay untouched.
+set -euo pipefail
+
+ROOT_DIR="$(git rev-parse --show-toplevel)"
+exec "$ROOT_DIR/tools/run_pre_commit_checks.sh" staged

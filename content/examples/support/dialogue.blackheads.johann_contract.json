@@ -1,0 +1,63 @@
+{
+  "type": "dialogue",
+  "id": "dialogue.blackheads.johann_contract",
+  "title": "Johann's harbour contract",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-046",
+    "notes": "P4-046 support dialogue; the candidate event remains outside the eight-faction launch journal."
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "explicit_node_id",
+    "notes": "One authored choice records the Johann Blackheads candidate hook."
+  },
+  "participants": [
+    "char.kalev",
+    "char.johann_von_minden"
+  ],
+  "start_node_id": "johann_opening",
+  "word_count_estimate": 49,
+  "nodes": [
+    {
+      "id": "johann_opening",
+      "speaker_id": "char.johann_von_minden",
+      "text": "Master smith, this harbour contract can put iron on your bench before the watch notices the shortage. I can make the introduction, but not the consequences disappear.",
+      "choices": [
+        {
+          "id": "name_the_cost",
+          "text": "Name the cost plainly.",
+          "target_node_id": "johann_close",
+          "effects": [
+            {
+              "op": "record_faction_event",
+              "key": "ledger.blackheads.johann_contract_favour",
+              "value": "faction.blackheads",
+              "amount": 1,
+              "summary": "Johann von Minden secured a favourable harbour contract for Kalev's forge."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "johann_close",
+      "speaker_id": "char.johann_von_minden",
+      "text": "Then we write the weight plainly. A favourable contract is still a debt."
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "P4-046 example dialogue for the P4-045 Johann candidate event.",
+      "citations": [
+        "docs/CHARACTERS/johann_von_minden.md",
+        "docs/data/faction_blackheads_candidate.json"
+      ]
+    }
+  ]
+}

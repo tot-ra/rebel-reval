@@ -1,0 +1,1165 @@
+extends "res://tests/godot/test_case.gd"
+
+const SkyWeather := preload("res://scripts/map/view3d/sky_weather_3d.gd")
+const SkyWeatherState := preload("res://scripts/map/view3d/sky_weather_state.gd")
+const AtmosphereLut := preload("res://scripts/map/view3d/sky_atmosphere_lut.gd")
+const Lighting := preload("res://scripts/map/view3d/map_view_lighting.gd")
+const WaterMaterials := preload("res://scripts/map/view3d/map_view_water_materials.gd")
+const AtmosphereCpu := preload("res://scripts/map/view3d/atmosphere_cpu.gd")
+const CloudCellsScript := preload("res://scripts/map/view3d/cloud_cells.gd")
+
+# gdlint: disable=max-line-length
+
+func test_starts_clear_with_full_lighting() -> void:
+	var sky = SkyWeather.new()
+	assert_eq(sky.weather, SkyWeather.WEATHER_CLEAR, "the cycle must open on clear weather")
+	var modifiers: Dictionary = sky.lighting_modifiers()
+	assert_eq(modifiers["sun_energy"], 1.0, "clear noon must not dim the authored sun")
+	assert_eq(modifiers["ambient_energy"], 1.0, "clear noon must not dim the authored ambient")
+	assert_eq(sky.rain_intensity(), 0.0, "clear weather must not rain")
+	assert_true(sky.wind_strength() > 0.0 and sky.wind_strength() < 0.4, "clear weather keeps a light harbor breeze")
+	assert_true(sky.wind_direction_xz().length() > 0.9, "wind direction must stay unit-length")
+	sky.free()
+
+
+func test_weather_sequence_is_deterministic() -> void:
+	var first = SkyWeather.new()
+	var second = SkyWeather.new()
+	var first_sequence: Array[StringName] = []
+	var second_sequence: Array[StringName] = []
+	for step in 600:
+		first.advance(1.0)
+		second.advance(1.0)
+		first_sequence.append(first.weather)
+		second_sequence.append(second.weather)
+	assert_eq(first_sequence, second_sequence, "the fixed seed must reproduce the same weather run")
+	assert_array_contains(first_sequence, SkyWeather.WEATHER_CLOUDY, "clouds must roll in within ten in-game days")
+	assert_array_contains(first_sequence, SkyWeather.WEATHER_RAIN, "rain must be reachable, and frequent enough to catch in a short run")
+	first.free()
+	second.free()
+
+
+func test_fallback_sun_reflection_is_normalized_at_noon_and_sunset() -> void:
+	# The physical atmosphere usually overwrites this colour, so force missing LUTs to
+	# exercise the gradient-water fallback that previously produced a white sheet.
+	assert_false(AtmosphereCpu.load_luts("res://missing/transmittance.exr", AtmosphereCpu.MULTISCATTER_PATH))
+	var sky := SkyWeather.new()
+	sky.auto_weather = false
+	for factor: float in [0.0, 0.5, 1.0]:
+		sky.sunset_factor = factor
+		var presentation := sky.presentation_snapshot(0.5, 1.0)
+		var color: Color = presentation.sun_reflection_color
+		var expected := Color8(255, 243, 222).lerp(Color8(255, 148, 64), presentation.sunset_tint)
+		assert_false(presentation.atmosphere_available, "missing LUTs must use fallback water colour")
+		assert_true(color.is_equal_approx(expected), "fallback water sun tint must use normalized RGB")
+		assert_true(
+			is_finite(color.r) and is_finite(color.g) and is_finite(color.b)
+			and color.r >= 0.0 and color.r <= 1.0
+			and color.g >= 0.0 and color.g <= 1.0
+			and color.b >= 0.0 and color.b <= 1.0,
+			"fallback sun reflection must stay within the shader's 0..1 range"
+		)
+	sky.free()
+	assert_true(AtmosphereCpu.load_luts(), "restore the real LUTs for subsequent tests")
+
+
+func test_snapshot_json_round_trip_preserves_full_state() -> void:
+	var source := SkyWeather.new()
+	source.auto_weather = false
+	source.set_calendar_date({"day": 23, "month": 4, "year": 1343})
+	source.set_weather(SkyWeather.WEATHER_RAIN)
+	source.advance(SkyWeather.TRANSITION_SECONDS * 0.4)
+	var expected = source.snapshot_state(0.75, 3)
+	var payload: Variant = JSON.parse_string(JSON.stringify(expected.to_dict()))
+	var target := SkyWeather.new()
+	assert_true(target.restore_state(payload), "JSON snapshots must restore into a new presenter")
+	assert_eq(
+		target.snapshot_state(0.75, 3).to_dict(),
+		expected.to_dict(),
+		"JSON round-trip must preserve all weather continuity inputs"
+	)
+	source.free()
+	target.free()
+
+
+func test_snapshot_restore_continues_deterministically() -> void:
+	var source := SkyWeather.new()
+	source.advance(37.0)
+	var snapshot = source.snapshot_state(0.5, 1)
+	var target := SkyWeather.new()
+	assert_true(target.restore_state(snapshot), "a typed snapshot must restore")
+	for step in 20:
+		source.advance(0.25)
+		target.advance(0.25)
+		assert_eq(
+			target.snapshot_state(0.5, 1).to_dict(),
+			source.snapshot_state(0.5, 1).to_dict(),
+			"restored weather must produce the same next simulation step"
+		)
+	source.free()
+	target.free()
+
+
+func test_malformed_snapshot_falls_back_without_mutating_presenter() -> void:
+	var sky := SkyWeather.new()
+	var before = sky.snapshot_state().to_dict()
+	assert_false(sky.restore_state("not a snapshot"), "non-dictionary snapshots must be rejected")
+	assert_eq(sky.snapshot_state().to_dict(), before, "rejection must leave the presenter untouched")
+	var future := {"schema_version": SkyWeatherState.CURRENT_VERSION + 1, "weather": "clear"}
+	assert_false(sky.restore_state(future), "future snapshots must be rejected")
+	assert_eq(
+		sky.snapshot_state().to_dict(), before,
+		"future rejection must leave the presenter untouched"
+	)
+	var old_snapshot := {"weather": "cloudy"}
+	assert_true(
+		sky.restore_state(old_snapshot),
+		"older snapshots with omitted fields must use defaults"
+	)
+	assert_eq(sky.weather, SkyWeather.WEATHER_CLOUDY, "legacy weather mode must remain recoverable")
+	sky.free()
+
+
+
+
+func test_puddles_form_only_after_rain_and_dry_afterward() -> void:
+	var sky = SkyWeather.new()
+	sky.auto_weather = false
+	# Puddles evaporate at full speed only in warm weather (ADR 0045).
+	sky.set_calendar_date({"day": 15, "month": 7, "year": 1343})
+	assert_eq(sky.puddle_wetness(), 0.0, "a fresh weather cycle must start with dry ground")
+	sky.advance(120.0)
+	assert_eq(sky.puddle_wetness(), 0.0, "clear weather must not create puddles")
+
+	sky.set_weather(SkyWeather.WEATHER_RAIN)
+	sky.advance(SkyWeather.TRANSITION_SECONDS + 1.0)
+	assert_true(sky.puddle_wetness() > 0.0, "rain that reaches the ground must create puddles")
+
+	sky.set_weather(SkyWeather.WEATHER_CLEAR)
+	sky.advance(SkyWeather.TRANSITION_SECONDS)
+	assert_true(sky.puddle_wetness() > 0.0, "puddles must persist through the rain-to-clear transition")
+	sky.advance(1.0 / SkyWeather.PUDDLE_DRY_PER_SECOND + 1.0)
+	assert_eq(sky.puddle_wetness(), 0.0, "puddles must eventually dry in clear weather")
+	sky.free()
+
+
+func test_enclosed_shell_hides_falling_rain() -> void:
+	var sky = SkyWeather.new()
+	sky.auto_weather = false
+	sky.set_weather(SkyWeather.WEATHER_RAIN)
+	sky.advance(SkyWeather.TRANSITION_SECONDS + 1.0)
+	assert_eq(sky.rain_intensity(), 1.0, "precondition: the rain profile is fully in")
+	assert_true(sky.rain_emitter_visible(), "rain must fall outdoors during a rain state")
+	sky.rain_suppressed = true
+	assert_false(sky.rain_emitter_visible(), "a roofed interior must not rain indoors")
+	assert_eq(sky.rain_intensity(), 1.0, "suppression hides the emitter only; the weather field is unchanged")
+	sky.free()
+
+
+func test_configured_sky_roof_audio_follows_suppression() -> void:
+	var tree := Engine.get_main_loop() as SceneTree
+	var sky = SkyWeather.new()
+	tree.root.add_child(sky)
+	var camera := Camera3D.new()
+	sky.add_child(camera)
+	sky.configure(camera, Environment.new())
+	sky.auto_weather = false
+	sky.set_weather(SkyWeather.WEATHER_RAIN)
+	sky.advance(SkyWeather.TRANSITION_SECONDS + 1.0)
+	sky.rain_suppressed = false
+	sky.advance(0.1)
+	assert_false(sky.roof_audio_active(), "outdoor rain must not arm the roof bed")
+	sky.rain_suppressed = true
+	sky.advance(0.1)
+	assert_true(sky.roof_audio_active(), "a roofed interior during rain must arm the roof bed")
+	sky.set_roof_audio_enabled(false)
+	sky.advance(0.1)
+	assert_false(sky.roof_audio_active(), "muting roof audio must leave weather intensity unchanged")
+	assert_eq(sky.rain_intensity(), 1.0, "audio mute must not alter rain intensity")
+	sky.queue_free()
+
+
+func test_transition_blends_toward_rain_profile() -> void:
+	var sky = SkyWeather.new()
+	sky.auto_weather = false
+	sky.set_weather(SkyWeather.WEATHER_RAIN)
+	sky.advance(SkyWeather.TRANSITION_SECONDS * 0.5)
+	var mid := sky.rain_intensity()
+	assert_true(mid > 0.0 and mid < 1.0, "rain must fade in through the transition, not snap")
+	sky.advance(SkyWeather.TRANSITION_SECONDS)
+	assert_eq(sky.rain_intensity(), 1.0, "the completed transition must reach the full rain profile")
+	assert_true(sky.wind_strength() > 0.8, "storm wind must rise with the rain profile")
+	var modifiers: Dictionary = sky.lighting_modifiers()
+	assert_true(modifiers["sun_energy"] < 0.5, "storm light must be visibly dimmer than clear light")
+	assert_true(modifiers["overcast"] > 0.5, "storm light must desaturate toward overcast gray")
+	sky.free()
+
+
+func test_presentation_snapshot_keeps_wet_surface_and_water_inputs_together() -> void:
+	var sky := SkyWeather.new()
+	sky.auto_weather = false
+	sky.set_weather(SkyWeather.WEATHER_RAIN)
+	sky.advance(SkyWeather.TRANSITION_SECONDS * 0.5)
+	var presentation := sky.presentation_snapshot(0.25, 0.5)
+	assert_eq(presentation.weather, SkyWeather.WEATHER_RAIN, "snapshot must identify the active regime")
+	assert_true(
+		is_equal_approx(presentation.rain_intensity, sky.rain_intensity()),
+		"water rain input must come from the same transition sample"
+	)
+	assert_true(
+		is_equal_approx(presentation.puddle_wetness, sky.puddle_wetness()),
+		"wet ground must use the same retained water sample"
+	)
+	assert_true(
+		is_equal_approx(presentation.wind_strength, sky.wind_strength()),
+		"wind must use the same gust/profile sample as water"
+	)
+	assert_true(
+		presentation.wind_direction.length() > 0.99,
+		"water and world wind need a normalized shared direction"
+	)
+	assert_true(
+		is_equal_approx(presentation.tide_level, SkyWeather.tide_level(0.25, sky.calendar_date)),
+		"water tide input must use the same campaign date and cycle"
+	)
+	sky.free()
+
+
+func test_presentation_snapshot_drives_lighting_and_fog_without_re_sampling_weather() -> void:
+	var sky := SkyWeather.new()
+	sky.auto_weather = false
+	var fog_date := {"day": 18, "month": 1, "year": 1343}
+	sky.set_calendar_date(fog_date)
+	var sunrise := float(SkyWeather.sunrise_sunset_hours(fog_date)["sunrise"])
+	var progress := sunrise / 24.0
+	var day_blend := SkyWeather.daylight_blend(progress, fog_date)
+	var presentation := sky.presentation_snapshot(progress, day_blend)
+	assert_true(presentation.sunrise_hour == sunrise, "snapshot must carry the shared sunrise input")
+	assert_true(
+		is_equal_approx(presentation.fog_potential, SkyWeather.morning_fog_potential(fog_date)),
+		"fog must use the snapshot's seasonal potential"
+	)
+	assert_true(
+		is_equal_approx(presentation.lunar_light_strength, SkyWeather.moonlight_strength(progress, fog_date)),
+		"lighting must use the snapshot's lunar input"
+	)
+
+	var environment := Environment.new()
+	Lighting.apply_ground_mist(environment, presentation, false)
+	assert_true(environment.fog_enabled, "a fog-prone sunrise snapshot must enable ground mist")
+	var snapshot_density := environment.fog_density
+	sky.set_weather(SkyWeather.WEATHER_RAIN)
+	sky.advance(SkyWeather.TRANSITION_SECONDS)
+	Lighting.apply_ground_mist(environment, presentation, false)
+	assert_true(
+		is_equal_approx(environment.fog_density, snapshot_density),
+		"fog must stay on the captured frame sample after weather changes"
+	)
+
+
+
+func test_weather_transition_does_not_reset_frame_exposure_or_morning_fog() -> void:
+	var tree := Engine.get_main_loop() as SceneTree
+	var sky := SkyWeather.new()
+	tree.root.add_child(sky)
+	sky.auto_weather = false
+	var fog_date := {"day": 18, "month": 1, "year": 1343}
+	sky.set_calendar_date(fog_date)
+	var progress := float(SkyWeather.sunrise_sunset_hours(fog_date)["sunrise"]) / 24.0
+	var sun := DirectionalLight3D.new()
+	var camera := Camera3D.new()
+	var environment := Environment.new()
+	sky.add_child(camera)
+	sky.configure(camera, environment)
+	Lighting.configure_post_process(environment)
+	Lighting.apply_cycle_progress(progress, sun, environment, sky, false)
+	assert_true(environment.fog_enabled, "the fog-prone sunrise fixture must start with visible mist")
+	var initial_exposure := environment.tonemap_exposure
+	var initial_fog_density := environment.fog_density
+
+	sky.set_weather(SkyWeather.WEATHER_RAIN)
+	sky.advance(0.1)
+	Lighting.apply_cycle_progress(progress, sun, environment, sky, false)
+	assert_true(
+		is_equal_approx(environment.tonemap_exposure, initial_exposure),
+		"a weather transition must not reset exposure for the current day-cycle frame"
+	)
+	assert_true(environment.fog_enabled, "a weather transition must not disable morning fog for one frame")
+	assert_true(environment.fog_density > 0.0, "a weather transition must not reset fog density to zero")
+	assert_true(
+		absf(environment.fog_density - initial_fog_density) < initial_fog_density * 0.2,
+		"one weather frame must change fog smoothly instead of resetting its density"
+	)
+	sun.free()
+	sky.free()
+
+
+func test_time_scale_freezes_and_accelerates_the_sky() -> void:
+	# _process applies time_scale, so a paused clock (scale 0) freezes cloud drift
+	# and the weather machine, while a higher scale advances the sky faster.
+	var frozen = SkyWeather.new()
+	frozen.time_scale = 0.0
+	var frozen_start := frozen.cloud_offset()
+	frozen._process(20.0)
+	assert_true(frozen.cloud_offset() == frozen_start, "time_scale 0 must hold the whole sky still")
+
+	var fast = SkyWeather.new()
+	fast.time_scale = 3.0
+	fast._process(1.0)
+	var normal = SkyWeather.new()
+	normal.time_scale = 1.0
+	normal._process(1.0)
+	assert_true(
+		fast.cloud_offset().length() > normal.cloud_offset().length() * 2.0,
+		"a higher time_scale must drift the clouds proportionally faster"
+	)
+	frozen.free()
+	fast.free()
+	normal.free()
+
+
+func test_manual_weather_holds_when_auto_disabled() -> void:
+	var sky = SkyWeather.new()
+	sky.auto_weather = false
+	sky.advance(10_000.0)
+	assert_eq(sky.weather, SkyWeather.WEATHER_CLEAR, "auto_weather=false must pin the current state")
+	sky.free()
+
+
+func test_rain_never_starts_from_a_clear_sky() -> void:
+	# Clouds must gather first, so rain is only ever entered through a cloudy or
+	# overcast deck — never straight off clear or a passing shower with no build-up.
+	var wet_predecessors: Array[StringName] = [SkyWeather.WEATHER_CLOUDY, SkyWeather.WEATHER_OVERCAST]
+	var sky = SkyWeather.new()
+	var previous: StringName = sky.weather
+	for step in 4_000:
+		sky.advance(1.0)
+		if sky.weather != previous:
+			if sky.weather == SkyWeather.WEATHER_RAIN:
+				assert_true(previous in wet_predecessors, "rain must be preceded by cloudy or overcast, not clear")
+			previous = sky.weather
+	sky.free()
+
+
+## R-1495: a fully clear sky is a real share of the weather (Tallinn, late spring:
+## roughly a fifth of the time under 20% cover), and never jumps straight to rain.
+func test_cloudless_sky_takes_a_realistic_share_of_time() -> void:
+	var sky = SkyWeather.new()
+	var seconds := {}
+	var previous: StringName = sky.weather
+	for step in 40_000:
+		sky.advance(1.0)
+		seconds[sky.weather] = int(seconds.get(sky.weather, 0)) + 1
+		if sky.weather != previous:
+			if previous == SkyWeather.WEATHER_CLOUDLESS:
+				assert_true(sky.weather in [SkyWeather.WEATHER_CLOUDLESS, SkyWeather.WEATHER_CLEAR],
+					"a blue sky only clouds over through fair cumulus")
+			previous = sky.weather
+	var cloudless := float(seconds.get(SkyWeather.WEATHER_CLOUDLESS, 0)) / 40_000.0
+	var fair := cloudless + float(seconds.get(SkyWeather.WEATHER_CLEAR, 0)) / 40_000.0
+	assert_true(cloudless > 0.1 and cloudless < 0.3, "cloudless share %.2f" % cloudless)
+	assert_true(fair > 0.38 and fair < 0.62, "clear-or-fair share %.2f" % fair)
+	sky.set_weather(SkyWeather.WEATHER_CLOUDLESS)
+	sky.auto_weather = false
+	sky.advance(SkyWeather.TRANSITION_SECONDS + 1.0)
+	assert_eq(sky.cloud_cells().max_weight(CloudCellsScript.KIND_CUMULUS), 0.0,
+		"a cloudless sky draws no cumulus")
+	assert_eq(sky.lighting_modifiers()["sun_energy"], 1.0, "a cloudless noon keeps full sun")
+	sky.free()
+
+
+func test_weather_reaches_every_regime() -> void:
+	# A short seeded run must be able to show all five regimes so the player can
+	# actually catch clear, cloudy, overcast, widespread rain, and isolated storms.
+	var sky = SkyWeather.new()
+	var seen := {}
+	for step in 4_000:
+		sky.advance(1.0)
+		seen[sky.weather] = true
+	for regime in SkyWeather.ALL_WEATHERS:
+		assert_true(seen.has(regime), "the weather cycle must reach %s within a short run" % regime)
+	sky.free()
+
+
+func test_five_regime_transition_and_shelter_matrix() -> void:
+	# R-855: settle every public regime by API, not only by seeded reachability.
+	var sky = SkyWeather.new()
+	sky.auto_weather = false
+	var previous: StringName = SkyWeather.WEATHER_CLEAR
+	_assert_settled_regime(sky, previous)
+	_assert_shelter_preserves_outdoor_field(sky)
+	var sequence: Array[StringName] = [
+		SkyWeather.WEATHER_CLOUDY,
+		SkyWeather.WEATHER_OVERCAST,
+		SkyWeather.WEATHER_RAIN,
+		SkyWeather.WEATHER_STORM,
+		SkyWeather.WEATHER_CLEAR,
+	]
+	for regime in sequence:
+		sky.set_weather(regime)
+		sky.advance(SkyWeather.TRANSITION_SECONDS * 0.5)
+		_assert_transition_between(sky, previous, regime)
+		sky.advance(SkyWeather.TRANSITION_SECONDS)
+		_assert_settled_regime(sky, regime)
+		_assert_shelter_preserves_outdoor_field(sky)
+		previous = regime
+	sky.free()
+
+
+func _assert_settled_regime(sky: SkyWeather, regime: StringName) -> void:
+	var profile: Dictionary = SkyWeather.PROFILES[regime]
+	sky.settle_wind()
+	assert_eq(sky.weather, regime, "settled presenter must report %s" % regime)
+	assert_almost_eq(
+		sky.rain_intensity(), float(profile["rain"]), 0.001,
+		"%s rain intensity must match the authored profile" % regime
+	)
+	assert_almost_eq(
+		sky.cloud_coverage(), float(profile["coverage"]), 0.001,
+		"%s cloud coverage must match the authored profile" % regime
+	)
+	assert_almost_eq(
+		sky.storm_intensity(), float(profile["storm"]), 0.001,
+		"%s storm intensity must match the authored profile" % regime
+	)
+	assert_almost_eq(
+		sky.storm_locality(), float(profile["locality"]), 0.001,
+		"%s storm locality must match the authored profile" % regime
+	)
+	assert_almost_eq(
+		sky.wind_strength() - sky.wind_gust(), float(profile["wind"]), 0.001,
+		"%s sustained wind must match the profile under any transient gust" % regime
+	)
+	assert_true(
+		sky.wind_direction_xz().is_equal_approx(
+			SkyWeather.wind_direction_at(regime, 0.25, sky.wind_gust())
+		),
+		"%s wind direction must follow the weather heading at noon" % regime
+	)
+	var modifiers: Dictionary = sky.lighting_modifiers()
+	assert_almost_eq(
+		float(modifiers["sun_energy"]), float(profile["sun_energy"]), 0.001,
+		"%s sun energy must match the profile at noon" % regime
+	)
+	assert_almost_eq(
+		float(modifiers["ambient_energy"]), float(profile["ambient_energy"]), 0.001,
+		"%s ambient energy must match the profile at noon" % regime
+	)
+	assert_almost_eq(
+		float(modifiers["overcast"]), float(profile["gray"]), 0.001,
+		"%s lighting overcast must follow the profile gray term" % regime
+	)
+	var raining := float(profile["rain"]) > 0.02
+	assert_eq(
+		sky.rain_emitter_visible(), raining,
+		"%s outdoor rain emitter must follow the profile rain term" % regime
+	)
+	if regime == SkyWeather.WEATHER_STORM:
+		assert_true(sky.storm_locality() > 0.7, "storm must stay a localized cell")
+		assert_true(
+			sky.rain_intensity() > 0.0 and sky.rain_intensity() < 0.5,
+			"storm rain must stay a cell shower, not a full front"
+		)
+	elif regime == SkyWeather.WEATHER_RAIN:
+		assert_true(sky.storm_locality() < 0.3, "rain must stay a widespread front")
+		assert_eq(sky.rain_intensity(), 1.0, "rain must reach full intensity")
+	else:
+		assert_eq(sky.rain_intensity(), 0.0, "%s must stay dry" % regime)
+		assert_eq(float(profile["thunder"]), 0.0, "%s must not author thunder" % regime)
+
+
+func _assert_transition_between(
+	sky: SkyWeather, from_weather: StringName, to_weather: StringName
+) -> void:
+	assert_eq(sky.weather, to_weather, "set_weather must name the target during the blend")
+	var from_profile: Dictionary = SkyWeather.PROFILES[from_weather]
+	var to_profile: Dictionary = SkyWeather.PROFILES[to_weather]
+	var samples: Dictionary = {
+		"rain": sky.rain_intensity(),
+		"coverage": sky.cloud_coverage(),
+		"storm": sky.storm_intensity(),
+		"locality": sky.storm_locality(),
+		"sun_energy": float(sky.lighting_modifiers()["sun_energy"]),
+		"ambient_energy": float(sky.lighting_modifiers()["ambient_energy"]),
+		"gray": float(sky.lighting_modifiers()["overcast"]),
+	}
+	for key in samples.keys():
+		var actual := float(samples[key])
+		var start := float(from_profile[key])
+		var target := float(to_profile[key])
+		var lo := minf(start, target) - 0.001
+		var hi := maxf(start, target) + 0.001
+		assert_true(
+			actual >= lo and actual <= hi,
+			"%s -> %s %s must stay inside the blend range" % [from_weather, to_weather, key]
+		)
+		if absf(target - start) > 0.08:
+			assert_true(
+				actual > minf(start, target) + 0.01 and actual < maxf(start, target) - 0.01,
+				"%s -> %s %s must interpolate, not snap" % [from_weather, to_weather, key]
+			)
+	var blended_wind := lerpf(float(from_profile["wind"]), float(to_profile["wind"]), 0.5)
+	assert_true(
+		sky.wind_strength() + 0.001 >= blended_wind,
+		"%s -> %s wind must keep at least the blended profile under gusts" % [from_weather, to_weather]
+	)
+
+
+func _assert_shelter_preserves_outdoor_field(sky: SkyWeather) -> void:
+	var before_weather: StringName = sky.weather
+	var before_rain := sky.rain_intensity()
+	var before_wind := sky.wind_strength()
+	var before_gust := sky.wind_gust()
+	var before_cover := sky.cloud_coverage()
+	var before_storm := sky.storm_intensity()
+	var before_locality := sky.storm_locality()
+	var before_modifiers: Dictionary = sky.lighting_modifiers().duplicate()
+	var outdoor_visible := sky.rain_emitter_visible()
+	sky.rain_suppressed = true
+	assert_eq(sky.weather, before_weather, "shelter must not change the outdoor regime")
+	assert_almost_eq(sky.rain_intensity(), before_rain, 0.0001, "shelter must keep outdoor rain intensity")
+	assert_almost_eq(sky.wind_strength(), before_wind, 0.0001, "shelter must keep outdoor wind")
+	assert_almost_eq(sky.wind_gust(), before_gust, 0.0001, "shelter must keep the gust envelope")
+	assert_almost_eq(sky.cloud_coverage(), before_cover, 0.0001, "shelter must keep cloud cover")
+	assert_almost_eq(sky.storm_intensity(), before_storm, 0.0001, "shelter must keep storm intensity")
+	assert_almost_eq(sky.storm_locality(), before_locality, 0.0001, "shelter must keep storm locality")
+	var after_modifiers: Dictionary = sky.lighting_modifiers()
+	for key in before_modifiers.keys():
+		assert_almost_eq(
+			float(after_modifiers[key]), float(before_modifiers[key]), 0.0001,
+			"shelter must keep lighting modifier %s" % key
+		)
+	assert_false(sky.rain_emitter_visible(), "a roof must hide local rain presentation")
+	var presentation := sky.presentation_snapshot(0.25, 1.0)
+	assert_true(presentation.rain_suppressed, "the snapshot must record roof suppression")
+	assert_eq(presentation.weather, before_weather, "the snapshot weather must stay the outdoor regime")
+	assert_almost_eq(
+		presentation.rain_intensity, before_rain, 0.0001,
+		"the snapshot must keep outdoor rain intensity under a roof"
+	)
+	sky.rain_suppressed = false
+	assert_eq(
+		sky.rain_emitter_visible(), outdoor_visible,
+		"leaving shelter must restore the outdoor rain emitter"
+	)
+
+
+func test_isolated_storm_is_localized_while_rain_front_is_uniform() -> void:
+	var sky = SkyWeather.new()
+	sky.auto_weather = false
+	sky.set_weather(SkyWeather.WEATHER_STORM)
+	sky.advance(SkyWeather.TRANSITION_SECONDS)
+	assert_true(sky.storm_intensity() > 0.9, "an isolated storm still towers a heavy cell")
+	assert_true(sky.storm_locality() > 0.7, "an isolated storm must concentrate into a few cells")
+	assert_true(sky.cloud_coverage() < 0.6, "an isolated storm must leave open sky around the cell")
+	sky.set_weather(SkyWeather.WEATHER_RAIN)
+	sky.advance(SkyWeather.TRANSITION_SECONDS)
+	assert_true(sky.storm_locality() < 0.3, "a rain front must spread across the whole deck, not cluster")
+	assert_true(sky.cloud_coverage() > 0.85, "a rain front must cover the sky")
+	sky.free()
+
+
+func test_storms_throw_lightning_that_flashes_and_decays() -> void:
+	var sky = SkyWeather.new()
+	sky.auto_weather = false
+	assert_eq(sky.lightning_flash(), 0.0, "a clear sky must not flash")
+	sky.set_weather(SkyWeather.WEATHER_STORM)
+	sky.advance(SkyWeather.TRANSITION_SECONDS)
+	# Drive time until a strike fires, then confirm it flashes bright and decays.
+	var peak := 0.0
+	for step in 2_000:
+		sky.advance(0.05)
+		peak = maxf(peak, sky.lightning_flash())
+	assert_true(peak > 0.5, "a thunderstorm must throw bright lightning strikes")
+	assert_true(sky.lightning_direction().length() > 0.9, "each strike must have a bearing to light a cell")
+	# Once the storm has fully passed to clear, the sky holds no charge: after the
+	# transition blend and the last flash decay, lightning must stay at zero.
+	sky.set_weather(SkyWeather.WEATHER_CLEAR)
+	sky.advance(SkyWeather.TRANSITION_SECONDS + 2.0)
+	for step in 200:
+		sky.advance(0.1)
+		assert_eq(sky.lightning_flash(), 0.0, "a settled clear sky must never flash lightning")
+	sky.free()
+
+
+func test_sky_shader_covers_required_features() -> void:
+	var source: String = SkyWeather.SKY_SHADER.code
+	assert_true("shader_type sky" in source, "the dome must be a sky shader, not a mesh hack")
+	assert_true("day_blend" in source, "the sky must follow the day/night cycle")
+	assert_true("sunset_factor" in source, "dawn and dusk must warm the horizon")
+	assert_true("cloud_coverage" in source, "weather must drive procedural cloud coverage")
+	assert_true("cloud_detail_offset" in source, "cloud edges must drift independently of bank masses")
+	assert_true("cloud_chaos" in source, "cloud banks must domain-warp for torn edges")
+	assert_true("bank_mask" in source, "partial cloudiness must leave open sky between cloud masses")
+	assert_true("cloud_shape" in source, "cumulus bodies must come from cellular puff noise, not fluid FBM swirls")
+	assert_true("self_shadow" in source, "heaps must self-shadow toward the sun so they read as 3D volume")
+	assert_true("storm_intensity" in source, "storms must tower into cumulonimbus, not just thicken flat cloud")
+	assert_true("cloud_light" in source, "sunlit tops and shadowed undersides must shade the clouds")
+	assert_true("wind_dir" in source, "cirrus and the squall wall must follow the prevailing wind")
+	assert_true("rain_shafts" in source, "storms must hang distant rain curtains under the cloud deck")
+	assert_true("storm_locality" in source, "storms must localize into cells instead of always covering the sky")
+	assert_true("local_storm" in source, "storminess must vary across the sky so one cloud can rain while others do not")
+	assert_true("weather_rain" in source, "wet weather must suppress astronomical Milky Way visibility")
+	assert_true("weather_fade" in source, "Milky Way brightness must fade out in rain and overcast haze")
+	assert_true("cirrus_noise" in source, "high cirrus must use a sparse, varied streak mask")
+	assert_true("lightning" in source, "thunderstorms must throw lightning that lights their cell")
+	assert_true("lightning_bolt" in source, "a strike must draw a visible jagged bolt, not only a flash")
+	assert_true("moon_direction" in source, "the night sky must place a moon disk")
+	assert_true("moon_phase" in source, "the campaign date must drive weekly lunar lighting phases")
+	assert_true(
+		"-dot(sun_direction, moon_direction)" in source,
+		"moon disk shading must use the live sun direction, not a phase-only fake light"
+	)
+	assert_true("moon_normal" in source, "the moon disk must shade as a sphere")
+	assert_true("lunar_albedo" in source, "the moon must include stable surface detail")
+	assert_true("textureSize(lunar_albedo_map" in source, "lunar albedo sampling must follow the authored map resolution")
+	assert_true(
+		"celestial_north" in source,
+		"the NASA near-side mosaic must align to celestial north, not world zenith"
+	)
+	assert_true(
+		"vec2(-moon_uv.x, -moon_uv.y) * 0.485 + 0.5" in source,
+		"lunar UV must inset inside the crust, flip both axes for Estonia-facing orientation, and center the mosaic"
+	)
+	assert_true(
+		"clamp(lunar_uv" in source,
+		"lunar UV must stay inside the authored disk so bilinear taps never sample the black skirt"
+	)
+	assert_true(
+		"max(lunar_albedo, vec3(0.08))" not in source,
+		"a dark albedo floor turns filter fringes into a visible black moon border"
+	)
+	assert_true(
+		"mix(0.94, 1.0" in source,
+		"limb darkening must stay mild so the small sky disk does not grow a dark rim"
+	)
+	assert_true("lommel" in source, "dusty regolith must use a Lommel-Seeliger lobe, not flat Lambertian fill")
+	assert_true(
+		"mix(color, moon_surface, moon_opacity)" in source,
+		"the moon disk must occlude the sky opaquely instead of additively tinting blue through the surface"
+	)
+	assert_true("moon_ndotl" in source, "the terminator must use the signed sun cosine, not a pre-clamped light term")
+	assert_true("moon_halo" in source, "the moon must have a restrained atmospheric halo")
+	assert_true(
+		"mix(1.0, 1.08, day_blend)" in source,
+		"daytime moon photometry must stay pale-silver instead of fading into a dark sticker"
+	)
+	assert_true(
+		"mix(1.0, 0.42, day_blend)" not in source,
+		"daytime moon must not crush luminance below the blue day sky"
+	)
+	assert_true(
+		"terminator * terminator" in source,
+		"daytime crescents must hide the unlit nightside against bright sky"
+	)
+	assert_true(
+		"solar_glare_fade" in source,
+		"near-sun crescents must fade in solar glare instead of sitting on the sun disk"
+	)
+	assert_true(
+		"atmosphere_sky_view_uv(dir, sun_direction, sky_lut_size)" in source,
+		"the dome must share WS-11 sky-view UV with water reflections"
+	)
+	assert_true(
+		"vec2 sky_view_uv(" not in source,
+		"the private sky_view_uv copy must be deleted so the dome cannot drift from water"
+	)
+	assert_true(
+		"const float SKY_VIEW_HEIGHT_KM" not in source,
+		"view height must come from ATMO_SKY_VIEW_HEIGHT_KM"
+	)
+	assert_true(
+		"ATMO_SKY_VIEW_HEIGHT_KM" in source,
+		"sun transmittance altitude must use the shared view-height constant"
+	)
+
+
+func test_clear_weather_is_partly_cloudy_with_moving_banks() -> void:
+	var sky = SkyWeather.new()
+	assert_true(
+		sky.cloud_coverage() > 0.2 and sky.cloud_coverage() < 0.5,
+		"clear weather must keep discrete cloud banks, not an empty or fully overcast sky"
+	)
+	assert_true(sky.cloud_chaos() > 0.0, "even clear banks need mild edge chaos")
+	var start_offset := sky.cloud_offset()
+	var start_detail := sky.cloud_detail_offset()
+	sky.advance(10.0)
+	assert_true(
+		sky.cloud_offset() != start_offset,
+		"cloud banks must translate across the sky over time"
+	)
+	assert_true(
+		sky.cloud_detail_offset() != start_detail,
+		"cloud detail must churn while banks translate"
+	)
+	assert_true(
+		sky.cloud_detail_offset().length() > sky.cloud_offset().length(),
+		"detail drift must outpace bank drift so edges look chaotic"
+	)
+	sky.free()
+
+
+func test_storm_clouds_are_denser_and_more_chaotic_than_clear() -> void:
+	var sky = SkyWeather.new()
+	var clear_coverage := sky.cloud_coverage()
+	var clear_chaos := sky.cloud_chaos()
+	var clear_storm := sky.storm_intensity()
+	sky.auto_weather = false
+	sky.set_weather(SkyWeather.WEATHER_RAIN)
+	sky.advance(SkyWeather.TRANSITION_SECONDS)
+	assert_true(sky.cloud_coverage() > clear_coverage, "rain must thicken cloud cover")
+	assert_true(sky.cloud_chaos() > clear_chaos, "rain must tear cloud edges harder")
+	assert_true(sky.storm_intensity() > clear_storm, "rain must tower clear cumulus into a storm anvil")
+	assert_true(sky.storm_intensity() > 0.9, "the rain profile must reach full cumulonimbus development")
+	sky.free()
+
+
+func test_gust_front_shoves_ahead_of_the_rain() -> void:
+	var sky = SkyWeather.new()
+	sky.auto_weather = false
+	var calm_wind := sky.wind_strength()
+	assert_eq(sky.wind_gust(), 0.0, "a clear sky must have no gust")
+	sky.set_weather(SkyWeather.WEATHER_RAIN)
+	# The gust peaks early, while the rain profile is still only fading in.
+	sky.advance(SkyWeather.GUST_RISE_SECONDS)
+	var peak_gust := sky.wind_gust()
+	assert_true(peak_gust > 0.2, "a gust front must shove the wind ahead of the rain")
+	assert_true(
+		sky.wind_strength() > calm_wind + 0.2,
+		"the gust must lift the felt wind above the calm-weather breeze"
+	)
+	assert_true(sky.rain_intensity() < 0.9, "the gust must arrive before the rain fully lands")
+	# ... and then decays back down toward the sustained storm wind.
+	sky.advance(SkyWeather.GUST_DECAY_SECONDS * 3.0)
+	assert_true(sky.wind_gust() < peak_gust * 0.5, "the gust must decay after the front passes")
+	assert_true(sky.wind_strength() <= 1.0, "felt wind must stay within the material range")
+	sky.free()
+
+
+func test_cloud_drift_accelerates_with_the_wind() -> void:
+	var calm = SkyWeather.new()
+	var storm = SkyWeather.new()
+	calm.auto_weather = false
+	storm.auto_weather = false
+	storm.set_weather(SkyWeather.WEATHER_RAIN)
+	storm.advance(SkyWeather.TRANSITION_SECONDS)
+	var calm_start := calm.cloud_offset()
+	var storm_start := storm.cloud_offset()
+	calm.advance(2.0)
+	storm.advance(2.0)
+	var calm_moved := (calm.cloud_offset() - calm_start).length()
+	var storm_moved := (storm.cloud_offset() - storm_start).length()
+	assert_true(storm_moved > calm_moved, "storm wind must drive clouds across the sky faster than a calm breeze")
+	calm.free()
+	storm.free()
+
+
+func test_catalog_contains_real_naked_eye_stars() -> void:
+	assert_eq(SkyWeather.STAR_CATALOG.STARS.size(), 1627, "the sky must use the committed Hipparcos magnitude <= 5 catalog")
+	var polaris: Vector4
+	var sirius: Vector4
+	for star in SkyWeather.STAR_CATALOG.STARS:
+		if is_equal_approx(star.x, 37.9545) and is_equal_approx(star.y, 89.2641):
+			polaris = star
+		if is_equal_approx(star.x, 101.2872) and is_equal_approx(star.y, -16.7161):
+			sirius = star
+	assert_true(polaris != Vector4.ZERO, "Polaris must anchor the northern constellations")
+	assert_true(sirius != Vector4.ZERO, "Sirius must anchor the spring/winter constellation field")
+
+
+func test_catalog_is_precessed_to_campaign_year() -> void:
+	var polaris_1343 := SkyWeather.precess_equatorial(
+		Vector4(37.9545, 89.2641, 1.97, 0.636),
+		SkyWeather.STAR_CATALOG.CATALOG_EPOCH,
+		SkyWeather.SKY_EPOCH_YEAR
+	)
+	assert_true(absf(polaris_1343.x - 1.28) < 0.02, "1343 Polaris right ascension must reflect precession")
+	assert_true(absf(polaris_1343.y - 85.71) < 0.02, "1343 Polaris declination must reflect precession")
+	assert_eq(SkyWeather.REFERENCE_DATE, "1343-04-23", "the sky must follow the canonical St George's Night date")
+
+
+func test_star_brightness_and_color_follow_catalog_photometry() -> void:
+	assert_true(
+		SkyWeather.magnitude_to_luminance(1.0) > SkyWeather.magnitude_to_luminance(4.0),
+		"lower apparent magnitude must render brighter"
+	)
+	var blue := SkyWeather.bv_to_rgb(-0.2)
+	var red := SkyWeather.bv_to_rgb(1.6)
+	assert_true(blue.b > blue.r, "negative B-V stars must render blue-white")
+	assert_true(red.r > red.b, "high B-V stars must render warm")
+
+
+func test_shader_projects_stars_for_tallinn_and_weather() -> void:
+	var source: String = SkyWeather.SKY_SHADER.code
+	assert_true("star_map" in source, "the sky must sample the real star catalog texture")
+	assert_true("observer_latitude" in source, "star altitude must use Tallinn latitude")
+	assert_true("sidereal_angle" in source, "stars must rotate with the day/night clock")
+	assert_true("equatorial_uv" in source, "catalog coordinates must project into the local horizon")
+	assert_true("(1.0 - clouds)" in source, "weather must occlude stars")
+
+
+func test_quality_tier_clamps_unknown_and_auto_to_named_settings() -> void:
+	assert_eq(
+		SkyWeather.resolve_quality_tier(SkyWeather.QUALITY_MINIMUM),
+		SkyWeather.QUALITY_MINIMUM
+	)
+	assert_eq(
+		SkyWeather.resolve_quality_tier(SkyWeather.QUALITY_RECOMMENDED),
+		SkyWeather.QUALITY_RECOMMENDED
+	)
+	assert_eq(
+		SkyWeather.resolve_quality_tier(SkyWeather.QUALITY_AUTO),
+		SkyWeather.QUALITY_RECOMMENDED,
+		"auto resolves to recommended until runtime hardware probing lands"
+	)
+	assert_eq(
+		SkyWeather.resolve_quality_tier(&"not-a-tier"),
+		SkyWeather.QUALITY_RECOMMENDED,
+		"unknown tier requests must not escape the named table"
+	)
+	var minimum := SkyWeather.quality_settings(SkyWeather.QUALITY_MINIMUM)
+	var recommended := SkyWeather.quality_settings(SkyWeather.QUALITY_RECOMMENDED)
+	assert_eq(
+		SkyWeather.quality_settings(SkyWeather.QUALITY_AUTO),
+		recommended,
+		"auto must select the complete recommended settings row"
+	)
+	assert_eq(
+		SkyWeather.quality_settings(&"not-a-tier"),
+		recommended,
+		"unknown tiers must use the complete recommended fallback row"
+	)
+	assert_eq(
+		minimum["cloud_noise_resolution"],
+		SkyWeather.SKY_RESOURCES.CLOUD_NOISE_RESOLUTION_MINIMUM
+	)
+	assert_eq(
+		recommended["cloud_noise_resolution"],
+		SkyWeather.SKY_RESOURCES.CLOUD_NOISE_RESOLUTION_RECOMMENDED
+	)
+	assert_eq(
+		minimum["rain_particles"],
+		SkyWeather.SKY_RESOURCES.RAIN_PARTICLES_MINIMUM
+	)
+	assert_eq(
+		recommended["rain_particles"],
+		SkyWeather.SKY_RESOURCES.RAIN_PARTICLES_RECOMMENDED
+	)
+	_assert_quality_tier_budget_row(minimum, recommended)
+	var sky := SkyWeather.new()
+	sky.set_quality_tier(SkyWeather.QUALITY_MINIMUM)
+	assert_eq(
+		sky.quality_tier,
+		SkyWeather.QUALITY_MINIMUM,
+		"the setter must keep a known minimum tier"
+	)
+	sky.set_quality_tier(SkyWeather.QUALITY_AUTO)
+	assert_eq(sky.quality_tier, SkyWeather.QUALITY_RECOMMENDED, "auto must clamp on the presenter")
+	sky.set_quality_tier(&"not-a-tier")
+	assert_eq(
+		sky.quality_tier,
+		SkyWeather.QUALITY_RECOMMENDED,
+		"unknown tiers must clamp on the presenter"
+	)
+	sky.free()
+
+
+func test_quality_tier_does_not_change_weather_state_digest() -> void:
+	var minimum := SkyWeather.new()
+	minimum.quality_tier = SkyWeather.QUALITY_MINIMUM
+	var recommended := SkyWeather.new()
+	recommended.set_quality_tier(SkyWeather.QUALITY_AUTO)
+	assert_eq(
+		recommended.quality_tier,
+		SkyWeather.QUALITY_RECOMMENDED,
+		"the deterministic comparison must use the resolved auto fallback"
+	)
+	minimum.auto_weather = false
+	recommended.auto_weather = false
+	minimum.set_weather(SkyWeather.WEATHER_STORM)
+	recommended.set_weather(SkyWeather.WEATHER_STORM)
+	for step in 25:
+		minimum.advance(1.0)
+		recommended.advance(1.0)
+	assert_eq(
+		minimum.snapshot_state(0.5, 2).to_dict(),
+		recommended.snapshot_state(0.5, 2).to_dict(),
+		"renderer tier must not alter deterministic weather state"
+	)
+	minimum.free()
+	recommended.free()
+
+
+func test_quality_tier_ids_are_only_the_named_budget_rows() -> void:
+	assert_eq(SkyWeather.QUALITY_TIER_IDS.size(), 2)
+	assert_eq(SkyWeather.QUALITY_TIER_IDS[0], SkyWeather.QUALITY_MINIMUM)
+	assert_eq(SkyWeather.QUALITY_TIER_IDS[1], SkyWeather.QUALITY_RECOMMENDED)
+	assert_true(
+		not SkyWeather.QUALITY_TIER_IDS.has(SkyWeather.QUALITY_AUTO),
+		"auto is a request alias, not a third budget row"
+	)
+
+
+func test_r736_source_contract_uses_one_presentation_adapter() -> void:
+	# R-736: lighting, fog, wet ground, wind, and water must consume one snapshot.
+	# The R-715 helper is the water-uniform fan-out; play uses MapViewMaterials.
+	var view_source := FileAccess.get_file_as_string(
+		"res://scripts/map/view3d/map_view_3d.gd"
+	)
+	var lighting_source := FileAccess.get_file_as_string(
+		"res://scripts/map/view3d/map_view_lighting.gd"
+	)
+	var materials_source := FileAccess.get_file_as_string(
+		"res://scripts/map/view3d/map_view_materials.gd"
+	)
+	var shader_source := FileAccess.get_file_as_string(
+		"res://scripts/map/view3d/sky_weather_3d.gdshader"
+	)
+	assert_true(
+		view_source.contains("MapViewMaterials.apply_weather_presentation("),
+		"MapView3D sea sync must fan out through the shared adapter"
+	)
+	assert_true(
+		not view_source.contains("apply_sea_weather("),
+		"the view must not re-sample sea weather beside the adapter"
+	)
+	assert_true(
+		lighting_source.contains("presentation_snapshot("),
+		"lighting must freeze one WeatherPresentation per cycle apply"
+	)
+	assert_true(
+		lighting_source.contains("apply_ground_mist(environment, presentation"),
+		"fog/haze must take the same presentation as lighting"
+	)
+	assert_true(
+		lighting_source.contains("apply_water_sky_reflection("),
+		"water-facing sky reflection is an R-715 lighting consumer of the snapshot"
+	)
+	assert_true(
+		lighting_source.contains("apply_post_grade_snapshot(environment, presentation"),
+		"exposure/grade must stay on the captured presentation"
+	)
+	assert_true(
+		materials_source.contains("apply_mud_wetness(presentation.puddle_wetness)"),
+		"wet ground must come from the snapshot, not a later accessor"
+	)
+	assert_true(
+		shader_source.contains("uniform float sky_exposure"),
+		"sky exposure is a shader contract input from the presenter"
+	)
+	assert_true(
+		shader_source.contains("uniform vec2 wind_dir"),
+		"rain/cloud wind direction is a shader contract input"
+	)
+	assert_true(
+		shader_source.contains("uniform float cloud_darken"),
+		"overcast darken is a shader contract input shared with water"
+	)
+
+
+func test_r736_adapter_keeps_water_and_mud_on_one_snapshot() -> void:
+	WaterMaterials.reset()
+	var sky := SkyWeather.new()
+	sky.auto_weather = false
+	sky.set_weather(SkyWeather.WEATHER_RAIN)
+	sky.advance(SkyWeather.TRANSITION_SECONDS + 1.0)
+	var presentation := sky.presentation_snapshot(0.5, 1.0)
+	# Cache the ground material first so apply_mud_wetness can update it.
+	var ground := MapViewMaterials.blended_ground(1)
+	MapViewMaterials.apply_weather_presentation(presentation)
+	var water: ShaderMaterial = WaterMaterials.water_surface(
+		MapTypes.TERRAIN_WATER, MapViewMaterials.WATER_WAVE_BASE
+	)
+	var wind: Vector2 = water.get_shader_parameter("wind_direction")
+	assert_true(
+		wind.is_equal_approx(presentation.wind_direction),
+		"water wind must match the presentation the adapter applied"
+	)
+	assert_true(
+		float(water.get_shader_parameter("wave_speed")) > 0.0,
+		"settled rain must push a non-zero sea state through the adapter"
+	)
+	assert_true(
+		is_equal_approx(
+			float(ground.get_shader_parameter("mud_wetness")),
+			presentation.puddle_wetness
+		),
+		"mud wetness must match the same snapshot as water wind"
+	)
+	sky.set_weather(SkyWeather.WEATHER_CLEAR)
+	sky.advance(0.05)
+	MapViewMaterials.apply_weather_presentation(presentation)
+	assert_true(
+		is_equal_approx(
+			float(ground.get_shader_parameter("mud_wetness")),
+			presentation.puddle_wetness
+		),
+		"re-applying a captured snapshot must not pick up a later dry frame"
+	)
+	sky.free()
+
+
+func test_r736_view_sync_matches_shared_presentation() -> void:
+	var SmithyCourtyard := preload("res://scripts/map/smithy_courtyard_definition.gd")
+	var MapBuilder := preload("res://scripts/map/map_builder.gd")
+	var tree := Engine.get_main_loop() as SceneTree
+	var definition := SmithyCourtyard.create()
+	var view := MapView3D.create(definition, MapBuilder.build(definition))
+	tree.root.add_child(view)
+	var weather := view.sky_weather()
+	weather.auto_weather = false
+	weather.set_weather(SkyWeather.WEATHER_RAIN)
+	weather.advance(SkyWeather.TRANSITION_SECONDS + 1.0)
+	view._sync_sea_weather()
+	var day_blend := SkyWeather.daylight_blend(view.cycle_progress, weather.calendar_date)
+	var presentation := weather.presentation_snapshot(view.cycle_progress, day_blend)
+	var water: ShaderMaterial = WaterMaterials.water_surface(
+		MapTypes.TERRAIN_WATER, MapViewMaterials.WATER_WAVE_BASE
+	)
+	var wind: Vector2 = water.get_shader_parameter("wind_direction")
+	assert_true(
+		wind.is_equal_approx(presentation.wind_direction),
+		"view sea sync must apply the same wind as lighting's snapshot"
+	)
+	assert_true(
+		is_equal_approx(view.mud_wetness(), presentation.puddle_wetness),
+		"view mud wetness must stay on the shared snapshot"
+	)
+	MapView3D._strip_geometry_materials(view)
+	view.free()
+
+
+## R-737: every live QUALITY_TIERS key stays on both named rows so later WS
+## fields cannot silently drop off the budget contract.
+func _assert_quality_tier_budget_row(minimum: Dictionary, recommended: Dictionary) -> void:
+	var required: Array[String] = [
+		"cloud_noise_resolution",
+		"cloud_shape_resolution",
+		"cloud_shadow_samples",
+		"cloud_shadow_ground_samples",
+		"cloud_shadow_enabled",
+		"rain_shaft_samples",
+		"rain_particles",
+		"lightning_density",
+		"fog_quality",
+		"fallback_behavior",
+		"frame_time_budget_ms",
+		"memory_budget_mib",
+		"particle_budget",
+		"shader_sample_budget",
+		"ocean_fft_cascades",
+		"sky_lut_size",
+		"sky_lut_every_n_frames",
+		"ripple_sim_size",
+	]
+	for key in required:
+		assert_true(minimum.has(key), "minimum QUALITY_TIERS must publish %s" % key)
+		assert_true(recommended.has(key), "recommended QUALITY_TIERS must publish %s" % key)
+	assert_eq(minimum["cloud_shadow_samples"], 2)
+	assert_eq(recommended["cloud_shadow_samples"], 4)
+	assert_eq(minimum["cloud_shadow_ground_samples"], 1)
+	assert_eq(recommended["cloud_shadow_ground_samples"], 3)
+	assert_eq(minimum["rain_shaft_samples"], 3)
+	assert_eq(recommended["rain_shaft_samples"], 6)
+	assert_eq(minimum["lightning_density"], 0.65)
+	assert_eq(recommended["lightning_density"], 1.0)
+	assert_eq(minimum["fog_quality"], 0.65)
+	assert_eq(recommended["fog_quality"], 1.0)
+	assert_eq(minimum["fallback_behavior"], &"gradient_only_if_resource_missing")
+	assert_eq(recommended["fallback_behavior"], &"gradient_only_if_resource_missing")
+	assert_eq(minimum["frame_time_budget_ms"], 1.50)
+	assert_eq(recommended["frame_time_budget_ms"], 2.50)
+	assert_eq(minimum["memory_budget_mib"], 8.0)
+	assert_eq(recommended["memory_budget_mib"], 24.0)
+	assert_eq(minimum["particle_budget"], 700)
+	assert_eq(recommended["particle_budget"], 2200)
+	assert_eq(minimum["shader_sample_budget"], 80)
+	assert_eq(recommended["shader_sample_budget"], 140)
+	assert_eq(minimum["ocean_fft_cascades"], 2)
+	assert_eq(recommended["ocean_fft_cascades"], 3)
+	assert_eq(minimum["sky_lut_size"], AtmosphereLut.SIZE_MINIMUM)
+	assert_eq(recommended["sky_lut_size"], AtmosphereLut.SIZE_RECOMMENDED)
+	assert_eq(minimum["sky_lut_every_n_frames"], 2)
+	assert_eq(recommended["sky_lut_every_n_frames"], 1)
+	assert_eq(minimum["ripple_sim_size"], 0)
+	assert_eq(recommended["ripple_sim_size"], 256)
+	assert_true(bool(minimum["cloud_shadow_enabled"]))
+	assert_true(bool(recommended["cloud_shadow_enabled"]))
+
+
+func test_visual_wind_heading_is_rate_limited() -> void:
+	var sky := SkyWeather.new()
+	sky.auto_weather = false
+	sky.advance(1.0)
+	var start := sky.wind_direction_xz()
+	sky.set_weather(SkyWeather.WEATHER_STORM)
+	sky.advance(SkyWeather.TRANSITION_SECONDS)
+	var turned := absf(start.angle_to(sky.wind_direction_xz()))
+	assert_true(
+		turned <= SkyWeather.WIND_HEADING_MAX_RATE * (SkyWeather.TRANSITION_SECONDS + 1.0) + 0.001,
+		"heading must not swing faster than the slew rate during a transition"
+	)
+	sky.free()
+
+
+func test_bright_stars_bake_to_a_single_texel() -> void:
+	# R-1443: the shader draws the round disk; a baked '+' kernel read as crosses.
+	var image := SkyWeather.SKY_RESOURCES.new_star_image()
+	var sirius: Array[Vector4] = [Vector4(101.2872, -16.7161, -1.44, 0.009)]
+	SkyWeather.SKY_RESOURCES.bake_stars(image, sirius, 0, 1, 2000.0, 2000.0, 5.0)
+	var lit := 0
+	for y in range(image.get_height()):
+		for x in range(image.get_width()):
+			if image.get_pixel(x, y).r > 0.0:
+				lit += 1
+	assert_eq(lit, 1, "a bright star must occupy exactly one texel and empty sky must stay black")
+
+
+func test_milky_way_frame_is_precessed_and_orthogonal() -> void:
+	var galaxy: Dictionary = SkyWeather.SKY_RESOURCES.galactic_frame(2000.0, SkyWeather.SKY_EPOCH_YEAR)
+	var pole: Vector3 = galaxy["pole"]
+	var center: Vector3 = galaxy["center"]
+	assert_true(absf(pole.dot(center)) < 1e-4, "galactic pole and centre must be 90 degrees apart")
+	var j2000: Dictionary = SkyWeather.SKY_RESOURCES.galactic_frame(2000.0, 2000.0)
+	var shift := rad_to_deg(acos(clampf(pole.dot(j2000["pole"]), -1.0, 1.0)))
+	assert_true(shift > 2.0 and shift < 10.0, "the 1343 galactic pole must be precessed from J2000")
+	# Deneb (J2000 RA 310.358, Dec 45.280) lies in the Cygnus Milky Way: |b| < 3 deg.
+	var deneb := SkyWeather.precess_equatorial(Vector4(310.358, 45.280, 1.25, 0.09), 2000.0, SkyWeather.SKY_EPOCH_YEAR)
+	var deneb_vector: Vector3 = SkyWeather.SKY_RESOURCES.equatorial_vector(deneb.x, deneb.y)
+	assert_true(absf(rad_to_deg(asin(deneb_vector.dot(pole)))) < 3.0, "Deneb must sit in the galactic plane")
+
+
+func test_shader_draws_round_twinkling_stars_and_milky_way() -> void:
+	var source: String = SkyWeather.SKY_SHADER.code
+	assert_true("sky_stars.gdshaderinc" in source, "stars and Milky Way live in the sky include")
+	assert_true("star_field(" in source and "milky_way(" in source, "the dome must draw stars and the galaxy")
+	assert_true("!AT_CUBEMAP_PASS" in source, "the star search must stay out of the radiance cubemap")
+
+
+## R-1537: on EDR the sun must use the HDR headroom, but only in the visible pass; the
+## radiance cubemap keeps the SDR disk so sky reflections and ambient do not brighten.
+func test_sky_sun_disk_gets_hdr_gain_outside_the_cubemap_pass() -> void:
+	var source := FileAccess.get_file_as_string("res://scripts/map/view3d/sky_weather_3d.gdshader")
+	assert_true(source.contains("uniform float sun_disk_hdr_gain"), "disk HDR gain exposed")
+	assert_true(source.contains("uniform float sun_halo_hdr_gain"), "halo HDR gain exposed")
+	assert_true(
+		source.contains("AT_CUBEMAP_PASS ? 1.0 : sun_disk_hdr_gain")
+			and source.contains("AT_CUBEMAP_PASS ? 1.0 : sun_halo_hdr_gain"),
+		"radiance cubemap keeps the SDR disk and halo"
+	)
+	# The corona is HDR-only: on SDR (headroom 1) it would clip to a large flat white disk.
+	assert_true(source.contains("global uniform float edr_headroom"), "corona reads headroom")
+	assert_true(
+		source.contains("smoothstep(1.0, 2.0, edr_headroom)"), "corona fades out on SDR screens"
+	)
+	assert_true(
+		ProjectSettings.has_setting("shader_globals/edr_headroom"),
+		"edr_headroom is a declared shader global"
+	)
+	var settings_source := FileAccess.get_file_as_string(
+		"res://scripts/settings/user_settings.gd"
+	)
+	assert_true(
+		settings_source.contains("output_max_linear_value_changed.connect"),
+		"UserSettings republishes the headroom when macOS changes it"
+	)

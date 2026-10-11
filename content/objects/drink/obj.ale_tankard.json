@@ -1,0 +1,76 @@
+{
+  "type": "world_object",
+  "id": "obj.ale_tankard",
+  "name": "Ale tankard",
+  "description": "A staved tankard of strong ale served in taverns.",
+  "category": "drink",
+  "handling": "pocketable",
+  "tags": [
+    "drink",
+    "ale",
+    "tavern"
+  ],
+  "physical": {
+    "mass_kg": 0.6,
+    "size_m": [
+      0.11,
+      0.14,
+      0.1
+    ],
+    "materials": [
+      "wood",
+      "iron",
+      "water_liquid"
+    ]
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop",
+    "throw",
+    "consume"
+  ],
+  "economy": {
+    "base_pfennigs": 2,
+    "ownership": "merchant",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "tavern"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "missing"
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.ale_tankard.png",
+    "icon": "res://assets/objects/icons/obj.ale_tankard.png",
+    "icon_status": "missing",
+    "look": "Small oak-stave tankard with an iron band and foam at the lip.",
+    "image_prompt": "A small oak-stave tankard with an iron band, foam at the lip"
+  },
+  "lifecycle": "planned",
+  "confidence": "plausible composite",
+  "carry": {
+    "grid_width": 1,
+    "grid_height": 1,
+    "stackable": false
+  },
+  "throw": {
+    "range_m": 4.0,
+    "damage": 1,
+    "breaks": false,
+    "noise": "normal"
+  },
+  "edible": {
+    "kind": "drink",
+    "nutrition": 8,
+    "hydration": 25,
+    "intoxicating": true,
+    "spoils_after_days": 3
+  }
+}

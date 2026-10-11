@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://bo6wx32gprts8"
+path="res://.godot/imported/Crown of Stone.mp3-a8236b7d2679df3784e861bf0cedf84f.mp3str"
+
+[deps]
+
+source_file="res://music/domberg/day/Crown of Stone.mp3"
+dest_files=["res://.godot/imported/Crown of Stone.mp3-a8236b7d2679df3784e861bf0cedf84f.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

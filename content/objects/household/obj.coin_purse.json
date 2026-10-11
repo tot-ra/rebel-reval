@@ -1,0 +1,60 @@
+{
+  "type": "world_object",
+  "id": "obj.coin_purse",
+  "name": "Coin purse",
+  "description": "A drawstring leather purse for pfennigs; cutting it free is petty theft.",
+  "category": "household",
+  "handling": "pocketable",
+  "tags": [
+    "coin",
+    "personal"
+  ],
+  "physical": {
+    "mass_kg": 0.2,
+    "size_m": [
+      0.12,
+      0.1,
+      0.06
+    ],
+    "materials": [
+      "leather"
+    ]
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop"
+  ],
+  "economy": {
+    "base_pfennigs": 6,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "worn",
+    "spaces": [
+      "street",
+      "market",
+      "tavern"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "missing"
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.coin_purse.png",
+    "icon": "res://assets/objects/icons/obj.coin_purse.png",
+    "icon_status": "missing",
+    "look": "Small worn leather purse with a drawstring cord.",
+    "image_prompt": "A small worn brown leather drawstring purse"
+  },
+  "lifecycle": "planned",
+  "confidence": "plausible composite",
+  "carry": {
+    "grid_width": 1,
+    "grid_height": 1,
+    "stackable": false
+  }
+}

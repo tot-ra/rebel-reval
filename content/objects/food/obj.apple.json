@@ -1,0 +1,76 @@
+{
+  "type": "world_object",
+  "id": "obj.apple",
+  "name": "Apple",
+  "description": "A small Baltic orchard apple.",
+  "category": "food",
+  "handling": "pocketable",
+  "tags": [
+    "fruit",
+    "orchard"
+  ],
+  "physical": {
+    "mass_kg": 0.15,
+    "size_m": [
+      0.07,
+      0.07,
+      0.07
+    ],
+    "materials": [
+      "food_organic"
+    ]
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop",
+    "throw",
+    "consume",
+    "stack"
+  ],
+  "economy": {
+    "base_pfennigs": 1,
+    "ownership": "merchant",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "market",
+      "farm",
+      "home_burgher"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "missing"
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.apple.png",
+    "icon": "res://assets/objects/icons/obj.apple.png",
+    "icon_status": "missing",
+    "look": "Small red-green speckled apple with a short stalk.",
+    "image_prompt": "A small red-green speckled apple with a short stalk"
+  },
+  "lifecycle": "planned",
+  "confidence": "plausible composite",
+  "carry": {
+    "grid_width": 1,
+    "grid_height": 1,
+    "stackable": true,
+    "max_stack": 8
+  },
+  "throw": {
+    "range_m": 6.0,
+    "damage": 1,
+    "breaks": false,
+    "noise": "quiet"
+  },
+  "edible": {
+    "kind": "food",
+    "nutrition": 8,
+    "hydration": 6,
+    "spoils_after_days": 14
+  }
+}

@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/comparison_room/comparison_room_variant.gd" id="1_variant"]
+
+[node name="P0_035_DiamondIsometric8Direction" type="Node2D"]
+script = ExtResource("1_variant")
+room_variant = 0

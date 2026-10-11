@@ -1,0 +1,103 @@
+{
+  "type": "quest",
+  "id": "quest.act1_south_quarter_probe",
+  "title": "South Quarter Intelligence Probe",
+  "summary": "Representative Act 1 courier intelligence package binding the Karja Gate landmark beat for generated traversal coverage.",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-018",
+    "notes": "Schema fixture for quest-package generator; not shipped campaign content."
+  },
+  "entry_conditions": [],
+  "initial_state": "latent",
+  "states": [
+    {
+      "id": "latent",
+      "label": "Courier route not yet logged"
+    },
+    {
+      "id": "gate_observed",
+      "label": "Karja patrol gap observed"
+    },
+    {
+      "id": "intelligence_recorded",
+      "label": "Courier intelligence filed",
+      "terminal": true
+    }
+  ],
+  "transitions": [
+    {
+      "id": "observe_gate",
+      "from_state": "latent",
+      "to_state": "gate_observed",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.act1_karja_gate_observed",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "record_intelligence",
+      "from_state": "gate_observed",
+      "to_state": "intelligence_recorded",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.act1_south_quarter_intelligence",
+          "value": true
+        }
+      ]
+    }
+  ],
+  "objectives": [
+    {
+      "id": "watch_karja_gate",
+      "text": "Observe patrol timing at Karja Gate.",
+      "state_id": "gate_observed"
+    },
+    {
+      "id": "file_courier_report",
+      "text": "Record the courier intelligence.",
+      "state_id": "intelligence_recorded"
+    }
+  ],
+  "outcomes": [
+    {
+      "id": "intelligence_filed",
+      "summary": "The courier route is logged for later Act 1 missions.",
+      "effects": [
+        {
+          "op": "set_quest_state",
+          "key": "quest.act1_south_quarter_probe",
+          "value": "intelligence_recorded"
+        },
+        {
+          "op": "set_flag",
+          "key": "flag.act1_south_quarter_intelligence",
+          "value": true
+        }
+      ]
+    }
+  ],
+  "content_links": {
+    "character_ids": [
+      "char.henning"
+    ],
+    "dialogue_ids": [
+      "dialogue.landmark.tallinn.karja_gate_karja_varav"
+    ]
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Quest-package fixture for P4-018 and P1-038 generator coverage.",
+      "citations": [
+        "docs/data/landmark_integrations.json"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,83 @@
+{
+  "type": "world_object",
+  "id": "obj.smith_hammer",
+  "name": "Smith's hand hammer",
+  "description": "A one-handed cross-peen hammer for finishing work on the anvil.",
+  "category": "tool",
+  "handling": "carry_one_hand",
+  "tags": [
+    "smithing",
+    "tool",
+    "improvised_weapon"
+  ],
+  "physical": {
+    "mass_kg": 1.8,
+    "size_m": [
+      0.2,
+      0.35,
+      0.08
+    ],
+    "materials": [
+      "iron",
+      "wood"
+    ]
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop",
+    "throw",
+    "equip"
+  ],
+  "economy": {
+    "base_pfennigs": 40,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 1
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "forge"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/tools/blacksmith_hammer/blacksmith_hammer.glb",
+    "prop_kind": "blacksmith_hammer",
+    "measured_size_m": [
+      0.2,
+      0.35,
+      0.08
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.smith_hammer.png",
+    "icon": "res://assets/objects/icons/obj.smith_hammer.png",
+    "icon_status": "missing",
+    "look": "Short ash handle and a dark forged cross-peen head with a polished face.",
+    "image_prompt": "Smith's hand hammer: Short ash handle and a dark forged cross-peen head with a polished face."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "uses": [
+    "forge iron on an anvil"
+  ],
+  "carry": {
+    "grid_width": 1,
+    "grid_height": 2,
+    "stackable": false
+  },
+  "throw": {
+    "range_m": 4.0,
+    "damage": 5,
+    "breaks": false,
+    "noise": "normal"
+  },
+  "equip": {
+    "slot": "right_hand",
+    "damage_type": "blunt",
+    "protection": "none"
+  }
+}

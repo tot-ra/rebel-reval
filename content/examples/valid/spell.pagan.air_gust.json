@@ -1,0 +1,44 @@
+{
+  "type": "spell",
+  "id": "spell.pagan.air_gust",
+  "name": "Air Gust",
+  "school": "school.pagan",
+  "sequence": [
+    "element.air"
+  ],
+  "resolution": "authored_lookup",
+  "runtime_combination_allowed": false,
+  "requires_conduit": "none",
+  "cost": {
+    "resource": "resource.willpower",
+    "amount": 1
+  },
+  "effect_summary": "A forward cone of wind that shoves hostile actors away from the caster and briefly breaks their attack.",
+  "effect": {
+    "delivery": {
+      "kind": "area_pulse",
+      "radius": 112.0,
+      "arc_deg": 90.0
+    },
+    "impact": {
+      "kind": "knockback",
+      "distance": 96.0,
+      "duration_sec": 0.6
+    }
+  },
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "R-722 Air Gust prototype"
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Authored gameplay spell for a pure air knockback cone; not an attested historical rite.",
+      "citations": [
+        "docs/SYSTEMS/MAGIC.md"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,142 @@
+{
+  "type": "quest",
+  "id": "quest.act2.siege.investment.ruler",
+  "title": "Hold the Stores Through Investment",
+  "summary": "Keep the ruler-aligned stores secure while rebels invest Reval, choosing a visible stand or a quiet lock-down.",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P5-006",
+    "notes": "Content-only siege mission package; the authored mission host reuses the downstream Act 2 combat and travel systems."
+  },
+  "entry_conditions": [],
+  "initial_state": "latent",
+  "states": [
+    {
+      "id": "latent",
+      "label": "Receive the ruler-aligned stores brief before the investment tightens."
+    },
+    {
+      "id": "ready",
+      "label": "At the Toompea stores during the investment"
+    },
+    {
+      "id": "direct_complete",
+      "label": "The ruler stores hold after a visible watch stand.",
+      "terminal": true
+    },
+    {
+      "id": "quiet_complete",
+      "label": "The ruler stores hold after a quiet lock-down.",
+      "terminal": true
+    }
+  ],
+  "transitions": [
+    {
+      "id": "brief",
+      "from_state": "latent",
+      "to_state": "ready",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.act2.siege.investment.ruler.briefed",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "resolve_direct",
+      "from_state": "ready",
+      "to_state": "direct_complete",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.act2.siege.investment.ruler.direct_resolved",
+          "value": true
+        },
+        {
+          "op": "set_flag",
+          "key": "flag.war.siege_phase.investment",
+          "value": true
+        },
+        {
+          "op": "record_faction_event",
+          "key": "ledger.act2.siege.investment.ruler.direct",
+          "value": "faction.danish_crown",
+          "amount": 1,
+          "summary": "Kalev held the Toompea stores with the Danish watch."
+        }
+      ]
+    },
+    {
+      "id": "resolve_quiet",
+      "from_state": "ready",
+      "to_state": "quiet_complete",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.act2.siege.investment.ruler.quiet_resolved",
+          "value": true
+        },
+        {
+          "op": "set_flag",
+          "key": "flag.war.siege_phase.investment",
+          "value": true
+        },
+        {
+          "op": "record_faction_event",
+          "key": "ledger.act2.siege.investment.ruler.quiet",
+          "value": "faction.danish_crown",
+          "amount": 1,
+          "summary": "Kalev secured the stores without turning the supply row into a battle."
+        }
+      ]
+    }
+  ],
+  "objectives": [
+    {
+      "id": "receive_brief",
+      "text": "Receive the ruler-aligned stores brief before the investment tightens.",
+      "state_id": "latent"
+    },
+    {
+      "id": "resolve_mission",
+      "text": "Secure the stores by standing the watch or quietly locking down the supply route.",
+      "state_id": "ready"
+    }
+  ],
+  "outcomes": [
+    {
+      "id": "direct",
+      "summary": "The ruler stores hold after a visible watch stand.",
+      "effects": []
+    },
+    {
+      "id": "quiet",
+      "summary": "The ruler stores hold after a quiet lock-down.",
+      "effects": []
+    }
+  ],
+  "content_links": {
+    "character_ids": [
+      "char.kalev",
+      "char.henning",
+      "char.kaja",
+      "char.mart"
+    ],
+    "location_ids": [
+      "loc.lower_town_slice"
+    ]
+  },
+  "source_notes": [
+    {
+      "confidence": "attested",
+      "summary": "The three siege phases and their calendar windows are attested in the Act 2 design spine; this mission framing and branch resolution are invented.",
+      "citations": [
+        "docs/reports/p5_001_act2_design.md",
+        "docs/data/act2_design_manifest.json"
+      ]
+    }
+  ]
+}

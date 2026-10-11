@@ -1,0 +1,10 @@
+{
+  "id": "material.grass_blades.grass_blades_atlas",
+  "family": "grass_blades",
+  "kind": "leonardo_grass_sheet",
+  "task": "R-1103",
+  "target": "assets/materials/pbr/grass_blades/grass_blades_atlas.png",
+  "prompt": "Leonardo grass sheet with four blade clusters on a near-white backdrop (fine meadow, timothy, sedge, dry straw with seed heads), cut into a 2x2 RGBA atlas. The original generation prompt was not archived with the source sheet; regenerate a sheet with this layout and pass it to the processor.",
+  "processor": "tools/build_grass_blade_atlas.py",
+  "notes": "Provenance gap: source sheet prompt and generation id not recorded."
+}

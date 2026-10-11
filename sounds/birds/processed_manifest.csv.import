@@ -1,0 +1,19 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://ib1t58h74wt7"
+
+[deps]
+
+files=["res://sounds/birds/processed_manifest.bird.translation", "res://sounds/birds/processed_manifest.kind.translation", "res://sounds/birds/processed_manifest.source.translation", "res://sounds/birds/processed_manifest.processed.translation", "res://sounds/birds/processed_manifest.source.translation", "res://sounds/birds/processed_manifest.license.translation", "res://sounds/birds/processed_manifest.recordist.translation", "res://sounds/birds/processed_manifest.page.translation", "res://sounds/birds/processed_manifest.source.translation", "res://sounds/birds/processed_manifest.processed.translation", "res://sounds/birds/processed_manifest.trim.translation"]
+
+source_file="res://sounds/birds/processed_manifest.csv"
+dest_files=["res://sounds/birds/processed_manifest.bird.translation", "res://sounds/birds/processed_manifest.kind.translation", "res://sounds/birds/processed_manifest.source.translation", "res://sounds/birds/processed_manifest.processed.translation", "res://sounds/birds/processed_manifest.source.translation", "res://sounds/birds/processed_manifest.license.translation", "res://sounds/birds/processed_manifest.recordist.translation", "res://sounds/birds/processed_manifest.page.translation", "res://sounds/birds/processed_manifest.source.translation", "res://sounds/birds/processed_manifest.processed.translation", "res://sounds/birds/processed_manifest.trim.translation"]
+
+[params]
+
+compress=1
+delimiter=0
+unescape_keys=false
+unescape_translations=true

@@ -1,0 +1,33 @@
+{
+  "grass_slices": [
+    "g01_grazed_turf",
+    "g02_lush_meadow",
+    "g06_clover",
+    "g07_hay_meadow",
+    "g09_spring",
+    "g10_yarrow_weeds",
+    "g11_sedge_pasture",
+    "g12_wildflowers",
+    "g03_dry_summer",
+    "g04_moss_shade",
+    "g08_leaf_scatter",
+    "g05_trodden"
+  ],
+  "grid": [
+    4,
+    3
+  ],
+  "bark": [
+    "birch",
+    "cherry",
+    "grey",
+    "oak",
+    "pine",
+    "spruce"
+  ],
+  "needles": {
+    "spruce": "spruce_1",
+    "pine": "pine_2"
+  },
+  "source_run": "generated/openai/vegetation_v1"
+}

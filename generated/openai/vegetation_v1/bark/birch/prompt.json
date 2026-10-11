@@ -1,0 +1,11 @@
+{
+  "tool": "a2gent openai_generate_image",
+  "model": "gpt-image-1",
+  "size": "1024x1024",
+  "quality": "high",
+  "generation_id": "4118ba97-9e78-4b58-ae5e-b31421a489e9",
+  "prompt": "Seamless tileable bark texture, flat orthographic close-up scan of a mature silver birch trunk, about 40 cm wide area: white papery bark with horizontal grey lenticels, thin peeling curls and a few black diamond-shaped scars, vertical orientation. Even soft overcast light, no cast shadows, fills the whole frame edge to edge, no background, no perspective, photorealistic, no text.",
+  "file": "source.png",
+  "sha256": "52fcbd7ef316fa3d5f7b4df472ce9f888881a50c08dcb281fd0c64d051f9a05f",
+  "task": "R-1103/R-1101/R-1102"
+}

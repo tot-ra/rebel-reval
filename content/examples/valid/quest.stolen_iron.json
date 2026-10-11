@@ -1,0 +1,214 @@
+{
+  "type": "quest",
+  "id": "quest.stolen_iron",
+  "title": "The Stolen Iron",
+  "summary": "Track down who lifted a crate of bar stock from Kalev's yard before the watch blames the forge.",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "reviewer": "P4-035",
+    "notes": "Act 1 investigative quest fixture with three suspects, four clues, and partial-evidence confrontation branches."
+  },
+  "entry_conditions": [
+    {
+      "op": "phase_is",
+      "key": "phase.investigation_morning",
+      "value": "active"
+    }
+  ],
+  "initial_state": "investigating",
+  "states": [
+    {
+      "id": "investigating",
+      "label": "Gathering yard clues"
+    },
+    {
+      "id": "resolved_correct",
+      "label": "Apprentice exposed with full evidence",
+      "terminal": true
+    },
+    {
+      "id": "resolved_uncertain",
+      "label": "Apprentice confesses on partial evidence",
+      "terminal": true
+    },
+    {
+      "id": "resolved_misaccused",
+      "label": "Wrong accusation with no proof",
+      "terminal": true
+    }
+  ],
+  "transitions": [
+    {
+      "id": "confront_correct",
+      "from_state": "investigating",
+      "to_state": "resolved_correct",
+      "conditions": [
+        {
+          "op": "fact_known",
+          "key": "fact.stolen_iron.harbor_road_dry"
+        },
+        {
+          "op": "fact_known",
+          "key": "fact.stolen_iron.cooper_gauge_marks"
+        },
+        {
+          "op": "fact_known",
+          "key": "fact.stolen_iron.apprentice_sawdust"
+        }
+      ],
+      "effects": [
+        {
+          "op": "adjust_relationship",
+          "key": "rel.mart_trust",
+          "amount": 1
+        }
+      ]
+    },
+    {
+      "id": "confront_uncertain",
+      "from_state": "investigating",
+      "to_state": "resolved_uncertain",
+      "conditions": [
+        {
+          "op": "fact_known",
+          "key": "fact.stolen_iron.harbor_road_dry"
+        }
+      ],
+      "effects": [
+        {
+          "op": "adjust_relationship",
+          "key": "rel.mart_trust",
+          "amount": 0
+        }
+      ]
+    },
+    {
+      "id": "confront_misaccused",
+      "from_state": "investigating",
+      "to_state": "resolved_misaccused",
+      "effects": [
+        {
+          "op": "adjust_relationship",
+          "key": "rel.mart_trust",
+          "amount": -1
+        }
+      ]
+    }
+  ],
+  "objectives": [
+    {
+      "id": "collect_yard_clues",
+      "text": "Inspect the yard, lane, and neighboring workshops for theft clues.",
+      "state_id": "investigating"
+    }
+  ],
+  "journal_evidence": [
+    {
+      "fact_id": "fact.stolen_iron.harbor_road_dry",
+      "text": "The harbor cart road stayed dry overnight, so no courier wagon reached the smithy lane."
+    },
+    {
+      "fact_id": "fact.stolen_iron.cooper_gauge_marks",
+      "text": "Broken hasps match a cooper's banding gauge, not a harbor hook or apprentice pry bar."
+    },
+    {
+      "fact_id": "fact.stolen_iron.apprentice_sawdust",
+      "text": "Fresh oak sawdust from the neighboring apprentice bench trails back toward the missing crate."
+    },
+    {
+      "fact_id": "fact.stolen_iron.ledger_gap",
+      "text": "The yard ledger shows no legitimate sale or transfer for the missing bar stock."
+    }
+  ],
+  "investigation": {
+    "suspects": [
+      "suspect.harbor_courier",
+      "suspect.neighbor_apprentice",
+      "suspect.lane_cooper"
+    ],
+    "culprit_id": "suspect.neighbor_apprentice",
+    "min_clues_for_full_resolution": 3,
+    "clues": [
+      {
+        "fact_id": "fact.stolen_iron.harbor_road_dry",
+        "exonerates": [
+          "suspect.harbor_courier"
+        ]
+      },
+      {
+        "fact_id": "fact.stolen_iron.cooper_gauge_marks",
+        "exonerates": [
+          "suspect.lane_cooper"
+        ]
+      },
+      {
+        "fact_id": "fact.stolen_iron.apprentice_sawdust",
+        "exonerates": []
+      },
+      {
+        "fact_id": "fact.stolen_iron.ledger_gap",
+        "exonerates": []
+      }
+    ]
+  },
+  "outcomes": [
+    {
+      "id": "correct_accusation",
+      "summary": "The apprentice is exposed with a complete suspect pool.",
+      "effects": [
+        {
+          "op": "set_quest_state",
+          "key": "quest.stolen_iron",
+          "value": "resolved_correct"
+        }
+      ]
+    },
+    {
+      "id": "uncertain_confession",
+      "summary": "Partial clues force a shaky confession.",
+      "effects": [
+        {
+          "op": "set_quest_state",
+          "key": "quest.stolen_iron",
+          "value": "resolved_uncertain"
+        }
+      ]
+    },
+    {
+      "id": "wrong_accusation",
+      "summary": "A blind accusation lets the real thief slip away.",
+      "effects": [
+        {
+          "op": "set_quest_state",
+          "key": "quest.stolen_iron",
+          "value": "resolved_misaccused"
+        }
+      ]
+    }
+  ],
+  "content_links": {
+    "character_ids": [
+      "char.kalev",
+      "char.mart"
+    ],
+    "dialogue_ids": [
+      "dialogue.investigation.stolen_iron_confront"
+    ],
+    "location_ids": [
+      "loc.lower_town_slice",
+      "loc.kalev_smithy"
+    ]
+  },
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "P4-035 investigative quest fixture with suspect-pool narrowing and confrontation dialogue tiers.",
+      "citations": [
+        "scripts/quest/investigative_quest_model.gd",
+        "content/examples/support/dialogue.investigation.stolen_iron_confront.json"
+      ]
+    }
+  ]
+}

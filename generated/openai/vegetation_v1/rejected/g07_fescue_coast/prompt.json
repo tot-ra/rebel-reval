@@ -1,0 +1,13 @@
+{
+  "tool": "a2gent openai_generate_image",
+  "model": "gpt-image-1",
+  "size": "1024x1024",
+  "quality": "high",
+  "generation_id": "e08cf6c0-9847-4129-8e28-f2d3db9c8e19",
+  "prompt": "Seamless tileable ground texture, photographed straight down (orthographic top-down view) covering about one square metre: tussocky grey-green fine fescue grass on a coastal meadow, thin wiry blades with pale sandy soil showing between tufts. Even soft overcast daylight, no cast shadows, no perspective, no horizon, no central subject, uniform density over the whole frame, photorealistic scan quality, no text.",
+  "file": "source.png",
+  "sha256": "5cc37e65240b46b8ae252369ddf4350881addba26d06836994a53f1c3bf847b5",
+  "task": "R-1103/R-1101/R-1102",
+  "selected": false,
+  "rejection": "regular repeated tuft pattern reads as a grid when tiled"
+}

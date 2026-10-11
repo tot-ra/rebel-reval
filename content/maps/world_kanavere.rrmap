@@ -1,0 +1,25 @@
+# Kanavere Bog battlefield greybox for the attested May 11 milestone.
+rrmap 1
+map world.kanavere loc.world_kanavere 54 30 bog scope=prototype active=false palette=clean_painted_outdoor seed=1348 cell_size=32
+source "scenes/world_travel/world_kanavere.tscn"
+source "wiki/events/battle_of_kanavere_bog.md"
+source "docs/CANON.md"
+source "docs/reports/global_map_mockups.md"
+terrain northern_bog bog 0 0 54 8 order=1
+terrain flooded_margin mud 0 8 54 5 order=2
+terrain causeway dirt 2 13 50 6 order=3
+terrain south_meadow meadow 0 19 54 11 order=4
+building west_fieldworks wall 8 10 1 11 primitive=ditch_edge wall_height=18
+building east_fieldworks wall 45 10 1 11 primitive=ditch_edge wall_height=18
+building field_shelter house 23 20 8 4 primitive=work_shed wall_height=42
+prop broken_cart cart 18 17 primitive=cart
+prop signal_fire barrels 27 15 primitive=signal_fire
+prop field_standard banner 36 17 primitive=standard
+anchor landmark_bog_causeway 27 15 kind=bog_causeway
+anchor landmark_west_fieldworks 9 17 kind=fieldworks
+anchor landmark_east_fieldworks 44 17 kind=fieldworks
+spawn prototype_inspection 4 25
+patrol prototype_inspection_route 4,25|15,24|27,24|39,24|50,25
+transition road_to_harju 0 24 4 4 to=world_harju destination_spawn=from_world_kanavere spawn=from_world_harju spawn_offset_px=128,0 highlight_area=true transition_visual=ground alignment=travel
+transition road_to_rebel_kings 0 14 4 4 to=world_rebel_kings destination_spawn=from_world_kanavere spawn=from_world_rebel_kings spawn_offset_px=128,0 highlight_area=true transition_visual=ground alignment=travel
+transition road_to_paide 50 24 4 4 to=world_paide destination_spawn=from_world_kanavere spawn=from_world_paide spawn_offset_px=-128,0 highlight_area=true transition_visual=ground alignment=travel

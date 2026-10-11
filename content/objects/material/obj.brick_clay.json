@@ -1,0 +1,71 @@
+{
+  "type": "world_object",
+  "id": "obj.brick_clay",
+  "name": "Clay brick",
+  "description": "A fired clay brick: building stock, a doorstop, or an improvised missile.",
+  "category": "material",
+  "handling": "carry_one_hand",
+  "tags": [
+    "building",
+    "improvised_weapon",
+    "throwable"
+  ],
+  "physical": {
+    "mass_kg": 1.8,
+    "size_m": [
+      0.28,
+      0.07,
+      0.14
+    ],
+    "materials": [
+      "brick"
+    ]
+  },
+  "actions": [
+    "inspect",
+    "take",
+    "drop",
+    "throw",
+    "stack"
+  ],
+  "economy": {
+    "base_pfennigs": 1,
+    "ownership": "public",
+    "legality": "legal",
+    "theft_severity": 0
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "street",
+      "harbor",
+      "farm",
+      "church"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "missing"
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.brick_clay.png",
+    "icon": "res://assets/objects/icons/obj.brick_clay.png",
+    "icon_status": "missing",
+    "look": "Rough orange-red fired clay brick with a chipped corner.",
+    "image_prompt": "A single rough fired clay brick, orange-red with a chipped corner"
+  },
+  "lifecycle": "planned",
+  "confidence": "plausible composite",
+  "carry": {
+    "grid_width": 2,
+    "grid_height": 1,
+    "stackable": true,
+    "max_stack": 6
+  },
+  "throw": {
+    "range_m": 6.0,
+    "damage": 5,
+    "breaks": false,
+    "noise": "loud"
+  }
+}
