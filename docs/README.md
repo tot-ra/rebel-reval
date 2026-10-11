@@ -110,6 +110,7 @@ One page per feature, with status, behavior, code entry points, content, saved s
 - [Vanapagan](BESTIARY/cards/vanapagan.md)
 - [Vanapagan cultist](BESTIARY/cards/vanapagan_cultist.md)
 - [Vetevana](BESTIARY/cards/vetevana.md)
+- [Virmalised (the sky battle)](BESTIARY/cards/virmalised.md)
 - [Vodyanoy](BESTIARY/cards/vodyanoy.md)
 
 #### `concept/`

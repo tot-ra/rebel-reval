@@ -43,7 +43,7 @@ Spirit duel ([ADR 0033](../../adr/0033-teen-protagonist-and-spirit-dialogue-comb
 - (rest) "Now I can sleep."
 
 ## Relationships and factions
-The Church and the family both fear it; a priest may refuse to help. Related: [kulmking](./kulmking.md), [luupainaja](./luupainaja.md), [hinged](./hinged.md) (the household's collective dead, hosted each autumn, not one wrongful return).
+The Church and the family both fear it; a priest may refuse to help. Related: [kulmking](./kulmking.md), [luupainaja](./luupainaja.md), [hinged](./hinged.md) (the household's collective dead, hosted each autumn, not one wrongful return), [virmalised](./virmalised.md) (the battle dead who stay in the sky).
 
 ## Game hooks
 Slice quest seed: a dead tanner at the Lower Town; the apprentice finds his missing rite. Spirit-duel teacher: first lesson on resolving without force.

@@ -14,10 +14,10 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `1195`
+- Active Markdown files scanned: `1196`
 - Markdown files excluded as archive/reference/out of active scope: `758`
-- Local/external links inspected: `13669`
-- Links to active Markdown docs: `12302`
+- Local/external links inspected: `13683`
+- Links to active Markdown docs: `12315`
 - Links to existing archive/reference/non-active local docs: `486`
 - External links skipped for reachability: `151`
 - Issues found: `0`
@@ -183,6 +183,7 @@ No active Markdown documentation issues found.
 - `docs/BESTIARY/cards/vanapagan.md`
 - `docs/BESTIARY/cards/vanapagan_cultist.md`
 - `docs/BESTIARY/cards/vetevana.md`
+- `docs/BESTIARY/cards/virmalised.md`
 - `docs/BESTIARY/cards/vodyanoy.md`
 - `docs/BESTIARY/README.md`
 - `docs/BESTIARY/TEMPLATE.md`

@@ -48,7 +48,7 @@ Spirit duel ([ADR 0033](../../adr/0033-teen-protagonist-and-spirit-dialogue-comb
 - (a soft flicker, no sound)
 
 ## Relationships and factions
-Used by [Black Cloaks](../../CITIZENS/factions/black_cloaks.md) as cache markers. Related: [kodukaija](./kodukaija.md), [kratt](./kratt.md).
+Used by [Black Cloaks](../../CITIZENS/factions/black_cloaks.md) as cache markers. Related: [kodukaija](./kodukaija.md), [kratt](./kratt.md), [virmalised](./virmalised.md) (the sky battle, split from the same 4b row).
 
 ## Game hooks
 Act 1 seed: find the Black Cloaks' hidden cache by reading the lights. First meet: a village graveyard at night.
