@@ -15,6 +15,7 @@ Status: partial (core **SeasonState** implemented; presentation tasks planned, [
 
 | Piece | File | Status |
 |---|---|---|
+| `Snowfall3D` emitter | `scripts/map/view3d/snowfall_3d.gd` | implemented (test `tests/godot/test_snowfall.gd`, plates `tools/capture_snowfall.gd`) |
 | `SeasonState` (pure climate by date) | `scripts/global/season_state.gd` | implemented (test `tests/godot/test_season_state.gd`) |
 | Calendar, sun path | `scripts/global/game_calendar.gd`, `scripts/map/view3d/sky_astronomy.gd` | existing: the sun already follows the date |
 | Crown phenology, falling leaves | `vegetation_phenology.gd`, `tree_leaf_fall_3d.gd` | existing |
@@ -27,7 +28,7 @@ Status: partial (core **SeasonState** implemented; presentation tasks planned, [
 |---|---|---|
 | 1 | Core `SeasonState` | done |
 | 2 | Debug season/date control | done: `[` `]` step a day (Shift: 30 days), `F5`..`F8` jump to winter/spring/summer/autumn; clock speed already on the existing ladder |
-| 3 | Snowfall weather | three looks, GPU particles, shared with rain budget |
+| 3 | Snowfall weather | done: three looks (fine, flakes, heavy), one pooled GPU emitter, see **Snowfall** |
 | 4 | Ground snow, roof snow, icicles, melt | shader `snow_depth` uniforms, thaw by temperature |
 | 5 | Movement in snow and footprints | extends the mud trail |
 | 6 | Ice on puddles, ponds, moat, rivers, shore | |
@@ -37,6 +38,17 @@ Status: partial (core **SeasonState** implemented; presentation tasks planned, [
 | 10 | Chimney smoke by `heating_demand`; wall weathering; save; docs | |
 
 Every visual task must record High (25 fps) and Medium (30 fps) results from the F3 monitor.
+
+## Snowfall
+
+Status: implemented (precipitation only; ground and roof snow are the next tasks).
+
+- When the weather state rains and the date's `snow_share` is 0.5 or more (about November to early April), `SkyWeather3D` shows the snow emitter instead of the rain streaks. `precipitation_snow_share()`, `snow_emitter_visible()`.
+- Three looks picked from intensity and wind, no RNG (`Snowfall3D.kind_for`): **fine** (small, light, slow), **flakes** (big soft flakes sinking slowly), **heavy** (dense, fast, wind-driven blizzard). Wind slant uses the same `rain_slant()` as rain.
+- Snow does not fill puddles (`_advance_ground_water` uses the liquid share only) and drums a tenth as loud on roofs.
+- Cost: one `GPUParticles3D`, the rain tier's particle budget (700 Medium-class minimum, 2200 recommended), one billboard quad each. The rain emitter is hidden while it snows, so total particle cost does not add up. Flakes dim with the sun so unshaded flakes do not glow at night.
+- Gotchas found while building it (keep): `billboard_keep_scale = true` is required or flake size is dropped; `ParticleProcessMaterial` turbulence made flakes vanish in the Mobile renderer, so wobble is a `spread` cone instead; the follow camera looks down, so the flake column runs 8 m above to 12 m below the lens and sits 10 m ahead of it.
+- Not yet measured in the city with the F3 monitor (task 10 gate: 25 fps High, 30 fps Medium).
 
 ## Debug controls
 
@@ -51,4 +63,4 @@ Every visual task must record High (25 fps) and Medium (30 fps) results from the
 
 ## Limits
 
-Only the core exists; nothing consumes it yet.
+Snowfall consumes the climate; everything else (ground and roof snow, ice, vegetation, sky, clothing, smoke, movement) is still planned.

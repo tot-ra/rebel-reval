@@ -16,6 +16,8 @@ const SkyAtmosphereLutScript := preload("res://scripts/map/view3d/sky_atmosphere
 const AtmosphereCpuScript := preload("res://scripts/map/view3d/atmosphere_cpu.gd")
 const SKY_RESOURCES := preload("res://scripts/map/view3d/sky_weather_resources.gd")
 const SkyWeatherRoofAudioScript := preload("res://scripts/map/view3d/sky_weather_roof_audio.gd")
+const SnowfallScript := preload("res://scripts/map/view3d/snowfall_3d.gd")
+const PerfProbeScript := preload("res://scripts/debug/perf_probe.gd")
 const SkyWeatherStateScript := preload("res://scripts/map/view3d/sky_weather_state.gd")
 const CloudCellsScript := preload("res://scripts/map/view3d/cloud_cells.gd")
 ## Catalog stars baked per staged-assembly unit (about 1 ms each).
@@ -555,7 +557,14 @@ var _star_map: ImageTexture
 var _star_twinkle_time := 0.0
 var _camera: Camera3D
 var _environment: Environment
+## Cloud-cell volume march of the dome, set from the graphics quality rows
+## (GraphicsPresets sky_cell_*); empty keys keep the tier's own values. The dome is the
+## costliest pass of a cloudy sky (up to ~50 ms looking straight up on the mid row).
+var _cell_march_override: Dictionary = {}
+
 var _rain: GPUParticles3D
+## ADR 0045: replaces the rain streaks while precipitation falls as snow.
+var _snow: SnowfallScript
 var _roof_audio: SkyWeatherRoofAudio
 var _cloud_resources_available := false
 var _atmosphere_lut: SkyAtmosphereLutScript
@@ -594,12 +603,6 @@ func _quality_settings() -> Dictionary:
 
 func fog_quality() -> float:
 	return float(_quality_settings()["fog_quality"])
-
-
-## Cloud-cell volume march of the dome, set from the graphics quality rows
-## (GraphicsPresets sky_cell_*); empty keys keep the tier's own values. The dome is the
-## costliest pass of a cloudy sky (up to ~50 ms looking straight up on the mid row).
-var _cell_march_override: Dictionary = {}
 
 
 func set_cell_march(steps: int, fine: int, light: int, ray: int) -> void:
@@ -641,6 +644,8 @@ func _apply_quality_resources(cloud_noise: Texture2D = null, cloud_shape: Textur
 	_apply_atmosphere_lut(settings)
 	if _rain != null:
 		_rain.amount = int(settings["rain_particles"])
+	if _snow != null:
+		_snow.set_budget(int(settings["rain_particles"]))
 
 
 ## R-1400: 3D noise for the discrete cloud cells, rebuilt only when the tier changes size.
@@ -837,8 +842,6 @@ func _weather_for_profile(profile: Dictionary) -> StringName:
 	return weather
 
 
-const PerfProbeScript := preload("res://scripts/debug/perf_probe.gd")
-
 
 func _process(delta: float) -> void:
 	var probe_start := PerfProbeScript.start()
@@ -931,6 +934,9 @@ func configure_steps(camera: Camera3D, environment: Environment) -> Array[Callab
 	var rain := func() -> void:
 		_rain = SKY_RESOURCES.build_rain(int(_quality_settings()["rain_particles"]))
 		add_child(_rain)
+		_snow = SnowfallScript.new()
+		_snow.configure(int(_quality_settings()["rain_particles"]))
+		add_child(_snow)
 	var attach := func() -> void:
 		_roof_audio = SkyWeatherRoofAudioScript.new()
 		_roof_audio.name = "RoofRainAudio"
@@ -1288,6 +1294,7 @@ func presentation_snapshot(progress: float, day_blend: float) -> WeatherPresenta
 	snapshot.moon_direction = lunar_direction(progress, calendar_date)
 	snapshot.wind_direction = wind_direction_xz()
 	snapshot.wind_strength = wind_strength()
+	snapshot.wind_gust_level = clampf(_gust / GUST_PEAK, 0.0, 1.0)
 	snapshot.rain_intensity = rain_intensity()
 	snapshot.puddle_wetness = puddle_wetness()
 	snapshot.ground_dryness = ground_dryness()
@@ -1297,7 +1304,6 @@ func presentation_snapshot(progress: float, day_blend: float) -> WeatherPresenta
 	snapshot.lightning = float(modifiers["lightning"])
 	snapshot.fog_quality = fog_quality()
 	snapshot.sunset_factor = sunset_factor
-	snapshot.wind_gust_level = clampf(_gust / GUST_PEAK, 0.0, 1.0)
 	snapshot.sunset_tint = float(modifiers["sunset_tint"])
 	snapshot.sun_energy = float(modifiers["sun_energy"])
 	snapshot.ambient_energy = float(modifiers["ambient_energy"])
@@ -1578,7 +1584,8 @@ func _maybe_start_drought() -> void:
 
 ## Rain, puddles and dryness share one ground-water budget, in weather seconds.
 func _advance_ground_water(delta: float) -> void:
-	var rain := rain_intensity()
+	# ADR 0045: snow lies instead of running off; only the liquid share wets the soil.
+	var rain := rain_intensity() * (1.0 - precipitation_snow_share())
 	var rain_fill := rain * PUDDLE_RAIN_FILL_PER_SECOND
 	if rain > 0.001:
 		# Rain (even a forced debug shower) breaks a drought, and the dry crust
@@ -2007,7 +2014,10 @@ func _update_rain(delta: float = 0.0) -> void:
 	if _rain == null:
 		return
 	var local_rain := local_rain_intensity()
-	_rain.visible = rain_emitter_visible()
+	var snow_share := precipitation_snow_share()
+	var snowing := snow_share >= 0.5
+	_rain.visible = rain_emitter_visible() and not snowing
+	_update_snow(local_rain, snowing)
 	if _rain.visible:
 		_rain.amount_ratio = clampf(local_rain, 0.05, 1.0)
 	var process := _rain.process_material as ParticleProcessMaterial
@@ -2028,7 +2038,36 @@ func _update_rain(delta: float = 0.0) -> void:
 		)
 	if _roof_audio != null:
 		# A roof only drums when the storm cell is over the building.
-		_roof_audio.sync(rain_suppressed, local_rain, delta)
+		# Snow settles quietly on a roof: a tenth of the drumming.
+		_roof_audio.sync(rain_suppressed, local_rain * (1.0 - 0.9 * snow_share), delta)
+
+
+## ADR 0045: share (0..1) of the precipitation that falls as snow on the campaign
+## date, from the Tallinn climate. 0 in warm months, 1 in deep winter.
+func precipitation_snow_share() -> float:
+	return SeasonState.snow_share(SeasonState.day_of_year_for(calendar_date))
+
+
+## Whether the snowfall emitter should draw this frame (the snow twin of
+## rain_emitter_visible()).
+func snow_emitter_visible() -> bool:
+	return rain_emitter_visible() and precipitation_snow_share() >= 0.5
+
+
+func _update_snow(local_rain: float, snowing: bool) -> void:
+	if _snow == null:
+		return
+	_snow.visible = snowing and not rain_suppressed and local_rain > 0.02
+	if not _snow.visible:
+		return
+	# Flakes are unshaded, so dim them with the sun: grey-blue at night.
+	var brightness := lerpf(0.42, 1.0, smoothstep(-0.12, 0.25, _sun_direction.y))
+	_snow.update_snowfall(local_rain, wind_strength(), rain_slant(), brightness)
+	if _camera != null:
+		_snow.global_position = SnowfallScript.emitter_position(
+			_camera.global_position, -_camera.global_transform.basis.z,
+			rain_slant(), SnowfallScript.EMIT_HEIGHT
+		)
 
 
 func _push_cloud_uniforms() -> void:
