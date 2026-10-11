@@ -34,6 +34,73 @@ func test_vitals_follow_damage_recovery_restore_and_zero_maximum() -> void:
 	owner.free()
 
 
+func test_health_trail_holds_then_drains_and_snaps_on_healing() -> void:
+	var owner := VitalsOwner.new()
+	var hud := Vitals.new()
+	hud.follow_settings = false
+	owner.add_child(hud)
+	_tree().root.add_child(owner)
+	assert_eq(hud._health.trail_ratio, 0.72, "No trail before any damage")
+	owner.health = 40
+	hud._process(0.1)
+	assert_eq(hud._health.ratio, 0.4)
+	assert_eq(hud._health.trail_ratio, 0.72, "Trail holds the pre-hit value")
+	owner.health = 30
+	hud._process(0.1)
+	assert_eq(hud._health.trail_ratio, 0.72, "A second hit extends the same trail")
+	hud._process(Vitals.TRAIL_HOLD)
+	assert_true(hud._health.trail_ratio < 0.72 and hud._health.trail_ratio > 0.3,
+		"Trail drains gradually after the hold")
+	for _i in 20:
+		hud._process(0.1)
+	assert_eq(hud._health.trail_ratio, 0.3, "Trail ends at the current health")
+	owner.health = 20
+	hud._process(0.0)
+	owner.health = 90
+	hud._process(0.0)
+	assert_eq(hud._health.trail_ratio, 0.9, "Healing clears the trail at once")
+	hud.reduced_motion = true
+	owner.health = 50
+	hud._process(0.0)
+	hud._process(Vitals.TRAIL_HOLD + 0.01)
+	assert_eq(hud._health.trail_ratio, 0.5, "Reduced motion clears the trail without a drain")
+	owner.free()
+
+
+func test_vitals_fade_out_at_rest_and_return_on_change() -> void:
+	var owner := VitalsOwner.new()
+	owner.health = 100
+	owner.stamina = 100
+	var hud := Vitals.new()
+	hud.follow_settings = false
+	owner.add_child(hud)
+	_tree().root.add_child(owner)
+	var root := hud.get_node("VitalsRoot") as Control
+	hud._process(Vitals.FADE_DELAY - 0.5)
+	assert_eq(root.modulate.a, 1.0, "Stays visible before the delay")
+	hud._process(0.5)
+	assert_true(root.modulate.a > 0.0 and root.modulate.a < 1.0, "Fades gradually")
+	hud._process(Vitals.FADE_OUT_SECONDS)
+	assert_eq(root.modulate.a, 0.0)
+	owner.stamina = 90
+	hud._process(Vitals.FADE_IN_SECONDS)
+	assert_eq(root.modulate.a, 1.0, "Any spend brings the block straight back")
+	owner.stamina = 100
+	hud._process(Vitals.FADE_DELAY - 0.5)
+	owner.health = 99
+	hud._process(1.0)
+	assert_eq(root.modulate.a, 1.0, "Damage restarts the idle timer")
+	hud.reduced_motion = true
+	owner.health = 100
+	hud._process(Vitals.FADE_DELAY)
+	hud._process(0.01)
+	assert_eq(root.modulate.a, 0.0, "Reduced motion hides without an alpha ramp")
+	owner.health = 10
+	hud._process(0.0)
+	assert_eq(root.modulate.a, 1.0, "Reduced motion shows again at once")
+	owner.free()
+
+
 func test_player_scene_mounts_hud_and_hides_legacy_bars() -> void:
 	# Inspect the packed state without loading a live gameplay scene or saves.
 	var scene := load("res://player.tscn") as PackedScene

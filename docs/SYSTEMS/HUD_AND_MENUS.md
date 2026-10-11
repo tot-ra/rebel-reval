@@ -35,7 +35,7 @@ Status: implemented (task **R-1698**). Esc opens `GameSettingsOverlay` (`scripts
 |---|---|---|
 | Minimap | `scripts/ui/minimap_hud.gd` (+ `MinimapTextureBuilder`, `MinimapPalette`) | Circular map built from the compiled `MapDefinition` (one pixel per cell), player marker, bronze rim art (`assets/UI/minimap/minimap_rim.png`, AI-generated slim bronze ring, shared with the seamless-city `CityMinimap`), location name (`LocationHud` naming table) |
 | Quest pouch | `scripts/inventory/quest_pouch_hud.gd` | Up to three quest tools (`gameplay.visible_in_pouch`) beside the satchel |
-| Player vitals | `scripts/ui/player_vitals_hud.gd` (`PlayerVitalsHud`, mounted in `player.tscn`) | Bottom-left red health bar and gold stamina bar in bronze-edged frames, with `HEALTH 64 / 100` style labels. Polls the parent `Player` (`health`, `max_health`, `stamina`, `max_stamina`) each frame, so damage, regeneration and restores all show. Click-through. Task **R-1698** |
+| Player vitals | `scripts/ui/player_vitals_hud.gd` (`PlayerVitalsHud`, mounted in `player.tscn`) | Bottom-left red health bar and gold stamina bar in a painted bronze rope-twist frame (`assets/UI/vitals/vitals_bar_frame.png`, 9-slice drawn at half scale, same family as the minimap rim), with `HEALTH 64 / 100` style labels. Polls the parent `Player` (`health`, `max_health`, `stamina`, `max_stamina`) each frame, so damage, regeneration and restores all show. A hit leaves a pale "damage taken" trail that holds 0.6 s and then drains to the new value (rapid hits stack into one trail; healing clears it). After 4 s at full health and stamina the block fades out over 0.8 s and returns within 0.15 s on any change. With Settings > Reduced motion the trail clears without a drain and the block hides/shows without an alpha ramp. Click-through. Tasks **R-1698**, **R-1798** |
 | Health bars (others) | `character_health_ring.gd` (2D), `character_health_ring_3d.gd` (over rigs) | Overhead bars for enemies and NPCs. The player's 2D `HealthRing`/`StaminaBar` are hidden and its 3D rig ring is removed in `MapViewRuntimeActors.configure` |
 | Mana orb | `scripts/ui/mana_orb.gd` | Magic resource ([`MAGIC.md`](./MAGIC.md)) |
 | Combat feedback | `scripts/combat/combat_feedback_hud.gd` | Hit and stagger feedback ([`COMBAT.md`](./COMBAT.md)) |
@@ -76,13 +76,14 @@ Captures: `tools/godot_render.sh res://tools/capture_hud_gameplay_host.tscn` (re
 | Screen | Capture |
 |---|---|
 | Main menu (unchanged) | [game_main_menu.jpg](../reports/images/hud_menus/game_main_menu.jpg) |
-| HUD in the city | [game_hud_city.jpg](../reports/images/hud_menus/game_hud_city.jpg) |
+| HUD in the city (painted frame) | [game_hud_city.jpg](../reports/images/hud_menus/game_hud_city.jpg) |
+| Damage trail after a hit (64 -> 30) | [game_hud_damage_trail.jpg](../reports/images/hud_menus/game_hud_damage_trail.jpg) |
 | Escape menu in the city | [game_escape_menu.jpg](../reports/images/hud_menus/game_escape_menu.jpg) |
 | Escape menu before / after (stage, 1920) | [before](../reports/images/hud_menus/escape_before_1920.png), [after](../reports/images/hud_menus/escape_after_1920.png) |
 | Escape menu before / after (stage, 1280) | [before](../reports/images/hud_menus/escape_before_1280.png), [after](../reports/images/hud_menus/escape_after_1280.png) |
 | Vitals before / after (stage) | [before](../reports/images/hud_menus/vitals_before_1920.png), [after](../reports/images/hud_menus/vitals_after_1920.png), [after 1280](../reports/images/hud_menus/vitals_after_1280.png) |
 
-**Current approach.** The HUD is minimal and diegetic-leaning: the bronze-rimmed minimap with location lines (top right), the quest-tool pouch (top left), the vitals (bottom left), interaction glyphs in the world, and no permanent action bar. Every command lives in the Escape menu or on a hotkey. All UI is built in code (no `.tscn` per screen) with per-screen colour overrides; the minimap rim is the only painted UI asset.
+**Current approach.** The HUD is minimal and diegetic-leaning: the bronze-rimmed minimap with location lines (top right), the quest-tool pouch (top left), the vitals (bottom left), interaction glyphs in the world, and no permanent action bar. Every command lives in the Escape menu or on a hotkey. All UI is built in code (no `.tscn` per screen) with per-screen colour overrides; the minimap rim and the vitals bar frame are the only painted UI assets.
 
 **What works.** The minimap: painted rim, rotating map, clear location hierarchy. The empty playfield. One handler route per action (`QuickAccessMenu`), shared by hotkeys, menu and tests.
 
@@ -92,7 +93,7 @@ Captures: `tools/godot_render.sh res://tools/capture_hud_gameplay_host.tscn` (re
 2. The main menu is a centred stack of yellow (`#FAD606`) `RichTextLabel`s over the intro video with no hover or focus state beyond the cursor. It should get the same left-aligned list, bronze focus bar and type scale as the Escape menu, plus Continue (latest save) as the first entry.
 3. No display typeface. Everything uses Noto Sans; titles would read better in a licensed serif or blackletter display face (needs an asset task and a `SOURCES.csv` row).
 4. The Escape menu is one long settings page. Split it into tabs (Game / Graphics / Audio / Accessibility / Controls) once there are more than about 20 rows, and move Debug out of the player list in release builds.
-5. The vitals frames are drawn with flat polygons. A painted bronze frame (same family as the minimap rim) and a delayed "damage taken" trail on the health bar would match the reference better.
+5. ~~The vitals frames are drawn with flat polygons.~~ Done in **R-1798**: painted bronze frame, delayed damage trail and idle fade.
 6. Willpower (mana orb) appears only in the spirit world and sits in the same corner; when it gets a world presence it should join the vitals block instead of stacking above it.
 
 ## Verify
@@ -107,7 +108,7 @@ godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_hud
 
 ## Limits
 
-- `PlayerVitalsHud` (layer 21) stays visible under dialogue (`DialogueUi`, layer 45); cutscenes (95) and the spirit arena (80) cover it. It has no fade-out when health and stamina are full.
+- `PlayerVitalsHud` (layer 21) stays visible under dialogue (`DialogueUi`, layer 45); cutscenes (95) and the spirit arena (80) cover it. It fades out after 4 s at full health and stamina (R-1798); stamina regeneration therefore keeps it visible until full. The trail is health-only; stamina has none.
 
 - `scenes/elements/gameplay_help_hud.tscn` and `scripts/ui/gameplay_help_hud.gd` are deprecated and mounted nowhere. Removal is tracked in the [code-health audit](../reports/code_health_audit_2026-10-07.md).
 - Global-map destinations are developer placeholders until their acts activate. Planned markers are positions only; promote one by removing its `planned` flag and adding neighbors and a gate in `GlobalMapCatalog`.

@@ -40,6 +40,10 @@ func _run() -> void:
 	player.set(&"stamina", 38.0)
 	await _settle(SETTLE_FRAMES)
 	await _capture("game_hud_city")
+	# A fresh hit inside PlayerVitalsHud.TRAIL_HOLD shows the pale damage trail (R-1798).
+	player.set(&"health", 30.0)
+	await _settle(4)
+	await _capture("game_hud_damage_trail")
 	var settings := player.get_node_or_null("GameSettingsController")
 	if settings == null:
 		return _fail("GameSettingsController missing")
