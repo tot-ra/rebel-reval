@@ -32,8 +32,27 @@ const SWASH_SHEET_OWN_UNIFORMS: Array[StringName] = [
 	&"swash_sheet", &"ripple_state", &"ripple_window", &"ripple_texel_count"
 ]
 
+## R-1734 oblique swash (shore_along_phase in shore_swash.gdshaderinc). Deep-water
+## celerity g T / (2 pi) of the fixed 9 s shore period: Snell's law conserves the
+## alongshore slowness sin(theta0) / c0 from deep water to the breaker line.
+const SWASH_DEEP_CELERITY := 9.81 * (1638.4 / 182.0) / TAU
+## Largest change of the alongshore slowness, seconds per world unit per ocean second.
+## WHY: the phase term p.(x - centre) is static only while p holds; changing p shifts
+## the wave frequency at x by dp/dt * |x - centre|. The city's beach band reaches
+## ~1090 m from its centroid, so this keeps that shift under 3 %, and a full swing
+## (0 to 1 / c0) takes ~45 minutes, about how long a swell keeps its old heading.
+const SWASH_ALONG_RATE := 2.5e-5
+## Ocean-clock gap (s) after which the slowness snaps to its target (load, time skip).
+const SWASH_ALONG_SNAP_GAP := 5.0
+
 ## Beach swash sheets reuse the water shader; one material per source water family.
 static var _swash_sheet_materials: Dictionary = {}
+## Dominant beach normal (towards land) and beach centroid of the bound bed; a zero
+## normal (district maps) keeps the swash shore-normal.
+static var _along_normal := Vector2.ZERO
+static var _along_centre := Vector2.ZERO
+static var _along_slowness := Vector2.ZERO
+static var _along_clock := -1.0
 static var _shore_swash_quality_tier: StringName = SKY_WEATHER.QUALITY_RECOMMENDED
 
 
@@ -88,6 +107,10 @@ static func apply_shore_field(texture: Texture2D, origin: Vector2, size: Vector2
 	_set_shore_uniform(&"shore_foam_gain", 1.0)
 	_set_shore_uniform(&"shore_crest_shape", 0.0)
 	_set_shore_uniform(&"shore_bed_valid", 0.0)
+	_along_normal = Vector2.ZERO
+	_along_centre = Vector2.ZERO
+	settle_swash_obliquity()
+	_set_shore_uniform(&"shore_along_phase", Vector4.ZERO)
 	var extent := Vector2(maxf(size.x, 0.001), maxf(size.y, 0.001))
 	for material in _shore_materials():
 		if texture != null:
@@ -106,13 +129,63 @@ static func apply_shore_field(texture: Texture2D, origin: Vector2, size: Vector2
 ## WR-4: binds the city's shore atlas (CityShoreField.bake "bed_texture": the shore
 ## field and the bathymetry side by side) so the surf feels the real bed. Call after
 ## apply_shore_field(), which rebinds a plain field and turns this off again.
-static func apply_shore_bed(atlas: Texture2D) -> void:
+## R-1734: `along_normal` / `along_centre` (CityShoreField.bake) let an oblique onshore
+## wind turn the swash crests; a zero normal keeps them shore-normal.
+static func apply_shore_bed(
+	atlas: Texture2D, along_normal := Vector2.ZERO, along_centre := Vector2.ZERO
+) -> void:
 	if atlas == null:
 		return
 	for material in _shore_materials():
 		material.set_shader_parameter("shore_field", atlas)
 	_set_shore_uniform(&"shore_bed_valid", 1.0)
+	_along_normal = along_normal.normalized() if along_normal.length() > 0.0001 else Vector2.ZERO
+	_along_centre = along_centre
 	_sync_swash_sheets()
+
+
+## R-1734: alongshore slowness (seconds per world unit) of the shore wave train for a
+## downwind heading against the dominant beach normal (towards land). Snell's law:
+## |p| = sin(theta0) / c0 holds from deep water to the beach. Only an onshore wind
+## drives oblique crests; the gate fades it out towards alongshore and offshore winds.
+static func swash_along_slowness(wind_direction: Vector2, normal: Vector2) -> Vector2:
+	if normal.length_squared() < 0.0001 or wind_direction.length_squared() < 0.0001:
+		return Vector2.ZERO
+	var wind := wind_direction.normalized()
+	var onshore := wind.dot(normal)
+	var along := wind - normal * onshore
+	return along * smoothstep(0.0, 0.5, onshore) / SWASH_DEEP_CELERITY
+
+
+## R-1734: moves the swash obliquity towards the current wind at SWASH_ALONG_RATE on
+## the ocean clock and pushes shore_along_phase (p.x, p.y, centre.x, centre.y).
+static func apply_swash_obliquity(wind_direction: Vector2) -> void:
+	var target := swash_along_slowness(wind_direction, _along_normal)
+	var now := OceanFftSampler.ocean_time()
+	if _along_clock < 0.0:
+		_along_slowness = target
+	else:
+		var gap := fposmod(now - _along_clock, MapViewRuntimeEnvironment.OCEAN_TIME_WRAP_SECONDS)
+		if gap > SWASH_ALONG_SNAP_GAP:
+			_along_slowness = target
+		else:
+			_along_slowness = _along_slowness.move_toward(target, SWASH_ALONG_RATE * gap)
+	_along_clock = now
+	var phase := Vector4(_along_slowness.x, _along_slowness.y, _along_centre.x, _along_centre.y)
+	if _along_normal == Vector2.ZERO:
+		phase = Vector4.ZERO
+	# _shore_materials() includes the swash sheets, so no full mirror is needed.
+	_set_shore_uniform(&"shore_along_phase", phase)
+
+
+## The next apply_swash_obliquity() jumps to its target (map binding, captures, tests).
+static func settle_swash_obliquity() -> void:
+	_along_clock = -1.0
+
+
+## Current smoothed alongshore slowness, seconds per world unit.
+static func swash_along_state() -> Vector2:
+	return _along_slowness
 
 
 ## Minimum tier drops the sheet mesh but keeps the bore foam and wet sand. Like

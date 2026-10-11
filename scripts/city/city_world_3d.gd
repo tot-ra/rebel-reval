@@ -197,6 +197,8 @@ func apply_season(date: Dictionary) -> void:
 		water.set_shader_parameter("ice", ice)
 		water.set_shader_parameter("ice_snow", ice_snow)
 	MoatPlants.apply_season(moat_plants, doy)
+	# Fresh-coloured fallen leaves in autumn, brown later, hidden under snow.
+	CityVegetationBuilder.apply_litter_season(date, ice_snow)
 	var ground := CityTerrainBuilder.shared_material()
 	if ground == null:
 		return
@@ -769,7 +771,9 @@ func _bind_shore_field(shore: Dictionary) -> void:
 	)
 	# WR-4: the surf feels the baked bathymetry (bars, reefs, shingle, quays).
 	var bed: Texture2D = shore["bed_texture"]
-	MapViewMaterials.apply_shore_bed(bed)
+	var along_normal: Vector2 = shore.get("along_normal", Vector2.ZERO)
+	var along_centre: Vector2 = shore.get("along_centre", Vector2.ZERO)
+	MapViewMaterials.apply_shore_bed(bed, along_normal, along_centre)
 	mirror_shore_to_ground()
 	spray = ShoreSpray.new()
 	spray.name = "ShoreSpray"
@@ -786,7 +790,7 @@ func _bind_shore_field(shore: Dictionary) -> void:
 				SURF_FOAM_GAIN,
 				SURF_CREST_SHAPE
 			)
-			MapViewMaterials.apply_shore_bed(bed)
+			MapViewMaterials.apply_shore_bed(bed, along_normal, along_centre)
 			mirror_shore_to_ground()
 	)
 

@@ -267,6 +267,8 @@ static func apply_sea_weather(
 	# WS-08: the shore wave sets read the same scalar sea state as the FFT table,
 	# so a storm lengthens run-up on the water and the wet band on the sand together.
 	SHORE_MATERIALS.apply_sea_state(wind, rain)
+	# R-1734: an oblique onshore wind turns the swash crests (slowly, see the rate).
+	SHORE_MATERIALS.apply_swash_obliquity(wind_direction)
 
 
 static func apply_water_lighting(sun_visibility: float, day_blend: float) -> void:
@@ -296,8 +298,16 @@ static func apply_shore_field(texture: Texture2D, origin: Vector2, size: Vector2
 
 
 ## WR-4: the city's bathymetry for the bed-aware surf; after apply_shore_field().
-static func apply_shore_bed(texture: Texture2D) -> void:
-	SHORE_MATERIALS.apply_shore_bed(texture)
+## R-1734: the dominant beach normal and centroid enable oblique swash crests.
+static func apply_shore_bed(
+	texture: Texture2D, along_normal := Vector2.ZERO, along_centre := Vector2.ZERO
+) -> void:
+	SHORE_MATERIALS.apply_shore_bed(texture, along_normal, along_centre)
+
+
+## R-1734: the next sea-weather push sets the swash obliquity without its slew limit.
+static func settle_swash_obliquity() -> void:
+	SHORE_MATERIALS.settle_swash_obliquity()
 
 
 ## R-1160: binds one map's river channel centreline, so the current follows the

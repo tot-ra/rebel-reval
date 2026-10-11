@@ -97,7 +97,7 @@ const OBSTACLE_SEA_UNIFORMS: Array[StringName] = [
 	&"wind_direction", &"shore_geometry_scale", &"shore_field", &"shore_field_origin",
 	&"shore_field_size", &"shore_field_valid", &"shore_sea_state", &"shore_strength",
 	&"shore_tide_offset", &"shore_runup_gain", &"shore_wave_gain", &"shore_depth_scale",
-	&"shore_foam_gain", &"shore_crest_shape", &"shore_bed_valid",
+	&"shore_foam_gain", &"shore_crest_shape", &"shore_bed_valid", &"shore_along_phase",
 ]
 
 ## Texels per window side (256 on recommended). 0 means the sim is off.

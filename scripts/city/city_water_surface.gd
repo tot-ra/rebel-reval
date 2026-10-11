@@ -23,6 +23,8 @@ const BED_PLUNGE_XI := Vector2(0.45, 0.8)
 const BED_SURGE_XI := Vector2(1.6, 2.4)
 const BED_CREST_WIDTH := 0.24
 const BED_NONE := Vector4(0.0, -1.0, 0.0, 0.0)
+## R-1734 longshore current gain (LONGSHORE_K in shore_swash.gdshaderinc).
+const LONGSHORE_K := 1.17
 
 
 static func field_at(shore: Dictionary, xz: Vector2) -> Vector4:
@@ -279,8 +281,11 @@ static func bed_state(
 	var strength := _float_parameter(mat, &"shore_strength", 1.0)
 	var energy := lerpf(0.35, 1.0, sea) * strength
 	var h_deep := 0.34 * energy * _float_parameter(mat, &"shore_wave_gain", 1.0)
+	# R-1734: oblique swash phase, p . (x - centre) (shore_along_phase).
+	var along: Vector4 = _parameter(mat, &"shore_along_phase", Vector4.ZERO)
+	var along_delay := Vector2(along.x, along.y).dot(xz - Vector2(along.z, along.w))
 	var cycle := (
-		(time - maxf(bed.y, 0.0)) / PERIOD
+		(time - maxf(bed.y, 0.0) - along_delay) / PERIOD
 		+ BED_PHASE_VARIATION * _noise(xz * 0.02 + Vector2(0.0, 3.7))
 	)
 	var u := cycle - floorf(cycle)
@@ -323,6 +328,18 @@ static func bed_state(
 	out["breaking"] = breaking
 	out["reformed"] = broke_before * (1.0 - breaking)
 	return out
+
+
+## R-1734 mirror of shore_longshore_current's speed (m/s, mid surf zone) for a sea
+## state, family strength, breaker gain and alongshore slowness against the local
+## wave travel direction (seconds per world unit).
+static func longshore_speed(
+	sea_state: float, strength: float, wave_gain: float, along_slowness: float
+) -> float:
+	var energy := lerpf(0.35, 1.0, clampf(sea_state, 0.0, 1.0)) * strength
+	var h_b := bed_break_depth(0.34 * energy * wave_gain)
+	var sin_b := clampf(along_slowness * sqrt(9.81 * h_b), 0.0, 0.99)
+	return LONGSHORE_K * sqrt(9.81 * GAMMA * h_b) * sin_b * sqrt(1.0 - sin_b * sin_b)
 
 
 ## Mirrors _swash_wave_seed: per-wave offset, periodic over the 182-wave wrap.

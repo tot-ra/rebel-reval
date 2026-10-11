@@ -336,9 +336,13 @@ func _surf_shots(plan: CityPlan, landing: Vector2, prefix := "") -> Array[Dictio
 		})
 	# Wind-heading plates: the same storm seen from above the beach with the wind
 	# along the shore and onshore. Crests and surface texture must run shoreward,
-	# not stream along the beach (shore refraction, docs/SYSTEMS/CITY_SEA.md).
+	# not stream along the beach (shore refraction, docs/SYSTEMS/CITY_SEA.md). R-1734:
+	# the oblique onshore gale (45 degrees) turns the swash crests and drifts the surf foam.
 	var high_eye := best + uphill * 9.0
-	for heading: Array in [["along", along], ["onshore", uphill], ["offshore", -uphill]]:
+	var oblique := (uphill + along).normalized()
+	for heading: Array in [
+		["along", along], ["onshore", uphill], ["offshore", -uphill], ["oblique", oblique]
+	]:
 		out.append({
 			"name": "surf_wind_%s_storm" % heading[0], "wind": 0.95, "rain": 0.0,
 			"wind_dir": heading[1],
@@ -415,6 +419,8 @@ func _run() -> void:
 		world.sky_weather.advance(SkyWeather3D.TRANSITION_SECONDS + 0.1)
 		view.apply_cycle_progress(float(shot.get("time", DAY_PROGRESS)))
 		var wind_dir: Vector2 = shot.get("wind_dir", Vector2(0.4, -0.9))
+		# R-1734: each plate shows its own wind's swash obliquity, not a slewed one.
+		MapViewMaterials.settle_swash_obliquity()
 		MapViewMaterials.apply_sea_weather(shot["wind"], shot["rain"], wind_dir)
 		MapViewMaterials.apply_world_wind(wind_dir, shot["wind"])
 		world.set_wind(wind_dir)

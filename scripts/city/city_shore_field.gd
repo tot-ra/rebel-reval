@@ -64,6 +64,9 @@ const BED_FACE_LAND := 4.0
 const BED_BUCKET := 0.01
 ## 16-neighbour stencil (8 + knight moves) keeps eikonal crests within ~2 % of
 ## round instead of the 8 % octagons an 8-neighbour Dijkstra draws.
+## R-1734 oblique swash: the beach band (water side, field units) whose shore normals
+## and positions give the dominant shore normal and the alongshore phase reference.
+const ALONG_BAND := 3.0
 const BED_STENCIL: Array[Vector2i] = [
 	Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1),
 	Vector2i(1, 1), Vector2i(1, -1), Vector2i(-1, 1), Vector2i(-1, -1),
@@ -124,6 +127,12 @@ static func bake(plan: CityPlan) -> Dictionary:
 	distance.resize(count)
 	var beach_out := PackedFloat32Array()
 	beach_out.resize(count)
+	# R-1734: beach-weighted sums over the surf band for the dominant shore normal
+	# and the centroid the alongshore phase is measured from (shore_along_phase).
+	var normal_sum := Vector2.ZERO
+	var centre_sum := Vector2.ZERO
+	var weight_sum := 0.0
+	var band_points := PackedVector2Array()
 	for j in grid.y:
 		for i in grid.x:
 			var index := j * grid.x + i
@@ -146,6 +155,11 @@ static func bake(plan: CityPlan) -> Dictionary:
 						plan.grid_height(i, j + 1) - plan.grid_height(i, j - 1)
 					).normalized()
 				kind = beach[index]
+				if water and signed <= ALONG_BAND and kind > 0.5:
+					normal_sum += dir * kind
+					centre_sum += centre * kind
+					weight_sum += kind
+					band_points.append(centre)
 			distance[index] = signed
 			beach_out[index] = kind
 			rgba[index * 4] = signed
@@ -156,6 +170,10 @@ static func bake(plan: CityPlan) -> Dictionary:
 		grid.x, grid.y, false, Image.FORMAT_RGBAF, rgba.to_byte_array()
 	)
 	image.convert(Image.FORMAT_RGBAH)
+	var along_centre := centre_sum / weight_sum if weight_sum > 0.0 else Vector2.ZERO
+	var along_extent := 0.0
+	for point in band_points:
+		along_extent = maxf(along_extent, point.distance_to(along_centre))
 	var bed := _bake_bed(plan, best, near_x, near_y, found)
 	# WR-4 atlas for the GPU: each row holds the field row, then the bed row
 	# (shore_atlas_uv in shore_swash.gdshaderinc), so the shader needs no new sampler.
@@ -190,6 +208,11 @@ static func bake(plan: CityPlan) -> Dictionary:
 		# the CPU mirror (layout above BED_REACH).
 		"bed_texture": ImageTexture.create_from_image(bed_image),
 		"bed_samples": bed_gpu,
+		# R-1734: dominant beach normal (unit, towards land; zero without beaches), the
+		# beach-band centroid and its largest distance from it, world units.
+		"along_normal": normal_sum.normalized() if normal_sum.length() > 0.0001 else Vector2.ZERO,
+		"along_centre": along_centre,
+		"along_extent": along_extent,
 	}
 
 

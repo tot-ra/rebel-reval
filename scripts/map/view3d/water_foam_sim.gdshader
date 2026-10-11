@@ -78,6 +78,8 @@ const float WINDROW_LIFE = 30.0;
 const float WINDROW_SMEAR = 0.6;
 // Foam at the foot of a quay or rock edge (WR-2 wall slosh band).
 const float WALL_FOAM = 0.8;
+// R-1734: below this longshore drift per step (texels) the state is read unfiltered.
+const float CURRENT_MIN_TEXELS = 0.001;
 
 struct FoamTerms {
 	float density;
@@ -87,11 +89,15 @@ struct FoamTerms {
 
 // Analytic WR-2 foam at a rest coordinate: the seed and the source of the surf.
 // birth (out) is what breaks right now (Jacobian fold, surf roller, wall slosh).
-FoamTerms _foam_sources(vec2 xz, bool seed, out float birth, out float surf_zone, out float crest) {
+// current (out) is the R-1734 longshore current, world units per second.
+FoamTerms _foam_sources(
+	vec2 xz, bool seed, out float birth, out float surf_zone, out float crest, out vec2 current
+) {
 	FoamTerms seeded = FoamTerms(0.0, 0.0, 0.0);
 	birth = 0.0;
 	surf_zone = 0.0;
 	crest = 0.0;
+	current = vec2(0.0);
 	if (use_fft) {
 		vec2 axis = _fft_wind_axis();
 		vec2 p = _fft_to_wind(xz, axis);
@@ -123,6 +129,7 @@ FoamTerms _foam_sources(vec2 xz, bool seed, out float birth, out float surf_zone
 	}
 	if (shore_field_valid > 0.5 && shore_strength > 0.0) {
 		ShoreState s = shore_state(xz, ocean_time, shore_sea());
+		current = shore_longshore_current(s);
 		if (s.valid > 0.001 && s.distance >= 0.0) {
 			// WR-2 surf coverage split into its fresh roller (born here) and the
 			// trail (exp(-age / life)), which this buffer now carries as memory.
@@ -147,6 +154,20 @@ FoamTerms _foam_sources(vec2 xz, bool seed, out float birth, out float surf_zone
 
 vec3 _state_at(ivec2 p) {
 	return texelFetch(prev_state, p, 0).rgb;
+}
+
+// Previous state at a fractional texel position (bilinear by hand: prev_state is
+// nearest), for the longshore advection.
+vec3 _state_bilinear(vec2 cell) {
+	vec2 q = cell - 0.5;
+	ivec2 i = ivec2(floor(q));
+	vec2 f = fract(q);
+	ivec2 hi = ivec2(sim_size) - 1;
+	vec3 a = _state_at(clamp(i, ivec2(0), hi));
+	vec3 b = _state_at(clamp(i + ivec2(1, 0), ivec2(0), hi));
+	vec3 c = _state_at(clamp(i + ivec2(0, 1), ivec2(0), hi));
+	vec3 e = _state_at(clamp(i + ivec2(1, 1), ivec2(0), hi));
+	return mix(mix(a, b, f.x), mix(c, e, f.x), f.y);
 }
 
 bool _inside(ivec2 p) {
@@ -176,7 +197,10 @@ void fragment() {
 	float birth;
 	float surf_zone;
 	float crest;
-	FoamTerms seed = _foam_sources(xz, reset_state || arrived || debug_birth, birth, surf_zone, crest);
+	vec2 current;
+	FoamTerms seed = _foam_sources(
+		xz, reset_state || arrived || debug_birth, birth, surf_zone, crest, current
+	);
 	vec3 next;
 	if (debug_birth) {
 		next = vec3(birth, crest, seed.density);
@@ -184,6 +208,14 @@ void fragment() {
 		next = vec3(seed.density, seed.fresh, seed.windrow);
 	} else {
 		vec3 c = _state_at(p);
+		// R-1734: in the surf zone of an oblique sea the longshore current carries the
+		// foam along the beach. The window drift above moves the whole buffer; this
+		// varies per texel, so it is a semi-Lagrangian step (read upstream, filtered).
+		// Bilinear reads blur a little, which the short surf foam life hides.
+		vec2 upstream = current * step_dt / texel_world;
+		if (dot(upstream, upstream) > CURRENT_MIN_TEXELS * CURRENT_MIN_TEXELS) {
+			c = _state_bilinear(vec2(p) + 0.5 - upstream);
+		}
 		float life = mix(WHITECAP_LIFE, CITY_SURF_FOAM_LIFE, surf_zone);
 		float density = max(c.r * exp(-step_dt / life), birth);
 		float fresh = max(c.g * exp(-step_dt / FRESH_LIFE), birth);

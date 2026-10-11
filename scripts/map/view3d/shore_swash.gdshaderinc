@@ -58,6 +58,12 @@ uniform float shore_crest_shape = 0.0;
 // one sampler: the water shader already sits at GL Compatibility's limit of 16
 // fragment samplers.
 uniform float shore_bed_valid = 0.0;
+// R-1734 oblique swash (bed mode only): xy alongshore slowness p of the shore wave
+// train (seconds per world unit, |p| = sin(theta0) / c0, conserved by Snell's law),
+// zw the beach centroid it is measured from. MapViewShoreMaterials derives p from the
+// onshore wind obliquity against the city's dominant beach normal and slews it on the
+// ocean clock. Zero keeps the swash shore-normal (district maps).
+uniform vec4 shore_along_phase = vec4(0.0);
 
 // shore_field uv of one atlas half (0 field, 1 bed); plain uv without the atlas.
 // The clamp keeps each half clamp-to-edge, so the seam never blends field and bed.
@@ -135,6 +141,9 @@ const vec2 BED_PLUNGE_XI = vec2(0.45, 0.8);
 const vec2 BED_SURGE_XI = vec2(1.6, 2.4);
 // Crest half-width as a share of the local wavelength.
 const float BED_CREST_WIDTH = 0.24;
+// R-1734 longshore current V = K sqrt(g H_b) sin(theta_b) cos(theta_b) (Komar 1976
+// fit of Longuet-Higgins 1970), mid-surf-zone speed in m/s.
+const float LONGSHORE_K = 1.17;
 
 struct ShoreState {
 	float valid;            // 0..1, fades out at the field clamp
@@ -425,7 +434,12 @@ ShoreState shore_state(vec2 world_xz, float t, vec4 sea) {
 		// WR-4: the crest passes here travel-time seconds after it left the source
 		// line, so crests are lines of equal travel time: refracted and shoaled by
 		// the bake. A static offset keeps the 182-wave ocean_time wrap seamless.
-		cycle = (t - max(bed.g, 0.0)) / period
+		// R-1734: an oblique train reaches points further downwind along the beach
+		// later by p . x. p is one world-space vector (not the local shore tangent),
+		// so the term is a plane-wave phase with no islands at bends, and static
+		// while p holds, so the wrap stays seamless.
+		cycle = (t - max(bed.g, 0.0) - dot(shore_along_phase.xy, world_xz - shore_along_phase.zw))
+				/ period
 			+ BED_PHASE_VARIATION * _swash_noise(world_xz * 0.02 + vec2(0.0, 3.7));
 	}
 	float wave_index = floor(cycle);
@@ -583,6 +597,28 @@ ShoreState shore_state(vec2 world_xz, float t, vec4 sea) {
 		s.residue *= s.beach * _swash_patch(world_xz * 0.6, 0.0);
 	}
 	return s;
+}
+
+// R-1734 longshore current (world units per second, the city is 1 m per unit) in the
+// surf zone of shore_state `s`. The alongshore slowness is taken against the local
+// wave travel direction (s.to_land), so the drift follows each bend of the beach; Snell
+// gives the breaker angle sin(theta_b) = |p_t| c_b with c_b = sqrt(g h_b). Mirrored by
+// CityWaterSurface.longshore_speed.
+vec2 shore_longshore_current(ShoreState s) {
+	if (shore_bed_valid < 0.5 || s.valid <= 0.0 || s.surf_zone <= 0.0) {
+		return vec2(0.0);
+	}
+	vec2 p = shore_along_phase.xy;
+	vec2 p_t = p - dot(p, s.to_land) * s.to_land;
+	float p_along = length(p_t);
+	if (p_along < 0.000001) {
+		return vec2(0.0);
+	}
+	float energy = mix(0.35, 1.0, clamp(shore_sea_state, 0.0, 1.0)) * shore_strength;
+	float h_b = _shore_bed_break_depth(SHORE_AMPLITUDE * energy * shore_wave_gain);
+	float sin_b = clamp(p_along * sqrt(9.81 * h_b), 0.0, 0.99);
+	float speed = LONGSHORE_K * sqrt(9.81 * SHORE_GAMMA * h_b) * sin_b * sqrt(1.0 - sin_b * sin_b);
+	return p_t / p_along * speed * s.surf_zone * s.valid;
 }
 
 // WR-9 beach response. The bed reads porosity from its own slope: backwash that

@@ -17,6 +17,9 @@ const TIMES: Array[float] = [0.6, 3.3, 7.9, 1637.9]
 ## moves ~0.5 m per 0.1 s, so a few millimetres of disagreement are expected.
 const TOLERANCE := 0.02
 const RANGE := 16.0
+## R-1734: no obliquity, and an alongshore slowness of a 45 degree onshore gale along
+## the sandbox coast (x), measured from (0, -20).
+const ALONG_PHASES: Array[Vector4] = [Vector4.ZERO, Vector4(0.05, 0.0, 0.0, -20.0)]
 
 var _winds: Array[float] = [0.55, 0.95]
 
@@ -64,8 +67,10 @@ func _run() -> void:
 	var worst := 0.0
 	var worst_at := ""
 	var rows := ["lift", "surging", "valid"]
-	for wind in _winds:
+	for case in _winds.size() * ALONG_PHASES.size():
+		var wind := _winds[case / ALONG_PHASES.size()]
 		water.set_shader_parameter("shore_sea_state", wind)
+		water.set_shader_parameter("shore_along_phase", ALONG_PHASES[case % ALONG_PHASES.size()])
 		_copy_shore_uniforms(water, material)
 		for time in TIMES:
 			material.set_shader_parameter("probe_time", time)
@@ -84,12 +89,15 @@ func _run() -> void:
 					var error := absf(gpu - cpu[row])
 					if error > worst:
 						worst = error
-						worst_at = "%s wind %.2f t %.1f at %s: gpu %.4f cpu %.4f" % [
-							rows[row], wind, time, points[i], gpu, cpu[row]
+						worst_at = "%s wind %.2f along %s t %.1f at %s: gpu %.4f cpu %.4f" % [
+							rows[row], wind, ALONG_PHASES[case % ALONG_PHASES.size()], time,
+							points[i], gpu, cpu[row]
 						]
+	water.set_shader_parameter("shore_along_phase", Vector4.ZERO)
 	var ok := worst <= TOLERANCE
-	print("shore parity: %d probes x %d winds x %d times, max error %.5f (%s)%s" % [
-		points.size(), _winds.size(), TIMES.size(), worst, worst_at, "" if ok else " FAIL"
+	print("shore parity: %d probes x %d winds x %d obliquities x %d times, max error %.5f (%s)%s" % [
+		points.size(), _winds.size(), ALONG_PHASES.size(), TIMES.size(), worst, worst_at,
+		"" if ok else " FAIL"
 	])
 	quit(0 if ok else 1)
 
