@@ -75,8 +75,8 @@ const ROOF_COLORS := {
 }
 
 const WindowOpenings := preload("res://scripts/city/city_window_openings.gd")
-const HouseWealth := preload("res://scripts/city/city_house_wealth.gd")
 const Chimney := preload("res://scripts/city/city_chimney_builder.gd")
+const HouseWealth := preload("res://scripts/city/city_house_wealth.gd")
 const WINDOW_WOOD := preload("res://scripts/city/city_window_wood.gdshader")
 const WINDOW_GLASS := preload("res://scripts/city/city_window_glass.gdshader")
 
@@ -102,9 +102,9 @@ static func bind_ground(plan: CityPlan) -> void:
 	_ground_rect = plan.height_texture_rect()
 	_materials.clear()
 	HouseWealth.bind(plan)
-	# Moss and lichen plates as shader defaults, so every wall and outdoor
-	# limewash material (including the site kits' own) gets them unbound.
-	for shader: Shader in [WALL_SHADER, LIMEWASH_SHADER]:
+	# Moss and lichen defaults reach walls, roofs and the site kits' limewash
+	# without per-material copies of the photographic plates.
+	for shader: Shader in [WALL_SHADER, LIMEWASH_SHADER, ROOF_SHADER, TILE_ROOF_SHADER]:
 		shader.set_default_texture_parameter("moss_tex", MOSS_TEX)
 		shader.set_default_texture_parameter("moss_normal_tex", MOSS_NORMAL_TEX)
 		shader.set_default_texture_parameter("lichen_tex", LICHEN_TEX)
@@ -1082,19 +1082,38 @@ static func _roof(
 				tint,
 				face
 			)
-	# Ridge capping along the ridge line, overhanging the verges like the cover.
+	# R-1655: projection extrema bridge concave courtyards and leave ridge
+	# strips floating across the sky. Clip to the same outline as the roof.
+	for span in _ridge_spans(outline, frame):
+		_ridge_cap(roof, key, frame, tint, family, span.x, span.y)
+
+
+## Independent supported runs, never a bar across a notch in the footprint.
+static func _ridge_spans(outline: PackedVector2Array, frame: Dictionary) -> Array[Vector2]:
+	var r: Vector2 = frame["r"]
+	var n: Vector2 = frame["n"]
+	var mid: float = frame["mid"]
+	var line := PackedVector2Array([
+		r * (float(frame["amin"]) - 2.0) + n * mid,
+		r * (float(frame["amax"]) + 2.0) + n * mid,
+	])
+	var spans: Array[Vector2] = []
+	for piece in Geometry2D.intersect_polyline_with_polygon(line, outline):
+		var start := piece[0].dot(r)
+		var finish := piece[-1].dot(r)
+		if finish - start > 0.01:
+			spans.append(Vector2(start, finish))
+	return spans
+
+
+static func _ridge_cap(
+	roof: Shell, key: String, frame: Dictionary, tint: Color,
+	family: StringName, along0: float, along1: float
+) -> void:
 	var rr := float(RIDGE_RADIUS.get(family, 0.12))
-	var along0 := float(frame["amin"]) - OVERHANG - cover * 0.5
-	var along1 := float(frame["amax"]) + OVERHANG + cover * 0.5
-	if not keep_out.is_empty():
-		# The cap ends where the (clipped) roof ends.
-		var lo := INF
-		var hi := -INF
-		for p in outline:
-			lo = minf(lo, p.dot(r))
-			hi = maxf(hi, p.dot(r))
-		along0 = maxf(along0, lo)
-		along1 = minf(along1, hi)
+	var r: Vector2 = frame["r"]
+	var n: Vector2 = frame["n"]
+	var mid: float = frame["mid"]
 	var ridge_y := float(frame["ridge"])
 	var base0 := r * along0 + n * mid
 	var base1 := r * along1 + n * mid

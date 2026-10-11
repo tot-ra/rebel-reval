@@ -28,6 +28,7 @@ const BODY_NOSE := 0.49
 const BODY_LENGTH := 0.91
 const BODY_RINGS := 22
 const BODY_SIDES := 16
+const PerfProbeScript := preload("res://scripts/debug/perf_probe.gd")
 
 var plan: CityPlan
 var player: Node2D
@@ -269,6 +270,12 @@ func live_count() -> int:
 
 
 func _process(delta: float) -> void:
+	var probe_start := PerfProbeScript.start()
+	_process_timed(delta)
+	PerfProbeScript.stop(&"fish", probe_start)
+
+
+func _process_timed(delta: float) -> void:
 	_time += delta
 	if player == null:
 		return

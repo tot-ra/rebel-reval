@@ -236,11 +236,11 @@ func apply_time(progress: float) -> void:
 	MapViewMaterials.apply_sea_weather(
 		presentation.wind_strength, presentation.rain_intensity, presentation.wind_direction
 	)
+	MapViewMaterials.apply_sea_gust(presentation.wind_gust_level)
 	mirror_shore_to_ground()
 	if spray != null:
 		spray.set_wind(presentation.wind_strength)
 	set_wind(presentation.wind_direction)
-	MapViewMaterials.apply_sea_gust(presentation.wind_gust_level)
 	var ground := CityTerrainBuilder.shared_material()
 	if ground != null:
 		ground.set_shader_parameter("puddles", presentation.puddle_wetness)

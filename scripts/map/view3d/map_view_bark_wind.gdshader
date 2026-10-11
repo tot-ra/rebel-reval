@@ -6,6 +6,7 @@ shader_type spatial;
 // flexibility baked by MapViewTreeMeshes (0 = thick trunk, 1 = twig tip); the
 // motion maths is shared with the leaves in tree_wind.gdshaderinc.
 #include "res://scripts/map/view3d/tree_wind.gdshaderinc"
+#include "res://scripts/city/city_growth_plates.gdshaderinc"
 
 uniform sampler2D albedo_tex : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
 uniform sampler2D normal_tex : hint_roughness_normal, filter_linear_mipmap_anisotropic, repeat_enable;
@@ -79,17 +80,18 @@ void fragment() {
 	float reach = mix(0.25, 2.6, north) * tree_moss;
 	float moss = (1.0 - smoothstep(reach * 0.5, reach + 0.05, h + (patch - 0.5) * 0.6))
 		* smoothstep(0.3, 0.55, patch + north * 0.25) * bole * step(0.001, tree_moss);
-	vec3 moss_col = mix(vec3(0.17, 0.24, 0.07), vec3(0.32, 0.38, 0.12), patch);
-	albedo = mix(albedo, moss_col * mix(0.9, 1.1, COLOR.r), moss * 0.92);
-	rough = mix(rough, 1.0, moss);
+	vec3 nm = texture(normal_tex, UV).rgb;
 	// Lichen: pale grey-green crusts and rosettes from shin height into the crown.
 	float tree_lichen = lichen_amount * smoothstep(0.15, 0.6, fract(bark_seed * 7.13));
 	float spots = smoothstep(0.66, 0.74, bark_noise(bark_pos * 7.5 + 3.0) + north * 0.12 - patch * 0.08);
 	float lichen = spots * tree_lichen * smoothstep(0.3, 1.0, h) * (0.35 + north * 0.65) * (1.0 - moss);
-	albedo = mix(albedo, vec3(0.58, 0.63, 0.5) * mix(0.85, 1.05, patch), lichen * 0.85);
+	// Bark mesh UVs use 0.55 m tiles (MapViewTreeMeshes.BARK_TILE_METRES).
+	// Reusing that tangent frame keeps photographic cushions rooted while swaying.
+	moss = shade_growth_plates(albedo, nm, rough, UV * 0.55 + bark_seed,
+		moss * 0.92, lichen * 0.85, vec3(0.62, 0.7, 0.5));
 	// Moss soaks up rain and darkens less than bare bark glosses.
 	ALBEDO = albedo * mix(1.0, mix(0.58, 0.75, moss), wetness);
-	NORMAL_MAP = mix(texture(normal_tex, UV).rgb, vec3(0.5, 0.5, 1.0), moss * 0.6);
+	NORMAL_MAP = nm;
 	NORMAL_MAP_DEPTH = 1.0;
 	ROUGHNESS = mix(rough, mix(0.38, 0.8, moss), wetness);
 }

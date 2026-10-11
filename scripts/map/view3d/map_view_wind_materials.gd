@@ -297,6 +297,13 @@ static func bark_plate_wind(plate: StringName, species: StringName = &"") -> Sha
 	)
 	material.set_shader_parameter("albedo_tex", plain.albedo_texture)
 	material.set_shader_parameter("normal_tex", plain.normal_texture)
+	# Bind here as blueprint trees do not pass through CityBuildingBuilder.bind_ground.
+	material.set_shader_parameter("moss_tex",
+		preload("res://assets/materials/pbr/wall_growth/wall_moss_albedo.png"))
+	material.set_shader_parameter("moss_normal_tex",
+		preload("res://assets/materials/pbr/wall_growth/wall_moss_normal.png"))
+	material.set_shader_parameter("lichen_tex",
+		preload("res://assets/materials/pbr/wall_growth/wall_lichen.png"))
 	material.set_shader_parameter("roughness_value", plain.get_meta(&"dry_roughness", plain.roughness))
 	if species != &"":
 		_apply_tree_flexibility(material, species)
@@ -318,6 +325,7 @@ static func _apply_tree_flexibility(material: ShaderMaterial, species: StringNam
 static func apply_vegetation_season(date: Dictionary) -> void:
 	_season_date = GameCalendar.normalize_date(date)
 	apply_snow_cover(VegetationPhenology.snow_cover_for(_season_date))
+	apply_grass_dormancy(_season_date)
 	for material in _species_canopies():
 		_apply_season_to(material, material.get_meta(&"tree_species"), _season_date)
 
@@ -325,18 +333,10 @@ static func apply_vegetation_season(date: Dictionary) -> void:
 ## Winter snow on grass blades; the ground tint is pushed by the same caller.
 static func apply_snow_cover(cover: float) -> void:
 	_snow_cover = snappedf(clampf(cover, 0.0, 1.0), 0.01)
-	apply_grass_dormancy(_season_date)
 	for material in _grass_interaction_materials():
 		material.set_shader_parameter("snow_cover", _snow_cover)
 
 
-static func vegetation_season_date() -> Dictionary:
-	return _season_date.duplicate()
-
-
-## Rain wetness for leaves (bark is handled by MapViewPropMaterials). Values are
-## quantised so the per-frame weather fan-out does not touch uniforms needlessly.
-static func apply_vegetation_wetness(wetness: float) -> void:
 ## ADR 0045: grass goes short, pale and straw-brown through winter and greens
 ## again as the year warms (SeasonState weights: all of winter, a third of autumn).
 static func apply_grass_dormancy(date: Dictionary) -> void:
@@ -351,6 +351,13 @@ static func grass_dormancy() -> float:
 	return _dormancy
 
 
+static func vegetation_season_date() -> Dictionary:
+	return _season_date.duplicate()
+
+
+## Rain wetness for leaves (bark is handled by MapViewPropMaterials). Values are
+## quantised so the per-frame weather fan-out does not touch uniforms needlessly.
+static func apply_vegetation_wetness(wetness: float) -> void:
 	var value := snappedf(clampf(wetness, 0.0, 1.0), 0.02)
 	if is_equal_approx(value, _vegetation_wetness):
 		return

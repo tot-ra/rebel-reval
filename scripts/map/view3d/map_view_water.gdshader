@@ -289,6 +289,10 @@ uniform float streak_amount = 0.6;
 // ripple cascade and the detail normal on every sea state.
 uniform float gust_amount = 1.0;
 uniform float slick_amount = 1.0;
+// WR-8: transient gust front, 0 idle .. 1 peak (MapViewWaterMaterials.apply_sea_gust). It
+// widens and strengthens the cat's-paw cells; the cells themselves are fixed by position
+// and the ocean clock, so a gust never reshuffles them.
+uniform float gust_level = 0.0;
 // One gust lattice cell per ~60 world units.
 uniform float gust_scale = 0.0167;
 // MapViewRuntimeEnvironment.OCEAN_TIME_WRAP_SECONDS. Every drift below moves a whole
@@ -297,10 +301,6 @@ const float OCEAN_TIME_WRAP_SECONDS = 1638.4;
 // WS-01: 1 world unit = 1 map cell = 0.87 m (MapViewBuildingMaterials.METERS_PER_WORLD_UNIT).
 const float WATER_METERS_PER_UNIT = 0.87;
 // Foam tile drift downwind: ~0.27 m/s and ~0.29 m/s, slow against the wave phase
-// WR-8: transient gust front, 0 idle .. 1 peak (MapViewWaterMaterials.apply_sea_gust). It
-// widens and strengthens the cat's-paw cells; the cells themselves are fixed by position
-// and the ocean clock, so a gust never reshuffles them.
-uniform float gust_level = 0.0;
 // speed, so a foam patch still rides its crest.
 const float FOAM_DRIFT_A_TILES_PER_WRAP = 40.0;
 const float FOAM_DRIFT_B_TILES_PER_WRAP = 100.0;
@@ -385,14 +385,6 @@ const float RAIN_RING_PERIOD = 1.1;
 const float RAIN_RING_LIFE = 0.55;
 const float RAIN_RING_SLOPE = 0.45;
 // Cells narrower than this many pixels alias into moire; the rings fade out by then.
-const float RAIN_RING_MIN_CELL_PX = 6.0;
-const float RAIN_RING_FULL_CELL_PX = 14.0;
-
-varying vec3 water_world_position;
-// Shallow (0) .. deep (1) share of the sea look from sea_depth_map, or -1 for the per-family
-// look. Sampled per vertex on purpose: the fragment stage already uses all 16 sampler units
-// GL Compatibility allows (Godot adds shadow, radiance and light samplers), and the basin
-// depth is one texel per cell, so vertex interpolation loses nothing.
 // WR-8: three layers at about 1.0 of the cells firing at full rain (it was two at 0.85), the
 // splash crown's life as a share of the ring life, and its radius and width in cell units.
 const float RAIN_RING_DENSITY = 1.0;
@@ -406,6 +398,14 @@ const float RAIN_ROUGHNESS_VARIANCE = 0.012;
 // Far sea in heavy rain: share desaturated towards a grey veil, and the lift of that veil.
 const float RAIN_FAR_GREY = 0.6;
 const float RAIN_FAR_VEIL = 0.1;
+const float RAIN_RING_MIN_CELL_PX = 6.0;
+const float RAIN_RING_FULL_CELL_PX = 14.0;
+
+varying vec3 water_world_position;
+// Shallow (0) .. deep (1) share of the sea look from sea_depth_map, or -1 for the per-family
+// look. Sampled per vertex on purpose: the fragment stage already uses all 16 sampler units
+// GL Compatibility allows (Godot adds shadow, radiance and light samplers), and the basin
+// depth is one texel per cell, so vertex interpolation loses nothing.
 varying float sea_depth_t;
 // Signed, triangle-matched terrain height, supplied by every city sea vertex.
 varying float sea_ground_y;
@@ -1085,7 +1085,14 @@ vec2 _rain_ring_slope(vec2 world_xz, float time, out float crown) {
 		// Derivative of a Gaussian ring profile along the radius.
 		float dh = -2.0 * x * exp(-x * x) * fade;
 		slope += dh * d / max(r, 0.0001);
+		if (age < RAIN_CROWN_LIFE) {
+			float young = 1.0 - age / RAIN_CROWN_LIFE;
+			float xc = (r - age * RAIN_CROWN_RADIUS) / RAIN_CROWN_WIDTH;
+			float spike = r / RAIN_CROWN_WIDTH;
+			crown += young * (exp(-xc * xc) * 0.8 + exp(-spike * spike) * 0.6);
+		}
 	}
+	crown = min(crown, 1.0);
 	return slope * RAIN_RING_SLOPE;
 }
 
@@ -1114,14 +1121,7 @@ float _fresnel_dielectric(float cos_theta, float ior) {
 
 // One continuous city surface: offshore waves rise into a finite-depth bore
 // over the sand. Coverage is resolved in fragment from this same shore phase.
-		if (age < RAIN_CROWN_LIFE) {
-			float young = 1.0 - age / RAIN_CROWN_LIFE;
-			float xc = (r - age * RAIN_CROWN_RADIUS) / RAIN_CROWN_WIDTH;
-			float spike = r / RAIN_CROWN_WIDTH;
-			crown += young * (exp(-xc * xc) * 0.8 + exp(-spike * spike) * 0.6);
-		}
 // Returns height and its partial derivative with respect to bed height.
-	crown = min(crown, 1.0);
 vec2 _city_runup_profile(ShoreState shore, float bed_y, float ocean_y) {
 	float front = shore.front_distance - shore.distance;
 	float active = smoothstep(0.001, 0.04, front);
@@ -1652,6 +1652,10 @@ void fragment() {
 	vec2 pixel_footprint = fwidth(wave_sample_xz);
 	// WS-06 gust/slick gain; 1 on the Gerstner fallback (rivers, ponds).
 	float sea_gust = 1.0;
+	float gust_cell = 0.0;
+	float gust_slick = 0.0;
+	// WR-8: rain damps the short waves (a downpour flattens the capillary cascade).
+	float capillary_keep = mix(1.0, RAIN_CAPILLARY_KEEP, rain_ring_intensity);
 	// R-1658 shore refraction: 1 offshore, the onshore share of the wind sea near the
 	// waterline. Scales the FFT slope, crest glow, whitecaps and wind streaks.
 	float wind_sea_keep = 1.0;
@@ -1682,10 +1686,6 @@ void fragment() {
 	// normals so rings bend reflections and glints. Aeration feeds the foam mask below.
 	float ripple_aeration = 0.0;
 	float ripple_slope_length = 0.0;
-	float gust_cell = 0.0;
-	float gust_slick = 0.0;
-	// WR-8: rain damps the short waves (a downpour flattens the capillary cascade).
-	float capillary_keep = mix(1.0, RAIN_CAPILLARY_KEEP, rain_ring_intensity);
 	if (ripple_window.w > 0.5) {
 		vec2 ripple_uv = _ripple_uv(wave_sample_xz);
 		float ripple_weight = _ripple_weight(ripple_uv);

@@ -63,12 +63,12 @@ static func create_city(city_plan: CityPlan, quality_tier: Variant = null) -> Ci
 	view._create_sky_passes()
 	view._create_city_ripple_sim()
 	view._create_city_obstacle_sim()
+	view._create_city_foam_sim()
 	view._create_city_underwater_pass()
-	return view
 	view._create_city_leaf_fall()
+	return view
 
 
-func _create_city_underwater_pass() -> void:
 func _create_city_leaf_fall() -> void:
 	var lod := world.get_node_or_null("Vegetation/TreeLod")
 	if lod == null:
@@ -78,11 +78,11 @@ func _create_city_leaf_fall() -> void:
 	_leaf_fall.configure(lod)
 
 
+func _create_city_underwater_pass() -> void:
 	_underwater_pass = UnderwaterPassScript.new()
 	add_child(_underwater_pass)
 	_underwater_pass.configure(_camera, _underwater_probe, _sky_weather.quality_tier)
 
-	view._create_city_foam_sim()
 
 ## CityPlan supplies metre-scale sea, stream and ditch heights; the district grid
 ## does not exist here. Keep the optical rest plane separate from the camera wave.
@@ -167,15 +167,6 @@ func _create_city_obstacle_sim() -> void:
 		sea.set_shader_parameter("obstacle_texel_count", texels)
 
 
-## Where the camera's view meets the sea, at most CITY_OBSTACLE_FOCUS_AHEAD ahead.
-func _city_obstacle_focus() -> Vector3:
-	if _camera == null or not _camera.is_inside_tree():
-		return Vector3.ZERO
-	var origin := _camera.global_position
-	var forward := -_camera.global_transform.basis.z
-	var flat := Vector2(forward.x, forward.z)
-	if flat.length() < 0.01:
-		return origin
 ## WR-7: persistent foam for the sea (docs/SYSTEMS/CITY_SEA.md "Foam memory"). The sim
 ## owns the sea's `ripple_state` binding (an atlas of ripple + foam), so it must exist
 ## before the first ripple step is bound. Coastal plans on tiers with a foam window only.
@@ -203,6 +194,15 @@ func _city_foam_focus() -> Vector3:
 	return WaterFoamSim.view_focus(_camera.global_transform, CITY_FOAM_FOCUS_AHEAD)
 
 
+## Where the camera's view meets the sea, at most CITY_OBSTACLE_FOCUS_AHEAD ahead.
+func _city_obstacle_focus() -> Vector3:
+	if _camera == null or not _camera.is_inside_tree():
+		return Vector3.ZERO
+	var origin := _camera.global_position
+	var forward := -_camera.global_transform.basis.z
+	var flat := Vector2(forward.x, forward.z)
+	if flat.length() < 0.01:
+		return origin
 	var reach := CITY_OBSTACLE_FOCUS_AHEAD
 	if forward.y < -0.01 and origin.y > 0.0:
 		reach = minf(reach, origin.y / -forward.y * flat.length())
@@ -234,6 +234,9 @@ func _bind_city_ripples(texture: Texture2D, window: Vector4, texel_count: float)
 		mat.set_shader_parameter("ripple_state", state)
 		mat.set_shader_parameter("ripple_window", bound)
 		mat.set_shader_parameter("ripple_texel_count", maxf(texel_count, 1.0))
+	if water_foam_sim != null:
+		# Last, so the sea's ripple_state ends up as the ripple + foam atlas, not the plain state.
+		water_foam_sim.set_ripple_source(texture, window, texel_count)
 
 
 ## R-1400: the city had a sky but no cloud-shadow or god-ray pass, so clouds threw
@@ -243,9 +246,6 @@ func _bind_city_ripples(texture: Texture2D, window: Vector4, texel_count: float)
 ## texel over the whole city would stall the first visible frame.
 func _create_sky_passes() -> void:
 	_create_cloud_shadow_pass()
-	if water_foam_sim != null:
-		# Last, so the sea's ripple_state ends up as the ripple + foam atlas, not the plain state.
-		water_foam_sim.set_ripple_source(texture, window, texel_count)
 	_create_city_atmosphere()
 	if _sky_weather == null or not GodRayPassScript.should_create(false):
 		return

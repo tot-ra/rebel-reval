@@ -45,9 +45,7 @@ float ground_at(vec2 xz) {
 // as shader defaults by CityBuildingBuilder.bind_ground. Moss A = cushion
 // height, lichen A = rosette mask. Unbound plates read transparent, so a wall
 // drawn before bind_ground grows nothing instead of opaque white moss.
-uniform sampler2D moss_tex : source_color, filter_linear_mipmap_anisotropic, repeat_enable, hint_default_transparent;
-uniform sampler2D moss_normal_tex : hint_normal, filter_linear_mipmap_anisotropic, repeat_enable;
-uniform sampler2D lichen_tex : source_color, filter_linear_mipmap_anisotropic, repeat_enable, hint_default_transparent;
+#include "res://scripts/city/city_growth_plates.gdshaderinc"
 
 // R-1661: moss and lichen on shaded masonry. `north` is how much the face
 // looks away from the sun (world -Z), `above` its height over the street.

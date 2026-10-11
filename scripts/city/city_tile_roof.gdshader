@@ -39,7 +39,7 @@ void fragment() {
 	// Down the slope: each tile rises towards its lip, then drops to the next.
 	float slope_v = mix(0.28, -1.2, smoothstep(0.88, 1.0, cv));
 	vec3 n_ts = normalize(vec3(-slope_u, -slope_v * 0.6, 1.0));
-	NORMAL_MAP = n_ts * 0.5 + 0.5;
+	vec3 nm = n_ts * 0.5 + 0.5;
 	NORMAL_MAP_DEPTH = mix(1.0, 0.7, wetness);
 
 	// Per-tile clay: hashed by course and column (monks and nuns differ).
@@ -63,10 +63,12 @@ void fragment() {
 	float north = clamp(-w_nrm.z * 0.8 + 0.3, 0.0, 1.0);
 	float wet_spot = (1.0 - monk) * 0.6 + smoothstep(0.75, 1.0, cv) * 0.4;
 	float m = smoothstep(0.45, 0.8, patch + north * 0.25) * wet_spot * moss * age;
-	col = mix(col, vec3(0.2, 0.26, 0.11) * (0.8 + patch * 0.4), clamp(m * 1.4, 0.0, 0.85));
 	float lichen = smoothstep(0.7, 0.85, wnoise(uv * 9.0 + course)) * monk;
-	col = mix(col, vec3(0.66, 0.64, 0.52), lichen * 0.35 * age);
+	float rough = 0.82;
+	shade_growth_plates(col, nm, rough, uv, clamp(m * 1.4, 0.0, 0.85),
+		lichen * 0.35 * age, vec3(0.62, 0.7, 0.5));
+	NORMAL_MAP = nm;
 	ALBEDO = col * mix(1.0, 0.68, wetness);
-	ROUGHNESS = mix(0.82, 0.3, wetness);
+	ROUGHNESS = mix(rough, 0.3, wetness);
 	SPECULAR = 0.35;
 }

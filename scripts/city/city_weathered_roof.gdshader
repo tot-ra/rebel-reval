@@ -23,11 +23,13 @@ void fragment() {
 	// Moss on the cool north pitches and in the lower courses where water lingers.
 	float north = clamp(-w_nrm.z * 0.8 + 0.3, 0.0, 1.0);
 	float m = smoothstep(0.5, 0.78, patch + north * 0.2) * moss * age;
-	col = mix(col, vec3(0.24, 0.29, 0.14) * (0.8 + patch * 0.4), m * 0.6);
-	col = mix(col, vec3(0.62, 0.6, 0.5), lichen * 0.18 * age);
+	vec3 nm = texture(normal_tex, uv).rgb;
+	float rough = roughness_base;
+	shade_growth_plates(col, nm, rough, UV, m * 0.6, lichen * 0.18 * age,
+		vec3(0.62, 0.7, 0.5));
 	col *= mix(0.84, 1.08, wfbm(w_pos.xz * 0.12 + 5.0));
 	ALBEDO = city_albedo(col * mix(1.0, 0.72, wetness));
-	ROUGHNESS = mix(roughness_base, 0.4, wetness);
-	NORMAL_MAP = texture(normal_tex, uv).rgb;
+	ROUGHNESS = mix(rough, 0.4, wetness);
+	NORMAL_MAP = nm;
 	NORMAL_MAP_DEPTH = mix(1.0, 0.6, wetness);
 }

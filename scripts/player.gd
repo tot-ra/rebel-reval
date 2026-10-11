@@ -36,11 +36,14 @@ const SOFT_LOCK_FACING_DOT := 0.0
 ## The lunge never carries the body into the soft-locked target.
 const LUNGE_STOP_PX := 30.0
 
-# Logic px/s (32 px = 1 world unit): a readable walk and a believable sprint.
+# Logic px/s (32 px = 1 world unit): a readable walk and a believable run.
 # MapViewRuntime.RUN_ANIMATION_MIN_SPEED sits midway between these.
 @export var walk_speed = 100
-@export var run_speed = 240
+@export var run_speed = 180
 @export var combat_input_enabled := true
+## Debug/pacing clock multiplier pushed by MapViewRuntime each frame, so the hero
+## covers ground at the same rate the day/night clock runs (1.0 = normal).
+var time_flow_scale := 1.0
 
 var health: float = 100.0
 var max_health: float = 100.0
@@ -261,7 +264,7 @@ func _physics_process(_delta):
 
 		if navigation_agent != null:
 			navigation_agent.set_target_position(global_position)
-		velocity = movement_direction * current_speed
+		velocity = movement_direction * current_speed * time_flow_scale
 
 	else:
 		if navigation_agent != null and not navigation_agent.is_navigation_finished():
@@ -272,6 +275,7 @@ func _physics_process(_delta):
 				(walk_speed if is_walking() else run_speed)
 				* _get_encumbrance_speed_multiplier()
 				* _get_terrain_speed_multiplier()
+				* time_flow_scale
 				* (next_path_position - current_agent_position).normalized()
 			)
 			if not velocity.is_zero_approx() and _camera_facing_direction.is_zero_approx():
