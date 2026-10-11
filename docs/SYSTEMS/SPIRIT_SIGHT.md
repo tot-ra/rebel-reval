@@ -188,6 +188,10 @@ Status: implemented (task **R-1491**). Scope: the apprentice's starting lights, 
 
 *The New Game apprentice: awareness at 3 (the clairvoyant gift), nature and unity at 2, the other lights embers trailing faint earth threads.*
 
+![The apprentice's aura at New Game, after the first allocation (+5 tenacity, +5 light) and in a late-game build](../reports/images/spirit_auras/natural_growth.png)
+
+*Growth through NATURAL: New Game, the first Hingepuu allocation (+5 tenacity, +5 light), and a late-game build. Where points come from and what else a rank drives (spell multipliers, sub-stats) is pictured in [`NATURAL.md`](./NATURAL.md#35-soul-lights-the-aspects-seen-in-spirit-sight).*
+
 Hero lights are his NATURAL ranks seen as levels (`SpiritAuraProfile.level_for_rank`, `RANK_BANDS = [5, 10, 15, 25, 40]`). They grow only through NATURAL (`natural.grant_points`, `natural.spend_point` at the Hingepuu): a spend that crosses a band brightens the light on the next aura refresh. The reader uses **stored** ranks, not temporary psyche-effective ranks.
 
 | Stored rank | Level |

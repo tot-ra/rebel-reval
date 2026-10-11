@@ -6,6 +6,7 @@
 **Legacy seeds (reference only):** [`character/BUILD.md`](../../character/BUILD.md), [`character/PSYCHE.md`](../../character/PSYCHE.md)  
 **Paired contract:** [`docs/SYSTEMS/PSYCHE.md`](./PSYCHE.md)  
 **Magic coupling:** [`docs/SYSTEMS/MAGIC.md`](./MAGIC.md) section 6  
+**Seen in play:** the seven aspects are the seven soul lights of spirit sight, see [section 3.5](#35-soul-lights-the-aspects-seen-in-spirit-sight) and [`SPIRIT_SIGHT.md`](./SPIRIT_SIGHT.md)\
 **Runtime implementation:** **P7-011** (GameState fields, spend/grant, save/load, minimal UI host). This file is not runtime truth until that row verifies.
 
 **Runtime today (2026-10-07):** `GameState` stores aspect ranks and unspent points (`get_natural_aspect_rank`, `grant_natural_points`, `spend_natural_point`) and saves them; magic scales by aspect (`tests/godot/test_magic_natural_scaling.gd`); the Hingepuu reflection overlay displays ranks. `StateRuleEvaluator` accepts `natural.grant_points` / `natural.spend_point` with fail-closed `natural.fail.*` codes, used by runtime callers and the reflection host (`tests/godot/test_p7_011_natural_psyche.gd`); `natural.set_rank` / `natural.lock_aspect` stay contract-only. Authored JSON can declare these two operations through the schema + Python validator allowlist implemented by **R-1454**. See the [code-health audit](../reports/code_health_audit_2026-10-07.md).
@@ -22,6 +23,10 @@ Define how the protagonist's seven NATURAL aspects grow and modify play without.
 - restoring superseded NATURAL / element pixel HUD art (ADR 0017 art rule).
 
 Player-facing fantasy: the smith tends seven hearths of the soul. Investing in a hearth hardens body, craft, speech, and the magic elements tied to that hearth.
+
+![The NATURAL system at a glance: each aspect's Hingepuu tier, soul light on the body, guarded duel element, magic elements and physical verbs](../reports/images/natural/hingepuu_map.png)
+
+*The whole system on one page: each row is one aspect, from the roots (nature) to the sky (light). The tree is where the player spends points; the body is where the same aspect shows as a soul light in [spirit sight](./SPIRIT_SIGHT.md#the-seven-soul-lights). Diagram from `tools/render_natural_diagrams.py`.*
 
 ---
 
@@ -66,6 +71,10 @@ Stable content IDs use the form `aspect.<slug>`. Display names stay English for 
 First allocation is a **Hingepuu beat**, not a menu before New Game. Until the player completes `flag.natural.initial_allocation`, ranks stay at the starting ranks above (the apprentice's 10/5/5/10/5/15/5 in aspect order) and magic uses multiplier 1.0 for aspect scaling (per MAGIC.md).
 
 ### 3.2 Grant and spend
+
+![How a point travels: story beat, unspent points, spend at the Hingepuu, aspect rank, then soul light, magic multiplier and special riders](../reports/images/natural/point_flow.png)
+
+*A point is minted only by authored content, waits in the unspent pool, and becomes a rank when the player spends it at a Hingepuu hearth. Everything else is read from the rank.*
 
 Content and runtime speak only through these ops (P7-011 implements them):
 
@@ -116,8 +125,24 @@ The seven aspects are also the seven soul lights (*hingetuled*) that every perso
 | `aspect.awareness` | treetop perch | head, front | sight | indigo |
 | `aspect.light` | sky above tree | above the head | faith | violet |
 
+![The seven soul lights labelled with aspect, guarded element and body position](../reports/images/spirit_auras/seven_lights_legend.png)
+
+*The same seven aspects as the soul lights on a body in spirit sight (in-game capture, `tools/capture_spirit_auras.gd`). How to read them by eye: [`SPIRIT_SIGHT.md` - Reading an aura by eye](./SPIRIT_SIGHT.md#reading-an-aura-by-eye).*
+
+![Rank 0..50 mapped to light levels 0..5, the apprentice's New Game ranks, and the magic multiplier line](../reports/images/natural/rank_ladder.png)
+
+*The stored rank is the only saved number. The bands turn it into a light level; the line beside it is the spell multiplier of [section 4](#4-magic-coupling-normative).*
+
+![Six people with every light at level 0, 1, 2, 3, 4 and 5](../reports/images/spirit_auras/levels_0_to_5.png)
+
+*What each light level looks like in play: 0 is a black hole, 5 is blazing.*
+
 - **Hero:** the light level (0..5) is read from the aspect rank: below 5 or locked = 0, 5-9 = 1, 10-14 = 2, 15-24 = 3, 25-39 = 4, 40-50 = 5. No separate light currency or save field; spending a NATURAL point at the Hingepuu is how a light grows.
 - **Apprentice baseline (implemented, SS-8, R-1491):** nature 10, unity 10, awareness 15 (the clairvoyant gift), the other four 5, so his lights start at 2 / 2 / 3 / 1. `SessionState` starts every New Game from `GameState.new_apprentice_game()`; loaded saves keep the ranks they stored. The first-allocation rules are unchanged.
+![The apprentice's aura at New Game, after the first allocation (+5 tenacity, +5 light) and in a late-game build](../reports/images/spirit_auras/natural_growth.png)
+
+*The apprentice's soul as NATURAL points are spent, built through the real `grant_natural_points` / `spend_natural_point` calls: New Game (lights 2/1/1/2/1/3/1, root to sky), after the first allocation (tenacity and light reach rank 10, level 2, so the crown beam thickens), and a late-game build (lights 4/2/4/4/3/5/4). Plate `natural_growth` in `tools/capture_spirit_auras.gd`.*
+
 - **Awareness** also sets the spirit-sight radius (12 m + 4 m per level above 2: 16 m at the apprentice's level 3) and how deeply the hero reads other souls; **light** keeps feeding `resource.willpower`.
 - **NPCs** have no NATURAL ranks; their light levels are content (`aura` block on the character record) or derived deterministically.
 - **No morality:** a bright or dim light shows strength or a weak point, never goodness (same rule as section 1).
@@ -225,6 +250,15 @@ Forging aftermath content applies `{ "op": "natural.grant_points", "amount": 1 }
 ### 9.3 Magic scale
 
 `spell.pagan.spark` uses `element.fire`. With `aspect.tenacity` stored rank 8 and no psyche delta, multiplier = `1.0 + 0.02 * 8 = 1.16`.
+
+### 9.4 Seeing it in spirit sight
+
+The rank 8 tenacity of 9.3 is a level 1 light (ember): the opponent sees a small yellow light at the hero's mid spine and may aim a duty word at it. Two more points (rank 10) make it a level 2 glow. The duel side of this is in [`SPIRIT_SIGHT.md` - Soul lights in a duel](./SPIRIT_SIGHT.md#soul-lights-in-a-duel-ss-5-r-1488).
+
+### 9.5 Regenerating the pictures
+
+- Diagrams (`docs/reports/images/natural/*.png`): `python3 tools/render_natural_diagrams.py`. The rank bands, apprentice baseline and aspect table are constants at the top of the script; update them when `GameState` or `SpiritAuraProfile` change.
+- In-game plates: `tools/godot_render.sh --resolution 1280x720 --script tools/capture_spirit_auras.gd -- --out=res://docs/reports/images/spirit_auras --only=natural_growth,seven_lights_legend,levels_0_to_5`.
 
 ---
 

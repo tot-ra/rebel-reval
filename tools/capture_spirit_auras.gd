@@ -10,6 +10,8 @@ extends SceneTree
 ## Doc legend plates (SPIRIT_SIGHT.md): the seven lights labelled, levels 0..5,
 ## clarity high to low, the apprentice's starting lights and the duel feedback
 ## (a word dims a light, pressure drains clarity, a broken soul shatters).
+## NATURAL.md plate: natural_growth, the apprentice's lights as NATURAL points
+## are spent (New Game, first allocation, a late-game build).
 ## Render a subset with --only=name[,name] (plate file names without .png).
 ## Frame budget in the same crowd, sight off vs on (add --disable-vsync):
 ##   tools/godot_render.sh --resolution 1280x720 --disable-vsync \
@@ -47,6 +49,7 @@ func _init() -> void:
 		"animal_dog": _animal, "seven_lights_legend": _legend,
 		"levels_0_to_5": _levels, "clarity_scale": _clarity,
 		"apprentice_start": _apprentice, "duel_feedback": _duel_feedback,
+		"natural_growth": _natural_growth,
 	}
 	for plate_name: String in plates:
 		if only.is_empty() or plate_name in only:
@@ -250,6 +253,33 @@ func _apprentice() -> void:
 	var state := GameState.new_apprentice_game()
 	_manager.register(rig, SpiritAuraProfile.for_character(&"char.apprentice", null, state))
 	_close_camera(Vector3(0.0, 1.35, 0.0), 4.6)
+
+
+## The apprentice three times, each built through the real grant/spend calls so
+## the lights come from GameState ranks exactly as in play (NATURAL.md 3.5).
+func _natural_growth() -> void:
+	var builds := [
+		["New Game", {}],
+		["first allocation\n+5 tenacity +5 light", {&"aspect.tenacity": 5, &"aspect.light": 5}],
+		["late game", {
+			&"aspect.nature": 15, &"aspect.affection": 5, &"aspect.tenacity": 20,
+			&"aspect.unity": 15, &"aspect.resonance": 10, &"aspect.awareness": 25,
+			&"aspect.light": 20,
+		}],
+	]
+	for i in builds.size():
+		var state := GameState.new_apprentice_game()
+		var spends: Dictionary = builds[i][1]
+		for aspect_id: StringName in spends:
+			state.grant_natural_points(int(spends[aspect_id]))
+			for point in int(spends[aspect_id]):
+				state.spend_natural_point(aspect_id)
+		var at := Vector3(float(i) * 2.0 - 2.0, 0.0, 0.0)
+		var rig := _rig("Growth%dRig" % i, at, 0.0)
+		_manager.register(rig, SpiritAuraProfile.for_character(&"char.apprentice", null, state))
+		_caption(builds[i][0], at + Vector3(0.0, -0.3, 0.6), 40)
+	_manager.center_override = Vector3.ZERO
+	_front_camera(Vector3(0.0, 1.5, 0.0), 4.8)
 
 
 ## One opponent soul four times: calm, a love word just landed (green dims),
