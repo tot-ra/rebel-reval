@@ -74,5 +74,7 @@ func update_share(presentation: SkyWeather.WeatherPresentation) -> void:
 		_material.set_shader_parameter(&"sun_share", sun_share)
 		# R-1400: the discrete cells that cast individual moving shadows.
 		_material.set_shader_parameter(&"cloud_cells", presentation.cloud_cells)
+		# R-1768: lobed deck edges, only when the dome draws the lit deck.
+		_material.set_shader_parameter(&"deck_lobes", presentation.cloud_deck_lobes)
 	if _overlay != null:
 		_overlay.visible = sun_share > SUN_SHARE_SKIP

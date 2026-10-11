@@ -21,6 +21,9 @@ uniform float cell_edge_lod = 1.0;
 // Sea level for pixels without depth: water surfaces are transparent and do not
 // write depth, so their shadow is placed on this plane instead.
 uniform float water_plane_y = 0.0;
+// R-1768: the lit dome deck bulges/bites its edges with lobes; the soft shadow does
+// the same so a patch on the ground has the outline of the cloud overhead.
+uniform bool deck_lobes = false;
 
 global uniform sampler2D cloud_noise_tex : filter_linear_mipmap, repeat_enable;
 global uniform sampler2D cloud_shape_tex : filter_linear_mipmap, repeat_enable;
@@ -106,6 +109,9 @@ void fragment() {
 				cloud_chaos_g,
 				SHADOW_MIP_BIAS
 			);
+			if (deck_lobes) {
+				shadow = sky_cloud_lobe_erode(shadow, sky_cloud_lobes(uv, cloud_shape_tex, cloud_detail_offset_g));
+			}
 		}
 		// R-1400: each discrete cloud throws its own moving shadow, projected
 		// along the sun from the same cell the sky dome draws. Cells shade harder

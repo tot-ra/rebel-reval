@@ -4,7 +4,7 @@ Status: implemented (R-1400 through R-1533; see [`SKY_ATMOSPHERE.md`](./SKY_ATMO
 
 Scope: discrete world-space cumulus and cumulonimbus in the 3D maps and seamless city, including cloud-volume rendering, movement, growth, merging, local shadows, storm rain, lightning and sunbeams. Cloud-cell counts now also follow the shared Tallinn seasonal climate curve: fair-weather cumulus convection is strongest in summer and reduced, but not eliminated, in winter.
 
-Out of scope: seasonal weather probabilities, terrain-reactive clouds, thunder audio distance, storm-following puddles and mud, and replacing the continuous distant cloud deck. Winter storm cells remain governed by storm weather; the seasonal adjustment targets fair-weather cumulus, not storm probability.
+Out of scope: seasonal weather probabilities, terrain-reactive clouds, thunder audio distance, storm-following puddles and mud, and replacing the continuous distant cloud deck (R-1768 kept the deck and gave it lobes and self-shadow instead, see [lit cloud deck](./SKY_ATMOSPHERE.md#lit-cloud-deck); the cells stay for parallax near the player and for storms). Winter storm cells remain governed by storm weather; the seasonal adjustment targets fair-weather cumulus, not storm probability.
 
 ## Visual field guide
 
@@ -83,7 +83,7 @@ The seasonal atlas pair is a new capture target and must be rendered after the c
 
 ## Implementation notes
 
-Cells are packed into fixed slots and computed as pure functions. Cumulus drift faster than the distant dome deck, grow and dissolve, and can merge in a convective hotspot. Mature cumulonimbus cells own local rain and lightning. Every cell can project a soft shadow along the sun direction; the dome deck remains the far continuous layer. The season factor scales only the cumulus count after the weather-cover/deck calculation so seasonal transitions do not abruptly replace the weather state.
+Cells are packed into fixed slots and computed as pure functions. Cumulus drift faster than the distant dome deck, grow and dissolve, and can merge in a convective hotspot. Mature cumulonimbus cells own local rain and lightning. Every cell can project a soft shadow along the sun direction; the dome deck remains the far continuous layer. Since R-1768 the deck is lit as heaped lobes on the recommended tier, and its ground shadow takes the same lobed edges, so deck and cells read as one cumulus field. The season factor scales only the cumulus count after the weather-cover/deck calculation so seasonal transitions do not abruptly replace the weather state.
 
 Screenshots and code are presentation-only; they do not change gameplay or weather save schema.
 

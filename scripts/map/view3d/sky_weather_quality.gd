@@ -19,6 +19,8 @@ const QUALITY_TIERS: Dictionary = {
 		"cloud_noise_resolution": SKY_RESOURCES.CLOUD_NOISE_RESOLUTION_MINIMUM,
 		"cloud_shape_resolution": SKY_RESOURCES.CLOUD_SHAPE_RESOLUTION_MINIMUM,
 		"cloud_shadow_samples": 2,
+		# R-1768: flat dome deck (0); recommended draws the lit 2.5D deck (1).
+		"cloud_deck_mode": 0,
 		# WS-12 ground pass. Sky raymarch keeps 2 so the dome stays identical.
 		"cloud_shadow_ground_samples": 1,
 		"cloud_shadow_enabled": true,
@@ -50,6 +52,7 @@ const QUALITY_TIERS: Dictionary = {
 		"cloud_noise_resolution": SKY_RESOURCES.CLOUD_NOISE_RESOLUTION_RECOMMENDED,
 		"cloud_shape_resolution": SKY_RESOURCES.CLOUD_SHAPE_RESOLUTION_RECOMMENDED,
 		"cloud_shadow_samples": 4,
+		"cloud_deck_mode": 1,
 		"cloud_shadow_ground_samples": 3,
 		"cloud_shadow_enabled": true,
 		"rain_shaft_samples": 6,
