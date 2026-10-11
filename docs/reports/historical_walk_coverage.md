@@ -14,18 +14,20 @@ Captures: `docs/reports/images/historical_walk/`, produced with two scratch scri
 |----------|---------|--------------|---|---|---|---|---|-----|------------|
 | Toompea plateau and Danish castle | `district.toompea` | 2026-10-09 | 2 | 1 | 2 | 1 | 2 | 1.6 | R-1462, R-1463, R-1464, R-1465, R-1466, R-1470, R-1471; legacy-targeted R-1128, R-967, R-293 |
 | Kalarand fishing shore | `district.kalarand` | 2026-10-09 | 2 | 2 | 2 | 1 | 2 | 1.8 | R-1467, R-1468, R-1469, R-1470; R-1347 (LIFE-4 fishers) |
-| Lower Town streets and forum (bar, provisional) | `district.lower_town`, `poi.forum` | not walked (rated from 2026-10-07/08 captures in `images/city/`) | 4 | 2 | 3 | 2 | 2 | 2.6 | R-1465 (shingle roofs) |
+| Lower Town streets: Pikk/Lai (bar, provisional) | `district.lower_town` | 2026-10-11 (captured; visual review pending) | 4* | 2* | 3* | 3* | - | 3.0* | R-1465, R-1657 |
 | Town Hall square and market | `site.raekoja_plats`, `poi.forum` | 2026-10-10 | 3 | 2 | 2 | 2 | - | 2.3 | R-1610, R-1611, R-1612, R-1616, R-1465, R-1323 |
 | Holy Spirit church and almshouse | `site.holy_spirit` | 2026-10-10 | 3 | 1 | 2 | 1 | - | 1.8 | R-1613, R-1614, R-1615, R-1434; legacy-targeted R-1126 |
 | St Olaf's | `site.st_olaf` | 2026-10-11 | 3 | 1 | 2 | 1 | - | 1.8 | R-1650, R-1653, R-1655, R-1656, R-1657, R-1613, R-1614, R-1470 |
 | St Nicholas' | `site.st_nicholas` | 2026-10-11 | 3 | 2 | 1 | 1 | - | 1.8 | R-1651, R-1652, R-1654, R-1657, R-1613, R-1614, R-1470; legacy R-1119 (retarget note) |
-| St Mary's (Dome church building site) | `site.st_mary` | seen from Toompea 2026-10-09 | - | - | - | - | - | - | |
+| St Mary's (Dome church building site) | `site.st_mary` | 2026-10-11 (captured; visual review pending) | 4* | 3* | - | 2* | - | 3.0* | R-1678, R-1679; shared checks R-1613, R-1614 |
 | Harbour and Coastal Gate | `harbour`, `gate.coastal` | 2026-10-10 | 3 | 2 | 1 | 2 | - | 2.0 | R-1542, R-1543, R-1465, R-1470; legacy-targeted R-206, R-208, R-298 |
 | Viru road suburb | `district.viru` | 2026-10-09 | 2 | 1 | 2 | 2 | - | 1.8 | R-1504, R-1545, R-1434, R-1470 |
 | Cattle-road farmsteads | `district.karja` | 2026-10-10 | 2 | 1 | 2 | 2 | - | 1.8 | R-1544, R-1545, R-1546, R-1465, R-1434, R-1323 |
 | Harju-road houses | `district.harju` | 2026-10-10 | 2 | 1 | 2 | 2 | - | 1.8 | R-1594, R-1592, R-1465, R-1434, R-1545, R-1323 |
 | Vassal yards below the castle | `district.toompea_foot` | 2026-10-09 | 2 | 2 | 1 | 2 | - | 1.8 | R-1503, R-1545, R-1434, R-1470 |
 | Hinterland fields, pastures and woods | `fields`, `pastures`, `woods` | 2026-10-10 | - | 2 | 2 | 2 | - | 2.0 | R-1591, R-1592, R-1593, R-1595, R-1596, R-1544 |
+
+*Walk 7 starred ratings are provisional data/detail-coverage estimates, not visual acceptance. Pikk/Lai A/P/V retain the earlier bar estimates; L uses scheduler/live-actor evidence. St Mary A/P reflect authored construction detail; L reflects misbound institutional schedules. Terrain and audio cannot be newly rated without image/listening access. Starred averages must not be used to claim visual parity. Earlier unstarred ratings remain historical observations, not revalidated here.*
 
 ## Walk log
 
@@ -88,3 +90,30 @@ Captures: `hw6_olaf_aerial`, `hw6_olaf_west`, `hw6_olaf_south`, `hw6_olaf_east`,
 **Both.** Nobody at either church at midday (R-1657, church-door routines for all three parishes). Parish bells and the masons' yard added as test points to the ambience item (R-1470).
 
 **Consistency gap.** All four Lower Town landmark sites are now rated, and the pattern from the Town Hall and Holy Spirit repeats: bespoke, dossier-checked church shells (A 3) on a raised turf pad in lawn or meadow, with no precinct (churchyard, paths, enclosure) and no people (V 1-2, L 1). The landmarks are ahead of their ground and their life. The highest-leverage fixes are shared, not per church: the site terrace rule (R-1613), one shared churchyard routine used by St Olaf's, St Nicholas' and, after research, Holy Spirit (R-1650, R-1651, R-1615), and church-door routines (R-1657). Next walks: the Lower Town streets on foot (still rated only from older captures, so the bar itself is unverified), then St Mary's (Dome church building site) at street level, and the Dominican and Cistercian precincts, which have no rows yet.
+
+
+### 2026-10-11 - Walk 7: Pikk/Lai and St Mary's, capture + data review (partial)
+
+**Selection:** the Lower Town bar had never been walked and St Mary had only been seen from afar. Both were selected before revisiting recently rated churches. No runtime, content, asset or generator implementation was changed.
+
+**Evidence and limits:** 13 fresh JPEGs under `images/historical_walk/`, prefixed `hw7_`; [capture manifest](images/historical_walk/hw7_manifest.json) includes dimensions, hashes, scratch capture script bodies and renderer/counter caveats. Base HEAD `aa048fba`, with concurrent uncommitted runtime edits: these are working-build observations, not clean-main acceptance. Static capture extends `tools/capture_reval_city.gd`; live capture instantiates `reval_city.tscn`, teleports to named street points/three cathedral approaches, waits seven seconds and resets daylight to 0.45, with citizen time pinned to 10:00. This is a sampled player-camera visit, **not a continuous collision/pathfinding walk**. Both captures exit 0; runtime has texture UID fallback and shutdown resource-leak warnings. No assertion-suite pass is claimed.
+
+**Visual-review blocker:** browser screenshot returned a filesystem path, not inspectable image pixels; text-read of JPEG cannot inspect it. The independent `dev-code-reviewer` also reported no pixel access. No new screenshot-based anachronism, terrain defect, clothing judgment or visual approval is claimed. Audio was not listened to. Captures are supplied for human inspection, and both rows remain pending visual review. Existing shared roof, church-render and terrace tasks were not duplicated or declared reproduced. The review checked evidence/scope only; a later parent data audit confirmed the institution-routing defect below.
+
+**Lower Town data assessment:** Pikk has 39 street-associated buildings: 7 limestone, 6 plaster, 14 plank, 12 log; roofs 7 tile, 19 shingle, 13 thatch. Lai has 45: 11 limestone, 1 plaster, 12 plank, 21 log; roofs 11 tile, 14 shingle, 20 thatch. These are associations in the plan, not measured street frontage percentages. [Pikk/Lai frontage dossier](../../history/dossiers/topography/pikk-lai-frontage-materials-1340s.md) attests the coexistence of timber and stone, but cannot assign exact 1343 facades: every plot-level arrangement remains **plausible composite**. Do not turn later architectural remains into a mandate for all-stone streets. Nearby streamed citizen counts were 32, 33 and 34 at Pikk, Lai and north Pikk; these are not visible population counts. Street life is implemented, so no new 'empty streets' task is justified from these captures alone.
+
+**St Mary data assessment:** the authored construction phase includes completed choir/vestry, a partly completed nave, timber centering/scaffold, treadwheel crane, four stone stacks, cart, masons' lodge with banker/templates, lime pit and detached belfry. Thus this precinct's props are ahead of St Olaf's two-stack/cart yard in walk 6. The rebuilding programme and cathedral chapter/school are **attested**; precise April 1343 construction progress and yard arrangement are **plausible composite**. Later tower/helm (1779), pulpit (1686), monuments and box pews are explicitly excluded in site notes. Unknown details use simplified later forms only where no later date rules them out. Sources: [church dossier](../../history/dossiers/religion/churches-and-religious-houses.md) and [Toompea dossier](../../history/dossiers/architecture/toompea-castle-and-upper-town.md). Neither interior nor liturgical sound was inspected.
+
+**Concrete finding, R-1678 (P1):** all 37 `hh.inst_st_mary_chapter` residents inherit a missing old building anchor: census `building=bldg.osm.w26902813`, `door=null`, `xy=[0,0]`; runtime home becomes `[2.5,0.0]`. Canon `cit.tp.inst_st_mary_chapter.001` works/prays at `[178.37,-37.32]`, by St Catherine's in the Lower Town. The generator sees only three old building church candidates, omitting new landmark sites. This misrepresents separate episcopal/cathedral and Lower Town institutions. Their exact homes are composite, but relocation to the generic origin is a demonstrable data fallback, not historical uncertainty. Repair source bindings, not population quantity. Nearby actors at cathedral viewpoints numbered 8/21/21, not zero.
+
+**Existing finding updated, R-1657:** parish-door routine task now records the shared site-resolution omission; repair routing before adding more people. Do not add a second posted-NPC system or duplicate existing school/cleric schedules.
+
+**New bounded idea, R-1679 (P3):** after R-1678, assign a small approved subset of existing residents to a cathedral-school doorway routine. School by 1319 is **attested**; chosen pupils, hours and route are **plausible composite**. Currently 236 school-pattern residents have no school target within 80 units of the cathedral; this does not mean all should study there. Reuse walk/idle and wardrobe, no school minigame. Catalog query found no usable writing tablet, so no uncatalogued tablet/book should be placed; any art requires exact-file P0-040 approval. Scope expansion would require an ADR, not permission implied by this idea.
+
+**Consistency gap:** the richest authored landmark construction kit can coexist with fundamentally wrong social destinations. St Mary's has more construction dressing than St Olaf's, yet its entire chapter is anchored to the wrong district; Pikk/Lai has the mixed merchant fabric missing from the market-frontage sample. Priority should be consistent institution/site bindings and ground/life integration, not another pass of landmark ornament. This is a data-supported comparison, not a new visual ranking. Next: human review of these 13 images and an audible ambience pass; then add/visit the still-unrated Dominican and Cistercian precincts.
+
+Representative evidence (awaiting pixel-level review):
+
+![St Mary construction overview](images/historical_walk/hw7_st_mary_aerial.jpg)
+
+![Pikk gameplay-camera sample](images/historical_walk/hw7_rt_pikk.jpg)

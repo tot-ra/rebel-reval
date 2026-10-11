@@ -1,0 +1,160 @@
+{
+  "date": "2026-10-11",
+  "base_commit": "aa048fba",
+  "worktree": "dirty; concurrent runtime changes, not clean-main acceptance",
+  "engine": "4.7.1",
+  "renderer": "Metal Forward Mobile Apple M5 Pro",
+  "runtime_hour_override": 10.0,
+  "cycle_progress": 0.45,
+  "audio_review": false,
+  "captures": [
+    {
+      "file": "hw7_lower_aerial.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "sha256": "0024def48533fa7df5b1972b0c30ace86b2b0963361c42fdcd3c9e0af724d36d",
+      "mode": "static",
+      "visual_review": "pending - image pixels unavailable to reviewers"
+    },
+    {
+      "file": "hw7_mary_east.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "sha256": "62160a1437a491528b453d3a37da3c9ee0515cffe5298a03859855cce30035e4",
+      "mode": "static",
+      "visual_review": "pending - image pixels unavailable to reviewers"
+    },
+    {
+      "file": "hw7_mary_south.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "sha256": "472483dc18e7e1142145c8271a87323ade0b19796b940ad784d8b44aee56fad2",
+      "mode": "static",
+      "visual_review": "pending - image pixels unavailable to reviewers"
+    },
+    {
+      "file": "hw7_mary_west.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "sha256": "bd0c60ecbd1616098cb73876d72ca58ebdc00a5f9a49b522172f61951b199eec",
+      "mode": "static",
+      "visual_review": "pending - image pixels unavailable to reviewers"
+    },
+    {
+      "file": "hw7_rt_lai.jpg",
+      "size": [
+        2762,
+        1554
+      ],
+      "sha256": "5152b94d9e48742f386fa4060cd8fbffa4d69ffd7196dc018b9a56dde6924d43",
+      "mode": "runtime",
+      "visual_review": "pending - image pixels unavailable to reviewers"
+    },
+    {
+      "file": "hw7_rt_mary_east.jpg",
+      "size": [
+        2762,
+        1554
+      ],
+      "sha256": "3908b70d2862a50d69afe8e61ad94ca89f4e49591b4b974df0c4d2bfadf0307f",
+      "mode": "runtime",
+      "visual_review": "pending - image pixels unavailable to reviewers"
+    },
+    {
+      "file": "hw7_rt_mary_south.jpg",
+      "size": [
+        2762,
+        1554
+      ],
+      "sha256": "d5660fe2a643509f205fb5f7ee0c2837ab269556ca76158beb7621b1767972fc",
+      "mode": "runtime",
+      "visual_review": "pending - image pixels unavailable to reviewers"
+    },
+    {
+      "file": "hw7_rt_mary_west.jpg",
+      "size": [
+        2762,
+        1554
+      ],
+      "sha256": "31c2fbf01e95e017fdf427106b67b3b6273327ecb1e83269089043ff8efec970",
+      "mode": "runtime",
+      "visual_review": "pending - image pixels unavailable to reviewers"
+    },
+    {
+      "file": "hw7_rt_pikk.jpg",
+      "size": [
+        2762,
+        1554
+      ],
+      "sha256": "01fa42ff33e406183c85622e95219b039737c6c2430bb6e8b48020d4e6f248f0",
+      "mode": "runtime",
+      "visual_review": "pending - image pixels unavailable to reviewers"
+    },
+    {
+      "file": "hw7_rt_pikk_north.jpg",
+      "size": [
+        2762,
+        1554
+      ],
+      "sha256": "67a00dba05508f82098b7038fbacd8ce26734d3e01e25dd41890b2c946b8e5be",
+      "mode": "runtime",
+      "visual_review": "pending - image pixels unavailable to reviewers"
+    },
+    {
+      "file": "hw7_st_mary_aerial.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "sha256": "feab95cdc8ed40ada112e9019bb37fba37b608adb71657639f6ae97090efd47c",
+      "mode": "static",
+      "visual_review": "pending - image pixels unavailable to reviewers"
+    },
+    {
+      "file": "hw7_street_lai.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "sha256": "6d1cbb88fa3c6166b0d646105b204f1d3295b0baeda284afc1a2bee98131c3f5",
+      "mode": "static",
+      "visual_review": "pending - image pixels unavailable to reviewers"
+    },
+    {
+      "file": "hw7_street_pikk.jpg",
+      "size": [
+        1600,
+        900
+      ],
+      "sha256": "6121119e968808017ac159e013644cf7f7295e22df0fe0be6d9f99506ee3bf4e",
+      "mode": "static",
+      "visual_review": "pending - image pixels unavailable to reviewers"
+    }
+  ],
+  "runtime_counts": {
+    "pikk": 32,
+    "lai": 33,
+    "pikk_north": 34,
+    "mary_west": 8,
+    "mary_south": 21,
+    "mary_east": 21
+  },
+  "counts_note": "CityCitizens.live_count, nearby streamed actors, not visible counts or whole-city population; initial CityNpcs child counts invalid",
+  "capture_scripts": {
+    "hw7_static.gd": "extends \"res://tools/capture_reval_city.gd\"\n\nfunc _v(plan: CityPlan, x: float, z: float, up: float) -> Vector3:\n\treturn Vector3(x, plan.ground_height(Vector2(x, z)) + up, z)\n\nfunc _shots(plan: CityPlan) -> Array[Dictionary]:\n\tvar shots: Array[Dictionary] = []\n\tfor s in super._shots(plan):\n\t\tif s.name in [\"street_pikk\", \"street_lai\", \"st_mary_aerial\", \"st_mary_door\"]:\n\t\t\ts.name = \"hw7_\" + s.name\n\t\t\tshots.append(s)\n\tshots.append({\"name\":\"hw7_lower_aerial\", \"eye\":_v(plan, -80, -290, 105), \"look\":_v(plan, 45, -250, 0), \"fov\":60.0})\n\tshots.append({\"name\":\"hw7_mary_west\", \"eye\":_v(plan,-384,24,1.7), \"look\":_v(plan,-355,21,7), \"fov\":65.0})\n\tshots.append({\"name\":\"hw7_mary_south\", \"eye\":_v(plan,-356,44,1.7), \"look\":_v(plan,-353,22,7), \"fov\":65.0})\n\tshots.append({\"name\":\"hw7_mary_east\", \"eye\":_v(plan,-309,20,1.7), \"look\":_v(plan,-331,21,7), \"fov\":65.0})\n\treturn shots\n",
+    "hw7_runtime.gd": "extends Node\n\nconst SCENE := preload(\"res://scenes/world/reval_city/reval_city.tscn\")\nconst OUT := \"res://build/hw7\"\nvar _city: Node\n\nfunc _ready() -> void:\n\tcall_deferred(\"_run\")\n\nfunc _run() -> void:\n\t_city = SCENE.instantiate()\n\tget_tree().root.add_child(_city)\n\tfor i in 4:\n\t\tawait get_tree().process_frame\n\tvar spots := [[\"hw7_rt_pikk\", Vector2(61.13,-178.26)], [\"hw7_rt_lai\", Vector2(-41.81,-174.65)], [\"hw7_rt_pikk_north\", Vector2(99.14,-271.77)], [\"hw7_rt_mary_west\", Vector2(-382.94,23.41)], [\"hw7_rt_mary_south\", Vector2(-356,44)], [\"hw7_rt_mary_east\", Vector2(-309,20)]]\n\tfor sp in spots:\n\t\t_city.player.global_position = CityPlan.to_logic(sp[1])\n\t\t_city.runtime.cycle_progress = 0.45\n\t\t_city._npcs.citizens.hour_override = 10.0\n\t\tawait get_tree().create_timer(7.0).timeout\n\t\t_city.runtime.cycle_progress = 0.45\n\t\tawait get_tree().process_frame\n\t\tawait get_tree().process_frame\n\t\tvar npcs := _city.find_child(\"CityNpcs\", true, false)\n\t\tprint(\"%s live_citizens=%d site_actor_groups=%s\" % [sp[0], npcs.citizens.live_count() if npcs else -1, str(npcs._site_people.keys()) if npcs else \"none\"])\n\t\tvar image := get_tree().root.get_viewport().get_texture().get_image()\n\t\timage.save_png(ProjectSettings.globalize_path(\"%s/%s.png\" % [OUT, sp[0]]))\n\t\tprint(\"captured \", sp[0])\n\tget_tree().quit(0)\n",
+    "hw7_runtime.tscn": "[gd_scene load_steps=2 format=3]\n\n[ext_resource type=\"Script\" path=\"res://build/hw7/hw7_runtime.gd\" id=\"1\"]\n\n[node name=\"Hw4\" type=\"Node\"]\nscript = ExtResource(\"1\")\n"
+  },
+  "log_caveats": [
+    "runtime exit 0; resource/shader leak warnings at shutdown",
+    "hero cape/hat invalid UID warnings use fallback texture paths"
+  ]
+}
