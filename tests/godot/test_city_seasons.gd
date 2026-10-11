@@ -25,6 +25,17 @@ func test_leaf_shedding_follows_leaves_and_wind() -> void:
 	)
 
 
+## Real crowns drop a few tenths of a leaf per second in calm air and a few in a
+## gale; the emitter must not saturate into a leaf blizzard near a handful of trees.
+func test_leaf_fall_rate_per_tree_is_realistic() -> void:
+	var per_weight := CityLeafFall.LEAVES_PER_SECOND_PER_WEIGHT
+	var calm := CityLeafFall.shed_weight(&"birch", OCT, 0.2) * per_weight
+	var gale := CityLeafFall.shed_weight(&"birch", OCT, 1.0) * per_weight
+	print("birch Oct 20 leaves/s per tree: calm %.2f, gale %.2f" % [calm, gale])
+	assert_true(calm > 0.05 and calm < 1.0, "calm October tree: a trickle, got %.2f/s" % calm)
+	assert_true(gale < 3.0, "a gale strips leaves but not as a blizzard, got %.2f/s" % gale)
+
+
 func test_tree_lod_lists_trees_near_a_point() -> void:
 	var lod := CityTreeLod.new()
 	var far := MultiMesh.new()

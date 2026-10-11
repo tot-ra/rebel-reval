@@ -24,6 +24,12 @@ const WIND_MS_AT_FULL := 16.0
 const WIND_FOLLOW := 0.8
 ## Weather: a gale strips a leafed crown even in summer.
 const STORM_SHED := 0.3
+## Leaves per second one tree drops per unit of shed_weight. A mature birch or
+## linden carries ~200 000 leaves and drops them over ~5 weeks, mostly in gusts:
+## a few tenths of a leaf per second in calm air, a few per second in a gale.
+## The emitter used to saturate its whole budget (90 leaves/s) at three trees,
+## i.e. ~15 leaves/s from every crown nonstop, which read as a blizzard.
+const LEAVES_PER_SECOND_PER_WEIGHT := 1.0
 
 var tree_lod: Node
 ## 0..1 share of the particle budget currently shedding.
@@ -145,10 +151,15 @@ func _resample(focus: Vector3, date: Dictionary, wind_strength: float) -> void:
 	_params.set_shader_parameter("tree_cell", cells)
 	_params.set_shader_parameter("tree_cum", cumulative)
 	_params.set_shader_parameter("tree_count", count)
-	shedding = clampf(total / 3.0, 0.0, 1.0)
-	amount_ratio = maxf(shedding, 0.05)
-	emitting = count > 0
-	visible = count > 0
+	# GPUParticles emits amount * amount_ratio / lifetime per second, so the ratio
+	# is the wanted leaves/s over the emitter's full rate. No floor: a crown that
+	# barely sheds drops a barely visible trickle, not a fixed 4.5 leaves/s.
+	shedding = clampf(
+		total * LEAVES_PER_SECOND_PER_WEIGHT * LEAF_LIFETIME / float(maxi(amount, 1)), 0.0, 1.0
+	)
+	amount_ratio = shedding
+	emitting = count > 0 and shedding > 0.0
+	visible = emitting
 
 
 func _species_weight(species: StringName, date: Dictionary, wind_strength: float) -> float:
