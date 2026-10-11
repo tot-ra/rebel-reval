@@ -4,7 +4,7 @@ Status: implemented (tasks **R-1434**, **R-1659**). Scope: seeded procedural win
 
 ## What the player sees
 
-Timber **and** stone houses vary instead of repeating fresh white frames. The household's census class sets a visual wealth tier (see **Wealth tiers and timber wall finishes**) that selects the finish, glazing and frame style. It is an art tier, not a price or saved household statistic. About one timber window in four uses a different construction from the same tier's pool.
+Timber **and** stone houses vary instead of repeating fresh white frames. The household's census class sets a visual wealth tier (see **Wealth tiers and timber wall finishes**) that selects the finish, glazing and frame style. It is an art tier, not a price or saved household statistic. Every window of one house shares one style and one size, drawn once per building (the `jitter` key of `CityWindows.look`); variety comes from house to house, never within one facade. When a carved head board does not fit under the eave on the top window storey, the whole house falls back to the notched lintel or plain frame.
 
 | Style | Appearance |
 |-------|------------|
@@ -86,7 +86,7 @@ godot --headless --path . --script tools/run_godot_tests.gd
 tools/godot_render.sh --script tools/capture_cottage_windows.gd
 ```
 
-`tests/godot/test_city_house_wealth.gd` covers the census mapping, the fallback, wall plates per tier and the `wall:<family>:<stem>` material key. `tests/godot/test_city_windows.gd` covers wealth-gated repertoires, carved relief and the low-eave fallback, plus seeded variety, relief and absence of opaque backing panes. `test_city_window_openings.gd` covers removed area on both faces, actual empty centres, interior sill depth, glass profiles/sidedness, closed shutter backs, low-wall/door clearance, deterministic integration, rotated-wall UV preservation, centre rays through actual plan-house panes and custom-site exclusion.
+`tests/godot/test_city_house_wealth.gd` covers the census mapping, the fallback, wall plates per tier and the `wall:<family>:<stem>` material key. `tests/godot/test_city_windows.gd` covers wealth-gated repertoires, carved relief, the low-eave fallback, one style and size per house with variety across houses, plus seeded variety, relief and absence of opaque backing panes. `test_city_window_openings.gd` covers removed area on both faces, actual empty centres, interior sill depth, glass profiles/sidedness, closed shutter backs, low-wall/door clearance, deterministic integration, rotated-wall UV preservation, centre rays through actual plan-house panes and custom-site exclusion.
 
 Captures under `build/windows/`:
 
@@ -106,6 +106,8 @@ Captures under `build/windows/`:
 ![Rich house: carved shutters and notched lintel](../reports/images/city/r1659_wealth_rich_closeup.jpg)
 
 ![Live city: varied log and plank plates, carved window on a rich house](../reports/images/city/r1659_wealth_city_area.jpg)
+
+![One window style and size per house, different style next door](../reports/images/city/r_window_one_style_per_house.jpg)
 
 ## Limits
 

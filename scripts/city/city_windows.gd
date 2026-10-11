@@ -26,8 +26,8 @@ const TOWN_STYLES: Array[StringName] = [
 ]
 const GLAZING: Array[StringName] = [&"open", &"horn", &"forest", &"clear"]
 ## Window repertoire by wealth tier (poor, middling, rich). Repeats weight the
-## draw. A house uses one style, and about one window in four swaps to another
-## from the same pool, so a rich house never sprouts a bare slit.
+## draw. Every window of one house shares one style and one size; variety
+## comes from house to house, never within a facade.
 const TIMBER_POOLS := [
 	[&"plain", &"plain", &"shutters_closed", &"shutters_open", &"slit"],
 	[&"shutters_open", &"shutters_closed", &"hood", &"notched", &"notched", &"plain"],
@@ -73,6 +73,8 @@ static func look(
 			if rural
 			else (&"horn" if tier == 0 else &"forest" if tier == 1 else &"clear")
 		),
+		# Last draw, so earlier keys keep their seeded values.
+		"jitter": look_rng.randf(),
 	}
 
 
@@ -93,6 +95,7 @@ static func _wealth_look(look_rng: RandomNumberGenerator, rural: bool, tier: int
 		"pool": pool,
 		"panes": 1 + tier,
 		"glazing": glazing,
+		"jitter": look_rng.randf(),
 	}
 
 
@@ -117,6 +120,10 @@ static func placements(
 	var storeys := maxi(1, int((eave - floor_y) / 3.1))
 	var count := int(length / CityBuildingBuilder.WINDOW_SPACING)
 	var rural: bool = house_look["rural"]
+	# One size and one style per house: a facade with mixed windows reads as
+	# patchwork. Older looks without a house jitter fall back to the window draw.
+	var house_jitter: float = house_look.get("jitter", -1.0)
+	var style := _house_style(house_look, floor_y, storeys, eave, house_jitter)
 	for s in storeys:
 		var y0 := floor_y + 1.05 + float(s) * 3.0
 		if y0 + CityBuildingBuilder.WINDOW_H > eave - 0.35:
@@ -127,12 +134,11 @@ static func placements(
 				continue
 			if rng.randf() < 0.18:
 				continue
-			var style: StringName = house_look["style"]
 			if rural and rng.randf() < 0.25:
-				# Same two draws as before; a wealth look swaps within its own pool.
-				var swap: Array = house_look.get("pool", RURAL_STYLES)
-				style = swap[rng.randi() % swap.size()]
-			var jitter := rng.randf()
+				# Former per-window style swap: draws kept so roofs and chimneys
+				# downstream stay put, result discarded.
+				rng.randi()
+			var jitter := rng.randf() if house_jitter < 0.0 else _keep_draw(rng, house_jitter)
 			var w := CityBuildingBuilder.WINDOW_W * (0.8 if rural else 1.0)
 			var h := CityBuildingBuilder.WINDOW_H * (0.85 + jitter * 0.25)
 			var wy := y0
@@ -143,12 +149,6 @@ static func placements(
 			# Include the lintel and sill, not just the old nominal pane height.
 			if wy + h + 0.18 > eave - 0.05:
 				continue
-			# The carved head board needs ~0.4 m of wall above the frame;
-			# under a low eave it falls back to a notched lintel (no RNG draw).
-			if style in [&"carved", &"carved_shutters", &"hood"] and wy + h + 0.45 > eave:
-				style = &"notched" if wy + h + 0.3 <= eave else &"plain"
-			elif style == &"notched" and wy + h + 0.3 > eave:
-				style = &"plain"
 			(
 				result
 				. append(
@@ -167,6 +167,38 @@ static func placements(
 				)
 			)
 	return result
+
+
+## Consumes the legacy per-window jitter draw and returns the house value.
+static func _keep_draw(rng: RandomNumberGenerator, house_jitter: float) -> float:
+	rng.randf()
+	return house_jitter
+
+
+## The house style, already downgraded for the highest storey that gets a
+## window: a carved head board that would not fit under the eave there falls
+## back on every storey, so the facade stays uniform.
+static func _house_style(
+	house_look: Dictionary, floor_y: float, storeys: int, eave: float, jitter: float
+) -> StringName:
+	var style: StringName = house_look["style"]
+	if style == &"slit":
+		return style
+	var h := CityBuildingBuilder.WINDOW_H * (0.85 + maxf(jitter, 0.0) * 0.25)
+	var top := -INF
+	for s in storeys:
+		var y0 := floor_y + 1.05 + float(s) * 3.0
+		if y0 + CityBuildingBuilder.WINDOW_H > eave - 0.35:
+			break
+		if y0 + h + 0.18 <= eave - 0.05:
+			top = y0
+	if top == -INF:
+		return style
+	if style in [&"carved", &"carved_shutters", &"hood"] and top + h + 0.45 > eave:
+		return &"notched" if top + h + 0.3 <= eave else &"plain"
+	if style == &"notched" and top + h + 0.3 > eave:
+		return &"plain"
+	return style
 
 
 static func add_wall(

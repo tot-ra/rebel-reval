@@ -128,3 +128,24 @@ func test_low_eave_drops_the_carved_head() -> void:
 		Vector2.ZERO, Vector2(12, 0), 0.0, 2.35, Vector2(-1, -1), rng, look
 	):
 		assert_true(w["style"] != &"carved", "no carved head board above a 2.35 m eave")
+
+
+func test_one_house_has_one_window_style_and_size() -> void:
+	var styles := {}
+	for i in 40:
+		var look_rng := RandomNumberGenerator.new()
+		look_rng.seed = i
+		var look := CityWindows.look(look_rng, &"log", i % 3)
+		var rng := RandomNumberGenerator.new()
+		rng.seed = i
+		var windows: Array[Dictionary] = []
+		for wall in [[Vector2.ZERO, Vector2(14, 0)], [Vector2(14, 0), Vector2(14, 9)]]:
+			windows.append_array(
+				CityWindows.placements(wall[0], wall[1], 0.0, 6.4, Vector2(-1, -1), rng, look)
+			)
+		assert_true(windows.size() > 2, "house %d has windows" % i)
+		for w in windows:
+			assert_eq(w["style"], windows[0]["style"], "house %d: one window style" % i)
+			assert_eq(w["h"], windows[0]["h"], "house %d: one window size" % i)
+		styles[windows[0]["style"]] = true
+	assert_true(styles.size() >= 4, "different houses still differ (%d)" % styles.size())
