@@ -194,6 +194,8 @@ const BLEND_TERRAIN_ORDER: Array[StringName] = [
 ]
 
 static var _cache: Dictionary = {}
+## Last snow cover pushed (R-1327), so ground materials built later start snowed.
+static var _snow_cover := 0.0
 
 
 static func reset() -> void:
@@ -544,6 +546,7 @@ static func blended_ground(noise_seed: int) -> ShaderMaterial:
 	)
 	material.set_shader_parameter("earth_layer_max", terrain_blend_index(MapTypes.TERRAIN_ASH))
 	material.set_shader_parameter("mud_wetness", 0.0)
+	material.set_shader_parameter("snow_cover", _snow_cover)
 	# WS-08 wet sand: only the two beach layers darken behind the swash.
 	material.set_shader_parameter("sand_layer", terrain_blend_index(MapTypes.TERRAIN_SAND))
 	material.set_shader_parameter(
@@ -601,6 +604,14 @@ static func apply_mud_wetness(wetness: float) -> void:
 	for key: Variant in _cache.keys():
 		if String(key).begins_with("blended_ground:"):
 			(_cache[key] as ShaderMaterial).set_shader_parameter("mud_wetness", value)
+
+
+static func apply_snow_cover(cover: float) -> void:
+	var value := snappedf(clampf(cover, 0.0, 1.0), 0.01)
+	_snow_cover = value
+	for key: Variant in _cache.keys():
+		if String(key).begins_with("blended_ground:"):
+			(_cache[key] as ShaderMaterial).set_shader_parameter("snow_cover", value)
 
 
 ## Headless Texture2D.get_image() aliases the stored Image. Resize/mipmap

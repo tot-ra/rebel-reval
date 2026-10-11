@@ -54,6 +54,8 @@ const TREE_SLENDER := {
 static var _cache: Dictionary = {}
 ## Recent footfalls pressing the grass down (R-1327).
 static var _trail := VegetationInteractionBuffer.new()
+## Last snow cover pushed to the grass (R-1327), for materials built later.
+static var _snow_cover := 0.0
 ## R-1187: last calendar date and wetness pushed into vegetation. Kept here so a
 ## species canopy material created later (streamed chunk, reset cache) starts
 ## in the current season instead of the summer defaults.
@@ -163,6 +165,7 @@ static func _grass_material(
 	material.set_shader_parameter("interact_center", Vector2.ZERO)
 	material.set_shader_parameter("interact_push", Vector2.ZERO)
 	material.set_shader_parameter("trail", empty_trail())
+	material.set_shader_parameter("snow_cover", _snow_cover)
 	material.set_shader_parameter("fade_start", fade_start)
 	material.set_shader_parameter("fade_end", fade_end)
 	material.set_shader_parameter("fade_in_start", fade_in_start)
@@ -312,8 +315,16 @@ static func _apply_tree_flexibility(material: ShaderMaterial, species: StringNam
 ## species material, no mesh rebuild, and streamed chunks inherit it.
 static func apply_vegetation_season(date: Dictionary) -> void:
 	_season_date = GameCalendar.normalize_date(date)
+	apply_snow_cover(VegetationPhenology.snow_cover_for(_season_date))
 	for material in _species_canopies():
 		_apply_season_to(material, material.get_meta(&"tree_species"), _season_date)
+
+
+## Winter snow on grass blades; the ground tint is pushed by the same caller.
+static func apply_snow_cover(cover: float) -> void:
+	_snow_cover = snappedf(clampf(cover, 0.0, 1.0), 0.01)
+	for material in _grass_interaction_materials():
+		material.set_shader_parameter("snow_cover", _snow_cover)
 
 
 static func vegetation_season_date() -> Dictionary:

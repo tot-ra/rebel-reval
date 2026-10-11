@@ -66,6 +66,8 @@ uniform int straw_layer = 5;
 uniform int earth_layer_min = 6;
 uniform int earth_layer_max = 11;
 uniform float mud_wetness = 0.0;
+// R-1327: winter snow ground tint, driven by the campaign date.
+uniform float snow_cover = 0.0;
 // Street cobbles are rounded fieldstones laid in earth, not a dressed lattice:
 // a world-space Voronoi gives every stone its own outline, height, and granite
 // tint, with an analytic dome normal, so a street reads as relief without one
@@ -478,6 +480,9 @@ void fragment() {
 	float mud_pool = smoothstep(0.38, 0.78, cobble_noise(terrain_world_xz * 0.72 + vec2(9.1, 3.7)));
 	float mud_film_weight = wet_mud * mix(0.58, 1.0, mud_pool);
 	ALBEDO = mix(ALBEDO, ALBEDO * vec3(0.48, 0.43, 0.36), mud_film_weight * 0.64);
+
+	// Snow whitens soft ground fully and trodden mud/cobble only partly.
+	ALBEDO = mix(ALBEDO, vec3(0.88, 0.91, 0.95), snow_cover * mix(0.55, 0.85, 1.0 - wet_mud));
 
 	float earth_h = earth_height(terrain_world_xz);
 	ALBEDO *= 1.0 + (earth_h - 0.5) * 0.22 * earth_weight;

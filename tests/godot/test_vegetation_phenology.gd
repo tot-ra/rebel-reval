@@ -106,3 +106,27 @@ func test_heavier_hits_drop_more_leaves() -> void:
 		light > VegetationPhenology.hit_leaf_count(&"birch", _date(10, 7), 1.0),
 		"autumn crowns are looser than summer crowns"
 	)
+
+
+func test_snow_cover_follows_winter() -> void:
+	var feb := VegetationPhenology.snow_cover_for({"year": 1343, "month": 2, "day": 10})
+	var apr := VegetationPhenology.snow_cover_for(GameCalendar.DEFAULT_DATE)
+	var jul := VegetationPhenology.snow_cover_for({"year": 1343, "month": 7, "day": 1})
+	var nov := VegetationPhenology.snow_cover_for({"year": 1343, "month": 11, "day": 1})
+	assert_true(feb > 0.99, "deep winter is fully snowed, got %s" % feb)
+	assert_eq(apr, 0.0, "21 April has no snow left")
+	assert_eq(jul, 0.0)
+	assert_eq(nov, 0.0, "no settled snow in early November")
+
+
+func test_snow_cover_reaches_grass_and_ground_materials() -> void:
+	MapViewMaterials.apply_vegetation_season({"year": 1343, "month": 2, "day": 10})
+	assert_true(
+		float(MapViewMaterials.grass_blades().get_shader_parameter("snow_cover")) > 0.99,
+		"winter date must whiten grass"
+	)
+	MapViewMaterials.apply_vegetation_season(GameCalendar.DEFAULT_DATE)
+	assert_eq(
+		float(MapViewMaterials.grass_blades().get_shader_parameter("snow_cover")), 0.0,
+		"spring date must clear the snow"
+	)
