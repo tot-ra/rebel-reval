@@ -253,9 +253,9 @@ func _build_quick_hud() -> void:
 	margin.anchor_right = 0.0
 	margin.anchor_bottom = 1.0
 	margin.offset_left = 20.0
-	margin.offset_top = -200.0
+	margin.offset_top = -336.0
 	margin.offset_right = 300.0
-	margin.offset_bottom = -20.0
+	margin.offset_bottom = -156.0
 	margin.grow_vertical = Control.GROW_DIRECTION_BEGIN
 	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(margin)

@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://bs36kitagkmg5"]
+[gd_scene load_steps=15 format=3 uid="uid://bs36kitagkmg5"]
 
 [ext_resource type="Script" uid="uid://qbfohjtotkyu" path="res://scripts/player.gd" id="1_v254c"]
 [ext_resource type="Script" path="res://scripts/ui/character_health_ring.gd" id="7_health_ring"]
@@ -14,6 +14,8 @@
 [ext_resource type="Script" path="res://scripts/magic/spellforge_controller.gd" id="13_spellforge"]
 
 [ext_resource type="Script" path="res://scripts/inventory/quest_pouch_controller.gd" id="12_quest_pouch"]
+
+[ext_resource type="Script" path="res://scripts/ui/player_vitals_hud.gd" id="14_vitals"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_3iwfv"]
 radius = 16.0
@@ -49,11 +51,13 @@ shape = SubResource("CapsuleShape2D_3iwfv")
 path_desired_distance = 10.0
 
 [node name="HealthRing" type="Node2D" parent="."]
+visible = false
 z_index = 1000
 position = Vector2(0, -58)
 script = ExtResource("7_health_ring")
 
 [node name="StaminaBar" type="ProgressBar" parent="."]
+visible = false
 z_index = 1000
 offset_left = -34.5
 offset_top = -134.26
@@ -95,3 +99,6 @@ script = ExtResource("10_debug")
 
 [node name="QuestPouchController" type="Node" parent="."]
 script = ExtResource("12_quest_pouch")
+
+[node name="PlayerVitalsHud" type="CanvasLayer" parent="."]
+script = ExtResource("14_vitals")

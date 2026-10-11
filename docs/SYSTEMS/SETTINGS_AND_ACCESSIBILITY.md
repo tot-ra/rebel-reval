@@ -4,7 +4,7 @@ Status: implemented (tasks **P1-013** dialogue settings, **P1-028** input bindin
 
 ## Player-facing behavior
 
-- **Esc** opens the Settings overlay during play when no other modal is open (`GameSettingsController` on the player scene). Sections:
+- **Esc** opens the Settings overlay during play when no other modal is open (`GameSettingsController` on the player scene). The menu is two columns: game actions on the left, settings on the right ([`HUD_AND_MENUS.md`](./HUD_AND_MENUS.md#escape-menu)). Sections:
   - **Graphics**: quality `low` (MSAA off), `mid` (2x MSAA, default), or `high` (4x MSAA). Each quality is also one row of renderer costs (`scripts/settings/graphics_presets.gd`): 3D render scale (0.67 / 0.85 / 1.0), sun shadow map size and filter, texture filtering, the god-ray sample counts, and the sky, weather, sea and shore tier (`minimum` on low). Low targets Switch 1 class hardware and the Steam Deck, mid an Apple M5 Pro class laptop, high discrete GPUs with 16 GB of video memory. Everything except the sky/sea tier applies immediately; the tier is read when the city loads. Measurements: [`PERFORMANCE_REPORT.md`](../PERFORMANCE_REPORT.md) ("Quality tiers"). Persists outside campaign saves.
   - **Audio**: music volume, sound effects volume.
   - **Dialogue accessibility**: text size, text speed, high contrast, subtitle background, subtitles, bark subtitles, voice playback, always translate foreign speech (shows lines in languages the hero does not yet understand in full), reduced motion.
