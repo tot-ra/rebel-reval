@@ -49,5 +49,6 @@ Numbered decisions (Status / Context / Decision / Alternatives / Consequences). 
 - [ADR 0043: Mobile renderer on Metal and opt-in HDR (EDR) output](0043-mobile-renderer-and-hdr-output.md)
 - [ADR 0044: Named NPC presentation tier, portrait avatars, "!" marker and faction identity](0044-named-npc-presentation-tier.md)
 - [ADR 0045: Seasons](0045-seasons.md)
+- [ADR 0046: Church services, soul-light soot and collective spirit channeling](0046-church-services-and-collective-channeling.md)
 
 <!-- docs-index:end -->

@@ -36,6 +36,12 @@ The seed fixes age, sex, ethnicity, trade, household, faction, literacy, and app
 
 Building IDs are the plan's (`bldg.osm.w…`, `bldg.harju.01`) and never change. District codes: `lt` Lower Town, `tp` Toompea, `tf` vassal yards below the castle, `kr` fishing beach, `vi` Viru road, `ha` Harju road, `ka` Cattle road.
 
+## Church services (planned, ADR 0046)
+
+Status: planned (task **R-1737**, epic **R-1735**; [ADR 0046](../adr/0046-church-services-and-collective-channeling.md) is **proposed**). Today residents only have a generic `church` slot in their timetable and no service takes place.
+
+Planned: the bells call 15 minutes ahead; on Sundays and feasts the whole parish (household members aged 7+, except infants, the sick and the watch on duty) goes to high mass at its nearest parish church (St Olaf's, St Nicholas', Holy Spirit) about 09:00; on ordinary evenings the devout few and the clergy go to vespers about 17:00. A parish priest says mass at the altar. This schedule replaces the generic `church` slot. The spirit-layer effect of a service is in [`SPIRIT_SIGHT.md`](./SPIRIT_SIGHT.md#soot-and-church-services-planned-adr-0046).
+
 ## Save and load
 
 None: the census is static content. A future runtime that records "met", "spoke with" or "harmed" must use new `memory.*` keys, never edit the census.

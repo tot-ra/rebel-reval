@@ -6,7 +6,7 @@ Scope: a spirit-sight layer the hero toggles anywhere on the same map, auras wit
 
 Canon: the soul lights (*hingetuled*), auras and spirit sight are **`invented`**, folklore-inspired like the Hingepuu ([`CANON.md`](../CANON.md)). The seven soul lights are the seven NATURAL aspects ([`NATURAL.md`](./NATURAL.md)) shown on the body: light ids are the `aspect.*` ids and the hero's levels come from his NATURAL ranks (ADR 0041 revision, 2026-10-09). The word "chakra" is an anachronism and appears nowhere in ids or player-facing text.
 
-**Contents:** [Three layers](#three-layers-on-one-map) - [The seven soul lights](#the-seven-soul-lights) - [Reading an aura by eye](#reading-an-aura-by-eye) - [Spirit sight toggle](#spirit-sight-toggle-ss-1-r-1484) - [Entering a duel](#entering-a-duel-ss-7-r-1490) - [Duel layer](#duel-layer-ss-6-r-1489) - [Soul lights in a duel](#soul-lights-in-a-duel-ss-5-r-1488) - [Hero growth](#hero-growth-ss-8-r-1491) - [Reading a soul (planned)](#reading-a-soul-planned-ss-4-r-1487) - [Aura data reference](#aura-data-reference-ss-2-r-1485-r-1496) - [Aura rendering reference](#aura-rendering-reference-ss-3-r-1486) - [Save state, verification, limits](#save-state-and-ids)
+**Contents:** [Three layers](#three-layers-on-one-map) - [The seven soul lights](#the-seven-soul-lights) - [Reading an aura by eye](#reading-an-aura-by-eye) - [Spirit sight toggle](#spirit-sight-toggle-ss-1-r-1484) - [Entering a duel](#entering-a-duel-ss-7-r-1490) - [Duel layer](#duel-layer-ss-6-r-1489) - [Soul lights in a duel](#soul-lights-in-a-duel-ss-5-r-1488) - [Hero growth](#hero-growth-ss-8-r-1491) - [Reading a soul (planned)](#reading-a-soul-planned-ss-4-r-1487) - [Soot and church services (planned)](#soot-and-church-services-planned-adr-0046) - [Aura data reference](#aura-data-reference-ss-2-r-1485-r-1496) - [Aura rendering reference](#aura-rendering-reference-ss-3-r-1486) - [Save state, verification, limits](#save-state-and-ids)
 
 ## Three layers on one map
 
@@ -216,6 +216,17 @@ Hero lights are his NATURAL ranks seen as levels (`SpiritAuraProfile.level_for_r
 Status: planned (task **R-1487**). No plate yet.
 
 Looking at a being for about 0.5 s opens a panel: the seven lights with glyph, aspect name, the element each guards and level pips, the strongest and closed lights, clarity in words (calm, uneasy, torn). The hero's awareness light sets the depth: 3 adds temperament tags (SD-15), 4 masked closed lights, 5 a hint of the duel topic.
+
+## Soot and church services (planned, ADR 0046)
+
+Status: planned (epic **R-1735**, tasks **R-1736..R-1743**; [ADR 0046](../adr/0046-church-services-and-collective-channeling.md) is **proposed**, no code until it is approved). Nothing in this section is runtime truth yet.
+
+- **Soot** (*tahm*, CS-1 **R-1736**): a dynamic 0..1 burden per light on top of the NATURAL-driven level. It dims the light (effective float level), lowers clarity and, through the existing tether rule, drags the light toward the earth. Levels, ranks and duel multipliers are untouched.
+- **Sources** (CS-3 **R-1738**): daily trade and season wear, Living City Fear, a lost spirit duel (on the guarded light), bestiary night visitors such as the luupainaja, guilt events.
+- **Services** (CS-2 **R-1737**, CS-4 **R-1739**, CS-5 **R-1740**): at mass and vespers each congregant's crown beam threads to the priest, whose beam becomes a column through the vault, peaking at the elevation bell; pulses fall into step and clarity is pulled toward the priest's. The church cleans mainly the upper lights and only Christian guilt, scaled by the priest, the participant's faith light and regularity; a corrupt priest drains.
+- **Hero** (CS-6 **R-1741**): passive attendance clears part of `guilt.church` and upper-light soot; an annual confession dialogue clears more; no NATURAL points.
+- **Folk rites** (CS-7 **R-1742**): sauna, hiis and offering stone clean the root lights and `guilt.folk`.
+- **Saves:** crowd soot is derived and never saved; the hero's and named NPCs' soot will be.
 
 ## Aura data reference (SS-2, R-1485, R-1496)
 
