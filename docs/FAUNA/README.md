@@ -18,7 +18,7 @@ Status: living roster (2026-10-11). One card per real animal, bird or fish that 
 | Project-authored GLB | Project-authored geometry | 1 |
 | Project-built GLB (procedural) | Built by project scripts, not a real species sculpt; the maintainer wants these replaced where they read poorly | 7 |
 | Procedural only, no 3D model | Only the procedural mesh in code; **needs a 3D model** | 41 |
-| Project-built mesh (fish) | Lofted in code by `CityFish`, one mesh per species; no GLB | 2 |
+| Project-built textured model (fish) | Generated glTF per species under `assets/animals/fish/`, loaded by `CityFish` | 2 |
 
 Every GLB is listed with its licence in [`assets/SOURCES.csv`](../../assets/SOURCES.csv). CC BY 4.0 sources need credit in the in-game Credits screen (`python3 tools/generate_credits.py`).
 
@@ -101,8 +101,8 @@ Status: reference only (not runtime assets, not imported by Godot; no `assets/SO
 
 | Species | Latin | Card ID | 3D model status | Model file | Card |
 |---|---|---|---|---|---|
-| Baltic herring | *Clupea harengus membras* | `fish.herring` | Project-built mesh (procedural) | [`city_fish.gd`](../../scripts/city/city_fish.gd) | [herring.md](./fish/herring.md) |
-| European perch | *Perca fluviatilis* | `fish.perch` | Project-built mesh (procedural) | [`city_fish.gd`](../../scripts/city/city_fish.gd) | [perch.md](./fish/perch.md) |
+| Baltic herring | *Clupea harengus membras* | `fish.herring` | Project-built textured model | [glTF](../../assets/animals/fish/herring/herring.gltf) | [herring.md](./fish/herring.md) |
+| European perch | *Perca fluviatilis* | `fish.perch` | Project-built textured model | [glTF](../../assets/animals/fish/perch/perch.gltf) | [perch.md](./fish/perch.md) |
 
 Fish are visual shoals only (see [`CITY_SEA.md`](../SYSTEMS/CITY_SEA.md)). Herring also exists as trade and food objects (`obj.herring_fresh`, `obj.herring_filleted`, `obj.cargo_herring_barrels`, `obj.fish_smoked`), which are items, not creatures. Archaeology from the Kadriorg ship finds (`history/AVE2015_15_Roiojt_Kadriorg.txt`) names pike, cod and turbot as period fish; none is in game, so they have no card yet.
 
@@ -123,7 +123,7 @@ Count: 41 of 63 entries have only a procedural mesh and need a 3D model.
 
 ## Adding a species
 
-1. Add the catalogue row first (`map_view_mammal_species.gd` or `map_view_bird_species.gd`; fish live in `city_fish.gd`), then a card in the matching `animals/`, `birds/` or `fish/` folder with the same slug.
+1. Add the catalogue row first (`map_view_mammal_species.gd` or `map_view_bird_species.gd`; fish live in `city_fish.gd` and `assets/animals/fish/`), then a card in the matching `animals/`, `birds/` or `fish/` folder with the same slug.
 2. Source the model under the asset rules: CC0 or CC BY only, record the URL, author, SHA-256 and edits in `assets/SOURCES.csv`, and keep the runtime GLB self-contained.
 3. New production art needs a task naming the exact files (asset freeze P0-040).
 4. Update the status row above and the card's 3D model table in the same change.
