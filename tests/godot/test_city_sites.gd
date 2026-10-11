@@ -3,6 +3,7 @@ extends "res://tests/godot/test_case.gd"
 ## Landmark sites in the seamless city (ADR 0032): registry, compiled
 ## placement, replaced buildings, floors, rooms, HUD names and doors.
 
+const RAEKOJA_BUILDER := preload("res://scripts/city/sites/raekoja_plats_builder.gd")
 const ST_OLAF_BUILDER := preload("res://scripts/city/sites/st_olaf_builder.gd")
 
 
@@ -41,6 +42,18 @@ func test_hall_floor_room_and_hud_name() -> void:
 	assert_almost_eq(plan.walk_height(dais), site.level + 0.4, 0.001, "the court dais is raised")
 	var outside := site.to_world(Vector2(0.0, -20.0))
 	assert_true(plan.site_room_at(outside).is_empty(), "the forum is not inside the hall")
+
+
+func test_council_hall_flag_hides_with_the_roof() -> void:
+	# R-1702: the ridge flag lives under Roof, so the interior roof-hide takes it too.
+	var built: Node3D = RAEKOJA_BUILDER.build(_site(&"site.raekoja_plats"), _plan())
+	var roof := built.get_node("CouncilHall/Roof")
+	var flag := roof.get_node_or_null("RidgeFlag") as Node3D
+	assert_true(flag != null, "town hall ridge flag exists")
+	assert_true(roof.get_node_or_null("RidgeFlagStaff") != null, "ridge flag staff exists")
+	if flag != null:
+		assert_true(flag.position.y > 6.0, "flag flies above the ridge")
+		assert_true(absf(flag.position.x) < 13.0, "flag stands within the hall length")
 
 
 func test_sites_carry_no_posted_people() -> void:

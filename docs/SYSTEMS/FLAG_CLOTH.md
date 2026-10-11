@@ -42,6 +42,10 @@ No content IDs and no persistent state. The look depends only on the world wind 
 - Tests: `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_faction_heraldry,test_boat_float_3d,test_market_prototype_maps,test_map_view_material_resolution,test_merchant_boat_model`
 - Visual: `tools/godot_render.sh --script tools/capture_flag_cloth.gd` writes `docs/reports/images/flag_cloth/flag_cloth_a.png` and `_b.png`: Danish pennants in light, moderate and strong wind plus the town hall flag, 0.4 s apart.
 
+## Council hall site flag (R-1702)
+
+`site.raekoja_plats` replaced the generic `bldg.lm.town_hall`, so `CityDressingBuilder._town_banners` no longer finds a `landmark.town_hall` building (the Coastal Gate flag there still works). `RaekojaPlatsBuilder._ridge_flag` now adds `RidgeFlagStaff` and `RidgeFlag` (flying Reval banner, `flag_cloth(true)`) at the east ridge end as children of `CouncilHall/Roof`, so they hide with the roof while Kalev is inside. Test: `test_council_hall_flag_hides_with_the_roof` in `tests/godot/test_city_sites.gd`. Not yet verified with a real CityMapView screenshot.
+
 ## Known limits
 
 - The motion is analytic, not simulated: the cloth cannot wrap around its staff or collide with roofs.

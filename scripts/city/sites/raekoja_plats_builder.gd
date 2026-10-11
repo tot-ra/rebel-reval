@@ -113,8 +113,37 @@ static func _hall(site: CitySite) -> Node3D:
 	var upper_node := _mesh("Upper", upper)
 	hall.add_child(upper_node)
 	_banners(upper_node)
-	hall.add_child(_mesh("Roof", roof))
+	var roof_node := _mesh("Roof", roof)
+	hall.add_child(roof_node)
+	_ridge_flag(roof_node, rise)
 	return hall
+
+
+## R-1702: the red-and-white Reval banner on the east ridge end. The old
+## CityDressingBuilder._town_banners looked for landmark.town_hall among plain
+## buildings, which this site replaced. The staff is a child of "Roof" so it
+## hides with the roof when Kalev is inside.
+static func _ridge_flag(roof_node: Node3D, rise: float) -> void:
+	var staff_h := 3.4
+	var base := Vector3(LENGTH * 0.5 - 1.2, EAVE + rise + 0.14, 0.0)
+	var staff := MeshInstance3D.new()
+	staff.name = "RidgeFlagStaff"
+	var cyl := CylinderMesh.new()
+	cyl.top_radius = 0.04
+	cyl.bottom_radius = 0.06
+	cyl.height = staff_h
+	cyl.radial_segments = 8
+	staff.mesh = cyl
+	staff.material_override = CityBuildingBuilder.timber_material()
+	staff.position = base + Vector3(0, staff_h * 0.5, 0)
+	roof_node.add_child(staff)
+	var flag := MeshInstance3D.new()
+	flag.name = "RidgeFlag"
+	flag.mesh = BannerMesh._banner_mesh(1.5, 1.1, true, 2)
+	flag.material_override = MapViewMaterials.flag_cloth(true)
+	flag.position = base + Vector3(0, staff_h - 0.1, 0)
+	flag.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	roof_node.add_child(flag)
 
 
 static func _win(center_s: float, sill: float, w: float, h: float) -> Rect2:
