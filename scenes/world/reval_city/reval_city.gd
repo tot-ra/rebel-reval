@@ -64,11 +64,13 @@ func _ready() -> void:
 	world = view.world
 	# Hay stacks in the farmland are solid; their colliders live on the logic plane.
 	world.farmland.collision_parent = self
-	runtime = CityRuntime.install(self, view, player)
+	# Fauna before the runtime: install() sets the campaign date, which houses
+	# grazing stock in winter (CityMapView.set_calendar_date).
 	if plan.feature_enabled("fauna"):
 		_fauna = CityFauna.create(plan, player)
 		world.add_child(_fauna)
 		world.add_child(CityFish.create(plan, player))
+	runtime = CityRuntime.install(self, view, player)
 	interiors = CityInteriors.create(plan, CitizenRoster.load_for(plan), world.chimneys)
 	interiors.collision_parent = self
 	interiors.enabled = (

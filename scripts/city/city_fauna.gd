@@ -12,11 +12,17 @@ extends Node3D
 ## Only the nearest groups exist: a group is built when Kalev is within
 ## SPAWN_RANGE of it and freed beyond DESPAWN_RANGE, never more than MAX_ACTORS
 ## at once, so the city pays for a handful of skinned rigs, not for 100.
+##
+## Stock out at grass (fallow herds, pastures, the Karja gate pens, the pens by
+## byres, sheep sheds and sties) is housed through the cold months: those groups
+## do not spawn while stock_housed(date) holds. Wild animals, yard fowl and
+## working horses stay out all year.
 
 const GroundWander := preload("res://scripts/map/view3d/map_view_ground_wander.gd")
 const MammalSpecies := preload("res://scripts/map/view3d/map_view_mammal_species.gd")
 const MedievalAnimalModels := preload("res://scripts/map/view3d/map_view_medieval_animal_models.gd")
 const UrbanFauna := preload("res://scripts/map/view3d/map_view_urban_fauna.gd")
+const PerfProbeScript := preload("res://scripts/debug/perf_probe.gd")
 
 const SEED_KEY := &"reval_city_fauna"
 ## The storybook models are authored for a 2.0-unit person; Kalev is 1.83 m here.
@@ -40,6 +46,10 @@ const BEHAVIOR_GRAZE := &"graze"
 const BEHAVIOR_FLEE := &"flee"
 
 const GOAT := &"goat"
+## Stock goes in when the mean day falls below this, out when it climbs back:
+## about 13 Nov to 18 Apr, close to the folk calendar's Mardipäev in and
+## Jüripäev (23 Apr) out, so the late-April slice still has its herds.
+const HOUSING_TEMPERATURE_C := 4.0
 const FLEE_RADIUS := 5.5
 const FLEE_SPEED := 4.2
 ## Authored anchors: {anchor: POI id, or "gate.x" for a spot outside that gate;
@@ -67,8 +77,8 @@ const ANCHORS: Array[Dictionary] = [
 	{"anchor": "poi.well.yard.harju", "offset": Vector2(6, 5), "species": GOAT, "behavior": BEHAVIOR_PEN, "radius": 3.0, "count": 2},  # gdlint: ignore=max-line-length
 	{"anchor": "poi.well.yard.pikk_north", "offset": Vector2(5, 6), "species": &"chicken", "behavior": BEHAVIOR_WANDER, "radius": 3.0, "count": 2},  # gdlint: ignore=max-line-length
 	{"anchor": "gate.viru", "offset": Vector2(0, 14), "species": &"horse", "behavior": BEHAVIOR_TETHER, "radius": 2.4, "count": 1},  # gdlint: ignore=max-line-length
-	{"anchor": "gate.karja", "offset": Vector2(0, 16), "species": &"cow", "behavior": BEHAVIOR_PEN, "radius": 5.0, "count": 2},  # gdlint: ignore=max-line-length
-	{"anchor": "gate.karja", "offset": Vector2(8, 18), "species": &"sheep", "behavior": BEHAVIOR_PEN, "radius": 5.0, "count": 3},  # gdlint: ignore=max-line-length
+	{"anchor": "gate.karja", "offset": Vector2(0, 16), "species": &"cow", "behavior": BEHAVIOR_PEN, "radius": 5.0, "count": 2, "grazing": true},  # gdlint: ignore=max-line-length
+	{"anchor": "gate.karja", "offset": Vector2(8, 18), "species": &"sheep", "behavior": BEHAVIOR_PEN, "radius": 5.0, "count": 3, "grazing": true},  # gdlint: ignore=max-line-length
 	{"anchor": "gate.harju", "offset": Vector2(0, 14), "species": &"horse", "behavior": BEHAVIOR_TETHER, "radius": 2.4, "count": 1},  # gdlint: ignore=max-line-length
 	{"anchor": "gate.coastal", "offset": Vector2(0, 14), "species": &"dog", "behavior": BEHAVIOR_WANDER, "radius": 5.0, "count": 1},  # gdlint: ignore=max-line-length
 ]
@@ -83,9 +93,9 @@ const FIELD_FOX_MIN_Z := 470.0
 ## Outbuilding type -> the animals kept at it.
 const YARD_STOCK := {
 	"hen_house": {"species": &"chicken", "behavior": BEHAVIOR_WANDER, "radius": 3.5, "count": 3},
-	"pigsty": {"species": &"pig", "behavior": BEHAVIOR_PEN, "radius": 3.0, "count": 2},
-	"byre": {"species": &"cow", "behavior": BEHAVIOR_PEN, "radius": 4.5, "count": 2},
-	"sheep_shed": {"species": &"sheep", "behavior": BEHAVIOR_PEN, "radius": 4.0, "count": 3},
+	"pigsty": {"species": &"pig", "behavior": BEHAVIOR_PEN, "radius": 3.0, "count": 2, "grazing": true},  # gdlint: ignore=max-line-length
+	"byre": {"species": &"cow", "behavior": BEHAVIOR_PEN, "radius": 4.5, "count": 2, "grazing": true},  # gdlint: ignore=max-line-length
+	"sheep_shed": {"species": &"sheep", "behavior": BEHAVIOR_PEN, "radius": 4.0, "count": 3, "grazing": true},  # gdlint: ignore=max-line-length
 }
 
 var plan: CityPlan
@@ -93,6 +103,8 @@ var player: Node2D
 var _groups: Array[Dictionary] = []
 var _live: Dictionary = {}
 var _since := STREAM_INTERVAL
+## Grazing stock is in its sheds (set_calendar_date).
+var _housed := false
 
 
 ## Wander seed per plan: `reval_city_fauna` for the city, `<site_id>_fauna` elsewhere.
@@ -131,6 +143,7 @@ static func groups_for(city_plan: CityPlan) -> Array[Dictionary]:
 				"behavior": BEHAVIOR_GRAZE,
 				"radius": 7.0,
 				"count": herd["count"],
+				"grazing": true,
 			}
 			_add(groups, _group(city_plan, "%s/%s" % [field["id"], entry["species"]], entry, centre))
 		elif centre.y > FIELD_FOX_MIN_Z and i % 2 == 0:
@@ -153,6 +166,7 @@ static func groups_for(city_plan: CityPlan) -> Array[Dictionary]:
 				"behavior": BEHAVIOR_WANDER if species == &"goose" else (BEHAVIOR_PEN if pen else BEHAVIOR_GRAZE),  # gdlint: ignore=max-line-length
 				"radius": maxf(spread * 0.6, 4.0),
 				"count": int(stock["count"]),
+				"grazing": true,
 			}
 			_add(groups, _group(city_plan, "%s/%s" % [pasture["id"], species], entry, centre))
 	# Yard animals live at their own outbuildings (farm_outbuildings in the plan).
@@ -161,13 +175,7 @@ static func groups_for(city_plan: CityPlan) -> Array[Dictionary]:
 			continue
 		var stock: Dictionary = YARD_STOCK[String(b["type"])]
 		var yard := _centroid(CityPlan.points(b["footprint"])) + Vector2(3.5, 3.5)
-		var entry := {
-			"species": stock["species"],
-			"behavior": stock["behavior"],
-			"radius": stock["radius"],
-			"count": stock["count"],
-		}
-		_add(groups, _group(city_plan, "%s/%s" % [b["id"], stock["species"]], entry, yard))
+		_add(groups, _group(city_plan, "%s/%s" % [b["id"], stock["species"]], stock, yard))
 	return groups
 
 
@@ -218,6 +226,7 @@ static func _group(city_plan: CityPlan, id: String, entry: Dictionary, at: Vecto
 		"radius": float(entry["radius"]),
 		"centre": home,
 		"members": members,
+		"grazing": bool(entry.get("grazing", false)),
 	}
 
 
@@ -261,6 +270,26 @@ static func nudge_to_dry_land(city_plan: CityPlan, xz: Vector2) -> Vector2:
 	return Vector2.INF
 
 
+## True when grazing stock is kept indoors on `date` (pure date curve, so a
+## reload or a seam crossing gives the same answer).
+static func stock_housed(date: Dictionary) -> bool:
+	var doy := SeasonState.day_of_year_for(date)
+	return SeasonState.mean_temperature_c(doy) < HOUSING_TEMPERATURE_C
+
+
+## Campaign date from the city view: housing frees grazing groups at once;
+## turning out lets the next stream pass spawn them.
+func set_calendar_date(date: Dictionary) -> void:
+	_housed = stock_housed(date)
+	if not _housed:
+		return
+	for id: String in _live.keys():
+		if bool(_group_by_id(id).get("grazing", false)):
+			for actor: Node3D in _live[id]:
+				actor.queue_free()
+			_live.erase(id)
+
+
 func live_actor_count() -> int:
 	var count := 0
 	for actors: Array in _live.values():
@@ -280,9 +309,6 @@ func live_animals() -> Array[Node3D]:
 
 func group_count() -> int:
 	return _groups.size()
-
-
-const PerfProbeScript := preload("res://scripts/debug/perf_probe.gd")
 
 
 func _process(delta: float) -> void:
@@ -314,7 +340,7 @@ func _stream(me: Vector2) -> void:
 			_live.erase(id)
 	var wanted: Array[Dictionary] = []
 	for group in _groups:
-		if _live.has(group["id"]):
+		if _live.has(group["id"]) or (_housed and group["grazing"]):
 			continue
 		if (group["centre"] as Vector2).distance_to(me) <= SPAWN_RANGE:
 			wanted.append(group)

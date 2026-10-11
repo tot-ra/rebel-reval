@@ -59,7 +59,8 @@ func test_the_forum_has_life_when_kalev_arrives_and_the_far_fields_do_not() -> v
 	var far := Vector2(700, 600)
 	fauna._stream(far)
 	for id: String in fauna._live.keys():
-		assert_true((fauna._group_by_id(id)["centre"] as Vector2).distance_to(far) <= CityFauna.DESPAWN_RANGE)
+		var centre: Vector2 = fauna._group_by_id(id)["centre"]
+		assert_true(centre.distance_to(far) <= CityFauna.DESPAWN_RANGE)
 	fauna.queue_free()
 	kalev.queue_free()
 
@@ -90,5 +91,53 @@ func test_actors_walk_on_the_ground_and_face_their_travel() -> void:
 				Vector2(actor.position.x - home.x, actor.position.z - home.z).length() <= roam,
 				"stays in its yard"
 			)
+	fauna.queue_free()
+	kalev.queue_free()
+
+
+func test_grazing_stock_is_housed_in_winter_and_out_in_the_slice() -> void:
+	assert_true(CityFauna.stock_housed({"year": 1343, "month": 1, "day": 20}), "January: in the byre")
+	assert_true(CityFauna.stock_housed({"year": 1343, "month": 12, "day": 1}), "December: in the byre")
+	assert_false(CityFauna.stock_housed(GameCalendar.DEFAULT_DATE), "late April slice: out at grass")
+	assert_false(CityFauna.stock_housed({"year": 1343, "month": 7, "day": 1}), "July: out at grass")
+	var plan := _plan()
+	var grazing := 0
+	for group in CityFauna.groups_for(plan):
+		if group["grazing"]:
+			grazing += 1
+			var stock: Array[StringName] = [&"sheep", &"cow", &"goat", &"pig", &"goose", &"horse"]
+			assert_true(group["species"] in stock, "%s is stock" % group["id"])
+		else:
+			assert_false(String(group["id"]).ends_with("/sheep"), "%s sheep must be housed" % group["id"])
+	assert_true(grazing > 0, "fields and pastures carry grazing stock")
+
+
+func test_winter_date_frees_and_withholds_grazing_groups() -> void:
+	var plan := _plan()
+	var kalev := Node2D.new()
+	var fauna := CityFauna.create(plan, kalev)
+	Engine.get_main_loop().root.add_child(kalev)
+	Engine.get_main_loop().root.add_child(fauna)
+	var herd: Dictionary = {}
+	for group in CityFauna.groups_for(plan):
+		if group["grazing"] and String(group["id"]).begins_with("field"):
+			herd = group
+			break
+	if herd.is_empty():
+		for group in CityFauna.groups_for(plan):
+			if group["grazing"]:
+				herd = group
+				break
+	var at: Vector2 = herd["centre"]
+	fauna._stream(at)
+	assert_true(fauna._live.has(herd["id"]), "summer: the herd is out")
+	fauna.set_calendar_date({"year": 1343, "month": 1, "day": 20})
+	assert_false(fauna._live.has(herd["id"]), "winter: the herd is taken in")
+	fauna._stream(at)
+	for id: String in fauna._live.keys():
+		assert_false(bool(fauna._group_by_id(id)["grazing"]), "%s stays housed" % id)
+	fauna.set_calendar_date({"year": 1343, "month": 6, "day": 1})
+	fauna._stream(at)
+	assert_true(fauna._live.has(herd["id"]), "turned out again")
 	fauna.queue_free()
 	kalev.queue_free()
