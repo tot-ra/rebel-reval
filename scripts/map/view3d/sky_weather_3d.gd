@@ -1241,11 +1241,11 @@ func cloud_cell_clock() -> float:
 func _update_cells() -> void:
 	_cells.update(
 		_cloud_cell_clock, _cloud_offset,
-		CloudCellsScript.counts_for(cloud_coverage(), storm_intensity()),
+		CloudCellsScript.counts_for(
+			cloud_coverage(), storm_intensity(), calendar_date
+		),
 		_wind_drift_strength
 	)
-
-
 ## Bilinear, wrapping red-channel lookup with shader uv semantics (uv 1.0 = one tile).
 static func _sample_repeat(image: Image, uv: Vector2) -> float:
 	var w := image.get_width()

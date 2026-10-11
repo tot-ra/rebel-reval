@@ -1,5 +1,5 @@
 class_name CloudCells
-extends RefCounted
+const SEASON_STATE := preload("res://scripts/global/season_state.gd")
 
 ## R-1400: discrete clouds as world-space objects. The dome's continuous cloud field
 ## is drawn per view direction, so it has no position: it cannot cast a shadow that
@@ -196,12 +196,24 @@ static func kind_of(slot: int) -> int:
 ## Cumulus are a blue-sky cloud: they peak at moderate cover and, once a deck closes,
 ## are gone (the sky shader darkens the remaining ones toward rain-bearing grey, see
 ## cloud_gloom). Cumulonimbus need real storm development.
-static func counts_for(coverage: float, storm: float) -> Vector2:
+static func counts_for(coverage: float, storm: float, date: Dictionary = {}) -> Vector2:
 	var deck := smoothstep(0.6, 0.92, coverage)
 	# R-1495: none below 0.08 (a cloudless sky); about 8 on a `clear` day (0.30) as
 	# before, while a cloudy sky fills all 20 slots before its deck closes.
 	var cumulus := float(CUMULUS_SLOTS) * clampf((coverage - 0.08) / 0.55, 0.0, 1.0)
 	cumulus *= 1.0 - deck
+	# Scale fair-weather convection with the shared Tallinn seasonal climate curve:
+	# winter retains occasional weak cumulus (35%), while summer reaches full growth.
+	var weights := SEASON_STATE.season_weights(SEASON_STATE.day_of_year_for(date))
+	var winter_weight: float = weights[SEASON_STATE.WINTER]
+	var spring_weight: float = weights[SEASON_STATE.SPRING]
+	var summer_weight: float = weights[SEASON_STATE.SUMMER]
+	var autumn_weight: float = weights[SEASON_STATE.AUTUMN]
+	var convection_scale := clampf(
+		0.35 * winter_weight + 0.75 * spring_weight + summer_weight + 0.65 * autumn_weight,
+		0.0, 1.0
+	)
+	cumulus *= convection_scale
 	var storms := float(STORM_SLOTS) * smoothstep(0.3, 1.0, storm)
 	return Vector2(cumulus, storms)
 

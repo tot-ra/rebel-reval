@@ -20,7 +20,7 @@ One page per implemented or planned feature. Each page opens with a `Status:` li
 | [Households: furnished houses and life at home](./HOUSEHOLDS.md) | Implemented in the seamless city: furniture by household, rooms, hearth and firewood day, people at home; no player use of furniture |
 | [Gate garrisons and patrols](./GATE_GARRISONS.md) | Implemented: census residents hold every gate by shift and walk the town and wall patrols, in their own clothes with a hat and spear |
 | [World presentation (3D view)](./WORLD_PRESENTATION.md) | Implemented |
-| [Sky and atmosphere: clouds, sunbeams, fog and haze](./SKY_ATMOSPHERE.md) | Implemented: world-space cumulus and thunderstorms with their own shadows, local storm rain and lightning, sunbeams, sun-shower rainbow, ground fog near water, aerial perspective, heat mirage |
+| [Cloud cells, seasonal cumulus, shadows and storm lightning](./CLOUD_CELLS.md) | Implemented: discrete clouds and weather phenomena visual atlas with seasonal cumulus scaling |
 | [Weather on the ground: puddles, drought and cracked earth](./WEATHER_GROUND.md) | Implemented (R-1516): drought spells, sun-baked dryness, cracked clay in dried puddle basins, rain soaks cracks before puddles return |
 | [Night sky: stars and the Milky Way](./NIGHT_SKY.md) | Implemented (R-1443): round twinkling Hipparcos stars, Milky Way placed for Tallinn in 1343, seasonal sidereal drift |
 | [Seamless Reval city (1343)](./SEAMLESS_CITY.md) | Playable preview (ADR 0031); no quests or saves yet |
@@ -59,6 +59,7 @@ One page per implemented or planned feature. Each page opens with a `Status:` li
 - [Household objects](HOUSEHOLD_OBJECTS.md)
 - [Renderer, post-process grade and HDR output](POST_PROCESS.md)
 - [Seasons](SEASONS.md)
+- [Sky and atmosphere: clouds, sunbeams, fog and haze](SKY_ATMOSPHERE.md)
 - [Vegetation realism (merged)](VEGETATION_REALISM.md)
 - [Water sandbox](WATER_SANDBOX.md)
 

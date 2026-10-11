@@ -21,6 +21,16 @@ func test_cell_field_is_a_pure_function_of_clock_drift_and_counts() -> void:
 	)
 
 
+func test_cumulus_convection_is_seasonal_but_storm_cells_remain_weather_driven() -> void:
+	var winter := CloudCellsScript.counts_for(0.66, 0.0, {"day": 15, "month": 1, "year": 1343})
+	var summer := CloudCellsScript.counts_for(0.66, 0.0, {"day": 15, "month": 7, "year": 1343})
+	var winter_storm := CloudCellsScript.counts_for(0.66, 1.0, {"day": 15, "month": 1, "year": 1343})
+	var summer_storm := CloudCellsScript.counts_for(0.66, 1.0, {"day": 15, "month": 7, "year": 1343})
+	assert_true(winter.x < summer.x, "winter weakens fair-weather cumulus convection")
+	assert_true(winter.x > 0.0, "winter can still show occasional cumulus")
+	assert_eq(winter_storm.y, summer_storm.y, "storm-cell count remains controlled by storm weather")
+
+
 func test_weather_decides_how_many_cells_show() -> void:
 	var clear := CloudCellsScript.counts_for(0.30, 0.0)
 	var cloudy := CloudCellsScript.counts_for(0.66, 0.16)

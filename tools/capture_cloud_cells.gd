@@ -70,6 +70,19 @@ func _run() -> void:
 	if _wanted("cells_aerial_cloudy"):
 		await _settle(view, sky, SkyWeather3D.WEATHER_CLOUDY, 0.42)
 		await _shot(viewport, camera, "cells_aerial_cloudy", AERIAL_EYE, AERIAL_LOOK, 50.0)
+	if _wanted("cells_season_winter") or _wanted("cells_season_summer"):
+		await _settle(view, sky, SkyWeather3D.WEATHER_CLOUDY, 0.42)
+		for shot: String in ["cells_season_winter", "cells_season_summer"]:
+			if not _wanted(shot):
+				continue
+			var date := {"day": 15, "month": 1 if shot.ends_with("winter") else 7, "year": 1343}
+			sky.set_calendar_date(date)
+			sky._update_cells()
+			for frame in 3:
+				await process_frame
+			await _shot(viewport, camera, shot, AERIAL_EYE, AERIAL_LOOK, 50.0)
+		sky.set_calendar_date({"day": 21, "month": 4, "year": 1343})
+		sky._update_cells()
 	if _wanted("cells_topdown_shadow"):
 		await _settle(view, sky, SkyWeather3D.WEATHER_CLOUDY, 0.42)
 		var edge := _shadow_edge_point(sky, CloudCellsScript.KIND_CUMULUS)
