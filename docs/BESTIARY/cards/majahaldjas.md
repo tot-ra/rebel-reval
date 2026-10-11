@@ -43,7 +43,7 @@ Spirit duel ([ADR 0033](../../adr/0033-teen-protagonist-and-spirit-dialogue-comb
 - (fed) "Good. Good. Stay."
 
 ## Relationships and factions
-Kalev and Mart leave offerings; the Church tolerates it. Related: [domovoi](./domovoi.md), [maa_alused](./maa_alused.md).
+Kalev and Mart leave offerings; the Church tolerates it. Related: [domovoi](./domovoi.md), [maa_alused](./maa_alused.md), [hinged](./hinged.md).
 
 ## Game hooks
 Slice seed: forge home luck drops after the apprentice neglects the offering; sets up a spirit-duel lesson.

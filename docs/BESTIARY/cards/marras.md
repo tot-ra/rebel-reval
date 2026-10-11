@@ -42,7 +42,7 @@ Spirit duel ([ADR 0033](../../adr/0033-teen-protagonist-and-spirit-dialogue-comb
 - "You will know me when it is too late."
 
 ## Relationships and factions
-Tied to the Harju kings' story. Related: [katk](./katk.md), [kodukaija](./kodukaija.md).
+Tied to the Harju kings' story. Related: [katk](./katk.md), [kodukaija](./kodukaija.md), [hinged](./hinged.md).
 
 ## Game hooks
 Act 2 seed: the apprentice sees a funeral for a living man. First meet: the road to Sõjamäe.

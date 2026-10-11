@@ -1,6 +1,6 @@
 # Bestiary
 
-Status: planned (task **R-1578**, epic **R-1577**). The roster, card format and validator are implemented; cards exist for every kept creature (30 in total, spirit and hybrid cards written from folklore and the legacy notes) and no runtime code reads the bestiary. Out of scope here: full cards (BST-2a/2b/3), concept art, 3D models, in-game spawning.
+Status: planned (task **R-1578**, epic **R-1577**). The roster, card format and validator are implemented; cards exist for every kept creature (34 in total, the latest `bst.hinged` in task **R-1752**; spirit and hybrid cards written from folklore and the legacy notes) and no runtime code reads the bestiary. Out of scope here: full cards (BST-2a/2b/3), concept art, 3D models, in-game spawning.
 
 ## What it is
 
@@ -35,4 +35,4 @@ The validator checks the roster (unique `bst.` IDs, layer and tier enums, a reas
 
 ## Limits
 
-Eight physical and hybrid cards exist (BST-3); spirit cards are still planned. Archive image mapping follows the legacy README order and has not been reviewed visually. The layer of `kratt`, `libahunt` and `spirit_caller` as `hybrid` is a roster decision, not yet reflected in combat code.
+Eight physical and hybrid cards exist (BST-3); every kept spirit row has a card (20, including `bst.hinged`). Archive image mapping follows the legacy README order and has not been reviewed visually. The layer of `kratt`, `libahunt` and `spirit_caller` as `hybrid` is a roster decision, not yet reflected in combat code.

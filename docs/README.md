@@ -84,6 +84,7 @@ One page per feature, with status, behavior, code entry points, content, saved s
 - [Brute](BESTIARY/cards/brute.md)
 - [Domovoy](BESTIARY/cards/domovoi.md)
 - [Hiid](BESTIARY/cards/hiid.md)
+- [Hinged](BESTIARY/cards/hinged.md)
 - [Katk](BESTIARY/cards/katk.md)
 - [Kodukäija](BESTIARY/cards/kodukaija.md)
 - [Kratt](BESTIARY/cards/kratt.md)
