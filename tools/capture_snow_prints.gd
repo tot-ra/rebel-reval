@@ -22,6 +22,13 @@ func _initialize() -> void:
 	call_deferred("_run")
 
 
+func _tree_free(plan: CityPlan, at: Vector2, radius: float) -> bool:
+	for t: Array in plan.data.get("trees", []):
+		if Vector2(float(t[0]), float(t[1])).distance_squared_to(at) < radius * radius:
+			return false
+	return true
+
+
 func _run() -> void:
 	if DisplayServer.get_name() == "headless":
 		push_error("Snow print plates need a real renderer (tools/godot_render.sh)")
@@ -51,6 +58,19 @@ func _run() -> void:
 		if f["kind"] == &"pasture" and (f["centre"] as Vector2).length() < best:
 			best = (f["centre"] as Vector2).length()
 			focus = f["centre"]
+	# Snow depth for the plate: walk where the map is deep, not just any meadow.
+	var deepest := 0.0
+	for dy in range(-120, 121, 8):
+		for dx in range(-120, 121, 8):
+			var probe := focus + Vector2(dx, dy)
+			var depth := CitySnow.depth_at(probe, world.snow_cover)
+			if (
+				depth > deepest and plan.slope_at(probe) < 0.2 and plan.building_at(probe) < 0
+				and _tree_free(plan, probe, 14.0)
+			):
+				deepest = depth
+				focus = probe
+	print("snow depth at plate spot ", deepest, " cover ", world.snow_cover)
 	var start := focus + Vector2(-8.0, 0.0)
 	world.trail.update_for(start, 0.016)
 	var pos := start
@@ -60,8 +80,9 @@ func _run() -> void:
 	var mid := start.lerp(pos, 0.5)
 	var g := plan.ground_height(mid)
 	var shots := [
-		["low", Vector3(mid.x - 2.2, g + 0.55, mid.y - 1.6), Vector3(mid.x + 0.5, g, mid.y), 60.0],
+		["low", Vector3(mid.x - 2.2, g + 0.9, mid.y - 1.6), Vector3(mid.x + 0.5, g, mid.y), 60.0],
 		["high", Vector3(mid.x - 3.0, g + 3.2, mid.y - 2.2), Vector3(mid.x + 0.8, g, mid.y), 55.0],
+		["wide", Vector3(mid.x - 14.0, g + 5.0, mid.y - 9.0), Vector3(mid.x + 4.0, g, mid.y), 60.0],
 	]
 	for shot: Array in shots:
 		camera.fov = shot[3]

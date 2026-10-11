@@ -83,9 +83,9 @@ func test_snow_patches_follow_cover() -> void:
 	assert_eq(CitySnow.patch(spot, 0.5), CitySnow.patch(spot, 0.5), "deterministic")
 	var covered := 0
 	for i in 200:
-		if CitySnow.patch(Vector2(i * 7.3, i * 3.1), 0.45) > CitySnow.LYING:
+		if CitySnow.patch(Vector2(i * 7.3, i * 3.1), 0.2) > CitySnow.LYING:
 			covered += 1
-	assert_true(covered > 10 and covered < 190, "half cover is patchy, got %d/200" % covered)
+	assert_true(covered > 10 and covered < 190, "thin cover is patchy, got %d/200" % covered)
 
 
 func test_snow_takes_footprints_where_paving_would_not() -> void:
@@ -146,3 +146,58 @@ func test_footsteps_in_snow_crunch() -> void:
 	assert_eq(
 		SurfaceResolver.with_snow(SurfaceResolver.SURFACE_MUD, true), SurfaceResolver.SURFACE_SNOW
 	)
+
+
+func test_snow_depth_grows_with_cover_and_drifts() -> void:
+	var spot := Vector2(123.4, -56.7)
+	assert_eq(CitySnow.depth_at(spot, 0.0), 0.0)
+	assert_true(CitySnow.depth_at(spot, 1.0) > CitySnow.depth_at(spot, 0.5))
+	var lo := INF
+	var hi := 0.0
+	for i in 300:
+		var d := CitySnow.depth_at(Vector2(i * 13.7, i * 5.3), 1.0)
+		lo = minf(lo, d)
+		hi = maxf(hi, d)
+	assert_true(hi > 0.5, "drifts pile past half a metre at full cover, got %.2f" % hi)
+	assert_true(hi - lo > 0.3, "depth varies a lot across the country")
+
+
+func test_walking_slows_by_snow_depth() -> void:
+	assert_eq(CitySnow.walk_drag(0.0), 1.0)
+	assert_eq(CitySnow.walk_drag(CitySnow.DRAG_START), 1.0, "a dusting is free")
+	var knee := CitySnow.walk_drag(CitySnow.DRAG_KNEE)
+	assert_almost_eq(knee, CitySnow.DRAG_KNEE_SPEED, 0.001)
+	assert_true(CitySnow.walk_drag(0.2) > knee, "shallower is faster")
+	assert_true(CitySnow.walk_drag(0.7) < 0.1, "past half a metre you barely move")
+
+
+func test_snow_map_is_bare_on_paving_and_deeper_in_woods() -> void:
+	var plan := CityPlan.load_default()
+	var trees: Array = plan.data.get("trees", [])
+	CitySnow.bake(plan, func(_p: Vector2) -> Color: return Color(0, 1, 0, 0), trees, [])
+	var open_total := 0.0
+	var samples := 0
+	var wood_total := 0.0
+	var wood_samples := 0
+	for t: Array in trees.slice(0, 400):
+		var at := Vector2(float(t[0]), float(t[1]))
+		if plan.building_at(at) >= 0 or plan.ground_height(at) < 0.4:
+			continue
+		wood_total += CitySnow.factor_at(at)
+		wood_samples += 1
+	for i in 400:
+		var at := plan.bounds.position + Vector2(fmod(i * 97.3, 1500.0), fmod(i * 61.1, 1500.0))
+		if plan.building_at(at) >= 0 or plan.ground_height(at) < 0.4:
+			continue
+		open_total += CitySnow.factor_at(at)
+		samples += 1
+	assert_true(wood_samples > 20 and samples > 20)
+	var woods := wood_total / float(wood_samples)
+	var open := open_total / float(samples)
+	assert_true(woods > open * 0.9, "woods hold at least as much snow: %.2f vs %.2f" % [woods, open])
+	CitySnow.bake(plan, func(_p: Vector2) -> Color: return Color(1, 0, 0, 0), trees, [])
+	var paved_max := 0.0
+	for i in 200:
+		paved_max = maxf(paved_max, CitySnow.factor_at(plan.bounds.position + Vector2(i * 7.1, i * 7.9)))
+	assert_true(paved_max < 0.15, "paving stays clear, got %.2f" % paved_max)
+	CitySnow.clear_map()

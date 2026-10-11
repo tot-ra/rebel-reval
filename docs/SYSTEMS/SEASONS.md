@@ -30,7 +30,7 @@ Status: partial (core **SeasonState** implemented; presentation tasks planned, [
 | 2 | Debug season/date control | done: `[` `]` step a day (Shift: 30 days), `F5`..`F8` jump to winter/spring/summer/autumn; clock speed already on the existing ladder |
 | 3 | Snowfall weather | done: three looks (fine, flakes, heavy), one pooled GPU emitter, see **Snowfall** |
 | 4 | Ground snow, roof snow, icicles, melt | shader `snow_depth` uniforms, thaw by temperature |
-| 5 | Movement in snow and footprints | extends the mud trail |
+| 5 | Movement in snow, depth and footprints | done: depth map, drifts, trenches, walking drag, prints, crunch |
 | 6 | Ice on puddles, ponds, moat, rivers, shore | |
 | 7 | Vegetation seasons: blossom, fruit, wither, grass, litter under trees | extends phenology |
 | 8 | Sky, clouds, sea per season | |
@@ -83,15 +83,26 @@ Status: implemented for the moat, the Hareapea stream and lakes (sea ice is plan
 - **Ice:** `city_moat_water.gdshader` has `ice` (thickness 0..1 from `SeasonState.ice_cover_target(ICE_FRESH)`) and `ice_snow`. The shallows freeze first, then the open water; running water (the stream) freezes later; waves die out; cracks and snow on the ice show. Pushed to every moat/stream/lake material by `CityWorld3D.apply_season`.
 - Plates: `tools/godot_render.sh --script tools/capture_city_season.gd -- --date=1343-01-15` (also `1343-07-15`, `1343-10-20`).
 
+## Snow depth, drifts and trenches
+
+Status: implemented for the seamless city.
+
+- **Real depth, not just white:** `city_ground.gdshader` lifts the terrain by the snow surface (`snow_lift`), in the chunk, relief-mesh and far-terrain vertex stages, so snow stands above the ground and drifts have a silhouette. The fragment stage reads the same height for coverage, drift shading (normal from the surface slope) and trench walls.
+- **Depth map:** `CitySnow.bake` (once, the first time snow lies: about 0.4 s, 8 m texels, `snow_depth_map` / `snow_map_rect`) stores a relative depth FACTOR. Wind-drift noise (long dunes plus short ridges, `drift_factor`), deeper in woods (tree density within 1 texel), bare on paving, water, roofs, sites and steep slopes. Depth in metres = `cover x 0.5 x factor - 0.04` (`CitySnow.depth_at`, mirrored in the shader as `snow_depth_m`): drifts pass half a metre at full cover and a third of the country is knee-deep or more.
+- **Walking:** `CitySnow.walk_drag(depth)` (free under 6 cm, 0.45 speed at 35 cm, 0.08 at 50 cm and over: you barely move; cleared paving and roads are bare in the map, so roads are the way through). `reval_city.gd` takes the lower of the grass drag and the snow drag.
+- **Trenches:** once the snow is 8 cm deep `CityGroundTrail` stamps a continuous 40 cm wide groove behind the walker (`stamp_track`), deeper as the snow deepens; in the shader a pressed line packs the snow to about 8 % of its height, so it reads as a knee-deep trench with walls; plain footprints (below) still show in thin snow. Hooves and wheels use the same trail map.
+- **Cost:** one extra texture fetch per terrain vertex only where snow lies (`snow_lift_vertex` returns early at `snow_depth_m = 0`, so the other seasons pay nothing); no new draw calls or meshes. Not yet measured with the F3 monitor on a full winter city.
+- **Limits:** the snow surface is the terrain mesh, so a drift is as smooth as the chunk grid (the relief mesh near Kalev is finer); trees, bushes, rocks and fences do not sink into the snow (their feet stay at ground level, so knee-deep drifts hide trunk bases); NPCs do not wade or leave trenches; snowfall does not deepen the map over time yet (depth follows the date's cover curve).
+- Plate: `tools/godot_render.sh --script tools/capture_snow_prints.gd` (walks a trench through the deepest open drift).
+
 ## Snow footprints and the crunch
 
 Status: implemented for the seamless city (Kalev, NPCs, hooves and wheels all use it).
 
-- **Prints:** snow takes a print like wet clay does. `CitySnow.patch(xz, cover)` (GDScript) mirrors the patch rule of `city_ground.gdshader` (`snow_patch`), so the prints, the footsteps and the picture agree on where snow lies. `CityGroundTrail.snow_cover` (set by `CityWorld3D.apply_season`) makes snow count as "give" even on paved ground (only fully paved ground stays hard), deepens the stamp (`_weight(snow)`), and a boot in snow kicks up a small white powder puff. In the shader a print thins the snow and shades the packed floor blue-grey; the relief mesh lifts it into real geometry like mud prints.
+- **Prints:** `CitySnow.patch(xz, cover)` is `depth_at / 5 cm` (1 once the snow is 5 cm deep). `CityGroundTrail.snow_cover` (set by `CityWorld3D.apply_season`) makes snow count as "give" even on paved ground (only fully paved ground stays hard), deepens the stamp (`_weight(snow)`), and a boot in snow kicks up a small white powder puff. In the shader a print thins the snow and shades the packed floor blue-grey.
 - **Crunch:** new footstep surface `snow` (`SurfaceResolver.SURFACE_SNOW`, `with_snow`): turf, earth, mud and gravel under settled snow answer `sfx.footstep.snow.walk` (6 steps, `sounds/footsteps/snow_step_NN.mp3`). `CitySurfaceSampler.surface_at(..., snow_cover)` decides, `CityMapView.footstep_surface_at` passes the date's cover. Boards, flagstones and water stay as they were.
 - **The clips are synthesised** (no CC0 snow recording is cleared): `python3 tools/audio/generate_snow_footsteps.py` builds a low "press" plus 90-260 crystal grains per step, mono 44.1 kHz, -17 dBFS loudest 50 ms, 128 kbps; rows in `assets/SOURCES.csv` (`--print-sources`). Replace by catalog ID with a real recording if one is cleared later.
 - **Limits:** prints do not fill in under new snowfall or melt away on their own (the shader hides them as the snow thins, like mud prints it is a window image); no wind-blown drift; the crunch has not been judged by ear yet.
-- Plate: `tools/godot_render.sh --script tools/capture_snow_prints.gd`.
 
 ## Debug controls
 

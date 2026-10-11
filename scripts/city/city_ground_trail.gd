@@ -16,6 +16,10 @@ extends Node3D
 ## Near Kalev a fine relief mesh (`_relief`, the ground shader's trail mesh mode)
 ## lifts the prints into real geometry so a grazing camera sees their silhouette.
 
+## Deep snow is waded, not stepped: a trench this wide opens behind the walker once
+## the snow is this deep (metres).
+const TRENCH_MIN_DEPTH := 0.08
+const TRENCH_HALF_WIDTH := 0.2
 const DUST_COLOR := Color(0.74, 0.66, 0.52)
 ## A boot in settled snow kicks up a small white powder puff.
 const SNOW_PUFF_COLOR := Color(0.93, 0.95, 1.0)
@@ -131,6 +135,10 @@ func update_for(world_xz: Vector2, _delta: float) -> void:
 		_recentre(world_xz)
 	_place_relief(world_xz)
 	var step := world_xz - _last
+	if snow_cover > 0.0 and step.length() > 0.0001:
+		var depth := CitySnow.depth_at(world_xz, snow_cover)
+		if depth > TRENCH_MIN_DEPTH:
+			stamp_track(_last, world_xz, TRENCH_HALF_WIDTH, clampf(depth / 0.3, 0.3, 0.95))
 	_travelled += step.length()
 	if _travelled >= STRIDE and step.length() > 0.0001:
 		_travelled = fmod(_travelled, STRIDE)

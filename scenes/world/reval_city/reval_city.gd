@@ -79,9 +79,14 @@ func _ready() -> void:
 	player.set_water_depth_provider(
 		func(logic: Vector2) -> float: return view.water_depth_at(CityPlan.to_world_xz(logic))
 	)
-	# Waist-high meadow drags at the legs (ADR 0039); scythed verges do not.
+	# Waist-high meadow drags at the legs (ADR 0039); scythed verges do not. Snow
+	# slows the same way by its depth (ADR 0045): a crawl at the knee, near stuck
+	# in a drift; cleared roads and paving are clear in the snow map.
 	player.set_ground_drag_provider(
-		func() -> float: return world.grass.walk_drag_at(CityPlan.to_world_xz(player.global_position))
+		func() -> float:
+			var at := CityPlan.to_world_xz(player.global_position)
+			var snow := CitySnow.walk_drag(CitySnow.depth_at(at, world.snow_cover))
+			return minf(world.grass.walk_drag_at(at), snow)
 	)
 	minimap = CityMinimap.create(plan)
 	add_child(minimap)

@@ -84,6 +84,11 @@ uniform float ground_dryness = 0.0;
 uniform float winter = 0.0;
 uniform float snow_cover = 0.0;
 uniform vec3 snow_color : source_color = vec3(0.86, 0.9, 0.95);
+// Settled snow depth (ADR 0045): CitySnow bakes a relative-depth map (R = factor /
+// 2); depth = max(snow_depth_m * factor - 0.04, 0). snow_depth_m is cover * 0.5.
+uniform sampler2D snow_depth_map : filter_linear, repeat_disable, hint_default_white;
+uniform vec4 snow_map_rect = vec4(0.0, 0.0, 1.0, 1.0); // origin.xz, size.xz in world units
+uniform float snow_depth_m = 0.0;
 uniform float sea_level = 0.0;
 uniform float rain_intensity = 0.0;
 global uniform float ocean_time;
@@ -388,11 +393,41 @@ float grid_sink(ivec2 g, vec2 origin, float cell) {
 	return (trail_mesh_rect.w > 0.5 && max(off.x, off.y) <= trail_mesh_rect.z) ? trail_sink : 0.0;
 }
 
-// Snow lying at p (0..1): the patch rule of the fragment's snow block and of
-// CitySnow.patch (GDScript), so footprints, footsteps and the eye agree.
-float snow_patch(vec2 p) {
-	float n = value_noise(p * 0.035) * 0.55 + value_noise(p * 0.6) * 0.45;
-	return clamp((snow_cover * 1.18 - (1.0 - n)) * 5.0, 0.0, 1.0);
+// Settled snow depth at p in world units (== metres): the baked CitySnow factor map
+// scaled by the season. Zero outside the map and wherever the map is bare (paving,
+// water, roofs, steep slopes).
+float snow_height_lod(vec2 p) {
+	vec2 uv = (p - snow_map_rect.xy) / snow_map_rect.zw;
+	if (snow_depth_m <= 0.0 || uv.x <= 0.0 || uv.y <= 0.0 || uv.x >= 1.0 || uv.y >= 1.0) {
+		return 0.0;
+	}
+	float factor = textureLod(snow_depth_map, uv, 0.0).r * 2.0;
+	return max(snow_depth_m * factor - 0.04, 0.0);
+}
+
+// Trail map value at p for the vertex stage (no implicit LOD there).
+float trail_press_lod(vec2 p) {
+	vec2 uv = (p - trail_rect.xy) / trail_rect.zw;
+	if (uv.x <= 0.0 || uv.y <= 0.0 || uv.x >= 1.0 || uv.y >= 1.0) {
+		return 0.0;
+	}
+	return clamp((0.5 - textureLod(trail, uv, 0.0).r) * 2.0, 0.0, 1.0);
+}
+
+// How far the snow surface stands above the ground at p when the trail map says
+// the ground was pressed `press` (0..1): a walked line packs down to ~8 %.
+float snow_lift(vec2 p, float press) {
+	return snow_height_lod(p) * (1.0 - 0.92 * press);
+}
+
+// Vertex-stage variant: reads the trail map only where snow actually lies, so the
+// other seasons (snow_depth_m 0) pay no extra texture fetch per terrain vertex.
+float snow_lift_vertex(vec2 p) {
+	float height = snow_height_lod(p);
+	if (height <= 0.0) {
+		return 0.0;
+	}
+	return height * (1.0 - 0.92 * trail_press_lod(p));
 }
 
 // Relief height the mesh lifts into geometry at p: the trail prints scaled by
@@ -408,10 +443,7 @@ float vertex_relief(vec2 p, vec3 n, float tr, float wet_road) {
 	float sand = smoothstep(0.2, 0.7, s.b);
 	float rock = smoothstep(0.24, 0.4, 1.0 - clamp(n.y, 0.0, 1.0));
 	float give = clamp(soft + (1.0 - soft) * (1.0 - sand) * 0.3 * grass_step(n), 0.0, 1.0) * (1.0 - rock);
-	// Snow takes a print like wet clay does.
-	float snow = snow_patch(p) * (1.0 - paving) * (1.0 - rock);
-	give = max(give, snow);
-	return tr * give * (0.45 + 1.3 * max(wet_road, snow * 0.9)) + road_profile(p, rd, wet_road).x * road;
+	return tr * give * (0.45 + 1.3 * wet_road) + road_profile(p, rd, wet_road).x * road;
 }
 
 void trail_mesh_vertex(inout vec3 vtx, inout vec3 nrm, inout vec3 tan, inout vec3 bin, mat4 model) {
@@ -455,7 +487,9 @@ void trail_mesh_vertex(inout vec3 vtx, inout vec3 nrm, inout vec3 tan, inout vec
 	disp *= smoothstep(trail_mesh_rect.z + cell * 0.75, trail_mesh_rect.z, max(off.x, off.y));
 	// A hair above the chunk so the two never z-fight where neither moved.
 	disp = max(disp, -sink) + 0.004;
-	vtx.y = base + disp - model[3].y;
+	// Settled snow stands above the ground, packed down along the trail (ADR 0045).
+	float lift = snow_lift(p, clamp(-tr / trail_depth, 0.0, 1.0));
+	vtx.y = base + disp + lift - model[3].y;
 	// Shading keeps the undisplaced surface normal: the fragment's trail normal
 	// map already shades the prints, exactly as on the chunks round the mesh.
 	nrm = bn;
@@ -481,6 +515,8 @@ void vertex() {
 		vec3 far_world = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
 		if (distance(far_world, INV_VIEW_MATRIX[3].xyz) < FAR_TERRAIN_CUT) {
 			VERTEX.y -= 60.0;
+		} else {
+			VERTEX.y += snow_lift_vertex(far_world.xz);
 		}
 	} else if (COLOR.a < 0.5) {
 		vec3 vtx = VERTEX, nrm = NORMAL, tan = TANGENT, bin = BINORMAL;
@@ -495,6 +531,10 @@ void vertex() {
 		float cell = grid_cell();
 		vec2 origin = ground_rect.xy + cell * 0.5;
 		VERTEX.y -= grid_sink(ivec2(round((p - origin) / cell)), origin, cell);
+		VERTEX.y += snow_lift_vertex(p);
+	} else {
+		vec2 wp = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xz;
+		VERTEX.y += snow_lift_vertex(wp);
 	}
 	world_pos = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
 	world_normal = normalize((MODEL_MATRIX * vec4(NORMAL, 0.0)).xyz);
@@ -743,9 +783,6 @@ void fragment() {
 	// ruts, and the trail map adds every footprint Kalev has left nearby.
 	float soft = clamp(earth + mud + field + road, 0.0, 1.0) * (1.0 - paving);
 	float give = clamp(soft + (1.0 - soft) * (1.0 - sand) * 0.3 * grass_step(world_normal), 0.0, 1.0) * (1.0 - rock);
-	// Snow takes a print like wet clay does (footprints, wheels, hooves).
-	float snow_lie = snow_patch(wuv) * (1.0 - paving) * (1.0 - rock);
-	give = max(give, snow_lie);
 	// Far pixels see sub-texel relief as noise: fade it out with distance.
 	float detail = 1.0 - smoothstep(0.1, 0.4, length(fwidth(wuv)));
 	vec2 e = vec2(0.06, 0.0);
@@ -757,7 +794,7 @@ void fragment() {
 	vec2 fslope = vec2(field_height(wuv + e.xy).x - f0, field_height(wuv + e.yx).x - f0) / e.x;
 	nxy += -fslope * 0.16 * field * detail;
 	// Road and footprint relief by finite differences of the same height function.
-	float prints_scale = give * (0.45 + 1.3 * max(wet_road, snow_lie * 0.9)) * detail;
+	float prints_scale = give * (0.45 + 1.3 * wet_road) * detail;
 	float tr0 = trail_height(wuv);
 	float tr_x = trail_height(wuv + e.xy);
 	float tr_z = trail_height(wuv + e.yx);
@@ -886,17 +923,23 @@ void fragment() {
 	float luma = dot(col, vec3(0.299, 0.587, 0.114));
 	vec3 dormant_turf = vec3(luma) * vec3(1.22, 1.04, 0.80) + vec3(0.03, 0.025, 0.012);
 	col = mix(col, dormant_turf, winter * turf * 0.85);
-	float snow_noise = macro * 0.55 + micro * 0.45;
-	float snow_amount = clamp((snow_cover * 1.18 - (1.0 - snow_noise)) * 5.0, 0.0, 1.0);
-	snow_amount *= 1.0 - 0.75 * max(road, paving) - 0.9 * puddle - 0.7 * rock;
+	// Settled snow: coverage from the lifted height, so a trodden trench is thinner and
+	// shows the ground in a dusting; the slope of the surface shades drifts and trenches.
+	float press_raw = clamp(-tr0 / trail_depth, 0.0, 1.0);
+	float snow_here = snow_lift(wuv, press_raw);
+	float snow_amount = smoothstep(0.0, 0.03, snow_here);
+	snow_amount *= 1.0 - 0.9 * puddle - 0.7 * rock;
 	snow_amount *= dry_land;
-	// A print in snow shows the ground under it, shaded where the snow is packed.
-	snow_amount *= 1.0 - 0.6 * pressed;
 	snow_amount = clamp(snow_amount, 0.0, 1.0);
 	col = mix(col, snow_color * (0.92 + 0.08 * micro), snow_amount);
-	col = mix(col, col * vec3(0.78, 0.85, 0.95), pressed * snow_lie * 0.55);
-	// Snow fills the fine relief.
+	// Packed snow in a print is bluer and darker.
+	col = mix(col, col * vec3(0.78, 0.85, 0.95), press_raw * snow_amount * 0.55);
+	// Snow fills the fine relief, then drifts and trench walls tilt the normal.
 	nxy *= 1.0 - snow_amount * 0.6;
+	vec2 snow_grad = vec2(
+		snow_lift(wuv + e.xy, clamp(-tr_x / trail_depth, 0.0, 1.0)) - snow_here,
+		snow_lift(wuv + e.yx, clamp(-tr_z / trail_depth, 0.0, 1.0)) - snow_here) / e.x;
+	nxy += -snow_grad * snow_amount * detail;
 	ALBEDO = city_albedo(col);
 	ROUGHNESS = mix(mix(0.95, 0.6, wet * (1.0 - rock * 0.5)), 0.5, damp_ring * 0.5);
 	ROUGHNESS = mix(ROUGHNESS, mix(0.16, 0.025, deep), puddle);

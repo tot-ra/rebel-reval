@@ -72,6 +72,8 @@ var stream_material: ShaderMaterial
 var moat_material: ShaderMaterial
 ## Reeds, cattails and floating plants; seasons thin and tint them (apply_season).
 var moat_plants: Node3D
+## Settled snow cover 0..1 for the campaign date (apply_season); CitySnow turns it into depth.
+var snow_cover := 0.0
 var stream_segment_count := 0
 ## Still lake water (a crater lake, regional sites only).
 var lake_material: ShaderMaterial
@@ -202,9 +204,21 @@ func apply_season(date: Dictionary) -> void:
 	var dormancy := float(weights[SeasonState.WINTER]) + 0.35 * float(weights[SeasonState.AUTUMN])
 	ground.set_shader_parameter("winter", clampf(dormancy, 0.0, 1.0))
 	var cover := VegetationPhenology.snow_cover_for(date)
+	snow_cover = cover
 	ground.set_shader_parameter("snow_cover", cover)
+	if cover > 0.0 and not CitySnow.has_map():
+		_bake_snow_map(ground)
+	ground.set_shader_parameter("snow_depth_m", cover * CitySnow.MAX_DEPTH_M)
 	if trail != null:
 		trail.snow_cover = cover
+
+
+## Bakes the snow depth map the first time snow lies (a summer run never pays for it):
+## drifts, woods, bare paving, water and roofs, shared with walking and footsteps.
+func _bake_snow_map(ground: ShaderMaterial) -> void:
+	var texture := CitySnow.bake(plan, grass.surface_at, plan.data.get("trees", []), moat_water)
+	ground.set_shader_parameter("snow_depth_map", texture)
+	ground.set_shader_parameter("snow_map_rect", CitySnow.map_rect())
 
 
 func apply_time(progress: float) -> void:
