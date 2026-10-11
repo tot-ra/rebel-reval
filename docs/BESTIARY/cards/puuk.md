@@ -12,6 +12,14 @@
 | Faction ties | none |
 | Archive reference images | puuk.png |
 
+![puuk concept art](../inspiration/puuk_concept.jpg)
+
+**Illustration:** Generated with OpenAI Images, gpt-image-1. Documentation concept art only; existing archive references are retained.
+
+**Generation prompt:** Puuk, Estonian wealth-stealing household familiar: a small, unsettling but not monstrous domestic spirit slipping through a cramped medieval loft with a stolen grain measure and a little glint of milk-white light, compact lizard-like household familiar silhouette with rough fur and a sly narrow face, no modern machinery, no dragon grandeur. Folkloric overlap with kratt shown only through a tiny straw scrap, not a built construct. Painterly concept art, warm barn browns, muted gold, neutral background, no text.
+
+**Negative prompt:** generic vampire, bat wings, modern clothes, text, watermark, gore
+
 ## At a glance
 - Cat-sized, glossy black, with short bat-like wings that carry it in hops.
 - Steals shiny things and hoards them in hollow trunks and rafters.
