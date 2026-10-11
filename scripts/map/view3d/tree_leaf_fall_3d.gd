@@ -11,6 +11,8 @@ extends Node3D
 ## Nothing here touches gameplay or save state; the season comes from the
 ## campaign date via VegetationPhenology, so it is deterministic.
 
+const LeafAtlas := preload("res://scripts/map/view3d/leaf_atlas.gd")
+const PerfProbeScript := preload("res://scripts/debug/perf_probe.gd")
 const CANOPY_MULTIMESH_GROUP := &"tree_canopy_multimesh"
 const CANOPY_MESH_GROUP := &"tree_canopy_mesh"
 ## Trunks are a radius away from the instance origin; a swing that grazes the
@@ -99,9 +101,6 @@ func _ready() -> void:
 	_gust_leaves.angular_velocity_max = 520.0
 	_gust_leaves.emitting = false
 	add_child(_gust_leaves)
-
-
-const PerfProbeScript := preload("res://scripts/debug/perf_probe.gd")
 
 
 func _process(delta: float) -> void:
@@ -318,6 +317,7 @@ func update_ambient(
 		_ambient.color_initial_ramp = _gradient(
 			VegetationPhenology.falling_leaf_colors(_ambient_species, date)
 		)
+		_ambient.material_override = _species_material(_ambient_species)
 	_ambient.emitting = true
 
 
@@ -386,6 +386,7 @@ func _update_gust_leaves(
 		_gust_leaves.color_initial_ramp = _gradient(
 			VegetationPhenology.falling_leaf_colors(_ambient_species, date)
 		)
+		_gust_leaves.material_override = _species_material(_ambient_species)
 	_gust_leaves.emitting = true
 
 
@@ -465,6 +466,7 @@ func _emit_burst(hit: Dictionary, colors: Array[Color], amount: int) -> void:
 	)
 	burst.gravity = Vector3(wind.x * wind_strength * 1.4, -1.25, wind.y * wind_strength * 1.4)
 	burst.color_initial_ramp = _gradient(colors)
+	burst.material_override = _species_material(hit.get("species", &""))
 	burst.restart()
 	burst.emitting = true
 
@@ -505,16 +507,17 @@ static func _make_leaf_mesh() -> QuadMesh:
 	var mesh := QuadMesh.new()
 	# Larger than a real 7 cm leaf on purpose: the gameplay camera shows about
 	# 21 px per metre, so true-size leaves were ~1.5 px and the burst vanished
-	# in GPU captures. 14 cm reads as a tumbling leaf without looking like a card.
-	mesh.size = Vector2(0.14, 0.10)
-	var material := StandardMaterial3D.new()
-	material.vertex_color_use_as_albedo = true
-	material.cull_mode = BaseMaterial3D.CULL_DISABLED
-	material.roughness = 0.8
-	material.backlight_enabled = true
-	material.backlight = Color(0.35, 0.3, 0.15)
-	mesh.material = material
+	# in GPU captures. A 14 cm card reads as a tumbling leaf; the species leaf
+	# is cut out of it by the leaf atlas (petiole at the bottom edge).
+	mesh.size = Vector2(0.14, 0.14)
+	mesh.material = _species_material(&"")
 	return mesh
+
+
+## Atlas leaf of this species (unknown species: the fallback leaf), tinted by
+## the particle colour ramp.
+static func _species_material(species: StringName) -> ShaderMaterial:
+	return LeafAtlas.particle_material(LeafAtlas.cell_for(species))
 
 
 static func _gradient(colors: Array[Color]) -> Gradient:

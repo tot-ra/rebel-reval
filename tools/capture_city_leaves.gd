@@ -3,7 +3,8 @@ extends SceneTree
 ## ADR 0045 autumn leaf-fall plate in the real city: drops the camera among the
 ## city's trees on an October date with a stiff wind and saves a frame.
 ##   tools/godot_render.sh --script tools/capture_city_leaves.gd -- --date=1343-10-20 --wind=0.7
-## Output: build/season/leaves_<date>_<wind>.png
+## `--pitch=-0.8` tilts the camera down onto the leaf litter (default 0.1).
+## Output: build/season/leaves_<date>_<wind>[_p<pitch>].png
 
 const OUTPUT_DIR := "res://build/season"
 const VIEWPORT_SIZE := Vector2i(1600, 900)
@@ -11,6 +12,7 @@ const VIEWPORT_SIZE := Vector2i(1600, 900)
 var _date := {"year": 1343, "month": 10, "day": 20}
 var _tag := "1343-10-20"
 var _wind := 0.7
+var _pitch := 0.1
 
 
 func _initialize() -> void:
@@ -21,6 +23,8 @@ func _initialize() -> void:
 			_tag = arg.substr(7)
 		elif arg.begins_with("--wind="):
 			_wind = float(arg.substr(7))
+		elif arg.begins_with("--pitch="):
+			_pitch = float(arg.substr(8))
 	call_deferred("_run")
 
 
@@ -65,7 +69,7 @@ func _run() -> void:
 	print("leaf spot ", best, " deciduous trees ", best_count)
 	var ground := plan.ground_height(Vector2(best.x, best.z))
 	var eye := Vector3(best.x, ground + 2.2, best.z)
-	camera.look_at_from_position(eye, eye + Vector3(1, 0.1, 0.6), Vector3.UP)
+	camera.look_at_from_position(eye, eye + Vector3(1, _pitch, 0.6), Vector3.UP)
 	camera.fov = 70.0
 	var wind := Vector2(0.8, 0.6)
 	MapViewMaterials.apply_world_wind(wind, _wind)
@@ -81,7 +85,8 @@ func _run() -> void:
 		leaves.update_leaves(eye, _date, wind, _wind, 1.0 / 30.0, -camera.global_transform.basis.z)
 		await process_frame
 	await RenderingServer.frame_post_draw
-	var path := "%s/leaves_%s_%s.png" % [OUTPUT_DIR, _tag, str(_wind)]
+	var suffix := "" if is_equal_approx(_pitch, 0.1) else "_p%s" % str(_pitch)
+	var path := "%s/leaves_%s_%s%s.png" % [OUTPUT_DIR, _tag, str(_wind), suffix]
 	viewport.get_texture().get_image().save_png(ProjectSettings.globalize_path(path))
 	print("leaf plate: ", path, " shedding ", leaves.shedding)
 	quit(0)

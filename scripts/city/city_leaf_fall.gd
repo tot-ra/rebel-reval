@@ -7,7 +7,10 @@ extends GPUParticles3D
 ## (VegetationPhenology) and the wind, so a bare tree drops nothing, a full
 ## crown in a gale drops a lot, and an October gust strips the crowns. Leaves
 ## ride the shared wind and vanish at the ground: nothing is left lying around.
-## Presentation only: no state, no saving.
+## Each leaf is the species' own leaf from the leaf atlas (LeafAtlas), tinted
+## by its seasonal palette. Presentation only: no state, no saving.
+
+const LeafAtlas := preload("res://scripts/map/view3d/leaf_atlas.gd")
 
 const TREE_SLOTS := 16
 const SAMPLE_INTERVAL := 0.3
@@ -45,12 +48,8 @@ func configure(lod: Node, budget: int = 900) -> void:
 	_params.shader = preload("res://scripts/city/city_leaf_fall.gdshader")
 	_params.set_shader_parameter("fall_speed", FALL_SPEED)
 	process_material = _params
-	var material := StandardMaterial3D.new()
-	material.vertex_color_use_as_albedo = true
-	material.cull_mode = BaseMaterial3D.CULL_DISABLED
-	material.roughness = 0.9
-	var leaf := _leaf_mesh()
-	leaf.surface_set_material(0, material)
+	var leaf := LeafAtlas.folded_leaf_mesh()
+	leaf.surface_set_material(0, LeafAtlas.particle_material())
 	draw_pass_1 = leaf
 	cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	emitting = false
@@ -113,9 +112,13 @@ func _resample(focus: Vector3, date: Dictionary, wind_strength: float) -> void:
 	var count := mini(candidates.size(), TREE_SLOTS)
 	var positions := PackedVector4Array()
 	var colors := PackedVector4Array()
+	var colors_b := PackedVector4Array()
+	var cells := PackedFloat32Array()
 	var cumulative := PackedFloat32Array()
 	positions.resize(TREE_SLOTS)
 	colors.resize(TREE_SLOTS)
+	colors_b.resize(TREE_SLOTS)
+	cells.resize(TREE_SLOTS)
 	cumulative.resize(TREE_SLOTS)
 	var total := 0.0
 	for i in count:
@@ -129,11 +132,17 @@ func _resample(focus: Vector3, date: Dictionary, wind_strength: float) -> void:
 		var centre: Vector3 = entry[2] + Vector3.UP * float(crown["centre"]) * scale
 		positions[i] = Vector4(centre.x, centre.y, centre.z, float(crown["radius"]) * scale)
 		var palette := _palette(entry[1], date)
+		# Two hues per tree so one crown sheds a mix (yellow and orange birch).
 		var leaf: Color = palette[i % palette.size()]
+		var other: Color = palette[(i + 1) % palette.size()]
 		colors[i] = Vector4(leaf.r, leaf.g, leaf.b, (entry[2] as Vector3).y)
+		colors_b[i] = Vector4(other.r, other.g, other.b, 0.0)
+		cells[i] = LeafAtlas.cell_code(LeafAtlas.cell_for(MapViewTreeMeshes.base_species(entry[1])))
 		cumulative[i] = running / total
 	_params.set_shader_parameter("tree_pos", positions)
 	_params.set_shader_parameter("tree_col", colors)
+	_params.set_shader_parameter("tree_col_b", colors_b)
+	_params.set_shader_parameter("tree_cell", cells)
 	_params.set_shader_parameter("tree_cum", cumulative)
 	_params.set_shader_parameter("tree_count", count)
 	shedding = clampf(total / 3.0, 0.0, 1.0)
@@ -162,19 +171,3 @@ func _crown(species: StringName) -> Dictionary:
 			"radius": maxf(box.size.x, box.size.z) * 0.4,
 		}
 	return _crown_cache[species]
-
-
-## A leaf: a flat diamond, double-sided material, white vertex colour.
-static func _leaf_mesh() -> ArrayMesh:
-	var st := SurfaceTool.new()
-	st.begin(Mesh.PRIMITIVE_TRIANGLES)
-	var tip_a := Vector3(0.0, 0.0, -0.5)
-	var tip_b := Vector3(0.0, 0.0, 0.5)
-	var left := Vector3(-0.3, 0.02, -0.05)
-	var right := Vector3(0.3, 0.02, -0.05)
-	for tri: Array in [[tip_a, right, left], [tip_b, left, right]]:
-		for v: Vector3 in tri:
-			st.set_color(Color.WHITE)
-			st.set_normal(Vector3.UP)
-			st.add_vertex(v)
-	return st.commit()

@@ -49,6 +49,8 @@ const DEFAULT_AUTUMN_COLORS := [Color(0.94, 0.70, 0.18), Color(0.80, 0.44, 0.12)
 const SUMMER_LEAF_COLOR := Color(0.30, 0.42, 0.20)
 const FRESH_LEAF_COLOR := Color(0.58, 0.74, 0.26)
 const NEEDLE_COLOR := Color(0.20, 0.30, 0.18)
+## Days after the crown is bare until this year's coloured litter has browned.
+const LITTER_BROWNING_DAYS := 45.0
 
 ## Month windows (inclusive) in which the fruit mesh is shown.
 const FRUIT_MONTHS := {
@@ -195,6 +197,22 @@ static func falling_leaf_colors(species: StringName, date: Dictionary) -> Array[
 	# Some loose leaves are always older/browner than the crown average.
 	colors.append(green.lerp(Color(0.46, 0.32, 0.14), clampf(0.25 + autumn, 0.0, 1.0)))
 	return colors
+
+
+## Share (0..1) of the litter under this species that shows this year's autumn
+## colour rather than weathered brown: it grows as the crown drops its leaves,
+## then browns out over the following weeks. Evergreens: always 0. Pure.
+static func fresh_litter_share(species: StringName, date: Dictionary) -> float:
+	if is_evergreen(species):
+		return 0.0
+	var timing: Dictionary = TIMINGS[category_for(species)]
+	var day := float(GameCalendar.day_of_year(GameCalendar.normalize_date(date)))
+	var fall_end := float(timing["fall_end"])
+	if day < float(timing["colour"]):
+		return 0.0
+	if day < fall_end:
+		return clampf(1.0 - float(state_for(species, date)["leaf_density"]), 0.0, 1.0)
+	return 1.0 - _smooth(clampf((day - fall_end) / LITTER_BROWNING_DAYS, 0.0, 1.0))
 
 
 ## How many leaves a melee hit knocks loose. Bare trees drop nothing; a loaded

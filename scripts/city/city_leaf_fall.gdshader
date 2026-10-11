@@ -8,6 +8,10 @@ shader_type particles;
 
 uniform vec4 tree_pos[16];   // xyz crown centre, w crown radius
 uniform vec4 tree_col[16];   // rgb leaf colour, w ground height under the tree
+uniform vec4 tree_col_b[16]; // rgb second leaf colour of the same tree
+// Leaf atlas cell code of the tree's species (LeafAtlas.cell_code), passed to
+// the leaf material in COLOR.a.
+uniform float tree_cell[16];
 uniform float tree_cum[16];  // cumulative share of the shedding, last = 1
 uniform int tree_count = 0;
 // World horizontal wind in m/s (y unused).
@@ -15,7 +19,7 @@ uniform vec3 wind_velocity = vec3(0.0);
 uniform float fall_speed = 1.0;
 // 1/seconds: how fast a leaf follows a change of wind.
 uniform float response = 1.4;
-uniform float leaf_size = 0.32;
+uniform float leaf_size = 0.26;
 uniform float flutter = 1.1;
 
 float hash(float n) {
@@ -70,7 +74,9 @@ void start() {
 		vec4(s, 0.0, 0.0, 0.0), vec4(0.0, s, 0.0, 0.0),
 		vec4(0.0, 0.0, s, 0.0), vec4(pos, 1.0));
 	VELOCITY = target_velocity(index);
-	COLOR = vec4(tree_col[pick_tree(index)].rgb * mix(0.82, 1.16, hash(seed + 6.0)), 1.0);
+	int tree = pick_tree(index);
+	vec3 hue = mix(tree_col[tree].rgb, tree_col_b[tree].rgb, step(0.5, hash(seed + 7.0)));
+	COLOR = vec4(hue * mix(0.82, 1.16, hash(seed + 6.0)), tree_cell[tree]);
 	if (tree_count <= 0) {
 		ACTIVE = false;
 	}

@@ -248,3 +248,4 @@ Both commands should print `135` on a clean checkout at this revision.
 | 160 | `tools/capture_city_households.tscn` | partial | Developer capture or profiling tool. |
 | 158 | `tools/profile_reval_city.tscn` | partial | Developer capture or profiling tool. |
 | 167 | `tools/capture_city_moss.tscn` | partial | Developer capture or profiling tool (R-1661 moss, lichen and forest floor). |
+| 168 | `tools/capture_hud_gameplay_host.tscn` | partial | Developer capture host for HUD gameplay plates (R-1698); not player-facing. |

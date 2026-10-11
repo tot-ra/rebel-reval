@@ -114,15 +114,32 @@ const LITTER_RADIUS_M := {
 	&"elm": 2.8, &"ash": 2.6, &"willow": 2.8,
 }
 const CONIFERS := [&"spruce", &"pine", &"juniper"]
+const LeafAtlas := preload("res://scripts/map/view3d/leaf_atlas.gd")
+const LITTER_SHADER := preload("res://scripts/city/city_leaf_litter.gdshader")
+## Weathered fallen-leaf browns (linear albedo, the atlas carries the detail).
+const LITTER_BROWNS := [
+	Color(0.12, 0.065, 0.025), Color(0.08, 0.045, 0.018), Color(0.11, 0.075, 0.04)
+]
+## Shed needles: rust for pine, darker for spruce and juniper.
+const NEEDLE_BROWNS := {
+	&"pine": [Color(0.30, 0.13, 0.04), Color(0.22, 0.10, 0.035)],
+	&"spruce": [Color(0.17, 0.09, 0.035), Color(0.13, 0.075, 0.03)],
+	&"juniper": [Color(0.17, 0.10, 0.04), Color(0.14, 0.08, 0.035)],
+}
+## Litter leaves are drawn a third larger than life (WHY: at the gameplay camera
+## a true 6 cm birch leaf is a few pixels and the carpet dissolves into noise).
+const LITTER_LEAF_BOOST := 1.35
 static var _litter_meshes: Dictionary = {}
-static var _litter_mat: StandardMaterial3D
+static var _litter_mats: Dictionary = {}
 
 
-## Scatter of fallen leaves or needle strokes around the trunk, thickest at the
-## foot and thinning out to nothing. Opaque flecks, not a translucent sheet
-## (WHY: a sheet covers the grass roots and reads as a puddle, and any disc
-## outline is the same seam we are removing). `radius` is in tree units; fleck
-## size follows it so a metre of litter stays a metre.
+## Fallen leaves (or needle clusters) of this species around the trunk, thickest
+## at the foot and thinning out to nothing. Each leaf is a small square card
+## showing the species' leaf from the leaf atlas at real size, so the floor under
+## a birch is birch leaves and under a pine is rust needles (WHY: the former
+## flat-colour flecks read as brown rectangles). `radius` is in tree units; leaf
+## size follows it so a metre of litter stays a metre. COLOR.a is a per-leaf
+## hash the shader uses for the seasonal fresh share and snow.
 static func litter_mesh(species: StringName, radius: float) -> ArrayMesh:
 	var key := "%s:%.3f" % [species, radius]
 	if _litter_meshes.has(key):
@@ -131,45 +148,68 @@ static func litter_mesh(species: StringName, radius: float) -> ArrayMesh:
 	var metre := radius / float(LITTER_RADIUS_M.get(species, 2.2))
 	var rng := RandomNumberGenerator.new()
 	rng.seed = absi(String(species).hash()) + 811
+	var uv := LeafAtlas.uv_rect(LeafAtlas.cell_for(species))
+	var side := LeafAtlas.quad_side_m(species) * metre * LITTER_LEAF_BOOST
+	var browns: Array = NEEDLE_BROWNS.get(species, LITTER_BROWNS)
+	var autumn: Color = VegetationPhenology.autumn_colors(species)[0]
 	var surface := SurfaceTool.new()
 	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
 	surface.set_normal(Vector3.UP)
-	var count := 320 if conifer else 240
+	var count := 240 if conifer else 300
 	for i in count:
-		# Squared radius sampling packs flecks near the trunk.
+		# Squared radius sampling packs leaves near the trunk.
 		var dist := radius * pow(rng.randf(), 1.7)
 		var ang := rng.randf() * TAU
-		var centre := Vector3(cos(ang) * dist, rng.randf() * 0.01 * metre, sin(ang) * dist)
+		var centre := Vector3(cos(ang) * dist, rng.randf() * 0.012 * metre, sin(ang) * dist)
 		var yaw := rng.randf() * TAU
-		var half_len := (0.07 if conifer else 0.05) * metre * rng.randf_range(0.7, 1.4)
-		var half_wid := (0.012 if conifer else 0.04) * metre
-		var along := Vector3(cos(yaw), 0.0, sin(yaw)) * half_len
-		var across := Vector3(-sin(yaw), 0.0, cos(yaw)) * half_wid
-		var shade := rng.randf_range(0.7, 1.15)
-		var tint := Color(0.24, 0.15, 0.08)
+		var half := side * 0.5 * rng.randf_range(0.8, 1.25)
+		var along := Vector3(cos(yaw), 0.0, sin(yaw)) * half
+		var across := Vector3(-sin(yaw), 0.0, cos(yaw)) * half
+		var tint: Color = browns[rng.randi() % browns.size()]
 		if not conifer:
-			tint = Color(0.30, 0.20, 0.07).lerp(Color(0.22, 0.22, 0.07), rng.randf() * 0.5)
-		surface.set_color(Color(tint.r * shade, tint.g * shade, tint.b * shade))
-		var corners := [
-			-along - across, along - across, along + across,
-			-along - across, along + across, -along + across,
+			# A hint of the species' autumn hue survives in the weathered leaf.
+			tint = tint.lerp(autumn * 0.3, rng.randf() * 0.35)
+		tint *= rng.randf_range(0.8, 1.15)
+		tint.a = rng.randf()
+		surface.set_color(tint)
+		# Curled leaves: corners sit at slightly different heights.
+		var lift := [0.0, rng.randf(), rng.randf(), rng.randf() * 0.5]
+		var quad := [-along - across, along - across, along + across, -along + across]
+		var uvs := [
+			uv.position + Vector2(0.0, uv.size.y), uv.position + uv.size,
+			uv.position + Vector2(uv.size.x, 0.0), uv.position,
 		]
-		for corner: Vector3 in corners:
-			surface.add_vertex(centre + corner)
+		for corner_index: int in [0, 1, 2, 0, 2, 3]:
+			surface.set_uv(uvs[corner_index])
+			surface.add_vertex(
+				centre + quad[corner_index] + Vector3.UP * float(lift[corner_index]) * 0.01 * metre
+			)
 	var mesh := surface.commit()
 	_litter_meshes[key] = mesh
 	return mesh
 
 
-static func litter_material() -> StandardMaterial3D:
-	if _litter_mat == null:
-		_litter_mat = StandardMaterial3D.new()
-		_litter_mat.vertex_color_use_as_albedo = true
-		_litter_mat.vertex_color_is_srgb = true
-		_litter_mat.cull_mode = BaseMaterial3D.CULL_DISABLED
-		_litter_mat.roughness = 1.0
-		_litter_mat.specular_mode = BaseMaterial3D.SPECULAR_DISABLED
-	return _litter_mat
+## One material per species: its autumn palette and the seasonal fresh share.
+static func litter_material(species: StringName = &"") -> ShaderMaterial:
+	if not _litter_mats.has(species):
+		var material := ShaderMaterial.new()
+		material.shader = LITTER_SHADER
+		material.set_shader_parameter("leaf_atlas", LeafAtlas.ATLAS)
+		var palette: Array = VegetationPhenology.autumn_colors(species)
+		material.set_shader_parameter("autumn_a", palette[0])
+		material.set_shader_parameter("autumn_b", palette[palette.size() - 1])
+		_litter_mats[species] = material
+	return _litter_mats[species]
+
+
+## Season for every litter material: this autumn's coloured share and lying snow.
+static func apply_litter_season(date: Dictionary, snow_cover: float) -> void:
+	for species: StringName in _litter_mats:
+		var material: ShaderMaterial = _litter_mats[species]
+		material.set_shader_parameter(
+			"fresh", VegetationPhenology.fresh_litter_share(species, date)
+		)
+		material.set_shader_parameter("snow_cover", snow_cover)
 
 
 static func species_scale(species: StringName, metres_per_unit: float) -> float:
@@ -313,13 +353,14 @@ static func build(plan: CityPlan, parent: Node3D) -> Node3D:
 			var litter_colors: Array[Color] = []
 			litter_colors.resize(litter.size())
 			litter_colors.fill(Color.WHITE)
-			var litter_m := LITTER_RADIUS_M.get(species, 2.2) as float
+			# Litter follows the real species (a pollard form drops oak leaves).
+			var litter_m := LITTER_RADIUS_M.get(base, 2.2) as float
 			var litter_node := MapViewMeshBuilderPrimitives.multi_mesh(
 				"Litter_%s" % species,
-				litter_mesh(species, litter_m / plan.metres_per_unit / world_scale),
+				litter_mesh(base, litter_m / plan.metres_per_unit / world_scale),
 				litter,
 				litter_colors,
-				litter_material(),
+				litter_material(base),
 				Vector3.ZERO
 			)
 			litter_node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF

@@ -32,7 +32,7 @@ plan entry (species, position, size) -> growth profile + branching preset
 
 ### Species
 
-![Twenty procedural tree species with labels, normalized to a comparable display height](../reports/images/fauna/p0_103_tree_reference_sheet.png)
+![Twenty procedural tree species with labels, normalized to a comparable display height|1000](../reports/images/fauna/p0_103_tree_reference_sheet.png)
 
 *A shape catalog, not a height chart: every tree is normalized to one display height.* Real heights: [relative silhouettes](../reports/images/vegetation/r1324_tree_silhouettes_after.png) and [crown close-ups](../reports/images/vegetation/r1324_tree_closeups_after.png).
 
@@ -60,7 +60,7 @@ The registry is [`MapViewTreeSpecies.ALL_SPECIES`](../../scripts/map/view3d/map_
 *Bare wood. Use this view when changing forks or drooping shoots; foliage hides bad junctions.*
 
 - **Branching.** [`TreeSkeletonWeberPenn`](../../scripts/map/view3d/tree_skeleton_weber_penn.gd) (Weber and Penn 1995, written from the paper in GDScript) gives each species a preset: trunk lean and taper, per-level branch count, angle, curvature and gravity or light attraction. `splits` forks the bole: one split is an oak or maple fork, many low splits a hazel stool, a split at a third of height an orchard head.
-- **Smooth limbs and collars.** Limbs are Hermite-smoothed; each branch base gets a flared collar; boles widen into a root flare (buttress roots for `ROOTED_SPECIES`). About 65 % of city trees get leaf or needle litter at the foot.
+- **Smooth limbs and collars.** Limbs are Hermite-smoothed; each branch base gets a flared collar; boles widen into a root flare (buttress roots for `ROOTED_SPECIES`). About 65 % of city trees get litter of their own leaves or needles at the foot ([fallen leaves](#fallen-and-falling-leaves-r-1733)).
 - **Bark.** City bark tiles along limbs at about 0.55 m with UVs that follow the branch frame; families are shared (aspen uses birch, juniper spruce, orchard trees cherry).
 - **Leaves.** Crowns mix folded leaves with folded **cluster cards** (a small surface carrying an image of several leaves or a needle spray), placed over the outer `cluster_span` of each shoot. The [canopy shader](../../scripts/map/view3d/map_view_canopy.gdshader) adds species and season tint, dark interiors, wrapped normals, backlight, rain wetness and wind.
 
@@ -135,7 +135,31 @@ City bark and every crown tier share [`tree_wind.gdshaderinc`](../../scripts/map
 | Gust leaf loss upwind of the player | `TreeLeafFall3D` `GustLeaves` when local wind passes about 0.9 | Particles only |
 | Litter under city trees | `CityVegetationBuilder.litter_mesh` | Deterministic decoration |
 
-Heavy attacks shake harder; autumn yields more leaves, bare crowns none, conifers a few needles. NPC attacks, spells and projectiles do not use this path.
+### Fallen and falling leaves (R-1733)
+
+Status: implemented (task **R-1733**). Scope: the leaf shape and colour of city litter, city ambient leaf fall (`CityLeafFall`) and district bursts, ambient and gust leaves (`TreeLeafFall3D`). Out of scope: litter amount by season, leaves piling up from particles, the crown leaf-card atlas.
+
+![Leaf litter at the foot of a birch, maple, oak and pine: top row 20 October with this year's yellow, red and tan leaves, bottom row 15 July with weathered brown leaves and rust pine needles|1000](../reports/images/vegetation/leaf_litter_species_seasons.jpg)
+
+*Top: 20 October. Bottom: 15 July. Left to right: birch, maple, oak, pine.* Falling leaves on a plain backdrop: [maple, birch, oak and rowan shedding](../reports/images/vegetation/leaf_fall_species.png).
+
+Every fallen or falling leaf shows the leaf of its tree. The [species leaf atlas](../reports/images/vegetation/leaf_species_atlas_preview.png) holds one leaf per cell: birch, oak, maple, linden, aspen, alder, ash, elm, willow, rowan, cherry, apple, hazel, hawthorn, blackthorn and a pine-needle cluster. Plum and pear borrow apple, and spruce, pine and juniper use the needles. Cells store only the shape (alpha) and neutral grey vein detail, so the colour comes from the tint:
+
+| What | Tint | Where it comes from |
+|---|---|---|
+| Falling leaves | Today's crown colour: green in summer, the species' two autumn hues plus an older brown | `VegetationPhenology.falling_leaf_colors`; each city tree sends two hues, so one crown sheds a mix |
+| Litter, fresh share | This year's autumn colour (yellow birch, red maple and rowan, tan oak) | `VegetationPhenology.fresh_litter_share`: rises as the crown drops its leaves, browns out over about 45 days after the crown is bare |
+| Litter, the rest | Weathered brown with a hint of the species hue; rust needles under pine, darker under spruce and juniper | `CityVegetationBuilder.LITTER_BROWNS`, `NEEDLE_BROWNS` |
+| Litter under snow | Hidden leaf by leaf as snow cover grows | `snow_cover` from `VegetationPhenology.snow_cover_for` |
+
+- **Runtime.** [`leaf_atlas.gd`](../../scripts/map/view3d/leaf_atlas.gd) maps species to cells, real leaf lengths and the particle material ([`leaf_particle.gdshader`](../../scripts/map/view3d/leaf_particle.gdshader)). City particles carry the cell in the particle colour alpha (`LeafAtlas.cell_code`), and district emitters get a per-species `material_override`. Litter is one square card per leaf with UVs on the species cell, drawn by [`city_leaf_litter.gdshader`](../../scripts/city/city_leaf_litter.gdshader) with one material per species. `CityWorld3D.apply_season` calls `CityVegetationBuilder.apply_litter_season(date, snow)`.
+- **Sizes.** Litter leaves are drawn at real size times `LITTER_LEAF_BOOST` (1.35) so they still read from the gameplay camera. Falling leaves keep the larger particle size (city `leaf_size` 0.26, district 14 cm cards).
+- **Atlas source.** Raw Leonardo photos (Nano Banana, one leaf on white) are in `generated/leonardo/leaf_species_v1/`, which is gitignored. The generation IDs are in `generations.csv` there and in `assets/SOURCES.csv`. Rebuild with `python3 tools/assets/build_leaf_species_atlas.py`. The cell order in the tool and in `LeafAtlas.CELLS` must match.
+- **Save/load.** None: presentation only, a pure function of the date.
+- **Verify.** `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_leaf_atlas`. Plates: `tools/godot_render.sh --script tools/capture_leaf_litter.gd -- --date=1343-10-20` (also `1343-07-15`) and `tools/godot_render.sh --script tools/capture_leaf_fall_species.gd`.
+- **Limits.** The litter amount is the same all year (only its colour changes). Particles still vanish when they reach the ground and do not add to the litter. Needle clusters read as small star bursts up close. `tools/capture_city_leaves.gd` does not show GPU particles in its minimized-window frames, so use `capture_leaf_fall_species.gd` to review falling leaves.
+
+Heavy attacks shake harder; autumn yields more leaves, bare crowns none. Ambient and gust-driven falling leaves are deciduous-only; conifer needles remain on spruce, pine and juniper through seasonal weather. NPC attacks, spells and projectiles do not use this path.
 
 ## Shrubs
 
