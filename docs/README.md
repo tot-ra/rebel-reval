@@ -37,7 +37,7 @@ One page per feature, with status, behavior, code entry points, content, saved s
 ## Story, lore, and history
 
 - Canon, timeline, and confidence labels: [`CANON.md`](./CANON.md) · historical audit: [`HISTORICAL_AUDIT.md`](./HISTORICAL_AUDIT.md)
-- Quest scene scripts and branch maps: [`SCENES/`](./SCENES/README.md) · faction quest seeds: [`quests/`](./quests/README.md) · [quest seed shortlist](./quest_seed_shortlist.md)
+- Quest scene scripts and branch maps: [`SCENES/`](./SCENES/README.md) · faction quest seeds: [`quests/`](./quests/README.md) · [quest idea log](./quests/IDEAS.md) · [quest seed shortlist](./quest_seed_shortlist.md)
 - Folklore and Act 2 lore: [`lore/`](./lore/README.md)
 - Story drafts and image prompts: [`story/`](../story/README.md) · cinematics: [`cinematics/`](../cinematics/README.md)
 - Historical research (start here for evidence): [`history/RESEARCH_INDEX.md`](../history/RESEARCH_INDEX.md) · people and events wiki: [`wiki/`](../wiki/README.md)

@@ -14,11 +14,11 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `1190`
+- Active Markdown files scanned: `1191`
 - Markdown files excluded as archive/reference/out of active scope: `759`
-- Local/external links inspected: `13580`
-- Links to active Markdown docs: `12239`
-- Links to existing archive/reference/non-active local docs: `487`
+- Local/external links inspected: `13601`
+- Links to active Markdown docs: `12277`
+- Links to existing archive/reference/non-active local docs: `486`
 - External links skipped for reachability: `151`
 - Issues found: `0`
 
@@ -1061,6 +1061,7 @@ No active Markdown documentation issues found.
 - `docs/quests/bandits.md`
 - `docs/quests/estonian_rebels.md`
 - `docs/quests/hanseatic_merchants.md`
+- `docs/quests/IDEAS.md`
 - `docs/quests/livonian_order.md`
 - `docs/quests/miscellaneous.md`
 - `docs/quests/pskov_faction.md`
