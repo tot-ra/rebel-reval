@@ -36,6 +36,21 @@ The policy optimizes normal clone size without breaking runtime imports, asset p
 - Bulk inactive collections should be skipped by default fetch or placed in approved external storage so they do not create normal clone cost.
 - Godot `*.import` files are small text metadata. Track them beside tracked media, but never put them in LFS.
 
+### Compact procedural-motion evidence (R-1691)
+
+The existing `tools/research/procedural_motion/runs/{gifs3,showcase/sim}/personas_{course,race}.gif` previews stay in standard Git below 10 MiB. They are review evidence, not runtime animation assets. R-1691 reduced them from 680 px to 340 px wide with a 128-colour palette while preserving all 720 course / 432 race frames, every frame delay, the 36-second duration, and infinite looping. The two directories carry byte-identical copies (course: 8,421,865 bytes; race: 7,236,454 bytes). No storage exception or LFS retrieval is needed.
+
+To compact a restored full-size preview, write to a temporary output first (never overwrite the input):
+
+```bash
+ffmpeg -i input.gif -filter_complex \
+  '[0:v]scale=340:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=128:stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=3' \
+  -fps_mode passthrough -loop 0 compact.gif
+python3 tools/verify_storage_hygiene.py
+```
+
+Before replacing evidence, compare decoded frame counts, per-frame delays and loop metadata with the original, inspect representative frames, and confirm each output is strictly below 10 MiB. Future high-resolution source evidence at or above the threshold still belongs in LFS or approved external storage, not a new exception.
+
 Git LFS is only a valid destination after authenticated pull and push access is proven for contributors and CI. A pointer without retrievable remote content is data loss, not a migration.
 
 ## Standard-Git exceptions

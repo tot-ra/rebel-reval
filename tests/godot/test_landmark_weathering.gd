@@ -7,11 +7,10 @@ const Olaf := preload("res://scripts/map/view3d/map_view_st_olaf_model.gd")
 const BUILDING := {"id": &"town_hall_mass", "primitive": &"town_hall_1343"}
 
 
-func test_box_wear_preserves_legacy_geometry_and_random_sequence() -> void:
+func test_face_wear_preserves_geometry_and_random_sequence() -> void:
 	var root := Node3D.new()
 	var rng := _rng(123)
 	var expected_rng := _rng(123)
-	Wear.add_box_wear(root, rng, Vector2(26.0, 7.0), 5.0)
 	var faces := [
 		["N", 26.0, Vector3(0, 0, -3.5), PI],
 		["S", 26.0, Vector3(0, 0, 3.5), 0.0],
@@ -21,19 +20,20 @@ func test_box_wear_preserves_legacy_geometry_and_random_sequence() -> void:
 	for face: Array in faces:
 		var span: float = face[1]
 		var yaw: float = face[3]
+		Wear.add_face_wear(root, rng, "Wall%s" % face[0], span, face[2], yaw, 5.0)
 		var normal := Vector3(sin(yaw), 0, cos(yaw))
 		var base: Vector3 = face[2] + normal * 0.015
-		var damp := root.get_node("TownHallDamp%s" % face[0]) as MeshInstance3D
-		assert_eq(damp.position, base + Vector3(0, 1.37, 0))
+		var damp := root.get_node("Wall%sDamp" % face[0]) as MeshInstance3D
+		assert_eq(damp.position, base + Vector3(0, 0.6 + 0.75, 0))
 		assert_eq((damp.mesh as QuadMesh).size, Vector2(span, 1.5))
 		var count := int(span / 0.9)
 		for index in count:
 			var width := expected_rng.randf_range(0.25, 0.8)
-			var length := expected_rng.randf_range(0.5, 2.1)
+			var length := expected_rng.randf_range(0.6, 2.0)
 			var t := (float(index) + expected_rng.randf_range(0.2, 0.8)) / count - 0.5
 			var strength := snappedf(expected_rng.randf_range(0.2, 0.4), 0.05)
 			var node := root.get_node(
-				"TownHallEaveStreak%s%02d" % [face[0], index]
+				"Wall%sEaveStreak%02d" % [face[0], index]
 			) as MeshInstance3D
 			assert_eq((node.mesh as QuadMesh).size, Vector2(width, length))
 			assert_eq(node.position, base + Vector3(cos(yaw), 0, -sin(yaw))
@@ -44,19 +44,21 @@ func test_box_wear_preserves_legacy_geometry_and_random_sequence() -> void:
 	root.free()
 
 
-func test_sill_legacy_offsets_keep_north_face_world_x_and_rng_order() -> void:
+func test_sill_north_face_follows_tangent_and_rng_order() -> void:
 	var root := Node3D.new()
 	var rng := _rng(456)
 	var expected_rng := _rng(456)
-	Wear.add_sill_streaks(root, rng, "Window", Vector3(4, 2, -3.5), 0.86, PI, true)
+	Wear.add_sill_streaks(root, rng, "Window", Vector3(4, 2, -3.5), 0.86, PI)
 	for index in 3:
 		var length := expected_rng.randf_range(0.5, 1.4)
-		var x := 4.0 + (float(index) - 1) * 0.86 * 0.34
-		x += expected_rng.randf_range(-0.06, 0.06)
+		var offset := (float(index) - 1) * 0.86 * 0.34
+		offset += expected_rng.randf_range(-0.06, 0.06)
 		var width := expected_rng.randf_range(0.14, 0.3)
 		var strength := snappedf(expected_rng.randf_range(0.35, 0.6), 0.05)
 		var node := root.get_node("WindowStreak%d" % index) as MeshInstance3D
-		assert_eq(node.position, Vector3(x, 2.0 - 0.12 - length * 0.5, -3.53))
+		assert_almost_eq(node.position.x, 4.0 - offset, 0.00001)
+		assert_almost_eq(node.position.y, 2.0 - 0.12 - length * 0.5, 0.00001)
+		assert_almost_eq(node.position.z, -3.53, 0.00001)
 		assert_eq((node.mesh as QuadMesh).size, Vector2(width, length))
 		assert_eq(node.material_override, Wear.grime_material(strength, true, true))
 	assert_eq(rng.state, expected_rng.state)
@@ -92,12 +94,16 @@ func test_grime_cache_keys_fades_and_shadow_policy() -> void:
 
 func test_toning_is_idempotent_and_survives_quality_toggle() -> void:
 	var old_quality := Materials.anti_tiling_enabled()
-	var wall := Hall.wall_material(BUILDING, Vector3(26, 5, 7))
+	var wall := Wear.toned_surface(
+		"wear_test", &"shared_wall", Hall.WALL_STEM, Color.WHITE, Hall.WALL_TONE
+	)
 	var color := wall.albedo_color
 	var base: Color = wall.get_meta(&"ar03_base_tint")
 	assert_true(wall.has_meta(&"landmark_toned"))
 	assert_false(wall.has_meta(&"town_hall_toned"))
-	assert_eq(Hall.wall_material(BUILDING, Vector3(26, 5, 7)), wall)
+	assert_eq(Wear.toned_surface(
+		"wear_test", &"shared_wall", Hall.WALL_STEM, Color.WHITE, Hall.WALL_TONE
+	), wall)
 	assert_eq(wall.albedo_color, color)
 	Materials.set_anti_tiling_enabled(false)
 	assert_eq(wall.albedo_color, base)
@@ -106,7 +112,10 @@ func test_toning_is_idempotent_and_survives_quality_toggle() -> void:
 	lifted.a = base.a
 	assert_eq(wall.albedo_color, lifted)
 	Materials.set_anti_tiling_enabled(old_quality)
-	assert_true(Hall.roof_material(BUILDING).has_meta(&"landmark_toned"))
+	var projected := Wear.triplanar(wall, Hall.WALL_STEM)
+	assert_eq(Wear.triplanar(wall, Hall.WALL_STEM), projected)
+	assert_true(projected.uv1_triplanar)
+	assert_eq(projected.uv1_scale, Materials.library_world_uv_density(Hall.WALL_STEM))
 
 
 func test_town_hall_rebuild_keeps_gables_separate_from_dark_plinth() -> void:
@@ -131,7 +140,9 @@ func test_town_hall_rebuild_keeps_gables_separate_from_dark_plinth() -> void:
 	assert_eq(gable_mat.albedo_color, wall.albedo_color)
 	assert_eq(plinth_mat.albedo_color, wall.albedo_color.darkened(0.28))
 	assert_ne(gable_mat, plinth_mat)
-	assert_eq(Wear.triplanar(wall, Hall.WALL_STEM), gable_mat)
+	# The Town Hall still owns its wear recipe; shared-kit migration is not assumed.
+	assert_true(wall.has_meta(&"town_hall_toned"))
+	assert_true(Hall.roof_material(BUILDING).has_meta(&"town_hall_toned"))
 	assert_true(gable_mat.uv1_triplanar)
 	assert_eq(gable_mat.uv1_scale, Materials.library_world_uv_density(Hall.WALL_STEM))
 	first.free()

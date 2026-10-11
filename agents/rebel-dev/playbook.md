@@ -5,6 +5,9 @@ This file contains lessons specific to the Dev role.
 
 ## Role-specific lessons
 
+### Evidence GIF compression
+- A plain ffmpeg GIF re-encode can inflate an already optimized clip. Encode to a temporary file with an explicit palette and dithering policy, measure bytes before replacing tracked evidence, and compare all decoded frame delays, frame count and loop metadata. Use `-fps_mode passthrough` for variable-delay GIFs; reducing dimensions is safer than dropping motion frames when the evidence must fit a storage threshold.
+
 ### Godot 4.7 contracts
 - Godot 4.7 rejects `name = value` inside call sites as assignment-in-expression. Use positional args.
 - Typed inference fails on `for side in [-1.0, 1.0]`. Declare `for side: float in [...]`. Values from `Dictionary.get()`, `Object.get()` / `call()` (also inside `a and n.get(&"p") == b`), untyped arrays, `pop_front()`, `load()`, `load().new()`, `Node.get_class()`, and `Image.get_width()` / `get_height()` / `get_pixel()` often need an explicit `Variant` / typed local under warnings-as-errors.
