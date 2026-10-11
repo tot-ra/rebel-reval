@@ -1,17 +1,13 @@
 extends SceneTree
 
-## R-913 studio plates plus R-927 in-map gameplay-camera plates.
-## Run with a rendering-capable process (no --headless):
+## R-913 studio plates plus R-1538 seamless-city gameplay-camera plates.
+## Run through the minimized GPU wrapper (headless has no viewport texture):
 ##   tools/godot_render.sh --script tools/capture_air_gust.gd
 
 const KALEV_SCENE := preload("res://assets/characters/kalev/kalev.tscn")
 const WATCHMAN_SCENE := preload("res://assets/characters/variants/watchman.tscn")
 const BANDIT_SCENE := preload("res://assets/characters/variants/bandit.tscn")
 const ENEMY_SCRIPT := preload("res://scripts/combat/combat_room_enemy.gd")
-const LowerTownSlice := preload(
-	"res://scripts/map/definitions/lower_town/lower_town_slice_definition.gd"
-)
-const MapBuilder := preload("res://scripts/map/map_builder.gd")
 const CharacterScale := preload("res://assets/characters/shared/character_scale.gd")
 const CONTENT_DIRS: Array[String] = [
 	"res://content/examples/valid",
@@ -26,7 +22,7 @@ const CASTER_LOGIC := Vector2.ZERO
 const TARGET_LOGIC := Vector2(64.0, 0.0)
 const CAST_DIR := Vector2.RIGHT
 const MID_SLIDE_SEC := 0.10
-const IN_MAP_FOCUS_ANCHOR := &"street_start"
+const IN_MAP_FOCUS_ID := "space.forum"
 const IN_MAP_WARMUP_FRAMES := 16
 const AIR: Array[StringName] = [&"element.air"]
 
@@ -85,9 +81,10 @@ func _capture_workers_district_bandit() -> bool:
 	var caster := Node2D.new()
 	host.add_child(caster)
 	caster.global_position = CASTER_LOGIC
-	var bandit := WorkersDistrictBandit.new()
+	var bandit := ENEMY_SCRIPT.new() as CombatRoomEnemy
 	host.add_child(bandit)
-	bandit.configure_bandit(caster)
+	bandit.configure(EnemyArchetype.bandit(), Color.WHITE)
+	bandit.set_ai_target(caster)
 	bandit.global_position = TARGET_LOGIC
 	bandit.set_process(false)
 	bandit.set_physics_process(false)
@@ -103,22 +100,23 @@ func _capture_workers_district_bandit() -> bool:
 
 
 func _capture_in_map_lower_town() -> bool:
-	# WHY: R-924 only judged the studio floor. R-927 needs the same cone on a
-	# playable Lower Town street at the shipped gameplay orthographic size.
-	var definition := LowerTownSlice.create()
-	if definition == null or String(definition.map_id) != "lower_town_slice":
-		push_error("R-927 expected lower_town_slice, got %s" % definition.map_id)
+	# WHY: district factories were retired by ADR 0031. Use the same city view
+	# as gameplay, with the open forum instead of the removed street_start anchor.
+	var plan := CityPlan.load_default()
+	var forum: Dictionary = plan.data.get("forum", {})
+	var polygon: Array = forum.get("polygon", [])
+	if String(forum.get("id", "")) != IN_MAP_FOCUS_ID or polygon.is_empty():
+		push_error("Air Gust capture needs city space.forum with a polygon")
 		return false
-	if not MapVerification.has_anchor(definition, IN_MAP_FOCUS_ANCHOR):
-		push_error("R-927 missing anchor %s" % String(IN_MAP_FOCUS_ANCHOR))
-		return false
-	# street_start is the playable Lower Town spawn on the east-west spine.
-	# Midpoint of checkpoint_west -> brewery_door sat inside roof mass.
+	var focus_xz := Vector2.ZERO
+	for point: Array in polygon:
+		focus_xz += Vector2(float(point[0]), float(point[1]))
+	focus_xz /= float(polygon.size())
 	var heading := Vector2.RIGHT
-	var focus_logic := MapVerification.anchor_position(definition, IN_MAP_FOCUS_ANCHOR)
+	var focus_logic := focus_xz * CityPlan.LOGIC_PX_PER_UNIT
 	var caster_logic := focus_logic - heading * 32.0
 	var target_logic := focus_logic + heading * 32.0
-	var cell_size := definition.cell_size
+	var cell_size := int(CityPlan.LOGIC_PX_PER_UNIT)
 	var host := Node2D.new()
 	root.add_child(host)
 	var caster := Node2D.new()
@@ -137,10 +135,15 @@ func _capture_in_map_lower_town() -> bool:
 	viewport.own_world_3d = true
 	viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	root.add_child(viewport)
-	var view := MapView3D.create(
-		definition, MapBuilder.build(definition), MapView3D.TIME_DAY
-	)
+	var view := CityMapView.create_city(plan)
 	viewport.add_child(view)
+	# Fix the season, weather and clock so before/mid/after share one backdrop.
+	view.set_calendar_date({"year": 1343, "month": 4, "day": 20})
+	view.sky_weather().auto_weather = false
+	view.sky_weather().time_scale = 0.0
+	view.sky_weather().set_weather(SkyWeather3D.WEATHER_CLEAR)
+	view.sky_weather().advance(20.0)
+	view.apply_cycle_progress(0.45)
 	var vfx := MapViewMagicVfx.new()
 	vfx.name = "MagicVfx"
 	view.add_child(vfx)
@@ -155,20 +158,17 @@ func _capture_in_map_lower_town() -> bool:
 	target_rig.play_animation(&"idle")
 	var camera := view.view_camera()
 	if camera == null:
-		push_error("R-927 MapView3D has no camera")
+		push_error("Air Gust CityMapView has no camera")
 		viewport.queue_free()
 		host.free()
 		return false
-	var focus_world := view.world_position(focus_logic, 0.8)
+	var focus_world := Vector3(focus_xz.x, plan.walk_height(focus_xz) + 0.8, focus_xz.y)
 	_configure_gameplay_camera(camera, focus_world)
 	print(
-		"R-927 focus_logic=%s focus_world=%s caster_y=%.3f"
+		"R-1538 space.forum focus_logic=%s focus_world=%s caster_y=%.3f"
 		% [focus_logic, focus_world, caster_rig.position.y]
 	)
-	_add_caption(viewport, "in map lower town day")
-	var fog := view.get_node_or_null("FogOfWar")
-	if fog != null:
-		fog.call("update_view", caster_rig.global_position)
+	_add_caption(viewport, "in map lower town forum day (VFX review, not a world cast)")
 	for _frame in IN_MAP_WARMUP_FRAMES:
 		await process_frame
 
@@ -177,19 +177,23 @@ func _capture_in_map_lower_town() -> bool:
 	if not _cast_gust(caster, watchman.get_parent(), heading):
 		push_error("Air Gust cast failed for in-map Lower Town")
 		return false
+	# Freeze VFX age: ten wall-clock frames can outlast this 0.55 s effect.
+	vfx.set_process(false)
 	var burst := vfx.play_knockback_cone(
 		caster_logic, heading, GUST_RADIUS, GUST_ARC, cell_size
 	)
-	if burst != null:
-		# Street terrain may sit above y=0; keep the studio-authored wedge on the road.
-		burst.position.y = caster_rig.position.y
+	if burst == null:
+		push_error("Air Gust capture did not create a wind cone")
+		return false
+	# Street terrain may sit above y=0; keep the studio-authored wedge on the road.
+	burst.position.y = caster_rig.position.y
+	vfx._process(MID_SLIDE_SEC)
 	target_rig.play_animation(&"hit")
 	_step_knockback(watchman, caster, MID_SLIDE_SEC)
 	_sync_in_map_rig(view, target_rig, watchman.global_position, -heading)
-	if fog != null:
-		fog.call("update_view", caster_rig.global_position)
 	if not await _save(viewport, "in_map_lower_town_mid"):
 		return false
+	vfx._process(MapViewMagicVfx.BURST_DURATION_SEC)
 	_step_knockback(watchman, caster, CombatKnockbackEffect.SLIDE_SEC)
 	_sync_in_map_rig(view, target_rig, watchman.global_position, -heading)
 	if not await _save(viewport, "in_map_lower_town_after"):
@@ -203,6 +207,7 @@ func _capture_in_map_lower_town() -> bool:
 func _configure_gameplay_camera(camera: Camera3D, focus_world: Vector3) -> void:
 	# Studio plates use size 7.0 so the wedge fills the frame. In-map plates
 	# must use the shipped gameplay crop so cobble and foliage stay in shot.
+	camera.projection = Camera3D.PROJECTION_ORTHOGONAL
 	camera.rotation_degrees = Vector3(
 		MapView3D.CAMERA_PITCH_DEGREES, MapView3D.CAMERA_YAW_DEGREES, 0.0
 	)
@@ -364,6 +369,7 @@ func _add_caption(viewport: SubViewport, title: String) -> void:
 func _save(viewport: SubViewport, slug: String) -> bool:
 	for _frame in 10:
 		await process_frame
+	await RenderingServer.frame_post_draw
 	var output := "%s/%s.png" % [OUTPUT_DIR, slug]
 	var error := viewport.get_texture().get_image().save_png(ProjectSettings.globalize_path(output))
 	if error != OK:
