@@ -10,6 +10,7 @@ This file contains lessons specific to the Qa role.
 - Close preflight findings in the gate report itself. Do not rewrite historical gate reports from a later allowlist that only names the new report.
 - A Producer-only TODO or ROADMAP tick can leave `generate_active_docs_report.py --check` red on purpose. Create a bounded report-refresh row instead of regenerating the report from a QA or gate allowlist.
 - `tools/validate_content.py` expects corpus root directories (`content/examples/valid content/examples/support`), not an individual JSON file.
+- Run repository GDScript tests through `godot --headless --path . --script res://tools/run_godot_tests.gd -- --filter=test_name`; do not pass `--test` to official Godot builds (that selects unsupported engine unit tests). Confirm the filtered test actually ran and record stale contract assertions separately from player-route evidence.
 - `python3 -m unittest` module targets must omit the `.py` suffix.
 - Discover current test filenames before invoking a remembered module. The active-docs suite is `tests/python/test_active_docs_report.py`.
 - `python3 tools/verify_historical_dossier.py` can fail on pre-existing registry-map coverage gaps. Keep that baseline separate from scoped dossier or plate verification.
