@@ -570,11 +570,11 @@
     {
       "id": "door.council_hall.north",
       "a": [
-        -0.65,
+        -0.7,
         -7.28
       ],
       "b": [
-        0.65,
+        0.7,
         -7.28
       ],
       "inward": [
@@ -582,7 +582,7 @@
         1.0
       ],
       "floor": "floor.council_hall",
-      "height": 2.2,
+      "height": 2.38,
       "style": "studded",
       "paint": [
         0.24,
@@ -594,18 +594,18 @@
       "id": "door.council_hall.dornse",
       "a": [
         4.4,
-        1.55
+        1.5
       ],
       "b": [
         4.4,
-        2.85
+        2.9
       ],
       "inward": [
         1.0,
         0.0
       ],
       "floor": "floor.council_hall",
-      "height": 2.3,
+      "height": 2.38,
       "style": "ledged",
       "paint": [
         0.44,

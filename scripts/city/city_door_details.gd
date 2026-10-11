@@ -47,18 +47,31 @@ static func iron_material() -> StandardMaterial3D:
 
 
 ## One cached mesh, two surfaces. Hardware is never wood-textured or paint-tinted.
-static func mesh(style: StringName, w: float, h: float, variant := 0) -> ArrayMesh:
-	var key := [style, w, h, variant]
+## `head` (span, apex) cuts the leaf to a two-centred arch springing at `h`
+## (R-1693): span is the whole arch from the hinge jamb, so a leaf of half the
+## span is one of a pair. Zero keeps the flat-headed leaf.
+static func mesh(
+	style: StringName, w: float, h: float, variant := 0, head := Vector2.ZERO
+) -> ArrayMesh:
+	var key := [style, w, h, variant, head]
 	if _cache.has(key):
 		return _cache[key]
 	var shell := CityBuildingBuilder.Shell.new()
 	var count := maxi(3, int(w / (0.19 + variant * 0.015)))
 	for i in count:
-		var x0 := w * i / count + 0.002
-		var x1 := w * (i + 1) / count - 0.002
+		# Boards butt: the bevels read as joints without a see-through slot.
+		var x0 := w * i / count
+		var x1 := w * (i + 1) / count
 		var shade := 0.88 + 0.035 * ((i * 7 + variant * 3) % 5)
+		var outline := PackedVector2Array([Vector2(x0, 0), Vector2(x1, 0)])
+		outline.append(Vector2(x1, top(x1, h, head)))
+		if head.x > 0.0 and x0 < head.x * 0.5 and x1 > head.x * 0.5:
+			outline.append(Vector2(head.x * 0.5, top(head.x * 0.5, h, head)))
+		outline.append(Vector2(x0, top(x0, h, head)))
 		# Chamfered individual boards catch light on the joints from either side.
-		_board(shell, x0, x1, h, Color(shade, shade, shade))
+		_board(shell, outline, Color(shade, shade, shade))
+	if head.x > 0.0:
+		_head_details(shell, style, w, h, head)
 	# Interior ledges are structural, not expensive facade ironwork.
 	for y: float in [h * 0.16, h * 0.79]:
 		box(
@@ -215,31 +228,83 @@ static func _hardware(
 			_rivet(s, Vector2(w * (0.34 + variant * 0.06), y), 0.05, 0.018)
 
 
-static func _board(
-	s: CityBuildingBuilder.Shell, x0: float, x1: float, h: float, color: Color
+## Height of the leaf's top edge at `x` from the hinge jamb.
+static func top(x: float, h: float, head: Vector2) -> float:
+	if head.x <= 0.0:
+		return h
+	var rise := head.y - h
+	var radius := (head.x * head.x * 0.25 + rise * rise) / head.x
+	var xx := minf(x, head.x - x)
+	return h + sqrt(maxf(radius * radius - (xx - radius) * (xx - radius), 0.0))
+
+
+## Rear ledge across the arched head and, on rich leaves, nails following it.
+static func _head_details(
+	s: CityBuildingBuilder.Shell, style: StringName, w: float, h: float, head: Vector2
 ) -> void:
+	var y := h + (head.y - h) * 0.4
+	var span := Vector2(INF, -INF)
+	for i in 41:
+		var x := w * i / 40.0
+		if top(x, h, head) > y + 0.16:
+			span = Vector2(minf(span.x, x), maxf(span.y, x))
+	if span.y - span.x > 0.2:
+		box(
+			s,
+			"wood",
+			Vector3(span.x + 0.03, y, -0.095),
+			Vector3(span.y - 0.03, y + 0.1, -0.044),
+			Color(0.78, 0.78, 0.78)
+		)
+	if not style in [&"merchant", &"studded", &"civic", &"parish", &"ecclesiastical"]:
+		return
+	var nails := maxi(2, int(w / 0.2))
+	for i in nails + 1:
+		var x := lerpf(w * 0.07, w * 0.93, float(i) / nails)
+		if top(x, h, head) - h > 0.1:
+			_rivet(s, Vector2(x, top(x, h, head) - 0.07), 0.055, 0.016)
+
+
+## One board from its convex outline (counter-clockwise, bottom edge first).
+static func _board(s: CityBuildingBuilder.Shell, edge: PackedVector2Array, color: Color) -> void:
 	var bevel := 0.007
 	var t := THICKNESS * 0.5
-	var edge := [Vector2(x0, 0), Vector2(x1, 0), Vector2(x1, h), Vector2(x0, h)]
-	var inset := [
-		Vector2(x0 + bevel, bevel),
-		Vector2(x1 - bevel, bevel),
-		Vector2(x1 - bevel, h - bevel),
-		Vector2(x0 + bevel, h - bevel)
-	]
+	var inset := PackedVector2Array()
+	var n := edge.size()
+	for i in n:
+		# Mitred inward offset of both adjacent edges.
+		var e0 := (edge[i] - edge[(i + n - 1) % n]).normalized()
+		var e1 := (edge[(i + 1) % n] - edge[i]).normalized()
+		var n0 := Vector2(-e0.y, e0.x)
+		var n1 := Vector2(-e1.y, e1.x)
+		inset.append(edge[i] + (n0 + n1) / maxf(1.0 + n0.dot(n1), 0.2) * bevel)
+	var middle := Vector2.ZERO
+	for p in inset:
+		middle += p / n
 	for side: float in [-1.0, 1.0]:
 		var normal := Vector3(0, 0, side)
-		s.quad_out(
-			"wood",
-			Vector3(inset[0].x, inset[0].y, t * side),
-			Vector3(inset[1].x, inset[1].y, t * side),
-			Vector3(inset[2].x, inset[2].y, t * side),
-			Vector3(inset[3].x, inset[3].y, t * side),
-			color,
-			normal
-		)
-		for i in 4:
-			var j := (i + 1) % 4
+		# Four-sided boards stay two triangles a face (the R-1692 budget).
+		if n == 4:
+			s.quad_out(
+				"wood",
+				Vector3(inset[0].x, inset[0].y, t * side),
+				Vector3(inset[1].x, inset[1].y, t * side),
+				Vector3(inset[2].x, inset[2].y, t * side),
+				Vector3(inset[3].x, inset[3].y, t * side),
+				color,
+				normal
+			)
+		for i in n:
+			var j := (i + 1) % n
+			if n != 4:
+				s.tri_out(
+					"wood",
+					Vector3(middle.x, middle.y, t * side),
+					Vector3(inset[i].x, inset[i].y, t * side),
+					Vector3(inset[j].x, inset[j].y, t * side),
+					color,
+					normal
+				)
 			s.quad_out(
 				"wood",
 				Vector3(edge[i].x, edge[i].y, (t - bevel) * side),
@@ -249,7 +314,7 @@ static func _board(
 				color,
 				normal
 			)
-	_prism(s, "wood", PackedVector2Array(edge), -t + bevel, t - bevel, color)
+	_prism(s, "wood", edge, -t + bevel, t - bevel, color)
 
 
 static func _rivet(s: CityBuildingBuilder.Shell, at: Vector2, z: float, r: float) -> void:

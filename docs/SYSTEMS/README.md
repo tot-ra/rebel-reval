@@ -24,7 +24,7 @@ One page per implemented or planned feature. Each page opens with a `Status:` li
 | [Weather on the ground: puddles, drought and cracked earth](./WEATHER_GROUND.md) | Implemented (R-1516): drought spells, sun-baked dryness, cracked clay in dried puddle basins, rain soaks cracks before puddles return; after-rain cobble puddles and wet paving (R-1748) |
 | [Night sky: stars and the Milky Way](./NIGHT_SKY.md) | Implemented (R-1443): round twinkling Hipparcos stars, Milky Way placed for Tallinn in 1343, seasonal sidereal drift |
 | [Seamless Reval city (1343)](./SEAMLESS_CITY.md) | Playable preview (ADR 0031); no quests or saves yet |
-| [City doors: wealth and landmark entrances](./CITY_DOORS.md) | Implemented (R-1692): separate wood/iron geometry, household tiers and explicit civic/church entrance profiles |
+| [City doors: wealth and landmark entrances](./CITY_DOORS.md) | Implemented (R-1692, R-1693): separate wood/iron geometry, household tiers, explicit civic/church entrance profiles, stepped landmark portals with leaves cut to their heads |
 | [Regional sites (distant destinations)](./REGIONAL_SITES.md) | Implemented for the Paide pilot (R-1520, ADR 0042): site-parameterised builder and runtime, inland site with sky and weather, no sea; other sites planned |
 | [Landmark sites in the seamless city](./CITY_LANDMARK_SITES.md) | Implemented for Raekoja plats (ADR 0032); other sites planned |
 | [Church interiors](./CHURCH_INTERIORS.md) | In progress (R-1392): glazing implemented (R-1393, eight plates, per-church programmes); ornamental wall paintings (R-1396: consecration crosses, dado curtain, foliage band); liturgical objects, seating, figural murals planned |

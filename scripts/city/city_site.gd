@@ -32,6 +32,8 @@ static func from_manifest(manifest: Dictionary, plan_record: Dictionary) -> City
 	site.origin = Vector2(plan_record["at"][0], plan_record["at"][1])
 	site.level = float(plan_record["level"])
 	site.rotation = deg_to_rad(float(plan_record["rotation_deg"]))
+	# Ties profiled door records to their fabric openings (R-1693 portals).
+	CitySitePortals.annotate(manifest)
 	site._build_walk()
 	return site
 

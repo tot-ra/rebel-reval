@@ -74,7 +74,9 @@ static func _hall(site: CitySite) -> Node3D:
 	_plinth_and_quoins(body, rng)
 	_portal(body)
 	for o: Rect2 in north:
-		if o.size.x < PORTAL_W:
+		# Floor-level openings are the portal. Rect2 stores float32, so a size
+		# comparison with PORTAL_W dressed the portal as a window (R-1693).
+		if o.position.y > FLOOR + 0.01:
 			_window_dressing(body, rng, Vector2(-hx, -hz), Vector2(hx, -hz), o, true)
 	for o: Rect2 in south:
 		_window_dressing(body, rng, Vector2(hx, hz), Vector2(-hx, hz), o, false)
@@ -566,21 +568,40 @@ static func _portal(shell: CityBuildingBuilder.Shell) -> void:
 	var w := PORTAL_W * 0.5
 	var head := FLOOR + PORTAL_H
 	var j := 0.24
+	# R-1693: the arris towards the doorway is chamfered on jambs and lintel
+	# (flat lintel under a tympanum; the leaf fills the rectangular aperture).
+	var c := 0.07
 	for s: float in [-1.0, 1.0]:
-		CitySiteProps._box(
-			shell,
-			"ashlar",
-			Vector3(minf(s * w, s * (w + j)), 0.0, z - 0.12),
-			Vector3(maxf(s * w, s * (w + j)), head, z + 0.02),
-			ASHLAR
+		var plan := PackedVector2Array(
+			[
+				Vector2(s * w, z + 0.02),
+				Vector2(s * w, z - 0.12 + c),
+				Vector2(s * (w + c), z - 0.12),
+				Vector2(s * (w + j), z - 0.12),
+				Vector2(s * (w + j), z + 0.02),
+			]
 		)
-	CitySiteProps._box(
-		shell,
-		"ashlar",
-		Vector3(-w - j, head, z - 0.12),
-		Vector3(w + j, head + 0.24, z + 0.02),
-		ASHLAR
+		var lo := PackedVector3Array()
+		var hi := PackedVector3Array()
+		for p in plan:
+			lo.append(Vector3(p.x, 0.0, p.y))
+			hi.append(Vector3(p.x, head, p.y))
+		_extrude(shell, lo, hi)
+	var lintel := PackedVector2Array(
+		[
+			Vector2(head, z + 0.02),
+			Vector2(head, z - 0.12 + c),
+			Vector2(head + c, z - 0.12),
+			Vector2(head + 0.24, z - 0.12),
+			Vector2(head + 0.24, z + 0.02),
+		]
 	)
+	var left := PackedVector3Array()
+	var right := PackedVector3Array()
+	for p in lintel:
+		left.append(Vector3(-w - j, p.x, p.y))
+		right.append(Vector3(w + j, p.x, p.y))
+	_extrude(shell, left, right)
 	# Tympanum (recessed) and the arch ring as segments.
 	var r := w + j
 	var tymp_tint := ASHLAR * 0.9
@@ -628,6 +649,25 @@ static func _portal(shell: CityBuildingBuilder.Shell) -> void:
 		Vector3(w + 0.15, FLOOR - 0.005, z + WALL),
 		ASHLAR * 0.85
 	)
+
+
+## Solid between two matching convex sections (side faces and both caps).
+static func _extrude(
+	shell: CityBuildingBuilder.Shell, a: PackedVector3Array, b: PackedVector3Array
+) -> void:
+	var ca := Vector3.ZERO
+	var cb := Vector3.ZERO
+	for k in a.size():
+		ca += a[k] / a.size()
+		cb += b[k] / b.size()
+	var axis := cb - ca
+	for k in a.size():
+		var k2 := (k + 1) % a.size()
+		var mid := (a[k] + a[k2]) * 0.5 - ca
+		var side := mid - axis.normalized() * mid.dot(axis.normalized())
+		shell.quad_out("ashlar", a[k], a[k2], b[k2], b[k], ASHLAR, side)
+		shell.tri_out("ashlar", ca, a[k], a[k2], ASHLAR, -axis)
+		shell.tri_out("ashlar", cb, b[k], b[k2], ASHLAR, axis)
 
 
 ## Point on one half of a two-centred (equilateral) arch of span radius r.

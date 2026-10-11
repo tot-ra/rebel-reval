@@ -83,8 +83,18 @@ static func wall(
 	var opens: Array = w.get("openings", [])
 	var outer_holes: Array = []
 	var inner_holes: Array = []
+	# Profiled landmark portals (R-1693): stepped orders open the outer face
+	# wider and a rear arch the inner one; the aperture itself is unchanged.
+	var portals := {}
+	for op: Dictionary in opens:
+		if op.has("portal"):
+			portals[op] = CitySitePortals.rings(_opening(op, false), op, thick)
 	for op: Dictionary in opens:
 		var kind := String(op.get("kind", "window"))
+		if portals.has(op):
+			outer_holes.append(portals[op][0][0])
+			inner_holes.append(portals[op][-1][0])
+			continue
 		if kind != "recess":
 			outer_holes.append(_opening(op, false))
 		if kind == "recess":
@@ -99,6 +109,12 @@ static func wall(
 	for op: Dictionary in opens:
 		var kind := String(op.get("kind", "window"))
 		var o := _opening(op, false)
+		if portals.has(op):
+			var at := func(s: float, y: float, depth: float) -> Vector3:
+				var p := a + dir * s - out * depth
+				return Vector3(p.x, y, p.y)
+			CitySitePortals.build(shell, at, portals[op], dir, -o3, inner_key)
+			continue
 		if kind == "niche":
 			_niche(shell, outer, o, out, 0.22, dir)
 			continue
