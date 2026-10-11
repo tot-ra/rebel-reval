@@ -188,7 +188,7 @@ Realism comes more from where things grow than from how each plant is drawn (the
 
 - Grass, grain, and shrubs follow the calendar (see sections 2 and 3).
 - Wet response everywhere: darker, glossier blades and leaves in rain.
-- Snow: a ground-cover tint and per-blade whitening in winter; no snow on branches yet (still a listed limit).
+- Snow (**R-1327**, implemented): `VegetationPhenology.snow_cover_for(date)` (0 before mid-December, 1 by mid-January, melts out 1 March to early April) drives a `snow_cover` uniform on the grass shader (blades sink and tips whiten) and on the blended terrain shader (ground tint, weaker on trodden mud). Pushed from `apply_vegetation_season`. Limits: date-only curve (no weather input), no snow on branches, no snow depth. The player trail ring buffer (`VegetationInteractionBuffer`, 8 entries) is implemented for the player only; NPC trails are not fed yet. Verify: `test_vegetation_phenology`, `test_vegetation_interaction_buffer`.
 - A persistent leaf-litter layer under deciduous crowns in October and November, fed by the same phenology curve that drives leaf fall.
 
 ### 7. Textures without an image generator

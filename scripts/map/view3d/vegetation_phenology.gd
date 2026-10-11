@@ -220,6 +220,16 @@ static func _fruit_visible(species: StringName, month: int) -> bool:
 	return month >= int(window[0]) and month <= int(window[1])
 
 
+## Snow lying on the ground, 0..1 (R-1327). Tallinn-area timings: first settled
+## snow mid-December, deepest February, gone by early April. Pure date curve, no
+## weather input, so a mild spell never un-snows a saved game differently.
+static func snow_cover_for(date: Dictionary) -> float:
+	var day := float(GameCalendar.day_of_year(GameCalendar.normalize_date(date)))
+	if day > 200.0:
+		return _smooth((day - 335.0) / 30.0)
+	return 1.0 - _smooth((day - 60.0) / 35.0)
+
+
 static func _winter_weight(day: float) -> float:
 	# 1 in deep winter (Dec-Feb), 0 from May to September.
 	var distance := minf(absf(day - 15.0), absf(day - 380.0))

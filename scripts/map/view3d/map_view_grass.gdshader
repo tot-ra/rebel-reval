@@ -32,6 +32,9 @@ uniform float fade_in_start = 0.0;
 uniform float fade_in_end = 0.0;
 // Share of blades whose tips are sun-cured toward straw (procedural blades).
 uniform float tip_dry = 0.35;
+// R-1327: winter snow lying on the ground; presses blades down and whitens tips.
+uniform float snow_cover = 0.0;
+uniform vec3 snow_color : source_color = vec3(0.90, 0.93, 0.97);
 
 varying flat float v_cell;
 varying flat float v_dry;
@@ -95,6 +98,8 @@ void vertex() {
 	// high grass is shoved aside and laid over, so wading through a meadow reads
 	// as effort. Height is measured on the displaced-free blade in world space.
 	float blade_h = max(world.y - origin.y, 0.0);
+	// Snow weighs the blades over: tips sink, never past the root.
+	world_displace.y -= blade_h * 0.45 * snow_cover * weight;
 	if (interact_strength > 0.001 && interact_radius > 0.001) {
 		vec2 offset = world.xz - interact_center;
 		float dist = length(offset);
@@ -154,6 +159,7 @@ void fragment() {
 		float root = 1.0 - smoothstep(0.0, 0.48, blade);
 		albedo = mix(albedo, root_tint * COLOR.rgb, root * 0.92);
 		albedo = mix(albedo, albedo * vec3(1.32, 1.30, 1.12), v_sheen * 0.8 * blade);
+		albedo = mix(albedo, snow_color, snow_cover * smoothstep(0.15, 0.8, blade) * 0.85);
 		ALBEDO = albedo;
 		// Soft sky-lit shading: lean normals toward up so cards do not flip dark.
 		NORMAL = normalize(mix(NORMAL, (VIEW_MATRIX * vec4(0.0, 1.0, 0.0, 0.0)).xyz, 0.55));
@@ -170,6 +176,7 @@ void fragment() {
 		// Roots melt into the ground colour so no grass/soil seam shows.
 		albedo = mix(albedo, root_tint * COLOR.rgb, (1.0 - smoothstep(0.0, 0.34, blade)) * 0.85);
 		albedo = mix(albedo, albedo * vec3(1.32, 1.30, 1.12), v_sheen * 0.8 * blade);
+		albedo = mix(albedo, snow_color, snow_cover * smoothstep(0.15, 0.8, blade) * 0.85);
 		ALBEDO = albedo * (1.0 + midrib * 0.10);
 		// Round the flat strip: tilt the normal across the width so one blade
 		// shades like a curved leaf, then lean toward the sky so it never flips dark.

@@ -412,6 +412,9 @@ static func canopy_for_species(species: StringName) -> ShaderMaterial:
 
 static func apply_vegetation_season(date: Dictionary) -> void:
 	WIND_MATERIALS.apply_vegetation_season(date)
+	TERRAIN_MATERIALS.apply_snow_cover(
+		VegetationPhenology.snow_cover_for(WIND_MATERIALS.vegetation_season_date())
+	)
 	PROP_MATERIALS.apply_fruit_season(date)
 
 
