@@ -50,6 +50,9 @@ func test_heights_match_the_species() -> void:
 		heights[Meshes.KIND_RED_CLOVER] > heights[Meshes.KIND_WHITE_CLOVER], "red clover is taller"
 	)
 	assert_true(heights[Meshes.KIND_BURDOCK_FLOWERING] > 1.0, "flowering burdock is over a metre")
+	# R-1807: daisy heads stand on 30-46 cm stems above a low leaf rosette.
+	assert_true(heights[Meshes.KIND_OXEYE_DAISY] > 0.3, "oxeye daisy stems stand tall")
+	assert_true(heights[Meshes.KIND_OXEYE_DAISY_LEAVES] < 0.1, "daisy rosette lies low")
 
 
 func test_leaves_face_up() -> void:
@@ -87,6 +90,15 @@ func test_habitats() -> void:
 			elif grass.wildness_at(p) > 0.9:
 				plantain_wild += CityForbs.suitability(grass, Meshes.KIND_PLANTAIN, p)
 	assert_true(cut > 0, "probe area includes cut turf")
+	# Oxeye daisy (R-1807) keeps to the uncut meadow and off the road edge.
+	for y in range(-120, 121, 6):
+		for x in range(-120, 121, 6):
+			var p := VERGE + Vector2(x, y)
+			if grass.wildness_at(p) < 0.3 or grass.road_distance_at(p) < 2.0:
+				assert_true(
+					CityForbs.suitability(grass, &"oxeye_daisy", p) < 0.05,
+					"no daisies in short turf or on the road edge at %s" % p
+				)
 	assert_true(plantain_near > plantain_wild * 0.2, "plantain favours worn verges")
 	grass.free()
 
@@ -172,6 +184,7 @@ func test_season_mix() -> void:
 	var leaves := [
 		Meshes.KIND_DANDELION_LEAVES, Meshes.KIND_PLANTAIN_LEAVES,
 		Meshes.KIND_WHITE_CLOVER_LEAVES, Meshes.KIND_RED_CLOVER_LEAVES, Meshes.KIND_BURDOCK,
+		Meshes.KIND_OXEYE_DAISY_LEAVES,
 	]
 	# [date, models that grow then]
 	var seasons := [
@@ -185,12 +198,14 @@ func test_season_mix() -> void:
 			Meshes.KIND_DANDELION_FLOWER, Meshes.KIND_DANDELION_CLOCK, Meshes.KIND_DANDELION_LEAVES,
 			Meshes.KIND_PLANTAIN, Meshes.KIND_PLANTAIN_LEAVES,
 			Meshes.KIND_WHITE_CLOVER, Meshes.KIND_RED_CLOVER, Meshes.KIND_BURDOCK,
+			Meshes.KIND_OXEYE_DAISY, Meshes.KIND_OXEYE_DAISY_LEAVES,
 		]],
 		# July: dandelion leaves only, burdock in burr.
 		[{"day": 20, "month": 7, "year": 1343}, [
 			Meshes.KIND_DANDELION_LEAVES, Meshes.KIND_PLANTAIN, Meshes.KIND_PLANTAIN_LEAVES,
 			Meshes.KIND_WHITE_CLOVER, Meshes.KIND_RED_CLOVER,
 			Meshes.KIND_BURDOCK, Meshes.KIND_BURDOCK_FLOWERING,
+			Meshes.KIND_OXEYE_DAISY, Meshes.KIND_OXEYE_DAISY_LEAVES,
 		]],
 		# September: clover over, plantain still spiked, burrs dry brown.
 		[{"day": 20, "month": 9, "year": 1343}, leaves + [

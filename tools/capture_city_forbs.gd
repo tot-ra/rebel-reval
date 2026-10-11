@@ -115,6 +115,9 @@ func _studio() -> void:
 		Meshes.KIND_RED_CLOVER: Vector3(1.2, 0.0, 0.25),
 		Meshes.KIND_BURDOCK: Vector3(-0.4, 0.0, -1.4),
 		Meshes.KIND_BURDOCK_FLOWERING: Vector3(0.9, 0.0, -1.5),
+		# R-1807: oxeye daisy in flower beside its rosette, left of the burdock.
+		Meshes.KIND_OXEYE_DAISY: Vector3(-1.45, 0.0, -0.7),
+		Meshes.KIND_OXEYE_DAISY_LEAVES: Vector3(-1.05, 0.0, -0.55),
 		# Seasonal variants in a second row 4 m to the right (shot "seasonal").
 		Meshes.KIND_PLANTAIN_LEAVES: Vector3(3.55, 0.0, 0.25),
 		Meshes.KIND_WHITE_CLOVER_LEAVES: Vector3(4.05, 0.0, -0.05),
@@ -140,6 +143,8 @@ func _studio() -> void:
 		["plantain", Vector3(0.3, 0.42, 0.68), Vector3(0.3, 0.06, 0.25), 45.0],
 		["clover", Vector3(0.85, 0.42, 0.42), Vector3(0.9, 0.06, 0.05), 45.0],
 		["burdock", Vector3(0.3, 1.1, 0.6), Vector3(0.25, 0.45, -1.45), 50.0],
+		["oxeye_daisy", Vector3(-1.15, 0.5, 0.05), Vector3(-1.3, 0.22, -0.65), 45.0],
+		["oxeye_daisy_heads", Vector3(-1.3, 0.52, -0.40), Vector3(-1.44, 0.36, -0.7), 32.0],
 		["seasonal", Vector3(4.1, 1.05, 2.3), Vector3(4.1, 0.25, -0.4), 50.0],
 		["burdock_dry", Vector3(4.15, 1.1, 0.6), Vector3(4.1, 0.45, -1.45), 50.0],
 	]
@@ -199,7 +204,7 @@ func _habitat_spots(plan: CityPlan, grass: CityGrass) -> Dictionary:
 	var scores := {
 		"verge": [Meshes.KIND_PLANTAIN, &"dandelion", Meshes.KIND_WHITE_CLOVER],
 		"wall": [&"burdock", Meshes.KIND_PLANTAIN],
-		"meadow": [Meshes.KIND_RED_CLOVER, &"dandelion"],
+		"meadow": [Meshes.KIND_RED_CLOVER, &"dandelion", &"oxeye_daisy"],
 	}
 	var out := {}
 	for name: String in scores:

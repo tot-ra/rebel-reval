@@ -2,7 +2,7 @@
 
 This is the implementation ledger for Reval vegetation. It distinguishes concrete botanical models from generic terrain-cover styles and links every status to runtime code and authored locations.
 
-Per-species cards for every animal and bird, with their 3D model files and sources, are in [`FAUNA/`](FAUNA/README.md).
+Per-species cards for every animal and bird, with their 3D model files and sources, are in [`FAUNA/`](FAUNA/README.md). Per-plant cards with model portraits (trees, shrubs, herbs, crops) and the wishlist of common Estonian plants still missing are in [`FLORA/`](FLORA/README.md).
 
 ## System status
 

@@ -68,7 +68,8 @@ const FRUIT_MONTHS := {
 ## timings: rosettes show from mid April and die back under the November frost
 ## and snow; dandelion flowers May-June and seeds in June; clover flowers June-
 ## August; plantain spikes June-September; second-year burdock carries green
-## burrs July-August that dry brown in September-October.
+## burrs July-August that dry brown in September-October; oxeye daisy flowers
+## June-July, before and after the hay cut a leaf rosette (R-1807).
 const FORB_NONE := &"none"
 const FORB_LEAVES := &"leaves"
 const FORB_FLOWER := &"flower"
@@ -87,6 +88,7 @@ const FORB_WINDOWS := {
 	&"white_clover": [[152, 243, FORB_FLOWER]],
 	&"red_clover": [[152, 243, FORB_FLOWER]],
 	&"burdock": [[182, 243, FORB_BURRS], [244, 304, FORB_DRY_BURRS]],
+	&"oxeye_daisy": [[152, 212, FORB_FLOWER]],
 }
 
 

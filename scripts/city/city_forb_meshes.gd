@@ -2,7 +2,8 @@ class_name CityForbMeshes
 extends RefCounted
 
 ## Detailed procedural models of the commonest wayside and meadow forbs round
-## Reval: dandelion, broadleaf plantain, white and red clover, burdock (R-1519).
+## Reval: dandelion, broadleaf plantain, white and red clover, burdock (R-1519)
+## and the oxeye daisy of the hay meadows (R-1807).
 ## Each plant is built once from botanical proportions and cached; CityForbs
 ## scatters them with MultiMesh. Original geometry only, deterministic (fixed
 ## seed per kind).
@@ -33,6 +34,9 @@ const KIND_PLANTAIN_LEAVES := &"plantain_leaves"
 const KIND_WHITE_CLOVER_LEAVES := &"white_clover_leaves"
 const KIND_RED_CLOVER_LEAVES := &"red_clover_leaves"
 const KIND_BURDOCK_DRY := &"burdock_dry"
+## Oxeye daisy (R-1807): flowering plant and its leaf rosette out of flower.
+const KIND_OXEYE_DAISY := &"oxeye_daisy"
+const KIND_OXEYE_DAISY_LEAVES := &"oxeye_daisy_leaves"
 
 const ALL_KINDS: Array[StringName] = [
 	KIND_DANDELION_FLOWER,
@@ -47,6 +51,8 @@ const ALL_KINDS: Array[StringName] = [
 	KIND_WHITE_CLOVER_LEAVES,
 	KIND_RED_CLOVER_LEAVES,
 	KIND_BURDOCK_DRY,
+	KIND_OXEYE_DAISY,
+	KIND_OXEYE_DAISY_LEAVES,
 ]
 
 # Colours are sRGB, picked from field photographs of each species.
@@ -77,6 +83,14 @@ const BURR_PURPLE := Color(0.62, 0.20, 0.50)
 const DRY_BROWN := Color(0.42, 0.32, 0.19)
 const BURR_DRY := Color(0.38, 0.27, 0.16)
 const BURR_DRY_TUFT := Color(0.55, 0.47, 0.40)
+const DAISY_LEAF := Color(0.24, 0.40, 0.15)
+const DAISY_STEM := Color(0.40, 0.50, 0.26)
+# Off-white like the clover heads: pure white clips under the city grade.
+const DAISY_RAY := Color(0.93, 0.93, 0.89)
+const DAISY_RAY_BASE := Color(0.86, 0.87, 0.70)
+const DAISY_DISC := Color(0.88, 0.66, 0.06)
+const DAISY_DISC_CORE := Color(0.70, 0.56, 0.10)
+const DAISY_BRACT := Color(0.32, 0.42, 0.20)
 
 ## Leaf-detail atlas tiles (tools/assets/generate_forb_leaf_atlas.py, 4 x 2).
 ## Strip tiles: u across the blade, v base to tip. Burdock: polar, petiole at
@@ -141,6 +155,12 @@ static func mesh_for(kind: StringName, far: bool = false) -> ArrayMesh:
 			rng.seed = 1343 + hash(String(KIND_BURDOCK_FLOWERING))
 			_dry = true
 			_burdock(b, rng, true)
+		KIND_OXEYE_DAISY:
+			_oxeye_daisy(b, rng)
+		KIND_OXEYE_DAISY_LEAVES:
+			rng.seed = 1343 + hash(String(KIND_OXEYE_DAISY))
+			_no_heads = true
+			_oxeye_daisy(b, rng)
 		_:
 			push_error("CityForbMeshes: unknown kind %s" % kind)
 	_far = false
@@ -787,6 +807,226 @@ static func _wither(c: Color) -> Color:
 		return c
 	var k := 0.85 + 0.3 * c.g
 	return c.lerp(Color(DRY_BROWN.r * k, DRY_BROWN.g * k, DRY_BROWN.b * k, c.a), 0.8)
+
+
+# --- Oxeye daisy (Leucanthemum vulgare) -------------------------------------
+# A rosette of long-stalked, spoon-shaped, round-toothed leaves; wiry stems
+# 30-60 cm high with a few narrow toothed leaves clasping them; one flat head
+# per stem: about twenty white strap petals round a domed golden disc over a
+# shallow cup of dark-edged green bracts. Heads tilt toward the light, so the
+# white discs read from the high gameplay camera and at eye height.
+
+
+static func _oxeye_daisy(b: Builder, rng: RandomNumberGenerator) -> void:
+	var leaf_count := rng.randi_range(6, 9)
+	for i in leaf_count:
+		var yaw := TAU * float(i) / float(leaf_count) + rng.randf_range(-0.3, 0.3)
+		var length := rng.randf_range(0.07, 0.11)
+		var half_w := length * rng.randf_range(0.16, 0.21)
+		var tone := rng.randf_range(0.9, 1.08)
+		var teeth := float(rng.randi_range(4, 6))
+		_strip_leaf(b, {
+			"base": Vector3(cos(yaw), 0.0, sin(yaw)) * 0.006 + Vector3.UP * 0.004,
+			"yaw": yaw,
+			"rise": rng.randf_range(0.6, 0.95),
+			"droop": rng.randf_range(0.6, 0.95),
+			"length": length,
+			# The far variant thins these to stalk, blade and tip (a flat rosette at
+			# 12 m needs no teeth).
+			"samples": PackedFloat32Array([0.0, 0.3, 0.45, 0.75, 1.0]) if _far \
+				else PackedFloat32Array([0.0, 0.2, 0.4, 0.5, 0.58, 0.66, 0.74, 0.82, 0.9, 0.96, 1.0]),
+			"cols": 3,
+			"fold": 0.15,
+			# Spatulate: a narrow winged stalk for the lower 45 %, then an obovate
+			# blade with rounded (crenate) teeth.
+			"width": func(t: float) -> float:
+				if t < 0.45:
+					return half_w * lerpf(0.12, 0.3, t / 0.45)
+				var u := (t - 0.45) / 0.55
+				var shape := sin(PI * minf(u * 0.62 + 0.18, 1.0)) * (1.0 - 0.35 * pow(u, 3.0))
+				return half_w * shape * (1.0 - 0.14 * absf(sin(u * PI * teeth))),
+			"color": func(t: float, s: float) -> Color:
+				return (DAISY_LEAF * tone).lightened(0.1 * (1.0 - smoothstep(0.0, 0.45, t))) \
+					.darkened(absf(s) * 0.05),
+			"tile": TILE_DANDELION,
+			"flex": Vector2(0.0, 0.2),
+			"under": 0.3,
+			"trans": 0.3,
+		})
+	var stems := rng.randi_range(2, 4)
+	for i in stems:
+		# Draw every stem's numbers even when stems are skipped (leaf-only rosette)
+		# so the rosette above stays the same plant in every season.
+		var yaw := TAU * (float(i) + rng.randf()) / float(stems)
+		var out := Vector3(cos(yaw), 0.0, sin(yaw))
+		var height := rng.randf_range(0.30, 0.46)
+		var lean := rng.randf_range(0.02, 0.07)
+		var wobble := rng.randf_range(-0.012, 0.012)
+		var tilt := rng.randf_range(0.15, 0.6)
+		var bud := rng.randf() < 0.18
+		var stem_rng := _child_rng(rng)
+		var head_rng := _child_rng(rng)
+		if _no_heads:
+			continue
+		var pts := PackedVector3Array()
+		var radii := PackedFloat32Array()
+		for k in 7:
+			var t := float(k) / 6.0
+			# Wiry stems are never straight: a lean plus a slight sideways S.
+			var side := Vector3(-out.z, 0.0, out.x) * wobble * sin(t * TAU * 0.75)
+			pts.append(out * (0.008 + lean * t * t) + side + Vector3.UP * height * t)
+			radii.append(lerpf(0.0024, 0.0014, t))
+		_tube(b, pts, radii, 5, func(t: float) -> Color:
+			return DAISY_STEM.lerp(Color(0.48, 0.40, 0.30), 1.0 - smoothstep(0.0, 0.15, t)),
+			0.0, 1.25, 0.25)
+		# Stem leaves: sessile, narrow, toothed, shrinking up the stem; the far
+		# variant keeps the lowest.
+		for k: int in [1, 3, 4]:
+			var size := stem_rng.randf_range(0.045, 0.065) * lerpf(1.0, 0.5, float(k - 1) / 3.0)
+			var leaf_yaw := yaw + float(k) * 2.4 + stem_rng.randf_range(-0.4, 0.4)
+			var rise := stem_rng.randf_range(0.6, 0.95)
+			if _far and k != 1:
+				continue
+			_strip_leaf(b, {
+				"base": pts[k],
+				"yaw": leaf_yaw,
+				"rise": rise,
+				"droop": 0.5,
+				"length": size,
+				"samples": PackedFloat32Array([0.0, 0.15, 0.35, 0.55, 0.75, 0.9, 1.0]),
+				"cols": 3,
+				"fold": 0.2,
+				"width": func(t: float) -> float:
+					return size * 0.2 * sin(PI * minf(t * 0.85 + 0.12, 1.0)) \
+						* (1.0 - 0.25 * absf(sin(t * PI * 5.0))),
+				"color": func(_t: float, s: float) -> Color: return DAISY_LEAF.darkened(absf(s) * 0.05),
+				"flex": Vector2(float(k) / 6.0 * 1.25, float(k) / 6.0 * 1.25 + 0.15),
+				"under": 0.3,
+				"trans": 0.3,
+			})
+		var top := pts[6]
+		# The head turns on the last centimetres of stem toward the light.
+		var axis := (Vector3.UP * cos(tilt) + out * sin(tilt)).normalized()
+		if bud:
+			_blob(b, top + axis * 0.004, Vector3(0.006, 0.005, 0.006), 3, 6, func(d: Vector3) -> Color:
+				return DAISY_BRACT.lerp(DAISY_RAY_BASE, smoothstep(0.3, 0.9, d.y)), 0.2, 1.25, 0.3)
+		else:
+			_daisy_head(b, head_rng, top, axis)
+
+
+static func _daisy_head(
+	b: Builder, rng: RandomNumberGenerator, top: Vector3, axis: Vector3
+) -> void:
+	var frame := _frame(axis)
+	# A little over life size (heads 5-7 cm), like the other forbs, so a head
+	# still reads as a daisy at gameplay distance.
+	var disc_r := rng.randf_range(0.0075, 0.0095)
+	var ray_len := rng.randf_range(0.019, 0.025)
+	var centre := top + axis * 0.003
+	if _far:
+		# Past 12 m a white fan round a yellow dome reads the same.
+		var hub := b.vertex(centre + axis * 0.001, DAISY_RAY, 1.25, 0.0, 0.6)
+		var rim: Array[int] = []
+		for k in 8:
+			var a := TAU * float(k) / 8.0
+			var radial: Vector3 = frame[0] * cos(a) + frame[1] * sin(a)
+			rim.append(b.vertex(centre + radial * (disc_r + ray_len) - axis * 0.002, DAISY_RAY,
+				1.25, 0.0, 0.6))
+		for k in 8:
+			b.tri(hub, rim[k], rim[(k + 1) % 8], axis)
+		_dome(b, centre + axis * 0.0015, frame, axis, disc_r, 0.003, 5, 1,
+			func(_f: float) -> Color: return DAISY_DISC, 1.25, 0.2)
+		return
+	# Involucre: a shallow cup of green bracts with brown papery margins.
+	_dome(b, centre, frame, axis, disc_r * 1.05, -0.004, 10, 2, func(f: float) -> Color:
+		return DAISY_BRACT.lerp(Color(0.40, 0.33, 0.22), smoothstep(0.7, 1.0, f)), 1.25, 0.2)
+	# Ray florets in one ring with a little irregular spacing, length and droop;
+	# about one head in five is older, its petals hanging down.
+	var rays := rng.randi_range(18, 23)
+	var reflexed := rng.randf() < 0.2
+	var turn := rng.randf() * TAU
+	for i in rays:
+		var a := turn + TAU * (float(i) + rng.randf_range(-0.25, 0.25)) / float(rays)
+		var radial: Vector3 = frame[0] * cos(a) + frame[1] * sin(a)
+		var length := ray_len * rng.randf_range(0.85, 1.12)
+		var droop := rng.randf_range(0.05, 0.3) + (0.5 if reflexed else 0.0)
+		# Narrow straps with gaps between them, each a slightly different white,
+		# so the ring reads as separate petals rather than a white plate.
+		_ray_petal(b, centre + radial * disc_r * 0.85, radial, axis, length,
+			length * rng.randf_range(0.11, 0.14), rng.randf_range(0.05, 0.2), droop,
+			rng.randf_range(0.9, 1.0))
+	# The disc: a low dome of packed tubular florets, greener and darker in the
+	# unopened centre; the bump breaks its outline into florets.
+	_dome(b, centre + axis * 0.0008, frame, axis, disc_r, 0.0035, 12, 3, func(f: float) -> Color:
+		return DAISY_DISC_CORE.lerp(DAISY_DISC, smoothstep(0.0, 0.6, f)), 1.25, 0.2, 0.25)
+
+
+## One white strap petal from `root` along `radial`: parallel-sided, rounded at
+## the tip with a shallow three-toothed notch, a faint channel down the middle.
+## `lift` raises it at the root (the head is a shallow saucer), `droop` lowers
+## the tip, `tone` scales its white.
+static func _ray_petal(
+	b: Builder, root: Vector3, radial: Vector3, axis: Vector3, length: float, half_w: float,
+	lift: float, droop: float, tone: float
+) -> void:
+	var side := radial.cross(axis).normalized()
+	var rows := [[0.0, 0.45], [0.15, 0.9], [0.55, 1.0], [0.88, 0.92], [1.0, 0.6]]
+	var grid: Array[PackedInt32Array] = []
+	var p := root
+	var prev_t := 0.0
+	for r in rows.size():
+		var t: float = rows[r][0]
+		var pitch := lerpf(lift, -droop, t)
+		var fwd := (radial * cos(pitch) + axis * sin(pitch)).normalized()
+		p += fwd * (t - prev_t) * length
+		prev_t = t
+		var w: float = half_w * float(rows[r][1])
+		var up := fwd.cross(side).normalized()
+		if up.dot(axis) < 0.0:
+			up = -up
+		var color := DAISY_RAY_BASE.lerp(DAISY_RAY, smoothstep(0.0, 0.25, t)) * tone
+		var row := PackedInt32Array()
+		for c in 3:
+			var s := float(c) - 1.0
+			# Channel along the midline; the notch pulls the middle of the tip back.
+			var v := p + side * s * w - up * (0.0006 if c == 1 else 0.0)
+			if r == rows.size() - 1 and c == 1:
+				v -= fwd * length * 0.05
+			row.append(b.vertex(v, color, 1.25, 0.0, 0.65))
+		grid.append(row)
+	for r in rows.size() - 1:
+		for c in 2:
+			b.quad(grid[r][c], grid[r][c + 1], grid[r + 1][c + 1], grid[r + 1][c], axis)
+
+
+## A dome over a disc of `radius` in the plane of `frame`, apex `height` along
+## `axis` (negative: a cup underneath). color(f) runs from the apex (0) to the
+## rim (1). `bump` roughens the surface (florets).
+static func _dome(
+	b: Builder, centre: Vector3, frame: Array[Vector3], axis: Vector3, radius: float,
+	height: float, segs: int, rings: int, color: Callable, flex: float, trans: float,
+	bump: float = 0.0
+) -> void:
+	var facing := axis * signf(height)
+	var apex := b.vertex(centre + axis * height, color.call(0.0), flex, 0.0, trans)
+	var prev: Array[int] = []
+	for k in range(1, rings + 1):
+		var f := float(k) / float(rings)
+		var ring: Array[int] = []
+		for j in segs:
+			var a := TAU * (float(j) + 0.5 * float(k % 2)) / float(segs)
+			var radial: Vector3 = frame[0] * cos(a) + frame[1] * sin(a)
+			var h := height * (1.0 - f * f)
+			h += absf(height) * bump * (MeshMath.hash01(k * 31 + j, segs, 4621) - 0.5)
+			ring.append(b.vertex(centre + radial * radius * f + axis * h, color.call(f), flex, 0.0,
+				trans))
+		for j in segs:
+			var n := (j + 1) % segs
+			if prev.is_empty():
+				b.tri(apex, ring[j], ring[n], facing)
+			else:
+				b.quad(prev[j], prev[n], ring[n], ring[j], facing)
+		prev = ring
 
 
 # --- Geometry helpers -------------------------------------------------------

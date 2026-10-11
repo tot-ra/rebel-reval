@@ -14,10 +14,10 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `1200`
+- Active Markdown files scanned: `1273`
 - Markdown files excluded as archive/reference/out of active scope: `761`
-- Local/external links inspected: `13983`
-- Links to active Markdown docs: `12418`
+- Local/external links inspected: `14438`
+- Links to active Markdown docs: `12774`
 - Links to existing archive/reference/non-active local docs: `530`
 - External links skipped for reachability: `194`
 - Issues found: `2`
@@ -1029,6 +1029,79 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/FAUNA/fish/perch.md`
 - `docs/FAUNA/IMAGE_PROMPTS.md`
 - `docs/FAUNA/README.md`
+- `docs/FLORA/crops/barley.md`
+- `docs/FLORA/crops/broad_bean.md`
+- `docs/FLORA/crops/cabbage.md`
+- `docs/FLORA/crops/flax.md`
+- `docs/FLORA/crops/garlic.md`
+- `docs/FLORA/crops/hemp.md`
+- `docs/FLORA/crops/hops.md`
+- `docs/FLORA/crops/oat.md`
+- `docs/FLORA/crops/onion.md`
+- `docs/FLORA/crops/pea.md`
+- `docs/FLORA/crops/rye.md`
+- `docs/FLORA/crops/turnip.md`
+- `docs/FLORA/crops/wheat.md`
+- `docs/FLORA/herbs/burdock.md`
+- `docs/FLORA/herbs/caraway.md`
+- `docs/FLORA/herbs/cattail.md`
+- `docs/FLORA/herbs/chamomile.md`
+- `docs/FLORA/herbs/dandelion.md`
+- `docs/FLORA/herbs/fern.md`
+- `docs/FLORA/herbs/mint.md`
+- `docs/FLORA/herbs/moss.md`
+- `docs/FLORA/herbs/mugwort.md`
+- `docs/FLORA/herbs/nettle.md`
+- `docs/FLORA/herbs/oxeye_daisy.md`
+- `docs/FLORA/herbs/plantain.md`
+- `docs/FLORA/herbs/red_clover.md`
+- `docs/FLORA/herbs/reed.md`
+- `docs/FLORA/herbs/st_johns_wort.md`
+- `docs/FLORA/herbs/thistle.md`
+- `docs/FLORA/herbs/water_lily.md`
+- `docs/FLORA/herbs/white_clover.md`
+- `docs/FLORA/herbs/yarrow.md`
+- `docs/FLORA/README.md`
+- `docs/FLORA/shrubs/alder_shrub.md`
+- `docs/FLORA/shrubs/bilberry.md`
+- `docs/FLORA/shrubs/blackthorn.md`
+- `docs/FLORA/shrubs/bog_rosemary.md`
+- `docs/FLORA/shrubs/cloudberry.md`
+- `docs/FLORA/shrubs/cowberry.md`
+- `docs/FLORA/shrubs/cranberry.md`
+- `docs/FLORA/shrubs/crowberry.md`
+- `docs/FLORA/shrubs/dog_rose.md`
+- `docs/FLORA/shrubs/elder.md`
+- `docs/FLORA/shrubs/guelder_rose.md`
+- `docs/FLORA/shrubs/hawthorn.md`
+- `docs/FLORA/shrubs/hazel_shrub.md`
+- `docs/FLORA/shrubs/heather.md`
+- `docs/FLORA/shrubs/juniper_shrub.md`
+- `docs/FLORA/shrubs/raspberry.md`
+- `docs/FLORA/shrubs/sea_buckthorn.md`
+- `docs/FLORA/shrubs/spindle.md`
+- `docs/FLORA/shrubs/wild_strawberry.md`
+- `docs/FLORA/shrubs/willow_shrub.md`
+- `docs/FLORA/trees/alder.md`
+- `docs/FLORA/trees/apple.md`
+- `docs/FLORA/trees/ash.md`
+- `docs/FLORA/trees/aspen.md`
+- `docs/FLORA/trees/birch.md`
+- `docs/FLORA/trees/blackthorn.md`
+- `docs/FLORA/trees/cherry.md`
+- `docs/FLORA/trees/elm.md`
+- `docs/FLORA/trees/hawthorn.md`
+- `docs/FLORA/trees/hazel.md`
+- `docs/FLORA/trees/juniper.md`
+- `docs/FLORA/trees/linden.md`
+- `docs/FLORA/trees/maple.md`
+- `docs/FLORA/trees/oak.md`
+- `docs/FLORA/trees/pear.md`
+- `docs/FLORA/trees/pine.md`
+- `docs/FLORA/trees/plum.md`
+- `docs/FLORA/trees/rowan.md`
+- `docs/FLORA/trees/spruce.md`
+- `docs/FLORA/trees/willow.md`
 - `docs/FLORA_FAUNA.md`
 - `docs/FONTS.md`
 - `docs/HISTORICAL_AUDIT.md`
