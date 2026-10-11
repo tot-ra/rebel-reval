@@ -3,9 +3,13 @@ extends CanvasLayer
 
 signal closed
 
+const MenuStyle := preload("res://scripts/ui/pause_menu_style.gd")
+
 var _state: GameState
 var _content_db: ContentDB
 
+var _root: Control
+var _dim: ColorRect
 var _panel: PanelContainer
 var _tab_container: TabContainer
 var _objective_title: Label
@@ -30,6 +34,7 @@ func _ready() -> void:
 
 
 func open() -> void:
+	MenuStyle.apply_overlay(_root, _panel, _dim)
 	visible = true
 	_refresh()
 
@@ -53,6 +58,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _build_ui() -> void:
 	var root := MarginContainer.new()
+	_root = root
 	root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	root.add_theme_constant_override("margin_left", 48)
 	root.add_theme_constant_override("margin_right", 48)
@@ -62,15 +68,16 @@ func _build_ui() -> void:
 
 	var dim := ColorRect.new()
 	dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	dim.color = Color(0.04, 0.05, 0.08, 0.72)
 	dim.mouse_filter = Control.MOUSE_FILTER_STOP
 	root.add_child(dim)
+	_dim = dim
 
 	_panel = PanelContainer.new()
 	_panel.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	_panel.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	_panel.custom_minimum_size = Vector2(780, 580)
 	root.add_child(_panel)
+	MenuStyle.apply_overlay(root, _panel, dim)
 
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 28)
@@ -85,7 +92,7 @@ func _build_ui() -> void:
 
 	var header := Label.new()
 	header.text = "Journal"
-	header.add_theme_font_size_override("font_size", 26)
+	MenuStyle.apply_title(header, 26)
 	layout.add_child(header)
 
 	_tab_container = TabContainer.new()
@@ -98,7 +105,7 @@ func _build_ui() -> void:
 	var hint := Label.new()
 	hint.text = "Press J or Esc to close"
 	hint.add_theme_font_size_override("font_size", 13)
-	hint.add_theme_color_override("font_color", Color(0.72, 0.72, 0.68, 1.0))
+	MenuStyle.apply_muted(hint)
 	layout.add_child(hint)
 
 
@@ -111,12 +118,13 @@ func _build_objectives_tab() -> void:
 	var objective_header := Label.new()
 	objective_header.text = "Current objective"
 	objective_header.add_theme_font_size_override("font_size", 18)
+	objective_header.add_theme_color_override("font_color", MenuStyle.GOLD)
 	tab.add_child(objective_header)
 
 	_objective_title = Label.new()
 	_objective_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_objective_title.add_theme_font_size_override("font_size", 17)
-	_objective_title.add_theme_color_override("font_color", Color(0.92, 0.9, 0.82, 1.0))
+	_objective_title.add_theme_color_override("font_color", MenuStyle.TEXT_BRIGHT)
 	tab.add_child(_objective_title)
 
 	_objective_body = Label.new()
@@ -127,6 +135,7 @@ func _build_objectives_tab() -> void:
 	var deadline_header := Label.new()
 	deadline_header.text = "Commission deadlines"
 	deadline_header.add_theme_font_size_override("font_size", 18)
+	deadline_header.add_theme_color_override("font_color", MenuStyle.GOLD)
 	tab.add_child(deadline_header)
 
 	_deadline_list = ItemList.new()
@@ -138,6 +147,7 @@ func _build_objectives_tab() -> void:
 	var evidence_header := Label.new()
 	evidence_header.text = "Discovered evidence"
 	evidence_header.add_theme_font_size_override("font_size", 18)
+	evidence_header.add_theme_color_override("font_color", MenuStyle.GOLD)
 	tab.add_child(evidence_header)
 
 	_evidence_list = ItemList.new()
@@ -157,7 +167,7 @@ func _build_factions_tab() -> void:
 	intro.text = "Each faction remembers explicit events. There is no overall score."
 	intro.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	intro.add_theme_font_size_override("font_size", 14)
-	intro.add_theme_color_override("font_color", Color(0.78, 0.76, 0.7, 1.0))
+	MenuStyle.apply_muted(intro)
 	tab.add_child(intro)
 
 	_faction_list = ItemList.new()

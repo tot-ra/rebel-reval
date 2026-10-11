@@ -7,6 +7,7 @@ const EquipmentSilhouetteScene := preload("res://scripts/inventory/equipment_sil
 const InventoryGridCellScene := preload("res://scripts/inventory/inventory_grid_cell.gd")
 const InventoryOrnamentFrameScene := preload("res://scripts/inventory/inventory_ornament_frame.gd")
 const InventoryUiThemeScene := preload("res://scripts/inventory/inventory_ui_theme.gd")
+const MenuStyle := preload("res://scripts/ui/pause_menu_style.gd")
 
 const CELL_SIZE := 60
 const CELL_GAP := 6
@@ -34,7 +35,6 @@ static func build(host: InventoryOverlay) -> Dictionary:
 
 	var dim := ColorRect.new()
 	dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	dim.color = InventoryUiThemeScene.DIM_SCRIM
 	dim.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root.add_child(dim)
 
@@ -45,8 +45,10 @@ static func build(host: InventoryOverlay) -> Dictionary:
 	panel.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	panel.custom_minimum_size = Vector2(1180, 0)
 	panel.clip_contents = false
-	InventoryUiThemeScene.apply_panel(panel)
 	root.add_child(panel)
+	# R-1800: outer frame, scrim, title and action buttons share the Escape-menu
+	# skin; the leather sections, cells and brass sockets stay inventory-specific.
+	MenuStyle.apply_overlay(root, panel, dim)
 
 	# Hearth glow sits behind the contents so the leather panel is not flat.
 	panel.add_child(InventoryUiThemeScene.make_panel_glow())
@@ -82,12 +84,13 @@ static func build(host: InventoryOverlay) -> Dictionary:
 	var title := Label.new()
 	title.name = "BagTitle"
 	title.text = "Satchel"
-	InventoryUiThemeScene.apply_title(title)
+	MenuStyle.apply_title(title, 32)
 	title_column.add_child(title)
 
 	var subtitle := Label.new()
 	subtitle.text = "Kalev's kit - what he carries through Reval"
 	InventoryUiThemeScene.apply_subtitle(subtitle)
+	MenuStyle.apply_muted(subtitle)
 	title_column.add_child(subtitle)
 
 	var help_button := Button.new()
@@ -95,7 +98,6 @@ static func build(host: InventoryOverlay) -> Dictionary:
 	help_button.tooltip_text = HELP_TOOLTIP
 	help_button.focus_mode = Control.FOCUS_NONE
 	help_button.custom_minimum_size = Vector2(32, 28)
-	InventoryUiThemeScene.apply_action_button(help_button)
 	header.add_child(help_button)
 
 	var close_button := Button.new()
@@ -103,7 +105,6 @@ static func build(host: InventoryOverlay) -> Dictionary:
 	close_button.text = "Close"
 	close_button.tooltip_text = "Close bag (I or Esc)"
 	close_button.focus_mode = Control.FOCUS_NONE
-	InventoryUiThemeScene.apply_action_button(close_button)
 	close_button.pressed.connect(host.close)
 	header.add_child(close_button)
 
@@ -210,7 +211,6 @@ static func build(host: InventoryOverlay) -> Dictionary:
 	equip_button.visible = false
 	equip_button.focus_mode = Control.FOCUS_NONE
 	equip_button.size_flags_horizontal = Control.SIZE_SHRINK_END
-	InventoryUiThemeScene.apply_action_button(equip_button)
 	equip_button.pressed.connect(host._on_equip_pressed)
 	detail_column.add_child(equip_button)
 
@@ -250,6 +250,8 @@ static func build(host: InventoryOverlay) -> Dictionary:
 			cell_buttons.append(button)
 
 	return {
+		"root": root,
+		"dim": dim,
 		"panel": panel,
 		"grid": grid,
 		"silhouette": silhouette,

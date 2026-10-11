@@ -3,6 +3,7 @@ extends "res://tests/godot/test_case.gd"
 const ITEM_SPEARHEAD := &"item.seized_spearhead"
 const EquipmentSilhouetteScene := preload("res://scripts/inventory/equipment_silhouette.gd")
 const InventoryUiThemeScene := preload("res://scripts/inventory/inventory_ui_theme.gd")
+const MenuStyle := preload("res://scripts/ui/pause_menu_style.gd")
 
 
 func test_overlay_shows_numeric_meters_and_readable_labels() -> void:
@@ -64,16 +65,17 @@ func test_overlay_uses_historical_satchel_theme() -> void:
 	assert_eq(title.text, "Satchel")
 	assert_eq(
 		title.get_theme_color("font_color"),
-		InventoryUiThemeScene.BRASS_BRIGHT,
-		"title should use brass parchment gold from the Reval HUD family"
+		MenuStyle.GOLD,
+		"title shares the Escape-menu gold (R-1800)"
 	)
 
 	var panel := overlay.find_child("BagPanel", true, false) as PanelContainer
 	assert_true(panel != null, "bag panel must exist")
 	var panel_style := panel.get_theme_stylebox("panel") as StyleBoxFlat
 	assert_true(panel_style != null, "panel must use a flat stylebox")
-	assert_eq(panel_style.bg_color, InventoryUiThemeScene.PANEL_BG)
-	assert_eq(panel_style.border_color, InventoryUiThemeScene.PANEL_BORDER)
+	# R-1800: the outer frame is the shared overlay panel; cells stay leather.
+	assert_eq(panel_style.bg_color, MenuStyle.OVERLAY_FILL)
+	assert_eq(panel_style.border_color, MenuStyle.overlay_panel_style().border_color)
 
 	assert_true(overlay._cell_buttons.size() > 0, "grid cells must exist")
 	var empty_style := overlay._cell_buttons[0].get_theme_stylebox("normal") as StyleBoxFlat
