@@ -105,7 +105,7 @@ static func wall(
 		if kind == "recess":
 			_niche(shell, inner, o, -out, float(op.get("depth", 0.35)), dir)
 			continue
-		_reveal(shell, outer, inner, o, _opening(op, true), dir)
+		_reveal(shell, outer, inner, o, _opening(op, true), dir, float(o["sill"]) <= y0 + 0.001)
 		var lights := int(op.get("lights", 1))
 		if bool(op.get("glass", false)):
 			_glass(glass, a, dir, out, thick * 0.3, o, lights, glazing)
@@ -244,18 +244,24 @@ static func _reveal(
 	inner: Callable,
 	o: Dictionary,
 	io: Dictionary,
-	dir: Vector2
+	dir: Vector2,
+	open_sill := false
 ) -> void:
 	var a := outline(o)
 	var b := outline(io)
 	# Resample the inner outline to the outer's vertex count (same topology).
 	if a.size() != b.size():
 		return
+	# `open_sill`: the wall starts at the opening's sill (an arcade standing on
+	# the room floor), so there is no masonry under it and the sill quad would
+	# lie in the floor's plane and z-fight with the planks. The last edge of
+	# the outline runs along the sill (see outline()).
+	var edges := a.size() - 1 if open_sill else a.size()
 	var key := String(o.get("reveal", ""))
 	if key.is_empty():
 		key = "ashlar" if String(o["kind"]) == "door" else "limewash"
 	var tone := Color.WHITE if key == "limewash" else ASHLAR
-	for k in a.size():
+	for k in edges:
 		var p := a[k]
 		var q := a[(k + 1) % a.size()]
 		var pi := b[k]
