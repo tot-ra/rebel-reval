@@ -55,7 +55,7 @@ CAMERAS = (
 
 # Target budgets, derived from the 2026-10-08 M5 Pro baseline
 # (docs/reports/vegetation_benchmark_baseline.md); the reasoning is in
-# docs/SYSTEMS/VEGETATION_REALISM.md section 8. Counts are the hard gate: they
+# docs/SYSTEMS/LIVING_VEGETATION.md, Performance budgets. Counts are the hard gate: they
 # are deterministic and portable to the Intel UHD 620 floor. Milliseconds are
 # measured on the reference machine and only warn (run-to-run noise on the
 # tree layer is tens of percent).

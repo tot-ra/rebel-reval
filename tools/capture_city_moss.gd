@@ -1,7 +1,7 @@
 extends Node
 
 ## Review capture for moss, lichen and the forest floor (R-1661,
-## docs/SYSTEMS/VEGETATION_REALISM.md): the north side of a mossy trunk with a
+## docs/SYSTEMS/LIVING_VEGETATION.md): the north side of a mossy trunk with a
 ## tinder bracket, the north wall of a stone house and the shaded ground strip
 ## in front of it, and the woods floor in April (false morels) and August
 ## (chanterelle, porcini, fly agaric). Host scene so autoloads resolve:

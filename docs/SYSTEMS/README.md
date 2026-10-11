@@ -32,8 +32,7 @@ One page per implemented or planned feature. Each page opens with a `Status:` li
 | [Hanseatic cog](./SHIPS.md) | Implemented (lofted clinker hull, walkable interior, wind-driven sail and rope shaders, rudder) |
 | [Village and house windows](./COTTAGE_WINDOWS.md) | Implemented (7 styles: platbands, shutters, slit, stone surround) |
 | [Farmland, pastures and woods](./FARMLAND.md) | Implemented (fields, crops by date, pastures, woods; no far-field LOD yet) |
-| [Living vegetation: visual catalog and developer guide](./LIVING_VEGETATION.md) | Implemented: 20 tree species, model/assets reference, city crown LOD, seasons, wind and shrubs; visual/performance acceptance partial |
-| [Vegetation realism (grass, grain fields, trees)](./VEGETATION_REALISM.md) | In progress: benchmark and budgets (R-1320) and procedural vegetation textures (R-1329) implemented; later phases planned |
+| [Living vegetation: trees, shrubs, grass and ground cover](./LIVING_VEGETATION.md) | Implemented: 20 tree species, shrubs, blade grass, 3D wild plants, ecology placement, moss and fungi, seasons, shared wind, budgets, animated visual tour; grain fields and tree LOD chain planned (R-1319) |
 | [Hoist ropes](./HOIST_ROPE.md) | Implemented (wind-swung rope and hook on hoist beams) |
 | [Bestiary: spirit and physical creature roster](./BESTIARY.md) | Planned (R-1578): roster, card template and validator implemented; no cards yet |
 | [Combat runtime](./COMBAT.md) | Foundation implemented; tower bosses unwired |
@@ -59,6 +58,7 @@ One page per implemented or planned feature. Each page opens with a `Status:` li
 - [Household objects](HOUSEHOLD_OBJECTS.md)
 - [Renderer, post-process grade and HDR output](POST_PROCESS.md)
 - [Seasons](SEASONS.md)
+- [Vegetation realism (merged)](VEGETATION_REALISM.md)
 - [Water sandbox](WATER_SANDBOX.md)
 
 <!-- docs-index:end -->

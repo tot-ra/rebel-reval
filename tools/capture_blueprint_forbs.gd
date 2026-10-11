@@ -1,6 +1,6 @@
 extends SceneTree
 
-## Review plate for blueprint-map forbs (R-1559, docs/SYSTEMS/VEGETATION_REALISM.md):
+## Review plate for blueprint-map forbs (R-1559, docs/SYSTEMS/LIVING_VEGETATION.md):
 ## a synthetic meadow with one patch each of plant.plantain, plant.dandelion,
 ## plant.clover and plant.burdock, rendered through MapView3D. Needs a renderer:
 ##   tools/godot_render.sh --script tools/capture_blueprint_forbs.gd [-- --tag=after]

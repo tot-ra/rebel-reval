@@ -1,6 +1,6 @@
 extends SceneTree
 
-## Review plates for the blade-geometry meadow (docs/SYSTEMS/VEGETATION_REALISM.md,
+## Review plates for the blade-geometry meadow (docs/SYSTEMS/LIVING_VEGETATION.md,
 ## VEGR-4): eye level, gameplay camera and a close ground shot over the pasture.
 ## Needs a renderer:
 ##   tools/godot_render.sh --script tools/capture_city_grass.gd [-- --tag=now]

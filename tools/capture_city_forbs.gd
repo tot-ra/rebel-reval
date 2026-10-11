@@ -1,7 +1,7 @@
 extends SceneTree
 
 ## Review plates for the wild plants of the seamless city (R-1519,
-## docs/SYSTEMS/VEGETATION_REALISM.md): a studio lineup and close-ups of every
+## docs/SYSTEMS/LIVING_VEGETATION.md): a studio lineup and close-ups of every
 ## CityForbMeshes model, then in-world shots where each habitat is strongest
 ## (worn verge, wall foot, open meadow). The in-world shots grow the plants
 ## for a campaign date (R-1557): --season=spring|early_summer|summer|autumn|winter

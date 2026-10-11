@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build the wall moss and lichen plates (R-1661 follow-up, VEGETATION_REALISM.md).
+"""Build the wall moss and lichen plates (R-1661 follow-up, LIVING_VEGETATION.md).
 
 Procedural noise moss read as a flat green film over the masonry. The wall
 shader now samples two photographic plates instead:

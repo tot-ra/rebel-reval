@@ -1,616 +1,572 @@
-# Living vegetation
+# Living vegetation: trees, shrubs, grass and ground cover
 
-Status: implemented (tasks **R-1187**, **R-1194**, **R-1329** procedural leaf atlas, **R-1321** shared wind field, **R-1433** flexible storm trees, **R-1404** 3D conifer needles close up, seamless-city pass of **R-712** covering **R-1101**, **R-1102**, **R-1103**, **R-1105**; visual/reviewer acceptance pending). Scope: tree crowns in the 3D view follow the campaign calendar, react to rain and wind, and respond to melee swings. Presentation only: nothing here changes combat, collision, navigation, or saved state. Out of scope: felling or damaging trees, persistent leaf litter on the ground, snow on branches, seasonal bushes, grass, and crops, and blossom.
+Status: implemented; visual and performance acceptance remains partial. Documentation reorganized in **R-1696** and merged with the former vegetation realism plan (epic **R-1319**) in **R-1704**. Implemented: procedural tree species with seasons, wind and city LOD; shared wind field (**R-1321**); procedural textures (**R-1329**); ecology placement (**R-1322**); seamless-city rooting and the coastal pine heath (**R-1617**); Weber-Penn tree skeletons and leaf clusters (**R-1324**); city blade grass (**R-1323**, partial); 3D wild plants with seasons (**R-1519**, **R-1557**, **R-1559**); snow cover and the trail buffer (**R-1327**, partial); moss, lichen and the forest floor (**R-1661**, **R-1683**, **R-1684**). Grain fields, the full tree LOD chain and impostors are [planned](#roadmap).
 
-Reference bar: trees that feel alive in the way Witcher 3 and RDR2 trees do. The crown changes with the month, and a blow to the trunk knocks leaves loose.
+**Start here:** this is the one page for everything that grows in the 3D view. There are **20 procedural tree species** plus a tall city pine form, shrubs that reuse those trees, blade grass, eight 3D wild-plant models, ecology rules that decide where each grows, and moss, lichen and fungi on bark, walls and the forest floor. A tree is assembled from a branching skeleton, wood, leaf-cluster cards and optional fruit; it is not normally a separate `.glb` file. The seamless city adds metre-scale bark, camera-dependent crown detail and whole-tree wind bending. District (blueprint) maps share species and seasons but not every city presentation feature.
 
-## What the player sees
+Scope: identifying, locating and changing vegetation models, their placement and rendering. Presentation only: no damage, felling, harvesting, collision changes or saved per-plant state. Out of scope: a crop or harvest mechanic (would need an ADR), new biomes, imported game assets, a renderer change (GL Compatibility stays). Farmland crops are owned by [Farmland](./FARMLAND.md); the wider calendar by [Seasons](./SEASONS.md).
 
-- **Seasons.** Deciduous crowns follow northern Estonian (Tallinn) phenology as a function of the in-game date: bare in winter. Bud-burst starts in late April with sparse, small, light yellow-green leaves. Crowns are full from June to August. Autumn colouring runs from mid September, with per-species palettes (birch and aspen gold, maple and rowan red, oak brown), several hues per crown, and the oldest leaves turning brown. The crowns are bare by early November. Early leafers (birch, willow, aspen, alder, orchard trees) open before late leafers (oak, ash, linden, elm, maple). Conifers keep their needles and turn duller and bluer in deep winter. On the slice's opening date, 21 April 1343, birches show about 28% of their leaves, small and fresh, and oaks show only their first buds.
-- **Fruit** appears only in season: cherries in July, plums in August and September, apples and pears from August to October, rowan and hawthorn berries from August to November, and sloes from September to November.
-- **Rain** darkens leaves and bark and makes them glossy. Leaves get wet from active rain at once, not only when puddles form.
-- **Wind** moves crowns at two frequencies: whole limbs heave in gusts, rigid from the petiole, while leaf tips flutter. Since R-1321 a gust is one event in the world: it rolls across a meadow as a visible front, reaches the trees, then the flags, ropes and nets (see [Shared wind field](#shared-wind-field-r-1321)).
-- **Melee swings.** When a landed swing (hit or miss) reaches a tree in front of Kalev, that crown shakes away from the blow and rings down over about 1.8 s, and a burst of leaves in the current season's colours tumbles to the ground. Heavy blows shake harder and drop more. Autumn crowns are the loosest. Conifers drop a few needles, and bare trees drop nothing.
-- **Ambient leaf fall.** Leaves drift down around the player where trees stand nearby: heavily in October, a few during storms in any season with leaves, and none in open streets or bare winter woods. The wind carries them sideways.
+## Find what you need
 
-## Runtime entry points
-
-| Piece | File |
+| Question | Go to |
 |---|---|
-| Seasonal model (pure, deterministic) | [`vegetation_phenology.gd`](../../scripts/map/view3d/vegetation_phenology.gd) (`VegetationPhenology.state_for`, `falling_leaf_colors`, `hit_leaf_count`) |
-| Crown shader (season, autumn hue, crown AO, wetness, two-frequency wind, hit shake) | [`map_view_canopy.gdshader`](../../scripts/map/view3d/map_view_canopy.gdshader) |
-| Shared wind field (weather mapping, globals, CPU mirror) | [`wind_field.gd`](../../scripts/map/view3d/wind_field.gd) (`WindField`), shader side [`wind_field.gdshaderinc`](../../scripts/map/view3d/wind_field.gdshaderinc) |
-| Per-species crown materials, season and wetness fan-out | [`map_view_wind_materials.gd`](../../scripts/map/view3d/map_view_wind_materials.gd) (`canopy_for_species`, `apply_vegetation_season`, `apply_vegetation_wetness`) |
-| Seasonal fruit, wet bark | [`map_view_prop_materials.gd`](../../scripts/map/view3d/map_view_prop_materials.gd) (`tree_fruit_for_species`, `apply_fruit_season`, `apply_bark_wetness`) |
-| Leaf mesh contract | [`map_view_leaf_geometry.gd`](../../scripts/map/view3d/map_view_leaf_geometry.gd), [`map_view_tree_meshes.gd`](../../scripts/map/view3d/map_view_tree_meshes.gd) |
-| Strike query, crown shake, leaf bursts, ambient leaves | [`tree_leaf_fall_3d.gd`](../../scripts/map/view3d/tree_leaf_fall_3d.gd) (`TreeLeafFall3D`, child `TreeLeafFall` of every `MapView3D`) |
-| Wiring | `MapView3D.set_calendar_date` pushes the season, `MapView3D.strike_vegetation` resolves a swing, and `MapView3D._process` drives ambient leaves. `MapViewMaterials.apply_weather_presentation` pushes wetness. `MapViewRuntimeActors._on_player_melee_attack_resolved` calls `strike_vegetation` with `Player.facing_direction()` and the `AttackProfile` reach, cone, and `is_heavy` flag |
+| What does it look like, moving and through the year? | [Visual tour](#visual-tour) |
+| Which trees exist? | [Tree species](#tree-species) |
+| Where is the model or texture I should edit? | [Model sources and assets](#model-sources-and-assets), [procedural textures](#procedural-textures) |
+| How are branches, leaves and bark built? | [From species to rendered tree](#from-species-to-rendered-tree) |
+| Why does a near tree look different from a distant one? | [Distance and detail](#distance-and-detail) |
+| What changes with date, rain, wind or a weapon swing? | [Living behavior](#living-behavior) |
+| Which bushes are visible? | [Shrubs](#shrubs) |
+| How is grass drawn? Which wild plants exist? | [Grass](#grass), [Wild plants](#wild-plants-forbs) |
+| Why does a plant grow here and not there? | [Placement and ecology](#placement-and-ecology) |
+| Moss on walls, mushrooms in the woods? | [Moss, lichen and the forest floor](#moss-lichen-and-the-forest-floor-r-1661) |
+| What may vegetation cost? | [Performance budgets](#performance-budgets) |
+| Where should I make a particular change? | [Developer workflow](#developer-workflow) |
+| How do I reproduce the views or check an edit? | [Preview and verification](#preview-and-verification) |
+| What is not built yet? | [Known limits](#known-limits), [Roadmap](#roadmap) |
 
-## Data contracts
+## Visual tour
 
-- **Leaf vertices** (tree canopy meshes only): `UV2.x = 1` tags a leaf. `CUSTOM0 = (petiole xyz, seed)` with seed in 0..1. `COLOR.a` holds the baked crown self-occlusion (0.48 inside the crown, 1 at the outer shell). The shader collapses a leaf to its petiole when `seed > leaf_density` and scales it by `leaf_scale`. Leaves with high seeds colour first and fall first, so the last leaves on an autumn tree are the greenest. Bushes and legacy canopies have no tag and keep the old height-weighted sway and summer look.
-- **Season uniforms** live on one material per species (`canopy_species:<species>`), so trees still draw as one MultiMesh per species and add no draw calls. Streamed chunks and materials created after a cache reset pick up the last pushed date.
-- **Hit shake**: scatter tree crowns are MultiMeshes with `use_custom_data`. `INSTANCE_CUSTOM.xy` holds the crown-top offset in world metres and `.z` the extra leaf flutter. `TreeLeafFall3D` writes these only for struck trees and zeroes them after the shake.
-- **Strikeable trees**: `TreeLeafFall3D.tag_canopy` puts the canopy MultiMesh in group `tree_canopy_multimesh` and stores its species and instance transforms as node meta. MultiMesh buffers are GPU-side, so they are not read back. Authored single trees (`MeshInstance3D` "Canopy" in group `tree_canopy_mesh`) drop leaves but do not shake.
-- **Determinism**: the season is a pure function of `GameCalendar.day_of_year` (Julian leap years included). There is no RNG and no persisted state, so save/load, phase changes, and seam crossings always agree with the HUD date.
+Captures under `docs/reports/images/vegetation/`. The three animations were rendered for this page by [`tools/capture_vegetation_animations.gd`](../../tools/capture_vegetation_animations.gd) on 11 October 2026; the other plates are **existing repository captures** from the tasks named in their captions. Older plates are visual references, not proof that every rendering defect is resolved. Open an image for full resolution.
 
-## Verify
+### In motion
 
-```bash
-/Applications/Godot.app/Contents/MacOS/Godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_vegetation_phenology,test_tree_leaf_fall,test_vegetation_realism,test_map_view_tree_species
-```
+**Wind on city trees.** Spruce, oak and birch at city scale (real city wood and near crowns) while the wind ramps from calm to a storm gust and back. The bole stays rooted, the trunk curves, limbs heave and twigs shiver; the flexible birch moves more than the stout oak. Shader time is pinned per frame, so the sequence is reproducible.
 
-- [`test_vegetation_phenology.gd`](../../tests/godot/test_vegetation_phenology.gd) checks winter bareness, the 21 April bud-burst range, full summer crowns, October colouring and shedding, evergreen conifers, continuity and determinism, Julian leap years, and hit strength.
-- [`test_tree_leaf_fall.gd`](../../tests/godot/test_tree_leaf_fall.gd) checks the strike query (nearest tree in front, ignoring trees behind or out of reach), shake ring-down, bursts only from leafed trees, ambient rate against season, wind, and tree count, season delivery to materials and fruit, and the leaf `CUSTOM0` and occlusion contract.
+![Animation: spruce, oak and birch bending from calm to storm and back](../reports/images/vegetation/anim_tree_storm.gif)
 
-## Shared wind field (R-1321)
+**One gust front.** City blade grass in front of a birch line, wind left to right. The bend travels through the meadow as a visible wave and reaches the crowns later: one [shared wind field](#shared-wind-field-r-1321), not independent sine loops.
 
-Status: implemented (task **R-1321**, VEGR-2). Scope: one deterministic wind for grass, tree crowns, sails, pennants and flags, wall banners, hoist ropes and fishing nets, plus the sideways drift of falling leaves. Out of scope: the sea (water keeps its own wind uniforms fed by `apply_sea_weather`), smoke and rain particles, the seamless city's own water shader, wind-driven gameplay (sailing, fire spread), grass geometry and placement (VEGR-4, VEGR-3).
+![Animation: a gust front rolling across blade grass and into a birch line](../reports/images/vegetation/anim_meadow_wind.gif)
 
-**What the player sees.** A gust crosses an open meadow as a front: the tufts lay over and turn their paler flanks up, so a lighter band rolls downwind; a few seconds later the same front heaves the tree line and lifts the flags beyond it. Calm air nearly stops the wave; a storm makes fronts taller, longer, faster and more turbulent (more flutter). The heading and strength come from the weather and veer with it.
+**A year in twenty-four steps.** Birch, oak, maple, apple and spruce on the 1st and 15th of each month from April 1343 to March 1344: bud-burst, full summer leaf, apples in late summer, species-specific autumn colour and leaf loss, bare winter crowns, the evergreen spruce dulling in winter.
 
-**Contract.** `MapViewWindMaterials.apply_world_wind(direction, strength)` is the single writer. It calls `WindField.publish(WindField.params_for(direction, strength))`, which writes six global shader parameters once through `RenderingServer.global_shader_parameter_set`; no material carries a per-material `wind_direction` / `wind_strength` uniform any more, so streamed chunks and materials created later are in the current wind without a fan-out. Callers are unchanged: `MapViewMaterials.apply_weather_presentation` (every `MapView3D` frame) and `CityWorld3D.apply_time`.
+![Animation: five tree species through every half-month of a year](../reports/images/vegetation/anim_tree_seasons.gif)
 
-| Global (declared in `project.godot` `[shader_globals]`) | Meaning | Mapping from weather strength `s` (0..1) |
+Older motion evidence: [calm vs storm meadow](../reports/images/vegetation/r1321_wind_calm_storm.png), [moving-front analysis sheet](../reports/images/vegetation/r1321_wind_front_sheet.png) (each frame beside its gust map; the warm band should move left to right).
+
+### Tree species and architecture
+
+![Twenty procedural tree species with labels, normalized to a comparable display height](../reports/images/fauna/p0_103_tree_reference_sheet.png)
+
+**A shape catalog, not a height chart:** the tool normalizes every tree to one display height. Compare the spruce cone, high pine crown, broad oak, drooping willow and compact orchard forms. Also: [relative heights](../reports/images/vegetation/r1324_tree_silhouettes_after.png), [crown close-ups](../reports/images/vegetation/r1324_tree_closeups_after.png) (each with a `_before` pair from R-1324).
+
+![Bare procedural tree skeletons showing branching habits without foliage](../reports/images/vegetation/tree_wood_branch_flow.png)
+
+Bare wood: pine, oak, apple, pear, ash, elm, willow, hazel and blackthorn. Use this view when changing forks, scaffold limbs, drooping shoots or multi-stem shrubs; foliage can hide a bad junction.
+
+| Seasonal reference (R-1194) | Mature coastal pine heath (R-1617) |
+|---|---|
+| ![Birch, oak, maple, apple and spruce on 21 April, 20 May, 15 July, 5 October and 15 January](../reports/images/vegetation/r1194_after.png) | ![Inside the coastal pine heath at eye level](../reports/images/vegetation/r1617_pine_heath_eye.jpg) |
+| Rows: birch, oak, maple, apple, spruce. Columns: 21 April, 20 May, 15 July, 5 October, 15 January. | Tall clear boles of `pine_tall`, distinct from the ordinary city pine. [Wide view](../reports/images/vegetation/r1617_pine_heath_wide.jpg). |
+
+### City-scale detail
+
+| Spruce needles at arm's length | Oak bark | Birch bark |
 |---|---|---|
-| `wind_dir_g` | Unit heading on the XZ ground plane | weather heading (`SkyWeather3D.wind_direction_xz`), zero falls back to the historical harbour bearing |
-| `wind_strength_g` | Sustained strength | `s` (profile wind plus live rain-front gust, as `SkyWeather3D.wind_strength`) |
-| `wind_gust_amp_g` | Gust height above the steady push | `0.12 + 0.88 * sqrt(s)` |
-| `wind_gust_wavelength_g` | Metres between fronts | `lerp(14, 34, s)` |
-| `wind_speed_g` | Front speed, m/s along the heading | `lerp(2, 11, s)` |
-| `wind_turbulence_g` | Flutter and cross-wind chaos | `0.15 + 0.85 * s^2` |
+| ![City spruce close-up with real 3D needle fronds](../reports/images/vegetation/veg_city_spruce_macro_after.jpg) | ![Oak trunk close-up](../reports/images/vegetation/veg_city_oak_bark_close.jpg) | ![Birch trunk close-up](../reports/images/vegetation/veg_city_birch_bark_close.jpg) |
 
-Project defaults equal `params_for(default heading, 0.22)`, so a map that never publishes keeps the previous breeze. The shader include samples the front at `dot(xz, dir) - TIME * speed` at two scales (broad front, narrow ripple) with low-frequency value noise along the front so it never reads as a ruled line. Consumers call `wind_pressure(xz, TIME)` (downwind push, about 0.48 in a lull and 0.8 on average), `wind_gust_signed` (cloth and ropes that used a sine gust), and `wind_flutter_scale()`. Grass samples once per tuft, crowns once per tree at the trunk (`wind_pressure_coarse`: the same front without the patch noise, three `sin` like the old sway, because crown vertices are drawn again in every shadow cascade), cloth, ropes and nets once per staff or rack, so a whole plant moves together and the cost per vertex did not grow. Grass also brightens with the bend (`v_sheen`), which is what makes the front readable from across a field. Banners keep a sheltered share of the world wind (`wind_scale` 0.36, the old fixed 0.08 at the default breeze); flags and ropes expose `wind_scale` (default 1) so capture plates can show several strengths at once.
+| Example | Capture | What to inspect |
+|---|---|---|
+| Spruce beside a human | [Scale](../reports/images/vegetation/veg_city_spruce_scale.jpg), [gameplay camera](../reports/images/vegetation/veg_city_spruce_gameplay.jpg) | Trunk thickness, cone density and leaf scale |
+| Pine near the camera | [3D needle crown](../reports/images/vegetation/veg_city_pine_macro_after.jpg) | Tufts have depth instead of flat boards |
+| Spruce detail swap | [Near/macro comparison](../reports/images/vegetation/veg_city_spruce_near_macro_parity.jpg) | Needle volume; the swap keeps crown mass |
+| Bark joints | [Oak](../reports/images/vegetation/veg_bark_joint_oak_before_after.jpg), [birch](../reports/images/vegetation/veg_bark_joint_birch_before_after.jpg), [spruce](../reports/images/vegetation/veg_bark_joint_spruce_before_after.jpg), [cherry](../reports/images/vegetation/veg_bark_joint_cherry_before_after.jpg) | Bark continuity across forks |
 
-No texture is sampled: an analytic noise avoids a sampler slot (the Compatibility renderer links at most 16) and the unbound-sampler hazard on GLES, and lets `WindField.gust` / `pressure` / `local_strength` mirror the shader on the CPU. `TreeLeafFall3D` uses that mirror (at `WindField.clock()`, the wall clock that tracks shader `TIME`) so drifting leaves and strike bursts speed up while a front passes.
+### Shrub examples
 
-**Spike result.** Global shader parameters and a per-frame `global_shader_parameter_set` work under GL Compatibility at the Godot 4.7.1 pin: the cloud shadow pass (`cloud_offset_g`) and the sea clock (`ocean_time`) already depended on them, and the R-1321 capture shows the front moving between frames rendered through `tools/godot_render.sh`. Globals must be declared in `project.godot`: the wind shaders are preloaded constants and compile before any runtime `global_shader_parameter_add` could run.
+| Dog rose | Raspberry | Elder (hazel mesh) |
+|---|---|---|
+| ![City dog rose with arching canes and leaf cards](../reports/images/vegetation/veg_city_dog_rose_close.jpg) | ![City raspberry canes](../reports/images/vegetation/veg_city_raspberry_close.jpg) | ![Elder drawn with the hazel tree mesh](../reports/images/vegetation/veg_city_elder_close.jpg) |
 
-**Determinism and saves.** The field is a pure function of world XZ, time and the weather snapshot: no RNG, no stored state, nothing persisted. Shader `TIME` wraps at Godot's 3600 s rollover, so once an hour every front jumps; this was already true of every animated shader.
+### Grass and wild plants
 
-**Verify.**
-
-```bash
-/Applications/Godot.app/Contents/MacOS/Godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_wind_field,test_vegetation_realism,test_tree_leaf_fall,test_map_view_3d_mesh
-tools/godot_render.sh --script tools/capture_wind_front.gd
-tools/run_performance_report.sh build/perf_wind.json --vegetation
-```
-
-[`test_wind_field.gd`](../../tests/godot/test_wind_field.gd) checks determinism (same time and weather give the same bend, publishing other weather changes nothing), that the state at one point reaches a downwind point `distance / speed` seconds later (a travelling front), coherence across the wind, calm versus storm mapping, the zero-heading fallback, that `project.godot` defaults equal the default breeze, the single writer, and that all seven wind shaders include the field, keep no per-material wind uniform and still compile. `test_boat_float_3d`, `test_fishing_nets` and `test_hoist_rope` check the published state instead of material uniforms.
-
-**Evidence.** [`r1321_wind_front_sheet.png`](../reports/images/vegetation/r1321_wind_front_sheet.png): six frames about 0.45 s apart over one meadow at strength 0.6, each beside its front map (luminance minus the mean of all frames, blurred to front scale; warm means blades laid over by a gust crest). The warm band moves left to right across the meadow, and in the first frame the previous front is at the birches. [`r1321_wind_calm_storm.png`](../reports/images/vegetation/r1321_wind_calm_storm.png): the same meadow at strength 0.04 and 0.92. The tool fails if two frames are byte-identical (a minimized window that stopped redrawing). Benchmark: see the R-1321 row in [`VEGETATION_REALISM.md`](./VEGETATION_REALISM.md#1-one-wind-field-for-everything).
-
-**Limits.** Shader `TIME` cannot be pinned, so the capture uses real-time intervals and the CPU mirror only tracks the GPU field approximately (`WindField.clock()` vs the renderer's frame time). Turbulence comes from strength alone; rain and storm profile `chaos` are not mapped separately. The sea, smoke and rain particles still use their own wind inputs; only their heading is shared through `SkyWeather3D.wind_direction_xz`. The three-level tree wind (trunk sway) arrives with VEGR-6 (R-1324).
-
-## Crown structure: parametric skeletons and twig clusters (R-1324)
-
-VEGR-6 changed where the cards of the section below are placed, not what they are.
-Nine species (pine, spruce, birch, oak, alder, aspen, juniper, linden, maple) now
-grow from the Weber-Penn generator
-[`tree_skeleton_weber_penn.gd`](../../scripts/map/view3d/tree_skeleton_weber_penn.gd),
-which reports its shoot ends as `skeleton["twigs"]`. For those species
-`MapViewTreeMeshes._append_twig_clusters` replaces the per-tip fan and the conifer
-along-branch and trunk-ring cards: foliage sits in clusters over the outer
-`cluster_span` of each shoot, so limbs stay bare between clusters and the branch
-structure shows through the crown. Clusters nearer the crown axis get fewer,
-smaller cards, and only shell clusters take the spherical crown normal, so the
-outside of the crown lights as one dome over a dark hollow. The canopy shader adds
-a chlorophyll hue shift to transmitted light (`leaf_translucency`) and a third,
-slowest wind level, trunk sway (`trunk_sway`), under the existing branch heave and
-leaf flutter. The remaining species keep the legacy skeleton and the placement
-below. The `UV2` / `CUSTOM0` / `COLOR.a` leaf contract is unchanged, so seasons,
-autumn hue and leaf fall work the same for both. Full detail and the before/after
-sheets: [`VEGETATION_REALISM.md` section 4](./VEGETATION_REALISM.md).
-
-## Dense cluster crowns (R-1194)
-
-Trees now combine the existing folded silhouette leaves with four-triangle folded
-cluster cards. Every skeleton tip gets three cards (two for conifers); spruce,
-pine and juniper also carry cards along branches and rings around the crown bole
-(superseded for the nine R-1324 species above).
-Conifers retain two opaque needle shoots per spray. Geometry is cached once per
-species, with one canopy surface and the existing MultiMesh batching, no per-card
-nodes or new material surfaces. Stable species IDs and save data are unchanged.
-There are no new controls; the existing calendar, wind, rain and melee interactions
-apply to the cards too. No input or save-format changes are involved.
-
-- Folded leaves are attached: each petiole sits on the shoot, stepping back from
-  the skeleton anchor by up to half the profile `leaf_spread`, and the blade
-  points out from there. They used to be offset radially by the full
-  `leaf_spread` (birch 0.48 tree units, about 1.5-2 m in the city), which left
-  rings of leaves hanging in the air with no twig to them
-  ([before](../reports/images/vegetation/birch_attached_leaves_before.jpg),
-  [after](../reports/images/vegetation/birch_attached_leaves_after.jpg)).
-- Cards tag `UV2 = (1, 1)`; folded leaves retain `(1, 0)`. All twelve card vertices
-  share `CUSTOM0 = (petiole xyz, seed)`, but separate cards have separate seeds.
-  `COLOR.a` remains crown AO. A whole cluster scales/collapses together, so spring
-  growth, autumn colour order and winter shedding remain coherent.
-- `leaf_atlas` is a 2048x1024 RGBA atlas: 4x2 tiles of 512 pixels. Row 0: birch,
-  oak, maple, linden. Row 1: apple, spruce, pine, unused. `atlas_tile` selects a
-  family via `map_view_leaf_geometry.gd::CARD_TILES`. Other species borrow the
-  closest available family, not a botanically exact plate (notably compound and
-  narrow-leaf species). Species tint still comes from the mesh/material.
-- Alpha scissor at 0.5 cuts leaf silhouettes without alpha-blend sorting. RGB is
-  approximately neutral relative brightness, not sRGB albedo; the shader samples
-  it as data and multiplies by two. `card_gain` tunes card brightness. UV inset
-  reduces tile-edge bleed, but does not guarantee isolation at coarse mip levels.
-- Since R-1329 the atlas is drawn in code, not keyed from image-generator plates:
-  `python3 tools/assets/generate_vegetation_atlases.py` (NumPy and Pillow; the old
-  `build_leaf_card_atlas.py` entry point now calls it). Each tile is a twig with
-  parametric leaves or needles (outline, serration, lobes, veins, wear) whose size
-  was tuned so card coverage stays near the R-1194 tile it replaced. The output is
-  byte-identical on every run; details and limits are in
-  [`VEGETATION_REALISM.md`](./VEGETATION_REALISM.md) section 7. The Leonardo
-  `leaf_cards_v1` and OpenAI needle sources are retired; the atlas row in
-  `assets/SOURCES.csv` records the replacement.
-
-### Verification and evidence
-
-Run the four-file test command above. `test_vegetation_realism.gd` additionally
-checks every species' single surface, triangle budget, card count, coherent
-petiole/seed per card, seed diversity, AO, atlas binding/dimensions/alpha, and
-non-sRGB sampling. Existing leaf-fall and phenology tests cover the unchanged
-calendar, rain and strike paths.
-
-Measured canopy geometry: 5,732-14,324 triangles per species (24,000 cap),
-170,188 total across the 20 cached species. Spruce has 911 cards / 7,676 triangles;
-pine has 878 cards / 7,320 triangles. Geometry counts do not measure alpha overdraw.
-
-Capture commands (minimized GPU renderer):
-
-```bash
-tools/godot_render.sh --script tools/capture_living_vegetation.gd
-tools/godot_render.sh --script tools/capture_tree_reference_sheet.gd
-GODOT_BIN=/Applications/Godot.app/Contents/MacOS/Godot BENCHMARK_HEADLESS=0 \
-  tools/run_performance_report.sh build/r1194/perf_after.json --quick
-```
-
-- Seasonal plates: [before](../reports/images/vegetation/r1194_before.png),
-  [after](../reports/images/vegetation/r1194_after.png). Rows: birch, oak, maple,
-  apple, spruce. Columns: 21 April, 20 May, 15 July, 5 October, 15 January.
-- Species plates: [before](../reports/images/vegetation/r1194_species_before.png),
-  [after](../reports/images/vegetation/r1194_species_after.png).
-- The baseline disables R-1194 geometry and shader additions while retaining the
-  same surrounding working-tree content. Runs are sequential to avoid GPU
-  contention. This is a local A/B comparison, not a clean-main benchmark.
-- Capture scripts completed, but an independent visual comparison is still
-  required; generated files alone do not establish Witcher 3 / RDR2 quality.
-  The configured review agent failed without returning findings.
-
-### Local quick GPU performance
-
-Godot 4.7.1, GL Compatibility, Apple M5 Pro, sequential minimized GPU runs:
-[raw before report](../reports/images/vegetation/r1194_perf_before.json),
-[raw after report](../reports/images/vegetation/r1194_perf_after.json).
-
-| Metric | Before | After |
-|---|---:|---:|
-| Lower Town scene median frame | 88.578 ms | 90.321 ms |
-| Reciprocal of median frame time (not average FPS) | 11.29 | 11.07 |
-| Lower Town scene p95 frame | 190.828 ms | 174.784 ms |
-| Lower Town pipeline p95 frame | 10.134 ms | 30.406 ms |
-| Scene static memory | 347,613,860 bytes | 347,704,386 bytes |
-
-These are one-run quick observations, not a no-regression claim. Both scene runs
-miss 60 FPS substantially; pipeline p95 worsened while scene p95 improved. Repeat
-warmed GPU measurements and profile alpha overdraw before performance acceptance.
-The logs also contain existing shared-tree character UID/no-rig warnings and
-shutdown resource leaks. The filtered suite passed 33 tests with zero failures
-and zero runtime errors; resource-leak messages still occur during shutdown.
-Full asset provenance validation is blocked by four missing merchant-stone rope
-textures and an unregistered grass atlas from other work; R-1194's 15 rows are
-present. Active-doc validation must be regenerated against the staged file set.
-
-## Gameplay-scale GPU evidence and review (R-1187)
-
-Captured 2026-10-07 with a one-off script (not kept in `tools/`) through
-`tools/godot_render.sh`: `prototype.sacred_grove` built by `MapView3D.create`,
-shipped gameplay orthographic crop (`CharacterScale.GAMEPLAY_ORTHOGRAPHIC_SIZE`,
-about 21 px per metre at 720p), Godot 4.7.1 GL Compatibility, Apple M5 Pro.
-The struck tree is the most open in-map birch near the spawn. For 21.04, 15.07 and
-10.10.1343 the script calls `MapView3D.strike_vegetation` with Kalev 1.1 m from
-the trunk and saves frames at rest, 0.2 s and 1.0 s after the blow; then a
-15.07 rain frame and a 10.10 ambient frame around a `player_view_rig`.
-
-- [Full frames](../reports/images/vegetation/r1187_gameplay_frames.png): 0.2 s after
-  hits on 21.04, 15.07, 10.10, and October ambient fall.
-- [Zoomed crops](../reports/images/vegetation/r1187_gameplay_zoom_sheet.png): rows
-  21.04, 15.07, 10.10 (rest / 0.2 s / 1.0 s), then 15.07 rest / rain / 10.10 ambient.
-- Strike results: 21.04 birch 3 leaves, 15.07 12 leaves, 10.10 50 leaves; October
-  ambient emitter at 16 particles. All 11 raw frames have distinct md5 hashes (no
-  frozen frames).
-
-What the captures show: the seasonal crowns read clearly at gameplay scale (sparse
-fresh April green, full July crown, mixed gold and brown October). The crown shake
-is visible as a shift between rest and 0.2 s. The leaf burst and ambient leaves read
-only as a few bright specks. The rain frame is dominated by rain fog, so leaf and
-bark wetness cannot be judged from it. Kalev is not visible in the frames; the same
-runs log a GL Compatibility `Program linking failed ... uses 17 samplers` error
-right after the hero character assets load.
-
-Tuning applied after the captures:
-
-- Particle leaf quad 0.075 x 0.055 m to 0.14 x 0.10 m (`TreeLeafFall3D._make_leaf_mesh`):
-  true-size leaves were about 1.5 px at the gameplay crop.
-- `VegetationPhenology.hit_leaf_count` base 26 to 34 (summer hit about 12 leaves).
-- Bursts emit from the lower crown shell instead of the crown centre, so leaves leave
-  the foliage that hid them.
-- `SHAKE_AMPLITUDE` (0.16 m) and the autumn palette are unchanged. October crowns lean
-  brown because the canopy shader multiplies the autumn hue by the leaf luminance
-  times 0.82. That is a shader change, left for follow-up.
-
-Code review of commit `3078c157`: no blocking issues found.
-
-- The shader reads `INSTANCE_CUSTOM`, which is zero for plain `MeshInstance3D` crowns
-  and MultiMeshes without custom data. `MODEL_MATRIX` includes the instance transform,
-  so per-tree limb phase works.
-- `use_custom_data` is set before `instance_count`. Shakes write custom data only for
-  struck trees and zero it at the end.
-- Per-frame cost is small: one group lookup, one ambient update, and a date-string key
-  per frame. The tree walk runs every 1.5 s and on each strike.
-- Static season, wind and wetness state survives `reset()`, so streamed chunks and
-  rebuilt materials start in the current season. `_bark_wetness = -1` forces a re-push.
-- Minor, not fixed: the leaf branch repeats `inverse(mat3(MODEL_MATRIX))` per vertex,
-  and shared non-species canopy materials (bushes) never get wet.
-- The delegated second reviewer agent failed without returning findings.
-
-## Scale, glare and ground-cover popping fixes (R-1194 follow-up)
-
-- Card size: `CARD_SCALE` 3.4 -> 2.3 and `CONIFER_CARD_SCALE` 3.8 -> 3.0 in
-  `map_view_tree_meshes.gd`, with 4 cards per deciduous tip (was 3), because single
-  leaves read head-sized next to the player.
-- Card lighting: in `map_view_canopy.gdshader` cards use matte roughness 0.95,
-  specular 0.06 and 45% backlight, so conifers no longer wash white when the sun
-  grazes them.
-- Grass popping: ground cover was culled per chunk by `visibility_range_end`, so a
-  whole chunk appeared or vanished with camera motion. `map_view_grass.gdshader`
-  now shrinks each tuft to zero between `fade_start` and `fade_end` (distance from
-  the camera, same metric as the range cull) before the cull fires. Scatter grass
-  (`grass_blades()`) fades 30-43 m inside its 45 m range (the city streams 16 m chunks 3 deep, at least 48 m); eye-level terrain details
-  (`grass_blades_near()`) fade 7-11 m inside their 14 m range.
-- Grass variety: per-tuft height, width and tint vary from the planted position.
-- Not yet verified visually: needle transparency on conifers. District-map bush
-  popping is moot: district maps no longer draw bushes (see "Legacy shrub mesh
-  removed" below).
-
-## Seamless city: real scale, near/far crowns, bark and grass plates (R-712)
-
-The seamless city ([SEAMLESS_CITY.md](SEAMLESS_CITY.md), 1 world unit = 1 m) reuses the
-district tree meshes, which are about 2.5 units tall and get scaled 3-4.5x. Everything
-sized in mesh units grew with them: leaf-cluster cards were 1-1.9 m (head-sized leaves,
-spruce needles read as flat planks), a 13 m spruce had a 1.1 m trunk, and bark UVs ran
-0..1 per limb segment (a blurred brown smear). The city now builds its own variants;
-the district maps keep their geometry and procedural bark unchanged.
-
-What the player sees:
-
-- **Heights** follow young-to-middle-aged trees (`CityVegetationBuilder.HEIGHT_M`:
-  spruce 9.5 m, pine and oak 10 m, birch 9 m, linden/ash/elm 9.5 m), and the plan's
-  per-tree size factor is compressed toward 1 (`SIZE_VARIATION` 0.6), so the tallest
-  tree is under seven times Kalev's 1.83 m.
-- **Trunks** are thinned to real base diameters (`TRUNK_DIAMETER_M`, spruce 0.36 m, oak
-  0.7 m, birch 0.3 m; branches thin less so they never outgrow the bole) and carry
-  photographic **bark plates** (birch, oak, grey for ash/linden/elm/maple/alder/willow,
-  pine, spruce, cherry for orchard trees) with normal maps, tiled every 0.55 m up each
-  limb. Rain darkens them like the old bark. A limb keeps its tile count round the
-  circumference from its base and carries its ring frame from section to section, so
-  the bark runs on without a ring seam where sections meet; plates get shorter as the
-  limb thins instead of changing width.
-- **Near crowns** (trees within 34 m of the camera, released at 42 m) use real-size
-  cluster cards (0.62 m deciduous, 0.58 m conifer) with up to 3.5x more cards, and single
-  folded leaves at 0.4x, so leaves read at leaf size when Kalev stands under a tree.
-  **Far crowns** keep the cheap big-card geometry. The swap is per tree, not per 96 m
-  chunk, and both LODs share one skeleton, so the silhouette never changes.
-- **Spruce** grows 26 whorls (was 14) with the skirt down to 0.34 of the trunk, so it
-  reads as a dense cone instead of a few sparse tiers; pine has 16 primaries.
-- **Needles**: the atlas spruce and pine tiles were regenerated from denser needle
-  sprays and keyed hard enough that the soft shadows between needles are cut away
-  (they were kept as an opaque pale fill, which made each card a flat sheet).
-- **Grass ground**: twelve seamless meadow plates (rough pasture, hay meadow, clover,
-  spring grass, sedge, yarrow and weeds, wildflowers, plus rare dry, mossy and
-  leaf-strewn patches and a trodden plate round packed earth) replace the single 1.6 m
-  plate. Each plate covers about 1.3 m. A warped lattice of 4.5 m cells gives every
-  corner its own plate, rotation and offset and blends the four corners with
-  height-aware weights, so patches meet in ragged edges and nothing repeats.
-- **Grass tufts** are 0.2-0.45 m tall (`CityGrass.TUFT_SCALE` 0.36-0.78 of the shared
-  tuft, was 0.55-1.15) at 1.8 tufts per m^2 (was 2.8; thinned when the fade moved out to 30-43 m).
-
-Runtime entry points:
-
-| Piece | File |
+| City grass at eye level | City grass, wide |
 |---|---|
-| City wood, near, macro and far crowns, city skeleton overrides | [`map_view_tree_meshes.gd`](../../scripts/map/view3d/map_view_tree_meshes.gd) (`city_wood_mesh`, `city_canopy_near_mesh`, `city_canopy_macro_mesh`, `city_canopy_far_mesh`, `CITY_PROFILE_OVERRIDES`) |
-| Profile-driven segment cap (`max_segments`) | [`map_view_tree_mesh_skeleton.gd`](../../scripts/map/view3d/map_view_tree_mesh_skeleton.gd) |
-| Per-tree far/near/macro swap | [`city_tree_lod.gd`](../../scripts/city/city_tree_lod.gd) (`CityTreeLod`, child `Vegetation/TreeLod` of `CityWorld3D`; follows the active camera) |
-| Heights, trunk diameters, LOD registration | [`city_vegetation_builder.gd`](../../scripts/city/city_vegetation_builder.gd) |
-| Bark plate materials | [`map_view_prop_materials.gd`](../../scripts/map/view3d/map_view_prop_materials.gd) (`bark_plate`, `BARK_PLATES`), `MapViewTreeSpecies.bark_plate_for` |
-| Grass ground plates | [`city_grass_ground.gdshaderinc`](../../scripts/city/city_grass_ground.gdshaderinc), included by `city_ground.gdshader`; textures bound in `CityTerrainBuilder.TEXTURES` |
-| Tuft size | [`city_grass.gd`](../../scripts/city/city_grass.gd) (`TUFT_SCALE`) |
+| ![City blade grass at eye level](../reports/images/vegetation/veg_city_grass_eye.jpg) | ![City blade grass from a wider view](../reports/images/vegetation/veg_city_grass_wide.jpg) |
 
-Data and assets: `assets/materials/pbr/grass_ground/grass_ground_{albedo,normal}_array.jpg`
-(imported as 4x3 `Texture2DArray`s; slice order is the `GRASS` list in the processor and
-the comment in the include) and `assets/materials/pbr/bark_<plate>/` (the spruce and pine
-tiles of `foliage_cards/leaf_card_atlas.png` came from here until R-1329 drew the whole
-atlas procedurally). Sources are OpenAI `gpt-image-1` plates under
-`generated/openai/vegetation_v1/<group>/<name>/prompt.json` (prompt, generation id, SHA-256;
-the raw PNGs are not committed). Rebuild with
-`python3 tools/assets/build_vegetation_plates.py [--only grass,bark] [--preview build/vegetation_plates]`
-(the preview writes 2x2 tilings for a seam check). Provenance rows
-are in `assets/SOURCES.csv` (visual and rights approval pending). Nothing is saved: the LOD
-and all geometry are rebuilt deterministically from the plan.
+![Lineup of the eight wild-plant models: dandelion in flower, in seed and as a rosette, plantain, white and red clover, burdock rosette and flowering burdock](../reports/images/vegetation/forbs_lineup.png)
 
-Verify:
+| Dandelion | Plantain | Clover | Burdock |
+|---|---|---|---|
+| ![Dandelion flower, seed clock and rosette](../reports/images/vegetation/forbs_dandelion.png) | ![Broadleaf plantain with flower spikes](../reports/images/vegetation/forbs_plantain.png) | ![White clover mat and red clover](../reports/images/vegetation/forbs_clover.png) | ![Burdock rosette and flowering candelabra](../reports/images/vegetation/forbs_burdock.png) |
 
-```bash
-/Applications/Godot.app/Contents/MacOS/Godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_city_vegetation
-tools/godot_render.sh --script tools/capture_city_vegetation.gd -- --tag=after   # build/vegetation/*.png
+The same verge through the year ([wild-plant seasons](#wild-plant-seasons-r-1557)):
+
+| May | June | October (wall foot) | January |
+|---|---|---|---|
+| ![Verge in May: dandelions flowering, clover and plantain in leaf](../reports/images/vegetation/forbs_season_may.png) | ![Verge in June: seed clocks, plantain spikes, clover heads](../reports/images/vegetation/forbs_season_june.png) | ![Wall foot in October: rosettes and dry burdock](../reports/images/vegetation/forbs_season_october.png) | ![Verge in January: nothing above ground](../reports/images/vegetation/forbs_season_january.png) |
+
+Habitats: [verge](../reports/images/vegetation/forbs_verge.png), [wall foot](../reports/images/vegetation/forbs_wall.png), [meadow](../reports/images/vegetation/forbs_meadow.png); [leaf-only and dry variants](../reports/images/vegetation/forbs_seasonal_studio.png). Blueprint maps: dandelion [before](../reports/images/vegetation/blueprint_forbs_dandelion_before.png) / [after](../reports/images/vegetation/blueprint_forbs_dandelion_after.png), burdock [before](../reports/images/vegetation/blueprint_forbs_burdock_before.png) / [after](../reports/images/vegetation/blueprint_forbs_burdock_after.png).
+
+### Where things grow (ecology)
+
+Each plate is ecology off | on on `viru_gate_foreland` (R-1322).
+
+![Water edge: sedge and nettle on the bank with ecology on](../reports/images/vegetation/r1322_water_edge.png)
+
+Also: [woodland edge](../reports/images/vegetation/r1322_woodland_edge.png) (scatter trees thinned and redistributed by fertility), [road verge](../reports/images/vegetation/r1322_road_verge.png) (tree and bush cleared from the wall foot), [a clear bridge deck](../reports/images/vegetation/r1617_bridge_clear_tartu.jpg) (R-1617 rooting rules).
+
+### Moss, lichen and the forest floor
+
+| North side of a birch | North wall foot | Forest floor, April | Forest floor, August |
+|---|---|---|---|
+| ![Moss skirt and lichen on the north side of a birch, with tinder brackets](../reports/images/vegetation/r1684_tree_north_moss.jpg) | ![Cushion moss at the foot of a north wall](../reports/images/vegetation/r1661_wall_moss_closeup.jpg) | ![False morels and moss cushions in April](../reports/images/vegetation/r1661_forest_floor_april.jpg) | ![Chanterelles in August](../reports/images/vegetation/r1661_forest_floor_august.jpg) |
+
+Also: [whole north wall](../reports/images/vegetation/r1661_wall_north_moss.jpg), [shaded ground strip](../reports/images/vegetation/r1661_shaded_ground.jpg), [woods in April](../reports/images/vegetation/r1661_woods_april.jpg) and [August](../reports/images/vegetation/r1661_woods_august.jpg), roofs: [tile](../reports/images/vegetation/r1684_roof_tile.jpg), [shingle](../reports/images/vegetation/r1684_roof_shingle.jpg).
+
+## Tree species
+
+The stable catalog is [`MapViewTreeSpecies.ALL_SPECIES`](../../scripts/map/view3d/map_view_tree_species.gd). District variants use `tree.<species>` and may add `.small`, `.medium` or `.large`. `tree.mixed`, `tree.deciduous` and `tree.orchard` choose weighted pools rather than extra models. City plan entries use the species key without `tree.`.
+
+All 20 species have entries in the [branching presets](../../scripts/map/view3d/tree_skeleton_weber_penn.gd) (`PRESETS`) and [size/leaf profiles](../../scripts/map/view3d/map_view_tree_mesh_profiles.gd) (`profile_for`). These are the editable model sources; there is no exported model file per row.
+
+| Tree | Model key | Habit (what the player sees) | Seasonal group / fruit |
+|---|---|---|---|
+| Norway spruce | `spruce` | Cone with whorls down to the lower stem, hanging shoots, low skirt | Evergreen |
+| Scots pine | `pine` | Clear bole, high open irregular crown, needles in terminal tufts | Evergreen |
+| Silver birch | `birch` | Narrow flame of airy sprays over a white bole | Early; gold autumn |
+| Pedunculate oak | `oak` | Forks low into a broad crooked crown | Late; brown autumn |
+| Alder | `alder` | Compact branching, rounded broadleaf mass | Early; muted olive-brown autumn |
+| Eurasian aspen | `aspen` | Slender upright form, relatively high crown | Early; yellow/orange autumn |
+| Norway maple | `maple` | Dome, lobed leaf-card family | Late; red/orange autumn |
+| Small-leaved linden | `linden` | Full dome, heart-shaped leaf-card family | Late; yellow autumn |
+| European ash | `ash` | High airy dome, shoot ends curl up | Late; shared autumn palette |
+| Wych elm | `elm` | Low fork into a broad dome with arching shoots | Late; yellow autumn |
+| Willow | `willow` | Short leaning bole, ascending limbs, hanging shoot ends (not the later ornamental weeping willow) | Early; shared autumn palette |
+| Rowan | `rowan` | Slender two-stemmed oval | Early; red/orange, berries Aug-Nov |
+| Hazel | `hazel` | Multi-stemmed stool with no trunk | Early; no modeled nuts |
+| Juniper | `juniper` | Compact evergreen column | Evergreen |
+| Apple | `apple` | Short bole breaking into four crooked scaffold limbs, crown wider than tall | Early; fruit Aug-Oct |
+| Sour cherry | `cherry` | Small multi-stemmed rounded crown with hanging shoots | Early; fruit July |
+| Plum | `plum` | Upright irregular oval | Early; fruit Aug-Sep |
+| Pear | `pear` | Tall narrow pyramid on a central leader | Early; fruit Aug-Oct |
+| Hawthorn | `hawthorn` | Short divided stem under a dense crooked crown | Early; rusty autumn, berries Aug-Nov |
+| Blackthorn | `blackthorn` | Multi-stemmed stool, low and dense | Early; sloes Sep-Nov |
+
+"Early" and "late" are rendering groups, not botanical simulations. Leaf-card families are shared: ash, rowan and willow borrow the birch tile, so compound or narrow leaves are not reproduced exactly. Species identity comes from branching, proportions, tint and bark as well as the card. The [flora ledger](../FLORA_FAUNA.md#tree-model-ledger-2020) records authored district-map locations; it is not evidence that every species appears in every scene. Only Baltic 1343 species are allowed ([`FLORA_FAUNA.md`](../FLORA_FAUNA.md)).
+
+**City form, not a 21st species:** `pine_tall` is defined in [`MapViewTreeMeshes.CITY_FORMS`](../../scripts/map/view3d/map_view_tree_meshes.gd). It maps to `pine` for needles, bark, wind, seasons and macro fronds, with its own skeleton profile: `crown_start` 2.25 of 3.35 mesh units, 13 primary limbs, shorter level-1 limbs (`level_overrides`) and needles only on the outer third of each shoot (`preset_overrides`, `cluster_span` 0.32). `MapViewTreeMeshes.base_species()` resolves a form for materials. [`CityVegetationBuilder.HEIGHT_M`](../../scripts/city/city_vegetation_builder.gd) gives it 23 m and `TRUNK_DIAMETER_M` 0.52 m, versus 10 m for ordinary pine (scaling the 10 m pine instead would give a ~15 m wide crown starting a third of the way up). Other city targets: spruce 9.5 m, birch 9 m, oak 10 m, apple/cherry 4 m, juniper 2.5 m; nominal presentation sizes, varied per plan entry.
+
+## Model sources and assets
+
+Most trees are **cached procedural `ArrayMesh` geometry**. The species chooses a growth preset; the generator creates branches and twig anchors; the mesh builder emits wood, canopy and optional fruit. Instances reuse those meshes. Changing a mesh profile is a model edit even though no Blender or GLB file changes.
+
+| Part to open | Source / asset | Responsibility |
+|---|---|---|
+| Species registry | [`map_view_tree_species.gd`](../../scripts/map/view3d/map_view_tree_species.gd) | Stable IDs, size classes, weighted pools, tints, bark families |
+| Branching model | [`tree_skeleton_weber_penn.gd`](../../scripts/map/view3d/tree_skeleton_weber_penn.gd), `PRESETS` | Trunk forks, branch levels, curvature, twig clusters; all 20 species |
+| Dimensions and leaves | [`map_view_tree_mesh_profiles.gd`](../../scripts/map/view3d/map_view_tree_mesh_profiles.gd) | Height/radius, leaf sizes, density and fruit settings |
+| Mesh assembly and city forms | [`map_view_tree_meshes.gd`](../../scripts/map/view3d/map_view_tree_meshes.gd) | `wood_mesh`, `canopy_mesh`, `fruit_mesh`; `city_*` variants, caching, scale corrections, LOD geometry |
+| Leaves, cards, needles | [`map_view_leaf_geometry.gd`](../../scripts/map/view3d/map_view_leaf_geometry.gd) | Folded geometry, card UVs, atlas family mapping (`CARD_TILES`), round needles |
+| Leaf-cluster texture | [Atlas](../../assets/materials/pbr/foliage_cards/leaf_card_atlas.png), [normal](../../assets/materials/pbr/foliage_cards/leaf_card_normal.png), [surface](../../assets/materials/pbr/foliage_cards/leaf_card_surface.png) | Shared textures; bound in the wind materials |
+| City bark | [Birch](../../assets/materials/pbr/bark_birch/), [oak](../../assets/materials/pbr/bark_oak/), [grey](../../assets/materials/pbr/bark_grey/), [pine](../../assets/materials/pbr/bark_pine/), [spruce](../../assets/materials/pbr/bark_spruce/), [cherry](../../assets/materials/pbr/bark_cherry/) | Albedo/normal pairs; `bark_plate_for` selects the family |
+| Materials | [`map_view_wind_materials.gd`](../../scripts/map/view3d/map_view_wind_materials.gd), [`map_view_prop_materials.gd`](../../scripts/map/view3d/map_view_prop_materials.gd) | Crown, bark, fruit, grass, seasonal and wetness parameters |
+| Shrub canes | [`map_view_bush_meshes.gd`](../../scripts/map/view3d/map_view_bush_meshes.gd) | Dog rose and raspberry city meshes |
+| Grass blades | [`map_view_foliage_meshes.gd`](../../scripts/map/view3d/map_view_foliage_meshes.gd) (`grass_blade_clump_mesh`), [`map_view_grass.gdshader`](../../scripts/map/view3d/map_view_grass.gdshader) | Blade clump mesh and grass shader |
+| Wild plants | [`city_forb_meshes.gd`](../../scripts/city/city_forb_meshes.gd), [`city_forb.gdshader`](../../scripts/city/city_forb.gdshader), [`forb_leaf_detail.png`](../../assets/vegetation/forbs/forb_leaf_detail.png) | Eight forb models and their shader |
+
+**Separate authored landmark:** the [sacred-grove ancient oak GLB](../../assets/props/environment/sacred_grove_ancient_oak/sacred_grove_ancient_oak.glb) is a distinct prop, not the source of procedural `tree.oak`; it does not join the crown, LOD or strike systems. Provenance and approval live in [`assets/SOURCES.csv`](../../assets/SOURCES.csv). If any code or asset is copied from an open-source project, add it there with its license first.
+
+### Procedural textures
+
+Implemented in **R-1329**. Every vegetation texture is drawn in code, with no image-generator rights risk; the canopy atlas no longer comes from Leonardo (`leaf_cards_v1`) or OpenAI needle plates.
+
+**Run.** `python3 tools/assets/generate_vegetation_atlases.py` (NumPy and Pillow, about 12 s). Every output is a pure function of species parameters and seed 1343 (PCG64 streams, FFT-filtered noise, fixed PNG encoder, no metadata), so two runs give byte-identical files. `--tune` re-derives each leaf species' `size_scale` for its coverage target (about 2.5 min); `--compare-old OLD.png --sheets DIR` writes review sheets; `--out-root DIR` writes elsewhere. `tools/assets/build_leaf_card_atlas.py` calls the generator; `build_vegetation_plates.py` is kept for bark only.
+
+| File | Content | Used by |
+|---|---|---|
+| `assets/materials/pbr/foliage_cards/leaf_card_atlas.png` | 2048x1024 RGBA, 4x2 tiles: birch, oak, maple, linden / apple, spruce, pine, empty | Canopy shader `leaf_atlas` |
+| `.../foliage_cards/leaf_card_normal.png` | OpenGL tangent-space normals of the same tiles | Built; not sampled yet |
+| `.../foliage_cards/leaf_card_surface.png` | R roughness, G translucency, B baked occlusion | Built; not sampled yet |
+| `assets/vegetation/bark/bark_<kind>_{albedo,normal}.png` | Seamless 512 px `birch`, `oak`, `grey`, `pine`, `spruce`, `cherry` | Built; shipped bark still uses the R-712 plates |
+| `assets/vegetation/ground/ground_<kind>_{albedo,normal}.png` | Seamless 512 px `moss`, `leaf_litter`, `needle_litter` | Ground cover (planned binding) |
+| `assets/vegetation/grain/grain_ear_atlas.png` | 1024x512, 4x1 tiles: `rye`, `barley`, `oat`, `flax` ears | [Grain fields](#roadmap) (planned) |
+
+**How leaves are drawn.** Each tile is a twig cluster supersampled at 1024 px and box-filtered down. Leaves are signed-distance outlines: deltoid double-serrate birch, obovate lobed oak with basal auricles, palmate Norway maple, oblique cordate linden, elliptic crenate apple, each with midrib, veins, fold shading, per-leaf hue variation, browned tips on a share and a contact shadow. Layouts follow the species (alternate, tip rosettes, opposite pairs, two-ranked, spurs). Spruce is a flat spray of short needles with paler new growth; pine is paired long curved needles on a whorl. Bark uses periodic noise and Voronoi (furrowed oak, plated pine, scaly spruce, white birch with lenticels, smooth grey with lichen, banded cherry).
+
+**Runtime contract (from R-1194).** RGB is relative detail with mean opaque colour at neutral 0.5 grey (the shader multiplies by 2 and owns tint, season and wetness); alpha is coverage for the 0.5 scissor; the petiole end sits on the bottom edge (`UV.y = 0`); empty texels carry nearby leaf colour so mips never halo. Per-species `size_scale` keeps crown density as before: birch 0.32, oak 0.43, maple 0.37, linden 0.40, apple 0.39, spruce 0.39, pine 0.37.
+
+**Review.** Atlas sheets: [birch](../reports/images/vegetation_atlases/birch_before_after.png), [oak](../reports/images/vegetation_atlases/oak_before_after.png), [maple](../reports/images/vegetation_atlases/maple_before_after.png), [linden](../reports/images/vegetation_atlases/linden_before_after.png), [apple](../reports/images/vegetation_atlases/apple_before_after.png), [spruce](../reports/images/vegetation_atlases/spruce_before_after.png), [pine](../reports/images/vegetation_atlases/pine_before_after.png). In-engine crowns: [birch](../reports/images/vegetation_atlases/birch_engine_before_after.png), [oak](../reports/images/vegetation_atlases/oak_engine_before_after.png), [maple](../reports/images/vegetation_atlases/maple_engine_before_after.png), [linden](../reports/images/vegetation_atlases/linden_engine_before_after.png), [apple](../reports/images/vegetation_atlases/apple_engine_before_after.png), [spruce](../reports/images/vegetation_atlases/spruce_engine_before_after.png), [pine](../reports/images/vegetation_atlases/pine_engine_before_after.png). The first pass failed review and was redrawn by parameters, not by loosening the gate.
+
+## From species to rendered tree
+
+```text
+Authored map scatter / city plan tree entry
+  -> species key + position + size
+  -> growth profile + branching preset
+  -> deterministic skeleton: trunk, branches, twig ends
+  -> cached wood mesh + canopy mesh + optional fruit mesh
+  -> spatial/species MultiMesh batches
+  -> seasonal materials + weather + camera-dependent detail
 ```
 
-[`test_city_vegetation.gd`](../../tests/godot/test_city_vegetation.gd) checks heights against
-Kalev, trunk diameters, bark-tile UVs and tangents, bark plates, near card size, density and
-triangle budget, the city spruce whorls, the unchanged district spruce, the LOD swap and its
-hysteresis, the grass-plate import contract and tuft size.
-[`test_tree_wood_wind.gd`](../../tests/godot/test_tree_wood_wind.gd) checks that bark UVs
-stay continuous across the trunk joints of pine, pine_tall, spruce, oak, birch and cherry
-(only sections that start where the previous one ends count; oak and cherry list their
-mid-trunk limbs at depth 0 too). The capture tool frames the most
-open spruce, pine, oak, birch and orchard cherry next to a 1.83 m reference figure, plus needle, bark and
-grass close-ups, the first trunk joint from three sides (`<species>_bark_joint_*`, framed on the
-skeleton's own first joint), the thin upper limbs (`<species>_upper_limbs`) and a far stand.
+Placement is separate from appearance: see [Placement and ecology](#placement-and-ecology). One species can have many placements without many generated models: **mesh caching** avoids rebuilding geometry and **MultiMesh** draws instances together. Neither removes the cost of overlapping leaf cards, shadows or nearby macro crowns.
 
-### Bark joint review across species (follow-up to 76a895c8)
+### Skeleton (R-1324)
 
-Rendered `--tag=before` (parent of 76a895c8) and `--tag=after` with
-`tools/godot_render.sh --script tools/capture_city_vegetation.gd -- --tag=<tag> --only=...`.
-Images: [oak](../reports/images/vegetation/veg_bark_joint_oak_before_after.jpg),
-[spruce](../reports/images/vegetation/veg_bark_joint_spruce_before_after.jpg),
-[birch](../reports/images/vegetation/veg_bark_joint_birch_before_after.jpg),
-[cherry](../reports/images/vegetation/veg_bark_joint_cherry_before_after.jpg) (top row before,
-bottom row after; columns are the three joint views and the upper limbs).
+[`TreeSkeletonWeberPenn`](../../scripts/map/view3d/tree_skeleton_weber_penn.gd) implements Weber and Penn, "Creation and Rendering of Realistic Trees" (SIGGRAPH 1995) in GDScript (the GPL Blender Sapling add-on was not used). The trunk takes lean, root flare and taper; each branch level has its own count, length (scaled by a crown shape ratio), down angle, golden-angle phyllotaxis, curvature and an attraction term (gravity droop when negative, phototropism when positive). A preset's `splits` forks the bole into `splits + 1` leaders at `split_height` (R-1391): one split is the fork of oak, maple, elm and rowan; a split near the ground with several leaders is a stool (hazel, blackthorn); a split at a third of the height is an orchard head (apple, cherry, plum, willow, hawthorn). Leaders start slightly inside the bole so no flat cap shows. [`MapViewTreeMeshes.build_skeleton`](../../scripts/map/view3d/map_view_tree_meshes.gd) falls back to the legacy [`MapViewTreeMeshSkeleton`](../../scripts/map/view3d/map_view_tree_mesh_skeleton.gd) for an unknown species; both return the same dictionary. Scale comes from the profiles (`trunk_height`, `trunk_radius`, `crown_start`, `primary_count`; city overrides in `CITY_PROFILE_OVERRIDES`), and a primary limb is never dropped by the segment budget.
 
-- **Seam:** the UV test passes for all six species. Before/after, oak's bark ring seam is gone;
-  spruce, birch and cherry show no seam.
-- **Risk 1, short plates on thin upper limbs:** no vertical stretching and no overly fine bark seen
-  on spruce, oak, birch or cherry upper limbs at 3 m. Birch and cherry limbs are thin enough that
-  the plate texture is hardly resolved either way.
-- **Risk 2, branch bases under the collar:** spruce and birch limb bases show no visible v jump.
-- **Found, not fixed (pre-existing):** at the oak trunk joint a wedge-shaped gap opens on the
-  outside of the bend (grass shows through), identical before and after the UV fix
-  ([crop](../reports/images/vegetation/veg_oak_joint_gap_before_after.jpg)). Cause: each section's end
-  ring is perpendicular to its own axis, so a bent joint is not mitred. Needs a mitred shared ring
-  in `_append_tapered_tube`; cherry, birch and spruce joints are too straight to show it.
+- **Smooth limbs.** Limbs are resampled along a cubic Hermite curve (`smooth_polyline`, `BRANCH_SMOOTH_SUBDIV` 3 per coarse piece, 4 in the legacy path), so direction changes read as bends.
+- **Branch collars.** `_append_branch_collar` adds a short concave flared cone at every branch base (1.25x on twigs up to 2.0x on large limbs, capped below the parent radius), so limbs blend into the parent.
+- **Ground contact.** `_append_root_base` widens the bole into a concave root flare with continuous bark UVs; species in `ROOTED_SPECIES` also get 3-5 buttress roots. `CityVegetationBuilder.litter_mesh` scatters leaf flecks or needle strokes (`CONIFERS`) around about 65 % of city trees (`LITTER_SHARE`), thickest at the foot, not under shrubs.
 
-Before / after (Godot 4.7.1 GL Compatibility, Apple M5 Pro, 15 July, late morning):
-[spruce](../reports/images/vegetation/veg_city_spruce_scale.jpg),
-[spruce, gameplay camera](../reports/images/vegetation/veg_city_spruce_gameplay.jpg),
-[spruce needles](../reports/images/vegetation/veg_city_spruce_needles_close.jpg),
-[pine](../reports/images/vegetation/veg_city_pine_scale.jpg),
-[oak, gameplay camera](../reports/images/vegetation/veg_city_oak_gameplay.jpg),
-[oak bark](../reports/images/vegetation/veg_city_oak_bark_close.jpg),
-[birch bark](../reports/images/vegetation/veg_city_birch_bark_close.jpg),
-[grass at eye level](../reports/images/vegetation/veg_city_grass_eye.jpg),
-[grass from above](../reports/images/vegetation/veg_city_grass_wide.jpg),
-[far stand](../reports/images/vegetation/veg_city_stand_far.jpg).
+### Wood and bark
 
-Cost: in the densest stand (18 trees within 35 m, 17 near crowns) a 1600x900 frame took
-8.4 ms with near crowns off and 9.0-10.5 ms with them on (one local run). Near crowns
-are 12-20k triangles for broadleaves, about 55k for spruce and 66k for pine
-(`NEAR_TRIANGLE_CAP` 56k; conifers carry cards along every segment and stay a little over).
+Tapered tubes form trunks and limbs; foliage clusters sit on shoot ends. City wood uses realistic trunk diameters and bark plates tiled along limbs at about 0.55 m. Bark UVs follow the branch frame, so a texture does not restart every segment. Bark **families** are shared: aspen uses birch, juniper spruce, orchard trees cherry, many broadleaves grey. District wood keeps its older procedural bark path.
 
-Limits of this pass: Scots pine keeps a stylised clumped crown; the grass plates'
-plantain and dandelion rosettes can repeat in a regular rhythm inside one plate; the
-district maps keep their old bark and crown geometry. Shrub leaves were fixed in R-1315
-(below), conifer needles close up in R-1404 (below).
+### Foliage and lighting
 
-### Macro conifer crowns: round 3D needles (R-1404)
+A crown mixes folded silhouette leaves with **folded cluster cards**: a small folded surface carrying a transparent image of several leaves or a needle spray. `_append_twig_clusters` places cards over the outer `cluster_span` of each shoot end; clusters near the crown axis get fewer, smaller, darker cards. The alpha cutoff removes empty texels without blend sorting. This makes dense crowns affordable, but cards can look flat edge-on or thin out in distant mips.
 
-Status: implemented (task **R-1404**). Scope: seamless-city spruce, pine and juniper
-within 10 m of the camera. Out of scope: broadleaf crowns, far and near crowns beyond
-10 m, district maps, and true needle density (see Limits).
+The [canopy shader](../../scripts/map/view3d/map_view_canopy.gdshader) combines species/season tint, darker interiors, wrapped crown normals (`_emit_card` bends only shell clusters onto the crown normal), chlorophyll-tinted backlight (`leaf_translucency`), rain wetness and wind. Changing texture brightness alone is not a reliable fix for washed-out foliage.
 
-Close up, conifer needles were flat: the crown mass is alpha-cut needle cards, and the
-folded "needles" were two-triangle diamonds lying in one plane, so a branch read as a
-hanging plank and vanished edge-on. Now:
+## Distance and detail
 
-- **Round needles everywhere.** `MapViewLeafGeometry.append_needle_shoot` builds a
-  bottlebrush shoot: needles spiral round the shoot axis on the golden angle, crowd a
-  little onto the lit upper side, shorten toward the bud, and Scots pine needles come
-  two to a fascicle. Each needle is a three-sided tapered prism whose normals point
-  radially out of the needle, so it shades like a small cylinder (dark root, lit tip).
-  The old flat diamonds on every conifer spray (near and far crowns) are now these
-  shoots: 36 triangles per spray instead of 28.
-- **Macro crown.** `CityTreeLod` adds a third tier: a conifer whose trunk is within
-  `MACRO_ENTER` (10 m; leaves at `MACRO_EXIT`, 13 m) swaps its near crown for
-  `MapViewTreeMeshes.city_canopy_macro_mesh`. There every exposed twig cluster
-  (`MACRO_FRONDS[species].min_exposure`) grows 3D fronds in place of its needle cards: a
-  leader shoot along the card axis plus side shoots alternating left and right and
-  hanging a little, one frond per `stride` card stations. Under each frond its card stays
-  as an undercoat at `MACRO_UNDERCOAT_SCALE` (0.85) and `MACRO_UNDERCOAT_SHADE` (0.85),
-  standing in for the shadowed inner needles. Inner clusters keep plain cards.
-  Card size and density match the near crown, and `MACRO_FROND_GAIN` matches the fronds'
-  brightness to the cards, so the 10 m swap changes needle detail, not crown mass or tone
-  ([near vs macro at the swap distance](../reports/images/vegetation/veg_city_spruce_near_macro_parity.jpg)).
-- **Sizes** (`MACRO_FRONDS`, metres): needles match the needle art on the cards (spruce
-  4 cm x 6.4 mm, pine 8.5 cm x 6.8 mm, juniper 2.4 cm), about 1.5-2x real. True-size
-  needles fall below a pixel at gameplay distance and vanish into the cards behind them.
-- **Wind and seasons.** Shoots use the folded-leaf contract (UV2 = (1, 0), UV.y rising
-  base to tip, CUSTOM0 = frond base + seed), so they sway, dull in winter and shed with
-  the rest of the crown.
+City detail follows the **active camera**. [`CityTreeLod`](../../scripts/city/city_tree_lod.gd) moves individual trees between shared batches with separate enter/exit distances to avoid flicker. Graphics quality scales the radii.
 
-Budget: needle density is thinned uniformly until the fronds fit
-`MACRO_FROND_TRIANGLE_CAP` (480k): a macro spruce is about 520k triangles (774 fronds),
-pine 380k (929 fronds), juniper 58k, against 12-40k for their near crowns. Only the one
-to three trees beside the camera carry it. Building the macro crowns, together with the
-near crowns they reuse, takes about 1.8 s in all (spruce 1.1 s), done once when the
-species registers with `CityTreeLod`, so the first walk up to a conifer does not hitch.
-Nothing is saved; the tier is rebuilt from the camera position.
+| Tier | Base rule | What is drawn |
+|---|---|---|
+| Macro conifer | Enter within 10 m, leave beyond 13 m | Spruce/pine/juniper outer shoots as real 3D needle fronds over darker inner cards |
+| Near crown | Enter within 34 m, leave beyond 42 m | Smaller clusters: 0.62 m broadleaf cards, 0.58 m conifer cards, 0.28 m on small shrub trees |
+| Far crown | Outside the near set | Cheaper large-card crown on the same skeleton |
+| Coarse crown and wood | Distant batches, quality-dependent | Reduced crown triangles and trunk-only wood; range and shadows owned by `CityVegetationBuilder` |
 
-Verify: `test_city_vegetation` (`test_needle_shoot_needles_are_round_prisms`: three faces
-per needle, normals wrapping the needle, clockwise fronts;
-`test_macro_conifer_crowns_grow_3d_needle_fronds`: fronds only in the macro crown, same
-card size and density as near, frond budget; `test_tree_lod_gives_close_conifers_a_macro_crown`:
-swap and hysteresis). GPU plates: `tools/godot_render.sh --script tools/capture_city_vegetation.gd -- --only=spruce_macro,pine_macro,spruce_needles_close`.
+A card size is the **whole twig cluster**, not one leaf. Macro needles are deliberately larger than real ones to stay visible. The 480k macro-frond cap covers fronds, not the whole tree; a close spruce is still expensive, so the macro tier must stay local to the camera. The coarse crown is reduced geometry, not a baked billboard; impostors are [planned](#roadmap). District maps have no LOD chain yet. LOD choice is reconstructed from the camera and never saved.
 
-Pine before / after:
-[before](../reports/images/vegetation/veg_city_pine_macro_before.jpg),
-[after](../reports/images/vegetation/veg_city_pine_macro_after.jpg);
-spruce after: [branch at arm's length](../reports/images/vegetation/veg_city_spruce_macro_after.jpg),
-[lower crown at 3.4 m](../reports/images/vegetation/veg_city_spruce_needles_close_macro.jpg)
-(before: [spruce needles](../reports/images/vegetation/veg_city_spruce_needles_close.jpg)).
+## Living behavior
 
-Limits: pine and juniper read as real 3D needle tufts; spruce gets 3D fronds on the
-surface, but most of its close-up density is still the darker undercoat cards, because
-real spruce needle density would be millions of triangles. No frame-time measurement
-with several macro spruces in view yet. GL Compatibility has no tessellation or mesh
-shaders to spend the budget only on the side facing the camera.
+### Seasons and fruit
+
+[`VegetationPhenology.state_for(species, date)`](../../scripts/map/view3d/vegetation_phenology.gd) computes the look from the campaign date ([animation](#in-motion)):
+
+- Spring expands small, pale, sparse leaves into a full crown; early and late groups use different curves.
+- Summer is full leaf. Fruit meshes show only in the species windows above; presentation, not harvesting.
+- Autumn mixes species colours within each crown and gradually sheds leaves; a per-cluster seed decides which clusters turn and fall first.
+- Winter leaves deciduous trees bare. Spruce, pine and juniper keep needles with a duller, bluer tint.
+
+The opening-date April greenery is an intentional art choice, earlier than typical Tallinn birch budburst. See [Seasons](./SEASONS.md) for the wider calendar. No tree blossom, no snow on branches.
+
+**Snow (R-1327).** `VegetationPhenology.snow_cover_for(date)` (0 before mid-December, 1 by mid-January, melts out 1 March to early April) drives `snow_cover` on the grass shader (blades sink, tips whiten) and the blended terrain shader (ground tint, weaker on trodden mud), pushed from `apply_vegetation_season`. Date-only, no weather input, no depth.
+
+### Rain
+
+Active rain darkens leaves and bark and changes their gloss through the material layer; leaves do not wait for puddles. Compare the same tree, camera and light with only rain changed; a fog-heavy rain screenshot cannot isolate a material problem.
+
+<a id="shared-wind-field-r-1321"></a>
+
+### Shared wind field
+
+One weather-driven wind field (**R-1321**) supplies crowns, grass, wild plants, flags, banners, sails, ropes and nets, so a gust crosses a field, reaches the trees, then the flags ([animation](#in-motion)). The sea has its own wind path; smoke and rain particles do not consume this field.
+
+[`WindField`](../../scripts/map/view3d/wind_field.gd) publishes global shader parameters through `MapViewWindMaterials.apply_world_wind`; they are declared in [`project.godot`](../../project.godot) because the wind shaders are preloaded (heading, strength, gust amplitude/wavelength, speed, turbulence). The [shader include](../../scripts/map/view3d/wind_field.gdshaderinc) samples analytic value noise by world position and time (no texture sampler, exact CPU mirror). Phase is `dot(world_xz, wind_dir) * k - time * speed` at two scales, so the bend travels as a wave. The front is sampled once per tuft, tree or staff, not per vertex. Grass gets a bend sheen so fronts read at distance; crowns use the cheaper `wind_pressure_coarse` because their vertex cost multiplies by shadow cascades. Direction, strength and gustiness come from the weather state ([`SKY_WEATHER_STATE_CONTRACT.md`](../SKY_WEATHER_STATE_CONTRACT.md)).
+
+### Whole-tree bending (city)
+
+City bark and every crown LOD share [`tree_wind.gdshaderinc`](../../scripts/map/view3d/tree_wind.gdshaderinc) (`tree_wind_offset()`), so leaves stay on their shoots. `city_wood_mesh` stores limb flexibility in `COLOR.a` (`limb_flex(radius)`: 0 bole, 1 twig tips). The model is a loaded cantilever in metres: drag load `u^1.4` saturating at 3, bole deflection `y^2 (3L - y) / (2 L^3)` with L = 9 m (about 1.3 m at the top of a 9 m tree in a storm gust, centimetres in a breeze), a ~0.5 Hz sway ring on gusts, per-limb cantilevers whose tip lag grows with the square of reach and ring at ~1.2 Hz, a twig shiver (`flex^2`), and an arc term that lowers the crown as the bole leans. Strong-gust lean is bounded at 30 degrees. Per-species stiffness is `sway_strength` relative to 0.06, so tall pines move more than stout oaks. An analytic approximation: it neither breaks branches nor moves collision.
+
+**District difference:** crowns move but wood stays rigid (`MapViewMaterials.bark`). Do not approve city bending from a district capture.
+
+### Weapon response, falling leaves and ground litter
+
+| Effect | Where / implementation | Persistence |
+|---|---|---|
+| Player swing shakes a crown and releases a burst | District `MapView3D.strike_vegetation` and [`TreeLeafFall3D`](../../scripts/map/view3d/tree_leaf_fall_3d.gd); reach, facing and attack cone | Temporary shake and particles, no damage |
+| Ambient leaf fall near trees | District `TreeLeafFall3D`; city [`CityLeafFall`](../../scripts/city/city_leaf_fall.gd) samples nearby trees from `CityTreeLod` | Particles disappear at the ground |
+| Gust leaf loss | `TreeLeafFall3D` `GustLeaves` stream upwind of the player when local wind passes ~0.9 (full at 2.0), leafed species only (`gust_leaf_rate`) | Particles only |
+| Leaves/needles lying under city trees | `CityVegetationBuilder.litter_mesh` | Deterministic decoration, not accumulated particles |
+
+A qualifying district swing can shake a tree even when it missed an enemy. Heavy attacks shake harder; autumn yields more leaves, bare crowns none, conifers a few needles. Shake decays over about 1.8 s. NPC attacks, spells and projectiles do not use this path; the city ambient emitter is not evidence of city melee wiring.
+
+## Shrubs
+
+City shrubs reuse tree infrastructure where appropriate ([images](#shrub-examples)). The authoritative mapping is [`CityVegetationBuilder.SHRUB_AS_TREE`](../../scripts/city/city_vegetation_builder.gd):
+
+| City plan species | Rendered model |
+|---|---|
+| `elder`, `hazel_shrub`, `guelder_rose`, `willow_shrub`, `alder_shrub` | Hazel tree mesh, scaled as a shrub |
+| `hawthorn`, `spindle` | Hawthorn tree mesh |
+| `blackthorn`, `sea_buckthorn` | Blackthorn tree mesh |
+| `juniper_shrub` | Juniper tree mesh |
+| `dog_rose`, `raspberry` | Curved canes with leaf cards from [`MapViewBushMeshes.city_mesh_for`](../../scripts/map/view3d/map_view_bush_meshes.gd) |
+
+Dog rose uses rowan leaf material and seasons; raspberry uses hazel. Card length 0.24 m; no flowers, hips or fruit. Species with neither a tree proxy nor a city mesh are skipped rather than drawn as a blob.
 
 ### Legacy shrub mesh removed
 
-Status: implemented (user request, 2026-10-10). The P0-115 procedural shrub mesh
-(`MapViewBushMeshes.mesh_for`: vertex-colour ellipsoid, tube and cone blobs per
-archetype) read as an odd green blob and was deleted with its builders.
+District maps no longer draw the old ellipsoid/cone shrub meshes: `bush.*` scatter and authored `bush` props have no model. The data still exists and still affects movement slow-down through [`TerrainVegetation`](../../scripts/map/terrain_vegetation.gd) and composition accounting. **Invisible shrub geometry does not mean the gameplay data was deleted.** Restoring district shrubs needs a new reviewed model, not the old fallback.
 
-- District maps no longer scatter bushes: `map_view_mesh_builder_scatter.gd` emits no
-  `Bushes_*` layer for `bush.*` zones, and the ecology juniper understory draws
-  nothing. Grass, plants and scatter trees in those zones are unchanged.
-- Authored `bush` props build no 3D model (no `Bush` node). They remain map data:
-  movement slow-down (`TerrainVegetation`) and the composition audit's ground cover
-  still read them. `bush.*` style variants still slow movement.
-- The asset showcase no longer lists the `BUSH` prop.
-- Seamless city: only species with a city variant (dog rose, raspberry) are drawn by
-  `CityVegetationBuilder.build_bushes`; the other shrubs already used tree meshes
-  (`SHRUB_AS_TREE`). A plan species with neither is skipped instead of falling back.
-- The species catalog (`map_view_bush_species.gd`) stays for variant parsing, tints
-  and city sizes.
+## Grass
 
-Verify: `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_map_view_bush_species`
-(`test_district_scatter_emits_no_bushes`, `test_authored_bush_prop_has_no_3d_model`,
-`test_asset_showcase_has_no_bush_prop`).
+Implemented for the seamless city (**R-1323**; the task stays open for the blueprint-map carpet and grass seasons). Decision (user, 2026-10-08): the ground texture is a primitive colour field and every recognisable plant is 3D geometry. Look target: Ghost of Tsushima fields of individual curved blades with wind rolling across them as a visible front.
 
-After: a `bush.dense` zone, a limestone alvar and an authored `bush` prop draw only grass and trees.
+- **Ground.** City plates (`grass_ground_*_array.jpg`) and the map-view plate (`pbr/grass/grass_*.png`) are drawn by [`generate_simple_grass_plates.py`](../../tools/assets/generate_simple_grass_plates.py): soft tonal patches and fine grain, no plants in the image. Slice order 0-7 green, 8 dry, 9 moss, 10 litter, 11 trodden.
+- **Blades.** [`CityGrass`](../../scripts/city/city_grass.gd) scatters `grass_blade_clump_mesh` (six curved tapered blades, five triangles each, cached) in three tiers, all MultiMesh with GPU wind and trampling:
 
-![District bush zone after removal](../reports/images/vegetation_realism/bush_removed_district.png)
+| Tier | Chunk | Density | Range (scale cross-fade, no alpha fade) | Material |
+|---|---|---|---|---|
+| Near | 8 m | 4.5 clumps/m2 | 0 to 12 m, shrinks out 12-17 m | `grass_blade_tier(true)` |
+| Mid | 16 m | 1 clump/m2, larger | Grows in 9-15 m, shrinks out 38-46 m | `grass_blade_tier(false)` |
+| Far | 32 m | 0.25 clumps/m2, 2x width (`FAR_WIDTH_BOOST`) | Grows in 36-48 m, shrinks out 100-118 m | `grass_blade_far()` |
 
-Limits: district shrubs need a new, reviewed shrub model before they come back.
+`CityGrass._stream` builds missing chunks nearest first within a 3.5 ms frame budget (at least one per frame), near before mid before far. GL Compatibility has no compute shaders, so placement stays on the CPU. Mid chunks also hold 3D yarrow accents (`PlantMeshes`, 0.012/m2).
+- **Shading.** Root-to-tip gradient with warm tip and per-clump dry tip, root colour melting into the ground (`root_tint`), rounded normal across the width, backlight, wind sheen. No shadows.
+- **Trampling.** `VegetationInteractionBuffer` keeps a ring of 8 recent player positions so a flattened path remains for a few seconds; NPCs are not fed yet.
+- **Blueprint maps** still use textured tuft cards from the R-1103 atlas for the eye-level carpet (`MapViewTerrainDetails`) and scatter tufts.
 
-### City shrubs: real-size leaves (R-1315)
+## Wild plants (forbs)
 
-Status: implemented (task **R-1315**). Scope: seamless-city shrubs from the plan's
-`bushes` list. Out of scope: district-map bushes (the legacy mesh was later removed,
-see below) and the leafless scrub tufts (juniper, sea buckthorn, heather).
+Implemented (**R-1519**, seasons **R-1557**, blueprint maps **R-1559**). Decision (user, 2026-10-09): accent diamonds and flat single-tone leaves were rejected; plants must read as real botany up close. [`CityForbMeshes`](../../scripts/city/city_forb_meshes.gd) builds eight cached models from botanical proportions ([images](#grass-and-wild-plants)), each with a far variant at a quarter of the triangles or less:
 
-City shrubs are drawn two ways, and both had the wrong leaf size beside Kalev:
+| Plant | Models | Habitat (`CityForbs`) |
+|---|---|---|
+| Dandelion | In flower, in seed (clock), leaf rosette: runcinate hooked lobes, purplish petiole, hollow scapes | Short grass round settlement |
+| Broadleaf plantain | Ribbed ovate leaves, knobbly spikes with a stamen band | Worn verges and yards, pressed flat where trodden |
+| White clover | Dense 70-leaf creeping mat, globular heads browning at the base | Patches of short turf |
+| Red clover | Upright stems, elliptic leaflets, pink-purple globes | Uncut meadow only |
+| Burdock | First-year rosette of wavy heart leaves on red petioles; second-year 1.1-1.3 m candelabra with hooked burrs | Wall feet and road edges, flowering more where nobody cuts |
 
-- **Tree-mesh shrubs.** Elder, hazel, guelder rose, willow and alder scrub, hawthorn,
-  spindle and blackthorn use the hazel, hawthorn or blackthorn tree meshes
-  (`CityVegetationBuilder.SHRUB_AS_TREE`). Their far cards are 0.36-0.54 m and they
-  never swapped to a near crown. They now join `CityTreeLod` like trees, and their near
-  crown uses `MapViewTreeMeshes.NEAR_SHRUB_CARD_METRES` (0.28 m cluster cards, about
-  8-12 cm leaves) with up to 3.5x more cards, so the shrub keeps its mass
-  (`MapViewTreeMeshes.CITY_SHRUBS`).
-- **Bush-mesh shrubs.** Dog rose and raspberry used the shared ~1 unit vertex-colour
-  blob meshes scaled 1.5-1.9x: sticks with smooth green balls and no leaf cards. The
-  city builds its own variant in metres (`MapViewBushMeshes.city_mesh_for`, chosen by
-  `CityVegetationBuilder.bush_mesh` / `bush_scale`): 14-15 arching canes (`CITY_CANES`;
-  rose arches out, raspberry stands upright) carrying alternate leaf-cluster cards of
-  `CITY_CARD_METRES` (0.24 m) from just above the ground to the tip. Cards use the canopy
-  card contract (UV2 = (1, 1), CUSTOM0 = twig base + seed) and the canopy material of a
-  proxy tree (`CITY_LEAF_PROXY`: rose -> rowan, raspberry -> hazel), so they sway, green
-  up, colour and drop with that species; canes stay bare in winter. The plan's size
-  factor is the only instance scale.
+- **Leaf detail.** Silhouettes are geometry; venation is the procedural atlas [`forb_leaf_detail.png`](../../assets/vegetation/forbs/forb_leaf_detail.png) from [`generate_forb_leaf_atlas.py`](../../tools/assets/generate_forb_leaf_atlas.py), a detail multiplier on UV2 (0.5 = x1; tile order is a contract with the `TILE_*` constants).
+- **Placement.** [`CityForbs`](../../scripts/city/city_forbs.gd) reads the fields that drive grass height (`CityGrass.wildness_at`, cached `road_distance_at`, `house_distance_at`, `bareness_at`). Patches come from fixed-seed simplex noise. In tall grass red clover and dandelion scale up evenly (a vertical stretch turned clover into thistles).
+- **Drawing.** 8 m chunks within 6 chunks of the player, streamed after the mid grass tier. One MultiMesh per model and detail level (near within 9 m of the player's chunk, `NEAR_RANGE`), refilled from cached per-chunk buffers: about 16 draw calls. [`city_forb.gdshader`](../../scripts/city/city_forb.gdshader): shared wind, per-part flutter, shrink-out fade (small plants 24-32 m, burdock 38-46 m), pale woolly burdock undersides, no shadows. Dandelion yellow stays below full brightness because AgX bleaches saturated yellow to peach.
 
-Cost: a city rose is about 2.2k triangles and a raspberry 1.8k (the blobs were 320).
-Shrub near crowns are 11-19k triangles (far 8.5-11k) and only within 34 m. Nothing is
-saved; meshes are rebuilt deterministically from the plan.
+### Wild-plant seasons (R-1557)
 
-Verify: `test_city_bush_leaf_cards_are_real_size` measures every card along its spine
-(rose and raspberry under 0.4 m at the plan's largest size factor, at least 150 cards,
-height and spread kept; tree-mesh shrub near cards under 0.4 m and smaller than far
-cards). GPU
-plates: `tools/godot_render.sh --script tools/capture_city_vegetation.gd -- --only=dog_rose_close,raspberry_close,elder_close`
-(the most open shrub of each species next to the 1.83 m figure).
+[`VegetationPhenology.forb_phase`](../../scripts/map/view3d/vegetation_phenology.gd) is a pure function of `GameCalendar.day_of_year` (Tallinn-area timings): `none` before 15 April and after 15 November, `leaves`, `flower`, `flower_seed` (dandelion in June), `burrs`, `dry_burrs`.
 
-Before / after:
-[dog rose](../reports/images/vegetation/veg_city_dog_rose_close.jpg),
-[raspberry](../reports/images/vegetation/veg_city_raspberry_close.jpg),
-[elder (hazel tree mesh)](../reports/images/vegetation/veg_city_elder_close.jpg).
+| Dates | Dandelion | Plantain | White / red clover | Burdock |
+|---|---|---|---|---|
+| 15-30 April | rosettes | rosettes | leaves | rosettes |
+| May | 60 % flowering, rest rosettes | rosettes | leaves | rosettes |
+| June | flowers, seed clocks, rosettes | 80 % spiked | in flower | rosettes |
+| July-August | rosettes | 80 % spiked | in flower | rosettes, second-year plants with green burrs |
+| September | rosettes | 80 % spiked | leaves | rosettes, dry brown burr stalks |
+| October | rosettes | rosettes | leaves | rosettes, dry brown burr stalks |
+| 1-15 November | rosettes | rosettes | leaves | rosettes |
+| 16 November - 14 April | none | none | none | none |
 
-Limits: rose hips, raspberry fruit and flowers are not drawn on the city variants (the
-district blobs show berries all year); the lower canes read bare and dark from close up;
-a dense hedge of city roses costs about seven times the old blob triangles (the 120 m
-`BUSH_RANGE` is unchanged).
+Out-of-season models are the same plants without heads (`plantain_leaves`, `white_clover_leaves`, `red_clover_leaves`, `burdock_dry`). The season only picks which model a candidate becomes (`CityForbs._kind_for(species, pick, wild, phase)`); it never changes random draws, so every spot keeps its plant all year. `CityForbs.set_calendar_date` (from `CityMapView.set_calendar_date`) drops cached chunks only when `season_key` changes. Nothing is saved.
 
-## Limits
+**Blueprint maps (R-1559).** `plant.plantain`, `plant.dandelion`, `plant.clover` and `plant.burdock` zones scatter the same models with `CityForbs.material_unfaded()` (no distance shrink: the map camera is far). `MapViewPlantSpecies.forb_kind_for(species, roll)` picks a fixed high-summer mix from a cell hash (plantain 80 % spike; dandelion 50 % flower, 20 % clock, 30 % leaves; clover 70 % white; burdock 35 % flowering). The `plant.*` IDs are unchanged; other species keep `MapViewPlantMeshes`.
 
-- GPU plates are attached above; visual tuning and independent sign-off remain pending. Distance LOD/impostors and alpha-coverage-preserving mips are not implemented; distant needle cards can thin out.
-- Fallen leaves vanish when they land. There is no persistent ground litter, and grass and bushes do not change with the season (except the seamless city's dog rose and raspberry leaf cards and tree-mesh shrubs, which follow their proxy species, R-1315).
-- Only the player's swings strike trees. NPC melee, magic blasts, and projectiles do not.
-- When two hosted views overlap at a seam, each runs its own ambient emitter, which can double the leaf fall right at the seam.
-- Late-April leaf density is a design choice for the slice's spring look. Real Tallinn birches usually break bud a week or two later.
-- R-1324 trunk sway moves the crown only on district maps (rigid bole). City trees sway trunk and branches too, thin limbs most; see `VEGETATION_REALISM.md`.
+## Placement and ecology
 
-## Conifer volume and atlas fringe fix
+Look target (the Horizon lesson): realism comes more from where things grow than from how each plant is drawn.
 
-- Conifer cards are smaller (`CONIFER_CARD_SCALE` 2.0, trunk fans x0.62), three per tip, and branch whorls use three fans rolled around the branch axis so needles read as volume from every side.
-- Conifer realism pass: needle cards are 3-segment strips that bow downward (`CONIFER_CARD_DROOP` 0.22) with smooth, width-rounded vertex normals (`append_card` `droop`), and `map_view_canopy.gdshader` darkens gaps from the atlas (`clump`), shades sprig bases (`tip_light`) and perturbs card normals from the cluster pattern so needles stop lighting as flat plates. Conifer `card_gain` 0.84.
-- Conifer card normals follow the crown shell (`CONIFER_NORMAL_OUTWARD`, no upward bias) and use `card_gain` 0.66, which stops sun wash-out.
-- `tools/assets/defringe_atlas.py` removes pale outlines from `grass_blades_atlas.png` (2x2): alpha eroded, edge colour repainted from solid leaf colour. Do not run it on `leaf_card_atlas.png` since R-1329: the generator already fills empty texels with nearby leaf colour, and a second pass would erode the procedural tiles.
+### District and blueprint maps (R-1322)
 
-## Flexible whole-tree storm response (R-1433)
+Nothing grows on a trodden road and the verge is thinner; trees and bushes keep a cell clear of roads and wall feet. Sedge crowds the first two cells of a bank, nettle wall feet and damp ground by water, fern and moss only under conifer shade, juniper dry limestone rims, field weeds only field margins, thickets wood edges. Grass and flowers thin under crowns and break into fertility patches. Trees are only ever thinned, never above the authored density.
 
-Status: implemented (task **R-1433**; independent review pending). Scope: shared
-GPU deformation for city tree wood and every crown LOD. No new controls, assets,
-collision, navigation, gameplay, or persistent/save state. Out of scope: structural
-failure, branch breakage, CPU rigid-body simulation, and district wood conversion.
+[`VegetationEcology`](../../scripts/map/vegetation_ecology.gd) (`for_region(definition, grid, rect)`, `density(layer, cell)`, `understory(cell)`, fields `water_distance`, `road_distance`, `wall_distance`, `stone_distance`, `field_distance`, `woodland_shade`, `conifer_shade`, `fertility`, `litter`) is built per chunk by [`MapViewMeshBuilderScatter.begin_scatter`](../../scripts/map/view3d/map_view_mesh_builder_scatter.gd); `collect_rows` multiplies each layer's chance by `density` and appends one understory pick per cell using existing meshes and batches. The urban density multiplier still applies. `MapViewMeshBuilderScatter.ecology_enabled` is a capture-only switch.
 
-User decision: tall thin pines must visibly flex as a whole tree, reaching about
-20-30 degrees in strong gusts and moving to either side of the wind, not merely
-fluttering leaves. The angle here is the root-to-crown line, not the top tangent.
+Fields are capped at 8 cells and evaluated over the chunk grown by that margin, so chunk splits give byte-identical results from the compiled definition, grid and seed alone. The authored override mask (`vegetation_mask`, [`MAP_AUTHORING.md`](../MAP_AUTHORING.md#ecology-placement-and-the-vegetation-override-mask-r-1322)) is the only ecology data on `MapDefinition`; it enters the fingerprint only when present. Authored props always win. Ecology is derived on demand rather than stored per cell, so preview, runtime, chunking and 3D agree without persisting chunk data. `mud` is plantable; limestone is the `stone` terrain; understory never lands on quays, floors or sand. Follow [map authoring](../MAP_AUTHORING.md) for placement edits; do not move generated nodes.
 
-- `tree_wind.gdshaderinc` samples the existing shared coarse gust. Aerodynamic
-  load grows with speed to power 1.4 and saturates as foliage streamlines. At
-  the existing storm profile's strength 0.70 a slender 18 m pine reaches about
-  29 degrees in the 60-second regression sample; all responses are bounded at
-  30 degrees. Calm strength 0.04 stays below one degree. Weather profiles and
-  other wind consumers are unchanged.
-- The rooted cantilever curves rather than pivoting rigidly. Integrating unit
-  tangents preserves centreline length as the crown drops. Limbs heave faster,
-  twigs shiver, and cross-wind modes/heading veer produce sideways motion. This
-  is an analytic, bounded modal approximation, not an elastic structural solver
-  or an exact time-integrated gust response.
-- Species `slender` and model-space `tree_top` are set identically by
-  `MapViewWindMaterials._apply_tree_flexibility` for bark and crown materials.
-  Pine is more flexible than oak. City bark materials are cached by both bark
-  plate and species; `CityVegetationBuilder` passes species through the public
-  `MapViewMaterials.bark_plate_wind` facade. Shared near/macro/far crown materials
-  keep the same deformation inputs.
-- World-oriented coordinates account for random instance yaw. Leaves rotate
-  with their bent trunk section and keep petiole-relative flutter; bark normals
-  and tangents rotate as well. Near/macro/far tree batches reserve a 12 m culling
-  margin so displaced crowns do not disappear at the edge of the camera.
-- Existing `TreeLeafFall3D` gust shedding is retained. It is presentation-only,
-  sparse outside autumn, and does not remove persistent leaves from a tree.
+### Seamless city: rooting and the coastal pine heath (R-1617)
 
-Verification:
+[`CityVegetationBuilder`](../../scripts/city/city_vegetation_builder.gd) consumes the plan's `trees` and `bushes`, converts model dimensions into metres and batches them in spatial chunks; [`CityWorld3D`](../../scripts/city/city_world_3d.gd) removes trees planted in water. See [Seamless city](./SEAMLESS_CITY.md) for plan ownership.
+
+The plan generator [`vegetation_habitat.py`](../../tools/city/vegetation_habitat.py) holds two rule sets, applied by [`build_reval_city_plan.py`](../../tools/city/build_reval_city_plan.py):
+
+- **`Clearance`.** A trunk keeps `TREE_ROAD_EDGE_M` (2 m) beyond every carriageway edge and `TREE_BRIDGE_CLEAR_M` (5 m) off every bridge or deck; shrubs keep `BUSH_BRIDGE_CLEAR_M` (1.5 m). No trunk on a road, no crown through the Hareapea, moat or harbour decks.
+- **`Soil`.** Ground within `SAND_SHORE_M` (420 m) of the 1343 shoreline and at most `SAND_MAX_H_M` (10 m) above the 1343 sea is sandy; `heath_ground` excludes the beach strand (under 45 m or 3 m), which stays sand and juniper. On heath ground trees take `heath_species` (62 % `pine_tall`, 18 % `pine`, 8 % birch, 12 % juniper); `pine_heath()` adds the pine bor on a 7 m grid with its own RNG, broken by fbm glades. Inland loam keeps mixed spruce, oak and birch.
+
+**Stable IDs.** Species re-picks use a position hash, the bor its own RNG after all seeded loops, and clearance runs last, so every field, pasture, wood, orchard and farmstead ID is unchanged. Nothing is saved: the plan is static content.
+
+## Moss, lichen and the forest floor (R-1661)
+
+Implemented (**R-1661**; wall plates **R-1683**; roof and bark plates **R-1684**). Decision (user, 2026-10-11): moss and lichens grow on the north side of some trees and buildings, on shaded ground and the forest floor; the forest also gets mushrooms. Out of scope: the woods' tall-grass understorey (R-1595), roof placement rules (R-1465), gathering mushrooms, blueprint-map forest floors (bark only), snow.
+
+- **Tree trunks** (`map_view_bark_wind.gdshader`, city and blueprint trees): a moss skirt climbing highest (up to about 2.6 m) on the north side and pale lichen crusts from shin height, seeded per tree, so only some trunks carry them. Uniforms `moss_amount` (0.6), `lichen_amount` (0.5).
+- **Walls** (`shade_growth` in `city_weathering.gdshaderinc`; half strength on outdoor limewash): cushion moss colonies at the damp foot of north faces up to about 1.6 m with a dark damp halo, sparse lichen rosettes (a few orange *Xanthoria*) above. Moss replaces the wall normal with its own relief; drier, higher cushions turn yellow-brown. South faces stay clean.
+- **Roofs** (`city_weathered_roof.gdshader`, `city_tile_roof.gdshader`): the same plates on shingle, thatch and clay tiles; R-1465 placement unchanged. See [city roofs](./SEAMLESS_CITY.md#how-buildings-are-built).
+- **Shaded ground** (`city_ground.gdshader`): the moss slice in ragged cushions where [`CityShadeMask`](../../scripts/city/city_shade_mask.gd) reports shade (R: strip north of each building, 0.9 of wall height, 2-8 units; G: forest density on a 12-unit grid). Trodden paths stay bare.
+- **Forest floor** ([`CityForestFloor`](../../scripts/city/city_forest_floor.gd), built by `CityDressingBuilder` at `Dressing/ForestFloor`): two to four moss cushions round each tree of a closed stand (8+ forest neighbours within 15 units), biased north, plus fungi by mycorrhizal partner. One MultiMesh per kind and 96-unit chunk, lathe meshes with vertex colour, visible to 110 units (moss) and 70 (fungi). `set_calendar_date` toggles kinds via `kinds_in_season(day)`:
+
+| Kind (`KIND_*`) | Species | Grows by | Days of year |
+|---|---|---|---|
+| `gyromitra` | false morel, *Gyromitra esculenta* | pine | 100-152 (April-May) |
+| `chanterelle` | *Cantharellus cibarius*, troops of 3-7 | spruce, pine, birch | 182-280 |
+| `porcini` | *Boletus edulis* | spruce, pine, birch, oak | 196-288 |
+| `fly_agaric` | *Amanita muscaria* | birch, spruce | 205-295 |
+| `bracket` | tinder fungus, *Fomes fomentarius*, 1-3 shelves | birch | all year |
+| `moss` | moss cushions | any forest tree | all year |
+
+On the slice's opening date (21 April 1343) the woods show moss, brackets and false morels.
+
+**Plates and sampling.** [`assets/materials/pbr/wall_growth/`](../../assets/materials/pbr/wall_growth/) holds `wall_moss_albedo.png` (A = cushion height), `wall_moss_normal.png`, `wall_lichen.png` (A = rosette mask), built by `python3 tools/assets/build_wall_growth_plates.py` from gpt-image-1 sources recorded in `generated/openai/wall_growth_v1/prompt.json`. `CityBuildingBuilder.bind_ground` sets them as shader defaults on wall, limewash and roof shaders; `MapViewWindMaterials.bark_plate_wind` binds them explicitly for bark, including blueprint trees. [`city_growth_plates.gdshaderinc`](../../scripts/city/city_growth_plates.gdshaderinc) thresholds cushion height and rosette alpha against each caller's coverage field; two rotated moss samples at 0.32/0.47 m tiles break repetition; lichen at 0.5 m; missing plates give zero coverage. Bark uses its continuous mesh UVs, so growth does not swim under wind. Deterministic, seeded by position; nothing saved.
+
+## Performance budgets
+
+Implemented in **R-1320**. Command, cameras and JSON schema: [`PERFORMANCE_REPORT.md`](../PERFORMANCE_REPORT.md#vegetation-benchmark-r-1320); baseline: [`vegetation_benchmark_baseline.md`](../reports/vegetation_benchmark_baseline.md).
+
+`tools/run_performance_report.sh <out.json> --vegetation` walks six fixed cameras (`meadow_eye_level`, `meadow_gameplay`, `grain_field_eye_level`, `woodland_interior`, `woodland_distance` on `viru_gate_foreland`; `lower_town_street`) and reports instances, triangles and draw calls per layer, frame time and paired shown/hidden layer cost. Counts reproduce exactly; milliseconds do not.
+
+**Baseline (M5 Pro, 1920x1080, 2026-10-08).** Tree crowns are almost the whole cost: 9.5-14.6 M LOD0 crown triangles per rural camera (about 10,400 per tree, no distance reduction), 33-72 ms of a 44-97 ms frame, multiplied about 4.5x by shadow cascades. Grass, grain, flowers and herbs together stayed under 0.2 M triangles and 1 ms.
+
+**Budgets** are a hard gate on counts per camera, main pass (`tools/vegetation_performance.py budgets`). With `--baseline docs/reports/vegetation_benchmark_baseline.json` each limit is `max(target, baseline)`: a layer over target (today only tree crowns) may not grow.
+
+| Layer | Triangles | Draw calls | Baseline peak (tris / draws) | Reasoning |
+|---|---|---|---|---|
+| `grass_near` | 300,000 | 8 | 87,792 / 4 | About 60,000 visible blades in the 14 m ring |
+| `grass_mid` | 100,000 | 24 | 44,480 / 10 | Extra density belongs in the near tier |
+| `grain` | 250,000 | 16 | 38,208 / 6 | Stalks and ears to 45 m, one batch per crop per chunk |
+| `trees_lod0` | 1,000,000 | 100 | 14,583,844 / 139 | About 95 full crowns; everything farther must go to LOD1/2. Today 14.6x over |
+| `trees_lod1` | 600,000 | 60 | 0 / 0 | Simplified crowns to about 90 m |
+| `trees_lod2` | 100,000 | 30 | 0 / 0 | Impostors beyond 90 m |
+| `shrubs` | 150,000 | 30 | 320 / 1 | Ecology understory |
+| `flowers` | 400,000 | 32 | 35,310 / 4 | Includes city forbs (raised from 60,000 / 12 in R-1558) |
+| `litter` | 50,000 | 8 | 0 / 0 | Mostly a ground texture |
+| `veg_misc` | 100,000 | 16 | 4,252 / 4 | Reeds, cattails, herbs, ferns |
+| **All vegetation** | **2,000,000** | **250** | 14,583,844 / 165 | About 7-10 ms on the reference: half of a 60 fps frame |
+
+**City forbs (R-1558).** Each benchmark camera carries a `forbs` block (instances, triangles, draws, chunk build, `_refill()` and `update_for` timings); two cameras, `forb_hotspot_meadow` and `forb_hotspot_kalev_smithy`, are placed at the densest forb windows. Budget: 350,000 triangles and 16 draws (`BUDGETS["forbs"]`). After tuning (`NEAR_RANGE` 13 to 9 m, plantain `MAX_DENSITY` 0.60 to 0.45) the worst camera, the smithy hotspot, measured 348,574 triangles in 12 draws; `_refill()` 0.08-0.14 ms, one chunk build 0.2-1.4 ms (`build/benchmarks/r1558_forbs.json`).
+
+Frame time: no single layer should cost more than 4 ms (advisory; tree timings vary tens of percent between runs). **Decision (R-1320):** budgets are gated on the M5 Pro reference (`tools/benchmarks/target_hardware.json`) with counts as the portable gate; Intel UHD 620 at 1080p (`tools/benchmarks/minimum-hardware.json`, P3-011) is the density floor, and minimum-hardware acceptance stays BLOCKED until R-653 records a real run. Every vegetation phase ends with a before/after `--vegetation` run and `budgets --baseline`.
+
+## Developer workflow
+
+Start with the visual symptom, then edit the responsible layer. Do not change placement to compensate for a bad model, or the global shader to fix one species.
+
+| Desired change | Start here | Compare before accepting |
+|---|---|---|
+| Move trees / change a species mix | Authored map or city plan, ecology rules, `vegetation_habitat.py` | Root placement, water/road/bridge clearance, stable IDs |
+| Make oak broader or willow more drooping | Branching `PRESETS`, then size profile | Bare wood and full crown; neighbours keep distinct shapes |
+| Change city tree height or trunk diameter | `CityVegetationBuilder.HEIGHT_M`, `TRUNK_DIAMETER_M`; `CITY_FORMS` | Human-scale city view, not a normalized catalog cell |
+| Oversized leaves or sparse close-up crowns | Leaf profiles, cluster settings, city near/macro geometry | Both sides of the LOD boundary |
+| Leaf shape, fringe or transparency | Atlas generator, `CARD_TILES`, canopy shader | Edge-on cards, backlight, distant mips, every species sharing the tile |
+| Bark stretching or joints | City wood UVs and bark textures | Bare junctions from several angles |
+| Spring/autumn or fruit timing | `VegetationPhenology` | April, midsummer, October, January |
+| Storm movement | `WindField`, `tree_wind.gdshaderinc`, species `sway_strength` | Calm and storm, bark and foliage, every crown tier |
+| Grass density, height or range | `CityGrass` tier constants, `map_view_grass.gdshader` | Tier seams at 12, 46 and 118 m; `grass_near` budget |
+| Wild-plant look, habitat or season | `CityForbMeshes`, `CityForbs`, `forb_phase` | Near and far variants; season table; forb budget |
+| Moss, lichen, fungi | `city_growth_plates.gdshaderinc`, `CityShadeMask`, `CityForestFloor` | North vs south faces; April vs August |
+| Expensive woodland | `CityTreeLod`, graphics settings, batching/shadows | Frame time and overdraw in a dense stand |
+
+For a model edit: **(1)** identify species and runtime path, **(2)** capture the current shape, **(3)** change the owning layer, **(4)** compare silhouette, bare wood and close detail, **(5)** check seasons and LOD transitions, **(6)** update this page. Adding a species also needs registry/pools, profiles/presets, leaf and bark mappings, phenology, placement and checks. Preserve existing IDs.
+
+### Runtime integration reference
+
+| Concern | Entry point |
+|---|---|
+| District date | `MapView3D.set_calendar_date` -> seasonal crown/fruit materials |
+| District weather | `MapViewMaterials.apply_weather_presentation` -> wind and wetness |
+| City date and weather | [`CityMapView.set_calendar_date`](../../scripts/city/city_map_view.gd) -> shared seasonal materials, `CityWorld3D.apply_season`, `CityForbs` and `CityForestFloor`; `CityWorld3D.apply_time` drives weather |
+| Species material caching | `MapViewWindMaterials.canopy_for_species`; new materials inherit the last published season/wetness |
+| District melee | `MapViewRuntimeActors._on_player_melee_attack_resolved` -> `MapView3D.strike_vegetation` |
+| Camera-driven crown tier | `CityTreeLod`, under the city vegetation root |
+
+### Mesh and shader contracts
+
+- `UV2.x = 1` marks leaf geometry; `UV2.y = 1` distinguishes cluster cards from folded leaves/needle shoots.
+- `CUSTOM0 = (petiole xyz, seed)` anchors each leaf/card; the shader scales or collapses it around that anchor.
+- `COLOR.a` stores crown self-occlusion on canopies and limb flexibility on city wood, not transparency. `UV.y` supports base-to-tip flutter.
+- District strikeable canopy MultiMeshes carry `INSTANCE_CUSTOM.xy` crown displacement and `.z` flutter, registered through `TreeLeafFall3D.tag_canopy` in `tree_canopy_multimesh`.
+- Wind shaders read the shared globals; do not reintroduce per-material wind clocks.
+
+**Save/load:** species, placement, calendar and weather reconstruct the look; meshes, LOD choice, gust phase, shake and particles add no save fields. Seasonal state is deterministic for a date; wind depends on render time, so a load does not resume the exact animation frame.
+
+## Preview and verification
+
+Use the pinned [Godot setup](../SETUP.md). Never open visible Godot windows: headless for tests, the minimized GPU wrapper for captures. Run from the repository root.
 
 ```bash
-/Applications/Godot.app/Contents/MacOS/Godot --headless --path . \
-  --script tools/run_godot_tests.gd -- \
-  --filter=test_tree_storm_bend,test_tree_wood_wind,test_tree_skeleton,test_tree_leaf_fall,test_wind_field
+# Animations on this page (frames to build/veg_anim/, then GIFs).
+tools/godot_render.sh --script tools/capture_vegetation_animations.gd   # -- --only=storm,meadow,seasons
+tools/build_vegetation_animations.sh
+
+# Trees: all species, close-ups, bare wood; seasons; city detail; wind.
+tools/godot_render.sh --script tools/capture_tree_reference_sheet.gd
+tools/godot_render.sh --script tools/capture_living_vegetation.gd
+tools/godot_render.sh --script tools/capture_city_vegetation.gd -- --tag=review --only=spruce_macro,pine_macro,spruce_needles_close
+tools/godot_render.sh --script tools/capture_city_vegetation.gd -- --only=pine_tall_scale,pine_heath_eye,pine_heath_wide,bridge_clear_viru,bridge_clear_tartu
+tools/godot_render.sh --script tools/capture_city_vegetation.gd -- --only=oak_base_close,pine_base_close,birch_base_close
 tools/godot_render.sh --script tools/capture_tree_storm.gd
+tools/godot_render.sh --script tools/capture_wind_front.gd
+
+# Grass, wild plants, ecology, moss.
+tools/godot_render.sh --script tools/capture_city_grass.gd                          # build/grass/
+tools/godot_render.sh --script tools/capture_city_forbs.gd -- --season=summer      # or --date=YYYY-MM-DD
+tools/godot_render.sh --script tools/capture_blueprint_forbs.gd -- --tag=now
+tools/godot_render.sh --script tools/capture_vegetation_realism.gd -- ecology
+tools/godot_render.sh --resolution 1600x900 res://tools/capture_city_moss.tscn      # -- --walls stops after walls
+tools/godot_render.sh --resolution 1600x900 --script tools/capture_roof_growth.gd   # -- --unbound | --wet
 ```
 
-The capture writes `build/scratch/tree_storm_sheet.png`: identical 18 m pine and
-camera, calm at left, storm strength 0.70 at shader times 1, 4 and 9 seconds.
-Frozen capture time affects only duplicated capture shaders, never production
-materials. Tests cover actual shared-gust amplitude, calm/zero wind, bounded
-lean, fixed root, centreline length and shared bark/crown uniforms. District
-crowns still use this canopy shader with legacy defaults but have rigid wood;
-whole-tree acceptance is limited to the seamless city's species-wired trees.
+Several tools overwrite tracked evidence; inspect the diff and do not replace reference plates by accident. A fresh PNG proves the capture ran, not that it meets the art target.
 
-Limits: bark and leaves share the bole model, but limb flex remains a vertex/
-petiole approximation rather than a jointed branch skeleton; attached leaves
-are not guaranteed exact branch-tip parity. No new save data is generated.
-The single independent reviewer call failed upstream without findings; human
-visual/correctness sign-off remains open. The focused 33-test run and real
-Compatibility GPU capture passed locally. Full repository tests were not run.
+```bash
+godot --headless --path . --script tools/run_godot_tests.gd -- \
+  --filter=test_tree_skeleton,test_vegetation_realism,test_city_vegetation,test_tree_leaf_fall,test_wind_field,test_tree_storm_bend,test_tree_wood_wind,test_map_view_bush_species
+godot --headless --path . --script tools/run_godot_tests.gd -- \
+  --filter=test_grass_tiers,test_city_forbs,test_map_view_plant_species,test_vegetation_phenology,test_vegetation_interaction_buffer
+godot --headless --path . --script tools/run_godot_tests.gd -- \
+  --filter=test_vegetation_ecology,test_map_view_3d_mesh,test_map_blueprint_compiler,test_lower_town_slice_map,test_city_forest_floor,test_growth_plates
+python3 -m unittest tests.python.test_vegetation_habitat tests.python.test_generate_vegetation_atlases -v
+python3 tools/city/build_reval_city_plan.py --check
+python3 tools/validate_asset_sources.py && python3 tools/verify_asset_lint.py && python3 tools/verify_storage_hygiene.py
+python3 tools/docs_index.py --check
+python3 tools/generate_active_docs_report.py --check
+```
+
+Ecology changes also run the map gate from [`AGENTS.md`](../../AGENTS.md#map-authoring-mandatory). For rendering changes, measure a warmed GPU scene with several nearby trees ([performance budgets](#performance-budgets)).
+
+## Known limits
+
+- **Trees.** Atlas sharing makes growth forms more species-specific than leaf artwork. Leaf cards can show their planes edge-on, and at mid and far distance conifer cards read a low mip of the needle tile, so needle fans turn into lobed, leaf-like blobs (visible in the storm animation's spruce). Fruit are octahedra. The district spruce is capped at 120 coarse wood segments. Root flare tubes are faceted cones; litter flecks are flat and static. Recheck bent joints after geometry changes ([oak joint gap history](../reports/images/vegetation/veg_oak_joint_gap_before_after.jpg)).
+- **City vs district.** Bark, whole-tree bending, crown tiers, shrubs and leaf emitters differ. District trees have no LOD chain; `trees_lod0` is 14.6x over budget. The hit-shake offset moves the crown only. District ambient emitters can overlap at hosted-view seams.
+- **Grass.** No grass seasons in `VegetationPhenology`, no edge-on blade widening, blueprint maps keep textured tuft cards, no per-tile hysteresis, no measured run against `grass_near`. Trails are player-only.
+- **Wild plants.** Phases switch on fixed days (no gradual growth, no autumn yellowing of leaf models, plants vanish in winter while grass stays green, dead burdock is cleared in November). Leap years shift phases by a day. No yarrow model, no trampling beyond flattened plantain. Blueprint maps: no phenology, near model only.
+- **Ecology.** District maps draw no bushes, so shrub density and the juniper understory are computed but invisible. `MapViewTerrainDetails` and the seamless city do not read the ecology, so near-camera grass is mostly unchanged. Slope is not an input; litter is computed but not drawn. The city soil mask is two thresholds, not a geological map.
+- **Moss and fungi.** The woods stand in tall meadow grass (R-1595) that hides most fungi. The north strip is a fixed southern-sun approximation; the canopy channel is coarse (12 units). Fungi are low-poly lathes with vertex colour.
+- **Textures.** Normal, surface, bark, ground and ear textures from R-1329 are built but not yet bound.
+- No felling, breakage, harvesting, persistent particle accumulation or elastic simulation. Independent visual acceptance of the crown and storm work remains incomplete.
+
+## Roadmap
+
+Epic **R-1319**; full specs on the task board. Every task updates this page.
+
+| # | Task | ID | State |
+|---|---|---|---|
+| V0 | Vegetation benchmark and budgets | **R-1320** | done |
+| V1 | Procedural leaf, needle, bark and ear atlases | **R-1329** | done |
+| V2 | Shared wind field | **R-1321** | done |
+| V3 | Ecology placement | **R-1322** | done |
+| V4 | Blade grass, tiers and seasons | **R-1323** | city tiers done; blueprint carpet and grass seasons open |
+| V5 | Grain fields (`field` primitive, geometry, growth, trampling) | **R-1325** | planned |
+| V6 | Tree skeletons and leaf clusters | **R-1324** | done |
+| V7 | Tree LOD chain with alpha-coverage mips and impostors | **R-1326** | planned |
+| V8 | Leaf litter, snow ground cover, trail buffer | **R-1327** | snow and player trail done; litter layer open |
+| V9 | Octahedral impostors (optional) | **R-1328** | planned |
+
+**Planned designs.**
+
+- **Grain fields (V5).** A `field` blueprint primitive (crop `rye`, `barley` or `oats`, furrow direction, edge seed, stable ID) per [`MAP_AUTHORING.md`](../MAP_AUTHORING.md). Rows of curved stalks with ear clusters near, bands of ear-silhouette cards beyond. By month: April green shoots, June knee-high, July silver-green ears, August gold, September stubble and sheaves, as a pure function of the date. The wind front rolls across with ears lagging; the trail buffer presses stalks down. Margins get a weed band, worn path and hedge or stone line. Ear textures already exist.
+- **Tree LOD chain (V7).** LOD0 full crowns to about 35 m; LOD1 simplified branches and merged cards to about 90 m; LOD2 cross-plane billboards baked per species beyond, octahedral impostors (V9) only if clearly better (no Godot add-on bakes them). Hysteresis and a dithered cross-fade, not costly alpha self-fade. Coverage-preserving mips so distant needle cards stop thinning; alpha scissor 0.5 with alpha antialiasing on MSAA.
+- **Grass seasons (V4).** Green in May, dry in August, yellow and flat in November, snow-pressed in winter; edge-on blades widened in view space; cellular clumping of height, bend and lean; NPC positions in the trail buffer.
+- **Leaf litter (V8).** A persistent layer under deciduous crowns in October and November, fed by the leaf-fall curve.
+
+**Research and reuse (for the planned work).**
+
+| Source | Technique / decision | Confidence |
+|---|---|---|
+| Ghost of Tsushima, [GDC "Procedural Grass"](https://gdcvault.com/play/1027214/Advanced-Graphics-Summit-Procedural-Grass), ["Blowing from the West"](https://gdcvault.com/play/1027124/Blowing-from-the-West-Simulating) | Per-blade GPU grass; wind as one system for grass, trees, cloth and particles | Abstracts only |
+| [GodotGrass](https://github.com/2Retr0/GodotGrass) (MIT; assets CC BY 4.0 / CC0) | Bent blades, rounded normals, base AO, view-space widening, tile LOD, cellular clumping. **Technique reference, not vendored**: its CPU tile rebuilds and LOD pops conflict with deterministic blueprint placement | Read from the repo |
+| Horizon Zero Dawn, [vegetation summary](https://videohighlight.com/v/wavnKZNSYqU) | LOD chain ending in cross-plane billboards; placement from painted data maps | Secondary summary |
+| Witcher 4, [Nanite Foliage](https://dev.epicgames.com/documentation/unreal-engine/nanite-foliage) | Look target only (Unreal-only) | Documentation |
+| Godot docs, [visibility ranges](https://docs.godotengine.org/en/4.4/tutorials/3d/visibility_ranges.html) | Alpha scissor is the cheap foliage mode; self-fade costs more | Documentation |
+| Terrain3D, ProtonScatter, Zylann Scatter | **Not adopted**: own terrain and `MapBlueprint` placement with stable IDs (ADR 0009) | n/a |
+| EZ-Tree port (MIT), Tree3D | Reference only for branching and leaf shaders | n/a |
+
+**Risks.** GL Compatibility limits (no compute placement, no HDR, banding in gradients); draw-call growth, gated by the budgets; procedural textures reading as synthetic; map compiler changes for fields (migrate one pilot map, keep parity checks green); licensing of any copied code.
+
+**Open questions.** (1) Which pilot map shows grain fields first? (2) Octahedral impostors or cross-plane billboards only, once V7 is measured? (3) Should NATURAL aspects tint or bend vegetation through the shared wind and tint channels, and in which act? Decided: minimum hardware target (R-1320, see [budgets](#performance-budgets)).
+
+## Related systems
+
+- [Farmland](./FARMLAND.md): crops, gardens, pastures and woods outside the walls.
+- [Flora and fauna](../FLORA_FAUNA.md): species inventory and authored map evidence; [biomes and wildlife](../LOCATIONS/BIOMES_AND_WILDLIFE.md).
+- [Seasons](./SEASONS.md) and [weather ground](./WEATHER_GROUND.md): date controls, snow and ground weather.
+- [World presentation](./WORLD_PRESENTATION.md), [Seamless city](./SEAMLESS_CITY.md), [Map authoring](../MAP_AUTHORING.md): how and where vegetation is placed and drawn.
+- [Art bible](../ART_BIBLE.md) ("Vegetation realism (P0-208)") and [asset provenance](../../assets/SOURCES.csv).
+
+Implementation lineage, for lookup only: seasonal crowns/strikes **R-1187**; cluster cards **R-1194**; procedural atlas **R-1329**; shared wind **R-1321**; branching presets **R-1324**, orchard habits **R-1391**; city-scale pass **R-712**; shrub cards **R-1315**; macro needles **R-1404**; whole-tree storm bend **R-1433**; ecology **R-1322**; pine heath **R-1617**; city grass **R-1323**; forbs **R-1519**/**R-1557**/**R-1558**/**R-1559**; snow **R-1327**; moss and fungi **R-1661**/**R-1683**/**R-1684**; docs **R-1696**, **R-1704**.

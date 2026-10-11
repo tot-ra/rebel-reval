@@ -2,7 +2,7 @@ extends "res://tests/godot/test_case.gd"
 
 ## R-1519: realistic wild plants of the seamless city (CityForbMeshes) and their
 ## habitat placement (CityForbs); R-1557: the model mix follows the season.
-## docs/SYSTEMS/VEGETATION_REALISM.md section 2.
+## docs/SYSTEMS/LIVING_VEGETATION.md, Wild plants.
 
 const Meshes := preload("res://scripts/city/city_forb_meshes.gd")
 ## Per-model triangle cap: keeps a chunk of forbs inside the flower budget.

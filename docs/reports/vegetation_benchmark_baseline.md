@@ -1,6 +1,6 @@
 # Vegetation benchmark baseline (R-1320, VEGR-0)
 
-Status: recorded 2026-10-08. First run of the per-layer vegetation benchmark; the reference every later vegetation-realism phase (R-1319 epic) is measured against. Budgets derived from it are in [`VEGETATION_REALISM.md`](../SYSTEMS/VEGETATION_REALISM.md) section 8; the command, camera set and JSON schema are in [`PERFORMANCE_REPORT.md`](../PERFORMANCE_REPORT.md#vegetation-benchmark-r-1320).
+Status: recorded 2026-10-08. First run of the per-layer vegetation benchmark; the reference every later vegetation-realism phase (R-1319 epic) is measured against. Budgets derived from it are in [`LIVING_VEGETATION.md`](../SYSTEMS/LIVING_VEGETATION.md#performance-budgets); the command, camera set and JSON schema are in [`PERFORMANCE_REPORT.md`](../PERFORMANCE_REPORT.md#vegetation-benchmark-r-1320).
 
 Raw report: [`vegetation_benchmark_baseline.json`](./vegetation_benchmark_baseline.json) (schema `rr.vegetation_benchmark.v1`), used as `--baseline` by `tools/vegetation_performance.py budgets`.
 

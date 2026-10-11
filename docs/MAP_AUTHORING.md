@@ -1112,7 +1112,7 @@ vegetation_mask mask.hazel_thicket 12 30 8 5 layer=shrubs density=2.5
 vegetation_mask mask.mown_lawn 60 10 12 8 layer=flowers density=0.2
 ```
 
-The typed API is `MapBlueprint.vegetation_mask(id, rect, layer, density)`. Compiled masks land in `MapDefinition.vegetation_masks` sorted by ID. They enter the fingerprint only when a map has at least one, so maps without masks keep their fingerprints and parity fixtures. The full rules and evidence are in [`VEGETATION_REALISM.md`](SYSTEMS/VEGETATION_REALISM.md#5-ecology-driven-placement).
+The typed API is `MapBlueprint.vegetation_mask(id, rect, layer, density)`. Compiled masks land in `MapDefinition.vegetation_masks` sorted by ID. They enter the fingerprint only when a map has at least one, so maps without masks keep their fingerprints and parity fixtures. The full rules and evidence are in [`LIVING_VEGETATION.md`](SYSTEMS/LIVING_VEGETATION.md#placement-and-ecology).
 
 ## Production hardening contract
 
