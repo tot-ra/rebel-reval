@@ -84,7 +84,7 @@ func update_leaves(
 static func shed_weight(species: StringName, date: Dictionary, wind_strength: float) -> float:
 	var state := VegetationPhenology.state_for(species, date)
 	var density := float(state["leaf_density"])
-	if density <= 0.02:
+	if VegetationPhenology.is_evergreen(species) or density <= 0.02:
 		return 0.0
 	var storm := smoothstep(0.55, 0.9, wind_strength)
 	return density * (float(state["fall_rate"]) * (0.4 + 1.4 * wind_strength) + STORM_SHED * storm)

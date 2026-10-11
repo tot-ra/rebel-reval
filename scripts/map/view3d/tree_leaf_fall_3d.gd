@@ -326,7 +326,7 @@ func update_ambient(
 static func ambient_rate(
 	species: StringName, date: Dictionary, wind_strength: float, tree_count: int
 ) -> float:
-	if tree_count <= 0:
+	if tree_count <= 0 or VegetationPhenology.is_evergreen(species):
 		return 0.0
 	var state := VegetationPhenology.state_for(species, date)
 	var density := float(state["leaf_density"])
@@ -344,7 +344,7 @@ static func ambient_rate(
 static func gust_leaf_rate(
 	species: StringName, date: Dictionary, local_wind: float, tree_count: int
 ) -> float:
-	if tree_count <= 0:
+	if tree_count <= 0 or VegetationPhenology.is_evergreen(species):
 		return 0.0
 	var density := float(VegetationPhenology.state_for(species, date)["leaf_density"])
 	if density <= 0.02:

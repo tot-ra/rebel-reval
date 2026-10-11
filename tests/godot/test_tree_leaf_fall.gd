@@ -84,6 +84,16 @@ func test_ambient_rate_follows_season_wind_and_trees() -> void:
 	var january := {"day": 10, "month": 1, "year": 1343}
 	assert_eq(TreeLeafFall3D.ambient_rate(&"birch", october, 0.3, 0), 0.0, "no trees, no leaves")
 	assert_eq(TreeLeafFall3D.ambient_rate(&"birch", january, 1.0, 10), 0.0, "bare trees")
+	assert_eq(
+		TreeLeafFall3D.ambient_rate(&"spruce", january, 2.5, 10),
+		0.0,
+		"winter wind does not shed conifer needles as leaves"
+	)
+	assert_eq(
+		TreeLeafFall3D.ambient_rate(&"pine", july, 2.5, 10),
+		0.0,
+		"ambient leaf fall is reserved for deciduous species"
+	)
 	assert_true(
 		TreeLeafFall3D.ambient_rate(&"birch", october, 0.3, 10)
 		> TreeLeafFall3D.ambient_rate(&"birch", july, 0.3, 10)
@@ -132,6 +142,16 @@ func test_gust_leaf_rate_needs_leaves_trees_and_strong_local_wind() -> void:
 	)
 	assert_eq(
 		TreeLeafFall3D.gust_leaf_rate(&"birch", january, 2.5, 10), 0.0, "bare trees shed nothing"
+	)
+	assert_eq(
+		TreeLeafFall3D.gust_leaf_rate(&"spruce", january, 2.5, 10),
+		0.0,
+		"storm gusts do not shed conifer needles as leaves"
+	)
+	assert_eq(
+		TreeLeafFall3D.gust_leaf_rate(&"pine", july, 2.5, 10),
+		0.0,
+		"gust leaf fall is reserved for deciduous species"
 	)
 	assert_eq(TreeLeafFall3D.gust_leaf_rate(&"birch", july, 2.5, 0), 0.0, "no trees, no leaves")
 	assert_true(

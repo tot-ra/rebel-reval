@@ -19,6 +19,8 @@ func test_leaf_shedding_follows_leaves_and_wind() -> void:
 	assert_true(windy > calm * 1.5, "a stiff wind strips more leaves")
 	assert_eq(CityLeafFall.shed_weight(&"birch", JUL, 0.1), 0.0, "summer crowns hold fast")
 	assert_true(CityLeafFall.shed_weight(&"birch", JUL, 0.9) > 0.0, "a gale shakes summer leaves")
+	assert_eq(CityLeafFall.shed_weight(&"spruce", JAN, 0.9), 0.0, "winter conifers keep their needles")
+	assert_eq(CityLeafFall.shed_weight(&"pine", JUL, 0.9), 0.0, "city leaf particles are deciduous-only")
 
 
 func test_tree_lod_lists_trees_near_a_point() -> void:
