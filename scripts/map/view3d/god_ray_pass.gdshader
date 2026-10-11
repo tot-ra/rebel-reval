@@ -53,6 +53,7 @@ global uniform float cloud_coverage_g;
 global uniform float cloud_chaos_g;
 #include "res://scripts/map/view3d/sky_clouds.gdshaderinc"
 #include "res://scripts/map/view3d/cloud_cells.gdshaderinc"
+#include "res://scripts/map/view3d/cloud_air_shadow.gdshaderinc"
 // Scene depth bounds the far march so beams stop at terrain, roofs, trees and ships.
 // Depth (unlike the screen texture) is reliable here: cloud_shadow_pass reads it too.
 uniform sampler2D depth_texture : hint_depth_texture, repeat_disable, filter_nearest;
@@ -69,14 +70,6 @@ uniform int far_steps = 12;
 uniform float far_light = 0.1;
 uniform float shade_strength = 0.6;
 const float MAX_SHADE = 0.35;
-// Must match cloud_shadow_pass.gdshader CLOUD_LAYER_H (art-scaled deck height).
-const float DECK_H = 400.0;
-const float DECK_MIP = 1.5;
-// Single-layer deck density where the air starts to be shaded and where it is fully
-// shaded (the dome draws the same density as an opaque cloud).
-const float DECK_OPEN = 0.2;
-const float DECK_SOLID = 0.55;
-
 float height_at(vec2 xz) {
 	ivec2 size = textureSize(height_map, 0);
 	ivec2 cell = ivec2(floor((xz - map_origin) / texel_size));
@@ -92,6 +85,9 @@ float height_at(vec2 xz) {
 float sun_visibility(vec3 p, float jitter) {
 	// Above the tallest roof (the slab can now rise over high ground) nothing blocks.
 	float reach = clamp((volume_top - p.y) / max(light_dir.y, 0.02), 0.0, shadow_reach);
+	if (reach <= 0.0) {
+		return 1.0;
+	}
 	for (int k = 0; k < shadow_steps; k++) {
 		float f = (float(k) + jitter) / float(shadow_steps);
 		vec3 q = p + light_dir * (reach * f * f + texel_size * 0.5);
@@ -102,33 +98,29 @@ float sun_visibility(vec3 p, float jitter) {
 	return 1.0;
 }
 
-// Share of the light the clouds stop above air point `p` (1 = full shadow): the deck
-// projected along the light onto its plane, times the discrete cells. A real (not
-// clamped) light slope is used so dawn shafts lie as flat as the sun; only a floor
-// keeps the projection finite at the horizon.
-float cloud_shadow(vec3 p, float cell_lod) {
-	float light_y = max(light_dir.y, 0.03);
-	float deck = 0.0;
-	if (p.y < DECK_H) {
-		vec2 q = p.xz + light_dir.xz / light_y * (DECK_H - p.y);
-		vec2 uv = (q / DECK_H) * 0.12 - cloud_offset_g;
-		float body = sky_cloud_shadow_soft(
-			uv, clamp(cloud_coverage_g, 0.0, 1.0), cloud_shape_tex, cloud_noise_tex,
-			cloud_detail_offset_g, cloud_chaos_g, DECK_MIP
-		);
-		// Threshold like the dome's thick slab: a cloud the player sees as opaque must
-		// shade its column, and the thin fringe between heaps must stay open.
-		deck = smoothstep(DECK_OPEN, DECK_SOLID, body);
-	}
-	float cells = cells_ground_shadow(p, light_dir, cloud_noise_tex, cell_lod);
-	return 1.0 - (1.0 - deck) * (1.0 - cells);
-}
-
 // Henyey-Greenstein normalised to 1 when looking straight at the light.
 float phase(float cos_theta) {
 	float g = anisotropy;
 	float ratio = (1.0 - g) * (1.0 - g) / max(1.0 + g * g - 2.0 * g * cos_theta, 1e-4);
 	return mix(ratio * sqrt(ratio), 1.0, isotropic_share);
+}
+
+// A top-down map of the same cloud shade over the ground (cloud_shadow_map.gd): the shade
+// of air at height y is the map read at the ground point the light line through it crosses,
+// p.xz - light.xz / light.y * y, exactly (the deck and every cell project along the light).
+// It replaces the per-sample cloud noise and cell loop, which cost more the more clouds
+// the sky held. `use_shade_map` falls back to the direct evaluation.
+uniform bool use_shade_map = false;
+uniform sampler2D cloud_shade_map : filter_linear, repeat_disable;
+// World XZ of the map's corner and its world size.
+uniform vec3 shade_window = vec3(0.0, 0.0, 1.0);
+
+float air_shadow(vec3 p, float cell_lod) {
+	if (use_shade_map) {
+		vec2 ground = p.xz - light_dir.xz / max(light_dir.y, 0.03) * p.y;
+		return texture(cloud_shade_map, (ground - shade_window.xy) / shade_window.z).r;
+	}
+	return cloud_shadow(p, cell_lod);
 }
 
 void vertex() {
@@ -213,8 +205,8 @@ void fragment() {
 			if (p.y <= height_at(p.xz)) {
 				break;
 			}
-			if (i % cloud_stride == 0) {
-				cloud_lit = 1.0 - cloud_shadow(p, 2.0);
+			if (use_shade_map || i % cloud_stride == 0) {
+				cloud_lit = 1.0 - air_shadow(p, 2.0);
 			}
 			lit += sun_visibility(p, jitter) * cloud_lit * dt;
 		}
@@ -240,8 +232,8 @@ void fragment() {
 			float t = far_end * f * f;
 			float w = exp(-t / far_extinction) * (t - prev_t) / far_extinction;
 			prev_t = t;
-			if (k % cloud_stride == 0) {
-				s = cloud_shadow(origin + dir * t, 2.5);
+			if (use_shade_map || k % cloud_stride == 0) {
+				s = air_shadow(origin + dir * t, 2.5);
 			}
 			far_lit += (1.0 - s) * w;
 			far_shade += s * w;

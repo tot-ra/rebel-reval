@@ -14,6 +14,7 @@ const PASS_SHADER := preload("res://scripts/map/view3d/god_ray_pass.gdshader")
 const Lighting := preload("res://scripts/map/view3d/map_view_lighting.gd")
 const SkyWeather := preload("res://scripts/map/view3d/sky_weather_3d.gd")
 const GraphicsPresetsScript := preload("res://scripts/settings/graphics_presets.gd")
+const CloudShadowMapScript := preload("res://scripts/map/view3d/cloud_shadow_map.gd")
 
 ## R-1451: drawn right after CloudShadowPass (-100) and before the water. In
 ## Compatibility the water's screen-texture copy empties `hint_depth_texture` for every
@@ -61,6 +62,10 @@ const REBUILD_SETTLE_SECONDS := 0.25
 
 var strength := 0.0
 var _material: ShaderMaterial
+## Top-down cloud shade the shader reads instead of the cloud noise (null = direct evaluation).
+var _shade_map: Node
+## False reads the cloud noise directly (benchmarks and tests compare the two).
+var use_shade_map := true
 var _overlay: MeshInstance3D
 var _camera: Camera3D
 var _world_extent := Vector2.ZERO
@@ -231,6 +236,9 @@ func configure(
 	_overlay.extra_cull_margin = 16384.0
 	_overlay.visible = false
 	add_child(_overlay)
+	_shade_map = CloudShadowMapScript.new()
+	add_child(_shade_map)
+	_material.set_shader_parameter(&"cloud_shade_map", _shade_map.texture())
 	_sync_height_map()
 	_follow_graphics_quality()
 
@@ -338,5 +346,10 @@ func update(delta: float, presentation: SkyWeather.WeatherPresentation) -> void:
 	_material.set_shader_parameter(&"map_origin", Vector2(origin.x, origin.z) + _raster_origin)
 	_material.set_shader_parameter(&"light_dir", direction)
 	_material.set_shader_parameter(&"cloud_cells", presentation.cloud_cells)
+	if _shade_map != null:
+		var eye := (camera if camera != null else _camera).global_position
+		_shade_map.update(Vector2(eye.x, eye.z), direction, presentation.cloud_cells)
+		_material.set_shader_parameter(&"shade_window", _shade_map.window())
+		_material.set_shader_parameter(&"use_shade_map", use_shade_map and _shade_map.is_ready())
 	_material.set_shader_parameter(&"ray_color", ray_color)
 	_material.set_shader_parameter(&"strength", base * GAIN)

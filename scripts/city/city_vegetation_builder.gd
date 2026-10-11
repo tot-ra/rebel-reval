@@ -81,6 +81,9 @@ const SHRUB_AS_TREE := {
 ## Crowns are expensive (layered leaf cards): chunk them spatially and only
 ## draw nearby ones; trunks carry a little further so woods do not pop bare.
 const CHUNK := 96.0
+## Metres past the near-crown radius where far crowns turn coarse (the LOD hides the coarse
+## crown of every tree it swaps to a near crown, so a margin is enough).
+const COARSE_MARGIN := 14.0
 const GraphicsPresetsScript := preload("res://scripts/settings/graphics_presets.gd")
 const CROWN_RANGE := 260.0
 const WOOD_RANGE := 200.0
@@ -189,9 +192,8 @@ static func trunk_factor(species: StringName, world_scale: float) -> float:
 	return clampf(float(TRUNK_DIAMETER_M.get(species, 0.4)) / maxf(base, 0.01), 0.2, 1.0)
 
 
-## Distance (to a 96 m chunk's centre) where far crowns switch to the coarse mesh. It stays
-## past the near-crown radius plus half a chunk so no tree near the camera is drawn twice;
-## the graphics quality shrinks the radius, so low switches earlier.
+## Distance (to a 96 m chunk's centre) where far crowns switch to the coarse mesh. The
+## graphics quality shrinks the near-crown radius, so low switches earlier.
 static func coarse_crown_begin() -> float:
 	var near_scale := 1.0
 	var tree := Engine.get_main_loop() as SceneTree
@@ -200,7 +202,7 @@ static func coarse_crown_begin() -> float:
 		near_scale = float(
 			GraphicsPresetsScript.row(String(settings.graphics.quality))["tree_near_scale"]
 		)
-	return CityTreeLod.NEAR_EXIT * near_scale + CHUNK * 0.71
+	return CityTreeLod.NEAR_EXIT * near_scale + COARSE_MARGIN
 
 
 static func build(plan: CityPlan, parent: Node3D) -> Node3D:
@@ -303,6 +305,7 @@ static func build(plan: CityPlan, parent: Node3D) -> Node3D:
 		if shrub:
 			crown.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		root.add_child(crown)
+		var coarse_multimesh: MultiMesh = null
 		if not shrub:
 			# Beyond coarse_begin (chunk-centre distance) the same trees draw a quarter of the
 			# triangles and cast no shadow. A forest paid ~85 ms for full far crowns.
@@ -319,11 +322,15 @@ static func build(plan: CityPlan, parent: Node3D) -> Node3D:
 			coarse.visibility_range_begin = coarse_begin
 			coarse.visibility_range_end = CROWN_RANGE
 			coarse.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+			coarse.set_instance_shader_parameter(&"coarse_lod", 1.0)
 			root.add_child(coarse)
+			coarse_multimesh = coarse.multimesh
 		# This big-card crown is the far LOD; CityTreeLod swaps trees near the
 		# camera to the real-size near crown. Shrubs swap too: their near cards
 		# are NEAR_SHRUB_CARD_METRES (hand-sized leaves beside Kalev).
-		lod.register(species, world_scale, crown.multimesh, transforms, colors, shrub)
+		lod.register(
+			species, world_scale, crown.multimesh, transforms, colors, shrub, coarse_multimesh
+		)
 	build_bushes(plan, root)
 	return root
 

@@ -57,6 +57,8 @@ var _measuring := false
 ## Layer id -> frame ms saved when it is off; filled by measure_layers().
 var _layer_cost: Dictionary = {}
 var _layer_baseline := 0.0
+var _layer_tris: Dictionary = {}
+var _last_tris := 0.0
 var _measure_status := ""
 var _measure_running := false
 
@@ -106,10 +108,13 @@ func measure_layers() -> void:
 		return
 	_measure_running = true
 	_layer_cost.clear()
+	_layer_tris.clear()
 	_restore_layers()
 	_measure_status = "measuring layers, stand still ..."
 	var before := await _median_frame_ms()
+	var base_tris := _last_tris
 	var costs: Dictionary = {}
+	var tris: Dictionary = {}
 	for layer_def: Dictionary in LAYERS:
 		var id := String(layer_def["id"])
 		if _layer_nodes(id).is_empty() and id != "shadows":
@@ -118,12 +123,14 @@ func measure_layers() -> void:
 		_layer_off[id] = true
 		_apply_layers()
 		costs[id] = await _median_frame_ms()
+		tris[id] = _last_tris
 		_layer_off[id] = false
 		_apply_layers()
 	var after := await _median_frame_ms()
 	_layer_baseline = (before + after) * 0.5
 	for id: String in costs:
 		_layer_cost[id] = maxf(_layer_baseline - float(costs[id]), 0.0)
+		_layer_tris[id] = maxf(float(base_tris) - float(tris[id]), 0.0)
 	_measure_status = ""
 	_measure_running = false
 
@@ -139,6 +146,7 @@ func _median_frame_ms() -> float:
 		samples.append(float(now - last) / 1000.0)
 		last = now
 	samples.sort()
+	_last_tris = Performance.get_monitor(Performance.RENDER_TOTAL_PRIMITIVES_IN_FRAME)
 	return samples[samples.size() / 2]
 
 
@@ -487,7 +495,10 @@ func _layer_cost_lines() -> PackedStringArray:
 	rows.sort_custom(func(a: Array, b: Array) -> bool: return a[1] > b[1])
 	for row: Array in rows:
 		var share: float = float(row[1]) / maxf(_layer_baseline, 0.001) * 100.0
-		out.append("  %s  %3.0f%%  %s" % [_ms(row[1]), share, _layer_label(row[0])])
+		out.append(
+			"  %s  %3.0f%%  %s  (%.1fM tris)"
+			% [_ms(row[1]), share, _layer_label(row[0]), float(_layer_tris.get(row[0], 0.0)) / 1.0e6]
+		)
 	return out
 
 

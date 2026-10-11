@@ -40,6 +40,8 @@ uniform float slender = 1.0;
 // How much of the transmitted light takes the chlorophyll hue shift.
 uniform float leaf_translucency : hint_range(0.0, 1.0) = 0.65;
 
+instance uniform float coarse_lod : hint_range(0.0, 1.0) = 0.0;
+
 varying float v_leaf_autumn;
 varying float v_leaf_seed;
 
@@ -75,24 +77,29 @@ void vertex() {
 		* sway_strength * strength * weight
 		+ across * flutter * shake_flutter * 0.06 * weight;
 	VERTEX += inverse(mat3(MODEL_MATRIX)) * vec3(displace.x, flutter * (sway_strength * strength + shake_flutter * 0.05) * weight * 0.18, displace.y);
-	// Whole-tree bend: the same cantilever model as the bark shader, so a leaf
-	// card moves with the shoot it grows on. Leaves sit on thin shoots (flex 1)
-	// at their petiole; bushes and legacy primitives bend by vertex position.
-	vec3 anchor = leaf_tag > 0.5 ? CUSTOM0.xyz : VERTEX;
-	float flex = leaf_tag > 0.5 ? 1.0 : 0.0;
-	mat3 model = mat3(MODEL_MATRIX);
-	float scale = length(MODEL_MATRIX[1].xyz);
-	vec3 wind_anchor = model * anchor / max(scale, 0.00001);
-	vec3 bend = tree_wind_offset(MODEL_MATRIX[3].xz, wind_anchor, flex,
-		length(MODEL_MATRIX[1].xyz), tree_top, slender, strength, push, TIME);
-	bend.xz += INSTANCE_CUSTOM.xy * clamp(anchor.y * 0.18, 0.0, 1.0);
-	// Carry leaf orientation with the bent section, not only its anchor.
-	float L = max(tree_top * scale, 2.0);
-	vec2 tilt = tree_wind_tilt(MODEL_MATRIX[3].xz, L, slender, strength, push, TIME)
-		* tree_slope_shape(max(anchor.y, 0.0) * scale / L);
-	vec3 relative = model * (VERTEX - anchor);
-	VERTEX += inverse(model) * (bend + tree_wind_rotate(relative, tilt) - relative);
-	NORMAL = normalize(inverse(model) * tree_wind_rotate(model * NORMAL, tilt));
+	// Distant coarse crowns (set per MultiMeshInstance by CityVegetationBuilder) keep the
+	// gust sway above and skip the per-vertex cantilever bend: a speck of foliage a hundred
+	// metres away does not show it, and it is most of this shader's vertex cost.
+	if (coarse_lod < 0.5) {
+		// Whole-tree bend: the same cantilever model as the bark shader, so a leaf
+		// card moves with the shoot it grows on. Leaves sit on thin shoots (flex 1)
+		// at their petiole; bushes and legacy primitives bend by vertex position.
+		vec3 anchor = leaf_tag > 0.5 ? CUSTOM0.xyz : VERTEX;
+		float flex = leaf_tag > 0.5 ? 1.0 : 0.0;
+		mat3 model = mat3(MODEL_MATRIX);
+		float scale = length(MODEL_MATRIX[1].xyz);
+		vec3 wind_anchor = model * anchor / max(scale, 0.00001);
+		vec3 bend = tree_wind_offset(MODEL_MATRIX[3].xz, wind_anchor, flex,
+			length(MODEL_MATRIX[1].xyz), tree_top, slender, strength, push, TIME);
+		bend.xz += INSTANCE_CUSTOM.xy * clamp(anchor.y * 0.18, 0.0, 1.0);
+		// Carry leaf orientation with the bent section, not only its anchor.
+		float L = max(tree_top * scale, 2.0);
+		vec2 tilt = tree_wind_tilt(MODEL_MATRIX[3].xz, L, slender, strength, push, TIME)
+			* tree_slope_shape(max(anchor.y, 0.0) * scale / L);
+		vec3 relative = model * (VERTEX - anchor);
+		VERTEX += inverse(model) * (bend + tree_wind_rotate(relative, tilt) - relative);
+		NORMAL = normalize(inverse(model) * tree_wind_rotate(model * NORMAL, tilt));
+	}
 }
 
 float hash11(float p) {

@@ -33,7 +33,7 @@ const UPDATE_INTERVAL := 0.15
 var focus_override := Vector3.INF
 ## species -> {"world_scale", "shrub"}
 var _species: Dictionary = {}
-## tree id -> [species, Transform3D, Color, MultiMesh far, int far index]
+## tree id -> [species, Transform3D, Color, MultiMesh far, int far index, MultiMesh coarse or null]
 var _trees: Array = []
 ## Vector2i grid cell -> Array[int] tree ids
 var _grid: Dictionary = {}
@@ -56,7 +56,8 @@ func register(
 	far: MultiMesh,
 	transforms: Array[Transform3D],
 	colors: Array[Color],
-	shrub: bool
+	shrub: bool,
+	coarse: MultiMesh = null
 ) -> void:
 	if not _species.has(species):
 		_species[species] = {"world_scale": world_scale, "shrub": shrub}
@@ -67,7 +68,7 @@ func register(
 	for index in transforms.size():
 		var id := _trees.size()
 		var origin := transforms[index].origin
-		_trees.append([species, transforms[index], colors[index], far, index])
+		_trees.append([species, transforms[index], colors[index], far, index, coarse])
 		var cell := Vector2i(floori(origin.x / GRID), floori(origin.z / GRID))
 		if not _grid.has(cell):
 			_grid[cell] = []
@@ -169,6 +170,8 @@ func update_for(focus: Vector3) -> bool:
 			_near.erase(id)
 			var tree: Array = _trees[id]
 			(tree[3] as MultiMesh).set_instance_transform(tree[4], tree[1])
+			if tree[5] != null:
+				(tree[5] as MultiMesh).set_instance_transform(tree[4], tree[1])
 			changed[tree[0]] = true
 	for id: int in wanted:
 		if not _near.has(id):
@@ -178,6 +181,8 @@ func update_for(focus: Vector3) -> bool:
 				Basis.from_scale(Vector3.ZERO), (tree[1] as Transform3D).origin
 			)
 			(tree[3] as MultiMesh).set_instance_transform(tree[4], hidden)
+			if tree[5] != null:
+				(tree[5] as MultiMesh).set_instance_transform(tree[4], hidden)
 			changed[tree[0]] = true
 	for species: StringName in changed:
 		_rebuild_near(species, false)

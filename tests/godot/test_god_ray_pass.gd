@@ -53,7 +53,11 @@ func test_closed_overcast_or_rain_sheet_has_no_beams() -> void:
 
 func test_shader_shades_air_by_the_deck_and_stops_at_surfaces() -> void:
 	var code: String = GodRayPass.PASS_SHADER.code
-	assert_true("sky_cloud_shadow_soft" in code, "the dome deck shades the air, not only cells")
+	var shade: String = FileAccess.get_file_as_string(
+		"res://scripts/map/view3d/cloud_air_shadow.gdshaderinc"
+	)
+	assert_true("sky_cloud_shadow_soft" in shade, "the dome deck shades the air, not only cells")
+	assert_true("air_shadow" in code, "the pass reads the shade through the map or directly")
 	assert_true("hint_depth_texture" in code, "the far march stops at the scene depth")
 	assert_true("blend_premul_alpha" in code, "shaded columns darken, lit air adds light")
 	assert_true("water_plane_y" in code, "rays over the sea end at the water, not the bed")

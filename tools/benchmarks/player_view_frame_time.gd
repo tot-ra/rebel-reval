@@ -22,6 +22,7 @@ const WEATHERS := {
 	"clear": [SkyWeather3D.WEATHER_CLEAR, 0.1, 0.0],
 	"rain": [SkyWeather3D.WEATHER_RAIN, 0.6, 0.8],
 	"storm": [SkyWeather3D.WEATHER_STORM, 0.95, 0.6],
+	"windy": [SkyWeather3D.WEATHER_CLOUDY, 0.9, 0.0],
 }
 const TIMES := {"day": 0.42, "night": 0.0}
 
@@ -41,10 +42,15 @@ var _hide: PackedStringArray = []
 ## "view,shadow,far" ray-march steps for the god-ray pass (empty = shader defaults).
 var _godray_steps: PackedStringArray = []
 var _png_dir := ""
+var _god_ray: Node
 ## --panel: record the PerfMonitor overlay text (GPU passes, CPU systems, memory) per shot.
 var _panel := false
 ## --layers: also measure what each render layer costs (PerfMonitor.measure_layers) per shot.
 var _layers := false
+## --no-shade-map: the god-ray pass evaluates the cloud noise directly (to compare images).
+var _no_shade_map := false
+## --shade-ab: also save each shot with the direct cloud evaluation (label_direct.png) a few frames later.
+var _shade_ab := false
 
 
 func _initialize() -> void:
@@ -74,6 +80,10 @@ func _run() -> void:
 			_no_sun_shadows = true
 		elif arg.begins_with("--godray-steps="):
 			_godray_steps = arg.trim_prefix("--godray-steps=").split(",")
+		elif arg == "--shade-ab":
+			_shade_ab = true
+		elif arg == "--no-shade-map":
+			_no_shade_map = true
 		elif arg == "--layers":
 			_layers = true
 			_panel = true
@@ -111,6 +121,9 @@ func _run() -> void:
 		root.msaa_3d = _msaa as Viewport.MSAA
 	if _no_sun_shadows:
 		world.sun.shadow_enabled = false
+	_god_ray = view._god_ray_pass
+	if _no_shade_map and view._god_ray_pass != null:
+		view._god_ray_pass.use_shade_map = false
 	if _godray_steps.size() == 3 and view._god_ray_pass != null:
 		var material: ShaderMaterial = view._god_ray_pass._material
 		material.set_shader_parameter(&"view_steps", int(_godray_steps[0]))
@@ -247,11 +260,18 @@ func _measure(label: String) -> Dictionary:
 			await monitor.measure_layers()
 			row["layer_cost_ms"] = monitor._layer_cost.duplicate()
 			row["layer_base_ms"] = monitor._layer_baseline
+			row["layer_tris"] = monitor._layer_tris.duplicate()
 		row["panel"] = monitor._compose().replace("[b]", "").replace("[/b]", "")
 	if not _png_dir.is_empty():
 		var dir := ProjectSettings.globalize_path(_png_dir)
 		DirAccess.make_dir_recursive_absolute(dir)
 		root.get_texture().get_image().save_png("%s/%s.png" % [dir, label.replace("/", "_")])
+		if _shade_ab and _god_ray != null:
+			_god_ray.use_shade_map = false
+			for _frame in 4:
+				await process_frame
+			root.get_texture().get_image().save_png("%s/%s_direct.png" % [dir, label.replace("/", "_")])
+			_god_ray.use_shade_map = true
 	print("  %s: %.2f ms (p95 %.2f), %d draws" % [
 			label, row["frame_ms_median"], row["frame_ms_p95"], row["draw_calls"]])
 	return row
