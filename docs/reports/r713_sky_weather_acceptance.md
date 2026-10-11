@@ -57,9 +57,30 @@ Existing owners cover every open dependency. No duplicate implementation follow-
 | Automated continuity and duplicate-controller tests | Focused continuity packet and one-owner assertions | **PASS for R-713 packet** | Full adjacent streaming remains R-714-owned |
 | Performance budgets and quality fallbacks measured on minimum/recommended hardware | `r713_environment_performance.md` defines both tiers and keeps host identity separate | **BLOCKED** | Intel UHD 620 minimum run and isolated recommended-host run are unavailable |
 
-## Captures and performance
+## R-1107 sky-detail follow-up (2026-10-11)
 
-The committed continuity packet is no longer missing: it contains 48/48 PNG plates, 24/24 handoffs (the original four-weather subset was 40/40 and 20/20), matching snapshot hashes, fixed 1280x720 dimensions, Metal renderer metadata, and verified checksums. Its report explicitly says **human visual review pending**, so structural validity cannot be relabeled as signed acceptance.
+The sky shader already includes catalog-based point-spread stars, conditional Milky Way
+visibility, procedural fair-weather heaps, volumetric cumulonimbus, and weather profiles.
+This scoped pass addresses two remaining presentation gaps without introducing another
+weather owner:
+
+- High cirrus now uses a narrower, sparser streak mask with drifting domain variation and
+  lower opacity, reducing the repeated full-dome veil.
+- Milky Way radiance now fades with the shared weather-wide rain value and cloud gloom/haze,
+  not only the cloud sample directly on the view ray. This also suppresses the band during
+  rain when a localized shower leaves clear patches around the raining cell.
+
+`SkyWeather3D._push_cloud_uniforms()` supplies `weather_rain` from the existing blended
+profile. No save fields, IDs, assets, weather profiles, or gameplay state changed. The
+focused shader-source contract checks both gates. This is a bounded procedural shader
+approximation, not volumetric astrophotography or a physical cirrus simulation.
+
+Verification: `test_sky_weather_3d` PASS (41/41); `gdtoolkit.linter` and `git diff --check`
+PASS. Renderer captures and target-hardware timings are not claimed. Existing R-737
+performance measurements, R-738 human visual review, and parent R-713 acceptance remain
+blocked; this change does not waive or replace those gates.
+
+## Captures and performance
 
 The minimum target remains `minimum-hardware-intel-uhd-620`; an Apple M5 Pro measurement cannot certify it. The recommended target is `development-baseline-m5-pro`, but no retained run isolates the weather presenter. Both rows remain **BLOCKED** in `docs/reports/r713_environment_performance.md`.
 

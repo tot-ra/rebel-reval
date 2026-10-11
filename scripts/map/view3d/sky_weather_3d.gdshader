@@ -114,6 +114,9 @@ uniform vec2 wind_dir = vec2(0.928, 0.371);
 // 0..1: how much of the sky is a closing deck. Cumulus that are still there then
 // darken toward rain-bearing grey instead of staying fair-weather white.
 uniform float cloud_gloom : hint_range(0.0, 1.0) = 0.0;
+// Weather-wide rain share lets astronomical sky features respond to wet haze even
+// when the camera is outside a localized rain shaft.
+uniform float weather_rain : hint_range(0.0, 1.0) = 0.0;
 
 // Hipparcos stars live in equatorial coordinates in this nearest-filtered map,
 // one texel per star (read with texelFetch in sky_stars.gdshaderinc).
@@ -290,10 +293,13 @@ vec3 cloud_field(vec3 dir) {
 	vec2 high_wind = vec2(wind_dir.x * 0.825 - wind_dir.y * 0.565,
 		wind_dir.x * 0.565 + wind_dir.y * 0.825);
 	vec2 across = vec2(-high_wind.y, high_wind.x);
-	float cirrus = texture(cloud_noise,
-		vec2(dot(high_uv, high_wind) * 0.45, dot(high_uv, across) * 1.8)).r;
-	cirrus = smoothstep(0.58, 0.85, cirrus) * 0.20
-		* smoothstep(0.25, 0.65, cloud_coverage) * (1.0 - local_storm);
+	// A sparse high veil, not a repeating sheet: gate the narrow streak mask by
+	// cloudiness, reduce its weight, and let the offset domain break up long bands.
+	float cirrus_noise = texture(cloud_noise,
+		vec2(dot(high_uv, high_wind) * 0.18, dot(high_uv, across) * 0.92)
+		+ cloud_detail_offset * 0.17).r;
+	float cirrus = smoothstep(0.69, 0.91, cirrus_noise) * 0.11
+		* smoothstep(0.32, 0.70, cloud_coverage) * (1.0 - local_storm);
 	light = mix(light, 0.8, cirrus * (1.0 - density));
 	density += cirrus * (1.0 - density);
 	density *= smoothstep(-0.025, 0.055, dir.y);
@@ -913,7 +919,13 @@ void sky() {
 		vec3 stars = star_field(star_uv, height, pixel_angle);
 		float star_visibility = pow(1.0 - day_blend, 3.0) * smoothstep(-0.01, 0.05, height);
 		color += stars * star_visibility * (1.0 - clouds) * 0.32;
-		color += milky_way(star_uv) * milky_way_visibility(height) * (1.0 - clouds) * 0.25;
+		float weather_fade = 1.0 - max(
+			smoothstep(0.08, 0.30, weather_rain),
+			smoothstep(0.48, 0.92, cloud_gloom)
+		);
+		float haze_fade = 1.0 - smoothstep(0.16, 0.62, haze + cloud_darken * 0.35);
+		color += milky_way(star_uv) * milky_way_visibility(height)
+			* weather_fade * haze_fade * (1.0 - clouds) * 0.25;
 	}
 
 	// Sun disk plus halo, hidden once the sun dips below the horizon.

@@ -2118,6 +2118,7 @@ func _push_cloud_uniforms() -> void:
 	_material.set_shader_parameter(&"cloud_cells", _cells.uniforms())
 	_material.set_shader_parameter(&"rain_slant", rain_slant() * RAIN_SHAFT_SLANT)
 	_material.set_shader_parameter(&"cloud_gloom", smoothstep(0.55, 0.95, cloud_coverage()))
+	_material.set_shader_parameter(&"weather_rain", rain_intensity())
 	# The player's graphics quality may lower the cloud march below the tier's row.
 	var march := _cell_march_override
 	_material.set_shader_parameter(
