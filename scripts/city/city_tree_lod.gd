@@ -33,7 +33,7 @@ const UPDATE_INTERVAL := 0.15
 var focus_override := Vector3.INF
 ## species -> {"world_scale", "shrub"}
 var _species: Dictionary = {}
-## tree id -> [species, Transform3D, Color, MultiMesh far, int far index, MultiMesh coarse or null]
+## tree id -> [species, Transform3D, Color, MultiMesh far, int far index, Array[MultiMesh] hidden with it]
 var _trees: Array = []
 ## Vector2i grid cell -> Array[int] tree ids
 var _grid: Dictionary = {}
@@ -57,7 +57,7 @@ func register(
 	transforms: Array[Transform3D],
 	colors: Array[Color],
 	shrub: bool,
-	coarse: MultiMesh = null
+	also_hidden: Array[MultiMesh] = []
 ) -> void:
 	if not _species.has(species):
 		_species[species] = {"world_scale": world_scale, "shrub": shrub}
@@ -68,7 +68,7 @@ func register(
 	for index in transforms.size():
 		var id := _trees.size()
 		var origin := transforms[index].origin
-		_trees.append([species, transforms[index], colors[index], far, index, coarse])
+		_trees.append([species, transforms[index], colors[index], far, index, also_hidden])
 		var cell := Vector2i(floori(origin.x / GRID), floori(origin.z / GRID))
 		if not _grid.has(cell):
 			_grid[cell] = []
@@ -170,8 +170,8 @@ func update_for(focus: Vector3) -> bool:
 			_near.erase(id)
 			var tree: Array = _trees[id]
 			(tree[3] as MultiMesh).set_instance_transform(tree[4], tree[1])
-			if tree[5] != null:
-				(tree[5] as MultiMesh).set_instance_transform(tree[4], tree[1])
+			for extra: MultiMesh in tree[5]:
+				extra.set_instance_transform(tree[4], tree[1])
 			changed[tree[0]] = true
 	for id: int in wanted:
 		if not _near.has(id):
@@ -181,8 +181,8 @@ func update_for(focus: Vector3) -> bool:
 				Basis.from_scale(Vector3.ZERO), (tree[1] as Transform3D).origin
 			)
 			(tree[3] as MultiMesh).set_instance_transform(tree[4], hidden)
-			if tree[5] != null:
-				(tree[5] as MultiMesh).set_instance_transform(tree[4], hidden)
+			for extra: MultiMesh in tree[5]:
+				extra.set_instance_transform(tree[4], hidden)
 			changed[tree[0]] = true
 	for species: StringName in changed:
 		_rebuild_near(species, false)
@@ -234,13 +234,14 @@ func _rebuild_near(species: StringName, macro: bool) -> void:
 		node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		var proxy := MapViewMeshBuilderPrimitives.multi_mesh(
 			"ShadowProxy",
-			MapViewTreeMeshes.city_canopy_far_mesh(species),
+			MapViewTreeMeshes.city_canopy_coarse_mesh(species),
 			transforms,
 			colors,
 			MapViewMaterials.canopy_for_species(MapViewTreeMeshes.base_species(species)),
 			Vector3.ZERO,
 			true
 		)
+		proxy.set_instance_shader_parameter(&"coarse_lod", 1.0)
 		proxy.extra_cull_margin = 12.0
 		proxy.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_SHADOWS_ONLY
 		node.add_child(proxy)

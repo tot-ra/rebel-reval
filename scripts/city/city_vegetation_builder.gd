@@ -213,6 +213,7 @@ static func build(plan: CityPlan, parent: Node3D) -> Node3D:
 	lod.name = "TreeLod"
 	root.add_child(lod)
 	var coarse_begin := coarse_crown_begin()
+	var wood_coarse_begin := coarse_begin - COARSE_MARGIN + CHUNK * 0.71
 	var by_species: Dictionary = {}
 	var species_scales: Dictionary = {}
 	var entries: Array = plan.data.get("trees", []).duplicate()
@@ -270,10 +271,43 @@ static func build(plan: CityPlan, parent: Node3D) -> Node3D:
 		var shrub := base in MapViewTreeMeshes.CITY_SHRUBS
 		# Shader-bent crowns can reach beyond the undeformed batch AABB.
 		wood.extra_cull_margin = 12.0
-		wood.visibility_range_end = BUSH_RANGE if shrub else WOOD_RANGE
+		wood.visibility_range_end = BUSH_RANGE if shrub else wood_coarse_begin
 		if shrub:
 			wood.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		root.add_child(wood)
+		if not shrub:
+			# Past a chunk-safe distance only the trunk is drawn, and no shadow is cast.
+			var trunk := MapViewMeshBuilderPrimitives.multi_mesh(
+				"WoodCoarse_%s" % species,
+				MapViewTreeMeshes.city_wood_trunk_mesh(
+					species, world_scale, trunk_factor(species, world_scale)
+				),
+				transforms,
+				colors,
+				MapViewMaterials.bark_plate_wind(MapViewTreeSpecies.bark_plate_for(base), base),
+				Vector3.ZERO
+			)
+			trunk.extra_cull_margin = 12.0
+			trunk.visibility_range_begin = wood_coarse_begin
+			trunk.visibility_range_end = WOOD_RANGE
+			trunk.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+			root.add_child(trunk)
+			# The branchy wood never enters the shadow pass: the trunk casts for it.
+			wood.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+			var trunk_shadow := MapViewMeshBuilderPrimitives.multi_mesh(
+				"WoodShadow_%s" % species,
+				MapViewTreeMeshes.city_wood_trunk_mesh(
+					species, world_scale, trunk_factor(species, world_scale)
+				),
+				transforms,
+				colors,
+				MapViewMaterials.bark_plate_wind(MapViewTreeSpecies.bark_plate_for(base), base),
+				Vector3.ZERO
+			)
+			trunk_shadow.extra_cull_margin = 12.0
+			trunk_shadow.visibility_range_end = WOOD_RANGE
+			trunk_shadow.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_SHADOWS_ONLY
+			root.add_child(trunk_shadow)
 		var litter: Array[Transform3D] = batch["litter"]
 		if not shrub and not litter.is_empty():
 			var litter_colors: Array[Color] = []
@@ -305,8 +339,26 @@ static func build(plan: CityPlan, parent: Node3D) -> Node3D:
 		if shrub:
 			crown.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		root.add_child(crown)
-		var coarse_multimesh: MultiMesh = null
+		var hidden_with_near: Array[MultiMesh] = []
 		if not shrub:
+			# The full far crown draws in the colour pass only; a shadows-only coarse copy casts
+			# for it (a quarter of the triangles in every sun cascade).
+			crown.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+			var shade := MapViewMeshBuilderPrimitives.multi_mesh(
+				"CrownShadow_%s" % species,
+				MapViewTreeMeshes.city_canopy_coarse_mesh(species),
+				transforms,
+				colors,
+				MapViewMaterials.canopy_for_species(base),
+				Vector3.ZERO,
+				true
+			)
+			shade.extra_cull_margin = 12.0
+			shade.visibility_range_end = CROWN_RANGE
+			shade.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_SHADOWS_ONLY
+			shade.set_instance_shader_parameter(&"coarse_lod", 1.0)
+			root.add_child(shade)
+			hidden_with_near.append(shade.multimesh)
 			# Beyond coarse_begin (chunk-centre distance) the same trees draw a quarter of the
 			# triangles and cast no shadow. A forest paid ~85 ms for full far crowns.
 			var coarse := MapViewMeshBuilderPrimitives.multi_mesh(
@@ -324,12 +376,12 @@ static func build(plan: CityPlan, parent: Node3D) -> Node3D:
 			coarse.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 			coarse.set_instance_shader_parameter(&"coarse_lod", 1.0)
 			root.add_child(coarse)
-			coarse_multimesh = coarse.multimesh
+			hidden_with_near.append(coarse.multimesh)
 		# This big-card crown is the far LOD; CityTreeLod swaps trees near the
 		# camera to the real-size near crown. Shrubs swap too: their near cards
 		# are NEAR_SHRUB_CARD_METRES (hand-sized leaves beside Kalev).
 		lod.register(
-			species, world_scale, crown.multimesh, transforms, colors, shrub, coarse_multimesh
+			species, world_scale, crown.multimesh, transforms, colors, shrub, hidden_with_near
 		)
 	build_bushes(plan, root)
 	return root

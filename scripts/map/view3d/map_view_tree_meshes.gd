@@ -190,6 +190,68 @@ static func city_wood_mesh(
 	return _city_cache[key]
 
 
+## Distant trunk: the wood mesh without its branches. A tree seen from over 100 m shows a
+## trunk and a crown, so this keeps the triangles whose centre lies within the trunk's
+## own radius of the tree's axis (a tenth to a fifth of the wood's triangles).
+static func city_wood_trunk_mesh(
+	species: StringName, world_scale: float, radius_factor: float
+) -> ArrayMesh:
+	var key := "trunk:%s:%.2f:%.2f" % [species, world_scale, radius_factor]
+	if not _city_cache.has(key):
+		_city_cache[key] = trunk_only(city_wood_mesh(species, world_scale, radius_factor))
+	return _city_cache[key]
+
+
+static func trunk_only(source: ArrayMesh) -> ArrayMesh:
+	var out := ArrayMesh.new()
+	for surface in source.get_surface_count():
+		var arrays := source.surface_get_arrays(surface)
+		var verts: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
+		var indices: PackedInt32Array = (
+			arrays[Mesh.ARRAY_INDEX] if arrays[Mesh.ARRAY_INDEX] != null else PackedInt32Array()
+		)
+		var count := indices.size() if not indices.is_empty() else verts.size()
+		# Trunk radius: the widest horizontal reach of the lowest vertices.
+		var height := source.get_aabb().end.y
+		var reaches: Array[float] = []
+		for v in verts:
+			if v.y < height * 0.05:
+				reaches.append(Vector2(v.x, v.z).length())
+		reaches.sort()
+		# A low percentile: root flare and the lowest branches reach further than the trunk.
+		var base_radius := reaches[int(reaches.size() * 0.4)] * 1.25 if not reaches.is_empty() else 0.0
+		var keep := PackedInt32Array()
+		for tri in range(0, count, 3):
+			var ids := (
+				PackedInt32Array([indices[tri], indices[tri + 1], indices[tri + 2]])
+				if not indices.is_empty()
+				else PackedInt32Array([tri, tri + 1, tri + 2])
+			)
+			var centre := (verts[ids[0]] + verts[ids[1]] + verts[ids[2]]) / 3.0
+			if Vector2(centre.x, centre.z).length() <= base_radius * 1.15:
+				keep.append_array(ids)
+		if keep.is_empty():
+			continue
+		var kept: Array = []
+		kept.resize(arrays.size())
+		# Re-pack the used vertices (unindexed output keeps every array in step).
+		for slot in arrays.size():
+			if arrays[slot] == null:
+				continue
+			var width: int = arrays[slot].size() / verts.size()
+			var packed = arrays[slot].duplicate()
+			packed.clear()
+			for id in keep:
+				for item in range(id * width, (id + 1) * width):
+					packed.append(arrays[slot][item])
+			kept[slot] = packed
+		kept[Mesh.ARRAY_INDEX] = null
+		var custom0 := (source.surface_get_format(surface) >> Mesh.ARRAY_FORMAT_CUSTOM0_SHIFT) & Mesh.ARRAY_FORMAT_CUSTOM_MASK
+		out.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, kept, [], {}, custom0 << Mesh.ARRAY_FORMAT_CUSTOM0_SHIFT)
+		out.surface_set_material(out.get_surface_count() - 1, source.surface_get_material(surface))
+	return out
+
+
 ## City near crown: same skeleton, seasons and wind contract as canopy_mesh,
 ## but cluster cards at real size (NEAR_*_CARD_METRES) and proportionally more
 ## of them. Drawn only for trees close to the camera (CityTreeLod).
