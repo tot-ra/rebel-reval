@@ -10,6 +10,15 @@ serves every palette colour (the garment material multiplies it).
 Each family writes `<family>_albedo.png` (sRGB), `<family>_normal.png`
 (tangent space, OpenGL +Y) and `<family>_orm.png` (R occlusion, G roughness,
 B metallic), plus the tile's world size in metres in TILE_METRES.
+
+Cloth grades (R-1667, docs/SYSTEMS/CITIZEN_WARDROBE.md) are the crowd's quality
+of cloth, independent of its dye: `<grade>_{albedo,normal,orm}_512.png` with
+tiles in GRADE_TILE_METRES, plus one shared RGBA wear mask (`wear_mask_512.png`:
+R mud spatter, G soot smudge, B flour dust, A stain blotches) that the runtime
+cloth shader scales per resident. Only the crowd (Tier 2) uses them, so they are
+synthesised at SIZE for clean thread aliasing and written at 512 px.
+
+    python3 tools/assets/realistic_humans/textiles.py --grades   # grades and mask only
 """
 from pathlib import Path
 import math
@@ -31,6 +40,19 @@ TILE_METRES = {
     "quilted": 0.20,
     "iron": 0.30,
 }
+
+# Grade -> tile metres. Leather and quilted grades are their family sets above;
+# the runtime mirror is CitizenWardrobe.GRADE_TILE (scripts/city/citizen_wardrobe.gd).
+GRADE_TILE_METRES = {
+    "homespun": 0.12,
+    "broadcloth": 0.08,
+    "scarlet": 0.06,
+    "linen_fine": 0.05,
+    "linen_coarse": 0.09,
+    "fur": 0.12,
+}
+GRADE_SIZE = 512
+WEAR_TILE_METRES = 0.6
 
 
 def periodic_noise(size, cutoff, seed, power=1.0):
@@ -189,6 +211,133 @@ def iron():
     return albedo, height_to_normal(height, 1.8), orm(cavity(height), rough, metal)
 
 
+# --------------------------------------------------------------------------
+# Cloth grades (R-1667)
+# --------------------------------------------------------------------------
+
+def thread_values(u, count, seed, low, high):
+    """One value per thread (periodic: `count` threads per tile)."""
+    values = np.random.default_rng(seed).uniform(low, high, count)
+    return values[np.floor(u * count).astype(int) % count]
+
+
+def streaks(field, length, axis):
+    """Box blur along one axis: nap and fur flow (periodic roll keeps it tiling)."""
+    out = np.zeros_like(field)
+    for k in range(-length, length + 1):
+        out += np.roll(field, k, axis)
+    out /= 2 * length + 1
+    return out / (np.abs(out).max() + 1e-9)
+
+
+def homespun():
+    """Hand-spun, hand-woven tabby: lumpy uneven yarn, felted fuzz, pills, fleece flecks."""
+    u, v = grid()
+    wu = u + periodic_noise(SIZE, 24, 20) * 0.006
+    wv = v + periodic_noise(SIZE, 24, 21) * 0.006
+    thick = thread_values(wu, 40, 22, 0.55, 1.0) * thread_values(wv, 36, 23, 0.7, 1.0)
+    h = weave(wu, wv, 40, 36, twill=0) * thick
+    felt = periodic_noise(SIZE, 10, 24)
+    fuzz = periodic_noise(SIZE, 300, 25, power=0.3)
+    pills = np.clip(periodic_noise(SIZE, 140, 26, power=0.4) * 3.0 - 2.2, 0, 1)
+    flecks = np.clip(periodic_noise(SIZE, 420, 27, power=0.2) * 4.0 - 3.0, 0, 1)
+    mottle = periodic_noise(SIZE, 4, 28)  # uneven fulling and fleece colour, 3 cm blotches
+    height = h * 0.7 + fuzz * 0.25 + pills * 0.8 + felt * 0.15
+    tone = 0.56 + 0.08 * mottle + 0.12 * felt + 0.03 * (thick - 0.75) + 0.05 * (h - 0.5) - 0.25 * flecks + 0.06 * pills
+    albedo = np.stack([tone, tone * 0.97, tone * 0.92], -1)
+    rough = np.clip(0.94 + 0.04 * fuzz, 0, 1)
+    return albedo, height_to_normal(height, 2.8), orm(cavity(height), rough, 0.0)
+
+
+def broadcloth():
+    """Fulled and napped twill: the felted face hides most of the weave."""
+    u, v = grid()
+    h = weave(u, v, 120, 120, twill=2) * 0.2
+    nap = periodic_noise(SIZE, 220, 30, power=0.5)
+    felt = periodic_noise(SIZE, 16, 31)
+    height = h + nap * 0.35 + felt * 0.1
+    tone = 0.66 + 0.05 * felt + 0.03 * nap
+    albedo = np.stack([tone, tone * 0.985, tone * 0.96], -1)
+    rough = np.clip(0.88 + 0.03 * nap, 0, 1)
+    return albedo, height_to_normal(height, 1.4), orm(cavity(height), rough, 0.0)
+
+
+def scarlet():
+    """The costliest cloth: fulled, napped and sheared smooth; a combed nap gives a soft sheen."""
+    u, v = grid()
+    nap = streaks(periodic_noise(SIZE, 300, 32, power=0.3), 8, 0)
+    h = weave(u, v, 160, 160, twill=2) * 0.06
+    felt = periodic_noise(SIZE, 14, 33)
+    height = nap * 0.3 + h + felt * 0.05
+    tone = 0.72 + 0.03 * nap + 0.02 * felt
+    albedo = np.stack([tone, tone * 0.99, tone * 0.97], -1)
+    rough = np.clip(0.72 + 0.04 * nap, 0, 1)
+    return albedo, height_to_normal(height, 1.0), orm(cavity(height), rough, 0.0)
+
+
+def linen_fine():
+    """Bleached fine tabby for shirts, veils and coifs of the well-off."""
+    u, v = grid()
+    h = weave(u + periodic_noise(SIZE, 18, 34) * 0.002, v, 150, 144, twill=0)
+    slub = periodic_noise(SIZE, 60, 35) * 0.1
+    height = h * 0.5 + slub * 0.3
+    tone = 0.86 + 0.03 * slub + 0.03 * (h - 0.5)
+    albedo = np.stack([tone, tone * 0.99, tone * 0.97], -1)
+    rough = np.clip(0.78 + 0.04 * periodic_noise(SIZE, 30, 36), 0, 1)
+    return albedo, height_to_normal(height, 1.5), orm(cavity(height), rough, 0.0)
+
+
+def linen_coarse():
+    """Unbleached tow linen: thick uneven threads, slubs and dark shive flecks."""
+    u, v = grid()
+    wu = u + periodic_noise(SIZE, 20, 37) * 0.005
+    thick = thread_values(wu, 56, 38, 0.5, 1.0)
+    h = weave(wu, v, 56, 52, twill=0) * thick
+    slub = periodic_noise(SIZE, 50, 39) * 0.3
+    shives = np.clip(periodic_noise(SIZE, 380, 40, power=0.2) * 4.0 - 3.1, 0, 1)
+    height = h * 0.7 + slub * 0.3
+    tone = 0.70 + 0.08 * slub + 0.03 * (thick - 0.75) + 0.04 * (h - 0.5) - 0.3 * shives
+    albedo = np.stack([tone, tone * 0.96, tone * 0.88], -1)
+    rough = np.clip(0.9 + 0.04 * slub, 0, 1)
+    return albedo, height_to_normal(height, 2.4), orm(cavity(height), rough, 0.0)
+
+
+def fur():
+    """Pelt: strands flowing along V in clumps, darker at the roots."""
+    strands = streaks(periodic_noise(SIZE, 420, 41, power=0.1), 10, 0)
+    clumps = periodic_noise(SIZE, 20, 42)
+    height = strands * 0.6 + clumps * 0.4
+    tone = 0.5 + 0.16 * strands + 0.12 * clumps
+    albedo = np.stack([tone, tone * 0.92, tone * 0.82], -1)
+    rough = np.clip(0.68 + 0.08 * strands, 0, 1)
+    return albedo, height_to_normal(height, 2.0), orm(cavity(height, 4), rough, 0.0)
+
+
+def wear_mask():
+    """Shared RGBA wear mask, linear: R mud spatter, G soot smudge, B flour dust, A stains."""
+    splash = np.clip(periodic_noise(SIZE, 45, 43, power=0.3) * 3.0 - 0.9, 0, 1)
+    mud = np.clip(splash * (0.4 + 0.6 * np.clip(periodic_noise(SIZE, 8, 44) + 0.4, 0, 1))
+                  + 0.25 * np.clip(periodic_noise(SIZE, 12, 45) + 0.2, 0, 1), 0, 1)
+    soot = np.clip(periodic_noise(SIZE, 6, 46) * 1.5 + 0.4, 0, 1) * (0.7 + 0.3 * periodic_noise(SIZE, 60, 47))
+    dust = np.clip(periodic_noise(SIZE, 5, 48) + 0.5, 0, 1) * 0.6
+    flour = np.clip(dust + np.clip(periodic_noise(SIZE, 350, 49, power=0.2) * 3.0 - 1.5, 0, 1) * 0.4, 0, 1)
+    blot = periodic_noise(SIZE, 12, 50)
+    stain = np.clip((blot - 0.25) / 0.2, 0, 1)
+    rim = np.exp(-((blot - 0.27) / 0.03) ** 2)  # tide line where a stain dried
+    stain = np.clip(stain * 0.7 + rim * 0.6, 0, 1)
+    return np.stack([mud, np.clip(soot, 0, 1), flour, stain], -1)
+
+
+GRADES = {
+    "homespun": homespun,
+    "broadcloth": broadcloth,
+    "scarlet": scarlet,
+    "linen_fine": linen_fine,
+    "linen_coarse": linen_coarse,
+    "fur": fur,
+}
+
+
 def orm(occlusion, roughness, metallic):
     metallic = np.broadcast_to(np.asarray(metallic, dtype=np.float64), occlusion.shape)
     return np.stack([occlusion, roughness, metallic], -1)
@@ -197,13 +346,15 @@ def orm(occlusion, roughness, metallic):
 def _png(path, rgb, srgb):
     rgb = np.clip(rgb, 0, 1)
     if srgb:
+        assert rgb.shape[2] == 3, "only colour maps are sRGB"
         rgb = np.where(rgb <= 0.0031308, rgb * 12.92, 1.055 * rgb ** (1 / 2.4) - 0.055)
     data = (rgb * 255 + 0.5).astype(np.uint8)[::-1]  # row 0 = top of the image
+    colour_type = 6 if data.shape[2] == 4 else 2  # RGBA or RGB
     raw = b"".join(b"\x00" + row.tobytes() for row in data)
     def chunk(tag, payload):
         return struct.pack(">I", len(payload)) + tag + payload + struct.pack(">I", zlib.crc32(tag + payload) & 0xFFFFFFFF)
     h, w = data.shape[:2]
-    png = b"\x89PNG\r\n\x1a\n" + chunk(b"IHDR", struct.pack(">IIBBBBB", w, h, 8, 2, 0, 0, 0))
+    png = b"\x89PNG\r\n\x1a\n" + chunk(b"IHDR", struct.pack(">IIBBBBB", w, h, 8, colour_type, 0, 0, 0))
     png += chunk(b"IDAT", zlib.compress(raw, 9)) + chunk(b"IEND", b"")
     path.write_bytes(png)
 
@@ -219,6 +370,30 @@ def texture_paths(family, size=SIZE):
 
 def _half(img):
     return img.reshape(img.shape[0] // 2, 2, img.shape[1] // 2, 2, img.shape[2]).mean(axis=(1, 3))
+
+
+def _write_set(paths, albedo, normal, orm_map, half):
+    """Writes one albedo/normal/orm set, box-filtered `half` times (normals renormalised)."""
+    for _ in range(half):
+        albedo, orm_map = _half(albedo), _half(orm_map)
+        normal = _half(normal * 2 - 1)
+        normal = normal / np.linalg.norm(normal, axis=-1, keepdims=True) * 0.5 + 0.5
+    _png(paths["albedo"], albedo, srgb=True)
+    _png(paths["normal"], normal, srgb=False)
+    _png(paths["orm"], orm_map, srgb=False)
+
+
+def write_grades():
+    OUT.mkdir(parents=True, exist_ok=True)
+    half = int(round(math.log2(SIZE // GRADE_SIZE)))
+    for grade, make in GRADES.items():
+        _write_set(texture_paths(grade, GRADE_SIZE), *make(), half)
+        print("wrote grade", grade)
+    mask = wear_mask()
+    for _ in range(half):
+        mask = _half(mask)
+    _png(OUT / f"wear_mask_{GRADE_SIZE}.png", mask, srgb=False)
+    print("wrote wear mask")
 
 
 def write_all():
@@ -239,4 +414,7 @@ def write_all():
 
 
 if __name__ == "__main__":
-    write_all()
+    import sys
+    if "--grades" not in sys.argv:
+        write_all()
+    write_grades()
