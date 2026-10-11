@@ -14,11 +14,11 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `1273`
+- Active Markdown files scanned: `1274`
 - Markdown files excluded as archive/reference/out of active scope: `761`
-- Local/external links inspected: `14438`
-- Links to active Markdown docs: `12774`
-- Links to existing archive/reference/non-active local docs: `530`
+- Local/external links inspected: `14449`
+- Links to active Markdown docs: `12778`
+- Links to existing archive/reference/non-active local docs: `532`
 - External links skipped for reachability: `194`
 - Issues found: `2`
 
@@ -1222,6 +1222,7 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/SYSTEMS/VEGETATION_ENGINEERING.md`
 - `docs/SYSTEMS/VEGETATION_REALISM.md`
 - `docs/SYSTEMS/WATER_SANDBOX.md`
+- `docs/SYSTEMS/WATER_SUPPLY.md`
 - `docs/SYSTEMS/WEATHER_GROUND.md`
 - `docs/SYSTEMS/WORLD_LIFE.md`
 - `docs/SYSTEMS/WORLD_PRESENTATION.md`
