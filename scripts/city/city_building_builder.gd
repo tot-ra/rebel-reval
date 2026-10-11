@@ -84,6 +84,9 @@ const WALL_SHADER := preload("res://scripts/city/city_weathered_wall.gdshader")
 const ROOF_SHADER := preload("res://scripts/city/city_weathered_roof.gdshader")
 const TILE_ROOF_SHADER := preload("res://scripts/city/city_tile_roof.gdshader")
 const LIMEWASH_SHADER := preload("res://scripts/city/city_limewash.gdshader")
+const MOSS_TEX := preload("res://assets/materials/pbr/wall_growth/wall_moss_albedo.png")
+const MOSS_NORMAL_TEX := preload("res://assets/materials/pbr/wall_growth/wall_moss_normal.png")
+const LICHEN_TEX := preload("res://assets/materials/pbr/wall_growth/wall_lichen.png")
 ## The district material plates are sized for 0.87 m units; the city uses 1 m.
 const UV_RESCALE := 1.0 / 0.87
 
@@ -99,6 +102,12 @@ static func bind_ground(plan: CityPlan) -> void:
 	_ground_rect = plan.height_texture_rect()
 	_materials.clear()
 	HouseWealth.bind(plan)
+	# Moss and lichen plates as shader defaults, so every wall and outdoor
+	# limewash material (including the site kits' own) gets them unbound.
+	for shader: Shader in [WALL_SHADER, LIMEWASH_SHADER]:
+		shader.set_default_texture_parameter("moss_tex", MOSS_TEX)
+		shader.set_default_texture_parameter("moss_normal_tex", MOSS_NORMAL_TEX)
+		shader.set_default_texture_parameter("lichen_tex", LICHEN_TEX)
 
 
 ## Weathered wall material from a library plate (texture, normal, density).

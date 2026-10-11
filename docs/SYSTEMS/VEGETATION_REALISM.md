@@ -319,14 +319,14 @@ Trees no longer meet the ground along a hard cut line.
 
 ## Moss, lichen and the forest floor (R-1661)
 
-Status: implemented (task **R-1661**). Scope: moss and lichen on the shaded (north, world -Z) side of tree trunks and building walls, moss on ground that stays in shade (north of buildings, under closed canopy), and moss cushions and seasonal fungi on the floor of the seamless city's woods. Out of scope: the woods' tall-grass understorey (R-1595), roofs (their moss is R-1465), gathering mushrooms as items, blueprint-map forest floors (they only get the bark change), and snow cover.
+Status: implemented (task **R-1661**; wall moss and lichen plates **R-1683**). Scope: moss and lichen on the shaded (north, world -Z) side of tree trunks and building walls, moss on ground that stays in shade (north of buildings, under closed canopy), and moss cushions and seasonal fungi on the floor of the seamless city's woods. Out of scope: the woods' tall-grass understorey (R-1595), roofs (their moss is R-1465), gathering mushrooms as items, blueprint-map forest floors (they only get the bark change), and snow cover.
 
 Decision (user, 2026-10-11): moss and lichens grow on the north side of some trees and buildings where little sun reaches, on shaded ground and on the forest floor; the forest also gets some mushrooms.
 
 **What the player sees.**
 
 - **Tree trunks** (`map_view_bark_wind.gdshader`, every city and blueprint-map tree): a green moss skirt round the root that climbs highest (up to about 2.6 m) on the north side, and pale grey-green lichen crusts from shin height up. Seeded per tree from its position, so only some trunks are mossy and some carry lichen. Wet moss darkens less than wet bark. Uniforms `moss_amount` (0.6) and `lichen_amount` (0.5).
-- **Walls** (`shade_growth` in `city_weathering.gdshaderinc`, used by `city_weathered_wall.gdshader` for stone houses and fortifications and at half strength by outdoor `city_limewash.gdshader`): tufted moss in the damp foot zone of north faces, which keeps the stone texture showing through, and small sparse lichen crusts higher up. South faces stay clean.
+- **Walls** (`shade_growth` in `city_weathering.gdshaderinc`, used by `city_weathered_wall.gdshader` for stone houses and fortifications and at half strength by outdoor `city_limewash.gdshader`): photographic cushion moss in patchy colonies at the damp foot of north faces, densest at the street and thinning to single cushions up to about 1.6 m, with bare stone between colonies and a dark damp halo round them; and sparse pale lichen rosettes (a few orange *Xanthoria* spots) on the stone above. Moss replaces the wall's normal map with its own cushion relief and is matte; drier, higher cushions turn yellow-brown. South faces stay clean (R-1683).
 - **Shaded ground** (`city_ground.gdshader`): the moss grass plate (slice 9) in ragged cushions where `CityShadeMask` reports shade; bare earth there is half grown over. Trodden paths and roads stay bare.
 - **Forest floor** (`CityForestFloor`): two to four moss cushions round each tree of a closed stand (a forest tree with at least 8 forest neighbours within 15 world units), biased to its north side, plus fungi by mycorrhizal partner. Brackets and moss show all year; ground fungi only in their season:
 
@@ -343,6 +343,8 @@ On the slice's opening date (21 April 1343) the woods show moss, brackets and fa
 
 **Runtime.**
 
+- Wall growth plates (R-1683) in [`assets/materials/pbr/wall_growth/`](../../assets/materials/pbr/wall_growth/), built by `python3 tools/assets/build_wall_growth_plates.py` from the gpt-image-1 sources recorded in `generated/openai/wall_growth_v1/prompt.json` (raw PNGs are gitignored): `wall_moss_albedo.png` (A = cushion height), `wall_moss_normal.png`, `wall_lichen.png` (A = rosette mask). `CityBuildingBuilder.bind_ground` sets them as shader default textures (`moss_tex`, `moss_normal_tex`, `lichen_tex`) on the wall and limewash shaders, so every material on those shaders, including the site kits' own limewash, gets them. The moss edge is the cushion height thresholded against a coverage field (foot zone x north x low-frequency colonies, biased into darker joints); two rotated samples at 0.32 m and 0.47 m tiles break the repeat. Lichen tiles at 0.5 m.
+
 - [`scripts/city/city_shade_mask.gd`](../../scripts/city/city_shade_mask.gd) `CityShadeMask.texture(plan)`: RG8 texture over the splat rect at 2 world units per pixel. R is the strip north of every building footprint, 0.9 of the wall height long (2-8 world units), fading from the wall; G is the forest-tree density on a 12-unit grid, bilinear-upscaled. Bound as `shade_mask` by `CityTerrainBuilder.material`.
 - [`scripts/city/city_forest_floor.gd`](../../scripts/city/city_forest_floor.gd) `CityForestFloor.build(plan, parent)`: built by `CityDressingBuilder` at `Dressing/ForestFloor`. One MultiMesh per kind and 96-unit chunk, procedural lathe meshes with sRGB vertex colours, no shadows, visible to 110 units (moss) and 70 units (fungi). Skips cart roads (road texture R channel) and the moat. `CityMapView.set_calendar_date` calls `set_calendar_date`, which only toggles kind visibility; `kinds_in_season(day)` is the season table.
 - Deterministic: every placement is seeded by tree position. No saved state.
@@ -350,7 +352,7 @@ On the slice's opening date (21 April 1343) the woods show moss, brackets and fa
 **Verify.** `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_city_forest_floor` ([`test_city_forest_floor.gd`](../../tests/godot/test_city_forest_floor.gd): season table, calendar visibility, determinism, nothing outside the woods, outward cushion normals, north strips stronger than south, woods under canopy shade). Captures: `tools/godot_render.sh --resolution 1600x900 res://tools/capture_city_moss.tscn` writes:
 
 - [north side of a birch with tinder brackets](../reports/images/vegetation/r1661_tree_north_moss.jpg)
-- [north wall of a stone house](../reports/images/vegetation/r1661_wall_north_moss.jpg), [the shaded strip in front of it](../reports/images/vegetation/r1661_shaded_ground.jpg)
+- [north wall of a stone house](../reports/images/vegetation/r1661_wall_north_moss.jpg) and [its foot close up](../reports/images/vegetation/r1661_wall_moss_closeup.jpg) (R-1683; `-- --walls` stops after these shots), [the shaded strip in front of it](../reports/images/vegetation/r1661_shaded_ground.jpg)
 - [false morels in April](../reports/images/vegetation/r1661_forest_floor_april.jpg), [the wood in April](../reports/images/vegetation/r1661_woods_april.jpg)
 - [chanterelles in August](../reports/images/vegetation/r1661_forest_floor_august.jpg), [the wood in August](../reports/images/vegetation/r1661_woods_august.jpg)
 

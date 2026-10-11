@@ -6,6 +6,7 @@ extends Node
 ## in front of it, and the woods floor in April (false morels) and August
 ## (chanterelle, porcini, fly agaric). Host scene so autoloads resolve:
 ##   tools/godot_render.sh --resolution 1600x900 res://tools/capture_city_moss.tscn
+## Append `-- --walls` to stop after the wall shots.
 ## Output: docs/reports/images/vegetation/r1661_<shot>.png
 
 const SCENE := preload("res://scenes/world/reval_city/reval_city.tscn")
@@ -82,7 +83,14 @@ func _run() -> void:
 			Vector3(mid.x, ground + 1.0, mid.y), "r1661_wall_north_moss")
 		await _shot(probe, Vector3(mid.x - 4.0, ground + 7.0, mid.y - 11.0),
 			Vector3(mid.x, ground, mid.y - 2.5), "r1661_shaded_ground")
+		# Close-up of the moss plate at the foot of the wall (eye height of a
+		# crouching player, 1.6 m off the face).
+		await _shot(probe, Vector3(mid.x + 0.6, ground + 0.9, mid.y - 1.6),
+			Vector3(mid.x - 0.4, ground + 0.35, mid.y), "r1661_wall_moss_closeup", 60.0)
 		break
+	if "--walls" in OS.get_cmdline_user_args():
+		get_tree().quit(0)
+		return
 	# 4-5. Woods floor: a false morel troop in April, then the same wood in August.
 	for kind: StringName in [CityForestFloor.KIND_GYROMITRA, CityForestFloor.KIND_CHANTERELLE]:
 		var day := 111 if kind == CityForestFloor.KIND_GYROMITRA else 230
