@@ -19,7 +19,7 @@
 - Odd detail: the Metsik hunters give it a kinship name and never say "bear" in the grove.
 
 ## Folklore origin
-Ecological basis: the brown bear lived across medieval Livonia and Estonia (`attested`); this card makes no folklore claim. The bear's taboo name and its place in hunters' belief are noted in [estonian_folklore.md](../../lore/estonian_folklore.md) only as general context. The animal page is [brown_bear](../../ANIMALS-AND-BIRDS/brown_bear.md).
+Ecological basis: the brown bear lived across medieval Livonia and Estonia (`attested`); this card makes no folklore claim. The bear's taboo name and its place in hunters' belief are noted in [estonian_folklore.md](../../lore/estonian_folklore.md) only as general context. The animal page is [brown_bear](../../FAUNA/animals/brown_bear.md).
 
 ## Appearance
 - **Body:** about 1.0 m at the shoulder on all fours, 2.0 m when reared, 150-250 kg; heavy shoulder hump, shambling walk, sudden sprint over short ground.

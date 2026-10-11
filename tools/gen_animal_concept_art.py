@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Batch-generate photorealistic animal concept art via the local ComfyUI API.
 
-One image per animal card in docs/ANIMALS-AND-BIRDS. Shared style suffix keeps
+One image per animal card in docs/FAUNA. Shared style suffix keeps
 the set consistent with the painterly/muted Baltic direction of the character
 concept art (docs/concept/characters) while staying photorealistic.
 """
@@ -13,7 +13,7 @@ import uuid
 from pathlib import Path
 
 COMFY = "http://127.0.0.1:8188"
-OUT_DIR = Path("/Users/artjomkurapov/git/rebel-reval/docs/ANIMALS-AND-BIRDS/images")
+OUT_DIR = Path("/Users/artjomkurapov/git/rebel-reval/docs/FAUNA/images")
 CKPT = "DreamShaper_8_pruned.safetensors"
 
 STYLE = (
@@ -61,6 +61,8 @@ PROMPTS = {
     "grey_seal": "a grey seal (Halichoerus grum) hauled out on a Baltic shingle beach, mottled grey coat",
     "greylag_goose": "a greylag goose (Anser anser) standing in a wet meadow, orange bill, grey-brown plumage",
     "hare": "a Eurasian hare (Lepus europaeus) crouched in a ploughed field, tawny brown fur, long black-tipped ears",
+    "herring": "a school of Baltic herring (Clupea harengus membras) turning in clear cold green shallows near a stony shore, silver flanks, blue-green backs",
+    "perch": "a European perch (Perca fluviatilis) hovering over a sunlit sandy shallows with reeds, olive body with dark vertical bars, orange fins",
     "hedgehog": "a European hedgehog (Erinaceus europaeus) foraging in leaf litter at the forest edge, sharp spines",
     "herring_gull": "a herring gull (Larus argentatus) standing on a harbour rock, pale grey mantle, yellow bill",
     "hooded_crow": "a hooded crow (Corvus cornix) with grey body and black head and wings, standing on pasture ground",

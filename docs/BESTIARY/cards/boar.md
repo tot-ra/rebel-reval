@@ -19,7 +19,7 @@
 - Odd detail: peasants prize the meat and hate the boar for what it does to their rye.
 
 ## Folklore origin
-Ecological basis: wild boar lived in the oak and mixed woods of medieval Estonia and Livonia and was a standard hunting animal (`attested`); this card makes no folklore claim. The animal page is [wild_boar](../../ANIMALS-AND-BIRDS/wild_boar.md), which links the existing authored model.
+Ecological basis: wild boar lived in the oak and mixed woods of medieval Estonia and Livonia and was a standard hunting animal (`attested`); this card makes no folklore claim. The animal page is [wild_boar](../../FAUNA/animals/wild_boar.md), which links the existing authored model.
 
 ## Appearance
 - **Body:** about 0.9 m at the shoulder, 80-150 kg, heavy front, short legs; fast over short ground, poor at turning.

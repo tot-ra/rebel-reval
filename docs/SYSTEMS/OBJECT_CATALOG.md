@@ -324,7 +324,7 @@ Things that are not catalog objects keep their card on the owning page:
 
 | Thing | Owning page |
 |---|---|
-| Animals and birds (models, motion, species) | [`FLORA_FAUNA.md`](../FLORA_FAUNA.md), one card per species in [`ANIMALS-AND-BIRDS/`](../ANIMALS-AND-BIRDS/README.md) |
+| Animals and birds (models, motion, species) | [`FLORA_FAUNA.md`](../FLORA_FAUNA.md), one card per species in [`FAUNA/`](../FAUNA/README.md) |
 | Creatures and enemies | [`BESTIARY.md`](./BESTIARY.md) |
 | Trees, bushes, grass, wild plants | [`LIVING_VEGETATION.md`](./LIVING_VEGETATION.md) |
 | Fields, kitchen gardens, farmsteads | [`FARMLAND.md`](./FARMLAND.md) |

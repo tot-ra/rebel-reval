@@ -5,7 +5,7 @@ Same subjects as gen_animal_concept_art.py (PROMPTS), but rendered in the
 cinematic low-key look of the character concept art (docs/concept/characters):
 moody directional light, rich textures, muted earth palette with one warm accent.
 Usage: gen_animal_concept_art_leonardo.py [--force] [name ...]
-Writes docs/ANIMALS-AND-BIRDS/images/<name>.jpg (landscape 1248x832 -> jpg).
+Writes docs/FAUNA/images/<name>.jpg (landscape 1248x832 -> jpg).
 """
 import subprocess
 import sys
@@ -17,7 +17,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 from gen_animal_concept_art import PROMPTS  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
-OUT_DIR = ROOT / "docs/ANIMALS-AND-BIRDS/images"
+OUT_DIR = ROOT / "docs/FAUNA/images"
 GEN = ROOT / "tools/generate_leonardo_v2_image.py"
 MODEL = "gemini-2.5-flash-image"
 
