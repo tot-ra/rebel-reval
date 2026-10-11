@@ -1,9 +1,11 @@
-[gd_scene load_steps=10 format=3 uid="uid://dyl726xerhjhg"]
+[gd_scene load_steps=16 format=3 uid="uid://dyl726xerhjhg"]
 
+[ext_resource type="Script" path="res://scenes/menu/main_menu.gd" id="0_main_menu"]
 [ext_resource type="Script" path="res://scripts/demo/packaged_demo_walkthrough.gd" id="1_packaged_walkthrough"]
 [ext_resource type="Script" path="res://scripts/demo/packaged_platform_smoke.gd" id="8_platform_smoke"]
 [ext_resource type="Script" path="res://scenes/menu/credits_label.gd" id="7_credits"]
 [ext_resource type="Script" path="res://scenes/menu/assets_library_label.gd" id="9_assets_library"]
+[ext_resource type="Script" path="res://scenes/menu/continue_label.gd" id="10_continue"]
 
 [ext_resource type="Texture2D" uid="uid://bysfalwbeyasb" path="res://scenes/menu/intro-hq.jpg" id="1_kiqgm"]
 [ext_resource type="Texture2D" uid="uid://s3dc3n3tlc3s" path="res://scenes/menu/logo256.png" id="2_kiqgm"]
@@ -12,6 +14,15 @@
 [ext_resource type="Script" path="res://scenes/menu/load_label.gd" id="5_load_label"]
 [ext_resource type="VideoStream" uid="uid://drwpbbti05fcs" path="res://scenes/menu/intro.ogv" id="6_xn6kt"]
 
+[sub_resource type="Gradient" id="Gradient_menu_shade"]
+offsets = PackedFloat32Array(0, 0.55, 1)
+colors = PackedColorArray(0.025, 0.03, 0.028, 0.86, 0.025, 0.03, 0.028, 0.6, 0.025, 0.03, 0.028, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_menu_shade"]
+gradient = SubResource("Gradient_menu_shade")
+width = 256
+height = 4
+
 [node name="Control" type="Control"]
 layout_mode = 3
 anchors_preset = 15
@@ -19,6 +30,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("0_main_menu")
 
 [node name="PackagedDemoWalkthrough" type="Node" parent="."]
 script = ExtResource("1_packaged_walkthrough")
@@ -49,88 +61,81 @@ autoplay = true
 expand = true
 loop = true
 
+[node name="MenuShade" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 9
+anchor_bottom = 1.0
+offset_right = 820.0
+grow_vertical = 2
+mouse_filter = 2
+texture = SubResource("GradientTexture2D_menu_shade")
+expand_mode = 1
+
 [node name="Logo" type="Sprite2D" parent="."]
-position = Vector2(921, 520)
-scale = Vector2(1.01313, 1.01313)
+position = Vector2(248, 248)
 texture = ExtResource("2_kiqgm")
+
+[node name="MenuSubtitle" type="Label" parent="."]
+layout_mode = 0
+offset_left = 120.0
+offset_top = 392.0
+offset_right = 440.0
+offset_bottom = 426.0
+theme_override_colors/font_color = Color(0.713726, 0.603922, 0.407843, 1)
+theme_override_font_sizes/font_size = 13
+text = "REVAL  /  1343"
+vertical_alignment = 1
+
+[node name="Continue label" type="RichTextLabel" parent="."]
+layout_mode = 0
+offset_left = 120.0
+offset_top = 440.0
+offset_right = 440.0
+offset_bottom = 484.0
+text = "Continue"
+script = ExtResource("10_continue")
 
 [node name="Start label" type="RichTextLabel" parent="."]
 layout_mode = 0
-offset_left = 778.0
-offset_top = 700.0
-offset_right = 1051.0
-offset_bottom = 772.0
-focus_mode = 2
-focus_neighbor_top = NodePath("../Exit label")
-focus_neighbor_bottom = NodePath("../Load label")
-theme_override_colors/default_color = Color(0.980392, 0.839216, 0.0235294, 1)
-theme_override_font_sizes/normal_font_size = 40
-text = "Start"
-horizontal_alignment = 1
-vertical_alignment = 1
+offset_left = 120.0
+offset_top = 490.0
+offset_right = 440.0
+offset_bottom = 534.0
+text = "New game"
 script = ExtResource("3_i2l1n")
 
 [node name="Load label" type="RichTextLabel" parent="."]
 layout_mode = 0
-offset_left = 735.0
-offset_top = 776.0
-offset_right = 1094.0
-offset_bottom = 828.0
-focus_mode = 2
-focus_neighbor_top = NodePath("../Start label")
-focus_neighbor_bottom = NodePath("../Credits label")
-theme_override_colors/default_color = Color(0.980392, 0.839216, 0.0313726, 1)
-theme_override_font_sizes/normal_font_size = 30
+offset_left = 120.0
+offset_top = 540.0
+offset_right = 440.0
+offset_bottom = 584.0
 text = "Load"
-horizontal_alignment = 1
-vertical_alignment = 1
 script = ExtResource("5_load_label")
 
 [node name="Credits label" type="RichTextLabel" parent="."]
-custom_minimum_size = Vector2(100, 0)
 layout_mode = 0
-offset_left = 735.0
-offset_top = 832.0
-offset_right = 1094.0
-offset_bottom = 884.0
-focus_mode = 2
-focus_neighbor_top = NodePath("../Load label")
-focus_neighbor_bottom = NodePath("../Assets library label")
-theme_override_colors/default_color = Color(0.980392, 0.839216, 0.0313726, 1)
-theme_override_font_sizes/normal_font_size = 30
+offset_left = 120.0
+offset_top = 590.0
+offset_right = 440.0
+offset_bottom = 634.0
 text = "Credits"
-horizontal_alignment = 1
 script = ExtResource("7_credits")
 
 [node name="Assets library label" type="RichTextLabel" parent="."]
-custom_minimum_size = Vector2(100, 0)
 layout_mode = 0
-offset_left = 735.0
-offset_top = 888.0
-offset_right = 1094.0
-offset_bottom = 940.0
-focus_mode = 2
-focus_neighbor_top = NodePath("../Credits label")
-focus_neighbor_bottom = NodePath("../Exit label")
-theme_override_colors/default_color = Color(0.980392, 0.839216, 0.0313726, 1)
-theme_override_font_sizes/normal_font_size = 30
+offset_left = 120.0
+offset_top = 640.0
+offset_right = 440.0
+offset_bottom = 684.0
 text = "Assets library"
-horizontal_alignment = 1
 script = ExtResource("9_assets_library")
 
 [node name="Exit label" type="RichTextLabel" parent="."]
-custom_minimum_size = Vector2(100, 0)
 layout_mode = 0
-offset_left = 735.0
-offset_top = 944.0
-offset_right = 1094.0
-offset_bottom = 996.0
-focus_mode = 2
-focus_neighbor_top = NodePath("../Assets library label")
-focus_neighbor_bottom = NodePath("../Start label")
-theme_override_colors/default_color = Color(0.980392, 0.839216, 0.0313726, 1)
-theme_override_font_sizes/normal_font_size = 30
+offset_left = 120.0
+offset_top = 690.0
+offset_right = 440.0
+offset_bottom = 734.0
 text = "Exit"
-horizontal_alignment = 1
 script = ExtResource("4_hj162")
-

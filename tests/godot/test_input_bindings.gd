@@ -338,7 +338,9 @@ func test_main_menu_start_and_exit_are_in_gamepad_focus_ring() -> void:
 	assert_eq(library.focus_neighbor_top, NodePath("../Credits label"))
 	assert_eq(library.focus_neighbor_bottom, NodePath("../Exit label"))
 	assert_eq(exit.focus_neighbor_top, NodePath("../Assets library label"))
-	assert_eq(exit.focus_neighbor_bottom, NodePath("../Start label"))
+	# R-1799: the ring wraps to the first entry, Continue when a save exists.
+	var first := "../Continue label" if menu.get_node("Continue label").visible else "../Start label"
+	assert_eq(exit.focus_neighbor_bottom, NodePath(first))
 	menu.free()
 
 
