@@ -20,7 +20,9 @@ func test_leaf_shedding_follows_leaves_and_wind() -> void:
 	assert_eq(CityLeafFall.shed_weight(&"birch", JUL, 0.1), 0.0, "summer crowns hold fast")
 	assert_true(CityLeafFall.shed_weight(&"birch", JUL, 0.9) > 0.0, "a gale shakes summer leaves")
 	assert_eq(CityLeafFall.shed_weight(&"spruce", JAN, 0.9), 0.0, "winter conifers keep their needles")
-	assert_eq(CityLeafFall.shed_weight(&"pine", JUL, 0.9), 0.0, "city leaf particles are deciduous-only")
+	assert_eq(
+		CityLeafFall.shed_weight(&"pine", JUL, 0.9), 0.0, "city leaf particles are deciduous-only"
+	)
 
 
 func test_tree_lod_lists_trees_near_a_point() -> void:
@@ -68,6 +70,34 @@ func test_moat_plants_thin_out_in_winter() -> void:
 	CityMoatPlants.apply_season(root, _doy(JAN))
 	assert_eq(reeds.multimesh.visible_instance_count, 0, "a hard winter leaves no reeds")
 	assert_false(reeds.visible)
+	root.free()
+
+
+func test_moat_floaters_are_textured_cut_outs() -> void:
+	var root := Node3D.new()
+	var xf: Array[Transform3D] = [Transform3D.IDENTITY]
+	var colors: Array[Color] = [Color.WHITE]
+	CityMoatPlants._add_floating(
+		root,
+		"LilyPads",
+		CityMoatPlants._pad_mesh(),
+		xf,
+		colors,
+		CityMoatPlants.PAD_TINT,
+		CityMoatPlants.PAD_TEXTURE
+	)
+	CityMoatPlants._add_reeds(root, xf, colors)
+	var pad_mat := (root.get_node("LilyPads") as MultiMeshInstance3D).material_override
+	assert_eq(pad_mat.albedo_texture, CityMoatPlants.PAD_TEXTURE)
+	assert_eq(pad_mat.transparency, BaseMaterial3D.TRANSPARENCY_ALPHA_SCISSOR)
+	var reed_mat := (root.get_node("Reeds") as MultiMeshInstance3D).material_override
+	assert_eq(reed_mat.albedo_texture, CityMoatPlants.BLADE_TEXTURE)
+	assert_false(pad_mat.texture_repeat, "the pad UV overshoot must clamp, not wrap")
+	# The pad UVs cover the photo (overshooting by about 1 %) so the scissor,
+	# not the 16-gon, draws the leaf outline.
+	var uvs: PackedVector2Array = CityMoatPlants._pad_mesh().surface_get_arrays(0)[Mesh.ARRAY_TEX_UV]
+	for uv in uvs:
+		assert_true(uv.x >= -0.01 and uv.x <= 1.01 and uv.y >= -0.01 and uv.y <= 1.01)
 	root.free()
 
 

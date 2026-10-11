@@ -3,6 +3,7 @@ extends RefCounted
 
 const PlantSpecies := preload("res://scripts/map/view3d/map_view_plant_species.gd")
 const PlantMeshes := preload("res://scripts/map/view3d/map_view_plant_meshes.gd")
+const CATTAIL_BLADE_TEXTURE := preload("res://assets/vegetation/water/reed_blade_detail.png")
 ## R-1320: every vegetation MultiMesh carries an explicit benchmark layer tag, so
 ## tools/capture_vegetation_benchmark.gd attributes cost without guessing from
 ## node names (surroundings rename some layers). Metadata only; no render change.
@@ -803,6 +804,9 @@ static func _add_cattail_layer(
 	material.vertex_color_use_as_albedo = true
 	material.cull_mode = BaseMaterial3D.CULL_DISABLED
 	material.roughness = 0.95
+	# Grey vein detail, the same texture the city moat cattails use (CityMoatPlants).
+	material.albedo_texture = CATTAIL_BLADE_TEXTURE
+	material.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
 	var instances := MapViewMeshBuilderPrimitives.multi_mesh(
 		"BankCattails",
 		MapViewMeshBuilderPrimitives.cattail_cluster_mesh(),

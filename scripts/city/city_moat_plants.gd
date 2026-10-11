@@ -10,6 +10,8 @@ extends RefCounted
 ## brook is fringed with reed and sedge, so the bank does not start bare) and
 ## floating plants are sparser. No visibility range: it measures from the node
 ## origin, which is far from the water.
+## Leaves, blooms and duckweed are alpha-scissored photo cut-outs and the reed and
+## cattail blades carry a grey vein detail (tools/assets/build_water_plant_textures.py).
 
 const STEP := 1.7
 const SEED := 4417
@@ -25,8 +27,18 @@ const FLOAT_MIN_DEPTH := 0.5
 const PAD_RADIUS := 0.3
 const REED_GREEN := Color(0.42, 0.5, 0.2)
 const REED_STRAW := Color(0.62, 0.5, 0.26)
-const PAD_GREEN := Color(0.2, 0.42, 0.16)
-const PAD_AUTUMN := Color(0.5, 0.4, 0.14)
+## Pads, blooms and duckweed take their colour from the photo texture, so their
+## tints are multipliers: white in summer, a brown cast as the leaves die back.
+const PAD_TINT := Color(0.6, 0.7, 0.56)
+const PAD_AUTUMN := Color(0.62, 0.46, 0.22)
+## Tames the lime of the duckweed photo toward the darker green of moat water.
+const DUCKWEED_TINT := Color(0.6, 0.7, 0.5)
+## Share of lily-pad clusters that carry a bloom (SeasonState thins them by date).
+const FLOWER_CHANCE := 0.45
+const PAD_TEXTURE := preload("res://assets/vegetation/water/lily_pad.png")
+const FLOWER_TEXTURE := preload("res://assets/vegetation/water/lily_flower.png")
+const DUCKWEED_TEXTURE := preload("res://assets/vegetation/water/duckweed_patch.png")
+const BLADE_TEXTURE := preload("res://assets/vegetation/water/reed_blade_detail.png")
 const CATTAIL_STRAW := Color(0.78, 0.66, 0.44)
 
 
@@ -105,8 +117,19 @@ static func build(plan: CityPlan, records: Array) -> Node3D:
 								Vector3(q.x, y, q.y)
 							)
 						)
-						var g := rng.randf_range(0.75, 1.1)
-						pad_colors.append(Color(g * 0.8, g, g * 0.7, 1.0))
+						var g := rng.randf_range(0.8, 1.05)
+						pad_colors.append(Color(g * 0.95, g, g * 0.9, 1.0))
+					# A bloom sits among the pads of some clusters.
+					if rng.randf() < FLOWER_CHANCE:
+						var fq := c + Vector2.from_angle(rng.randf() * TAU) * rng.randf_range(0.0, 0.8)
+						var fs := rng.randf_range(0.9, 1.3)
+						flowers.append(
+							Transform3D(
+								Basis(Vector3.UP, rng.randf() * TAU).scaled(Vector3.ONE * fs),
+								Vector3(fq.x, y + 0.02, fq.y)
+							)
+						)
+						flower_colors.append(Color.WHITE)
 				else:
 					var s := rng.randf_range(1.8, 3.4)
 					mats.append(
@@ -122,12 +145,23 @@ static func build(plan: CityPlan, records: Array) -> Node3D:
 	_shuffle_together(rng, cattails, cattail_colors)
 	_shuffle_together(rng, pads, pad_colors)
 	_shuffle_together(rng, mats, mat_colors)
+	_shuffle_together(rng, flowers, flower_colors)
 	_add_reeds(root, reeds, reed_colors)
 	_add_cattails(root, cattails, cattail_colors)
-	_add_floating(root, "LilyPads", _pad_mesh(), pads, pad_colors, PAD_GREEN)
-	_add_floating(root, "Duckweed", _mat_mesh(), mats, mat_colors, Color(0.42, 0.52, 0.16))
-	# Per-vertex colours carry the tone of these two, so the tint is white.
-	_add_floating(root, "LilyFlowers", _flower_mesh(), flowers, flower_colors, Color.WHITE)
+	_add_floating(root, "LilyPads", _pad_mesh(), pads, pad_colors, PAD_TINT, PAD_TEXTURE)
+	_add_floating(
+		root, "Duckweed", _quad_mesh(1.0, 0.0), mats, mat_colors, DUCKWEED_TINT, DUCKWEED_TEXTURE
+	)
+	_add_floating(
+		root,
+		"LilyFlowers",
+		_quad_mesh(0.17, 0.03),
+		flowers,
+		flower_colors,
+		Color.WHITE,
+		FLOWER_TEXTURE
+	)
+	# Per-vertex colours carry the tone of the fronds, so the tint is white.
 	_add_floating(root, "DuckweedFronds", _frond_cluster_mesh(), fronds, frond_colors, Color.WHITE)
 	return root
 
@@ -179,7 +213,7 @@ static func apply_season(root: Node3D, day_of_year: float) -> void:
 				_set_share(inst, count, vigour)
 				var float_mat := inst.material_override as StandardMaterial3D
 				if float_mat != null and inst.name == &"LilyPads":
-					float_mat.albedo_color = PAD_GREEN.lerp(PAD_AUTUMN, dead)
+					float_mat.albedo_color = PAD_TINT.lerp(PAD_AUTUMN, dead)
 
 
 static func _set_share(inst: MultiMeshInstance3D, count: int, share: float) -> void:
@@ -195,6 +229,7 @@ static func _add_reeds(root: Node3D, xf: Array[Transform3D], colors: Array[Color
 	material.vertex_color_use_as_albedo = false
 	material.cull_mode = BaseMaterial3D.CULL_DISABLED
 	material.roughness = 0.9
+	_set_detail(material, BLADE_TEXTURE)
 	var inst := MapViewMeshBuilderPrimitives.multi_mesh(
 		"Reeds", MapViewMeshBuilderPrimitives.reed_stem_mesh(), xf, colors, material, Vector3.ZERO
 	)
@@ -210,6 +245,7 @@ static func _add_cattails(root: Node3D, xf: Array[Transform3D], colors: Array[Co
 	material.vertex_color_use_as_albedo = true
 	material.cull_mode = BaseMaterial3D.CULL_DISABLED
 	material.roughness = 0.95
+	_set_detail(material, BLADE_TEXTURE)
 	var inst := MapViewMeshBuilderPrimitives.multi_mesh(
 		"Cattails",
 		MapViewMeshBuilderPrimitives.cattail_cluster_mesh(),
@@ -228,7 +264,8 @@ static func _add_floating(
 	mesh: Mesh,
 	xf: Array[Transform3D],
 	colors: Array[Color],
-	tint: Color
+	tint: Color,
+	texture: Texture2D = null
 ) -> void:
 	if xf.is_empty():
 		return
@@ -237,6 +274,14 @@ static func _add_floating(
 	material.vertex_color_use_as_albedo = true
 	material.cull_mode = BaseMaterial3D.CULL_DISABLED
 	material.roughness = 0.9
+	if texture != null:
+		_set_detail(material, texture)
+		# The photo outline is the leaf edge: scissor, not blend, so the floaters
+		# sort cleanly against the water and each other.
+		material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_SCISSOR
+		material.alpha_scissor_threshold = 0.5
+		# The pad UV disc overshoots the photo edge a little: clamp, do not wrap.
+		material.texture_repeat = false
 	var inst := MapViewMeshBuilderPrimitives.multi_mesh(
 		node_name, mesh, xf, colors, material, Vector3.ZERO
 	)
@@ -244,36 +289,39 @@ static func _add_floating(
 	root.add_child(inst)
 
 
-## A lily leaf: three rings of 14 segments with a V notch toward +X, a gently
-## cupped rim that curls up, and alternating darker/lighter radial bands that
-## read as veins. Vertex colours hold the vein pattern (tint is multiplied in).
+static func _set_detail(material: StandardMaterial3D, texture: Texture2D) -> void:
+	material.albedo_texture = texture
+	material.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
+
+
+## A lily leaf: a 16-sided disc in three rings carrying the photo cut-out (its
+## notch faces +X), with a gently cupped rim that curls up. The texture alpha
+## draws the outline and notch; the UV disc is stretched past the inscribed
+## polygon so the flat sides do not clip the leaf edge.
 static func _pad_mesh() -> ArrayMesh:
 	var st := SurfaceTool.new()
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
-	var segs := 14
+	var segs := 16
+	var uv_scale := 0.5 / cos(PI / float(segs))
 	var radii := [0.0, 0.38, 0.72, 1.0]
 	for ring in range(1, radii.size()):
 		for i in segs:
-			# Segment 0 is left open: the notch.
-			if i == 0:
-				continue
 			var a0 := TAU * float(i) / segs
 			var a1 := TAU * float(i + 1) / segs
 			var r0: float = radii[ring - 1]
 			var r1: float = radii[ring]
-			var vein := 0.86 if i % 2 == 0 else 1.0
-			var quad: Array[Vector3] = [
-				_pad_point(a0, r0), _pad_point(a1, r0), _pad_point(a1, r1), _pad_point(a0, r1)
-			]
-			# Inner rings are paler (young leaf centre); the rim is darker.
-			var shade := vein * (1.06 - 0.12 * float(ring))
-			var col := Color(shade, shade, shade, 1.0)
+			var corners := [[a0, r0], [a1, r0], [a1, r1], [a0, r1]]
 			# Ring 1 is a fan: its inner points coincide at the hub.
 			var order := [0, 3, 2] if ring == 1 else [0, 3, 2, 0, 2, 1]
 			for idx: int in order:
-				st.set_color(col)
+				var angle: float = corners[idx][0]
+				var radius: float = corners[idx][1]
+				st.set_color(Color.WHITE)
 				st.set_normal(Vector3.UP)
-				st.add_vertex(quad[idx])
+				st.set_uv(
+					Vector2(0.5 + cos(angle) * radius * uv_scale, 0.5 + sin(angle) * radius * uv_scale)
+				)
+				st.add_vertex(_pad_point(angle, radius))
 	return st.commit()
 
 
@@ -283,50 +331,18 @@ static func _pad_point(angle: float, radius: float) -> Vector3:
 	return Vector3(cos(angle) * radius * PAD_RADIUS, lift, sin(angle) * radius * PAD_RADIUS)
 
 
-## A white water-lily bloom: two rings of pointed petals around a yellow heart,
-## sized to sit on a pad (petal tips curl up and out).
-static func _flower_mesh() -> ArrayMesh:
+## A flat, upward-facing textured square of the given half size at height `lift`:
+## the duckweed patch and the lily bloom are photo cut-outs seen from above.
+static func _quad_mesh(half: float, lift: float) -> ArrayMesh:
 	var st := SurfaceTool.new()
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
-	var layers := [[8, 0.17, 0.05, 0.0], [6, 0.12, 0.09, 0.26]]
-	for layer: Array in layers:
-		var count: int = layer[0]
-		var reach: float = layer[1]
-		var rise: float = layer[2]
-		var twist: float = layer[3]
-		for i in count:
-			var a := TAU * float(i) / count + twist
-			var half := TAU / count * 0.4
-			var base_l := Vector3(cos(a - half * 0.5), 0.0, sin(a - half * 0.5)) * reach * 0.2
-			var base_r := Vector3(cos(a + half * 0.5), 0.0, sin(a + half * 0.5)) * reach * 0.2
-			# Broad middle, pointed tip that lifts: a petal, not a spike.
-			var wide := Vector3(reach * 0.62, 1.0, reach * 0.62)
-			var mid_l := Vector3(cos(a - half), rise, sin(a - half)) * wide
-			var mid_r := Vector3(cos(a + half), rise, sin(a + half)) * wide
-			var tip := Vector3(cos(a), rise * 2.0, sin(a)) * Vector3(reach, 1.0, reach)
-			var white := Color(1.0, 0.98, 0.95, 1.0)
-			var blush := Color(0.98, 0.86, 0.9, 1.0)
-			for tri: Array in [
-				[base_l, base_r, mid_r, white, white, white],
-				[base_l, mid_r, mid_l, white, white, white],
-				[mid_l, mid_r, tip, white, white, blush]
-			]:
-				for k in 3:
-					st.set_color(tri[k + 3])
-					st.set_normal(Vector3.UP)
-					st.add_vertex(tri[k])
-	# Yellow stamen disc.
-	for i in 8:
-		var a0 := TAU * float(i) / 8.0
-		var a1 := TAU * float(i + 1) / 8.0
-		for v: Vector3 in [
-			Vector3(0.0, 0.05, 0.0),
-			Vector3(cos(a1), 0.04, sin(a1)) * 0.035,
-			Vector3(cos(a0), 0.04, sin(a0)) * 0.035
-		]:
-			st.set_color(Color(1.0, 0.82, 0.2, 1.0))
-			st.set_normal(Vector3.UP)
-			st.add_vertex(v)
+	var corners := [Vector2(-1, -1), Vector2(1, -1), Vector2(1, 1), Vector2(-1, 1)]
+	for idx: int in [0, 3, 2, 0, 2, 1]:
+		var c: Vector2 = corners[idx]
+		st.set_color(Color.WHITE)
+		st.set_normal(Vector3.UP)
+		st.set_uv((c + Vector2.ONE) * 0.5)
+		st.add_vertex(Vector3(c.x * half, lift, c.y * half))
 	return st.commit()
 
 
@@ -358,25 +374,4 @@ static func _frond_cluster_mesh() -> ArrayMesh:
 				st.set_color(col)
 				st.set_normal(Vector3.UP)
 				st.add_vertex(v)
-	return st.commit()
-
-
-## An irregular duckweed film: a flat fan with a ragged outline.
-static func _mat_mesh() -> ArrayMesh:
-	var st := SurfaceTool.new()
-	st.begin(Mesh.PRIMITIVE_TRIANGLES)
-	var n := 14
-	var radii := PackedFloat32Array()
-	for i in n:
-		radii.append(0.6 + 0.4 * absf(sin(float(i) * 2.399)))
-	for i in n:
-		var a0 := TAU * float(i) / n
-		var a1 := TAU * float(i + 1) / n
-		for v: Vector3 in [
-			Vector3.ZERO,
-			Vector3(cos(a1), 0.0, sin(a1)) * radii[(i + 1) % n],
-			Vector3(cos(a0), 0.0, sin(a0)) * radii[i]
-		]:
-			st.set_normal(Vector3.UP)
-			st.add_vertex(v)
 	return st.commit()

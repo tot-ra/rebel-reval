@@ -1,7 +1,8 @@
 extends SceneTree
 
-## Close-up of the moat floating plants (lily pads, blooms, duckweed fronds) on a
-## flat water plane, so mesh detail can be reviewed without finding them in the city.
+## Close-up of the moat water plants (textured lily pad, bloom, duckweed patch,
+## reed and cattail clumps) on a flat water plane, so mesh detail can be reviewed
+## without finding them in the city.
 ##   tools/godot_render.sh --script tools/capture_water_plants_preview.gd
 ## Output: build/water_plants_preview.png
 
@@ -31,19 +32,29 @@ func _run() -> void:
 	env.environment.ambient_light_color = Color(0.7, 0.75, 0.8)
 	root.add_child(env)
 	var xs := {
-		"pad": [CityMoatPlants._pad_mesh(), Color(0.2, 0.42, 0.16), -1.5, 1.0],
-		"flower": [CityMoatPlants._flower_mesh(), Color.WHITE, 0.0, 1.0],
-		"fronds": [CityMoatPlants._frond_cluster_mesh(), Color.WHITE, 1.8, 2.0],
+		"pad": [CityMoatPlants._pad_mesh(), CityMoatPlants.PAD_TINT, -1.5, 1.0,
+			CityMoatPlants.PAD_TEXTURE],
+		"flower": [CityMoatPlants._quad_mesh(0.17, 0.03), Color.WHITE, -0.9, 1.0,
+			CityMoatPlants.FLOWER_TEXTURE],
+		"duckweed": [CityMoatPlants._quad_mesh(1.0, 0.0), CityMoatPlants.DUCKWEED_TINT, 1.6, 0.6,
+			CityMoatPlants.DUCKWEED_TEXTURE],
 	}
 	for key: String in xs:
 		var d: Array = xs[key]
 		var basis := Basis().scaled(Vector3.ONE * float(d[3]) * 2.2)
 		var xf: Array[Transform3D] = [Transform3D(basis, Vector3(float(d[2]), 0.02, 0))]
 		var c: Array[Color] = [Color.WHITE]
-		CityMoatPlants._add_floating(holder, key, d[0], xf, c, d[1])
+		CityMoatPlants._add_floating(holder, key, d[0], xf, c, d[1], d[4])
+	# A reed clump and a cattail clump behind the floaters, for the blade detail.
+	var clump := Basis().scaled(Vector3.ONE * 2.0)
+	var reed_xf: Array[Transform3D] = [Transform3D(clump, Vector3(-0.6, 0, -1.6))]
+	var cat_xf: Array[Transform3D] = [Transform3D(clump, Vector3(0.8, 0, -1.6))]
+	var white: Array[Color] = [Color.WHITE]
+	CityMoatPlants._add_reeds(holder, reed_xf, white)
+	CityMoatPlants._add_cattails(holder, cat_xf, white)
 	var cam := Camera3D.new()
 	root.add_child(cam)
-	cam.position = Vector3(0, 4.0, 3.0)
+	cam.position = Vector3(0, 3.2, 3.2)
 	cam.look_at(Vector3(0, 0, 0))
 	for i in 10:
 		await process_frame
