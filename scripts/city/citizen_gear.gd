@@ -25,13 +25,22 @@ static var _spear_held := Transform3D(
 	Basis(Vector3.BACK, PI * 0.5).scaled(Vector3(1.25, 1.25, 1.25)), Vector3(0.415, 0.0, 0.0)
 )
 
+## Shield strapped to the left forearm, face outward. Measured with the idle pose
+## (tools/capture_citizen_wardrobe.gd).
+static var _shield_held := Transform3D(
+	(Basis(Vector3.BACK, PI * 0.5) * Basis(Vector3.UP, -PI * 0.5)).scaled(Vector3(0.8, 0.8, 0.8)),
+	Vector3(0.08, 0.0, 0.06)
+)
+
 
 ## Dresses `record`'s wardrobe layers, then mounts the kit of `record["duty"]`
-## (hat fallback and weapon); a civilian gets only the layers. Safe to call twice.
+## (hat fallback and weapon); a civilian gets only the layers and, for an armed
+## knight or man-at-arms, a shield. Safe to call twice.
 static func arm(rig: SharedCharacterRig, record: Dictionary) -> void:
 	# Layered dress first (docs/SYSTEMS/CITIZEN_WARDROBE.md): duty kits there add the
 	# aketon, mail, surcoat and a kettle hat fitted to this very body.
 	CitizenWardrobe.dress(rig, record)
+	_carry_shield(rig, record)
 	var duty: Dictionary = record.get("duty", {})
 	if duty.is_empty() or not KITS.has(duty.get("kit", "")):
 		return
@@ -47,3 +56,21 @@ static func arm(rig: SharedCharacterRig, record: Dictionary) -> void:
 				spear.transform = _spear_held
 		&"sword":
 			rig.equip(&"right_hand", SWORD)
+
+
+## Left-hand shield of an armed resident (`shield` kind from the wardrobe rules). A "field"
+## shield takes the colour of the coat of plates or surcoat the knight wears.
+static func _carry_shield(rig: SharedCharacterRig, record: Dictionary) -> void:
+	var kind := String(record.get("shield", ""))
+	if kind.is_empty() or rig.equipped(&"left_hand") != null:
+		return
+	var field := Color(0.4, 0.4, 0.4)
+	var dyes: Dictionary = record.get("wear_dye", {})
+	for layer: String in ["coat_of_plates", "surcoat"]:
+		if dyes.has(layer):
+			var rgb: Array = dyes[layer]
+			field = Color(float(rgb[0]), float(rgb[1]), float(rgb[2]))
+			break
+	var shield := rig.equip(&"left_hand", CitizenShield.scene(kind, field))
+	if shield != null:
+		shield.transform = _shield_held

@@ -14,7 +14,7 @@ import citizen_bodies  # noqa: E402
 import citizen_wardrobe as wd  # noqa: E402
 
 CITIZENS = ROOT / "content/world/reval_city/citizens.json"
-ARMOUR = {"gambeson", "mail_haubergeon", "surcoat", "kettle_hat", "mail_coif", "bascinet"}
+ARMOUR = wd.ARMOUR | wd.KNIGHT_ONLY
 
 
 def person(**kw):
@@ -71,7 +71,7 @@ class WardrobeRules(unittest.TestCase):
             p = person(id=f"cit.h.{i}", trade="knight", status="noble")
             wear, _ = wd.dress(p, layers(p))
             heads = [w for w in wear if w in wd.HEADWEAR]
-            self.assertTrue(len(heads) <= 1 or set(heads) <= {"mail_coif", "bascinet", "kettle_hat"}, wear)
+            self.assertTrue(len(heads) <= 1 or set(heads) <= wd.ARMOUR_HEADS, wear)
 
     def test_poor_women_not_veiled(self):
         for i in range(300):
@@ -91,6 +91,80 @@ class WardrobeRules(unittest.TestCase):
                 self.assertIn(f'"{layer}": (', src, layer)
 
 
+class ArmourRange(unittest.TestCase):
+    """WD-4: knightly harness by rank and faction; nothing of it on the non-noble."""
+
+    def test_knight_kit_only_on_noble_knights(self):
+        for status in ("journeyman", "burgher", "free_commoner", "soldier", "master_craftsman"):
+            for trade in ("knight", "squire", "man_at_arms", "smith", "merchant"):
+                for faction in ("danish_crown", "livonian_order", "none", "hanseatic"):
+                    for i in range(60):
+                        p = person(id=f"cit.k.{i}", status=status, trade=trade, faction=faction)
+                        wear, _ = wd.dress(p, layers(p))
+                        self.assertFalse(wd.KNIGHT_ONLY & set(wear), (status, trade, faction, wear))
+
+    def test_squires_and_men_at_arms_wear_no_plate(self):
+        for trade, status in (("squire", "noble"), ("man_at_arms", "soldier")):
+            for faction in ("danish_crown", "livonian_order", "none"):
+                for i in range(200):
+                    p = person(id=f"cit.s.{i}", status=status, trade=trade, faction=faction)
+                    wear, _ = wd.dress(p, layers(p))
+                    self.assertFalse(wd.KNIGHT_ONLY & set(wear), (trade, faction, wear))
+
+    def test_vassal_knight_kit(self):
+        seen = set()
+        for i in range(300):
+            p = person(id=f"cit.v.{i}", status="noble", trade="knight", faction="danish_crown")
+            wear, dye = wd.dress(p, layers(p))
+            seen |= set(wear)
+            if "coat_of_plates" in wear:
+                self.assertEqual(dye["coat_of_plates"], list(wd.CROWN_RED))
+                self.assertNotIn("surcoat", wear)
+            if "bascinet" in wear:
+                self.assertIn("aventail", wear)
+            if "great_helm" in wear:
+                self.assertIn("mail_coif", wear)
+                self.assertNotIn("bascinet", wear)
+            self.assertNotIn("order_mantle", wear)
+        for layer in ("coat_of_plates", "aventail", "bascinet", "great_helm", "mail_chausses", "gauntlets"):
+            self.assertIn(layer, seen)
+
+    def test_order_brother_white_mantle(self):
+        p = person(status="noble", trade="knight", faction="livonian_order")
+        wear, dye = wd.dress(p, layers(p))
+        self.assertIn("order_mantle", wear)
+        self.assertEqual(dye["order_mantle"], list(wd.ORDER_WHITE))
+        self.assertEqual(dye["surcoat"], list(wd.ORDER_WHITE))
+        self.assertEqual(wd.shield_of(dict(p), wear), "order")
+        self.assertLess(wear.index("surcoat"), wear.index("order_mantle"))
+
+    def test_stack_order_matches_the_clearing_order(self):
+        order = citizen_bodies.LAYERS[("m", "adult")]
+        stack = ["gambeson", "mail_haubergeon", "coat_of_plates", "mail_coif", "aventail", "surcoat",
+                 "order_mantle"]
+        self.assertEqual([g for g in order if g in stack], stack)
+
+    def test_shields(self):
+        crown = person(trade="man_at_arms", status="soldier", duty={"kit": "crown"})
+        self.assertEqual(wd.shield_of(crown, ["gambeson", "mail_haubergeon"]), "")
+        burgher = person(trade="smith", status="master_craftsman")
+        self.assertEqual(wd.shield_of(burgher, []), "")
+        knight = person(trade="knight", status="noble", faction="danish_crown")
+        self.assertEqual(wd.shield_of(knight, ["gambeson", "mail_haubergeon"]), "crown")
+        knight["faction"] = "none"
+        self.assertEqual(wd.shield_of(knight, ["gambeson", "mail_haubergeon"]), "field")
+
+    def test_layer_ids_unique_and_budgeted(self):
+        import re
+        src = (ROOT / "tools/assets/realistic_humans/build_human.py").read_text()
+        for layer in ("coat_of_plates", "aventail", "great_helm", "mail_chausses", "gauntlets", "order_mantle"):
+            self.assertIn(f'"{layer}":', src)
+            self.assertEqual(citizen_bodies.LAYERS[("m", "adult")].count(layer), 1)
+            for key in ("m", "f"):
+                for stage in ("elder", "child"):
+                    self.assertNotIn(layer, citizen_bodies.LAYERS[(key, stage)])
+
+
 class RuntimeData(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -104,6 +178,13 @@ class RuntimeData(unittest.TestCase):
                 if not path.is_file():
                     missing.add(str(path.relative_to(ROOT)))
         self.assertEqual(sorted(missing), [])
+
+    def test_armour_residents_obey_rules(self):
+        for r in self.residents:
+            if set(r["wear"]) & wd.KNIGHT_ONLY:
+                self.assertEqual((r["trade"], r["status"]), ("knight", "noble"), r["id"])
+            if r.get("shield"):
+                self.assertTrue(r["trade"] in ("knight", "man_at_arms"), r["id"])
 
     def test_variety(self):
         looks = {(r["body"], tuple(r["wear"])) for r in self.residents}

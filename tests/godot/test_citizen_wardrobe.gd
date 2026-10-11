@@ -187,3 +187,55 @@ func test_every_grade_set_loads() -> void:
 			var path := "%s%s_%s_512.png" % [CitizenWardrobe.TEXTILE_DIR, grade, kind]
 			assert_true(ResourceLoader.exists(path), path)
 	assert_true(ResourceLoader.exists(CitizenWardrobe.WEAR_MASK))
+
+
+func test_armour_range_layers_are_skinned() -> void:
+	var rig := _rig("citizen_m_adult_sturdy")
+	var layers: Array[String] = [
+		"coat_of_plates", "aventail", "great_helm", "mail_chausses", "gauntlets", "order_mantle"
+	]
+	for layer: String in layers:
+		var scene := CitizenWardrobe.layer_scene("citizen_m_adult_sturdy", layer)
+		assert_true(scene != null, "%s layer exists" % layer)
+		if scene != null:
+			var probe := StringName("probe_" + layer)
+			assert_true(rig.equip_garment(probe, scene), "%s is skinned" % layer)
+	rig.queue_free()
+
+
+func test_order_mantle_keeps_its_cross_black_when_dyed() -> void:
+	var rig := _rig("citizen_m_adult_average")
+	var tint := Color(0.5, 0.6, 0.7)
+	var record := {
+		"body": "citizen_m_adult_average",
+		"wear": ["order_mantle"],
+		"wear_dye": {"order_mantle": [tint.r, tint.g, tint.b]},
+	}
+	CitizenWardrobe.dress(rig, record)
+	var cloth := false
+	var cross_slot := -1
+	for mesh: MeshInstance3D in _layer_meshes(rig, "order_mantle"):
+		for surface in mesh.mesh.get_surface_count():
+			var material := mesh.get_active_material(surface) as ShaderMaterial
+			if material == null:
+				continue
+			var slot := int(material.get_shader_parameter(&"dye_slot"))
+			if material.resource_name.ends_with("_order_mantle"):
+				var outer: Color = mesh.get_instance_shader_parameter(&"dye_outer")
+				cloth = cloth or (slot == 1 and outer.is_equal_approx(_linear(tint)))
+			elif material.resource_name.ends_with("_order_cross"):
+				cross_slot = slot
+	assert_true(cloth, "white wool takes the dye")
+	assert_eq(cross_slot, 0, "the black cross is a separate material that keeps its colour")
+	rig.queue_free()
+
+
+func test_shield_is_carried_on_the_left_hand() -> void:
+	var rig := _rig("citizen_m_adult_average")
+	var record := {"body": "citizen_m_adult_average", "wear": [], "shield": "order"}
+	CitizenGear.arm(rig, record)
+	assert_true(rig.equipped(&"left_hand") != null, "order shield on the left hand")
+	rig.queue_free()
+	for kind: String in ["order", "crown", "field", "plain"]:
+		var scene := CitizenShield.scene(kind, Color(0.2, 0.3, 0.5))
+		assert_true(scene != null, "%s shield scene" % kind)

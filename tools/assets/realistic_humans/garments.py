@@ -811,9 +811,12 @@ def surcoat(ctx):
     parts = tunic(ctx, "surcoat", sleeve="none", hem="knee", extra_ease=0.05 + layer_ease(ctx), belted=False,
                   color_key="surcoat", flare=2.2)
     trees = [ctx.layers[k] for k in ("gambeson", "mail_haubergeon", "mail_coif") if k in ctx.layers]
+    trees += [ctx.layers[k] for k in ("coat_of_plates", "aventail") if k in ctx.layers]
     for part in parts:
         for v in part.data.vertices:
             v.co = clear_of(trees, ctx.t["hips"].y, v.co, 0.012)
+    # The Order's mantle hangs over the surcoat (order_mantle() clears this tree).
+    ctx.layers["surcoat"] = BVHTree.FromObject(parts[0], bpy.context.evaluated_depsgraph_get())
     return parts
 
 
@@ -1692,6 +1695,286 @@ def bascinet(ctx):
                       rim=_front_rim(26, -18, start=40, end=100), apex=0.05, thickness=0.0025)
 
 
+# --------------------------------------------------------------------------
+# Armour range of the 1340s (WD-4, docs/SYSTEMS/CITIZEN_WARDROBE.md)
+#
+# Sources: history/dossiers/military/arms-and-armour-livonia-1340s.md (Order
+# knight: mail hauberk, surcoat with black cross, heater shield). The stack is
+# aketon -> mail -> coat of plates -> mail coif or aventail -> surcoat -> mantle,
+# each layer clearing the trees registered in ctx.layers by the layers under it.
+# --------------------------------------------------------------------------
+
+MAIL_GREY = (0.42, 0.42, 0.44)
+
+
+def _armour_trees(ctx, keys=("gambeson", "mail_haubergeon", "coat_of_plates", "mail_coif", "aventail",
+                              "surcoat")):
+    return [ctx.layers[k] for k in keys if k in ctx.layers]
+
+
+def _register(ctx, key, obj):
+    ctx.layers[key] = BVHTree.FromObject(obj, bpy.context.evaluated_depsgraph_get())
+
+
+def _rivet_studs(ctx, name, tree, rows, columns):
+    """Small iron rivet heads in rows on the front and back of the coat of plates."""
+    t = ctx.t
+    bm = bmesh.new()
+    for z in rows:
+        for x in columns:
+            for side in (-1, 1):  # front (-Y) and back (+Y)
+                hit = tree.ray_cast(Vector((x, t["hips"].y + side * -0.8, z)), Vector((0, side, 0)), 2.0)
+                if hit[0] is None:
+                    continue
+                normal = hit[1] if hit[1].dot(Vector((0, -side, 0))) > 0 else -hit[1]
+                # A cover over riveted plates shows the heads, not the plates.
+                m = normal.to_track_quat("Z", "Y").to_matrix().to_4x4()
+                m.translation = hit[0] + normal * 0.0035
+                bmesh.ops.create_cone(bm, cap_ends=True, cap_tris=False, segments=4, radius1=0.0075,
+                                      radius2=0.004, depth=0.004, matrix=m)
+    mesh = bpy.data.meshes.new(name)
+    bm.to_mesh(mesh)
+    bm.free()
+    obj = bpy.data.objects.new(name, mesh)
+    bpy.context.scene.collection.objects.link(obj)
+    _chest_hips_weights(ctx, obj)
+    grain_uv(ctx, obj, "iron", override=lambda p: "torso")
+    return finish(ctx, obj, "iron", (0.78, 0.77, 0.75), "plate_rivets")
+
+
+def coat_of_plates(ctx):
+    """Coat of plates (1340s): riveted plates behind a dyed cloth cover, sleeveless, over the mail."""
+    t = ctx.t
+    parts = tunic(ctx, "coat_of_plates", sleeve="none", hem="thigh", extra_ease=0.05 + layer_ease(ctx),
+                  belted=False, color_key="coat_of_plates", flare=1.35, folds=8)
+    trees = _armour_trees(ctx, ("gambeson", "mail_haubergeon", "mail_coif", "aventail"))
+    for part in parts:
+        for v in part.data.vertices:
+            v.co = clear_of(trees, t["hips"].y, v.co, 0.012)
+    _register(ctx, "coat_of_plates", parts[0])
+    rows = [t["chest"].z - 0.03 - 0.05 * i for i in range(5)]
+    parts.append(_rivet_studs(ctx, "Garment_coat_of_plates_rivets", ctx.layers["coat_of_plates"], rows,
+                              (-0.09, -0.03, 0.03, 0.09)))
+    return parts
+
+
+def aventail(ctx):
+    """Mail aventail hung from the bascinet: a wide shoulder tippet, the open face left bare."""
+    parts = head_wrap(ctx, "Garment_aventail", "aventail", "mail", MAIL_GREY, head_ease=0.012,
+                      hem_below_neck=0.21, face=(66, 30, -66), cape_ease=0.065 + layer_ease(ctx), hair=True,
+                      folds=0.003)
+    _register(ctx, "aventail", parts[0])
+    return parts
+
+
+def great_helm(ctx):
+    """Flat-topped great helm (Topfhelm) with an eye slit and breaths: knights, ceremony."""
+    ease = 0.05
+    parts = head_shell(ctx, "Garment_great_helm", "great_helm", "iron", (0.70, 0.69, 0.67), ease=ease,
+                       rim=lambda theta: -50.0, thickness=0.003)
+    helm = parts[0]
+    top = max(v.co.z for v in helm.data.vertices)
+    flat = top - 0.035
+    for v in helm.data.vertices:
+        if v.co.z > flat:
+            v.co.z = flat + (v.co.z - flat) * 0.12  # the crown is nearly flat
+    # Eye slit and the vertical bar of the cross-shaped sights, proud of the face plate.
+    lm = ctx.lm
+    eyes = Vector(((lm["eye_l"] + lm["eye_r"]) / 2).tolist())
+    hit = trunk_bvh(ctx).ray_cast(Vector((0, -1.0, eyes.z)), Vector((0, 1, 0)), 2.0)
+    face_y = (hit[0].y if hit[0] is not None else eyes.y) - ease - 0.001
+    dark = (0.04, 0.04, 0.04)
+    parts.append(rigid_box(ctx, "Garment_great_helm_slit", Vector((0, face_y, eyes.z)), (0.12, 0.004, 0.012),
+                           "head", "iron", dark, "great_helm_slit"))
+    parts.append(rigid_box(ctx, "Garment_great_helm_bar", Vector((0, face_y, eyes.z - 0.03)),
+                           (0.012, 0.004, 0.12), "head", "iron", dark, "great_helm_slit"))
+    return parts
+
+
+def mail_chausses(ctx):
+    """Mail chausses over the baked hose, from the hip down over the top of the boots."""
+    t = ctx.t
+    obj = extract_shell(ctx, "Garment_mail_chausses", lambda v, b: b.startswith(("upperleg", "lowerleg")))
+    bisect(obj, (0, 0, t["foot.l"].z + 0.07), (0, 0, -1))
+    bisect(obj, (0, 0, t["hips"].z - 0.02), (0, 0, 1))
+    hull_fit(ctx, obj, constant(0.016), frames=("leg.l", "leg.r"))
+    relax(ctx, obj, 4, constant(0.012), strength=0.35, drape=6)
+    grain_uv(ctx, obj, "mail")
+    return [finish(ctx, obj, "mail", MAIL_GREY, "chausses_mail", 0.003)]
+
+
+def _open_tube(name, centre, axis, profile, segments=18):
+    """Open tube round `axis` through `centre`; profile is [(radius, distance along axis)]."""
+    axis = axis.normalized()
+    ref = Vector((0, 0, 1)) if abs(axis.z) < 0.9 else Vector((1, 0, 0))
+    u = axis.cross(ref).normalized()
+    w = axis.cross(u)
+    bm = bmesh.new()
+    rings = []
+    for radius, along in profile:
+        rings.append([bm.verts.new(centre + axis * along + (u * math.cos(2 * math.pi * i / segments)
+                                                            + w * math.sin(2 * math.pi * i / segments)) * radius)
+                      for i in range(segments)])
+    for a, b in zip(rings, rings[1:]):
+        for i in range(segments):
+            bm.faces.new((a[i], a[(i + 1) % segments], b[(i + 1) % segments], b[i]))
+    bmesh.ops.recalc_face_normals(bm, faces=list(bm.faces))
+    mesh = bpy.data.meshes.new(name)
+    bm.to_mesh(mesh)
+    bm.free()
+    obj = bpy.data.objects.new(name, mesh)
+    bpy.context.scene.collection.objects.link(obj)
+    return obj
+
+
+def gauntlets(ctx):
+    """Plate gauntlets: hand shells with a flared cuff over the end of the sleeve."""
+    t = ctx.t
+    hands = extract_shell(ctx, "Garment_gauntlets", lambda v, b: b.startswith(("hand", "wrist")))
+    inflate(hands, constant(0.004))
+    relax(ctx, hands, 3, constant(0.004), strength=0.3)
+    grain_uv(ctx, hands, "iron")
+    iron = (0.74, 0.73, 0.71)
+    parts = [finish(ctx, hands, "iron", iron, "gauntlet_iron", 0.002)]
+    sleeves = [ctx.bvh] + _armour_trees(ctx, ("gambeson", "mail_haubergeon"))
+    for s, sign in (("l", 1), ("r", -1)):
+        wrist = t[f"wrist.{s}"]
+        axis = Vector((sign, 0, 0))
+        probe = wrist - axis * 0.02
+        r = max(outer_radius(sleeves, probe, d, fallback=0.04)
+                for d in (Vector((0, 1, 0)), Vector((0, -1, 0)), Vector((0, 0, 1)), Vector((0, 0, -1))))
+        cuff = _open_tube(f"Garment_gauntlet_cuff_{s}", wrist, axis,
+                          [(r + 0.022, -0.1), (r + 0.012, -0.07), (r + 0.006, -0.03), (r * 0.6, 0.015)])
+        for v in cuff.data.vertices:
+            pass
+        cuff.vertex_groups.new(name=f"lowerarm.{s}").add([v.index for v in cuff.data.vertices], 1.0, "REPLACE")
+        grain_uv(ctx, cuff, "iron")
+        parts.append(finish(ctx, cuff, "iron", iron, "gauntlet_iron", 0.002))
+    return parts
+
+
+def _mantle_weights(ctx, obj, top_z, hem_z):
+    t = ctx.t
+    for v in obj.data.vertices:
+        chest = float(surfaces.smoothstep(t["spine"].z, t["chest"].z, v.co.z))
+        legs = skirt_weights(ctx, v.co, top_z, hem_z)
+        weights = {k: w * (1 - chest) * 0.6 for k, w in legs.items()}  # hang from the trunk, swing a little
+        weights["chest"] = chest + (1 - chest) * 0.4
+        set_weights(obj, v.index, weights)
+
+
+def _cross_patch(ctx, name, tree, centre_deg, z, size, top_z, hem_z):
+    """Black Order cross (arms with widened ends) laid on the mantle surface at `centre_deg`
+    round the body and height `z`. Disjoint rectangles meshed finely and projected onto `tree`
+    along horizontal rays, so the cross follows the cloth and never overlaps itself."""
+    t = ctx.t
+    a, e = size * 0.2, size * 0.14
+    h = size / 2
+    rects = [(-a / 2, a / 2, -a / 2, a / 2),
+             (a / 2, h - e, -a / 2, a / 2), (-(h - e), -a / 2, -a / 2, a / 2),
+             (-a / 2, a / 2, a / 2, h - e), (-a / 2, a / 2, -(h - e), -a / 2),
+             (h - e, h, -a * 0.85, a * 0.85), (-h, -(h - e), -a * 0.85, a * 0.85),
+             (-a * 0.85, a * 0.85, h - e, h), (-a * 0.85, a * 0.85, -h, -(h - e))]
+    axis_y = t["hips"].y
+    phi0 = math.radians(centre_deg)
+    probe = Vector((0, axis_y, z)) + horizontal(phi0) * 1.0
+    hit0 = tree.ray_cast(probe, -horizontal(phi0), 2.0)
+    radius = max(0.1, 1.0 - hit0[3]) if hit0[0] is not None else 0.2
+
+    def project(u, v):
+        phi = phi0 + u / radius
+        d = horizontal(phi)
+        hit = tree.ray_cast(Vector((0, axis_y, z + v)) + d * 1.0, -d, 2.0)
+        if hit[0] is None:
+            return None
+        normal = hit[1] if hit[1].dot(d) > 0 else -hit[1]
+        return hit[0] + normal * 0.0025
+
+    bm = bmesh.new()
+    step = 0.018
+    for u0, u1, v0, v1 in rects:
+        nu, nv = max(1, round((u1 - u0) / step)), max(1, round((v1 - v0) / step))
+        grid = [[project(u0 + (u1 - u0) * i / nu, v0 + (v1 - v0) * j / nv) for i in range(nu + 1)]
+                for j in range(nv + 1)]
+        verts = [[bm.verts.new(p) if p is not None else None for p in row] for row in grid]
+        for j in range(nv):
+            for i in range(nu):
+                quad = (verts[j][i], verts[j][i + 1], verts[j + 1][i + 1], verts[j + 1][i])
+                if all(q is not None for q in quad):
+                    face = bm.faces.new(quad)
+                    outward = face.calc_center_median() - Vector((0, axis_y, face.calc_center_median().z))
+                    face.normal_update()
+                    if face.normal.dot(outward) < 0:
+                        face.normal_flip()
+    mesh = bpy.data.meshes.new(name)
+    bm.to_mesh(mesh)
+    bm.free()
+    obj = bpy.data.objects.new(name, mesh)
+    bpy.context.scene.collection.objects.link(obj)
+    _mantle_weights(ctx, obj, top_z, hem_z)
+    grain_uv(ctx, obj, "wool", override=lambda p: "torso")
+    return finish(ctx, obj, "wool", (0.05, 0.05, 0.05), "order_cross")
+
+
+def order_mantle(ctx):
+    """Livonian Order mantle: white wool cloak on the shoulders, open at the front, with the black
+    cross at the left breast and large on the back (arms-and-armour dossier: surcoat with black
+    cross). The cross is a separate black patch, so only the white wool takes the wear_dye."""
+    t = ctx.t
+    neck_z = ctx.collar(t["head"].y)
+    top_z = neck_z - 0.02
+    hem_z = t["lowerleg.l"].z - 0.1
+    axis_y = t["hips"].y
+    trees = _armour_trees(ctx) + base_trees(ctx)
+    trunk = trunk_bvh(ctx)
+    half = t["upperarm.l"].x + 0.035  # outside the hanging arm
+    rows, columns = 18, 56
+    phase = 1.7
+    grid = []
+    for r in range(rows + 1):
+        s = (r / rows) ** 1.35
+        z = top_z + (hem_z - top_z) * s
+        origin = Vector((0, axis_y, z))
+        row = []
+        for c in range(columns):
+            theta = c / columns * 2 * math.pi
+            d = horizontal(theta)
+            # Capped: a stray arm-weighted vertex in the trunk tree must not throw a spike.
+            depth = min(outer_radius([trunk], origin, d, fallback=0.12), 0.2) + 0.03
+            wide = math.sin(theta) ** 2 * float(surfaces.smoothstep(0.0, 0.16, s))
+            radius = max(depth, depth + (half - depth) * wide) * (1.0 + 0.2 * s * s)
+            radius += 0.012 * s * math.sin(theta * 8 + phase) + 0.006 * s * math.sin(theta * 17)
+            # Clear the armour, but never chase the T-posed sleeves (the arms hang down in play).
+            pushed = clear_of(trees, axis_y, origin + d * radius, 0.02)
+            reach = Vector((pushed.x, pushed.y - axis_y, 0)).length
+            row.append(pushed if reach <= radius + 0.06 else origin + d * (radius + 0.06))
+        grid.append(row)
+    bm = bmesh.new()
+    verts = [[bm.verts.new(p) for p in row] for row in grid]
+    for r in range(rows):
+        for c in range(columns):
+            theta = (c + 0.5) / columns * 2 * math.pi
+            if r >= 1 and min(theta, 2 * math.pi - theta) < math.radians(20):
+                continue  # open front
+            bm.faces.new((verts[r][c], verts[r][(c + 1) % columns], verts[r + 1][(c + 1) % columns],
+                          verts[r + 1][c]))
+    bmesh.ops.delete(bm, geom=[v for v in bm.verts if not v.link_faces], context="VERTS")
+    bmesh.ops.recalc_face_normals(bm, faces=list(bm.faces))
+    mesh = bpy.data.meshes.new("Garment_order_mantle")
+    bm.to_mesh(mesh)
+    bm.free()
+    obj = bpy.data.objects.new("Garment_order_mantle", mesh)
+    bpy.context.scene.collection.objects.link(obj)
+    _mantle_weights(ctx, obj, top_z, hem_z)
+    grain_uv(ctx, obj, "wool", override=lambda p: "torso")
+    color = ctx.palette("order_mantle", (0.86, 0.85, 0.80))
+    mantle = finish(ctx, obj, "wool", color, "order_mantle", 0.004)
+    tree = BVHTree.FromObject(mantle, bpy.context.evaluated_depsgraph_get())
+    return [mantle,
+            _cross_patch(ctx, "Garment_order_cross_back", tree, 180.0, top_z - 0.22, 0.26, top_z, hem_z),
+            _cross_patch(ctx, "Garment_order_cross_breast", tree, 34.0, top_z - 0.2, 0.11, top_z, hem_z)]
+
+
 # Wardrobe definitions: slot, hidden body regions, builder.
 WARDROBE = {
     "linen_shirt": ("torso", ["Anatomy_Torso", "Anatomy_Arms", "Anatomy_Forearms"], linen_shirt),
@@ -1727,6 +2010,13 @@ WARDROBE = {
     "veil_over": ("head", [], veil_over),
     "mail_coif": ("head", [], mail_coif),
     "bascinet": ("head", [], bascinet),
+    # Armour range (WD-4): men's adult bodies only.
+    "coat_of_plates": ("back", [], coat_of_plates),
+    "aventail": ("head", [], aventail),
+    "great_helm": ("head", [], great_helm),
+    "mail_chausses": ("legs", [], mail_chausses),
+    "gauntlets": ("accessory", [], gauntlets),
+    "order_mantle": ("back", [], order_mantle),
     "keys": ("accessory", [], keys),
     "paternoster": ("accessory", [], paternoster),
     "satchel": ("accessory", [], satchel),
