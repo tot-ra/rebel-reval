@@ -28,10 +28,14 @@ func test_shape_carries_the_meaning() -> void:
 	assert_eq(NamedNpcMarker.glyph_for(NamedNpcMarker.State.QUEST_READY), "?")
 	assert_eq(NamedNpcMarker.glyph_for(NamedNpcMarker.State.SPOKEN), "!")
 	assert_eq(NamedNpcMarker.glyph_for(NamedNpcMarker.State.NONE), "")
-	# Every faction tint keeps the same glyph: colour is decoration only.
+	# Test faction tints, glyph consistency, and depth-tested overhead markers.
 	for faction: String in FactionIdentity.ids():
 		var marker := _marker({"id": "char.x", "faction": faction, "marker": "available"})
 		assert_eq(marker._glyph.text, "!", "glyph for %s" % faction)
+		assert_false(marker._glyph.no_depth_test, "walls should occlude the glyph")
+		if FactionIdentity.is_public(faction):
+			assert_true(marker._chip != null, "public faction has a chip")
+			assert_false(marker._chip.no_depth_test, "walls should occlude the faction chip")
 		marker.free()
 
 

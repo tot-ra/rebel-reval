@@ -100,7 +100,7 @@ func setup(npc: Dictionary, height_scale: float) -> void:
 	_phase = float(absi(hash(String(npc["id"]))) % 628) / 100.0
 	_glyph = Label3D.new()
 	_glyph.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-	_glyph.no_depth_test = true  # occlusion-safe: houses never swallow the cue
+	_glyph.no_depth_test = false  # walls and other opaque geometry occlude overhead cues
 	_glyph.fixed_size = false
 	_glyph.pixel_size = 0.0032
 	_glyph.font_size = 80
@@ -122,7 +122,7 @@ func _add_chip() -> void:
 	_chip.name = "FactionChip"
 	_chip.texture = FactionIdentity.chip_texture(faction)
 	_chip.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-	_chip.no_depth_test = true
+	_chip.no_depth_test = false
 	_chip.shaded = false
 	_chip.pixel_size = CHIP_PIXEL_SIZE
 	_chip.position = Vector3(0.0, CHIP_OFFSET, 0.0)
