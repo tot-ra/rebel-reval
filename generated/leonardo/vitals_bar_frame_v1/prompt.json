@@ -1,0 +1,23 @@
+{
+  "id": "generated.leonardo.vitals_bar_frame_v1",
+  "kind": "leonardo_ui_plate",
+  "model": "gemini-2.5-flash-image (Nano Banana) via Leonardo v2 API",
+  "size": "1536x768 (delivered 1344x768)",
+  "processor": "tools/assets/build_vitals_bar_frame.py",
+  "raw_committed": false,
+  "task": "R-1798",
+  "plates": [
+    {
+      "source": "generated/leonardo/vitals_bar_frame_v1/frame_candidate_1.jpg",
+      "generation": "1f1c5b87-dc5b-67c0-8299-3d0ec4af077f",
+      "sha256": "51a392d18f8b024a099476ed2b437734d955e3f68f3349ad52a868a0eb1c07aa",
+      "prompt": "Game UI asset: a single long thin horizontal rectangular frame for a health bar, slim antique bronze and aged gold metal border with a fine rope-twist pattern along all four edges, small pointed diamond studs at the left and right ends, slightly rounded corners, the inside of the frame is completely empty flat pure white, plain pure white background outside, straight-on front orthographic view, no perspective, no shadow, no text, no fill, same style as an ornate bronze minimap ring, highly detailed painted fantasy medieval UI",
+      "targets": [
+        "assets/UI/vitals/vitals_bar_frame.png"
+      ]
+    }
+  ],
+  "rejected": [
+    "Candidate 2 of the same generation: black background with a white-filled opening, harder to key cleanly."
+  ]
+}
