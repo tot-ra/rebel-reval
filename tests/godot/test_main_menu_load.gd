@@ -2,6 +2,7 @@ extends "res://tests/godot/test_case.gd"
 
 const MainMenuScene := preload("res://scenes/menu/main_menu.tscn")
 const SaveListOverlay := preload("res://scenes/menu/save_list_overlay.gd")
+const PauseMenuStyle := preload("res://scripts/ui/pause_menu_style.gd")
 
 var _original_save_service: SaveService
 var _save_directory := ""
@@ -57,7 +58,11 @@ func test_load_label_focusable_when_save_exists() -> void:
 
 	assert_true(load_label.visible)
 	assert_eq(load_label.focus_mode, Control.FOCUS_ALL)
-	assert_true(load_label.get_theme_stylebox("focus") is StyleBoxEmpty)
+	# R-1799: the Escape-menu bronze focus bar replaced the empty focus box.
+	var focus := load_label.get_theme_stylebox("focus") as StyleBoxFlat
+	assert_true(focus != null)
+	assert_eq(focus.border_color, PauseMenuStyle.GOLD)
+	assert_true(focus.border_width_top >= 1)
 	assert_eq(start.focus_neighbor_bottom, NodePath("../Load label"))
 	assert_eq(load_label.focus_neighbor_top, NodePath("../Start label"))
 	assert_eq(load_label.focus_neighbor_bottom, NodePath("../Credits label"))
@@ -75,6 +80,74 @@ func test_focus_ring_skips_hidden_load_label() -> void:
 	assert_eq(load_label.focus_mode, Control.FOCUS_NONE)
 	assert_eq(start.focus_neighbor_bottom, NodePath("../Credits label"))
 	assert_eq(credits.focus_neighbor_top, NodePath("../Start label"))
+	menu.free()
+
+
+func test_continue_hidden_without_saves_and_start_leads() -> void:
+	var menu := MainMenuScene.instantiate()
+	(Engine.get_main_loop() as SceneTree).root.add_child(menu)
+	var continue_label := menu.get_node("Continue label") as Control
+	var start := menu.get_node("Start label") as Control
+	var exit_label := menu.get_node("Exit label") as Control
+	assert_false(continue_label.visible)
+	assert_eq(continue_label.focus_mode, Control.FOCUS_NONE)
+	assert_eq(menu.visible_entries()[0], start)
+	assert_eq(start.focus_neighbor_top, NodePath("../Exit label"))
+	assert_eq(exit_label.focus_neighbor_bottom, NodePath("../Start label"))
+	menu.free()
+
+
+func test_continue_leads_and_targets_latest_save() -> void:
+	var state := GameState.new()
+	state.player.location_id = &"forge"
+	assert_true(SessionState.save_service.save_game(state, 1))
+	# Continue must follow list_saves() order (newest first), whatever the timestamps resolve to.
+	var newer := GameState.new()
+	newer.player.location_id = &"reval_east"
+	assert_true(SessionState.save_service.save_game(newer, 3))
+	var saves := SessionState.list_saves()
+
+	var menu := MainMenuScene.instantiate()
+	(Engine.get_main_loop() as SceneTree).root.add_child(menu)
+	var continue_label := menu.get_node("Continue label") as Control
+	var start := menu.get_node("Start label") as Control
+	var exit_label := menu.get_node("Exit label") as Control
+	assert_true(continue_label.visible)
+	assert_eq(continue_label.focus_mode, Control.FOCUS_ALL)
+	assert_eq(continue_label.latest_slot(), int(saves[0]["slot"]))
+	assert_eq(menu.visible_entries()[0], continue_label)
+	assert_eq(continue_label.focus_neighbor_bottom, NodePath("../Start label"))
+	assert_eq(start.focus_neighbor_top, NodePath("../Continue label"))
+	assert_eq(exit_label.focus_neighbor_bottom, NodePath("../Continue label"))
+	assert_true(continue_label.position.y < start.position.y)
+	menu.free()
+
+
+func test_entries_are_left_aligned_in_one_column() -> void:
+	var menu := MainMenuScene.instantiate()
+	(Engine.get_main_loop() as SceneTree).root.add_child(menu)
+	var entries: Array[Control] = menu.visible_entries()
+	assert_true(entries.size() >= 4)
+	for index in entries.size():
+		var entry := entries[index] as RichTextLabel
+		assert_eq(entry.position.x, entries[0].position.x)
+		assert_eq(entry.horizontal_alignment, HORIZONTAL_ALIGNMENT_LEFT)
+		if index > 0:
+			assert_true(entry.position.y > entries[index - 1].position.y)
+	menu.free()
+
+
+func test_hover_moves_focus_and_brightens_entry() -> void:
+	var menu := MainMenuScene.instantiate()
+	(Engine.get_main_loop() as SceneTree).root.add_child(menu)
+	var credits := menu.get_node("Credits label") as RichTextLabel
+	credits.mouse_entered.emit()
+	assert_true(credits.has_focus())
+	assert_eq(credits.get_theme_color("default_color"), Color("fff0cb"))
+	var library := menu.get_node("Assets library label") as RichTextLabel
+	library.mouse_entered.emit()
+	assert_false(credits.has_focus())
+	assert_eq(credits.get_theme_color("default_color"), Color("e7ddc9"))
 	menu.free()
 
 
