@@ -83,7 +83,7 @@ Kalev is a fixed protagonist with no amnesia; NATURAL aspect allocation and psyc
 
 ## World and tone
 
-Reval is a Danish-ruled, German-elite city with overlapping legal, religious, and linguistic communities, surrounded by a countryside on the edge of revolt. The game world is hub-based: dense handcrafted districts inside the walls, and a travel layer connecting authored world locations outside them — village, monastery, castles, groves, battlefields — most of which already exist in the repository as inactive, contract-tested map prototypes awaiting activation.
+Reval is a Danish-ruled, German-elite city with overlapping legal, religious, and linguistic communities, surrounded by a countryside on the edge of revolt. Reval and its near hinterland are one seamless world: the walled Lower Town with its streets, churches, and the forge, and the meadows, woods, villages, and groves just outside the walls. Distant locations - monastery, castles, islands, battlefields - are reached by an explicit journey, and many already exist in the repository as contract-tested map prototypes awaiting activation.
 
 Rural violence, the siege, and the reprisals stay historically anchored; an uprising inside Reval's walls is treated as alternate history at the act boundary. Folklore and magic return as playable systems under [ADR 0017](./docs/adr/0017-legacy-design-reintroduction.md): pagan combinatorial elements, Christian divine rites, and NATURAL/Hingepuu progression, all labelled `folklore` or `invented` where they leave attested history. The slice may still ship ambiguous belief quests (for example Root and Ember) before literal magic branches land. Named people, events, institutions, buildings, and beliefs are marked as `attested`, `plausible composite`, `folklore`, or `invented` in [`docs/CANON.md`](./docs/CANON.md).
 
@@ -139,16 +139,32 @@ The repository currently has:
 - a Godot 4.7 project with a main menu, player movement, scene transitions, the converted Lower Town slice rendering through the 3D orthographic view layer, and the persistent quick-access menu;
 - **D-003 complete:** walkable eastern slice with the Kalev rig, Mart conversation, anvil spearhead pickup into the bag UI, and session re-entry that keeps placement/ownership in `GameState`;
 - **D-004 complete:** macOS `rr` export produces a runnable `build/rr.dmg` / `Reval Rebel.app`, the move-talk-pickup loop is proven without debug presets, and the frame walkthrough is linked below;
+- a seamless 1343 Reval city preview ([ADR 0031](./docs/adr/0031-continuous-reval-city-plan.md)) with historically sourced street plan, walls and towers, landmark churches, Kalev's smithy with forge bay and living quarters, living vegetation with seasons and moss, weather, sea, and a walkable hinterland with regional sites such as the sacred grove;
 - inactive contract-tested outdoor map prototypes (market/civic, north, south, Toompea, and others) awaiting act-gated activation;
 - documented headless import and playable-room smoke checks, a hardened Godot test harness, schemas and Python validation for authored content, map-pipeline gates, and CI for the engine pin, content, tests, imports, and export smoke.
 
 Vertical-slice systems beyond the demo loop (full combat room, enemies, night consequence, faction ledger) remain incomplete. Delivery order is strict: **playable demo → vertical-slice MVP → Act 1 → Act 2 → Act 3**, and the next work is deliberately ordered in the project task board (`tasks` tool); legacy documents do not silently expand that scope.
 
-### Demo walkthrough (D-004)
+### The world today
+
+The playable world is now a seamless 1343 Reval: a walled Lower Town of timber and limestone houses, its key churches built from the historical record, Kalev's smithy as the hub, and a hinterland of meadows, woods, and sacred groves outside the walls. Captures from October 2026:
+
+| | |
+|---|---|
+| ![Lower Town from above: St Olaf's short hall church with its unfinished west tower, the town wall with towers, and the harbour shore beyond](./docs/reports/images/historical_walk/hw6_olaf_aerial.jpg) | ![Lower Town roofs, the Dominican St Catherine's church, and the town wall with towers looking toward the sea](./docs/reports/images/historical_walk/hw8_cath_aerial.jpg) |
+| **St Olaf and the north harbour** - the 1343 church, wall circuit, and beach landing | **St Catherine's quarter** - dense plots pressed hard against the church |
+| ![Pikk street looking down toward the sea gate between mossy-roofed timber houses](./docs/reports/images/historical_walk/hw7_street_pikk.jpg) | ![The lane outside Kalev's smithy: limestone forge wall on one side, timber houses on the other](./docs/reports/images/city/kalev_smithy_street.jpg) |
+| **Pikk street** - the road down to the sea gate | **Smithy lane** - Kalev's limestone forge among timber neighbours |
+| ![Inside Kalev's forge bay: hearth with hood and bellows, anvil on its stump, quench tub, tool rack](./docs/reports/images/city/kalev_smithy_forge_bay.jpg) | ![The sacred grove outside the walls: an ancient oak with votive band and offering fire at the end of an earthen path](./docs/reports/images/sites/sacred_grove_day_oak.png) |
+| **The forge bay** - hearth, bellows, anvil, quench tub | **Sacred grove** - the ancient oak in the hinterland |
+
+More plates and how they are captured: [seamless city](./docs/SYSTEMS/SEAMLESS_CITY.md), [landmark sites and the smithy](./docs/SYSTEMS/CITY_LANDMARK_SITES.md), [regional sites](./docs/SYSTEMS/REGIONAL_SITES.md), and the [historical walk coverage report](./docs/reports/historical_walk_coverage.md).
+
+### Demo walkthrough (D-004, earlier build)
 
 ![Packaged Reval Rebel demo: Start, Mart talk, and spearhead pickup](./docs/reports/images/demo_walkthrough/demo_walkthrough.gif)
 
-Packaged macOS demo proof, in-binary Start-Mart-pickup verification, animated capture, and source frame sequence: [`docs/reports/demo_walkthrough_d004.md`](./docs/reports/demo_walkthrough_d004.md). Reproduce with `tools/verify_packaged_demo.sh`.
+This animation predates the seamless city and shows the original demo loop. Packaged macOS demo proof, in-binary Start-Mart-pickup verification, animated capture, and source frame sequence: [`docs/reports/demo_walkthrough_d004.md`](./docs/reports/demo_walkthrough_d004.md). Reproduce with `tools/verify_packaged_demo.sh`.
 
 ## Run the project
 
