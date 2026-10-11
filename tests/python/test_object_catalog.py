@@ -10,6 +10,7 @@ import sys
 import unittest
 from contextlib import redirect_stdout
 from pathlib import Path
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[2]
 TOOLS_DIR = ROOT / "tools"
@@ -192,6 +193,136 @@ class HouseholdNeedsTests(unittest.TestCase):
     def test_malformed_top_level_and_version_are_rejected(self) -> None:
         for data in ([], None, {}, {"version": 2, "needs": self.data["needs"]}):
             self.assertTrue(self.check(data))
+
+
+class HouseholdCoverageTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.needs = lib.load_json(lib.CATALOG_DIR / "_household_needs.json")
+        self.entries = {e["id"]: e for e in lib.load_catalog()}
+        self.owners = lib.load_json(validator.PLANNED_OWNERS_PATH)
+
+    def test_every_shipped_planned_object_has_a_modeling_task(self) -> None:
+        self.assertEqual(validator._check_planned_owners(self.owners, self.entries), [])
+        planned = {oid for oid, e in self.entries.items() if e["lifecycle"] == "planned"}
+        self.assertTrue(planned <= set(self.owners["owners"]))
+
+    def test_unowned_planned_object_is_rejected(self) -> None:
+        del self.owners["owners"]["obj.blanket_wool"]
+        self.assertIn("obj.blanket_wool: no modeling task assigned", " ".join(
+            validator._check_planned_owners(self.owners, self.entries)))
+
+    def test_usable_object_does_not_need_a_task_and_completed_assignments_remain_valid(self) -> None:
+        self.entries["obj.blanket_wool"]["lifecycle"] = "usable"
+        self.assertEqual(validator._check_planned_owners(self.owners, self.entries), [])
+        del self.owners["owners"]["obj.blanket_wool"]
+        self.assertEqual(validator._check_planned_owners(self.owners, self.entries), [])
+
+    def test_unknown_owner_object_and_invalid_task_refs_are_rejected(self) -> None:
+        self.owners["owners"]["obj.not_real"] = "R-1379"
+        self.assertIn("unknown catalog object", " ".join(
+            validator._check_planned_owners(self.owners, self.entries)))
+        for task in ("", "R-0", "R-01", "HOMEOBJ-2", "R-12 extra", None, 1368):
+            with self.subTest(task=task):
+                self.owners["owners"]["obj.blanket_wool"] = task
+                self.assertIn("expected task reference", " ".join(
+                    validator._check_planned_owners(self.owners, self.entries)))
+
+    def test_malformed_owner_report_is_rejected_without_crashing(self) -> None:
+        for data in (None, [], {}, {**self.owners, "extra": True},
+                     {**self.owners, "version": True}, {**self.owners, "version": 2},
+                     {**self.owners, "coverage_mode": "off"},
+                     {**self.owners, "owners": []},
+                     {**self.owners, "needs_tag_legacy_ids": [None]},
+                     {**self.owners, "needs_tag_legacy_ids": "obj.apple"}):
+            with self.subTest(data=data):
+                self.assertTrue(validator._check_planned_owners(data, self.entries))
+
+    def test_legacy_list_cannot_have_unknown_duplicate_or_out_of_scope_ids(self) -> None:
+        for legacy in (["obj.not_real"], ["obj.apple", "obj.apple"], ["obj.hatchet"]):
+            self.owners["needs_tag_legacy_ids"] = legacy
+            self.assertTrue(validator._check_planned_owners(self.owners, self.entries))
+
+    def test_need_tier_without_any_usable_object_fails_coverage(self) -> None:
+        needs = {"needs": {"sleep": {"poor": [{"id": "obj.blanket_wool"}]}}}
+        self.assertEqual(validator._check_household_coverage(needs, self.entries), [
+            "household needs sleep/poor: no usable/complete catalog object"])
+
+    def test_one_usable_or_complete_object_covers_each_tier(self) -> None:
+        needs = {"needs": {"sleep": {
+            "poor": [{"id": "obj.blanket_wool"}, {"id": "obj.bolster_straw"}],
+            "mid": [{"id": "obj.bolster_straw"}],
+        }}}
+        for lifecycle in ("usable", "complete"):
+            self.entries["obj.bolster_straw"]["lifecycle"] = lifecycle
+            self.assertEqual(validator._check_household_coverage(needs, self.entries), [])
+
+    def test_unknown_object_never_counts_as_usable_coverage(self) -> None:
+        needs = {"needs": {"sleep": {"poor": [{"id": "obj.not_real"}]}}}
+        self.assertTrue(validator._check_household_coverage(needs, self.entries))
+
+    def test_new_scoped_objects_need_a_recognized_need_tag(self) -> None:
+        for category in sorted(validator.NEEDS_TAG_CATEGORIES):
+            candidate = {"category": category, "tags": ["household", "luxury"]}
+            entries = {"obj.new_object": candidate}
+            self.assertTrue(validator._check_needs_tags(self.needs, entries, []))
+            candidate["tags"].append("sleep")
+            self.assertEqual(validator._check_needs_tags(self.needs, entries, []), [])
+
+    def test_only_explicit_legacy_ids_are_exempt_from_needs_tags(self) -> None:
+        self.assertEqual(validator._check_needs_tags(
+            self.needs, self.entries, self.owners["needs_tag_legacy_ids"]), [])
+        self.assertTrue(validator._check_needs_tags(self.needs, self.entries, []))
+        self.assertEqual(validator._check_needs_tags(
+            self.needs, {"obj.new_tool": {"category": "tool", "tags": ["iron"]}}, []), [])
+
+    def test_warning_rollout_and_strict_mode_have_same_other_errors(self) -> None:
+        warnings: list[str] = []
+        gap = "household needs sleep/poor: no usable/complete catalog object"
+        # Keep mode-routing regression coverage independent of future art delivery.
+        with patch.object(validator, "_check_household_coverage", return_value=[gap]):
+            problems = validator.validate(warnings=warnings)
+            strict = validator.validate(strict_household_coverage=True)
+        self.assertEqual(warnings, [gap])
+        self.assertCountEqual(strict, problems + warnings)
+        original = lib.load_json
+        with patch.object(lib, "load_json", wraps=original) as load_json:
+
+            def load_strict(path: Path):
+                if path == validator.PLANNED_OWNERS_PATH:
+                    return {**self.owners, "coverage_mode": "error"}
+                return original(path)
+
+            load_json.side_effect = load_strict
+            with patch.object(validator, "_check_household_coverage", return_value=[gap]):
+                self.assertCountEqual(validator.validate(), strict)
+
+    def test_missing_or_malformed_owner_file_is_a_validation_error(self) -> None:
+        original = lib.load_json
+        for error in (OSError("missing"), ValueError("malformed JSON")):
+            def load_bad(path: Path):
+                if path == validator.PLANNED_OWNERS_PATH:
+                    raise error
+                return original(path)
+
+            with patch.object(lib, "load_json", side_effect=load_bad):
+                self.assertTrue(any("planned owners: missing or invalid" in p
+                                    for p in validator.validate()))
+
+    def test_cli_prints_warnings_but_does_not_fail_on_them(self) -> None:
+        def warning_only(**kwargs):
+            kwargs["warnings"].append("household needs sleep/poor: uncovered")
+            return []
+
+        with patch.object(validator, "validate", side_effect=warning_only) as validate:
+            buffer = io.StringIO()
+            with redirect_stdout(buffer):
+                self.assertEqual(validator.main([]), 0)
+            self.assertIn("WARNING: household needs sleep/poor", buffer.getvalue())
+            self.assertIn("0 problem(s), 1 warning(s)", buffer.getvalue())
+            with redirect_stdout(io.StringIO()) as quiet:
+                self.assertEqual(validator.main(["--quiet", "--strict-household-coverage"]), 0)
+            self.assertEqual(quiet.getvalue(), "")
+            self.assertTrue(validate.call_args.kwargs["strict_household_coverage"])
 
 
 class ToolTests(unittest.TestCase):

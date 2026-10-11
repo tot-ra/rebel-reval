@@ -41,6 +41,8 @@ SIZE_TOLERANCE = 0.03
 THROW_MAX_MASS_KG = 15.0
 FIXED_FORBIDDEN = {"take", "drop", "throw", "push", "pull", "stack", "equip", "load_on_cart"}
 HEAVY_FORBIDDEN = {"take", "drop", "throw", "equip", "stack"}
+PLANNED_OWNERS_PATH = lib.ROOT / "docs" / "data" / "object_catalog_planned_owners.json"
+NEEDS_TAG_CATEGORIES = {"household", "food", "armor_clothing"}
 
 
 def _known_prop_kinds() -> tuple[set[str], set[str]]:
@@ -229,7 +231,75 @@ def _check_household_needs(
     return problems
 
 
-def validate() -> list[str]:
+def _check_household_coverage(
+    needs: dict[str, Any], entries: dict[str, dict[str, Any]]
+) -> list[str]:
+    """A tier is covered by at least one referenced usable/complete object."""
+    gaps: list[str] = []
+    for need, tiers in needs["needs"].items():
+        for tier, requirements in tiers.items():
+            if not any(
+                entries.get(requirement["id"], {}).get("lifecycle") in {"usable", "complete"}
+                for requirement in requirements
+            ):
+                gaps.append(f"household needs {need}/{tier}: no usable/complete catalog object")
+    return gaps
+
+
+def _check_planned_owners(data: Any, entries: dict[str, dict[str, Any]]) -> list[str]:
+    """Keep model work accountable without querying the task board during CI."""
+    if not isinstance(data, dict) or set(data) != {
+        "version", "coverage_mode", "needs_tag_legacy_ids", "owners"
+    }:
+        return ["planned owners: expected version, coverage_mode, needs_tag_legacy_ids and owners"]
+    if type(data["version"]) is not int or data["version"] != 1:
+        return ["planned owners: version must be 1"]
+    if data["coverage_mode"] not in ("warning", "error"):
+        return ["planned owners: coverage_mode must be warning or error"]
+    legacy = data["needs_tag_legacy_ids"]
+    if not isinstance(legacy, list) or not all(isinstance(oid, str) for oid in legacy):
+        return ["planned owners: needs_tag_legacy_ids must be an array of catalog IDs"]
+    if len(legacy) != len(set(legacy)):
+        return ["planned owners: duplicate needs_tag_legacy_ids"]
+    owners = data["owners"]
+    if not isinstance(owners, dict):
+        return ["planned owners: owners must map catalog IDs to task references"]
+    problems: list[str] = []
+    for oid in legacy:
+        if oid not in entries:
+            problems.append(f"planned owners: unknown legacy object {oid}")
+        elif entries[oid]["category"] not in NEEDS_TAG_CATEGORIES:
+            problems.append(f"planned owners: legacy object {oid} is outside needs-tag categories")
+    for oid, task in owners.items():
+        if oid not in entries:
+            problems.append(f"planned owners: unknown catalog object {oid}")
+        if not isinstance(task, str) or re.fullmatch(r"R-[1-9][0-9]*", task) is None:
+            problems.append(f"planned owners {oid}: expected task reference R-NNNN")
+    for oid, entry in entries.items():
+        if entry["lifecycle"] == "planned" and oid not in owners:
+            problems.append(f"planned owners {oid}: no modeling task assigned")
+    return problems
+
+
+def _check_needs_tags(
+    needs: dict[str, Any], entries: dict[str, dict[str, Any]], legacy_ids: list[str]
+) -> list[str]:
+    # Freeze exceptions rather than grandfathering by lifecycle/category: a new
+    # planned object must state its need before its art delivery begins.
+    vocabulary = set(needs["needs"])
+    return [
+        f"{oid}: new {entry['category']} object needs a household need tag "
+        f"({', '.join(sorted(vocabulary))})"
+        for oid, entry in entries.items()
+        if entry["category"] in NEEDS_TAG_CATEGORIES
+        and oid not in legacy_ids
+        and not vocabulary.intersection(entry["tags"])
+    ]
+
+
+def validate(
+    *, warnings: list[str] | None = None, strict_household_coverage: bool = False
+) -> list[str]:
     problems: list[str] = []
     store = SchemaStore(lib.ROOT / "schemas")
     schema = store.resolve("world_object.schema.json")
@@ -280,12 +350,31 @@ def validate() -> list[str]:
                 problems.append(f"{oid}: carry grid disagrees with {entry['item_ref']}")
 
     needs_path = lib.CATALOG_DIR / "_household_needs.json"
+    needs = None
     try:
         needs = lib.load_json(needs_path)
     except (OSError, ValueError) as exc:
         problems.append(f"household needs: missing or invalid {needs_path.name}: {exc}")
     else:
-        problems += _check_household_needs(needs, entries, store)
+        needs_problems = _check_household_needs(needs, entries, store)
+        problems += needs_problems
+        if needs_problems:
+            needs = None
+
+    try:
+        owners = lib.load_json(PLANNED_OWNERS_PATH)
+    except (OSError, ValueError) as exc:
+        problems.append(f"planned owners: missing or invalid {PLANNED_OWNERS_PATH.name}: {exc}")
+    else:
+        owner_problems = _check_planned_owners(owners, entries)
+        problems += owner_problems
+        if not owner_problems and needs is not None:
+            gaps = _check_household_coverage(needs, entries)
+            if strict_household_coverage or owners["coverage_mode"] == "error":
+                problems += gaps
+            elif warnings is not None:
+                warnings += gaps
+            problems += _check_needs_tags(needs, entries, owners["needs_tag_legacy_ids"])
 
     problems += _check_coverage(entries)
     return problems
@@ -344,13 +433,23 @@ def _check_coverage(entries: dict[str, dict[str, Any]]) -> list[str]:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--quiet", action="store_true")
+    parser.add_argument(
+        "--strict-household-coverage", action="store_true",
+        help="fail on unserved need/tier pairs even during the household art rollout",
+    )
     args = parser.parse_args(argv)
-    problems = validate()
+    warnings: list[str] = []
+    problems = validate(
+        warnings=warnings, strict_household_coverage=args.strict_household_coverage
+    )
     if not args.quiet:
+        for warning in warnings:
+            print(f"WARNING: {warning}")
         for problem in problems:
             print(problem)
         count = len(lib.catalog_files())
-        print(f"object catalog: {count} object(s), {len(problems)} problem(s)")
+        print(f"object catalog: {count} object(s), {len(problems)} problem(s), "
+              f"{len(warnings)} warning(s)")
     return 1 if problems else 0
 
 

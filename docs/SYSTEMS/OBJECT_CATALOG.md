@@ -76,6 +76,55 @@ To add an object: copy the closest existing JSON into the right category folder,
 
 Household needs per wealth tier and the TOP-20 home objects: [`HOUSEHOLD_OBJECTS.md`](./HOUSEHOLD_OBJECTS.md).
 
+### Household coverage gates (R-1379)
+
+Status: implemented (task **R-1379**). Scope: offline catalog validation and
+model-work ownership. No placement, gameplay input or save/load behavior changes.
+
+The validator reads `content/objects/_household_needs.json` and requires at least
+one referenced object with lifecycle `usable` or `complete` for **each** need in
+**each** wealth tier (`poor`, `mid`, `rich`). This is minimum vocabulary coverage,
+not proof that every object in the quota has a model or is placed in a house.
+The existing model/file checks still reject unusable or missing GLBs separately.
+
+[`object_catalog_planned_owners.json`](../data/object_catalog_planned_owners.json)
+is the reviewed authoring report. Its `owners` map assigns every `planned`
+`obj.*` ID to a modeling task (`R-NNNN`). Unknown object IDs, missing owners,
+malformed task references (`R-` followed by a positive integer) and invalid
+report data are errors. Assignments may
+remain after an object becomes usable, retaining its delivery history. CI does
+not query the task board; agents verify the linked task's scope before assigning
+it. The initial report covers 35 planned objects with HOMEOBJ-2..10 and R-1680.
+
+During HOMEOBJ art delivery, `coverage_mode: "warning"` prints unmet need/tier
+pairs without changing the exit code. At HOMEOBJ-0 (**R-1366**) closeout, set it
+to `"error"` in the same reviewed change; the board is not read automatically.
+To enforce the final acceptance gate now:
+
+```bash
+python3 tools/validate_object_catalog.py --strict-household-coverage
+python3 -m unittest tests.python.test_object_catalog.HouseholdCoverageTests -v
+```
+
+New objects in categories `household`, `food` and `armor_clothing` need at least
+one `tags` value from the needs-table vocabulary (for example `sleep`, `eat`,
+`clothe`, `work`). The schema does not allow a separate `needs` field; the
+recognized need is an ordinary tag. `needs_tag_legacy_ids` freezes the 39 existing
+untagged IDs at rollout so this gate does not force unrelated catalog rewrites.
+Do not add new IDs to this exemption list. Objects outside these three categories
+are not subject to this growth cap.
+
+Agent workflow: create/verify a concrete modeling task, assign its `obj.*` IDs
+in `owners`, add a need tag to new scoped entries, then run the standard catalog
+commands above. `--quiet` hides both warnings and errors but preserves the exit
+code. Verification covers missing tier coverage, ownership, tag exemptions,
+malformed reports, warning/error modes and CLI behavior in
+`tests/python/test_object_catalog.py` (`HouseholdCoverageTests`).
+
+Known verification limit: **R-1505** tracks missing preview PNGs and retired
+storybook equipment GLBs; they already fail the base catalog validator and
+three legacy `CatalogContentTests`. These gates do not suppress those failures.
+
 ## Runtime entry points
 
 | Piece | File | Role |
