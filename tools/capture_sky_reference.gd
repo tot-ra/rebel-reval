@@ -15,6 +15,10 @@ const SHOTS := [
 	["noon_side_clear", SkyWeather3D.WEATHER_CLEAR, 0.42, 70.0, 14.0, 80.0],
 	["aft_side_cloudy", SkyWeather3D.WEATHER_CLOUDY, 0.71, 60.0, 18.0, 85.0],
 	["gold_side_cloudy", SkyWeather3D.WEATHER_CLOUDY, 0.80, 70.0, 14.0, 80.0],
+	# R-1767 golden-hour series: sun roughly 22 / 14 / 8 deg high, same side-on framing.
+	["gold_070_cloudy", SkyWeather3D.WEATHER_CLOUDY, 0.70, 70.0, 14.0, 80.0],
+	["gold_074_cloudy", SkyWeather3D.WEATHER_CLOUDY, 0.74, 70.0, 14.0, 80.0],
+	["gold_077_cloudy", SkyWeather3D.WEATHER_CLOUDY, 0.77, 70.0, 14.0, 80.0],
 ]
 
 var _out := DEFAULT_OUT

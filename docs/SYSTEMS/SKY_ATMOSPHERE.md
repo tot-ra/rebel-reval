@@ -145,6 +145,19 @@ Outdoors by day the whole frame is brightened (the outdoor exposure gain of [cit
 
 ![Before (left) and after (right): noon clear, cloudy afternoon, cloudy golden hour](../reports/images/weather/sky_reference_before_after.png)
 
+## Golden-hour clouds
+
+Status: implemented (task **R-1767**). With the sun about 8-16 degrees up, fair-weather clouds glow warm gold on their crowns with warm grey-brown undersides against a blue sky; they no longer turn pink or lavender. Real sunset (sun below about 4 degrees) keeps the pink and violet palette.
+
+- The old dusk ramp (pink, violet shade, broad sun glow) began at 16 degrees and was already half strength at 8. It now ramps in only below about 6 degrees (`pink_ramp` in `sky_weather_3d.gdshader`).
+- Between roughly 8 and 16 degrees a separate golden-hour weight warms the sunlit crowns and tints the cloud shade from the horizon colour of the sky LUT.
+- The sun glow band hugs the sun in golden hour (exponent 8) and only widens (exponent 2) at true sunset.
+- A narrow forward-scatter (Henyey-Greenstein) lobe lights cloud edges right beside the sun instead of a broad bloom.
+- Verify: `tools/godot_render.sh --script tools/capture_sky_reference.gd` plates `gold_070_cloudy`, `gold_074_cloudy`, `gold_077_cloudy` (cycle progress 0.70, 0.74, 0.77; sun about 22, 14, 8 degrees) and `gold_side_cloudy` (0.80, about 4 degrees, still pink). Before/after of the 8 degree plate:
+
+![Sun about 8 degrees up, before: pink and lavender clouds](../reports/images/weather/sky_reference_gold_077_before.png)
+![Sun about 8 degrees up, after: warm gold clouds](../reports/images/weather/sky_reference_gold_077_cloudy.png)
+
 ## Heat mirage
 
 On hot, calm, dry middays with no more than fair cumulus, pale streaks shimmer just above the horizon and the far ground below it wavers by a few pixels, as if seen through rising hot air. It needs a high sun: strong from May to July around noon, a little in mid-August, almost none in the campaign's April opening. Heat is judged from the sun's height and the weather, not from a temperature simulation.
@@ -160,6 +173,7 @@ On hot, calm, dry middays with no more than fair cumulus, pale streaks shimmer j
 - **Clouds under the deck are shaded per cloud**, not per sample, so the deck's own shadow edge never cuts through one cloud.
 - **`clear` keeps its id and meaning** (fair cumulus) for save compatibility; `cloudless` is the new clear sky.
 - **The sky keeps its own exposure** (R-1766). The daylight lift is divided out of the visible dome instead of lowering the lift or re-tuning the sky colours, so the city brightness R-1748 calibrated and the sky colours tuned before it both stay valid. It is faded out toward the horizon rather than applied evenly, accepting a slightly brighter low sky in exchange for no seam against hazed far ground.
+- **Pink waits for true sunset** (R-1767). The dusk palette is gated by `pink_ramp` instead of the 16 degree band, and a golden-hour weight carries the 8-16 degree range, so golden hour reads warm rather than rose.
 - **One weather chain for the whole campaign**; seasonal odds need a calendar-driven table and are not done.
 
 ## Saved state
@@ -186,6 +200,7 @@ Quality tiers change cost only; cloud positions and lightning timing are identic
 - There is no focus pull: focus stays on the player's surroundings.
 - The city sunbeams skip terrain, so roof-edge shafts do not form in Upper Town streets on the klint (cloud shafts still do). The sunbeam pass has no low-quality variant yet.
 - Low clouds within about 10 degrees of the horizon still carry part of the daylight lift and can read brighter than the clouds above them.
+- Golden-hour cloud tone is judged from the capture plates only; the near-horizon white haze beside the sun comes from the sky LUT and ground haze, not the cloud shader, and is unchanged.
 - Missing plates: no current capture shows a lightning strike or the evening mist. Independent visual sign-off on fog and haze is still pending.
 
 ## For developers
