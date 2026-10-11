@@ -3,8 +3,10 @@ extends SceneTree
 ## Review plates for the spirit-sight auras (R-1486, ADR 0041). GPU run:
 ##   tools/godot_render.sh --resolution 1280x720 --script tools/capture_spirit_auras.gd -- \
 ##     --out=res://docs/reports/images/spirit_auras
-## Plates: a bright clear soul, a dim murky soul, a crowd (12 full auras, the
-## rest as distant glows) and a dog. The real SpiritAuraManager picks the tiers.
+## Plates: a bright clear soul, a dim murky soul (black holes tethered to the
+## earth), a whole soul (a pillar to the sky), a whole soul with a narrow crown
+## (only a thread), a crowd (12 full auras, the rest as distant glows) and a
+## dog. The real SpiritAuraManager picks the tiers.
 ## Frame budget in the same crowd, sight off vs on (add --disable-vsync):
 ##   tools/godot_render.sh --resolution 1280x720 --disable-vsync \
 ##     --script tools/capture_spirit_auras.gd -- --bench
@@ -31,6 +33,8 @@ func _init() -> void:
 		return
 	await _plate(out + "/bright_clear_soul.png", _bright_clear)
 	await _plate(out + "/dim_murky_soul.png", _dim_murky)
+	await _plate(out + "/whole_soul.png", _whole)
+	await _plate(out + "/narrow_crown.png", _narrow_crown)
 	await _plate(out + "/crowd.png", _crowd)
 	await _plate(out + "/animal_dog.png", _animal)
 	quit()
@@ -125,6 +129,19 @@ func _dim_murky() -> void:
 	# Two closed lights (knots) and low clarity: choppy flow and smoke.
 	_manager.register(rig, _profile([2, 0, 1, 1, 0, 2, 1], 0.12))
 	_close_camera(Vector3(0.0, 1.35, 0.0), 4.6)
+
+
+func _whole() -> void:
+	var rig := _rig("PlayerRig", Vector3.ZERO, 0.0)
+	_manager.register(rig, _profile([5, 5, 5, 5, 5, 5, 5], 1.0))
+	_close_camera(Vector3(0.0, 1.6, 0.0), 5.4)
+
+
+func _narrow_crown() -> void:
+	var rig := _rig("PlayerRig", Vector3.ZERO, 0.0)
+	# Every light blazing but the crown: the beam stays a thread.
+	_manager.register(rig, _profile([5, 5, 5, 5, 5, 5, 1], 1.0))
+	_close_camera(Vector3(0.0, 1.6, 0.0), 5.4)
 
 
 func _crowd() -> void:

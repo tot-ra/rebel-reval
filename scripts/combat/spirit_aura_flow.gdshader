@@ -2,12 +2,12 @@
 // Both meshes are built once by SpiritAuraView and never rebuilt; every frame
 // only the seven anchor uniforms change and this vertex stage bends the mesh.
 //
-// Ribbons (shell_mode = false): UV.x = s, the position around one closed loop,
-// UV.y = side (-1/1), UV2 = (line angle 0..1, line width scale). A loop is a
-// magnetic dipole field line around the body axis: s 0..RISE climbs the spine
-// through the seven lights (root to crown), then the return arc spills out over
-// the head, bows around the body and flows back into the root, like water
-// circulating or sap rising through the Hingepuu.
+// Ribbons (shell_mode = false): UV.x = s, the position along one arc, UV.y =
+// side (-1/1), UV2 = (link index + line angle 0..1, line width scale). Each link
+// joins two neighbouring lights (root-belly, belly-plexus .. brow-crown) with a
+// bundle of nested arcs, like the field lines between two magnet poles
+// (maintainer request, 2026-10-11): the field is a stack of small dipoles up
+// the spine, and only the crown sends the sky beam on upward (light shader).
 // Shell (shell_mode = true): a lathe around the spine curve, UV = (around, up).
 //
 // The view node is top_level with an identity basis: model space = world space
@@ -21,7 +21,6 @@ const vec3 COLORS[7] = vec3[7](
 	vec3(0.25, 0.92, 0.36), vec3(0.22, 0.52, 1.0), vec3(0.40, 0.30, 0.95),
 	vec3(0.78, 0.38, 1.0)
 );
-const float RISE = 0.34;
 
 uniform vec3 anchors[7];
 uniform float levels[7];
@@ -39,9 +38,9 @@ uniform float strength = 1.0;
 uniform float body_scale = 1.0;
 uniform vec3 shell_color = vec3(0.6, 0.55, 1.0);
 uniform float shell_strength = 0.2;
-// The spine run is inside the torso; slide it toward the camera so the body
-// does not hide it, and blend the bias out along the outer arc.
-uniform float camera_bias = 0.32;
+// The lights sit inside the torso; slide the arcs toward the camera by the same
+// amount as the lights (spirit_aura_light camera_bias) so they meet them.
+uniform float camera_bias = 0.45;
 
 varying vec3 v_color;
 varying float v_level;
@@ -79,36 +78,29 @@ void body_frame(out vec3 axis, out vec3 front, out vec3 side) {
 	side = cross(axis, front);
 }
 
-// Position along loop s for a line at angle phi; height01 = which light it is beside.
-vec3 loop_point(float s, float phi, float width, out float height01, out float bias) {
+// Position along the arc of `link` (light k to light k + 1) at s 0..1 for a
+// line at angle phi. The arc leaves one light, bows out to the side and enters
+// the next; wider arcs for longer links, stronger lights and outer lines.
+vec3 link_point(int link, float s, float phi, float width, float link_level) {
 	vec3 axis;
 	vec3 front;
 	vec3 side;
 	body_frame(axis, front, side);
-	vec3 root = anchors[0];
-	vec3 crown = anchors[6];
-	if (s < RISE) {
-		float t = s / RISE;
-		// A thin twist around the spine so lines read as separate strands.
-		float a = phi * 2.0 * PI + t * 3.0;
-		vec3 radial = side * cos(a) + front * sin(a);
-		height01 = t;
-		bias = 1.0;
-		return spine_point(t) + radial * 0.035 * body_scale * (0.4 + sin(PI * t));
-	}
-	float u = (s - RISE) / (1.0 - RISE);
-	float theta = PI * u;
-	vec3 mid = (root + crown) * 0.5;
-	float h = length(crown - root) * 0.5;
-	vec3 outward = side * cos(phi * 2.0 * PI) + front * sin(phi * 2.0 * PI);
-	// Dipole-like loop: rises above the crown first (the spill), bows out widest
-	// at the waist, dips under the root and curls back into it.
-	float axial = h * cos(theta) + 0.2 * h * sin(2.0 * theta);
-	float radius = spread * body_scale * width * pow(sin(theta), 0.85);
-	vec3 p = mid + axis * axial + outward * radius;
-	height01 = clamp(dot(p - root, axis) / max(2.0 * h, 1e-3), 0.0, 1.0);
-	bias = 1.0 - smoothstep(0.0, 0.14, u) * smoothstep(1.0, 0.86, u);
-	return p;
+	vec3 a = anchors[link];
+	vec3 b = anchors[link + 1];
+	float a_phi = phi * 2.0 * PI;
+	vec3 outward = side * cos(a_phi) + front * sin(a_phi);
+	vec3 mid = (a + b) * 0.5;
+	vec3 half_span = (b - a) * 0.5;
+	float span = 2.0 * length(half_span);
+	float bend = sin(PI * s);
+	// Like iron filings round a bar magnet: the line leaves one pole away from
+	// the other (the overshoot past the pole), swings out and comes round into
+	// the other pole from beyond it, so each link reads as an apple-shaped field.
+	float overshoot = 1.0 + 1.1 * width * bend * bend;
+	float bulge = (0.75 * span + 0.05 * width) * body_scale * (0.8 + 0.08 * link_level)
+		* spread / 0.45;
+	return mid - half_span * cos(PI * s) * overshoot + outward * bulge * bend;
 }
 
 void sample_lights(float height01, out vec3 color, out float level) {
@@ -146,32 +138,32 @@ void vertex() {
 		v_side = 0.0;
 		v_line = 0.0;
 	} else {
-		float phi = UV2.x;
+		int link = clamp(int(floor(UV2.x)), 0, 5);
+		float phi = fract(UV2.x);
 		float s = UV.x;
-		float height01;
-		float bias;
-		vec3 p = loop_point(s, phi, UV2.y, height01, bias);
-		float dummy_h;
-		float dummy_b;
-		vec3 ahead = loop_point(fract(s + 0.004), phi, UV2.y, dummy_h, dummy_b);
-		vec3 behind = loop_point(fract(s - 0.004 + 1.0), phi, UV2.y, dummy_h, dummy_b);
+		// Absent lights (negative) carry the flow like closed ones. A link is as
+		// strong as its weaker end: a black hole starves the arcs it touches.
+		float la = max(levels[link], 0.0);
+		float lb = max(levels[link + 1], 0.0);
+		float link_level = mix(min(la, lb), 0.5 * (la + lb), 0.4);
+		vec3 p = link_point(link, s, phi, UV2.y, link_level);
+		vec3 ahead = link_point(link, min(s + 0.02, 1.0), phi, UV2.y, link_level);
+		vec3 behind = link_point(link, max(s - 0.02, 0.0), phi, UV2.y, link_level);
 		// Low clarity: carry the line through the divergence-free field. Choppy,
-		// not frantic: the time is advanced in small jerks.
+		// not frantic: the time is advanced in small jerks. The ends stay on the lights.
 		float jerk = TIME * 0.6 + 0.25 * sin(TIME * 3.0 + phi * 11.0) * turbulence;
-		p += curl(p * 1.6 + phi * 3.0, jerk) * 0.1 * body_scale * turbulence * (1.0 - bias * 0.7);
-		p += view_dir * camera_bias * body_scale * bias;
+		p += curl(p * 1.6 + phi * 3.0, jerk) * 0.06 * body_scale * turbulence * sin(PI * s);
+		p += view_dir * camera_bias * body_scale;
 		vec3 tangent = ahead - behind;
 		vec3 across = cross(tangent, view_dir);
 		across = length(across) > 1e-5 ? normalize(across) : vec3(1.0, 0.0, 0.0);
-		vec3 color;
-		float level;
-		sample_lights(height01, color, level);
-		v_color = color;
-		v_level = level;
-		float width = (0.012 + 0.005 * level) * max(body_scale, 0.6);
+		float f = smoothstep(0.0, 1.0, s);
+		v_color = mix(COLORS[link], COLORS[link + 1], f);
+		v_level = mix(mix(la, lb, f), link_level, 0.5);
+		float width = (0.007 + 0.003 * v_level) * max(body_scale, 0.6);
 		VERTEX = p + across * UV.y * width;
 		v_s = s;
-		v_line = phi;
+		v_line = phi + float(link) * 0.21;
 		v_side = UV.y;
 	}
 }
@@ -194,8 +186,9 @@ void fragment() {
 		ALBEDO = mix(shell_color, v_color, 0.35);
 		ALPHA = rim * shell_strength * fade;
 	} else {
-		// Comets of light running round the loop; brighter lights run brighter.
-		float phase = fract(v_s * 5.0 - TIME * flow_speed + v_line * 0.37);
+		// Comets of light climbing each arc from the lower light to the upper one;
+		// brighter lights run brighter.
+		float phase = fract(v_s * 1.5 - TIME * flow_speed * 2.5 + v_line * 0.37);
 		float comet = smoothstep(0.0, 0.08, phase) * smoothstep(1.0, 0.35, phase);
 		float profile = pow(1.0 - abs(v_side), 1.5);
 		float glint = 1.0 + shimmer * sin(TIME * 6.0 + v_s * 47.0 + v_line * 13.0);
@@ -203,7 +196,7 @@ void fragment() {
 		vec3 color = v_color * (0.7 + 0.12 * v_level);
 		float alpha = profile * (0.22 + 0.78 * comet) * level_gain * glint * strength;
 		// Murky soul: dark smoke streaks drift along the line.
-		float smoke = value_noise(vec2(v_s * 16.0 - TIME * 0.45, v_line * 9.0));
+		float smoke = value_noise(vec2(v_s * 5.0 - TIME * 0.45, v_line * 9.0));
 		float smoke_mask = smoothstep(0.45, 0.75, smoke) * turbulence;
 		color = mix(color, vec3(0.05, 0.04, 0.06), smoke_mask);
 		alpha = max(alpha, smoke_mask * profile * 0.8);

@@ -3,7 +3,8 @@ extends Node3D
 ## SS-3 (ADR 0041): one being's aura in spirit sight. Seven soul lights sit on
 ## bone anchors (SharedCharacterRig.SPIRIT_AURA_ANCHORS) or, for a body without
 ## the shared rig (animals), on a layout fitted to its mesh bounds. Three draw
-## calls: field-line ribbons, the fresnel shell and the lights. The meshes are
+## calls: field-line ribbons, the fresnel shell and the lights (with the sky
+## beam and the earth tethers). The meshes are
 ## shared, built once and never rebuilt; each frame only the anchor uniforms
 ## move. SpiritAuraManager owns tiers and visibility.
 
@@ -21,15 +22,20 @@ const COLORS: Array[Color] = [
 ## Light brightness by level 0..5 (0 closed knot .. 5 blazing); drives the
 ## distant glow and the ribbon strength.
 const LEVEL_INTENSITY: Array[float] = [0.1, 0.3, 0.5, 0.7, 0.85, 1.0]
-const RIBBON_LINES := 12
-const RIBBON_SEGMENTS := 72
+## Field lines run between neighbouring lights (maintainer request, 2026-10-11):
+## six links (root-belly .. brow-crown), each a small dipole of nested arcs.
+const RIBBON_LINKS := 6
+const LINES_PER_LINK := 6
+const RIBBON_LINES := RIBBON_LINKS * LINES_PER_LINK
+const RIBBON_SEGMENTS := 24
 const SHELL_RINGS := 18
 const SHELL_SIDES := 20
 ## Reduced flashing keeps this share of the shimmer and the breathing pulse.
 const REDUCED_FLASHING_SHARE := 0.15
-## Bounds for culling: the loops reach about spread * 1.2 m from the axis; the
-## sky beam rises up to SKY_BEAM_MAX_HEIGHT above the crown.
-const LOCAL_AABB := AABB(Vector3(-1.5, -0.8, -1.5), Vector3(3.0, 14.0, 3.0))
+## Bounds for culling, relative to the root light: the earth tethers reach the
+## ground below the pelvis, the sky beam rises up to SKY_BEAM_MAX_HEIGHT above
+## the crown.
+const LOCAL_AABB := AABB(Vector3(-1.5, -1.6, -1.5), Vector3(3.0, 15.6, 3.0))
 const SKY_BEAM_MAX_HEIGHT := 12.0
 const MAX_LEVEL_SUM := 35.0
 ## Half the root-to-crown span of an adult on the shared rig; body_scale is
@@ -273,10 +279,11 @@ func effective_clarity() -> float:
 	return base * lerpf(PRESSURE_CLARITY_FLOOR, 1.0, pressure_fraction)
 
 
-## The tie to the sky (maintainer request, 2026-10-09): a column of light rising
-## from the crown. The sum of all seven levels sets its strength, gated by the
-## crown light itself: a closed or absent crown has no beam, a whole soul at 5
-## burns a full one. Strength, not virtue: no morality score is read from it.
+## The tie to the sky (maintainer requests, 2026-10-09 and 2026-10-11): a white
+## column rising from the crown. The sum of all seven levels sets its width, and
+## the crown is the bottleneck: the beam is never stronger than the crown's own
+## level, so a whole soul with a dim crown still has only a thread, and a closed
+## or absent crown has none. Strength, not virtue: no morality score is read.
 func sky_beam_strength() -> float:
 	var crown := level_at(6)
 	if crown <= 0:
@@ -284,7 +291,24 @@ func sky_beam_strength() -> float:
 	var total := 0
 	for i in SpiritAuraProfile.LIGHT_IDS.size():
 		total += level_at(i)
-	return clampf(float(total) / MAX_LEVEL_SUM * (0.4 + 0.6 * float(crown) / 5.0), 0.0, 1.0)
+	return clampf(minf(float(total) / MAX_LEVEL_SUM, float(crown) / 5.0), 0.0, 1.0)
+
+
+## The tie to the earth, the counterweight of the sky beam (maintainer request,
+## 2026-10-11): a closed light (a black hole) drags a dark tether down into the
+## ground, an ember (level 1) a faint thread, a glowing light none. The light
+## shader mirrors this curve on the float levels so duel dims pull it too. An
+## absent animal light (negative level) has no tether.
+static func earth_tether_for_level(level: float) -> float:
+	if level < 0.0:
+		return 0.0
+	return clampf((1.5 - level) / 1.5, 0.0, 1.0)
+
+
+func earth_tether_at(index: int) -> float:
+	if closed_as_absent and level_at(index) == 0:
+		return 0.0
+	return earth_tether_for_level(float(level_at(index)))
 
 
 static func flow_speed_for(mean: float) -> float:
@@ -292,7 +316,7 @@ static func flow_speed_for(mean: float) -> float:
 
 
 func shader_value(param: StringName) -> Variant:
-	if param in [&"glow_only", &"glow_strength", &"calm", &"beam_strength"]:
+	if param in [&"glow_only", &"glow_strength", &"calm", &"beam_strength", &"ground"]:
 		return _light_material.get_shader_parameter(param)
 	return _flow_material.get_shader_parameter(param)
 
@@ -328,6 +352,9 @@ func update_anchors() -> void:
 	for material: ShaderMaterial in [_flow_material, _shell_material, _light_material]:
 		material.set_shader_parameter(&"anchors", relative)
 		material.set_shader_parameter(&"facing", facing)
+	# The body origin stands on the ground (rig feet, animal model base); the
+	# earth tethers end there, relative to the root light like the anchors.
+	_light_material.set_shader_parameter(&"ground", body.global_position.y - anchors[0].y)
 
 
 func _apply_motion_settings() -> void:
@@ -401,9 +428,10 @@ static func _mesh_bounds(root: Node3D) -> AABB:
 	return merged
 
 
-## RIBBON_LINES closed strips; each vertex carries its loop position (UV.x),
-## side (UV.y), line angle and width scale (UV2). Positions are placeholders:
-## the vertex shader places everything.
+## RIBBON_LINES open strips, LINES_PER_LINK per link between two neighbouring
+## lights; each vertex carries its position along the arc (UV.x), side (UV.y),
+## link index + line angle (UV2.x = link + phi, phi in 0..1) and width scale
+## (UV2.y). Positions are placeholders: the vertex shader places everything.
 static func ribbon_mesh() -> ArrayMesh:
 	if _ribbon_mesh != null:
 		return _ribbon_mesh
@@ -412,16 +440,19 @@ static func ribbon_mesh() -> ArrayMesh:
 	var uv2s := PackedVector2Array()
 	var indices := PackedInt32Array()
 	for line in RIBBON_LINES:
-		var phi := (float(line) + 0.5) / float(RIBBON_LINES)
-		# Alternate inner and outer loops so the field reads as nested shells.
-		var width := 0.7 + 0.5 * float(line % 3) / 2.0
+		var link := line / LINES_PER_LINK
+		var slot := line % LINES_PER_LINK
+		# Neighbouring links are offset half a step so their arcs interleave.
+		var phi := (float(slot) + 0.5 + 0.5 * float(link % 2)) / float(LINES_PER_LINK)
+		# Alternate inner and outer arcs so each link reads as nested field lines.
+		var width := 0.7 + 0.5 * float(slot % 3) / 2.0
 		var base := vertices.size()
 		for segment in RIBBON_SEGMENTS + 1:
 			var s := float(segment) / float(RIBBON_SEGMENTS)
 			for side: float in [-1.0, 1.0]:
 				vertices.append(Vector3.ZERO)
 				uvs.append(Vector2(s, side))
-				uv2s.append(Vector2(phi, width))
+				uv2s.append(Vector2(float(link) + fmod(phi, 1.0), width))
 		for segment in RIBBON_SEGMENTS:
 			var a := base + segment * 2
 			indices.append_array([a, a + 1, a + 2, a + 1, a + 3, a + 2])
@@ -457,8 +488,9 @@ static func light_mesh() -> ArrayMesh:
 	var uvs := PackedVector2Array()
 	var uv2s := PackedVector2Array()
 	var indices := PackedInt32Array()
-	# Quads 0..6 are the lights; quad 7 is the sky beam above the crown.
-	for light in 8:
+	# Quads 0..6 are the lights; quad 7 is the sky beam above the crown; quads
+	# 8..14 are the earth tethers of lights 0..6.
+	for light in 15:
 		var base := vertices.size()
 		for corner: Vector2 in [Vector2(-1, -1), Vector2(1, -1), Vector2(1, 1), Vector2(-1, 1)]:
 			vertices.append(Vector3.ZERO)

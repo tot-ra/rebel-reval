@@ -65,7 +65,9 @@ func test_fixed_meshes_are_shared_and_never_rebuilt() -> void:
 	assert_eq((a.get_node("FieldLines") as MeshInstance3D).mesh, ribbons)
 	var ribbon_vertices := AuraView.RIBBON_LINES * (AuraView.RIBBON_SEGMENTS + 1) * 2
 	assert_eq(ribbons.surface_get_array_len(0), ribbon_vertices)
-	assert_eq(AuraView.light_mesh().surface_get_array_len(0), 32, "seven lights + sky beam")
+	assert_eq(AuraView.RIBBON_LINES, 36, "six lines on each of the six links between lights")
+	assert_eq(
+		AuraView.light_mesh().surface_get_array_len(0), 60, "seven lights + sky beam + seven tethers")
 
 
 func test_level_drives_intensity_and_clarity_drives_turbulence() -> void:
@@ -98,6 +100,34 @@ func test_sky_beam_grows_with_all_lights_and_needs_the_crown() -> void:
 	assert_true(weak_body > 0.0 and strong_body > weak_body, "stronger lights, stronger beam")
 	view.set_profile(_profile([4, 4, 4, 4, 4, 4, 1], 1.0))
 	assert_true(view.sky_beam_strength() < strong_body, "a dim crown narrows the beam")
+	view.set_profile(_profile([5, 5, 5, 5, 5, 5, 1], 1.0))
+	assert_almost_eq(view.sky_beam_strength(), 0.2, 0.0001, "the crown is the bottleneck")
+
+
+func test_closed_lights_tether_the_soul_to_the_earth() -> void:
+	assert_almost_eq(AuraView.earth_tether_for_level(0.0), 1.0, 0.0001, "black hole: full tether")
+	var ember := AuraView.earth_tether_for_level(1.0)
+	assert_true(ember > 0.0 and ember < 0.5, "ember: a faint thread")
+	assert_almost_eq(AuraView.earth_tether_for_level(2.0), 0.0, 0.0001, "a glowing light is free")
+	assert_almost_eq(AuraView.earth_tether_for_level(-1.0), 0.0, 0.0001, "absent: no tether")
+	var view := AuraView.new()
+	_host.add_child(view)
+	view.set_profile(_profile([0, 3, 0, 4, 4, 4, 4], 1.0))
+	assert_almost_eq(view.earth_tether_at(0), 1.0, 0.0001)
+	assert_almost_eq(view.earth_tether_at(3), 0.0, 0.0001)
+	view.closed_as_absent = true
+	assert_almost_eq(view.earth_tether_at(2), 0.0, 0.0001, "an animal's absent light has none")
+
+
+func test_tethers_reach_the_ground_under_the_body() -> void:
+	var rig := _rig("GroundRig", Vector3(1.0, 0.4, 0.0))
+	await _tree().process_frame
+	var view := AuraView.new()
+	rig.add_child(view)
+	view.bind(rig, _profile([0, 2, 2, 2, 2, 2, 2], 1.0))
+	assert_almost_eq(
+		float(view.shader_value(&"ground")), 0.4 - view.anchors[0].y, 0.0001,
+		"ground is the body's footing, relative to the root light")
 
 
 func test_reduced_flashing_calms_shimmer_and_pulse() -> void:
