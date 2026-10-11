@@ -5,7 +5,7 @@ extends SceneTree
 ## turnaround views so silhouette changes can be judged before the gameplay
 ## scale hides them. Requires a rendering-capable run (no --headless):
 ## tools/godot_render.sh --script tools/capture_character_closeup.gd \
-##   [-- --output-dir=PATH --scene=res://path/to/rig.tscn]
+##   [-- --output-dir=PATH --scene=res://path/to/rig.tscn --lighting=day|night]
 
 const KALEV_SCENE := preload("res://assets/characters/kalev/kalev.tscn")
 const DEFAULT_OUTPUT_DIR := "res://docs/reports/images/characters"
@@ -14,8 +14,20 @@ const FIGURE_HEIGHT := 2.0
 
 const VIEWS: Array[Dictionary] = [
 	{"slug": "iso_idle", "animation": &"idle", "time": 0.0, "yaw_degrees": 0.0, "camera": "iso"},
-	{"slug": "front_idle", "animation": &"idle", "time": 0.0, "yaw_degrees": 0.0, "camera": "front"},
-	{"slug": "profile_idle", "animation": &"idle", "time": 0.0, "yaw_degrees": 90.0, "camera": "front"},
+	{
+		"slug": "front_idle",
+		"animation": &"idle",
+		"time": 0.0,
+		"yaw_degrees": 0.0,
+		"camera": "front"
+	},
+	{
+		"slug": "profile_idle",
+		"animation": &"idle",
+		"time": 0.0,
+		"yaw_degrees": 90.0,
+		"camera": "front"
+	},
 	{"slug": "iso_walk", "animation": &"walk", "time": 0.45, "yaw_degrees": 0.0, "camera": "iso"},
 	{"slug": "front_run", "animation": &"run", "time": 0.35, "yaw_degrees": 0.0, "camera": "front"},
 	{"slug": "iso_run", "animation": &"run", "time": 0.35, "yaw_degrees": 0.0, "camera": "iso"},
@@ -27,6 +39,11 @@ func _initialize() -> void:
 
 
 func _run() -> void:
+	var lighting := lighting_from_args(OS.get_cmdline_user_args())
+	if lighting.is_empty():
+		push_error("Expected --lighting=day or --lighting=night")
+		quit(1)
+		return
 	var output_dir := _output_dir()
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(output_dir))
 	var viewport := SubViewport.new()
@@ -34,7 +51,7 @@ func _run() -> void:
 	viewport.own_world_3d = true
 	viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	root.add_child(viewport)
-	viewport.add_child(_build_stage())
+	viewport.add_child(build_stage(lighting))
 
 	var scene: PackedScene = KALEV_SCENE
 	for argument: String in OS.get_cmdline_user_args():
@@ -49,15 +66,22 @@ func _run() -> void:
 				push_error("Capture outfit does not fit this body")
 				quit(1)
 				return
-	var action_animation: StringName = &"hammer_attack" if rig.variant_id() == &"char.kalev" else &"guard"
+	var action_animation: StringName = (
+		&"hammer_attack" if rig.variant_id() == &"char.kalev" else &"guard"
+	)
 	var views := VIEWS.duplicate(true)
-	views.append({
-		"slug": "iso_action",
-		"animation": action_animation,
-		"time": 0.34 if action_animation == &"hammer_attack" else 0.35,
-		"yaw_degrees": 0.0,
-		"camera": "iso",
-	})
+	(
+		views
+		. append(
+			{
+				"slug": "iso_action",
+				"animation": action_animation,
+				"time": 0.34 if action_animation == &"hammer_attack" else 0.35,
+				"yaw_degrees": 0.0,
+				"camera": "iso",
+			}
+		)
+	)
 
 	var camera := Camera3D.new()
 	camera.projection = Camera3D.PROJECTION_ORTHOGONAL
@@ -99,7 +123,17 @@ func _place_camera(camera: Camera3D, kind: String) -> void:
 	camera.look_at(focus, Vector3.UP)
 
 
-func _build_stage() -> Node3D:
+static func lighting_from_args(arguments: PackedStringArray) -> String:
+	var lighting := "day"
+	for argument: String in arguments:
+		if argument.begins_with("--lighting="):
+			lighting = argument.trim_prefix("--lighting=")
+			if lighting not in ["day", "night"]:
+				return ""
+	return lighting
+
+
+static func build_stage(lighting: String = "day") -> Node3D:
 	var stage := Node3D.new()
 	var environment := Environment.new()
 	environment.background_mode = Environment.BG_COLOR
@@ -118,6 +152,15 @@ func _build_stage() -> Node3D:
 	sun.light_energy = 1.15
 	sun.shadow_enabled = true
 	stage.add_child(sun)
+
+	# Keep the accepted warm studio/day preset untouched. Night is a cool,
+	# dimmer audit light, not a simulation of the live city's sky or torches.
+	if lighting == "night":
+		environment.background_color = Color(0.012, 0.018, 0.030)
+		environment.ambient_light_color = Color(0.38, 0.46, 0.65)
+		environment.ambient_light_energy = 0.22
+		sun.light_color = Color(0.55, 0.65, 0.90)
+		sun.light_energy = 0.45
 
 	var floor_mesh := PlaneMesh.new()
 	floor_mesh.size = Vector2(30.0, 30.0)

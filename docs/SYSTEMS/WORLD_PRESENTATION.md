@@ -96,3 +96,41 @@ Visual changes need captures through `tools/godot_render.sh` and the gate in [`W
 ## Limits
 
 - `ProceduralChickenModel`, `MapViewEnvironmentKit`, and `MapViewNunnatornInterior` are referenced only by tests and tools. See the [code-health audit](../reports/code_health_audit_2026-10-07.md).
+
+## Character close-up review lighting (R-1674)
+
+Status: implemented (task **R-1674**). Scope: controlled character-review
+captures; live world lighting, asset rebuilds and human art approval are out of scope.
+
+`tools/capture_character_closeup.gd` renders a `SharedCharacterRig` scene in an
+isolated SubViewport at 720x900, with the gameplay isometric camera direction
+and front/profile views, seven fixed idle/walk/run/action poses. Run it only
+through the minimized GPU wrapper:
+
+```bash
+tools/godot_render.sh --script tools/capture_character_closeup.gd -- \
+  --scene=res://assets/characters/variants/crowd_townsman_01.tscn \
+  --lighting=night --output-dir=res://build/character_review/night
+```
+
+- `--lighting=day` (also the default when omitted) preserves the existing warm
+  studio sun (energy 1.15) and ambient (0.42).
+- `--lighting=night` uses a cool audit key (energy 0.45) and ambient (0.22).
+  Camera, geometry, pose times and shadow settings are the same as day.
+- Any other lighting value exits 1 before creating outputs. Choose different
+  `--output-dir` values for each light/body: filenames remain `closeup_<pose>.png`
+  to preserve existing callers. Default directory and Kalev scene are unchanged.
+- `--wearable=res://...tres` still equips the requested `CharacterWearable`.
+  The tool only reads scene/variant IDs and writes PNGs. It never mutates assets,
+  campaign state or save slots, and adds no player inputs or autoloads.
+
+Verification: `godot --headless --path . --script tools/run_godot_tests.gd --
+--filter=test_capture_character_closeup` covers argument validation, retained day
+parameters and dimmer/cooler night lighting with unchanged geometry.
+[Five-body day/night sheets and review decisions](../reports/crowd_variation_p0_153.md)
+include non-black frame measurements and default-output comparison.
+
+Limits: these are portrait-distance studio captures, not live gameplay-distance
+or city night acceptance. GPU idle-frame output can vary slightly between runs;
+identical lighting parameters do not guarantee byte-identical PNGs. Named human
+approval remains the responsibility of **R-945**.
