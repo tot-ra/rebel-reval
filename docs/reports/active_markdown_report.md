@@ -14,11 +14,11 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `1191`
-- Markdown files excluded as archive/reference/out of active scope: `757`
-- Local/external links inspected: `13447`
-- Links to active Markdown docs: `12192`
-- Links to existing archive/reference/non-active local docs: `464`
+- Active Markdown files scanned: `1190`
+- Markdown files excluded as archive/reference/out of active scope: `759`
+- Local/external links inspected: `13580`
+- Links to active Markdown docs: `12239`
+- Links to existing archive/reference/non-active local docs: `487`
 - External links skipped for reachability: `151`
 - Issues found: `0`
 
@@ -1095,7 +1095,6 @@ No active Markdown documentation issues found.
 - `docs/SYSTEMS/CITY_DOORS.md`
 - `docs/SYSTEMS/CITY_LANDMARK_SITES.md`
 - `docs/SYSTEMS/CITY_SEA.md`
-- `docs/SYSTEMS/CLOUD_CELLS.md`
 - `docs/SYSTEMS/COMBAT.md`
 - `docs/SYSTEMS/COMBAT_ANIMATION.md`
 - `docs/SYSTEMS/COMBAT_NIGHT.md`
@@ -1113,7 +1112,6 @@ No active Markdown documentation issues found.
 - `docs/SYSTEMS/LIVING_CITY.md`
 - `docs/SYSTEMS/LIVING_VEGETATION.md`
 - `docs/SYSTEMS/LIVING_WORLD.md`
-- `docs/SYSTEMS/LOCAL_ATMOSPHERE.md`
 - `docs/SYSTEMS/MAGIC.md`
 - `docs/SYSTEMS/MUSCLE_LOCOMOTION.md`
 - `docs/SYSTEMS/NAMED_NPCS.md`
@@ -1131,6 +1129,7 @@ No active Markdown documentation issues found.
 - `docs/SYSTEMS/SEASONS.md`
 - `docs/SYSTEMS/SETTINGS_AND_ACCESSIBILITY.md`
 - `docs/SYSTEMS/SHIPS.md`
+- `docs/SYSTEMS/SKY_ATMOSPHERE.md`
 - `docs/SYSTEMS/SPIRIT_DIALOGUE.md`
 - `docs/SYSTEMS/SPIRIT_SIGHT.md`
 - `docs/SYSTEMS/STATE_AND_SAVES.md`

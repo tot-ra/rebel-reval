@@ -75,8 +75,8 @@ const ROOF_COLORS := {
 }
 
 const WindowOpenings := preload("res://scripts/city/city_window_openings.gd")
-const Chimney := preload("res://scripts/city/city_chimney_builder.gd")
 const HouseWealth := preload("res://scripts/city/city_house_wealth.gd")
+const Chimney := preload("res://scripts/city/city_chimney_builder.gd")
 const WINDOW_WOOD := preload("res://scripts/city/city_window_wood.gdshader")
 const WINDOW_GLASS := preload("res://scripts/city/city_window_glass.gdshader")
 

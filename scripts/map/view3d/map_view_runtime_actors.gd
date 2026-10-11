@@ -13,6 +13,13 @@ const RUN_ANIMATION_MIN_SPEED := 140.0
 ## sampled and heard (R-1641). Past it a step is inaudible under the city bed,
 ## and skipping the skeleton update there keeps a crowd cheap.
 const NPC_FOOTSTEP_RADIUS := 16.0
+## Rigs far from the player are posed every 4th / 8th frame (staggered per actor) with the
+## elapsed time folded into delta: a city holds hundreds of people and posing all of them
+## every frame cost ~10 ms of CPU. Near actors (about 70 m) stay at full rate.
+const PerfProbeScript := preload("res://scripts/debug/perf_probe.gd")
+const MAX_NEW_RIGS_PER_SWEEP := 2
+const NEAR_SYNC_DISTANCE_SQ := 4900.0
+const MID_SYNC_DISTANCE_SQ := 19600.0
 
 var _host: Node3D
 var _definition: MapDefinition
@@ -24,7 +31,8 @@ var _logic_direction_toward_camera: Callable
 var _last_facing := Vector2.ZERO
 var _last_player_health := -1.0
 var _actor_rigs: Dictionary = {}
-## actor -> [last logic position, rig position computed for it] (idle actors skip the terrain lookup).
+## actor -> [last logic position, rig position computed for it]
+## (idle actors skip the terrain lookup).
 var _ground_cache: Dictionary = {}
 var _actors_without_rig: Dictionary = {}
 var _equipment_state: GameState
@@ -53,6 +61,12 @@ func configure(
 	_definition = map_definition
 	_player = logic_player
 	_player_rig = runtime_player_rig
+	# The player uses screen-space vitals. Remove only its presentation ring so
+	# swimming cannot show it again; enemy and NPC rings remain untouched.
+	var player_ring := _player_rig.get_node_or_null("HealthRing")
+	if player_ring != null:
+		_player_rig.remove_child(player_ring)
+		player_ring.queue_free()
 	_view = map_view
 	_follow_player = follow_player
 	_logic_direction_toward_camera = logic_direction_toward_camera
@@ -177,15 +191,6 @@ func sync_view_actors(delta: float) -> void:
 	)
 
 
-## Rigs far from the player are posed every 4th / 8th frame (staggered per actor) with the
-## elapsed time folded into delta: a city holds hundreds of people and posing all of them
-## every frame cost ~10 ms of CPU. Near actors (about 70 m) stay at full rate.
-const PerfProbeScript := preload("res://scripts/debug/perf_probe.gd")
-const MAX_NEW_RIGS_PER_SWEEP := 2
-const NEAR_SYNC_DISTANCE_SQ := 4900.0
-const MID_SYNC_DISTANCE_SQ := 19600.0
-
-
 func _sync_stride(rig: SharedCharacterRig, player_pos: Vector3) -> int:
 	if rig == null or _player_rig == null:
 		return 1
@@ -208,7 +213,8 @@ func sync_player(snap: bool, delta: float = 0.0) -> void:
 	if _sample_owning_ground:
 		_apply_owning_ground_height(_player_rig)
 	# Velocity carries the time-flow multiplier; gait choice must not.
-	var flow_scale := float(_player.get(&"time_flow_scale")) if _player.get(&"time_flow_scale") != null else 1.0
+	var raw_flow: Variant = _player.get(&"time_flow_scale")
+	var flow_scale := float(raw_flow) if raw_flow != null else 1.0
 	var speed := _player.velocity.length() / maxf(flow_scale, 0.01)
 	var moving := speed > WALK_ANIMATION_MIN_SPEED
 	if moving:
@@ -312,7 +318,7 @@ func disconnect_equipment_state() -> void:
 
 
 static func hide_player_canvas(player: CharacterBody2D) -> void:
-	# The rig replaces the greybox rectangle; the 3D overhead health bar mirrors logic health.
+	# The rig replaces the greybox rectangle; screen-space PlayerVitalsHud presents health and stamina.
 	for node_name in ["GreyboxVisual", "HealthRing", "StaminaBar"]:
 		var node := player.get_node_or_null(node_name) as CanvasItem
 		if node != null:

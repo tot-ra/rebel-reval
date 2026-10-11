@@ -20,7 +20,7 @@ One page per implemented or planned feature. Each page opens with a `Status:` li
 | [Households: furnished houses and life at home](./HOUSEHOLDS.md) | Implemented in the seamless city: furniture by household, rooms, hearth and firewood day, people at home; no player use of furniture |
 | [Gate garrisons and patrols](./GATE_GARRISONS.md) | Implemented: census residents hold every gate by shift and walk the town and wall patrols, in their own clothes with a hat and spear |
 | [World presentation (3D view)](./WORLD_PRESENTATION.md) | Implemented |
-| [Cloud cells, cloud shadows, storm-cell lightning](./CLOUD_CELLS.md) | Implemented (R-1400): world-space cumulus and cumulonimbus, per-cloud ground shadows, lightning only from storm cells |
+| [Sky and atmosphere: clouds, sunbeams, fog and haze](./SKY_ATMOSPHERE.md) | Implemented: world-space cumulus and thunderstorms with their own shadows, local storm rain and lightning, sunbeams, sun-shower rainbow, ground fog near water, aerial perspective, heat mirage |
 | [Weather on the ground: puddles, drought and cracked earth](./WEATHER_GROUND.md) | Implemented (R-1516): drought spells, sun-baked dryness, cracked clay in dried puddle basins, rain soaks cracks before puddles return |
 | [Night sky: stars and the Milky Way](./NIGHT_SKY.md) | Implemented (R-1443): round twinkling Hipparcos stars, Milky Way placed for Tallinn in 1343, seasonal sidereal drift |
 | [Seamless Reval city (1343)](./SEAMLESS_CITY.md) | Playable preview (ADR 0031); no quests or saves yet |
@@ -28,12 +28,11 @@ One page per implemented or planned feature. Each page opens with a `Status:` li
 | [Regional sites (distant destinations)](./REGIONAL_SITES.md) | Implemented for the Paide pilot (R-1520, ADR 0042): site-parameterised builder and runtime, inland site with sky and weather, no sea; other sites planned |
 | [Landmark sites in the seamless city](./CITY_LANDMARK_SITES.md) | Implemented for Raekoja plats (ADR 0032); other sites planned |
 | [Church interiors](./CHURCH_INTERIORS.md) | In progress (R-1392): glazing implemented (R-1393, eight plates, per-church programmes); ornamental wall paintings (R-1396: consecration crosses, dado curtain, foliage band); liturgical objects, seating, figural murals planned |
-| [Local fog banks, horizon haze, aerial perspective, heat mirage](./LOCAL_ATMOSPHERE.md) | Implemented (R-1430, R-1482): patchy weather-driven fog near water with own lighting, perspective-only distance haze, blue/warm aerial perspective with distance blur, heat shimmer on sunny middays |
 | [City sea, shore and harbour life](./CITY_SEA.md) | Implemented (FFT sea with storm swell, beach relief, shore stones, boardable boats, fish) |
 | [Hanseatic cog](./SHIPS.md) | Implemented (lofted clinker hull, walkable interior, wind-driven sail and rope shaders, rudder) |
 | [Village and house windows](./COTTAGE_WINDOWS.md) | Implemented (7 styles: platbands, shutters, slit, stone surround) |
 | [Farmland, pastures and woods](./FARMLAND.md) | Implemented (fields, crops by date, pastures, woods; no far-field LOD yet) |
-| [Living vegetation](./LIVING_VEGETATION.md) | Implemented (seasons, weather, leaf fall on hits) |
+| [Living vegetation: visual catalog and developer guide](./LIVING_VEGETATION.md) | Implemented: 20 tree species, model/assets reference, city crown LOD, seasons, wind and shrubs; visual/performance acceptance partial |
 | [Vegetation realism (grass, grain fields, trees)](./VEGETATION_REALISM.md) | In progress: benchmark and budgets (R-1320) and procedural vegetation textures (R-1329) implemented; later phases planned |
 | [Hoist ropes](./HOIST_ROPE.md) | Implemented (wind-swung rope and hook on hoist beams) |
 | [Bestiary: spirit and physical creature roster](./BESTIARY.md) | Planned (R-1578): roster, card template and validator implemented; no cards yet |
