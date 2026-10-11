@@ -29,11 +29,12 @@ void fragment() {
 	vec2 along = vec2(dot(w_pos.xz, vec2(w_nrm.z, -w_nrm.x)) * 6.0, w_pos.y * 0.35);
 	float streak = smoothstep(0.62, 0.9, wnoise(along)) * smoothstep(0.4, 0.9, wnoise(along * vec2(0.3, 1.0) + 9.0));
 	col *= 1.0 - streak * 0.22 * age;
-	col = shade_growth(col, w_pos, w_nrm, above, age);
 	// Patchy weathering so no two stretches of wall match.
 	col *= mix(0.88, 1.06, wfbm(w_pos.xz * 0.21 + w_pos.y * 0.13));
+	float rough = roughness_base;
+	col = shade_growth(col, nm, rough, w_pos, w_nrm, above, age);
 	float wet = clamp(wetness * (0.6 + damp * 0.4), 0.0, 1.0);
 	ALBEDO = col * mix(1.0, 0.7, wet);
-	ROUGHNESS = mix(roughness_base, 0.45, wet);
+	ROUGHNESS = mix(rough, 0.45, wet);
 	NORMAL_MAP = nm;
 }

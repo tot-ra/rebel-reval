@@ -41,32 +41,62 @@ float ground_at(vec2 xz) {
 	return texture(ground_height, (xz - ground_rect.xy) / ground_rect.zw).r;
 }
 
+// Photographic growth plates (tools/assets/build_wall_growth_plates.py), bound
+// as shader defaults by CityBuildingBuilder.bind_ground. Moss A = cushion
+// height, lichen A = rosette mask. Unbound plates read transparent, so a wall
+// drawn before bind_ground grows nothing instead of opaque white moss.
+uniform sampler2D moss_tex : source_color, filter_linear_mipmap_anisotropic, repeat_enable, hint_default_transparent;
+uniform sampler2D moss_normal_tex : hint_normal, filter_linear_mipmap_anisotropic, repeat_enable;
+uniform sampler2D lichen_tex : source_color, filter_linear_mipmap_anisotropic, repeat_enable, hint_default_transparent;
+
 // R-1661: moss and lichen on shaded masonry. `north` is how much the face
 // looks away from the sun (world -Z), `above` its height over the street.
-// Moss stays in the damp foot zone and the joints; lichen rosettes are small
-// pale spots on the stone above, so a wall still reads as its own colour
-// (R-1465: blotchy green reads as camouflage).
-vec3 shade_growth(vec3 col, vec3 pos, vec3 nrm, float above, float amount) {
+// Moss stays in the damp foot zone; lichen rosettes are sparse crusts on the
+// stone above, so a wall still reads as its own colour (R-1465: blotchy green
+// reads as camouflage). `nm` (normal-map texel) and `rough` take the moss
+// relief and its matte surface.
+vec3 shade_growth(vec3 col, inout vec3 nm, inout float rough, vec3 pos, vec3 nrm, float above, float amount) {
 	float north = clamp(-nrm.z, 0.0, 1.0) * (1.0 - abs(nrm.y));
 	if (north <= 0.0 || amount <= 0.0) {
 		return col;
 	}
 	vec2 wp = vec2(dot(pos.xz, vec2(nrm.z, -nrm.x)), pos.y);
 	float ragged = wfbm(wp * 1.6);
-	float reach = 0.35 + ragged * 1.0 + north * 0.45;
-	float foot = 1.0 - smoothstep(reach * 0.5, reach, above);
-	// Fine grain breaks the moss into tufts so the stone shows between them.
-	float tufts = wnoise(wp * 14.0) * 0.6 + wnoise(wp * 37.0) * 0.4;
-	float moss = smoothstep(0.42, 0.62, ragged * 0.7 + tufts * 0.45) * foot * north * amount;
-	// Moss takes the light and shade of the stone under it: keep the texture.
+	float reach = 0.3 + ragged * 0.85 + north * 0.35;
+	// Coverage climbs from the street: densest in the splash zone, thinning to
+	// single cushions at the ragged upper edge. Colonies are patchy: broad
+	// gaps of bare stone between them, never one even band.
+	float cover = (1.0 - smoothstep(reach * 0.2, reach, above)) * north * amount;
+	float colonies = wfbm(wp * 0.75 + 11.0) * 0.7 + wnoise(wp * 3.1) * 0.3;
+	cover *= smoothstep(0.3, 0.62, colonies) * 0.85;
+	// Recessed (darker) mortar and hollows hold water: moss starts there.
 	float lum = dot(col, vec3(0.3, 0.59, 0.11));
-	vec3 moss_col = mix(vec3(0.2, 0.27, 0.09), vec3(0.3, 0.37, 0.13), tufts) * clamp(lum * 2.2, 0.55, 1.2);
-	col = mix(col, moss_col, clamp(moss, 0.0, 1.0) * 0.85);
-	// Lichen: small crusts a few centimetres across, sparse, a little paler than the stone.
-	vec2 sp = wp * 11.0;
-	float rosette = smoothstep(0.74, 0.8, wnoise(sp) * 0.75 + wnoise(sp * 2.7 + 5.0) * 0.25);
-	float lichen = rosette * smoothstep(0.6, 1.4, above) * north * amount
-		* smoothstep(0.3, 0.55, wfbm(wp * 0.4 + 3.0));
-	vec3 crust = mix(col, vec3(0.62, 0.66, 0.52), 0.65);
-	return mix(col, crust, lichen * 0.75);
+	cover = clamp(cover + (0.28 - lum) * 0.4 * step(0.02, cover), 0.0, 1.0);
+	// Two rotated samples at unrelated scales break the tile repeat; the
+	// higher cushion wins, as overlapping colonies do.
+	vec2 uv_a = wp / 0.32;
+	vec2 uv_b = mat2(vec2(0.8, 0.6), vec2(-0.6, 0.8)) * wp / 0.47 + 0.37;
+	vec4 ma = texture(moss_tex, uv_a);
+	vec4 mb = texture(moss_tex, uv_b);
+	float pick = smoothstep(-0.08, 0.08, mb.a - ma.a + (wnoise(wp * 2.3) - 0.5) * 0.6);
+	vec4 moss_s = mix(ma, mb, pick);
+	vec3 moss_n = mix(texture(moss_normal_tex, uv_a).rgb, texture(moss_normal_tex, uv_b).rgb, pick);
+	// The cushion height is the edge: low cover leaves only crowns standing.
+	float moss = smoothstep(1.0 - cover - 0.06, 1.0 - cover + 0.06, moss_s.a);
+	// Damp halo: stone round the colonies stays wet and dark.
+	col *= mix(1.0, 0.72, smoothstep(0.05, 0.5, cover) * (1.0 - moss));
+	// Shaded north moss is deeper than the sunlit plate; higher, drier
+	// cushions yellow and brown at the tips.
+	float dry = smoothstep(0.3, 1.0, above / max(reach, 0.1)) * (0.5 + wnoise(wp * 0.9 + 4.0) * 0.5);
+	vec3 moss_col = moss_s.rgb * mix(vec3(0.62, 0.7, 0.5), vec3(0.78, 0.72, 0.5), dry);
+	col = mix(col, moss_col, moss);
+	nm = mix(nm, moss_n, moss);
+	rough = mix(rough, 0.97, moss);
+	// Lichen: rosettes a few centimetres across in sparse colonies above the moss.
+	vec4 crust = texture(lichen_tex, wp / 0.5 + vec2(0.31, 0.17));
+	float colony = smoothstep(0.42, 0.62, wfbm(wp * 0.45 + 3.0));
+	float lichen = crust.a * smoothstep(0.5, 1.3, above) * north * amount * colony * (1.0 - moss);
+	// Warmed a little: pale crusts otherwise pick up the blue sky fill.
+	vec3 lichen_col = crust.rgb * vec3(0.95, 0.95, 0.8) * clamp(lum * 2.0, 0.55, 0.9);
+	return mix(col, lichen_col, lichen * 0.7);
 }
