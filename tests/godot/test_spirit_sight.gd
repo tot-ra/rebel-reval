@@ -147,7 +147,10 @@ func test_v_l3_defaults_and_old_walk_binding_migrate() -> void:
 		"ui_shift": {"gamepad": [{"type": "joy_button", "button": JOY_BUTTON_LEFT_STICK}]},
 	}}
 	var migrated := Bindings.from_dict(old)
-	assert_true(migrated.events_for(&"ui_shift", Bindings.DEVICE_GAMEPAD).is_empty())
+	assert_eq(
+		(migrated.events_for(&"ui_shift", Bindings.DEVICE_GAMEPAD)[0]
+		as InputEventJoypadButton).button_index, JOY_BUTTON_DPAD_LEFT
+	)
 	old["actions"]["ui_shift"]["gamepad"][0]["button"] = JOY_BUTTON_Y
 	assert_eq(
 		(Bindings.from_dict(old).events_for(&"ui_shift", Bindings.DEVICE_GAMEPAD)[0]

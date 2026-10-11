@@ -10,6 +10,8 @@ routing), `scripts/player/player_primary_action.gd` (target resolution),
 `scripts/map/view3d/map_view_runtime_camera.gd` (camera modes),
 `scripts/settings/input_binding_settings.gd` (default bindings).
 
+Status: implemented (task **R-1553** for the gamepad walk default and saved-binding regression). Scope: keyboard/mouse and gamepad input for the shipped actions. Out of scope: new actions and campaign-state changes.
+
 ## Principle
 
 The camera decides who is pointing:
@@ -74,7 +76,7 @@ button charges instead of repeating the swing.
 | Action | Keyboard / mouse | Gamepad |
 | --- | --- | --- |
 | Move | `W` `A` `S` `D` / arrows | Left stick |
-| Walk (slow) | `Shift` | unbound (rebind in Controls) |
+| Walk (slow, hold) | `Shift` | D-pad left (hold) |
 | Spirit sight on / off (walk only while on, [`SYSTEMS/SPIRIT_SIGHT.md`](SYSTEMS/SPIRIT_SIGHT.md)) | `V` | Left stick click |
 | Interact / continue | `E`, `Enter` | A |
 | Challenge (in spirit sight, on a person with a duel record; [`SYSTEMS/SPIRIT_SIGHT.md`](SYSTEMS/SPIRIT_SIGHT.md) "Entering a duel") | `E`, `Enter` | A |
@@ -115,6 +117,33 @@ A spirit duel (the prologue confrontation, [`SYSTEMS/SPIRIT_DIALOGUE.md`](SYSTEM
 The telegraph prompt and every card badge print the live binding, so a rebind shows up at once. During a telegraph a slot key that is also the guard or dodge button (by default the shoulders, slots 3 and 4) defends and does not cast. Settings -> Gameplay accessibility -> **Reply timer pressure** turns off the countdown ring on the reply window.
 
 Bindings are stored per device and persist outside campaign save slots. Saved v1 bindings that still map `Space` to attack drop that default on load, because `Space` is the roll since bindings v2. Bindings v3 (R-1484) gives the left stick click to spirit sight: an untouched saved walk default on the left stick click is dropped on load, a deliberate custom walk binding is kept.
+
+### Gamepad walk and saved settings (R-1553)
+
+Hold D-pad left while moving the left stick to walk slowly; release it to return
+to normal movement. Left stick click remains spirit sight and never shares the
+walk default. D-pad left also opens the dialogue backlog while a dialogue owns
+input; movement is blocked in that context. Both actions remain rebindable.
+
+The `ui_shift` default lives in `InputBindingSettings.default_settings()` and is
+read by `Player.is_walking()` (`scripts/player.gd`). Loading an older settings file
+with an empty gamepad walk binding fills it with D-pad left; the retired v1/v2
+left-stick walk default also falls back to D-pad left. Non-empty custom bindings
+are preserved. The existing settings version stays at v3 because the loader
+already fills missing or empty entries from current defaults. These settings
+remain outside campaign saves.
+
+Verification:
+
+```bash
+godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_input_bindings,test_spirit_sight,test_act1_packaged_acceptance,test_act1_release_acceptance,test_bitter_brew_commission
+```
+
+The input tests cover press/release, separation from spirit sight, saved empty
+bindings, custom bindings and round trips. The commission test verifies that the
+bed stays locked before resolution and unlocks afterward (forge gate composition
+was already repaired in commit `5fe4155f`). Physical controller ergonomics still
+require a hands-on check; automated coverage uses synthetic input events.
 
 ## Camera
 

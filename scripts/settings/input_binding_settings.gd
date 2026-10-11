@@ -73,7 +73,9 @@ static func default_settings() -> InputBindingSettings:
 		"ui_shift":
 		{
 			DEVICE_KEYBOARD_MOUSE: [_key(KEY_SHIFT)],
-			DEVICE_GAMEPAD: [],
+			# D-pad left is backlog only inside dialogue, where movement is blocked.
+			# Keep L3 exclusively on spirit sight rather than walking into its toggle.
+			DEVICE_GAMEPAD: [_joy_button(JOY_BUTTON_DPAD_LEFT)],
 		},
 		"player_spirit_sight":
 		{

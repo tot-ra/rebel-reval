@@ -358,3 +358,5 @@ This file contains lessons specific to the Dev role.
 
 - Keep network reference fetching separate from local evidence-page generation: an HTTP 403/400 must not abort the independent visual-review artifact. Readable abstracts or secondary accounts must be labelled as such, not described as inspected full text.
 - A successful GPU capture exit is not visual evidence by itself. Reject near-uniform white frames (inspect pixel histogram/variance), and label any replacement viewpoint and unreviewed entrance explicitly rather than implying every shot passed.
+
+- When moving a gamepad default to a new action, reconcile every input-acceptance catalog and saved-binding migration test. Do not exempt the displaced action from device coverage: give it a modal-context-safe default and prove press/release plus custom-binding preservation.

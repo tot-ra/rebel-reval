@@ -82,8 +82,6 @@ func test_every_slice_action_has_keyboard_mouse_and_gamepad_defaults() -> void:
 			bindings.events_for(action, BindingSettings.DEVICE_KEYBOARD_MOUSE).is_empty(),
 			"%s needs keyboard/mouse" % action
 		)
-		if action == &"ui_shift":
-			continue # L3 now belongs to spirit sight; walk is optionally rebound.
 		assert_false(
 			bindings.events_for(action, BindingSettings.DEVICE_GAMEPAD).is_empty(),
 			"%s needs gamepad" % action
@@ -93,6 +91,51 @@ func test_every_slice_action_has_keyboard_mouse_and_gamepad_defaults() -> void:
 		EXPECTED_SLICE_ACTIONS,
 		"binding catalog must cover every shipped slice action exactly once"
 	)
+
+
+func test_gamepad_walk_is_held_without_toggling_spirit_sight() -> void:
+	var bindings := BindingSettings.default_settings()
+	var button := bindings.events_for(&"ui_shift", BindingSettings.DEVICE_GAMEPAD)[0]
+	assert_eq((button as InputEventJoypadButton).button_index, JOY_BUTTON_DPAD_LEFT)
+	assert_false(button.is_action(&"player_spirit_sight"), "Walk must not toggle spirit sight")
+	var player := Player.new()
+	var tree := Engine.get_main_loop() as SceneTree
+	tree.root.add_child(player)
+	assert_false(player.is_walking())
+	(button as InputEventJoypadButton).pressed = true
+	Input.parse_input_event(button)
+	Input.flush_buffered_events()
+	assert_true(player.is_walking(), "Holding D-pad left must walk")
+	assert_false(player.is_spirit_sight_active())
+	# Dialogue owns D-pad left for backlog; the held walk input cannot move the player.
+	var dialogue := Node.new()
+	tree.root.add_child(dialogue)
+	dialogue.add_to_group(&"demo_dialogue_active")
+	assert_true(button.is_action(&"ui_page_up"))
+	assert_true(player.is_movement_input_blocked())
+	dialogue.free()
+	assert_false(player.is_movement_input_blocked())
+	(button as InputEventJoypadButton).pressed = false
+	Input.parse_input_event(button)
+	Input.flush_buffered_events()
+	assert_false(player.is_walking(), "Releasing D-pad left must stop walking")
+	player.free()
+
+
+func test_saved_empty_walk_gets_default_and_custom_walk_survives() -> void:
+	var saved := {"version": 3, "actions": {
+		"ui_shift": {"gamepad": []},
+	}}
+	var loaded := BindingSettings.from_dict(saved)
+	var events := loaded.events_for(&"ui_shift", BindingSettings.DEVICE_GAMEPAD)
+	assert_eq((events[0] as InputEventJoypadButton).button_index, JOY_BUTTON_DPAD_LEFT)
+	assert_eq(loaded.duplicate_settings().to_dict(), loaded.to_dict())
+	saved["actions"]["ui_shift"]["gamepad"] = [{"type": "joy_button", "button": JOY_BUTTON_Y}]
+	loaded = BindingSettings.from_dict(saved)
+	events = loaded.events_for(&"ui_shift", BindingSettings.DEVICE_GAMEPAD)
+	assert_eq((events[0] as InputEventJoypadButton).button_index, JOY_BUTTON_Y)
+	assert_eq(loaded.duplicate_settings().to_dict(), loaded.to_dict())
+
 
 func test_rebinding_replaces_one_device_and_applies_to_input_map() -> void:
 	var bindings = BindingSettings.default_settings()
