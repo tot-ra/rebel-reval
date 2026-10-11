@@ -93,3 +93,12 @@ func test_low_quality_draws_no_macro_crowns_and_one_cascade() -> void:
 	GraphicsPresetsScript.apply_to_sun(sun, "high")
 	assert_eq(sun.directional_shadow_mode, DirectionalLight3D.SHADOW_PARALLEL_4_SPLITS)
 	sun.free()
+
+
+func test_quality_rows_set_the_dome_cloud_march() -> void:
+	var sky := SkyWeather3D.new()
+	GraphicsPresetsScript.apply_to_sky(sky, "mid")
+	var mid := GraphicsPresetsScript.row("mid")
+	assert_eq(sky._cell_march_override["steps"], mid["sky_cell_steps"])
+	assert_eq(sky._cell_march_override["ray"], 0, "sky-beam march off on mid: it doubles the dome cost")
+	sky.free()

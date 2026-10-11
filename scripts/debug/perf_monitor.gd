@@ -40,6 +40,7 @@ const LAYERS: Array[Dictionary] = [
 	{"id": "clouds", "label": "cloud shadow+fog"},
 	{"id": "people", "label": "people+fauna"},
 	{"id": "shadows", "label": "sun shadows"},
+	{"id": "sky", "label": "sky dome"},
 ]
 
 var mode := OFF
@@ -117,7 +118,7 @@ func measure_layers() -> void:
 	var tris: Dictionary = {}
 	for layer_def: Dictionary in LAYERS:
 		var id := String(layer_def["id"])
-		if _layer_nodes(id).is_empty() and id != "shadows":
+		if _layer_nodes(id).is_empty() and id != "shadows" and id != "sky":
 			continue
 		_measure_status = "measuring: %s off ..." % layer_def["label"]
 		_layer_off[id] = true
@@ -551,6 +552,15 @@ func _apply_layers() -> void:
 	for layer_def: Dictionary in LAYERS:
 		var id := String(layer_def["id"])
 		var is_off := bool(_layer_off.get(id, false))
+		if id == "sky":
+			var sky_view := _city_view()
+			var env: Environment = null
+			if sky_view != null and sky_view.get("world") != null and sky_view.world.environment != null:
+				env = sky_view.world.environment
+			if env != null:
+				# The dome is drawn by the environment: a flat colour background skips its shader.
+				env.background_mode = Environment.BG_COLOR if is_off else Environment.BG_SKY
+			continue
 		if id == "shadows":
 			var view := _city_view()
 			if view != null and view.get("world") != null and view.world.sun != null:

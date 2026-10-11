@@ -212,6 +212,7 @@ func _fit_shadow_range(camera: Camera3D) -> void:
 	if sun == null or camera == null:
 		return
 	GraphicsPresetsScript.apply_to_sun(sun, UserSettings.graphics.quality)
+	GraphicsPresetsScript.apply_to_sky(world.sky_weather, UserSettings.graphics.quality)
 	var reach := 170.0
 	if camera.projection == Camera3D.PROJECTION_ORTHOGONAL:
 		reach = clampf(camera.size * 1.6, 40.0, 170.0)

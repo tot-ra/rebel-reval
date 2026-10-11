@@ -30,6 +30,13 @@ const PRESETS := {
 		# Fractions of CityTreeLod's near / macro crown radii (0 = no macro crowns).
 		# Sun shadow cascades: every split draws the casters again (a forest paid 56 ms for four).
 		"sun_shadow_mode": DirectionalLight3D.SHADOW_ORTHOGONAL,
+		# Dome cloud march (SkyWeather3D.set_cell_march): volume steps, fine steps, sun samples,
+		# ray samples. Any ray sample count above 0 doubles the dome's sky-beam march (14 steps
+		# through every cell), which cost ~25 ms looking at a cloudy sky: only 0 is affordable.
+		"sky_cell_steps": 6,
+		"sky_cell_fine_steps": 5,
+		"sky_cell_light_samples": 1,
+		"sky_cell_ray_samples": 0,
 		"tree_near_scale": 0.55,
 		"tree_macro_scale": 0.0,
 	},
@@ -44,8 +51,12 @@ const PRESETS := {
 		"god_ray_far_steps": 6,
 		"god_ray_cloud_stride": 3,
 		"sun_shadow_mode": DirectionalLight3D.SHADOW_PARALLEL_2_SPLITS,
+		"sky_cell_steps": 6,
+		"sky_cell_fine_steps": 5,
+		"sky_cell_light_samples": 1,
+		"sky_cell_ray_samples": 0,
 		"tree_near_scale": 0.7,
-		"tree_macro_scale": 0.3,
+		"tree_macro_scale": 0.2,
 	},
 	HIGH: {
 		"render_scale": 1.0,
@@ -59,8 +70,12 @@ const PRESETS := {
 		"god_ray_far_steps": 8,
 		"god_ray_cloud_stride": 2,
 		"sun_shadow_mode": DirectionalLight3D.SHADOW_PARALLEL_4_SPLITS,
-		"tree_near_scale": 1.0,
-		"tree_macro_scale": 0.6,
+		"sky_cell_steps": 10,
+		"sky_cell_fine_steps": 8,
+		"sky_cell_light_samples": 2,
+		"sky_cell_ray_samples": 0,
+		"tree_near_scale": 0.8,
+		"tree_macro_scale": 0.25,
 	},
 }
 
@@ -92,3 +107,15 @@ static func apply_to_sun(sun: DirectionalLight3D, quality: String) -> void:
 	var mode: DirectionalLight3D.ShadowMode = row(quality)["sun_shadow_mode"]
 	if sun != null and sun.directional_shadow_mode != mode:
 		sun.directional_shadow_mode = mode
+
+
+## Sets the dome's cloud march from the quality row (the sky tier covers the rest).
+static func apply_to_sky(sky: Node, quality: String) -> void:
+	var r := row(quality)
+	if sky != null and sky.has_method(&"set_cell_march"):
+		sky.set_cell_march(
+			int(r["sky_cell_steps"]),
+			int(r["sky_cell_fine_steps"]),
+			int(r["sky_cell_light_samples"]),
+			int(r["sky_cell_ray_samples"])
+		)

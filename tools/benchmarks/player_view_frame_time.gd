@@ -51,6 +51,11 @@ var _layers := false
 var _no_shade_map := false
 ## --shade-ab: also save each shot with the direct cloud evaluation (label_direct.png) a few frames later.
 var _shade_ab := false
+## --radiance=64 --sky-mode=incremental|realtime|quality|automatic: sky radiance cube settings.
+var _radiance := 0
+## --march-variants=12/10/2/8,6/5/1/3: interleave sky cloud-march settings (steps/fine/light/ray) at mid.
+var _march_variants: PackedStringArray = []
+var _sky_mode := ""
 
 
 func _initialize() -> void:
@@ -80,6 +85,13 @@ func _run() -> void:
 			_no_sun_shadows = true
 		elif arg.begins_with("--godray-steps="):
 			_godray_steps = arg.trim_prefix("--godray-steps=").split(",")
+		elif arg.begins_with("--march-variants="):
+			_march_variants = arg.trim_prefix("--march-variants=").split(",")
+			_interleave = PackedStringArray(["mid"])
+		elif arg.begins_with("--radiance="):
+			_radiance = int(arg.trim_prefix("--radiance="))
+		elif arg.begins_with("--sky-mode="):
+			_sky_mode = arg.trim_prefix("--sky-mode=")
 		elif arg == "--shade-ab":
 			_shade_ab = true
 		elif arg == "--no-shade-map":
@@ -115,12 +127,18 @@ func _run() -> void:
 	world.sky_weather.set_quality_tier(_tier)
 	if not _quality.is_empty():
 		GraphicsPresetsScript.apply_to_sun(world.sun, _quality)
+		GraphicsPresetsScript.apply_to_sky(world.sky_weather, _quality)
 	if _scale != 1.0:
 		root.scaling_3d_scale = _scale
 	if _msaa >= 0:
 		root.msaa_3d = _msaa as Viewport.MSAA
 	if _no_sun_shadows:
 		world.sun.shadow_enabled = false
+	var dome: Sky = view._world_environment.environment.sky
+	if _radiance > 0 and dome != null:
+		dome.radiance_size = {64: Sky.RADIANCE_SIZE_64, 128: Sky.RADIANCE_SIZE_128, 256: Sky.RADIANCE_SIZE_256, 32: Sky.RADIANCE_SIZE_32}[_radiance]
+	if not _sky_mode.is_empty() and dome != null:
+		dome.process_mode = {"incremental": Sky.PROCESS_MODE_INCREMENTAL, "realtime": Sky.PROCESS_MODE_REALTIME, "quality": Sky.PROCESS_MODE_QUALITY, "automatic": Sky.PROCESS_MODE_AUTOMATIC}[_sky_mode]
 	_god_ray = view._god_ray_pass
 	if _no_shade_map and view._god_ray_pass != null:
 		view._god_ray_pass.use_shade_map = false
@@ -280,18 +298,24 @@ func _measure(label: String) -> Dictionary:
 ## One row per quality for this shot: the lowest of `_rounds` medians.
 func _measure_interleaved(label: String, world: CityWorld3D) -> Array[Dictionary]:
 	var best: Dictionary = {}
+	var keys: PackedStringArray = _march_variants if not _march_variants.is_empty() else _interleave
 	for _round in _rounds:
-		for quality: String in _interleave:
+		for key: String in keys:
+			var quality := "mid" if not _march_variants.is_empty() else key
 			var settings := GraphicsSettingsScript.default_settings()
 			settings.quality = quality
 			root.get_node("UserSettings").apply_graphics_settings(settings, false)
 			world.sky_weather.set_quality_tier(GraphicsPresetsScript.row(quality)["sky_tier"])
 			GraphicsPresetsScript.apply_to_sun(world.sun, quality)
-			var row := await _measure("%s|%s" % [label, quality])
-			if not best.has(quality) or row["frame_ms_median"] < best[quality]["frame_ms_median"]:
-				best[quality] = row
+			GraphicsPresetsScript.apply_to_sky(world.sky_weather, quality)
+			if not _march_variants.is_empty():
+				var p := key.split("/")
+				world.sky_weather.set_cell_march(int(p[0]), int(p[1]), int(p[2]), int(p[3]))
+			var row := await _measure("%s|%s" % [label, key])
+			if not best.has(key) or row["frame_ms_median"] < best[key]["frame_ms_median"]:
+				best[key] = row
 	var rows: Array[Dictionary] = []
-	for quality: String in _interleave:
-		best[quality]["quality"] = quality
-		rows.append(best[quality])
+	for key: String in keys:
+		best[key]["quality"] = key
+		rows.append(best[key])
 	return rows

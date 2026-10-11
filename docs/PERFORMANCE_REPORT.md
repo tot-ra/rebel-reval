@@ -209,11 +209,11 @@ Status: implemented (requested directly by the maintainer; no board task yet). H
 
 One table, `scripts/settings/graphics_presets.gd`, now drives every cost; `UserSettings` applies it to the window, `GodRayPass` follows it, and the city is created with the row's sky tier (`CityMapView.create_city(plan, tier)`).
 
-| Row | 3D scale | Sun shadow map | Shadow filter | Sun cascades | Anisotropy | Sky/sea tier | God-ray steps (view/shadow/far) | Tree crown radius (near / macro) |
-|-----|----------|----------------|---------------|--------------|-----------|--------------|--------------------------------|------|
-| low | 0.67 | 2048 | soft low | 1 | 2x | `minimum` | 6 / 3 / 4 (cloud stride 3) | 55% / none |
-| mid | 0.85 | 4096 | soft medium | 2 | 4x | `recommended` | 10 / 5 / 8 (cloud stride 2) | 80% / 50% |
-| high | 1.0 | 8192 | soft high (project default) | 4 | 4x | `recommended` | 16 / 8 / 12 | 100% / 100% |
+| Row | 3D scale | Sun shadow map | Shadow filter | Sun cascades | Anisotropy | Sky/sea tier | God-ray steps (view/shadow/far) | Dome cloud march (steps/fine/sun/beams) | Tree crown radius (near / macro) |
+|-----|----------|----------------|---------------|--------------|-----------|--------------|--------------------------------|------|------|
+| low | 0.67 | 2048 | soft low | 1 | 2x | `minimum` | 6 / 3 / 4 | 6 / 5 / 1 / off | 55% / none |
+| mid | 0.85 | 4096 | soft medium | 2 | 4x | `recommended` | 8 / 4 / 6 | 6 / 5 / 1 / off | 70% / 20% |
+| high | 1.0 | 8192 | soft high (project default) | 4 | 4x | `recommended` | 12 / 6 / 8 | 10 / 8 / 2 / off | 80% / 25% |
 
 FSR 1.0 exists only on Forward+; the project's Mobile renderer upscales bilinearly, so the preset picks FSR only where the renderer has it.
 
@@ -236,7 +236,12 @@ FSR 1.0 exists only on Forward+; the project's Mobile renderer upscales bilinear
 - **Coarse far crowns** (`MapViewTreeMeshes.city_canopy_coarse_mesh`): beyond about `NEAR_EXIT * near_scale + 68 m` (chunk-centre distance, 110 m at high, 91 m at low) the far crowns draw every 4th leaf triangle grown by 2x about its centre, with no shadow. Forest triangles fell from 107 M to 82 M at the build's quality, and forest frames to about 66 ms (mid) and 39 ms (low) from 104 / 82. The range is read when the city loads.
 - **God rays**: the cloud shade of the air is sampled every Nth step (`cloud_stride` 3 / 2 / 1 for low / mid / high, on the view march and the far march) and reused between. Cost at mid fell from 18 to 10 ms (forum), 16.5 to 8 ms (beach). A true half-resolution pass is not possible in this pipeline: the pass reads the main viewport's depth, and a SubViewport has none without drawing the scene again.
 - **CPU, crowds**: far actors are posed every 4th / 8th frame (beyond about 70 / 140 m of the player), and at most 4 new rigs are built per frame, which removes the 100-170 ms hitch when a crowd streams in.
-- Still open: forest at high (about 120-145 ms in the noisy runs: near and macro crowns and trunks), and the sea shader.
+- **God rays read a cloud shade map** (`cloud_shadow_map.gd`, `cloud_air_shadow.gdshaderinc`): a 768 px top-down map of the ground cloud shade, redrawn every 3rd frame in a SubViewport. The shade of air at height y is the map read at `p.xz - light.xz / light.y * y` (exact, the deck and every cell project along the light), so the pass no longer evaluates cloud noise and the cell loop per ray sample. Windy quay: rays 19 ms to a few texture reads. `--shade-ab` in the benchmark saves both versions for comparison (mean difference under 1.5 of 255 on shots with no motion).
+- **Distant trunks and tree shadows**: wood beyond a chunk-safe distance draws a trunk-only mesh (8-12x fewer triangles), branchy wood and full far crowns leave the shadow pass and a shadows-only coarse copy casts for them; the coarse copies hide with a near-crown swap. Forest storm at high: 60 to 43 ms.
+- **Dome sky beams**: any `cell_ray_samples` above 0 doubles the dome's march (14 steps through every cell). Looking up at a cloudy windy sky cost 42 ms at mid; with beams off it is 18 ms. Mid and high now run with beams off; low already did.
+- **Cost drifts with the sky state**: in windy weather the same view got 40% slower within a minute as cell clouds crossed it. The benchmark keeps the best of several rounds.
+- Last quiet-machine matrix (best of three medians, M5 Pro, 1920x1080, forest storm, quay/beach storm, windy beach/field/sky): **mid 17-30 ms (33-60 FPS), high 25-43 ms (23-41 FPS)**; forest first-person storm at high was the last slow view (43 ms) before its radii were cut again (not re-measured). Real city crowds (forum, fish landing, granary, daylight): mid 17-18 ms, high 18-24 ms (`tools/benchmarks/city_crowd_frame_time.gd`).
+- Still open: sea shader, Steam Deck / Switch hardware, and a re-measure of the final high row.
 
 Next levers, in the order the measurements suggest: render the god-ray pass at reduced resolution, sky and cloud shader cost, sea shader cost, view-distance culling for the city, and load-time streaming. The F3 overlay ([`SYSTEMS/PERFORMANCE_MONITOR.md`](./SYSTEMS/PERFORMANCE_MONITOR.md)) shows which of them a slow place is paying.
 

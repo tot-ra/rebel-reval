@@ -596,6 +596,16 @@ func fog_quality() -> float:
 	return float(_quality_settings()["fog_quality"])
 
 
+## Cloud-cell volume march of the dome, set from the graphics quality rows
+## (GraphicsPresets sky_cell_*); empty keys keep the tier's own values. The dome is the
+## costliest pass of a cloudy sky (up to ~50 ms looking straight up on the mid row).
+var _cell_march_override: Dictionary = {}
+
+
+func set_cell_march(steps: int, fine: int, light: int, ray: int) -> void:
+	_cell_march_override = {"steps": steps, "fine": fine, "light": light, "ray": ray}
+
+
 func set_quality_tier(requested: Variant) -> void:
 	quality_tier = requested
 
@@ -2049,12 +2059,20 @@ func _push_cloud_uniforms() -> void:
 	_material.set_shader_parameter(&"cloud_cells", _cells.uniforms())
 	_material.set_shader_parameter(&"rain_slant", rain_slant() * RAIN_SHAFT_SLANT)
 	_material.set_shader_parameter(&"cloud_gloom", smoothstep(0.55, 0.95, cloud_coverage()))
-	_material.set_shader_parameter(&"cell_steps", int(settings["cloud_cell_steps"]))
-	_material.set_shader_parameter(&"cell_fine_steps", int(settings["cloud_cell_fine_steps"]))
+	# The player's graphics quality may lower the cloud march below the tier's row.
+	var march := _cell_march_override
 	_material.set_shader_parameter(
-		&"cell_light_samples", int(settings["cloud_cell_light_samples"])
+		&"cell_steps", int(march.get("steps", settings["cloud_cell_steps"]))
 	)
-	_material.set_shader_parameter(&"cell_ray_samples", int(settings["cloud_cell_ray_samples"]))
+	_material.set_shader_parameter(
+		&"cell_fine_steps", int(march.get("fine", settings["cloud_cell_fine_steps"]))
+	)
+	_material.set_shader_parameter(
+		&"cell_light_samples", int(march.get("light", settings["cloud_cell_light_samples"]))
+	)
+	_material.set_shader_parameter(
+		&"cell_ray_samples", int(march.get("ray", settings["cloud_cell_ray_samples"]))
+	)
 	_material.set_shader_parameter(&"wind_dir", wind_direction_xz())
 	_publish_cloud_shadow_globals()
 
