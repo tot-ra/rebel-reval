@@ -128,6 +128,11 @@ func _update_roof_cutaway() -> void:
 	)
 
 
+## Unconditional ground clamp, used after the push easing so it cannot sink the lens.
+func clamp_to_ground() -> void:
+	_clamp_above_ground(true)
+
+
 func _clamp_above_ground(camera_was_below_ground: bool) -> void:
 	var view := _controller.view
 	var camera := _controller.camera

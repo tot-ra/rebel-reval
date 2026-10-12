@@ -10,7 +10,18 @@ const SNAP_DISTANCE_WORLD := 6.0
 ## telephoto frame drifts after Kalev instead of jittering with each step.
 const PAINTED_ISO_FOLLOW_LERP_WEIGHT := 5.0
 
+## Safety pushes (ground, walls, line of sight) ease out at this rate once the
+## obstruction clears, so the lens glides back instead of popping.
+const SAFETY_RELAX_WEIGHT := 5.0
+
 var _controller: MapViewRuntimeCamera
+## Unconstrained boom position the lerp runs on. Lerping from the safety-corrected
+## position made the camera fight its own correction every frame (pushed out by a
+## wall or the ground, pulled back in by the lerp toward a target inside it), which
+## shook the whole frame.
+var _free_position := Vector3.ZERO
+var _last_output := Vector3.ZERO
+var _has_state := false
 
 
 func configure(controller: MapViewRuntimeCamera) -> void:
@@ -22,16 +33,12 @@ func follow_player(snap: bool, delta: float) -> void:
 	var camera := controller.camera
 	var view := controller.view
 	var target := _follow_target()
-	var camera_was_inside_occluder := (
-		view != null
-		and view.is_point_inside_occluder(
-			MapViewRuntimeCameraSafety._in_view(view, camera.position)
-		)
-	)
-	var camera_and_player_shared_occluder := (
-		camera_was_inside_occluder and controller._safety.camera_and_player_share_occluder()
-	)
-	var camera_was_below_ground := controller._safety.camera_is_below_ground()
+	# Something else (orbit, mode switch, teleport) moved the camera: adopt that
+	# position as the new unconstrained one instead of fighting it.
+	if not _has_state or not camera.position.is_equal_approx(_last_output):
+		_free_position = camera.position
+	_has_state = true
+	camera.position = _free_position
 	if snap or camera.position.distance_to(target) > SNAP_DISTANCE_WORLD:
 		camera.position = controller._shake.apply(delta, target)
 	else:
@@ -42,9 +49,37 @@ func follow_player(snap: bool, delta: float) -> void:
 		)
 		var lerped := camera.position.lerp(target, clampf(weight * delta, 0.0, 1.0))
 		camera.position = controller._shake.apply(delta, lerped)
+	_free_position = camera.position
+	# Judge wall and ground contact on this frame's unconstrained boom. Judging it on
+	# last frame's corrected output flip-flopped: a pushed-out lens read as clear, so
+	# the next frame skipped the push and the lerp sank it back into the wall or slope.
+	var camera_was_inside_occluder := (
+		view != null
+		and view.is_point_inside_occluder(
+			MapViewRuntimeCameraSafety._in_view(view, camera.position)
+		)
+	)
+	var camera_and_player_shared_occluder := (
+		camera_was_inside_occluder and controller._safety.camera_and_player_share_occluder()
+	)
+	var camera_was_below_ground := controller._safety.camera_is_below_ground()
 	controller._safety.enforce_camera_safety(
 		camera_was_inside_occluder, camera_and_player_shared_occluder, camera_was_below_ground
 	)
+	# Pushes toward the player apply at once; a shrinking push eases out. The ground
+	# clamp is re-applied so easing never dips the lens under the terrain.
+	var safe_position := camera.position
+	var relaxed := safe_position
+	if _has_state and delta > 0.0:
+		var previous_push := _last_output - _free_position
+		var new_push := safe_position - _free_position
+		if new_push.length_squared() < previous_push.length_squared():
+			relaxed = _free_position + previous_push.lerp(
+				new_push, clampf(SAFETY_RELAX_WEIGHT * delta, 0.0, 1.0)
+			)
+	camera.position = relaxed
+	controller._safety.clamp_to_ground()
+	_last_output = camera.position
 	view.update_terrain_detail_focus(controller.player_rig.position)
 
 

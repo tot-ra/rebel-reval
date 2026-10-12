@@ -198,6 +198,33 @@ func _assert_perspective_attributes(
 			)
 
 
+## A lens gliding out of a wall must stay pushed out every frame. Judging the wall on
+## the previous frame's corrected output skipped the push on alternate frames, so the
+## follow lerp sank the lens back in and the whole frame shook.
+func test_third_person_lens_does_not_reenter_a_wall_while_gliding_out() -> void:
+	var fixture := _install_runtime(KalevSmithyDefinition.create())
+	var scene_root := fixture["scene_root"] as Node2D
+	var runtime := fixture["runtime"] as MapViewRuntime
+	var camera := runtime.view.view_camera()
+	var controller := runtime._camera_controller as MapViewRuntimeCamera
+	runtime.set_camera_mode(MapViewRuntimeCamera.CameraMode.THIRD_PERSON)
+	camera.rotation_degrees.y = 0.0
+	controller.follow_player(true, 0.0)
+	var target := camera.position
+	# Start 2 m beside the boom target, inside a wall whose near face sits 0.1 m from
+	# it, so the unconstrained lens stays inside the wall for many frames.
+	var start := target + Vector3.RIGHT * 2.0
+	var start_local := MapViewRuntimeCameraSafety._in_view(runtime.view, start)
+	var wall := AABB(start_local + Vector3(-1.9, -3.0, -3.0), Vector3(5.0, 6.0, 6.0))
+	runtime.view._occluder_bounds = [wall] as Array[AABB]
+	camera.position = start
+	for frame in range(30):
+		controller.follow_player(false, 1.0 / 60.0)
+		var local := MapViewRuntimeCameraSafety._in_view(runtime.view, camera.position)
+		assert_false(wall.has_point(local), "frame %d: lens re-entered the wall" % frame)
+	_free_map_scene(scene_root)
+
+
 func _install_runtime(definition: MapDefinition) -> Dictionary:
 	var scene_root := Node2D.new()
 	var map_root := Node2D.new()
