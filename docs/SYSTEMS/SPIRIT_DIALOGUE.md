@@ -58,9 +58,9 @@ Rules (`SpiritWordSpells`, `SpiritDuel`):
 
 **Runtime.** `scripts/prologue/smithy_opening.gd` (`SmithyOpening`: `start_new_game`, `consume`, `begin_duel`, `skip`); `scenes/intro/start_label.gd`; `scenes/world/reval_city/reval_city.gd` (calls `SmithyOpening.consume`); `scripts/combat/spirit_arena_host.gd` (`hero_composure`, `opponent_ring`, compact layout); `scripts/ui/player_vitals_hud.gd` (`COMPOSURE` mode); `scripts/combat/spirit_cast_bar.gd` (`ICONS`). Dialogues: `dialogue.prologue.porter_confrontation`, `dialogue.prologue.kalev_arrives` (lines reworded for the smithy). Writes `flag.prologue.apprenticed` and the duel's resolution flags; nothing else is saved (sight stays transient).
 
-**Verify.** `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_smithy_opening,test_almshouse_opening,test_spirit_arena_hud,test_spirit_word_spells`. Plates: `tools/godot_render.sh --resolution 1600x900 --script tools/capture_smithy_opening.gd -- --out=res://build/smithy_opening`.
+**Verify.** `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_smithy_opening,test_prologue_outcome,test_spirit_arena_hud,test_spirit_word_spells`. Plates: `tools/godot_render.sh --resolution 1600x900 --script tools/capture_smithy_opening.gd -- --out=res://build/smithy_opening`.
 
-**Limits.** The duel grade desaturates the porter's overhead bar along with the world, so its green reads grey-green. The porter wears a crowd body (no bespoke model). Kalev stands still in the forge after the dialogue (no schedule or talk yet). The staged almshouse hall (`scenes/prologue/almshouse_opening.tscn`, `AlmshouseStage`) is no longer reachable from New Game; it remains as the duel's test and capture fixture until a follow-up retires it.
+**Limits.** The duel grade desaturates the porter's overhead bar along with the world, so its green reads grey-green. The porter wears a crowd body (no bespoke model). Kalev stands still in the forge after the dialogue (no schedule or talk yet). The staged almshouse hall (`AlmshouseOpening`, `AlmshouseStage`, its scenes, tests and capture tool) was deleted; the duel constants, `STARTER_GRANTS` and `record_duel_guilt` live in `SmithyOpening`, and duel tests run on the city-free `tests/godot/fake_smithy_city.gd`.
 
 ## Spirit duel with anyone (R-1889)
 

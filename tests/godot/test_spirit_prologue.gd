@@ -31,7 +31,7 @@ func before_each() -> void:
 	root.add_child(_runner)
 	_duel = SpiritDuel.new()
 	# Duel replies are spells, so the hero needs the starter magic and willpower.
-	for grant_id: StringName in AlmshouseOpening.STARTER_GRANTS:
+	for grant_id: StringName in SmithyOpening.STARTER_GRANTS:
 		MagicResolver.apply_grant_operation(_state, _db, grant_id)
 	_state.set_magic_resource(GameState.MAGIC_RESOURCE_WILLPOWER, 8)
 

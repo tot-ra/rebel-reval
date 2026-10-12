@@ -21,7 +21,7 @@ func before_each() -> void:
 	_state = GameState.new()
 	_db = ContentDB.new()
 	assert_true(_db.load_from_directories(CONTENT_DIRS))
-	for grant_id: StringName in AlmshouseOpening.STARTER_GRANTS:
+	for grant_id: StringName in SmithyOpening.STARTER_GRANTS:
 		MagicResolver.apply_grant_operation(_state, _db, grant_id)
 	_state.set_magic_resource(GameState.MAGIC_RESOURCE_WILLPOWER, 8)
 	_host = SpiritArenaHost.new()

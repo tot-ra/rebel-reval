@@ -62,7 +62,6 @@ written for each shot.
 | `scripts/prologue/smithy_opening.gd` | New Game prologue in the city smithy: porter duel in place, then Kalev |
 | `scripts/prologue/conversation_shot.gd` | eye-level conversation camera in the live world: grade, depth blur, vignette, letterbox, HUD hidden; two-shot, over-the-shoulder cuts (`frame_subjects`, `cue_line`, `focus`), `release(blend)` cuts or cranes back to play (R-1877, R-1888) |
 | `scripts/prologue/shot_occlusion.gd` | line of sight for shots against drawn meshes; tells scenery from passers-by (R-1888) |
-| `scripts/prologue/almshouse_opening.gd` | the old staged almshouse hall; now only a duel fixture for tests and capture tools, unreachable from New Game |
 
 `CutscenePlayer` runs with `PROCESS_MODE_ALWAYS` and does not pause the tree, so it works
 whether or not a world is running. `auto_continue = false` stops it before any scene change;
@@ -93,8 +92,8 @@ being authored rather than reconstructed later. Grammar for those prompts:
 from `common.schema.json`, for example `flag_is`). `CutsceneSequence.from_record(record,
 state)` keeps such a line only when every condition holds for `state`; without a state
 (`CutscenePlayer.play_id`, `CutsceneSceneHost`) conditional lines are dropped, so a
-context-free player never echoes a choice the player did not make. `AlmshouseOpening` parses
-`cutscene.prologue.taken_in` with the session state, so its first shot adds one line for the
+context-free player never echoes a choice the player did not make. The retired almshouse opening parsed
+`cutscene.prologue.taken_in` with the session state, so its first shot added one line for the
 duel's ending (`l1_spared`, `l1_broke`, `l1_struck`, `l1_punished`). Those lines have no voice
 take yet and play as timed narration.
 

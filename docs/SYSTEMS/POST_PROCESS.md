@@ -18,7 +18,7 @@ Scope: the renderer the game ships on, the shared 3D post-process grade (tonemap
 | HDR toggle (live) | `GraphicsSettings.hdr_output` (`scripts/settings/graphics_settings.gd`) → `UserSettings._apply_graphics_settings()` sets `Window.hdr_output_requested` on the root window (skipped under the headless display server, which has no HDR API); UI row in `scripts/ui/game_settings_overlay.gd` |
 | 3D grade | `MapViewLighting.configure_post_process()` (one-time: AgX, screen glow, adjustments) and `apply_post_grade()` / `apply_post_grade_snapshot()` (per cycle) in `scripts/map/view3d/map_view_lighting.gd` |
 | Interior exposure | `MapViewLighting.interior_exposure_factor(fill_blend)`, applied in `apply_cycle_progress()` when `enclosed_interior` |
-| Prologue grade | `scripts/prologue/almshouse_stage.gd` `_build_environment()` (AgX) |
+| Prologue grade | `scripts/prologue/conversation_shot.gd` (shot grade over the live city world); the almshouse hall's own AgX grade was retired with the hall |
 | HDR sun disk and aureole | `scripts/map/view3d/sky_weather_3d.gdshader` uniforms `sun_disk_hdr_gain` (20), `sun_halo_hdr_gain` (3.0), `sun_corona_strength` (4.5) / `sun_corona_width` (3.0), visible sky pass only |
 | EDR headroom global | shader global `edr_headroom` (`project.godot`), published by `UserSettings._publish_edr_headroom()` from `Window.output_max_linear_value_changed` |
 

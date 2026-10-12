@@ -6,14 +6,7 @@ extends "res://tests/godot/test_case.gd"
 
 const VitalsHud := preload("res://scripts/ui/player_vitals_hud.gd")
 const ConversationShotScript := preload("res://scripts/prologue/conversation_shot.gd")
-
-
-## Stand-in for the city level: what SmithyOpening reads from it (player, world, plan).
-class FakeCity:
-	extends Node
-	var player: Node2D
-	var world: Node3D
-	var plan: Variant = null
+const FakeCity := preload("res://tests/godot/fake_smithy_city.gd")
 
 
 class FakeDuelHost:
@@ -32,19 +25,11 @@ class FakeVitals:
 	var max_stamina := 100.0
 
 
-func _city() -> FakeCity:
-	SessionState.state.set_flag(&"flag.prologue.apprenticed", false)
-	var city := FakeCity.new()
-	city.player = Node2D.new()
-	city.player.global_position = Vector2(10, 10) * CityPlan.LOGIC_PX_PER_UNIT
-	city.add_child(city.player)
-	city.world = Node3D.new()
-	city.add_child(city.world)
-	(Engine.get_main_loop() as SceneTree).root.add_child(city)
-	return city
+func _city() -> Node:
+	return FakeCity.make()
 
 
-func _consume(city: FakeCity) -> SmithyOpening:
+func _consume(city: Node) -> SmithyOpening:
 	SmithyOpening.pending = true
 	var opening := SmithyOpening.consume(city)
 	assert_true(opening != null)
@@ -187,3 +172,103 @@ func test_word_slots_have_painted_sigils() -> void:
 		var icon: Texture2D = SpiritCastBar.ICONS.get(String(element))
 		assert_true(icon != null, String(element))
 		assert_true(icon.get_width() >= 128, String(element))
+
+
+## Ported from the retired almshouse-hall tests (the duel itself is fought the same way here).
+func test_the_prologue_content_is_loaded_in_the_session() -> void:
+	for dialogue_id: StringName in [SmithyOpening.CONFRONTATION, SmithyOpening.KALEV_ARRIVES]:
+		assert_false(SessionState.content_db.get_dialogue(dialogue_id).is_empty(), String(dialogue_id))
+	# R-1763: the still-image vision is gone until its video remake.
+	assert_true(SessionState.content_db.get_cutscene(&"cutscene.prologue.conquest").is_empty())
+
+
+func test_spells_are_the_replies_and_spend_willpower() -> void:
+	var city := _city()
+	var opening := _consume(city)
+	var duel := opening.host().duel
+	duel.tick(SpiritDuel.TELEGRAPH_SEC + 0.01)
+	assert_eq(duel.phase, SpiritDuel.PHASE_ANSWER, "phase before answering")
+	var willpower_before := SessionState.state.get_magic_resource(GameState.MAGIC_RESOURCE_WILLPOWER)
+	assert_true(duel.answer("fire_hands"), "cast fireball")
+	# R-1764: the porter's own soul lights size his pressure pool, so compare with his maximum.
+	assert_true(duel.opponent.health < duel.opponent.max_health - 18.0, "spell + reply hurt him")
+	assert_true(SessionState.state.get_magic_resource(GameState.MAGIC_RESOURCE_WILLPOWER) < willpower_before)  # gdlint: ignore=max-line-length
+	duel.tick(SpiritDuel.TELEGRAPH_SEC + 0.01)
+	assert_true(duel.answer("still_duty"), "cast earth tremor")
+	duel.tick(SpiritDuel.TELEGRAPH_SEC + 0.01)
+	assert_true(duel.answer("still_mercy"), "final cast")
+	assert_eq(duel.last_outcome["resolution_node_id"], "resolved_spared")
+	opening.skip()
+	city.free()
+
+
+func test_a_won_duel_shows_the_banner_and_moves_on_without_a_keypress() -> void:
+	var city := _city()
+	var opening := _consume(city)
+	var host := opening.host()
+	var duel := host.duel
+	for reply: String in ["fire_hands", "still_duty", "still_mercy"]:
+		duel.tick(SpiritDuel.TELEGRAPH_SEC + 0.01)
+		assert_true(duel.answer(reply), reply)
+	assert_eq(duel.phase, SpiritDuel.PHASE_WON)
+	assert_eq(host.end_banner_text(), "The duel is won")
+	host._process(SpiritArenaHost.WIN_AUTO_CLOSE_SEC * 0.5)
+	assert_true(host.is_open(), "the win holds for a beat")
+	assert_eq(opening.stage, SmithyOpening.STAGE_CONFRONTATION)
+	host._process(SpiritArenaHost.WIN_AUTO_CLOSE_SEC)
+	assert_eq(opening.stage, SmithyOpening.STAGE_KALEV, "closed itself and Kalev walks in")
+	opening.skip()
+	city.free()
+
+
+## R-1764: on the porter a word flies at his soul light of its colour, and the duel scores the
+## same lights the player sees.
+func test_words_aim_at_the_porters_soul_lights() -> void:
+	var city := _city()
+	var opening := _consume(city)
+	var host := opening.host()
+	assert_true(host.opponent_aura != null, "the porter's visible aura feeds the duel")
+	var view := host.opponent_aura_view
+	assert_true(view != null)
+	var love := SpiritAuraProfile.LIGHT_IDS.find(SpiritDuel.light_for_element(&"love"))
+	assert_true(host.light_target(&"love").is_equal_approx(view.anchors[love]))
+	assert_false(host.light_target(&"love").is_equal_approx(host.light_target(&"faith")))
+	opening.skip()
+	city.free()
+
+
+func test_a_spell_reply_without_willpower_is_refused_and_leaves_the_choice_open() -> void:
+	var city := _city()
+	var opening := _consume(city)
+	var duel := opening.host().duel
+	SessionState.state.set_magic_resource(GameState.MAGIC_RESOURCE_WILLPOWER, 0)
+	duel.tick(SpiritDuel.TELEGRAPH_SEC + 0.01)
+	assert_false(duel.answer("fire_hands"))
+	assert_eq(duel.last_cast_failure, MagicResolver.FAILURE_INSUFFICIENT_WILLPOWER)
+	assert_eq(duel.phase, SpiritDuel.PHASE_ANSWER)
+	opening.skip()
+	city.free()
+
+
+func test_skip_during_the_duel_finishes_the_opening() -> void:
+	var city := _city()
+	var opening := _consume(city)
+	var done := [false]
+	opening.finished.connect(func() -> void: done[0] = true)
+	opening.skip()
+	assert_eq(opening.stage, SmithyOpening.STAGE_DONE)
+	assert_true(done[0])
+	assert_true(SessionState.state.get_flag(&"flag.prologue.apprenticed"))
+	city.free()
+
+
+func test_skip_before_the_duel_opens_still_finishes() -> void:
+	var city := _city()
+	SmithyOpening.pending = true
+	var opening := SmithyOpening.consume(city)
+	var done := [false]
+	opening.finished.connect(func() -> void: done[0] = true)
+	opening.skip()
+	assert_true(done[0])
+	assert_true(SessionState.state.get_flag(&"flag.prologue.apprenticed"))
+	city.free()

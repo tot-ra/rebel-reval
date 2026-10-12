@@ -7,11 +7,11 @@ Reconciled: 2026-09-10 (P0-206 grounded model and equipment integration)
 
 | Classification | Count | Role |
 |----------------|------:|------|
-| `working` | 50 | Active runtime scenes with verified or complete behavior |
+| `working` | 48 | Active runtime scenes with verified or complete behavior |
 | `partial` | 69 | Substantial content but incomplete integration or dev-only use |
 | `placeholder` | 3 | Reserved stubs or reference-only visuals, not playable |
 | `archive` | 20 | Out of vertical-slice scope; legacy open-world or event shells |
-| **Total** | **142** | Matches repository `.tscn` count |
+| **Total** | **140** | Matches repository `.tscn` count |
 
 Repository count command:
 
@@ -44,7 +44,7 @@ Inventory row count (data rows in the table below): **137**.
 |---|------------|-------|-------|
 | 1 | `game.tscn` | archive | Legacy editor wrapper instancing `main_menu`; not `run/main_scene`. |
 | 2 | `player.tscn` | working | Full player rig, greybox visual, inline HealthBar/StaminaBar, and hidden legacy HUD instance; instanced by all district scenes. |
-| 3 | `assets/characters/cat/cat_rig.tscn` | working | Ambient forge-cat rig; instances `assets/storybook/forge_cat/forge_cat.glb`; five canonical ambient clips via `storybook_cat.gd`. |
+| 3 | `assets/characters/cat/cat_rig.tscn` | working | Ambient forge-cat rig; instances `assets/animals/forge_cat/forge_cat.glb`; five canonical ambient clips via `storybook_cat.gd`. |
 | 4 | `assets/characters/kalev/kalev.tscn` | working | Kalev variant on `shared_character_rig.tscn`; P0-037 player presentation. |
 | 5 | `assets/characters/shared/hammer.tscn` | working | Shared hammer equipment mesh for rig attachment. |
 | 6 | `assets/characters/shared/shared_character_rig.tscn` | working | Shared low-poly rig base with animation library; P0-037 foundation. |
@@ -211,7 +211,7 @@ Both commands should print `135` on a clean checkout at this revision.
 | 113 | `tools/benchmarks/renderer_comparison_benchmark.tscn` | partial | Developer-only renderer comparison host. |
 | 116 | `assets/storybook/equipment/hammer.tscn` | working | Grounded live actor or held prop; P0-206. |
 | 118 | `assets/storybook/equipment/sword.tscn` | working | Grounded live actor or held prop; P0-206. |
-| 119 | `assets/storybook/forge_cat/forge_cat.tscn` | working | Grounded live actor or held prop; P0-206. |
+| 119 | `assets/animals/forge_cat/forge_cat.tscn` | working | Grounded live actor or held prop; P0-206. |
 | 128 | `assets/characters/kalev_fresh/kalev_fresh.tscn` | partial | Rebuild review rig; P0-214. |
 | 129 | `assets/characters/kalev_fresh/preview.tscn` | partial | Rebuild review scene; P0-214. |
 | 126 | `scenes/debug/storybook_showcase.tscn` | partial | Model and equipment review; P0-206. |
@@ -239,8 +239,6 @@ Both commands should print `135` on a clean checkout at this revision.
 | 151 | `assets/characters/variants/citizen_m_child_average.tscn` | working | Seamless city citizen or cast body (MPFB pipeline). |
 | 152 | `assets/characters/variants/citizen_m_elder_heavy.tscn` | working | Seamless city citizen or cast body (MPFB pipeline). |
 | 153 | `assets/characters/variants/citizen_m_elder_thin.tscn` | working | Seamless city citizen or cast body (MPFB pipeline). |
-| 155 | `scenes/prologue/almshouse_opening.tscn` | working | Prologue cutscene or almshouse opening. |
-| 159 | `scenes/prologue/almshouse_stage.tscn` | working | Prologue cutscene or almshouse opening. |
 | 156 | `tools/capture_city_citizens.tscn` | partial | Developer capture or profiling tool. |
 | 157 | `tools/capture_city_fauna.tscn` | partial | Developer capture or profiling tool. |
 | 166 | `tools/capture_site_edge_travel.tscn` | partial | Regional-site edge-to-travel-map capture host (ADR 0042, R-1527); not player-facing. |

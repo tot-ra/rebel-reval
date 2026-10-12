@@ -8,8 +8,9 @@ extends Node
 ## the boy as his apprentice; play simply continues in the smithy. R-1877: Kalev's arrival is
 ## framed by a ConversationShot (eye-level camera in the same world, grade, depth blur,
 ## letterbox) instead of a staged scene; the porter is gone at the cut, as Kalev's lines say.
-## The duel rules, guilt and dialogues are the prologue's (AlmshouseOpening constants); only the
-## place changed. Holding `ui_cancel` skips (the press is eaten so the pause menu stays shut).
+## Holding `ui_cancel` skips (the press is eaten so the pause menu stays shut). The staged
+## almshouse hall that used to host this duel is gone; its constants and the duel's guilt rule
+## live here now.
 
 signal stage_changed(stage: StringName)
 signal finished
@@ -18,6 +19,25 @@ const STAGE_WAITING := &"waiting"
 const STAGE_CONFRONTATION := &"confrontation"
 const STAGE_KALEV := &"kalev"
 const STAGE_DONE := &"done"
+
+const CONFRONTATION := &"dialogue.prologue.porter_confrontation"
+const KALEV_ARRIVES := &"dialogue.prologue.kalev_arrives"
+## Holding `ui_cancel` this long during the duel or Kalev's dialogue skips the rest.
+const HOLD_TO_SKIP_SEC := 0.8
+## The hero's first magic. The duel needs these as replies, so the opening grants them
+## itself instead of relying on the forge's later seeding.
+const STARTER_GRANTS: Array[StringName] = [
+	&"magic.grant.starter_fireball",
+	&"magic.grant.starter_earth_tremor",
+	&"magic.grant.starter_iron_skin",
+]
+const DUEL_WILLPOWER := 8
+## The physical answer in the duel (`[Shove him away]`) only sets a dialogue flag; the
+## opening turns it into guilt the same way a melee blow on an unarmed target would
+## (PhysicalBlowGuilt's `act.<actor>.blow` id, so it records once per save).
+const FLAG_STRUCK_PORTER := &"flag.prologue.struck_porter"
+const PORTER_BLOW_ACT := &"act.almshouse_porter.blow"
+const PORTER_BLOW_CIRCUMSTANCE := &"act.unarmed_victim"
 
 const SPAWN_ID := "kalev_smithy"
 const PORTER_SCENE := preload("res://assets/characters/variants/citizen_m_adult_heavy.tscn")
@@ -90,7 +110,7 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	if stage == STAGE_CONFRONTATION or stage == STAGE_KALEV:
 		_cancel_held = _cancel_held + delta if Input.is_action_pressed(&"ui_cancel") else 0.0
-		if _cancel_held >= AlmshouseOpening.HOLD_TO_SKIP_SEC:
+		if _cancel_held >= HOLD_TO_SKIP_SEC:
 			skip()
 
 
@@ -107,9 +127,9 @@ func _input(event: InputEvent) -> void:
 func begin_duel() -> bool:
 	if stage != STAGE_WAITING or _state == null or _db == null or _player == null:
 		return false
-	for grant_id in AlmshouseOpening.STARTER_GRANTS:
+	for grant_id in STARTER_GRANTS:
 		MagicResolver.apply_grant_operation(_state, _db, grant_id)
-	_state.set_magic_resource(GameState.MAGIC_RESOURCE_WILLPOWER, AlmshouseOpening.DUEL_WILLPOWER)
+	_state.set_magic_resource(GameState.MAGIC_RESOURCE_WILLPOWER, DUEL_WILLPOWER)
 	_set_stage(STAGE_CONFRONTATION)
 	_show_skip_hint()
 	var world := _world()
@@ -136,7 +156,7 @@ func begin_duel() -> bool:
 		# R-1764: the porter's visible soul lights are the ones the duel scores.
 		if is_instance_valid(_host.opponent_aura_view) and _host.opponent_aura_view.profile != null:
 			_host.opponent_aura = _host.opponent_aura_view.profile
-	if _host.open_scripted(_db, _state, AlmshouseOpening.CONFRONTATION):
+	if _host.open_scripted(_db, _state, CONFRONTATION):
 		var camera := get_viewport().get_camera_3d()
 		if camera != null:
 			_host.form_view().track_3d(camera, _porter)
@@ -164,12 +184,20 @@ func skip() -> void:
 	if _dialogue_ui != null and is_instance_valid(_dialogue_ui):
 		_dialogue_ui.queue_free()
 		_dialogue_ui = null
-	AlmshouseOpening.record_duel_guilt(_state)
+	record_duel_guilt(_state)
 	var sight := get_tree().get_first_node_in_group(SpiritSightScript.SIGHT_GROUP)
 	if sight != null:
 		sight.call(&"leave_immediately")
 	_state.set_flag(&"flag.prologue.apprenticed", true)
 	_finish()
+
+
+## Turn the duel's physical outcome into guilt. Returns the weights applied ({} when the
+## porter was not struck or the blow was already recorded).
+static func record_duel_guilt(state: GameState) -> Dictionary:
+	if state == null or not state.get_flag(FLAG_STRUCK_PORTER):
+		return {}
+	return state.guilt.record_act(PORTER_BLOW_ACT, PORTER_BLOW_CIRCUMSTANCE)
 
 
 func host() -> SpiritArenaHost:
@@ -189,7 +217,7 @@ func dialogue_runner() -> Node:
 
 
 func _on_confrontation_closed(_outcome: Dictionary) -> void:
-	AlmshouseOpening.record_duel_guilt(_state)
+	record_duel_guilt(_state)
 	_host.queue_free()
 	_host = null
 	_begin_kalev()
@@ -217,7 +245,7 @@ func _begin_kalev() -> void:
 	presenter.configure(_dialogue_ui, _runner)
 	_runner.configure(_db, _state, presenter)
 	_runner.finished.connect(_on_kalev_finished)
-	if not _runner.start(AlmshouseOpening.KALEV_ARRIVES):
+	if not _runner.start(KALEV_ARRIVES):
 		_state.set_flag(&"flag.prologue.apprenticed", true)
 		_finish()
 
@@ -303,8 +331,8 @@ func _free_porter() -> void:
 
 
 func _react_to_exchange(result: Dictionary) -> void:
-	# Words and spells that cost the porter pressure make him flinch (same rule as
-	# AlmshouseStage.react_to_exchange); the boy's own rig belongs to the city runtime.
+	# Words and spells that cost the porter pressure make him flinch (same rule the
+	# retired almshouse stage used); the boy's own rig belongs to the city runtime.
 	if not is_instance_valid(_porter):
 		return
 	var kind := String(result.get("kind", ""))

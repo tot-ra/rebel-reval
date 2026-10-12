@@ -5,7 +5,7 @@ extends "res://tests/godot/test_case.gd"
 
 const RunnerScript := preload("res://scripts/dialogue/dialogue_runner.gd")
 const TestPresenterScript := preload("res://tests/godot/dialogue_test_presenter.gd")
-const OPENING_SCENE := preload("res://scenes/prologue/almshouse_opening.tscn")
+const FakeCity := preload("res://tests/godot/fake_smithy_city.gd")
 const CONFRONT := &"dialogue.prologue.porter_confrontation"
 const KALEV := &"dialogue.prologue.kalev_arrives"
 const CLOSING := &"cutscene.prologue.taken_in"
@@ -108,58 +108,52 @@ func test_the_shove_is_recorded_once_as_guilt_against_an_unarmed_victim() -> voi
 	assert_true(duel.begin(_runner, _db, state, CONFRONT))
 	duel.tick(SpiritDuel.TELEGRAPH_SEC + 0.01)
 	assert_true(duel.answer("shove"))
-	var applied := AlmshouseOpening.record_duel_guilt(state)
+	var applied := SmithyOpening.record_duel_guilt(state)
 	assert_eq(applied, GuiltLedger.weights_for(&"act.unarmed_victim", false))
 	assert_eq(state.guilt.level(GuiltLedger.SCHOOL_CHURCH), 4)
 	assert_eq(state.guilt.level(GuiltLedger.SCHOOL_FOLK), 3)
 	assert_eq(state.guilt.level(GuiltLedger.SCHOOL_CIVIC), 3)
-	assert_eq(AlmshouseOpening.record_duel_guilt(state), {}, "recorded once")
+	assert_eq(SmithyOpening.record_duel_guilt(state), {}, "recorded once")
 	assert_eq(state.guilt.level(GuiltLedger.SCHOOL_CHURCH), 4)
 	# The act survives a save round trip, so a reload cannot record it again.
 	var saved := state.guilt.to_dict()
-	assert_true((saved["acts"] as Dictionary).has(AlmshouseOpening.PORTER_BLOW_ACT))
+	assert_true((saved["acts"] as Dictionary).has(SmithyOpening.PORTER_BLOW_ACT))
 	var reloaded := GuiltLedger.new()
 	assert_eq(reloaded.from_dict(saved), [] as Array[String])
-	assert_eq(reloaded.record_act(AlmshouseOpening.PORTER_BLOW_ACT, &"act.unarmed_victim"), {})
+	assert_eq(reloaded.record_act(SmithyOpening.PORTER_BLOW_ACT, &"act.unarmed_victim"), {})
 
 
 func test_other_endings_carry_no_guilt() -> void:
 	var state := GameState.new()
 	for flag: StringName in BRANCHES:
-		if flag != AlmshouseOpening.FLAG_STRUCK_PORTER:
+		if flag != SmithyOpening.FLAG_STRUCK_PORTER:
 			state.set_flag(flag, true)
-	assert_eq(AlmshouseOpening.record_duel_guilt(state), {})
-	assert_eq(AlmshouseOpening.record_duel_guilt(null), {})
+	assert_eq(SmithyOpening.record_duel_guilt(state), {})
+	assert_eq(SmithyOpening.record_duel_guilt(null), {})
 	for school in GuiltLedger.SCHOOLS:
 		assert_eq(state.guilt.level(school), 0)
 
 
 func test_the_opening_records_the_shove_when_the_duel_closes() -> void:
 	SessionState.state.guilt.reset()
-	SessionState.state.set_flag(AlmshouseOpening.FLAG_STRUCK_PORTER, false)
-	SessionState.state.set_flag(&"flag.prologue.apprenticed", false)
-	var opening := OPENING_SCENE.instantiate() as AlmshouseOpening
-	opening.auto_continue = false
-	# The staged 3D hall (R-1334) is presentation only; without it the test needs no rigs.
-	var stage := opening.get_node_or_null(^"Stage")
-	if stage != null:
-		opening.remove_child(stage)
-		stage.free()
-	(Engine.get_main_loop() as SceneTree).root.add_child(opening)
-	assert_true(opening.begin_duel())
+	SessionState.state.set_flag(SmithyOpening.FLAG_STRUCK_PORTER, false)
+	var city := FakeCity.make()
+	var opening := FakeCity.open_duel(city)
+	assert_eq(opening.stage, SmithyOpening.STAGE_CONFRONTATION)
 	var duel := opening.host().duel
 	duel.tick(SpiritDuel.TELEGRAPH_SEC + 0.01)
 	assert_true(duel.answer("shove"))
 	opening.host().close()
-	assert_eq(opening.stage, AlmshouseOpening.STAGE_KALEV)
+	assert_eq(opening.stage, SmithyOpening.STAGE_KALEV)
 	assert_eq(SessionState.state.guilt.level(GuiltLedger.SCHOOL_CHURCH), 4)
 	assert_eq(opening.dialogue_runner().get_current_node_id(), "kalev_heard_struck")
-	opening.free()
+	opening.skip()
+	city.free()
 
 
 func _duel_state() -> GameState:
 	var state := GameState.new()
-	for grant_id: StringName in AlmshouseOpening.STARTER_GRANTS:
+	for grant_id: StringName in SmithyOpening.STARTER_GRANTS:
 		MagicResolver.apply_grant_operation(state, _db, grant_id)
 	state.set_magic_resource(GameState.MAGIC_RESOURCE_WILLPOWER, 8)
 	return state

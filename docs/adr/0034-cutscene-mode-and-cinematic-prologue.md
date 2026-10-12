@@ -8,7 +8,7 @@
 ## Context
 
 New Game currently drops the player onto a near-black `ColorRect` with six `Label` nodes
-(`scripts/prologue/almshouse_opening.gd`), then straight into a spirit duel. The player is given no
+(`scripts/prologue/almshouse_opening.gd`, since deleted, R-1872 follow-up), then straight into a spirit duel. The player is given no
 year, no place, no reason to care about the boy or about Reval. The game's premise - a conquered
 people, a 124-year-old debt, extraordinary taxes, and a clairvoyant orphan - is entirely absent from
 the first two minutes.

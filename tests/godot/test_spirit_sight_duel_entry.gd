@@ -7,7 +7,7 @@ extends "res://tests/godot/test_case.gd"
 const Sight := preload("res://scripts/combat/spirit_sight.gd")
 const Bindings := preload("res://scripts/settings/input_binding_settings.gd")
 const INTERACTABLE_SCENE := preload("res://scenes/interaction/interactable.tscn")
-const OPENING_SCENE := preload("res://scenes/prologue/almshouse_opening.tscn")
+const FakeCity := preload("res://tests/godot/fake_smithy_city.gd")
 ## The prologue duel names the porter and the apprentice; the quarrel he has with the matron
 ## is observed, never fought, so she offers no challenge.
 const PORTER := &"char.almshouse_porter"
@@ -152,25 +152,22 @@ func test_keyboard_and_gamepad_interact_challenge() -> void:
 		controller.free()
 
 
-func test_almshouse_porter_duel_passes_through_spirit_sight() -> void:
-	# Only the hall's own controller may answer the sight group in this scene.
-	_sight.free()
-	SessionState.state.set_flag(&"flag.prologue.apprenticed", false)
+func test_smithy_porter_duel_passes_through_spirit_sight() -> void:
+	# The city's own controller answers the sight group; here it follows the session the
+	# opening reads, as the Player's SpiritSight does in play.
+	_sight.state = SessionState.state
 	SessionState.state.spirit_sight = false
-	var opening := OPENING_SCENE.instantiate() as AlmshouseOpening
-	opening.auto_continue = false
-	_root.add_child(opening)
-	assert_true(opening.begin_duel())
-	var sight := opening.get_node(^"SpiritSight")
-	assert_true(sight != null, "the hall owns a spirit-sight controller for its scripted duel")
+	var city := FakeCity.make()
+	var opening := FakeCity.open_duel(city)
 	assert_true(SessionState.state.spirit_sight, "the porter duel switches sight on")
 	assert_true(opening.host().is_open())
-	sight.call(&"enforce_availability")
+	_sight.enforce_availability()
 	assert_true(SessionState.state.spirit_sight, "sight holds through the duel")
 	opening.host().close()
-	assert_eq(opening.stage, AlmshouseOpening.STAGE_KALEV)
+	assert_eq(opening.stage, SmithyOpening.STAGE_KALEV)
 	assert_false(SessionState.state.spirit_sight, "Kalev's dialogue closes sight")
-	opening.free()
+	opening.skip()
+	city.free()
 
 
 ## A talk sensor for `char_id` placed on the actor, so it is in range and in focus.
