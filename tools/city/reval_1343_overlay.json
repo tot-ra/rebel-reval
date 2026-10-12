@@ -18,40 +18,32 @@
     "confidence": "plausible composite",
     "shoreline_m": [
       [
-        -820,
-        -905
+        0,
+        -1010
       ],
       [
-        -600,
+        50,
+        -960
+      ],
+      [
+        100,
         -900
       ],
       [
-        -450,
-        -880
+        145,
+        -840
       ],
       [
-        -330,
-        -830
+        185,
+        -780
       ],
       [
-        -220,
-        -770
+        215,
+        -725
       ],
       [
-        -110,
-        -735
-      ],
-      [
-        0,
-        -712
-      ],
-      [
-        110,
-        -690
-      ],
-      [
-        200,
-        -668
+        245,
+        -678
       ],
       [
         290,
@@ -59,42 +51,38 @@
       ],
       [
         380,
-        -600
+        -632
       ],
       [
-        450,
-        -520
+        470,
+        -608
       ],
       [
-        505,
-        -420
+        560,
+        -574
       ],
       [
-        540,
-        -300
+        630,
+        -536
       ],
       [
-        565,
-        -170
+        675,
+        -498
       ],
       [
-        585,
-        -40
+        705,
+        -484
       ],
       [
-        605,
-        70
-      ],
-      [
-        660,
-        95
+        735,
+        -494
       ],
       [
         760,
-        85
+        -506
       ]
     ],
-    "shoreline_note": "Mean wet margin. North of the Coastal Gate the 1343 beach toe lies ~80-100 m north of the gate (5-8 m cliff step, H11). East of the walls the Hareapea delta and shallows reach the Viru-hotel margin (Kunnapuu & Raukas, plausible composite). Post-1840 harbour fill is removed."
+    "shoreline_note": "Mean wet margin. North of the Coastal Gate the 1343 beach toe lies ~80-100 m north of the gate (5-8 m cliff step, H11), at the fish landing. West of the landing the shore turns northwest along the Kalarand fishing beach and leaves the plan bounds at x ~ 0: it runs parallel to Kalaranna street (the 19th-c. beach road, OSM) ~45 m inland of it for the higher 1343 sea, so Kalamaja and the land north of Toompea are dry ground, not open sea. East of the gate the shore runs east-southeast to the Hareapea mouth, which the plan bounds pull ~450 m west of the Lootsi 8 / Peeter wreck foreshores (y ~ -470..-540, attested); the land east of the walls (Viru suburb, Narva road) stays dry as on the 1810 town plan. The Kunnapuu & Raukas 'sea to the Viru hotel' claim is not followed: a single uncorroborated point that turned the whole east side into open sea. Post-1840 harbour fill is removed."
   },
   "harjapea": {
     "confidence": "plausible composite",
@@ -123,6 +111,26 @@
       [
         600,
         80
+      ],
+      [
+        615,
+        -50
+      ],
+      [
+        640,
+        -190
+      ],
+      [
+        665,
+        -330
+      ],
+      [
+        690,
+        -450
+      ],
+      [
+        705,
+        -510
       ]
     ],
     "width_m": [
@@ -130,8 +138,13 @@
       9,
       10,
       11,
+      12,
+      12,
       13,
-      18
+      13,
+      14,
+      16,
+      20
     ]
   },
   "toompea": {
@@ -1082,36 +1095,76 @@
             -172
           ],
           [
-            -230,
+            -205,
             -260
           ],
           [
-            -300,
+            -225,
             -350
           ],
           [
-            -380,
-            -440
+            -205,
+            -450
           ],
           [
-            -480,
-            -560
+            -160,
+            -545
           ],
           [
-            -560,
-            -680
+            -105,
+            -640
           ],
           [
-            -640,
-            -800
+            -55,
+            -730
           ],
           [
-            -700,
-            -870
+            -10,
+            -820
           ]
         ],
         "width_m": 4.5,
-        "confidence": "plausible composite (follows Rannamae tee / Kopli)"
+        "confidence": "plausible composite (north from the Nuns' Gate past the Toompea foot to the Kalarand beach)"
+      },
+      {
+        "id": "road.kalarand_beach",
+        "name_1343": "beach lane from the landing road round the shore pond along the fishing shore",
+        "points_m": [
+          [
+            226,
+            -620
+          ],
+          [
+            195,
+            -638
+          ],
+          [
+            158,
+            -660
+          ],
+          [
+            150,
+            -720
+          ],
+          [
+            143,
+            -768
+          ],
+          [
+            100,
+            -828
+          ],
+          [
+            58,
+            -888
+          ],
+          [
+            18,
+            -948
+          ]
+        ],
+        "width_m": 3.5,
+        "confidence": "plausible composite (runs ~40 m behind the 1343 waterline; Kalaranna street is its 19th-c. successor)"
       },
       {
         "id": "road.harbour",
@@ -1225,28 +1278,36 @@
       "name_1343": "fishing beach (Kalamaja later)",
       "polygon_m": [
         [
-          -700,
-          -860
+          -150,
+          -955
         ],
         [
-          -420,
+          20,
+          -955
+        ],
+        [
+          70,
+          -895
+        ],
+        [
+          115,
           -830
         ],
         [
-          -300,
-          -760
+          155,
+          -765
         ],
         [
-          -380,
-          -640
+          90,
+          -715
         ],
         [
-          -560,
-          -700
+          -30,
+          -745
         ],
         [
-          -720,
-          -760
+          -150,
+          -840
         ]
       ],
       "density": 0.35,
