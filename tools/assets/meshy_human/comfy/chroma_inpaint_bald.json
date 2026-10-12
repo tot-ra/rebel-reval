@@ -1,0 +1,162 @@
+{
+ "1": {
+  "class_type": "UNETLoader",
+  "inputs": {
+   "unet_name": "Chroma1-HD.safetensors",
+   "weight_dtype": "default"
+  }
+ },
+ "2": {
+  "class_type": "CLIPLoader",
+  "inputs": {
+   "clip_name": "t5xxl_fp8_e4m3fn_scaled.safetensors",
+   "type": "chroma"
+  }
+ },
+ "3": {
+  "class_type": "T5TokenizerOptions",
+  "inputs": {
+   "clip": [
+    "2",
+    0
+   ],
+   "min_padding": 1,
+   "min_length": 0
+  }
+ },
+ "4": {
+  "class_type": "CLIPTextEncode",
+  "inputs": {
+   "clip": [
+    "3",
+    0
+   ],
+   "text": "Photographic anatomy reference for 3D scanning, front view of {AGE_SEX} with a completely bald, cleanly shaved smooth head, no hair at all, natural scalp skin matching her face skin tone, visible natural ears, smooth bare neck, calm neutral expression, plain seamless light grey studio background, soft even diffuse lighting, sharp focus, high-resolution photograph."
+  }
+ },
+ "5": {
+  "class_type": "CLIPTextEncode",
+  "inputs": {
+   "clip": [
+    "3",
+    0
+   ],
+   "text": "hair, hair strands, wisps, braid, ponytail, stubble, hat, cap, headscarf, wig, eyebrows missing, shiny plastic skin, cgi, illustration, deformed ears, blurry, text, watermark"
+  }
+ },
+ "6": {
+  "class_type": "LoadImage",
+  "inputs": {
+   "image": "{CHAR}_base_body.png"
+  }
+ },
+ "7": {
+  "class_type": "LoadImageMask",
+  "inputs": {
+   "image": "{CHAR}_hair_mask.png",
+   "channel": "red"
+  }
+ },
+ "8": {
+  "class_type": "VAELoader",
+  "inputs": {
+   "vae_name": "ae.safetensors"
+  }
+ },
+ "9": {
+  "class_type": "VAEEncode",
+  "inputs": {
+   "pixels": [
+    "6",
+    0
+   ],
+   "vae": [
+    "8",
+    0
+   ]
+  }
+ },
+ "10": {
+  "class_type": "SetLatentNoiseMask",
+  "inputs": {
+   "samples": [
+    "9",
+    0
+   ],
+   "mask": [
+    "7",
+    0
+   ]
+  }
+ },
+ "11": {
+  "class_type": "KSampler",
+  "inputs": {
+   "model": [
+    "1",
+    0
+   ],
+   "positive": [
+    "4",
+    0
+   ],
+   "negative": [
+    "5",
+    0
+   ],
+   "latent_image": [
+    "10",
+    0
+   ],
+   "seed": 41,
+   "steps": 30,
+   "cfg": 4.0,
+   "sampler_name": "euler",
+   "scheduler": "beta",
+   "denoise": 0.92
+  }
+ },
+ "12": {
+  "class_type": "VAEDecode",
+  "inputs": {
+   "samples": [
+    "11",
+    0
+   ],
+   "vae": [
+    "8",
+    0
+   ]
+  }
+ },
+ "13": {
+  "class_type": "ImageCompositeMasked",
+  "inputs": {
+   "destination": [
+    "6",
+    0
+   ],
+   "source": [
+    "12",
+    0
+   ],
+   "x": 0,
+   "y": 0,
+   "resize_source": false,
+   "mask": [
+    "7",
+    0
+   ]
+  }
+ },
+ "14": {
+  "class_type": "SaveImage",
+  "inputs": {
+   "images": [
+    "13",
+    0
+   ],
+   "filename_prefix": "{CHAR}_base_bald"
+  }
+ }
+}

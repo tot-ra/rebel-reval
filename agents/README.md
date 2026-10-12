@@ -14,6 +14,7 @@ Each folder defines one production agent: `system.md` (role), `playbook.md` (les
 - [Art playbook](rebel-art/playbook.md)
 - [Token-efficient 3D production](rebel-art/skills/3d-renderer/SKILL.md)
 - [2D Inventory Icon Generation](rebel-art/skills/icon-generator/SKILL.md)
+- [Meshy human: card to rigged 3D character](rebel-art/skills/meshy-human/SKILL.md)
 - [Rebel Art Producer Work Loop](rebel-art/skills/work-loop/SKILL.md)
 - [System](rebel-art/system.md)
 
