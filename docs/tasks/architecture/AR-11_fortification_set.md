@@ -25,8 +25,10 @@ The authored vocabulary is again a tint: `wall.city` (`wall_height=192`), `wall.
 "round_tower keeps the Tallinn circular drum and conical red-tile roof while tower=false marks incomplete
 1343 fabric (no ground door / arrow slits)."
 
-One authored gate GLB already exists and works - `assets/props/architecture/gates/viru_gate.glb` (1.5 MB,
-seven material sets) - which proves the bespoke path is viable here. It is the only one.
+The only authored gate geometry left is the three gate-leaf GLBs in `assets/props/architecture/gates/`
+(oak, iron-bound, raised portcullis) that `map_view_mesh_builder_landmarks.gd` parks in the arch. A
+bespoke `viru_gate.glb` gatehouse was built once but never loaded at runtime, and it was removed as dead
+weight.
 
 ## Deliverable
 
@@ -42,7 +44,7 @@ A set under `assets/buildings/fortification/`, kit-bashed on AR-04, built to the
    `kuldjala_tower`, `nunnatorn_tower`, `rentenitorn_tower`, each recognisable from its neighbours.
 3. **Gate works** - `viru_gate_north_tower` and `viru_gate_south_tower` as authored geometry (they are
    currently registry "gatehouse" primitives), `gate_passage_vault`, `gate_machicoulis`,
-   `gate_flanking_wall`. The existing `viru_gate.glb` and the three gate-leaf GLBs are folded onto the
+   `gate_flanking_wall`. The three existing gate-leaf GLBs are folded onto the
    AR-04 module and AR-03 surfaces, not rebuilt.
 4. **Wall-walk** - `wall_walk_deck`, `wall_walk_stair`, `wall_walk_ladder`, `wall_walk_hatch`,
    `wall_walk_hoarding`, matching the existing `wall_walk_platform` and `wall_walk_access` primitives
