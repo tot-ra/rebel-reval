@@ -12,6 +12,14 @@
 | Faction ties | none |
 | Archive reference images | image-3, image-4, image-5, image-6 |
 
+![nakk concept art](../inspiration/nakk_concept.jpg)
+
+**Illustration:** Generated with ComfyUI Chroma. Documentation concept art only; existing archive references are retained.
+
+**Generation prompt:** Photorealistic folklore concept art for Reval Rebel: Näkk, an adult Estonian water spirit in human singer guise beside a still mill pond in 14th-century medieval Estonia. Pale adult human figure with long water-dark river-weed hair, naturally standing ankle-deep at water's edge, artistic non-sexual nudity, discreetly obscured by long wet hair, reeds, mist, and water reflections. Calm mournful singing expression; dignified, not seductive. Wet skin with subtle silver fish-scale patches at neck and wrists, water droplets, soft translucent watery edges. Reflection subtly suggests a horse's head beneath the surface. Baltic dusk, river green and slate blue, grounded dark-fantasy realism, photorealistic cinematic natural light, realistic anatomy, clear silhouette, uncluttered composition, no text.
+
+**Negative prompt:** mermaid tail, tropical sea, modern clothing, jewelry, erotic, sexualized, seductive pose, pornographic, explicit genital detail, gore, tentacles, extra limbs, deformed anatomy, cartoon, illustration, painterly, CGI, plastic skin, text, watermark, logo
+
 ## At a glance
 - Shows up as a horse, a handsome man, a fish or a singer at the water's edge.
 - Calls travellers to the river and holds them under.
