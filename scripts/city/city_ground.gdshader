@@ -927,7 +927,7 @@ void fragment() {
 	nxy = mix(nxy, vec2(0.0), clamp(puddle * 0.55 + deep * 0.45, 0.0, 1.0));
 	vec2 rcell = floor(wuv * 3.0);
 	vec2 rloc = fract(wuv * 3.0) - 0.5;
-	float rphase = fract(TIME * 0.9 + hash12(rcell));
+	float rphase = fract(ocean_time * 0.9 + hash12(rcell));
 	float rdist = length(rloc - (vec2(hash12(rcell + 3.1), hash12(rcell + 7.7)) - 0.5) * 0.5);
 	float ring = cos((rdist - rphase * 0.7) * 38.0) * exp(-abs(rdist - rphase * 0.7) * 14.0) * (1.0 - rphase);
 	float rain_on_water = rain_intensity * deep * detail;

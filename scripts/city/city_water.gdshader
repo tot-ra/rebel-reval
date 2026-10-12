@@ -11,6 +11,9 @@ uniform float opacity = 0.86;
 uniform vec2 wind_dir = vec2(0.8, 0.6);
 uniform float wave_strength = 0.12;
 uniform float flow_speed = 0.0; // > 0 for the stream: water runs along UV.x
+// Scaled world clock (debug time controls, pause) shared with the sea; raw TIME
+// ignores them and made the water race while everything else followed the clock.
+global uniform float ocean_time;
 uniform float time_scale = 1.0;
 
 varying vec3 world_pos;
@@ -41,12 +44,12 @@ float waves(vec2 p, float t) {
 
 void vertex() {
 	world_pos = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
-	float t = TIME * time_scale;
+	float t = ocean_time * time_scale;
 	VERTEX.y += waves(world_pos.xz, t) * wave_strength;
 }
 
 void fragment() {
-	float t = TIME * time_scale;
+	float t = ocean_time * time_scale;
 	vec2 p = world_pos.xz;
 	if (flow_speed > 0.0) {
 		p = vec2(UV.x * 3.0 - t * flow_speed, UV.y * 3.0);
