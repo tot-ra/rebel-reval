@@ -13,8 +13,9 @@ var _grab_tex: Texture2D
 var _talk_tex: Texture2D
 var _layers: Dictionary = {}
 var _applied: StringName = &""
-var _hotspot_grab := Vector2(10, 2)
-var _hotspot_talk := Vector2(8, 2)
+# Hotspots match the glyph tips drawn by tools/assets/build_ui_cursors.py.
+var _hotspot_grab := Vector2(17, 3)
+var _hotspot_talk := Vector2(2, 2)
 
 
 func _ready() -> void:

@@ -46,7 +46,7 @@ Status: implemented (task **R-1698**). Esc opens `GameSettingsOverlay` (`scripts
 | Mana orb | `scripts/ui/mana_orb.gd` | Magic resource ([`MAGIC.md`](./MAGIC.md)) |
 | Combat feedback | `scripts/combat/combat_feedback_hud.gd` | Hit and stagger feedback ([`COMBAT.md`](./COMBAT.md)) |
 | Interaction prompt | `InteractableWorldIndicator`, `InteractableViewBinder` | Bobbing glyph and floor ring over the focused interactable in 3D |
-| Cursor | `scripts/ui/cursor_service.gd` | Layered custom cursor for hover/focus states |
+| Cursor | `scripts/ui/cursor_service.gd` | Layered custom cursor for hover/focus states: a 32x32 speech bubble (`talk`, hotspot at the tail tip) and an open hand (`grab`, hotspot at the middle fingertip) in `assets/UI/cursors/`, cream with a dark outline so they read on bright and night scenes. Regenerate with `python3 tools/assets/build_ui_cursors.py` and keep the hotspots in `cursor_service.gd` in sync |
 | Debug overlay | `scripts/ui/debug_overlay.gd` | FPS, active audio, time speed (quick menu → Debug) |
 
 ## Journal
