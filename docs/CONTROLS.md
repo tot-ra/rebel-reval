@@ -93,6 +93,7 @@ button charges instead of repeating the swing.
 | Guard | `F`, right click | Left shoulder |
 | Roll (toward the held direction; none = back roll; with guard held, `A`/`D` = side roll keeping facing) | `Space` | Right trigger |
 | Sidestep | `Q` | Right shoulder |
+| Jump (a hop over a steep strip; 8 stamina) | `Z` | Right stick click |
 | Talk to yourself (short guard buff; nearby witnesses react, ADR 0033) | `T` | Left trigger |
 | Dive (hold, while swimming in deep water) | `X`, `Ctrl` | B |
 | Inventory | `I` | Y |

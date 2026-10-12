@@ -170,7 +170,7 @@ func _step_brawl(delta: float, home: Vector2) -> void:
 		_sync_brawl_groups()
 		return
 	_set_solid(true)
-	collision_mask = CollisionLayers.WORLD
+	collision_mask = CollisionLayers.MASK_WORLD
 	velocity = wanted
 	move_and_slide()
 	brawler.position = global_position

@@ -98,6 +98,14 @@ var _mud_wetness_provider: Callable
 var _ground_drag_provider: Callable
 ## ADR 0021: derived from the water column under the body every physics tick.
 var _swim := PlayerSwimState.new()
+## Hop and slope slide (PlayerJumpState). Height is presentation only.
+var _jump := PlayerJumpState.new()
+var _air_velocity := Vector2.ZERO
+## True while the body may overlap CollisionLayers.STEEP: in the air, and after a
+## landing inside a steep strip until the slide carries it out.
+var _steep_ghost := false
+## Callable(logic_position) -> Vector2 downhill gradient; see MapDefinition.downhill_at_world.
+var _downhill_provider := Callable()
 
 @onready var animation_player: AnimatedSprite2D = get_node_or_null("AnimatedSprite2D")
 # Optional so headless unit tests can construct Player.new() without the full scene.
@@ -140,6 +148,73 @@ func configure_map_movement(
 	# Hosted play keeps the player in world-global logic; terrain cells are
 	# authored in location space, so sample at global - origin.
 	_map_origin = origin
+
+
+## Height of the feet above the ground in world units (0 on the ground), for the view.
+func jump_height() -> float:
+	return _jump.height
+
+
+func is_airborne() -> bool:
+	return _jump.is_airborne()
+
+
+func set_downhill_provider(provider: Callable) -> void:
+	_downhill_provider = provider
+
+
+## Hop (`player_jump`). Needs solid footing, free limbs and a little stamina; the
+## hop keeps the run's heading so it clears a steep strip in the road.
+func try_jump() -> bool:
+	if _jump.is_airborne() or _swim.medium != PlayerSwimState.Medium.WALK:
+		return false
+	if _movement_blocked() or not action_state_machine.allows_movement():
+		return false
+	if is_spirit_sight_active() or stamina < PlayerJumpState.STAMINA_COST:
+		return false
+	stamina -= PlayerJumpState.STAMINA_COST
+	_sync_resource_bars()
+	var heading := movement_direction_for_screen_input(ScreenDirectionInput.read_axis())
+	var speed: float = run_speed * PlayerJumpState.AIR_SPEED_FRACTION * time_flow_scale
+	_air_velocity = heading.normalized() * speed if not heading.is_zero_approx() else Vector2.ZERO
+	_jump.start()
+	_apply_steep_mask()
+	return true
+
+
+func _downhill_here() -> Vector2:
+	if _downhill_provider.is_valid():
+		return _downhill_provider.call(global_position) as Vector2
+	if _map_definition != null:
+		return _map_definition.downhill_at_world(global_position - _map_origin)
+	return Vector2.ZERO
+
+
+## Steep strips are solid unless the body is airborne or still inside one.
+func _apply_steep_mask() -> void:
+	var ghost := _jump.is_airborne() or _steep_ghost
+	set_collision_mask_value(6, not ghost)  # layer bit 32 = CollisionLayers.STEEP
+
+
+func _is_overlapping_steep() -> bool:
+	var previous := collision_mask
+	collision_mask = CollisionLayers.STEEP
+	var inside := test_move(global_transform, Vector2.ZERO, null, 0.001, true)
+	collision_mask = previous
+	return inside
+
+
+## Advances the arc and the steep mask. A landing inside a steep strip leaves the
+## mask off so the slide (see _physics_process) carries the body downhill and out.
+func _update_jump(delta: float) -> void:
+	if _jump.is_airborne():
+		if _swim.medium != PlayerSwimState.Medium.WALK:
+			_jump.reset()
+		elif _jump.update(delta):
+			_steep_ghost = _is_overlapping_steep()
+	elif _steep_ghost and not _is_overlapping_steep():
+		_steep_ghost = false
+	_apply_steep_mask()
 
 
 func terrain_speed_multiplier() -> float:
@@ -216,6 +291,13 @@ func _physics_process(_delta):
 	action_state_machine.tick(_delta)
 	combat_vitals.tick(_delta)
 	_update_water(_delta)
+	if (
+		combat_input_enabled
+		and InputMap.has_action(&"player_jump")
+		and Input.is_action_just_pressed(&"player_jump")
+	):
+		try_jump()
+	_update_jump(_delta)
 	# Water and scripted movement invalidate sight before this tick accepts actions.
 	get_node("SpiritSight").enforce_availability()
 	_process_action_input(_delta)
@@ -293,6 +375,18 @@ func _physics_process(_delta):
 		else:
 			velocity = Vector2.ZERO
 
+	if _jump.is_airborne():
+		# The hop keeps its takeoff heading; input only bends it a little.
+		var wanted: Vector2 = (
+			movement_direction.normalized() * run_speed * PlayerJumpState.AIR_SPEED_FRACTION
+			if not movement_direction.is_zero_approx()
+			else Vector2.ZERO
+		)
+		_air_velocity = _air_velocity.move_toward(wanted * time_flow_scale, 240.0 * _delta)
+		velocity = _air_velocity
+	elif _swim.medium == PlayerSwimState.Medium.WALK:
+		# Steep ground pulls the body downhill, on foot or after a landing on a slope.
+		velocity += PlayerJumpState.slide_velocity(_downhill_here()) * time_flow_scale
 	_update_movement_resources(_delta, new_animation != "idle")
 	_sync_resource_bars()
 	var movement_velocity := velocity
@@ -407,7 +501,7 @@ func _current_dodge_facing() -> Vector2:
 
 func _can_start_action(kind: PlayerActionKind.Kind) -> bool:
 	# ADR 0021: no attacks, guard or dodge while swimming or diving.
-	if _swim.blocks_combat() or is_spirit_sight_active():
+	if _swim.blocks_combat() or is_spirit_sight_active() or _jump.is_airborne():
 		return false
 	match kind:
 		PlayerActionKind.Kind.DODGE:

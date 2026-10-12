@@ -110,6 +110,23 @@ func slope_at_world(world_position: Vector2) -> float:
 	return atan(Vector2(gx, gy).length())
 
 
+## Downhill direction at a 2D gameplay position, scaled by the rise per unit of
+## run (its length is tan(slope)). Zero on flat ground.
+func downhill_at_world(world_position: Vector2) -> Vector2:
+	if cell_size <= 0:
+		return Vector2.ZERO
+	var position := world_position / float(cell_size)
+	var gx := (
+		height_at_cell_space(position + Vector2(0.5, 0.0))
+		- height_at_cell_space(position - Vector2(0.5, 0.0))
+	)
+	var gy := (
+		height_at_cell_space(position + Vector2(0.0, 0.5))
+		- height_at_cell_space(position - Vector2(0.0, 0.5))
+	)
+	return -Vector2(gx, gy)
+
+
 ## Height at a position measured in cells (3D view XZ space).
 func height_at_cell_space(position: Vector2) -> float:
 	return datum_at_cell_space(position) + sample_relief(relief_heights, size_cells, position)

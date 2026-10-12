@@ -85,6 +85,10 @@ func _ready() -> void:
 	player.set_water_depth_provider(
 		func(logic: Vector2) -> float: return view.water_depth_at(CityPlan.to_world_xz(logic))
 	)
+	# Steep ground pulls the hero downhill (PlayerJumpState.slide_velocity).
+	player.set_downhill_provider(
+		func(logic: Vector2) -> Vector2: return view.definition.downhill_at_world(logic)
+	)
 	# Ground drag (R-1907, numbers in SurfaceSpeed): grass, earth and mud by their
 	# wetness, and snow by its depth (ADR 0045); the slowest of the three wins.
 	# Paving is free, and cleared roads and paving are clear in the snow map.

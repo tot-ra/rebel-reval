@@ -212,6 +212,9 @@ func sync_player(snap: bool, delta: float = 0.0) -> void:
 	_view.sync_actor(_player_rig, _player.global_position)
 	if _sample_owning_ground:
 		_apply_owning_ground_height(_player_rig)
+	# A hop lifts the rig off the ground; logic stays flat (PlayerJumpState).
+	if _player.has_method("jump_height"):
+		_player_rig.position.y += float(_player.call("jump_height"))
 	# Velocity carries the time-flow multiplier; gait choice must not.
 	var raw_flow: Variant = _player.get(&"time_flow_scale")
 	var flow_scale := float(raw_flow) if raw_flow != null else 1.0
@@ -271,6 +274,10 @@ func sync_player(snap: bool, delta: float = 0.0) -> void:
 			# so the sound matches the ground the sole actually hits.
 			if _footstep_callback.is_valid():
 				_footstep_callback.call(foot, speed, global_foot)
+			# Puddle VFX is independent of audio settings and only runs on the city adapter.
+			if _view.has_method("emit_puddle_step"):
+				var surface := StringName(_view.call("footstep_surface_at", foot))
+				_view.call("emit_puddle_step", foot, surface, _player.velocity.normalized())
 	else:
 		_player_rig.consume_foot_plant()
 	_sync_actor_health_ring(_player_rig, _player)

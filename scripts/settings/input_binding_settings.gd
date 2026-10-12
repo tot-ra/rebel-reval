@@ -28,6 +28,7 @@ const ACTION_DEFINITIONS: Array[Dictionary] = [
 	{"id": &"player_guard", "label": "Guard", "category": "Combat"},
 	{"id": &"player_dodge", "label": "Sidestep", "category": "Combat"},
 	{"id": &"player_roll", "label": "Roll", "category": "Combat"},
+	{"id": &"player_jump", "label": "Jump", "category": "Movement"},
 	{"id": &"player_self_talk", "label": "Talk to yourself", "category": "Combat"},
 	{"id": &"toggle_spellforge", "label": "Spell cookbook", "category": "Magic"},
 	{"id": &"spellforge_element_1", "label": "Cast learned spell 1", "category": "Magic"},
@@ -133,6 +134,11 @@ static func default_settings() -> InputBindingSettings:
 		{
 			DEVICE_KEYBOARD_MOUSE: [_key(KEY_SPACE)],
 			DEVICE_GAMEPAD: [_joy_motion(JOY_AXIS_TRIGGER_RIGHT, 1.0)],
+		},
+		"player_jump":
+		{
+			DEVICE_KEYBOARD_MOUSE: [_key(KEY_Z)],
+			DEVICE_GAMEPAD: [_joy_button(JOY_BUTTON_RIGHT_STICK)],
 		},
 		"player_self_talk":
 		{

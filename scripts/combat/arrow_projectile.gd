@@ -127,7 +127,7 @@ func _first_target_on(from: Vector2, to: Vector2) -> Node2D:
 func _wall_between(from: Vector2, to: Vector2) -> Vector2:
 	if not is_inside_tree() or not Engine.is_in_physics_frame():
 		return Vector2.INF
-	var query := PhysicsRayQueryParameters2D.create(from, to, CollisionLayers.WORLD)
+	var query := PhysicsRayQueryParameters2D.create(from, to, CollisionLayers.MASK_WORLD)
 	query.collide_with_areas = false
 	var hit := get_world_2d().direct_space_state.intersect_ray(query)
 	if hit.is_empty():
