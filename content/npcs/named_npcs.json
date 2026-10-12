@@ -7,7 +7,7 @@
       "title": "retired smith, forge mentor",
       "faction": "faction.black_cloaks",
       "source_sheet": "docs/CHARACTERS/old_toomas.md",
-      "portrait": null,
+      "portrait": "res://assets/characters/portraits/npc/old_toomas.png",
       "model_scene": null,
       "census_id": null,
       "census_mode": "extra",

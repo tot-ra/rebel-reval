@@ -3,6 +3,13 @@
 **Confidence label:** `invented` (anachronistic legend cameo; not a historical person)
 **Role:** Side-quest NPC; Novgorod trade-caravan girl in Reval; wink at the future icon painter Andrei Rublev
 
+<!-- character-images -->
+![Anisia of Novgorod, canonical face](./img/sheets/anisia_of_novgorod.jpg)
+
+Generated 2026-10-12 with Leonardo AI (`gpt-image-1.5`), cinematic low-key style of the other sheets, 682x1024; dialogue avatar `assets/characters/portraits/npc/anisia_of_novgorod.png` (candidate per ADR 0044).
+
+*Reference only. Image index: [`img/README.md`](./img/README.md).*
+
 ## Canon framing (read first)
 
 - Andrei Rublev was born around 1360-1370 and nothing is recorded about his parents or birthplace. The game does **not** claim Anisia is his mother. It lets the player suspect it.

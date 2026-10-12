@@ -5,9 +5,9 @@
 **Campaign presence:** After the vertical slice
 
 <!-- character-images -->
-![Ellen Luik, concept plate](./img/concept/ellen.jpg)
+![Ellen Luik, canonical face](./img/sheets/ellen_luik.jpg)
 
-![Ellen Luik, legacy reference sheet](./img/sheets/ellen_luik.jpg)
+**Canonical face (decision 2026-10-12, provisional):** the reference sheet [`ellen_luik.jpg`](./img/sheets/ellen_luik.jpg) is the one canonical face; it is also the source of the dialogue avatar. The earlier concept plate [`ellen.jpg`](./img/concept/ellen.jpg) shows a different face and is kept only as a costume/mood alternate. The maintainer was asked and did not answer; the sheet was chosen because it matches the other cards and the in-game avatar. Swap both the embed and the avatar source if the maintainer picks the plate.
 
 *Reference only. Image index: [`img/README.md`](./img/README.md).*
 

@@ -4,6 +4,13 @@
 **Role:** Protagonist (per [ADR 0033](../adr/0033-teen-protagonist-and-spirit-dialogue-combat.md)); the player's character once the SD tasks land. The playable prototype still controls Kalev until then.
 **Name:** not yet chosen; `char.apprentice` is the stable ID and may stay as the internal ID after the name is decided. Maintainer decision pending.
 
+<!-- character-images -->
+![The Apprentice, canonical face](./img/sheets/apprentice.jpg)
+
+Generated 2026-10-12 with Leonardo AI (`gpt-image-1.5`), cinematic low-key style of the other sheets, 682x1024; dialogue avatar `assets/characters/portraits/npc/apprentice.png` (candidate per ADR 0044). He is a minor: every depiction shows him fully clothed.
+
+*Reference only. Image index: [`img/README.md`](./img/README.md).*
+
 ## Who he is
 A 15-year-old orphan raised in an almshouse tied to the Holy Spirit parish (the parish is `attested`, a priest there in 1316; an orphan house is `plausible composite`). He is thin, watchful, and slow to speak. The master smith Kalev takes him in to fill the place of the missing apprentice [Mart](./mart.md).
 
@@ -28,7 +35,7 @@ Few words, concrete, literal. Notices what is not said. Understands little Germa
 ## Mechanics hooks
 - Guilt per school when he strikes: [`SPIRIT_DIALOGUE.md`](../SYSTEMS/SPIRIT_DIALOGUE.md#guilt-implemented-sd-03).
 - Double-edged traits and talking to himself: planned (SD-09, SD-15).
-- Model: `assets/characters/variants/apprentice.tscn` (implemented, SD-10). No portrait yet.
+- Model: `assets/characters/variants/apprentice.tscn` (implemented, SD-10). Portrait: [`img/sheets/apprentice.jpg`](./img/sheets/apprentice.jpg).
 
 ## Possible outcomes
 - Learns to carry the gift without being consumed by guilt.

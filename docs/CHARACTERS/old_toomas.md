@@ -5,11 +5,9 @@
 **Promotion:** P7-009 Wave A (`char.old_toomas`) · Art tier **1** · Legacy seed inspiration only
 
 <!-- character-images -->
-![Old Toomas, legacy reference sheet](./img/sheets/old_toomas.png)
+![Old Toomas, canonical face](./img/sheets/old_toomas.jpg)
 
-Legacy pixel source: [`old_toomas.gif`](./img/sheets/old_toomas.gif).
-
-Legacy pixel source: [`old_toomas.aseprite`](./img/sheets/old_toomas.aseprite).
+Generated 2026-10-12 with Leonardo AI (`gpt-image-1.5`), cinematic low-key style of the other sheets, 682x1024; dialogue avatar `assets/characters/portraits/npc/old_toomas.png` (candidate per ADR 0044). Legacy pixel sources, not a face reference: [`old_toomas.png`](./img/sheets/old_toomas.png), [`old_toomas.gif`](./img/sheets/old_toomas.gif), [`old_toomas.aseprite`](./img/sheets/old_toomas.aseprite).
 
 *Reference only. Image index: [`img/README.md`](./img/README.md).*
 

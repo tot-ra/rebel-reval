@@ -5,6 +5,13 @@
 **Promotion:** P7-013 Wave A (`char.brother_hermann`) · Act gate **A1-A3** · Art tier **1** · Legacy seed inspiration only
 **Content ID:** `char.brother_hermann`
 
+<!-- character-images -->
+![Brother Hermann, canonical face](./img/sheets/brother_hermann.jpg)
+
+Generated 2026-10-12 with Leonardo AI (`gpt-image-1.5`), cinematic low-key style of the other sheets, 682x1024; dialogue avatar `assets/characters/portraits/npc/brother_hermann.png` (candidate per ADR 0044). Known deviation: the brief asks for a tonsure; the image shows short cropped hair.
+
+*Reference only. Image index: [`img/README.md`](./img/README.md).*
+
 ## Naming and canon boundary
 Brother Hermann is an adapted Order handler, not a claim that the legacy scene is a literal historical biography. His name and role remain revisable under the Act 3 design gate **P6-001**. He must not be used to add a new faction or a second Order commander to the launch cast.
 
