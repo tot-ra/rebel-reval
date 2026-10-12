@@ -75,7 +75,89 @@ Status: implemented (task **R-1889**, [ADR 0047](../adr/0047-interaction-stances
 
 **Verify.** `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_character_conversation`.
 
-**Limits.** One generic duel for everyone; the stranger's soul lights come from the aura view of their rig. A person released after a duel snaps back to where the clock puts them.
+**Limits.** One generic duel for everyone; the stranger's soul lights come from the aura view of their rig. A person released after a duel snaps back to where the clock puts them. What a duel should cost and change is designed in [Psychological spells and willpower](#psychological-spells-and-willpower-planned) below.
+
+## Psychological spells and willpower (planned)
+
+Status: planned (design only, no code; maintainer discussion 2026-10-13). Scope: turning the five word spells into a catalogue of psychological spells that raise or lower soul lights, a willpower cost for being in the spirit world, and the consequences of a duel with an ordinary resident (TALK-8). Out of scope: runtime text generation (lines are authored offline), free-text input, permanent changes to a resident's soul lights (open decision 1), a new art set before an art task names the files (P0-040).
+
+**Why.** Today a word can only strike (lower) a light, being in sight costs nothing, and a duel with a stranger changes nothing. So the hero can duel everyone for free and a duel has only one tactic: break the other person. Most social behaviour (praise, a dark joke, gaslighting) can be described as a push on one or two of the seven soul lights, up or down. That gives a vocabulary that is both readable and morally loaded, without a good/evil score.
+
+### Spells are social moves
+
+A **spell** is a social move with a stable id `spell.word.<slug>`, an element (its colour and slot sigil family), a **light vector** (one or two `aspect.*` lights with a signed delta), a willpower cost, optional guilt, and authored lines. Light and element pair as in [the seven soul lights](./SPIRIT_SIGHT.md#the-seven-soul-lights): fear `aspect.nature`, coin `aspect.affection`, duty `aspect.tenacity`, love `aspect.unity`, shame `aspect.resonance`, sight `aspect.awareness`, faith `aspect.light`.
+
+Draft catalogue (all numbers are prototype values):
+
+| Id | Spell | Light vector | Cost | Kind |
+|---|---|---|---|---|
+| `spell.word.intimidate` | Intimidation (today's Fear word) | nature -2 | 1 | lowering, starter |
+| `spell.word.reproach` | Reproach (today's Shame word) | resonance -2 | 1 | lowering, starter |
+| `spell.word.call_to_duty` | Call to duty (today's Duty word) | tenacity -2 | 1 | lowering, starter |
+| `spell.word.appeal_to_love` | Appeal to love (today's Love word) | unity -2 | 1 | lowering, starter |
+| `spell.word.appeal_to_conscience` | Appeal to conscience (today's Faith word) | light -2 | 1 | lowering, starter |
+| `spell.word.praise` | Praise | resonance +1, unity +1 | 1 | raising |
+| `spell.word.comfort` | Comfort | nature +2 | 2 | raising |
+| `spell.word.listen` | Listening | awareness +1, unity +1 | 1 | raising |
+| `spell.word.shared_prayer` | Shared prayer | light +2 | 2 | raising |
+| `spell.word.mockery` | Mockery | resonance -1, affection -1 | 1 | lowering |
+| `spell.word.gaslighting` | Gaslighting | awareness -2, tenacity -1 | 3 | lowering, guilt |
+| `spell.word.dark_humour` | Dark humour | nature +1, light -1 | 1 | mixed |
+| `spell.word.flattery` | Flattery | resonance +1, awareness -1 | 1 | mixed |
+| `spell.word.guilt_trip` | Pity play | unity +1, resonance -1 | 2 | mixed |
+| `spell.word.promise_gain` | Promise of gain | affection +1, tenacity -1 | 2 | mixed |
+| `spell.word.provocation` | Provocation | tenacity +1, awareness -1 | 1 | mixed |
+
+The five starters keep today's behaviour exactly; they are only renamed and moved into the catalogue. Each one is the lowering half of its element.
+
+### Rules in the duel
+
+1. **Duel lights.** When a duel opens, the opponent's light levels are copied from their aura profile (0..5) into the duel. Spells shift these copies, clamped to 0..5. Every existing light factor (pool, weak points, blow strength) reads the shifted level, so the fight changes as the lights move.
+2. **Two ways to win.** Lowering a light deals **pressure**, as words do now (6 per point of delta before modifiers, weak-point x1.5 / x1.25 unchanged). Raising a light builds **trust**, a new 0..100 meter (8 per point before modifiers). A light already at 5 cannot rise and a light at 0 cannot fall; that half of the spell does nothing. Pressure 0 ends the duel `resolved_broken`, trust 100 ends it `resolved_eased`, and leaving (hold **Esc**) ends it `resolved_left`. Composure 0 still loses.
+3. **The trade-off is built in.** A raised light also strengthens that person's blows of its element (`light_blow_factor`). Comforting someone makes them braver against you. A mixed spell is half pressure, half trust.
+4. **Answering.** The gold-rim rule stays: when the opponent waits for a reply and a reply has the spell's element, the spell *is* that reply, and it costs no willpower. A free cast costs the spell's willpower.
+5. **Lines in context.** A spell has authored lines keyed by context, picked in a fixed priority: answer to the incoming blow kind (`answer.<kind>`), the duel topic (`topic.<id>`), the target light is weak (`weak`), then `default`. Within a context, lines rotate by how many times the spell was spoken in this duel, so the choice is deterministic. Today's `duel.topic.lines` become the starters' `topic.*` lines.
+6. **Guilt on dark spells.** A spell with a `guilt` circumstance (gaslighting: church 1, folk 1) records `act.spirit.<resident>.<spell>` in `GuiltLedger` once per resident, whether or not it wins.
+
+### Loadout and learning
+
+The cast bar keeps five slots; the hero picks which known spells sit in them (in Hingepuu and in the quick menu, never mid-duel). He starts with the five starters. He learns more from Kalev's lessons, from watching conflicts (SD-06 `move.<kind>.<element>` maps to the spell of that element and direction), and from authored story beats. Known spells and the loadout are saved.
+
+### Willpower: the price of the spirit world
+
+The spirit resource is the existing **willpower** (`resource.willpower`, the HUD mana orb). There is one pool for elemental magic and spirit spells, so there is no second bar.
+
+| Rule | Value |
+|---|---|
+| Maximum | 6 + floor(`aspect.light` rank / 2): 8 at the apprentice's starting rank 5 (today's starting 8), 31 at the hard cap 50 |
+| Spirit sight open | -1 per 12 s of unpaused play |
+| In a duel | -1 per 6 s, on top of spell costs |
+| Spell cost | 1..3 per free cast; answering a reply is free |
+| At 0 outside a duel | sight closes by itself ("Your inner eye clouds over") and cannot reopen for 30 s |
+| At 0 in a duel | no free casts; every drain tick costs 5 composure instead, so staying ends in a loss unless the hero leaves |
+
+Recovery happens only while sight is closed: +1 per 60 s of play, a full refill after sleep, +3 at a church service or prayer ([ADR 0046](../adr/0046-church-services-and-collective-channeling.md) hook), +1 per finished piece at Kalev's anvil (the forge as the hub), and +2 after a duel that ends `resolved_eased`. Time is counted in fixed steps from the simulation clock, so drain and recovery are deterministic. Only the integer pool is saved (as now); the sub-tick remainder is transient and resets on load.
+
+### What a duel with a stranger leaves behind (TALK-8)
+
+Default from the R-1889 follow-up (option B: guilt, memory, Hope/Fear), keyed by the resident's stable id (`guilt_context()` / `record.id`):
+
+- **Memory:** a saved per-resident record of the last outcome (`eased`, `broken`, `left`). Next time the conversation and the duel open on a reaction line: a broken person is afraid and refuses to talk, an eased one greets the hero warmly.
+- **Broken:** guilt through a new circumstance `act.spirit_intrusion` (church 2, folk 1, civic 0), once per resident, plus Living City Fear +1 (`living.duel.<resident>`).
+- **Eased:** Living City Hope +1 (`living.duel.<resident>`), and the willpower refund above.
+- **Left:** memory only.
+- City Hope and Fear from stranger duels are capped at 5 events per save, so they cannot be farmed.
+
+### Open decisions
+
+1. **Lasting light shifts.** Should praise or gaslighting permanently move that resident's soul light by 1 (saved per resident)? Default: no, shifts last only for the duel and the memory carries the consequence.
+2. **Soul-light growth for the hero** (option C of the R-1889 follow-up): default no until NATURAL point balance (P7-011) is in.
+3. **Separate focus pool** instead of shared willpower: default no (one orb, one rule).
+4. All numbers above are prototype values for the first playtest.
+
+**Implementation order (tasks to create):** SPL-1 catalogue data, schema and validator (`content/spirit_spells/`); SPL-2 duel lights, trust meter and the three endings in `SpiritDuel`; SPL-3 willpower maximum, drain and recovery; SPL-4 loadout, learning and save; SPL-5 contextual lines for the generic and porter duels; TALK-8 stranger consequences (depends on R-1889 and SPL-2).
+
+**Verify (when built).** `--filter=test_spirit_word_spells,test_spirit_duel_aura,test_character_conversation,test_save_service` plus a new `test_spirit_spells`, and a capture of a trust win.
 
 ## Spirit-duel building blocks
 
