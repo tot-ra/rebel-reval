@@ -39,6 +39,9 @@ Kalev, Mart, Aita, Kaja, Henning, and Jürgen appear in the vertical slice. Elle
 | Master Burchard von Dreileben | Livonian Order Master; Sõjamäe victor and Act 2-3 antagonist | A2–A3 | 1 | `attested` | [Master Burchard von Dreileben](./burchard_dreileben.md) |
 | Brother Goswin von Herike | Order field commander; Reval castle commander from May 1343 | A2 | 1 | `attested` | [Brother Goswin von Herike](./goswin_herike.md) |
 | Mikhail Kolovrat | Pskov scout and emissary | A2 | 1 | `plausible composite` | [Mikhail Kolovrat](./mikhail_kolovrat.md) |
+| Jana Podajalnaja | Novgorod trade and intelligence voice | A2 | 1 | `plausible composite` | [Jana Podajalnaja](./jana_podajalnaja.md) |
+| Ironhand | Hireable harbour-raider captain, unnamed in 1343 | A2 | 1 | `invented` | [Ironhand](./ironhand.md) |
+| Nikolaus von Danzig | Lizard Union intrigue-cell spymaster | A2–A3 | 1 | `invented` | [Nikolaus von Danzig](./nikolaus_danzig.md) |
 
 Remaining Wave B/C names are listed in the [promotion plan](../cast_faction_promotion.md) until their act design gates open. The five remaining Wave A briefs are now landed under **P7-013**.
 

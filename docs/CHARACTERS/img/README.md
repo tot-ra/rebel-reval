@@ -54,3 +54,5 @@ No `assets/SOURCES.csv` rows. Generated with Leonardo AI (account default model)
 | Master Burchard von Dreileben | [master_burchard_von_dreileben.jpg](sheets/master_burchard_von_dreileben.jpg) | `characters/order/img/master_burchard_von_dreileben.jpg` |
 | Brother Goswin von Herike | [brother_goswin.jpg](sheets/brother_goswin.jpg) | `characters/order/img/brother_goswin.jpg` |
 | Mikhail Kolovrat | [mihail_kolovrat.jpg](sheets/mihail_kolovrat.jpg) | `characters/pskov/img/mihail_kolovrat.jpg` |
+| Jana Podajalnaja | [jana.jpg](sheets/jana.jpg) | `characters/novgorod/img/jana.jpg` |
+| Nikolaus von Danzig | [nikolaus_von_danzig.jpg](sheets/nikolaus_von_danzig.jpg) | `characters/lizard_union/img/nikolaus_von_danzig.jpg` |

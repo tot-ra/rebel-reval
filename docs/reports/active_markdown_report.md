@@ -14,10 +14,10 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `1278`
+- Active Markdown files scanned: `1282`
 - Markdown files excluded as archive/reference/out of active scope: `764`
-- Local/external links inspected: `14563`
-- Links to active Markdown docs: `12833`
+- Local/external links inspected: `14595`
+- Links to active Markdown docs: `12861`
 - Links to existing archive/reference/non-active local docs: `521`
 - External links skipped for reachability: `192`
 - Issues found: `13`
@@ -154,6 +154,8 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/CHARACTERS/henning.md`
 - `docs/CHARACTERS/hinrik_cartographer.md`
 - `docs/CHARACTERS/img/README.md`
+- `docs/CHARACTERS/ironhand.md`
+- `docs/CHARACTERS/jana_podajalnaja.md`
 - `docs/CHARACTERS/johann_von_minden.md`
 - `docs/CHARACTERS/jurgen.md`
 - `docs/CHARACTERS/juri_ratnik.md`
@@ -166,6 +168,7 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/CHARACTERS/mart_weaver.md`
 - `docs/CHARACTERS/martin_black_cloaks.md`
 - `docs/CHARACTERS/mikhail_kolovrat.md`
+- `docs/CHARACTERS/nikolaus_danzig.md`
 - `docs/CHARACTERS/old_toomas.md`
 - `docs/CHARACTERS/order_squire.md`
 - `docs/CHARACTERS/README.md`
@@ -1234,6 +1237,7 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/SYSTEMS/SPIRIT_SIGHT.md`
 - `docs/SYSTEMS/STATE_AND_SAVES.md`
 - `docs/SYSTEMS/TIME_AND_PHASES.md`
+- `docs/SYSTEMS/UNDRESS_INTERACTION.md`
 - `docs/SYSTEMS/VEGETATION_ENGINEERING.md`
 - `docs/SYSTEMS/VEGETATION_REALISM.md`
 - `docs/SYSTEMS/WATER_SANDBOX.md`

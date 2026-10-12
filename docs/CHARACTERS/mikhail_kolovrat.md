@@ -11,7 +11,7 @@
 *Reference only. Image index: [`img/README.md`](./img/README.md).*
 
 ## Naming and faction boundary
-[`docs/CANON.md`](../CANON.md) labels the Pskov/Novgorod events **`attested`** (a Pskov force under Prince Ivan reached Otepää on 26 May 1343) and the playable emissaries **`plausible composite`**. Mikhail is such an emissary: invented. His surname echoes the Rus hero Yevpaty Kolovrat (died 1238), who is not related to him and must not be referenced in-game. The legacy seed was written in Cyrillic (Михаил Коловрат); the English rendering above is the canon form. He is a Pskov voice in the combined `faction.pskov_novgorod` seat and an opposing view to Jana Podajalnaja, the Novgorod voice.
+[`docs/CANON.md`](../CANON.md) labels the Pskov/Novgorod events **`attested`** (a Pskov force under Prince Ivan reached Otepää on 26 May 1343) and the playable emissaries **`plausible composite`**. Mikhail is such an emissary: invented. His surname echoes the Rus hero Yevpaty Kolovrat (died 1238), who is not related to him and must not be referenced in-game. The legacy seed was written in Cyrillic (Михаил Коловрат); the English rendering above is the canon form. He is a Pskov voice in the combined `faction.pskov_novgorod` seat and an opposing view to [Jana Podajalnaja](./jana_podajalnaja.md), the Novgorod voice.
 
 ## Visual Description
 - **Clothes:** Dark leather and rough grey-brown fur, chosen for camouflage and weather, well maintained but heavily used.
@@ -32,7 +32,7 @@ Born to poor trappers, learned the forest early, joined the Pskov militia as a s
 - **Allies:** Trappers, hunters and peasants of the Pskov lands; common soldiers and idealistic lesser nobles.
 - **Enemies:** Pskov's wealthy boyars, the Livonian Order and the more aggressive Novgorod factions.
 - **Initial View of the Main Player (Kalev):** Cautious and suspicious; he tests motives and skills before trust.
-- **Jana Podajalnaja:** The Novgorod voice who wants to undermine Pskov's independence; their intrigue is the Novgorod Gambit hook.
+- **[Jana Podajalnaja](./jana_podajalnaja.md):** The Novgorod voice who wants to undermine Pskov's independence; their intrigue is the Novgorod Gambit hook.
 
 ## Daily Routines
 By day a fur trapper checking lines and trading in market; by night meets spies and plans. Registry anchor: `poi.brewery.vene` (the Rus quarter, a safe-house base).
