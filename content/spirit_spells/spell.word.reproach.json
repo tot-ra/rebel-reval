@@ -1,0 +1,24 @@
+{
+  "type": "spirit_spell",
+  "id": "spell.word.reproach",
+  "name": "Reproach",
+  "element": "shame",
+  "light_vector": [
+    {
+      "aspect": "aspect.resonance",
+      "delta": -2
+    }
+  ],
+  "cost": 1,
+  "kind": "lowering",
+  "starter": true,
+  "lines": {
+    "default": [
+      "Say it out loud and hear how it sounds.",
+      "Your mother would not look at you now."
+    ],
+    "weak": [
+      "You cannot even meet my eyes."
+    ]
+  }
+}

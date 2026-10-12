@@ -1,0 +1,24 @@
+{
+  "type": "spirit_spell",
+  "id": "spell.word.appeal_to_love",
+  "name": "Appeal to love",
+  "element": "love",
+  "light_vector": [
+    {
+      "aspect": "aspect.unity",
+      "delta": -2
+    }
+  ],
+  "cost": 1,
+  "kind": "lowering",
+  "starter": true,
+  "lines": {
+    "default": [
+      "Who waits for you at home tonight? Think of them.",
+      "Would the ones you love be proud of this?"
+    ],
+    "weak": [
+      "They stopped waiting for you a long time ago."
+    ]
+  }
+}

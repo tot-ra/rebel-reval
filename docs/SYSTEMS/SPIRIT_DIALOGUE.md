@@ -79,7 +79,7 @@ Status: implemented (task **R-1889**, [ADR 0047](../adr/0047-interaction-stances
 
 ## Psychological spells and willpower (planned)
 
-Status: planned (design only, no code; maintainer discussion 2026-10-13). Scope: turning the five word spells into a catalogue of psychological spells that raise or lower soul lights, a willpower cost for being in the spirit world, and the consequences of a duel with an ordinary resident (TALK-8). Out of scope: runtime text generation (lines are authored offline), free-text input, permanent changes to a resident's soul lights (decision 1), a new art set before an art task names the files (P0-040).
+Status: planned (maintainer discussion 2026-10-13); the spell catalogue below is implemented (task **R-1913**), the duel rules, willpower, loadout and stranger consequences are not. Scope: turning the five word spells into a catalogue of psychological spells that raise or lower soul lights, a willpower cost for being in the spirit world, and the consequences of a duel with an ordinary resident (TALK-8). Out of scope: runtime text generation (lines are authored offline), free-text input, permanent changes to a resident's soul lights (decision 1), a new art set before an art task names the files (P0-040).
 
 **Why.** Today a word can only strike (lower) a light, being in sight costs nothing, and a duel with a stranger changes nothing. So the hero can duel everyone for free and a duel has only one tactic: break the other person. Most social behaviour (praise, a dark joke, gaslighting) can be described as a push on one or two of the seven soul lights, up or down. That gives a vocabulary that is both readable and morally loaded, without a good/evil score.
 
@@ -109,6 +109,19 @@ Draft catalogue (all numbers are prototype values):
 | `spell.word.provocation` | Provocation | tenacity +1, awareness -1 | 1 | mixed |
 
 The five starters keep today's behaviour exactly; they are only renamed and moved into the catalogue. Each one is the lowering half of its element.
+
+Elements of the non-starters (the element must be guarded by one of the spell's lights; awareness guards none): praise, mockery and flattery shame; comfort and dark humour fear; listening and pity play love; shared prayer faith; gaslighting and provocation duty; promise of gain coin.
+
+### Spell catalogue (implemented, SPL-1)
+
+Status: implemented (task **R-1913**). Scope: the 16 spells above as validated data and a read-only loader. Out of scope: any gameplay use (the duel still runs the five hard-coded words of `SpiritWordSpells` until SPL-2), loadout, willpower drain, contextual `answer.*` / `topic.*` lines (SPL-5).
+
+- **Data:** one record per spell in [`content/spirit_spells/`](../../content/spirit_spells/README.md), type `spirit_spell`, schema [`schemas/spirit_spell.schema.json`](../../schemas/spirit_spell.schema.json) (shared `aspect_id` def in `common.schema.json`). Fields: `id`, `name`, `element`, `light_vector` (1..2 `{aspect, delta}`), `cost` 1..3, `kind`, `starter`, optional `guilt` (`church` / `folk` / `civic` weights), `lines` (`default` required; also `weak`, `answer.<move kind>`, `topic.<topic id>`). Every spell has two `default` and one `weak` line today.
+- **Validator:** `tools/validate_content.py` maps the `spell.word.` prefix to `spirit_spell` (before pagan `spell.`) and runs `validate_spirit_spell` (`tools/validate_content_record_gameplay.py`), code `SPIRIT_SPELL`: no zero delta, no repeated light, `kind` agrees with the delta signs, the element is guarded by one of the lights, line keys are known contexts, `guilt` weighs at least one school, a starter is one of the five slot elements at -2 on its own light for cost 1 without guilt, and only one starter per element.
+- **Loader:** `SpiritSpellCatalog` (`scripts/combat/spirit_spell_catalog.gd`): `load_catalog(dir)` reads every JSON file, keeps ids sorted, and on any unreadable, malformed or duplicate record publishes nothing and reports `errors()`. Queries: `ids()`, `get_spell(id)` (a copy), `starter_ids()` (slot order of `SpiritWordSpells.DEFAULT_ELEMENTS`), `ids_for_element(element, kind)`, `light_delta(id, aspect)`, `lines(id, context)`.
+- **Save:** none; the catalogue is static content.
+- **Verify:** `python3 tools/validate_content.py content/spirit_spells`, `python3 -m unittest tests.python.test_validate_content -v` (catalogue, each semantic rule, prefix type, duplicate starter), `--filter=test_spirit_spells` (starters match today's slots, element and cost; sorted ids; copies; failed loads keep nothing). Negative schema fixture: `content/examples/invalid/spell.word.three_lights.json`.
+- **Limits:** built but not used in play (SPL-2 R-1914 wires it). There is no `valid/` example: `ContentDB` still maps every `spell.` id to pagan magic, so a `spell.word.*` record in a `ContentDB` corpus fails its type check, and `SpiritDuel` / `SpiritArenaHost` treat any `spell.` id as a pagan cast; SPL-2 must keep word spells out of those paths. Starter deltas are -2 while today's word deals a flat 6 pressure; SPL-2 has to keep the starters' damage unchanged when it turns deltas into pressure (6 per point would double it).
 
 ### Rules in the duel
 

@@ -18,6 +18,9 @@ RECORD_TYPE_BY_PREFIX = {
     "encounter.": "encounter",
     "phase_profile.": "phase_profile",
     "slicephase.": "phase_profile",
+    # WHY: spirit-duel word spells share the spell. namespace with pagan magic; the longer
+    # prefix must come first because record_type_for_id takes the first match.
+    "spell.word.": "spirit_spell",
     "spell.": "spell",
     "rite.": "rite",
     "magic.": "magic_grant",

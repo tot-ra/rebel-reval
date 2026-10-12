@@ -371,6 +371,84 @@ class ValidateContentTests(unittest.TestCase):
             self.assertTrue(any("fixed tags" in message for message in messages))
             self.assertTrue(any("must use operation grant" in message for message in messages))
 
+    def test_spirit_spell_catalogue_is_valid(self) -> None:
+        catalogue = ROOT / "content/spirit_spells"
+        self.assertEqual(validate_corpus([catalogue], project_root=ROOT), [])
+        records = [
+            json.loads(path.read_text(encoding="utf-8"))
+            for path in sorted(catalogue.glob("*.json"))
+        ]
+        self.assertEqual(len(records), 16)
+        starters = {record["element"]: record["id"] for record in records if record["starter"]}
+        # Today's slot order (SpiritWordSpells.DEFAULT_ELEMENTS), one starter each.
+        self.assertEqual(sorted(starters), sorted(["fear", "shame", "duty", "love", "faith"]))
+        self.assertEqual(starters["fear"], "spell.word.intimidate")
+
+    def test_spirit_spell_semantic_rules(self) -> None:
+        base = json.loads(
+            (ROOT / "content/spirit_spells/spell.word.praise.json").read_text(encoding="utf-8")
+        )
+        cases = {
+            "zero delta": (
+                {"light_vector": [{"aspect": "aspect.resonance", "delta": 0}]},
+                "must not be 0",
+            ),
+            "kind disagrees": ({"kind": "mixed"}, "disagrees with the light_vector signs"),
+            "unpaired element": ({"element": "coin"}, "is not guarded by any light"),
+            "repeated light": (
+                {
+                    "light_vector": [
+                        {"aspect": "aspect.resonance", "delta": 1},
+                        {"aspect": "aspect.resonance", "delta": 1},
+                    ]
+                },
+                "duplicate",
+            ),
+            "bad line key": (
+                {"lines": {"default": ["x"], "answer.shout": ["y"]}},
+                "line context must be",
+            ),
+            "empty guilt": ({"guilt": {"church": 0}}, "at least one school"),
+            "fake starter": ({"starter": True}, "a starter must be today's word"),
+        }
+        for label, (overrides, needle) in cases.items():
+            with self.subTest(label), tempfile.TemporaryDirectory() as tmp:
+                root = Path(tmp)
+                record = {**base, **overrides}
+                _write(root / "content/spell.json", record)
+                diagnostics = validate_corpus([root / "content"], project_root=root)
+                self.assertTrue(diagnostics, label)
+                self.assertTrue(
+                    any(needle in item.message for item in diagnostics),
+                    [item.format() for item in diagnostics],
+                )
+
+    def test_spirit_spell_needs_default_lines_and_prefix_type(self) -> None:
+        base = json.loads(
+            (ROOT / "content/spirit_spells/spell.word.praise.json").read_text(encoding="utf-8")
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            no_default = {**base, "lines": {"weak": ["x"]}}
+            _write(root / "a/spell.json", no_default)
+            self.assertIn("SCHEMA", _codes(validate_corpus([root / "a"], project_root=root)))
+            # spell.word.* must be a spirit_spell, while spell.pagan.* stays pagan magic.
+            pagan_typed = {**base, "type": "spell"}
+            _write(root / "b/spell.json", pagan_typed)
+            self.assertIn("SCHEMA", _codes(validate_corpus([root / "b"], project_root=root)))
+
+    def test_spirit_spell_second_starter_for_an_element_is_rejected(self) -> None:
+        base = json.loads(
+            (ROOT / "content/spirit_spells/spell.word.intimidate.json").read_text(encoding="utf-8")
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            _write(root / "content/a.json", base)
+            _write(root / "content/b.json", {**base, "id": "spell.word.threaten"})
+            diagnostics = validate_corpus([root / "content"], project_root=root)
+            self.assertEqual(len(diagnostics), 1, [item.format() for item in diagnostics])
+            self.assertIn("already has the starter 'spell.word.intimidate'", diagnostics[0].message)
+
     def test_json_parse_error(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

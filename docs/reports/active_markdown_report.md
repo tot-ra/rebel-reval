@@ -14,11 +14,11 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `1285`
-- Markdown files excluded as archive/reference/out of active scope: `765`
-- Local/external links inspected: `14687`
-- Links to active Markdown docs: `12894`
-- Links to existing archive/reference/non-active local docs: `537`
+- Active Markdown files scanned: `1293`
+- Markdown files excluded as archive/reference/out of active scope: `766`
+- Local/external links inspected: `14913`
+- Links to active Markdown docs: `12926`
+- Links to existing archive/reference/non-active local docs: `538`
 - External links skipped for reachability: `192`
 - Issues found: `0`
 
@@ -1202,6 +1202,14 @@ No active Markdown documentation issues found.
 - `docs/SYSTEMS/HOIST_ROPE.md`
 - `docs/SYSTEMS/HOUSEHOLDS.md`
 - `docs/SYSTEMS/HUD_AND_MENUS.md`
+- `docs/SYSTEMS/landmark_sites/holy_spirit.md`
+- `docs/SYSTEMS/landmark_sites/kalev_smithy.md`
+- `docs/SYSTEMS/landmark_sites/raekoja_plats.md`
+- `docs/SYSTEMS/landmark_sites/st_catherine.md`
+- `docs/SYSTEMS/landmark_sites/st_mary.md`
+- `docs/SYSTEMS/landmark_sites/st_michael.md`
+- `docs/SYSTEMS/landmark_sites/st_nicholas.md`
+- `docs/SYSTEMS/landmark_sites/st_olaf.md`
 - `docs/SYSTEMS/LIVING_CITY.md`
 - `docs/SYSTEMS/LIVING_VEGETATION.md`
 - `docs/SYSTEMS/LIVING_WORLD.md`

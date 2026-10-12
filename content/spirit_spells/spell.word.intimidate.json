@@ -1,0 +1,24 @@
+{
+  "type": "spirit_spell",
+  "id": "spell.word.intimidate",
+  "name": "Intimidation",
+  "element": "fear",
+  "light_vector": [
+    {
+      "aspect": "aspect.nature",
+      "delta": -2
+    }
+  ],
+  "cost": 1,
+  "kind": "lowering",
+  "starter": true,
+  "lines": {
+    "default": [
+      "Look at my hands. You do not want to find out what they learned at the anvil.",
+      "Step back, or the night will remember your face."
+    ],
+    "weak": [
+      "You are already shaking. One more word and you run."
+    ]
+  }
+}

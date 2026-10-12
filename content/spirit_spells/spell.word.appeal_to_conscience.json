@@ -1,0 +1,24 @@
+{
+  "type": "spirit_spell",
+  "id": "spell.word.appeal_to_conscience",
+  "name": "Appeal to conscience",
+  "element": "faith",
+  "light_vector": [
+    {
+      "aspect": "aspect.light",
+      "delta": -2
+    }
+  ],
+  "cost": 1,
+  "kind": "lowering",
+  "starter": true,
+  "lines": {
+    "default": [
+      "God sees this, even if the town does not.",
+      "Whom will you tell this to at confession?"
+    ],
+    "weak": [
+      "You stopped praying, didn't you? I can see the dark where it was."
+    ]
+  }
+}

@@ -9,6 +9,18 @@
       "pattern": "^[a-z][a-z0-9]*(\\.[a-z0-9_]+)+$",
       "description": "Stable dotted content ID, for example char.aita or quest.bitter_brew."
     },
+    "aspect_id": {
+      "description": "One of the seven NATURAL aspects, also the soul-light ids of spirit sight (ADR 0041).",
+      "enum": [
+        "aspect.nature",
+        "aspect.affection",
+        "aspect.tenacity",
+        "aspect.unity",
+        "aspect.resonance",
+        "aspect.awareness",
+        "aspect.light"
+      ]
+    },
     "local_id": {
       "type": "string",
       "pattern": "^[a-z][a-z0-9_]*$"

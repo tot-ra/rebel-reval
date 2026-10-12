@@ -10,6 +10,7 @@ This directory defines the first machine-readable content contract for Reval Reb
 - `commission.schema.json`
 - `location.schema.json`
 - `common.schema.json`
+- `spirit_spell.schema.json` (spirit-duel word spells, [`content/spirit_spells/`](../content/spirit_spells/README.md))
 
 The schemas encode the P0 canon confidence labels (`attested`, `plausible composite`, `folklore`, `invented`), stable dotted IDs, editorial approval status, declarative conditions/effects, and ADR 0003's deterministic authored offline dialogue rule. Runtime LLM calls, free-text NPC chat, arbitrary GDScript in content, and non-deterministic bark selection are intentionally outside the schema contract.
 

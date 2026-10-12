@@ -12,6 +12,7 @@ from validate_content_record_gameplay import (
     validate_encounter,
     validate_item,
     validate_mechanism,
+    validate_spirit_spell,
 )
 from validate_content_record_narrative import (
     validate_bark_pool,
@@ -446,6 +447,7 @@ RECORD_VALIDATORS: dict[str, RecordValidator] = {
     "encounter": validate_encounter,
     "location": validate_location,
     "spell": validate_magic,
+    "spirit_spell": validate_spirit_spell,
     "rite": validate_magic,
     "magic_grant": validate_magic,
 }

@@ -63,4 +63,15 @@ One page per implemented or planned feature. Each page opens with a `Status:` li
 - [Vegetation realism (merged)](VEGETATION_REALISM.md)
 - [Water sandbox](WATER_SANDBOX.md)
 
+#### `landmark_sites/`
+
+- [Holy Spirit church and almshouse (Pühavaimu)](landmark_sites/holy_spirit.md)
+- [Kalev's smithy (task R-1643)](landmark_sites/kalev_smithy.md)
+- [Council hall and market square (Raekoja plats)](landmark_sites/raekoja_plats.md)
+- [St Catherine's Dominican friary (task R-1718)](landmark_sites/st_catherine.md)
+- [St Mary's cathedral (Toomkirik, Dome church)](landmark_sites/st_mary.md)
+- [St Michael's Cistercian nunnery](landmark_sites/st_michael.md)
+- [St Nicholas' church (Niguliste)](landmark_sites/st_nicholas.md)
+- [St Olaf's church (Oleviste)](landmark_sites/st_olaf.md)
+
 <!-- docs-index:end -->

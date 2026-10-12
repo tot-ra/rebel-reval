@@ -1,0 +1,28 @@
+{
+  "type": "spirit_spell",
+  "id": "spell.word.provocation",
+  "name": "Provocation",
+  "element": "duty",
+  "light_vector": [
+    {
+      "aspect": "aspect.tenacity",
+      "delta": 1
+    },
+    {
+      "aspect": "aspect.awareness",
+      "delta": -1
+    }
+  ],
+  "cost": 1,
+  "kind": "mixed",
+  "starter": false,
+  "lines": {
+    "default": [
+      "Go on, prove you are a man of your word. I dare you.",
+      "They say you never finish anything. Show them."
+    ],
+    "weak": [
+      "You will not stand for that, will you?"
+    ]
+  }
+}

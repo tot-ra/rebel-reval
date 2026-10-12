@@ -1,0 +1,24 @@
+{
+  "type": "spirit_spell",
+  "id": "spell.word.comfort",
+  "name": "Comfort",
+  "element": "fear",
+  "light_vector": [
+    {
+      "aspect": "aspect.nature",
+      "delta": 2
+    }
+  ],
+  "cost": 2,
+  "kind": "raising",
+  "starter": false,
+  "lines": {
+    "default": [
+      "Breathe. Nothing here will hurt you.",
+      "The night passes. It always does."
+    ],
+    "weak": [
+      "I know the fear. You are not alone in it."
+    ]
+  }
+}

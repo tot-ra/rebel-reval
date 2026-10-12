@@ -1,0 +1,24 @@
+{
+  "type": "spirit_spell",
+  "id": "spell.word.shared_prayer",
+  "name": "Shared prayer",
+  "element": "faith",
+  "light_vector": [
+    {
+      "aspect": "aspect.light",
+      "delta": 2
+    }
+  ],
+  "cost": 2,
+  "kind": "raising",
+  "starter": false,
+  "lines": {
+    "default": [
+      "Pray with me. Just one Pater Noster.",
+      "Mary keep us both, you and me."
+    ],
+    "weak": [
+      "Your light is low. Let us light it together."
+    ]
+  }
+}
