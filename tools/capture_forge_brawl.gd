@@ -41,8 +41,9 @@ func _capture_forge() -> void:
 	player.set_view_facing(Vector2.LEFT)
 	await _frames(30)
 	await _save("forge_overview")
-	# World units are rrmap cells: the weapons lean at x 15.3, z 9.2..12.2.
-	var close := _close_camera(Vector3(18.6, 1.55, 12.2), Vector3(15.3, 0.75, 10.6))
+	# World units are rrmap cells: the weapons stand at x 17, z 9.2..12.2,
+	# on the open forge-bay side of the divider wall.
+	var close := _close_camera(Vector3(19.8, 1.55, 12.2), Vector3(17.0, 0.75, 10.6))
 	await _frames(6)
 	await _save("forge_weapon_row")
 	close.queue_free()

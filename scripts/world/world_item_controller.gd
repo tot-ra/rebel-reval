@@ -24,25 +24,26 @@ const DEFAULT_PLACEMENTS: Dictionary = {
 }
 ## Placements added after a location shipped. Each group is seeded once per save
 ## under its own key, so saves that already seeded DEFAULT_PLACEMENTS still get it.
-## Forge weapon set (R-1754): leaning against the forge's divider wall (cell x 15,
-## rows 9-12), the wall farthest from the iso camera so the row stays visible.
+# Forge weapon set (R-1754): leaning against the open forge-bay side of the
+## divider wall (cell x 15, rows 9-12), clear of its collision so the player can
+## approach the weapons from the anvil side.
 const SEED_GROUPS: Dictionary = {
 	&"loc.kalev_smithy":
 	{
 		&"forge_weapons":
 		[
 			{"object_id": &"world.forge_arming_sword", "item_id": &"item.forge_arming_sword",
-				"anchor_id": &"anvil", "offset": Vector2(-134.4, 102.4)},
+				"anchor_id": &"anvil", "offset": Vector2(-80.0, 102.4)},
 			{"object_id": &"world.forge_bearded_axe", "item_id": &"item.forge_bearded_axe",
-				"anchor_id": &"anvil", "offset": Vector2(-134.4, 121.6)},
+				"anchor_id": &"anvil", "offset": Vector2(-80.0, 121.6)},
 			{"object_id": &"world.forge_war_hammer", "item_id": &"item.forge_war_hammer",
-				"anchor_id": &"anvil", "offset": Vector2(-134.4, 140.8)},
+				"anchor_id": &"anvil", "offset": Vector2(-80.0, 140.8)},
 			{"object_id": &"world.forge_spear", "item_id": &"item.forge_spear",
-				"anchor_id": &"anvil", "offset": Vector2(-134.4, 160.0)},
+				"anchor_id": &"anvil", "offset": Vector2(-80.0, 160.0)},
 			{"object_id": &"world.forge_longbow", "item_id": &"item.forge_longbow",
-				"anchor_id": &"anvil", "offset": Vector2(-134.4, 179.2)},
+				"anchor_id": &"anvil", "offset": Vector2(-80.0, 179.2)},
 			{"object_id": &"world.forge_heater_shield", "item_id": &"item.forge_heater_shield",
-				"anchor_id": &"anvil", "offset": Vector2(-134.4, 198.4)},
+				"anchor_id": &"anvil", "offset": Vector2(-80.0, 198.4)},
 		],
 	},
 }
@@ -172,10 +173,32 @@ func _seed_groups_if_needed() -> void:
 	var groups: Dictionary = SEED_GROUPS.get(location_id, {})
 	for group_id: StringName in groups:
 		var key := seed_group_key(location_id, group_id)
+		var entries: Array = groups[group_id]
+		# WHY: older saves may already have the group flag while retaining pickups
+		# at the original blocked coordinates. Reposition only items still on the
+		# ground; a missing item was already taken and must never respawn.
 		if _state.are_world_defaults_seeded(key):
+			_reposition_seeded_entries(entries)
 			continue
-		_place_entries(groups[group_id])
+		_place_entries(entries)
 		_state.mark_world_defaults_seeded(key)
+
+
+func _reposition_seeded_entries(entries: Array) -> void:
+	for entry: Dictionary in entries:
+		var object_id: StringName = entry.get("object_id", &"")
+		if object_id.is_empty() or not _state.is_world_item_placed(location_id, object_id):
+			continue
+		var anchor_id: StringName = entry.get("anchor_id", &"")
+		var position := MapVerification.anchor_position(_definition, anchor_id)
+		position += entry.get("offset", Vector2.ZERO)
+		for record: Dictionary in _state.get_world_items(location_id):
+			if StringName(record.get("object_id", "")) != object_id:
+				continue
+			_state.place_world_item(
+				location_id, object_id, StringName(record.get("item_id", "")), position
+			)
+			break
 
 
 func _place_entries(entries: Array) -> void:
