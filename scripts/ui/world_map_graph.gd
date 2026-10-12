@@ -19,24 +19,104 @@ const LAYOUT_BY_SCENE: Dictionary = {
 ## Key places of the seamless city (ADR 0031) shown as fast-travel nodes in place
 ## of the single `reval_city` node. `id` is the node id (no dots: it becomes a
 ## Godot node name), `spawn` a spawn registered for `reval_city`, `pos` a
-## schematic position (north up, Toompea west, Viru east), not surveyed.
+## schematic position (north up, Toompea west, Viru east), not surveyed. The
+## marker on the painted Reval map is derived from the spawn's world position
+## (`city_place_map_position`), so it never drifts from where travel lands.
 const CITY_PLACES: Array[Dictionary] = [
-	{"id": &"city_fish_landing", "spawn": &"poi.fish_landing", "pos": Vector2(0.62, 0.07)},
-	{"id": &"city_coastal_gate", "spawn": &"gate.coastal", "pos": Vector2(0.62, 0.20)},
-	{"id": &"city_kalarand", "spawn": &"suburb.kalarand", "pos": Vector2(0.20, 0.10)},
-	{"id": &"city_st_olaf", "spawn": &"landmark.st_olaf", "pos": Vector2(0.38, 0.27)},
-	{"id": &"city_pikk_granary", "spawn": &"poi.granary.pikk", "pos": Vector2(0.58, 0.34)},
-	{"id": &"city_viru_gate", "spawn": &"gate.viru", "pos": Vector2(0.80, 0.42)},
-	{"id": &"city_viru_outside", "spawn": &"gate.viru.outside", "pos": Vector2(0.88, 0.57)},
-	{"id": &"city_forum", "spawn": &"poi.forum", "pos": Vector2(0.48, 0.47)},
-	{"id": &"city_kalev_smithy", "spawn": &"kalev_smithy", "pos": Vector2(0.66, 0.60)},
-	{"id": &"city_bishop_garden", "spawn": &"poi.well.bishop_garden", "pos": Vector2(0.16, 0.50)},
-	{"id": &"city_st_nicholas", "spawn": &"landmark.st_nicholas", "pos": Vector2(0.32, 0.64)},
-	{"id": &"city_castle_barracks", "spawn": &"poi.barracks.castle", "pos": Vector2(0.14, 0.68)},
-	{"id": &"city_toompea_road", "spawn": &"road.toompea_west", "pos": Vector2(0.14, 0.86)},
-	{"id": &"city_karja_outside", "spawn": &"gate.karja.outside", "pos": Vector2(0.58, 0.82)},
-	{"id": &"city_harju_outside", "spawn": &"gate.harju.outside", "pos": Vector2(0.38, 0.90)},
+	{
+		"id": &"city_fish_landing",
+		"spawn": &"poi.fish_landing",
+		"pos": Vector2(0.62, 0.07),
+	},
+	{
+		"id": &"city_coastal_gate",
+		"spawn": &"gate.coastal",
+		"pos": Vector2(0.62, 0.20),
+	},
+	{
+		"id": &"city_kalarand",
+		"spawn": &"suburb.kalarand",
+		"pos": Vector2(0.20, 0.10),
+	},
+	{
+		"id": &"city_st_olaf",
+		"spawn": &"landmark.st_olaf",
+		"pos": Vector2(0.38, 0.27),
+	},
+	{
+		"id": &"city_pikk_granary",
+		"spawn": &"poi.granary.pikk",
+		"pos": Vector2(0.58, 0.34),
+	},
+	{
+		"id": &"city_viru_gate",
+		"spawn": &"gate.viru",
+		"pos": Vector2(0.80, 0.42),
+	},
+	{
+		"id": &"city_viru_outside",
+		"spawn": &"gate.viru.outside",
+		"pos": Vector2(0.88, 0.57),
+	},
+	{
+		"id": &"city_forum",
+		"spawn": &"poi.forum",
+		"pos": Vector2(0.48, 0.47),
+	},
+	{
+		"id": &"city_kalev_smithy",
+		"spawn": &"kalev_smithy",
+		"pos": Vector2(0.66, 0.60),
+	},
+	{
+		"id": &"city_bishop_garden",
+		"spawn": &"poi.well.bishop_garden",
+		"pos": Vector2(0.16, 0.50),
+	},
+	{
+		"id": &"city_st_nicholas",
+		"spawn": &"landmark.st_nicholas",
+		"pos": Vector2(0.32, 0.64),
+	},
+	{
+		"id": &"city_castle_barracks",
+		"spawn": &"poi.barracks.castle",
+		"pos": Vector2(0.14, 0.68),
+	},
+	{
+		"id": &"city_toompea_road",
+		"spawn": &"road.toompea_west",
+		"pos": Vector2(0.14, 0.86),
+	},
+	{
+		"id": &"city_karja_outside",
+		"spawn": &"gate.karja.outside",
+		"pos": Vector2(0.58, 0.82),
+	},
+	{
+		"id": &"city_harju_outside",
+		"spawn": &"gate.harju.outside",
+		"pos": Vector2(0.38, 0.90),
+	},
 ]
+
+
+## The painted Reval basemap (`assets/UI/reval_city_map.jpg`) is the city
+## minimap (`content/world/reval_city/minimap.png`, square over plan bounds)
+## cropped to rows 0.06..0.86, widened to 16:9 with painted countryside strips
+## of 333 px on each side of the 1580 px minimap (2246 px canvas), then
+## repainted image-to-image (see assets/SOURCES.csv). These numbers map plan
+## UV onto the basemap; change them together with the image.
+const CITY_MAP_CROP_TOP := 0.06
+const CITY_MAP_CROP_HEIGHT := 0.80
+const CITY_MAP_SIDE_PAD := 333.0 / 2246.0
+const CITY_MAP_WIDTH := 1580.0 / 2246.0
+## Basemap pixel size and the closest two markers may sit: gates and their
+## `.outside` spawns are a few metres apart and would cover each other.
+const CITY_MAP_PIXELS := Vector2(1820, 1024)
+const CITY_MAP_MIN_GAP_PX := 34.0
+
+static var _city_map_positions: Dictionary = {}
 
 
 ## WHY: temporary debug unlock so designers can jump to any active district without
@@ -60,6 +140,66 @@ static func city_place(node_id: StringName) -> Dictionary:
 ## gating (a place appears once the player has found it) plugs in here later.
 static func city_place_discovered(_place: Dictionary) -> bool:
 	return true
+
+
+## Normalized point of a place on the painted Reval basemap: its spawn's world
+## position through the minimap crop, nudged apart from close neighbours.
+static func city_place_map_position(node_id: StringName) -> Vector2:
+	if _city_map_positions.is_empty():
+		_city_map_positions = _build_city_map_positions()
+	return _city_map_positions.get(node_id, Vector2(0.5, 0.5))
+
+
+static func _build_city_map_positions() -> Dictionary:
+	var plan := CityPlan.load_default()
+	var ids: Array[StringName] = []
+	var points: Array[Vector2] = []
+	for place in CITY_PLACES:
+		var at := CityTravel.spawn_position(plan, String(place["spawn"]))
+		var uv := (at - plan.bounds.position) / plan.bounds.size
+		var normalized := Vector2(
+			CITY_MAP_SIDE_PAD + uv.x * CITY_MAP_WIDTH,
+			(uv.y - CITY_MAP_CROP_TOP) / CITY_MAP_CROP_HEIGHT
+		)
+		ids.append(place["id"])
+		points.append(normalized * CITY_MAP_PIXELS)
+	# Push overlapping pairs apart symmetrically; a few passes settle the small
+	# clusters (gate + outside). Deterministic: same order, same result.
+	for _pass in 8:
+		for i in points.size():
+			for j in range(i + 1, points.size()):
+				var delta := points[j] - points[i]
+				var distance := delta.length()
+				if distance >= CITY_MAP_MIN_GAP_PX:
+					continue
+				var push := delta.normalized() if distance > 0.01 else Vector2.RIGHT
+				var shift := push * (CITY_MAP_MIN_GAP_PX - distance) * 0.5
+				points[i] -= shift
+				points[j] += shift
+	var positions := {}
+	for i in ids.size():
+		positions[ids[i]] = points[i] / CITY_MAP_PIXELS
+	return positions
+
+
+## The place closest to a spot in the city (world XZ), by spawn position: the
+## "you are here" marker of the Reval map and the start of the traveler's walk.
+## Empty when the player's position is unknown.
+static func nearest_city_place(world_xz: Vector2) -> StringName:
+	if not world_xz.is_finite():
+		return &""
+	var plan := CityPlan.load_default()
+	var best := &""
+	var best_distance := INF
+	for place in CITY_PLACES:
+		if not city_place_discovered(place):
+			continue
+		var at := CityTravel.spawn_position(plan, String(place["spawn"]))
+		var distance := at.distance_squared_to(world_xz)
+		if distance < best_distance:
+			best_distance = distance
+			best = place["id"]
+	return best
 
 
 static func active_scene_ids() -> Array[StringName]:

@@ -39,7 +39,7 @@ const LocalMapDefinition := preload(
 )
 const MapBuilder := preload("res://scripts/map/map_builder.gd")
 const LocalMapView := preload("res://scripts/ui/world_map_local_view.gd")
-const FastTravelView := preload("res://scripts/ui/world_map_fast_travel_view.gd")
+const CityMapView := preload("res://scripts/ui/world_map_city_view.gd")
 
 
 func before_each() -> void:
@@ -93,28 +93,30 @@ func test_graph_connections_stay_within_active_manifest() -> void:
 	assert_true(found_forge_edge, "forge courtyard door must link the smithy to Lower Town")
 
 
-func test_overlay_highlights_current_scene_and_lists_manifest_nodes() -> void:
+func test_overlay_marks_nearest_place_as_current_on_the_reval_map() -> void:
 	var overlay := WorldMapOverlay.new()
 	var tree := Engine.get_main_loop() as SceneTree
 	tree.root.add_child(overlay)
-	overlay.configure(&"reval_east")
+	overlay.configure(CityTravel.CITY_SCENE_ID)
 	overlay.open()
 	overlay.show_fast_travel()
+	overlay._fast_travel_view.configure_city(
+		CityTravel.CITY_SCENE_ID,
+		{&"city_forum": &"poi.forum", &"city_kalev_smithy": &"kalev_smithy"},
+		&"city_forum"
+	)
 
 	assert_true(overlay.is_open())
-	assert_eq(overlay.get_current_scene_id(), &"reval_east")
-	var scene_ids := overlay.get_scene_ids()
-	assert_eq(scene_ids, WorldMapGraph.active_scene_ids())
-	var current := overlay.get_node_button(&"reval_east")
-	assert_true(current != null, "current scene must render as a node")
-	assert_eq(current.modulate, Color(1.0, 0.86, 0.42, 1.0))
-	var subtitle := overlay.find_child("Subtitle", true, false) as Label
-	assert_true(subtitle != null)
-	assert_true(
-		subtitle.text.contains(LocationHud.display_name_for_scene(&"reval_east")),
-		"subtitle must use the currently curated scene display name"
-	)
+	var current := overlay.get_node_button(&"city_forum")
+	assert_true(current != null, "the place the player stands at must render as a node")
+	assert_true(current.disabled, "current place stays non-interactive")
+	assert_eq(current.focus_mode, Control.FOCUS_NONE)
+	assert_false(overlay.focus_travel_node(&"city_forum"), "focus API must refuse the current place")
+	assert_true(overlay.get_node_button(&"city_kalev_smithy") != null)
 	overlay.queue_free()
+
+
+
 func test_map_mode_opens_on_local_position_with_fast_travel_as_separate_option() -> void:
 	var definition: MapDefinition = LocalMapDefinition.create()
 	var grid: MapTerrainGrid = MapBuilder.build(definition)
@@ -149,15 +151,15 @@ func test_map_mode_opens_on_local_position_with_fast_travel_as_separate_option()
 	assert_true(travel_button != null, "district map must be a visible option")
 	assert_true(global_button != null, "estonia map must be a visible option")
 	assert_eq(local_button.text, "Local map")
-	assert_eq(travel_button.text, "District map")
+	assert_eq(travel_button.text, "Reval map")
 	assert_eq(global_button.text, "Estonia map")
 	assert_true(
 		overlay.find_child("LocalMapHost", true, false).get_script() == LocalMapView,
 		"stable LocalMapHost must delegate rendering to the focused local-map view"
 	)
 	assert_true(
-		overlay.find_child("GraphHost", true, false).get_script() == FastTravelView,
-		"stable GraphHost must delegate rendering and focus to the fast-travel view"
+		overlay.find_child("GraphHost", true, false).get_script() == CityMapView,
+		"stable GraphHost must delegate rendering and focus to the Reval map view"
 	)
 	assert_true(
 		overlay.find_child("GlobalMapHost", true, false) != null,
@@ -167,8 +169,8 @@ func test_map_mode_opens_on_local_position_with_fast_travel_as_separate_option()
 	travel_button.pressed.emit()
 	assert_eq(overlay.get_mode(), WorldMapOverlay.MODE_FAST_TRAVEL)
 	assert_true(
-		overlay.get_node_button(&"forge") != null,
-		"district option must expose the existing Reval graph"
+		overlay.get_node_button(&"city_forum") != null,
+		"Reval map option must expose the key city places"
 	)
 	global_button.pressed.emit()
 	assert_eq(overlay.get_mode(), WorldMapOverlay.MODE_GLOBAL)
@@ -428,117 +430,52 @@ func test_travel_spawn_resolves_edge_for_reval_east_and_forge() -> void:
 		)
 
 
-func test_click_neighbor_records_go_to_scene_without_traveling_current() -> void:
+func test_click_place_records_city_travel_without_traveling_current() -> void:
 	var overlay := WorldMapOverlay.new()
 	var tree := Engine.get_main_loop() as SceneTree
 	tree.root.add_child(overlay)
-	overlay.configure(&"reval_east")
+	overlay.configure(CityTravel.CITY_SCENE_ID)
 	overlay.open()
 	overlay.show_fast_travel()
+	overlay._fast_travel_view.configure_city(
+		CityTravel.CITY_SCENE_ID, overlay._travelable, &"city_forum"
+	)
 
-	var current := overlay.get_node_button(&"reval_east")
-	assert_true(current != null)
-	assert_true(current.disabled, "current-scene node stays non-interactive")
-	assert_eq(current.mouse_filter, Control.MOUSE_FILTER_IGNORE)
-
-	var forge_button := overlay.get_node_button(&"forge")
-	assert_true(forge_button != null)
-	assert_false(forge_button.disabled, "forge neighbor must be clickable from reval_east")
+	var smithy := overlay.get_node_button(&"city_kalev_smithy")
+	assert_true(smithy != null)
+	assert_false(smithy.disabled, "other places must be clickable")
+	assert_eq(smithy.mouse_default_cursor_shape, Control.CURSOR_POINTING_HAND)
 
 	var recorded: Array = []
 	overlay.travel_requested.connect(
 		func(scene_id: StringName, spawn_id: StringName) -> void:
 			recorded.append({"scene_id": scene_id, "spawn_id": spawn_id})
 	)
-	forge_button.pressed.emit()
-	assert_eq(recorded.size(), 1, "neighbor click must request travel")
-	assert_eq(recorded[0]["scene_id"], &"forge")
-	assert_eq(recorded[0]["spawn_id"], &"door_courtyard")
-	assert_true(DoorNavigator.has_spawn(&"forge", recorded[0]["spawn_id"]))
+	# Headless runs skip the walking animation, so the click emits at once.
+	smithy.pressed.emit()
+	assert_eq(recorded.size(), 1, "place click must request travel")
+	assert_eq(recorded[0]["scene_id"], CityTravel.CITY_SCENE_ID)
+	assert_eq(recorded[0]["spawn_id"], &"kalev_smithy")
 
-	assert_false(
-		overlay.request_travel_to(&"reval_east"),
-		"current scene must not travel"
-	)
-	assert_false(
-		overlay.request_travel_to(&"archive_only"),
-		"unknown nodes must not travel"
-	)
-	if WorldMapGraph.allow_all_active_travel():
-		assert_true(
-			overlay.request_travel_to(&"st_olafs_guild_hall"),
-			"debug unlock must allow travel to non-adjacent active scenes"
-		)
-		assert_eq(recorded.size(), 2, "debug non-adjacent travel must emit once")
-		assert_eq(recorded[1]["scene_id"], &"st_olafs_guild_hall")
-		assert_true(
-			DoorNavigator.has_spawn(&"st_olafs_guild_hall", recorded[1]["spawn_id"]),
-			"debug non-adjacent travel must use a registered spawn"
-		)
-	else:
-		assert_false(
-			overlay.request_travel_to(&"st_olafs_guild_hall"),
-			"release builds must refuse disconnected nodes from reval_east"
-		)
-		assert_eq(recorded.size(), 1, "rejected destinations must not emit travel")
-
-	var controller := WorldMapController.new()
-	controller.name = "WorldMapController"
-	tree.root.add_child(controller)
-	controller.get_overlay().configure(&"reval_east")
-	var plan := controller.travel_to_scene(&"forge", false)
-	assert_eq(plan.get("scene_id", &""), &"forge")
-	assert_eq(plan.get("spawn_id", &""), &"door_courtyard")
-	assert_eq(controller.last_travel_request.get("scene_id", &""), &"forge")
-	assert_eq(controller.last_travel_request.get("spawn_id", &""), &"door_courtyard")
-	assert_true(
-		DoorNavigator.has_spawn(
-			controller.last_travel_request["scene_id"],
-			controller.last_travel_request["spawn_id"]
-		),
-		"recorded go_to_scene args must use an active manifest spawn"
-	)
-	assert_true(
-		controller.travel_to_scene(&"archive_only", false).is_empty(),
-		"controller must refuse unknown destinations"
-	)
-	if WorldMapGraph.allow_all_active_travel():
-		var guild_plan := controller.travel_to_scene(&"st_olafs_guild_hall", false)
-		assert_eq(guild_plan.get("scene_id", &""), &"st_olafs_guild_hall")
-		assert_true(
-			DoorNavigator.has_spawn(guild_plan["scene_id"], guild_plan["spawn_id"]),
-			"controller debug unlock must use a registered spawn for non-adjacent hops"
-		)
-
+	assert_false(overlay.request_travel_to(&"archive_only"), "unknown nodes must not travel")
 	overlay.queue_free()
-	controller.queue_free()
 
 
-func test_focus_neighbor_ui_accept_records_same_travel_as_click() -> void:
+func test_focus_place_ui_accept_records_same_travel_as_click() -> void:
 	var overlay := WorldMapOverlay.new()
 	var tree := Engine.get_main_loop() as SceneTree
 	tree.root.add_child(overlay)
-	overlay.configure(&"reval_east")
+	overlay.configure(CityTravel.CITY_SCENE_ID)
 	overlay.open()
 	overlay.show_fast_travel()
-
-	var current := overlay.get_node_button(&"reval_east")
-	assert_true(current != null)
-	assert_eq(
-		current.focus_mode, Control.FOCUS_NONE, "current-scene node must stay out of the focus ring"
-	)
-	assert_true(current.disabled, "current-scene node stays non-interactive")
-	assert_false(
-		overlay.focus_travel_node(&"reval_east"),
-		"focus API must refuse the current scene"
+	overlay._fast_travel_view.configure_city(
+		CityTravel.CITY_SCENE_ID, overlay._travelable, &"city_forum"
 	)
 
-	# WHY: open() seeds focus on the first travelable neighbor; clear it before
-	# asserting that ui_accept without a travelable focus owner is a no-op.
 	tree.root.get_viewport().gui_release_focus()
 	assert_false(
 		overlay.activate_focused_travel(),
-		"ui_accept must not travel when focus is not on a travelable neighbor"
+		"ui_accept must not travel when focus is not on a place marker"
 	)
 
 	var recorded: Array = []
@@ -546,45 +483,22 @@ func test_focus_neighbor_ui_accept_records_same_travel_as_click() -> void:
 		func(scene_id: StringName, spawn_id: StringName) -> void:
 			recorded.append({"scene_id": scene_id, "spawn_id": spawn_id})
 	)
-
 	assert_true(
-		overlay.focus_travel_node(&"forge"),
-		"forge neighbor must accept keyboard/gamepad focus from reval_east"
+		overlay.focus_travel_node(&"city_kalev_smithy"), "place marker must accept keyboard focus"
 	)
-	var forge_button := overlay.get_node_button(&"forge")
-	assert_true(forge_button != null)
-	assert_eq(tree.root.get_viewport().gui_get_focus_owner(), forge_button)
-	assert_true(forge_button.has_focus(), "focused neighbor must own GUI focus")
-	var focus_style := forge_button.get_theme_stylebox("focus") as StyleBoxFlat
-	var normal_style := forge_button.get_theme_stylebox("normal") as StyleBox
-	assert_true(focus_style != null, "focused neighbor must expose an explicit focus style")
-	assert_ne(
-		focus_style,
-		normal_style,
-		"focused neighbor style must differ from an unfocused travelable node"
-	)
-	assert_eq(focus_style.border_color, WorldMapOverlay.TRAVEL_FOCUS_COLOR)
-	assert_eq(focus_style.border_width_left, 4, "focus ring must remain visibly thick")
-	assert_eq(
-		current.modulate,
-		Color(1.0, 0.86, 0.42, 1.0),
-		"travel focus must not change the current-scene highlight"
-	)
+	var smithy := overlay.get_node_button(&"city_kalev_smithy")
+	assert_eq(tree.root.get_viewport().gui_get_focus_owner(), smithy)
 
 	var accept := InputEventAction.new()
 	accept.action = &"ui_accept"
 	accept.pressed = true
 	overlay._unhandled_input(accept)
 
-	assert_eq(recorded.size(), 1, "ui_accept on a focused neighbor must request travel")
-	assert_eq(recorded[0]["scene_id"], &"forge")
-	assert_eq(recorded[0]["spawn_id"], &"door_courtyard")
-	assert_true(
-		DoorNavigator.has_spawn(&"forge", recorded[0]["spawn_id"]),
-		"focused ui_accept must use the same active manifest spawn as mouse click"
-	)
-
+	assert_eq(recorded.size(), 1, "ui_accept on a focused place must request travel")
+	assert_eq(recorded[0]["scene_id"], CityTravel.CITY_SCENE_ID)
+	assert_eq(recorded[0]["spawn_id"], &"kalev_smithy")
 	overlay.queue_free()
+
 
 
 func _action_has_physical_key(action: StringName, keycode: Key) -> bool:

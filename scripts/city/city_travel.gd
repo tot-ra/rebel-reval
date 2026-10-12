@@ -113,6 +113,12 @@ static func spawn_position(plan: CityPlan, spawn_id: String) -> Vector2:
 	for s: Dictionary in plan.streets:
 		if String(s["id"]) == id:
 			return Vector2(s["points"][0][0], s["points"][0][1])
+	# Landmarks rebuilt as sites (ADR 0032, `site.st_olaf`) lost their plan
+	# building row; arrive on the street closest to the site, not at the forum.
+	if id.begins_with("landmark."):
+		var near_site := _street_near_site(plan, "site." + id.trim_prefix("landmark."))
+		if near_site.is_finite():
+			return near_site
 	var forum := plan.point_of_interest(String(DEFAULT_SPAWN))
 	if not forum.is_empty():
 		return Vector2(forum["at"][0], forum["at"][1])
@@ -135,6 +141,27 @@ static func site_spawn(plan: CityPlan, spawn_id: String) -> Dictionary:
 				"facing": facing.rotated(site.rotation),
 			}
 	return {}
+
+
+## The street point nearest to a landmark site's anchor; (INF, INF) when the
+## plan has no such site.
+static func _street_near_site(plan: CityPlan, site_id: String) -> Vector2:
+	var best := Vector2(INF, INF)
+	for site in plan.sites:
+		if String(site.id) != site_id:
+			continue
+		var best_distance := INF
+		for s: Dictionary in plan.streets:
+			var pts: Array = s["points"]
+			for i in range(1, pts.size()):
+				var a := Vector2(pts[i - 1][0], pts[i - 1][1])
+				var b := Vector2(pts[i][0], pts[i][1])
+				var p := Geometry2D.get_closest_point_to_segment(site.origin, a, b)
+				var distance := p.distance_squared_to(site.origin)
+				if distance < best_distance:
+					best_distance = distance
+					best = p
+	return best
 
 
 static func building_index(plan: CityPlan, landmark_or_id: String) -> int:

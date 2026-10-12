@@ -5,7 +5,7 @@ extends RefCounted
 ## map state, mode changes, and travel behavior.
 
 const LocalView := preload("res://scripts/ui/world_map_local_view.gd")
-const FastTravelView := preload("res://scripts/ui/world_map_fast_travel_view.gd")
+const CityView := preload("res://scripts/ui/world_map_city_view.gd")
 const GlobalView := preload("res://scripts/ui/world_map_global_view.gd")
 
 const PANEL_SIZE := Vector2(820, 600)
@@ -88,8 +88,8 @@ static func build(host: CanvasLayer, callbacks: Dictionary) -> Dictionary:
 
 	var fast_travel_tab := Button.new()
 	fast_travel_tab.name = "FastTravelButton"
-	fast_travel_tab.text = "District map"
-	fast_travel_tab.tooltip_text = "Travel between Reval districts"
+	fast_travel_tab.text = "Reval map"
+	fast_travel_tab.tooltip_text = "Fast travel between the key places of Reval"
 	fast_travel_tab.pressed.connect(callbacks["show_fast_travel"])
 	tabs.add_child(fast_travel_tab)
 
@@ -107,7 +107,7 @@ static func build(host: CanvasLayer, callbacks: Dictionary) -> Dictionary:
 	local_view.custom_minimum_size = Vector2(0, 420)
 	layout.add_child(local_view)
 
-	var fast_travel_view := FastTravelView.new()
+	var fast_travel_view := CityView.new()
 	fast_travel_view.name = "GraphHost"
 	fast_travel_view.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	fast_travel_view.size_flags_horizontal = Control.SIZE_EXPAND_FILL

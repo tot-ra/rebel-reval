@@ -31,6 +31,30 @@ func test_every_place_is_travelable_from_the_city_and_plans_a_city_spawn() -> vo
 		assert_eq(plan.get("spawn_id"), place["spawn"])
 
 
+func test_church_spawns_land_at_their_church_not_the_forum() -> void:
+	var plan := CityPlan.load_default()
+	var forum := CityTravel.spawn_position(plan, "poi.forum")
+	for spawn in ["landmark.st_olaf", "landmark.st_nicholas"]:
+		var at := CityTravel.spawn_position(plan, spawn)
+		assert_true(at.distance_to(forum) > 50.0, "%s must not fall back to the forum" % spawn)
+
+
+func test_city_markers_sit_on_the_basemap_and_do_not_overlap() -> void:
+	var points: Array[Vector2] = []
+	for place in WorldMapGraph.CITY_PLACES:
+		var at := WorldMapGraph.city_place_map_position(place["id"])
+		assert_true(
+			Rect2(0, 0, 1, 1).has_point(at), "%s must be on the map" % String(place["id"])
+		)
+		points.append(at * WorldMapGraph.CITY_MAP_PIXELS)
+	for i in points.size():
+		for j in range(i + 1, points.size()):
+			assert_true(
+				points[i].distance_to(points[j]) > WorldMapGraph.CITY_MAP_MIN_GAP_PX - 1.0,
+				"markers %d and %d overlap" % [i, j]
+			)
+
+
 func test_overlay_plans_city_place_travel_and_names_buttons() -> void:
 	var overlay := WorldMapOverlay.new()
 	(Engine.get_main_loop() as SceneTree).root.add_child(overlay)
@@ -42,7 +66,7 @@ func test_overlay_plans_city_place_travel_and_names_buttons() -> void:
 	assert_eq(plan.get("spawn_id"), &"kalev_smithy")
 	var button := overlay.get_node_button(&"city_forum")
 	assert_true(button != null, "city place must render as a node")
-	assert_eq(button.text, "Town Hall Square")
+	assert_eq(button.get_script(), preload("res://scripts/ui/world_map_marker.gd"))
 	overlay.queue_free()
 
 

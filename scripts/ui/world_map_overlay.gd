@@ -10,7 +10,6 @@ signal travel_requested(scene_id: StringName, spawn_id: StringName)
 
 const WorldMapOverlayBuilder := preload("res://scripts/ui/world_map_overlay_builder.gd")
 const LocalMapView := preload("res://scripts/ui/world_map_local_view.gd")
-const FastTravelView := preload("res://scripts/ui/world_map_fast_travel_view.gd")
 const GlobalMapView := preload("res://scripts/ui/world_map_global_view.gd")
 const MODE_LOCAL := &"local"
 const MODE_FAST_TRAVEL := &"fast_travel"
@@ -34,7 +33,7 @@ var _header: Control
 var _title: Label
 var _subtitle: Label
 var _local_view: LocalMapView
-var _fast_travel_view: FastTravelView
+var _fast_travel_view: WorldMapCityView
 var _global_view: GlobalMapView
 var _local_tab: Button
 var _fast_travel_tab: Button
@@ -249,10 +248,20 @@ func _configure_views() -> void:
 	if _local_view == null or _fast_travel_view == null or _global_view == null:
 		return
 	_local_view.configure(_local_map, _current_scene_id)
-	_fast_travel_view.configure(
-		_current_scene_id, _scene_ids, _connections, _positions, _travelable
-	)
+	_fast_travel_view.configure_city(_current_scene_id, _travelable, _origin_place_id())
 	_global_view.configure(_current_scene_id, _global_travelable)
+
+
+## The city place the player stands nearest to; empty away from the city.
+func _origin_place_id() -> StringName:
+	if _current_scene_id != CityTravel.CITY_SCENE_ID:
+		return &""
+	var tree := get_tree()
+	var scene := tree.current_scene if tree != null else null
+	var player := scene.get(&"player") as Node2D if scene != null else null
+	if player == null:
+		return &""
+	return WorldMapGraph.nearest_city_place(CityPlan.to_world_xz(player.global_position))
 
 
 func _set_mode(mode: StringName) -> void:
@@ -262,8 +271,8 @@ func _set_mode(mode: StringName) -> void:
 	_apply_mode()
 
 
-## The Estonia map is an edge-to-edge picture: no margins, header, or prose.
-## The place name appears on hover inside the view itself.
+## The Reval and Estonia maps are edge-to-edge pictures: no margins, header, or
+## prose. The place name appears on hover inside the view itself.
 func _apply_chrome(global_selected: bool) -> void:
 	var inset := 0 if global_selected else 20
 	_margin.add_theme_constant_override("margin_left", inset)
@@ -283,7 +292,7 @@ func _apply_mode() -> void:
 	_local_view.visible = local_selected
 	_fast_travel_view.visible = fast_selected
 	_global_view.visible = global_selected
-	_apply_chrome(global_selected)
+	_apply_chrome(global_selected or fast_selected)
 	_local_tab.disabled = local_selected
 	_fast_travel_tab.disabled = fast_selected
 	_global_tab.disabled = global_selected
@@ -295,7 +304,7 @@ func _apply_mode() -> void:
 		if visible:
 			_fast_travel_tab.grab_focus()
 	elif fast_selected:
-		_title.text = "District map"
+		_title.text = "Reval map"
 		_subtitle.text = _fast_travel_view.subtitle()
 		_help.text = _fast_travel_view.help_text()
 		_fast_travel_view.grab_initial_focus(_close_button)

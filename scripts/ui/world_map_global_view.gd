@@ -60,11 +60,11 @@ func rebuild() -> void:
 		child.free()
 
 	_map_rect = TextureRect.new()
-	_map_rect.name = "EstoniaMap"
+	_map_rect.name = _map_node_name()
 	_map_rect.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_map_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_map_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-	_map_rect.texture = GlobalMapCatalog.load_map_texture()
+	_map_rect.texture = _map_texture()
 	_map_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_map_rect)
 
@@ -82,17 +82,16 @@ func rebuild() -> void:
 	add_child(_marker_host)
 
 	var travelable_buttons: Array[Button] = []
-	for scene_id in GlobalMapCatalog.marker_ids():
+	for scene_id in _marker_ids():
 		var button: Button = MarkerScript.new()
-		button.name = "GlobalNode_%s" % String(scene_id)
+		button.name = "%s%s" % [_node_prefix(), String(scene_id)]
 		button.custom_minimum_size = MARKER_SIZE
 		button.mouse_entered.connect(_show_caption.bind(scene_id))
 		button.mouse_exited.connect(_hide_caption.bind(scene_id))
 		button.focus_entered.connect(_show_caption.bind(scene_id))
 		button.focus_exited.connect(_hide_caption.bind(scene_id))
-		var row := GlobalMapCatalog.get_location(scene_id)
-		var is_hub := bool(row.get("is_hub", false))
-		if GlobalMapCatalog.is_planned(scene_id):
+		var is_hub := bool(_marker_row(scene_id).get("is_hub", false))
+		if _is_planned_marker(scene_id):
 			button.kind = MarkerScript.Kind.PLANNED
 			_configure_inert_button(button)
 		elif _is_current_marker(scene_id):
@@ -147,7 +146,7 @@ func _build_caption() -> void:
 
 func _build_close_button() -> void:
 	var close_button := Button.new()
-	close_button.name = "GlobalCloseButton"
+	close_button.name = _close_button_name()
 	close_button.text = "X"
 	close_button.tooltip_text = "Close map"
 	close_button.focus_mode = Control.FOCUS_NONE
@@ -181,7 +180,7 @@ func _layout_markers() -> void:
 		return
 	for button in _marker_host.get_children():
 		var scene_id := _scene_id_from_button(button as Button)
-		var normalized: Vector2 = GlobalMapCatalog.layout_positions().get(scene_id, Vector2(0.5, 0.5))
+		var normalized := _marker_normalized(scene_id)
 		button.size = MARKER_SIZE
 		button.position = map_point(normalized) - MARKER_SIZE * 0.5
 	if _route_host != null:
@@ -189,8 +188,7 @@ func _layout_markers() -> void:
 
 
 func _marker_center(scene_id: StringName) -> Vector2:
-	var normalized: Vector2 = GlobalMapCatalog.layout_positions().get(scene_id, Vector2(0.5, 0.5))
-	return map_point(normalized)
+	return map_point(_marker_normalized(scene_id))
 
 
 ## Gently bowed road so paths read as hand-inked, not ruler-straight.
@@ -260,7 +258,7 @@ func _begin_travel(scene_id: StringName) -> void:
 		DisplayServer.get_name() == "headless"
 		or origin.is_empty()
 		or not is_visible_in_tree()
-		or not GlobalMapCatalog.layout_positions().has(origin)
+		or not _has_marker_position(origin)
 	):
 		destination_requested.emit(scene_id)
 		return
@@ -324,10 +322,10 @@ func _show_caption(scene_id: StringName) -> void:
 	if _caption == null or _walking:
 		return
 	_hovered_id = scene_id
-	var row := GlobalMapCatalog.get_location(scene_id)
+	var row := _marker_row(scene_id)
 	_name_label.text = String(row.get("display_name", String(scene_id)))
 	var blurb := String(row.get("blurb", ""))
-	if GlobalMapCatalog.is_planned(scene_id):
+	if _is_planned_marker(scene_id):
 		blurb = "Not yet charted"
 	elif _is_current_marker(scene_id):
 		blurb = "You are here"
@@ -353,7 +351,7 @@ func _hide_caption(scene_id: StringName) -> void:
 func get_node_button(scene_id: StringName) -> Button:
 	if _marker_host == null:
 		return null
-	return _marker_host.get_node_or_null("GlobalNode_%s" % String(scene_id)) as Button
+	return _marker_host.get_node_or_null("%s%s" % [_node_prefix(), String(scene_id)]) as Button
 
 
 func focus_travel_node(destination_scene_id: StringName) -> bool:
@@ -397,6 +395,44 @@ func subtitle() -> String:
 
 func help_text() -> String:
 	return ""
+
+
+## Presentation hooks. WorldMapCityView overrides these to reuse the whole
+## marker/caption/traveler machinery on the Reval basemap.
+func _map_node_name() -> String:
+	return "EstoniaMap"
+
+
+func _close_button_name() -> String:
+	return "GlobalCloseButton"
+
+
+func _node_prefix() -> String:
+	return "GlobalNode_"
+
+
+func _map_texture() -> Texture2D:
+	return GlobalMapCatalog.load_map_texture()
+
+
+func _marker_ids() -> Array:
+	return GlobalMapCatalog.marker_ids()
+
+
+func _marker_row(scene_id: StringName) -> Dictionary:
+	return GlobalMapCatalog.get_location(scene_id)
+
+
+func _is_planned_marker(scene_id: StringName) -> bool:
+	return GlobalMapCatalog.is_planned(scene_id)
+
+
+func _has_marker_position(scene_id: StringName) -> bool:
+	return GlobalMapCatalog.layout_positions().has(scene_id)
+
+
+func _marker_normalized(scene_id: StringName) -> Vector2:
+	return GlobalMapCatalog.layout_positions().get(scene_id, Vector2(0.5, 0.5))
 
 
 func _is_current_marker(scene_id: StringName) -> bool:
@@ -464,9 +500,10 @@ func _nearest_focus_path(
 
 func _scene_id_from_button(button: Button) -> StringName:
 	var button_name := String(button.name)
-	if not button_name.begins_with("GlobalNode_"):
+	var prefix := _node_prefix()
+	if not button_name.begins_with(prefix):
 		return &""
-	return StringName(button_name.substr(11))
+	return StringName(button_name.substr(prefix.length()))
 
 
 func _on_node_pressed(scene_id: StringName) -> void:
