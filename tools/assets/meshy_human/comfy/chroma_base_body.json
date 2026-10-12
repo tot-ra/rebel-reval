@@ -31,7 +31,7 @@
     "3",
     0
    ],
-   "text": "Full-body photographic anatomy reference for 3D character scanning. {AGE_SEX_ORIGIN}, standing in a symmetrical A-pose: arms straight and held about 25 degrees out from the torso with a clear gap between arms and body, hands not touching the thighs, palms facing forward, fingers relaxed and slightly apart, feet shoulder-width apart, facing the camera directly, head level, calm neutral expression. Fully nude, natural non-sexual anatomical reference. {BUILD_AND_SKIN}. {FACE_AND_HAIR}. Entire body visible from top of head to bare feet, centered with margin. Plain seamless light grey studio background, soft even diffuse lighting, minimal shadows, sharp focus, 85mm lens, high-resolution photograph."
+   "text": "Full-body photographic anatomy reference for 3D character scanning, front orthographic-like view. {AGE_SEX_ORIGIN}, standing in a symmetrical T-pose: both arms stretched straight out horizontally to the sides at shoulder height, arms level with the shoulders, armpits fully visible and open, hands open and flat, palms turned forward toward the camera (not upward), all five fingers straight and spread apart, clearly visible on each hand, thumbs pointing up; wide stance: feet planted far apart, about one metre between the feet, much wider than the shoulders, legs straight and forming a clear inverted V with about 45 degrees between them, daylight visible between the thighs, bare feet flat on the floor; facing the camera directly, head level, calm neutral expression, mouth closed. Fully nude, natural non-sexual anatomical reference. {BUILD_AND_SKIN}. {FACE_AND_HAIR}. Completely hairless: cleanly shaved smooth bald head, no body hair at all, no pubic hair, no armpit hair. Entire body including both hands with fingertips and both feet visible, centered with generous margin on all sides. Plain seamless light grey studio background. Flat neutral shadowless lighting, large frontal softbox and fill from all sides, no cast shadows, no shading on the floor, even exposure, sharp focus, 85mm lens, high-resolution photograph."
   }
  },
  "5": {
@@ -41,13 +41,13 @@
     "3",
     0
    ],
-   "text": "erotic, sexual, provocative pose, seductive, arousal, clothing, jewelry, props, cropped, cut off feet, cut off head, side view, crossed arms, hands on hips, dramatic shadows, colored background, multiple people, extra limbs, extra fingers, deformed hands, cartoon, illustration, 3d render, cgi, airbrushed, plastic skin, makeup, tattoo, blurry, watermark, text, red hands, discolored skin, sunburn, arms touching body, elderly, very old, grey hair"
+   "text": "hair, head hair, braid, ponytail, wig, stubble, pubic hair, armpit hair, body hair, erotic, sexual, provocative pose, seductive, clothing, jewelry, props, cropped, cut off hands, cut off fingers, cut off feet, cut off head, side view, arms down, arms raised above head, bent elbows, arms touching body, fists, closed hands, hidden fingers, back of hands, legs together, crossed legs, gaunt, hollow cheeks, sunken eyes, deep-set eyes, red hands, sunburn, tan lines, dramatic lighting, harsh shadows, cast shadow, rim light, colored background, multiple people, extra limbs, extra fingers, missing fingers, fused fingers, deformed hands, cartoon, illustration, 3d render, cgi, airbrushed, plastic skin, makeup, tattoo, blurry, watermark, text, obese, overweight, fat rolls, muscular, bodybuilder, fitness model, visible abs, six-pack, defined muscles, veins, low body fat, feet together, narrow stance, palms facing up, cupped hands"
   }
  },
  "6": {
   "class_type": "EmptySD3LatentImage",
   "inputs": {
-   "width": 832,
+   "width": 1216,
    "height": 1216,
    "batch_size": 1
   }
