@@ -33,6 +33,15 @@ The validator checks the roster (unique `bst.` IDs, layer and tier enums, a reas
 - BST-3: physical adversary cards (done, task **R-1581**: street thug, saboteur, brute, road bandit, Black Cloak fighter, spirit-caller, Vanapagan cultist, wolf; bear and boar stay backlog).
 - Later: concept art, 3D models, an `EnemyArchetype` link for physical entries.
 
+## Meshy model pilot (Kratt)
+
+Status: experiment for task **R-1585** (BST-6), not installed. It tests whether Meshy AI image-to-3D can stand in for a hand-built Blender creature.
+
+- Input: the card's concept art `docs/BESTIARY/inspiration/kratt_concept.jpg`. Tool: `meshy_generate_3d` (image-to-3D, textured, PBR), about 100 s and 30 credits per run.
+- Output in `generated/meshy/kratt_v1/`: `kratt_meshy_40k.glb` (40k triangles, 1.8 m tall, feet at origin, 1024 base colour, metallic-roughness and normal maps, 1.8 MB), Meshy previews, and `kratt_raw_vs_40k.jpg` (raw render next to the decimated one, front and back). `record.json` holds the Meshy task IDs, settings, SHA-256 of the gitignored 30-70 MB raw downloads, and the decimation steps.
+- Result: the silhouette, straw, pitchfork, rope and the amber chest knot match the concept from every side, and decimating 2.1M to 40k triangles shows no visible loss. Meshy copies the concept's mistakes, though. The concept draws a skull face, but the card asks for a hollow head with no face or mouth. A scythe-blade hand is missing too. Fix the concept image first, then rerun.
+- Not done: no rig or clips, no spirit material, no Godot import (`generated/meshy/.gdignore`), no `assets/SOURCES.csv` row. These come with the R-1585 install.
+
 ## Limits
 
 Eight physical and hybrid cards exist (BST-3); every kept spirit row has a card (22, including `bst.hinged`, `bst.virmalised` and `bst.hiie_hirv`). Archive image mapping follows the legacy README order and has not been reviewed visually. The layer of `kratt`, `libahunt` and `spirit_caller` as `hybrid` is a roster decision, not yet reflected in combat code.
