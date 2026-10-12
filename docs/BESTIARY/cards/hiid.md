@@ -12,6 +12,14 @@
 | Faction ties | harju_kings |
 | Archive reference images | image-12, image-13, image-14 |
 
+![hiid concept art](../inspiration/hiid_concept.jpg)
+
+**Illustration:** Photorealistic image generated with Leonardo AI, Lucid Realism model. Documentation concept art only; existing archive references are retained.
+
+**Generation prompt:** Photorealistic cinematic still of an ancient Estonian Hiid: a 10-meter human-like giant among Harju glacial erratic boulders in 14th-century Estonia; granite-grey weathered skin with moss and lichen; human face, root-and-grass hair, rough homespun mantle, carrying a boulder; tiny pines and hillfort earthworks show scale; quiet sacred-site gravity, storm-dark dawn, natural muted greys, moss green and amber; realistic documentary photography, no stylization.
+
+**Negative prompt:** illustration, painting, CGI, troll, ogre, horns, tusks, armor, weapon, modern objects, text, watermark, gore
+
 ## At a glance
 - Seen in boulder fields and hillfort ridges, huge and still.
 - Kin of Kalevipoeg and Tõll.
