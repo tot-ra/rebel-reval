@@ -14,19 +14,19 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `1201`
-- Markdown files excluded as archive/reference/out of active scope: `763`
-- Local/external links inspected: `14018`
-- Links to active Markdown docs: `12426`
-- Links to existing archive/reference/non-active local docs: `531`
+- Active Markdown files scanned: `1272`
+- Markdown files excluded as archive/reference/out of active scope: `764`
+- Local/external links inspected: `14470`
+- Links to active Markdown docs: `12772`
+- Links to existing archive/reference/non-active local docs: `532`
 - External links skipped for reachability: `192`
-- Issues found: `34`
+- Issues found: `13`
 
 ## Issue counts
 
 | Code | Count |
 | --- | ---: |
-| `BROKEN_LINK` | 21 |
+| `BROKEN_LINK` | 0 |
 | `BROKEN_ANCHOR` | 13 |
 | `DUPLICATE_CHARACTER_NAME` | 0 |
 | `CONTRADICTORY_DATE` | 0 |
@@ -49,27 +49,6 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 | `BROKEN_ANCHOR` | `docs/SYSTEMS/STATE_AND_SAVES.md:24` | Local Markdown link anchor `#observation-mode-implemented-prototype-sd-06` not found in `docs/SYSTEMS/SPIRIT_DIALOGUE.md` |
 | `BROKEN_ANCHOR` | `docs/SYSTEMS/STATE_AND_SAVES.md:25` | Local Markdown link anchor `#language-comprehension-implemented-sd-08` not found in `docs/SYSTEMS/SPIRIT_DIALOGUE.md` |
 | `BROKEN_ANCHOR` | `docs/SYSTEMS/STATE_AND_SAVES.md:26` | Local Markdown link anchor `#traits-and-temperaments-implemented-sd-15` not found in `docs/SYSTEMS/SPIRIT_DIALOGUE.md` |
-| `BROKEN_LINK` | `docs/SYSTEMS/CITIZEN_WARDROBE.md:77` | Local Markdown link target does not exist: `../reports/images/characters/citizen_textiles_3m.jpg` |
-| `BROKEN_LINK` | `docs/SYSTEMS/CITIZEN_WARDROBE.md:116` | Local Markdown link target does not exist: `../reports/images/characters/citizen_armour_average_back.jpg` |
-| `BROKEN_LINK` | `docs/SYSTEMS/CITIZEN_WARDROBE.md:116` | Local Markdown link target does not exist: `../reports/images/characters/citizen_armour_average_back_walk.jpg` |
-| `BROKEN_LINK` | `docs/SYSTEMS/CITIZEN_WARDROBE.md:116` | Local Markdown link target does not exist: `../reports/images/characters/citizen_armour_average_front.jpg` |
-| `BROKEN_LINK` | `docs/SYSTEMS/CITIZEN_WARDROBE.md:116` | Local Markdown link target does not exist: `../reports/images/characters/citizen_armour_average_front_walk.jpg` |
-| `BROKEN_LINK` | `docs/SYSTEMS/CITIZEN_WARDROBE.md:116` | Local Markdown link target does not exist: `../reports/images/characters/citizen_armour_heavy_back.jpg` |
-| `BROKEN_LINK` | `docs/SYSTEMS/CITIZEN_WARDROBE.md:116` | Local Markdown link target does not exist: `../reports/images/characters/citizen_armour_heavy_back_walk.jpg` |
-| `BROKEN_LINK` | `docs/SYSTEMS/CITIZEN_WARDROBE.md:116` | Local Markdown link target does not exist: `../reports/images/characters/citizen_armour_heavy_front.jpg` |
-| `BROKEN_LINK` | `docs/SYSTEMS/CITIZEN_WARDROBE.md:116` | Local Markdown link target does not exist: `../reports/images/characters/citizen_armour_heavy_front_walk.jpg` |
-| `BROKEN_LINK` | `docs/SYSTEMS/CITIZEN_WARDROBE.md:116` | Local Markdown link target does not exist: `../reports/images/characters/citizen_armour_sturdy_back.jpg` |
-| `BROKEN_LINK` | `docs/SYSTEMS/CITIZEN_WARDROBE.md:116` | Local Markdown link target does not exist: `../reports/images/characters/citizen_armour_sturdy_back_walk.jpg` |
-| `BROKEN_LINK` | `docs/SYSTEMS/CITIZEN_WARDROBE.md:116` | Local Markdown link target does not exist: `../reports/images/characters/citizen_armour_sturdy_front.jpg` |
-| `BROKEN_LINK` | `docs/SYSTEMS/CITIZEN_WARDROBE.md:116` | Local Markdown link target does not exist: `../reports/images/characters/citizen_armour_sturdy_front_walk.jpg` |
-| `BROKEN_LINK` | `docs/SYSTEMS/CITIZEN_WARDROBE.md:116` | Local Markdown link target does not exist: `../reports/images/characters/citizen_armour_thin_back.jpg` |
-| `BROKEN_LINK` | `docs/SYSTEMS/CITIZEN_WARDROBE.md:116` | Local Markdown link target does not exist: `../reports/images/characters/citizen_armour_thin_back_walk.jpg` |
-| `BROKEN_LINK` | `docs/SYSTEMS/CITIZEN_WARDROBE.md:116` | Local Markdown link target does not exist: `../reports/images/characters/citizen_armour_thin_front.jpg` |
-| `BROKEN_LINK` | `docs/SYSTEMS/CITIZEN_WARDROBE.md:116` | Local Markdown link target does not exist: `../reports/images/characters/citizen_armour_thin_front_walk.jpg` |
-| `BROKEN_LINK` | `docs/SYSTEMS/CITIZEN_WARDROBE.md:118` | Local Markdown link target does not exist: `../reports/images/characters/citizen_armour_heavy_front.jpg` |
-| `BROKEN_LINK` | `docs/SYSTEMS/CITIZEN_WARDROBE.md:122` | Local Markdown link target does not exist: `../reports/images/characters/citizen_textiles_poor.jpg` |
-| `BROKEN_LINK` | `docs/SYSTEMS/CITIZEN_WARDROBE.md:122` | Local Markdown link target does not exist: `../reports/images/characters/citizen_textiles_rich.jpg` |
-| `BROKEN_LINK` | `docs/SYSTEMS/CITIZEN_WARDROBE.md:122` | Local Markdown link target does not exist: `../reports/images/characters/citizen_textiles_smith.jpg` |
 
 ## Active files scanned
 
@@ -125,9 +104,7 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/ART_BIBLE.md`
 - `docs/ASSET_INVENTORY.md`
 - `docs/ASSET_STORAGE_POLICY.md`
-- `docs/BESTIARY/cards/bear.md`
 - `docs/BESTIARY/cards/black_cloak_fighter.md`
-- `docs/BESTIARY/cards/boar.md`
 - `docs/BESTIARY/cards/brute.md`
 - `docs/BESTIARY/cards/domovoi.md`
 - `docs/BESTIARY/cards/hiid.md`
@@ -160,7 +137,6 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/BESTIARY/cards/vetevana.md`
 - `docs/BESTIARY/cards/virmalised.md`
 - `docs/BESTIARY/cards/vodyanoy.md`
-- `docs/BESTIARY/cards/wolf.md`
 - `docs/BESTIARY/README.md`
 - `docs/BESTIARY/TEMPLATE.md`
 - `docs/CANON.md`
@@ -1024,6 +1000,7 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/FAUNA/animals/squirrel.md`
 - `docs/FAUNA/animals/stoat.md`
 - `docs/FAUNA/animals/wild_boar.md`
+- `docs/FAUNA/animals/wolf.md`
 - `docs/FAUNA/birds/barn_swallow.md`
 - `docs/FAUNA/birds/chicken.md`
 - `docs/FAUNA/birds/common_blackbird.md`
@@ -1061,6 +1038,79 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/FAUNA/fish/perch.md`
 - `docs/FAUNA/IMAGE_PROMPTS.md`
 - `docs/FAUNA/README.md`
+- `docs/FLORA/crops/barley.md`
+- `docs/FLORA/crops/broad_bean.md`
+- `docs/FLORA/crops/cabbage.md`
+- `docs/FLORA/crops/flax.md`
+- `docs/FLORA/crops/garlic.md`
+- `docs/FLORA/crops/hemp.md`
+- `docs/FLORA/crops/hops.md`
+- `docs/FLORA/crops/oat.md`
+- `docs/FLORA/crops/onion.md`
+- `docs/FLORA/crops/pea.md`
+- `docs/FLORA/crops/rye.md`
+- `docs/FLORA/crops/turnip.md`
+- `docs/FLORA/crops/wheat.md`
+- `docs/FLORA/herbs/burdock.md`
+- `docs/FLORA/herbs/caraway.md`
+- `docs/FLORA/herbs/cattail.md`
+- `docs/FLORA/herbs/chamomile.md`
+- `docs/FLORA/herbs/dandelion.md`
+- `docs/FLORA/herbs/fern.md`
+- `docs/FLORA/herbs/mint.md`
+- `docs/FLORA/herbs/moss.md`
+- `docs/FLORA/herbs/mugwort.md`
+- `docs/FLORA/herbs/nettle.md`
+- `docs/FLORA/herbs/oxeye_daisy.md`
+- `docs/FLORA/herbs/plantain.md`
+- `docs/FLORA/herbs/red_clover.md`
+- `docs/FLORA/herbs/reed.md`
+- `docs/FLORA/herbs/st_johns_wort.md`
+- `docs/FLORA/herbs/thistle.md`
+- `docs/FLORA/herbs/water_lily.md`
+- `docs/FLORA/herbs/white_clover.md`
+- `docs/FLORA/herbs/yarrow.md`
+- `docs/FLORA/README.md`
+- `docs/FLORA/shrubs/alder_shrub.md`
+- `docs/FLORA/shrubs/bilberry.md`
+- `docs/FLORA/shrubs/blackthorn.md`
+- `docs/FLORA/shrubs/bog_rosemary.md`
+- `docs/FLORA/shrubs/cloudberry.md`
+- `docs/FLORA/shrubs/cowberry.md`
+- `docs/FLORA/shrubs/cranberry.md`
+- `docs/FLORA/shrubs/crowberry.md`
+- `docs/FLORA/shrubs/dog_rose.md`
+- `docs/FLORA/shrubs/elder.md`
+- `docs/FLORA/shrubs/guelder_rose.md`
+- `docs/FLORA/shrubs/hawthorn.md`
+- `docs/FLORA/shrubs/hazel_shrub.md`
+- `docs/FLORA/shrubs/heather.md`
+- `docs/FLORA/shrubs/juniper_shrub.md`
+- `docs/FLORA/shrubs/raspberry.md`
+- `docs/FLORA/shrubs/sea_buckthorn.md`
+- `docs/FLORA/shrubs/spindle.md`
+- `docs/FLORA/shrubs/wild_strawberry.md`
+- `docs/FLORA/shrubs/willow_shrub.md`
+- `docs/FLORA/trees/alder.md`
+- `docs/FLORA/trees/apple.md`
+- `docs/FLORA/trees/ash.md`
+- `docs/FLORA/trees/aspen.md`
+- `docs/FLORA/trees/birch.md`
+- `docs/FLORA/trees/blackthorn.md`
+- `docs/FLORA/trees/cherry.md`
+- `docs/FLORA/trees/elm.md`
+- `docs/FLORA/trees/hawthorn.md`
+- `docs/FLORA/trees/hazel.md`
+- `docs/FLORA/trees/juniper.md`
+- `docs/FLORA/trees/linden.md`
+- `docs/FLORA/trees/maple.md`
+- `docs/FLORA/trees/oak.md`
+- `docs/FLORA/trees/pear.md`
+- `docs/FLORA/trees/pine.md`
+- `docs/FLORA/trees/plum.md`
+- `docs/FLORA/trees/rowan.md`
+- `docs/FLORA/trees/spruce.md`
+- `docs/FLORA/trees/willow.md`
 - `docs/FLORA_FAUNA.md`
 - `docs/FONTS.md`
 - `docs/HISTORICAL_AUDIT.md`

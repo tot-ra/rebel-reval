@@ -7,7 +7,7 @@ Status: living roster (2026-10-11). One card per real animal, bird or fish that 
 - Mammals: the 30-species catalogue in `map_view_mammal_species.gd` (`fauna.*`), plus the goat, which is used in game but missing from the catalogue. The domestic fowl (`fauna.chicken`, `fauna.duck`, `fauna.goose`) are in that catalogue but their cards are filed under `birds/`.
 - Fish: the two species that swim in game, the herring and the perch of `CityFish` (`scripts/city/city_fish.gd`, species keys `herring` and `perch`). They have no catalogue file, so the card IDs `fish.herring` and `fish.perch` are documentation IDs only.
 - Birds: the 30-species catalogue in `map_view_bird_species.gd` (`bird.*`).
-- Bestiary animals (`bst.wolf`, `bst.boar`, `bst.bear`) have their single card in [`docs/BESTIARY/cards/`](../BESTIARY/README.md); the animal pages link to it.
+- Real animals, including wolf, bear and boar, are catalogued here. Their encounter-design IDs (`bst.wolf`, `bst.bear`, `bst.boar`) are retained on their species pages; folklore beings and spirit-layer adversaries remain in the [bestiary](../BESTIARY/README.md).
 - File names are the ID without the prefix. Domestic and wild birds that share an ID stem get distinct names (`domestic_duck` for `fauna.duck`, `mallard` for `bird.mallard`).
 
 ## 3D model status
@@ -31,7 +31,7 @@ Status: reference only (not runtime assets, not imported by Godot; no `assets/SO
 | Species | Latin | Runtime ID | 3D model status | Model file | Card |
 |---|---|---|---|---|---|
 | Brown bear | *Ursus arctos* | `fauna.brown_bear` | Procedural only, no 3D model | - | [brown_bear.md](./animals/brown_bear.md) |
-| Wolf | *Canis lupus* | `fauna.wolf` | Procedural only, no 3D model | - | [wolf.md](../BESTIARY/cards/wolf.md) |
+| Wolf | *Canis lupus* | `fauna.wolf` | Procedural only, no 3D model | - | [wolf.md](./animals/wolf.md) |
 | Red fox | *Vulpes vulpes* | `fauna.red_fox` | Authored GLB | [GLB](../../assets/storybook/fox/fox.glb) | [red_fox.md](./animals/red_fox.md) |
 | Eurasian lynx | *Lynx lynx* | `fauna.lynx` | Procedural only, no 3D model | - | [lynx.md](./animals/lynx.md) |
 | Elk | *Alces alces* | `fauna.elk` | Procedural only, no 3D model | - | [elk.md](./animals/elk.md) |
@@ -112,7 +112,7 @@ Procedural-only species, grouped by what they need first. Search links are start
 
 Priority for the Act 1 slice:
 
-- [wolf](../BESTIARY/cards/wolf.md): physical fight outside the city (`bst.wolf`).
+- [wolf](./animals/wolf.md): physical fight outside the city (`bst.wolf`).
 - [brown bear](./animals/brown_bear.md) and [wild boar](./animals/wild_boar.md) (`bst.bear`, `bst.boar`, backlog): wild-margin threats. The boar has a GLB; the bear does not.
 - Eagle, osprey, buzzard, kestrel: one raptor archetype rig (large flapping and gliding bird).
 - Heron, lapwing, snipe, swan, cormorant, greylag goose, tern: waterfowl and wader archetype (large bird with long neck or legs).
