@@ -14,41 +14,27 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `1283`
+- Active Markdown files scanned: `1285`
 - Markdown files excluded as archive/reference/out of active scope: `765`
-- Local/external links inspected: `14644`
-- Links to active Markdown docs: `12891`
-- Links to existing archive/reference/non-active local docs: `522`
+- Local/external links inspected: `14664`
+- Links to active Markdown docs: `12903`
+- Links to existing archive/reference/non-active local docs: `525`
 - External links skipped for reachability: `192`
-- Issues found: `13`
+- Issues found: `0`
 
 ## Issue counts
 
 | Code | Count |
 | --- | ---: |
 | `BROKEN_LINK` | 0 |
-| `BROKEN_ANCHOR` | 13 |
+| `BROKEN_ANCHOR` | 0 |
 | `DUPLICATE_CHARACTER_NAME` | 0 |
 | `CONTRADICTORY_DATE` | 0 |
 | `MISSING_REFERENCE` | 0 |
 
 ## Issues
 
-| Code | Location | Detail |
-| --- | --- | --- |
-| `BROKEN_ANCHOR` | `docs/CHARACTERS/apprentice.md:36` | Local Markdown link anchor `#guilt-implemented-sd-03` not found in `docs/SYSTEMS/SPIRIT_DIALOGUE.md` |
-| `BROKEN_ANCHOR` | `docs/SYSTEMS/COMBAT.md:8` | Local Markdown link anchor `#spirit-arena-implemented-prototype-sd-04` not found in `docs/SYSTEMS/SPIRIT_DIALOGUE.md` |
-| `BROKEN_ANCHOR` | `docs/SYSTEMS/COMBAT.md:120` | Local Markdown link anchor `#hybrid-combat-and-guilt-implemented-sd-07` not found in `docs/SYSTEMS/SPIRIT_DIALOGUE.md` |
-| `BROKEN_ANCHOR` | `docs/SYSTEMS/DIALOGUE.md:32` | Local Markdown link anchor `#language-comprehension-implemented-sd-08` not found in `docs/SYSTEMS/SPIRIT_DIALOGUE.md` |
-| `BROKEN_ANCHOR` | `docs/SYSTEMS/DIALOGUE.md:33` | Local Markdown link anchor `#dialogue-move-tags-implemented-sd-02` not found in `docs/SYSTEMS/SPIRIT_DIALOGUE.md` |
-| `BROKEN_ANCHOR` | `docs/SYSTEMS/FACTIONS_AND_ECONOMY.md:82` | Local Markdown link anchor `#talking-to-yourself-implemented-sd-09` not found in `docs/SYSTEMS/SPIRIT_DIALOGUE.md` |
-| `BROKEN_ANCHOR` | `docs/SYSTEMS/MAGIC.md:9` | Local Markdown link anchor `#magic-in-the-spirit-world-implemented-sd-14` not found in `docs/SYSTEMS/SPIRIT_DIALOGUE.md` |
-| `BROKEN_ANCHOR` | `docs/SYSTEMS/MAGIC.md:9` | Local Markdown link anchor `#magic-in-the-spirit-world-implemented-sd-14` not found in `docs/SYSTEMS/SPIRIT_DIALOGUE.md` |
-| `BROKEN_ANCHOR` | `docs/SYSTEMS/QUESTS.md:83` | Local Markdown link anchor `#the-apprentice-at-the-anvil-implemented-sd-12` not found in `docs/SYSTEMS/SPIRIT_DIALOGUE.md` |
-| `BROKEN_ANCHOR` | `docs/SYSTEMS/STATE_AND_SAVES.md:23` | Local Markdown link anchor `#guilt-implemented-sd-03` not found in `docs/SYSTEMS/SPIRIT_DIALOGUE.md` |
-| `BROKEN_ANCHOR` | `docs/SYSTEMS/STATE_AND_SAVES.md:24` | Local Markdown link anchor `#observation-mode-implemented-prototype-sd-06` not found in `docs/SYSTEMS/SPIRIT_DIALOGUE.md` |
-| `BROKEN_ANCHOR` | `docs/SYSTEMS/STATE_AND_SAVES.md:25` | Local Markdown link anchor `#language-comprehension-implemented-sd-08` not found in `docs/SYSTEMS/SPIRIT_DIALOGUE.md` |
-| `BROKEN_ANCHOR` | `docs/SYSTEMS/STATE_AND_SAVES.md:26` | Local Markdown link anchor `#traits-and-temperaments-implemented-sd-15` not found in `docs/SYSTEMS/SPIRIT_DIALOGUE.md` |
+No active Markdown documentation issues found.
 
 ## Active files scanned
 
@@ -146,6 +132,8 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/CHARACTER_REALISM_BACKLOG.md`
 - `docs/CHARACTERS/_template.md`
 - `docs/CHARACTERS/aita.md`
+- `docs/CHARACTERS/almshouse_matron.md`
+- `docs/CHARACTERS/almshouse_porter.md`
 - `docs/CHARACTERS/anisia_of_novgorod.md`
 - `docs/CHARACTERS/apprentice.md`
 - `docs/CHARACTERS/brother_hermann.md`
