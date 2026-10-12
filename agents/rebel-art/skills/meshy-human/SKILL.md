@@ -5,7 +5,7 @@ description: Turn a character card into a photoreal, rigged, animatable human - 
 
 # Meshy human: card to rigged 3D character
 
-Status: experimental pipeline (first run: Aita, 2026-10-12). The production human pipeline is still MPFB ([ADR 0022](../../../../docs/adr/0022-realistic-human-characters.md), `tools/assets/realistic_humans/`). Use this skill when a character needs a likeness MPFB cannot reach. Shipping a result into `assets/` needs a board task that names the files, plus `assets/SOURCES.csv` rows.
+Status: experimental pipeline (first run: Aita, 2026-10-12; shipped as Aita's body in R-1868). The production human pipeline is still MPFB ([ADR 0022](../../../../docs/adr/0022-realistic-human-characters.md), `tools/assets/realistic_humans/`). Use this skill when a character needs a likeness MPFB cannot reach. Shipping a result into `assets/` needs a board task that names the files, plus `assets/SOURCES.csv` rows.
 
 ## What you get
 
@@ -88,6 +88,27 @@ What it does, and why:
 
 Test the mechanics without credits: pose the donor itself into the scan stance, inflate it 6 mm and use that as `--meshy`. Every part should land at about 4-8 mm, and the lid offsets in the log near 0. This test cannot catch head-pose or feature-height errors (the donor face matches itself), so always check the face renders of a real scan.
 
+## 4c. Dress the conformed body and install it (route A)
+
+The conformed GLB is nude and has the headcloth baked in. The shipped body needs the same mesh set as the MPFB build (`Clothing_Braies`, `Hair_Scalp`; wearables hide regions by name and refuse to equip when a covered mesh is missing) and every wearable refitted to the new shape:
+
+```bash
+python3 -c "from PIL import Image; Image.open('build/<char>_meshy/conform/<char>_conformed_textures/skin_albedo.png').convert('RGB').resize((1024, 1024), Image.LANCZOS).save('build/<char>_meshy/conform/<char>_skin_albedo_rgb.png')"
+A=assets/characters/realistic/<char>
+$B -b --factory-startup --python tools/assets/meshy_human/fit_wearables_to_conform.py -- \
+  --donor $A/<char>.glb --conformed build/<char>_meshy/conform/<char>_conformed.glb \
+  --albedo build/<char>_meshy/conform/<char>_skin_albedo_rgb.png \
+  --wearable $A/work_gown/work_gown.glb --wearable $A/waist_apron/waist_apron.glb --wearable $A/boots/boots.glb \
+  --wearable-keep $A/headscarf/headscarf.glb --out-dir $A     # or a build/ dir to preview first
+```
+
+- The donor must be the MPFB build the conform step used (`git show HEAD:` or `rebuild.sh <char>` if it was already replaced). Re-running in place is safe: the offsets are then zero and the cloth is only pushed out again.
+- Every body vertex has a known rest offset (conformed minus donor). Cloth takes an inverse-distance blend of the offsets of its 24 nearest body vertices, then is pushed 3 mm out of the body and of the inner layers. List inner layers first (gown before apron).
+- `--wearable-keep` (headcloths) moves only by the outward part of the offset: following the lower scan cranium slides the brim over the eyes, but the larger scan ears poked through the hood until it did.
+- The GLBs reference the shared texture files (`textures/`, `../makehuman/`, `../textiles/`) like the MPFB build; embedding them grew the outfit from 1.5 to 18 MB and the body over the 10 MiB LFS line. Named NPC skin maps are 1024 px (`verify_asset_lint.py` tier budget).
+- `fit.report.json` lists the median offset and push-out count per layer. On Aita the boots pushed out about 2.7k vertices (the scan foot is larger); check the feet in the Walking plate.
+- Preview with the outfit: `render_rigged_preview.py --glb $A/<char>.glb --wearables <glb>,<glb>`. Then the engine plates (`tools/capture_realistic_character.gd`, see `docs/CHARACTER_GENERATION.md`), a `tests/godot/test_realistic_<char>.gd` like `test_realistic_aita.gd`, and refreshed `assets/SOURCES.csv` rows (SHA-256, scan task, seed).
+
 ## 4b. Raw Meshy rig, eyes, hair (route B)
 
 ```bash
@@ -127,7 +148,7 @@ The script loads the exported GLB, so the export round-trip is checked as well. 
 - **Clips.** No sheets or fragments between hands and hips in any clip; no triangular "wings" in `armpit_Cheer.png`.
 - **Face.** The lids close fully in `face_blink.png`, the mouth opens at the painted lips (not below them) in `face_jaw_open.png`, no red mouth bag shows on the chin, no grey eyeball shows in front of the lids, and the baked face has no seams or patches. The headcloth shadows the eyes in these renders; for a lit eye check render the head with the garments hidden.
 - **Head.** Both eyeballs show through the lids. Hair or headcloth clears the scalp in `head_back.png`.
-- **Report.** Route A: 71 bones, 76 actions, the `Anatomy_*` meshes (no `Anatomy_Head_Brows` unless `--keep-brows`) and the six face keys. Route B: 73 bones, 76 actions, `Body`, `Eye_l`, `Eye_r`, `Hair`.
+- **Report.** Route A (after step 4c, the installed body also has `Clothing_Braies` and `Hair_Scalp`): 71 bones, 76 actions, the `Anatomy_*` meshes (no `Anatomy_Head_Brows` unless `--keep-brows`) and the six face keys. Route B: 73 bones, 76 actions, `Body`, `Eye_l`, `Eye_r`, `Hair`.
 
 ## Known limits
 
@@ -135,7 +156,7 @@ Route A (conform), from the Aita v4 run (seed s7307, Meshy task `01a13051`):
 
 - **Meshy albedo seams.** Meshy's texture atlas has seams with dark margins, and its concept lighting is baked in. On Aita they show as jagged outlines on the upper chest and shoulders and pale breasts. The bake copies them faithfully; only a cleaner source image or hand paint fixes them.
 - **Lip colour.** The scan paints the lower lip paler than the upper, so the MPFB lower lip reads pale. The brow area keeps some stretched scan texture where the brow ridge depth differs.
-- **Headcloth.** The widow's headscarf is the donor's MPFB-fit wearable, a stiff hood with a visor-like brim; it is not re-draped to the new skull. Its tails can cut into the raised arm in `armpit_Cheer.png`. A cloth-sim or hand-fitted drape is needed for a hero close-up.
+- **Headcloth.** The widow's headscarf is the donor's MPFB-fit wearable, a stiff hood with a visor-like brim; it is not re-draped to the new skull. Step 4c only lifts it over the larger ears, which then show as a bump in profile. Its tails can cut into the raised arm in `armpit_Cheer.png`. A cloth-sim or hand-fitted drape is needed for a hero close-up.
 - **Posture.** The rest pose keeps the MPFB head posture, not the scan's; the scan's head-back stance is treated as a pose, not as shape.
 - **Iris colour** is the donor's; there is no iris retint in route A yet.
 - **Deformation** is MPFB linear blend skinning at hips and armpits, with no corrective shapes.
