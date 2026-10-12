@@ -61,3 +61,18 @@ Rules (`SpiritWordSpells`, `SpiritDuel`):
 **Verify.** `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_smithy_opening,test_almshouse_opening,test_spirit_arena_hud,test_spirit_word_spells`. Plates: `tools/godot_render.sh --resolution 1600x900 --script tools/capture_smithy_opening.gd -- --out=res://build/smithy_opening`.
 
 **Limits.** The duel grade desaturates the porter's overhead bar along with the world, so its green reads grey-green. The porter wears a crowd body (no bespoke model). Kalev stands still in the forge after the dialogue (no schedule or talk yet). The staged almshouse hall (`scenes/prologue/almshouse_opening.tscn`, `AlmshouseStage`) is no longer reachable from New Game; it remains as the duel's test and capture fixture until a follow-up retires it.
+
+## Spirit duel with anyone (R-1889)
+
+Status: implemented (task **R-1889**, [ADR 0047](../adr/0047-interaction-stances-and-conversation-camera.md)). Scope: any census resident or named NPC in the seamless city. Out of scope: lasting consequences of a duel with a stranger (flags, guilt, reputation), per-person duel topics.
+
+**Player behavior.** In spirit sight (`V`), the name tag over a person within 4 m reads `E  Spirit duel`; a click or `interact` opens the duel against that person where they stand. Outside sight, the conversation reply *[Look at them with the inner eye]* does the same after the conversation camera cranes up to the play view. The person holds still for the duel (the arena may move them) and goes back to their day when it closes; sight stays on, as after any duel.
+
+![The conversation camera rising from the talk into the duel](../reports/images/dialogue/talk/forum_crane_to_duel.jpg)
+![A duel with a resident at the forum](../reports/images/dialogue/talk/forum_spirit_duel.jpg)
+
+**Runtime.** `CharacterConversation.begin_duel()` / its inner-eye escalation (`scripts/dialogue/character_conversation.gd`) attach the arena (`SpiritArenaHost.attach_arena` with the person's logic body as the opponent), give the person's rig the pressure bar and soul-light view (`SpiritArenaHost.present_opponent`), pass the person's name through `SpiritArenaHost.speaker_names`, and open `dialogue.city.spirit_duel` with `open_scripted`. Topic `daily_burden` (work, bread, family, sin, fear) with two lines per element; resolutions `resolved_eased`, `resolved_broken`, `resolved_left`. Nothing is saved.
+
+**Verify.** `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_character_conversation`.
+
+**Limits.** One generic duel for everyone; the stranger's soul lights come from the aura view of their rig. A person released after a duel snaps back to where the clock puts them.

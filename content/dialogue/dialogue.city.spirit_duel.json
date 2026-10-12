@@ -1,0 +1,322 @@
+{
+  "type": "dialogue",
+  "id": "dialogue.city.spirit_duel",
+  "title": "Spirit duel with anyone in the city",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "notes": "R-1889 (ADR 0047, ADR 0033): generic spirit duel opened on any resident or named NPC from spirit sight; topic 'daily_burden' (work, bread, family, sin, fear). No flags: a duel with a stranger has no lasting consequence yet."
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "explicit_node_id"
+  },
+  "participants": [
+    "char.interlocutor",
+    "char.apprentice"
+  ],
+  "start_node_id": "recoil",
+  "duel": {
+    "stakes": [
+      "respect",
+      "secret",
+      "obligation"
+    ],
+    "resolution_node_ids": [
+      "resolved_eased",
+      "resolved_broken",
+      "resolved_left"
+    ],
+    "topic": {
+      "id": "daily_burden",
+      "tags": [
+        "work",
+        "bread",
+        "family",
+        "sin",
+        "fear"
+      ],
+      "lines": {
+        "fear": [
+          {
+            "text": "You are afraid the day will come when the work stops and the bread with it.",
+            "relevance": [
+              "work",
+              "bread"
+            ]
+          },
+          {
+            "text": "Something follows you home at night. I can see it on your shoulders.",
+            "relevance": [
+              "fear"
+            ]
+          }
+        ],
+        "shame": [
+          {
+            "text": "There is a thing you did that nobody knows. It sits in your chest.",
+            "relevance": [
+              "sin"
+            ]
+          },
+          {
+            "text": "You cut the measure short when no one watched.",
+            "relevance": [
+              "work",
+              "sin"
+            ]
+          }
+        ],
+        "duty": [
+          {
+            "text": "Your household eats because you rise before dawn. Remember that.",
+            "relevance": [
+              "family",
+              "work"
+            ]
+          },
+          {
+            "text": "You owe the truth to the ones who share your bread.",
+            "relevance": [
+              "bread",
+              "family"
+            ]
+          }
+        ],
+        "love": [
+          {
+            "text": "Someone waits for you at home. Think of them, not of me.",
+            "relevance": [
+              "family"
+            ]
+          },
+          {
+            "text": "Share the loaf and the weight gets lighter.",
+            "relevance": [
+              "bread",
+              "family"
+            ]
+          }
+        ],
+        "faith": [
+          {
+            "text": "Confess it, and God will lift what you carry.",
+            "relevance": [
+              "sin"
+            ]
+          },
+          {
+            "text": "The saints kept harder days than this one. So can you.",
+            "relevance": [
+              "work",
+              "fear"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "nodes": [
+    {
+      "id": "recoil",
+      "speaker_id": "char.interlocutor",
+      "text": "Get your eyes off me! What do you want, witch-boy?",
+      "move": {
+        "kind": "attack",
+        "element": "fear",
+        "stakes": [
+          "respect"
+        ],
+        "spirit_image_id": "raised_hand"
+      },
+      "choices": [
+        {
+          "id": "press_secret",
+          "text": "Something sits in your chest. I can see it.",
+          "target_node_id": "defends",
+          "move": {
+            "kind": "attack",
+            "element": "shame",
+            "stakes": [
+              "secret"
+            ],
+            "topic_tags": [
+              "sin"
+            ]
+          }
+        },
+        {
+          "id": "calm_family",
+          "text": "Peace. Think of the ones waiting for you at home.",
+          "target_node_id": "defends",
+          "move": {
+            "kind": "appeal",
+            "element": "love",
+            "stakes": [
+              "obligation"
+            ],
+            "topic_tags": [
+              "family"
+            ]
+          }
+        },
+        {
+          "id": "hold_ground",
+          "text": "I mean no harm. I will not look away.",
+          "target_node_id": "defends",
+          "move": {
+            "kind": "defense",
+            "element": "fear",
+            "stakes": [
+              "respect"
+            ]
+          }
+        },
+        {
+          "id": "step_back",
+          "text": "[Step back and let it be]",
+          "target_node_id": "resolved_left",
+          "move": {
+            "kind": "evade",
+            "element": "shame",
+            "stakes": [
+              "respect"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "defends",
+      "speaker_id": "char.interlocutor",
+      "text": "I work, I pay my due, I go to Mass. Leave me be!",
+      "move": {
+        "kind": "pressure",
+        "element": "duty",
+        "stakes": [
+          "obligation"
+        ],
+        "spirit_image_id": "ledger"
+      },
+      "choices": [
+        {
+          "id": "duty_bread",
+          "text": "You rise before dawn so your house can eat. That is no small thing.",
+          "target_node_id": "cracks",
+          "move": {
+            "kind": "appeal",
+            "element": "duty",
+            "stakes": [
+              "obligation"
+            ],
+            "topic_tags": [
+              "work",
+              "family"
+            ]
+          }
+        },
+        {
+          "id": "faith_confess",
+          "text": "Then say it at confession, and put it down.",
+          "target_node_id": "cracks",
+          "move": {
+            "kind": "appeal",
+            "element": "faith",
+            "stakes": [
+              "secret"
+            ],
+            "topic_tags": [
+              "sin"
+            ]
+          }
+        },
+        {
+          "id": "fear_night",
+          "text": "And still you are afraid. Of what?",
+          "target_node_id": "cracks",
+          "move": {
+            "kind": "attack",
+            "element": "fear",
+            "stakes": [
+              "secret"
+            ],
+            "topic_tags": [
+              "fear"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "cracks",
+      "speaker_id": "char.interlocutor",
+      "text": "Enough... Why do you care what I carry?",
+      "move": {
+        "kind": "attack",
+        "element": "shame",
+        "stakes": [
+          "respect"
+        ],
+        "spirit_image_id": "bowed_head"
+      },
+      "choices": [
+        {
+          "id": "ease",
+          "text": "Because it is heavy, and you are not alone with it.",
+          "target_node_id": "resolved_eased",
+          "move": {
+            "kind": "appeal",
+            "element": "love",
+            "stakes": [
+              "obligation"
+            ],
+            "topic_tags": [
+              "family",
+              "bread"
+            ]
+          }
+        },
+        {
+          "id": "break",
+          "text": "Because I see it all. Every bit of it.",
+          "target_node_id": "resolved_broken",
+          "move": {
+            "kind": "attack",
+            "element": "fear",
+            "stakes": [
+              "secret"
+            ],
+            "topic_tags": [
+              "sin",
+              "fear"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "resolved_eased",
+      "speaker_id": "char.interlocutor",
+      "text": "...Maybe you are right. Go on, lad. And thank you."
+    },
+    {
+      "id": "resolved_broken",
+      "speaker_id": "char.interlocutor",
+      "text": "Stop! Stop looking at me! I will tell no one, only stop!"
+    },
+    {
+      "id": "resolved_left",
+      "speaker_id": "char.interlocutor",
+      "text": "Hmph. Off with you, then."
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Generic spirit duel for R-1889; spirit-world mechanics are folklore/invented per ADR 0033."
+    }
+  ]
+}

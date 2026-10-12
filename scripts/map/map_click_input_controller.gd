@@ -17,6 +17,9 @@ extends Node
 ## MapViewRuntime.configure_click_input(). Right mouse stays defense (guard) and
 ## camera orbit; see docs/CONTROLS.md.
 
+## Nodes in this group answer `person_at_screen(position) -> bool` (the city crowds).
+const PERSON_PICKER_GROUP := &"click_person_pickers"
+
 var _player: Player
 var _view_runtime: MapViewRuntime
 var _world_items: WorldItemController
@@ -52,6 +55,10 @@ func try_handle_click(event: InputEvent) -> bool:
 	if _is_inventory_open():
 		return _world_items != null and _world_items.try_handle_click(event)
 	if _player.is_movement_input_blocked():
+		return false
+	# R-1887: peaceful, a person under the cursor is someone to talk to. Leave the click to the
+	# crowd that owns them (CityCitizens / CityNamedNpcs) instead of swinging or walking.
+	if not _is_armed() and _person_at(event.position):
 		return false
 	if is_character_relative_mode():
 		return _handle_character_relative_click(event)
@@ -100,7 +107,32 @@ func _handle_character_relative_click(event: InputEvent) -> bool:
 		var interactable := resolution["target"] as Interactable
 		if interactable != null and interactable.interact(_player):
 			return true
+	if not _is_armed():
+		# R-1886: peaceful. A real hostile in front makes the hero draw and strike (as in the
+		# Witcher); anything else leaves the click unhandled so the person under the cursor is
+		# talked to (CityCitizens / CityNamedNpcs) and empty ground does nothing.
+		if resolution["target"] == null or not _player.has_method(&"set_weapon_drawn"):
+			return false
+		_player.call(&"set_weapon_drawn", true)
 	return _begin_primary_attack()
+
+
+func _person_at(screen_position: Vector2) -> bool:
+	if not is_inside_tree():
+		return false
+	for picker in get_tree().get_nodes_in_group(PERSON_PICKER_GROUP):
+		if not picker.has_method(&"person_at_screen"):
+			continue
+		if bool(picker.call(&"person_at_screen", screen_position)):
+			return true
+	return false
+
+
+## True when the hero holds his weapon drawn (players without a stance always are).
+func _is_armed() -> bool:
+	if _player == null or not (&"weapon_drawn" in _player):
+		return true
+	return bool(_player.get(&"weapon_drawn"))
 
 
 func _player_facing() -> Vector2:
@@ -208,6 +240,9 @@ func _handle_hostile_click(hostile: Node2D) -> bool:
 	var offset := hostile.global_position - _player.global_position
 	var in_front := PlayerPrimaryAction.find_hostile_in_front(_player, _player_facing())
 	if in_front == hostile or offset.length() <= PlayerPrimaryAction.HOSTILE_SCAN_PX:
+		# Clicking a hostile is a deliberate attack: a sheathed hero draws first (R-1886).
+		if _player.has_method(&"set_weapon_drawn"):
+			_player.call(&"set_weapon_drawn", true)
 		if _player.request_primary_attack():
 			return true
 	_request_nav_on_host_map(hostile.global_position)

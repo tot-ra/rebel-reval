@@ -26,6 +26,13 @@ way regardless of camera.
 
 ## Primary click (left mouse)
 
+**Stance first (ADR 0047, R-1886).** The hero is peaceful by default: the weapon is sheathed
+and the click never swings. `G` draws it. Peaceful, a click on a person (a census resident or
+named NPC) is left to the crowd and opens a conversation when they are within 4 m, or a spirit
+duel in spirit sight ([`SYSTEMS/DIALOGUE.md`](SYSTEMS/DIALOGUE.md#talk-to-anyone-r-1887)); the
+lists below then apply with these changes: step 1 draws the weapon and strikes, and step 4
+(open air) does nothing until the weapon is drawn.
+
 ### First-person / third-person
 
 Resolved in this order against the character's facing:
@@ -80,7 +87,9 @@ button charges instead of repeating the swing.
 | Spirit sight on / off (walk only while on, [`SYSTEMS/SPIRIT_SIGHT.md`](SYSTEMS/SPIRIT_SIGHT.md)) | `V` | Left stick click |
 | Interact / continue | `E`, `Enter` | A |
 | Challenge (in spirit sight, on a person with a duel record; [`SYSTEMS/SPIRIT_SIGHT.md`](SYSTEMS/SPIRIT_SIGHT.md) "Entering a duel") | `E`, `Enter` | A |
-| Attack (tap = next combo strike, hold = heavy) | left click (see above) | X |
+| Talk to the person in reach (peaceful; [`SYSTEMS/DIALOGUE.md`](SYSTEMS/DIALOGUE.md#talk-to-anyone-r-1887)) | left click on them, `E` | A |
+| Draw / sheathe weapon (peaceful by default, ADR 0047) | `G` | Share (or X draws, A on a person sheathes) |
+| Attack (tap = next combo strike, hold = heavy; weapon drawn) | left click (see above) | X |
 | Guard | `F`, right click | Left shoulder |
 | Roll (toward the held direction; none = back roll; with guard held, `A`/`D` = side roll keeping facing) | `Space` | Right trigger |
 | Sidestep | `Q` | Right shoulder |

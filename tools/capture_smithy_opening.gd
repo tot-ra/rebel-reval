@@ -55,6 +55,23 @@ func _init() -> void:
 	host.call(&"close")
 	await _frames(60)
 	await _save(out + "/kalev_shot.png")
+	# R-1888: the next line cuts to Kalev over the boy's shoulder; a reply cuts to the boy.
+	var ui: Node = null
+	for child in opening.get_children():
+		if child is CanvasLayer and child.has_method(&"click_continue_for_test"):
+			ui = child
+	if ui != null:
+		ui.call(&"click_continue_for_test")
+		ui.call(&"click_continue_for_test")
+		await _frames(20)
+		await _save(out + "/kalev_close.png")
+		var runner: Node = opening.call(&"dialogue_runner")
+		var guard_lines := 0
+		while runner != null and not runner.call(&"is_waiting_for_choice") and guard_lines < 20:
+			ui.call(&"click_continue_for_test")
+			guard_lines += 1
+		await _frames(20)
+		await _save(out + "/kalev_reply.png")
 	quit()
 
 

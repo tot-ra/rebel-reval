@@ -71,6 +71,8 @@ var opponent_aura: SpiritAuraProfile
 var hero_aura: SpiritAuraProfile
 ## The opponent's aura view, when the caller has one on screen: it follows the duel.
 var opponent_aura_view: SpiritAuraView
+## R-1889: display names for the duel's runner (a resident speaking as `char.interlocutor`).
+var speaker_names: Dictionary = {}
 
 var _runner: Node
 var _was_paused := false
@@ -187,6 +189,16 @@ func attach_arena(
 	return true
 
 
+## R-1889: pressure bar and soul-light view on the rig of a logic-plane opponent (a resident).
+func present_opponent(view: Node3D) -> void:
+	if arena_3d == null or not is_instance_valid(view):
+		return
+	if not is_instance_valid(opponent_aura_view):
+		opponent_aura_view = arena_3d.aura_view_for(view)
+	if _opponent_ring == null:
+		_mount_opponent_ring(view)
+
+
 func detach_arena() -> void:
 	_unmount_opponent_ring()
 	if motion != null:
@@ -213,6 +225,7 @@ func open(content_db: ContentDB, state: GameState, dialogue_id: StringName) -> b
 		return false
 	_runner = DialogueRunner.new()
 	_runner.process_mode = Node.PROCESS_MODE_ALWAYS
+	_runner.speaker_names = speaker_names
 	add_child(_runner)
 	_form_view.bind(duel)
 	_form_view.visible = true

@@ -39,6 +39,8 @@ var _live: Dictionary = {}  # npc id -> NamedNpcActor
 var _since := REFRESH_SECONDS
 var _tag: Label3D
 var _hover: NamedNpcActor
+var _press_actor: NamedNpcActor
+var _press_at := Vector2.ZERO
 var _selected: NamedNpcActor
 
 
@@ -70,14 +72,8 @@ func _collect_anchors() -> void:
 
 
 func _ready() -> void:
-	_tag = Label3D.new()
-	_tag.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-	_tag.no_depth_test = true
-	_tag.pixel_size = 0.0035
-	_tag.font_size = 40
-	_tag.outline_size = 12
-	_tag.modulate = Color(1, 0.95, 0.8)
-	_tag.visible = false
+	add_to_group(MapClickInputController.PERSON_PICKER_GROUP)
+	_tag = CharacterConversation.make_tag()
 
 
 func _exit_tree() -> void:
@@ -299,16 +295,69 @@ func _unhandled_input(event: InputEvent) -> void:
 		_hover = pick((event as InputEventMouseMotion).position)
 	elif event is InputEventMouseButton:
 		var button := event as InputEventMouseButton
-		if button.button_index == MOUSE_BUTTON_LEFT and button.pressed:
+		if button.button_index != MOUSE_BUTTON_LEFT:
+			return
+		if CharacterConversation.active(get_tree()) != null:
+			return
+		# Acted on at release like CityCitizens, so both crowds agree on what a click is.
+		if button.pressed:
 			var hit := pick(button.position)
 			if hit != null:
-				select(hit)
+				_press_actor = hit
+				_press_at = button.position
+				get_viewport().set_input_as_handled()
+		else:
+			var pressed_on := _press_actor
+			_press_actor = null
+			if (
+				pressed_on != null and is_instance_valid(pressed_on)
+				and button.position.distance_to(_press_at) <= CityCitizens.CLICK_SLOP_PX
+				and pick(button.position) == pressed_on
+			):
+				activate(pressed_on, false)
 				get_viewport().set_input_as_handled()
 	elif event.is_action_pressed(&"interact"):
+		if CharacterConversation.active(get_tree()) != null:
+			return
 		var near := nearest_to_player()
 		if near != null:
-			select(near)
+			activate(near, true)
 			get_viewport().set_input_as_handled()
+
+
+## MapClickInputController asks before it swings or walks (group `click_person_pickers`).
+func person_at_screen(screen: Vector2) -> bool:
+	return pick(screen) != null
+
+
+## Card, then talk or a spirit duel, as CityCitizens.activate (R-1887, R-1889).
+func activate(actor: NamedNpcActor, from_interact: bool) -> CharacterConversation:
+	if CharacterConversation.active(get_tree()) != null:
+		return null
+	select(actor)
+	if player == null or not CharacterConversation.in_reach(player, actor):
+		return null
+	if not from_interact and &"weapon_drawn" in player and bool(player.get(&"weapon_drawn")):
+		return null
+	var npc := actor.npc
+	var portrait: Variant = npc.get("portrait")
+	var faction: Variant = npc.get("faction")
+	var who := {
+		"name": String(npc["display_name"]),
+		"title": String(npc["title"]),
+		"side": CharacterConversation.side_line(
+			"" if faction == null else CitizenInfoPanel.faction_name(faction)
+		),
+		"portrait": load(String(portrait)) as Texture2D if portrait != null else null,
+	}
+	var keep: Array = [_panel()] if _panel() != null else []
+	var conversation := CharacterConversation.open_with(
+		self, player, actor, _rig_of(actor), who, keep
+	)
+	if conversation != null and _panel() != null:
+		var panel := _panel()
+		conversation.ended.connect(func(_outcome: StringName) -> void: panel.hide_panel())
+	return conversation
 
 
 func select(actor: NamedNpcActor) -> void:
@@ -394,5 +443,5 @@ func _update_tag() -> void:
 			_tag.get_parent().remove_child(_tag)
 		rig.add_child(_tag)
 	_tag.position = Vector3(0.0, 2.1 * float(target.record["height_scale"]), 0.0)
-	_tag.text = String(target.npc["display_name"])
-	_tag.visible = true
+	_tag.text = CharacterConversation.tag_text(String(target.npc["display_name"]), player, target)
+	_tag.visible = CharacterConversation.active(get_tree()) == null

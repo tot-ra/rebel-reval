@@ -16,6 +16,7 @@ const EXPECTED_SLICE_ACTIONS: Array[StringName] = [
 	&"ui_accept",
 	&"ui_cancel",
 	&"ui_page_up",
+	&"player_draw_weapon",
 	&"player_attack",
 	&"player_guard",
 	&"player_dodge",

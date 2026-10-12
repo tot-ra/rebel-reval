@@ -354,3 +354,5 @@ Keep this file short. Append a durable reusable rule, not a dated incident log. 
 - Create the board task before writing an `R-NNNN` ref into code or docs: guessing "last ref + 1" collided with a concurrent session (R-1873 was already the cloud slab). Then `grep -rn R-NNNN scripts docs` to confirm the ref is unused.
 
 - The `question` tool aborts after 300 s when the user is away (no answer is returned). Do not block the task on it: pick the reversible option that matches existing usage, write it into the doc as a provisional decision with "maintainer did not answer" and how to swap, and repeat the question in the final report.
+
+- If the single allowed reviewer sub-agent fails (empty response, provider error), the limit is still spent: do the review yourself against the same checklist and say so in the report; do not retry the delegation.

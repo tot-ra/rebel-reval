@@ -1,0 +1,106 @@
+{
+  "type": "dialogue",
+  "id": "dialogue.city.small_talk",
+  "title": "Talk with anyone in the city",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "notes": "R-1887 (ADR 0047): generic conversation spoken by any census resident or named NPC through the char.interlocutor placeholder; {interlocutor_*} tokens are filled at runtime. The inner_eye reply turns the talk into a spirit duel (R-1889)."
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "explicit_node_id"
+  },
+  "participants": [
+    "char.interlocutor",
+    "char.apprentice"
+  ],
+  "start_node_id": "greet",
+  "nodes": [
+    {
+      "id": "greet",
+      "speaker_id": "char.interlocutor",
+      "text": "Well, lad? Speak up, I have work waiting.",
+      "choices": [
+        {
+          "id": "who",
+          "text": "Who are you?",
+          "target_node_id": "who_answer"
+        },
+        {
+          "id": "news",
+          "text": "What news in town?",
+          "target_node_id": "news_answer"
+        },
+        {
+          "id": "inner_eye",
+          "text": "[Look at {interlocutor_name} with the inner eye]",
+          "target_node_id": "stared_at"
+        },
+        {
+          "id": "bye",
+          "text": "God keep you.",
+          "target_node_id": "farewell"
+        }
+      ]
+    },
+    {
+      "id": "who_answer",
+      "speaker_id": "char.interlocutor",
+      "text": "{interlocutor_name}, {interlocutor_title}. {interlocutor_side}",
+      "next_node_id": "again"
+    },
+    {
+      "id": "news_answer",
+      "speaker_id": "char.interlocutor",
+      "text": "The bailiff counts every barrel through the gate, and salt costs more each week. Keep your head down.",
+      "next_node_id": "again"
+    },
+    {
+      "id": "again",
+      "speaker_id": "char.interlocutor",
+      "text": "Anything else?",
+      "choices": [
+        {
+          "id": "who",
+          "text": "Who are you?",
+          "target_node_id": "who_answer"
+        },
+        {
+          "id": "news",
+          "text": "What news in town?",
+          "target_node_id": "news_answer"
+        },
+        {
+          "id": "inner_eye",
+          "text": "[Look at {interlocutor_name} with the inner eye]",
+          "target_node_id": "stared_at"
+        },
+        {
+          "id": "bye",
+          "text": "God keep you.",
+          "target_node_id": "farewell"
+        }
+      ]
+    },
+    {
+      "id": "stared_at",
+      "speaker_id": "char.interlocutor",
+      "text": "Why do you stare at me like that, boy?"
+    },
+    {
+      "id": "farewell",
+      "speaker_id": "char.interlocutor",
+      "text": "And you."
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Generic city conversation for R-1887; no historical claim beyond the plausible tolls and salt prices of 1343 Reval."
+    }
+  ]
+}

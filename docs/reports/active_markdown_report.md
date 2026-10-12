@@ -14,11 +14,11 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `1282`
-- Markdown files excluded as archive/reference/out of active scope: `764`
-- Local/external links inspected: `14595`
-- Links to active Markdown docs: `12861`
-- Links to existing archive/reference/non-active local docs: `521`
+- Active Markdown files scanned: `1283`
+- Markdown files excluded as archive/reference/out of active scope: `765`
+- Local/external links inspected: `14644`
+- Links to active Markdown docs: `12891`
+- Links to existing archive/reference/non-active local docs: `522`
 - External links skipped for reachability: `192`
 - Issues found: `13`
 
@@ -36,11 +36,11 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 | Code | Location | Detail |
 | --- | --- | --- |
-| `BROKEN_ANCHOR` | `docs/CHARACTERS/apprentice.md:29` | Local Markdown link anchor `#guilt-implemented-sd-03` not found in `docs/SYSTEMS/SPIRIT_DIALOGUE.md` |
+| `BROKEN_ANCHOR` | `docs/CHARACTERS/apprentice.md:36` | Local Markdown link anchor `#guilt-implemented-sd-03` not found in `docs/SYSTEMS/SPIRIT_DIALOGUE.md` |
 | `BROKEN_ANCHOR` | `docs/SYSTEMS/COMBAT.md:8` | Local Markdown link anchor `#spirit-arena-implemented-prototype-sd-04` not found in `docs/SYSTEMS/SPIRIT_DIALOGUE.md` |
-| `BROKEN_ANCHOR` | `docs/SYSTEMS/COMBAT.md:109` | Local Markdown link anchor `#hybrid-combat-and-guilt-implemented-sd-07` not found in `docs/SYSTEMS/SPIRIT_DIALOGUE.md` |
-| `BROKEN_ANCHOR` | `docs/SYSTEMS/DIALOGUE.md:31` | Local Markdown link anchor `#language-comprehension-implemented-sd-08` not found in `docs/SYSTEMS/SPIRIT_DIALOGUE.md` |
-| `BROKEN_ANCHOR` | `docs/SYSTEMS/DIALOGUE.md:32` | Local Markdown link anchor `#dialogue-move-tags-implemented-sd-02` not found in `docs/SYSTEMS/SPIRIT_DIALOGUE.md` |
+| `BROKEN_ANCHOR` | `docs/SYSTEMS/COMBAT.md:120` | Local Markdown link anchor `#hybrid-combat-and-guilt-implemented-sd-07` not found in `docs/SYSTEMS/SPIRIT_DIALOGUE.md` |
+| `BROKEN_ANCHOR` | `docs/SYSTEMS/DIALOGUE.md:32` | Local Markdown link anchor `#language-comprehension-implemented-sd-08` not found in `docs/SYSTEMS/SPIRIT_DIALOGUE.md` |
+| `BROKEN_ANCHOR` | `docs/SYSTEMS/DIALOGUE.md:33` | Local Markdown link anchor `#dialogue-move-tags-implemented-sd-02` not found in `docs/SYSTEMS/SPIRIT_DIALOGUE.md` |
 | `BROKEN_ANCHOR` | `docs/SYSTEMS/FACTIONS_AND_ECONOMY.md:82` | Local Markdown link anchor `#talking-to-yourself-implemented-sd-09` not found in `docs/SYSTEMS/SPIRIT_DIALOGUE.md` |
 | `BROKEN_ANCHOR` | `docs/SYSTEMS/MAGIC.md:9` | Local Markdown link anchor `#magic-in-the-spirit-world-implemented-sd-14` not found in `docs/SYSTEMS/SPIRIT_DIALOGUE.md` |
 | `BROKEN_ANCHOR` | `docs/SYSTEMS/MAGIC.md:9` | Local Markdown link anchor `#magic-in-the-spirit-world-implemented-sd-14` not found in `docs/SYSTEMS/SPIRIT_DIALOGUE.md` |
@@ -97,6 +97,7 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/adr/0044-named-npc-presentation-tier.md`
 - `docs/adr/0045-seasons.md`
 - `docs/adr/0046-church-services-and-collective-channeling.md`
+- `docs/adr/0047-interaction-stances-and-conversation-camera.md`
 - `docs/adr/README.md`
 - `docs/AGENT_LOOPS.md`
 - `docs/ANIMAL_3D_SOURCING.md`

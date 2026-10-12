@@ -31,6 +31,14 @@ per-scene camera rigs is unaffected: nothing is authored per shot.
 
 ![Kalev's arrival in the city smithy, framed by ConversationShot](../reports/images/spirit_duel_layer/smithy_kalev_shot.jpg)
 
+**Universal conversation camera (R-1888, [ADR 0047](../adr/0047-interaction-stances-and-conversation-camera.md)).** The same `ConversationShot` now frames every conversation, Kalev's and talk with anyone ([`DIALOGUE.md`](./DIALOGUE.md#talk-to-anyone-r-1887)):
+
+- **Opening two-shot** for the first line, then a **close shot over the listener's shoulder** on whoever speaks (`cue_line`), and the reverse shot on the hero while he picks a reply (`focus`). The lens stays on the opening shot's side of the line between the two (180-degree rule); its eye is at the listener's eye height and it aims at the speaker's chest so the face sits in the upper third, above the dialogue box.
+- **Line of sight.** The city has no 3D colliders, so `ShotOcclusion` (`scripts/prologue/shot_occlusion.gd`) gathers the meshes near the conversation (from the common parent of the world and the speakers: people are mirrored under `MapViewRuntime`, beside `CityWorld3D`) and tests each camera-to-face segment against bounds, then real triangles. Several angles and distances are tried; one that sees the faces past the scenery wins. A passer-by in the way (a mesh under a `Skeleton3D`) does not reject an angle: they are hidden for that shot and shown again at the next cut. The last close-shot fallback is a point of view from just in front of the listener's face.
+- **Hand-back.** `release()` cuts back; `release(blend_sec)` cranes the camera along a smooth path to the live gameplay camera (lens, blur and letterbox ease out) and emits `released`. A conversation that turns into a spirit duel uses it (`CRANE_SEC` 1.2 s).
+
+![The smithy: the reverse shot on the boy over Kalev's shoulder](../reports/images/dialogue/talk/smithy_kalev_reply.jpg)
+
 | Input | Effect |
 |---|---|
 | `interact`, `ui_accept`, left click | advance one line; at the last line of a shot, advance one shot |
@@ -52,7 +60,8 @@ written for each shot.
 | `scripts/cutscene/cutscene_scene_host.gd` (`CutsceneSceneHost`) | makes a sequence a `change_scene_to_file` target via an exported `sequence_id` |
 | `scenes/intro/start_label.gd` | main-menu **Start** calls `SmithyOpening.start_new_game` (city, spawn `kalev_smithy`) |
 | `scripts/prologue/smithy_opening.gd` | New Game prologue in the city smithy: porter duel in place, then Kalev |
-| `scripts/prologue/conversation_shot.gd` | eye-level conversation camera in the live world: grade, depth blur, vignette, letterbox, HUD hidden; `release()` restores play (R-1877) |
+| `scripts/prologue/conversation_shot.gd` | eye-level conversation camera in the live world: grade, depth blur, vignette, letterbox, HUD hidden; two-shot, over-the-shoulder cuts (`frame_subjects`, `cue_line`, `focus`), `release(blend)` cuts or cranes back to play (R-1877, R-1888) |
+| `scripts/prologue/shot_occlusion.gd` | line of sight for shots against drawn meshes; tells scenery from passers-by (R-1888) |
 | `scripts/prologue/almshouse_opening.gd` | the old staged almshouse hall; now only a duel fixture for tests and capture tools, unreachable from New Game |
 
 `CutscenePlayer` runs with `PROCESS_MODE_ALWAYS` and does not pause the tree, so it works

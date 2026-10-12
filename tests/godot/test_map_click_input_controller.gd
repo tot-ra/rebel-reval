@@ -152,6 +152,7 @@ func test_third_person_click_attacks_hostile_in_front() -> void:
 		PlayerActionState.State.ATTACK,
 		"An aggressive target in front must answer a primary click with an attack"
 	)
+	assert_true(player.weapon_drawn, "a sheathed hero draws to strike a hostile (R-1886)")
 	assert_eq(
 		player.navigation_agent.target_position,
 		initial_target,
@@ -199,6 +200,7 @@ func test_third_person_click_prefers_hostile_over_neutral_target() -> void:
 func test_third_person_click_on_open_ground_swings_instead_of_moving() -> void:
 	var harness := _make_click_harness(false)
 	var player: Player = harness.player
+	player.set_weapon_drawn(true)
 	player.set_view_facing(Vector2.RIGHT)
 	player.stamina = player.max_stamina
 	var initial_target := player.global_position
@@ -394,3 +396,16 @@ func _purge_leaked_map_scenes() -> void:
 			# Strip MultiMesh materials before free to avoid DEF-006 headless ERROR spam.
 			MapView3D._strip_geometry_materials(child)
 			child.free()
+
+
+## R-1886: sheathed, a click on open ground neither swings nor walks; it is left for the
+## people under the cursor (CityCitizens / CityNamedNpcs turn it into a conversation).
+func test_third_person_click_while_sheathed_does_not_swing() -> void:
+	var harness := _make_click_harness(false)
+	var player: Player = harness.player
+	player.set_view_facing(Vector2.RIGHT)
+	player.stamina = player.max_stamina
+	assert_false(player.weapon_drawn, "the hero starts peaceful")
+	assert_false(_primary_click(harness.click_input, Vector2(640, 360)), "the click is not consumed")
+	assert_ne(player.action_state_machine.state, PlayerActionState.State.ATTACK)
+	_cleanup_harness(harness)

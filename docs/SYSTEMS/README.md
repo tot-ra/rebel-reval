@@ -48,7 +48,7 @@ One page per implemented or planned feature. Each page opens with a `Status:` li
 | [Living World routines](./LIVING_WORLD.md) | Implemented (R-1344): hourly civilian schedule |
 | [NATURAL aspects](./NATURAL.md) | Design contract; state and display only |
 | [Hingepuu psyche](./PSYCHE.md) | Design contract; state and display only |
-| [Spirit dialogue combat](./SPIRIT_DIALOGUE.md) | Planned (ADR 0033); nothing implemented |
+| [Spirit dialogue combat](./SPIRIT_DIALOGUE.md) | Partial (ADR 0033): smithy duel, duel with anyone (R-1889) |
 | [Spirit sight, auras and soul lights](./SPIRIT_SIGHT.md) | Partial: toggle (R-1484) and aura data (R-1485) implemented; auras on screen planned (epic R-1483) |
 | [Muscle-driven procedural locomotion](./MUSCLE_LOCOMOTION.md) | Planned; build-time research prototype only (planar quadruped and biped walk) |
 

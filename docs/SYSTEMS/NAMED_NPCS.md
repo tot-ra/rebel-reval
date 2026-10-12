@@ -6,13 +6,14 @@ Status: implemented (tasks **R-1562** registry, **R-1563** seamless-city spawn a
 
 - Walking Reval, the player meets named NPCs at believable places and hours: Konrad Preen at the castle on Toompea, Hinrik the Cartographer at the fish landing, Martin at the smiths' street, Johann von Minden and Mart Weaver at the forum in the morning, the Town Guard Captain at the council watch by day and at the Coastal Gate in the evening.
 - Each stands on its own spot round its post, facing it, and walks the census street graph between posts (1.2 m/s). Going `home` it walks to its `home_anchor` and disappears on arrival; it reappears from there for the next post.
-- Click a named NPC (left mouse) or press `interact` within 3 m (keyboard or gamepad) to open the citizen information panel with the portrait (when the registry has one), title, faction name with the faction chip in `FactionBadge` (R-1565), what it is doing now, and its id and source sheet. Hover or select shows the name above the head. `Esc` or the × closes it.
+- Click a named NPC (left mouse) or press `interact` near them (keyboard or gamepad) to open the citizen information card with the portrait (when the registry has one), title, faction name with the faction chip in `FactionBadge` (R-1565), what it is doing now, and its id and source sheet. Within 4 m this also starts a conversation (or a spirit duel in spirit sight) with the registry portrait and name ([`DIALOGUE.md`](./DIALOGUE.md#talk-to-anyone-r-1887), task **R-1887**). Hover or select shows the name above the head, at a constant small screen size, plus what a click does within reach (task **R-1885**). `Esc` or the × closes the card.
 - Named NPCs take clicks before the census crowd (a hit is consumed; a miss falls through to `CityCitizens`). They have their own cap of 12 live actors, separate from the 30-resident crowd cap, so the crowd budget never culls them within the 62 m spawn radius (freed beyond 80 m).
 - A census resident that a named NPC `replaces` is never spawned by `CityCitizens`, so the same person never walks twice; the named NPC wears that resident's body and clothes and the panel adds the resident's trade and household.
 - Only NPCs whose `act_gate` is at most the current act appear. The campaign has no act state yet, so the city uses act 1 (Wave A); `--city-act=N` on the command line pins it for review.
 
 ![Forum at 10:00 with three named NPCs](../reports/images/city/named_npcs_forum_10h.jpg)
 ![Mart Weaver's panel with portrait and faction](../reports/images/city/named_npcs_forum_10h_panel.jpg)
+![The redesigned card (R-1885): opaque, portrait beside name, title and faction row, compact name tag](../reports/images/dialogue/talk/card_named_forum.jpg)
 
 ## Registry data
 

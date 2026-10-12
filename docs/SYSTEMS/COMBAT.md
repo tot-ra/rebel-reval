@@ -68,11 +68,22 @@ Status: implemented (tasks **R-1754** models, items and forge pickups; **R-1755*
 
 **Verify.** `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_forge_weapons`; visual grip check `tools/godot_render.sh --script tools/capture_forge_weapons.gd` (writes `docs/reports/images/combat/forge_weapons/`, summarised in `grip_sheet.jpg`); gameplay capture of the forge row, pickup and equip, and a city brawl: `tools/godot_render.sh --resolution 1600x900 res://tools/capture_forge_brawl.tscn -- --city-spawn=poi.forum --city-hour=11`.
 
+## Peaceful and armed stance (R-1886)
+
+Status: implemented (task **R-1886**, [ADR 0047](../adr/0047-interaction-stances-and-conversation-camera.md)). Out of scope: a sheathe animation and a scabbard or back slot for the weapon (it is simply hidden), auto-sheathing after a fight.
+
+- The hero starts **peaceful**: the equipped weapon is hidden and the primary click never swings. A click on a person talks ([`DIALOGUE.md`](./DIALOGUE.md#talk-to-anyone-r-1887)), on a thing uses it, on open ground does nothing.
+- `G` (gamepad Share) **draws** or sheathes. Drawn, the click is the normal attack chain (tap light, hold heavy).
+- The attack button (gamepad X) on a sheathed hero draws first; the next press strikes. Clicking a real hostile (`combat_damageable`) draws and strikes in one go.
+- Talking to someone sheathes.
+- Runtime: `Player.weapon_drawn`, `set_weapon_drawn()`, `toggle_weapon_drawn()`, signal `weapon_drawn_changed` (`scripts/player.gd`); `MapClickInputController._is_armed` and the person deferral (`click_person_pickers` group); `MapViewRuntimeActors._apply_weapon_stance` hides or shows the hand slots. Not saved: a load starts sheathed.
+- Verify: `--filter=test_character_conversation,test_map_click_input_controller`.
+
 ## Brawls with citizens
 
 Status: implemented (task **R-1756**). Scope: census residents in the seamless city (`CityCitizens`). Out of scope: named NPCs (`CityNamedNpcs`) and ambient site workers, guards joining a fight, Living City Fear, legal consequences, saving injuries or the fallen (they last for the session), body looting.
 
-**What the player does.** Swing a weapon (or fists) or shoot an arrow at any resident. Nothing happens to people you do not actually hit: clicking a resident still opens the information panel, and a peaceful resident never attracts soft-lock or click attacks. Once struck:
+**What the player does.** Draw the weapon (`G`, [stance](#peaceful-and-armed-stance-r-1886)), then swing it (or fists) or shoot an arrow at any resident. Nothing happens to people you do not actually hit: clicking a resident still opens the information panel, and a peaceful resident never attracts soft-lock or click attacks. Once struck:
 
 - **Men aged 16-55, and anyone on watch duty, fight back.** They close in, telegraph (guard pose), strike, back off when badly hurt, and give up when the hero is more than 10 m away. Townsmen punch; the watch uses its spear or sword. Their blows go through the hero's guard, parry and dodge.
 - **Women, children and the elderly run** directly away for up to 7 s (or until 10 m away), then walk back to where their day should take them.

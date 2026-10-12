@@ -208,6 +208,9 @@ func _begin_kalev() -> void:
 	_dialogue_ui = DialogueUI.new()
 	add_child(_dialogue_ui)
 	_dialogue_ui.apply_settings(UserSettings.dialogue)
+	# R-1888: Kalev's lines cut to him over the boy's shoulder; a reply cuts to the boy.
+	_dialogue_ui.line_shown.connect(_on_line_shown)
+	_dialogue_ui.choices_shown.connect(_on_choices_shown)
 	_runner = DialogueRunner.new()
 	add_child(_runner)
 	var presenter := DialogueUiPresenter.new()
@@ -263,7 +266,6 @@ func _frame_conversation() -> void:
 		hero_rig.global_position if hero_rig != null
 		else _hero_world(_kalev.global_position.y)
 	)
-	var points: Array[Vector3] = [hero_at, _kalev.global_position]
 	# The boy turns to the man who is speaking to him (logic plane shares the world's x/z axes).
 	var toward := Vector2(_kalev.global_position.x - hero_at.x, _kalev.global_position.z - hero_at.z)
 	if _player.has_method(&"set_view_facing"):
@@ -271,7 +273,23 @@ func _frame_conversation() -> void:
 	_shot = ConversationShotScript.new()
 	_shot.name = "ConversationShot"
 	add_child(_shot)
-	_shot.call(&"frame", _world(), points, _arena_center, ARENA_RADIUS, self)
+	var subjects: Array[Node3D] = [_kalev]
+	if hero_rig != null:
+		subjects.push_front(hero_rig)
+	_shot.call(&"frame_subjects", _world(), subjects, _arena_center, ARENA_RADIUS, self)
+
+
+func _on_line_shown(speaker_id: StringName) -> void:
+	if _shot == null or not is_instance_valid(_shot):
+		return
+	if speaker_id == &"char.kalev" and is_instance_valid(_kalev):
+		_shot.call(&"cue_line", _kalev)
+
+
+func _on_choices_shown() -> void:
+	var hero_rig := get_tree().get_first_node_in_group(&"player_view_rig") as Node3D
+	if _shot != null and is_instance_valid(_shot) and hero_rig != null:
+		_shot.call(&"focus", hero_rig)
 
 
 func shot() -> Node:

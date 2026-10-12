@@ -39,6 +39,8 @@ func test_left_click_roll_and_cast_animate_the_3d_player_rig() -> void:
 	var hand := skeleton.find_bone("hand.r")
 	var hips := skeleton.find_bone("hips")
 	player.stamina = 100.0
+	# R-1886: the hero starts peaceful; a left click only strikes with the weapon drawn.
+	player.set_weapon_drawn(true)
 	await _wait(tree, 0.3)
 
 	# (a) Default third-person left click: press + release commits a light strike.

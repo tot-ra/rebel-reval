@@ -19,6 +19,12 @@ const CONTINUE_ACTIONS: Array[StringName] = [
 	&"ui_accept",
 ]
 
+## R-1887: display names by speaker id that win over ContentDB, so one authored record can be
+## spoken by any resident through the `char.interlocutor` placeholder.
+var speaker_names: Dictionary = {}
+## R-1887: `{key}` -> text replaced in every line and choice (e.g. `{interlocutor_name}`).
+var text_tokens: Dictionary = {}
+
 var _content_db: ContentDB
 var _state: GameState
 var _evaluator: StateRuleEvaluator
@@ -345,7 +351,7 @@ func _resolve_choice(choice: Dictionary) -> Dictionary:
 			disabled_reason = language_block
 	return {
 		"id": String(choice.get("id", "")),
-		"text": _resolve_authored_text(choice),
+		"text": _format_text(_resolve_authored_text(choice)),
 		"target_node_id": String(choice.get("target_node_id", "")),
 		"enabled": enabled,
 		"disabled_reason": disabled_reason,
@@ -439,6 +445,8 @@ func _runtime_rules(authored_rules: Variant) -> Array:
 
 
 func _speaker_name(speaker_id: StringName) -> String:
+	if speaker_names.has(speaker_id):
+		return String(speaker_names[speaker_id])
 	if _content_db == null or speaker_id.is_empty():
 		return String(speaker_id)
 	var character := _content_db.get_character(speaker_id)
@@ -456,6 +464,8 @@ func _resolve_authored_text(entry: Dictionary) -> String:
 
 
 func _format_text(text: String) -> String:
+	for key: String in text_tokens:
+		text = text.replace("{%s}" % key, String(text_tokens[key]))
 	if _state == null:
 		return text
 	var location_id := _state.player.location_id if _state.player != null else &""

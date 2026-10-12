@@ -17,6 +17,11 @@ var spawner: CityNamedNpcs
 var rig_styled := false
 var visible_now := true
 
+## R-1887: a conversation or spirit duel holds the person where they stand, turned to the
+## hero (`toward`, a logic-plane body); the clock takes over again on release. A spirit duel
+## may move the held body itself (SpiritArenaMotion); holding never fights it.
+var held_for_talk := false
+var _held_toward: Node2D
 var _facing := Vector2.DOWN
 var _moving := false
 var _yield := Vector2.ZERO
@@ -68,6 +73,9 @@ func _physics_process(delta: float) -> void:
 func _physics_process_timed(delta: float) -> void:
 	var state := spawner.resolve(npc, spawner.hour())
 	visible_now = state["visible"]
+	if _step_held():
+		visible_now = true
+		return
 	var logic := CityPlan.to_logic(state["pos"])
 	if _player == null or not is_instance_valid(_player):
 		_player = CrowdYield.find_player(get_tree())
@@ -91,3 +99,27 @@ func view_facing() -> Vector2:
 
 func view_animation() -> StringName:
 	return &"walk" if _moving else &"idle"
+
+
+func hold_for_talk(toward: Node2D) -> void:
+	held_for_talk = true
+	_held_toward = toward
+
+
+func release_talk() -> void:
+	held_for_talk = false
+	_held_toward = null
+
+
+## Standing still, turned to the hero. True while held.
+func _step_held() -> bool:
+	if not held_for_talk:
+		return false
+	velocity = Vector2.ZERO
+	_moving = false
+	if not is_instance_valid(_held_toward):
+		return true
+	var toward := _held_toward.global_position - global_position
+	if toward.length_squared() > 1.0:
+		_facing = toward.normalized()
+	return true

@@ -1,0 +1,35 @@
+{
+  "type": "character",
+  "id": "char.interlocutor",
+  "name": "Townsperson",
+  "role": "Placeholder speaker for the generic city conversations; the runtime shows the real person's name and portrait (R-1887)",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft"
+  },
+  "pronunciation": "TOWNZ-pur-sun",
+  "brief": {
+    "want": "To get on with the day.",
+    "fear": "Trouble with the Danes, the Order or the council.",
+    "contradiction": "Curious about the smith's boy, wary of being seen with him.",
+    "secret_or_withheld_fact": "Whatever the person's own card says."
+  },
+  "relationships": [],
+  "voice": {
+    "summary": "Plain, busy, a little guarded.",
+    "diction": "Short everyday sentences."
+  },
+  "outcomes": [
+    {
+      "id": "end",
+      "summary": "Stands in for any resident or named NPC."
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Runtime placeholder, not a person; see docs/SYSTEMS/DIALOGUE.md#talk-to-anyone-r-1887."
+    }
+  ]
+}

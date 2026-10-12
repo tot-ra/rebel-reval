@@ -6,6 +6,8 @@ signal melee_attack_resolved(targets: Array[Node2D], profile: AttackProfile)
 signal self_talk_performed(result: Dictionary)
 signal health_changed(current: float, maximum: float)
 signal died
+## The hero drew or sheathed the weapon (R-1886).
+signal weapon_drawn_changed(drawn: bool)
 signal water_medium_changed(previous: PlayerSwimState.Medium, current: PlayerSwimState.Medium)
 
 const SpiritSightScript := preload("res://scripts/combat/spirit_sight.gd")
@@ -55,6 +57,11 @@ var combat_vitals := CombatVitals.new()
 ## damage, reach and stamina.
 var combat_build: StringName = CombatMoveCatalog.BUILD_TEEN
 var self_talk := SelfTalk.new()
+## R-1886, ADR 0047: peaceful by default, as in the Witcher. With the weapon sheathed the
+## primary click talks to people and uses things; only a drawn weapon turns it into a blow.
+## `player_draw_weapon` toggles it, and the attack button on a sheathed hero draws first.
+## Transient: a new session or a load starts sheathed.
+var weapon_drawn := false
 
 var _screen_right_in_logic := Vector2.RIGHT
 var _screen_down_in_logic := Vector2.DOWN
@@ -300,6 +307,9 @@ func _process_action_input(_delta: float) -> void:
 	# One attack button for every device: a tap commits the next light strike of
 	# the chain on release, holding past the threshold commits the heavy strike
 	# without waiting for release (COMBAT_ANIMATION.md §2).
+	var draw := &"player_draw_weapon"
+	if InputMap.has_action(draw) and Input.is_action_just_pressed(draw):
+		toggle_weapon_drawn()
 	_process_attack_charge_input(_delta)
 	self_talk.tick(_delta)
 	if InputMap.has_action(&"player_self_talk") and Input.is_action_just_pressed(&"player_self_talk"):
@@ -608,9 +618,26 @@ func is_attack_charging() -> bool:
 	return _attack_charge_active
 
 
+func set_weapon_drawn(drawn: bool) -> void:
+	if weapon_drawn == drawn:
+		return
+	weapon_drawn = drawn
+	if not drawn:
+		_attack_charge_active = false
+	weapon_drawn_changed.emit(drawn)
+
+
+func toggle_weapon_drawn() -> void:
+	set_weapon_drawn(not weapon_drawn)
+
+
 func _process_attack_charge_input(delta: float) -> void:
 	if PlayerActionInput.read_attack_just_pressed():
-		begin_attack_charge()
+		if weapon_drawn:
+			begin_attack_charge()
+		else:
+			# The attack button on a sheathed hero draws the weapon; the next press strikes.
+			set_weapon_drawn(true)
 	if not _attack_charge_active:
 		return
 	_attack_charge_sec += delta

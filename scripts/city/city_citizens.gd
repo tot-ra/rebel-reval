@@ -9,6 +9,8 @@ extends Node2D
 ## furnished house near Kalev (CityInteriors) are shown inside it, asleep, at
 ## table or at the hearth; residents fetching firewood carry it home on their back.
 
+## A press and release this close on one person is a click, not a drag (R-1887).
+const CLICK_SLOP_PX := 8.0
 const PerfProbeScript := preload("res://scripts/debug/perf_probe.gd")
 const SPAWN_RADIUS := 62.0
 const DESPAWN_RADIUS := 80.0
@@ -43,6 +45,10 @@ var _panel: CitizenInfoPanel
 var _tag: Label3D
 var _hover: CitizenActor
 var _selected: CitizenActor
+## R-1887: a press on a person is acted on at release, so a drag gesture on a body (garment
+## dragging, docs/SYSTEMS/UNDRESS_INTERACTION.md) never also starts a conversation.
+var _press_actor: CitizenActor
+var _press_at := Vector2.ZERO
 var _interiors: CityInteriors
 ## Residents a named NPC replaces (ADR 0044): never spawned, so nobody walks twice.
 var _suppressed: Dictionary = {}  # resident index -> true
@@ -64,19 +70,12 @@ static func create(city_plan: CityPlan, kalev: Node2D) -> CityCitizens:
 
 
 func _ready() -> void:
+	add_to_group(MapClickInputController.PERSON_PICKER_GROUP)
 	_panel = CitizenInfoPanel.new()
 	# On the tree root: the 2D actors layer this node lives under is not drawn in the 3D city.
 	get_tree().root.add_child.call_deferred(_panel)
 	_panel.closed.connect(_on_panel_closed)
-	_tag = Label3D.new()
-	_tag.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-	_tag.no_depth_test = true
-	_tag.fixed_size = false
-	_tag.pixel_size = 0.0035
-	_tag.font_size = 40
-	_tag.outline_size = 12
-	_tag.modulate = Color(1, 0.95, 0.8)
-	_tag.visible = false
+	_tag = CharacterConversation.make_tag()
 
 
 func _exit_tree() -> void:
@@ -439,21 +438,77 @@ func _unhandled_input(event: InputEvent) -> void:
 		_set_hover(_pick((event as InputEventMouseMotion).position))
 	elif event is InputEventMouseButton:
 		var button := event as InputEventMouseButton
-		if button.button_index == MOUSE_BUTTON_LEFT and button.pressed:
+		if button.button_index != MOUSE_BUTTON_LEFT:
+			return
+		if CharacterConversation.active(get_tree()) != null:
+			return
+		if button.pressed:
 			var hit := _pick(button.position)
 			if hit != null:
-				_select(hit)
+				_press_actor = hit
+				_press_at = button.position
 				get_viewport().set_input_as_handled()
 			elif _panel.is_open():
 				_panel.hide_panel()
+		else:
+			var pressed_on := _press_actor
+			_press_actor = null
+			if (
+				pressed_on != null and is_instance_valid(pressed_on)
+				and button.position.distance_to(_press_at) <= CLICK_SLOP_PX
+				and _pick(button.position) == pressed_on
+			):
+				activate(pressed_on, false)
+				get_viewport().set_input_as_handled()
 	elif event.is_action_pressed(&"interact"):
+		if CharacterConversation.active(get_tree()) != null:
+			return
 		var near := _nearest_to_player()
 		if near != null:
-			_select(near)
+			activate(near, true)
 			get_viewport().set_input_as_handled()
 	elif event.is_action_pressed(&"ui_cancel") and _panel.is_open():
+		if CharacterConversation.active(get_tree()) != null:
+			return
 		_panel.hide_panel()
 		get_viewport().set_input_as_handled()
+
+
+## MapClickInputController asks before it swings or walks (group `click_person_pickers`).
+func person_at_screen(screen: Vector2) -> bool:
+	return _pick(screen) != null
+
+
+## A click (or `interact`) on a resident: the card, and within reach a conversation, or a
+## spirit duel in spirit sight (R-1887, R-1889). An armed click is a blow, handled by
+## MapClickInputController before this; it only shows the card. `interact` talks even when
+## armed (it sheathes), so a pad can put the weapon away.
+func activate(actor: CitizenActor, from_interact: bool) -> CharacterConversation:
+	if CharacterConversation.active(get_tree()) != null:
+		return null
+	_select(actor)
+	if player == null or not CharacterConversation.in_reach(player, actor):
+		return null
+	if actor.brawler != null and actor.brawler.owns_motion():
+		return null
+	if not from_interact and &"weapon_drawn" in player and bool(player.get(&"weapon_drawn")):
+		return null
+	var record := actor.record
+	var faction := String(record.get("faction", "none"))
+	var who := {
+		"name": String(record["name"]),
+		"title": String(record.get("trade", "")).replace("_", " "),
+		"side": CharacterConversation.side_line(
+			"" if faction == "none" else String(CitizenInfoPanel.FACTION_NAMES.get(faction, faction))
+		),
+		"portrait": null,
+	}
+	var conversation := CharacterConversation.open_with(
+		self, player, actor, _rig_of(actor), who, [_panel]
+	)
+	if conversation != null:
+		conversation.ended.connect(func(_outcome: StringName) -> void: _panel.hide_panel())
+	return conversation
 
 
 func _select(actor: CitizenActor) -> void:
@@ -528,5 +583,5 @@ func _update_tag() -> void:
 			_tag.get_parent().remove_child(_tag)
 		rig.add_child(_tag)
 	_tag.position = Vector3(0.0, 2.1 * float(target.record["height_scale"]), 0.0)
-	_tag.text = String(target.record["name"])
-	_tag.visible = true
+	_tag.text = CharacterConversation.tag_text(String(target.record["name"]), player, target)
+	_tag.visible = CharacterConversation.active(get_tree()) == null

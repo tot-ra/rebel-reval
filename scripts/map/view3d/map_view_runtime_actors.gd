@@ -307,6 +307,11 @@ func bind_equipment_state(current: GameState, content_db: ContentDB) -> void:
 		_sync_equipment_slot(slot)
 	if not _equipment_state.equipment_changed.is_connected(_sync_equipment_slot):
 		_equipment_state.equipment_changed.connect(_sync_equipment_slot)
+	if (
+		_player != null and _player.has_signal(&"weapon_drawn_changed")
+		and not _player.is_connected(&"weapon_drawn_changed", _apply_weapon_stance)
+	):
+		_player.connect(&"weapon_drawn_changed", _apply_weapon_stance)
 
 
 func disconnect_equipment_state() -> void:
@@ -513,3 +518,18 @@ func _sync_equipment_slot(slot: StringName) -> void:
 		_player_rig.unequip(slot)
 		return
 	_player_rig.equip(slot, load(scene_path) as PackedScene)
+	_apply_weapon_stance()
+
+
+## R-1886: a sheathed hero carries nothing in his hands; drawing shows what is equipped.
+func _apply_weapon_stance(_drawn: bool = false) -> void:
+	if _player_rig == null:
+		return
+	var drawn := (
+		_player == null or not (&"weapon_drawn" in _player)
+		or bool(_player.get(&"weapon_drawn"))
+	)
+	for slot: StringName in [&"right_hand", &"left_hand"]:
+		var held := _player_rig.equipped(slot)
+		if held != null:
+			held.visible = drawn

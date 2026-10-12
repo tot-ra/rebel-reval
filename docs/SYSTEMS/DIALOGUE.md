@@ -4,6 +4,7 @@ Status: implemented (tasks **P1-011** runner, **P1-012** UI, **P1-013** settings
 
 ## Player-facing behavior
 
+- **Anyone in the city** can be talked to: see [Talk to anyone](#talk-to-anyone-r-1887).
 - **Conversations** open a bottom panel with speaker name, optional portrait, and typewriter text. Continue with interact / `ui_accept` / click. `ui_cancel` first completes the line, then skips. Choices are listed with keyboard/gamepad focus (`ui_up` / `ui_down`). Disabled choices stay visible and show their authored reason.
 - **Backlog**: `ui_page_up` opens the scrollback of earlier lines; `ui_cancel` closes it.
 - **Barks** are non-blocking speech bubbles over the speaker's 3D head. They expire after about 3.2 s and never capture input, so movement and camera stay live.
@@ -52,6 +53,39 @@ python3 tools/dialogue_voice_manifest.py --content content/examples/valid --cont
 
 - The demo Mart street conversation (`DemoMartEncounter`) and the forge Henning/cat conversations (`scenes/reval_east/forge/forge_dialogue_encounter.gd`) still use the linear `DemoDialogueRunner` + `DemoDialogueBox` from D-002, which the script header marks superseded by `DialogueRunner`. Migrating them is open work ([`docs/reports/code_health_audit_2026-10-07.md`](../reports/code_health_audit_2026-10-07.md)).
 - Portraits: four core speakers plus 98 named NPCs imported from `characters/**/img/<slug>.jpg` and `docs/CHARACTERS/img/sheets/<slug>.jpg`.
+
+## Talk to anyone (R-1887)
+
+Status: implemented (tasks **R-1885** card, **R-1886** stance, **R-1887** talk, **R-1888** camera, **R-1889** duel; epic **R-1884**, [ADR 0047](../adr/0047-interaction-stances-and-conversation-camera.md)). Scope: every census resident and named NPC in the seamless city. Out of scope: per-person authored dialogue, cats and other creatures (no city cats exist yet; the contract below fits them), state or reputation from small talk, guilt for duels with strangers.
+
+**What the player does.**
+
+- Walk up to anyone (within 4 m). The name over their head adds what a click does: `E  Talk`, `LMB  Strike` with the weapon drawn, `E  Spirit duel` in spirit sight. Further away it shows only the name.
+- **Talk:** left click (press and release on the person, no drag) or `interact` (`E`, gamepad A). The person stops and turns to the hero, their card docks top-right, and the conversation camera frames both. Replies: *Who are you?* (name, trade or title, and whom they stand with), *What news in town?*, *[Look at them with the inner eye]*, *God keep you.*
+- **Inner eye:** the reply ends the talk, the camera cranes up to the play view, and a spirit duel against that person opens in place ([`SPIRIT_DIALOGUE.md`](./SPIRIT_DIALOGUE.md#spirit-duel-with-anyone-r-1889)).
+- **Armed:** with the weapon drawn (`G`) the click is a blow ([`COMBAT.md`](./COMBAT.md#peaceful-and-armed-stance-r-1886)); `interact` still talks and sheathes the weapon, which is how a gamepad puts it away.
+- A click is decided at release: a press that moves more than 8 px is a drag, never a talk, so drag gestures on bodies keep working.
+
+![At the Coastal Gate: the opening two-shot, the watchman's card docked top-right](../reports/images/dialogue/talk/gate_two_shot.jpg)
+![The watchman speaks: the close shot over the hero's shoulder](../reports/images/dialogue/talk/gate_close_on_speaker.jpg)
+![The hero chooses a reply: the reverse shot over the watchman's shoulder](../reports/images/dialogue/talk/gate_reply_over_shoulder.jpg)
+
+**Runtime.**
+
+| Piece | File | Role |
+|---|---|---|
+| `CharacterConversation` | `scripts/dialogue/character_conversation.gd` | `open_with(parent, player, body, rig, who, keep)` starts the talk (or the duel in sight); holds the person, sheathes the weapon, frames the shot, runs `DialogueRunner` + `DialogueUI`, escalates `inner_eye` to the duel; `ended(outcome)`. Static helpers: `active`, `in_reach`, `action_hint`, `make_tag`, `tag_text`, `side_line` |
+| `CityCitizens.activate`, `CityNamedNpcs.activate` | `scripts/city/` | click (at release) or `interact` → card + conversation; `person_at_screen` lets `MapClickInputController` leave a peaceful click on a person to them |
+| `CitizenActor` / `NamedNpcActor` | `scripts/city/` | `hold_for_talk(hero)` / `release_talk()`: stand still, face the hero; the clock resumes on release |
+| `DialogueRunner.speaker_names`, `.text_tokens` | `scripts/dialogue/dialogue_runner.gd` | display name per speaker id; `{key}` replacements in lines and choices |
+| `DialogueUI.portrait_overrides`, `line_shown`, `choices_shown` | `scripts/dialogue/dialogue_ui.gd` | portrait per speaker id; signals the camera cuts on |
+| `CitizenInfoPanel` | `scripts/city/citizen_info_panel.gd` | the card (R-1885): opaque bronze-rimmed panel, portrait beside name, title and faction row, `dock_right()` during a conversation |
+
+**Data.** [`content/dialogue/`](../../content/dialogue/README.md): `dialogue.city.small_talk`, `dialogue.city.spirit_duel`, placeholder speaker `char.interlocutor`. Tokens: `{interlocutor_name}`, `{interlocutor_title}`, `{interlocutor_side}`. Nothing is saved; the dialogue sets no flags.
+
+**Verify.** `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_character_conversation,test_conversation_shot,test_map_click_input_controller`; plates: `tools/godot_render.sh --resolution 1600x900 res://tools/capture_character_talk.tscn -- --city-spawn=gate.coastal --city-hour=15 --out=res://build/character_talk_gate`.
+
+**Limits.** One generic conversation for everyone; the news line is the same for all. Census residents have no portrait (initials show). A person released after a duel snaps back to where the clock puts them. In a dense crowd the camera hides passers-by who stand in the shot; they reappear at the next cut.
 
 ## Named NPC portraits (R-1566)
 

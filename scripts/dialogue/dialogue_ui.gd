@@ -4,6 +4,10 @@ extends CanvasLayer
 signal choice_selected(choice_id: String)
 signal continue_requested
 signal skip_requested
+## A line is on screen (R-1888: the conversation camera cuts to its speaker).
+signal line_shown(speaker_id: StringName)
+## The hero is choosing a reply.
+signal choices_shown
 
 const TextScaleScript := preload("res://scripts/dialogue/dialogue_text_scale.gd")
 const PortraitResolverScript := preload("res://scripts/dialogue/dialogue_portrait_resolver.gd")
@@ -18,6 +22,9 @@ const DialogueUiChoices := preload("res://scripts/dialogue/dialogue_ui_choices.g
 const FONT_PATH := "res://assets/fonts/NotoSans-Regular.ttf"
 const PORTRAIT_SIZE := 96
 
+## Portrait textures by speaker id that win over DialoguePortraitResolver (R-1887: a census
+## resident or named NPC speaking through the generic `char.interlocutor` placeholder).
+var portrait_overrides: Dictionary = {}
 var _font: Font
 var _settings = DialogueSettingsScript.default_settings()
 var _text_scale := "normal"
@@ -178,6 +185,7 @@ func present_line(
 	_update_continue_hint()
 	_update_disabled_reason()
 	_reset_text_scroll()
+	line_shown.emit(speaker_id)
 
 
 func present_choices(choices: Array) -> void:
@@ -189,6 +197,7 @@ func present_choices(choices: Array) -> void:
 	_update_disabled_reason()
 	DialogueUiChoices.focus_current(self)
 	_reset_text_scroll()
+	choices_shown.emit()
 
 
 func close() -> void:
@@ -250,7 +259,9 @@ func _append_backlog_entry(speaker_name: String, text: String) -> void:
 
 
 func _set_portrait(speaker_id: StringName, speaker_name: String) -> void:
-	var texture := PortraitResolverScript.resolve_texture(speaker_id)
+	var texture: Texture2D = portrait_overrides.get(speaker_id)
+	if texture == null:
+		texture = PortraitResolverScript.resolve_texture(speaker_id)
 	if texture != null:
 		_portrait_rect.texture = texture
 		_portrait_rect.visible = true

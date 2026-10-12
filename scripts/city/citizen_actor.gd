@@ -61,6 +61,11 @@ var max_stamina: float:
 ## Callable(actor, amount, attacker, swing_id, pierces_guard) -> float, set by CityCitizens.
 var hit_handler: Callable
 
+## R-1887: a conversation or spirit duel holds the person where they stand, turned to the
+## hero (`toward`, a logic-plane body); the clock takes over again on release. A spirit duel
+## may move the held body itself (SpiritArenaMotion); holding never fights it.
+var held_for_talk := false
+var _held_toward: Node2D
 var _facing := Vector2.DOWN
 var _moving := false
 ## Sideways give-way from the player (CrowdYield), on top of the scheduled spot.
@@ -109,6 +114,8 @@ func _physics_process_timed(delta: float) -> void:
 	var state := roster.resolve(index, h)
 	if brawler != null and brawler.owns_motion():
 		_step_brawl(delta, CityPlan.to_logic(state["pos"]))
+		return
+	if _step_held():
 		return
 	outdoors = state["visible"]
 	carrying_wood = state["moving"] and state["dest"] == "home" and state["from"] == "fuel"
@@ -222,6 +229,30 @@ func guilt_context() -> Dictionary:
 		"armed": brawler != null and brawler.armed,
 		"defending_other": false,
 	}
+
+
+func hold_for_talk(toward: Node2D) -> void:
+	held_for_talk = true
+	_held_toward = toward
+
+
+func release_talk() -> void:
+	held_for_talk = false
+	_held_toward = null
+
+
+## Standing still, turned to the hero. True while held.
+func _step_held() -> bool:
+	if not held_for_talk:
+		return false
+	velocity = Vector2.ZERO
+	_moving = false
+	if not is_instance_valid(_held_toward):
+		return true
+	var toward := _held_toward.global_position - global_position
+	if toward.length_squared() > 1.0:
+		_facing = toward.normalized()
+	return true
 
 
 func world_xz() -> Vector2:

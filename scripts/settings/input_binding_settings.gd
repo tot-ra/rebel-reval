@@ -23,6 +23,7 @@ const ACTION_DEFINITIONS: Array[Dictionary] = [
 	{"id": &"ui_accept", "label": "Confirm", "category": "Interaction"},
 	{"id": &"ui_cancel", "label": "Back / close", "category": "Interaction"},
 	{"id": &"ui_page_up", "label": "Dialogue backlog", "category": "Interaction"},
+	{"id": &"player_draw_weapon", "label": "Draw / sheathe weapon", "category": "Combat"},
 	{"id": &"player_attack", "label": "Attack", "category": "Combat"},
 	{"id": &"player_guard", "label": "Guard", "category": "Combat"},
 	{"id": &"player_dodge", "label": "Sidestep", "category": "Combat"},
@@ -105,6 +106,14 @@ static func default_settings() -> InputBindingSettings:
 		# Left mouse is listed so the controls screen shows it, but the press is
 		# routed by MapClickInputController (attack vs interact vs travel) and
 		# PlayerActionInput ignores this action while LMB is down. Space is the roll.
+		# R-1886: peaceful by default; G draws or sheathes. The face, shoulder and d-pad buttons
+		# are taken, so the pad uses Share / Capture; the attack button also draws and talking
+		# to someone (A on a person) sheathes.
+		"player_draw_weapon":
+		{
+			DEVICE_KEYBOARD_MOUSE: [_key(KEY_G)],
+			DEVICE_GAMEPAD: [_joy_button(JOY_BUTTON_MISC1)],
+		},
 		"player_attack":
 		{
 			DEVICE_KEYBOARD_MOUSE: [_mouse_button(MOUSE_BUTTON_LEFT)],
@@ -479,6 +488,8 @@ static func _joy_button_text(button: JoyButton) -> String:
 			return "D-pad Left"
 		JOY_BUTTON_DPAD_RIGHT:
 			return "D-pad Right"
+		JOY_BUTTON_MISC1:
+			return "Share"
 		_:
 			return "Gamepad %d" % button
 
