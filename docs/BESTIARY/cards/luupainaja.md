@@ -12,6 +12,14 @@
 | Faction ties | none |
 | Archive reference images | image-7 |
 
+![luupainaja concept art](../inspiration/luupainaja_concept.jpg)
+
+**Illustration:** Generated with Leonardo AI, Lucid Realism model. Photorealistic folklore documentation concept art; existing archive references are retained.
+
+**Generation prompt:** Photorealistic documentary-style image of the Estonian luupainaja, a compact, roughly human-sized horse-shaped shadow spirit with heavy forequarters and lowered head, formed from dense black-blue shadow and faint cold breath mist. It presses down on an empty, rumpled straw-stuffed bed pallet in a sparse 14th-century Baltic almshouse sleeping room. No person is shown. A tiny pair of iron scissors hangs over the rough wooden doorway as a traditional ward. Restrained nocturnal scene, moonlight, tactile medieval wood, linen and straw, believable proportions, desaturated slate-blue and silver palette, readable creature silhouette, no theatrical magic effects or text.
+
+**Negative prompt:** painting, illustration, demon, horns, wings, glowing eyes, gore, human victim, visible face, modern bedroom, modern bed, text, watermark, oversaturated colors, giant creature, cinematic action pose
+
 ## At a glance
 - Seen only as a heavy dark form on the sleeper's chest.
 - Iron or scissors at the door keep it out.
