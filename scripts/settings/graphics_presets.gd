@@ -72,7 +72,8 @@ const PRESETS := {
 		"shadow_atlas_size": 8192,
 		"shadow_filter_quality": RenderingServer.SHADOW_QUALITY_SOFT_HIGH,
 		"anisotropy": Viewport.ANISOTROPY_4X,
-		"sky_tier": &"recommended",
+		# R-1873: the ray-marched cumulus slab (~0.4-0.7 ms at 1280x720 on M-series).
+		"sky_tier": &"high",
 		"god_ray_view_steps": 12,
 		"god_ray_shadow_steps": 6,
 		"god_ray_far_steps": 8,

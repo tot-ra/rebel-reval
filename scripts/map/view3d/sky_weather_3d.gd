@@ -20,6 +20,7 @@ const SnowfallScript := preload("res://scripts/map/view3d/snowfall_3d.gd")
 const PerfProbeScript := preload("res://scripts/debug/perf_probe.gd")
 const SkyWeatherStateScript := preload("res://scripts/map/view3d/sky_weather_state.gd")
 const CloudCellsScript := preload("res://scripts/map/view3d/cloud_cells.gd")
+const CloudSlabEffectScript := preload("res://scripts/map/view3d/cloud_slab_effect.gd")
 ## Catalog stars baked per staged-assembly unit (about 1 ms each).
 const STAR_BAKE_SLICE := 1000
 # Mirrors SKY_CLOUD_EARTH_RADIUS / sky_cloud_layer_distance in sky_clouds.gdshaderinc.
@@ -58,6 +59,11 @@ const CLOUD_DRIFT_PER_SECOND := Vector2(0.0011, 0.00044)
 const CLOUD_LOBE_SCALE := 1.7
 const CLOUD_LOBE_MEAN := 0.72
 const LIT_DECK_SLAB_DEPTH := 0.06
+## R-1873 slab geometry and tuning, mirrored from cloud_slab.glsl.
+const CLOUD_SLAB_BASE := 1.0
+const CLOUD_SLAB_TOP := 2.0
+const CLOUD_SLAB_SIGMA := 22.0
+const CLOUD_VOLUME_MIRROR_STEPS := 16
 const CLOUD_DETAIL_DRIFT_PER_SECOND := Vector2(0.0019, -0.00075)
 ## Degrees added to the cloud-drift bearing per weather. CLEAR stays 0 so the
 ## historical (0.93, 0.37) harbour wind is the noon fair-weather reference.
@@ -112,15 +118,20 @@ const LUNAR_ALBEDO_MAP_SIZE := SKY_RESOURCES.LUNAR_ALBEDO_MAP_SIZE
 ## offsets, and seeded event scheduling stay identical across tiers.
 const QUALITY_MINIMUM: StringName = &"minimum"
 const QUALITY_RECOMMENDED: StringName = &"recommended"
+## R-1873: recommended plus the ray-marched cloud slab; only the high graphics preset.
+const QUALITY_HIGH: StringName = &"high"
 const QUALITY_AUTO: StringName = &"auto"
-const QUALITY_TIER_IDS: Array[StringName] = [QUALITY_MINIMUM, QUALITY_RECOMMENDED]
+const QUALITY_TIER_IDS: Array[StringName] = [QUALITY_MINIMUM, QUALITY_RECOMMENDED, QUALITY_HIGH]
 const QUALITY_TIERS: Dictionary = {
 	QUALITY_MINIMUM: {
 		"cloud_noise_resolution": SKY_RESOURCES.CLOUD_NOISE_RESOLUTION_MINIMUM,
 		"cloud_shape_resolution": SKY_RESOURCES.CLOUD_SHAPE_RESOLUTION_MINIMUM,
 		"cloud_shadow_samples": 2,
-		# R-1768: flat dome deck (0); recommended draws the lit 2.5D deck (1).
+		# R-1768: flat dome deck (0); recommended draws the lit 2.5D deck (1);
+		# R-1873: high draws the ray-marched slab (2).
 		"cloud_deck_mode": 0,
+		# R-1873: steps of the ray-marched slab; 0 = no slab pass.
+		"cloud_slab_steps": 0,
 		# WS-12 ground pass. Sky raymarch keeps 2 so the dome stays identical.
 		"cloud_shadow_ground_samples": 1,
 		"cloud_shadow_enabled": true,
@@ -153,6 +164,7 @@ const QUALITY_TIERS: Dictionary = {
 		"cloud_shape_resolution": SKY_RESOURCES.CLOUD_SHAPE_RESOLUTION_RECOMMENDED,
 		"cloud_shadow_samples": 4,
 		"cloud_deck_mode": 1,
+		"cloud_slab_steps": 0,
 		"cloud_shadow_ground_samples": 3,
 		"cloud_shadow_enabled": true,
 		"rain_shaft_samples": 6,
@@ -169,6 +181,37 @@ const QUALITY_TIERS: Dictionary = {
 		"sky_lut_size": SkyAtmosphereLutScript.SIZE_RECOMMENDED,
 		"sky_lut_every_n_frames": 1,
 		# WS-15: 256^2 texels over the 64 x 64-unit ripple window (0.25 units per texel).
+		"ripple_sim_size": 256,
+		"cloud_cell_steps": 12,
+		"cloud_cell_noise_size": 48,
+		"cloud_cell_fine_steps": 10,
+		"cloud_cell_light_samples": 2,
+		"cloud_cell_ray_samples": 8,
+	},
+	# R-1873: recommended plus the ray-marched cumulus slab (CloudSlabEffect). Every
+	# other key matches recommended so only the dome deck changes cost.
+	QUALITY_HIGH: {
+		"cloud_noise_resolution": SKY_RESOURCES.CLOUD_NOISE_RESOLUTION_RECOMMENDED,
+		"cloud_shape_resolution": SKY_RESOURCES.CLOUD_SHAPE_RESOLUTION_RECOMMENDED,
+		"cloud_shadow_samples": 4,
+		"cloud_deck_mode": 2,
+		"cloud_slab_steps": 32,
+		"cloud_shadow_ground_samples": 3,
+		"cloud_shadow_enabled": true,
+		"rain_shaft_samples": 6,
+		"rain_particles": SKY_RESOURCES.RAIN_PARTICLES_RECOMMENDED,
+		"lightning_density": 1.0,
+		"fog_quality": 1.0,
+		"fallback_behavior": &"gradient_only_if_resource_missing",
+		# Recommended budget plus the <= 2 ms slab pass at 1280x720.
+		"frame_time_budget_ms": 4.50,
+		# Three 16-bit RGBA slab targets at half resolution (~5.3 MiB at 1080p).
+		"memory_budget_mib": 30.0,
+		"particle_budget": 2200,
+		"shader_sample_budget": 140,
+		"ocean_fft_cascades": 3,
+		"sky_lut_size": SkyAtmosphereLutScript.SIZE_RECOMMENDED,
+		"sky_lut_every_n_frames": 1,
 		"ripple_sim_size": 256,
 		"cloud_cell_steps": 12,
 		"cloud_cell_noise_size": 48,
@@ -568,6 +611,13 @@ var _lightning_kind := LIGHTNING_KIND_CLOUD
 var _cloud_cell_clock := 0.0
 var _cells: CloudCellsScript = CloudCellsScript.new()
 var _cell_noise_size := 0
+var _cell_noise_tex: Texture3D
+## R-1873: the high tier's ray-marched slab pass on the camera's compositor (null until
+## a tier or tool asks for cloud_deck_mode 2), and the deck mode a tool forced (-1 none).
+var _cloud_slab: CloudSlabEffectScript
+var _deck_mode_override := -1
+## Tests: run the slab mirror without a live slab pass (headless has no RenderingDevice).
+var _force_volume_mirror := false
 var _material: ShaderMaterial
 var _gain_compensation := 1.0
 var _star_map: ImageTexture
@@ -650,7 +700,7 @@ func _apply_quality_resources(cloud_noise: Texture2D = null, cloud_shape: Textur
 	_material.set_shader_parameter(
 		&"cloud_shadow_samples", int(settings["cloud_shadow_samples"])
 	)
-	_material.set_shader_parameter(&"cloud_deck_mode", int(settings["cloud_deck_mode"]))
+	_material.set_shader_parameter(&"cloud_deck_mode", cloud_deck_mode())
 	_material.set_shader_parameter(
 		&"rain_shaft_samples", int(settings["rain_shaft_samples"])
 	)
@@ -659,6 +709,7 @@ func _apply_quality_resources(cloud_noise: Texture2D = null, cloud_shape: Textur
 	# A later tier change rebuilds the cell noise; staged configure binds it in its own unit.
 	if _cell_noise_size != 0:
 		_bind_cell_noise()
+		_update_cloud_slab()
 	_apply_atmosphere_lut(settings)
 	if _rain != null:
 		_rain.amount = int(settings["rain_particles"])
@@ -672,9 +723,8 @@ func _bind_cell_noise() -> void:
 	if size == _cell_noise_size:
 		return
 	_cell_noise_size = size
-	_material.set_shader_parameter(
-		&"cell_noise", SKY_RESOURCES.build_cell_noise_3d(WEATHER_SEED, size)
-	)
+	_cell_noise_tex = SKY_RESOURCES.build_cell_noise_3d(WEATHER_SEED, size)
+	_material.set_shader_parameter(&"cell_noise", _cell_noise_tex)
 
 
 ## WS-10: sizes the sky-view LUT for the tier and binds it, or keeps the gradient sky when the
@@ -874,6 +924,7 @@ func _process_timed(delta: float) -> void:
 	_star_twinkle_time = fmod(_star_twinkle_time + delta, STAR_TWINKLE_PERIOD)
 	if _material != null:
 		_material.set_shader_parameter(&"star_twinkle_time", _star_twinkle_time)
+	_update_cloud_slab()
 
 
 ## Replaces the environment's flat background with the sky dome and builds the
@@ -1141,6 +1192,8 @@ func celestial_cloud_clear(
 	var storm_mask := lerpf(1.0, smoothstep(0.48, 0.8, cell), storm_locality())
 	storm_mask *= 1.0 - storm_locality()
 	var cover := clampf(cloud_coverage() + storm * storm_mask * 0.38, 0.0, 1.0)
+	if match_sky_deck and (cloud_slab_active() or _force_volume_mirror):
+		return _cloud_volume_clear(d, cover, storm * storm_mask, noise, shape) * cells_clear_toward(d)
 	if match_sky_deck:
 		return _cloud_slab_clear(d, cover, storm * storm_mask, noise, shape) * cells_clear_toward(d)
 	var opacity := _cloud_opacity_at(uv, cover, noise, shape)
@@ -1166,10 +1219,105 @@ func _cloud_opacity_at(uv: Vector2, cover: float, noise: Image, shape: Image) ->
 	return opacity
 
 
-## R-1768: true when the dome draws the lit 2.5D deck (recommended tier). The flat deck
-## of the minimum tier has no lobes, so the CPU mirror skips them there too.
+## R-1768: true when the dome draws the lit 2.5D deck (recommended tier) or the R-1873
+## slab (high tier), whose footprint is the same lobed deck. The flat deck of the minimum
+## tier has no lobes, so the CPU mirror and the ground shadows skip them there too.
 func cloud_deck_lit() -> bool:
-	return int(_quality_settings()["cloud_deck_mode"]) == 1
+	return cloud_deck_mode() >= 1
+
+
+## 0 flat deck, 1 lit 2.5D deck, 2 ray-marched slab (R-1873): the tier's row unless a
+## capture tool forced a mode with set_cloud_deck_mode().
+func cloud_deck_mode() -> int:
+	if _deck_mode_override >= 0:
+		return _deck_mode_override
+	return int(_quality_settings()["cloud_deck_mode"])
+
+
+## Capture/bench hook (tools/capture_sky_reference.gd): draw `mode` on the current tier
+## without rebuilding its textures; -1 returns to the tier's own mode.
+func set_cloud_deck_mode(mode: int) -> void:
+	_deck_mode_override = mode
+	if _material == null:
+		return
+	_material.set_shader_parameter(&"cloud_deck_mode", cloud_deck_mode())
+	_update_cloud_slab()
+
+
+## True while the high-tier slab pass is drawing (a RenderingDevice renderer and a
+## compiled shader); otherwise mode 2 falls back to the lit deck everywhere.
+func cloud_slab_active() -> bool:
+	return cloud_deck_mode() == 2 and _cloud_slab != null and _cloud_slab.enabled \
+		and _cloud_slab.is_supported() and _cloud_slab.output.texture_rd_rid.is_valid()
+
+
+## R-1873: creates the slab pass on first use, switches it with the deck mode, and hands
+## it this frame's camera and cloud state. The camera basis and tangents go to the
+## material and the render thread together, so the dome looks up the slab texture with
+## exactly the matrices it was rendered with.
+func _update_cloud_slab() -> void:
+	if _material == null:
+		return
+	var wanted := cloud_deck_mode() == 2 and not cloud_fallback_active()
+	if wanted and _cloud_slab == null and _camera != null and is_instance_valid(_camera) \
+			and CloudSlabEffectScript.renderer_supported():
+		_cloud_slab = CloudSlabEffectScript.new()
+		var compositor := _camera.compositor
+		if compositor == null:
+			compositor = Compositor.new()
+			_camera.compositor = compositor
+		var effects := compositor.compositor_effects
+		effects.append(_cloud_slab)
+		compositor.compositor_effects = effects
+		_material.set_shader_parameter(&"cloud_slab_tex", _cloud_slab.output)
+	if _cloud_slab == null:
+		_material.set_shader_parameter(&"cloud_slab_ready", false)
+		return
+	if _cloud_slab.enabled != wanted:
+		_cloud_slab.enabled = wanted
+		_cloud_slab.reset_history()
+	# The output texture exists only after the first render, so the pass gets its
+	# parameters as soon as it runs; the dome samples it once there is something to read.
+	var running: bool = wanted and _cloud_slab.is_supported() and _camera.is_inside_tree()
+	_material.set_shader_parameter(&"cloud_slab_ready", running and cloud_slab_active())
+	if not running:
+		return
+	var projection := _camera.get_camera_projection()
+	var tan_half := Vector2(
+		1.0 / absf(projection.x.x), 1.0 / absf(projection.y.y)
+	) * CloudSlabEffectScript.MARGIN
+	var basis := _camera.global_basis.orthonormalized()
+	_material.set_shader_parameter(&"cloud_slab_world_to_view", basis.transposed())
+	_material.set_shader_parameter(&"cloud_slab_tan", tan_half)
+	var shape_size := 256.0
+	var noise_size := 256.0
+	if _cloud_shape_tex != null:
+		shape_size = float(_cloud_shape_tex.get_width())
+	if _cloud_noise_tex != null:
+		noise_size = float(_cloud_noise_tex.get_width())
+	var params := {
+		"basis": basis,
+		"tan": tan_half,
+		"shape": _cloud_shape_tex,
+		"noise": _cloud_noise_tex,
+		"cell_noise": _cell_noise_tex,
+		"cloud": PackedFloat32Array([
+			cloud_coverage(), cloud_chaos(), storm_intensity(), storm_locality()
+		]),
+		"offsets": PackedFloat32Array([
+			_cloud_offset.x, _cloud_offset.y, _cloud_detail_offset.x, _cloud_detail_offset.y
+		]),
+		"sun": _sun_direction,
+		"steps": maxi(int(_quality_settings()["cloud_slab_steps"]), 16),
+		"wind": wind_direction_xz(),
+		"tex_sizes": PackedFloat32Array([shape_size, noise_size, float(_cell_noise_size), 0.0]),
+	}
+	# Queued behind this frame's material updates, so both see the same matrices.
+	RenderingServer.call_on_render_thread(_cloud_slab.set_params.bind(params))
+
+
+func cloud_fallback_active() -> bool:
+	return not _cloud_resources_available
 
 
 ## Mirrors sky_cloud_lobes(): rounded lobe crowns from the shape texture at the lobe scale.
@@ -1217,6 +1365,61 @@ func _cloud_slab_clear(
 		* smoothstep(0.25, 0.65, cloud_coverage()) * (1.0 - storm))
 	var density := 1.0 - transmittance * (1.0 - cirrus)
 	return 1.0 - density * smoothstep(-0.025, 0.055, dir.y)
+
+
+## Mirrors the march of cloud_slab.glsl along `dir` (transmittance of the low slab plus
+## the dome's cirrus and horizon fade) without the 3D billow erosion, which only eats edges.
+func _cloud_volume_clear(
+	dir: Vector3, cover: float, storm: float, noise: Image, shape: Image
+) -> float:
+	if dir.y < -0.025:
+		return 1.0
+	var t0 := _cloud_layer_distance(dir.y, CLOUD_SLAB_BASE)
+	var t1 := _cloud_layer_distance(dir.y, CLOUD_SLAB_TOP)
+	var dt := (t1 - t0) / float(CLOUD_VOLUME_MIRROR_STEPS)
+	var strat := smoothstep(0.84, 0.98, cover) * 0.32
+	var transmittance := 1.0
+	for i in CLOUD_VOLUME_MIRROR_STEPS:
+		var t := t0 + (float(i) + 0.5) * dt
+		var p := dir * t
+		var hf := clampf(
+			(_cloud_altitude_of(p) - CLOUD_SLAB_BASE) / (CLOUD_SLAB_TOP - CLOUD_SLAB_BASE), 0.0, 1.0
+		)
+		var uv := Vector2(p.x, p.z) * 0.12 - _cloud_offset
+		var coverage := _cloud_opacity_at(uv, cover, noise, shape)
+		var density := cloud_column_density(coverage, _cloud_column_top(uv, coverage, storm, shape), hf)
+		density += strat * (1.0 - smoothstep(0.12, 0.3, hf))
+		transmittance *= exp(-density * CLOUD_SLAB_SIGMA * dt)
+		if transmittance < 0.01:
+			break
+	return 1.0 - (1.0 - transmittance) * smoothstep(-0.025, 0.055, dir.y)
+
+
+## Mirrors column_top() in cloud_slab.glsl: heaps reach a third of the slab, dense cores
+## under a tower cell the top.
+func _cloud_column_top(uv: Vector2, coverage: float, storm: float, shape: Image) -> float:
+	var tower := 1.0 - _sample_repeat(shape, uv * 0.31 + Vector2(0.71, 0.23))
+	var reach := lerpf(0.32, 1.0, smoothstep(0.45, 0.85, tower))
+	return clampf(coverage * reach * (1.0 + storm * 0.8), 0.0, 1.0)
+
+
+## Mirrors column_density() in cloud_slab.glsl: the full deck coverage at the flat base
+## (so the slab footprint is the field ground shadows use), narrowing into a dome.
+static func cloud_column_density(coverage: float, top: float, hf: float) -> float:
+	if coverage <= 0.0 or hf >= top:
+		return 0.0
+	var base := smoothstep(0.0, 0.05, hf)
+	var crown := clampf((top - hf) / maxf(top * 0.6, 0.04), 0.0, 1.0)
+	return coverage * base * sqrt(crown)
+
+
+func _cloud_altitude_of(p: Vector3) -> float:
+	return (p + Vector3(0.0, CLOUD_EARTH_RADIUS, 0.0)).length() - CLOUD_EARTH_RADIUS
+
+
+static func _cloud_layer_distance(dir_y: float, altitude: float) -> float:
+	var ry := CLOUD_EARTH_RADIUS * dir_y
+	return sqrt(ry * ry + altitude * (2.0 * CLOUD_EARTH_RADIUS + altitude)) - ry
 
 
 func _cloud_uv_at(dir: Vector3, altitude: float) -> Vector2:

@@ -891,9 +891,10 @@ func test_quality_tier_does_not_change_weather_state_digest() -> void:
 
 
 func test_quality_tier_ids_are_only_the_named_budget_rows() -> void:
-	assert_eq(SkyWeather.QUALITY_TIER_IDS.size(), 2)
+	assert_eq(SkyWeather.QUALITY_TIER_IDS.size(), 3)
 	assert_eq(SkyWeather.QUALITY_TIER_IDS[0], SkyWeather.QUALITY_MINIMUM)
 	assert_eq(SkyWeather.QUALITY_TIER_IDS[1], SkyWeather.QUALITY_RECOMMENDED)
+	assert_eq(SkyWeather.QUALITY_TIER_IDS[2], SkyWeather.QUALITY_HIGH)
 	assert_true(
 		not SkyWeather.QUALITY_TIER_IDS.has(SkyWeather.QUALITY_AUTO),
 		"auto is a request alias, not a third budget row"
@@ -1206,3 +1207,98 @@ func test_lit_deck_constants_match_the_shaders() -> void:
 	assert_true(dome.contains("sky_cloud_lit_share("), "the dome shades the lit deck")
 	assert_true(shadow.contains("uniform bool deck_lobes"))
 	assert_true(shadow.contains("sky_cloud_lobe_erode("), "ground shadows erode like the dome")
+
+
+## R-1873: high is recommended plus the slab; only the deck mode, slab steps and the
+## budget rows differ, and both tier tables agree.
+func test_high_tier_is_recommended_plus_the_cloud_slab() -> void:
+	var recommended := SkyWeather.quality_settings(SkyWeather.QUALITY_RECOMMENDED)
+	var high := SkyWeather.quality_settings(SkyWeather.QUALITY_HIGH)
+	var allowed := ["cloud_deck_mode", "cloud_slab_steps", "frame_time_budget_ms", "memory_budget_mib"]
+	assert_eq(high.keys().size(), recommended.keys().size(), "high publishes every recommended key")
+	for key in recommended:
+		if key in allowed:
+			continue
+		assert_eq(high[key], recommended[key], "high keeps recommended %s" % key)
+	assert_eq(high["cloud_deck_mode"], 2)
+	assert_true(int(high["cloud_slab_steps"]) >= 16, "the slab marches at least 16 steps")
+	assert_eq(recommended["cloud_slab_steps"], 0, "recommended draws no slab")
+	assert_eq(SkyWeather.quality_settings(SkyWeather.QUALITY_MINIMUM)["cloud_slab_steps"], 0)
+	assert_true(float(high["frame_time_budget_ms"]) <= float(recommended["frame_time_budget_ms"]) + 2.0,
+		"the slab budget is at most 2 ms over recommended")
+	assert_eq(SkyWeatherQuality.QUALITY_TIERS, SkyWeather.QUALITY_TIERS, "both tier tables agree")
+
+
+## R-1873: without a RenderingDevice (headless, Compatibility) the high tier keeps the lit
+## deck everywhere: no slab pass, lobed ground shadows, the same weather state.
+func test_high_tier_falls_back_to_the_lit_deck_without_a_slab_pass() -> void:
+	var sky := SkyWeather.new()
+	sky.auto_weather = false
+	sky.set_quality_tier(SkyWeather.QUALITY_HIGH)
+	assert_eq(sky.cloud_deck_mode(), 2)
+	assert_true(sky.cloud_deck_lit(), "the slab footprint is the lit deck")
+	assert_false(sky.cloud_slab_active(), "no camera or RenderingDevice: no slab pass")
+	assert_true(sky.presentation_snapshot(0.5, 1.0).cloud_deck_lobes, "ground shadows take the lobes")
+	sky.set_cloud_deck_mode(0)
+	assert_false(sky.cloud_deck_lit(), "a forced flat deck drops the lobes")
+	sky.set_cloud_deck_mode(-1)
+	assert_eq(sky.cloud_deck_mode(), 2, "-1 returns to the tier's own mode")
+	sky.free()
+
+
+## R-1873: the slab's footprint is the lit deck coverage, so the CPU mirror of the slab
+## (water glints, celestial occlusion) and the ground shadows, which read the deck, agree:
+## near the zenith a column is cloudy where the deck is dense and open where it is empty.
+func test_slab_volume_mirror_agrees_with_the_deck_coverage() -> void:
+	var sky := SkyWeather.new()
+	sky.auto_weather = false
+	sky.set_quality_tier(SkyWeather.QUALITY_HIGH)
+	sky.set_weather(SkyWeather.WEATHER_CLOUDY)
+	sky.advance(SkyWeather.TRANSITION_SECONDS + 0.1)
+	var Resources := preload("res://scripts/map/view3d/sky_weather_resources.gd")
+	var seed := SkyWeather.WEATHER_SEED
+	var shape: Image = Resources.build_cloud_shape(seed, 128).noise.get_seamless_image(128, 128)
+	var noise: Image = Resources.build_cloud_noise(seed, 128).noise.get_seamless_image(128, 128)
+	var cover := sky.cloud_coverage()
+	assert_true(cover < 0.84, "fair cumulus: no stratiform sheet in this check")
+	var open_total := 0
+	var open_ok := 0
+	var dense_total := 0
+	var dense_ok := 0
+	# Straight up the column is vertical; sliding the deck offset samples many columns.
+	var dir := Vector3.UP
+	for ix in 12:
+		for iz in 12:
+			sky._cloud_offset = Vector2(ix * 0.137, iz * 0.211)
+			var opacity := sky._cloud_opacity_at(sky._cloud_uv_at(dir, 1.0), cover, noise, shape)
+			var clear := sky._cloud_volume_clear(dir, cover, 0.0, noise, shape)
+			if opacity <= 0.0:
+				open_total += 1
+				open_ok += int(clear > 0.9)
+			elif opacity > 0.6:
+				dense_total += 1
+				dense_ok += int(clear < 0.5)
+	assert_true(open_total > 10 and dense_total > 10,
+		"the sample sees both sky and cloud (open %d, dense %d)" % [open_total, dense_total])
+	assert_true(open_ok >= open_total * 0.9, "open deck = open slab (%d/%d)" % [open_ok, open_total])
+	assert_true(dense_ok >= dense_total * 0.9, "dense deck = cloudy slab (%d/%d)" % [dense_ok, dense_total])
+	assert_true(SkyWeather.cloud_column_density(0.0, 1.0, 0.0) == 0.0, "no coverage, no cloud")
+	assert_true(SkyWeather.cloud_column_density(0.8, 0.5, 0.6) == 0.0, "nothing above the column top")
+	sky.free()
+
+
+## R-1873: the slab compute shader, the dome and the CPU mirror share one geometry and
+## one set of deck constants.
+func test_cloud_slab_constants_match_the_shaders() -> void:
+	var glsl := FileAccess.get_file_as_string("res://scripts/map/view3d/cloud_slab.glsl")
+	var dome := FileAccess.get_file_as_string("res://scripts/map/view3d/sky_weather_3d.gdshader")
+	assert_true(glsl.contains("const float EARTH_R = %s;" % SkyWeather.CLOUD_EARTH_RADIUS))
+	assert_true(glsl.contains("const float LOBE_SCALE = %s;" % SkyWeather.CLOUD_LOBE_SCALE))
+	assert_true(glsl.contains("const float LOBE_MEAN = %s;" % SkyWeather.CLOUD_LOBE_MEAN))
+	assert_true(glsl.contains("const float SLAB_BASE = %s;" % SkyWeather.CLOUD_SLAB_BASE))
+	assert_true(glsl.contains("const float SLAB_TOP = %s;" % SkyWeather.CLOUD_SLAB_TOP))
+	assert_true(glsl.contains("const float SIGMA = %s;" % SkyWeather.CLOUD_SLAB_SIGMA))
+	assert_true(glsl.contains("* 1.6 * edge"), "lobe erosion gain must match SkyWeather.lobe_erode")
+	assert_true(dome.contains("uniform sampler2D cloud_slab_tex"))
+	assert_true(dome.contains("cloud_field(dir, AT_CUBEMAP_PASS ? vec3(0.0) : cloud_slab_sample(dir))"),
+		"the radiance cubemap keeps the lit deck")

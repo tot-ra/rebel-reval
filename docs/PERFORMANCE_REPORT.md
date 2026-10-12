@@ -213,7 +213,7 @@ One table, `scripts/settings/graphics_presets.gd`, now drives every cost; `UserS
 |-----|----------|----------------|---------------|--------------|-----------|--------------|--------------------------------|------|------|
 | low | 0.67 | 2048 | soft low | 1 | 2x | `minimum` | 6 / 3 / 4 | 6 / 5 / 1 / off | 55% / none |
 | mid | 0.85 | 4096 | soft medium | 2 | 4x | `recommended` | 8 / 4 / 6 | 6 / 5 / 1 / off | 70% / 20% |
-| high | 1.0 | 8192 | soft high (project default) | 4 | 4x | `recommended` | 12 / 6 / 8 | 10 / 8 / 2 / off | 80% / 25% |
+| high | 1.0 | 8192 | soft high (project default) | 4 | 4x | `high` (R-1873: `recommended` plus the ray-marched cloud slab) | 12 / 6 / 8 | 10 / 8 / 2 / off | 80% / 25% |
 
 FSR 1.0 exists only on Forward+; the project's Mobile renderer upscales bilinearly, so the preset picks FSR only where the renderer has it.
 

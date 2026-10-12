@@ -37,6 +37,9 @@ func test_sky_tiers_are_real_sky_weather_tiers() -> void:
 		var tier: StringName = GraphicsPresetsScript.row(quality)["sky_tier"]
 		assert_true(tier in SkyWeatherQualityScript.QUALITY_TIER_IDS, "%s tier %s" % [quality, tier])
 	assert_eq(GraphicsPresetsScript.row("low")["sky_tier"], &"minimum")
+	# R-1873: only the high preset pays for the ray-marched cloud slab.
+	assert_eq(GraphicsPresetsScript.row("mid")["sky_tier"], &"recommended")
+	assert_eq(GraphicsPresetsScript.row("high")["sky_tier"], &"high")
 
 
 func test_unknown_quality_falls_back_to_mid() -> void:

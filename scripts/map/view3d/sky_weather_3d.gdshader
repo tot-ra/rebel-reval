@@ -67,7 +67,16 @@ uniform float cloud_chaos : hint_range(0.0, 1.0) = 0.35;
 uniform int cloud_shadow_samples : hint_range(1, 4) = 4;
 // R-1768: 0 = flat deck (minimum tier), 1 = lit 2.5D deck (recommended): lobed
 // silhouettes, bump normals and sun-ward self-shadow (sky_clouds.gdshaderinc).
-uniform int cloud_deck_mode : hint_range(0, 1) = 1;
+// R-1873: 2 = ray-marched cumulus slab (high tier) from CloudSlabEffect; wherever the
+// slab texture has no sample (radiance cubemap, outside its view, no RenderingDevice)
+// the dome draws the lit deck instead.
+uniform int cloud_deck_mode : hint_range(0, 2) = 1;
+// R-1873: quarter-res slab (opacity, premultiplied light share), indexed by world
+// direction through the camera basis/tangents CloudSlabEffect rendered it with.
+uniform sampler2D cloud_slab_tex : filter_linear, repeat_disable;
+uniform bool cloud_slab_ready = false;
+uniform mat3 cloud_slab_world_to_view = mat3(1.0);
+uniform vec2 cloud_slab_tan = vec2(1.0);
 // Quality tier controls the fixed upper bound of the distant rain march.
 uniform int rain_shaft_samples : hint_range(1, 6) = 6;
 // Missing procedural textures fail closed to the readable gradient instead of
@@ -264,54 +273,79 @@ const float LIT_DECK_SLAB_DEPTH = 0.06;
 // Extra darkening of the lit deck's shade side; the cells keep cloud_shadow as is.
 const float LIT_DECK_SHADE = 0.72;
 
-vec3 cloud_field(vec3 dir) {
+// R-1873: the slab sample for `dir` as (opacity, light share, weight); weight 0 where the
+// slab texture holds no sample, fading in over the last few texels of its edge.
+vec3 cloud_slab_sample(vec3 dir) {
+	if (!cloud_slab_ready || cloud_deck_mode != 2) {
+		return vec3(0.0);
+	}
+	vec3 v = cloud_slab_world_to_view * dir;
+	if (v.z > -1e-4) {
+		return vec3(0.0);
+	}
+	vec2 uv = vec2(0.5 + v.x / -v.z / cloud_slab_tan.x * 0.5, 0.5 - v.y / -v.z / cloud_slab_tan.y * 0.5);
+	vec2 edge = min(uv, 1.0 - uv);
+	float weight = smoothstep(0.0, 0.02, min(edge.x, edge.y));
+	if (weight <= 0.0) {
+		return vec3(0.0);
+	}
+	vec2 s = textureLod(cloud_slab_tex, uv, 0.0).rg;
+	return vec3(s.x, s.y / max(s.x, 1e-3), weight);
+}
+
+vec3 cloud_field(vec3 dir, vec3 slab) {
 	if (cloud_fallback || dir.y < -0.025) {
 		return vec3(0.0);
 	}
 	vec2 uv = cloud_uv(dir, 1.0);
 	float local_storm = local_storm_at(uv);
 	float cover = clamp(cloud_coverage + local_storm * 0.38, 0.0, 1.0);
-	// Integrate through a finite cloud slab. Height-dependent erosion gives
-	// broad bases and rounded tops, rather than opaque cutouts on one plane.
-	int steps = cloud_shadow_samples * 2;
-	// R-1768: the lit deck shades its own volume, so its slab is shallower: the deep
-	// slab's height steps fan out radially from the zenith and smear the heaps.
-	float slab_depth = cloud_deck_mode == 1 ? LIT_DECK_SLAB_DEPTH : 0.14;
-	float step_length = 1.0 / float(steps);
-	float optical_step = step_length * mix(9.0, 15.0, local_storm)
-		/ max(sqrt(max(dir.y, 0.0)), 0.38);
+	// R-1873: where the slab texture covers this direction the low deck is the slab;
+	// elsewhere (and in the cubemap) the high tier draws the lit deck.
+	bool lit_deck = cloud_deck_mode >= 1;
 	float transmittance = 1.0;
 	float illumination = 0.0;
 	vec2 light_dir = sun_direction.xz;
 	float sun_up = smoothstep(-0.08, 0.18, sun_direction.y);
-	for (int i = 0; i < 8; i++) {
-		if (i >= steps) { break; }
-		float h = (float(i) + 0.5) * step_length;
-		vec2 sample_uv = cloud_uv(dir, 1.0 + h * mix(slab_depth, 0.32, local_storm));
-		// Height shear adds depth without animation noise or temporal jitter.
-		sample_uv += wind_dir * h * 0.008;
-		float body = cloud_opacity(sample_uv, cover);
-		if (cloud_deck_mode == 1) {
-			body = sky_cloud_lobe_erode(body, sky_cloud_lobes(sample_uv, cloud_shape, cloud_detail_offset));
+	if (slab.z < 0.999) {
+		// Integrate through a finite cloud slab. Height-dependent erosion gives
+		// broad bases and rounded tops, rather than opaque cutouts on one plane.
+		int steps = cloud_shadow_samples * 2;
+		// R-1768: the lit deck shades its own volume, so its slab is shallower: the deep
+		// slab's height steps fan out radially from the zenith and smear the heaps.
+		float slab_depth = lit_deck ? LIT_DECK_SLAB_DEPTH : 0.14;
+		float step_length = 1.0 / float(steps);
+		float optical_step = step_length * mix(9.0, 15.0, local_storm)
+			/ max(sqrt(max(dir.y, 0.0)), 0.38);
+		for (int i = 0; i < 8; i++) {
+			if (i >= steps) { break; }
+			float h = (float(i) + 0.5) * step_length;
+			vec2 sample_uv = cloud_uv(dir, 1.0 + h * mix(slab_depth, 0.32, local_storm));
+			// Height shear adds depth without animation noise or temporal jitter.
+			sample_uv += wind_dir * h * 0.008;
+			float body = cloud_opacity(sample_uv, cover);
+			if (lit_deck) {
+				body = sky_cloud_lobe_erode(body, sky_cloud_lobes(sample_uv, cloud_shape, cloud_detail_offset));
+			}
+			float profile = smoothstep(0.0, 0.16, h)
+				* (1.0 - smoothstep(0.48, 1.0, h));
+			float billows = texture(cloud_noise, sample_uv * 5.2 + cloud_detail_offset + h * 0.12).r;
+			float density = max(body - h * h * 0.38, 0.0) * profile
+				* mix(0.55, 1.25, billows);
+			// Stratiform decks stay closed even between convective heaps.
+			density += smoothstep(0.84, 0.98, cover) * profile * 0.32;
+			float alpha = 1.0 - exp(-density * optical_step);
+			float obstruction = cloud_bulk(sample_uv + light_dir * (0.07 + h * 0.05), cover);
+			float self_shadow = exp(-obstruction * (0.4 + billows * 2.0)
+				* (1.0 - h) * mix(3.0, 5.0, local_storm));
+			float light = mix(0.20 + h * 0.20, 1.0, self_shadow * sun_up);
+			illumination += transmittance * alpha * light;
+			transmittance *= 1.0 - alpha;
 		}
-		float profile = smoothstep(0.0, 0.16, h)
-			* (1.0 - smoothstep(0.48, 1.0, h));
-		float billows = texture(cloud_noise, sample_uv * 5.2 + cloud_detail_offset + h * 0.12).r;
-		float density = max(body - h * h * 0.38, 0.0) * profile
-			* mix(0.55, 1.25, billows);
-		// Stratiform decks stay closed even between convective heaps.
-		density += smoothstep(0.84, 0.98, cover) * profile * 0.32;
-		float alpha = 1.0 - exp(-density * optical_step);
-		float obstruction = cloud_bulk(sample_uv + light_dir * (0.07 + h * 0.05), cover);
-		float self_shadow = exp(-obstruction * (0.4 + billows * 2.0)
-			* (1.0 - h) * mix(3.0, 5.0, local_storm));
-		float light = mix(0.20 + h * 0.20, 1.0, self_shadow * sun_up);
-		illumination += transmittance * alpha * light;
-		transmittance *= 1.0 - alpha;
 	}
 	float density = 1.0 - transmittance;
 	float light = illumination / max(density, 0.001);
-	if (cloud_deck_mode == 1 && density > 0.002) {
+	if (lit_deck && slab.z < 0.999 && density > 0.002) {
 		// R-1768: shade the deck as heaped tops with lobes. The lobe erosion above is
 		// mirrored by the ground-shadow pass and the CPU occlusion mirror.
 		float texel = max(fwidth(uv.x), fwidth(uv.y));
@@ -321,6 +355,9 @@ vec3 cloud_field(vec3 dir) {
 		lit = mix(lit, light, smoothstep(0.03, 0.12, texel));
 		light = mix(light, lit * mix(0.20, 1.0, sun_up), 0.85);
 	}
+	// R-1873: the slab replaces the low deck where it has a sample; cirrus stays on top.
+	density = mix(density, slab.x, slab.z);
+	light = mix(light, slab.y, slab.z);
 	// High thin cloud lies behind the low deck and uses a sheared wind.
 	vec2 high_uv = cloud_uv(dir, 2.1) + cloud_offset * 0.65;
 	vec2 high_wind = vec2(wind_dir.x * 0.825 - wind_dir.y * 0.565,
@@ -942,7 +979,7 @@ void sky() {
 	// Below the horizon fade into darker haze so the map edge reads as ground fog.
 	color = mix(color, horizon * 0.55, clamp(-height * 3.0, 0.0, 1.0));
 
-	vec3 cloud_sample = cloud_field(dir);
+	vec3 cloud_sample = cloud_field(dir, AT_CUBEMAP_PASS ? vec3(0.0) : cloud_slab_sample(dir));
 	float clouds = cloud_sample.x;
 	float cloud_light = cloud_sample.y;
 	float local_storm = cloud_sample.z;
@@ -1182,7 +1219,7 @@ void sky() {
 		* mix(vec3(0.88, 0.95, 1.12), horizon_hue, gold);
 	vec3 dusk_shadow = mix(vec3(0.30, 0.26, 0.40), vec3(0.46, 0.40, 0.52), day_blend) * mix(1.0, 0.5, local_storm);
 	vec3 cloud_shadow = mix(day_shadow, dusk_shadow, pink_ramp);
-	vec3 deck_shade = cloud_shadow * (cloud_deck_mode == 1 ? LIT_DECK_SHADE : 1.0);
+	vec3 deck_shade = cloud_shadow * (cloud_deck_mode >= 1 ? LIT_DECK_SHADE : 1.0);
 	vec3 cloud_col = mix(deck_shade, cloud_top, cloud_light);
 	// Hot rim where a lit cloud faces the low sun — the fiery sunset edge.
 	vec3 rim = mix(cloud_sun_color, dusk_hot, pink_ramp);
