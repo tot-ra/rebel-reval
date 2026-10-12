@@ -12,6 +12,14 @@
 | Faction ties | cult_metsik |
 | Archive reference images | leshy2.png |
 
+![Metsavana photorealistic concept image](../inspiration/metsavana_concept.jpg)
+
+**Illustration:** Generated with Leonardo AI, Lucid Realism model. Photorealistic documentation concept art only; existing archive references are retained.
+
+**Generation prompt:** Photorealistic cinematic field photograph of Metsavana, the ancient forest-owner spirit of Estonian folklore, standing quietly at the edge of an old Baltic oak grove. Tall, immensely old tree-like presence, as though an ancient oak has slowly taken human form: deeply fissured real oak bark skin, subtle moss and pale lichen, irregular pine and oak boughs growing naturally from shoulders and head, a face recessed inside a dark hollow tree-trunk cavity with two small warm amber eyes and faint heartwood glow. Long hanging vine-like strands, root-shaped hands with knotted woody fingers, dignified calm gaze and quiet authority, not attacking. A small simple straw harvest-effigy tied at the belt as a restrained folkloric detail. Full figure visible, rooted stance, realistic natural materials, rich micro-texture, grounded plausible physical presence, misty sacred Baltic woodland, muted forest greens, damp browns and soft amber, overcast cinematic natural light, full-frame camera, 50mm lens, shallow atmospheric depth of field, editorial nature photography, no fantasy armor, centered composition, square frame, no text.
+
+**Negative prompt:** illustration, painting, concept art, 3D render, CGI, cartoon, anime, videogame art, generic green goblin, antlers as crown, modern clothes, elf, text, watermark, extra limbs, humanoid wearing a tree costume, oversaturated green
+
 ## At a glance
 - A towering figure of twisted wood, vines and moss with a hollow trunk-face and amber eyes.
 - The forest's own voice in the Metsik cult's rites.
