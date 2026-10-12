@@ -30,6 +30,12 @@ uniform float fade_end = 0.0;
 // doubling its density. fade_in_end <= 0 disables it.
 uniform float fade_in_start = 0.0;
 uniform float fade_in_end = 0.0;
+// When a player drives the view, tier fades are measured on the ground from the
+// player, not from the lens. The painted-iso camera sits ~42 m away, so camera
+// distance dropped the dense near tier and left only sparse, large mid clumps
+// round the player; the near/mid hand-off must not depend on zoom or pitch.
+uniform vec2 lod_focus = vec2(0.0);
+uniform float lod_focus_on = 0.0;
 // Share of blades whose tips are sun-cured toward straw (procedural blades).
 uniform float tip_dry = 0.35;
 // R-1327: winter snow lying on the ground; presses blades down and whitens tips.
@@ -68,22 +74,16 @@ void vertex() {
 	VERTEX.xz *= size * mix(0.85, 1.2, h2);
 	VERTEX.y *= mix(0.55, 1.3, fract(h2 * 4.13 + h)) * mix(1.0, 0.25, dormancy);
 	VERTEX.xz *= mix(1.0, 0.8, dormancy);
-	// Looking straight down, every tuft shows its full footprint and the cards
-	// read as fat green blobs. Slim the footprint as the camera pitches toward
-	// vertical (forward.y -> -1) so the ground and individual blades show through.
-	float look_down = INV_VIEW_MATRIX[2].y;
-	float down_t = smoothstep(0.4, 0.9, look_down);
-	VERTEX.xz *= mix(1.0, 0.25, down_t);
-	// Tall tufts also pile up toward the lens from above, so lower them too.
-	VERTEX.y *= mix(1.0, 0.55, down_t);
+	// No pitch-dependent slimming: grass keeps one size from every camera angle, so
+	// tilting the camera down (or switching to painted iso) no longer thins it.
 	v_variety = vec2(mix(0.82, 1.12, h), h3);
+	float lod_dist = lod_focus_on > 0.5
+		? distance(origin.xz, lod_focus) : distance(origin, CAMERA_POSITION_WORLD);
 	if (fade_end > 0.0) {
-		float dist = distance(origin, CAMERA_POSITION_WORLD);
-		VERTEX *= 1.0 - smoothstep(fade_start, fade_end, dist);
+		VERTEX *= 1.0 - smoothstep(fade_start, fade_end, lod_dist);
 	}
 	if (fade_in_end > 0.0) {
-		float dist_in = distance(origin, CAMERA_POSITION_WORLD);
-		VERTEX *= smoothstep(fade_in_start, fade_in_end, dist_in);
+		VERTEX *= smoothstep(fade_in_start, fade_in_end, lod_dist);
 	}
 	vec2 wind = wind_dir();
 	vec2 across = vec2(-wind.y, wind.x);

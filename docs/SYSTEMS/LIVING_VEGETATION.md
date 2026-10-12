@@ -202,6 +202,10 @@ Implemented for the seamless city (**R-1323**; open: blueprint-map carpet and gr
 | Mid | 16 m | 1 clump/m2, larger | 9-46 m |
 | Far | 32 m | 0.25 clumps/m2, double width | 36-118 m |
 
+- **Camera independence.** Decision (user, 2026-10-13): grass must look the same in painted iso and the default third-person camera, and must not thin when the camera tilts down. While a player drives the view, tier ranges are measured on the ground from the player (`lod_focus`, set by `apply_grass_interaction`), not from the lens; without a player (captures, blueprint previews) they fall back to camera distance. The shader no longer slims or lowers tufts by camera pitch. Painted iso therefore shows the dense near tier round the player instead of only sparse, large mid clumps. Verified by `tests/godot/test_grass_tiers.gd`.
+
+![Painted iso over the pasture: dense fine near-tier blades round the player](../reports/images/vegetation/grass_iso_near_tier.jpg)
+
 - **Streaming.** Missing chunks are built nearest first within a 3.5 ms frame budget (at least one per frame); placement stays on the CPU (GL Compatibility has no compute).
 - **Shading.** Root-to-tip gradient with warm, partly dry tips, root colour melting into the ground, rounded normals, backlight, wind sheen. No shadows.
 - **Trampling.** `VegetationInteractionBuffer` keeps the last 8 player positions so a flattened path stays for a few seconds. NPCs are not fed yet.

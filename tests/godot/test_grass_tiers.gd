@@ -59,6 +59,23 @@ func test_far_tier_extends_range_and_hands_over_from_mid() -> void:
 	)
 
 
+func test_tier_fades_follow_the_player_not_the_lens() -> void:
+	# The painted-iso lens sits ~42 m away: camera distance would drop the near tier.
+	var materials: Array[ShaderMaterial] = [
+		MapViewMaterials.grass_blade_tier(true), MapViewMaterials.grass_blade_tier(false),
+		MapViewMaterials.grass_blade_far(),
+	]
+	MapViewMaterials.apply_grass_interaction(Vector2(12.0, -7.0), Vector2.ZERO, 1.0)
+	for material in materials:
+		assert_eq(float(material.get_shader_parameter("lod_focus_on")), 1.0, "player drives tier fades")
+		assert_eq(material.get_shader_parameter("lod_focus"), Vector2(12.0, -7.0), "focus is the player")
+	MapViewMaterials.clear_grass_interaction()
+	for material in materials:
+		assert_eq(float(material.get_shader_parameter("lod_focus_on")), 0.0, "no player: camera distance")
+	var source := FileAccess.get_file_as_string("res://scripts/map/view3d/map_view_grass.gdshader")
+	assert_false(source.contains("INV_VIEW_MATRIX[2]"), "grass size does not depend on camera pitch")
+
+
 func test_ground_plates_are_plain() -> void:
 	# The ground is a colour field: no plantain or flower may be baked into it.
 	# Fine grain is small; a baked plant is a strong, large dark/bright blob.
