@@ -12,6 +12,14 @@
 | Faction ties | none |
 | Archive reference images | image-15, image-16, image-17 |
 
+![libahunt concept art](../inspiration/libahunt_concept.jpg)
+
+**Illustration:** Generated with Leonardo AI using the Lucid Realism model. Photorealistic documentation reference; existing archive references are retained.
+
+**Generation prompt:** Photorealistic wildlife photograph with subtle folklore storytelling: a single anatomically accurate grey Baltic wolf in the foreground at the edge of an Estonian winter forest, with an extremely subtle shadow/reflection silhouette of a frightened human woman in the mist behind it to suggest the curse. The woman is only an indistinct shadow, not a physical second person and not a wolf-human hybrid. Snow-dusted birch and pine, natural overcast winter light, subdued grey-brown palette, credible wildlife photography, no text, no gore, no silver trope.
+
+**Negative prompt:** anthropomorphic wolf-man, werewolf movie, silver chains, modern clothes, gore, text, watermark
+
 ## At a glance
 - A wolf with a human gait and a human's eyes.
 - Cursed by a wolf-hide belt, a spell or a slight.
