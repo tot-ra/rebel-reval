@@ -14,6 +14,8 @@ Amended 2026-07-25 (later): third-person mouse/trackpad scroll changes follow bo
 
 Amended 2026-07-25 (scroll continuum): zoom-out past the far boom threshold crosses into top-down; zoom-in past the close top-down size restores third-person at the max boom.
 
+Amended 2026-08-14 (recorded 2026-10-12): enclosed interior maps (`suppresses_exterior_surroundings()`) start in top-down for floor readability; `C` still cycles them into third-person. Outdoor maps keep the third-person default.
+
 ## Context
 
 The game previously exposed two camera modes: a distant orthographic top-down view and an optional first-person inspection view. The orthographic mode was called "third-person" in parts of the implementation even though it did not place the camera behind the character. The desired default is now a Witcher-like camera behind the player, while the old top-down controls must remain available as a distinct third mode.
@@ -27,7 +29,7 @@ Players also need scroll zoom on the follow boom: pull closer or push farther wi
 ## Decision
 
 1. The gameplay camera has three explicit modes, cycled with `C` or the Quick access camera button: **third-person**, **first-person**, then **top-down**.
-2. Third-person is the default. It uses a perspective camera placed behind and above the player on an orbit boom, with the character rig visible. Default boom distance is authored; scroll zoom changes that distance.
+2. Third-person is the default (enclosed interiors start in top-down, see the 2026-08-14 amendment). It uses a perspective camera placed behind and above the player on an orbit boom, with the character rig visible. Default boom distance is authored; scroll zoom changes that distance.
 3. First-person keeps the existing eye-height perspective, hidden player rig, and right-drag pitch look.
 4. Horizontal camera rotation in third-person and first-person immediately updates the player's authored facing. Keyboard movement remains projected from camera yaw, so forward/back and strafing follow the current view.
 5. Top-down keeps the existing orthographic pitch, zoom, and screen-relative movement. Camera rotation re-projects movement but does not change authored character facing.

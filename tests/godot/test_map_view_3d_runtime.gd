@@ -77,6 +77,10 @@ func test_runtime_maps_keyboard_to_screen_axes_and_preserves_facing_on_stop() ->
 		"an idle player rig with no movement history must follow the player's authored facing"
 	)
 
+	# The smithy is an enclosed interior, which starts in top-down (dbd46fbd9);
+	# the camera-turns-rig contract below belongs to third person.
+	assert_true(runtime.is_top_down(), "enclosed interiors start in top-down")
+	runtime.set_camera_mode(MapViewRuntimeCamera.CameraMode.THIRD_PERSON)
 	var move_direction := Vector2(1.0, 0.0)
 	player.velocity = move_direction * (MapViewRuntime.WALK_ANIMATION_MIN_SPEED + 1.0)
 	player._facing_direction = move_direction

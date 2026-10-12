@@ -11,6 +11,7 @@ extends RefCounted
 
 const CYCLE_DURATION_SECONDS := 1440.0
 const HOURS_PER_REAL_SECOND := 24.0 / CYCLE_DURATION_SECONDS
+const SECONDS_PER_REAL_DAY := 86400.0
 
 ## Fallback only (tests, pinned scenes). Live clocks seed from system_progress().
 const DEFAULT_PROGRESS := 0.25
@@ -21,7 +22,9 @@ const DEFAULT_PROGRESS := 0.25
 static func system_progress() -> float:
 	var t := Time.get_time_dict_from_system()
 	var seconds := float(int(t["hour"]) * 3600 + int(t["minute"]) * 60 + int(t["second"]))
-	return seconds / CYCLE_DURATION_SECONDS
+	# Divide by a real day, not CYCLE_DURATION_SECONDS: the game pace is decoupled
+	# from wall-clock length, and the fraction must stay inside 0..1.
+	return seconds / SECONDS_PER_REAL_DAY
 
 
 static func advance(progress: float, delta_seconds: float) -> float:

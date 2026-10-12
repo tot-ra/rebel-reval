@@ -11,7 +11,9 @@ func test_perspective_modes_attach_practical_camera_attributes() -> void:
 	var camera := runtime.view.view_camera()
 	var controller := runtime._camera_controller as MapViewRuntimeCamera
 
-	assert_true(runtime.is_third_person())
+	# The smithy is an enclosed interior, which starts in top-down (dbd46fbd9).
+	assert_true(runtime.is_top_down(), "enclosed interiors start in top-down")
+	runtime.set_camera_mode(MapViewRuntimeCamera.CameraMode.THIRD_PERSON)
 	_assert_perspective_attributes(camera, MapViewRuntimeCamera.CameraMode.THIRD_PERSON)
 
 	runtime.set_first_person(true)
