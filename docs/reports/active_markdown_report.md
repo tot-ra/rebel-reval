@@ -14,11 +14,11 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `1272`
+- Active Markdown files scanned: `1275`
 - Markdown files excluded as archive/reference/out of active scope: `764`
-- Local/external links inspected: `14519`
-- Links to active Markdown docs: `12788`
-- Links to existing archive/reference/non-active local docs: `533`
+- Local/external links inspected: `14541`
+- Links to active Markdown docs: `12817`
+- Links to existing archive/reference/non-active local docs: `521`
 - External links skipped for reachability: `192`
 - Issues found: `13`
 
@@ -154,6 +154,7 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/CHARACTERS/img/README.md`
 - `docs/CHARACTERS/johann_von_minden.md`
 - `docs/CHARACTERS/jurgen.md`
+- `docs/CHARACTERS/juri_ratnik.md`
 - `docs/CHARACTERS/kaja.md`
 - `docs/CHARACTERS/kalev-family.md`
 - `docs/CHARACTERS/kalev.md`
@@ -165,6 +166,8 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/CHARACTERS/old_toomas.md`
 - `docs/CHARACTERS/order_squire.md`
 - `docs/CHARACTERS/README.md`
+- `docs/CHARACTERS/town_guard_captain.md`
+- `docs/CHARACTERS/urmas_laar.md`
 - `docs/CITIZENS/CENSUS.md`
 - `docs/CITIZENS/census_tables.md`
 - `docs/CITIZENS/factions/black_cloaks.md`

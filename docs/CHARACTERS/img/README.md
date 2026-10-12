@@ -48,3 +48,6 @@ No `assets/SOURCES.csv` rows. Generated with Leonardo AI (account default model)
 | Mart Weaver | [mart_the_weaver.jpg](sheets/mart_the_weaver.jpg) | `characters/blackhead/img/mart_the_weaver.jpg` |
 | Viceroy Konrad Preen | [konrad_preen.jpg](sheets/konrad_preen.jpg) | `characters/denmark/img/konrad_preen.jpg` |
 | Tomas Veld, Order Squire | [squire.jpg](sheets/squire.jpg) | `characters/order/img/squire.jpg` |
+| Jüri Ratnik | [juri_ratnik.jpg](sheets/juri_ratnik.jpg) | `characters/rebels/img/juri_ratnik.jpg` |
+| Urmas Laar | [urmas_laar.jpg](sheets/urmas_laar.jpg) | `characters/rebels/img/urmas_laar.jpg` |
+| Town Guard Captain | [captain.jpg](sheets/captain.jpg) | `characters/denmark/town_guard/img/captain.jpg` |

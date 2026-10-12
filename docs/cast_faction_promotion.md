@@ -85,13 +85,15 @@ Priority is production order inside each act wave. Content IDs are stubs for lat
 | 7 | Mart Weaver | `characters/blackhead/mart_the_weaver.md` | **adapt** | A1 | 1 | Blackheads candidate | `char.mart_weaver` | Rename away from apprentice Mart in all player-facing copy. |
 | 8 | Order Squire (Henning's detail) | `characters/order/squire.md` | **adapt** | A1 | 1 | Livonian Order | `char.order_squire` | Street-level Order pressure under Henning / Hermann; give a stable personal name when the brief lands. |
 
+Roster addition (not on the shortlist): `char.town_guard_captain` has a card, [`docs/CHARACTERS/town_guard_captain.md`](./CHARACTERS/town_guard_captain.md), which records the decision that he is a different person from Captain Henning of the Viru Watch (Crown garrison versus city watch).
+
 ### Wave B - Act 2 uprising and siege
 
 | # | NPC | Legacy seed | Label | Act | Art tier | Faction seat | Content-ID stub | Notes |
 |---|---|---|---|---|---|---|---|---|
 | 9 | Lembit Helme | `characters/rebels/lembit_helme.md` | **promote-first** | A2 | 1 | Harju Kings | `char.lembit_helme` | Elder king / spokesman. First brief landed. |
-| 10 | Jüri Ratnik | `characters/rebels/juri_ratnik.md` | **promote-first** | A2 | 1 | Harju Kings | `char.juri_ratnik` | Field captain archetype. |
-| 11 | Urmas Laar | `characters/rebels/urmas_laar.md` | **promote-first** | A2 | 1 | Harju Kings | `char.urmas_laar` | Village muster / grievance face. |
+| 10 | Jüri Ratnik | `docs/CHARACTERS/juri_ratnik.md` | **promote-first** | A2 | 1 | Harju Kings | `char.juri_ratnik` | Field captain archetype. First brief landed. |
+| 11 | Urmas Laar | `docs/CHARACTERS/urmas_laar.md` | **promote-first** | A2 | 1 | Harju Kings | `char.urmas_laar` | Village muster / grievance face. First brief landed. |
 | 12 | Master Burchard von Dreileben | `characters/order/master_burchard_von_dreileben.md` | **adapt** | A2–A3 | 1 | Livonian Order | `char.burchard_dreileben` | Historical Master; keep confidence labelled; player meets via envoys more than constant presence. |
 | 13 | Brother Goswin von Herike | `characters/order/brother_goswin_von_herike.md` | **promote-first** | A2 | 1 | Livonian Order | `char.goswin_herike` | Field commander under Burchard. |
 | 14 | Mikhail Kolovrat | `characters/pskov/mihail_kolovrat.md` | **promote-first** | A2 | 1 | Pskov/Novgorod | `char.mikhail_kolovrat` | Pskov scout/emissary; fits quest seeds 11–12. |

@@ -33,6 +33,9 @@ Kalev, Mart, Aita, Kaja, Henning, and Jürgen appear in the vertical slice. Elle
 | Order Squire (Tomas Veld) | Henning's junior Order detail and conflicted witness | A1 | 1 | `invented` | [Order Squire](./order_squire.md) |
 | Lembit Helme | Harju Kings elder spokesman | A2 | 1 | `plausible composite` | [Lembit Helme](./lembit.md) |
 | Anisia of Novgorod | Stranded Novgorod girl; Rublev legend wink | side quest | 1 | `invented` | [Anisia](./anisia_of_novgorod.md) |
+| Jüri Ratnik | Harju Kings field captain; smith turned war leader | A2 | 1 | `plausible composite` | [Jüri Ratnik](./juri_ratnik.md) |
+| Urmas Laar | Harju Kings seer; village muster face | A2 | 1 | `plausible composite` | [Urmas Laar](./urmas_laar.md) |
+| Town Guard Captain | Danish Crown garrison captain (not Henning) | A1 | extra | `invented` | [Town Guard Captain](./town_guard_captain.md) |
 
 Remaining Wave B/C names are listed in the [promotion plan](../cast_faction_promotion.md) until their act design gates open. The five remaining Wave A briefs are now landed under **P7-013**.
 
