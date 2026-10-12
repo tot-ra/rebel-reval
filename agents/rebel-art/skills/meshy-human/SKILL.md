@@ -9,11 +9,10 @@ Status: experimental pipeline (first run: Aita, 2026-10-12). The production huma
 
 ## What you get
 
-One GLB on the 71-bone `HumanMotionRig` plus `eye.l` / `eye.r`, with all 76 shared clips:
+Two routes from the same Meshy scan. Prefer **A (conform)**; B is the older fallback.
 
-- `Body` - the Meshy surface, about 50k triangles, bound in its own A-pose.
-- `Eye_l`, `Eye_r` - MPFB eyeballs on their own bones, so the eyes can look around.
-- `Hair` - an MPFB hair mesh fitted to the Meshy skull and weighted to `head`, so it can be swapped.
+- **A. Conformed MPFB** (`conform_mpfb_to_meshy.py`, step 4): the character's MPFB body, rig, weights, 76 clips, eyes, lashes, brows, teeth and face shape keys (`blink`, `jaw_open`, `smile`, `brow_up`, `frown`, `pucker`), with its surface moved onto the Meshy shape and the Meshy albedo baked into the MPFB UVs. Armpits deform like MPFB, the face can blink and talk, and every MPFB wearable fitted to that body (headscarf, gown) still fits. Optional `--headcloth` wearable instead of hair.
+- **B. Raw Meshy rig** (`rig_meshy_human.py`, step 4b): one GLB on the 71-bone `HumanMotionRig` plus `eye.l` / `eye.r`. `Body` is the Meshy surface (about 50k triangles) bound in its own pose, `Eye_l` / `Eye_r` are MPFB eyeballs on their own bones, `Hair` is an MPFB hair mesh fitted to the Meshy skull. No face shape keys, and the scan topology stretches at the armpits.
 
 ## Inputs
 
@@ -44,7 +43,8 @@ Rules:
 - **Hair-free and flat light go in the prompt, not post.** Use "completely hairless, shaved bald head" plus hair words in the negative prompt. Then step 2 is often a no-op, but always check the scalp and pubic area. Use flat shadowless lighting: Meshy bakes every shadow into the albedo, and deep eye shadows read as sunken eyes on the model.
 - **Arms must clear the body and the hands must not touch the thighs.** Meshy fuses touching parts, and the rig step has to cut them apart again: you get holes in the thigh and torn fingertips.
 - Do not describe flushed or red hands or skin. Chroma paints them literally and Meshy bakes it into the albedo.
-- **Fixing a near-miss:** img2img (`LoadImage` → `VAEEncode` → `KSampler`) at denoise 0.5-0.6 keeps the pose *and* the body, so it cannot fix a wrong build. Use about 0.75 to change the body while the pose survives, or start new seeds.
+- **Fixing a near-miss:** img2img (`LoadImage` → `VAEEncode` → `KSampler`) at denoise 0.5-0.6 keeps the pose *and* the body, so it cannot fix a wrong build. Even 0.75 kept Aita v3 s1219's lean, ribbed build and its side light (v4), so a wrong build needs new seeds, not img2img.
+- **Seed variance beats wording.** With the v4 wording ("soft, sturdy, medium-weight ... working mother") 3 new seeds gave one true 45-degree stance (s7307), two narrower ones, and builds from slim to soft. Queue 3-4 seeds in one go; each takes about 8 minutes.
 - **Picking a seed.** Generate 3+ seeds and let the user pick. Build a contact sheet and a face crop for each one. Reject a seed if a hand is cropped, the thighs touch, or the face is gaunt. Check `/history` and `/view` on the server. Some installs write to a different `output/` dir than you expect.
 
 ## 2. Bald inpaint (hair becomes a separate mesh)
@@ -61,7 +61,34 @@ Look at the preview: the face ellipse must keep the eyes and brows. Upload the i
 
 `meshy_generate_3d` with `image=<bald png>`, `texture=true`, `pbr=true`, `format=glb`. **One image, no T-pose option, no multi-image.** Those options go through a third-party step with stricter NSFW filters and usually fail. Plain image-to-3D on a paid plan accepts nude or underwear bodies. Move the output from `generated/meshy/` into `build/<char>_meshy/`. If the call times out, see the art playbook (the task keeps running, do not resubmit).
 
-## 4. Rig, eyes, hair
+## 4. Conform the MPFB body to the scan (route A)
+
+```bash
+B=/Applications/Blender.app/Contents/MacOS/Blender
+$B -b --factory-startup --python tools/assets/meshy_human/conform_mpfb_to_meshy.py -- \
+  --meshy build/<char>_meshy/<task>.glb \
+  --donor assets/characters/realistic/<char>/<char>.glb \
+  [--headcloth assets/characters/realistic/<char>/headscarf/headscarf.glb | --keep-hair] \
+  [--keep-brows] [--tex 2048] [--debug-blend build/<char>_meshy/conform/debug.blend] \
+  --out build/<char>_meshy/conform/<char>_conformed.glb
+```
+
+What it does, and why:
+
+1. **Scale and stance.** The scan stands wide, so it is shorter than the donor at rest. The script scales the scan to the height of the donor *posed in the same stance*, alternating fit and rescale until the height settles (2-3 passes).
+2. **Limb fit by flesh axis.** For each upper/lower arm and leg it measures the limb axis as a line through cross-section centroids, on the scan and on the posed donor skin, and turns the bone by the difference until the residual is under 0.3 degrees. Aiming a bone straight at the scan axis misses by about 10 degrees on the thigh (MPFB bone axis is not the flesh axis, and hip skinning bends the thigh). Surface-point PCA on a short thick segment picks its width, not its length. Feet are reset to flat soles.
+3. **Head fit.** Meshy guesses the head pose from a front image. Aita v4 came out with the head tilted back and 6 cm behind the MPFB posture while the torso matched, so every face feature sat 2-3 cm too high and the jaw opened on the chin. A rigid ICP (Kabsch) of the donor skull to the scan head sets tilt and depth: the turn goes into the `head` bone pose, the shift into the displacement (blended by `head` weight). Height comes from the **eye line painted on the scan albedo**, not the skull: a bald Meshy cranium sits about 2 cm lower than MPFB's, while eye-to-mouth matches within a few mm. If no eye line is found (an unpainted scan), the log warns and keeps the skull-fit height.
+4. **Project.** Every MPFB skin vertex casts along its normal (then nearest point) onto the scan; hits farther than `--max-dist` (4.5 cm) or facing away are rejected and filled from neighbours. The log prints the hit rate and median offset per body part: expect 85-100 % hits on limbs and torso, about 75 % on the head and 50-60 % on hands and feet (smooth-only parts), with offsets of a few mm to 3 cm. A limb far below that means the limb fit failed; a head below 60 % means the head fit failed.
+5. **Keep MPFB features.** The displacement is split into a smooth field and the detail. Hands, lips, nose and ears get only the smooth part. **Lids move rigidly with their eyeball** (constant offset inside 1.4 cm of the eye centre, blended out by 2.8 cm): the scan brow ridge sat up to 1 cm deeper than MPFB's and dragged the upper lid behind the eyeball, which then poked through and blink no longer closed it. Eyeballs and lashes take the mean offset of the lid margin, not the nearest skin vertex (often the socket wall behind the eye).
+6. **Cavities.** Mouth bag, nostril and ear-canal vertices (a short ray along the normal hits the head itself) are not projected and not baked; they take the local offset of the skin around them. Otherwise the mouth bag pokes out through a chin that the scan sets deeper, and it gets face skin baked onto it.
+7. **Bake.** Cycles bakes the scan albedo (as emission, so no lighting leaks) onto a conformed copy with MPFB UVs. Texels the bake misses are filled from the donor albedo tinted to the scan skin colour; the log reports the share (about 60 % of the whole map is normal, the rest is empty UV space). The lids get that tinted donor skin through a soft UV mask, because the scan paints its eye whites and iris there.
+8. **Back to rest.** The posed offset is carried to the rest pose with each vertex's inverse skinning matrix and added to **every** shape key, so blink, smile and jaw still work. The head shift is *not* carried: the head stays over its joint in the MPFB posture and only the shape moves. Teeth and kept hair move with the nearest skin vertex. The headcloth keeps its donor fit and only the vertices the new body swallowed are pushed 4 mm out (following the skull detail would slide the brim over the eyes).
+9. The MPFB brow mesh is dropped unless `--keep-brows`: the scan albedo already paints brows, about 1 cm lower, and both read as double brows.
+10. Exports the GLB with all clips and writes `<out>.report.json` (meshes, shape keys, 76 actions, 71 bones) and `<out>_textures/skin_albedo.png`.
+
+Test the mechanics without credits: pose the donor itself into the scan stance, inflate it 6 mm and use that as `--meshy`. Every part should land at about 4-8 mm, and the lid offsets in the log near 0. This test cannot catch head-pose or feature-height errors (the donor face matches itself), so always check the face renders of a real scan.
+
+## 4b. Raw Meshy rig, eyes, hair (route B)
 
 ```bash
 B=/Applications/Blender.app/Contents/MacOS/Blender
@@ -91,20 +118,31 @@ What it does, and why:
 
 ```bash
 $B -b --factory-startup --python tools/assets/meshy_human/render_rigged_preview.py -- \
-  --glb build/<char>_meshy/rig/<char>_meshy_rigged.glb --out build/<char>_meshy/rig/preview \
-  --clips Idle,Walking_A,Sit_Chair_Idle,1H_Melee_Attack_Chop
+  --glb build/<char>_meshy/conform/<char>_conformed.glb --out build/<char>_meshy/conform/preview \
+  --clips Idle,Walking_A --arms-up-clip Cheer --face-keys blink,smile,jaw_open
 ```
 
-The script loads the exported GLB, so the export round-trip is checked as well. Check:
+The script loads the exported GLB, so the export round-trip is checked as well. `--arms-up-clip` renders the frame with the highest hands plus an armpit close-up; `--face-keys` renders the face at rest and with each key at 1.0. Check:
 
-- **Clips.** No sheets or fragments between hands and hips in any clip. If there are any, run with `--debug-blend` and render the `is_arm` colour layer.
-- **Head.** Both eyeballs show through the lids and turn in `head_eyes.png`.
-- **Hair.** Hair clears the scalp in `head_back.png`.
-- **Report.** `report.json` lists 73 bones, 76 actions, and the `Body`, `Eye_l`, `Eye_r` and `Hair` meshes.
+- **Clips.** No sheets or fragments between hands and hips in any clip; no triangular "wings" in `armpit_Cheer.png`.
+- **Face.** The lids close fully in `face_blink.png`, the mouth opens at the painted lips (not below them) in `face_jaw_open.png`, no red mouth bag shows on the chin, no grey eyeball shows in front of the lids, and the baked face has no seams or patches. The headcloth shadows the eyes in these renders; for a lit eye check render the head with the garments hidden.
+- **Head.** Both eyeballs show through the lids. Hair or headcloth clears the scalp in `head_back.png`.
+- **Report.** Route A: 71 bones, 76 actions, the `Anatomy_*` meshes (no `Anatomy_Head_Brows` unless `--keep-brows`) and the six face keys. Route B: 73 bones, 76 actions, `Body`, `Eye_l`, `Eye_r`, `Hair`.
 
 ## Known limits
+
+Route A (conform), from the Aita v4 run (seed s7307, Meshy task `01a13051`):
+
+- **Meshy albedo seams.** Meshy's texture atlas has seams with dark margins, and its concept lighting is baked in. On Aita they show as jagged outlines on the upper chest and shoulders and pale breasts. The bake copies them faithfully; only a cleaner source image or hand paint fixes them.
+- **Lip colour.** The scan paints the lower lip paler than the upper, so the MPFB lower lip reads pale. The brow area keeps some stretched scan texture where the brow ridge depth differs.
+- **Headcloth.** The widow's headscarf is the donor's MPFB-fit wearable, a stiff hood with a visor-like brim; it is not re-draped to the new skull. Its tails can cut into the raised arm in `armpit_Cheer.png`. A cloth-sim or hand-fitted drape is needed for a hero close-up.
+- **Posture.** The rest pose keeps the MPFB head posture, not the scan's; the scan's head-back stance is treated as a pose, not as shape.
+- **Iris colour** is the donor's; there is no iris retint in route A yet.
+- **Deformation** is MPFB linear blend skinning at hips and armpits, with no corrective shapes.
+
+Route B (raw Meshy rig):
 
 - **Eyelid rims.** The rims are jagged (decimation after the cut) and there are no lashes. Fit the donor lashes or cut on a cleaner retopology.
 - **Baked texture faults.** Meshy bakes concept lighting and blotches into the albedo, for example the knees and upper chest on Aita. Only the hands are corrected.
 - **Hair.** Donor hair is an MPFB card mesh that is only box-fitted, so check the fringe over the eyes. Hair colour comes from the donor material.
-- **Deformation.** Linear blend skinning at hips and armpits is MPFB-donor quality, with no corrective shapes. There are no face blendshapes, so the face cannot talk or blink.
+- **Deformation.** The scan topology stretches at the armpits, and there are no face blendshapes, so the face cannot talk or blink. Use route A.
