@@ -9,8 +9,12 @@ render_mode blend_mix, depth_draw_never, cull_disabled, unshaded, shadows_disabl
 
 // 0 at impact, 1 when the ripple is gone.
 uniform float progress = 0.0;
-uniform vec3 tint : source_color = vec3(0.86, 0.93, 0.98);
-uniform float strength = 0.5;
+// Wave crest catches a dim sky; the trough behind it is dark water. Both stay far below
+// white so the ripple reads as relief in the puddle (like wind ripples), not a HUD
+// ring, and does not glow at night (the shader is unshaded).
+uniform vec3 tint : source_color = vec3(0.42, 0.5, 0.56);
+uniform vec3 trough_tint : source_color = vec3(0.05, 0.07, 0.09);
+uniform float strength = 0.42;
 
 float ring(float r, float centre, float width) {
 	return 1.0 - smoothstep(0.0, width, abs(r - centre));
@@ -25,6 +29,9 @@ void fragment() {
 	// A little break-up so the ring is not a perfect vector circle.
 	float a = atan(UV.y - 0.5, UV.x - 0.5);
 	float wobble = 0.8 + 0.2 * sin(a * 5.0 + progress * 6.0);
-	ALBEDO = tint;
-	ALPHA = clamp((front + trail) * wobble * fade * strength, 0.0, 1.0);
+	// Dark trough just inside each crest; the pair is what makes a ring look like a wave.
+	float trough = (ring(r, 0.64, 0.1) + ring(r, 0.4, 0.08) * 0.6) * wobble * fade;
+	float crest = (front + trail) * wobble * fade;
+	ALBEDO = mix(trough_tint, tint, crest / max(crest + trough, 0.001));
+	ALPHA = clamp((crest * 0.8 + trough * 1.1) * strength, 0.0, 1.0);
 }

@@ -153,6 +153,36 @@ func test_puddles_follow_rain_and_drought() -> void:
 	assert_true(wet < probes, "rain must not flood every patch of dirt")
 
 
+## Cobbled streets and cart-road ruts hold water too (the shader's cobble_pool and
+## rut_pool), so a boot there must hear and splash as a puddle.
+func test_puddles_form_on_paving_and_in_cart_ruts() -> void:
+	var plan := _plan()
+	var sampler := CitySurfaceSampler.new(plan)
+	var paved_wet := 0
+	var rut_wet := 0
+		# Whole-plan scan: paving and roads lie far from the plan's top rows.
+	var step := 2.6
+	var y := plan.bounds.position.y
+	while y < plan.bounds.end.y:
+		var x := plan.bounds.position.x
+		while x < plan.bounds.end.x:
+			var xz := Vector2(x, y)
+			if _free_ground(plan, xz):
+				if sampler.puddle_depth(xz, 1.0, 0.0) > CitySurfaceSampler.PUDDLE_MIN_DEPTH:
+					var ground := sampler.ground_surface(xz)
+					if ground == SurfaceResolver.SURFACE_STONE:
+						paved_wet += 1
+						assert_eq(
+							sampler.surface_at(_foot(xz), 1.0, 0.0), SurfaceResolver.SURFACE_PUDDLE
+						)
+					elif CityShore.road_raster_at(plan, xz).r > 0.3:
+						rut_wet += 1
+			x += step
+		y += step
+	assert_true(paved_wet > 0, "rain must leave puddles on cobbles")
+	assert_true(rut_wet > 0, "rain must fill cart ruts")
+
+
 ## The ported noise must match the shader's GLSL formula.
 func test_hash_matches_the_shader_formula() -> void:
 	# p3 = fract(vec3(p.xyx) * 0.1031); p3 += dot(p3, p3.yzx + 33.33);

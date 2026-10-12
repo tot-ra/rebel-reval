@@ -10,7 +10,12 @@ When a boot lands in a filled rain puddle, the city view adds a short expanding
 ring and a modest CPU-particle splash at the planted sole. The existing
 `FootstepAudio` surface resolver independently selects
 `sfx.footstep.puddle.walk`; the VFX is not tied to audio being enabled. Other
-ground surfaces and stream water do not trigger this effect. `CityPuddleStepVfx`
+ground surfaces and stream water do not trigger this effect. A puddle is anything
+the ground shader fills with water: earth basins, cart-road ruts and sunken cobble
+patches (`CitySurfaceSampler.puddle_depth` ports all three, so ruts and wet paving
+sound and splash like any other puddle). The ripple is a dim grey-blue crest with a
+dark trough and the droplets are muddy and lit, so nothing glows white at night.
+`CityPuddleStepVfx`
 keeps at most eight events and retires them after 0.8 seconds. There are no new
 controls, assets, catalog entries, or save fields.
 

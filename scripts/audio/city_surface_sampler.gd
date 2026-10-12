@@ -89,9 +89,10 @@ func ground_surface(xz: Vector2) -> StringName:
 	return best
 
 
-## Standing water over `xz`, a CPU port of the `hollow * soft` basins in
-## city_ground.gdshader (ruts and footprints, which only fill near the camera,
-## are left out). Positive where the shader draws water.
+## Standing water over `xz`, a CPU port of the water level in city_ground.gdshader:
+## earth basins (`hollow * soft`), cart-road ruts and sunken cobble patches. Only
+## the per-footprint pools, which fill near the camera, are left out. Positive
+## where the shader draws water.
 func puddle_depth(xz: Vector2, puddles: float, ground_dryness: float) -> float:
 	if puddles <= 0.0:
 		return -1.0
@@ -100,18 +101,49 @@ func puddle_depth(xz: Vector2, puddles: float, ground_dryness: float) -> float:
 	if soaked < 0.5:
 		return -1.0
 	var s := CityShore.land_use_at(plan, xz)
-	var road := CityShore.road_raster_at(plan, xz).r
+	var rd := CityShore.road_raster_at(plan, xz)
 	var paving := smoothstep(0.25, 0.7, s.r)
 	var field := CityGrass.field_share(s)
 	var earth := smoothstep(0.15, 0.65, s.g) * (1.0 - field)
 	var mud := smoothstep(0.2, 0.7, s.a) * (1.0 - field)
-	var soft := clampf(earth + mud + field + road * (1.0 - paving), 0.0, 1.0) * (1.0 - paving)
+	var soft := clampf(earth + mud + field + rd.r * (1.0 - paving), 0.0, 1.0) * (1.0 - paving)
 	var h0 := mud_height(xz)
 	var hollow := 1.0 - smoothstep(0.32, 0.5, h0 + value_noise(xz * 0.23) * 0.45)
 	# The shader's slope_len is 1 - normal.y; slope_at answers the angle.
 	var flat_ground := 1.0 - smoothstep(0.04, 0.12, 1.0 - cos(plan.slope_at(xz)))
-	var pool := hollow * soft * flat_ground
-	return (pool - (1.05 - puddles * 0.75)) * (1.0 - paving)
+	# Ruts of a cart road hold water only where they are deepest (shader rut_pool).
+	var rut := _rut_mask(xz, rd, puddles) * rd.r * (1.0 - paving)
+	var rut_pool := rut * smoothstep(0.35, 0.8, value_noise(xz * 0.21)) * 1.5
+	var pool := maxf(hollow * soft, rut_pool) * flat_ground
+	var earth_depth := pool - (1.05 - puddles * 0.75)
+	# Hand-laid paving settles into shallow sunken patches that fill first (R-1748);
+	# the sand joints (stone share) are approximated by the shader's mean 0.5.
+	var cobble_sink := 1.0 - smoothstep(
+		0.28,
+		0.52,
+		(
+			value_noise(xz * 0.13 + Vector2(4.1, 9.7)) * 0.62
+			+ value_noise(xz * 0.47 + Vector2(2.3, 5.5)) * 0.26
+			+ value_noise(xz * 1.9 + Vector2(7.7, 1.3)) * 0.12
+		)
+	)
+	var cobble_depth := cobble_sink * 1.075 * flat_ground - (1.3 - puddles * 0.72)
+	return lerpf(earth_depth, cobble_depth, paving)
+
+
+## The rut term of the shader's road_profile (`ruts * depth`): two wheel grooves a
+## cart's gauge apart either side of the road's centre line.
+func _rut_mask(xz: Vector2, rd: Color, puddles: float) -> float:
+	var lat := ((rd.g * 255.0 - 128.0) / 127.0) * 5.75
+	lat += (value_noise(xz * 0.07) - 0.5) * 0.7 + (value_noise(xz * 0.45) - 0.5) * 0.14
+	var depth := (
+		(0.5 + 0.9 * value_noise(xz * 0.11)) * (0.35 + 0.65 * rd.b) * smoothstep(0.1, 0.6, rd.r)
+	)
+	depth *= 0.95 + 0.6 * clampf(puddles * 0.5, 0.0, 1.0)
+	var gauge := 0.82
+	var left := exp(-pow((lat + gauge) / 0.22, 2.0))
+	var right := exp(-pow((lat - gauge) / 0.22, 2.0))
+	return maxf(left, right) * depth
 
 
 func _layer_weights(xz: Vector2) -> Dictionary:

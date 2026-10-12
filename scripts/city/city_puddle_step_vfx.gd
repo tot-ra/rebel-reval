@@ -10,7 +10,7 @@ const SprayShader := preload("res://scripts/city/city_spray.gdshader")
 const MAX_ACTIVE := 8
 const RING_LIFETIME := 0.8
 const RING_RADIUS := 0.06
-const RING_RADIUS_END := 0.42
+const RING_RADIUS_END := 0.55
 const SPLASH_LIFETIME := 0.34
 
 ## Same layered recipe as the sea breakers (CityShoreSpray): velocity-streaked fine
@@ -32,8 +32,8 @@ func _ready() -> void:
 	_ring_mesh.size = Vector2(2.0, 2.0)
 	_drop_mesh = _spray_quad(0.02, 5.0, 2.0, true, 0.5)
 	_spume_mesh = _spray_quad(0.12, 1.0, 0.0, false, 1.0)
-	_drop_ramp = _ramp([[0.0, 0.0], [0.06, 0.9], [0.65, 0.7], [1.0, 0.0]])
-	_spume_ramp = _ramp([[0.0, 0.0], [0.15, 0.2], [1.0, 0.0]])
+	_drop_ramp = _ramp([[0.0, 0.0], [0.06, 0.55], [0.65, 0.4], [1.0, 0.0]])
+	_spume_ramp = _ramp([[0.0, 0.0], [0.15, 0.08], [1.0, 0.0]])
 
 
 static func _spray_quad(
@@ -45,6 +45,8 @@ static func _spray_quad(
 	material.set_shader_parameter("stretch_decay", decay)
 	material.set_shader_parameter("velocity_aligned", 1.0 if aligned else 0.0)
 	material.set_shader_parameter("softness", softness)
+	# Muddy grey-blue, not the sea spray's near-white: puddle water is dull and dark.
+	material.set_shader_parameter("tint", Vector3(0.5, 0.56, 0.6))
 	var quad := QuadMesh.new()
 	quad.size = Vector2(size, size)
 	quad.material = material
@@ -82,7 +84,7 @@ func play_step(world_position: Vector3, heading: Vector2 = Vector2.ZERO) -> bool
 	effect.add_child(ring)
 	# The boot kicks water forward along the heading, so the fan leans that way.
 	var lean := Vector3(heading.x * 0.45, 1.0, heading.y * 0.45).normalized()
-	var drops := _make_particles("Splash", 22, SPLASH_LIFETIME + 0.2, _drop_mesh, _drop_ramp)
+	var drops := _make_particles("Splash", 14, SPLASH_LIFETIME + 0.2, _drop_mesh, _drop_ramp)
 	drops.direction = lean
 	drops.spread = 42.0
 	drops.initial_velocity_min = 0.7

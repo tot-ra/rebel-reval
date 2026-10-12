@@ -20,7 +20,8 @@ extends Node3D
 ## the snow is this deep (metres).
 const TRENCH_MIN_DEPTH := 0.08
 const TRENCH_HALF_WIDTH := 0.2
-const DUST_COLOR := Color(0.74, 0.66, 0.52)
+## Dull brown-grey, and drawn lit (see _build_dust) so it darkens with the evening.
+const DUST_COLOR := Color(0.46, 0.41, 0.34)
 ## A boot in settled snow kicks up a small white powder puff.
 const SNOW_PUFF_COLOR := Color(0.93, 0.95, 1.0)
 const WINDOW_CELLS := 1024
@@ -527,7 +528,8 @@ func _build_dust() -> void:
 	var quad := QuadMesh.new()
 	quad.size = Vector2(0.55, 0.55)
 	var mat := StandardMaterial3D.new()
-	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	# Lit, not unshaded: an unshaded puff glowed ochre against a night road.
+	mat.shading_mode = BaseMaterial3D.SHADING_MODE_PER_VERTEX
 	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	mat.billboard_mode = BaseMaterial3D.BILLBOARD_PARTICLES
 	mat.vertex_color_use_as_albedo = true
@@ -554,7 +556,7 @@ func _build_dust() -> void:
 	_dust.scale_amount_max = 1.3
 	_dust.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	var fade := Gradient.new()
-	fade.set_color(0, Color(1, 1, 1, 0.55))
+	fade.set_color(0, Color(1, 1, 1, 0.38))
 	fade.set_color(1, Color(1, 1, 1, 0.0))
 	_dust.color_ramp = fade
 	add_child(_dust)
