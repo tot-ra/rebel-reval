@@ -191,8 +191,12 @@ def beard_mask(p, lm, spec_beard):
     m = m * (1 - smoothstep(95, 118, theta))
     # Stop at the neck's front: only surface in front of the ear line.
     m = m * smoothstep(lm["eye_l"][1] + 0.105, lm["eye_l"][1] + 0.06, p[..., 1])
-    # Keep lips clear.
-    lip_d = np.linalg.norm((p - lm["mouth"]) * np.array([0.55, 1.0, 1.35]), axis=-1)
+    # Keep lips clear. Above the lip line the clearance is shallower so the
+    # moustache grows down to the upper lip; the old symmetric oval bared the
+    # whole philtrum and the beard read as a chin-strap (R-1890).
+    lip_z = np.where(p[..., 2] > lm["mouth"][2], 2.4, 1.35)
+    lip_d = np.linalg.norm((p - lm["mouth"]) * np.stack([np.full(lip_z.shape, 0.55), np.ones(lip_z.shape), lip_z],
+                                                       axis=-1), axis=-1)
     m = m * smoothstep(0.013, 0.02, lip_d)
     return np.clip(m, 0, 1)
 
@@ -300,12 +304,12 @@ def project_face_photo(photo, raster, lin, lm, size, beard, has_beard_shells=Tru
     # (Stubble faces keep the portrait's own stubble.)
     if has_beard_shells:
         weight *= 1.0 - smoothstep(0.02, 0.25, beard)
-    # The portrait's own beard reaches the cheeks: below the nose keep only
-    # the centre strip (lips, philtrum), where it lines up with ours.
+    # Below the nose the shells own the moustache and beard, and the
+    # portrait's lips never sit exactly on the mesh lips (a centre strip gave
+    # doubled lips and a bare philtrum, R-1890): keep the base skin there.
     if has_beard_shells:
         below_nose = smoothstep(lm["nose_tip"][2] - 0.004, lm["nose_tip"][2] - 0.018, p[..., 2])
-        off_centre = smoothstep(0.016, 0.026, np.abs(p[..., 0] - eyes_mid[0]))
-        weight *= 1.0 - below_nose * off_centre
+        weight *= 1.0 - below_nose
         # Sideburns/cheeks: a portrait beard often grows higher than ours.
         cheek = smoothstep(0.032, 0.048, np.abs(p[..., 0] - eyes_mid[0])) * \
             smoothstep(eyes_mid[2] - 0.012, eyes_mid[2] - 0.03, p[..., 2])

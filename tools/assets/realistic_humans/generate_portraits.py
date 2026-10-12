@@ -78,6 +78,8 @@ def prompt_for(name, spec):
         parts.append(f"{'grizzled ' if spec['beard'].get('grey', 0) > 0.3 else ''}short full beard and moustache,")
     elif male:
         parts.append("clean-shaven with light stubble,")
+    if spec.get("portrait_notes"):
+        parts.append(spec["portrait_notes"])
     parts += ["weathered sun-tanned skin with visible pores, freckles and fine wrinkles, no make-up,"
               if spec.get("complexion", {}).get("tan", 0.3) > 0.35 else
               "natural skin with visible pores and fine detail, no make-up,",

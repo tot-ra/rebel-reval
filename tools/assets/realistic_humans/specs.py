@@ -76,21 +76,26 @@ SPECS = {
         },
         "skin": "middleage_caucasian_male",
         "eyes": "brownlight",
-        "eyebrows": "eyebrow004",
-        "eyelashes": "eyelashes02",
+        # Thick straight brows and the shortest lashes: eyebrow004/eyelashes02
+        # read as plucked and made-up on a smith (R-1890).
+        "eyebrows": "eyebrow009",
+        "eyelashes": "eyelashes01",
+        "brow_tint": (0.62, 0.52, 0.42),
         # Dark brown hair brushed back (reference brief). short02's crown
         # tufts render as dark flaps in Godot; short04 lies flat.
         "hair": "short04",
         "hair_color": (0.24, 0.18, 0.13),
 
         # Short grizzled beard (reference brief) as alpha-tested fur shells.
-        "beard": {"style": "full_short", "length": 0.008, "color": (0.30, 0.22, 0.15), "grey": 0.28,
-                  "coverage": 0.78, "shells": 7},
-        # Hero polish: original generated portrait (P0-214 reference, project
-        # owned) projected onto the front of the face for photo-grade skin.
-        "face_photo": {"path": "assets/characters/kalev_fresh/reference/face.png",
-                       "landmarks": {"eye_l": [636, 548], "eye_r": [378, 548],
-                                     "nose_tip": [512, 690], "mouth": [512, 850]}},
+        # Darker than the old (0.30, 0.22, 0.15) / 28% grey, which read as a
+        # pale felt patch against the dark brown hair (R-1890).
+        "beard": {"style": "full_short", "length": 0.008, "color": (0.21, 0.16, 0.11), "grey": 0.16,
+                  "coverage": 0.86, "shells": 7},
+        # Hero polish: generated portrait (reference/portrait.png) projected
+        # onto the face. The old P0-214 face.png baked a deep scowl into the
+        # skin (R-1890), so the portrait asks for a relaxed brow.
+        "portrait_notes": "calm relaxed forehead and brow, no frown, no scowl, thick straight masculine "
+                          "eyebrows, short sparse eyelashes, full moustache covering the upper lip,",
         # Complexion overlays baked into the skin albedo.
         "complexion": {"tan": 0.55, "flush": 0.45, "soot_forearms": 0.35, "stubble": 0.0},
         "garments": ["linen_shirt", "work_tunic", "wool_tunic", "hose", "boots", "smith_apron",
