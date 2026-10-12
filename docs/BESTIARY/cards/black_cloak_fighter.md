@@ -12,6 +12,14 @@
 | Faction ties | black_cloaks |
 | Archive reference images | image-48, image-52 |
 
+![black cloak fighter concept art](../inspiration/black_cloak_fighter_concept.jpg)
+
+**Illustration:** Generated with Leonardo AI, Lucid Realism model. Photorealistic documentation reference only; existing archive references are retained.
+
+**Generation prompt:** Photorealistic cinematic historical portrait of a vulnerable working-class urban rebel in Reval (Tallinn), spring 1343: a smith's son or dismissed porter, about 30, athletic from manual labor, wearing a genuinely worn and patched black wool hooded cloak over a coarse work tunic and soot-marked leather smith's apron, simple leather gloves. A tiny red thread tucked discreetly beneath the collar. He grips a rough loose cobblestone and carries a short practical forge hammer, in a low guarded stance ready to cover an ally's retreat, not an assassin or trained soldier. A narrow medieval Baltic stone street with a wooden shutter and barrel; overcast natural light, realistic skin and textile detail, restrained charcoal and soot-grey palette with muted rust and indigo accents. Full figure clearly legible against a subdued neutral background, no text.
+
+**Negative prompt:** painting, illustration, fantasy assassin, modern tactical gear, firearms, plate armor, ornate costume, gore, text, watermark, malformed anatomy
+
 ## At a glance
 - Uses the street: shutters, barrels, drain covers, a roof edge.
 - Guilt-sensitive: he is a potential ally, so killing him is costly.
