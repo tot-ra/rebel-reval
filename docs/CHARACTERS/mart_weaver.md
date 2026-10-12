@@ -5,6 +5,11 @@
 **Promotion:** P7-013 Wave A (`char.mart_weaver`) · Act gate **A1** · Art tier **1** · Legacy seed inspiration only
 **Content ID:** `char.mart_weaver`
 
+<!-- character-images -->
+![Mart Weaver, legacy reference sheet](./img/sheets/mart_the_weaver.jpg)
+
+*Reference only. Image index: [`img/README.md`](./img/README.md).*
+
 ## Naming rule
 This character is **Mart Weaver**, not the vertical-slice apprentice **Mart** (`char.mart`). Player-facing copy must use the surname or the full name whenever confusion is possible. Do not merge this brief with `docs/CHARACTERS/mart.md`, create a second Kalev, or promote the Blackheads candidate seat into the eight-faction launch table.
 

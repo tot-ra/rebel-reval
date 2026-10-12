@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Crop painted NPC reference art into square dialogue portraits (R-1566).
 
-Every characters/**/img/<slug>.jpg becomes assets/characters/portraits/npc/<slug>.png,
+Every characters/**/img/<slug>.jpg (seed sheets) and docs/CHARACTERS/img/sheets/<slug>.jpg
+(sheets of characters promoted to a card) becomes assets/characters/portraits/npc/<slug>.png,
 a head-and-shoulders square (the dialogue frame is square) in sRGB, max 256 px.
 Idempotent: output is a pure function of the source. Slugs must be unique across groups.
 """
@@ -14,7 +15,8 @@ from pathlib import Path
 from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[2]
-SRC_GLOB = "characters/**/img/*.jpg"
+# Promotion moves a sheet from characters/ to docs/CHARACTERS/img/sheets/; the slug (file stem) is kept.
+SRC_GLOBS = ("characters/**/img/*.jpg", "docs/CHARACTERS/img/sheets/*.jpg")
 OUT_DIR = ROOT / "assets/characters/portraits/npc"
 REGISTRY = ROOT / "content/npcs/named_npcs.json"
 MAX_SIDE = 256  # frame is 96 px; larger PNG photos bloat the repo (768 px = 45 MB)
@@ -48,7 +50,7 @@ def missing_portraits(registry: dict, root: Path = ROOT) -> list[str]:
 def main() -> int:
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     seen: dict[str, Path] = {}
-    for src in sorted(ROOT.glob(SRC_GLOB)):
+    for src in sorted(p for pattern in SRC_GLOBS for p in ROOT.glob(pattern)):
         slug = src.stem
         if slug in seen:
             print(f"duplicate slug {slug}: {src} vs {seen[slug]}", file=sys.stderr)

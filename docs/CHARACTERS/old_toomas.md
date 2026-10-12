@@ -4,6 +4,15 @@
 **Role:** Retired Lower Town smith; quiet Black Cloaks supporter; forge mentor  
 **Promotion:** P7-009 Wave A (`char.old_toomas`) · Art tier **1** · Legacy seed inspiration only
 
+<!-- character-images -->
+![Old Toomas, legacy reference sheet](./img/sheets/old_toomas.png)
+
+Legacy pixel source: [`old_toomas.gif`](./img/sheets/old_toomas.gif).
+
+Legacy pixel source: [`old_toomas.aseprite`](./img/sheets/old_toomas.aseprite).
+
+*Reference only. Image index: [`img/README.md`](./img/README.md).*
+
 ## Visual Description
 - **Clothes:** Patched grey linen tunic, dark wool trousers, clean but coarse cloth; no apron at rest.
 - **Age:** Late sixties.

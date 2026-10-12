@@ -2,7 +2,7 @@
 
 This directory contains the active character source for the first *Reval Rebel* campaign. The root [`README.md`](../../README.md) introduces the cast; these briefs own motivations, secrets, relationships, voice, and possible outcomes.
 
-Promotion order, act gates, art tiers, and faction-candidate decisions live in [`docs/cast_faction_promotion.md`](../cast_faction_promotion.md) (**P7-009**). This folder is the single place for a promoted character's card. Legacy sheets under [`characters/`](../../characters/) for those characters are redirect stubs that point here; legacy sheets for characters without a brief remain seeds and 2D inspiration only until one is written.
+Promotion order, act gates, art tiers, and faction-candidate decisions live in [`docs/cast_faction_promotion.md`](../cast_faction_promotion.md) (**P7-009**). This folder is the single place for a promoted character's card. Legacy sheets under [`characters/`](../../characters/) for those characters are redirect stubs that point here; legacy sheets for characters without a brief remain seeds and 2D inspiration only until one is written. Images of carded characters (concept plates and the painted reference sheets) live next to the cards in [`img/`](./img/README.md); promoting a character moves its images there too. Images of carded characters (concept plates and the painted reference sheets) live next to the cards in [`img/`](./img/README.md); promoting a character moves its images there too.
 
 ## Vertical-slice MVP core
 

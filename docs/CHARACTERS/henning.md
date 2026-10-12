@@ -3,6 +3,11 @@
 **Confidence label:** `plausible composite`
 **Role:** Recurring antagonist & Legitimate argument for order
 
+<!-- character-images -->
+![Captain Henning, concept plate](./img/concept/henning.jpg)
+
+*Reference only. Image index: [`img/README.md`](./img/README.md).*
+
 ## Motivations & Core
 - **Want:** Prevent a massacre in the city and preserve the authority of the Watch, which gives him the means to maintain order.
 - **Fear:** That the Livonian Order will intervene and replace the city watch with military occupation if he appears weak or loses control.

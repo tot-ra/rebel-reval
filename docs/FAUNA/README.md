@@ -24,7 +24,7 @@ Every GLB is listed with its licence in [`assets/SOURCES.csv`](../../assets/SOUR
 
 ## Concept art
 
-Status: reference only (not runtime assets, not imported by Godot; no `assets/SOURCES.csv` rows). Every card carries one cinematic photorealistic image in [`images/`](./images) (1024x1024), generated with Leonardo Lucid Origin from the prompts in [IMAGE_PROMPTS.md](./IMAGE_PROMPTS.md), in the same moody low-key look and muted earth palette as the character concept art in [`docs/concept/characters/`](../concept/characters/README.md). `tools/gen_animal_concept_art.py` (local ComfyUI, DreamShaper 8) produced the earlier set and still holds the subject prompts; re-link cards with `python3 tools/add_animal_images_to_cards.py`. These are mood and anatomy reference only, not 3D or in-game textures. `images/.gdignore` keeps Godot from importing them.
+Status: reference only (not runtime assets, not imported by Godot; no `assets/SOURCES.csv` rows). Every card carries one cinematic photorealistic image in [`images/`](./images) (1024x1024), generated with Leonardo Lucid Origin from the prompts in [IMAGE_PROMPTS.md](./IMAGE_PROMPTS.md), in the same moody low-key look and muted earth palette as the character concept art in [`docs/CHARACTERS/img/`](../CHARACTERS/img/README.md). `tools/gen_animal_concept_art.py` (local ComfyUI, DreamShaper 8) produced the earlier set and still holds the subject prompts; re-link cards with `python3 tools/add_animal_images_to_cards.py`. These are mood and anatomy reference only, not 3D or in-game textures. `images/.gdignore` keeps Godot from importing them.
 
 ## Mammals
 

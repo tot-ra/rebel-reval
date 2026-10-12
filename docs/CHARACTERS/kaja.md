@@ -3,6 +3,13 @@
 **Confidence label:** `invented`
 **Role:** Rebellion liaison & Strategic manipulator
 
+<!-- character-images -->
+![Kaja, concept plate](./img/concept/kaja.jpg)
+
+![Kaja, legacy reference sheet](./img/sheets/kaja_lahekivi.jpg)
+
+*Reference only. Image index: [`img/README.md`](./img/README.md).*
+
 ## Motivations & Core
 - **Want:** Build a coalition broad enough to prevent an indiscriminate slaughter of Estonians by the ruling class.
 - **Fear:** That each side will treat her mixed background (or her ability to navigate both worlds) as inherent proof of betrayal.

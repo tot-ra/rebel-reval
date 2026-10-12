@@ -4,6 +4,11 @@
 **Role:** Younger urban Black Cloaks smith-contact (not the player smith)  
 **Promotion:** P7-009 Wave A (`char.martin_cloaks`) · Art tier **1** · Legacy seed inspiration only
 
+<!-- character-images -->
+![Martin of the Cloaks, legacy reference sheet](./img/sheets/martin.jpg)
+
+*Reference only. Image index: [`img/README.md`](./img/README.md).*
+
 ## Naming rule
 Player-facing copy must keep him distinct from **Kalev** (master smith / protagonist) and from apprentice **Mart**. Prefer "Martin of the Cloaks" or "Martin" with cell context; content ID stays `char.martin_cloaks`.
 

@@ -3,7 +3,7 @@
 
 One image per animal card in docs/FAUNA. Shared style suffix keeps
 the set consistent with the painterly/muted Baltic direction of the character
-concept art (docs/concept/characters) while staying photorealistic.
+concept art (docs/CHARACTERS/img/concept) while staying photorealistic.
 """
 import json
 import sys

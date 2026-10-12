@@ -4,7 +4,7 @@
 > **Reactivating via ADR 0017:** eight launch factions plus bishopric / Blackheads / Lizard Union / Lithuania / Golden Horde candidates; named NPC hooks for act production.  
 > **Still out as primary frame:** mandatory early ruler/rebel join menu (allegiance still emerges from play).  
 > **Art note:** portraits and pixel sheets are inspiration; new shared-rig models required.  
-> **Card location:** for a promoted character the card lives only in `docs/CHARACTERS/`; the sheet here is a redirect stub.
+> **Card location:** for a promoted character the card and its images live only in `docs/CHARACTERS/` (images in `docs/CHARACTERS/img/`); the sheet here is a redirect stub.
 > **Current source of truth:** [`README.md`](../README.md) and `docs/CHARACTERS/` for active briefs; promotion order and faction-candidate decisions are in [`docs/cast_faction_promotion.md`](../docs/cast_faction_promotion.md) (P7-009).
 
 ## ⚔️ Factions
@@ -234,7 +234,7 @@ These factions are not directly involved in the conflict between the Rulers and 
 #### `order/`
 
 - [Rulers](order/README.md.md)
-- [Livonian Order Squire](order/squire.md)
+- [Livonian Order Squire (legacy seed, superseded)](order/squire.md)
 
 #### `peasants/`
 

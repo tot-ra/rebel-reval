@@ -28,5 +28,13 @@ class MissingPortraitTests(unittest.TestCase):
         self.assertEqual(imp.missing_portraits(registry), ["char.a", "char.b"])
 
 
+class SourceGlobTests(unittest.TestCase):
+    def test_promoted_sheets_stay_portrait_sources(self):
+        # Promotion moves a sheet into docs/CHARACTERS/img/sheets/; its avatar must still be built.
+        found = {p.relative_to(imp.ROOT).as_posix() for pattern in imp.SRC_GLOBS for p in imp.ROOT.glob(pattern)}
+        self.assertIn("docs/CHARACTERS/img/sheets/martin.jpg", found)
+        self.assertIn("characters/tavern/adelheid/img/adelheid.jpg", found)
+
+
 if __name__ == "__main__":
     unittest.main()

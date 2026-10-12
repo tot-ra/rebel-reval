@@ -4,6 +4,13 @@
 **Role:** Folklore perspective and keeper of community memory  
 **Campaign presence:** After the vertical slice
 
+<!-- character-images -->
+![Ellen Luik, concept plate](./img/concept/ellen.jpg)
+
+![Ellen Luik, legacy reference sheet](./img/sheets/ellen_luik.jpg)
+
+*Reference only. Image index: [`img/README.md`](./img/README.md).*
+
 ## Motivations and core
 
 - **Want:** Preserve people and memory rather than restore an imagined, uniform pagan state.

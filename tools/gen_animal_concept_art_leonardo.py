@@ -2,7 +2,7 @@
 """Regenerate the animal concept art with Leonardo Nano Banana.
 
 Same subjects as gen_animal_concept_art.py (PROMPTS), but rendered in the
-cinematic low-key look of the character concept art (docs/concept/characters):
+cinematic low-key look of the character concept art (docs/CHARACTERS/img/concept):
 moody directional light, rich textures, muted earth palette with one warm accent.
 Usage: gen_animal_concept_art_leonardo.py [--force] [name ...]
 Writes docs/FAUNA/images/<name>.jpg (landscape 1248x832 -> jpg).

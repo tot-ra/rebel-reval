@@ -5,6 +5,11 @@
 **Promotion:** P7-013 Wave A (`char.hinrik_cartographer`) · Act gate **A1** · Art tier **1** · Legacy seed inspiration only
 **Content ID:** `char.hinrik_cartographer`
 
+<!-- character-images -->
+![Hinrik the Cartographer, legacy reference sheet](./img/sheets/hinrik_the_cartographer.jpg)
+
+*Reference only. Image index: [`img/README.md`](./img/README.md).*
+
 ## Naming and scope
 This brief promotes the cartographer seed, not the unrelated legacy painter named Hinrik in the Workers Quarter. Player-facing content must use **Hinrik the Cartographer** and the stable content ID `char.hinrik_cartographer`. He is a candidate-seat contact, not a new faction leader or a free-roaming overworld guide.
 

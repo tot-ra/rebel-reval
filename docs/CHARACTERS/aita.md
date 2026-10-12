@@ -5,9 +5,9 @@
 **Stable ID:** `char.aita`
 **Campaign presence:** Vertical slice and all three acts
 
-![Aita, photorealistic concept](../concept/characters/aita_photoreal.jpg)
+![Aita, photorealistic concept](./img/concept/aita_photoreal.jpg)
 
-*Concept plate, reference only. The earlier painterly plate is [`aita.jpg`](../concept/characters/aita.jpg); both are listed in [`docs/concept/characters/README.md`](../concept/characters/README.md).*
+*Concept plate, reference only. The earlier painterly plate is [`aita.jpg`](./img/concept/aita.jpg); both are listed in [`img/README.md`](./img/README.md).*
 
 ## Visual Description
 - **Clothes:** Widow's white linen headcloth wrapped over the hair and under the chin; undyed linen shift with the sleeves rolled to the elbow; hand-woven ochre wool kirtle; a worn olive-brown linen apron that is never fully dry; a narrow band-woven belt carrying a leather pouch of remedies and a bundle of dried bog myrtle and yarrow. Plain iron ring, nothing finer. No held objects in the base model.

@@ -5,6 +5,11 @@
 **Promotion:** P7-013 Wave A (`char.johann_von_minden`) · Act gate **A1-A2** · Art tier **1** · Legacy seed inspiration only
 **Content ID:** `char.johann_von_minden`
 
+<!-- character-images -->
+![Johann von Minden, legacy reference sheet](./img/sheets/johann_von_minden.jpg)
+
+*Reference only. Image index: [`img/README.md`](./img/README.md).*
+
 ## Naming and faction boundary
 Johann is a candidate face for `faction.blackheads`, not a ninth launch faction member. The candidate seat records events and content links only; the launch ledger remains the approved eight-faction table. His Blackheads identity is a design hook and does not authorize toll booths, a new merchant system, or a separate Hanseatic ledger.
 

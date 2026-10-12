@@ -3,6 +3,23 @@
 **Confidence label:** `plausible composite`
 **Role:** Economic temptation & Material supplier
 
+<!-- character-images -->
+![Jürgen Witte, concept plate](./img/concept/jurgen.jpg)
+
+*Reference only. Image index: [`img/README.md`](./img/README.md).*
+
+## Visual Description
+- Wealthy and sharply dressed in current Hanseatic fashion: rich fabrics, subtle but expensive jewellery.
+- Piercing gaze, confident, almost arrogant posture; well-kept hands that contrast with the labourers he employs.
+- Often turns a polished amber stone over in his fingers while he thinks.
+- Folded in from the legacy seed `characters/hansa/jurgen_von_league.md`.
+
+## Visual Description
+- Wealthy and sharply dressed in current Hanseatic fashion: rich fabrics, subtle but expensive jewellery.
+- Piercing gaze, confident, almost arrogant posture; well-kept hands that contrast with the labourers he employs.
+- Often turns a polished amber stone over in his fingers while he thinks.
+- Folded in from the legacy seed `characters/hansa/jurgen_von_league.md`.
+
 ## Motivations & Core
 - **Want:** Keep the harbor open and convert political instability into personal control of debt and city supply.
 - **Fear:** That open war will make contracts meaningless, empowering armed men (like Henning or the Order) over merchants and wealth.

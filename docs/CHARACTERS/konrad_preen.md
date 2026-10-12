@@ -4,6 +4,11 @@
 **Role:** Danish Crown face on Toompea; fading legitimate authority  
 **Promotion:** P7-009 Wave A (`char.konrad_preen`) · Art tier **1** · Legacy seed inspiration only
 
+<!-- character-images -->
+![Viceroy Konrad Preen, legacy reference sheet](./img/sheets/konrad_preen.jpg)
+
+*Reference only. Image index: [`img/README.md`](./img/README.md).*
+
 ## Visual Description
 - **Clothes:** Dark blue wool tunic, fur-lined crimson tabard, muted noble colours showing wear at cuffs; no open weapon at belt.
 - **Age:** Late fifties.

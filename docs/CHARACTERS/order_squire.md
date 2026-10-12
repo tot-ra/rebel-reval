@@ -5,6 +5,11 @@
 **Promotion:** P7-013 Wave A (`char.order_squire`) · Act gate **A1** · Art tier **1** · Legacy seed inspiration only
 **Content ID:** `char.order_squire`
 
+<!-- character-images -->
+![Tomas Veld, Order Squire, legacy reference sheet](./img/sheets/squire.jpg)
+
+*Reference only. Image index: [`img/README.md`](./img/README.md).*
+
 ## Stable naming
 The old seed called this role only "Order Squire". The active brief uses the stable player-facing name **Tomas Veld** and content ID `char.order_squire`; "Order Squire" remains the role label. Tomas is not Captain Henning, Brother Hermann, or a new Order commander.
 

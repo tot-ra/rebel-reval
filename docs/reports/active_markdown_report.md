@@ -16,9 +16,9 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 - Active Markdown files scanned: `1272`
 - Markdown files excluded as archive/reference/out of active scope: `764`
-- Local/external links inspected: `14470`
-- Links to active Markdown docs: `12772`
-- Links to existing archive/reference/non-active local docs: `532`
+- Local/external links inspected: `14519`
+- Links to active Markdown docs: `12788`
+- Links to existing archive/reference/non-active local docs: `533`
 - External links skipped for reachability: `192`
 - Issues found: `13`
 
@@ -151,6 +151,7 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/CHARACTERS/ellen.md`
 - `docs/CHARACTERS/henning.md`
 - `docs/CHARACTERS/hinrik_cartographer.md`
+- `docs/CHARACTERS/img/README.md`
 - `docs/CHARACTERS/johann_von_minden.md`
 - `docs/CHARACTERS/jurgen.md`
 - `docs/CHARACTERS/kaja.md`
@@ -970,7 +971,6 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/CITIZENS/README.md`
 - `docs/CITIZENS/TEMPLATE.md`
 - `docs/CITIZENS/WRITING_CARDS.md`
-- `docs/concept/characters/README.md`
 - `docs/concept/factions/README.md`
 - `docs/CONTROLS.md`
 - `docs/FAUNA/animals/badger.md`

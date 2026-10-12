@@ -4,6 +4,11 @@
 **Role:** Harju Kings spokesman; rural uprising elder  
 **Promotion:** P7-009 Wave B (`char.lembit_helme`) · Art tier **1** · Legacy seed inspiration only
 
+<!-- character-images -->
+![Lembit Helme, legacy reference sheet](./img/sheets/lembit_helme.jpg)
+
+*Reference only. Image index: [`img/README.md`](./img/README.md).*
+
 ## Visual Description
 - **Clothes:** Dark patched wool tunic, linen trousers, heavy cloak with a simple bronze pin; earth colours.
 - **Age:** Early sixties.

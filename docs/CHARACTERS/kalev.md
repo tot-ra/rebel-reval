@@ -5,6 +5,11 @@
 
 > **Planned change (ADR 0033):** the player character becomes a 15-year-old orphan taken in as the forge's new apprentice. Kalev stays the adult smith, with his model, portrait, forge, and ledger, but becomes a mentor NPC. The profile below describes him as the protagonist until the new hero is implemented. Until then, the playable prototype still controls Kalev.
 
+<!-- character-images -->
+![Kalev, concept plate](./img/concept/kalev.jpg)
+
+*Reference only. Image index: [`img/README.md`](./img/README.md).*
+
 ## Motivations & Core
 - **Want:** Keep his forge, protect Mart, and remain useful enough that every side leaves him alone.
 - **Fear:** That his strict neutrality is actually cowardice, and that his crafted weapons will eventually kill someone he loves (like Mart or Aita).
