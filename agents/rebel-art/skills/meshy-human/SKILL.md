@@ -27,7 +27,7 @@ Nude references, Meshy GLBs and rigged nude bodies stay in `build/<char>_meshy/`
 
 ## 1. Reference image (ComfyUI, Chroma1-HD)
 
-Template: `tools/assets/meshy_human/comfy/chroma_base_body.json`. Fill in `{AGE_SEX_ORIGIN}`, `{BUILD_AND_SKIN}`, `{FACE_AND_HAIR}` and `{CHAR}` from the card. One image at 832x1216 takes about 5 minutes on this Mac. `comfyui_run_workflow` times out, so queue it directly:
+Template: `tools/assets/meshy_human/comfy/chroma_base_body.json`. Fill in `{AGE_SEX_ORIGIN}`, `{BUILD_AND_SKIN}`, `{FACE_AND_HAIR}` and `{CHAR}` from the card. One image at 1216x1216 takes about 7-8 minutes on this Mac. `comfyui_run_workflow` times out, so queue it directly:
 
 ```bash
 curl -s -X POST localhost:8188/prompt -H 'Content-Type: application/json' -d "{\"prompt\": $(cat wf.json)}"
@@ -37,10 +37,15 @@ curl -s -o out.png "localhost:8188/view?filename=<file>&type=output"
 
 Rules:
 
-- Neutral A-pose, frontal, plain grey background, whole body with margin. Non-sexual anatomy-reference wording.
+- **Pose: T-pose arms, 45° legs.** Use horizontal arms at shoulder height with open armpits, palms forward and five spread fingers. Legs form an inverted V with a gap between the thighs. A narrow A-pose (Aita v1) let Meshy fuse the inner arm to the torso, and the skin stretched into triangular "wings" in every clip. The T-pose belongs in the prompt only, never in the Meshy T-pose toggle (step 3).
+- **Use a square latent (1216x1216).** In a portrait frame the outstretched hands get cropped.
+- **Describe the stance with concrete measures, not angles.** "Feet about one metre apart, daylight visible between the thighs, legs together / narrow stance in the negative" worked. "Each leg 22 degrees out" was ignored: 3 of 3 seeds came out with the feet together.
+- **Describe the build without muscle words.** "Strong muscular arms from hard labour" turned every wide-stance seed into a gaunt bodybuilder with hollow cheeks. Write "soft, medium weight, sturdy". The negative prompt carries "muscular, bodybuilder, visible abs, low body fat" and also "obese, fat rolls". Seed variance on weight is huge.
+- **Hair-free and flat light go in the prompt, not post.** Use "completely hairless, shaved bald head" plus hair words in the negative prompt. Then step 2 is often a no-op, but always check the scalp and pubic area. Use flat shadowless lighting: Meshy bakes every shadow into the albedo, and deep eye shadows read as sunken eyes on the model.
 - **Arms must clear the body and the hands must not touch the thighs.** Meshy fuses touching parts, and the rig step has to cut them apart again: you get holes in the thigh and torn fingertips.
 - Do not describe flushed or red hands or skin. Chroma paints them literally and Meshy bakes it into the albedo.
-- Generate 2-3 seeds and let the user pick. Hands cropped by the frame are a reject.
+- **Fixing a near-miss:** img2img (`LoadImage` → `VAEEncode` → `KSampler`) at denoise 0.5-0.6 keeps the pose *and* the body, so it cannot fix a wrong build. Use about 0.75 to change the body while the pose survives, or start new seeds.
+- **Picking a seed.** Generate 3+ seeds and let the user pick. Build a contact sheet and a face crop for each one. Reject a seed if a hand is cropped, the thighs touch, or the face is gaunt. Check `/history` and `/view` on the server. Some installs write to a different `output/` dir than you expect.
 
 ## 2. Bald inpaint (hair becomes a separate mesh)
 
