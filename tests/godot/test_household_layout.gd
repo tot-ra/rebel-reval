@@ -220,3 +220,41 @@ func test_partitions_never_block_the_street_door() -> void:
 					"partition %.2f m from the door of house %d" % [near.distance_to(door), index]
 				)
 	assert_true(split > 0, "found partitioned houses")
+
+
+## R-1906: houses over 520 m2 are open too. Each of the largest is a lived-in
+## home with a hearth, beds and seats, split into a front hall with its goods,
+## and every piece stays inside the walls and clear of the others.
+func test_the_largest_houses_are_furnished_homes_with_a_hall() -> void:
+	var interiors := _interiors()
+	var homes := _homes(interiors)
+	assert_true(float(homes[-1][0]) > 520.0, "a house over 520 m2 is enterable")
+	for k in range(homes.size() - 1, maxi(homes.size() - 9, -1), -1):
+		var index: int = homes[k][1]
+		var layout := interiors.layout(index)
+		var label := "house %d (%.0f m2)" % [index, homes[k][0]]
+		assert_true(layout.hearth >= 0, "hearth in %s" % label)
+		assert_false(layout.slots_of(&"sleep").is_empty(), "a bed in %s" % label)
+		assert_false(layout.slots_of(&"sit").is_empty(), "a seat in %s" % label)
+		assert_true(layout.rooms.size() >= 2, "%s is split into rooms" % label)
+		for item in layout.items:
+			if float(item["y"]) > 0.0:
+				continue
+			for p: Vector2 in item["poly"]:
+				assert_true(Geometry2D.is_point_in_polygon(p, layout.inner), "%s inside %s" % [item["piece"], label])
+
+
+## The census spells the trade `ropemaker`; the rope walk's goods follow it
+## (the Pikk granary house, poi.granary.pikk, is a ropemaker's).
+func test_ropemakers_keep_rope_and_grain_in_the_hall() -> void:
+	var interiors := _interiors()
+	var plan := _plan()
+	var index := -1
+	for i in plan.buildings.size():
+		if String(plan.buildings[i]["id"]) == "bldg.osm.w200516967":
+			index = i
+	assert_true(index >= 0, "granary house in the plan")
+	assert_eq(String(interiors.household_at(index).get("trade", "")), "ropemaker")
+	var pieces := _pieces(interiors.layout(index))
+	assert_array_contains(pieces, &"rope")
+	assert_array_contains(pieces, &"cargo_grain")

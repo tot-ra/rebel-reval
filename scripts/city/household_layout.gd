@@ -83,7 +83,7 @@ const HALL_GOODS := {
 	"maltster": [&"malt", &"malt"],
 	"fisher": [&"nets", &"cargo_herring"],
 	"fishmonger": [&"cargo_herring", &"nets"],
-	"rope_maker": [&"rope", &"rope", &"cargo_grain"],
+	"ropemaker": [&"rope", &"rope", &"cargo_grain"],
 	"furrier": [&"cargo_furs", &"cargo_furs"],
 	"skinner": [&"cargo_furs"],
 	"chandler": [&"cargo_furs"],
@@ -104,6 +104,14 @@ const SICKLE_PEG_Y := 1.05
 const HALL_AREA := 80.0
 const SPLIT_LENGTH := 9.0
 const CHAMBER_AREA := 190.0
+## A house past STORE_AREA m2 (the great merchant houses, up to ~1300 m2 since
+## R-1906 opened them) keeps its stores in the rooms beyond the living end: one
+## heap of STORE_GOODS (after the trade's own goods) per STORE_STEP m2 over it,
+## at most STORE_MAX, so the big rooms read as a working store, not empty floor.
+const STORE_AREA := 280.0
+const STORE_STEP := 22.0
+const STORE_MAX := 28
+const STORE_GOODS: Array[StringName] = [&"cargo_grain", &"cargo_herring", &"malt", &"basket", &"chest_poor"]
 const PARTITION_THICK := 0.14
 const PARTITION_GAP := 1.1
 ## A partition meets a long wall at least this far past the street doorway's
@@ -113,7 +121,7 @@ const PARTITION_DOOR_STEP := 0.6
 const BENCH_TRADES := [
 	"smith", "nailsmith", "carpenter", "joiner", "cooper", "shoemaker", "tailor", "weaver",
 	"furrier", "goldsmith", "potter", "baker", "brewer", "turner", "saddler", "glover",
-	"belt_maker", "cutler", "locksmith", "pewterer", "bowyer", "fletcher", "rope_maker",
+	"belt_maker", "cutler", "locksmith", "pewterer", "bowyer", "fletcher", "ropemaker",
 ]
 
 static var _objects: Dictionary = {}
@@ -327,6 +335,8 @@ func _furnish(household: Dictionary, chimney: Vector2) -> void:
 		var placed := _place_on_wall(piece, _living(2.5 + float(k % 4), target))
 		if placed >= 0 and piece == &"bench":
 			_seat_slots(placed, _front(placed), [-0.45, 0.45])
+	# Last, so the desk, the prep table and the benches keep their places.
+	_fill_stores(area, trade)
 	# Light for the evening: a resinous splint by the hearth in a poor house.
 	if tier == &"poor" and hearth >= 0:
 		var splint := _place_near(&"splint", items[hearth]["pos"], 0.5)
@@ -337,6 +347,23 @@ func _furnish(household: Dictionary, chimney: Vector2) -> void:
 		var p := _open_point()
 		if p != Vector2.INF:
 			_slot(&"stand", p, (_door - p).normalized().rotated(_rng.randf_range(-1.2, 1.2)), 0.0, -1)
+
+
+## Stores of a house past STORE_AREA: heaps on the open floor of every room
+## but the living one (hall first), on a wall when the floor is full.
+func _fill_stores(area: float, trade: String) -> void:
+	if area <= STORE_AREA:
+		return
+	var stores: Array = HALL_GOODS.get(trade, []) + STORE_GOODS
+	var living := living_room()
+	var store_rooms: Array = []
+	for k in rooms.size():
+		if k != living or rooms.size() == 1:
+			store_rooms.append(k)
+	for k in mini(int((area - STORE_AREA) / STORE_STEP), STORE_MAX):
+		var piece: StringName = stores[k % stores.size()]
+		if _place_in_room(piece, store_rooms[k % store_rooms.size()]) < 0:
+			_place_on_wall(piece, _by_door)
 
 
 ## Splits a big house into rooms across its length (see `rooms`).

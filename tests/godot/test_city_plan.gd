@@ -320,6 +320,26 @@ func test_castle_has_corner_towers() -> void:
 	assert_eq(points.size(), 4)
 
 
+## R-1906: an ordinary house with a door is enterable whatever its size from
+## 22 m2 up (the census lives in the big merchant houses too); only slivers
+## under 2 m wide stay closed.
+func test_every_house_with_a_door_is_enterable_from_22_m2_up() -> void:
+	var plan := _plan()
+	var mpu := plan.metres_per_unit
+	var biggest := 0.0
+	for i in plan.buildings.size():
+		var b: Dictionary = plan.buildings[i]
+		if String(b["kind"]) != "house" or b.get("door") == null:
+			continue
+		var foot := plan.footprint(i)
+		var area := absf(CityBuildingBuilder.signed_area(foot)) * mpu * mpu
+		if area < 23.0 or Geometry2D.offset_polygon(foot, -1.05 / mpu).is_empty():
+			continue
+		assert_true(bool(b["enterable"]), "%s (%.0f m2) has a door but is closed" % [b["id"], area])
+		biggest = maxf(biggest, area)
+	assert_true(biggest > 520.0, "largest enterable house %.0f m2" % biggest)
+
+
 func test_every_enterable_house_has_a_hinged_door_in_its_gap() -> void:
 	var plan := _plan()
 	var doors := CityDoors.create(plan)

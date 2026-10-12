@@ -1014,7 +1014,11 @@ def build(args) -> dict:
             "street_id": street["id"],
             "door": [round(door[0] / mpu, 3), round(door[1] / mpu, 3), round(door[2], 4)] if door else None,
             # Churches and chapels are walked into like houses (one open nave).
-            "enterable": bool(door) and (bool(lm) or 22 <= area <= 520),
+            # No upper size cap (R-1906): the census settles a household in every
+            # big merchant house, and HouseholdLayout splits it into hall, living
+            # room and chamber, so a closed 900 m2 house was a home nobody could reach.
+            # Slivers under 2 m wide (OSM wall remnants) leave no room inside.
+            "enterable": bool(door) and (bool(lm) or (area >= 22 and min(length, depth) >= 2.0)),
             "tower_h": round(lm.get("tower_h_m", 0) / mpu, 3) if lm else 0.0,
         }
         if not lm:
