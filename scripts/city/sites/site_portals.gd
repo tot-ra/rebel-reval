@@ -66,6 +66,16 @@ const PROFILES := {
 	],
 	# Priests' door: one chamfered order, a working entrance.
 	&"door.st_mary.priests": [[0.14, 0.16, &"chamfer"], [0.0, 0.0, &"chamfer"]],
+	# Dominican west portal (R-1718): the surviving stepped pointed portal with a
+	# moulded archivolt; its date is unrecorded, so three plain orders without
+	# the carved vine and oak-leaf capital friezes.
+	&"door.st_catherine.west":
+	[
+		[0.42, 0.18, &"chamfer"],
+		[0.28, 0.16, &"roll"],
+		[0.14, 0.16, &"chamfer"],
+		[0.0, 0.0, &"chamfer"],
+	],
 }
 
 

@@ -6,7 +6,7 @@ Status: implemented for `site.raekoja_plats`, `site.holy_spirit`, `site.st_olaf`
 
 Each building has one section: status and links, captured views (built sites only), **function in 1343**, **plan** (rooms and what happens in them), **decoration**, **left out** (later fabric), **historical research** (project dossiers first, then external studies) and related board work. Shared runtime behaviour, the authoring contract, verification and limits for all sites follow after the buildings.
 
-- **Implemented** means a registered, navigable model in the seamless city, not final art approval. All seven sites use **interim GDScript builders**; the final Blender-generated shells required by [ADR 0032](../adr/0032-bespoke-landmark-sites-in-the-city.md) are pending. Images are captured model evidence (review snapshots, not concept art or photos of modern Tallinn); ongoing fixes may postdate them.
+- **Implemented** means a registered, navigable model in the seamless city, not final art approval. All eight sites use **interim GDScript builders**; the final Blender-generated shells required by [ADR 0032](../adr/0032-bespoke-landmark-sites-in-the-city.md) are pending. Images are captured model evidence (review snapshots, not concept art or photos of modern Tallinn); ongoing fixes may postdate them.
 - **Pending** means ADR 0032 already names the site but no manifest exists. **Proposed** means the building stood in 1343 and is worth a site, but no ADR or task names it yet; adding one is a scope decision (see [AGENTS.md, Scope](../../AGENTS.md#scope)).
 - Confidence words follow the dossiers: **attested** (a dated source), **plausible composite** (reconstructed from the type and later fabric), **unknown**. Plans of rooms are composites unless marked attested; no measured 1343 interior plan survives for any Reval building.
 - **Period rule** (maintainer, 2026-10-07): an element dated after 1343 is left out. Where the 1343 state is unrecorded, use a slightly simplified form of the later, documented building. A later feature needs a maintainer-recorded entry in the manifest's `presentation` list.
@@ -24,7 +24,7 @@ Each building has one section: status and links, captured views (built sites onl
 | [Kalev's smithy](#kalevs-smithy-task-r-1643) | craft house, game hub | plausible composite | implemented `site.kalev_smithy` |
 | [Danish royal castle (Small Castle)](#danish-royal-castle-on-toompea-castrum-minus) | political, military | standing | pending (partial non-site enclosure) |
 | [Bishop's court and chapter on the Great Castle](#bishops-court-chapter-and-vassal-houses-castrum-maius) | political, religious | standing | proposed |
-| [St Catherine's Dominican friary](#st-catherines-dominican-friary) | friary, preaching, school | standing, smaller than its peak | pending |
+| [St Catherine's Dominican friary](#st-catherines-dominican-friary-task-r-1718) | friary, preaching, school | standing, smaller than its peak | implemented `site.st_catherine` |
 | [St Michael's Cistercian nunnery](#st-michaels-cistercian-nunnery) | convent | standing, wall tie-in under way | implemented `site.st_michael` |
 | [St Canute's guild house](#st-canutes-guild-house-kanutigilde) | guild, political | house held from 1326 | proposed |
 | [St Olaf's guild house](#st-olafs-guild-house-olaigilde) | guild, political | house held from 1341 | proposed |
@@ -226,6 +226,39 @@ Status: implemented (task **R-1643**, maintainer request 2026-10-10), interim sh
 
 **Limits:** the census bathkeeper household `hh.lt.osm_r7239857` still lives on the replaced plot (needs rehoming); the forge's gameplay controllers are not mounted here (see [Seamless city limits](./SEAMLESS_CITY.md#limits)); the loft is not walkable. R-1643 is the implementation reference retained from this document; the 2026-10-11 board lookup did not return that row.
 
+### St Catherine's Dominican friary (task R-1718)
+
+Status: implemented (task **R-1718**, with **R-1727** and **R-1124 / LM-02** folded in; maintainer decision 2026-10-13). Stable ID: `site.st_catherine`, landmark `landmark.st_catherine`. [Manifest](../../content/world/reval_city/sites/st_catherine.json) · [Model builder](../../scripts/city/sites/st_catherine_builder.gd). Scope: the friary as a walled close of the seamless city with an enterable church and a walkable cloister, west forecourt and service yard. Out of scope: range interiors, the sanctuary mechanic at the gate, friars and lay brothers as people, 15th-century enlargements.
+
+| Aerial from the south-west | Cloister garth |
+|---|---|
+| ![St Catherine's friary from above: church, cloister, ranges and yard](../reports/images/city/st_catherine_aerial.jpg) | ![The garth with the well, the cloister walks and the church's north wall](../reports/images/city/st_catherine_garth.jpg) |
+
+**Function in 1343:** a friary of the Order of Preachers (re-founded 1246 by Prior Daniel of Visby with eleven friars): preaching to townsfolk, confession, a school, a brewery and fish trade through the port. Not a parish. The precinct is a church-law seam where the town Vogt treads carefully (sanctuary, composite).
+
+**Plan as built** (site-local metres, +x east along Katariina käik, +z south; anchor (159.5, -44.3), rotation 5°; Kühnert's plan reduced to the c. 1300 phase, `plausible composite` unless marked):
+
+- **Close (`close.polygon`):** 72-77 × 52 m between Katariina käik (south and west), the Munga houses (north) and Müürivahe (east), with a notch at the north-west for the Vene corner house. The dossier's 58 × 95 m target does not fit the plan's streets. Limestone rubble wall 3.6 m with an ashlar coping; an open **west gate** (gate W1 of the dossier, off the lane to Vene) and an open **yard gate** onto Katariina käik. The plan compiler drops the 13 strip houses inside or overlapping the close through `replaces`; trees and shrubs stay out of `close.polygon`.
+- **Church** (`attested` stone church c. 1300; plan composite): a 50 × 17 m single-span preaching hall, 11 m walls, one tile roof at 45° with an open tie-beam roof inside, no tower (a small louvred timber bell turret on the ridge, as mendicant statutes allowed). Buttresses on the lane and the east end, tall lancets with stained glass, a three-light east window, a two-light west window over the **profiled west portal** (`door.st_catherine.west`, three orders, [City doors](./CITY_DOORS.md#landmark-portals-r-1693)). Inside: nave for the laity with flags and ledger slabs, a pulpit on the south wall, two side altars before a **stone rood screen** with the rood above, the **friars' choir** three steps up with stalls and desks along both walls and the high altar. Doors: west portal, south door onto the lane (laity, the terrace level door), cloister door from the south walk.
+- **Cloister:** a garth (31 × 18.5 m) with the friary **well** at `poi.well.dominican` and three plank-edged herb beds, ringed by a limestone arcade on a dwarf wall (entry arches mid-side and opposite the cloister door) under lean-to tile roofs.
+- **Ranges** (closed massing, shuttered windows and shut doors): **west range** on the gate side (lay brothers, kitchen stores, granary at the church corner), **north range** (refectory and kitchen, with the smoking kitchen stack), **east range** (sacristy by the choir, chapter house entrance on the cloister, dormitory windows upstairs; `attested` as the first range, finished c. 1300).
+- **Service yard** (`reserve`, packed earth and paving): shingled brewhouse, keg stack, malt sacks, cooper's staves, firewood, a cart, herring casks, grain, a fish-splitting table, a tub and baskets. All existing props (`CitySiteProps`, `MapViewMeshBuilderDistrictLifeProps`, `obj.basket_wicker`); no new models.
+
+**Rooms and HUD:** `room.nave` "St Catherine's (nave)", `room.choir` "St Catherine's (friars' choir)" (both lift `Church/Upper` and `Church/Roof`), and the four cloister walks `room.cloister_{south,north,west,east}` "St Catherine's (cloister walk)" (lift `Cloister/Roof`). Anchors: `anchor.st_catherine.high_altar`, `.west_gate`, `.garth_well`, `.yard`.
+
+**Left out (later):** the eight-bay hall (67.7 m) and its vaults, the crypt as a council cannon store, the new refectory in the north wing (c. 1500), the rebuilt two-storey cloister, Black Heads patronage (15th-16th c.), the 1520s works, the Behind-the-Monks tower, the carved vine and oak-leaf capital friezes of the west portal.
+
+**Historical research:**
+
+- Project: [Churches and religious houses](../../history/dossiers/religion/churches-and-religious-houses.md); [Ecclesiastical precinct boundaries](../../history/dossiers/religion/ecclesiastical-precinct-boundaries-1343.md) (Dominican polygon); [Dominican brewery and fish yard](../../history/dossiers/religion/dominican-brewery-fish-yard-1343.md); [Back lanes east of Pikk](../../history/dossiers/topography/back-lanes-east-of-pikk.md).
+- External: Medieval Heritage, ["Tallinn - Dominican Friary"](https://medievalheritage.eu/en/main-page/heritage/estonia/tallinn-monastery-of-st-catherine-puha-katariina-klooster/) (Kühnert plans, sections and room functions); E. Kühnert, *Das Dominikanerkloster zu Reval*, Reval 1926; MNLL, ["De ordine predicatorum de Tolosa in Dacia"](https://medieval.wiki.uib.no/De_ordine_predicatorum_de_Tolosa_in_Dacia) (1229 and 1246 foundations); Mauritanum, [St Catherine's Convent](https://1246.eu) (surviving east-wing rooms).
+
+**Review plates:** `docs/reports/images/city/st_catherine_aerial.jpg`, [garth](../reports/images/city/st_catherine_garth.jpg), [west gate from the lane](../reports/images/city/st_catherine_street_gate.jpg), [Katariina käik along the south wall](../reports/images/city/st_catherine_street_south.jpg), [west portal](../reports/images/city/st_catherine_west_portal.jpg), [nave](../reports/images/city/st_catherine_nave.jpg), [service yard](../reports/images/city/st_catherine_yard.jpg).
+
+**Verify:** `godot --headless --path . --script tools/validate_city_sites.gd`; `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_st_catherine_site`; `tools/godot_render.sh --script tools/capture_reval_city.gd -- --only=st_catherine_aerial,st_catherine_garth,st_catherine_street_gate,st_catherine_street_south,st_catherine_west_portal,st_catherine_nave,st_catherine_yard`; `tools/godot_render.sh --resolution 1600x900 res://tools/capture_reval_city_walk.tscn -- --only-sites` (all three doors walked in, roofs lift, leaves open).
+
+**Limits:** the ranges have no interiors and no people; the gate is not yet a sanctuary seam in gameplay; census households of the 13 removed houses (`hh.lt.osm_<id>` on `katariina_kaik` / `muurivahe` ledger pages) are not rehomed yet; `bldg.osm.w221512373` was a merged OSM polygon across the lane, so the plot south of Katariina käik east of the church is empty; if the water-supply work (WS-4) starts drawing a well at every `poi.well.*`, it must skip `poi.well.dominican`, which this site already models.
+
 ### St Michael's Cistercian nunnery
 
 **Status:** implemented (task **R-1719**, approved by the maintainer 2026-10-13; supersedes the district-map task R-1130 / LM-05), interim GDScript builder. Stable ID: `site.st_michael`. [Manifest](../../content/world/reval_city/sites/st_michael.json) · [Model builder](../../scripts/city/sites/st_michael_builder.gd). Scope: the walled close of the nunnery as one site of the seamless city: church, claustral ranges, gate house, service wing, kitchen garden and orchard. Out of scope: the 1340s tie-in of the nunnery wall into the town curtain (**R-1720**), claustral homes and enclosure rules for the census nuns (**R-1721**), walkable claustral interiors, Blender GLB shells.
@@ -303,28 +336,6 @@ None of these has a manifest in the [site registry](../../content/world/reval_ci
 **Left out (later):** the 2018 Bishop's House excavation footprint (late medieval), the Knighthood House, baroque palaces.
 
 **Historical research:** [Small Castle and Great Castle interiors](../../history/dossiers/architecture/toompea-small-castle-interior.md) (Great Castle zones); [Toompea castle and upper town](../../history/dossiers/architecture/toompea-castle-and-upper-town.md); Wikipedia (et), ["Toompea Suur linnus"](https://et.wikipedia.org/wiki/Toompea_Suur_linnus) (castrum maius, vassal density, cross-wall); Reppo 2018 (above).
-
-### St Catherine's Dominican friary
-
-**Status:** pending (ADR 0032 delivery order). No registered-site preview; do not substitute a legacy district render. Board: **R-1124 / LM-02** (`todo`), an exterior on the retired Lower Town map; needs re-scoping to a city site.
-
-**Function in 1343:** a friary of the Order of Preachers (re-founded 1246 by Prior Daniel of Visby with eleven friars): preaching to townsfolk, confession, a school, a brewery and fish trade through the port. Not a parish. The precinct is a church-law seam where the town Vogt treads carefully (sanctuary, composite).
-
-**Plan** (Kühnert's plan of the late-medieval friary, reduced to the phases standing by c. 1300):
-
-- **Church** in the south of the precinct: a large limestone hall, shorter and simpler than its eight-bay peak (67.7 × 18.5 m); author about 45–55 × 16–18 m. Public **nave** for the laity; **friars' choir** east of a rood screen or grille; a vaulted **crypt** under the choir.
-- **Cloister garth** north of the church with a **well** and a small garden; cloister walks linking all rooms.
-- **East wing** (attested as the first range, finished c. 1300): sacristy next to the church; **chapter house** on a square plan with a vault on a central pillar; a narrow room (later the library); the **old refectory** in the corner; upstairs the **dormitory** of cells with light partitions, the prior's larger room, and a passage to the church for night offices.
-- **West range and yards:** lay brothers' rooms, kitchen, granary at the church corner, stables, the **brewery** and stores; the school on the precinct; the gate on Vene street.
-
-**Decoration:** a stepped pointed west portal with a moulded archivolt and capital friezes (vine leaves left, oak leaves with acorns right), surviving; painted architectural details; stained glass; altars funded by townspeople (about fifteen at the peak, fewer in 1343). Friars in white habit and black cloak.
-
-**Left out (later):** the new refectory in the north wing (c. 1500), the rebuilt two-storey cloister, Black Heads patronage (15th–16th c.), the 1520s works.
-
-**Historical research:**
-
-- Project: [Churches and religious houses](../../history/dossiers/religion/churches-and-religious-houses.md); [Ecclesiastical precinct boundaries](../../history/dossiers/religion/ecclesiastical-precinct-boundaries-1343.md) (Dominican polygon); [Dominican brewery and fish yard](../../history/dossiers/religion/dominican-brewery-fish-yard-1343.md); [Back lanes east of Pikk](../../history/dossiers/topography/back-lanes-east-of-pikk.md).
-- External: Medieval Heritage, ["Tallinn - Dominican Friary"](https://medievalheritage.eu/en/main-page/heritage/estonia/tallinn-monastery-of-st-catherine-puha-katariina-klooster/) (Kühnert plans, sections and room functions); E. Kühnert, *Das Dominikanerkloster zu Reval*, Reval 1926; MNLL, ["De ordine predicatorum de Tolosa in Dacia"](https://medieval.wiki.uib.no/De_ordine_predicatorum_de_Tolosa_in_Dacia) (1229 and 1246 foundations); Mauritanum, [St Catherine's Convent](https://1246.eu) (surviving east-wing rooms).
 
 ### St Canute's guild house (Kanutigilde)
 
@@ -488,6 +499,7 @@ Do not add these as 1343 buildings; each is dated later in the dossiers.
 | `scripts/city/sites/kalev_smithy_builder.gd` | Kalev's smithy: rubble walls with the old forge's plates, plain gables, shingle roof, gable stack, loft, shutters, shop counter, lean-to, and the old forge GLB kit with the live hearth fire. Root meta `chimneys` (site-local stack tops, always-lit smoke); fire controllers join group `city_cycle_lights` (`CityWorld3D.apply_time`) |
 | `scripts/city/sites/holy_spirit_builder.gd` | Holy Spirit church, choir, almshouse and bell turret on the kit |
 | `scripts/city/sites/st_mary_builder.gd` | St Mary's chancel, apse, vestry, finished bay, rising nave, crane, centering, scaffolds, lodge, belfry |
+| `scripts/city/sites/st_catherine_builder.gd` | St Catherine's friary: buttressed preaching hall with tie-beam roof, ridge bell turret, rood screen and friars' stalls; closed ranges with valley roofs and the kitchen stack (root meta `chimneys`); cloister arcade and lean-to roofs (`Cloister/Roof`); close wall; garth well (`MapViewWellModels`) and beds; yard dressing (`life_prop` kind: `MapViewMeshBuilderDistrictLifeProps`, `catalog`: object-catalog GLB) |
 | `scripts/city/sites/st_nicholas_builder.gd` | St Nicholas' hall church, chancel, sacristy, porch, low tower, buttresses, St Barbara charnel chapel, cemetery |
 | `scripts/city/sites/st_olaf_builder.gd` | St Olaf's hall church, chancel, unfinished tower, scaffold, belfry, vaults |
 | `scripts/city/sites/church_furnishings.gd` (`CityChurchFurnishings`) | Shared church furnishings: plank floors, benches, font, altars with a winged retable and saint figures, the rood, pulpit, statues, candle crowns, candle lights |
@@ -512,7 +524,7 @@ Sites hold no state. Door positions are not saved; the plan and manifests rebuil
 
 ## Limits
 
-- All seven registered site shells are interim GDScript models. Their Blender GLB replacements (ADR 0025 tier B budgets) are follow-up work; no per-site delivery task or date was confirmed in the 2026-10-11 catalogue review.
+- All eight registered site shells are interim GDScript models. Their Blender GLB replacements (ADR 0025 tier B budgets) are follow-up work; no per-site delivery task or date was confirmed in the 2026-10-11 catalogue review.
 - The cut is one flat plane at head height: window openings above it are cut through, and the section cap spans the window holes.
 - Neighbouring generic roofs are clipped where they would overhang a site building (`keep_out`), so they no longer poke through its walls.
 - The retable, figures and pulpit are box-modelled; carved detail and painted faces need the planned Blender models.
@@ -521,5 +533,5 @@ Sites hold no state. Door positions are not saved; the plan and manifests rebuil
 - The validator's mesh check compares plan extents (AABB), not a full top-down raster.
 - The plan's `forum` polygon (about 90 × 80 m) is still larger than the dossier's 1343 market reserve (about 44 × 36 m). The site's `reserve` follows the dossier, but the extra open ground around it is not yet filled with burgess plots.
 - Stalls and carts are the district-map GLBs at their old scale; there are no awnings in varied cloth colours and no horses yet.
-- Seven sites are registered. The castle, St Catherine and the gates are pending; the guild houses, the bishop's court, St John's hospital and the remaining towers are proposals without an ADR or task. See [Pending and proposed sites](#pending-and-proposed-sites-not-built-yet).
+- Eight sites are registered. The castle and the gates are pending; the guild houses, the bishop's court, St John's hospital and the remaining towers are proposals without an ADR or task. See [Pending and proposed sites](#pending-and-proposed-sites-not-built-yet).
 - The council-hall cellar (*cellarium civitatis*) is not walkable.

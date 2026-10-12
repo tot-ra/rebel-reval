@@ -1,0 +1,3049 @@
+{
+  "id": "site.st_catherine",
+  "name": "St Catherine's friary",
+  "name_1343": "St Catherine's, convent of the Order of Preachers (Dominican friary)",
+  "landmark_id": "landmark.st_catherine",
+  "confidence": "attested institution (refounded 1246) and stone church with east range c. 1300; precinct polygon, ranges, yard and church plan as built here are a plausible composite after Kuehnert 1926 reduced to the c. 1300 phase",
+  "sources": [
+    "history/dossiers/religion/churches-and-religious-houses.md",
+    "history/dossiers/religion/ecclesiastical-precinct-boundaries-1343.md",
+    "history/dossiers/religion/dominican-brewery-fish-yard-1343.md"
+  ],
+  "period_notes": [
+    "Rule (maintainer 2026-10-07): features dated after 1343 are left out; where the 1343 state is unrecorded, a slightly simplified form of the later, documented friary is used (plausible composite).",
+    "Excluded as dated later: the eight-bay hall (67.7 m) and its vaults, the new refectory in the north wing (c. 1500), the rebuilt two-storey cloister, Black Heads patronage (15th-16th c.), the 1520s works, the Behind-the-Monks tower.",
+    "Attested for 1343: the friary of the Order of Preachers (1229, refounded 1246), a stone church and the east range largely complete c. 1300, a church in the south and the cloister to its north, the west portal (surviving, date unrecorded).",
+    "Plausible composite: a 50 x 17 m buttressed single-span preaching hall under one tile roof with a timber tie-beam roof (no tower; a small ridge bell turret as mendicant statutes allowed), a stone rood screen before the friars' choir, a 72 x 52 m walled close fitted between Katariina kaik, the Munga houses and Muurivahe (the dossier's 58 x 95 m target does not fit the plan's streets), a cloister walk round a garth with the well, the west range on the gate side, the north range (refectory, kitchen), the east range (sacristy, chapter house, dormitory), and the service yard with brewhouse, casks, carts and fish trade.",
+    "The ranges are closed exterior massing (no interiors in this task)."
+  ],
+  "presentation": [],
+  "replaces": [
+    "bldg.osm.w26885940",
+    "bldg.osm.w1152894166",
+    "bldg.osm.w221512372",
+    "bldg.osm.w221512373",
+    "bldg.osm.w221512374",
+    "bldg.osm.w26885898",
+    "bldg.osm.w26885904",
+    "bldg.osm.w26885908",
+    "bldg.osm.w26885910",
+    "bldg.osm.w26885934",
+    "bldg.osm.w26886756",
+    "bldg.osm.w26903464",
+    "bldg.osm.w26903608",
+    "bldg.osm.w28163736"
+  ],
+  "close": {
+    "id": "site.st_catherine.close",
+    "polygon": [
+      [
+        0,
+        0
+      ],
+      [
+        77.4,
+        0.0
+      ],
+      [
+        73.6,
+        -52.0
+      ],
+      [
+        6.5,
+        -52
+      ],
+      [
+        6.5,
+        -18.5
+      ],
+      [
+        0,
+        -18.5
+      ]
+    ],
+    "note": "walled friary close; houses inside it or overlapping it by more than 1 m2 are in `replaces`, trees and shrubs stay out"
+  },
+  "anchor": {
+    "at": [
+      159.5,
+      -44.3
+    ],
+    "rotation_deg": 5.0
+  },
+  "terrace": {
+    "polygon": [
+      [
+        0,
+        0
+      ],
+      [
+        77.4,
+        0.0
+      ],
+      [
+        73.6,
+        -52.0
+      ],
+      [
+        6.5,
+        -52
+      ],
+      [
+        6.5,
+        -18.5
+      ],
+      [
+        0,
+        -18.5
+      ]
+    ],
+    "level": {
+      "door": "door.st_catherine.south",
+      "outside_m": 2.0
+    },
+    "blend_m": 5.0,
+    "over_houses": true
+  },
+  "reserve": [
+    [
+      63.2,
+      -0.3
+    ],
+    [
+      76.6,
+      -0.3
+    ],
+    [
+      73.0,
+      -41.6
+    ],
+    [
+      62.8,
+      -41.6
+    ],
+    [
+      62.8,
+      -18.6
+    ],
+    [
+      63.2,
+      -18.6
+    ]
+  ],
+  "visual": {
+    "kind": "builder",
+    "script": "res://scripts/city/sites/st_catherine_builder.gd"
+  },
+  "buildings": [
+    {
+      "id": "site.st_catherine.church",
+      "name": "St Catherine's church",
+      "footprint": [
+        [
+          14.0,
+          -18.5
+        ],
+        [
+          64.0,
+          -18.5
+        ],
+        [
+          64.0,
+          -1.5
+        ],
+        [
+          14.0,
+          -1.5
+        ]
+      ],
+      "wall_h": 11.0,
+      "roof": "tile",
+      "minimap_fill": "#7d4535"
+    },
+    {
+      "id": "site.st_catherine.west_range",
+      "name": "West range",
+      "footprint": [
+        [
+          6.5,
+          -52.0
+        ],
+        [
+          15.0,
+          -52.0
+        ],
+        [
+          15.0,
+          -21.0
+        ],
+        [
+          6.5,
+          -21.0
+        ]
+      ],
+      "wall_h": 7.5,
+      "roof": "tile",
+      "minimap_fill": "#8a4c3a"
+    },
+    {
+      "id": "site.st_catherine.north_range",
+      "name": "North range",
+      "footprint": [
+        [
+          15.0,
+          -52.0
+        ],
+        [
+          52.0,
+          -52.0
+        ],
+        [
+          52.0,
+          -43.0
+        ],
+        [
+          15.0,
+          -43.0
+        ]
+      ],
+      "wall_h": 6.5,
+      "roof": "tile",
+      "minimap_fill": "#8a4c3a"
+    },
+    {
+      "id": "site.st_catherine.east_range",
+      "name": "East range",
+      "footprint": [
+        [
+          52.0,
+          -52.0
+        ],
+        [
+          62.0,
+          -52.0
+        ],
+        [
+          62.0,
+          -18.5
+        ],
+        [
+          52.0,
+          -18.5
+        ]
+      ],
+      "wall_h": 8.0,
+      "roof": "tile",
+      "minimap_fill": "#8a4c3a"
+    },
+    {
+      "id": "site.st_catherine.brewhouse",
+      "name": "Brewhouse",
+      "footprint": [
+        [
+          63.5,
+          -51.2
+        ],
+        [
+          71.2,
+          -51.2
+        ],
+        [
+          71.2,
+          -42.0
+        ],
+        [
+          63.5,
+          -42.0
+        ]
+      ],
+      "wall_h": 4.2,
+      "roof": "shingle",
+      "minimap_fill": "#8a5a3a"
+    }
+  ],
+  "fabric": [
+    {
+      "id": "church.south",
+      "a": [
+        64.0,
+        -1.5
+      ],
+      "b": [
+        14.0,
+        -1.5
+      ],
+      "inside": [
+        39,
+        -10
+      ],
+      "thick": 1.3,
+      "y1": 11.0,
+      "inner": "limewash",
+      "floor": 0.12,
+      "openings": [
+        {
+          "kind": "door",
+          "s": 39.5,
+          "w": 2.0,
+          "sill": 0.12,
+          "spring": 2.9,
+          "apex": 4.0,
+          "reveal": "ashlar",
+          "note": "south door onto Katariina kaik (laity)"
+        },
+        {
+          "kind": "window",
+          "s": 46.5,
+          "w": 1.5,
+          "sill": 4.5,
+          "spring": 8.6,
+          "apex": 9.9,
+          "glass": true,
+          "seed": 41,
+          "lights": 1
+        },
+        {
+          "kind": "window",
+          "s": 32.5,
+          "w": 1.5,
+          "sill": 4.5,
+          "spring": 8.6,
+          "apex": 9.9,
+          "glass": true,
+          "seed": 42,
+          "lights": 1
+        },
+        {
+          "kind": "window",
+          "s": 25.5,
+          "w": 1.5,
+          "sill": 4.5,
+          "spring": 8.6,
+          "apex": 9.9,
+          "glass": true,
+          "seed": 43,
+          "lights": 1
+        },
+        {
+          "kind": "window",
+          "s": 18.5,
+          "w": 1.5,
+          "sill": 4.5,
+          "spring": 8.6,
+          "apex": 9.9,
+          "glass": true,
+          "seed": 44,
+          "lights": 1
+        },
+        {
+          "kind": "window",
+          "s": 11.0,
+          "w": 1.5,
+          "sill": 3.6,
+          "spring": 8.6,
+          "apex": 10.0,
+          "glass": true,
+          "seed": 45,
+          "lights": 1
+        },
+        {
+          "kind": "window",
+          "s": 4.5,
+          "w": 1.5,
+          "sill": 3.6,
+          "spring": 8.6,
+          "apex": 10.0,
+          "glass": true,
+          "seed": 46,
+          "lights": 1
+        }
+      ]
+    },
+    {
+      "id": "church.north",
+      "a": [
+        14.0,
+        -18.5
+      ],
+      "b": [
+        64.0,
+        -18.5
+      ],
+      "inside": [
+        39,
+        -10
+      ],
+      "thick": 1.3,
+      "y1": 11.0,
+      "inner": "limewash",
+      "floor": 0.12,
+      "openings": [
+        {
+          "kind": "door",
+          "s": 27.0,
+          "w": 1.6,
+          "sill": 0.12,
+          "spring": 2.7,
+          "apex": 3.5,
+          "reveal": "ashlar",
+          "note": "friars' door from the cloister south walk"
+        },
+        {
+          "kind": "window",
+          "s": 3.5,
+          "w": 1.2,
+          "sill": 6.6,
+          "spring": 9.3,
+          "apex": 10.4,
+          "glass": true,
+          "seed": 47,
+          "lights": 1
+        },
+        {
+          "kind": "window",
+          "s": 10.5,
+          "w": 1.2,
+          "sill": 6.6,
+          "spring": 9.3,
+          "apex": 10.4,
+          "glass": true,
+          "seed": 48,
+          "lights": 1
+        },
+        {
+          "kind": "window",
+          "s": 17.5,
+          "w": 1.2,
+          "sill": 6.6,
+          "spring": 9.3,
+          "apex": 10.4,
+          "glass": true,
+          "seed": 49,
+          "lights": 1
+        },
+        {
+          "kind": "window",
+          "s": 24.5,
+          "w": 1.2,
+          "sill": 6.6,
+          "spring": 9.3,
+          "apex": 10.4,
+          "glass": true,
+          "seed": 50,
+          "lights": 1
+        },
+        {
+          "kind": "window",
+          "s": 31.5,
+          "w": 1.2,
+          "sill": 6.6,
+          "spring": 9.3,
+          "apex": 10.4,
+          "glass": true,
+          "seed": 51,
+          "lights": 1
+        }
+      ]
+    },
+    {
+      "id": "church.west",
+      "a": [
+        14.0,
+        -1.5
+      ],
+      "b": [
+        14.0,
+        -18.5
+      ],
+      "inside": [
+        39,
+        -10
+      ],
+      "thick": 1.3,
+      "y1": 11.0,
+      "inner": "limewash",
+      "floor": 0.12,
+      "openings": [
+        {
+          "kind": "door",
+          "s": 8.5,
+          "w": 2.2,
+          "sill": 0.12,
+          "spring": 3.1,
+          "apex": 4.6,
+          "reveal": "ashlar",
+          "note": "stepped pointed west portal (surviving, simplified)"
+        },
+        {
+          "kind": "window",
+          "s": 8.5,
+          "w": 2.2,
+          "sill": 5.8,
+          "spring": 8.8,
+          "apex": 10.5,
+          "glass": true,
+          "seed": 60,
+          "lights": 2
+        }
+      ]
+    },
+    {
+      "id": "church.east",
+      "a": [
+        64.0,
+        -18.5
+      ],
+      "b": [
+        64.0,
+        -1.5
+      ],
+      "inside": [
+        39,
+        -10
+      ],
+      "thick": 1.3,
+      "y1": 11.0,
+      "inner": "limewash",
+      "floor": 0.57,
+      "openings": [
+        {
+          "kind": "window",
+          "s": 8.5,
+          "w": 2.6,
+          "sill": 3.6,
+          "spring": 8.4,
+          "apex": 10.3,
+          "glass": true,
+          "seed": 61,
+          "lights": 3
+        },
+        {
+          "kind": "window",
+          "s": 4.2,
+          "w": 1.0,
+          "sill": 4.2,
+          "spring": 8.0,
+          "apex": 9.0,
+          "glass": true,
+          "seed": 62,
+          "lights": 1
+        },
+        {
+          "kind": "window",
+          "s": 12.8,
+          "w": 1.0,
+          "sill": 4.2,
+          "spring": 8.0,
+          "apex": 9.0,
+          "glass": true,
+          "seed": 63,
+          "lights": 1
+        }
+      ]
+    },
+    {
+      "id": "church.screen",
+      "a": [
+        49.0,
+        -17.2
+      ],
+      "b": [
+        49.0,
+        -2.8
+      ],
+      "inside": [
+        55,
+        -10
+      ],
+      "thick": 0.4,
+      "y1": 4.2,
+      "outer": "limewash",
+      "inner": "limewash",
+      "floor": 0.12,
+      "top": "ashlar",
+      "openings": [
+        {
+          "kind": "arch",
+          "s": 7.2,
+          "w": 2.0,
+          "sill": 0.12,
+          "spring": 2.6,
+          "apex": 3.4,
+          "reveal": "ashlar",
+          "note": "screen door into the choir"
+        }
+      ]
+    },
+    {
+      "id": "west_range.north",
+      "a": [
+        15.0,
+        -52.0
+      ],
+      "b": [
+        6.5,
+        -52.0
+      ],
+      "inside": [
+        10.75,
+        -36.5
+      ],
+      "thick": 0.8,
+      "y1": 7.5,
+      "outer": "wall:limestone",
+      "inner_face": false,
+      "floor": 0.0,
+      "openings": [
+        {
+          "kind": "niche",
+          "s": 4.25,
+          "w": 0.6,
+          "sill": 4.4,
+          "spring": 5.4,
+          "shutter": true
+        }
+      ]
+    },
+    {
+      "id": "west_range.south",
+      "a": [
+        6.5,
+        -21.0
+      ],
+      "b": [
+        15.0,
+        -21.0
+      ],
+      "inside": [
+        10.75,
+        -36.5
+      ],
+      "thick": 0.8,
+      "y1": 7.5,
+      "outer": "wall:limestone",
+      "inner_face": false,
+      "floor": 0.0,
+      "openings": [
+        {
+          "kind": "niche",
+          "s": 4.25,
+          "w": 1.3,
+          "sill": 0.0,
+          "spring": 2.2,
+          "apex": 2.8,
+          "shutter": true
+        },
+        {
+          "kind": "niche",
+          "s": 4.25,
+          "w": 0.6,
+          "sill": 4.4,
+          "spring": 5.6,
+          "apex": 6.0,
+          "shutter": true
+        }
+      ]
+    },
+    {
+      "id": "west_range.west",
+      "a": [
+        6.5,
+        -52.0
+      ],
+      "b": [
+        6.5,
+        -21.0
+      ],
+      "inside": [
+        10.75,
+        -36.5
+      ],
+      "thick": 0.8,
+      "y1": 7.5,
+      "outer": "wall:limestone",
+      "inner_face": false,
+      "floor": 0.0,
+      "openings": [
+        {
+          "kind": "niche",
+          "s": 3.0,
+          "w": 0.6,
+          "sill": 4.6,
+          "spring": 5.6,
+          "shutter": true
+        },
+        {
+          "kind": "niche",
+          "s": 7.0,
+          "w": 0.6,
+          "sill": 4.6,
+          "spring": 5.6,
+          "shutter": true
+        },
+        {
+          "kind": "niche",
+          "s": 11.0,
+          "w": 0.6,
+          "sill": 4.6,
+          "spring": 5.6,
+          "shutter": true
+        },
+        {
+          "kind": "niche",
+          "s": 15.0,
+          "w": 0.6,
+          "sill": 4.6,
+          "spring": 5.6,
+          "shutter": true
+        },
+        {
+          "kind": "niche",
+          "s": 19.0,
+          "w": 0.6,
+          "sill": 4.6,
+          "spring": 5.6,
+          "shutter": true
+        },
+        {
+          "kind": "niche",
+          "s": 23.0,
+          "w": 0.6,
+          "sill": 4.6,
+          "spring": 5.6,
+          "shutter": true
+        },
+        {
+          "kind": "niche",
+          "s": 27.0,
+          "w": 0.6,
+          "sill": 4.6,
+          "spring": 5.6,
+          "shutter": true
+        }
+      ]
+    },
+    {
+      "id": "west_range.east",
+      "a": [
+        15.0,
+        -21.0
+      ],
+      "b": [
+        15.0,
+        -52.0
+      ],
+      "inside": [
+        10.75,
+        -36.5
+      ],
+      "thick": 0.8,
+      "y1": 7.5,
+      "outer": "wall:limestone",
+      "inner_face": false,
+      "floor": 0.0,
+      "openings": [
+        {
+          "kind": "niche",
+          "s": 3.0,
+          "w": 0.7,
+          "sill": 4.4,
+          "spring": 5.6,
+          "apex": 6.0,
+          "shutter": true
+        },
+        {
+          "kind": "niche",
+          "s": 7.0,
+          "w": 0.7,
+          "sill": 4.4,
+          "spring": 5.6,
+          "apex": 6.0,
+          "shutter": true
+        },
+        {
+          "kind": "niche",
+          "s": 11.0,
+          "w": 0.7,
+          "sill": 4.4,
+          "spring": 5.6,
+          "apex": 6.0,
+          "shutter": true
+        },
+        {
+          "kind": "niche",
+          "s": 15.0,
+          "w": 0.7,
+          "sill": 4.4,
+          "spring": 5.6,
+          "apex": 6.0,
+          "shutter": true
+        },
+        {
+          "kind": "niche",
+          "s": 19.0,
+          "w": 0.7,
+          "sill": 4.4,
+          "spring": 5.6,
+          "apex": 6.0,
+          "shutter": true
+        },
+        {
+          "kind": "niche",
+          "s": 23.0,
+          "w": 0.7,
+          "sill": 4.4,
+          "spring": 5.6,
+          "apex": 6.0,
+          "shutter": true
+        },
+        {
+          "kind": "niche",
+          "s": 27.0,
+          "w": 0.7,
+          "sill": 4.4,
+          "spring": 5.6,
+          "apex": 6.0,
+          "shutter": true
+        },
+        {
+          "kind": "niche",
+          "s": 9.0,
+          "w": 1.3,
+          "sill": 0.0,
+          "spring": 2.2,
+          "apex": 2.8,
+          "shutter": true
+        }
+      ]
+    },
+    {
+      "id": "north_range.north",
+      "a": [
+        52.0,
+        -52.0
+      ],
+      "b": [
+        15.0,
+        -52.0
+      ],
+      "inside": [
+        33.5,
+        -47.5
+      ],
+      "thick": 0.8,
+      "y1": 6.5,
+      "outer": "wall:limestone",
+      "inner_face": false,
+      "floor": 0.0,
+      "openings": [
+        {
+          "kind": "niche",
+          "s": 4.0,
+          "w": 0.6,
+          "sill": 3.0,
+          "spring": 4.4,
+          "shutter": true
+        },
+        {
+          "kind": "niche",
+          "s": 8.5,
+          "w": 0.6,
+          "sill": 3.0,
+          "spring": 4.4,
+          "shutter": true
+        },
+        {
+          "kind": "niche",
+          "s": 13.0,
+          "w": 0.6,
+          "sill": 3.0,
+          "spring": 4.4,
+          "shutter": true
+        },
+        {
+          "kind": "niche",
+          "s": 17.5,
+          "w": 0.6,
+          "sill": 3.0,
+          "spring": 4.4,
+          "shutter": true
+        },
+        {
+          "kind": "niche",
+          "s": 22.0,
+          "w": 0.6,
+          "sill": 3.0,
+          "spring": 4.4,
+          "shutter": true
+        },
+        {
+          "kind": "niche",
+          "s": 26.5,
+          "w": 0.6,
+          "sill": 3.0,
+          "spring": 4.4,
+          "shutter": true
+        },
+        {
+          "kind": "niche",
+          "s": 31.0,
+          "w": 0.6,
+          "sill": 3.0,
+          "spring": 4.4,
+          "shutter": true
+        },
+        {
+          "kind": "niche",
+          "s": 35.5,
+          "w": 0.6,
+          "sill": 3.0,
+          "spring": 4.4,
+          "shutter": true
+        }
+      ]
+    },
+    {
+      "id": "north_range.south",
+      "a": [
+        15.0,
+        -43.0
+      ],
+      "b": [
+        52.0,
+        -43.0
+      ],
+      "inside": [
+        33.5,
+        -47.5
+      ],
+      "thick": 0.8,
+      "y1": 6.5,
+      "outer": "wall:limestone",
+      "inner_face": false,
+      "floor": 0.0,
+      "openings": [
+        {
+          "kind": "niche",
+          "s": 4.0,
+          "w": 0.8,
+          "sill": 2.6,
+          "spring": 4.6,
+          "apex": 5.2,
+          "shutter": true
+        },
+        {
+          "kind": "niche",
+          "s": 8.5,
+          "w": 0.8,
+          "sill": 2.6,
+          "spring": 4.6,
+          "apex": 5.2,
+          "shutter": true
+        },
+        {
+          "kind": "niche",
+          "s": 13.0,
+          "w": 0.8,
+          "sill": 2.6,
+          "spring": 4.6,
+          "apex": 5.2,
+          "shutter": true
+        },
+        {
+          "kind": "niche",
+          "s": 17.5,
+          "w": 0.8,
+          "sill": 2.6,
+          "spring": 4.6,
+          "apex": 5.2,
+          "shutter": true
+        },
+        {
+          "kind": "niche",
+          "s": 22.0,
+          "w": 0.8,
+          "sill": 2.6,
+          "spring": 4.6,
+          "apex": 5.2,
+          "shutter": true
+        },
+        {
+          "kind": "niche",
+          "s": 26.5,
+          "w": 0.8,
+          "sill": 2.6,
+          "spring": 4.6,
+          "apex": 5.2,
+          "shutter": true
+        },
+        {
+          "kind": "niche",
+          "s": 31.0,
+          "w": 0.8,
+          "sill": 2.6,
+          "spring": 4.6,
+          "apex": 5.2,
+          "shutter": true
+        },
+        {
+          "kind": "niche",
+          "s": 35.5,
+          "w": 0.8,
+          "sill": 2.6,
+          "spring": 4.6,
+          "apex": 5.2,
+          "shutter": true
+        },
+        {
+          "kind": "niche",
+          "s": 18.5,
+          "w": 1.3,
+          "sill": 0.0,
+          "spring": 2.2,
+          "apex": 2.8,
+          "shutter": true
+        }
+      ]
+    },
+    {
+      "id": "east_range.north",
+      "a": [
+        62.0,
+        -52.0
+      ],
+      "b": [
+        52.0,
+        -52.0
+      ],
+      "inside": [
+        57.0,
+        -35.25
+      ],
+      "thick": 0.8,
+      "y1": 8.0,
+      "outer": "wall:limestone",
+      "inner_face": false,
+      "floor": 0.0,
+      "openings": [
+        {
+          "kind": "niche",
+          "s": 5.0,
+          "w": 0.6,
+          "sill": 5.0,
+          "spring": 6.4,
+          "shutter": true
+        }
+      ]
+    },
+    {
+      "id": "east_range.west",
+      "a": [
+        52.0,
+        -52.0
+      ],
+      "b": [
+        52.0,
+        -18.5
+      ],
+      "inside": [
+        57.0,
+        -35.25
+      ],
+      "thick": 0.8,
+      "y1": 8.0,
+      "outer": "wall:limestone",
+      "inner_face": false,
+      "floor": 0.0,
+      "openings": [
+        {
+          "kind": "niche",
+          "s": 21.5,
+          "w": 1.4,
+          "sill": 0.0,
+          "spring": 2.4,
+          "apex": 3.2,
+          "shutter": true
+        },
+        {
+          "kind": "niche",
+          "s": 19.4,
+          "w": 0.9,
+          "sill": 0.9,
+          "spring": 2.4,
+          "apex": 3.0,
+          "shutter": true
+        },
+        {
+          "kind": "niche",
+          "s": 23.6,
+          "w": 0.9,
+          "sill": 0.9,
+          "spring": 2.4,
+          "apex": 3.0,
+          "shutter": true
+        },
+        {
+          "kind": "niche",
+          "s": 30.0,
+          "w": 1.2,
+          "sill": 0.0,
+          "spring": 2.2,
+          "apex": 2.8,
+          "shutter": true
+        },
+        {
+          "kind": "niche",
+          "s": 3.0,
+          "w": 0.5,
+          "sill": 5.4,
+          "spring": 6.6,
+          "apex": 7.0,
+          "shutter": true
+        },
+        {
+          "kind": "niche",
+          "s": 6.2,
+          "w": 0.5,
+          "sill": 5.4,
+          "spring": 6.6,
+          "apex": 7.0,
+          "shutter": true
+        },
+        {
+          "kind": "niche",
+          "s": 9.4,
+          "w": 0.5,
+          "sill": 5.4,
+          "spring": 6.6,
+          "apex": 7.0,
+          "shutter": true
+        },
+        {
+          "kind": "niche",
+          "s": 12.6,
+          "w": 0.5,
+          "sill": 5.4,
+          "spring": 6.6,
+          "apex": 7.0,
+          "shutter": true
+        },
+        {
+          "kind": "niche",
+          "s": 15.8,
+          "w": 0.5,
+          "sill": 5.4,
+          "spring": 6.6,
+          "apex": 7.0,
+          "shutter": true
+        },
+        {
+          "kind": "niche",
+          "s": 19.0,
+          "w": 0.5,
+          "sill": 5.4,
+          "spring": 6.6,
+          "apex": 7.0,
+          "shutter": true
+        },
+        {
+          "kind": "niche",
+          "s": 22.2,
+          "w": 0.5,
+          "sill": 5.4,
+          "spring": 6.6,
+          "apex": 7.0,
+          "shutter": true
+        },
+        {
+          "kind": "niche",
+          "s": 25.4,
+          "w": 0.5,
+          "sill": 5.4,
+          "spring": 6.6,
+          "apex": 7.0,
+          "shutter": true
+        },
+        {
+          "kind": "niche",
+          "s": 28.6,
+          "w": 0.5,
+          "sill": 5.4,
+          "spring": 6.6,
+          "apex": 7.0,
+          "shutter": true
+        },
+        {
+          "kind": "niche",
+          "s": 31.8,
+          "w": 0.5,
+          "sill": 5.4,
+          "spring": 6.6,
+          "apex": 7.0,
+          "shutter": true
+        }
+      ]
+    },
+    {
+      "id": "east_range.east",
+      "a": [
+        62.0,
+        -18.5
+      ],
+      "b": [
+        62.0,
+        -52.0
+      ],
+      "inside": [
+        57.0,
+        -35.25
+      ],
+      "thick": 0.8,
+      "y1": 8.0,
+      "outer": "wall:limestone",
+      "inner_face": false,
+      "floor": 0.0,
+      "openings": [
+        {
+          "kind": "niche",
+          "s": 3.0,
+          "w": 0.5,
+          "sill": 5.4,
+          "spring": 6.6,
+          "apex": 7.0,
+          "shutter": true
+        },
+        {
+          "kind": "niche",
+          "s": 6.2,
+          "w": 0.5,
+          "sill": 5.4,
+          "spring": 6.6,
+          "apex": 7.0,
+          "shutter": true
+        },
+        {
+          "kind": "niche",
+          "s": 9.4,
+          "w": 0.5,
+          "sill": 5.4,
+          "spring": 6.6,
+          "apex": 7.0,
+          "shutter": true
+        },
+        {
+          "kind": "niche",
+          "s": 12.6,
+          "w": 0.5,
+          "sill": 5.4,
+          "spring": 6.6,
+          "apex": 7.0,
+          "shutter": true
+        },
+        {
+          "kind": "niche",
+          "s": 15.8,
+          "w": 0.5,
+          "sill": 5.4,
+          "spring": 6.6,
+          "apex": 7.0,
+          "shutter": true
+        },
+        {
+          "kind": "niche",
+          "s": 19.0,
+          "w": 0.5,
+          "sill": 5.4,
+          "spring": 6.6,
+          "apex": 7.0,
+          "shutter": true
+        },
+        {
+          "kind": "niche",
+          "s": 22.2,
+          "w": 0.5,
+          "sill": 5.4,
+          "spring": 6.6,
+          "apex": 7.0,
+          "shutter": true
+        },
+        {
+          "kind": "niche",
+          "s": 25.4,
+          "w": 0.5,
+          "sill": 5.4,
+          "spring": 6.6,
+          "apex": 7.0,
+          "shutter": true
+        },
+        {
+          "kind": "niche",
+          "s": 28.6,
+          "w": 0.5,
+          "sill": 5.4,
+          "spring": 6.6,
+          "apex": 7.0,
+          "shutter": true
+        },
+        {
+          "kind": "niche",
+          "s": 31.8,
+          "w": 0.5,
+          "sill": 5.4,
+          "spring": 6.6,
+          "apex": 7.0,
+          "shutter": true
+        },
+        {
+          "kind": "niche",
+          "s": 10.0,
+          "w": 1.3,
+          "sill": 0.0,
+          "spring": 2.2,
+          "apex": 2.8,
+          "shutter": true
+        }
+      ]
+    },
+    {
+      "id": "brewhouse.north",
+      "a": [
+        71.2,
+        -51.2
+      ],
+      "b": [
+        63.5,
+        -51.2
+      ],
+      "inside": [
+        67.35,
+        -46.6
+      ],
+      "thick": 0.8,
+      "y1": 4.2,
+      "outer": "wall:limestone",
+      "inner_face": false,
+      "floor": 0.0,
+      "openings": []
+    },
+    {
+      "id": "brewhouse.south",
+      "a": [
+        63.5,
+        -42.0
+      ],
+      "b": [
+        71.2,
+        -42.0
+      ],
+      "inside": [
+        67.35,
+        -46.6
+      ],
+      "thick": 0.8,
+      "y1": 4.2,
+      "outer": "wall:limestone",
+      "inner_face": false,
+      "floor": 0.0,
+      "openings": [
+        {
+          "kind": "niche",
+          "s": 3.0,
+          "w": 1.6,
+          "sill": 0.0,
+          "spring": 2.2,
+          "shutter": true
+        },
+        {
+          "kind": "niche",
+          "s": 6.0,
+          "w": 0.6,
+          "sill": 1.4,
+          "spring": 2.2,
+          "shutter": true
+        }
+      ]
+    },
+    {
+      "id": "brewhouse.west",
+      "a": [
+        63.5,
+        -51.2
+      ],
+      "b": [
+        63.5,
+        -42.0
+      ],
+      "inside": [
+        67.35,
+        -46.6
+      ],
+      "thick": 0.8,
+      "y1": 4.2,
+      "outer": "wall:limestone",
+      "inner_face": false,
+      "floor": 0.0,
+      "openings": []
+    },
+    {
+      "id": "brewhouse.east",
+      "a": [
+        71.2,
+        -42.0
+      ],
+      "b": [
+        71.2,
+        -51.2
+      ],
+      "inside": [
+        67.35,
+        -46.6
+      ],
+      "thick": 0.8,
+      "y1": 4.2,
+      "outer": "wall:limestone",
+      "inner_face": false,
+      "floor": 0.0,
+      "openings": []
+    },
+    {
+      "id": "cloister.arcade.south",
+      "a": [
+        18.0,
+        -21.5
+      ],
+      "b": [
+        49.0,
+        -21.5
+      ],
+      "inside": [
+        33,
+        -20
+      ],
+      "thick": 0.5,
+      "y1": 3.2,
+      "outer": "wall:limestone",
+      "inner": "wall:limestone",
+      "top": "ashlar",
+      "floor": 0.12,
+      "openings": [
+        {
+          "kind": "arch",
+          "s": 1.682,
+          "w": 1.8,
+          "sill": 0.6,
+          "spring": 2.0,
+          "apex": 2.6,
+          "reveal": "ashlar"
+        },
+        {
+          "kind": "arch",
+          "s": 4.445,
+          "w": 1.8,
+          "sill": 0.6,
+          "spring": 2.0,
+          "apex": 2.6,
+          "reveal": "ashlar"
+        },
+        {
+          "kind": "arch",
+          "s": 7.209,
+          "w": 1.8,
+          "sill": 0.6,
+          "spring": 2.0,
+          "apex": 2.6,
+          "reveal": "ashlar"
+        },
+        {
+          "kind": "arch",
+          "s": 9.973,
+          "w": 1.8,
+          "sill": 0.6,
+          "spring": 2.0,
+          "apex": 2.6,
+          "reveal": "ashlar"
+        },
+        {
+          "kind": "arch",
+          "s": 12.736,
+          "w": 1.8,
+          "sill": 0.6,
+          "spring": 2.0,
+          "apex": 2.6,
+          "reveal": "ashlar"
+        },
+        {
+          "kind": "arch",
+          "s": 15.5,
+          "w": 1.8,
+          "sill": 0.6,
+          "spring": 2.0,
+          "apex": 2.6,
+          "reveal": "ashlar"
+        },
+        {
+          "kind": "arch",
+          "s": 18.264,
+          "w": 1.8,
+          "sill": 0.6,
+          "spring": 2.0,
+          "apex": 2.6,
+          "reveal": "ashlar"
+        },
+        {
+          "kind": "arch",
+          "s": 21.027,
+          "w": 1.8,
+          "sill": 0.6,
+          "spring": 2.0,
+          "apex": 2.6,
+          "reveal": "ashlar"
+        },
+        {
+          "kind": "arch",
+          "s": 23.791,
+          "w": 1.8,
+          "sill": 0.12,
+          "spring": 2.0,
+          "apex": 2.6,
+          "reveal": "ashlar"
+        },
+        {
+          "kind": "arch",
+          "s": 26.555,
+          "w": 1.8,
+          "sill": 0.6,
+          "spring": 2.0,
+          "apex": 2.6,
+          "reveal": "ashlar"
+        },
+        {
+          "kind": "arch",
+          "s": 29.318,
+          "w": 1.8,
+          "sill": 0.6,
+          "spring": 2.0,
+          "apex": 2.6,
+          "reveal": "ashlar"
+        }
+      ]
+    },
+    {
+      "id": "cloister.arcade.north",
+      "a": [
+        49.0,
+        -40.0
+      ],
+      "b": [
+        18.0,
+        -40.0
+      ],
+      "inside": [
+        33,
+        -41.5
+      ],
+      "thick": 0.5,
+      "y1": 3.2,
+      "outer": "wall:limestone",
+      "inner": "wall:limestone",
+      "top": "ashlar",
+      "floor": 0.12,
+      "openings": [
+        {
+          "kind": "arch",
+          "s": 1.682,
+          "w": 1.8,
+          "sill": 0.6,
+          "spring": 2.0,
+          "apex": 2.6,
+          "reveal": "ashlar"
+        },
+        {
+          "kind": "arch",
+          "s": 4.445,
+          "w": 1.8,
+          "sill": 0.6,
+          "spring": 2.0,
+          "apex": 2.6,
+          "reveal": "ashlar"
+        },
+        {
+          "kind": "arch",
+          "s": 7.209,
+          "w": 1.8,
+          "sill": 0.6,
+          "spring": 2.0,
+          "apex": 2.6,
+          "reveal": "ashlar"
+        },
+        {
+          "kind": "arch",
+          "s": 9.973,
+          "w": 1.8,
+          "sill": 0.6,
+          "spring": 2.0,
+          "apex": 2.6,
+          "reveal": "ashlar"
+        },
+        {
+          "kind": "arch",
+          "s": 12.736,
+          "w": 1.8,
+          "sill": 0.6,
+          "spring": 2.0,
+          "apex": 2.6,
+          "reveal": "ashlar"
+        },
+        {
+          "kind": "arch",
+          "s": 15.5,
+          "w": 1.8,
+          "sill": 0.12,
+          "spring": 2.0,
+          "apex": 2.6,
+          "reveal": "ashlar"
+        },
+        {
+          "kind": "arch",
+          "s": 18.264,
+          "w": 1.8,
+          "sill": 0.6,
+          "spring": 2.0,
+          "apex": 2.6,
+          "reveal": "ashlar"
+        },
+        {
+          "kind": "arch",
+          "s": 21.027,
+          "w": 1.8,
+          "sill": 0.6,
+          "spring": 2.0,
+          "apex": 2.6,
+          "reveal": "ashlar"
+        },
+        {
+          "kind": "arch",
+          "s": 23.791,
+          "w": 1.8,
+          "sill": 0.6,
+          "spring": 2.0,
+          "apex": 2.6,
+          "reveal": "ashlar"
+        },
+        {
+          "kind": "arch",
+          "s": 26.555,
+          "w": 1.8,
+          "sill": 0.6,
+          "spring": 2.0,
+          "apex": 2.6,
+          "reveal": "ashlar"
+        },
+        {
+          "kind": "arch",
+          "s": 29.318,
+          "w": 1.8,
+          "sill": 0.6,
+          "spring": 2.0,
+          "apex": 2.6,
+          "reveal": "ashlar"
+        }
+      ]
+    },
+    {
+      "id": "cloister.arcade.west",
+      "a": [
+        18.0,
+        -40.0
+      ],
+      "b": [
+        18.0,
+        -21.5
+      ],
+      "inside": [
+        16.5,
+        -30
+      ],
+      "thick": 0.5,
+      "y1": 3.2,
+      "outer": "wall:limestone",
+      "inner": "wall:limestone",
+      "top": "ashlar",
+      "floor": 0.12,
+      "openings": [
+        {
+          "kind": "arch",
+          "s": 1.792,
+          "w": 1.8,
+          "sill": 0.6,
+          "spring": 2.0,
+          "apex": 2.6,
+          "reveal": "ashlar"
+        },
+        {
+          "kind": "arch",
+          "s": 4.775,
+          "w": 1.8,
+          "sill": 0.6,
+          "spring": 2.0,
+          "apex": 2.6,
+          "reveal": "ashlar"
+        },
+        {
+          "kind": "arch",
+          "s": 7.758,
+          "w": 1.8,
+          "sill": 0.6,
+          "spring": 2.0,
+          "apex": 2.6,
+          "reveal": "ashlar"
+        },
+        {
+          "kind": "arch",
+          "s": 10.742,
+          "w": 1.8,
+          "sill": 0.12,
+          "spring": 2.0,
+          "apex": 2.6,
+          "reveal": "ashlar"
+        },
+        {
+          "kind": "arch",
+          "s": 13.725,
+          "w": 1.8,
+          "sill": 0.6,
+          "spring": 2.0,
+          "apex": 2.6,
+          "reveal": "ashlar"
+        },
+        {
+          "kind": "arch",
+          "s": 16.708,
+          "w": 1.8,
+          "sill": 0.6,
+          "spring": 2.0,
+          "apex": 2.6,
+          "reveal": "ashlar"
+        }
+      ]
+    },
+    {
+      "id": "cloister.arcade.east",
+      "a": [
+        49.0,
+        -21.5
+      ],
+      "b": [
+        49.0,
+        -40.0
+      ],
+      "inside": [
+        50.5,
+        -30
+      ],
+      "thick": 0.5,
+      "y1": 3.2,
+      "outer": "wall:limestone",
+      "inner": "wall:limestone",
+      "top": "ashlar",
+      "floor": 0.12,
+      "openings": [
+        {
+          "kind": "arch",
+          "s": 1.792,
+          "w": 1.8,
+          "sill": 0.6,
+          "spring": 2.0,
+          "apex": 2.6,
+          "reveal": "ashlar"
+        },
+        {
+          "kind": "arch",
+          "s": 4.775,
+          "w": 1.8,
+          "sill": 0.6,
+          "spring": 2.0,
+          "apex": 2.6,
+          "reveal": "ashlar"
+        },
+        {
+          "kind": "arch",
+          "s": 7.758,
+          "w": 1.8,
+          "sill": 0.6,
+          "spring": 2.0,
+          "apex": 2.6,
+          "reveal": "ashlar"
+        },
+        {
+          "kind": "arch",
+          "s": 10.742,
+          "w": 1.8,
+          "sill": 0.12,
+          "spring": 2.0,
+          "apex": 2.6,
+          "reveal": "ashlar"
+        },
+        {
+          "kind": "arch",
+          "s": 13.725,
+          "w": 1.8,
+          "sill": 0.6,
+          "spring": 2.0,
+          "apex": 2.6,
+          "reveal": "ashlar"
+        },
+        {
+          "kind": "arch",
+          "s": 16.708,
+          "w": 1.8,
+          "sill": 0.6,
+          "spring": 2.0,
+          "apex": 2.6,
+          "reveal": "ashlar"
+        }
+      ]
+    },
+    {
+      "id": "precinct.west",
+      "a": [
+        0,
+        0
+      ],
+      "b": [
+        0,
+        -18.5
+      ],
+      "inside": [
+        5,
+        -9
+      ],
+      "thick": 0.8,
+      "y0": -1.2,
+      "y1": 3.6,
+      "floor": -1.2,
+      "outer": "wall:limestone",
+      "inner": "wall:limestone",
+      "top": "ashlar",
+      "openings": [
+        {
+          "kind": "arch",
+          "s": 9.0,
+          "w": 3.0,
+          "sill": -1.2,
+          "spring": 2.4,
+          "apex": 3.2,
+          "reveal": "ashlar",
+          "note": "precinct gate W1 off Vene (sanctuary seam)"
+        }
+      ]
+    },
+    {
+      "id": "precinct.notch_north",
+      "a": [
+        0,
+        -18.5
+      ],
+      "b": [
+        6.5,
+        -18.5
+      ],
+      "inside": [
+        3,
+        -10
+      ],
+      "thick": 0.8,
+      "y0": -1.2,
+      "y1": 3.6,
+      "floor": -1.2,
+      "outer": "wall:limestone",
+      "inner": "wall:limestone",
+      "top": "ashlar",
+      "openings": []
+    },
+    {
+      "id": "precinct.notch_east",
+      "a": [
+        6.5,
+        -21.0
+      ],
+      "b": [
+        6.5,
+        -18.5
+      ],
+      "inside": [
+        10,
+        -19.7
+      ],
+      "thick": 0.8,
+      "y0": -1.2,
+      "y1": 3.6,
+      "floor": -1.2,
+      "outer": "wall:limestone",
+      "inner": "wall:limestone",
+      "top": "ashlar",
+      "openings": []
+    },
+    {
+      "id": "precinct.south_west",
+      "a": [
+        0,
+        0
+      ],
+      "b": [
+        14.8,
+        0
+      ],
+      "inside": [
+        7,
+        -5
+      ],
+      "thick": 0.8,
+      "y0": -1.2,
+      "y1": 3.6,
+      "floor": -1.2,
+      "outer": "wall:limestone",
+      "inner": "wall:limestone",
+      "top": "ashlar",
+      "openings": []
+    },
+    {
+      "id": "precinct.south_west_return",
+      "a": [
+        14.8,
+        0
+      ],
+      "b": [
+        14.8,
+        -1.5
+      ],
+      "inside": [
+        10,
+        -1
+      ],
+      "thick": 0.8,
+      "y0": -1.2,
+      "y1": 3.6,
+      "floor": -1.2,
+      "outer": "wall:limestone",
+      "inner": "wall:limestone",
+      "top": "ashlar",
+      "openings": []
+    },
+    {
+      "id": "precinct.south_east",
+      "a": [
+        63.2,
+        0
+      ],
+      "b": [
+        77.4,
+        0.0
+      ],
+      "inside": [
+        68,
+        -5
+      ],
+      "thick": 0.8,
+      "y0": -1.2,
+      "y1": 3.6,
+      "floor": -1.2,
+      "outer": "wall:limestone",
+      "inner": "wall:limestone",
+      "top": "ashlar",
+      "openings": [
+        {
+          "kind": "arch",
+          "s": 4.6,
+          "w": 3.2,
+          "sill": -1.2,
+          "spring": 2.4,
+          "apex": 3.2,
+          "reveal": "ashlar",
+          "note": "yard gate for carts, casks and fish"
+        }
+      ]
+    },
+    {
+      "id": "precinct.south_east_return",
+      "a": [
+        63.2,
+        0
+      ],
+      "b": [
+        63.2,
+        -1.5
+      ],
+      "inside": [
+        68,
+        -1
+      ],
+      "thick": 0.8,
+      "y0": -1.2,
+      "y1": 3.6,
+      "floor": -1.2,
+      "outer": "wall:limestone",
+      "inner": "wall:limestone",
+      "top": "ashlar",
+      "openings": []
+    },
+    {
+      "id": "precinct.east",
+      "a": [
+        77.4,
+        0.0
+      ],
+      "b": [
+        73.6,
+        -52.0
+      ],
+      "inside": [
+        68,
+        -26
+      ],
+      "thick": 0.8,
+      "y0": -1.2,
+      "y1": 3.6,
+      "floor": -1.2,
+      "outer": "wall:limestone",
+      "inner": "wall:limestone",
+      "top": "ashlar",
+      "openings": []
+    },
+    {
+      "id": "precinct.north_east",
+      "a": [
+        73.6,
+        -52.0
+      ],
+      "b": [
+        62,
+        -52
+      ],
+      "inside": [
+        67,
+        -40
+      ],
+      "thick": 0.8,
+      "y0": -1.2,
+      "y1": 3.6,
+      "floor": -1.2,
+      "outer": "wall:limestone",
+      "inner": "wall:limestone",
+      "top": "ashlar",
+      "openings": []
+    }
+  ],
+  "garth": {
+    "polygon": [
+      [
+        18.0,
+        -21.5
+      ],
+      [
+        49.0,
+        -21.5
+      ],
+      [
+        49.0,
+        -40.0
+      ],
+      [
+        18.0,
+        -40.0
+      ]
+    ],
+    "well": [
+      38.11,
+      -29.13
+    ]
+  },
+  "walk": {
+    "walls": [],
+    "solid": [
+      [
+        [
+          20.45,
+          -1.5
+        ],
+        [
+          21.55,
+          -1.5
+        ],
+        [
+          21.55,
+          -0.6
+        ],
+        [
+          20.45,
+          -0.6
+        ]
+      ],
+      [
+        [
+          27.45,
+          -1.5
+        ],
+        [
+          28.55,
+          -1.5
+        ],
+        [
+          28.55,
+          -0.6
+        ],
+        [
+          27.45,
+          -0.6
+        ]
+      ],
+      [
+        [
+          34.45,
+          -1.5
+        ],
+        [
+          35.55,
+          -1.5
+        ],
+        [
+          35.55,
+          -0.6
+        ],
+        [
+          34.45,
+          -0.6
+        ]
+      ],
+      [
+        [
+          41.45,
+          -1.5
+        ],
+        [
+          42.55,
+          -1.5
+        ],
+        [
+          42.55,
+          -0.6
+        ],
+        [
+          41.45,
+          -0.6
+        ]
+      ],
+      [
+        [
+          48.45,
+          -1.5
+        ],
+        [
+          49.55,
+          -1.5
+        ],
+        [
+          49.55,
+          -0.6
+        ],
+        [
+          48.45,
+          -0.6
+        ]
+      ],
+      [
+        [
+          55.45,
+          -1.5
+        ],
+        [
+          56.55,
+          -1.5
+        ],
+        [
+          56.55,
+          -0.6
+        ],
+        [
+          55.45,
+          -0.6
+        ]
+      ],
+      [
+        [
+          64.0,
+          -15.05
+        ],
+        [
+          64.9,
+          -15.05
+        ],
+        [
+          64.9,
+          -13.95
+        ],
+        [
+          64.0,
+          -13.95
+        ]
+      ],
+      [
+        [
+          64.0,
+          -6.05
+        ],
+        [
+          64.9,
+          -6.05
+        ],
+        [
+          64.9,
+          -4.95
+        ],
+        [
+          64.0,
+          -4.95
+        ]
+      ],
+      [
+        [
+          61.5,
+          -11.25
+        ],
+        [
+          62.7,
+          -11.25
+        ],
+        [
+          62.7,
+          -8.75
+        ],
+        [
+          61.5,
+          -8.75
+        ]
+      ],
+      [
+        [
+          47.8,
+          -14.35
+        ],
+        [
+          49.0,
+          -14.35
+        ],
+        [
+          49.0,
+          -12.85
+        ],
+        [
+          47.8,
+          -12.85
+        ]
+      ],
+      [
+        [
+          47.8,
+          -7.15
+        ],
+        [
+          49.0,
+          -7.15
+        ],
+        [
+          49.0,
+          -5.65
+        ],
+        [
+          47.8,
+          -5.65
+        ]
+      ],
+      [
+        [
+          51.2,
+          -17.2
+        ],
+        [
+          60.2,
+          -17.2
+        ],
+        [
+          60.2,
+          -15.7
+        ],
+        [
+          51.2,
+          -15.7
+        ]
+      ],
+      [
+        [
+          51.2,
+          -4.3
+        ],
+        [
+          60.2,
+          -4.3
+        ],
+        [
+          60.2,
+          -2.8
+        ],
+        [
+          51.2,
+          -2.8
+        ]
+      ],
+      [
+        [
+          32.6,
+          -3.8
+        ],
+        [
+          33.4,
+          -3.8
+        ],
+        [
+          33.4,
+          -2.8
+        ],
+        [
+          32.6,
+          -2.8
+        ]
+      ],
+      [
+        [
+          37.36,
+          -29.88
+        ],
+        [
+          38.86,
+          -29.88
+        ],
+        [
+          38.86,
+          -28.38
+        ],
+        [
+          37.36,
+          -28.38
+        ]
+      ]
+    ],
+    "ramps": [],
+    "floors": [
+      {
+        "id": "floor.nave",
+        "polygon": [
+          [
+            15.3,
+            -17.2
+          ],
+          [
+            49.4,
+            -17.2
+          ],
+          [
+            49.4,
+            -2.8
+          ],
+          [
+            15.3,
+            -2.8
+          ]
+        ],
+        "height": 0.12
+      },
+      {
+        "id": "floor.choir_steps",
+        "polygon": [
+          [
+            49.4,
+            -17.2
+          ],
+          [
+            50.6,
+            -17.2
+          ],
+          [
+            50.6,
+            -2.8
+          ],
+          [
+            49.4,
+            -2.8
+          ]
+        ],
+        "height": 0.12,
+        "rise": [
+          49.4,
+          0.12,
+          50.6,
+          0.57
+        ]
+      },
+      {
+        "id": "floor.choir",
+        "polygon": [
+          [
+            50.6,
+            -17.2
+          ],
+          [
+            62.7,
+            -17.2
+          ],
+          [
+            62.7,
+            -2.8
+          ],
+          [
+            50.6,
+            -2.8
+          ]
+        ],
+        "height": 0.57
+      },
+      {
+        "id": "floor.cloister_door",
+        "polygon": [
+          [
+            40.0,
+            -18.5
+          ],
+          [
+            42.0,
+            -18.5
+          ],
+          [
+            42.0,
+            -17.2
+          ],
+          [
+            40.0,
+            -17.2
+          ]
+        ],
+        "height": 0.12
+      },
+      {
+        "id": "floor.walk_south",
+        "polygon": [
+          [
+            15,
+            -21.5
+          ],
+          [
+            52,
+            -21.5
+          ],
+          [
+            52,
+            -18.5
+          ],
+          [
+            15,
+            -18.5
+          ]
+        ],
+        "height": 0.12
+      },
+      {
+        "id": "floor.walk_north",
+        "polygon": [
+          [
+            15,
+            -43
+          ],
+          [
+            52,
+            -43
+          ],
+          [
+            52,
+            -40
+          ],
+          [
+            15,
+            -40
+          ]
+        ],
+        "height": 0.12
+      },
+      {
+        "id": "floor.walk_west",
+        "polygon": [
+          [
+            15,
+            -40
+          ],
+          [
+            18,
+            -40
+          ],
+          [
+            18,
+            -21.5
+          ],
+          [
+            15,
+            -21.5
+          ]
+        ],
+        "height": 0.12
+      },
+      {
+        "id": "floor.walk_east",
+        "polygon": [
+          [
+            49,
+            -40
+          ],
+          [
+            52,
+            -40
+          ],
+          [
+            52,
+            -21.5
+          ],
+          [
+            49,
+            -21.5
+          ]
+        ],
+        "height": 0.12
+      }
+    ]
+  },
+  "rooms": [
+    {
+      "id": "room.nave",
+      "name": "St Catherine's (nave)",
+      "polygon": [
+        [
+          15.3,
+          -17.2
+        ],
+        [
+          49.4,
+          -17.2
+        ],
+        [
+          49.4,
+          -2.8
+        ],
+        [
+          15.3,
+          -2.8
+        ]
+      ],
+      "floor": "floor.nave",
+      "hide": [
+        "Church/Upper",
+        "Church/Roof"
+      ]
+    },
+    {
+      "id": "room.choir",
+      "name": "St Catherine's (friars' choir)",
+      "polygon": [
+        [
+          49.4,
+          -17.2
+        ],
+        [
+          62.7,
+          -17.2
+        ],
+        [
+          62.7,
+          -2.8
+        ],
+        [
+          49.4,
+          -2.8
+        ]
+      ],
+      "floor": "floor.choir",
+      "hide": [
+        "Church/Upper",
+        "Church/Roof"
+      ]
+    },
+    {
+      "id": "room.cloister_south",
+      "name": "St Catherine's (cloister walk)",
+      "polygon": [
+        [
+          15,
+          -21.5
+        ],
+        [
+          52,
+          -21.5
+        ],
+        [
+          52,
+          -18.5
+        ],
+        [
+          15,
+          -18.5
+        ]
+      ],
+      "floor": "floor.walk_south",
+      "hide": [
+        "Cloister/Roof"
+      ]
+    },
+    {
+      "id": "room.cloister_north",
+      "name": "St Catherine's (cloister walk)",
+      "polygon": [
+        [
+          15,
+          -43
+        ],
+        [
+          52,
+          -43
+        ],
+        [
+          52,
+          -40
+        ],
+        [
+          15,
+          -40
+        ]
+      ],
+      "floor": "floor.walk_north",
+      "hide": [
+        "Cloister/Roof"
+      ]
+    },
+    {
+      "id": "room.cloister_west",
+      "name": "St Catherine's (cloister walk)",
+      "polygon": [
+        [
+          15,
+          -40
+        ],
+        [
+          18,
+          -40
+        ],
+        [
+          18,
+          -21.5
+        ],
+        [
+          15,
+          -21.5
+        ]
+      ],
+      "floor": "floor.walk_west",
+      "hide": [
+        "Cloister/Roof"
+      ]
+    },
+    {
+      "id": "room.cloister_east",
+      "name": "St Catherine's (cloister walk)",
+      "polygon": [
+        [
+          49,
+          -40
+        ],
+        [
+          52,
+          -40
+        ],
+        [
+          52,
+          -21.5
+        ],
+        [
+          49,
+          -21.5
+        ]
+      ],
+      "floor": "floor.walk_east",
+      "hide": [
+        "Cloister/Roof"
+      ]
+    }
+  ],
+  "doors": [
+    {
+      "id": "door.st_catherine.west",
+      "a": [
+        14.12,
+        -8.9
+      ],
+      "b": [
+        14.12,
+        -11.1
+      ],
+      "inward": [
+        1,
+        0
+      ],
+      "floor": "floor.nave",
+      "height": 3.1,
+      "style": "studded",
+      "paint": [
+        0.3,
+        0.22,
+        0.16
+      ]
+    },
+    {
+      "id": "door.st_catherine.south",
+      "a": [
+        25.5,
+        -1.62
+      ],
+      "b": [
+        23.5,
+        -1.62
+      ],
+      "inward": [
+        0,
+        -1
+      ],
+      "floor": "floor.nave",
+      "height": 2.9,
+      "style": "ledged",
+      "paint": [
+        0.42,
+        0.36,
+        0.3
+      ]
+    },
+    {
+      "id": "door.st_catherine.cloister",
+      "a": [
+        40.2,
+        -18.38
+      ],
+      "b": [
+        41.8,
+        -18.38
+      ],
+      "inward": [
+        0,
+        1
+      ],
+      "floor": "floor.nave",
+      "height": 2.7,
+      "style": "braced",
+      "paint": [
+        0.4,
+        0.34,
+        0.28
+      ],
+      "note": "from the cloister south walk (a room) into the nave"
+    }
+  ],
+  "dressing": [
+    {
+      "id": "yard.cart",
+      "kind": "cart",
+      "at": [
+        67.5,
+        -8.0
+      ],
+      "rotation_deg": 85,
+      "solid": [
+        1.6,
+        3.0
+      ]
+    },
+    {
+      "id": "yard.herring_casks",
+      "kind": "trade_goods",
+      "variant": "barrelled_herring_metal",
+      "at": [
+        69.6,
+        -22.0
+      ],
+      "solid": [
+        2.2,
+        2.2
+      ]
+    },
+    {
+      "id": "yard.grain",
+      "kind": "trade_goods",
+      "variant": "livonian_grain_flax",
+      "at": [
+        65.0,
+        -30.0
+      ],
+      "solid": [
+        2.0,
+        2.0
+      ]
+    },
+    {
+      "id": "yard.kegs",
+      "kind": "life_prop",
+      "prop": "brewery_keg_stack",
+      "at": [
+        69.4,
+        -38.0
+      ],
+      "solid": [
+        2.0,
+        2.4
+      ]
+    },
+    {
+      "id": "yard.malt",
+      "kind": "life_prop",
+      "prop": "malt_sack_pile",
+      "at": [
+        64.6,
+        -39.0
+      ],
+      "solid": [
+        1.6,
+        1.4
+      ]
+    },
+    {
+      "id": "yard.staves",
+      "kind": "life_prop",
+      "prop": "cooper_staves",
+      "at": [
+        70.2,
+        -30.0
+      ],
+      "solid": [
+        1.2,
+        2.0
+      ]
+    },
+    {
+      "id": "yard.firewood",
+      "kind": "life_prop",
+      "prop": "firewood_stack",
+      "at": [
+        63.2,
+        -24.0
+      ],
+      "rotation_deg": 90,
+      "solid": [
+        2.2,
+        0.9
+      ]
+    },
+    {
+      "id": "yard.fish_table",
+      "kind": "life_prop",
+      "prop": "fish_splitting_table",
+      "at": [
+        66.0,
+        -15.0
+      ],
+      "solid": [
+        1.8,
+        0.9
+      ]
+    },
+    {
+      "id": "yard.tub",
+      "kind": "life_prop",
+      "prop": "wash_tub",
+      "at": [
+        69.8,
+        -14.0
+      ],
+      "solid": [
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "id": "yard.basket_a",
+      "kind": "catalog",
+      "object": "obj.basket_wicker",
+      "at": [
+        64.4,
+        -16.0
+      ]
+    },
+    {
+      "id": "yard.basket_b",
+      "kind": "catalog",
+      "object": "obj.basket_wicker",
+      "at": [
+        64.9,
+        -16.6
+      ]
+    }
+  ],
+  "anchors": [
+    {
+      "id": "anchor.st_catherine.high_altar",
+      "at": [
+        61.6,
+        -10.0
+      ]
+    },
+    {
+      "id": "anchor.st_catherine.west_gate",
+      "at": [
+        -2.0,
+        -9.0
+      ]
+    },
+    {
+      "id": "anchor.st_catherine.garth_well",
+      "at": [
+        38.11,
+        -27.63
+      ]
+    },
+    {
+      "id": "anchor.st_catherine.yard",
+      "at": [
+        67.0,
+        -20.0
+      ]
+    }
+  ],
+  "review_shots": [
+    {
+      "id": "aerial",
+      "eye": [
+        -20.0,
+        55.0,
+        40.0
+      ],
+      "look": [
+        36.0,
+        0.0,
+        -24.0
+      ],
+      "fov": 55
+    },
+    {
+      "id": "street_gate",
+      "eye": [
+        -9.0,
+        1.7,
+        -2.0
+      ],
+      "look": [
+        4.0,
+        3.0,
+        -12.0
+      ],
+      "fov": 65
+    },
+    {
+      "id": "street_south",
+      "eye": [
+        36.0,
+        1.7,
+        1.2
+      ],
+      "look": [
+        16.0,
+        8.0,
+        -6.0
+      ],
+      "fov": 70
+    },
+    {
+      "id": "west_portal",
+      "eye": [
+        3.0,
+        1.7,
+        -4.0
+      ],
+      "look": [
+        14.0,
+        5.0,
+        -10.0
+      ],
+      "fov": 65
+    },
+    {
+      "id": "garth",
+      "eye": [
+        20.0,
+        1.7,
+        -38.0
+      ],
+      "look": [
+        44.0,
+        4.0,
+        -22.0
+      ],
+      "fov": 70
+    },
+    {
+      "id": "nave",
+      "eye": [
+        16.5,
+        1.7,
+        -10.0
+      ],
+      "look": [
+        62.0,
+        4.5,
+        -10.0
+      ],
+      "fov": 70,
+      "cutaway": false
+    },
+    {
+      "id": "yard",
+      "eye": [
+        68.0,
+        1.7,
+        -1.0
+      ],
+      "look": [
+        66.0,
+        2.0,
+        -40.0
+      ],
+      "fov": 70
+    }
+  ],
+  "review_views": [
+    {
+      "id": "nave",
+      "at": [
+        17.0,
+        -10.0
+      ],
+      "facing_deg": 0
+    },
+    {
+      "id": "garth",
+      "at": [
+        16.5,
+        -30.0
+      ],
+      "facing_deg": 0
+    }
+  ],
+  "program_1343": {
+    "summary": "A friary of the Order of Preachers: preaching to the townsfolk in the nave, the friars' offices in the choir behind the screen, confession, a school, alms and burial for patrons; a brewery and herring trade through the yard. Not a parish. The close is a church-law seam where the Vogt treads carefully.",
+    "processes": [
+      "mass and the friars' hours in the choir",
+      "sermons to the laity in the nave",
+      "chapter in the east range",
+      "brewing and cask storage in the yard",
+      "fish transfer to the eastern wharves"
+    ]
+  }
+}

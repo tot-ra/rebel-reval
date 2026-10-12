@@ -96,6 +96,7 @@ Later surviving doors (Doors of Tallinn photography, Renaissance and Baroque pan
 | `door.st_nicholas.south` | 1.8 x 2.7/3.8 | Shaped leaf; the attested trefoil archivolt is not modelled | chamfer, chamfer, chamfered stop |
 | `door.st_mary.south` | 2.0 x 2.8/3.8 | Shaped leaf; the richest portal, in the rising nave | chamfer, roll, roll, chamfered stop |
 | `door.st_mary.priests` | 1.5 x 2.8/3.5 (sill 0.57) | Shaped leaf; one chamfered order. The old leaf (2.65 m) ran past the springing into the head | chamfer, chamfered stop |
+| `door.st_catherine.west` | 2.2 x 3.1/4.6 | Shaped leaf; the surviving stepped Dominican west portal (date unrecorded, `plausible`), carved capital friezes not modelled (R-1718) | chamfer, roll, chamfer, chamfered stop |
 | `door.council_hall.north` | 1.4 x 2.35 (builder) | Flat lintel under a tympanum kept; jambs and lintel chamfered; leaf widened from 1.3 to the aperture | builder `_portal` |
 | `door.council_hall.dornse` | 1.4 x 2.35 (partition) | Rectangular leaf widened from 1.3 to the partition door | none |
 
