@@ -34,8 +34,8 @@ func test_the_opening_runs_title_spell_duel_and_kalev_then_finishes() -> void:
 	var opening := _opening()
 	var done := [false]
 	opening.finished.connect(func() -> void: done[0] = true)
-	assert_eq(opening.stage, AlmshouseOpening.STAGE_TITLE)
-	assert_true(opening.begin_duel())
+	assert_eq(opening.stage, AlmshouseOpening.STAGE_CONFRONTATION)
+	assert_true(opening.begin_duel()) # Already running; preserves callers that request it.
 	assert_eq(opening.stage, AlmshouseOpening.STAGE_CONFRONTATION)
 	assert_true(SessionState.state.has_magic_grant(&"spell.pagan.fireball"), "first spells granted")
 	var duel := opening.host().duel
@@ -119,7 +119,7 @@ func test_a_spell_reply_without_willpower_is_refused_and_leaves_the_choice_open(
 	opening.free()
 
 
-func test_escape_on_the_title_card_skips_to_the_forge() -> void:
+func test_escape_during_the_duel_skips_to_the_forge() -> void:
 	var opening := _opening()
 	var done := [false]
 	opening.finished.connect(func() -> void: done[0] = true)

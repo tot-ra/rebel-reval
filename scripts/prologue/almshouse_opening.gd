@@ -1,10 +1,8 @@
 class_name AlmshouseOpening
 extends Node
-## New-game opening (ADR 0033): the almshouse of the Holy Spirit. A short year card, then
-## straight into the hero's first spirit duel against the porter, fought with spells (each
-## reply is a cast, the spoken line only voices it), then Kalev takes him in and a closing
-## cutscene walks him to the forge. `ui_cancel` on the year card skips straight to the forge;
-## holding `ui_cancel` for HOLD_TO_SKIP_SEC skips from the duel or Kalev's dialogue too.
+## New-game opening (ADR 0033): the player starts directly in the almshouse spirit duel,
+## then Kalev takes him in and play continues at the forge. Holding `ui_cancel` for
+## HOLD_TO_SKIP_SEC skips from the duel or Kalev's dialogue to the forge.
 ## R-1389 (ADR 0038): with the staged hall mounted the duel is fought on the 3D spirit disc:
 ## the hall is stripped to the floor disc, the boy walks (move keys), guards facing the porter
 ## (`player_guard`) and dashes out of red strike zones (`player_dodge`) while the porter moves
@@ -18,20 +16,16 @@ extends Node
 signal stage_changed(stage: StringName)
 signal finished
 
-const STAGE_TITLE := &"title"
 const STAGE_CONFRONTATION := &"confrontation"
 const STAGE_KALEV := &"kalev"
 const STAGE_DONE := &"done"
 
 const CONFRONTATION := &"dialogue.prologue.porter_confrontation"
 const KALEV_ARRIVES := &"dialogue.prologue.kalev_arrives"
-const CLOSING_CUTSCENE := &"cutscene.prologue.taken_in"
 ## The new game opens in the seamless city, inside Kalev's smithy: the forge bay
 ## of the landmark site `site.kalev_smithy`, at the hearth.
 const NEXT_SCENE_ID := &"reval_city"
 const NEXT_SPAWN_ID := &"kalev_smithy"
-## The year card leaves on its own after this long; interact or a click leaves sooner.
-const TITLE_CARD_SEC := 3.0
 ## Holding `ui_cancel` this long during the duel or Kalev's dialogue skips the rest.
 const HOLD_TO_SKIP_SEC := 0.8
 ## The hero's first magic. The duel needs these as replies, so the opening grants them
@@ -52,7 +46,7 @@ const SpiritSightScript := preload("res://scripts/combat/spirit_sight.gd")
 
 ## Tests turn this off; the running game leaves the almshouse for the forge.
 var auto_continue := true
-var stage: StringName = STAGE_TITLE
+var stage: StringName = STAGE_CONFRONTATION
 
 var _state: GameState
 var _db: ContentDB
@@ -60,8 +54,6 @@ var _host: SpiritArenaHost
 var _sight: Node
 var _runner: Node
 var _dialogue_ui: Node
-var _title_layer: CanvasLayer
-var _title_left := TITLE_CARD_SEC
 var _skipped := false
 var _cancel_held := 0.0
 var _hint_layer: CanvasLayer
@@ -70,7 +62,7 @@ var _hint_layer: CanvasLayer
 func _ready() -> void:
 	_state = SessionState.state
 	_db = SessionState.content_db
-	_build_title_card()
+	begin_duel()
 
 
 func _process(delta: float) -> void:
@@ -80,35 +72,14 @@ func _process(delta: float) -> void:
 		_cancel_held = _cancel_held + delta if Input.is_action_pressed(&"ui_cancel") else 0.0
 		if _cancel_held >= HOLD_TO_SKIP_SEC:
 			skip()
-		return
-	if stage != STAGE_TITLE:
-		return
-	_title_left -= delta
-	if _title_left <= 0.0:
-		begin_duel()
 
 
-func _unhandled_input(event: InputEvent) -> void:
-	if stage != STAGE_TITLE:
-		return
-	if event.is_action_pressed(&"ui_cancel"):
-		skip()
-		get_viewport().set_input_as_handled()
-	elif (
-		event.is_action_pressed(&"interact")
-		or event.is_action_pressed(&"ui_accept")
-		or (event is InputEventMouseButton and (event as InputEventMouseButton).pressed)
-	):
-		begin_duel()
-		get_viewport().set_input_as_handled()
-
-
-## Leave the year card and fight the porter with the hero's first spells.
+## Fight the porter with the hero's first spells.
 func begin_duel() -> bool:
-	if stage != STAGE_TITLE:
+	if stage != STAGE_CONFRONTATION:
 		return false
-	if _title_layer != null:
-		_title_layer.visible = false
+	if _host != null:
+		return true
 	for grant_id in STARTER_GRANTS:
 		MagicResolver.apply_grant_operation(_state, _db, grant_id)
 	_state.set_magic_resource(GameState.MAGIC_RESOURCE_WILLPOWER, DUEL_WILLPOWER)
@@ -136,13 +107,11 @@ func begin_duel() -> bool:
 	return false
 
 
-## Skip the whole opening (ui_cancel on the year card, or held during the duel / dialogue).
+## Skip the whole opening (held during the duel / dialogue).
 func skip() -> void:
 	if stage == STAGE_DONE:
 		return
 	_skipped = true
-	if _title_layer != null:
-		_title_layer.visible = false
 	if _hint_layer != null:
 		_hint_layer.visible = false
 	if _host != null and is_instance_valid(_host):
@@ -278,17 +247,7 @@ func _finish() -> void:
 	finished.emit()
 	if not auto_continue:
 		return
-	# The closing cutscene walks the boy to the forge and owns the door transition through
-	# its own `next` block; a skip or a missing record falls straight through to the door.
-	if not _skipped:
-		# Parsed with the session state so the lines conditioned on the duel's outcome
-		# (`flag.prologue.*_porter`) echo the ending the player actually reached.
-		var sequence := CutsceneSequence.from_record(_db.get_cutscene(CLOSING_CUTSCENE), _state)
-		if sequence != null:
-			var closing := CutscenePlayer.new()
-			add_child(closing)
-			closing.play(sequence)
-			return
+	# No still-image/text inserts: continue directly to the smithy after the dialogue.
 	DoorNavigator.go_to_scene(NEXT_SCENE_ID, NEXT_SPAWN_ID)
 
 
@@ -311,33 +270,3 @@ func _show_skip_hint() -> void:
 	label.grow_horizontal = Control.GROW_DIRECTION_BEGIN
 	label.position += Vector2(-16, 12)
 	_hint_layer.add_child(label)
-
-
-func _build_title_card() -> void:
-	_title_layer = CanvasLayer.new()
-	_title_layer.layer = 90
-	add_child(_title_layer)
-	var backdrop := ColorRect.new()
-	backdrop.color = Color(0.04, 0.03, 0.06, 1.0)
-	backdrop.set_anchors_preset(Control.PRESET_FULL_RECT)
-	_title_layer.add_child(backdrop)
-	var column := VBoxContainer.new()
-	column.set_anchors_preset(Control.PRESET_CENTER)
-	column.alignment = BoxContainer.ALIGNMENT_CENTER
-	column.add_theme_constant_override("separation", 18)
-	_title_layer.add_child(column)
-	column.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	for entry: Array in [
-		["REVAL, SPRING 1343", 40],
-		["The almshouse of the Holy Spirit", 24],
-		["", 18],
-		["You see what others do not. Answer with what you can do.", 20],
-		["", 18],
-		["Press interact to begin  (Esc skips to the smithy)", 16],
-	]:
-		var label := Label.new()
-		label.text = String(entry[0])
-		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		label.add_theme_font_size_override("font_size", int(entry[1]))
-		column.add_child(label)

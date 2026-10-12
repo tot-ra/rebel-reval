@@ -12,16 +12,7 @@ three prologue sequences. **Out of scope here:** in-engine scripted-camera cinem
 (removed by ADR 0034), ambience (field reserved, nothing wired), localization of shot text,
 and menu replay of a seen cutscene.
 
-## What the player sees and does
-
-New Game opens directly in the almshouse scene (year card, then the porter duel). The
-narrated still-image vision **I. The Forging of Chains** (six shots, 1219 to spring 1343) was
-removed on 2026-10-11 (**R-1763**, maintainer decision): it will be remade as video, and its
-script and prompts are kept in
-[`cinematics/OPENING_VISION_VIDEO_BRIEF.md`](../../cinematics/OPENING_VISION_VIDEO_BRIEF.md).
-The record `cutscene.prologue.almshouse_dawn` (**II. The almshouse of the Holy Spirit**) stays
-in content but is not played by the shortened opening, and after Kalev takes the apprentice
-**III. The forge** (three shots) walks the boy to the forge door.
+## New Game starts directly in the playable almshouse spirit duel and proceeds to the forge after the Kalev dialogue. The year card and closing still-image cutscene do not play; their authored records are retained but unused by this flow.
 
 | Input | Effect |
 |---|---|
