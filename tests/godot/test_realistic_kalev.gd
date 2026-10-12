@@ -51,7 +51,8 @@ func test_body_keeps_shared_rig_and_every_clip() -> void:
 	# 41 shared bones + 30 finger bones (ADR 0022 follow-up).
 	assert_eq(rig.skeleton().get_bone_count(), 71)
 	assert_true(rig.skeleton().find_bone("handslot.r") >= 0)
-	assert_eq(rig.animation_player().get_animation_list().size(), 76)
+	# The GLB's own library; combat_roll_clip.gd adds its roll clips in a second one.
+	assert_eq(rig.animation_player().get_animation_library(&"").get_animation_list().size(), 76)
 	for motion: StringName in [&"idle", &"walk", &"run", &"hammer_attack", &"guard"]:
 		assert_true(rig.play_animation(motion, 0.0), "missing %s" % motion)
 
