@@ -44,3 +44,6 @@ generated/openai/**/*.png
 # Ad-hoc root-level debug captures and the sidecars Godot generates for them
 /screenshot_*.png
 /screenshot_*.png.import
+
+# Raw Meshy downloads are 30-70 MB; provenance (task id + SHA-256) lives in generated/meshy/*/record.json
+generated/meshy/**/*_raw.glb

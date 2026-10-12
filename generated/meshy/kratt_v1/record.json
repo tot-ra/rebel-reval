@@ -1,0 +1,42 @@
+{
+  "subject": "bst.kratt",
+  "task": "R-1585 (pilot, not installed)",
+  "date": "2026-10-12",
+  "source_image": "docs/BESTIARY/inspiration/kratt_concept.jpg",
+  "runs": [
+    {
+      "meshy_task_id": "01a12f6f-34ea-76dc-8f49-392b314c98de",
+      "endpoint": "openapi/v1/image-to-3d",
+      "ai_model": "latest (integration default)",
+      "should_texture": true,
+      "enable_pbr": true,
+      "texture_prompt": "dry golden-brown straw bundles over bleached bone and rust-black iron frame, old hemp rope bindings, faint amber eye glow, muted earthy palette, 14th century Baltic farm materials",
+      "credits": 30,
+      "duration_s": 104,
+      "raw_file": "kratt_meshy_pbr_raw.glb (gitignored)",
+      "raw_sha256": "51816b0f6f40121778840576a080d7c6fef9a2007bee3250cc67093f7567877e",
+      "raw_triangles": 2098598,
+      "raw_textures": "3 x 2048 (base colour, metallic-roughness, normal)"
+    },
+    {
+      "meshy_task_id": "01a12f70-72af-75cc-94cd-f4da8a8ea8ae",
+      "endpoint": "openapi/v1/image-to-3d",
+      "ai_model": "meshy-6",
+      "should_texture": true,
+      "enable_pbr": false,
+      "credits": 30,
+      "raw_file": "kratt_meshy6_raw.glb (gitignored)",
+      "raw_sha256": "5c1afa6a42913b139ea0fd13a16e0893718b3766654fce4609f991b00e449825"
+    }
+  ],
+  "derived": {
+    "file": "kratt_meshy_40k.glb",
+    "from": "run 1",
+    "sha256": "c62f4544c88e1cf664375034f9b57e0f9a27c313aed07e76772c0b431f0fad51",
+    "steps": "Blender 5.2 headless: Decimate collapse to 40000 tris, uniform scale to 1.8 m, feet on z=0, textures downscaled to 1024, glTF export with JPEG textures q88",
+    "triangles": 40000,
+    "bytes": 1822504
+  },
+  "rights": "Meshy AI output on the project's paid Meshy account; input concept generated with Leonardo AI (see docs/BESTIARY/cards/kratt.md)",
+  "status": "experiment: unrigged, not imported by Godot (generated/meshy/.gdignore), no SOURCES.csv row until installed under assets/creatures/kratt/"
+}
