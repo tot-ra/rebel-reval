@@ -120,7 +120,35 @@ func test_overlay_extended_reflection_sections_follow_snapshot_contract() -> voi
 	assert_true(overlay._psyche_label.visible)
 	assert_true(overlay._psyche_label.text.contains("psyche.state.ruthless (intensity 2)"))
 	assert_true(overlay._loci_label.visible)
-	assert_true(overlay._loci_label.text.contains("hingepuu.locus.nature"))
+	assert_true(overlay._loci_label.text.contains("Nature"))
+	assert_false(
+		overlay._loci_label.text.contains("hingepuu.locus."), "loci must not show raw IDs"
+	)
+	overlay.free()
+
+
+func test_slice_snapshot_renders_visual_sections_not_prose() -> void:
+	# R-1892: gauges + chips + icon cards; prose stays only as the plain summary.
+	var state := GameState.new()
+	state.set_phase(GameState.PHASE_REFLECTION_MORNING)
+	state.adjust_pressure(GameState.PRESSURE_SUSPICION, 1)
+	state.set_relationship(&"rel.henning_trust", -1)
+	var snapshot := ModelScript.build_snapshot(state)
+	var overlay := OverlayScene.instantiate() as ReflectionOverlay
+	var tree := Engine.get_main_loop() as SceneTree
+	tree.root.add_child(overlay)
+	overlay.present(snapshot)
+
+	assert_eq(overlay._gauges_box.get_child_count(), 4, "suspicion, solidarity, scarcity, Henning")
+	assert_false(overlay._plain_summary_label.visible, "prose must not repeat the gauges")
+	assert_true(overlay._gauges_box.tooltip_text.contains("Suspicion 1"))
+	assert_false(overlay._marks_box.visible, "bare tree shows no placeholder chip")
+	assert_eq(overlay.get_mark_labels().size(), 0)
+	assert_false(overlay._loci_label.visible, "slice reflection hides Hingepuu loci")
+	assert_eq(overlay._options_box.get_child_count(), 3)
+	for option: Dictionary in snapshot["options"]:
+		assert_true(ResourceLoader.exists(String(option["icon"])), "conviction icon must exist")
+		assert_false(String(option["effect_label"]).is_empty())
 	overlay.free()
 
 

@@ -67,6 +67,15 @@ Status: implemented (task **R-1800**). Scope: the full-screen overlays `JournalO
 
 `ReflectionController` / `ReflectionModel` / `ReflectionOverlay` (`scripts/reflection/`). The reflection-morning recap of convictions and marks, opened from **Reflect**. Design: [`PSYCHE.md`](./PSYCHE.md), [`NATURAL.md`](./NATURAL.md).
 
+Status: implemented (task **R-1892**, visual-first layout). Scope: the reflection-morning screen only; out of scope: the explorable Hingepuu host (P7-011).
+
+- **Layout:** title and one intro line, then pip gauges for Suspicion, Solidarity, Scarcity (0..3) and Henning's trust (-3..+3, filled outward from a centre tick, red below zero), then coloured chips for the consequence marks (no placeholder when the tree is bare), then three conviction cards (sigil, name, one-line effect such as `Henning +1`). The flavour line and effect prose are the card tooltip.
+- **Accessibility:** the full prose recap (`plain_summary`) is no longer a visible paragraph; it is the gauges' tooltip and `ReflectionOverlay.get_plain_summary_text()`, and still names every mark.
+- **Data:** `ReflectionModel.build_snapshot` adds `gauges` (id, label, value, min, max, color) and per option `icon` and `effect_label`. Conviction effects, flags and IDs are unchanged. NATURAL and Hingepuu loci lines show only when NATURAL is enabled; loci use readable names, never raw `hingepuu.locus.*` IDs.
+- **Input:** cards are focusable buttons; left/right and up/down move between them, Enter/A chooses, Esc closes.
+- **Art:** Duty reuses `assets/UI/spirit_words/word_duty.png`; Fury and Mercy are `assets/UI/convictions/conviction_{fury,mercy}.png` (provenance in `assets/SOURCES.csv`).
+- **Verify:** `--filter=test_reflection_overlay`; plates `tools/godot_render.sh --script tools/capture_reflection_overlay.gd` write `docs/reports/images/hud_menus/reflection_{bare,marked}.png`.
+
 ## World map and travel
 
 `WorldMapController` (on every playable player host) opens `WorldMapOverlay`, which has three views:

@@ -28,8 +28,11 @@ static func build_snapshot(state: GameState) -> Dictionary:
 	var marks := _build_marks(state)
 	return {
 		"title": "Hingepuu",
-		"intro": "Kalev wakes beneath the soul-tree. The night's work still hangs in the branches.",
+		"intro": "The night's work still hangs in the branches.",
 		"recap_lines": _build_recap_lines(state),
+		# WHY: the overlay draws these as pip gauges instead of the recap prose;
+		# recap_lines stay for the accessible plain summary.
+		"gauges": _build_gauges(state),
 		"marks": marks,
 		"plain_summary": _build_plain_summary(state, marks),
 		"options": _build_options(),
@@ -92,6 +95,44 @@ static func _build_recap_lines(state: GameState) -> Array[String]:
 	return lines
 
 
+static func _build_gauges(state: GameState) -> Array[Dictionary]:
+	return [
+		_gauge(
+			"pressure.suspicion", "Suspicion",
+			state.get_pressure(GameState.PRESSURE_SUSPICION),
+			GameState.PRESSURE_MIN, GameState.PRESSURE_MAX, Color(0.86, 0.34, 0.34, 1.0)
+		),
+		_gauge(
+			"pressure.solidarity", "Solidarity",
+			state.get_pressure(GameState.PRESSURE_SOLIDARITY),
+			GameState.PRESSURE_MIN, GameState.PRESSURE_MAX, Color(0.42, 0.66, 0.9, 1.0)
+		),
+		_gauge(
+			"pressure.scarcity", "Scarcity",
+			state.get_pressure(GameState.PRESSURE_SCARCITY),
+			GameState.PRESSURE_MIN, GameState.PRESSURE_MAX, Color(0.86, 0.66, 0.3, 1.0)
+		),
+		_gauge(
+			"rel.henning_trust", "Henning",
+			state.get_relationship(&"rel.henning_trust"),
+			GameState.RELATIONSHIP_MIN, GameState.RELATIONSHIP_MAX, Color(0.45, 0.78, 0.58, 1.0)
+		),
+	]
+
+
+static func _gauge(
+	gauge_id: String, label: String, value: int, min_value: int, max_value: int, color: Color
+) -> Dictionary:
+	return {
+		"id": gauge_id,
+		"label": label,
+		"value": value,
+		"min": min_value,
+		"max": max_value,
+		"color": color,
+	}
+
+
 static func _build_marks(state: GameState) -> Array[Dictionary]:
 	var marks: Array[Dictionary] = []
 	if state.has_forged_modification(COMMISSION_WATCH_BUCKLE, &"honest_work"):
@@ -146,6 +187,8 @@ static func _build_options() -> Array[Dictionary]:
 			"id": "duty",
 			"conviction": CONVICTION_DUTY,
 			"title": CONVICTION_DUTY,
+			"icon": "res://assets/UI/spirit_words/word_duty.png",
+			"effect_label": "Henning +1",
 			"summary": "Answer for the work and keep Henning's trust.",
 			"plain_text": "Duty strengthens Henning's trust by one step.",
 			"effects":
@@ -157,6 +200,8 @@ static func _build_options() -> Array[Dictionary]:
 			"id": "fury",
 			"conviction": CONVICTION_FURY,
 			"title": CONVICTION_FURY,
+			"icon": "res://assets/UI/convictions/conviction_fury.png",
+			"effect_label": "Solidarity +1",
 			"summary": "Let the anger feed the bonds that keep Reval standing together.",
 			"plain_text": "Fury raises solidarity pressure by one step.",
 			"effects":
@@ -168,6 +213,8 @@ static func _build_options() -> Array[Dictionary]:
 			"id": "mercy",
 			"conviction": CONVICTION_MERCY,
 			"title": CONVICTION_MERCY,
+			"icon": "res://assets/UI/convictions/conviction_mercy.png",
+			"effect_label": "Suspicion -1",
 			"summary": "Ease the watchful doubt that followed the night's work.",
 			"plain_text": "Mercy lowers suspicion pressure by one step.",
 			"effects":
