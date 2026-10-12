@@ -51,3 +51,6 @@ No `assets/SOURCES.csv` rows. Generated with Leonardo AI (account default model)
 | Jüri Ratnik | [juri_ratnik.jpg](sheets/juri_ratnik.jpg) | `characters/rebels/img/juri_ratnik.jpg` |
 | Urmas Laar | [urmas_laar.jpg](sheets/urmas_laar.jpg) | `characters/rebels/img/urmas_laar.jpg` |
 | Town Guard Captain | [captain.jpg](sheets/captain.jpg) | `characters/denmark/town_guard/img/captain.jpg` |
+| Master Burchard von Dreileben | [master_burchard_von_dreileben.jpg](sheets/master_burchard_von_dreileben.jpg) | `characters/order/img/master_burchard_von_dreileben.jpg` |
+| Brother Goswin von Herike | [brother_goswin.jpg](sheets/brother_goswin.jpg) | `characters/order/img/brother_goswin.jpg` |
+| Mikhail Kolovrat | [mihail_kolovrat.jpg](sheets/mihail_kolovrat.jpg) | `characters/pskov/img/mihail_kolovrat.jpg` |

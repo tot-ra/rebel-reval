@@ -30,7 +30,7 @@ Born in the remote eastern marshes where old custom held. Marked early by vision
 
 ## Ties & Relationships
 - **Allies:** Harju King; revered and feared by rural rebels; close to the Cult of Metsik, whom he sees as the purest adherents. [Ellen Luik](./ellen.md) keeps songs he claims as his own.
-- **Enemies:** The Order and Church see a pagan sorcerer. Brother Goswin von Herike would count his capture and public execution a paramount objective.
+- **Enemies:** The Order and Church see a pagan sorcerer. [Brother Goswin von Herike](./goswin_herike.md) would count his capture and public execution a paramount objective.
 - **Initial View of the Main Player (Kalev):** Reads him through prophecy, as the reincarnated giant-king. His guidance is cryptic; he is frustrated if the player resists.
 - **[Jüri Ratnik](./juri_ratnik.md):** Fellow king; Jüri uses the blessing and ignores the riddles.
 

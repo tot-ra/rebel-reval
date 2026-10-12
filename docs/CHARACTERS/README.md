@@ -36,6 +36,9 @@ Kalev, Mart, Aita, Kaja, Henning, and Jürgen appear in the vertical slice. Elle
 | Jüri Ratnik | Harju Kings field captain; smith turned war leader | A2 | 1 | `plausible composite` | [Jüri Ratnik](./juri_ratnik.md) |
 | Urmas Laar | Harju Kings seer; village muster face | A2 | 1 | `plausible composite` | [Urmas Laar](./urmas_laar.md) |
 | Town Guard Captain | Danish Crown garrison captain (not Henning) | A1 | extra | `invented` | [Town Guard Captain](./town_guard_captain.md) |
+| Master Burchard von Dreileben | Livonian Order Master; Sõjamäe victor and Act 2-3 antagonist | A2–A3 | 1 | `attested` | [Master Burchard von Dreileben](./burchard_dreileben.md) |
+| Brother Goswin von Herike | Order field commander; Reval castle commander from May 1343 | A2 | 1 | `attested` | [Brother Goswin von Herike](./goswin_herike.md) |
+| Mikhail Kolovrat | Pskov scout and emissary | A2 | 1 | `plausible composite` | [Mikhail Kolovrat](./mikhail_kolovrat.md) |
 
 Remaining Wave B/C names are listed in the [promotion plan](../cast_faction_promotion.md) until their act design gates open. The five remaining Wave A briefs are now landed under **P7-013**.
 

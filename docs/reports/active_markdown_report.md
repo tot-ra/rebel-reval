@@ -14,10 +14,10 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `1275`
+- Active Markdown files scanned: `1278`
 - Markdown files excluded as archive/reference/out of active scope: `764`
-- Local/external links inspected: `14541`
-- Links to active Markdown docs: `12817`
+- Local/external links inspected: `14563`
+- Links to active Markdown docs: `12833`
 - Links to existing archive/reference/non-active local docs: `521`
 - External links skipped for reachability: `192`
 - Issues found: `13`
@@ -148,7 +148,9 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/CHARACTERS/anisia_of_novgorod.md`
 - `docs/CHARACTERS/apprentice.md`
 - `docs/CHARACTERS/brother_hermann.md`
+- `docs/CHARACTERS/burchard_dreileben.md`
 - `docs/CHARACTERS/ellen.md`
+- `docs/CHARACTERS/goswin_herike.md`
 - `docs/CHARACTERS/henning.md`
 - `docs/CHARACTERS/hinrik_cartographer.md`
 - `docs/CHARACTERS/img/README.md`
@@ -163,6 +165,7 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/CHARACTERS/mart.md`
 - `docs/CHARACTERS/mart_weaver.md`
 - `docs/CHARACTERS/martin_black_cloaks.md`
+- `docs/CHARACTERS/mikhail_kolovrat.md`
 - `docs/CHARACTERS/old_toomas.md`
 - `docs/CHARACTERS/order_squire.md`
 - `docs/CHARACTERS/README.md`
