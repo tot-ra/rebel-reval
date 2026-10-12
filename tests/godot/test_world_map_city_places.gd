@@ -39,6 +39,19 @@ func test_church_spawns_land_at_their_church_not_the_forum() -> void:
 		assert_true(at.distance_to(forum) > 50.0, "%s must not fall back to the forum" % spawn)
 
 
+func test_city_place_spawns_never_land_inside_a_closed_building() -> void:
+	# poi.granary.pikk sits inside a non-enterable house: arriving there trapped
+	# the player in a doorless hull.
+	var plan := CityPlan.load_default()
+	for place in WorldMapGraph.CITY_PLACES:
+		var at := CityTravel.spawn_position(plan, String(place["spawn"]))
+		var index := plan.building_at(at)
+		var closed := index >= 0 and not bool(plan.buildings[index].get("enterable", false))
+		assert_false(closed, "%s spawns inside closed %s" % [place["spawn"], index])
+	var granary := CityTravel.spawn_position(plan, "poi.granary.pikk")
+	assert_true(granary.distance_to(Vector2(120.0, -400.0)) < 40.0, "granary stays near its quay")
+
+
 func test_city_markers_sit_on_the_basemap_and_do_not_overlap() -> void:
 	var points: Array[Vector2] = []
 	for place in WorldMapGraph.CITY_PLACES:

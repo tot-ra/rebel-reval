@@ -95,7 +95,7 @@ static func spawn_position(plan: CityPlan, spawn_id: String) -> Vector2:
 		return at + inward * (-12.0 if outside else 7.0)
 	var poi := plan.point_of_interest(id)
 	if not poi.is_empty():
-		return Vector2(poi["at"][0], poi["at"][1])
+		return _clear_of_closed_buildings(plan, Vector2(poi["at"][0], poi["at"][1]))
 	var index := building_index(plan, id)
 	if index >= 0:
 		var b: Dictionary = plan.buildings[index]
@@ -143,24 +143,48 @@ static func site_spawn(plan: CityPlan, spawn_id: String) -> Dictionary:
 	return {}
 
 
+## Points of interest are hand-placed composites and some fall inside an OSM
+## house footprint. Inside a closed (non-enterable) house the player spawns in
+## a solid hull with no door gap and is stuck (poi.granary.pikk), so arrive
+## just outside that house's door, or on the nearest street when the door
+## step is itself blocked. Enterable houses keep the point: their door opens.
+static func _clear_of_closed_buildings(plan: CityPlan, at: Vector2) -> Vector2:
+	var index := plan.building_at(at)
+	if index < 0 or bool(plan.buildings[index].get("enterable", false)):
+		return at
+	var b: Dictionary = plan.buildings[index]
+	if b.get("door") != null:
+		var door := Vector2(b["door"][0], b["door"][1])
+		var step := door + Vector2.from_angle(float(b["door"][2])) * 2.5
+		if plan.building_at(step) < 0:
+			return step
+	var street := _street_near(plan, at)
+	return street if street.is_finite() else at
+
+
 ## The street point nearest to a landmark site's anchor; (INF, INF) when the
 ## plan has no such site.
 static func _street_near_site(plan: CityPlan, site_id: String) -> Vector2:
-	var best := Vector2(INF, INF)
 	for site in plan.sites:
-		if String(site.id) != site_id:
-			continue
-		var best_distance := INF
-		for s: Dictionary in plan.streets:
-			var pts: Array = s["points"]
-			for i in range(1, pts.size()):
-				var a := Vector2(pts[i - 1][0], pts[i - 1][1])
-				var b := Vector2(pts[i][0], pts[i][1])
-				var p := Geometry2D.get_closest_point_to_segment(site.origin, a, b)
-				var distance := p.distance_squared_to(site.origin)
-				if distance < best_distance:
-					best_distance = distance
-					best = p
+		if String(site.id) == site_id:
+			return _street_near(plan, site.origin)
+	return Vector2(INF, INF)
+
+
+## The street centreline point nearest to `at`; (INF, INF) without streets.
+static func _street_near(plan: CityPlan, at: Vector2) -> Vector2:
+	var best := Vector2(INF, INF)
+	var best_distance := INF
+	for s: Dictionary in plan.streets:
+		var pts: Array = s["points"]
+		for i in range(1, pts.size()):
+			var a := Vector2(pts[i - 1][0], pts[i - 1][1])
+			var b := Vector2(pts[i][0], pts[i][1])
+			var p := Geometry2D.get_closest_point_to_segment(at, a, b)
+			var distance := p.distance_squared_to(at)
+			if distance < best_distance:
+				best_distance = distance
+				best = p
 	return best
 
 

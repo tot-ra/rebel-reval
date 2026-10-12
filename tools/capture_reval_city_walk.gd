@@ -104,6 +104,20 @@ func _run() -> void:
 		await _enter_sites(plan)
 		_finish()
 		return
+	if OS.get_cmdline_user_args().has("--only-granary"):
+		# Player-reported trap: district-map travel to the granary, then walk away.
+		DoorNavigator.go_to_scene(&"reval_north", &"anything")
+		for i in 30:  # let the follow camera settle on the new spot
+			await get_tree().physics_frame
+		var start := CityPlan.to_world_xz(_city.player.global_position)
+		print("granary arrival at %s, inside building %d" % [start, _city.inside_building])
+		if _city.inside_building >= 0 and not plan.buildings[_city.inside_building].get("enterable", false):
+			_failures.append("granary: arrived inside closed %s" % plan.buildings[_city.inside_building]["id"])
+		await _shot("walk_granary_arrival")
+		var street := CityTravel._street_near(plan, start)
+		await _walk("granary_walk_out", PackedVector2Array([start, street]))
+		_finish()
+		return
 	if OS.get_cmdline_user_args().has("--only-holy-spirit-benches"):
 		await _walk_holy_spirit_benches(plan)
 		_finish()
@@ -339,9 +353,10 @@ func _features(plan: CityPlan) -> void:
 	# Fast travel inside the city: a district destination moves Kalev in place.
 	DoorNavigator.go_to_scene(&"reval_north", &"anything")
 	await get_tree().physics_frame
-	var granary := plan.point_of_interest("poi.granary.pikk")
+	# The granary point lies in a closed house; arrival is outside its door.
+	var granary := CityTravel.spawn_position(plan, "poi.granary.pikk")
 	var at := CityPlan.to_world_xz(player.global_position)
-	if at.distance_to(Vector2(granary["at"][0], granary["at"][1])) > 3.0:
+	if at.distance_to(granary) > 3.0:
 		_failures.append("fast travel: Kalev at %s, not at the Pikk granary" % at)
 	else:
 		print("fast travel to reval_north arrived at the Pikk granary in place")
