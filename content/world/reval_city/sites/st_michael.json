@@ -1,0 +1,2079 @@
+{
+  "id": "site.st_michael",
+  "name": "St Michael's Cistercian nunnery",
+  "name_1343": "St Michael's (claustrum sanctimonialium Cisterciensis ordinis), the nuns' close on the west belt",
+  "landmark_id": "landmark.st_michael",
+  "confidence": "attested institution (founded 1249, patron of St Olaf since 1267); close extent, ranges, gate and garden plausible composite (no 1343 plan survives; close area unknown)",
+  "sources": [
+    "history/dossiers/religion/churches-and-religious-houses.md",
+    "history/dossiers/religion/ecclesiastical-precinct-boundaries-1343.md"
+  ],
+  "period_notes": [
+    "Church on the footprint of the surviving nunnery church (now the Transfiguration cathedral, Suur-Kloostri): a two-aisled vaulted hall with a short, narrower chancel and a flat east end (dossier I1 ~40-50 x 18-22 m; here 38 x 17.5 m).",
+    "Cistercian restraint: plain gables, a ridge bell-cote instead of a tower, lime-washed interior, grisaille (colourless foliage) glass only, no murals or statues. The nuns hear mass from a west gallery (Nonnenempore) screened from the lay nave; lay people enter by the south portal from the street.",
+    "Claustral ranges north of the church round a small cloister garth with timber lean-to walks (composite): west range (lay sisters, cellarer), north range (refectory, attested room 9.25 x 8.1 m in north-wing archaeology; kitchen at its west end), east range (chapter house, dormitory over).",
+    "Close: a high limestone wall along the lanes with one controlled gate (porta) from the church square into the lay sisters' yard and service wing; kitchen-garden beds and orchard rows take most of the ground (dossier zone shares: built core 15-25%, garden/orchard 40-55%).",
+    "Close area: unknown for 1343. The model fills the lane-bounded block west of Aida and south of Kooli (about 0.5 ha inside the wall, church included), keeping the street-front house rows; the curtain tie-in on the west/north (R-1720) is not modelled here.",
+    "Not shown: the Nuns' Gate name (1355), the 1433 fire repairs, the post-Reformation school and Swedish-era fabric, the Orthodox cathedral fittings."
+  ],
+  "presentation": [],
+  "replaces": [
+    "bldg.osm.w26889132",
+    "bldg.osm.w26900735",
+    "bldg.osm.w201040694",
+    "bldg.osm.w46961813",
+    "bldg.osm.w46961814"
+  ],
+  "replaces_notes": {
+    "bldg.osm.w26889132": "the generic church shell tagged landmark.st_michael",
+    "bldg.osm.w26900735": "house on the church square in front of the south portal",
+    "bldg.osm.w201040694": "shed on the church square",
+    "bldg.osm.w46961813": "house inside the close (garden and orchard ground)",
+    "bldg.osm.w46961814": "house inside the close (east orchard and range ground)"
+  },
+  "anchor": {
+    "at": [
+      -115.04,
+      -272.12
+    ],
+    "rotation_deg": -17.0
+  },
+  "terrace": {
+    "polygon": [
+      [
+        -8.0,
+        -35.0
+      ],
+      [
+        39.0,
+        -35.0
+      ],
+      [
+        39.0,
+        13.2
+      ],
+      [
+        0.6,
+        13.2
+      ],
+      [
+        0.6,
+        24.6
+      ],
+      [
+        -39.0,
+        16.0
+      ],
+      [
+        -39.0,
+        2.0
+      ],
+      [
+        -8.0,
+        2.0
+      ]
+    ],
+    "level": {
+      "door": "door.st_michael.south",
+      "outside_m": 2.0
+    },
+    "blend_m": 6.0
+  },
+  "reserve": [
+    [
+      -40.0,
+      12.2
+    ],
+    [
+      46.0,
+      12.2
+    ],
+    [
+      46.0,
+      41.0
+    ],
+    [
+      14.5,
+      35.6
+    ],
+    [
+      0.0,
+      32.2
+    ],
+    [
+      -40.0,
+      21.6
+    ]
+  ],
+  "close": {
+    "id": "site.st_michael.close",
+    "polygon": [
+      [
+        -51.5,
+        18.5
+      ],
+      [
+        0.0,
+        29.4
+      ],
+      [
+        0.0,
+        12.5
+      ],
+      [
+        28.0,
+        12.5
+      ],
+      [
+        28.0,
+        9.75
+      ],
+      [
+        38.0,
+        9.75
+      ],
+      [
+        38.0,
+        -2.25
+      ],
+      [
+        46.0,
+        -2.25
+      ],
+      [
+        46.0,
+        -46.0
+      ],
+      [
+        24.0,
+        -48.0
+      ],
+      [
+        8.5,
+        -53.0
+      ],
+      [
+        -11.0,
+        -51.5
+      ],
+      [
+        -15.3,
+        -46.1
+      ],
+      [
+        -47.9,
+        9.7
+      ]
+    ],
+    "wall_h": 4.4,
+    "gates": [
+      {
+        "id": "gate.st_michael.porta",
+        "door": "door.st_michael.porta",
+        "street": "Suur-Kloostri (via the church square)"
+      }
+    ]
+  },
+  "visual": {
+    "kind": "builder",
+    "script": "res://scripts/city/sites/st_michael_builder.gd"
+  },
+  "buildings": [
+    {
+      "id": "site.st_michael.church",
+      "name": "St Michael's",
+      "footprint": [
+        [
+          0,
+          -5.0
+        ],
+        [
+          28.0,
+          -5.0
+        ],
+        [
+          28.0,
+          -2.25
+        ],
+        [
+          38.0,
+          -2.25
+        ],
+        [
+          38.0,
+          9.75
+        ],
+        [
+          28.0,
+          9.75
+        ],
+        [
+          28.0,
+          12.5
+        ],
+        [
+          0,
+          12.5
+        ]
+      ],
+      "wall_h": 11.0,
+      "roof": "tile",
+      "minimap_fill": "#7f4636"
+    },
+    {
+      "id": "site.st_michael.west_range",
+      "name": "West range (lay sisters, cellar)",
+      "footprint": [
+        [
+          0.0,
+          -25.5
+        ],
+        [
+          8.0,
+          -25.5
+        ],
+        [
+          8.0,
+          -5.0
+        ],
+        [
+          0.0,
+          -5.0
+        ]
+      ],
+      "wall_h": 6.8,
+      "roof": "tile",
+      "minimap_fill": "#86503c"
+    },
+    {
+      "id": "site.st_michael.north_range",
+      "name": "North range (refectory, kitchen)",
+      "footprint": [
+        [
+          0.0,
+          -34.0
+        ],
+        [
+          28.0,
+          -34.0
+        ],
+        [
+          28.0,
+          -25.5
+        ],
+        [
+          0.0,
+          -25.5
+        ]
+      ],
+      "wall_h": 6.8,
+      "roof": "tile",
+      "minimap_fill": "#86503c"
+    },
+    {
+      "id": "site.st_michael.east_range",
+      "name": "East range (chapter house, dormitory)",
+      "footprint": [
+        [
+          20.0,
+          -25.5
+        ],
+        [
+          28.0,
+          -25.5
+        ],
+        [
+          28.0,
+          -5.0
+        ],
+        [
+          20.0,
+          -5.0
+        ]
+      ],
+      "wall_h": 6.8,
+      "roof": "tile",
+      "minimap_fill": "#86503c"
+    },
+    {
+      "id": "site.st_michael.porta",
+      "name": "Gate house (porta)",
+      "footprint": [
+        [
+          -7.0,
+          18.0
+        ],
+        [
+          0.0,
+          18.0
+        ],
+        [
+          0.0,
+          24.0
+        ],
+        [
+          -7.0,
+          24.0
+        ]
+      ],
+      "wall_h": 5.2,
+      "roof": "tile",
+      "minimap_fill": "#86503c"
+    },
+    {
+      "id": "site.st_michael.service",
+      "name": "Service wing (granary, brewhouse, stable)",
+      "footprint": [
+        [
+          -38.0,
+          3.0
+        ],
+        [
+          -14.0,
+          3.0
+        ],
+        [
+          -14.0,
+          11.0
+        ],
+        [
+          -38.0,
+          11.0
+        ]
+      ],
+      "wall_h": 4.2,
+      "roof": "shingle",
+      "minimap_fill": "#8a6040"
+    }
+  ],
+  "fabric": [
+    {
+      "id": "nave.west",
+      "a": [
+        0,
+        12.5
+      ],
+      "b": [
+        0,
+        -5.0
+      ],
+      "inside": [
+        14.0,
+        3.75
+      ],
+      "thick": 1.4,
+      "y1": 11.0,
+      "inner": "limewash",
+      "openings": [
+        {
+          "kind": "window",
+          "s": 8.75,
+          "w": 2.4,
+          "sill": 5.8,
+          "spring": 9.0,
+          "apex": 10.6,
+          "glass": true,
+          "seed": 3,
+          "lights": 3,
+          "note": "west window over the nuns' gallery"
+        }
+      ]
+    },
+    {
+      "id": "nave.south",
+      "a": [
+        28.0,
+        12.5
+      ],
+      "b": [
+        0,
+        12.5
+      ],
+      "inside": [
+        14.0,
+        3.75
+      ],
+      "thick": 1.4,
+      "y1": 11.0,
+      "inner": "limewash",
+      "openings": [
+        {
+          "kind": "window",
+          "s": 5.6,
+          "w": 2.0,
+          "sill": 3.8,
+          "spring": 8.6,
+          "apex": 10.3,
+          "glass": true,
+          "seed": 5,
+          "lights": 2
+        },
+        {
+          "kind": "window",
+          "s": 14.0,
+          "w": 2.0,
+          "sill": 3.8,
+          "spring": 8.6,
+          "apex": 10.3,
+          "glass": true,
+          "seed": 7,
+          "lights": 2
+        },
+        {
+          "kind": "window",
+          "s": 22.4,
+          "w": 1.4,
+          "sill": 6.0,
+          "spring": 8.6,
+          "apex": 9.9,
+          "glass": true,
+          "seed": 9
+        },
+        {
+          "kind": "door",
+          "s": 22.4,
+          "w": 2.2,
+          "sill": 0.12,
+          "spring": 3.0,
+          "apex": 4.4,
+          "reveal": "ashlar",
+          "note": "south portal: the lay people's door from the street"
+        }
+      ]
+    },
+    {
+      "id": "nave.north",
+      "a": [
+        0,
+        -5.0
+      ],
+      "b": [
+        28.0,
+        -5.0
+      ],
+      "inside": [
+        14.0,
+        3.75
+      ],
+      "thick": 1.4,
+      "y1": 11.0,
+      "inner": "limewash",
+      "openings": [
+        {
+          "kind": "window",
+          "s": 14.0,
+          "w": 1.6,
+          "sill": 6.4,
+          "spring": 8.8,
+          "apex": 10.1,
+          "glass": true,
+          "seed": 11,
+          "lights": 2,
+          "note": "above the cloister walk roof"
+        },
+        {
+          "kind": "recess",
+          "s": 4.0,
+          "w": 1.0,
+          "sill": 4.45,
+          "spring": 6.3,
+          "apex": 6.8,
+          "note": "nuns' door from the dormitory range onto the west gallery"
+        }
+      ]
+    },
+    {
+      "id": "nave.east",
+      "a": [
+        28.0,
+        -5.0
+      ],
+      "b": [
+        28.0,
+        12.5
+      ],
+      "inside": [
+        14.0,
+        3.75
+      ],
+      "thick": 1.4,
+      "y1": 11.0,
+      "inner": "limewash",
+      "openings": [
+        {
+          "kind": "arch",
+          "s": 8.75,
+          "w": 7.0,
+          "sill": 0.12,
+          "spring": 5.6,
+          "apex": 8.0,
+          "note": "chancel arch"
+        }
+      ]
+    },
+    {
+      "id": "choir.north",
+      "a": [
+        28.0,
+        -2.25
+      ],
+      "b": [
+        38.0,
+        -2.25
+      ],
+      "inside": [
+        33.0,
+        3.75
+      ],
+      "thick": 1.3,
+      "y1": 9.0,
+      "inner": "limewash",
+      "floor": 0.45,
+      "inner_from": 0.0,
+      "openings": [
+        {
+          "kind": "window",
+          "s": 5.0,
+          "w": 1.4,
+          "sill": 3.2,
+          "spring": 6.6,
+          "apex": 7.8,
+          "glass": true,
+          "seed": 13
+        }
+      ]
+    },
+    {
+      "id": "choir.east",
+      "a": [
+        38.0,
+        -2.25
+      ],
+      "b": [
+        38.0,
+        9.75
+      ],
+      "inside": [
+        33.0,
+        3.75
+      ],
+      "thick": 1.3,
+      "y1": 9.0,
+      "inner": "limewash",
+      "floor": 0.45,
+      "note": "flat Cistercian east end with three stepped lancets",
+      "openings": [
+        {
+          "kind": "window",
+          "s": 3.6,
+          "w": 1.0,
+          "sill": 2.8,
+          "spring": 6.4,
+          "apex": 7.4,
+          "glass": true,
+          "seed": 14
+        },
+        {
+          "kind": "window",
+          "s": 6.0,
+          "w": 1.2,
+          "sill": 2.6,
+          "spring": 7.0,
+          "apex": 8.2,
+          "glass": true,
+          "seed": 15
+        },
+        {
+          "kind": "window",
+          "s": 8.4,
+          "w": 1.0,
+          "sill": 2.8,
+          "spring": 6.4,
+          "apex": 7.4,
+          "glass": true,
+          "seed": 16
+        }
+      ]
+    },
+    {
+      "id": "choir.south",
+      "a": [
+        38.0,
+        9.75
+      ],
+      "b": [
+        28.0,
+        9.75
+      ],
+      "inside": [
+        33.0,
+        3.75
+      ],
+      "thick": 1.3,
+      "y1": 9.0,
+      "inner": "limewash",
+      "floor": 0.45,
+      "inner_to": 0.0,
+      "openings": [
+        {
+          "kind": "window",
+          "s": 5.0,
+          "w": 1.4,
+          "sill": 3.2,
+          "spring": 6.6,
+          "apex": 7.8,
+          "glass": true,
+          "seed": 17
+        }
+      ]
+    },
+    {
+      "id": "porta.east",
+      "a": [
+        0.0,
+        24.0
+      ],
+      "b": [
+        0.0,
+        18.0
+      ],
+      "inside": [
+        -3.5,
+        21.0
+      ],
+      "thick": 0.75,
+      "y1": 5.2,
+      "inner": "limewash",
+      "openings": [
+        {
+          "kind": "arch",
+          "s": 3.0,
+          "w": 3.0,
+          "sill": 0.12,
+          "spring": 2.6,
+          "apex": 3.7,
+          "reveal": "ashlar",
+          "note": "outer gate from the church square"
+        }
+      ]
+    },
+    {
+      "id": "porta.west",
+      "a": [
+        -7.0,
+        18.0
+      ],
+      "b": [
+        -7.0,
+        24.0
+      ],
+      "inside": [
+        -3.5,
+        21.0
+      ],
+      "thick": 0.75,
+      "y1": 5.2,
+      "inner": "limewash",
+      "openings": [
+        {
+          "kind": "arch",
+          "s": 3.0,
+          "w": 3.0,
+          "sill": 0.12,
+          "spring": 2.6,
+          "apex": 3.7,
+          "note": "inner arch to the lay sisters' yard"
+        }
+      ]
+    },
+    {
+      "id": "porta.north",
+      "a": [
+        0.0,
+        18.0
+      ],
+      "b": [
+        -7.0,
+        18.0
+      ],
+      "inside": [
+        -3.5,
+        21.0
+      ],
+      "thick": 0.75,
+      "y1": 5.2,
+      "inner": "limewash",
+      "openings": [
+        {
+          "kind": "window",
+          "s": 3.5,
+          "w": 0.5,
+          "sill": 1.3,
+          "spring": 1.9,
+          "glass": false,
+          "note": "turn window (rota) of the portress"
+        }
+      ]
+    },
+    {
+      "id": "porta.south",
+      "a": [
+        -7.0,
+        24.0
+      ],
+      "b": [
+        0.0,
+        24.0
+      ],
+      "inside": [
+        -3.5,
+        21.0
+      ],
+      "thick": 0.75,
+      "y1": 5.2,
+      "inner": "limewash",
+      "openings": [
+        {
+          "kind": "window",
+          "s": 3.5,
+          "w": 0.4,
+          "sill": 2.8,
+          "spring": 3.4,
+          "glass": false
+        }
+      ]
+    },
+    {
+      "id": "range.west.outer",
+      "a": [
+        0,
+        -34.0
+      ],
+      "b": [
+        0,
+        -5.0
+      ],
+      "inside": [
+        4.0,
+        -19.5
+      ],
+      "thick": 0.9,
+      "y1": 6.8,
+      "collide": false,
+      "inner": "dark",
+      "openings": [
+        {
+          "kind": "window",
+          "s": 4.0,
+          "w": 0.45,
+          "sill": 1.3,
+          "spring": 2.1,
+          "glass": false
+        },
+        {
+          "kind": "window",
+          "s": 10.0,
+          "w": 0.45,
+          "sill": 1.3,
+          "spring": 2.1,
+          "glass": false
+        },
+        {
+          "kind": "niche",
+          "s": 16.0,
+          "w": 1.4,
+          "sill": 0.12,
+          "spring": 2.3,
+          "apex": 2.9,
+          "note": "lay sisters' door to the garden"
+        },
+        {
+          "kind": "window",
+          "s": 22.0,
+          "w": 0.45,
+          "sill": 1.3,
+          "spring": 2.1,
+          "glass": false
+        },
+        {
+          "kind": "window",
+          "s": 27.0,
+          "w": 0.45,
+          "sill": 1.3,
+          "spring": 2.1,
+          "glass": false
+        },
+        {
+          "kind": "window",
+          "s": 4.0,
+          "w": 0.8,
+          "sill": 4.3,
+          "spring": 5.4,
+          "apex": 6.0,
+          "glass": true,
+          "seed": 21
+        },
+        {
+          "kind": "window",
+          "s": 10.0,
+          "w": 0.8,
+          "sill": 4.3,
+          "spring": 5.4,
+          "apex": 6.0,
+          "glass": true,
+          "seed": 22
+        },
+        {
+          "kind": "window",
+          "s": 16.0,
+          "w": 0.8,
+          "sill": 4.3,
+          "spring": 5.4,
+          "apex": 6.0,
+          "glass": true,
+          "seed": 23
+        },
+        {
+          "kind": "window",
+          "s": 22.0,
+          "w": 0.8,
+          "sill": 4.3,
+          "spring": 5.4,
+          "apex": 6.0,
+          "glass": true,
+          "seed": 24
+        },
+        {
+          "kind": "window",
+          "s": 27.0,
+          "w": 0.8,
+          "sill": 4.3,
+          "spring": 5.4,
+          "apex": 6.0,
+          "glass": true,
+          "seed": 25
+        }
+      ]
+    },
+    {
+      "id": "range.north.outer",
+      "a": [
+        28.0,
+        -34.0
+      ],
+      "b": [
+        0,
+        -34.0
+      ],
+      "inside": [
+        14.0,
+        -29.75
+      ],
+      "thick": 0.9,
+      "y1": 6.8,
+      "collide": false,
+      "inner": "dark",
+      "openings": [
+        {
+          "kind": "window",
+          "s": 3.5,
+          "w": 0.5,
+          "sill": 1.3,
+          "spring": 2.1,
+          "glass": false
+        },
+        {
+          "kind": "window",
+          "s": 8.0,
+          "w": 1.0,
+          "sill": 1.9,
+          "spring": 4.6,
+          "apex": 5.6,
+          "glass": true,
+          "seed": 26,
+          "note": "refectory"
+        },
+        {
+          "kind": "window",
+          "s": 12.0,
+          "w": 1.0,
+          "sill": 1.9,
+          "spring": 4.6,
+          "apex": 5.6,
+          "glass": true,
+          "seed": 27
+        },
+        {
+          "kind": "window",
+          "s": 16.0,
+          "w": 1.0,
+          "sill": 1.9,
+          "spring": 4.6,
+          "apex": 5.6,
+          "glass": true,
+          "seed": 28
+        },
+        {
+          "kind": "niche",
+          "s": 21.0,
+          "w": 1.2,
+          "sill": 0.12,
+          "spring": 2.3,
+          "apex": 2.9,
+          "note": "kitchen door to the orchard"
+        },
+        {
+          "kind": "window",
+          "s": 25.0,
+          "w": 0.5,
+          "sill": 1.3,
+          "spring": 2.1,
+          "glass": false
+        }
+      ]
+    },
+    {
+      "id": "range.north.east_end",
+      "a": [
+        28.0,
+        -34.0
+      ],
+      "b": [
+        28.0,
+        -25.5
+      ],
+      "inside": [
+        14.0,
+        -29.75
+      ],
+      "thick": 0.9,
+      "y1": 6.8,
+      "collide": false,
+      "inner": "dark",
+      "openings": [
+        {
+          "kind": "window",
+          "s": 4.25,
+          "w": 0.5,
+          "sill": 1.3,
+          "spring": 2.1,
+          "glass": false
+        },
+        {
+          "kind": "window",
+          "s": 4.25,
+          "w": 0.7,
+          "sill": 4.0,
+          "spring": 5.2,
+          "apex": 5.8,
+          "glass": true,
+          "seed": 29
+        }
+      ]
+    },
+    {
+      "id": "range.east.outer",
+      "a": [
+        28.0,
+        -25.5
+      ],
+      "b": [
+        28.0,
+        -5.0
+      ],
+      "inside": [
+        24.0,
+        -15.25
+      ],
+      "thick": 0.9,
+      "y1": 6.8,
+      "collide": false,
+      "inner": "dark",
+      "openings": [
+        {
+          "kind": "window",
+          "s": 4.0,
+          "w": 0.45,
+          "sill": 1.3,
+          "spring": 2.1,
+          "glass": false
+        },
+        {
+          "kind": "window",
+          "s": 9.0,
+          "w": 0.45,
+          "sill": 1.3,
+          "spring": 2.1,
+          "glass": false
+        },
+        {
+          "kind": "window",
+          "s": 15.0,
+          "w": 0.45,
+          "sill": 1.3,
+          "spring": 2.1,
+          "glass": false
+        },
+        {
+          "kind": "window",
+          "s": 4.0,
+          "w": 0.8,
+          "sill": 4.3,
+          "spring": 5.4,
+          "apex": 6.0,
+          "glass": true,
+          "seed": 31,
+          "note": "dormitory"
+        },
+        {
+          "kind": "window",
+          "s": 9.0,
+          "w": 0.8,
+          "sill": 4.3,
+          "spring": 5.4,
+          "apex": 6.0,
+          "glass": true,
+          "seed": 32
+        },
+        {
+          "kind": "window",
+          "s": 15.0,
+          "w": 0.8,
+          "sill": 4.3,
+          "spring": 5.4,
+          "apex": 6.0,
+          "glass": true,
+          "seed": 33
+        }
+      ]
+    },
+    {
+      "id": "range.west.garth",
+      "a": [
+        8.0,
+        -5.0
+      ],
+      "b": [
+        8.0,
+        -25.5
+      ],
+      "inside": [
+        4.0,
+        -15.25
+      ],
+      "thick": 0.9,
+      "y1": 6.8,
+      "collide": false,
+      "inner": "dark",
+      "openings": [
+        {
+          "kind": "niche",
+          "s": 5.0,
+          "w": 1.0,
+          "sill": 0.12,
+          "spring": 2.2,
+          "apex": 2.8
+        },
+        {
+          "kind": "window",
+          "s": 13.0,
+          "w": 0.5,
+          "sill": 4.3,
+          "spring": 5.4,
+          "apex": 6.0,
+          "glass": true,
+          "seed": 34
+        }
+      ]
+    },
+    {
+      "id": "range.north.garth",
+      "a": [
+        8.0,
+        -25.5
+      ],
+      "b": [
+        20.0,
+        -25.5
+      ],
+      "inside": [
+        14.0,
+        -29.75
+      ],
+      "thick": 0.9,
+      "y1": 6.8,
+      "collide": false,
+      "inner": "dark",
+      "openings": [
+        {
+          "kind": "niche",
+          "s": 6.0,
+          "w": 1.4,
+          "sill": 0.12,
+          "spring": 2.4,
+          "apex": 3.1,
+          "note": "refectory door"
+        },
+        {
+          "kind": "window",
+          "s": 3.0,
+          "w": 0.8,
+          "sill": 4.3,
+          "spring": 5.4,
+          "apex": 6.0,
+          "glass": true,
+          "seed": 35
+        },
+        {
+          "kind": "window",
+          "s": 9.0,
+          "w": 0.8,
+          "sill": 4.3,
+          "spring": 5.4,
+          "apex": 6.0,
+          "glass": true,
+          "seed": 36
+        }
+      ]
+    },
+    {
+      "id": "range.east.garth",
+      "a": [
+        20.0,
+        -25.5
+      ],
+      "b": [
+        20.0,
+        -5.0
+      ],
+      "inside": [
+        24.0,
+        -15.25
+      ],
+      "thick": 0.9,
+      "y1": 6.8,
+      "collide": false,
+      "inner": "dark",
+      "openings": [
+        {
+          "kind": "niche",
+          "s": 10.25,
+          "w": 1.4,
+          "sill": 0.12,
+          "spring": 2.4,
+          "apex": 3.1,
+          "note": "chapter house door"
+        },
+        {
+          "kind": "window",
+          "s": 7.6,
+          "w": 0.8,
+          "sill": 0.9,
+          "spring": 2.2,
+          "apex": 2.8,
+          "glass": true,
+          "seed": 37
+        },
+        {
+          "kind": "window",
+          "s": 12.9,
+          "w": 0.8,
+          "sill": 0.9,
+          "spring": 2.2,
+          "apex": 2.8,
+          "glass": true,
+          "seed": 38
+        }
+      ]
+    },
+    {
+      "id": "service.south",
+      "a": [
+        -38.0,
+        11.0
+      ],
+      "b": [
+        -14.0,
+        11.0
+      ],
+      "inside": [
+        -26.0,
+        7.0
+      ],
+      "thick": 0.9,
+      "y1": 4.2,
+      "collide": false,
+      "inner": "dark",
+      "openings": [
+        {
+          "kind": "niche",
+          "s": 4.0,
+          "w": 2.4,
+          "sill": 0.12,
+          "spring": 2.6,
+          "note": "cart door of the granary"
+        },
+        {
+          "kind": "niche",
+          "s": 10.0,
+          "w": 1.1,
+          "sill": 0.12,
+          "spring": 2.1,
+          "note": "brewhouse"
+        },
+        {
+          "kind": "window",
+          "s": 13.0,
+          "w": 0.5,
+          "sill": 1.3,
+          "spring": 1.9,
+          "glass": false
+        },
+        {
+          "kind": "niche",
+          "s": 18.0,
+          "w": 1.6,
+          "sill": 0.12,
+          "spring": 2.2,
+          "note": "stable"
+        },
+        {
+          "kind": "window",
+          "s": 21.5,
+          "w": 0.5,
+          "sill": 1.3,
+          "spring": 1.9,
+          "glass": false
+        }
+      ]
+    },
+    {
+      "id": "service.north",
+      "a": [
+        -14.0,
+        3.0
+      ],
+      "b": [
+        -38.0,
+        3.0
+      ],
+      "inside": [
+        -26.0,
+        7.0
+      ],
+      "thick": 0.9,
+      "y1": 4.2,
+      "collide": false,
+      "inner": "dark",
+      "openings": [
+        {
+          "kind": "window",
+          "s": 6.0,
+          "w": 0.5,
+          "sill": 1.3,
+          "spring": 1.9,
+          "glass": false
+        },
+        {
+          "kind": "window",
+          "s": 14.0,
+          "w": 0.5,
+          "sill": 1.3,
+          "spring": 1.9,
+          "glass": false
+        }
+      ]
+    },
+    {
+      "id": "service.west",
+      "a": [
+        -38.0,
+        3.0
+      ],
+      "b": [
+        -38.0,
+        11.0
+      ],
+      "inside": [
+        -26.0,
+        7.0
+      ],
+      "thick": 0.9,
+      "y1": 4.2,
+      "collide": false,
+      "inner": "dark",
+      "openings": []
+    },
+    {
+      "id": "service.east",
+      "a": [
+        -14.0,
+        11.0
+      ],
+      "b": [
+        -14.0,
+        3.0
+      ],
+      "inside": [
+        -26.0,
+        7.0
+      ],
+      "thick": 0.9,
+      "y1": 4.2,
+      "collide": false,
+      "inner": "dark",
+      "openings": [
+        {
+          "kind": "niche",
+          "s": 4.0,
+          "w": 1.0,
+          "sill": 0.12,
+          "spring": 2.1
+        }
+      ]
+    }
+  ],
+  "walk": {
+    "walls": [
+      {
+        "from": [
+          -47.9,
+          9.7
+        ],
+        "to": [
+          -51.5,
+          18.5
+        ],
+        "thickness": 0.85,
+        "close": true
+      },
+      {
+        "from": [
+          -51.5,
+          18.5
+        ],
+        "to": [
+          0.0,
+          29.4
+        ],
+        "thickness": 0.85,
+        "close": true
+      },
+      {
+        "from": [
+          0.0,
+          29.4
+        ],
+        "to": [
+          0.0,
+          24.0
+        ],
+        "thickness": 0.85,
+        "close": true
+      },
+      {
+        "from": [
+          0.0,
+          18.0
+        ],
+        "to": [
+          0.0,
+          12.5
+        ],
+        "thickness": 0.85,
+        "close": true
+      },
+      {
+        "from": [
+          38.0,
+          -2.25
+        ],
+        "to": [
+          46.0,
+          -2.25
+        ],
+        "thickness": 0.85,
+        "close": true
+      },
+      {
+        "from": [
+          46.0,
+          -2.25
+        ],
+        "to": [
+          46.0,
+          -46.0
+        ],
+        "thickness": 0.85,
+        "close": true
+      },
+      {
+        "from": [
+          46.0,
+          -46.0
+        ],
+        "to": [
+          24.0,
+          -48.0
+        ],
+        "thickness": 0.85,
+        "close": true
+      },
+      {
+        "from": [
+          24.0,
+          -48.0
+        ],
+        "to": [
+          8.5,
+          -53.0
+        ],
+        "thickness": 0.85,
+        "close": true
+      },
+      {
+        "from": [
+          8.5,
+          -53.0
+        ],
+        "to": [
+          -11.0,
+          -51.5
+        ],
+        "thickness": 0.85,
+        "close": true
+      },
+      {
+        "from": [
+          -11.0,
+          -51.5
+        ],
+        "to": [
+          -15.3,
+          -46.1
+        ],
+        "thickness": 0.85,
+        "close": true
+      },
+      {
+        "from": [
+          -15.3,
+          -46.1
+        ],
+        "to": [
+          -47.9,
+          9.7
+        ],
+        "thickness": 0.85,
+        "close": true
+      }
+    ],
+    "solid": [
+      [
+        [
+          0.0,
+          -34.0
+        ],
+        [
+          28.0,
+          -34.0
+        ],
+        [
+          28.0,
+          -5.0
+        ],
+        [
+          0.0,
+          -5.0
+        ]
+      ],
+      [
+        [
+          -38.0,
+          3.0
+        ],
+        [
+          -14.0,
+          3.0
+        ],
+        [
+          -14.0,
+          11.0
+        ],
+        [
+          -38.0,
+          11.0
+        ]
+      ],
+      [
+        [
+          6.75,
+          -0.35
+        ],
+        [
+          7.25,
+          -0.35
+        ],
+        [
+          7.25,
+          0.15
+        ],
+        [
+          6.75,
+          0.15
+        ]
+      ],
+      [
+        [
+          6.75,
+          7.35
+        ],
+        [
+          7.25,
+          7.35
+        ],
+        [
+          7.25,
+          7.85
+        ],
+        [
+          6.75,
+          7.85
+        ]
+      ]
+    ],
+    "ramps": [],
+    "floors": [
+      {
+        "id": "floor.choir_steps",
+        "polygon": [
+          [
+            24.8,
+            0.6
+          ],
+          [
+            28.5,
+            0.6
+          ],
+          [
+            28.5,
+            6.9
+          ],
+          [
+            24.8,
+            6.9
+          ]
+        ],
+        "height": 0.12,
+        "rise": [
+          24.8,
+          0.12,
+          28.5,
+          0.45
+        ]
+      },
+      {
+        "id": "floor.choir",
+        "polygon": [
+          [
+            28.5,
+            -0.95
+          ],
+          [
+            36.7,
+            -0.95
+          ],
+          [
+            36.7,
+            8.45
+          ],
+          [
+            28.5,
+            8.45
+          ]
+        ],
+        "height": 0.45
+      },
+      {
+        "id": "floor.nave",
+        "polygon": [
+          [
+            1.4,
+            -3.6
+          ],
+          [
+            26.6,
+            -3.6
+          ],
+          [
+            26.6,
+            11.1
+          ],
+          [
+            1.4,
+            11.1
+          ]
+        ],
+        "height": 0.12
+      },
+      {
+        "id": "floor.porta",
+        "polygon": [
+          [
+            -6.25,
+            18.75
+          ],
+          [
+            -0.75,
+            18.75
+          ],
+          [
+            -0.75,
+            23.25
+          ],
+          [
+            -6.25,
+            23.25
+          ]
+        ],
+        "height": 0.12
+      }
+    ]
+  },
+  "rooms": [
+    {
+      "id": "room.nave",
+      "name": "St Michael's (nave)",
+      "polygon": [
+        [
+          1.4,
+          -3.6
+        ],
+        [
+          26.6,
+          -3.6
+        ],
+        [
+          26.6,
+          11.1
+        ],
+        [
+          1.4,
+          11.1
+        ]
+      ],
+      "floor": "floor.nave",
+      "hide": [
+        "Church/Upper",
+        "Church/Roof"
+      ]
+    },
+    {
+      "id": "room.choir",
+      "name": "St Michael's (sanctuary)",
+      "polygon": [
+        [
+          26.6,
+          -0.95
+        ],
+        [
+          36.7,
+          -0.95
+        ],
+        [
+          36.7,
+          8.45
+        ],
+        [
+          26.6,
+          8.45
+        ]
+      ],
+      "floor": "floor.choir",
+      "hide": [
+        "Church/Upper",
+        "Church/Roof"
+      ]
+    },
+    {
+      "id": "room.porta",
+      "name": "St Michael's gate house (porta)",
+      "polygon": [
+        [
+          -6.25,
+          18.75
+        ],
+        [
+          -0.75,
+          18.75
+        ],
+        [
+          -0.75,
+          23.25
+        ],
+        [
+          -6.25,
+          23.25
+        ]
+      ],
+      "floor": "floor.porta",
+      "hide": [
+        "Porta/Upper",
+        "Porta/Roof"
+      ]
+    }
+  ],
+  "doors": [
+    {
+      "id": "door.st_michael.south",
+      "a": [
+        6.7,
+        12.38
+      ],
+      "b": [
+        4.5,
+        12.38
+      ],
+      "inward": [
+        0,
+        -1
+      ],
+      "floor": "floor.nave",
+      "height": 3.0,
+      "style": "studded",
+      "paint": [
+        0.3,
+        0.22,
+        0.16
+      ]
+    },
+    {
+      "id": "door.st_michael.porta",
+      "a": [
+        -0.12,
+        19.5
+      ],
+      "b": [
+        -0.12,
+        22.5
+      ],
+      "inward": [
+        -1,
+        0
+      ],
+      "floor": "floor.porta",
+      "height": 2.6,
+      "style": "studded",
+      "paint": [
+        0.34,
+        0.25,
+        0.17
+      ]
+    }
+  ],
+  "garden_beds": [
+    {
+      "id": "beds.st_michael.0",
+      "at": [
+        -31.0,
+        -4.0
+      ],
+      "rotation_deg": 0.0,
+      "bed": [
+        7.0,
+        1.3
+      ],
+      "beds": 3
+    },
+    {
+      "id": "beds.st_michael.1",
+      "at": [
+        -22.5,
+        -4.0
+      ],
+      "rotation_deg": 0.0,
+      "bed": [
+        7.0,
+        1.3
+      ],
+      "beds": 4
+    },
+    {
+      "id": "beds.st_michael.2",
+      "at": [
+        -14.0,
+        -4.0
+      ],
+      "rotation_deg": 0.0,
+      "bed": [
+        7.0,
+        1.3
+      ],
+      "beds": 4
+    },
+    {
+      "id": "beds.st_michael.3",
+      "at": [
+        -23.5,
+        -13.5
+      ],
+      "rotation_deg": 0.0,
+      "bed": [
+        7.0,
+        1.3
+      ],
+      "beds": 4
+    },
+    {
+      "id": "beds.st_michael.4",
+      "at": [
+        -14.0,
+        -13.5
+      ],
+      "rotation_deg": 0.0,
+      "bed": [
+        7.0,
+        1.3
+      ],
+      "beds": 4
+    },
+    {
+      "id": "beds.st_michael.5",
+      "at": [
+        -13.5,
+        -23.0
+      ],
+      "rotation_deg": 0.0,
+      "bed": [
+        7.0,
+        1.3
+      ],
+      "beds": 3
+    }
+  ],
+  "orchards": [
+    {
+      "id": "orchard.st_michael.north",
+      "polygon": [
+        [
+          -8.0,
+          -37.0
+        ],
+        [
+          44.0,
+          -37.0
+        ],
+        [
+          44.0,
+          -44.0
+        ],
+        [
+          24.0,
+          -46.0
+        ],
+        [
+          8.5,
+          -51.0
+        ],
+        [
+          -8.0,
+          -49.5
+        ]
+      ],
+      "step": 5.6
+    },
+    {
+      "id": "orchard.st_michael.east",
+      "polygon": [
+        [
+          30.5,
+          -33.5
+        ],
+        [
+          44.0,
+          -33.5
+        ],
+        [
+          44.0,
+          -4.0
+        ],
+        [
+          30.5,
+          -4.0
+        ]
+      ],
+      "step": 5.4
+    }
+  ],
+  "dressing": [
+    {
+      "id": "yard.cart",
+      "kind": "cart",
+      "at": [
+        -24.0,
+        16.5
+      ],
+      "rotation_deg": 10.0,
+      "solid": [
+        3.2,
+        1.6
+      ]
+    },
+    {
+      "id": "yard.grain",
+      "kind": "trade_goods",
+      "variant": "livonian_grain_flax",
+      "at": [
+        -33.5,
+        14.0
+      ],
+      "rotation_deg": 0.0,
+      "solid": [
+        2.4,
+        1.6
+      ]
+    }
+  ],
+  "chimneys": [
+    [
+      2.2,
+      12.6,
+      -29.75
+    ],
+    [
+      -26.0,
+      10.2,
+      7.0
+    ]
+  ],
+  "anchors": [
+    {
+      "id": "anchor.st_michael.south_portal",
+      "at": [
+        5.6,
+        15.2
+      ]
+    },
+    {
+      "id": "anchor.st_michael.porta",
+      "at": [
+        2.5,
+        21.0
+      ]
+    },
+    {
+      "id": "anchor.st_michael.high_altar",
+      "at": [
+        35.4,
+        3.75
+      ]
+    },
+    {
+      "id": "anchor.st_michael.yard",
+      "at": [
+        -20.0,
+        16.0
+      ]
+    }
+  ],
+  "review_shots": [
+    {
+      "id": "gate",
+      "eye": [
+        16.0,
+        1.7,
+        30.0
+      ],
+      "look": [
+        -2.0,
+        3.2,
+        20.0
+      ],
+      "fov": 62
+    },
+    {
+      "id": "close",
+      "eye": [
+        -36.0,
+        1.7,
+        -6.0
+      ],
+      "look": [
+        10.0,
+        5.0,
+        -36.0
+      ],
+      "fov": 66
+    },
+    {
+      "id": "orchard",
+      "eye": [
+        42.0,
+        1.7,
+        -42.0
+      ],
+      "look": [
+        4.0,
+        6.0,
+        -18.0
+      ],
+      "fov": 66
+    },
+    {
+      "id": "yard",
+      "eye": [
+        -9.0,
+        1.7,
+        24.5
+      ],
+      "look": [
+        -30.0,
+        3.0,
+        6.0
+      ],
+      "fov": 66
+    },
+    {
+      "id": "nave",
+      "eye": [
+        24.0,
+        1.7,
+        3.75
+      ],
+      "look": [
+        2.0,
+        5.0,
+        3.75
+      ],
+      "fov": 72
+    }
+  ],
+  "review_views": [
+    {
+      "id": "nave",
+      "at": [
+        14.0,
+        8.0
+      ],
+      "facing_deg": 180
+    },
+    {
+      "id": "porta",
+      "at": [
+        -3.5,
+        21.0
+      ],
+      "facing_deg": 180
+    }
+  ],
+  "program_1343": {
+    "summary": "Enclosed convent of Cistercian nuns from Harju-Viru vassal and upper-town families; patron of St Olaf's; landlord of manors and urban mills. Its west/north walls are being tied into the new town curtain in the 1340s.",
+    "processes": [
+      "the hours sung by the nuns on the west gallery",
+      "mass for lay people in the nave",
+      "lay sisters at the gate: alms, deliveries and the turn window",
+      "estate dues (grain, flax) unloaded in the service yard",
+      "kitchen-garden and orchard work inside the close"
+    ]
+  }
+}

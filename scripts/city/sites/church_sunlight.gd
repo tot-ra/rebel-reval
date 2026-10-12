@@ -27,7 +27,9 @@ const GLOBAL := &"window_sun"
 const INSET := 0.3
 const SHADOW_SUFFIX := "Shadow"
 ## Glazing programmes, the same table as city_stained_glass.gdshaderinc.
-const PROGRAMMES := [0, 2, 7, 1, 6, 7, 3, 1, 7, 0, 2, 7, 4, 1, 7, 0, 6, 7, 5, 1, 7, 2, 0, 7]
+const PROGRAMMES := [
+	0, 2, 7, 1, 6, 7, 3, 1, 7, 0, 2, 7, 4, 1, 7, 0, 6, 7, 5, 1, 7, 2, 0, 7, 7, 7, 7, 7, 7, 7
+]
 
 static var _plate_means: Array[Color] = []
 
@@ -378,7 +380,7 @@ static func window_tint(win: Dictionary) -> Color:
 	var height := float(win["height"])
 	var panels := maxi(1, int(floorf(height * 0.6667 / maxf(width, 0.01) / 1.3 + 0.5)))
 	var code := int(win["code"])
-	var programme := clampi(code / 16, 0, 3)
+	var programme := clampi(code / 16, 0, 4)
 	var seed := code % 16
 	var sum := Color(0, 0, 0)
 	for light in lights:

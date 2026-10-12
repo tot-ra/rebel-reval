@@ -8,11 +8,12 @@ const float PLATE_ASPECT = 0.6667;
 // Glazing programme per church, six panels each, cycled across the window
 // (index from SiteKit.GLAZING): the patron and Marian panels first, grisaille
 // between them as in parish glazing of the period.
-const int PROGRAMMES[24] = {
+const int PROGRAMMES[30] = {
 	0, 2, 7, 1, 6, 7, // 0 Holy Spirit (hospital church: Passion and Marian cycle)
 	3, 1, 7, 0, 2, 7, // 1 St Olaf
 	4, 1, 7, 0, 6, 7, // 2 St Nicholas (and its St Barbara chapel)
-	5, 1, 7, 2, 0, 7 // 3 St Mary
+	5, 1, 7, 2, 0, 7, // 3 St Mary
+	7, 7, 7, 7, 7, 7 // 4 St Michael (Cistercian statutes: colourless grisaille only)
 };
 
 // Plate lookup for a point `uv` (metres across the window from its left edge,
@@ -21,7 +22,7 @@ const int PROGRAMMES[24] = {
 // (xy), the plate layer (z) and the saddle-bar factor (w, 0 on the iron bar).
 vec4 glass_panel(vec2 uv, float total_width, float lights, float height, int code) {
 	float width = total_width / lights;
-	int programme = clamp(code / 16, 0, 3);
+	int programme = clamp(code / 16, 0, 4);
 	int seed = code % 16;
 	int light = int(floor(uv.x / width));
 	vec2 lu = vec2(mod(uv.x, width), uv.y);
