@@ -14,19 +14,19 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `1284`
+- Active Markdown files scanned: `1285`
 - Markdown files excluded as archive/reference/out of active scope: `765`
-- Local/external links inspected: `14681`
-- Links to active Markdown docs: `12888`
+- Local/external links inspected: `14687`
+- Links to active Markdown docs: `12894`
 - Links to existing archive/reference/non-active local docs: `537`
 - External links skipped for reachability: `192`
-- Issues found: `3`
+- Issues found: `0`
 
 ## Issue counts
 
 | Code | Count |
 | --- | ---: |
-| `BROKEN_LINK` | 3 |
+| `BROKEN_LINK` | 0 |
 | `BROKEN_ANCHOR` | 0 |
 | `DUPLICATE_CHARACTER_NAME` | 0 |
 | `CONTRADICTORY_DATE` | 0 |
@@ -34,11 +34,7 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Issues
 
-| Code | Location | Detail |
-| --- | --- | --- |
-| `BROKEN_LINK` | `docs/SYSTEMS/CITY_SEA.md:91` | Local Markdown link target does not exist: `../reports/images/city/fish_textured_models.jpg` |
-| `BROKEN_LINK` | `docs/SYSTEMS/HOUSEHOLDS.md:52` | Local Markdown link target does not exist: `../reports/images/city/households_partition_clear_door.jpg` |
-| `BROKEN_LINK` | `docs/SYSTEMS/SEAMLESS_CITY.md:88` | Local Markdown link target does not exist: `../reports/images/vegetation/r1684_roof_shingle.jpg` |
+No active Markdown documentation issues found.
 
 ## Active files scanned
 
@@ -88,6 +84,7 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/adr/0045-seasons.md`
 - `docs/adr/0046-church-services-and-collective-channeling.md`
 - `docs/adr/0047-interaction-stances-and-conversation-camera.md`
+- `docs/adr/0048-psychological-spells-and-willpower-cost.md`
 - `docs/adr/README.md`
 - `docs/AGENT_LOOPS.md`
 - `docs/ANIMAL_3D_SOURCING.md`

@@ -79,7 +79,7 @@ Status: implemented (task **R-1889**, [ADR 0047](../adr/0047-interaction-stances
 
 ## Psychological spells and willpower (planned)
 
-Status: planned (design only, no code; maintainer discussion 2026-10-13). Scope: turning the five word spells into a catalogue of psychological spells that raise or lower soul lights, a willpower cost for being in the spirit world, and the consequences of a duel with an ordinary resident (TALK-8). Out of scope: runtime text generation (lines are authored offline), free-text input, permanent changes to a resident's soul lights (open decision 1), a new art set before an art task names the files (P0-040).
+Status: planned (design only, no code; maintainer discussion 2026-10-13). Scope: turning the five word spells into a catalogue of psychological spells that raise or lower soul lights, a willpower cost for being in the spirit world, and the consequences of a duel with an ordinary resident (TALK-8). Out of scope: runtime text generation (lines are authored offline), free-text input, permanent changes to a resident's soul lights (decision 1), a new art set before an art task names the files (P0-040).
 
 **Why.** Today a word can only strike (lower) a light, being in sight costs nothing, and a duel with a stranger changes nothing. So the hero can duel everyone for free and a duel has only one tactic: break the other person. Most social behaviour (praise, a dark joke, gaslighting) can be described as a push on one or two of the seven soul lights, up or down. That gives a vocabulary that is both readable and morally loaded, without a good/evil score.
 
@@ -148,14 +148,18 @@ Default from the R-1889 follow-up (option B: guilt, memory, Hope/Fear), keyed by
 - **Left:** memory only.
 - City Hope and Fear from stranger duels are capped at 5 events per save, so they cannot be farmed.
 
-### Open decisions
+### Decisions (provisional, 2026-10-13)
 
-1. **Lasting light shifts.** Should praise or gaslighting permanently move that resident's soul light by 1 (saved per resident)? Default: no, shifts last only for the duel and the memory carries the consequence.
-2. **Soul-light growth for the hero** (option C of the R-1889 follow-up): default no until NATURAL point balance (P7-011) is in.
-3. **Separate focus pool** instead of shared willpower: default no (one orb, one rule).
-4. All numbers above are prototype values for the first playtest.
+The four open questions were put to the maintainer on 2026-10-13; both prompts timed out unanswered, so the design defaults are adopted as provisional decisions. Approving [ADR 0048](../adr/0048-psychological-spells-and-willpower-cost.md) confirms them; a different answer reopens the matching task.
 
-**Implementation order (tasks to create):** SPL-1 catalogue data, schema and validator (`content/spirit_spells/`); SPL-2 duel lights, trust meter and the three endings in `SpiritDuel`; SPL-3 willpower maximum, drain and recovery; SPL-4 loadout, learning and save; SPL-5 contextual lines for the generic and porter duels; TALK-8 stranger consequences (depends on R-1889 and SPL-2).
+1. **Lasting light shifts:** no. Praise or gaslighting move a resident's lights only for the duel; the per-resident memory (TALK-8) carries the consequence.
+2. **Soul-light growth for the hero** (option C of the R-1889 follow-up): no, until NATURAL point balance (P7-011) is in.
+3. **Separate focus pool:** no. Spirit sight, duels, word spells and elemental magic share one willpower pool (one orb, one rule).
+4. **Numbers:** every number in this section is a prototype value for the first playtest.
+
+**ADR.** Willpower drain in spirit sight is a new rule on existing systems, not a new system or pillar, so it needs no equivalent-cost scope removal. It does reverse the accepted ADR 0041 ("Free, no timer, no resource"), and raising spells extend item 4 of the still-proposed ADR 0038, so the rules go through [ADR 0048](../adr/0048-psychological-spells-and-willpower-cost.md) (Proposed). SPL-2 and SPL-3 wait for its approval; SPL-1 is data only and may start.
+
+**Implementation order (board tasks):** **R-1913** SPL-1 catalogue data, schema and validator (`content/spirit_spells/`); **R-1914** SPL-2 duel lights, trust meter and the three endings in `SpiritDuel`; **R-1915** SPL-3 willpower maximum, drain and recovery; **R-1916** SPL-4 loadout, learning and save; **R-1917** SPL-5 contextual lines for the generic and porter duels; **R-1918** TALK-8 stranger consequences (after TALK-5 / R-1889, shipped in 228783e3, and SPL-2).
 
 **Verify (when built).** `--filter=test_spirit_word_spells,test_spirit_duel_aura,test_character_conversation,test_save_service` plus a new `test_spirit_spells`, and a capture of a trust win.
 
