@@ -4,7 +4,7 @@ Status: implemented for `site.raekoja_plats`, `site.holy_spirit`, `site.st_olaf`
 
 ## How to read this page
 
-Each building has one section: status and links, captured views (built sites only), **function in 1343**, **plan** (rooms and what happens in them), **decoration**, **left out** (later fabric), **historical research** (project dossiers first, then external studies) and related board work. Shared runtime behaviour, the authoring contract, verification and limits for all sites follow after the buildings.
+Each built site has its own page under [`landmark_sites/`](./landmark_sites/); pending and proposed buildings have a section on this page. A page or section holds: status and links, captured views (built sites only, plus a gallery of further views), **function in 1343**, **plan** (rooms and what happens in them), **decoration**, **left out** (later fabric), **historical research** (project dossiers first, then external studies) and related board work. Shared runtime behaviour, the authoring contract, verification and limits for all sites follow after the buildings.
 
 - **Implemented** means a registered, navigable model in the seamless city, not final art approval. All eight sites use **interim GDScript builders**; the final Blender-generated shells required by [ADR 0032](../adr/0032-bespoke-landmark-sites-in-the-city.md) are pending. Images are captured model evidence (review snapshots, not concept art or photos of modern Tallinn); ongoing fixes may postdate them.
 - **Pending** means ADR 0032 already names the site but no manifest exists. **Proposed** means the building stood in 1343 and is worth a site, but no ADR or task names it yet; adding one is a scope decision (see [AGENTS.md, Scope](../../AGENTS.md#scope)).
@@ -16,16 +16,16 @@ Each building has one section: status and links, captured views (built sites onl
 
 | Building | Kind | 1343 state | Game status |
 |---|---|---|---|
-| [Council hall and market square](#council-hall-and-market-square-raekoja-plats) | political, market | standing (consistorium 1322) | implemented `site.raekoja_plats` |
-| [Holy Spirit church and almshouse](#holy-spirit-church-and-almshouse-pühavaimu) | parish, council church, hospice | standing | implemented `site.holy_spirit` |
-| [St Olaf's church](#st-olafs-church-oleviste) | parish | standing, tower unfinished | implemented `site.st_olaf` |
-| [St Nicholas' church](#st-nicholas-church-niguliste) | merchant parish | standing | implemented `site.st_nicholas` |
-| [St Mary's cathedral](#st-marys-cathedral-toomkirik-dome-church) | cathedral, bishop | building site | implemented `site.st_mary` |
-| [Kalev's smithy](#kalevs-smithy-task-r-1643) | craft house, game hub | plausible composite | implemented `site.kalev_smithy` |
+| [Council hall and market square](./landmark_sites/raekoja_plats.md) | political, market | standing (consistorium 1322) | implemented `site.raekoja_plats` |
+| [Holy Spirit church and almshouse](./landmark_sites/holy_spirit.md) | parish, council church, hospice | standing | implemented `site.holy_spirit` |
+| [St Olaf's church](./landmark_sites/st_olaf.md) | parish | standing, tower unfinished | implemented `site.st_olaf` |
+| [St Nicholas' church](./landmark_sites/st_nicholas.md) | merchant parish | standing | implemented `site.st_nicholas` |
+| [St Mary's cathedral](./landmark_sites/st_mary.md) | cathedral, bishop | building site | implemented `site.st_mary` |
+| [Kalev's smithy](./landmark_sites/kalev_smithy.md) | craft house, game hub | plausible composite | implemented `site.kalev_smithy` |
 | [Danish royal castle (Small Castle)](#danish-royal-castle-on-toompea-castrum-minus) | political, military | standing | pending (partial non-site enclosure) |
 | [Bishop's court and chapter on the Great Castle](#bishops-court-chapter-and-vassal-houses-castrum-maius) | political, religious | standing | proposed |
-| [St Catherine's Dominican friary](#st-catherines-dominican-friary-task-r-1718) | friary, preaching, school | standing, smaller than its peak | implemented `site.st_catherine` |
-| [St Michael's Cistercian nunnery](#st-michaels-cistercian-nunnery) | convent | standing, wall tie-in under way | implemented `site.st_michael` |
+| [St Catherine's Dominican friary](./landmark_sites/st_catherine.md) | friary, preaching, school | standing, smaller than its peak | implemented `site.st_catherine` |
+| [St Michael's Cistercian nunnery](./landmark_sites/st_michael.md) | convent | standing, wall tie-in under way | implemented `site.st_michael` |
 | [St Canute's guild house](#st-canutes-guild-house-kanutigilde) | guild, political | house held from 1326 | proposed |
 | [St Olaf's guild house](#st-olafs-guild-house-olaigilde) | guild, political | house held from 1341 | proposed |
 | [St John's leper hospital](#st-johns-leper-hospital-jaani-seek) | hospital, outside the walls | standing (first mention 1237) | proposed |
@@ -42,254 +42,18 @@ Each building has one section: status and links, captured views (built sites onl
 
 ## Implemented sites
 
-### Council hall and market square (Raekoja plats)
-
-**Status:** implemented, interim builder. Stable ID: `site.raekoja_plats`. [Manifest](../../content/world/reval_city/sites/raekoja_plats.json) · [Model builder](../../scripts/city/sites/raekoja_plats_builder.gd).
-
-| Council hall from the forum | Square and market layout |
-|---|---|
-| ![1343 council hall viewed across the forum](../reports/images/historical_walk/hw5_forum_to_hall.jpg) | ![Aerial view of the council hall and market square](../reports/images/historical_walk/hw5_forum_aerial.jpg) |
-
-**Function in 1343:** seat of the town council under Lübeck law; the Vogt's lower court; the treasury and town books; a meeting place for burghers and a store for merchants' goods. The building is recorded in 1322 as a *consistorium* (meeting room) over a *cellarium civitatis* (town cellar) (attested). The market square (*forum*) is the town's trading floor and place of punishment.
-
-**Plan** (manifest `program_1343`, after the merchant-house pattern the dossier records: "cellar and diele–dornse expansion precede 1343"):
-
-- **Diele** (great hall, entered from the portal): the Vogt's lower court.
-  - The Vogt on a raised dais under the town arms (white cross on red), with two assessors.
-  - A court barrier with a gap for the parties; before it a litigant pleading and an oath-helper; an oath lectern with a book and relic box.
-  - A petitioner on the bench along the market wall; the hall servant (Ratsdiener) by the door.
-  - The Kämmerer at his counting table (reckoning cloth, coin, balance), with an iron-bound strongbox.
-  - The trapdoor to the cellar store; two oak posts on stone pads, clear of every walking line; pricket candle stands.
-- **Dornse** (council chamber) behind a limestone partition with its own door:
-  - Two burgomasters (not four; that bench is later) on the high-backed seat under a striped woollen hanging and the arms; four councillors on benches.
-  - The council table with green cloth, the town seal, red wax and parchment.
-  - The town scribe at a slanted desk under the window; the book cupboard (town books lie flat), the three-lock town chest, hypocaust vents in the floor.
-- **Cellar** (*cellarium civitatis*): reached by the trapdoor; not walkable yet.
-- **Forum:** three merchants' booths (*Kramerbuden*, recorded 1339) and two shoemakers' stalls (AWB 1341) against the hall front; market stalls with cloth, fish, grain and pottery; two carts and trade goods; the pillory at the forum centre (`anchor.forum_pillory_1337`, plausible composite). Packed earth with patches of paving. **No well** (the dossier resolves it as absent, R-1207).
-
-**Exterior:** one tall storey of grey limestone rubble, 26 × 14.8 m, walls 0.95 m thick; a steep (50°) monk-and-nun tile roof between stone parapet gables (coping, kneelers, apex stone, three stepped blind lancet niches, two rows of putlog holes, a loft door with hoist beam in the east gable). Market front: a pointed-arch portal (dressed jambs, tympanum, worn threshold flush with the floor); six rectangular windows with dressed frames, iron grilles and plank shutters (closed, ajar or folded back, varied per window); two red-and-white banners on iron rods. Smaller lights at the rear, a footing plinth and alternating dressed quoins.
-
-**Decoration:** lime wash painted with red-ochre false-ashlar joints, an earthy dado and a frieze (chevron in the diele, green-and-red vine scroll in the dornse). This is a plausible composite after 14th-century Hanseatic halls; no Reval hall painting of 1343 survives. Limestone flag floors; oak joists under a boarded ceiling.
-
-**Left out (later):** the arcade, the upper storey and the octagonal tower (1371–74 extension, 1402–04 rebuild by master Ghercke); the Burghers' Hall and vaulted Councillors' Hall of today; *Vana Toomas* (1530).
-
-**Historical research:**
-
-- Project: [Raekoja plats extents and council hall](../../history/dossiers/topography/raekoja-plats-extents-1343.md); [Town council and officers](../../history/dossiers/people/town-council-and-officers.md); [Law courts and punishment](../../history/dossiers/power/law-courts-and-punishment.md); [Writing and records](../../history/dossiers/culture/writing-and-records-reval-1343.md); [Burgher house plan](../../history/dossiers/architecture/burgher-house-plan.md); [Council prosopography 1340–45](../../history/dossiers/people/reval-council-prosopography-1340-1345.md); [Forum pillory placement](../../history/dossiers/topography/forum-pillory-placement-1337.md); [Market weekday](../../history/dossiers/economy/reval-market-weekday-1340s.md); [Town Hall remodel report](../reports/town_hall_1343_remodel.md) (earlier district model).
-- External: Tallinn Town Hall, ["The building"](https://raekoda.tallinn.ee/en/the-building) (1322 consistorium and cellarium; three walls and seven windows of the oldest building survive); Medieval Heritage, ["Tallinn - town hall"](https://medievalheritage.eu/en/main-page/heritage/estonia/tallinn-town-hall/) (building phases, Neumann & Nottbeck plans and section); W. Neumann, E. Nottbeck, *Geschichte und Kunstdenkmäler der Stadt Reval*, vol. 2, Reval 1904; K. Alttoa et al., *Mittelalterliche Baukunst in Livland*, Berlin 2017.
-
-**Related work:** R-1610 (`idea`, forum paving), R-1612 (`idea`, market crowd and goods). Capture context: [historical walk ledger](../reports/historical_walk_coverage.md), walk 5 (2026-10-10).
-
-### Holy Spirit church and almshouse (Pühavaimu)
-
-**Status:** implemented, interim builder. Stable ID: `site.holy_spirit`. [Manifest](../../content/world/reval_city/sites/holy_spirit.json) · [Model builder](../../scripts/city/sites/holy_spirit_builder.gd). Built on the footprint of the surviving church (OSM) and compared view by view with photos of the real building (Wikimedia Commons; the manifest's `review_shots` reproduce their viewpoints).
-
-| Church exterior and precinct | Almshouse range |
-|---|---|
-| ![Holy Spirit church and its precinct from above](../reports/images/historical_walk/hw5_holy_aerial.jpg) | ![Holy Spirit almshouse range in the seamless city](../reports/images/historical_walk/hw5_holy_almshouse.jpg) |
-
-**Function in 1343:** parish church by the market (priest attested 1316, church 1319) and the chapel of the Holy Spirit almshouse (*hospice*) for the sick and poor; the council's church by later tradition (council mass before sittings is **not** attested for 1343, so it is not shown as routine).
-
-**Plan:**
-
-- **Two-aisle hall** with a flat timber ceiling (attested); square piers carrying pointed arches between the aisles.
-- **Choir:** narrower and lower, rectangular, on the north aisle's axis, three steps up; the high altar.
-- **Nave:** plain oak benches with rounded end boards and a cross aisle at the courtyard door, set out so Kalev can walk them (1.8 m middle aisle between the two north blocks, 1.5 m between rows, a free strip along the arcade piers; the site is turned about 26° so Kalev's square footprint needs about 1.06 m across a gap; `test_holy_spirit_nave_benches_leave_walkable_aisles` checks every slot).
-- **Doors:** a pointed north portal near the west end and the small pointed door beside it, as today; the south door from the almshouse yard (dual-entrance tradition, attested / composite).
-- **Almshouse** (1334): beside the choir, opening into the south aisle, with the inmates' beds.
-- **Bells:** an octagonal timber turret with a shingled spire on the west gable.
-
-**Decoration:** white lime render outside, crow-stepped gables; two-light lancets with mullions, roundels and leaded stained glass (smaller than the 1360 windows); a wide-plank nave floor, stone flags and tomb slabs in the choir; iron candle crowns from the beams; a plain painted pulpit on a pier; saint figures on pier consoles; the rood beam with the crucifix, Mary and John; a winged retable as a smaller, plainer form of the later carved altar (predella, gilded shrine of five saints under pointed canopies, painted wings, cresting). Shared glazing, murals and sunlight are in [Church interiors](./CHURCH_INTERIORS.md).
-
-**Left out (later):** rib vaults, the large Gothic windows and the stone tower (all 1360s), the north portal (1597), the clock (1684), the painted galleries (17th c.), Notke's altarpiece (1483), the baroque spire.
-
-**Historical research:**
-
-- Project: [Churches and religious houses](../../history/dossiers/religion/churches-and-religious-houses.md) (Holy Spirit section); [Liturgical calendar, spring 1343](../../history/dossiers/religion/liturgical-calendar-spring-1343.md).
-- External: Wikipedia, ["Church of the Holy Spirit, Tallinn"](https://en.wikipedia.org/wiki/Church_of_the_Holy_Spirit,_Tallinn) (1316/1319 records, 1360 vaults); HistoryFiles, ["Holy Spirit Church"](https://www.historyfiles.co.uk/ChurchesEurope/Estonia/Harju_Tallinn07.htm) (almshouse church, twin-nave tradition).
-
-**Related work:** R-1613 (`idea`, terrain bank), R-1614 (`idea`, lime-render weathering), R-1615 (`idea`, precinct research). R-1126 / LM-03 (`todo`) targets the legacy district model, not a missing city church. Capture context: walk 5 (2026-10-10).
-
-### St Olaf's church (Oleviste)
-
-**Status:** implemented, interim builder. Stable ID: `site.st_olaf`. [Manifest](../../content/world/reval_city/sites/st_olaf.json) · [Model builder](../../scripts/city/sites/st_olaf_builder.gd). Set into the surviving church's site, west tower on the tower's position; strict 1343 by maintainer decision, compared with photos of today's interior.
-
-| Whole church and unfinished tower | South elevation |
-|---|---|
-| ![St Olaf's short hall church and unfinished west tower from above](../reports/images/historical_walk/hw6_olaf_aerial.jpg) | ![South side of the 1343 St Olaf model](../reports/images/historical_walk/hw6_olaf_south.jpg) |
-
-**Function in 1343:** the second parish of Lower Town, north by the harbour approach; Scandinavian-settler tradition, dedicated to St Olaf of Norway (seafarers); patronage held by the St Michael nuns since 1267 (attested); the St Olaf craft umbrella keeps altars here.
-
-**Plan:**
-
-- **West tower:** walls 3.2 m thick, standing unfinished at about 30 m (attested); the tower hall at its foot with the font by the west door.
-- **Nave:** a three-aisle hall of four bays on square piers with moulded imposts, under quadripartite rib vaults with red-ochre brick ribs (vaults completed c. 1330, attested; aisle layout composite); plank floor and benches.
-- **Chancel:** small, east; the high altar with a winged retable and the rood.
-- **Side altars:** guild altars at the aisle ends; a pulpit on a pier.
-- **Tower works yard:** racked-back top courses, a provisional timber bell frame with two bells under a shingled cap, a putlog scaffold with board decks on the north and west faces, a hoist jib with a rope, a masons' yard with stone stacks and a cart.
-
-**Decoration:** grey limestone rubble outside, stepped east gables, dressed pointed portals in the tower and on the south side; lime-washed walls inside; two-light lancets with stained glass.
-
-**Left out (later):** the upper tower (1364+); the record spire (c. 1450); the basilica nave with clerestory and star vaults and the long choir (after the 1433 fire); the Mary chapel (16th c.); 19th-century fittings.
-
-**Historical research:**
-
-- Project: [Churches and religious houses](../../history/dossiers/religion/churches-and-religious-houses.md) (St Olaf section); [Guild structure](../../history/dossiers/crafts/guild-structure.md) (St Olaf umbrella altars); [St Olaf's 1343 remodel](../reports/st_olaf_1343_remodel.md) (earlier district model).
-- External: Medieval Heritage, ["Tallinn - St Olaf's Church"](https://medievalheritage.eu/en/main-page/heritage/estonia/tallinn-st-olafs-church-oleviste-kirik/) (1330 vault boss, chronological stratification plan after Lumiste / Neumann); Oleviste congregation, ["History of the Church"](https://oleviste.ee/church/history-of-the-church/); HistoryFiles, ["St Olaf's Church"](https://www.historyfiles.co.uk/ChurchesEurope/Estonia/Harju_Tallinn09.htm).
-
-**Related work:** R-1650 (`in_progress`, churchyard), R-1653 (`idea`, nave buttresses), R-1656 (`idea`, tower worksite). Capture context: walk 6 (2026-10-11); the plates precede the ongoing churchyard pass.
-
-### St Nicholas' church (Niguliste)
-
-**Status:** implemented, interim builder. Stable ID: `site.st_nicholas`. [Manifest](../../content/world/reval_city/sites/st_nicholas.json) · [Model builder](../../scripts/city/sites/st_nicholas_builder.gd). Strict 1343, compared with photos of today's church.
-
-| Church and cemetery | South side and St Barbara chapel |
-|---|---|
-| ![St Nicholas church, low tower and cemetery from above](../reports/images/historical_walk/hw6_nic_aerial.jpg) | ![St Nicholas south elevation with St Barbara charnel chapel](../reports/images/historical_walk/hw6_nic_south_chapel.jpg) |
-
-**Function in 1343:** the wealthiest parish, founded by Westphalian merchants from Gotland; patron of merchants and seafarers; family and guild altars; built with barred doors and loopholes as a refuge before the town wall enclosed it (attested).
-
-**Plan:**
-
-- **Nave and two aisles** (hall church, 1230s to c. 1290, attested) with a square chancel and a sacristy.
-- **Low west tower** with defensive loopholes; the nave west wall (`nave.west.mid`) runs across the tower front with the tower arch, which has its own floor (`floor.tower_arch`).
-- **North porch** (first half of the 14th c., attested); a beggar's place.
-- **Walkable nave:** benches (1.6 m) leave a 1.6 m middle aisle and stop 0.4 m short of the pier faces, so a row is entered from the aisle or the side aisle and never through a slot that only just fits Kalev's footprint (0.875 × 0.625 m); `test_st_nicholas_nave_is_walkable_and_west_wall_closed` checks every gap.
-- **St Barbara chapel** (first recorded 1342): a charnel house at the cemetery edge with bones and skulls on low benches and an altar of St Barbara.
-- **Cemetery:** wooden grave crosses, slabs and mounds, levelled with the church.
-
-**Decoration:** bare grey limestone piers and grey vault ribs against whitewashed walls and webs, as inside today; a stone-flag floor with many tomb slabs; single lancets with stained glass; candle crowns; a pulpit; a winged retable; side altars of merchant families and guilds. Outside: grey limestone rubble with stepped buttresses; a whitewashed tower with pointed blind arcading under a steep shingled helm.
-
-**Left out (later):** the basilica nave and ambulatory choir (1405–20 and later); the high tower and baroque spire; the later side chapels (1470s+); Rode's altar (1478–81); the organ and brass chandeliers.
-
-**Historical research:**
-
-- Project: [Churches and religious houses](../../history/dossiers/religion/churches-and-religious-houses.md) (St Nicholas section); [Niguliste placement contract](../tasks/urban_form/UF-10_niguliste_exterior.md) (legacy district target).
-- External: Medieval Heritage, ["Tallinn - St Nicholas' Church"](https://medievalheritage.eu/en/main-page/heritage/estonia/tallinn-st-nicholas-church-niguliste-kirik/) (build phases, 1342 St Barbara chapel); Niguliste Museum, ["St. Nicholas' Church"](https://nigulistemuuseum.ekm.ee/en/introduction/st-nicholas-church/).
-
-**Related work:** R-1651 (`in_progress`, churchyard enclosure and paths), R-1654 (`idea`, north porch). R-1134 / LM-08 (`todo`) is legacy-targeted model work. Capture context: walk 6 (2026-10-11); the plates precede the ongoing churchyard pass.
-
-### St Mary's cathedral (Toomkirik, Dome church)
-
-**Status:** implemented, interim builder. Stable ID: `site.st_mary`. The **1343 construction site is intentional**, not a missing model: the choir is usable while the Gothic nave is being built. [Manifest](../../content/world/reval_city/sites/st_mary.json) · [Model builder](../../scripts/city/sites/st_mary_builder.gd).
-
-| Cathedral and building yard | Finished eastern end |
-|---|---|
-| ![St Mary's cathedral with unfinished nave, crane and building yard](../reports/images/historical_walk/hw7_st_mary_aerial.jpg) | ![Finished eastern choir of the 1343 St Mary's cathedral model](../reports/images/historical_walk/hw7_mary_east.jpg) |
-
-**Function in 1343:** the cathedral of the Bishopric of Reval (consecrated 1240 as *matrix ecclesiae*), seat of Bishop Olaf of Roskilde (pro-Danish), the chapter of canons and the cathedral school (by 1319). Burghers are baptised and married in their Lower Town parishes, not here.
-
-**Plan:**
-
-- **Finished and in use** (plausible composite): the chancel with a polygonal apse and tracery windows holding the chapter's choir stalls, the high altar with a winged retable and the rood; the vestry; the easternmost nave bay (arcade, clerestory, rib vaults and roof) closed westwards by a plank screen with a door and a boarded temporary gable.
-- **Rising westwards** (the building site): bare rubble walls at 7, 4.5 and 2 m with ragged courses; half-built piers; the second bay's arcade arches turned on timber centering; a low west wall with a plank site gate; packed earth with stone chips; a treadwheel crane with jib, rope and a stone in a lewis; putlog scaffolds and ladders.
-- **Yards:** a masons' lodge with banker benches and templates, stone stacks, a lime pit, a cart, and a detached timber belfry with two bells.
-
-**Decoration:** white render and buttresses outside as today; inside the finished bay, lime wash and stained glass after [Church interiors](./CHURCH_INTERIORS.md).
-
-**Left out (later):** the west tower and baroque helm (1779), the later chapels, funeral hatchments and monuments, box pews, brass chandeliers, the pulpit (1686).
-
-**Historical research:**
-
-- Project: [Toompea castle and upper town](../../history/dossiers/architecture/toompea-castle-and-upper-town.md); [Churches and religious houses](../../history/dossiers/religion/churches-and-religious-houses.md); [Small Castle and Great Castle interiors](../../history/dossiers/architecture/toompea-small-castle-interior.md) (`GC-cathedral`, `GC-chapter`); [St Mary's historical art review](../reports/r671_st_marys_historical_art_review.md) (earlier district model).
-- External: Toomkirik, ["Ajalugu"](https://toomkirik.ee/toomkirik/ajalugu/) (1240 consecration, Gothic enlargement from the 1330s).
-
-**Related work:** R-1678 (`idea`, cathedral chapter destination binding). R-1122 / UF-12 (`todo`) is a legacy district placement contract. Capture context: walk 7 (2026-10-11), **visual acceptance pending** in the [walk ledger](../reports/historical_walk_coverage.md).
-
-### Kalev's smithy (task R-1643)
-
-Status: implemented (task **R-1643**, maintainer request 2026-10-10), interim shell with reused GLB furnishings. Stable ID: `site.kalev_smithy`. [Manifest](../../content/world/reval_city/sites/kalev_smithy.json) · [Model builder](../../scripts/city/sites/kalev_smithy_builder.gd). Scope: the smithy as one building of the seamless city, modelled from scratch as a landmark site, and the new-game start inside it. Out of scope: the forge gameplay (Mart, the anvil pickup, commissions, saves), the loft as a walkable floor, Blender GLB of the shell.
-
-| Street exterior | Interior cutaway |
-|---|---|
-| ![Kalev's smithy street front, shop window and shingle roof](../reports/images/city/kalev_smithy_street.jpg) | ![Cutaway of Kalev's forge bay and living bay](../reports/images/city/kalev_smithy_cutaway.jpg) |
-
-**Function in 1343:** a master smith's workshop and home, the game's hub. No Reval smithy plan of 1343 survives, so it is a plausible composite: a stone-footed street-front craft house, hot work in limestone (Hanseatic fire practice), forge bay about 55% of the floor behind the street door, living bay behind a stone partition, smoke out through a rubble stack in the gable.
-
-**Plan:**
-
-- **Outside (14 × 9.4 m):** limestone rubble walls 0.62 m thick under a 48° shingle roof, plain gables, the chimney stack in the east gable with a lit plume, plank shutters folded back, the street window as a shop front (fold-down counter on brackets with horseshoes, nails and a knife; awning leaf on props), a loft door in the west gable, and an open lean-to on oak posts with the charcoal crib, cordwood, a crank grindstone (Luttrell Psalter, c. 1330) and bar iron. The yard behind the yard door is the site's `reserve`.
-- **Forge bay (`room.forge`):** beaten-earth floor, sooted rubble walls, tie beams under open rafters. The old forge's GLB kit in its old relative layout, turned so the hearth backs onto the east gable: raised hearth under the clay hood with live embers, flames, sparks and the flickering forge light (`MapViewSmithyPropBuilder.add_smithy_furnace`), great bellows on the smith's left, anvil about 2.4 m down-fire, slack tub beside it, stock rack, scrap crate, finishing bench, charcoal bin.
-- **Living bay (`room.living`):** lime-washed walls, board floor, the boarded loft on joists with a ladder, bed, chest, table with a candle and jug, chair, bench, shelf.
-
-**Decoration and art reuse:** the walls use the old smithy's photoreal plates (`MapViewKalevSmithyInterior.material_for`: limestone rubble, lime wash, beaten earth, boards), re-scaled from the old 0.87 m district unit to metres and tinted warm; kit GLBs are mounted at 0.87 scale; their contact-shadow cards (`ksi_loft_shadow`) are drawn clear.
-
-**Left out:** trip-hammers, water power, brick chimney pots, glazing, a screw vice (per the dossier).
-
-**Start:** the almshouse prologue and every `forge` redirect arrive at spawn `kalev_smithy` (manifest `spawns`, site-local (10.5, 5.6), facing 52°): in the forge bay by the hearth, the 6 m third-person camera inside the room by the street door. The HUD reads "Inside: Kalev's smithy (forge)"; the `forge` music zone (`zone.smithy`) is centred on the site.
-
-**Historical research:** [Smithy workshop layout](../../history/dossiers/architecture/smithy-workshop-layout.md); [Blacksmith materials and techniques](../../history/dossiers/crafts/blacksmith-materials-and-techniques.md); [Schmiede-Amt ordinances before 1363](../../history/dossiers/crafts/schmiede-amt-ordinances-pre-1363.md); [Earlier smithy interior redesign](../reports/kalev_smithy_interior_redesign.md) (source of the reused kit, not proof of gameplay integration).
-
-**Review plates:** `docs/reports/images/city/kalev_smithy_street.jpg`, `kalev_smithy_street_east.jpg`, `kalev_smithy_aerial.jpg`, `kalev_smithy_cutaway.jpg`, [forge bay](../reports/images/city/kalev_smithy_forge_bay.jpg), [living bay](../reports/images/city/kalev_smithy_living.jpg), [new-game arrival](../reports/images/city/kalev_smithy_new_game_start.jpg).
-
-**Verify:** `godot --headless --path . --script tools/validate_city_sites.gd`; `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_city_sites` (`test_kalev_smithy_*`); `tools/godot_render.sh --script tools/capture_reval_city.gd -- --only=kalev_smithy_street,kalev_smithy_street_east,kalev_smithy_aerial,kalev_smithy_cutaway,kalev_smithy_forge_bay,kalev_smithy_living`.
-
-**Limits:** the census bathkeeper household `hh.lt.osm_r7239857` still lives on the replaced plot (needs rehoming); the forge's gameplay controllers are not mounted here (see [Seamless city limits](./SEAMLESS_CITY.md#limits)); the loft is not walkable. R-1643 is the implementation reference retained from this document; the 2026-10-11 board lookup did not return that row.
-
-### St Catherine's Dominican friary (task R-1718)
-
-Status: implemented (task **R-1718**, with **R-1727** and **R-1124 / LM-02** folded in; maintainer decision 2026-10-13). Stable ID: `site.st_catherine`, landmark `landmark.st_catherine`. [Manifest](../../content/world/reval_city/sites/st_catherine.json) · [Model builder](../../scripts/city/sites/st_catherine_builder.gd). Scope: the friary as a walled close of the seamless city with an enterable church and a walkable cloister, west forecourt and service yard. Out of scope: range interiors, the sanctuary mechanic at the gate, friars and lay brothers as people, 15th-century enlargements.
-
-| Aerial from the south-west | Cloister garth |
-|---|---|
-| ![St Catherine's friary from above: church, cloister, ranges and yard](../reports/images/city/st_catherine_aerial.jpg) | ![The garth with the well, the cloister walks and the church's north wall](../reports/images/city/st_catherine_garth.jpg) |
-
-**Function in 1343:** a friary of the Order of Preachers (re-founded 1246 by Prior Daniel of Visby with eleven friars): preaching to townsfolk, confession, a school, a brewery and fish trade through the port. Not a parish. The precinct is a church-law seam where the town Vogt treads carefully (sanctuary, composite).
-
-**Plan as built** (site-local metres, +x east along Katariina käik, +z south; anchor (159.5, -44.3), rotation 5°; Kühnert's plan reduced to the c. 1300 phase, `plausible composite` unless marked):
-
-- **Close (`close.polygon`):** 72-77 × 52 m between Katariina käik (south and west), the Munga houses (north) and Müürivahe (east), with a notch at the north-west for the Vene corner house. The dossier's 58 × 95 m target does not fit the plan's streets. Limestone rubble wall 3.6 m with an ashlar coping; an open **west gate** (gate W1 of the dossier, off the lane to Vene) and an open **yard gate** onto Katariina käik. The plan compiler drops the 13 strip houses inside or overlapping the close through `replaces`; trees and shrubs stay out of `close.polygon`.
-- **Church** (`attested` stone church c. 1300; plan composite): a 50 × 17 m single-span preaching hall, 11 m walls, one tile roof at 45° with an open tie-beam roof inside, no tower (a small louvred timber bell turret on the ridge, as mendicant statutes allowed). Buttresses on the lane and the east end, tall lancets with stained glass, a three-light east window, a two-light west window over the **profiled west portal** (`door.st_catherine.west`, three orders, [City doors](./CITY_DOORS.md#landmark-portals-r-1693)). Inside: nave for the laity with flags and ledger slabs, a pulpit on the south wall, two side altars before a **stone rood screen** with the rood above, the **friars' choir** three steps up with stalls and desks along both walls and the high altar. Doors: west portal, south door onto the lane (laity, the terrace level door), cloister door from the south walk.
-- **Cloister:** a garth (31 × 18.5 m) with the friary **well** at `poi.well.dominican` and three plank-edged herb beds, ringed by a limestone arcade on a dwarf wall (entry arches mid-side and opposite the cloister door) under lean-to tile roofs.
-- **Ranges** (closed massing, shuttered windows and shut doors): **west range** on the gate side (lay brothers, kitchen stores, granary at the church corner), **north range** (refectory and kitchen, with the smoking kitchen stack), **east range** (sacristy by the choir, chapter house entrance on the cloister, dormitory windows upstairs; `attested` as the first range, finished c. 1300).
-- **Service yard** (`reserve`, packed earth and paving): shingled brewhouse, keg stack, malt sacks, cooper's staves, firewood, a cart, herring casks, grain, a fish-splitting table, a tub and baskets. All existing props (`CitySiteProps`, `MapViewMeshBuilderDistrictLifeProps`, `obj.basket_wicker`); no new models.
-
-**Rooms and HUD:** `room.nave` "St Catherine's (nave)", `room.choir` "St Catherine's (friars' choir)" (both lift `Church/Upper` and `Church/Roof`), and the four cloister walks `room.cloister_{south,north,west,east}` "St Catherine's (cloister walk)" (lift `Cloister/Roof`). Anchors: `anchor.st_catherine.high_altar`, `.west_gate`, `.garth_well`, `.yard`.
-
-**Left out (later):** the eight-bay hall (67.7 m) and its vaults, the crypt as a council cannon store, the new refectory in the north wing (c. 1500), the rebuilt two-storey cloister, Black Heads patronage (15th-16th c.), the 1520s works, the Behind-the-Monks tower, the carved vine and oak-leaf capital friezes of the west portal.
-
-**Historical research:**
-
-- Project: [Churches and religious houses](../../history/dossiers/religion/churches-and-religious-houses.md); [Ecclesiastical precinct boundaries](../../history/dossiers/religion/ecclesiastical-precinct-boundaries-1343.md) (Dominican polygon); [Dominican brewery and fish yard](../../history/dossiers/religion/dominican-brewery-fish-yard-1343.md); [Back lanes east of Pikk](../../history/dossiers/topography/back-lanes-east-of-pikk.md).
-- External: Medieval Heritage, ["Tallinn - Dominican Friary"](https://medievalheritage.eu/en/main-page/heritage/estonia/tallinn-monastery-of-st-catherine-puha-katariina-klooster/) (Kühnert plans, sections and room functions); E. Kühnert, *Das Dominikanerkloster zu Reval*, Reval 1926; MNLL, ["De ordine predicatorum de Tolosa in Dacia"](https://medieval.wiki.uib.no/De_ordine_predicatorum_de_Tolosa_in_Dacia) (1229 and 1246 foundations); Mauritanum, [St Catherine's Convent](https://1246.eu) (surviving east-wing rooms).
-
-**Review plates:** `docs/reports/images/city/st_catherine_aerial.jpg`, [garth](../reports/images/city/st_catherine_garth.jpg), [west gate from the lane](../reports/images/city/st_catherine_street_gate.jpg), [Katariina käik along the south wall](../reports/images/city/st_catherine_street_south.jpg), [west portal](../reports/images/city/st_catherine_west_portal.jpg), [nave](../reports/images/city/st_catherine_nave.jpg), [service yard](../reports/images/city/st_catherine_yard.jpg).
-
-**Verify:** `godot --headless --path . --script tools/validate_city_sites.gd`; `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_st_catherine_site`; `tools/godot_render.sh --script tools/capture_reval_city.gd -- --only=st_catherine_aerial,st_catherine_garth,st_catherine_street_gate,st_catherine_street_south,st_catherine_west_portal,st_catherine_nave,st_catherine_yard`; `tools/godot_render.sh --resolution 1600x900 res://tools/capture_reval_city_walk.tscn -- --only-sites` (all three doors walked in, roofs lift, leaves open).
-
-**Limits:** the ranges have no interiors and no people; the gate is not yet a sanctuary seam in gameplay; census households of the 13 removed houses (`hh.lt.osm_<id>` on `katariina_kaik` / `muurivahe` ledger pages) are not rehomed yet; `bldg.osm.w221512373` was a merged OSM polygon across the lane, so the plot south of Katariina käik east of the church is empty; if the water-supply work (WS-4) starts drawing a well at every `poi.well.*`, it must skip `poi.well.dominican`, which this site already models.
-
-### St Michael's Cistercian nunnery
-
-**Status:** implemented (task **R-1719**, approved by the maintainer 2026-10-13; supersedes the district-map task R-1130 / LM-05), interim GDScript builder. Stable ID: `site.st_michael`. [Manifest](../../content/world/reval_city/sites/st_michael.json) · [Model builder](../../scripts/city/sites/st_michael_builder.gd). Scope: the walled close of the nunnery as one site of the seamless city: church, claustral ranges, gate house, service wing, kitchen garden and orchard. Out of scope: the 1340s tie-in of the nunnery wall into the town curtain (**R-1720**), claustral homes and enclosure rules for the census nuns (**R-1721**), walkable claustral interiors, Blender GLB shells.
-
-| From the church square | Inside the close |
-|---|---|
-| ![St Michael's gate house and south portal from the church square](../reports/images/city/st_michael_gate.jpg) | ![Kitchen-garden beds, close wall and the west and north ranges](../reports/images/city/st_michael_close.jpg) |
-| ![Aerial view of the nunnery close from the south-west](../reports/images/city/st_michael_aerial.jpg) | ![Orchard rows behind the east and north ranges](../reports/images/city/st_michael_orchard.jpg) |
-| ![Lay sisters' yard and service wing seen from the gate house](../reports/images/city/st_michael_yard.jpg) | ![The lay nave under the nuns' west gallery](../reports/images/city/st_michael_interior.jpg) |
-
-**Function in 1343:** an enclosed convent of Cistercian nuns from vassal and upper-town families (founded 1249, attested); patron of St Olaf's church since 1267 (attested); landlord of manors and urban mills. In April 1343 its walls are being tied into the new town curtain (Johannes Kanne's 1340s programme, attested; not modelled here, see R-1720).
-
-**Plan** (plausible composite; the close area in 1343 is **unknown**). The model fills the lane-bounded block between Suur-Kloostri, Gümnaasiumi, Kooli and Aida, keeping the street-front house rows: about 0.5 ha inside the close wall, church included. The precinct dossier's zone shares are kept (built core about a fifth, garden and orchard about half).
-
-- **Church** on the footprint of the surviving nunnery church (dossier I1 ~40-50 × 18-22 m; here 38 × 17.5 m): a two-aisled hall of three bays on two square piers under brick-ribbed rib vaults, a short, narrower chancel with a flat east end and three stepped lancets, plain gables and a ridge bell-cote instead of a tower. Lay people enter by the **south portal** (`door.st_michael.south`) from the open church square; the nuns hear the office on a **west gallery** (Nonnenempore) behind a parapet and lattice, reached from the dormitory range (a blind doorway high in the north wall). Rooms: `room.nave` "St Michael's (nave)", `room.choir` "St Michael's (sanctuary)" up three steps.
-- **Claustral ranges** north of the church round a small garth with a lavabo well and timber lean-to walks on a low sill wall: west range (lay sisters, cellarer), north range (refectory, the attested 9.25 × 8.1 m north-wing room; kitchen with its stack at the west end), east range (chapter house below, dormitory above). The enclosure is closed to the player: the ranges and garth are one solid block, their doors are blind niches with plank leaves.
-- **Gate house (porta)** on the close wall facing the church square, the only way into the close (`gate.st_michael.porta`, door `door.st_michael.porta`, room `room.porta` "St Michael's gate house (porta)"), with the portress's turn window. Behind it the **lay sisters' yard** (cobbled reserve) with a cart and estate grain, and the **service wing** (granary, brewhouse with a smoking stack, stable).
-- **Garden and orchard:** six patches of wattle-edged kitchen-garden beds (April seedlings) west of the ranges; orchard rows of apple, cherry, pear and plum behind the north and east ranges (`orchard.st_michael.north`, `orchard.st_michael.east`).
-- **Close wall:** limestone rubble, 4.4 m above the ground with an ashlar coping and corner piers, following the ground (the close falls about 3 m to the north-west).
-
-**Decoration:** Cistercian restraint: lime-washed walls inside, colourless grisaille glass only (glazing programme 4 in `city_stained_glass.gdshaderinc`, after the order's statutes), no murals, statues or retable; a plain altar and the rood. Composite.
-
-**Left out (later):** the "Nuns' Gate" name (1355), the 1433 fire repairs, the post-Reformation school, the Swedish-era fabric and the Orthodox cathedral fittings of the surviving church.
-
-**Replaced plan buildings:** the generic church shell `bldg.osm.w26889132`, two houses and a shed on the church square (`bldg.osm.w26900735`, `bldg.osm.w201040694`) and two houses inside the close (`bldg.osm.w46961813`, `bldg.osm.w46961814`).
-
-**Historical research:** [Churches and religious houses](../../history/dossiers/religion/churches-and-religious-houses.md); [Ecclesiastical precinct boundaries](../../history/dossiers/religion/ecclesiastical-precinct-boundaries-1343.md) (St Michael segments and zone shares); [Monastery building-set contract](../tasks/architecture/AR-07_monastery_district_set.md) (legacy); Wikipedia (et), ["Tallinna Püha Miikaeli klooster"](https://et.wikipedia.org/wiki/Tallinna_P%C3%BCha_Miikaeli_klooster); I. Graužiniene, [lecture on the convent](https://gag.ee/wp-content/uploads/2018/12/Klooster_ettekanne-Gustav-Adolfi-p%C3%A4eval_06.11.2015_Inna.pdf), Gustav Adolf Gymnasium 2015 (founding legend vs the 1249 date).
-
-**Verify:** `godot --headless --path . --script tools/validate_city_sites.gd`; `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_st_michael_site` (registered, no plan house inside the close, the gate house is the only way in, south portal into the nave, orchard and garden); `tools/godot_render.sh --script tools/capture_reval_city.gd -- --only=st_michael_aerial,st_michael_gate,st_michael_close,st_michael_orchard,st_michael_yard,st_michael_interior`.
-
-**Limits:** the census still binds the nunnery household (`hh.inst_st_michael_nunnery`, 40 residents) to the church-door place, now on the church square in front of the south portal, and lets choir nuns run town errands (R-1721). Three census households (`hh.lt.osm_w26900735`, `hh.lt.osm_w46961813`, `hh.lt.osm_w46961814`) still live on replaced plots and need rehoming; `citizens.json` was already stale against the plan and was not regenerated. The curtain by the close is shown finished (R-1720). The claustral ranges, cloister walks and gallery cannot be entered.
+One page per built site, with the function in 1343, plan, decoration, research, verification and a gallery of captured views. Interim GDScript builders; new sites get a page when they are built.
+
+| Site | Stable ID | Page |
+|---|---|---|
+| Council hall and market square (Raekoja plats) | `site.raekoja_plats` | [landmark_sites/raekoja_plats.md](./landmark_sites/raekoja_plats.md) |
+| Holy Spirit church and almshouse (Pühavaimu) | `site.holy_spirit` | [landmark_sites/holy_spirit.md](./landmark_sites/holy_spirit.md) |
+| St Olaf's church (Oleviste) | `site.st_olaf` | [landmark_sites/st_olaf.md](./landmark_sites/st_olaf.md) |
+| St Nicholas' church (Niguliste) | `site.st_nicholas` | [landmark_sites/st_nicholas.md](./landmark_sites/st_nicholas.md) |
+| St Mary's cathedral (Toomkirik, Dome church) | `site.st_mary` | [landmark_sites/st_mary.md](./landmark_sites/st_mary.md) |
+| Kalev's smithy (task R-1643) | `site.kalev_smithy` | [landmark_sites/kalev_smithy.md](./landmark_sites/kalev_smithy.md) |
+| St Catherine's Dominican friary (task R-1718) | `site.st_catherine` | [landmark_sites/st_catherine.md](./landmark_sites/st_catherine.md) |
+| St Michael's Cistercian nunnery | `site.st_michael` | [landmark_sites/st_michael.md](./landmark_sites/st_michael.md) |
 
 ## Pending and proposed sites (not built yet)
 
@@ -479,7 +243,7 @@ Do not add these as 1343 buildings; each is dated later in the dossiers.
 10. `visual` is either `{"kind": "builder", "script": ...}`, a script with `static func build(site: CitySite, plan: CityPlan) -> Node3D`, or `{"kind": "scene", "path": ...}`.
 11. Rebuild the plan (`python3 tools/city/build_reval_city_plan.py`), then run the validator.
 
-**Maintaining the catalogue:** when a model changes, update its building section (status, plan, board reference and captured views) together. Keep stable site IDs, link an existing building dossier or report before creating a duplicate, and label historical photos, concepts and retired-model images explicitly if adding them. A pending or proposed building moves to **Implemented sites** only with a registry entry. Documentation checks: `python3 tools/docs_index.py --check` and `python3 tools/generate_active_docs_report.py --check`.
+**Maintaining the catalogue:** when a model changes, update its building page (`landmark_sites/<slug>.md`) (status, plan, board reference and captured views) together. Keep stable site IDs, link an existing building dossier or report before creating a duplicate, and label historical photos, concepts and retired-model images explicitly if adding them. A pending or proposed building moves to **Implemented sites** only with a registry entry; create its `landmark_sites/<slug>.md` page then and add it to the table and the building index. Documentation checks: `python3 tools/docs_index.py --check` and `python3 tools/generate_active_docs_report.py --check`.
 
 ## Runtime entry points
 
