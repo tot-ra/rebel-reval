@@ -5,10 +5,23 @@ extends Control
 ## dark cooldown sweep that unwinds clockwise, a gold rim on the slots whose word answers the
 ## opponent now, a dimmed tile when the word cannot be cast (no willpower, duel over), and a
 ## "weak" tag over a word aimed at a closed or ember soul light of the opponent (R-1764).
-## Procedural `_draw` only, no texture assets (P0-040).
+## R-1872: each tile shows the word's painted sigil (assets/UI/spirit_words, provenance in
+## assets/SOURCES.csv) framed in the element colour, with the word's name and slot key below;
+## an element without a sigil falls back to its coloured tile and initial.
 
-const TILE := 46.0
-const GAP := 8.0
+const TILE := 56.0
+const GAP := 10.0
+## Word element -> painted sigil. Fear red eye-flame, shame blue bowed head, duty gold key and
+## scale, love green cupped hands, faith violet candle over a cross.
+const ICONS: Dictionary = {
+	"fear": preload("res://assets/UI/spirit_words/word_fear.png"),
+	"shame": preload("res://assets/UI/spirit_words/word_shame.png"),
+	"duty": preload("res://assets/UI/spirit_words/word_duty.png"),
+	"love": preload("res://assets/UI/spirit_words/word_love.png"),
+	"faith": preload("res://assets/UI/spirit_words/word_faith.png"),
+}
+const FRAME_WIDTH := 2.0
+const NAME_COLOR := Color(0.93, 0.88, 0.78)
 const ANSWER_RIM := Color(1.0, 0.82, 0.36)
 const SWEEP_COLOR := Color(0.0, 0.0, 0.0, 0.62)
 const SWEEP_SEGMENTS := 24
@@ -25,7 +38,7 @@ func _init() -> void:
 
 func set_slots(next: Array[Dictionary]) -> void:
 	slots = next
-	custom_minimum_size = Vector2(maxf(0.0, slots.size() * (TILE + GAP) - GAP), TILE + 16.0)
+	custom_minimum_size = Vector2(maxf(0.0, slots.size() * (TILE + GAP) - GAP), TILE + 30.0)
 	queue_redraw()
 
 
@@ -38,11 +51,18 @@ func _draw() -> void:
 		var color: Color = SpiritSpellCard.ELEMENT_COLORS.get(element, SpiritSpellCard.NEUTRAL_COLOR)
 		if bool(slot.get("blocked", false)):
 			color = color.darkened(0.55)
-		draw_rect(rect, color)
-		var initial := element.substr(0, 1).to_upper()
-		draw_string(
-			font, rect.position + Vector2(0.0, TILE * 0.66), initial, HORIZONTAL_ALIGNMENT_CENTER, TILE, 22
-		)
+		var icon: Texture2D = ICONS.get(element)
+		if icon != null:
+			# A blocked word (no willpower, duel over) dims its sigil instead of its tile colour.
+			var tint := Color(0.4, 0.4, 0.45) if bool(slot.get("blocked", false)) else Color.WHITE
+			draw_texture_rect(icon, rect, false, tint)
+			draw_rect(rect, color, false, FRAME_WIDTH)
+		else:
+			draw_rect(rect, color)
+			var initial := element.substr(0, 1).to_upper()
+			draw_string(
+				font, rect.position + Vector2(0.0, TILE * 0.66), initial, HORIZONTAL_ALIGNMENT_CENTER, TILE, 22
+			)
 		var cooldown := float(slot.get("cooldown", 0.0))
 		if cooldown > 0.0:
 			_draw_sweep(rect, cooldown)
@@ -51,8 +71,12 @@ func _draw() -> void:
 		if bool(slot.get("weak", false)):
 			draw_string(font, rect.position + Vector2(0.0, -4.0), "weak", HORIZONTAL_ALIGNMENT_CENTER, TILE, 12, WEAK_COLOR)  # gdlint: ignore=max-line-length
 		draw_string(
+			font, rect.position + Vector2(-GAP * 0.5, TILE + 14.0), element.capitalize(),
+			HORIZONTAL_ALIGNMENT_CENTER, TILE + GAP, 12, NAME_COLOR
+		)
+		draw_string(
 			font,
-			rect.position + Vector2(0.0, TILE + 14.0),
+			rect.position + Vector2(0.0, TILE + 28.0),
 			String(slot.get("key", "")),
 			HORIZONTAL_ALIGNMENT_CENTER,
 			TILE,

@@ -15,9 +15,9 @@ func _opening() -> AlmshouseOpening:
 	return opening
 
 
-func test_start_label_routes_new_game_straight_to_the_almshouse() -> void:
-	var script: GDScript = load("res://scenes/intro/start_label.gd")
-	assert_eq(script.get_script_constant_map()["OPENING_SCENE"], ALMSHOUSE_SCENE)
+## R-1872: New Game now opens in the city smithy (test_smithy_opening); the almshouse hall stays
+## as the duel's staged fixture for these tests and the capture tools.
+func test_the_almshouse_stage_remains_as_a_duel_fixture() -> void:
 	assert_true(ResourceLoader.exists(ALMSHOUSE_SCENE))
 	# R-1763: the still-image vision is gone until its video remake.
 	assert_true(SessionState.content_db.get_cutscene(&"cutscene.prologue.conquest").is_empty())

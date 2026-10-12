@@ -81,7 +81,7 @@
         ],
         "duty": [
           {
-            "text": "The bread of this house is owed to its children.",
+            "text": "The bread of the almshouse is owed to its children.",
             "relevance": [
               "bread",
               "orphan"
@@ -105,7 +105,7 @@
             ]
           },
           {
-            "text": "I have no mother and no father. This house is the only place I have.",
+            "text": "I have no mother and no father. The almshouse is the only place I have.",
             "relevance": [
               "orphan",
               "place"
@@ -114,7 +114,7 @@
         ],
         "faith": [
           {
-            "text": "The Holy Spirit fed this house before you ever held its key.",
+            "text": "The Holy Spirit fed the almshouse before you ever held its key.",
             "relevance": [
               "key",
               "place"
@@ -149,7 +149,7 @@
     {
       "id": "accuse",
       "speaker_id": "char.almshouse_porter",
-      "text": "A loaf is missing from the cold store. You were seen near it, boy!",
+      "text": "A loaf is missing from the cold store, and you ran with it all the way to the smith's, boy!",
       "move": {
         "kind": "attack",
         "element": "shame",
@@ -352,7 +352,7 @@
         },
         {
           "id": "ward_shame",
-          "text": "Strike me, and the whole house will see who you are.",
+          "text": "Strike me, and the whole street will see who you are.",
           "target_node_id": "resolved_spared",
           "move": {
             "kind": "defense",
@@ -407,7 +407,7 @@
     {
       "id": "resolved_struck",
       "speaker_id": "char.almshouse_porter",
-      "text": "You little... Matron! MATRON!"
+      "text": "You little... Watch! WATCH!"
     }
   ],
   "source_notes": [

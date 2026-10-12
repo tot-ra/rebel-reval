@@ -17,6 +17,11 @@ const TRAIL_COLOR := Color(0.93, 0.85, 0.68, 0.85)
 const FADE_DELAY := 4.0
 const FADE_OUT_SECONDS := 0.8
 const FADE_IN_SECONDS := 0.15
+## R-1872: while a real-time spirit duel is open (its host sits in this group), the health frame
+## shows the hero's composure instead: the duel's "health" reads exactly like normal play.
+const DUEL_OPEN_GROUP := &"spirit_duel_open"
+const HEALTH_TITLE := "HEALTH"
+const COMPOSURE_TITLE := "COMPOSURE"
 
 class ResourceBar:
 	extends Control
@@ -68,6 +73,7 @@ var _stamina_label: Label
 var _last_values := Vector4(-1, -1, -1, -1)
 var _trail_hold := 0.0
 var _full_for := 0.0
+var _health_title := HEALTH_TITLE
 
 
 func _ready() -> void:
@@ -98,8 +104,16 @@ func _process(delta: float) -> void:
 			reduced_motion = settings.dialogue.reduced_motion
 	if is_instance_valid(_source) and ("health" in _source and "stamina" in _source):
 		# Poll the live owner so regeneration, restore and direct vitals sync all agree.
-		set_vitals(float(_source.health), float(_source.max_health),
-			float(_source.stamina), float(_source.max_stamina))
+		var composure := _duel_composure()
+		var title := COMPOSURE_TITLE if composure != Vector2.ZERO else HEALTH_TITLE
+		if title != _health_title:
+			_health_title = title
+			_last_values = Vector4(-1, -1, -1, -1)
+		if composure != Vector2.ZERO:
+			set_vitals(composure.x, composure.y, float(_source.stamina), float(_source.max_stamina))
+		else:
+			set_vitals(float(_source.health), float(_source.max_health),
+				float(_source.stamina), float(_source.max_stamina))
 	_advance(delta)
 
 
@@ -109,7 +123,7 @@ func set_vitals(health: float, max_health: float, stamina: float, max_stamina: f
 		return
 	var previous_ratio := _health.ratio
 	_last_values = values
-	_update_bar(_health, _health_label, "HEALTH", health, max_health)
+	_update_bar(_health, _health_label, _health_title, health, max_health)
 	_update_bar(_stamina, _stamina_label, "STAMINA", stamina, max_stamina)
 	if _health.ratio < previous_ratio:
 		# Keep the trail at its highest unspent value so rapid hits stack into one drain.
@@ -120,6 +134,22 @@ func set_vitals(health: float, max_health: float, stamina: float, max_stamina: f
 	_stamina.trail_ratio = _stamina.ratio
 
 
+## (current, maximum) composure of an open real-time duel, Vector2.ZERO when none is open.
+func _duel_composure() -> Vector2:
+	if not is_inside_tree():
+		return Vector2.ZERO
+	for host in get_tree().get_nodes_in_group(DUEL_OPEN_GROUP):
+		if host.has_method(&"hero_composure"):
+			var composure: Vector2 = host.call(&"hero_composure")
+			if composure != Vector2.ZERO:
+				return composure
+	return Vector2.ZERO
+
+
+func health_title() -> String:
+	return _health_title
+
+
 func _advance(delta: float) -> void:
 	if _health.trail_ratio > _health.ratio:
 		_trail_hold -= delta
@@ -128,7 +158,10 @@ func _advance(delta: float) -> void:
 			var step := INF if reduced_motion else TRAIL_DRAIN_PER_SECOND * delta
 			_health.trail_ratio = maxf(_health.ratio, _health.trail_ratio - step)
 			_health.queue_redraw()
-	var at_rest := _health.ratio >= 1.0 and _stamina.ratio >= 1.0
+	# A duel keeps the block up even at full composure: it is the fight's health bar.
+	var at_rest := (
+		_health.ratio >= 1.0 and _stamina.ratio >= 1.0 and _health_title == HEALTH_TITLE
+	)
 	_full_for = _full_for + delta if at_rest else 0.0
 	var target := 0.0 if _full_for >= FADE_DELAY else 1.0
 	var alpha := _root.modulate.a

@@ -98,6 +98,8 @@ func _ready() -> void:
 	add_child(minimap)
 	_face_door_on_arrival(arrival)
 	_update_music(CityPlan.to_world_xz(player.global_position))
+	# R-1872: New Game arrives here and the prologue duel plays in the smithy, in place.
+	SmithyOpening.consume(self)
 
 
 ## The plan this level shows; a regional site overrides it.

@@ -47,6 +47,8 @@ const HIT_MARK_SEC := 1.6
 const HIT_MARK_RISE := 0.6
 ## The label sits beside the light (screen right in the arena camera), not over it.
 const HIT_MARK_OFFSET := Vector3(0.55, 0.1, 0.0)
+## R-1872: bottom clearance of the text column in the real-time arena (vitals HUD height).
+const COMPACT_BOTTOM_CLEARANCE := 150.0
 const LIGHT_RULE_HINT := (
 	"Each word strikes the soul light of its colour. Dim lights are weak points."
 )
@@ -126,6 +128,14 @@ var _hit_marks: Array[Dictionary] = []
 ## is kept by bolt id and shown when the bolt reaches the light.
 var _bolt_damage: Dictionary = {}
 var _last_exchange: Dictionary = {}
+## Captions of the 2D composure/pressure bars; hidden with them in the real-time arena.
+var _bar_captions: Array[Label] = []
+var _column: VBoxContainer
+## R-1872: the opponent's pressure as the standard overhead combat bar (CharacterHealthRing3D)
+## while a real-time arena runs; `_ring_owned` when the host made it (else only shown/hidden).
+var _opponent_ring: CharacterHealthRing3D
+var _ring_owned := false
+var _ring_was_visible := false
 
 
 func _init() -> void:
@@ -169,6 +179,8 @@ func attach_arena(
 		)
 		_decal = SpiritTelegraphDecal.new()
 		arena_3d.add_child(_decal)
+		if opponent is Node3D:
+			_mount_opponent_ring(opponent as Node3D)
 		duel.hit_check = motion.hit_check
 		_freeze_before = freeze_world
 		freeze_world = false
@@ -176,6 +188,7 @@ func attach_arena(
 
 
 func detach_arena() -> void:
+	_unmount_opponent_ring()
 	if motion != null:
 		duel.hit_check = Callable()
 		freeze_world = _freeze_before
@@ -895,6 +908,8 @@ func _refresh_bars() -> void:
 	_composure_bar.value = duel.hero.health
 	_pressure_bar.max_value = duel.opponent.max_health
 	_pressure_bar.value = duel.opponent.health
+	if is_instance_valid(_opponent_ring):
+		_opponent_ring.set_health(duel.opponent.health, duel.opponent.max_health)
 	var telegraphing := not _observing and duel.phase == SpiritDuel.PHASE_TELEGRAPH
 	# In the 3D arena the floor decal is the telegraph (ADR 0038); the 2D arc stays for the overlay.
 	_telegraph_arc.visible = telegraphing and motion == null
@@ -925,6 +940,7 @@ func _build_ui() -> void:
 	column.offset_right = -80.0
 	column.offset_top = 60.0
 	column.offset_bottom = -60.0
+	_column = column
 	column.add_theme_constant_override("separation", 14)
 	add_child(column)
 	_pressure_bar = _make_bar(column, "Their pressure", Color(0.75, 0.30, 0.28))
@@ -1012,6 +1028,7 @@ func _make_bar(parent: Control, caption: String, color: Color) -> ProgressBar:
 	var label := Label.new()
 	label.text = caption
 	parent.add_child(label)
+	_bar_captions.append(label)
 	var bar := ProgressBar.new()
 	bar.custom_minimum_size = BAR_SIZE
 	bar.show_percentage = false
@@ -1035,7 +1052,50 @@ func _set_compact(compact: bool) -> void:
 	_move_label.visible = not compact
 	_caption_label.visible = not compact
 	_cast_bar.visible = compact
+	# R-1872: in the world the hero's composure is the vitals HUD's top bar (PlayerVitalsHud
+	# reads hero_composure()) and the opponent's pressure is its overhead bar, as in normal play.
+	_composure_bar.visible = not compact
+	_pressure_bar.visible = not compact
+	# The hint and cast bar sit above the vitals HUD block (bottom-left) instead of over it.
+	_column.offset_bottom = -COMPACT_BOTTOM_CLEARANCE if compact else -60.0
+	# Clear of the willpower orb that QuickSpellHud draws at the left edge in the spirit world.
+	_column.offset_left = 130.0 if compact else 80.0
+	for caption in _bar_captions:
+		caption.visible = not compact
 	_hero_said = ""
+
+
+## The hero's composure as (current, maximum) while a real-time arena duel is open, else
+## Vector2.ZERO. PlayerVitalsHud shows it in its health frame for the length of the duel.
+func hero_composure() -> Vector2:
+	if not _open or _observing or motion == null:
+		return Vector2.ZERO
+	return Vector2(duel.hero.health, duel.hero.max_health)
+
+
+func opponent_ring() -> CharacterHealthRing3D:
+	return _opponent_ring
+
+
+func _mount_opponent_ring(opponent: Node3D) -> void:
+	_opponent_ring = opponent.get_node_or_null(^"HealthRing") as CharacterHealthRing3D
+	_ring_owned = _opponent_ring == null
+	if _ring_owned:
+		_opponent_ring = CharacterHealthRing3D.new()
+		_opponent_ring.name = "HealthRing"
+		opponent.add_child(_opponent_ring)
+	_ring_was_visible = _opponent_ring.visible
+	_opponent_ring.visible = true
+
+
+func _unmount_opponent_ring() -> void:
+	if is_instance_valid(_opponent_ring):
+		if _ring_owned:
+			_opponent_ring.queue_free()
+		else:
+			_opponent_ring.visible = _ring_was_visible
+	_opponent_ring = null
+	_ring_owned = false
 
 
 func _refresh_cast_bar() -> void:

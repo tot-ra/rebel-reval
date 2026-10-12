@@ -12,7 +12,7 @@ three prologue sequences. **Out of scope here:** in-engine scripted-camera cinem
 (removed by ADR 0034), ambience (field reserved, nothing wired), localization of shot text,
 and menu replay of a seen cutscene.
 
-## New Game starts directly in the playable almshouse spirit duel and proceeds to the forge after the Kalev dialogue. The year card and closing still-image cutscene do not play; their authored records are retained but unused by this flow.
+## New Game starts in the seamless city inside Kalev's smithy, where the porter's spirit duel is fought in place, followed by the Kalev dialogue (R-1872, see [`SPIRIT_DIALOGUE.md`](./SPIRIT_DIALOGUE.md#new-game-duel-in-the-smithy-r-1872)). The year card and closing still-image cutscene do not play; their authored records are retained but unused by this flow.
 
 | Input | Effect |
 |---|---|
@@ -33,8 +33,9 @@ written for each shot.
 | `scripts/cutscene/cutscene_sequence.gd` (`CutsceneSequence`) | typed parse of a `cutscene` record into shots and lines; refuses a malformed record by returning `null` |
 | `scripts/cutscene/cutscene_player.gd` (`CutscenePlayer`) | `CanvasLayer` that presents the sequence, handles input and timing, and follows the `next` chain |
 | `scripts/cutscene/cutscene_scene_host.gd` (`CutsceneSceneHost`) | makes a sequence a `change_scene_to_file` target via an exported `sequence_id` |
-| `scenes/intro/start_label.gd` | main-menu **Start** opens `res://scenes/prologue/almshouse_opening.tscn` |
-| `scripts/prologue/almshouse_opening.gd` | plays the almshouse and forge sequences around the spirit duels |
+| `scenes/intro/start_label.gd` | main-menu **Start** calls `SmithyOpening.start_new_game` (city, spawn `kalev_smithy`) |
+| `scripts/prologue/smithy_opening.gd` | New Game prologue in the city smithy: porter duel in place, then Kalev |
+| `scripts/prologue/almshouse_opening.gd` | the old staged almshouse hall; now only a duel fixture for tests and capture tools, unreachable from New Game |
 
 `CutscenePlayer` runs with `PROCESS_MODE_ALWAYS` and does not pause the tree, so it works
 whether or not a world is running. `auto_continue = false` stops it before any scene change;
