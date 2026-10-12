@@ -19,8 +19,12 @@ extends "res://scripts/global/BaseLevel.gd"
 const GraphicsPresetsScript := preload("res://scripts/settings/graphics_presets.gd")
 const PerfProbeScript := preload("res://scripts/debug/perf_probe.gd")
 const DEFAULT_SPAWN := "poi.forum"
-## Travel speed for crossing the city on foot (maintainer request 2026-10-07).
-const SPEED_MULTIPLIER := 5.0
+## On-foot speeds in city units/s (about 1 m each), converted to logic px. The old
+## 5x travel multiplier (2026-10-07) made the hero cross town at ~15 m/s; realism
+## request 2026-10-12: a stroll is ~1.5 m/s, a jog ~4 m/s. Debug time speed still
+## scales movement through the player's time_flow_scale.
+const WALK_SPEED_UNITS := 1.5
+const RUN_SPEED_UNITS := 4.0
 ## Within this many units of the plan edge the travel map opens: beyond the
 ## city and its fields lie the regions reached by a journey.
 const EDGE_MARGIN := 28.0
@@ -52,8 +56,8 @@ func _ready() -> void:
 	add_to_group(&"seamless_city")
 	plan = load_plan()
 	CityCollisionBuilder.build(plan, self)
-	player.walk_speed = int(player.walk_speed * SPEED_MULTIPLIER)
-	player.run_speed = int(player.run_speed * SPEED_MULTIPLIER)
+	player.walk_speed = int(WALK_SPEED_UNITS * CityPlan.LOGIC_PX_PER_UNIT)
+	player.run_speed = int(RUN_SPEED_UNITS * CityPlan.LOGIC_PX_PER_UNIT)
 	var arrival := spawn_id()
 	_place_player(arrival)
 	if plan.feature_enabled("citizens"):

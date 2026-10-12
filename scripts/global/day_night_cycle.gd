@@ -2,11 +2,14 @@ class_name DayNightCycle
 extends RefCounted
 
 ## World clock pacing. A full in-game day advances in CYCLE_DURATION_SECONDS of
-## real time so the sun/moon rotation and day/night change are visible while
-## playing. A real-day pace (86400.0) froze the sky and looked like a broken
-## cycle. New clocks still start at the local time of day (see system_progress).
+## real time: 1440 s is one game minute per real second, so citizens walking at
+## ~1.3 m/s cover believable distances between schedule posts. The old 60 s day
+## made the sun race and NPCs "teleport". A real-day pace (86400.0) froze the
+## sky.
+## The debug overlay can still speed up or slow down time. New clocks still
+## start at the local time of day (see system_progress).
 
-const CYCLE_DURATION_SECONDS := 60.0
+const CYCLE_DURATION_SECONDS := 1440.0
 const HOURS_PER_REAL_SECOND := 24.0 / CYCLE_DURATION_SECONDS
 
 ## Fallback only (tests, pinned scenes). Live clocks seed from system_progress().
