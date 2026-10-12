@@ -285,6 +285,7 @@ Start with:
 - [Sky and weather realism — P0-211](weather_realism_2026-09-12.md)
 - [Witcher-style backlit forest: gap analysis (2026-10-11)](witcher_backlit_forest_gap_2026-10-11.md)
 - [Witcher-style flower meadow: gap analysis (2026-10-11)](witcher_flower_meadow_gap_2026-10-11.md)
+- [Witcher-style autumn river village: gap analysis (2026-10-12)](witcher_river_village_gap_2026-10-12.md)
 - [WS-10 physical sky - evidence report](ws10_physical_sky.md)
 - [WS-15 interactive ripples and wakes - evidence](ws15_ripple_sim.md)
 
