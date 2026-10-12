@@ -1,0 +1,111 @@
+{
+ "1": {
+  "class_type": "UNETLoader",
+  "inputs": {
+   "unet_name": "Chroma1-HD.safetensors",
+   "weight_dtype": "default"
+  }
+ },
+ "2": {
+  "class_type": "CLIPLoader",
+  "inputs": {
+   "clip_name": "t5xxl_fp8_e4m3fn_scaled.safetensors",
+   "type": "chroma"
+  }
+ },
+ "3": {
+  "class_type": "T5TokenizerOptions",
+  "inputs": {
+   "clip": [
+    "2",
+    0
+   ],
+   "min_padding": 1,
+   "min_length": 0
+  }
+ },
+ "4": {
+  "class_type": "CLIPTextEncode",
+  "inputs": {
+   "clip": [
+    "3",
+    0
+   ],
+   "text": "Full-body photographic anatomy reference for 3D character scanning. {AGE_SEX_ORIGIN}, standing in a symmetrical A-pose: arms straight and held about 25 degrees out from the torso with a clear gap between arms and body, hands not touching the thighs, palms facing forward, fingers relaxed and slightly apart, feet shoulder-width apart, facing the camera directly, head level, calm neutral expression. Fully nude, natural non-sexual anatomical reference. {BUILD_AND_SKIN}. {FACE_AND_HAIR}. Entire body visible from top of head to bare feet, centered with margin. Plain seamless light grey studio background, soft even diffuse lighting, minimal shadows, sharp focus, 85mm lens, high-resolution photograph."
+  }
+ },
+ "5": {
+  "class_type": "CLIPTextEncode",
+  "inputs": {
+   "clip": [
+    "3",
+    0
+   ],
+   "text": "erotic, sexual, provocative pose, seductive, arousal, clothing, jewelry, props, cropped, cut off feet, cut off head, side view, crossed arms, hands on hips, dramatic shadows, colored background, multiple people, extra limbs, extra fingers, deformed hands, cartoon, illustration, 3d render, cgi, airbrushed, plastic skin, makeup, tattoo, blurry, watermark, text, red hands, discolored skin, sunburn, arms touching body, elderly, very old, grey hair"
+  }
+ },
+ "6": {
+  "class_type": "EmptySD3LatentImage",
+  "inputs": {
+   "width": 832,
+   "height": 1216,
+   "batch_size": 1
+  }
+ },
+ "7": {
+  "class_type": "KSampler",
+  "inputs": {
+   "model": [
+    "1",
+    0
+   ],
+   "positive": [
+    "4",
+    0
+   ],
+   "negative": [
+    "5",
+    0
+   ],
+   "latent_image": [
+    "6",
+    0
+   ],
+   "seed": 1343,
+   "steps": 30,
+   "cfg": 4.0,
+   "sampler_name": "euler",
+   "scheduler": "beta",
+   "denoise": 1.0
+  }
+ },
+ "8": {
+  "class_type": "VAELoader",
+  "inputs": {
+   "vae_name": "ae.safetensors"
+  }
+ },
+ "9": {
+  "class_type": "VAEDecode",
+  "inputs": {
+   "samples": [
+    "7",
+    0
+   ],
+   "vae": [
+    "8",
+    0
+   ]
+  }
+ },
+ "10": {
+  "class_type": "SaveImage",
+  "inputs": {
+   "images": [
+    "9",
+    0
+   ],
+   "filename_prefix": "{CHAR}_base_body"
+  }
+ }
+}
