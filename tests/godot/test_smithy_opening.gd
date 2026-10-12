@@ -5,6 +5,7 @@ extends "res://tests/godot/test_case.gd"
 ## overhead bar, and the word slots carry painted sigils.
 
 const VitalsHud := preload("res://scripts/ui/player_vitals_hud.gd")
+const ConversationShotScript := preload("res://scripts/prologue/conversation_shot.gd")
 
 
 ## Stand-in for the city level: what SmithyOpening reads from it (player, world, plan).
@@ -131,6 +132,11 @@ func test_the_won_duel_brings_in_kalev_and_play_continues_in_the_smithy() -> voi
 	opening.host().close()
 	assert_eq(opening.stage, SmithyOpening.STAGE_KALEV)
 	assert_true(opening.kalev() != null and city.world.is_ancestor_of(opening.kalev()))
+	# R-1877: Kalev's arrival is framed in the same world; the porter is gone at the cut.
+	assert_true(opening.porter() == null, "the porter has gone out of the door")
+	var shot := opening.shot()
+	assert_true(shot != null and shot.camera != null, "a conversation shot frames Kalev")
+	assert_true(city.world.is_ancestor_of(shot.camera), "the shot camera lives in the city world")
 	var runner := opening.dialogue_runner()
 	var ui: Node = opening.get_children().filter(func(n: Node) -> bool: return n is DialogueUI)[0]
 	var guard := 0
@@ -147,7 +153,33 @@ func test_the_won_duel_brings_in_kalev_and_play_continues_in_the_smithy() -> voi
 	assert_true(SessionState.state.get_flag(&"flag.prologue.apprenticed"))
 	assert_true(opening.porter() == null, "the porter leaves")
 	assert_true(opening.kalev() != null, "Kalev stays in his forge")
+	assert_true(opening.shot() == null, "the gameplay camera is handed back")
 	city.free()
+
+
+func test_conversation_shot_frames_both_speakers_at_eye_level() -> void:
+	var points: Array[Vector3] = [Vector3(0, 0, 0), Vector3(2.7, 0, 0.6)]
+	var framed: Dictionary = ConversationShotScript.compute_shot(
+		points, Vector3(1, 1.6, 6), 16.0 / 9.0
+	)
+	var shot: Transform3D = framed["transform"]
+	assert_true(shot.origin.z > 0.0, "the camera takes the side the gameplay camera was on")
+	assert_true(absf(shot.origin.y - ConversationShotScript.EYE_HEIGHT) < 0.01, "eye level")
+	var camera := Camera3D.new()
+	camera.fov = framed["fov"]
+	camera.transform = shot
+	for point in points:
+		var head := point + Vector3.UP * 1.6
+		var local := shot.affine_inverse() * head
+		assert_true(local.z < 0.0, "speaker in front of the lens")
+		var half_v := tan(deg_to_rad(camera.fov) * 0.5)
+		assert_true(absf(local.x / -local.z) < half_v * 16.0 / 9.0, "speaker inside the frame")
+	camera.free()
+	# A small room holds the camera close; the lens widens rather than cropping a speaker.
+	var held: Dictionary = ConversationShotScript.compute_shot(
+		points, Vector3(1, 1.6, 6), 16.0 / 9.0, Vector3(1.35, 0, 0.3), 1.5
+	)
+	assert_true(float(held["fov"]) > float(framed["fov"]), "lens widens when the room is tight")
 
 
 func test_word_slots_have_painted_sigils() -> void:

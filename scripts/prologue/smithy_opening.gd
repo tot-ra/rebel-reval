@@ -5,7 +5,9 @@ extends Node
 ## the porter Hanß bursts in after him. The spirit duel is fought right there, by the hearth,
 ## with the normal city Player: same camera, movement, roll and guard. The duel is a combat mode
 ## over normal play, not a separate scene. Kalev then walks in from the living room and takes
-## the boy as his apprentice; play simply continues in the smithy.
+## the boy as his apprentice; play simply continues in the smithy. R-1877: Kalev's arrival is
+## framed by a ConversationShot (eye-level camera in the same world, grade, depth blur,
+## letterbox) instead of a staged scene; the porter is gone at the cut, as Kalev's lines say.
 ## The duel rules, guilt and dialogues are the prologue's (AlmshouseOpening constants); only the
 ## place changed. Holding `ui_cancel` skips (the press is eaten so the pause menu stays shut).
 
@@ -22,6 +24,7 @@ const PORTER_SCENE := preload("res://assets/characters/variants/citizen_m_adult_
 const KALEV_SCENE := preload("res://assets/characters/kalev/kalev.tscn")
 const PORTER_SPEAKER_ID := &"char.almshouse_porter"
 const SpiritSightScript := preload("res://scripts/combat/spirit_sight.gd")
+const ConversationShotScript := preload("res://scripts/prologue/conversation_shot.gd")
 ## The porter stops this far in front of the boy (toward the yard door he came through).
 const PORTER_STEP := 2.6
 ## The forge bay is about 7.7 x 8.2 m; the disc stays inside it, walls keep their collision.
@@ -50,6 +53,8 @@ var _runner: Node
 var _dialogue_ui: Node
 var _cancel_held := 0.0
 var _hint_layer: CanvasLayer
+var _shot: Node
+var _arena_center := Vector3.ZERO
 
 
 ## The menu's New Game: arm the opening and arrive in the smithy.
@@ -123,6 +128,7 @@ func begin_duel() -> bool:
 	if hero_rig != null:
 		keep.append(hero_rig)
 	var center := (hero_at + porter_at) * 0.5
+	_arena_center = center
 	# The city player is a logic-plane body: 32 logic px per world metre (CityPlan).
 	if _host.attach_arena(
 		world, center, keep, true, _player, _porter, int(CityPlan.LOGIC_PX_PER_UNIT), ARENA_RADIUS
@@ -196,6 +202,9 @@ func _begin_kalev() -> void:
 	if sight != null and _state.spirit_sight:
 		sight.call(&"set_enabled", false)
 	_bring_in_kalev()
+	# He "went out of my door": the porter leaves at the cut to Kalev.
+	_free_porter()
+	_frame_conversation()
 	_dialogue_ui = DialogueUI.new()
 	add_child(_dialogue_ui)
 	_dialogue_ui.apply_settings(UserSettings.dialogue)
@@ -221,9 +230,11 @@ func _finish() -> void:
 	_set_stage(STAGE_DONE)
 	if _hint_layer != null:
 		_hint_layer.visible = false
-	if is_instance_valid(_porter):
-		_porter.queue_free()
-		_porter = null
+	_free_porter()
+	if _shot != null and is_instance_valid(_shot):
+		_shot.call(&"release")
+		_shot.queue_free()
+		_shot = null
 	if _dialogue_ui != null and is_instance_valid(_dialogue_ui):
 		_dialogue_ui.queue_free()
 		_dialogue_ui = null
@@ -240,6 +251,37 @@ func _bring_in_kalev() -> void:
 	var offset := facing * KALEV_OFFSET.x + side * KALEV_OFFSET.y
 	var at := hero_at + Vector3(offset.x, 0.0, offset.y)
 	_kalev = _place_actor(KALEV_SCENE, "Kalev", _world(), at, hero_at)
+
+
+## Cuts to an eye-level shot of the boy and Kalev in the forge bay, kept inside the arena disc
+## so the camera stays in the room.
+func _frame_conversation() -> void:
+	if not is_instance_valid(_kalev):
+		return
+	var hero_rig := get_tree().get_first_node_in_group(&"player_view_rig") as Node3D
+	var hero_at := (
+		hero_rig.global_position if hero_rig != null
+		else _hero_world(_kalev.global_position.y)
+	)
+	var points: Array[Vector3] = [hero_at, _kalev.global_position]
+	# The boy turns to the man who is speaking to him (logic plane shares the world's x/z axes).
+	var toward := Vector2(_kalev.global_position.x - hero_at.x, _kalev.global_position.z - hero_at.z)
+	if _player.has_method(&"set_view_facing"):
+		_player.call(&"set_view_facing", toward)
+	_shot = ConversationShotScript.new()
+	_shot.name = "ConversationShot"
+	add_child(_shot)
+	_shot.call(&"frame", _world(), points, _arena_center, ARENA_RADIUS, self)
+
+
+func shot() -> Node:
+	return _shot
+
+
+func _free_porter() -> void:
+	if is_instance_valid(_porter):
+		_porter.queue_free()
+	_porter = null
 
 
 func _react_to_exchange(result: Dictionary) -> void:

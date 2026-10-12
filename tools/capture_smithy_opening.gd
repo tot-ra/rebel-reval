@@ -51,6 +51,10 @@ func _init() -> void:
 	host.call(&"pick_slot", 4)
 	await _frames(40)
 	await _save(out + "/light_hit.png")
+	# R-1877: closing the duel cuts to Kalev's arrival framed by the conversation shot.
+	host.call(&"close")
+	await _frames(60)
+	await _save(out + "/kalev_shot.png")
 	quit()
 
 

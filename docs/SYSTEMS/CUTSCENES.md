@@ -12,7 +12,24 @@ three prologue sequences. **Out of scope here:** in-engine scripted-camera cinem
 (removed by ADR 0034), ambience (field reserved, nothing wired), localization of shot text,
 and menu replay of a seen cutscene.
 
-## New Game starts in the seamless city inside Kalev's smithy, where the porter's spirit duel is fought in place, followed by the Kalev dialogue (R-1872, see [`SPIRIT_DIALOGUE.md`](./SPIRIT_DIALOGUE.md#new-game-duel-in-the-smithy-r-1872)). The year card and closing still-image cutscene do not play; their authored records are retained but unused by this flow.
+## Prologue flow
+
+New Game starts in the seamless city inside Kalev's smithy, where the porter's spirit duel is fought in place, followed by the Kalev dialogue (R-1872, see [`SPIRIT_DIALOGUE.md`](./SPIRIT_DIALOGUE.md#new-game-duel-in-the-smithy-r-1872)). The year card and closing still-image cutscene do not play; their authored records are retained but unused by this flow.
+
+**Kalev's arrival is framed, not staged (R-1877).** When the duel closes, the porter is gone at
+the cut ("went out of my door"), Kalev stands in the forge bay and the boy turns to him. No scene
+loads: `ConversationShot` puts a second `Camera3D` into the same city world at eye level and
+frames the two speakers from the side the gameplay camera was on, kept inside the arena disc so
+it stays in the room (the lens widens up to 60 degrees rather than cropping a speaker when the
+room is tight). The shot fades up from black, pushes in slowly, and adds a snapshot of the live
+grade with higher contrast and lower saturation, a far depth blur behind the speakers, a
+vignette and thin letterbox bars. Gameplay HUD layers and overhead health bars are hidden for
+the shot; the dialogue box stays. When the dialogue ends (or Esc is held) the gameplay camera,
+HUD and bars come back exactly as they were, and play continues in the smithy. This is
+dialogue framing over normal play, not a cutscene record, so the ADR 0034 rule against
+per-scene camera rigs is unaffected: nothing is authored per shot.
+
+![Kalev's arrival in the city smithy, framed by ConversationShot](../reports/images/spirit_duel_layer/smithy_kalev_shot.jpg)
 
 | Input | Effect |
 |---|---|
@@ -35,6 +52,7 @@ written for each shot.
 | `scripts/cutscene/cutscene_scene_host.gd` (`CutsceneSceneHost`) | makes a sequence a `change_scene_to_file` target via an exported `sequence_id` |
 | `scenes/intro/start_label.gd` | main-menu **Start** calls `SmithyOpening.start_new_game` (city, spawn `kalev_smithy`) |
 | `scripts/prologue/smithy_opening.gd` | New Game prologue in the city smithy: porter duel in place, then Kalev |
+| `scripts/prologue/conversation_shot.gd` | eye-level conversation camera in the live world: grade, depth blur, vignette, letterbox, HUD hidden; `release()` restores play (R-1877) |
 | `scripts/prologue/almshouse_opening.gd` | the old staged almshouse hall; now only a duel fixture for tests and capture tools, unreachable from New Game |
 
 `CutscenePlayer` runs with `PROCESS_MODE_ALWAYS` and does not pause the tree, so it works
@@ -131,6 +149,11 @@ python3 tools/verify_cutscenes.py                        # frames, sidecars, pro
 godot --headless --path . --script tools/run_godot_tests.gd   # tests/godot/test_cutscene_player.gd
 ```
 
+Kalev's framed arrival: `tests/godot/test_smithy_opening.gd` (shot mounted in the city world,
+porter gone, camera handed back; `compute_shot` keeps both speakers in frame and widens the lens
+in a tight room). Review plate: `tools/godot_render.sh --resolution 1600x900 --script
+tools/capture_smithy_opening.gd` writes `build/smithy_opening/kalev_shot.png`.
+
 `tools/verify_cutscenes.py` fails when a still is missing, has no `*.import` sidecar, has no
 `assets/SOURCES.csv` row, when a shot or line ID repeats, when an authoring field is empty,
 or when a `next` target names a cutscene, a transition-manifest scene and spawn, or a scene
@@ -161,5 +184,8 @@ file that does not exist.
   chapter I and contain minor anachronisms (an overhead wire in `prologue_taken_in/s02_street.jpg`,
   modern-looking footwear in `s01_door.jpg`, window glazing bars in the almshouse frames).
   Regeneration is tracked as **R-1330**; the prompts to re-run are already in the records.
+- **Kalev's framed arrival is one fixed shot.** It does not cut per speaker, the boy turns but
+  Kalev does not walk in (he is placed at the cut), and the interior roof stays cut away as in
+  play, so neighbouring roofs and sky can show above the smithy walls.
 - **No video tier.** `video` is parsed and preferred over `still` when set, but no shot sets
   it and no video decoding path has been exercised.
