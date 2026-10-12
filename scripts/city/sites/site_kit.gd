@@ -36,6 +36,7 @@ const GLAZING := {
 	&"site.st_olaf": 1,
 	&"site.st_nicholas": 2,
 	&"site.st_mary": 3,
+	&"site.st_michael": 4,
 }
 
 static var _materials: Dictionary = {}

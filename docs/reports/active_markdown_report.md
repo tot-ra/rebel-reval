@@ -14,19 +14,19 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `1285`
+- Active Markdown files scanned: `1284`
 - Markdown files excluded as archive/reference/out of active scope: `765`
-- Local/external links inspected: `14664`
-- Links to active Markdown docs: `12903`
-- Links to existing archive/reference/non-active local docs: `525`
+- Local/external links inspected: `14667`
+- Links to active Markdown docs: `12884`
+- Links to existing archive/reference/non-active local docs: `537`
 - External links skipped for reachability: `192`
-- Issues found: `0`
+- Issues found: `3`
 
 ## Issue counts
 
 | Code | Count |
 | --- | ---: |
-| `BROKEN_LINK` | 0 |
+| `BROKEN_LINK` | 3 |
 | `BROKEN_ANCHOR` | 0 |
 | `DUPLICATE_CHARACTER_NAME` | 0 |
 | `CONTRADICTORY_DATE` | 0 |
@@ -34,7 +34,11 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Issues
 
-No active Markdown documentation issues found.
+| Code | Location | Detail |
+| --- | --- | --- |
+| `BROKEN_LINK` | `docs/SYSTEMS/CITY_SEA.md:91` | Local Markdown link target does not exist: `../reports/images/city/fish_textured_models.jpg` |
+| `BROKEN_LINK` | `docs/SYSTEMS/HOUSEHOLDS.md:52` | Local Markdown link target does not exist: `../reports/images/city/households_partition_clear_door.jpg` |
+| `BROKEN_LINK` | `docs/SYSTEMS/SEAMLESS_CITY.md:88` | Local Markdown link target does not exist: `../reports/images/vegetation/r1684_roof_shingle.jpg` |
 
 ## Active files scanned
 
@@ -1226,7 +1230,6 @@ No active Markdown documentation issues found.
 - `docs/SYSTEMS/SPIRIT_SIGHT.md`
 - `docs/SYSTEMS/STATE_AND_SAVES.md`
 - `docs/SYSTEMS/TIME_AND_PHASES.md`
-- `docs/SYSTEMS/UNDRESS_INTERACTION.md`
 - `docs/SYSTEMS/VEGETATION_ENGINEERING.md`
 - `docs/SYSTEMS/VEGETATION_REALISM.md`
 - `docs/SYSTEMS/WATER_SANDBOX.md`

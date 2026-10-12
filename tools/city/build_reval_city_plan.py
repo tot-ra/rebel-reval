@@ -1114,6 +1114,9 @@ def build(args) -> dict:
     missing = replaced - {b_["id"] for b_ in buildings}
     if missing:
         raise SystemExit(f"site replaces unknown building ids: {sorted(missing)}")
+    # Footprints a walled close replaced; see the vegetation note below.
+    closed_out = {rid for site in sites if site.get("close") for rid in site["replaces"]}
+    replaced_footprints = [b_["footprint"] for b_ in buildings if b_["id"] in closed_out]
     buildings = [b_ for b_ in buildings if b_["id"] not in replaced]
     site_out = [terrace_site(site, height_wu, h_at_m, x0, y0, mpu) for site in sites]
     fix_blocked_doors(buildings, [poly for so in site_out for poly in so["footprints"]])
@@ -1308,13 +1311,21 @@ def build(args) -> dict:
 
     # ---------------- vegetation and fields ----------------
     # Site buildings and their open reserves keep trees and shrubs off.
-    occupied_by = buildings + [{"footprint": poly} for so in site_out for poly in so["footprints"] + [so["reserve"]] if poly]
+    # A walled close (R-1719) is a block of the town, not a plot: the seeded
+    # yard-orchard loop draws only on free cells, so planting round its new
+    # buildings would reshuffle every later tree, field and pasture of the
+    # countryside. Planting sees the houses it replaced instead; site_closes
+    # clears the close, its buildings and its reserve afterwards.
+    occupied_by = buildings + [{"footprint": poly} for site, so in zip(sites, site_out) if not site.get("close") for poly in so["footprints"] + [so["reserve"]] if poly]
+    occupied_by += [{"footprint": fp} for fp in replaced_footprints]
     wet_stream = stream_vegetation_exclusion(
         trace, hj["width_m"], [(v - sea_asl) / mpu for v in river_level], h_at_m, mpu)
     soil = vegetation_habitat.Soil(shore, h_at_m)
     trees, fields, pastures, woods, farmsteads, orchards = plant(overlay, occupied_by, streets, circuit_poly, toompea_edge, trace, h_at_m, mpu, x0, y0, x1, y1, wet_stream, soil)
     bushes = shrubs(overlay, occupied_by, streets, circuit_poly, toompea_edge, trace, anchors, h_at_m, mpu, x0, y0, x1, y1, wet_stream)
     bushes = drop_inside([[tuple(q) for q in f["polygon"]] for f in fields + pastures + orchards], bushes)
+    trees, bushes, closed_orchards = site_closes(sites, trees, bushes, mpu)
+    orchards += closed_orchards
     # Last word on rooting (R-1617): no trunk on a road, no crown through a
     # bridge or harbour deck. Filtering here, after every seeded loop, keeps the
     # field, pasture and wood IDs stable.
@@ -1403,6 +1414,53 @@ def load_sites():
     """ADR 0032 site manifests, in registry order (never a directory walk)."""
     registry = json.loads((SITES_DIR / "registry.json").read_text())
     return [json.loads((SITES_DIR / f"{name}.json").read_text()) for name in registry["sites"]]
+
+
+def site_closes(sites, trees, bushes, mpu):
+    """Walled site closes (R-1719, St Michael's nunnery): a site's `close.polygon`,
+    reserve and buildings keep the generic trees and shrubs out, and its `orchards` (site-local
+    polygons) are planted in rows inside it as unfenced plan orchards. Run after
+    every seeded planting loop with its own per-orchard RNG, so no countryside
+    field, pasture or orchard ID moves. Returns (trees, bushes, orchards)."""
+    rings = []
+    for site in sites:
+        if site.get("close"):
+            for poly in [site["close"]["polygon"], site.get("reserve", [])] + [b["footprint"] for b in site.get("buildings", [])]:
+                if poly:
+                    rings.append([site_to_world(site, q) for q in poly])
+    trees = drop_inside(rings, trees, mpu)
+    bushes = drop_inside(rings, bushes, mpu)
+    out = []
+    for site in sites:
+        for orc in site.get("orchards", []):
+            local = [tuple(q) for q in orc["polygon"]]
+            rng = random.Random(int(hashlib.md5(orc["id"].encode()).hexdigest()[:8], 16))
+            step = float(orc.get("step", 5.5))
+            mix = orc.get("mix", ["apple", "apple", "apple", "cherry", "pear", "plum"])
+            xs = [q[0] for q in local]
+            zs = [q[1] for q in local]
+            count = 0
+            u = min(xs) + step * 0.5
+            while u < max(xs):
+                v = min(zs) + step * 0.5
+                while v < max(zs):
+                    p = (u + rng.uniform(-0.4, 0.4), v + rng.uniform(-0.4, 0.4))
+                    edge = min(math.dist(p, seg_closest(p, local[k], local[(k + 1) % len(local)])) for k in range(len(local)))
+                    if pip(p, local) and edge > 1.8 and rng.random() > 0.06:
+                        w = site_to_world(site, p)
+                        trees.append([round(w[0] / mpu, 2), round(w[1] / mpu, 2), rng.choice(mix), round(rng.uniform(0.8, 1.05), 2)])
+                        count += 1
+                    v += step
+                u += step
+            out.append({"id": orc["id"], "fence": False, "trees": count,
+                        "polygon": [[round(q[0] / mpu, 2), round(q[1] / mpu, 2)] for q in (site_to_world(site, p) for p in local)]})
+    return trees, bushes, out
+
+
+def seg_closest(p, a, b):
+    dx, dy = b[0] - a[0], b[1] - a[1]
+    t = max(0.0, min(1.0, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / max(dx * dx + dy * dy, 1e-9)))
+    return (a[0] + dx * t, a[1] + dy * t)
 
 
 def site_to_world(site, p):

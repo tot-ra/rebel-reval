@@ -1,12 +1,12 @@
 # Landmark sites in the seamless city
 
-Status: implemented for `site.raekoja_plats`, `site.holy_spirit`, `site.st_olaf`, `site.st_nicholas`, `site.st_mary` and `site.kalev_smithy` ([ADR 0032](../adr/0032-bespoke-landmark-sites-in-the-city.md); smithy implementation reference **R-1643**; visual catalogue **R-1695**). Scope: a contract and runtime for bespoke, navigable models of famous Reval buildings and places in the [seamless city](./SEAMLESS_CITY.md), shown as they stood in spring 1343, and one catalogue entry per building (built or not) with its 1343 function, room plan, decoration and research. Out of scope: final Blender-generated landmark shells, multi-storey interiors, site-specific NPC behaviour, and building the pending or proposed sites listed below (each needs its own task).
+Status: implemented for `site.raekoja_plats`, `site.holy_spirit`, `site.st_olaf`, `site.st_nicholas`, `site.st_mary`, `site.kalev_smithy` and `site.st_michael` ([ADR 0032](../adr/0032-bespoke-landmark-sites-in-the-city.md); smithy implementation reference **R-1643**; nunnery **R-1719**; visual catalogue **R-1695**). Scope: a contract and runtime for bespoke, navigable models of famous Reval buildings and places in the [seamless city](./SEAMLESS_CITY.md), shown as they stood in spring 1343, and one catalogue entry per building (built or not) with its 1343 function, room plan, decoration and research. Out of scope: final Blender-generated landmark shells, multi-storey interiors, site-specific NPC behaviour, and building the pending or proposed sites listed below (each needs its own task).
 
 ## How to read this page
 
 Each building has one section: status and links, captured views (built sites only), **function in 1343**, **plan** (rooms and what happens in them), **decoration**, **left out** (later fabric), **historical research** (project dossiers first, then external studies) and related board work. Shared runtime behaviour, the authoring contract, verification and limits for all sites follow after the buildings.
 
-- **Implemented** means a registered, navigable model in the seamless city, not final art approval. All six sites use **interim GDScript builders**; the final Blender-generated shells required by [ADR 0032](../adr/0032-bespoke-landmark-sites-in-the-city.md) are pending. Images are captured model evidence (review snapshots, not concept art or photos of modern Tallinn); ongoing fixes may postdate them.
+- **Implemented** means a registered, navigable model in the seamless city, not final art approval. All seven sites use **interim GDScript builders**; the final Blender-generated shells required by [ADR 0032](../adr/0032-bespoke-landmark-sites-in-the-city.md) are pending. Images are captured model evidence (review snapshots, not concept art or photos of modern Tallinn); ongoing fixes may postdate them.
 - **Pending** means ADR 0032 already names the site but no manifest exists. **Proposed** means the building stood in 1343 and is worth a site, but no ADR or task names it yet; adding one is a scope decision (see [AGENTS.md, Scope](../../AGENTS.md#scope)).
 - Confidence words follow the dossiers: **attested** (a dated source), **plausible composite** (reconstructed from the type and later fabric), **unknown**. Plans of rooms are composites unless marked attested; no measured 1343 interior plan survives for any Reval building.
 - **Period rule** (maintainer, 2026-10-07): an element dated after 1343 is left out. Where the 1343 state is unrecorded, use a slightly simplified form of the later, documented building. A later feature needs a maintainer-recorded entry in the manifest's `presentation` list.
@@ -25,7 +25,7 @@ Each building has one section: status and links, captured views (built sites onl
 | [Danish royal castle (Small Castle)](#danish-royal-castle-on-toompea-castrum-minus) | political, military | standing | pending (partial non-site enclosure) |
 | [Bishop's court and chapter on the Great Castle](#bishops-court-chapter-and-vassal-houses-castrum-maius) | political, religious | standing | proposed |
 | [St Catherine's Dominican friary](#st-catherines-dominican-friary) | friary, preaching, school | standing, smaller than its peak | pending |
-| [St Michael's Cistercian nunnery](#st-michaels-cistercian-nunnery) | convent | standing, wall tie-in under way | pending |
+| [St Michael's Cistercian nunnery](#st-michaels-cistercian-nunnery) | convent | standing, wall tie-in under way | implemented `site.st_michael` |
 | [St Canute's guild house](#st-canutes-guild-house-kanutigilde) | guild, political | house held from 1326 | proposed |
 | [St Olaf's guild house](#st-olafs-guild-house-olaigilde) | guild, political | house held from 1341 | proposed |
 | [St John's leper hospital](#st-johns-leper-hospital-jaani-seek) | hospital, outside the walls | standing (first mention 1237) | proposed |
@@ -226,6 +226,38 @@ Status: implemented (task **R-1643**, maintainer request 2026-10-10), interim sh
 
 **Limits:** the census bathkeeper household `hh.lt.osm_r7239857` still lives on the replaced plot (needs rehoming); the forge's gameplay controllers are not mounted here (see [Seamless city limits](./SEAMLESS_CITY.md#limits)); the loft is not walkable. R-1643 is the implementation reference retained from this document; the 2026-10-11 board lookup did not return that row.
 
+### St Michael's Cistercian nunnery
+
+**Status:** implemented (task **R-1719**, approved by the maintainer 2026-10-13; supersedes the district-map task R-1130 / LM-05), interim GDScript builder. Stable ID: `site.st_michael`. [Manifest](../../content/world/reval_city/sites/st_michael.json) · [Model builder](../../scripts/city/sites/st_michael_builder.gd). Scope: the walled close of the nunnery as one site of the seamless city: church, claustral ranges, gate house, service wing, kitchen garden and orchard. Out of scope: the 1340s tie-in of the nunnery wall into the town curtain (**R-1720**), claustral homes and enclosure rules for the census nuns (**R-1721**), walkable claustral interiors, Blender GLB shells.
+
+| From the church square | Inside the close |
+|---|---|
+| ![St Michael's gate house and south portal from the church square](../reports/images/city/st_michael_gate.jpg) | ![Kitchen-garden beds, close wall and the west and north ranges](../reports/images/city/st_michael_close.jpg) |
+| ![Aerial view of the nunnery close from the south-west](../reports/images/city/st_michael_aerial.jpg) | ![Orchard rows behind the east and north ranges](../reports/images/city/st_michael_orchard.jpg) |
+| ![Lay sisters' yard and service wing seen from the gate house](../reports/images/city/st_michael_yard.jpg) | ![The lay nave under the nuns' west gallery](../reports/images/city/st_michael_interior.jpg) |
+
+**Function in 1343:** an enclosed convent of Cistercian nuns from vassal and upper-town families (founded 1249, attested); patron of St Olaf's church since 1267 (attested); landlord of manors and urban mills. In April 1343 its walls are being tied into the new town curtain (Johannes Kanne's 1340s programme, attested; not modelled here, see R-1720).
+
+**Plan** (plausible composite; the close area in 1343 is **unknown**). The model fills the lane-bounded block between Suur-Kloostri, Gümnaasiumi, Kooli and Aida, keeping the street-front house rows: about 0.5 ha inside the close wall, church included. The precinct dossier's zone shares are kept (built core about a fifth, garden and orchard about half).
+
+- **Church** on the footprint of the surviving nunnery church (dossier I1 ~40-50 × 18-22 m; here 38 × 17.5 m): a two-aisled hall of three bays on two square piers under brick-ribbed rib vaults, a short, narrower chancel with a flat east end and three stepped lancets, plain gables and a ridge bell-cote instead of a tower. Lay people enter by the **south portal** (`door.st_michael.south`) from the open church square; the nuns hear the office on a **west gallery** (Nonnenempore) behind a parapet and lattice, reached from the dormitory range (a blind doorway high in the north wall). Rooms: `room.nave` "St Michael's (nave)", `room.choir` "St Michael's (sanctuary)" up three steps.
+- **Claustral ranges** north of the church round a small garth with a lavabo well and timber lean-to walks on a low sill wall: west range (lay sisters, cellarer), north range (refectory, the attested 9.25 × 8.1 m north-wing room; kitchen with its stack at the west end), east range (chapter house below, dormitory above). The enclosure is closed to the player: the ranges and garth are one solid block, their doors are blind niches with plank leaves.
+- **Gate house (porta)** on the close wall facing the church square, the only way into the close (`gate.st_michael.porta`, door `door.st_michael.porta`, room `room.porta` "St Michael's gate house (porta)"), with the portress's turn window. Behind it the **lay sisters' yard** (cobbled reserve) with a cart and estate grain, and the **service wing** (granary, brewhouse with a smoking stack, stable).
+- **Garden and orchard:** six patches of wattle-edged kitchen-garden beds (April seedlings) west of the ranges; orchard rows of apple, cherry, pear and plum behind the north and east ranges (`orchard.st_michael.north`, `orchard.st_michael.east`).
+- **Close wall:** limestone rubble, 4.4 m above the ground with an ashlar coping and corner piers, following the ground (the close falls about 3 m to the north-west).
+
+**Decoration:** Cistercian restraint: lime-washed walls inside, colourless grisaille glass only (glazing programme 4 in `city_stained_glass.gdshaderinc`, after the order's statutes), no murals, statues or retable; a plain altar and the rood. Composite.
+
+**Left out (later):** the "Nuns' Gate" name (1355), the 1433 fire repairs, the post-Reformation school, the Swedish-era fabric and the Orthodox cathedral fittings of the surviving church.
+
+**Replaced plan buildings:** the generic church shell `bldg.osm.w26889132`, two houses and a shed on the church square (`bldg.osm.w26900735`, `bldg.osm.w201040694`) and two houses inside the close (`bldg.osm.w46961813`, `bldg.osm.w46961814`).
+
+**Historical research:** [Churches and religious houses](../../history/dossiers/religion/churches-and-religious-houses.md); [Ecclesiastical precinct boundaries](../../history/dossiers/religion/ecclesiastical-precinct-boundaries-1343.md) (St Michael segments and zone shares); [Monastery building-set contract](../tasks/architecture/AR-07_monastery_district_set.md) (legacy); Wikipedia (et), ["Tallinna Püha Miikaeli klooster"](https://et.wikipedia.org/wiki/Tallinna_P%C3%BCha_Miikaeli_klooster); I. Graužiniene, [lecture on the convent](https://gag.ee/wp-content/uploads/2018/12/Klooster_ettekanne-Gustav-Adolfi-p%C3%A4eval_06.11.2015_Inna.pdf), Gustav Adolf Gymnasium 2015 (founding legend vs the 1249 date).
+
+**Verify:** `godot --headless --path . --script tools/validate_city_sites.gd`; `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_st_michael_site` (registered, no plan house inside the close, the gate house is the only way in, south portal into the nave, orchard and garden); `tools/godot_render.sh --script tools/capture_reval_city.gd -- --only=st_michael_aerial,st_michael_gate,st_michael_close,st_michael_orchard,st_michael_yard,st_michael_interior`.
+
+**Limits:** the census still binds the nunnery household (`hh.inst_st_michael_nunnery`, 40 residents) to the church-door place, now on the church square in front of the south portal, and lets choir nuns run town errands (R-1721). Three census households (`hh.lt.osm_w26900735`, `hh.lt.osm_w46961813`, `hh.lt.osm_w46961814`) still live on replaced plots and need rehoming; `citizens.json` was already stale against the plan and was not regenerated. The curtain by the close is shown finished (R-1720). The claustral ranges, cloister walks and gallery cannot be entered.
+
 ## Pending and proposed sites (not built yet)
 
 None of these has a manifest in the [site registry](../../content/world/reval_city/sites/registry.json). **No site model** does not mean nothing is visible: generic shells and fortification-builder geometry are separate from the bespoke site contract. Plans below are design briefs for a future task, not built behaviour.
@@ -293,25 +325,6 @@ None of these has a manifest in the [site registry](../../content/world/reval_ci
 
 - Project: [Churches and religious houses](../../history/dossiers/religion/churches-and-religious-houses.md); [Ecclesiastical precinct boundaries](../../history/dossiers/religion/ecclesiastical-precinct-boundaries-1343.md) (Dominican polygon); [Dominican brewery and fish yard](../../history/dossiers/religion/dominican-brewery-fish-yard-1343.md); [Back lanes east of Pikk](../../history/dossiers/topography/back-lanes-east-of-pikk.md).
 - External: Medieval Heritage, ["Tallinn - Dominican Friary"](https://medievalheritage.eu/en/main-page/heritage/estonia/tallinn-monastery-of-st-catherine-puha-katariina-klooster/) (Kühnert plans, sections and room functions); E. Kühnert, *Das Dominikanerkloster zu Reval*, Reval 1926; MNLL, ["De ordine predicatorum de Tolosa in Dacia"](https://medieval.wiki.uib.no/De_ordine_predicatorum_de_Tolosa_in_Dacia) (1229 and 1246 foundations); Mauritanum, [St Catherine's Convent](https://1246.eu) (surviving east-wing rooms).
-
-### St Michael's Cistercian nunnery
-
-**Status:** pending (ADR 0032 delivery order). No registered-site preview. Board: **R-1130 / LM-05** (`todo`), district primitives, not a city-site task.
-
-**Function in 1343:** an enclosed convent of Cistercian nuns from vassal and upper-town families (founded 1249); patron of St Olaf's church since 1267; landlord of manors and urban mills. In April 1343 its walls are being tied into the new town curtain (Johannes Kanne's 1340s programme, attested).
-
-**Plan** (composite; the close area in 1343 is **unknown**, built core about 1.2–1.8 ha):
-
-- **Convent church** (St Michael) with a nuns' gallery or choir separated from any lay access.
-- **Enclosure** (*clausura*) ranges around a cloister: chapter room, refectory, dormitory, kitchen; access only through the gate house (*porta*) with a turn and a speaking grille.
-- **Service court** with lay sisters, granary, brewhouse, stables; the **walled garden and orchard** taking most of the close.
-- **Wall seam:** lime scaffold, stone carts and a gap at the future Nuns' Gate.
-
-**Decoration:** Cistercian austerity: lime-washed walls, plain glass or grisaille, few images; nuns in white habit with black veil. Composite.
-
-**Left out (later):** the "Nuns' Gate" name (1355), 1433 fire repairs, the post-Reformation girls' school and Swedish-era fabric.
-
-**Historical research:** [Churches and religious houses](../../history/dossiers/religion/churches-and-religious-houses.md); [Ecclesiastical precinct boundaries](../../history/dossiers/religion/ecclesiastical-precinct-boundaries-1343.md) (St Michael segments); [Monastery building-set contract](../tasks/architecture/AR-07_monastery_district_set.md) (legacy); Wikipedia (et), ["Tallinna Püha Miikaeli klooster"](https://et.wikipedia.org/wiki/Tallinna_P%C3%BCha_Miikaeli_klooster); I. Graužiniene, [lecture on the convent](https://gag.ee/wp-content/uploads/2018/12/Klooster_ettekanne-Gustav-Adolfi-p%C3%A4eval_06.11.2015_Inna.pdf), Gustav Adolf Gymnasium 2015 (founding legend vs the 1249 date).
 
 ### St Canute's guild house (Kanutigilde)
 
@@ -450,6 +463,7 @@ Do not add these as 1343 buildings; each is dated later in the dossiers.
    A builder may define its own kinds; `kalev_smithy_builder.gd` reads `kit` (an old-forge GLB by `model`), `catalog` (an object-catalog id, `y` lift) and its yard pieces. Solid furniture footprints then go in `walk.solid`.
    `spawns` (optional) lists spawn ids the site owns, with site-local `at` and `facing_deg`; `CityTravel.spawn_position` and the arrival camera use them before any other spawn kind.
    `terrace.over_houses: true` levels the terrace again after the neighbouring house plots are cut (a small site between houses).
+   `close` (optional, a walled precinct such as `site.st_michael`): `polygon` (site-local, the ground inside the close wall), `wall_h`, and `gates` (`id`, the `door` that closes it, the `street` it opens to). The wall itself is `walk.walls` entries marked `"close": true`; a builder drapes them over the ground. `orchards` (`id`, `polygon`, `step`, optional `mix` of fruit species) are planted by the compiler; `garden_beds` (`id`, `at`, `rotation_deg`, `bed` size, `beds` count) and `chimneys` (site-local stack tops) are read by the builder.
 9. `fabric` (optional) describes the walls once for both the model and the walk data. Each entry has an outer face line `a`→`b`, `inside`, `thick`, `y0`/`y1`, `floor`, the face keys `outer`/`inner` and `openings`. An opening has `kind` (`window`, `door`, `arch`, `niche`, `louvre`), `s`, `w`, `sill`, `spring`, an optional `apex` for a pointed head, `splay` and `glass`. `CitySiteKit` builds the walls from it, and `CitySite` derives the logic-plane walls from it, with door and arch openings at floor level left open.
 10. `visual` is either `{"kind": "builder", "script": ...}`, a script with `static func build(site: CitySite, plan: CityPlan) -> Node3D`, or `{"kind": "scene", "path": ...}`.
 11. Rebuild the plan (`python3 tools/city/build_reval_city_plan.py`), then run the validator.
@@ -460,7 +474,7 @@ Do not add these as 1343 buildings; each is dated later in the dossiers.
 
 | Script | Role |
 |---|---|
-| `tools/city/build_reval_city_plan.py` (`load_sites`, `terrace_site`, `flatten_ground`) | Drops `replaces`, levels the terrace, keeps trees and shrubs off the site, paints splat and minimap, writes `plan.json` → `sites[]` (`id`, `at`, `rotation_deg`, `level`, world `footprints`, `reserve`) |
+| `tools/city/build_reval_city_plan.py` (`load_sites`, `terrace_site`, `flatten_ground`, `site_closes`) | Drops `replaces`, levels the terrace, keeps trees and shrubs off the site, paints splat and minimap, writes `plan.json` → `sites[]` (`id`, `at`, `rotation_deg`, `level`, world `footprints`, `reserve`). For a site with a `close`, `site_closes` clears generic trees and shrubs from the close, its buildings and reserve after every seeded planting loop and plants its `orchards` as unfenced plan orchards (fruit trees in rows), so no countryside field, pasture or orchard ID moves |
 | `scripts/city/city_site.gd` (`CitySite`) | Manifest plus placement; local↔world transforms; floors, rooms, walls, solids, doors in world XZ |
 | `scripts/city/city_site_registry.gd` (`CitySiteRegistry`) | Loads the registry and pairs manifests with their plan placement |
 | `scripts/city/city_plan.gd` | `sites`, `site_at`, `site_room_at`; `walk_height` uses site floors first; `location_at` names site rooms |
@@ -470,6 +484,7 @@ Do not add these as 1343 buildings; each is dated later in the dossiers.
 | `scripts/city/city_site_props.gd` (`CitySiteProps`) | Prop catalogue for dressing |
 | `scripts/city/city_site_actor.gd` (`CitySiteActor`) | A person on a site: rig, facing, pose |
 | `scripts/city/sites/site_kit.gd` (`CitySiteKit`) | Shared kit for site models. Walls from `fabric` with flat or pointed openings, splays, glass, niches and louvres; crow-stepped gables; gable and pyramid roofs; quadripartite rib vaults (`rib_vault`); square piers (`square_pier`, plastered or bare `greystone`); octagonal pillars; flag floors with ledger slabs; cut caps; materials (`bind_site_washes` binds the lime wash and painted wash of a site's meshes to its floor height and frieze frame and sets their indoor brightness) |
+| `scripts/city/sites/st_michael_builder.gd` | St Michael's nunnery: two-aisled vaulted church with flat-ended chancel, plain gables, ridge bell-cote, nuns' west gallery; claustral ranges with closed niche doors, cloister lean-to walks and lavabo; gate house; service wing; close wall draped over the ground from the `close` walk walls; kitchen-garden beds (`MapViewKitchenGardenModels`); kitchen and brewhouse stacks (root meta `chimneys`) |
 | `scripts/city/sites/kalev_smithy_builder.gd` | Kalev's smithy: rubble walls with the old forge's plates, plain gables, shingle roof, gable stack, loft, shutters, shop counter, lean-to, and the old forge GLB kit with the live hearth fire. Root meta `chimneys` (site-local stack tops, always-lit smoke); fire controllers join group `city_cycle_lights` (`CityWorld3D.apply_time`) |
 | `scripts/city/sites/holy_spirit_builder.gd` | Holy Spirit church, choir, almshouse and bell turret on the kit |
 | `scripts/city/sites/st_mary_builder.gd` | St Mary's chancel, apse, vestry, finished bay, rising nave, crane, centering, scaffolds, lodge, belfry |
@@ -497,7 +512,7 @@ Sites hold no state. Door positions are not saved; the plan and manifests rebuil
 
 ## Limits
 
-- All six registered site shells are interim GDScript models. Their Blender GLB replacements (ADR 0025 tier B budgets) are follow-up work; no per-site delivery task or date was confirmed in the 2026-10-11 catalogue review.
+- All seven registered site shells are interim GDScript models. Their Blender GLB replacements (ADR 0025 tier B budgets) are follow-up work; no per-site delivery task or date was confirmed in the 2026-10-11 catalogue review.
 - The cut is one flat plane at head height: window openings above it are cut through, and the section cap spans the window holes.
 - Neighbouring generic roofs are clipped where they would overhang a site building (`keep_out`), so they no longer poke through its walls.
 - The retable, figures and pulpit are box-modelled; carved detail and painted faces need the planned Blender models.
@@ -506,5 +521,5 @@ Sites hold no state. Door positions are not saved; the plan and manifests rebuil
 - The validator's mesh check compares plan extents (AABB), not a full top-down raster.
 - The plan's `forum` polygon (about 90 × 80 m) is still larger than the dossier's 1343 market reserve (about 44 × 36 m). The site's `reserve` follows the dossier, but the extra open ground around it is not yet filled with burgess plots.
 - Stalls and carts are the district-map GLBs at their old scale; there are no awnings in varied cloth colours and no horses yet.
-- Six sites are registered. The castle, St Catherine, St Michael and the gates are pending; the guild houses, the bishop's court, St John's hospital and the remaining towers are proposals without an ADR or task. See [Pending and proposed sites](#pending-and-proposed-sites-not-built-yet).
+- Seven sites are registered. The castle, St Catherine and the gates are pending; the guild houses, the bishop's court, St John's hospital and the remaining towers are proposals without an ADR or task. See [Pending and proposed sites](#pending-and-proposed-sites-not-built-yet).
 - The council-hall cellar (*cellarium civitatis*) is not walkable.
