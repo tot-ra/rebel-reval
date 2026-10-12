@@ -12,6 +12,14 @@
 | Faction ties | black_cloaks |
 | Archive reference images | image-55, image-56 |
 
+![saboteur concept art](../inspiration/saboteur_concept.jpg)
+
+**Illustration:** Generated with Leonardo AI's configured realism model. Photorealistic documentation reference; existing archive references are retained.
+
+**Generation prompt:** Photorealistic historical documentary photograph, full-body portrait of a wiry urban rebel saboteur in Reval (medieval Tallinn), 1343, standing low and alert beside a weathered timber harbour warehouse wall. A real human man aged about 28, soot-smudged face and hands, wearing a patched charcoal-black homespun wool hood and practical layered work clothes, rough leather gloves, worn belt carrying several small plain clay smoke pots and a few small iron caltrops; one hand holds a covered clay ember pot. Subtle faded rust-red strip on sleeve as a cell marker. Historically grounded 14th-century Baltic working-class clothing and materials, no armor, believable lived-in details, overcast Baltic daylight, natural skin texture, muted charcoal, rust and worn indigo palette, cinematic but candid photographic realism, realistic lens and depth of field, sharp recognizable face and clothing, full figure entirely in frame, neutral unobtrusive harbor background, no text.
+
+**Negative prompt:** painting, illustration, concept art, CGI, 3D render, fantasy assassin, ninja, sleek black costume, modern clothing, modern weapons, firearms, explosives, polished armor, theatrical pose, clean new clothing, text, watermark, logo, blood, gore, extra fingers, distorted hands, duplicate objects
+
 ## At a glance
 - Opens a fight with a smoke pot and a scatter of iron caltrops.
 - Prefers to cut a rope, a brace or a gate chain over cutting a man.
