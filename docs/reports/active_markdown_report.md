@@ -14,20 +14,20 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `1200`
-- Markdown files excluded as archive/reference/out of active scope: `760`
-- Local/external links inspected: `13868`
-- Links to active Markdown docs: `12408`
-- Links to existing archive/reference/non-active local docs: `527`
-- External links skipped for reachability: `180`
-- Issues found: `1`
+- Active Markdown files scanned: `1201`
+- Markdown files excluded as archive/reference/out of active scope: `763`
+- Local/external links inspected: `14018`
+- Links to active Markdown docs: `12426`
+- Links to existing archive/reference/non-active local docs: `531`
+- External links skipped for reachability: `192`
+- Issues found: `34`
 
 ## Issue counts
 
 | Code | Count |
 | --- | ---: |
-| `BROKEN_LINK` | 1 |
-| `BROKEN_ANCHOR` | 0 |
+| `BROKEN_LINK` | 21 |
+| `BROKEN_ANCHOR` | 13 |
 | `DUPLICATE_CHARACTER_NAME` | 0 |
 | `CONTRADICTORY_DATE` | 0 |
 | `MISSING_REFERENCE` | 0 |
@@ -36,7 +36,40 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 | Code | Location | Detail |
 | --- | --- | --- |
-| `BROKEN_LINK` | `docs/SYSTEMS/SEAMLESS_CITY.md:88` | Local Markdown link target does not exist: `../reports/images/vegetation/r1684_roof_shingle.jpg` |
+| `BROKEN_ANCHOR` | `docs/CHARACTERS/apprentice.md:29` | Local Markdown link anchor `#guilt-implemented-sd-03` not found in `docs/SYSTEMS/SPIRIT_DIALOGUE.md` |
+| `BROKEN_ANCHOR` | `docs/SYSTEMS/COMBAT.md:8` | Local Markdown link anchor `#spirit-arena-implemented-prototype-sd-04` not found in `docs/SYSTEMS/SPIRIT_DIALOGUE.md` |
+| `BROKEN_ANCHOR` | `docs/SYSTEMS/COMBAT.md:109` | Local Markdown link anchor `#hybrid-combat-and-guilt-implemented-sd-07` not found in `docs/SYSTEMS/SPIRIT_DIALOGUE.md` |
+| `BROKEN_ANCHOR` | `docs/SYSTEMS/DIALOGUE.md:31` | Local Markdown link anchor `#language-comprehension-implemented-sd-08` not found in `docs/SYSTEMS/SPIRIT_DIALOGUE.md` |
+| `BROKEN_ANCHOR` | `docs/SYSTEMS/DIALOGUE.md:32` | Local Markdown link anchor `#dialogue-move-tags-implemented-sd-02` not found in `docs/SYSTEMS/SPIRIT_DIALOGUE.md` |
+| `BROKEN_ANCHOR` | `docs/SYSTEMS/FACTIONS_AND_ECONOMY.md:82` | Local Markdown link anchor `#talking-to-yourself-implemented-sd-09` not found in `docs/SYSTEMS/SPIRIT_DIALOGUE.md` |
+| `BROKEN_ANCHOR` | `docs/SYSTEMS/MAGIC.md:9` | Local Markdown link anchor `#magic-in-the-spirit-world-implemented-sd-14` not found in `docs/SYSTEMS/SPIRIT_DIALOGUE.md` |
+| `BROKEN_ANCHOR` | `docs/SYSTEMS/MAGIC.md:9` | Local Markdown link anchor `#magic-in-the-spirit-world-implemented-sd-14` not found in `docs/SYSTEMS/SPIRIT_DIALOGUE.md` |
+| `BROKEN_ANCHOR` | `docs/SYSTEMS/QUESTS.md:83` | Local Markdown link anchor `#the-apprentice-at-the-anvil-implemented-sd-12` not found in `docs/SYSTEMS/SPIRIT_DIALOGUE.md` |
+| `BROKEN_ANCHOR` | `docs/SYSTEMS/STATE_AND_SAVES.md:23` | Local Markdown link anchor `#guilt-implemented-sd-03` not found in `docs/SYSTEMS/SPIRIT_DIALOGUE.md` |
+| `BROKEN_ANCHOR` | `docs/SYSTEMS/STATE_AND_SAVES.md:24` | Local Markdown link anchor `#observation-mode-implemented-prototype-sd-06` not found in `docs/SYSTEMS/SPIRIT_DIALOGUE.md` |
+| `BROKEN_ANCHOR` | `docs/SYSTEMS/STATE_AND_SAVES.md:25` | Local Markdown link anchor `#language-comprehension-implemented-sd-08` not found in `docs/SYSTEMS/SPIRIT_DIALOGUE.md` |
+| `BROKEN_ANCHOR` | `docs/SYSTEMS/STATE_AND_SAVES.md:26` | Local Markdown link anchor `#traits-and-temperaments-implemented-sd-15` not found in `docs/SYSTEMS/SPIRIT_DIALOGUE.md` |
+| `BROKEN_LINK` | `docs/SYSTEMS/CITIZEN_WARDROBE.md:77` | Local Markdown link target does not exist: `../reports/images/characters/citizen_textiles_3m.jpg` |
+| `BROKEN_LINK` | `docs/SYSTEMS/CITIZEN_WARDROBE.md:116` | Local Markdown link target does not exist: `../reports/images/characters/citizen_armour_average_back.jpg` |
+| `BROKEN_LINK` | `docs/SYSTEMS/CITIZEN_WARDROBE.md:116` | Local Markdown link target does not exist: `../reports/images/characters/citizen_armour_average_back_walk.jpg` |
+| `BROKEN_LINK` | `docs/SYSTEMS/CITIZEN_WARDROBE.md:116` | Local Markdown link target does not exist: `../reports/images/characters/citizen_armour_average_front.jpg` |
+| `BROKEN_LINK` | `docs/SYSTEMS/CITIZEN_WARDROBE.md:116` | Local Markdown link target does not exist: `../reports/images/characters/citizen_armour_average_front_walk.jpg` |
+| `BROKEN_LINK` | `docs/SYSTEMS/CITIZEN_WARDROBE.md:116` | Local Markdown link target does not exist: `../reports/images/characters/citizen_armour_heavy_back.jpg` |
+| `BROKEN_LINK` | `docs/SYSTEMS/CITIZEN_WARDROBE.md:116` | Local Markdown link target does not exist: `../reports/images/characters/citizen_armour_heavy_back_walk.jpg` |
+| `BROKEN_LINK` | `docs/SYSTEMS/CITIZEN_WARDROBE.md:116` | Local Markdown link target does not exist: `../reports/images/characters/citizen_armour_heavy_front.jpg` |
+| `BROKEN_LINK` | `docs/SYSTEMS/CITIZEN_WARDROBE.md:116` | Local Markdown link target does not exist: `../reports/images/characters/citizen_armour_heavy_front_walk.jpg` |
+| `BROKEN_LINK` | `docs/SYSTEMS/CITIZEN_WARDROBE.md:116` | Local Markdown link target does not exist: `../reports/images/characters/citizen_armour_sturdy_back.jpg` |
+| `BROKEN_LINK` | `docs/SYSTEMS/CITIZEN_WARDROBE.md:116` | Local Markdown link target does not exist: `../reports/images/characters/citizen_armour_sturdy_back_walk.jpg` |
+| `BROKEN_LINK` | `docs/SYSTEMS/CITIZEN_WARDROBE.md:116` | Local Markdown link target does not exist: `../reports/images/characters/citizen_armour_sturdy_front.jpg` |
+| `BROKEN_LINK` | `docs/SYSTEMS/CITIZEN_WARDROBE.md:116` | Local Markdown link target does not exist: `../reports/images/characters/citizen_armour_sturdy_front_walk.jpg` |
+| `BROKEN_LINK` | `docs/SYSTEMS/CITIZEN_WARDROBE.md:116` | Local Markdown link target does not exist: `../reports/images/characters/citizen_armour_thin_back.jpg` |
+| `BROKEN_LINK` | `docs/SYSTEMS/CITIZEN_WARDROBE.md:116` | Local Markdown link target does not exist: `../reports/images/characters/citizen_armour_thin_back_walk.jpg` |
+| `BROKEN_LINK` | `docs/SYSTEMS/CITIZEN_WARDROBE.md:116` | Local Markdown link target does not exist: `../reports/images/characters/citizen_armour_thin_front.jpg` |
+| `BROKEN_LINK` | `docs/SYSTEMS/CITIZEN_WARDROBE.md:116` | Local Markdown link target does not exist: `../reports/images/characters/citizen_armour_thin_front_walk.jpg` |
+| `BROKEN_LINK` | `docs/SYSTEMS/CITIZEN_WARDROBE.md:118` | Local Markdown link target does not exist: `../reports/images/characters/citizen_armour_heavy_front.jpg` |
+| `BROKEN_LINK` | `docs/SYSTEMS/CITIZEN_WARDROBE.md:122` | Local Markdown link target does not exist: `../reports/images/characters/citizen_textiles_poor.jpg` |
+| `BROKEN_LINK` | `docs/SYSTEMS/CITIZEN_WARDROBE.md:122` | Local Markdown link target does not exist: `../reports/images/characters/citizen_textiles_rich.jpg` |
+| `BROKEN_LINK` | `docs/SYSTEMS/CITIZEN_WARDROBE.md:122` | Local Markdown link target does not exist: `../reports/images/characters/citizen_textiles_smith.jpg` |
 
 ## Active files scanned
 
@@ -1148,6 +1181,7 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/SYSTEMS/VEGETATION_ENGINEERING.md`
 - `docs/SYSTEMS/VEGETATION_REALISM.md`
 - `docs/SYSTEMS/WATER_SANDBOX.md`
+- `docs/SYSTEMS/WATER_SUPPLY.md`
 - `docs/SYSTEMS/WEATHER_GROUND.md`
 - `docs/SYSTEMS/WORLD_LIFE.md`
 - `docs/SYSTEMS/WORLD_PRESENTATION.md`

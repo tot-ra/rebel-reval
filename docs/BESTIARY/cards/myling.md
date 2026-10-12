@@ -12,6 +12,14 @@
 | Faction ties | none |
 | Archive reference images | image-33 |
 
+![myling concept art](../inspiration/myling_concept.jpg)
+
+**Illustration:** Generated with OpenAI Images (gpt-image-1). Documentation concept art only; archive reference image-33 is retained separately.
+
+**Generation prompt:** Myling, a Swedish coastal-settler name for the murdered-child ghost, Estonian equivalent Näkiline: infant-sized bundle swaddled in a simple old linen burial wrap, alone on a Baltic coastal track, quiet sorrow rather than menace, face not shown, no gore or corpse detail. Wind-bent dune grass and distant gray sea at overcast dusk; cinematic painterly realism, subtle supernatural translucence, textured linen, muted slate blue, gray and warm linen palette, readable silhouette, sparse uncluttered square composition, no text, border, weapon or modern objects.
+
+**Negative prompt:** cute baby, visible face, doll, zombie, gore, exposed bones, weapon, modern objects, text, border, watermark, visible wings
+
 ## At a glance
 - A faint crying on a coast road at night.
 - Grows heavier the farther it is carried.
@@ -25,7 +33,7 @@ Unbaptised murdered infant crying to be carried to consecrated ground, Scandinav
 - **Body:** Infant-sized bundle that becomes heavier with each step.
 - **Materials and colours:** Pale small hands, wet swaddling, faint blue light.
 - **What a model must get right:** A swaddled bundle that is unnaturally heavy; the face is not shown.
-- **Concept-art prompt:** Concept art of a myling, a small swaddled infant-shaped bundle lying on a dark coastal path, pale hands reaching, faint blue glow, wet swaddling cloth, 14th century Baltic coastal dunes at dusk, grounded dark-fantasy realism, muted blue-grey palette, neutral background, even lighting.
+- **Concept-art prompt:** Infant-sized bundle swaddled in a simple old linen burial wrap, alone on a Baltic coastal track at overcast dusk; sorrowful spirit, face not shown, no gore. Wind-bent dune grass and distant gray sea, cinematic painterly realism, subtle supernatural translucence, muted slate-blue, gray and linen palette, sparse composition.
 - **Model notes:** Bundle prop with a weight animation; spirit-layer only.
 
 ## Motivation

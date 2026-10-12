@@ -12,6 +12,14 @@
 | Faction ties | none |
 | Archive reference images | bandits:thug.png, bandits:thug2.png, image-53 |
 
+![street thug concept art](../inspiration/street_thug_concept.png)
+
+**Illustration:** Generated with OpenAI Images, `gpt-image-1`. Documentation concept art only; existing archive references are retained.
+
+**Generation prompt:** Photorealistic live-action historical film still, documentary portrait of an invented poor street thug from 1343 Reval, full figure head to boots in frame, standing in a narrow Lower Town alley with rough medieval limestone rubble walls and timber upper stories softly out of focus. A wary, exhausted young adult man with believable natural facial anatomy, wind-chapped skin, tangled brown hair and uneven beard, wearing a coarse patched dark brown wool tunic over a plain linen shirt, simple worn leather belt, scuffed leather shoes; carrying one plain rough-hewn wooden club down at his side and a small cloth pouch of grit. Lean practical build, guarded hunched stance, looks like a desperate civilian criminal rather than a fantasy warrior. Historically plausible Baltic clothing and textures, no armor, no ornate props, no modern objects. Natural overcast daylight, subdued earth tones, realistic skin and wool, 35mm cinema photography, shallow depth of field but subject crisp, candid grounded realism, neutral composition, no text, no watermark.
+
+**Negative prompt:** fantasy armor, modern jacket, firearm, helmet, glowing eyes, text, watermark, gore.
+
 ## At a glance
 - First fight a player can lose in a Lower Town lane after dark.
 - Throws a fistful of sand before closing; the sand is the telegraph, not a trick.

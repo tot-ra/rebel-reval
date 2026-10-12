@@ -12,6 +12,14 @@
 | Faction ties | none |
 | Archive reference images | image-45, image-54 |
 
+![brute concept art](../inspiration/brute_concept.jpg)
+
+**Illustration:** Generated with Leonardo AI, Lucid Realism model. Documentation concept art only; existing archive references are retained.
+
+**Generation prompt:** A 1343 Reval dockside brute, a physically strong ordinary human with no supernatural traits: broad shoulders, thick forearms, worn wool shirt and leather work belt, one hand braced as if about to shove, tavern stool or dock timber nearby for scale. No armor, no giant proportions, no weapon spectacle. Historically grounded human character concept art, realistic anatomy, muted umber, charcoal and faded rust, full figure on neutral background, no text.
+
+**Negative prompt:** ogre, supernatural muscles, fantasy armor, modern clothes, text, watermark, gore
+
 ## At a glance
 - Slow, heavy, shoves rather than cuts.
 - Hired by whoever pays: a tavern keeper, a dock gang, a guild debt collector.

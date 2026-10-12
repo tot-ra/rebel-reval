@@ -7,8 +7,9 @@ extends Node
 ##   tools/godot_render.sh --resolution 1600x900 res://tools/capture_city_households.tscn \
 ##     -- --city-spawn=poi.forum --city-hour=18.2 [--tag=evening] [--houses=4]
 ##        [--scene=res://scenes/world/sites/harju.tscn] [--trade=farmer]
+##        [--buildings=417,223] (plan building indices, instead of picking by class)
 ## Output: docs/reports/images/city/households_<tag>_<n>.png (+ _eye.png from the
-## doorway, _hearth.png close on the hearth and its chimney breast, _top.png from
+## doorway, _door.png over Kalev at the street door, _hearth.png close on the hearth and its chimney breast, _top.png from
 ## the gameplay camera, _outside.png on the chimney from the street); prints
 ## the pieces and who is at home doing what.
 
@@ -53,10 +54,17 @@ func _run() -> void:
 	# One house per class, nearest the spawn first.
 	var picks: Array = []
 	var seen := {}
+	var wanted := _arg("--buildings=", "")
+	if wanted != "":
+		for token in wanted.split(",", false):
+			picks.append(int(token))
+		count = 0
 	var near := plan.buildings_near(spawn, 160.0 if trade_filter == "" else 2000.0)
 	near.sort_custom(func(a: int, b: int) -> bool:
 		return interiors._center(a).distance_to(spawn) < interiors._center(b).distance_to(spawn))
 	for index: int in near:
+		if count <= 0 or picks.size() >= count:
+			break
 		var lay := interiors.layout(index)
 		if lay == null or lay.items.is_empty():
 			continue
@@ -149,6 +157,18 @@ func _run() -> void:
 		await RenderingServer.frame_post_draw
 		get_viewport().get_texture().get_image().save_png(
 			ProjectSettings.globalize_path("%s/households_%s_%d_eye.png" % [OUTPUT_DIR, tag, n]))
+		# Over Kalev's shoulder at the street door, into the hall: no partition
+		# may stand in the doorway.
+		var door := lay._door
+		var outward := (door - lay.entry).normalized()
+		var stand := door + outward * 2.4
+		cam.global_position = Vector3(stand.x, lay.floor_y + 2.3, stand.y)
+		cam.look_at(Vector3(lay.entry.x, lay.floor_y + 0.9, lay.entry.y), Vector3.UP)
+		await _frames(3)
+		await RenderingServer.frame_post_draw
+		get_viewport().get_texture().get_image().save_png(
+			ProjectSettings.globalize_path("%s/households_%s_%d_door.png" % [OUTPUT_DIR, tag, n]))
+		cam.fov = 70.0
 		# Close on the hearth: its hood, flue and the chimney breast above it.
 		if lay.hearth >= 0:
 			var h: Dictionary = lay.items[lay.hearth]

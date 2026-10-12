@@ -124,3 +124,29 @@ func test_pass_draws_only_for_an_active_perspective_camera_outdoors() -> void:
 	first.free()
 	second.free()
 	camera.free()
+
+
+func test_haze_colour_carries_the_gain_compensation_given_to_the_pass() -> void:
+	# R-1794: far ground fades toward the dome horizon, which is drawn with the outdoor
+	# exposure gain divided out, so the haze target takes the same factor. Default is 1.
+	var tree := Engine.get_main_loop() as SceneTree
+	var camera := Camera3D.new()
+	tree.root.add_child(camera)
+	camera.make_current()
+	var pass_node := Aerial.new()
+	tree.root.add_child(pass_node)
+	pass_node.configure(camera)
+	pass_node.update(_presentation(0.5))
+	assert_true(pass_node.overlay_visible(), "the pass draws outdoors")
+	var material := pass_node.material()
+	assert_true(
+		is_equal_approx(material.get_shader_parameter(&"haze_gain_compensation"), 1.0),
+		"no compensation is passed by default"
+	)
+	pass_node.update(_presentation(0.5), true, 0.53)
+	assert_true(
+		is_equal_approx(material.get_shader_parameter(&"haze_gain_compensation"), 0.53),
+		"the compensation reaches the haze shader"
+	)
+	pass_node.free()
+	camera.free()

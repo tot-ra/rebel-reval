@@ -1,7 +1,7 @@
 extends SceneTree
 
 ## Review plates for localized fog banks and horizon heat shimmer
-## (docs/SYSTEMS/LOCAL_ATMOSPHERE.md). Builds the seamless city view, sets the weather,
+## (docs/SYSTEMS/SKY_ATMOSPHERE.md). Builds the seamless city view, sets the weather,
 ## and shoots the shore from eye level. Needs a renderer:
 ##   tools/godot_render.sh --script tools/capture_local_fog.gd [-- --only=a,b --tag=now]
 ## Output: build/local_fog/<shot>_<tag>.png

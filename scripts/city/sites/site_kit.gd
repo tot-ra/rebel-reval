@@ -1229,3 +1229,59 @@ static func square_pier(
 		AABB(at + Vector3(-base, 0.0, -base), Vector3(base * 2.0, 0.35, base * 2.0)),
 		AABB(at + Vector3(-half, 0.0, -half), Vector3(half * 2.0, height, half * 2.0)),
 	]
+
+
+## Shared parish burial ground (R-1650/R-1651). Grave positions, enclosure
+## fabric and paths are authored in site-local metres, draped over the terrain.
+static func cemetery(root: Node3D, site: CitySite, plan: CityPlan) -> void:
+	var shell := CityBuildingBuilder.Shell.new()
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 1342
+	for g: Array in site.data.get("graves", []):
+		var p := Vector2(g[0], g[1])
+		var y := plan.ground_height(site.to_world(p)) - site.level
+		if rng.randf() < 0.75:
+			var h := rng.randf_range(0.9, 1.25)
+			var tone := OAK_DARK * rng.randf_range(0.7, 1.05)
+			tone.a = 1.0
+			bar(
+				shell, "timber", Vector3(p.x, y - 0.2, p.y), Vector3(p.x, y + h, p.y), 0.09, tone
+			)
+			bar(
+				shell,
+				"timber",
+				Vector3(p.x, y + h * 0.75, p.y - 0.28),
+				Vector3(p.x, y + h * 0.75, p.y + 0.28),
+				0.08,
+				tone
+			)
+		else:
+			CitySiteProps._box(
+				shell,
+				"ashlar",
+				Vector3(p.x - 0.45, y - 0.1, p.y - 0.9),
+				Vector3(p.x + 0.45, y + 0.12, p.y + 0.9),
+				ASHLAR * 0.85
+			)
+		# Grave mound.
+		CitySiteProps._box(
+			shell,
+			"ashlar",
+			Vector3(p.x + 0.2, y - 0.25, p.y - 0.4),
+			Vector3(p.x + 1.9, y + 0.12, p.y + 0.4),
+			Color(0.42, 0.36, 0.28)
+		)
+	_churchyard(shell, site, plan)
+	var node := mesh("Cemetery", shell)
+	root.add_child(node)
+
+
+## Low rubble enclosure of a parish burial ground: the site's `churchyard.*`
+## fabric walls (gates are openings in them), kept out of the church shell.
+static func _churchyard(shell: CityBuildingBuilder.Shell, site: CitySite, _plan: CityPlan) -> void:
+	var glass := CityBuildingBuilder.Shell.new()
+	var fabric: Array = []
+	for w: Dictionary in site.data.get("fabric", []):
+		if String(w["id"]).begins_with("churchyard."):
+			fabric.append(w)
+	walls(shell, glass, fabric)

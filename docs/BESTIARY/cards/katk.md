@@ -14,11 +14,11 @@
 
 ![katk concept art](../inspiration/katk_concept.jpg)
 
-**Illustration:** Generated with Leonardo AI, Lucid Realism model. Documentation concept art only; existing archive references are retained.
+**Illustration:** Photorealistic documentation concept art generated with Leonardo AI, Lucid Realism model (generation `1f1c63c7-40d1-6d70-bcd4-e5b122683df9`); existing archive references are retained.
 
-**Generation prompt:** Photorealistic, grounded historical depiction of Katk, Estonian folklore personification of plague as a traveller asking for passage: a solitary anonymous wayfarer at a rural ferry crossing in spring 1343, full figure, pale natural skin and clear blue eyes, calm courteous expression with unnerving stillness, plain weathered grey wool mantle, walking staff and small cloth bundle. Muddy riverbank, rough wooden landing, reeds, early-spring willow, cold slate-blue water and distant Baltic woodland. Two tiny rolling flames barely visible in reeds as a restrained folk omen. Overcast dusk, cold mist, desaturated slate and muted earth, realistic period materials and skin texture. Dangerous omen, not an active epidemic; no other people, no text.
+**Generation prompt:** Photorealistic cinematic documentary still, historically grounded 1343 rural Estonia near Reval, full-body portrait of a solitary anonymous wayfarer at a quiet river ferry landing. Katk is the Estonian folklore personification of plague, imagined as a polite stranger who asks only to be ferried across the river. He appears as an ordinary adult traveler in a plain, weathered spring wool mantle and simple period-appropriate linen and leather, carrying a walking stick and a small bundle. Calm, courteous, unreadable blue-eyed face, with a subtly cold and unnaturally still presence. No visible illness, sores, mask, or horror grotesquery. Thin natural river mist and muted overcast light suggest an unsettling omen without magical effects. Historically plausible ferry landing and rural Baltic landscape, earthy slate and subdued natural colors, realistic skin and fabric textures, natural anatomy, cinematic photography, shallow atmospheric depth, understated composition, full figure visible, no text.
 
-**Negative prompt:** illustration, painting, stylized fantasy art, epidemic crowd, medical mask, sores, wounds, modern clothing, plague doctor beak mask, gore, text, watermark
+**Negative prompt:** illustration, painting, concept art, fantasy armor, plague doctor mask, beaked mask, visible disease, sores, pustules, blood, corpse, crowd, epidemic, text, watermark, extra limbs, deformed hands, modern objects, modern clothing, theatrical costume, exaggerated supernatural glow, high saturation
 
 ## At a glance
 - A blue-eyed stranger or two rolling flames at a river.

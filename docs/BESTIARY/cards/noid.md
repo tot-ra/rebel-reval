@@ -12,6 +12,14 @@
 | Faction ties | cult_metsik |
 | Archive reference images | image-25 |
 
+![noid concept art](../inspiration/noid_concept.jpg)
+
+**Illustration:** Generated with Leonardo AI, Lucid Realism model. Documentation concept art only; existing archive references are retained.
+
+**Generation prompt:** Nõid, Estonian village cunning-folk and healer, not evil by default: a middle-aged rural healer in plain 14th-century linen and wool, herb pouch and small wooden cup, one hand making a restrained healing gesture, wise alert expression, modest village setting suggested by dried herbs, no pointed hat or theatrical wizard staff. Human and historically grounded, painterly concept art, earthy greens, linen and muted ochre, full figure on neutral uncluttered background, no text.
+
+**Negative prompt:** generic wizard, evil witch stereotype, pointed hat, modern clothing, glowing staff, text, watermark
+
 ## At a glance
 - Healer, weather-reader, finder of thieves.
 - The Church calls them witches.

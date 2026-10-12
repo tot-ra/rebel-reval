@@ -13,6 +13,8 @@ const DEFAULT_SPAWN := &"poi.forum"
 
 ## old scene id -> {old spawn id -> city spawn id, "*" -> default}
 const REDIRECTS := {
+	# The 2D smithy scene is retired; old saves and links land in the city smithy.
+	&"forge": {&"*": &"kalev_smithy"},
 	&"reval_east": {&"forge": &"kalev_smithy", &"*": &"gate.viru"},
 	&"reval_center": {&"*": &"poi.forum"},
 	&"reval_north": {&"*": &"poi.granary.pikk"},

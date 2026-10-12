@@ -175,6 +175,94 @@ const ROWS := [
 	],
 ]
 
+## Armour range (WD-4): five kits on each of four builds, one plate row per build.
+const ARMOUR_BUILDS := [
+	"citizen_m_adult_thin",
+	"citizen_m_adult_average_b",
+	"citizen_m_adult_sturdy",
+	"citizen_m_adult_heavy_b",
+]
+const BLUE := [0.17, 0.24, 0.38]
+## [label, cloth dye, wear, wear_dye, shield]
+const ARMOUR_KITS := [
+	[
+		"man-at-arms",
+		[0.3, 0.3, 0.28],
+		[
+			"gambeson",
+			"mail_haubergeon",
+			"mail_chausses",
+			"surcoat",
+			"kettle_hat",
+		],
+		{"surcoat": RED},
+		"crown",
+	],
+	[
+		"coat of plates",
+		[0.3, 0.3, 0.28],
+		[
+			"gambeson",
+			"mail_haubergeon",
+			"coat_of_plates",
+			"aventail",
+			"bascinet",
+			"mail_chausses",
+			"gauntlets",
+		],
+		{"coat_of_plates": RED},
+		"crown",
+	],
+	[
+		"vassal knight",
+		[0.3, 0.3, 0.28],
+		["gambeson", "mail_haubergeon", "surcoat", "aventail", "bascinet", "mail_chausses", "gauntlets"],
+		{"surcoat": BLUE},
+		"field",
+	],
+	[
+		"great helm",
+		[0.3, 0.3, 0.28],
+		[
+			"gambeson",
+			"mail_haubergeon",
+			"coat_of_plates",
+			"mail_coif",
+			"great_helm",
+			"mail_chausses",
+			"gauntlets",
+		],
+		{"coat_of_plates": BLUE},
+		"field",
+	],
+	[
+		"Order brother",
+		[0.3, 0.3, 0.28],
+		[
+			"gambeson",
+			"mail_haubergeon",
+			"mail_chausses",
+			"gauntlets",
+			"surcoat",
+			"order_mantle",
+			"aventail",
+			"bascinet",
+		],
+		{"surcoat": WHITE, "order_mantle": WHITE},
+		"order",
+	],
+]
+
+
+func _armour_rows() -> Array:
+	var rows: Array = []
+	for body: String in ARMOUR_BUILDS:
+		var row: Array = []
+		for kit: Array in ARMOUR_KITS:
+			row.append([kit[0], body, kit[1], kit[2], kit[3], kit[4]])
+		rows.append(row)
+	return rows
+
 
 func _initialize() -> void:
 	call_deferred("_run")
@@ -199,8 +287,10 @@ func _run() -> void:
 	viewport.add_child(sun)
 	var rigs: Array[SharedCharacterRig] = []
 	var labels: Array = []
-	for row_index in ROWS.size():
-		var row: Array = ROWS[row_index]
+	var rows: Array = ROWS.duplicate()
+	rows.append_array(_armour_rows())
+	for row_index in rows.size():
+		var row: Array = rows[row_index]
 		for i in row.size():
 			var entry: Array = row[i]
 			var scene := load("res://assets/characters/variants/%s.tscn" % entry[1]) as PackedScene
@@ -228,6 +318,8 @@ func _run() -> void:
 			"wear": entry[3],
 			"wear_dye": entry[4],
 		}
+		if entry.size() > 5:
+			record["shield"] = entry[5]
 		CityCitizens.dye(rig, record)
 		CitizenGear.arm(rig, record)
 		if walk:
@@ -246,7 +338,7 @@ func _run() -> void:
 			out = a.trim_prefix("--output-dir=")
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(out))
 	var suffix := "_walk" if walk else ""
-	for row_index in ROWS.size():
+	for row_index in rows.size():
 		camera.position.x = row_index * ROW_OFFSET
 		for rig in rigs:
 			rig.rotation_degrees = Vector3.ZERO

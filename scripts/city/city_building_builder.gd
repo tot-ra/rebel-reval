@@ -11,6 +11,12 @@ extends RefCounted
 
 const SINK := 0.7
 const OVERHANG := 0.38
+## R-1760: eave and verge overhang by cover. Thatch sheds water well clear of
+## the wall; split shingle and boards are carried a little further than tile.
+const ROOF_OVERHANG := {&"thatch": 0.55, &"shingle": 0.48, &"tile": OVERHANG}
+## R-1760: ordinary houses deviate this far (degrees, +-) from the plan's
+## per-cover pitch, so no two neighbours share one roof line.
+const PITCH_JITTER := 4.0
 const ROOF_THICKNESS := 0.16
 ## Roof cover thickness by family: a thatch coat is ~0.35 m and ends in a
 ## rounded roll at eaves and verges; tile and shingle are thin.
@@ -77,6 +83,7 @@ const ROOF_COLORS := {
 const WindowOpenings := preload("res://scripts/city/city_window_openings.gd")
 const HouseWealth := preload("res://scripts/city/city_house_wealth.gd")
 const Chimney := preload("res://scripts/city/city_chimney_builder.gd")
+const HouseDetails := preload("res://scripts/city/city_house_details.gd")
 const WINDOW_WOOD := preload("res://scripts/city/city_window_wood.gdshader")
 const WINDOW_GLASS := preload("res://scripts/city/city_window_glass.gdshader")
 
@@ -200,7 +207,9 @@ static func roof_material(family: StringName) -> Material:
 	if not _materials.has(key):
 		var plate := MapViewMaterials.roof_surface(family, Color.WHITE)
 		var moss := {&"shingle": 0.5, &"tile": 0.3, &"thatch": 0.2}.get(family, 0.5) as float
-		_materials[key] = weathered_roof(plate, ROOF_COLORS.get(family, Color.WHITE), moss)
+		var mat := weathered_roof(plate, ROOF_COLORS.get(family, Color.WHITE), moss)
+		mat.set_shader_parameter("cover", 1 if family == &"thatch" else 0)
+		_materials[key] = mat
 	return _materials[key]
 
 
@@ -536,6 +545,29 @@ static func roof_height(frame: Dictionary, p: Vector2) -> float:
 	return float(frame["eave"]) + (float(frame["half"]) - d) * float(frame["slope"])
 
 
+## Roof pitch actually built for a plan building (R-1760): the plan stores one
+## pitch per cover, so ordinary houses get a stable per-id jitter. Landmarks,
+## sites and other kinds keep the plan value. Everything that rebuilds a
+## house's roof frame (dressing, tests) must read the pitch through here.
+static func roof_pitch(b: Dictionary) -> float:
+	var pitch := float(b["roof_pitch_deg"])
+	if String(b.get("kind", "house")) != "house" or String(b.get("landmark_id", "")) != "":
+		return pitch
+	if not bool(b.get("openings", true)):
+		return pitch
+	var h := float(hash(String(b["id"]) + ":pitch") % 10007) / 10006.0
+	return pitch + (h * 2.0 - 1.0) * PITCH_JITTER
+
+
+## Per-house roof tint (R-1760): brightness and a small warm/cool cast, with
+## the house's wear seed (0..1) in alpha for the roof shaders.
+static func roof_tint_for(b: Dictionary, rng: RandomNumberGenerator) -> Color:
+	var v := rng.randf_range(0.84, 1.1)
+	var warm := float(hash(String(b["id"]) + ":hue") % 1009) / 1008.0 * 2.0 - 1.0
+	var seed := float(hash(String(b["id"]) + ":wear") % 4093) / 4092.0
+	return Color(v * (1.0 + warm * 0.05), v, v * (1.0 - warm * 0.06), seed)
+
+
 static func signed_area(ring: PackedVector2Array) -> float:
 	var a := 0.0
 	for i in ring.size():
@@ -614,8 +646,7 @@ static func build_building(
 	rng.seed = hash(b["id"])
 	var tint := Color(1, 1, 1) * rng.randf_range(0.86, 1.08)
 	tint.a = 1.0
-	var roof_tint := Color(1, 1, 1) * rng.randf_range(0.82, 1.1)
-	roof_tint.a = 1.0
+	var roof_tint := roof_tint_for(b, rng)
 	# Window character is chosen once per building from its own RNG so every
 	# wall of one house shares a palette and trim style, without shifting the
 	# draws that drive roof tint, chimney and window dropout above/below.
@@ -630,7 +661,7 @@ static func build_building(
 	var look := CityWindows.look(look_rng, family, wealth)
 	var bottom := float(b["base_h"]) - SINK
 	var eave := floor_y + float(b["wall_h"])
-	var frame := roof_frame(ring, float(b["ridge_angle"]), eave, float(b["roof_pitch_deg"]))
+	var frame := roof_frame(ring, float(b["ridge_angle"]), eave, roof_pitch(b))
 	var thick := STONE_WALL if family == &"limestone" else TIMBER_WALL
 	var door: Variant = b.get("door")
 	var door_edge := -1
@@ -664,6 +695,10 @@ static func build_building(
 			_lancets(shell, a, c, floor_y, eave)
 	if door_edge >= 0 and ground_at.is_valid():
 		_door_steps(shell, ring, door_edge, door_t, floor_y, ground_at, door_size(b).x)
+	# R-1760: footing plinth and limestone quoins on plan houses (sites and
+	# landmarks bring their own models and keep openings = false).
+	if bool(b.get("openings", true)) and String(b.get("kind", "house")) in ["house", "outbuilding"]:
+		_house_details(shell, b, ring_in, ring, family, bottom, floor_y, eave, door_edge, door_t)
 	# Roof halves.
 	_roof(roof, roof_key, ring, frame, roof_tint, roof_family, keep_out)
 	# Every lived-in house has a hooded hearth (HouseholdLayout), so every house
@@ -715,6 +750,31 @@ static func build_building(
 		var inner := ring
 		_cap(shell, wall_key, inner, eave - 0.02, tint)
 	return {"shell": shell, "roof": roof, "frame": frame, "chimney": chimney}
+
+
+## Plinth round the wall base (open over the door steps) and, on limestone
+## houses, dressed quoins up the outer corners to just under the eave.
+static func _house_details(
+	shell: Shell, b: Dictionary, ring_in: PackedVector2Array, ring: PackedVector2Array,
+	family: StringName, bottom: float, floor_y: float, eave: float, door_edge: int, door_t: float
+) -> void:
+	var stone := family == &"limestone"
+	var top := floor_y + (0.22 if stone else 0.3)
+	var door_a := Vector2.INF
+	var door_b := Vector2.INF
+	if door_edge >= 0:
+		var a := ring[door_edge]
+		var c := ring[(door_edge + 1) % ring.size()]
+		var half := (door_size(b).x * 0.5 + 0.3) / maxf(a.distance_to(c), 0.01)
+		door_a = a.lerp(c, clampf(door_t - half, 0.0, 1.0))
+		door_b = a.lerp(c, clampf(door_t + half, 0.0, 1.0))
+	HouseDetails.plinth(
+		shell, ring, bottom, top,
+		HouseDetails.PLINTH_LIMESTONE if stone else HouseDetails.PLINTH_FIELDSTONE,
+		door_a, door_b
+	)
+	if stone and String(b.get("kind", "house")) == "house":
+		HouseDetails.quoins(shell, normalized_ring(ring_in), top, eave - 0.12)
 
 
 ## Section cap on walls cut at `y` for the interior cutaway: one quad per
@@ -995,7 +1055,9 @@ static func _roof(
 	family: StringName = &"tile",
 	keep_out: Array[PackedVector2Array] = []
 ) -> void:
-	var grown := Geometry2D.offset_polygon(ring, OVERHANG, Geometry2D.JOIN_MITER)
+	var grown := Geometry2D.offset_polygon(
+		ring, float(ROOF_OVERHANG.get(family, OVERHANG)), Geometry2D.JOIN_MITER
+	)
 	if grown.is_empty():
 		return
 	var outline: PackedVector2Array = grown[0]
@@ -1086,8 +1148,9 @@ static func _roof(
 			var mid_out := Vector3((outs[i] + outs[j]).x, 0.0, (outs[i] + outs[j]).y).normalized()
 			var face := mid_out * cos((a0 + a1) * 0.5) + Vector3.UP * sin((a0 + a1) * 0.5)
 			var len01 := p0.distance_to(p1)
-			var v0 := rad * PI * float(k) / steps
-			var v1 := rad * PI * float(k + 1) / steps
+			# v <= -3 marks the rolled edge for the roof shaders (R-1760).
+			var v0 := -3.0 - rad * PI * float(k) / steps
+			var v1 := -3.0 - rad * PI * float(k + 1) / steps
 			_quad_uv(
 				roof,
 				key,
@@ -1096,6 +1159,29 @@ static func _roof(
 				tint,
 				face
 			)
+	# R-1760: verge boards along the gable rakes; a thatch coat ends in its
+	# own thick roll instead.
+	if family != &"thatch":
+		for i in outline.size():
+			var p0 := outline[i]
+			var p1 := outline[(i + 1) % outline.size()]
+			if not HouseDetails.is_rake(p0, p1, r) or _on_keep_out((p0 + p1) * 0.5, keep_out):
+				continue
+			var side := (outs[i] + outs[(i + 1) % outline.size()]).normalized()
+			var along := (p1 - p0).normalized()
+			side = (side - along * side.dot(along)).normalized()
+			# A gable-end edge crosses the ridge: one board per slope, meeting at the apex.
+			var pts: Array[Vector2] = [p0]
+			var d0 := p0.dot(n) - mid
+			var d1 := p1.dot(n) - mid
+			if d0 * d1 < 0.0:
+				pts.append(p0.lerp(p1, d0 / (d0 - d1)))
+			pts.append(p1)
+			for k in pts.size() - 1:
+				HouseDetails.verge_board(
+					roof, pts[k], pts[k + 1], roof_height(frame, pts[k]),
+					roof_height(frame, pts[k + 1]), side, cover * 0.5 + 0.015
+				)
 	# R-1655: projection extrema bridge concave courtyards and leave ridge
 	# strips floating across the sky. Clip to the same outline as the roof.
 	for span in _ridge_spans(outline, frame):
@@ -1132,7 +1218,7 @@ static func _ridge_cap(
 	var base0 := r * along0 + n * mid
 	var base1 := r * along1 + n * mid
 	var cap_tint := tint * 0.9
-	cap_tint.a = 1.0
+	cap_tint.a = tint.a
 	var segs := 6
 	for k in segs:
 		var a0 := PI * float(k) / segs
@@ -1153,11 +1239,12 @@ static func _ridge_cap(
 				Vector3(base1.x + o1.x, y1, base1.y + o1.y),
 				Vector3(base0.x + o1.x, y1, base0.y + o1.y),
 			],
+			# -2.5 < v <= -1 marks the ridge capping for the roof shaders (R-1760).
 			[
-				Vector2(along0, a0 * rr),
-				Vector2(along1, a0 * rr),
-				Vector2(along1, a1 * rr),
-				Vector2(along0, a1 * rr),
+				Vector2(along0, -1.0 - a0 * rr),
+				Vector2(along1, -1.0 - a0 * rr),
+				Vector2(along1, -1.0 - a1 * rr),
+				Vector2(along0, -1.0 - a1 * rr),
 			],
 			cap_tint,
 			face

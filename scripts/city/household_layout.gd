@@ -106,6 +106,9 @@ const SPLIT_LENGTH := 9.0
 const CHAMBER_AREA := 190.0
 const PARTITION_THICK := 0.14
 const PARTITION_GAP := 1.1
+## A partition meets a long wall at least this far past the street doorway's
+## kept-clear width, so it never stands in the doorway or hugs its jamb.
+const PARTITION_DOOR_STEP := 0.6
 ## Trades that work at a bench in their own house.
 const BENCH_TRADES := [
 	"smith", "nailsmith", "carpenter", "joiner", "cooper", "shoemaker", "tailor", "weaver",
@@ -359,19 +362,34 @@ func _partition(chimney := Vector2.INF) -> void:
 	cuts.append(hall)
 	if area >= CHAMBER_AREA and length - hall >= SPLIT_LENGTH:
 		cuts.append(hall + (length - hall) * 0.55)
+	# A street door on a long wall can sit where a partition meets that wall,
+	# walling the doorway in half: move the partition past the door, so the
+	# door still opens into the front hall with a step of floor beside it.
+	var door_at := _door.dot(axis) - ext.x
+	var door_clear := DOOR_CLEAR_WIDTH * 0.5 + PARTITION_DOOR_STEP
+	var moved := false
+	for k in cuts.size():
+		if absf(cuts[k] - door_at) < door_clear:
+			cuts[k] = door_at + door_clear
+			moved = true
 	# A partition meeting the wall where the chimney is would leave no room
 	# for the hearth under it: move the partition clear of it.
 	_chimney_at = chimney
+	var hearth_at := chimney.dot(axis) - ext.x if chimney != Vector2.INF else INF
 	if chimney != Vector2.INF:
-		var at := chimney.dot(axis) - ext.x
+		moved = true
 		for k in cuts.size():
-			if absf(cuts[k] - at) < HEARTH_CLEAR:
-				cuts[k] = at - HEARTH_CLEAR if cuts[k] < at else at + HEARTH_CLEAR
-		# Keep the cuts in order and every room at least a room long.
+			if absf(cuts[k] - hearth_at) < HEARTH_CLEAR:
+				cuts[k] = hearth_at - HEARTH_CLEAR if cuts[k] < hearth_at else hearth_at + HEARTH_CLEAR
+	if moved:
+		# Keep the cuts in order and every room at least a room long; drop a
+		# cut the hearth shift pushed back into the doorway.
 		cuts.sort()
 		var kept: Array = []
 		for c: float in cuts:
 			var prev: float = kept[-1] if not kept.is_empty() else 0.0
+			if absf(c - door_at) < door_clear or absf(c - hearth_at) < HEARTH_CLEAR - 0.001:
+				continue
 			if c - prev >= SPLIT_LENGTH * 0.5 and length - c >= SPLIT_LENGTH * 0.5:
 				kept.append(c)
 		cuts = kept

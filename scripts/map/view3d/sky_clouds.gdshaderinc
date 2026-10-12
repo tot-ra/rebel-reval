@@ -61,9 +61,24 @@ float sky_cloud_opacity(
 }
 
 
+// Earth radius in deck-altitude units (altitude 1.0 = the cumulus base). The old
+// flat-plane ray with a 0.012 floor capped the horizon at ~9x the overhead distance,
+// so horizon clouds stayed nearly as large as zenith ones and the sky read as a
+// low ceiling. A real 1.5 km deck over a curved Earth reaches the horizon at ~90x;
+// 1600 (~57x, a ~85 km visible deck) keeps that foreshortening while the far band
+// still resolves before the mip chain smears it into the haze.
+const float SKY_CLOUD_EARTH_RADIUS = 1600.0;
+
+// Distance along a unit ray from the eye to a spherical shell `altitude` above the
+// ground: exactly `altitude` at the zenith, sqrt(2 R altitude) at the horizon.
+float sky_cloud_layer_distance(float dir_y, float altitude) {
+	float r = SKY_CLOUD_EARTH_RADIUS;
+	float ry = r * dir_y;
+	return sqrt(ry * ry + altitude * (2.0 * r + altitude)) - ry;
+}
+
 vec2 sky_cloud_uv(vec3 dir, float altitude, vec2 offset) {
-	float distance_to_layer = altitude / sqrt(dir.y * dir.y + 0.012);
-	return dir.xz * distance_to_layer * 0.12 - offset;
+	return dir.xz * sky_cloud_layer_distance(dir.y, altitude) * 0.12 - offset;
 }
 
 

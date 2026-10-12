@@ -36,11 +36,16 @@ func configure(camera: Camera3D, water_surface: Callable, ground: Callable = Cal
 	aerial.configure(camera)
 
 
-func update(delta: float, presentation: SkyWeather.WeatherPresentation, clock: float) -> void:
+func update(
+	delta: float,
+	presentation: SkyWeather.WeatherPresentation,
+	clock: float,
+	gain_compensation: float = 1.0
+) -> void:
 	if fog_banks == null or presentation == null:
 		return
 	# Roofed rooms keep the weather outside, like rain and ground mist do.
 	var enabled := not presentation.rain_suppressed
 	fog_banks.update(delta, presentation, clock, enabled)
 	mirage.update(presentation, enabled)
-	aerial.update(presentation, enabled)
+	aerial.update(presentation, enabled, gain_compensation)

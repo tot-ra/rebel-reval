@@ -556,6 +556,9 @@ def build():
         _, sex, stage = rec["body"].split("_")[:3]
         available = citizen_bodies.layers_of(sex, stage, "b" if rec["body"].endswith("_b") else "a")
         rec["wear"], rec["wear_dye"] = citizen_wardrobe.dress(rec, available)
+        shield = citizen_wardrobe.shield_of(rec, rec["wear"])
+        if shield:
+            rec["shield"] = shield
 
     # Households living in a plan house: what their rooms are furnished with
     # (docs/SYSTEMS/HOUSEHOLDS.md). Size counts every member, infants too.

@@ -288,6 +288,11 @@ static func apply_cycle_progress(
 	MapViewMaterials.apply_water_lighting(
 		direct_sun_visibility(presentation.sun_direction), presentation.day_blend
 	)
+	# R-1794: the dome, the sea's mirror of it and the aerial haze all divide the outdoor
+	# gain out so the dome can reach the horizon without a seam. Fog colour is left
+	# alone: scaling it exposed the sea's bright horizon reflection as a white line and
+	# would dim street mist.
+	var gain_compensation := sky_exposure_gain_compensation(fill_blend, enclosed_interior)
 	MapViewMaterials.apply_coastal_tide(presentation.tide_level)
 	# Glints answer to clouds (cloud_clear) and to the same mist/rain haze that
 	# apply_ground_mist puts in the Environment, so dawn mist dims the glitter path.
@@ -310,7 +315,7 @@ static func apply_cycle_progress(
 		water_cloud_darken(presentation),
 		presentation.sky_lut,
 		presentation.sky_lut_size,
-		presentation.sky_exposure,
+		presentation.sky_exposure * gain_compensation,
 		presentation.sky_tint
 	)
 	# R-1518: calm water mirrors the post-rain bow. Interiors see no sky.
@@ -323,9 +328,7 @@ static func apply_cycle_progress(
 	apply_post_grade_snapshot(environment, presentation)
 	if not enclosed_interior:
 		environment.tonemap_exposure *= outdoor_exposure_gain(fill_blend)
-	sky_weather.set_exposure_gain_compensation(
-		sky_exposure_gain_compensation(fill_blend, enclosed_interior)
-	)
+	sky_weather.set_exposure_gain_compensation(gain_compensation)
 	return presentation.day_blend < 0.5
 
 

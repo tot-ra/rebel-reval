@@ -1,6 +1,6 @@
 # Sky and atmosphere: clouds, sunbeams, fog and haze
 
-Status: implemented (tasks **R-1400**, **R-1430**, **R-1436**, **R-1444**, **R-1481**, **R-1482**, **R-1493**, **R-1495**, **R-1501**, **R-1507**, **R-1517**, **R-1531**, **R-1532**, **R-1533**, **R-1165**, **R-1766**)
+Status: implemented (tasks **R-1400**, **R-1430**, **R-1436**, **R-1444**, **R-1481**, **R-1482**, **R-1493**, **R-1495**, **R-1501**, **R-1507**, **R-1517**, **R-1531**, **R-1532**, **R-1533**, **R-1165**, **R-1766**, **R-1794**, **R-1768**)
 
 Scope: everything between the ground and the sky dome in the 3D views (district maps and the seamless city): individual clouds and their shadows, thunderstorms with local rain and lightning, sunbeams, a sun-shower rainbow, ground fog near water, distance haze and blur, and the summer heat mirage. Every layer is presentation only. It reads the shared weather, time of day, season and wind, never changes gameplay, and rebuilds identically from a save.
 
@@ -139,11 +139,33 @@ In third and first person the far city, hinterland and sea take on the colour of
 
 Outdoors by day the whole frame is brightened (the outdoor exposure gain of [city lighting](./POST_PROCESS.md), R-1748), because the city materials read too dark without it. Applied to the sky as well, it clipped the cumulus to flat white and paled the zenith. Since R-1766 the visible sky dome divides that gain back out: the zenith is deep blue again, clouds show their shaded sides and golden-hour clouds keep their colour, while streets, roofs and far land stay exactly as bright as before.
 
-- The compensation is full from about 10 degrees above the horizon and fades to none at the horizon itself, so the far ground, which still carries the gain through haze and fog, meets a sky of the same brightness with no dark seam.
+- The compensation is full right down to the horizon (it fades in over the lowest quarter of a degree, R-1794). Two things carry the same factor so no seam shows: the aerial haze colour that far ground fades to (`haze_gain_compensation` in the haze pass, fed from `SkyWeather3D.exposure_gain_compensation()`), and the sea's mirror of the sky (the sky exposure handed to the water reflection).
 - The gain, and so the compensation, fades with the daylight through twilight; at night and in roofed rooms there is none and the sky is unchanged.
 - Only the visible dome is compensated. The sky light the engine reflects off wet stone, iron and glass keeps the brightness it had, so the city looks the same.
 
 ![Before (left) and after (right): noon clear, cloudy afternoon, cloudy golden hour](../reports/images/weather/sky_reference_before_after.png)
+
+## Lit cloud deck
+
+Status: implemented (task **R-1768**). On the recommended tier the continuous dome deck reads as heaped cumulus instead of soft smears: its edges bulge into rounded lobes and bite in between them, sunlit lobe sides are bright, sides turned from the sun and lobes behind a taller heap fall into shade, and the deck seen overhead shows grey cores with bright thin rims. The minimum tier keeps the flat deck unchanged.
+
+- **How**: a 2.5D deck. The deck's bulk is treated as a height field of heaped tops, bumped by lobes from the same cellular shape texture at a finer scale (`sky_cloud_lobes`, `1 - d^2` so lobes have rounded crowns, not cone facets). Shading takes the bump normal (3 height samples) and a two-step height-field march toward the sun (`sky_cloud_lit_share`); edges are bulged or bitten by `sky_cloud_lobe_erode`, centred on the measured lobe mean so cover does not shrink. The deck slab is shallower (`LIT_DECK_SLAB_DEPTH` 0.06 instead of 0.14) because the lighting now carries the volume, and the deck shade side is darker (`LIT_DECK_SHADE`). Lobes fade toward the horizon where one would be smaller than a pixel.
+- **Same clouds everywhere**: the ground-shadow pass applies the same lobe erosion (`deck_lobes`, set from `WeatherPresentation.cloud_deck_lobes`), and the CPU mirror that dims sun/moon reflections (`celestial_cloud_clear`) erodes and uses the shallow slab too, so the shadow on the ground has the outline of the deck overhead. Everything is a pure function of the saved cloud offsets; nothing new is saved.
+- **Switch**: `cloud_deck_mode` in the sky quality row (`SkyWeather3D.QUALITY_TIERS`, mirrored in `SkyWeatherQuality`): 0 flat on minimum, 1 lit on recommended. `cloud_deck_lit()` reports it.
+- **Cost**: within noise of the flat deck. 1280x720, Apple M5 Pro, Mobile renderer, wall-clock best of three 200-frame rounds, flat vs lit on the same frames: noon clear 14.07 / 14.67 ms, cloudy afternoon 19.38 / 19.48, steep cloudy view 12.99 / 12.85, golden hour 13.50 / 14.21. Budget was 1.5 ms.
+- Verify: `tools/godot_render.sh --script tools/capture_sky_reference.gd -- --ab` writes `sky_reference_<shot>_deck0.png` (flat) and `_deck1.png` (lit) from the same frames; `-- --bench=200 --decks=0,1` prints the frame times (pass `--resolution 1280x720 --disable-vsync` to the wrapper). Tests: `--filter=test_sky_weather_3d,test_cloud_shadow_pass`.
+
+![Flat deck (left) and lit deck (right): noon clear, cloudy afternoon, steep cloudy view, sunset](../reports/images/weather/sky_reference_r1768_before_after.jpg)
+
+## Cloud deck perspective
+
+Status: implemented (task **R-1869**). Clouds near the horizon look tens of kilometres away: they shrink, flatten into thin bands and sink into the haze instead of hanging as zenith-sized puffs above the sea.
+
+- **How**: every deck lookup (`sky_cloud_uv` in `scripts/map/view3d/sky_clouds.gdshaderinc`) follows the eye ray to a spherical shell over a curved Earth (`sky_cloud_layer_distance`, radius `SKY_CLOUD_EARTH_RADIUS` = 1600 deck-altitude units). Overhead the distance equals the deck altitude, at the horizon it is `sqrt(2 R altitude)`, about 57x the overhead distance (~85 km for a 1.5 km deck). The old flat-plane ray had a `0.012` floor that stopped at about 9x, so the deck read as a low ceiling. 1600 rather than the true ~4250 keeps the far band resolvable before mipmaps smear it into haze.
+- **Same clouds everywhere**: the CPU mirror (`SkyWeather3D._cloud_uv_at`, `CLOUD_EARTH_RADIUS`) uses the same formula, so sun/moon reflection dimming still matches the dome. The ground-shadow pass samples by world position and is unaffected. Nothing is saved.
+- Verify: `tools/godot_render.sh --script tools/capture_sky_reference.gd -- --only=aft_side_cloudy` (and `noon_side_clear`); tests `--filter=test_sky_weather_3d,test_cloud_shadow_pass`.
+
+![Before (left) and after (right): noon clear, cloudy afternoon](../reports/images/weather/sky_reference_r1869_before_after.jpg)
 
 ## Golden-hour clouds
 
@@ -172,9 +194,11 @@ On hot, calm, dry middays with no more than fair cumulus, pale streaks shimmer j
 - **The misty cloud rim** is the default of four tried presets; the others stay in the capture tool.
 - **Clouds under the deck are shaded per cloud**, not per sample, so the deck's own shadow edge never cuts through one cloud.
 - **`clear` keeps its id and meaning** (fair cumulus) for save compatibility; `cloudless` is the new clear sky.
-- **The sky keeps its own exposure** (R-1766). The daylight lift is divided out of the visible dome instead of lowering the lift or re-tuning the sky colours, so the city brightness R-1748 calibrated and the sky colours tuned before it both stay valid. It is faded out toward the horizon rather than applied evenly, accepting a slightly brighter low sky in exchange for no seam against hazed far ground.
+- **The sky keeps its own exposure** (R-1766). The daylight lift is divided out of the visible dome instead of lowering the lift or re-tuning the sky colours, so the city brightness R-1748 calibrated and the sky colours tuned before it both stay valid. It first faded out toward the horizon, accepting a washed-out low sky to avoid a seam against hazed far ground. R-1794 removed that fade by giving the haze colour and the sea reflection the same factor, so low clouds now keep their shading down to the horizon.
+- **Fog colour is not compensated** (R-1794). Scaling `fog_light_color` too exposed the sea's bright horizon reflection as a thin white line and would have dimmed street mist and rain haze. Fog is only 8% on the dome (`fog_sky_affect`), so it leaves no visible seam. Far ground now fades to a slightly darker haze than before; within the 25 m clear radius nothing changes.
 - **Pink waits for true sunset** (R-1767). The dusk palette is gated by `pink_ramp` instead of the 16 degree band, and a golden-hour weight carries the 8-16 degree range, so golden hour reads warm rather than rose.
 - **One weather chain for the whole campaign**; seasonal odds need a calendar-driven table and are not done.
+- **2.5D lit deck, not a ray-marched cloud slab** (R-1768 spike). A Nubis-style prototype (world-space slab 1.2-2.5 km, deck coverage as the weather map eroded by the 3D Worley cell noise, 32 view steps, 4 sun steps) cost about 8.6 ms more than the flat deck on the steep cloudy view at 1280x720, against a 1.5 ms budget. The Godot sky shader has no history buffer, so the low-resolution + temporal reprojection that makes such a slab affordable would need its own compositor pass; the quarter-resolution sky pass alone would still be about 2 ms and flicker with jitter. The 2.5D deck costs no measurable frame time, keeps ground shadows and the CPU mirror in step with one shared function, and needs no new texture. The slab stays the route for a future high tier.
 
 ## Saved state
 
@@ -190,7 +214,8 @@ Quality tiers change cost only; cloud positions and lightning timing are identic
 - Storms have no life of their own: they follow their cluster and sink as soon as it drifts apart. Storm rain reads as light rain, not a downpour, and a storm's curtain is faint from a few kilometres.
 - Hotspots sit on a regular lattice; storms in neighbouring hotspots grow and sink together.
 - Overlapping storms are not depth-sorted and can show ordering artifacts. A storm crown that rises above a closed grey sheet is still drawn, unlit, instead of being hidden by it.
-- The continuous dome deck can still show cut-out edges next to a soft cloud, and has no cirrus on a cloudless sky.
+- The dome deck has no cirrus on a cloudless sky. The lit deck is a shaded height field, not a volume: it has no towers rising above the deck, no light passing through thin parts toward the sun beyond the forward-scatter lobe, and near the horizon its lobes fade into the flat deck. On the minimum tier the flat deck can still show cut-out edges next to a soft cloud.
+- Sunbeams, the god-ray cloud shade map and the water's deck shadow read the deck without its lobes, so their edges can differ from the lit deck by about one lobe.
 - Cloud edges show a fine dither close up.
 - Ground shadows do not follow the wind stretch of a cloud. The dome deck is drawn around the camera while its ground shadows are anchored to the world, so the shadows line up with each other but not exactly with the deck right overhead.
 - Water dims only its direct sun under cloud; sea shadows are lighter than grass shadows. The FFT sea shows only the separate clouds' shadows, not the deck's (see [city sea](./CITY_SEA.md#perspective-sea-visibility-r-1437)).
@@ -199,7 +224,7 @@ Quality tiers change cost only; cloud positions and lightning timing are identic
 - Fog forms only near water the view can probe, so a map with no water has no fog banks. Fog height follows the ground roughly and can float or sink a little on steep slopes. Cloud shadows, sunbeams, fog and water are drawn after the haze pass and are not hazed or blurred by it.
 - There is no focus pull: focus stays on the player's surroundings.
 - The city sunbeams skip terrain, so roof-edge shafts do not form in Upper Town streets on the klint (cloud shafts still do). The sunbeam pass has no low-quality variant yet.
-- Low clouds within about 10 degrees of the horizon still carry part of the daylight lift and can read brighter than the clouds above them.
+- Fogged far ground (dawn mist, rain haze, horizon haze in the Environment fog) still carries the daylight lift; only the haze pass and the sea reflection are compensated. The sea's reflection of the sky is now dimmer in the city harbour by the same factor as the dome, so the water matches the sky it mirrors.
 - Golden-hour cloud tone is judged from the capture plates only; the near-horizon white haze beside the sun comes from the sky LUT and ground haze, not the cloud shader, and is unchanged.
 - Missing plates: no current capture shows a lightning strike or the evening mist. Independent visual sign-off on fog and haze is still pending.
 
@@ -237,6 +262,7 @@ tools/godot_render.sh --script tools/capture_local_fog.gd                       
 tools/godot_render.sh --script tools/capture_aerial_perspective.gd -- --tag=after         # haze and blur (--no-pass for before)
 tools/godot_render.sh --script tools/capture_weather_realism.gd -- --only=night_storm     # night rain curtains
 tools/godot_render.sh --script tools/capture_sky_reference.gd [-- --out=res://build/x]    # sky exposure: noon, cloudy afternoon, golden hour
+tools/godot_render.sh --script tools/capture_sky_reference.gd -- --ab                     # R-1768 flat vs lit deck from the same frames
 ```
 
 Plates land in `docs/reports/images/weather/` (`--out=` redirects them), except the fog tool, which writes to `build/local_fog/` (copy the chosen ones over), and the weather-realism tool, which writes to `docs/reports/images/weather_realism/`.

@@ -12,6 +12,14 @@
 | Faction ties | vitalienbruder |
 | Archive reference images | none |
 
+![vetevana concept art](../inspiration/vetevana_concept.jpg)
+
+**Illustration:** Generated with Leonardo AI, Lucid Realism model. Documentation concept art only; existing archive references are retained.
+
+**Generation prompt:** Vetevana, Estonian old man of the waters and sailors' bargaining partner: weathered elderly water spirit waist-deep in cold Baltic harbour shallows, a long beard threaded with reeds, simple worn fisherman's cloak dark with water, patient direct gaze, small wavelets and one rope float nearby; no crown, trident or mermaid body. Grounded 14th-century coastal folklore, painterly concept art, grey-green and deep teal with muted amber, isolated clear figure on neutral background, no text.
+
+**Negative prompt:** king crown, trident, mermaid, tropical sea, modern boat, tentacles, text, watermark
+
 ## At a glance
 - Seen as an old bearded man in the surf or as a net-tangled shape.
 - Controls catch and drownings.

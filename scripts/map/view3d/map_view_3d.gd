@@ -377,7 +377,8 @@ func _process_timed(delta: float) -> void:
 				cycle_progress,
 				SkyWeather3D.daylight_blend(cycle_progress, _sky_weather.calendar_date)
 			),
-			_sky_weather.cloud_cell_clock()
+			_sky_weather.cloud_cell_clock(),
+			_sky_weather.exposure_gain_compensation()
 		)
 	var player_rig := get_tree().get_first_node_in_group(&"player_view_rig") as Node3D
 	_sync_ambient_leaf_fall(delta, player_rig)

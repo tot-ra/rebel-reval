@@ -1,0 +1,35 @@
+{
+  "approval": "user-requested 2026-07-30",
+  "asset_id": "prop.pitchfork",
+  "blender_version": "Blender 5.2 LTS",
+  "cache_key": "84cc274f90e217036c22fa4b3fd7b86157d31f81e08994f77fba1159defb6099",
+  "checks": {
+    "embedded_albedo_normal_roughness": true,
+    "floating_geometry": true,
+    "ground_contact": true,
+    "metric_scale": true,
+    "portable_pbr": true,
+    "triangle_cap": true,
+    "uvs": true,
+    "y_up_glb": true
+  },
+  "dimensions_m": [
+    0.194,
+    1.9802,
+    0.203
+  ],
+  "floating_objects": 0,
+  "generator": "tools/generate_medieval_hand_tools.py",
+  "generator_version": "medieval_hand_tools_v3",
+  "ground_min_z": 0.0,
+  "materials": 2,
+  "mesh_objects": 8,
+  "preview": "generated/blender/pitchfork_v1/preview.png",
+  "route": "deterministic_blender",
+  "sha256": "4aa5858569d8445fa2843c4a8437fedfe172752c106353e27aaac2bb4a529583",
+  "texture_size": 512,
+  "textured_materials": 2,
+  "triangles": 1998,
+  "uv_sets": 1,
+  "vertices": 1036
+}

@@ -12,6 +12,14 @@
 | Faction ties | none |
 | Archive reference images | image-8 |
 
+![kulmking concept art](../inspiration/kulmking_concept.jpg)
+
+**Illustration:** Generated with Leonardo AI, Lucid Realism model. Documentation concept art only; existing archive references are retained.
+
+**Generation prompt:** Külmking, Estonian cold spirit of the unquiet unbaptized dead on a winter road: tall thin human-shaped wight in a burial shroud stiff with frost, bowed shoulders and ice-rimmed hems, face mostly hidden in rime rather than skull-like, faint breath-cloud and snow drift around its feet. No armor or gore. Lonely winter presence, painterly grounded folklore, blue-grey snow and muted charcoal, isolated full figure on clean neutral background, no text.
+
+**Negative prompt:** zombie, skeleton armor, modern clothes, glowing red eyes, gore, text, watermark
+
 ## At a glance
 - A pale thin figure leaving no footprints and frost on every surface it passes.
 - Tied to the unbaptised dead and to the Church's burial rules.

@@ -46,7 +46,10 @@ static func build(site: CitySite, _plan: CityPlan) -> Node3D:
 	var roof := CityBuildingBuilder.Shell.new()
 	var rng := RandomNumberGenerator.new()
 	rng.seed = hash(String(site.id))
-	var fabric: Array = site.data["fabric"]
+	var fabric: Array = []
+	for w: Dictionary in site.data["fabric"]:
+		if not String(w["id"]).begins_with("churchyard."):
+			fabric.append(w)
 	Kit.walls(body, glass, fabric, Kit.GLAZING.get(site.id, 0))
 	_gables(body)
 	_tower_top(body, roof, rng)
@@ -95,6 +98,7 @@ static func build(site: CitySite, _plan: CityPlan) -> Node3D:
 	for item: Dictionary in site.data.get("dressing", []):
 		var world := site.to_world(Vector2(item["at"][0], item["at"][1]))
 		CitySiteProps.add(root, item, _plan.ground_height(world) - site.level)
+	Kit.cemetery(root, site, _plan)
 	return root
 
 

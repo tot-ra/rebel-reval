@@ -12,6 +12,14 @@
 | Faction ties | none |
 | Archive reference images | konn.png |
 
+![pohja konn concept art](../inspiration/pohja_konn_concept.jpg)
+
+**Illustration:** Generated with Leonardo AI, Lucid Realism model. Documentation concept art only; existing archive references are retained.
+
+**Generation prompt:** Põhja Konn, the Northern Frog of Kreutzwald's title tale: enormous ancient frog-dragon looming in a northern Estonian bog, broad amphibian head, heavy wet skin, powerful crouched limbs and an unmistakable frog silhouette, a hint of dragon-like scale only along the spine, no wings and no fire-breath. Scale suggested by tiny reeds and stones, folkloric boss presence, painterly grounded concept art, peat black, moss green and cold mist, neutral muted background, no text.
+
+**Negative prompt:** cute frog, modern fantasy dragon, fire, armor, text, watermark, human-sized normal frog
+
 ## At a glance
 - Armoured in grey-blue stone plates cracked with hissing acid veins.
 - Surfaces only to patrol the bog; croaks at night warn trespassers.

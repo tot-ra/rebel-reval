@@ -12,6 +12,14 @@
 | Faction ties | pskov_novgorod |
 | Archive reference images | image-19 |
 
+![vodyanoy concept art](../inspiration/vodyanoy_concept.jpg)
+
+**Illustration:** Regenerated with OpenAI GPT Image (`gpt-image-1`). Photorealistic spirit concept art for documentation; archive references are retained.
+
+**Generation prompt:** Create a photorealistic cinematic creature portrait for a grounded historical dark-fantasy bestiary: the Pskov-side vodyanoy, an ancient male water spirit who haunts a 14th-century Baltic millpond. Half-submerged, waist-up, imposing but not monstrous-grotesque: unmistakably humanoid elderly amphibian man, broad heavy swollen pale belly partly visible under water, wet mud-green frog-like skin with realistic pores and subtle warts, deep-set intelligent eyes, sparse grey-green hair tangled with reeds and pondweed, long damp beard. The spirit nature must be unmistakable and visually distinct from a living physical animal: his lower body dissolves into dark water and translucent mist, faint cold bioluminescent teal-green light beneath the skin and around his silhouette, water droplets and reeds subtly suspended in an unnatural stillness, a dim ghostly reflection that does not quite match him. Background: quiet old wooden mill wheel and reed-lined pond at dusk, restrained naturalistic Baltic setting. Photographic realism, detailed lifelike anatomy, believable wet skin, cinematic low-key natural light, muted pond green, brown and slate palette, fine film grain, no painterly illustration, no game UI. Strong readable silhouette, centered full upper body with space around the figure, no text, no letters, no watermark.
+
+**Negative prompt:** cute frog, mermaid, tropical water, trident, modern fishing gear, painterly illustration, fantasy armor, text, letters, watermark, dragon
+
 ## At a glance
 - A frog-like old man in water.
 - Pskov variant of the water father.

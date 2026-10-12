@@ -17,7 +17,7 @@ func test_city_ridge_caps_are_supported_by_the_roof() -> void:
 		var b: Dictionary = plan.buildings[i]
 		var ring := Builder.wall_ring(b, plan.footprint(i))
 		var frame := Builder.roof_frame(
-			ring, b["ridge_angle"], plan.floor_height(i) + float(b["wall_h"]), b["roof_pitch_deg"]
+			ring, b["ridge_angle"], plan.floor_height(i) + float(b["wall_h"]), Builder.roof_pitch(b)
 		)
 		var outline: PackedVector2Array = Geometry2D.offset_polygon(
 			ring, Builder.OVERHANG, Geometry2D.JOIN_MITER

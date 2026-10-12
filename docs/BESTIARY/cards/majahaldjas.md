@@ -12,6 +12,14 @@
 | Faction ties | none |
 | Archive reference images | none |
 
+![majahaldjas concept art](../inspiration/majahaldjas_concept.jpg)
+
+**Illustration:** Generated with Leonardo AI, Lucid Realism model. Documentation concept art only; existing archive references are retained.
+
+**Generation prompt:** Majahaldjas, Estonian household guardian fed the first portion of each meal: a small subtle domestic spirit at a 14th-century timber smithy hearth, elderly protective presence suggested by smoke, woven linen and warm light, holding a tiny piece of first bread, no wings, no crown, no menace. Hearthstone, simple iron tools and timber wall only as quiet context. Painterly folklore concept art, fire amber and soot brown, clear subject, uncluttered neutral background, no text.
+
+**Negative prompt:** angel wings, fairy wings, queen crown, modern house, demon, text, watermark, generic glowing humanoid
+
 ## At a glance
 - An old small figure seen at the hearth or the doorframe.
 - Fed first from each meal.

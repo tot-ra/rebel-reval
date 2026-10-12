@@ -48,7 +48,7 @@ static func _hoist(plan: CityPlan, index: int, b: Dictionary, root: Node3D) -> b
 		return false
 	var floor_y := plan.floor_height(index)
 	var frame := CityBuildingBuilder.roof_frame(
-		ring, float(b["ridge_angle"]), floor_y + float(b["wall_h"]), float(b["roof_pitch_deg"])
+		ring, float(b["ridge_angle"]), floor_y + float(b["wall_h"]), CityBuildingBuilder.roof_pitch(b)
 	)
 	var mid := (a + c) * 0.5
 	var out := Vector2(cos(float(b["door"][2])), sin(float(b["door"][2])))
@@ -110,7 +110,7 @@ static func _town_banners(plan: CityPlan, root: Node3D) -> void:
 			ring,
 			float(b["ridge_angle"]),
 			plan.floor_height(i) + float(b["wall_h"]),
-			float(b["roof_pitch_deg"])
+			CityBuildingBuilder.roof_pitch(b)
 		)
 		var r: Vector2 = frame["r"]
 		var n: Vector2 = frame["n"]

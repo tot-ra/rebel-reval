@@ -12,6 +12,14 @@
 | Faction ties | none |
 | Archive reference images | none |
 
+![rehepapp concept art](../inspiration/rehepapp_concept.jpg)
+
+**Illustration:** Generated with Leonardo AI, Lucid Realism model. Documentation concept art only; existing archive references are retained.
+
+**Generation prompt:** Rehepapp, Estonian estate barn-keeper trickster who secretly robs the German lord to feed villagers: a practical middle-aged farm steward in patched 14th-century work clothes, holding a barn key and rye sheaf, sly but humane expression; rough threshing barn beams and grain sacks behind him, a tiny straw kratt hint in the shadow, not a heroic warrior or wizard. Painterly grounded folklore concept art, harvest ochre, wood brown, subdued neutral background, full figure, no text.
+
+**Negative prompt:** modern farmer, cartoon scarecrow, demon, fantasy armor, text, watermark, modern tools
+
 ## At a glance
 - Old, cunning, and always one step ahead of the bailiff.
 - Works with a kratt.

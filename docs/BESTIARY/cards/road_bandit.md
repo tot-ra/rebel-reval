@@ -12,6 +12,14 @@
 | Faction ties | none (some allied to harju_kings or cult_metsik, stated on the individual) |
 | Archive reference images | bandits:thug3.png, bandits:thug4.png, image-57, image-58, image-51 |
 
+![road bandit concept art](../inspiration/road_bandit_concept.jpg)
+
+**Illustration:** Generated with Leonardo AI, Lucid Realism model. Documentation concept art only; existing archive references are retained.
+
+**Generation prompt:** A 1343 Harju road bandit, landless fugitive ambusher: gaunt adult in patched wool and a weathered hood, carrying a plain hunting bow or short staff and a small stolen grain sack, glancing toward an escape route, not a noble outlaw hero. Baltic roadside mud and birch scrub hinted in background, period-appropriate practical clothing, painterly grounded concept art, grey earth and faded green, full figure, neutral setting, no text.
+
+**Negative prompt:** bandit king, fantasy armor, modern weapons, firearm, heroic pose, text, watermark, gore
+
 ## At a glance
 - Ambushes in a group of three with a hidden archer; the first bolt is a warning shot.
 - Flees or surrenders when outnumbered or when the leader falls.

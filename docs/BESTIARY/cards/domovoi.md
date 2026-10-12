@@ -12,6 +12,14 @@
 | Faction ties | pskov_novgorod |
 | Archive reference images | none |
 
+![domovoi concept art](../inspiration/domovoi_concept.jpg)
+
+**Illustration:** Generated with Leonardo AI, Lucid Realism model. Photorealistic documentation concept art only; existing archive references are retained.
+
+**Generation prompt:** Photorealistic cinematic still of a Domovoy, Pskov-side Slavic house-spirit variant kept as a regional visitor in Reval: a knee-high old household guardian with a broad weathered bearded face, rough grey homespun wool, fur-lined cap and ash-smudged hands, quietly watchful beside a bread oven in a 14th-century Russian merchant-yard storeroom. Protective and wary rather than monstrous; historically grounded Eastern Baltic / Rus domestic details, warm firelight, realistic skin, beard, wool and wood textures, muted ash-brown and russet palette, no text.
+
+**Negative prompt:** illustration, painting, CGI, fantasy goblin, dragon, demon, horns, glowing eyes, magic, modern costume, text, watermark, oversized weapons
+
 ## At a glance
 - Appears in the Russian yard's stable or stove.
 - Pskov variant of the Estonian house spirit.

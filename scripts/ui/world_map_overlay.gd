@@ -167,6 +167,9 @@ func plan_travel_to(destination_scene_id: StringName) -> Dictionary:
 	var spawn: StringName = _travelable[destination_scene_id]
 	if spawn.is_empty():
 		return {}
+	# City places are nodes of the city scene, not scenes of their own.
+	if WorldMapGraph.is_city_place(destination_scene_id):
+		return {"scene_id": CityTravel.CITY_SCENE_ID, "spawn_id": spawn}
 	return {
 		"scene_id": destination_scene_id,
 		"spawn_id": spawn,

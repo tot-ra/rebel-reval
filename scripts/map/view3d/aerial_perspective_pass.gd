@@ -209,7 +209,13 @@ func set_debug_mode(mode: int) -> void:
 		_material.set_shader_parameter(&"debug_mode", mode)
 
 
-func update(presentation: SkyWeather.WeatherPresentation, enabled: bool = true) -> void:
+## `gain_compensation` is 1 / the outdoor exposure gain (R-1794): the haze colour is
+## scaled by it so the far-ground fade matches the gain-compensated dome horizon.
+func update(
+	presentation: SkyWeather.WeatherPresentation,
+	enabled: bool = true,
+	gain_compensation: float = 1.0
+) -> void:
 	if _material == null or _camera == null or presentation == null:
 		return
 	var camera := get_viewport().get_camera_3d() if is_inside_tree() else null
@@ -231,6 +237,7 @@ func update(presentation: SkyWeather.WeatherPresentation, enabled: bool = true) 
 		return
 	var scale := get_viewport().get_visible_rect().size.y / BLUR_REFERENCE_HEIGHT
 	_material.set_shader_parameter(&"haze_color", haze_color_for(presentation))
+	_material.set_shader_parameter(&"haze_gain_compensation", clampf(gain_compensation, 0.0, 1.0))
 	_material.set_shader_parameter(&"haze_density", haze_density)
 	_material.set_shader_parameter(&"haze_max", haze_max_for(presentation))
 	_material.set_shader_parameter(&"blur_pixels", blur_pixels * scale)

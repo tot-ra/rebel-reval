@@ -22,6 +22,8 @@ const SkyWeatherStateScript := preload("res://scripts/map/view3d/sky_weather_sta
 const CloudCellsScript := preload("res://scripts/map/view3d/cloud_cells.gd")
 ## Catalog stars baked per staged-assembly unit (about 1 ms each).
 const STAR_BAKE_SLICE := 1000
+# Mirrors SKY_CLOUD_EARTH_RADIUS / sky_cloud_layer_distance in sky_clouds.gdshaderinc.
+const CLOUD_EARTH_RADIUS := 1600.0
 const STAR_CATALOG := preload("res://scripts/map/view3d/estonia_star_catalog.gd")
 const GAME_CALENDAR := preload("res://scripts/global/game_calendar.gd")
 
@@ -51,6 +53,11 @@ const TRANSITION_SECONDS := 12.0
 ## Speed only: heading comes from wind_direction_xz() (R-955). CLEAR at noon
 ## still matches this vector so existing plates stay valid.
 const CLOUD_DRIFT_PER_SECOND := Vector2(0.0011, 0.00044)
+## R-1768 lit deck constants, mirrored from sky_clouds.gdshaderinc (SKY_CLOUD_LOBE_*)
+## and sky_weather_3d.gdshader (LIT_DECK_SLAB_DEPTH).
+const CLOUD_LOBE_SCALE := 1.7
+const CLOUD_LOBE_MEAN := 0.72
+const LIT_DECK_SLAB_DEPTH := 0.06
 const CLOUD_DETAIL_DRIFT_PER_SECOND := Vector2(0.0019, -0.00075)
 ## Degrees added to the cloud-drift bearing per weather. CLEAR stays 0 so the
 ## historical (0.93, 0.37) harbour wind is the noon fair-weather reference.
@@ -112,6 +119,8 @@ const QUALITY_TIERS: Dictionary = {
 		"cloud_noise_resolution": SKY_RESOURCES.CLOUD_NOISE_RESOLUTION_MINIMUM,
 		"cloud_shape_resolution": SKY_RESOURCES.CLOUD_SHAPE_RESOLUTION_MINIMUM,
 		"cloud_shadow_samples": 2,
+		# R-1768: flat dome deck (0); recommended draws the lit 2.5D deck (1).
+		"cloud_deck_mode": 0,
 		# WS-12 ground pass. Sky raymarch keeps 2 so the dome stays identical.
 		"cloud_shadow_ground_samples": 1,
 		"cloud_shadow_enabled": true,
@@ -143,6 +152,7 @@ const QUALITY_TIERS: Dictionary = {
 		"cloud_noise_resolution": SKY_RESOURCES.CLOUD_NOISE_RESOLUTION_RECOMMENDED,
 		"cloud_shape_resolution": SKY_RESOURCES.CLOUD_SHAPE_RESOLUTION_RECOMMENDED,
 		"cloud_shadow_samples": 4,
+		"cloud_deck_mode": 1,
 		"cloud_shadow_ground_samples": 3,
 		"cloud_shadow_enabled": true,
 		"rain_shaft_samples": 6,
@@ -445,6 +455,8 @@ class WeatherPresentation extends RefCounted:
 	var moon_cloud_clear := 1.0
 	## R-1400 discrete clouds, packed for the cloud_cells uniform (CloudCells.uniforms()).
 	var cloud_cells := PackedVector4Array()
+	## R-1768: the dome draws the lit deck, so ground shadows take its lobed edges.
+	var cloud_deck_lobes := false
 	## 0..1: how ragged the cell cover right around the sun is from the camera. A cell
 	## edge on the sun is what throws visible beams.
 	var cell_sun_edge := 0.0
@@ -557,6 +569,7 @@ var _cloud_cell_clock := 0.0
 var _cells: CloudCellsScript = CloudCellsScript.new()
 var _cell_noise_size := 0
 var _material: ShaderMaterial
+var _gain_compensation := 1.0
 var _star_map: ImageTexture
 var _star_twinkle_time := 0.0
 var _camera: Camera3D
@@ -637,6 +650,7 @@ func _apply_quality_resources(cloud_noise: Texture2D = null, cloud_shape: Textur
 	_material.set_shader_parameter(
 		&"cloud_shadow_samples", int(settings["cloud_shadow_samples"])
 	)
+	_material.set_shader_parameter(&"cloud_deck_mode", int(settings["cloud_deck_mode"]))
 	_material.set_shader_parameter(
 		&"rain_shaft_samples", int(settings["rain_shaft_samples"])
 	)
@@ -1121,7 +1135,7 @@ func celestial_cloud_clear(
 	if noise == null or shape == null or noise.is_empty() or shape.is_empty():
 		return fallback * cells_clear_toward(dir)
 	var d := dir.normalized()
-	var uv := Vector2(d.x, d.z) * (1.0 / sqrt(d.y * d.y + 0.012)) * 0.12 - _cloud_offset
+	var uv := _cloud_uv_at(d, 1.0)
 	var storm := storm_intensity()
 	var cell := 1.0 - _sample_repeat(shape, uv * 0.12 + Vector2(0.37, 0.71))
 	var storm_mask := lerpf(1.0, smoothstep(0.48, 0.8, cell), storm_locality())
@@ -1146,7 +1160,29 @@ func _cloud_opacity_at(uv: Vector2, cover: float, noise: Image, shape: Image) ->
 		+ _sample_repeat(noise, uv * 9.4 + _cloud_detail_offset * 0.3) * 0.18
 	)
 	var lo := detail * lerpf(0.18, 0.42, cloud_chaos())
-	return clampf((bulk - lo) / maxf(1.0 - lo, 1e-4), 0.0, 1.0)
+	var opacity := clampf((bulk - lo) / maxf(1.0 - lo, 1e-4), 0.0, 1.0)
+	if cloud_deck_lit():
+		opacity = lobe_erode(opacity, _cloud_lobes_at(uv, shape))
+	return opacity
+
+
+## R-1768: true when the dome draws the lit 2.5D deck (recommended tier). The flat deck
+## of the minimum tier has no lobes, so the CPU mirror skips them there too.
+func cloud_deck_lit() -> bool:
+	return int(_quality_settings()["cloud_deck_mode"]) == 1
+
+
+## Mirrors sky_cloud_lobes(): rounded lobe crowns from the shape texture at the lobe scale.
+func _cloud_lobes_at(uv: Vector2, shape: Image) -> float:
+	var d := _sample_repeat(shape, uv * CLOUD_LOBE_SCALE + _cloud_detail_offset * 0.35)
+	return 1.0 - d * d
+
+
+## Mirrors sky_cloud_lobe_erode(): edges bulge at lobes and are bitten between them;
+## open sky and dense cores are unchanged.
+static func lobe_erode(cloud: float, lobes: float) -> float:
+	var edge := smoothstep(0.0, 0.2, cloud) * (1.0 - cloud)
+	return clampf(cloud + (lobes - CLOUD_LOBE_MEAN) * 1.6 * edge, 0.0, 1.0)
 
 
 ## Mirror cloud_field's Beer-Lambert slab, stratiform floor, cirrus and horizon
@@ -1155,6 +1191,7 @@ func _cloud_slab_clear(
 	dir: Vector3, cover: float, storm: float, noise: Image, shape: Image
 ) -> float:
 	var steps := int(_quality_settings()["cloud_shadow_samples"]) * 2
+	var slab_depth := LIT_DECK_SLAB_DEPTH if cloud_deck_lit() else 0.14
 	var step_length := 1.0 / float(steps)
 	var optical_step := (step_length * lerpf(9.0, 15.0, storm)
 		/ maxf(sqrt(maxf(dir.y, 0.0)), 0.38))
@@ -1162,7 +1199,7 @@ func _cloud_slab_clear(
 	var wind := wind_direction_xz()
 	for i in steps:
 		var h := (float(i) + 0.5) * step_length
-		var uv := _cloud_uv_at(dir, 1.0 + h * lerpf(0.14, 0.32, storm))
+		var uv := _cloud_uv_at(dir, 1.0 + h * lerpf(slab_depth, 0.32, storm))
 		uv += wind * h * 0.008
 		var body := _cloud_opacity_at(uv, cover, noise, shape)
 		var profile := smoothstep(0.0, 0.16, h) * (1.0 - smoothstep(0.48, 1.0, h))
@@ -1183,8 +1220,9 @@ func _cloud_slab_clear(
 
 
 func _cloud_uv_at(dir: Vector3, altitude: float) -> Vector2:
-	return (Vector2(dir.x, dir.z) * (altitude / sqrt(dir.y * dir.y + 0.012)) * 0.12
-		- _cloud_offset)
+	var ry := CLOUD_EARTH_RADIUS * dir.y
+	var distance := sqrt(ry * ry + altitude * (2.0 * CLOUD_EARTH_RADIUS + altitude)) - ry
+	return Vector2(dir.x, dir.z) * distance * 0.12 - _cloud_offset
 
 
 ## R-1400: share of light from `dir` that passes the discrete cells, seen from the
@@ -1217,8 +1255,15 @@ func cell_sun_edge(sun_dir: Vector3) -> float:
 ## R-1766: the visible dome multiplies its radiance by `compensation` (1 / the outdoor
 ## exposure gain) so the frame-wide daylight lift does not wash out the sky and clouds.
 func set_exposure_gain_compensation(compensation: float) -> void:
+	_gain_compensation = clampf(compensation, 0.0, 1.0)
 	if _material != null:
 		_material.set_shader_parameter(&"sky_gain_compensation", clampf(compensation, 0.0, 1.0))
+
+
+## R-1794: the factor last handed to the dome, so the aerial haze can fade far ground to
+## the same horizon colour the dome now draws.
+func exposure_gain_compensation() -> float:
+	return _gain_compensation
 
 
 ## True when the sky is drawn through a perspective camera (third/first person), the
@@ -1334,6 +1379,7 @@ func presentation_snapshot(progress: float, day_blend: float) -> WeatherPresenta
 	snapshot.moon_visibility = (SkyAstronomy.lunar_reflection_strength(progress, calendar_date)
 		* snapshot.moon_cloud_clear)
 	snapshot.cloud_cells = _cells.uniforms()
+	snapshot.cloud_deck_lobes = cloud_deck_lit()
 	snapshot.cell_sun_edge = cell_sun_edge(snapshot.sun_direction)
 	snapshot.star_visibility = pow(1.0 - snapshot.day_blend, 3.0) * cloud_occlusion
 	snapshot.tide_level = tide_level(progress, calendar_date)

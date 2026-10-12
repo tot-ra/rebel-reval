@@ -1,0 +1,35 @@
+{
+  "approval": "user-requested 2026-07-30",
+  "asset_id": "prop.scythe",
+  "blender_version": "Blender 5.2 LTS",
+  "cache_key": "c35656c9a4d31357fd96d0aacd4eec6ae2f3388ededb9f934cdc90213507cb7d",
+  "checks": {
+    "embedded_albedo_normal_roughness": true,
+    "floating_geometry": true,
+    "ground_contact": true,
+    "metric_scale": true,
+    "portable_pbr": true,
+    "triangle_cap": true,
+    "uvs": true,
+    "y_up_glb": true
+  },
+  "dimensions_m": [
+    0.7865,
+    1.718,
+    0.2575
+  ],
+  "floating_objects": 0,
+  "generator": "tools/generate_medieval_hand_tools.py",
+  "generator_version": "medieval_hand_tools_v3",
+  "ground_min_z": 0.0,
+  "materials": 3,
+  "mesh_objects": 7,
+  "preview": "generated/blender/scythe_v1/preview.png",
+  "route": "deterministic_blender",
+  "sha256": "bcb78d35304859ada764bf871c32809c8bc3ba9e89295ed730ae3b6a71cb8db9",
+  "texture_size": 512,
+  "textured_materials": 3,
+  "triangles": 2530,
+  "uv_sets": 1,
+  "vertices": 1283
+}

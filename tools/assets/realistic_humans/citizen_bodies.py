@@ -75,8 +75,9 @@ OUTFITS = ("a", "b")
 # over the baked base, the armour kit stacks aketon -> mail -> mail coif -> surcoat.
 LAYERS = {
     ("m", "adult"): ("hood", "coif", "wool_cap", "smith_apron", "waist_apron", "keys", "paternoster",
-                     "satchel", "back_sack", "gambeson", "mail_haubergeon", "mail_coif", "surcoat",
-                     "kettle_hat", "bascinet"),
+                     "satchel", "back_sack", "gambeson", "mail_haubergeon", "coat_of_plates", "mail_coif",
+                     "aventail", "surcoat", "order_mantle", "kettle_hat", "bascinet", "great_helm",
+                     "mail_chausses", "gauntlets"),
     ("m", "elder"): ("hood", "coif", "wool_cap", "waist_apron", "keys", "paternoster", "satchel"),
     ("m", "child"): ("hood", "coif", "wool_cap"),
     ("f", "adult"): ("veil_over", "waist_apron", "keys", "paternoster", "satchel"),

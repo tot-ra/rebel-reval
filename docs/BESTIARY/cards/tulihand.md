@@ -12,6 +12,14 @@
 | Faction ties | none |
 | Archive reference images | image-10 |
 
+![tulihand concept art](../inspiration/tulihand_concept.jpg)
+
+**Illustration:** Generated with Leonardo AI, Lucid Realism model. Documentation concept art only; existing archive references are retained.
+
+**Generation prompt:** Tulihänd, Estonian fire-tail omen: a single long, tapering fiery trail moving across a dark Baltic night sky above a tiny distant farm roof, the phenomenon reads as a streaking tail not a creature or dragon, embers trailing behind a compact bright head, ominous restrained folklore, painterly concept art, deep indigo and restrained amber-orange, minimal composition on subdued neutral dusk background, no text.
+
+**Negative prompt:** dragon, bird, fireball, modern sky, generic demon, text, watermark, crowded scene
+
 ## At a glance
 - Seen as a fire-tailed streak that drops into a barn chimney.
 - Carries grain or silver to its owner.

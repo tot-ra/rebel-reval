@@ -12,6 +12,14 @@
 | Faction ties | cult_metsik, church |
 | Archive reference images | image-46, image-49, image-50 |
 
+![vanapagan cultist concept art](../inspiration/vanapagan_cultist_concept.jpg)
+
+**Illustration:** Generated with Leonardo AI, Lucid Realism model. Photorealistic historical documentation reference; existing archive references are retained.
+
+**Generation prompt:** Photorealistic full-length cinematic portrait of an ordinary heavy-shouldered Baltic man around 40, a Vanapagan cultist in 1343 medieval Reval. Worn torn charcoal-brown wool tunic and crude monk-like robe, no armor; soot marks on brow and forearms, a bundle of stones at his belt and a simple rope sling in hand. Damp monastery cellar, authentic coarse wool and rope, natural window-and-candle lighting, restrained soot-black, ash-white and dried-blood-brown palette. A subtle oversized dark shadow hints at the spirit layer without showing a demon. Realistic human anatomy and photographic materials, no text.
+
+**Negative prompt:** demon anatomy, horns, tail, glowing red eyes, monster, fantasy armor, modern clothing, exaggerated magic, gore, text, watermark, illustration, painting, CGI, 3D render
+
 ## At a glance
 - Hurls rocks and heavy objects; the rock-thrower from the legacy README is folded in.
 - Human body, spirit mark: darker and larger in spirit sight.

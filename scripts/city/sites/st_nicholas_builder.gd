@@ -45,7 +45,8 @@ static func build(site: CitySite, plan: CityPlan) -> Node3D:
 	var church_fabric: Array = []
 	var chapel_fabric: Array = []
 	for w: Dictionary in fabric:
-		(chapel_fabric if String(w["id"]).begins_with("barbara.") else church_fabric).append(w)
+		if not String(w["id"]).begins_with("churchyard."):
+			(chapel_fabric if String(w["id"]).begins_with("barbara.") else church_fabric).append(w)
 	var rng := RandomNumberGenerator.new()
 	rng.seed = hash(String(site.id))
 	# The church.
@@ -96,7 +97,7 @@ static func build(site: CitySite, plan: CityPlan) -> Node3D:
 	_charnel(cbody, rng)
 	root.add_child(_assemble("Barbara", site, cbody, cglass, croof, chapel_fabric))
 	Furnish.lights(root.get_node("Barbara/Lower"), [Vector3(12.0, 1.6, 13.0)])
-	_cemetery(root, site, plan)
+	Kit.cemetery(root, site, plan)
 	return root
 
 
@@ -399,43 +400,3 @@ static func _charnel(shell: CityBuildingBuilder.Shell, rng: RandomNumberGenerato
 
 
 ## Cemetery south of the church: wooden grave crosses and a few slabs.
-static func _cemetery(root: Node3D, site: CitySite, plan: CityPlan) -> void:
-	var shell := CityBuildingBuilder.Shell.new()
-	var rng := RandomNumberGenerator.new()
-	rng.seed = 1342
-	for g: Array in site.data.get("graves", []):
-		var p := Vector2(g[0], g[1])
-		var y := plan.ground_height(site.to_world(p)) - site.level
-		if rng.randf() < 0.75:
-			var h := rng.randf_range(0.9, 1.25)
-			var tone := Kit.OAK_DARK * rng.randf_range(0.7, 1.05)
-			tone.a = 1.0
-			Kit.bar(
-				shell, "timber", Vector3(p.x, y - 0.2, p.y), Vector3(p.x, y + h, p.y), 0.09, tone
-			)
-			Kit.bar(
-				shell,
-				"timber",
-				Vector3(p.x, y + h * 0.75, p.y - 0.28),
-				Vector3(p.x, y + h * 0.75, p.y + 0.28),
-				0.08,
-				tone
-			)
-		else:
-			CitySiteProps._box(
-				shell,
-				"ashlar",
-				Vector3(p.x - 0.45, y - 0.1, p.y - 0.9),
-				Vector3(p.x + 0.45, y + 0.12, p.y + 0.9),
-				Kit.ASHLAR * 0.85
-			)
-		# Grave mound.
-		CitySiteProps._box(
-			shell,
-			"ashlar",
-			Vector3(p.x + 0.2, y - 0.25, p.y - 0.4),
-			Vector3(p.x + 1.9, y + 0.12, p.y + 0.4),
-			Color(0.42, 0.36, 0.28)
-		)
-	var node := Kit.mesh("Cemetery", shell)
-	root.add_child(node)

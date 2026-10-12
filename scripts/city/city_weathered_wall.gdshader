@@ -25,6 +25,11 @@ void fragment() {
 	float damp = 1.0 - smoothstep(0.15, 0.9 + ragged * 0.9, above);
 	vec3 dirt = mix(vec3(0.42, 0.37, 0.30), vec3(0.33, 0.37, 0.27), clamp(-w_nrm.z, 0.0, 1.0) * 0.7);
 	col = mix(col, col * dirt * 1.6, damp * 0.75 * age);
+	// R-1760: rain splash from the street: a darker, speckled band in the first
+	// ~0.4 m, so every house stands in its dirt instead of on a clean line.
+	float splash = (1.0 - smoothstep(0.05, 0.35 + ragged * 0.25, above))
+		* (0.7 + 0.3 * wnoise(w_pos.xz * 23.0 + w_pos.y * 17.0));
+	col *= 1.0 - splash * 0.5 * max(age, 0.6);
 	// Rain streaks: narrow vertical runs, strongest high on the wall.
 	vec2 along = vec2(dot(w_pos.xz, vec2(w_nrm.z, -w_nrm.x)) * 6.0, w_pos.y * 0.35);
 	float streak = smoothstep(0.62, 0.9, wnoise(along)) * smoothstep(0.4, 0.9, wnoise(along * vec2(0.3, 1.0) + 9.0));

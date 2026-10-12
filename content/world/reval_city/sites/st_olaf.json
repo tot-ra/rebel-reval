@@ -11,7 +11,8 @@
     "Rule (maintainer 2026-10-07): features dated after 1343 are left out; where the 1343 state is unrecorded, a slightly simplified form of the later, documented church is used (plausible composite).",
     "Excluded as dated later: the upper tower (1364+), the record spire (c. 1450), the basilica nave with its clerestory and star vaults and the long choir (after the 1433 fire), the Mary chapel (16th c.), the 19th-century altar, pulpit, pews and brass chandeliers.",
     "Attested for 1343: a short church with a massive west tower (walls ~3.2 m), a vaulted hall nave (vaults completed c. 1330, dated boss), a small east chancel; the tower stands unfinished.",
-    "Unrecorded in 1343, simplified later form: grey limestone rubble exterior with dressed portals; a three-aisle hall of four bays on square piers with moulded imposts and pointed arches; quadripartite rib vaults with red-ochre brick ribs (the later vaults carry such ribs); lime-washed interior; two-light lancets with leaded stained glass; plank floor; oak benches; iron candle crowns; a timber pulpit; a winged retable on the high altar and side altars of the guilds at the aisle ends; the bells in a provisional timber belfry with a shingled cap on the unfinished tower, a putlog scaffold and a masons' yard."
+    "Unrecorded in 1343, simplified later form: grey limestone rubble exterior with dressed portals; a three-aisle hall of four bays on square piers with moulded imposts and pointed arches; quadripartite rib vaults with red-ochre brick ribs (the later vaults carry such ribs); lime-washed interior; two-light lancets with leaded stained glass; plank floor; oak benches; iron candle crowns; a timber pulpit; a winged retable on the high altar and side altars of the guilds at the aisle ends; the bells in a provisional timber belfry with a shingled cap on the unfinished tower, a putlog scaffold and a masons' yard.",
+    "Churchyard: parish burial is attested in general medieval practice; the precise 1343 extent, low limestone rubble enclosure, open timber gate and trodden paths are a plausible composite using a simplified later form."
   ],
   "presentation": [],
   "replaces": [
@@ -698,6 +699,198 @@
           "lights": 1
         }
       ]
+    },
+    {
+      "id": "churchyard.wall.00",
+      "a": [
+        15,
+        13.8
+      ],
+      "b": [
+        43,
+        13.8
+      ],
+      "inside": [
+        29.0,
+        14.8
+      ],
+      "thick": 0.4,
+      "y0": -1.0,
+      "y1": 0.85,
+      "floor": -1.0,
+      "outer": "wall:limestone",
+      "inner": "wall:limestone",
+      "openings": [
+        {
+          "kind": "arch",
+          "s": 10.25,
+          "w": 2.8,
+          "sill": -1,
+          "spring": 2.0
+        }
+      ]
+    },
+    {
+      "id": "churchyard.wall.01",
+      "a": [
+        43,
+        13.8
+      ],
+      "b": [
+        43,
+        6.8
+      ],
+      "inside": [
+        44.0,
+        10.3
+      ],
+      "thick": 0.4,
+      "y0": -1.0,
+      "y1": 0.85,
+      "floor": -1.0,
+      "outer": "wall:limestone",
+      "inner": "wall:limestone",
+      "openings": []
+    },
+    {
+      "id": "churchyard.wall.02",
+      "a": [
+        43,
+        6.8
+      ],
+      "b": [
+        55.5,
+        6.8
+      ],
+      "inside": [
+        49.25,
+        7.8
+      ],
+      "thick": 0.4,
+      "y0": -1.0,
+      "y1": 0.85,
+      "floor": -1.0,
+      "outer": "wall:limestone",
+      "inner": "wall:limestone",
+      "openings": []
+    },
+    {
+      "id": "churchyard.wall.03",
+      "a": [
+        55.5,
+        6.8
+      ],
+      "b": [
+        55.5,
+        -6.8
+      ],
+      "inside": [
+        56.5,
+        0.0
+      ],
+      "thick": 0.4,
+      "y0": -1.0,
+      "y1": 0.85,
+      "floor": -1.0,
+      "outer": "wall:limestone",
+      "inner": "wall:limestone",
+      "openings": []
+    },
+    {
+      "id": "churchyard.wall.04",
+      "a": [
+        55.5,
+        -6.8
+      ],
+      "b": [
+        58.5,
+        -6.8
+      ],
+      "inside": [
+        57.0,
+        -5.8
+      ],
+      "thick": 0.4,
+      "y0": -1.0,
+      "y1": 0.85,
+      "floor": -1.0,
+      "outer": "wall:limestone",
+      "inner": "wall:limestone",
+      "openings": []
+    },
+    {
+      "id": "churchyard.wall.05",
+      "a": [
+        58.5,
+        -6.8
+      ],
+      "b": [
+        58.5,
+        18.8
+      ],
+      "inside": [
+        57.5,
+        6.0
+      ],
+      "thick": 0.4,
+      "y0": -1.0,
+      "y1": 0.85,
+      "floor": -1.0,
+      "outer": "wall:limestone",
+      "inner": "wall:limestone",
+      "openings": [
+        {
+          "kind": "arch",
+          "s": 15.8,
+          "w": 2.8,
+          "sill": -1,
+          "spring": 2.0
+        }
+      ]
+    },
+    {
+      "id": "churchyard.wall.06",
+      "a": [
+        58.5,
+        18.8
+      ],
+      "b": [
+        15,
+        18.8
+      ],
+      "inside": [
+        36.75,
+        17.8
+      ],
+      "thick": 0.4,
+      "y0": -1.0,
+      "y1": 0.85,
+      "floor": -1.0,
+      "outer": "wall:limestone",
+      "inner": "wall:limestone",
+      "openings": []
+    },
+    {
+      "id": "churchyard.wall.07",
+      "a": [
+        15,
+        18.8
+      ],
+      "b": [
+        15,
+        13.8
+      ],
+      "inside": [
+        16.0,
+        16.3
+      ],
+      "thick": 0.4,
+      "y0": -1.0,
+      "y1": 0.85,
+      "floor": -1.0,
+      "outer": "wall:limestone",
+      "inner": "wall:limestone",
+      "openings": []
     }
   ],
   "benches": [
@@ -1995,5 +2188,163 @@
       "seafarers' devotion to St Olaf",
       "building work on the unfinished tower (scaffold, hoist, masons' yard)"
     ]
-  }
+  },
+  "graves": [
+    [
+      17,
+      16.2
+    ],
+    [
+      20,
+      16.2
+    ],
+    [
+      29,
+      16.2
+    ],
+    [
+      32,
+      16.2
+    ],
+    [
+      35,
+      16.2
+    ],
+    [
+      38,
+      16.2
+    ],
+    [
+      46,
+      9.4
+    ],
+    [
+      46,
+      12.6
+    ],
+    [
+      46,
+      16.2
+    ],
+    [
+      49,
+      9.4
+    ],
+    [
+      49,
+      12.6
+    ],
+    [
+      49,
+      16.2
+    ],
+    [
+      52,
+      9.4
+    ],
+    [
+      52,
+      12.6
+    ],
+    [
+      52,
+      16.2
+    ],
+    [
+      55.9,
+      -3.5
+    ],
+    [
+      55.9,
+      0
+    ],
+    [
+      55.9,
+      3.5
+    ]
+  ],
+  "enclosure": {
+    "id": "site.st_olaf.churchyard",
+    "polygon": [
+      [
+        15,
+        13.8
+      ],
+      [
+        43,
+        13.8
+      ],
+      [
+        43,
+        6.8
+      ],
+      [
+        55.5,
+        6.8
+      ],
+      [
+        55.5,
+        -6.8
+      ],
+      [
+        58.5,
+        -6.8
+      ],
+      [
+        58.5,
+        18.8
+      ],
+      [
+        15,
+        18.8
+      ]
+    ],
+    "height": 0.85,
+    "thick": 0.4,
+    "gates": [
+      {
+        "id": "gate.st_olaf.churchyard",
+        "edge": 5,
+        "s": 15.8,
+        "w": 2.8,
+        "street": "Pikk",
+        "outward": [
+          1,
+          0
+        ]
+      }
+    ]
+  },
+  "paths": [
+    {
+      "id": "path.st_olaf.pikk",
+      "width": 1.6,
+      "points": [
+        [
+          76,
+          9
+        ],
+        [
+          58.5,
+          9
+        ],
+        [
+          57,
+          9
+        ],
+        [
+          57,
+          17.8
+        ],
+        [
+          25.25,
+          17.8
+        ],
+        [
+          25.25,
+          11.88
+        ]
+      ]
+    }
+  ]
 }

@@ -11,7 +11,8 @@
     "Excluded as dated later: the basilica nave and polygonal ambulatory choir (1405-1420 and later), the high tower and its baroque spire, the St Matthew and later side chapels (1470s+), Hermen Rode's high altar (1478-81), the organ, the brass chandeliers.",
     "Attested for 1343: a hall church with nave and two aisles, a square chancel, a sacristy, a low west tower, defensive loopholes in the early fabric, the north porch (first half 14th c.), the St Barbara chapel at the cemetery edge (first recorded 1342), the cemetery.",
     "Unrecorded in 1343, simplified later form: bare grey limestone piers, arches and vault ribs against whitewashed walls and webs (as inside today); grey limestone rubble with buttresses outside and a whitewashed tower with blind arcading under a shingled helm; stone-flag floor with many ledger slabs; single lancets with stained glass; oak benches; candle crowns; a pulpit; a winged retable; side altars funded by merchant families and guilds.",
-    "The churchyard is levelled with the church terrace (cemetery and the St Barbara chapel stand on it)."
+    "The churchyard is levelled with the church terrace (cemetery and the St Barbara chapel stand on it).",
+    "Churchyard: parish burial is attested in general medieval practice; the precise 1343 extent, low limestone rubble enclosure, open timber gate and trodden paths are a plausible composite using a simplified later form."
   ],
   "presentation": [],
   "replaces": [
@@ -1105,6 +1106,102 @@
         }
       ],
       "floor": 0.12
+    },
+    {
+      "id": "churchyard.wall.00",
+      "a": [
+        -23,
+        5.3
+      ],
+      "b": [
+        25.5,
+        5.3
+      ],
+      "inside": [
+        1.25,
+        6.3
+      ],
+      "thick": 0.4,
+      "y0": -1.0,
+      "y1": 0.85,
+      "floor": -1.0,
+      "outer": "wall:limestone",
+      "inner": "wall:limestone",
+      "openings": []
+    },
+    {
+      "id": "churchyard.wall.01",
+      "a": [
+        25.5,
+        5.3
+      ],
+      "b": [
+        25.5,
+        22.85
+      ],
+      "inside": [
+        24.5,
+        14.075000000000001
+      ],
+      "thick": 0.4,
+      "y0": -1.0,
+      "y1": 0.85,
+      "floor": -1.0,
+      "outer": "wall:limestone",
+      "inner": "wall:limestone",
+      "openings": []
+    },
+    {
+      "id": "churchyard.wall.02",
+      "a": [
+        25.5,
+        22.85
+      ],
+      "b": [
+        -23,
+        22.85
+      ],
+      "inside": [
+        1.25,
+        21.85
+      ],
+      "thick": 0.4,
+      "y0": -1.0,
+      "y1": 0.85,
+      "floor": -1.0,
+      "outer": "wall:limestone",
+      "inner": "wall:limestone",
+      "openings": []
+    },
+    {
+      "id": "churchyard.wall.03",
+      "a": [
+        -23,
+        22.85
+      ],
+      "b": [
+        -23,
+        5.3
+      ],
+      "inside": [
+        -22.0,
+        14.075000000000001
+      ],
+      "thick": 0.4,
+      "y0": -1.0,
+      "y1": 0.85,
+      "floor": -1.0,
+      "outer": "wall:limestone",
+      "inner": "wall:limestone",
+      "openings": [
+        {
+          "kind": "arch",
+          "s": 15.85,
+          "w": 2.8,
+          "sill": -1,
+          "spring": 2.0
+        }
+      ]
     }
   ],
   "benches": [
@@ -3442,5 +3539,121 @@
       "bones moved to the charnel",
       "bells from the low west tower"
     ]
-  }
+  },
+  "enclosure": {
+    "id": "site.st_nicholas.churchyard",
+    "polygon": [
+      [
+        -23,
+        5.3
+      ],
+      [
+        25.5,
+        5.3
+      ],
+      [
+        25.5,
+        22.85
+      ],
+      [
+        -23,
+        22.85
+      ]
+    ],
+    "height": 0.85,
+    "thick": 0.4,
+    "gates": [
+      {
+        "id": "gate.st_nicholas.churchyard",
+        "edge": 3,
+        "s": 15.85,
+        "w": 2.8,
+        "street": "Niguliste",
+        "outward": [
+          -1,
+          0
+        ]
+      }
+    ]
+  },
+  "paths": [
+    {
+      "id": "path.st_nicholas.north_porch",
+      "width": 1.8,
+      "points": [
+        [
+          -23,
+          7
+        ],
+        [
+          -36,
+          7
+        ],
+        [
+          -36,
+          -28
+        ],
+        [
+          -10,
+          -28
+        ],
+        [
+          -10,
+          -24.08
+        ]
+      ]
+    },
+    {
+      "id": "path.st_nicholas.street",
+      "width": 1.8,
+      "points": [
+        [
+          -36,
+          -28
+        ],
+        [
+          -40,
+          -52
+        ]
+      ]
+    },
+    {
+      "id": "path.st_nicholas.barbara",
+      "width": 1.2,
+      "points": [
+        [
+          -23,
+          7
+        ],
+        [
+          -10,
+          7
+        ],
+        [
+          -10,
+          13
+        ],
+        [
+          -8.5,
+          13
+        ],
+        [
+          -8.5,
+          15.7
+        ],
+        [
+          4.8,
+          15.7
+        ],
+        [
+          4.8,
+          13
+        ],
+        [
+          6.12,
+          13
+        ]
+      ]
+    }
+  ]
 }

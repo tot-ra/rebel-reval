@@ -51,7 +51,17 @@ Status: implemented (task **R-1698**). Esc opens `GameSettingsOverlay` (`scripts
 
 ## Journal
 
-`JournalController` / `JournalModel` / `JournalOverlay` (`scripts/journal/`). Tabs show active quest objectives and discovered facts (never spoiling outcomes), commission deadlines, and the faction ledger ([`FACTIONS_AND_ECONOMY.md`](./FACTIONS_AND_ECONOMY.md)).
+`JournalController` / `JournalModel` / `JournalOverlay` (`scripts/journal/`). Tabs show active quest objectives and discovered facts (never spoiling outcomes), commission deadlines, and the faction ledger ([`FACTIONS_AND_ECONOMY.md`](./FACTIONS_AND_ECONOMY.md)). Drawn in the shared overlay skin below.
+
+## Shared overlay skin
+
+Status: implemented (task **R-1800**). Scope: the full-screen overlays `JournalOverlay`, `InventoryOverlay` (satchel), the `SpellforgeHud` collection screen (forge + cookbook) and `ControlsOverlay` use the same charcoal/bronze skin as the Escape menu and start screen. Out of scope: the in-world spellforge quick HUD (mana orb, spell slots), the minimap, vitals, quest pouch, dialogue and reflection screens. No new textures or fonts.
+
+- **Entry point:** `scripts/ui/pause_menu_style.gd` (preloaded as `MenuStyle`). `make_theme()` is the Escape-menu theme; `make_overlay_theme()` adds tabs (`TabContainer`), lists (`ItemList`), disabled buttons and `HSeparator` rules at 16 px text (the overlays' layouts were sized for Godot's default size). `apply_overlay(root, panel, dim)` sets that theme on the overlay root, the shared scrim on the dim rect and the gold-ruled charcoal panel style. `apply_title()` / `apply_muted()` and the colour tokens (`GOLD`, `TEXT`, `TEXT_BRIGHT`, `TEXT_MUTED`, `TEXT_DISABLED`, `SCRIM`, `OVERLAY_FILL`) replace the overlays' ad-hoc colours.
+- **Focus:** every focus stylebox comes from `UiFocusTheme.apply_button_focus_style`, which reads Settings > Enhanced focus contrast when the theme is built. Each overlay calls `apply_overlay` again in `open()`, so toggling the setting reaches the next opened overlay (gold 1 px ring by default, pale 4 px ring when enhanced).
+- **Inventory:** only the outer frame, scrim, title and action buttons take the shared skin. The leather section frames, grid cells, category tints, brass sockets, ornament frame and hearth glow (`InventoryUiTheme`) stay as the satchel's own material.
+- **Node names and behaviour** are unchanged (`ControlsRoot`, `ControlsPanel`, `SpellforgeRoot`, `SpellforgePanel`, `BagPanel`, `BagTitle`, `CloseButton`, ...). No save data is involved.
+- **Verify:** `--filter=test_ui_overlay_theme` (each overlay has the shared theme, panel and scrim; reopening after enabling enhanced focus gives a 4 px ring), plus the overlays' own tests below. Before/after plates: `tools/godot_render.sh --script tools/capture_ui_overlays.gd -- --tag=after` (neutral stage, 1280x720 and 1920x1080; `--tag=before` was captured on the pre-R-1800 revision).
 
 ## Hingepuu reflection
 
@@ -63,6 +73,8 @@ Status: implemented (task **R-1698**). Esc opens `GameSettingsOverlay` (`scripts
 
 - **Local**: the full-screen version of the minimap (`WorldMapLocalView`).
 - **Fast travel**: the Reval district graph built from the active transition manifest (`WorldMapGraph`, `WorldMapFastTravelView`). Click or focus a district to travel through `DoorNavigator`.
+  - In the seamless city the district tab lists the city's key places (`WorldMapGraph.CITY_PLACES`: forum, Kalev's smithy, gates, St Olaf, St Nicholas, Toompea road, fish landing, ...) instead of one `reval_city` node. Each node plans `reval_city` + a registered city spawn, so travel moves Kalev in place. Currently every place is listed (debug); `WorldMapGraph.city_place_discovered` is the hook for showing a place only once the player has found it. Layout positions are schematic. Screenshot: [`world_map_city_places.png`](../reports/images/world_map_city_places.png). Test: `tests/godot/test_world_map_city_places.gd`.
+  - The 2D smithy scene `forge` is no longer a travel node; `CityTravel.REDIRECTS` sends it (and old saves with `location_id = forge`) to the city smithy spawn `kalev_smithy`. The scene files remain until the retirement task removes them.
 - **Global**: a full-screen, text-free Estonia basemap (`WorldMapGlobalView`, `GlobalMapCatalog`), kept off the district graph. Every campaign location is a round marker, placed from its real latitude/longitude fitted to the painted coastline, including places not built yet (dim hollow rings that never travel; none right now, all are debug greyboxes). The name and a one-line blurb appear only while a marker is hovered or focused. No static roads are drawn between markers; the catalog's road graph only decides which markers are travelable. Choosing a destination walks a small hooded traveler along a gently bowed path with a gold trail (1.4-4 s) before `DoorNavigator` travel starts; headless runs skip the walk. The X button, `M` or Escape close the map. Capture: [global map](../reports/images/world_map/global_map_geo_positions.png). Verify: `--filter=test_world_map_overlay` and `--filter=test_global_map_catalog`.
 
 Doors and transitions: `DoorNavigator` autoload and `content/transitions/active_destinations.json` ([`MAP_AUTHORING.md`](../MAP_AUTHORING.md)).
@@ -88,14 +100,18 @@ Captures: `tools/godot_render.sh res://tools/capture_hud_gameplay_host.tscn` (re
 | Escape menu before / after (stage, 1920) | [before](../reports/images/hud_menus/escape_before_1920.png), [after](../reports/images/hud_menus/escape_after_1920.png) |
 | Escape menu before / after (stage, 1280) | [before](../reports/images/hud_menus/escape_before_1280.png), [after](../reports/images/hud_menus/escape_after_1280.png) |
 | Vitals before / after (stage) | [before](../reports/images/hud_menus/vitals_before_1920.png), [after](../reports/images/hud_menus/vitals_after_1920.png), [after 1280](../reports/images/hud_menus/vitals_after_1280.png) |
+| Journal before / after (R-1800) | 1280 [before](../reports/images/hud_menus/journal_before_1280.png), [after](../reports/images/hud_menus/journal_after_1280.png); 1920 [before](../reports/images/hud_menus/journal_before_1920.png), [after](../reports/images/hud_menus/journal_after_1920.png) |
+| Satchel before / after (R-1800) | 1280 [before](../reports/images/hud_menus/inventory_before_1280.png), [after](../reports/images/hud_menus/inventory_after_1280.png); 1920 [before](../reports/images/hud_menus/inventory_before_1920.png), [after](../reports/images/hud_menus/inventory_after_1920.png) |
+| Spellforge cookbook before / after (R-1800) | 1280 [before](../reports/images/hud_menus/spellforge_before_1280.png), [after](../reports/images/hud_menus/spellforge_after_1280.png); 1920 [before](../reports/images/hud_menus/spellforge_before_1920.png), [after](../reports/images/hud_menus/spellforge_after_1920.png) |
+| Controls before / after (R-1800) | 1280 [before](../reports/images/hud_menus/controls_before_1280.png), [after](../reports/images/hud_menus/controls_after_1280.png); 1920 [before](../reports/images/hud_menus/controls_before_1920.png), [after](../reports/images/hud_menus/controls_after_1920.png) |
 
-**Current approach.** The HUD is minimal and diegetic-leaning: the bronze-rimmed minimap with location lines (top right), the quest-tool pouch (top left), the vitals (bottom left), interaction glyphs in the world, and no permanent action bar. Every command lives in the Escape menu or on a hotkey. All UI is built in code (no `.tscn` per screen) with per-screen colour overrides; the minimap rim and the vitals bar frame are the only painted UI assets.
+**Current approach.** The HUD is minimal and diegetic-leaning: the bronze-rimmed minimap with location lines (top right), the quest-tool pouch (top left), the vitals (bottom left), interaction glyphs in the world, and no permanent action bar. Every command lives in the Escape menu or on a hotkey. All UI is built in code (no `.tscn` per screen); full-screen overlays share `pause_menu_style.gd` (R-1800); the minimap rim and the vitals bar frame are the only painted UI assets.
 
 **What works.** The minimap: painted rim, rotating map, clear location hierarchy. The empty playfield. One handler route per action (`QuickAccessMenu`), shared by hotkeys, menu and tests.
 
 **Problems found.**
 
-1. Visual language is split. Minimap and vitals are bronze and painted; the journal, inventory, spellforge and controls overlays still use default Godot panels with ad-hoc colours. `pause_menu_style.gd` should become the shared theme for all overlays.
+1. ~~Visual language is split: the journal, inventory, spellforge and controls overlays still use default Godot panels with ad-hoc colours.~~ Done in **R-1800**: `pause_menu_style.gd` is the shared overlay skin ([Shared overlay skin](#shared-overlay-skin)).
 2. ~~The main menu is a centred stack of yellow (`#FAD606`) `RichTextLabel`s over the intro video with no hover or focus state beyond the cursor.~~ Done in **R-1799**: left-aligned Escape-menu list, bronze focus bar, hover = focus, Continue (latest save) first.
 3. No display typeface. Everything uses Noto Sans; titles would read better in a licensed serif or blackletter display face (needs an asset task and a `SOURCES.csv` row).
 4. The Escape menu is one long settings page. Split it into tabs (Game / Graphics / Audio / Accessibility / Controls) once there are more than about 20 rows, and move Debug out of the player list in release builds.
@@ -111,10 +127,12 @@ godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_wor
 godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_minimap
 godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_hud_menu_redesign,test_game_settings_overlay
 godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_main_menu_load,test_asset_library,test_input_bindings
+godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_ui_overlay_theme,test_spellforge_hud,test_inventory_overlay_view,test_inventory_keyboard
 ```
 
 ## Limits
 
+- Shared overlay skin (R-1800): `ControlsOverlay` keeps its 1040x800 minimum panel, so at 1280x720 the panel is taller than the screen and its header is cut (also before R-1800); the satchel likewise runs past 720p. The journal stage plate shows empty deadlines because `CommissionDeadlineModel` names the `SessionState` autoload and cannot compile under a `--script` capture.
 - `PlayerVitalsHud` (layer 21) stays visible under dialogue (`DialogueUi`, layer 45); cutscenes (95) and the spirit arena (80) cover it. It fades out after 4 s at full health and stamina (R-1798); stamina regeneration therefore keeps it visible until full. The trail is health-only; stamina has none.
 
 - `scenes/elements/gameplay_help_hud.tscn` and `scripts/ui/gameplay_help_hud.gd` are deprecated and mounted nowhere. Removal is tracked in the [code-health audit](../reports/code_health_audit_2026-10-07.md).

@@ -197,3 +197,26 @@ func test_town_houses_without_a_farm_trade_have_no_field_tools() -> void:
 		var pieces := _pieces(interiors.layout(index))
 		for tool: StringName in [&"scythe", &"pitchfork", &"sickle"]:
 			assert_false(tool in pieces, "%s in a non-farm house %d" % [tool, index])
+
+
+func test_partitions_never_block_the_street_door() -> void:
+	var interiors := _interiors()
+	var plan := _plan()
+	var clear := HouseholdLayout.DOOR_CLEAR_WIDTH * 0.5 + HouseholdLayout.PARTITION_DOOR_STEP - 0.05
+	var split := 0
+	for entry: Array in _homes(interiors):
+		var index: int = entry[1]
+		var layout := interiors.layout(index)
+		if layout.partitions.is_empty():
+			continue
+		split += 1
+		var door_at: Array = plan.buildings[index]["door"]
+		var door := Vector2(door_at[0], door_at[1])
+		for part: Dictionary in layout.partitions:
+			for w: Array in part["walls"]:
+				var near := Geometry2D.get_closest_point_to_segment(door, w[0], w[1])
+				assert_true(
+					near.distance_to(door) >= clear,
+					"partition %.2f m from the door of house %d" % [near.distance_to(door), index]
+				)
+	assert_true(split > 0, "found partitioned houses")

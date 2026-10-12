@@ -12,6 +12,14 @@
 | Faction ties | church |
 | Archive reference images | image-2, image-9 |
 
+![kodukaija concept art](../inspiration/kodukaija_concept.jpg)
+
+**Illustration:** Generated with Leonardo AI, Lucid Realism model. Documentation concept art only; existing archive references are retained.
+
+**Generation prompt:** Kodukäija, the Estonian dead who returns to its own home: an unmistakably human older householder in a plain linen burial garment, standing at a worn farmhouse threshold and resting one hand on the familiar doorpost, grave-earth at the hem, expression tired and sorrowful rather than threatening. Ritual-bound revenant, not zombie, no wounds. Painterly folklore concept art, warm timber brown interrupted by cold moonlight, clear full figure, neutral sparse background, no text.
+
+**Negative prompt:** generic ghost sheet, vampire, skeleton, demon horns, modern house, gore, text, watermark
+
 ## At a glance
 - Walks to his own house at night and stands in the doorway.
 - Looks like the living man, a little too still.

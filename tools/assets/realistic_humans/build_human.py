@@ -696,13 +696,17 @@ def bake_crowd_body(spec, meshes, wardrobe):
 LAYER_TRIANGLES = {"hood": 1400, "veil_over": 1400, "mail_coif": 1300, "coif": 900, "wool_cap": 700,
                    "bascinet": 700, "kettle_hat": 700, "gambeson": 2600, "mail_haubergeon": 2200,
                    "surcoat": 2000, "smith_apron": 900, "waist_apron": 800, "keys": 400,
-                   "paternoster": 700, "satchel": 700, "back_sack": 700}
+                   "paternoster": 700, "satchel": 700, "back_sack": 700, "coat_of_plates": 2800,
+                   "aventail": 1500, "great_helm": 1100, "mail_chausses": 2200, "gauntlets": 1400,
+                   "order_mantle": 3200}
 
 
-def export_crowd_layers(spec, motion, wardrobe, out):
+def export_crowd_layers(spec, motion, wardrobe, out, only=None):
     """Tier 2 layers: each garment of spec["layers"] joined into one skinned mesh,
     decimated to its budget and written to <out>/layers/<garment>.glb."""
     for garment in spec.get("layers", []):
+        if only and garment not in only:
+            continue  # --only refits just these layers (keeps the other shipped GLBs byte-identical)
         objects = [o for o in wardrobe[garment][2] if o.type == "MESH"]
         bpy.ops.object.select_all(action="DESELECT")
         for o in objects:
@@ -879,7 +883,7 @@ def export_glb(path, objects, animations):
         export_all_influences=False, export_apply=False, export_yup=True)
 
 
-def build(name, only_body=False, layers_only=False):
+def build(name, only_body=False, layers_only=False, only_layers=None):
     spec = spec_module.SPECS[name]
     if spec.get("tier") == 2 and spec.get("beard"):
         # Crowd budget: beards are painted into the skin, not built as shells.
@@ -939,7 +943,7 @@ def build(name, only_body=False, layers_only=False):
     else:
         add_expression_keys(meshes, scale)
     if spec.get("tier") == 2 and spec.get("layers"):
-        export_crowd_layers(spec, motion, layer_wardrobe, out)
+        export_crowd_layers(spec, motion, layer_wardrobe, out, only_layers)
         if layers_only:
             log(json.dumps({"character": name, "layers": spec["layers"]}))
             return {"character": name, "layers": spec["layers"]}
@@ -975,8 +979,10 @@ def main():
     parser.add_argument("--character", default="kalev")
     parser.add_argument("--layers-only", action="store_true",
                         help="tier 2: export only the citizen layers, keep the shipped body GLB")
+    parser.add_argument("--only", default="", help="with --layers-only: comma-separated layer ids to refit")
     args = parser.parse_args(argv)
-    build(args.character, layers_only=args.layers_only)
+    build(args.character, layers_only=args.layers_only,
+          only_layers=set(filter(None, args.only.split(","))) or None)
     if not args.layers_only:
         prune_makehuman_textures()
 

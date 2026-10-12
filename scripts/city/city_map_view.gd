@@ -324,7 +324,12 @@ func _process(delta: float) -> void:
 	if _god_ray_pass != null:
 		_god_ray_pass.update(delta, presentation)
 	if _local_atmosphere != null:
-		_local_atmosphere.update(delta, presentation, _sky_weather.cloud_cell_clock())
+		_local_atmosphere.update(
+			delta,
+			presentation,
+			_sky_weather.cloud_cell_clock(),
+			_sky_weather.exposure_gain_compensation()
+		)
 	if water_obstacle_sim != null and water_obstacle_sim.wave_source != null:
 		# Impact foam drifts downwind, faster in a rougher sea.
 		var wind: Variant = water_obstacle_sim.wave_source.get_shader_parameter("wind_direction")

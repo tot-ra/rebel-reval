@@ -52,6 +52,10 @@ func test_sky_gain_compensation_cancels_the_outdoor_gain_by_day_only() -> void:
 	view.apply_cycle_progress(0.5)
 	var day_value: float = material.get_shader_parameter(&"sky_gain_compensation")
 	assert_true(is_equal_approx(day_value, 1.0 / day_gain), "noon sky uniform must be 1 / gain")
+	assert_true(
+		is_equal_approx(view._sky_weather.exposure_gain_compensation(), 1.0 / day_gain),
+		"the haze pass reads the same factor the dome got (R-1794)"
+	)
 	# The default 21 April midnight is still astronomical twilight (fill ~0.13 at -16 deg);
 	# a winter midnight is full night.
 	view._sky_weather.set_calendar_date({"year": 1343, "month": 12, "day": 21})

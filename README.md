@@ -2,24 +2,24 @@
 
 ![Reval Rebel Banner](./docs/img/banner.jpg)
 
-**Reval Rebel** is a 2D narrative action RPG about a blacksmith caught in the middle of a war his own hands supply.
+**Reval Rebel** is an open-world adventure RPG set in Reval (present-day Tallinn). The player is a 15-year-old orphan who becomes a master smith's apprentice in 1342, a year before the St. George's Night Uprising of 1343.
 
-It is spring 1343 in Reval — present-day Tallinn — days before the St. George's Night Uprising. Kalev, a lower-town smith, takes commissions from every side of the coming conflict: knights, merchants, rebels, spies. He can do honest work, hide a useful feature, or introduce a flaw. What he forges comes back — as protection, evidence, betrayal, or a blade at someone's throat — through the uprising, the siege of Reval, the crushing of the rebellion, and the years of iron-fisted aftermath that end with the land itself being sold.
+The game has two layers: a physical, realistic world in the spirit of The Witcher 3, RDR2 and Kingdom Come: Deliverance 2, and a spirit world in the spirit of Persona 5 and the Witcher 3 detective mode. The hero is clairvoyant and can fight in either world; some creatures exist only in the spirit world. Morality is grey and no faction is "right". Christian motifs (churches, services) and pagan elements coexist.
 
-The history cannot be prevented. Who survives it, what each side carries into it, and what Kalev becomes — that is the game.
+The core of the game is adventure, exploration, quests and character progression (GTA / Witcher 3 / RDR style). The history cannot be prevented; who survives it and what the hero becomes is the game.
 
 > Reval Rebel is in pre-production with an early playable Godot prototype. Use the project task board (`tasks` tool) for executable work, [`docs/SETUP.md`](./docs/SETUP.md) to run it, and [`docs/MAP_AUTHORING.md`](./docs/MAP_AUTHORING.md) for the production compact/chunked map workflow ([ADR 0009](./docs/adr/0009-map-blueprint-authoring-architecture.md), [ADR 0010](./docs/adr/0010-large-map-runtime-chunking.md)). The protagonist and combat frame are being redirected by [ADR 0033](./docs/adr/0033-teen-protagonist-and-spirit-dialogue-combat.md): a 15-year-old clairvoyant orphan apprentice, with Kalev as master smith, magic and most combat in a spirit world driven by dialogue ([`SPIRIT_DIALOGUE.md`](./docs/SYSTEMS/SPIRIT_DIALOGUE.md), planned). Text below that still describes Kalev as the protagonist or hammer and night combat as the combat spine describes the current prototype until the ADR's tasks land. The scope was widened to a three-act faction RPG by [ADR 0008](./docs/adr/0008-three-act-campaign-and-faction-scope.md) and legacy design systems (magic, NATURAL/psyche, Living City, expanded cast) were returned to the plan by [ADR 0017](./docs/adr/0017-legacy-design-reintroduction.md); the playable MVP still ships first.
 
 ## The heart of the game
 
-> Can a craftsman remain innocent when every object he makes becomes someone else's instrument of power?
+> Can you help many people and stay clean when no side is in the right?
 
-Four ideas guide the project:
+- **Main quest (political).** Either help the Teutons and Danes subjugate the pagans, or help the pagan Estonians defeat the conquerors. Victory needs one side plus neutral groups, in the manner of Skyrim's faction quests.
+- **Global spiritual goal.** Progress the hero by opening all chakras. Grey morality makes this extremely hard: it requires helping a great many people.
+- **Two worlds.** Physical realism plus a spirit world for investigation and combat; see [ADR 0033](./docs/adr/0033-teen-protagonist-and-spirit-dialogue-combat.md) and [`SPIRIT_DIALOGUE.md`](./docs/SYSTEMS/SPIRIT_DIALOGUE.md).
+- **History holds its course; people don't have to.** Attested events - the signal fires, the siege of Reval, Kanavere Bog, Sõjamäe, the killing of the Four Kings at Paide, the 1346 sale of Estonia - happen on schedule. The player steers the human cost inside them. Consequences surface in named characters, changed districts, faction ledger standing and Living City pressure meters (Hope / Fear, [ADR 0017](./docs/adr/0017-legacy-design-reintroduction.md)), not in a single good/evil score.
 
-- **The forge is your lever.** Kalev is not the chosen warrior of the uprising; he is the man who makes its tools. Faction power flows through his anvil. A commission has a customer, a hidden purpose, and a small number of meaningful modifications — forging is narrative problem-solving, and it is how the player touches the war.
-- **Objects and people remember.** Every forged object carries a persistent record. A spearhead sabotaged in spring shatters in someone's hand at the siege; a gate chain forged true holds when it matters. Consequences surface in named characters, changed districts, patrols, prices, dialogue, faction ledger standing, and Living City pressure meters (Hope / Fear) per [ADR 0017](./docs/adr/0017-legacy-design-reintroduction.md) - not in a single good/evil morality score.
-- **History holds its course; people don't have to.** Attested events — the signal fires, the siege of Reval, Kanavere Bog, Sõjamäe, the killing of the Four Kings at Paide, the 1346 sale of Estonia — happen on schedule. The player steers the human cost inside them: who lives, who trusts whom, what evidence remains, and how Kalev is remembered.
-- **You fight with what you forged.** Combat is small, direct, and personal — hammer, guard, dodge, one equipped forge technique — and every piece of gear on Kalev's body, and much of what his enemies carry, passed through his hands. Your past choices are literally the weapons in play.
+> Design note: older text below that frames the forge as the central lever, remembered forged objects, or "you fight with what you forged" is superseded by this direction and kept only where it still describes the current prototype. The forge and Kalev remain the protagonist's home base.
 
 ## How it plays
 

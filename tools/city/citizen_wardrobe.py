@@ -25,7 +25,7 @@ LINEN_NATURAL = (0.74, 0.70, 0.60)
 LINEN_GREY = (0.62, 0.60, 0.55)
 HABIT_BLACK = (0.12, 0.11, 0.10)
 CROWN_RED = (0.58, 0.11, 0.09)  # Danish crown colours, no invented heraldry
-ORDER_WHITE = (0.86, 0.85, 0.80)  # Livonian Order mantle white (the cross is WD-4)
+ORDER_WHITE = (0.86, 0.85, 0.80)  # Livonian Order mantle white (the black cross is a separate patch)
 LEATHER_DARK = (0.24, 0.14, 0.08)
 LEATHER_TAN = (0.42, 0.28, 0.15)
 AMBER = (0.70, 0.42, 0.12)
@@ -82,7 +82,14 @@ DUTY_KITS = {
     "sergeant": ("gambeson", "mail_haubergeon", "mail_coif", "kettle_hat"),
     "keeper": ("keys",),
 }
-HEADWEAR = ("hood", "coif", "wool_cap", "veil_over", "kettle_hat", "bascinet", "mail_coif")
+HEADWEAR = ("hood", "coif", "wool_cap", "veil_over", "kettle_hat", "bascinet", "mail_coif", "aventail",
+            "great_helm")
+# Heads that may stack: mail under an iron head piece (coif or aventail under bascinet, helm or hat).
+ARMOUR_HEADS = {"mail_coif", "aventail", "bascinet", "great_helm", "kettle_hat"}
+# Knightly harness (WD-4): only a knight of noble status wears it. Mail chausses also go to
+# crown men-at-arms; nothing here is ever worn by a burgher, master, journeyman or labourer.
+KNIGHT_ONLY = {"coat_of_plates", "great_helm", "aventail", "bascinet", "gauntlets", "order_mantle"}
+ARMOUR = KNIGHT_ONLY | {"gambeson", "mail_haubergeon", "mail_coif", "surcoat", "kettle_hat", "mail_chausses"}
 STRAPS = ("satchel", "back_sack")  # both cross the right shoulder: one at a time
 
 
@@ -137,21 +144,56 @@ def dress(person: dict, available: tuple) -> tuple[list[str], dict]:
     for layer in DUTY_KITS.get(duty, ()):
         put(layer, CROWN_RED if layer == "surcoat" else None)
     if not duty and trade in ARMED_TRADES and stage == "adult":
-        surcoat = (CROWN_RED if faction == "danish_crown" else ORDER_WHITE if faction == "livonian_order"
-                   else _pick(HOOD_DYES["rich"], key + ":surcoat"))
-        if trade == "knight" and roll("armed") < 0.5:
+        cover = (CROWN_RED if faction == "danish_crown" else ORDER_WHITE if faction == "livonian_order"
+                 else _pick(HOOD_DYES["rich"], key + ":surcoat"))
+        noble = status == "noble"
+        if trade == "knight" and noble and faction == "livonian_order":
+            # Order brother: mail under a white surcoat and the white mantle with the black cross.
+            for layer in ("gambeson", "mail_haubergeon", "mail_chausses", "gauntlets"):
+                put(layer)
+            put("surcoat", ORDER_WHITE)
+            put("order_mantle", ORDER_WHITE)
+            if roll("helm") < 0.5:
+                put("aventail")
+                put("bascinet")
+            else:
+                put("mail_coif")
+        elif trade == "knight" and noble and roll("armed") < 0.65:
+            # Vassal knight: coat of plates or surcoat over mail, bascinet with aventail (the
+            # great helm is for ceremony and the lists), mail chausses and gauntlets.
             put("gambeson")
             put("mail_haubergeon")
-            put("surcoat", surcoat)
-            if roll("helm") < 0.5:
+            if roll("plates") < 0.55:
+                put("coat_of_plates", cover)
+            else:
+                put("surcoat", cover)
+            head = roll("helm")
+            if head < 0.2:
                 put("mail_coif")
+                put("great_helm")
+            elif head < 0.8:
+                put("aventail")
                 put("bascinet")
+            else:
+                put("mail_coif")
+            if roll("chausses") < 0.7:
+                put("mail_chausses")
+            if roll("gauntlets") < 0.6:
+                put("gauntlets")
         elif trade == "squire" and roll("armed") < 0.5:
             put("gambeson")
             if roll("mail") < 0.5:
                 put("mail_haubergeon")
+            if roll("cap") < 0.4:
+                put("kettle_hat")
         elif trade == "man_at_arms" and roll("armed") < 0.4:
             put("gambeson")
+            if faction in ("danish_crown", "livonian_order") and roll("mail") < 0.6:
+                # Crown and Order men wear their lord's colour over the mail.
+                put("mail_haubergeon")
+                put("surcoat", cover)
+                if roll("chausses") < 0.3:
+                    put("mail_chausses")
             if roll("cap") < 0.5:
                 put("kettle_hat")
 
@@ -238,3 +280,21 @@ def dress(person: dict, available: tuple) -> tuple[list[str], dict]:
     if roll("sack") < BACK_SACK.get(trade, 0.0):
         put("back_sack")
     return wear, dye
+
+
+def shield_of(person: dict, wear: list) -> str:
+    """Shield kind carried on the left arm, or "" (WD-4): only the armed kits above carry one.
+
+    `order` is white with the black cross, `crown` plain red (no invented heraldry), `field` the
+    knight's own surcoat colour, `plain` bare lime-wood with an iron boss (men-at-arms off the
+    roster). The town watch carries none (spear only, GATE_GARRISONS.md)."""
+    if (person.get("duty") or {}).get("kit"):
+        return ""
+    if "order_mantle" in wear:
+        return "order"
+    if person["trade"] == "knight" and person["status"] == "noble" and "mail_haubergeon" in wear:
+        return "crown" if person.get("faction") == "danish_crown" else "field"
+    if person["trade"] == "man_at_arms" and "mail_haubergeon" in wear \
+            and hash01(f"{person['id']}:wd:shield") < 0.5:
+        return "crown" if person.get("faction") == "danish_crown" else "plain"
+    return ""

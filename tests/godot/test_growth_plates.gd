@@ -66,7 +66,8 @@ func test_ecological_masks_remain_in_the_surface_shaders() -> void:
 	]:
 		assert_true(bark.contains(fragment), "bark coverage contract: %s" % fragment)
 	var roof := FileAccess.get_file_as_string("res://scripts/city/city_weathered_roof.gdshader")
-	assert_true(roof.contains("patch + north * 0.2) * moss * age"))
+	# R-1760: roof moss is a gentle eave/north field seeded in the overlaps.
+	assert_true(roof.contains("moss * wear * (0.06 + eave_t * eave_t * 0.75) * (0.25 + north * 0.85) * field"))
 	var tile := FileAccess.get_file_as_string("res://scripts/city/city_tile_roof.gdshader")
 	assert_true(tile.contains("patch + north * 0.25) * wet_spot * moss * age"))
 	assert_true(tile.contains("(1.0 - monk) * 0.6 + smoothstep(0.75, 1.0, cv) * 0.4"))

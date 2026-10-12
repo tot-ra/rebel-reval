@@ -19,6 +19,10 @@ uniform sampler2D depth_texture : hint_depth_texture, repeat_disable, filter_nea
 
 // Haze in-scatter colour and extinction per metre beyond the clear radius.
 uniform vec3 haze_color : source_color = vec3(0.7, 0.78, 0.9);
+// R-1794: far ground fades toward the dome's horizon, and the dome is drawn with the
+// outdoor exposure gain divided out (R-1766), so the haze target takes the same factor.
+// 1 = no compensation (night, rooms).
+uniform float haze_gain_compensation : hint_range(0.0, 1.0) = 1.0;
 uniform float haze_density = 0.0006;
 uniform float haze_max = 0.7;
 // Distance from the eye that stays untouched: the player and the street around them.
@@ -137,7 +141,7 @@ void fragment() {
 		}
 		color = sum / weight;
 	}
-	ALBEDO = mix(color, haze_color, haze);
+	ALBEDO = mix(color, haze_color * haze_gain_compensation, haze);
 	if (debug_mode == 1) {
 		ALBEDO = vec3(haze / max(haze_max, 1e-4));
 	} else if (debug_mode == 2) {

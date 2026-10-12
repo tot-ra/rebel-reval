@@ -64,6 +64,10 @@ def parse_args():
     p.add_argument("--keep-brows", action="store_true",
                    help="keep the MPFB brow mesh (the scan albedo usually paints brows lower)")
     p.add_argument("--headcloth", default="", help="wearable GLB on the same rig (e.g. the widow's linen headscarf)")
+    p.add_argument("--no-cleanup", action="store_true", help="keep the raw bake (no seam/stretch/lip cleanup)")
+    p.add_argument("--equalise", type=float, default=1.0,
+                   help="0..1 pull of the bake's low-frequency luminance towards the tinted donor albedo")
+    p.add_argument("--seam-radius", type=float, default=0.006, help="scan atlas seam band to inpaint, m")
     p.add_argument("--debug-blend", default="")
     return p.parse_args(argv)
 
@@ -552,14 +556,219 @@ def raster_uv_weights(skin, weights, size):
     return out
 
 
-def bake_albedo(skin, conformed_posed, keep, scan, size, out_png, donor_w=None):
+def blur(a, sigma):
+    """Gaussian-like blur (three box passes, edge-clamped) of an HxW or HxWxC array."""
+    if sigma <= 0:
+        return a
+    r = max(1, int(round((math.sqrt(4 * sigma * sigma + 1) - 1) / 2)))  # 3 boxes of 2r+1 ~ sigma
+    out = a.astype(np.float32)
+    for axis in (0, 1):
+        for _ in range(3):
+            pad = [(0, 0)] * out.ndim
+            pad[axis] = (r + 1, r)
+            c = np.cumsum(np.pad(out, pad, mode="edge"), axis=axis, dtype=np.float64)
+            n = out.shape[axis]
+            out = ((np.take(c, np.arange(2 * r + 1, 2 * r + 1 + n), axis=axis)
+                    - np.take(c, np.arange(0, n), axis=axis)) / (2 * r + 1)).astype(np.float32)
+    return out
+
+
+def norm_blur(a, w, sigma):
+    """Normalised convolution: blur of `a` that only takes texels with weight `w` (inpainting)."""
+    w3 = w[..., None] if a.ndim == 3 else w
+    return blur(a * w3, sigma) / np.maximum(blur(w3, sigma), 1e-6)
+
+
+def luma(rgb):
+    return rgb @ np.array([0.2126, 0.7152, 0.0722], np.float32)
+
+
+def scan_seam_attr(scan, radius):
+    """Colour attribute `cleanup` on the scan: R = distance to the nearest atlas seam / radius, G = 1.
+
+    The glTF import splits vertices at UV seams, so every Meshy atlas island
+    edge is an open mesh boundary. Baked as emission, R marks the MPFB texels
+    whose colour came from near an island edge (jagged outline, dark padding
+    from the neighbouring island), and G is the bake coverage: Cycles averages
+    its samples, so a texel half off the scan gets half-black colour, which is
+    where the dark outlines around donor-filled patches came from.
+    """
+    bm = bmesh.new()
+    bm.from_mesh(scan.data)
+    seam = sorted({v.index for e in bm.edges if e.is_boundary for v in e.verts})
+    bm.free()
+    co = np.array([v.co for v in scan.data.vertices])
+    kd = KDTree(len(seam))
+    for i in seam:
+        kd.insert(co[i], i)
+    kd.balance()
+    d = np.array([kd.find(p)[2] for p in co])
+    col = np.zeros((len(co), 4), np.float32)
+    col[:, 0] = np.clip(d / radius, 0, 1)
+    col[:, 1] = col[:, 3] = 1.0
+    attr = scan.data.color_attributes.new("cleanup", "FLOAT_COLOR", "POINT")
+    attr.data.foreach_set("color", col.ravel())
+    log(f"scan: {len(seam)} atlas seam vertices, seam band {radius * 1000:.0f} mm")
+
+
+def stretch_weights(skin, conformed_posed, keep, scan_bvh, cage=0.02, reach=0.06):
+    """Per vertex 0..1: the bake smears one small scan patch over a much larger skin area.
+
+    Casts the bake ray (from the cage, against the normal) per vertex and
+    compares each face with the scan patch its corners hit. The smaller
+    singular value of that map is about 1 where the skin lies on the scan; on
+    the brows, where the lids stay with the eyeballs and the skin sits in front
+    of a deeper scan brow ridge, it drops to 0.2-0.4 and the bake stretches the
+    painted brow into parallel streaks.
+    """
+    out = []
+    for o, pts, kp in zip(skin, conformed_posed, keep):
+        faces = [list(p.vertices) for p in o.data.polygons if all(kp[i] for i in p.vertices)]
+        nrm = np.zeros_like(pts)
+        for f in faces:  # area-weighted vertex normals of the conformed surface
+            for k in range(1, len(f) - 1):
+                nrm[[f[0], f[k], f[k + 1]]] += np.cross(pts[f[k]] - pts[f[0]], pts[f[k + 1]] - pts[f[0]])
+        nrm /= np.maximum(np.linalg.norm(nrm, axis=1), 1e-12)[:, None]
+        hit = np.full_like(pts, np.nan)
+        for i in {i for f in faces for i in f}:
+            n = Vector(nrm[i])
+            loc = scan_bvh.ray_cast(Vector(pts[i]) + n * cage, -n, reach)[0]
+            if loc is not None:
+                hit[i] = loc
+        smin = np.full(len(pts), np.inf)
+        for f in faces:
+            for k in range(1, len(f) - 1):
+                t = [f[0], f[k], f[k + 1]]
+                if np.isnan(hit[t]).any():
+                    continue
+                e = np.stack([pts[t[1]] - pts[t[0]], pts[t[2]] - pts[t[0]]], 1)  # 3x2
+                h = np.stack([hit[t[1]] - hit[t[0]], hit[t[2]] - hit[t[0]]], 1)
+                if abs(np.linalg.det(e.T @ e)) < 1e-14:
+                    continue
+                J = h @ np.linalg.pinv(e)  # skin edge -> scan edge
+                s = np.linalg.svd(J, compute_uv=False)[1]
+                smin[t] = np.minimum(smin[t], s)
+        out.append(np.clip((0.55 - smin) / 0.25, 0.0, 1.0))
+    return out
+
+
+def lip_mask(skin, rest_chunks, mouth, donor_px, size, rim=None):
+    """(lips, mouth region) 0..1 masks in the MPFB UVs: red donor albedo texels within about 3 cm of the mouth.
+
+    `rim` (per-vertex per part) adds the skin within about 1 cm of the mouth
+    cavity: the donor albedo (Aita's at least) colours only the inner lips,
+    and the outer lower lip, which the scan paints pale, stayed pale.
+    """
+    near = [np.clip((0.032 - np.linalg.norm(rp - np.array(mouth), axis=1)) / 0.008, 0, 1) if o.name == "Anatomy_Head"
+            else np.zeros(len(rp)) for o, rp in zip(skin, rest_chunks)]
+    region = raster_uv_weights(skin, near, size)
+    rgb = donor_px[..., :3]
+    red = blur((rgb[..., 0] - rgb[..., 1]) / np.maximum(rgb[..., 0], 1e-3), size / 512)
+    vals = red[region > 0.5]
+    if len(vals) < 50:
+        return None
+    # The lips are a few % of the region: skin sits at the median, lips near the top.
+    med, top = np.percentile(vals, 50), np.percentile(vals, 99)
+    if top - med < 0.05:  # donor paints no distinct lip colour
+        log("cleanup: WARNING no lip colour on the donor albedo, lips left as baked")
+        return None
+    lo, hi = med + 0.15 * (top - med), med + 0.5 * (top - med)
+    lips = np.clip((red - lo) / (hi - lo), 0, 1) * region
+    if rim is not None:
+        lips = np.maximum(lips, raster_uv_weights(skin, rim, size))
+    return blur(lips, size / 1024), region
+
+
+def cleanup_bake(px, baked, missed, seam, donor_t, size, stretch=None, lips=None, equalise=1.0, out_dir=""):
+    """Post-bake cleanup of the scan albedo in the MPFB UVs (all arrays size x size, bottom-up).
+
+    px: baked RGB after the miss fill; baked / missed: 1 on texels the scan
+    coloured / that lie on a skin face but got the donor fill (texels off every
+    face are neither); seam: 0 at a scan atlas seam, 1 beyond the band;
+    donor_t: donor albedo tinted to the scan skin.
+      1. Low-frequency colour is pulled towards the tinted donor (`equalise`),
+         which removes the concept lighting Meshy paints in (pale, washed-out
+         breasts, shaded flanks) while keeping detail smaller than about 1.5 %
+         of the map. Luminance alone left the breasts pale: they are desaturated.
+      2. Seam texels and the edge between scan colour and donor fill are
+         inpainted from the clean texels around them.
+      3. Stretched texels (see stretch_weights) are inpainted from the
+         unstretched bake around them, with the donor's fine detail.
+      4. `lips` = (lip mask from the donor, mouth region): lips take the colour
+         of the reddest baked lip texels at low frequency and keep the scan's
+         fine detail (the scan paints the lower lip as pale as the chin); around them, in the mouth region, skin redder
+         than the local skin is pulled back to it (scan lip paint that landed
+         above the MPFB upper lip).
+    Masks are written to `out_dir` for inspection.
+    """
+    s = size / 2048.0
+    # Real misses only: a 1-2 texel rim of barely covered texels runs along every
+    # MPFB island border and is not a hole.
+    missed = missed * (blur(missed, 2 * s) > 0.45)
+    seam_m = np.clip(1.0 - seam, 0, 1) * baked
+    # Edge between scan colour and donor fill, a few texels each side. Not at
+    # MPFB island borders: blending in texels off the island draws a seam line.
+    edge = np.clip(np.maximum(blur(missed, 3 * s) * baked, blur(baked, 3 * s) * missed) * 3.0, 0, 1)
+    bad = np.clip(np.maximum(seam_m, edge), 0, 1)
+    good = 1.0 - bad
+    if equalise > 0:
+        ratio = blur(donor_t, 32 * s) / np.maximum(norm_blur(px, good, 32 * s), 1e-4)
+        px = px * np.clip(ratio, 0.6, 1.6) ** equalise
+    soft = blur(bad, 1.5 * s)
+    px = px * (1 - soft[..., None]) + norm_blur(px, good, 6 * s) * soft[..., None]
+    if stretch is not None and stretch.any():
+        # Scan colour from the unstretched texels around, with the donor's fine
+        # luminance detail (pores) on top. Donor colour itself would bring in its
+        # own painted features (Aita's photo face has orange blotches by the mouth).
+        dl = luma(donor_t)
+        fill = norm_blur(px, 1.0 - stretch, 12 * s) * (dl / np.maximum(blur(dl, 3 * s), 1e-4))[..., None]
+        px = px * (1 - stretch[..., None]) + fill * stretch[..., None]
+    if lips is not None:
+        lip_m, region = lips
+        redness = lambda a: (a[..., 0] - a[..., 1]) / np.maximum(a[..., 0], 1e-4)
+        around = region * (1 - np.clip(blur(lip_m, 6 * s) * 4, 0, 1))
+        r_px = redness(px)
+        r_skin = np.median(r_px[around > 0.5]) if (around > 0.5).any() else 0.0
+        # Recolour, not desaturate (that turned the lip paint purple-grey): the
+        # colour of the not-too-red skin nearby at this texel's luminance.
+        w = around * np.clip((r_px - r_skin) / 0.08, 0, 1)
+        skin = norm_blur(px, around * (r_px <= r_skin), 10 * s)
+        skin = skin * (luma(px) / np.maximum(luma(skin), 1e-4))[..., None]
+        px = px * (1 - w[..., None]) + skin * w[..., None]
+        # Lip colour: the reddest third of the baked lip texels (the scan paints
+        # the upper lip well); the mask shape comes from the donor.
+        r_lip = r_px[lip_m > 0.5]
+        if len(r_lip) > 20:
+            c_lip = px[(lip_m > 0.5) & (r_px >= np.percentile(r_lip, 67))].mean(0)
+        else:
+            c_lip = blur(donor_t, 3 * s)
+        tinted = px * c_lip / np.maximum(blur(px, 4 * s), 1e-4)
+        px = px * (1 - lip_m[..., None]) + tinted * lip_m[..., None]
+    if out_dir:
+        mask = np.stack([seam_m, edge, np.zeros_like(edge) if stretch is None else stretch,
+                         np.zeros_like(edge) if lips is None else lips[0]], -1)
+        dbg = bpy.data.images.new("cleanup_masks", size, size, alpha=True, float_buffer=True)
+        dbg.pixels.foreach_set(np.clip(mask, 0, 1).astype(np.float32).ravel())
+        dbg.filepath_raw = os.path.join(out_dir, "cleanup_masks.png")
+        dbg.file_format = "PNG"
+        dbg.save()
+        bpy.data.images.remove(dbg)
+    log(f"cleanup: seam {(seam_m > 0.5).mean():.1%}, fill edge {(edge > 0.5).mean():.1%}, "
+        f"stretch {0 if stretch is None else (stretch > 0.5).mean():.1%}, lips {0 if lips is None else (lips[0] > 0.5).mean():.2%} of texels")
+    return np.clip(px, 0, 1)
+
+
+def bake_albedo(skin, conformed_posed, keep, scan, size, out_png, donor_w=None, cleanup=None):
     """Build one posed, conformed copy of the skin with MPFB UVs and bake the scan colour onto it.
 
     Only faces whose vertices are all in `keep` (not a cavity) are baked. Texels
     the bake does not reach (cavities, faces too far from the scan, faces bmesh
     rejects as duplicates) are filled with the donor albedo, tinted to the
     scan's mean skin colour. `donor_w` (per-vertex, 0..1) blends that tinted
-    donor skin over the bake with a soft edge, for the lids.
+    donor skin over the bake with a soft edge, for the lids. `cleanup` (dict of
+    cleanup_bake options plus per-vertex `stretch` and a `lips` UV mask
+    function) adds a second bake of the scan's seam attribute and the cleanup
+    pass; None keeps the raw bake.
     """
     bm = bmesh.new()
     uv_layer = bm.loops.layers.uv.new("UVMap")
@@ -618,6 +827,26 @@ def bake_albedo(skin, conformed_posed, keep, scan, size, out_png, donor_w=None):
     px = np.empty(size * size * 4, np.float32)
     img.pixels.foreach_get(px)
     px = px.reshape(-1, 4)
+    cov = None
+    if cleanup is not None:
+        # Second bake: the scan's seam distance (R) and coverage (G), see scan_seam_attr.
+        mimg = bpy.data.images.new("cleanup_bake", size, size, alpha=True, float_buffer=True)
+        mimg.generated_color = (1, 0, 0, 0)
+        node.image = mimg
+        attr = nt.nodes.new("ShaderNodeAttribute")
+        attr.attribute_name = "cleanup"
+        nt.links.new(attr.outputs["Color"], em.inputs[0])
+        bpy.ops.object.bake(type="EMIT")
+        mp = np.empty(size * size * 4, np.float32)
+        mimg.pixels.foreach_get(mp)
+        mp = mp.reshape(-1, 4)
+        bpy.data.images.remove(mimg)
+        node.image = img
+        cov = mp[:, 1]
+        seam = np.where(cov > 1e-3, mp[:, 0] / np.maximum(cov, 1e-3), 1.0)
+        # Un-mix the black of missed samples (Cycles averages them in).
+        part = cov > 0.1
+        px[part, :3] /= cov[part, None]
     don = donor_albedo(skin).copy()
     don.scale(size, size)
     dp = np.empty(size * size * 4, np.float32)
@@ -627,11 +856,24 @@ def bake_albedo(skin, conformed_posed, keep, scan, size, out_png, donor_w=None):
     # leaves texels outside the bake islands at the sentinel; skin is never pure black.
     sentinel = (np.abs(px - [1, 0, 1, 0]).max(1) < 1e-3)
     baked = ~sentinel & (px[:, :3].max(1) > 0.004)
+    if cov is not None:
+        baked &= cov > 0.1  # partly covered texels (face edges) were un-mixed above
     tint = px[baked, :3].mean(0) / np.maximum(dp[baked, :3].mean(0), 1e-4)
-    px[~baked, :3] = np.clip(dp[~baked, :3] * tint, 0, 1)
+    donor_t = np.clip(dp[:, :3] * tint, 0, 1)
+    px[~baked, :3] = donor_t[~baked]
+    if cleanup is not None:
+        sq = lambda a: a.reshape(size, size, *a.shape[1:])
+        st = cleanup.get("stretch")
+        st = raster_uv_weights(skin, st, size) if st is not None else None
+        lips = cleanup["lips"](sq(dp)) if cleanup.get("lips") else None
+        missed = ~baked & ~sentinel
+        px[:, :3] = cleanup_bake(sq(px[:, :3]), sq(baked.astype(np.float32)), sq(missed.astype(np.float32)),
+                                 sq(seam), sq(donor_t), size,
+                                 stretch=st, lips=lips, equalise=cleanup.get("equalise", 1.0),
+                                 out_dir=os.path.dirname(out_png)).reshape(-1, 3)
     if donor_w is not None:
         m = raster_uv_weights(skin, donor_w, size).reshape(-1)[:, None]
-        px[:, :3] = px[:, :3] * (1 - m) + np.clip(dp[:, :3] * tint, 0, 1) * m
+        px[:, :3] = px[:, :3] * (1 - m) + donor_t * m
     px[:, 3] = 1.0
     img.pixels.foreach_set(px.ravel())
     bpy.data.images.remove(don)
@@ -792,8 +1034,27 @@ def main():
         lid_w.append(np.clip((0.018 - r) / 0.006, 0.0, 1.0))
         keep.append(~cavity[canon[off:off + len(pts)]])
         off += len(pts)
+    cleanup = None
+    if not a.no_cleanup:
+        scan_seam_attr(scan, a.seam_radius)
+        # Lip rim: mouth-cavity vertices and the skin within 7-11 mm of them.
+        rim, off = [], 0
+        for o, rp in zip(skin, rest_chunks):
+            cav = cavity[canon[off:off + len(rp)]] & (np.linalg.norm(rp - np.array(face_pts["mouth"]), axis=1) < 0.04)
+            off += len(rp)
+            if o.name != "Anatomy_Head" or not cav.any():
+                rim.append(np.zeros(len(rp)))
+                continue
+            kd_m = KDTree(int(cav.sum()))
+            for i in np.flatnonzero(cav):
+                kd_m.insert(rp[i], int(i))
+            kd_m.balance()
+            d = np.array([kd_m.find(p)[2] for p in rp])
+            rim.append(np.clip((0.011 - d) / 0.004, 0.0, 1.0))
+        cleanup = {"stretch": stretch_weights(skin, conformed_posed, keep, bvh), "equalise": a.equalise,
+                   "lips": lambda dp: lip_mask(skin, rest_chunks, face_pts["mouth"], dp, a.tex, rim)}
     baked = bake_albedo(skin, conformed_posed, keep, scan, a.tex, os.path.join(tex_dir, "skin_albedo.png"),
-                        donor_w=lid_w)
+                        donor_w=lid_w, cleanup=cleanup)
 
     # Back to rest: rest delta = inverse skinning (linear part) applied to the posed delta.
     off = 0

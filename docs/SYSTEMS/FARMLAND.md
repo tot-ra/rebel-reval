@@ -1,20 +1,74 @@
 # Farmland, pastures and woods round Reval
 
-Status: implemented (country pass of the seamless city, ADR 0031; board task not yet filed, no board access in the authoring session). Scope: the open country outside the 1343 walls of the seamless city: strip fields with seasonal crops, kitchen-garden beds, fenced crofts and common pastures with livestock, hay ricks, fenced orchards, farmsteads with yard animals, farm hands working the spring fields, and woods. Presentation and plan data only, except that hay stacks are solid (see Hay stacks): no other collision, no `GameState`, no farming mechanic. Out of scope: a harvest or crop economy, ploughing animation, field ownership, and the distant regions that keep an explicit journey (ADR 0027).
+Status: implemented (country presentation, ADR 0031; kitchen gardens **R-1645**; documentation and realism review **R-1700**). **The realism roadmap below is proposed, not implemented.**
+
+Scope: the open country outside the 1343 walls of the seamless city: strip fields with seasonal crops, kitchen gardens, crofts and common pasture, hay ricks, orchards, farmsteads, livestock, ambient workers and woods. This is a presentation layer and deterministic plan data, not a farming simulation. Crops, gardens and rural fences are visual only; hay ricks have city-scene collision, and outbuildings use building collision. There is no farmland-specific `GameState`, ownership, harvest inventory or save record. Distant regions retain explicit journeys (ADR 0027).
+
+**Reading guide:** [visual atlas](#visual-atlas) · [implemented behaviour](#what-the-player-sees) · [historical evidence](#historical-basis-and-evidence-boundaries) · [realism roadmap](#realism-roadmap) · [reproduce and verify](#verify).
+
+## Visual atlas
+
+These are **existing engine captures, not historical reference photographs or new captures of the current checkout**. The historical-walk plates were committed on 10 October 2026 (`71b296fd` for HW4); the garden plates came later that day with R-1645 (`aff19df7`). They illustrate the implementation and its recorded problems, not a claim that every defect still exists. The source revision, camera, date and renderer must be recorded when replacing them. Review the full-size image by opening it directly.
+
+### Landscape scale: fields and routes
+
+![Historical-walk aerial view of the fields outside Harju, with isolated strips in a broad green landscape](../reports/images/historical_walk/hw4_fields_aerial.jpg)
+
+**Read:** the relationship between strips, roads, farmyards and open ground. **Recorded concern:** the R-1593 walk described islands of cultivation in lawn-like grass, rather than a connected working landscape. R-1592 separately records road/field intersections. This is a review baseline, not an approved 1343 land-use plan.
+
+### April grain: intended green growth versus the recorded render defect
+
+![Historical-walk gameplay-height view of a winter rye strip, used to review the pale field surface](../reports/images/historical_walk/hw4_farm_field_rye_game.jpg)
+
+**Read:** crop scale, soil and near/far colour. **Recorded concern:** R-1591 identifies pale winter-grain surfaces that read as snow or slabs. The intended April treatment is emerging green over visible earth, not ripe grain. Re-capture before deciding whether the issue remains; the present `SEASONS` table is an art schedule, not evidence of plant height on 21 April 1343.
+
+### Croft enclosure and fodder
+
+![Historical-walk review view of a fenced pasture enclosure](../reports/images/historical_walk/hw4_farm_pasture.jpg)
+
+**Read:** enclosure silhouette and its relationship to grazing ground. This world-builder plate does **not** prove runtime animal behaviour or that the fence blocks movement. Fauna needs a live-scene check. Any April hay should represent stored fodder from the previous season, not a new hay harvest.
+
+### Farmstead buildings: an implementation example, not a reconstruction authority
+
+![Historical-walk view of the generated barn-dwelling and farmyard buildings](../reports/images/historical_walk/hw4_farm_yard_barn_dwelling.jpg)
+
+**Read:** dwelling/outbuilding scale, roof mass and yard emptiness. **Open historical issue:** the generated high thatch must not be accepted merely because this screenshot exists. R-1632 asks for reconciliation with the lower board-and-bark dwelling treatment in current canon. No roof change is made by this documentation task.
+
+### Kitchen garden: model improvement and placement
+
+![Before and after comparison of the kitchen-garden prop, from simple slabs and round placeholders to planted wattle-edged beds](../reports/images/props/kitchen_garden_before_after.jpg)
+
+![Kitchen-garden beds placed beside a farmhouse in the R-1645 review plate](../reports/images/props/kitchen_garden_farmstead.jpg)
+
+**Read:** bed edging, planting scale, soil and clearance beside a dwelling. The farmhouse plate documents the **July 15 review setup**, not the April opening; do not use its developed vegetables as spring evidence. R-1645 added clearance-tested garden placement after the historical walk, so older reports that there are no kitchen gardens require rechecking.
+
+### Wood edge: vegetation is not only tree count
+
+![Historical-walk view of the woodland edge outside the city](../reports/images/historical_walk/hw4_wood_edge.jpg)
+
+**Read:** canopy spacing and the transition from open ground to woodland. R-1595 recorded a park-like floor with little understorey or deadwood. Current vegetation work may supersede this plate; a new April shot should test leaf stage, litter, browsing and paths rather than just adding more trees.
+
+### Adjacent scope: harbour and the fishing shore
+
+![Historical-walk aerial view of the harbour and coastal approaches](../reports/images/historical_walk/hw3_harbour_aerial.jpg)
+
+This is orientation for the [Harbour and Kalamaja](#harbour-and-kalamaja) section, not proof of the later R-1640 net and fish-rack changes. Detailed shore behaviour belongs to [City sea](./CITY_SEA.md).
+
+**Coverage still missing here:** a verified orchard close-up, the three fence types side by side, hay-stack scale/reaction, spring workers and livestock in the live scene, and matched April/July views. Capture recipes are in [Verify](#verify). Do not fill these gaps with generated concept art labelled as gameplay screenshots.
 
 ## What the player sees
 
-- **Fields.** Strip parcels (14-24 m wide, 80-150 m long) in blocks on dry, gentle ground 40-620 m from the walls. Crops follow the campaign date (the slice opens on 21 April 1343): winter rye and wheat are green and knee-high, spring barley, oats, peas and flax have just been sown and the soil is bare, gardens hold seedlings (cabbage, turnip, onion, peas, flax), fallow strips are rough grass. Grain ripens to gold in July and August and is stubble from harvest. Rye and barley dominate; winter wheat is a minor crop (CANON diet note). Crop heights and seasons: `CityFarmland.growth` / `tint` (pure functions of the day of year).
-- **Pastures.** Fenced crofts beside every farmstead (hay rick; fence type by enclosure id: about 62% woven wattle, 24% rough pole fence on stakes, 14% low field-stone wall, all in grey weathered wood or stone, no sawn boards because timber was dear in a 1343 village, `CityFences`, `scripts/city/city_fences.gd`; review plate `tools/capture_country_fences.gd`, test `tests/godot/test_city_fences.gd`; the same builder also dresses Kalamaja net yards and the `timber_fence` map prop through `CityFences.build_run`, wattle or pole by prop id, no sawn box posts and rails) and unfenced common grazing along the Karja cattle road, with cows, sheep, goats, horses and geese. A few damp meadows hold sheep and geese.
-- **Orchards.** About 30 fenced fruit gardens (plan key `orchards`): most farmsteads keep one 24-34 m x 30-44 m beside the yard, a few more stand on dry ground 45-260 m from the walls. Trees stand in loose planted rows 5-6 m apart with the odd gap, apple dominant with cherry, plum and pear (the existing `apple`/`cherry`/`plum`/`pear` tree species, so no new model was needed). The enclosure is a wattle/pole/stone fence like a croft (`CityFences`). They are claimed before the fields, so strips go round them. Review plate: `tools/capture_city_farmland.gd --only=orchard`; test `test_orchards_hold_fruit_trees_and_stay_clear_of_fields`. Limits: no blossom or ripe-fruit seasonal state, no ladders or baskets, and the fruit trees are ordinary plan `trees` (not separate streamed objects).
+- **Fields.** Strip parcels (14-24 m wide, 80-150 m long) in blocks on dry, gentle ground 40-620 m from the walls. Crops follow the campaign date (the slice opens on 21 April 1343): winter rye and wheat use a partially grown green presentation, spring barley, oats, peas and flax have just been sown and the soil is bare, gardens hold seedlings (cabbage, turnip, onion, peas, flax), fallow strips are rough grass. Grain ripens to gold in July and August and is stubble from harvest. Rye and barley dominate; winter wheat is a minor crop in this plan (the [canon diet note](../CANON.md) gives broader rye/barley context, not field percentages). Crop heights and seasons: `CityFarmland.growth` / `tint` (pure functions of the day of year).
+- **Pastures.** Fenced crofts placed near some farmsteads (hay rick; fence type by enclosure id: about 62% woven wattle, 24% rough pole fence on stakes, 14% low field-stone wall, all in grey weathered wood or stone; these percentages and the exclusion of sawn-board fences are art/generator choices, not measured 1343 prevalence, `CityFences`, `scripts/city/city_fences.gd`; review plate `tools/capture_country_fences.gd`, test `tests/godot/test_city_fences.gd`; the same builder also dresses Kalamaja net yards and the `timber_fence` map prop through `CityFences.build_run`, wattle or pole by prop id, no sawn box posts and rails) and unfenced common grazing along the Karja cattle road, with cows, sheep, goats, horses and geese. A few damp meadows hold sheep and geese.
+- **Orchards.** About 30 fenced fruit gardens (plan key `orchards`): the generator attempts a 24-34 m x 30-44 m enclosure beside a farmstead where space permits, with additional candidates on dry ground 45-260 m from the walls. Trees stand in loose planted rows 5-6 m apart with the odd gap, apple dominant with cherry, plum and pear (the existing `apple`/`cherry`/`plum`/`pear` tree species, so no new model was needed). The enclosure is a wattle/pole/stone fence like a croft (`CityFences`). They are claimed before the fields, so strips go round them. Review plate: `tools/capture_city_farmland.gd --only=orchard`; test `test_orchards_hold_fruit_trees_and_stay_clear_of_fields`. Limits: no blossom or ripe-fruit seasonal state, no ladders or baskets, and the fruit trees are ordinary plan `trees` (not separate streamed objects).
 - **Farmsteads.** Each farm-suburb house (`bldg.karja.*`, `bldg.harju.*`, `bldg.toompea_foot.*`) is a smoke cottage with a yard of outbuildings by wealth tier (`FARM_TIERS` in the generator). Types, sizes and roofs differ so the silhouettes read apart: `barn_dwelling` (the *rehemaja*: long, high log mass, one dwelling door, no chimney), `barn` (threshing and storage), `byre`, `sheep_shed`, `pigsty`, `hen_house`, `store`. They are plan `buildings` of `kind: outbuilding` (solid, never enterable, ignored by the census) with the animals kept at their own sheds (`CityFauna.YARD_STOCK`).
-- **Kitchen gardens.** Every farmhouse keeps a patch of two or three raised beds in its yard (see Kitchen gardens below).
-- **Farm hands.** A man or woman walks the furrow of every other spring-sown field or garden bed while Kalev is within 75 m (at most six at once).
-- **Woods.** Clustered spruce-pine, pine on the sandy ridges, alder-birch in the damp, oak-linden mixed stands, thinning toward the walls and open at the glacis. About 5,000 trees; the old scatter of single trees is gone from fields and pastures.
+- **Kitchen gardens.** Eligible farmhouses receive two or three raised beds when the clearance search finds room (see Kitchen gardens below).
+- **Farm hands.** A man or woman walks a furrow in a hash-selected subset (roughly half) of spring-sown and garden-sown `field` features while Kalev is within 75 m (at most six at once). These are not the separate yard `kitchen_garden` features.
+- **Woods.** Clustered spruce-pine, pine on the sandy ridges, alder-birch in the damp, oak-linden mixed stands, thinning toward the walls and open at the glacis. Trees are kept out of the field and pasture polygons. The reviewed plan has 6,816 tree entries overall, not all woodland trees; counts are generated output, not a historical census.
 
 ## How it is built
 
-`tools/city/build_reval_city_plan.py` (`countryside`) writes four lists into `content/world/reval_city/plan.json`:
+`tools/city/build_reval_city_plan.py` (`countryside`) writes five lists into `content/world/reval_city/plan.json`:
 
 | Key | Record | Notes |
 |---|---|---|
@@ -24,18 +78,54 @@ Status: implemented (country pass of the seamless city, ADR 0031; board task not
 | `farmsteads` | `{id, building, at}` | `farmstead.<suburb>.<n>` |
 | `orchards` | `{id, fence, trees, polygon}` | `orchard.<n>`; the fruit trees themselves are entries in `trees` |
 
-Generation is deterministic (seeded value noise, no filesystem walk). Woods claim damp, steep and far ground first, then pastures, then fields; nothing is placed inside the plan's 24 m edge margin. The ground splat paints tilled soil under spring fields and gardens, a green-through-soil wash under winter grain. The review plate and minimap colour fields by `sowing`.
+Generation is deterministic (seeded value noise, no filesystem walk). Woods claim damp, steep and far ground first, then pastures and orchards, then fields; nothing is placed inside the plan's 24 m edge margin. The ground splat marks cultivated soil; near plants and the far crop wash are intended to give winter grain a green-over-soil appearance (the historical walk recorded a colour defect, R-1591). The review plate and minimap colour fields by `sowing`.
 
 Runtime entry points:
 
-- `CityFarmland` (`scripts/city/city_farmland.gd`, mounted by `CityWorld3D`, updated from `reval_city.gd`): streams one field or pasture per frame within 95 m of Kalev (freed beyond 135 m). Crops are `MapViewPlantMeshes` MultiMeshes in rows; fences are `CityFences` meshes (one rod mesh per enclosure, MultiMesh stones for walls); ricks are `MapViewHayMeshes` (see Hay stacks). `set_calendar_date` rebuilds crops when the date changes.
+- `CityFarmland` (`scripts/city/city_farmland.gd`, mounted by `CityWorld3D`, updated from `reval_city.gd`): streams up to one near feature (field, pasture, orchard fence or kitchen garden) per update within 95 m of Kalev (freed beyond 135 m). Crops are `MapViewPlantMeshes` MultiMeshes in rows; fences are `CityFences` meshes (one rod mesh per enclosure, MultiMesh stones for walls); ricks are `MapViewHayMeshes` (see Hay stacks). `set_calendar_date` rebuilds crops when the date changes.
 - `CityFauna.groups_for`: pasture and farmstead animal groups.
 - `CityNpcs._stream_field_workers`: the farm hands (the shared `Walker`).
 - `CityVegetationBuilder`: `juniper_shrub` and `sea_buckthorn` now draw with the real-size leaf-card tree meshes (the shared block-shaped shrub meshes read as giant flat stalks beside a 1.83 m figure).
 
-## Historical basis for the yard
+<a id="historical-basis-for-the-yard"></a>
 
-From [`history/dossiers/architecture/rural-smoke-dwelling-and-farmstead-1343.md`](../../history/dossiers/architecture/rural-smoke-dwelling-and-farmstead-1343.md): the combined barn-dwelling (*rehemaja*, *rehielamu*) is attested at type level from the 14th century; the chimneyless oven-heated log smoke cottage is the archaeological baseline (8th to 15th century); chambers (*kambrid*) are an early-17th-century addition and are excluded; museum facades (18th and 19th century) are analogies, not 1343 fact. Exact 1343 roof forms and the chronology of standalone livestock shelters are dossier gaps, so every outbuilding is `plausible composite`. **Rabbit hutches are deliberately absent**: domestic rabbits reached England about 1176 and the Low Countries from 1250, and nothing evidences them in 1343 Estonia (Sweden keeps them from the 16th century).
+## Historical basis and evidence boundaries
+
+Use [CANON](../CANON.md) for approved claims. The research dossiers below are supporting syntheses, **not a newly completed primary-source audit**. `attested` means the cited evidence supports that particular claim, not every dimension or placement in the game; `plausible composite` is a bounded reconstruction; `invented` covers authored particulars. A missing local date, measurement or species frequency remains **unknown**.
+
+| Subject | What the evidence supports | What must not be presented as fact |
+|---|---|---|
+| Settlement and fields | [Harju village dossier](../../history/dossiers/hinterland/harju-village-and-manor.md): clustered northern villages, strips, pasture and hay meadow provide the regional framework. Applying that pattern to these specific suburban plots is `plausible composite`. | Exact Reval 1343 field boundaries, the plan's strip dimensions, coverage percentages, crop ratios and ownership are unknown. A regional village is not automatically a town suburb. |
+| Spring | [Spring climate dossier](../../history/dossiers/nature/spring-climate-and-living-world.md): emerging growth, sowing/harrowing, wet traffic surfaces and last year's hay are the production baseline (`plausible composite`). | Fixed sprout/harvest days, knee-high grain on a named day, full vegetable heads, full fruit blossom or measured 1343 weather are not established. The dossier's modern climate analogies are not medieval observations. |
+| Dwelling and roof | [Rural dwelling dossier](../../history/dossiers/architecture/rural-smoke-dwelling-and-farmstead-1343.md): chimneyless oven-heated log dwelling is the archaeological baseline; a barn-dwelling type has a 14th-century mention. Current [canon, Harju reconstruction](../CANON.md) chooses low board-and-bark smoke-room dwellings as `plausible composite`. | A mention of the type does not date the familiar high-thatched museum silhouette to 1343. The older dossier allows broader roofing analogies, while R-1632 explicitly calls for reconciliation before changing Reval's suburban roofs. The generator still assigns `barn_dwelling` 54-degree thatch. |
+| Farmyard | The dwelling dossier supports a functional yard vocabulary: storage, animals, fuel, water and work surfaces. The exact inventory and standalone shelter chronology remain `plausible composite`. | A complete 18th/19th-century museum farm copied building for building; chambers (*kambrid*) treated as 1343 evidence. |
+| Fences and orchards | Wattle/poles/stone and fruit gardens are reconstruction choices that should follow function and local evidence. | The 62/24/14 fence mix, 30 orchards, regular spacing, every orchard species and a garden for every household are not attested Reval statistics. No universal historical ban on boards is established here. |
+| Hay and livestock | The spring dossier supports stored fodder, domestic stock and plausible young animals. | A fresh April hay harvest, the model's exact stack dimensions as archaeological measurements, modern breed proportions, or hay and cereal straw treated as interchangeable. |
+
+The dossier excludes domestic rabbit hutches for lack of reviewed 1343 Estonian evidence. This is a conservative production exclusion, not proof that no rabbit could have existed in the region. Later museum buildings and modern climate/landscape photographs remain **labelled analogies**, not reference photographs of the medieval site.
+
+### What the old description underexplained
+
+- **Work connections:** access from house to water, byre, fuel and field; cart turning space; gates or breaks in enclosures. More props alone cannot fix a disconnected farmyard.
+- **Land-use differences:** hay meadow, grazed common, fallow and cultivated soil need distinct use and wear, not one lawn material. Field margins and turning headlands matter as much as crop meshes.
+- **Seasonal scarcity:** old fodder, worn stacks and modest green-up tell April better than lush crops. Hay (grass fodder), straw (cereal stems) and grain stores should be distinguishable.
+- **Managed woodland:** fuel gathering, cut stumps, browsed edges and paths are candidates for research-led dressing, not a demand for a uniformly dense wild forest. Exact local management remains unknown.
+- **Social context without a new mechanic:** unequal yard provision and shared access can suggest labour and resources. Do not assign historical owners, dues or an automatic three-field rotation without evidence and a separate approved task.
+
+## Realism roadmap
+
+**Status: proposed.** This is a reading order for existing task-board work, not a second queue or approval to implement it. Board states below were read on **11 October 2026**; recheck the implementation and captures before claiming a task. Preserve stable IDs, navigation and the vegetation budget. Any new production art needs a task naming the exact files under the asset freeze.
+
+| Order | Player-facing improvement | Existing task / dependency | Acceptance evidence before calling it done |
+|---|---|---|---|
+| 1. Spring read | Resolve pale winter-grain surfaces and check near/far continuity; separate April growth from July ripening. | **R-1591** (`idea`); coordinate with **R-1534** wheat work (`in_progress`). Reproduce first; do not assume old screenshots are current. | Matched `field_rye_game` / `field_rye_top` captures on 4-21 and a July comparison; green-over-earth rather than white sheets; focused colour/season tests. |
+| 2. Working landscape | Join strips, fallow and hay meadow into a plausible layout; keep routes clear; reconnect Karja farms to their land. | **R-1592**, **R-1593**, **R-1544** (`idea`). Audit R-1645's later garden coverage before reimplementing gardens. Research/canon must approve any target area share. | Road-width-buffer overlap test, before/after stable-ID inventory, Harju aerial and Karja street views. Do not choose a land-use percentage just because it looks medieval. |
+| 3. Period building form | Resolve the suburban roof/house evidence conflict before adding more farm buildings. | **R-1632** (`todo`), canon-keeper decision required. | Written evidence/confidence decision; same-camera before/after roof plate; no lost building IDs, doors or routes. Museum resemblance alone is not acceptance. |
+| 4. Used yards | Place water/fuel/manure/cart/tool and fodder cues where work happens, with wear and usable access rather than random clutter. | **R-1594** (`idea`, needs approval); depends on settled yard layout and existing prop availability. | One representative yard at walking height and overhead; paths/doors clear, scale and April fodder reviewed; no unsupported household ownership claim. |
+| 5. Living margins | Replace park-like woodland floors and uniform grass transitions with locally appropriate litter, patchy understorey and seasonal edges. | **R-1595** (`idea`); coordinate with [Vegetation realism](./VEGETATION_REALISM.md), not a parallel vegetation rewrite. | Fixed April wood-edge shot and perf measurement; preserve sightlines and paths, avoid summer foliage as a universal fix. |
+| 6. Labour, last | Only after the landscape reads correctly, consider one researched ploughing/harrowing scene instead of generic walkers. | **R-1596** (`idea`, needs approval); draught animal, implement and action must be reviewed together. | Live-scene capture of the complete routine, scale/tack and route review, population/performance limits. A still image cannot verify an animation. |
+
+**Research/capture gaps, not new promises:** orchard prevalence and spring stage; meadow versus grazing appearance; hay versus straw storage and seasonal depletion; animals/young stock at realistic scale; field-worker actions. Address these in the relevant task contracts before adding models or mechanics. Harvest economy, property simulation, weather-driven agronomy and new quests remain out of scope.
 
 ## Harbour and Kalamaja
 
@@ -45,9 +135,9 @@ Sources: [`harbour-and-shoreline.md`](../../history/dossiers/topography/harbour-
 - **Kalamaja fishing shore**: three beach decks, three net yards with two long pole racks each, hung with big grey wind-cloth drying nets (`CityHarbour`, R-1640, [`CITY_SEA.md`](./CITY_SEA.md#kalamaja-drying-nets-and-fish-racks-r-1640)), fenced with `CityFences` wattle or pole runs (grey weathered wood, never stone, `forced_kind`), two smoke sheds, a salt shed, the boatwright's timber and cart, and 8 clinker boats drawn up on the sand. The existing `bldg.kalarand.*` huts are the fisher dwellings; the front-row huts have one or two full-size fish drying racks each (`harbour.fish_racks`, 12 racks).
 - The yard and boat counts (3 yards, 6 to 8 boats) are bounded gameplay composites; documentary support is thin (dossier open question).
 
-## Field soil (2026-10-09)
+## Field soil
 
-Tilled fields and gardens are black earth, never turf. `render_splat` paints each non-fallow field as full packed earth plus a mud-channel marker `FIELD_MUD_LEVEL` (110/255), with the outline warped by smooth noise so strips are not ruler-straight. `city_ground.gdshader` (`field_zone`, `field_height`) reads that band as ploughed soil: dark desaturated earth, lighter dry clods, warped ridges, scattered stones, plus clod relief in the normal map. `CityGrass.field_share` keeps the grass scatter off it. Fallow strips stay rough grass. Review: `tools/godot_render.sh --script tools/capture_city_farmland.gd -- --only=field_rye_game --date=4-21`. Limits: no straight furrow lines in the ground (rows come from the crop plants), and a house seam in the mud channel at the same value would read as field soil.
+Tilled fields and gardens use a dark cultivated-soil treatment, not turf. This is a rendering choice, not a claim that all local soil is black earth. `render_splat` paints each non-fallow field as full packed earth plus a mud-channel marker `FIELD_MUD_LEVEL` (110/255), with the outline warped by smooth noise so strips are not ruler-straight. `city_ground.gdshader` (`field_zone`, `field_height`) reads that band as ploughed soil: dark desaturated earth, lighter dry clods, warped ridges, scattered stones, plus clod relief in the normal map. `CityGrass.field_share` keeps the grass scatter off it. Fallow strips stay rough grass. Review: `tools/godot_render.sh --script tools/capture_city_farmland.gd -- --only=field_rye_game --date=4-21`. Limits: no straight furrow lines in the ground (rows come from the crop plants), and a house seam in the mud channel at the same value would read as field soil.
 
 ## Far fields
 
@@ -63,7 +153,7 @@ Strip frame (task **R-1627**): Reval strips are rectangles whose first edge runs
 
 ## Kitchen gardens
 
-Status: implemented (task **R-1645**). Scope: the yard vegetable patch of each farmhouse in the open city and the `kitchen_garden` map prop, both built by one model. Out of scope: picking or tending crops, garden ownership, kitchen gardens in Lower Town back plots or regional sites (their plans carry no `farmsteads`).
+Status: implemented (task **R-1645**). Scope: the clearance-tested yard vegetable patches of eligible farmhouses in the open city and the `kitchen_garden` map prop, both built by one model. Out of scope: picking or tending crops, garden ownership, kitchen gardens in Lower Town back plots or regional sites (their plans carry no `farmsteads`).
 
 - **Model.** `MapViewKitchenGardenModels` (`scripts/map/view3d/map_view_kitchen_garden_models.gd`): low raised beds of dark, mounded and clodded soil with shallow furrows, edged with woven wattle (stakes every 0.2 m, three withy courses), a trodden path between beds, and rows of cabbage, turnip or onion using the shared crop meshes (`MapViewPlantMeshes`, the same species as the garden strips). Neighbouring beds never repeat a crop; the seed id picks the first crop and one of four cached soil/wattle variants. Garden onions are drawn at half height so a small bed does not read as a reed stand. It replaced flat plank slabs with pale green spheres that read as eggs ([before/after](../reports/images/props/kitchen_garden_before_after.jpg)).
 - **Placement.** `CityFarmland.kitchen_gardens_for` (pure, deterministic) gives each plan `farmsteads` entry whose building is a `house` one feature `garden.<farmstead id>` (kind `kitchen_garden`) with 2-3 beds of 3.4 m x 1.0 m (`GARDEN_BED`, `GARDEN_PATH` 0.45 m). It tries behind the house (away from the door), then each gable end, then in front beside the door, 1.4 m from the wall and lying along it, and takes the first spot whose 0.8 m halo touches no building, road body (roads raster), field, pasture or orchard, keeps 1.2 m from every tree, stays out of the moat and landmark sites, and rises at most 0.2 m corner to corner. The patch sits at its lowest corner so no bed floats. A house with no such spot gets no garden. Gardens stream with the other farmland features (`BUILD_RANGE`/`FREE_RANGE`), are visual only (no collision) and grow on the `garden` calendar (`CityFarmland.growth`): seedlings on the 21 April opening, full heads by July.
@@ -79,14 +169,53 @@ godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_cit
 tools/godot_render.sh --script tools/capture_city_farmland.gd -- --only=field_rye_game,pasture --date=4-21
 ```
 
-`capture_city_farmland.gd` writes plates to `build/farmland/` (fields at eye level and from the gameplay camera, a croft, the north wall towers, shore shrubs).
+### Screenshot recipes and coverage
+
+Run GPU captures through `tools/godot_render.sh` (minimized, no focus); `--headless` is for tests, not image capture. Commands below are **reproduction recipes**, not a claim they were run for R-1700. The documentation review reused archived plates because the shared checkout had unresolved merge conflicts in render code.
+
+```bash
+# April baseline: field, croft, orchard, house and yard-garden detail.
+tools/godot_render.sh --script tools/capture_city_farmland.gd -- --only=field_rye_game,field_rye_top,field_barley_game,pasture,orchard,yard_barn_dwelling,kitchen_garden,kitchen_garden_close --date=4-21 --tag=apr_review
+# Same rye camera in summer; this is not the opening-date evidence.
+tools/godot_render.sh --script tools/capture_city_farmland.gd -- --only=field_rye_game,field_rye_top --date=7-25 --tag=jul_review
+# Standalone model plates: these do not establish world placement or navigation.
+tools/godot_render.sh --script tools/capture_country_fences.gd
+tools/godot_render.sh --script tools/capture_hay_stack.gd -- --tag=review
+# Adjacent bridge/moat details already mentioned on this page.
+tools/godot_render.sh --script tools/capture_city_farmland.gd -- --only=bridge_moat_viru_side,moat_reeds --date=4-21 --tag=apr_review
+```
+
+| Tool | Output | What it cannot establish |
+|---|---|---|
+| `capture_city_farmland.gd` | `build/farmland/<shot>_<tag>.png`, 1600 x 900, day progress 0.42; nearest matching feature to the plan origin for generic crop/croft/orchard views | It builds `CityWorld3D`, not the full playable scene. No proof of workers, fauna routines, player collision or save/load. It updates near streaming for 40 frames; verify that the relevant detail is loaded. |
+| `capture_country_fences.gd` | `build/fences/country_fences.png` | A material/shape comparison, not enclosure access or collision. |
+| `capture_hay_stack.gd` | `build/hay/hay_{sizes,close,pushed,gale,gale2}_review.png` | Scale, a scripted push and a sampled gust; not live collision or motion over time. |
+
+For a new plate, record **source commit plus dirty-state note, plan hash, command, in-game date, camera/feature ID and renderer** in its caption or companion manifest. Generic nearest-feature selection can change after regeneration. Keep selected evidence under `docs/reports/images/`, not links into ignored `build/`. Do not infer season or revision from a filename alone. For workers, livestock and collision, capture the live scene and test behaviour separately.
+
+### Data and persistence checks
+
+Review snapshot for R-1700: `plan.json` SHA-256 `1131108fcd5f36c2123203591595e28bf297752fe3cb57fd2501c7245d8f03bc`, read on 11 October 2026: **99 fields, 34 pastures, 9 wood records, 185 farmsteads, 30 orchards, 6,816 tree entries**. This is a data inventory, not garden-placement coverage or a medieval census; regional sites have separate plans.
+
+Stable IDs include `field.<block>.<strip>`, `farmstead.<suburb>.<n>`, `orchard.<n>` and runtime `garden.<farmstead id>`. The garden feature is derived at runtime and is not another saved plan list. Farmland has no independent persistent crop/harvest state: plan data and the supplied calendar date reconstruct its appearance. Hay deformation is transient and not saved. No new input or controller bindings are introduced here.
+
+```bash
+# Additional focused regressions for the features described on this page:
+godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_kitchen_garden
+godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_city_fences
+godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_hay_stack
+# Documentation gates:
+python3 tools/docs_index.py --check
+python3 tools/generate_active_docs_report.py --check
+git diff --check -- docs/SYSTEMS/FARMLAND.md
+```
 
 ## Limits
 
-- Beyond 150 m a field is a banded colour sheet, not plants.
+- Beyond the near-detail draw range (150 m), sown fields use a banded colour sheet rather than individual plants.
 - Farm hands only walk; there is no sowing, hoeing or ploughing animation and no ox team.
 - Crop stage uses fixed day-of-year anchors, not weather.
-- Outbuildings use the shared log and thatch kit: no yard fences, wells, hay or manure clutter, and no dedicated model art pass the dossier asks for (log variation, corner joinery, smoke-darkened doors).
+- Outbuildings use the shared log/thatch kit pending R-1632. Fenced crofts, ricks and clearance-tested garden beds exist, but these do not provide every yard with a complete fence, well, fuel, manure or work layout (R-1594). Do not describe the whole countryside as lacking hay or fences.
 - Outbuildings have no interiors.
 
 
