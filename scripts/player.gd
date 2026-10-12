@@ -1070,14 +1070,15 @@ func _get_ground_drag_multiplier() -> float:
 
 
 func _get_map_terrain_speed_multiplier() -> float:
-	if _map_definition == null or _map_grid == null:
-		return 1.0
 	# ADR 0021: wading drag replaces the dry-ground terrain factor; swimming speed is
-	# applied separately in _physics_process.
+	# applied separately in _physics_process. Checked before the grid guard because
+	# the seamless city has no grid but still reports water depth (R-1907).
 	if _swim.medium == PlayerSwimState.Medium.WADE:
 		return _swim.speed_multiplier()
 	if _swim.is_swimming():
 		return _swim.speed_multiplier()
+	if _map_definition == null or _map_grid == null:
+		return 1.0
 	var mud_wetness := 0.0
 	if _mud_wetness_provider.is_valid():
 		mud_wetness = float(_mud_wetness_provider.call())

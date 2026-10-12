@@ -183,7 +183,22 @@ Measured on the authoring machine (Apple M5 Pro, 1600×900, minimized window): s
 
 ### Tall grass, wading drag and trail
 
-Status: implemented ([ADR 0039](../adr/0039-tall-grass-height-and-wading-drag.md)). Grass height follows use: `CityGrass.wildness_at` (distance from roads and house walls) scales clump height from 0.55 beside a road or wall to 2.7 (about waist high) in open meadow. In dense wild grass the player walks at half speed (`CityGrass.walk_drag_at` through `Player.set_ground_drag_provider`, wired in `reval_city.gd`; dry land only). The grass shader parts and lays blades over in proportion to their own height around the walker and around the last 8 footfalls (`VegetationInteractionBuffer`, 4 s spring-back), so a lane stays open behind. Tests: `test_city_grass_height`, `test_vegetation_interaction_buffer`, `test_grass_interaction`. Review plates: `tools/godot_render.sh --script tools/capture_tall_grass.gd` writes `build/grass/tall_{behind,side}_<tag>.png`. Limits: NPCs and animals neither part the grass nor slow down; the trail is session-only.
+Status: implemented ([ADR 0039](../adr/0039-tall-grass-height-and-wading-drag.md)). Grass height follows use: `CityGrass.wildness_at` (distance from roads and house walls) scales clump height from 0.55 beside a road or wall to 2.7 (about waist high) in open meadow. Standing grass of any height slows the player to 85% (`CityGrass.walk_drag_at`, see **Ground speed** below; ADR 0039's half speed in tall grass was retired by R-1907). The grass shader parts and lays blades over in proportion to their own height around the walker and around the last 8 footfalls (`VegetationInteractionBuffer`, 4 s spring-back), so a lane stays open behind. Tests: `test_city_grass_height`, `test_vegetation_interaction_buffer`, `test_grass_interaction`. Review plates: `tools/godot_render.sh --script tools/capture_tall_grass.gd` writes `build/grass/tall_{behind,side}_<tag>.png`. Limits: NPCs and animals neither part the grass nor slow down; the trail is session-only.
+
+### Ground speed
+
+Status: implemented (task **R-1907**). Walking and running speed is scaled by the ground under the player, as a fraction of the speed on paving. One table, `scripts/player/surface_speed.gd` (`SurfaceSpeed`, preloaded), holds every number; tune there.
+
+| Ground | Speed | Source |
+|--------|-------|--------|
+| Cobbles, flagstones, floors, bridge decks, beach sand | 100% | default |
+| Dry packed earth, cart roads, fields, dry mud | 95% | `CitySurfaceSampler.soft_ground_drag` |
+| Grass (short turf or meadow) | 85% | `CityGrass.walk_drag_at` |
+| Soaked earth and mud | 60% | `SurfaceSpeed.soft_ground(wetness)`, wetness = the ground trail's rain-and-puddle wetness (`CityMapView.soft_ground_drag_at`) |
+| Snow, just lying (over 6 cm) to half a metre and deeper | 80% to 30% | `CitySnow.walk_drag(depth)` |
+| Water, ankle (0.12) to chest (1.25 units) deep | 80% to 15% of the run | `PlayerSwimState` wading; swimming deeper is 32% |
+
+Earth and grass blend by their painted share. `reval_city.gd` feeds `Player.set_ground_drag_provider` with the slowest of grass, soft ground and snow; it applies on dry land only, while wading and swimming use their own fractions. Encumbrance and slope multiply on top. District `MapDefinition` maps use the same mud range (`MapTerrainMovement.mud_speed_multiplier`) and `grass.tall` zones at 85%; plain grass terrain there stays at 100%. Nothing is saved. Tests: `test_surface_speed`, `test_city_seasons`, `test_city_grass_height`, `test_player_swim_state`, `test_mud_weather`. Limits: NPCs and animals ignore ground speed; puddles shallower than ankle depth do not slow.
 
 ### Road surface and verge grass
 

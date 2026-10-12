@@ -9,6 +9,8 @@ extends RefCounted
 ## All depths and speeds are world units (1 unit = 1 cell) and seconds. Kalev is
 ## about 2 units tall, so the thresholds read as ankle, hip, chest.
 
+const SurfaceSpeed := preload("res://scripts/player/surface_speed.gd")
+
 enum Medium { WALK, WADE, SWIM, DIVE }
 
 ## Ankle-deep: below this the water only splashes.
@@ -37,8 +39,9 @@ const OUT_OF_BREATH_STAMINA_PENALTY := 30.0
 ## Fractions of the run speed; ignore the walk modifier because a swimmer cannot stroll.
 const SWIM_SPEED_FRACTION := 0.32
 const DIVE_SPEED_FRACTION := 0.26
-const WADE_SPEED_FRACTION_SHALLOW := 0.8
-const WADE_SPEED_FRACTION_DEEP := 0.4
+## R-1907: knee to throat deep, walking through water ends at 15% of the run.
+const WADE_SPEED_FRACTION_SHALLOW := SurfaceSpeed.WADE_SHALLOW
+const WADE_SPEED_FRACTION_DEEP := SurfaceSpeed.WADE_DEEP
 
 var medium: Medium = Medium.WALK
 var depth := 0.0

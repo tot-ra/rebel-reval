@@ -5,8 +5,10 @@ extends RefCounted
 ## rain-softened mud. Weather remains an optional input so logic-only maps retain
 ## deterministic dry-terrain behavior.
 
-const MUD_DRY_SPEED_MULTIPLIER := 0.88
-const MUD_SATURATED_SPEED_MULTIPLIER := 0.58
+const SurfaceSpeed := preload("res://scripts/player/surface_speed.gd")
+
+const MUD_DRY_SPEED_MULTIPLIER := SurfaceSpeed.DRY_EARTH
+const MUD_SATURATED_SPEED_MULTIPLIER := SurfaceSpeed.WET_MUD
 ## Same tolerance as the MAP_RELIEF_SLOPE validator, so a face exactly at the
 ## 1/64-quantised limit is walkable in both places.
 const RELIEF_RISE_EPSILON := 0.0001
@@ -154,8 +156,7 @@ static func is_cliff_lowered(feature: Dictionary, cell: Vector2i) -> bool:
 
 static func mud_speed_multiplier(wetness: float) -> float:
 	# Freshly saturated mud yields underfoot; granular dry mud still drags a little.
-	var saturation := smoothstep(0.0, 1.0, clampf(wetness, 0.0, 1.0))
-	return lerpf(MUD_DRY_SPEED_MULTIPLIER, MUD_SATURATED_SPEED_MULTIPLIER, saturation)
+	return SurfaceSpeed.soft_ground(wetness)
 
 
 static func _prop_multiplier_at(prop: Dictionary, world_position: Vector2) -> float:

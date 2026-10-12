@@ -1,5 +1,7 @@
 extends "res://tests/godot/test_case.gd"
 
+const SurfaceSpeed := preload("res://scripts/player/surface_speed.gd")
+
 ## ADR 0021: medium thresholds, dive/breath rules and combat lock of PlayerSwimState.
 
 const M_WALK := PlayerSwimState.Medium.WALK
@@ -39,8 +41,12 @@ func test_wading_slows_more_the_deeper_it_gets() -> void:
 	var shallow := PlayerSwimState.speed_fraction(M_WADE, ankle)
 	var deep := PlayerSwimState.speed_fraction(M_WADE, chest)
 	assert_true(shallow > deep, "deeper water drags more")
+	assert_almost_eq(shallow, SurfaceSpeed.WADE_SHALLOW, 0.001)
+	assert_almost_eq(deep, SurfaceSpeed.WADE_DEEP, 0.001, "chest deep is 15% of the run")
+	# R-1907: plodding chest deep is slower than swimming, so the feet leaving the
+	# bed reads as relief, not a further penalty.
 	var swim := PlayerSwimState.speed_fraction(M_SWIM, 3.0)
-	assert_true(deep > swim, "swimming is slower than wading")
+	assert_true(deep < swim, "chest-deep wading is the slowest gait")
 	assert_eq(PlayerSwimState.speed_fraction(M_WALK, 0.0), 1.0)
 
 

@@ -18,6 +18,8 @@ extends RefCounted
 ## at full cover is over half a metre, knee-deep and more in the woods.
 ## Presentation and walking drag only; the map is derived data, never saved.
 
+const SurfaceSpeed := preload("res://scripts/player/surface_speed.gd")
+
 ## Settled depth at factor 1 and full cover.
 const MAX_DEPTH_M := 0.5
 ## Depth lost to settling/thin cover: below it the ground shows through.
@@ -28,12 +30,10 @@ const FACTOR_SCALE := 2.0
 ## Above this lying value (depth over 2 cm) a foot is in snow, not on the ground.
 const LYING := 0.45
 const LYING_DEPTH := 0.05
-## Walking: knee depth slows to a crawl; past this, only a trodden road is passable.
+## Walking (R-1907): free on a dusting under DRAG_START, then SurfaceSpeed.SNOW_SHALLOW
+## easing down to SNOW_DEEP at DRAG_DEEP and deeper.
 const DRAG_START := 0.06
-const DRAG_KNEE := 0.35
 const DRAG_DEEP := 0.5
-const DRAG_KNEE_SPEED := 0.45
-const DRAG_DEEP_SPEED := 0.08
 ## Trees within this of a texel count towards the wood.
 const FOREST_TREES_FULL := 5.0
 ## Shelter mask resolution and how far past a wall it reaches (eaves). The growth
@@ -279,11 +279,13 @@ static func patch(world_xz: Vector2, cover: float) -> float:
 	return clampf(depth_at(world_xz, cover) / LYING_DEPTH, 0.0, 1.0)
 
 
-## Walking speed multiplier for snow `depth` deep: free on a dusting, a crawl at the
-## knee, close to stuck above half a metre (a trodden road stays clear in the map).
+## Walking speed multiplier for snow `depth` deep: free on a dusting, 0.8 once the
+## snow lies, 0.3 at half a metre and over (a trodden road stays clear in the map).
 static func walk_drag(depth: float) -> float:
 	if depth <= DRAG_START:
 		return 1.0
-	if depth <= DRAG_KNEE:
-		return lerpf(1.0, DRAG_KNEE_SPEED, smoothstep(DRAG_START, DRAG_KNEE, depth))
-	return lerpf(DRAG_KNEE_SPEED, DRAG_DEEP_SPEED, smoothstep(DRAG_KNEE, DRAG_DEEP, depth))
+	return lerpf(
+		SurfaceSpeed.SNOW_SHALLOW,
+		SurfaceSpeed.SNOW_DEEP,
+		smoothstep(DRAG_START, DRAG_DEEP, depth)
+	)

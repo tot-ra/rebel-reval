@@ -85,14 +85,15 @@ func _ready() -> void:
 	player.set_water_depth_provider(
 		func(logic: Vector2) -> float: return view.water_depth_at(CityPlan.to_world_xz(logic))
 	)
-	# Waist-high meadow drags at the legs (ADR 0039); scythed verges do not. Snow
-	# slows the same way by its depth (ADR 0045): a crawl at the knee, near stuck
-	# in a drift; cleared roads and paving are clear in the snow map.
+	# Ground drag (R-1907, numbers in SurfaceSpeed): grass, earth and mud by their
+	# wetness, and snow by its depth (ADR 0045); the slowest of the three wins.
+	# Paving is free, and cleared roads and paving are clear in the snow map.
 	player.set_ground_drag_provider(
 		func() -> float:
 			var at := CityPlan.to_world_xz(player.global_position)
 			var snow := CitySnow.walk_drag(CitySnow.depth_at(at, world.snow_cover))
-			return minf(world.grass.walk_drag_at(at), snow)
+			var ground := minf(world.grass.walk_drag_at(at), view.soft_ground_drag_at(at))
+			return minf(ground, snow)
 	)
 	minimap = CityMinimap.create(plan)
 	add_child(minimap)

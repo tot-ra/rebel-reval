@@ -27,6 +27,7 @@ const LAYER_MIN_SHARE := 0.5
 ## Standing water deeper than this (shader units) is a puddle; the shader shows
 ## a film from 0 and standing water from 0.04.
 const PUDDLE_MIN_DEPTH := 0.04
+const SurfaceSpeed := preload("res://scripts/player/surface_speed.gd")
 
 var plan: CityPlan
 ## Callable(world_xz: Vector2) -> float: water column over the walking surface.
@@ -87,6 +88,26 @@ func ground_surface(xz: Vector2) -> StringName:
 			best_share = float(w[surface])
 			best = surface
 	return best
+
+
+## Walking speed multiplier on unpaved ground at `xz` (R-1907): packed earth, cart
+## roads, fields and mud run SurfaceSpeed.soft_ground(wetness), 0.95 dry to 0.6
+## soaked, blended by the painted share; paving, floors, decks and beach sand are 1.
+## Grass and snow drag are separate (CityGrass, CitySnow); the caller takes the min.
+func soft_ground_drag(xz: Vector2, wetness: float) -> float:
+	if plan == null:
+		return 1.0
+	if not is_nan(plan.bridge_deck_height(xz)) or plan.building_at(xz) >= 0:
+		return 1.0
+	var site := plan.site_at(xz)
+	if site != null and not site.floor_at(xz).is_empty():
+		return 1.0
+	if plan.has_coast() and plan.ground_height(xz) < SHORE_SAND_HEIGHT:
+		return 1.0
+	var w := _layer_weights(xz)
+	var soft := maxf(float(w[SurfaceResolver.SURFACE_DIRT]), float(w[SurfaceResolver.SURFACE_MUD]))
+	soft = clampf(soft, 0.0, 1.0) * (1.0 - float(w[SurfaceResolver.SURFACE_STONE]))
+	return lerpf(1.0, SurfaceSpeed.soft_ground(wetness), soft)
 
 
 ## Standing water over `xz`, a CPU port of the water level in city_ground.gdshader:

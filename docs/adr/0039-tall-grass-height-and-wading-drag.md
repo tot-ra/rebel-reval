@@ -1,6 +1,7 @@
 # ADR 0039: Tall grass height by use, wading drag and trail
 
 - **Status:** Accepted (maintainer request, 2026-10-08).
+- **Amended by:** task R-1907 (2026-10-13): grass of any height slows to 0.85, not 0.5 in tall grass (`SurfaceSpeed.GRASS`).
 - **Amends:** the "no gameplay effect" constraint of board task R-1327 (VEGR-8) for grass in the seamless city. Everything else in R-1327 (no persistence, no stealth or tracking) stays.
 
 ## Context
