@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://1t4hp1nn33cd"
-path.s3tc="res://.godot/imported/broadcloth_albedo_512.png-2e8fa0ac679dc532e19d84e2266c6b87.s3tc.ctex"
-path.etc2="res://.godot/imported/broadcloth_albedo_512.png-2e8fa0ac679dc532e19d84e2266c6b87.etc2.ctex"
+path.s3tc="res://.godot/imported/broadcloth_albedo_512.png-de3d1215448594e04c78b09dd1a857b1.s3tc.ctex"
+path.etc2="res://.godot/imported/broadcloth_albedo_512.png-de3d1215448594e04c78b09dd1a857b1.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -12,8 +12,8 @@ metadata={
 
 [deps]
 
-source_file="res://assets/characters/realistic/textiles/broadcloth_albedo_512.png"
-dest_files=["res://.godot/imported/broadcloth_albedo_512.png-2e8fa0ac679dc532e19d84e2266c6b87.s3tc.ctex", "res://.godot/imported/broadcloth_albedo_512.png-2e8fa0ac679dc532e19d84e2266c6b87.etc2.ctex"]
+source_file="res://build/aita_meshy/v4/textiles/broadcloth_albedo_512.png"
+dest_files=["res://.godot/imported/broadcloth_albedo_512.png-de3d1215448594e04c78b09dd1a857b1.s3tc.ctex", "res://.godot/imported/broadcloth_albedo_512.png-de3d1215448594e04c78b09dd1a857b1.etc2.ctex"]
 
 [params]
 

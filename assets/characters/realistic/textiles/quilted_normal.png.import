@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dtrd4thfs2qra"
-path.s3tc="res://.godot/imported/quilted_normal.png-50ecbb86a1e96ddc63bf7cd5201cc89b.s3tc.ctex"
-path.etc2="res://.godot/imported/quilted_normal.png-50ecbb86a1e96ddc63bf7cd5201cc89b.etc2.ctex"
+path.s3tc="res://.godot/imported/quilted_normal.png-97af883f76d87db959321ba4e8806231.s3tc.ctex"
+path.etc2="res://.godot/imported/quilted_normal.png-97af883f76d87db959321ba4e8806231.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -12,8 +12,8 @@ metadata={
 
 [deps]
 
-source_file="res://assets/characters/realistic/textiles/quilted_normal.png"
-dest_files=["res://.godot/imported/quilted_normal.png-50ecbb86a1e96ddc63bf7cd5201cc89b.s3tc.ctex", "res://.godot/imported/quilted_normal.png-50ecbb86a1e96ddc63bf7cd5201cc89b.etc2.ctex"]
+source_file="res://build/aita_meshy/v4/textiles/quilted_normal.png"
+dest_files=["res://.godot/imported/quilted_normal.png-97af883f76d87db959321ba4e8806231.s3tc.ctex", "res://.godot/imported/quilted_normal.png-97af883f76d87db959321ba4e8806231.etc2.ctex"]
 
 [params]
 

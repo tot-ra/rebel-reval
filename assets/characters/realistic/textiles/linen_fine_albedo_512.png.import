@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://ba3v1sn2k44vv"
-path.s3tc="res://.godot/imported/linen_fine_albedo_512.png-d41d344299b0f83b4fca32921f3cfdb0.s3tc.ctex"
-path.etc2="res://.godot/imported/linen_fine_albedo_512.png-d41d344299b0f83b4fca32921f3cfdb0.etc2.ctex"
+path.s3tc="res://.godot/imported/linen_fine_albedo_512.png-ea1379950ed10e7612894e278708ad0c.s3tc.ctex"
+path.etc2="res://.godot/imported/linen_fine_albedo_512.png-ea1379950ed10e7612894e278708ad0c.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -12,8 +12,8 @@ metadata={
 
 [deps]
 
-source_file="res://assets/characters/realistic/textiles/linen_fine_albedo_512.png"
-dest_files=["res://.godot/imported/linen_fine_albedo_512.png-d41d344299b0f83b4fca32921f3cfdb0.s3tc.ctex", "res://.godot/imported/linen_fine_albedo_512.png-d41d344299b0f83b4fca32921f3cfdb0.etc2.ctex"]
+source_file="res://build/aita_meshy/v4/textiles/linen_fine_albedo_512.png"
+dest_files=["res://.godot/imported/linen_fine_albedo_512.png-ea1379950ed10e7612894e278708ad0c.s3tc.ctex", "res://.godot/imported/linen_fine_albedo_512.png-ea1379950ed10e7612894e278708ad0c.etc2.ctex"]
 
 [params]
 

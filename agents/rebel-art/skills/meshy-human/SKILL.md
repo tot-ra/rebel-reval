@@ -69,7 +69,8 @@ $B -b --factory-startup --python tools/assets/meshy_human/conform_mpfb_to_meshy.
   --meshy build/<char>_meshy/<task>.glb \
   --donor assets/characters/realistic/<char>/<char>.glb \
   [--headcloth assets/characters/realistic/<char>/headscarf/headscarf.glb | --keep-hair] \
-  [--keep-brows] [--tex 2048] [--debug-blend build/<char>_meshy/conform/debug.blend] \
+  [--keep-brows] [--tex 2048] [--equalise 1.0] [--seam-radius 0.006] [--no-cleanup] \
+  [--debug-blend build/<char>_meshy/conform/debug.blend] \
   --out build/<char>_meshy/conform/<char>_conformed.glb
 ```
 
@@ -82,9 +83,18 @@ What it does, and why:
 5. **Keep MPFB features.** The displacement is split into a smooth field and the detail. Hands, lips, nose and ears get only the smooth part. **Lids move rigidly with their eyeball** (constant offset inside 1.4 cm of the eye centre, blended out by 2.8 cm): the scan brow ridge sat up to 1 cm deeper than MPFB's and dragged the upper lid behind the eyeball, which then poked through and blink no longer closed it. Eyeballs and lashes take the mean offset of the lid margin, not the nearest skin vertex (often the socket wall behind the eye).
 6. **Cavities.** Mouth bag, nostril and ear-canal vertices (a short ray along the normal hits the head itself) are not projected and not baked; they take the local offset of the skin around them. Otherwise the mouth bag pokes out through a chin that the scan sets deeper, and it gets face skin baked onto it.
 7. **Bake.** Cycles bakes the scan albedo (as emission, so no lighting leaks) onto a conformed copy with MPFB UVs. Texels the bake misses are filled from the donor albedo tinted to the scan skin colour; the log reports the share (about 60 % of the whole map is normal, the rest is empty UV space). The lids get that tinted donor skin through a soft UV mask, because the scan paints its eye whites and iris there.
+7b. **Cleanup** (skip with `--no-cleanup`). A second emission bake carries a scan colour attribute: R is the distance to the nearest Meshy atlas seam (glTF import splits vertices at UV seams, so island edges are open boundaries), G is coverage. Then, in the MPFB UVs:
+   - **Coverage un-mix.** Cycles averages missed samples in as black, which drew the dark outlines around donor-filled patches. Baked colour is divided by coverage.
+   - **Equalise** (`--equalise`, 0..1, default 1). Low-frequency colour (sigma about 1.5 % of the map) is pulled to the tinted donor albedo. This removes Meshy's concept lighting: the pale breasts are washed out (desaturated), not only bright, so it works per channel. Scan colour variation larger than about 3 cm is lost.
+   - **Seam inpaint.** Texels within `--seam-radius` (6 mm) of a scan seam, and the edge between scan colour and donor fill, are refilled from the clean texels around them (normalised blur). The edge is taken only inside skin faces, not at MPFB island borders.
+   - **Stretch.** Per face, the bake ray hits are compared with the skin face; where one small scan patch is smeared over a larger area (smaller singular value under 0.55, the brows in front of a deeper scan brow ridge), texels are inpainted from the unstretched bake with the donor's fine luminance detail. Donor colour is not used: Aita's photo face brought orange blotches.
+   - **Lips.** Mask = red texels of the donor albedo near the mouth, plus skin within 5-8 mm of the mouth cavity and not past its corners (the donor albedo only colours the inner lips). Lips take the colour of the reddest baked lip texels at low frequency, so the pale lower lip matches the upper. Redder-than-skin texels around the lips are recoloured to nearby skin.
+   - `<out>_textures/cleanup_masks.png` holds the masks (R seam, G fill edge, B stretch, A lips), and the log prints their share (Aita v4: seam 13.5 %, fill edge 3.8 %, stretch 3.7 %, lips 0.16 %).
 8. **Back to rest.** The posed offset is carried to the rest pose with each vertex's inverse skinning matrix and added to **every** shape key, so blink, smile and jaw still work. The head shift is *not* carried: the head stays over its joint in the MPFB posture and only the shape moves. Teeth and kept hair move with the nearest skin vertex. The headcloth keeps its donor fit and only the vertices the new body swallowed are pushed 4 mm out (following the skull detail would slide the brim over the eyes).
 9. The MPFB brow mesh is dropped unless `--keep-brows`: the scan albedo already paints brows, about 1 cm lower, and both read as double brows.
 10. Exports the GLB with all clips and writes `<out>.report.json` (meshes, shape keys, 76 actions, 71 bones) and `<out>_textures/skin_albedo.png`.
+
+A donor GLB copied outside `assets/characters/realistic/<char>/` (for example a `build/.../mpfb_backup/` copy after step 4c replaced the shipped body) loses the shared textures it references as `../makehuman/` and `../textiles/`: the eyes render white and the lashes vanish. Symlink those two folders next to the copy's parent first.
 
 Test the mechanics without credits: pose the donor itself into the scan stance, inflate it 6 mm and use that as `--meshy`. Every part should land at about 4-8 mm, and the lid offsets in the log near 0. This test cannot catch head-pose or feature-height errors (the donor face matches itself), so always check the face renders of a real scan.
 
@@ -154,8 +164,9 @@ The script loads the exported GLB, so the export round-trip is checked as well. 
 
 Route A (conform), from the Aita v4 run (seed s7307, Meshy task `01a13051`):
 
-- **Meshy albedo seams.** Meshy's texture atlas has seams with dark margins, and its concept lighting is baked in. On Aita they show as jagged outlines on the upper chest and shoulders and pale breasts. The bake copies them faithfully; only a cleaner source image or hand paint fixes them.
-- **Lip colour.** The scan paints the lower lip paler than the upper, so the MPFB lower lip reads pale. The brow area keeps some stretched scan texture where the brow ridge depth differs.
+- **Meshy albedo after cleanup (step 7b).** The dark outlines and seam margins are gone, the breasts are much less pale, and both lips share one colour. What remains: a jagged lighting edge under the breasts is painted *inside* a scan island, not at a seam, so the seam mask misses it. Equalising softens it but it still shows in `armpit_Cheer.png`. The seam band (about 13 % of texels) is slightly softer than the rest. A faint lip-paint smudge stays at one mouth corner, and the dark nostril paint is untouched.
+- **Brows.** The stretch inpaint removes the parallel streaks, but the scan brow stays soft and smeared. With the MPFB brow mesh dropped, the brows are only that soft paint; use `--keep-brows` if they read too weak.
+- **Synthetic test.** On the inflated-donor test the cleanup is close to identity: mean error against the donor albedo goes from 0.0091 to 0.0100 overall, 0.019 to 0.013 in the seam band, and 0.085 to 0.067 on the lips.
 - **Headcloth.** The widow's headscarf is the donor's MPFB-fit wearable, a stiff hood with a visor-like brim; it is not re-draped to the new skull. Step 4c only lifts it over the larger ears, which then show as a bump in profile. Its tails can cut into the raised arm in `armpit_Cheer.png`. A cloth-sim or hand-fitted drape is needed for a hero close-up.
 - **Posture.** The rest pose keeps the MPFB head posture, not the scan's; the scan's head-back stance is treated as a pose, not as shape.
 - **Iris colour** is the donor's; there is no iris retint in route A yet.

@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://d0e1ra4sok6a1"
-path.s3tc="res://.godot/imported/leather_albedo_512.png-f91f79dc8634103b00c29ae68b36ba3f.s3tc.ctex"
-path.etc2="res://.godot/imported/leather_albedo_512.png-f91f79dc8634103b00c29ae68b36ba3f.etc2.ctex"
+path.s3tc="res://.godot/imported/leather_albedo_512.png-00ab04768a9106898a3d2b2c40797be7.s3tc.ctex"
+path.etc2="res://.godot/imported/leather_albedo_512.png-00ab04768a9106898a3d2b2c40797be7.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -12,8 +12,8 @@ metadata={
 
 [deps]
 
-source_file="res://assets/characters/realistic/textiles/leather_albedo_512.png"
-dest_files=["res://.godot/imported/leather_albedo_512.png-f91f79dc8634103b00c29ae68b36ba3f.s3tc.ctex", "res://.godot/imported/leather_albedo_512.png-f91f79dc8634103b00c29ae68b36ba3f.etc2.ctex"]
+source_file="res://build/aita_meshy/v4/textiles/leather_albedo_512.png"
+dest_files=["res://.godot/imported/leather_albedo_512.png-00ab04768a9106898a3d2b2c40797be7.s3tc.ctex", "res://.godot/imported/leather_albedo_512.png-00ab04768a9106898a3d2b2c40797be7.etc2.ctex"]
 
 [params]
 

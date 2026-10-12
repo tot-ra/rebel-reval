@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://c31aonpnmnwcq"
-path.s3tc="res://.godot/imported/bluegreen_eye.png-dc6601bb6140187fcd600d2c1a588a93.s3tc.ctex"
-path.etc2="res://.godot/imported/bluegreen_eye.png-dc6601bb6140187fcd600d2c1a588a93.etc2.ctex"
+path.s3tc="res://.godot/imported/bluegreen_eye.png-31b28ae21347a42c7a072af7e2457ba9.s3tc.ctex"
+path.etc2="res://.godot/imported/bluegreen_eye.png-31b28ae21347a42c7a072af7e2457ba9.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -12,8 +12,8 @@ metadata={
 
 [deps]
 
-source_file="res://assets/characters/realistic/makehuman/bluegreen_eye.png"
-dest_files=["res://.godot/imported/bluegreen_eye.png-dc6601bb6140187fcd600d2c1a588a93.s3tc.ctex", "res://.godot/imported/bluegreen_eye.png-dc6601bb6140187fcd600d2c1a588a93.etc2.ctex"]
+source_file="res://build/aita_meshy/v4/makehuman/bluegreen_eye.png"
+dest_files=["res://.godot/imported/bluegreen_eye.png-31b28ae21347a42c7a072af7e2457ba9.s3tc.ctex", "res://.godot/imported/bluegreen_eye.png-31b28ae21347a42c7a072af7e2457ba9.etc2.ctex"]
 
 [params]
 

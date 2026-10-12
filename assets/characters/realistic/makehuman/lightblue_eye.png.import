@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://b3y1gtl1mtnrt"
-path.s3tc="res://.godot/imported/lightblue_eye.png-941a26950bc0c53cd9833697b4e6bacf.s3tc.ctex"
-path.etc2="res://.godot/imported/lightblue_eye.png-941a26950bc0c53cd9833697b4e6bacf.etc2.ctex"
+path.s3tc="res://.godot/imported/lightblue_eye.png-1bb8153e16b9b5467f6e9bda20dfa548.s3tc.ctex"
+path.etc2="res://.godot/imported/lightblue_eye.png-1bb8153e16b9b5467f6e9bda20dfa548.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -12,8 +12,8 @@ metadata={
 
 [deps]
 
-source_file="res://assets/characters/realistic/makehuman/lightblue_eye.png"
-dest_files=["res://.godot/imported/lightblue_eye.png-941a26950bc0c53cd9833697b4e6bacf.s3tc.ctex", "res://.godot/imported/lightblue_eye.png-941a26950bc0c53cd9833697b4e6bacf.etc2.ctex"]
+source_file="res://build/aita_meshy/v4/makehuman/lightblue_eye.png"
+dest_files=["res://.godot/imported/lightblue_eye.png-1bb8153e16b9b5467f6e9bda20dfa548.s3tc.ctex", "res://.godot/imported/lightblue_eye.png-1bb8153e16b9b5467f6e9bda20dfa548.etc2.ctex"]
 
 [params]
 

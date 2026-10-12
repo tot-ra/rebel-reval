@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cwpp5anr4da8n"
-path.s3tc="res://.godot/imported/iron_normal.png-6d9b1c7300a7eaea67da54b2345cccc0.s3tc.ctex"
-path.etc2="res://.godot/imported/iron_normal.png-6d9b1c7300a7eaea67da54b2345cccc0.etc2.ctex"
+path.s3tc="res://.godot/imported/iron_normal.png-633e81c6b49a7baa81bd62c033b269f8.s3tc.ctex"
+path.etc2="res://.godot/imported/iron_normal.png-633e81c6b49a7baa81bd62c033b269f8.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -12,8 +12,8 @@ metadata={
 
 [deps]
 
-source_file="res://assets/characters/realistic/textiles/iron_normal.png"
-dest_files=["res://.godot/imported/iron_normal.png-6d9b1c7300a7eaea67da54b2345cccc0.s3tc.ctex", "res://.godot/imported/iron_normal.png-6d9b1c7300a7eaea67da54b2345cccc0.etc2.ctex"]
+source_file="res://build/aita_meshy/v4/textiles/iron_normal.png"
+dest_files=["res://.godot/imported/iron_normal.png-633e81c6b49a7baa81bd62c033b269f8.s3tc.ctex", "res://.godot/imported/iron_normal.png-633e81c6b49a7baa81bd62c033b269f8.etc2.ctex"]
 
 [params]
 

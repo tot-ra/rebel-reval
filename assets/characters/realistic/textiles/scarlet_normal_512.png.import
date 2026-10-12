@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bt0ja217pgpfr"
-path.s3tc="res://.godot/imported/scarlet_normal_512.png-fb4eb3337000e79492a6eca39ea10926.s3tc.ctex"
-path.etc2="res://.godot/imported/scarlet_normal_512.png-fb4eb3337000e79492a6eca39ea10926.etc2.ctex"
+path.s3tc="res://.godot/imported/scarlet_normal_512.png-adc383a09fd5dd5663b80ea7cf3c76e6.s3tc.ctex"
+path.etc2="res://.godot/imported/scarlet_normal_512.png-adc383a09fd5dd5663b80ea7cf3c76e6.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -12,8 +12,8 @@ metadata={
 
 [deps]
 
-source_file="res://assets/characters/realistic/textiles/scarlet_normal_512.png"
-dest_files=["res://.godot/imported/scarlet_normal_512.png-fb4eb3337000e79492a6eca39ea10926.s3tc.ctex", "res://.godot/imported/scarlet_normal_512.png-fb4eb3337000e79492a6eca39ea10926.etc2.ctex"]
+source_file="res://build/aita_meshy/v4/textiles/scarlet_normal_512.png"
+dest_files=["res://.godot/imported/scarlet_normal_512.png-adc383a09fd5dd5663b80ea7cf3c76e6.s3tc.ctex", "res://.godot/imported/scarlet_normal_512.png-adc383a09fd5dd5663b80ea7cf3c76e6.etc2.ctex"]
 
 [params]
 

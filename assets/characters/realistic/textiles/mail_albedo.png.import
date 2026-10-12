@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bqrsf0ho7syit"
-path.s3tc="res://.godot/imported/mail_albedo.png-e06f7d70fa58b63d5b80b7c784cf8fb8.s3tc.ctex"
-path.etc2="res://.godot/imported/mail_albedo.png-e06f7d70fa58b63d5b80b7c784cf8fb8.etc2.ctex"
+path.s3tc="res://.godot/imported/mail_albedo.png-5438705c4f34c4f6128afb4f7ee90f00.s3tc.ctex"
+path.etc2="res://.godot/imported/mail_albedo.png-5438705c4f34c4f6128afb4f7ee90f00.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -12,8 +12,8 @@ metadata={
 
 [deps]
 
-source_file="res://assets/characters/realistic/textiles/mail_albedo.png"
-dest_files=["res://.godot/imported/mail_albedo.png-e06f7d70fa58b63d5b80b7c784cf8fb8.s3tc.ctex", "res://.godot/imported/mail_albedo.png-e06f7d70fa58b63d5b80b7c784cf8fb8.etc2.ctex"]
+source_file="res://build/aita_meshy/v4/textiles/mail_albedo.png"
+dest_files=["res://.godot/imported/mail_albedo.png-5438705c4f34c4f6128afb4f7ee90f00.s3tc.ctex", "res://.godot/imported/mail_albedo.png-5438705c4f34c4f6128afb4f7ee90f00.etc2.ctex"]
 
 [params]
 

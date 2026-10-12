@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://balhvk862sglx"
-path.s3tc="res://.godot/imported/leather_normal_512.png-6e31573ac0a5bc86d39d1db8351ec50c.s3tc.ctex"
-path.etc2="res://.godot/imported/leather_normal_512.png-6e31573ac0a5bc86d39d1db8351ec50c.etc2.ctex"
+path.s3tc="res://.godot/imported/leather_normal_512.png-2adec6f301f26a587ba8c9a60e6920c8.s3tc.ctex"
+path.etc2="res://.godot/imported/leather_normal_512.png-2adec6f301f26a587ba8c9a60e6920c8.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -12,8 +12,8 @@ metadata={
 
 [deps]
 
-source_file="res://assets/characters/realistic/textiles/leather_normal_512.png"
-dest_files=["res://.godot/imported/leather_normal_512.png-6e31573ac0a5bc86d39d1db8351ec50c.s3tc.ctex", "res://.godot/imported/leather_normal_512.png-6e31573ac0a5bc86d39d1db8351ec50c.etc2.ctex"]
+source_file="res://build/aita_meshy/v4/textiles/leather_normal_512.png"
+dest_files=["res://.godot/imported/leather_normal_512.png-2adec6f301f26a587ba8c9a60e6920c8.s3tc.ctex", "res://.godot/imported/leather_normal_512.png-2adec6f301f26a587ba8c9a60e6920c8.etc2.ctex"]
 
 [params]
 

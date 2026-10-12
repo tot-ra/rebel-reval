@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bdw52qtkdmk6a"
-path.s3tc="res://.godot/imported/grey_eye.png-1052ab07d5fa3690af6fcd4dc57c484e.s3tc.ctex"
-path.etc2="res://.godot/imported/grey_eye.png-1052ab07d5fa3690af6fcd4dc57c484e.etc2.ctex"
+path.s3tc="res://.godot/imported/grey_eye.png-63caffee8efcbe1e57b15d4c43811786.s3tc.ctex"
+path.etc2="res://.godot/imported/grey_eye.png-63caffee8efcbe1e57b15d4c43811786.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -12,8 +12,8 @@ metadata={
 
 [deps]
 
-source_file="res://assets/characters/realistic/makehuman/grey_eye.png"
-dest_files=["res://.godot/imported/grey_eye.png-1052ab07d5fa3690af6fcd4dc57c484e.s3tc.ctex", "res://.godot/imported/grey_eye.png-1052ab07d5fa3690af6fcd4dc57c484e.etc2.ctex"]
+source_file="res://build/aita_meshy/v4/makehuman/grey_eye.png"
+dest_files=["res://.godot/imported/grey_eye.png-63caffee8efcbe1e57b15d4c43811786.s3tc.ctex", "res://.godot/imported/grey_eye.png-63caffee8efcbe1e57b15d4c43811786.etc2.ctex"]
 
 [params]
 
