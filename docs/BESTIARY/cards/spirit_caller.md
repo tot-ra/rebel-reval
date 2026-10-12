@@ -12,6 +12,14 @@
 | Faction ties | cult_metsik |
 | Archive reference images | image-47 |
 
+![spirit caller concept art](../inspiration/spirit_caller_concept.jpg)
+
+**Illustration:** Generated with Leonardo AI, Lucid Realism model. Documentation concept art only; existing archive references are retained.
+
+**Generation prompt:** Photorealistic cinematic documentary-style full-body portrait of an invented 14th-century Estonian rural ritual healer and spirit-caller, a spare wary man around 50 years old, standing in a sparse Baltic forest grove. Historically grounded homespun undyed wool tunic patched with hide, worn wolf pelt over the shoulders, ash-grey and restrained red ochre face markings, simple belt with a small knotted charm and bone whistle, holding a tall rough wooden staff topped with a small bone cap and a few feathers. Natural human proportions and believable weathered skin, calm watchful stance, no theatrical spellcasting. Behind him, clearly separate from the man and ground, a faint translucent spectral wolf silhouette, subtle and barely visible in the mist; one ordinary real grey wolf stands distinctly on the ground at a distance. Overcast natural forest light, muted forest green, charcoal, off-white wool, ash and ochre palette, realistic documentary photography, detailed material texture, grounded medieval Baltic atmosphere, full figure visible, uncluttered background, no text.
+
+**Negative prompt:** illustration, painting, concept art, CGI, 3D render, fantasy wizard robe, glowing magic, glowing staff, demon, werewolf, wolf-man hybrid, extra limbs, modern clothing, modern objects, armor, ornate costume, text, watermark, logo, multiple people, duplicate wolf
+
 ## At a glance
 - Ranged curse and a thrown vial; summons shows only in the spirit layer.
 - The wolves he sends can be real (physical) or spectral (spirit).
