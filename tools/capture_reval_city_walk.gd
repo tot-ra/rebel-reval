@@ -111,8 +111,9 @@ func _run() -> void:
 			await get_tree().physics_frame
 		var start := CityPlan.to_world_xz(_city.player.global_position)
 		print("granary arrival at %s, inside building %d" % [start, _city.inside_building])
-		if _city.inside_building >= 0 and not plan.buildings[_city.inside_building].get("enterable", false):
-			_failures.append("granary: arrived inside closed %s" % plan.buildings[_city.inside_building]["id"])
+		var inside := _city.inside_building
+		if inside >= 0 and not plan.buildings[inside].get("enterable", false):
+			_failures.append("granary: arrived inside closed %s" % plan.buildings[inside]["id"])
 		await _shot("walk_granary_arrival")
 		var street := CityTravel._street_near(plan, start)
 		await _walk("granary_walk_out", PackedVector2Array([start, street]))
@@ -460,6 +461,10 @@ func _enter_sites(plan: CityPlan) -> void:
 			var key := "site:%s" % d["id"]
 			player.global_position = CityPlan.to_logic(mid - inward * 3.0)
 			await get_tree().physics_frame
+			# A door may lead from one room into another (St Catherine's cloister
+			# walk into the nave): only a different room counts as walked in.
+			var start_room := plan.site_room_at(mid - inward * 3.0)
+			var start_id: StringName = start_room["room"]["id"] if not start_room.is_empty() else &""
 			Input.action_press(&"ui_up")
 			var t := 0.0
 			while t < 1.2:
@@ -471,6 +476,7 @@ func _enter_sites(plan: CityPlan) -> void:
 				var room := plan.site_room_at(CityPlan.to_world_xz(player.global_position))
 				if (
 					not room.is_empty()
+					and room["room"]["id"] != start_id
 					and CityPlan.to_world_xz(player.global_position).distance_to(mid) > 2.0
 				):
 					break
@@ -479,7 +485,7 @@ func _enter_sites(plan: CityPlan) -> void:
 				await get_tree().process_frame
 			var xz := CityPlan.to_world_xz(player.global_position)
 			var room := plan.site_room_at(xz)
-			if room.is_empty():
+			if room.is_empty() or room["room"]["id"] == start_id:
 				_failures.append(
 					"%s: could not walk in through %s (at %s)" % [site.id, d["id"], xz]
 				)
