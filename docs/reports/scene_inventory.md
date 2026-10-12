@@ -263,3 +263,12 @@ Both commands should print `135` on a clean checkout at this revision.
 | 181 | `assets/props/weapons/spear/spear_held.tscn` | working | Forge spear hand-slot equipment scene on the shared rig (R-1754). |
 | 182 | `assets/props/weapons/war_hammer/war_hammer_ground.tscn` | working | Forge war hammer leaning display shown as a world pickup in Kalev's smithy (R-1754). |
 | 183 | `assets/props/weapons/war_hammer/war_hammer_held.tscn` | working | Forge war hammer hand-slot equipment scene on the shared rig (R-1754). |
+| 184 | `assets/characters/variants/citizen_f_adult_average_c.tscn` | working | Seamless city citizen or cast body (MPFB pipeline). |
+| 185 | `assets/characters/variants/citizen_f_adult_average_d.tscn` | working | Seamless city citizen or cast body (MPFB pipeline). |
+| 186 | `assets/characters/variants/citizen_f_adult_heavy_c.tscn` | working | Seamless city citizen or cast body (MPFB pipeline). |
+| 187 | `assets/characters/variants/citizen_f_adult_heavy_d.tscn` | working | Seamless city citizen or cast body (MPFB pipeline). |
+| 188 | `assets/characters/variants/citizen_f_adult_sturdy_c.tscn` | working | Seamless city citizen or cast body (MPFB pipeline). |
+| 189 | `assets/characters/variants/citizen_f_adult_sturdy_d.tscn` | working | Seamless city citizen or cast body (MPFB pipeline). |
+| 190 | `assets/characters/variants/citizen_f_adult_thin_c.tscn` | working | Seamless city citizen or cast body (MPFB pipeline). |
+| 191 | `assets/characters/variants/citizen_f_adult_thin_d.tscn` | working | Seamless city citizen or cast body (MPFB pipeline). |
+| 192 | `tools/capture_world_showreel.tscn` | partial | Developer capture tool (README showreel clips of the live seamless city). |

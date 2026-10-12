@@ -156,12 +156,20 @@ Roles `level`, `map`, and `event` have full conversion specifications later in t
 | `assets/characters/showcase/modular_character_showcase.tscn` | test | `retain` | Model and equipment review | P0-206 asset integration; no map activation | not a map definition |
 | `assets/characters/variants/apprentice.tscn` | actor | `retain` | Crowd/citizen variant apprentice | Shared-rig ambient body; not a map destination | not a map definition |
 | `assets/characters/variants/citizen_f_adult_average_b.tscn` | actor | `retain` | Crowd/citizen variant citizen_f_adult_average_b | Shared-rig ambient body; not a map destination | not a map definition |
+| `assets/characters/variants/citizen_f_adult_average_c.tscn` | actor | `retain` | Crowd/citizen variant citizen_f_adult_average_c | Shared-rig ambient body; not a map destination | not a map definition |
+| `assets/characters/variants/citizen_f_adult_average_d.tscn` | actor | `retain` | Crowd/citizen variant citizen_f_adult_average_d | Shared-rig ambient body; not a map destination | not a map definition |
 | `assets/characters/variants/citizen_f_adult_average.tscn` | actor | `retain` | Crowd/citizen variant citizen_f_adult_average | Shared-rig ambient body; not a map destination | not a map definition |
 | `assets/characters/variants/citizen_f_adult_heavy_b.tscn` | actor | `retain` | Crowd/citizen variant citizen_f_adult_heavy_b | Shared-rig ambient body; not a map destination | not a map definition |
+| `assets/characters/variants/citizen_f_adult_heavy_c.tscn` | actor | `retain` | Crowd/citizen variant citizen_f_adult_heavy_c | Shared-rig ambient body; not a map destination | not a map definition |
+| `assets/characters/variants/citizen_f_adult_heavy_d.tscn` | actor | `retain` | Crowd/citizen variant citizen_f_adult_heavy_d | Shared-rig ambient body; not a map destination | not a map definition |
 | `assets/characters/variants/citizen_f_adult_heavy.tscn` | actor | `retain` | Crowd/citizen variant citizen_f_adult_heavy | Shared-rig ambient body; not a map destination | not a map definition |
 | `assets/characters/variants/citizen_f_adult_sturdy_b.tscn` | actor | `retain` | Crowd/citizen variant citizen_f_adult_sturdy_b | Shared-rig ambient body; not a map destination | not a map definition |
+| `assets/characters/variants/citizen_f_adult_sturdy_c.tscn` | actor | `retain` | Crowd/citizen variant citizen_f_adult_sturdy_c | Shared-rig ambient body; not a map destination | not a map definition |
+| `assets/characters/variants/citizen_f_adult_sturdy_d.tscn` | actor | `retain` | Crowd/citizen variant citizen_f_adult_sturdy_d | Shared-rig ambient body; not a map destination | not a map definition |
 | `assets/characters/variants/citizen_f_adult_sturdy.tscn` | actor | `retain` | Crowd/citizen variant citizen_f_adult_sturdy | Shared-rig ambient body; not a map destination | not a map definition |
 | `assets/characters/variants/citizen_f_adult_thin_b.tscn` | actor | `retain` | Crowd/citizen variant citizen_f_adult_thin_b | Shared-rig ambient body; not a map destination | not a map definition |
+| `assets/characters/variants/citizen_f_adult_thin_c.tscn` | actor | `retain` | Crowd/citizen variant citizen_f_adult_thin_c | Shared-rig ambient body; not a map destination | not a map definition |
+| `assets/characters/variants/citizen_f_adult_thin_d.tscn` | actor | `retain` | Crowd/citizen variant citizen_f_adult_thin_d | Shared-rig ambient body; not a map destination | not a map definition |
 | `assets/characters/variants/citizen_f_adult_thin.tscn` | actor | `retain` | Crowd/citizen variant citizen_f_adult_thin | Shared-rig ambient body; not a map destination | not a map definition |
 | `assets/characters/variants/citizen_f_child_average.tscn` | actor | `retain` | Crowd/citizen variant citizen_f_child_average | Shared-rig ambient body; not a map destination | not a map definition |
 | `assets/characters/variants/citizen_f_elder_heavy.tscn` | actor | `retain` | Crowd/citizen variant citizen_f_elder_heavy | Shared-rig ambient body; not a map destination | not a map definition |
@@ -200,6 +208,7 @@ Roles `level`, `map`, and `event` have full conversion specifications later in t
 | `assets/props/weapons/war_hammer/war_hammer_held.tscn` | support | `retain` | Forge war hammer hand-slot equipment mesh | Forge weapon set (R-1754, docs/SYSTEMS/COMBAT.md) | not a map definition |
 | `tools/capture_site_edge_travel.tscn` | test | `retain` | Regional-site edge-to-travel-map capture host | ADR 0042 verification plate (walk into a site's edge band, global travel map opens); never release-playable | not a map definition |
 | `tools/capture_hud_gameplay_host.tscn` | test | `retain` | HUD gameplay capture host | Developer capture plate for the R-1698 HUD; never release-playable | not a map definition |
+| `tools/capture_world_showreel.tscn` | test | `retain` | README showreel capture host | Developer capture of live seamless-city clips; never release-playable | not a map definition |
 | `tools/profile_reval_city.tscn` | test | `retain` | Profile reval city tool scene | Developer-only capture or profiling host; never release-playable | not a map definition |
 
 ## Detailed map, level, and event specifications
