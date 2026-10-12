@@ -37,6 +37,9 @@ var _views: Dictionary = {}
 var _profiles: Dictionary = {}
 var _explicit: Dictionary = {}
 var _refresh_left := 0.0
+## Rigs currently shown without clothes (SpiritUndress); restored when sight closes.
+## Untyped: streamed-out citizens are freed while listed, and a typed array rejects freed instances.
+var _undressed: Array = []
 
 
 func _ready() -> void:
@@ -122,11 +125,13 @@ func _process(delta: float) -> void:
 	if not active():
 		_hide_all()
 		_refresh_left = 0.0
+		_redress_all()
 		return
 	_refresh_left -= delta
 	if _refresh_left <= 0.0:
 		_refresh_left = REFRESH_SEC
 		refresh()
+		_undress_all()
 	var amount := current_fade()
 	for body: Variant in _views.keys():
 		var view: Variant = _views[body]
@@ -236,6 +241,27 @@ func _default_profile(body: Node3D) -> SpiritAuraProfile:
 	if db != null and db.has_record(record_id):
 		return SpiritAuraProfile.for_character(record_id, db, state)
 	return SpiritAuraProfile.from_record(StringName(actor), {}, state)
+
+
+## Spirit sight shows souls, not dress: every adult citizen is drawn nude while sight is open (SpiritUndress).
+## Re-run on the refresh timer so garments mounted by city streaming are caught too.
+func _undress_all() -> void:
+	if not is_inside_tree() or current_fade() < 0.5:
+		return
+	for node in get_tree().get_nodes_in_group(SharedCharacterRig.SPIRIT_AURA_GROUP):
+		var rig := node as SharedCharacterRig
+		if rig == null or not SpiritUndress.eligible(rig):
+			continue
+		SpiritUndress.undress(rig)
+		if not _undressed.has(rig):
+			_undressed.append(rig)
+
+
+func _redress_all() -> void:
+	for rig: Variant in _undressed:
+		if is_instance_valid(rig):
+			SpiritUndress.restore(rig as SharedCharacterRig)
+	_undressed.clear()
 
 
 ## Free every view this manager made (a private duel manager does this before it goes).

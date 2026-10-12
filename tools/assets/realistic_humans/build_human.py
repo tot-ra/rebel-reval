@@ -646,14 +646,17 @@ TIER_TEXTURE_PX = {0: 2048, 1: 1024, 2: 512}
 CROWD_TRIANGLES = 11500
 
 
-def bake_crowd_body(spec, meshes, wardrobe):
+def bake_crowd_body(spec, meshes, wardrobe, nude=False):
     """Tier 2: the default outfit baked into one decimated skinned mesh.
 
     Crowds cannot afford 15-25 mesh nodes and ~55k triangles each. Covered
     skin regions and teeth are dropped, the outfit's garments are joined with
     the body, and every part is decimated to a share of the ADR 0016 crowd
-    budget (the face keeps the largest share)."""
-    outfit = next(iter(spec["outfits"].values()))
+    budget (the face keeps the largest share).
+
+    nude: the same body with no outfit and every skin region kept, for the
+    spirit-sight layer (export_nude_layer); the caller leaves out the braies."""
+    outfit = [] if nude else next(iter(spec["outfits"].values()))
     covered = {c for g in outfit for c in garments.WARDROBE[g][1]}
     layers = set(spec.get("layers", []))
     # A layer may claim a body part (a woman's braid, WD-3): it is exported apart, not baked.
@@ -732,6 +735,26 @@ def export_crowd_layers(spec, motion, wardrobe, out, only=None):
         export_glb(path, [motion, obj], animations=False)
         finish_glb(path, out)
         log(f"layer {garment}: {sum(len(p.vertices) - 2 for p in obj.data.polygons)} triangles")
+
+
+def export_nude_layer(spec, motion, meshes, out):
+    """Spirit sight shows adults unclothed (docs/SYSTEMS/SPIRIT_SIGHT.md). The baked
+    crowd body has no skin under its outfit, so the nude body is its own layer,
+    <out>/layers/nude.glb, swapped in for Anatomy_CrowdBody while sight is open.
+    Minors never get one."""
+    if spec.get("citizen", {}).get("stage") == "child":
+        raise SystemExit(f"{spec['fit']}: child bodies have no nude layer")
+    for obj in meshes:  # crowd bodies carry no expression shapes (as in build)
+        for shape in EXPRESSIONS:
+            if obj.data.attributes.get(f"fx_{shape}") is not None:
+                obj.data.attributes.remove(obj.data.attributes[f"fx_{shape}"])
+    body = bake_crowd_body(spec, meshes, {}, nude=True)[0]
+    body.name = body.data.name = "Layer_nude"
+    bind(body, motion)
+    path = out / "layers" / "nude.glb"
+    export_glb(path, [motion, body], animations=False)
+    finish_glb(path, out)
+    log(f"layer nude: {sum(len(p.vertices) - 2 for p in body.data.polygons)} triangles")
 
 
 def decimate(obj, ratio):
@@ -889,7 +912,7 @@ def export_glb(path, objects, animations):
         export_all_influences=False, export_apply=False, export_yup=True)
 
 
-def build(name, only_body=False, layers_only=False, only_layers=None):
+def build(name, only_body=False, layers_only=False, only_layers=None, nude_only=False):
     spec = spec_module.SPECS[name]
     if spec.get("tier") == 2 and spec.get("beard"):
         # Crowd budget: beards are painted into the skin, not built as shells.
@@ -922,10 +945,15 @@ def build(name, only_body=False, layers_only=False, only_layers=None):
         rename_weights(proxy)
     collar = collar_plane(targets)
     out = OUT_ROOT / name
-    # --layers-only refits the layers without touching the shipped body or its textures.
-    texture_dir = WORK / f"{name}_scratch_textures" if layers_only else out / "textures"
+    # --layers-only / --nude-only add layers without touching the shipped body or its
+    # textures; the layer GLBs link the shipped maps of the same name (finish_glb).
+    texture_dir = WORK / f"{name}_scratch_textures" if layers_only or nude_only else out / "textures"
     texture_dir.mkdir(parents=True, exist_ok=True)
     grooming, lm = surface_character(spec, body, named_proxies, shared, collar, targets, data, texture_dir)
+    if nude_only:
+        # No garments, no braies: every skin region, the eyes, brows, lashes and hair.
+        export_nude_layer(spec, motion, split_regions(body, shared, collar) + proxies + grooming, out)
+        return {"character": name, "layers": ["nude"]}
     ctx = garments.Ctx(spec=spec, body=body, rig=motion, t=targets, lm=lm, collar=collar, out=out)
     ctx.bvh = clearance_bvh(body)
     braies = garments.braies(ctx)
@@ -986,10 +1014,12 @@ def main():
     parser.add_argument("--layers-only", action="store_true",
                         help="tier 2: export only the citizen layers, keep the shipped body GLB")
     parser.add_argument("--only", default="", help="with --layers-only: comma-separated layer ids to refit")
+    parser.add_argument("--nude-only", action="store_true",
+                        help="tier 2 adult: export only layers/nude.glb (spirit sight), keep the shipped body")
     args = parser.parse_args(argv)
     build(args.character, layers_only=args.layers_only,
-          only_layers=set(filter(None, args.only.split(","))) or None)
-    if not args.layers_only:
+          only_layers=set(filter(None, args.only.split(","))) or None, nude_only=args.nude_only)
+    if not (args.layers_only or args.nude_only):
         prune_makehuman_textures()
 
 
