@@ -12,6 +12,14 @@
 | Faction ties | cult_metsik |
 | Archive reference images | kratt.png |
 
+![Photorealistic Kratt creature made from abundant straw, bones and rusted farm tools](../inspiration/kratt_concept.jpg)
+
+*Generated with Leonardo AI, photorealism model (generation `060edb13-1c07-40a0-9cd8-a000a4702082`), 1024 x 1536. The legacy `kratt.png` archive reference remains unchanged.*
+
+**Generation prompt:** Photorealistic cinematic full-body creature portrait, centered with generous margins, front three-quarter view, on a plain neutral charcoal-grey studio background. An Estonian folklore kratt, a human-sized lanky servant assembled from 14th-century Baltic farm scrap, brought to convincing photographic life. Its form is unmistakably handmade and asymmetrical: abundant thick, layered bundles of dry golden-brown straw make up most of its outer body, wrapping shoulders, chest, hips, thighs and forearms, with dozens of long ragged straw strips and wisps hanging from the silhouette. Straw covers roughly two-thirds of the visible body, with gaps clearly showing an irregular inner frame of weathered bleached animal bones and rust-black iron farm tools, bound together with old rope and crude iron hoops. Not a scarecrow on a pole. One arm ends in a curved weathered scythe blade; the other in a small pitchfork with distinct tines. Hollow head-frame with no face and no mouth, straw fringe around the skull, only two tiny faint amber lights deep inside the empty eye sockets. Dry straw fibers, worn porous bone, pitted oxidized iron, tactile real-world materials, anatomically coherent silhouette, stiff upright posture, restrained uncanny folklore mood. Shot like a high-end practical creature-effects photograph, realistic natural material response, soft directional studio lighting, crisp focus, subtle film grain, muted earthy palette. Entire figure and weapon tips fully visible. No text.
+
+**Negative prompt:** painterly, illustration, concept art, digital painting, CGI, 3D render, stylized fantasy, scarecrow on a pole, burlap sack head, face, mouth, human skin, modern machinery, modern tools, polished armor, glowing body, wings, flames, blood, gore, extra limbs, bare skeletal frame, sparse straw, thin straw coverage, text, watermark, collage, cropped feet, cropped weapon tips.
+
 ## At a glance
 - Straw, bone and rusted tools in a loose human shape; amber light in the eye sockets.
 - Carries grain and silver to its maker at night.
