@@ -181,7 +181,7 @@ These factions are not directly involved in the conflict between the Rulers and 
 
 #### `denmark/`
 
-- [Town Guard Captain](denmark/town_guard/captain.md)
+- [Town Guard Captain (legacy seed, superseded)](denmark/town_guard/captain.md)
 
 #### `famous/`
 
