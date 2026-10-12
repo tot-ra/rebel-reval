@@ -12,6 +12,14 @@
 | Faction ties | none |
 | Archive reference images | none |
 
+![katk concept art](../inspiration/katk_concept.jpg)
+
+**Illustration:** Generated with Leonardo AI, Lucid Realism model. Documentation concept art only; existing archive references are retained.
+
+**Generation prompt:** Photorealistic, grounded historical depiction of Katk, Estonian folklore personification of plague as a traveller asking for passage: a solitary anonymous wayfarer at a rural ferry crossing in spring 1343, full figure, pale natural skin and clear blue eyes, calm courteous expression with unnerving stillness, plain weathered grey wool mantle, walking staff and small cloth bundle. Muddy riverbank, rough wooden landing, reeds, early-spring willow, cold slate-blue water and distant Baltic woodland. Two tiny rolling flames barely visible in reeds as a restrained folk omen. Overcast dusk, cold mist, desaturated slate and muted earth, realistic period materials and skin texture. Dangerous omen, not an active epidemic; no other people, no text.
+
+**Negative prompt:** illustration, painting, stylized fantasy art, epidemic crowd, medical mask, sores, wounds, modern clothing, plague doctor beak mask, gore, text, watermark
+
 ## At a glance
 - A blue-eyed stranger or two rolling flames at a river.
 - Ask to be ferried; whoever helps dooms his people.
