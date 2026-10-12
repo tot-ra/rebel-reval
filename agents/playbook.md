@@ -352,3 +352,5 @@ Keep this file short. Append a durable reusable rule, not a dated incident log. 
 - When a change ships from a temporary worktree on `origin/main` while the user's local `main` has diverged, the user's running game does not have it. Before reporting "done", check that the feature exists in the copy the user actually runs (`git branch --contains <sha>`), or bring the runtime files over and say so.
 
 - Create the board task before writing an `R-NNNN` ref into code or docs: guessing "last ref + 1" collided with a concurrent session (R-1873 was already the cloud slab). Then `grep -rn R-NNNN scripts docs` to confirm the ref is unused.
+
+- The `question` tool aborts after 300 s when the user is away (no answer is returned). Do not block the task on it: pick the reversible option that matches existing usage, write it into the doc as a provisional decision with "maintainer did not answer" and how to swap, and repeat the question in the final report.
