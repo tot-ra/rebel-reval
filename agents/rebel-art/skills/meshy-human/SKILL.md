@@ -119,6 +119,27 @@ $B -b --factory-startup --python tools/assets/meshy_human/fit_wearables_to_confo
 - `fit.report.json` lists the median offset and push-out count per layer. On Aita the boots pushed out about 2.7k vertices (the scan foot is larger); check the feet in the Walking plate.
 - Preview with the outfit: `render_rigged_preview.py --glb $A/<char>.glb --wearables <glb>,<glb>`. Then the engine plates (`tools/capture_realistic_character.gd`, see `docs/CHARACTER_GENERATION.md`), a `tests/godot/test_realistic_<char>.gd` like `test_realistic_aita.gd`, and refreshed `assets/SOURCES.csv` rows (SHA-256, scan task, seed).
 
+## 4d. Re-drape the headcloth on the conformed head (route A)
+
+The donor headcloth from step 4 / 4c is fitted to the MPFB skull. `drape_headcloth.py` replaces it with a widow's linen headcloth built on the conformed head:
+
+```bash
+$B -b --factory-startup --python tools/assets/meshy_human/drape_headcloth.py -- \
+  --body build/<char>_meshy/conform/<char>_conformed.glb \
+  --out build/<char>_meshy/headcloth/<char>_draped.glb \
+  [--wearable-out build/<char>_meshy/headcloth/headscarf/headscarf.glb] \
+  [--ease 0.007] [--volume 0.014] [--hairline 0.05] [--jaw -0.085] [--nape -0.175] [--folds 0.009]
+```
+
+- **Shape.** Columns round the head: a shell `--ease` off the outermost skull surface down to ear level, then a straight fall from the widest point of the skull. Each column ends on the face line: the hairline over the brow (`--hairline` above the eye centres), the jaw beside the face, the nape at the back (heights relative to the eyes). `--volume` adds fullness over the back of the skull for the hair knotted underneath. Outward-only folds grow towards the hem.
+- **Ears.** The radius field is dilated and blurred so the cloth bridges the ear instead of following it. Two things failed first: a nearest-point push-out (it follows the normal of the ear's back face and folds the cloth into the gap behind the ear) and a relax pass that keeps the built radius (it cannot round the convex crease over the widest point, which read as a ledge at ear level). Clearance is a ray test from the head centre (horizontal from the head axis below it).
+- **No cloth sim.** Blender cloth with a pinned crown and the head and torso as colliders crumpled the free hem against the ear and the upper back. The hanging profile drapes well enough at game distance.
+- **Skinning.** Only `head` and `chest` (the rig has no neck bone), from the nearest head/torso skin vertices, smoothed, and pure `head` above the jaw. No arm bone moves the cloth, so a raised arm cannot drag a tail with it.
+- **Material.** Reuses the old cloth's linen material and texel density (UV units per metre).
+- `--wearable-out` writes the cloth alone on the same rig without clips, like the MPFB wearables. Installing it as `assets/characters/realistic/<char>/headscarf/headscarf.glb` needs a board task and refreshed `assets/SOURCES.csv` rows.
+
+Check with the step 5 renders on `<char>_draped.glb`: the brim sits on the hairline in `face_rest.png`, nothing pokes through in `head_back.png`, and the hem is clear of the arm in `armpit_Cheer.png`.
+
 ## 4b. Raw Meshy rig, eyes, hair (route B)
 
 ```bash
@@ -167,7 +188,7 @@ Route A (conform), from the Aita v4 run (seed s7307, Meshy task `01a13051`):
 - **Meshy albedo after cleanup (step 7b).** The dark outlines and seam margins are gone, the breasts are much less pale, and both lips share one colour. What remains: a jagged lighting edge under the breasts is painted *inside* a scan island, not at a seam, so the seam mask misses it. Equalising softens it but it still shows in `armpit_Cheer.png`. The seam band (about 13 % of texels) is slightly softer than the rest. A faint lip-paint smudge stays at one mouth corner, and the dark nostril paint is untouched.
 - **Brows.** The stretch inpaint removes the parallel streaks, but the scan brow stays soft and smeared. With the MPFB brow mesh dropped, the brows are only that soft paint; use `--keep-brows` if they read too weak.
 - **Synthetic test.** On the inflated-donor test the cleanup is close to identity: mean error against the donor albedo goes from 0.0091 to 0.0100 overall, 0.019 to 0.013 in the seam band, and 0.085 to 0.067 on the lips.
-- **Headcloth.** The widow's headscarf is the donor's MPFB-fit wearable, a stiff hood with a visor-like brim; it is not re-draped to the new skull. Step 4c only lifts it over the larger ears, which then show as a bump in profile. Its tails can cut into the raised arm in `armpit_Cheer.png`. A cloth-sim or hand-fitted drape is needed for a hero close-up.
+- **Headcloth.** Steps 4 and 4c keep the donor's MPFB-fit headscarf: a stiff hood with a visor-like brim that does not follow the new skull, a bump over the larger ears, and tails that cut into the raised arm in `armpit_Cheer.png`. Step 4d replaces it with a cloth draped on the conformed head (Aita v4: brim on the hairline, ears bridged, 0 cloth vertices inside the arms or torso in any Idle, Walking_A or Cheer frame, against up to 22 and 79 for the donor fit). Limits of 4d: a smooth procedural drape, not a simulated one (no tucks or knot at the nape), a plain cut hem with no rolled edge, the folds are a fixed pattern, and it is not yet installed as Aita's shipped `headscarf/headscarf.glb`.
 - **Posture.** The rest pose keeps the MPFB head posture, not the scan's; the scan's head-back stance is treated as a pose, not as shape.
 - **Iris colour** is the donor's; there is no iris retint in route A yet.
 - **Deformation** is MPFB linear blend skinning at hips and armpits, with no corrective shapes.
