@@ -157,6 +157,16 @@ Status: implemented (task **R-1768**). On the recommended tier the continuous do
 
 ![Flat deck (left) and lit deck (right): noon clear, cloudy afternoon, steep cloudy view, sunset](../reports/images/weather/sky_reference_r1768_before_after.jpg)
 
+## Cloud deck perspective
+
+Status: implemented (task **R-1869**). Clouds near the horizon look tens of kilometres away: they shrink, flatten into thin bands and sink into the haze instead of hanging as zenith-sized puffs above the sea.
+
+- **How**: every deck lookup (`sky_cloud_uv` in `scripts/map/view3d/sky_clouds.gdshaderinc`) follows the eye ray to a spherical shell over a curved Earth (`sky_cloud_layer_distance`, radius `SKY_CLOUD_EARTH_RADIUS` = 1600 deck-altitude units). Overhead the distance equals the deck altitude, at the horizon it is `sqrt(2 R altitude)`, about 57x the overhead distance (~85 km for a 1.5 km deck). The old flat-plane ray had a `0.012` floor that stopped at about 9x, so the deck read as a low ceiling. 1600 rather than the true ~4250 keeps the far band resolvable before mipmaps smear it into haze.
+- **Same clouds everywhere**: the CPU mirror (`SkyWeather3D._cloud_uv_at`, `CLOUD_EARTH_RADIUS`) uses the same formula, so sun/moon reflection dimming still matches the dome. The ground-shadow pass samples by world position and is unaffected. Nothing is saved.
+- Verify: `tools/godot_render.sh --script tools/capture_sky_reference.gd -- --only=aft_side_cloudy` (and `noon_side_clear`); tests `--filter=test_sky_weather_3d,test_cloud_shadow_pass`.
+
+![Before (left) and after (right): noon clear, cloudy afternoon](../reports/images/weather/sky_reference_r1869_before_after.jpg)
+
 ## Golden-hour clouds
 
 Status: implemented (task **R-1767**). With the sun about 8-16 degrees up, fair-weather clouds glow warm gold on their crowns with warm grey-brown undersides against a blue sky; they no longer turn pink or lavender. Real sunset (sun below about 4 degrees) keeps the pink and violet palette.

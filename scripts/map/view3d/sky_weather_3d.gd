@@ -22,6 +22,8 @@ const SkyWeatherStateScript := preload("res://scripts/map/view3d/sky_weather_sta
 const CloudCellsScript := preload("res://scripts/map/view3d/cloud_cells.gd")
 ## Catalog stars baked per staged-assembly unit (about 1 ms each).
 const STAR_BAKE_SLICE := 1000
+# Mirrors SKY_CLOUD_EARTH_RADIUS / sky_cloud_layer_distance in sky_clouds.gdshaderinc.
+const CLOUD_EARTH_RADIUS := 1600.0
 const STAR_CATALOG := preload("res://scripts/map/view3d/estonia_star_catalog.gd")
 const GAME_CALENDAR := preload("res://scripts/global/game_calendar.gd")
 
@@ -1132,7 +1134,7 @@ func celestial_cloud_clear(
 	if noise == null or shape == null or noise.is_empty() or shape.is_empty():
 		return fallback * cells_clear_toward(dir)
 	var d := dir.normalized()
-	var uv := Vector2(d.x, d.z) * (1.0 / sqrt(d.y * d.y + 0.012)) * 0.12 - _cloud_offset
+	var uv := _cloud_uv_at(d, 1.0)
 	var storm := storm_intensity()
 	var cell := 1.0 - _sample_repeat(shape, uv * 0.12 + Vector2(0.37, 0.71))
 	var storm_mask := lerpf(1.0, smoothstep(0.48, 0.8, cell), storm_locality())
@@ -1217,8 +1219,9 @@ func _cloud_slab_clear(
 
 
 func _cloud_uv_at(dir: Vector3, altitude: float) -> Vector2:
-	return (Vector2(dir.x, dir.z) * (altitude / sqrt(dir.y * dir.y + 0.012)) * 0.12
-		- _cloud_offset)
+	var ry := CLOUD_EARTH_RADIUS * dir.y
+	var distance := sqrt(ry * ry + altitude * (2.0 * CLOUD_EARTH_RADIUS + altitude)) - ry
+	return Vector2(dir.x, dir.z) * distance * 0.12 - _cloud_offset
 
 
 ## R-1400: share of light from `dir` that passes the discrete cells, seen from the
