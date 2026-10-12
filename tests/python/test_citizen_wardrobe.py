@@ -1,4 +1,4 @@
-"""Citizen wardrobe rules (docs/SYSTEMS/CITIZEN_WARDROBE.md, task R-1663).
+"""Citizen wardrobe rules (docs/SYSTEMS/CITIZEN_WARDROBE.md, tasks R-1663, R-1665).
 
     python3 -m unittest tests.python.test_citizen_wardrobe -v
 """
@@ -10,6 +10,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "tools/city"))
 sys.path.insert(0, str(ROOT / "tools/assets/realistic_humans"))
+import build_citizen_runtime as runtime  # noqa: E402
 import citizen_bodies  # noqa: E402
 import citizen_wardrobe as wd  # noqa: E402
 
@@ -83,6 +84,89 @@ class WardrobeRules(unittest.TestCase):
             p = person(id=f"cit.s.{i}", trade="pedlar", status="free_commoner")
             wear, _ = wd.dress(p, layers(p))
             self.assertLessEqual(sum(w in wd.STRAPS for w in wear), 1, wear)
+
+    def test_wives_covered_maidens_braided(self):
+        """WD-3: a grown woman wears exactly one of braids, headscarf, head cloth; wives
+        and widows are never bareheaded; the veil only goes over the headscarf."""
+        for outfit in citizen_bodies.FEMALE_OUTFITS:
+            for role in ("spouse", "head", "maid", "child", "resident"):
+                for status, trade in (("servant", "maid"), ("patrician", "merchant"),
+                                      ("master_craftsman", "weaver"), ("labourer", "washerwoman")):
+                    for i in range(60):
+                        p = person(id=f"cit.wd3.{outfit}.{role}.{trade}.{i}", sex="f", age=20 + i % 30,
+                                   status=status, trade=trade, household_role=role)
+                        wear, dye = wd.dress(p, layers(p, outfit))
+                        heads = [h for h in wear if h in wd.WOMAN_HEAD]
+                        self.assertEqual(len(heads), 1, (outfit, role, wear))
+                        if role in ("spouse", "head"):
+                            self.assertNotIn("braids", wear, (outfit, role, wear))
+                        if "veil_over" in wear:
+                            self.assertIn("headscarf", wear, wear)
+                        for h in ("headscarf", "head_cloth"):
+                            if h in wear:
+                                self.assertIn(h, dye)
+
+    def test_unmarried_women_mostly_braided(self):
+        braided = 0
+        for i in range(400):
+            p = person(id=f"cit.wd3.m.{i}", sex="f", age=19, status="servant", trade="spinner",
+                       household_role="maid")
+            braided += "braids" in wd.dress(p, layers(p, "d"))[0]
+        self.assertEqual(braided, 400)  # no kerchief trade: always bareheaded
+
+    def test_elder_women_always_covered_never_braided(self):
+        for i in range(200):
+            p = person(id=f"cit.wd3.e.{i}", sex="f", age=66, status="servant", trade="spinner",
+                       household_role="resident")
+            wear, _ = wd.dress(p, layers(p))
+            self.assertIn("headscarf", wear)
+            self.assertNotIn("braids", layers(p))
+
+    def test_girls_keep_baked_braids(self):
+        girl = person(sex="f", age=9, trade="child", status="dependent", household_role="child")
+        self.assertEqual(citizen_bodies.layers_of("f", "child"), ())
+        self.assertEqual(wd.dress(girl, ())[0], [])
+
+    def test_head_cloth_is_estonian_wives_only(self):
+        for outfit in "abc":
+            self.assertNotIn("head_cloth", citizen_bodies.layers_of("f", "adult", outfit))
+        self.assertIn("head_cloth", citizen_bodies.layers_of("f", "adult", "d"))
+        self.assertNotIn("veil_over", citizen_bodies.layers_of("f", "adult", "d"))
+        self.assertNotIn("waist_apron", citizen_bodies.layers_of("f", "adult", "c"))
+        wife = person(id="cit.wd3.hc", sex="f", status="servant", trade="spinner", household_role="spouse")
+        covered = {h for i in range(100) for h in wd.dress(dict(wife, id=f"cit.wd3.hc.{i}"), layers(wife, "d"))[0]
+                   if h in wd.WOMAN_HEAD}
+        self.assertEqual(covered, {"head_cloth", "headscarf"})
+
+    def test_gown_census_rule(self):
+        """Outfit c only on rich women, d only on Estonian or Finnish women below the rich,
+        no man in c or d, nuns stay in the long habit gown."""
+        seen = set()
+        for i in range(600):
+            for status in ("noble", "patrician", "burgher_merchant", "master_craftsman", "servant"):
+                for eth in ("estonian", "german"):
+                    for sex in "mf":
+                        p = person(id=f"cit.gown.{i}", sex=sex, status=status, trade="spinner",
+                                   ethnicity=eth)
+                        outfit = runtime.clothing(p, "adult")[0]
+                        seen.add(outfit)
+                        if outfit == "c":
+                            self.assertEqual((sex, wd.wealth_of(p)), ("f", "rich"))
+                        if outfit == "d":
+                            self.assertEqual(sex, "f")
+                            self.assertEqual(eth, "estonian")
+                            self.assertNotEqual(wd.wealth_of(p), "rich")
+        self.assertEqual(seen, {"a", "b", "c", "d"})
+        nun = person(sex="f", trade="nun", status="cleric", ethnicity="estonian")
+        self.assertEqual(runtime.clothing(nun, "adult")[0], "b")
+        self.assertEqual(runtime.clothing(person(sex="f", status="noble", age=70), "elder")[0], "a")
+
+    def test_body_ids_round_trip(self):
+        for sex in "mf":
+            for stage, builds in citizen_bodies.STAGE_BUILDS.items():
+                for outfit in citizen_bodies.outfits_of(sex, stage):
+                    body = citizen_bodies.body_id(sex, stage, builds[0], outfit)
+                    self.assertEqual(citizen_bodies.outfit_of(body), outfit, body)
 
     def test_layers_are_wardrobe_garments(self):
         src = (ROOT / "tools/assets/realistic_humans/garments.py").read_text()

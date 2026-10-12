@@ -26,6 +26,7 @@ func test_post_process_grade_is_enabled_with_frozen_values() -> void:
 	assert_true(is_equal_approx(env.adjustment_brightness, MapView3D.GRADE_DAY_BRIGHTNESS))
 	assert_true(is_equal_approx(env.glow_intensity, MapView3D.GLOW_INTENSITY_DAY))
 
+	view._sky_weather.set_calendar_date({"year": 1343, "month": 12, "day": 21})
 	view.apply_cycle_progress(0.0)
 	assert_true(is_equal_approx(env.tonemap_exposure, MapView3D.GRADE_NIGHT_EXPOSURE))
 	assert_true(is_equal_approx(env.adjustment_saturation, MapView3D.GRADE_NIGHT_SATURATION))
@@ -122,9 +123,16 @@ func test_post_grade_differs_from_ungraded_baseline() -> void:
 		graded.glow_hdr_threshold >= 1.0,
 		"glow must stay selective so matte plaster does not bloom with windows"
 	)
+	var definition := SmithyCourtyard.create()
+	var view := MapView3D.create(definition, MapBuilder.build(definition), MapView3D.TIME_DAY)
+	view._sky_weather.set_calendar_date({"year": 1343, "month": 12, "day": 21})
+	view.apply_cycle_progress(0.0)
+	var night_environment := (view.get_node("ViewEnvironment") as WorldEnvironment).environment
+	var night_fill := night_environment.ambient_light_energy
+	view.free()
 	assert_true(
-		Lighting.AMBIENT_NIGHT_ENERGY >= 0.85,
-		"night ambient fill must keep local color readable outside emissive pools"
+		is_equal_approx(night_fill, Lighting.AMBIENT_NIGHT_ENERGY),
+		"winter midnight ambient fill must use the configured night value"
 	)
 	assert_true(
 		Lighting.SUN_NIGHT_ENERGY <= Lighting.SUN_DAY_ENERGY * 0.8,

@@ -18,7 +18,7 @@ class CitizenRuntimeTest(unittest.TestCase):
     def test_every_body_is_in_the_library(self):
         names = {citizen_bodies.body_id(sex, stage, build, outfit)
                  for sex in "mf" for stage, builds in citizen_bodies.STAGE_BUILDS.items()
-                 for build in builds for outfit in (("a", "b") if stage == "adult" else ("a",))}
+                 for build in builds for outfit in citizen_bodies.outfits_of(sex, stage)}
         for r in DATA["residents"]:
             self.assertIn(r["body"], names, r["id"])
             self.assertTrue((ROOT / f"assets/characters/variants/{r['body']}.tscn").is_file(), r["body"])

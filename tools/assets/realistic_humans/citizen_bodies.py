@@ -65,7 +65,24 @@ SKIN = {("m", "child"): "young_caucasian_male", ("f", "child"): "young_caucasian
 
 # Adults come in two outfits: "a" the short work tunic / work gown, "b" the long
 # tunic (men) / gown with apron (women) worn by the better-off. Dyes are runtime.
+# Women have two more (WD-3, docs/SYSTEMS/CITIZEN_WARDROBE.md): "c" the fitted,
+# buttoned kirtle under a sideless surcoat of patrician and noble women (1340s),
+# "d" the Estonian linen shift, wool wrap skirt and solg brooch.
 OUTFITS = ("a", "b")
+FEMALE_OUTFITS = ("a", "b", "c", "d")
+
+
+def outfits_of(sex, stage):
+    """Base outfits modelled for one life stage (children and elders wear "a")."""
+    if stage != "adult":
+        return ("a",)
+    return FEMALE_OUTFITS if sex == "f" else OUTFITS
+
+
+def outfit_of(body):
+    """Outfit letter of a body id (`citizen_f_adult_thin_c` -> "c")."""
+    tail = body.rsplit("_", 1)[-1]
+    return tail if tail in FEMALE_OUTFITS[1:] else "a"
 
 
 # Layers fitted to each body and exported apart from it (build_human.py writes
@@ -80,21 +97,30 @@ LAYERS = {
                      "mail_chausses", "gauntlets"),
     ("m", "elder"): ("hood", "coif", "wool_cap", "waist_apron", "keys", "paternoster", "satchel"),
     ("m", "child"): ("hood", "coif", "wool_cap"),
-    ("f", "adult"): ("veil_over", "waist_apron", "keys", "paternoster", "satchel"),
-    ("f", "elder"): ("veil_over", "keys", "paternoster"),
+    # Women's head follows marriage (WD-3): maidens wear their braids (the hair is a
+    # layer, so it can come off), wives the headscarf or the Estonian head cloth.
+    ("f", "adult"): ("braids", "headscarf", "head_cloth", "veil_over", "waist_apron", "keys", "paternoster",
+                     "satchel"),
+    ("f", "elder"): ("headscarf", "veil_over", "keys", "paternoster"),
     ("f", "child"): (),
 }
+# Layers a woman's base outfit rules out: the long gown bakes its apron; the
+# patrician surcoat takes neither apron nor scrip; the head cloth is the Estonian
+# wife's and the white burgher veil is not worn over it.
+_NOT_WITH = {"b": {"waist_apron", "head_cloth"}, "c": {"waist_apron", "satchel", "head_cloth"},
+             "a": {"head_cloth"}, "d": {"veil_over"}}
 # Extra ease (m) for torso layers so they clear the baked tunic, its blousing and belt.
 LAYER_EASE = 0.022
 
 
 def layers_of(sex, stage, outfit="a"):
-    """Layer ids fitted to one body; the long-cut gown already bakes an apron."""
-    return tuple(g for g in LAYERS[(sex, stage)] if not (g == "waist_apron" and sex == "f" and outfit == "b"))
+    """Layer ids fitted to one body (see _NOT_WITH for what a woman's outfit rules out)."""
+    skip = _NOT_WITH.get(outfit, set()) if sex == "f" else set()
+    return tuple(g for g in LAYERS[(sex, stage)] if g not in skip)
 
 
 def body_id(sex, stage, build, outfit="a"):
-    return f"citizen_{sex}_{stage}_{build}" + ("_b" if outfit == "b" else "")
+    return f"citizen_{sex}_{stage}_{build}" + ("" if outfit == "a" else f"_{outfit}")
 
 
 def reference_height_m(sex, stage):
@@ -111,6 +137,7 @@ def _spec(person, sex, stage, build, outfit="a"):
     if stage == "child":
         targets.update({"head-age-decr": 0.3})
     male = sex == "m"
+    extra = {}
     if male and outfit == "b":
         garments = ["wool_tunic", "hose", "boots"]
         palette = {"wool_tunic": CLOTH, "hose": DARK, "boots": DARK}
@@ -118,20 +145,39 @@ def _spec(person, sex, stage, build, outfit="a"):
         garments = ["short_tunic", "hose", "boots"]
         palette = {"short_tunic": CLOTH, "hose": DARK, "boots": DARK}
     elif outfit == "b":
-        garments = ["gown", "waist_apron", "headscarf", "boots"]
-        palette = {"gown": CLOTH, "waist_apron": LINEN, "headscarf": LINEN, "boots": DARK}
+        garments = ["gown", "waist_apron", "boots"]
+        palette = {"gown": CLOTH, "waist_apron": LINEN, "boots": DARK}
+    elif outfit == "c":
+        # Accessories hang outside the surcoat; the girdle shows through its side openings.
+        garments = ["kirtle", "sideless_surcoat", "boots"]
+        palette = {"kirtle": CLOTH, "sideless_surcoat": CLOTH, "boots": DARK}
+        extra["apron_over"] = "sideless_surcoat"
+    elif outfit == "d":
+        garments = ["linen_shift", "wrap_skirt", "solg", "boots"]
+        palette = {"linen_shift": LINEN, "wrap_skirt": CLOTH, "boots": DARK}
+        extra["apron_over"] = "wrap_skirt"
+        extra["apron_gap"] = 0.02
     else:
-        garments = ["work_gown", "headscarf", "boots"]
-        palette = {"work_gown": CLOTH, "headscarf": LINEN, "boots": DARK}
+        garments = ["work_gown", "boots"]
+        palette = {"work_gown": CLOTH, "boots": DARK}
     layers = list(layers_of(sex, stage, outfit))
+    # Hair (WD-3): girls keep braids baked in (never covered); grown women carry
+    # the braid as the `braids` layer, so a wife's headscarf hides it; elder women
+    # are always covered and get none.
+    if male:
+        hair = "short01"
+    elif stage == "elder":
+        hair = None
+    else:
+        hair = "braid01"
     spec = person(
         age=age, sex=sex, muscle=muscle, weight=weight, height_m=height, skin=SKIN[(sex, stage)],
-        eyes="grey", hair="short01" if (male or stage == "child") else "bob01", hair_color=(0.34, 0.27, 0.19),
+        eyes="grey", hair=hair, hair_color=(0.34, 0.27, 0.19),
         brows="eyebrow002" if male else "eyebrow006", lashes="eyelashes02" if male else "eyelashes03",
         targets=targets, complexion={"tan": 0.4, "flush": 0.4},
         garments=garments + layers, palette=palette, outfits={"daily": garments},
         extra={"apron_over": garments[0], "belted": True if male else "plain", "layers": layers,
-               "layer_ease": LAYER_EASE}, tier=2)
+               "layer_ease": LAYER_EASE, **extra}, tier=2)
     # `_person` converts age through the repo's 25-year scale; the citizen bodies
     # state MakeHuman's own macro so a child really is a child.
     spec["macros"]["age"] = mh_age(age)
@@ -146,6 +192,6 @@ def citizen_specs(person):
     for sex in ("m", "f"):
         for stage, builds in STAGE_BUILDS.items():
             for build in builds:
-                for outfit in (OUTFITS if stage == "adult" else ("a",)):
+                for outfit in outfits_of(sex, stage):
                     out[body_id(sex, stage, build, outfit)] = _spec(person, sex, stage, build, outfit)
     return out

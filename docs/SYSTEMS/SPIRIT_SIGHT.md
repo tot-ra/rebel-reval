@@ -1,6 +1,6 @@
 # Spirit sight, auras and soul lights
 
-Status: partially implemented. Duel readability (**R-1764**) is implemented. The spirit sight toggle SS-1 (**R-1484**), aura profile data SS-2/SS-2b (**R-1485**, **R-1496**), the aura look SS-3 (**R-1486**), soul lights in a duel SS-5 (**R-1488**), the duel layer SS-6 (**R-1489**), duel entry SS-7 (**R-1490**) and hero growth SS-8 (**R-1491**) are implemented. Reading a soul SS-4 (**R-1487**) is planned. Epic **R-1483**, [ADR 0041](../adr/0041-spirit-sight-auras-and-soul-lights.md) (accepted).
+Status: partially implemented. Duel readability (**R-1764**) is implemented. The spirit sight toggle SS-1 (**R-1484**), aura profile data SS-2/SS-2b (**R-1485**, **R-1496**), the aura look SS-3 (**R-1486**), soul lights in a duel SS-5 (**R-1488**), the duel layer SS-6 (**R-1489**), duel entry SS-7 (**R-1490**) and hero growth SS-8 (**R-1491**) and unclothed citizens in sight (**R-1870**) are implemented. Reading a soul SS-4 (**R-1487**) is planned. Epic **R-1483**, [ADR 0041](../adr/0041-spirit-sight-auras-and-soul-lights.md) (accepted).
 
 Scope: a spirit-sight layer the hero toggles anywhere on the same map, auras with seven soul lights on every person and animal, reading a soul, soul lights feeding the spirit duel, and duels that keep the building but hide furniture under a focused grade. Out of scope: a universal good/evil score, duels with animals, a separate spirit-world copy of the map, new art assets (P0-040). The duel rules themselves live in [`SPIRIT_DIALOGUE.md`](./SPIRIT_DIALOGUE.md).
 
@@ -328,6 +328,24 @@ tools/godot_render.sh --resolution 1280x720 --disable-vsync --script tools/captu
 
 `test_spirit_aura_view` covers anchors following bones and the rig, shared meshes that are never rebuilt, crown on the skull and brow on the forehead, level -> intensity, clarity -> turbulence, the sky beam (needs the crown, grows with all lights, the crown as bottleneck), the earth tethers (black hole full, ember faint, absent none, ending at the body's footing), reduced flashing, the 12 / 40 m budget, hidden outside sight and shown inside, absent animal lights and the animal layout.
 
+## Unclothed in sight (R-1870)
+
+Status: implemented (task **R-1870**). Scope: adult census citizens are drawn without clothes while spirit sight is open: sight shows the soul and the body, not rank or trade. Out of scope: heroes and named characters (Tier 1 bodies have no nude model yet; they stay dressed until their own task), held items (weapons, shields and tools stay in hand), anatomical detail beyond the MakeHuman base mesh.
+
+- **Who:** every rig whose body has a `layers/nude.glb` twin: the 28 adult and elder census bodies `citizen_{m,f}_{adult,elder}_*`. Never minors: child bodies have no twin and are refused by name (`child`, `apprentice`, `boy`, `girl`), and the player rig (`PlayerRig`, `char.apprentice`) is skipped.
+- **When:** `SpiritAuraManager` undresses every eligible rig in group `spirit_aura_bearer` on its 0.25 s re-rank once the sight fade reaches 0.5, so citizens streamed in during sight are caught too, and restores them all the frame sight closes.
+- **How** (`scripts/combat/spirit_undress.gd`, `SpiritUndress`): a crowd body bakes its outfit into one mesh with no skin under it, so the nude body is a separate skinned layer. `undress(rig)` mounts it as garment `spirit_nude` and hides the baked `Anatomy_CrowdBody` and every mounted garment (hoods, aprons, armour, duty hats), remembering each mesh's visibility; `restore(rig)` unmounts it and puts that visibility back. Both are idempotent.
+- **Assets:** `assets/characters/realistic/<body>/layers/nude.glb`, about 11.5k triangles (the crowd body budget) and 0.4-0.5 MB each; textures link the body's shipped skin, eye, brow, lash and hair maps, so no new texture ships. Build or rebuild one with `Blender --background --python tools/assets/realistic_humans/build_human.py -- --character=<body> --nude-only`: the same MPFB body as the crowd body, no garments, no braies, no covered region dropped. The shipped body GLB and its textures are not touched. Child bodies exit with an error.
+- **Save/load:** nothing saved; undressing is transient presentation.
+- **Limits:** the nude layer has no LOD steps, so in sight a far citizen draws its full 11.5k triangles instead of the dressed body's LOD mesh (also hidden in sight). Heroes and named characters stay dressed until their own nude bodies exist.
+
+```bash
+godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_spirit_undress
+tools/godot_render.sh --resolution 1280x720 --script tools/capture_spirit_undress.gd
+```
+
+`test_spirit_undress` covers a twin for adult and elder bodies of both sexes, only the nude layer drawn in sight (with a hood layer mounted), no cloth material on the layer, idempotent undress, the exact meshes drawn again after sight, and children, the apprentice and a hero untouched. The capture writes `build/spirit_undress/{dressed,sight,sight_back,restored}.png` (three adults and a child; plates are kept out of `docs/`).
+
 ## Save state and IDs
 
 - Stable ids: the NATURAL aspect ids `aspect.nature`, `aspect.affection`, `aspect.tenacity`, `aspect.unity`, `aspect.resonance`, `aspect.awareness`, `aspect.light` as light ids; input action `player_spirit_sight`.
@@ -335,7 +353,7 @@ tools/godot_render.sh --resolution 1280x720 --disable-vsync --script tools/captu
 
 ## Verification
 
-Each task names its filter: `test_spirit_sight`, `test_spirit_aura_profile`, `test_spirit_aura_view`, `test_spirit_reading`, `test_spirit_duel_aura`, `test_spirit_arena_3d`, `test_spirit_sight_duel_entry`, `test_soul_lights_state` (rank bands and apprentice baseline).
+Each task names its filter: `test_spirit_sight`, `test_spirit_aura_profile`, `test_spirit_aura_view`, `test_spirit_reading`, `test_spirit_duel_aura`, `test_spirit_arena_3d`, `test_spirit_sight_duel_entry`, `test_soul_lights_state` (rank bands and apprentice baseline), `test_spirit_undress`.
 
 Every image on this page is a reproducible capture (GPU run, never a visible window):
 

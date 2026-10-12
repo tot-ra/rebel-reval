@@ -4,6 +4,8 @@ Status: implemented; visual and performance acceptance remains partial. Reorgani
 
 Scope: identifying, locating and changing vegetation models, their placement and rendering. Presentation only: no damage, felling, harvesting, collision changes or saved per-plant state. Out of scope: a crop or harvest mechanic (needs an ADR), new biomes, imported game assets, a renderer change (GL Compatibility stays). Farmland crops: [Farmland](./FARMLAND.md); calendar: [Seasons](./SEASONS.md). Budgets, workflow, capture commands, limits and roadmap: [Vegetation engineering](./VEGETATION_ENGINEERING.md).
 
+**Every plant has its own card** with a model portrait in the [flora catalogue](../FLORA/README.md): [trees](../FLORA/README.md#trees), [shrubs](../FLORA/README.md#shrubs), [herbs and wild flowers](../FLORA/README.md#herbs-and-wild-flowers), [crops](../FLORA/README.md#crops), and a [wishlist](../FLORA/README.md#wishlist-common-estonian-plants-not-yet-in-the-game) of common Estonian plants still missing. This page explains the systems; the cards say what each plant is, where it grows and how it looks.
+
 Pictures are repository captures under `docs/reports/images/vegetation/`. The three animations were rendered by [`tools/capture_vegetation_animations.gd`](../../tools/capture_vegetation_animations.gd) on 11 October 2026; older plates are visual references, not proof that every defect is resolved. Click an image for full resolution.
 
 ## At a glance
@@ -16,7 +18,7 @@ Pictures are repository captures under `docs/reports/images/vegetation/`. The th
 | Detail by distance | Needle fronds up close, cheap crowns far away | Camera distance | [Detail by distance](#detail-by-distance) |
 | Shrubs | Canes and tree-mesh bushes | City plan species | [Shrubs](#shrubs) |
 | Blade grass | Individual curved blades, trampling, snow | Wildness fields, player position | [Grass](#grass) |
-| Wild plants | Dandelion, plantain, clover, burdock by month | Date, habitat fields | [Wild plants](#wild-plants-forbs) |
+| Wild plants | Dandelion, plantain, clover, burdock, oxeye daisy by month | Date, habitat fields | [Wild plants](#wild-plants-forbs) |
 | Ecology | Sedge at the bank, clear road verges, pine heath on sand | Water, road, shade, soil fields | [Placement and ecology](#placement-and-ecology) |
 | Moss and fungi | Moss on north sides, mushrooms in the woods | Sun side, shade mask, date | [Moss, lichen and the forest floor](#moss-lichen-and-the-forest-floor-r-1661) |
 
@@ -40,12 +42,12 @@ The registry is [`MapViewTreeSpecies.ALL_SPECIES`](../../scripts/map/view3d/map_
 
 | Habit | Species (model key) |
 |---|---|
-| Evergreen | Norway spruce `spruce` (cone, low skirt), Scots pine `pine` (clear bole, high open crown), juniper `juniper` (compact column) |
-| Tall, airy broadleaf | birch `birch` (white bole, gold autumn), aspen `aspen`, ash `ash`, alder `alder` |
-| Broad dome, late leaf | oak `oak` (low crooked fork, brown autumn), maple `maple` (red/orange), linden `linden`, elm `elm` |
-| Wet ground | willow `willow` (leaning bole, hanging shoots) |
-| Orchard and fruit | apple `apple` (fruit Aug-Oct), sour cherry `cherry` (July), plum `plum` (Aug-Sep), pear `pear` (Aug-Oct) |
-| Small and thorny | rowan `rowan` (berries Aug-Nov), hawthorn `hawthorn`, blackthorn `blackthorn` (sloes Sep-Nov), hazel `hazel` (stool, no trunk) |
+| Evergreen | Norway spruce [`spruce`](../FLORA/trees/spruce.md) (cone, low skirt), Scots pine [`pine`](../FLORA/trees/pine.md) (clear bole, high open crown), juniper [`juniper`](../FLORA/trees/juniper.md) (compact column) |
+| Tall, airy broadleaf | birch [`birch`](../FLORA/trees/birch.md) (white bole, gold autumn), aspen `aspen`, ash `ash`, alder [`alder`](../FLORA/trees/alder.md) |
+| Broad dome, late leaf | oak [`oak`](../FLORA/trees/oak.md) (low crooked fork, brown autumn), maple [`maple`](../FLORA/trees/maple.md) (red/orange), linden `linden`, elm [`elm`](../FLORA/trees/elm.md) |
+| Wet ground | willow [`willow`](../FLORA/trees/willow.md) (leaning bole, hanging shoots) |
+| Orchard and fruit | apple [`apple`](../FLORA/trees/apple.md) (fruit Aug-Oct), sour cherry [`cherry`](../FLORA/trees/cherry.md) (July), plum [`plum`](../FLORA/trees/plum.md) (Aug-Sep), pear [`pear`](../FLORA/trees/pear.md) (Aug-Oct) |
+| Small and thorny | rowan [`rowan`](../FLORA/trees/rowan.md) (berries Aug-Nov), hawthorn `hawthorn`, blackthorn [`blackthorn`](../FLORA/trees/blackthorn.md) (sloes Sep-Nov), hazel [`hazel`](../FLORA/trees/hazel.md) (stool, no trunk) |
 
 "Early" and "late" leaf are rendering groups, not botanical simulation. Leaf-card families are shared (ash, rowan and willow borrow the birch tile), so identity comes from branching, proportions, tint and bark as well as the card. Only Baltic 1343 species are allowed ([`FLORA_FAUNA.md`](../FLORA_FAUNA.md)). `pine_tall` is a city form of `pine`, not a 21st species: 23 m, 13 primary limbs, needles on the outer third of each shoot; see `MapViewTreeMeshes.CITY_FORMS`.
 
@@ -171,11 +173,11 @@ City shrubs reuse tree meshes through [`CityVegetationBuilder.SHRUB_AS_TREE`](..
 
 | City plan species | Rendered model |
 |---|---|
-| `elder`, `hazel_shrub`, `guelder_rose`, `willow_shrub`, `alder_shrub` | Hazel tree mesh, scaled |
-| `hawthorn`, `spindle` | Hawthorn tree mesh |
-| `blackthorn`, `sea_buckthorn` | Blackthorn tree mesh |
-| `juniper_shrub` | Juniper tree mesh |
-| `dog_rose`, `raspberry` | Curved canes with leaf cards ([`MapViewBushMeshes.city_mesh_for`](../../scripts/map/view3d/map_view_bush_meshes.gd)); rose uses rowan leaves, raspberry hazel; no flowers or fruit |
+| [`elder`](../FLORA/shrubs/elder.md), [`hazel_shrub`](../FLORA/shrubs/hazel_shrub.md), [`guelder_rose`](../FLORA/shrubs/guelder_rose.md), [`willow_shrub`](../FLORA/shrubs/willow_shrub.md), [`alder_shrub`](../FLORA/shrubs/alder_shrub.md) | Hazel tree mesh, scaled |
+| [`hawthorn`](../FLORA/shrubs/hawthorn.md), [`spindle`](../FLORA/shrubs/spindle.md) | Hawthorn tree mesh |
+| [`blackthorn`](../FLORA/shrubs/blackthorn.md), [`sea_buckthorn`](../FLORA/shrubs/sea_buckthorn.md) | Blackthorn tree mesh |
+| [`juniper_shrub`](../FLORA/shrubs/juniper_shrub.md) | Juniper tree mesh |
+| [`dog_rose`](../FLORA/shrubs/dog_rose.md), [`raspberry`](../FLORA/shrubs/raspberry.md) | Curved canes with leaf cards ([`MapViewBushMeshes.city_mesh_for`](../../scripts/map/view3d/map_view_bush_meshes.gd)); rose uses rowan leaves, raspberry hazel; no flowers or fruit |
 
 Species with neither a proxy nor a city mesh are skipped rather than drawn as a blob.
 
@@ -207,16 +209,30 @@ Implemented for the seamless city (**R-1323**; open: blueprint-map carpet and gr
 
 ## Wild plants (forbs)
 
-Implemented (**R-1519**, seasons **R-1557**, blueprint maps **R-1559**). Decision (user, 2026-10-09): flat accent diamonds were rejected; plants must read as real botany up close. [`CityForbMeshes`](../../scripts/city/city_forb_meshes.gd) builds eight cached models, each with a far variant at a quarter of the triangles or less.
+Implemented (**R-1519**, seasons **R-1557**, blueprint maps **R-1559**, oxeye daisy **R-1807**). Decision (user, 2026-10-09): flat accent diamonds were rejected; plants must read as real botany up close. [`CityForbMeshes`](../../scripts/city/city_forb_meshes.gd) builds fourteen cached models (six species with their seasonal variants), each with a far variant at a quarter of the triangles or less. Cards: [dandelion](../FLORA/herbs/dandelion.md), [plantain](../FLORA/herbs/plantain.md), [white clover](../FLORA/herbs/white_clover.md), [red clover](../FLORA/herbs/red_clover.md), [burdock](../FLORA/herbs/burdock.md), [oxeye daisy](../FLORA/herbs/oxeye_daisy.md).
 
-![Lineup of the eight wild-plant models: dandelion in flower, in seed and as a rosette, plantain, white and red clover, burdock rosette and flowering burdock](../reports/images/vegetation/forbs_lineup.png)
+![Lineup of the wild-plant models: oxeye daisy and its rosette at the back left, dandelion in flower, in seed and as a rosette, plantain, white and red clover, burdock rosette and flowering burdock](../reports/images/vegetation/forbs_lineup.png)
 
 | Dandelion | Plantain | Clover | Burdock |
 |---|---|---|---|
 | ![Dandelion flower, seed clock and rosette](../reports/images/vegetation/forbs_dandelion.png) | ![Broadleaf plantain with flower spikes](../reports/images/vegetation/forbs_plantain.png) | ![White clover mat and red clover](../reports/images/vegetation/forbs_clover.png) | ![Burdock rosette and flowering candelabra](../reports/images/vegetation/forbs_burdock.png) |
 | Short grass round settlement | Worn verges and yards | Short turf (white); uncut meadow only (red) | Wall feet and road edges; 1.1-1.3 m when uncut |
 
-Placement ([`CityForbs`](../../scripts/city/city_forbs.gd)) reads the fields that drive grass height (wildness, road, house distance, bareness) with fixed-seed noise patches. Drawing is one MultiMesh per model and detail level in 8 m chunks, about 16 draw calls, with shared wind and a shrink-out fade; [`city_forb.gdshader`](../../scripts/city/city_forb.gdshader) gives burdock its pale woolly undersides. Leaf venation comes from the procedural atlas [`forb_leaf_detail.png`](../../assets/vegetation/forbs/forb_leaf_detail.png).
+### Oxeye daisy (R-1807)
+
+Status: implemented (task **R-1807**). Scope: the model, its season and its habitat. Out of scope (task **R-1792**): dense daisy drifts (cluster instances), a hay-meadow habitat field and a far white speckle; the city meadow therefore shows scattered daisies, not a white carpet. Decision (user, 2026-10-12): model one of the common Estonian meadow flowers first; the oxeye daisy (*Leucanthemum vulgare*, härjasilm) is the white "ромашка" of Estonian hay meadows.
+
+| Studio | Heads | City meadow, 20 July |
+|---|---|---|
+| ![Oxeye daisy in flower beside its leaf rosette](../FLORA/images/herbs/oxeye_daisy.jpg) | ![Two daisy heads close up: white strap petals round a domed golden disc](../FLORA/images/herbs/oxeye_daisy_closeup.jpg) | ![Daisies scattered with red clover in uncut meadow grass](../FLORA/images/herbs/oxeye_daisy_meadow.jpg) |
+
+- **Model** (`CityForbMeshes._oxeye_daisy`, kinds `oxeye_daisy` and `oxeye_daisy_leaves`): a rosette of 6-9 long-stalked, spoon-shaped, round-toothed leaves; 2-4 wiry stems 30-46 cm high with a slight S and three narrow toothed leaves; one head per stem (about one in six a bud), tilted 10-35 degrees toward the light so it reads from the high camera. A head is 18-23 separate strap petals, each a slightly different white with a notched tip, round a domed golden disc over a cup of dark-edged bracts; one head in five is older with drooping petals. Heads are about 5-6 cm in the model and, like every forb, are scaled up 5-45 % in the city to sit in proportion with its oversized grass. Petals carry high transmission (`COLOR.a` 0.65), so they glow against the sun. About 1,500 triangles near, 160 far (a white fan and a yellow dome per head); the rosette is 360 and 72.
+- **Season** (`FORB_WINDOWS["oxeye_daisy"]`): rosette from 15 April, flowers 1 June - 31 July, rosette again until 15 November; 15 % of plants do not flower in a given year.
+- **Habitat** (`CityForbs.suitability`): clumped patches (noise 0.05/m, narrow threshold) on open, uncut ground: suitability rises from wildness 0.35 to full at 0.8 and from 2.5 m to 7 m off the road; never in short turf or on the road edge. Grows taller in tall grass, like red clover.
+- **Verify.** `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_city_forbs` (heights, season mix, habitat, far budget). Plates: `tools/godot_render.sh --script tools/capture_city_forbs.gd -- --season=summer` (shots `oxeye_daisy`, `oxeye_daisy_heads`, `meadow_eye`).
+- **Limits.** Daisy density is the single-plant model of the other forbs (0.3 candidates/m2 at full suitability); in the waist-high city grass (R-1791) many heads are hidden. Blueprint maps have no `plant.oxeye_daisy` zone yet.
+
+Placement ([`CityForbs`](../../scripts/city/city_forbs.gd)) reads the fields that drive grass height (wildness, road, house distance, bareness) with fixed-seed noise patches. Drawing is one MultiMesh per model and detail level in 8 m chunks; empty layers are hidden, so a season draws about 16-20 calls, with shared wind and a shrink-out fade; [`city_forb.gdshader`](../../scripts/city/city_forb.gdshader) gives burdock its pale woolly undersides. Leaf venation comes from the procedural atlas [`forb_leaf_detail.png`](../../assets/vegetation/forbs/forb_leaf_detail.png).
 
 ### Wild-plant seasons (R-1557)
 
@@ -325,9 +341,10 @@ The [sacred-grove ancient oak GLB](../../assets/props/environment/sacred_grove_a
 
 - Texture pipeline, performance budgets, how to change a model, capture and test commands, known limits, roadmap: [Vegetation engineering](./VEGETATION_ENGINEERING.md).
 - [Farmland](./FARMLAND.md): crops, gardens, pastures and woods outside the walls.
+- [Flora catalogue](../FLORA/README.md): one card per plant with portraits, and the wishlist of common Estonian plants still missing.
 - [Flora and fauna](../FLORA_FAUNA.md) and [biomes and wildlife](../LOCATIONS/BIOMES_AND_WILDLIFE.md): species inventory and authored map evidence.
 - [Seasons](./SEASONS.md) and [weather ground](./WEATHER_GROUND.md): date controls, snow and ground weather.
 - [World presentation](./WORLD_PRESENTATION.md), [Seamless city](./SEAMLESS_CITY.md), [Map authoring](../MAP_AUTHORING.md): how and where vegetation is placed and drawn.
 - [Art bible](../ART_BIBLE.md) ("Vegetation realism (P0-208)").
 
-Implementation lineage, for lookup only: seasonal crowns **R-1187**; cluster cards **R-1194**; procedural atlas **R-1329**; shared wind **R-1321**; branching presets **R-1324**, orchard habits **R-1391**; city-scale pass **R-712**; shrub cards **R-1315**; macro needles **R-1404**; whole-tree storm bend **R-1433**; ecology **R-1322**; pine heath **R-1617**; city grass **R-1323**; forbs **R-1519**/**R-1557**/**R-1558**/**R-1559**; snow **R-1327**; moss and fungi **R-1661**/**R-1683**/**R-1684**; docs **R-1696**, **R-1704**.
+Implementation lineage, for lookup only: seasonal crowns **R-1187**; cluster cards **R-1194**; procedural atlas **R-1329**; shared wind **R-1321**; branching presets **R-1324**, orchard habits **R-1391**; city-scale pass **R-712**; shrub cards **R-1315**; macro needles **R-1404**; whole-tree storm bend **R-1433**; ecology **R-1322**; pine heath **R-1617**; city grass **R-1323**; forbs **R-1519**/**R-1557**/**R-1558**/**R-1559**, oxeye daisy **R-1807**; flora catalogue **R-1808**; snow **R-1327**; moss and fungi **R-1661**/**R-1683**/**R-1684**; docs **R-1696**, **R-1704**.

@@ -149,6 +149,7 @@ Ecology changes also run the map gate from [`AGENTS.md`](../../AGENTS.md#map-aut
 - **Moss and fungi.** The woods stand in tall meadow grass (R-1595) that hides most fungi. The north strip is a fixed southern-sun approximation; the canopy channel is coarse (12 units). Fungi are low-poly lathes with vertex colour.
 - **Textures.** Normal, surface, bark, ground and ear textures from R-1329 are built but not yet bound.
 - **Backlit golden hour.** A Witcher-style backlit wood is not reachable yet: the outdoor grade flat-lights shots against the sun, sky ambient ignores canopy cover, god rays ignore trees, and there is no veteran oak form. Gap analysis and plates: [witcher_backlit_forest_gap_2026-10-11.md](../reports/witcher_backlit_forest_gap_2026-10-11.md).
+- **Flower meadow.** A Witcher-style daisy meadow is not reachable yet: no oxeye daisy, poppy or tall blue-violet species in the city, forbs are sparse finds with no far representation, and open grass grows waist-high in wide uniform blades. Gap analysis and plates: [witcher_flower_meadow_gap_2026-10-11.md](../reports/witcher_flower_meadow_gap_2026-10-11.md).
 - No felling, breakage, harvesting, persistent particle accumulation or elastic simulation. Independent visual acceptance of the crown and storm work remains incomplete.
 
 ## Roadmap

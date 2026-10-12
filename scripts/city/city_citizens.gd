@@ -420,9 +420,10 @@ static func dye(rig: Node, record: Dictionary) -> void:
 			var tint := Color.WHITE
 			var name := material.resource_name
 			if name.ends_with("_short_tunic") or name.ends_with("_wool_tunic") \
-					or name.ends_with("_work_gown") or name.ends_with("_gown"):
+					or name.ends_with("_work_gown") or name.ends_with("_gown") \
+					or name.ends_with("_sideless_surcoat") or name.ends_with("_wrap_skirt"):
 				tint = cloth
-			elif name.ends_with("_hose") or name.ends_with("_headscarf"):
+			elif name.ends_with("_hose") or name.ends_with("_headscarf") or name.ends_with("_kirtle"):
 				tint = under
 			else:
 				continue

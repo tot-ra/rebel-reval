@@ -377,6 +377,20 @@ Per [ADR 0017](./adr/0017-legacy-design-reintroduction.md), the following return
   * Three separate schools: Christian sin and absolution, folk blood-debt and cleansing, civic standing. Not a single morality score. Confession and cleansing rites are **`plausible composite`** (confession is an attested Christian practice; the game rules are invented).
 * **Language comprehension** - **`invented`** as a game skill; the languages themselves (Middle Low German, Estonian, Russian) are **`attested`**.
 
+<a id="flora-of-1343-r-1808"></a>
+
+## Flora of 1343 (R-1808)
+
+Which plants may grow round Reval in 1343. The full list with habitats and seasons is the [flora catalogue](./FLORA/README.md#wishlist-common-estonian-plants-not-yet-in-the-game); sources with citations are task **R-1790**. Rule: a species that reached Estonia after 1343 is excluded.
+
+| Plant | Label | Ruling |
+|---|---|---|
+| Oxeye daisy, long-leaved speedwell, tufted vetch, meadow cranesbill, bellflowers, marsh marigold, coltsfoot, liverleaf, wood anemone, meadowsweet, St John's wort, yarrow | `attested` (native Estonian flora) | Allowed anywhere their habitat exists |
+| Cornflower, chamomile, scentless mayweed, charlock, henbane, common poppy | `plausible composite` (archaeophytes of fields and yards; presence round Reval in 1343 not attested) | Allowed at field margins, yards and gardens; common poppy only sparsely |
+| Opium poppy, garden mints, orchard cherry, plum, pear | `plausible composite` (medieval Baltic garden plants) | Gardens and orchards only |
+| Garden lupine (*Lupinus polyphyllus*) | excluded | 19th-century introduction from North America |
+| Oilseed rape (*Brassica napus*) fields | excluded | Field crop in Estonia only from the 19th-20th century; use charlock for yellow in spring grain |
+
 ## Superseded narrative (non-canon)
 
 The following legacy material remains non-canon. Do not implement.

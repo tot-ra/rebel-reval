@@ -309,6 +309,11 @@ WEALTH = {"patrician": "rich", "noble": "rich", "guest_merchant": "rich", "burgh
           "journeyman": "mid", "soldier": "mid"}
 HABIT_TRADES = {"monk", "lay_brother", "nun", "lay_sister", "canon", "chaplain"}
 LONG_SHARE = {"rich": 1.0, "mid": 0.45, "poor": 0.15}
+# Women's gowns (WD-3, docs/SYSTEMS/CITIZEN_WARDROBE.md): share of rich women in the
+# fitted kirtle and sideless surcoat (the 1340s fashion; nobles and patricians first),
+# and of Estonian and Finnish women below the rich in shift, wrap skirt and solg.
+SURCOAT_SHARE = {"noble": 0.85, "patrician": 0.75, "guest_merchant": 0.4, "burgher_merchant": 0.4}
+WRAP_SHARE = {"mid": 0.35, "poor": 0.6}
 
 
 def clothing(person, stage):
@@ -323,6 +328,14 @@ def clothing(person, stage):
         table = DYES[wealth]
         main = table[int(pick * len(table))]
     under = UNDER[int(hash01(key + ":under") * len(UNDER))]
+    if stage == "adult" and person["sex"] == "f" and person["trade"] not in HABIT_TRADES:
+        if hash01(key + ":gown") < SURCOAT_SHARE.get(person["status"], 0.0):
+            # The kirtle (`under`) in a second rich dye that differs from the surcoat's.
+            rich = [d for d in DYES["rich"] if d != main]
+            return "c", list(main), list(rich[int(hash01(key + ":kirtle") * len(rich))])
+        if person.get("ethnicity") in ("estonian", "finnish") and \
+                hash01(key + ":gown") < WRAP_SHARE.get(wealth, 0.0):
+            return "d", list(main), list(under)
     long_cut = stage == "adult" and (
         person["trade"] in HABIT_TRADES or hash01(key + ":cut") < LONG_SHARE[wealth])
     return ("b" if long_cut else "a"), list(main), list(under)
@@ -554,7 +567,7 @@ def build():
     # Layered dress after the duty roster: kits depend on the post (CITIZEN_WARDROBE.md).
     for rec in residents:
         _, sex, stage = rec["body"].split("_")[:3]
-        available = citizen_bodies.layers_of(sex, stage, "b" if rec["body"].endswith("_b") else "a")
+        available = citizen_bodies.layers_of(sex, stage, citizen_bodies.outfit_of(rec["body"]))
         rec["wear"], rec["wear_dye"] = citizen_wardrobe.dress(rec, available)
         shield = citizen_wardrobe.shield_of(rec, rec["wear"])
         if shield:

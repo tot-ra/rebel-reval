@@ -11,6 +11,8 @@ extends Node3D
 ##                        flowering, seed clocks and leaf-only rosettes
 ##   burdock            - ruderal: the unmown strip at a wall foot and road
 ##                        edges, rosettes and tall flowering plants with burrs
+##   oxeye daisy        - clumped patches in the open, uncut meadow away from
+##                        roads (R-1807); flowers June-July
 ## Patches come from fixed-seed noise, so the same ground always grows the same
 ## plants (deterministic per chunk, nothing saved).
 ##
@@ -24,7 +26,8 @@ extends Node3D
 ## Drawing: one MultiMesh per model and detail level for the whole streamed
 ## area (two per model: near detail round the player, the far variant beyond),
 ## refilled by concatenating per-chunk instance buffers whenever the player
-## enters a new chunk. That keeps forbs at about 16 draw calls instead of one
+## enters a new chunk. Empty layers are hidden, so a season draws about 16-20
+## calls (the models in season, near and far) instead of one
 ## per model per chunk.
 
 
@@ -58,6 +61,7 @@ const MAX_DENSITY := {
 	Meshes.KIND_WHITE_CLOVER: 0.32,
 	Meshes.KIND_RED_CLOVER: 0.40,
 	&"burdock": 0.12,
+	&"oxeye_daisy": 0.30,
 }
 ## The city's grass blades are drawn larger than life, so the forbs are scaled
 ## up by this range to sit in proportion with them.
@@ -71,6 +75,9 @@ const PATCH := {
 	Meshes.KIND_WHITE_CLOVER: [0.11, 0.52, 0.66],
 	Meshes.KIND_RED_CLOVER: [0.07, 0.52, 0.70],
 	&"burdock": [0.06, 0.42, 0.60],
+	# Daisies grow in clumps: lower frequency and a narrow window give a few
+	# large, dense patches rather than an even sprinkle.
+	&"oxeye_daisy": [0.05, 0.55, 0.68],
 }
 
 static var _noise: Dictionary = {}
@@ -151,6 +158,12 @@ static func suitability(grass: CityGrass, species: StringName, p: Vector2) -> fl
 			var rd := grass.road_distance_at(p)
 			var edge := smoothstep(1.2, 2.5, rd) * (1.0 - smoothstep(4.0, 8.0, rd))
 			return patch * maxf(wall, edge * 0.6)
+		&"oxeye_daisy":
+			# Uncut meadow first: the road probe runs only where it can matter.
+			var meadow := smoothstep(0.35, 0.8, wild)
+			if meadow <= 0.0:
+				return 0.0
+			return patch * meadow * smoothstep(2.5, 7.0, grass.road_distance_at(p))
 	return 0.0
 
 
@@ -318,10 +331,10 @@ static func chunk_buffers(grass: CityGrass, key: Vector2i, day: int) -> Dictiona
 			if species == Meshes.KIND_PLANTAIN:
 				# Trodden plantain hugs the ground.
 				flat = lerpf(0.55, 1.0, wild)
-			elif species in [Meshes.KIND_RED_CLOVER, &"dandelion"]:
+			elif species in [Meshes.KIND_RED_CLOVER, &"dandelion", &"oxeye_daisy"]:
 				# In tall grass they grow up to the light (red clover reaches 60 cm).
 				# Scaled evenly: a vertical stretch turns round heads into thistles.
-				size *= lerpf(1.0, 1.35 if species == Meshes.KIND_RED_CLOVER else 1.15, wild)
+				size *= lerpf(1.0, 1.15 if species == &"dandelion" else 1.35, wild)
 			var basis := Basis(Vector3.UP, yaw).scaled(Vector3(size, size * flat, size))
 			var dust := clampf(bare * 1.4, 0.0, 1.0)
 			var tint := Color(tone, tone, tone).lerp(Color(tone * 1.02, tone * 0.98, tone * 0.86), dust)
@@ -375,4 +388,9 @@ static func _kind_for(
 			if phase == VegetationPhenology.FORB_DRY_BURRS:
 				return Meshes.KIND_BURDOCK_DRY
 			return Meshes.KIND_BURDOCK_FLOWERING
+		&"oxeye_daisy":
+			# A few rosettes do not flower in a given year.
+			if leaves_only or pick >= 0.85:
+				return Meshes.KIND_OXEYE_DAISY_LEAVES
+			return Meshes.KIND_OXEYE_DAISY
 	return species
