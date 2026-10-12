@@ -30,13 +30,13 @@ Every person carries seven lights up the body, and each has a level 0..5. The au
 
 | Light | Code id | Anchor | Guards element | Colour |
 |---|---|---|---|---|
-| 1 | `aspect.nature` | pelvis | fear | red |
-| 2 | `aspect.affection` | lower spine | coin | orange |
-| 3 | `aspect.tenacity` | mid spine | duty | yellow |
-| 4 | `aspect.unity` | chest | love | green |
-| 5 | `aspect.resonance` | neck | shame | blue |
-| 6 | `aspect.awareness` | head, front | sight (none) | indigo |
-| 7 | `aspect.light` | above the head | faith | violet |
+| 1 | `aspect.nature` | perineum | fear | red |
+| 2 | `aspect.affection` | below the navel | coin | orange |
+| 3 | `aspect.tenacity` | solar plexus | duty | yellow |
+| 4 | `aspect.unity` | mid sternum | love | green |
+| 5 | `aspect.resonance` | throat (mid neck) | shame | blue |
+| 6 | `aspect.awareness` | forehead | sight (none) | indigo |
+| 7 | `aspect.light` | on the crown of the skull | faith | violet |
 
 **Meaning, not morality:** bright lights = a strong soul, a closed light (level 0) = a weak point, low clarity = a troubled soul. The aura never says whether someone is good.
 
@@ -49,12 +49,12 @@ What the player sees once sight fades in. The auras fade with the sight `blend`,
 ![Six people with every light at level 0, 1, 2, 3, 4 and 5](../reports/images/spirit_auras/levels_0_to_5.png)
 
 - **0 - black hole.** It keeps its colour: black at the centre, the colour returning in a concentric gradient toward a glowing rim, swirling inward. It drags a dark earth tether into the ground (see below).
-- **1 - ember**, **2 - glow**, **3 - bright**, **4 - radiant** with a corona of rays, **5 - blazing.** A lit light is a solid coloured ball in a soft halo, a touch brighter than the lit world around it but never sun-white; the ball whitens and the halo widens with the level (maintainer request 2026-10-11).
+- **1 - ember**, **2 - glow**, **3 - bright**, **4 - radiant** with a corona of rays, **5 - blazing.** A lit light is a small solid coloured bead (about 8 cm across at level 3, 10 cm at 5) with a crisp antialiased rim and only a faint tight halo, a touch brighter than the lit world around it but never sun-white; the core whitens a little and the halo widens with the level (maintainer requests 2026-10-11 and 2026-10-12). The edge stays one pixel sharp at any camera distance.
 - Every light breathes slowly (about 0.2 Hz, phase-shifted per light). Position, not colour alone, tells which light is which.
 
 ### Field lines between the lights
 
-Each pair of neighbouring lights (root-belly, belly-plexus .. brow-crown) is joined by six nested arcs, like iron filings round a bar magnet: an arc leaves the lower light, overshoots past it, swings out to the side and comes round into the upper light. The aura is a stack of six small dipoles up the spine; only the crown sends the sky beam on upward (maintainer request 2026-10-11). Comets of light climb each arc from the lower light to the upper; the arc colour blends its two lights, and a link is as strong as its weaker end (a black hole starves the arcs it touches). The mean level sets the speed and the spread. A faint fresnel **shell** hugs the torso and head, tinted by the level-weighted light colour.
+Each pair of neighbouring lights (root-belly, belly-plexus .. brow-crown) is joined by six nested arcs, drawn as crisp thin lines (a solid core with a one-pixel antialiased edge, no soft blur up close), like iron filings round a bar magnet: an arc leaves the lower light, overshoots past it, swings out to the side and comes round into the upper light. The aura is a stack of six small dipoles up the spine; only the crown sends the sky beam on upward (maintainer request 2026-10-11). Comets of light climb each arc from the lower light to the upper; the arc colour blends its two lights, and a link is as strong as its weaker end (a black hole starves the arcs it touches). The mean level sets the speed and the spread. A faint fresnel **shell** hugs the torso and head, tinted by the level-weighted light colour.
 
 ### Clarity: calm or troubled
 
@@ -312,7 +312,7 @@ Status: implemented (task **R-1486**). Scope: drawing every nearby person and an
 | `SpiritAuraManager` | `scripts/combat/spirit_aura_manager.gd` | Budget and visibility; mounted as `SpiritAuras` under the SS-1 controller (`scripts/combat/spirit_sight.gd`) and fades with its `blend`. |
 | Flow shader | `scripts/combat/spirit_aura_flow.gdshader` | Field-line arcs between neighbouring lights (`RIBBON_LINKS` x `LINES_PER_LINK`) and the fresnel shell (`shell_mode`). |
 | Light shader | `scripts/combat/spirit_aura_light.gdshader` | The seven billboarded lights, the sky beam (quad 7, upright billboard, `beam_strength`) and the seven earth tethers (quads 8..14, down to the `ground` uniform at the body's footing) in one draw call, or one soft glow (`glow_only`). |
-| Anchor list | `SharedCharacterRig.SPIRIT_AURA_ANCHORS` | The one const list of anchors: a point along a bone segment (`hips`, `spine`, `chest`, `head`; the rig has no neck bone) plus a forward offset. Rigs join group `spirit_aura_bearer`. |
+| Anchor list | `SharedCharacterRig.SPIRIT_AURA_ANCHORS` | The one const list of anchors: a point `t` along the `hips`->`head` bone segment (the rig has no neck bone, and the chest bone height varies between MPFB bodies) plus a forward offset. Rigs join group `spirit_aura_bearer`. |
 
 - **Budget** (`SpiritAuraManager.assign_tiers`): nearest first from the hero rig (`PlayerRig`), ties in candidate order. The 12 nearest within the sight radius get a full aura, every other being within 40 m gets a single soft glow, nothing beyond. The radius follows the hero's awareness light ([Hero growth](#hero-growth-ss-8-r-1491)). Tiers are re-ranked every 0.25 s; bone anchors follow every frame. Views are created on first need, kept with their body (a child, freed with it) and hidden, not rebuilt, when sight closes.
 - **Profiles:** `PlayerRig` gets the hero profile (`char.apprentice`, live guilt clarity, re-read on every re-rank). Actor rigs are named `<Actor>Rig`; a ContentDB record `char.<actor>` supplies authored data, otherwise the stable id-only derivation applies. `register(body, profile)` adds or overrides any body.
@@ -370,9 +370,9 @@ The aura plates stand on a dark stand-in for the sight grade, not a real map; th
 ## Limits
 
 - Observation mode (SD-06) still uses its own dimming; NPC stare reactions (SD-09 reuse) are not wired. The ripple origin uses the 32 px/cell logic-to-world bridge.
-- The duel grade is a whole-screen adjustment, so aura colour is desaturated with the rest of the frame; untagged props stay visible until their spawner joins a hide group.
+- The sight and duel grades are a whole-screen saturation adjustment. `SpiritAuraView` pushes the frame's `adjustment_saturation` to the aura shaders (`world_saturation`), which pre-saturate their colour by the inverse so the lights and field lines keep their hue; colour channels cannot go below zero, so under the duel grade (0.1) they still pale a little; untagged props stay visible until their spawner joins a hide group.
 - Animals are drawn only when registered with `SpiritAuraManager.register` (as the capture does). Ambient animal actors do not join the aura group yet; wiring them needs a task that may touch the animal presenters.
-- Anchor offsets are tuned for the shared adult rig; very short or seated bodies keep the same offsets.
+- Anchors are fractions of the hips->head bone segment, tuned on the MPFB man, woman and child (`test_upper_lights_sit_on_the_neck_forehead_and_crown`); the head's own nod is not followed, and seated bodies keep the same fractions.
 - A shattered aura keeps its sky beam (the beam reads integer profile levels, not the shatter).
 
 Open balance questions: light-level multipliers, the 12-aura budget in dense crowds, and how many NPCs get an authored `aura` block versus a derived one.

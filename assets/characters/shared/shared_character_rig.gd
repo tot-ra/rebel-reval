@@ -109,24 +109,27 @@ const EQUIPMENT_SLOTS: Dictionary = {
 	&"back": &"chest",
 }
 
-## ADR 0041 (SS-3): the seven soul-light anchors, pelvis to above the head, in
+## ADR 0041 (SS-3): the seven soul-light anchors, pelvis to the crown, in
 ## NATURAL aspect order (SpiritAuraProfile.LIGHT_IDS). The skeleton has no neck
 ## or split spine bones, so an anchor is the point `t` along the from->to bone
 ## segment (t > 1 extrapolates past the head) plus `forward` metres along the
-## body's facing. Pose-aware: a bow tilts the crown light with the head.
-## Heights on the 2.0 m body (hips 0.81, spine 1.01, chest 1.40, head bone at
-## the skull base 1.67, crown of the skull about 2.0): pelvis floor 0.83, lower
-## belly 1.05, solar plexus 1.25, sternum 1.42, mid neck 1.72, forehead 1.92,
-## and the violet light resting just on top of the skull at about 2.06.
+## body's facing. Pose-aware: a bow tilts the upper lights with the torso.
+## All seven use the one hips->head segment: on the MPFB bodies (ADR 0022) the
+## chest bone sits at very different heights per body, while the skull top stays
+## about 0.39 of hips->head above the head bone on every adult, woman and child.
+## Fractions of stature on an adult man (hips 1.00, head bone at the skull base
+## 1.64, skull top 1.86): perineum 0.48 (0.89), below the navel 0.56 (1.04),
+## solar plexus 0.65 (1.21), mid sternum 0.76 (1.41), throat 0.86 (1.60),
+## forehead 0.95 (1.78), and the violet light resting on the crown (1.89).
 const SPIRIT_AURA_GROUP := &"spirit_aura_bearer"
 const SPIRIT_AURA_ANCHORS: Array[Dictionary] = [
-	{"from": &"hips", "to": &"spine", "t": 0.1, "forward": 0.0},
-	{"from": &"spine", "to": &"chest", "t": 0.1, "forward": 0.05},
-	{"from": &"spine", "to": &"chest", "t": 0.62, "forward": 0.07},
-	{"from": &"spine", "to": &"chest", "t": 1.05, "forward": 0.08},
-	{"from": &"chest", "to": &"head", "t": 1.18, "forward": 0.05},
-	{"from": &"chest", "to": &"head", "t": 1.9, "forward": 0.1},
-	{"from": &"chest", "to": &"head", "t": 2.42, "forward": 0.0},
+	{"from": &"hips", "to": &"head", "t": -0.17, "forward": 0.0},
+	{"from": &"hips", "to": &"head", "t": 0.06, "forward": 0.04},
+	{"from": &"hips", "to": &"head", "t": 0.33, "forward": 0.06},
+	{"from": &"hips", "to": &"head", "t": 0.64, "forward": 0.07},
+	{"from": &"hips", "to": &"head", "t": 0.95, "forward": 0.04},
+	{"from": &"hips", "to": &"head", "t": 1.23, "forward": 0.09},
+	{"from": &"hips", "to": &"head", "t": 1.4, "forward": 0.02},
 ]
 
 ## Skinned garments authored against the shared skeleton by

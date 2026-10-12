@@ -38,9 +38,9 @@ const REDUCED_FLASHING_SHARE := 0.15
 const LOCAL_AABB := AABB(Vector3(-1.5, -1.6, -1.5), Vector3(3.0, 15.6, 3.0))
 const SKY_BEAM_MAX_HEIGHT := 12.0
 const MAX_LEVEL_SUM := 35.0
-## Half the root-to-crown span of an adult on the shared rig; body_scale is
-## measured against it so a dog's aura is dog-sized.
-const ADULT_HALF_SPAN := 0.67
+## Half the root-to-crown span of an adult MPFB body (perineum to crown about
+## 0.95 m); body_scale is measured against it so a dog's aura is dog-sized.
+const ADULT_HALF_SPAN := 0.48
 ## SS-5 duel feedback: a landed word dims its light, then it recovers; falling pressure
 ## lowers clarity down to this share; a break shatters the aura over SHATTER_SEC.
 const DIM_DEPTH := 0.7
@@ -73,6 +73,7 @@ var shatter := 0.0
 var _shattering := false
 var _duel: SpiritDuel
 var _rig_bones: Array[Vector2i] = []
+var _world_saturation := 1.0
 var _fallback_local := PackedVector3Array()
 var _flow_material := ShaderMaterial.new()
 var _shell_material := ShaderMaterial.new()
@@ -323,7 +324,28 @@ func shader_value(param: StringName) -> Variant:
 
 func _process(delta: float) -> void:
 	update_anchors()
+	_push_world_saturation()
 	_tick_duel_feedback(delta)
+
+
+## Spirit sight and the duel grade desaturate the whole 3D frame through the
+## environment adjustment (SpiritSight.grade_environment), which also washed
+## the soul lights out to grey. The shaders pre-saturate their colour by the
+## inverse, so the lights keep their hue while the world around them greys.
+func _push_world_saturation() -> void:
+	var saturation := 1.0
+	var viewport := get_viewport()
+	var camera := viewport.get_camera_3d() if viewport != null else null
+	var env: Environment = camera.environment if camera != null else null
+	if env == null and viewport != null and viewport.find_world_3d() != null:
+		env = viewport.find_world_3d().environment
+	if env != null and env.adjustment_enabled:
+		saturation = env.adjustment_saturation
+	if is_equal_approx(saturation, _world_saturation):
+		return
+	_world_saturation = saturation
+	for material: ShaderMaterial in [_flow_material, _light_material]:
+		material.set_shader_parameter(&"world_saturation", saturation)
 
 
 func update_anchors() -> void:

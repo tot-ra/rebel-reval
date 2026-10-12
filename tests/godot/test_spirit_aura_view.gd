@@ -27,17 +27,11 @@ func test_anchors_follow_bones_and_rig_moves() -> void:
 	var skeleton := rig.skeleton()
 	var hips := skeleton.global_transform * skeleton.get_bone_global_pose(
 		skeleton.find_bone("hips")).origin
-	var spine := skeleton.global_transform * skeleton.get_bone_global_pose(
-		skeleton.find_bone("spine")).origin
-	assert_true(view.anchors[0].distance_to(hips.lerp(spine, 0.1)) < 0.001, "root on hips")
+	var head := skeleton.global_transform * skeleton.get_bone_global_pose(
+		skeleton.find_bone("head")).origin
+	assert_true(view.anchors[0].distance_to(hips.lerp(head, -0.17)) < 0.001, "root below hips")
 	for i in range(1, 7):
 		assert_true(view.anchors[i].y > view.anchors[i - 1].y, "lights climb pelvis to crown")
-	# The head bone sits at the skull base; the skull crown is about 0.33 m up.
-	# The violet light rests just on the crown, not far above it.
-	var crown_rise := view.anchors[6].y - _head_y(rig)
-	assert_true(crown_rise > 0.33 and crown_rise < 0.5, "crown on the skull: %s" % crown_rise)
-	var brow_rise := view.anchors[5].y - _head_y(rig)
-	assert_true(brow_rise > 0.15 and brow_rise < 0.3, "brow light on the forehead: %s" % brow_rise)
 	var before := view.anchors[3]
 	rig.global_position = Vector3(5.0, 0.0, -3.0)
 	view.update_anchors()
@@ -46,6 +40,32 @@ func test_anchors_follow_bones_and_rig_moves() -> void:
 	# Uniforms are relative to the root light so far-away maps keep precision.
 	var relative: PackedVector3Array = view.shader_value(&"anchors")
 	assert_true(relative[0].length() < 0.001)
+
+
+# Placement on the shipped MPFB bodies (man, woman, child): their bones sit at
+# different heights from the shared rig's, so check against each body's skull.
+func test_upper_lights_sit_on_the_neck_forehead_and_crown() -> void:
+	for variant: String in [
+		"citizen_m_adult_average", "citizen_f_adult_average", "citizen_m_child_average"
+	]:
+		var scene := load("res://assets/characters/variants/%s.tscn" % variant) as PackedScene
+		var rig := scene.instantiate() as SharedCharacterRig
+		_host.add_child(rig)
+		await _tree().process_frame
+		var view := AuraView.new()
+		rig.add_child(view)
+		view.bind(rig, _profile([2, 2, 2, 2, 2, 2, 2], 1.0))
+		var top := AuraView._mesh_bounds(rig).end.y
+		var head_y := _head_y(rig)
+		var crown := view.anchors[6].y
+		var brow := view.anchors[5].y
+		var throat := view.anchors[4].y
+		assert_true(absf(crown - top) < 0.05, "%s crown on the skull: %s vs %s" % [variant, crown, top])
+		assert_true(brow > top - 0.18 and brow < top - 0.06,
+			"%s brow on the forehead: %s vs %s" % [variant, brow, top])
+		assert_true(throat > head_y - 0.08 and throat < head_y + 0.01,
+			"%s throat on the neck: %s vs head bone %s" % [variant, throat, head_y])
+		rig.free()
 
 
 func test_fixed_meshes_are_shared_and_never_rebuilt() -> void:

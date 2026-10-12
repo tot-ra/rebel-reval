@@ -41,6 +41,9 @@ uniform float shell_strength = 0.2;
 // The lights sit inside the torso; the arcs get the same depth pull as the
 // lights (spirit_aura_light camera_bias) so the body does not hide them either.
 uniform float camera_bias = 0.45;
+// The environment adjustment saturation of the frame (SpiritAuraView pushes it);
+// mirrors spirit_aura_light saturate_for_world.
+uniform float world_saturation = 1.0;
 
 varying vec3 v_color;
 varying float v_level;
@@ -174,7 +177,7 @@ void vertex() {
 		float f = smoothstep(0.0, 1.0, s);
 		v_color = mix(COLORS[link], COLORS[link + 1], f);
 		v_level = mix(mix(la, lb, f), link_level, 0.5);
-		float width = (0.007 + 0.003 * v_level) * max(body_scale, 0.6);
+		float width = (0.0045 + 0.0015 * v_level) * max(body_scale, 0.6);
 		VERTEX = p + across * UV.y * width;
 		v_s = s;
 		v_line = phi + float(link) * 0.21;
@@ -182,6 +185,11 @@ void vertex() {
 		POSITION = depth_biased_clip(VERTEX, camera_bias * body_scale, MODELVIEW_MATRIX,
 			PROJECTION_MATRIX);
 	}
+}
+
+vec3 saturate_for_world(vec3 c) {
+	float mean = (c.r + c.g + c.b) / 3.0;
+	return max(vec3(mean) + (c - vec3(mean)) / max(world_saturation, 0.2), vec3(0.0));
 }
 
 float hash(vec2 p) {
@@ -206,17 +214,22 @@ void fragment() {
 		// brighter lights run brighter.
 		float phase = fract(v_s * 1.5 - TIME * flow_speed * 2.5 + v_line * 0.37);
 		float comet = smoothstep(0.0, 0.08, phase) * smoothstep(1.0, 0.35, phase);
-		float profile = pow(1.0 - abs(v_side), 1.5);
+		// A crisp line, not a soft gradient (maintainer request 2026-10-12): a solid
+		// core with a one-pixel antialiased edge and only a thin faint fringe, so the
+		// arcs read as drawn lines up close as well as far away.
+		float side = abs(v_side);
+		float aa = max(fwidth(side), 1e-4);
+		float profile = (1.0 - smoothstep(0.5 - aa, 0.5 + aa, side)) + 0.2 * (1.0 - side);
 		float glint = 1.0 + shimmer * sin(TIME * 6.0 + v_s * 47.0 + v_line * 13.0);
-		float level_gain = 0.12 + 0.17 * v_level;
-		vec3 color = v_color * (0.7 + 0.12 * v_level);
-		float alpha = profile * (0.22 + 0.78 * comet) * level_gain * glint * strength;
+		float level_gain = 0.28 + 0.12 * v_level;
+		vec3 color = v_color * (0.8 + 0.08 * v_level);
+		float alpha = profile * (0.45 + 0.55 * comet) * level_gain * glint * strength;
 		// Murky soul: dark smoke streaks drift along the line.
 		float smoke = value_noise(vec2(v_s * 5.0 - TIME * 0.45, v_line * 9.0));
 		float smoke_mask = smoothstep(0.45, 0.75, smoke) * turbulence;
 		color = mix(color, vec3(0.05, 0.04, 0.06), smoke_mask);
 		alpha = max(alpha, smoke_mask * profile * 0.8);
-		ALBEDO = color;
+		ALBEDO = saturate_for_world(color);
 		ALPHA = clamp(alpha, 0.0, 1.0) * fade;
 	}
 }

@@ -46,6 +46,11 @@ uniform float body_scale = 1.0;
 uniform float camera_bias = 0.45;
 uniform float beam_strength : hint_range(0.0, 1.0) = 0.0;
 uniform float turbulence : hint_range(0.0, 1.0) = 0.0;
+// The environment adjustment saturation of the frame (SpiritAuraView pushes it):
+// spirit sight greys the world to 0.25, the duel to 0.1. See saturate_for_world.
+uniform float world_saturation = 1.0;
+// Radius of the solid ball in quad UV; the rest of the quad is the halo.
+const float BALL_R = 0.42;
 // Mirrors SpiritAuraView.SKY_BEAM_MAX_HEIGHT; the beam starts at 2.5 m.
 const float BEAM_MIN_HEIGHT = 2.5;
 const float BEAM_MAX_HEIGHT = 12.0;
@@ -53,6 +58,15 @@ const float BEAM_MAX_HEIGHT = 12.0;
 varying vec2 v_uv;
 varying float v_level;
 varying float v_index;
+
+// The frame's saturation adjustment runs after this shader and mixes every pixel
+// toward its grey mean. Spreading the colour away from its mean by the inverse
+// first leaves the hue standing after the grade; channels cannot go below zero,
+// so a very grey grade still pales the lights a little.
+vec3 saturate_for_world(vec3 c) {
+	float mean = (c.r + c.g + c.b) / 3.0;
+	return max(vec3(mean) + (c - vec3(mean)) / max(world_saturation, 0.2), vec3(0.0));
+}
 
 float hash(vec2 p) {
 	return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
@@ -118,7 +132,9 @@ void vertex() {
 		float level = levels[i];
 		// About 0.2 Hz: one slow breath every five seconds, phase-shifted per light.
 		float breath = sin(TIME * 1.26 + float(i) * 0.9);
-		float size = (0.12 + 0.045 * level) * (1.0 + 0.09 * breath * (1.0 - calm)) * body_scale;
+		// Small beads on the body (maintainer request 2026-10-12): the ball is about
+		// 8 cm across at level 3, 10 cm at 5, so neighbouring lights stay apart.
+		float size = (0.06 + 0.012 * level) * (1.0 + 0.07 * breath * (1.0 - calm)) * body_scale;
 		if (level < 0.0) {
 			size = 0.0;
 		}
@@ -149,7 +165,8 @@ void fragment() {
 		float knot = smoothstep(0.0, 0.2, pull) * smoothstep(0.6, 0.2, pull);
 		// The rim keeps the light's colour so the tether reads on a dark night.
 		vec3 dark = vec3(0.03, 0.02, 0.03);
-		ALBEDO = mix(COLORS[i] * 0.8, dark, smoothstep(0.2, 0.9, core) * (0.75 + 0.25 * knot));
+		ALBEDO = saturate_for_world(
+			mix(COLORS[i] * 0.8, dark, smoothstep(0.2, 0.9, core) * (0.75 + 0.25 * knot)));
 		// Fades in out of the light and sinks into the ground at the far end.
 		float ends = smoothstep(0.0, 0.08, h) * smoothstep(1.0, 0.9, h);
 		ALPHA = clamp((core * (0.7 + 0.25 * knot) + rim * 0.75) * ends * (0.4 + 0.6 * s), 0.0, 1.0)
@@ -192,30 +209,37 @@ void fragment() {
 			float level = v_level;
 			float lit = clamp(level, 0.0, 1.0);
 			float l01 = clamp(level / 5.0, 0.0, 1.0);
-			// A solid coloured ball inside a soft halo: the ball whitens and the halo
-			// widens with the level. Peak slightly above 1 so a bright light reads a
-			// touch brighter than the lit world around it, never sun-white.
-			float ball = smoothstep(0.36, 0.26, r);
-			float halo = exp(-r * r * mix(8.0, 3.0, l01));
-			float core = smoothstep(0.3, 0.0, r);
-			vec3 glow = mix(col, vec3(1.0, 0.98, 0.93), core * (0.15 + 0.5 * l01))
-				* (0.85 + 0.06 * level);
-			float glow_alpha = ball * (0.55 + 0.09 * level) + halo * (0.3 + 0.1 * level);
-			// Corona rays for radiant (4) and blazing (5) lights.
+			// One pixel of antialiasing at any distance, so the ball and its rim stay
+			// sharp when the camera comes close instead of a soft gradient smear.
+			float aa = max(fwidth(r), 1e-4);
+			float ball = 1.0 - smoothstep(BALL_R - aa, BALL_R + aa, r);
+			float rim = 1.0 - smoothstep(0.0, 1.5 * aa, abs(r - BALL_R) - 0.025);
+			// A faint, tight halo outside the ball only; most of the light is the ball.
+			float outside = max(r - BALL_R, 0.0) / (1.0 - BALL_R);
+			float halo = exp(-outside * outside * mix(14.0, 6.0, l01)) * (1.0 - ball)
+				* smoothstep(1.0, 0.85, r);
+			// Shading inside the ball: a small bright core, saturated colour to the rim.
+			float core = 1.0 - smoothstep(0.0, BALL_R * 0.55, r);
+			vec3 glow = mix(col, vec3(1.0, 0.98, 0.93), core * (0.1 + 0.3 * l01))
+				* (0.9 + 0.05 * level);
+			glow = mix(glow, col * 1.15, rim);
+			float glow_alpha = max(ball * (0.8 + 0.04 * level), rim) + halo * (0.12 + 0.05 * level);
+			// Corona rays for radiant (4) and blazing (5) lights: thin crisp spokes.
 			float angle = atan(v_uv.y, v_uv.x);
-			float rays = pow(abs(sin(angle * 6.0 + TIME * 0.25 * (1.0 - calm))), 10.0);
-			float corona = rays * smoothstep(1.0, 0.35, r) * smoothstep(0.15, 0.4, r);
-			glow_alpha += corona * clamp(level - 3.0, 0.0, 2.0) * 0.28;
+			float rays = pow(abs(sin(angle * 6.0 + TIME * 0.25 * (1.0 - calm))), 24.0);
+			float corona = rays * smoothstep(1.0, BALL_R + 0.1, r) * step(BALL_R, r);
+			glow_alpha += corona * clamp(level - 3.0, 0.0, 2.0) * 0.3;
 			// Closed light, a black hole: black at the centre, its colour returning
-			// in a concentric gradient toward a glowing rim, swirling inward.
-			float swirl = 0.5 + 0.5 * sin(angle * 2.0 + r * 10.0 + TIME * 1.6 * (1.0 - calm));
-			float depth = smoothstep(0.08, 0.62, r);
+			// in a concentric gradient toward a sharp glowing rim, swirling inward.
+			float hole_r = BALL_R * 1.15;
+			float swirl = 0.5 + 0.5 * sin(angle * 2.0 + r * 14.0 + TIME * 1.6 * (1.0 - calm));
+			float depth = smoothstep(0.08, hole_r, r);
 			vec3 hole = col * depth * depth * (0.55 + 0.45 * swirl);
-			float horizon = smoothstep(0.14, 0.0, abs(r - 0.6));
-			hole = mix(hole, col * 1.05, horizon);
-			float hole_alpha = smoothstep(0.82, 0.62, r) * 0.95 + horizon * 0.5
-				+ smoothstep(1.0, 0.6, r) * 0.2;
-			ALBEDO = mix(hole, glow, lit);
+			float horizon = 1.0 - smoothstep(0.0, 1.5 * aa, abs(r - hole_r) - 0.03);
+			hole = mix(hole, col * 1.1, horizon);
+			float hole_alpha = (1.0 - smoothstep(hole_r - aa, hole_r + aa, r)) * 0.95 + horizon
+				+ halo * 0.15;
+			ALBEDO = saturate_for_world(mix(hole, glow, lit));
 			ALPHA = clamp(mix(hole_alpha, glow_alpha, lit), 0.0, 1.0) * fade;
 		}
 	}
