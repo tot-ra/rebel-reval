@@ -2,12 +2,14 @@
 
   blender -b --factory-startup --python tools/assets/meshy_human/render_rigged_preview.py -- \
       --glb build/<char>/rig/<char>_meshy_rigged.glb --out build/<char>/rig/preview \
-      [--clips Idle,Walking_A] [--eye-yaw 25] [--arms-up-clip Cheer] [--face-keys blink,smile,jaw_open]
+      [--clips Idle,Walking_A] [--eye-yaw 25] [--arms-up-clip Cheer] [--face-keys blink,smile,jaw_open] \
+      [--wearables a.glb,b.glb]
 
 Writes rest_front.png, rest_34.png, <clip>.png (mid-clip frame), head_eyes.png and
 head_back.png. --arms-up-clip adds <clip>.png and armpit_<clip>.png at the frame with
 the highest hands (armpit stretch check); --face-keys adds face_rest.png and
-face_<key>.png with that shape key at 1.0 on every mesh that has it.
+face_<key>.png with that shape key at 1.0 on every mesh that has it. --wearables
+binds wearable GLBs on the same rig to the body rig, to check cloth in every clip.
 Loading the exported GLB (not the Blender scene) also proves the export round-trips.
 """
 
@@ -30,6 +32,7 @@ def parse_args():
     p.add_argument("--res", type=int, default=900)
     p.add_argument("--arms-up-clip", default="")
     p.add_argument("--face-keys", default="")
+    p.add_argument("--wearables", default="", help="comma-separated wearable GLBs on the same rig")
     return p.parse_args(argv)
 
 
@@ -42,6 +45,21 @@ def main():
     rig = next(o for o in bpy.data.objects if o.type == "ARMATURE")
     for o in [o for o in bpy.data.objects if o.type == "MESH" and not o.vertex_groups]:
         bpy.data.objects.remove(o, do_unlink=True)  # glTF importer's phantom Icosphere
+    for path in [w for w in a.wearables.split(",") if w]:
+        before = set(bpy.data.objects)
+        bpy.ops.import_scene.gltf(filepath=os.path.abspath(path))
+        new = [o for o in bpy.data.objects if o not in before]
+        for o in new:
+            if o.type == "MESH" and o.vertex_groups:
+                mw = o.matrix_world.copy()
+                o.parent = rig
+                o.matrix_world = mw
+                for m in o.modifiers:
+                    if m.type == "ARMATURE":
+                        m.object = rig
+        for o in new:
+            if o.parent is not rig:
+                bpy.data.objects.remove(o, do_unlink=True)
 
     s = bpy.context.scene
     s.render.engine = "BLENDER_EEVEE"
