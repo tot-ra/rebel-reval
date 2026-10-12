@@ -8,7 +8,7 @@ Status: reference only (not runtime assets, not imported by Godot; no `assets/SO
 |---|---|---|
 | Kalev | [kalev.jpg](kalev.jpg) | soot-stained linen, scorched leather apron, forging hammer |
 | Mart | [mart.jpg](mart.jpg) | lanky teenager, patched shirt, short apron, tongs |
-| Aita | [aita.jpg](aita.jpg) | linen headcloth, ochre wool, dried herbs, ale jug |
+| Aita | [aita.jpg](aita.jpg), photorealistic [aita_photoreal.jpg](aita_photoreal.jpg) (OpenAI gpt-image-1, 2026-10-12, after the expanded brief) | widow's linen headcloth, ochre wool kirtle, olive apron, band-woven belt with pouch and dried herbs |
 | Kaja | [kaja.jpg](kaja.jpg) | indigo hooded cloak, courier satchel, cobbled alley |
 | Captain Henning | [henning.jpg](henning.jpg) | mail hauberk, red surcoat, steel kettle helm |
 | Jürgen Witte | [jurgen.jpg](jurgen.jpg) | fur-trimmed red gown, amber beads, ledger and scales |

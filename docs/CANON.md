@@ -210,7 +210,7 @@ Hero crimson `#D9364D` is reserved for Kalev and priority reads; no faction uses
   * *Notes:* Kalev's 16-year-old apprentice, not his blood relative; missing at the start of the story, and the new apprentice fills his place. See [Mart Character Brief](./CHARACTERS/mart.md).
 * **Aita** (Alewife & Healer) - **`invented`**
   * *Pronunciation:* EYE-tah
-  * *Notes:* Kalev's older sister and only named sibling in active canon. See [Aita Character Brief](./CHARACTERS/aita.md).
+  * *Notes:* Kalev's older sister and only named sibling in active canon; about 41 in 1343, widow of the cooper-brewer Laur (`invented`), runs his Lower Town brew-house. Backstory leans on the Great Famine of 1315-1317 (`attested` for northern Europe, `plausible composite` for Reval). See [Aita Character Brief](./CHARACTERS/aita.md).
 * **Kaja** (Bilingual Courier) - **`invented`**
   * *Pronunciation:* KAH-yah
   * *Notes:* Operates between the rural rebels and the city. See [Kaja Character Brief](./CHARACTERS/kaja.md).
