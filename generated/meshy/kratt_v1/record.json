@@ -13,7 +13,7 @@
       "texture_prompt": "dry golden-brown straw bundles over bleached bone and rust-black iron frame, old hemp rope bindings, faint amber eye glow, muted earthy palette, 14th century Baltic farm materials",
       "credits": 30,
       "duration_s": 104,
-      "raw_file": "kratt_meshy_pbr_raw.glb (gitignored)",
+      "raw_file": "build/kratt_meshy/kratt_meshy_pbr_raw.glb (gitignored)",
       "raw_sha256": "51816b0f6f40121778840576a080d7c6fef9a2007bee3250cc67093f7567877e",
       "raw_triangles": 2098598,
       "raw_textures": "3 x 2048 (base colour, metallic-roughness, normal)"
@@ -25,7 +25,7 @@
       "should_texture": true,
       "enable_pbr": false,
       "credits": 30,
-      "raw_file": "kratt_meshy6_raw.glb (gitignored)",
+      "raw_file": "build/kratt_meshy/kratt_meshy6_raw.glb (gitignored)",
       "raw_sha256": "5c1afa6a42913b139ea0fd13a16e0893718b3766654fce4609f991b00e449825"
     }
   ],
