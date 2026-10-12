@@ -12,6 +12,14 @@
 | Faction ties | none |
 | Archive reference images | image-11 |
 
+![maa alused concept art](../inspiration/maa_alused_concept.jpg)
+
+**Illustration:** Photorealistic image generated with Leonardo AI, Lucid Realism model. Documentation concept art only; existing archive references are retained.
+
+**Generation prompt:** Photorealistic documentary-style cinematic still of a small close group of three knee-high stout subterranean people, the Maa-alused of Estonian belief, quietly emerging from freshly disturbed dark soil beside an old rough limestone foundation wall at a 14th-century Baltic building plot at dusk. Compact believable human proportions, earth-grey and clay-smudged skin, tangled root-like hair threaded with soil, worn rough wool and root-fiber wraps in muted clay brown and mineral grey, holding tiny stones, no tools. Pale eyes adapted to darkness, shy and wary, none looking at camera. Damp earth, fine roots, soil crumbs; realistic skin, fabric, limestone and soil textures; natural subdued dusk light, muted palette, subtle folkloric unease, photorealistic, no magical glow, no theatrical fantasy styling, no text.
+
+**Negative prompt:** illustration, painting, concept art, CGI, 3D render, fantasy goblin, orc, dwarf, miner tools, cute cartoon, glowing eyes, oversaturated colors, modern clothing, modern cave, fantasy armor, exaggerated anatomy, huge heads, smiling at camera, looking directly at viewer, text, watermark, logo, blurry, low detail
+
 ## At a glance
 - Small, grey, quiet folk who appear at the edge of freshly dug ground.
 - Disturbing their ground causes sickness in the family.
