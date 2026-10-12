@@ -19,6 +19,15 @@ Promotion order, act gates, art tiers, and faction-candidate decisions live in [
 
 Kalev, Mart, Aita, Kaja, Henning, and Jürgen appear in the vertical slice. Ellen enters after the slice. Kalev's household relationships are resolved separately in [`kalev-family.md`](./kalev-family.md).
 
+## Prologue
+
+The first people the player meets in New Game (ADR 0033 prologue, content in [`content/prologue/`](../../content/prologue/README.md)).
+
+| Character | Stable ID | Campaign role | Confidence | Brief |
+|---|---|---|---|---|
+| Porter Hanß | `char.almshouse_porter` | Almshouse porter; opponent of the first spirit duel (R-1872) | `invented` | [Porter Hanß](./almshouse_porter.md) |
+| Matron Gertrud | `char.almshouse_matron` | Matron of the almshouse; the quarrel with the porter (observation mode) | `invented` | [Matron Gertrud](./almshouse_matron.md) |
+
 ## Promoted expand cast (P7-009 first briefs)
 
 | Character | Campaign role | Act gate | Art tier | Confidence | Brief |
