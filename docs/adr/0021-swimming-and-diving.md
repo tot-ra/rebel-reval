@@ -16,7 +16,7 @@ as the amendment describes.
   (`PlayerWaterTraversal.BLOCKING_TERRAINS`). Interiors have no water, so they are unaffected.
 - **Medium is depth driven (Decision 2/3):** depth is the rendered column, `WATER_SURFACE_LIFT` plus
   the WS-13b basin (`MapViewMeshBuilderTerrain.basin_extra_depth`), so the feet meet the seabed the
-  camera draws. Below 0.12 units Kalev walks, to 1.25 he wades (slowed 0.8 to 0.4 of run speed), deeper he
+  camera draws. Below 0.12 units Kalev walks, to 1.25 he wades (slowed 0.8 to 0.4 of run speed; R-1907 changed the chest-deep end to 0.15), deeper he
   swims, and with the dive input held in a column of at least 1.7 units he dives. On Kalamaja
   `shallow_water` tops out at 1.0, so it is wading only and the open sea past the shelf is swimming.
 - **Traversal layer (Decision 3):** instead of `is_swimmable_cell`, water colliders moved to

@@ -3,6 +3,7 @@ extends RefCounted
 
 const PlantSpecies := preload("res://scripts/map/view3d/map_view_plant_species.gd")
 const BushSpecies := preload("res://scripts/map/view3d/map_view_bush_species.gd")
+const SurfaceSpeed := preload("res://scripts/player/surface_speed.gd")
 
 ## Vegetation is layered deliberately: the terrain material supplies continuous
 ## ground cover while only a minority of cells receive small grass, large grass,
@@ -103,7 +104,7 @@ static func object_density_multiplier(is_urban: bool, variant: StringName) -> fl
 static func default_speed_for_variant(variant: StringName) -> float:
 	match variant:
 		VARIANT_GRASS_TALL:
-			return 0.92
+			return SurfaceSpeed.GRASS
 		VARIANT_BUSH_DENSE:
 			return 0.55
 		VARIANT_BUSH_SCRUB:

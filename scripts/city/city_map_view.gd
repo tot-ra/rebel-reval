@@ -417,6 +417,15 @@ func mud_wetness() -> float:
 	return 0.0
 
 
+## Walking speed multiplier on unpaved earth and mud under `world_xz` (R-1907),
+## soaked by the same rain-and-puddle wetness the ground trail prints with.
+func soft_ground_drag_at(world_xz: Vector2) -> float:
+	if _surface_sampler == null:
+		_surface_sampler = CitySurfaceSampler.new(plan, water_depth_at)
+	var wetness := world.trail.wetness if world != null and world.trail != null else 0.0
+	return _surface_sampler.soft_ground_drag(world_xz, wetness)
+
+
 ## Footstep surface from the city's land-use rasters (R-1641); the district
 ## grid lookup in MapView3D has no grid to read here.
 func footstep_surface_at(foot_position: Vector3) -> StringName:

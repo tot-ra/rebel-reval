@@ -34,7 +34,7 @@ func test_factor_range_and_drag_bounds() -> void:
 		var f := grass.height_factor(p)
 		assert_true(f >= CityGrass.TALL_SCALE_MIN - 0.001 and f <= CityGrass.TALL_SCALE_MAX + 0.001)
 		var d := grass.walk_drag_at(p)
-		assert_true(d >= CityGrass.TALL_GRASS_DRAG - 0.001 and d <= 1.0, "drag %.2f" % d)
+		assert_true(d >= CityGrass.GRASS_DRAG - 0.001 and d <= 1.0, "drag %.2f" % d)
 	grass.free()
 
 

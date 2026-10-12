@@ -208,10 +208,12 @@ func test_snow_depth_grows_with_cover_and_drifts() -> void:
 func test_walking_slows_by_snow_depth() -> void:
 	assert_eq(CitySnow.walk_drag(0.0), 1.0)
 	assert_eq(CitySnow.walk_drag(CitySnow.DRAG_START), 1.0, "a dusting is free")
-	var knee := CitySnow.walk_drag(CitySnow.DRAG_KNEE)
-	assert_almost_eq(knee, CitySnow.DRAG_KNEE_SPEED, 0.001)
-	assert_true(CitySnow.walk_drag(0.2) > knee, "shallower is faster")
-	assert_true(CitySnow.walk_drag(0.7) < 0.1, "past half a metre you barely move")
+	var lying := CitySnow.walk_drag(CitySnow.DRAG_START + 0.001)
+	assert_almost_eq(lying, CitySnow.SurfaceSpeed.SNOW_SHALLOW, 0.01, "lying snow: 80%")
+	var knee := CitySnow.walk_drag(0.3)
+	assert_true(knee < lying and knee > CitySnow.SurfaceSpeed.SNOW_DEEP, "deeper is slower")
+	assert_almost_eq(CitySnow.walk_drag(CitySnow.DRAG_DEEP), CitySnow.SurfaceSpeed.SNOW_DEEP, 0.001)
+	assert_almost_eq(CitySnow.walk_drag(0.9), CitySnow.SurfaceSpeed.SNOW_DEEP, 0.001, "30% floor")
 
 
 func test_snow_map_is_bare_on_paving_and_deeper_in_woods() -> void:

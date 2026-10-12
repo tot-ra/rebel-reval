@@ -21,6 +21,7 @@ extends Node3D
 
 const PlantMeshes := preload("res://scripts/map/view3d/map_view_plant_meshes.gd")
 const PlantSpecies := preload("res://scripts/map/view3d/map_view_plant_species.gd")
+const SurfaceSpeed := preload("res://scripts/player/surface_speed.gd")
 
 const MID_CHUNK := 16.0
 const MID_RADIUS_CHUNKS := 3
@@ -61,8 +62,8 @@ const HOUSE_WILD_FAR := 14.0
 ## ~0.4 m tall at 1.0, so 2.7 reaches roughly a person's waist).
 const TALL_SCALE_MIN := 0.55
 const TALL_SCALE_MAX := 2.7
-## Walking speed multiplier in fully wild, full-density grass.
-const TALL_GRASS_DRAG := 0.5
+## Walking speed multiplier on full-density standing grass (R-1907: any height).
+const GRASS_DRAG := SurfaceSpeed.GRASS
 ## Offsets sampled (unit ring directions x these radii) to find the nearest road.
 const ROAD_PROBE_RADII := [1.5, 3.0, 5.0, 8.0, 12.0, 17.0, 22.0]
 const ROAD_PROBE_DIRS := 8
@@ -288,14 +289,14 @@ func height_factor(p: Vector2) -> float:
 	return lerpf(TALL_SCALE_MIN, TALL_SCALE_MAX, wildness_at(p))
 
 
-## Walking speed multiplier at `p` for wading through grass: 1 on bare ground and
-## short turf, down to TALL_GRASS_DRAG in dense waist-high meadow.
+## Walking speed multiplier at `p` on grass: 1 on bare ground, GRASS_DRAG where
+## grass fully covers it. R-1907 dropped the height term: short turf and meadow
+## cost the same, a mild 15% rather than ADR 0039's half speed in tall grass.
 func walk_drag_at(p: Vector2) -> float:
 	var standing := 1.0 - clampf(_bareness(p), 0.0, 1.0)
 	if standing <= 0.0 or is_nan(_grass_height(p)):
 		return 1.0
-	var tall := smoothstep(0.35, 0.9, wildness_at(p)) * standing
-	return lerpf(1.0, TALL_GRASS_DRAG, tall)
+	return lerpf(1.0, GRASS_DRAG, standing)
 
 
 ## Ground height where grass may stand at `p`, or NAN where it must stay bare.
