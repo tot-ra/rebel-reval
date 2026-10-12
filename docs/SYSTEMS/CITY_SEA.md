@@ -5,6 +5,21 @@ Status: implemented (tasks **R-885**, **R-1437**, **R-1440**, **R-1508**, **R-16
 ## What the player sees
 
 - **Sea.** The same FFT ocean as the district maps (`MapViewMaterials.water_surface(TERRAIN_SHALLOW_WATER)`): baked waves, whitecaps and foam, shore swash, caustics, refraction and sun glint, driven by the sky weather (`apply_sea_weather` is called from `CityWorld3D.apply_time`). The open sea is 1 m per unit, so `SEA_WAVE_BOOST` (5.0, `CityWorld3D`) scales displaced crest height: a calm sea moves a few centimetres, a gale lifts crests to about 1.7 m and boats and swimmers ride it (`WATER_MATERIALS.set_wave_height_boost`, mirrored in the CPU hull sampler).
+
+When a boot lands in a filled rain puddle, the city view adds a short expanding
+ring and a modest CPU-particle splash at the planted sole. The existing
+`FootstepAudio` surface resolver independently selects
+`sfx.footstep.puddle.walk`; the VFX is not tied to audio being enabled. Other
+ground surfaces and stream water do not trigger this effect. `CityPuddleStepVfx`
+keeps at most eight events and retires them after 0.8 seconds. There are no new
+controls, assets, catalog entries, or save fields.
+
+Runtime path: `MapViewRuntimeActors` detects the animated foot plant, asks the
+view for the surface at the same foot position, then calls
+`CityMapView.emit_puddle_step`. The city view creates `CityPuddleStepVfx` once;
+it draws two soft shader ripple rings (`city_puddle_ripple.gdshader`) plus velocity-streaked lit droplets and a faint spume puff, using the same `city_spray.gdshader` as the sea breakers. Verify with
+`godot --headless --path . --script tools/run_godot_tests.gd` (includes
+`tests/godot/test_city_puddle_steps.gd`).
 - **Seabed.** The generator (`build_reval_city_plan.py`) shapes the bed with shore-parallel sandbars and troughs, undulation and boulder fields, so depth varies instead of one tilted plane. Beaches get berms and runnels near the water and drift-sand hummocks.
 - **Ground shader** (`city_ground.gdshader`): two sands, a dark wet strand, shingle just above the swash (see [Shingle and shore stones](#shingle-and-shore-stones-r-1606)), and below the waterline weed, mottled natural bedrock and ripple-marked sand. Land paving is suppressed below sea level; the shared masonry plate is not used for submerged rock.
 - **Shore dressing** (`CityShore`): granite erratics clustered in the shallows (with weed skirts), half-buried boulders and stone clusters on the beach, 3D pebble beds, wrack lines, and glacial erratics on the coastal grass behind the beach, reusing the district maps' CO-02 meshes. Deterministic from the plan heightfield; nothing above the waterline lands on a cart road, paving or a field.
@@ -74,7 +89,7 @@ Limits: the warp of the pebble lattice is left out of the analytic normal, so a 
 
 ## Kalamaja drying nets and fish racks (R-1640)
 
-Status: implemented (task **R-1640**). Scope: the net yards and fish racks of the Kalamaja fishing shore in the seamless city. Out of scope: collision or navigation for nets and racks (visual only, like the rest of `CityHarbour`), fishing gameplay, taking fish or nets, the stored-net GLB used indoors and in district maps (`obj.fishing_nets`, still tarred brown).
+Status: implemented (task **R-1640**). Scope: the net yards and fish racks of the Kalamaja fishing shore in the seamless city. Out of scope: collision or navigation for nets and racks (visual only, like the rest of `CityHarbour`), fishing gameplay, taking fish or nets. The older tarred `fishing_nets.glb` model, its `fishing_nets` prop kind and wind shader were removed; houses no longer hold stored nets.
 
 ![A drying net up close](../reports/images/city/kalamaja_r1640_net_close.jpg)
 
@@ -88,7 +103,7 @@ Net yard from the dunes: [kalamaja_r1640_net_yard.jpg](../reports/images/city/ka
 - **Fish racks** (`MapViewFishDryingRackModels.add_shore_rack`). Full-size two-tier racks (3.0-3.8 m long, ridge at 2.05 m): A-frame trestles of crossed hand-cut poles with lashed cross-bars, four drying poles at 1.22 m and 1.78 m, a back brace. Herring racks hang about 40 fish, mixed racks herring and cod, empty racks none. The catch is baked per species into one mesh and the cords into another (three draw calls a rack), tinted the dull grey-gold of fish dried for days. Racks are not drawn beyond 110 m. The small one-cell `fish_drying_rack` prop of the district maps keeps its size and gained rope lashings.
 - **Placement and data.** The generator (`tools/city/build_reval_city_plan.py`) writes `harbour.net_yards[*].racks` as `[x, y, angle, length]` (two racks per yard, fixed offsets) and `harbour.fish_racks[]` (`id` `fishrack.kalarand.NN`, `hut`, `at`, `angle`, `length`, `variant` one of `fish_rack.herring` / `fish_rack.mixed` / `fish_rack.empty`, `confidence`). `kalarand_fish_racks()` runs after vegetation with its own RNG, so no earlier id or position moves: it takes the front-row huts within about 100 m of the beach and places one or two racks 5.5-12 m seaward of each, on dry ground, clear of buildings, net yards, streets, boats, decks, the boatwright ground, trees and bushes. Net and rack ids seed their own shapes (`netyard.N.netK`, the rack id), so the same plan always rebuilds the same shore. No save data.
 - **Verify.** `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_city_drying_nets,test_fish_drying_rack` (size and grey twine, pinned pole row, hem swings downwind and falls back in calm air, determinism per id, sleeping without a camera, rack members and catch, plan racks clear of huts with stable unique ids); `python3 tools/city/build_reval_city_plan.py --check`; review plates `tools/godot_render.sh --script tools/capture_city_farmland.gd -- --only=harbour_kalamaja,harbour_net_close,harbour_fish_racks,harbour_fish_racks_shore`.
-- **Limits.** The cloth has no self-collision and treats the ground under a rack as flat at its lowest end, so on a slope a hem can sink a little into the higher side. The two halves of a net do not collide with each other or with the pole. Nets and racks have no collision: the player and citizens walk through them. The indoor and district-map nets (`fishing_nets.glb`) are still the older tarred model.
+- **Limits.** The cloth has no self-collision and treats the ground under a rack as flat at its lowest end, so on a slope a hem can sink a little into the higher side. The two halves of a net do not collide with each other or with the pole. Nets and racks have no collision: the player and citizens walk through them.
 
 ## Stream, moat and wake
 
