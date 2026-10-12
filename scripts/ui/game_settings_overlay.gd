@@ -148,6 +148,7 @@ func _build_ui() -> void:
 		&"iron": "Iron technique",
 		&"camera": "Change view",
 		&"debug": "Debug",
+		&"exit": "Exit game",
 	}
 	for action: StringName in labels:
 		var button := Button.new()

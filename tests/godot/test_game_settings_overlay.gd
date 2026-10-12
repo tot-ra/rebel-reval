@@ -218,6 +218,24 @@ func test_open_settings_menu_exposes_graphics_quality_selector() -> void:
 	overlay.queue_free()
 
 
+func test_exit_game_action_is_available_in_escape_menu() -> void:
+	var overlay := OverlayScript.new()
+	overlay.configure(UserSettings)
+	_tree().root.add_child(overlay)
+	overlay.open()
+	var exit_button := overlay.find_child("ExitAction", true, false) as Button
+	assert_true(exit_button != null and exit_button.visible)
+	assert_eq(exit_button.text, "Exit game")
+	var requested_action: Array[StringName] = []
+	overlay.secondary_action_requested.connect(
+		func(action: StringName): requested_action.append(action)
+	)
+	exit_button.pressed.emit()
+	assert_false(overlay.is_open(), "Selecting Exit game closes the Escape menu")
+	assert_eq(requested_action, [&"exit"])
+	overlay.queue_free()
+
+
 func test_remap_controls_button_emits_signal() -> void:
 	var overlay := OverlayScript.new()
 	overlay.configure(UserSettings)

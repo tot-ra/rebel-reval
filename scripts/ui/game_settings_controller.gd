@@ -125,6 +125,9 @@ func _on_controls_requested() -> void:
 
 
 func _on_secondary_action_requested(action: StringName) -> void:
+	if action == &"exit":
+		get_tree().quit()
+		return
 	var quick_access := get_parent().get_node_or_null("QuickAccessMenu") as QuickAccessMenu
 	if quick_access != null:
 		quick_access.trigger_secondary_action(action)

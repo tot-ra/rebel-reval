@@ -30,7 +30,7 @@ Status: implemented (task **R-1799**, restyle and Continue). `scenes/menu/main_m
 
 Status: implemented (task **R-1698**). Esc opens `GameSettingsOverlay` (`scripts/ui/game_settings_overlay.gd`, opened by `GameSettingsController`) as a full-screen two-column menu inspired by the Witcher 3 pause screen, with original art only:
 
-- **Left column** (`SecondaryActions`, about 300 px): game title, then **Resume** (initial focus), Save game, Inventory, Journal, Map, Spellforge, Reflect, Iron technique, Change view, Debug. Each action closes the menu and calls the matching `QuickAccessMenu` handler.
+- **Left column** (`SecondaryActions`, about 300 px): game title, then **Resume** (initial focus), Save game, Inventory, Journal, Map, Spellforge, Reflect, Iron technique, Change view, Debug, **Exit game**. Exit game closes the menu and quits the application. Other actions close the menu and call the matching `QuickAccessMenu` handler.
 - **Right panel** (`SettingsPanel`): a scrolling settings page (graphics, audio, accessibility, Remap controls) as listed in [`SETTINGS_AND_ACCESSIBILITY.md`](./SETTINGS_AND_ACCESSIBILITY.md). An empty right margin (stretch ratio 0.35) keeps values close to their labels on wide screens.
 - **Style**: `scripts/ui/pause_menu_style.gd` builds one charcoal and bronze `Theme` (no new textures or fonts). Focus borders follow `UiFocusTheme`, so the enhanced focus contrast setting still applies; the theme is rebuilt on open and when that setting changes.
 - **Input**: keyboard and gamepad move focus up and down each column; Right on Resume jumps to the first setting, Left on it jumps back. Esc or Resume closes the menu.
