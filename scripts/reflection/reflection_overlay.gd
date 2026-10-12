@@ -11,8 +11,12 @@ signal conviction_chosen(option_id: String)
 
 const MenuStyle := preload("res://scripts/ui/pause_menu_style.gd")
 const CARD_ICON_SIZE := 96.0
+const BACKDROP_PATH := "res://assets/UI/hingepuu/hingepuu_backdrop.jpg"
+# Slightly dimmed so gold titles and chip text keep their contrast.
+const BACKDROP_MODULATE := Color(0.85, 0.85, 0.9, 1.0)
 
 var _root: MarginContainer
+var _backdrop: TextureRect
 var _dim: ColorRect
 var _panel: PanelContainer
 var _intro_label: Label
@@ -61,6 +65,10 @@ func get_plain_summary_text() -> String:
 	return String(_plain_summary_label.text) if _plain_summary_label != null else ""
 
 
+func get_backdrop() -> TextureRect:
+	return _backdrop
+
+
 func get_mark_labels() -> Array[String]:
 	var labels: Array[String] = []
 	if _marks_box == null:
@@ -96,6 +104,25 @@ func _build_ui() -> void:
 	_panel.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	_panel.custom_minimum_size = Vector2(720, 0)
 	_root.add_child(_panel)
+
+	# R-1896: painted soul-tree behind the content, so the mark chips sit in its
+	# branches. First panel child = drawn first, under the layout. Ignores its own
+	# size so the panel keeps sizing to content; a missing file keeps the flat panel.
+	if ResourceLoader.exists(BACKDROP_PATH):
+		# Inset by the panel border width so the gold frame stays visible on top.
+		var inset := MarginContainer.new()
+		inset.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		for side in ["left", "right", "bottom"]:
+			inset.add_theme_constant_override("margin_" + side, 1)
+		inset.add_theme_constant_override("margin_top", 2)
+		_panel.add_child(inset)
+		_backdrop = TextureRect.new()
+		_backdrop.texture = load(BACKDROP_PATH) as Texture2D
+		_backdrop.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		_backdrop.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+		_backdrop.modulate = BACKDROP_MODULATE
+		_backdrop.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		inset.add_child(_backdrop)
 
 	var margin := MarginContainer.new()
 	for side in ["left", "right"]:

@@ -152,6 +152,21 @@ func test_slice_snapshot_renders_visual_sections_not_prose() -> void:
 	overlay.free()
 
 
+func test_soul_tree_backdrop_sits_behind_content_without_sizing_panel() -> void:
+	# R-1896: painted Hingepuu behind the layout; must not grab clicks or grow the panel.
+	var overlay := OverlayScene.instantiate() as ReflectionOverlay
+	var tree := Engine.get_main_loop() as SceneTree
+	tree.root.add_child(overlay)
+	overlay.present(ModelScript.build_snapshot(SessionState.state))
+	var backdrop := overlay.get_backdrop()
+	assert_true(backdrop != null, "backdrop texture must load")
+	assert_true(backdrop.texture != null)
+	assert_eq(backdrop.mouse_filter, Control.MOUSE_FILTER_IGNORE)
+	assert_eq(backdrop.expand_mode, TextureRect.EXPAND_IGNORE_SIZE)
+	assert_eq(backdrop.get_parent().get_index(), 0, "backdrop is drawn before the layout")
+	overlay.free()
+
+
 func test_closed_overlay_does_not_join_modal_input_group() -> void:
 	# WHY: permanent modal_input_overlay membership blocked all player locomotion.
 	var overlay := OverlayScene.instantiate() as ReflectionOverlay
