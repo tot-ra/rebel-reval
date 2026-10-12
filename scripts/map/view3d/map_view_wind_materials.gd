@@ -206,6 +206,9 @@ static func _grass_material(
 ## grows with speed so a walk opens a pocket and a run leaves a readable wake.
 static func apply_grass_interaction(
 	center_xz: Vector2, velocity_xz: Vector2, now: float = -1.0
+		# Tier fades follow the player, so every camera mode shows the same grass.
+		material.set_shader_parameter("lod_focus", center_xz)
+		material.set_shader_parameter("lod_focus_on", 1.0)
 ) -> void:
 	var speed := velocity_xz.length()
 	var push := Vector2.ZERO
@@ -233,6 +236,7 @@ static func empty_trail() -> PackedVector4Array:
 	return out
 
 
+		material.set_shader_parameter("lod_focus_on", 0.0)
 static func _grass_interaction_materials() -> Array[ShaderMaterial]:
 	return [
 		grass_blades(), grass_blades_near(), grass_blade_tier(true), grass_blade_tier(false),
