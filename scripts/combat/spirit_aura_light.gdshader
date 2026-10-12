@@ -41,8 +41,8 @@ uniform vec3 glow_color = vec3(0.6, 0.5, 1.0);
 uniform float glow_strength = 0.5;
 // Half the root-to-crown span relative to an adult; small animals shrink.
 uniform float body_scale = 1.0;
-// Lights sit inside the torso; slide them toward the camera so the body does
-// not hide them. Orthographic gameplay sees no screen-space shift from this.
+// Lights sit inside the torso; their depth (not their position) is pulled this
+// far toward the camera so the body does not hide them. See depth_biased_clip.
 uniform float camera_bias = 0.45;
 uniform float beam_strength : hint_range(0.0, 1.0) = 0.0;
 uniform float turbulence : hint_range(0.0, 1.0) = 0.0;
@@ -63,12 +63,27 @@ float tether_strength(float level) {
 	return level < 0.0 ? 0.0 : clamp((1.5 - level) / 1.5, 0.0, 1.0);
 }
 
+// Projects a model-space point to clip space at its true screen position but with
+// the depth of a point `bias` metres nearer the camera. The old approach moved
+// the geometry itself toward the camera, which in a perspective view made the
+// lights slide off the body as the camera orbited (parallax); shifting only the
+// depth keeps them glued to the bones while the torso still cannot hide them.
+vec4 depth_biased_clip(vec3 model_pos, float bias, mat4 modelview, mat4 projection) {
+	vec4 view = modelview * vec4(model_pos, 1.0);
+	vec4 clip = projection * view;
+	// Never pull the depth past the near plane (view space looks down -Z).
+	float pull = clamp(-view.z - 0.05, 0.0, bias);
+	vec4 nearer = projection * vec4(view.xyz + vec3(0.0, 0.0, pull), 1.0);
+	clip.z = nearer.z / nearer.w * clip.w;
+	return clip;
+}
+
 void vertex() {
 	int quad = int(UV2.x + 0.5);
-	vec3 toward_camera = INV_VIEW_MATRIX[2].xyz * camera_bias * body_scale;
+	float bias = camera_bias * body_scale;
 	if (quad == 7) {
 		float s = glow_only ? 0.0 : beam_strength;
-		vec3 base = anchors[6] + toward_camera;
+		vec3 base = anchors[6];
 		vec3 side = cross(vec3(0.0, 1.0, 0.0), INV_VIEW_MATRIX[2].xyz);
 		side = length(side) > 0.001 ? normalize(side) : INV_VIEW_MATRIX[0].xyz;
 		float height = mix(BEAM_MIN_HEIGHT, BEAM_MAX_HEIGHT, s) * body_scale;
@@ -84,12 +99,11 @@ void vertex() {
 	} else if (quad >= 8) {
 		int i = clamp(quad - 8, 0, 6);
 		float s = glow_only ? 0.0 : tether_strength(levels[i]);
-		vec3 top = anchors[i] + toward_camera;
+		vec3 top = anchors[i];
 		// Splay sideways by the light's place so several tethers read apart.
 		vec3 side = normalize(cross(vec3(0.0, 1.0, 0.0), facing) + vec3(1e-4, 0.0, 0.0));
 		vec3 bottom = vec3(anchors[i].x, ground, anchors[i].z)
-			+ side * (float(i) - 3.0) * 0.09 * body_scale
-			+ toward_camera * 0.3;
+			+ side * (float(i) - 3.0) * 0.09 * body_scale;
 		float along = 0.5 - UV.y * 0.5;
 		vec3 line = bottom - top;
 		vec3 across = cross(line, INV_VIEW_MATRIX[2].xyz);
@@ -113,12 +127,12 @@ void vertex() {
 			center = anchors[3];
 			size = i == 3 ? 0.85 * body_scale : 0.0;
 		}
-		center += toward_camera;
 		VERTEX = center + (INV_VIEW_MATRIX[0].xyz * UV.x + INV_VIEW_MATRIX[1].xyz * UV.y) * size;
 		v_uv = UV;
 		v_level = level;
 		v_index = float(i);
 	}
+	POSITION = depth_biased_clip(VERTEX, bias, MODELVIEW_MATRIX, PROJECTION_MATRIX);
 }
 
 void fragment() {

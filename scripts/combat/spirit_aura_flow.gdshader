@@ -38,8 +38,8 @@ uniform float strength = 1.0;
 uniform float body_scale = 1.0;
 uniform vec3 shell_color = vec3(0.6, 0.55, 1.0);
 uniform float shell_strength = 0.2;
-// The lights sit inside the torso; slide the arcs toward the camera by the same
-// amount as the lights (spirit_aura_light camera_bias) so they meet them.
+// The lights sit inside the torso; the arcs get the same depth pull as the
+// lights (spirit_aura_light camera_bias) so the body does not hide them either.
 uniform float camera_bias = 0.45;
 
 varying vec3 v_color;
@@ -69,6 +69,21 @@ vec3 curl(vec3 p, float t) {
 		cos(p.z * 2.9 + t * 1.1) - cos(p.x * 3.3 + t),
 		cos(p.x * 2.5 - t * 0.9) - cos(p.y * 3.7 + t * 1.2)
 	);
+}
+
+// Projects a model-space point to clip space at its true screen position but with
+// the depth of a point `bias` metres nearer the camera. The old approach moved
+// the geometry itself toward the camera, which in a perspective view made the
+// lights slide off the body as the camera orbited (parallax); shifting only the
+// depth keeps them glued to the bones while the torso still cannot hide them.
+vec4 depth_biased_clip(vec3 model_pos, float bias, mat4 modelview, mat4 projection) {
+	vec4 view = modelview * vec4(model_pos, 1.0);
+	vec4 clip = projection * view;
+	// Never pull the depth past the near plane (view space looks down -Z).
+	float pull = clamp(-view.z - 0.05, 0.0, bias);
+	vec4 nearer = projection * vec4(view.xyz + vec3(0.0, 0.0, pull), 1.0);
+	clip.z = nearer.z / nearer.w * clip.w;
+	return clip;
 }
 
 void body_frame(out vec3 axis, out vec3 front, out vec3 side) {
@@ -153,7 +168,6 @@ void vertex() {
 		// not frantic: the time is advanced in small jerks. The ends stay on the lights.
 		float jerk = TIME * 0.6 + 0.25 * sin(TIME * 3.0 + phi * 11.0) * turbulence;
 		p += curl(p * 1.6 + phi * 3.0, jerk) * 0.06 * body_scale * turbulence * sin(PI * s);
-		p += view_dir * camera_bias * body_scale;
 		vec3 tangent = ahead - behind;
 		vec3 across = cross(tangent, view_dir);
 		across = length(across) > 1e-5 ? normalize(across) : vec3(1.0, 0.0, 0.0);
@@ -165,6 +179,8 @@ void vertex() {
 		v_s = s;
 		v_line = phi + float(link) * 0.21;
 		v_side = UV.y;
+		POSITION = depth_biased_clip(VERTEX, camera_bias * body_scale, MODELVIEW_MATRIX,
+			PROJECTION_MATRIX);
 	}
 }
 
