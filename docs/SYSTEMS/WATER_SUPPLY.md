@@ -4,7 +4,7 @@ Status: planned (epic **R-1815**, tasks **R-1816**..**R-1824**). Nothing on this
 
 Scope: where the people of Reval and its villages get fresh water in 1343, the wells they draw it from, the vessels they carry and store it in, who fetches it and when, and how the protagonist can draw water. Evidence: [`water-supply-1343`](../../history/dossiers/dailylife/water-supply-1343.md) dossier and section 1 of [`reval_domestic_infrastructure_1343.md`](../reports/reval_domestic_infrastructure_1343.md).
 
-Out of scope: thirst, hygiene or any needs simulation for the player or citizens (survival sims are out of scope in [`AGENTS.md`](../../AGENTS.md#scope)); the Ülemiste canal (granted 1345), the Harju-gate stone conduit and timber pipes to public wells (late 14th century), which are all after 1343; the 1375 Rataskaev wheel well; sewers.
+Out of scope: thirst, hygiene or any needs simulation for the player or citizens (survival sims are out of scope in [`AGENTS.md`](../../agents/skills/scope-and-repo/SKILL.md#scope)); the Ülemiste canal (granted 1345), the Harju-gate stone conduit and timber pipes to public wells (late 14th century), which are all after 1343; the 1375 Rataskaev wheel well; sewers.
 
 ## Today
 

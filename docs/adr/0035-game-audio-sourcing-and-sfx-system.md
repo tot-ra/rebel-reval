@@ -2,7 +2,7 @@
 
 - **Status:** Accepted for Phases 0-2 (maintainer request, 2026-10-08); implemented: policy tooling, core runtime, and the slice pilot (surfaces, footsteps, doors, layered ambience) - see [`SYSTEMS/AUDIO.md`](../SYSTEMS/AUDIO.md). Open question 3 (voice) is answered below. Phase 2 shipped its *code* with in-house synthesis placeholders; licensed and recorded material still waits on Open question 2 (budget), as do Phases 3-6 and the scope offset below.
 - **Scope:** Every non-music sound in the game: ambience, weather, animals, water, crowds, footsteps, impacts, weapons, vocal efforts, UI, magic. Music stays with [`music/README.md`](../../music/README.md) and `scripts/global/music_director.gd`.
-- **Amends:** the asset freeze ([`AGENTS.md`](../../AGENTS.md#scope)) only in that it names an allowed audio pipeline. It does not touch the visual freeze.
+- **Amends:** the asset freeze ([`AGENTS.md`](../../agents/skills/scope-and-repo/SKILL.md#scope)) only in that it names an allowed audio pipeline. It does not touch the visual freeze.
 - **Does not supersede:** ADR 0003 (offline authored content, no runtime LLM; this ADR also forbids runtime audio generation), [`ASSET_STORAGE_POLICY.md`](../ASSET_STORAGE_POLICY.md), [`reports/bird_audio_sourcing.md`](../reports/bird_audio_sourcing.md) (still the bird-species source of truth).
 - **Feeds:** [`docs/SYSTEMS/AUDIO.md`](../SYSTEMS/AUDIO.md).
 

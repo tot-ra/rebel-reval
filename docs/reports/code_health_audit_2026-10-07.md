@@ -1,6 +1,6 @@
 # Code-health audit: dead code, unwired features, stray files (2026-10-07)
 
-Scope: every GDScript file under `scripts/` and `scenes/`, every scene, and every Markdown file, checked against the rule that each implemented feature is wired, documented, and reachable from the root README ([`AGENTS.md`](../../AGENTS.md#feature-documentation-mandatory)). This audit **removes nothing**. Each row needs a decision and a board task: wire it, finish it, or delete it.
+Scope: every GDScript file under `scripts/` and `scenes/`, every scene, and every Markdown file, checked against the rule that each implemented feature is wired, documented, and reachable from the root README ([`AGENTS.md`](../../agents/skills/feature-docs/SKILL.md#feature-documentation-mandatory)). This audit **removes nothing**. Each row needs a decision and a board task: wire it, finish it, or delete it.
 
 ## Method
 

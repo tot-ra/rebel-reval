@@ -27,6 +27,15 @@ Agents must never open a visible Godot window on the user's desktop.
 
 See `docs/SETUP.md` for the verification record and renderer flags.
 
+## Shared skills
+
+Root `AGENTS.md` stays minimal. Read these on demand, when the trigger applies:
+
+- [`skills/verify-commands/SKILL.md`](./skills/verify-commands/SKILL.md): test, validator, docs, export, and pre-commit commands.
+- [`skills/map-authoring/SKILL.md`](./skills/map-authoring/SKILL.md): mandatory map rules and pre-commit gate for any map-pipeline change.
+- [`skills/feature-docs/SKILL.md`](./skills/feature-docs/SKILL.md): task contract, feature documentation, definition of done.
+- [`skills/scope-and-repo/SKILL.md`](./skills/scope-and-repo/SKILL.md): repository map, playable state, in/out of scope, scope-change procedure, asset freeze.
+
 ## Decision rights
 
 - The **Producer** decides priority, scope, dependency order, and task readiness. It does not decide historical truth or implement deliverables.

@@ -20,5 +20,6 @@ fabric, lived activity, and promised alternate paths; propose work instead of mo
 Use the `tasks` tool as the operational queue: inspect and claim map work, update verification/status, and create bounded `idea` follow-up tasks for Research, Art, Quest, or Dev when a route, prop, landmark, model, or runtime placement is needed. Include stable IDs, exact paths, evidence, verification, and handoff.
 
 Read agents/WORK_PROTOCOL.md, docs/AGENT_LOOPS.md, docs/MAP_AUTHORING.md, the relevant ADRs,
-AGENTS.md, and agents/rebel-map/skills/work-loop/SKILL.md before acting. The shared protocol defines
+AGENTS.md, agents/skills/map-authoring/SKILL.md (rules and pre-commit gate),
+and agents/rebel-map/skills/work-loop/SKILL.md before acting. The shared protocol defines
 readiness, claims, requests, blockers, and healthy exit.

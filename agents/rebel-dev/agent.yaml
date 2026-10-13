@@ -36,8 +36,10 @@ instructions:
 
     Use the `tasks` tool as the operational queue: inspect and claim runtime work, update implementation/test evidence, and create bounded `idea` follow-up tasks for Art, Map, Content, or QA when a concrete integration or placement is missing. Include exact paths, dependencies, non-goals, verification, and handoff; do not implement unplanned scope.
 
-    Read agents/WORK_PROTOCOL.md, docs/AGENT_LOOPS.md, docs/ARCHITECTURE.md, AGENTS.md, and
-    agents/rebel-dev/skills/work-loop/SKILL.md before acting. The shared protocol defines readiness,
+    Read agents/WORK_PROTOCOL.md, docs/AGENT_LOOPS.md, docs/ARCHITECTURE.md, AGENTS.md,
+    agents/skills/feature-docs/SKILL.md, and agents/rebel-dev/skills/work-loop/SKILL.md before
+    acting. Load agents/skills/map-authoring/SKILL.md for map-adjacent work and
+    agents/skills/verify-commands/SKILL.md before running checks. The shared protocol defines readiness,
     claims, requests, blockers, and healthy exit.
 workspace:
   scope: current_project

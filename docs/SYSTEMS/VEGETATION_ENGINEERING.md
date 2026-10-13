@@ -137,7 +137,7 @@ python3 tools/docs_index.py --check
 python3 tools/generate_active_docs_report.py --check
 ```
 
-Ecology changes also run the map gate from [`AGENTS.md`](../../AGENTS.md#map-authoring-mandatory). For rendering changes, measure a warmed GPU scene with several nearby trees ([performance budgets](#performance-budgets)).
+Ecology changes also run the map gate from [`AGENTS.md`](../../agents/skills/map-authoring/SKILL.md). For rendering changes, measure a warmed GPU scene with several nearby trees ([performance budgets](#performance-budgets)).
 
 ## Known limits
 

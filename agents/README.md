@@ -1,6 +1,6 @@
 # Agent roles
 
-Each folder defines one production agent: `system.md` (role), `playbook.md` (lessons), `agent.yaml`, and `skills/` (work loops). The shared protocol is [`WORK_PROTOCOL.md`](./WORK_PROTOCOL.md); loop scheduling is in [`docs/AGENT_LOOPS.md`](../docs/AGENT_LOOPS.md).
+Each folder defines one production agent: `system.md` (role), `playbook.md` (lessons), `agent.yaml`, and `skills/` (work loops). The shared protocol is [`WORK_PROTOCOL.md`](./WORK_PROTOCOL.md); loop scheduling is in [`docs/AGENT_LOOPS.md`](../docs/AGENT_LOOPS.md). Cross-role skills that root `AGENTS.md` points to live in `skills/` (map gate, verification commands, feature docs and definition of done, scope and repo map).
 
 ## All files in this folder
 
@@ -72,5 +72,12 @@ Each folder defines one production agent: `system.md` (role), `playbook.md` (les
 - [Reval Rebel Dossier Standard](rebel-researcher/skills/dossier-standard/SKILL.md)
 - [Rebel Historical-Geo Researcher Work Loop](rebel-researcher/skills/work-loop/SKILL.md)
 - [System](rebel-researcher/system.md)
+
+#### `skills/`
+
+- [Task contract, feature docs, definition of done](skills/feature-docs/SKILL.md)
+- [Map authoring rules and gate](skills/map-authoring/SKILL.md)
+- [Scope and repository map](skills/scope-and-repo/SKILL.md)
+- [Verification commands](skills/verify-commands/SKILL.md)
 
 <!-- docs-index:end -->

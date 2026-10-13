@@ -1,6 +1,6 @@
 # Architecture decision records
 
-Numbered decisions (Status / Context / Decision / Alternatives / Consequences). A scope change needs the next numbered ADR before coding ([`AGENTS.md`](../../AGENTS.md#scope)). Number 0024 was never issued.
+Numbered decisions (Status / Context / Decision / Alternatives / Consequences). A scope change needs the next numbered ADR before coding ([`AGENTS.md`](../../agents/skills/scope-and-repo/SKILL.md#scope)). Number 0024 was never issued.
 
 ## All files in this folder
 

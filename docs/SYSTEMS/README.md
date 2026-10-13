@@ -1,6 +1,6 @@
 # Game systems
 
-One page per implemented or planned feature. Each page opens with a `Status:` line (implemented, partial, or design contract), then covers player-facing behavior, runtime entry points, content, saved state, verification, and limits. The rule that every feature ships with its page is in [`AGENTS.md`](../../AGENTS.md#feature-documentation-mandatory).
+One page per implemented or planned feature. Each page opens with a `Status:` line (implemented, partial, or design contract), then covers player-facing behavior, runtime entry points, content, saved state, verification, and limits. The rule that every feature ships with its page is in [`AGENTS.md`](../../agents/skills/feature-docs/SKILL.md#feature-documentation-mandatory).
 
 | Page | Status |
 |---|---|
