@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bq67xxnmadms"
-path.s3tc="res://.godot/imported/quilted_albedo.png-39555aa67fabe370f66d9dc3af443ce0.s3tc.ctex"
-path.etc2="res://.godot/imported/quilted_albedo.png-39555aa67fabe370f66d9dc3af443ce0.etc2.ctex"
+path.s3tc="res://.godot/imported/quilted_albedo.png-222349abdd3f9e61950f2ea800425f42.s3tc.ctex"
+path.etc2="res://.godot/imported/quilted_albedo.png-222349abdd3f9e61950f2ea800425f42.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -12,8 +12,8 @@ metadata={
 
 [deps]
 
-source_file="res://build/aita_meshy/v4/textiles/quilted_albedo.png"
-dest_files=["res://.godot/imported/quilted_albedo.png-39555aa67fabe370f66d9dc3af443ce0.s3tc.ctex", "res://.godot/imported/quilted_albedo.png-39555aa67fabe370f66d9dc3af443ce0.etc2.ctex"]
+source_file="res://assets/characters/realistic/textiles/quilted_albedo.png"
+dest_files=["res://.godot/imported/quilted_albedo.png-222349abdd3f9e61950f2ea800425f42.s3tc.ctex", "res://.godot/imported/quilted_albedo.png-222349abdd3f9e61950f2ea800425f42.etc2.ctex"]
 
 [params]
 

@@ -1,8 +1,10 @@
 extends SceneTree
 ## Reproducible GL Compatibility review of the actual imported bird assets.
 
+
 func _initialize() -> void:
 	call_deferred("_capture")
+
 
 func _capture() -> void:
 	root.size = Vector2i(1800, 1040)
@@ -10,7 +12,9 @@ func _capture() -> void:
 	var flight_review := "--flight-sheet" in args
 	var motion_review := "--motion-sheet" in args
 	var ids: Array[String] = ["robin", "hooded_crow", "gull", "hen", "duck", "gull"]
-	var titles: Array[String] = ["EUROPEAN ROBIN", "HOODED CROW", "GULL", "HEN", "MALLARD", "GULL / FLIGHT"]
+	var titles: Array[String] = [
+		"EUROPEAN ROBIN", "HOODED CROW", "GULL", "HEN", "MALLARD", "GULL / FLIGHT"
+	]
 	if motion_review:
 		ids.fill("gull")
 		titles = ["REST", "TAKEOFF", "WINGS RAISED", "WINGS LOWERED", "GLIDE", "LANDING"]
@@ -39,7 +43,10 @@ func _capture() -> void:
 		fill.light_color = Color("9cbedb")
 		fill.light_energy = 0.45
 		view.add_child(fill)
-		var model := (load("res://assets/storybook/%s/%s.glb" % [ids[i], ids[i]]) as PackedScene).instantiate() as Node3D
+		var model := (
+			(load("res://assets/animals/%s/%s.glb" % [ids[i], ids[i]]) as PackedScene).instantiate()
+			as Node3D
+		)
 		view.add_child(model)
 		var player := model.find_child("AnimationPlayer", true, false) as AnimationPlayer
 		var flying := flight_review or motion_review or i == 5
@@ -49,8 +56,12 @@ func _capture() -> void:
 		var camera := Camera3D.new()
 		camera.projection = Camera3D.PROJECTION_ORTHOGONAL
 		camera.size = (1.35 if ids[i] == "robin" else 2.4) if flying else (0.67 if i == 0 else 1.2)
-		var target := Vector3(0, (0.6 if ids[i] == "robin" else 0.78) if flying else (0.25 if i == 0 else 0.43), 0)
-		camera.position = target + Vector3(1.3, 2.7 if flight_review or motion_review else 0.55, 1.8)
+		var target := Vector3(
+			0, (0.6 if ids[i] == "robin" else 0.78) if flying else (0.25 if i == 0 else 0.43), 0
+		)
+		camera.position = (
+			target + Vector3(1.3, 2.7 if flight_review or motion_review else 0.55, 1.8)
+		)
 		view.add_child(camera)
 		camera.look_at(target)
 		var texture := TextureRect.new()

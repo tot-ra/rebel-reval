@@ -13,7 +13,7 @@ const TARGET_VIEWPORTS: Array[Vector2i] = [
 
 const OUTER_MARGIN_X := 32
 const PANEL_MARGIN_X := 24
-const PORTRAIT_WIDTH := 96
+const PORTRAIT_WIDTH := 144
 const BODY_COLUMN_GAP := 16
 const DIALOGUE_ROOT_MIN_HEIGHT := 268
 const PANEL_MARGIN_Y := 18

@@ -8,6 +8,7 @@ const TALK_PATH := "res://assets/UI/cursors/cursor_talk.png"
 
 const LAYER_INTERACTABLE := 1
 const LAYER_WORLD_ITEM := 2
+const LAYER_CHARACTER := 3
 
 var _grab_tex: Texture2D
 var _talk_tex: Texture2D

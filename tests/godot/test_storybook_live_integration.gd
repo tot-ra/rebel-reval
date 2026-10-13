@@ -7,12 +7,18 @@ const Flight := preload("res://scripts/map/view3d/map_view_bird_flight.gd")
 
 func test_live_cast_retains_identity_health_and_fitted_equipment() -> void:
 	for body: String in ["kalev", "mart", "aita", "ellen", "watchman", "henning", "jurgen", "kaja"]:
-		var path := "res://assets/characters/kalev/kalev.tscn" if body == "kalev" else "res://assets/characters/variants/%s.tscn" % body
+		var path := (
+			"res://assets/characters/kalev/kalev.tscn"
+			if body == "kalev"
+			else "res://assets/characters/variants/%s.tscn" % body
+		)
 		var rig := (load(path) as PackedScene).instantiate() as SharedCharacterRig
 		(Engine.get_main_loop() as SceneTree).root.add_child(rig)
 		assert_eq(rig.body_basename(), body)
 		assert_eq(rig.variant_id(), StringName("char." + body))
-		assert_true(rig.has_node("HealthRing"), "Live combat feedback must survive model replacement")
+		assert_true(
+			rig.has_node("HealthRing"), "Live combat feedback must survive model replacement"
+		)
 		assert_eq(rig.validation_errors(), [])
 		# Realistic bodies (ADR 0022): every garment generated for this body fits it,
 		# and armour fitted to another body is refused.
@@ -27,14 +33,19 @@ func test_live_cast_retains_identity_health_and_fitted_equipment() -> void:
 		assert_true(rig.play_animation(&"sword_attack", 0.0))
 		for slot: StringName in [&"right_hand", &"left_hand"]:
 			var prop := "sword" if slot == &"right_hand" else "hammer"
-			assert_true(rig.equip(slot, load("res://assets/storybook/equipment/%s.tscn" % prop)) != null)
+			assert_true(
+				rig.equip(slot, load("res://assets/storybook/equipment/%s.tscn" % prop)) != null
+			)
 			rig.unequip(slot)
 			assert_eq(rig.equipped(slot), null)
 		rig.queue_free()
 
 
 func test_forge_cat_routines_use_new_skinned_clips_and_coats_preserve_face() -> void:
-	var cat := (load("res://assets/storybook/forge_cat/forge_cat.tscn") as PackedScene).instantiate() as CatRig
+	var cat := (
+		(load("res://assets/animals/forge_cat/forge_cat.tscn") as PackedScene).instantiate()
+		as CatRig
+	)
 	(Engine.get_main_loop() as SceneTree).root.add_child(cat)
 	var before: Dictionary = {}
 	for mesh: MeshInstance3D in cat.find_children("*", "MeshInstance3D", true, false):
@@ -45,9 +56,17 @@ func test_forge_cat_routines_use_new_skinned_clips_and_coats_preserve_face() -> 
 		for surface: int in mesh.mesh.get_surface_count():
 			var source := mesh.mesh.surface_get_material(surface)
 			if source.resource_name == "forge_cat_coat":
-				assert_eq((mesh.get_active_material(surface) as StandardMaterial3D).albedo_texture, (source as StandardMaterial3D).albedo_texture, "Tint preserves authored face and coat texture")
+				assert_eq(
+					(mesh.get_active_material(surface) as StandardMaterial3D).albedo_texture,
+					(source as StandardMaterial3D).albedo_texture,
+					"Tint preserves authored face and coat texture"
+				)
 			elif source.resource_name not in ["ginger", "stripe"]:
-				assert_eq(mesh.get_active_material(surface), before[surface], "Coat recoloring must preserve eyes and whiskers")
+				assert_eq(
+					mesh.get_active_material(surface),
+					before[surface],
+					"Coat recoloring must preserve eyes and whiskers"
+				)
 	for canonical: StringName in [&"idle", &"walk", &"sleep", &"lick", &"stretch"]:
 		assert_true(cat.play_animation(canonical, 0.0))
 		assert_eq(cat.current_canonical_animation(), canonical)
@@ -57,7 +76,18 @@ func test_forge_cat_routines_use_new_skinned_clips_and_coats_preserve_face() -> 
 
 
 func test_live_fauna_walk_run_and_rest_with_correct_facing() -> void:
-	for species: StringName in [&"chicken", &"duck", &"goat", &"pig", &"sheep", &"dog", &"rat", &"red_fox", &"hare", &"wild_boar"]:
+	for species: StringName in [
+		&"chicken",
+		&"duck",
+		&"goat",
+		&"pig",
+		&"sheep",
+		&"dog",
+		&"rat",
+		&"red_fox",
+		&"hare",
+		&"wild_boar"
+	]:
 		var actor := Node3D.new()
 		(Engine.get_main_loop() as SceneTree).root.add_child(actor)
 		var model := Models.add_model(actor, species)

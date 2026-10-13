@@ -17,7 +17,7 @@
 | Item | Value |
 |---|---|
 | Status | Authored GLB (third-party, CC BY 4.0) |
-| Runtime file | [`assets/storybook/hen/hen.glb`](../../../assets/storybook/hen/hen.glb) |
+| Runtime file | [`assets/animals/hen/hen.glb`](../../../assets/animals/hen/hen.glb) |
 | Source page | [Sketchfab page](https://sketchfab.com/3d-models/chicken-ce17aabc51ba47bfbc7342a963b095e9) |
 | Author and licence | hendrikReyneke (Sketchfab), CC BY; rebuilt by project |
 | Rig and clips | 16-bone articulated rig, eight named animations. |

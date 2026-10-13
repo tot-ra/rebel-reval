@@ -153,10 +153,12 @@ func is_overview() -> bool:
 	return camera_mode == CameraMode.TOP_DOWN or camera_mode == CameraMode.PAINTED_ISO
 
 
-## The painted-iso preset only joins the cycle and zoom continuum where the view
-## opts in (the seamless city, which cuts roofs away over the player).
+## The tiltable perspective painted-iso preset is retired from the player-facing
+## cycle and zoom continuum: zooming out goes third person -> orthographic iso
+## (rotate only, no tilt). The mode itself stays for capture tools and tests that
+## set it explicitly.
 func painted_iso_available() -> bool:
-	return view != null and view.painted_iso_camera
+	return false
 
 
 func painted_iso_distance() -> float:

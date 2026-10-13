@@ -21,7 +21,7 @@ static func draw_district_life_prop(
 	var stone := MapVisualStyle.role_color(&"stone", target, time_of_day)
 	match kind:
 		# gdlint: ignore=max-line-length
-		MapTypes.PROP_KIND_FISHING_NETS, MapTypes.PROP_KIND_FISH_DRYING_RACK, MapTypes.PROP_KIND_SMOKE_RACK:
+		MapTypes.PROP_KIND_FISH_DRYING_RACK, MapTypes.PROP_KIND_SMOKE_RACK:
 			Draw.add_rect(
 				parent, "Frame", Vector2(-18, -24), Vector2(36, 6), timber, target, time_of_day
 			)

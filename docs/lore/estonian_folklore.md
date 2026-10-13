@@ -15,7 +15,7 @@ Estonian folklore is our single richest, most setting-authentic quest quarry: it
 Three ways to draw from it:
 
 1. **Ambient texture** - songs, sayings, weather-omens, and roadside legends NPCs repeat. Cheap, high flavour, no new systems.
-2. **Bestiary encounters** - many creatures already exist in [`assets/bestiary/`](../../assets/bestiary/) and the [bestiary README](../../assets/bestiary/README.md); this doc grounds them in real sources and adds candidates.
+2. **Bestiary encounters** - many creatures already exist in [bestiary roster](../BESTIARY/README.md) and its [cards](../BESTIARY/cards/); this doc grounds them in real sources and adds candidates.
 3. **Full quest lines** - folklore tales restructured as objectives, tied to a named NPC and a real location. See §7-§8.
 
 **Design rule:** In 1343 these beliefs are *lived*, not "mythology." Estonians treat spirits as neighbours; Germans/Danes/clergy treat the same beliefs as heresy or peasant superstition. That tension is the quest engine - the *same* event (a kratt in a barn, a näkk in the harbour) reads as sacred, criminal, or diabolical depending on who you ask.
@@ -51,23 +51,23 @@ Use these for oaths, songs, shrine dedications, and the Metsik Cult's theology. 
 - **Kalevipoeg** - giant son of **Kalev** and **Linda**. Ploughed the land, fought the Devil, built towns by hurling stones, died guarding the gates of Hell, prophesied to return and free his people. **The reincarnation-of-the-giant-king motif is already wired into [Urmas Laar](../../characters/rebels/urmas_laar.md), who reads our PC Kalev as the prophesied giant-king.** This is the strongest single folklore-to-character link we have.
 - **Suur Tõll** - giant hero-king of Saaremaa; ploughs, throws boulders, defends islanders, beheaded but his head speaks. Pairs with our [Saaremaa](../../scenes/events/saaremaa.md) and [Maasilinna/Pöide](../../scenes/world/) island content.
 - **Peko** - Seto fertility/crop god (far south-east; use only if we ever reach Setomaa). A wax effigy kept in a barn - mechanically echoes the Metsik straw effigy.
-- **Vanapagan** ("Old Heathen"/"Old Devil") - the dim, strong giant-devil of the tales, endlessly outwitted by the farmhand **Kaval-Ants**. Already our top-level antagonist archetype in the [bestiary README](../../assets/bestiary/README.md). Not the Christian Satan - a folkloric strongman/landlord figure, which lets us satirize the German lords through him.
+- **Vanapagan** ("Old Heathen"/"Old Devil") - the dim, strong giant-devil of the tales, endlessly outwitted by the farmhand **Kaval-Ants**. Already our top-level antagonist archetype in the [bestiary roster](../BESTIARY/README.md). Not the Christian Satan - a folkloric strongman/landlord figure, which lets us satirize the German lords through him.
 
 ---
 
 ## 4. Folklore beings catalog
 
-Legend = column shows whether the being is **already in our bestiary** ([`assets/bestiary/`](../../assets/bestiary/) + [README](../../assets/bestiary/README.md)) or is a **new candidate**. All `folklore`.
+Legend = column shows whether the being is **already in our bestiary** ([roster](../BESTIARY/README.md)) or is a **new candidate**. All `folklore`.
 
 ### 4a. Already in the game (source-grounded here)
 
 | Being | Est. name | Folk basis (source) | In-game file |
 |---|---|---|---|
-| Treasure-imp construct | **Kratt** / **Pisuhänd** | Household junk + tools animated by a soul bought from Vanapagan with three drops of blood; carries stolen grain/gold to its maker; must be kept busy or it kills the master; destroyed by an impossible task. (Eisen) | [`kratt.md`](../../assets/bestiary/kratt.md) |
+| Treasure-imp construct | **Kratt** / **Pisuhänd** | Household junk + tools animated by a soul bought from Vanapagan with three drops of blood; carries stolen grain/gold to its maker; must be kept busy or it kills the master; destroyed by an impossible task. (Eisen) | [`kratt.md`](../BESTIARY/cards/kratt.md) |
 | Fire-tail | **Tulihänd / Pisuhänd** | The *same* wealth-bringer seen flying as a fiery tail across the night sky - an omen that a neighbour is trafficking with the devil. | bestiary README |
-| Greedy dragon-imp | **Puuk** | Northern/So. Estonian & Baltic-German term for the milk/wealth-stealing familiar; overlaps kratt. | [`puuk.md`](../../assets/bestiary/puuk.md) |
-| Northern Frog | **Põhja Konn** | Title tale of Kreutzwald's collection - a monstrous frog/dragon slain by a hero with a magic ring. | [`põhja_konn.md`](../../assets/bestiary/põhja_konn.md) |
-| Forest guardian | **Metsavana / Metsik / Leshy** | *Metsik* is a straw harvest-effigy paraded and "killed" for fertility; *Metsaema/Metsavana* are the forest's owner-spirits. (Leshy is the Slavic import.) | [`leshy.md`](../../assets/bestiary/leshy.md), [Metsik Cult](../../characters/metsik_cult/README.md) |
+| Greedy dragon-imp | **Puuk** | Northern/So. Estonian & Baltic-German term for the milk/wealth-stealing familiar; overlaps kratt. | [`puuk.md`](../BESTIARY/cards/puuk.md) |
+| Northern Frog | **Põhja Konn** | Title tale of Kreutzwald's collection - a monstrous frog/dragon slain by a hero with a magic ring. | [`pohja_konn.md`](../BESTIARY/cards/pohja_konn.md) |
+| Forest guardian | **Metsavana / Metsik / Leshy** | *Metsik* is a straw harvest-effigy paraded and "killed" for fertility; *Metsaema/Metsavana* are the forest's owner-spirits. (Leshy is the Slavic import.) | [`metsavana.md`](../BESTIARY/cards/metsavana.md), [Metsik Cult](../../characters/metsik_cult/README.md) |
 | Water spirit | **Näkk** | Shapeshifting water being (horse, man, fish, beautiful singer) that lures people to drown; singing it back can free a victim. | bestiary README |
 | Nightmare | **Luupainaja / Painaja** | The "mare" that sits on a sleeper's chest; a restless soul or a person's wandering spirit; blocked by iron/scissors in the doorway. | bestiary README |
 | Frost-wight | **Külmking** | Malevolent cold spirit / unquiet dead of those who died unbaptized; walks the winter roads. | bestiary README |
@@ -118,11 +118,11 @@ Fairy tales give us *plots*, not just monsters. Each below is a genuine tale red
 |---|---|---|
 | **Kaval-Ants ja Vanapagan** (Cunning Hans & the Old Devil) | A poor farmhand wins wagers against the strong-but-stupid devil (who can eat more, mow more, throw further) by trickery. | A "contest" quest vs. a brutish overseer/Brute (bestiary): win by wit not strength - eating match, a rigged stone-throw, a "whistle louder" trick. Reward: freedom of a village from a levy. Reskins the German lord as Vanapagan. |
 | **Rehepapp** | The barn-keeper and his kratt steal from the manor to keep peasants alive. | Multi-step heist against a Hanseatic/Order granary; build or feed a **kratt** to haul the loot; keep it busy or it turns on you (fail-state). Direct rebel-economy quest. |
-| **Põhja konn** (The Northern Frog) | A hero with a magic ring slays the man-eating giant frog. | Boss quest already stubbed as [`põhja_konn.md`](../../assets/bestiary/põhja_konn.md); the "ring" = a forge-crafted relic, tying to Kalev's smithing. |
+| **Põhja konn** (The Northern Frog) | A hero with a magic ring slays the man-eating giant frog. | Boss quest already stubbed as [`pohja_konn.md`](../BESTIARY/cards/pohja_konn.md); the "ring" = a forge-crafted relic, tying to Kalev's smithing. |
 | **Vaeslapse käsikivi** (The Orphan's Handmill) | An abused orphan is aided by the dead mother's spirit / a magic hand-mill that grinds salt or gold. | Ties to **kodukäija/haldjas** ancestor-aid; a mill that won't stop (why the sea is salt) - a cursed-object quest in a village mill. |
 | **Loomade keel** (The Language of Animals) | A man gains the power to understand animals; must never reveal it. | An investigation quest where overheard animals (our [30-bird catalog!](../FLORA_FAUNA.md#bird-model-ledger-3030)) leak secrets; ties folklore to the ambient-fauna system (P0-105). |
 | **Tuhka-Triinu** (Ash-Triinu, Cinderella) | Mistreated girl, dead-mother's tree/bird helpers, recognition. | Social side-quest in a merchant household; the birch/rowan on the mother's grave as helper-spirit. |
-| **Libahunt** tale-type | A woman is forced into wolf-form and back; jealousy and false wives. | Werewolf-territory quest ([`assets/bestiary`](../../assets/bestiary/README.md)); the "monster" is a wronged human - a persuade-vs-kill choice, our signature branch. |
+| **Libahunt** tale-type | A woman is forced into wolf-form and back; jealousy and false wives. | Werewolf-territory quest ([roster](../BESTIARY/README.md)); the "monster" is a wronged human - a persuade-vs-kill choice, our signature branch. |
 
 ---
 
@@ -188,7 +188,7 @@ Seeds only; each needs a README/the project task board (`tasks` tool) task to ac
 ## 10. Recommended next steps
 
 1. **Grade the seeds** against the vertical-slice budget; F-1 (Ülemiste), F-2 (Toompea/Linda), F-3 (Rehepapp/kratt) are the highest-value, most setting-specific.
-2. **Add source citations** to the existing [bestiary files](../../assets/bestiary/) so each creature points back to §2/§4 here (currently they read as invented).
+2. **Add source citations** to the existing [bestiary cards](../BESTIARY/cards/) so each creature points back to §2/§4 here (currently they read as invented).
 3. **Write full briefs** for any reactivated NPC (Rehepapp, Ülemiste Elder) using [`docs/CHARACTERS/_template.md`](../CHARACTERS/_template.md).
 4. Decide whether the **katk (plague-as-traveller)** seed (F-5) is the sanctioned way to keep the plague *theme* from the [archived epilogue](../../story/archive/plague_justice_epilogue.md) without the non-canon 1351 outbreak.
 

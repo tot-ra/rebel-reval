@@ -176,10 +176,10 @@ const MAPS: Dictionary = {
     def test_release_scope_requires_exact_release_set(self):
         dest_path = os.path.join(self.temp_dir.name, "dest.json")
         with open(dest_path, "w") as f:
-            json.dump({"scenes": [{"id": "forge", "active": True, "release": True}]}, f)
+            json.dump({"scenes": [{"id": "reval_east", "active": True, "release": True}]}, f)
 
         errors = verify_release_scope(dest_path, self.temp_dir.name)
-        self.assertTrue(any("forge and reval_city" in error for error in errors))
+        self.assertTrue(any("exactly reval_city" in error for error in errors))
 
 if __name__ == '__main__':
     unittest.main()

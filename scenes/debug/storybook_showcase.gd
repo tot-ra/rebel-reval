@@ -2,9 +2,41 @@ extends Node3D
 ## P0-203: isolated animated model review, without map or gameplay dependencies.
 
 const BIRDS: Array[String] = ["robin", "hooded_crow", "gull", "hen", "duck"]
-const IDS: Array[String] = ["forge_cat", "sheep", "dog", "pig", "goat", "boar", "fox", "hare", "rat", "robin", "hooded_crow", "gull", "hen", "duck"]
-const TITLES: Array[String] = ["Forge cat", "Sheep", "Dog", "Pig", "Goat", "Boar", "Fox", "Hare", "Rat", "Robin", "Hooded crow", "Gull", "Hen", "Duck"]
-const DISPLAY_SCALES: Array[float] = [1.3, 1.3, 1.3, 1.3, 1.3, 1.3, 1.3, 1.3, 2.1, 2.1, 1.3, 1.3, 1.3, 1.3]
+const IDS: Array[String] = [
+	"forge_cat",
+	"sheep",
+	"dog",
+	"pig",
+	"goat",
+	"boar",
+	"fox",
+	"hare",
+	"rat",
+	"robin",
+	"hooded_crow",
+	"gull",
+	"hen",
+	"duck"
+]
+const TITLES: Array[String] = [
+	"Forge cat",
+	"Sheep",
+	"Dog",
+	"Pig",
+	"Goat",
+	"Boar",
+	"Fox",
+	"Hare",
+	"Rat",
+	"Robin",
+	"Hooded crow",
+	"Gull",
+	"Hen",
+	"Duck"
+]
+const DISPLAY_SCALES: Array[float] = [
+	1.3, 1.3, 1.3, 1.3, 1.3, 1.3, 1.3, 1.3, 2.1, 2.1, 1.3, 1.3, 1.3, 1.3
+]
 var _players: Array[AnimationPlayer] = []
 var _models: Array[Node3D] = []
 var _subject: OptionButton
@@ -24,6 +56,7 @@ var _flight_stage: int = -1
 var _flight_origins: Dictionary = {}
 var _category: int = 0
 var _category_picker: OptionButton
+
 
 func _ready() -> void:
 	RenderingServer.set_default_clear_color(Color("485565"))
@@ -62,7 +95,7 @@ func _ready() -> void:
 	_camera.fov = 38
 	add_child(_camera)
 	for i: int in IDS.size():
-		var packed := load("res://assets/storybook/%s/%s.glb" % [IDS[i], IDS[i]]) as PackedScene
+		var packed := load("res://assets/animals/%s/%s.glb" % [IDS[i], IDS[i]]) as PackedScene
 		var model := packed.instantiate() as Node3D
 		model.position = Vector3((i % 6 - 2.5) * 1.85, 0, (i / 6 - 1.5) * 2.1)
 		model.scale = Vector3.ONE * DISPLAY_SCALES[i]
@@ -72,7 +105,9 @@ func _ready() -> void:
 		_players.append(player)
 		for clip: StringName in player.get_animation_list():
 			if clip != &"RESET":
-				player.get_animation(clip).loop_mode = Animation.LOOP_NONE if clip in [&"TakeOff", &"Land"] else Animation.LOOP_LINEAR
+				player.get_animation(clip).loop_mode = (
+					Animation.LOOP_NONE if clip in [&"TakeOff", &"Land"] else Animation.LOOP_LINEAR
+				)
 		player.play(&"Idle")
 		var label := Label3D.new()
 		label.text = TITLES[i]
@@ -109,9 +144,16 @@ func _ready() -> void:
 		await get_tree().process_frame
 		await get_tree().process_frame
 		await RenderingServer.frame_post_draw
-		var plate := "godot_flight" if "--capture-flight" in args else ("godot_animals" if "--capture-animals" in args else "godot_lineup")
-		get_viewport().get_texture().get_image().save_png("res://docs/reports/images/storybook/%s.png" % plate)
+		var plate := (
+			"godot_flight"
+			if "--capture-flight" in args
+			else ("godot_animals" if "--capture-animals" in args else "godot_lineup")
+		)
+		get_viewport().get_texture().get_image().save_png(
+			"res://docs/reports/images/storybook/%s.png" % plate
+		)
 		get_tree().quit()
+
 
 func _build_ui() -> void:
 	var layer := CanvasLayer.new()
@@ -156,7 +198,9 @@ func _build_ui() -> void:
 	_clips.item_selected.connect(_select_clip)
 	var actions := HBoxContainer.new()
 	column.add_child(actions)
-	for entry: Array in [["Idle [1]", 0], ["Move [2]", 1], ["Look / peck [3]", 2], ["Run / fly [4]", 3]]:
+	for entry: Array in [
+		["Idle [1]", 0], ["Move [2]", 1], ["Look / peck [3]", 2], ["Run / fly [4]", 3]
+	]:
 		var button := Button.new()
 		button.text = entry[0]
 		button.pressed.connect(_play_group.bind(entry[1]))
@@ -167,10 +211,12 @@ func _build_ui() -> void:
 	actions.add_child(pause)
 	var focus := Button.new()
 	focus.text = "Focus / lineup"
-	focus.pressed.connect(func() -> void:
-		_focus = not _focus
-		_distance = 4.8 if _focus else (21.0 if _category == 0 else 12.0)
-		_update_camera())
+	focus.pressed.connect(
+		func() -> void:
+			_focus = not _focus
+			_distance = 4.8 if _focus else (21.0 if _category == 0 else 12.0)
+			_update_camera()
+	)
 	actions.add_child(focus)
 	var flight := Button.new()
 	flight.text = "Take off → fly → glide → land"
@@ -180,6 +226,7 @@ func _build_ui() -> void:
 	column.add_child(_status)
 	_select_subject(0)
 	_subject.grab_focus()
+
 
 func _select_subject(_index: int) -> void:
 	if not _models[_subject.selected].visible:
@@ -191,12 +238,17 @@ func _select_subject(_index: int) -> void:
 			_clips.add_item(String(clip))
 			if clip == player.current_animation:
 				_clips.select(_clips.item_count - 1)
-	_status.text = "%s · %d clips · display scales adjusted for comparison" % [TITLES[_subject.selected], _clips.item_count]
+	_status.text = (
+		"%s · %d clips · display scales adjusted for comparison"
+		% [TITLES[_subject.selected], _clips.item_count]
+	)
 	_update_camera()
+
 
 func _select_clip(index: int) -> void:
 	_stop_flight()
 	_players[_subject.selected].play(_clips.get_item_text(index))
+
 
 func _play_group(group: int) -> void:
 	_stop_flight()
@@ -209,10 +261,12 @@ func _play_group(group: int) -> void:
 		_players[i].play(choices[group])
 	_select_subject(_subject.selected)
 
+
 func _toggle_pause() -> void:
 	_paused = not _paused
 	for player: AnimationPlayer in _players:
 		player.speed_scale = 0.0 if _paused else 1.0
+
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion and event.button_mask & MOUSE_BUTTON_MASK_LEFT:
@@ -231,12 +285,16 @@ func _unhandled_input(event: InputEvent) -> void:
 		elif event.keycode == KEY_SPACE:
 			_toggle_pause()
 
+
 func _update_camera() -> void:
 	var target := Vector3(0 if "--clean" in OS.get_cmdline_user_args() else -0.85, 1.1, 0)
 	if _focus and not _models.is_empty():
 		target = _models[_subject.selected].position + Vector3(0, 0.9, 0)
-	_camera.position = target + Vector3(sin(_yaw) * cos(_pitch), sin(_pitch), cos(_yaw) * cos(_pitch)) * _distance
+	_camera.position = (
+		target + Vector3(sin(_yaw) * cos(_pitch), sin(_pitch), cos(_yaw) * cos(_pitch)) * _distance
+	)
 	_camera.look_at(target)
+
 
 func _process(delta: float) -> void:
 	if _paused:
@@ -258,13 +316,18 @@ func _process(delta: float) -> void:
 		_demo_group = group
 		_play_group(group)
 
+
 func _set_category(category: int) -> void:
 	_stop_flight()
 	_category = category
 	_category_picker.select(category)
 	var visible_indices: Array[int] = []
 	for i: int in IDS.size():
-		var show := category == 0 or (category == 1 and IDS[i] not in BIRDS) or (category == 2 and IDS[i] in BIRDS)
+		var show := (
+			category == 0
+			or (category == 1 and IDS[i] not in BIRDS)
+			or (category == 2 and IDS[i] in BIRDS)
+		)
 		_models[i].visible = show
 		_labels[i].visible = show
 		if show:
@@ -274,7 +337,9 @@ func _set_category(category: int) -> void:
 	for j: int in visible_indices.size():
 		var i := visible_indices[j]
 		var row := j / columns
-		_models[i].position = Vector3((j % columns - (columns-1)*0.5) * 2.15, 0, (row - (rows - 1) * 0.5) * 2.1)
+		_models[i].position = Vector3(
+			(j % columns - (columns - 1) * 0.5) * 2.15, 0, (row - (rows - 1) * 0.5) * 2.1
+		)
 		_labels[i].position = _models[i].position + Vector3(0, 0.05, 0.8)
 	if not visible_indices.has(_subject.selected):
 		_subject.select(visible_indices[0])
@@ -282,6 +347,7 @@ func _set_category(category: int) -> void:
 	_focus = false
 	_distance = 21.0 if category == 0 else 12.0
 	_update_camera()
+
 
 func _start_flight() -> void:
 	_stop_flight()
@@ -292,6 +358,7 @@ func _start_flight() -> void:
 		if IDS[i] in BIRDS:
 			_flight_origins[i] = _models[i].position
 	_advance_flight(0.0)
+
 
 func _advance_flight(delta: float) -> void:
 	_flight_time += delta
@@ -305,13 +372,14 @@ func _advance_flight(delta: float) -> void:
 		_select_subject(_subject.selected)
 	for key: int in _flight_origins:
 		var drift := Vector3.ZERO
-		if stage in [1,2]:
-			var t := (_flight_time-2.0)/4.0 * TAU
-			drift = Vector3(sin(t)*0.5, 0, (1-cos(t))*0.3)
+		if stage in [1, 2]:
+			var t := (_flight_time - 2.0) / 4.0 * TAU
+			drift = Vector3(sin(t) * 0.5, 0, (1 - cos(t)) * 0.3)
 		_models[key].position = _flight_origins[key] + drift
 	if stage == 4:
 		_flight_time = -1.0
 		_flight_origins.clear()
+
 
 func _stop_flight() -> void:
 	for i: int in _flight_origins:
@@ -320,6 +388,7 @@ func _stop_flight() -> void:
 	_flight_origins.clear()
 	_flight_time = -1.0
 	_flight_stage = -1
+
 
 func _apply_case(index: int) -> void:
 	_set_category(1)

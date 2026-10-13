@@ -14,7 +14,6 @@ One authoritative list of the beings the apprentice can meet, split by combat la
 | [`docs/BESTIARY/TEMPLATE.md`](../BESTIARY/TEMPLATE.md) | Card format |
 | `docs/BESTIARY/cards/<slug>.md` | One card per kept creature |
 | [`docs/BESTIARY/inspiration/`](../BESTIARY/inspiration/) | Legacy pixel-art sketches kept only as inspiration (`.gdignore`d, not runtime art); roster Images column refers to these |
-| [`assets/bestiary/README.md`](../../assets/bestiary/README.md) | Legacy archived list, points to the roster |
 | `tools/validate_bestiary_cards.py` | Validator |
 | `tests/python/test_validate_bestiary_cards.py` | Validator tests |
 

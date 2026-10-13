@@ -26,7 +26,7 @@ P7 design/canon rows may run in parallel. P7 implementation rows depend on slice
 | Story / timeline | `story/STORY.md`, `history/HISTORY.md`, `history/TIMELINE.md` | `docs/CANON.md` Timeline 1342–1346, Political landscape, Promoted and rejected story seeds | P7-001, P7-008 (delivered; pending canon) | P5/P6 act design + content tasks |
 | Expanded cast | `characters/**` sheets | [`docs/cast_faction_promotion.md`](./cast_faction_promotion.md) + `docs/CHARACTERS/*.md` briefs + portraits/models via art pipeline | P7-001, P7-009 (delivered; pending canon on first briefs) | P7-013 brief batches; P2-004 follow-ons / A-track |
 | Expanded factions | `characters/README.md` (15+ roster) | Promotion plan faction-candidate table; Blackheads / Ösel-Wiek candidates; Lizard Union stays intrigue cell until ADR | P7-001, P7-009 (delivered) | P4-045 Blackheads ledger stub; further P4-016+ follow-ons |
-| Bestiary / folklore creatures | `assets/bestiary/README.md` | CANON + fauna/folklore content; new 3D where needed | P7-001, P7-008 | art + content rows |
+| Bestiary / folklore creatures | `docs/BESTIARY/README.md` | CANON + fauna/folklore content; new 3D where needed | P7-001, P7-008 | art + content rows |
 
 ## Art rule (explicit)
 

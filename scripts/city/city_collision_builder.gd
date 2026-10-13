@@ -21,7 +21,9 @@ static func build(plan: CityPlan, parent: Node) -> Node2D:
 	root.name = "CityCollision"
 	parent.add_child(root)
 	var bodies: Dictionary = {}
-	var add_poly := func(points: PackedVector2Array) -> void:
+	var steep_bodies: Dictionary = {}
+	# One factory for both layers: `layer` picks the body set a polygon joins.
+	var add_on_layer := func(points: PackedVector2Array, layer: int, group: Dictionary) -> void:
 		if points.size() < 3:
 			return
 		var c := Vector2.ZERO
@@ -29,23 +31,28 @@ static func build(plan: CityPlan, parent: Node) -> Node2D:
 			c += p
 		c /= points.size()
 		var key := Vector2i(floori(c.x / BODY_CHUNK), floori(c.y / BODY_CHUNK))
-		if not bodies.has(key):
+		if not group.has(key):
 			var body := StaticBody2D.new()
-			body.name = "Body_%d_%d" % [key.x, key.y]
-			body.collision_layer = CollisionLayers.WORLD
+			var prefix := "Body" if layer == CollisionLayers.WORLD else "Steep"
+			body.name = "%s_%d_%d" % [prefix, key.x, key.y]
+			body.collision_layer = layer
 			body.collision_mask = 0
 			root.add_child(body)
-			bodies[key] = body
+			group[key] = body
 		var shape := CollisionPolygon2D.new()
 		var scaled := PackedVector2Array()
 		for p in points:
 			scaled.append(p * PX)
 		shape.polygon = scaled
-		(bodies[key] as StaticBody2D).add_child(shape)
+		(group[key] as StaticBody2D).add_child(shape)
+	var add_poly := func(points: PackedVector2Array) -> void:
+		add_on_layer.call(points, CollisionLayers.WORLD, bodies)
+	var add_steep := func(points: PackedVector2Array) -> void:
+		add_on_layer.call(points, CollisionLayers.STEEP, steep_bodies)
 	_buildings(plan, add_poly)
 	_sites(plan, add_poly)
 	_fortifications(plan, add_poly)
-	_terrain_blocks(plan, add_poly)
+	_terrain_blocks(plan, add_steep)
 	_bounds(plan, add_poly)
 	return root
 

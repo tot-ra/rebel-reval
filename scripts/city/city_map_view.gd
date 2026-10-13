@@ -32,6 +32,7 @@ var _roof_cutaway_on := false
 ## Settled snow cover (0..1) for the campaign date; footsteps read it.
 var _snow_cover := 0.0
 var _ambient_occlusion_pass: AmbientOcclusionPassScript
+var _puddle_step_vfx: CityPuddleStepVfx
 
 
 ## `quality_tier` (SkyWeather3D QUALITY_*, null = recommended) picks the sky, weather,
@@ -71,6 +72,7 @@ static func create_city(city_plan: CityPlan, quality_tier: Variant = null) -> Ci
 	view._create_city_foam_sim()
 	view._create_city_underwater_pass()
 	view._create_city_leaf_fall()
+	view._create_puddle_step_vfx()
 	return view
 
 
@@ -81,6 +83,35 @@ func _create_city_leaf_fall() -> void:
 	_leaf_fall = CityLeafFall.new()
 	add_child(_leaf_fall)
 	_leaf_fall.configure(lod)
+
+
+func _create_puddle_step_vfx() -> void:
+	_puddle_step_vfx = CityPuddleStepVfx.new()
+	_puddle_step_vfx.name = "PuddleStepVfx"
+	add_child(_puddle_step_vfx)
+
+
+## Called from the animation foot-contact callback after the same sample selects
+## a rain puddle for its sound. Puddles are on ground, so Y is the walking plane.
+func play_puddle_step_vfx(foot_position: Vector3, heading: Vector2 = Vector2.ZERO) -> bool:
+	if _puddle_step_vfx == null or inside_building >= 0:
+		return false
+	return _puddle_step_vfx.play_step(foot_position, heading)
+
+
+func puddle_step_vfx() -> CityPuddleStepVfx:
+	return _puddle_step_vfx
+
+
+## Surface gate kept pure so rain-wet puddles splash, while mud/stream/stone do not.
+static func should_splash_on_footstep(surface: StringName) -> bool:
+	return surface == SurfaceResolver.SURFACE_PUDDLE
+
+
+func emit_puddle_step(foot_position: Vector3, surface: StringName, heading: Vector2) -> bool:
+	if not should_splash_on_footstep(surface):
+		return false
+	return play_puddle_step_vfx(foot_position, heading)
 
 
 func _create_city_underwater_pass() -> void:

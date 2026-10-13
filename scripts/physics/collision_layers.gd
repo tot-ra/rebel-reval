@@ -13,10 +13,14 @@ const WATER := 8
 ## Ambient crowd (census citizens, people at work on sites). Timetable-driven, so
 ## the player never collides with them; CrowdYield moves them aside instead.
 const CROWD := 16
+## Slopes too steep to walk (the klint, ditches between houses). Kept apart from
+## WORLD so a jumping player can mask them out and clear the strip; everything
+## else that treats terrain as a wall masks MASK_WORLD and still sees them.
+const STEEP := 32
 
-const MASK_WORLD := WORLD
-const MASK_PLAYER := WORLD | NPC
-const MASK_NPC := WORLD | PLAYER | WATER
+const MASK_WORLD := WORLD | STEEP
+const MASK_PLAYER := WORLD | NPC | STEEP
+const MASK_NPC := WORLD | PLAYER | WATER | STEEP
 ## Area2D sensors that should detect character logic bodies.
 const MASK_ACTORS := PLAYER | NPC | CROWD
 

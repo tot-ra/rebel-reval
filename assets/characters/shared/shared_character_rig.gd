@@ -168,6 +168,9 @@ const HEAD_SCALE_MODIFIER := preload("res://assets/characters/shared/head_scale_
 const ANATOMICAL_MUSCLE_MODIFIER := preload(
 	"res://assets/characters/shared/anatomical_muscle_modifier.gd"
 )
+const IDLE_FOOT_LOCK_MODIFIER := preload("res://scripts/characters/idle_foot_lock_modifier.gd")
+## Clips whose legs ride the pelvis without keys; IdleFootLock plants the feet.
+const FOOT_LOCKED_ANIMATIONS: Array[StringName] = [&"idle"]
 ## Head bone origin is mid-skull; this clears crown / helmet before the talk glyph.
 const HEAD_CROWN_OFFSET := 0.30
 ## Gap between crown and the bottom of the billboard talk glyph.
@@ -223,6 +226,7 @@ var _wardrobe := CharacterWardrobe.new()
 var _extra_visual_layers := 0
 var _occlusion_ghost := false
 var _distance_lods_installed := false
+var _idle_foot_lock: SkeletonModifier3D
 
 func _ready() -> void:
 	# Apply the authored anisotropic normalization in code because inherited
@@ -234,6 +238,7 @@ func _ready() -> void:
 	for clip_name in FALL_SOURCE_CLIPS:
 		_ground_fall_clip(clip_name)
 	_install_proportion_modifiers()
+	_install_idle_foot_lock()
 	_configure_lod0_visibility()
 	if variant == null:
 		call_deferred("_apply_variant_and_distance_lods")
@@ -368,6 +373,35 @@ func _install_proportion_modifiers() -> void:
 		muscles.name = "AnatomicalMuscles"
 		_skeleton.add_child(muscles)
 
+
+## Separate from _install_proportion_modifiers because realistic bodies skip
+## those but still play the shared Idle clip with unkeyed legs.
+func _install_idle_foot_lock() -> void:
+	if _skeleton == null:
+		return
+	_idle_foot_lock = IDLE_FOOT_LOCK_MODIFIER.new()
+	_idle_foot_lock.name = "IdleFootLock"
+	_skeleton.add_child(_idle_foot_lock)
+	# Muscles respond to the final leg pose, so the lock runs before them.
+	var muscles := _skeleton.get_node_or_null("AnatomicalMuscles")
+	if muscles != null:
+		_skeleton.move_child(_idle_foot_lock, muscles.get_index())
+
+
+func _update_idle_foot_lock(canonical_name: StringName, blend_seconds: float) -> void:
+	if _idle_foot_lock == null:
+		return
+	var weight := 1.0 if canonical_name in FOOT_LOCKED_ANIMATIONS else 0.0
+	if blend_seconds <= 0.0:
+		_idle_foot_lock.call(&"snap_to", weight)
+		return
+	_idle_foot_lock.set(&"blend_sec", blend_seconds)
+	_idle_foot_lock.set(&"target_weight", weight)
+
+
+func idle_foot_lock_weight() -> float:
+	return _idle_foot_lock.influence if _idle_foot_lock != null else 0.0
+
 func canonical_animation_names() -> Array[StringName]:
 	var names: Array[StringName] = []
 	for canonical_name: StringName in CANONICAL_ANIMATIONS:
@@ -406,6 +440,7 @@ func play_animation(canonical_name: StringName, blend_seconds: float = -1.0) -> 
 	_animation_player.speed_scale = 1.0
 	_animation_player.play(source_name, blend_seconds)
 	_current_canonical_animation = canonical_name
+	_update_idle_foot_lock(canonical_name, blend_seconds)
 	return true
 
 

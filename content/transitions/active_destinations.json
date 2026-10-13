@@ -3,20 +3,6 @@
   "description": "Transition scene and spawn registry. Release destinations (release=true) are the approved slice; dev destinations (release=false) enable developer traversal between prototype districts without changing Start flow.",
   "scenes": [
     {
-      "id": "forge",
-      "path": "res://scenes/reval_east/forge/forge.tscn",
-      "active": true,
-      "release": true,
-      "spawns": [
-        {
-          "id": "door_courtyard"
-        },
-        {
-          "id": "smithy_start"
-        }
-      ]
-    },
-    {
       "id": "reval_city",
       "path": "res://scenes/world/reval_city/reval_city.tscn",
       "active": true,

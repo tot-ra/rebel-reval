@@ -17,7 +17,7 @@ VERSION_FILE = ROOT / ".godot-version"
 def _scene_paths_for_uid(root: Path, scene_uid: str) -> list[Path]:
     scene_paths = []
     for scene_path in root.rglob("*.tscn"):
-        if any(part in scene_path.parts for part in (".git", ".godot", ".worktrees")):
+        if any(part in scene_path.parts for part in (".git", ".godot", ".worktrees", "build")):
             continue
         scene_text = scene_path.read_text(encoding="utf-8", errors="ignore")
         scene_header = scene_text.splitlines()[0] if scene_text else ""

@@ -2,11 +2,15 @@ extends SceneTree
 
 ## Matched original/new assets with actual Godot materials and deformed poses.
 ## Godot --path . --script tools/capture_animal_realism.gd -- [--before] [--walk]
-const SPECIES: Array[String] = ["forge_cat", "sheep", "dog", "pig", "goat", "boar", "fox", "hare", "rat"]
+const SPECIES: Array[String] = [
+	"forge_cat", "sheep", "dog", "pig", "goat", "boar", "fox", "hare", "rat"
+]
 const OUT := "res://docs/reports/images/animal_realism/"
+
 
 func _initialize() -> void:
 	call_deferred("_run")
+
 
 func _run() -> void:
 	var candidate := "--candidate" in OS.get_cmdline_user_args()
@@ -19,7 +23,10 @@ func _run() -> void:
 	var plate := Image.create(1800, 1350, false, Image.FORMAT_RGBA8)
 	var index := 0
 	for species in SPECIES:
-		if candidate and not FileAccess.file_exists("res://build/animal_redo/candidates/" + species + ".glb"):
+		if (
+			candidate
+			and not FileAccess.file_exists("res://build/animal_redo/candidates/" + species + ".glb")
+		):
 			continue
 		var viewport := SubViewport.new()
 		viewport.size = Vector2i(600, 450)
@@ -49,7 +56,23 @@ func _run() -> void:
 		fill.light_energy = 0.40
 		scene.add_child(fill)
 		# GLTFDocument also loads ignored before assets without changing imports.
-		var path := ("res://build/animal_redo/candidates/" if candidate else "res://build/animal_realism/legs_before/" if legs_before else "res://build/animal_realism/before/" if before else "res://assets/storybook/%s/" % species) + species + ".glb"
+		var path := (
+			(
+				"res://build/animal_redo/candidates/"
+				if candidate
+				else (
+					"res://build/animal_realism/legs_before/"
+					if legs_before
+					else (
+						"res://build/animal_realism/before/"
+						if before
+						else "res://assets/animals/%s/" % species
+					)
+				)
+			)
+			+ species
+			+ ".glb"
+		)
 		var model: Node3D
 		if before or candidate:
 			var document := GLTFDocument.new()
@@ -73,7 +96,17 @@ func _run() -> void:
 		camera.projection = Camera3D.PROJECTION_ORTHOGONAL
 		camera.size = span * 1.18
 		scene.add_child(camera)
-		camera.position = center + (Vector3(3, .015, 0) if side else Vector3(0, .06, 3) if front else Vector3(1.65, .57, 2.6)) * span
+		camera.position = (
+			center
+			+ (
+				(
+					Vector3(3, .015, 0)
+					if side
+					else Vector3(0, .06, 3) if front else Vector3(1.65, .57, 2.6)
+				)
+				* span
+			)
+		)
 		camera.look_at(center)
 		camera.current = true
 		var floor_mesh := PlaneMesh.new()
@@ -110,19 +143,51 @@ func _run() -> void:
 		center = bounds.get_center()
 		span = maxf(bounds.size.x, maxf(bounds.size.y, bounds.size.z))
 		camera.size = span * 1.18
-		camera.position = center + (Vector3(3, .015, 0) if side else Vector3(0, .06, 3) if front else Vector3(1.65, .57, 2.6)) * span
+		camera.position = (
+			center
+			+ (
+				(
+					Vector3(3, .015, 0)
+					if side
+					else Vector3(0, .06, 3) if front else Vector3(1.65, .57, 2.6)
+				)
+				* span
+			)
+		)
 		camera.look_at(center)
 		await process_frame
 		await RenderingServer.frame_post_draw
 		var shot := viewport.get_texture().get_image()
 		shot.convert(Image.FORMAT_RGBA8)
-		var prefix := "candidate" if candidate else "legs_before" if legs_before else "before" if before else "after"
-		var suffix := ("_side" if side else "_front" if front else "") + ("_walk" if walking else "")
-		shot.save_png(ProjectSettings.globalize_path(OUT + prefix + "_" + species + suffix + ".png"))
+		var prefix := (
+			"candidate"
+			if candidate
+			else "legs_before" if legs_before else "before" if before else "after"
+		)
+		var suffix := (
+			("_side" if side else "_front" if front else "") + ("_walk" if walking else "")
+		)
+		shot.save_png(
+			ProjectSettings.globalize_path(OUT + prefix + "_" + species + suffix + ".png")
+		)
 		plate.blit_rect(shot, Rect2i(0, 0, 600, 450), Vector2i(index % 3 * 600, index / 3 * 450))
 		index += 1
 		viewport.queue_free()
 		await process_frame
-	plate.save_png(ProjectSettings.globalize_path(OUT + ("candidate" if candidate else "legs_before" if legs_before else "before" if before else "after") + ("_side" if side else "_front" if front else "") + ("_walk" if walking else "") + "_plate.png"))
+	plate.save_png(
+		ProjectSettings.globalize_path(
+			(
+				OUT
+				+ (
+					"candidate"
+					if candidate
+					else "legs_before" if legs_before else "before" if before else "after"
+				)
+				+ ("_side" if side else "_front" if front else "")
+				+ ("_walk" if walking else "")
+				+ "_plate.png"
+			)
+		)
+	)
 	print("Animal realism capture complete")
 	quit()

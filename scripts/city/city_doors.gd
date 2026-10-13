@@ -3,9 +3,11 @@ extends Node3D
 
 ## Hinged street doors for every city building (ADR 0031). Each door is a leaf
 ## on a hinge at one side of the door gap the building and its collision leave.
-## Enterable houses swing their door inward when Kalev comes within OPEN_RADIUS
-## of it and shut it again once he has moved on; other houses keep it closed.
-## Profiles follow census wealth and explicit landmark entrance roles (R-1692).
+## Opens clicked, enterable city doors after an explicit nearby left click. Walking
+## by the doorway alone leaves it shut; an opened leaf stays clear while the
+## player is in the building and swings closed after departure. Non-enterable
+## decorative houses stay shut. Profiles follow census wealth and explicit landmark
+## entrance roles (R-1692).
 ## Rectangular leaves retain the authored apertures; see SYSTEMS/CITY_DOORS.md.
 
 const OPEN_RADIUS := 2.4
@@ -156,6 +158,8 @@ func _hang(
 		"target": 0.0,
 		"enterable": true,
 		"center": (a + b) * 0.5,
+		"a": a,
+		"b": b,
 	}
 
 
@@ -193,36 +197,88 @@ static func door_gap(city_plan: CityPlan, index: int) -> Dictionary:
 	}
 
 
-## Opens doors of enterable houses near `world_xz`, closes the rest; call each frame.
+## Click an enterable door while within reach. Approach alone never opens it.
+func interact_at(world_xz: Vector2) -> bool:
+	var index: Variant = _door_at(world_xz)
+	if index == null:
+		return false
+	var record: Dictionary = doors[index]
+	if not bool(record["enterable"]):
+		return false
+	record["target"] = 1.0
+	return true
+
+
+## Select the nearest enterable aperture under a world-space ray. The hit stays
+## on the authored door line, so recessed leaves and large doors remain clickable.
+func door_at_ray(origin: Vector3, direction: Vector3, reach: float = 2.4) -> Variant:
+	var best: Variant = null
+	var best_ray_distance := INF
+	for key: Variant in doors:
+		var record: Dictionary = doors[key]
+		if not bool(record["enterable"]):
+			continue
+		var hinges: Array[Node3D] = record["hinges"]
+		if hinges.is_empty():
+			continue
+		var floor_y := hinges[0].global_position.y
+		var hit: Variant = Plane(Vector3.UP, floor_y).intersects_ray(origin, direction)
+		if hit == null:
+			continue
+		var point := hit as Vector3
+		var world_xz := Vector2(point.x, point.z)
+		if _distance_to_segment(world_xz, record["a"], record["b"]) > 0.7:
+			continue
+		var ray_distance := origin.distance_to(point)
+		if ray_distance > reach or ray_distance >= best_ray_distance:
+			continue
+		best = key
+		best_ray_distance = ray_distance
+	return best
+
+
+func _door_at(world_xz: Vector2, reach: float = 1.25) -> Variant:
+	var best: Variant = null
+	var best_distance := reach
+	for key: Variant in doors:
+		var record: Dictionary = doors[key]
+		if not bool(record["enterable"]):
+			continue
+		var distance := _distance_to_segment(world_xz, record["a"], record["b"])
+		if distance > best_distance:
+			continue
+		best = key
+		best_distance = distance
+	return best
+
+
+static func _distance_to_segment(point: Vector2, a: Vector2, b: Vector2) -> float:
+	var segment := b - a
+	var length_squared := segment.length_squared()
+	if length_squared <= 0.0001:
+		return point.distance_to(a)
+	var t := clampf((point - a).dot(segment) / length_squared, 0.0, 1.0)
+	return point.distance_to(a + segment * t)
+
+
+## Opens a clicked door while the player is within `OPEN_RADIUS`, then closes it
+## only after leaving both the doorway and its interior.
 func update_for(world_xz: Vector2, delta: float) -> void:
-	var seen := {}
-	for index: int in plan.buildings_near(world_xz, CHECK_RADIUS):
-		if not doors.has(index):
-			continue
-		var d: Dictionary = doors[index]
-		if not bool(d["enterable"]):
-			continue
-		seen[index] = true
-		var near := world_xz.distance_to(d["center"]) < OPEN_RADIUS
-		d["target"] = 1.0 if near or plan.building_at(world_xz) == index else 0.0
-	# Site doors: open near the door and while Kalev is in the room behind it.
 	var room := plan.site_room_at(world_xz)
 	var room_floor: StringName = room["room"]["floor"] if not room.is_empty() else &""
 	for key: Variant in doors:
-		if not key is String:
-			continue
 		var d: Dictionary = doors[key]
-		var near := world_xz.distance_to(d["center"]) < OPEN_RADIUS
-		if not near and room_floor != d["site_floor"]:
+		if not bool(d["enterable"]):
 			continue
-		seen[key] = true
-		d["target"] = 1.0
-	# Doors left behind (Kalev ran off or was moved) swing shut too.
-	for index: Variant in doors:
-		if not seen.has(index) and float(doors[index]["target"]) > 0.0:
-			doors[index]["target"] = 0.0
-	for index: Variant in doors:
-		var d: Dictionary = doors[index]
+		var inside_building := false
+		if key is int:
+			inside_building = plan.building_at(world_xz) == key
+		var inside_site := key is String and room_floor == StringName(d.get("site_floor", &""))
+		var close := world_xz.distance_to(d["center"]) < OPEN_RADIUS
+		if inside_building or inside_site:
+			d["target"] = 1.0
+		elif not close:
+			d["target"] = 0.0
 		var open: float = d["open"]
 		var target: float = d["target"]
 		if is_equal_approx(open, target):
@@ -234,7 +290,6 @@ func update_for(world_xz: Vector2, delta: float) -> void:
 		var hinges: Array[Node3D] = d["hinges"]
 		for k in hinges.size():
 			var leaf := hinges[k].get_child(0) as Node3D
-			# Swing inward: positive yaw turns +X toward the house for the first leaf.
 			var sign := _inward_sign(hinges[k], d["inward"])
 			leaf.rotation.y = sign * float(d.get("angle", OPEN_ANGLE)) * eased
 

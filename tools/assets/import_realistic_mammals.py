@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Import licensed sculpted mammals without replacing their surfaces with primitives.
 
-Sources are restored by the model URLs/hashes in assets/storybook/mammal_sources.json.
+Sources are restored by the model URLs/hashes in assets/animals/mammal_sources.json.
 Stage originals at build/animal_redo/sources/<species>.glb. Run using Blender 5.2:
   blender -b --python tools/assets/import_realistic_mammals.py -- --only goat
 Candidate GLBs and editable blends go to build/animal_redo/candidates. --publish
@@ -401,7 +401,7 @@ def animate(rig,limbs,species,bz):
 
 
 def build(species,out):
- manifest=json.loads((ROOT/'assets/storybook/mammal_sources.json').read_text())['models'][species]
+ manifest=json.loads((ROOT/'assets/animals/mammal_sources.json').read_text())['models'][species]
  source=BUILD/'sources'/f'{species}.glb'
  # Project-authored sources are rebuilt from script, not downloaded: no checksum pin.
  if not manifest.get('generated') and hashlib.sha256(source.read_bytes()).hexdigest()!=manifest['sha256']:raise ValueError(f'{species}: source checksum mismatch')
@@ -425,7 +425,7 @@ def build(species,out):
 
 def main():
  p=argparse.ArgumentParser();p.add_argument('--only',choices=list(CONFIG)+['rat']);p.add_argument('--publish',action='store_true');args=p.parse_args(sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else [])
- out=ROOT/'assets/storybook' if args.publish else BUILD/'candidates';(BUILD/'candidates').mkdir(exist_ok=True)
+ out=ROOT/'assets/animals' if args.publish else BUILD/'candidates';(BUILD/'candidates').mkdir(exist_ok=True)
  for species in [args.only] if args.only else [*CONFIG,'rat']:build(species,out)
 
 if __name__=='__main__':main()

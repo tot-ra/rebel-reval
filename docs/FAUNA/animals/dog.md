@@ -17,7 +17,7 @@
 | Item | Value |
 |---|---|
 | Status | Authored GLB (third-party, CC BY 4.0) |
-| Runtime file | [`assets/storybook/dog/dog.glb`](../../../assets/storybook/dog/dog.glb) |
+| Runtime file | [`assets/animals/dog/dog.glb`](../../../assets/animals/dog/dog.glb) |
 | Source page | [Sketchfab page](https://sketchfab.com/3d-models/realistic-terrier-dog-game-ready-asset-51f498df96c049cbb9e600b0a88c5838) |
 | Author and licence | 3Dima (Hdjusj), CC BY 4.0 |
 | Rig and clips | Shared mammal rig, six clips: Idle, Walk, Run, LookAround, Graze, Alert (measured limb chains). |

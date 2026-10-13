@@ -3,7 +3,7 @@ extends SharedCharacterRig
 
 ## SharedCharacterRig adapter for the storybook forge-cat GLB.
 ##
-## `assets/storybook/storybook_cat.gd` extends this script for clip-name mapping
+## `assets/animals/forge_cat/storybook_cat.gd` extends this script for clip-name mapping
 ## and town-coat tinting; forge and map actors instance the same mesh.
 
 const REQUIRED_ANIMATIONS: Array[StringName] = [

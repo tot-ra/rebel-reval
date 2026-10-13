@@ -57,7 +57,6 @@ const PIECES := {
 	&"cargo_furs": {"object": "obj.cargo_furs_wax", "front": 1, "solid": true},
 	&"cargo_herring": {"object": "obj.cargo_herring_barrels", "front": 1, "solid": true},
 	&"malt": {"object": "obj.malt_sack_pile", "front": 1, "solid": true},
-	&"nets": {"object": "obj.fishing_nets", "front": 1, "solid": false},
 	&"rope": {"object": "obj.rope_coil_hemp", "front": 1, "solid": false},
 	&"firewood_stack": {"object": "obj.firewood_stack", "front": 1, "solid": true},
 	&"splint": {"object": "obj.pine_splint_holder", "front": 1, "solid": false},
@@ -74,15 +73,18 @@ const PIECES := {
 }
 ## Census household class -> furnishing tier.
 const TIER := {
-	"poor": &"poor", "master": &"mid", "merchant": &"rich", "great": &"rich",
+	"poor": &"poor",
+	"master": &"mid",
+	"merchant": &"rich",
+	"great": &"rich",
 }
 ## Goods kept in the front hall (Diele) by the head's trade; merchants by default.
 const HALL_GOODS := {
 	"brewer": [&"malt", &"malt", &"cargo_herring"],
 	"alewife": [&"malt", &"cargo_herring"],
 	"maltster": [&"malt", &"malt"],
-	"fisher": [&"nets", &"cargo_herring"],
-	"fishmonger": [&"cargo_herring", &"nets"],
+	"fisher": [&"cargo_herring"],
+	"fishmonger": [&"cargo_herring"],
 	"ropemaker": [&"rope", &"rope", &"cargo_grain"],
 	"furrier": [&"cargo_furs", &"cargo_furs"],
 	"skinner": [&"cargo_furs"],
@@ -111,7 +113,9 @@ const CHAMBER_AREA := 190.0
 const STORE_AREA := 280.0
 const STORE_STEP := 22.0
 const STORE_MAX := 28
-const STORE_GOODS: Array[StringName] = [&"cargo_grain", &"cargo_herring", &"malt", &"basket", &"chest_poor"]
+const STORE_GOODS: Array[StringName] = [
+	&"cargo_grain", &"cargo_herring", &"malt", &"basket", &"chest_poor"
+]
 const PARTITION_THICK := 0.14
 const PARTITION_GAP := 1.1
 ## A partition meets a long wall at least this far past the street doorway's
@@ -119,9 +123,29 @@ const PARTITION_GAP := 1.1
 const PARTITION_DOOR_STEP := 0.6
 ## Trades that work at a bench in their own house.
 const BENCH_TRADES := [
-	"smith", "nailsmith", "carpenter", "joiner", "cooper", "shoemaker", "tailor", "weaver",
-	"furrier", "goldsmith", "potter", "baker", "brewer", "turner", "saddler", "glover",
-	"belt_maker", "cutler", "locksmith", "pewterer", "bowyer", "fletcher", "ropemaker",
+	"smith",
+	"nailsmith",
+	"carpenter",
+	"joiner",
+	"cooper",
+	"shoemaker",
+	"tailor",
+	"weaver",
+	"furrier",
+	"goldsmith",
+	"potter",
+	"baker",
+	"brewer",
+	"turner",
+	"saddler",
+	"glover",
+	"belt_maker",
+	"cutler",
+	"locksmith",
+	"pewterer",
+	"bowyer",
+	"fletcher",
+	"ropemaker",
 ]
 
 static var _objects: Dictionary = {}
@@ -185,7 +209,9 @@ static func _load_objects() -> void:
 		for file in DirAccess.get_files_at(path):
 			if not file.ends_with(".json"):
 				continue
-			var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string("%s/%s" % [path, file]))
+			var parsed: Variant = JSON.parse_string(
+				FileAccess.get_file_as_string("%s/%s" % [path, file])
+			)
 			if parsed is Dictionary and parsed.has("id"):
 				_objects[parsed["id"]] = parsed
 
@@ -211,7 +237,8 @@ func _build(plan: CityPlan, index: int, household: Dictionary, chimney: Vector2)
 	floor_y = plan.floor_height(index)
 	var ring := CityBuildingBuilder.wall_ring(b, plan.footprint(index))
 	var thick := (
-		CityBuildingBuilder.STONE_WALL if String(b["material"]) == "limestone"
+		CityBuildingBuilder.STONE_WALL
+		if String(b["material"]) == "limestone"
 		else CityBuildingBuilder.TIMBER_WALL
 	)
 	var inset := Geometry2D.offset_polygon(ring, -(thick + WALL_GAP), Geometry2D.JOIN_MITER)
@@ -219,7 +246,10 @@ func _build(plan: CityPlan, index: int, household: Dictionary, chimney: Vector2)
 		return
 	inner = inset[0]
 	for poly: PackedVector2Array in inset:
-		if absf(CityBuildingBuilder.signed_area(poly)) > absf(CityBuildingBuilder.signed_area(inner)):
+		if (
+			absf(CityBuildingBuilder.signed_area(poly))
+			> absf(CityBuildingBuilder.signed_area(inner))
+		):
 			inner = poly
 	_inner_box = _aabb(inner).grow(0.001)
 	if b.get("door") == null:
@@ -244,12 +274,17 @@ func _furnish(household: Dictionary, chimney: Vector2) -> void:
 	# chimney breast there), else on the wall nearest it or farthest from the door.
 	hearth = _hearth_under(chimney) if chimney != Vector2.INF else -1
 	if hearth < 0:
-		hearth = _place_on_wall(&"hearth", func(p: Vector2, _n: Vector2) -> float:
-			return -p.distance_to(chimney) if chimney != Vector2.INF else p.distance_to(_door))
+		hearth = _place_on_wall(
+			&"hearth",
+			func(p: Vector2, _n: Vector2) -> float:
+				return -p.distance_to(chimney) if chimney != Vector2.INF else p.distance_to(_door)
+		)
 	if hearth >= 0:
 		var h: Dictionary = items[hearth]
 		var front := _front(hearth)
-		_slot(&"hearth", h["pos"] + front * (piece_size(&"hearth").z * 0.5 + 0.5), -front, 0.0, hearth)
+		_slot(
+			&"hearth", h["pos"] + front * (piece_size(&"hearth").z * 0.5 + 0.5), -front, 0.0, hearth
+		)
 		firewood = _place_near(&"firewood", h["pos"], 0.4)
 		_place_near(&"bucket", h["pos"], 0.3)
 		_place_near(&"pot", h["pos"], 0.3)
@@ -278,8 +313,13 @@ func _furnish(household: Dictionary, chimney: Vector2) -> void:
 	# Storage.
 	var chest_piece := &"chest_poor" if tier == &"poor" else &"chest"
 	var first_bed := _first(&"bed_framed", &"bed_pallet")
-	_place_on_wall(chest_piece, func(p: Vector2, _n: Vector2) -> float:
-		return -p.distance_to(items[first_bed]["pos"]) if first_bed >= 0 else p.distance_to(_door))
+	_place_on_wall(
+		chest_piece,
+		func(p: Vector2, _n: Vector2) -> float:
+			return (
+				-p.distance_to(items[first_bed]["pos"]) if first_bed >= 0 else p.distance_to(_door)
+			)
+	)
 	if tier == &"rich":
 		_place_on_wall(&"cupboard", _living(2.8))
 		_place_on_wall(&"strongbox", _living(4.0))
@@ -309,7 +349,7 @@ func _furnish(household: Dictionary, chimney: Vector2) -> void:
 		var goods: Array = HALL_GOODS.get(trade, HALL_GOODS["merchant"] if tier == &"rich" else [])
 		var hall_area := _room_area(0)
 		var heaps := int(hall_area / 14.0) if tier == &"rich" else int(hall_area / 30.0)
-		for k in (heaps if not goods.is_empty() else 0):
+		for k in heaps if not goods.is_empty() else 0:
 			# Along the walls first, then stacked on the floor either side of the aisle.
 			if k % 2 == 0 or _place_in_room(goods[k % goods.size()], 0) < 0:
 				_place_on_wall(goods[k % goods.size()], _by_door)
@@ -318,7 +358,9 @@ func _furnish(household: Dictionary, chimney: Vector2) -> void:
 			# The counting table where goods are weighed and written down.
 			var desk := _place_on_wall(&"table", _by_door)
 			if desk >= 0:
-				_add(&"candle", items[desk]["pos"], items[desk]["yaw"], piece_size(&"table").y, true)
+				_add(
+					&"candle", items[desk]["pos"], items[desk]["yaw"], piece_size(&"table").y, true
+				)
 				_slot(&"work", items[desk]["pos"] + _front(desk) * 0.75, -_front(desk), 0.0, desk)
 		# A work table by the hearth for the cooking.
 		var prep := _place_on_wall(&"table", _living(1.8))
@@ -346,7 +388,9 @@ func _furnish(household: Dictionary, chimney: Vector2) -> void:
 	for k in 3:
 		var p := _open_point()
 		if p != Vector2.INF:
-			_slot(&"stand", p, (_door - p).normalized().rotated(_rng.randf_range(-1.2, 1.2)), 0.0, -1)
+			_slot(
+				&"stand", p, (_door - p).normalized().rotated(_rng.randf_range(-1.2, 1.2)), 0.0, -1
+			)
 
 
 ## Stores of a house past STORE_AREA: heaps on the open floor of every room
@@ -407,7 +451,9 @@ func _partition(chimney := Vector2.INF) -> void:
 		moved = true
 		for k in cuts.size():
 			if absf(cuts[k] - hearth_at) < HEARTH_CLEAR:
-				cuts[k] = hearth_at - HEARTH_CLEAR if cuts[k] < hearth_at else hearth_at + HEARTH_CLEAR
+				cuts[k] = (
+					hearth_at - HEARTH_CLEAR if cuts[k] < hearth_at else hearth_at + HEARTH_CLEAR
+				)
 	if moved:
 		# Keep the cuts in order and every room at least a room long; drop a
 		# cut the hearth shift pushed back into the doorway.
@@ -464,9 +510,7 @@ func _cut(along: float) -> bool:
 		var near_a := a.lerp(b, 0.3).distance_to(_chimney_at)
 		side = 0.3 if near_a > a.lerp(b, 0.7).distance_to(_chimney_at) else 0.7
 	var t := clampf(
-		side,
-		(PARTITION_GAP * 0.5 + 0.7) / span,
-		1.0 - (PARTITION_GAP * 0.5 + 0.7) / span
+		side, (PARTITION_GAP * 0.5 + 0.7) / span, 1.0 - (PARTITION_GAP * 0.5 + 0.7) / span
 	)
 	var gap := a.lerp(b, t)
 	var dir := (b - a) / span
@@ -479,7 +523,9 @@ func _cut(along: float) -> bool:
 	# Keep the doorway and a step on both sides clear.
 	var w2 := dir * (PARTITION_GAP * 0.5 + 0.15)
 	var d2 := axis * 1.3
-	_keep_outs.append(PackedVector2Array([gap - w2 - d2, gap + w2 - d2, gap + w2 + d2, gap - w2 + d2]))
+	_keep_outs.append(
+		PackedVector2Array([gap - w2 - d2, gap + w2 - d2, gap + w2 + d2, gap - w2 + d2])
+	)
 	partitions.append({"a": a, "b": b, "gap": gap, "walls": walls})
 	return true
 
@@ -622,7 +668,9 @@ func _place_table(tier: StringName, size: int) -> void:
 		var front := _front(table)
 		var across := Vector2(front.y, -front.x)
 		for k in mini(size, 2):
-			var at: Vector2 = items[table]["pos"] + front * (piece_size(items[table]["piece"]).z * 0.5 + 0.3)
+			var at: Vector2 = (
+				items[table]["pos"] + front * (piece_size(items[table]["piece"]).z * 0.5 + 0.3)
+			)
 			at += across * (float(k) - 0.5) * 0.6
 			var stool := _add(&"stool", at, _yaw_facing(-front, 1), 0.0)
 			if stool >= 0:
@@ -850,15 +898,20 @@ func _add(piece: StringName, pos: Vector2, yaw: float, y: float, skip_check := f
 		return -1
 	if y <= 0.0:
 		_occupy(poly)
-	items.append({
-		"piece": piece,
-		"object": String(PIECES[piece]["object"]),
-		"pos": pos,
-		"yaw": yaw,
-		"y": y,
-		"poly": poly,
-		"solid": bool(PIECES[piece]["solid"]) and y <= 0.0,
-	})
+	(
+		items
+		. append(
+			{
+				"piece": piece,
+				"object": String(PIECES[piece]["object"]),
+				"pos": pos,
+				"yaw": yaw,
+				"y": y,
+				"poly": poly,
+				"solid": bool(PIECES[piece]["solid"]) and y <= 0.0,
+			}
+		)
+	)
 	return items.size() - 1
 
 

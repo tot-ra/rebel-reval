@@ -5,7 +5,7 @@ extends RefCounted
 
 const TextLayoutScript := preload("res://scripts/dialogue/dialogue_text_layout.gd")
 
-const PORTRAIT_SIZE := 96
+const PORTRAIT_SIZE := 144
 
 
 static func build(host: CanvasLayer, font: Font, callbacks: Dictionary) -> Dictionary:
@@ -27,27 +27,6 @@ static func build(host: CanvasLayer, font: Font, callbacks: Dictionary) -> Dicti
 	stack.alignment = BoxContainer.ALIGNMENT_END
 	stack.add_theme_constant_override("separation", 8)
 	margin.add_child(stack)
-
-	var backlog_panel := PanelContainer.new()
-	backlog_panel.visible = false
-	backlog_panel.custom_minimum_size = Vector2(0, 220)
-	var backlog_margin := MarginContainer.new()
-	backlog_margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	backlog_margin.add_theme_constant_override("margin_left", 16)
-	backlog_margin.add_theme_constant_override("margin_right", 16)
-	backlog_margin.add_theme_constant_override("margin_top", 12)
-	backlog_margin.add_theme_constant_override("margin_bottom", 12)
-	backlog_panel.add_child(backlog_margin)
-	stack.add_child(backlog_panel)
-
-	var backlog_scroll := ScrollContainer.new()
-	backlog_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	backlog_margin.add_child(backlog_scroll)
-
-	var backlog_list := VBoxContainer.new()
-	backlog_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	backlog_list.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	backlog_scroll.add_child(backlog_list)
 
 	var root := Control.new()
 	root.custom_minimum_size = Vector2(0, TextLayoutScript.DIALOGUE_ROOT_MIN_HEIGHT)
@@ -157,13 +136,6 @@ static func build(host: CanvasLayer, font: Font, callbacks: Dictionary) -> Dicti
 	continue_hint.add_theme_font_override("font", font)
 	footer.add_child(continue_hint)
 
-	var backlog_button := Button.new()
-	backlog_button.text = "Backlog"
-	backlog_button.add_theme_font_override("font", font)
-	if callbacks.has("toggle_backlog"):
-		backlog_button.pressed.connect(callbacks["toggle_backlog"])
-	footer.add_child(backlog_button)
-
 	var skip_button := Button.new()
 	skip_button.text = "Skip"
 	skip_button.add_theme_font_override("font", font)
@@ -184,8 +156,6 @@ static func build(host: CanvasLayer, font: Font, callbacks: Dictionary) -> Dicti
 	return {
 		"root": root,
 		"panel": panel,
-		"backlog_panel": backlog_panel,
-		"backlog_list": backlog_list,
 		"text_background": text_background,
 		"portrait_rect": portrait_rect,
 		"portrait_fallback": portrait_fallback,
@@ -196,5 +166,4 @@ static func build(host: CanvasLayer, font: Font, callbacks: Dictionary) -> Dicti
 		"continue_hint": continue_hint,
 		"disabled_reason_label": disabled_reason_label,
 		"skip_button": skip_button,
-		"backlog_button": backlog_button,
 	}

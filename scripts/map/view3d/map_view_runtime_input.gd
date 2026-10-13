@@ -33,11 +33,13 @@ func install_click_input() -> void:
 	_click_input.call("setup", _player, _host)
 
 
-func configure_click_input(world_items: Node = null) -> void:
+func configure_click_input(world_items: Node = null, city_doors: Node = null) -> void:
 	if _click_input == null:
 		return
 	if world_items != null:
 		_click_input.call("set_world_items", world_items)
+	if city_doors != null:
+		_click_input.call("set_city_doors", city_doors)
 
 
 func handle_unhandled_input(event: InputEvent) -> void:

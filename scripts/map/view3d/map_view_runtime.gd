@@ -160,8 +160,8 @@ func bind_owning_location(location_id: StringName) -> bool:
 	return _hosted.bind_owning_location(location_id)
 
 
-func configure_click_input(world_items: Node = null) -> void:
-	_input.configure_click_input(world_items)
+func configure_click_input(world_items: Node = null, city_doors: Node = null) -> void:
+	_input.configure_click_input(world_items, city_doors)
 
 
 func set_bird_audio_enabled(enabled: bool) -> void:

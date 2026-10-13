@@ -1,6 +1,6 @@
 # Bestiary roster
 
-Status: planned (task **R-1578**, epic **R-1577**). The feature page is [`docs/SYSTEMS/BESTIARY.md`](../SYSTEMS/BESTIARY.md); the card format is [`TEMPLATE.md`](./TEMPLATE.md). This page is the one authoritative list of who the apprentice can meet and fight, split by combat layer ([ADR 0033](../adr/0033-teen-protagonist-and-spirit-dialogue-combat.md)). It replaces the creature list in the archived [`assets/bestiary/README.md`](../../assets/bestiary/README.md).
+Status: planned (task **R-1578**, epic **R-1577**). The feature page is [`docs/SYSTEMS/BESTIARY.md`](../SYSTEMS/BESTIARY.md); the card format is [`TEMPLATE.md`](./TEMPLATE.md). This page is the one authoritative list of who the apprentice can meet and fight, split by combat layer ([ADR 0033](../adr/0033-teen-protagonist-and-spirit-dialogue-combat.md)). It replaced the legacy `assets/bestiary/` list, which has been removed.
 
 ## Layers, tiers, confidence
 

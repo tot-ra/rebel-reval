@@ -17,7 +17,7 @@
 | Item | Value |
 |---|---|
 | Status | Project-built GLB (procedural) |
-| Runtime file | [`assets/storybook/goose/goose.glb`](../../../assets/storybook/goose/goose.glb) |
+| Runtime file | [`assets/animals/goose/goose.glb`](../../../assets/animals/goose/goose.glb) |
 | Source | none (project-built or procedural) |
 | Author and licence | Project author (`tools/assets/build_bird_gaits.py`), AGPL-3.0-or-later |
 | Rig and clips | Bird clips: Idle, Walk, Hop, Peck, TakeOff, Fly, Glide, Land (separate shoulder and wing-tip joints). |

@@ -105,4 +105,4 @@ All `test_character_rig.gd` cases must pass: contract completeness, transform-dr
 
 ## Ambient forge cat (quadruped)
 
-Kalev's smithy cat and town cats share the storybook mesh (`assets/storybook/forge_cat/forge_cat.glb`). `assets/characters/cat/cat_rig.tscn` is the stable rig entry point; coat tinting lives in `assets/storybook/storybook_cat.gd`. Legacy Hunyuan rebuild inputs remain under `generated/comfyui/forge_cat_hunyuan3d_v1/` for evidence only.
+Kalev's smithy cat and town cats share the storybook mesh (`assets/animals/forge_cat/forge_cat.glb`). `assets/characters/cat/cat_rig.tscn` is the stable rig entry point; coat tinting lives in `assets/animals/forge_cat/storybook_cat.gd`. Legacy Hunyuan rebuild inputs remain under `generated/comfyui/forge_cat_hunyuan3d_v1/` for evidence only.

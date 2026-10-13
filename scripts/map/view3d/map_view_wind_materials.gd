@@ -2,19 +2,10 @@ extends RefCounted
 
 ## Cached wind-driven vegetation and cloth materials for the 3D map view.
 ##
-## Grass blades, tree canopies, sails, pennants, wall banners, and fishing-net
-## parts share one deformation vocabulary. MapViewMaterials keeps the public
+## Grass blades, tree canopies, sails, pennants, and wall banners
+## share one deformation vocabulary. MapViewMaterials keeps the public
 ## facade so existing builders and tests do not change call sites.
 
-const FISHING_NET_HEMP_TEXTURE := preload(
-	"res://assets/props/crafts/fishing_nets/fishing_nets_TarredHempNet_albedo.png"
-)
-const FISHING_NET_FLOAT_TEXTURE := preload(
-	"res://assets/props/crafts/fishing_nets/fishing_nets_BarkCorkFloats_albedo.png"
-)
-const FISHING_NET_SINKER_TEXTURE := preload(
-	"res://assets/props/crafts/fishing_nets/fishing_nets_PiercedStoneSinkers_albedo.png"
-)
 ## R-1103 blade-cluster atlas for the cross-card grass tuft (tools/build_grass_blade_atlas.py).
 # Fade ends sit inside the layers' range cull (45 m and 14 m, each with margin).
 const GRASS_FADE_START := 30.0
@@ -136,9 +127,6 @@ static func _shared_wind_materials() -> Array[ShaderMaterial]:
 		hanging_banner_cloth(),
 		hanging_banner_cloth(BLACK_CLOAKS_BANNER_TEXTURE),
 		hanging_banner_cloth(null, true),
-		fishing_net_hemp(),
-		fishing_net_float(),
-		fishing_net_sinker(),
 		hoist_rope_hemp(),
 		hoist_rope_iron(),
 	]
@@ -206,9 +194,6 @@ static func _grass_material(
 ## grows with speed so a walk opens a pocket and a run leaves a readable wake.
 static func apply_grass_interaction(
 	center_xz: Vector2, velocity_xz: Vector2, now: float = -1.0
-		# Tier fades follow the player, so every camera mode shows the same grass.
-		material.set_shader_parameter("lod_focus", center_xz)
-		material.set_shader_parameter("lod_focus_on", 1.0)
 ) -> void:
 	var speed := velocity_xz.length()
 	var push := Vector2.ZERO
@@ -221,6 +206,9 @@ static func apply_grass_interaction(
 		material.set_shader_parameter("interact_push", push)
 		material.set_shader_parameter("interact_strength", tip_displace)
 		material.set_shader_parameter("interact_radius", 0.65)
+		# Tier fades follow the player, so every camera mode shows the same grass.
+		material.set_shader_parameter("lod_focus", center_xz)
+		material.set_shader_parameter("lod_focus_on", 1.0)
 	# Footfalls stay pressed for a few seconds behind the walker (R-1327).
 	var t := Time.get_ticks_msec() / 1000.0 if now < 0.0 else now
 	if speed > 0.02:
@@ -236,7 +224,6 @@ static func empty_trail() -> PackedVector4Array:
 	return out
 
 
-		material.set_shader_parameter("lod_focus_on", 0.0)
 static func _grass_interaction_materials() -> Array[ShaderMaterial]:
 	return [
 		grass_blades(), grass_blades_near(), grass_blade_tier(true), grass_blade_tier(false),
@@ -249,6 +236,7 @@ static func clear_grass_interaction() -> void:
 	_trail.clear()
 	for material in _grass_interaction_materials():
 		material.set_shader_parameter("interact_strength", 0.0)
+		material.set_shader_parameter("lod_focus_on", 0.0)
 		material.set_shader_parameter("interact_push", Vector2.ZERO)
 		material.set_shader_parameter("trail", empty_trail())
 
@@ -538,48 +526,3 @@ static func _white_albedo() -> Texture2D:
 	var texture := ImageTexture.create_from_image(image)
 	_cache[key] = texture
 	return texture
-
-
-## The rack stays rigid while all net-borne parts share one height-pinned wind
-## shader. Separate textured materials preserve their maritime identities while
-## the common deformation keeps outline rope, floats, and sinkers attached.
-static func fishing_net_hemp() -> ShaderMaterial:
-	return _fishing_net_wind_material(
-		&"fishing_net_hemp", FISHING_NET_HEMP_TEXTURE, 0.098, 1.36, 0.17, 0.96
-	)
-
-
-static func fishing_net_float() -> ShaderMaterial:
-	return _fishing_net_wind_material(
-		&"fishing_net_float", FISHING_NET_FLOAT_TEXTURE, 0.098, 1.36, 0.17, 0.94
-	)
-
-
-static func fishing_net_sinker() -> ShaderMaterial:
-	return _fishing_net_wind_material(
-		&"fishing_net_sinker", FISHING_NET_SINKER_TEXTURE, 0.098, 1.36, 0.17, 0.98
-	)
-
-
-static func _fishing_net_wind_material(
-	key_name: StringName,
-	albedo: Texture2D,
-	sway_strength: float,
-	pin_height: float,
-	pin_fade: float,
-	roughness: float
-) -> ShaderMaterial:
-	var key := String(key_name)
-	if _cache.has(key):
-		return _cache[key]
-	var material := ShaderMaterial.new()
-	material.shader = MapViewMaterialShaders.shader_resource(
-		"fishing_net_wind", MapViewMaterialShaders.FISHING_NET_WIND_SHADER
-	)
-	material.set_shader_parameter("albedo_texture", albedo)
-	material.set_shader_parameter("sway_strength", sway_strength)
-	material.set_shader_parameter("pin_height", pin_height)
-	material.set_shader_parameter("pin_fade", pin_fade)
-	material.set_shader_parameter("surface_roughness", roughness)
-	_cache[key] = material
-	return material

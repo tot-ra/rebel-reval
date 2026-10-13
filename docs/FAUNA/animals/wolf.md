@@ -29,7 +29,7 @@ Grey wolves were common in medieval Livonia and Estonia (`attested`). This is a 
 - **Materials and colours:** Grey-brown winter coat, pale muzzle and belly, dark saddle; amber eyes; palette of grey, tawny, off-white.
 - **What a model must get right:** Long legs, deep chest, narrow head, bushy tail carried low; not a dog and not a monster.
 - **Concept-art prompt:** Full-body concept of an adult grey wolf in winter coat, long-legged and lean, grey-brown with pale muzzle and belly, amber eyes, low head circling stance, snow-flecked forest floor suggested but background plain neutral grey, even lighting, realistic painted style.
-- **Model notes:** Quadruped rig; no wolf GLB exists in the repo yet (the runtime uses the procedural `fauna.wolf` mesh, see [3D models](../README.md#3d-model-status)); the mammal shared rig and clip set in [`assets/storybook/mammal_sources.json`](../../../assets/storybook/mammal_sources.json) is the intended target; scale 1.0; separate pack AI.
+- **Model notes:** Quadruped rig; no wolf GLB exists in the repo yet (the runtime uses the procedural `fauna.wolf` mesh, see [3D models](../README.md#3d-model-status)); the mammal shared rig and clip set in [`assets/animals/mammal_sources.json`](../../../assets/animals/mammal_sources.json) is the intended target; scale 1.0; separate pack AI.
 
 ## Encounter design
 

@@ -5,15 +5,28 @@ extends "res://tests/godot/test_case.gd"
 
 
 func test_mammal_coats_receive_scene_lighting() -> void:
-	for id: String in ["forge_cat", "sheep", "dog", "pig", "goat", "boar", "fox", "hare", "rat", "cow", "cow_holstein"]:
-		var model := (load("res://assets/storybook/%s/%s.glb" % [id, id]) as PackedScene).instantiate()
+	for id: String in [
+		"forge_cat",
+		"sheep",
+		"dog",
+		"pig",
+		"goat",
+		"boar",
+		"fox",
+		"hare",
+		"rat",
+		"cow",
+		"cow_holstein"
+	]:
+		var model := (
+			(load("res://assets/animals/%s/%s.glb" % [id, id]) as PackedScene).instantiate()
+		)
 		var found_coat := false
 		for mesh: MeshInstance3D in model.find_children("*", "MeshInstance3D", true, false):
 			for surface: int in mesh.mesh.get_surface_count():
 				var material := mesh.mesh.surface_get_material(surface)
 				assert_true(
-					material is StandardMaterial3D,
-					"%s coat must import as StandardMaterial3D" % id
+					material is StandardMaterial3D, "%s coat must import as StandardMaterial3D" % id
 				)
 				var std := material as StandardMaterial3D
 				assert_ne(

@@ -488,18 +488,6 @@ static func faction_banner_albedo(faction_id: StringName) -> Texture2D:
 	return WIND_MATERIALS.faction_banner_albedo(faction_id)
 
 
-static func fishing_net_hemp() -> ShaderMaterial:
-	return WIND_MATERIALS.fishing_net_hemp()
-
-
-static func fishing_net_float() -> ShaderMaterial:
-	return WIND_MATERIALS.fishing_net_float()
-
-
-static func fishing_net_sinker() -> ShaderMaterial:
-	return WIND_MATERIALS.fishing_net_sinker()
-
-
 ## Building material API remains here for existing map builders and tests.
 ## Construction-specific caches, weathering, and UV rules live in BUILDING_MATERIALS.
 static func wall(color: Color) -> StandardMaterial3D:

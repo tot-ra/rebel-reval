@@ -17,7 +17,7 @@
 | Item | Value |
 |---|---|
 | Status | Authored GLB (third-party, CC BY 4.0) |
-| Runtime file | [`assets/storybook/hare/hare.glb`](../../../assets/storybook/hare/hare.glb) |
+| Runtime file | [`assets/animals/hare/hare.glb`](../../../assets/animals/hare/hare.glb) |
 | Source page | [Sketchfab page](https://sketchfab.com/3d-models/rabbit-073eef14ae3c4d06808498c3ba895e67) |
 | Author and licence | Dakota.Hinkle, CC BY 4.0 |
 | Rig and clips | Shared mammal rig, six clips: Idle, Walk, Run, LookAround, Graze, Alert (measured limb chains). |

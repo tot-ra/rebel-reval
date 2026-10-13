@@ -44,6 +44,7 @@ var _wanted: Array = []
 var _panel: CitizenInfoPanel
 var _tag: Label3D
 var _hover: CitizenActor
+var _strip: ClothingStrip
 var _selected: CitizenActor
 ## R-1887: a press on a person is acted on at release, so a drag gesture on a body (garment
 ## dragging, docs/SYSTEMS/UNDRESS_INTERACTION.md) never also starts a conversation.
@@ -75,6 +76,14 @@ func _ready() -> void:
 	# On the tree root: the 2D actors layer this node lives under is not drawn in the 3D city.
 	get_tree().root.add_child.call_deferred(_panel)
 	_panel.closed.connect(_on_panel_closed)
+	# Drag a garment, or the bare body, downward to undress an adult
+	# (docs/SYSTEMS/UNDRESS_INTERACTION.md).
+	_strip = ClothingStrip.new()
+	_strip.name = "ClothingStrip"
+	_strip.camera_provider = func() -> Camera3D:
+		var runtime := _runtime()
+		return runtime.view.view_camera() if runtime != null and runtime.view != null else null
+	add_child(_strip)
 	_tag = CharacterConversation.make_tag()
 
 
@@ -105,7 +114,6 @@ func live_actors() -> Array[CitizenActor]:
 	for actor: CitizenActor in _live.values():
 		out.append(actor)
 	return out
-
 
 
 func _process(delta: float) -> void:
@@ -253,7 +261,10 @@ func _spawn_fallen(me: Vector2) -> void:
 		if _live.has(index) or _suppressed.has(index):
 			continue
 		var brawler: CitizenBrawler = _brawlers[index]
-		if not brawler.is_down() or CityPlan.to_world_xz(brawler.position).distance_to(me) > SPAWN_RADIUS:
+		if (
+			not brawler.is_down()
+			or CityPlan.to_world_xz(brawler.position).distance_to(me) > SPAWN_RADIUS
+		):
 			continue
 		var actor := CitizenActor.create(roster, index, Callable(self, "hour"))
 		actor.interiors = interiors_node()
@@ -335,6 +346,7 @@ func _style_new_rigs() -> void:
 		if rig == null or not rig.is_node_ready():
 			continue
 		actor.rig_styled = true
+		_strip.register(rig)
 		var model := rig.get_node_or_null("Model") as Node3D
 		if model != null:
 			model.scale = rig.model_scale * float(actor.record["height_scale"])
@@ -418,11 +430,18 @@ static func dye(rig: Node, record: Dictionary) -> void:
 				continue
 			var tint := Color.WHITE
 			var name := material.resource_name
-			if name.ends_with("_short_tunic") or name.ends_with("_wool_tunic") \
-					or name.ends_with("_work_gown") or name.ends_with("_gown") \
-					or name.ends_with("_sideless_surcoat") or name.ends_with("_wrap_skirt"):
+			if (
+				name.ends_with("_short_tunic")
+				or name.ends_with("_wool_tunic")
+				or name.ends_with("_work_gown")
+				or name.ends_with("_gown")
+				or name.ends_with("_sideless_surcoat")
+				or name.ends_with("_wrap_skirt")
+			):
 				tint = cloth
-			elif name.ends_with("_hose") or name.ends_with("_headscarf") or name.ends_with("_kirtle"):
+			elif (
+				name.ends_with("_hose") or name.ends_with("_headscarf") or name.ends_with("_kirtle")
+			):
 				tint = under
 			else:
 				continue
@@ -454,7 +473,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			var pressed_on := _press_actor
 			_press_actor = null
 			if (
-				pressed_on != null and is_instance_valid(pressed_on)
+				pressed_on != null
+				and is_instance_valid(pressed_on)
 				and button.position.distance_to(_press_at) <= CLICK_SLOP_PX
 				and _pick(button.position) == pressed_on
 			):
@@ -498,8 +518,13 @@ func activate(actor: CitizenActor, from_interact: bool) -> CharacterConversation
 	var who := {
 		"name": String(record["name"]),
 		"title": String(record.get("trade", "")).replace("_", " "),
-		"side": CharacterConversation.side_line(
-			"" if faction == "none" else String(CitizenInfoPanel.FACTION_NAMES.get(faction, faction))
+		"side":
+		CharacterConversation.side_line(
+			(
+				""
+				if faction == "none"
+				else String(CitizenInfoPanel.FACTION_NAMES.get(faction, faction))
+			)
 		),
 		"portrait": null,
 	}

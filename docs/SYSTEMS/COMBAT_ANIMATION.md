@@ -173,3 +173,15 @@ Every row above was measured for the adult master smith, who remains the baselin
 ## Fall pose grounding
 
 The retargeted `Death_A`/`Death_B` clips (canonical `fall` uses `Death_A`) ended with the hips key about 0.7 m above the floor, so the body hovered. `SharedCharacterRig._ground_fall_clip` rewrites the hips position track once per Animation resource (marked with meta `hips_grounded`): the final key rests at `FALL_HIPS_LIE_Y` and the drop ramps in with smoothstep over clip time. Limit: the leg FK pose still hangs below the knees, so feet sink slightly into the ground; a proper fix is re-authoring the legs in the source retarget. Covered by `tests/godot/test_shared_rig_fall_ground.gd`.
+
+## Idle foot lock
+
+Status: implemented (task **R-1901**). Scope: every `SharedCharacterRig` humanoid (Kalev, the apprentice, all MPFB citizens) while it plays canonical `idle`. Out of scope: terrain-adaptive foot placement (ADR 0040 PM-1) and other clips with unkeyed legs.
+
+The shared `Idle` clip keys only the hips and the spine. The legs had no keys, so they rode the swaying pelvis as one rigid piece: the right foot slid about 10 cm sideways and the left one lifted about 1 cm, and standing characters looked like they were hovering.
+
+- **Runtime:** `scripts/characters/idle_foot_lock_modifier.gd` is a `SkeletonModifier3D` (node `IdleFootLock`, before `AnatomicalMuscles`) installed by `SharedCharacterRig._install_idle_foot_lock`. Per leg it solves a two-bone IK (`upperleg` -> `lowerleg` -> `foot`) toward the foot's rest transform, which equals the idle stance at frame 0, with the knee bending forward and the sole kept at its rest orientation. When the pelvis rises past full leg reach it is lowered by the excess (about 1 cm at most).
+- **Weight:** `play_animation` sets the lock to 1 for `FOOT_LOCKED_ANIMATIONS` (`idle`) and to 0 for everything else; `influence` follows over the same seconds as the clip cross-fade (zero blend snaps). The modifier is inactive at weight 0, so walking crowds pay nothing. `SharedCharacterRig.idle_foot_lock_weight()` reports the current weight.
+- **Data / save:** none; presentation only, no stable IDs, nothing persisted.
+- **Verify:** `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_idle_foot_lock` (feet slide < 1 cm and lift < 4 mm across the whole clip for Kalev and the apprentice; the lock releases for `walk`). Before/after capture: [`idle_foot_lock_before_after.png`](../reports/images/characters/idle_foot_lock_before_after.png).
+- **Limits:** the modified pose is only readable inside `Skeleton3D.skeleton_updated` (Godot 4.3+ restores the animated pose afterwards); code that samples foot bones outside that signal, such as `consume_foot_plant`, sees the unlocked clip. Feet are anchored to the flat rig plane, not to sloped ground.

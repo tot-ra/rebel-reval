@@ -17,7 +17,7 @@
 | Item | Value |
 |---|---|
 | Status | Authored GLB (third-party, CC BY 4.0) |
-| Runtime file | [`assets/storybook/fox/fox.glb`](../../../assets/storybook/fox/fox.glb) |
+| Runtime file | [`assets/animals/fox/fox.glb`](../../../assets/animals/fox/fox.glb) |
 | Source page | [Sketchfab page](https://sketchfab.com/3d-models/red-fox-standing-pose-realistic-3278bddb17024f3287aa374cc1e9f6f6) |
 | Author and licence | Pigcraft (s8819296), CC BY 4.0 |
 | Rig and clips | Shared mammal rig, six clips: Idle, Walk, Run, LookAround, Graze, Alert (measured limb chains). |

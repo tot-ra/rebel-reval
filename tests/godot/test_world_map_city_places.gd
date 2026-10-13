@@ -3,6 +3,7 @@ extends "res://tests/godot/test_case.gd"
 ## District map fast travel lists the key places of the seamless city (ADR 0031)
 ## and no longer the retired 2D smithy scene.
 
+
 func before_each() -> void:
 	DoorNavigator.load_manifest(true)
 
@@ -56,9 +57,7 @@ func test_city_markers_sit_on_the_basemap_and_do_not_overlap() -> void:
 	var points: Array[Vector2] = []
 	for place in WorldMapGraph.CITY_PLACES:
 		var at := WorldMapGraph.city_place_map_position(place["id"])
-		assert_true(
-			Rect2(0, 0, 1, 1).has_point(at), "%s must be on the map" % String(place["id"])
-		)
+		assert_true(Rect2(0, 0, 1, 1).has_point(at), "%s must be on the map" % String(place["id"]))
 		points.append(at * WorldMapGraph.CITY_MAP_PIXELS)
 	for i in points.size():
 		for j in range(i + 1, points.size()):
@@ -83,7 +82,20 @@ func test_overlay_plans_city_place_travel_and_names_buttons() -> void:
 	overlay.queue_free()
 
 
-func test_retired_forge_scene_redirects_into_the_city_smithy() -> void:
+func test_city_forge_retires_the_separate_2d_forge_scene() -> void:
+	var manifest := (
+		JSON.parse_string(
+			FileAccess.get_file_as_string("res://content/transitions/active_destinations.json")
+		)
+		as Dictionary
+	)
+	for scene: Dictionary in manifest.get("scenes", []):
+		if String(scene.get("id", "")) == "forge":
+			assert_false(bool(scene.get("active", true)), "old separate forge scene is retired")
+			assert_false(
+				bool(scene.get("release", true)), "old forge cannot appear as release destination"
+			)
 	assert_eq(
-		CityTravel.redirect(&"forge", &"door_courtyard"), [CityTravel.CITY_SCENE_ID, &"kalev_smithy"]
+		CityTravel.redirect(&"forge", &"door_courtyard"),
+		[CityTravel.CITY_SCENE_ID, &"kalev_smithy"]
 	)

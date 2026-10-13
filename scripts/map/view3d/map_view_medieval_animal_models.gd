@@ -43,31 +43,31 @@ const FOWL_BODY_PITCH := deg_to_rad(1.8)
 # Runtime loading avoids a clean-clone parse cycle before Godot has imported the
 # new GLBs for the first time.
 const MODEL_PATHS: Dictionary = {
-	MammalSpecies.SPECIES_CHICKEN: "res://assets/storybook/hen/hen.glb",
-	MammalSpecies.SPECIES_RAT: "res://assets/storybook/rat/rat.glb",
-	MammalSpecies.SPECIES_RED_FOX: "res://assets/storybook/fox/fox.glb",
-	MammalSpecies.SPECIES_HARE: "res://assets/storybook/hare/hare.glb",
-	MammalSpecies.SPECIES_WILD_BOAR: "res://assets/storybook/boar/boar.glb",
-	MammalSpecies.SPECIES_DUCK: "res://assets/storybook/duck/duck.glb",
-	MammalSpecies.SPECIES_GOOSE: "res://assets/storybook/goose/goose.glb",
-	&"goat": "res://assets/storybook/goat/goat.glb",
-	MammalSpecies.SPECIES_COW: "res://assets/storybook/cow/cow.glb",
-	MammalSpecies.SPECIES_PIG: "res://assets/storybook/pig/pig.glb",
-	MammalSpecies.SPECIES_SHEEP: "res://assets/storybook/sheep/sheep.glb",
-	MammalSpecies.SPECIES_HORSE: "res://assets/storybook/horse/horse.glb",
+	MammalSpecies.SPECIES_CHICKEN: "res://assets/animals/hen/hen.glb",
+	MammalSpecies.SPECIES_RAT: "res://assets/animals/rat/rat.glb",
+	MammalSpecies.SPECIES_RED_FOX: "res://assets/animals/fox/fox.glb",
+	MammalSpecies.SPECIES_HARE: "res://assets/animals/hare/hare.glb",
+	MammalSpecies.SPECIES_WILD_BOAR: "res://assets/animals/boar/boar.glb",
+	MammalSpecies.SPECIES_DUCK: "res://assets/birds/duck/duck.glb",
+	MammalSpecies.SPECIES_GOOSE: "res://assets/animals/goose/goose.glb",
+	&"goat": "res://assets/animals/goat/goat.glb",
+	MammalSpecies.SPECIES_COW: "res://assets/animals/cow/cow.glb",
+	MammalSpecies.SPECIES_PIG: "res://assets/animals/pig/pig.glb",
+	MammalSpecies.SPECIES_SHEEP: "res://assets/animals/sheep/sheep.glb",
+	MammalSpecies.SPECIES_HORSE: "res://assets/animals/horse/horse.glb",
 	# The Lower Town street dog uses the rebuilt shaggy village-dog surface.
 	# Its shared six-clip rig supplies Idle, Walk, Run and Graze aliases.
-	MammalSpecies.SPECIES_DOG: "res://assets/storybook/dog/dog.glb",
+	MammalSpecies.SPECIES_DOG: "res://assets/animals/dog/dog.glb",
 	# Town cats are the same production cat as Kalev's, dressed in another coat.
-	MammalSpecies.SPECIES_CAT: "res://assets/storybook/forge_cat/forge_cat.tscn",
+	MammalSpecies.SPECIES_CAT: "res://assets/animals/forge_cat/forge_cat.tscn",
 }
 
 # Cattle ship two licensed sculpts on the same rig and clip set. MODEL_PATHS
 # keeps the brown cow as the canonical path; placements pick a coat by seed so
 # a pen does not read as one cow copied around.
 const COW_VARIANT_PATHS: Array[String] = [
-	"res://assets/storybook/cow/cow.glb",
-	"res://assets/storybook/cow_holstein/cow_holstein.glb",
+	"res://assets/animals/cow/cow.glb",
+	"res://assets/animals/cow_holstein/cow_holstein.glb",
 ]
 
 ## Yaw applied to a model so its nose points along -Z, which is the direction
@@ -123,7 +123,7 @@ static func add_model(parent: Node3D, species: StringName, variant_seed: int = 0
 		return null
 	var model := scene.instantiate() as Node3D
 	model.name = "Model"
-	model.set_meta(&"grounded_model", path.begins_with("res://assets/storybook/"))
+	model.set_meta(&"grounded_model", path.begins_with("res://assets/animals/"))
 	model.rotation.y = float(MODEL_YAW.get(species, 0.0))
 	model.scale *= float(MODEL_SCALE.get(species, 1.0))
 	model.set_meta(&"production_animal_model", true)

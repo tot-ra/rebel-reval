@@ -1,6 +1,7 @@
 extends "res://tests/godot/test_case.gd"
 
 const TextScaleScript := preload("res://scripts/dialogue/dialogue_text_scale.gd")
+const TextLayoutScript := preload("res://scripts/dialogue/dialogue_text_layout.gd")
 const SettingsScript := preload("res://scripts/settings/dialogue_settings.gd")
 const RunnerScript := preload("res://scripts/dialogue/dialogue_runner.gd")
 const UiPresenterScript := preload("res://scripts/dialogue/dialogue_ui_presenter.gd")
@@ -72,14 +73,22 @@ func test_portrait_resolver_uses_existing_assets() -> void:
 		)
 
 
-func test_backlog_records_presented_lines() -> void:
+func test_dialogue_portrait_is_larger_and_backlog_controls_are_removed() -> void:
 	var setup := _make_setup("normal")
-	setup.ui.present_line(&"char.mart", "Mart", "First line.", "node_a")
-	setup.ui.present_line(&"char.kalev", "Kalev", "Second line.", "node_b")
-	assert_eq(setup.ui.get_backlog_entry_count(), 2)
-	setup.ui.toggle_backlog_for_test()
-	assert_true(setup.ui.is_showing())
+	setup.ui.present_line(&"char.mart", "Mart", "Hello.", "node_a")
+	assert_eq(setup.ui._portrait_rect.custom_minimum_size, Vector2(144, 144))
+	assert_eq(TextLayoutScript.PORTRAIT_WIDTH, 144)
+	assert_false(_has_backlog_button(setup.ui))
 	_cleanup_setup(setup)
+
+
+func _has_backlog_button(node: Node) -> bool:
+	if node is Button and (node as Button).text == "Backlog":
+		return true
+	for child in node.get_children():
+		if _has_backlog_button(child):
+			return true
+	return false
 
 
 func test_dialogue_panel_is_aligned_to_bottom_of_viewport() -> void:

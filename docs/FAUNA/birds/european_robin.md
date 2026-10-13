@@ -17,7 +17,7 @@
 | Item | Value |
 |---|---|
 | Status | Project-built GLB (procedural) |
-| Runtime file | [`assets/storybook/robin/robin.glb`](../../../assets/storybook/robin/robin.glb) |
+| Runtime file | [`assets/animals/robin/robin.glb`](../../../assets/animals/robin/robin.glb) |
 | Source | none (project-built or procedural) |
 | Author and licence | Project tooling (`tools/assets/storybook_birds.py`), AGPL-3.0-or-later |
 | Rig and clips | Bird clips: Idle, Walk, Hop, Peck, TakeOff, Fly, Glide, Land (separate shoulder and wing-tip joints). |

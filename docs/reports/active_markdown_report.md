@@ -14,19 +14,19 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `1284`
-- Markdown files excluded as archive/reference/out of active scope: `765`
-- Local/external links inspected: `14667`
-- Links to active Markdown docs: `12884`
-- Links to existing archive/reference/non-active local docs: `537`
+- Active Markdown files scanned: `1293`
+- Markdown files excluded as archive/reference/out of active scope: `762`
+- Local/external links inspected: `14924`
+- Links to active Markdown docs: `12944`
+- Links to existing archive/reference/non-active local docs: `528`
 - External links skipped for reachability: `192`
-- Issues found: `3`
+- Issues found: `0`
 
 ## Issue counts
 
 | Code | Count |
 | --- | ---: |
-| `BROKEN_LINK` | 3 |
+| `BROKEN_LINK` | 0 |
 | `BROKEN_ANCHOR` | 0 |
 | `DUPLICATE_CHARACTER_NAME` | 0 |
 | `CONTRADICTORY_DATE` | 0 |
@@ -34,11 +34,7 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Issues
 
-| Code | Location | Detail |
-| --- | --- | --- |
-| `BROKEN_LINK` | `docs/SYSTEMS/CITY_SEA.md:91` | Local Markdown link target does not exist: `../reports/images/city/fish_textured_models.jpg` |
-| `BROKEN_LINK` | `docs/SYSTEMS/HOUSEHOLDS.md:52` | Local Markdown link target does not exist: `../reports/images/city/households_partition_clear_door.jpg` |
-| `BROKEN_LINK` | `docs/SYSTEMS/SEAMLESS_CITY.md:88` | Local Markdown link target does not exist: `../reports/images/vegetation/r1684_roof_shingle.jpg` |
+No active Markdown documentation issues found.
 
 ## Active files scanned
 
@@ -1205,6 +1201,14 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/SYSTEMS/HOIST_ROPE.md`
 - `docs/SYSTEMS/HOUSEHOLDS.md`
 - `docs/SYSTEMS/HUD_AND_MENUS.md`
+- `docs/SYSTEMS/landmark_sites/holy_spirit.md`
+- `docs/SYSTEMS/landmark_sites/kalev_smithy.md`
+- `docs/SYSTEMS/landmark_sites/raekoja_plats.md`
+- `docs/SYSTEMS/landmark_sites/st_catherine.md`
+- `docs/SYSTEMS/landmark_sites/st_mary.md`
+- `docs/SYSTEMS/landmark_sites/st_michael.md`
+- `docs/SYSTEMS/landmark_sites/st_nicholas.md`
+- `docs/SYSTEMS/landmark_sites/st_olaf.md`
 - `docs/SYSTEMS/LIVING_CITY.md`
 - `docs/SYSTEMS/LIVING_VEGETATION.md`
 - `docs/SYSTEMS/LIVING_WORLD.md`
@@ -1230,6 +1234,7 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/SYSTEMS/SPIRIT_SIGHT.md`
 - `docs/SYSTEMS/STATE_AND_SAVES.md`
 - `docs/SYSTEMS/TIME_AND_PHASES.md`
+- `docs/SYSTEMS/UNDRESS_INTERACTION.md`
 - `docs/SYSTEMS/VEGETATION_ENGINEERING.md`
 - `docs/SYSTEMS/VEGETATION_REALISM.md`
 - `docs/SYSTEMS/WATER_SANDBOX.md`

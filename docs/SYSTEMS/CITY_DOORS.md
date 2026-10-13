@@ -6,7 +6,7 @@ Scope: procedural hinged leaves in the seamless city, ordinary housing and exist
 
 ## Player-facing behaviour
 
-Walk towards an enterable building with the normal keyboard or gamepad movement controls. The existing proximity rule swings its leaves inward and closes them after departure; non-enterable houses stay shut. No new input binding is needed. Street and interior sides now have different hardware. Double leaves show their decorated sides towards the street regardless of authored endpoint order.
+Click an enterable city door with the left mouse button while Kalev is within 2.4 city units to swing it inward. Walking past or standing near a closed door does not open it. Once opened, the door stays clear while Kalev is inside the building/site and closes after he leaves; non-enterable houses stay shut. The click uses the active 3D camera view and requires the visible door leaf/aperture to be under the cursor. No gamepad door-selection path exists yet. Street and interior sides have different hardware. Double leaves show their decorated sides towards the street regardless of authored endpoint order.
 
 Doors use the same `CityHouseWealth` census class mapping as [windows](./COTTAGE_WINDOWS.md): poor, master/middling, merchant/great/rich. Census classification wins over wall material; a poor household in a stone building does not automatically receive an expensive door. Without a census entry, the existing fabric/area/stable-ID fallback applies. Outbuildings always use rough boarding, wood ledges and a wooden latch.
 

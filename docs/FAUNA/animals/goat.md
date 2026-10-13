@@ -17,7 +17,7 @@
 | Item | Value |
 |---|---|
 | Status | Authored GLB (third-party, CC BY 4.0) |
-| Runtime file | [`assets/storybook/goat/goat.glb`](../../../assets/storybook/goat/goat.glb) |
+| Runtime file | [`assets/animals/goat/goat.glb`](../../../assets/animals/goat/goat.glb) |
 | Source page | [Sketchfab page](https://sketchfab.com/3d-models/goat-2624ac2ce2364930ba2d5f70eb7aa1ea) |
 | Author and licence | hendrikReyneke, CC BY 4.0 |
 | Rig and clips | Shared mammal rig, six clips: Idle, Walk, Run, LookAround, Graze, Alert (measured limb chains). |

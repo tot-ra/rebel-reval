@@ -5,8 +5,7 @@ Status: implemented (tasks **P1-011** runner, **P1-012** UI, **P1-013** settings
 ## Player-facing behavior
 
 - **Anyone in the city** can be talked to: see [Talk to anyone](#talk-to-anyone-r-1887).
-- **Conversations** open a bottom panel with speaker name, optional portrait, and typewriter text. Continue with interact / `ui_accept` / click. `ui_cancel` first completes the line, then skips. Choices are listed with keyboard/gamepad focus (`ui_up` / `ui_down`). Disabled choices stay visible and show their authored reason.
-- **Backlog**: `ui_page_up` opens the scrollback of earlier lines; `ui_cancel` closes it.
+- **Conversations** open a bottom panel with speaker name, optional 144 px portrait, and typewriter text. Continue with interact / `ui_accept` / click. `ui_cancel` first completes the line, then skips. Choices are listed with keyboard/gamepad focus (`ui_up` / `ui_down`). Disabled choices stay visible and show their authored reason.
 - **Barks** are non-blocking speech bubbles over the speaker's 3D head. They expire after about 3.2 s and never capture input, so movement and camera stay live.
 - Speakers in the `dialogue_speakers` group get `on_dialogue_speaker(speaker_id, text_length)` for talking animation.
 - Settings (Settings → Dialogue): text scale `small / normal / large / extra_large` (0.85–1.5×), text speed `slow / normal / fast / instant` (18 / 36 / 72 chars/s / instant), high contrast, subtitle background, reduced motion, subtitles and bark subtitles on/off, voice on/off, locale, and pseudo-localization. See [`SETTINGS_AND_ACCESSIBILITY.md`](./SETTINGS_AND_ACCESSIBILITY.md).

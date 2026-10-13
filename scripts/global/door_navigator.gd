@@ -135,10 +135,15 @@ func get_spawn_node(level: Node, scene_id, spawn_id) -> Door:
 func go_to_scene(scene_id, spawn_id) -> void:
 	var scene_key := StringName(String(scene_id))
 	var spawn_key := StringName(String(spawn_id))
-	# ADR 0031: old Reval district destinations now arrive in the seamless city.
+	# ADR 0031: old Reval districts, including the retired standalone smithy,
+	# arrive in the seamless city. Keep translating its spawn aliases for saves.
 	var routed: Array = CityTravel.redirect(scene_key, spawn_key)
 	scene_key = routed[0]
 	spawn_key = routed[1]
+	if scene_key == &"reval_city" and (
+		spawn_key == &"smithy_start" or spawn_key == &"door_courtyard"
+	):
+		spawn_key = &"kalev_smithy"
 	if not has_active_scene(scene_key):
 		push_warning("Transition scene is not active or registered: " + String(scene_key))
 		return

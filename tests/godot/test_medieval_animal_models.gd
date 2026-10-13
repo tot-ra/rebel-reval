@@ -81,9 +81,17 @@ func test_legacy_chicken_is_procedural_and_uses_articulated_animation_clips() ->
 	assert_true(model != null)
 	assert_true(model.get_meta(&"procedural_animal_model", false))
 	for part_name in [
-		"AnimalMesh", "NeckPivot", "WingLeft", "WingRight", "TailPivot", "LegLeft", "LegRight",
+		"AnimalMesh",
+		"NeckPivot",
+		"WingLeft",
+		"WingRight",
+		"TailPivot",
+		"LegLeft",
+		"LegRight",
 	]:
-		assert_true(model.find_child(part_name, true, false) != null, "Chicken is missing %s" % part_name)
+		assert_true(
+			model.find_child(part_name, true, false) != null, "Chicken is missing %s" % part_name
+		)
 	var meshes := model.find_children("*", "MeshInstance3D", true, false)
 	assert_true(meshes.size() >= 20, "Procedural chicken needs a detailed primitive silhouette")
 	var player := model.find_child("AnimationPlayer", true, false) as AnimationPlayer
@@ -106,8 +114,7 @@ func test_legacy_chicken_is_procedural_and_uses_articulated_animation_clips() ->
 
 func test_domestic_goose_uses_the_relocated_storybook_greylag_model() -> void:
 	assert_eq(
-		Models.MODEL_PATHS[MammalSpecies.SPECIES_GOOSE],
-		"res://assets/storybook/goose/goose.glb"
+		Models.MODEL_PATHS[MammalSpecies.SPECIES_GOOSE], "res://assets/animals/goose/goose.glb"
 	)
 	var host := Node3D.new()
 	var model := Models.add_model(host, MammalSpecies.SPECIES_GOOSE)
@@ -119,7 +126,9 @@ func test_domestic_goose_uses_the_relocated_storybook_greylag_model() -> void:
 		goose_mesh.mesh.get_surface_count() >= 7,
 		"Goose needs distinct feather, bill, eye, leg, and foot materials"
 	)
-	assert_true(goose_mesh.get_aabb().size.y >= 0.75, "Goose needs its authored long-neck silhouette")
+	assert_true(
+		goose_mesh.get_aabb().size.y >= 0.75, "Goose needs its authored long-neck silhouette"
+	)
 	assert_true(
 		is_equal_approx(model.scale.y, 0.45),
 		"Domestic goose must down-scale the catalog greylag so it stays yard-sized"
@@ -183,7 +192,9 @@ func test_horse_is_tall_rigged_with_a_tail_and_locomotion_clips() -> void:
 	var players := model.find_children("*", "AnimationPlayer", true, false)
 	assert_true(players.size() >= 1, "Horse needs imported skeletal animation")
 	var player := players[0] as AnimationPlayer
-	for clip: StringName in [Models.IDLE_ANIMATION, Models.WALK_ANIMATION, &"Run", Models.GRAZE_ANIMATION]:
+	for clip: StringName in [
+		Models.IDLE_ANIMATION, Models.WALK_ANIMATION, &"Run", Models.GRAZE_ANIMATION
+	]:
 		assert_true(player.has_animation(clip), "Horse clip %s" % clip)
 	assert_eq(player.current_animation, Models.IDLE_ANIMATION)
 	Models.sync_animation(host, host.position - Vector3(0.1, 0.0, 0.0), 0.1)
@@ -198,7 +209,9 @@ func test_horse_coat_is_vertex_coloured_and_lit() -> void:
 	var model := Models.add_model(host, MammalSpecies.SPECIES_HORSE)
 	var body := model.find_child("horse_surface", true, false) as MeshInstance3D
 	var material := body.mesh.surface_get_material(0) as StandardMaterial3D
-	assert_true(material != null and material.vertex_color_use_as_albedo, "coat is read from COLOR_0")
+	assert_true(
+		material != null and material.vertex_color_use_as_albedo, "coat is read from COLOR_0"
+	)
 	assert_ne(material.shading_mode, BaseMaterial3D.SHADING_MODE_UNSHADED, "coat reacts to light")
 	host.free()
 
@@ -230,8 +243,7 @@ func _assert_livestock_pbr_material(material: Material, label: String) -> void:
 		"%s must react to scene lighting" % label
 	)
 	assert_true(
-		std.normal_enabled and std.normal_texture != null,
-		"%s needs hide/wool normal map" % label
+		std.normal_enabled and std.normal_texture != null, "%s needs hide/wool normal map" % label
 	)
 	assert_true(
 		std.roughness_texture != null or (std.roughness > 0.05 and std.roughness < 1.0),
@@ -264,7 +276,9 @@ func test_ambient_livestock_actors_share_production_models_without_collision() -
 	urban.configure(&"south_quarter", MammalSpecies.CONTEXT_TOOMPEA, 32)
 	for actor in urban.get_children():
 		if actor.get_meta(&"species", &"") == MammalSpecies.SPECIES_HORSE:
-			assert_true((actor.get_node("Model") as Node3D).get_meta(&"production_animal_model", false))
+			assert_true(
+				(actor.get_node("Model") as Node3D).get_meta(&"production_animal_model", false)
+			)
 		assert_false(urban.actor_has_collision(actor))
 	urban.queue_free()
 
@@ -287,7 +301,9 @@ func test_livestock_exposes_idle_walk_trot_and_graze_clips() -> void:
 			Models.TROT_ANIMATION,
 			Models.GRAZE_ANIMATION,
 		]:
-			assert_false(Models._clip_name(player, clip).is_empty(), "%s is missing %s" % [species, clip])
+			assert_false(
+				Models._clip_name(player, clip).is_empty(), "%s is missing %s" % [species, clip]
+			)
 		Models.sync_animation(host, host.position - Vector3(0.15, 0.0, 0.0), 0.1)
 		assert_eq(player.current_animation, Models._clip_name(player, Models.TROT_ANIMATION))
 		for idle_step in 72:

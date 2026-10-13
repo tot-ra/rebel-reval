@@ -36,10 +36,6 @@
       "command": ["python3", "tools/verify_adr0018_calibration_captures.py"]
     },
     {
-      "id": "harbor_fishing_net_wind",
-      "command": ["python3", "tools/verify_harbor_fishing_net_wind_captures.py"]
-    },
-    {
       "id": "outdoor_prototypes",
       "command": ["python3", "tools/verify_outdoor_prototypes.py"]
     }

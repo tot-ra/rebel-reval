@@ -38,7 +38,6 @@ static func apply_visual_theme(ui: DialogueUI) -> void:
 	panel_style.bg_color = panel_color
 	panel_style.set_corner_radius_all(6)
 	ui._panel.add_theme_stylebox_override("panel", panel_style)
-	ui._backlog_panel.add_theme_stylebox_override("panel", panel_style.duplicate())
 
 	ui._text_background.visible = settings.subtitle_background
 	if settings.subtitle_background:

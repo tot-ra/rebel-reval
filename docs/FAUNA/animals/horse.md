@@ -17,7 +17,7 @@
 | Item | Value |
 |---|---|
 | Status | Project-authored GLB |
-| Runtime file | [`assets/storybook/horse/horse.glb`](../../../assets/storybook/horse/horse.glb) |
+| Runtime file | [`assets/animals/horse/horse.glb`](../../../assets/animals/horse/horse.glb) |
 | Source | `tools/assets/build_horse_source.py` |
 | Author and licence | Project author, AGPL-3.0-or-later |
 | Rig and clips | Shared mammal rig, six clips: Idle, Walk, Run, LookAround, Graze, Alert (measured limb chains). |

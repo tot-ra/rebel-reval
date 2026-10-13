@@ -17,7 +17,7 @@
 | Item | Value |
 |---|---|
 | Status | Project-built GLB (procedural) |
-| Runtime file | [`assets/storybook/hooded_crow/hooded_crow.glb`](../../../assets/storybook/hooded_crow/hooded_crow.glb) |
+| Runtime file | [`assets/animals/hooded_crow/hooded_crow.glb`](../../../assets/animals/hooded_crow/hooded_crow.glb) |
 | Source | none (project-built or procedural) |
 | Author and licence | Project tooling (`tools/assets/storybook_birds.py`), AGPL-3.0-or-later |
 | Rig and clips | Bird clips: Idle, Walk, Hop, Peck, TakeOff, Fly, Glide, Land (separate shoulder and wing-tip joints). |

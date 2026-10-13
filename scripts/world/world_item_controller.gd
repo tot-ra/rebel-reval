@@ -22,28 +22,24 @@ const DEFAULT_PLACEMENTS: Dictionary = {
 		},
 	],
 }
-## Placements added after a location shipped. Each group is seeded once per save
-## under its own key, so saves that already seeded DEFAULT_PLACEMENTS still get it.
-# Forge weapon set (R-1754): leaning against the open forge-bay side of the
-## divider wall (cell x 15, rows 9-12), clear of its collision so the player can
-## approach the weapons from the anvil side.
+## Forge weapons are authored directly in Kalev's seamless-city forge bay below.
 const SEED_GROUPS: Dictionary = {
-	&"loc.kalev_smithy":
+	&"loc.reval_city":
 	{
 		&"forge_weapons":
 		[
 			{"object_id": &"world.forge_arming_sword", "item_id": &"item.forge_arming_sword",
-				"anchor_id": &"anvil", "offset": Vector2(-80.0, 102.4)},
+				"site_id": &"site.kalev_smithy", "at": Vector2(8.1, 3.3)},
 			{"object_id": &"world.forge_bearded_axe", "item_id": &"item.forge_bearded_axe",
-				"anchor_id": &"anvil", "offset": Vector2(-80.0, 121.6)},
+				"site_id": &"site.kalev_smithy", "at": Vector2(8.1, 3.8)},
 			{"object_id": &"world.forge_war_hammer", "item_id": &"item.forge_war_hammer",
-				"anchor_id": &"anvil", "offset": Vector2(-80.0, 140.8)},
+				"site_id": &"site.kalev_smithy", "at": Vector2(8.1, 4.3)},
 			{"object_id": &"world.forge_spear", "item_id": &"item.forge_spear",
-				"anchor_id": &"anvil", "offset": Vector2(-80.0, 160.0)},
+				"site_id": &"site.kalev_smithy", "at": Vector2(8.1, 4.8)},
 			{"object_id": &"world.forge_longbow", "item_id": &"item.forge_longbow",
-				"anchor_id": &"anvil", "offset": Vector2(-80.0, 179.2)},
+				"site_id": &"site.kalev_smithy", "at": Vector2(8.1, 5.3)},
 			{"object_id": &"world.forge_heater_shield", "item_id": &"item.forge_heater_shield",
-				"anchor_id": &"anvil", "offset": Vector2(-80.0, 198.4)},
+				"site_id": &"site.kalev_smithy", "at": Vector2(8.1, 5.8)},
 		],
 	},
 }
@@ -189,9 +185,7 @@ func _reposition_seeded_entries(entries: Array) -> void:
 		var object_id: StringName = entry.get("object_id", &"")
 		if object_id.is_empty() or not _state.is_world_item_placed(location_id, object_id):
 			continue
-		var anchor_id: StringName = entry.get("anchor_id", &"")
-		var position := MapVerification.anchor_position(_definition, anchor_id)
-		position += entry.get("offset", Vector2.ZERO)
+		var position := _placement_position(entry)
 		for record: Dictionary in _state.get_world_items(location_id):
 			if StringName(record.get("object_id", "")) != object_id:
 				continue
@@ -209,10 +203,17 @@ func _place_entries(entries: Array) -> void:
 			continue
 		if _state.is_world_item_placed(location_id, object_id):
 			continue
-		var anchor_id: StringName = entry.get("anchor_id", &"")
-		var position := MapVerification.anchor_position(_definition, anchor_id)
-		position += entry.get("offset", Vector2.ZERO)
-		_state.place_world_item(location_id, object_id, item_id, position)
+		_state.place_world_item(location_id, object_id, item_id, _placement_position(entry))
+
+
+func _placement_position(entry: Dictionary) -> Vector2:
+	if entry.has("site_id") and _definition is CityMapDefinition:
+		var plan: CityPlan = (_definition as CityMapDefinition).plan
+		for site: CitySite in plan.sites:
+			if site.id == StringName(entry["site_id"]):
+				return CityPlan.to_logic(site.to_world(entry["at"]))
+	var anchor_id: StringName = entry.get("anchor_id", &"")
+	return MapVerification.anchor_position(_definition, anchor_id) + entry.get("offset", Vector2.ZERO)
 
 
 func _sync_from_state() -> void:

@@ -42,7 +42,7 @@ def verify(mammals_only=False):
     for name, count in EXPECTED.items():
         if mammals_only and name not in MAMMALS:
             continue
-        path = ROOT / 'assets/storybook' / name / f'{name}.glb'
+        path = ROOT / 'assets/animals' / name / f'{name}.glb'
         doc, binary = read_glb(path)
         assert path.stat().st_size < 10 * 1024**2, f'{name}: size budget'
         assert len(doc.get('skins', [])) == 1, f'{name}: skin required'
@@ -106,7 +106,7 @@ def verify(mammals_only=False):
         elif name in MAMMALS:
             if name != 'rat':
                 assert {'Shin.LF','Shin.RF','Shin.LB','Shin.RB','Foot.LF','Foot.RF','Foot.LB','Foot.RB','Ankle.LF','Ankle.RF','Ankle.LB','Ankle.RB'} <= names, f'{name}: anatomical leg articulation'
-            manifest=json.loads((ROOT/'assets/storybook/mammal_sources.json').read_text())['models'][name]
+            manifest=json.loads((ROOT/'assets/animals/mammal_sources.json').read_text())['models'][name]
             assert manifest.get('generated') or (manifest['license']=='CC-BY-4.0' and len(manifest['sha256'])==64)
             assert any('walk_reference_speed' in n.get('extras',{}) for n in doc['nodes']), f'{name}: measured gait metadata'
             textured=0

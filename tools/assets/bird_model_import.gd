@@ -1,7 +1,7 @@
 @tool
 extends EditorScenePostImport
 ## Preserve authored linear pigmentation with renderer-correct PBR shading.
-const PLUMAGE_SHADER := preload("res://assets/storybook/bird_plumage.gdshader")
+const PLUMAGE_SHADER := preload("res://assets/animals/bird_plumage.gdshader")
 
 func _post_import(scene: Node) -> Object:
 	for instance: MeshInstance3D in scene.find_children("*", "MeshInstance3D", true, false):

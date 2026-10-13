@@ -7,7 +7,6 @@ const BASE_BODY_SIZE := 26
 const BASE_SPEAKER_SIZE := 28
 const BASE_CHOICE_SIZE := 24
 const BASE_HINT_SIZE := 18
-const BASE_BACKLOG_SIZE := 20
 
 const SCALE_FACTORS := {
 	"small": 0.85,
@@ -44,9 +43,6 @@ static func choice_size(scale_name: String) -> int:
 static func hint_size(scale_name: String) -> int:
 	return _scaled(BASE_HINT_SIZE, scale_name)
 
-
-static func backlog_size(scale_name: String) -> int:
-	return _scaled(BASE_BACKLOG_SIZE, scale_name)
 
 
 static func _scaled(base: int, scale_name: String) -> int:

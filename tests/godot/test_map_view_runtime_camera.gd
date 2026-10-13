@@ -90,41 +90,19 @@ func test_painted_iso_joins_cycle_and_zoom_only_where_offered() -> void:
 	runtime.toggle_camera_view()
 	assert_true(runtime.is_top_down(), "without the view opt-in first person cycles to top-down")
 
+	# The tilting painted-iso camera is retired from input: even with the view
+	# opt-in, cycle and zoom go straight to the orthographic overview.
 	runtime.view.painted_iso_camera = true
 	runtime.set_first_person(true)
 	runtime.toggle_camera_view()
-	assert_eq(runtime.camera_mode(), MapViewRuntimeCamera.CameraMode.PAINTED_ISO)
-	runtime.toggle_camera_view()
-	assert_true(runtime.is_top_down(), "iso cycles on to the orthographic overview")
+	assert_true(runtime.is_top_down(), "first person cycles to the orthographic overview")
 	runtime.toggle_camera_view()
 	assert_true(runtime.is_third_person())
 
 	runtime.zoom_view_steps(-100.0)
-	assert_eq(
-		runtime.camera_mode(),
-		MapViewRuntimeCamera.CameraMode.PAINTED_ISO,
-		"zooming out past the farthest boom enters painted iso"
-	)
-	var controller := runtime._camera_controller as MapViewRuntimeCamera
-	assert_true(
-		is_equal_approx(
-			controller.painted_iso_distance(), MapViewRuntimeCamera.PAINTED_ISO_MIN_DISTANCE
-		)
-	)
-	runtime.zoom_view_steps(-1.0)
-	assert_true(controller.painted_iso_distance() > MapViewRuntimeCamera.PAINTED_ISO_MIN_DISTANCE)
-	runtime.zoom_view_steps(-100.0)
-	assert_true(runtime.is_top_down(), "zooming out past 45 m enters the orthographic overview")
+	assert_true(runtime.is_top_down(), "zooming out past the farthest boom enters ortho iso")
 	runtime.zoom_view_steps(100.0)
-	assert_eq(runtime.camera_mode(), MapViewRuntimeCamera.CameraMode.PAINTED_ISO)
-	assert_true(
-		is_equal_approx(
-			controller.painted_iso_distance(), MapViewRuntimeCamera.PAINTED_ISO_MAX_DISTANCE
-		),
-		"zooming in from top-down resumes iso at the farthest boom"
-	)
-	runtime.zoom_view_steps(100.0)
-	assert_true(runtime.is_third_person(), "zooming in past 30 m returns to third person")
+	assert_true(runtime.is_third_person(), "zooming in returns to third person")
 	assert_eq(camera.projection, Camera3D.PROJECTION_PERSPECTIVE)
 	_free_map_scene(scene_root)
 

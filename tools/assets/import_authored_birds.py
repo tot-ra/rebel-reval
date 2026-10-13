@@ -483,7 +483,7 @@ def main() -> None:
     parser.add_argument("--only", choices=list(CONFIG))
     parser.add_argument("--publish", action="store_true")
     args = parser.parse_args(sys.argv[sys.argv.index("--") + 1 :] if "--" in sys.argv else [])
-    out = ROOT / "assets/storybook" if args.publish else BUILD / "candidates"
+    out = ROOT / "assets/animals" if args.publish else BUILD / "candidates"
     for species in [args.only] if args.only else list(CONFIG):
         build(species, out)
 

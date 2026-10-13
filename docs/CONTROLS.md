@@ -93,6 +93,7 @@ button charges instead of repeating the swing.
 | Guard | `F`, right click | Left shoulder |
 | Roll (toward the held direction; none = back roll; with guard held, `A`/`D` = side roll keeping facing) | `Space` | Right trigger |
 | Sidestep | `Q` | Right shoulder |
+| Jump (a hop over a steep strip; 8 stamina) | `Z` | Right stick click |
 | Talk to yourself (short guard buff; nearby witnesses react, ADR 0033) | `T` | Left trigger |
 | Dive (hold, while swimming in deep water) | `X`, `Ctrl` | B |
 | Inventory | `I` | Y |
@@ -131,8 +132,7 @@ Bindings are stored per device and persist outside campaign save slots. Saved v1
 
 Hold D-pad left while moving the left stick to walk slowly; release it to return
 to normal movement. Left stick click remains spirit sight and never shares the
-walk default. D-pad left also opens the dialogue backlog while a dialogue owns
-input; movement is blocked in that context. Both actions remain rebindable.
+walk default. D-pad left stays available as a walk modifier during dialogue; dialogue has no scrollback binding.
 
 The `ui_shift` default lives in `InputBindingSettings.default_settings()` and is
 read by `Player.is_walking()` (`scripts/player.gd`). Loading an older settings file
@@ -156,16 +156,18 @@ require a hands-on check; automated coverage uses synthetic input events.
 
 ## Camera
 
-- `C` (gamepad: right stick click) cycles third-person, first-person, painted
-  iso (seamless city only), top-down. Maps without painted iso skip it.
+- `C` (gamepad: right stick click) cycles third-person, first-person,
+  orthographic isometric overview.
 - The scroll wheel (or trackpad pinch/two-finger scroll) is one continuum:
-  zooming in from third-person enters first-person, zooming out enters painted
-  iso (city) and then the orthographic top-down overview.
+  zooming in from third-person enters first-person, zooming out enters the
+  orthographic isometric overview (rotate only, no tilt). The tiltable
+  perspective "painted iso" camera is retired from player input.
 - `PageUp` / `PageDown` rotate the view without the mouse.
 
-### Painted iso view
+### Painted iso view (retired from player input)
 
-Status: implemented (task **R-1744**). Scope: the seamless Reval city and the
+Status: implemented (task **R-1744**), no longer reachable by cycle or zoom
+(`MapViewRuntimeCamera.painted_iso_available()` returns false); kept for capture tools. Scope: the seamless Reval city and the
 regional site scenes that use `CityMapView`. Out of scope: district
 `MapView3D` maps, wall cutaway, the start mode (third person stays the default).
 

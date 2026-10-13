@@ -14,7 +14,7 @@
 // billboards around the vertical axis only, so it stays upright. Low clarity
 // breaks it into stuttering pieces; `calm` slows the rise.
 // Quads 8..14, the earth tethers of lights 0..6: dark lines from a closed or
-// dim light down into the ground, the counterweight of the beam (strength
+// dim light, all rooted in the lowest light, down into the ground, the counterweight of the beam (strength
 // mirrors SpiritAuraView.earth_tether_for_level). They splay apart toward the
 // ground like chains, with pulses running down.
 // The view node is top_level with an identity basis, so model space is world
@@ -68,6 +68,19 @@ vec3 saturate_for_world(vec3 c) {
 	return max(vec3(mean) + (c - vec3(mean)) / max(world_saturation, 0.2), vec3(0.0));
 }
 
+// Brightness for the lights (maintainer request 2026-10-13): after the spread the
+// brightest channel is lifted to `gain` (hue kept), so every colour reads at full
+// strength instead of the dim mean-based result.
+vec3 vivid_for_world(vec3 c, float gain) {
+	vec3 s = saturate_for_world(c);
+	s *= 1.0 / max(max(s.r, max(s.g, s.b)), 0.001);
+	// The frame grade then mixes every pixel toward its luminance, which would leave
+	// a pure green or blue dark. Adding the same grey to all channels survives that
+	// grade unchanged, so it lifts the brightness without costing hue.
+	float luma = dot(s, vec3(0.299, 0.587, 0.114));
+	return s + vec3(max(0.5 * gain - luma, 0.0));
+}
+
 float hash(vec2 p) {
 	return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
 }
@@ -116,7 +129,7 @@ void vertex() {
 		vec3 top = anchors[i];
 		// Splay sideways by the light's place so several tethers read apart.
 		vec3 side = normalize(cross(vec3(0.0, 1.0, 0.0), facing) + vec3(1e-4, 0.0, 0.0));
-		vec3 bottom = vec3(anchors[i].x, ground, anchors[i].z)
+		vec3 bottom = vec3(anchors[0].x, ground, anchors[0].z)
 			+ side * (float(i) - 3.0) * 0.09 * body_scale;
 		float along = 0.5 - UV.y * 0.5;
 		vec3 line = bottom - top;
@@ -223,7 +236,7 @@ void fragment() {
 			vec3 glow = mix(col, vec3(1.0, 0.98, 0.93), core * (0.1 + 0.3 * l01))
 				* (0.9 + 0.05 * level);
 			glow = mix(glow, col * 1.15, rim);
-			float glow_alpha = max(ball * (0.8 + 0.04 * level), rim) + halo * (0.12 + 0.05 * level);
+			float glow_alpha = max(ball, rim) + halo * (0.12 + 0.05 * level);
 			// Corona rays for radiant (4) and blazing (5) lights: thin crisp spokes.
 			float angle = atan(v_uv.y, v_uv.x);
 			float rays = pow(abs(sin(angle * 6.0 + TIME * 0.25 * (1.0 - calm))), 24.0);
@@ -239,7 +252,7 @@ void fragment() {
 			hole = mix(hole, col * 1.1, horizon);
 			float hole_alpha = (1.0 - smoothstep(hole_r - aa, hole_r + aa, r)) * 0.95 + horizon
 				+ halo * 0.15;
-			ALBEDO = saturate_for_world(mix(hole, glow, lit));
+			ALBEDO = vivid_for_world(mix(hole, glow, lit), 1.0 + 0.1 * level);
 			ALPHA = clamp(mix(hole_alpha, glow_alpha, lit), 0.0, 1.0) * fade;
 		}
 	}

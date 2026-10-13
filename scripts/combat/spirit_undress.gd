@@ -25,19 +25,26 @@ static var _scenes: Dictionary = {}
 
 ## The nude twin of this rig's body, or null when it may not or cannot be undressed.
 static func nude_scene(rig: SharedCharacterRig) -> PackedScene:
-	if rig.name == &"PlayerRig" or rig.variant_id() == HERO_ID:
+	if is_protected(rig):
 		return null
 	var body := rig.body_basename()
-	var lowered := (body + " " + String(rig.variant_id())).to_lower()
-	for marker in MINOR_MARKERS:
-		if lowered.contains(marker):
-			return null
 	if body.is_empty():
 		return null
 	var path := NUDE_PATH % body
 	if not _scenes.has(path):
 		_scenes[path] = load(path) if ResourceLoader.exists(path) else null
 	return _scenes[path]
+
+
+## Minors and the apprentice are never undressed, by any system (spirit sight, clothing strip).
+static func is_protected(rig: SharedCharacterRig) -> bool:
+	if rig.name == &"PlayerRig" or rig.variant_id() == HERO_ID:
+		return true
+	var lowered := (rig.body_basename() + " " + String(rig.variant_id())).to_lower()
+	for marker in MINOR_MARKERS:
+		if lowered.contains(marker):
+			return true
+	return false
 
 
 static func eligible(rig: SharedCharacterRig) -> bool:

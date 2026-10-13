@@ -19,6 +19,12 @@ const HUMANOID_SCENES: Array[PackedScene] = [
 	preload("res://assets/characters/variants/jurgen.tscn"),
 	preload("res://assets/characters/variants/ellen.tscn"),
 ]
+const SMALL_STRIP_BODIES: Array[String] = [
+	"res://assets/characters/variants/citizen_m_adult_average.tscn",
+	"res://assets/characters/variants/citizen_f_adult_average.tscn",
+	"res://assets/characters/variants/citizen_f_adult_average_b.tscn",
+	"res://assets/characters/variants/townswoman.tscn",
+]
 const CAT_SCENE := preload("res://assets/characters/cat/cat_rig.tscn")
 const CatCoats := preload("res://assets/characters/cat/cat_coat_variants.gd")
 const GroundWander := preload("res://scripts/map/view3d/map_view_ground_wander.gd")
@@ -32,7 +38,8 @@ const CART_SCENE_PATH := "res://assets/props/vehicles/wooden_cart.glb"
 const FACADE_ASSETS: Array[Dictionary] = [
 	{
 		"label": "STONE POINTED WINDOW",
-		"path": (
+		"path":
+		(
 			"res://assets/buildings/facades/"
 			+ "stone_pointed_window_open_shutters/"
 			+ "stone_pointed_window_open_shutters.glb"
@@ -40,7 +47,8 @@ const FACADE_ASSETS: Array[Dictionary] = [
 	},
 	{
 		"label": "TIMBER WINDOW OPEN",
-		"path": (
+		"path":
+		(
 			"res://assets/buildings/facades/"
 			+ "timber_window_open_shutters/"
 			+ "timber_window_open_shutters.glb"
@@ -48,7 +56,8 @@ const FACADE_ASSETS: Array[Dictionary] = [
 	},
 	{
 		"label": "TIMBER WINDOW CLOSED",
-		"path": (
+		"path":
+		(
 			"res://assets/buildings/facades/"
 			+ "timber_window_closed_shutters/"
 			+ "timber_window_closed_shutters.glb"
@@ -68,11 +77,8 @@ const ONE_SHOT_REPLAY_DELAY := 0.6
 const MIDDAY_PROGRESS := 0.5
 const LARGE_ASSET_COLOR := Color8(255, 220, 132)
 
-@export_enum("small", "large", "characters_animals") var showcase_kind: String = String(Definition.SHOWCASE_SMALL)
-
-@onready var map_root: Node2D = $MapRoot
-@onready var actors: Node2D = $Actors
-@onready var player: Player = $Actors/Player
+@export_enum("small", "large", "characters_animals")
+var showcase_kind: String = String(Definition.SHOWCASE_SMALL)
 
 var _definition: MapDefinition
 var _bootstrap: Dictionary = {}
@@ -82,6 +88,10 @@ var _replay_delays: Dictionary = {}
 var _catalog_fauna: Array[Node3D] = []
 var _catalog_birds: Array[Dictionary] = []
 var _catalog_elapsed := 0.0
+
+@onready var map_root: Node2D = $MapRoot
+@onready var actors: Node2D = $Actors
+@onready var player: Player = $Actors/Player
 
 
 func _ready() -> void:
@@ -189,7 +199,13 @@ func _add_section_labels() -> void:
 
 
 func _add_large_section_labels(labels: Node3D) -> void:
-	_add_label(labels, "LARGE ASSETS - TERRAIN MATERIALS (%d)" % MapTypes.ALL_TERRAINS.size(), Vector2(4.0, 2.0), 1.5, LARGE_ASSET_COLOR)
+	_add_label(
+		labels,
+		"LARGE ASSETS - TERRAIN MATERIALS (%d)" % MapTypes.ALL_TERRAINS.size(),
+		Vector2(4.0, 2.0),
+		1.5,
+		LARGE_ASSET_COLOR
+	)
 	for index in MapTypes.ALL_TERRAINS.size():
 		_add_label(
 			labels,
@@ -200,13 +216,25 @@ func _add_large_section_labels(labels: Node3D) -> void:
 			44
 		)
 
-	_add_label(labels, "BUILDINGS, FORTIFICATIONS AND GATES", Vector2(4.0, 66.0), 1.5, LARGE_ASSET_COLOR)
+	_add_label(
+		labels, "BUILDINGS, FORTIFICATIONS AND GATES", Vector2(4.0, 66.0), 1.5, LARGE_ASSET_COLOR
+	)
 	for spec in Definition.BUILDING_SPECS:
 		var rect: Rect2i = spec["cell_rect"]
-		_add_label(labels, spec["label"], Vector2(rect.position) + Vector2(rect.size.x * 0.5, rect.size.y + 1.0), 0.2)
+		_add_label(
+			labels,
+			spec["label"],
+			Vector2(rect.position) + Vector2(rect.size.x * 0.5, rect.size.y + 1.0),
+			0.2
+		)
 	for spec in Definition.GATE_SPECS:
 		var rect: Rect2i = spec["cell_rect"]
-		_add_label(labels, spec["label"], Vector2(rect.position) + Vector2(rect.size.x * 0.5, rect.size.y + 1.0), 0.2)
+		_add_label(
+			labels,
+			spec["label"],
+			Vector2(rect.position) + Vector2(rect.size.x * 0.5, rect.size.y + 1.0),
+			0.2
+		)
 	_add_label(labels, "WALL-WALK ACCESS", Vector2(88.0, 110.0), 0.2)
 
 	_add_label(labels, "TREES AND SHIPS - LARGE GRID", Vector2(4.0, 116.0), 1.5, LARGE_ASSET_COLOR)
@@ -221,7 +249,13 @@ func _add_large_section_labels(labels: Node3D) -> void:
 		)
 	_add_label(labels, "ANCIENT OAK GLB", Vector2(108.5, 127.8), 0.2)
 	_add_label(labels, "ARCHITECTURAL FACADE ASSETS", Vector2(4.0, 135.0), 1.5, LARGE_ASSET_COLOR)
-	_add_label(labels, "PROCEDURAL TREE MODELS (%d) - MEDIUM SCALE" % MapViewTreeSpecies.ALL_SPECIES.size(), Vector2(4.0, 152.0), 1.5, LARGE_ASSET_COLOR)
+	_add_label(
+		labels,
+		"PROCEDURAL TREE MODELS (%d) - MEDIUM SCALE" % MapViewTreeSpecies.ALL_SPECIES.size(),
+		Vector2(4.0, 152.0),
+		1.5,
+		LARGE_ASSET_COLOR
+	)
 	for index in MapViewTreeSpecies.ALL_SPECIES.size():
 		_add_label(
 			labels,
@@ -235,7 +269,13 @@ func _add_large_section_labels(labels: Node3D) -> void:
 
 func _add_small_section_labels(labels: Node3D) -> void:
 	var kinds := Definition.small_prop_kinds()
-	_add_label(labels, "SMALL ASSETS - PROPS (%d)" % kinds.size(), Vector2(4.0, 2.0), 1.5, LARGE_ASSET_COLOR)
+	_add_label(
+		labels,
+		"SMALL ASSETS - PROPS (%d)" % kinds.size(),
+		Vector2(4.0, 2.0),
+		1.5,
+		LARGE_ASSET_COLOR
+	)
 	for index in kinds.size():
 		_add_label(
 			labels,
@@ -250,11 +290,32 @@ func _add_small_section_labels(labels: Node3D) -> void:
 
 
 func _add_characters_animals_section_labels(labels: Node3D) -> void:
-	_add_label(labels, "ALL MAMMALS - LIVING CATALOG (%d)" % MammalSpecies.ALL_SPECIES.size(), Vector2(4.0, 2.0), 1.5, LARGE_ASSET_COLOR)
-	_add_label(labels, "ALL BIRDS - LIVING CATALOG (%d)" % BirdSpecies.ALL_SPECIES.size(), Vector2(4.0, 38.0), 1.5, LARGE_ASSET_COLOR)
+	_add_label(
+		labels,
+		"ALL MAMMALS - LIVING CATALOG (%d)" % MammalSpecies.ALL_SPECIES.size(),
+		Vector2(4.0, 2.0),
+		1.5,
+		LARGE_ASSET_COLOR
+	)
+	_add_label(
+		labels,
+		"ALL BIRDS - LIVING CATALOG (%d)" % BirdSpecies.ALL_SPECIES.size(),
+		Vector2(4.0, 38.0),
+		1.5,
+		LARGE_ASSET_COLOR
+	)
 	_add_label(labels, "CHARACTER VARIANTS", Vector2(4.0, 73.0), 1.5, LARGE_ASSET_COLOR)
 	_add_label(labels, "ALL HUMANOID ANIMATIONS", Vector2(4.0, 83.0), 1.5, LARGE_ASSET_COLOR)
 	_add_label(labels, "ALL CAT ANIMATIONS", Vector2(4.0, 103.0), 1.5, LARGE_ASSET_COLOR)
+
+
+## Drag a garment (or the bare body) downward to pull it off (docs/SYSTEMS/UNDRESS_INTERACTION.md).
+func _add_clothing_strip(root: Node3D) -> ClothingStrip:
+	var strip := ClothingStrip.new()
+	strip.name = "ClothingStrip"
+	strip.camera_provider = func() -> Camera3D: return _view_runtime.view.view_camera()
+	root.add_child(strip)
+	return strip
 
 
 func _add_characters_and_animations() -> void:
@@ -262,12 +323,17 @@ func _add_characters_and_animations() -> void:
 	root.name = "CharacterShowcase"
 	_view_runtime.add_child(root)
 
+	var strip := _add_clothing_strip(root)
+
 	for index in HUMANOID_SCENES.size():
 		var rig := HUMANOID_SCENES[index].instantiate() as SharedCharacterRig
 		rig.position = Vector3(8.0 + float(index) * CHARACTER_VARIANT_SPACING, 0.0, 78.0)
 		rig.start_animation = &"idle"
 		root.add_child(rig)
-		_add_world_label(root, String(rig.name).to_upper(), rig.position + Vector3(0.0, 2.7, 0.0), 38)
+		strip.register(rig)
+		_add_world_label(
+			root, String(rig.name).to_upper(), rig.position + Vector3(0.0, 2.7, 0.0), 38
+		)
 
 	var animations: Array[StringName] = []
 	animations.assign(SharedCharacterRig.CANONICAL_ANIMATIONS.keys())
@@ -276,10 +342,14 @@ func _add_characters_and_animations() -> void:
 		var row := index / 8
 		var column := index % 8
 		var rig := HUMANOID_SCENES[0].instantiate() as SharedCharacterRig
-		rig.position = Vector3(7.0 + float(column) * HUMANOID_ANIMATION_SPACING, 0.0, 88.0 + float(row) * 8.0)
+		rig.position = Vector3(
+			7.0 + float(column) * HUMANOID_ANIMATION_SPACING, 0.0, 88.0 + float(row) * 8.0
+		)
 		rig.start_animation = animation_name
 		root.add_child(rig)
-		_add_world_label(root, String(animation_name).to_upper(), rig.position + Vector3(0.0, 2.7, 0.0), 34)
+		_add_world_label(
+			root, String(animation_name).to_upper(), rig.position + Vector3(0.0, 2.7, 0.0), 34
+		)
 		if animation_name not in SharedCharacterRig.LOOPING_ANIMATIONS:
 			_replay_rigs.append(rig)
 			_replay_delays[rig] = ONE_SHOT_REPLAY_DELAY
@@ -290,7 +360,12 @@ func _add_characters_and_animations() -> void:
 		cat.position = Vector3(8.0 + float(index) * CAT_ANIMATION_SPACING, 0.0, 108.0)
 		cat.start_animation = animation_name
 		root.add_child(cat)
-		_add_world_label(root, "CAT %s" % String(animation_name).to_upper(), cat.position + Vector3(0.0, 1.25, 0.0), 34)
+		_add_world_label(
+			root,
+			"CAT %s" % String(animation_name).to_upper(),
+			cat.position + Vector3(0.0, 1.25, 0.0),
+			34
+		)
 		if animation_name not in CatRig.LOOPING_CAT_ANIMATIONS:
 			_replay_rigs.append(cat)
 			_replay_delays[cat] = ONE_SHOT_REPLAY_DELAY
@@ -311,7 +386,9 @@ func _add_animal_catalog() -> void:
 	for index in moved_species.size():
 		var cell := Definition.small_prop_cell(index)
 		var position := Vector3(float(cell.x) + 0.5, 0.0, float(cell.y) + 0.5)
-		_add_world_label(root, String(moved_species[index]).to_upper(), position + Vector3(0.0, 2.7, 0.0), 34)
+		_add_world_label(
+			root, String(moved_species[index]).to_upper(), position + Vector3(0.0, 2.7, 0.0), 34
+		)
 
 	# Goat is a shipped living actor even though it predates the signed 30-species
 	# mammal catalog, so it receives an explicit production-model slot.
@@ -351,15 +428,25 @@ func _add_catalog_fauna(parent: Node3D, species: StringName, position: Vector3, 
 	actor.position = position
 	actor.set_meta(&"species", species)
 	parent.add_child(actor)
-	GroundWander.setup(actor, &"debug_characters_animals", index, {
-		"home": position,
-		"radius": 2.0,
-		"speed": 0.85 if species == MammalSpecies.SPECIES_RAT else FAUNA_WANDER_SPEED,
-		"roam_scale": 0.72,
-		"pause_range": Vector2(1.0, 3.0),
-	})
+	(
+		GroundWander
+		. setup(
+			actor,
+			&"debug_characters_animals",
+			index,
+			{
+				"home": position,
+				"radius": 2.0,
+				"speed": 0.85 if species == MammalSpecies.SPECIES_RAT else FAUNA_WANDER_SPEED,
+				"roam_scale": 0.72,
+				"pause_range": Vector2(1.0, 3.0),
+			}
+		)
+	)
 	_catalog_fauna.append(actor)
-	_add_world_label(parent, String(species).replace("_", " ").to_upper(), position + Vector3(0.0, 2.7, 0.0), 30)
+	_add_world_label(
+		parent, String(species).replace("_", " ").to_upper(), position + Vector3(0.0, 2.7, 0.0), 30
+	)
 
 
 func _add_catalog_bird(parent: Node3D, species: StringName, position: Vector3, index: int) -> void:
@@ -371,12 +458,19 @@ func _add_catalog_bird(parent: Node3D, species: StringName, position: Vector3, i
 	if frame.is_empty():
 		return
 	_install_showcase_modular_rig(actor, frame)
-	_catalog_birds.append({
-		"actor": actor,
-		"time": float(index % 4) * 0.35,
-		"profile": BirdFlight.flap_profile(species),
-	})
-	_add_world_label(parent, String(species).replace("_", " ").to_upper(), position + Vector3(0.0, 3.2, 0.0), 28)
+	(
+		_catalog_birds
+		. append(
+			{
+				"actor": actor,
+				"time": float(index % 4) * 0.35,
+				"profile": BirdFlight.flap_profile(species),
+			}
+		)
+	)
+	_add_world_label(
+		parent, String(species).replace("_", " ").to_upper(), position + Vector3(0.0, 3.2, 0.0), 28
+	)
 
 
 func _install_showcase_modular_rig(actor: Node3D, frame: Dictionary) -> void:
@@ -393,9 +487,13 @@ func _install_showcase_modular_rig(actor: Node3D, frame: Dictionary) -> void:
 		elbow.name = "WingElbow%s" % side_name
 		elbow.position = frame["%s_elbow" % side_key] - shoulder.position
 		shoulder.add_child(elbow)
-		var upper := _showcase_mesh_node("WingUpper%s" % side_name, frame["%s_upper" % side_key] as ArrayMesh)
+		var upper := _showcase_mesh_node(
+			"WingUpper%s" % side_name, frame["%s_upper" % side_key] as ArrayMesh
+		)
 		shoulder.add_child(upper)
-		var primary := _showcase_mesh_node("WingPrimary%s" % side_name, frame["%s_primary" % side_key] as ArrayMesh)
+		var primary := _showcase_mesh_node(
+			"WingPrimary%s" % side_name, frame["%s_primary" % side_key] as ArrayMesh
+		)
 		elbow.add_child(primary)
 
 
@@ -409,10 +507,13 @@ func _showcase_mesh_node(node_name: String, mesh: ArrayMesh) -> MeshInstance3D:
 
 
 func _catalog_position(start: Vector3, index: int) -> Vector3:
-	return start + Vector3(
-		float(index % CATALOG_COLUMNS) * CATALOG_COLUMN_SPACING,
-		0.0,
-		float(index / CATALOG_COLUMNS) * CATALOG_ROW_SPACING
+	return (
+		start
+		+ Vector3(
+			float(index % CATALOG_COLUMNS) * CATALOG_COLUMN_SPACING,
+			0.0,
+			float(index / CATALOG_COLUMNS) * CATALOG_ROW_SPACING
+		)
 	)
 
 
@@ -439,6 +540,17 @@ func _add_small_unbound_assets() -> void:
 	cart.position = Vector3(8.0, 0.0, 109.0)
 	_add_world_label(root, "WOODEN CART GLB", cart.position + Vector3(0.0, 2.8, 0.0), 38)
 
+	var strip := _add_clothing_strip(root)
+	for index in SMALL_STRIP_BODIES.size():
+		var rig := (
+			(load(SMALL_STRIP_BODIES[index]) as PackedScene).instantiate() as SharedCharacterRig
+		)
+		rig.position = Vector3(14.0 + float(index) * 2.5, 0.0, 109.0)
+		rig.start_animation = &"idle"
+		root.add_child(rig)
+		strip.register(rig)
+	_add_world_label(root, "DRAG DOWN TO UNDRESS - U REDRESS", Vector3(17.0, 2.8, 109.0), 34)
+
 
 func _add_large_unbound_assets() -> void:
 	var root := Node3D.new()
@@ -463,15 +575,13 @@ func _add_label(
 	color: Color = Color.WHITE,
 	font_size: int = 38
 ) -> void:
-	_add_world_label(parent, text, Vector3(cell_position.x, height, cell_position.y), font_size, color)
+	_add_world_label(
+		parent, text, Vector3(cell_position.x, height, cell_position.y), font_size, color
+	)
 
 
 func _add_world_label(
-	parent: Node3D,
-	text: String,
-	position: Vector3,
-	font_size: int,
-	color: Color = Color.WHITE
+	parent: Node3D, text: String, position: Vector3, font_size: int, color: Color = Color.WHITE
 ) -> void:
 	var label := Label3D.new()
 	label.text = text
@@ -512,22 +622,35 @@ func _add_review_hud() -> void:
 	if is_large_showcase():
 		label.text = (
 			"LARGE ASSET REVIEW GALLERY\n"
-			+ "%d terrains | %d large prop kinds | %d procedural trees | %d building samples | %d facade assets\n"
-			% [
-				MapTypes.ALL_TERRAINS.size(),
-				Definition.LARGE_PROP_KINDS.size(),
-				MapViewTreeSpecies.ALL_SPECIES.size(),
-				Definition.BUILDING_SPECS.size(),
-				FACADE_ASSETS.size(),
-			]
+			+ (
+				(
+					"%d terrains | %d large prop kinds | %d procedural trees | "
+					+ "%d building samples | %d facade assets\n"
+				)
+				% [
+					MapTypes.ALL_TERRAINS.size(),
+					Definition.LARGE_PROP_KINDS.size(),
+					MapViewTreeSpecies.ALL_SPECIES.size(),
+					Definition.BUILDING_SPECS.size(),
+					FACADE_ASSETS.size(),
+				]
+			)
 			+ "WASD/arrows - move | C - camera | right-drag - look | Debug - switch/return"
 		)
 	else:
 		label.text = (
 			"SMALL ASSET REVIEW GALLERY\n"
-			+ "%d prop kinds | %d characters | %d humanoid clips | %d cat clips\n"
-			% [Definition.small_prop_kinds().size(), HUMANOID_SCENES.size(), SharedCharacterRig.CANONICAL_ANIMATIONS.size(), CatRig.REQUIRED_ANIMATIONS.size()]
+			+ (
+				"%d prop kinds | %d characters | %d humanoid clips | %d cat clips\n"
+				% [
+					Definition.small_prop_kinds().size(),
+					HUMANOID_SCENES.size(),
+					SharedCharacterRig.CANONICAL_ANIMATIONS.size(),
+					CatRig.REQUIRED_ANIMATIONS.size()
+				]
+			)
 			+ "WASD/arrows - move | C - camera | right-drag - look | Debug - switch/return"
+			+ "\nLeft-drag down on a garment - pull it off | U - redress"
 		)
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	label.add_theme_font_size_override("font_size", 14)

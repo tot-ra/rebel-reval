@@ -76,6 +76,21 @@ func test_ornament_faces_outside_for_both_endpoint_orders_and_double_leaves() ->
 			node.free()
 
 
+func test_camera_ray_selects_nearby_door_aperture() -> void:
+	var plan := CityPlan.load_default()
+	var node := CityDoors.create(plan)
+	root.add_child(node)
+	var door_key := "site:door.council_hall.north"
+	var door: Dictionary = node.doors[door_key]
+	var center: Vector2 = door["center"]
+	var hinge: Node3D = door["hinges"][0]
+	var origin := Vector3(center.x, hinge.position.y + 2.0, center.y - 3.0)
+	var direction := Vector3(0.0, -2.0, 3.0).normalized()
+	assert_eq(node.door_at_ray(origin, direction), door_key, "camera ray selects the aperture")
+	assert_eq(node.door_at_ray(origin, direction, 1.0), null, "ray reach can reject distant doors")
+	node.free()
+
+
 func test_actual_site_profiles_service_fallback_and_open_close() -> void:
 	var plan := CityPlan.load_default()
 	var node := CityDoors.create(plan)
@@ -98,7 +113,10 @@ func test_actual_site_profiles_service_fallback_and_open_close() -> void:
 	assert_eq(found.size(), Details.SITE_STYLES.size(), "no stale landmark override IDs")
 	var council := "site:door.council_hall.north"
 	node.update_for(node.doors[council]["center"], 1.0)
-	assert_true(node.is_open(council))
+	assert_false(node.is_open(council), "walking up to a closed door does not open it")
+	assert_true(node.interact_at(node.doors[council]["center"]), "nearby click selects the door")
+	node.update_for(node.doors[council]["center"], 1.0)
+	assert_true(node.is_open(council), "explicit interaction opens the door")
 	node.update_for(Vector2(100000, 100000), 1.0)
 	assert_false(node.is_open(council))
 	node.free()

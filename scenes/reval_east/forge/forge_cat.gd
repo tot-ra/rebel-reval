@@ -4,6 +4,11 @@ extends CharacterBody2D
 ## Kalev's forge cat: resident animal driven by authored cat-only activity points (P2-061).
 ## Sleep, groom, warmth-seeking, and feeding anchors never claim human stations.
 
+enum ActivityMode {
+	WALKING,
+	ACTING,
+}
+
 const WALK_SPEED := 14.0
 
 const ACTIVITY_POINTS_PATH := "res://content/routines/kalev_smithy.json"
@@ -13,15 +18,8 @@ const ControllerScript := preload("res://scripts/world/smithy_routine_controller
 const DefinitionScript := preload("res://scripts/world/smithy_routine_definition.gd")
 const MartScript := preload("res://scenes/reval_east/forge/smithy_mart.gd")
 
-enum ActivityMode {
-	WALKING,
-	ACTING,
-}
-
 @export var stable_id: StringName = &"char.forge_cat"
-@export var rig_scene: PackedScene = preload("res://assets/storybook/forge_cat/forge_cat.tscn")
-
-@onready var navigation_agent: NavigationAgent2D = get_node_or_null("NavigationAgent2D") as NavigationAgent2D
+@export var rig_scene: PackedScene = preload("res://assets/animals/forge_cat/forge_cat.tscn")
 
 var _routine_controller: SmithyRoutineController
 var _routine_active := false
@@ -35,6 +33,9 @@ var _target_facing := Vector2.DOWN
 var _last_facing := Vector2.DOWN
 var _conversation_partner: Node2D = null
 var _idle_retry_seconds := 0.0
+
+@onready
+var navigation_agent: NavigationAgent2D = get_node_or_null("NavigationAgent2D") as NavigationAgent2D
 
 
 func _ready() -> void:
@@ -206,7 +207,7 @@ func _finish_current_activity() -> void:
 	_advance_to_next_activity()
 
 
-func _arrive_at_activity(point: SmithyActivityPoint) -> void:
+func _arrive_at_activity(_point: SmithyActivityPoint) -> void:
 	velocity = Vector2.ZERO
 	global_position = _target_position
 	_last_facing = _target_facing

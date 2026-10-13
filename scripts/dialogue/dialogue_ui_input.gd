@@ -1,15 +1,12 @@
 class_name DialogueUiInput
 extends RefCounted
 
-## Keyboard, gamepad, and backlog routing for DialogueUI.
+## Keyboard and gamepad routing for DialogueUI.
 
 
 static func handle_unhandled_input(ui: DialogueUI, event: InputEvent) -> bool:
 	if not ui._visible_active:
 		return false
-
-	if handle_backlog_input(ui, event):
-		return true
 
 	if handle_skip_input(ui, event):
 		return true
@@ -21,7 +18,7 @@ static func handle_unhandled_input(ui: DialogueUI, event: InputEvent) -> bool:
 
 
 static func handle_skip_input(ui: DialogueUI, event: InputEvent) -> bool:
-	if event.is_echo() or ui._choice_mode or ui._backlog_open:
+	if event.is_echo() or ui._choice_mode:
 		return false
 	if event.is_action_pressed(&"ui_cancel"):
 		if not ui._reveal_complete:
@@ -29,23 +26,6 @@ static func handle_skip_input(ui: DialogueUI, event: InputEvent) -> bool:
 			return true
 		ui.skip_requested.emit()
 		return true
-	return false
-
-
-static func handle_backlog_input(ui: DialogueUI, event: InputEvent) -> bool:
-	if event.is_echo():
-		return false
-
-	if event.is_action_pressed(&"ui_cancel"):
-		if ui._backlog_open:
-			ui._toggle_backlog()
-			return true
-		return false
-
-	if event.is_action_pressed(&"ui_page_up"):
-		ui._toggle_backlog()
-		return true
-
 	return false
 
 
@@ -62,7 +42,7 @@ static func handle_choice_input(ui: DialogueUI, event: InputEvent) -> bool:
 
 
 static func handle_continue_click(ui: DialogueUI, event: InputEvent) -> bool:
-	if not ui._visible_active or ui._choice_mode or ui._backlog_open:
+	if not ui._visible_active or ui._choice_mode:
 		return false
 	if not is_mouse_continue_event(event):
 		return false

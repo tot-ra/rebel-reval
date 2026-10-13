@@ -20,11 +20,11 @@ const GraphicsPresetsScript := preload("res://scripts/settings/graphics_presets.
 const PerfProbeScript := preload("res://scripts/debug/perf_probe.gd")
 const DEFAULT_SPAWN := "poi.forum"
 ## On-foot speeds in city units/s (about 1 m each), converted to logic px. The old
-## 5x travel multiplier (2026-10-07) made the hero cross town at ~15 m/s; realism
-## request 2026-10-12: a stroll is ~1.5 m/s, a jog ~4 m/s. Debug time speed still
-## scales movement through the player's time_flow_scale.
+## 5x travel multiplier (2026-10-07) made the hero cross town at ~15 m/s;
+## the 2026-10-12 realism request set a ~1.5 m/s stroll. Running is ~8 m/s.
+## Debug time speed still scales movement through the player's time_flow_scale.
 const WALK_SPEED_UNITS := 1.5
-const RUN_SPEED_UNITS := 4.0
+const RUN_SPEED_UNITS := 8.0
 ## Within this many units of the plan edge the travel map opens: beyond the
 ## city and its fields lie the regions reached by a journey.
 const EDGE_MARGIN := 28.0
@@ -34,10 +34,10 @@ var view: CityMapView
 var world: CityWorld3D
 var runtime: MapViewRuntime
 var minimap: CityMinimap
-## Furnished houses round Kalev and their people at home (docs/SYSTEMS/HOUSEHOLDS.md).
 var interiors: CityInteriors
 var music_zones := CityMusicZones.new()
 var inside_building := -1
+var _world_items: WorldItemController
 var _music_timer := 0.0
 var _npcs: CityNpcs
 var _fauna: CityFauna
@@ -85,6 +85,16 @@ func _ready() -> void:
 	player.set_water_depth_provider(
 		func(logic: Vector2) -> float: return view.water_depth_at(CityPlan.to_world_xz(logic))
 	)
+	# Steep ground pulls the hero downhill (PlayerJumpState.slide_velocity).
+	player.set_downhill_provider(
+		func(logic: Vector2) -> Vector2: return view.definition.downhill_at_world(logic)
+	)
+	# Weapons belong to Kalev's city forge, not the retired 2D forge scene.
+	_world_items = WorldItemController.new()
+	_world_items.name = "WorldItemController"
+	add_child(_world_items)
+	_world_items.setup(self, view.definition, runtime, player, &"loc.reval_city")
+	runtime.configure_click_input(_world_items, world.doors)
 	# Ground drag (R-1907, numbers in SurfaceSpeed): grass, earth and mud by their
 	# wetness, and snow by its depth (ADR 0045); the slowest of the three wins.
 	# Paving is free, and cleared roads and paving are clear in the snow map.
@@ -166,10 +176,7 @@ func _face_door_on_arrival(id: String) -> void:
 		var sign := 1.0 if step % 2 == 0 else -1.0
 		var offset: float = ceilf(step / 2.0) * (PI / 8.0) * sign
 		var look := Vector2.from_angle(toward.angle() + offset)
-		if (
-			plan.building_at(here - look * 2.5) < 0
-			and plan.building_at(here - look * 5.5) < 0
-		):
+		if plan.building_at(here - look * 2.5) < 0 and plan.building_at(here - look * 5.5) < 0:
 			best = look.angle()
 			break
 	var dir := Vector2.from_angle(best)

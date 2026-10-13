@@ -215,7 +215,7 @@ The following documents are the reintroduction corpus (planning inventory: [`doc
 **Story & World Context**
 - [`history/HISTORY.md`](./history/HISTORY.md), [`history/TIMELINE.md`](./history/TIMELINE.md)
 - [`story/STORY.md`](./story/STORY.md)
-- [`assets/bestiary/README.md`](./assets/bestiary/README.md) (Folklore and creatures)
+- [`docs/BESTIARY/README.md`](./docs/BESTIARY/README.md) (Folklore and creatures)
 
 **Character & Mechanics Concepts**
 - [`character/BUILD.md`](./character/BUILD.md), [`character/COMBAT.md`](./character/COMBAT.md), [`character/PSYCHE.md`](./character/PSYCHE.md)

@@ -10,7 +10,6 @@ const WIND_SHADERS := [
 	"res://scripts/map/view3d/map_view_flag_cloth.gdshader",
 	"res://scripts/map/view3d/map_view_hanging_banner_cloth.gdshader",
 	"res://scripts/map/view3d/map_view_hoist_rope.gdshader",
-	"res://scripts/map/view3d/map_view_fishing_net_wind.gdshader",
 ]
 
 

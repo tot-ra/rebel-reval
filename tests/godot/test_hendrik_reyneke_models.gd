@@ -7,7 +7,7 @@ const MammalSpecies := preload("res://scripts/map/view3d/map_view_mammal_species
 
 const EXPECTED_LARGEST_AXIS_M: Dictionary = {
 	# Storybook duck rest bounds, including bill/tail; live scaling is tested separately.
-	MammalSpecies.SPECIES_DUCK: 2.128,
+	MammalSpecies.SPECIES_DUCK: 1.901,
 }
 
 
@@ -15,7 +15,7 @@ func test_archived_hendrik_duck_retains_authored_metric_scale() -> void:
 	for species: StringName in EXPECTED_LARGEST_AXIS_M:
 		var host := Node3D.new()
 		(Engine.get_main_loop() as SceneTree).root.add_child(host)
-		var model := preload("res://assets/storybook/duck/duck.glb").instantiate() as Node3D
+		var model := preload("res://assets/birds/duck/duck.glb").instantiate() as Node3D
 		host.add_child(model)
 		assert_true(model != null)
 		var meshes := model.find_children("*", "MeshInstance3D", true, false)

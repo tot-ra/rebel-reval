@@ -14,7 +14,7 @@ Status: implemented (tasks **P1-013** dialogue settings, **P1-028** input bindin
 
 ## Rebindable actions
 
-Movement (up/down/left/right, walk, spirit sight), interact/continue, confirm, back/close, dialogue backlog, attack, guard, sidestep, roll, spell cookbook, cast learned spell 1–5, remove forged element, cast forged cookbook spell, inventory, journal, camera view, minimap, map, controls. Each action keeps separate keyboard/mouse and gamepad bindings (`InputBindingSettings.ACTION_DEFINITIONS`).
+Movement (up/down/left/right, walk, spirit sight), interact/continue, confirm, back/close, attack, guard, sidestep, roll, spell cookbook, cast learned spell 1–5, remove forged element, cast forged cookbook spell, inventory, journal, camera view, minimap, map, controls. Each action keeps separate keyboard/mouse and gamepad bindings (`InputBindingSettings.ACTION_DEFINITIONS`).
 
 ## Runtime pieces
 

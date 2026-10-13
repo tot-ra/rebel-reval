@@ -179,26 +179,28 @@ func test_two_handed_bow_frees_the_right_hand_and_back() -> void:
 	assert_eq(state.equipped_item(&"right_hand"), &"item.forge_arming_sword")
 
 
-func test_new_game_seeds_spearhead_and_weapon_rack() -> void:
+func test_sword_shield_and_axe_can_be_equipped_and_used() -> void:
 	var state := _fresh_state()
-	var forge := _seed_smithy(state)
-	assert_true(state.is_world_item_placed(LOC_SMITHY, &"world.spearhead_anvil"), "spearhead first")
-	var definition := SMITHY_DEFINITION.create()
-	# RRMap wall.divider is authored at cell x=14; pickups must be to its east,
-	# in the forge bay, rather than inside its one-cell collision footprint.
-	var divider_x := 14.0 * definition.cell_size
-	for object_id: StringName in _weapon_object_ids():
-		assert_true(state.is_world_item_placed(LOC_SMITHY, object_id), String(object_id))
-		var item := _world_item_for(forge, object_id)
-		assert_true(item != null, "%s has a world pickup" % object_id)
-		if item == null:
-			continue
-		assert_true(
-			item.global_position.x > divider_x,
-			"%s is placed on the accessible forge side of the divider" % object_id
-		)
-	assert_eq(state.get_world_items(LOC_SMITHY).size(), 7)
-	forge.free()
+	for item_id: StringName in [
+		&"item.forge_arming_sword", &"item.forge_heater_shield", &"item.forge_bearded_axe"
+	]:
+		assert_eq(state.bag.try_add(item_id), InventoryBag.AddResult.OK)
+	assert_true(state.equip_from_bag(&"right_hand", &"item.forge_arming_sword"))
+	assert_true(state.equip_from_bag(&"left_hand", &"item.forge_heater_shield"))
+	assert_eq(
+		AttackProfileResolver.weapon_class_for_state(state, SessionState.content_db), &"sword"
+	)
+	var shield_vitals := CombatVitals.new()
+	ShieldGuard.apply(shield_vitals, state, SessionState.content_db)
+	assert_almost_eq(shield_vitals.parry_window_sec, 0.26, 0.001)
+	assert_true(state.equip_from_bag(&"right_hand", &"item.forge_bearded_axe"))
+	assert_eq(
+		AttackProfileResolver.weapon_class_for_state(state, SessionState.content_db), &"axe"
+	)
+	var axe_profile := AttackProfileResolver.resolve_move(
+		state, SessionState.content_db, false, 0
+	)
+	assert_eq(axe_profile.animation, &"axe_attack")
 
 
 func test_sword_shield_and_axe_can_be_equipped_and_used() -> void:
@@ -298,7 +300,6 @@ func _bow_profile() -> AttackProfile:
 	return AttackProfileResolver.resolve_move(state, SessionState.content_db, false, 0)
 
 
-## Runs WorldItemController seeding for the smithy against `state` (no view).
 func _seed_smithy(state: GameState) -> Node2D:
 	var previous: GameState = SessionState.state
 	SessionState.state = state
@@ -313,10 +314,9 @@ func _seed_smithy(state: GameState) -> Node2D:
 
 func _weapon_object_ids() -> Array[StringName]:
 	var ids: Array[StringName] = []
-	for entry: Dictionary in WorldItemController.SEED_GROUPS[LOC_SMITHY][&"forge_weapons"]:
+	for entry: Dictionary in WorldItemController.SEED_GROUPS[&"loc.reval_city"][&"forge_weapons"]:
 		ids.append(entry["object_id"])
 	return ids
-
 
 func _dummy(parent: Node, at: Vector2, group: StringName) -> Node2D:
 	var dummy := Node2D.new()

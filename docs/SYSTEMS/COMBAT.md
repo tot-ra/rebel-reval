@@ -14,7 +14,7 @@ Status: foundation implemented (tasks **P1-024..P1-027**, **P2-009**, **P5-008**
 - Enemies telegraph before striking, retreat when wounded unless cornered, and disengage past their leash.
 - Losing a fight restores the encounter checkpoint: narrative progress made before the fight survives, the fight restarts.
 - Encounters can close lethally or non-lethally (surrender, flee, bypass, talk). Both paths write the same quest state vocabulary.
-- Six forge weapons (sword, bow, spear, shield, axe, war hammer) lean against the forge wall; pick them up, equip them from the bag, and fight with each ([Forge weapon set](#forge-weapon-set)).
+- Six forge weapons (sword, bow, spear, shield, axe, war hammer) stand by the anvil in the seamless city's Kalev smithy; pick them up, equip them from the bag, and fight with each ([Forge weapon set](#forge-weapon-set)).
 - Every city resident has health and stamina. Strike one and a physical fight starts: men fight back, others run ([Brawls with citizens](#brawls-with-citizens)).
 - **Forge techniques** (quick menu **Iron**): one equipped technique, `Iron`, `Ember`, or `Root`. Iron pierces a braced guard outside the parry window.
 
@@ -40,7 +40,7 @@ Status: foundation implemented (tasks **P1-024..P1-027**, **P2-009**, **P5-008**
 
 Status: implemented (tasks **R-1754** models, items and forge pickups; **R-1755** equip and attack per class). Out of scope: arrow ammunition (the bow never runs out), inventory icons, shield bash, enemy use of bows.
 
-**What the player does.** In Kalev's smithy (`loc.kalev_smithy`) six weapons stand in a row on the open forge-bay floor, beside the anvil and on the forge side of the divider opening. They are not embedded in the divider wall; approach from the anvil side. Each has a gold floor outline. Click one (or stand by it and press interact) to put it in the bag. Open the bag, select the weapon and equip it: sword, axe, war hammer and spear go to the **right hand**, the bow and the shield to the **left hand**. The equipped weapon appears in the hero's hand in the 3D view. Attack as usual (tap for the light chain, hold for the heavy strike, see [`COMBAT_ANIMATION.md`](./COMBAT_ANIMATION.md)). Use **G** to draw or sheathe the equipped weapon; attack with the normal attack input. Hold guard to benefit from the shield when it is equipped in the left hand.
+**What the player does.** In Kalev's city smithy (`loc.reval_city`) six weapons stand in a row beside the anvil in the seamless city forge bay. The retired standalone 2D forge scene is inactive; old transitions redirect here. Each weapon has a gold floor outline. Click one (or stand by it and press interact) to put it in the bag. Open the bag, select the weapon and equip it: sword, axe, war hammer and spear go to the **right hand**, the bow and the shield to the **left hand**. The equipped weapon appears in the hero's hand in the 3D view. Attack as usual (tap for the light chain, hold for the heavy strike, see [`COMBAT_ANIMATION.md`](./COMBAT_ANIMATION.md)). Use **G** to draw or sheathe the equipped weapon; attack with the normal attack input. Hold guard to benefit from the shield when it is equipped in the left hand.
 
 | Item | Slot | Class | Behaviour |
 |---|---|---|---|
@@ -57,7 +57,7 @@ Status: implemented (tasks **R-1754** models, items and forge pickups; **R-1755*
 |---|---|---|
 | Weapon models | `tools/assets/build_forge_weapons.py` -> `assets/props/weapons/<slug>/<slug>.glb` | Deterministic Blender geometry; origin at the right-hand grip, long axis +Y. Rebuild: `blender --background --factory-startup --python tools/assets/build_forge_weapons.py -- --preview` |
 | Held / world scenes | `assets/props/weapons/<slug>/<slug>_held.tscn`, `<slug>_ground.tscn` | Hand-slot rotation (item `equip.scene`) and the leaning display (item `equip.world_scene`, read by `WorldItemController`) |
-| Forge pickups | `WorldItemController.SEED_GROUPS` (`scripts/world/world_item_controller.gd`) | Seeded once per save under `loc.kalev_smithy#forge_weapons`, so older saves also get the weapons; a taken weapon never respawns. Stable object ids `world.forge_<slug>` |
+| Forge pickups | `WorldItemController.SEED_GROUPS` (`scripts/world/world_item_controller.gd`), installed by `scenes/world/reval_city/reval_city.gd` | Seeded once per save under `loc.reval_city#forge_weapons`; a taken weapon never respawns. Stable object ids `world.forge_<slug>` |
 | Move sets | `CombatMoveCatalog.CLASS_AXE`, `CLASS_BOW`; clips in `SharedCharacterRig.CANONICAL_ANIMATIONS` | Axe and bow rows in [`COMBAT_ANIMATION.md`](./COMBAT_ANIMATION.md) |
 | Arrow | `scripts/combat/arrow_projectile.gd` (`ArrowProjectile`) | Item `gameplay.ranged` (`range_px`, `speed_px_per_sec`) fills `AttackProfile.ranged_*`; `Player._on_attack_impact` looses an arrow instead of a melee pulse. Straight, deterministic flight; stops at the first wall (physics frames only) or the first actor on its path; hits record guilt like a blow. `MapViewMagicVfx.play_arrow` draws the shaft |
 | Shield | `scripts/combat/shield_guard.gd` (`ShieldGuard`) | Item `gameplay.shield_guard` replaces `CombatVitals.guard_stamina_per_damage` and `parry_window_sec` right before each incoming hit |

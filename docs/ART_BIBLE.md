@@ -149,7 +149,7 @@ change the environment palette or authorize copied game assets. P0-209b replaces
 rejected procedural mammals with credited CC BY 4.0 source surfaces, preserving
 actual paws/hooves, coat UVs and species silhouettes. Dogs use a shaggy village
 phenotype; do not imply a modern Labrador or an attested medieval breed. See
-`assets/storybook/mammal_sources.json` for provenance and source limitations.
+`assets/animals/mammal_sources.json` for provenance and source limitations.
 The rabbit-derived hare remains a documented species-fidelity limitation.
 Live cattle and the pack horse are closed procedural bodies on the existing
 livestock rig. Their coats are vertex colors (hooves, horns or mane, muzzle),

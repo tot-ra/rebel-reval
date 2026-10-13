@@ -17,7 +17,7 @@
 | Item | Value |
 |---|---|
 | Status | Authored GLB (third-party, CC BY 4.0) |
-| Runtime file | [`assets/storybook/forge_cat/forge_cat.glb`](../../../assets/storybook/forge_cat/forge_cat.glb) |
+| Runtime file | [`assets/animals/forge_cat/forge_cat.glb`](../../../assets/animals/forge_cat/forge_cat.glb) |
 | Source page | [Sketchfab page](https://sketchfab.com/3d-models/cat-in-motion-3d-model-free-baa1120483c844e6bce9744f3f868c63) |
 | Author and licence | iRahulRajput (rt699448), CC BY 4.0. Source is Meshy AI |
 | Rig and clips | Shared mammal rig, six clips: Idle, Walk, Run, LookAround, Graze, Alert (measured limb chains). Also Sleep, Groom, Stretch. |
@@ -29,4 +29,4 @@
 
 ## Notes
 
-- The runtime scene is `assets/storybook/forge_cat/forge_cat.tscn`; the actors use it as `fauna.cat`.
+- The runtime scene is `assets/animals/forge_cat/forge_cat.tscn`; the actors use it as `fauna.cat`.

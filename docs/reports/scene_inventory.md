@@ -270,3 +270,5 @@ Both commands should print `135` on a clean checkout at this revision.
 | 190 | `assets/characters/variants/citizen_f_adult_thin_c.tscn` | working | Seamless city citizen or cast body (MPFB pipeline). |
 | 191 | `assets/characters/variants/citizen_f_adult_thin_d.tscn` | working | Seamless city citizen or cast body (MPFB pipeline). |
 | 192 | `tools/capture_world_showreel.tscn` | partial | Developer capture tool (README showreel clips of the live seamless city). |
+| 193 | `tools/capture_character_talk.tscn` | partial | Developer capture tool (talk/duel conversation camera, R-1884). |
+| 194 | `tools/capture_city_jump.tscn` | partial | Developer capture tool (player jump in the seamless city). |

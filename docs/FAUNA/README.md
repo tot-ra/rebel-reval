@@ -32,45 +32,45 @@ Status: reference only (not runtime assets, not imported by Godot; no `assets/SO
 |---|---|---|---|---|---|
 | Brown bear | *Ursus arctos* | `fauna.brown_bear` | Procedural only, no 3D model | - | [brown_bear.md](./animals/brown_bear.md) |
 | Wolf | *Canis lupus* | `fauna.wolf` | Procedural only, no 3D model | - | [wolf.md](./animals/wolf.md) |
-| Red fox | *Vulpes vulpes* | `fauna.red_fox` | Authored GLB | [GLB](../../assets/storybook/fox/fox.glb) | [red_fox.md](./animals/red_fox.md) |
+| Red fox | *Vulpes vulpes* | `fauna.red_fox` | Authored GLB | [GLB](../../assets/animals/fox/fox.glb) | [red_fox.md](./animals/red_fox.md) |
 | Eurasian lynx | *Lynx lynx* | `fauna.lynx` | Procedural only, no 3D model | - | [lynx.md](./animals/lynx.md) |
 | Elk | *Alces alces* | `fauna.elk` | Procedural only, no 3D model | - | [elk.md](./animals/elk.md) |
 | Red deer | *Cervus elaphus* | `fauna.red_deer` | Procedural only, no 3D model | - | [red_deer.md](./animals/red_deer.md) |
 | Roe deer | *Capreolus capreolus* | `fauna.roe_deer` | Procedural only, no 3D model | - | [roe_deer.md](./animals/roe_deer.md) |
-| Wild boar | *Sus scrofa* | `fauna.wild_boar` | Authored GLB | [GLB](../../assets/storybook/boar/boar.glb) | [wild_boar.md](./animals/wild_boar.md) |
+| Wild boar | *Sus scrofa* | `fauna.wild_boar` | Authored GLB | [GLB](../../assets/animals/boar/boar.glb) | [wild_boar.md](./animals/wild_boar.md) |
 | Beaver | *Castor fiber* | `fauna.beaver` | Procedural only, no 3D model | - | [beaver.md](./animals/beaver.md) |
 | Eurasian otter | *Lutra lutra* | `fauna.otter` | Procedural only, no 3D model | - | [otter.md](./animals/otter.md) |
 | European badger | *Meles meles* | `fauna.badger` | Procedural only, no 3D model | - | [badger.md](./animals/badger.md) |
 | Stoat | *Mustela erminea* | `fauna.stoat` | Procedural only, no 3D model | - | [stoat.md](./animals/stoat.md) |
 | Pine marten | *Martes martes* | `fauna.pine_marten` | Procedural only, no 3D model | - | [pine_marten.md](./animals/pine_marten.md) |
 | European polecat | *Mustela putorius* | `fauna.polecat` | Procedural only, no 3D model | - | [polecat.md](./animals/polecat.md) |
-| European hare | *Lepus europaeus* | `fauna.hare` | Authored GLB | [GLB](../../assets/storybook/hare/hare.glb) | [hare.md](./animals/hare.md) |
+| European hare | *Lepus europaeus* | `fauna.hare` | Authored GLB | [GLB](../../assets/animals/hare/hare.glb) | [hare.md](./animals/hare.md) |
 | Red squirrel | *Sciurus vulgaris* | `fauna.squirrel` | Procedural only, no 3D model | - | [squirrel.md](./animals/squirrel.md) |
 | European hedgehog | *Erinaceus europaeus* | `fauna.hedgehog` | Procedural only, no 3D model | - | [hedgehog.md](./animals/hedgehog.md) |
 | Grey seal | *Halichoerus grypus* | `fauna.grey_seal` | Procedural only, no 3D model | - | [grey_seal.md](./animals/grey_seal.md) |
 | Ringed seal | *Pusa hispida* | `fauna.ringed_seal` | Procedural only, no 3D model | - | [ringed_seal.md](./animals/ringed_seal.md) |
 | Common bat | *Pipistrellus pipistrellus* | `fauna.common_bat` | Procedural only, no 3D model | - | [common_bat.md](./animals/common_bat.md) |
-| Domestic cat | *Felis catus* | `fauna.cat` | Authored GLB | [GLB](../../assets/storybook/forge_cat/forge_cat.glb) | [cat.md](./animals/cat.md) |
-| Domestic dog | *Canis lupus familiaris* | `fauna.dog` | Authored GLB | [GLB](../../assets/storybook/dog/dog.glb) | [dog.md](./animals/dog.md) |
-| Horse | *Equus ferus caballus* | `fauna.horse` | Project-authored GLB | [GLB](../../assets/storybook/horse/horse.glb) | [horse.md](./animals/horse.md) |
-| Brown rat | *Rattus norvegicus* | `fauna.rat` | Authored GLB | [GLB](../../assets/storybook/rat/rat.glb) | [rat.md](./animals/rat.md) |
-| Chicken | *Gallus gallus domesticus* | `fauna.chicken` | Authored GLB | [GLB](../../assets/storybook/hen/hen.glb) | [chicken.md](./birds/chicken.md) |
-| Domestic duck | *Anas platyrhynchos domesticus* | `fauna.duck` | Project-built GLB | [GLB](../../assets/storybook/duck/duck.glb) | [domestic_duck.md](./birds/domestic_duck.md) |
-| Domestic goose | *Anser anser domesticus* | `fauna.goose` | Project-built GLB | [GLB](../../assets/storybook/goose/goose.glb) | [domestic_goose.md](./birds/domestic_goose.md) |
-| Domestic pig | *Sus scrofa domestica* | `fauna.pig` | Authored GLB | [GLB](../../assets/storybook/pig/pig.glb) | [pig.md](./animals/pig.md) |
-| Cattle | *Bos taurus* | `fauna.cow` | Authored GLB | [GLB](../../assets/storybook/cow/cow.glb) | [cattle.md](./animals/cattle.md) |
-| Sheep | *Ovis aries* | `fauna.sheep` | Authored GLB | [GLB](../../assets/storybook/sheep/sheep.glb) | [sheep.md](./animals/sheep.md) |
-| Goat | *Capra hircus* | `fauna.goat` | Authored GLB | [GLB](../../assets/storybook/goat/goat.glb) | [goat.md](./animals/goat.md) |
+| Domestic cat | *Felis catus* | `fauna.cat` | Authored GLB | [GLB](../../assets/animals/forge_cat/forge_cat.glb) | [cat.md](./animals/cat.md) |
+| Domestic dog | *Canis lupus familiaris* | `fauna.dog` | Authored GLB | [GLB](../../assets/animals/dog/dog.glb) | [dog.md](./animals/dog.md) |
+| Horse | *Equus ferus caballus* | `fauna.horse` | Project-authored GLB | [GLB](../../assets/animals/horse/horse.glb) | [horse.md](./animals/horse.md) |
+| Brown rat | *Rattus norvegicus* | `fauna.rat` | Authored GLB | [GLB](../../assets/animals/rat/rat.glb) | [rat.md](./animals/rat.md) |
+| Chicken | *Gallus gallus domesticus* | `fauna.chicken` | Authored GLB | [GLB](../../assets/animals/hen/hen.glb) | [chicken.md](./birds/chicken.md) |
+| Domestic duck | *Anas platyrhynchos domesticus* | `fauna.duck` | Project-built GLB | [GLB](../../assets/birds/duck/duck.glb) | [domestic_duck.md](./birds/domestic_duck.md) |
+| Domestic goose | *Anser anser domesticus* | `fauna.goose` | Project-built GLB | [GLB](../../assets/animals/goose/goose.glb) | [domestic_goose.md](./birds/domestic_goose.md) |
+| Domestic pig | *Sus scrofa domestica* | `fauna.pig` | Authored GLB | [GLB](../../assets/animals/pig/pig.glb) | [pig.md](./animals/pig.md) |
+| Cattle | *Bos taurus* | `fauna.cow` | Authored GLB | [GLB](../../assets/animals/cow/cow.glb) | [cattle.md](./animals/cattle.md) |
+| Sheep | *Ovis aries* | `fauna.sheep` | Authored GLB | [GLB](../../assets/animals/sheep/sheep.glb) | [sheep.md](./animals/sheep.md) |
+| Goat | *Capra hircus* | `fauna.goat` | Authored GLB | [GLB](../../assets/animals/goat/goat.glb) | [goat.md](./animals/goat.md) |
 
 ## Birds
 
 | Species | Latin | Runtime ID | 3D model status | Model file | Card |
 |---|---|---|---|---|---|
-| Herring gull | *Larus argentatus* | `bird.herring_gull` | Project-built GLB | [GLB](../../assets/storybook/gull/gull.glb) | [herring_gull.md](./birds/herring_gull.md) |
-| Common gull | *Larus canus* | `bird.common_gull` | Project-built GLB | [GLB](../../assets/storybook/gull/gull.glb) | [common_gull.md](./birds/common_gull.md) |
+| Herring gull | *Larus argentatus* | `bird.herring_gull` | Project-built GLB | [GLB](../../assets/animals/gull/gull.glb) | [herring_gull.md](./birds/herring_gull.md) |
+| Common gull | *Larus canus* | `bird.common_gull` | Project-built GLB | [GLB](../../assets/animals/gull/gull.glb) | [common_gull.md](./birds/common_gull.md) |
 | Common tern | *Sterna hirundo* | `bird.common_tern` | Procedural only, no 3D model | - | [common_tern.md](./birds/common_tern.md) |
 | Mute swan | *Cygnus olor* | `bird.mute_swan` | Procedural only, no 3D model | - | [mute_swan.md](./birds/mute_swan.md) |
-| Mallard | *Anas platyrhynchos* | `bird.mallard` | Project-built GLB | [GLB](../../assets/storybook/duck/duck.glb) | [mallard.md](./birds/mallard.md) |
+| Mallard | *Anas platyrhynchos* | `bird.mallard` | Project-built GLB | [GLB](../../assets/birds/duck/duck.glb) | [mallard.md](./birds/mallard.md) |
 | Greylag goose | *Anser anser* | `bird.greylag_goose` | Procedural only, no 3D model | - | [greylag_goose.md](./birds/greylag_goose.md) |
 | Great cormorant | *Phalacrocorax carbo* | `bird.great_cormorant` | Procedural only, no 3D model | - | [great_cormorant.md](./birds/great_cormorant.md) |
 | Grey heron | *Ardea cinerea* | `bird.grey_heron` | Procedural only, no 3D model | - | [grey_heron.md](./birds/grey_heron.md) |
@@ -82,7 +82,7 @@ Status: reference only (not runtime assets, not imported by Godot; no `assets/SO
 | Common kestrel | *Falco tinnunculus* | `bird.common_kestrel` | Procedural only, no 3D model | - | [common_kestrel.md](./birds/common_kestrel.md) |
 | Tawny owl | *Strix aluco* | `bird.tawny_owl` | Procedural only, no 3D model | - | [tawny_owl.md](./birds/tawny_owl.md) |
 | House sparrow | *Passer domesticus* | `bird.house_sparrow` | Authored GLB | [GLB](../../assets/birds/house_sparrow/perched.glb) | [house_sparrow.md](./birds/house_sparrow.md) |
-| Hooded crow | *Corvus cornix* | `bird.hooded_crow` | Project-built GLB | [GLB](../../assets/storybook/hooded_crow/hooded_crow.glb) | [hooded_crow.md](./birds/hooded_crow.md) |
+| Hooded crow | *Corvus cornix* | `bird.hooded_crow` | Project-built GLB | [GLB](../../assets/animals/hooded_crow/hooded_crow.glb) | [hooded_crow.md](./birds/hooded_crow.md) |
 | Rook | *Corvus frugilegus* | `bird.rook` | Procedural only, no 3D model | - | [rook.md](./birds/rook.md) |
 | Western jackdaw | *Coloeus monedula* | `bird.western_jackdaw` | Procedural only, no 3D model | - | [western_jackdaw.md](./birds/western_jackdaw.md) |
 | Eurasian magpie | *Pica pica* | `bird.eurasian_magpie` | Procedural only, no 3D model | - | [eurasian_magpie.md](./birds/eurasian_magpie.md) |
@@ -91,7 +91,7 @@ Status: reference only (not runtime assets, not imported by Godot; no `assets/SO
 | Yellowhammer | *Emberiza citrinella* | `bird.yellowhammer` | Procedural only, no 3D model | - | [yellowhammer.md](./birds/yellowhammer.md) |
 | Common chaffinch | *Fringilla coelebs* | `bird.common_chaffinch` | Procedural only, no 3D model | - | [common_chaffinch.md](./birds/common_chaffinch.md) |
 | Great tit | *Parus major* | `bird.great_tit` | Procedural only, no 3D model | - | [great_tit.md](./birds/great_tit.md) |
-| European robin | *Erithacus rubecula* | `bird.european_robin` | Project-built GLB | [GLB](../../assets/storybook/robin/robin.glb) | [european_robin.md](./birds/european_robin.md) |
+| European robin | *Erithacus rubecula* | `bird.european_robin` | Project-built GLB | [GLB](../../assets/animals/robin/robin.glb) | [european_robin.md](./birds/european_robin.md) |
 | Common blackbird | *Turdus merula* | `bird.common_blackbird` | Procedural only, no 3D model | - | [common_blackbird.md](./birds/common_blackbird.md) |
 | Song thrush | *Turdus philomelos* | `bird.song_thrush` | Procedural only, no 3D model | - | [song_thrush.md](./birds/song_thrush.md) |
 | Common nightingale | *Luscinia megarhynchos* | `bird.common_nightingale` | Procedural only, no 3D model | - | [common_nightingale.md](./birds/common_nightingale.md) |

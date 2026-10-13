@@ -20,7 +20,7 @@ const DialogueUiInput := preload("res://scripts/dialogue/dialogue_ui_input.gd")
 const DialogueUiReveal := preload("res://scripts/dialogue/dialogue_ui_reveal.gd")
 const DialogueUiChoices := preload("res://scripts/dialogue/dialogue_ui_choices.gd")
 const FONT_PATH := "res://assets/fonts/NotoSans-Regular.ttf"
-const PORTRAIT_SIZE := 96
+const PORTRAIT_SIZE := 144
 
 ## Portrait textures by speaker id that win over DialoguePortraitResolver (R-1887: a census
 ## resident or named NPC speaking through the generic `char.interlocutor` placeholder).
@@ -30,19 +30,15 @@ var _settings = DialogueSettingsScript.default_settings()
 var _text_scale := "normal"
 var _visible_active := false
 var _choice_mode := false
-var _backlog_open := false
 var _choices: Array = []
 var _choice_buttons: Array[Button] = []
 var _focused_choice_index := 0
-var _backlog_entries: Array[Dictionary] = []
 var _full_line_text := ""
 var _revealed_char_count := 0
 var _reveal_complete := true
 var _reveal_accumulator := 0.0
 var _root: Control
 var _panel: PanelContainer
-var _backlog_panel: PanelContainer
-var _backlog_list: VBoxContainer
 var _text_background: ColorRect
 var _portrait_rect: TextureRect
 var _portrait_fallback: Label
@@ -53,7 +49,6 @@ var _choices_box: VBoxContainer
 var _continue_hint: Label
 var _disabled_reason_label: Label
 var _skip_button: Button
-var _backlog_button: Button
 
 func _ready() -> void:
 	layer = 45
@@ -115,9 +110,6 @@ func get_disabled_reason() -> String:
 	return _disabled_reason_label.text
 
 
-func get_backlog_entry_count() -> int:
-	return _backlog_entries.size()
-
 
 func is_reveal_complete() -> bool:
 	return _reveal_complete
@@ -154,7 +146,7 @@ func consume_line_advance() -> bool:
 
 
 func request_continue() -> void:
-	if not _visible_active or _choice_mode or _backlog_open:
+	if not _visible_active or _choice_mode:
 		return
 	if not consume_line_advance():
 		return
@@ -174,7 +166,6 @@ func present_line(
 ) -> void:
 	var display_speaker := localize_text_for_display(speaker_name)
 	var display_text := localize_text_for_display(text)
-	_append_backlog_entry(display_speaker, display_text)
 	_set_portrait(speaker_id, display_speaker)
 	_speaker_label.text = display_speaker
 	_full_line_text = display_text
@@ -207,11 +198,9 @@ func close() -> void:
 func hide_overlay() -> void:
 	_visible_active = false
 	_choice_mode = false
-	_backlog_open = false
 	_choices.clear()
 	DialogueUiChoices.clear(self)
 	_root.visible = false
-	_backlog_panel.visible = false
 	_speaker_label.text = ""
 	_text_label.text = ""
 	_full_line_text = ""
@@ -234,28 +223,10 @@ func focus_choice_for_test(index: int) -> void:
 	_update_disabled_reason()
 
 
-func toggle_backlog_for_test() -> void:
-	_toggle_backlog()
-
 
 func _show_overlay() -> void:
 	_visible_active = true
 	_root.visible = true
-
-
-func _append_backlog_entry(speaker_name: String, text: String) -> void:
-	if speaker_name.is_empty() and text.is_empty():
-		return
-	(
-		_backlog_entries
-		. append(
-			{
-				"speaker_name": speaker_name,
-				"text": text,
-			}
-		)
-	)
-	_rebuild_backlog()
 
 
 func _set_portrait(speaker_id: StringName, speaker_name: String) -> void:
@@ -283,21 +254,6 @@ func _initials_for(speaker_name: String) -> String:
 	return (parts[0].left(1) + parts[1].left(1)).to_upper()
 
 
-func _rebuild_backlog() -> void:
-	for child in _backlog_list.get_children():
-		child.queue_free()
-	for entry in _backlog_entries:
-		var line := Label.new()
-		var speaker_name := String(entry.get("speaker_name", ""))
-		var text := String(entry.get("text", ""))
-		line.text = "%s: %s" % [speaker_name, text] if not speaker_name.is_empty() else text
-		line.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		line.add_theme_font_override("font", _font)
-		line.add_theme_font_size_override("font_size", TextScaleScript.backlog_size(_text_scale))
-		_backlog_list.add_child(line)
-
-
 func _reset_text_scroll() -> void:
 	if _text_scroll == null:
 		return
@@ -320,12 +276,6 @@ func _update_disabled_reason() -> void:
 	_disabled_reason_label.text = localize_text_for_display(
 		String(choice.get("disabled_reason", ""))
 	)
-
-
-func _toggle_backlog() -> void:
-	_backlog_open = not _backlog_open
-	_backlog_panel.visible = _backlog_open
-	_update_continue_hint()
 
 
 func _on_choice_pressed(choice_id: String) -> void:
@@ -390,7 +340,6 @@ func _apply_text_scale() -> void:
 	)
 	for button in _choice_buttons:
 		button.add_theme_font_size_override("font_size", TextScaleScript.choice_size(_text_scale))
-	_rebuild_backlog()
 
 
 func _build_ui() -> void:
@@ -398,15 +347,12 @@ func _build_ui() -> void:
 		self,
 		_font,
 		{
-			"toggle_backlog": _toggle_backlog,
 			"skip_requested": func() -> void: skip_requested.emit(),
 			"sync_text_label_width": _sync_text_label_width,
 		}
 	)
 	_root = nodes["root"]
 	_panel = nodes["panel"]
-	_backlog_panel = nodes["backlog_panel"]
-	_backlog_list = nodes["backlog_list"]
 	_text_background = nodes["text_background"]
 	_portrait_rect = nodes["portrait_rect"]
 	_portrait_fallback = nodes["portrait_fallback"]
@@ -417,7 +363,6 @@ func _build_ui() -> void:
 	_continue_hint = nodes["continue_hint"]
 	_disabled_reason_label = nodes["disabled_reason_label"]
 	_skip_button = nodes["skip_button"]
-	_backlog_button = nodes["backlog_button"]
 	_panel.gui_input.connect(_on_dialogue_panel_gui_input)
 	_apply_text_scale()
 	_apply_visual_theme()

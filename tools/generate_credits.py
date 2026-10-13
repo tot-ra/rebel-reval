@@ -6,7 +6,7 @@ carries an attribution (BY) obligation. This script is the single source of
 truth that turns the machine-readable manifests (sounds/birds/manifest.csv,
 sounds/insects/manifest.csv, sounds/water/manifest.csv, the R-1550
 sounds/sea and sounds/wind manifests, and the R-1641 sounds/footsteps manifest) and the CC BY animal
-model manifest (assets/storybook/mammal_sources.json) into the human-readable
+model manifest (assets/animals/mammal_sources.json) into the human-readable
 CREDITS.md that is both committed to the repo and displayed in-game
 (Main Menu -> Credits).
 
@@ -70,7 +70,7 @@ def model_title(model: dict) -> str:
 
 
 def model_lines() -> list:
-    path = os.path.join(ROOT, "assets/storybook/mammal_sources.json")
+    path = os.path.join(ROOT, "assets/animals/mammal_sources.json")
     if not os.path.exists(path):
         return []
     with open(path, encoding="utf-8") as f:

@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://c87qdb0tjb80c"
-path.s3tc="res://.godot/imported/citizen_f_elder_heavy_hair.png-39ecfa48c6bd0a8f6070a95ed4811a68.s3tc.ctex"
-path.etc2="res://.godot/imported/citizen_f_elder_heavy_hair.png-39ecfa48c6bd0a8f6070a95ed4811a68.etc2.ctex"
+path.s3tc="res://.godot/imported/citizen_f_adult_thin_d_hair.png-80c198ff948945b6d7bbb3c080cc059c.s3tc.ctex"
+path.etc2="res://.godot/imported/citizen_f_adult_thin_d_hair.png-80c198ff948945b6d7bbb3c080cc059c.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -12,8 +12,8 @@ metadata={
 
 [deps]
 
-source_file="res://assets/characters/realistic/citizen_f_elder_heavy/textures/citizen_f_elder_heavy_hair.png"
-dest_files=["res://.godot/imported/citizen_f_elder_heavy_hair.png-39ecfa48c6bd0a8f6070a95ed4811a68.s3tc.ctex", "res://.godot/imported/citizen_f_elder_heavy_hair.png-39ecfa48c6bd0a8f6070a95ed4811a68.etc2.ctex"]
+source_file="res://assets/characters/realistic/citizen_f_adult_thin_d/textures/citizen_f_adult_thin_d_hair.png"
+dest_files=["res://.godot/imported/citizen_f_adult_thin_d_hair.png-80c198ff948945b6d7bbb3c080cc059c.s3tc.ctex", "res://.godot/imported/citizen_f_adult_thin_d_hair.png-80c198ff948945b6d7bbb3c080cc059c.etc2.ctex"]
 
 [params]
 

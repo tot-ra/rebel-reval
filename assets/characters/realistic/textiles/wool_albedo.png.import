@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://da2n3y0p8rqb4"
-path.s3tc="res://.godot/imported/wool_albedo.png-4a2fdc5ae72811925ee341aebb750a5d.s3tc.ctex"
-path.etc2="res://.godot/imported/wool_albedo.png-4a2fdc5ae72811925ee341aebb750a5d.etc2.ctex"
+path.s3tc="res://.godot/imported/wool_albedo.png-4d8be609503178a0af2c4d2e357ca052.s3tc.ctex"
+path.etc2="res://.godot/imported/wool_albedo.png-4d8be609503178a0af2c4d2e357ca052.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -12,8 +12,8 @@ metadata={
 
 [deps]
 
-source_file="res://build/aita_meshy/v4/textiles/wool_albedo.png"
-dest_files=["res://.godot/imported/wool_albedo.png-4a2fdc5ae72811925ee341aebb750a5d.s3tc.ctex", "res://.godot/imported/wool_albedo.png-4a2fdc5ae72811925ee341aebb750a5d.etc2.ctex"]
+source_file="res://assets/characters/realistic/textiles/wool_albedo.png"
+dest_files=["res://.godot/imported/wool_albedo.png-4d8be609503178a0af2c4d2e357ca052.s3tc.ctex", "res://.godot/imported/wool_albedo.png-4d8be609503178a0af2c4d2e357ca052.etc2.ctex"]
 
 [params]
 

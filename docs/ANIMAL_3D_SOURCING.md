@@ -4,7 +4,7 @@ Status: research and proposal. No model files were added; see [What was not done
 
 ## Where we are
 
-- Mammals: nine species (cat, sheep, dog, pig, goat, boar, fox, hare, rat) from CC BY 4.0 Sketchfab sources, with measured limb chains (P0-209b). Credits are in `assets/storybook/mammal_sources.json` and `assets/SOURCES.csv`. This is the proven pipeline and it already works.
+- Mammals: nine species (cat, sheep, dog, pig, goat, boar, fox, hare, rat) from CC BY 4.0 Sketchfab sources, with measured limb chains (P0-209b). Credits are in `assets/animals/mammal_sources.json` and `assets/SOURCES.csv`. This is the proven pipeline and it already works.
 - Birds: 30 species cataloged, only a few gull/tern/sparrow GLBs; the rest is a procedural fallback.
 - The catalog targets 30 mammals and 30 birds. AI mesh generation (Hunyuan) was tried for gulls, waders and corvids and produced unreliable results, which is the problem you describe.
 

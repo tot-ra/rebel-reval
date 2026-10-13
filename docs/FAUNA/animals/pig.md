@@ -17,7 +17,7 @@
 | Item | Value |
 |---|---|
 | Status | Authored GLB (third-party, CC BY 4.0) |
-| Runtime file | [`assets/storybook/pig/pig.glb`](../../../assets/storybook/pig/pig.glb) |
+| Runtime file | [`assets/animals/pig/pig.glb`](../../../assets/animals/pig/pig.glb) |
 | Source page | [Sketchfab page](https://sketchfab.com/3d-models/pig-041ea96fc6ae4839bf9ce16f8ea4ad68) |
 | Author and licence | hendrikReyneke, CC BY 4.0 |
 | Rig and clips | Shared mammal rig, six clips: Idle, Walk, Run, LookAround, Graze, Alert (measured limb chains). |

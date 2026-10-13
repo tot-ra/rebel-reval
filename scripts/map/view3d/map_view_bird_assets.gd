@@ -22,11 +22,11 @@ const STATIC_POSE_FILES: Dictionary = {
 ## The five higher-detail skinned assets remain active in live flight. All other
 ## catalogue species use P0-212 anatomy through ``MapViewBirdMeshes``.
 const ANIMATED_MODELS := {
-	&"european_robin": "res://assets/storybook/robin/robin.glb",
-	&"hooded_crow": "res://assets/storybook/hooded_crow/hooded_crow.glb",
-	&"herring_gull": "res://assets/storybook/gull/gull.glb",
-	&"common_gull": "res://assets/storybook/gull/gull.glb",
-	&"mallard": "res://assets/storybook/duck/duck.glb",
+	&"european_robin": "res://assets/animals/robin/robin.glb",
+	&"hooded_crow": "res://assets/animals/hooded_crow/hooded_crow.glb",
+	&"herring_gull": "res://assets/animals/gull/gull.glb",
+	&"common_gull": "res://assets/animals/gull/gull.glb",
+	&"mallard": "res://assets/birds/duck/duck.glb",
 }
 
 static var _mesh_cache: Dictionary = {}

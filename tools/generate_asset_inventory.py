@@ -103,9 +103,6 @@ def classify(path: Path) -> tuple[str, str]:
     if approval.startswith("approved"):
         return "approved", "Source, rights, edits, and approval are documented in assets/SOURCES.csv."
 
-    if p.startswith("assets/bestiary/"):
-        return "archive", "Folder has legacy-status archive in assets/bestiary/README.md."
-
     if p.startswith("img/"):
         return "archive", "Marketing image imported by Godot; excluded from active runtime asset candidates."
 
@@ -192,7 +189,7 @@ def render_inventory() -> str:
     lines.append("")
     lines.append("Priority order:")
     lines.append("")
-    lines.append("1. `archive` - `assets/bestiary/` because its README is marked legacy-status `archive`, plus imported `img/` marketing files that are not active runtime candidates.")
+    lines.append("1. `archive` - imported `img/` marketing files that are not active runtime candidates.")
     lines.append("2. `unknown rights` - unapproved audio, generic `download*` art, and wall/reference renders without source/license evidence.")
     lines.append("3. `inconsistent` - legacy HUD/system UI, eight-direction player frame sets, and old tile/isometric materials that conflict with the pending P0-040 art direction.")
     lines.append("4. `prototype` - remaining runtime art candidates that may be useful but are not approved and still need P0-028 provenance plus P0-040 style review.")

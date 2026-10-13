@@ -17,7 +17,7 @@
 | Item | Value |
 |---|---|
 | Status | Authored GLB (third-party, CC BY 4.0) |
-| Runtime file | [`assets/storybook/rat/rat.glb`](../../../assets/storybook/rat/rat.glb) |
+| Runtime file | [`assets/animals/rat/rat.glb`](../../../assets/animals/rat/rat.glb) |
 | Source page | [Sketchfab page](https://sketchfab.com/3d-models/black-rat-free-download-3db3acb4140d4de8bd62a171212bad9c) |
 | Author and licence | Nestaeric, CC BY 4.0 |
 | Rig and clips | Authored rig and six animation aliases, retained from source. |

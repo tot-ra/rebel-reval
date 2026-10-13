@@ -17,7 +17,7 @@
 | Item | Value |
 |---|---|
 | Status | Authored GLB (third-party, CC BY 4.0) |
-| Runtime file | [`assets/storybook/sheep/sheep.glb`](../../../assets/storybook/sheep/sheep.glb) |
+| Runtime file | [`assets/animals/sheep/sheep.glb`](../../../assets/animals/sheep/sheep.glb) |
 | Source page | [Sketchfab page](https://sketchfab.com/3d-models/sheep-67abff7459f34afca11e3effab62c761) |
 | Author and licence | hendrikReyneke, CC BY 4.0 |
 | Rig and clips | Shared mammal rig, six clips: Idle, Walk, Run, LookAround, Graze, Alert (measured limb chains). |

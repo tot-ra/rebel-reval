@@ -27,9 +27,9 @@ One page per implemented or planned feature. Each page opens with a `Status:` li
 | [Seamless Reval city (1343)](./SEAMLESS_CITY.md) | Playable preview (ADR 0031); no quests or saves yet |
 | [City doors: wealth and landmark entrances](./CITY_DOORS.md) | Implemented (R-1692, R-1693): separate wood/iron geometry, household tiers, explicit civic/church entrance profiles, stepped landmark portals with leaves cut to their heads |
 | [Regional sites (distant destinations)](./REGIONAL_SITES.md) | Implemented for the Paide pilot (R-1520, ADR 0042): site-parameterised builder and runtime, inland site with sky and weather, no sea; other sites planned |
-| [Landmark sites in the seamless city](./CITY_LANDMARK_SITES.md) | Implemented for Raekoja plats (ADR 0032); other sites planned |
+| [Landmark sites in the seamless city](./CITY_LANDMARK_SITES.md) | Index of landmark sites (ADR 0032); one page per built site under `landmark_sites/`, pending sites planned |
 | [Church interiors](./CHURCH_INTERIORS.md) | In progress (R-1392): glazing implemented (R-1393, eight plates, per-church programmes); ornamental wall paintings (R-1396: consecration crosses, dado curtain, foliage band); liturgical objects, seating, figural murals planned |
-| [City sea, shore and harbour life](./CITY_SEA.md) | Implemented (FFT sea with storm swell, beach relief, shore stones, boardable boats, fish) |
+| [City sea, shore and harbour life](./CITY_SEA.md) | Implemented (FFT sea with storm swell, beach relief, shore stones, boardable boats, fish and puddle-step splashes) |
 | [Hanseatic cog](./SHIPS.md) | Implemented (lofted clinker hull, walkable interior, wind-driven sail and rope shaders, rudder) |
 | [Village and house windows](./COTTAGE_WINDOWS.md) | Implemented (7 styles: platbands, shutters, slit, stone surround) |
 | [Farmland, pastures and woods](./FARMLAND.md) | Implemented (fields, crops by date, pastures, woods; no far-field LOD yet) |
@@ -48,6 +48,7 @@ One page per implemented or planned feature. Each page opens with a `Status:` li
 | [Living World routines](./LIVING_WORLD.md) | Implemented (R-1344): hourly civilian schedule |
 | [NATURAL aspects](./NATURAL.md) | Design contract; state and display only |
 | [Hingepuu psyche](./PSYCHE.md) | Design contract; state and display only |
+| [Undress interaction: drag to remove clothes](./UNDRESS_INTERACTION.md) | Partial (adults only): hand cursor and drag-to-undress implemented in the city; NPC reaction and reputation planned |
 | [Spirit dialogue combat](./SPIRIT_DIALOGUE.md) | Partial (ADR 0033): smithy duel, duel with anyone (R-1889) |
 | [Spirit sight, auras and soul lights](./SPIRIT_SIGHT.md) | Partial: toggle (R-1484) and aura data (R-1485) implemented; auras on screen planned (epic R-1483) |
 | [Muscle-driven procedural locomotion](./MUSCLE_LOCOMOTION.md) | Planned; build-time research prototype only (planar quadruped and biped walk) |
@@ -62,5 +63,16 @@ One page per implemented or planned feature. Each page opens with a `Status:` li
 - [Sky and atmosphere: clouds, sunbeams, fog and haze](SKY_ATMOSPHERE.md)
 - [Vegetation realism (merged)](VEGETATION_REALISM.md)
 - [Water sandbox](WATER_SANDBOX.md)
+
+#### `landmark_sites/`
+
+- [Holy Spirit church and almshouse (Pühavaimu)](landmark_sites/holy_spirit.md)
+- [Kalev's smithy (task R-1643)](landmark_sites/kalev_smithy.md)
+- [Council hall and market square (Raekoja plats)](landmark_sites/raekoja_plats.md)
+- [St Catherine's Dominican friary (task R-1718)](landmark_sites/st_catherine.md)
+- [St Mary's cathedral (Toomkirik, Dome church)](landmark_sites/st_mary.md)
+- [St Michael's Cistercian nunnery](landmark_sites/st_michael.md)
+- [St Nicholas' church (Niguliste)](landmark_sites/st_nicholas.md)
+- [St Olaf's church (Oleviste)](landmark_sites/st_olaf.md)
 
 <!-- docs-index:end -->

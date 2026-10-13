@@ -14,9 +14,6 @@ const PUDDLE_SHADER := preload("res://scripts/map/view3d/map_view_puddle.gdshade
 const HANGING_BANNER_CLOTH_SHADER := preload(
 	"res://scripts/map/view3d/map_view_hanging_banner_cloth.gdshader"
 )
-const FISHING_NET_WIND_SHADER := preload(
-	"res://scripts/map/view3d/map_view_fishing_net_wind.gdshader"
-)
 const GRASS_SHADER := preload("res://scripts/map/view3d/map_view_grass.gdshader")
 const CANOPY_SHADER := preload("res://scripts/map/view3d/map_view_canopy.gdshader")
 const BARK_WIND_SHADER := preload("res://scripts/map/view3d/map_view_bark_wind.gdshader")

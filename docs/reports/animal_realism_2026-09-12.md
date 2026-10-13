@@ -12,7 +12,7 @@ The importer preserves surfaces, corrects source transforms, excludes Blender bo
 
 ## Source credits and reproduction
 
-Every source is CC BY 4.0. Exact URLs, creators, source checksums, staging paths and adaptations are in [mammal_sources.json](../../assets/storybook/mammal_sources.json), with runtime assets and extracted textures registered in [SOURCES.csv](../../assets/SOURCES.csv). This includes disclosure of Meshy/Tripo identifiers where present. No Witcher or other ripped game assets are used.
+Every source is CC BY 4.0. Exact URLs, creators, source checksums, staging paths and adaptations are in [mammal_sources.json](../../assets/animals/mammal_sources.json), with runtime assets and extracted textures registered in [SOURCES.csv](../../assets/SOURCES.csv). This includes disclosure of Meshy/Tripo identifiers where present. No Witcher or other ripped game assets are used.
 
 Raw source bulk is restored from the credited download pages, which may require a free Sketchfab login; it is not committed. Match the manifest SHA-256 before rebuilding. Runtime GLBs are self-contained and do not require those downloads to play.
 

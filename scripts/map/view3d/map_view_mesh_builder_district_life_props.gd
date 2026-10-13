@@ -7,7 +7,6 @@ extends RefCounted
 
 const _Primitives := preload("res://scripts/map/view3d/map_view_mesh_builder_primitives.gd")
 const _PropStyleVariants := preload("res://scripts/map/map_prop_style_variants.gd")
-const _FishingNetModels := preload("res://scripts/map/view3d/map_view_fishing_net_models.gd")
 const _FishDryingRackModels := preload(
 	"res://scripts/map/view3d/map_view_fish_drying_rack_models.gd"
 )
@@ -26,8 +25,6 @@ const _WashTubModels := preload("res://scripts/map/view3d/map_view_wash_tub_mode
 
 static func add_to(root: Node3D, kind: StringName, prop: Dictionary = {}) -> void:
 	match kind:
-		MapTypes.PROP_KIND_FISHING_NETS:
-			_add_fishing_nets(root)
 		MapTypes.PROP_KIND_FISH_DRYING_RACK:
 			_add_fish_drying_rack(root, prop)
 		MapTypes.PROP_KIND_SMOKE_RACK:
@@ -72,12 +69,6 @@ static func add_to(root: Node3D, kind: StringName, prop: Dictionary = {}) -> voi
 				_add_wash_tub(root)
 		_:
 			_Primitives.box(root, "Marker", Vector3(0.5, 0.5, 0.5), Vector3(0.0, 0.25, 0.0), &"ink")
-
-
-static func _add_fishing_nets(root: Node3D) -> void:
-	# WHY: four bright vertical boxes could not read as a net at gameplay distance.
-	# The authored model supplies actual diamond mesh, sag, floats, and sinkers.
-	_FishingNetModels.add_model(root)
 
 
 static func _add_fish_drying_rack(root: Node3D, prop: Dictionary) -> void:

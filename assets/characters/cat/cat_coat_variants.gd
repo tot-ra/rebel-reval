@@ -4,7 +4,7 @@ extends RefCounted
 ## Coat and size variation for the shared storybook forge-cat model.
 ##
 ## Town cats reuse Kalev's mesh and rig; coats are tinted in
-## `assets/storybook/storybook_cat.gd` via `apply_coat()`. This helper only
+## `assets/animals/forge_cat/storybook_cat.gd` via `apply_coat()`. This helper only
 ## centralises the coat IDs and deterministic size jitter.
 
 const COAT_FORGE := &"forge"

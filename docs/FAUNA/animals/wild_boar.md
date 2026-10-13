@@ -18,7 +18,7 @@
 | Item | Value |
 |---|---|
 | Status | Authored GLB (third-party, CC BY 4.0) |
-| Runtime file | [`assets/storybook/boar/boar.glb`](../../../assets/storybook/boar/boar.glb) |
+| Runtime file | [`assets/animals/boar/boar.glb`](../../../assets/animals/boar/boar.glb) |
 | Source page | [Sketchfab page](https://sketchfab.com/3d-models/bristled-wild-boar-3d-model-free-1c243598b9e54606a0bf1d8f5bf0a8b1) |
 | Author and licence | iRahulRajput (rt699448), CC BY 4.0 |
 | Rig and clips | Shared mammal rig, six clips: Idle, Walk, Run, LookAround, Graze, Alert (measured limb chains). |
@@ -44,7 +44,7 @@ Wild boar lived in the oak and mixed woods of medieval Estonia and Livonia and w
 - **Materials and colours:** bristled grey-brown to black coat, a ridge of stiff hair along the spine, pale tusks; palette of charcoal, brown, bone.
 - **What a model must get right:** the heavy wedge-shaped front, bristled back ridge, upward tusks and the low head.
 - **Concept-art prompt:** Full-body concept of an adult wild boar in dark bristled winter coat, heavy wedge body, spine ridge of stiff hair, upturned tusks, head lowered ready to charge, damp Baltic woodland floor suggested, plain neutral grey background, even lighting, realistic painted style.
-- **Model notes:** Quadruped on the shared mammal rig; an authored GLB already exists at `assets/storybook/boar/boar.glb` (CC BY 4.0, attribution above); scale 1.0.
+- **Model notes:** Quadruped on the shared mammal rig; an authored GLB already exists at `assets/animals/boar/boar.glb` (CC BY 4.0, attribution above); scale 1.0.
 
 ### Motivation
 Food, mud and protecting its young. Fears fire and dogs less than it should. No contradiction: it is an animal. Released by a thrown loaf, open ground to flee over, or the end of the danger to its young.

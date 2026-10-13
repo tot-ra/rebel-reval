@@ -2,7 +2,7 @@
 """Original grounded stylized candidates; run with Blender -b --python this_file.
 
 Meshes are authored here. Humans retain the project's retargeted CC0 motion.
-Outputs: assets/storybook/<model>/<model>.glb; editable sources and plates in build/storybook.
+Outputs: assets/animals/<model>/<model>.glb; editable sources and plates in build/storybook.
 Rebuilds retain existing runtime model paths. Dimensions are Blender metres.
 """
 from __future__ import annotations
@@ -18,7 +18,7 @@ from mathutils import Vector
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / 'tools'))
 sys.path.insert(0, str(Path(__file__).parent))
-OUT = ROOT / 'assets/storybook'
+OUT = ROOT / 'assets/animals'
 BUILD = ROOT / 'build/storybook'
 
 

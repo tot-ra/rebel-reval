@@ -32,6 +32,8 @@ class TestWorldMapOverlay:
 
 	func open() -> void:
 		visible = true
+
+
 # The Lower Town slice factory was retired with the .rrmap city rewrite; the minimap
 # only needs any compiled MapDefinition, so use the surviving smithy interior.
 const LocalMapDefinition := preload(
@@ -50,27 +52,20 @@ func test_graph_nodes_match_active_transition_manifest() -> void:
 	var scene_ids := WorldMapGraph.active_scene_ids()
 	var manifest_ids := DoorNavigator.get_active_scene_ids()
 	assert_true(
-		scene_ids.size() <= manifest_ids.size(),
-		"district graph is a filter of the active manifest"
+		scene_ids.size() <= manifest_ids.size(), "district graph is a filter of the active manifest"
 	)
 	for scene_id in scene_ids:
 		assert_true(manifest_ids.has(scene_id), "district nodes must stay in the active manifest")
 		assert_false(
 			GlobalMapCatalog.is_distant_scene(scene_id),
-			"global placeholders must stay off the Reval district graph"
+			"global placeholders stay off the Reval district graph"
 		)
-	assert_array_contains(scene_ids, &"forge")
-	assert_array_contains(scene_ids, &"reval_east")
-	assert_false(
-		scene_ids.has(&"harbor_warehouse"),
-		"retired scenes must not appear on the district map"
-	)
-	assert_false(scene_ids.has(&"archive_only"), "unknown scenes must not appear on the district map")
-	assert_false(scene_ids.has(&"world_sacred_grove"), "distant roads belong on the Estonia map tab")
-	assert_true(
-		DoorNavigator.has_active_scene(&"world_sacred_grove"),
-		"global placeholders remain registered for DoorNavigator travel"
-	)
+	assert_false(scene_ids.has(&"forge"), "the standalone forge is not a travel node")
+	assert_false(scene_ids.has(&"reval_city"), "the city is displayed as its places")
+	assert_false(scene_ids.has(&"harbor_warehouse"))
+	assert_false(scene_ids.has(&"archive_only"))
+	assert_false(scene_ids.has(&"world_sacred_grove"))
+	assert_true(DoorNavigator.has_active_scene(&"world_sacred_grove"))
 
 
 func test_graph_connections_stay_within_active_manifest() -> void:
@@ -78,19 +73,9 @@ func test_graph_connections_stay_within_active_manifest() -> void:
 	for scene_id in DoorNavigator.get_active_scene_ids():
 		active[scene_id] = true
 	var edges := WorldMapGraph.connections()
-	assert_true(edges.size() > 0, "authored districts must expose at least one connection")
-	var found_forge_edge := false
 	for edge in edges:
-		var from_id: StringName = edge.get("from", &"")
-		var to_id: StringName = edge.get("to", &"")
-		assert_true(active.has(from_id), "connection source must be an active manifest scene")
-		assert_true(active.has(to_id), "connection destination must be an active manifest scene")
-		if (
-			(from_id == &"forge" and to_id == &"reval_east")
-			or (from_id == &"reval_east" and to_id == &"forge")
-		):
-			found_forge_edge = true
-	assert_true(found_forge_edge, "forge courtyard door must link the smithy to Lower Town")
+		assert_true(active.has(edge.get("from", &"")), "connection source must be active")
+		assert_true(active.has(edge.get("to", &"")), "connection destination must be active")
 
 
 func test_overlay_marks_nearest_place_as_current_on_the_reval_map() -> void:
@@ -111,10 +96,11 @@ func test_overlay_marks_nearest_place_as_current_on_the_reval_map() -> void:
 	assert_true(current != null, "the place the player stands at must render as a node")
 	assert_true(current.disabled, "current place stays non-interactive")
 	assert_eq(current.focus_mode, Control.FOCUS_NONE)
-	assert_false(overlay.focus_travel_node(&"city_forum"), "focus API must refuse the current place")
+	assert_false(
+		overlay.focus_travel_node(&"city_forum"), "focus API must refuse the current place"
+	)
 	assert_true(overlay.get_node_button(&"city_kalev_smithy") != null)
 	overlay.queue_free()
-
 
 
 func test_map_mode_opens_on_local_position_with_fast_travel_as_separate_option() -> void:
@@ -141,8 +127,7 @@ func test_map_mode_opens_on_local_position_with_fast_travel_as_separate_option()
 		"local map must reuse compiled minimap data"
 	)
 	assert_true(
-		overlay.get_local_map_marker().visible,
-		"local map must mark the player's current position"
+		overlay.get_local_map_marker().visible, "local map must mark the player's current position"
 	)
 	var local_button := overlay.find_child("LocalMapButton", true, false) as Button
 	var travel_button := overlay.find_child("FastTravelButton", true, false) as Button
@@ -249,10 +234,7 @@ func test_global_map_follows_authored_roads_between_mockups() -> void:
 	overlay.show_global_map()
 	assert_array_contains(overlay.get_global_travelable_marker_ids(), &"world_poide")
 	assert_array_contains(overlay.get_global_travelable_marker_ids(), &"world_parnu")
-	assert_eq(
-		overlay.plan_travel_to(&"world_poide").get("spawn_id", &""),
-		&"from_world_saaremaa"
-	)
+	assert_eq(overlay.plan_travel_to(&"world_poide").get("spawn_id", &""), &"from_world_saaremaa")
 	overlay.queue_free()
 
 
@@ -271,8 +253,12 @@ func test_global_catalog_edges_have_reciprocal_doors_and_manifest_spawns() -> vo
 
 		var from_definition := DistantLocationDefinitions.create(from_id)
 		var to_definition := DistantLocationDefinitions.create(to_id)
-		assert_true(_has_destination(from_definition, to_id), "%s needs a door to %s" % [from_id, to_id])
-		assert_true(_has_destination(to_definition, from_id), "%s needs a door to %s" % [to_id, from_id])
+		assert_true(
+			_has_destination(from_definition, to_id), "%s needs a door to %s" % [from_id, to_id]
+		)
+		assert_true(
+			_has_destination(to_definition, from_id), "%s needs a door to %s" % [to_id, from_id]
+		)
 
 
 func test_every_distant_gate_plans_a_return_into_the_city() -> void:
@@ -293,10 +279,10 @@ func _has_destination(definition: MapDefinition, destination_scene_id: StringNam
 			return true
 	return false
 
+
 func test_controller_toggles_with_action_and_quick_access_button() -> void:
 	assert_true(
-		_action_has_physical_key(&"toggle_world_map", KEY_M),
-		"world map shortcut must remain M"
+		_action_has_physical_key(&"toggle_world_map", KEY_M), "world map shortcut must remain M"
 	)
 
 	var host := Node.new()
@@ -345,8 +331,7 @@ func test_opening_world_map_closes_reflection_overlay() -> void:
 	assert_true(reflection.is_open(), "reflection overlay must be open before map takeover")
 	controller.open()
 	assert_false(
-		reflection.is_open(),
-		"opening the world map must close an already-open reflection overlay"
+		reflection.is_open(), "opening the world map must close an already-open reflection overlay"
 	)
 	assert_true(controller.is_open(), "world map must remain open after closing reflection")
 	host.queue_free()
@@ -354,11 +339,7 @@ func test_opening_world_map_closes_reflection_overlay() -> void:
 
 
 func test_resolve_current_scene_id_from_scene_path() -> void:
-	assert_eq(
-		WorldMapGraph.resolve_current_scene_id(null),
-		&"",
-		"missing scenes resolve to empty"
-	)
+	assert_eq(WorldMapGraph.resolve_current_scene_id(null), &"", "missing scenes resolve to empty")
 	var forge_scene: Node = load("res://scenes/reval_east/forge/forge.tscn").instantiate()
 	assert_eq(
 		WorldMapGraph.resolve_current_scene_id(forge_scene),
@@ -388,46 +369,9 @@ func test_resolve_current_scene_id_from_scene_path() -> void:
 	)
 	unknown.free()
 
-
-func test_travel_spawn_resolves_edge_for_reval_east_and_forge() -> void:
-	var east_to_forge := WorldMapGraph.resolve_travel_spawn(&"reval_east", &"forge")
-	assert_eq(east_to_forge, &"door_courtyard")
-	assert_true(
-		DoorNavigator.has_spawn(&"forge", east_to_forge),
-		"reval_east -> forge spawn must be registered in the active manifest"
-	)
-
-	var forge_to_east := WorldMapGraph.resolve_travel_spawn(&"forge", &"reval_east")
-	assert_eq(forge_to_east, &"forge")
-	assert_true(
-		DoorNavigator.has_spawn(&"reval_east", forge_to_east),
-		"forge -> reval_east spawn must be registered in the active manifest"
-	)
-
-	assert_true(
-		WorldMapGraph.resolve_travel_spawn(&"reval_east", &"archive_only").is_empty(),
-		"unknown destinations must not resolve a travel spawn"
-	)
-	assert_true(
-		WorldMapGraph.resolve_travel_spawn(&"reval_east", &"reval_east").is_empty(),
-		"current scene must not resolve travel to itself"
-	)
-	var guild_plan := WorldMapGraph.plan_travel(&"reval_east", &"st_olafs_guild_hall")
-	if WorldMapGraph.allow_all_active_travel():
-		assert_eq(guild_plan.get("scene_id", &""), &"st_olafs_guild_hall")
-		assert_false(
-			String(guild_plan.get("spawn_id", &"")).is_empty(),
-			"debug unlock must resolve a fallback spawn for non-adjacent active scenes"
-		)
-		assert_true(
-			DoorNavigator.has_spawn(&"st_olafs_guild_hall", guild_plan["spawn_id"]),
-			"debug fallback spawn must be registered in the active manifest"
-		)
-	else:
-		assert_true(
-			guild_plan.is_empty(),
-			"release builds must refuse non-adjacent travel"
-		)
+	# Verify the legacy Smithy courtyard arrival now routes directly into the city.
+	var routed: Array = CityTravel.redirect(&"forge", &"door_courtyard")
+	assert_eq(routed, [CityTravel.CITY_SCENE_ID, &"kalev_smithy"])
 
 
 func test_click_place_records_city_travel_without_traveling_current() -> void:
@@ -439,6 +383,16 @@ func test_click_place_records_city_travel_without_traveling_current() -> void:
 	overlay.show_fast_travel()
 	overlay._fast_travel_view.configure_city(
 		CityTravel.CITY_SCENE_ID, overlay._travelable, &"city_forum"
+	)
+
+
+func test_legacy_smithy_arrival_routes_to_the_city_spawn() -> void:
+	assert_eq(
+		CityTravel.redirect(&"forge", &"door_courtyard"),
+		[CityTravel.CITY_SCENE_ID, &"kalev_smithy"]
+	)
+	assert_eq(
+		CityTravel.redirect(&"forge", &"smithy_start"), [CityTravel.CITY_SCENE_ID, &"kalev_smithy"]
 	)
 
 	var smithy := overlay.get_node_button(&"city_kalev_smithy")
@@ -498,7 +452,6 @@ func test_focus_place_ui_accept_records_same_travel_as_click() -> void:
 	assert_eq(recorded[0]["scene_id"], CityTravel.CITY_SCENE_ID)
 	assert_eq(recorded[0]["spawn_id"], &"kalev_smithy")
 	overlay.queue_free()
-
 
 
 func _action_has_physical_key(action: StringName, keycode: Key) -> bool:

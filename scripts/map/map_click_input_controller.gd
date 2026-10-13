@@ -23,6 +23,7 @@ const PERSON_PICKER_GROUP := &"click_person_pickers"
 var _player: Player
 var _view_runtime: MapViewRuntime
 var _world_items: WorldItemController
+var _city_doors: CityDoors
 var _pending_interactable: Interactable
 ## Charged techniques swing on release, so the primary button has to be tracked
 ## across press and release instead of firing once on press.
@@ -42,6 +43,10 @@ func set_world_items(controller: WorldItemController) -> void:
 	_world_items = controller
 
 
+func set_city_doors(controller: CityDoors) -> void:
+	_city_doors = controller
+
+
 func try_handle_click(event: InputEvent) -> bool:
 	if not _is_left_click(event):
 		return false
@@ -49,6 +54,8 @@ func try_handle_click(event: InputEvent) -> bool:
 		return false
 	if _view_runtime.is_camera_drag_active():
 		return false
+	if _try_city_door_click(event.position):
+		return true
 	# WHY: while the bag is open, locomotion is blocked, but selected goods can
 	# still be dropped into the world. Do that before the general blocked-input
 	# gate; bag chrome itself is filtered out by _control_claims_click.
@@ -65,6 +72,22 @@ func try_handle_click(event: InputEvent) -> bool:
 	if _world_items != null and _world_items.try_handle_click(event):
 		return true
 	return try_handle_logic_click(_view_runtime.logic_position_at_screen(event.position))
+
+
+func _try_city_door_click(screen_position: Vector2) -> bool:
+	if _city_doors == null or _view_runtime.view == null:
+		return false
+	var camera := _view_runtime.view.view_camera()
+	var origin := camera.project_ray_origin(screen_position)
+	var direction := camera.project_ray_normal(screen_position)
+	var door_key: Variant = _city_doors.door_at_ray(origin, direction)
+	if door_key == null:
+		return false
+	var door: Dictionary = _city_doors.doors[door_key]
+	var player_xz := CityPlan.to_world_xz(_player.global_position)
+	if player_xz.distance_to(door["center"]) > CityDoors.OPEN_RADIUS:
+		return false
+	return _city_doors.interact_at(door["center"])
 
 
 ## Pointer-mode click on the logic plane: attack a hostile already within reach,
