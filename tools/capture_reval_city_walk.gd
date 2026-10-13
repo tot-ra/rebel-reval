@@ -10,6 +10,8 @@ extends Node
 ##   tools/godot_render.sh --resolution 1600x900 res://tools/capture_reval_city_walk.tscn
 ## Output: docs/reports/images/city/walk_<route>.png, exit code 1 on failure.
 
+## Outer doors: start this far outside the door gap.
+const START_OUT := 2.4
 const SCENE := preload("res://scenes/world/reval_city/reval_city.tscn")
 const OUTPUT_DIR := "res://docs/reports/images/city"
 const STUCK_SEC := 1.5
@@ -111,7 +113,7 @@ func _run() -> void:
 			await get_tree().physics_frame
 		var start := CityPlan.to_world_xz(_city.player.global_position)
 		print("granary arrival at %s, inside building %d" % [start, _city.inside_building])
-		var inside := _city.inside_building
+		var inside: int = _city.inside_building
 		if inside >= 0 and not plan.buildings[inside].get("enterable", false):
 			_failures.append("granary: arrived inside closed %s" % plan.buildings[inside]["id"])
 		await _shot("walk_granary_arrival")
@@ -444,6 +446,18 @@ func _features(plan: CityPlan) -> void:
 
 ## Landmark sites (ADR 0032): walk in through every site door, check the door
 ## swings, the room's roof lifts and Kalev stands on the site floor, walk out.
+## A cutaway node is lifted when hidden, or (a shadow caster) drawn shadows-only
+## by CityWorld3D.set_cutaway so the room below stays shaded.
+static func _lifted(node: Node3D) -> bool:
+	if not node.visible:
+		return true
+	var geometry := node as GeometryInstance3D
+	return (
+		geometry != null
+		and geometry.cast_shadow == GeometryInstance3D.SHADOW_CASTING_SETTING_SHADOWS_ONLY
+	)
+
+
 func _enter_sites(plan: CityPlan) -> void:
 	var player: Player = _city.player
 	# The doors and floors are under test, not crowd behaviour: people standing
@@ -459,11 +473,13 @@ func _enter_sites(plan: CityPlan) -> void:
 			var mid: Vector2 = (d["a"] + d["b"]) * 0.5
 			var inward: Vector2 = d["inward"]
 			var key := "site:%s" % d["id"]
-			player.global_position = CityPlan.to_logic(mid - inward * 3.0)
+			# 2.4 m out: a 3 m cloister walk (St Catherine's) puts a 3 m start
+			# inside the garth arcade.
+			player.global_position = CityPlan.to_logic(mid - inward * START_OUT)
 			await get_tree().physics_frame
 			# A door may lead from one room into another (St Catherine's cloister
 			# walk into the nave): only a different room counts as walked in.
-			var start_room := plan.site_room_at(mid - inward * 3.0)
+			var start_room := plan.site_room_at(mid - inward * START_OUT)
 			var start_id: StringName = start_room["room"]["id"] if not start_room.is_empty() else &""
 			Input.action_press(&"ui_up")
 			var t := 0.0
@@ -494,7 +510,7 @@ func _enter_sites(plan: CityPlan) -> void:
 			var site_node: Node3D = _city.world.site_nodes[site.id]
 			var hidden := true
 			for path: String in roof_paths:
-				hidden = hidden and not (site_node.get_node(path) as Node3D).visible
+				hidden = hidden and _lifted(site_node.get_node(path) as Node3D)
 			if not hidden:
 				_failures.append("%s: roof did not lift in %s" % [site.id, room["room"]["id"]])
 			if not _city.world.doors.is_open(key):

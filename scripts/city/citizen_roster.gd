@@ -43,6 +43,20 @@ const _STAY_LABELS := {
 	"supply_water": "Carrying water for the trade",
 	"supply_wood": "Fetching timber and clay",
 	"supply_market": "Shopping for the trade",
+	# Religious houses living in their site (St Catherine's friary).
+	"choir": "Singing the hours in the choir",
+	"chapter": "At chapter in the chapter house",
+	"refectory": "At table in the refectory, a brother reading aloud",
+	"study": "Reading in the cloister walk",
+	"kitchen": "Working in the friary kitchen",
+	"preach": "Preaching to the townsfolk",
+	"quest": "Begging alms for the friary",
+	"confess": "Hearing confessions in the nave",
+	"brew": "Brewing in the friary yard",
+	"garden": "Tending the beds in the garth",
+	"friary_granary": "Working in the friary granary",
+	"porter": "Keeping the friary gate",
+	"stores": "Working in the friary stores",
 }
 ## Destination phrase per place_label_key() while on the way.
 const _DEST_LABELS := {
@@ -74,6 +88,19 @@ const _DEST_LABELS := {
 	"supply_water": "to fetch water",
 	"supply_wood": "to fetch timber",
 	"supply_market": "shopping for the trade",
+	"choir": "to the choir for the office",
+	"chapter": "to chapter",
+	"refectory": "to the refectory",
+	"study": "to study in the cloister",
+	"kitchen": "to the kitchen",
+	"preach": "to preach in the town",
+	"quest": "to quest for alms",
+	"confess": "to hear confessions",
+	"brew": "to the brewhouse",
+	"garden": "to the garth",
+	"friary_granary": "to the friary granary",
+	"porter": "to the gate",
+	"stores": "to the stores",
 }
 
 static var _default: CitizenRoster
@@ -271,6 +298,8 @@ func place_label_key(r: Dictionary, key: String) -> String:
 			return "supply_" + String(r["supply_kind"])
 		"door", "water", "fuel", "latrine", "school", "church", "stroll":
 			return key
+		"choir", "chapter", "refectory", "study", "kitchen":
+			return key
 	return "home"
 
 
@@ -309,6 +338,9 @@ func _place_of(r: Dictionary, key: String) -> int:
 			return int(r["church"]) if r["devout"] else int(r["home"])
 		"stroll":
 			return int(r["stroll"]) if r["strolls"] else int(r["home"])
+	# Places of a religious house's horarium (choir, chapter, refectory...).
+	if r.has(key):
+		return int(r[key])
 	return int(r["home"])
 
 
@@ -349,8 +381,12 @@ func _still(r: Dictionary, key: String) -> Dictionary:
 	var facing := DEFAULT_FACING
 	var pos := Vector2(place[0], place[1])
 	var slot := _slot(r)
-	if key == "work" and r.has("duty") and r["duty"].get("exact", false) and place[3] != null:
-		# A gate post: this exact spot, looking out of the town.
+	var exact: bool = (
+		(key == "work" and r.has("duty") and r["duty"].get("exact", false))
+		or key in r.get("exact", [])
+	)
+	if exact and place[3] != null:
+		# A gate post or a seat (choir stall, chapter bench): this exact spot.
 		facing = Vector2(cos(float(place[3])), sin(float(place[3])))
 	elif place[3] != null:
 		# At a door: spread along the frontage, a little way out, so a household

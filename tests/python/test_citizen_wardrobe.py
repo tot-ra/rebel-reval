@@ -270,6 +270,16 @@ class RuntimeData(unittest.TestCase):
             if r.get("shield"):
                 self.assertTrue(r["trade"] in ("knight", "man_at_arms"), r["id"])
 
+    def test_dominican_friars_wear_white_habit_and_black_hood(self):
+        friars = [r for r in self.residents if r.get("order") == "dominican" and r["trade"] == "monk"]
+        self.assertEqual(len(friars), 24)
+        for r in friars:
+            self.assertEqual(r["cloth"], list(runtime.DOMINICAN_WHITE), r["id"])
+            self.assertIn("hood", r["wear"], r["id"])
+            self.assertEqual(r["wear_dye"]["hood"], [round(c, 3) for c in wd.HABIT_BLACK], r["id"])
+            self.assertNotIn("order_mantle", r["wear"], r["id"])
+            self.assertFalse(r.get("shield"), r["id"])
+
     def test_variety(self):
         looks = {(r["body"], tuple(r["wear"])) for r in self.residents}
         self.assertGreater(len(looks), 200)

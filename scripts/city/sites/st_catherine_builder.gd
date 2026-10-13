@@ -38,7 +38,12 @@ const BUTTRESS_DEPTH := 0.9
 const WALK_HIGH := 5.4
 const WALK_LOW := 3.3
 ## Kitchen stack on the north range (site-local top, always-lit plume).
-const KITCHEN_STACK := Vector3(22.0, 13.6, -47.5)
+const KITCHEN_STACK := Vector3(22.0, 13.6, -50.5)
+## Ground-floor rooms of the ranges: ceiling under the dormitory floor, and the
+## chapter-house vault on its central pillar.
+const RANGE_CEIL := 4.2
+const CHAPTER_SPRING := 2.4
+const CHAPTER_CROWN := 4.0
 ## The district props were authored in 0.87 m world units (CitySiteProps).
 const LEGACY_UNIT_M := 0.87
 
@@ -60,7 +65,7 @@ static func build(site: CitySite, plan: CityPlan) -> Node3D:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = hash(String(site.id))
 	root.add_child(_church(site, groups["church"], rng))
-	root.add_child(_ranges(groups["range"]))
+	root.add_child(_ranges(site, groups["range"], rng))
 	root.add_child(_cloister(groups["cloister"], rng))
 	root.add_child(_precinct(groups["precinct"]))
 	_garth(root, site, plan)
@@ -256,25 +261,29 @@ static func _interior(shell: CityBuildingBuilder.Shell, rng: RandomNumberGenerat
 		CitySiteProps._box(
 			shell, "ashlar", Vector3(x0, FLOOR - 0.01, zn), Vector3(STEPS_X, h, zs), Kit.ASHLAR
 		)
-	# Friars' stalls along both choir walls: seat, desk and a tall back.
-	for z_wall: float in [zn, zs]:
+	# Friars' stalls along both choir walls: seat, desk and a tall back. The
+	# north row leaves a gap at the sacristy door (x 56..58).
+	var runs := [[zn, 51.2, 56.0], [zn, 58.0, 60.2], [zs, 51.2, 60.2]]
+	for run: Array in runs:
+		var z_wall: float = run[0]
+		var x0: float = run[1]
+		var length: float = float(run[2]) - x0
 		var inward := 1.0 if z_wall == zn else -1.0
-		var back0 := Vector3(STEPS_X + 0.6, CHOIR_FLOOR, z_wall)
 		var seat := AABB(
-			Vector3(back0.x, CHOIR_FLOOR, minf(z_wall, z_wall + inward * 0.62)),
-			Vector3(9.0, 0.46, 0.62)
+			Vector3(x0, CHOIR_FLOOR, minf(z_wall, z_wall + inward * 0.62)),
+			Vector3(length, 0.46, 0.62)
 		)
 		CitySiteProps._box(shell, "timber", seat.position, seat.end, Kit.OAK_DARK)
 		CitySiteProps._box(
 			shell,
 			"timber",
-			Vector3(back0.x, CHOIR_FLOOR, minf(z_wall, z_wall + inward * 0.12)),
-			Vector3(back0.x + 9.0, CHOIR_FLOOR + 2.3, maxf(z_wall, z_wall + inward * 0.12)),
+			Vector3(x0, CHOIR_FLOOR, minf(z_wall, z_wall + inward * 0.12)),
+			Vector3(x0 + length, CHOIR_FLOOR + 2.3, maxf(z_wall, z_wall + inward * 0.12)),
 			Kit.OAK_DARK * 0.8
 		)
 		var desk := AABB(
-			Vector3(back0.x, CHOIR_FLOOR, minf(z_wall + inward * 1.2, z_wall + inward * 1.5)),
-			Vector3(9.0, 1.0, 0.3)
+			Vector3(x0, CHOIR_FLOOR, minf(z_wall + inward * 1.2, z_wall + inward * 1.5)),
+			Vector3(length, 1.0, 0.3)
 		)
 		CitySiteProps._box(shell, "timber", desk.position, desk.end, Kit.OAK)
 		occluders.append(seat)
@@ -289,25 +298,29 @@ static func _interior(shell: CityBuildingBuilder.Shell, rng: RandomNumberGenerat
 	return occluders
 
 
-## West, north and east ranges and the brewhouse: closed limestone massing
-## with shuttered windows and shut doors (no interiors in this task), tile
-## roofs meeting in valleys, plain gables where an end shows.
-static func _ranges(fabric: Array) -> Node3D:
+## West, north and east ranges and the brewhouse, tile roofs meeting in
+## valleys, plain gables where an end shows. Ground floors after Kuehnert's
+## plan are enterable (sacristy, chapter house, dormitory stair, old refectory,
+## kitchen, stores, granary, lay brothers' hall); the dormitory upstairs is not.
+## Walls are cut at head height (`Ranges/Upper`) and the roofs, ceilings and
+## the chapter-house vault are separate meshes, so the room cutaway lifts them.
+static func _ranges(site: CitySite, fabric: Array, rng: RandomNumberGenerator) -> Node3D:
 	var node := Node3D.new()
 	node.name = "Ranges"
 	var body := CityBuildingBuilder.Shell.new()
-	var unused_glass := CityBuildingBuilder.Shell.new()
+	var glass := CityBuildingBuilder.Shell.new()
 	var roof := CityBuildingBuilder.Shell.new()
-	Kit.walls(body, unused_glass, fabric)
+	var ceilings := CityBuildingBuilder.Shell.new()
+	Kit.walls(body, glass, fabric, Kit.GLAZING.get(site.id, 0))
 	for w: Dictionary in fabric:
 		_shutters(body, w)
+	_range_rooms(body, ceilings, rng)
 	# West range (6.5..15 x -52..-21), eave 7.5: its roof runs along z.
 	var w_ridge := 7.5 + 4.25 * tan(deg_to_rad(50.0))
 	var south := Vector3(0, 0, 1)
 	var north := Vector3(0, 0, -1)
 	_gable(body, Vector3(6.5, 7.5, -21.0), Vector3(15.0, 7.5, -21.0), w_ridge, south, 0.8)
 	_gable(body, Vector3(15.0, 7.5, -52.0), Vector3(6.5, 7.5, -52.0), w_ridge, north, 0.8)
-	node.add_child(_roof_along_z("WestRoof", 6.5, 15.0, -52.0, -21.0, 7.5, 50.0, 0.4))
 	# North range (15..52 x -52..-43), eave 6.5: the roof runs on into the
 	# west and east ranges' roofs, so the valleys form where they cross.
 	Kit.gable_roof(roof, 10.75, 57.0, -52.0, -43.0, 6.5, 50.0, 0.4)
@@ -322,15 +335,171 @@ static func _ranges(fabric: Array) -> Node3D:
 	# roof's north slope.
 	var e_ridge := 8.0 + 5.0 * tan(deg_to_rad(50.0))
 	_gable(body, Vector3(62.0, 8.0, -52.0), Vector3(52.0, 8.0, -52.0), e_ridge, north, 0.8)
-	node.add_child(_roof_along_z("EastRoof", 52.0, 62.0, -52.0, -15.5, 8.0, 50.0, 0.4))
 	# Brewhouse (63.5..71.2 x -51.2..-42), shingled, ridge along x.
 	var b_ridge := 4.2 + 4.6 * tan(deg_to_rad(45.0))
 	_gable(body, Vector3(63.5, 4.2, -42.0), Vector3(63.5, 4.2, -51.2), b_ridge, Vector3.LEFT, 0.6)
 	_gable(body, Vector3(71.2, 4.2, -51.2), Vector3(71.2, 4.2, -42.0), b_ridge, Vector3.RIGHT, 0.6)
 	Kit.gable_roof(roof, 63.2, 71.5, -51.2, -42.0, 4.2, 45.0, 0.4, "roof:shingle")
-	node.add_child(Kit.mesh("RangeWalls", body))
+	var parts := body.split_at(CUT)
+	var lower: CityBuildingBuilder.Shell = parts[0]
+	Kit.cut_caps(lower, fabric, CUT)
+	var lower_node := Kit.mesh("Lower", lower)
+	var upper_node := Kit.mesh("Upper", parts[1])
+	var glass_parts := glass.split_at(CUT)
+	lower_node.add_child(Kit.mesh("GlassLow", glass_parts[0]))
+	upper_node.add_child(Kit.mesh("Glass", glass_parts[1]))
+	var ceiling_node := Kit.mesh("Ceilings", ceilings)
+	Kit.bind_site_washes([lower_node, upper_node, ceiling_node], site, FLOOR)
+	node.add_child(lower_node)
+	node.add_child(upper_node)
+	node.add_child(ceiling_node)
 	node.add_child(Kit.mesh("RangeRoofs", roof))
+	node.add_child(_roof_along_z("WestRoof", 6.5, 15.0, -52.0, -21.0, 7.5, 50.0, 0.4))
+	node.add_child(_roof_along_z("EastRoof", 52.0, 62.0, -52.0, -15.5, 8.0, 50.0, 0.4))
+	(
+		Furnish
+		. lights(
+			lower_node,
+			[
+				Vector3(57.0, 2.6, -29.1),
+				Vector3(57.0, 3.0, -44.5),
+				Vector3(22.0, 1.6, -49.2),
+				Vector3(10.75, 2.8, -42.0),
+			]
+		)
+	)
 	return node
+
+
+## Ground-floor rooms of the ranges: floors, boarded ceilings under the upper
+## floor, and the fixed furniture that is masonry or joinery (movable pieces
+## are catalogue dressing in the manifest). Chapter house: a vault on one
+## central pillar over a stone bench round the walls, the prior's seat and a
+## lectern; the day stair to the dormitory.
+static func _range_rooms(
+	body: CityBuildingBuilder.Shell, ceilings: CityBuildingBuilder.Shell, rng: RandomNumberGenerator
+) -> void:
+	var flags: Array[Rect2] = [
+		Rect2(52.8, -24.0, 8.4, 5.5),
+		Rect2(52.8, -33.6, 8.4, 9.0),
+		Rect2(52.8, -37.2, 8.4, 3.0),
+		Rect2(52.8, -51.2, 8.4, 13.4),
+		Rect2(7.3, -51.2, 6.9, 21.2),
+	]
+	for k in flags.size():
+		var y := CHOIR_FLOOR if k == 0 else FLOOR
+		Kit.flag_floor(body, flags[k], y, rng, 0.0)
+	# Beaten earth in the kitchen, stores and granary.
+	var earth: Array[Rect2] = [
+		Rect2(15.0, -51.2, 15.0, 7.4), Rect2(30.6, -51.2, 21.4, 7.4), Rect2(7.3, -29.4, 6.9, 7.6)
+	]
+	for r: Rect2 in earth:
+		var a := Vector3(r.position.x, FLOOR, r.position.y)
+		var b := Vector3(r.end.x, FLOOR, r.end.y)
+		body.quad_out(
+			"earth",
+			a,
+			Vector3(b.x, FLOOR, a.z),
+			b,
+			Vector3(a.x, FLOOR, b.z),
+			Color.WHITE,
+			Vector3.UP
+		)
+	# Boarded ceilings with joists (the chapter house is vaulted instead).
+	for r: Rect2 in [
+		Rect2(52.8, -24.0, 8.4, 5.5),
+		Rect2(52.8, -51.2, 8.4, 17.0),
+		Rect2(15.0, -51.2, 37.0, 7.4),
+		Rect2(7.3, -51.2, 6.9, 29.4),
+	]:
+		var y := RANGE_CEIL
+		ceilings.quad_out(
+			"timber",
+			Vector3(r.position.x, y, r.position.y),
+			Vector3(r.end.x, y, r.position.y),
+			Vector3(r.end.x, y, r.end.y),
+			Vector3(r.position.x, y, r.end.y),
+			Kit.OAK_DARK * 0.85,
+			Vector3.DOWN
+		)
+		var long_x := r.size.x > r.size.y
+		var t := 0.6
+		while t < (r.size.x if long_x else r.size.y) - 0.3:
+			var p0 := (
+				Vector3(r.position.x + t, y - 0.12, r.position.y)
+				if long_x
+				else Vector3(r.position.x, y - 0.12, r.position.y + t)
+			)
+			var p1 := (
+				Vector3(r.position.x + t, y - 0.12, r.end.y)
+				if long_x
+				else Vector3(r.end.x, y - 0.12, r.position.y + t)
+			)
+			Kit.bar(ceilings, "timber", p0, p1, 0.2, Kit.OAK_DARK)
+			t += 1.1
+	# Chapter house: four rib-vaulted bays on one octagonal pillar.
+	var c := Vector2(57.0, -29.1)
+	for bay: Rect2 in [
+		Rect2(52.8, -33.6, 4.2, 4.5),
+		Rect2(57.0, -33.6, 4.2, 4.5),
+		Rect2(52.8, -29.1, 4.2, 4.5),
+		Rect2(57.0, -29.1, 4.2, 4.5),
+	]:
+		Kit.rib_vault(ceilings, bay, CHAPTER_SPRING, CHAPTER_CROWN, Color(0.72, 0.71, 0.67))
+	Kit.pillar(body, Vector3(c.x, FLOOR, c.y), 0.38, CHAPTER_SPRING - FLOOR)
+	for r: Rect2 in [
+		Rect2(52.8, -33.6, 8.4, 0.5),
+		Rect2(52.8, -25.1, 8.4, 0.5),
+		Rect2(60.7, -33.1, 0.5, 8.0),
+		Rect2(52.8, -33.1, 0.5, 2.9),
+		Rect2(52.8, -28.0, 0.5, 2.9),
+	]:
+		CitySiteProps._box(
+			body,
+			"ashlar",
+			Vector3(r.position.x, FLOOR, r.position.y),
+			Vector3(r.end.x, FLOOR + 0.45, r.end.y),
+			Kit.ASHLAR
+		)
+	# The prior's seat: a raised back in the middle of the east bench.
+	CitySiteProps._box(
+		body,
+		"ashlar",
+		Vector3(61.0, FLOOR, c.y - 0.6),
+		Vector3(61.2, FLOOR + 1.9, c.y + 0.6),
+		Kit.ASHLAR
+	)
+	# Lectern for the reading of the martyrology and the rule.
+	var post := Vector3(59.6, FLOOR, c.y)
+	Kit.bar(body, "timber", post, post + Vector3(0, 1.05, 0), 0.12, Kit.OAK_DARK)
+	CitySiteProps._box(
+		body,
+		"timber",
+		Vector3(59.35, FLOOR + 1.05, c.y - 0.3),
+		Vector3(59.85, FLOOR + 1.12, c.y + 0.3),
+		Kit.OAK_DARK
+	)
+	# Lay brothers' stair to their dormitory over the hall: rising west along
+	# the north wall.
+	for k in 8:
+		CitySiteProps._box(
+			body,
+			"timber",
+			Vector3(7.3, FLOOR, -51.2),
+			Vector3(12.0 - k * 0.55, FLOOR + (k + 1) * (RANGE_CEIL - FLOOR) / 8.0, -50.2),
+			Kit.OAK_DARK * (0.9 if k % 2 == 0 else 0.8)
+		)
+	# Day stair to the dormitory: solid timber flight rising east.
+	var steps := 10
+	for k in steps:
+		var x0 := 55.0 + k * 0.62
+		CitySiteProps._box(
+			body,
+			"timber",
+			Vector3(x0, FLOOR, -37.2),
+			Vector3(61.2, FLOOR + (k + 1) * (RANGE_CEIL - FLOOR) / steps, -34.2),
+			Kit.OAK_DARK * (0.9 if k % 2 == 0 else 0.8)
+		)
 
 
 ## Gable roof with its ridge along z over x0..x1, z0..z1. Kit.gable_roof only
@@ -499,7 +668,15 @@ static func _yard(root: Node3D, site: CitySite, plan: CityPlan) -> void:
 	root.add_child(yard)
 	for item: Dictionary in site.data.get("dressing", []):
 		var local := Vector2(item["at"][0], item["at"][1])
-		var ground := plan.ground_height(site.to_world(local)) - site.level
+		var world := site.to_world(local)
+		# Indoors (refectory, kitchen...) the item stands on the room floor.
+		var room_floor := site.floor_at(world)
+		var ground := (
+			float(room_floor["height"]) - site.level
+			if not room_floor.is_empty()
+			else plan.ground_height(world) - site.level
+		)
+		ground += float(item.get("y", 0.0))
 		match String(item["kind"]):
 			"life_prop":
 				var node := Node3D.new()

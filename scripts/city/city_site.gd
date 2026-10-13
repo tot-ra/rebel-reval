@@ -22,6 +22,10 @@ var walls: Array[Dictionary] = []  # {a, b, thickness}
 var solids: Array[PackedVector2Array] = []
 var doors: Array[Dictionary] = []  # {id, a, b, inward, floor, height, style, paint}
 var people: Array[Dictionary] = []  # {id, role, rig, at, facing, pose}
+## Walled close (manifest `close.polygon`) in world XZ; empty for open sites.
+var close := PackedVector2Array()
+## bounds() computed once at load, for per-point lookups (grass, plants).
+var area := Rect2()
 
 
 static func from_manifest(manifest: Dictionary, plan_record: Dictionary) -> CitySite:
@@ -35,6 +39,7 @@ static func from_manifest(manifest: Dictionary, plan_record: Dictionary) -> City
 	# Ties profiled door records to their fabric openings (R-1693 portals).
 	CitySitePortals.annotate(manifest)
 	site._build_walk()
+	site.area = site.bounds()
 	return site
 
 
@@ -110,10 +115,31 @@ func bounds() -> Rect2:
 			r = r.expand(Vector2(p[0], p[1]))
 	for p: Array in placed.get("reserve", []):
 		r = r.expand(Vector2(p[0], p[1]))
+	for p in close:
+		r = r.expand(p)
 	return r.grow(2.0)
 
 
+## True inside the site's walled close (St Catherine's friary, St Michael's
+## nunnery): ground the community keeps (scythed garth, gardens).
+func in_close(world_xz: Vector2) -> bool:
+	return not close.is_empty() and Geometry2D.is_point_in_polygon(world_xz, close)
+
+
+## True where the site lays a floor or stands something solid: no grass grows
+## through flags, steps or a well curb.
+func covers(world_xz: Vector2) -> bool:
+	if not floor_at(world_xz).is_empty():
+		return true
+	for poly in solids:
+		if Geometry2D.is_point_in_polygon(world_xz, poly):
+			return true
+	return false
+
+
 func _build_walk() -> void:
+	if data.has("close"):
+		close = world_polygon(data["close"]["polygon"])
 	var walk: Dictionary = data.get("walk", {})
 	for f: Dictionary in walk.get("floors", []):
 		(

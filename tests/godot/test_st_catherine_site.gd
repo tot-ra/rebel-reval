@@ -137,3 +137,65 @@ func test_st_catherine_model_has_no_tower() -> void:
 	assert_true(top < 26.0, "mendicant church: ridge turret only, no tower (top %.1f m)" % top)
 	assert_eq(root.get_meta(&"chimneys", []).size(), 1, "the kitchen stack smokes")
 	root.free()
+
+
+func test_st_catherine_range_rooms_open_from_the_cloister() -> void:
+	var plan := _plan()
+	var site := _site(plan)
+	if site == null:
+		assert_true(false, "site.st_catherine loads")
+		return
+	var ids: Array = []
+	for d: Dictionary in site.doors:
+		ids.append(String(d["id"]))
+	for room: String in [
+		"sacristy",
+		"chapter_house",
+		"dorter_stair",
+		"refectory",
+		"kitchen",
+		"stores",
+		"granary",
+		"lay_hall"
+	]:
+		assert_true("door.st_catherine.%s" % room in ids, "%s has a door" % room)
+	for probe: Array in [
+		[Vector2(55.0, -29.1), &"room.chapter_house"],
+		[Vector2(57.0, -44.0), &"room.refectory"],
+		[Vector2(24.0, -47.5), &"room.kitchen"],
+		[Vector2(10.75, -36.0), &"room.lay_hall"],
+		[Vector2(57.0, -21.0), &"room.sacristy"],
+	]:
+		assert_eq(plan.site_room_at(site.to_world(probe[0]))["room"]["id"], probe[1])
+
+
+func test_st_catherine_friars_keep_the_hours() -> void:
+	var plan := _plan()
+	var site := _site(plan)
+	var roster := CitizenRoster.load_default()
+	if site == null or roster == null:
+		assert_true(false, "site and citizen roster load")
+		return
+	var friars: Array[int] = []
+	for i in roster.count():
+		var r: Dictionary = roster.residents[i]
+		if String(r["household"]) == "hh.inst_st_catherine_friary" and String(r["trade"]) == "monk":
+			friars.append(i)
+	assert_eq(friars.size(), 24, "the census friars live in the friary")
+	for i in friars:
+		var terce := roster.resolve(i, 9.6)
+		var room := plan.site_room_at(terce["pos"])
+		assert_true(
+			not room.is_empty() and room["room"]["id"] == &"room.choir",
+			"%s sings terce in the choir" % roster.residents[i]["name"]
+		)
+		assert_false(
+			bool(roster.resolve(i, 3.6)["visible"]), "back in the dormitory after the night office"
+		)
+		var dinner := plan.site_room_at(roster.resolve(i, 11.9)["pos"])
+		assert_true(
+			not dinner.is_empty() and dinner["room"]["id"] == &"room.refectory",
+			"%s dines in the refectory" % roster.residents[i]["name"]
+		)
+		var cloth: Array = roster.residents[i]["cloth"]
+		assert_true(absf(float(cloth[0]) - 0.84) < 0.01, "white habit")

@@ -434,6 +434,22 @@ func site_at(world_xz: Vector2) -> CitySite:
 	return null
 
 
+## True where a site lays a floor or stands something solid (no grass grows).
+func site_covers(world_xz: Vector2) -> bool:
+	for site in sites:
+		if site.area.has_point(world_xz) and site.covers(world_xz):
+			return true
+	return false
+
+
+## True inside a site's walled close (kept ground: a scythed garth, gardens).
+func in_site_close(world_xz: Vector2) -> bool:
+	for site in sites:
+		if site.area.has_point(world_xz) and site.in_close(world_xz):
+			return true
+	return false
+
+
 ## The site room containing a world position: {site: CitySite, room}, or {}.
 func site_room_at(world_xz: Vector2) -> Dictionary:
 	for site in sites:
