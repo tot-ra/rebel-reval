@@ -246,6 +246,10 @@ func wildness_at(p: Vector2) -> float:
 	if _wild_cache.size() > WILD_CACHE_LIMIT:
 		_wild_cache.clear()
 	var c := Vector2(key) + Vector2(0.5, 0.5)
+	# A walled religious close is kept ground: the garth is scythed short.
+	if plan.in_site_close(c):
+		_wild_cache[key] = 0.0
+		return 0.0
 	var w := minf(
 		smoothstep(ROAD_WILD_NEAR, ROAD_WILD_FAR, road_distance_at(c)),
 		smoothstep(HOUSE_WILD_NEAR, HOUSE_WILD_FAR, house_distance_at(c))
@@ -307,6 +311,7 @@ func _grass_height(p: Vector2) -> float:
 		or plan.slope_at(p) > 0.75
 		or plan.building_at(p) >= 0
 		or plan.site_at(p) != null
+		or plan.site_covers(p)
 	):
 		return NAN
 	return h

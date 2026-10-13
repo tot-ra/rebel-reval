@@ -13,8 +13,8 @@
     "Rule (maintainer 2026-10-07): features dated after 1343 are left out; where the 1343 state is unrecorded, a slightly simplified form of the later, documented friary is used (plausible composite).",
     "Excluded as dated later: the eight-bay hall (67.7 m) and its vaults, the new refectory in the north wing (c. 1500), the rebuilt two-storey cloister, Black Heads patronage (15th-16th c.), the 1520s works, the Behind-the-Monks tower.",
     "Attested for 1343: the friary of the Order of Preachers (1229, refounded 1246), a stone church and the east range largely complete c. 1300, a church in the south and the cloister to its north, the west portal (surviving, date unrecorded).",
-    "Plausible composite: a 50 x 17 m buttressed single-span preaching hall under one tile roof with a timber tie-beam roof (no tower; a small ridge bell turret as mendicant statutes allowed), a stone rood screen before the friars' choir, a 72 x 52 m walled close fitted between Katariina kaik, the Munga houses and Muurivahe (the dossier's 58 x 95 m target does not fit the plan's streets), a cloister walk round a garth with the well, the west range on the gate side, the north range (refectory, kitchen), the east range (sacristy, chapter house, dormitory), and the service yard with brewhouse, casks, carts and fish trade.",
-    "The ranges are closed exterior massing (no interiors in this task)."
+    "Plausible composite: a 50 x 17 m buttressed single-span preaching hall under one tile roof with a timber tie-beam roof (no tower; a small ridge bell turret as mendicant statutes allowed), a stone rood screen before the friars' choir, a 72 x 52 m walled close fitted between Katariina kaik, the Munga houses and Muurivahe (the dossier's 58 x 95 m target does not fit the plan's streets), a cloister walk round a garth with the well, the west range on the gate side, the north range (kitchen, stores), the east range (sacristy, chapter house, dormitory stair, old refectory), and the service yard with brewhouse, casks, carts and fish trade.",
+    "Ground floors after Kuehnert's plan (medievalheritage.eu summary): east range from the church northwards sacristy, square chapter house with a vault on one central pillar, a narrow room (later library; here the day stair to the dormitory) and the old refectory in the north-east corner, the dormitory upstairs (not walkable); west range the lay brothers' room and the granary at the church corner; the north range holds the kitchen and stores (plausible composite: Kuehnert's north-wing refectory is c. 1500)."
   ],
   "presentation": [],
   "replaces": [
@@ -366,7 +366,7 @@
         -18.5
       ],
       "b": [
-        64.0,
+        50.6,
         -18.5
       ],
       "inside": [
@@ -442,6 +442,37 @@
           "glass": true,
           "seed": 51,
           "lights": 1
+        }
+      ]
+    },
+    {
+      "id": "church.north_choir",
+      "a": [
+        50.6,
+        -18.5
+      ],
+      "b": [
+        64.0,
+        -18.5
+      ],
+      "inside": [
+        57,
+        -10
+      ],
+      "thick": 1.3,
+      "y1": 11.0,
+      "inner": "limewash",
+      "floor": 0.57,
+      "openings": [
+        {
+          "kind": "door",
+          "s": 6.399999999999999,
+          "w": 1.4,
+          "sill": 0.57,
+          "spring": 2.9,
+          "apex": 3.5,
+          "reveal": "ashlar",
+          "note": "sacristy door from the choir"
         }
       ]
     },
@@ -591,15 +622,15 @@
       "thick": 0.8,
       "y1": 7.5,
       "outer": "wall:limestone",
-      "inner_face": false,
-      "floor": 0.0,
+      "inner": "limewash",
+      "floor": 0.12,
       "openings": [
         {
           "kind": "niche",
           "s": 4.25,
           "w": 0.6,
-          "sill": 4.4,
-          "spring": 5.4,
+          "sill": 4.6,
+          "spring": 5.8,
           "shutter": true
         }
       ]
@@ -621,25 +652,25 @@
       "thick": 0.8,
       "y1": 7.5,
       "outer": "wall:limestone",
-      "inner_face": false,
-      "floor": 0.0,
+      "inner": "limewash",
+      "floor": 0.12,
       "openings": [
         {
-          "kind": "niche",
+          "kind": "door",
+          "sill": 0.12,
+          "reveal": "ashlar",
           "s": 4.25,
-          "w": 1.3,
-          "sill": 0.0,
-          "spring": 2.2,
-          "apex": 2.8,
-          "shutter": true
+          "w": 1.6,
+          "spring": 2.3,
+          "apex": 2.9,
+          "note": "granary door off the passage by the church"
         },
         {
           "kind": "niche",
           "s": 4.25,
           "w": 0.6,
-          "sill": 4.4,
-          "spring": 5.6,
-          "apex": 6.0,
+          "sill": 4.6,
+          "spring": 5.8,
           "shutter": true
         }
       ]
@@ -661,15 +692,15 @@
       "thick": 0.8,
       "y1": 7.5,
       "outer": "wall:limestone",
-      "inner_face": false,
-      "floor": 0.0,
+      "inner": "limewash",
+      "floor": 0.12,
       "openings": [
         {
           "kind": "niche",
           "s": 3.0,
           "w": 0.6,
           "sill": 4.6,
-          "spring": 5.6,
+          "spring": 5.8,
           "shutter": true
         },
         {
@@ -677,7 +708,7 @@
           "s": 7.0,
           "w": 0.6,
           "sill": 4.6,
-          "spring": 5.6,
+          "spring": 5.8,
           "shutter": true
         },
         {
@@ -685,7 +716,7 @@
           "s": 11.0,
           "w": 0.6,
           "sill": 4.6,
-          "spring": 5.6,
+          "spring": 5.8,
           "shutter": true
         },
         {
@@ -693,7 +724,7 @@
           "s": 15.0,
           "w": 0.6,
           "sill": 4.6,
-          "spring": 5.6,
+          "spring": 5.8,
           "shutter": true
         },
         {
@@ -701,7 +732,7 @@
           "s": 19.0,
           "w": 0.6,
           "sill": 4.6,
-          "spring": 5.6,
+          "spring": 5.8,
           "shutter": true
         },
         {
@@ -709,7 +740,7 @@
           "s": 23.0,
           "w": 0.6,
           "sill": 4.6,
-          "spring": 5.6,
+          "spring": 5.8,
           "shutter": true
         },
         {
@@ -717,7 +748,7 @@
           "s": 27.0,
           "w": 0.6,
           "sill": 4.6,
-          "spring": 5.6,
+          "spring": 5.8,
           "shutter": true
         }
       ]
@@ -739,82 +770,124 @@
       "thick": 0.8,
       "y1": 7.5,
       "outer": "wall:limestone",
-      "inner_face": false,
-      "floor": 0.0,
+      "inner": "limewash",
+      "floor": 0.12,
       "openings": [
+        {
+          "kind": "door",
+          "sill": 0.12,
+          "reveal": "ashlar",
+          "s": 15.0,
+          "w": 1.6,
+          "spring": 2.3,
+          "apex": 2.9,
+          "note": "lay brothers' hall from the west walk"
+        },
+        {
+          "kind": "window",
+          "s": 11.0,
+          "w": 0.8,
+          "sill": 1.2,
+          "spring": 2.3,
+          "apex": 2.7,
+          "splay": 0.25
+        },
+        {
+          "kind": "window",
+          "s": 19.0,
+          "w": 0.8,
+          "sill": 1.2,
+          "spring": 2.3,
+          "apex": 2.7,
+          "splay": 0.25
+        },
         {
           "kind": "niche",
           "s": 3.0,
-          "w": 0.7,
-          "sill": 4.4,
-          "spring": 5.6,
-          "apex": 6.0,
+          "w": 0.6,
+          "sill": 4.6,
+          "spring": 5.8,
+          "apex": 6.2,
           "shutter": true
         },
         {
           "kind": "niche",
           "s": 7.0,
-          "w": 0.7,
-          "sill": 4.4,
-          "spring": 5.6,
-          "apex": 6.0,
+          "w": 0.6,
+          "sill": 4.6,
+          "spring": 5.8,
+          "apex": 6.2,
           "shutter": true
         },
         {
           "kind": "niche",
           "s": 11.0,
-          "w": 0.7,
-          "sill": 4.4,
-          "spring": 5.6,
-          "apex": 6.0,
+          "w": 0.6,
+          "sill": 4.6,
+          "spring": 5.8,
+          "apex": 6.2,
           "shutter": true
         },
         {
           "kind": "niche",
           "s": 15.0,
-          "w": 0.7,
-          "sill": 4.4,
-          "spring": 5.6,
-          "apex": 6.0,
+          "w": 0.6,
+          "sill": 4.6,
+          "spring": 5.8,
+          "apex": 6.2,
           "shutter": true
         },
         {
           "kind": "niche",
           "s": 19.0,
-          "w": 0.7,
-          "sill": 4.4,
-          "spring": 5.6,
-          "apex": 6.0,
+          "w": 0.6,
+          "sill": 4.6,
+          "spring": 5.8,
+          "apex": 6.2,
           "shutter": true
         },
         {
           "kind": "niche",
           "s": 23.0,
-          "w": 0.7,
-          "sill": 4.4,
-          "spring": 5.6,
-          "apex": 6.0,
+          "w": 0.6,
+          "sill": 4.6,
+          "spring": 5.8,
+          "apex": 6.2,
           "shutter": true
         },
         {
           "kind": "niche",
           "s": 27.0,
-          "w": 0.7,
-          "sill": 4.4,
-          "spring": 5.6,
-          "apex": 6.0,
-          "shutter": true
-        },
-        {
-          "kind": "niche",
-          "s": 9.0,
-          "w": 1.3,
-          "sill": 0.0,
-          "spring": 2.2,
-          "apex": 2.8,
+          "w": 0.6,
+          "sill": 4.6,
+          "spring": 5.8,
+          "apex": 6.2,
           "shutter": true
         }
       ]
+    },
+    {
+      "id": "west_range.granary_wall",
+      "a": [
+        7.3,
+        -29.4
+      ],
+      "b": [
+        14.2,
+        -29.4
+      ],
+      "inside": [
+        10.75,
+        -40
+      ],
+      "thick": 0.6,
+      "y1": 4.2,
+      "outer": "limewash",
+      "inner": "limewash",
+      "floor": 0.12,
+      "inner_from": 0.0,
+      "inner_to": 0.0,
+      "openings": []
     },
     {
       "id": "north_range.north",
@@ -833,72 +906,35 @@
       "thick": 0.8,
       "y1": 6.5,
       "outer": "wall:limestone",
-      "inner_face": false,
-      "floor": 0.0,
+      "inner": "limewash",
+      "floor": 0.12,
       "openings": [
         {
-          "kind": "niche",
-          "s": 4.0,
+          "kind": "window",
+          "s": 34.0,
           "w": 0.6,
-          "sill": 3.0,
-          "spring": 4.4,
-          "shutter": true
+          "sill": 1.6,
+          "spring": 2.4,
+          "apex": 0.0,
+          "splay": 0.25
         },
         {
-          "kind": "niche",
-          "s": 8.5,
+          "kind": "window",
+          "s": 25.0,
           "w": 0.6,
-          "sill": 3.0,
-          "spring": 4.4,
-          "shutter": true
+          "sill": 1.6,
+          "spring": 2.4,
+          "apex": 0.0,
+          "splay": 0.25
         },
         {
-          "kind": "niche",
-          "s": 13.0,
+          "kind": "window",
+          "s": 12.0,
           "w": 0.6,
-          "sill": 3.0,
-          "spring": 4.4,
-          "shutter": true
-        },
-        {
-          "kind": "niche",
-          "s": 17.5,
-          "w": 0.6,
-          "sill": 3.0,
-          "spring": 4.4,
-          "shutter": true
-        },
-        {
-          "kind": "niche",
-          "s": 22.0,
-          "w": 0.6,
-          "sill": 3.0,
-          "spring": 4.4,
-          "shutter": true
-        },
-        {
-          "kind": "niche",
-          "s": 26.5,
-          "w": 0.6,
-          "sill": 3.0,
-          "spring": 4.4,
-          "shutter": true
-        },
-        {
-          "kind": "niche",
-          "s": 31.0,
-          "w": 0.6,
-          "sill": 3.0,
-          "spring": 4.4,
-          "shutter": true
-        },
-        {
-          "kind": "niche",
-          "s": 35.5,
-          "w": 0.6,
-          "sill": 3.0,
-          "spring": 4.4,
-          "shutter": true
+          "sill": 1.6,
+          "spring": 2.4,
+          "apex": 0.0,
+          "splay": 0.25
         }
       ]
     },
@@ -919,91 +955,118 @@
       "thick": 0.8,
       "y1": 6.5,
       "outer": "wall:limestone",
-      "inner_face": false,
-      "floor": 0.0,
+      "inner": "limewash",
+      "floor": 0.12,
       "openings": [
         {
-          "kind": "niche",
+          "kind": "door",
+          "sill": 0.12,
+          "reveal": "ashlar",
+          "s": 9.0,
+          "w": 1.4,
+          "spring": 2.3,
+          "apex": 2.9,
+          "note": "kitchen"
+        },
+        {
+          "kind": "window",
           "s": 4.0,
-          "w": 0.8,
-          "sill": 2.6,
-          "spring": 4.6,
-          "apex": 5.2,
+          "w": 0.9,
+          "sill": 1.0,
+          "spring": 1.9,
+          "apex": 0.0,
+          "splay": 0.25
+        },
+        {
+          "kind": "door",
+          "sill": 0.12,
+          "reveal": "ashlar",
+          "s": 26.0,
+          "w": 1.6,
+          "spring": 2.3,
+          "apex": 2.9,
+          "note": "stores"
+        },
+        {
+          "kind": "niche",
+          "s": 3.0,
+          "w": 0.6,
+          "sill": 4.4,
+          "spring": 5.4,
           "shutter": true
         },
         {
           "kind": "niche",
-          "s": 8.5,
-          "w": 0.8,
-          "sill": 2.6,
-          "spring": 4.6,
-          "apex": 5.2,
+          "s": 7.5,
+          "w": 0.6,
+          "sill": 4.4,
+          "spring": 5.4,
           "shutter": true
         },
         {
           "kind": "niche",
-          "s": 13.0,
-          "w": 0.8,
-          "sill": 2.6,
-          "spring": 4.6,
-          "apex": 5.2,
+          "s": 12.0,
+          "w": 0.6,
+          "sill": 4.4,
+          "spring": 5.4,
           "shutter": true
         },
         {
           "kind": "niche",
-          "s": 17.5,
-          "w": 0.8,
-          "sill": 2.6,
-          "spring": 4.6,
-          "apex": 5.2,
+          "s": 16.5,
+          "w": 0.6,
+          "sill": 4.4,
+          "spring": 5.4,
           "shutter": true
         },
         {
           "kind": "niche",
-          "s": 22.0,
-          "w": 0.8,
-          "sill": 2.6,
-          "spring": 4.6,
-          "apex": 5.2,
+          "s": 21.0,
+          "w": 0.6,
+          "sill": 4.4,
+          "spring": 5.4,
           "shutter": true
         },
         {
           "kind": "niche",
-          "s": 26.5,
-          "w": 0.8,
-          "sill": 2.6,
-          "spring": 4.6,
-          "apex": 5.2,
+          "s": 30.0,
+          "w": 0.6,
+          "sill": 4.4,
+          "spring": 5.4,
           "shutter": true
         },
         {
           "kind": "niche",
-          "s": 31.0,
-          "w": 0.8,
-          "sill": 2.6,
-          "spring": 4.6,
-          "apex": 5.2,
-          "shutter": true
-        },
-        {
-          "kind": "niche",
-          "s": 35.5,
-          "w": 0.8,
-          "sill": 2.6,
-          "spring": 4.6,
-          "apex": 5.2,
-          "shutter": true
-        },
-        {
-          "kind": "niche",
-          "s": 18.5,
-          "w": 1.3,
-          "sill": 0.0,
-          "spring": 2.2,
-          "apex": 2.8,
+          "s": 34.5,
+          "w": 0.6,
+          "sill": 4.4,
+          "spring": 5.4,
           "shutter": true
         }
       ]
+    },
+    {
+      "id": "north_range.kitchen_wall",
+      "a": [
+        30.0,
+        -43.8
+      ],
+      "b": [
+        30.0,
+        -51.2
+      ],
+      "inside": [
+        40.0,
+        -47.0
+      ],
+      "thick": 0.6,
+      "y1": 4.2,
+      "outer": "limewash",
+      "inner": "limewash",
+      "floor": 0.12,
+      "inner_from": 0.0,
+      "inner_to": 0.0,
+      "openings": []
     },
     {
       "id": "east_range.north",
@@ -1022,9 +1085,21 @@
       "thick": 0.8,
       "y1": 8.0,
       "outer": "wall:limestone",
-      "inner_face": false,
-      "floor": 0.0,
+      "inner": "limewash",
+      "floor": 0.12,
       "openings": [
+        {
+          "kind": "window",
+          "s": 5.0,
+          "w": 0.9,
+          "sill": 1.8,
+          "spring": 3.2,
+          "apex": 3.7,
+          "splay": 0.25,
+          "glass": true,
+          "seed": 74,
+          "lights": 1
+        },
         {
           "kind": "niche",
           "s": 5.0,
@@ -1052,133 +1127,145 @@
       "thick": 0.8,
       "y1": 8.0,
       "outer": "wall:limestone",
-      "inner_face": false,
-      "floor": 0.0,
+      "inner": "limewash",
+      "floor": 0.12,
       "openings": [
         {
-          "kind": "niche",
-          "s": 21.5,
+          "kind": "door",
+          "sill": 0.12,
+          "reveal": "ashlar",
+          "s": 13.2,
+          "w": 1.6,
+          "spring": 2.3,
+          "apex": 2.9,
+          "note": "old refectory from the east walk"
+        },
+        {
+          "kind": "door",
+          "sill": 0.12,
+          "reveal": "ashlar",
+          "s": 16.3,
           "w": 1.4,
-          "sill": 0.0,
+          "spring": 2.3,
+          "apex": 2.9,
+          "note": "day stair to the dormitory"
+        },
+        {
+          "kind": "door",
+          "sill": 0.12,
+          "reveal": "ashlar",
+          "s": 22.9,
+          "w": 1.6,
           "spring": 2.4,
           "apex": 3.2,
-          "shutter": true
+          "note": "chapter house entrance"
         },
         {
-          "kind": "niche",
-          "s": 19.4,
-          "w": 0.9,
-          "sill": 0.9,
-          "spring": 2.4,
-          "apex": 3.0,
-          "shutter": true
+          "kind": "window",
+          "s": 20.7,
+          "w": 1.0,
+          "sill": 0.8,
+          "spring": 2.3,
+          "apex": 2.9,
+          "splay": 0.25
         },
         {
-          "kind": "niche",
-          "s": 23.6,
-          "w": 0.9,
-          "sill": 0.9,
-          "spring": 2.4,
-          "apex": 3.0,
-          "shutter": true
-        },
-        {
-          "kind": "niche",
-          "s": 30.0,
-          "w": 1.2,
-          "sill": 0.0,
-          "spring": 2.2,
-          "apex": 2.8,
-          "shutter": true
+          "kind": "window",
+          "s": 25.1,
+          "w": 1.0,
+          "sill": 0.8,
+          "spring": 2.3,
+          "apex": 2.9,
+          "splay": 0.25
         },
         {
           "kind": "niche",
           "s": 3.0,
-          "w": 0.5,
-          "sill": 5.4,
-          "spring": 6.6,
-          "apex": 7.0,
+          "w": 0.6,
+          "sill": 5.0,
+          "spring": 6.2,
+          "apex": 6.6,
           "shutter": true
         },
         {
           "kind": "niche",
           "s": 6.2,
-          "w": 0.5,
-          "sill": 5.4,
-          "spring": 6.6,
-          "apex": 7.0,
+          "w": 0.6,
+          "sill": 5.0,
+          "spring": 6.2,
+          "apex": 6.6,
           "shutter": true
         },
         {
           "kind": "niche",
           "s": 9.4,
-          "w": 0.5,
-          "sill": 5.4,
-          "spring": 6.6,
-          "apex": 7.0,
+          "w": 0.6,
+          "sill": 5.0,
+          "spring": 6.2,
+          "apex": 6.6,
           "shutter": true
         },
         {
           "kind": "niche",
           "s": 12.6,
-          "w": 0.5,
-          "sill": 5.4,
-          "spring": 6.6,
-          "apex": 7.0,
+          "w": 0.6,
+          "sill": 5.0,
+          "spring": 6.2,
+          "apex": 6.6,
           "shutter": true
         },
         {
           "kind": "niche",
           "s": 15.8,
-          "w": 0.5,
-          "sill": 5.4,
-          "spring": 6.6,
-          "apex": 7.0,
+          "w": 0.6,
+          "sill": 5.0,
+          "spring": 6.2,
+          "apex": 6.6,
           "shutter": true
         },
         {
           "kind": "niche",
           "s": 19.0,
-          "w": 0.5,
-          "sill": 5.4,
-          "spring": 6.6,
-          "apex": 7.0,
+          "w": 0.6,
+          "sill": 5.0,
+          "spring": 6.2,
+          "apex": 6.6,
           "shutter": true
         },
         {
           "kind": "niche",
           "s": 22.2,
-          "w": 0.5,
-          "sill": 5.4,
-          "spring": 6.6,
-          "apex": 7.0,
+          "w": 0.6,
+          "sill": 5.0,
+          "spring": 6.2,
+          "apex": 6.6,
           "shutter": true
         },
         {
           "kind": "niche",
           "s": 25.4,
-          "w": 0.5,
-          "sill": 5.4,
-          "spring": 6.6,
-          "apex": 7.0,
+          "w": 0.6,
+          "sill": 5.0,
+          "spring": 6.2,
+          "apex": 6.6,
           "shutter": true
         },
         {
           "kind": "niche",
           "s": 28.6,
-          "w": 0.5,
-          "sill": 5.4,
-          "spring": 6.6,
-          "apex": 7.0,
+          "w": 0.6,
+          "sill": 5.0,
+          "spring": 6.2,
+          "apex": 6.6,
           "shutter": true
         },
         {
           "kind": "niche",
           "s": 31.8,
-          "w": 0.5,
-          "sill": 5.4,
-          "spring": 6.6,
-          "apex": 7.0,
+          "w": 0.6,
+          "sill": 5.0,
+          "spring": 6.2,
+          "apex": 6.6,
           "shutter": true
         }
       ]
@@ -1200,109 +1287,226 @@
       "thick": 0.8,
       "y1": 8.0,
       "outer": "wall:limestone",
-      "inner_face": false,
-      "floor": 0.0,
+      "inner": "limewash",
+      "floor": 0.12,
       "openings": [
+        {
+          "kind": "window",
+          "s": 3.0,
+          "w": 0.5,
+          "sill": 2.0,
+          "spring": 2.8,
+          "apex": 3.1,
+          "splay": 0.25
+        },
+        {
+          "kind": "window",
+          "s": 10.6,
+          "w": 0.9,
+          "sill": 1.6,
+          "spring": 3.0,
+          "apex": 3.6,
+          "splay": 0.25,
+          "glass": true,
+          "seed": 70,
+          "lights": 1
+        },
+        {
+          "kind": "window",
+          "s": 21.5,
+          "w": 0.9,
+          "sill": 1.8,
+          "spring": 3.2,
+          "apex": 3.7,
+          "splay": 0.25,
+          "glass": true,
+          "seed": 71,
+          "lights": 1
+        },
+        {
+          "kind": "window",
+          "s": 26.0,
+          "w": 0.9,
+          "sill": 1.8,
+          "spring": 3.2,
+          "apex": 3.7,
+          "splay": 0.25,
+          "glass": true,
+          "seed": 72,
+          "lights": 1
+        },
+        {
+          "kind": "window",
+          "s": 30.5,
+          "w": 0.9,
+          "sill": 1.8,
+          "spring": 3.2,
+          "apex": 3.7,
+          "splay": 0.25,
+          "glass": true,
+          "seed": 73,
+          "lights": 1
+        },
         {
           "kind": "niche",
           "s": 3.0,
-          "w": 0.5,
-          "sill": 5.4,
-          "spring": 6.6,
-          "apex": 7.0,
+          "w": 0.6,
+          "sill": 5.0,
+          "spring": 6.2,
+          "apex": 6.6,
           "shutter": true
         },
         {
           "kind": "niche",
           "s": 6.2,
-          "w": 0.5,
-          "sill": 5.4,
-          "spring": 6.6,
-          "apex": 7.0,
+          "w": 0.6,
+          "sill": 5.0,
+          "spring": 6.2,
+          "apex": 6.6,
           "shutter": true
         },
         {
           "kind": "niche",
           "s": 9.4,
-          "w": 0.5,
-          "sill": 5.4,
-          "spring": 6.6,
-          "apex": 7.0,
+          "w": 0.6,
+          "sill": 5.0,
+          "spring": 6.2,
+          "apex": 6.6,
           "shutter": true
         },
         {
           "kind": "niche",
           "s": 12.6,
-          "w": 0.5,
-          "sill": 5.4,
-          "spring": 6.6,
-          "apex": 7.0,
+          "w": 0.6,
+          "sill": 5.0,
+          "spring": 6.2,
+          "apex": 6.6,
           "shutter": true
         },
         {
           "kind": "niche",
           "s": 15.8,
-          "w": 0.5,
-          "sill": 5.4,
-          "spring": 6.6,
-          "apex": 7.0,
+          "w": 0.6,
+          "sill": 5.0,
+          "spring": 6.2,
+          "apex": 6.6,
           "shutter": true
         },
         {
           "kind": "niche",
           "s": 19.0,
-          "w": 0.5,
-          "sill": 5.4,
-          "spring": 6.6,
-          "apex": 7.0,
+          "w": 0.6,
+          "sill": 5.0,
+          "spring": 6.2,
+          "apex": 6.6,
           "shutter": true
         },
         {
           "kind": "niche",
           "s": 22.2,
-          "w": 0.5,
-          "sill": 5.4,
-          "spring": 6.6,
-          "apex": 7.0,
+          "w": 0.6,
+          "sill": 5.0,
+          "spring": 6.2,
+          "apex": 6.6,
           "shutter": true
         },
         {
           "kind": "niche",
           "s": 25.4,
-          "w": 0.5,
-          "sill": 5.4,
-          "spring": 6.6,
-          "apex": 7.0,
+          "w": 0.6,
+          "sill": 5.0,
+          "spring": 6.2,
+          "apex": 6.6,
           "shutter": true
         },
         {
           "kind": "niche",
           "s": 28.6,
-          "w": 0.5,
-          "sill": 5.4,
-          "spring": 6.6,
-          "apex": 7.0,
+          "w": 0.6,
+          "sill": 5.0,
+          "spring": 6.2,
+          "apex": 6.6,
           "shutter": true
         },
         {
           "kind": "niche",
           "s": 31.8,
-          "w": 0.5,
-          "sill": 5.4,
-          "spring": 6.6,
-          "apex": 7.0,
-          "shutter": true
-        },
-        {
-          "kind": "niche",
-          "s": 10.0,
-          "w": 1.3,
-          "sill": 0.0,
-          "spring": 2.2,
-          "apex": 2.8,
+          "w": 0.6,
+          "sill": 5.0,
+          "spring": 6.2,
+          "apex": 6.6,
           "shutter": true
         }
       ]
+    },
+    {
+      "id": "east_range.sacristy_wall",
+      "a": [
+        52.8,
+        -24.0
+      ],
+      "b": [
+        61.2,
+        -24.0
+      ],
+      "inside": [
+        57.0,
+        -28.0
+      ],
+      "thick": 0.6,
+      "y1": 4.2,
+      "outer": "limewash",
+      "inner": "limewash",
+      "floor": 0.12,
+      "inner_from": 0.0,
+      "inner_to": 0.0,
+      "openings": []
+    },
+    {
+      "id": "east_range.chapter_wall",
+      "a": [
+        52.8,
+        -34.2
+      ],
+      "b": [
+        61.2,
+        -34.2
+      ],
+      "inside": [
+        57.0,
+        -30.0
+      ],
+      "thick": 0.6,
+      "y1": 4.2,
+      "outer": "limewash",
+      "inner": "limewash",
+      "floor": 0.12,
+      "inner_from": 0.0,
+      "inner_to": 0.0,
+      "openings": []
+    },
+    {
+      "id": "east_range.stair_wall",
+      "a": [
+        52.8,
+        -37.8
+      ],
+      "b": [
+        61.2,
+        -37.8
+      ],
+      "inside": [
+        57.0,
+        -36.0
+      ],
+      "thick": 0.6,
+      "y1": 4.2,
+      "outer": "limewash",
+      "inner": "limewash",
+      "floor": 0.12,
+      "inner_from": 0.0,
+      "inner_to": 0.0,
+      "openings": []
     },
     {
       "id": "brewhouse.north",
@@ -1321,9 +1525,10 @@
       "thick": 0.8,
       "y1": 4.2,
       "outer": "wall:limestone",
-      "inner_face": false,
-      "floor": 0.0,
-      "openings": []
+      "inner": "limewash",
+      "floor": 0.12,
+      "openings": [],
+      "inner_face": false
     },
     {
       "id": "brewhouse.south",
@@ -1342,8 +1547,8 @@
       "thick": 0.8,
       "y1": 4.2,
       "outer": "wall:limestone",
-      "inner_face": false,
-      "floor": 0.0,
+      "inner": "limewash",
+      "floor": 0.12,
       "openings": [
         {
           "kind": "niche",
@@ -1361,7 +1566,8 @@
           "spring": 2.2,
           "shutter": true
         }
-      ]
+      ],
+      "inner_face": false
     },
     {
       "id": "brewhouse.west",
@@ -1380,9 +1586,10 @@
       "thick": 0.8,
       "y1": 4.2,
       "outer": "wall:limestone",
-      "inner_face": false,
-      "floor": 0.0,
-      "openings": []
+      "inner": "limewash",
+      "floor": 0.12,
+      "openings": [],
+      "inner_face": false
     },
     {
       "id": "brewhouse.east",
@@ -1401,9 +1608,10 @@
       "thick": 0.8,
       "y1": 4.2,
       "outer": "wall:limestone",
-      "inner_face": false,
-      "floor": 0.0,
-      "openings": []
+      "inner": "limewash",
+      "floor": 0.12,
+      "openings": [],
+      "inner_face": false
     },
     {
       "id": "cloister.arcade.south",
@@ -2264,6 +2472,24 @@
           -17.2
         ],
         [
+          56.0,
+          -17.2
+        ],
+        [
+          56.0,
+          -15.7
+        ],
+        [
+          51.2,
+          -15.7
+        ]
+      ],
+      [
+        [
+          58.0,
+          -17.2
+        ],
+        [
           60.2,
           -17.2
         ],
@@ -2272,7 +2498,7 @@
           -15.7
         ],
         [
-          51.2,
+          58.0,
           -15.7
         ]
       ],
@@ -2310,6 +2536,222 @@
         [
           32.6,
           -2.8
+        ]
+      ],
+      [
+        [
+          52.8,
+          -33.6
+        ],
+        [
+          61.2,
+          -33.6
+        ],
+        [
+          61.2,
+          -33.1
+        ],
+        [
+          52.8,
+          -33.1
+        ]
+      ],
+      [
+        [
+          52.8,
+          -25.1
+        ],
+        [
+          61.2,
+          -25.1
+        ],
+        [
+          61.2,
+          -24.6
+        ],
+        [
+          52.8,
+          -24.6
+        ]
+      ],
+      [
+        [
+          60.7,
+          -33.1
+        ],
+        [
+          61.2,
+          -33.1
+        ],
+        [
+          61.2,
+          -25.1
+        ],
+        [
+          60.7,
+          -25.1
+        ]
+      ],
+      [
+        [
+          52.8,
+          -33.1
+        ],
+        [
+          53.3,
+          -33.1
+        ],
+        [
+          53.3,
+          -30.2
+        ],
+        [
+          52.8,
+          -30.2
+        ]
+      ],
+      [
+        [
+          52.8,
+          -28.0
+        ],
+        [
+          53.3,
+          -28.0
+        ],
+        [
+          53.3,
+          -25.1
+        ],
+        [
+          52.8,
+          -25.1
+        ]
+      ],
+      [
+        [
+          56.55,
+          -29.55
+        ],
+        [
+          57.45,
+          -29.55
+        ],
+        [
+          57.45,
+          -28.65
+        ],
+        [
+          56.55,
+          -28.65
+        ]
+      ],
+      [
+        [
+          59.35,
+          -29.35
+        ],
+        [
+          59.85,
+          -29.35
+        ],
+        [
+          59.85,
+          -28.85
+        ],
+        [
+          59.35,
+          -28.85
+        ]
+      ],
+      [
+        [
+          55.0,
+          -37.2
+        ],
+        [
+          61.2,
+          -37.2
+        ],
+        [
+          61.2,
+          -34.2
+        ],
+        [
+          55.0,
+          -34.2
+        ]
+      ],
+      [
+        [
+          58.6,
+          -49.0
+        ],
+        [
+          60.4,
+          -49.0
+        ],
+        [
+          60.4,
+          -39.4
+        ],
+        [
+          58.6,
+          -39.4
+        ]
+      ],
+      [
+        [
+          53.7,
+          -49.0
+        ],
+        [
+          55.5,
+          -49.0
+        ],
+        [
+          55.5,
+          -39.4
+        ],
+        [
+          53.7,
+          -39.4
+        ]
+      ],
+      [
+        [
+          9.5,
+          -47.8
+        ],
+        [
+          12.0,
+          -47.8
+        ],
+        [
+          12.0,
+          -40.4
+        ],
+        [
+          9.5,
+          -40.4
+        ]
+      ],
+      [
+        [
+          7.3,
+          -51.2
+        ],
+        [
+          12.0,
+          -51.2
+        ],
+        [
+          12.0,
+          -50.2
+        ],
+        [
+          7.3,
+          -50.2
         ]
       ],
       [
@@ -2514,6 +2956,182 @@
           ]
         ],
         "height": 0.12
+      },
+      {
+        "id": "floor.sacristy",
+        "polygon": [
+          [
+            52.8,
+            -24.0
+          ],
+          [
+            61.2,
+            -24.0
+          ],
+          [
+            61.2,
+            -18.5
+          ],
+          [
+            52.8,
+            -18.5
+          ]
+        ],
+        "height": 0.57
+      },
+      {
+        "id": "floor.chapter_house",
+        "polygon": [
+          [
+            52.8,
+            -33.6
+          ],
+          [
+            61.2,
+            -33.6
+          ],
+          [
+            61.2,
+            -24.6
+          ],
+          [
+            52.8,
+            -24.6
+          ]
+        ],
+        "height": 0.12
+      },
+      {
+        "id": "floor.dorter_stair",
+        "polygon": [
+          [
+            52.8,
+            -37.2
+          ],
+          [
+            61.2,
+            -37.2
+          ],
+          [
+            61.2,
+            -34.2
+          ],
+          [
+            52.8,
+            -34.2
+          ]
+        ],
+        "height": 0.12
+      },
+      {
+        "id": "floor.refectory",
+        "polygon": [
+          [
+            52.8,
+            -51.2
+          ],
+          [
+            61.2,
+            -51.2
+          ],
+          [
+            61.2,
+            -37.8
+          ],
+          [
+            52.8,
+            -37.8
+          ]
+        ],
+        "height": 0.12
+      },
+      {
+        "id": "floor.kitchen",
+        "polygon": [
+          [
+            15.0,
+            -51.2
+          ],
+          [
+            30.0,
+            -51.2
+          ],
+          [
+            30.0,
+            -43.8
+          ],
+          [
+            15.0,
+            -43.8
+          ]
+        ],
+        "height": 0.12
+      },
+      {
+        "id": "floor.stores",
+        "polygon": [
+          [
+            30.6,
+            -51.2
+          ],
+          [
+            52.0,
+            -51.2
+          ],
+          [
+            52.0,
+            -43.8
+          ],
+          [
+            30.6,
+            -43.8
+          ]
+        ],
+        "height": 0.12
+      },
+      {
+        "id": "floor.granary",
+        "polygon": [
+          [
+            7.3,
+            -29.4
+          ],
+          [
+            14.2,
+            -29.4
+          ],
+          [
+            14.2,
+            -21.8
+          ],
+          [
+            7.3,
+            -21.8
+          ]
+        ],
+        "height": 0.12
+      },
+      {
+        "id": "floor.lay_hall",
+        "polygon": [
+          [
+            7.3,
+            -51.2
+          ],
+          [
+            14.2,
+            -51.2
+          ],
+          [
+            14.2,
+            -30.0
+          ],
+          [
+            7.3,
+            -30.0
+          ]
+        ],
+        "height": 0.12
       }
     ]
   },
@@ -2570,6 +3188,246 @@
       "hide": [
         "Church/Upper",
         "Church/Roof"
+      ]
+    },
+    {
+      "id": "room.sacristy",
+      "name": "St Catherine's (sacristy)",
+      "polygon": [
+        [
+          52.8,
+          -24.0
+        ],
+        [
+          61.2,
+          -24.0
+        ],
+        [
+          61.2,
+          -18.5
+        ],
+        [
+          52.8,
+          -18.5
+        ]
+      ],
+      "floor": "floor.sacristy",
+      "hide": [
+        "Ranges/Upper",
+        "Ranges/Ceilings",
+        "Ranges/RangeRoofs",
+        "Ranges/WestRoof",
+        "Ranges/EastRoof"
+      ]
+    },
+    {
+      "id": "room.chapter_house",
+      "name": "St Catherine's friary (chapter house)",
+      "polygon": [
+        [
+          52.8,
+          -33.6
+        ],
+        [
+          61.2,
+          -33.6
+        ],
+        [
+          61.2,
+          -24.6
+        ],
+        [
+          52.8,
+          -24.6
+        ]
+      ],
+      "floor": "floor.chapter_house",
+      "hide": [
+        "Ranges/Upper",
+        "Ranges/Ceilings",
+        "Ranges/RangeRoofs",
+        "Ranges/WestRoof",
+        "Ranges/EastRoof"
+      ]
+    },
+    {
+      "id": "room.dorter_stair",
+      "name": "St Catherine's friary (dormitory stair)",
+      "polygon": [
+        [
+          52.8,
+          -37.2
+        ],
+        [
+          61.2,
+          -37.2
+        ],
+        [
+          61.2,
+          -34.2
+        ],
+        [
+          52.8,
+          -34.2
+        ]
+      ],
+      "floor": "floor.dorter_stair",
+      "hide": [
+        "Ranges/Upper",
+        "Ranges/Ceilings",
+        "Ranges/RangeRoofs",
+        "Ranges/WestRoof",
+        "Ranges/EastRoof"
+      ]
+    },
+    {
+      "id": "room.refectory",
+      "name": "St Catherine's friary (refectory)",
+      "polygon": [
+        [
+          52.8,
+          -51.2
+        ],
+        [
+          61.2,
+          -51.2
+        ],
+        [
+          61.2,
+          -37.8
+        ],
+        [
+          52.8,
+          -37.8
+        ]
+      ],
+      "floor": "floor.refectory",
+      "hide": [
+        "Ranges/Upper",
+        "Ranges/Ceilings",
+        "Ranges/RangeRoofs",
+        "Ranges/WestRoof",
+        "Ranges/EastRoof"
+      ]
+    },
+    {
+      "id": "room.kitchen",
+      "name": "St Catherine's friary (kitchen)",
+      "polygon": [
+        [
+          15.0,
+          -51.2
+        ],
+        [
+          30.0,
+          -51.2
+        ],
+        [
+          30.0,
+          -43.8
+        ],
+        [
+          15.0,
+          -43.8
+        ]
+      ],
+      "floor": "floor.kitchen",
+      "hide": [
+        "Ranges/Upper",
+        "Ranges/Ceilings",
+        "Ranges/RangeRoofs",
+        "Ranges/WestRoof",
+        "Ranges/EastRoof"
+      ]
+    },
+    {
+      "id": "room.stores",
+      "name": "St Catherine's friary (stores)",
+      "polygon": [
+        [
+          30.6,
+          -51.2
+        ],
+        [
+          52.0,
+          -51.2
+        ],
+        [
+          52.0,
+          -43.8
+        ],
+        [
+          30.6,
+          -43.8
+        ]
+      ],
+      "floor": "floor.stores",
+      "hide": [
+        "Ranges/Upper",
+        "Ranges/Ceilings",
+        "Ranges/RangeRoofs",
+        "Ranges/WestRoof",
+        "Ranges/EastRoof"
+      ]
+    },
+    {
+      "id": "room.granary",
+      "name": "St Catherine's friary (granary)",
+      "polygon": [
+        [
+          7.3,
+          -29.4
+        ],
+        [
+          14.2,
+          -29.4
+        ],
+        [
+          14.2,
+          -21.8
+        ],
+        [
+          7.3,
+          -21.8
+        ]
+      ],
+      "floor": "floor.granary",
+      "hide": [
+        "Ranges/Upper",
+        "Ranges/Ceilings",
+        "Ranges/RangeRoofs",
+        "Ranges/WestRoof",
+        "Ranges/EastRoof"
+      ]
+    },
+    {
+      "id": "room.lay_hall",
+      "name": "St Catherine's friary (lay brothers' hall)",
+      "polygon": [
+        [
+          7.3,
+          -51.2
+        ],
+        [
+          14.2,
+          -51.2
+        ],
+        [
+          14.2,
+          -30.0
+        ],
+        [
+          7.3,
+          -30.0
+        ]
+      ],
+      "floor": "floor.lay_hall",
+      "hide": [
+        "Ranges/Upper",
+        "Ranges/Ceilings",
+        "Ranges/RangeRoofs",
+        "Ranges/WestRoof",
+        "Ranges/EastRoof"
       ]
     },
     {
@@ -2747,6 +3605,190 @@
         0.28
       ],
       "note": "from the cloister south walk (a room) into the nave"
+    },
+    {
+      "id": "door.st_catherine.sacristy",
+      "a": [
+        56.3,
+        -17.32
+      ],
+      "b": [
+        57.7,
+        -17.32
+      ],
+      "inward": [
+        0,
+        -1
+      ],
+      "floor": "floor.sacristy",
+      "height": 2.9,
+      "style": "ledged",
+      "paint": [
+        0.4,
+        0.34,
+        0.28
+      ]
+    },
+    {
+      "id": "door.st_catherine.granary",
+      "a": [
+        9.95,
+        -21.12
+      ],
+      "b": [
+        11.55,
+        -21.12
+      ],
+      "inward": [
+        0,
+        -1
+      ],
+      "floor": "floor.granary",
+      "height": 2.3,
+      "style": "ledged",
+      "paint": [
+        0.4,
+        0.34,
+        0.28
+      ]
+    },
+    {
+      "id": "door.st_catherine.lay_hall",
+      "a": [
+        14.88,
+        -35.2
+      ],
+      "b": [
+        14.88,
+        -36.8
+      ],
+      "inward": [
+        -1,
+        0
+      ],
+      "floor": "floor.lay_hall",
+      "height": 2.3,
+      "style": "braced",
+      "paint": [
+        0.4,
+        0.34,
+        0.28
+      ]
+    },
+    {
+      "id": "door.st_catherine.kitchen",
+      "a": [
+        23.3,
+        -43.12
+      ],
+      "b": [
+        24.7,
+        -43.12
+      ],
+      "inward": [
+        0,
+        -1
+      ],
+      "floor": "floor.kitchen",
+      "height": 2.3,
+      "style": "braced",
+      "paint": [
+        0.4,
+        0.34,
+        0.28
+      ]
+    },
+    {
+      "id": "door.st_catherine.stores",
+      "a": [
+        40.2,
+        -43.12
+      ],
+      "b": [
+        41.8,
+        -43.12
+      ],
+      "inward": [
+        0,
+        -1
+      ],
+      "floor": "floor.stores",
+      "height": 2.3,
+      "style": "ledged",
+      "paint": [
+        0.4,
+        0.34,
+        0.28
+      ]
+    },
+    {
+      "id": "door.st_catherine.refectory",
+      "a": [
+        52.12,
+        -38.0
+      ],
+      "b": [
+        52.12,
+        -39.6
+      ],
+      "inward": [
+        1,
+        0
+      ],
+      "floor": "floor.refectory",
+      "height": 2.3,
+      "style": "studded",
+      "paint": [
+        0.4,
+        0.34,
+        0.28
+      ]
+    },
+    {
+      "id": "door.st_catherine.dorter_stair",
+      "a": [
+        52.12,
+        -35.0
+      ],
+      "b": [
+        52.12,
+        -36.4
+      ],
+      "inward": [
+        1,
+        0
+      ],
+      "floor": "floor.dorter_stair",
+      "height": 2.3,
+      "style": "braced",
+      "paint": [
+        0.4,
+        0.34,
+        0.28
+      ]
+    },
+    {
+      "id": "door.st_catherine.chapter_house",
+      "a": [
+        52.12,
+        -28.3
+      ],
+      "b": [
+        52.12,
+        -29.9
+      ],
+      "inward": [
+        1,
+        0
+      ],
+      "floor": "floor.chapter_house",
+      "height": 2.4,
+      "style": "studded",
+      "paint": [
+        0.4,
+        0.34,
+        0.28
+      ]
     }
   ],
   "dressing": [
@@ -2885,6 +3927,776 @@
         64.9,
         -16.6
       ]
+    },
+    {
+      "id": "sacristy.armarium",
+      "kind": "catalog",
+      "object": "obj.armarium_elite",
+      "at": [
+        60.5,
+        -21.2
+      ],
+      "rotation_deg": 90,
+      "solid": [
+        0.9,
+        1.5
+      ]
+    },
+    {
+      "id": "sacristy.chest",
+      "kind": "catalog",
+      "object": "obj.chest_burgher",
+      "at": [
+        55.0,
+        -19.6
+      ],
+      "solid": [
+        1.0,
+        0.65
+      ]
+    },
+    {
+      "id": "sacristy.candle",
+      "kind": "catalog",
+      "object": "obj.candlestick_beeswax_rich",
+      "at": [
+        55.0,
+        -19.6
+      ],
+      "y": 0.61
+    },
+    {
+      "id": "refectory.high_table",
+      "kind": "catalog",
+      "object": "obj.table_long_board",
+      "at": [
+        57.0,
+        -50.2
+      ],
+      "solid": [
+        2.3,
+        0.9
+      ]
+    },
+    {
+      "id": "refectory.high_bench",
+      "kind": "catalog",
+      "object": "obj.bench_plank",
+      "at": [
+        57.0,
+        -50.85
+      ],
+      "solid": [
+        1.62,
+        0.4
+      ]
+    },
+    {
+      "id": "refectory.candle_high",
+      "kind": "catalog",
+      "object": "obj.candlestick_tallow_artisan",
+      "at": [
+        57.0,
+        -50.2
+      ],
+      "y": 0.79
+    },
+    {
+      "id": "refectory.board_e0",
+      "kind": "catalog",
+      "object": "obj.table_long_board",
+      "at": [
+        59.9,
+        -40.6
+      ],
+      "rotation_deg": 90
+    },
+    {
+      "id": "refectory.bench_e0",
+      "kind": "catalog",
+      "object": "obj.bench_plank",
+      "at": [
+        58.9,
+        -40.6
+      ],
+      "rotation_deg": 90
+    },
+    {
+      "id": "refectory.board_w0",
+      "kind": "catalog",
+      "object": "obj.table_long_board",
+      "at": [
+        54.1,
+        -40.6
+      ],
+      "rotation_deg": 90
+    },
+    {
+      "id": "refectory.bench_w0",
+      "kind": "catalog",
+      "object": "obj.bench_plank",
+      "at": [
+        55.1,
+        -40.6
+      ],
+      "rotation_deg": 90
+    },
+    {
+      "id": "refectory.trencher_e0",
+      "kind": "catalog",
+      "object": "obj.trencher",
+      "at": [
+        59.6,
+        -40.2
+      ],
+      "y": 0.79
+    },
+    {
+      "id": "refectory.trencher_w0",
+      "kind": "catalog",
+      "object": "obj.trencher",
+      "at": [
+        54.4,
+        -41.0
+      ],
+      "y": 0.79
+    },
+    {
+      "id": "refectory.jug_e0",
+      "kind": "catalog",
+      "object": "obj.jug",
+      "at": [
+        60.1,
+        -41.1
+      ],
+      "y": 0.79
+    },
+    {
+      "id": "refectory.bread_w0",
+      "kind": "catalog",
+      "object": "obj.rye_bread_loaf",
+      "at": [
+        53.9,
+        -40.1
+      ],
+      "y": 0.79
+    },
+    {
+      "id": "refectory.board_e1",
+      "kind": "catalog",
+      "object": "obj.table_long_board",
+      "at": [
+        59.9,
+        -43.0
+      ],
+      "rotation_deg": 90
+    },
+    {
+      "id": "refectory.bench_e1",
+      "kind": "catalog",
+      "object": "obj.bench_plank",
+      "at": [
+        58.9,
+        -43.0
+      ],
+      "rotation_deg": 90
+    },
+    {
+      "id": "refectory.board_w1",
+      "kind": "catalog",
+      "object": "obj.table_long_board",
+      "at": [
+        54.1,
+        -43.0
+      ],
+      "rotation_deg": 90
+    },
+    {
+      "id": "refectory.bench_w1",
+      "kind": "catalog",
+      "object": "obj.bench_plank",
+      "at": [
+        55.1,
+        -43.0
+      ],
+      "rotation_deg": 90
+    },
+    {
+      "id": "refectory.trencher_e1",
+      "kind": "catalog",
+      "object": "obj.trencher",
+      "at": [
+        59.6,
+        -42.6
+      ],
+      "y": 0.79
+    },
+    {
+      "id": "refectory.trencher_w1",
+      "kind": "catalog",
+      "object": "obj.trencher",
+      "at": [
+        54.4,
+        -43.4
+      ],
+      "y": 0.79
+    },
+    {
+      "id": "refectory.jug_e1",
+      "kind": "catalog",
+      "object": "obj.jug",
+      "at": [
+        60.1,
+        -43.5
+      ],
+      "y": 0.79
+    },
+    {
+      "id": "refectory.bread_w1",
+      "kind": "catalog",
+      "object": "obj.rye_bread_loaf",
+      "at": [
+        53.9,
+        -42.5
+      ],
+      "y": 0.79
+    },
+    {
+      "id": "refectory.board_e2",
+      "kind": "catalog",
+      "object": "obj.table_long_board",
+      "at": [
+        59.9,
+        -45.4
+      ],
+      "rotation_deg": 90
+    },
+    {
+      "id": "refectory.bench_e2",
+      "kind": "catalog",
+      "object": "obj.bench_plank",
+      "at": [
+        58.9,
+        -45.4
+      ],
+      "rotation_deg": 90
+    },
+    {
+      "id": "refectory.board_w2",
+      "kind": "catalog",
+      "object": "obj.table_long_board",
+      "at": [
+        54.1,
+        -45.4
+      ],
+      "rotation_deg": 90
+    },
+    {
+      "id": "refectory.bench_w2",
+      "kind": "catalog",
+      "object": "obj.bench_plank",
+      "at": [
+        55.1,
+        -45.4
+      ],
+      "rotation_deg": 90
+    },
+    {
+      "id": "refectory.trencher_e2",
+      "kind": "catalog",
+      "object": "obj.trencher",
+      "at": [
+        59.6,
+        -45.0
+      ],
+      "y": 0.79
+    },
+    {
+      "id": "refectory.trencher_w2",
+      "kind": "catalog",
+      "object": "obj.trencher",
+      "at": [
+        54.4,
+        -45.8
+      ],
+      "y": 0.79
+    },
+    {
+      "id": "refectory.jug_e2",
+      "kind": "catalog",
+      "object": "obj.jug",
+      "at": [
+        60.1,
+        -45.9
+      ],
+      "y": 0.79
+    },
+    {
+      "id": "refectory.bread_w2",
+      "kind": "catalog",
+      "object": "obj.rye_bread_loaf",
+      "at": [
+        53.9,
+        -44.9
+      ],
+      "y": 0.79
+    },
+    {
+      "id": "refectory.board_e3",
+      "kind": "catalog",
+      "object": "obj.table_long_board",
+      "at": [
+        59.9,
+        -47.8
+      ],
+      "rotation_deg": 90
+    },
+    {
+      "id": "refectory.bench_e3",
+      "kind": "catalog",
+      "object": "obj.bench_plank",
+      "at": [
+        58.9,
+        -47.8
+      ],
+      "rotation_deg": 90
+    },
+    {
+      "id": "refectory.board_w3",
+      "kind": "catalog",
+      "object": "obj.table_long_board",
+      "at": [
+        54.1,
+        -47.8
+      ],
+      "rotation_deg": 90
+    },
+    {
+      "id": "refectory.bench_w3",
+      "kind": "catalog",
+      "object": "obj.bench_plank",
+      "at": [
+        55.1,
+        -47.8
+      ],
+      "rotation_deg": 90
+    },
+    {
+      "id": "refectory.trencher_e3",
+      "kind": "catalog",
+      "object": "obj.trencher",
+      "at": [
+        59.6,
+        -47.4
+      ],
+      "y": 0.79
+    },
+    {
+      "id": "refectory.trencher_w3",
+      "kind": "catalog",
+      "object": "obj.trencher",
+      "at": [
+        54.4,
+        -48.2
+      ],
+      "y": 0.79
+    },
+    {
+      "id": "refectory.jug_e3",
+      "kind": "catalog",
+      "object": "obj.jug",
+      "at": [
+        60.1,
+        -48.3
+      ],
+      "y": 0.79
+    },
+    {
+      "id": "refectory.bread_w3",
+      "kind": "catalog",
+      "object": "obj.rye_bread_loaf",
+      "at": [
+        53.9,
+        -47.3
+      ],
+      "y": 0.79
+    },
+    {
+      "id": "kitchen.hearth",
+      "kind": "catalog",
+      "object": "obj.hearth_domestic",
+      "at": [
+        22.0,
+        -50.5
+      ],
+      "solid": [
+        1.2,
+        1.2
+      ]
+    },
+    {
+      "id": "kitchen.pot",
+      "kind": "catalog",
+      "object": "obj.cooking_pot",
+      "at": [
+        22.0,
+        -49.75
+      ]
+    },
+    {
+      "id": "kitchen.table",
+      "kind": "catalog",
+      "object": "obj.table_trestle_work",
+      "at": [
+        25.8,
+        -46.4
+      ],
+      "solid": [
+        1.6,
+        0.8
+      ]
+    },
+    {
+      "id": "kitchen.prep",
+      "kind": "catalog",
+      "object": "obj.set_kitchen_prep",
+      "at": [
+        25.6,
+        -46.4
+      ],
+      "y": 0.82
+    },
+    {
+      "id": "kitchen.firewood",
+      "kind": "catalog",
+      "object": "obj.firewood_pile_indoor",
+      "at": [
+        17.2,
+        -50.5
+      ],
+      "solid": [
+        0.8,
+        0.7
+      ]
+    },
+    {
+      "id": "kitchen.bucket",
+      "kind": "catalog",
+      "object": "obj.water_bucket",
+      "at": [
+        19.0,
+        -44.6
+      ]
+    },
+    {
+      "id": "kitchen.shelf",
+      "kind": "catalog",
+      "object": "obj.shelf_common_open",
+      "at": [
+        28.4,
+        -50.85
+      ],
+      "solid": [
+        1.0,
+        0.5
+      ]
+    },
+    {
+      "id": "kitchen.storage",
+      "kind": "catalog",
+      "object": "obj.set_kitchen_storage",
+      "at": [
+        28.4,
+        -50.85
+      ],
+      "y": 0.9
+    },
+    {
+      "id": "kitchen.clay_pot",
+      "kind": "catalog",
+      "object": "obj.clay_pot",
+      "at": [
+        16.0,
+        -46.0
+      ]
+    },
+    {
+      "id": "stores.herring_a",
+      "kind": "catalog",
+      "object": "obj.cargo_herring_barrels",
+      "at": [
+        33.0,
+        -50.2
+      ],
+      "solid": [
+        1.4,
+        1.0
+      ]
+    },
+    {
+      "id": "stores.malt",
+      "kind": "catalog",
+      "object": "obj.malt_sack_pile",
+      "at": [
+        36.6,
+        -50.2
+      ],
+      "solid": [
+        1.3,
+        1.0
+      ]
+    },
+    {
+      "id": "stores.grain",
+      "kind": "catalog",
+      "object": "obj.cargo_grain_flax",
+      "at": [
+        40.0,
+        -50.2
+      ],
+      "solid": [
+        1.2,
+        0.9
+      ]
+    },
+    {
+      "id": "stores.herring_b",
+      "kind": "catalog",
+      "object": "obj.cargo_herring_barrels",
+      "at": [
+        44.0,
+        -50.2
+      ],
+      "solid": [
+        1.4,
+        1.0
+      ]
+    },
+    {
+      "id": "stores.salt",
+      "kind": "catalog",
+      "object": "obj.salt_pile",
+      "at": [
+        47.0,
+        -46.0
+      ],
+      "solid": [
+        1.4,
+        1.0
+      ]
+    },
+    {
+      "id": "stores.cupboard",
+      "kind": "catalog",
+      "object": "obj.cupboard_burgher",
+      "at": [
+        49.8,
+        -50.8
+      ],
+      "solid": [
+        1.2,
+        0.65
+      ]
+    },
+    {
+      "id": "granary.grain_a",
+      "kind": "catalog",
+      "object": "obj.cargo_grain_flax",
+      "at": [
+        8.6,
+        -23.4
+      ],
+      "rotation_deg": 90,
+      "solid": [
+        0.9,
+        1.2
+      ]
+    },
+    {
+      "id": "granary.grain_b",
+      "kind": "catalog",
+      "object": "obj.cargo_grain_flax",
+      "at": [
+        13.0,
+        -23.4
+      ],
+      "rotation_deg": 90,
+      "solid": [
+        0.9,
+        1.2
+      ]
+    },
+    {
+      "id": "granary.malt_a",
+      "kind": "catalog",
+      "object": "obj.malt_sack_pile",
+      "at": [
+        8.6,
+        -27.3
+      ],
+      "rotation_deg": 90,
+      "solid": [
+        1.0,
+        1.3
+      ]
+    },
+    {
+      "id": "granary.malt_b",
+      "kind": "catalog",
+      "object": "obj.malt_sack_pile",
+      "at": [
+        13.0,
+        -27.3
+      ],
+      "rotation_deg": 90,
+      "solid": [
+        1.0,
+        1.3
+      ]
+    },
+    {
+      "id": "lay_hall.chest",
+      "kind": "catalog",
+      "object": "obj.chest_plain_coffer",
+      "at": [
+        8.0,
+        -31.2
+      ],
+      "rotation_deg": 90,
+      "solid": [
+        0.55,
+        0.85
+      ]
+    },
+    {
+      "id": "lay_hall.board0",
+      "kind": "catalog",
+      "object": "obj.table_long_board",
+      "at": [
+        10.75,
+        -46.5
+      ],
+      "rotation_deg": 90
+    },
+    {
+      "id": "lay_hall.bench_w0",
+      "kind": "catalog",
+      "object": "obj.bench_plank",
+      "at": [
+        9.75,
+        -46.5
+      ],
+      "rotation_deg": 90
+    },
+    {
+      "id": "lay_hall.bench_e0",
+      "kind": "catalog",
+      "object": "obj.bench_plank",
+      "at": [
+        11.75,
+        -46.5
+      ],
+      "rotation_deg": 90
+    },
+    {
+      "id": "lay_hall.bowl0",
+      "kind": "catalog",
+      "object": "obj.bowl_large",
+      "at": [
+        10.75,
+        -46.5
+      ],
+      "y": 0.79
+    },
+    {
+      "id": "lay_hall.board1",
+      "kind": "catalog",
+      "object": "obj.table_long_board",
+      "at": [
+        10.75,
+        -44.1
+      ],
+      "rotation_deg": 90
+    },
+    {
+      "id": "lay_hall.bench_w1",
+      "kind": "catalog",
+      "object": "obj.bench_plank",
+      "at": [
+        9.75,
+        -44.1
+      ],
+      "rotation_deg": 90
+    },
+    {
+      "id": "lay_hall.bench_e1",
+      "kind": "catalog",
+      "object": "obj.bench_plank",
+      "at": [
+        11.75,
+        -44.1
+      ],
+      "rotation_deg": 90
+    },
+    {
+      "id": "lay_hall.bowl1",
+      "kind": "catalog",
+      "object": "obj.bowl_large",
+      "at": [
+        10.75,
+        -44.1
+      ],
+      "y": 0.79
+    },
+    {
+      "id": "lay_hall.board2",
+      "kind": "catalog",
+      "object": "obj.table_long_board",
+      "at": [
+        10.75,
+        -41.7
+      ],
+      "rotation_deg": 90
+    },
+    {
+      "id": "lay_hall.bench_w2",
+      "kind": "catalog",
+      "object": "obj.bench_plank",
+      "at": [
+        9.75,
+        -41.7
+      ],
+      "rotation_deg": 90
+    },
+    {
+      "id": "lay_hall.bench_e2",
+      "kind": "catalog",
+      "object": "obj.bench_plank",
+      "at": [
+        11.75,
+        -41.7
+      ],
+      "rotation_deg": 90
+    },
+    {
+      "id": "lay_hall.bowl2",
+      "kind": "catalog",
+      "object": "obj.bowl_large",
+      "at": [
+        10.75,
+        -41.7
+      ],
+      "y": 0.79
+    },
+    {
+      "id": "lay_hall.candle",
+      "kind": "catalog",
+      "object": "obj.candlestick_tallow_poor",
+      "at": [
+        10.75,
+        -43.0
+      ],
+      "y": 0.79
     }
   ],
   "anchors": [
@@ -2914,6 +4726,41 @@
       "at": [
         67.0,
         -20.0
+      ]
+    },
+    {
+      "id": "anchor.st_catherine.chapter_house",
+      "at": [
+        55.0,
+        -29.1
+      ]
+    },
+    {
+      "id": "anchor.st_catherine.refectory",
+      "at": [
+        57.0,
+        -44.0
+      ]
+    },
+    {
+      "id": "anchor.st_catherine.dorter_stair",
+      "at": [
+        53.8,
+        -35.7
+      ]
+    },
+    {
+      "id": "anchor.st_catherine.kitchen",
+      "at": [
+        24.0,
+        -47.5
+      ]
+    },
+    {
+      "id": "anchor.st_catherine.lay_hall",
+      "at": [
+        10.75,
+        -36.0
       ]
     }
   ],
@@ -3034,6 +4881,1200 @@
         -30.0
       ],
       "facing_deg": 0
+    }
+  ],
+  "community": {
+    "household": "hh.inst_st_catherine_friary",
+    "note": "The census friary household (24 friars, 8 lay brothers, 5 servants, a cook) lives in the close: a horarium by trade instead of the generic cleric day. Seats are exact per resident (stalls, chapter bench, refectory benches).",
+    "paths": [
+      {
+        "id": "path.gate_cloister",
+        "entry": true,
+        "points": [
+          [
+            -4.0,
+            -9.0
+          ],
+          [
+            1.5,
+            -9.0
+          ],
+          [
+            6.0,
+            -11.0
+          ],
+          [
+            10.5,
+            -17.0
+          ],
+          [
+            10.5,
+            -19.8
+          ],
+          [
+            16.5,
+            -20.0
+          ]
+        ]
+      },
+      {
+        "id": "path.cloister_walk",
+        "points": [
+          [
+            16.5,
+            -20.0
+          ],
+          [
+            50.5,
+            -20.0
+          ],
+          [
+            50.5,
+            -41.5
+          ],
+          [
+            16.5,
+            -41.5
+          ],
+          [
+            16.5,
+            -20.0
+          ]
+        ]
+      },
+      {
+        "id": "path.west_portal",
+        "points": [
+          [
+            6.0,
+            -11.0
+          ],
+          [
+            12.0,
+            -10.0
+          ],
+          [
+            20.0,
+            -10.0
+          ],
+          [
+            41.0,
+            -10.0
+          ]
+        ]
+      },
+      {
+        "id": "path.church",
+        "points": [
+          [
+            41.0,
+            -20.0
+          ],
+          [
+            41.0,
+            -16.0
+          ],
+          [
+            41.0,
+            -10.0
+          ],
+          [
+            48.6,
+            -10.0
+          ],
+          [
+            49.4,
+            -10.0
+          ],
+          [
+            52.0,
+            -10.0
+          ],
+          [
+            56.5,
+            -10.0
+          ],
+          [
+            57.0,
+            -14.5
+          ],
+          [
+            57.0,
+            -16.5
+          ],
+          [
+            57.0,
+            -21.0
+          ]
+        ]
+      },
+      {
+        "id": "path.chapter",
+        "points": [
+          [
+            50.5,
+            -29.1
+          ],
+          [
+            54.5,
+            -29.1
+          ],
+          [
+            54.6,
+            -31.6
+          ],
+          [
+            59.2,
+            -31.6
+          ],
+          [
+            59.2,
+            -26.6
+          ],
+          [
+            54.6,
+            -26.6
+          ],
+          [
+            54.5,
+            -29.1
+          ]
+        ]
+      },
+      {
+        "id": "path.choir_south",
+        "points": [
+          [
+            52.0,
+            -10.0
+          ],
+          [
+            51.6,
+            -3.65
+          ]
+        ]
+      },
+      {
+        "id": "path.dorter",
+        "points": [
+          [
+            50.5,
+            -35.7
+          ],
+          [
+            53.8,
+            -35.7
+          ]
+        ]
+      },
+      {
+        "id": "path.refectory",
+        "points": [
+          [
+            50.5,
+            -38.8
+          ],
+          [
+            53.6,
+            -38.8
+          ],
+          [
+            57.0,
+            -40.0
+          ],
+          [
+            57.0,
+            -48.6
+          ]
+        ]
+      },
+      {
+        "id": "path.kitchen",
+        "points": [
+          [
+            24.0,
+            -41.5
+          ],
+          [
+            24.0,
+            -46.5
+          ],
+          [
+            21.5,
+            -48.6
+          ]
+        ]
+      },
+      {
+        "id": "path.stores",
+        "points": [
+          [
+            41.0,
+            -41.5
+          ],
+          [
+            41.0,
+            -47.0
+          ]
+        ]
+      },
+      {
+        "id": "path.lay_hall",
+        "points": [
+          [
+            16.5,
+            -36.0
+          ],
+          [
+            13.0,
+            -36.0
+          ],
+          [
+            13.0,
+            -49.4
+          ]
+        ]
+      },
+      {
+        "id": "path.granary",
+        "points": [
+          [
+            10.5,
+            -19.8
+          ],
+          [
+            10.75,
+            -24.5
+          ]
+        ]
+      },
+      {
+        "id": "path.garth",
+        "points": [
+          [
+            41.8,
+            -20.0
+          ],
+          [
+            41.8,
+            -22.2
+          ],
+          [
+            38.6,
+            -27.6
+          ],
+          [
+            30.0,
+            -30.5
+          ],
+          [
+            24.0,
+            -30.5
+          ],
+          [
+            24.0,
+            -25.4
+          ]
+        ]
+      },
+      {
+        "id": "path.garth_beds",
+        "points": [
+          [
+            30.0,
+            -30.5
+          ],
+          [
+            26.0,
+            -34.0
+          ],
+          [
+            24.0,
+            -34.8
+          ]
+        ]
+      },
+      {
+        "id": "path.garth_east",
+        "points": [
+          [
+            38.6,
+            -27.6
+          ],
+          [
+            43.7,
+            -34.6
+          ]
+        ]
+      },
+      {
+        "id": "path.yard",
+        "entry": true,
+        "points": [
+          [
+            67.8,
+            2.0
+          ],
+          [
+            67.8,
+            -2.0
+          ],
+          [
+            72.4,
+            -6.0
+          ],
+          [
+            72.0,
+            -20.0
+          ],
+          [
+            66.5,
+            -40.4
+          ]
+        ]
+      }
+    ],
+    "seats": {
+      "home": [
+        [
+          53.8,
+          -35.7,
+          0.0
+        ]
+      ],
+      "lay_home": [
+        [
+          12.6,
+          -49.6,
+          0.0
+        ]
+      ],
+      "choir": [
+        [
+          51.6,
+          -16.35,
+          90.0
+        ],
+        [
+          52.35,
+          -16.35,
+          90.0
+        ],
+        [
+          53.1,
+          -16.35,
+          90.0
+        ],
+        [
+          53.85,
+          -16.35,
+          90.0
+        ],
+        [
+          54.6,
+          -16.35,
+          90.0
+        ],
+        [
+          55.35,
+          -16.35,
+          90.0
+        ],
+        [
+          58.4,
+          -16.35,
+          90.0
+        ],
+        [
+          59.15,
+          -16.35,
+          90.0
+        ],
+        [
+          59.9,
+          -16.35,
+          90.0
+        ],
+        [
+          51.6,
+          -3.65,
+          -90.0
+        ],
+        [
+          52.35,
+          -3.65,
+          -90.0
+        ],
+        [
+          53.1,
+          -3.65,
+          -90.0
+        ],
+        [
+          53.85,
+          -3.65,
+          -90.0
+        ],
+        [
+          54.6,
+          -3.65,
+          -90.0
+        ],
+        [
+          55.35,
+          -3.65,
+          -90.0
+        ],
+        [
+          56.1,
+          -3.65,
+          -90.0
+        ],
+        [
+          56.85,
+          -3.65,
+          -90.0
+        ],
+        [
+          57.6,
+          -3.65,
+          -90.0
+        ],
+        [
+          58.35,
+          -3.65,
+          -90.0
+        ],
+        [
+          59.1,
+          -3.65,
+          -90.0
+        ],
+        [
+          59.85,
+          -3.65,
+          -90.0
+        ],
+        [
+          56.2,
+          -10.6,
+          0.0
+        ],
+        [
+          57.2,
+          -9.4,
+          0.0
+        ],
+        [
+          58.2,
+          -10.6,
+          0.0
+        ]
+      ],
+      "chapter": [
+        [
+          60.2,
+          -29.1,
+          180.0
+        ],
+        [
+          53.9,
+          -32.75,
+          90.0
+        ],
+        [
+          54.75,
+          -32.75,
+          90.0
+        ],
+        [
+          55.6,
+          -32.75,
+          90.0
+        ],
+        [
+          56.45,
+          -32.75,
+          90.0
+        ],
+        [
+          57.3,
+          -32.75,
+          90.0
+        ],
+        [
+          58.15,
+          -32.75,
+          90.0
+        ],
+        [
+          59.0,
+          -32.75,
+          90.0
+        ],
+        [
+          59.85,
+          -32.75,
+          90.0
+        ],
+        [
+          53.9,
+          -25.45,
+          -90.0
+        ],
+        [
+          54.75,
+          -25.45,
+          -90.0
+        ],
+        [
+          55.6,
+          -25.45,
+          -90.0
+        ],
+        [
+          56.45,
+          -25.45,
+          -90.0
+        ],
+        [
+          57.3,
+          -25.45,
+          -90.0
+        ],
+        [
+          58.15,
+          -25.45,
+          -90.0
+        ],
+        [
+          59.0,
+          -25.45,
+          -90.0
+        ],
+        [
+          59.85,
+          -25.45,
+          -90.0
+        ],
+        [
+          60.2,
+          -32.0,
+          180.0
+        ],
+        [
+          60.2,
+          -31.0,
+          180.0
+        ],
+        [
+          60.2,
+          -30.0,
+          180.0
+        ],
+        [
+          60.2,
+          -28.2,
+          180.0
+        ],
+        [
+          60.2,
+          -27.2,
+          180.0
+        ],
+        [
+          60.2,
+          -26.2,
+          180.0
+        ]
+      ],
+      "refectory": [
+        [
+          57.0,
+          -50.4,
+          -90.0
+        ],
+        [
+          58.4,
+          -39.9,
+          0.0
+        ],
+        [
+          58.4,
+          -40.65,
+          0.0
+        ],
+        [
+          58.4,
+          -41.4,
+          0.0
+        ],
+        [
+          58.4,
+          -42.15,
+          0.0
+        ],
+        [
+          58.4,
+          -42.9,
+          0.0
+        ],
+        [
+          58.4,
+          -43.65,
+          0.0
+        ],
+        [
+          58.4,
+          -44.4,
+          0.0
+        ],
+        [
+          58.4,
+          -45.15,
+          0.0
+        ],
+        [
+          58.4,
+          -45.9,
+          0.0
+        ],
+        [
+          58.4,
+          -46.65,
+          0.0
+        ],
+        [
+          58.4,
+          -47.4,
+          0.0
+        ],
+        [
+          58.4,
+          -48.15,
+          0.0
+        ],
+        [
+          55.6,
+          -39.9,
+          180.0
+        ],
+        [
+          55.6,
+          -40.65,
+          180.0
+        ],
+        [
+          55.6,
+          -41.4,
+          180.0
+        ],
+        [
+          55.6,
+          -42.15,
+          180.0
+        ],
+        [
+          55.6,
+          -42.9,
+          180.0
+        ],
+        [
+          55.6,
+          -43.65,
+          180.0
+        ],
+        [
+          55.6,
+          -44.4,
+          180.0
+        ],
+        [
+          55.6,
+          -45.15,
+          180.0
+        ],
+        [
+          55.6,
+          -45.9,
+          180.0
+        ],
+        [
+          55.6,
+          -46.65,
+          180.0
+        ],
+        [
+          55.6,
+          -47.4,
+          180.0
+        ],
+        [
+          55.6,
+          -48.15,
+          180.0
+        ]
+      ],
+      "study": [
+        [
+          15.55,
+          -22.5,
+          0.0
+        ],
+        [
+          15.55,
+          -24.1,
+          0.0
+        ],
+        [
+          15.55,
+          -25.7,
+          0.0
+        ],
+        [
+          15.55,
+          -27.3,
+          0.0
+        ],
+        [
+          15.55,
+          -28.9,
+          0.0
+        ],
+        [
+          15.55,
+          -30.5,
+          0.0
+        ],
+        [
+          15.55,
+          -32.1,
+          0.0
+        ],
+        [
+          15.55,
+          -33.7,
+          0.0
+        ],
+        [
+          15.55,
+          -35.3,
+          0.0
+        ],
+        [
+          15.55,
+          -36.9,
+          0.0
+        ],
+        [
+          15.55,
+          -38.5,
+          0.0
+        ],
+        [
+          19.5,
+          -42.45,
+          90.0
+        ],
+        [
+          22.1,
+          -42.45,
+          90.0
+        ],
+        [
+          24.7,
+          -42.45,
+          90.0
+        ],
+        [
+          27.3,
+          -42.45,
+          90.0
+        ],
+        [
+          29.9,
+          -42.45,
+          90.0
+        ],
+        [
+          32.5,
+          -42.45,
+          90.0
+        ],
+        [
+          35.1,
+          -42.45,
+          90.0
+        ],
+        [
+          37.7,
+          -42.45,
+          90.0
+        ],
+        [
+          40.3,
+          -42.45,
+          90.0
+        ],
+        [
+          42.9,
+          -42.45,
+          90.0
+        ],
+        [
+          45.5,
+          -42.45,
+          90.0
+        ],
+        [
+          48.1,
+          -42.45,
+          90.0
+        ],
+        [
+          51.45,
+          -23.0,
+          180.0
+        ],
+        [
+          51.45,
+          -24.4,
+          180.0
+        ],
+        [
+          51.45,
+          -25.8,
+          180.0
+        ],
+        [
+          51.45,
+          -27.2,
+          180.0
+        ]
+      ],
+      "confess": [
+        [
+          18.0,
+          -16.3,
+          90.0
+        ],
+        [
+          22.0,
+          -16.3,
+          90.0
+        ],
+        [
+          26.0,
+          -16.3,
+          90.0
+        ],
+        [
+          30.0,
+          -16.3,
+          90.0
+        ],
+        [
+          34.0,
+          -16.3,
+          90.0
+        ],
+        [
+          38.0,
+          -16.3,
+          90.0
+        ],
+        [
+          42.0,
+          -16.3,
+          90.0
+        ]
+      ],
+      "lay_choir": [
+        [
+          45.6,
+          -15.5,
+          0.0
+        ],
+        [
+          45.6,
+          -14.5,
+          0.0
+        ],
+        [
+          45.6,
+          -13.5,
+          0.0
+        ],
+        [
+          45.6,
+          -12.5,
+          0.0
+        ],
+        [
+          45.6,
+          -11.5,
+          0.0
+        ],
+        [
+          45.6,
+          -10.5,
+          0.0
+        ],
+        [
+          45.6,
+          -9.5,
+          0.0
+        ],
+        [
+          45.6,
+          -8.5,
+          0.0
+        ],
+        [
+          45.6,
+          -7.5,
+          0.0
+        ],
+        [
+          45.6,
+          -6.5,
+          0.0
+        ],
+        [
+          45.6,
+          -5.5,
+          0.0
+        ]
+      ],
+      "lay_table": [
+        [
+          9.9,
+          -40.9,
+          0.0
+        ],
+        [
+          9.9,
+          -41.7,
+          0.0
+        ],
+        [
+          9.9,
+          -42.5,
+          0.0
+        ],
+        [
+          9.9,
+          -43.3,
+          0.0
+        ],
+        [
+          9.9,
+          -44.1,
+          0.0
+        ],
+        [
+          9.9,
+          -44.9,
+          0.0
+        ],
+        [
+          9.9,
+          -45.7,
+          0.0
+        ],
+        [
+          9.9,
+          -46.5,
+          0.0
+        ],
+        [
+          11.6,
+          -40.9,
+          180.0
+        ],
+        [
+          11.6,
+          -41.7,
+          180.0
+        ],
+        [
+          11.6,
+          -42.5,
+          180.0
+        ],
+        [
+          11.6,
+          -43.3,
+          180.0
+        ],
+        [
+          11.6,
+          -44.1,
+          180.0
+        ],
+        [
+          11.6,
+          -44.9,
+          180.0
+        ],
+        [
+          11.6,
+          -45.7,
+          180.0
+        ],
+        [
+          11.6,
+          -46.5,
+          180.0
+        ]
+      ],
+      "kitchen": [
+        [
+          22.0,
+          -49.2,
+          -90.0
+        ],
+        [
+          25.8,
+          -45.5,
+          -90.0
+        ],
+        [
+          19.2,
+          -45.4,
+          -90.0
+        ],
+        [
+          27.6,
+          -47.2,
+          -90.0
+        ]
+      ],
+      "brew": [
+        [
+          65.8,
+          -40.0,
+          -90.0
+        ],
+        [
+          67.4,
+          -39.8,
+          -90.0
+        ],
+        [
+          70.6,
+          -36.4,
+          -90.0
+        ],
+        [
+          63.8,
+          -37.6,
+          -90.0
+        ]
+      ],
+      "garden": [
+        [
+          24.0,
+          -24.2,
+          90.0
+        ],
+        [
+          24.0,
+          -36.0,
+          90.0
+        ],
+        [
+          43.7,
+          -36.0,
+          90.0
+        ],
+        [
+          27.6,
+          -34.0,
+          90.0
+        ]
+      ],
+      "granary": [
+        [
+          10.75,
+          -25.2,
+          90.0
+        ],
+        [
+          10.4,
+          -26.6,
+          90.0
+        ]
+      ],
+      "porter": [
+        [
+          1.8,
+          -9.0,
+          180.0
+        ]
+      ],
+      "well": [
+        [
+          37.01,
+          -28.53,
+          -90.0
+        ],
+        [
+          39.21,
+          -28.53,
+          -90.0
+        ]
+      ],
+      "stores": [
+        [
+          41.0,
+          -48.0,
+          90.0
+        ],
+        [
+          36.6,
+          -48.4,
+          90.0
+        ]
+      ]
+    }
+  },
+  "spawns": [
+    {
+      "id": "st_catherine_choir",
+      "at": [
+        53.0,
+        -10.0
+      ],
+      "facing_deg": 0.0,
+      "note": "review: the friars' choir"
+    },
+    {
+      "id": "st_catherine_chapter",
+      "at": [
+        55.0,
+        -29.1
+      ],
+      "facing_deg": 0.0,
+      "note": "review: chapter house"
+    },
+    {
+      "id": "st_catherine_refectory",
+      "at": [
+        57.0,
+        -43.0
+      ],
+      "facing_deg": -90.0,
+      "note": "review: refectory"
+    },
+    {
+      "id": "st_catherine_cloister",
+      "at": [
+        16.5,
+        -21.0
+      ],
+      "facing_deg": -90.0,
+      "note": "review: west cloister walk"
     }
   ],
   "program_1343": {

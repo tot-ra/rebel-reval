@@ -152,6 +152,55 @@ PATTERNS = {
                 [12.0, "home"], [14.0, "door"], [15.0, "stroll"], [16.2, "water"], [16.6, "home"]],
 }
 
+# Religious houses that live in their landmark site (a `community` block in the
+# site manifest, docs/SYSTEMS/CITY_LANDMARK_SITES.md): a horarium instead of the
+# generic cleric day. St Catherine's Dominicans, c. 1343 (plausible composite
+# after the Order's constitutions and Humbert of Romans): the night office about
+# 02:00, lauds and prime at first light, chapter after prime, terce and the
+# conventual mass, dinner after sext, none, vespers, a light supper, compline,
+# then the great silence. Between the hours a friar studies, preaches, quests
+# for alms or hears confessions (`work`); lay brothers brew, garden, keep the
+# granary, the stores and the gate; servants fetch and cook.
+PATTERNS.update({
+    "friar": [[2.0, "choir"], [3.2, "home"], [5.0, "choir"], [6.2, "chapter"], [6.8, "study"],
+              [8.8, "choir"], [10.0, "work"], [11.4, "refectory"], [12.3, "study"], [14.4, "choir"],
+              [15.0, "work"], [16.8, "choir"], [17.8, "refectory"], [18.6, "choir"], [19.3, "home"]],
+    "friary_lay": [[4.6, "choir"], [5.4, "work"], [11.9, "refectory"], [12.6, "work"],
+                   [17.9, "refectory"], [18.6, "choir"], [19.2, "home"]],
+    "friary_servant": [[5.4, "water"], [6.0, "kitchen"], [8.6, "food"], [9.6, "kitchen"], [12.6, "refectory"],
+                       [13.2, "supply"], [14.6, "work"], [17.6, "kitchen"], [19.0, "home"]],
+    "friary_cook": [[4.8, "kitchen"], [12.8, "refectory"], [13.4, "kitchen"], [19.2, "home"]],
+})
+DOMINICAN_WHITE = (0.84, 0.82, 0.76)
+COMMUNITY_PATTERN = {"monk": "friar", "lay_brother": "friary_lay", "servant": "friary_servant",
+                     "cook": "friary_cook"}
+# Where a friar goes between the hours, cycling by seniority; questing friars beg
+# in the busy places of the town, preachers stand at the market cross.
+FRIAR_WORK = ("study", "preach", "quest", "confess")
+QUEST_POIS = ("poi.forum", "poi.fish_landing", "poi.well.yard.viru", "poi.guard.viru")
+LAY_WORK = ("brew", "garden", "brew", "granary", "porter", "stores", "brew", "garden")
+SITES_DIR = ROOT / "content/world/reval_city/sites"
+
+
+def load_communities(plan):
+    """Site `community` blocks with their compiled placement: {household id: (site, record)}."""
+    records = {r["id"]: r for r in plan.get("sites", [])}
+    out = {}
+    registry = json.loads((SITES_DIR / "registry.json").read_text())
+    for name in registry["sites"]:
+        site = json.loads((SITES_DIR / f"{name}.json").read_text())
+        if site.get("community") and site["id"] in records:
+            out[site["community"]["household"]] = (site, records[site["id"]])
+    return out
+
+
+def site_world(record, x, z):
+    """Site-local metres to plan metres (same transform as the plan compiler)."""
+    r = math.radians(record["rotation_deg"])
+    ax, az = record["at"]
+    return (ax + x * math.cos(r) - z * math.sin(r), az + x * math.sin(r) + z * math.cos(r))
+
+
 SPREAD_SLOTS = 12  # distinct standing spots round a point of interest
 CHILD_PLAY_AGE = 6  # younger children stay in the house with their mother
 
@@ -188,6 +237,7 @@ class Graph:
     def __init__(self, streets):
         self.nodes: list[tuple[float, float]] = []
         self.edges: set[tuple[int, int]] = set()
+        self.interior: set[tuple[int, int]] = set()
         chains = []
         for pts in streets:
             chain = [self.node(tuple(p)) for p in pts]
@@ -238,10 +288,32 @@ class Graph:
     def degree(self, n):
         return sum(1 for e in self.edges if n in e)
 
-    def nearest_edge(self, p, exclude=None):
+    def add_interior(self, chains):
+        """Walkways inside a walled close (a site `community`): their edges are kept
+        apart, so street places never snap onto them and townsfolk never route
+        through the cloister. Only an entry chain's first point joins the streets;
+        every other loose end hangs off the interior network."""
+        # Ends are tied in chain by chain, before a later chain can merge into the
+        # same node and hide that the end is not on the network yet.
+        for pts, entry in chains:
+            chain = [self.node(tuple(p)) for p in pts]
+            for u, v in zip(chain, chain[1:]):
+                if u != v:
+                    e = (min(u, v), max(u, v))
+                    self.edges.add(e)
+                    self.interior.add(e)
+            for i, end in ((0, chain[0]), (-1, chain[-1])):
+                if self.degree(end) > 1:
+                    continue
+                if entry and i == 0:
+                    self.snap(self.nodes[end], exclude=end, limit=8.0, link=end)
+                else:
+                    self.snap(self.nodes[end], exclude=end, limit=0.8, link=end, interior=True)
+
+    def nearest_edge(self, p, exclude=None, interior=False):
         best = (1e18, None, None, None)
         for u, v in self.edges:
-            if exclude in (u, v):
+            if exclude in (u, v) or ((u, v) in self.interior) != interior:
                 continue
             t, q = seg_closest(p, self.nodes[u], self.nodes[v])
             d = math.hypot(q[0] - p[0], q[1] - p[1])
@@ -249,9 +321,10 @@ class Graph:
                 best = (d, (u, v), t, q)
         return best
 
-    def snap(self, p, exclude=None, limit=SNAP_MAX, link=None):
-        """Project p onto the network, splitting the edge; return (node, distance)."""
-        d, edge, t, q = self.nearest_edge(p, exclude)
+    def snap(self, p, exclude=None, limit=SNAP_MAX, link=None, interior=False):
+        """Project p onto the network (street edges, or a close's interior edges),
+        splitting the edge; return (node, distance)."""
+        d, edge, t, q = self.nearest_edge(p, exclude, interior)
         if edge is None or d > limit:
             return None, d
         u, v = edge
@@ -263,10 +336,16 @@ class Graph:
             node = len(self.nodes)
             self.nodes.append((round(q[0], 2), round(q[1], 2)))
             self.edges.discard((u, v))
-            self.edges.add((min(u, node), max(u, node)))
-            self.edges.add((min(v, node), max(v, node)))
+            halves = [(min(u, node), max(u, node)), (min(v, node), max(v, node))]
+            self.edges.update(halves)
+            if (u, v) in self.interior:
+                self.interior.discard((u, v))
+                self.interior.update(halves)
         if link is not None and link != node:
-            self.edges.add((min(link, node), max(link, node)))
+            e = (min(link, node), max(link, node))
+            self.edges.add(e)
+            if interior:
+                self.interior.add(e)
         return node, d
 
 
@@ -354,19 +433,105 @@ def body_for(person):
     return citizen_bodies.body_id(sex, stage, build, outfit), stage, main, under
 
 
+def apply_communities(residents, communities, place, poi_place):
+    """Seat the residents of a religious house in its site (`community` block):
+    home on the dormitory stair, exact stalls, chapter and refectory seats, and a
+    horarium by trade. Seats cycle by seniority (oldest first: the prior takes
+    the first stall, the head of the chapter bench and the high table)."""
+    by_household = {}
+    for rec in residents:
+        if rec["household"] in communities:
+            by_household.setdefault(rec["household"], []).append(rec)
+    for hh_id, members in by_household.items():
+        site, record = communities[hh_id]
+        seats = site["community"]["seats"]
+
+        def seat(group, k, tag):
+            x, z, facing = seats[group][k % len(seats[group])]
+            wx, wz = site_world(record, x, z)
+            angle = math.radians(facing + record["rotation_deg"])
+            return place(f"{site['id']}:{group}:{k % len(seats[group])}", wx, wz, angle, interior=True)
+
+        order = sorted(members, key=lambda r: (-r["age"], r["id"]))
+        rank = {t: 0 for t in COMMUNITY_PATTERN}
+        lay_seat = 0
+        for rec in order:
+            trade = rec["trade"]
+            if trade not in COMMUNITY_PATTERN:
+                continue
+            k = rank[trade]
+            rank[trade] += 1
+            rec["pattern"] = COMMUNITY_PATTERN[trade]
+            rec["order"] = "dominican"
+            # One bell calls the house: hours shift by minutes, not the town's half hour.
+            rec["jitter"] = round((hash01(rec["id"] + ":bell") - 0.5) * 0.1, 3)
+            rec["devout"] = True
+            rec["strolls"] = False
+            if trade == "monk":
+                # Order of Preachers: white wool habit under the black hood with
+                # its shoulder cape (the wardrobe's monastic hood). The black cappa
+                # needs its own garment; the knights' order mantle would carry a cross.
+                rec["cloth"] = list(DOMINICAN_WHITE)
+                rec["home"] = seat("home", 0, "home")
+                rec["choir"] = seat("choir", k, "choir")
+                rec["chapter"] = seat("chapter", k, "chapter")
+                rec["refectory"] = seat("refectory", k, "refectory")
+                rec["study"] = seat("study", k, "study")
+                kind = FRIAR_WORK[k % len(FRIAR_WORK)]
+                if kind == "preach":
+                    rec["work"] = poi_place("poi.forum", rec["id"] + ":preach")
+                elif kind == "quest":
+                    rec["work"] = poi_place(QUEST_POIS[k % len(QUEST_POIS)], rec["id"] + ":quest")
+                elif kind == "confess":
+                    rec["work"] = seat("confess", k, "confess")
+                else:
+                    rec["work"] = rec["study"]
+                rec["work_kind"] = kind
+                rec["exact"] = ["choir", "chapter", "refectory", "study"] + (
+                    ["work"] if kind in ("confess", "study") else [])
+                continue
+            # Lay brothers, servants and the cook live over the lay brothers' hall.
+            rec["home"] = seat("lay_home", 0, "home")
+            rec["refectory"] = seat("lay_table", lay_seat, "lay_table")
+            lay_seat += 1
+            rec["kitchen"] = seat("kitchen", k, "kitchen")
+            rec["exact"] = ["refectory"]
+            if trade == "lay_brother":
+                rec["choir"] = seat("lay_choir", k, "lay_choir")
+                kind = LAY_WORK[k % len(LAY_WORK)]
+                rec["work"] = seat(kind, k, kind)
+                # "granary" already names the town's granary quay in the labels.
+                rec["work_kind"] = "friary_granary" if kind == "granary" else kind
+                rec["exact"] += ["choir"] + (["work"] if kind == "porter" else [])
+            elif trade == "servant":
+                rec["water"] = seat("well", k, "well")
+                rec["work"] = seat("brew" if k % 2 == 0 else "stores", k, "yard")
+                rec["work_kind"] = "brew" if k % 2 == 0 else "stores"
+                rec["supply"] = poi_place("poi.fish_landing", rec["id"] + ":su")
+                rec["supply_kind"] = "fish"
+            else:
+                rec["work"] = rec["kitchen"]
+                rec["work_kind"] = "kitchen"
+                rec["exact"] += ["kitchen"]
+
+
 def build():
     census = json.loads(CENSUS.read_text())
     plan = json.loads(PLAN.read_text())
     cards = read_cards()
 
     graph = Graph([s["points"] for s in plan["streets"]])
+    communities = load_communities(plan)
+    for site, record in communities.values():
+        graph.add_interior([([site_world(record, *p) for p in path["points"]], path.get("entry", False))
+                            for path in site["community"]["paths"]])
     places: list[list] = []
     place_index: dict[str, int] = {}
 
-    def place(key, x, z, angle=None):
+    def place(key, x, z, angle=None, interior=False):
         if key in place_index:
             return place_index[key]
-        node, _ = graph.snap((x, z))
+        node, _ = graph.snap((x, z), interior=interior)
         places.append([round(x, 2), round(z, 2), -1 if node is None else node,
                        None if angle is None else round(angle, 3)])
         place_index[key] = len(places) - 1
@@ -412,8 +577,14 @@ def build():
     building_door = {b["id"]: b["door"] for b in plan["buildings"] if b.get("door")}
     hh_by_id = {h["id"]: h for h in census["households"]}
     hh_door: dict[str, int] = {}
+    plan_ids = {b["id"] for b in plan["buildings"]}
     for h in census["households"]:
         if not h["members"]:
+            continue
+        # A house a landmark site replaced (St Catherine's close, St Michael's,
+        # Kalev's smithy) is gone: its household waits to be rehomed in the census
+        # and is not compiled, instead of standing at a door inside the site.
+        if h["kind"] == "house" and h["building"] and h["building"] not in plan_ids:
             continue
         x, z, ang = h["door"] or building_door.get(h["building"]) or [h["xy"][0], h["xy"][1], 0.0]
         out = (math.cos(ang), math.sin(ang))
@@ -562,6 +733,7 @@ def build():
         }
         residents.append(rec)
 
+    apply_communities(residents, communities, place, poi_place)
     household_xy = {h["id"]: tuple(h["xy"]) for h in census["households"] if h.get("xy")}
     patrols, _ = gate_garrisons.assign(plan, residents, household_xy, place, hash01)
     # Layered dress after the duty roster: kits depend on the post (CITIZEN_WARDROBE.md).
