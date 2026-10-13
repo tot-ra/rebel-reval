@@ -376,3 +376,43 @@ func test_fft_shore_band_scales_heave_to_shader_fade() -> void:
 	OceanFftSampler.clear_time_override()
 	host.free()
 	view.free()
+
+
+## CO-06: each map boat floats on its own design's hull, read from the built
+## mesh, so a long hull and a short one ride the same swell differently.
+func test_each_design_floats_on_its_own_hull_extents() -> void:
+	var definition := MapDefinition.new()
+	var lengths := {}
+	for i in 12:
+		var prop := {
+			"id": StringName("float_design_%d" % i),
+			"kind": MapTypes.PROP_KIND_FISHING_BOAT,
+			"position": Vector2.ZERO,
+		}
+		var boat := MapViewMeshBuilder.build_prop(prop, MapTypes.DEFAULT_CELL_SIZE, definition)
+		var floater := boat.get_node("BoatFloat") as BoatFloat
+		var design: StringName = boat.get_node("Vessel").get_meta(&"design")
+		var expected := (
+			VesselFleet.hull_half_extents(design) * MapViewMeshBuilderPropModels.MAP_UNITS_PER_METRE
+		)
+		assert_almost_eq(floater._hull_half_length, expected.x, 1e-4, "%s float length" % design)
+		assert_almost_eq(floater._hull_half_beam, expected.y, 1e-4, "%s float beam" % design)
+		lengths[design] = expected
+		boat.free()
+	assert_true(lengths.size() >= 2, "a dozen fishing props use both fishing sizes")
+	var small: Vector2 = VesselFleet.hull_half_extents(VesselFleet.FISHING_SMALL)
+	var large: Vector2 = VesselFleet.hull_half_extents(VesselFleet.FISHING_LARGE)
+	assert_true(large.x > small.x * 1.3, "the mündrik boat is clearly longer")
+	var origin := Vector2(18.0, 6.0)
+	var standing := BoatFloat.HARBOR_STANDING_WAVE_RATIO
+	var differs := false
+	for t: float in [0.7, 1.9, 2.25, 3.4]:
+		var short_pitch := BoatFloat.sample_hull_attitude(
+			origin, t, standing, small.x, small.y, Basis.IDENTITY
+		).y
+		var long_pitch := BoatFloat.sample_hull_attitude(
+			origin, t, standing, large.x, large.y, Basis.IDENTITY
+		).y
+		if absf(short_pitch - long_pitch) > 0.0005:
+			differs = true
+	assert_true(differs, "hulls of different length must pitch by different amounts on one wave")

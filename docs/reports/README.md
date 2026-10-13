@@ -42,6 +42,7 @@ Start with:
 - [Character models and animations - visual realism review](character_visual_realism_review_2026-08-12.md)
 - [CO-01 coastal ground materials (R-948)](co01_coastal_ground_materials.md)
 - [CO-02 shore debris (R-949)](co02_shore_debris.md)
+- [CO-06 working-craft fleet (R-953)](co06_vessel_fleet.md)
 - [CO-08 / R-955 sea-state ladder](co08_sea_state_ladder.md)
 - [P0-033 comparison-room greybox](comparison_room_p0_033.md)
 - [P0-035 projection and direction comparison room](comparison_room_p0_035.md)

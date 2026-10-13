@@ -46,8 +46,10 @@ Terrain shares, same probe:
    gradient, a berm, a dune line and a village terrace to read as separate levels.
 5. **Flat ground.** Kalamaja's whole authored height span is **0.05 world units**. Saaremaa has zero
    elevation profiles. Nothing can read as a gradual level change because there are no levels.
-6. **Vessels are primitives.** `map_view_fishing_boat_builder.gd` and
-   `map_view_merchant_boat_builder.gd` assemble boxes, cylinders and spars with flat role materials.
+6. **Vessels were primitives** (retired by CO-06, **R-953**: the builders below are deleted and the
+   fleet is now `VesselFleet` + `CogModel`, see [`SHIPS.md`](../../SYSTEMS/SHIPS.md#working-craft-r-953)).
+   `map_view_fishing_boat_builder.gd` and
+   `map_view_merchant_boat_builder.gd` assembled boxes, cylinders and spars with flat role materials.
    There are exactly **two** hull designs for the whole coast, the sail is a static `_sail_mesh()`,
    and the oars are fixed spars. Only the hull moves: `BoatFloat3D` heaves/pitches/rolls on the FFT
    field and heels into `SkyWeather3D` wind (`WIND_HEEL_RAD` 5.5 deg), but nothing in the rig or the

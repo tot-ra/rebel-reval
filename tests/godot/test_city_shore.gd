@@ -33,7 +33,10 @@ func test_dry_stones_stay_off_roads_and_the_coast_has_many() -> void:
 		var spot := Vector2(at.x, at.z)
 		var kind: StringName = p["kind"]
 		if plan.ground_height(spot) > CityShore.WRACK_BAND.x:
-			assert_true(CityShore._natural_ground(plan, spot), "%s at %s is off road, paving and fields" % [kind, spot])
+			assert_true(
+				CityShore._natural_ground(plan, spot),
+				"%s at %s is off road, paving and fields" % [kind, spot]
+			)
 		if kind in [&"stone_cluster_a", &"stone_cluster_b"]:
 			clusters += 1
 		elif String(kind).begins_with("boulder") and plan.ground_height(spot) > CityShore.STONE_BAND.x:
@@ -70,11 +73,13 @@ func test_anchored_hulls_can_be_boarded() -> void:
 
 
 func test_working_boats_are_built_in_four_kinds() -> void:
-	for kind: StringName in [&"clinker", &"skiff", &"lighter"]:
-		var mesh := CityBoats.hull_mesh(kind)
-		assert_true(mesh.get_surface_count() == 1, "%s is one lofted mesh" % kind)
+	for design: StringName in VesselFleet.designs():
+		var mesh := VesselFleet.hull_mesh(design, VesselFleet.WEAR_WEATHERED)
+		assert_true(mesh.get_surface_count() == 1, "%s is one lofted mesh" % design)
 		var size := mesh.get_aabb().size
-		assert_true(size.x > size.z * 2.0, "%s is long and narrow" % kind)
+		# The lodi is the beamy one (handbook L/B ~1.9); every other hull is > 2.3.
+		var ratio := 1.7 if design == VesselFleet.LIGHTER_LODJA else 2.3
+		assert_true(size.x > size.z * ratio, "%s is long and narrow" % design)
 	var plan := CityPlan.load_default()
 	var types := {}
 	for b: Dictionary in plan.data["harbour"]["boats"]:

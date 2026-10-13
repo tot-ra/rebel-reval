@@ -10,6 +10,7 @@ extends Node
 ## The Gerstner sample_wave() path stays for rivers and bake-less fallbacks.
 
 const SkyWeather3D := preload("res://scripts/map/view3d/sky_weather_3d.gd")
+const PerfProbeScript := preload("res://scripts/debug/perf_probe.gd")
 const MapViewWaterMaterialsScript := preload("res://scripts/map/view3d/map_view_water_materials.gd")
 
 ## Read by name in MapViewWaterMaterials.ocean_fft_supported(): declaring it
@@ -32,7 +33,9 @@ const FFT_HULL_ITERATIONS := 1
 ## Harbor enclosed water (TERRAIN_WATER) standing ratio from MapViewMaterials.
 const HARBOR_STANDING_WAVE_RATIO := 0.42
 const SWELL_REFERENCE := Vector2(0.957826718346, 0.287348015604)
-## Fishing-boat hull extents in local space (+X bow, +Z starboard).
+## Fallback hull extents in local space (+X bow, +Z starboard). Map boat props
+## pass their own design's extents to configure() (CO-06), so these only serve
+## callers that do not know their hull.
 const DEFAULT_HULL_HALF_LENGTH := 1.45
 const DEFAULT_HULL_HALF_BEAM := 0.55
 
@@ -116,8 +119,6 @@ func bind_shore_distance(lookup: Callable) -> void:
 func uses_fft() -> bool:
 	return FFT_SUPPORTED and OceanFftSampler.ensure_loaded()
 
-
-const PerfProbeScript := preload("res://scripts/debug/perf_probe.gd")
 
 
 func _process(delta: float) -> void:
