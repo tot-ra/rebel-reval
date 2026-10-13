@@ -1,6 +1,6 @@
 # Named NPCs: registry and city presence
 
-Status: implemented (tasks **R-1562** registry, **R-1563** seamless-city spawn and info panel; epic **R-1560**, [ADR 0044](../adr/0044-named-npc-presentation-tier.md) proposed). Scope: one data registry of the politically and professionally notable people from `characters/**`, and their presence in the seamless Reval city at posts that follow the clock, with a click panel showing portrait, title and faction. Out of scope here: the overhead `!` marker (NPC-4 **R-1564**), dialogue portraits (NPC-6 **R-1566**), custom 3D models (NPC-7 **R-1567**), dialogue and quests.
+Status: implemented (tasks **R-1562** registry, **R-1563** seamless-city spawn and info panel; epic **R-1560**, [ADR 0044](../adr/0044-named-npc-presentation-tier.md) proposed). Scope: one data registry of the politically and professionally notable people from `characters/**`, and their presence in the seamless Reval city at posts that follow the clock, with a click panel showing portrait, title and faction. Out of scope here: the overhead `!` marker (NPC-4 **R-1564**), custom 3D models (NPC-7 **R-1567**), dialogue and quests. Dialogue portrait resolution is documented in [`DIALOGUE.md`](./DIALOGUE.md#named-npc-portraits-r-1566).
 
 ## In the city
 
@@ -38,7 +38,7 @@ Anchors are the ids of `points_of_interest` and `gates` in `content/world/reval_
 
 ## Runtime entry points
 
-- `NamedNpcRegistry` (`scripts/npc/named_npc_registry.gd`): `load_default()`, `load_file(path)` (rejects unknown factions, bad census links and broken schedules; `errors` says why), `get_npc(id)`, `by_faction(faction)`, `by_census_id(cit)`, `replaced_census_ids()`, `post_at(id, hour)`.
+- `NamedNpcRegistry` (`scripts/npc/named_npc_registry.gd`): `load_default()`, `load_file(path)` (rejects unknown factions, bad census links and broken schedules; `errors` says why), `get_npc(id)`, `by_faction(faction)`, `by_census_id(cit)`, `replaced_census_ids()`, `post_at(id, hour)`. `get_npc(id)["portrait"]` is the explicit optional portrait resource path consumed by `DialoguePortraitResolver`; null means no portrait, even when an NPC-id-shaped filename exists.
 - `CityNamedNpcs` (`scripts/city/city_named_npcs.gd`), created by `CityNpcs` in the Reval city only (not at regional sites): `resolve(npc, hour)` is a pure function of the registry row and the hour (position, facing, moving, visible); `refresh(world_xz)` seats and frees actors; `describe(npc, hour)` is the panel's "now" line.
 - `NamedNpcActor` (`scripts/city/named_npc_actor.gd`): logic body mirrored by `MapViewRuntime`, like `CitizenActor`.
 - `CitizenInfoPanel.show_named(npc, census, now)` and its `faction_badge` slot; `CityCitizens.suppress_residents(ids)`; `CitizenRoster.route_between(a, b)`.

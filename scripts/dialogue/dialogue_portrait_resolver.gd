@@ -10,12 +10,9 @@ const KNOWN_PORTRAITS := {
 	&"char.henning": "res://assets/characters/portraits/henning.png",
 	&"char.aita": "res://assets/characters/portraits/aita.png",
 }
-## Named NPCs (R-1566): the NamedNpcRegistry row's `portrait` field wins, because
-## registry ids (char.martin_cloaks) need not match the jpg stem (martin.png).
-## Other `char.<slug>` speakers fall back to the portrait cropped from
-## characters/**/img/<slug>.jpg by tools/assets/import_npc_portraits.py.
-const NPC_PORTRAIT_DIR := "res://assets/characters/portraits/npc/"
-const CHAR_PREFIX := "char."
+## Named NPCs (R-1566, completed by R-1589): the registry row's `portrait` field
+## is authoritative; registry ids need not match the portrait file name. Other
+## speakers require an explicit core-cast mapping above or resolve without a portrait.
 
 
 static func portrait_path(speaker_id: StringName) -> String:
@@ -28,9 +25,7 @@ static func portrait_path(speaker_id: StringName) -> String:
 	var registry_portrait: Variant = NamedNpcRegistry.load_default().get_npc(id).get("portrait")
 	if registry_portrait is String and not String(registry_portrait).is_empty():
 		return registry_portrait
-	if not id.begins_with(CHAR_PREFIX) or id.length() == CHAR_PREFIX.length():
-		return ""
-	return NPC_PORTRAIT_DIR + id.substr(CHAR_PREFIX.length()) + ".png"
+	return ""
 
 
 static func resolve_texture(speaker_id: StringName) -> Texture2D:
