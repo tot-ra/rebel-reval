@@ -372,3 +372,5 @@ Keep this file short. Append a durable reusable rule, not a dated incident log. 
 
 ### Test isolation
 - In a heavily modified checkout, run the narrowest relevant test before the full Godot suite. Broad-suite failures from missing assets or unrelated parse errors are not evidence against a small isolated change; report them separately and avoid spending the whole verification budget on a noisy suite.
+- Before a "commit everything" pass run `git fetch` and compare `git log HEAD..origin/main`; when local unpushed commits are twins of origin commits, a late `git pull --rebase` hits add/add conflicts after the multi-minute gates already passed. Reconcile (reset to origin plus a cherry-pick of only the unique work) first, then run the gates once.
+- A mass staged deletion of `generated/` (prompt sidecars, README) breaks SOURCES.csv, docs_index and the texture-sidecar gates; restore it from HEAD instead of editing the manifests. Assets moved into a lint-covered folder (`assets/animals`) inherit that folder's PBR contract, so list known debt explicitly in `tools/fauna_glb_inspect.py` rather than loosening the rule.
