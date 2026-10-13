@@ -1,0 +1,28 @@
+{
+  "type": "spirit_spell",
+  "id": "spell.word.praise",
+  "name": "Praise",
+  "element": "shame",
+  "light_vector": [
+    {
+      "aspect": "aspect.resonance",
+      "delta": 1
+    },
+    {
+      "aspect": "aspect.unity",
+      "delta": 1
+    }
+  ],
+  "cost": 1,
+  "kind": "raising",
+  "starter": false,
+  "lines": {
+    "default": [
+      "That was well said. Not many would dare.",
+      "You are better at your trade than they give you credit for."
+    ],
+    "weak": [
+      "Nobody told you that you did well. I am telling you now."
+    ]
+  }
+}

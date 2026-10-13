@@ -35,6 +35,7 @@ SCHEMA_BY_TYPE = {
     "phase_profile": "phase_profile.schema.json",
     "quest_package": "quest_package.schema.json",
     "spell": "magic.schema.json",
+    "spirit_spell": "spirit_spell.schema.json",
     "rite": "magic.schema.json",
     "magic_grant": "magic.schema.json",
     "cutscene": "cutscene.schema.json",

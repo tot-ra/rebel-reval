@@ -1,0 +1,121 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "spirit_spell.schema.json",
+  "title": "Reval Rebel psychological spell (spirit-duel word spell, ADR 0048)",
+  "description": "One social move of the spirit duel: an element, a push on one or two soul lights, a willpower cost and authored lines. Semantic rules the subset validator cannot express (non-zero deltas, kind/sign agreement, element/light pairing, line keys, starters) live in tools/validate_content_record_gameplay.py.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "type",
+    "id",
+    "name",
+    "element",
+    "light_vector",
+    "cost",
+    "kind",
+    "starter",
+    "lines"
+  ],
+  "properties": {
+    "type": {
+      "const": "spirit_spell"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^spell\\.word\\.[a-z0-9_]+$"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "element": {
+      "description": "Duel element (colour and slot sigil family). Must be guarded by one of the lights in light_vector.",
+      "enum": [
+        "fear",
+        "coin",
+        "duty",
+        "love",
+        "shame",
+        "faith"
+      ]
+    },
+    "light_vector": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 2,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "aspect",
+          "delta"
+        ],
+        "properties": {
+          "aspect": {
+            "$ref": "common.schema.json#/$defs/aspect_id"
+          },
+          "delta": {
+            "description": "Signed shift of the opponent's duel copy of this light; never 0.",
+            "type": "integer",
+            "minimum": -2,
+            "maximum": 2
+          }
+        }
+      }
+    },
+    "cost": {
+      "description": "Willpower spent by a free cast; answering a reply is free.",
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 3
+    },
+    "kind": {
+      "enum": [
+        "lowering",
+        "raising",
+        "mixed"
+      ]
+    },
+    "starter": {
+      "description": "Known from the start of the game; the five starters are today's word spells.",
+      "type": "boolean"
+    },
+    "guilt": {
+      "description": "Weights added to each guilt school once per resident when the spell is spoken (GuiltLedger).",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "church": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10
+        },
+        "folk": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10
+        },
+        "civic": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10
+        }
+      }
+    },
+    "lines": {
+      "description": "Authored lines by context: answer.<move kind>, topic.<topic id>, weak, default. Picked in that priority; within a context lines rotate by how often the spell was spoken in the duel.",
+      "type": "object",
+      "required": [
+        "default"
+      ],
+      "additionalProperties": {
+        "type": "array",
+        "minItems": 1,
+        "items": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}

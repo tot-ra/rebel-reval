@@ -1,0 +1,28 @@
+{
+  "type": "spirit_spell",
+  "id": "spell.word.listen",
+  "name": "Listening",
+  "element": "love",
+  "light_vector": [
+    {
+      "aspect": "aspect.awareness",
+      "delta": 1
+    },
+    {
+      "aspect": "aspect.unity",
+      "delta": 1
+    }
+  ],
+  "cost": 1,
+  "kind": "raising",
+  "starter": false,
+  "lines": {
+    "default": [
+      "Tell me. I am listening.",
+      "Go on. I will not interrupt."
+    ],
+    "weak": [
+      "Nobody asked you before, did they? I am asking."
+    ]
+  }
+}

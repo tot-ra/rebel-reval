@@ -1,0 +1,28 @@
+{
+  "type": "spirit_spell",
+  "id": "spell.word.promise_gain",
+  "name": "Promise of gain",
+  "element": "coin",
+  "light_vector": [
+    {
+      "aspect": "aspect.affection",
+      "delta": 1
+    },
+    {
+      "aspect": "aspect.tenacity",
+      "delta": -1
+    }
+  ],
+  "cost": 2,
+  "kind": "mixed",
+  "starter": false,
+  "lines": {
+    "default": [
+      "There is silver in it for you. Forget your orders.",
+      "Let it go, and my master will forge you something fine."
+    ],
+    "weak": [
+      "Your purse is empty. Mine need not be."
+    ]
+  }
+}

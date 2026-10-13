@@ -73,8 +73,9 @@ A set under `assets/buildings/rural/`, kit-bashed on AR-04, built to the AR-01 r
   cell change here would collide with CO-03 and CO-04.
 - **Coordinate with the coast pack.** CO-02 owns shore debris props, CO-06 owns vessels, CO-03/CO-04 own
   the shore silhouette and elevation. AR-12 owns **buildings only**. The `boat_shed_open` opening must be
-  sized against the CO-05 dossier hull dimensions so a CO-06 hull fits; if CO-05 has not landed, size it
-  from the current `map_view_fishing_boat_builder.gd` extents and note the dependency in the report.
+  sized against the CO-05 dossier hull dimensions so a CO-06 hull fits (CO-06 landed in **R-953**: use
+  `VesselFleet.hull_half_extents(&"fishing_boat_large")`, about 9.0 x 3.74 m; the old
+  `map_view_fishing_boat_builder.gd` is deleted).
 - Collision and navigation unchanged; walkability bit-identical.
 - Respect each map's `docs/HISTORICAL_AUDIT.md` card. `world.saaremaa` gets camp fabric and a supply shed,
   not a village. Do not add built mass to make a wrapper map look fuller.

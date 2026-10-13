@@ -450,7 +450,7 @@ def street_names(plan):
     out = {}
     road_names = {
         "road.viru": "Viru road", "road.karja": "Karja road", "road.harju": "Harju road", "road.tartu": "Tartu road",
-        "road.coast_west": "Western coast road", "road.harbour": "Harbour road", "road.sand_beach": "Sand beach road",
+        "road.coast_west": "Western coast road", "road.kalarand_beach": "Western coast road", "road.harbour": "Harbour road", "road.sand_beach": "Sand beach road",
         "road.toompea_west": "Western castle road", "road.toompea_south": "Southern castle road",
     }
     for s in plan["streets"]:

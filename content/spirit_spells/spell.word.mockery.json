@@ -1,0 +1,28 @@
+{
+  "type": "spirit_spell",
+  "id": "spell.word.mockery",
+  "name": "Mockery",
+  "element": "shame",
+  "light_vector": [
+    {
+      "aspect": "aspect.resonance",
+      "delta": -1
+    },
+    {
+      "aspect": "aspect.affection",
+      "delta": -1
+    }
+  ],
+  "cost": 1,
+  "kind": "lowering",
+  "starter": false,
+  "lines": {
+    "default": [
+      "Is that all? The fishwives shout louder.",
+      "You call that a purse? My master's dog eats better."
+    ],
+    "weak": [
+      "Even you do not believe yourself."
+    ]
+  }
+}

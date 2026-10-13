@@ -103,11 +103,11 @@ const CITY_PLACES: Array[Dictionary] = [
 
 ## The painted Reval basemap (`assets/UI/reval_city_map.jpg`) is the city
 ## minimap (`content/world/reval_city/minimap.png`, square over plan bounds)
-## cropped to rows 0.06..0.86, widened to 16:9 with painted countryside strips
+## cropped to rows 0.02..0.82, widened to 16:9 with painted countryside strips
 ## of 333 px on each side of the 1580 px minimap (2246 px canvas), then
 ## repainted image-to-image (see assets/SOURCES.csv). These numbers map plan
 ## UV onto the basemap; change them together with the image.
-const CITY_MAP_CROP_TOP := 0.06
+const CITY_MAP_CROP_TOP := 0.02
 const CITY_MAP_CROP_HEIGHT := 0.80
 const CITY_MAP_SIDE_PAD := 333.0 / 2246.0
 const CITY_MAP_WIDTH := 1580.0 / 2246.0

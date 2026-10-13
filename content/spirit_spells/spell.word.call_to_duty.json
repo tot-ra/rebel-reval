@@ -1,0 +1,24 @@
+{
+  "type": "spirit_spell",
+  "id": "spell.word.call_to_duty",
+  "name": "Call to duty",
+  "element": "duty",
+  "light_vector": [
+    {
+      "aspect": "aspect.tenacity",
+      "delta": -2
+    }
+  ],
+  "cost": 1,
+  "kind": "lowering",
+  "starter": true,
+  "lines": {
+    "default": [
+      "You swore an oath. Where is it now?",
+      "Who keeps your post while you stand here quarrelling?"
+    ],
+    "weak": [
+      "You left your work half done, and you know it."
+    ]
+  }
+}

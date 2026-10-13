@@ -1,0 +1,32 @@
+{
+  "type": "spirit_spell",
+  "id": "spell.word.gaslighting",
+  "name": "Gaslighting",
+  "element": "duty",
+  "light_vector": [
+    {
+      "aspect": "aspect.awareness",
+      "delta": -2
+    },
+    {
+      "aspect": "aspect.tenacity",
+      "delta": -1
+    }
+  ],
+  "cost": 3,
+  "kind": "lowering",
+  "starter": false,
+  "guilt": {
+    "church": 1,
+    "folk": 1
+  },
+  "lines": {
+    "default": [
+      "That never happened. You dreamed it.",
+      "You are tired, you remember it wrong. Everyone says so."
+    ],
+    "weak": [
+      "You are not sure any more, are you? Good."
+    ]
+  }
+}

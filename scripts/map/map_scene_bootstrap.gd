@@ -275,13 +275,7 @@ static func _create_boat_blocks(definition: MapDefinition, parent: Node2D) -> St
 		var kind: StringName = prop.get("kind", &"")
 		if not kind in MapTypes.BOAT_PROP_KINDS:
 			continue
-		var half := (
-			Vector2(MapViewFishingBoatBuilder.HULL_HALF_LENGTH, MapViewFishingBoatBuilder.HULL_HALF_BEAM)
-			if kind == MapTypes.PROP_KIND_FISHING_BOAT
-			else Vector2(
-				MapViewMerchantBoatBuilder.HULL_HALF_LENGTH, MapViewMerchantBoatBuilder.HULL_HALF_BEAM
-			)
-		) * cell
+		var half := MapViewMeshBuilderPropModels.boat_half_extents(prop, definition) * cell
 		var yaw := MapTypes.prop_facing_yaw(prop)
 		var footprint: Variant = prop.get("footprint")
 		if footprint is Rect2 and footprint.size.y > footprint.size.x:

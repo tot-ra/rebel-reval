@@ -14,11 +14,11 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `1293`
-- Markdown files excluded as archive/reference/out of active scope: `762`
-- Local/external links inspected: `14924`
-- Links to active Markdown docs: `12944`
-- Links to existing archive/reference/non-active local docs: `528`
+- Active Markdown files scanned: `1294`
+- Markdown files excluded as archive/reference/out of active scope: `764`
+- Local/external links inspected: `14939`
+- Links to active Markdown docs: `12951`
+- Links to existing archive/reference/non-active local docs: `532`
 - External links skipped for reachability: `192`
 - Issues found: `0`
 
@@ -84,6 +84,7 @@ No active Markdown documentation issues found.
 - `docs/adr/0045-seasons.md`
 - `docs/adr/0046-church-services-and-collective-channeling.md`
 - `docs/adr/0047-interaction-stances-and-conversation-camera.md`
+- `docs/adr/0048-psychological-spells-and-willpower-cost.md`
 - `docs/adr/README.md`
 - `docs/AGENT_LOOPS.md`
 - `docs/ANIMAL_3D_SOURCING.md`

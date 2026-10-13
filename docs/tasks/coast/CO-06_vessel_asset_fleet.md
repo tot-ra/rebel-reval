@@ -2,6 +2,27 @@
 
 Board row: **R-953**. Priority: high. Depends on: CO-05.
 
+## Decisions (2026-10-13, R-953 implementation)
+
+The rrmap harbour maps this contract targeted were retired after it was written; the live fleet
+is the seamless city's `CityShips`. The user was asked whether to keep the GLB route and did not
+answer in the session, so the recommended route was taken and is recorded here:
+
+- The working craft are built procedurally in metres (`scripts/city/vessel_fleet.gd`), like the
+  existing `CogModel`, not as Blender GLBs. No binary asset ships, so `assets/vehicles/vessels/**`,
+  `tools/build_vessels.py`, `assets/SOURCES.csv`, `ASSET_INVENTORY.md` and `ART_BIBLE.md` are not
+  touched. The cog stays `CogModel` with a second (tarred) wear variant.
+- Moored-vs-hauled follows the plan placement (`lift` > 0), not the hash; design, wear and load
+  are hashed from `(map_seed, prop_id)`.
+- Missing card numbers were added to CO-05 first (R-953 addendum of
+  `docs/reports/baltic_vessels_1343.md`).
+- Extra files touched: `scripts/city/city_ships.gd`, `scripts/city/cog_model.gd`,
+  `scripts/city/city_boats.gd` (deleted), `scripts/map/map_scene_bootstrap.gd`, tests
+  `test_city_shore.gd`, `test_boat_collision.gd`, the deleted `test_map_view_fishing_boat.gd` and
+  `test_merchant_boat_model.gd`, and `docs/SYSTEMS/{SHIPS,CITY_SEA,OBJECT_CATALOG,README}.md`.
+
+Outcome and plates: [`docs/reports/co06_vessel_fleet.md`](../../reports/co06_vessel_fleet.md).
+
 ## Player-facing goal
 
 Every boat on the Reval coast is recognisably a fourteenth-century Baltic craft, and no two are

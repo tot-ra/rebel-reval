@@ -1,0 +1,28 @@
+{
+  "type": "spirit_spell",
+  "id": "spell.word.guilt_trip",
+  "name": "Pity play",
+  "element": "love",
+  "light_vector": [
+    {
+      "aspect": "aspect.unity",
+      "delta": 1
+    },
+    {
+      "aspect": "aspect.resonance",
+      "delta": -1
+    }
+  ],
+  "cost": 2,
+  "kind": "mixed",
+  "starter": false,
+  "lines": {
+    "default": [
+      "I am only an orphan. Will you turn me away too?",
+      "After all I did for you, this is how you repay me?"
+    ],
+    "weak": [
+      "You would not hurt someone with nobody left, would you?"
+    ]
+  }
+}

@@ -584,6 +584,13 @@ later task cites a new primary source and changes CANON.
     Shop blurb names construction (*ehitus*). ETIS public chapters are finds catalogue
     (pp. 256-309), food artefacts (pp. 74-85), other artefacts (pp. 116-123), dendro
     (pp. 130-135), and animal provisions (pp. 136-147). No open construction folio.
+33. Bill, J. 1998. "Shallow-water craft from medieval Denmark. The identification of a
+    specialized regional ship type." *Archaeonautica* 14, 87-102.
+    `https://doi.org/10.3406/nauti.1998.1190`. Abstract and catalogue entry: an almost
+    intact medieval small boat with four strakes, **4.40 m long, 1.53 m beam, 0.6 m deep**.
+34. Viking Ship Museum, Roskilde, "The Gokstad Boat" (reconstruction of the largest of the
+    three small boats of the c. 900 Gokstad burial): **9.77 m x 1.86 m, sail 14 m², five
+    pairs of oars**. `https://www.vikingeskibsmuseet.dk/en/professions/boatyard/building-projects/the-gokstad-boat`
 
 ## R-991 addendum (2026-09-26)
 
@@ -628,6 +635,33 @@ rudder.
 four gudgeons onto the 1343 Peeter-scale roadstead cog, and must not invent an LOA%.
 Clearing task: **R-1075** (physical-copy read of [29] or [32], or a display plate that
 names the hang).
+
+## R-953 addendum (2026-10-13): comparanda for the CO-06 build
+
+CO-06 found unknown beam, depth, draught and rig fields on V2, V4, V5 and V6. The contract
+forbids inventing them in the mesh, so this addendum names the comparandum each authored
+number is scaled from. Every value below is `plausible composite`: a ratio from a dated
+northern hull applied to a length inside the card's band. None is a Reval measurement.
+
+| Design (`VesselFleet`) | Card | LOA | Beam | Depth | Draught | Rig | Source of each ratio |
+|---|---|---|---|---|---|---|---|
+| `fishing_boat_small` | V2 | 6.0 m (5-7 m band) | 2.07 m | 0.82 m | 0.32 m | mast 4.8 m, yard 3.2 m | L/B 2.88 and depth/L 0.136 from the medieval Danish small boat [33]; draught and rig scaled from *Slavia* [25] (draught 0.4-0.5 m and mast 7.5 m on 9.4 m) |
+| `fishing_boat_large` | V3 | 9.0 m (inside 5-10 m, below the Gedesby ceiling) | 3.74 m | 1.15 m | 0.45 m | mast 7.2 m, yard 4.8 m | L/B 2.40 and midships height/L 0.128 from Gedesby [8]; draught and rig from *Slavia* [25] |
+| `rowing_boat_open` | V4 | 6.5 m (6-8 m band) | 2.26 m | 0.88 m | 0.30 m | none | Bill small boat ratios [33]; L/B 2.88 is slimmer than V3's 2.40 as the card asks |
+| `lighter_lodja` | V5 | 10.5 m (small handbook band) | 5.4 m | 1.6 m | 0.8 m | mast 11.8 m, yard 8.4 m | L/B 1.94 from the typical handbook *lodi* (10-15 x 6-7 m) [9]; draught = Jõmmu 0.8 m [9]; depth = Gedesby midships 1.60 m [8] (the dated local carrier); mast = handbook 14 m scaled by 10.5/12.5 [9] |
+| `strait_craft_saaremaa` | V6 | 6.8 m (V2/V4 scale) | 2.36 m | 0.93 m | 0.34 m | mast 5.4 m, yard 3.6 m | Bill small boat ratios [33]; small square as the card allows |
+
+Fittings that the cards leave open are authored conservatively and labelled here:
+side rudder (steering oar) on the starboard quarter for every small craft, including the
+lighter, with a short tiller (the V5 card asks for a tiller, not a wheel); oar counts at the
+cards' living-tradition defaults (V2 four, V3 six, V4 four, V6 four; V5 two sweeps); oar
+length about 1.5 x beam; one shroud a side, a sheet, a brace, a halyard and a lift on each
+rigged hull (gear presence as in the V1 rig note, counts unknown). The Gokstad boat [34]
+(L/B 5.25, 10th c.) is recorded as the slender end of the northern small-boat range and is
+**not** used: it is a Viking-Age burial boat, and the medieval working hulls above are fuller.
+
+The cog stays `CogModel` (Peeter-scale, see `docs/SYSTEMS/SHIPS.md`); CO-06 adds only its
+second wear variant (freshly tarred hull).
 
 ## Open questions
 

@@ -7,8 +7,6 @@ const DistrictLifeProps := preload(
 const RuralLifeProps := preload(
 	"res://scripts/map/view3d/map_view_mesh_builder_rural_life_props.gd"
 )
-const FishingBoatBuilder := preload("res://scripts/map/view3d/map_view_fishing_boat_builder.gd")
-const MerchantBoatBuilder := preload("res://scripts/map/view3d/map_view_merchant_boat_builder.gd")
 const WallWalkAccessBuilder := preload(
 	"res://scripts/map/view3d/map_view_wall_walk_access_builder.gd"
 )
@@ -53,6 +51,10 @@ const PLOT_DRESSING_COMPONENTS: Dictionary = {
 }
 ## Individual authored prop meshes.
 
+## CO-06: map boat props use the true-metre VesselFleet / CogModel hulls, scaled
+## into map units (one unit ~0.88 m). The vessel waterline sits at the prop's
+## water rest height, so the keel is lowered by the design draught.
+const MAP_UNITS_PER_METRE := 1.0 / 0.88
 const BARREL_HEIGHT := BarrelMeshes.HEIGHT
 const BARREL_BELLY_RADIUS := BarrelMeshes.BELLY_RADIUS
 const ANCIENT_TREE_PRIMITIVE := &"ancient_tree"
@@ -190,7 +192,7 @@ static func build_prop(
 		MapTypes.PROP_KIND_HORSE:
 			_add_horse(root)
 		MapTypes.PROP_KIND_FISHING_BOAT:
-			_add_fishing_boat(root, prop)
+			_add_fishing_boat(root, prop, definition)
 		MapTypes.PROP_KIND_MERCHANT_BOAT:
 			_add_merchant_boat(root, prop)
 		MapTypes.PROP_KIND_BANNER:
@@ -262,15 +264,19 @@ static func _boat_rest_field(definition: MapDefinition) -> Dictionary:
 	return field
 
 
-static func _add_fishing_boat(root: Node3D, prop: Dictionary) -> void:
-	FishingBoatBuilder.add_to(root)
+## Fishing design, wear and load come from (map seed, prop id): the same map
+## always shows the same boats, and neighbouring props differ.
+static func _add_fishing_boat(root: Node3D, prop: Dictionary, definition: MapDefinition) -> void:
+	var map_seed := definition.seed if definition != null else 0
+	var prop_id := String(prop.get("id", ""))
+	var design := VesselFleet.fishing_design_for(map_seed, prop_id)
+	var vessel := VesselFleet.build(VesselFleet.variant_for(design, map_seed, prop_id))
+	vessel.name = "Vessel"
+	vessel.scale = Vector3.ONE * MAP_UNITS_PER_METRE
+	vessel.position.y = -VesselFleet.draught(design) * MAP_UNITS_PER_METRE
+	root.add_child(vessel)
 	# Inshore boats are lively on chop; motion_scale 1 keeps them readable.
-	_attach_boat_float(
-		root,
-		prop,
-		1.0,
-		Vector2(FishingBoatBuilder.HULL_HALF_LENGTH, FishingBoatBuilder.HULL_HALF_BEAM)
-	)
+	_attach_boat_float(root, prop, 1.0, boat_half_extents(prop, definition))
 
 
 static func _add_merchant_boat(root: Node3D, prop: Dictionary) -> void:
@@ -278,9 +284,26 @@ static func _add_merchant_boat(root: Node3D, prop: Dictionary) -> void:
 	var faction := FactionHeraldry.resolve(prop)
 	if String(faction).is_empty():
 		faction = FactionHeraldry.HANSEATIC
-	MerchantBoatBuilder.add_to(root, faction)
+	var wear := VesselFleet.stable_hash(String(prop.get("id", root.name))) % 2
+	var vessel := CogModel.build(faction, CogModel.SAIL_FURLED, true, wear)
+	vessel.name = "Vessel"
+	vessel.scale = Vector3.ONE * MAP_UNITS_PER_METRE
+	root.add_child(vessel)
 	# Heavy cogs damp the same wave field so they do not bounce like dinghies.
-	_attach_boat_float(root, prop, 0.55)
+	_attach_boat_float(root, prop, 0.55, boat_half_extents(prop, null))
+
+
+## (half length, half beam) in map units of the hull a boat prop builds, shared
+## by BoatFloat3D sampling and the 2D collision capsule in MapSceneBootstrap.
+static func boat_half_extents(prop: Dictionary, definition: MapDefinition) -> Vector2:
+	if prop.get("kind", &"") == MapTypes.PROP_KIND_MERCHANT_BOAT:
+		var cog_half := Vector2(
+			(CogHull.STEM_X - CogHull.STERN_X) * 0.5, CogHull.MAX_HALF_BEAM
+		)
+		return cog_half * MAP_UNITS_PER_METRE
+	var map_seed := definition.seed if definition != null else 0
+	var design := VesselFleet.fishing_design_for(map_seed, String(prop.get("id", "")))
+	return VesselFleet.hull_half_extents(design) * MAP_UNITS_PER_METRE
 
 
 static func _add_banner(root: Node3D, prop: Dictionary) -> void:

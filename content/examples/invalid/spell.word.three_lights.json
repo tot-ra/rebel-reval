@@ -1,0 +1,17 @@
+{
+  "type": "spirit_spell",
+  "id": "spell.word.three_lights",
+  "name": "Too many lights",
+  "element": "shame",
+  "light_vector": [
+    {"aspect": "aspect.resonance", "delta": 1},
+    {"aspect": "aspect.unity", "delta": 1},
+    {"aspect": "aspect.light", "delta": 1}
+  ],
+  "cost": 1,
+  "kind": "raising",
+  "starter": false,
+  "lines": {
+    "default": ["A spell pushes one or two soul lights, never three."]
+  }
+}

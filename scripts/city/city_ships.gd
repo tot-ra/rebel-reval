@@ -4,28 +4,26 @@ extends Node3D
 ## Shipping off Reval (ADR 0031): Hanseatic cogs riding at anchor in the roads
 ## north of the Coastal Gate, fishing boats drawn up off the fish landing and
 ## one cog under way along the shore. Cogs are `CogModel` (true metres, ~21 m
-## long, sail furled at anchor and wind-filled under way); fishing boats are
-## MapViewFishingBoatBuilder rescaled from its 0.88 m units (~5 m).
+## long, sail furled at anchor and wind-filled under way, two wear variants);
+## working craft are `VesselFleet` designs (CO-06) with a per-id wear, load and
+## rig variant, so no two boats on the Kalamaja sand look alike.
 ## Anchored hulls weathervane bow-to-wind and bob on a cheap swell; they carry
-## no collision (Kalev swims around and under nothing).
+## no collision (Kalev swims around and under nothing). Beached hulls never bob.
 
-const BOAT_SCALE := 0.88
+const PerfProbeScript := preload("res://scripts/debug/perf_probe.gd")
 const ANCHORAGE_COGS := 7
 const LANDING_BOATS := 5
 ## The cog under way: a slow loop along the shore (metres per second).
 const SAIL_SPEED := 2.2
 const SAIL_RADIUS := Vector2(420.0, 90.0)
-## Boardable decks (half length, half beam, deck height above the waterline, metres):
-## the usable part of the hull, inside the gunwales. Kalev swims alongside and
-## climbs aboard by stepping over the hull footprint. Cogs answer through
-## CogModel.walk_height (deck, cabins and the hold well).
-const BOAT_DECK := Vector3(2.1, 0.62, 0.38)
-## Per CityBoats kind: (half length, half beam, floor height) of the boardable floor.
-const BOAT_DECKS := {
-	&"clinker": Vector3(2.9, 0.8, 0.3),
-	&"skiff": Vector3(1.7, 0.55, 0.25),
-	&"lighter": Vector3(4.3, 1.4, 0.4),
-	&"overturned": Vector3(0.0, 0.0, 0.0),
+## Map seed of the seamless city for VesselFleet variant selection.
+const FLEET_SEED := 1343
+## plan.json harbour boat `type` -> VesselFleet design. `clinker` slots split
+## between the small and the larger fishing boat by their stable id.
+const PLAN_TYPES := {
+	&"skiff": VesselFleet.ROWING_OPEN,
+	&"lighter": VesselFleet.LIGHTER_LODJA,
+	&"overturned": VesselFleet.FISHING_SMALL,
 }
 
 var plan: CityPlan
@@ -34,8 +32,8 @@ var _sailing: Node3D
 var _sail_center := Vector2.ZERO
 var _time := 0.0
 var _wind := Vector2(1, 0)
-## Built once per state and duplicated per hull (meshes are shared resources).
-var _cog_anchored: Node3D
+## Built once per wear variant and duplicated per hull (meshes are shared resources).
+var _cog_anchored: Array[Node3D] = []
 
 
 static func create(city_plan: CityPlan) -> CityShips:
@@ -56,7 +54,10 @@ func _build() -> void:
 	)
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 1343
-	_cog_anchored = CogModel.build(FactionHeraldry.HANSEATIC, CogModel.SAIL_FURLED, true)
+	for wear in 2:
+		_cog_anchored.append(
+			CogModel.build(FactionHeraldry.HANSEATIC, CogModel.SAIL_FURLED, true, wear)
+		)
 	# Cogs in water deeper than their draft, a few hundred metres out.
 	var placed: Array[Vector2] = []
 	var tries := 0
@@ -66,7 +67,7 @@ func _build() -> void:
 		if not _clear(p, -4.0, placed, 45.0):
 			continue
 		placed.append(p)
-		_add_hull(p, true, rng)
+		_add_hull(p, true, rng, 0.0, NAN, "cog.roads.%d" % placed.size())
 	placed.clear()
 	tries = 0
 	while placed.size() < LANDING_BOATS and tries < 4000:
@@ -75,7 +76,7 @@ func _build() -> void:
 		if not _clear(p, -0.9, placed, 9.0) or plan.ground_height(p) < -3.0:
 			continue
 		placed.append(p)
-		_add_hull(p, false, rng)
+		_add_hull(p, false, rng, 0.0, NAN, "boat.landing.%d" % placed.size())
 	# Kalamaja: small clinker boats drawn up on the sand beside the beach decks.
 	for boat: Dictionary in plan.data.get("harbour", {}).get("boats", []):
 		_add_hull(
@@ -84,6 +85,7 @@ func _build() -> void:
 			rng,
 			float(boat["lift"]),
 			float(boat["angle"]),
+			String(boat["id"]),
 			StringName(boat.get("type", "clinker"))
 		)
 	_sail_center = shore + Vector2(-80, -520)
@@ -91,8 +93,9 @@ func _build() -> void:
 	_sailing.name = "CogUnderWay"
 	_sailing.add_child(CogModel.build(FactionHeraldry.HANSEATIC, CogModel.SAIL_SET, false))
 	add_child(_sailing)
-	_cog_anchored.free()
-	_cog_anchored = null
+	for template in _cog_anchored:
+		template.free()
+	_cog_anchored.clear()
 
 
 func _clear(p: Vector2, deeper_than: float, placed: Array[Vector2], spacing: float) -> bool:
@@ -105,22 +108,39 @@ func _clear(p: Vector2, deeper_than: float, placed: Array[Vector2], spacing: flo
 
 
 ## `lift` > 0 beaches the hull on sand at that height (no bobbing); `yaw` pins it.
+## `id` is the stable boat id that seeds its VesselFleet / cog wear variant.
 func _add_hull(
-	p: Vector2, cog: bool, rng: RandomNumberGenerator, lift := 0.0, yaw := NAN, kind := &"fishing"
+	p: Vector2,
+	cog: bool,
+	rng: RandomNumberGenerator,
+	lift := 0.0,
+	yaw := NAN,
+	id := "",
+	type := &"clinker"
 ) -> void:
 	var root := Node3D.new()
 	root.name = ("Cog_%d" if cog else "Boat_%d") % _hulls.size()
 	root.position = Vector3(p.x, 0.0, p.y)
 	var hull := Node3D.new()
+	var design := &""
+	var keel_y := 0.0
 	if cog:
-		hull.add_child(_cog_anchored.duplicate())
-	elif kind == &"fishing":
-		hull.scale = Vector3.ONE * BOAT_SCALE
-		MapViewFishingBoatBuilder.add_to(hull)
-	elif kind == &"overturned":
-		hull.add_child(CityBoats.overturned(&"clinker"))
+		var wear := VesselFleet.stable_hash(id) % _cog_anchored.size()
+		hull.add_child(_cog_anchored[wear].duplicate())
 	else:
-		hull.add_child(CityBoats.build(kind))
+		design = PLAN_TYPES.get(type, &"")
+		if design.is_empty():
+			design = VesselFleet.fishing_design_for(FLEET_SEED, id)
+		var hauled := lift > 0.0
+		var variant := VesselFleet.variant_for(design, FLEET_SEED, id, hauled)
+		if type == &"overturned":
+			hull.add_child(VesselFleet.overturned(design, variant["wear"]))
+			design = &""
+		else:
+			hull.add_child(VesselFleet.build(variant))
+			# The vessel origin is its keel: afloat it sits at its draught.
+			keel_y = 0.0 if hauled else -VesselFleet.draught(design)
+			hull.position.y = keel_y
 	root.add_child(hull)
 	add_child(root)
 	(
@@ -133,7 +153,9 @@ func _add_hull(
 				"yaw": rng.randf() * TAU if is_nan(yaw) else yaw,
 				"cog": cog,
 				"lift": lift,
-				"kind": kind,
+				"design": design,
+				"keel_y": keel_y,
+				"id": id,
 			}
 		)
 	)
@@ -155,13 +177,14 @@ func deck_height_at(world_xz: Vector2) -> float:
 			if not is_nan(height):
 				return node.global_position.y + height
 			continue
-		var deck: Vector3 = BOAT_DECKS.get(h["kind"], BOAT_DECK)
-		if deck.x <= 0.0:
-			continue
+		var design: StringName = h["design"]
+		if design.is_empty():
+			continue  # overturned hulls are not boarded
+		var deck := VesselFleet.deck(design)
 		# The hull tapers to the stems: the usable beam closes over the last quarter.
 		var taper := clampf((deck.x - absf(local.x)) / (deck.x * 0.3), 0.0, 1.0)
 		if absf(local.x) <= deck.x and absf(local.z) <= deck.y * taper:
-			return node.global_position.y + deck.z
+			return node.global_position.y + float(h["keel_y"]) + deck.z
 	return NAN
 
 
@@ -169,8 +192,6 @@ func set_wind(direction: Vector2) -> void:
 	if not direction.is_zero_approx():
 		_wind = direction.normalized()
 
-
-const PerfProbeScript := preload("res://scripts/debug/perf_probe.gd")
 
 
 func _process(delta: float) -> void:

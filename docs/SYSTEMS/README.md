@@ -29,8 +29,8 @@ One page per implemented or planned feature. Each page opens with a `Status:` li
 | [Regional sites (distant destinations)](./REGIONAL_SITES.md) | Implemented for the Paide pilot (R-1520, ADR 0042): site-parameterised builder and runtime, inland site with sky and weather, no sea; other sites planned |
 | [Landmark sites in the seamless city](./CITY_LANDMARK_SITES.md) | Index of landmark sites (ADR 0032); one page per built site under `landmark_sites/`, pending sites planned |
 | [Church interiors](./CHURCH_INTERIORS.md) | In progress (R-1392): glazing implemented (R-1393, eight plates, per-church programmes); ornamental wall paintings (R-1396: consecration crosses, dado curtain, foliage band); liturgical objects, seating, figural murals planned |
-| [City sea, shore and harbour life](./CITY_SEA.md) | Implemented (FFT sea with storm swell, beach relief, shore stones, boardable boats, fish and puddle-step splashes) |
-| [Hanseatic cog](./SHIPS.md) | Implemented (lofted clinker hull, walkable interior, wind-driven sail and rope shaders, rudder) |
+| [City sea, shore and harbour life](./CITY_SEA.md) | Implemented (FFT sea with storm swell, beach relief, shore stones, boardable boats, fish) |
+| [Ships and working craft](./SHIPS.md) | Implemented (cog with walkable interior and two wear variants; five working-craft designs with wear, load and rig variants, R-953) |
 | [Village and house windows](./COTTAGE_WINDOWS.md) | Implemented (7 styles: platbands, shutters, slit, stone surround) |
 | [Farmland, pastures and woods](./FARMLAND.md) | Implemented (fields, crops by date, pastures, woods; no far-field LOD yet) |
 | [Living vegetation: trees, shrubs, grass and ground cover](./LIVING_VEGETATION.md) | Implemented: 20 tree species, shrubs, blade grass, 3D wild plants, ecology placement, moss and fungi, seasons, shared wind, budgets, animated visual tour; grain fields and tree LOD chain planned (R-1319) |

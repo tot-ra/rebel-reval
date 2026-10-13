@@ -69,7 +69,11 @@ def stream_pools(overlay):
     chain = [0.0]
     for a, b in zip(trace, trace[1:]):
         chain.append(chain[-1] + math.dist(a, b))
-    pools = [("pool.lower_bend", chain[-2] - 16.0, 28.0, 1.8)]
+    # The lower bend is where the stream swings furthest west below the Viru road;
+    # keyed to that vertex, not to the end of the trace, so extending the reach to
+    # the mouth does not move the pool.
+    bend = min(range(len(trace)), key=lambda i: trace[i][0])
+    pools = [("pool.lower_bend", chain[bend] - 16.0, 28.0, 1.8)]
     for road in overlay["streets"]["extramural_roads"]:
         if road["id"] not in ("road.viru", "road.tartu"):
             continue
@@ -1082,6 +1086,12 @@ def build(args) -> dict:
             ang = math.atan2(foot[1] - py_, foot[0] - px_) + math.pi / 2 + srng.uniform(-0.25, 0.25)
             L = srng.uniform(7, 12) if sub["kind"] != "fisher" else srng.uniform(4.2, 9.5)
             D = srng.uniform(5, 7) if sub["kind"] != "fisher" else srng.uniform(3.4, 5.4)
+            if sub["kind"] == "fisher" and L * D < 24.0:
+                # A fisher hut is a dwelling: the census (tools/city/build_city_census.py)
+                # files anything under 22 m2 as an empty shed, so a moved hut must not
+                # shrink below that and evict its household. Stretched, not re-drawn,
+                # so the seeded sequence and every later hut stay put.
+                L = 24.0 / D
             ring = [(px_ + math.cos(ang) * sx * L / 2 - math.sin(ang) * sy * D / 2, py_ + math.sin(ang) * sx * L / 2 + math.cos(ang) * sy * D / 2) for sx, sy in ((-1, -1), (1, -1), (1, 1), (-1, 1))]
             # irregular: nudge one corner so houses are not perfect rectangles
             ci = srng.randrange(4)
@@ -2150,6 +2160,23 @@ def shore_march(h_at_m, x, y, dx, dy, limit=160.0):
     return last
 
 
+# Kalamaja fishing beach frame. The 1343 shore runs northwest from the fish landing
+# along Kalarand (reval_1343_overlay.json sea.shoreline_note), so the beach layout
+# is authored in shore-local axes instead of map north/east: KJ_SEA points out to
+# sea (northeast), KJ_ALONG runs along the beach (southeast), KJ_ROT turns a
+# map-east angle into the along-beach one.
+KJ_SEA = (0.8, -0.6)
+KJ_ALONG = (0.6, 0.8)
+KJ_ROT = math.atan2(KJ_ALONG[1], KJ_ALONG[0])
+# Inland stations of the three beach decks, northwest to southeast, ~60 m behind the waterline.
+KJ_STATIONS = ((37.0, -877.0), (82.0, -817.0), (127.0, -757.0))
+
+
+def kj(p, along, inland):
+    """Offset point p by metres along the Kalamaja beach and inland from it."""
+    return (p[0] + KJ_ALONG[0] * along - KJ_SEA[0] * inland, p[1] + KJ_ALONG[1] * along - KJ_SEA[1] * inland)
+
+
 def harbour_features(buildings, h_at_m, nearest_street, mpu):
     """Merchant landing below the Coastal Gate and the Kalamaja fishing shore:
     short timber jetties and beach decks (walkable, like bridges), one treadwheel
@@ -2205,36 +2232,36 @@ def harbour_features(buildings, h_at_m, nearest_street, mpu):
     for i in range(6):
         harbour["stacks"].append({"id": "stack.coastal.%d" % i, "kind": ["barrel", "barrel", "bale", "crate"][i % 4], "at": [round(mid[0] + hrng.uniform(-14, 14), 2), round(mid[1] + hrng.uniform(1, 7), 2)]})
     # ---- Kalamaja fishing shore: three beach decks, three net yards, sheds, boats ----
-    xs = (-640.0, -560.0, -470.0)
-    for k, x in enumerate(xs):
-        s_ = shore_march(h_at_m, x, -740.0, 0.0, -1.0)
+    for k, station in enumerate(KJ_STATIONS):
+        s_ = shore_march(h_at_m, *station, *KJ_SEA)
         harbour["landings"].append([round(s_[0], 2), round(s_[1], 2)])
-        deck("jetty.kalamaja.%d" % k, "beach_deck", (s_[0], s_[1] + 3.0), (0.0, -1.0), 7.0, 1.8, conf + "; short timber beach deck")
-        yard_c = (s_[0] + 9.0, s_[1] + 12.0 + hrng.uniform(0, 4))
+        deck("jetty.kalamaja.%d" % k, "beach_deck", kj(s_, 0.0, 3.0), KJ_SEA, 7.0, 1.8, conf + "; short timber beach deck")
+        yard_c = kj(s_, 9.0, 12.0 + hrng.uniform(0, 4))
         if h_at_m(*yard_c) > 0.7:
             # R-1640: two long pole racks per yard (11 m and 9.5 m), one net
             # draped over each, instead of four 3 m strips. Fixed offsets, no
             # hrng draw, so every later seeded placement keeps its position.
-            racks = [[round(yard_c[0], 2), round(yard_c[1] - 2.0, 2), 0.0, 11.0],
-                     [round(yard_c[0] + 0.6, 2), round(yard_c[1] + 1.9, 2), 0.0, 9.5]]
-            ring = [(yard_c[0] + sx * 7.5, yard_c[1] + sy * 4.5) for sx, sy in ((-1, -1), (1, -1), (1, 1), (-1, 1))]
+            rack_a, rack_b = kj(yard_c, 0.0, -2.0), kj(yard_c, 0.6, 1.9)
+            racks = [[round(rack_a[0], 2), round(rack_a[1], 2), round(KJ_ROT, 4), 11.0],
+                     [round(rack_b[0], 2), round(rack_b[1], 2), round(KJ_ROT, 4), 9.5]]
+            ring = [kj(yard_c, sx * 7.5, sy * 4.5) for sx, sy in ((-1, -1), (1, -1), (1, 1), (-1, 1))]
             harbour["net_yards"].append({"id": "netyard.%d" % k, "polygon": [[round(q[0] / mpu, 2), round(q[1] / mpu, 2)] for q in ring], "racks": [[round(r_[0] / mpu, 2), round(r_[1] / mpu, 2), r_[2], round(r_[3] / mpu, 2)] for r_ in racks]})
             taken.append((yard_c, 8.0))
-    mid_k = shore_march(h_at_m, -555.0, -740.0, 0.0, -1.0)
-    place("bldg.kalamaja.smokeshed0", "smoke_shed", (mid_k[0] - 24, mid_k[1] + 14), 6.0, mid_k, conf + "; timber smoke rack under a low roof", shore_dir=0.0)
-    place("bldg.kalamaja.smokeshed1", "smoke_shed", (mid_k[0] + 30, mid_k[1] + 14), 6.0, mid_k, conf, shore_dir=0.0)
-    place("bldg.kalamaja.saltshed0", "salt_shed", (mid_k[0] + 4, mid_k[1] + 22), 6.0, mid_k, conf + "; imported Hanseatic salt", shore_dir=0.0)
-    bw = (mid_k[0] - 55, mid_k[1] + 10)
+    mid_k = shore_march(h_at_m, *KJ_STATIONS[1], *KJ_SEA)
+    place("bldg.kalamaja.smokeshed0", "smoke_shed", kj(mid_k, -24, 14), 6.0, mid_k, conf + "; timber smoke rack under a low roof", shore_dir=KJ_ROT)
+    place("bldg.kalamaja.smokeshed1", "smoke_shed", kj(mid_k, 30, 14), 6.0, mid_k, conf, shore_dir=KJ_ROT)
+    place("bldg.kalamaja.saltshed0", "salt_shed", kj(mid_k, 4, 22), 6.0, mid_k, conf + "; imported Hanseatic salt", shore_dir=KJ_ROT)
+    bw = kj(mid_k, -55, 10)
     harbour["boatwright"] = {"id": "boatwright.kalamaja", "at": [round(bw[0] / mpu, 2), round(bw[1] / mpu, 2)], "confidence": conf}
     taken.append((bw, 7.0))
     for i in range(8):
         k = i % 3
-        base = shore_march(h_at_m, xs[k] + hrng.uniform(-30, 30), -740.0, 0.0, -1.0)
-        p = (base[0] + hrng.uniform(-4, 4), base[1] + hrng.uniform(0.5, 3.0))
-        harbour["boats"].append({"id": "boat.kalamaja.%d" % i, "type": "skiff" if i % 3 == 2 else "clinker", "at": [round(p[0] / mpu, 2), round(p[1] / mpu, 2)], "angle": round(hrng.uniform(-0.5, 0.5) + math.pi / 2, 3), "lift": round(max(h_at_m(*p), 0.0), 3)})
+        base = shore_march(h_at_m, *kj(KJ_STATIONS[k], hrng.uniform(-30, 30), 0.0), *KJ_SEA)
+        p = kj(base, hrng.uniform(-4, 4), hrng.uniform(0.5, 3.0))
+        harbour["boats"].append({"id": "boat.kalamaja.%d" % i, "type": "skiff" if i % 3 == 2 else "clinker", "at": [round(p[0] / mpu, 2), round(p[1] / mpu, 2)], "angle": round(hrng.uniform(-0.5, 0.5) + math.pi / 2 + KJ_ROT, 3), "lift": round(max(h_at_m(*p), 0.0), 3)})
     # Boats turned over for tarring, on trestles by the boatwright ground and a net yard.
-    for i, (bx, by) in enumerate(((bw[0] + 12, bw[1] + 4), (xs[1] + 22, shore_march(h_at_m, xs[1] + 22, -740.0, 0.0, -1.0)[1] + 9))):
-        harbour["boats"].append({"id": "boat.kalamaja.up%d" % i, "type": "overturned", "at": [round(bx / mpu, 2), round(by / mpu, 2)], "angle": round(hrng.uniform(-0.3, 0.3), 3), "lift": round(max(h_at_m(bx, by), 0.5), 3)})
+    for i, (bx, by) in enumerate((kj(bw, 12, 4), kj(shore_march(h_at_m, *kj(KJ_STATIONS[1], 22, 0.0), *KJ_SEA), 0.0, 9))):
+        harbour["boats"].append({"id": "boat.kalamaja.up%d" % i, "type": "overturned", "at": [round(bx / mpu, 2), round(by / mpu, 2)], "angle": round(hrng.uniform(-0.3, 0.3) + KJ_ROT, 3), "lift": round(max(h_at_m(bx, by), 0.5), 3)})
     # Cargo lighters at the jetty tips of the merchant landing: cargo goes by lighter
     # and cart through the shallows to the cogs in the roadstead.
     for name, j in (("a", decks[0]), ("b", decks[1])):
@@ -2294,21 +2321,21 @@ def kalarand_fish_racks(buildings, harbour, bridges, trees, bushes, streets, h_a
     variants = ["fish_rack.herring", "fish_rack.mixed", "fish_rack.herring", "fish_rack.mixed", "fish_rack.empty"]
     for hut in huts:
         c = poly_centroid([(q[0] * mpu, q[1] * mpu) for q in hut["footprint"]])
-        shore = shore_march(h_at_m, c[0], c[1], 0.0, -1.0, limit=120.0)
-        # Shore-side huts only: the front row facing the beach (sea to the north)
-        # within ~100 m; the inland rows keep their gardens.
-        if c[1] - shore[1] > 100.0:
+        shore = shore_march(h_at_m, c[0], c[1], *KJ_SEA, limit=120.0)
+        # Shore-side huts only: the front row facing the beach (sea to the
+        # northeast) within ~100 m; the inland rows keep their gardens.
+        if math.dist(c, shore) > 100.0:
             continue
         want = 2 if rng.random() < 0.35 else 1
         got = 0
         for attempt in range(60):
             if got >= want:
                 break
-            ang = -math.pi / 2 + rng.uniform(-1.1, 1.1)
+            ang = math.atan2(KJ_SEA[1], KJ_SEA[0]) + rng.uniform(-1.1, 1.1)
             d = rng.uniform(5.5, 12.0)
             p = (c[0] + math.cos(ang) * d, c[1] + math.sin(ang) * d)
             length = rng.uniform(3.0, 3.8)
-            axis = rng.uniform(-0.3, 0.3)
+            axis = KJ_ROT + rng.uniform(-0.3, 0.3)
             ends = [(p[0] + math.cos(axis) * sx * (length / 2 + 0.2), p[1] + math.sin(axis) * sx * (length / 2 + 0.2)) for sx in (-1, 1)]
             if min(h_at_m(*q) for q in ends + [p]) < 0.8:
                 continue

@@ -15,6 +15,7 @@ const SAIL_SET := true
 const SAIL_FURLED := false
 
 static var _wood: StandardMaterial3D
+static var _wood_tarred: StandardMaterial3D
 static var _iron: StandardMaterial3D
 static var _canvas: StandardMaterial3D
 
@@ -27,6 +28,16 @@ static func wood_material() -> StandardMaterial3D:
 		_wood.cull_mode = BaseMaterial3D.CULL_BACK
 		_wood.roughness = 0.88
 	return _wood
+
+
+## CO-06 second wear variant: a hull freshly paid with tar, darker and less
+## silvered than the default weathered oak. Same texture, so no new asset.
+static func tarred_wood_material() -> StandardMaterial3D:
+	if _wood_tarred == null:
+		_wood_tarred = wood_material().duplicate() as StandardMaterial3D
+		_wood_tarred.albedo_color = Color(0.4, 0.33, 0.27)
+		_wood_tarred.roughness = 0.74
+	return _wood_tarred
 
 
 static func iron_material() -> StandardMaterial3D:
@@ -55,15 +66,20 @@ static func walk_height(x: float, z: float) -> float:
 
 ## A hull node. `sail_set` fills the sail from the wind (ship under way);
 ## otherwise the sail is furled on the yard. `anchored` runs a cable out of the hawse.
+## `wear` 0 is the weathered default, 1 the freshly tarred hull (CO-06).
 static func build(
-	faction_id: StringName = FactionHeraldry.HANSEATIC, sail_set := false, anchored := true
+	faction_id: StringName = FactionHeraldry.HANSEATIC,
+	sail_set := false,
+	anchored := true,
+	wear := 0
 ) -> Node3D:
 	var root := Node3D.new()
 	root.name = "Cog"
+	root.set_meta(&"wear", wear)
 	var hull := CogParts.new()
 	CogHull.add_outer(hull)
 	CogHull.add_inner(hull)
-	_add_mesh(root, "Hull", hull, wood_material())
+	_add_mesh(root, "Hull", hull, tarred_wood_material() if wear == 1 else wood_material())
 
 	var timber := CogParts.new()
 	var iron := CogParts.new()

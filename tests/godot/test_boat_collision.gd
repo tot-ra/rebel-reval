@@ -14,14 +14,11 @@ func test_boat_props_get_hull_sized_capsules_on_the_world_layer() -> void:
 	var tall := body.get_node("Boat_boat_tall") as CollisionShape2D
 	var capsule := tall.shape as CapsuleShape2D
 	var cell := float(definition.cell_size)
-	assert_almost_eq(
-		capsule.height, MapViewFishingBoatBuilder.HULL_HALF_LENGTH * 2.0 * cell, 0.01,
-		"capsule must span the 3D hull length"
-	)
-	assert_almost_eq(
-		capsule.radius, MapViewFishingBoatBuilder.HULL_HALF_BEAM * cell, 0.01,
-		"capsule must match the 3D hull beam"
-	)
+	# CO-06: the capsule follows the design the prop builds (from map seed + id).
+	var half := MapViewMeshBuilderPropModels.boat_half_extents(definition.props[0], definition)
+	assert_true(half.x > half.y * 2.0, "a hull is long and narrow")
+	assert_almost_eq(capsule.height, half.x * 2.0 * cell, 0.01, "capsule must span the 3D hull length")
+	assert_almost_eq(capsule.radius, half.y * cell, 0.01, "capsule must match the 3D hull beam")
 	assert_eq(tall.position, Vector2(160, 160), "capsule sits on the prop centre")
 	# A tall footprint turns the hull north-south, so the capsule stays upright.
 	assert_almost_eq(sin(tall.rotation), 0.0, 0.001, "tall boat runs along logic y")

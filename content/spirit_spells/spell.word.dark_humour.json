@@ -1,0 +1,28 @@
+{
+  "type": "spirit_spell",
+  "id": "spell.word.dark_humour",
+  "name": "Dark humour",
+  "element": "fear",
+  "light_vector": [
+    {
+      "aspect": "aspect.nature",
+      "delta": 1
+    },
+    {
+      "aspect": "aspect.light",
+      "delta": -1
+    }
+  ],
+  "cost": 1,
+  "kind": "mixed",
+  "starter": false,
+  "lines": {
+    "default": [
+      "Cheer up. The plague takes the rich first.",
+      "If the Danes hang us, at least we will see over the wall."
+    ],
+    "weak": [
+      "Laugh. God is not listening anyway."
+    ]
+  }
+}
