@@ -126,10 +126,20 @@ func test_sea_weather_scales_water_wave_height() -> void:
 func test_world_wind_drives_vegetation_and_cloth_uniforms() -> void:
 	var calm_dir := Vector2(1.0, 0.0)
 	var storm_dir := Vector2(0.0, 1.0)
-	# R-1321: one published wind field; every wind material reads its globals.
+	var canopy_code: String = MapViewMaterials.canopy(&"leaf").shader.code
+	assert_true(
+		canopy_code.contains("tree_wind.gdshaderinc"),
+		"canopy must use the shared tree wind deformation"
+	)
+	var tree_wind_source := FileAccess.get_file_as_string(
+		"res://scripts/map/view3d/tree_wind.gdshaderinc"
+	)
+	assert_true(
+		tree_wind_source.contains("wind_field.gdshaderinc"),
+		"tree wind must consume the shared wind field"
+	)
 	for material: ShaderMaterial in [
 		MapViewMaterials.grass_blades(),
-		MapViewMaterials.canopy(&"leaf"),
 		MapViewMaterials.sail_cloth(),
 		MapViewMaterials.flag_cloth(),
 	]:
