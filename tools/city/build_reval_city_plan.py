@@ -1130,6 +1130,16 @@ def build(args) -> dict:
     buildings = [b_ for b_ in buildings if b_["id"] not in replaced]
     site_out = [terrace_site(site, height_wu, h_at_m, x0, y0, mpu) for site in sites]
     fix_blocked_doors(buildings, [poly for so in site_out for poly in so["footprints"]])
+    # R-1929: farm-suburb houses are smoke cottages and the barn-dwelling is a
+    # walk-in two-bay elurehi (no household: the census only counts houses).
+    # After the door fix, so the plan follows the final door.
+    farm_ids = {fh[0] for fh in farm_houses}
+    for b_ in buildings:
+        if b_["id"] in farm_ids:
+            b_["rural_plan"] = rural_plan(b_, "smoke_cottage", mpu)
+        elif b_.get("type") == "barn_dwelling":
+            b_["enterable"] = bool(b_["door"])
+            b_["rural_plan"] = rural_plan(b_, "barn_dwelling", mpu)
     terrace_landmarks(buildings, height_wu, h_at_m, x0, y0, mpu)
     # A small site squeezed between houses (Kalev's smithy) sets `over_houses`:
     # the neighbours' plot aprons are cut after the site terrace and would
@@ -2054,6 +2064,147 @@ def countryside(overlay, buildings, streets, circuit_poly, toompea_edge, h_at_m,
         add(p, sp, sc)
     return fields, pastures, woods, farmsteads, orchards
 
+
+
+# ---------------------------------------------------------------------------
+# Rural dwelling plan (R-1929, docs/SYSTEMS/FARMLAND.md "Rural dwelling plan")
+# ---------------------------------------------------------------------------
+
+# Heated share of a barn-dwelling's length: the same 38/62 seam as the map-view
+# facade (MapViewRuralDwellingModels.ROOM_SHARE); EVM gives a rehetuba of 25-40 m2
+# beside a threshing floor about twice as big. Never below RURAL_MIN_SHARE when the
+# seam has to step clear of the outer door.
+RURAL_ROOM_SHARE = 0.38
+RURAL_MIN_SHARE = 0.3
+# Low doors (a 1343 smoke room had a low door with a high sill) that still pass
+# Kalev's 1 m collision capsule; the inner door of the log partition is lower.
+RURAL_INNER_DOOR = (1.2, 1.65)
+# Broad threshing gate: width clamp of the map-view work gate, height under the eave.
+RURAL_GATE_MIN, RURAL_GATE_MAX, RURAL_GATE_H = 1.75, 2.7, 2.32
+# Heap oven (kerisahi) plan side in metres; the cottage stove is the smaller one.
+RURAL_OVEN = {"smoke_cottage": 1.5, "barn_dwelling": 1.8}
+RURAL_WALL = 0.32  # CityBuildingBuilder.TIMBER_WALL
+
+
+def _fit_oven(ring, centre, size, mouth, clear):
+    """Slide the oven square toward the room centre until every corner keeps
+    `clear` from every wall line: farm houses have one nudged corner (up to
+    0.6 m) and the room is the footprint minus the wall."""
+    c = poly_centroid(ring)
+    f = (math.cos(mouth), math.sin(mouth))
+    s_ = (-f[1], f[0])
+    h = size / 2
+
+    def ok(p):
+        for sx, sy in ((-1, -1), (1, -1), (1, 1), (-1, 1)):
+            q = (p[0] + (f[0] * sx + s_[0] * sy) * h, p[1] + (f[1] * sx + s_[1] * sy) * h)
+            if not pip(q, ring):
+                return False
+            for i in range(len(ring)):
+                a, b = ring[i], ring[(i + 1) % len(ring)]
+                L2 = (b[0] - a[0]) ** 2 + (b[1] - a[1]) ** 2
+                t = max(0.0, min(1.0, ((q[0] - a[0]) * (b[0] - a[0]) + (q[1] - a[1]) * (b[1] - a[1])) / max(L2, 1e-9)))
+                if math.dist(q, (a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t)) < clear:
+                    return False
+        return True
+
+    p = centre
+    for _ in range(80):
+        if ok(p):
+            return p
+        d = math.dist(p, c)
+        if d < 0.05:
+            break
+        p = (p[0] + (c[0] - p[0]) * 0.05 / d, p[1] + (c[1] - p[1]) * 0.05 / d)
+    return p
+
+
+def rural_plan(rec, form, mpu):
+    """Declarative plan of a 1343 smoke dwelling, computed from the record's final
+    footprint, ridge and door (run after fix_blocked_doors). `smoke_cottage`: one
+    heated room with a heap oven in the back corner. `barn_dwelling`: a log
+    partition across the ridge axis splits a heated bay (oven in its back corner,
+    mouth to the front wall) from a threshing bay that holds the outer door, a
+    broad yard-side gate and the low inner door to the warm room. Coordinates are
+    world units like the footprint; new parts carry stable ids <bid>.oven,
+    <bid>.inner_door, <bid>.gate."""
+    ring = [tuple(q) for q in rec["footprint"]]
+    c = poly_centroid(ring)
+    ra = float(rec["ridge_angle"])
+    u = (math.cos(ra), math.sin(ra))
+    v = (-u[1], u[0])
+    dot = lambda p, d: (p[0] - c[0]) * d[0] + (p[1] - c[1]) * d[1]
+    at = lambda s, t: (c[0] + u[0] * s + v[0] * t, c[1] + u[1] * s + v[1] * t)
+    lo, hi = min(dot(q, u) for q in ring), max(dot(q, u) for q in ring)
+    door = rec.get("door")
+    # Front = the long side the door (else the yard) faces; the oven mouth looks there.
+    if door:
+        side = 1.0 if math.cos(door[2]) * v[0] + math.sin(door[2]) * v[1] >= 0 else -1.0
+        door_s = dot((door[0], door[1]), u)
+        on_long = abs(math.cos(door[2]) * u[0] + math.sin(door[2]) * u[1]) < 0.5
+    else:
+        side, door_s, on_long = 1.0, 0.0, False
+    size = RURAL_OVEN[form] / mpu
+    inset = (RURAL_WALL + 0.08) / mpu + size / 2
+    vmin, vmax = min(dot(q, v) for q in ring), max(dot(q, v) for q in ring)
+    front_v = vmax if side > 0 else vmin
+    back_v = vmin if side > 0 else vmax
+    # The far end from the door along the ridge (ties go to the + end).
+    end = -1.0 if door_s > 0 else 1.0
+    heated_edge = hi if end > 0 else lo
+    plan = {"form": form}
+    if form == "smoke_cottage":
+        # Back corner at the far end; the mouth looks to the front wall, or
+        # down the room when the door is in a gable.
+        centre = at(heated_edge - end * inset, back_v + side * inset)
+        mouth = (v[0] * side, v[1] * side) if (on_long or not door) else (-u[0] * end, -u[1] * end)
+        centre = _fit_oven(ring, centre, size, math.atan2(mouth[1], mouth[0]), (RURAL_WALL + 0.1) / mpu)
+        plan["oven"] = {"id": rec["id"] + ".oven", "at": [round(centre[0], 3), round(centre[1], 3)],
+                        "size": round(size, 3), "mouth": round(math.atan2(mouth[1], mouth[0]), 4)}
+        return plan
+    # Barn-dwelling: the heated end is the one away from the outer door.
+    length = hi - lo
+    share = RURAL_ROOM_SHARE
+    seam_s = heated_edge - end * share * length
+    clear = (RURAL_INNER_DOOR[0] / 2 + 0.9) / mpu
+    if door and on_long and (seam_s - door_s) * end < clear:
+        seam_s = door_s + end * clear
+        share = max(RURAL_MIN_SHARE, (heated_edge - seam_s) * end / length)
+        seam_s = heated_edge - end * share * length
+    seam = [at(seam_s, back_v - side * 0.5), at(seam_s, front_v + side * 0.5)]
+    # Inner door toward the front, so the walk from the outer door is short and
+    # the oven keeps the back corner.
+    inner = at(seam_s, back_v + (front_v - back_v) * 0.72)
+    # Gate on the front wall of the threshing bay, in the longer stretch the outer
+    # door leaves free (a door on a gable leaves the whole front wall).
+    t_lo, t_hi = (lo, seam_s) if end > 0 else (seam_s, hi)
+    margin = 0.4 / mpu
+    spans = [(t_lo + margin, t_hi - margin)]
+    if door and on_long:
+        half = RURAL_INNER_DOOR[0] / 2 / mpu + margin
+        spans = [(t_lo + margin, door_s - half), (door_s + half, t_hi - margin)]
+    g0, g1 = max(spans, key=lambda s: s[1] - s[0])
+    width = min(max(length * mpu * 0.32, RURAL_GATE_MIN), RURAL_GATE_MAX) / mpu
+    width = max(min(width, g1 - g0), 0.0)
+    gate_c = at((g0 + g1) / 2, front_v)
+    # Under the eave with room for the lintel log (0.16 m) above the leaves.
+    gate_h = min(RURAL_GATE_H, float(rec["wall_h"]) * mpu - 0.35) / mpu
+    oven_s = heated_edge - end * inset
+    oven_c = _fit_oven(ring, at(oven_s, back_v + side * inset), size, math.atan2(v[1] * side, v[0] * side), (RURAL_WALL + 0.1) / mpu)
+    plan.update({
+        "share": round(share, 4), "heated_end": int(end),
+        "seam": [[round(p[0], 3), round(p[1], 3)] for p in seam],
+        "inner_door": {"id": rec["id"] + ".inner_door", "at": [round(inner[0], 3), round(inner[1], 3)],
+                       "w": round(RURAL_INNER_DOOR[0] / mpu, 3), "h": round(RURAL_INNER_DOOR[1] / mpu, 3)},
+        "gate": {"id": rec["id"] + ".gate", "at": [round(gate_c[0], 3), round(gate_c[1], 3), round(math.atan2(v[1] * side, v[0] * side), 4)],
+                 "w": round(width, 3), "h": round(gate_h, 3)},
+        "oven": {"id": rec["id"] + ".oven", "at": [round(oven_c[0], 3), round(oven_c[1], 3)],
+                 "size": round(size, 3), "mouth": round(math.atan2(v[1] * side, v[0] * side), 4)},
+    })
+    if width < RURAL_GATE_MIN / mpu:
+        # Too short a threshing bay for a cart gate: keep the plan, drop the gate.
+        del plan["gate"]
+    return plan
 
 
 # ---------------------------------------------------------------------------

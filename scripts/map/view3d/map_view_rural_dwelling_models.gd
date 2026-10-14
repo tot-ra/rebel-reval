@@ -25,6 +25,9 @@ const WORK_GATE_MIN_WIDTH := 1.75
 const BAY_SEAM_WIDTH := 0.12
 const BAY_SEAM_DEPTH := 0.08
 const VENT_SIZE := Vector2(0.34, 0.25)
+## Heated room's share of the facade length; the walk-in plan uses the same seam
+## (RURAL_ROOM_SHARE in tools/city/build_reval_city_plan.py, R-1929).
+const ROOM_SHARE := 0.38
 
 
 static func is_rural_1343(building: Dictionary) -> bool:
@@ -101,7 +104,7 @@ static func _add_barn_dwelling_front(
 	# WHY: the early evidence supports a heated room plus threshing floor, while
 	# later chambers must not silently appear. The seam makes that two-part working
 	# sequence readable without claiming an excavated facade plan.
-	var room_share := 0.38
+	var room_share := ROOM_SHARE
 	var room_center := -facade_length * (1.0 - room_share) * 0.5
 	var work_center := facade_length * room_share * 0.5
 	_facade_box(

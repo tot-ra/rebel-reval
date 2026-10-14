@@ -529,6 +529,10 @@ def build_site(overlay: dict) -> dict:
         # interior furnishing (CityInteriors.household_at).
         if spec.get("household"):
             rec["household"] = spec["household"]
+        # R-1929: the elurehi smoke room is two bays under one roof (shared rule
+        # with the Reval barn-dwelling, build_reval_city_plan.rural_plan).
+        if spec.get("type") == "smoke_room":
+            rec["rural_plan"] = reval.rural_plan(rec, "barn_dwelling", mpu)
         buildings.append(rec)
     # Keep the masonry clear: a building must not overlap the keep or a wall line.
     keep_rings = [rect_ring(t_["at"][0] * mpu, t_["at"][1] * mpu, t_["w"] * mpu + 2, t_["d"] * mpu + 2, 0.0) for t_ in towers if t_["form"] == "octagonal"]

@@ -212,6 +212,9 @@ func test_enterable_house_interior_matches_exterior_minus_wall() -> void:
 		var b: Dictionary = plan.buildings[i]
 		if not bool(b["enterable"]) or String(b["material"]) == "limestone":
 			continue
+		# Smoke dwellings have earth floors and smoked logs (test_rural_dwelling_plan.gd).
+		if b.has("rural_plan"):
+			continue
 		var ring := CityBuildingBuilder.normalized_ring(plan.footprint(i))
 		var inner: Array = Geometry2D.offset_polygon(
 			ring, -CityBuildingBuilder.TIMBER_WALL, Geometry2D.JOIN_MITER
@@ -254,7 +257,8 @@ func test_outbuilding_doors_are_small_and_under_the_eave() -> void:
 		if String(b.get("kind", "")) != "outbuilding" or b.get("door") == null:
 			continue
 		if StringName(String(b["type"])) == &"barn_dwelling":
-			assert_almost_eq(size.x, CityBuildingBuilder.DOOR_WIDTH, 0.001)
+			# The low smoke-dwelling door of the elurehi (R-1929).
+			assert_almost_eq(size.x, CityBuildingBuilder.RuralPlan.DOOR.x, 0.001)
 			continue
 		seen += 1
 		assert_true(size.x <= 1.5, "%s door width" % b["id"])

@@ -123,6 +123,12 @@ func test_farm_yards_have_distinct_historical_outbuildings() -> void:
 		if String(b["kind"]) != "outbuilding":
 			continue
 		types[b["type"]] = (types.get(b["type"], 0) as int) + 1
+		# The barn-dwelling is the one walk-in farm building: a two-bay elurehi
+		# with no household of its own (R-1929, test_rural_dwelling_plan.gd).
+		if String(b["type"]) == "barn_dwelling":
+			assert_true(bool(b["enterable"]) == (b["door"] != null), "%s walks in" % b["id"])
+			assert_false(b.has("household"), "%s has no household" % b["id"])
+			continue
 		assert_false(bool(b["enterable"]), "%s is not a dwelling to enter" % b["id"])
 	for type in ["barn_dwelling", "barn", "byre", "sheep_shed", "pigsty", "hen_house", "store"]:
 		assert_true(types.has(type), "%s is built" % type)

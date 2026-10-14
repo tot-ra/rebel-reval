@@ -500,9 +500,17 @@ func _apply_states_for(index: int) -> void:
 			state["hearth"] = fire
 			changed = true
 			_clear(home["hearth"])
-			MapViewDomesticHearthModels.add_model(
-				home["hearth"], {"style_variant": "hearth.%s" % fire, "id": bid}
-			)
+			# A smoke dwelling's heap oven is masonry in the walls: fire only (R-1929).
+			var hearth_item: Dictionary = lay.items[lay.hearth]
+			if hearth_item.has("oven"):
+				MapViewDomesticHearthModels.add_oven_fire(
+					home["hearth"],
+					{"style_variant": "hearth.%s" % fire, "id": bid, "depth": hearth_item["depth"]}
+				)
+			else:
+				MapViewDomesticHearthModels.add_model(
+					home["hearth"], {"style_variant": "hearth.%s" % fire, "id": bid}
+				)
 	if home["firewood"] != null:
 		if not home.has("refill"):
 			home["refill"] = _refill_hour(index)

@@ -127,6 +127,19 @@ func _shots(plan: CityPlan) -> Array[Dictionary]:
 			var g := plan.ground_height(at)
 			shots.append({"name": "yard_%s" % want, "eye": Vector3(at.x + 22.0, g + 9.0, at.y + 22.0), "look": Vector3(at.x, g + 1.5, at.y), "fov": 60.0, "focus": at})  # gdlint: ignore=max-line-length
 			shots.append({"name": "yard_%s_close" % want, "eye": Vector3(at.x + 9.0, g + 2.4, at.y + 9.0), "look": Vector3(at.x, g + 1.2, at.y), "fov": 60.0, "focus": at})  # gdlint: ignore=max-line-length
+			if want == "barn_dwelling" and b.get("door") != null:
+				# R-1929: the two-bay front (door, gate, partition log ends) and a
+				# cutaway with the roof lifted, as when Kalev is inside.
+				var c := Vector2.ZERO
+				for q in fp:
+					c += q
+				c /= fp.size()
+				var out := Vector2(cos(float(b["door"][2])), sin(float(b["door"][2])))
+				var gc := plan.ground_height(c)
+				var front := c + out * 14.0
+				shots.append({"name": "yard_barn_dwelling_front", "eye": Vector3(front.x, gc + 3.0, front.y), "look": Vector3(c.x, gc + 1.6, c.y), "fov": 60.0, "focus": c})  # gdlint: ignore=max-line-length
+				var above := c + out * 7.0
+				shots.append({"name": "yard_barn_dwelling_inside", "eye": Vector3(above.x, gc + 10.0, above.y), "look": Vector3(c.x, gc, c.y), "fov": 60.0, "focus": c, "cutaway": plan.data["buildings"].find(b)})  # gdlint: ignore=max-line-length
 			break
 	# Kitchen garden beside the nearest farmhouse (R-1645), seen from the side
 	# away from the house so its roof does not hide the beds.
@@ -222,6 +235,8 @@ func _run() -> void:
 		camera.fov = shot["fov"]
 		camera.look_at_from_position(shot["eye"], shot["look"], Vector3.UP)
 		world.apply_time(DAY_PROGRESS)
+		if shot.has("cutaway"):
+			world.set_roof_hidden(int(shot["cutaway"]), true)
 		for i in 40:
 			world.grass.update_for(shot["focus"])
 			world.farmland.update_for(shot["focus"])
@@ -230,5 +245,7 @@ func _run() -> void:
 		var image := viewport.get_texture().get_image()
 		var path := "%s/%s_%s.png" % [OUTPUT_DIR, shot["name"], _tag]
 		image.save_png(ProjectSettings.globalize_path(path))
+		if shot.has("cutaway"):
+			world.set_roof_hidden(int(shot["cutaway"]), false)
 		print("captured %s at %s (farm features live: %d)" % [path, shot["focus"], world.farmland.live_count()])  # gdlint: ignore=max-line-length
 	quit(0)

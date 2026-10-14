@@ -11,6 +11,7 @@ extends RefCounted
 ##   Kalev swims, ADR 0021).
 
 const Fort := preload("res://scripts/city/city_fortification_builder.gd")
+const RuralPlan := preload("res://scripts/city/rural_dwelling_plan.gd")
 const PX := CityPlan.LOGIC_PX_PER_UNIT
 const MAX_WALK_SLOPE_DEG := 38.0
 const BODY_CHUNK := 128.0
@@ -92,6 +93,12 @@ static func _buildings(plan: CityPlan, add_poly: Callable) -> void:
 				add_poly.call(_wall_quad(ring, a.lerp(c, t + hg), c, thick))
 			else:
 				add_poly.call(_wall_quad(ring, a, c, thick))
+		# R-1929: a smoke dwelling's log partition and heap oven are walls too.
+		if RuralPlan.form(b) != &"":
+			var inset := Geometry2D.offset_polygon(ring, -thick, Geometry2D.JOIN_MITER)
+			if not inset.is_empty():
+				for poly in RuralPlan.solids(b, CityBuildingBuilder.normalized_ring(inset[0]), thick):
+					add_poly.call(poly)
 
 
 ## Quad along the edge a-c extending `thick` into the footprint (plus a little

@@ -101,6 +101,50 @@ static func add_model(parent: Node3D, prop: Dictionary) -> Node3D:
 	return model
 
 
+## Fire in the mouth of a smoke dwelling's stone heap oven (R-1929). The oven
+## itself is masonry in the building shell (rural_dwelling_plan.gd), so only the
+## flame, its light and an ember bed are added here, at the mouth on the holder's
+## front (-Z, HouseholdLayout hearth front); `prop.depth` is the oven's size.
+## No hood and no flue: there is no chimney in a 1343 smoke room.
+static func add_oven_fire(parent: Node3D, prop: Dictionary) -> Node3D:
+	var state := MapTypes.hearth_state_for_prop(prop)
+	var profile: Dictionary = STATE_PROFILES[state].duplicate()
+	# Flames stay low in the oven mouth; the heap has no open fire on top.
+	profile["flame_size"] = float(profile.get("flame_size", 0.0)) * 0.3
+	profile["flicker_phase"] = float(abs(String(prop.get("id", state)).hash()) % 628) * 0.01
+	var anchor := Node3D.new()
+	anchor.name = "OvenMouth"
+	anchor.position = Vector3(0.0, 0.2, -(float(prop.get("depth", 1.6)) * 0.5 - 0.12))
+	parent.add_child(anchor)
+	var flame: GPUParticles3D = null
+	if float(profile.get("flame_size", 0.0)) > 0.0:
+		flame = FLAME_SCRIPT.new() as GPUParticles3D
+		flame.configure(profile)
+		anchor.add_child(flame)
+	var ember_energy := float(profile.get("ember_energy", 0.0))
+	if ember_energy > 0.0:
+		var bed := MeshInstance3D.new()
+		bed.name = "EmberBed"
+		var mesh := BoxMesh.new()
+		mesh.size = Vector3(0.42, 0.05, 0.3)
+		bed.mesh = mesh
+		var glow := StandardMaterial3D.new()
+		glow.albedo_color = Color(0.3, 0.08, 0.02)
+		glow.emission_enabled = true
+		glow.emission = Color(1.0, 0.36, 0.08)
+		glow.emission_energy_multiplier = ember_energy
+		bed.material_override = glow
+		anchor.add_child(bed)
+	var light := OmniLight3D.new()
+	light.name = "Omni"
+	light.position = Vector3(0.0, 0.25, -0.35)
+	anchor.add_child(light)
+	var controller = LIGHT_SCRIPT.new()
+	controller.configure(light, flame, null, profile)
+	parent.add_child(controller)
+	return anchor
+
+
 static func _apply_ember_glow(selected: Node3D, energy: float) -> void:
 	for node_name in ["EmberBed*", "AshBed*"]:
 		var bed := selected.find_child(node_name, true, false) as MeshInstance3D

@@ -12,6 +12,7 @@ extends RefCounted
 ## from the catalog's measured GLB sizes, so a re-modelled object re-flows the room.
 
 const OBJECTS_DIR := "res://content/objects"
+const RuralPlan := preload("res://scripts/city/rural_dwelling_plan.gd")
 ## Wall thickness as built by CityBuildingBuilder, plus a hand's breadth.
 const WALL_GAP := 0.05
 ## Pieces against a wall stand this far off the inner wall line.
@@ -176,6 +177,10 @@ var axis := Vector2.RIGHT
 var axis_origin := Vector2.ZERO
 
 var _rng := RandomNumberGenerator.new()
+## Plan record of a 1343 smoke dwelling (RuralPlan), else empty.
+var _rural: Dictionary = {}
+## _keep_outs index of the threshing floor while the warm room is furnished (-1: none).
+var _threshing_keep := -1
 ## World xz of the chimney flue while partitioning (Vector2.INF: none).
 var _chimney_at := Vector2.INF
 var _door := Vector2.ZERO
@@ -265,8 +270,12 @@ func _build(plan: CityPlan, index: int, household: Dictionary, chimney: Vector2)
 	var deep := _door + _door_in * (thick + DOOR_CLEAR_DEPTH)
 	_keep_outs.append(PackedVector2Array([_door - side, _door + side, deep + side, deep - side]))
 	entry = _door + _door_in * (thick + 0.6)
-	_partition(chimney)
+	if RuralPlan.form(b) != &"":
+		_threshing_keep = _rural_rooms(b, thick)
+	else:
+		_partition(chimney)
 	_furnish(household, chimney)
+	_open_threshing_floor()
 	# Last, so every other piece keeps the place (and the RNG stream) it had.
 	if String(b.get("type", "")) == "smoke_room":
 		_furnish_loft(String(b["id"]), float(b.get("wall_h", 2.3)))
@@ -279,7 +288,11 @@ func _furnish(household: Dictionary, chimney: Vector2) -> void:
 	var area := absf(CityBuildingBuilder.signed_area(inner))
 	# Hearth with its flue right under the chimney (the builder raises the
 	# chimney breast there), else on the wall nearest it or farthest from the door.
-	hearth = _hearth_under(chimney) if chimney != Vector2.INF else -1
+	hearth = -1
+	if not _rural.is_empty():
+		hearth = _add_oven()
+	elif chimney != Vector2.INF:
+		hearth = _hearth_under(chimney)
 	if hearth < 0:
 		hearth = _place_on_wall(
 			&"hearth",
@@ -290,7 +303,11 @@ func _furnish(household: Dictionary, chimney: Vector2) -> void:
 		var h: Dictionary = items[hearth]
 		var front := _front(hearth)
 		_slot(
-			&"hearth", h["pos"] + front * (piece_size(&"hearth").z * 0.5 + 0.5), -front, 0.0, hearth
+			&"hearth",
+			h["pos"] + front * (float(h.get("depth", piece_size(&"hearth").z)) * 0.5 + 0.5),
+			-front,
+			0.0,
+			hearth
 		)
 		firewood = _place_near(&"firewood", h["pos"], 0.4)
 		_place_near(&"bucket", h["pos"], 0.3)
@@ -345,7 +362,9 @@ func _furnish(household: Dictionary, chimney: Vector2) -> void:
 			_slot(&"work", items[bench]["pos"] + _front(bench) * 0.75, -_front(bench), 0.0, bench)
 			if big:
 				_place_on_wall(&"workbench", _by_door)
-	# Farm tools by the door, where they are picked up on the way to the field.
+	# Farm tools by the door, where they are picked up on the way to the field
+	# (in a barn-dwelling that is the threshing floor, open to them from here).
+	_open_threshing_floor()
 	for piece: StringName in FARM_TOOLS.get(trade, []):
 		var tool := _place_on_wall(piece, _by_door)
 		if tool >= 0 and piece == &"sickle":
@@ -633,6 +652,97 @@ func _partition(chimney := Vector2.INF) -> void:
 		var b := way[i]
 		var side := (b - a).normalized().orthogonal() * 0.7
 		_keep_outs.append(PackedVector2Array([a - side, b - side, b + side, a + side]))
+
+
+## R-1929: a smoke dwelling's rooms come from its plan (RuralPlan), not from
+## plank partitions. A cottage is one room. In a barn-dwelling the log wall that
+## CityBuildingBuilder raises parts the threshing floor (room 0, at the door)
+## from the heated room (room 1, the hearth's); its entry here has no `walls`,
+## so CityInteriors neither draws nor collides it twice. Returns the index of a
+## keep-out over the threshing floor that holds beds, table and chests in the
+## warm room (_open_threshing_floor lifts it for the tools by the door), or -1.
+func _rural_rooms(b: Dictionary, thick: float) -> int:
+	_rural = b
+	if not RuralPlan.is_barn(b):
+		var long := _long_axis()
+		var across := Vector2(-long.y, long.x)
+		var e1 := _extent(long)
+		var e2 := _extent(across)
+		axis = long if e1.y - e1.x >= e2.y - e2.x else across
+		if absf(_door.dot(axis) - _extent(axis).x) > absf(_door.dot(axis) - _extent(axis).y):
+			axis = -axis
+		var ext := _extent(axis)
+		axis_origin = axis * ext.x
+		rooms = [[0.0, ext.y - ext.x]]
+		return -1
+	axis = RuralPlan.heated_dir(b)
+	var ext := _extent(axis)
+	axis_origin = axis * ext.x
+	var seam := RuralPlan.seam_line(b)
+	var seam_at := seam[0].dot(axis) - ext.x
+	rooms = [[0.0, seam_at], [seam_at, ext.y - ext.x]]
+	var span := RuralPlan.seam_span(b, inner)
+	if span.is_empty():
+		# No seam across this room: one room, so path_to never needs a doorway.
+		rooms = [[0.0, ext.y - ext.x]]
+		return -1
+	var gap := RuralPlan.inner_door(b, span)
+	var n := axis * (thick * 0.5 + WALL_GAP)
+	for w: Array in RuralPlan.partition_walls(b, inner):
+		var p: Vector2 = w[0]
+		var q: Vector2 = w[1]
+		_occupy(PackedVector2Array([p - n, q - n, q + n, p + n]))
+	# The inner doorway and a step either side stay clear, and the aisle to it.
+	var dir := (span[1] - span[0]).normalized()
+	var w2 := dir * (RuralPlan.inner_door_size(b).x * 0.5 + 0.15)
+	var d2 := axis * 1.3
+	_keep_outs.append(PackedVector2Array([gap - w2 - d2, gap + w2 - d2, gap + w2 + d2, gap - w2 + d2]))
+	partitions.append({"a": span[0], "b": span[1], "gap": gap, "walls": []})
+	_aisles_from = _keep_outs.size()
+	var side := (gap - entry).normalized().orthogonal() * 0.7
+	_keep_outs.append(PackedVector2Array([entry - side, gap - side, gap + side, entry + side]))
+	var floor_cut := PackedVector2Array([
+		seam[0] - dir * 60.0, seam[1] + dir * 60.0,
+		seam[1] + dir * 60.0 - axis * 80.0, seam[0] - dir * 60.0 - axis * 80.0,
+	])
+	var threshing := Geometry2D.intersect_polygons(inner, floor_cut)
+	if threshing.is_empty():
+		return -1
+	_keep_outs.append(threshing[0])
+	return _keep_outs.size() - 1
+
+
+## Lets furnishing onto a barn-dwelling's threshing floor again (see _rural_rooms).
+func _open_threshing_floor() -> void:
+	if _threshing_keep >= 0:
+		_keep_outs.remove_at(_threshing_keep)
+		_threshing_keep = -1
+
+
+## The heap oven (RuralPlan) as the household's hearth: built into the walls by
+## CityBuildingBuilder, so the item has no catalog model (CityInteriors gives it
+## only the fire at its mouth); solid, and `depth` places the cook in front.
+func _add_oven() -> int:
+	var o := RuralPlan.oven(_rural)
+	var poly := RuralPlan.oven_poly(_rural)
+	_occupy(poly)
+	(
+		items
+		. append(
+			{
+				"piece": &"hearth",
+				"object": "",
+				"pos": o["at"],
+				"yaw": _yaw_facing(o["mouth"], int(PIECES[&"hearth"]["front"])),
+				"y": 0.0,
+				"poly": poly,
+				"solid": true,
+				"oven": String(o["id"]),
+				"depth": float(o["size"]),
+			}
+		)
+	)
+	return items.size() - 1
 
 
 ## One partition across the room at `along` metres from the front.

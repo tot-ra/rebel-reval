@@ -84,6 +84,7 @@ const WindowOpenings := preload("res://scripts/city/city_window_openings.gd")
 const HouseWealth := preload("res://scripts/city/city_house_wealth.gd")
 const Chimney := preload("res://scripts/city/city_chimney_builder.gd")
 const HouseDetails := preload("res://scripts/city/city_house_details.gd")
+const RuralPlan := preload("res://scripts/city/rural_dwelling_plan.gd")
 const WINDOW_WOOD := preload("res://scripts/city/city_window_wood.gdshader")
 const WINDOW_GLASS := preload("res://scripts/city/city_window_glass.gdshader")
 
@@ -244,6 +245,22 @@ static func floor_material() -> Material:
 		mat.vertex_color_use_as_albedo = true
 		_materials["floor"] = mat
 	return _materials["floor"]
+
+
+## Beaten-earth floor of a smoke dwelling (R-1929): the cracked clay plate,
+## tinted per bay by vertex colour (dark heated room, pale threshing floor).
+static func clay_material() -> Material:
+	if not _materials.has("clay"):
+		var mat := StandardMaterial3D.new()
+		var path := "res://assets/materials/pbr/cracked_earth/cracked_earth_albedo.png"
+		mat.albedo_texture = load(path) if ResourceLoader.exists(path) else null
+		mat.uv1_triplanar = true
+		mat.uv1_world_triplanar = true
+		mat.uv1_scale = Vector3(0.8, 0.8, 0.8)
+		mat.roughness = 0.95
+		mat.vertex_color_use_as_albedo = true
+		_materials["clay"] = mat
+	return _materials["clay"]
 
 
 static func opening_material() -> Material:
@@ -488,6 +505,8 @@ static func material_for_key(key: String) -> Material:
 			return interior_material()
 		"floor":
 			return floor_material()
+		"clay":
+			return clay_material()
 		"opening":
 			return opening_material()
 		"timber":
@@ -663,6 +682,10 @@ static func build_building(
 	var eave := floor_y + float(b["wall_h"])
 	var frame := roof_frame(ring, float(b["ridge_angle"]), eave, roof_pitch(b))
 	var thick := STONE_WALL if family == &"limestone" else TIMBER_WALL
+	# R-1929: a 1343 smoke dwelling (rural_dwelling_plan.gd) has no glazed
+	# windows, no plinth and no chimney; its plan adds the oven, the log
+	# partition and the threshing gate.
+	var smoke_dwelling := RuralPlan.form(b) != &""
 	var door: Variant = b.get("door")
 	var door_edge := -1
 	var door_t := 0.5
@@ -687,7 +710,7 @@ static func build_building(
 			gap = Vector2(door_t - half_gap, door_t + half_gap)
 		_wall_edge(shell, wall_key, a, c, bottom, frame, tint, gap, floor_y, enterable, door_size(b).y)
 		# Site models (ADR 0032) bring their own openings.
-		if not bool(b.get("openings", true)):
+		if not bool(b.get("openings", true)) or smoke_dwelling:
 			continue
 		if not String(b.get("kind", "house")) in ["church", "chapel", "hall"]:
 			windows.append_array(CityWindows.placements(a, c, floor_y, eave, gap, rng, look))
@@ -697,7 +720,11 @@ static func build_building(
 		_door_steps(shell, ring, door_edge, door_t, floor_y, ground_at, door_size(b).x)
 	# R-1760: footing plinth and limestone quoins on plan houses (sites and
 	# landmarks bring their own models and keep openings = false).
-	if bool(b.get("openings", true)) and String(b.get("kind", "house")) in ["house", "outbuilding"]:
+	if (
+		bool(b.get("openings", true))
+		and String(b.get("kind", "house")) in ["house", "outbuilding"]
+		and not smoke_dwelling
+	):
 		_house_details(shell, b, ring_in, ring, family, bottom, floor_y, eave, door_edge, door_t)
 	# Roof halves.
 	_roof(roof, roof_key, ring, frame, roof_tint, roof_family, keep_out)
@@ -706,7 +733,7 @@ static func build_building(
 	# when the roof lifts. Doorless houses keep the old share of stacks.
 	var chimney := Vector3.INF
 	var flue := {}
-	if String(b.get("kind", "house")) == "house":
+	if String(b.get("kind", "house")) == "house" and not smoke_dwelling:
 		if rng.randf() < CHIMNEY_SHARE or door != null:
 			var door_xy := Vector2(door[0], door[1]) if door != null else Vector2.INF
 			var breast := shell if enterable else null
@@ -724,10 +751,15 @@ static func build_building(
 		# Farmstead buildings (only enterable at regional sites): log walls
 		# blackened by the smoke room and a limestone-slab floor, not a town
 		# house's limewash and boards; door reveal sized to the low door (R-1627).
-		var rural := String(b.get("kind", "")) == "outbuilding"
-		_interior(
-			shell, ring, thick, floor_y, eave, frame, door_edge, door_t, roof, door_size(b), rural
+		var rural := String(b.get("kind", "")) == "outbuilding" or smoke_dwelling
+		var inner := _interior(
+			shell, ring, thick, floor_y, eave, frame, door_edge, door_t, roof, door_size(b), rural,
+			smoke_dwelling
 		)
+		if smoke_dwelling:
+			RuralPlan.build_exterior(shell, b, ring, thick, floor_y, eave, frame)
+			if not inner.is_empty():
+				RuralPlan.build_interior(shell, b, inner, thick, floor_y, eave - 0.05)
 		WindowOpenings.cut(shell, windows, thick)
 		for window in windows:
 			CityWindows.add_placed(shell, window)
@@ -740,12 +772,16 @@ static func build_building(
 		# A door lower than the cut leaves the cap whole over its lintel.
 		var cap_gap := door_size(b).x if door_size(b).y > CUT_HEIGHT else 0.0
 		wall_top_cap(shell, ring, thick, floor_y + CUT_HEIGHT, door_edge, door_t, cap_gap)
+		if smoke_dwelling and not inner.is_empty():
+			RuralPlan.cap_partition(shell, b, inner, thick, floor_y + CUT_HEIGHT)
 		if not flue.is_empty():
 			Chimney.flue_cap(shell, flue, floor_y + CUT_HEIGHT)
 	else:
 		WindowOpenings.cut(shell, windows, thick)
 		for window in windows:
 			CityWindows.add_placed(shell, window)
+		if smoke_dwelling:
+			RuralPlan.build_exterior(shell, b, ring, thick, floor_y, eave, frame)
 		# Flat cap under the roof so a raised camera never sees into a hollow house.
 		var inner := ring
 		_cap(shell, wall_key, inner, eave - 0.02, tint)
@@ -887,7 +923,10 @@ static func _door_steps(
 ## and always under the eave so a low shed never gets a lintel above its wall.
 static func door_size(b: Dictionary) -> Vector2:
 	var size := Vector2(DOOR_WIDTH, DOOR_HEIGHT)
-	if String(b.get("kind", "")) == "outbuilding":
+	if RuralPlan.form(b) != &"":
+		size = RuralPlan.DOOR
+		size.y = minf(size.y, float(b.get("wall_h", size.y)) - 0.2)
+	elif String(b.get("kind", "")) == "outbuilding":
 		size = OUTBUILDING_DOORS.get(StringName(String(b.get("type", ""))), size)
 		size.y = minf(size.y, float(b.get("wall_h", size.y)) - 0.2)
 	return size
@@ -1355,13 +1394,17 @@ static func _interior(
 	door_t: float,
 	ceiling_shell: Shell = null,
 	door: Vector2 = Vector2(DOOR_WIDTH, DOOR_HEIGHT),
-	rural := false
-) -> void:
+	rural := false,
+	clay := false
+) -> PackedVector2Array:
 	var inset := Geometry2D.offset_polygon(ring, -thick, Geometry2D.JOIN_MITER)
 	if inset.is_empty():
-		return
+		return PackedVector2Array()
 	var inner: PackedVector2Array = normalized_ring(inset[0])
-	if rural:
+	if clay:
+		# Smoke dwelling: a beaten-earth floor, no limestone slabs (R-1929).
+		_floor(shell, inner, floor_y, "clay", RuralPlan.HEATED_FLOOR)
+	elif rural:
 		_floor(shell, inner, floor_y, "stone", RURAL_FLOOR)
 	else:
 		_floor(shell, inner, floor_y)
@@ -1479,3 +1522,4 @@ static func _interior(
 			target.tri("timber", va, vb, vc, Color(0.75, 0.65, 0.55))
 		else:
 			target.tri("timber", va, vc, vb, Color(0.75, 0.65, 0.55))
+	return inner
