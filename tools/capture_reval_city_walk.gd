@@ -12,6 +12,8 @@ extends Node
 
 ## Outer doors: start this far outside the door gap.
 const START_OUT := 2.4
+## Seconds of walking (door wait excluded) allowed to get through a site door.
+const WALK_IN_BUDGET := 2.5
 const SCENE := preload("res://scenes/world/reval_city/reval_city.tscn")
 const OUTPUT_DIR := "res://docs/reports/images/city"
 const STUCK_SEC := 1.5
@@ -466,7 +468,14 @@ func _enter_sites(plan: CityPlan) -> void:
 	player.collision_mask = mask & ~CollisionLayers.NPC
 	var inner_ok := {}
 	var inner_where := {}
+	# `--site=<id>` (repeatable) narrows a debugging run to those sites.
+	var only: Array[String] = []
+	for arg in OS.get_cmdline_user_args():
+		if arg.begins_with("--site="):
+			only.append(arg.trim_prefix("--site="))
 	for site in plan.sites:
+		if not only.is_empty() and not only.has(String(site.id)):
+			continue
 		for d: Dictionary in site.doors:
 			if bool(d.get("inner", false)):
 				continue  # room to room: walked from inside below
@@ -474,19 +483,54 @@ func _enter_sites(plan: CityPlan) -> void:
 			var inward: Vector2 = d["inward"]
 			var key := "site:%s" % d["id"]
 			# 2.4 m out: a 3 m cloister walk (St Catherine's) puts a 3 m start
-			# inside the garth arcade.
-			player.global_position = CityPlan.to_logic(mid - inward * START_OUT)
+			# inside the garth arcade. A start on a steep bank (the Holy Spirit
+			# almshouse door sits 1.8 m above the lane, CITY_DOORS.md) would wedge
+			# Kalev in the STEEP layer, so step in until he stands on walkable ground.
+			var out := START_OUT
+			player.global_position = CityPlan.to_logic(mid - inward * out)
+			while out > 1.0 and bool(player.call("_is_overlapping_steep")):
+				out -= 0.2
+				player.global_position = CityPlan.to_logic(mid - inward * out)
+			if out < START_OUT:
+				print(
+					"site %s: %s start moved to %.1f m out (steep bank)" % [site.id, d["id"], out]
+				)
 			await get_tree().physics_frame
 			# A door may lead from one room into another (St Catherine's cloister
 			# walk into the nave): only a different room counts as walked in.
-			var start_room := plan.site_room_at(mid - inward * START_OUT)
+			var start_room := plan.site_room_at(mid - inward * out)
 			var start_id: StringName = start_room["room"]["id"] if not start_room.is_empty() else &""
+			# Doors open on a click within CityDoors.OPEN_RADIUS of the door line,
+			# never on approach alone. Walk up, click like a player, and wait for the
+			# leaves to swing clear before stepping through, so a late swing cannot
+			# be read as a blocked door (and `door open` checks a real click).
+			var record: Dictionary = _city.world.doors.doors[key]
+			var clicked := false
+			var open_wait := 0.0
 			Input.action_press(&"ui_up")
 			var t := 0.0
-			while t < 1.2:
+			var blocker := "-"
+			# Walking time only (the wait at the door is not counted): 4.4 m at run
+			# speed is under a second, the margin covers mud, grass and snow drag.
+			while t < WALK_IN_BUDGET:
 				await get_tree().physics_frame
-				# Steer at a point beyond the door, so drift cannot pull into a jamb.
 				var here_in := CityPlan.to_world_xz(player.global_position)
+				if (
+					not clicked
+					and here_in.distance_to(record["center"]) < CityDoors.OPEN_RADIUS - 0.4
+				):
+					clicked = _city.world.doors.interact_at(record["center"])
+					Input.action_release(&"ui_up")
+					while not _city.world.doors.is_open(key) and open_wait < 1.5:
+						await get_tree().process_frame
+						open_wait += get_process_delta_time()
+					Input.action_press(&"ui_up")
+					if not clicked:
+						_failures.append("%s: door %s did not take the click" % [site.id, d["id"]])
+				var hit := player.get_last_slide_collision()
+				if hit != null and hit.get_collider() is Node:
+					blocker = String((hit.get_collider() as Node).get_path())
+				# Steer at a point beyond the door, so drift cannot pull into a jamb.
 				_steer(player, (mid + inward * 2.5 - here_in).normalized())
 				t += get_physics_process_delta_time()
 				var room := plan.site_room_at(CityPlan.to_world_xz(player.global_position))
@@ -503,16 +547,42 @@ func _enter_sites(plan: CityPlan) -> void:
 			var room := plan.site_room_at(xz)
 			if room.is_empty() or room["room"]["id"] == start_id:
 				_failures.append(
-					"%s: could not walk in through %s (at %s)" % [site.id, d["id"], xz]
+					(
+						"%s: could not walk in through %s (at local %s, last hit %s)"
+						% [site.id, d["id"], site.to_local(xz), blocker]
+					)
 				)
 				continue
 			var roof_paths: Array = room["room"]["hide"]
 			var site_node: Node3D = _city.world.site_nodes[site.id]
-			var hidden := true
-			for path: String in roof_paths:
-				hidden = hidden and _lifted(site_node.get_node(path) as Node3D)
+			var hidden := false
+			# The cutaway follows the room on the city's next _process; poll a few
+			# frames rather than sample one.
+			for i in 30:
+				hidden = true
+				for path: String in roof_paths:
+					hidden = hidden and _lifted(site_node.get_node(path) as Node3D)
+				if hidden:
+					break
+				await get_tree().process_frame
 			if not hidden:
-				_failures.append("%s: roof did not lift in %s" % [site.id, room["room"]["id"]])
+				_failures.append(
+					(
+						"%s: roof did not lift in %s (camera mode %d, city room %s)"
+						% [
+							site.id,
+							room["room"]["id"],
+							_city.runtime.camera_mode(),
+							_city.get("_site_room_key")
+						]
+					)
+				)
+			print(
+				(
+					"site %s: %s walked %.2f s, waited %.2f s for the door"
+					% [site.id, d["id"], t, open_wait]
+				)
+			)
 			if not _city.world.doors.is_open(key):
 				_failures.append("%s: door %s did not open" % [site.id, d["id"]])
 			print(

@@ -97,11 +97,11 @@ static func wall(
 			inner_holes.append(portals[op][-1][0])
 			continue
 		if kind != "recess":
-			outer_holes.append(_opening(op, false))
+			outer_holes.append(_through_top(_opening(op, false), y1))
 		if kind == "recess":
 			inner_holes.append(_opening(op, false))
 		elif kind != "niche":
-			inner_holes.append(_opening(op, true))
+			inner_holes.append(_through_top(_opening(op, true), y1))
 	_face(shell, outer_key, outer, 0.0, length, y0, y1, outer_holes, o3, STONE)
 	var s0 := float(w.get("inner_from", thick))
 	var s1 := length - float(w.get("inner_to", thick))
@@ -122,7 +122,17 @@ static func wall(
 		if kind == "recess":
 			_niche(shell, inner, o, -out, float(op.get("depth", 0.35)), dir)
 			continue
-		_reveal(shell, outer, inner, o, _opening(op, true), dir, float(o["sill"]) <= y0 + 0.001)
+		var gap := _top(o) >= y1 - 0.001
+		_reveal(
+			shell,
+			outer,
+			inner,
+			_through_top(o, y1),
+			_through_top(_opening(op, true), y1),
+			dir,
+			float(o["sill"]) <= y0 + 0.001,
+			gap
+		)
 		var lights := int(op.get("lights", 1))
 		if bool(op.get("glass", false)):
 			_glass(glass, a, dir, out, thick * 0.3, o, lights, glazing)
@@ -130,15 +140,32 @@ static func wall(
 			_tracery(shell, a, dir, out, thick * 0.3, o, lights)
 		if kind == "louvre":
 			_louvres(shell, a, dir, out, thick * 0.5, o)
-	shell.quad_out(
-		String(w.get("top", outer_key)),
-		outer.call(0.0, y1),
-		outer.call(length, y1),
-		inner.call(length, y1),
-		inner.call(0.0, y1),
-		STONE,
-		Vector3.UP
-	)
+	# The coping stops at a gap cut through the top (a churchyard gate in a
+	# low enclosure wall); a full-length coping bridged it at knee height.
+	var spans: Array[Vector2] = [Vector2(0.0, length)]
+	for op: Dictionary in opens:
+		var o := _opening(op, false)
+		if portals.has(op) or _top(o) < y1 - 0.001:
+			continue
+		var cut: Array[Vector2] = []
+		for span in spans:
+			if float(o["s"]) > span.x:
+				cut.append(Vector2(span.x, minf(span.y, float(o["s"]))))
+			if float(o["s"]) + float(o["w"]) < span.y:
+				cut.append(Vector2(maxf(span.x, float(o["s"]) + float(o["w"])), span.y))
+		spans = cut
+	for span in spans:
+		if span.y - span.x <= 0.001:
+			continue
+		shell.quad_out(
+			String(w.get("top", outer_key)),
+			outer.call(span.x, y1),
+			outer.call(span.y, y1),
+			inner.call(span.y, y1),
+			inner.call(span.x, y1),
+			STONE,
+			Vector3.UP
+		)
 
 
 ## Opening record from a manifest entry; `inner` applies the splay.
@@ -172,6 +199,17 @@ static func _opening(op: Dictionary, inner: bool) -> Dictionary:
 
 static func _top(o: Dictionary) -> float:
 	return float(o["apex"]) if float(o["apex"]) > 0.0 else float(o["spring"])
+
+
+## An opening reaching above the wall top `y1` is a gap through the wall:
+## square it off at the top, so its hole and reveals stop at the coping.
+static func _through_top(o: Dictionary, y1: float) -> Dictionary:
+	if _top(o) < y1 - 0.001:
+		return o
+	var clipped := o.duplicate()
+	clipped["spring"] = y1
+	clipped["apex"] = 0.0
+	return clipped
 
 
 ## Face between s0..s1, y0..y1 with rectangular holes up to each opening's
@@ -262,7 +300,8 @@ static func _reveal(
 	o: Dictionary,
 	io: Dictionary,
 	dir: Vector2,
-	open_sill := false
+	open_sill := false,
+	open_head := false
 ) -> void:
 	var a := outline(o)
 	var b := outline(io)
@@ -279,6 +318,10 @@ static func _reveal(
 		key = "ashlar" if String(o["kind"]) == "door" else "limewash"
 	var tone := Color.WHITE if key == "limewash" else ASHLAR
 	for k in edges:
+		# `open_head`: a gap through the wall top has no head; edge 1 of a
+		# square outline is the head at the coping.
+		if open_head and k == 1:
+			continue
 		var p := a[k]
 		var q := a[(k + 1) % a.size()]
 		var pi := b[k]

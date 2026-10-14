@@ -9,6 +9,7 @@ import re
 import subprocess
 import sys
 import tempfile
+import time
 from pathlib import Path
 from urllib.parse import unquote, urlparse
 
@@ -85,13 +86,28 @@ def linked_asset_paths(
     return files, directories
 
 
+def _write_tree(root: Path) -> str:
+    """`git write-tree` also refreshes the index's cache tree under index.lock.
+    The pre-commit script runs the `active` and `index` gates in parallel, so
+    one of them used to hit the other's lock (exit 128) and fail the commit:
+    retry briefly instead."""
+    for attempt in range(20):
+        try:
+            return run(["git", "write-tree"], cwd=root).stdout.decode("ascii").strip()
+        except subprocess.CalledProcessError as error:
+            if b"index.lock" not in (error.stderr or b"") or attempt == 19:
+                raise
+            time.sleep(0.1)
+    raise RuntimeError("unreachable")
+
+
 def check_in_staged_tree(checks: list[str], root: Path) -> int:
     """Materialize the index's Markdown and validators in an isolated temp repo.
 
     Reading blobs by tree ID means staged content wins over unstaged edits and
     untracked Markdown never enters either documentation gate.
     """
-    tree = run(["git", "write-tree"], cwd=root).stdout.decode("ascii").strip()
+    tree = _write_tree(root)
     paths = run(["git", "ls-tree", "-r", "--name-only", "-z", tree], cwd=root)
     indexed_paths = {os.fsdecode(path) for path in paths.stdout.split(b"\0") if path}
     docs = sorted(path for path in indexed_paths if path.endswith(".md"))

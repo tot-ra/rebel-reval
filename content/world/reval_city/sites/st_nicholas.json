@@ -1127,7 +1127,15 @@
       "floor": -1.0,
       "outer": "wall:limestone",
       "inner": "wall:limestone",
-      "openings": []
+      "openings": [
+        {
+          "kind": "arch",
+          "s": 12.4,
+          "w": 2.4,
+          "sill": -1,
+          "spring": 2.0
+        }
+      ]
     },
     {
       "id": "churchyard.wall.01",
@@ -3572,6 +3580,16 @@
         "outward": [
           -1,
           0
+        ]
+      },
+      {
+        "id": "gate.st_nicholas.south_door",
+        "edge": 0,
+        "s": 12.4,
+        "w": 2.4,
+        "outward": [
+          0,
+          -1
         ]
       }
     ]

@@ -1,6 +1,6 @@
 # City doors: household wealth and landmark entrances
 
-Status: implemented (tasks **R-1692**, **R-1693**).
+Status: implemented (tasks **R-1692**, **R-1693**; walk-through harness and St Nicholas south door fix **R-1935**).
 
 Scope: procedural hinged leaves in the seamless city, ordinary housing and existing landmark sites (R-1692), and evidence-led masonry portals with leaves cut to their heads at eight landmark church entrances plus the council hall's rectangular apertures (R-1693, see [Landmark portals](#landmark-portals-r-1693)). This is a visual refinement of ADR 0031/0032, not a new interaction system. Locks, sound, saved door states, new areas and exact archaeological replicas are out of scope.
 
@@ -147,11 +147,32 @@ Captures (isolated actual site builders and door records, neutral review lightin
 - Interior: [Holy Spirit](../reports/images/city/doors/holy_spirit_inside.png), [St Olaf west](../reports/images/city/doors/st_olaf_inside.png), [St Olaf south](../reports/images/city/doors/st_olaf_south_inside.png), [St Nicholas north](../reports/images/city/doors/st_nicholas_inside.png), [St Nicholas west](../reports/images/city/doors/st_nicholas_west_inside.png), [St Nicholas south](../reports/images/city/doors/st_nicholas_south_inside.png), [St Mary south](../reports/images/city/doors/st_mary_inside.png), [St Mary priests' door](../reports/images/city/doors/st_mary_priests_inside.png), [council hall](../reports/images/city/doors/raekoja_plats_inside.png)
 - Open: [Holy Spirit](../reports/images/city/doors/holy_spirit_open.png), [St Olaf west](../reports/images/city/doors/st_olaf_open.png), [St Olaf south](../reports/images/city/doors/st_olaf_south_open.png), [St Nicholas north](../reports/images/city/doors/st_nicholas_open.png), [St Nicholas west](../reports/images/city/doors/st_nicholas_west_open.png), [St Nicholas south](../reports/images/city/doors/st_nicholas_south_open.png), [St Mary south](../reports/images/city/doors/st_mary_open.png), [St Mary priests' door](../reports/images/city/doors/st_mary_priests_open.png), [council hall](../reports/images/city/doors/raekoja_plats_open.png)
 
+## Site door walk-through (R-1935)
+
+`tools/capture_reval_city_walk.gd` (`--only-sites`) walks Kalev in through every outer site door, checks the room's roof lifts and the door is open, visits inner doors, takes the review views and walks back out. `--site=<site id>` (repeatable) narrows a debugging run.
+
+```sh
+tools/godot_render.sh --resolution 1600x900 res://tools/capture_reval_city_walk.tscn -- --only-sites
+tools/godot_render.sh --resolution 1600x900 res://tools/capture_reval_city_walk.tscn -- \
+  --only-sites --site=site.holy_spirit --site=site.st_nicholas
+/Applications/Godot.app/Contents/MacOS/Godot --headless --path . --script tools/validate_city_sites.gd
+```
+
+Root cause of the earlier, run-dependent failures (`could not walk in`, `door ... did not open`, `roof did not lift`):
+
+- **Leaves never block.** `CityDoors` leaves are meshes with no collision, profiled portal leaves included; a late swing cannot stop Kalev. Raising the walk budget only hid other causes.
+- **Door state was harness timing.** A door opens on a click within `OPEN_RADIUS` (2.4 m) of its centre, or once Kalev stands in a room on the door's floor; reaching `open > 0.5` takes about 0.2 s. The harness never clicked and sampled 10 frames after entering, so `is_open` depended on frame rate. It now walks up, clicks within `OPEN_RADIUS - 0.4` (a start at exactly 2.4 m would be reset by `update_for` the next frame), waits for the leaves to clear (up to 1.5 s, not counted as walking), then walks on with a 2.5 s walking budget (`WALK_IN_BUDGET`; typical 0.6-0.7 s). The roof cutaway is polled for up to 30 frames, and a failure prints the camera mode and the city's current site room.
+- **`door.st_nicholas.south` was walled in.** `churchyard.wall.00` ran 1.4 m outside the door with no opening (also the `validate_city_sites.gd` failure). The wall now has a 2.4 m gap centred on the door (`s` 12.4) and the enclosure lists it as `gate.st_nicholas.south_door`. `CitySiteKit.wall` used to run the wall's coping and the arch reveals over such a gate, leaving a knee-high bar and posts in every churchyard gate (St Nicholas, St Olaf); an opening that reaches the wall top is now squared off there and the coping breaks over it ([after](../reports/images/city/doors/st_nicholas_south.png)).
+- **`door.holy_spirit.almshouse` started on a bank.** The harness start 2.4 m out lay inside a STEEP collision strip (the ground falls from 19.9 to 18.1 m within 2 m), which wedges a teleported body. The start now steps in, 0.2 m at a time down to 1 m, until Kalev is clear of STEEP, and logs the move.
+
+Failure messages give the site-local stop point and the last collider (`last hit`), e.g. `CityCollision/Steep_0_-1`. Four consecutive full runs gave `WALK RESULT: PASS` (the last after the coping change), with 0.6-0.7 s of walking per door and 0.1-0.4 s waiting for the leaves. A reviewer-agent pass returned an empty response, so the second review is still owed.
+
 ## Limits
 
 - Unprofiled doors (street, flat site doors, council hall) now open 90 degrees (was 100, which drove the leaf into the jamb) with the hinge pulled `JAMB_CLEARANCE` 0.05 m toward the opening, so the open leaf lies flat against the reveal. Double leaves are 0.05 m narrower, leaving a thin slit at each jamb when shut. Portal doors open 90 degrees into their rear arch as before.
 - The attested trefoil archivolt of St Nicholas's south portal, capitals, shafts and carved imposts are not modelled. Orders are concentric with the manifest arch, so St Mary's nearly semicircular apertures stay nearly round.
 - Hardware relief is visual: no physical key/lock interaction or moving ring animation.
 - Profile differences communicate expense and entrance role, not documented personal ownership or an authenticated original church door design.
-- At the time of R-1693 an uncommitted churchyard wall from a concurrent session (`churchyard.wall.00` in `st_nicholas.json`) ran 1.4 m outside `door.st_nicholas.south` without an opening, so `validate_city_sites.gd` reported that door blocked. R-1693 does not change walls or solids.
+- Leaves are visual only: a door Kalev walks into without clicking stays shut until he is in a room on its floor, so he passes through the closed leaf for a moment. See [Site door walk-through](#site-door-walk-through-r-1935).
+- `door.holy_spirit.almshouse` opens onto a ledge about 1 m wide; the lane east of it lies 1.8 m lower behind a STEEP bank, so the door is reached along the terrace from the south, not straight from the lane (or with a hop over the bank). Outside steps need a plan-builder change.
 - Existing unrelated hero accessory UID warnings may occur during captures.
