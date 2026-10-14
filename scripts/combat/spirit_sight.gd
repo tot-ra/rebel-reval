@@ -5,6 +5,7 @@ extends Node
 
 const Ripple := preload("res://scripts/combat/spirit_sight_ripple.gdshader")
 const AuraManager := preload("res://scripts/combat/spirit_aura_manager.gd")
+const ReadingPanel := preload("res://scripts/ui/spirit_reading_panel.gd")
 const DURATION := 0.6
 const REDUCED_DURATION := 0.2
 const TINT := Color(0.66, 0.68, 1.0)
@@ -81,6 +82,12 @@ func _ready() -> void:
 	auras.follow_session = follow_session
 	auras.state = state
 	add_child(auras)
+	# SS-4: the reading card follows this controller and reads the auras above.
+	var reading := ReadingPanel.new()
+	reading.follow_session = follow_session
+	reading.sight = self
+	reading.manager = auras
+	add_child(reading)
 
 
 func _unhandled_input(event: InputEvent) -> void:

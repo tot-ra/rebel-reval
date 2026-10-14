@@ -86,6 +86,7 @@ button charges instead of repeating the swing.
 | Walk (slow, hold) | `Shift` | D-pad left (hold) |
 | Spirit sight on / off (walk only while on, [`SYSTEMS/SPIRIT_SIGHT.md`](SYSTEMS/SPIRIT_SIGHT.md)) | `V` | Left stick click |
 | Interact / continue | `E`, `Enter` | A |
+| Read a soul (in spirit sight, rest the focus on a being for 0.5 s; [`SYSTEMS/SPIRIT_SIGHT.md`](SYSTEMS/SPIRIT_SIGHT.md#reading-a-soul-ss-4-r-1487)) | mouse cursor on them | camera centre (right stick aim) |
 | Challenge (in spirit sight, on a person with a duel record; [`SYSTEMS/SPIRIT_SIGHT.md`](SYSTEMS/SPIRIT_SIGHT.md) "Entering a duel") | `E`, `Enter` | A |
 | Talk to the person in reach (peaceful; [`SYSTEMS/DIALOGUE.md`](SYSTEMS/DIALOGUE.md#talk-to-anyone-r-1887)) | left click on them, `E` | A |
 | Draw / sheathe weapon (peaceful by default, ADR 0047) | `G` | Share (or X draws, A on a person sheathes) |

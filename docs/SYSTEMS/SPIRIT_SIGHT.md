@@ -1,12 +1,12 @@
 # Spirit sight, auras and soul lights
 
-Status: partially implemented. Duel readability (**R-1764**) is implemented. The spirit sight toggle SS-1 (**R-1484**), aura profile data SS-2/SS-2b (**R-1485**, **R-1496**), the aura look SS-3 (**R-1486**), soul lights in a duel SS-5 (**R-1488**), the duel layer SS-6 (**R-1489**), duel entry SS-7 (**R-1490**) and hero growth SS-8 (**R-1491**) and unclothed citizens in sight (**R-1870**) are implemented. Reading a soul SS-4 (**R-1487**) is planned. Epic **R-1483**, [ADR 0041](../adr/0041-spirit-sight-auras-and-soul-lights.md) (accepted).
+Status: partially implemented. Duel readability (**R-1764**) is implemented. The spirit sight toggle SS-1 (**R-1484**), aura profile data SS-2/SS-2b (**R-1485**, **R-1496**), the aura look SS-3 (**R-1486**), soul lights in a duel SS-5 (**R-1488**), the duel layer SS-6 (**R-1489**), duel entry SS-7 (**R-1490**), hero growth SS-8 (**R-1491**), reading a soul SS-4 (**R-1487**) and unclothed citizens in sight (**R-1870**) are implemented. Epic **R-1483**, [ADR 0041](../adr/0041-spirit-sight-auras-and-soul-lights.md) (accepted).
 
 Scope: a spirit-sight layer the hero toggles anywhere on the same map, auras with seven soul lights on every person and animal, reading a soul, soul lights feeding the spirit duel, and duels that keep the building but hide furniture under a focused grade. Out of scope: a universal good/evil score, duels with animals, a separate spirit-world copy of the map, new art assets (P0-040). The duel rules themselves live in [`SPIRIT_DIALOGUE.md`](./SPIRIT_DIALOGUE.md).
 
 Canon: the soul lights (*hingetuled*), auras and spirit sight are **`invented`**, folklore-inspired like the Hingepuu ([`CANON.md`](../CANON.md)). The seven soul lights are the seven NATURAL aspects ([`NATURAL.md`](./NATURAL.md)) shown on the body: light ids are the `aspect.*` ids and the hero's levels come from his NATURAL ranks (ADR 0041 revision, 2026-10-09). The word "chakra" is an anachronism and appears nowhere in ids or player-facing text.
 
-**Contents:** [Three layers](#three-layers-on-one-map) - [The seven soul lights](#the-seven-soul-lights) - [Reading an aura by eye](#reading-an-aura-by-eye) - [Spirit sight toggle](#spirit-sight-toggle-ss-1-r-1484) - [Entering a duel](#entering-a-duel-ss-7-r-1490) - [Duel layer](#duel-layer-ss-6-r-1489) - [Soul lights in a duel](#soul-lights-in-a-duel-ss-5-r-1488) - [Hero growth](#hero-growth-ss-8-r-1491) - [Reading a soul (planned)](#reading-a-soul-planned-ss-4-r-1487) - [Soot and church services (planned)](#soot-and-church-services-planned-adr-0046) - [Aura data reference](#aura-data-reference-ss-2-r-1485-r-1496) - [Aura rendering reference](#aura-rendering-reference-ss-3-r-1486) - [Save state, verification, limits](#save-state-and-ids)
+**Contents:** [Three layers](#three-layers-on-one-map) - [The seven soul lights](#the-seven-soul-lights) - [Reading an aura by eye](#reading-an-aura-by-eye) - [Spirit sight toggle](#spirit-sight-toggle-ss-1-r-1484) - [Entering a duel](#entering-a-duel-ss-7-r-1490) - [Duel layer](#duel-layer-ss-6-r-1489) - [Soul lights in a duel](#soul-lights-in-a-duel-ss-5-r-1488) - [Hero growth](#hero-growth-ss-8-r-1491) - [Reading a soul](#reading-a-soul-ss-4-r-1487) - [Soot and church services (planned)](#soot-and-church-services-planned-adr-0046) - [Aura data reference](#aura-data-reference-ss-2-r-1485-r-1496) - [Aura rendering reference](#aura-rendering-reference-ss-3-r-1486) - [Save state, verification, limits](#save-state-and-ids)
 
 ## Three layers on one map
 
@@ -230,11 +230,35 @@ Hero lights are his NATURAL ranks seen as levels (`SpiritAuraProfile.level_for_r
 - **Verify:** `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_soul_lights_state,test_p7_011_natural_psyche,test_magic_natural_scaling` (baseline, band edges, locked = 0, a spend crossing a band, save round trip, old save, awareness -> radius).
 - **Limits:** returning to the main menu and choosing New Game in the same process does not rebuild `SessionState.state` (pre-existing behaviour), so the baseline applies to the first New Game of each launch; a second New Game in that process inherits the previous run's ranks.
 
-## Reading a soul (planned, SS-4, R-1487)
+## Reading a soul (SS-4, R-1487)
 
-Status: planned (task **R-1487**). No plate yet.
+Status: implemented (task **R-1487**). Scope: focusing a being in spirit sight, the reading card and its depth by the hero's awareness light. Out of scope: soul reading inside a duel (the arena owns the screen), temperament data for shipping characters (see Limits), saving anything.
 
-Looking at a being for about 0.5 s opens a panel: the seven lights with glyph, aspect name, the element each guards and level pips, the strongest and closed lights, clarity in words (calm, uneasy, torn). The hero's awareness light sets the depth: 3 adds temperament tags (SD-15), 4 masked closed lights, 5 a hint of the duel topic.
+| Awareness 3 (New Game) | Awareness 5 |
+|---|---|
+| ![A resident read at the New Game awareness: the masked root light is veiled](../reports/images/spirit_reading/reading_awareness_start.png) | ![The same resident at awareness 5: the root revealed as closed, the topic hint added](../reports/images/spirit_reading/reading_awareness_5.png) |
+
+*The same resident read twice by `tools/capture_spirit_reading.gd`: the masked root light is veiled at the New Game awareness and shows as closed at 5, where the topic hint is added.*
+
+**Player:** in spirit sight, rest the mouse cursor on a person or an animal with a full aura for 0.5 s (`SpiritReading.FOCUS_DELAY`). On a gamepad, or with a captured mouse, the camera centre is the focus: aim with the right stick. The card opens top-right and follows the look: a new being under the focus for 0.5 s replaces it; looking away closes it after 0.3 s (`LOST_GRACE`), so sweeping across a crowd does not flicker. Leaving sight closes it at once, and so does an opening duel. The hero never reads himself and a distant glow (outside the full-aura budget) is too faint to read. Moving the mouse returns to cursor focus; any gamepad stick or button switches to the camera centre.
+
+**Card, crown on top so it reads like the body:** each light has its drawn glyph (root square, belly down-triangle, plexus up-triangle, heart diamond, throat circle, brow eye, crown star; shape, not colour alone, tells them apart), its aspect name from `GameState.NATURAL_ASPECT_DISPLAY_NAMES`, the duel element it guards (awareness: "sight, guards none"), five level pips and a mark for **strongest**, **closed**, **veiled** or **absent**. Under the lights: the strongest lights (ties all listed), the closed lights, the number of veiled lights, and clarity in words: **calm** (0.67 and above), **uneasy** (0.34 and above), **torn**. The wording describes strength and trouble, never virtue.
+
+**Depth by the hero's awareness light** (`SpiritAuraProfile.hero_awareness_level`, the stored NATURAL rank, read live so a Hingepuu spend deepens an open card):
+
+| Awareness level | Adds |
+|---|---|
+| 2 and below | the base card; closed lights listed in the being's `closed_mask` show as **veiled** (level unknown, not named as closed) |
+| 3 | temperament tags (SD-15), sorted |
+| 4 | veiled lights revealed as closed |
+| 5 | "Weighs on them": the first three tags of the duel topic |
+
+- **Animals:** lights a species does not have are **absent**, never closed weak points; animals show no temperament or topic.
+- **Who and what:** the being's `char.*` id comes from the rig name (`<Actor>Rig`, as the aura manager resolves profiles) or a `char_id` meta. The title uses the character record's `name`, else a `display_name` meta, else "Soul lights". Temperament is the record's `temperament`, else the duel block's `temperament`. The topic is the person's own duel (`SpiritSight.duel_for`), else the stranger duel `dialogue.city.spirit_duel` (anyone can be dueled on `daily_burden`, R-1889).
+- **Runtime:** `scripts/combat/spirit_reading.gd` (`SpiritReading`: `read`, `depth_for`, `clarity_word`, `context_for`, `char_id_for`, `pick_focus`, pure and static), `scripts/ui/spirit_reading_panel.gd` (`SpiritReadingPanel`, CanvasLayer 19: `tick`, `focus_point`, `use_pointer`, the dwell timer). `SpiritSight._ready` mounts it as `SpiritReadingPanel` next to `SpiritAuras` and hands it the aura manager; it reads the profile already on each `SpiritAuraView`, so the card and the aura can never disagree.
+- **Saves:** nothing. The card is transient UI.
+- **Verify:** `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_spirit_reading` (depth at awareness 1..5, closed mask, strongest ties, clarity words, animal lights absent, content context, focus delay and grace, focus switch, live awareness change, gamepad camera-centre focus, the hero and a far glow never read, hides on sight exit and on a duel, mounted by SpiritSight). Plates: `tools/godot_render.sh --resolution 1280x720 --script tools/capture_spirit_reading.gd -- --out=res://docs/reports/images/spirit_reading`.
+- **Limits:** no shipping character or duel record carries `temperament` yet (only the content examples), so the awareness-3 line appears in play only once authored data adds it. The aura itself still draws a masked closed light as a black hole; the mask conceals only the card's wording. A body without a rig (scripted figure) is read with animal rules. No in-city plate yet; the plates use the aura capture's stand-in grade.
 
 ## Soot and church services (planned, ADR 0046)
 
