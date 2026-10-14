@@ -400,18 +400,23 @@ if any_staged_path "assets" \
   queue_python_module "tests.python.test_verify_runtime_glb_budget"
 fi
 
-# Active-doc check walks the live worktree. Trigger only on the report inputs /
-# generator that CI treats as the contract, not on every docs/** edit, so an
-# unrelated dirty report cannot block an otherwise scoped commit.
+# Active-doc check uses the staged Git snapshot so unstaged edits and unrelated
+# untracked Markdown cannot block a scoped commit. In `all` mode the caller
+# explicitly requested whole-worktree validation instead.
 if any_staged_path "README.md" "AGENTS.md" "docs/CANON.md" \
   "docs/reports/active_markdown_report.md" \
   "tools/generate_active_docs_report.py"; then
-  bg_step "active Markdown links and canon" \
-    python3 tools/generate_active_docs_report.py --check
+  if [[ "$MODE" == "all" ]]; then
+    bg_step "active Markdown links and canon" \
+      python3 tools/check_staged_docs.py --worktree active
+  else
+    bg_step "active Markdown links and canon" \
+      python3 tools/check_staged_docs.py active
+  fi
 fi
 
 # Every Markdown file must stay reachable from README.md through the docs hub
-# and the generated index blocks. Any staged .md can add or orphan a page.
+# and generated index blocks. Validate the staged snapshot, not the live tree.
 STAGED_MARKDOWN=0
 for path in "${STAGED_PATHS[@]}"; do
   if [[ "$path" == *.md || "$path" == "tools/docs_index.py" ]]; then
@@ -420,7 +425,13 @@ for path in "${STAGED_PATHS[@]}"; do
   fi
 done
 if [[ "$STAGED_MARKDOWN" == "1" ]]; then
-  bg_step "docs reachable from README (docs_index)" python3 tools/docs_index.py --check
+  if [[ "$MODE" == "all" ]]; then
+    bg_step "docs reachable from README (docs_index)" \
+      python3 tools/check_staged_docs.py --worktree index
+  else
+    bg_step "docs reachable from README (docs_index)" \
+      python3 tools/check_staged_docs.py index
+  fi
 fi
 
 # R-1046: keep the checked-in reval_outdoor manifest in lockstep with group
