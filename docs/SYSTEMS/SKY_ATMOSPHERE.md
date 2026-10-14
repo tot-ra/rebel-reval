@@ -1,6 +1,6 @@
 # Sky and atmosphere: clouds, sunbeams, fog and haze
 
-Status: implemented (tasks **R-1400**, **R-1430**, **R-1436**, **R-1444**, **R-1481**, **R-1482**, **R-1493**, **R-1495**, **R-1501**, **R-1507**, **R-1517**, **R-1531**, **R-1532**, **R-1533**, **R-1165**, **R-1766**, **R-1794**, **R-1768**, **R-1873**)
+Status: implemented (tasks **R-1400**, **R-1430**, **R-1436**, **R-1444**, **R-1481**, **R-1482**, **R-1493**, **R-1495**, **R-1501**, **R-1507**, **R-1517**, **R-1531**, **R-1532**, **R-1533**, **R-1165**, **R-1766**, **R-1794**, **R-1768**, **R-1873**, **R-1770**)
 
 Scope: everything between the ground and the sky dome in the 3D views (district maps and the seamless city): individual clouds and their shadows, thunderstorms with local rain and lightning, sunbeams, a sun-shower rainbow, ground fog near water, distance haze and blur, and the summer heat mirage. Every layer is presentation only. It reads the shared weather, time of day, season and wind, never changes gameplay, and rebuilds identically from a save.
 
@@ -30,6 +30,14 @@ There are six weather modes, from `cloudless` to `storm`. The cycle is tuned to 
 ![Cloudless weather: plain blue sky over the town](../reports/images/weather/cells_sky_cloudless.png)
 
 ![The same view in fair weather: scattered cumulus](../reports/images/weather/cells_sky_clear.png)
+
+## Sky colour grade (R-1770)
+
+AgX desaturates bright values, so a fair-day zenith went pale and sunlit cloud crowns greyed out. `sky_weather_3d.gdshader` now applies a sky-only grade to the visible dome at the end of `sky()`: a cobalt multiplier (`sky_zenith_deepen`, weighted by `sky_zenith_deepen_strength` and fading out below about 0.15 of dome height so the haze stays pale) and a luma-preserving saturation boost (`sky_grade_saturation`, 1.35). Both scale with `day_blend` and switch off under `cloud_darken`, so night, twilight and overcast keep their authored colour. The radiance cubemap pass is skipped, so reflections, ambient light and the global grade (`GRADE_DAY_SATURATION`) are untouched.
+
+![Fair noon sky: cobalt zenith fading to pale haze](../reports/images/weather/sky_grade_noon_clear.png)
+
+Verify: `tools/godot_render.sh --script tools/capture_sky_reference.gd`; street luma with `tools/capture_brightness_tour.gd` (10 shots, summed mean luma 382 before and after, 0.0% change); `test_sky_grade_is_a_sky_only_saturation_term` in `tests/godot/test_map_view_lighting.gd`.
 
 ## Fair-weather clouds
 

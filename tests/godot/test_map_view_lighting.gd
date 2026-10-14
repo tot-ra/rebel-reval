@@ -340,3 +340,14 @@ func _evening_progress_for(target_deg: float, date: Dictionary) -> float:
 		else:
 			hi = mid
 	return (lo + hi) * 0.5
+
+
+func test_sky_grade_is_a_sky_only_saturation_term() -> void:
+	# R-1770: the saturated-cobalt look lives in the dome shader, not the global grade, so the
+	# street calibration (R-1537/R-1748) is untouched.
+	var source := FileAccess.get_file_as_string("res://scripts/map/view3d/sky_weather_3d.gdshader")
+	assert_true(source.contains("uniform float sky_grade_saturation"), "dome saturation term")
+	assert_true(source.contains("uniform vec3 sky_zenith_deepen"), "dome zenith deepening term")
+	assert_true(
+		Lighting.GRADE_DAY_SATURATION <= 1.1, "global day saturation must not carry the sky look"
+	)

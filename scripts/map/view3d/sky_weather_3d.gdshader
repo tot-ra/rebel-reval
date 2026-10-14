@@ -129,6 +129,11 @@ uniform float cloud_gloom : hint_range(0.0, 1.0) = 0.0;
 // Weather-wide rain share lets astronomical sky features respond to wet haze even
 // when the camera is outside a localized rain shaft.
 uniform float weather_rain : hint_range(0.0, 1.0) = 0.0;
+// R-1769: wind-combed cirrus fibratus/uncinus on a plane ~8 km up. `cirrus_amount` is the
+// day's roll from the weather chain (0 = a day with none, SkyWeather3D.cirrus_amount_for);
+// `cirrus_seed` shifts the noise domain so each day draws different streaks.
+uniform float cirrus_amount : hint_range(0.0, 1.0) = 0.0;
+uniform vec2 cirrus_seed = vec2(0.0);
 
 // Hipparcos stars live in equatorial coordinates in this nearest-filtered map,
 // one texel per star (read with texelFetch in sky_stars.gdshaderinc).
@@ -157,6 +162,12 @@ uniform vec4 sky_tint : source_color = vec4(1.0, 1.0, 1.0, 1.0);
 // compensation fades in over a hair-thin band at the horizon (R-1794): the aerial haze
 // colour and the sea's sky reflection carry the same factor, so no seam shows. Fog colour
 // still carries the gain; it is only 8% on the dome (fog_sky_affect).
+// R-1770: sky-only grade. AgX desaturates bright values, so a fair-day zenith went
+// pale and sunlit cloud crowns greyed out. Saturating and deepening only the visible
+// dome leaves the global grade (and the R-1537/R-1748 street calibration) untouched.
+uniform float sky_grade_saturation : hint_range(1.0, 2.0) = 1.35;
+uniform vec3 sky_zenith_deepen = vec3(0.80, 0.92, 1.10);
+uniform float sky_zenith_deepen_strength : hint_range(0.0, 1.0) = 0.65;
 uniform float sky_gain_compensation : hint_range(0.0, 1.0) = 1.0;
 uniform float sky_gain_horizon_band : hint_range(0.001, 1.0) = 0.004;
 // Partial eye adaptation: the fixed scene grade would leave the physical dusk sky ~10x dimmer
@@ -372,6 +383,30 @@ vec3 cloud_field(vec3 dir, vec3 slab) {
 		* smoothstep(0.32, 0.70, cloud_coverage) * (1.0 - local_storm);
 	light = mix(light, 0.8, cirrus * (1.0 - density));
 	density += cirrus * (1.0 - density);
+	// R-1769: fibratus/uncinus streaks, independent of cloud_coverage so a cloudless day
+	// can still carry them. The plane is ~8 km up (5.3 deck altitudes) and the streak axis is
+	// the upper wind, so world-parallel streaks converge toward a vanishing point at the
+	// horizon by perspective alone. Lit by the same sun-lit tone as every cloud (light stays
+	// high: thin ice at altitude is the last thing in shade) and never reaches the
+	// ground-shadow pass, which only reads the low deck.
+	if (cirrus_amount > 0.001) {
+		vec2 ci_uv = sky_cloud_uv(dir, 5.3, vec2(0.0)) - cloud_offset * 0.9 - cirrus_seed;
+		float ci_along = dot(ci_uv, high_wind);
+		float ci_across = dot(ci_uv, across);
+		// Uncinus: a slow cross-wind wobble bends the streak axis into hooks and tails.
+		float hook = texture(cloud_noise, vec2(ci_along * 0.035, ci_across * 0.30) + cirrus_seed).r - 0.5;
+		float bent = ci_along + hook * 2.4;
+		float streak = texture(cloud_noise, vec2(bent * 0.05, ci_across * 1.5) + cirrus_seed * 0.37).r;
+		float fibre = texture(cloud_noise, vec2(bent * 0.13, ci_across * 4.6) - cirrus_seed * 0.21).r;
+		// Large, soft patches keep it a few drifts of streaks rather than a sheet.
+		float patch = smoothstep(0.42, 0.68, texture(cloud_noise,
+			vec2(ci_along * 0.018, ci_across * 0.05) + cirrus_seed * 0.5).r);
+		float fibratus = smoothstep(0.56, 0.86, streak * 0.7 + fibre * 0.3) * mix(0.55, 1.0, fibre);
+		float high_ice = fibratus * patch * cirrus_amount * 0.5
+			* (1.0 - local_storm) * (1.0 - smoothstep(0.7, 0.95, cloud_coverage));
+		light = mix(light, 0.97, high_ice * (1.0 - density));
+		density += high_ice * (1.0 - density);
+	}
 	density *= smoothstep(-0.025, 0.055, dir.y);
 	return vec3(density, light, local_storm);
 }
@@ -1341,6 +1376,13 @@ void sky() {
 	// R-1766: reflections and ambient read the radiance cubemap, which lights city
 	// materials, so only the visible dome is compensated.
 	if (!AT_CUBEMAP_PASS) {
+		// Daylight only: night stars and twilight keep their authored colour. The
+		// cobalt tint fades out toward the horizon so the haze stays pale.
+		float grade = day_blend * (1.0 - cloud_darken);
+		float zenith_w = smoothstep(0.15, 0.9, height) * sky_zenith_deepen_strength * grade;
+		color *= mix(vec3(1.0), sky_zenith_deepen, zenith_w);
+		float luma = dot(color, vec3(0.2126, 0.7152, 0.0722));
+		color = max(mix(vec3(luma), color, mix(1.0, sky_grade_saturation, grade)), vec3(0.0));
 		color *= mix(1.0, sky_gain_compensation, smoothstep(0.0, sky_gain_horizon_band, height));
 	}
 	COLOR = color;
