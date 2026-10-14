@@ -14,10 +14,12 @@ const CLICK_SLOP_PX := 8.0
 const PerfProbeScript := preload("res://scripts/debug/perf_probe.gd")
 const SPAWN_RADIUS := 62.0
 const DESPAWN_RADIUS := 80.0
-const MAX_LIVE := 30
+## Bound expensive character rigs independently for the street and furnished houses.
+## These are presentation limits, not census or roster limits.
+const MAX_LIVE := 12
 ## People shown at home: within this distance of Kalev, at most MAX_INDOOR.
 const INDOOR_RADIUS := 16.0
-const MAX_INDOOR := 18
+const MAX_INDOOR := 6
 const SPAWN_PER_FRAME := 3
 const SELECT_REACH := 3.0
 const PICK_RADIUS := 0.55

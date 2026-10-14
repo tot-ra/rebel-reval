@@ -70,6 +70,21 @@ const WORD_PRODUCT_MAX := 2.0
 ## hesitates once and loses a little composure; the replies stay open.
 const REPLY_WINDOW_SEC := 6.0
 const HESITATION_COMPOSURE := 6.0
+## ADR 0048 (SPL-2) endings: the duel's outcome as the host and TALK-8 read it
+## (`last_outcome.ending`). The three resolved_* ids are also the authored resolution nodes.
+const ENDING_NONE := &""
+const ENDING_BROKEN := &"resolved_broken"
+const ENDING_EASED := &"resolved_eased"
+const ENDING_LEFT := &"resolved_left"
+const ENDING_LOST := &"lost"
+## Trust meter: a raised light point builds this much trust before modifiers; full trust eases.
+const TRUST_MAX := 100.0
+const TRUST_PER_POINT := 8.0
+## Pressure per point of a lowering delta. WHY 3 and not the draft's 6: the five starters are
+## authored at -2 and must keep today's flat SpiritWordSpells.WORD_DAMAGE (6) per word.
+const PRESSURE_PER_POINT := 3.0
+const LIGHT_MIN := 0
+const LIGHT_MAX := 5
 
 var hero_id: StringName = &"char.apprentice"
 var telegraph_sec := TELEGRAPH_SEC
@@ -94,8 +109,20 @@ var last_cast_failure: StringName = &""
 ## when it faces the opponent. Unset keeps the 2D rules (guard and dodge() alone decide).
 var hit_check: Callable = Callable()
 ## SS-5 soul lights. Null = a neutral soul (all levels 2, clarity 1). Set before begin().
-var opponent_aura: SpiritAuraProfile
+## SPL-2: a new profile drops this run's shifted copies, so the duel reads the new lights.
+var opponent_aura: SpiritAuraProfile:
+	set(value):
+		opponent_aura = value
+		duel_levels.clear()
 var hero_aura: SpiritAuraProfile
+## ADR 0048 (SPL-2): the stable id of the person duelled (a resident's `guilt_context().id`), so
+## a dark spell's guilt is recorded once per person. Empty: the first non-hero participant.
+var opponent_id: StringName = &""
+## Trust built this run (0..TRUST_MAX); full trust ends the duel `resolved_eased`.
+var trust := 0.0
+## The opponent's light levels for this run only (light id -> 0..5), copied from `opponent_aura`
+## when the duel opens; spells shift these copies, never the resident's profile (decision 1).
+var duel_levels: Dictionary = {}
 
 var _runner: Node
 var _state: GameState
@@ -230,7 +257,9 @@ func acknowledge() -> bool:
 ## Pick a reply: its move strikes the opponent, then the dialogue follows the choice.
 ## `spoken_word` (SA3D-3): the reply was spoken as a word spell, which is the cast itself, so the
 ## reply's own spell is not resolved again (no second cost, no lock can stall the dispute).
-func answer(choice_id: String, spoken_word := false) -> bool:
+## `spell` (SPL-2): the catalogue spell the word was, if any. Its lowering share of the reply's
+## pressure lands (all of it for a starter), its raising half builds trust and its lights shift.
+func answer(choice_id: String, spoken_word := false, spell: Dictionary = {}) -> bool:
 	if phase != PHASE_ANSWER:
 		return false
 	var chosen: Dictionary = {}
@@ -263,7 +292,22 @@ func answer(choice_id: String, spoken_word := false) -> bool:
 		light_word_factor(reply_element)
 	)
 	damage = hero.modifiers.scale_outgoing_damage(damage)
-	if damage > 0.0:
+	var shift := {"lowered": [], "raised": []}
+	var gained := 0.0
+	if not spell.is_empty():
+		shift = spell_shift(spell.get("light_vector", []))
+		damage *= lowering_share(spell)
+		gained = _trust_gain(
+			shift,
+			reply_element,
+			topic_multiplier(reply_move),
+			SpiritTraits.temperament_multiplier(
+				_temperament, StringName(String(reply_move.get("kind", "")))
+			)
+		)
+		var applied := _apply_spell(spell, shift, damage, gained, "reply")
+		shift = {"shifts": applied["shifts"]}
+	elif damage > 0.0:
 		opponent.resolve_hit(damage)
 	hero.stamina = minf(hero.max_stamina, hero.stamina + RESOLVE_RECOVERY_PER_EXCHANGE)
 	exchange_resolved.emit(
@@ -271,15 +315,20 @@ func answer(choice_id: String, spoken_word := false) -> bool:
 			"kind": "reply",
 			"choice_id": choice_id,
 			"damage": damage,
+			"trust_gained": gained,
+			"trust": trust,
 			"pressure_left": opponent.health,
 			"element": String(reply_element),
 			"light_id": String(light_for_element(reply_element)),
+			"shifts": shift.get("shifts", []),
 		}
 	)
 	_incoming = {}
 	_choices.clear()
 	_set_phase(PHASE_LINE)
-	return _runner.select_choice(choice_id)
+	var moved: bool = _runner.select_choice(choice_id)
+	_check_endings()
+	return moved
 
 
 ## Pressure a reply deals to the opponent (0 for an untagged reply).
@@ -336,30 +385,266 @@ static func light_level(profile: SpiritAuraProfile, element: StringName) -> int:
 ## Factor of a hero word of `element`: his own light scales it, the opponent's closed or dim
 ## light guarding that element makes it land harder.
 func light_word_factor(element: StringName) -> float:
-	var own := 1.0 + LIGHT_LEVEL_STEP * float(light_level(hero_aura, element) - NEUTRAL_LIGHT_LEVEL)
-	var target := light_level(opponent_aura, element)
-	var weakness := 1.0
-	if light_for_element(element) != &"":
-		if target == 0:
-			weakness = CLOSED_LIGHT_WORD_FACTOR
-		elif target == 1:
-			weakness = DIM_LIGHT_WORD_FACTOR
-	return own * weakness
+	return _own_word_factor(element) * light_weakness(light_for_element(element))
 
 
-## Factor of an opponent blow of `element`: the light that guards it sets its force.
+## SPL-2: the opponent's level of `light_id` in this duel: the shifted copy while a run is open,
+## the profile before one (neutral 2 without a profile or for an unknown light).
+func duel_light(light_id: StringName) -> int:
+	if light_id.is_empty():
+		return NEUTRAL_LIGHT_LEVEL
+	if duel_levels.has(light_id):
+		return int(duel_levels[light_id])
+	if opponent_aura == null:
+		return NEUTRAL_LIGHT_LEVEL
+	return clampi(int(opponent_aura.levels.get(light_id, NEUTRAL_LIGHT_LEVEL)), LIGHT_MIN, LIGHT_MAX)
+
+
+## `duel_light` of the light guarding `element` (neutral for sight or an unknown element).
+func duel_light_level(element: StringName) -> int:
+	return duel_light(light_for_element(element))
+
+
+## Weak-point factor of a word into `light_id`: closed x1.5, ember x1.25, else (or no light) x1.
+func light_weakness(light_id: StringName) -> float:
+	if light_id.is_empty():
+		return 1.0
+	match duel_light(light_id):
+		0:
+			return CLOSED_LIGHT_WORD_FACTOR
+		1:
+			return DIM_LIGHT_WORD_FACTOR
+	return 1.0
+
+
+## Factor of an opponent blow of `element`: the light that guards it sets its force, so a light a
+## spell raised makes that person bolder against the hero (ADR 0048 rule 3).
 func light_blow_factor(element: StringName) -> float:
-	return 1.0 + LIGHT_LEVEL_STEP * float(light_level(opponent_aura, element) - NEUTRAL_LIGHT_LEVEL)
+	return 1.0 + LIGHT_LEVEL_STEP * float(duel_light_level(element) - NEUTRAL_LIGHT_LEVEL)
 
 
 ## Pressure pool factor from the sum of the opponent's light levels (1.0 for a neutral soul).
+## Read when a run opens, so the pool is set by the lights the duel starts with.
 func pool_factor() -> float:
-	if opponent_aura == null:
+	if opponent_aura == null and duel_levels.is_empty():
 		return 1.0
 	var total := 0
 	for light: StringName in SpiritAuraProfile.LIGHT_IDS:
-		total += clampi(int(opponent_aura.levels.get(light, NEUTRAL_LIGHT_LEVEL)), 0, 5)
+		total += duel_light(light)
 	return clampf(float(total) / POOL_NEUTRAL_LEVEL_SUM, POOL_FACTOR_MIN, POOL_FACTOR_MAX)
+
+
+## A profile carrying this run's shifted levels (the aura view shows the lights moving).
+func duel_profile() -> SpiritAuraProfile:
+	var profile := SpiritAuraProfile.new()
+	for light: StringName in SpiritAuraProfile.LIGHT_IDS:
+		profile.levels[light] = duel_light(light)
+	if opponent_aura != null:
+		profile.clarity = opponent_aura.clarity
+		profile.closed_mask = opponent_aura.closed_mask.duplicate()
+	return profile
+
+
+## How far a spell's `light_vector` would move this run's lights. Lowering counts every authored
+## point: a word still presses a light that is already closed, which is exactly the weak point
+## (x1.5) the starters keep. Raising counts only the points that fit under 5: a light already
+## full cannot rise, so that half builds no trust. Returns {"lowered": [{light, points}],
+## "raised": [{light, points}]}.
+func spell_shift(vector: Array) -> Dictionary:
+	var lowered: Array[Dictionary] = []
+	var raised: Array[Dictionary] = []
+	for entry_value: Variant in vector:
+		if not entry_value is Dictionary:
+			continue
+		var light := StringName(String((entry_value as Dictionary).get("aspect", "")))
+		var delta := int((entry_value as Dictionary).get("delta", 0))
+		if not SpiritAuraProfile.LIGHT_IDS.has(light) or delta == 0:
+			continue
+		if delta < 0:
+			lowered.append({"light": light, "points": -delta})
+		else:
+			var room := mini(delta, LIGHT_MAX - duel_light(light))
+			if room > 0:
+				raised.append({"light": light, "points": room})
+	return {"lowered": lowered, "raised": raised}
+
+
+## SPL-2: a catalogue spell (`SpiritSpellCatalog` record) cast as a free strike lands: its lowering
+## half deals pressure (PRESSURE_PER_POINT per point, weak points as words), its raising half
+## builds trust (TRUST_PER_POINT per point), then the duel copies shift. Factors are read before
+## the shift, so a starter deals exactly today's word. Returns {pressure, trust, shifts}.
+func land_spell(spell: Dictionary, tags: Array) -> Dictionary:
+	if _finished or spell.is_empty():
+		return {"pressure": 0.0, "trust": 0.0, "shifts": []}
+	var element := StringName(String(spell.get("element", "")))
+	var shift := spell_shift(spell.get("light_vector", []))
+	var topic := topic_multiplier({"topic_tags": tags})
+	var pressure := 0.0
+	for part: Dictionary in shift["lowered"]:
+		var light := StringName(part["light"])
+		pressure += (
+			PRESSURE_PER_POINT * float(part["points"])
+			* PhysicalBlowGuilt.reply_multiplier(_state, element)
+			* word_product(
+				SpiritTraits.reply_multiplier(_trait_mods, element),
+				1.0,
+				topic,
+				_own_word_factor(element) * light_weakness(light)
+			)
+		)
+	pressure = hero.modifiers.scale_outgoing_damage(pressure) if pressure > 0.0 else 0.0
+	var gained := _trust_gain(shift, element, topic, 1.0)
+	return _apply_spell(spell, shift, pressure, gained, "word")
+
+
+## The share of a spell's authored points that lower a light (1 for a starter, 0.5 for most mixed
+## spells, 0 for a raising one): an answering spell keeps this share of the reply's pressure.
+static func lowering_share(spell: Dictionary) -> float:
+	var lowering := 0
+	var total := 0
+	for entry_value: Variant in spell.get("light_vector", []):
+		if entry_value is Dictionary:
+			var delta := int((entry_value as Dictionary).get("delta", 0))
+			total += absi(delta)
+			if delta < 0:
+				lowering += -delta
+	return 1.0 if total == 0 else float(lowering) / float(total)
+
+
+## SPL-2: true while the duel can still be left (it authors a `resolved_left` resolution).
+func can_leave() -> bool:
+	return not _finished and _runner != null and _resolution_ids().has(String(ENDING_LEFT))
+
+
+## Hold Esc in the arena: end the duel `resolved_left`. False when it cannot be left.
+func leave() -> bool:
+	return can_leave() and _jump_to_ending(ENDING_LEFT)
+
+
+## The ending reached (ENDING_*), or the authored resolution node of a duel that has its own
+## (the porter's `resolved_spared`); ENDING_NONE while the duel runs or after an abandon.
+func ending() -> StringName:
+	return StringName(String(last_outcome.get("ending", "")))
+
+
+func _own_word_factor(element: StringName) -> float:
+	return 1.0 + LIGHT_LEVEL_STEP * float(light_level(hero_aura, element) - NEUTRAL_LIGHT_LEVEL)
+
+
+## Trust a spell's raising half builds: the same guilt, trait, temperament and topic factors and
+## the hero's own light as a word, but no weak point (that is a wound, not an opening).
+func _trust_gain(shift: Dictionary, element: StringName, topic: float, temperament: float) -> float:
+	var points := 0
+	for part: Dictionary in shift["raised"]:
+		points += int(part["points"])
+	if points <= 0:
+		return 0.0
+	return (
+		TRUST_PER_POINT * float(points)
+		* PhysicalBlowGuilt.reply_multiplier(_state, element)
+		* word_product(
+			SpiritTraits.reply_multiplier(_trait_mods, element),
+			temperament,
+			topic,
+			_own_word_factor(element)
+		)
+	)
+
+
+## Deal `pressure`, build `gained` trust, shift the copies and record a dark spell's guilt; a
+## free strike ("word") also reports the exchange and checks the endings.
+func _apply_spell(
+	spell: Dictionary, shift: Dictionary, pressure: float, gained: float, kind: String
+) -> Dictionary:
+	var element := StringName(String(spell.get("element", "")))
+	if pressure > 0.0:
+		opponent.resolve_hit(pressure)
+	trust = minf(TRUST_MAX, trust + gained)
+	var shifts: Array[Dictionary] = []
+	for part: Dictionary in shift["lowered"]:
+		shifts.append(_shift_light(StringName(part["light"]), -int(part["points"])))
+	for part: Dictionary in shift["raised"]:
+		shifts.append(_shift_light(StringName(part["light"]), int(part["points"])))
+	_record_spell_guilt(spell)
+	if kind == "word":
+		exchange_resolved.emit(
+			{
+				"kind": "word",
+				"element": String(element),
+				"spell_id": String(spell.get("id", "")),
+				"damage": pressure,
+				"trust_gained": gained,
+				"trust": trust,
+				"pressure_left": opponent.health,
+				"light_id": String(light_for_element(element)),
+				"shifts": shifts,
+			}
+		)
+		# A reply checks after the dialogue follows its choice (answer), so its effects apply.
+		_check_endings()
+	return {"pressure": pressure, "trust": gained, "shifts": shifts}
+
+
+func _shift_light(light: StringName, delta: int) -> Dictionary:
+	var before := duel_light(light)
+	var after := clampi(before + delta, LIGHT_MIN, LIGHT_MAX)
+	duel_levels[light] = after
+	return {"light": String(light), "from": before, "to": after}
+
+
+## ADR 0048 rule 6: a spell with `guilt` weighs on the hero once per person, win or lose.
+func _record_spell_guilt(spell: Dictionary) -> void:
+	var weights: Dictionary = spell.get("guilt", {})
+	if weights.is_empty() or _state == null:
+		return
+	var slug := String(spell.get("id", "")).trim_prefix(SpiritSpellCatalog.ID_PREFIX)
+	var act := StringName("act.spirit.%s.%s" % [String(_guilt_target()), slug])
+	_state.guilt.record_weighted_act(act, weights, "spirit_spell")
+
+
+func _guilt_target() -> StringName:
+	if not opponent_id.is_empty():
+		return opponent_id
+	if _runner != null:
+		for participant: Variant in _runner.get_participants():
+			if StringName(String(participant)) != hero_id:
+				return StringName(String(participant))
+	return &"unknown"
+
+
+func _reset_duel_lights() -> void:
+	duel_levels.clear()
+	trust = 0.0
+	for light: StringName in SpiritAuraProfile.LIGHT_IDS:
+		duel_levels[light] = duel_light(light)
+
+
+## Pressure 0 breaks, full trust eases, at the authored resolution node of that name. Only a duel
+## that authors `resolved_eased` plays by these endings. WHY: the porter's prologue duel has its
+## own `resolved_broken` but lets the replies choose between spared, broken and punished after
+## the pressure runs out; its authored flow and flags stay as they are. True when it ended.
+func _check_endings() -> bool:
+	if _finished:
+		return true
+	if _runner == null or not _resolution_ids().has(String(ENDING_EASED)):
+		return false
+	if opponent.health <= 0.0 and _jump_to_ending(ENDING_BROKEN):
+		return true
+	if trust >= TRUST_MAX and _jump_to_ending(ENDING_EASED):
+		return true
+	return false
+
+
+func _jump_to_ending(ending_id: StringName) -> bool:
+	if _finished or _runner == null or not _resolution_ids().has(String(ending_id)):
+		return false
+	_incoming = {}
+	_choices.clear()
+	_runner.jump_to(String(ending_id))
+	# The resolution line finishes the duel in present_line; a node that shows nothing still ends.
+	if not _finished:
+		_finish(PHASE_WON, ending_id)
+	return true
 
 
 ## The duel's `duel.topic` record ({} without a topic).
@@ -391,6 +676,7 @@ func land_word(element: StringName, tags: Array, base: float) -> float:
 			"light_id": String(light_for_element(element)),
 		}
 	)
+	_check_endings()
 	return damage
 
 
@@ -418,6 +704,10 @@ func topic_line_for(element: StringName, tags: Array) -> Dictionary:
 ## is halved, heal_over_time -> composure, a self modifier -> the hero's timed buffs.
 func cast_spell(target_id: StringName) -> Dictionary:
 	if phase != PHASE_TELEGRAPH and phase != PHASE_ANSWER:
+		return {"ok": false, "reason": &"magic.fail.not_now"}
+	# Word spells share the `spell.` prefix with pagan magic but are spoken through
+	# SpiritWordSpells (land_spell / answer), never resolved as a MagicResolver cast.
+	if String(target_id).begins_with(SpiritSpellCatalog.ID_PREFIX):
 		return {"ok": false, "reason": &"magic.fail.not_now"}
 	var result := MagicResolver.cast(_state, _content_db, target_id)
 	if not bool(result.get("ok", false)):
@@ -451,6 +741,9 @@ func cast_spell(target_id: StringName) -> Dictionary:
 	exchange_resolved.emit(
 		{"kind": "spell", "spell_id": String(target_id), "arena_effect": String(arena_effect), "pressure_left": opponent.health}  # gdlint: ignore=max-line-length
 	)
+	# A spell inside a reply is followed by the reply's own choice (answer checks after it).
+	if phase == PHASE_TELEGRAPH:
+		_check_endings()
 	return result
 
 
@@ -511,6 +804,9 @@ func _start_run() -> bool:
 	hero.parry_window_sec = CombatVitals.DEFAULT_PARRY_WINDOW_SEC + float(
 		_trait_mods.get("parry_window_delta", 0.0)
 	)
+	# SPL-2: every run (and a retry) starts from the opponent's own lights and no trust.
+	_reset_duel_lights()
+
 	var pool := PRESSURE_MAX * pool_factor() * opponent_pressure_scale
 	opponent.configure(pool, pool, 0.0, 0.0)
 	opponent.hit_invulnerability_sec = 0.0
@@ -593,6 +889,8 @@ func _land_incoming() -> void:
 		return
 	_set_phase(PHASE_LINE)
 	_runner.advance()
+	# A parry's returned pressure can break the opponent too.
+	_check_endings()
 
 
 ## The hit-check answer at impact; {} (no spatial say) without a valid hook or a dict answer.
@@ -613,6 +911,9 @@ func _finish(result_phase: StringName, node_id: StringName) -> void:
 		"composure": hero.health,
 		"pressure_left": opponent.health,
 		"broken": opponent.health <= 0.0,
+		"ending": String(_ending_for(result_phase, node_id)),
+		"trust": trust,
+		"opponent_id": String(_guilt_target()) if _runner != null else String(opponent_id),
 	}
 	if result_phase == PHASE_WON:
 		checkpoint.clear()
@@ -620,6 +921,14 @@ func _finish(result_phase: StringName, node_id: StringName) -> void:
 		checkpoint.mark_failed()
 	_set_phase(result_phase)
 	finished.emit(last_outcome)
+
+
+func _ending_for(result_phase: StringName, node_id: StringName) -> StringName:
+	if result_phase == PHASE_LOST:
+		return ENDING_LOST
+	if result_phase == PHASE_WON:
+		return node_id
+	return ENDING_NONE
 
 
 func _resolution_ids() -> Array:

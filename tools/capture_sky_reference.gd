@@ -31,6 +31,8 @@ const SLAB_SETTLE_FRAMES := 40
 const SHOTS := [
 	["noon_side_clear", SkyWeather3D.WEATHER_CLEAR, 0.42, 70.0, 14.0, 80.0],
 	["aft_side_cloudy", SkyWeather3D.WEATHER_CLOUDY, 0.71, 60.0, 18.0, 85.0],
+	# R-1769: cloudless-ish sky, sun behind the shoulder, for the wind-combed cirrus layer.
+	["aft_side_clear", SkyWeather3D.WEATHER_CLEAR, 0.71, 60.0, 18.0, 85.0],
 	# R-1768: steep view so the deck fills the frame (overhead lobes, bench worst case).
 	["up_cloudy", SkyWeather3D.WEATHER_CLOUDY, 0.71, 60.0, 50.0, 85.0],
 	["gold_side_cloudy", SkyWeather3D.WEATHER_CLOUDY, 0.80, 70.0, 14.0, 80.0],

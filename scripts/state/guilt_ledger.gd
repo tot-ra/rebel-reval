@@ -112,6 +112,27 @@ func record_kill(act_id: StringName) -> Dictionary:
 	return LETHAL_WEIGHT.duplicate()
 
 
+## ADR 0048 (SPL-2): record `act_id` once with authored weights instead of a circumstance - a
+## dark spirit spell's `guilt` record, keyed `church` / `folk` / `civic` (or the full school id).
+## Returns the weights applied ({} when already recorded or nothing weighs).
+func record_weighted_act(act_id: StringName, weights: Dictionary, label: String) -> Dictionary:
+	if act_id == &"" or _recorded_acts.has(act_id):
+		return {}
+	var applied: Dictionary = {}
+	for key: Variant in weights:
+		var school := StringName(String(key))
+		if not has_school(school):
+			school = StringName("guilt.%s" % String(key))
+		if has_school(school) and int(weights[key]) > 0:
+			applied[school] = int(weights[key])
+	if applied.is_empty():
+		return {}
+	for school: StringName in applied:
+		_levels[school] = mini(MAX_LEVEL, level(school) + int(applied[school]))
+	_recorded_acts[act_id] = label
+	return applied
+
+
 func school_for_element(element: StringName) -> StringName:
 	return ELEMENT_SCHOOL.get(element, &"")
 

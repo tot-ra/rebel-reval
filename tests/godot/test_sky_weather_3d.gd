@@ -602,6 +602,7 @@ func test_sky_shader_covers_required_features() -> void:
 	assert_true("weather_rain" in source, "wet weather must suppress astronomical Milky Way visibility")
 	assert_true("weather_fade" in source, "Milky Way brightness must fade out in rain and overcast haze")
 	assert_true("cirrus_noise" in source, "high cirrus must use a sparse, varied streak mask")
+	assert_true("cirrus_amount" in source, "R-1769: the wind-combed cirrus layer must be driven by the day's roll")
 	assert_true("lightning" in source, "thunderstorms must throw lightning that lights their cell")
 	assert_true("lightning_bolt" in source, "a strike must draw a visible jagged bolt, not only a flash")
 	assert_true("moon_direction" in source, "the night sky must place a moon disk")
@@ -1302,3 +1303,27 @@ func test_cloud_slab_constants_match_the_shaders() -> void:
 	assert_true(dome.contains("uniform sampler2D cloud_slab_tex"))
 	assert_true(dome.contains("cloud_field(dir, AT_CUBEMAP_PASS ? vec3(0.0) : cloud_slab_sample(dir))"),
 		"the radiance cubemap keeps the lit deck")
+
+
+## R-1769: the cirrus roll is a pure function of the date: stable on revisit, varied across
+## days, and some days carry none. It must not consume the seeded weather RNG.
+func test_cirrus_amount_is_seeded_per_day() -> void:
+	var april := {"day": 21, "month": 4, "year": 1343}
+	assert_eq(
+		SkyWeather3D.cirrus_amount_for(april), SkyWeather3D.cirrus_amount_for(april.duplicate()),
+		"the same day must roll the same cirrus"
+	)
+	var none := 0
+	var seen := {}
+	for d in range(1, 31):
+		var amount := SkyWeather3D.cirrus_amount_for({"day": d, "month": 4, "year": 1343})
+		assert_true(amount >= 0.0 and amount <= 1.0, "cirrus amount stays in 0..1")
+		if amount == 0.0:
+			none += 1
+		seen[snappedf(amount, 0.01)] = true
+	assert_true(none >= 3 and none <= 20, "some days, but not most, have no cirrus (%d/30)" % none)
+	assert_true(seen.size() > 8, "amounts vary day to day")
+	assert_true(
+		SkyWeather3D.cirrus_seed_for(april) != SkyWeather3D.cirrus_seed_for({"day": 22, "month": 4, "year": 1343}),
+		"each day draws different streaks"
+	)

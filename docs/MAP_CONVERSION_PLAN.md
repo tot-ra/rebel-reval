@@ -211,6 +211,8 @@ Roles `level`, `map`, and `event` have full conversion specifications later in t
 | `tools/capture_site_edge_travel.tscn` | test | `retain` | Regional-site edge-to-travel-map capture host | ADR 0042 verification plate (walk into a site's edge band, global travel map opens); never release-playable | not a map definition |
 | `tools/capture_hud_gameplay_host.tscn` | test | `retain` | HUD gameplay capture host | Developer capture plate for the R-1698 HUD; never release-playable | not a map definition |
 | `tools/capture_world_showreel.tscn` | test | `retain` | README showreel capture host | Developer capture of live seamless-city clips; never release-playable | not a map definition |
+| `tools/capture_footings.tscn` | test | `retain` | City wall footing capture host | Developer-only capture host; never release-playable | not a map definition |
+| `tools/capture_wall_foot.tscn` | test | `retain` | City wall foot scatter capture host | Developer-only capture host; never release-playable | not a map definition |
 | `tools/profile_reval_city.tscn` | test | `retain` | Profile reval city tool scene | Developer-only capture or profiling host; never release-playable | not a map definition |
 
 ## Detailed map, level, and event specifications

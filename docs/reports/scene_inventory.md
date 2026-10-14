@@ -274,3 +274,5 @@ Both commands should print `135` on a clean checkout at this revision.
 | 194 | `tools/capture_city_jump.tscn` | partial | Developer capture tool (player jump in the seamless city). |
 | 195 | `tools/capture_grass_blueprint_iso.tscn` | partial | Developer capture tool (blueprint-map grass, third person vs painted iso). |
 | 196 | `tools/capture_spirit_trust_win.tscn` | partial | Developer capture tool (spirit duel trust win). |
+| 197 | `tools/capture_footings.tscn` | partial | Developer capture tool (city wall footings). |
+| 198 | `tools/capture_wall_foot.tscn` | partial | Developer capture tool (city wall foot scatter). |

@@ -145,6 +145,41 @@ func test_opponent_blow_flies_at_its_zone_and_is_spoken_in_a_bubble() -> void:
 	assert_true(_host.incoming_bolt() == null)
 
 
+func test_slots_hold_the_starters_and_take_a_catalogue_spell() -> void:
+	assert_eq(_host.words.spell_ids, [
+		&"spell.word.intimidate", &"spell.word.reproach", &"spell.word.call_to_duty",
+		&"spell.word.appeal_to_love", &"spell.word.appeal_to_conscience",
+	])
+	assert_eq(_host.words.direction(SLOT_FAITH), SpiritSpellCatalog.KIND_LOWERING)
+	assert_true(_host.words.set_slot_spell(SLOT_FAITH, &"spell.word.praise"))
+	assert_eq(_host.words.elements[SLOT_FAITH], &"shame", "the slot takes the spell's element")
+	assert_eq(_host.words.direction(SLOT_FAITH), SpiritSpellCatalog.KIND_RAISING)
+	assert_false(_host.words.set_slot_spell(SLOT_FAITH, &"spell.word.no_such"))
+	_host._refresh_cast_bar()
+	assert_eq(_host.cast_bar().slots[SLOT_FAITH]["direction"], "raising")
+	assert_eq(_host.cast_bar().slots[SLOT_SHAME]["direction"], "lowering")
+
+
+func test_a_raising_free_strike_builds_trust_and_moves_the_light() -> void:
+	assert_true(_host.words.set_slot_spell(SLOT_FAITH, &"spell.word.praise"))
+	var line := _host.words.spell_for(SLOT_FAITH)["lines"]["default"][0] as String
+	assert_true(_host.cast_word(SLOT_FAITH))
+	assert_eq(_host.cast_caption(), line, "a non-starter speaks its own catalogue line")
+	assert_eq(_willpower(), 8 - SpiritWordSpells.WORD_COST, "today's cost until SPL-3")
+	_host._process(0.6)
+	assert_almost_eq(_host.duel.trust, 2.0 * SpiritDuel.TRUST_PER_POINT, 0.001)
+	assert_eq(_host.duel.opponent.health, _host.duel.opponent.max_health, "no pressure")
+	assert_eq(_host.duel.duel_light(&"aspect.resonance"), 3)
+	assert_true(_host.hit_mark_texts()[0].contains("trust +16"), str(_host.hit_mark_texts()))
+	assert_false(_host.duel.is_over(), "the porter duel has no eased ending")
+
+
+func test_the_porter_duel_shows_no_trust_meter_and_cannot_be_left() -> void:
+	_host._process(0.0)
+	assert_eq(_host.trust_text(), "")
+	assert_false(_host.duel.can_leave())
+
+
 func test_retry_drops_words_still_in_flight() -> void:
 	_host.duel.hero.health = 1.0
 	assert_true(_host.cast_word(SLOT_FAITH))

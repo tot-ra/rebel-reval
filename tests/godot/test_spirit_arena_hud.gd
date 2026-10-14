@@ -222,6 +222,27 @@ func _shares_pad(action: StringName, event: InputEvent) -> bool:
 	return InputMap.has_action(action) and InputMap.action_has_event(action, event)
 
 
+func test_a_duel_with_an_eased_ending_shows_the_trust_meter_and_hold_to_leave() -> void:
+	var db := ContentDB.new()
+	var dirs: Array[String] = ["res://content/dialogue"]
+	dirs.append_array(CONTENT_DIRS)
+	assert_true(db.load_from_directories(dirs))
+	assert_true(_host.open_scripted(db, _state, &"dialogue.city.spirit_duel"))
+	_host._process(0.0)
+	assert_true(_host.trust_text().begins_with("Trust 0 / 100"), _host.trust_text())
+	assert_true(_host.trust_text().contains("to leave"), _host.trust_text())
+	Input.action_press(&"ui_cancel")
+	_host._process(SpiritArenaHost.LEAVE_HOLD_SEC * 0.5)
+	assert_false(_host.duel.is_over(), "a short press does not leave")
+	assert_almost_eq(_host.leave_progress(), 0.5, 0.01)
+	_host._process(SpiritArenaHost.LEAVE_HOLD_SEC * 0.6)
+	Input.action_release(&"ui_cancel")
+	assert_true(_host.duel.is_over())
+	assert_eq(_host.duel.ending(), SpiritDuel.ENDING_LEFT)
+	assert_eq(_host.end_banner_text(), "You step back")
+	assert_eq(_host.trust_text(), "", "the meter hides once the duel is over")
+
+
 func test_voice_hook_plays_an_existing_clip_only() -> void:
 	assert_false(_host.play_reply_voice(""))
 	assert_false(_host.play_reply_voice("res://does/not/exist.ogg"))

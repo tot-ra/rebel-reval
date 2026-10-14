@@ -8,9 +8,15 @@ extends "res://tests/godot/test_case.gd"
 
 const ProfileScript := preload("res://scripts/world/urban_population_profile.gd")
 const CrowdRenderer := preload("res://scripts/map/view3d/map_view_crowd_renderer.gd")
+const CityCitizensScript := preload("res://scripts/city/city_citizens.gd")
 const POPULATION_MANIFEST_PATH := "res://docs/reports/population_clusters_r419.json"
 const EXPECTED_MAP_ID := "lower_town_slice"
 const EXPECTED_RENDERER_CAPACITY := 64
+
+
+func test_seamless_city_census_rig_limits_are_bounded() -> void:
+	assert_eq(CityCitizensScript.MAX_LIVE, 12, "street resident rigs are capped at twelve")
+	assert_eq(CityCitizensScript.MAX_INDOOR, 6, "furnished-house resident rigs are capped at six")
 
 
 func test_r419_scenarios_fit_renderer_and_profile_caps() -> void:
@@ -35,10 +41,16 @@ func test_r419_scenarios_fit_renderer_and_profile_caps() -> void:
 		var profile := ProfileScript.resolve(profile_id, phase_id, date, int(scenario.get("seed", 0)))
 		var active_count := int(scenario.get("active_count", -1))
 
-		assert_eq(profile["profile_id"], profile_id, "%s profile must resolve canonically" % String(profile_id))
+		assert_eq(
+			profile["profile_id"], profile_id,
+			"%s profile must resolve canonically" % String(profile_id)
+		)
 		assert_eq(profile["civilian_count"], int(scenario.get("civilian_count", -1)))
 		assert_eq(profile["watch_count"], int(scenario.get("watch_count", -1)))
-		assert_eq(profile["total_count"], active_count, "%s active count must match its profile" % String(profile_id))
+		assert_eq(
+			profile["total_count"], active_count,
+			"%s active count must match its profile" % String(profile_id)
+		)
 		assert_true(
 			active_count <= int(profile["actor_cap"]),
 			"profile %s exceeds its authored actor cap" % String(profile_id),
@@ -58,7 +70,10 @@ func test_renderer_capacity_accepts_the_largest_published_scenario() -> void:
 	var largest_active_count := 0
 	for raw_scenario: Variant in manifest.get("scenarios", []):
 		if raw_scenario is Dictionary:
-			largest_active_count = maxi(largest_active_count, int((raw_scenario as Dictionary).get("active_count", 0)))
+			largest_active_count = maxi(
+				largest_active_count,
+				int((raw_scenario as Dictionary).get("active_count", 0))
+			)
 	assert_eq(largest_active_count, 33, "market day is the largest published crowd")
 	for actor_index in largest_active_count:
 		renderer.set_actor_position(actor_index, Vector3(float(actor_index), 0.0, 0.0))

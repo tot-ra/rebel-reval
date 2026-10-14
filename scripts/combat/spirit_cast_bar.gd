@@ -8,6 +8,8 @@ extends Control
 ## R-1872: each tile shows the word's painted sigil (assets/UI/spirit_words, provenance in
 ## assets/SOURCES.csv) framed in the element colour, with the word's name and slot key below;
 ## an element without a sigil falls back to its coloured tile and initial.
+## ADR 0048 (SPL-2): a small arrow in the tile's top-right corner says which way the slot's spell
+## moves the light it reaches: down (lowering, pressure), up (raising, trust) or both (mixed).
 
 const TILE := 56.0
 const GAP := 10.0
@@ -26,8 +28,12 @@ const ANSWER_RIM := Color(1.0, 0.82, 0.36)
 const SWEEP_COLOR := Color(0.0, 0.0, 0.0, 0.62)
 const SWEEP_SEGMENTS := 24
 const WEAK_COLOR := Color(1.0, 0.95, 0.75)
+const ARROW_SIZE := 9.0
+const RAISE_COLOR := Color(0.55, 0.92, 0.60)
+const LOWER_COLOR := Color(0.98, 0.50, 0.42)
 
-## Per slot: {element, key, cooldown (0..1), answers (bool), blocked (bool), weak (bool)}.
+## Per slot: {element, key, cooldown (0..1), answers (bool), blocked (bool), weak (bool),
+## direction ("lowering" / "raising" / "mixed"; absent draws no arrow)}.
 var slots: Array[Dictionary] = []
 
 
@@ -68,6 +74,7 @@ func _draw() -> void:
 			_draw_sweep(rect, cooldown)
 		var rim := ANSWER_RIM if bool(slot.get("answers", false)) else Color(0.0, 0.0, 0.0, 0.7)
 		draw_rect(rect, rim, false, 3.0 if bool(slot.get("answers", false)) else 1.0)
+		_draw_direction(rect, String(slot.get("direction", "")))
 		if bool(slot.get("weak", false)):
 			draw_string(font, rect.position + Vector2(0.0, -4.0), "weak", HORIZONTAL_ALIGNMENT_CENTER, TILE, 12, WEAK_COLOR)  # gdlint: ignore=max-line-length
 		draw_string(
@@ -101,3 +108,29 @@ func _draw_sweep(rect: Rect2, fraction: float) -> void:
 	)
 	for polygon: PackedVector2Array in clipped:
 		draw_colored_polygon(polygon, SWEEP_COLOR)
+
+
+## Raise / lower arrows in the tile's top-right corner (mixed shows both, side by side).
+func _draw_direction(rect: Rect2, direction: String) -> void:
+	var corner := Vector2(rect.end.x - ARROW_SIZE - 3.0, rect.position.y + 3.0)
+	match direction:
+		"lowering":
+			_draw_arrow(corner, false)
+		"raising":
+			_draw_arrow(corner, true)
+		"mixed":
+			_draw_arrow(corner, true)
+			_draw_arrow(corner - Vector2(ARROW_SIZE + 2.0, 0.0), false)
+
+
+func _draw_arrow(at: Vector2, up: bool) -> void:
+	var w := ARROW_SIZE
+	var points := (
+		PackedVector2Array([at + Vector2(w * 0.5, 0.0), at + Vector2(w, w), at + Vector2(0.0, w)])
+		if up
+		else PackedVector2Array([at, at + Vector2(w, 0.0), at + Vector2(w * 0.5, w)])
+	)
+	var outline := points.duplicate()
+	outline.append(points[0])
+	draw_colored_polygon(points, RAISE_COLOR if up else LOWER_COLOR)
+	draw_polyline(outline, Color(0.0, 0.0, 0.0, 0.8), 1.0)

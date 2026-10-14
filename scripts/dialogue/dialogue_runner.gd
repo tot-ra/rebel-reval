@@ -178,6 +178,16 @@ func select_choice(choice_id: String) -> bool:
 	return _enter_node(target_id)
 
 
+## Enter `node_id` directly, dropping a pending line or reply window. ADR 0048 (SPL-2): a spirit
+## duel ends by pressure, trust or leaving at an authored resolution node, wherever the talk is.
+func jump_to(node_id: String) -> bool:
+	if not _active or not _nodes_by_id.has(node_id):
+		return false
+	_waiting_for_choice = false
+	_pending_choices.clear()
+	return _enter_node(node_id)
+
+
 func try_advance(event: InputEvent) -> bool:
 	if not _active or _waiting_for_choice or not _input_enabled or not _is_continue_event(event):
 		return false

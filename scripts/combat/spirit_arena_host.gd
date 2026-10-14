@@ -1,3 +1,6 @@
+# gdlint:disable=max-file-lines
+# Why: the arena host keeps the duel HUD, telegraphs and hit marks in one scene script;
+# splitting it is tracked separately, so the cap is waived here instead of raised globally.
 class_name SpiritArenaHost
 extends CanvasLayer
 ## Screen host for a SpiritDuel (ADR 0033, SD-04). Opening it freezes the world
@@ -52,6 +55,18 @@ const COMPACT_BOTTOM_CLEARANCE := 150.0
 const LIGHT_RULE_HINT := (
 	"Each word strikes the soul light of its colour. Dim lights are weak points."
 )
+## ADR 0048 (SPL-2): holding `ui_cancel` this long leaves a duel that authors `resolved_left`.
+const LEAVE_HOLD_SEC := 1.0
+const TRUST_COLOR := Color(0.52, 0.80, 0.55)
+## End banners by ending: [title, subtitle, colour].
+const ENDING_BANNERS: Dictionary = {
+	SpiritDuel.ENDING_EASED: [
+		"They are at peace", "You won their trust, not their will.", Color(0.62, 0.90, 0.66)
+	],
+	SpiritDuel.ENDING_LEFT: [
+		"You step back", "You leave the dispute unsettled.", Color(0.80, 0.80, 0.86)
+	],
+}
 
 var duel := SpiritDuel.new()
 var observation := SpiritObservation.new()
@@ -129,6 +144,7 @@ var _hit_marks: Array[Dictionary] = []
 ## An answering word deals its pressure when cast (the dialogue moves on at once); the amount
 ## is kept by bolt id and shown when the bolt reaches the light.
 var _bolt_damage: Dictionary = {}
+var _bolt_trust: Dictionary = {}
 var _last_exchange: Dictionary = {}
 ## Captions of the 2D composure/pressure bars; hidden with them in the real-time arena.
 var _bar_captions: Array[Label] = []
@@ -138,6 +154,13 @@ var _column: VBoxContainer
 var _opponent_ring: CharacterHealthRing3D
 var _ring_owned := false
 var _ring_was_visible := false
+## SPL-2 trust meter (shown when the duel can end eased) and the hold-to-leave timer.
+var _trust_row: Control
+var _trust_bar: ProgressBar
+var _trust_caption: Label
+var _leave_held := 0.0
+## The aura view's own profile while the duel shows its shifted copies; restored on close.
+var _aura_profile_before: SpiritAuraProfile
 
 
 func _init() -> void:
@@ -241,6 +264,7 @@ func open(content_db: ContentDB, state: GameState, dialogue_id: StringName) -> b
 	duel.hero_aura = hero_aura
 	if opponent_aura != null and hero_aura == null:
 		duel.hero_aura = SpiritAuraProfile.for_character(duel.hero_id, content_db, state)
+	duel.opponent_id = _opponent_guilt_id()
 	if not duel.begin(_runner, content_db, state, dialogue_id):
 		_teardown()
 		return false
@@ -268,6 +292,8 @@ func open(content_db: ContentDB, state: GameState, dialogue_id: StringName) -> b
 		get_tree().paused = true
 	if is_instance_valid(opponent_aura_view):
 		opponent_aura_view.bind_duel(duel)
+		_aura_profile_before = opponent_aura_view.profile
+	_leave_held = 0.0
 	_vfx.bind(duel, self, _composure_bar, _pressure_bar)
 	add_to_group(SpiritSightScript.DUEL_OPEN_GROUP)
 	opened.emit(dialogue_id)
@@ -383,6 +409,9 @@ func _process(delta: float) -> void:
 					close()
 			else:
 				observation.step()
+		return
+	_tick_leave(delta)
+	if not _open:
 		return
 	_tick_motion(delta)
 	duel.tick(delta)
@@ -520,6 +549,29 @@ func _write_position(body: Node, at: Vector3) -> void:
 		(body as Node2D).global_position = MapViewBridge.world_to_logic(at, _cell_size)
 
 
+## SPL-2: holding `ui_cancel` leaves a duel that can be left (`resolved_left`).
+func _tick_leave(delta: float) -> void:
+	if _observing or not duel.can_leave():
+		_leave_held = 0.0
+		return
+	_leave_held = _leave_held + delta if Input.is_action_pressed(&"ui_cancel") else 0.0
+	if _leave_held >= LEAVE_HOLD_SEC:
+		_leave_held = 0.0
+		duel.leave()
+
+
+## How long `ui_cancel` has been held toward leaving (0 .. 1 of LEAVE_HOLD_SEC).
+func leave_progress() -> float:
+	return clampf(_leave_held / LEAVE_HOLD_SEC, 0.0, 1.0)
+
+
+## WHY _input: in the city Esc opens the pause menu from _unhandled_input; while a duel can be
+## left, Esc means "hold to leave", so its press is eaten before the menu sees it.
+func _input(event: InputEvent) -> void:
+	if _open and not _observing and duel.can_leave() and event.is_action(&"ui_cancel"):
+		get_viewport().set_input_as_handled()
+
+
 func _unhandled_input(event: InputEvent) -> void:
 	if _open and not _observing and event.is_action_pressed(&"interact") and _won_and_over():
 		close()
@@ -545,6 +597,10 @@ func vfx() -> SpiritArenaVfx:
 func _teardown() -> void:
 	if is_instance_valid(opponent_aura_view):
 		opponent_aura_view.unbind_duel()
+		# The duel's shifts lived only for the duel (ADR 0048 decision 1).
+		if _aura_profile_before != null:
+			opponent_aura_view.set_profile(_aura_profile_before)
+	_aura_profile_before = null
 	_vfx.unbind()
 	_form_view.unbind()
 	if observation.line_seen.is_connected(_on_line):
@@ -662,6 +718,7 @@ func cast_word(slot: int) -> bool:
 	var bolt: Dictionary = result["bolt"]
 	if not String(result.get("answered_choice_id", "")).is_empty():
 		_bolt_damage[int(bolt["id"])] = float(_last_exchange.get("damage", 0.0))
+		_bolt_trust[int(bolt["id"])] = float(_last_exchange.get("trust_gained", 0.0))
 	var node := SpiritWordBolt.new().setup(
 		StringName(String(result["element"])),
 		bolt["from"] as Vector3,
@@ -754,6 +811,10 @@ func play_reply_voice(path: String) -> bool:
 
 func _on_exchange(result: Dictionary) -> void:
 	_last_exchange = result
+	# SPL-2: a spell moved the opponent's lights for this duel; the aura view shows the copies.
+	if not (result.get("shifts", []) as Array).is_empty() and is_instance_valid(opponent_aura_view):
+		if opponent_aura_view.profile != null:
+			opponent_aura_view.set_profile(duel.duel_profile())
 	if String(result.get("kind", "")) == "hesitation":
 		_hint_label.text = "You hesitate... the words come slower. Cast a reply."
 
@@ -863,11 +924,15 @@ func _on_phase(phase: StringName) -> void:
 			_hint_label.text = ""
 			_clear_choices()
 			_win_close_left = WIN_AUTO_CLOSE_SEC
-			_show_end_banner(
-				"The duel is won",
-				"Their will breaks." if bool(duel.last_outcome.get("broken", false)) else "The dispute is settled.",  # gdlint: ignore=max-line-length
-				Color(0.98, 0.86, 0.52)
-			)
+			var banner: Array = ENDING_BANNERS.get(duel.ending(), [])
+			if not banner.is_empty():
+				_show_end_banner(String(banner[0]), String(banner[1]), banner[2] as Color)
+			else:
+				_show_end_banner(
+					"The duel is won",
+					"Their will breaks." if bool(duel.last_outcome.get("broken", false)) else "The dispute is settled.",  # gdlint: ignore=max-line-length
+					Color(0.98, 0.86, 0.52)
+				)
 		SpiritDuel.PHASE_LOST:
 			_hint_label.text = "Your composure broke. Retry"
 			_show_end_banner(
@@ -931,6 +996,7 @@ func _refresh_bars() -> void:
 	if duel.telegraph_sec > 0.0:
 		_telegraph_arc.parry_fraction = duel.hero.parry_window_sec / duel.telegraph_sec
 	_reply_ring.progress = duel.reply_window_progress()
+	_refresh_trust()
 	_refresh_cast_bar()
 
 
@@ -1003,6 +1069,7 @@ func _build_ui() -> void:
 	_cast_bar.name = "CastBar"
 	_cast_bar.visible = false
 	reply_row.add_child(_cast_bar)
+	_build_trust_row(column)
 	_hint_label = Label.new()
 	_hint_label.name = "Hint"
 	column.add_child(_hint_label)
@@ -1124,6 +1191,7 @@ func _refresh_cast_bar() -> void:
 				"answers": not words.answering_choice(index).is_empty(),
 				"blocked": words.block_reason(index) not in ["", SpiritWordSpells.REASON_COOLDOWN],
 				"weak": is_weak_light(words.elements[index]),
+				"direction": String(words.direction(index)),
 			}
 		)
 	_cast_bar.set_slots(slots)
@@ -1142,9 +1210,14 @@ func _tick_words(delta: float) -> void:
 			hit_at = (landed as SpiritWordBolt).to
 			landed.queue_free()
 		var dealt := float(bolt.get("dealt", _bolt_damage.get(id, 0.0)))
+		var built := float(bolt.get("trust", _bolt_trust.get(id, 0.0)))
 		_bolt_damage.erase(id)
+		_bolt_trust.erase(id)
 		if hit_at != Vector3.INF:
-			mark_light_hit(StringName(String(bolt["element"])), hit_at, dealt)
+			mark_light_hit(
+				StringName(String(bolt["element"])), hit_at, dealt, built,
+				int(bolt.get("level", -1))
+			)
 	_tick_hit_marks(delta)
 	for bolt: Dictionary in words.bolts:
 		var node: SpiritWordBolt = _word_bolts.get(int(bolt["id"]))
@@ -1249,24 +1322,33 @@ func light_target(element: StringName) -> Vector3:
 func is_weak_light(element: StringName) -> bool:
 	if SpiritDuel.light_for_element(element).is_empty():
 		return false
-	return SpiritDuel.light_level(duel.opponent_aura, element) <= 1
+	return duel.duel_light_level(element) <= 1
 
 
 ## Label of a word that struck the light of `element`, e.g. "Love light  -9" with a second line
-## when the light was a weak point.
-func light_hit_text(element: StringName, damage: float) -> String:
+## when the light was a weak point. `trust` (SPL-2) adds the trust a raising word built; `level`
+## is the light as the word found it (-1: as it is now), since the word itself may have moved it.
+func light_hit_text(element: StringName, damage: float, trust := 0.0, level := -1) -> String:
 	var text := "%s light" % String(element).capitalize()
-	text += ("  -%d" % roundi(damage)) if damage > 0.0 else "  no effect"
-	if is_weak_light(element) and damage > 0.0:
-		var level := SpiritDuel.light_level(duel.opponent_aura, element)
+	if damage > 0.0:
+		text += "  -%d" % roundi(damage)
+	if trust > 0.0:
+		text += "  trust +%d" % roundi(trust)
+	if damage <= 0.0 and trust <= 0.0:
+		text += "  no effect"
+	var found := level if level >= 0 else duel.duel_light_level(element)
+	var weak := not SpiritDuel.light_for_element(element).is_empty() and found <= 1
+	if weak and damage > 0.0:
 		text += "\nweak point  x%s" % (
-			str(SpiritDuel.CLOSED_LIGHT_WORD_FACTOR) if level == 0 else str(SpiritDuel.DIM_LIGHT_WORD_FACTOR)
+			str(SpiritDuel.CLOSED_LIGHT_WORD_FACTOR) if found == 0 else str(SpiritDuel.DIM_LIGHT_WORD_FACTOR)
 		)
 	return text
 
 
 ## Flash the struck light at `at`, dim it on the opponent's aura and float the hit label.
-func mark_light_hit(element: StringName, at: Vector3, damage: float) -> void:
+func mark_light_hit(
+		element: StringName, at: Vector3, damage: float, trust := 0.0, level := -1
+) -> void:
 	if arena_3d == null:
 		return
 	var color: Color = SpiritSpellCard.ELEMENT_COLORS.get(
@@ -1301,7 +1383,7 @@ func mark_light_hit(element: StringName, at: Vector3, damage: float) -> void:
 	label.outline_modulate = Color(color.darkened(0.45), 0.95)
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	label.modulate = Color(1.0, 0.97, 0.9).lerp(color, 0.25)
-	label.text = light_hit_text(element, damage)
+	label.text = light_hit_text(element, damage, trust, level)
 	for node: Node3D in [flash, glow, label]:
 		arena_3d.add_child(node)
 	flash.global_position = at
@@ -1397,3 +1479,63 @@ func _hide_end_banner() -> void:
 ## The end banner's title, "" while it is hidden.
 func end_banner_text() -> String:
 	return _end_title.text if _end_banner != null and _end_banner.visible else ""
+
+
+## SPL-2: the trust meter under the cast bar, with the hold-to-leave hint when the duel allows it.
+func _build_trust_row(parent: Control) -> void:
+	var row := HBoxContainer.new()
+	row.name = "TrustRow"
+	row.add_theme_constant_override("separation", 10)
+	row.visible = false
+	_trust_caption = Label.new()
+	_trust_caption.name = "TrustCaption"
+	_trust_caption.add_theme_color_override("font_color", TRUST_COLOR.lightened(0.3))
+	row.add_child(_trust_caption)
+	_trust_bar = ProgressBar.new()
+	_trust_bar.name = "TrustBar"
+	_trust_bar.custom_minimum_size = BAR_SIZE
+	_trust_bar.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	_trust_bar.show_percentage = false
+	_trust_bar.max_value = SpiritDuel.TRUST_MAX
+	_trust_bar.add_theme_stylebox_override("fill", _fill_style(TRUST_COLOR))
+	row.add_child(_trust_bar)
+	parent.add_child(row)
+	_trust_row = row
+
+
+func _refresh_trust() -> void:
+	var easeable := (
+		_open and not _observing and not duel.is_over()
+		and (_runner.get_duel().get("resolution_node_ids", []) as Array).has(
+			String(SpiritDuel.ENDING_EASED)
+		)
+	)
+	_trust_row.visible = easeable
+	if not easeable:
+		return
+	_trust_bar.value = duel.trust
+	var caption := "Trust %d / %d" % [roundi(duel.trust), roundi(SpiritDuel.TRUST_MAX)]
+	if duel.can_leave():
+		caption += "    Hold [%s] to leave" % _binding_label(&"ui_cancel", 1)
+	_trust_caption.text = caption
+
+
+## The trust meter (tests and captures).
+func trust_bar() -> ProgressBar:
+	return _trust_bar
+
+
+## The trust caption ("" while the meter is hidden).
+func trust_text() -> String:
+	return _trust_caption.text if _trust_row.visible else ""
+
+
+## The stable id of the logic-plane opponent (a resident's `guilt_context().id`), else "".
+func _opponent_guilt_id() -> StringName:
+	if (
+		_opponent_body != null
+		and is_instance_valid(_opponent_body)
+		and _opponent_body.has_method(&"guilt_context")
+	):
+		return StringName(String((_opponent_body.call(&"guilt_context") as Dictionary).get("id", "")))
+	return &""

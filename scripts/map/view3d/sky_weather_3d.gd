@@ -49,6 +49,8 @@ const ALL_WEATHERS: Array[StringName] = [
 
 ## Fixed seed: same weather sequence on every launch (deterministic, reviewable).
 const WEATHER_SEED := 24217
+## R-1769: share of days with no cirrus at all.
+const CIRRUS_NONE_SHARE := 0.35
 const TRANSITION_SECONDS := 12.0
 ## Bank masses cross the dome at this rate; detail churns faster for edge chaos.
 ## Speed only: heading comes from wind_direction_xz() (R-955). CLEAR at noon
@@ -1664,6 +1666,35 @@ func cloud_coverage() -> float:
 	return float(_current["coverage"])
 
 
+## R-1769: how much high cirrus the current calendar day carries, 0..1. A pure hash of the
+## weather seed and the date: it never draws from _rng, so the seeded weather chain keeps its
+## exact sequence, and a day looks the same whenever it is revisited. About a third of days
+## return 0 (clear sky with no streaks at all).
+static func cirrus_amount_for(date: Dictionary) -> float:
+	var roll := float(_cirrus_hash(date, 0) & 0xFFFF) / 65535.0
+	if roll < CIRRUS_NONE_SHARE:
+		return 0.0
+	return lerpf(0.35, 1.0, (roll - CIRRUS_NONE_SHARE) / (1.0 - CIRRUS_NONE_SHARE))
+
+
+## Noise-domain shift for the day's streaks, so each day draws a different pattern.
+static func cirrus_seed_for(date: Dictionary) -> Vector2:
+	return Vector2(
+		float(_cirrus_hash(date, 1) & 0xFFFF) / 65535.0,
+		float(_cirrus_hash(date, 2) & 0xFFFF) / 65535.0
+	) * 4.0
+
+
+static func _cirrus_hash(date: Dictionary, salt: int) -> int:
+	var h := WEATHER_SEED * 73856093 + salt * 2654435761
+	h ^= int(SeasonState.day_of_year_for(date)) * 19349663
+	h ^= int(date.get("year", 1343)) * 83492791
+	# Avalanche so neighbouring days do not look alike.
+	h = (h ^ (h >> 15)) * 2246822519 & 0x7FFFFFFF
+	h = (h ^ (h >> 13)) * 3266489917 & 0x7FFFFFFF
+	return h ^ (h >> 16)
+
+
 func cloud_chaos() -> float:
 	return float(_current["chaos"])
 
@@ -2390,6 +2421,8 @@ func _push_cloud_uniforms() -> void:
 		&"cell_ray_samples", int(march.get("ray", settings["cloud_cell_ray_samples"]))
 	)
 	_material.set_shader_parameter(&"wind_dir", wind_direction_xz())
+	_material.set_shader_parameter(&"cirrus_amount", cirrus_amount_for(calendar_date))
+	_material.set_shader_parameter(&"cirrus_seed", cirrus_seed_for(calendar_date))
 	_publish_cloud_shadow_globals()
 
 

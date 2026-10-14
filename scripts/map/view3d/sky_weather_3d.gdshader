@@ -396,13 +396,13 @@ vec3 cloud_field(vec3 dir, vec3 slab) {
 		// Uncinus: a slow cross-wind wobble bends the streak axis into hooks and tails.
 		float hook = texture(cloud_noise, vec2(ci_along * 0.035, ci_across * 0.30) + cirrus_seed).r - 0.5;
 		float bent = ci_along + hook * 2.4;
-		float streak = texture(cloud_noise, vec2(bent * 0.05, ci_across * 1.5) + cirrus_seed * 0.37).r;
-		float fibre = texture(cloud_noise, vec2(bent * 0.13, ci_across * 4.6) - cirrus_seed * 0.21).r;
+		float streak = texture(cloud_noise, vec2(bent * 0.05, ci_across * 0.95) + cirrus_seed * 0.37).r;
+		float fibre = texture(cloud_noise, vec2(bent * 0.13, ci_across * 3.2) - cirrus_seed * 0.21).r;
 		// Large, soft patches keep it a few drifts of streaks rather than a sheet.
 		float patch = smoothstep(0.42, 0.68, texture(cloud_noise,
 			vec2(ci_along * 0.018, ci_across * 0.05) + cirrus_seed * 0.5).r);
 		float fibratus = smoothstep(0.56, 0.86, streak * 0.7 + fibre * 0.3) * mix(0.55, 1.0, fibre);
-		float high_ice = fibratus * patch * cirrus_amount * 0.5
+		float high_ice = fibratus * patch * cirrus_amount * 0.62
 			* (1.0 - local_storm) * (1.0 - smoothstep(0.7, 0.95, cloud_coverage));
 		light = mix(light, 0.97, high_ice * (1.0 - density));
 		density += high_ice * (1.0 - density);
