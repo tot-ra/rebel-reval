@@ -72,7 +72,7 @@ Review: `tools/godot_render.sh --script tools/capture_terrain_relief.gd` renders
 
 ### Wall foot
 
-Status: implemented (task **R-1930**). Scope: the ground side of every joint between the city ground and a building, a site building or a site wall (close walls, plank fences). Out of scope: the wall shaders (plinth and wall grime are a separate task), the 3D grass blades and forbs (they still grow up to the wall), interiors.
+Status: implemented (task **R-1930**). Scope: the ground side of every joint between the city ground and a building, a site building or a site wall (close walls, plank fences). Out of scope: the wall shaders (plinth and wall grime: R-1931 below), the 3D grass blades and forbs (they still grow up to the wall), interiors.
 
 Before, a clean terrain plate met a clean wall in one pixel-sharp straight line. Now a ragged band runs along every wall foot:
 
@@ -89,6 +89,26 @@ Data: `CityShadeMask` (`scripts/city/city_shade_mask.gd`) bakes a B channel into
 Verify: `test_shade_mask_blue_is_signed_distance_to_walls` in `tests/godot/test_city_forest_floor.gd` (wall line decodes near 0, 1.5 m out reads outside, 1 m in reads inside). Review capture: `tools/godot_render.sh --resolution 1600x900 res://tools/capture_wall_foot.tscn -- --tag=after` (forge street next to Kalev in the painted-iso camera, plus a close oblique of the nearest sunlit wall). Before/after: [`wall_foot_iso_before.jpg`](../reports/images/city/wall_foot_iso_before.jpg), [`wall_foot_iso_after.jpg`](../reports/images/city/wall_foot_iso_after.jpg), [`wall_foot_close_before.jpg`](../reports/images/city/wall_foot_close_before.jpg), [`wall_foot_close_after.jpg`](../reports/images/city/wall_foot_close_after.jpg).
 
 Limits: the distance is sampled on 2 m texels, so outer corners round off and inner corners between close walls are approximate; the noise hides it at gameplay range. The snow strip has not had a winter review capture yet.
+
+#### Wall side of the foot
+
+Status: implemented (task **R-1931**). Scope: the wall side of the same joint, on every outdoor city wall family: plank and log houses, weathered stone and plaster (`city_weathered_wall.gdshader`, also plinths and the fortification masonry) and the sites' outdoor lime render (`city_limewash.gdshader` with `outdoor`). Out of scope: interiors (they keep the `floor_y` grime band), the site kits' plain `StandardMaterial3D` ashlar and plank surfaces, roofs.
+
+Before, the wall above the plinth (and the plinth itself) was clean right down to a straight bottom edge. Now one shared helper, `wall_foot()` in `scripts/city/city_weathering.gdshaderinc`, lays a band on each wall foot:
+
+- **Measured from the local street:** `above` is the height over the city heightfield (`ground_height` / `ground_rect`, bound by `CityBuildingBuilder.bind_ground`), not one floor height, so the band climbs and drops with a sloped lane.
+- **Ragged top:** world-space fbm on `pos.xz` sets the top between 0.15 and 0.7 m (continuous round corners); thin vertical drip runs (5-10 cm wide, up to 0.45 m long, each its own length) reach above it, so no horizontal line remains.
+- **Splash mud:** the wall's own albedo desaturated to the warm grey-brown of the ground band's packed earth and darkened 30-60 %, speckled by grit, heaviest at the ground. Relative to the albedo (the plates are dark and lifted by exposure), so it neither vanishes on pale stone nor glows on dark timber.
+- **Damp:** a further 18 % darkening and slightly lower roughness (kept mild: a glossy band catches the sky and reads lighter). The band also raises the `wetness` response.
+- **Rot:** on plank and log walls (`rot` = 1, set by `CityBuildingBuilder.wall_material`) ragged blackened grey patches from the bottom.
+- **Shade:** north faces take a green tinge in the band; moss cushions still come from `shade_growth()` (R-1661).
+- **Contact:** the last 6-11 cm are up to 38 % darker.
+
+Strength scales with the wall's `age` (weathered plates more, tarred ones less). Cost: the helper returns early above 1.4 m and on near-horizontal faces, about a dozen value-noise taps below. The older soft rising-damp gradient of the weathered wall stays (at reduced strength); its top is too soft to draw a line. The sites' outdoor render is now `CityBuildingBuilder.outdoor_limewash_material()` (cached with the city materials, so it rebinds with the heightfield) instead of a site-kit copy measured from y = 0.
+
+Verify: `tests/godot/test_city_wall_foot_band.gd` (timber walls rot, stone does not; walls and render are bound to the heightfield; both shaders call the shared helper from local ground). Review capture: `tools/godot_render.sh --resolution 1600x900 res://tools/capture_wall_foot.tscn -- --tag=band_after` now adds `wall_foot_slope_<tag>.jpg`, an oblique of the south-facing wall within 120 m whose ground falls most along it (2.9 m at the forge street). Before/after crops: [`wall_band_close_compare.jpg`](../reports/images/city/wall_band_close_compare.jpg) (forge street plank house and plinth, top before, bottom after), [`wall_band_slope_compare.jpg`](../reports/images/city/wall_band_slope_compare.jpg) (sloped street).
+
+Limits: the band is measured from the street, so a plank wall standing on a tall plinth on a slope gets it only where the plinth is low (physically right: the splash comes from the ground). The site kits' plain ashlar and plank materials have no band yet.
 
 ### How buildings are built
 

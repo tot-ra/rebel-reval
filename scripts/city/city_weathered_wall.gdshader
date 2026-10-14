@@ -3,6 +3,8 @@ render_mode blend_mix, depth_draw_opaque, cull_back, diffuse_burley, specular_sc
 
 #include "res://scripts/city/city_weathering.gdshaderinc"
 
+uniform float rot = 0.0; // R-1931: 1 on plank and log walls (rot at the foot)
+
 void vertex() {
 	w_pos = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
 	w_nrm = normalize((MODEL_MATRIX * vec4(NORMAL, 0.0)).xyz);
@@ -21,15 +23,11 @@ void fragment() {
 
 	float above = w_pos.y - ground_at(w_pos.xz);
 	float ragged = wfbm(w_pos.xz * 1.7 + w_pos.y * 0.3);
-	// Rising damp and splash dirt: dark, slightly green on the shaded (north) side.
+	// Rising damp: a soft dark, slightly green gradient on the shaded (north)
+	// side; its top is so soft it draws no line.
 	float damp = 1.0 - smoothstep(0.15, 0.9 + ragged * 0.9, above);
 	vec3 dirt = mix(vec3(0.42, 0.37, 0.30), vec3(0.33, 0.37, 0.27), clamp(-w_nrm.z, 0.0, 1.0) * 0.7);
-	col = mix(col, col * dirt * 1.6, damp * 0.75 * age);
-	// R-1760: rain splash from the street: a darker, speckled band in the first
-	// ~0.4 m, so every house stands in its dirt instead of on a clean line.
-	float splash = (1.0 - smoothstep(0.05, 0.35 + ragged * 0.25, above))
-		* (0.7 + 0.3 * wnoise(w_pos.xz * 23.0 + w_pos.y * 17.0));
-	col *= 1.0 - splash * 0.5 * max(age, 0.6);
+	col = mix(col, col * dirt * 1.6, damp * 0.5 * age);
 	// Rain streaks: narrow vertical runs, strongest high on the wall.
 	vec2 along = vec2(dot(w_pos.xz, vec2(w_nrm.z, -w_nrm.x)) * 6.0, w_pos.y * 0.35);
 	float streak = smoothstep(0.62, 0.9, wnoise(along)) * smoothstep(0.4, 0.9, wnoise(along * vec2(0.3, 1.0) + 9.0));
@@ -37,8 +35,10 @@ void fragment() {
 	// Patchy weathering so no two stretches of wall match.
 	col *= mix(0.88, 1.06, wfbm(w_pos.xz * 0.21 + w_pos.y * 0.13));
 	float rough = roughness_base;
+	// R-1931: ragged splash, damp and rot band at the foot (shared helper).
+	float foot = wall_foot(col, rough, w_pos, w_nrm, above, max(age, 0.6), rot);
 	col = shade_growth(col, nm, rough, w_pos, w_nrm, above, age);
-	float wet = clamp(wetness * (0.6 + damp * 0.4), 0.0, 1.0);
+	float wet = clamp(wetness * (0.6 + max(damp, foot) * 0.4), 0.0, 1.0);
 	ALBEDO = col * mix(1.0, 0.7, wet);
 	ROUGHNESS = mix(rough, 0.45, wet);
 	NORMAL_MAP = nm;

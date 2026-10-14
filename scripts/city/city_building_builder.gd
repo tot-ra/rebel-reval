@@ -191,8 +191,26 @@ static func wall_material(family: StringName, stem := "") -> Material:
 			plate.uv1_scale = MapViewMaterials.BUILDING_MATERIALS.library_world_uv_density(stem)
 			age = float(HouseWealth.STEM_AGE.get(stem, 1.0))
 			tint = HouseWealth.STEM_TINT.get(stem, tint)
-		_materials[key] = weathered_wall(plate, tint, age)
+		var mat := weathered_wall(plate, tint, age)
+		# R-1931: timber walls rot at the foot (city_weathering wall_foot).
+		mat.set_shader_parameter("rot", 1.0 if family in [&"plank", &"log"] else 0.0)
+		_materials[key] = mat
 	return _materials[key]
+
+
+## White lime render outside (site kits' "render"): the lime wash shader in
+## outdoor mode, bound to the city heightfield so its wall-foot band follows
+## the local street (R-1931).
+static func outdoor_limewash_material() -> Material:
+	if not _materials.has("render"):
+		var mat := ShaderMaterial.new()
+		mat.shader = LIMEWASH_SHADER
+		mat.set_shader_parameter("outdoor", true)
+		mat.set_shader_parameter("wash", Color(0.93, 0.92, 0.88))
+		mat.set_shader_parameter("ground_height", _ground_texture)
+		mat.set_shader_parameter("ground_rect", _ground_rect)
+		_materials["render"] = mat
+	return _materials["render"]
 
 
 static func roof_material(family: StringName) -> Material:

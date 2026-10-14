@@ -918,12 +918,9 @@ static func material_for(key: String) -> Material:
 			fs.shader = FLAGSTONE
 			mat = fs
 		"render":
-			# White lime render (whitewash) outside.
-			var rm := ShaderMaterial.new()
-			rm.shader = LIMEWASH
-			rm.set_shader_parameter("outdoor", true)
-			rm.set_shader_parameter("wash", Color(0.93, 0.92, 0.88))
-			mat = rm
+			# White lime render (whitewash) outside. Not cached here: it is bound
+			# to the city heightfield, which CityBuildingBuilder rebinds (R-1931).
+			return CityBuildingBuilder.outdoor_limewash_material()
 		"planks":
 			var pl := StandardMaterial3D.new()
 			pl.albedo_texture = load(TIMBER_ALBEDO)

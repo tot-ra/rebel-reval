@@ -93,3 +93,55 @@ vec3 shade_growth(vec3 col, inout vec3 nm, inout float rough, vec3 pos, vec3 nrm
 	vec3 lichen_col = crust.rgb * vec3(0.95, 0.95, 0.8) * clamp(lum * 2.0, 0.55, 0.9);
 	return mix(col, lichen_col, lichen * 0.7);
 }
+
+// R-1931 wall foot: the wall side of the joint the ground paints in R-1930
+// (city_ground.gdshader). `above` is the height over the LOCAL street (the
+// heightfield, so sloped lanes work). Rain splash, rising damp and (on wood,
+// `rot` 1) rot collect under a ragged top edge: world-space fbm sets it at
+// 0.15-0.7 m and thin drip runs reach above it, so no horizontal line is left.
+// The mud is the ground band's packed earth tone, desaturated into the wall.
+// Darkens and smooths `col`/`rough` in place; returns the band strength (0-1)
+// for wetness. About a dozen value-noise taps, only near the foot.
+float wall_foot(inout vec3 col, inout float rough, vec3 pos, vec3 nrm, float above, float amount, float rot) {
+	if (above > 1.4 || abs(nrm.y) > 0.7) {
+		return 0.0;
+	}
+	// Along-wall coordinate for the vertical runs; the edge itself follows
+	// pos.xz so it stays continuous round corners.
+	float s = dot(pos.xz, vec2(nrm.z, -nrm.x));
+	float top = 0.15 + 0.55 * wfbm(pos.xz * 0.9 + vec2(4.3, 1.9));
+	// Drip runs: thin columns (~5-10 cm), each its own length up to 0.45 m.
+	float run = smoothstep(0.62, 0.86, wnoise(vec2(s * 14.0, 2.3)));
+	float run_len = 0.08 + 0.37 * wnoise(vec2(s * 2.3, 8.1));
+	float drip = run * (1.0 - smoothstep(top - 0.05, top + run_len, above));
+	float band = max(1.0 - smoothstep(top - 0.12, top + 0.03, above), drip * 0.75);
+	if (band <= 0.0) {
+		return 0.0;
+	}
+	float k = clamp(amount, 0.6, 1.2);
+	float deep = 1.0 - smoothstep(0.0, top, above); // 1 at the ground, 0 at the edge
+	// Splash speckle: grit thrown up from the street, densest low down.
+	float speck = wnoise(pos.xz * 23.0 + pos.y * 17.0) * 0.6 + wnoise(vec2(s * 41.0, pos.y * 37.0)) * 0.4;
+	float lum = dot(col, vec3(0.3, 0.59, 0.11));
+	// Mud: relative to the wall's own albedo (plates are dark and lifted by
+	// exposure, so an absolute tone would vanish on some and glow on others).
+	// Desaturated to the warm grey-brown hue of the ground's packed earth
+	// (R-1930 trodden 0.4/0.35/0.29) and darkened, speckled by splash grit.
+	vec3 mud = lum * vec3(1.22, 1.0, 0.76) * mix(0.42, 0.72, speck);
+	col = mix(col, mud, band * (0.65 + 0.35 * deep) * k);
+	// Damp: darker throughout the band.
+	col *= 1.0 - 0.18 * band * k;
+	// Wood rot: blackened grey patches from the bottom, ragged too.
+	float rot_patch = smoothstep(0.38, 0.72, wfbm(vec2(s * 3.0, pos.y * 1.2) + 5.0) + deep * 0.25);
+	vec3 rotten = mix(col, vec3(dot(col, vec3(0.3, 0.59, 0.11))), 0.5) * 0.45;
+	col = mix(col, rotten, rot * rot_patch * band * 0.8 * k);
+	// Shaded (north) feet stay green-tinged; moss cushions come from shade_growth.
+	float north = clamp(-nrm.z, 0.0, 1.0);
+	col = mix(col, col * vec3(0.78, 0.9, 0.66), band * north * 0.55 * k);
+	// Contact: the last few centimetres sit in the ground's shadow.
+	col *= mix(0.62, 1.0, smoothstep(0.0, 0.06 + 0.05 * speck, above));
+	// Damp surfaces are a little less matte; rotten wood stays dull. Kept mild:
+	// a glossier band catches the sky and reads lighter, not wetter.
+	rough = mix(rough, 0.78, band * (1.0 - rot * rot_patch) * 0.4);
+	return band;
+}

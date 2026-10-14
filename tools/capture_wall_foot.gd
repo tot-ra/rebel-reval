@@ -3,7 +3,9 @@ extends Node
 ## Review capture for the wall-foot band on the city ground (R-1930,
 ## docs/SYSTEMS/SEAMLESS_CITY.md): the forge street outside Kalev's smithy in
 ## the painted-iso gameplay camera (plank wall and plinth house next to Kalev),
-## plus a close oblique of the nearest wall foot. Host scene so autoloads resolve:
+## plus a close oblique of the nearest wall foot and (R-1931) an oblique of the
+## steepest south-facing wall foot nearby, so the wall-side band can be checked
+## on a sloped street. Host scene so autoloads resolve:
 ##   tools/godot_render.sh --resolution 1600x900 res://tools/capture_wall_foot.tscn \
 ##     -- --tag=after [--city-hour=10.5]
 ## Output: docs/reports/images/city/wall_foot_<shot>_<tag>.jpg
@@ -78,6 +80,43 @@ func _nearest_wall(plan: CityPlan, at: Vector2) -> Array:
 	return best
 
 
+## R-1931: midpoint and outward normal of the south-facing footprint edge within
+## 120 m of `at` whose ground falls the most along it (a sloped street).
+func _sloped_wall(plan: CityPlan, at: Vector2) -> Array:
+	var best := [at, Vector2.DOWN]
+	var best_drop := -1.0
+	for index: int in plan.buildings_near(at, 120.0):
+		var ring := plan.footprint(index)
+		var centre := Vector2.ZERO
+		for p in ring:
+			centre += p
+		centre /= maxf(float(ring.size()), 1.0)
+		for i in ring.size():
+			var a := ring[i]
+			var b := ring[(i + 1) % ring.size()]
+			if a.distance_to(b) < 5.0:
+				continue
+			var n := (b - a).orthogonal().normalized()
+			if n.dot((a + b) * 0.5 - centre) < 0.0:
+				n = -n
+			if n.y < 0.5 or plan.site_at((a + b) * 0.5 + n * 2.0) != null:
+				continue
+			var drop := absf(plan.ground_height(a + n * 0.6) - plan.ground_height(b + n * 0.6))
+			if drop > best_drop:
+				best_drop = drop
+				best = [(a + b) * 0.5, n]
+	print("sloped wall drop %.2f m at %s" % [best_drop, best[0]])
+	return best
+
+
+## Oblique camera on the wall foot at `mid` (outward normal `n`).
+func _frame_wall(plan: CityPlan, cam: Camera3D, mid: Vector2, n: Vector2, back: float) -> void:
+	var foot := Vector3(mid.x, plan.ground_height(mid), mid.y)
+	var eye := mid + n * back + n.orthogonal() * back * 0.4
+	cam.global_position = Vector3(eye.x, plan.ground_height(eye) + back * 0.7, eye.y)
+	cam.look_at(foot + Vector3(n.x, 0.0, n.y) * 0.6, Vector3.UP)
+
+
 func _save(file: String) -> void:
 	await RenderingServer.frame_post_draw
 	var path := ProjectSettings.globalize_path("%s/%s.jpg" % [OUTPUT_DIR, file])
@@ -113,4 +152,9 @@ func _run() -> void:
 	city.player.global_position = CityPlan.to_logic(at + n.orthogonal() * 8.0)
 	await _frames(30)
 	await _save("wall_foot_close_%s" % tag)
+	var slope: Array = _sloped_wall(plan, at)
+	_frame_wall(plan, cam, slope[0], slope[1], 6.0)
+	city.player.global_position = CityPlan.to_logic(slope[0] + slope[1] * 4.0)
+	await _frames(60)
+	await _save("wall_foot_slope_%s" % tag)
 	get_tree().quit(0)
