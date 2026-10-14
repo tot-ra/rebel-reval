@@ -33,6 +33,7 @@ Each folder defines one production agent: `system.md` (role), `playbook.md` (les
 
 - [Dev playbook](rebel-dev/playbook.md)
 - [Complex task loop (autonomous)](rebel-dev/skills/complex-task-loop/SKILL.md)
+- [Performance loop (autonomous)](rebel-dev/skills/performance-loop/SKILL.md)
 - [Rebel Developer Work Loop](rebel-dev/skills/work-loop/SKILL.md)
 
 #### `rebel-dialogue/`
