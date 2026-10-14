@@ -29,6 +29,9 @@ var collision_parent: Node
 ## Test and capture hook: pins the hour (0..24) instead of the city clock.
 var hour_override := -1.0
 var progress_override := -1.0
+## Campaign day of the year the drying poles are loaded for (set_calendar_date).
+## The default is the slice's opening day, 21 April 1343.
+var day_of_year := GameCalendar.day_of_year(GameCalendar.DEFAULT_DATE)
 ## Off (`--no-interiors`, for comparisons): no house is furnished.
 var enabled := true
 ## Main-thread cost of the last update_for (microseconds), for budget checks.
@@ -268,6 +271,7 @@ func _furnish(index: int) -> void:
 	add_child(node)
 	var home := {
 		"node": node, "hearth": null, "firewood": null, "lights": {}, "state": {}, "next": 0,
+		"sheaves": null,
 	}
 	home["upper"] = _partitions(node, lay, b)
 	home["body"] = _collision(lay)
@@ -299,6 +303,13 @@ func _build_items(index: int, budget_usec: int) -> bool:
 			home["firewood"] = holder
 		elif i in lay.lights:
 			home["lights"][i] = holder
+		elif item.has("loft"):
+			# Drying loft and threshing floor (DryingLoft): procedural, no catalog GLB.
+			# Sheaves are many: they share one MultiMesh (_mount_sheaves), not a node each.
+			if item.has("rank"):
+				holder.queue_free()
+			else:
+				holder.add_child(DryingLoft.build_model(item))
 		else:
 			var model := _instance(String(item["object"]), "")
 			if model != null:
@@ -308,6 +319,7 @@ func _build_items(index: int, budget_usec: int) -> bool:
 	if int(home["next"]) < lay.items.size():
 		return false
 	_apply_states_for(index)
+	_mount_sheaves(index)
 	return true
 
 
@@ -365,7 +377,15 @@ func _sync_upper() -> void:
 		if upper == null:
 			continue
 		var roof: Node3D = roofs.get(index)
-		upper.visible = roof == null or roof.visible
+		# The roof cutaway keeps `visible` true (shadows-only), so follow its
+		# restore meta; set_cutaway keeps the boards casting shade like the roof.
+		var lifted := roof != null and (not roof.visible or roof.has_meta(&"cutaway_restore"))
+		if lifted != upper.has_meta(&"partitions_lifted"):
+			if lifted:
+				upper.set_meta(&"partitions_lifted", true)
+			else:
+				upper.remove_meta(&"partitions_lifted")
+			CityWorld3D.set_cutaway(upper, lifted)
 
 
 func _release(index: int) -> void:
@@ -412,6 +432,57 @@ func _apply_states() -> void:
 	for index: int in _homes:
 		if _complete(index):
 			_apply_states_for(index)
+
+
+## Loads or clears the drying poles of every smoke dwelling for the date. Pure
+## function of the date: nothing is saved, a reload shows the same poles.
+func set_calendar_date(date: Dictionary) -> void:
+	var doy := GameCalendar.day_of_year(date)
+	if doy == day_of_year:
+		return
+	day_of_year = doy
+	for index: int in _homes:
+		if _complete(index):
+			_apply_sheaves_for(index)
+
+
+## One MultiMesh holding every sheaf of the house, ordered by rank, so showing
+## the season's share is `visible_instance_count` (a few dozen sheaves per
+## frame budget would otherwise be hundreds of nodes per dwelling).
+func _mount_sheaves(index: int) -> void:
+	var lay: HouseholdLayout = _layouts[index]
+	if lay.loft_sheaves.is_empty():
+		return
+	var multi := MultiMesh.new()
+	multi.transform_format = MultiMesh.TRANSFORM_3D
+	multi.mesh = DryingLoft.sheaf_mesh()
+	multi.instance_count = lay.loft_sheaves.size()
+	for k in lay.loft_sheaves.size():
+		var item: Dictionary = lay.items[lay.loft_sheaves[k]]
+		var p: Vector2 = item["pos"]
+		multi.set_instance_transform(
+			k,
+			Transform3D(
+				Basis(Vector3.UP, float(item["yaw"])),
+				Vector3(p.x, lay.floor_y + float(item["y"]) + DryingLoft.SHEAF_RADIUS, p.y)
+			)
+		)
+	var node := MultiMeshInstance3D.new()
+	node.name = "DryingSheaves"
+	node.multimesh = multi
+	node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	node.add_to_group(&"spirit_hide_furniture")
+	(_homes[index]["node"] as Node3D).add_child(node)
+	_homes[index]["sheaves"] = node
+	_apply_sheaves_for(index)
+
+
+func _apply_sheaves_for(index: int) -> void:
+	var node: MultiMeshInstance3D = _homes[index]["sheaves"]
+	if node == null:
+		return
+	var count := node.multimesh.instance_count
+	node.multimesh.visible_instance_count = ceili(DryingLoft.sheaf_load(float(day_of_year)) * count)
 
 
 func _apply_states_for(index: int) -> void:

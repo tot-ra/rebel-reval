@@ -405,6 +405,10 @@ func set_calendar_date(date: Dictionary) -> void:
 	var forest_floor := world.get_node_or_null("Dressing/ForestFloor") if world != null else null
 	if forest_floor is CityForestFloor:
 		(forest_floor as CityForestFloor).set_calendar_date(date)
+	# Smoke dwellings load their drying poles with sheaves in the harvest season.
+	var interiors := world.get_node_or_null("Interiors") if world != null else null
+	if interiors is CityInteriors:
+		(interiors as CityInteriors).set_calendar_date(date)
 	# Grazing stock is housed through the cold months.
 	var fauna := world.get_node_or_null("CityFauna") if world != null else null
 	if fauna is CityFauna:

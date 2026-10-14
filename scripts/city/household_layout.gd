@@ -159,6 +159,10 @@ var floor_y := 0.0
 var inner := PackedVector2Array()
 var hearth := -1
 var firewood := -1
+## Item indices of the drying-pole sheaves, lowest rank first: the first
+## DryingLoft.sheaf_load share of them is up on a given day (a MultiMesh in
+## CityInteriors, not one node per sheaf).
+var loft_sheaves: Array[int] = []
 var lights: Array[int] = []
 ## Just inside the door: where people come in and go out.
 var entry := Vector2.ZERO
@@ -263,6 +267,9 @@ func _build(plan: CityPlan, index: int, household: Dictionary, chimney: Vector2)
 	entry = _door + _door_in * (thick + 0.6)
 	_partition(chimney)
 	_furnish(household, chimney)
+	# Last, so every other piece keeps the place (and the RNG stream) it had.
+	if String(b.get("type", "")) == "smoke_room":
+		_furnish_loft(String(b["id"]), float(b.get("wall_h", 2.3)))
 
 
 func _furnish(household: Dictionary, chimney: Vector2) -> void:
@@ -391,6 +398,149 @@ func _furnish(household: Dictionary, chimney: Vector2) -> void:
 			_slot(
 				&"stand", p, (_door - p).normalized().rotated(_rng.randf_range(-1.2, 1.2)), 0.0, -1
 			)
+
+
+## Grain-drying loft and threshing floor of a smoke dwelling (DryingLoft,
+## docs/SYSTEMS/FARMLAND.md). Poles run wall to wall across the smoke room (the
+## hearth's room) above head height, sheaves lie across pairs of poles, and the
+## anteroom holds a trodden straw floor with flails. Everything above head height
+## or flat on the floor, so no slot, path or collision changes. Seeded by the
+## building id on its own RNG; which sheaves are up on a given day is decided at
+## render time from DryingLoft.sheaf_load, so the layout holds no season.
+func _furnish_loft(building_id: String, wall_h: float) -> void:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = hash(building_id + ":loft")
+	var across := Vector2(-axis.y, axis.x)
+	var base := axis_origin + across * _centroid().dot(across)
+	var pole_y := minf(DryingLoft.POLE_Y, wall_h - 0.2)
+	var zones := _loft_zones()
+	var span: float = zones[1] - zones[0]
+	var count := clampi(int((span - 0.8) / DryingLoft.POLE_SPACING) + 1, 0, DryingLoft.POLE_MAX)
+	var first: float = zones[0] + (span - float(count - 1) * DryingLoft.POLE_SPACING) * 0.5
+	var chords: Array = []  # per pole: Vector3(along, across_from, across_to) or INF
+	for k in count:
+		var along := first + float(k) * DryingLoft.POLE_SPACING
+		var origin := base + axis * along
+		var best := PackedVector2Array()
+		for part: PackedVector2Array in Geometry2D.intersect_polyline_with_polygon(
+			PackedVector2Array([origin - across * 60.0, origin + across * 60.0]), inner
+		):
+			if best.is_empty() or part[0].distance_to(part[-1]) > best[0].distance_to(best[-1]):
+				best = part
+		if best.size() < 2 or best[0].distance_to(best[-1]) < 1.0:
+			chords.append(null)
+			continue
+		var lo := minf(best[0].dot(across), best[-1].dot(across))
+		var hi := maxf(best[0].dot(across), best[-1].dot(across))
+		chords.append(Vector3(along, lo, hi))
+		var mid := base + axis * along + across * ((lo + hi) * 0.5 - base.dot(across))
+		var pole_len := hi - lo - 2.0 * DryingLoft.POLE_END_GAP
+		_add_loft(&"loft_pole", mid, atan2(-across.y, across.x), pole_y, {"len": pole_len})
+	# Sheaves lie along the house axis across each pair of neighbouring poles.
+	var sheaves: Array[int] = []
+	for k in range(count - 1):
+		if chords[k] == null or chords[k + 1] == null:
+			continue
+		var a: Vector3 = chords[k]
+		var c: Vector3 = chords[k + 1]
+		var along := (a.x + c.x) * 0.5
+		var s := maxf(a.y, c.y) + DryingLoft.SHEAF_WALL_GAP
+		var s_end := minf(a.z, c.z) - DryingLoft.SHEAF_WALL_GAP
+		while s <= s_end:
+			var p := base + axis * along + across * (s - base.dot(across) + rng.randf_range(-0.03, 0.03))
+			# Sheaf bodies rest on the poles, so their centre line is the pole top.
+			sheaves.append(
+				_add_loft(&"loft_sheaf", p, atan2(axis.x, axis.y) + rng.randf_range(-0.06, 0.06), pole_y, {})
+			)
+			s += DryingLoft.SHEAF_STEP
+	# Rank the sheaf spots in a seeded shuffle: spot i is up while rank < load.
+	for i in range(sheaves.size() - 1, 0, -1):
+		var j := rng.randi_range(0, i)
+		var tmp := sheaves[i]
+		sheaves[i] = sheaves[j]
+		sheaves[j] = tmp
+	for i in sheaves.size():
+		items[sheaves[i]]["rank"] = float(i) / float(sheaves.size())
+	loft_sheaves = sheaves
+	_furnish_threshing_floor(rng, zones)
+
+
+## Along-the-house ranges [smoke_from, smoke_to, thresh_from, thresh_to] (m from
+## the front): the smoke room round the oven (the hearth's end) and the threshing
+## anteroom at the other end. A partitioned dwelling uses its rooms; the common
+## one-room plan (the plan data has no wall between them) is split by length,
+## 60% smoke room round the hearth, 40% anteroom.
+func _loft_zones() -> Array:
+	var length: float = rooms[-1][1]
+	var hearth_along: float = (
+		(items[hearth]["pos"] - axis_origin).dot(axis) if hearth >= 0 else length
+	)
+	if rooms.size() < 2:
+		if hearth_along < length * 0.5:
+			return [0.0, length * 0.6, length * 0.6, length]
+		return [length * 0.4, length, 0.0, length * 0.4]
+	var living := living_room()
+	var other := 0 if living != 0 else rooms.size() - 1
+	return [rooms[living][0], rooms[living][1], rooms[other][0], rooms[other][1]]
+
+
+## Threshing floor of the anteroom: a trodden straw patch with a pair of flails,
+## and a winnowing basket beside it.
+func _furnish_threshing_floor(rng: RandomNumberGenerator, zones: Array) -> void:
+	var yaw := atan2(-axis.y, axis.x)
+	var size := Vector3(2.2, 0.0, 1.5)
+	var spots: Array = []
+	var y := _inner_box.position.y
+	while y <= _inner_box.end.y:
+		var x := _inner_box.position.x
+		while x <= _inner_box.end.x:
+			var p := Vector2(x, y)
+			var along_p := (p - axis_origin).dot(axis)
+			if (
+				along_p > zones[2] + 1.2
+				and along_p < zones[3] - 0.3
+				and Geometry2D.is_point_in_polygon(p, inner)
+			):
+				spots.append(p)
+			x += 0.5
+		y += 0.5
+	for i in range(spots.size() - 1, 0, -1):
+		var j := rng.randi_range(0, i)
+		var tmp: Vector2 = spots[i]
+		spots[i] = spots[j]
+		spots[j] = tmp
+	for p: Vector2 in spots.slice(0, 80):
+		if not _fits(_rect(p, yaw, size.x, size.z)):
+			continue
+		# Flat on the floor and not occupied: people walk over it; the litter
+		# only keeps clear of solid pieces by the fit check above.
+		_add_loft(&"straw_litter", p, yaw, 0.0, {"size": size, "seed": hash(str(p))})
+		var along := Vector2(cos(yaw), -sin(yaw))
+		for k in 2:
+			var side := along.orthogonal() * (-0.3 + 0.6 * float(k))
+			_add_loft(
+				&"threshing_flail", p + side - along * 0.7, yaw + rng.randf_range(-0.25, 0.25), 0.03, {}
+			)
+		_place_near(&"basket", p + along * 1.4, 0.2)
+		return
+
+
+## A loft/threshing item: not a catalog piece (see DryingLoft), never solid,
+## never occupying floor, so it cannot block a slot or a path.
+func _add_loft(kind: StringName, pos: Vector2, yaw: float, y: float, extra: Dictionary) -> int:
+	var item := {
+		"piece": kind,
+		"object": "",
+		"loft": kind,
+		"pos": pos,
+		"yaw": yaw,
+		"y": y,
+		"poly": _rect(pos, yaw, 0.2, 0.2),
+		"solid": false,
+	}
+	item.merge(extra)
+	items.append(item)
+	return items.size() - 1
 
 
 ## Stores of a house past STORE_AREA: heaps on the open floor of every room

@@ -26,6 +26,7 @@ const SHOTS := {
 		["harju_day_farmstead", &"clear", DAY, Vector3(-18.5, 2.4, -14), Vector3(-9.5, 1.4, -28.5), 66.0],
 		# Optional 7th entry: a building whose roof lifts and whose room is furnished (R-1627).
 		["harju_day_interior", &"clear", DAY, Vector3(-1, 7.5, -21), Vector3(-8.5, 0.2, -30), 60.0, "harju.bldg.farm02.dwelling"],  # gdlint: ignore=max-line-length
+		["harju_day_interior_top", &"clear", DAY, Vector3(-8.5, 13, -27.5), Vector3(-8.5, 0.2, -30), 60.0, "harju.bldg.farm02.dwelling"],  # gdlint: ignore=max-line-length
 		["harju_day_granary_inside", &"clear", DAY, Vector3(-17, 5.5, -25), Vector3(-22.4, 0.2, -30.8), 60.0, "harju.bldg.farm02.granary"],  # gdlint: ignore=max-line-length
 		["harju_day_clearing_farm", &"clear", DAY, Vector3(-152, 3.5, 222), Vector3(-138, 2, 260), 62.0],
 		["harju_day_fields_road", &"clear", DAY, Vector3(-86, 3.2, -110), Vector3(-104, 0.5, -240), 62.0],
@@ -72,12 +73,20 @@ const SHOTS := {
 }
 
 var _only := ""
+## `--date=D.M` sets the campaign date (year 1343): crops, and the sheaves on the
+## drying poles of the smoke dwellings (DryingLoft), follow it; shots get a suffix.
+var _date := {}
+var _suffix := ""
 
 
 func _initialize() -> void:
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--only="):
 			_only = arg.substr(7)
+		elif arg.begins_with("--date="):
+			var parts := arg.substr(7).split(".")
+			_date = {"day": int(parts[0]), "month": int(parts[1]), "year": 1343}
+			_suffix = "_%s" % arg.substr(7).replace(".", "-")
 	call_deferred("_run")
 
 
@@ -100,6 +109,8 @@ func _run() -> void:
 		var interiors := CityInteriors.create(plan, CitizenRoster.load_for(plan), view.world.chimneys)
 		interiors.enabled = plan.feature_enabled("interiors")
 		view.world.add_child(interiors)
+		if not _date.is_empty():
+			view.set_calendar_date(_date)
 		for shot: Array in wanted:
 			var sky: SkyWeather3D = view._sky_weather
 			sky.auto_weather = false
@@ -147,6 +158,6 @@ func _shot(view: CityMapView, shot: String, eye: Vector3, look: Vector3, fov: fl
 	var image := root.get_texture().get_image()
 	if image.get_size() != VIEWPORT_SIZE:
 		image.resize(VIEWPORT_SIZE.x, VIEWPORT_SIZE.y, Image.INTERPOLATE_LANCZOS)
-	var path := "%s/%s.png" % [OUTPUT_DIR, shot]
+	var path := "%s/%s%s.png" % [OUTPUT_DIR, shot, _suffix]
 	image.save_png(ProjectSettings.globalize_path(path))
 	print("captured %s" % path)
