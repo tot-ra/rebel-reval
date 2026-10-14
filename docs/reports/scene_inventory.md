@@ -272,3 +272,5 @@ Both commands should print `135` on a clean checkout at this revision.
 | 192 | `tools/capture_world_showreel.tscn` | partial | Developer capture tool (README showreel clips of the live seamless city). |
 | 193 | `tools/capture_character_talk.tscn` | partial | Developer capture tool (talk/duel conversation camera, R-1884). |
 | 194 | `tools/capture_city_jump.tscn` | partial | Developer capture tool (player jump in the seamless city). |
+| 195 | `tools/capture_grass_blueprint_iso.tscn` | partial | Developer capture tool (blueprint-map grass, third person vs painted iso). |
+| 196 | `tools/capture_spirit_trust_win.tscn` | partial | Developer capture tool (spirit duel trust win). |

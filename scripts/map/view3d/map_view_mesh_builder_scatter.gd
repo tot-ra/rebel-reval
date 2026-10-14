@@ -472,8 +472,8 @@ static func emit_layers(state: Dictionary) -> void:
 		)
 		clover_instances.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		_tag_layer(clover_instances, &"flowers")
-		clover_instances.visibility_range_end = (
-			MapViewMeshBuilderConfig.SCATTER_GRASS_VISIBILITY_RANGE
+		MapViewPlayerRange.tag(
+			clover_instances, MapViewMeshBuilderConfig.SCATTER_GRASS_VISIBILITY_RANGE
 		)
 		clover_instances.visibility_range_end_margin = (
 			MapViewMeshBuilderConfig.SCATTER_GRASS_VISIBILITY_RANGE_MARGIN
@@ -765,7 +765,7 @@ static func _add_grass_layer(
 	# layer covers the entire district; without range culling every MultiMesh
 	# instance is submitted to the GPU even when far off-screen, tanking FPS on
 	# vegetation-heavy maps (e.g. workers district reval_east).
-	instances.visibility_range_end = MapViewMeshBuilderConfig.SCATTER_GRASS_VISIBILITY_RANGE
+	MapViewPlayerRange.tag(instances, MapViewMeshBuilderConfig.SCATTER_GRASS_VISIBILITY_RANGE)
 	instances.visibility_range_end_margin = (
 		MapViewMeshBuilderConfig.SCATTER_GRASS_VISIBILITY_RANGE_MARGIN
 	)
@@ -787,7 +787,7 @@ static func _add_hay_stubble_layer(
 	)
 	instances.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	_tag_layer(instances, &"grass_mid")
-	instances.visibility_range_end = MapViewMeshBuilderConfig.SCATTER_GRASS_VISIBILITY_RANGE
+	MapViewPlayerRange.tag(instances, MapViewMeshBuilderConfig.SCATTER_GRASS_VISIBILITY_RANGE)
 	instances.visibility_range_end_margin = (
 		MapViewMeshBuilderConfig.SCATTER_GRASS_VISIBILITY_RANGE_MARGIN
 	)

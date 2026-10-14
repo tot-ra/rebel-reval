@@ -93,3 +93,22 @@ func test_ground_plates_are_plain() -> void:
 				lo = minf(lo, l)
 				hi = maxf(hi, l)
 		assert_true(hi - lo < 0.45, "plate %d stays low contrast (%.2f)" % [index, hi - lo])
+
+
+## Blueprint-map grass keeps its authored radius round the player, not the lens.
+func test_player_range_widens_by_camera_distance() -> void:
+	MapViewPlayerRange.reset()
+	var node := MultiMeshInstance3D.new()
+	MapViewPlayerRange.tag(node, 14.0)
+	assert_eq(node.visibility_range_end, 14.0, "untargeted node keeps its base range")
+	var tree := Engine.get_main_loop() as SceneTree
+	tree.root.add_child(node)
+	assert_true(MapViewPlayerRange.retarget(tree, 42.0), "first retarget applies")
+	assert_eq(node.visibility_range_end, 56.0, "painted iso lens 42 m out widens 14 m grass")
+	assert_true(not MapViewPlayerRange.retarget(tree, 42.2), "small drift is ignored")
+	var late := MultiMeshInstance3D.new()
+	MapViewPlayerRange.tag(late, 45.0)
+	assert_eq(late.visibility_range_end, 87.0, "chunks built later start widened")
+	late.free()
+	node.free()
+	MapViewPlayerRange.reset()

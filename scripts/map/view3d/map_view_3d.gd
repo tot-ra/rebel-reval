@@ -680,6 +680,9 @@ func update_grass_interaction(logic_position: Vector2, logic_velocity: Vector2) 
 	var world_velocity := Vector2(logic_velocity.x, logic_velocity.y) * scale
 	MapViewMaterials.apply_grass_interaction(Vector2(world.x, world.z), world_velocity)
 	HayRickReaction.set_actor(Vector2(world.x, world.z), world_velocity)
+	# Grass range cull is camera-based; keep it centred on the player in painted iso.
+	if _camera != null and is_inside_tree():
+		MapViewPlayerRange.retarget(get_tree(), _camera.global_position.distance_to(world))
 
 
 func mud_wetness() -> float:

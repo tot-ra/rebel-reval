@@ -192,6 +192,8 @@ Roles `level`, `map`, and `event` have full conversion specifications later in t
 | `tools/capture_city_painted_iso.tscn` | test | `retain` | Capture painted-iso camera tool scene | Developer-only capture or profiling host; never release-playable | not a map definition |
 | `tools/capture_character_talk.tscn` | test | `retain` | Capture talk and duel conversation camera tool scene | Developer-only capture or profiling host; never release-playable | not a map definition |
 | `tools/capture_city_jump.tscn` | test | `retain` | Capture player jump tool scene | Developer-only capture or profiling host; never release-playable | not a map definition |
+| `tools/capture_grass_blueprint_iso.tscn` | test | `retain` | Blueprint-map grass capture (third person vs painted iso) | Developer-only capture host; never release-playable | not a map definition |
+| `tools/capture_spirit_trust_win.tscn` | test | `retain` | Spirit duel trust-win capture tool scene | Developer-only capture host; never release-playable | not a map definition |
 | `tools/capture_city_lighting.tscn` | test | `retain` | Capture city lighting tool scene | Developer-only capture or profiling host; never release-playable | not a map definition |
 | `tools/capture_forge_brawl.tscn` | test | `retain` | Capture forge weapons and citizen brawl tool scene | Developer-only capture or profiling host; never release-playable | not a map definition |
 | `assets/props/weapons/arming_sword/arming_sword_ground.tscn` | support | `retain` | Forge arming sword leaning display (world item view) | Forge weapon set (R-1754, docs/SYSTEMS/COMBAT.md) | not a map definition |

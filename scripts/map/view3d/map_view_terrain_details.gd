@@ -165,7 +165,7 @@ static func _build_detail_level(
 	for child in root.get_children():
 		if child is GeometryInstance3D:
 			var geometry := child as GeometryInstance3D
-			geometry.visibility_range_end = MapViewMeshBuilderConfig.FIRST_PERSON_DETAIL_RANGE
+			MapViewPlayerRange.tag(geometry, MapViewMeshBuilderConfig.FIRST_PERSON_DETAIL_RANGE)
 			geometry.visibility_range_end_margin = (
 				MapViewMeshBuilderConfig.FIRST_PERSON_DETAIL_RANGE_MARGIN
 			)

@@ -210,6 +210,10 @@ Implemented for the seamless city (**R-1323**; open: blueprint-map carpet and gr
 - **Shading.** Root-to-tip gradient with warm, partly dry tips, root colour melting into the ground, rounded normals, backlight, wind sheen. No shadows.
 - **Trampling.** `VegetationInteractionBuffer` keeps the last 8 player positions so a flattened path stays for a few seconds. NPCs are not fed yet.
 - **Blueprint maps** still use textured tuft cards (`MapViewTerrainDetails`).
+- **Blueprint-map camera independence.** Tuft cards (`MapViewTerrainDetails`, 14 m) and scatter grass (`map_view_mesh_builder_scatter.gd`, 45 m) use Godot's camera-distance `visibility_range_end`, which painted iso (lens ~42 m out) would cull entirely round the player. [`MapViewPlayerRange`](../../scripts/map/view3d/map_view_player_range.gd) tags these nodes and `MapView3D.update_grass_interaction` widens each range by the camera-to-player distance, so the authored radius is kept round the player in every camera mode (triangle inequality). Test: `tests/godot/test_grass_tiers.gd`; capture: `tools/capture_grass_blueprint_iso.tscn` (world_soomaa below, third person then painted iso).
+
+![Blueprint map, third person](../reports/images/vegetation/blueprint_third_soomaa.jpg)
+![Blueprint map, painted iso](../reports/images/vegetation/blueprint_iso_soomaa.jpg)
 
 ## Wild plants (forbs)
 
