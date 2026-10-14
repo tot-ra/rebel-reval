@@ -34,6 +34,8 @@ const TIER_THRESHOLDS: Array[int] = [1, 3, 6]
 var _levels: Dictionary = {}
 var _recorded_acts: Dictionary = {}
 var _absolutions: Dictionary = {}
+## SW-2: guilt phantoms defeated per school; numbers each victory's rite id.
+var _phantom_victories: Dictionary = {}
 
 
 func _init() -> void:
@@ -44,8 +46,10 @@ func reset() -> void:
 	_levels.clear()
 	_recorded_acts.clear()
 	_absolutions.clear()
+	_phantom_victories.clear()
 	for school in SCHOOLS:
 		_levels[school] = 0
+		_phantom_victories[school] = 0
 
 
 static func has_school(school: StringName) -> bool:
@@ -123,15 +127,30 @@ func absolve(school: StringName, amount: int, rite_id: StringName) -> int:
 	return removed
 
 
+func phantom_victories(school: StringName) -> int:
+	return int(_phantom_victories.get(school, 0))
+
+
+## SW-2: count one defeated phantom of `school`. Returns the new count (0 for an unknown school).
+func record_phantom_victory(school: StringName) -> int:
+	if not has_school(school):
+		return 0
+	_phantom_victories[school] = phantom_victories(school) + 1
+	return phantom_victories(school)
+
+
 func to_dict() -> Dictionary:
 	var levels_out: Dictionary = {}
+	var victories_out: Dictionary = {}
 	for school in SCHOOLS:
 		levels_out[String(school)] = level(school)
+		victories_out[String(school)] = phantom_victories(school)
 	return {
 		"version": VERSION,
 		"levels": levels_out,
 		"acts": _recorded_acts.duplicate(),
 		"absolutions": _absolutions.duplicate(),
+		"phantom_victories": victories_out,
 	}
 
 
@@ -160,6 +179,17 @@ func from_dict(source: Variant) -> Array[String]:
 			_levels[school] = clampi(int((saved_levels as Dictionary)[key]), 0, MAX_LEVEL)
 	_recorded_acts = _string_map(data.get("acts", {}), "guilt.acts", errors)
 	_absolutions = _string_map(data.get("absolutions", {}), "guilt.absolutions", errors)
+	# Optional (SW-2): saves made before guilt phantoms load with no victories.
+	var victories: Variant = data.get("phantom_victories", {})
+	if typeof(victories) != TYPE_DICTIONARY:
+		errors.append("guilt.phantom_victories must be a dictionary")
+	else:
+		for key: Variant in (victories as Dictionary):
+			var school := StringName(String(key))
+			if not has_school(school):
+				errors.append("unknown guilt school %s" % String(key))
+				continue
+			_phantom_victories[school] = maxi(0, int((victories as Dictionary)[key]))
 	return errors
 
 

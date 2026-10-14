@@ -1,0 +1,211 @@
+{
+  "type": "dialogue",
+  "id": "dialogue.spirit.phantom.folk",
+  "title": "Guilt phantom: the Blood-debt Shade",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "notes": "R-1349 SW-2 (ADR 0033): the hero's unresolved guilt.folk faced as a phantom in the Hingepuu. Stats scale with the guilt tier in GuiltPhantoms; resolved_faced / resolved_named lift guilt, resolved_turned_away lifts none. Sets no flags."
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "explicit_node_id"
+  },
+  "participants": [
+    "char.guilt_phantom",
+    "char.apprentice"
+  ],
+  "start_node_id": "rises",
+  "duel": {
+    "stakes": [
+      "respect",
+      "secret",
+      "obligation",
+      "balance"
+    ],
+    "resolution_node_ids": [
+      "resolved_faced",
+      "resolved_named",
+      "resolved_turned_away"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "rises",
+      "speaker_id": "char.guilt_phantom",
+      "text": "Blood was let, and blood remembers. His kin count the days, and so do the dead.",
+      "move": {
+        "kind": "attack",
+        "element": "fear",
+        "stakes": [
+          "balance"
+        ],
+        "spirit_image_id": "red_thread"
+      },
+      "choices": [
+        {
+          "id": "stand",
+          "text": "Let them count. I will not run from it.",
+          "target_node_id": "demands",
+          "move": {
+            "kind": "defense",
+            "element": "fear",
+            "stakes": [
+              "balance"
+            ]
+          }
+        },
+        {
+          "id": "threaten",
+          "text": "Come for me, then, and see!",
+          "target_node_id": "demands",
+          "move": {
+            "kind": "attack",
+            "element": "fear",
+            "stakes": [
+              "respect"
+            ]
+          }
+        },
+        {
+          "id": "for_mother",
+          "text": "My mother taught me to pay what I owe. I remember her.",
+          "target_node_id": "demands",
+          "move": {
+            "kind": "appeal",
+            "element": "love",
+            "stakes": [
+              "obligation"
+            ]
+          }
+        },
+        {
+          "id": "turn_away",
+          "text": "[Shut your eyes to it]",
+          "target_node_id": "resolved_turned_away",
+          "move": {
+            "kind": "evade",
+            "element": "fear",
+            "stakes": [
+              "respect"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "demands",
+      "speaker_id": "char.guilt_phantom",
+      "text": "A debt of blood is paid in blood, or in bread to his house for a year. You have neither.",
+      "move": {
+        "kind": "pressure",
+        "element": "love",
+        "stakes": [
+          "obligation"
+        ],
+        "spirit_image_id": "empty_bowl"
+      },
+      "choices": [
+        {
+          "id": "work_it",
+          "text": "I have two hands and a forge. I will work it off for his house.",
+          "target_node_id": "whispers",
+          "move": {
+            "kind": "appeal",
+            "element": "love",
+            "stakes": [
+              "obligation"
+            ]
+          }
+        },
+        {
+          "id": "hold_fast",
+          "text": "Then I will owe it, and say so to his face.",
+          "target_node_id": "whispers",
+          "move": {
+            "kind": "defense",
+            "element": "love",
+            "stakes": [
+              "balance"
+            ]
+          }
+        },
+        {
+          "id": "scorn",
+          "text": "His house can starve for all I care.",
+          "target_node_id": "whispers",
+          "move": {
+            "kind": "pressure",
+            "element": "fear",
+            "stakes": [
+              "respect"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "whispers",
+      "speaker_id": "char.guilt_phantom",
+      "text": "They will never take your bread. The dead do not forgive an orphan.",
+      "move": {
+        "kind": "feint",
+        "element": "fear",
+        "stakes": [
+          "balance"
+        ],
+        "spirit_image_id": "grave_mound"
+      },
+      "choices": [
+        {
+          "id": "name_it",
+          "text": "You are not the dead. You are my fear of them, and I see you now.",
+          "target_node_id": "resolved_named",
+          "move": {
+            "kind": "attack",
+            "element": "fear",
+            "stakes": [
+              "balance"
+            ]
+          }
+        },
+        {
+          "id": "make_peace",
+          "text": "Then I will go to his kin and ask what the peace costs.",
+          "target_node_id": "resolved_faced",
+          "move": {
+            "kind": "defense",
+            "element": "love",
+            "stakes": [
+              "obligation"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "resolved_faced",
+      "speaker_id": "char.guilt_phantom",
+      "text": "Go, then. Bring them your hands, not your excuses."
+    },
+    {
+      "id": "resolved_named",
+      "speaker_id": "char.guilt_phantom",
+      "text": "...You see me. A fear, only a fear... the thread goes slack."
+    },
+    {
+      "id": "resolved_turned_away",
+      "speaker_id": "char.guilt_phantom",
+      "text": "Shut your eyes. The debt keeps its own count."
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Guilt phantoms are folklore/invented spirit-world mechanics per ADR 0033; not a historical claim."
+    }
+  ]
+}

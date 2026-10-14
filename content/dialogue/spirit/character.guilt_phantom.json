@@ -1,0 +1,35 @@
+{
+  "type": "character",
+  "id": "char.guilt_phantom",
+  "name": "Guilt phantom",
+  "role": "Placeholder speaker for the Hingepuu guilt phantoms; the arena shows the phantom's own name (R-1349)",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft"
+  },
+  "pronunciation": "GILT FAN-tum",
+  "brief": {
+    "want": "To be carried for ever.",
+    "fear": "Being named and faced.",
+    "contradiction": "Speaks as a judge but is only the hero's own guilt.",
+    "secret_or_withheld_fact": "It has no power that the hero does not give it."
+  },
+  "relationships": [],
+  "voice": {
+    "summary": "Cold, close, certain.",
+    "diction": "Short accusing sentences in the second person."
+  },
+  "outcomes": [
+    {
+      "id": "end",
+      "summary": "Stands in for the church, folk and civic guilt phantoms."
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Spirit-world placeholder, not a person; see docs/SYSTEMS/SPIRIT_DIALOGUE.md#guilt-phantoms-implemented-sw-2."
+    }
+  ]
+}

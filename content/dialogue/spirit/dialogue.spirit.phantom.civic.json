@@ -1,0 +1,211 @@
+{
+  "type": "dialogue",
+  "id": "dialogue.spirit.phantom.civic",
+  "title": "Guilt phantom: the Shade of Dishonour",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "notes": "R-1349 SW-2 (ADR 0033): the hero's unresolved guilt.civic faced as a phantom in the Hingepuu. Stats scale with the guilt tier in GuiltPhantoms; resolved_faced / resolved_named lift guilt, resolved_turned_away lifts none. Sets no flags."
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "explicit_node_id"
+  },
+  "participants": [
+    "char.guilt_phantom",
+    "char.apprentice"
+  ],
+  "start_node_id": "rises",
+  "duel": {
+    "stakes": [
+      "respect",
+      "secret",
+      "obligation",
+      "balance"
+    ],
+    "resolution_node_ids": [
+      "resolved_faced",
+      "resolved_named",
+      "resolved_turned_away"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "rises",
+      "speaker_id": "char.guilt_phantom",
+      "text": "The whole street saw. The council will hear it, and no guild will take a boy with a quick fist.",
+      "move": {
+        "kind": "attack",
+        "element": "duty",
+        "stakes": [
+          "respect"
+        ],
+        "spirit_image_id": "pointing_crowd"
+      },
+      "choices": [
+        {
+          "id": "stand",
+          "text": "Let them hear it from me first, then.",
+          "target_node_id": "tallies",
+          "move": {
+            "kind": "defense",
+            "element": "duty",
+            "stakes": [
+              "respect"
+            ]
+          }
+        },
+        {
+          "id": "sneer",
+          "text": "The council has worse men than me on its own benches!",
+          "target_node_id": "tallies",
+          "move": {
+            "kind": "attack",
+            "element": "coin",
+            "stakes": [
+              "respect"
+            ]
+          }
+        },
+        {
+          "id": "for_master",
+          "text": "My master vouched for me. I will not shame his name again.",
+          "target_node_id": "tallies",
+          "move": {
+            "kind": "appeal",
+            "element": "duty",
+            "stakes": [
+              "obligation"
+            ]
+          }
+        },
+        {
+          "id": "turn_away",
+          "text": "[Pull your hood down and walk on]",
+          "target_node_id": "resolved_turned_away",
+          "move": {
+            "kind": "evade",
+            "element": "duty",
+            "stakes": [
+              "respect"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "tallies",
+      "speaker_id": "char.guilt_phantom",
+      "text": "A broken peace costs silver. Do you have silver, smith's boy? Then you have no name.",
+      "move": {
+        "kind": "pressure",
+        "element": "coin",
+        "stakes": [
+          "obligation"
+        ],
+        "spirit_image_id": "scales"
+      },
+      "choices": [
+        {
+          "id": "pay_work",
+          "text": "I will pay the fine in work, a nail at a time.",
+          "target_node_id": "sneers",
+          "move": {
+            "kind": "appeal",
+            "element": "coin",
+            "stakes": [
+              "obligation"
+            ]
+          }
+        },
+        {
+          "id": "own_word",
+          "text": "My name is my word. I will keep it from now on.",
+          "target_node_id": "sneers",
+          "move": {
+            "kind": "defense",
+            "element": "duty",
+            "stakes": [
+              "respect"
+            ]
+          }
+        },
+        {
+          "id": "bluster",
+          "text": "I owe this town nothing!",
+          "target_node_id": "sneers",
+          "move": {
+            "kind": "pressure",
+            "element": "coin",
+            "stakes": [
+              "respect"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "sneers",
+      "speaker_id": "char.guilt_phantom",
+      "text": "Go on, then. Hide in the forge. Let the town forget you were ever there.",
+      "move": {
+        "kind": "feint",
+        "element": "duty",
+        "stakes": [
+          "respect"
+        ],
+        "spirit_image_id": "closed_door"
+      },
+      "choices": [
+        {
+          "id": "name_it",
+          "text": "You are only my shame. I broke the peace, and I will stand before the street.",
+          "target_node_id": "resolved_named",
+          "move": {
+            "kind": "attack",
+            "element": "duty",
+            "stakes": [
+              "respect"
+            ]
+          }
+        },
+        {
+          "id": "answer_for_it",
+          "text": "I will not hide. I will answer for it at the town hall if I must.",
+          "target_node_id": "resolved_faced",
+          "move": {
+            "kind": "defense",
+            "element": "duty",
+            "stakes": [
+              "obligation"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "resolved_faced",
+      "speaker_id": "char.guilt_phantom",
+      "text": "Answer, then. A town remembers who stood up."
+    },
+    {
+      "id": "resolved_named",
+      "speaker_id": "char.guilt_phantom",
+      "text": "...Shame spoken aloud weighs less. I cannot hold your head down."
+    },
+    {
+      "id": "resolved_turned_away",
+      "speaker_id": "char.guilt_phantom",
+      "text": "Walk on. The street keeps its tally."
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Guilt phantoms are folklore/invented spirit-world mechanics per ADR 0033; not a historical claim."
+    }
+  ]
+}

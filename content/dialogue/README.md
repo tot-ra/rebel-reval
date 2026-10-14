@@ -7,6 +7,8 @@ Generic dialogue records spoken by any census resident or named NPC in the seaml
 | `dialogue.city.small_talk` | `dialogue.city.small_talk.json` | Peaceful click or interact on a person: who are you, news, the inner eye (choice `inner_eye` turns the talk into a spirit duel), farewell |
 | `dialogue.city.spirit_duel` | `dialogue.city.spirit_duel.json` | Spirit duel on anyone (from spirit sight or the inner-eye reply); topic `daily_burden`; resolutions `resolved_eased`, `resolved_broken`, `resolved_left`; sets no flags |
 | `char.interlocutor` | `character.interlocutor.json` | The placeholder speaker record |
+| `dialogue.spirit.phantom.church` / `.folk` / `.civic` | `spirit/dialogue.spirit.phantom.*.json` | Guilt phantom duels in the Hingepuu (R-1349, [SPIRIT_DIALOGUE.md](../../docs/SYSTEMS/SPIRIT_DIALOGUE.md#guilt-phantoms-implemented-sw-2)); resolutions `resolved_faced`, `resolved_named`, `resolved_turned_away`; set no flags |
+| `char.guilt_phantom` | `spirit/character.guilt_phantom.json` | The placeholder speaker of the phantoms; the arena shows the phantom's name |
 
 Tokens: `{interlocutor_name}`, `{interlocutor_title}` (trade or registry title), `{interlocutor_side}` (a spoken line naming the person's faction).
 

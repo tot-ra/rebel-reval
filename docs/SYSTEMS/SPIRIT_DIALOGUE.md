@@ -1,12 +1,12 @@
 # Spirit dialogue combat
 
-Status: partial (SW-1, R-1348; reflection panel and first explorable Hingepuu hub are implemented). Scope: the current Hingepuu visit loop over the active city scene. Out of scope: a full spirit-world map, phantom encounters, authored open-world duels, rites, and comprehensive spirit combat; see the SW task chain.
+Status: partial (SW-1, R-1348; reflection panel and first explorable Hingepuu hub are implemented; SW-2, R-1349 adds [guilt phantoms](#guilt-phantoms-implemented-sw-2)). Scope: the current Hingepuu visit loop over the active city scene. Out of scope: a full spirit-world map, authored open-world duels, confession/cleansing/apology rites, and comprehensive spirit combat; see the SW task chain.
 
 Canon labels: Hingepuu, spirit world, creatures, and guilt rites are `folklore` / `invented` per [`docs/CANON.md`](../CANON.md). The hero's perception is never given a clinical diagnosis.
 
 ## Player behavior
 
-Press **H** to enter or leave Hingepuu (when entered from the city player). Move with **WASD**, arrow keys, or the left stick. **E / gamepad A** interacts with the central tree mark; **Esc** returns. The symbolic tree has three visible marks. The central mark opens the existing reflection panel when available; other marks currently provide a placeholder response. Leaving restores the exact city player transform because the player and city scene remain resident underneath the overlay.
+Press **H** to enter or leave Hingepuu (when entered from the city player). Move with **WASD**, arrow keys, or the left stick. **E / gamepad A** interacts with the central tree mark; **Esc** returns. The symbolic tree has three visible marks. The central mark opens the existing reflection panel when available; other marks currently provide a placeholder response. Pale wisps on the ground below the tree are the hero's [guilt phantoms](#guilt-phantoms-implemented-sw-2); **E / A** next to one faces it in a spirit duel. Leaving restores the exact city player transform because the player and city scene remain resident underneath the overlay.
 
 ## Runtime and persistence
 
@@ -198,7 +198,32 @@ A dialogue record may declare a top-level `duel` and tag nodes and choices with 
 - `debuff_tier(school)`: 0 for level 0, 1 for 1-2, 2 for 3-5, 3 for 6+. SD-07 applies the tier as the spirit-layer debuff.
 - `absolve(school, amount, rite_id)` lowers one school once per rite (confession, cleansing, apology); returns the amount removed.
 - Save: `guilt` section with levels, recorded act IDs and used rite IDs; saves without it load as zero guilt. Verify: `--filter=test_guilt_state`.
-- Recorded in play by physical blows (SD-07, [below](#hybrid-combat-and-guilt-implemented-sd-07)) and by the prologue shove (`act.almshouse_porter.blow`, R-1335). No rite content exists yet.
+- Recorded in play by physical blows (SD-07, [below](#hybrid-combat-and-guilt-implemented-sd-07)) and by the prologue shove (`act.almshouse_porter.blow`, R-1335). The only absolution in play so far is beating a [guilt phantom](#guilt-phantoms-implemented-sw-2) (rites `rite.phantom.<school>.<n>`); confession, cleansing and apology content is SW-4.
+
+### Guilt phantoms (implemented, SW-2)
+
+Status: implemented (task **R-1349**). Scope: the Hingepuu hub over the city player. Out of scope: phantoms outside the hub, phantom spells, rites other than a won duel (SW-4).
+
+- **Player behavior:** every guilt school with a level of 1 or more shows one phantom in the Hingepuu, a pale wisp that grows with its tier (church left, folk below the tree, civic right). Walking up to it names it (`Shade of Sin`, `Blood-debt Shade`, `Shade of Dishonour`) with its tier word; **E / A** opens a spirit duel against it over the frozen hub. While the duel is open the hub ignores movement, **H** and **Esc**.
+- **Tier stats** (`GuiltPhantoms.TIER_STATS`, tier = `GuiltLedger.debuff_tier`):
+
+| Tier | Guilt level | Word | Phantom pressure | Blow damage |
+|---|---|---|---|---|
+| 1 | 1-2 | minor | 40 | x1.0 |
+| 2 | 3-5 | heavy | 60 | x1.15 |
+| 3 | 6+ | crushing | 85 | x1.3 |
+
+  The pressure is the pool before the soul-light scaling of `SpiritDuel.pool_factor`; the SD-07 guilt debuffs still apply on top, so heavy guilt makes its own phantom harder twice.
+- **Content:** `content/dialogue/spirit/dialogue.spirit.phantom.{church,folk,civic}.json`, speaker `char.guilt_phantom` (`character.guilt_phantom.json`). Each phantom strikes with its school's elements (church faith/shame, folk love/fear, civic duty/coin) as attack, pressure and feint, so the countering reply matters. Resolutions: `resolved_faced`, `resolved_named`, `resolved_turned_away`.
+- **Outcome** (`GuiltPhantoms.apply_outcome`): a won duel lifts tier + 1 guilt from that school; a broken phantom (pressure 0) lifts the whole level; a loss, an abandoned duel or `resolved_turned_away` lifts nothing, so the debuff tier stays. Each victory spends its own rite `rite.phantom.<school>.<n>` through `GuiltLedger.absolve`.
+- **Runtime:** `GuiltPhantoms` (`scripts/reflection/guilt_phantoms.gd`) derives the phantoms from the ledger and scales the duel (`SpiritDuel.opponent_pressure_scale`, `opponent_blow_scale`, both 1.0 by default so other duels are unchanged). `HingepuuHub` draws them and emits `phantom_duel_requested(phantom)`; `ReflectionController.face_phantom()` opens a fresh `SpiritArenaHost` (2D arena, `open_scripted`), applies the outcome on `closed` and switches off the spirit sight the duel turned on.
+- **Save:** only the ledger is saved. `guilt.phantom_victories` (per school) is optional, so older saves load with no victories.
+- **Verify:** `--filter=test_guilt_phantoms,test_guilt_state,test_hingepuu_hub,test_spirit_arena`; plates via `tools/godot_render.sh --resolution 1600x900 --script tools/capture_guilt_phantoms.gd -- --out=res://docs/reports/images/spirit/guilt_phantoms`.
+
+![Three guilt phantoms in the Hingepuu, one per tier](../reports/images/spirit/guilt_phantoms/hub_phantoms.png)
+![A duel against the Blood-debt Shade](../reports/images/spirit/guilt_phantoms/phantom_duel.png)
+
+- **Limits:** the phantoms are procedural wisps in the symbolic 2D hub (asset freeze), not 3D spirit forms; one authored dialogue per school serves every tier (tier changes only the numbers); phantoms cast no spells; a loss has no extra penalty beyond keeping the guilt.
 
 ### Spirit arena (implemented prototype, SD-04)
 

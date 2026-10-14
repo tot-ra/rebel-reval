@@ -1,0 +1,211 @@
+{
+  "type": "dialogue",
+  "id": "dialogue.spirit.phantom.church",
+  "title": "Guilt phantom: the Shade of Sin",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "notes": "R-1349 SW-2 (ADR 0033): the hero's unresolved guilt.church faced as a phantom in the Hingepuu. Stats scale with the guilt tier in GuiltPhantoms; resolved_faced / resolved_named lift guilt, resolved_turned_away lifts none. Sets no flags."
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "explicit_node_id"
+  },
+  "participants": [
+    "char.guilt_phantom",
+    "char.apprentice"
+  ],
+  "start_node_id": "rises",
+  "duel": {
+    "stakes": [
+      "respect",
+      "secret",
+      "obligation",
+      "balance"
+    ],
+    "resolution_node_ids": [
+      "resolved_faced",
+      "resolved_named",
+      "resolved_turned_away"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "rises",
+      "speaker_id": "char.guilt_phantom",
+      "text": "You struck a man, and you have not confessed it. Your soul is black, boy.",
+      "move": {
+        "kind": "attack",
+        "element": "shame",
+        "stakes": [
+          "secret"
+        ],
+        "spirit_image_id": "black_soul"
+      },
+      "choices": [
+        {
+          "id": "own_it",
+          "text": "I know what I did. I will carry it to a priest myself.",
+          "target_node_id": "accuses",
+          "move": {
+            "kind": "defense",
+            "element": "faith",
+            "stakes": [
+              "secret"
+            ]
+          }
+        },
+        {
+          "id": "deny",
+          "text": "I did nothing wrong!",
+          "target_node_id": "accuses",
+          "move": {
+            "kind": "attack",
+            "element": "shame",
+            "stakes": [
+              "respect"
+            ]
+          }
+        },
+        {
+          "id": "plead",
+          "text": "God is merciful. Even to me.",
+          "target_node_id": "accuses",
+          "move": {
+            "kind": "appeal",
+            "element": "faith",
+            "stakes": [
+              "obligation"
+            ]
+          }
+        },
+        {
+          "id": "turn_away",
+          "text": "[Look away from it]",
+          "target_node_id": "resolved_turned_away",
+          "move": {
+            "kind": "evade",
+            "element": "shame",
+            "stakes": [
+              "respect"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "accuses",
+      "speaker_id": "char.guilt_phantom",
+      "text": "Hell keeps its fire warm for those who wait. What priest would hear a gutter orphan?",
+      "move": {
+        "kind": "pressure",
+        "element": "faith",
+        "stakes": [
+          "obligation"
+        ],
+        "spirit_image_id": "cold_altar"
+      },
+      "choices": [
+        {
+          "id": "friars",
+          "text": "The friars at St Catherine's hear beggars every day. They will hear me.",
+          "target_node_id": "mocks",
+          "move": {
+            "kind": "appeal",
+            "element": "faith",
+            "stakes": [
+              "obligation"
+            ]
+          }
+        },
+        {
+          "id": "wait_door",
+          "text": "Then I will wait at the church door until one does.",
+          "target_node_id": "mocks",
+          "move": {
+            "kind": "defense",
+            "element": "faith",
+            "stakes": [
+              "respect"
+            ]
+          }
+        },
+        {
+          "id": "shout",
+          "text": "Be silent!",
+          "target_node_id": "mocks",
+          "move": {
+            "kind": "pressure",
+            "element": "shame",
+            "stakes": [
+              "respect"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "mocks",
+      "speaker_id": "char.guilt_phantom",
+      "text": "Kneel, then. Kneel and stay kneeling, for ever and ever.",
+      "move": {
+        "kind": "feint",
+        "element": "shame",
+        "stakes": [
+          "respect"
+        ],
+        "spirit_image_id": "bent_knee"
+      },
+      "choices": [
+        {
+          "id": "name_it",
+          "text": "No. You are only my sin, and I name you. I struck him, and I am sorry.",
+          "target_node_id": "resolved_named",
+          "move": {
+            "kind": "attack",
+            "element": "shame",
+            "stakes": [
+              "secret"
+            ]
+          }
+        },
+        {
+          "id": "stand_up",
+          "text": "I will kneel once, at the altar. Then I will stand up.",
+          "target_node_id": "resolved_faced",
+          "move": {
+            "kind": "defense",
+            "element": "faith",
+            "stakes": [
+              "respect"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "resolved_faced",
+      "speaker_id": "char.guilt_phantom",
+      "text": "Then go and kneel. I will wait to see if you mean it."
+    },
+    {
+      "id": "resolved_named",
+      "speaker_id": "char.guilt_phantom",
+      "text": "...Named. Spoken. I grow thin, boy. Thin as smoke."
+    },
+    {
+      "id": "resolved_turned_away",
+      "speaker_id": "char.guilt_phantom",
+      "text": "Look away, then. I will still be here."
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Guilt phantoms are folklore/invented spirit-world mechanics per ADR 0033; not a historical claim."
+    }
+  ]
+}

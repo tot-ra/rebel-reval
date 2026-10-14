@@ -74,6 +74,10 @@ const HESITATION_COMPOSURE := 6.0
 var hero_id: StringName = &"char.apprentice"
 var telegraph_sec := TELEGRAPH_SEC
 var reply_window_sec := REPLY_WINDOW_SEC
+## SW-2: tier scaling for authored opponents such as guilt phantoms. 1.0 leaves a duel as is;
+## the pressure scale multiplies the opponent's pool, the blow scale every incoming blow.
+var opponent_pressure_scale := 1.0
+var opponent_blow_scale := 1.0
 ## Off through Settings -> Gameplay accessibility -> "Reply timer pressure".
 var reply_pressure_enabled := true
 ## Hero composure is `health`, resolve is `stamina`; the opponent's pressure is `health`.
@@ -507,7 +511,7 @@ func _start_run() -> bool:
 	hero.parry_window_sec = CombatVitals.DEFAULT_PARRY_WINDOW_SEC + float(
 		_trait_mods.get("parry_window_delta", 0.0)
 	)
-	var pool := PRESSURE_MAX * pool_factor()
+	var pool := PRESSURE_MAX * pool_factor() * opponent_pressure_scale
 	opponent.configure(pool, pool, 0.0, 0.0)
 	opponent.hit_invulnerability_sec = 0.0
 	_incoming = {}
@@ -565,6 +569,7 @@ func _land_incoming() -> void:
 		* SpiritTraits.incoming_multiplier(_trait_mods, incoming_kind)
 		* light_blow_factor(StringName(String(_incoming.get("element", ""))))
 		* _next_blow_factor
+		* opponent_blow_scale
 	)
 	_next_blow_factor = 1.0
 	_swing_id += 1

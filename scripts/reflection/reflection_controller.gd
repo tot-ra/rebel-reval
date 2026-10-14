@@ -4,12 +4,22 @@ extends Node
 const OVERLAY_SCENE := preload("res://scenes/ui/reflection_overlay.tscn")
 const ModelScript := preload("res://scripts/reflection/reflection_model.gd")
 const HUB_SCRIPT := preload("res://scripts/reflection/hingepuu_hub.gd")
+const SpiritSightScript := preload("res://scripts/combat/spirit_sight.gd")
+## The speaker id every guilt phantom dialogue uses; the arena shows the phantom's name.
+const PHANTOM_SPEAKER_ID := &"char.guilt_phantom"
 
 var _overlay: ReflectionOverlay
 var _hub: HingepuuHub
 var _evaluator := StateRuleEvaluator.new()
 var _state: GameState
 var _last_toggle_msec := 0
+## SW-2: the content used for phantom duels; null falls back to SessionState.content_db.
+var content_db: ContentDB
+## Guilt the last phantom duel lifted (0 after a loss).
+var last_phantom_absolution := 0
+var _phantom_host: SpiritArenaHost
+var _phantom_school: StringName = &""
+var _sight_before_phantom := false
 
 
 func _ready() -> void:
@@ -22,6 +32,7 @@ func _ready() -> void:
 	_hub = HUB_SCRIPT.new() as HingepuuHub
 	add_child(_hub)
 	_hub.reflection_requested.connect(open)
+	_hub.phantom_duel_requested.connect(face_phantom)
 	_bind_state(SessionState.state)
 	if not SessionState.state_replaced.is_connected(_on_state_replaced):
 		SessionState.state_replaced.connect(_on_state_replaced)
@@ -36,7 +47,7 @@ func _exit_tree() -> void:
 func _process(_delta: float) -> void:
 	if _hub == null or _state == null:
 		return
-	if not Input.is_action_just_pressed("toggle_hingepuu"):
+	if not Input.is_action_just_pressed("toggle_hingepuu") or _phantom_host != null:
 		return
 	var now := Time.get_ticks_msec()
 	if now - _last_toggle_msec < 250:
@@ -73,6 +84,58 @@ func leave_hingepuu() -> bool:
 
 func get_hingepuu() -> HingepuuHub:
 	return _hub
+
+
+## SW-2: open the spirit duel against a guilt phantom over the hub (2D arena, world frozen).
+## The arena is created per duel so its tier scaling never leaks into another duel.
+func face_phantom(phantom: Dictionary) -> bool:
+	if _state == null or _phantom_host != null or phantom.is_empty():
+		return false
+	var db := content_db if content_db != null else SessionState.content_db
+	if db == null:
+		return false
+	var host := SpiritArenaHost.new()
+	host.speaker_names = {PHANTOM_SPEAKER_ID: String(phantom.get("name", ""))}
+	GuiltPhantoms.configure_duel(host.duel, phantom)
+	add_child(host)
+	_phantom_host = host
+	_phantom_school = StringName(phantom.get("school", &""))
+	_sight_before_phantom = _state.spirit_sight
+	host.closed.connect(_on_phantom_duel_closed)
+	if _hub != null:
+		_hub.set_duel_open(true)
+	if host.open_scripted(db, _state, StringName(phantom.get("dialogue_id", &""))):
+		return true
+	host.closed.disconnect(_on_phantom_duel_closed)
+	_release_phantom_host()
+	return false
+
+
+func phantom_duel_host() -> SpiritArenaHost:
+	return _phantom_host
+
+
+## A won duel lifts the phantom's guilt; a loss or an abandoned duel leaves it as it was.
+func _on_phantom_duel_closed(outcome: Dictionary) -> void:
+	if _state != null and _phantom_school != &"":
+		last_phantom_absolution = GuiltPhantoms.apply_outcome(_state.guilt, _phantom_school, outcome)
+	_release_phantom_host()
+
+
+func _release_phantom_host() -> void:
+	# The hub is a reflection, not the street: leave the sight the duel switched on.
+	if _state != null and _phantom_host != null and not _sight_before_phantom and _state.spirit_sight:
+		var sight: Node = get_tree().get_first_node_in_group(SpiritSightScript.SIGHT_GROUP) if is_inside_tree() else null
+		if sight != null and sight.get(&"state") == _state:
+			sight.call(&"leave_immediately")
+		else:
+			_state.spirit_sight = false
+	if _phantom_host != null:
+		_phantom_host.queue_free()
+	_phantom_host = null
+	_phantom_school = &""
+	if _hub != null:
+		_hub.set_duel_open(false)
 
 
 func is_available() -> bool:
