@@ -14,6 +14,8 @@ uniform vec4 splat_rect = vec4(0.0, 0.0, 1.0, 1.0); // origin.xz, size.xz in wor
 uniform sampler2D roads : filter_linear, repeat_disable;
 // R-1661 CityShadeMask, same rect as splat: R the strip north of buildings,
 // G woodland canopy. Moss replaces grass where the ground stays shaded.
+// B (R-1930): signed distance to the nearest building, site building or site
+// wall, 0.5 on the wall line, +-WALL_RANGE at 1 and 0. Drives the wall-foot band.
 uniform sampler2D shade_mask : filter_linear, repeat_disable, hint_default_black;
 // Footprints, hoofprints and wheel tracks around Kalev (CityGroundTrail): R is
 // 0.5 for undisturbed ground, below it pressed down, above it pushed up as a rim.
@@ -512,6 +514,9 @@ void trail_mesh_vertex(inout vec3 vtx, inout vec3 nrm, inout vec3 tan, inout vec
 // 17 m far triangle drooping towards a sunk vertex.
 const float FAR_TERRAIN_CUT = 420.0;
 
+// Must match CityShadeMask.WALL_RANGE (world units at the ends of the B channel).
+const float WALL_RANGE = 3.0;
+
 void vertex() {
 	// The relief mesh carries vertex colour alpha 0; the chunks have no colour
 	// array, which Godot reads as white; the far mesh carries 0.75
@@ -585,7 +590,16 @@ void fragment() {
 	grass = mix(grass, grass * vec3(0.72, 0.84, 0.66), hollow_damp * 0.8);
 	// R-1661: moss carpets ground the sun hardly reaches (north of walls, under
 	// closed canopy), in ragged cushions rather than an even decal.
-	vec2 shd = texture(shade_mask, suv).rg;
+	vec3 shd_mask = texture(shade_mask, suv).rgb;
+	vec2 shd = shd_mask.rg;
+	// R-1930 wall foot: the baked distance is exact along a straight wall, so it
+	// alone would draw the band as a ruler line. World-space noise (two octaves,
+	// +-0.3 m) wobbles every edge that hangs off it. The unbound default (black)
+	// decodes to deep inside a building, where `foot_on` keeps the band off.
+	float wall_d = (shd_mask.b - 0.5) * 2.0 * WALL_RANGE;
+	float foot_on = smoothstep(-0.6, -0.3, wall_d);
+	float foot_wob = value_noise(wuv * 1.7 + vec2(3.1, 7.9)) * 0.65 + value_noise(wuv * 5.3 + vec2(1.7, 4.4)) * 0.35 - 0.5;
+	float foot_d = wall_d + foot_wob * 0.6;
 	float shade_cover = max(shd.r, shd.g * 0.85);
 	float moss_ground = 0.0;
 	vec3 moss_plate = vec3(0.0);
@@ -744,6 +758,44 @@ void fragment() {
 			vec3 rs_col = mix(rs.albedo, road_col, 0.45 * (1.0 - wet_road)) * mix(0.7, 1.05, rs.crown);
 			col = mix(col * (1.0 - 0.18 * (1.0 - smoothstep(0.9, 1.8, rs.near)) * stone_detail * road), rs_col, rs_cover);
 			nxy = mix(nxy, slope_normal(rs.slope), rs_cover);
+		}
+	}
+	// R-1930 wall foot: drip, boots and barrows keep a ragged band along every wall
+	// bare of turf: packed earth (greyer and dustier than the loose loam beside it
+	// when dry, dark when wet), damp patches and lime-mortar rubble. Its
+	// width and strength vary along the wall; paving only takes a grime of it.
+	// After the cart roads: town lanes are road raster, which would paint over it.
+	float foot_band = (1.0 - smoothstep(0.05, 1.2, foot_d)) * foot_on;
+	foot_band *= mix(0.6, 1.0, value_noise(wuv * 0.55 + vec2(9.2, 2.6)));
+	float foot = foot_band * (1.0 - paving * 0.7) * (1.0 - sand * 0.5) * (1.0 - rock) * dry_land;
+	float foot_damp = 0.0;
+	// Loose loam is dark red-brown; packed, lime-dusted ground is a paler grey-brown
+	// of its own (an absolute tone: relative to the loam it vanished in the lanes).
+	// The plate keeps only its grain. Wet, it darkens like the loam beside it.
+	// Plate fetches stay outside the branch (implicit LOD); same arguments as the
+	// earth blend above, so the compiler shares them.
+	float trodden_grain = dot(detiled(earth_albedo, wuv * earth_scale), vec3(0.333)) / 0.55;
+	vec3 trodden = vec3(0.4, 0.35, 0.29) * mix(0.8, 1.2, clamp(trodden_grain, 0.0, 1.0)) * mix(1.0, 0.7, wet_road);
+	vec2 trodden_n = texture(earth_normal, wuv * earth_scale).rg * 2.0 - 1.0;
+	if (foot > 0.002) {
+		col = mix(col, trodden, foot * 0.8);
+		nxy = mix(nxy, trodden_n, foot * 0.85);
+		// Moss of the north strip survives at the foot; only turf is worn away.
+		col = mix(col, moss_plate * 0.8, moss_ground * foot * 0.55);
+		// Damp patches where the eaves drip and the plinth holds water.
+		foot_damp = foot * smoothstep(0.58, 0.8, value_noise(wuv * 0.9 + vec2(5.5, 1.1)) * 0.7 + value_noise(wuv * 3.7) * 0.3);
+		col = mix(col, col * vec3(0.62, 0.58, 0.55), foot_damp);
+		// Rubble: lime mortar crumbs and small stones, thickest right at the wall.
+		float rubble_cell = 0.1;
+		float rubble_detail = 1.0 - smoothstep(0.3, 0.9, px / rubble_cell);
+		if (rubble_detail > 0.0) {
+			float scatter = 0.35 * foot * (1.0 - smoothstep(0.0, 0.8, foot_d));
+			Pebbles fr = pebble_layer(wuv, rubble_cell, scatter, 0.45, px / rubble_cell, 97.0);
+			float fr_cover = fr.stone * rubble_detail;
+			// Muted with the band's own dust so crumbs do not read as white confetti.
+			vec3 fr_col = mix(fr.albedo, trodden, 0.4) * mix(0.55, 0.9, fr.crown);
+			col = mix(col * (1.0 - 0.15 * (1.0 - smoothstep(0.9, 1.8, fr.near)) * rubble_detail * foot), fr_col, fr_cover);
+			nxy = mix(nxy, slope_normal(fr.slope), fr_cover);
 		}
 	}
 	// Grassy banks too steep to hold turf show bare sand and clay before they turn to rock.
@@ -915,7 +967,7 @@ void fragment() {
 	col = mix(col, crust_col, crust);
 	nxy = mix(nxy, crack_nxy, crust);
 	// Paving stays dark-wet while puddles stand (R-1748): stone dries slower than the air.
-	float wet = clamp(wetness * (1.0 - crust * 0.4) + mud * 0.35 * (1.0 - crust) + shore * 0.5 * (1.0 - swash_live) + puddles * soft * 0.5 + pressed * wet_road * 0.3 + puddles * paving * 0.6, 0.0, 1.0);
+	float wet = clamp(wetness * (1.0 - crust * 0.4) + mud * 0.35 * (1.0 - crust) + foot_damp * 0.15 + shore * 0.5 * (1.0 - swash_live) + puddles * soft * 0.5 + pressed * wet_road * 0.3 + puddles * paving * 0.6, 0.0, 1.0);
 	col *= mix(1.0, 0.62, wet);
 	// Soaked margin: darker, richer earth before any water is visible.
 	col = mix(col, col * vec3(0.66, 0.6, 0.55), damp_ring * 0.65);
@@ -953,6 +1005,8 @@ void fragment() {
 	float snow_amount = smoothstep(0.0, 0.03, snow_here);
 	snow_amount *= 1.0 - 0.9 * puddle - 0.7 * rock;
 	snow_amount *= dry_land;
+	// R-1930: the eaves shelter a ragged strip at the wall foot from snow.
+	snow_amount *= mix(0.1, 1.0, smoothstep(0.0, 0.55, wall_d + foot_wob * 0.5)) * foot_on + (1.0 - foot_on);
 	snow_amount = clamp(snow_amount, 0.0, 1.0);
 	col = mix(col, snow_color * (0.92 + 0.08 * micro), snow_amount);
 	// Packed snow in a print is bluer and darker.
@@ -963,6 +1017,12 @@ void fragment() {
 		snow_lift(wuv + e.xy, clamp(-tr_x / trail_depth, 0.0, 1.0)) - snow_here,
 		snow_lift(wuv + e.yx, clamp(-tr_z / trail_depth, 0.0, 1.0)) - snow_here) / e.x;
 	nxy += -snow_grad * snow_amount * detail;
+	// R-1930 contact shade where ground meets wall: 15-30 % darker, fading out
+	// over 0.3-0.6 m, with its own noise so its edge does not trace the band.
+	float ao_wob = value_noise(wuv * 2.9 + vec2(6.3, 0.7)) - 0.5;
+	float ao_reach = mix(0.3, 0.6, value_noise(wuv * 0.8 + vec2(1.9, 8.4)));
+	float ao_strength = mix(0.15, 0.3, value_noise(wuv * 1.3 + vec2(4.7, 3.3)));
+	col *= 1.0 - ao_strength * (1.0 - smoothstep(0.0, ao_reach, wall_d + ao_wob * 0.35)) * foot_on;
 	ALBEDO = city_albedo(col);
 	ROUGHNESS = mix(mix(0.95, 0.6, wet * (1.0 - rock * 0.5)), 0.5, damp_ring * 0.5);
 	ROUGHNESS = mix(ROUGHNESS, mix(0.16, 0.025, deep), puddle);

@@ -136,3 +136,38 @@ func test_shade_mask_marks_the_north_side_of_buildings() -> void:
 		var px := Vector2i(uv.floor()).clamp(Vector2i.ZERO, image.get_size() - Vector2i.ONE)
 		canopy += image.get_pixelv(px).g
 	assert_true(canopy / ceilf(woods.size() / 25.0) > 0.4, "woods are under canopy shade")
+
+
+func test_shade_mask_blue_is_signed_distance_to_walls() -> void:
+	var plan := CityPlan.load_default()
+	var started := Time.get_ticks_msec()
+	var image := CityShadeMask.build_image(plan)
+	var build_ms := Time.get_ticks_msec() - started
+	var on_wall := 0.0
+	var outside := 0
+	var inside := 0
+	var samples := 0
+	for i in range(0, plan.buildings.size(), 7):
+		var ring := plan.footprint(i)
+		if ring.size() < 3:
+			continue
+		var a := ring[0]
+		var b := ring[1]
+		if a.distance_to(b) < 4.0:
+			continue
+		var mid := (a + b) * 0.5
+		var n := (b - a).orthogonal().normalized()
+		if Geometry2D.is_point_in_polygon(mid + n * 0.2, ring):
+			n = -n
+		on_wall += absf(CityShadeMask.wall_distance_at(image, plan, mid))
+		if CityShadeMask.wall_distance_at(image, plan, mid + n * 1.5) > 0.6:
+			outside += 1
+		if CityShadeMask.wall_distance_at(image, plan, mid - n * 1.0) < 0.0:
+			inside += 1
+		samples += 1
+	assert_true(samples > 50, "enough walls sampled (%d)" % samples)
+	# Bilinear over 2 m texels: straight walls decode to within a few decimetres.
+	assert_true(on_wall / samples < 0.35, "wall line decodes near 0 (%.2f m)" % (on_wall / samples))
+	assert_true(outside > samples * 0.8, "1.5 m out reads as outside (%d/%d)" % [outside, samples])
+	assert_true(inside > samples * 0.8, "1 m in reads as inside (%d/%d)" % [inside, samples])
+	print("shade mask build %d ms" % build_ms)

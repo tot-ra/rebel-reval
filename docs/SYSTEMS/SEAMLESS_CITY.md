@@ -70,6 +70,26 @@ Everything is seeded lattice noise: the same inputs give the same `height.json`.
 
 Review: `tools/godot_render.sh --script tools/capture_terrain_relief.gd` renders the open country, the roads, and walked and wheeled prints, each dry and wet, to `docs/reports/images/city/terrain_*.png`.
 
+### Wall foot
+
+Status: implemented (task **R-1930**). Scope: the ground side of every joint between the city ground and a building, a site building or a site wall (close walls, plank fences). Out of scope: the wall shaders (plinth and wall grime are a separate task), the 3D grass blades and forbs (they still grow up to the wall), interiors.
+
+Before, a clean terrain plate met a clean wall in one pixel-sharp straight line. Now a ragged band runs along every wall foot:
+
+- **Packed earth:** within about 1.2 m of the wall the loose dark loam turns into packed, lime-dusted grey-brown ground (an absolute tone, so it reads in lanes that are cart-road raster too). It darkens like the loam when wet. North-strip moss (R-1661) survives in it; only turf is worn away. Paving takes only a light grime of it.
+- **Damp patches** where the eaves drip, darker and slightly glossy (they add to `wet`).
+- **Rubble:** lime-mortar crumbs and small stones from `pebble_layer()` (0.1 m cells), thickest at the wall, muted with the band's dust; only near the camera, where a stone resolves.
+- **Contact shade:** 15-30 % darker at the wall, fading out over 0.3-0.6 m; strength and reach vary along the wall.
+- **Snow:** the eaves keep a ragged strip at the foot almost bare (down to 10 % of the snow cover within about 0.55 m).
+
+Every edge is wobbled by world-space value noise (band edge +-0.3 m; the contact shade has its own noise so it does not trace the band), so no edge is a straight line. All deterministic, no per-frame state.
+
+Data: `CityShadeMask` (`scripts/city/city_shade_mask.gd`) bakes a B channel into the existing `shade_mask` texture (now RGB8, 2 m cells, same rect as the splat): the signed distance to the nearest `CityPlan.footprint()` ring, site footprint (`CitySite.placed.footprints`) or site wall segment (`CitySite.walls`, minus half its thickness), 0.5 on the wall line, 0 / 1 at `WALL_RANGE` (3 m) inside / outside. Signed and linear, so bilinear filtering reproduces a straight wall exactly between texels and a centimetre-scale band comes from a coarse mask. `city_ground.gdshader` decodes it from the same `shade_mask` fetch (no extra texture sample; `WALL_RANGE` is mirrored as a shader constant). The unbound default (black) decodes as deep inside a building, where the band is off. Built once at load (about 0.2 s for the whole plan). Nothing is saved.
+
+Verify: `test_shade_mask_blue_is_signed_distance_to_walls` in `tests/godot/test_city_forest_floor.gd` (wall line decodes near 0, 1.5 m out reads outside, 1 m in reads inside). Review capture: `tools/godot_render.sh --resolution 1600x900 res://tools/capture_wall_foot.tscn -- --tag=after` (forge street next to Kalev in the painted-iso camera, plus a close oblique of the nearest sunlit wall). Before/after: [`wall_foot_iso_before.jpg`](../reports/images/city/wall_foot_iso_before.jpg), [`wall_foot_iso_after.jpg`](../reports/images/city/wall_foot_iso_after.jpg), [`wall_foot_close_before.jpg`](../reports/images/city/wall_foot_close_before.jpg), [`wall_foot_close_after.jpg`](../reports/images/city/wall_foot_close_after.jpg).
+
+Limits: the distance is sampled on 2 m texels, so outer corners round off and inner corners between close walls are approximate; the noise hides it at gameplay range. The snow strip has not had a winter review capture yet.
+
 ### How buildings are built
 
 Every house, hall and church is generated at load from its plan record (`plan.json` → `buildings[]`) by `CityBuildingBuilder.build_building`; nothing is hand-modelled. The record carries the footprint, `base_h`/`base_span` (lowest ground under the footprint and the slope across it), `wall_h`, `material`, `roof`, `roof_pitch_deg`, `ridge_angle`, the street `door` (point and outward angle), `kind` (`house`, `church`, `chapel`, `hall`) and `enterable`. Intramural houses also persist `wealth_tier` (`poor`/`craft`/`merchant`/`great`, matching the material band), `age_tier` (`new`/`settled`/`old`) and `upkeep` (`kept`/`worn`), deterministic per building id from a separate seeded RNG (task **R-1412**); nothing renders from them yet.
