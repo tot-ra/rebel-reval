@@ -149,7 +149,7 @@ Captures (isolated actual site builders and door records, neutral review lightin
 
 ## Limits
 
-- Unprofiled flat site doors and the council hall still open 100 degrees from a hinge line near the outer face; in walls thicker than the leaf offset the open leaf passes partly through its jamb (visible in the council hall open capture). Portal doors open 90 degrees into their rear arch and do not.
+- Unprofiled doors (street, flat site doors, council hall) now open 90 degrees (was 100, which drove the leaf into the jamb) with the hinge pulled `JAMB_CLEARANCE` 0.05 m toward the opening, so the open leaf lies flat against the reveal. Double leaves are 0.05 m narrower, leaving a thin slit at each jamb when shut. Portal doors open 90 degrees into their rear arch as before.
 - The attested trefoil archivolt of St Nicholas's south portal, capitals, shafts and carved imposts are not modelled. Orders are concentric with the manifest arch, so St Mary's nearly semicircular apertures stay nearly round.
 - Hardware relief is visual: no physical key/lock interaction or moving ring animation.
 - Profile differences communicate expense and entrance role, not documented personal ownership or an authenticated original church door design.

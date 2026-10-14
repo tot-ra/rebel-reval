@@ -11,7 +11,11 @@ extends Node3D
 ## Rectangular leaves retain the authored apertures; see SYSTEMS/CITY_DOORS.md.
 
 const OPEN_RADIUS := 2.4
-const OPEN_ANGLE := deg_to_rad(100.0)
+## 90 degrees lays the leaf flat on the jamb; more drives it into the masonry.
+const OPEN_ANGLE := deg_to_rad(90.0)
+## Hinge pull-in toward the opening so a leaf flat on the jamb clears the wall by
+## its own half thickness (the mesh is centred on the hinge line).
+const JAMB_CLEARANCE := 0.05
 const SWING_SPEED := deg_to_rad(220.0)
 const CHECK_RADIUS := 12.0
 const TIMBER_ALBEDO := "res://assets/materials/pbr/timber/timber_albedo.png"
@@ -130,6 +134,9 @@ func _hang(
 	var head: Vector2 = shape.get("head", Vector2.ZERO)
 	var leaves := 2 if double else 1
 	var leaf_w := a.distance_to(b) / leaves
+	var clearance := JAMB_CLEARANCE if head == Vector2.ZERO else 0.0
+	if double:
+		leaf_w -= clearance
 	var hinge_nodes: Array[Node3D] = []
 	for k in leaves:
 		var hinge := Node3D.new()
