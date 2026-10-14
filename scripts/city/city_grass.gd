@@ -42,7 +42,8 @@ const FAR_WIDTH_BOOST := 2.0
 const STREAM_BUDGET_US := 3500
 
 const NEAR_CHUNK := 8.0
-const NEAR_RADIUS_CHUNKS := 2
+# 3 chunks (24 m+) cover the 22 m near fade-out from any spot inside a chunk.
+const NEAR_RADIUS_CHUNKS := 3
 const NEAR_DENSITY := 4.5
 const NEAR_CLUMP_SCALE := Vector2(0.8, 1.35)
 

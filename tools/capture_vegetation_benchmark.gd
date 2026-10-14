@@ -81,6 +81,12 @@ const CAMERAS: Array[Dictionary] = [
 		"anchor": "meadow",
 		"mode": "gameplay",
 	},
+	# Painted iso (R-1744): perspective telephoto, 42 m boom and 45 m at max zoom-out,
+	# with tier fades measured round the player as the game does while a player
+	# drives the view.
+	{"name": "meadow_painted_iso", "anchor": "meadow", "mode": "painted_iso", "distance": 42.0},
+	{"name": "meadow_painted_iso_max", "anchor": "meadow", "mode": "painted_iso", "distance": 45.0},
+	{"name": "forum_painted_iso", "anchor": "forum", "mode": "painted_iso", "distance": 42.0},
 	{
 		"name": "grain_field_eye_level",
 		"anchor": "grain_field",
@@ -118,6 +124,8 @@ const CAMERAS: Array[Dictionary] = [
 		"fov": 65.0,
 	},
 ]
+
+const WindMaterials := preload("res://scripts/map/view3d/map_view_wind_materials.gd")
 
 var _triangle_cache := {}
 ## Fixed-size render target, so the window size and display scale never change
@@ -236,9 +244,17 @@ func _anchors() -> Dictionary:
 	var meadows: Array = _plan.data.get("pastures", []).filter(
 		func(p: Dictionary) -> bool: return p["kind"] == "meadow"
 	)
+	# The coastline rework dropped the plan's meadows; the largest common pasture
+	# is the same open grass, so the benchmark keeps a "meadow" anchor.
+	if meadows.is_empty():
+		meadows = _plan.data.get("pastures", []).filter(
+			func(p: Dictionary) -> bool: return p["kind"] == "common"
+		)
 	meadows.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a["id"] < b["id"])
 	if not meadows.is_empty():
 		result["meadow"] = _polygon_anchor(meadows[0])
+	if _plan.data.has("forum"):
+		result["forum"] = _polygon_anchor(_plan.data["forum"])
 	var fields: Array = _plan.data.get("fields", []).filter(
 		func(f: Dictionary) -> bool: return f["crop"] == "wheat"
 	)
@@ -294,6 +310,22 @@ func _measure(
 		)
 		entry["projection"] = "orthogonal"
 		entry["size"] = _camera.size
+	elif spec["mode"] == "painted_iso":
+		_camera.projection = Camera3D.PROJECTION_PERSPECTIVE
+		_camera.fov = MapViewRuntimeCameraModes.PAINTED_ISO_FOV_DEGREES
+		_camera.near = MapViewRuntimeCameraModes.PAINTED_ISO_NEAR
+		_camera.rotation_degrees = Vector3(
+			MapViewRuntimeCameraModes.PAINTED_ISO_PITCH_DEGREES, MapView3D.CAMERA_YAW_DEGREES, 0.0
+		)
+		_camera.position = (
+			Vector3(at.x, ground, at.y) + _camera.transform.basis.z * float(spec["distance"])
+		)
+		# Tier fades follow the player on the ground (lod_focus) once a player drives
+		# the view; builds without that uniform ignore it and fade by lens distance.
+		WindMaterials.apply_grass_interaction(at, Vector2.ZERO)
+		entry["projection"] = "perspective"
+		entry["fov"] = _camera.fov
+		entry["distance"] = spec["distance"]
 	else:
 		_camera.projection = Camera3D.PROJECTION_PERSPECTIVE
 		_camera.fov = spec["fov"]

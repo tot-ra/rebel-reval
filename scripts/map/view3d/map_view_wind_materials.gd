@@ -12,12 +12,14 @@ const GRASS_FADE_START := 30.0
 const GRASS_FADE_END := 43.0
 const GRASS_NEAR_FADE_START := 7.0
 const GRASS_NEAR_FADE_END := 11.0
+## Near fade reaches 22 m so the painted-iso corners at max zoom (45 m boom) stay
+## inside the dense tier (see LIVING_VEGETATION.md, grass cost in painted iso).
 ## VEGR-4 blade tiers: near blades shrink out as mid-tier clumps grow in over the
 ## overlap, so the hand-off is a scale cross-fade (no alpha self-fade).
-const BLADE_NEAR_FADE_START := 12.0
-const BLADE_NEAR_FADE_END := 17.0
-const BLADE_MID_FADE_IN_START := 9.0
-const BLADE_MID_FADE_IN_END := 15.0
+const BLADE_NEAR_FADE_START := 16.0
+const BLADE_NEAR_FADE_END := 22.0
+const BLADE_MID_FADE_IN_START := 13.0
+const BLADE_MID_FADE_IN_END := 20.0
 const BLADE_MID_FADE_START := 38.0
 const BLADE_MID_FADE_END := 46.0
 # Far tier: grows in as the mid tier shrinks out (38-46 m), gone by ~118 m.

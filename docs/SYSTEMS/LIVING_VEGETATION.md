@@ -198,13 +198,30 @@ Implemented for the seamless city (**R-1323**; open: blueprint-map carpet and gr
 
 | Tier | Chunk | Density | Range (scale cross-fade) |
 |---|---|---|---|
-| Near | 8 m | 4.5 clumps/m2 | 0-12 m, out by 17 m |
-| Mid | 16 m | 1 clump/m2, larger | 9-46 m |
+| Near | 8 m | 4.5 clumps/m2 | 0-16 m, out by 22 m |
+| Mid | 16 m | 1 clump/m2, larger | 13-46 m |
 | Far | 32 m | 0.25 clumps/m2, double width | 36-118 m |
 
 - **Camera independence.** Decision (user, 2026-10-13): grass must look the same in painted iso and the default third-person camera, and must not thin when the camera tilts down. While a player drives the view, tier ranges are measured on the ground from the player (`lod_focus`, set by `apply_grass_interaction`), not from the lens; without a player (captures, blueprint previews) they fall back to camera distance. The shader no longer slims or lowers tufts by camera pitch. Painted iso therefore shows the dense near tier round the player instead of only sparse, large mid clumps. Verified by `tests/godot/test_grass_tiers.gd`.
 
 ![Painted iso over the pasture: dense fine near-tier blades round the player](../reports/images/vegetation/grass_iso_near_tier.jpg)
+
+- **Painted-iso cost and tier ring (2026-10-14).** Measured with `tools/run_performance_report.sh --vegetation` cameras `meadow_painted_iso` (42 m boom), `meadow_painted_iso_max` (45 m, max zoom-out) and `forum_painted_iso` (the first two use the largest common pasture, since the plan lost its meadows; the cameras call `apply_grass_interaction` so tier fades follow the player as in the game). 1920x1080, Apple M5 Pro, Forward Mobile, 120-240 frames, medians, same content (HEAD) with only `map_view_grass.gdshader` swapped for its pre-`41286408d` version as the baseline:
+
+| Camera | Before (lens-distance fades) | After 41286408d (near out by 17 m) | Near out by 22 m (shipped) |
+|---|---|---|---|
+| `meadow_painted_iso` | 19.4 ms | 20.6 ms (+1.2, +6%) | 21.5 ms (+2.1, +11%) |
+| `meadow_painted_iso_max` | 19.8 ms | 20.7 ms | 21.5 ms |
+| `forum_painted_iso` | 20.2 ms | 20.1 ms | 20.1 ms |
+
+  Draw calls and primitives are identical before/after 41286408d: the shader scales faded clumps to zero but they are still submitted, so the cost is the fragment work of the now-visible dense blades, not geometry. The forum is paved and has almost no grass, so it is unaffected. Decision: the 41286408d cost (about 1 ms on a pasture) is not significant enough to lower `NEAR_DENSITY` or add a cheaper near mesh; revisit if a low-end target regresses.
+  At max zoom with the near tier out by 17 m, the screen edges and corners fell in the sparse mid tier and a density ring showed round the dense core. Widening the near tier (fade 16-22 m, mid grows in 13-20 m, `NEAR_RADIUS_CHUNKS` 2 to 3 so 24 m of chunks cover the fade) removes the ring except a faint hint in the far corners, for about 0.8 ms more on a pasture. Third person pays the same widening only where grass is in view.
+
+| Near out by 17 m (ring visible) | Near out by 22 m (shipped) |
+|---|---|
+| ![Max zoom painted iso, ring visible](../reports/images/vegetation/grass_iso_max_near17.jpg) | ![Max zoom painted iso, near tier widened](../reports/images/vegetation/grass_iso_max_wide_near.jpg) |
+
+  Reproduce: `tools/godot_render.sh --resolution 1920x1080 --disable-vsync --script res://tools/capture_vegetation_benchmark.gd -- --output=/tmp/v.json --camera=meadow_painted_iso_max --frames=240 --screenshots=/tmp/shots/`. Run baseline and candidate in clean worktrees one after another (concurrent GPU jobs skew timings).
 
 - **Streaming.** Missing chunks are built nearest first within a 3.5 ms frame budget (at least one per frame); placement stays on the CPU (GL Compatibility has no compute).
 - **Shading.** Root-to-tip gradient with warm, partly dry tips, root colour melting into the ground, rounded normals, backlight, wind sheen. No shadows.
