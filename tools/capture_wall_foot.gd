@@ -5,9 +5,12 @@ extends Node
 ## the painted-iso gameplay camera (plank wall and plinth house next to Kalev),
 ## plus a close oblique of the nearest wall foot and (R-1931) an oblique of the
 ## steepest south-facing wall foot nearby, so the wall-side band can be checked
-## on a sloped street. Host scene so autoloads resolve:
+## on a sloped street. R-1932 adds a busy-street shot (a wall beside the most
+## worn cart road nearby) for the 3D wall-foot scatter; --no-scatter hides
+## CityWallFootScatter for the matching "before" plate. Host scene so autoloads
+## resolve:
 ##   tools/godot_render.sh --resolution 1600x900 res://tools/capture_wall_foot.tscn \
-##     -- --tag=after [--city-hour=10.5]
+##     -- --tag=after [--city-hour=10.5] [--no-scatter]
 ## Output: docs/reports/images/city/wall_foot_<shot>_<tag>.jpg
 
 const SCENE := preload("res://scenes/world/reval_city/reval_city.tscn")
@@ -109,6 +112,33 @@ func _sloped_wall(plan: CityPlan, at: Vector2) -> Array:
 	return best
 
 
+## R-1932: midpoint and outward normal of the long footprint edge within 120 m
+## of `at` that fronts the most worn cart road (roads.png B), 1.5-4.5 m out.
+func _busy_wall(plan: CityPlan, at: Vector2) -> Array:
+	var grass: CityGrass = city.world.grass
+	var best := [at, Vector2.DOWN]
+	var best_wear := -1.0
+	for index: int in plan.buildings_near(at, 120.0):
+		var ring := plan.footprint(index)
+		for i in ring.size():
+			var a := ring[i]
+			var b := ring[(i + 1) % ring.size()]
+			if a.distance_to(b) < 5.0:
+				continue
+			var n := (b - a).orthogonal().normalized()
+			var mid := (a + b) * 0.5
+			if Geometry2D.is_point_in_polygon(mid + n * 0.1, ring):
+				n = -n
+			# Cart roads keep a verge off the wall: probe a few metres out.
+			for out: float in [1.5, 3.0, 4.5]:
+				var road := grass.road_at(mid + n * out)
+				if road.r > 0.2 and road.b > best_wear:
+					best_wear = road.b
+					best = [mid, n]
+	print("busy wall wear %.2f at %s" % [best_wear, best[0]])
+	return best
+
+
 ## Oblique camera on the wall foot at `mid` (outward normal `n`).
 func _frame_wall(plan: CityPlan, cam: Camera3D, mid: Vector2, n: Vector2, back: float) -> void:
 	var foot := Vector3(mid.x, plan.ground_height(mid), mid.y)
@@ -131,12 +161,19 @@ func _run() -> void:
 	city = SCENE.instantiate()
 	add_child(city)
 	await _frames(120)
+	if "--no-scatter" in OS.get_cmdline_user_args():
+		city.world.grass.wall_foot.visible = false
 	var plan: CityPlan = city.plan
 	var at := _forge_street(plan)
 	city.player.global_position = CityPlan.to_logic(at)
 	city.runtime.set_camera_mode(MapViewRuntimeCamera.CameraMode.PAINTED_ISO)
 	await _frames(150)
 	await _save("wall_foot_iso_%s" % tag)
+	var scatter: CityWallFootScatter = city.world.grass.wall_foot
+	var counts := PackedStringArray()
+	for kind: StringName in CityWallFootScatter.ALL_KINDS:
+		counts.append("%s=%d" % [kind, scatter.instance_count(kind)])
+	print("wall-foot scatter: ", ", ".join(counts))
 	# Close oblique of the nearest wall foot, Kalev stepped aside.
 	var wall: Array = _nearest_wall(plan, at)
 	var mid: Vector2 = wall[0]
@@ -157,4 +194,9 @@ func _run() -> void:
 	city.player.global_position = CityPlan.to_logic(slope[0] + slope[1] * 4.0)
 	await _frames(60)
 	await _save("wall_foot_slope_%s" % tag)
+	var busy: Array = _busy_wall(plan, at)
+	_frame_wall(plan, cam, busy[0], busy[1], 6.0)
+	city.player.global_position = CityPlan.to_logic(busy[0] + busy[1] * 4.0)
+	await _frames(60)
+	await _save("wall_foot_busy_%s" % tag)
 	get_tree().quit(0)

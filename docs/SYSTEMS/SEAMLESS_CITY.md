@@ -72,7 +72,7 @@ Review: `tools/godot_render.sh --script tools/capture_terrain_relief.gd` renders
 
 ### Wall foot
 
-Status: implemented (task **R-1930**). Scope: the ground side of every joint between the city ground and a building, a site building or a site wall (close walls, plank fences). Out of scope: the wall shaders (plinth and wall grime: R-1931 below), the 3D grass blades and forbs (they still grow up to the wall), interiors.
+Status: implemented (task **R-1930**). Scope: the ground side of every joint between the city ground and a building, a site building or a site wall (close walls, plank fences). Out of scope: the wall shaders (plinth and wall grime: R-1931 below), the 3D grass blades and forbs (the R-1932 scatter below adds 3D clutter), interiors.
 
 Before, a clean terrain plate met a clean wall in one pixel-sharp straight line. Now a ragged band runs along every wall foot:
 
@@ -109,6 +109,26 @@ Strength scales with the wall's `age` (weathered plates more, tarred ones less).
 Verify: `tests/godot/test_city_wall_foot_band.gd` (timber walls rot, stone does not; walls and render are bound to the heightfield; both shaders call the shared helper from local ground). Review capture: `tools/godot_render.sh --resolution 1600x900 res://tools/capture_wall_foot.tscn -- --tag=band_after` now adds `wall_foot_slope_<tag>.jpg`, an oblique of the south-facing wall within 120 m whose ground falls most along it (2.9 m at the forge street). Before/after crops: [`wall_band_close_compare.jpg`](../reports/images/city/wall_band_close_compare.jpg) (forge street plank house and plinth, top before, bottom after), [`wall_band_slope_compare.jpg`](../reports/images/city/wall_band_slope_compare.jpg) (sloped street).
 
 Limits: the band is measured from the street, so a plank wall standing on a tall plinth on a slope gets it only where the plinth is low (physically right: the splash comes from the ground). The site kits' plain ashlar and plank materials have no band yet.
+
+#### 3D wall-foot scatter
+
+Status: implemented (task **R-1932**). Scope: real 3D objects that break the silhouette of the joint along every plan building outside (houses, outbuildings, halls, churches: all `CityPlan.buildings`). Out of scope: site walls and fences, interiors, blueprint maps, collision or interaction (everything is walk-through dressing), new art files (asset freeze P0-040).
+
+The shaders above blend the two surfaces, but grass grew evenly over a yard and stopped short of the walls, so the straight line stayed visible. `CityWallFootScatter` (`scripts/city/city_wall_foot_scatter.gd`, a child of `CityGrass`) lays along each footprint ring:
+
+- **Grass clumps** in a 0-0.6 m strip (7 draws per metre, biased to the wall), unmown and tallest against the plinth (about 1.9x down to 1.15x the clump), with the existing `grass_blade_clump_mesh` and `MapViewMaterials.grass_blades()`.
+- **Tall weeds** (3 % of draws, plus up to 32 % within 2 m of a corner and 14 % on north faces): nettle and mugwort (`MapViewPlantMeshes`), burdock rosettes standing in for dock, and flowering or dry burdock by season (`CityForbMeshes`, `CityForbs._kind_for`). They follow the burdock season (`VegetationPhenology.forb_phase`): none from mid-November to mid-April.
+- **Fieldstones** (3.5 %), half-buried and tipped; **wood chips** (2 %) in small clusters; one **fallen plank** along a wall on about 22 % of buildings; **mud ridge** pieces pushed against the wall (30 % per 1.3 m, up to 65 % on north faces). These four are code primitives (sphere, box) with white vertex colours and dark sRGB instance tints on one matte `StandardMaterial3D`.
+
+Nothing lands on the door span of the door edge (door half-width + 0.6 m, the edge and `door_t` found as the plinth does) or within 1.3 m of the door point (the steps), on paving or market stone (splat paving > 0.35), on a busy cart road body (`roads.png` body > 0.3 with wear B > 0.45), inside another building, or on a site.
+
+Deterministic per building: the RNG is seeded by the building id and every draw is taken whether the spot survives or not, so the season never moves a stone (`building_buffers(grass, index, day)` is pure data). Nothing is saved. Drawing: one `MultiMesh` per model (ten layers) for every building within 40 m of the player, refilled from cached per-building buffers when the player enters a new 6 m cell; buildings are built nearest first inside the `CityGrass` frame budget, right after the near grass tier (queued behind the forbs it took seconds to appear). Shadows are off. The older `CityWallFoot` weed tufts and climbers stay as they are.
+
+Cost: about 8,000 instances round the forge in June (grass 6,316, nettle 507, mugwort 235, burdock 586, stone 284, chip 794, plank 3, ridge 359); building them all takes about 140 ms of CPU, spread over frames by the stream budget. `tools/run_performance_report.sh --quick` before/after: `reval_city_scene` frame p95 85.8 -> 85.3 ms (unchanged within noise, already over budget before), memory +4.3 MiB, node count unchanged.
+
+Verify: `tests/godot/test_city_wall_foot_scatter.gd` (deterministic and dense, every instance inside the strip, doors, paving and busy roads clear, weeds per metre at corners over twice the wall run, January drops weeds and keeps stones, the forge stream finishes under 30,000 instances). Review capture: `tools/godot_render.sh --resolution 1600x900 res://tools/capture_wall_foot.tscn -- --tag=<tag> [--no-scatter]` adds `wall_foot_busy_<tag>.jpg` (the wall fronting the most worn cart road within 120 m; the forge quarter has no `roads.png` body nearby, so it falls back to a paved door forecourt that must stay clear) and prints the layer counts. Before/after plates (top before with `--no-scatter`, bottom after): [`wall_scatter_iso_compare.jpg`](../reports/images/city/wall_scatter_iso_compare.jpg) (painted iso at the forge street), [`wall_scatter_close_compare.jpg`](../reports/images/city/wall_scatter_close_compare.jpg), [`wall_scatter_slope_compare.jpg`](../reports/images/city/wall_scatter_slope_compare.jpg), [`wall_scatter_busy_compare.jpg`](../reports/images/city/wall_scatter_busy_compare.jpg).
+
+Limits: dock has no model of its own (the burdock rosette stands in); the strip follows the raw footprint, so a few blades can clip the filleted corner of a wall; stones and chips pop at the 40 m range edge instead of fading.
 
 ### How buildings are built
 
@@ -160,6 +180,7 @@ Positions and roster from [`walls-gates-towers.md`](../../history/dossiers/topog
 | `scripts/city/city_trail_feed.gd` (`CityTrailFeed`) | Feeds citizens, hoofed animals and `city_wheeled` vehicles into the trail each frame |
 | `scripts/city/city_building_builder.gd` | Buildings as described in [How buildings are built](#how-buildings-are-built): filleted wall ring, walls, door gap and steps, windows and lancets, gable roof with rolled edges and ridge cap, chimneys, interiors |
 | `scripts/city/city_wall_foot.gd` (`CityWallFoot`) | Weeds at the wall foot and climbers on some walls (procedural leaf card, no texture asset) |
+| `scripts/city/city_wall_foot_scatter.gd` (`CityWallFootScatter`) | R-1932: streamed 3D wall-foot strip: dense grass, nettle/mugwort/burdock, fieldstones, chips, planks, mud ridge |
 | `scripts/city/city_chimney_smoke.gd` (`CityChimneySmoke`) | Streamed `ChimneySmoke3D` plumes over lit chimneys near Kalev |
 | `scripts/city/city_ships.gd` (`CityShips`) | Cogs at anchor, fishing boats, a cog under way (game boat builders, rescaled to metres) |
 | `scripts/city/city_npcs.gd` (`CityNpcs`) | Site people and farm hands (logic bodies; rigs via the runtime); owns `CityCitizens` (`scripts/city/city_citizens.gd`), the census residents |

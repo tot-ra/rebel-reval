@@ -12,6 +12,8 @@ extends Node3D
 ##   forbs      - detailed dandelion, plantain, white and red clover and burdock
 ##                placed by habitat (CityForbs, R-1519) in their own chunks
 ##   accents    - 3D yarrow scattered through the mid chunks
+##   wall foot  - dense unmown strip, weeds, stones and debris along every
+##                house wall (CityWallFootScatter, R-1932)
 ## Placement thins on trodden earth and leaves paving, floors, water and steep
 ## banks bare. Cart roads (roads.png) stay bare where wheels and feet pass: grass
 ## stands only on the verge, and a stray tuft on a lightly used road is tiny.
@@ -77,6 +79,8 @@ const DISTANCE_CACHE_LIMIT := 40000
 var plan: CityPlan
 ## Wild plants (dandelion, plantain, clover, burdock), streamed after the mid tier.
 var forbs: CityForbs
+## R-1932: grass, weeds, stones and debris hugging every wall foot.
+var wall_foot: CityWallFootScatter
 var _wild_cache: Dictionary = {}
 var _road_cache: Dictionary = {}
 var _house_cache: Dictionary = {}
@@ -111,6 +115,8 @@ static func create(city_plan: CityPlan) -> CityGrass:
 	node._accent_material = MapViewMaterials.grass_blades()
 	node.forbs = CityForbs.create(node)
 	node.add_child(node.forbs)
+	node.wall_foot = CityWallFootScatter.create(node)
+	node.add_child(node.wall_foot)
 	return node
 
 
@@ -121,6 +127,10 @@ func update_for(world_xz: Vector2) -> void:
 	_deadline_us = Time.get_ticks_usec() + STREAM_BUDGET_US
 	_built_this_frame = false
 	if _stream(_near_chunks, world_xz, NEAR_CHUNK, NEAR_RADIUS_CHUNKS, _build_near_chunk):
+		return
+	# R-1932: the wall-foot strip right after the near blades; it sits where the
+	# eye meets the walls and queued behind the forbs it waited for seconds.
+	if wall_foot.update_for(world_xz, _deadline_us, _built_this_frame):
 		return
 	if _stream(_mid_chunks, world_xz, MID_CHUNK, MID_RADIUS_CHUNKS, _build_mid_chunk):
 		return
