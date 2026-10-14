@@ -25,6 +25,7 @@ extends RefCounted
 const Kit := preload("res://scripts/city/sites/site_kit.gd")
 const Interior := preload("res://scripts/map/view3d/map_view_kalev_smithy_interior.gd")
 const PropBuilder := preload("res://scripts/map/view3d/map_view_smithy_prop_builder.gd")
+const Footing := preload("res://scripts/city/city_footing.gd")
 const FLOOR := 0.12
 const CUT := FLOOR + CityBuildingBuilder.CUT_HEIGHT
 const EAVE := 4.1
@@ -38,6 +39,12 @@ const PARTITION_X := 6.4
 const SHED := Rect2(14.3, 0.5, 5.4, 6.8)
 const SHED_HIGH := 3.4
 const SHED_LOW := 2.3
+## R-1933: lean-to post pads, back-wall sill stones (the sill beam sits on
+## them), barge-board depth under the rakes and rafter tails past the eave.
+const PAD_TOP := 0.18
+const SILL_TOP := 0.2
+const FASCIA := 0.2
+const RAFTER_TAIL := 0.32
 ## Kit GLBs are in district units (1 unit = 0.87 m).
 const KIT_SCALE := 0.87
 const KIT_MODELS := {
@@ -372,7 +379,14 @@ static func _shutters(shell: CityBuildingBuilder.Shell, fabric: Array) -> void:
 					Kit.bar(shell, "timber", Vector3(l0.x, y, l0.z), Vector3(l1.x, y, l1.z), 0.05, OAK_DARK * 0.8)
 				var s0 := p0 + o3 * 0.07
 				var s1 := p0.lerp(p1, 0.7) + o3 * 0.07
-				Kit.bar(shell, "dark", Vector3(s0.x, y1 - 0.18, s0.z), Vector3(s1.x, y1 - 0.18, s1.z), 0.025, IRON)
+				Kit.bar(
+					shell,
+					"dark",
+					Vector3(s0.x, y1 - 0.18, s0.z),
+					Vector3(s1.x, y1 - 0.18, s1.z),
+					0.025,
+					IRON
+				)
 
 
 ## Soot and grime baked into the vertex colours of the rubble: smoke stains
@@ -412,9 +426,15 @@ static func _shed(shell: CityBuildingBuilder.Shell) -> void:
 	var x1 := SHED.end.x
 	var z0 := SHED.position.y
 	var z1 := SHED.end.y
+	# R-1933: the posts stand on fieldstone pads, not straight in the dirt.
 	for z: float in [z0 + 0.1, (z0 + z1) * 0.5, z1 - 0.1]:
+		Footing.pad(shell, Vector2(x1 - 0.21, z), 0.0, Vector2(0.2, 0.19), PAD_TOP, int(z * 97.0) + 6113)
 		CitySiteProps._box(
-			shell, "timber", Vector3(x1 - 0.32, -0.3, z - 0.11), Vector3(x1 - 0.1, SHED_LOW, z + 0.11), OAK_DARK
+			shell,
+			"timber",
+			Vector3(x1 - 0.32, PAD_TOP - 0.03, z - 0.11),
+			Vector3(x1 - 0.1, SHED_LOW, z + 0.11),
+			OAK_DARK
 		)
 	CitySiteProps._box(
 		shell,
@@ -425,15 +445,23 @@ static func _shed(shell: CityBuildingBuilder.Shell) -> void:
 	)
 	# Ledger beam on the gable wall and rafters down to the wall plate.
 	CitySiteProps._box(
-		shell, "timber", Vector3(x0, SHED_HIGH - 0.2, z0 - 0.1), Vector3(x0 + 0.2, SHED_HIGH, z1 + 0.1), OAK_DARK
+		shell,
+		"timber",
+		Vector3(x0, SHED_HIGH - 0.2, z0 - 0.1),
+		Vector3(x0 + 0.2, SHED_HIGH, z1 + 0.1),
+		OAK_DARK
 	)
+	# R-1933: the rafter tails run RAFTER_TAIL past the roof edge, so seen from
+	# above the eave is a toothed, shadow-casting edge, not one ruler line.
+	var fall := (SHED_HIGH - SHED_LOW) / (x1 - x0)
+	var tail_x := x1 + 0.45 + RAFTER_TAIL
 	var z := z0
 	while z <= z1 + 0.01:
 		Kit.bar(
 			shell,
 			"timber",
 			Vector3(x0 + 0.1, SHED_HIGH + 0.02, z),
-			Vector3(x1 + 0.3, SHED_LOW + 0.12 - 0.3 * (SHED_HIGH - SHED_LOW) / (x1 - x0), z),
+			Vector3(tail_x, SHED_LOW + 0.12 - (tail_x - x1) * fall, z),
 			0.12,
 			OAK_DARK * 0.85
 		)
@@ -467,6 +495,22 @@ static func _shed(shell: CityBuildingBuilder.Shell) -> void:
 		Vector2(z0, run)
 	)
 	shell.quad_out("timber", top0, top1, top1 + slope, top0 + slope, OAK_DARK * 0.7, -n)
+	# R-1933: barge boards under both rakes and a thick board edge at the
+	# eave, so the pent roof shows its depth and reads as a roof, not a wall.
+	var drop := Vector3(0.0, -FASCIA, 0.0)
+	var eave0 := top0 + slope
+	var eave1 := top1 + slope
+	var edge := Vector3(0.0, -0.06, 0.0)
+	shell.quad_out("timber", eave0 + edge, eave1 + edge, eave1, eave0, OAK_DARK * 0.8, Vector3.RIGHT)
+	for rake: Array in [[top0, Vector3.FORWARD], [top1, Vector3.BACK]]:
+		var r0: Vector3 = rake[0]
+		shell.quad_out("timber", r0 + drop, r0 + slope + drop, r0 + slope, r0, OAK_DARK * 0.75, rake[1])
+	# Boarded back wall on a fieldstone sill and sill beam (both faces: the
+	# inside shows from the open street front).
+	var sill_a := Vector2(x0 + 0.05, z1 - 0.03)
+	var sill_b := Vector2(x1 - 0.3, z1 - 0.03)
+	Footing.run(shell, sill_a, sill_b, Vector2(0, 1), Footing.Kind.PLANK, SILL_TOP, 0.0, 6211)
+	Footing.run(shell, sill_b, sill_a, Vector2(0, -1), Footing.Kind.PLANK, SILL_TOP, 0.0, 6223)
 	# Boarded back wall (the yard side), open to the street and the east.
 	var bx := x0 + 0.05
 	while bx < x1 - 0.3:
@@ -475,7 +519,7 @@ static func _shed(shell: CityBuildingBuilder.Shell) -> void:
 		CitySiteProps._box(
 			shell,
 			"timber",
-			Vector3(bx, -0.2, z1 - 0.06),
+			Vector3(bx, SILL_TOP + Footing.BEAM_H - 0.02, z1 - 0.06),
 			Vector3(bx1 - 0.01, top_y, z1),
 			OAK_DARK * (0.85 + 0.1 * float(int(bx * 7.0) % 3) / 2.0)
 		)
@@ -589,9 +633,24 @@ static func _grindstone(shell: CityBuildingBuilder.Shell, at: Vector3, yaw: floa
 		var p0 := up * cos(a0) * r + side * sin(a0) * r
 		var p1 := up * cos(a1) * r + side * sin(a1) * r
 		var tone := Color(0.72, 0.68, 0.6) * (0.92 + 0.08 * float(k % 2))
-		shell.quad_out("ashlar", c + p0 - axis * half, c + p1 - axis * half, c + p1 + axis * half, c + p0 + axis * half, tone, p0 + p1)
+		shell.quad_out(
+			"ashlar",
+			c + p0 - axis * half,
+			c + p1 - axis * half,
+			c + p1 + axis * half,
+			c + p0 + axis * half,
+			tone,
+			p0 + p1
+		)
 		for face: float in [-1.0, 1.0]:
-			shell.tri_out("ashlar", c + axis * half * face, c + p0 + axis * half * face, c + p1 + axis * half * face, tone, axis * face)
+			shell.tri_out(
+				"ashlar",
+				c + axis * half * face,
+				c + p0 + axis * half * face,
+				c + p1 + axis * half * face,
+				tone,
+				axis * face
+			)
 	Kit.bar(shell, "dark", c - axis * 0.42, c + axis * 0.55, 0.04, IRON)
 	# Crank handle.
 	Kit.bar(shell, "dark", c + axis * 0.55, c + axis * 0.55 + up * 0.28, 0.035, IRON)
@@ -600,7 +659,14 @@ static func _grindstone(shell: CityBuildingBuilder.Shell, at: Vector3, yaw: floa
 	for face: float in [-1.0, 1.0]:
 		var top := c + axis * 0.3 * face
 		for leg: float in [-1.0, 1.0]:
-			Kit.bar(shell, "timber", top, top + side * 0.45 * leg + Vector3(0, -0.78 + FLOOR - 0.12, 0), 0.08, OAK_DARK)
+			Kit.bar(
+				shell,
+				"timber",
+				top,
+				top + side * 0.45 * leg + Vector3(0, -0.78 + FLOOR - 0.12, 0),
+				0.08,
+				OAK_DARK
+			)
 	var t0 := at + Vector3(0, -FLOOR, 0)
 	CitySiteProps._box(
 		shell, "timber", t0 + Vector3(-0.32, 0.0, -0.32), t0 + Vector3(0.32, 0.3, 0.32), OAK_DARK * 0.8
@@ -628,7 +694,14 @@ static func _shop_counter(shell: CityBuildingBuilder.Shell, at: Vector3) -> void
 		shell, "timber", Vector3(x0, at.y + y - 0.05, -0.62), Vector3(x1, at.y + y, 0.0), OAK * 0.85
 	)
 	for x: float in [x0 + 0.12, x1 - 0.12]:
-		Kit.bar(shell, "timber", Vector3(x, at.y + y - 0.05, -0.5), Vector3(x, at.y + y - 0.52, 0.0), 0.06, OAK_DARK)
+		Kit.bar(
+			shell,
+			"timber",
+			Vector3(x, at.y + y - 0.05, -0.5),
+			Vector3(x, at.y + y - 0.52, 0.0),
+			0.06,
+			OAK_DARK
+		)
 	# Awning leaf hinged at the window head, held out on two props.
 	var head := 1.95
 	var tip := Vector3(0, head + 0.12, -0.72)
@@ -642,7 +715,14 @@ static func _shop_counter(shell: CityBuildingBuilder.Shell, at: Vector3) -> void
 		Vector3(0, 0.98, -0.2)
 	)
 	for x: float in [x0 + 0.08, x1 - 0.08]:
-		Kit.bar(shell, "timber", Vector3(x, at.y + y, -0.58), Vector3(x, tip.y, tip.z + 0.04), 0.035, OAK_DARK * 0.9)
+		Kit.bar(
+			shell,
+			"timber",
+			Vector3(x, at.y + y, -0.58),
+			Vector3(x, tip.y, tip.z + 0.04),
+			0.035,
+			OAK_DARK * 0.9
+		)
 	# Goods: horseshoes (bent bars), a bundle of nails, a knife.
 	var top := at.y + y + 0.01
 	for k in 3:
@@ -659,10 +739,28 @@ static func _shop_counter(shell: CityBuildingBuilder.Shell, at: Vector3) -> void
 				Color(0.62, 0.6, 0.58)
 			)
 	CitySiteProps._box(
-		shell, "smithy:iron", Vector3(x1 - 0.42, top, -0.4), Vector3(x1 - 0.3, top + 0.05, -0.18), Color(0.55, 0.53, 0.5)
+		shell,
+		"smithy:iron",
+		Vector3(x1 - 0.42, top, -0.4),
+		Vector3(x1 - 0.3, top + 0.05, -0.18),
+		Color(0.55, 0.53, 0.5)
 	)
-	Kit.bar(shell, "smithy:iron", Vector3(x1 - 0.26, top + 0.012, -0.2), Vector3(x1 - 0.1, top + 0.012, -0.42), 0.02, Color(0.9, 0.88, 0.85))
-	Kit.bar(shell, "timber", Vector3(x1 - 0.26, top + 0.014, -0.2), Vector3(x1 - 0.32, top + 0.014, -0.12), 0.03, OAK_DARK)
+	Kit.bar(
+		shell,
+		"smithy:iron",
+		Vector3(x1 - 0.26, top + 0.012, -0.2),
+		Vector3(x1 - 0.1, top + 0.012, -0.42),
+		0.02,
+		Color(0.9, 0.88, 0.85)
+	)
+	Kit.bar(
+		shell,
+		"timber",
+		Vector3(x1 - 0.26, top + 0.014, -0.2),
+		Vector3(x1 - 0.32, top + 0.014, -0.12),
+		0.03,
+		OAK_DARK
+	)
 
 
 ## Ladder up to the loft hatch, leaning on the partition in the living bay.

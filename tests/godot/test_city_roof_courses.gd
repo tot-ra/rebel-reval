@@ -33,8 +33,10 @@ func test_roof_shader_draws_courses_not_blotches() -> void:
 
 func test_roof_materials_pick_cover() -> void:
 	Builder.bind_ground(CityPlan.load_default())
-	assert_eq(int((Builder.roof_material(&"thatch") as ShaderMaterial).get_shader_parameter("cover")), 1)
-	assert_eq(int((Builder.roof_material(&"shingle") as ShaderMaterial).get_shader_parameter("cover")), 0)
+	var thatch := Builder.roof_material(&"thatch") as ShaderMaterial
+	var shingle := Builder.roof_material(&"shingle") as ShaderMaterial
+	assert_eq(int(thatch.get_shader_parameter("cover")), 1)
+	assert_eq(int(shingle.get_shader_parameter("cover")), 0)
 
 
 func test_per_house_seed_tint_and_pitch() -> void:
@@ -78,14 +80,18 @@ func test_roof_uv_bands_mark_ridge_and_edge() -> void:
 			edge += 1
 		elif uv.y <= -0.5:
 			ridge += 1
-	assert_true(field > 0 and ridge > 0 and edge > 0, "field %d ridge %d edge %d" % [field, ridge, edge])
+	assert_true(
+		field > 0 and ridge > 0 and edge > 0, "field %d ridge %d edge %d" % [field, ridge, edge]
+	)
 	var seed := surf.colors[0].a
 	for c in surf.colors:
 		assert_almost_eq(c.a, seed, 0.0001, "one wear seed per house roof")
 
 
 func test_verge_boards_on_shingle_not_thatch() -> void:
-	var shingle := Builder.build_building(_house("bldg.test.v1", "log", "shingle"), _ring(), 0.0, false)
+	var shingle := Builder.build_building(
+		_house("bldg.test.v1", "log", "shingle"), _ring(), 0.0, false
+	)
 	var thatch := Builder.build_building(_house("bldg.test.v2", "log", "thatch"), _ring(), 0.0, false)
 	var boards: Builder.Surf = (shingle["roof"] as Builder.Shell).surface("timber")
 	# Two rakes per gable, two gables, four faces of two triangles each.
@@ -102,17 +108,8 @@ func test_quoins_only_on_limestone_and_plinth_everywhere() -> void:
 	var log := Builder.build_building(_house("bldg.test.q2", "log", "thatch"), ring, 0.0, false)
 	var stone_tris := (stone["shell"] as Builder.Shell).surface("stone").verts.size()
 	var log_tris := (log["shell"] as Builder.Shell).surface("stone").verts.size()
-	assert_true(log_tris > 0, "timber houses stand on a fieldstone plinth")
-	assert_true(stone_tris > log_tris + 200, "limestone houses add quoins (%d vs %d)" % [stone_tris, log_tris])
-
-
-func test_plinth_leaves_the_door_open() -> void:
-	var shell := Builder.Shell.new()
-	var ring := _ring()
-	var full := Details.plinth(shell, ring, -0.7, 0.3, Color.WHITE)
-	var with_door := Details.plinth(
-		Builder.Shell.new(), ring, -0.7, 0.3, Color.WHITE, Vector2(3.6, 0), Vector2(5.4, 0)
+	assert_true(log_tris > 0, "timber houses stand on fieldstone pads (R-1933 CityFooting)")
+	assert_true(
+		stone_tris > log_tris + 200,
+		"limestone houses add quoins (%d vs %d)" % [stone_tris, log_tris]
 	)
-	assert_eq(with_door, full + 2, "the door edge splits into two plinth runs")
-	var cut := Details._door_cut(Vector2(-0.08, -0.08), Vector2(1, 0), 9.16, Vector2(3.6, 0), Vector2(5.4, 0))
-	assert_true(cut.y > cut.x and cut.x > 0.3 and cut.y < 0.7, "door span cut %s" % cut)

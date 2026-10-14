@@ -2,11 +2,11 @@ extends RefCounted
 
 ## R-1760: small architectural depth on city houses (CityBuildingBuilder):
 ## verge (barge) boards along the gable rakes of board, shingle and tile
-## roofs, dressed limestone quoins at the outer corners of stone houses, and a
-## fieldstone footing plinth with a sloped, water-shedding top at every wall
-## base. All geometry goes into the building's own Shell under existing
-## material keys ("timber", "stone"), so chunk merging, the interior cutaway
-## split and the roof lift keep working unchanged.
+## roofs and dressed limestone quoins at the outer corners of stone houses (the
+## footing under every wall moved to CityFooting, R-1933). All geometry goes
+## into the building's own Shell under existing material keys ("timber",
+## "stone"), so chunk merging, the interior cutaway split and the roof lift keep
+## working unchanged.
 ##
 ## Canon: timber houses on a stone footing and dressed quoins on ashlar-cornered
 ## limestone houses are `plausible composite` (docs/CANON.md, building
@@ -21,10 +21,6 @@ const QUOIN_LONG := 0.52
 const QUOIN_SHORT := 0.3
 const QUOIN_PROUD := 0.035
 const QUOIN_TINT := Color(1.1, 1.08, 1.02)
-const PLINTH_PROUD := 0.08
-const PLINTH_CHAMFER := 0.07
-const PLINTH_FIELDSTONE := Color(0.56, 0.54, 0.5)
-const PLINTH_LIMESTONE := Color(0.76, 0.74, 0.69)
 const VERGE_TINT := Color(0.78, 0.74, 0.7)
 
 
@@ -113,72 +109,6 @@ static func _quoin_face(
 		"stone", Vector3(oc.x, hi, oc.y), Vector3(far.x, hi, far.y),
 		Vector3(root.x, hi, root.y), Vector3(p.x, hi, p.y), QUOIN_TINT * 1.04, Vector3.UP
 	)
-
-
-## Footing plinth around the built wall ring from `bottom` to `top`, standing
-## PLINTH_PROUD proud of the wall with a chamfered top; left open over the door
-## span (dA..dB on the ring) where the steps are.
-static func plinth(
-	shell, ring: PackedVector2Array, bottom: float, top: float, tint: Color,
-	door_a := Vector2.INF, door_b := Vector2.INF
-) -> int:
-	if top - bottom < 0.1:
-		return 0
-	var grown_set := Geometry2D.offset_polygon(ring, PLINTH_PROUD, Geometry2D.JOIN_MITER)
-	if grown_set.is_empty():
-		return 0
-	var grown: PackedVector2Array = grown_set[0]
-	var quads := 0
-	var chamfer_y := top - PLINTH_CHAMFER
-	for i in grown.size():
-		var g0 := grown[i]
-		var g1 := grown[(i + 1) % grown.size()]
-		var length := g0.distance_to(g1)
-		if length < 0.01:
-			continue
-		var dir := (g1 - g0) / length
-		var n := _outward(grown, (g0 + g1) * 0.5, dir)
-		var spans: Array[Vector2] = [Vector2(0.0, 1.0)]
-		if door_a != Vector2.INF:
-			var cut := _door_cut(g0, dir, length, door_a, door_b)
-			if cut.y > cut.x:
-				spans = [Vector2(0.0, cut.x), Vector2(cut.y, 1.0)]
-		for sp in spans:
-			if sp.y - sp.x < 0.02:
-				continue
-			var p0 := g0 + dir * length * sp.x
-			var p1 := g0 + dir * length * sp.y
-			var face := Vector3(n.x, 0.0, n.y)
-			shell.quad_out(
-				"stone", Vector3(p0.x, bottom, p0.y), Vector3(p1.x, bottom, p1.y),
-				Vector3(p1.x, chamfer_y, p1.y), Vector3(p0.x, chamfer_y, p0.y), tint, face
-			)
-			var q0 := p0 - n * PLINTH_PROUD
-			var q1 := p1 - n * PLINTH_PROUD
-			shell.quad_out(
-				"stone", Vector3(p0.x, chamfer_y, p0.y), Vector3(p1.x, chamfer_y, p1.y),
-				Vector3(q1.x, top, q1.y), Vector3(q0.x, top, q0.y), tint * 1.06,
-				(face + Vector3.UP).normalized()
-			)
-			quads += 2
-	return quads
-
-
-## Fractions (from, to) of the grown edge g0 + dir * t * length hidden by the
-## door span dA..dB, or (0, 0) when the edge is not the door's.
-static func _door_cut(
-	g0: Vector2, dir: Vector2, length: float, door_a: Vector2, door_b: Vector2
-) -> Vector2:
-	var door_dir := (door_b - door_a).normalized()
-	if absf(door_dir.dot(dir)) < 0.95:
-		return Vector2.ZERO
-	var mid := (door_a + door_b) * 0.5
-	var offset := mid - g0
-	if absf(offset.cross(dir)) > PLINTH_PROUD + 0.15:
-		return Vector2.ZERO
-	var ta := (door_a - g0).dot(dir) / length
-	var tb := (door_b - g0).dot(dir) / length
-	return Vector2(clampf(minf(ta, tb), 0.0, 1.0), clampf(maxf(ta, tb), 0.0, 1.0))
 
 
 ## Unit normal of a ring edge (direction `dir`, through `p`) pointing outside.

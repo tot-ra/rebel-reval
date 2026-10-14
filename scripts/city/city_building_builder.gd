@@ -84,6 +84,7 @@ const WindowOpenings := preload("res://scripts/city/city_window_openings.gd")
 const HouseWealth := preload("res://scripts/city/city_house_wealth.gd")
 const Chimney := preload("res://scripts/city/city_chimney_builder.gd")
 const HouseDetails := preload("res://scripts/city/city_house_details.gd")
+const Footing := preload("res://scripts/city/city_footing.gd")
 const RuralPlan := preload("res://scripts/city/rural_dwelling_plan.gd")
 const WINDOW_WOOD := preload("res://scripts/city/city_window_wood.gdshader")
 const WINDOW_GLASS := preload("res://scripts/city/city_window_glass.gdshader")
@@ -736,14 +737,13 @@ static func build_building(
 			_lancets(shell, a, c, floor_y, eave)
 	if door_edge >= 0 and ground_at.is_valid():
 		_door_steps(shell, ring, door_edge, door_t, floor_y, ground_at, door_size(b).x)
-	# R-1760: footing plinth and limestone quoins on plan houses (sites and
-	# landmarks bring their own models and keep openings = false).
-	if (
-		bool(b.get("openings", true))
-		and String(b.get("kind", "house")) in ["house", "outbuilding"]
-		and not smoke_dwelling
-	):
-		_house_details(shell, b, ring_in, ring, family, bottom, floor_y, eave, door_edge, door_t)
+	# R-1933: every plan building stands on a footing, outbuildings and smoke
+	# dwellings included (log pads and a sill log); R-1760 quoins stay on
+	# limestone houses with openings.
+	_house_details(
+		shell, b, ring_in, ring, family, bottom, floor_y, eave, door_edge, door_t, ground_at,
+		bool(b.get("openings", true)) and not smoke_dwelling
+	)
 	# Roof halves.
 	_roof(roof, roof_key, ring, frame, roof_tint, roof_family, keep_out)
 	# Every lived-in house has a hooded hearth (HouseholdLayout), so every house
@@ -806,14 +806,15 @@ static func build_building(
 	return {"shell": shell, "roof": roof, "frame": frame, "chimney": chimney}
 
 
-## Plinth round the wall base (open over the door steps) and, on limestone
-## houses, dressed quoins up the outer corners to just under the eave.
+## Footing round the wall base (open over the door steps, CityFooting) and, on
+## limestone houses with openings, dressed quoins up the outer corners to just
+## under the eave.
 static func _house_details(
 	shell: Shell, b: Dictionary, ring_in: PackedVector2Array, ring: PackedVector2Array,
-	family: StringName, bottom: float, floor_y: float, eave: float, door_edge: int, door_t: float
+	family: StringName, bottom: float, floor_y: float, eave: float, door_edge: int, door_t: float,
+	ground_at: Callable = Callable(), quoins := true
 ) -> void:
 	var stone := family == &"limestone"
-	var top := floor_y + (0.22 if stone else 0.3)
 	var door_a := Vector2.INF
 	var door_b := Vector2.INF
 	if door_edge >= 0:
@@ -822,12 +823,14 @@ static func _house_details(
 		var half := (door_size(b).x * 0.5 + 0.3) / maxf(a.distance_to(c), 0.01)
 		door_a = a.lerp(c, clampf(door_t - half, 0.0, 1.0))
 		door_b = a.lerp(c, clampf(door_t + half, 0.0, 1.0))
-	HouseDetails.plinth(
-		shell, ring, bottom, top,
-		HouseDetails.PLINTH_LIMESTONE if stone else HouseDetails.PLINTH_FIELDSTONE,
-		door_a, door_b
+	# The raw footprint, not the filleted wall ring: straight runs of stones
+	# and a corner stone (or crossing sill-log ends) at every outer corner.
+	Footing.build(
+		shell, normalized_ring(ring_in), Footing.kind_for(family), floor_y, bottom, ground_at,
+		bottom + SINK, hash(b["id"]) + 4219, door_a, door_b
 	)
-	if stone and String(b.get("kind", "house")) == "house":
+	if quoins and stone and String(b.get("kind", "house")) == "house":
+		var top := floor_y + float(Footing.TOP[Footing.Kind.DRESSED])
 		HouseDetails.quoins(shell, normalized_ring(ring_in), top, eave - 0.12)
 
 

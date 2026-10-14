@@ -87,7 +87,7 @@ const PAVED := 0.35
 const ROAD_BODY := 0.3
 const HEAVY_WEAR := 0.45
 
-## Darker than the plinth's PLINTH_FIELDSTONE tint: that multiplies a texture,
+## Darker than the footing's CityFooting.FIELDSTONE_TINT: that multiplies a texture,
 ## these are the whole albedo, and the city's outdoor exposure gain turned
 ## plinth-level greys into white blobs in the sun.
 const STONE_TINTS := [
