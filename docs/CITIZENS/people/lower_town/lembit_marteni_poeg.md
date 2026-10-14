@@ -8,8 +8,8 @@
 | Census ID | `cit.lt.osm_w221512372.05` |
 | Confidence | `plausible composite` |
 | Tier | Citizen card (ambient, authored; not promoted into `docs/CHARACTERS/`) |
-| Household | [hh.lt.osm_w221512372](../../ledger/lower_town/muurivahe.md#hh-lt-osm-w221512372) |
-| Home | Müürivahe, plot `bldg.osm.w221512372` (49 m2) |
+| Household | [hh.lt.osm_w221512372](../../ledger/lower_town/katariina_kaik.md#hh-lt-osm-w221512372) |
+| Home | Katariina käik, booth `bldg.osm.w28187547` (39 m2) |
 | Age / sex | 9, male |
 | Ethnicity / segment | estonian / estonian_townsman |
 | Status | Free Estonian child of a craftsman |
@@ -61,8 +61,8 @@ Lembit was born in 1334 in the winter his grandmother died, and the family held 
 He earns nothing but a crust and a pat on the head. His pebbles are his wealth.
 
 ## Relationships
-- **Household:** [Marten Tõlli poeg](../../people/lower_town/marten_tolli_poeg.md), father; [Eeva Henni tütar](../../people/lower_town/eeva_henni_tutar.md), mother; [Jüri Marteni poeg](../../people/lower_town/juri_marteni_poeg.md), elder brother he copies; [Ursula Marteni tütar](../../people/lower_town/ursula_marteni_tutar.md), sister who bosses him; [Elsa](../../ledger/lower_town/muurivahe.md#hh-lt-osm-w221512372), [Mett](../../ledger/lower_town/muurivahe.md#hh-lt-osm-w221512372), [Niklas](../../ledger/lower_town/muurivahe.md#hh-lt-osm-w221512372), baby [Villem](../../ledger/lower_town/muurivahe.md#hh-lt-osm-w221512372); [Tõll Uku poeg](../../people/lower_town/toll_uku_poeg.md), grandfather.
-- **Others:** [Andres Laurentsi poeg](../../people/lower_town/andres_laurentsi_poeg.md), the hens' owner; [Hinrick Jaani poeg](../../ledger/lower_town/muurivahe.md#hh-lt-osm-w26885904), the nail-smith, who sometimes gives him a bent nail.
+- **Household:** [Marten Tõlli poeg](../../people/lower_town/marten_tolli_poeg.md), father; [Eeva Henni tütar](../../people/lower_town/eeva_henni_tutar.md), mother; [Jüri Marteni poeg](../../people/lower_town/juri_marteni_poeg.md), elder brother he copies; [Ursula Marteni tütar](../../people/lower_town/ursula_marteni_tutar.md), sister who bosses him; [Elsa](../../ledger/lower_town/katariina_kaik.md#hh-lt-osm-w221512372), [Mett](../../ledger/lower_town/katariina_kaik.md#hh-lt-osm-w221512372), [Niklas](../../ledger/lower_town/katariina_kaik.md#hh-lt-osm-w221512372), baby [Villem](../../ledger/lower_town/katariina_kaik.md#hh-lt-osm-w221512372); [Tõll Uku poeg](../../people/lower_town/toll_uku_poeg.md), grandfather.
+- **Others:** [Andres Laurentsi poeg](../../people/lower_town/andres_laurentsi_poeg.md), the hens' owner; [Hinrick Jaani poeg](../../census_tables.md#hh-lt-osm-w26885904), the nail-smith, who sometimes gives him a bent nail.
 
 ## Faction and belief
 No faction. He believes in the house spirit and is careful not to step on the threshold.

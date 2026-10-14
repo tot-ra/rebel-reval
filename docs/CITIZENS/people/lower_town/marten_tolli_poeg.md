@@ -8,8 +8,8 @@
 | Census ID | `cit.lt.osm_w221512372.01` |
 | Confidence | `plausible composite` |
 | Tier | Citizen card (ambient, authored; not promoted into `docs/CHARACTERS/`) |
-| Household | [hh.lt.osm_w221512372](../../ledger/lower_town/muurivahe.md#hh-lt-osm-w221512372) |
-| Home | Müürivahe, plot `bldg.osm.w221512372` (49 m2) |
+| Household | [hh.lt.osm_w221512372](../../ledger/lower_town/katariina_kaik.md#hh-lt-osm-w221512372) |
+| Home | Katariina käik, booth `bldg.osm.w28187547` (39 m2) |
 | Age / sex | 45, male |
 | Ethnicity / segment | estonian / estonian_townsman |
 | Status | Free Estonian labourer-craftsman, outside the German guild fraternities |
@@ -61,11 +61,11 @@ Marten was born in Müürivahe in 1298, the son of Tõll Uku poeg, who worked wo
 He sells coarse pipkins, bowls and jugs for a few pfennigs each. A good month is about a mark in sales; fuel and clay take a third. Clay he digs himself; firewood comes from a carter by the cord. He owes the dealer in birch two örtug. The plot is his, but small; the family's grain depends on Eeva's herb money in the lean months.
 
 ## Relationships
-- **Household:** [Eeva Henni tütar](../../people/lower_town/eeva_henni_tutar.md), wife, who brings in the herb-money; [Jüri Marteni poeg](../../people/lower_town/juri_marteni_poeg.md), 16, apprentice at his wheel; [Ursula Marteni tütar](../../people/lower_town/ursula_marteni_tutar.md), 13, maid; [Lembit Marteni poeg](../../people/lower_town/lembit_marteni_poeg.md), 9; [Elsa](../../ledger/lower_town/muurivahe.md#hh-lt-osm-w221512372) 8, [Mett](../../ledger/lower_town/muurivahe.md#hh-lt-osm-w221512372) 6, [Niklas](../../ledger/lower_town/muurivahe.md#hh-lt-osm-w221512372) 4, [Villem](../../ledger/lower_town/muurivahe.md#hh-lt-osm-w221512372) the infant; and his father [Tõll Uku poeg](../../people/lower_town/toll_uku_poeg.md), 73.
+- **Household:** [Eeva Henni tütar](../../people/lower_town/eeva_henni_tutar.md), wife, who brings in the herb-money; [Jüri Marteni poeg](../../people/lower_town/juri_marteni_poeg.md), 16, apprentice at his wheel; [Ursula Marteni tütar](../../people/lower_town/ursula_marteni_tutar.md), 13, maid; [Lembit Marteni poeg](../../people/lower_town/lembit_marteni_poeg.md), 9; [Elsa](../../ledger/lower_town/katariina_kaik.md#hh-lt-osm-w221512372) 8, [Mett](../../ledger/lower_town/katariina_kaik.md#hh-lt-osm-w221512372) 6, [Niklas](../../ledger/lower_town/katariina_kaik.md#hh-lt-osm-w221512372) 4, [Villem](../../ledger/lower_town/katariina_kaik.md#hh-lt-osm-w221512372) the infant; and his father [Tõll Uku poeg](../../people/lower_town/toll_uku_poeg.md), 73.
 - **Network:** [Wendla Jakobi tütar](../../people/lower_town/wendla_jakobi_tutar.md), spinner on Katariina käik: they sit near each other at church and trade gossip at the door after Mass; each treats the other as an early-warning system, and he listens more than he speaks.
 - [Andres Laurentsi poeg](../../people/lower_town/andres_laurentsi_poeg.md), potter on Katariina käik: Andres's hens keep getting into the yard; it is always settled with a jug of beer and always happens again, and Marten secretly likes the eggs that appear after.
 - [Heilwig van Rostok](../../people/lower_town/heilwig_van_rostok.md), maid on Müürivahe: they survived the same bad winter in the same lane; hardship is a quiet bond, shown in a nod and an unasked loaf.
-- **Others:** [Hinrick Jaani poeg](../../ledger/lower_town/muurivahe.md#hh-lt-osm-w26885904), nail-smith, sells him iron hooks; [Olof Ragnvaldsson](../../ledger/lower_town/muurivahe.md#hh-lt-osm-w26886756), tavern keeper, buys his jugs; [Paul Antsu poeg](../../people/lower_town/paul_antsu_poeg.md), stonemason, shares his bench at Mass.
+- **Others:** [Hinrick Jaani poeg](../../census_tables.md#hh-lt-osm-w26885904), nail-smith, sells him iron hooks; [Olof Ragnvaldsson](../../ledger/lower_town/muurivahe.md#hh-lt-osm-w26886756), tavern keeper, buys his jugs; [Paul Antsu poeg](../../people/lower_town/paul_antsu_poeg.md), stonemason, shares his bench at Mass.
 
 ## Faction and belief
 He has no faction; a man with nine children cannot afford to be seen. He listens, does a small favour for a neighbour, and refuses large ones. He would not inform. He is a plain churchgoer who pours a little ale on the kiln stones on St George's morning, as his father did.

@@ -20,7 +20,7 @@ Every household and resident of the 1343 census, one page per street. Generated 
 
 | Street | Households | Residents | Cards |
 |---|---:|---:|---:|
-| [Western coast road](kalarand/western_coast_road.md) | 23 | 132 | 25 |
+| [Western coast road](kalarand/western_coast_road.md) | 30 | 163 | 25 |
 
 ## Lower Town
 
@@ -32,10 +32,9 @@ Every household and resident of the 1343 census, one page per street. Generated 
 | [Börsi käik](lower_town/borsi_kaik.md) | 6 | 47 | 13 |
 | [Coastal Gate quay](lower_town/coastal_gate_quay.md) | 1 | 112 | 13 |
 | [Dunkri](lower_town/dunkri.md) | 12 | 82 | 18 |
-| [Gümnaasiumi](lower_town/gumnaasiumi.md) | 2 | 19 | 0 |
 | [Harju](lower_town/harju.md) | 8 | 55 | 23 |
 | [Hobusepea](lower_town/hobusepea.md) | 10 | 54 | 6 |
-| [Katariina käik](lower_town/katariina_kaik.md) | 14 | 123 | 27 |
+| [Katariina käik](lower_town/katariina_kaik.md) | 9 | 98 | 26 |
 | [Kinga](lower_town/kinga.md) | 3 | 20 | 0 |
 | [Kooli](lower_town/kooli.md) | 3 | 17 | 4 |
 | [Kullassepa](lower_town/kullassepa.md) | 4 | 24 | 0 |
@@ -43,10 +42,10 @@ Every household and resident of the 1343 census, one page per street. Generated 
 | [Laboratooriumi](lower_town/laboratooriumi.md) | 17 | 113 | 15 |
 | [Lai](lower_town/lai.md) | 41 | 290 | 58 |
 | [Lühike jalg](lower_town/luhike_jalg.md) | 14 | 82 | 19 |
-| [Meistrite hoov](lower_town/meistrite_hoov.md) | 9 | 50 | 10 |
+| [Meistrite hoov](lower_town/meistrite_hoov.md) | 10 | 54 | 13 |
 | [Munga](lower_town/munga.md) | 6 | 41 | 6 |
 | [Mündi](lower_town/mundi.md) | 3 | 15 | 0 |
-| [Müürivahe](lower_town/muurivahe.md) | 29 | 179 | 38 |
+| [Müürivahe](lower_town/muurivahe.md) | 26 | 156 | 32 |
 | [Niguliste](lower_town/niguliste.md) | 2 | 14 | 3 |
 | [Nunne](lower_town/nunne.md) | 7 | 53 | 20 |
 | [Olevimägi](lower_town/olevimagi.md) | 16 | 108 | 11 |
@@ -58,18 +57,18 @@ Every household and resident of the 1343 census, one page per street. Generated 
 | [Raekoja](lower_town/raekoja.md) | 8 | 59 | 11 |
 | [Rataskaevu](lower_town/rataskaevu.md) | 11 | 74 | 10 |
 | [Saiakang](lower_town/saiakang.md) | 5 | 39 | 6 |
-| [Sauna](lower_town/sauna.md) | 17 | 125 | 22 |
+| [Sauna](lower_town/sauna.md) | 16 | 118 | 22 |
 | [Sulevimägi](lower_town/sulevimagi.md) | 5 | 40 | 4 |
 | [Suur-Karja](lower_town/suur_karja.md) | 16 | 110 | 12 |
-| [Suur-Kloostri](lower_town/suur_kloostri.md) | 10 | 85 | 17 |
+| [Suur-Kloostri](lower_town/suur_kloostri.md) | 9 | 76 | 17 |
 | [Suurtüki](lower_town/suurtuki.md) | 2 | 13 | 0 |
 | [Tolli](lower_town/tolli.md) | 5 | 30 | 5 |
 | [Vaimu](lower_town/vaimu.md) | 14 | 86 | 13 |
 | [Vana turg](lower_town/vana_turg.md) | 3 | 22 | 12 |
 | [Vana-Posti](lower_town/vana_posti.md) | 7 | 49 | 6 |
 | [Vanaturu kael](lower_town/vanaturu_kael.md) | 3 | 22 | 0 |
-| [Vene](lower_town/vene.md) | 22 | 159 | 29 |
-| [Viru](lower_town/viru.md) | 13 | 96 | 6 |
+| [Vene](lower_town/vene.md) | 23 | 163 | 33 |
+| [Viru](lower_town/viru.md) | 14 | 100 | 6 |
 | [Voorimehe](lower_town/voorimehe.md) | 10 | 72 | 4 |
 | [Väike-Kloostri](lower_town/vaike_kloostri.md) | 1 | 40 | 6 |
 

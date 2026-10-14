@@ -35,8 +35,8 @@ Why: main land road, inner gate and foregate.
 | day | gatekeeper | Henneke Overdyk (`cit.lt.osm_w200453912.01`, gatekeeper) | hanseatic | Lai | 400 m | own clothes, keys |
 | day | gatekeeper | Stepan Grigorievich (`cit.lt.osm_w200517024.01`, gatekeeper) | hanseatic | Vaimu | 470 m | own clothes, keys |
 | day | watchman | Kaspar Alberti poeg (`cit.lt.osm_w200645002.01`, labourer) | none | Müürivahe | 110 m | kettle hat, spear |
-| day | watchman | Marten Tõlli poeg (`cit.lt.osm_w221512372.01`, potter) | none | Müürivahe | 130 m | kettle hat, spear |
-| day | watchman | Andres Laurentsi poeg (`cit.lt.osm_w26903464.01`, potter) | none | Katariina käik | 130 m | kettle hat, spear |
+| day | watchman | Marten Tõlli poeg (`cit.lt.osm_w221512372.01`, potter) | none | Katariina käik | 110 m | kettle hat, spear |
+| day | watchman | Paul Antsu poeg (`cit.lt.osm_w26889124.01`, mason) | hanseatic | Katariina käik | 110 m | kettle hat, spear |
 | night | watchman | Hinrick Kristjani poeg (`cit.lt.osm_w200645010.01`, carpenter) | hanseatic | Müürivahe | 80 m | kettle hat, spear |
 | night | watchman | Paul Villemi poeg (`cit.lt.osm_w200645024.01`, smith) | none | Müürivahe | 60 m | kettle hat, spear |
 | night | watchman | Mihkel Joosepi poeg (`cit.lt.osm_w200645029.09`, mason) | none | Sauna | 70 m | kettle hat, spear |
@@ -106,9 +106,9 @@ Why: Danish castle watch only.
 
 | Shift | Role | Resident | Faction | Lives | Walk | Kit |
 |---|---|---|---|---|---|---|
-| day | sergeant | Jakob Witte (`cit.lt.inst_town_hall.009`, watch sergeant) | none | Raekoja | 140 m | kettle hat, sword |
+| day | sergeant | Jakob Witte (`cit.lt.inst_town_hall.009`, watch sergeant) | none | Raekoja | 150 m | kettle hat, sword |
 | day | watchman | Henn Pauli poeg (`cit.lt.osm_w134801498.01`, shoemaker) | none | Hobusepea | 160 m | kettle hat, spear |
-| night | sergeant | Meinhard Snelle (`cit.lt.inst_town_hall.010`, watch sergeant) | danish_crown | Raekoja | 140 m | kettle hat, sword |
+| night | sergeant | Meinhard Snelle (`cit.lt.inst_town_hall.010`, watch sergeant) | danish_crown | Raekoja | 150 m | kettle hat, sword |
 | night | watchman | Marten Kristjani poeg (`cit.lt.osm_w28087755.01`, nailsmith) | none | Voorimehe | 40 m | kettle hat, spear |
 
 ## Lai street watch (`patrol.lai`)

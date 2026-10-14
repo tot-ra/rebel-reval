@@ -71,8 +71,11 @@ def build_pages():
             lines += [f'<a id="{bc.hh_anchor(h["id"])}"></a>', "",
                       f"## {title} ({h['id']})", "",
                       f"- **Street:** {street}; **zone:** {h['zone']}; **class:** {h['class']} - {CLASS_NOTE.get(h['class'], '')}; **footprint:** {h['area_m2']} m2; "
-                      f"**building:** `{h['building'] or 'n/a (institution)'}`; **map position:** ({h['xy'][0]}, {h['xy'][1]}) m from the forum.",
-                      f"- **Residents:** {len(ms)} ({ages['child']} under 15, {ages['adult']} adults, {ages['elder']} aged 60+).", "",
+                      f"**building:** {'`' + h['building'] + '`' if h['building'] else ('site `' + h['site'] + '`') if h.get('site') else 'n/a (institution)'}; **map position:** ({h['xy'][0]}, {h['xy'][1]}) m from the forum.",
+                      f"- **Residents:** {len(ms)} ({ages['child']} under 15, {ages['adult']} adults, {ages['elder']} aged 60+).",
+                      *([f"- **Moved here:** from {h['rehomed_from']['street']} (plot `{h['rehomed_from']['building']}`, a {h['rehomed_from']['class']} house) "
+                         f"when `{h['rehomed_from']['site']}` took the plot; see [displaced households](../../CENSUS.md#households-displaced-by-landmark-sites)."]
+                        if h.get("rehomed_from") else []), "",
                       "| ID | Name | Age | Role | Trade | Ethnicity | Faction | Look seed |", "|---|---|---|---|---|---|---|---|"]
             for q in ms:
                 lines.append(person_row(q, q["id"] in carded, dcode))
@@ -188,6 +191,17 @@ def tables_page(census, plan, P):
         if cc[k]:
             out.append(f"| {k} - {CLASS_NOTE[k]} | {cc[k]} | {rr[k]} | {rr[k] / cc[k]:.1f} |")
     out.append("")
+    # R-1934: households a landmark site took the plot of and no booth could hold
+    retired = census.get("retired_households", [])
+    if retired:
+        out += ["## Retired households", "",
+                "Their plot became a landmark site and no free booth could hold them, so they are not in the 1343 city; their IDs stay reserved. "
+                "Method: [displaced households](./CENSUS.md#households-displaced-by-landmark-sites).", "",
+                "| Household | Former plot | Street | Class | Site | Residents (IDs reserved) | Reason |", "|---|---|---|---|---|---:|---|"]
+        for r in retired:
+            f = r["former"]
+            out.append(f"| <a id=\"{bc.hh_anchor(r['id'])}\"></a>`{r['id']}` | `{f['building']}` | {f['street']} | {f['class']} | `{f['site']}` | {len(r['members'])} | {r['reason']} |")
+        out.append("")
     return "\n".join(out)
 
 

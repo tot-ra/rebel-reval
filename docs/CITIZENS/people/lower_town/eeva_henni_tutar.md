@@ -8,8 +8,8 @@
 | Census ID | `cit.lt.osm_w221512372.02` |
 | Confidence | `plausible composite` |
 | Tier | Citizen card (ambient, authored; not promoted into `docs/CHARACTERS/`) |
-| Household | [hh.lt.osm_w221512372](../../ledger/lower_town/muurivahe.md#hh-lt-osm-w221512372) |
-| Home | Müürivahe, plot `bldg.osm.w221512372` (49 m2) |
+| Household | [hh.lt.osm_w221512372](../../ledger/lower_town/katariina_kaik.md#hh-lt-osm-w221512372) |
+| Home | Katariina käik, booth `bldg.osm.w28187547` (39 m2) |
 | Age / sex | 40, female |
 | Ethnicity / segment | estonian / estonian_townsman |
 | Status | Free commoner, married to a craftsman |
@@ -61,7 +61,7 @@ Eeva was born in 1303 to a herb-woman, Henn's daughter, in a hamlet beyond the V
 She earns perhaps a quarter-mark a month, more in the fever season. Raw material comes from the garden strips, the meadows, and a few bought items such as honey and pepper. A pound of honey costs her six pfennigs. She has a small credit with the apothecary of Pikk and owes nothing; her coins go into rye.
 
 ## Relationships
-- **Household:** [Marten Tõlli poeg](../../people/lower_town/marten_tolli_poeg.md), husband and potter; [Jüri Marteni poeg](../../people/lower_town/juri_marteni_poeg.md), her worry; [Ursula Marteni tütar](../../people/lower_town/ursula_marteni_tutar.md), her apprentice-in-all-but-name; [Lembit Marteni poeg](../../people/lower_town/lembit_marteni_poeg.md); [Elsa](../../ledger/lower_town/muurivahe.md#hh-lt-osm-w221512372), [Mett](../../ledger/lower_town/muurivahe.md#hh-lt-osm-w221512372), [Niklas](../../ledger/lower_town/muurivahe.md#hh-lt-osm-w221512372), baby [Villem](../../ledger/lower_town/muurivahe.md#hh-lt-osm-w221512372); and [Tõll Uku poeg](../../people/lower_town/toll_uku_poeg.md), her father-in-law.
+- **Household:** [Marten Tõlli poeg](../../people/lower_town/marten_tolli_poeg.md), husband and potter; [Jüri Marteni poeg](../../people/lower_town/juri_marteni_poeg.md), her worry; [Ursula Marteni tütar](../../people/lower_town/ursula_marteni_tutar.md), her apprentice-in-all-but-name; [Lembit Marteni poeg](../../people/lower_town/lembit_marteni_poeg.md); [Elsa](../../ledger/lower_town/katariina_kaik.md#hh-lt-osm-w221512372), [Mett](../../ledger/lower_town/katariina_kaik.md#hh-lt-osm-w221512372), [Niklas](../../ledger/lower_town/katariina_kaik.md#hh-lt-osm-w221512372), baby [Villem](../../ledger/lower_town/katariina_kaik.md#hh-lt-osm-w221512372); and [Tõll Uku poeg](../../people/lower_town/toll_uku_poeg.md), her father-in-law.
 - **Network:** [Cecilia van Paderborne](../../people/lower_town/cecilia_van_paderborne.md), herb-wife on Vene: they once split a bulk delivery of raw material to beat the price; the arrangement quietly lapsed after a quarrel over weights, and each now weighs her own.
 - [Jüri Tanieli poeg](../../people/lower_town/juri_tanieli_poeg.md), barber-surgeon on Katariina käik: he recommended her to a third party and has since heard complaints that rebound on his own name; she feels shame and sends him free salve to mend it.
 - [Karin Torgilsdotter](../../people/lower_town/karin_torgilsdotter.md), maid on Katariina käik: they know each other from the market, greet by name and trade the day's prices.

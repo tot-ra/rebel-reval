@@ -64,7 +64,7 @@ She owns nothing. The convent buys rye, barley and malt by the last; she knows e
 - **Household:** The professed sisters, lay sisters, servants and chaplains are in the [ledger](../../ledger/lower_town/vaike_kloostri.md#hh-inst-st-michael-nunnery). [Adelheid van Brunswik](../../people/lower_town/adelheid_van_brunswik.md) gets her broth; [Lucia Wulf](../../people/lower_town/lucia_wulf.md) her soft bread; [Kadri Kaspari tütar](../../people/lower_town/kadri_kaspari_tutar.md) carries her ash; [Lambrecht Wise](../../people/lower_town/lambrecht_wise.md) her ale; [Laurents Jaagu poeg](../../people/lower_town/laurents_jaagu_poeg.md) her cabbages.
 - **Network:** [Sibbe van Campen](../../people/lower_town/sibbe_van_campen.md), day labourer of Aida: they know each other from the market, greet by name and trade the day's prices; he carries her sacks for a bowl of broth.
 - [Ann Gerdti tütar](../../people/lower_town/ann_gerdti_tutar.md), spinner of Suur-Kloostri: once did Grete a small favour at the gate, holding the door against the wind with a full tray; Grete remembers a burst of ale, Ann a spilled cup, and each keeps the other's version out of politeness.
-- **Others:** [Lasse Tuomasnpoika](../../ledger/lower_town/suur_kloostri.md#hh-lt-osm-w26900735), the cook next door, sends her Finnish recipes.
+- **Others:** [Lasse Tuomasnpoika](../../census_tables.md#hh-lt-osm-w26900735), the cook next door, sends her Finnish recipes.
 
 ## Faction and belief
 Church, core. Her root is hunger remembered; her branch is the almsgate. A small favour she does; a large one she weighs; she will not inform on a hungry man. She keeps the Rule's fasts, and drops a crust in the brewhouse corner for the old spirit of the mash.

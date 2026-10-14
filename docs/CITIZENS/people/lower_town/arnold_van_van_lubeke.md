@@ -66,7 +66,7 @@ The friary lives on gifts, bequests, a garden and Lower Town alms. Arnold turns 
 - **Network:** [Nicolaus Snelle](../../people/lower_town/nicolaus_snelle.md), merchant's clerk on Vene: they know each other from the market, greet by name and trade the day's prices. It began over a disputed pfund of wax.
 - [Mihkel Kristjani poeg](../../people/lower_town/mihkel_kristjani_poeg.md), servant at the Stenhus house: Arnold sells him small things at a fair price and Mihkel tells others to buy from the friar.
 - [Bertold van Stade](../../people/lower_town/bertold_van_stade.md), brewer and councillor: Arnold watches the brewer's house when Bertold is away on business and is repaid in fish, bread or small repairs. He regards it as a fair exchange and keeps the account.
-- **Others:** Leho Kauri poeg's candle workshop ([ledger](../../ledger/lower_town/katariina_kaik.md#hh-lt-osm-w28163736)) is his rival for wax scraps.
+- **Others:** Leho Kauri poeg's candle workshop ([ledger](../../census_tables.md#hh-lt-osm-w28163736)) is his rival for wax scraps.
 
 ## Faction and belief
 He belongs to the Church because he entered it as a boy; he has no politics beyond honest weight. A small favour he would do; a large one he would weigh first. He would not inform on a penitent. He never starts a count on a Friday, a Lübeck superstition.

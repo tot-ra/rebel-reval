@@ -14,10 +14,10 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `1294`
+- Active Markdown files scanned: `1293`
 - Markdown files excluded as archive/reference/out of active scope: `771`
-- Local/external links inspected: `14968`
-- Links to active Markdown docs: `12938`
+- Local/external links inspected: `14982`
+- Links to active Markdown docs: `12952`
 - Links to existing archive/reference/non-active local docs: `545`
 - External links skipped for reachability: `192`
 - Issues found: `0`
@@ -188,7 +188,6 @@ No active Markdown documentation issues found.
 - `docs/CITIZENS/ledger/lower_town/bremeni_kaik.md`
 - `docs/CITIZENS/ledger/lower_town/coastal_gate_quay.md`
 - `docs/CITIZENS/ledger/lower_town/dunkri.md`
-- `docs/CITIZENS/ledger/lower_town/gumnaasiumi.md`
 - `docs/CITIZENS/ledger/lower_town/harju.md`
 - `docs/CITIZENS/ledger/lower_town/hobusepea.md`
 - `docs/CITIZENS/ledger/lower_town/katariina_kaik.md`

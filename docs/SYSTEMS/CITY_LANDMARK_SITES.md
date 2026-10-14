@@ -216,7 +216,7 @@ Do not add these as 1343 buildings; each is dated later in the dossiers.
 
 1. Write `content/world/reval_city/sites/<name>.json` (fields in ADR 0032 decision 1) and add `<name>` to `content/world/reval_city/sites/registry.json`. Sites are never found by scanning a folder.
 2. Coordinates are **site-local metres**. `anchor.at` is the plan position of the local origin; `anchor.rotation_deg` turns local +x. Local +z is to its right, which is south at rotation 0. Heights are relative to the terrace level.
-3. `replaces` lists the generic plan buildings the site removes (stable IDs). `tools/validate_city_sites.gd` fails while any generic building still overlaps a site building by more than 1 m².
+3. `replaces` lists the generic plan buildings the site removes (stable IDs). Their census households need a `displaced` pin (rehome or retire) in `tools/city/census_continuity.json`, or `tools/city/build_city_census.py` stops: draft it with `--propose-displaced` ([displaced households](../CITIZENS/CENSUS.md#households-displaced-by-landmark-sites), R-1934). `tools/validate_city_sites.gd` fails while any generic building still overlaps a site building by more than 1 m².
 4. `terrace.level.door` names the door whose outside ground (`outside_m` out) sets the level. `terrace.polygon` is levelled to it and blended over `blend_m`.
 5. `walk` is the logic plane:
    - `walls` are outer-face segments with a thickness that goes into the building. Leave the door gap out.

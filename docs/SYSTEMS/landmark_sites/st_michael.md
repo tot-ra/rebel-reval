@@ -30,7 +30,7 @@
 
 **Verify:** `godot --headless --path . --script tools/validate_city_sites.gd`; `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_st_michael_site` (registered, no plan house inside the close, the gate house is the only way in, south portal into the nave, orchard and garden); `tools/godot_render.sh --script tools/capture_reval_city.gd -- --only=st_michael_aerial,st_michael_gate,st_michael_close,st_michael_orchard,st_michael_yard,st_michael_interior`.
 
-**Limits:** the census still binds the nunnery household (`hh.inst_st_michael_nunnery`, 40 residents) to the church-door place, now on the church square in front of the south portal, and lets choir nuns run town errands (R-1721). Three census households (`hh.lt.osm_w26900735`, `hh.lt.osm_w46961813`, `hh.lt.osm_w46961814`) belong to replaced plots and need rehoming; since R-1718's runtime pass they are not compiled into `citizens.json` (they no longer stand at doors inside the close). The curtain by the close is shown finished (R-1720). The claustral ranges, cloister walks and gallery cannot be entered.
+**Limits:** the census still binds the nunnery household (`hh.inst_st_michael_nunnery`, 40 residents) to the church-door place, now on the church square in front of the south portal, and lets choir nuns run town errands (R-1721). The three census households of replaced plots (`hh.lt.osm_w26900735`, `hh.lt.osm_w46961813`, `hh.lt.osm_w46961814`, 28 people) were too large for a free booth and are retired with their IDs reserved (R-1934, [displaced households](../../CITIZENS/CENSUS.md#households-displaced-by-landmark-sites)). The curtain by the close is shown finished (R-1720). The claustral ranges, cloister walks and gallery cannot be entered.
 
 ## More views
 

@@ -34,6 +34,12 @@ PLAN = ROOT / "content/world/reval_city/plan.json"
 OUT_JSON = ROOT / "docs/data/city_census.json"
 LEDGER_DIR = ROOT / "docs/CITIZENS/ledger"
 STATS_MD = ROOT / "docs/CITIZENS/census_tables.md"
+# Census continuity pins (R-1934), so plan edits do not re-roll carded people:
+# `displaced` = households whose house a landmark site replaced (frozen snapshot of
+# the lost plot plus a fate: rehome into a free booth, or retire); `late_plots` =
+# houses the plan gained later, generated last. See docs/CITIZENS/CENSUS.md.
+CONTINUITY = ROOT / "tools/city/census_continuity.json"
+SITES_DIR = ROOT / "content/world/reval_city/sites"
 
 SCHEMA = "rr.city_census.v1"
 
@@ -963,11 +969,23 @@ def build():
         area, (cx, cy), sname, zone, cls = classify(b, dcode, streets, forum)
         building_info[b["id"]] = (b, dcode, area, cx, cy, sname, zone, cls)
 
+    # A displaced household is still generated from its lost plot, in its sorted
+    # place: NameBook is shared and draws in building order, so dropping it would
+    # rename residents of every later house. apply_displacement() moves it on.
+    displaced = load_displaced()
+    plot_info = dict(building_info)
+    for bid, d in displaced.items():
+        if bid in building_info:
+            raise SystemExit(f"{CONTINUITY.name}: {bid} is still a plan building; drop its entry")
+        s = d["snapshot"]
+        plot_info[bid] = ({"id": bid, "kind": "house", "door": s["door"]}, s["district"], s["area_m2"], s["xy"][0], s["xy"][1],
+                          s["street"], s["zone"], s["class"])
+
     # per building households (only plain houses; churches/hall belong to institutions)
-    for bid in sorted(building_info):
-        b, dcode, area, cx, cy, sname, zone, cls = building_info[bid]
+    def add_house(bid):
+        b, dcode, area, cx, cy, sname, zone, cls = plot_info[bid]
         if b["kind"] != "house":
-            continue
+            return
         rng = seed_rng("household", bid)
         stubs, hkind = build_household(rng, zone, cls, dcode)
         short = bid.replace("bldg.", "").replace(".", "_")
@@ -988,11 +1006,26 @@ def build():
             hh["members"].append(recs[i]["id"])
         households.append(hh)
 
+    # Plots the plan gained after cards existed draw their names last (after the
+    # institutions too), so a new hut on the shore does not rename the town.
+    late = load_late_plots()
+    for bid in sorted(plot_info):
+        if bid not in late:
+            add_house(bid)
+
     # institutions
+    site_of = site_of_replaced()
+    site_at = {s["id"]: s["at"] for s in plan.get("sites", [])}
     for inst in institution_rosters():
         rng = seed_rng("institution", inst["id"])
         hh = {"id": "hh." + inst["id"].replace("inst.", "inst_"), "kind": "institution", "building": inst["bldg"], "district": inst["district"],
               "street": inst["street"], "zone": inst["zone"], "class": "institution", "area_m2": 0, "door": None, "xy": inst_xy(inst, building_info), "members": [], "name": inst["name"]}
+        if inst["bldg"] and inst["bldg"] not in building_info:
+            # Its building became a landmark site (R-1934): name the site and stand at
+            # its origin instead of a missing building (which used to give [0, 0]).
+            if inst["bldg"] not in site_of:
+                raise SystemExit(f"{inst['id']}: building {inst['bldg']} is not in the plan and no site replaces it")
+            hh.update({"building": "", "site": site_of[inst["bldg"]], "xy": [round(v) for v in site_at[site_of[inst["bldg"]]]]})
         i = 0
         for trade, count, eth, sex in inst["roster"]:
             for _ in range(count):
@@ -1004,12 +1037,148 @@ def build():
                 hh["members"].append(pid)
         households.append(hh)
 
+    for bid in sorted(late):
+        if bid not in building_info:
+            raise SystemExit(f"{CONTINUITY.name}: late plot {bid} is not a plan building")
+        add_house(bid)
+
     seen = Counter()
     for p in persons:
         base = slugify(p["name"])
         seen[base] += 1
         p["slug"] = base if seen[base] == 1 else f"{base}_{seen[base]}"
-    return {"schema": SCHEMA, "households": households, "persons": persons, "plan_buildings": len(plan["buildings"])}
+    # Where each rehomed household moves: the booth's own plot record, taken now
+    # while building_info is at hand; apply_displacement() consumes it.
+    moves = {}
+    for bid, d in displaced.items():
+        if d["fate"] != "rehome":
+            continue
+        to = d["to"]
+        if to not in building_info or building_info[to][0]["kind"] != "house":
+            raise SystemExit(f"{CONTINUITY.name}: {bid} rehomes into {to}, which is not a plan house")
+        b, dcode, area, cx, cy, sname, zone, cls = building_info[to]
+        moves[bid] = {"building": to, "district": dcode, "street": sname or "Back lane", "zone": zone, "area_m2": round(area),
+                      "door": b.get("door"), "xy": [round(cx), round(cy)]}
+    return {"schema": SCHEMA, "households": households, "persons": persons, "plan_buildings": len(plan["buildings"]), "_moves": moves}
+
+
+# --------------------------------------------------------------------------- displaced households (R-1934)
+
+def _continuity() -> dict:
+    return json.loads(CONTINUITY.read_text(encoding="utf-8")) if CONTINUITY.exists() else {}
+
+
+def load_displaced() -> dict:
+    """{lost building id: entry} from the `displaced` pins."""
+    return {e["building"]: e for e in _continuity().get("displaced", [])}
+
+
+def load_late_plots() -> set:
+    """Plan houses added after cards existed: generated after every other household."""
+    return set(_continuity().get("late_plots", []))
+
+
+def site_of_replaced() -> dict:
+    """{plan building id a landmark site replaced: site id}, from the site manifests."""
+    registry = json.loads((SITES_DIR / "registry.json").read_text(encoding="utf-8"))
+    out = {}
+    for name in registry["sites"]:
+        site = json.loads((SITES_DIR / f"{name}.json").read_text(encoding="utf-8"))
+        for rid in site.get("replaces", []):
+            out[rid] = site["id"]
+    return out
+
+
+def apply_displacement(data):
+    """Move rehomed households into their booth, take retired ones out of the city.
+
+    Runs after assign_civic_roles() on purpose: office picks shuffle candidate
+    lists, so the displaced must still be candidates (as they were before their
+    plot was lost) for every other office holder to stay put. A displaced resident
+    holding an office would leave a post empty, so that fails the build instead.
+    Both kinds keep their household and person IDs; retired IDs stay reserved."""
+    displaced = load_displaced()
+    moves = data.pop("_moves")
+    by_building = {h["building"]: h for h in data["households"] if h["kind"] != "institution"}
+    persons = {p["id"]: p for p in data["persons"]}
+    gone, retired = set(), []
+    for bid in sorted(displaced):
+        d = displaced[bid]
+        h = by_building[bid]
+        for pid in h["members"]:
+            if persons[pid].get("office"):
+                raise SystemExit(f"{CONTINUITY.name}: displaced resident {pid} holds office {persons[pid]['office']}")
+        origin = {"building": bid, "site": d["site"], "street": h["street"], "class": h["class"]}
+        if d["fate"] == "rehome":
+            booth = by_building[moves[bid]["building"]]
+            if booth["members"] or booth["id"] in gone:
+                raise SystemExit(f"{CONTINUITY.name}: {bid} rehomes into {booth['building']}, which is not a free booth")
+            gone.add(booth["id"])  # the booth's empty placeholder household
+            h.update(moves[bid])
+            # A rented booth is a small dwelling whatever the family had before.
+            h["class"] = "poor"
+            h["rehomed_from"] = origin
+        elif d["fate"] == "retire":
+            gone.add(h["id"])
+            gone.update(h["members"])
+            retired.append({"id": h["id"], "members": h["members"], "former": origin, "reason": d["reason"]})
+        else:
+            raise SystemExit(f"{CONTINUITY.name}: {bid} has unknown fate {d['fate']!r}")
+    data["households"] = [h for h in data["households"] if h["id"] not in gone]
+    data["persons"] = [p for p in data["persons"] if p["id"] not in gone]
+    data["retired_households"] = retired
+    return data
+
+
+def lost_households() -> list:
+    """Committed census households whose plot left the plan without a displaced entry.
+
+    The committed census is the source of truth once cards exist, so a site that
+    replaces a house must not silently drop its people: the build stops instead."""
+    if not OUT_JSON.exists():
+        return []
+    plan_ids = {b["id"] for b in json.loads(PLAN.read_text(encoding="utf-8"))["buildings"]}
+    displaced = load_displaced()
+    old = json.loads(OUT_JSON.read_text(encoding="utf-8"))
+    return [h for h in old["households"] if h["kind"] != "institution" and h["building"] not in plan_ids
+            and h["building"] not in displaced and h.get("rehomed_from", {}).get("building") not in displaced]
+
+
+def unpinned_new_plots(data) -> list:
+    """Households that gained residents since the committed census (a new plot, or
+    an empty shed that grew) but are not `late_plots`: drawn in sorted order they
+    would take names from, and so rename, the residents of every later house."""
+    if not OUT_JSON.exists():
+        return []
+    old = {h["id"]: h for h in json.loads(OUT_JSON.read_text(encoding="utf-8"))["households"]}
+    late = load_late_plots()
+    return [h["id"] for h in data["households"] if h["kind"] not in ("institution", "empty") and h["members"]
+            and "rehomed_from" not in h and h["building"] not in late and not old.get(h["id"], {}).get("members")]
+
+
+def propose_displaced(lost) -> list:
+    """Draft `displaced` entries: the nearest free Lower Town booth for a
+    household that fits one (class poor, or five people or fewer), retire the rest."""
+    plan_ids = {b["id"] for b in json.loads(PLAN.read_text(encoding="utf-8"))["buildings"]}
+    data = build()
+    free = [h for h in data["households"] if h["kind"] == "empty" and h["district"] == "lt" and h["building"] in plan_ids]
+    taken = {d["to"] for d in load_displaced().values() if d["fate"] == "rehome"}
+    site_of = site_of_replaced()
+    out = []
+    for h in sorted(lost, key=lambda h: h["building"]):
+        e = {"building": h["building"], "site": site_of.get(h["building"], ""),
+             "snapshot": {k: h[k] for k in ("district", "street", "zone", "class", "area_m2", "xy", "door")}}
+        if not h["members"]:
+            e.update({"fate": "retire", "reason": "empty plot"})
+        elif h["class"] == "poor" or len(h["members"]) <= 5:
+            pool = [b for b in free if b["building"] not in taken]
+            best = min(pool, key=lambda b: (math.dist(b["xy"], h["xy"]), b["building"]))
+            taken.add(best["building"])
+            e.update({"fate": "rehome", "to": best["building"]})
+        else:
+            e.update({"fate": "retire", "reason": "household too large for a free booth"})
+        out.append(e)
+    return out
 
 
 def _finish_person(rng, s, pid, hid, zone, dcode, names, street, inst=False, head=None, father=None):
@@ -1152,9 +1321,25 @@ def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--check", action="store_true")
     ap.add_argument("--stats", action="store_true")
+    ap.add_argument("--propose-displaced", action="store_true",
+                    help=f"print draft {CONTINUITY.name} displaced entries for households whose plot left the plan")
     args = ap.parse_args(argv)
     data = build()
     assign_civic_roles(data)
+    apply_displacement(data)
+    lost = lost_households()
+    if args.propose_displaced:
+        print(json.dumps(propose_displaced(lost), ensure_ascii=False, indent=1))
+        return 0
+    if lost:
+        print(f"{len(lost)} committed households lost their plot ({', '.join(h['id'] for h in lost)}): "
+              f"add them to {CONTINUITY.relative_to(ROOT)} (see --propose-displaced)", file=sys.stderr)
+        return 1
+    fresh = unpinned_new_plots(data)
+    if fresh:
+        print(f"{len(fresh)} households gained residents ({', '.join(fresh)}): add their buildings to "
+              f"late_plots in {CONTINUITY.relative_to(ROOT)}", file=sys.stderr)
+        return 1
     # normalise: list ordering is deterministic
     text = json.dumps(data, ensure_ascii=False, separators=(",", ":"), sort_keys=True) + "\n"
     if args.stats:

@@ -28,7 +28,7 @@ Status: implemented (task **R-1643**, maintainer request 2026-10-10), interim sh
 
 **Verify:** `godot --headless --path . --script tools/validate_city_sites.gd`; `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_city_sites` (`test_kalev_smithy_*`); `tools/godot_render.sh --script tools/capture_reval_city.gd -- --only=kalev_smithy_street,kalev_smithy_street_east,kalev_smithy_aerial,kalev_smithy_cutaway,kalev_smithy_forge_bay,kalev_smithy_living`.
 
-**Limits:** the census bathkeeper household `hh.lt.osm_r7239857` belongs to the replaced plot and is not compiled into the citizen runtime until the census rehomes it; the forge's gameplay controllers are not mounted here (see [Seamless city limits](../SEAMLESS_CITY.md#limits)); the loft is not walkable. R-1643 is the implementation reference retained from this document; the 2026-10-11 board lookup did not return that row.
+**Limits:** the census bathkeeper household `hh.lt.osm_r7239857` (7 people) lost its plot to the site and is retired from the 1343 city with its IDs reserved (R-1934, [displaced households](../../CITIZENS/CENSUS.md#households-displaced-by-landmark-sites)), so the town has one bathkeeper household less; the forge's gameplay controllers are not mounted here (see [Seamless city limits](../SEAMLESS_CITY.md#limits)); the loft is not walkable. R-1643 is the implementation reference retained from this document; the 2026-10-11 board lookup did not return that row.
 
 ## More views
 

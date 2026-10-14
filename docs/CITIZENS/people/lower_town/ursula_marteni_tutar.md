@@ -8,8 +8,8 @@
 | Census ID | `cit.lt.osm_w221512372.04` |
 | Confidence | `plausible composite` |
 | Tier | Citizen card (ambient, authored; not promoted into `docs/CHARACTERS/`) |
-| Household | [hh.lt.osm_w221512372](../../ledger/lower_town/muurivahe.md#hh-lt-osm-w221512372) |
-| Home | Müürivahe, plot `bldg.osm.w221512372` (49 m2) |
+| Household | [hh.lt.osm_w221512372](../../ledger/lower_town/katariina_kaik.md#hh-lt-osm-w221512372) |
+| Home | Katariina käik, booth `bldg.osm.w28187547` (39 m2) |
 | Age / sex | 13, female |
 | Ethnicity / segment | estonian / servant |
 | Status | Free Estonian girl in day-service |
@@ -61,8 +61,8 @@ Ursula was born in 1329 as the second girl in the family. At nine she broke her 
 She earns two pfennigs a day and a meal, handed to Eeva. She owns a wooden comb and a ribbon.
 
 ## Relationships
-- **Household:** [Marten Tõlli poeg](../../people/lower_town/marten_tolli_poeg.md), father; [Eeva Henni tütar](../../people/lower_town/eeva_henni_tutar.md), mother and teacher; [Jüri Marteni poeg](../../people/lower_town/juri_marteni_poeg.md), brother; [Lembit Marteni poeg](../../people/lower_town/lembit_marteni_poeg.md); [Elsa](../../ledger/lower_town/muurivahe.md#hh-lt-osm-w221512372), [Mett](../../ledger/lower_town/muurivahe.md#hh-lt-osm-w221512372), [Niklas](../../ledger/lower_town/muurivahe.md#hh-lt-osm-w221512372), baby [Villem](../../ledger/lower_town/muurivahe.md#hh-lt-osm-w221512372); [Tõll Uku poeg](../../people/lower_town/toll_uku_poeg.md), grandfather, who teaches her to whittle.
-- **Others:** [Olof Ragnvaldsson](../../ledger/lower_town/muurivahe.md#hh-lt-osm-w26886756), her tavern master; [Hinrick Jaani poeg](../../ledger/lower_town/muurivahe.md#hh-lt-osm-w26885904), the nail-smith, whose hammer she hears.
+- **Household:** [Marten Tõlli poeg](../../people/lower_town/marten_tolli_poeg.md), father; [Eeva Henni tütar](../../people/lower_town/eeva_henni_tutar.md), mother and teacher; [Jüri Marteni poeg](../../people/lower_town/juri_marteni_poeg.md), brother; [Lembit Marteni poeg](../../people/lower_town/lembit_marteni_poeg.md); [Elsa](../../ledger/lower_town/katariina_kaik.md#hh-lt-osm-w221512372), [Mett](../../ledger/lower_town/katariina_kaik.md#hh-lt-osm-w221512372), [Niklas](../../ledger/lower_town/katariina_kaik.md#hh-lt-osm-w221512372), baby [Villem](../../ledger/lower_town/katariina_kaik.md#hh-lt-osm-w221512372); [Tõll Uku poeg](../../people/lower_town/toll_uku_poeg.md), grandfather, who teaches her to whittle.
+- **Others:** [Olof Ragnvaldsson](../../ledger/lower_town/muurivahe.md#hh-lt-osm-w26886756), her tavern master; [Hinrick Jaani poeg](../../census_tables.md#hh-lt-osm-w26885904), the nail-smith, whose hammer she hears.
 
 ## Faction and belief
 No faction. She believes in St George and the house spirit, and leaves milk for it.

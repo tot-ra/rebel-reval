@@ -63,7 +63,7 @@ Wage is three marks a year with board; she is paid in loaves for laments. A bad 
 ## Relationships
 - **Household:** [Thomas Langhe](thomas_langhe.md), master; [Hillegund Corte](hillegund_corte.md), mistress, who consults her; Bernd, Godeke, Sivert and Grete in the [household ledger](../../ledger/lower_town/suur_kloostri.md#hh-lt-osm-w200852820); [Lutke van Minden](lutke_van_minden.md); [Wilke Hovesche](wilke_hovesche.md); [Barbara Kristjani tütar](barbara_kristjani_tutar.md), fellow servant; stable hands Paul Andrese poeg and Jaan Simoni poeg in the ledger.
 - **Network:** [Tyde Sasse](tyde_sasse.md), priest at the Holy Spirit: she baptised Tyde's child in haste and led the lament at a funeral for his kin; the bond is warm but formal, and he never asks where she learned the songs. [Kadri Hendriku tütar](kadri_hendriku_tutar.md), spinner on Suur-Kloostri: they met at the church door in Easter week and fell into the habit of walking home together.
-- **Others:** The cook [Lasse Tuomasnpoika](../../ledger/lower_town/suur_kloostri.md#hh-lt-osm-w26900735) gives her leftover bread.
+- **Others:** The cook [Lasse Tuomasnpoika](../../census_tables.md#hh-lt-osm-w26900735) gives her leftover bread.
 
 ## Faction and belief
 No faction. She believes in the dying child and the dead man's song. She would do any favour a sick person asked, refuse a large one that cost a life and inform on no one. She prays at the Holy Spirit and keeps a feather by the cradle against the night-hag.

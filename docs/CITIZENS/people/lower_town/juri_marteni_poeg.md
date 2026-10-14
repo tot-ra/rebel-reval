@@ -8,8 +8,8 @@
 | Census ID | `cit.lt.osm_w221512372.03` |
 | Confidence | `plausible composite` |
 | Tier | Citizen card (ambient, authored; not promoted into `docs/CHARACTERS/`) |
-| Household | [hh.lt.osm_w221512372](../../ledger/lower_town/muurivahe.md#hh-lt-osm-w221512372) |
-| Home | Müürivahe, plot `bldg.osm.w221512372` (49 m2) |
+| Household | [hh.lt.osm_w221512372](../../ledger/lower_town/katariina_kaik.md#hh-lt-osm-w221512372) |
+| Home | Katariina käik, booth `bldg.osm.w28187547` (39 m2) |
 | Age / sex | 16, male |
 | Ethnicity / segment | estonian / estonian_townsman |
 | Status | Free Estonian labourer, his father's apprentice |
@@ -61,7 +61,7 @@ Jüri was born in the cold spring of 1326 in the Müürivahe house, the first ch
 He earns his keep and a few pfennigs on the side from small errands. The clay is dug at Lasnamäe, wood is bought, and everything is carried by hand. He has no savings but owes the circle nothing, though they treat him as owing a little.
 
 ## Relationships
-- **Household:** [Marten Tõlli poeg](../../people/lower_town/marten_tolli_poeg.md), father; [Eeva Henni tütar](../../people/lower_town/eeva_henni_tutar.md), mother; [Ursula Marteni tütar](../../people/lower_town/ursula_marteni_tutar.md); [Lembit Marteni poeg](../../people/lower_town/lembit_marteni_poeg.md); [Elsa](../../ledger/lower_town/muurivahe.md#hh-lt-osm-w221512372), [Mett](../../ledger/lower_town/muurivahe.md#hh-lt-osm-w221512372), [Niklas](../../ledger/lower_town/muurivahe.md#hh-lt-osm-w221512372), [Villem](../../ledger/lower_town/muurivahe.md#hh-lt-osm-w221512372); [Tõll Uku poeg](../../people/lower_town/toll_uku_poeg.md), grandfather and teacher of rhymes.
+- **Household:** [Marten Tõlli poeg](../../people/lower_town/marten_tolli_poeg.md), father; [Eeva Henni tütar](../../people/lower_town/eeva_henni_tutar.md), mother; [Ursula Marteni tütar](../../people/lower_town/ursula_marteni_tutar.md); [Lembit Marteni poeg](../../people/lower_town/lembit_marteni_poeg.md); [Elsa](../../ledger/lower_town/katariina_kaik.md#hh-lt-osm-w221512372), [Mett](../../ledger/lower_town/katariina_kaik.md#hh-lt-osm-w221512372), [Niklas](../../ledger/lower_town/katariina_kaik.md#hh-lt-osm-w221512372), [Villem](../../ledger/lower_town/katariina_kaik.md#hh-lt-osm-w221512372); [Tõll Uku poeg](../../people/lower_town/toll_uku_poeg.md), grandfather and teacher of rhymes.
 - **Network:** [Ell](../../people/harju_road/ell.md), spinner on Harju road: he knows she shares his sympathies; they meet briefly after Mass and say nothing that could be repeated.
 - [Elisabet Hinricku tütar](../../people/kalarand/elisabet_hinricku_tutar.md), net-maker on the western coast road: his superior in the circle, though neither would put it that way; they never speak in the same room as others.
 - [Priidik](../../people/kalarand/priidik.md), dock porter: neither knows the other's allegiance, but each has noticed the other's silence at the right moments.

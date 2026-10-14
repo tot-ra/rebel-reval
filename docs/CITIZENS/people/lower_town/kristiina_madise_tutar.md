@@ -8,8 +8,8 @@
 | Census ID | `cit.lt.osm_w26885934.02` |
 | Confidence | `plausible composite` |
 | Tier | Citizen card (ambient, authored; not promoted into `docs/CHARACTERS/`) |
-| Household | [hh.lt.osm_w26885934](../../ledger/lower_town/katariina_kaik.md#hh-lt-osm-w26885934) |
-| Home | Katariina käik, plot `bldg.osm.w26885934` (113 m2, small house) |
+| Household | [hh.lt.osm_w26885934](../../ledger/lower_town/meistrite_hoov.md#hh-lt-osm-w26885934) |
+| Home | Meistrite hoov, booth `bldg.osm.w28187545` (32 m2) |
 | Age / sex | 26, female |
 | Ethnicity / segment | estonian / estonian_townsman |
 | Status | Free commoner |
@@ -62,7 +62,7 @@ She is the brisker of the two; Jüri brings home the money and she makes it go f
 She buys small goods in bulk at the harbour and sells at a pfennig or two profit. Her profit is about six marks a year. She keeps credit on notched sticks, one per customer, and holds about two marks owed. A bad month is a customer who vanishes.
 
 ## Relationships
-- **Household:** [Jüri Tanieli poeg](../../people/lower_town/juri_tanieli_poeg.md), husband, barber-surgeon; [Laurents Jüri poeg](../../people/lower_town/laurents_juri_poeg.md), five; and Veronika Jüri tütar, three, in the [household ledger](../../ledger/lower_town/katariina_kaik.md#hh-lt-osm-w26885934).
+- **Household:** [Jüri Tanieli poeg](../../people/lower_town/juri_tanieli_poeg.md), husband, barber-surgeon; [Laurents Jüri poeg](../../people/lower_town/laurents_juri_poeg.md), five; and Veronika Jüri tütar, three, in the [household ledger](../../ledger/lower_town/meistrite_hoov.md#hh-lt-osm-w26885934).
 - **Network:** [Gesa Gerdti tütar](../../people/lower_town/gesa_gerdti_tutar.md), retail trader on Meistrite hoov: they compete for the same customers, each privately counting the other's apprentices and lamp-oil. Gesa is seventy and has been selling since before Kristiina was born; Kristiina watches her shop with respect and annoyance.
 - [Veronika Pauli tütar](../../people/lower_town/veronika_pauli_tutar.md), retired craftsman on Katariina käik: a distant kinship through marriage that neither can trace exactly. They call each other aunt and niece, and neither can say through whom.
 - [Lutgard van Soest](../../people/lower_town/lutgard_van_soest.md), merchant's wife: they met at the church door the week of Easter and fell into the habit of walking home together. Lutgard talks and Kristiina listens; they are an odd pair and both like it.

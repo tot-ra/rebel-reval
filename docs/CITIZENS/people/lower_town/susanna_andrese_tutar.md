@@ -8,8 +8,8 @@
 | Census ID | `cit.lt.osm_w26903464.04` |
 | Confidence | `plausible composite` |
 | Tier | Citizen card (ambient, authored; not promoted into `docs/CHARACTERS/`) |
-| Household | [hh.lt.osm_w26903464](../../ledger/lower_town/katariina_kaik.md#hh-lt-osm-w26903464) |
-| Home | Katariina käik, plot `bldg.osm.w26903464` (130 m2, workshop house with kiln) |
+| Household | [hh.lt.osm_w26903464](../../ledger/lower_town/vene.md#hh-lt-osm-w26903464) |
+| Home | Vene, booth `bldg.osm.w200675299` (35 m2) |
 | Age / sex | 5, female |
 | Ethnicity / segment | estonian / estonian_townsman |
 | Status | Craftsman's daughter, free |

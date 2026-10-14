@@ -34,6 +34,38 @@ class CensusTests(unittest.TestCase):
         have = {h["building"] for h in CENSUS["households"] if h["kind"] != "institution"}
         self.assertEqual(houses, have)
 
+    def test_no_household_references_a_building_missing_from_the_plan(self):
+        plan_ids = {b["id"] for b in CITY["buildings"]}
+        sites = {s["id"] for s in CITY["sites"]}
+        for h in CENSUS["households"]:
+            if h["building"]:
+                self.assertIn(h["building"], plan_ids, h["id"])
+            if h.get("site"):
+                self.assertIn(h["site"], sites, h["id"])
+            self.assertNotEqual(h["xy"], [0, 0], h["id"])
+
+    def test_displaced_households_are_rehomed_or_retired(self):
+        """R-1934: every household a landmark site took the plot of has a pinned fate."""
+        pins = json.loads((ROOT / "tools/city/census_continuity.json").read_text(encoding="utf-8"))["displaced"]
+        retired = {r["id"]: r for r in CENSUS["retired_households"]}
+        by_from = {h["rehomed_from"]["building"]: h for h in CENSUS["households"] if h.get("rehomed_from")}
+        self.assertEqual(len(by_from) + len(retired), len(pins))
+        reserved = set()
+        for e in pins:
+            if e["fate"] == "rehome":
+                h = by_from[e["building"]]
+                self.assertEqual(h["building"], e["to"])
+                self.assertEqual(h["rehomed_from"]["site"], e["site"])
+                self.assertEqual(h["class"], "poor")
+            else:
+                r = next(r for r in retired.values() if r["former"]["building"] == e["building"])
+                self.assertNotIn(r["id"], self.H)
+                reserved.update(r["members"])
+        # retired IDs stay reserved: nobody in the city reuses them
+        self.assertFalse(reserved & set(self.P))
+        booths = [h["building"] for h in by_from.values()]
+        self.assertEqual(len(booths), len(set(booths)))
+
     def test_ids_and_slugs_are_unique_and_references_resolve(self):
         self.assertEqual(len(self.P), len(CENSUS["persons"]))
         self.assertEqual(len({p["slug"] for p in CENSUS["persons"]}), len(CENSUS["persons"]))

@@ -13,9 +13,9 @@ Generated tables: [`census_tables.md`](./census_tables.md). Headline numbers:
 
 | Measure | Value | Source bracket |
 |---|---|---|
-| Residents modelled | **4,247** (inside the walls, Toompea, and the six immediate suburbs/districts) | 3,000-4,500 for the whole urban complex in April 1343 (Johansen & von zur Mühlen, Naum, Salminen proxy). The model sits at the upper end because it includes transient sailors, a garrison, clergy and hospital inmates. |
-| Households | 607 populated of 643 | one per plot, plus 10 institutions |
-| Plot buildings | 633 houses; 5 churches, 1 chapel, 1 town hall are institutions | `content/world/reval_city/plan.json` |
+| Residents modelled | **4,150** (inside the walls, Toompea, and the six immediate suburbs/districts) | 3,000-4,500 for the whole urban complex in April 1343 (Johansen & von zur Mühlen, Naum, Salminen proxy). The model sits at the upper end because it includes transient sailors, a garrison, clergy and hospital inmates. |
+| Households | 594 populated of 621 | one per plot, plus 10 institutions; 12 more retired when landmark sites took their plots ([below](#households-displaced-by-landmark-sites)) |
+| Plot buildings | 611 houses; 5 churches, 1 chapel, 1 town hall are institutions | `content/world/reval_city/plan.json` |
 | Children under 15 | 34% | pre-modern towns 28-35% |
 | Aged 60+ | 6.5% | towns 4-8% |
 | Estonian / German / Swedish and Finnish / Danish / Russian | 44% / 36% / 14% / 3% / 3% | Naum ~50% Estonian, 30-40% German; Johansen Germans under 50% |
@@ -27,7 +27,7 @@ What is *not* in the count: the Harju hinterland and its manors, the rebel levy,
 
 ## From buildings to households
 
-Each of the 633 plot houses gets one household, classified by footprint and place:
+Each of the 611 plot houses gets one household, classified by footprint and place:
 
 | Class | Footprint | Typical use | Household size |
 |---|---|---|---|
@@ -80,9 +80,28 @@ If a number looks off for a scene, change the weights in the generator and **reg
 ## Using and extending the data
 
 1. **Read:** the [ledger](./ledger/README.md) lists every household and resident per street, with the seed values and a link to a card where one exists.
-2. **Promote a resident:** copy the seed into a card using [`WRITING_CARDS.md`](./WRITING_CARDS.md) and [`TEMPLATE.md`](./TEMPLATE.md); add the person's id to `FORCE_CARDS` in `tools/city/plan_citizen_cards.py` or raise `TARGET_CARDS`, rerun the planner (cards already written are unaffected because the plan is deterministic per person), then rerun `tools/city/build_citizen_ledger.py`.
+2. **Promote a resident:** copy the seed into a card using [`WRITING_CARDS.md`](./WRITING_CARDS.md) and [`TEMPLATE.md`](./TEMPLATE.md); add the person's id to `FORCE_CARDS` in `tools/city/plan_citizen_cards.py` or raise `TARGET_CARDS`, rerun the planner (see Limits: the planner reshuffles after census changes), then rerun `tools/city/build_citizen_ledger.py`.
 3. **Freeze rule:** `docs/data/city_census.json` is the source of truth once cards exist. Never change the generator's random draws to "re-roll" people; change data deliberately and fix the affected cards in the same commit. `tools/city/build_city_census.py --check` fails when the committed file differs from the generator output, so a deliberate change updates both.
-4. **Crowd runtime (not built):** `UrbanPopulationProfile` can pick named residents for a street's phase from the ledger. This needs a task naming `scripts/world/` files; until then the census is content.
+4. **Plan edits after cards exist:** see [Households displaced by landmark sites](#households-displaced-by-landmark-sites); the generator stops instead of silently re-rolling people.
+5. **Crowd runtime (not built):** `UrbanPopulationProfile` can pick named residents for a street's phase from the ledger. This needs a task naming `scripts/world/` files; until then the census is content.
+
+## Households displaced by landmark sites
+
+Status: implemented (task **R-1934**). A landmark site ([`CITY_LANDMARK_SITES.md`](../SYSTEMS/CITY_LANDMARK_SITES.md)) removes the generic plan houses it `replaces`; the census keeps their households and their stable IDs through pins in [`tools/city/census_continuity.json`](../../tools/city/census_continuity.json):
+
+- **`displaced`**: one entry per lost plot, with a `snapshot` of the plot as the census last saw it (district, street, zone, class, footprint, centre, door) and a `fate`. The household is still generated from the snapshot in its sorted place, because names are drawn city-wide in building order: dropping it would rename the residents of every later house.
+  - `rehome`: the household moves into the free booth `to` (an empty Lower Town shed of the plan). It takes the booth's building, street, door and footprint, becomes class `poor` (a rented small dwelling) and records `rehomed_from` (`building`, `site`, `street`, `class`). The booth's empty placeholder household disappears. The ledger shows a **Moved here** line; the runtime compiles the household at the booth door like any other.
+  - `retire`: the household leaves the 1343 city. It is listed under `retired_households` in `docs/data/city_census.json` (`id`, `members`, `former`, `reason`) and in the [census tables](./census_tables.md#retired-households) with an anchor per household; its person IDs stay reserved and nobody reuses them.
+  - Rule used for R-1934 (orchestrator default; the user question timed out): rehome a household that is class `poor` or has five people or fewer into the nearest free booth, retire the rest; empty plots retire. `--propose-displaced` drafts entries with this rule.
+- **`late_plots`**: houses the plan gained after cards existed (or an empty shed that grew a household), for example the Kalarand huts the 2026-10-13 coastline fix added. They are generated after every other household and institution, so they draw names last and do not rename anyone.
+- **Guards:** `build_city_census.py` fails when a committed household's plot left the plan without a `displaced` entry, when a household gained residents without a `late_plots` entry, when a pinned booth is not a free plan house, or when a displaced resident holds an office (civic offices are drawn with the displaced still in the candidate pools, so no other office holder moves).
+- **Institutions** whose building became a site (friary, nunnery, hospital, parish houses, town hall, chapter) carry `building: ""`, `site: <site id>` and the site origin as `xy`.
+
+R-1934 result: 6 households (32 people, 13 with cards) rehomed from St Catherine's close, 9 retired (71 people) from St Catherine's, St Michael's and Kalev's smithy (the bathkeeper household `hh.lt.osm_r7239857`), 3 empty plots retired. Cards of rehomed residents name the booth in **Home**; their biographies still tell of the old plot, which is their past. Links to neighbours in retired households point at the census tables.
+
+```bash
+python3 tools/city/build_city_census.py --propose-displaced   # draft entries after a new site replaces houses
+```
 
 ## Verify
 
@@ -98,6 +117,7 @@ python3 -m unittest tests.python.test_citizen_census -v
 ## Limits
 
 - The plan holds modern plot footprints trimmed to 1343, so plot counts and sizes are plausible, not measured. Small footprints (outbuildings) may hide cellar and yard dwellings the model does not count.
+- The card plan (`docs/data/citizen_cards_plan.json`) is not frozen: `plan_citizen_cards.py` reshuffles its picks after any census change, so it is stale and not regenerated (regenerating it would detach most written cards from the plan).
 - Hinterland and suburb populations beyond the six districts are not modelled.
 - Seasonal and siege effects (refugees at the gates, rebel levy, Order troops) are narrative overlays, not census rows.
 - Ethnic and faction proportions are plausible, not attested; the 73% unaffiliated majority is a deliberate choice.

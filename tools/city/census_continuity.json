@@ -1,0 +1,411 @@
+{
+ "schema": "rr.census_continuity.v1",
+ "note": "Census continuity pins (R-1934); the committed census is the source of truth once cards exist, so plan edits must not re-roll people. displaced: households whose house a landmark site replaced; snapshot = the lost plot as the census last saw it; fate rehome moves the household into the free booth `to`, retire takes it out of the city with its IDs reserved (draft entries: python3 tools/city/build_city_census.py --propose-displaced). late_plots: houses the plan gained (or that grew from an empty shed) after cards existed; they are generated after every other household so they draw names last. See docs/CITIZENS/CENSUS.md.",
+ "displaced": [
+  {
+   "building": "bldg.osm.r7239857",
+   "site": "site.kalev_smithy",
+   "snapshot": {
+    "district": "lt",
+    "street": "Sauna",
+    "zone": "craft",
+    "class": "master",
+    "area_m2": 257,
+    "xy": [
+     175,
+     113
+    ],
+    "door": [
+     168.48,
+     109.88,
+     -2.4069
+    ]
+   },
+   "fate": "retire",
+   "reason": "plot taken into Kalev's smithy site; household too large for a free booth, left the town"
+  },
+  {
+   "building": "bldg.osm.w1152894166",
+   "site": "site.st_catherine",
+   "snapshot": {
+    "district": "lt",
+    "street": "Katariina käik",
+    "zone": "craft",
+    "class": "merchant",
+    "area_m2": 295,
+    "xy": [
+     187,
+     -69
+    ],
+    "door": [
+     175.995,
+     -74.08,
+     -3.0788
+    ]
+   },
+   "fate": "retire",
+   "reason": "plot taken into St Catherine's friary close (R-1718); household too large for a free booth, left the town"
+  },
+  {
+   "building": "bldg.osm.w201040694",
+   "site": "site.st_michael",
+   "snapshot": {
+    "district": "lt",
+    "street": "Suur-Kloostri",
+    "zone": "craft",
+    "class": "shed",
+    "area_m2": 34,
+    "xy": [
+     -74,
+     -257
+    ],
+    "door": [
+     -70.725,
+     -257.045,
+     -0.0023
+    ]
+   },
+   "fate": "retire",
+   "reason": "plot taken into St Michael's nunnery close (R-1719); no residents"
+  },
+  {
+   "building": "bldg.osm.w221512372",
+   "site": "site.st_catherine",
+   "snapshot": {
+    "district": "lt",
+    "street": "Müürivahe",
+    "zone": "craft",
+    "class": "poor",
+    "area_m2": 49,
+    "xy": [
+     232,
+     -50
+    ],
+    "door": [
+     239.32,
+     -49.115,
+     -0.0298
+    ]
+   },
+   "fate": "rehome",
+   "to": "bldg.osm.w28187547"
+  },
+  {
+   "building": "bldg.osm.w221512373",
+   "site": "site.st_catherine",
+   "snapshot": {
+    "district": "lt",
+    "street": "Katariina käik",
+    "zone": "craft",
+    "class": "merchant",
+    "area_m2": 369,
+    "xy": [
+     225,
+     -38
+    ],
+    "door": [
+     224.38,
+     -35.18,
+     1.6054
+    ]
+   },
+   "fate": "retire",
+   "reason": "plot taken into St Catherine's friary close (R-1718); household too large for a free booth, left the town"
+  },
+  {
+   "building": "bldg.osm.w221512374",
+   "site": "site.st_catherine",
+   "snapshot": {
+    "district": "lt",
+    "street": "Müürivahe",
+    "zone": "craft",
+    "class": "shed",
+    "area_m2": 41,
+    "xy": [
+     234,
+     -53
+    ],
+    "door": [
+     239.23,
+     -52.165,
+     -0.0291
+    ]
+   },
+   "fate": "retire",
+   "reason": "plot taken into St Catherine's friary close (R-1718); no residents"
+  },
+  {
+   "building": "bldg.osm.w26885898",
+   "site": "site.st_catherine",
+   "snapshot": {
+    "district": "lt",
+    "street": "Müürivahe",
+    "zone": "craft",
+    "class": "master",
+    "area_m2": 119,
+    "xy": [
+     214,
+     -72
+    ],
+    "door": [
+     215.44,
+     -78.58,
+     -1.5463
+    ]
+   },
+   "fate": "retire",
+   "reason": "plot taken into St Catherine's friary close (R-1718); household too large for a free booth, left the town"
+  },
+  {
+   "building": "bldg.osm.w26885904",
+   "site": "site.st_catherine",
+   "snapshot": {
+    "district": "lt",
+    "street": "Müürivahe",
+    "zone": "craft",
+    "class": "master",
+    "area_m2": 259,
+    "xy": [
+     233,
+     -65
+    ],
+    "door": [
+     238.785,
+     -62.165,
+     -0.0469
+    ]
+   },
+   "fate": "retire",
+   "reason": "plot taken into St Catherine's friary close (R-1718); household too large for a free booth, left the town"
+  },
+  {
+   "building": "bldg.osm.w26885908",
+   "site": "site.st_catherine",
+   "snapshot": {
+    "district": "lt",
+    "street": "Müürivahe",
+    "zone": "craft",
+    "class": "poor",
+    "area_m2": 109,
+    "xy": [
+     226,
+     -85
+    ],
+    "door": [
+     227.925,
+     -78.585,
+     1.5974
+    ]
+   },
+   "fate": "rehome",
+   "to": "bldg.osm.w1466103107"
+  },
+  {
+   "building": "bldg.osm.w26885910",
+   "site": "site.st_catherine",
+   "snapshot": {
+    "district": "lt",
+    "street": "Müürivahe",
+    "zone": "craft",
+    "class": "shed",
+    "area_m2": 37,
+    "xy": [
+     221,
+     -92
+    ],
+    "door": [
+     223.58,
+     -92.09,
+     0.0485
+    ]
+   },
+   "fate": "retire",
+   "reason": "plot taken into St Catherine's friary close (R-1718); no residents"
+  },
+  {
+   "building": "bldg.osm.w26885934",
+   "site": "site.st_catherine",
+   "snapshot": {
+    "district": "lt",
+    "street": "Katariina käik",
+    "zone": "craft",
+    "class": "poor",
+    "area_m2": 113,
+    "xy": [
+     203,
+     -57
+    ],
+    "door": [
+     202.545,
+     -53.615,
+     1.6105
+    ]
+   },
+   "fate": "rehome",
+   "to": "bldg.osm.w28187545"
+  },
+  {
+   "building": "bldg.osm.w26886756",
+   "site": "site.st_catherine",
+   "snapshot": {
+    "district": "lt",
+    "street": "Müürivahe",
+    "zone": "craft",
+    "class": "master",
+    "area_m2": 187,
+    "xy": [
+     225,
+     -67
+    ],
+    "door": [
+     227.8,
+     -66.02,
+     1.6909
+    ]
+   },
+   "fate": "rehome",
+   "to": "bldg.osm.w200690735"
+  },
+  {
+   "building": "bldg.osm.w26900735",
+   "site": "site.st_michael",
+   "snapshot": {
+    "district": "lt",
+    "street": "Suur-Kloostri",
+    "zone": "craft",
+    "class": "merchant",
+    "area_m2": 313,
+    "xy": [
+     -87,
+     -252
+    ],
+    "door": [
+     -82.79,
+     -244.115,
+     1.5421
+    ]
+   },
+   "fate": "retire",
+   "reason": "plot taken into St Michael's nunnery close (R-1719); household too large for a free booth, left the town"
+  },
+  {
+   "building": "bldg.osm.w26903464",
+   "site": "site.st_catherine",
+   "snapshot": {
+    "district": "lt",
+    "street": "Katariina käik",
+    "zone": "craft",
+    "class": "master",
+    "area_m2": 130,
+    "xy": [
+     221,
+     -56
+    ],
+    "door": [
+     218.015,
+     -52.535,
+     1.6741
+    ]
+   },
+   "fate": "rehome",
+   "to": "bldg.osm.w200675299"
+  },
+  {
+   "building": "bldg.osm.w26903608",
+   "site": "site.st_catherine",
+   "snapshot": {
+    "district": "lt",
+    "street": "Katariina käik",
+    "zone": "craft",
+    "class": "master",
+    "area_m2": 144,
+    "xy": [
+     203,
+     -45
+    ],
+    "door": [
+     201.25,
+     -39.275,
+     1.6343
+    ]
+   },
+   "fate": "rehome",
+   "to": "bldg.osm.w200645005"
+  },
+  {
+   "building": "bldg.osm.w28163736",
+   "site": "site.st_catherine",
+   "snapshot": {
+    "district": "lt",
+    "street": "Katariina käik",
+    "zone": "craft",
+    "class": "merchant",
+    "area_m2": 376,
+    "xy": [
+     167,
+     -76
+    ],
+    "door": [
+     164.825,
+     -71.37,
+     0.1366
+    ]
+   },
+   "fate": "retire",
+   "reason": "plot taken into St Catherine's friary close (R-1718); household too large for a free booth, left the town"
+  },
+  {
+   "building": "bldg.osm.w46961813",
+   "site": "site.st_michael",
+   "snapshot": {
+    "district": "lt",
+    "street": "Gümnaasiumi",
+    "zone": "craft",
+    "class": "great",
+    "area_m2": 543,
+    "xy": [
+     -126,
+     -316
+    ],
+    "door": [
+     -120.36,
+     -327.92,
+     -1.9468
+    ]
+   },
+   "fate": "retire",
+   "reason": "plot taken into St Michael's nunnery close (R-1719); household too large for a free booth, left the town"
+  },
+  {
+   "building": "bldg.osm.w46961814",
+   "site": "site.st_michael",
+   "snapshot": {
+    "district": "lt",
+    "street": "Gümnaasiumi",
+    "zone": "craft",
+    "class": "merchant",
+    "area_m2": 341,
+    "xy": [
+     -94,
+     -316
+    ],
+    "door": [
+     -95.315,
+     -324.19,
+     -0.3773
+    ]
+   },
+   "fate": "retire",
+   "reason": "plot taken into St Michael's nunnery close (R-1719); household too large for a free booth, left the town"
+  }
+ ],
+ "late_plots": [
+  "bldg.kalarand.11",
+  "bldg.kalarand.25",
+  "bldg.kalarand.26",
+  "bldg.kalarand.27",
+  "bldg.kalarand.28",
+  "bldg.kalarand.29",
+  "bldg.kalarand.30"
+ ]
+}
