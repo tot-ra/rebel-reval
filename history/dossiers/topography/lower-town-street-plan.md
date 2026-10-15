@@ -41,22 +41,23 @@ The UNESCO/heritage consensus is that Tallinn's Lower Town retains a **13th–14
 
 ### Named streets: first attestations near 1343
 
-Low German and Latin record forms below come from Päll's onomastic survey [5]. Streets may have existed earlier; absence from the table means **name not yet attested**, not "street absent."
+Low German and Latin record forms below draw on Päll's onomastic survey [5] and the S-Gabriel street-name list [6]. Streets may have existed earlier; absence from the table means **name not yet attested**, not "street absent."
 
 | Modern / game name | Attested form | Year | 1343 map use |
 |---|---|---|---:|---|
 | Raekoja plats (market) | *forum* | 1313 | **Use** — central market node [5][3] |
 | Olevimägi | *Zantberg* | 1337 | Hill by St Olaf; route name usable [5] |
 | Nunne | *susterstrate* | 1361 | Route plausible; name **post-1343** [5] |
-| Rataskaevu | *sub monte* | 1361 | Well area **uncertain** at exact modern anchor in 1343 [12] |
+| Rataskaevu | *sub monte* | 1348/1361 | Route west of the forum along the Toompea foot; only its north end meets the westernmost Pikk plots; 1343 use **plausible composite** [5][6] |
 | Harju | *smedestrate* | 1362 | Smith-trade lane; route likely, name 1362 [5] |
 | Viru | *leymstrate* ("clay street") | 1362 | Major eastern approach; name 1362 [5] |
 | Suur-Karja | *Kariestrate* | 1365 | Cattle-market approach; name 1365 [5] |
-| Lühike jalg | *parvus mons* | 1371 | Toompea descent; name 1371 [5] |
-| Kuninga | *schostrate* | 1374 | Shoe-makers' lane; name 1374 [5] |
-| Pikk | *(no 14th-c. attestation in [5])* | — | **plausible composite** main east–west spine from harbour archaeology + surviving alignment [2][14] |
-| Lai | *(first MLG 1547+)* | — | **plausible composite** parallel merchant lane [5][2] |
-| Vene | *(Estonian 1732+; linked to Russian merchants)* | — | **plausible composite** quarter identity by 1343 [6][7] |
+| Lühike jalg | *brevis mons* (1353); *parvus mons* (1371) | 1353; 1371 | Toompea descent; *brevis mons* precedes *parvus mons* [5][6] |
+| Kinga | *schostrate* | 1374 | Shoemakers' lane; the 1374 form is **Kinga**, not Kuninga [5][6] |
+| Kuninga | *(no dated medieval form)* | — | Treat as a modern label only; no dated medieval attestation [5] |
+| Pikk | *(no 14th-c. attestation; Tallinn Estonian list 1732)* | 1732 | **plausible composite** main east–west spine from harbour archaeology + surviving alignment [2][5][14] |
+| Lai | *(no 14th-c. Tallinn attestation; *bredestrate* 1547 is Tartu, not Tallinn; Tallinn Estonian list 1732)* | 1732 | **plausible composite** parallel merchant lane [2][5] |
+| Vene | *(Tallinn Estonian list 1732; linked to Russian merchants)* | 1732 | **plausible composite** quarter identity by 1343 [5][6][7] |
 | Müürivahe | *(wall lane — medieval function attested generically)* | — | Lane along inner wall face; treat as **plausible composite** [2][8] |
 | Niguliste | *(church attested; street gravel 13th c.)* | — | Approach to St Nicholas; street surface **attested** 13th c. locally [15] |
 
@@ -64,7 +65,7 @@ Low German and Latin record forms below come from Päll's onomastic survey [5]. 
 
 - The market (*forum*) is **attested in 1313** at the Town Hall square [5].
 - Town Hall itself is **attested 1322**, with first-quarter-14th-century expansion; the recognisable arcade/tower silhouette is **post-1343** [3][4].
-- For 1343: an **irregular open market space** north of the elongated hall, fed by Pikk, Viru/Vana Turg, Kuninga/Karja, and routes toward Niguliste and Toompea — not a formal rectangular plaza [4][12].
+- For 1343: an **irregular open market space** north of the elongated hall, fed by Pikk, Viru/Vana Turg, the modern Kuninga/Karja alignments, and routes toward Niguliste and Toompea — not a formal rectangular plaza [4][12].
 - Temporary stalls do not count as built footprint; surround the square with **narrow merchant strip plots** [4].
 
 ### Plot widths, depths, and block structure

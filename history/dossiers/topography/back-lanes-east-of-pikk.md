@@ -29,9 +29,9 @@ You are routing **service lanes behind Pikk frontages** in the eastern Lower Tow
    - **Müürivahe** — inner **wall lane** along the curtain; eastern margin of the ward; watch patrol route [5][6][7].
    - **Vene** — north–south **feeder** between Pikk-block yards and the Dominican precinct; Russian-merchant quarter identity by 1343 even though the modern street name is later attested [3][8][9].
    - **Katariina käik** — **cloister-side passage** between Vene and Müürivahe along the Dominican west range; monastery operational since 1246 [9][10].
-3. **Two supporting lanes (pre-1343 route, post-1343 name):**
-   - **Rataskaevu** (*dummestrate*, hoist street, **1328**) — rear/work access north of the market for Pikk Block A yards [2].
-   - **Apteegi** (*velud itur ad monachos*, street to the monks, **1363**) — approach to Dominican service buildings from the market side [2][11].
+3. **Two additional documentary lanes near the market and monastic edge:**
+   - **Rataskaevu** (*sub monte*, **1348/1361**) — west of the forum along the Toompea foot, from Pikk jalg's foot past Dunkri to Lühike jalg's foot; only its north end touches the westernmost Pikk plots [3].
+   - **Apteegi** (*velud itur ad monachos*, **1363**) — approach to Dominican service buildings from the market side [2][11].
 4. **Widths (authoring targets, all plausible composite unless noted):** yard-access lanes **3–4 m**; Katariina käik **~2–3 m** (single-file cart); Müürivahe **4–6 m** at wall base; Vene **5–7 m** where it functions as a through-route [3][6][12].
 5. **Surfaces:** earth, pebble, and mud on rear lanes; **less stone than Pikk frontage**; sporadic plank or cobble only at Dominican passage thresholds and Viru gate apron (post-tower completion) [6][7].
 6. **Gates:** distinguish **yard gates** (*Hofpforte*, timber or iron-strapped plank) from **city gates**; Dominican precinct has **controlled cloister portals**; no 15th-c. arched overhead links in Katariina käik in April 1343 [4][10].
@@ -66,7 +66,7 @@ The **Lai-side rear network** (Suur-Kloostri, Väike-Kloostri, Aida / Speicherga
 | **Müürivahe** | *Mauerweg* tradition; wall lane | Generic medieval function; modern name later [3][5] | **Eastern margin** of ward; patrol and craft access [6][7] | 4–6 m | function attested; width **plausible composite** [5][6] |
 | **Vene** | Russian-merchant quarter | Estonian **1732+** in onomastic survey; MLG quarter identity earlier [2][8] | **Parallel feeder** east of deep Pikk plots; Dominican west [9] | 5–7 m | route **plausible composite** for 1343 [3][8] |
 | **Katariina käik** | Cloister passage | Monastery **1246**; passage follows west claustral range [9][10] | **Service passage** behind Pikk-block yards; Vene ↔ Müürivahe [10] | ~2–3 m | monastery **attested**; lane width **plausible composite** [10][12] |
-| **Rataskaevu** | *dummestrate* (hoist street) | **1328** [2] | Rear/work access for **market-adjacent Pikk** yards [3] | 3–4 m | name attested; 1343 use **plausible composite** [2][3] |
+| **Rataskaevu** | *sub monte* | **1348/1361** [3] | **West of the forum** along the Toompea foot, from Pikk jalg past Dunkri to Lühike jalg; only the north end meets westernmost Pikk plots [3] | 3–4 m | name attested; 1343 use **plausible composite** [3] |
 | **Apteegi** | *velud itur ad monachos* | **1363** [2][11] | **Monkward approach** from market/Dominican edge [11] | 3–5 m | name **1363**; route likely earlier **plausible composite** [2] |
 
 No reviewed source provides a **complete 1343 rear-lane cadastre** with measured widths. Plot-level yard gates are **typological**, not individually documented [3][4].
@@ -94,9 +94,9 @@ No reviewed source provides a **complete 1343 rear-lane cadastre** with measured
 - **Overhead arches** linking south-side workshops are **later reinforcement**; April 1343 shows **open lane + cloister wall**, not arcaded gallery [10][12]. **plausible composite**
 - Dominican **brewery and fish trade** imply service doors and cart access on this flank in 1343 [9].
 
-#### Rataskaevu and Apteegi (market-edge rear feeders)
+#### Rataskaevu and Apteegi (western foot lane and monkward approach)
 
-- **Rataskaevu** (*dummestrate*, **1328**) — hoist/street-name logic ties to **merchant gear** on market-adjacent plots; functions as **rear access** for Pikk Block A in [`pikk-lai-frontage-materials-1340s.md`](./pikk-lai-frontage-materials-1340s.md) [2][3][15]. **attested** name; rear-lane role **plausible composite**
+- **Rataskaevu** (*sub monte*, **1348/1361**) runs west of the forum along the Toompea foot, from Pikk jalg's foot past Dunkri to Lühike jalg's foot; only its north end meets the westernmost Pikk plots [3]. Do **not** model it as rear/work access north of the market for Pikk Block A; its 1343 route use remains **plausible composite** [3].
 - **Apteegi** — Latin **1363** *velud itur ad monachos* ("street leading to the monks") documents a **monkward lane** on the Dominican side of the market quarter [2][11]. **attested** 1363; April 1343 presence **plausible composite**
 
 ### Yard gates and access control
@@ -122,7 +122,7 @@ Labourers and **Estonian servants** more often use **rear lanes and yard gates**
 - **Art:** Rear lanes = **mud, pebble, yard chips**, timber fences, privy sheds, smoke from Dominican brewery; **no** limestone street skin. Yard gates: dark tarred plank, iron strap hinges — plate [`.04`](../../reference/topography/back-lanes-east-of-pikk/topography.back-lanes-east-of-pikk.04.jpg). Katariina käik: **raw cloister masonry**, not gift-shop signage [10].
 - **Character:** Craft servants and Estonian labourers enter via **rear gates**; merchants receive guests at diele front [4][16].
 - **Quest / Narrative:** Dominican fish cart on Katariina käik; watch lantern on Müürivahe at curfew [`watch-duty-and-town-defence.md`](../military/watch-duty-and-town-defence.md); rear-lane theft/sabotage routes for night missions.
-- **Dialogue:** Use *strate* / *gasse* generically; *dummestrate* only near Rataskaevu anchor; avoid anachronistic "Tagenstraße" in NPC speech [2].
+- **Dialogue:** Use *strate* / *gasse* generically; cite *sub monte* only as the 1348/1361 documentary form, not as a name necessarily spoken in April 1343 [2][3].
 - **Dev / systems:** Lane graph: Pikk frontage nodes connect to rear-lane nodes at `yard_gate` cost 1; Dominican precinct nodes `access=restricted`; Müürivahe nodes `patrol_weight=high` [6][9].
 
 ## Reference plates
@@ -139,7 +139,7 @@ Labourers and **Estonian servants** more often use **rear lanes and yard gates**
 ## Cross-references
 
 - [`lower-town-street-plan.md`](./lower-town-street-plan.md) — Pikk Block B deep plots and unnamed rear-lane pattern this dossier names.
-- [`pikk-lai-frontage-materials-1340s.md`](./pikk-lai-frontage-materials-1340s.md) — Pikk Block A market segment whose yards feed Rataskaevu / monkward lanes.
+- [`pikk-lai-frontage-materials-1340s.md`](./pikk-lai-frontage-materials-1340s.md) — Pikk Block A market segment and yard-access findings; Rataskaevu's west-of-forum course only meets the westernmost Pikk plots at its north end.
 - [`walls-gates-towers.md`](./walls-gates-towers.md) — Müürivahe as inner curtain lane; Viru Gate 1343 phase at lane terminus.
 - [`viru-vanaturg-paving-archaeology.md`](./viru-vanaturg-paving-archaeology.md) — Viru west pebble band and Müürivahe crossing surfaces.
 - [`burgher-house-plan.md`](../architecture/burgher-house-plan.md) — yard gate, rear lane, and dornse courtyard door placement.
@@ -148,7 +148,7 @@ Labourers and **Estonian servants** more often use **rear lanes and yard gates**
 
 ## Open questions
 
-- Whether **1340–1343 AWB** entries name any rear lane beside Pikk explicitly — **edition-local negative for Pikk/Lai spine names** delivered 2026-08-28; AWB **302** still attests *platea dicta dummestrate* pre-1343 (see [`pikk-lai-frontage-materials-1340s.md`](./pikk-lai-frontage-materials-1340s.md)).
+- Whether the 1340–1343 AWB *platea dicta dummestrate* refers to a rear lane beside Pikk or to the Rataskaevu west-foot route is still unresolved; AWB 302 attests the form pre-1343, but does not establish the route relationship here (see [`pikk-lai-frontage-materials-1340s.md`](./pikk-lai-frontage-materials-1340s.md)).
 - **Measured medieval yard-gate widths** on Pikk plots — no published survey; dendrochronology on surviving gates would help art.
 - **Unnamed parallel lanes** between Pikk and Lai in the eastern blocks — separate tick from Lai-side Kloostri network.
 - **Katariina käik** cart traffic rights vs pedestrian-only custom in the 1340s — Dominican account books not reviewed here.
