@@ -14,10 +14,10 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `1293`
+- Active Markdown files scanned: `1294`
 - Markdown files excluded as archive/reference/out of active scope: `771`
-- Local/external links inspected: `15000`
-- Links to active Markdown docs: `12967`
+- Local/external links inspected: `15006`
+- Links to active Markdown docs: `12973`
 - Links to existing archive/reference/non-active local docs: `545`
 - External links skipped for reachability: `192`
 - Issues found: `0`
@@ -1219,6 +1219,7 @@ No active Markdown documentation issues found.
 - `docs/SYSTEMS/NIGHT_SKY.md`
 - `docs/SYSTEMS/NPC_MIND.md`
 - `docs/SYSTEMS/OBJECT_CATALOG.md`
+- `docs/SYSTEMS/PASTIMES.md`
 - `docs/SYSTEMS/PERFORMANCE_MONITOR.md`
 - `docs/SYSTEMS/POST_PROCESS.md`
 - `docs/SYSTEMS/PSYCHE.md`

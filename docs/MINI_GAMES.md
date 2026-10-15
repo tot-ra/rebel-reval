@@ -70,6 +70,10 @@ Only these three may open implementation rows before Act 2 design closes. Each n
 | **Integration** | Short hammer-combat arena with furniture collision; `living_city.fear` bump on brutality; faction respect for Black Cloaks vs. rebels depending on outcome |
 | **Verify sketch** | Instanced tavern room: interact prompt starts brawl, three-hit KO ends with `flag.tavern_brawl_won` and opens stub dialogue node; leaving bounds forfeits with reputation penalty |
 
+## Folk pastimes (epic R-1956)
+
+Games of ordinary people in 1343 (dice, nine men's morris or tables, a village strength contest) are planned in [`SYSTEMS/PASTIMES.md`](./SYSTEMS/PASTIMES.md). They are not on the signed shortlist above: ADR 0049 (task R-1958) decides which become playable after the research dossier (R-1957) lands.
+
 ## Deferred backlog (post-Act 1)
 
 | Idea | Blocker | Revisit when |
