@@ -1,0 +1,33 @@
+{
+ "date": "2026-10-16",
+ "base_commit": "eeb2887aa",
+ "worktree": "dirty (concurrent sessions' uncommitted edits in scripts/city, scripts/map/view3d)",
+ "cycle_progress": 0.45,
+ "runtime_hour_override": 10.0,
+ "resolution": "1600x900 (runtime viewport saved at native 2659x1496)",
+ "audio_review": "not listened",
+ "dropped": [
+  "hw9_lossi_plats",
+  "hw9_toom_kooli",
+  "hw9_kal_village (static eyes inside walls)",
+  "hw9_rt_kohtu (player teleported inside a house)"
+ ],
+ "runtime_live_citizens": {
+  "castle_bailey": 12,
+  "lossi_plats": 12,
+  "kohtu": 12,
+  "toom_kooli": 9,
+  "kal_village": 10,
+  "kal_beach": 6,
+  "kal_lane": 8
+ },
+ "commands": [
+  "tools/godot_render.sh --resolution 1600x900 --script res://build/hw9/hw9_static.gd -- --out=res://build/hw9",
+  "tools/godot_render.sh --resolution 1600x900 res://build/hw9/hw9_runtime.tscn"
+ ],
+ "capture_scripts": {
+  "hw9_static.gd": "extends \"res://tools/capture_reval_city.gd\"\n\nfunc _v(plan: CityPlan, x: float, z: float, up: float) -> Vector3:\n\treturn Vector3(x, plan.ground_height(Vector2(x, z)) + up, z)\n\nfunc _s(plan: CityPlan, n: String, e: Array, l: Array, fov := 62.0) -> Dictionary:\n\treturn {\"name\": n, \"eye\": _v(plan, e[0], e[1], e[2]), \"look\": _v(plan, l[0], l[1], l[2]), \"fov\": fov}\n\nfunc _shots(plan: CityPlan) -> Array[Dictionary]:\n\tvar s: Array[Dictionary] = []\n\ts.append(_s(plan, \"hw9_castle_aerial\", [-360, 70, 95], [-450, 165, 0], 60.0))\n\ts.append(_s(plan, \"hw9_castle_bailey\", [-430, 125, 1.7], [-462, 195, 4]))\n\ts.append(_s(plan, \"hw9_lossi_plats\", [-374, 140, 1.7], [-368, 200, 5]))\n\ts.append(_s(plan, \"hw9_kohtu\", [-288, 40, 1.7], [-230, -18, 3]))\n\ts.append(_s(plan, \"hw9_toom_kooli\", [-383, -25, 1.7], [-383, 40, 3]))\n\ts.append(_s(plan, \"hw9_pikk_jalg_gate\", [-300, 137, 1.7], [-246, 112, 2]))\n\ts.append(_s(plan, \"hw9_toompea_overview\", [-150, 40, 70], [-360, 80, 0], 60.0))\n\ts.append(_s(plan, \"hw9_kal_aerial\", [-40, -760, 70], [80, -880, 0], 60.0))\n\ts.append(_s(plan, \"hw9_kal_village\", [20, -820, 1.7], [85, -885, 2]))\n\ts.append(_s(plan, \"hw9_kal_beach\", [125, -835, 1.7], [60, -930, 1.5]))\n\ts.append(_s(plan, \"hw9_kal_lane\", [30, -935, 1.7], [110, -830, 2]))\n\ts.append(_s(plan, \"hw9_kal_from_sea\", [215, -905, 5], [70, -850, 2]))\n\treturn s\n",
+  "hw9_runtime.gd": "extends Node\n\nconst SCENE := preload(\"res://scenes/world/reval_city/reval_city.tscn\")\nconst OUT := \"res://build/hw9\"\nvar _city: Node\n\nfunc _ready() -> void:\n\tcall_deferred(\"_run\")\n\nfunc _run() -> void:\n\t_city = SCENE.instantiate()\n\tget_tree().root.add_child(_city)\n\tfor i in 4:\n\t\tawait get_tree().process_frame\n\tvar spots := [[\"hw9_rt_castle_bailey\", Vector2(-445, 160)], [\"hw9_rt_lossi_plats\", Vector2(-372, 172)], [\"hw9_rt_kohtu\", Vector2(-262, 8)], [\"hw9_rt_toom_kooli\", Vector2(-383, 30)], [\"hw9_rt_kal_village\", Vector2(45, -860)], [\"hw9_rt_kal_beach\", Vector2(115, -862)], [\"hw9_rt_kal_lane\", Vector2(85, -800)]]\n\tfor sp in spots:\n\t\t_city.player.global_position = CityPlan.to_logic(sp[1])\n\t\t_city.runtime.cycle_progress = 0.45\n\t\t_city._npcs.citizens.hour_override = 10.0\n\t\tawait get_tree().create_timer(7.0).timeout\n\t\t_city.runtime.cycle_progress = 0.45\n\t\tawait get_tree().process_frame\n\t\tawait get_tree().process_frame\n\t\tvar npcs := _city.find_child(\"CityNpcs\", true, false)\n\t\tprint(\"%s live_citizens=%d\" % [sp[0], npcs.citizens.live_count() if npcs else -1])\n\t\tvar image := get_tree().root.get_viewport().get_texture().get_image()\n\t\timage.save_png(ProjectSettings.globalize_path(\"%s/%s.png\" % [OUT, sp[0]]))\n\t\tprint(\"captured \", sp[0])\n\tget_tree().quit(0)\n",
+  "hw9_runtime.tscn": "[gd_scene load_steps=2 format=3]\n\n[ext_resource type=\"Script\" path=\"res://build/hw9/hw9_runtime.gd\" id=\"1_rt\"]\n\n[node name=\"Hw9Runtime\" type=\"Node\"]\nscript = ExtResource(\"1_rt\")\n"
+ }
+}

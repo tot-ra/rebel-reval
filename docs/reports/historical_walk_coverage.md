@@ -12,8 +12,8 @@ Captures: `docs/reports/images/historical_walk/`, produced with two scratch scri
 
 | Location | Plan id | Last visited | A | P | V | L | S | Avg | Open tasks |
 |----------|---------|--------------|---|---|---|---|---|-----|------------|
-| Toompea plateau and Danish castle | `district.toompea` | 2026-10-09 | 2 | 1 | 2 | 1 | 2 | 1.6 | R-1462, R-1463, R-1464, R-1465, R-1466, R-1470, R-1471; legacy-targeted R-1128, R-967, R-293 |
-| Kalarand fishing shore | `district.kalarand` | 2026-10-09 | 2 | 2 | 2 | 1 | 2 | 1.8 | R-1467, R-1468, R-1469, R-1470; R-1347 (LIFE-4 fishers) |
+| Toompea plateau and Danish castle | `district.toompea` | 2026-10-16 | 2 | 1 | 2 | 2 | - | 1.8 | R-1462, R-1994, R-1995, R-1996, R-1463, R-1464, R-1465, R-1466, R-1470, R-1471; legacy-targeted R-1128, R-967, R-293 |
+| Kalarand fishing shore | `district.kalarand` | 2026-10-16 | 2 | 3 | 2 | 2 | - | 2.3 | R-1993, R-1467, R-1468, R-1681, R-1469, R-1470; R-1347 (LIFE-4 fishers) |
 | Lower Town streets: Pikk/Lai (bar, provisional) | `district.lower_town` | 2026-10-11 (captured; visual review pending) | 4* | 2* | 3* | 3* | - | 3.0* | R-1465, R-1657 |
 | Town Hall square and market | `site.raekoja_plats`, `poi.forum` | 2026-10-10 | 3 | 2 | 2 | 2 | - | 2.3 | R-1610, R-1611, R-1612, R-1616, R-1465, R-1323 |
 | Holy Spirit church and almshouse | `site.holy_spirit` | 2026-10-10 | 3 | 1 | 2 | 1 | - | 1.8 | R-1613, R-1614, R-1615, R-1434; legacy-targeted R-1126 |
@@ -135,3 +135,17 @@ Captures: `hw8_cath_aerial`, `hw8_cath_east`, `hw8_mich_aerial`, `hw8_mich_south
 ![St Michael's nunnery: a generic church among houses, no close](images/historical_walk/hw8_mich_aerial.jpg)
 
 ![St Michael's door at 10:00: the nunnery household clumped at its home anchor](images/historical_walk/hw8_rt_mich_south.jpg)
+
+### 2026-10-16 - Walk 9: Toompea and Kalarand revisited
+
+Captures: `hw9_castle_aerial`, `hw9_castle_bailey`, `hw9_kohtu`, `hw9_pikk_jalg_gate`, `hw9_toompea_overview`, `hw9_kal_aerial`, `hw9_kal_beach`, `hw9_kal_lane`, `hw9_kal_from_sea` (static), `hw9_rt_castle_bailey`, `hw9_rt_castle_men_at_arms_crop`, `hw9_rt_lossi_plats`, `hw9_rt_toom_kooli`, `hw9_rt_kal_village`, `hw9_rt_kal_beach`, `hw9_rt_kal_lane` (gameplay camera, clock pinned at 0.45, citizen hour 10:00). Scratch scripts, commands, dropped views and nearby live-citizen counts (6-12) are in the [capture manifest](images/historical_walk/hw9_manifest.json). Images reviewed at pixel level. Audio not listened to, so **S** is reset to "-" on both rows per the rule above. Selection: both rows were the oldest (2026-10-09) and Toompea the lowest-rated outside the two religious houses, which are now in review as sites (R-1718, R-1719).
+
+**Toompea.** Unchanged in substance. The castle ring still holds no buildings, and since walk 1 the census puts 91 residents round it, among them 20 crown men-at-arms. At 10:00 they stand in waist-high grass in an empty bailey (R-1462 re-confirmed and widened). Those men-at-arms render in off-white garments covered in red blotches and look blood-spattered. `docs/SYSTEMS/CITIZEN_WARDROBE.md` specifies a red crown surcoat (R-1994). The 28 plastered stone houses show pale render islands with dark contour lines, like a camouflage map, on every frontage of Lossi plats and Kohtu (R-1995). The vassal-house massing fits the dossier: limestone, tile and shingle, stepped and plain gables. Streets have a cart at Toom-Kooli and are otherwise bare (R-1466). New idea: a garrison day with a gate post, a watch change and horses watered at `poi.well.castle`, built on the existing scheduler (R-1996). Toompea is now the only Act 1 political pole without an ADR 0032 site.
+
+**Kalarand.** The coastline fix (96c6ca9d3) and the drying nets and fish racks (R-1640) lifted this row the most of any revisit. At gameplay height the shore now has kitchen gardens, wattle fences, racks of split fish, and beached clinker boats with small sails. Biggest breaks: all 30 fisher huts carry a limestone chimney stack with smoke, a plinth and glazed windows, because the R-1929 smoke-dwelling form covers only farm buildings with `rural_plan`. The 21 Viru houses have the same gap (R-1993). A tall pale cliff wall along the plan edge closes the bay to the north-west, where the real shore is low sand, and the far sea is drawn in seamed tiles (R-1468 retitled to this state). The nets read as a galvanised chain-link fence rather than hemp hung over poles (fed into the R-1681 review). There are still 30 identical huts on round pads up to about 200 m inland, with no smoke or salt shed (R-1467 updated). Six to ten citizens were nearby, but nobody was at the boats or mending nets in the April mending season (R-1347).
+
+**Consistency gap.** The farm suburbs now share one researched 1343 dwelling form (R-1929), but it stops at their district borders. The fishing shore and the Viru road still use the town-house shell with chimney and glass, so the hinterland has two dwelling standards side by side. On the hill, every Act 1 political pole is now a bespoke site except the Danish castle, and that is where the garrison lives. Both gaps come from bespoke work stopping at a boundary, not from missing assets: widen R-1929's form to every extramural log dwelling (R-1993), and make the castle the next ADR 0032 site (R-1462). Next walks: Viru road suburb and Toompea foot (now the oldest rows, 2026-10-09), then the Harbour.
+
+![Kalarand: smoking chimney stacks on fisher huts, cliff wall across the bay](images/historical_walk/hw9_rt_kal_lane.jpg)
+
+![Danish castle bailey at 10:00: men-at-arms in waist-high grass, no buildings](images/historical_walk/hw9_rt_castle_bailey.jpg)
