@@ -53,5 +53,6 @@ Numbered decisions (Status / Context / Decision / Alternatives / Consequences). 
 - [ADR 0047: Talk, fight or duel with anyone: stances and a universal conversation camera](0047-interaction-stances-and-conversation-camera.md)
 - [ADR 0048: Psychological spells, trust endings and a willpower cost for the spirit world](0048-psychological-spells-and-willpower-cost.md)
 - [ADR 0050: Social life of the census citizens: venues, weekly rhythm, gatherings and travel](0050-social-life-venues-and-weekly-rhythm.md)
+- [ADR 0051: Condition-adaptive motion style from a small neural network](0051-condition-adaptive-motion-style-network.md)
 
 <!-- docs-index:end -->

@@ -47,7 +47,10 @@ static func advance(
 	# Ambient fauna is a ground-only actor kit: never let a walk step introduce
 	# height, otherwise animals appear to hover over the cobbles.
 	actor.position.y = home.y
-	var speed := float(actor.get_meta(&"walk_speed", 0.0))
+	# The motion style (ADR 0051) slows an animal on ice, in deep snow or when hurt.
+	var speed := (
+		float(actor.get_meta(&"walk_speed", 0.0)) * float(actor.get_meta(&"motion_speed_factor", 1.0))
+	)
 	if delta <= 0.0 or speed <= 0.0:
 		return
 

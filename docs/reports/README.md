@@ -149,6 +149,7 @@ Start with:
 - [P6-007 full-campaign authorial gate](p6_007_campaign_gate.md)
 - [Padise Monastery Research for P6-009](padise_monastery_research_p6_009.md)
 - [Pirita in 1343 - research and map translation](pirita_1343_research.md)
+- [Procedural motion: existing solutions and licences](procedural_motion_existing_solutions.md)
 - [Procedural motion report](procedural_motion_report.md)
 - [QA daily smoke 2026-10-10](qa_smoke_2026-10-10.md)
 - [QA daily smoke 2026-10-11](qa_smoke_2026-10-11.md)

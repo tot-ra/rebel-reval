@@ -1,6 +1,6 @@
 # Muscle-driven procedural locomotion
 
-Status: planned; **research prototype only** (build-time Python under [`tools/research/muscle_locomotion/`](../../tools/research/muscle_locomotion/), not wired into the game). Nothing here is loaded at runtime. Related: [animal 3D sourcing and animation strategy](../ANIMAL_3D_SOURCING.md), [Flora and fauna](../FLORA_FAUNA.md), [Combat animation](./COMBAT_ANIMATION.md).
+Status: planned; **research prototype only**. The runtime adaptation of people, animals and birds to situations (ice, cold, wet, wind, wounds) is now a separate, implemented layer: [`MOTION_STYLE.md`](MOTION_STYLE.md) ([ADR 0051](../adr/0051-condition-adaptive-motion-style-network.md)); its trainer lives in skeleto-nn `adapt/`. The muscle prototype below remains (build-time Python under [`tools/research/muscle_locomotion/`](../../tools/research/muscle_locomotion/), not wired into the game). Nothing here is loaded at runtime. Related: [animal 3D sourcing and animation strategy](../ANIMAL_3D_SOURCING.md), [Flora and fauna](../FLORA_FAUNA.md), [Combat animation](./COMBAT_ANIMATION.md).
 
 Scope: one creature description for biped, quadruped, bird and snake bodies, motion found by evolution instead of hand animation, baked to clips. Out of scope: runtime muscle simulation, ragdoll combat, 3D balance, flight, snakes (designed, not built).
 

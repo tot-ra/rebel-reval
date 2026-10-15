@@ -8,6 +8,7 @@ const BirdAmbientAudio := preload("res://scripts/map/view3d/map_view_bird_ambien
 const BirdAssets := preload("res://scripts/map/view3d/map_view_bird_assets.gd")
 const BirdMeshes := preload("res://scripts/map/view3d/map_view_bird_meshes.gd")
 const BirdSpecies := preload("res://scripts/map/view3d/map_view_bird_species.gd")
+const MotionStylePresenter := preload("res://scripts/motion/motion_style_presenter.gd")
 const CrowdRenderer := preload("res://scripts/map/view3d/map_view_crowd_renderer.gd")
 
 const MAX_CONCURRENT_BIRDS := 4
@@ -654,7 +655,9 @@ func _advance_flap(bird: Node3D, delta: float) -> void:
 	var time := float(bird.get_meta(&"flap_time", 0.0)) + delta
 	bird.set_meta(&"flap_time", time)
 	var species: StringName = bird.get_meta(&"species", &"")
-	var profile := flap_profile(species)
+	# ADR 0051: rain-soaked plumage, cold and load change the wingbeat through the style network.
+	var mass := clampf(0.45 * pow(BirdSpecies.scale_m(species) / 0.45, 3.0), 0.01, 8.0)
+	var profile := MotionStylePresenter.bird_profile(self, species, flap_profile(species), delta, mass)
 	var phase := flap_phase_at(time, profile)
 	var pose := wing_pose(phase, profile)
 	if is_simplified(bird):

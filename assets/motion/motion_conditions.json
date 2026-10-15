@@ -1,0 +1,481 @@
+{
+ "conditions": {
+  "dry_ground": {
+   "doc": "dry packed earth or cobbles",
+   "effects": {
+    "friction": [
+     "min",
+     0.8
+    ]
+   }
+  },
+  "wet_cobbles": {
+   "doc": "rain-wet stone setts",
+   "effects": {
+    "friction": [
+     "min",
+     0.42
+    ]
+   }
+  },
+  "wet_grass": {
+   "doc": "dew or rain on grass",
+   "effects": {
+    "friction": [
+     "min",
+     0.35
+    ]
+   }
+  },
+  "wet_planks": {
+   "doc": "wet quay or ship planking",
+   "effects": {
+    "friction": [
+     "min",
+     0.3
+    ]
+   }
+  },
+  "mud": {
+   "doc": "deep mud",
+   "effects": {
+    "friction": [
+     "min",
+     0.38
+    ],
+    "sink": [
+     "max",
+     0.22
+    ]
+   }
+  },
+  "sand": {
+   "doc": "loose dry sand",
+   "effects": {
+    "friction": [
+     "min",
+     0.6
+    ],
+    "sink": [
+     "max",
+     0.12
+    ]
+   }
+  },
+  "packed_snow": {
+   "doc": "trodden snow",
+   "effects": {
+    "friction": [
+     "min",
+     0.26
+    ],
+    "air_temp": [
+     "set",
+     -4.0
+    ]
+   }
+  },
+  "deep_snow": {
+   "doc": "fresh snow above the ankle",
+   "effects": {
+    "friction": [
+     "min",
+     0.32
+    ],
+    "sink": [
+     "max",
+     0.45
+    ],
+    "air_temp": [
+     "set",
+     -6.0
+    ]
+   }
+  },
+  "ice": {
+   "doc": "frozen puddle, iced street",
+   "effects": {
+    "friction": [
+     "min",
+     0.09
+    ],
+    "air_temp": [
+     "set",
+     -5.0
+    ]
+   }
+  },
+  "wet_ice": {
+   "doc": "thawing ice with a film of water",
+   "effects": {
+    "friction": [
+     "min",
+     0.05
+    ],
+    "air_temp": [
+     "set",
+     0.0
+    ]
+   }
+  },
+  "fish_slime": {
+   "doc": "fish guts and slime on the landing",
+   "effects": {
+    "friction": [
+     "min",
+     0.15
+    ]
+   }
+  },
+  "spilled_oil": {
+   "doc": "oil or tallow spilled on stone",
+   "effects": {
+    "friction": [
+     "min",
+     0.1
+    ]
+   }
+  },
+  "frost": {
+   "doc": "hard frost",
+   "effects": {
+    "air_temp": [
+     "set",
+     -15.0
+    ]
+   }
+  },
+  "deep_frost": {
+   "doc": "midwinter cold snap",
+   "effects": {
+    "air_temp": [
+     "set",
+     -28.0
+    ]
+   }
+  },
+  "heat": {
+   "doc": "a hot summer noon",
+   "effects": {
+    "air_temp": [
+     "set",
+     33.0
+    ]
+   }
+  },
+  "drenched": {
+   "doc": "soaked through (rain, a fall into water)",
+   "effects": {
+    "wet": [
+     "max",
+     1.0
+    ]
+   }
+  },
+  "damp": {
+   "doc": "damp clothes or coat",
+   "effects": {
+    "wet": [
+     "max",
+     0.45
+    ]
+   }
+  },
+  "icy_water": {
+   "doc": "wading or swimming in the winter sea",
+   "effects": {
+    "wet": [
+     "max",
+     1.0
+    ],
+    "air_temp": [
+     "set",
+     1.0
+    ]
+   }
+  },
+  "wind": {
+   "doc": "strong wind; dir = where it comes from",
+   "effects": {
+    "wind": [
+     "add",
+     0.5
+    ]
+   }
+  },
+  "gale": {
+   "doc": "a storm gale",
+   "effects": {
+    "wind": [
+     "add",
+     1.0
+    ]
+   }
+  },
+  "night": {
+   "doc": "moonless night, no torch",
+   "effects": {
+    "dark": [
+     "max",
+     0.85
+    ]
+   }
+  },
+  "dusk": {
+   "doc": "dusk or a dim lane",
+   "effects": {
+    "dark": [
+     "max",
+     0.4
+    ]
+   }
+  },
+  "smoke": {
+   "doc": "smoke from a fire",
+   "effects": {
+    "smoke": [
+     "max",
+     0.8
+    ]
+   }
+  },
+  "bleeding": {
+   "doc": "open wound; region and side",
+   "region": true,
+   "effects": {
+    "bleed": [
+     "max",
+     0.7
+    ],
+    "pain@": [
+     "max",
+     0.45
+    ]
+   }
+  },
+  "graze": {
+   "doc": "shallow cut",
+   "region": true,
+   "effects": {
+    "bleed": [
+     "max",
+     0.2
+    ],
+    "pain@": [
+     "max",
+     0.2
+    ]
+   }
+  },
+  "sprain": {
+   "doc": "sprained ankle or knee; side",
+   "effects": {
+    "pain_leg_S": [
+     "max",
+     0.6
+    ]
+   }
+  },
+  "broken_leg": {
+   "doc": "broken lower leg; side",
+   "effects": {
+    "pain_leg_S": [
+     "max",
+     0.95
+    ]
+   }
+  },
+  "broken_arm": {
+   "doc": "broken forearm; side",
+   "effects": {
+    "pain_arm_S": [
+     "max",
+     0.9
+    ]
+   }
+  },
+  "bruised_ribs": {
+   "doc": "bruised or cracked ribs",
+   "effects": {
+    "pain_torso": [
+     "max",
+     0.6
+    ]
+   }
+  },
+  "headache": {
+   "doc": "a blow to the head",
+   "effects": {
+    "pain_head": [
+     "max",
+     0.6
+    ]
+   }
+  },
+  "concussion": {
+   "doc": "concussion",
+   "effects": {
+    "pain_head": [
+     "max",
+     0.6
+    ],
+    "dizzy": [
+     "max",
+     0.55
+    ]
+   }
+  },
+  "drunk": {
+   "doc": "drunk on ale",
+   "effects": {
+    "dizzy": [
+     "max",
+     0.6
+    ]
+   }
+  },
+  "faint": {
+   "doc": "faint from blood loss or hunger",
+   "effects": {
+    "dizzy": [
+     "max",
+     0.4
+    ],
+    "fatigue": [
+     "max",
+     0.6
+    ]
+   }
+  },
+  "exhausted": {
+   "doc": "spent after work or a run",
+   "effects": {
+    "fatigue": [
+     "max",
+     0.9
+    ]
+   }
+  },
+  "hypothermic": {
+   "doc": "chilled to the core",
+   "effects": {
+    "core_cold": [
+     "max",
+     0.7
+    ]
+   }
+  },
+  "heavy_load": {
+   "doc": "a sack, a yoke of buckets, a pack",
+   "effects": {
+    "load": [
+     "add",
+     0.4
+    ]
+   }
+  },
+  "rider": {
+   "doc": "a rider on a horse",
+   "effects": {
+    "load": [
+     "add",
+     0.18
+    ]
+   }
+  }
+ },
+ "regions": {
+  "head": [
+   0.3,
+   0.0,
+   0.95
+  ],
+  "face": [
+   0.9,
+   0.0,
+   0.93
+  ],
+  "neck": [
+   0.4,
+   0.0,
+   0.86
+  ],
+  "chest_S": [
+   0.9,
+   0.45,
+   0.72
+  ],
+  "belly": [
+   0.9,
+   0.0,
+   0.58
+  ],
+  "flank_S": [
+   0.2,
+   0.9,
+   0.6
+  ],
+  "back": [
+   -0.9,
+   0.0,
+   0.68
+  ],
+  "shoulder_S": [
+   0.3,
+   0.9,
+   0.8
+  ],
+  "upper_arm_S": [
+   0.0,
+   1.0,
+   0.7
+  ],
+  "forearm_S": [
+   0.3,
+   1.0,
+   0.55
+  ],
+  "hand_S": [
+   0.5,
+   1.0,
+   0.45
+  ],
+  "thigh_S": [
+   0.6,
+   0.5,
+   0.42
+  ],
+  "knee_S": [
+   0.8,
+   0.5,
+   0.28
+  ],
+  "shin_S": [
+   0.6,
+   0.5,
+   0.17
+  ],
+  "foot_S": [
+   0.7,
+   0.5,
+   0.03
+  ]
+ },
+ "region_pain": {
+  "head": "pain_head",
+  "face": "pain_head",
+  "neck": "pain_head",
+  "chest": "pain_torso",
+  "belly": "pain_torso",
+  "flank": "pain_torso",
+  "back": "pain_torso",
+  "shoulder": "pain_arm",
+  "upper_arm": "pain_arm",
+  "forearm": "pain_arm",
+  "hand": "pain_arm",
+  "thigh": "pain_leg",
+  "knee": "pain_leg",
+  "shin": "pain_leg",
+  "foot": "pain_leg"
+ }
+}

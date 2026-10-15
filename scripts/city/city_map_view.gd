@@ -7,6 +7,7 @@ extends MapView3D
 ## three camera modes, actor rigs, magic VFX, swimmer presenter and session
 ## clock unchanged. Everything else about the old district view stays unused.
 
+const MotionEnvironment := preload("res://scripts/motion/motion_environment.gd")
 ## How far ahead of the camera (world units) the ripple window is centred.
 const CITY_RIPPLE_FOCUS_AHEAD := 6.0
 const CityWaterSurfaceScript := preload("res://scripts/city/city_water_surface.gd")
@@ -343,8 +344,11 @@ func _process(delta: float) -> void:
 			delta,
 			-_camera.global_transform.basis.z
 		)
-	var presentation := _sky_weather.presentation_snapshot(
-		cycle_progress, SkyWeather3D.daylight_blend(cycle_progress, _sky_weather.calendar_date)
+	var day_blend := SkyWeather3D.daylight_blend(cycle_progress, _sky_weather.calendar_date)
+	var presentation := _sky_weather.presentation_snapshot(cycle_progress, day_blend)
+	# ADR 0051: the situation every creature's motion style reads this frame.
+	MotionEnvironment.update_current(
+		_sky_weather, presentation, _sky_weather.calendar_date, day_blend, _snow_cover, _snow_depth_at
 	)
 	if _cloud_shadow_pass != null:
 		_cloud_shadow_pass.update_share(presentation)
@@ -367,6 +371,10 @@ func _process(delta: float) -> void:
 		var sea_state: Variant = water_obstacle_sim.wave_source.get_shader_parameter("shore_sea_state")
 		if wind is Vector2 and sea_state is float:
 			water_obstacle_sim.foam_wind = (wind as Vector2).normalized() * clampf(sea_state, 0.0, 1.0)
+
+
+func _snow_depth_at(world_xz: Vector2) -> float:
+	return CitySnow.depth_at(world_xz, _snow_cover)
 
 
 func _exit_tree() -> void:

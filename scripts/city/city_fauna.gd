@@ -23,6 +23,7 @@ const MammalSpecies := preload("res://scripts/map/view3d/map_view_mammal_species
 const MedievalAnimalModels := preload("res://scripts/map/view3d/map_view_medieval_animal_models.gd")
 const UrbanFauna := preload("res://scripts/map/view3d/map_view_urban_fauna.gd")
 const PerfProbeScript := preload("res://scripts/debug/perf_probe.gd")
+const MotionStylePresenter := preload("res://scripts/motion/motion_style_presenter.gd")
 
 const SEED_KEY := &"reval_city_fauna"
 ## The storybook models are authored for a 2.0-unit person; Kalev is 1.83 m here.
@@ -437,3 +438,7 @@ func _advance(actor: Node3D, listener: Vector3, delta: float) -> void:
 		+ float(actor.get_meta(&"lift", 0.0))
 	)
 	MedievalAnimalModels.sync_animation(actor, previous, delta)
+	if delta > 0.0:
+		var moved := Vector2(actor.position.x - previous.x, actor.position.z - previous.z)
+		actor.set_meta(&"motion_last_speed", moved.length() / delta)
+	MotionStylePresenter.animal(actor, delta, actor.get_meta(&"species", &""))

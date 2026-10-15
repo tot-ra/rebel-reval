@@ -5,6 +5,7 @@ extends RefCounted
 ## MapViewRuntime remains the scene-facing facade while this helper owns actor
 ## synchronization state and signal lifecycles.
 
+const MotionStylePresenter := preload("res://scripts/motion/motion_style_presenter.gd")
 const WALK_ANIMATION_MIN_SPEED := 5.0
 ## Logic px/s above which locomotion reads as running (midpoint between the
 ## player's walk and run speeds).
@@ -264,6 +265,11 @@ func sync_player(snap: bool, delta: float = 0.0) -> void:
 			wanted, float(_player.call("view_animation_elapsed_sec")), duration
 		)
 	_player_rig.set_locomotion_speed(speed * MapViewBridge.world_scale(_definition.cell_size))
+	if not in_water:
+		MotionStylePresenter.humanoid(
+			_player_rig, delta, speed * MapViewBridge.world_scale(_definition.cell_size),
+			MotionStylePresenter.vitals_conditions(_player)
+		)
 	if moving:
 		var planted_foot := _player_rig.consume_foot_plant()
 		if not planted_foot.is_empty():
@@ -378,10 +384,14 @@ func _sync_view_actor(actor: Node2D, rig: SharedCharacterRig, snap: bool, delta:
 	if rig.current_canonical_animation() != wanted:
 		rig.play_animation(wanted)
 	var actor_velocity := actor.get("velocity") as Vector2
-	rig.set_locomotion_speed(
-		actor_velocity.length() * MapViewBridge.world_scale(_definition.cell_size)
-	)
+	var world_speed := actor_velocity.length() * MapViewBridge.world_scale(_definition.cell_size)
+	rig.set_locomotion_speed(world_speed)
 	PerfProbeScript.stop(&"view_runtime/actors/animation", t)
+	t = PerfProbeScript.start()
+	MotionStylePresenter.humanoid(
+		rig, delta, world_speed, MotionStylePresenter.vitals_conditions(actor)
+	)
+	PerfProbeScript.stop(&"view_runtime/actors/motion_style", t)
 	t = PerfProbeScript.start()
 	_emit_npc_footstep(rig, actor_velocity.length())
 	PerfProbeScript.stop(&"view_runtime/actors/footstep", t)
