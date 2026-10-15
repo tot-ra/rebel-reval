@@ -1,6 +1,6 @@
 # Performance and traversal coverage ledger
 
-Status: QA coverage ledger for active Reval locations and travel destinations. Updated 2026-10-11.
+Status: QA coverage ledger for active Reval locations and travel destinations. Updated 2026-10-15.
 
 Metrics are recorded only when the named place is actually measured. `not measured` is not a pass. Headless benchmark frame times are wall-clock instrumentation and are not rendered FPS. A full player traversal requires the player route tool or an equivalent deterministic end-to-end test; manifest/validator checks alone do not count as a walk.
 
@@ -44,13 +44,13 @@ Metrics are recorded only when the named place is actually measured. `not measur
 | `district.harju` | Reval / road and houses | never | 2026-10-10 (historical walk, not traversal QA) | not measured | not measured | not measured | R-1687; see historical ledger |
 | `district.toompea_foot` | Reval / castle-foot yards | never | 2026-10-09 (historical walk, not traversal QA) | not measured | not measured | not measured | R-1687; see historical ledger |
 | `site.raekoja_plats` | Reval / Town Hall square | never | 2026-10-10 (historical walk, not traversal QA) | not measured | not measured | not measured | R-1687; see historical ledger |
-| `site.holy_spirit` | Reval / church and almshouse | never | 2026-10-10 (historical walk, not traversal QA) | not measured | not measured | not measured | R-1687; see historical ledger |
-| `site.st_olaf` | Reval / church | never | 2026-10-11 (historical walk, not traversal QA) | not measured | not measured | not measured | R-1687; see historical ledger |
+| `site.holy_spirit` | Reval / church and almshouse | never | 2026-10-15 (site-door traversal; not interregional) | not measured | not measured | not measured | R-1687; performance still unmeasured |
+| `site.st_olaf` | Reval / church | never | 2026-10-15 (site-door traversal; not interregional) | not measured | not measured | not measured | R-1687; performance still unmeasured |
 | `site.st_nicholas` | Reval / church | never | never | not measured | not measured | not measured | R-1687 |
 | `site.st_mary` | Reval / Dome church building site | never | 2026-10-11 (historical walk, not traversal QA) | not measured | not measured | not measured | R-1687; see historical ledger |
 | `site.kalev_smithy` | Reval / smithy site | never | never | not measured | not measured | not measured | R-1687 |
 
-Coverage count for this initial inventory: 0/39 places have a completed performance-and-traversal QA check. The historical walk dates are background visits only and are not credited as traversal QA. Performance was measured only for `forge` and `reval_city`; they have no completed traversal run. All locations therefore remain uncovered for the combined gate. The active list and 7 districts / 6 sites account for 39 inventory rows (26 manifest scenes + 13 city areas); this is not a claim that every separately enterable interior room has been enumerated. Add interiors and other active map types when their registries are identified.
+Coverage count for this initial inventory: 0/39 places have a completed performance-and-traversal QA check. Historical walk dates remain background visits and do not count. On 2026-10-15, the site-door harness completed all five outer-door traversals plus return checks for `site.holy_spirit` and `site.st_olaf`; this is city-site traversal evidence only, not an interregional route. Performance was measured only for `forge` and `reval_city`, and neither has a completed traversal run; Holy Spirit and St Olaf have no performance check. All locations therefore remain uncovered for the combined gate. The active list and 7 districts / 6 sites account for 39 inventory rows (26 manifest scenes + 13 city areas); this is not a claim that every separately enterable interior room has been enumerated. Add interiors and other active map types when their registries are identified.
 
 ## Run log
 
@@ -75,9 +75,17 @@ Coverage count for this initial inventory: 0/39 places have a completed performa
 - Defect tasks filed: R-1686 (measured city performance budget exceedance), R-1687 (missing reproducible active-world route coverage/harness).
 - Worst observed issue: city scene headless instrumentation p95 90.218 ms, 5.41x the target, alongside 16.91x collision and 5.44x memory budgets. It is a performance-budget defect, not a verified rendered FPS reading.
 
+### 2026-10-15 - site-door traversal: Holy Spirit and St Olaf
+
+- Command: the checked-in `tools/capture_reval_city_walk.gd` site-door harness was run through a temporary, untracked host scene with only `OUTPUT_DIR` redirected into `build/qa/city_walk_2026-10-15/`, preserving all previously accepted screenshots. Equivalent checked-in invocation: `tools/godot_render.sh --resolution 1600x900 res://tools/capture_reval_city_walk.tscn -- --only-sites --site=site.holy_spirit --site=site.st_olaf`.
+- Result: `WALK RESULT: PASS`; `godot_render.sh` exit 0. Five exterior-door routes completed and returned outside without harness failures: `door.holy_spirit.north` -> `room.nave`, `door.holy_spirit.south` -> `room.nave`, `door.holy_spirit.almshouse` -> `room.almshouse`, `door.st_olaf.west` -> `room.tower`, and `door.st_olaf.south` -> `room.nave`. The log reports each door open and each roof lifted. Per-door walk time was 0.50-0.67 s; waits for door opening were 0.00-0.43 s. These are harness movement timings, not rendered-FPS or scene-performance measurements.
+- Scope: this is local site entrance/interior traversal only. It does not cover any city-to-region or interregional route and does not resolve the route-suite filter failure recorded above. `R-1687` remains open.
+- Evidence: nine screenshots and the full console log are present locally under ignored `build/qa/city_walk_2026-10-15/`; no existing image in `docs/reports/images/city/` was overwritten. Screenshots are local verification artifacts, not committed files.
+- Renderer caveat: despite the route harness passing, the capture emitted repeated `Too many instances using shader instance variables` and `global_shader_uniforms.instance_buffer_pos` errors, followed by renderer/resource cleanup leaks (20 ObjectDB instances, 9 resources, one particle shader, and shader/camera RIDs). Treat this as route-pass-with-renderer-errors, not a clean renderer verification; visual/resource behavior needs separate follow-up.
+
 ## Uncovered places
 
-Every place in the coverage grid is uncovered for the combined performance + traversal gate. The only measured scenes are `reval_city` and `forge`, without any completed gameplay route. The 24 other active manifest destinations, seven district regions and six registered city sites have never had perf/traversal QA in this ledger. Distinct indoor rooms and active destinations outside the transition manifest are not yet fully inventoried; completing that census is part of R-1687.
+Every place in the coverage grid is uncovered for the combined performance + traversal gate. The only measured scenes are `reval_city` and `forge`, without any completed gameplay route. The 24 other active manifest destinations, seven district regions, and four city sites have no recorded traversal QA; Holy Spirit and St Olaf have site-door traversal only, and none of the city sites have performance measurements. Distinct indoor rooms and active destinations outside the transition manifest are not yet fully inventoried; completing that census is part of R-1687.
 
 ## Reproduction references
 
