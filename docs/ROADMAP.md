@@ -170,11 +170,26 @@ Coordination note (2026-08-27 R-751): hardened empty water-contour sampling in [
 
 
 
-## Current focus (2026-10-11, Producer R-1685)
+## Current focus (2026-10-16, Producer tick after R-1685)
 
 - **Approved delivery order:** demo -> vertical-slice MVP -> Act 1 -> Act 2 -> Act 3. The July Act 1 package acceptance below is historical evidence for its package SHA, not proof that today's main still passes. No new campaign or historical scope is approved by this tick.
-- **Current slice:** `demo-forge-return-recovery`, the smallest incomplete recovery checkpoint inside the approved demo. Ground the report first: the 2026-10-09 smoke used `c8dd79d8` plus 138 dirty paths and reports 362 failures / 1171 errors; those counts are not a clean-main diagnosis. The retired `reval_east.tscn` is not by itself proof that the current `reval_city` route fails.
-- **Next playable checkpoint:** New Game/prologue -> current city host -> forge; pick up `world.spearhead_anvil` / `item.seized_spearhead`, observe pickup/inventory feedback, leave and return, then save/load. The item remains taken, exactly one copy remains in inventory, and the route works with keyboard/mouse and gamepad. This checkpoint does not waive bed, quest-branch, encumbrance or other full-suite failures.
+- **Current slice:** `demo-forge-return-recovery`, unchanged. It stalled for five days (317 commits since 2026-10-11, none on R-1456/R-1458/R-1457/R-1478) while user-directed epics moved. The slice is now more urgent, not less: `ab63e6b5f` (2026-10-14) removed the standalone `forge` scene from `content/transitions/active_destinations.json`; the forge is Kalev's seamless-city forge bay `site.kalev_smithy` in `loc.reval_city`. `WorldItemController.DEFAULT_PLACEMENTS` still seeds the spearhead only under the retired `loc.kalev_smithy`, so the checkpoint pickup is probably unreachable on today's New Game route (hypothesis for R-1456, not a finding).
+- **Next playable checkpoint:** New Game/prologue -> current city host -> walk into the city forge bay (`site.kalev_smithy`); pick up `world.spearhead_anvil` / `item.seized_spearhead`, observe pickup/inventory feedback, leave and return, then save/load (including released `save.demo_post_pickup.json`). The item remains taken, exactly one copy remains in inventory, and the route works with keyboard/mouse and gamepad. This checkpoint does not waive bed, quest-branch, encumbrance or other full-suite failures.
+
+### Tick 2026-10-16 decisions
+
+- **Snapshot:** 794 tasks (75 idea, 643 todo, 5 in_progress, 23 in_review, 48 cancelled, 0 done listed); `main...origin/main` 0/0. The shared checkout carries a concurrent session's staged SOC-3 / ADR 0050 work, untouched by this tick.
+- **Re-grounded R-1456:** the 2026-10-09 log `build/qa_smoke/` no longer exists, so the 362/1171 counts are text-only history; a fresh baseline must be pinned at or after `ab63e6b5f`. Added the route change, the spearhead hypothesis and the live `loc.kalev_smithy` / `reval_east/forge` references to classify (packaged demo walkthrough, prologue controller, released saves, `quest.makers_mark`).
+- **Re-scoped R-1458:** "enter forge" now means walking into `site.kalev_smithy`; re-adding the forge transition counts as deleted-scene restoration and stays forbidden. Expected outcome is route proof plus doc/fixture correction.
+- **Re-scoped R-1457:** if confirmed, place the same stable object on the anvil in `site.kalev_smithy`, honour an existing taken-flag from old saves, never duplicate; `tests/godot/test_forge_weapons.gd` added to the allowlist for seed-group expectations. Relocation of an approved item inside the same smithy needs no Canon pass; any `quest.makers_mark` change would.
+- **R-1476 cancelled** as superseded: the maintenance lock is gone (not removed by Producer) and the catch-all commit landed as `ab63e6b5f` on origin/main. A new "commit everything" row would ingest concurrent WIP; future hook blockers become scoped Dev rows. **R-1458/R-1456** text no longer names R-1476 as hook owner.
+- **R-1685 closed done:** its publication blocker cleared (`e38e1eda0` is on origin/main).
+- **R-578 (P0-101) released** in_progress -> todo: empty contract, no activity since `23c5eab93` (2026-09-01). Not claimable until reconciled with the P0-101 children; routed to R-1479.
+- **Missing refs:** R-1153 is no longer on the board (not cancelled, just absent), and done rows no longer appear in board listings. Both recorded for R-1479; docs checks are run by each owning row instead of R-1153.
+- **Requests and ideas:** zero open request cards (three research cards remain `merged` into R-502 / R-793). The 75 ideas stay unpromoted; no off-slice idea was promoted to keep a specialist busy. In-review items awaiting user approval (for example R-1985 ADR 0050, `#needs-approval`) are user decisions, not Producer acceptance.
+- **Ready roles:** QA **R-1456** (diagnosis, read-only), fallback QA **R-1479** (board audit). Dev **R-1458 -> R-1457** and QA **R-1478** remain dependency-blocked. Next acceptance event: independent QA **R-1478**.
+
+### Tick 2026-10-11 notes (R-1685, superseded where the 2026-10-16 decisions differ)
 - **Next acceptance event:** independent QA **R-1478**, after diagnosis **R-1456** and Dev **R-1458 -> R-1457**. At most two cross-role handoffs (QA -> Dev -> QA); same-role Dev edits serialize on `forge.gd`. A verified no-runtime-defect finding is valid, but requires corrected fixtures/docs plus route evidence, not deletion of tests.
 
 ### Gates and ready work
