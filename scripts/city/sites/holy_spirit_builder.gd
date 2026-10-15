@@ -15,6 +15,7 @@ extends RefCounted
 
 const Kit := preload("res://scripts/city/sites/site_kit.gd")
 const Furnish := preload("res://scripts/city/sites/church_furnishings.gd")
+const LifeProps := preload("res://scripts/map/view3d/map_view_mesh_builder_district_life_props.gd")
 const FLOOR := 0.12
 const CHOIR_FLOOR := 0.57
 const CUT := FLOOR + CityBuildingBuilder.CUT_HEIGHT
@@ -31,6 +32,12 @@ const CHOIR_CEILING := 7.6
 const PIERS: Array[float] = [7.6, 13.6, 19.6, 25.6, 31.6]
 const RED := Furnish.RED
 const BLUE := Furnish.BLUE
+## The district life props (herb rack) were authored in 0.87 m world units.
+const LEGACY_UNIT_M := 0.87
+## Almshouse sick-room fixtures (site-local): the brazier and the altar niche
+## on the west wall, north of the arch into the south aisle.
+const BRAZIER := Vector3(44.0, FLOOR, 2.75)
+const ALMS_ALTAR := Vector3(38.0, FLOOR, 3.05)
 
 
 static func build(site: CitySite, _plan: CityPlan) -> Node3D:
@@ -85,6 +92,7 @@ static func build(site: CitySite, _plan: CityPlan) -> Node3D:
 		CEILING - 0.35
 	)
 	_lights(lower_node)
+	root.add_child(_dressing(site))
 	return root
 
 
@@ -291,35 +299,97 @@ static func _consecration_crosses() -> Array:
 	return spots
 
 
-## Almshouse: box beds with straw ticks and blankets, a chest, a table.
+## Almshouse sick-room (ADR 0052 opening): the straw-tick beds, table, bench,
+## shelf and herb rack are catalogue dressing in the manifest; the fixed pieces
+## are built here: a small altar niche with a plain crucifix on the west wall
+## (the arch beside it opens on the south aisle and its side altar, so the sick
+## hear mass) and an iron brazier, since the range has no chimney.
 static func _almshouse(shell: CityBuildingBuilder.Shell) -> void:
-	for x: float in [39.6, 41.8, 44.0]:
-		_bed(shell, Vector3(x, FLOOR, HALF - 1.3))
-	for x: float in [41.3, 43.5]:
-		_bed(shell, Vector3(x, FLOOR, 2.8))
+	var a := ALMS_ALTAR
+	# Shallow painted niche in the wall face behind the mensa.
 	CitySiteProps._box(
-		shell, "timber", Vector3(46.2, FLOOR, 6.4), Vector3(47.3, FLOOR + 0.55, 7.0), Kit.OAK_DARK
-	)
-
-
-static func _bed(shell: CityBuildingBuilder.Shell, at: Vector3) -> void:
-	CitySiteProps._box(
-		shell, "timber", at + Vector3(-1.0, 0.0, -0.47), at + Vector3(1.0, 0.45, 0.47), Kit.OAK_DARK
+		shell,
+		"limewash",
+		a + Vector3(0.0, 0.95, -0.55),
+		a + Vector3(0.02, 2.55, 0.55),
+		Color(0.62, 0.3, 0.2)
 	)
 	CitySiteProps._box(
 		shell,
 		"limewash",
-		at + Vector3(-0.95, 0.45, -0.43),
-		at + Vector3(0.95, 0.58, 0.43),
-		Color(0.78, 0.7, 0.5)
+		a + Vector3(0.0, 2.55, -0.65),
+		a + Vector3(0.05, 2.65, 0.65),
+		Color(0.85, 0.82, 0.74)
+	)
+	# Plank mensa on a masonry block, a linen cloth over it.
+	CitySiteProps._box(
+		shell, "ashlar", a + Vector3(0.0, 0.0, -0.6), a + Vector3(0.5, 0.88, 0.6), Kit.ASHLAR
 	)
 	CitySiteProps._box(
 		shell,
 		"limewash",
-		at + Vector3(-0.2, 0.58, -0.44),
-		at + Vector3(0.95, 0.62, 0.44),
-		Color(0.45, 0.2, 0.15)
+		a + Vector3(0.0, 0.88, -0.64),
+		a + Vector3(0.54, 0.92, 0.64),
+		Color(0.95, 0.93, 0.86)
 	)
+	CitySiteProps._box(
+		shell,
+		"limewash",
+		a + Vector3(0.53, 0.55, -0.64),
+		a + Vector3(0.545, 0.92, 0.64),
+		Color(0.95, 0.93, 0.86)
+	)
+	Furnish.wall_crucifix(shell, a + Vector3(0.02, 1.85, 0.0), Vector3.RIGHT)
+	# Brazier: three iron legs, a shallow iron pan of glowing charcoal.
+	var b := BRAZIER
+	for k in 3:
+		var ang := TAU * k / 3.0
+		var foot := b + Vector3(cos(ang) * 0.26, 0.0, sin(ang) * 0.26)
+		var top := b + Vector3(cos(ang) * 0.2, 0.5, sin(ang) * 0.2)
+		Kit.bar(shell, "dark", foot, top, 0.04, Kit.IRON)
+	# Iron pan: a thin bottom plate and a low rim round the coals.
+	CitySiteProps._box(
+		shell, "dark", b + Vector3(-0.25, 0.48, -0.25), b + Vector3(0.25, 0.52, 0.25), Kit.IRON
+	)
+	for k in 4:
+		var d := Vector3.RIGHT.rotated(Vector3.UP, PI * 0.5 * k)
+		var e := d.cross(Vector3.UP)
+		var p0 := b + Vector3(0, 0.52, 0) + d * 0.24 - e * 0.25
+		var p1 := b + Vector3(0, 0.66, 0) + d * 0.27 + e * 0.25
+		CitySiteProps._box(shell, "dark", p0.min(p1), p0.max(p1), Kit.IRON)
+
+
+## Catalogue dressing (obj.* with GLB models) and district life props (the
+## herb drying rack) from the manifest, standing on their room floor.
+static func _dressing(site: CitySite) -> Node3D:
+	var node := Node3D.new()
+	node.name = "Almshouse"
+	for item: Dictionary in site.data.get("dressing", []):
+		var local := Vector2(item["at"][0], item["at"][1])
+		var room_floor := site.floor_at(site.to_world(local))
+		var ground := FLOOR
+		if not room_floor.is_empty():
+			ground = float(room_floor["height"]) - site.level
+		ground += float(item.get("y", 0.0))
+		var model: Node3D = null
+		match String(item["kind"]):
+			"catalog":
+				model = CityInteriors._template(String(item["object"]), "")
+			"life_prop":
+				model = Node3D.new()
+				var legacy := Node3D.new()
+				legacy.scale = Vector3.ONE * LEGACY_UNIT_M
+				model.add_child(legacy)
+				LifeProps.add_to(legacy, StringName(item["prop"]), {"id": StringName(item["id"])})
+			_:
+				push_error("Holy Spirit: unknown dressing kind %s" % item["kind"])
+		if model == null:
+			continue
+		model.name = String(item["id"]).replace(".", "_")
+		model.position = Vector3(local.x, ground, local.y)
+		model.rotation.y = -deg_to_rad(float(item.get("rotation_deg", 0.0)))
+		node.add_child(model)
+	return node
 
 
 static func _lights(node: Node3D) -> void:
@@ -327,6 +397,7 @@ static func _lights(node: Node3D) -> void:
 		Vector3(46.4, CHOIR_FLOOR + 1.8, -3.2),
 		Vector3(36.0, FLOOR + 1.5, 3.0),
 		Vector3(43.0, FLOOR + 1.6, 4.6),
+		Vector3(38.9, FLOOR + 1.4, 3.05),
 		Vector3(17.0, 4.0, -3.4),
 		Vector3(29.0, 4.0, -3.4)
 	]:
@@ -336,3 +407,24 @@ static func _lights(node: Node3D) -> void:
 		light.omni_range = 10.0
 		light.position = spot
 		node.add_child(light)
+	# Glowing charcoal in the brazier pan, and its low ember light.
+	var coals := MeshInstance3D.new()
+	coals.name = "BrazierCoals"
+	var box := BoxMesh.new()
+	box.size = Vector3(0.44, 0.06, 0.44)
+	var glow := StandardMaterial3D.new()
+	glow.albedo_color = Color(0.35, 0.08, 0.02)
+	glow.emission_enabled = true
+	glow.emission = Color(1.0, 0.36, 0.08)
+	glow.emission_energy_multiplier = 1.6
+	box.material = glow
+	coals.mesh = box
+	coals.position = BRAZIER + Vector3(0, 0.56, 0)
+	node.add_child(coals)
+	# Low ember glow over the brazier.
+	var ember := OmniLight3D.new()
+	ember.light_color = Color(1.0, 0.45, 0.18)
+	ember.light_energy = 0.8
+	ember.omni_range = 3.5
+	ember.position = BRAZIER + Vector3(0, 0.9, 0)
+	node.add_child(ember)

@@ -1,8 +1,9 @@
 extends "res://tests/godot/test_case.gd"
 
-## R-1872: New Game arrives in the city smithy and the porter duel is fought there, in place,
-## with the normal city player; composure shows in the vitals HUD, the porter's pressure as his
-## overhead bar, and the word slots carry painted sigils.
+## R-1872, ADR 0052: New Game arrives in the Holy Spirit almshouse and the porter duel is fought
+## there, in place, with the normal city player; composure shows in the vitals HUD, the porter's
+## pressure as his overhead bar, and the word slots carry painted sigils. Then the wounded
+## watchman, the calming duel with his fear and Kalev's iron charm play at the sickbed.
 
 const VitalsHud := preload("res://scripts/ui/player_vitals_hud.gd")
 const ConversationShotScript := preload("res://scripts/prologue/conversation_shot.gd")
@@ -41,6 +42,8 @@ func test_new_game_loads_no_separate_opening_scene() -> void:
 	var source := (load("res://scenes/intro/start_label.gd") as GDScript).source_code
 	assert_false(source.contains("change_scene_to_file"), "no opening scene of its own")
 	assert_true(source.contains("SmithyOpening.start_new_game"))
+	assert_eq(SmithyOpening.SPAWN_ID, "holy_spirit_almshouse")
+	assert_true(DoorNavigator.has_spawn(&"reval_city", StringName(SmithyOpening.SPAWN_ID)))
 	SmithyOpening.pending = false
 	var city := _city()
 	assert_true(SmithyOpening.consume(city) == null, "nothing pending, no opening")
@@ -105,7 +108,7 @@ func test_vitals_hud_shows_composure_while_a_duel_is_open() -> void:
 	source.free()
 
 
-func test_the_won_duel_brings_in_kalev_and_play_continues_in_the_smithy() -> void:
+func test_the_won_duel_leads_to_the_sickbed_the_calming_duel_and_kalev() -> void:
 	var city := _city()
 	var opening := _consume(city)
 	var done := [false]
@@ -115,31 +118,118 @@ func test_the_won_duel_brings_in_kalev_and_play_continues_in_the_smithy() -> voi
 		duel.tick(SpiritDuel.TELEGRAPH_SEC + 0.01)
 		assert_true(duel.answer(reply), reply)
 	opening.host().close()
-	assert_eq(opening.stage, SmithyOpening.STAGE_KALEV)
-	assert_true(opening.kalev() != null and city.world.is_ancestor_of(opening.kalev()))
-	# R-1877: Kalev's arrival is framed in the same world; the porter is gone at the cut.
-	assert_true(opening.porter() == null, "the porter has gone out of the door")
+	# Beat 2a: dusk; Lambert on the sickbed, Gertrud framed with the boy, the porter gone.
+	assert_eq(opening.stage, SmithyOpening.STAGE_CARRIED_IN)
+	assert_true(opening.porter() == null, "the porter has gone")
+	var lambert := opening.lambert()
+	assert_true(lambert != null and city.world.is_ancestor_of(lambert), "Lambert lies in the world")
+	assert_almost_eq((lambert.get_node(^"Model") as Node3D).rotation.x, -PI * 0.5, 0.001)
+	assert_false(lambert.is_in_group(SharedCharacterRig.SPIRIT_AURA_GROUP), "the body is no fighter")
+	assert_true(opening.matron() != null, "Gertrud stands at the bed")
 	var shot := opening.shot()
-	assert_true(shot != null and shot.camera != null, "a conversation shot frames Kalev")
+	assert_true(shot != null and shot.camera != null, "a conversation shot frames Gertrud")
 	assert_true(city.world.is_ancestor_of(shot.camera), "the shot camera lives in the city world")
+	var ui := _dialogue_ui(opening)
+	_click_to_choice(opening, ui)
+	assert_eq(opening.dialogue_runner().get_current_node_id(), "matron_to_boy")
+	ui.select_choice_for_test("kneel")
+	_click_until_closed(opening, ui)
+	# Beat 2b: Lambert's fear is the opponent; gentle replies calm it.
+	assert_eq(opening.stage, SmithyOpening.STAGE_LAMBERT)
+	var host := opening.host()
+	assert_true(host != null and host.is_open(), "the calming duel opens in place")
+	assert_true(opening.phantom() != null and city.world.is_ancestor_of(opening.phantom()))
+	assert_true(city.world.is_ancestor_of(host.arena_3d))
+	duel = host.duel
+	for reply: String in ["calm_hand", "duty_watch", "love_hold"]:
+		duel.tick(SpiritDuel.TELEGRAPH_SEC + 0.01)
+		assert_true(duel.answer(reply), reply)
+	assert_eq(duel.phase, SpiritDuel.PHASE_WON)
+	assert_eq(host.end_banner_text(), "His fear is quiet")
+	assert_true(SessionState.state.get_flag(&"flag.prologue.lambert_calmed"))
+	host.close()
+	# Beat 3: Kalev at the foot of the bed, framed with the boy.
+	assert_eq(opening.stage, SmithyOpening.STAGE_KALEV)
+	assert_true(opening.phantom() == null, "the phantom is gone with the duel")
+	assert_true(opening.kalev() != null and city.world.is_ancestor_of(opening.kalev()))
+	assert_true(opening.shot() != null, "a conversation shot frames Kalev")
 	var runner := opening.dialogue_runner()
-	var ui: Node = opening.get_children().filter(func(n: Node) -> bool: return n is DialogueUI)[0]
-	var guard := 0
-	while not runner.is_waiting_for_choice() and guard < 20:
-		ui.click_continue_for_test()
-		guard += 1
-	ui.select_choice_for_test("yes")
-	guard = 0
-	while runner.is_active() and guard < 20:
-		ui.click_continue_for_test()
-		guard += 1
+	assert_eq(runner.get_current_node_id(), "kalev_found_quiet", "Kalev finds him quiet")
+	ui = _dialogue_ui(opening)
+	_click_to_choice(opening, ui)
+	assert_eq(runner.get_current_node_id(), "kalev_mark")
+	assert_true(SessionState.state.get_flag(SmithyOpening.FLAG_SAW_MAKERS_MARK), "the mark is seen")
+	ui.select_choice_for_test("ask")
+	_click_to_choice(opening, ui)
+	assert_eq(runner.get_current_node_id(), "kalev_notices")
+	ui.select_choice_for_test("tell")
+	_click_until_closed(opening, ui)
 	assert_true(done[0])
 	assert_eq(opening.stage, SmithyOpening.STAGE_DONE)
 	assert_true(SessionState.state.get_flag(&"flag.prologue.apprenticed"))
-	assert_true(opening.porter() == null, "the porter leaves")
-	assert_true(opening.kalev() != null, "Kalev stays in his forge")
+	assert_true(opening.lambert() != null, "Lambert stays on the sickbed")
+	assert_true(opening.kalev() == null, "Kalev goes ahead to the forge")
 	assert_true(opening.shot() == null, "the gameplay camera is handed back")
 	city.free()
+
+
+## Shaming Lambert frightens him; Kalev hears it from the lane.
+func test_a_frightened_watchman_changes_kalevs_first_line() -> void:
+	var city := _city()
+	var opening := _consume(city)
+	opening.host().close()
+	var ui := _dialogue_ui(opening)
+	_click_to_choice(opening, ui)
+	ui.select_choice_for_test("kneel")
+	_click_until_closed(opening, ui)
+	var duel := opening.host().duel
+	for reply: String in ["name_flight", "fear_press", "shame_judge"]:
+		duel.tick(SpiritDuel.TELEGRAPH_SEC + 0.01)
+		assert_true(duel.answer(reply), reply)
+	assert_true(SessionState.state.get_flag(&"flag.prologue.lambert_frightened"))
+	assert_false(SessionState.state.get_flag(&"flag.prologue.lambert_calmed"))
+	opening.host().close()
+	assert_eq(opening.dialogue_runner().get_current_node_id(), "kalev_heard_screaming")
+	opening.skip()
+	city.free()
+
+
+## Without the site anchors (no plan) the set is laid out around the boy: the bed in front of
+## him, Lambert's foot end toward the aisle, Kalev beyond the foot.
+func test_the_sickroom_falls_back_to_offsets_from_the_boy() -> void:
+	var city := _city()
+	var opening := _consume(city)
+	var room := opening.sickroom()
+	var hero := CityPlan.to_world_xz(city.player.global_position)
+	assert_true((room["attendant"] as Vector2).is_equal_approx(hero), "the boy stays where he is")
+	assert_almost_eq((room["bed"] as Vector2).distance_to(hero), 1.0, 0.01)
+	assert_almost_eq((room["head"] as Vector2).distance_to(room["feet"]), 2.0 * SmithyOpening.BED_HALF_LENGTH, 0.01)  # gdlint: ignore=max-line-length
+	assert_eq(float(room["lie_h"]), 0.0, "no authored bed: he lies on the floor")
+	assert_true((room["kalev_entry"] as Vector2).is_finite())
+	opening.skip()
+	city.free()
+
+
+func _dialogue_ui(opening: SmithyOpening) -> DialogueUI:
+	var found := opening.get_children().filter(
+		func(n: Node) -> bool: return n is DialogueUI and not n.is_queued_for_deletion()
+	)
+	return found[found.size() - 1] if not found.is_empty() else null
+
+
+func _click_to_choice(opening: SmithyOpening, ui: DialogueUI) -> void:
+	var guard := 0
+	while not opening.dialogue_runner().is_waiting_for_choice() and guard < 20:
+		ui.click_continue_for_test()
+		guard += 1
+
+
+func _click_until_closed(opening: SmithyOpening, ui: DialogueUI) -> void:
+	var runner := opening.dialogue_runner()
+	var guard := 0
+	while runner != null and is_instance_valid(runner) and runner.is_active() and guard < 20:
+		ui.click_continue_for_test()
+		guard += 1
 
 
 func test_conversation_shot_frames_both_speakers_at_eye_level() -> void:
@@ -176,7 +266,10 @@ func test_word_slots_have_painted_sigils() -> void:
 
 ## Ported from the retired almshouse-hall tests (the duel itself is fought the same way here).
 func test_the_prologue_content_is_loaded_in_the_session() -> void:
-	for dialogue_id: StringName in [SmithyOpening.CONFRONTATION, SmithyOpening.KALEV_ARRIVES]:
+	for dialogue_id: StringName in [
+		SmithyOpening.CONFRONTATION, SmithyOpening.CARRIED_IN, SmithyOpening.LAMBERT_FEAR,
+		SmithyOpening.KALEV_ARRIVES,
+	]:
 		assert_false(SessionState.content_db.get_dialogue(dialogue_id).is_empty(), String(dialogue_id))
 	# R-1763: the still-image vision is gone until its video remake.
 	assert_true(SessionState.content_db.get_cutscene(&"cutscene.prologue.conquest").is_empty())
@@ -216,7 +309,7 @@ func test_a_won_duel_shows_the_banner_and_moves_on_without_a_keypress() -> void:
 	assert_true(host.is_open(), "the win holds for a beat")
 	assert_eq(opening.stage, SmithyOpening.STAGE_CONFRONTATION)
 	host._process(SpiritArenaHost.WIN_AUTO_CLOSE_SEC)
-	assert_eq(opening.stage, SmithyOpening.STAGE_KALEV, "closed itself and Kalev walks in")
+	assert_eq(opening.stage, SmithyOpening.STAGE_CARRIED_IN, "closed itself; Lambert is carried in")
 	opening.skip()
 	city.free()
 
@@ -259,6 +352,7 @@ func test_skip_during_the_duel_finishes_the_opening() -> void:
 	assert_eq(opening.stage, SmithyOpening.STAGE_DONE)
 	assert_true(done[0])
 	assert_true(SessionState.state.get_flag(&"flag.prologue.apprenticed"))
+	assert_true(SessionState.state.get_flag(SmithyOpening.FLAG_SAW_MAKERS_MARK))
 	city.free()
 
 

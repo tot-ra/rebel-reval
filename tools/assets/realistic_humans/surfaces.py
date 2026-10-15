@@ -220,10 +220,15 @@ def complexion_fields(body, lm, spec, regions_of_vertex):
         flush += 0.8 * np.exp(-np.sum((co - ear) ** 2, axis=1) / (0.025 ** 2))
     flush = np.clip(flush, 0, 1) * comp.get("flush", 0.3)
     soot = (forearm * smoothstep(0.5, 0.7, elbow_x) + (regions_of_vertex == 3)) * comp.get("soot_forearms", 0.0)
+    if comp.get("ink_fingers"):
+        # Ink and herb juice on the fingers of a scribe or infirmarian, darkest at the tips.
+        hands = regions_of_vertex == 3
+        tip = np.abs(co[hands, 0]).max() if hands.any() else 1.0
+        soot = soot + hands * smoothstep(tip - 0.085, tip - 0.02, np.abs(co[:, 0])) * comp["ink_fingers"]
     groomed = spec.get("beard") or spec.get("stubble")
     beard = beard_mask(co, lm, groomed) if groomed else np.zeros(n)
     beard = beard * head
-    scalp = group_weights(body, "scalp")
+    scalp = group_weights(body, "scalp") * tonsure_keep(co, group_weights(body, "scalp"), spec)
     oily = np.exp(-np.sum((co - lm["nose_tip"]) ** 2, axis=1) / (0.03 ** 2))
     forehead = head * smoothstep(lm["eye_l"][2] + 0.02, lm["eye_l"][2] + 0.035, co[:, 2]) * \
         smoothstep(lm["eye_l"][2] + 0.095, lm["eye_l"][2] + 0.07, co[:, 2]) * \
@@ -587,6 +592,20 @@ def beard_shells(body, lm, spec, out_dir, size=2048):
                       comb=Vector((0, 0.25, -1)), comb_amount=0.55)
 
 
+def tonsure_keep(co, scalp, spec):
+    """1 where scalp hair grows, 0 on a shaved crown. Spec scalp_fur.tonsure = depth in metres
+    below the top of the head: the clerical corona shaves everything above a ring, so a band of
+    hair is left round the head above the ears and the forehead. The ring tilts up toward the
+    brow (the top of the skull sits behind the hairline), so the fringe runs all round."""
+    depth = (spec.get("scalp_fur") or {}).get("tonsure")
+    if not depth:
+        return np.ones(len(co))
+    hairy = co[scalp > 0.2]
+    top = hairy[np.argmax(hairy[:, 2])]
+    cut = top[2] - depth + 0.3 * (top[1] - co[:, 1])  # -Y is the front
+    return smoothstep(cut + 0.006, cut - 0.004, co[:, 2])
+
+
 def scalp_shells(body, lm, spec, out_dir, size=2048):
     """Short hair base under the hair cards: fills the crown, draws a hairline."""
     groom = dict(spec.get("scalp_fur", {}))
@@ -596,7 +615,8 @@ def scalp_shells(body, lm, spec, out_dir, size=2048):
     groom.setdefault("shells", 5)
     scalp = group_weights(body, "scalp").astype(np.float64)
     # Soften the MakeHuman scalp group into a hairline instead of a hard cap.
-    mask = smoothstep(0.2, 0.8, scalp)
+    co = np.array([v.co[:] for v in body.data.vertices], dtype=np.float64)
+    mask = smoothstep(0.2, 0.8, scalp) * tonsure_keep(co, scalp, spec)
     return fur_shells(body, mask, groom, spec, "scalp", out_dir, size,
                       comb=Vector((0, 1.0, -0.6)), comb_amount=groom.get("comb", 1.4))
 

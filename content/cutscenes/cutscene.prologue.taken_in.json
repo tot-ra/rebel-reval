@@ -2,14 +2,14 @@
   "type": "cutscene",
   "id": "cutscene.prologue.taken_in",
   "title": "Kalev takes the apprentice",
-  "chapter": "III. The forge",
+  "chapter": "III. The smith who speaks to iron",
   "grade": "present_warm",
   "skippable": true,
   "confidence": "invented",
   "canon_status": "active",
   "approval": {
     "status": "draft",
-    "notes": "R-1318. Plays after dialogue.prologue.kalev_arrives and hands the player to the city in front of Kalev's smithy (spawn kalev_smithy)."
+    "notes": "R-1318. Unplayed since R-1872 (kept for the video tier). ADR 0052: text reframed for the healer's apprenticeship (Kalev as smith and folk healer); would play after dialogue.prologue.kalev_arrives and hand the player to the city at Kalev's smithy (spawn kalev_smithy). The stills still show the older morning walk."
   },
   "deterministic_offline": {
     "authored": true,
@@ -96,7 +96,7 @@
         },
         {
           "id": "l2",
-          "text": "A bed by the hearth, bread twice a day, and work from before light.",
+          "text": "Mart's empty bed by the hearth, bread twice a day, and the words that make iron let go.",
           "seconds": 6.0,
           "delivery": "Quoting the offer back, evenly. No irony."
         }
@@ -164,13 +164,13 @@
       "lines": [
         {
           "id": "l1",
-          "text": "The forge of Kalev, master of the smiths' craft. Iron in, iron out, and the town's whole weight passing through one man's hands.",
+          "text": "The forge of Kalev, smith and healer. Nails and hinges by day; a pulled tooth, a set bone, and words for iron that has gone into a man.",
           "seconds": 7.5,
           "delivery": "Respect here, finally. She likes this place."
         },
         {
           "id": "l2",
-          "text": "Everything that follows begins at that anvil. Every commission is somebody's intention, and you will be holding it.",
+          "text": "Everything that follows begins at that hearth. Every patient carries a household behind him, and you will be the one who sees it.",
           "seconds": 7.5,
           "delivery": "The thesis of the game. Even, unhurried, slightly conspiratorial."
         },

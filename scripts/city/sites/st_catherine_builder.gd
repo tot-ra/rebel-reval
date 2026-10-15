@@ -46,6 +46,13 @@ const CHAPTER_SPRING := 2.4
 const CHAPTER_CROWN := 4.0
 ## The district props were authored in 0.87 m world units (CitySiteProps).
 const LEGACY_UNIT_M := 0.87
+## Infirmary (ADR 0052, plausible composite): the east end of the north range
+## ground floor, partitioned from the stores (north_range.infirmary_wall).
+const INFIRMARY := Rect2(46.0, -51.2, 6.0, 7.4)
+## Garth herb beds when the manifest lists none (garth.herb_beds).
+const HERB_BEDS: Array[Rect2] = [
+	Rect2(21.0, -37.5, 6.0, 3.2), Rect2(21.0, -25.6, 6.0, 3.2), Rect2(41.0, -37.5, 5.4, 3.2)
+]
 
 
 static func build(site: CitySite, plan: CityPlan) -> Node3D:
@@ -365,6 +372,7 @@ static func _ranges(site: CitySite, fabric: Array, rng: RandomNumberGenerator) -
 				Vector3(57.0, 3.0, -44.5),
 				Vector3(22.0, 1.6, -49.2),
 				Vector3(10.75, 2.8, -42.0),
+				Vector3(49.0, 2.6, -47.5),
 			]
 		)
 	)
@@ -385,13 +393,14 @@ static func _range_rooms(
 		Rect2(52.8, -37.2, 8.4, 3.0),
 		Rect2(52.8, -51.2, 8.4, 13.4),
 		Rect2(7.3, -51.2, 6.9, 21.2),
+		INFIRMARY,
 	]
 	for k in flags.size():
 		var y := CHOIR_FLOOR if k == 0 else FLOOR
 		Kit.flag_floor(body, flags[k], y, rng, 0.0)
 	# Beaten earth in the kitchen, stores and granary.
 	var earth: Array[Rect2] = [
-		Rect2(15.0, -51.2, 15.0, 7.4), Rect2(30.6, -51.2, 21.4, 7.4), Rect2(7.3, -29.4, 6.9, 7.6)
+		Rect2(15.0, -51.2, 15.0, 7.4), Rect2(30.6, -51.2, 14.8, 7.4), Rect2(7.3, -29.4, 6.9, 7.6)
 	]
 	for r: Rect2 in earth:
 		var a := Vector3(r.position.x, FLOOR, r.position.y)
@@ -500,6 +509,8 @@ static func _range_rooms(
 			Vector3(61.2, FLOOR + (k + 1) * (RANGE_CEIL - FLOOR) / steps, -34.2),
 			Kit.OAK_DARK * (0.9 if k % 2 == 0 else 0.8)
 		)
+	# Infirmary: a plain crucifix on the partition, over the herb rack.
+	Furnish.wall_crucifix(body, Vector3(INFIRMARY.position.x, 1.9, -48.6), Vector3.RIGHT)
 
 
 ## Gable roof with its ridge along z over x0..x1, z0..z1. Kit.gable_roof only
@@ -619,8 +630,9 @@ static func _precinct(fabric: Array) -> MeshInstance3D:
 	return Kit.mesh("Precinct", body)
 
 
-## The garth: the friary well (poi.well.dominican) and three plank-edged herb
-## beds on the grass.
+## The garth: the friary well (poi.well.dominican) and the plank-edged herb
+## beds on the grass (`garth.herb_beds`; the east one is the infirmary's
+## physic bed, across the north walk from its door).
 static func _garth(root: Node3D, site: CitySite, plan: CityPlan) -> void:
 	var garth: Dictionary = site.data.get("garth", {})
 	if garth.is_empty():
@@ -633,9 +645,12 @@ static func _garth(root: Node3D, site: CitySite, plan: CityPlan) -> void:
 	WellModels.add_model(well)
 	root.add_child(well)
 	var shell := CityBuildingBuilder.Shell.new()
-	var beds: Array[Rect2] = [
-		Rect2(21.0, -37.5, 6.0, 3.2), Rect2(21.0, -25.6, 6.0, 3.2), Rect2(41.0, -37.5, 5.4, 3.2)
-	]
+	var beds: Array[Rect2] = HERB_BEDS.duplicate()
+	if garth.has("herb_beds"):
+		beds.clear()
+		for b: Dictionary in garth["herb_beds"]:
+			var r: Array = b["rect"]
+			beds.append(Rect2(float(r[0]), float(r[1]), float(r[2]), float(r[3])))
 	for bed: Rect2 in beds:
 		var y := plan.ground_height(site.to_world(bed.get_center())) - site.level
 		# Dug soil: "dark" takes the vertex tone ("earth" ignores it and reads as sand).

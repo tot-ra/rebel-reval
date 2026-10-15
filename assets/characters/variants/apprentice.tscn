@@ -4,17 +4,17 @@
 [ext_resource type="PackedScene" path="res://assets/characters/realistic/apprentice/apprentice.glb" id="2_model"]
 [ext_resource type="Resource" path="res://assets/characters/variants/apprentice_variant.tres" id="3_variant"]
 [ext_resource type="Script" path="res://scripts/ui/character_health_ring_3d.gd" id="4_health_ring"]
-[ext_resource type="Resource" path="res://assets/characters/realistic/apprentice/short_tunic.tres" id="5_short_tunic"]
-[ext_resource type="Resource" path="res://assets/characters/realistic/apprentice/smith_apron.tres" id="6_smith_apron"]
+[ext_resource type="Resource" path="res://assets/characters/realistic/apprentice/shirt_tunic.tres" id="5_shirt_tunic"]
+[ext_resource type="Resource" path="res://assets/characters/realistic/apprentice/short_apron.tres" id="6_short_apron"]
 [ext_resource type="Resource" path="res://assets/characters/realistic/apprentice/hose.tres" id="7_hose"]
-[ext_resource type="Resource" path="res://assets/characters/realistic/apprentice/boots.tres" id="8_boots"]
+[ext_resource type="Resource" path="res://assets/characters/realistic/apprentice/turnshoes.tres" id="8_turnshoes"]
 
 [node name="Apprentice" type="Node3D"]
 script = ExtResource("1_rig")
 variant = ExtResource("3_variant")
 model_scale = Vector3(1.1111111, 1.1111111, 1.1111111)
 use_anatomical_muscles = false
-default_outfit = Array[Resource]([ExtResource("5_short_tunic"), ExtResource("6_smith_apron"), ExtResource("7_hose"), ExtResource("8_boots")])
+default_outfit = Array[Resource]([ExtResource("5_shirt_tunic"), ExtResource("6_short_apron"), ExtResource("7_hose"), ExtResource("8_turnshoes")])
 
 [node name="Model" type="Node3D" parent="."]
 

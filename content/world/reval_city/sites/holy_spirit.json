@@ -12,7 +12,8 @@
     "Excluded as dated later: rib vaults, the large Gothic windows and the stone tower (all 1360s), the north portal (1597), the clock (Ackermann, 1684), the painted galleries (17th c.), Notke's altarpiece (1483), the baroque spire.",
     "Attested for 1343: two-aisle hall (north aisle with the choir on its axis, south aisle added by the early 14th century), flat timber ceiling before the vaults, rectangular choir narrower and lower than the nave, crow-stepped gables, almshouse documented 1334.",
     "Unrecorded in 1343, simplified later form: white lime render; square piers with pointed arches between the aisles; two-light lancets with simple tracery and leaded stained glass (smaller than the 1360 windows); a pointed north portal near the west end; plank floor in the nave; plain oak benches; candle crowns; a plain pulpit; a painted winged retable; saint figures on consoles; the bells in a timber turret on the west gable (before the 1360 tower).",
-    "Almshouse placed in the angle east of the south aisle beside the choir (layout plausible composite)."
+    "Almshouse placed in the angle east of the south aisle beside the choir (layout plausible composite).",
+    "Almshouse sick-room (ADR 0052, plausible composite): a row of straw-tick box beds head to the walls with linen and wool, a bench, a table with bowls and a pitcher, a shelf of remedy jars, herbs drying on a rack, an iron brazier (no chimney in the range) and a small altar niche with a plain crucifix on the west wall beside the arch into the south aisle, so the sick hear mass at the side altar. The 1334 almshouse is attested; its furnishing is not recorded."
   ],
   "presentation": [],
   "replaces": [
@@ -1259,96 +1260,6 @@
       ],
       [
         [
-          38.6,
-          6.425
-        ],
-        [
-          40.6,
-          6.425
-        ],
-        [
-          40.6,
-          7.375
-        ],
-        [
-          38.6,
-          7.375
-        ]
-      ],
-      [
-        [
-          40.8,
-          6.425
-        ],
-        [
-          42.8,
-          6.425
-        ],
-        [
-          42.8,
-          7.375
-        ],
-        [
-          40.8,
-          7.375
-        ]
-      ],
-      [
-        [
-          43.0,
-          6.425
-        ],
-        [
-          45.0,
-          6.425
-        ],
-        [
-          45.0,
-          7.375
-        ],
-        [
-          43.0,
-          7.375
-        ]
-      ],
-      [
-        [
-          40.3,
-          2.325
-        ],
-        [
-          42.3,
-          2.325
-        ],
-        [
-          42.3,
-          3.275
-        ],
-        [
-          40.3,
-          3.275
-        ]
-      ],
-      [
-        [
-          42.5,
-          2.325
-        ],
-        [
-          44.5,
-          2.325
-        ],
-        [
-          44.5,
-          3.275
-        ],
-        [
-          42.5,
-          3.275
-        ]
-      ],
-      [
-        [
           35.75,
           2.3
         ],
@@ -1381,6 +1292,42 @@
         [
           25.15,
           1.2
+        ]
+      ],
+      [
+        [
+          38.0,
+          2.45
+        ],
+        [
+          38.6,
+          2.45
+        ],
+        [
+          38.6,
+          3.65
+        ],
+        [
+          38.0,
+          3.65
+        ]
+      ],
+      [
+        [
+          43.7,
+          2.45
+        ],
+        [
+          44.3,
+          2.45
+        ],
+        [
+          44.3,
+          3.05
+        ],
+        [
+          43.7,
+          3.05
         ]
       ]
     ]
@@ -1539,7 +1486,316 @@
       ]
     }
   ],
-  "dressing": [],
+  "dressing": [
+    {
+      "id": "almshouse.bed_s0",
+      "kind": "catalog",
+      "object": "obj.bed_straw_pallet",
+      "at": [
+        40.4,
+        6.42
+      ],
+      "rotation_deg": -90,
+      "solid": [
+        1.93,
+        1.03
+      ]
+    },
+    {
+      "id": "almshouse.bed_s1",
+      "kind": "catalog",
+      "object": "obj.bed_straw_pallet",
+      "at": [
+        41.8,
+        6.42
+      ],
+      "rotation_deg": -90,
+      "solid": [
+        1.93,
+        1.03
+      ]
+    },
+    {
+      "id": "almshouse.bed_s2",
+      "kind": "catalog",
+      "object": "obj.bed_straw_pallet",
+      "at": [
+        43.2,
+        6.42
+      ],
+      "rotation_deg": -90,
+      "solid": [
+        1.93,
+        1.03
+      ]
+    },
+    {
+      "id": "almshouse.bed_s3",
+      "kind": "catalog",
+      "object": "obj.bed_straw_pallet",
+      "at": [
+        44.6,
+        6.42
+      ],
+      "rotation_deg": -90,
+      "solid": [
+        1.93,
+        1.03
+      ],
+      "note": "the sickbed of the opening (anchor.holy_spirit.sickbed)"
+    },
+    {
+      "id": "almshouse.bed_n0",
+      "kind": "catalog",
+      "object": "obj.bed_straw_pallet",
+      "at": [
+        39.9,
+        2.83
+      ],
+      "rotation_deg": 90,
+      "solid": [
+        1.93,
+        1.03
+      ]
+    },
+    {
+      "id": "almshouse.bed_n1",
+      "kind": "catalog",
+      "object": "obj.bed_straw_pallet",
+      "at": [
+        41.3,
+        2.83
+      ],
+      "rotation_deg": 90,
+      "solid": [
+        1.93,
+        1.03
+      ]
+    },
+    {
+      "id": "almshouse.bed_n2",
+      "kind": "catalog",
+      "object": "obj.bed_straw_pallet",
+      "at": [
+        42.7,
+        2.83
+      ],
+      "rotation_deg": 90,
+      "solid": [
+        1.93,
+        1.03
+      ]
+    },
+    {
+      "id": "almshouse.sickbed_linen",
+      "kind": "catalog",
+      "object": "obj.linen_folded",
+      "at": [
+        45.0,
+        5.75
+      ],
+      "y": 0.56
+    },
+    {
+      "id": "almshouse.bench",
+      "kind": "catalog",
+      "object": "obj.bench_plank",
+      "at": [
+        46.9,
+        7.05
+      ],
+      "rotation_deg": 0,
+      "solid": [
+        1.62,
+        0.4
+      ]
+    },
+    {
+      "id": "almshouse.basin",
+      "kind": "catalog",
+      "object": "obj.wash_basin_cloth",
+      "at": [
+        46.4,
+        7.05
+      ],
+      "y": 0.48
+    },
+    {
+      "id": "almshouse.linen",
+      "kind": "catalog",
+      "object": "obj.linen_folded",
+      "at": [
+        47.3,
+        7.05
+      ],
+      "y": 0.48
+    },
+    {
+      "id": "almshouse.table",
+      "kind": "catalog",
+      "object": "obj.table_common_household",
+      "at": [
+        46.5,
+        2.32
+      ],
+      "rotation_deg": 0,
+      "solid": [
+        1.5,
+        0.78
+      ]
+    },
+    {
+      "id": "almshouse.bowl_a",
+      "kind": "catalog",
+      "object": "obj.bowl_small",
+      "at": [
+        46.1,
+        2.25
+      ],
+      "y": 0.77
+    },
+    {
+      "id": "almshouse.bowl_b",
+      "kind": "catalog",
+      "object": "obj.bowl_small",
+      "at": [
+        46.35,
+        2.45
+      ],
+      "y": 0.77
+    },
+    {
+      "id": "almshouse.bowl_large",
+      "kind": "catalog",
+      "object": "obj.bowl_large",
+      "at": [
+        46.75,
+        2.2
+      ],
+      "y": 0.77
+    },
+    {
+      "id": "almshouse.jug",
+      "kind": "catalog",
+      "object": "obj.jug",
+      "at": [
+        47.05,
+        2.4
+      ],
+      "y": 0.77
+    },
+    {
+      "id": "almshouse.lamp",
+      "kind": "catalog",
+      "object": "obj.grease_lamp",
+      "at": [
+        45.95,
+        2.5
+      ],
+      "y": 0.77
+    },
+    {
+      "id": "almshouse.stool",
+      "kind": "catalog",
+      "object": "obj.stool_three_leg",
+      "at": [
+        46.5,
+        3.15
+      ],
+      "rotation_deg": 0,
+      "solid": [
+        0.47,
+        0.44
+      ]
+    },
+    {
+      "id": "almshouse.bucket",
+      "kind": "catalog",
+      "object": "obj.water_bucket",
+      "at": [
+        45.1,
+        2.2
+      ]
+    },
+    {
+      "id": "almshouse.shelf",
+      "kind": "catalog",
+      "object": "obj.shelf_common_open",
+      "at": [
+        47.7,
+        3.2
+      ],
+      "rotation_deg": 90,
+      "solid": [
+        0.98,
+        0.47
+      ]
+    },
+    {
+      "id": "almshouse.jar_a",
+      "kind": "catalog",
+      "object": "obj.jar_lidded",
+      "at": [
+        47.72,
+        2.95
+      ],
+      "y": 0.93
+    },
+    {
+      "id": "almshouse.jar_b",
+      "kind": "catalog",
+      "object": "obj.jar_open",
+      "at": [
+        47.72,
+        3.2
+      ],
+      "y": 0.93
+    },
+    {
+      "id": "almshouse.jar_c",
+      "kind": "catalog",
+      "object": "obj.jar_lidded",
+      "at": [
+        47.72,
+        3.45
+      ],
+      "y": 0.93
+    },
+    {
+      "id": "almshouse.herbs",
+      "kind": "life_prop",
+      "prop": "herb_drying_rack",
+      "at": [
+        38.3,
+        6.6
+      ],
+      "rotation_deg": 90,
+      "solid": [
+        1.05,
+        0.3
+      ]
+    },
+    {
+      "id": "almshouse.candle_n",
+      "kind": "catalog",
+      "object": "obj.candlestick_tallow_poor",
+      "at": [
+        38.3,
+        2.65
+      ],
+      "y": 0.92
+    },
+    {
+      "id": "almshouse.candle_s",
+      "kind": "catalog",
+      "object": "obj.candlestick_tallow_poor",
+      "at": [
+        38.3,
+        3.45
+      ],
+      "y": 0.92
+    }
+  ],
   "anchors": [
     {
       "id": "anchor.holy_spirit.high_altar",
@@ -1568,6 +1824,49 @@
         10.5,
         -10.0
       ]
+    },
+    {
+      "id": "anchor.holy_spirit.sickbed",
+      "at": [
+        44.6,
+        6.5
+      ],
+      "room": "room.almshouse",
+      "pose": "lie",
+      "lie_h": 0.56,
+      "head_at": [
+        44.6,
+        7.1
+      ],
+      "feet_at": [
+        44.6,
+        5.6
+      ],
+      "note": "opening (ADR 0052): the wounded patient lies on the straw tick of almshouse.bed_s3, head to the south wall (head_at), feet to the aisle (feet_at); head_deg is the feet-to-head direction (site-local, like facing_deg); lie_h is the tick top above the room floor",
+      "head_deg": 90.0
+    },
+    {
+      "id": "anchor.holy_spirit.sickbed_attendant",
+      "at": [
+        45.75,
+        6.0
+      ],
+      "room": "room.almshouse",
+      "pose": "stand",
+      "facing_deg": 180.0,
+      "note": "the hero stands (or kneels) at the sickbed's east side, facing the patient"
+    },
+    {
+      "id": "anchor.holy_spirit.almshouse_kalev",
+      "at": [
+        47.2,
+        5.25
+      ],
+      "room": "room.almshouse",
+      "pose": "stand",
+      "facing_deg": 180.0,
+      "door": "door.holy_spirit.almshouse",
+      "note": "Kalev stops just inside the almshouse door from the yard, facing into the sick-room"
     }
   ],
   "program_1343": {
@@ -1578,7 +1877,8 @@
       "baptism at the font by the north portal",
       "preaching from the pulpit on a pier",
       "care of the almshouse inmates, who follow the mass through the arch",
-      "bells rung from the timber turret on the west gable"
+      "bells rung from the timber turret on the west gable",
+      "the sick and poor of the almshouse nursed in the beds of the sick-room, hearing mass through the arch into the south aisle"
     ]
   },
   "replaces_notes": {
@@ -1606,6 +1906,14 @@
       "at": [
         46.8,
         5.2
+      ],
+      "facing_deg": 180
+    },
+    {
+      "id": "sickroom",
+      "at": [
+        47.4,
+        4.6
       ],
       "facing_deg": 180
     }
@@ -1862,6 +2170,33 @@
       ],
       "fov": 60,
       "note": "compare Tallinn-Puhavaimu-indre-alter3 (rood, steps, altar)"
+    },
+    {
+      "id": "sickroom",
+      "eye": [
+        47.6,
+        1.6,
+        5.0
+      ],
+      "look": [
+        38.0,
+        1.0,
+        4.6
+      ],
+      "fov": 70,
+      "cutaway": false,
+      "note": "almshouse sick-room from the yard door (ADR 0052 opening)"
+    }
+  ],
+  "spawns": [
+    {
+      "id": "holy_spirit_almshouse",
+      "at": [
+        45.4,
+        4.7
+      ],
+      "facing_deg": 0.0,
+      "note": "new game opening (ADR 0052): in the almshouse aisle beside the sickbed, facing the yard door Kalev comes in by; the third-person camera starts behind, down the room"
     }
   ]
 }

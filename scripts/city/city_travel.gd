@@ -31,6 +31,8 @@ const REDIRECTS := {
 const SPAWNS: Array[StringName] = [
 	&"poi.forum",
 	&"kalev_smithy",
+	&"holy_spirit_almshouse",
+	&"st_catherine_infirmary",
 	&"gate.viru",
 	&"gate.viru.outside",
 	&"gate.harju.outside",

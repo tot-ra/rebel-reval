@@ -127,24 +127,58 @@ SPECS = {
         palette={"short_tunic": (0.52, 0.42, 0.30), "hose": (0.30, 0.27, 0.22)},
         extra={"tunic_ease": 0.022, "belted": False},
         outfits={"work": ["short_tunic", "hose", "boots"]}),
-    # The 15-year-old orphan apprentice, the playable hero (ADR 0033): thin from
-    # almshouse rations, smaller than Mart, hand-me-down tunic, pale grey
-    # watchful eyes. Tier 0 (modular wardrobe) like the master he is taken in by.
+    # The 15-year-old orphan apprentice, the playable hero (ADR 0033), a healer's
+    # apprentice since ADR 0052 (Holy Spirit almshouse, Kalev, St Catherine's
+    # infirmarian): thin from almshouse rations, smaller than Mart, pale grey
+    # watchful eyes. Dress of a 1343 healer's boy: undyed linen shirt under a
+    # plain brown-grey knee tunic, belt with a herb pouch and no knife, short
+    # linen apron with faint herb stains, hose and turnshoes; no soot. A minor:
+    # always clothed (no spirit-sight nude layer; SpiritUndress refuses him by
+    # name). Tier 0 (modular wardrobe) like the master he is taken in by.
     "apprentice": _person(
         age=15, sex="m", muscle=0.4, weight=0.34, height_m=1.60, skin="young_caucasian_male",
-        eyes="grey", hair="short01", hair_color=(0.30, 0.24, 0.18), brows="eyebrow002",
+        eyes="grey", hair="short01", hair_color=(0.30, 0.24, 0.18), brows="eyebrow002", lashes="eyelashes01",
         targets={"head-age-decr": 0.7, "head-round": 0.2, "nose-scale-vert-decr": 0.3,
                  "nose-scale-horiz-decr": 0.15, "chin-prominent-decr": 0.25, "cheek-volume-incr": 0.2,
                  "neck-scale-horiz-decr": 0.3, "eyebrows-angle-up": 0.1},
-        complexion={"tan": 0.3, "flush": 0.25, "soot_forearms": 0.2},
-        garments=["short_tunic", "hose", "boots", "smith_apron", "hood"],
-        palette={"short_tunic": (0.44, 0.38, 0.30), "hose": (0.27, 0.24, 0.20),
-                 "hood": (0.30, 0.27, 0.24)},
-        extra={"tunic_ease": 0.03, "belted": False, "tier": 0},
-        outfits={"work": ["short_tunic", "smith_apron", "hose", "boots"],
-                 "almshouse": ["short_tunic", "hose"],
-                 "street": ["short_tunic", "hose", "boots"],
-                 "travel": ["short_tunic", "hood", "hose", "boots"]}),
+        complexion={"tan": 0.3, "flush": 0.25},
+        garments=["shirt_tunic", "short_apron", "hose", "turnshoes", "hood"],
+        palette={"shirt_tunic": (0.40, 0.35, 0.28), "linen_shirt": (0.80, 0.76, 0.66),
+                 "short_apron": (0.76, 0.75, 0.64), "hose": (0.30, 0.28, 0.25),
+                 "belt": (0.26, 0.17, 0.10), "turnshoes": (0.24, 0.16, 0.10), "hood": (0.30, 0.27, 0.24)},
+        extra={"tunic_ease": 0.014, "belted": "plain", "belt_ease": 0.034, "apron_over": "shirt_tunic",
+               "tier": 0},
+        outfits={"work": ["shirt_tunic", "short_apron", "hose", "turnshoes"],
+                 "almshouse": ["shirt_tunic", "hose"],
+                 "street": ["shirt_tunic", "hose", "turnshoes"],
+                 "travel": ["shirt_tunic", "hood", "hose", "turnshoes"]}),
+    # Brother Tidemann, infirmarian of St Catherine's, the Dominican friary
+    # (ADR 0052; card docs/CHARACTERS/brother_tidemann.md): about 58, thin,
+    # stooped, kind tired face, clean-shaven, grey fringe round the tonsure,
+    # ink- and herb-stained fingers. Order of Preachers dress: white wool habit
+    # with leather belt, knife and purse (no rosary at the belt), white
+    # scapular and white capuce; outdoors the black cappa with its black capuce.
+    "brother_tidemann": _person(
+        age=58, sex="m", muscle=0.3, weight=0.3, height_m=1.71, skin="old_caucasian_male",
+        eyes="blue", hair="short01", hair_color=(0.58, 0.56, 0.53), brows="eyebrow001", lashes="eyelashes01",
+        targets={"head-age-incr": 0.75, "head-oval": 0.3, "cheek-inner-incr": 0.45, "cheek-bones-incr": 0.2,
+                 "nose-hump-incr": 0.25, "nose-scale-vert-incr": 0.15, "mouth-laugh-lines-in": 0.55,
+                 "eyebrows-angle-up": 0.25, "neck-scale-horiz-decr": 0.2, "torso-scale-horiz-decr": 0.15},
+        stubble={"color": (0.56, 0.54, 0.51), "amount": 0.12},
+        complexion={"tan": 0.2, "flush": 0.2, "ink_fingers": 0.7},
+        garments=["habit", "scapular", "capuce", "cappa", "hood", "hose", "turnshoes"],
+        palette={"habit": (0.86, 0.85, 0.80), "scapular": (0.86, 0.85, 0.80), "capuce": (0.86, 0.85, 0.80),
+                 "cappa": (0.07, 0.065, 0.06), "hood": (0.07, 0.065, 0.06), "hose": (0.22, 0.20, 0.18),
+                 "belt": (0.18, 0.11, 0.06), "turnshoes": (0.16, 0.10, 0.06)},
+        extra={"apron_over": "habit", "hood_over": ("cappa",), "knife_at": 12, "belt_ease": 0.024,
+               "hood_cape_ease": 0.07,
+               "hair_cards": False,
+               "brow_tint": (0.72, 0.70, 0.67),
+               "scalp_fur": {"length": 0.011, "coverage": 0.97, "shells": 7, "grey": 0.6, "tonsure": 0.05},
+               "portrait_notes": "kind tired eyes, thin gaunt face, clean-shaven, clerical tonsure: shaved crown "
+                                 "with a ring of short grey hair,"},
+        outfits={"infirmary": ["habit", "scapular", "capuce", "hose", "turnshoes"],
+                 "street": ["habit", "scapular", "cappa", "hood", "hose", "turnshoes"]}),
     # Captain Henning of the Viru Watch (docs/CHARACTERS/henning.md): armed
     # authority; padded aketon, mail and iron hat over street dress.
     "henning": _person(

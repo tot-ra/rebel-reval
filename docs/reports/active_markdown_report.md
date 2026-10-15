@@ -14,12 +14,12 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `1296`
-- Markdown files excluded as archive/reference/out of active scope: `773`
-- Local/external links inspected: `15030`
-- Links to active Markdown docs: `12989`
-- Links to existing archive/reference/non-active local docs: `550`
-- External links skipped for reachability: `192`
+- Active Markdown files scanned: `1302`
+- Markdown files excluded as archive/reference/out of active scope: `774`
+- Local/external links inspected: `15141`
+- Links to active Markdown docs: `13057`
+- Links to existing archive/reference/non-active local docs: `558`
+- External links skipped for reachability: `194`
 - Issues found: `0`
 
 ## Issue counts
@@ -86,6 +86,8 @@ No active Markdown documentation issues found.
 - `docs/adr/0047-interaction-stances-and-conversation-camera.md`
 - `docs/adr/0048-psychological-spells-and-willpower-cost.md`
 - `docs/adr/0050-social-life-venues-and-weekly-rhythm.md`
+- `docs/adr/0051-condition-adaptive-motion-style-network.md`
+- `docs/adr/0052-healer-apprentice-and-family-cure-loop.md`
 - `docs/adr/README.md`
 - `docs/AGENT_LOOPS.md`
 - `docs/ANIMAL_3D_SOURCING.md`
@@ -139,6 +141,7 @@ No active Markdown documentation issues found.
 - `docs/CHARACTERS/anisia_of_novgorod.md`
 - `docs/CHARACTERS/apprentice.md`
 - `docs/CHARACTERS/brother_hermann.md`
+- `docs/CHARACTERS/brother_tidemann.md`
 - `docs/CHARACTERS/burchard_dreileben.md`
 - `docs/CHARACTERS/ellen.md`
 - `docs/CHARACTERS/goswin_herike.md`
@@ -165,6 +168,7 @@ No active Markdown documentation issues found.
 - `docs/CHARACTERS/README.md`
 - `docs/CHARACTERS/town_guard_captain.md`
 - `docs/CHARACTERS/urmas_laar.md`
+- `docs/CHARACTERS/watchman_lambert.md`
 - `docs/CITIZENS/CENSUS.md`
 - `docs/CITIZENS/census_tables.md`
 - `docs/CITIZENS/factions/black_cloaks.md`
@@ -1200,6 +1204,7 @@ No active Markdown documentation issues found.
 - `docs/SYSTEMS/FLAG_CLOTH.md`
 - `docs/SYSTEMS/GATE_GARRISONS.md`
 - `docs/SYSTEMS/HOIST_ROPE.md`
+- `docs/SYSTEMS/HOUSEHOLD_CURE.md`
 - `docs/SYSTEMS/HOUSEHOLDS.md`
 - `docs/SYSTEMS/HUD_AND_MENUS.md`
 - `docs/SYSTEMS/landmark_sites/holy_spirit.md`
@@ -1214,6 +1219,7 @@ No active Markdown documentation issues found.
 - `docs/SYSTEMS/LIVING_VEGETATION.md`
 - `docs/SYSTEMS/LIVING_WORLD.md`
 - `docs/SYSTEMS/MAGIC.md`
+- `docs/SYSTEMS/MOTION_STYLE.md`
 - `docs/SYSTEMS/MUSCLE_LOCOMOTION.md`
 - `docs/SYSTEMS/NAMED_NPCS.md`
 - `docs/SYSTEMS/NATURAL.md`

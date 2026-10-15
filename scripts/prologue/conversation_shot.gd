@@ -78,6 +78,9 @@ var camera: Camera3D
 var shot_kind := ""
 ## The subject the current close shot looks at (null on the two-shot).
 var focused: Node3D
+## Subjects kept in the two-shot that never speak or listen (a patient lying on a bed): a close
+## shot never takes their shoulder. Set before frame_subjects.
+var framed_only: Array[Node3D] = []
 
 var _previous: Camera3D
 var _world: Node3D
@@ -212,7 +215,7 @@ func focus(speaker: Node3D) -> void:
 	var listener: Node3D = null
 	var nearest := INF
 	for subject in _subjects:
-		if subject == speaker or not is_instance_valid(subject):
+		if subject == speaker or not is_instance_valid(subject) or framed_only.has(subject):
 			continue
 		var d := subject.global_position.distance_to(speaker.global_position)
 		if d < nearest:

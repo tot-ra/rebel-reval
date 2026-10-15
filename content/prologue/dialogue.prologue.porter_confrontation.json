@@ -6,7 +6,7 @@
   "canon_status": "draft",
   "approval": {
     "status": "draft",
-    "notes": "SD-05 prologue prototype (ADR 0033); reworked so every reply is a cast spell voiced by a short line. SA3D-5 (R-1389): duel.topic 'rusted_key' with topic lines per element; on-topic replies carry topic_tags."
+    "notes": "SD-05 prologue prototype (ADR 0033); reworked so every reply is a cast spell voiced by a short line. ADR 0052: fought in the Holy Spirit almshouse sick-room, where the porter catches the boy with the loaf and the key. SA3D-5 (R-1389): duel.topic 'rusted_key' with topic lines per element; on-topic replies carry topic_tags."
   },
   "deterministic_offline": {
     "authored": true,
@@ -149,7 +149,7 @@
     {
       "id": "accuse",
       "speaker_id": "char.almshouse_porter",
-      "text": "A loaf is missing from the cold store, and you ran with it all the way to the smith's, boy!",
+      "text": "A loaf is missing from the cold store, and here it is in your hands, boy. And my key with it!",
       "move": {
         "kind": "attack",
         "element": "shame",
@@ -352,7 +352,7 @@
         },
         {
           "id": "ward_shame",
-          "text": "Strike me, and the whole street will see who you are.",
+          "text": "Strike me, and the whole house will see who you are.",
           "target_node_id": "resolved_spared",
           "move": {
             "kind": "defense",

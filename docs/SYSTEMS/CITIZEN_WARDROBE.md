@@ -16,7 +16,7 @@ Rules follow the research dossier [`clothing-and-status-markers.md`](../../histo
 | Clerks, scribes, scholars, pilgrims, pedlars, healers, midwives | leather scrip on a shoulder strap | - |
 | Married women | headscarf always (baked); burgher wives add a linen veil; widows and elders often veiled | burgher wife, market woman |
 | Nuns, lay sisters | black veil over the white headscarf (wimple), beads | Cistercian nun |
-| Monks, lay brothers | black hood (cowl) over the black habit, beads | Dominican friar |
+| Monks, lay brothers | white wool habit (the base body's cloth, `DOMINICAN_WHITE` for friars) under the black hood with its shoulder cape (the cappa's capuce), beads. The Order of Preachers wears white tunic, scapular and capuce under a black cappa; census friars do not yet have the scapular or the black cappa (follow-up: fit `scapular` and `cappa` as citizen layers; built for the named infirmarian, see [`CHARACTER_GENERATION.md`](../CHARACTER_GENERATION.md)) | Dominican friar |
 | Town watch on duty | quilted aketon over the street tunic, kettle hat, spear | watch overlay ("does not replace the undertunic") |
 | Crown men-at-arms on duty | aketon, mail haubergeon, red surcoat (Danish crown colours, no invented heraldry), kettle hat | vassal knight / Danish retainer |
 | Sergeants | aketon, mail, mail coif, kettle hat, sword | - |

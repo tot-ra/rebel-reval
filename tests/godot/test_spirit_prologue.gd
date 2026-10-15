@@ -8,6 +8,8 @@ const TestPresenterScript := preload("res://tests/godot/dialogue_test_presenter.
 const QUARREL := &"dialogue.prologue.almshouse_quarrel"
 const CONFRONT := &"dialogue.prologue.porter_confrontation"
 const KALEV := &"dialogue.prologue.kalev_arrives"
+const CARRIED_IN := &"dialogue.prologue.lambert_carried_in"
+const LAMBERT := &"dialogue.prologue.lambert_fear"
 const CONTENT_DIRS: Array[String] = [
 	"res://content/prologue",
 	"res://content/examples/valid",
@@ -37,8 +39,9 @@ func before_each() -> void:
 
 
 func test_cast_and_dialogues_are_loaded() -> void:
-	for dialogue_id: StringName in [QUARREL, CONFRONT, KALEV]:
+	for dialogue_id: StringName in [QUARREL, CONFRONT, CARRIED_IN, LAMBERT, KALEV]:
 		assert_false(_db.get_dialogue(dialogue_id).is_empty(), String(dialogue_id))
+	assert_false(_db.get_character(&"char.watchman_lambert").is_empty(), "Lambert's card loads")
 
 
 func test_observed_quarrel_reaches_its_resolution() -> void:
@@ -100,13 +103,51 @@ func test_the_physical_option_ends_the_duel_and_marks_the_blow() -> void:
 	assert_true(_state.get_flag(&"flag.prologue.struck_porter"))
 
 
+## ADR 0052: Kalev finds his mark on the spearhead, speaks the iron charm, then takes the boy in.
 func test_kalev_takes_the_apprentice() -> void:
 	var presenter: RefCounted = TestPresenterScript.new()
 	_runner.configure(_db, _state, presenter)
 	assert_true(_runner.start(KALEV))
+	assert_eq(_runner.get_current_node_id(), "kalev_kneels")
+	_runner.advance_for_test()
+	assert_eq(_runner.get_current_node_id(), "kalev_mark")
+	assert_true(_state.get_flag(&"flag.prologue.saw_makers_mark"), "the mark is a lead")
+	assert_false(_state.get_flag(&"flag.prologue.apprenticed"))
 	_runner.advance_for_test()
 	assert_true(_runner.select_choice("stare"))
+	var seen: Array[String] = []
+	var guard := 0
+	while not _runner.is_waiting_for_choice() and guard < 12:
+		seen.append(_runner.get_current_node_id())
+		_runner.advance_for_test()
+		guard += 1
+	for charm: String in ["kalev_charm_birth", "kalev_charm_shame", "kalev_charm_blood"]:
+		assert_true(seen.has(charm), charm)
+	assert_eq(_runner.get_current_node_id(), "kalev_notices")
+	assert_true(_runner.select_choice("silent"))
 	assert_true(_state.get_flag(&"flag.prologue.apprenticed"))
+
+
+## ADR 0052: gentle replies calm Lambert's fear; shaming him frightens him. Each sets its flag.
+func test_the_calming_duel_has_two_endings() -> void:
+	var paths: Dictionary = {
+		&"flag.prologue.lambert_calmed": ["calm_hand", "duty_watch", "love_hold"],
+		&"flag.prologue.lambert_frightened": ["name_flight", "fear_press", "shame_judge"],
+	}
+	for flag: StringName in paths:
+		var state := GameState.new()
+		var duel := SpiritDuel.new()
+		assert_true(duel.begin(_runner, _db, state, LAMBERT), String(flag))
+		for choice_id: String in paths[flag]:
+			duel.tick(SpiritDuel.TELEGRAPH_SEC + 0.01)
+			assert_true(duel.answer(choice_id), "%s %s" % [flag, choice_id])
+		assert_eq(duel.phase, SpiritDuel.PHASE_WON, String(flag))
+		for other: StringName in paths:
+			assert_eq(state.get_flag(other), other == flag, "%s after %s" % [other, flag])
+	var topic: Dictionary = _db.get_dialogue(LAMBERT)["duel"]["topic"]
+	assert_eq(String(topic["id"]), "the_flight")
+	for element: StringName in SpiritWordSpells.DEFAULT_ELEMENTS:
+		assert_true((topic["lines"] as Dictionary).has(String(element)), String(element))
 
 
 ## R-1389 (ADR 0038): the duel is about the rusted key and the boy's place in the house; every

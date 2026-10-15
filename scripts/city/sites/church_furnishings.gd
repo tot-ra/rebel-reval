@@ -756,3 +756,38 @@ static func lights(node: Node3D, spots: Array) -> void:
 		light.omni_range = 10.0
 		light.position = spot
 		node.add_child(light)
+
+
+## Small plain wooden crucifix hung on a wall (obj.crucifix_wall has no model
+## yet): `at` is the centre of the cross on the wall face, `into` the unit
+## direction from the wall into the room. A dark oak cross with a pale corpus.
+static func wall_crucifix(shell: CityBuildingBuilder.Shell, at: Vector3, into: Vector3) -> void:
+	var side := Vector3.UP.cross(into).normalized()
+	var off := into * 0.035
+	var post := Vector3(0.035, 0.32, 0.035)
+	var beam := Vector3(0.17, 0.03, 0.035)
+	for half: Vector3 in [post, beam]:
+		var h := side * half.x + Vector3.UP * half.y
+		var y0 := at + off + Vector3.UP * (0.08 if half == beam else 0.0)
+		CitySiteProps._box(
+			shell,
+			"timber",
+			_lo(y0 - h - into * 0.035, y0 + h + into * 0.035),
+			_hi(y0 - h - into * 0.035, y0 + h + into * 0.035),
+			Kit.OAK_DARK * 0.8
+		)
+	var body := at + into * 0.08 + Vector3.UP * 0.01
+	var bh := side * 0.03 + Vector3.UP * 0.14 + into * 0.012
+	var pale := Color(0.82, 0.74, 0.62)
+	CitySiteProps._box(shell, "limewash", _lo(body - bh, body + bh), _hi(body - bh, body + bh), pale)
+	var arm := body + Vector3.UP * 0.07
+	var ah := side * 0.13 + Vector3.UP * 0.018 + into * 0.012
+	CitySiteProps._box(shell, "limewash", _lo(arm - ah, arm + ah), _hi(arm - ah, arm + ah), pale)
+
+
+static func _lo(a: Vector3, b: Vector3) -> Vector3:
+	return Vector3(minf(a.x, b.x), minf(a.y, b.y), minf(a.z, b.z))
+
+
+static func _hi(a: Vector3, b: Vector3) -> Vector3:
+	return Vector3(maxf(a.x, b.x), maxf(a.y, b.y), maxf(a.z, b.z))

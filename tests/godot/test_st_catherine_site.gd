@@ -155,6 +155,7 @@ func test_st_catherine_range_rooms_open_from_the_cloister() -> void:
 		"refectory",
 		"kitchen",
 		"stores",
+		"infirmary",
 		"granary",
 		"lay_hall"
 	]:
@@ -199,3 +200,38 @@ func test_st_catherine_friars_keep_the_hours() -> void:
 		)
 		var cloth: Array = roster.residents[i]["cloth"]
 		assert_true(absf(float(cloth[0]) - 0.84) < 0.01, "white habit")
+
+
+## ADR 0052: the infirmary (plausible composite) at the east end of the north
+## range, its anchor and spawn, opening from the cloister towards the physic bed.
+func test_st_catherine_infirmary_room_spawn_and_physic_bed() -> void:
+	var plan := _plan()
+	var site := _site(plan)
+	if site == null:
+		assert_true(false, "site.st_catherine loads")
+		return
+	var spawn := CityTravel.spawn_position(plan, "st_catherine_infirmary")
+	assert_false(CityTravel.site_spawn(plan, "st_catherine_infirmary").is_empty())
+	assert_true(DoorNavigator.has_spawn(&"reval_city", &"st_catherine_infirmary"))
+	assert_eq(plan.site_room_at(spawn)["room"]["id"], &"room.infirmary")
+	assert_eq(plan.site_room_at(site.to_world(Vector2(41.0, -47.0)))["room"]["id"], &"room.stores")
+	var anchor := Vector2.INF
+	for a: Dictionary in site.data["anchors"]:
+		if String(a["id"]) == "anchor.st_catherine.infirmary":
+			anchor = site.to_world(Vector2(a["at"][0], a["at"][1]))
+	assert_true(anchor != Vector2.INF, "anchor.st_catherine.infirmary exists")
+	assert_eq(plan.site_room_at(anchor)["room"]["id"], &"room.infirmary")
+	for p: Vector2 in [spawn, anchor]:
+		for poly in site.solids:
+			assert_false(Geometry2D.is_point_in_polygon(p, poly), "%s is clear of furniture" % p)
+	var beds := 0
+	for item: Dictionary in site.data["dressing"]:
+		if String(item["id"]).begins_with("infirmary.bed"):
+			beds += 1
+	assert_true(beds >= 3, "the infirmary has beds")
+	var physic := false
+	for b: Dictionary in site.data["garth"]["herb_beds"]:
+		physic = physic or String(b.get("serves", "")) == "room.infirmary"
+	assert_true(physic, "a garth herb bed serves the infirmary")
+	var notes := " ".join(PackedStringArray(site.data["period_notes"]))
+	assert_true(notes.contains("Infirmary") and notes.contains("plausible composite"))

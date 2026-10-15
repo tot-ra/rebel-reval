@@ -1,0 +1,118 @@
+{
+  "type": "dialogue",
+  "id": "dialogue.prologue.lambert_carried_in",
+  "title": "The watchman is carried in",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "notes": "ADR 0052 opening, beat 2: at dusk the watch carries Lambert into the almshouse sick-room with a broken spearhead in his side. Matron Gertrud sends for the smith who can speak to iron and sets the boy at the bed. Her first line reacts to the porter duel ending (R-1335 echo)."
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "explicit_node_id"
+  },
+  "participants": [
+    "char.almshouse_matron",
+    "char.apprentice"
+  ],
+  "start_node_id": "matron_vespers",
+  "entry_variants": [
+    {
+      "node_id": "matron_heard_struck",
+      "priority": 30,
+      "conditions": [
+        {
+          "op": "flag_is",
+          "key": "flag.prologue.struck_porter",
+          "value": true
+        }
+      ]
+    },
+    {
+      "node_id": "matron_heard_broke",
+      "priority": 20,
+      "conditions": [
+        {
+          "op": "flag_is",
+          "key": "flag.prologue.broke_porter",
+          "value": true
+        }
+      ]
+    },
+    {
+      "node_id": "matron_heard_punished",
+      "priority": 10,
+      "conditions": [
+        {
+          "op": "flag_is",
+          "key": "flag.prologue.punished_by_porter",
+          "value": true
+        }
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "matron_heard_struck",
+      "speaker_id": "char.almshouse_matron",
+      "text": "Hanß sits in the gate room holding his jaw, and you and I will speak of that shove. Not now.",
+      "next_node_id": "matron_vespers"
+    },
+    {
+      "id": "matron_heard_broke",
+      "speaker_id": "char.almshouse_matron",
+      "text": "Hanß has not said a word since noon. Whatever you saw in him, boy, leave it be. Not now.",
+      "next_node_id": "matron_vespers"
+    },
+    {
+      "id": "matron_heard_punished",
+      "speaker_id": "char.almshouse_matron",
+      "text": "Show me the hand. The rod, for one loaf. Keep it out of the water. Not now.",
+      "next_node_id": "matron_vespers"
+    },
+    {
+      "id": "matron_vespers",
+      "speaker_id": "char.almshouse_matron",
+      "text": "The vespers bell, and now this. Lay him on the bed by the wall. Gently! He is not a sack of barley.",
+      "next_node_id": "matron_wound"
+    },
+    {
+      "id": "matron_wound",
+      "speaker_id": "char.almshouse_matron",
+      "text": "Lambert of the watch. The head of a spear, broken off in his side. If we pull it, he bleeds out on my floor.",
+      "next_node_id": "matron_send"
+    },
+    {
+      "id": "matron_send",
+      "speaker_id": "char.almshouse_matron",
+      "text": "Run to the Lower Town for Kalev the smith. He is the one who can speak to iron.",
+      "next_node_id": "matron_to_boy"
+    },
+    {
+      "id": "matron_to_boy",
+      "speaker_id": "char.almshouse_matron",
+      "text": "You. Kneel by him and keep him still until the smith comes. He fights the linen.",
+      "choices": [
+        {
+          "id": "kneel",
+          "text": "[Kneel by the bed]",
+          "target_node_id": "matron_done"
+        }
+      ]
+    },
+    {
+      "id": "matron_done",
+      "speaker_id": "char.almshouse_matron",
+      "text": "Talk to him. Anything. Only keep him from the dark."
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "plausible composite",
+      "summary": "The Holy Spirit almshouse as a hospice for the sick and poor (ADR 0052); the burgher watch with spears; all lines are invented."
+    }
+  ]
+}

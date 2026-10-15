@@ -387,6 +387,55 @@ func test_holy_spirit_nave_benches_leave_walkable_aisles() -> void:
 	assert_true(arcade_start - wall_end > across_z + 0.6, "middle aisle is a real aisle")
 
 
+## ADR 0052 opening: the almshouse is a furnished sick-room with the ids the
+## New Game opening uses (spawn and three anchors), all on the room floor and
+## clear of the beds and furniture.
+func test_holy_spirit_almshouse_sick_room_and_opening_ids() -> void:
+	var plan := _plan()
+	var site := _site(&"site.holy_spirit")
+	var spawn := CityTravel.site_spawn(plan, "holy_spirit_almshouse")
+	assert_false(spawn.is_empty(), "the almshouse owns the holy_spirit_almshouse spawn")
+	assert_true(CityTravel.SPAWNS.has(&"holy_spirit_almshouse"), "the city accepts the spawn")
+	assert_true(
+		DoorNavigator.has_spawn(&"reval_city", &"holy_spirit_almshouse"),
+		"the transition manifest registers the spawn"
+	)
+	var start := CityTravel.spawn_position(plan, "holy_spirit_almshouse")
+	assert_eq(plan.site_room_at(start)["room"]["id"], &"room.almshouse")
+	var anchors := {}
+	for a: Dictionary in site.data["anchors"]:
+		anchors[String(a["id"])] = a
+	var points: Array[Vector2] = [start]
+	for id: String in [
+		"anchor.holy_spirit.sickbed",
+		"anchor.holy_spirit.sickbed_attendant",
+		"anchor.holy_spirit.almshouse_kalev"
+	]:
+		assert_true(anchors.has(id), "%s exists" % id)
+		var at := site.to_world(Vector2(anchors[id]["at"][0], anchors[id]["at"][1]))
+		assert_eq(plan.site_room_at(at)["room"]["id"], &"room.almshouse", "%s in the room" % id)
+		if id != "anchor.holy_spirit.sickbed":
+			points.append(at)
+	assert_eq(String(anchors["anchor.holy_spirit.sickbed"]["pose"]), "lie")
+	for p in points:
+		for poly in site.solids:
+			assert_false(Geometry2D.is_point_in_polygon(p, poly), "%s is clear of furniture" % p)
+	# The sickbed anchor lies on a bed; the room holds a row of beds.
+	var bed := site.to_world(Vector2(44.6, 6.5))
+	var on_bed := false
+	for poly in site.solids:
+		on_bed = on_bed or Geometry2D.is_point_in_polygon(bed, poly)
+	assert_true(on_bed, "the sickbed anchor is on a bed")
+	var beds := 0
+	for item: Dictionary in site.data["dressing"]:
+		beds += 1 if String(item.get("object", "")) == "obj.bed_straw_pallet" else 0
+	assert_true(beds >= 6, "a row of beds (%d)" % beds)
+	var node: Node3D = load(String(site.data["visual"]["script"])).call("build", site, plan)
+	var dressing := node.get_node_or_null("Almshouse")
+	assert_true(dressing != null and dressing.get_child_count() >= beds, "dressing is built")
+	node.free()
+
+
 func test_kalev_smithy_new_game_starts_inside_the_forge() -> void:
 	var plan := _plan()
 	var site := _site(&"site.kalev_smithy")

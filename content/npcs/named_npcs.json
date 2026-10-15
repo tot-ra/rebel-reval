@@ -934,6 +934,63 @@
       "act_gate": 2,
       "wave": "B",
       "marker": "available"
+    },
+    {
+      "id": "char.brother_tidemann",
+      "display_name": "Brother Tidemann",
+      "title": "infirmarian of St Catherine's",
+      "faction": null,
+      "source_sheet": "docs/CHARACTERS/brother_tidemann.md",
+      "portrait": null,
+      "model_scene": "res://assets/characters/variants/brother_tidemann.tscn",
+      "census_id": null,
+      "census_mode": "extra",
+      "home_anchor": "poi.well.dominican",
+      "schedule": [
+        {
+          "from": 0.0,
+          "to": 8.0,
+          "anchor": "home"
+        },
+        {
+          "from": 8.0,
+          "to": 11.0,
+          "anchor": "poi.well.dominican"
+        },
+        {
+          "from": 11.0,
+          "to": 15.0,
+          "anchor": "home"
+        },
+        {
+          "from": 15.0,
+          "to": 17.0,
+          "anchor": "poi.well.dominican"
+        },
+        {
+          "from": 17.0,
+          "to": 24.0,
+          "anchor": "home"
+        }
+      ],
+      "body": {
+        "variant": "citizen_m_elder_thin",
+        "height_scale": 1.0,
+        "head_scale": 1.0,
+        "cloth": [
+          0.84,
+          0.82,
+          0.76
+        ],
+        "under": [
+          0.22,
+          0.2,
+          0.18
+        ]
+      },
+      "act_gate": 1,
+      "wave": "C",
+      "marker": "available"
     }
   ]
 }

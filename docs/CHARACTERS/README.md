@@ -8,8 +8,9 @@ Promotion order, act gates, art tiers, and faction-candidate decisions live in [
 
 | Character | Campaign role | Confidence | Brief |
 |---|---|---|---|
-| The Apprentice | Protagonist per ADR 0033 (working name); 15-year-old clairvoyant orphan | `invented` | [The Apprentice](./apprentice.md) |
-| Kalev | Master smith and mentor (protagonist in the current prototype) | `invented` | [Kalev](./kalev.md) |
+| The Apprentice | Protagonist per ADR 0033 (working name); 15-year-old clairvoyant orphan, healer's apprentice (ADR 0052) | `invented` | [The Apprentice](./apprentice.md) |
+| Kalev | Master smith, folk healer and mentor (protagonist in older prototype content) | `invented` | [Kalev](./kalev.md) |
+| Brother Tidemann | Infirmarian of St Catherine's; teaches the apprentice the Church's medicine | `invented` | [Brother Tidemann](./brother_tidemann.md) |
 | Mart | Apprentice; inciting incident and emotional stake | `invented` | [Mart](./mart.md) |
 | Aita | Alewife and healer; community perspective | `invented` | [Aita](./aita.md) |
 | Kaja | Bilingual courier; rebellion liaison | `invented` | [Kaja](./kaja.md) |
@@ -27,6 +28,7 @@ The first people the player meets in New Game (ADR 0033 prologue, content in [`c
 |---|---|---|---|---|
 | Porter Hanß | `char.almshouse_porter` | Almshouse porter; opponent of the first spirit duel (R-1872) | `invented` | [Porter Hanß](./almshouse_porter.md) |
 | Matron Gertrud | `char.almshouse_matron` | Matron of the almshouse; the quarrel with the porter (observation mode) | `invented` | [Matron Gertrud](./almshouse_matron.md) |
+| Lambert of the watch | `char.watchman_lambert` | Wounded watchman at the almshouse sickbed; the calming duel (ADR 0052) | `invented` | [Lambert](./watchman_lambert.md) |
 
 ## Promoted expand cast (P7-009 first briefs)
 

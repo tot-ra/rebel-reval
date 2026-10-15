@@ -1,0 +1,17 @@
+{
+  "infirmary": [
+    "habit",
+    "scapular",
+    "capuce",
+    "hose",
+    "turnshoes"
+  ],
+  "street": [
+    "habit",
+    "scapular",
+    "cappa",
+    "hood",
+    "hose",
+    "turnshoes"
+  ]
+}

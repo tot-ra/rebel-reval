@@ -1,12 +1,12 @@
 {
   "type": "dialogue",
   "id": "dialogue.prologue.kalev_arrives",
-  "title": "Kalev takes the apprentice",
+  "title": "Kalev speaks to the iron and takes the apprentice",
   "confidence": "invented",
   "canon_status": "draft",
   "approval": {
     "status": "draft",
-    "notes": "SD-05 prologue prototype (ADR 0033)."
+    "notes": "ADR 0052 opening, beat 3 (rewrites the SD-05 forge version): Kalev comes to the almshouse sickbed, finds his own mark on the broken spearhead (flag.prologue.saw_makers_mark, a lead for quest.makers_mark), speaks the origin-of-iron charm while the boy holds Lambert, notices that the boy sees, and takes him in (flag.prologue.apprenticed). Entry variants open on the calming duel's ending."
   },
   "deterministic_offline": {
     "authored": true,
@@ -18,37 +18,26 @@
     "char.kalev",
     "char.apprentice"
   ],
-  "start_node_id": "kalev_looks",
+  "start_node_id": "kalev_kneels",
   "entry_variants": [
     {
-      "node_id": "kalev_heard_struck",
-      "priority": 30,
-      "conditions": [
-        {
-          "op": "flag_is",
-          "key": "flag.prologue.struck_porter",
-          "value": true
-        }
-      ]
-    },
-    {
-      "node_id": "kalev_heard_broke",
+      "node_id": "kalev_heard_screaming",
       "priority": 20,
       "conditions": [
         {
           "op": "flag_is",
-          "key": "flag.prologue.broke_porter",
+          "key": "flag.prologue.lambert_frightened",
           "value": true
         }
       ]
     },
     {
-      "node_id": "kalev_heard_punished",
+      "node_id": "kalev_found_quiet",
       "priority": 10,
       "conditions": [
         {
           "op": "flag_is",
-          "key": "flag.prologue.punished_by_porter",
+          "key": "flag.prologue.lambert_calmed",
           "value": true
         }
       ]
@@ -56,36 +45,89 @@
   ],
   "nodes": [
     {
-      "id": "kalev_heard_struck",
+      "id": "kalev_heard_screaming",
       "speaker_id": "char.kalev",
-      "text": "You laid hands on the porter under my roof. I have a temper too, boy. It has cost me more than it ever won me.",
-      "next_node_id": "kalev_looks"
+      "text": "I heard him from the lane, screaming at shadows. Whatever you said to him, say no more. Only hold him.",
+      "next_node_id": "kalev_kneels"
     },
     {
-      "id": "kalev_heard_broke",
+      "id": "kalev_found_quiet",
       "speaker_id": "char.kalev",
-      "text": "Hanß went out of my door white as flour, and he will not say what you said to him. Remember that words cut too.",
-      "next_node_id": "kalev_looks"
+      "text": "He lies quiet. Gertrud said he fought the linen all evening. Good, boy.",
+      "next_node_id": "kalev_kneels"
     },
     {
-      "id": "kalev_heard_punished",
+      "id": "kalev_kneels",
       "speaker_id": "char.kalev",
-      "text": "Show me the hand. The rod, for a loaf. Keep it out of the fire until it heals.",
-      "next_node_id": "kalev_looks"
+      "text": "Gertrud, the lamp. Water and clean linen. Let me see the iron.",
+      "next_node_id": "kalev_mark"
     },
     {
-      "id": "kalev_looks",
+      "id": "kalev_mark",
       "speaker_id": "char.kalev",
-      "text": "My apprentice has gone, and the forge will not stoke itself. Can you carry iron, boy?",
-      "next_node_id": "kalev_offer",
+      "text": "...That socket came off my anvil. It bears my mark.",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.prologue.saw_makers_mark",
+          "value": true
+        }
+      ],
       "choices": [
         {
-          "id": "yes",
-          "text": "Yes.",
-          "target_node_id": "kalev_offer"
+          "id": "ask",
+          "text": "You made the spear that did this?",
+          "target_node_id": "kalev_quiet"
         },
         {
           "id": "stare",
+          "text": "[Say nothing, and watch him]",
+          "target_node_id": "kalev_quiet"
+        }
+      ]
+    },
+    {
+      "id": "kalev_quiet",
+      "speaker_id": "char.kalev",
+      "text": "I made spearheads for the watch. Not for this. Later. Hold his shoulders, boy, and do not let go.",
+      "next_node_id": "kalev_charm_birth"
+    },
+    {
+      "id": "kalev_charm_birth",
+      "speaker_id": "char.kalev",
+      "text": "Iron, I know your birth. You lay in the bog as red rust, under the wolf's track, under the bear's paw.",
+      "next_node_id": "kalev_charm_shame"
+    },
+    {
+      "id": "kalev_charm_shame",
+      "speaker_id": "char.kalev",
+      "text": "You were not great then, you were not proud. The smith took you from the mire and gave you an edge. Why do you bite your brother?",
+      "next_node_id": "kalev_charm_blood"
+    },
+    {
+      "id": "kalev_charm_blood",
+      "speaker_id": "char.kalev",
+      "text": "Go back the way you came. Blood, stand like a wall, stand like a fence of stones, like reeds in still water.",
+      "next_node_id": "kalev_draws"
+    },
+    {
+      "id": "kalev_draws",
+      "speaker_id": "char.kalev",
+      "text": "There. It is out, and he still breathes. Press the linen, boy. Harder.",
+      "next_node_id": "kalev_notices"
+    },
+    {
+      "id": "kalev_notices",
+      "speaker_id": "char.kalev",
+      "text": "You were watching his side when I came in. Not the blood. Something over it.",
+      "choices": [
+        {
+          "id": "tell",
+          "text": "There was something over him. It was afraid.",
+          "target_node_id": "kalev_offer"
+        },
+        {
+          "id": "silent",
           "text": "[Say nothing, and watch him]",
           "target_node_id": "kalev_offer"
         }
@@ -94,7 +136,7 @@
     {
       "id": "kalev_offer",
       "speaker_id": "char.kalev",
-      "text": "A bed by the hearth and bread twice a day. Work from before light. Come.",
+      "text": "You saw where it hurt him before I touched him. Come to the forge tonight, when Gertrud lets you go. Mart's bed is empty.",
       "effects": [
         {
           "op": "set_flag",
@@ -107,7 +149,15 @@
   "source_notes": [
     {
       "confidence": "plausible composite",
-      "summary": "Almshouse life tied to the Holy Spirit parish; dialogue is invented for ADR 0033."
+      "summary": "Kalev's origin-of-iron charm (nodes kalev_charm_birth, kalev_charm_shame, kalev_charm_blood) is a plausible composite after the Baltic-Finnic 'birth of iron' charm type spoken over iron wounds (Finnish Raudan synty, Estonian raua sõnad; collected centuries after 1343, no 1343 text survives), with a common stop-the-blood formula; rendered in English. The smith as healer is plausible composite (ADR 0052).",
+      "citations": [
+        "history/dossiers/folklore/belief-omens-and-healing.md",
+        "docs/adr/0052-healer-apprentice-and-family-cure-loop.md"
+      ]
+    },
+    {
+      "confidence": "invented",
+      "summary": "Kalev's lines, the almshouse sickbed scene and the spearhead with his mark are authored for the ADR 0052 opening."
     }
   ]
 }

@@ -1,23 +1,23 @@
 {
   "work": [
-    "short_tunic",
-    "smith_apron",
+    "shirt_tunic",
+    "short_apron",
     "hose",
-    "boots"
+    "turnshoes"
   ],
   "almshouse": [
-    "short_tunic",
+    "shirt_tunic",
     "hose"
   ],
   "street": [
-    "short_tunic",
+    "shirt_tunic",
     "hose",
-    "boots"
+    "turnshoes"
   ],
   "travel": [
-    "short_tunic",
+    "shirt_tunic",
     "hood",
     "hose",
-    "boots"
+    "turnshoes"
   ]
 }

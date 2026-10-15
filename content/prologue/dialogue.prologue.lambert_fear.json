@@ -1,0 +1,340 @@
+{
+  "type": "dialogue",
+  "id": "dialogue.prologue.lambert_fear",
+  "title": "Lambert's fear (calming duel)",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft",
+    "notes": "ADR 0052 opening, beat 2: the boy kneels by the wounded watchman and in spirit sight meets his fear as a phantom (he ran when his comrade Tönnies called for him). A healing duel: gentle replies (love, faith, duty appeals and a steady defence) end resolved_calmed; shaming or frightening him ends resolved_frightened. No spell_id replies; the five word spells still answer by element. Topic 'the_flight'."
+  },
+  "deterministic_offline": {
+    "authored": true,
+    "runtime_llm_allowed": false,
+    "free_text_input_allowed": false,
+    "selection": "explicit_node_id"
+  },
+  "participants": [
+    "char.watchman_lambert",
+    "char.apprentice"
+  ],
+  "start_node_id": "shade_cries",
+  "duel": {
+    "stakes": [
+      "secret",
+      "obligation",
+      "respect"
+    ],
+    "resolution_node_ids": [
+      "resolved_calmed",
+      "resolved_frightened"
+    ],
+    "topic": {
+      "id": "the_flight",
+      "tags": [
+        "comrade",
+        "flight",
+        "wound",
+        "night",
+        "home"
+      ],
+      "lines": {
+        "fear": [
+          {
+            "text": "The dark you ran from came in with you. It sits on the wound.",
+            "relevance": [
+              "night",
+              "wound"
+            ]
+          },
+          {
+            "text": "You still hear him calling. You will hear him every night.",
+            "relevance": [
+              "comrade",
+              "night"
+            ]
+          }
+        ],
+        "shame": [
+          {
+            "text": "A watchman with his back to the fight. That is what you see when you close your eyes.",
+            "relevance": [
+              "flight"
+            ]
+          },
+          {
+            "text": "Tönnies called your name, Lambert.",
+            "relevance": [
+              "comrade",
+              "flight"
+            ]
+          }
+        ],
+        "duty": [
+          {
+            "text": "A watchman who lives keeps the next watch. Keep this one: lie still.",
+            "relevance": [
+              "wound",
+              "home"
+            ]
+          },
+          {
+            "text": "You owe Tönnies a prayer, not a grave beside him.",
+            "relevance": [
+              "comrade"
+            ]
+          }
+        ],
+        "love": [
+          {
+            "text": "Someone at home keeps the fire for you tonight. Stay for them.",
+            "relevance": [
+              "home"
+            ]
+          },
+          {
+            "text": "I have your hand. Feel it. You are not alone in the dark.",
+            "relevance": [
+              "night",
+              "wound"
+            ]
+          }
+        ],
+        "faith": [
+          {
+            "text": "Tönnies is with God. Pray for him, and do not follow him tonight.",
+            "relevance": [
+              "comrade"
+            ]
+          },
+          {
+            "text": "There is a candle by your head. The Holy Spirit keeps this house.",
+            "relevance": [
+              "night",
+              "home"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "nodes": [
+    {
+      "id": "shade_cries",
+      "speaker_id": "char.watchman_lambert",
+      "text": "Do not touch it! If they pull it out I bleed like Tönnies. I heard him in the dark, and I ran.",
+      "move": {
+        "kind": "attack",
+        "element": "fear",
+        "stakes": [
+          "secret"
+        ],
+        "spirit_image_id": "broken_spear"
+      },
+      "choices": [
+        {
+          "id": "calm_hand",
+          "text": "Nobody pulls anything yet. I have your hand. Feel it.",
+          "target_node_id": "shade_accuses",
+          "move": {
+            "kind": "appeal",
+            "element": "love",
+            "stakes": [
+              "obligation"
+            ],
+            "topic_tags": [
+              "wound",
+              "night"
+            ]
+          }
+        },
+        {
+          "id": "hold_still",
+          "text": "Shout if you must. I will not go.",
+          "target_node_id": "shade_accuses",
+          "move": {
+            "kind": "defense",
+            "element": "fear",
+            "stakes": [
+              "respect"
+            ],
+            "topic_tags": [
+              "night"
+            ]
+          }
+        },
+        {
+          "id": "name_flight",
+          "text": "You left him in the dark. That is what sits in the wound.",
+          "target_node_id": "shade_accuses",
+          "move": {
+            "kind": "attack",
+            "element": "shame",
+            "stakes": [
+              "secret"
+            ],
+            "topic_tags": [
+              "flight",
+              "comrade"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "shade_accuses",
+      "speaker_id": "char.watchman_lambert",
+      "text": "Who are you, to look at me like that? A watchman does not run. Say it. Say I ran!",
+      "move": {
+        "kind": "pressure",
+        "element": "shame",
+        "stakes": [
+          "respect"
+        ],
+        "spirit_image_id": "empty_post"
+      },
+      "choices": [
+        {
+          "id": "duty_watch",
+          "text": "You ran, and you lived. A watchman who lives keeps the next watch. Keep this one.",
+          "target_node_id": "shade_cold",
+          "move": {
+            "kind": "appeal",
+            "element": "duty",
+            "stakes": [
+              "obligation"
+            ],
+            "topic_tags": [
+              "flight",
+              "wound"
+            ]
+          }
+        },
+        {
+          "id": "faith_pray",
+          "text": "Tönnies is with God. Pray for him. Do not follow him tonight.",
+          "target_node_id": "shade_cold",
+          "move": {
+            "kind": "appeal",
+            "element": "faith",
+            "stakes": [
+              "secret"
+            ],
+            "topic_tags": [
+              "comrade"
+            ]
+          }
+        },
+        {
+          "id": "fear_press",
+          "text": "Yes, you ran. And the dark you ran from is still in you.",
+          "target_node_id": "shade_cold",
+          "move": {
+            "kind": "attack",
+            "element": "fear",
+            "stakes": [
+              "secret"
+            ],
+            "topic_tags": [
+              "flight",
+              "night"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "shade_cold",
+      "speaker_id": "char.watchman_lambert",
+      "text": "It is so cold. Will the smith come? Will it hurt?",
+      "move": {
+        "kind": "pressure",
+        "element": "fear",
+        "stakes": [
+          "obligation"
+        ],
+        "spirit_image_id": "cold_hearth"
+      },
+      "choices": [
+        {
+          "id": "love_hold",
+          "text": "It will hurt, and then it will be over. I will hold you the whole time.",
+          "target_node_id": "resolved_calmed",
+          "move": {
+            "kind": "appeal",
+            "element": "love",
+            "stakes": [
+              "obligation"
+            ],
+            "topic_tags": [
+              "wound",
+              "home"
+            ]
+          }
+        },
+        {
+          "id": "faith_candle",
+          "text": "There is a candle by your head. Look at it, not at the dark.",
+          "target_node_id": "resolved_calmed",
+          "move": {
+            "kind": "appeal",
+            "element": "faith",
+            "stakes": [
+              "obligation"
+            ],
+            "topic_tags": [
+              "night",
+              "home"
+            ]
+          }
+        },
+        {
+          "id": "shame_judge",
+          "text": "Tönnies died because you ran. Say it yourself.",
+          "target_node_id": "resolved_frightened",
+          "move": {
+            "kind": "attack",
+            "element": "shame",
+            "stakes": [
+              "secret"
+            ],
+            "topic_tags": [
+              "comrade",
+              "flight"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "resolved_calmed",
+      "speaker_id": "char.watchman_lambert",
+      "text": "...Hold my hand, then. I will lie still.",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.prologue.lambert_calmed",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "resolved_frightened",
+      "speaker_id": "char.watchman_lambert",
+      "text": "Get away from me! Get it out of me, God, get it out!",
+      "effects": [
+        {
+          "op": "set_flag",
+          "key": "flag.prologue.lambert_frightened",
+          "value": true
+        }
+      ]
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Lambert, Tönnies and the fight are invented for the ADR 0052 opening; the duel as healing follows ADR 0052 decision 2 (Christus medicus) on the ADR 0033 move tags."
+    }
+  ]
+}

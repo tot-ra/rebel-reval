@@ -14,7 +14,8 @@
     "Excluded as dated later: the eight-bay hall (67.7 m) and its vaults, the new refectory in the north wing (c. 1500), the rebuilt two-storey cloister, Black Heads patronage (15th-16th c.), the 1520s works, the Behind-the-Monks tower.",
     "Attested for 1343: the friary of the Order of Preachers (1229, refounded 1246), a stone church and the east range largely complete c. 1300, a church in the south and the cloister to its north, the west portal (surviving, date unrecorded).",
     "Plausible composite: a 50 x 17 m buttressed single-span preaching hall under one tile roof with a timber tie-beam roof (no tower; a small ridge bell turret as mendicant statutes allowed), a stone rood screen before the friars' choir, a 72 x 52 m walled close fitted between Katariina kaik, the Munga houses and Muurivahe (the dossier's 58 x 95 m target does not fit the plan's streets), a cloister walk round a garth with the well, the west range on the gate side, the north range (kitchen, stores), the east range (sacristy, chapter house, dormitory stair, old refectory), and the service yard with brewhouse, casks, carts and fish trade.",
-    "Ground floors after Kuehnert's plan (medievalheritage.eu summary): east range from the church northwards sacristy, square chapter house with a vault on one central pillar, a narrow room (later library; here the day stair to the dormitory) and the old refectory in the north-east corner, the dormitory upstairs (not walkable); west range the lay brothers' room and the granary at the church corner; the north range holds the kitchen and stores (plausible composite: Kuehnert's north-wing refectory is c. 1500)."
+    "Ground floors after Kuehnert's plan (medievalheritage.eu summary): east range from the church northwards sacristy, square chapter house with a vault on one central pillar, a narrow room (later library; here the day stair to the dormitory) and the old refectory in the north-east corner, the dormitory upstairs (not walkable); west range the lay brothers' room and the granary at the church corner; the north range holds the kitchen and stores (plausible composite: Kuehnert's north-wing refectory is c. 1500).",
+    "Infirmary (ADR 0052, plausible composite): Dominican houses kept an infirmary for sick brethren under an infirmarian, but no 1343 Reval record names one; it takes the east end of the north range ground floor, partitioned from the stores beside the refectory and the dormitory stair, with a door from the cloister north walk facing the garth's physic bed. Three straw-tick beds, remedy shelves with jars, a work table, a bench and a herb rack."
   ],
   "presentation": [],
   "replaces": [
@@ -911,6 +912,16 @@
       "openings": [
         {
           "kind": "window",
+          "s": 3.5,
+          "w": 0.6,
+          "sill": 1.6,
+          "spring": 2.4,
+          "apex": 0.0,
+          "splay": 0.25,
+          "note": "infirmary"
+        },
+        {
+          "kind": "window",
           "s": 34.0,
           "w": 0.6,
           "sill": 1.6,
@@ -936,7 +947,8 @@
           "apex": 0.0,
           "splay": 0.25
         }
-      ]
+      ],
+      "inner_from": 0.0
     },
     {
       "id": "north_range.south",
@@ -986,6 +998,16 @@
           "spring": 2.3,
           "apex": 2.9,
           "note": "stores"
+        },
+        {
+          "kind": "door",
+          "sill": 0.12,
+          "reveal": "ashlar",
+          "s": 32.3,
+          "w": 1.4,
+          "spring": 2.3,
+          "apex": 2.9,
+          "note": "infirmary"
         },
         {
           "kind": "niche",
@@ -1043,7 +1065,8 @@
           "spring": 5.4,
           "shutter": true
         }
-      ]
+      ],
+      "inner_to": 0.0
     },
     {
       "id": "north_range.kitchen_wall",
@@ -1067,6 +1090,30 @@
       "inner_from": 0.0,
       "inner_to": 0.0,
       "openings": []
+    },
+    {
+      "id": "north_range.infirmary_wall",
+      "a": [
+        45.4,
+        -43.8
+      ],
+      "b": [
+        45.4,
+        -51.2
+      ],
+      "inside": [
+        49.0,
+        -47.5
+      ],
+      "thick": 0.6,
+      "y1": 4.2,
+      "outer": "limewash",
+      "inner": "limewash",
+      "floor": 0.12,
+      "inner_from": 0.0,
+      "inner_to": 0.0,
+      "openings": [],
+      "note": "partition: stores (west) and infirmary (east, ADR 0052)"
     },
     {
       "id": "east_range.north",
@@ -2263,6 +2310,37 @@
     "well": [
       38.11,
       -29.13
+    ],
+    "herb_beds": [
+      {
+        "id": "bed.west_north",
+        "rect": [
+          21.0,
+          -37.5,
+          6.0,
+          3.2
+        ]
+      },
+      {
+        "id": "bed.west_south",
+        "rect": [
+          21.0,
+          -25.6,
+          6.0,
+          3.2
+        ]
+      },
+      {
+        "id": "bed.physic",
+        "rect": [
+          41.0,
+          -37.5,
+          5.4,
+          3.2
+        ],
+        "serves": "room.infirmary",
+        "note": "the infirmarian's simples (plausible composite), across the north walk from door.st_catherine.infirmary"
+      }
     ]
   },
   "walk": {
@@ -3075,6 +3153,28 @@
             -51.2
           ],
           [
+            45.4,
+            -51.2
+          ],
+          [
+            45.4,
+            -43.8
+          ],
+          [
+            30.6,
+            -43.8
+          ]
+        ],
+        "height": 0.12
+      },
+      {
+        "id": "floor.infirmary",
+        "polygon": [
+          [
+            46.0,
+            -51.2
+          ],
+          [
             52.0,
             -51.2
           ],
@@ -3083,7 +3183,7 @@
             -43.8
           ],
           [
-            30.6,
+            46.0,
             -43.8
           ]
         ],
@@ -3349,11 +3449,11 @@
           -51.2
         ],
         [
-          52.0,
+          45.4,
           -51.2
         ],
         [
-          52.0,
+          45.4,
           -43.8
         ],
         [
@@ -3362,6 +3462,36 @@
         ]
       ],
       "floor": "floor.stores",
+      "hide": [
+        "Ranges/Upper",
+        "Ranges/Ceilings",
+        "Ranges/RangeRoofs",
+        "Ranges/WestRoof",
+        "Ranges/EastRoof"
+      ]
+    },
+    {
+      "id": "room.infirmary",
+      "name": "St Catherine's friary (infirmary)",
+      "polygon": [
+        [
+          46.0,
+          -51.2
+        ],
+        [
+          52.0,
+          -51.2
+        ],
+        [
+          52.0,
+          -43.8
+        ],
+        [
+          46.0,
+          -43.8
+        ]
+      ],
+      "floor": "floor.infirmary",
       "hide": [
         "Ranges/Upper",
         "Ranges/Ceilings",
@@ -3720,6 +3850,30 @@
         0.34,
         0.28
       ]
+    },
+    {
+      "id": "door.st_catherine.infirmary",
+      "a": [
+        46.6,
+        -43.12
+      ],
+      "b": [
+        48.0,
+        -43.12
+      ],
+      "inward": [
+        0,
+        -1
+      ],
+      "floor": "floor.infirmary",
+      "height": 2.3,
+      "style": "ledged",
+      "paint": [
+        0.4,
+        0.34,
+        0.28
+      ],
+      "note": "from the cloister north walk, across from the garth's physic bed"
     },
     {
       "id": "door.st_catherine.refectory",
@@ -4464,7 +4618,7 @@
       "kind": "catalog",
       "object": "obj.cargo_herring_barrels",
       "at": [
-        44.0,
+        42.8,
         -50.2
       ],
       "solid": [
@@ -4477,8 +4631,8 @@
       "kind": "catalog",
       "object": "obj.salt_pile",
       "at": [
-        47.0,
-        -46.0
+        34.0,
+        -46.6
       ],
       "solid": [
         1.4,
@@ -4490,12 +4644,267 @@
       "kind": "catalog",
       "object": "obj.cupboard_burgher",
       "at": [
-        49.8,
+        44.6,
         -50.8
       ],
       "solid": [
         1.2,
         0.65
+      ]
+    },
+    {
+      "id": "infirmary.bed_0",
+      "kind": "catalog",
+      "object": "obj.bed_straw_pallet",
+      "at": [
+        46.9,
+        -50.2
+      ],
+      "rotation_deg": 90,
+      "solid": [
+        1.93,
+        1.03
+      ]
+    },
+    {
+      "id": "infirmary.bed_1",
+      "kind": "catalog",
+      "object": "obj.bed_straw_pallet",
+      "at": [
+        48.3,
+        -50.2
+      ],
+      "rotation_deg": 90,
+      "solid": [
+        1.93,
+        1.03
+      ]
+    },
+    {
+      "id": "infirmary.bed_2",
+      "kind": "catalog",
+      "object": "obj.bed_straw_pallet",
+      "at": [
+        49.7,
+        -50.2
+      ],
+      "rotation_deg": 90,
+      "solid": [
+        1.93,
+        1.03
+      ]
+    },
+    {
+      "id": "infirmary.linen",
+      "kind": "catalog",
+      "object": "obj.linen_folded",
+      "at": [
+        48.3,
+        -49.45
+      ],
+      "y": 0.56
+    },
+    {
+      "id": "infirmary.shelf_a",
+      "kind": "catalog",
+      "object": "obj.shelf_common_open",
+      "at": [
+        51.75,
+        -50.4
+      ],
+      "rotation_deg": -90,
+      "solid": [
+        0.98,
+        0.47
+      ]
+    },
+    {
+      "id": "infirmary.shelf_b",
+      "kind": "catalog",
+      "object": "obj.shelf_common_open",
+      "at": [
+        51.75,
+        -49.3
+      ],
+      "rotation_deg": -90,
+      "solid": [
+        0.98,
+        0.47
+      ]
+    },
+    {
+      "id": "infirmary.jar_a",
+      "kind": "catalog",
+      "object": "obj.jar_lidded",
+      "at": [
+        51.72,
+        -50.65
+      ],
+      "y": 0.93
+    },
+    {
+      "id": "infirmary.jar_b",
+      "kind": "catalog",
+      "object": "obj.jar_open",
+      "at": [
+        51.72,
+        -50.4
+      ],
+      "y": 0.93
+    },
+    {
+      "id": "infirmary.jar_c",
+      "kind": "catalog",
+      "object": "obj.jar_lidded",
+      "at": [
+        51.72,
+        -50.15
+      ],
+      "y": 0.93
+    },
+    {
+      "id": "infirmary.pot_a",
+      "kind": "catalog",
+      "object": "obj.clay_pot",
+      "at": [
+        51.72,
+        -49.5
+      ],
+      "y": 0.93
+    },
+    {
+      "id": "infirmary.jar_d",
+      "kind": "catalog",
+      "object": "obj.jar_open",
+      "at": [
+        51.72,
+        -49.1
+      ],
+      "y": 0.93
+    },
+    {
+      "id": "infirmary.table",
+      "kind": "catalog",
+      "object": "obj.table_trestle_work",
+      "at": [
+        49.0,
+        -46.9
+      ],
+      "rotation_deg": 0,
+      "solid": [
+        1.58,
+        0.76
+      ]
+    },
+    {
+      "id": "infirmary.bowl_large",
+      "kind": "catalog",
+      "object": "obj.bowl_large",
+      "at": [
+        48.55,
+        -46.85
+      ],
+      "y": 0.82
+    },
+    {
+      "id": "infirmary.bowl_small",
+      "kind": "catalog",
+      "object": "obj.bowl_small",
+      "at": [
+        48.85,
+        -47.05
+      ],
+      "y": 0.82
+    },
+    {
+      "id": "infirmary.jar_table",
+      "kind": "catalog",
+      "object": "obj.jar_lidded",
+      "at": [
+        49.25,
+        -46.75
+      ],
+      "y": 0.82
+    },
+    {
+      "id": "infirmary.jug",
+      "kind": "catalog",
+      "object": "obj.jug",
+      "at": [
+        49.55,
+        -47.0
+      ],
+      "y": 0.82
+    },
+    {
+      "id": "infirmary.candle",
+      "kind": "catalog",
+      "object": "obj.candlestick_tallow_poor",
+      "at": [
+        49.6,
+        -46.65
+      ],
+      "y": 0.82
+    },
+    {
+      "id": "infirmary.stool",
+      "kind": "catalog",
+      "object": "obj.stool_three_leg",
+      "at": [
+        49.0,
+        -46.05
+      ],
+      "rotation_deg": 0,
+      "solid": [
+        0.47,
+        0.44
+      ]
+    },
+    {
+      "id": "infirmary.bench",
+      "kind": "catalog",
+      "object": "obj.bench_plank",
+      "at": [
+        50.6,
+        -44.25
+      ],
+      "rotation_deg": 0,
+      "solid": [
+        1.62,
+        0.4
+      ]
+    },
+    {
+      "id": "infirmary.basin",
+      "kind": "catalog",
+      "object": "obj.wash_basin_cloth",
+      "at": [
+        51.1,
+        -44.25
+      ],
+      "y": 0.48
+    },
+    {
+      "id": "infirmary.herbs",
+      "kind": "life_prop",
+      "prop": "herb_drying_rack",
+      "at": [
+        46.3,
+        -46.8
+      ],
+      "rotation_deg": 90,
+      "solid": [
+        1.05,
+        0.3
+      ]
+    },
+    {
+      "id": "infirmary.bucket",
+      "kind": "catalog",
+      "object": "obj.water_bucket",
+      "at": [
+        46.4,
+        -45.4
       ]
     },
     {
@@ -4762,6 +5171,27 @@
         10.75,
         -36.0
       ]
+    },
+    {
+      "id": "anchor.st_catherine.infirmary",
+      "at": [
+        48.3,
+        -48.6
+      ],
+      "room": "room.infirmary",
+      "pose": "stand",
+      "facing_deg": -90.0,
+      "note": "the infirmarian's place at the sickbeds (ADR 0052: he teaches the hero here)"
+    },
+    {
+      "id": "anchor.st_catherine.physic_bed",
+      "at": [
+        43.7,
+        -38.0
+      ],
+      "pose": "stand",
+      "facing_deg": 90.0,
+      "note": "garth: north edge of the east herb bed (garth.herb_beds bed.physic), the infirmary's simples"
     }
   ],
   "review_shots": [
@@ -4881,6 +5311,14 @@
         -30.0
       ],
       "facing_deg": 0
+    },
+    {
+      "id": "infirmary",
+      "at": [
+        47.3,
+        -44.6
+      ],
+      "facing_deg": -90
     }
   ],
   "community": {
@@ -6075,6 +6513,15 @@
       ],
       "facing_deg": -90.0,
       "note": "review: west cloister walk"
+    },
+    {
+      "id": "st_catherine_infirmary",
+      "at": [
+        47.3,
+        -45.0
+      ],
+      "facing_deg": -90.0,
+      "note": "healer's apprentice (ADR 0052): just inside the infirmary door from the cloister north walk, facing the beds"
     }
   ],
   "program_1343": {
@@ -6084,7 +6531,8 @@
       "sermons to the laity in the nave",
       "chapter in the east range",
       "brewing and cask storage in the yard",
-      "fish transfer to the eastern wharves"
+      "fish transfer to the eastern wharves",
+      "the infirmarian nursing sick brethren in the infirmary and growing simples in the garth's physic bed"
     ]
   }
 }

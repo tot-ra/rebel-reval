@@ -1,0 +1,22 @@
+[gd_scene load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://assets/characters/realistic/realistic_rig.gd" id="1_rig"]
+[ext_resource type="PackedScene" path="res://assets/characters/realistic/brother_tidemann/brother_tidemann.glb" id="2_model"]
+[ext_resource type="Resource" path="res://assets/characters/variants/brother_tidemann_variant.tres" id="3_variant"]
+[ext_resource type="Script" path="res://scripts/ui/character_health_ring_3d.gd" id="4_health_ring"]
+[ext_resource type="Resource" path="res://assets/characters/realistic/brother_tidemann/habit.tres" id="5_habit"]
+[ext_resource type="Resource" path="res://assets/characters/realistic/brother_tidemann/scapular.tres" id="6_scapular"]
+[ext_resource type="Resource" path="res://assets/characters/realistic/brother_tidemann/capuce.tres" id="7_capuce"]
+[ext_resource type="Resource" path="res://assets/characters/realistic/brother_tidemann/hose.tres" id="8_hose"]
+[ext_resource type="Resource" path="res://assets/characters/realistic/brother_tidemann/turnshoes.tres" id="9_turnshoes"]
+
+[node name="BrotherTidemann" type="Node3D"]
+script = ExtResource("1_rig")
+variant = ExtResource("3_variant")
+model_scale = Vector3(1.1111111, 1.1111111, 1.1111111)
+use_anatomical_muscles = false
+default_outfit = Array[Resource]([ExtResource("5_habit"), ExtResource("6_scapular"), ExtResource("7_capuce"), ExtResource("8_hose"), ExtResource("9_turnshoes")])
+
+[node name="Model" type="Node3D" parent="."]
+
+[node name="BrotherTidemannBody" parent="Model" instance=ExtResource("2_model")]

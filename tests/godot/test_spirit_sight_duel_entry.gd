@@ -164,8 +164,8 @@ func test_smithy_porter_duel_passes_through_spirit_sight() -> void:
 	_sight.enforce_availability()
 	assert_true(SessionState.state.spirit_sight, "sight holds through the duel")
 	opening.host().close()
-	assert_eq(opening.stage, SmithyOpening.STAGE_KALEV)
-	assert_false(SessionState.state.spirit_sight, "Kalev's dialogue closes sight")
+	assert_eq(opening.stage, SmithyOpening.STAGE_CARRIED_IN)
+	assert_false(SessionState.state.spirit_sight, "Gertrud's dialogue closes sight")
 	opening.skip()
 	city.free()
 

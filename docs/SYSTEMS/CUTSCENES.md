@@ -14,10 +14,12 @@ and menu replay of a seen cutscene.
 
 ## Prologue flow
 
-New Game starts in the seamless city inside Kalev's smithy, where the porter's spirit duel is fought in place, followed by the Kalev dialogue (R-1872, see [`SPIRIT_DIALOGUE.md`](./SPIRIT_DIALOGUE.md#new-game-duel-in-the-smithy-r-1872)). The year card and closing still-image cutscene do not play; their authored records are retained but unused by this flow.
+New Game starts in the seamless city in the Holy Spirit almshouse sick-room: the porter's spirit duel, Gertrud at the wounded watchman's sickbed, the calming duel with his fear, and Kalev's iron charm, all in place (R-1872, ADR 0052, see [`SPIRIT_DIALOGUE.md`](./SPIRIT_DIALOGUE.md#new-game-duel-in-the-smithy-r-1872)). The year card and closing still-image cutscene do not play; their authored records are retained but unused by this flow.
 
-**Kalev's arrival is framed, not staged (R-1877).** When the duel closes, the porter is gone at
-the cut ("went out of my door"), Kalev stands in the forge bay and the boy turns to him. No scene
+**Kalev's arrival is framed, not staged (R-1877).** When a duel closes, the cut puts the next
+speaker in place (Gertrud after the porter duel, Kalev at the foot of the sickbed after the
+calming duel; ADR 0052) and the boy turns to them; the lying patient is kept in the two-shot
+(`ConversationShot.framed_only`). No scene
 loads: `ConversationShot` puts a second `Camera3D` into the same city world at eye level and
 frames the two speakers from the side the gameplay camera was on, kept inside the arena disc so
 it stays in the room (the lens widens up to 60 degrees rather than cropping a speaker when the
@@ -25,11 +27,11 @@ room is tight). The shot fades up from black, pushes in slowly, and adds a snaps
 grade with higher contrast and lower saturation, a far depth blur behind the speakers, a
 vignette and thin letterbox bars. Gameplay HUD layers and overhead health bars are hidden for
 the shot; the dialogue box stays. When the dialogue ends (or Esc is held) the gameplay camera,
-HUD and bars come back exactly as they were, and play continues in the smithy. This is
+HUD and bars come back exactly as they were, and play continues in the almshouse. This is
 dialogue framing over normal play, not a cutscene record, so the ADR 0034 rule against
 per-scene camera rigs is unaffected: nothing is authored per shot.
 
-![Kalev's arrival in the city smithy, framed by ConversationShot](../reports/images/spirit_duel_layer/smithy_kalev_shot.jpg)
+![Kalev's arrival at the almshouse sickbed, framed by ConversationShot](../reports/images/prologue/almshouse_kalev_sickbed.jpg)
 
 **Universal conversation camera (R-1888, [ADR 0047](../adr/0047-interaction-stances-and-conversation-camera.md)).** The same `ConversationShot` now frames every conversation, Kalev's and talk with anyone ([`DIALOGUE.md`](./DIALOGUE.md#talk-to-anyone-r-1887)):
 
@@ -37,7 +39,7 @@ per-scene camera rigs is unaffected: nothing is authored per shot.
 - **Line of sight.** The city has no 3D colliders, so `ShotOcclusion` (`scripts/prologue/shot_occlusion.gd`) gathers the meshes near the conversation (from the common parent of the world and the speakers: people are mirrored under `MapViewRuntime`, beside `CityWorld3D`) and tests each camera-to-face segment against bounds, then real triangles. Several angles and distances are tried; one that sees the faces past the scenery wins. A passer-by in the way (a mesh under a `Skeleton3D`) does not reject an angle: they are hidden for that shot and shown again at the next cut. The last close-shot fallback is a point of view from just in front of the listener's face.
 - **Hand-back.** `release()` cuts back; `release(blend_sec)` cranes the camera along a smooth path to the live gameplay camera (lens, blur and letterbox ease out) and emits `released`. A conversation that turns into a spirit duel uses it (`CRANE_SEC` 1.2 s).
 
-![The smithy: the reverse shot on the boy over Kalev's shoulder](../reports/images/dialogue/talk/smithy_kalev_reply.jpg)
+![The almshouse: the reverse shot on the boy over Kalev's shoulder](../reports/images/prologue/almshouse_kalev_reply.jpg)
 
 | Input | Effect |
 |---|---|
@@ -58,8 +60,8 @@ written for each shot.
 | `scripts/cutscene/cutscene_sequence.gd` (`CutsceneSequence`) | typed parse of a `cutscene` record into shots and lines; refuses a malformed record by returning `null` |
 | `scripts/cutscene/cutscene_player.gd` (`CutscenePlayer`) | `CanvasLayer` that presents the sequence, handles input and timing, and follows the `next` chain |
 | `scripts/cutscene/cutscene_scene_host.gd` (`CutsceneSceneHost`) | makes a sequence a `change_scene_to_file` target via an exported `sequence_id` |
-| `scenes/intro/start_label.gd` | main-menu **Start** calls `SmithyOpening.start_new_game` (city, spawn `kalev_smithy`) |
-| `scripts/prologue/smithy_opening.gd` | New Game prologue in the city smithy: porter duel in place, then Kalev |
+| `scenes/intro/start_label.gd` | main-menu **Start** calls `SmithyOpening.start_new_game` (city, spawn `holy_spirit_almshouse`) |
+| `scripts/prologue/smithy_opening.gd` | New Game prologue in the almshouse sick-room: porter duel, Gertrud and the wounded watchman, the calming duel, Kalev's charm (ADR 0052) |
 | `scripts/prologue/conversation_shot.gd` | eye-level conversation camera in the live world: grade, depth blur, vignette, letterbox, HUD hidden; two-shot, over-the-shoulder cuts (`frame_subjects`, `cue_line`, `focus`), `release(blend)` cuts or cranes back to play (R-1877, R-1888) |
 | `scripts/prologue/shot_occlusion.gd` | line of sight for shots against drawn meshes; tells scenery from passers-by (R-1888) |
 
@@ -76,7 +78,7 @@ and are loaded by `ContentDB` through `SessionState.DEMO_CONTENT_DIRS`. Schema:
 | ID | Shots | Chain target |
 |---|---|---|
 | `cutscene.prologue.almshouse_dawn` | 3 | `return` (the host scene continues) |
-| `cutscene.prologue.taken_in` | 3 | `door` → scene `reval_city`, spawn `kalev_smithy` |
+| `cutscene.prologue.taken_in` | 3 | `door` → scene `reval_city`, spawn `kalev_smithy` (unplayed; text reframed for the healer's apprenticeship, ADR 0052; stills still show the older morning walk) |
 
 Per shot: a stable `id`, a `still` under `res://assets/cutscenes/`, a reserved `video`,
 `transition_in` (`cut`/`fade`/`dissolve`), a `motion` block (`push_in`, `pull_out`,
@@ -157,10 +159,11 @@ python3 tools/verify_cutscenes.py                        # frames, sidecars, pro
 godot --headless --path . --script tools/run_godot_tests.gd   # tests/godot/test_cutscene_player.gd
 ```
 
-Kalev's framed arrival: `tests/godot/test_smithy_opening.gd` (shot mounted in the city world,
-porter gone, camera handed back; `compute_shot` keeps both speakers in frame and widens the lens
+Kalev's framed arrival: `tests/godot/test_smithy_opening.gd` (shots mounted in the city world for
+Gertrud and Kalev, porter and phantom gone, camera handed back; `compute_shot` keeps both speakers in frame and widens the lens
 in a tight room). Review plate: `tools/godot_render.sh --resolution 1600x900 --script
-tools/capture_smithy_opening.gd` writes `build/smithy_opening/kalev_shot.png`.
+tools/capture_smithy_opening.gd` writes `build/smithy_opening/kalev_sickbed.png` and the other
+opening plates (copies in `docs/reports/images/prologue/`).
 
 `tools/verify_cutscenes.py` fails when a still is missing, has no `*.import` sidecar, has no
 `assets/SOURCES.csv` row, when a shot or line ID repeats, when an authoring field is empty,
@@ -192,8 +195,8 @@ file that does not exist.
   chapter I and contain minor anachronisms (an overhead wire in `prologue_taken_in/s02_street.jpg`,
   modern-looking footwear in `s01_door.jpg`, window glazing bars in the almshouse frames).
   Regeneration is tracked as **R-1330**; the prompts to re-run are already in the records.
-- **Kalev's framed arrival is one fixed shot.** It does not cut per speaker, the boy turns but
-  Kalev does not walk in (he is placed at the cut), and the interior roof stays cut away as in
-  play, so neighbouring roofs and sky can show above the smithy walls.
+- **Kalev's framed arrival.** The boy turns but Kalev does not walk in (he is placed at the foot
+  of the sickbed at the cut), and the interior roof stays cut away as in play, so neighbouring
+  roofs and sky can show above the almshouse walls.
 - **No video tier.** `video` is parsed and preferred over `still` when set, but no shot sets
   it and no video decoding path has been exercised.

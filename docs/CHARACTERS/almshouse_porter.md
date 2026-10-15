@@ -20,7 +20,7 @@
 ## History (Biography)
 *All `invented`.* A townsman of no trade who got the almshouse door and its keys as a living. The keys are the only authority he has, and he guards them harder than the bread behind them. In a lean spring he has been selling part of the barley and the loaves; the matron suspects it and the children feel it in the gruel.
 
-In the prologue the orphan boy runs from the almshouse to Kalev's smithy with a loaf and the cold-store key. Hanß bursts in after him and accuses him of theft. The boy sees the quarrel as a spirit duel by the hearth (`dialogue.prologue.porter_confrontation`, topic `rusted_key`: key, place, bread, orphan, hunger). Kalev then walks in and takes the boy as his apprentice; the porter leaves and keeps his post.
+In the prologue Hanß catches the orphan boy in the almshouse sick-room with a loaf and the cold-store key and accuses him of theft. The boy sees the quarrel as a spirit duel among the beds (`dialogue.prologue.porter_confrontation`, topic `rusted_key`: key, place, bread, orphan, hunger). The porter leaves and keeps his post; then the wounded watchman [Lambert](./watchman_lambert.md) is carried in, and Kalev, called to speak to the iron, takes the boy as his apprentice ([ADR 0052](../adr/0052-healer-apprentice-and-family-cure-loop.md)).
 
 ## Ties & Relationships
 - **Allies:** None of his own; he answers to the parish and the reeve who audits the house at Michaelmas.

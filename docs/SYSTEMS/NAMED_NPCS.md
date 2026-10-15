@@ -17,7 +17,7 @@ Status: implemented (tasks **R-1562** registry, **R-1563** seamless-city spawn a
 
 ## Registry data
 
-`content/npcs/named_npcs.json`: `{schema_version: 1, npcs: [...]}`, one row per person. Seeded with Wave A and Wave B of [`cast_faction_promotion.md`](../cast_faction_promotion.md) (17 rows; Brother Hermann has no sheet in `characters/` and is not seeded).
+`content/npcs/named_npcs.json`: `{schema_version: 1, npcs: [...]}`, one row per person. Seeded with Wave A and Wave B of [`cast_faction_promotion.md`](../cast_faction_promotion.md) (17 rows; Brother Hermann has no sheet in `characters/` and is not seeded), plus Brother Tidemann (wave C, ADR 0052), the first row with its own `model_scene` (`assets/characters/variants/brother_tidemann.tscn`).
 
 | Field | Meaning |
 |---|---|

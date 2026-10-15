@@ -1,0 +1,35 @@
+{
+  "type": "character",
+  "id": "char.watchman_lambert",
+  "name": "Lambert of the watch",
+  "role": "Town watchman, wounded patient of the almshouse",
+  "confidence": "invented",
+  "canon_status": "draft",
+  "approval": {
+    "status": "draft"
+  },
+  "pronunciation": "LAHM-bert",
+  "brief": {
+    "want": "To live through the night and never stand that watch again.",
+    "fear": "That everyone will know he ran.",
+    "contradiction": "He boasts of the watch's courage and fled the first real fight he saw.",
+    "secret_or_withheld_fact": "His comrade Tönnies called for him in the dark, and he ran instead of turning back."
+  },
+  "relationships": [],
+  "voice": {
+    "summary": "Frightened, feverish, ashamed.",
+    "diction": "The watch, the dark, Tönnies, cold; short broken sentences."
+  },
+  "outcomes": [
+    {
+      "id": "end",
+      "summary": "Survives the night with Kalev's charm; carries the shame of his flight."
+    }
+  ],
+  "source_notes": [
+    {
+      "confidence": "invented",
+      "summary": "Prologue cast for ADR 0052 (the healer's apprentice opening): the wounded watchman with the spearhead bearing Kalev's mark. The burgher watch with spears is plausible composite."
+    }
+  ]
+}

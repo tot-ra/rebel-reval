@@ -66,6 +66,10 @@ const ENDING_BANNERS: Dictionary = {
 	SpiritDuel.ENDING_LEFT: [
 		"You step back", "You leave the dispute unsettled.", Color(0.80, 0.80, 0.86)
 	],
+	# ADR 0052 opening: the healing duel by Lambert's sickbed.
+	&"resolved_calmed": [
+		"His fear is quiet", "You eased him; nothing was taken from him.", Color(0.62, 0.90, 0.66)
+	],
 }
 
 var duel := SpiritDuel.new()

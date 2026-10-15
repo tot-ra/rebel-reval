@@ -659,7 +659,8 @@ def tunic(ctx, key, sleeve="full", hem="knee", extra_ease=0.0, belted=True, colo
         for s, sign in (("l", 1), ("r", -1)):
             parts.append(sleeve_roll(ctx, s, sign, sleeve_end, color))
     if belted:
-        parts += belt(ctx, waist_z, knife=belted != "plain")
+        parts += belt(ctx, waist_z, knife=belted != "plain", ease=ctx.spec.get("belt_ease", 0.0),
+                      knife_at=ctx.spec.get("knife_at", 8))
     return parts
 
 
@@ -713,8 +714,11 @@ def torus(name, centre, axis, major, minor, segments=32, sides=10):
     return obj
 
 
-def belt(ctx, waist_z, knife=True):
-    """Leather belt with iron buckle, purse and knife (plausible composite)."""
+def belt(ctx, waist_z, knife=True, ease=0.0, knife_at=8):
+    """Leather belt with iron buckle, purse and knife (plausible composite).
+
+    `ease` (spec `belt_ease`) moves it out over a roomy tunic;
+    `knife_at` is the sheath's index of 48 round the waist (8 = left front)."""
     t = ctx.t
     leather = ctx.palette("belt", (0.20, 0.12, 0.07))
     points = []
@@ -723,7 +727,7 @@ def belt(ctx, waist_z, knife=True):
         direction = Vector((math.sin(a), -math.cos(a), 0))
         origin = Vector((0, t["hips"].y, waist_z))
         hit = ctx.bvh.ray_cast(origin + direction * 0.4, -direction)
-        r = ((hit[0] - origin).length if hit[0] else 0.16) + 0.024
+        r = ((hit[0] - origin).length if hit[0] else 0.16) + 0.024 + ease
         points.append(origin + direction * r)
     obj = band(f"Garment_belt", points, width=0.036, thickness=0.005)
     group = obj.vertex_groups.new(name="hips")
@@ -735,8 +739,8 @@ def belt(ctx, waist_z, knife=True):
     parts.append(rigid_box(ctx, "Garment_purse", purse_at, (0.03, 0.11, 0.12), "hips", "leather", leather,
                            "belt_leather"))
     if knife:
-        knife_at = points[8] + Vector((0.0, 0, -0.10))
-        parts.append(rigid_box(ctx, "Garment_knife_sheath", knife_at, (0.018, 0.035, 0.2), "hips",
+        sheath_at = points[knife_at] + Vector((0.0, 0, -0.10))
+        parts.append(rigid_box(ctx, "Garment_knife_sheath", sheath_at, (0.018, 0.035, 0.2), "hips",
                                "leather", (0.12, 0.07, 0.04), "sheath_leather"))
     return parts
 
@@ -877,8 +881,8 @@ def hose(ctx):
     return [obj]
 
 
-def boots(ctx):
-    """Turned-leather ankle boots.
+def boots(ctx, name="Garment_boots", key="boot_leather", height=0.10, palette_key="boots"):
+    """Turned-leather ankle boots (or, with a low `height`, turnshoes).
 
     A closed form: convex hull of each foot and ankle, voxel-remeshed, then
     every vertex projected onto the section hull (+ leather clearance) of the
@@ -887,7 +891,7 @@ def boots(ctx):
     """
     t = ctx.t
     ankle = t["foot.l"].z
-    top = ankle + 0.10
+    top = ankle + height
     source = extract_shell(ctx, "_boot_source",
                            lambda v, b: b.startswith(("foot", "toes")) or (b.startswith("lowerleg") and v.co.z < top + 0.03))
     bm = bmesh.new()
@@ -900,7 +904,7 @@ def boots(ctx):
     keep = set(hull_faces)
     bmesh.ops.delete(bm, geom=[f for f in bm.faces if f not in keep], context="FACES")
     bmesh.ops.delete(bm, geom=[v for v in bm.verts if not v.link_faces], context="VERTS")
-    obj = bpy.data.objects.new("Garment_boots", bpy.data.meshes.new("Garment_boots"))
+    obj = bpy.data.objects.new(name, bpy.data.meshes.new(name))
     bpy.context.scene.collection.objects.link(obj)
     bm.to_mesh(obj.data)
     bm.free()
@@ -930,10 +934,15 @@ def boots(ctx):
             v.co.z = max(0.0, v.co.z - 0.006)
     transfer_weights(ctx, obj)
     grain_uv(ctx, obj, "leather")
-    color = ctx.palette("boots", (0.23, 0.15, 0.09))
-    hems = hem_rolls(ctx, obj, 0.004, "boot_leather", "leather", color)
-    return [finish(ctx, obj, "leather", color, "boot_leather", 0.004)] + \
-        [finish_hem(ctx, h, "leather", color, "boot_leather") for h in hems]
+    color = ctx.palette(palette_key, (0.23, 0.15, 0.09))
+    hems = hem_rolls(ctx, obj, 0.004, key, "leather", color)
+    return [finish(ctx, obj, "leather", color, key, 0.004)] + \
+        [finish_hem(ctx, h, "leather", color, key) for h in hems]
+
+
+def turnshoes(ctx):
+    """Low turned shoes (turnshoes) closed just over the ankle: the everyday 14th-century shoe."""
+    return boots(ctx, name="Garment_turnshoes", key="turnshoe_leather", height=0.04, palette_key="turnshoes")
 
 
 def transfer_weights(ctx, obj):
@@ -969,11 +978,24 @@ def waist_apron(ctx):
                  over=ctx.spec.get("apron_over", "wool_tunic"))
 
 
-def apron(ctx, name, key, family, color, bib, over):
+def short_apron(ctx):
+    """Short linen apron of a healer's boy: waist to above the knee, narrower than a work
+    apron, tied just under the belt (the belt and its pouch stay in view)."""
     t = ctx.t
-    top_z = t["chest"].z + 0.10 if bib else t["spine"].z - 0.03
-    hem_z = t["lowerleg.l"].z - 0.08
-    half = 0.2
+    waist_z = t["spine"].z - 0.02
+    return apron(ctx, "Garment_short_apron", "short_apron", "linen",
+                 ctx.palette("short_apron", (0.78, 0.76, 0.66)), bib=False,
+                 over=ctx.spec.get("apron_over", "wool_tunic"), hem_z=t["lowerleg.l"].z + 0.11,
+                 half=0.16, top_z=waist_z - 0.03, tie_rise=0.006, standoff=0.016, wrap_depth=0.012)
+
+
+def apron(ctx, name, key, family, color, bib, over, hem_z=None, half=0.2, top_z=None, tie_rise=0.01,
+          standoff=0.012, wrap_depth=0.05):
+    t = ctx.t
+    if top_z is None:
+        top_z = t["chest"].z + 0.10 if bib else t["spine"].z - 0.03
+    if hem_z is None:
+        hem_z = t["lowerleg.l"].z - 0.08
     ctx.apron_layer = over
     cols, rows = 16, 30
     bm = bmesh.new()
@@ -987,8 +1009,8 @@ def apron(ctx, name, key, family, color, bib, over):
         for c in range(cols + 1):
             x = -width + 2 * width * c / cols
             front = front_surface_y(ctx, z, x, width)
-            wrap = (abs(x) / width) ** 2 * 0.05
-            v = bm.verts.new((x, front - 0.012 + wrap, z))
+            wrap = (abs(x) / width) ** 2 * wrap_depth
+            v = bm.verts.new((x, front - standoff + wrap, z))
             row.append(v)
         verts.append(row)
     for r in range(rows):
@@ -1018,7 +1040,7 @@ def apron(ctx, name, key, family, color, bib, over):
         for k in range(49):
             a = k / 48 * 2 * math.pi
             direction = Vector((math.sin(a), -math.cos(a), 0))
-            origin = Vector((0, t["hips"].y, top_z + 0.01))
+            origin = Vector((0, t["hips"].y, top_z + tie_rise))
             layer = ctx.layers.get(over, ctx.bvh)
             hit = layer.ray_cast(origin + direction * 0.4, -direction)
             r = ((hit[0] - origin).length if hit[0] else 0.16) + 0.006
@@ -1098,8 +1120,18 @@ def trunk_bvh(ctx):
 
 
 def hood(ctx):
+    # `hood_over`: worn layers (e.g. a friar's cappa) the shoulder cape must lie over.
     return head_wrap(ctx, "Garment_hood", "hood_wool", "wool", ctx.palette("hood", (0.20, 0.27, 0.36)),
-                     hem_below_neck=0.25)
+                     hem_below_neck=0.25, cape_layers=ctx.spec.get("hood_over", ()),
+                     cape_ease=ctx.spec.get("hood_cape_ease", 0.03))
+
+
+def capuce(ctx):
+    """Dominican white capuce worn down: the shoulder cape and a collar round the neck,
+    over the scapular, so the tonsure shows (indoors, at work in the infirmary)."""
+    return head_wrap(ctx, "Garment_capuce", "capuce", "wool", ctx.palette("capuce", (0.86, 0.85, 0.80)),
+                     hem_below_neck=0.15, cape_ease=ctx.spec.get("hood_cape_ease", 0.025), hood_down=True,
+                     cape_layers=ctx.spec.get("capuce_over", ("scapular",)))
 
 
 def headscarf(ctx):
@@ -1117,16 +1149,20 @@ def veil(ctx):
 
 
 def head_wrap(ctx, name, key, family, color, head_ease=0.028, hem_below_neck=0.25, face=(50, 24, -50),
-              cape_ease=0.03, hair=True, open_front=0, folds=0.004):
+              cape_ease=0.03, hair=True, open_front=0, folds=0.004, cape_layers=(), hood_down=False):
     """Wool hood with shoulder cape (Gugel), worn up, face opening framed.
 
     Parametric: a (theta, v) grid wraps the head (rays from the skull centre)
     and continues as a cape (horizontal rays from the torso axis). Radii are
     the outermost hit on body or hair plus ease; the cape radius never shrinks
     downward, so it hangs like cloth from the shoulders.
+
+    `cape_layers`: ids in ctx.layers the cape rows must also clear (worn over them).
+    `hood_down`: keep only the collar and cape (the hood lies back; the head is bare).
     """
     t, lm = ctx.t, ctx.lm
     targets = [trunk_bvh(ctx)]
+    cape_targets = targets + [ctx.layers[k] for k in cape_layers if k in ctx.layers]
     hair = bpy.data.objects.get("Hair_Scalp") if hair else None
     if hair is not None:
         targets.append(BVHTree.FromObject(hair, bpy.context.evaluated_depsgraph_get()))
@@ -1137,10 +1173,10 @@ def head_wrap(ctx, name, key, family, color, head_ease=0.028, hem_below_neck=0.2
     columns = 64
     head_rows, cape_rows = 22, 12
 
-    def outer(origin, direction):
+    def outer(origin, direction, trees=targets):
         far = origin + direction * 0.6
         best = 0.0
-        for tree in targets:
+        for tree in trees:
             hit = tree.ray_cast(far, -direction)
             if hit[0] is not None:
                 best = max(best, (hit[0] - origin).dot(direction))
@@ -1161,7 +1197,9 @@ def head_wrap(ctx, name, key, family, color, head_ease=0.028, hem_below_neck=0.2
                 s = (r - head_rows) / cape_rows
                 z = neck_z + (hem_z - neck_z) * s
                 origin = Vector((0, t["hips"].y, z))
-                radius = outer(origin, horizontal) + cape_ease
+                # Worn layers lift the cape, capped so a stray edge never throws a fin.
+                own = outer(origin, horizontal)
+                radius = min(outer(origin, horizontal, cape_targets), own + 0.05) + cape_ease
                 row.append(origin + horizontal * radius)
         grid.append(row)
     # Cloth hangs: below the chin every column's radius only grows downward.
@@ -1214,6 +1252,8 @@ def head_wrap(ctx, name, key, family, color, head_ease=0.028, hem_below_neck=0.2
             theta = (c + 0.5) / columns * 2 * math.pi
             front = min(theta, 2 * math.pi - theta)
             elevation = 88 - (88 + 62) * (r + 0.5) / head_rows
+            if hood_down and r < head_rows:
+                continue  # hood thrown back: collar and cape only
             if r < head_rows and front < math.radians(face[0]) and face[2] < elevation < face[1]:
                 continue  # face opening
             if r >= head_rows - 2 and front < math.radians(open_front):
@@ -1921,13 +1961,48 @@ def order_mantle(ctx):
     cross at the left breast and large on the back (arms-and-armour dossier: surcoat with black
     cross). The cross is a separate black patch, so only the white wool takes the wear_dye."""
     t = ctx.t
-    neck_z = ctx.collar(t["head"].y)
-    top_z = neck_z - 0.02
+    top_z = ctx.collar(t["head"].y) - 0.02
     hem_z = t["lowerleg.l"].z - 0.1
+    color = ctx.palette("order_mantle", (0.86, 0.85, 0.80))
+    mantle = _cloak(ctx, "Garment_order_mantle", "order_mantle", color, top_z, hem_z,
+                    _armour_trees(ctx) + base_trees(ctx))
+    tree = BVHTree.FromObject(mantle, bpy.context.evaluated_depsgraph_get())
+    return [mantle,
+            _cross_patch(ctx, "Garment_order_cross_back", tree, 180.0, top_z - 0.22, 0.26, top_z, hem_z),
+            _cross_patch(ctx, "Garment_order_cross_breast", tree, 34.0, top_z - 0.2, 0.11, top_z, hem_z)]
+
+
+def cappa(ctx):
+    """Dominican cappa: black wool cloak on the shoulders, open down the front over the white
+    habit and scapular, to mid-calf (its black capuce is the `hood`, worn over it)."""
+    t = ctx.t
+    top_z = ctx.collar(t["head"].y) - 0.02
+    hem_z = t["lowerleg.l"].z - 0.14
+    # The habit without its T-posed sleeves (the arms hang inside the cloak in play), so the
+    # cloak may be pushed fully clear of the flared skirt instead of being clamped into it.
+    trees = [trunk_bvh(ctx)] + [ctx.layers[k] for k in ("scapular",) if k in ctx.layers]
+    over = bpy.data.objects.get("Garment_" + ctx.spec.get("apron_over", "habit"))
+    if over is not None:
+        reach = t["upperarm.l"].x + 0.02
+        verts = [v.co.copy() for v in over.data.vertices]
+        polys = [list(f.vertices) for f in over.data.polygons
+                 if abs(f.center.x) < reach or f.center.z < t["hips"].z]
+        trees.append(BVHTree.FromPolygons(verts, polys))
+    color = ctx.palette("cappa", (0.07, 0.065, 0.06))
+    cloak = _cloak(ctx, "Garment_cappa", "cappa", color, top_z, hem_z, trees, open_deg=30.0, max_push=0.15,
+                   side=0.09, pad=0.055)
+    # The black capuce's cape lies over the cappa (spec `hood_over`).
+    ctx.layers["cappa"] = BVHTree.FromObject(cloak, bpy.context.evaluated_depsgraph_get())
+    return [cloak]
+
+
+def _cloak(ctx, name, key, color, top_z, hem_z, trees, open_deg=20.0, max_push=0.06, side=0.035, pad=0.03):
+    """Cloak hung from the shoulders, open at the front by `open_deg` each side, clearing `trees`
+    (but never pushed more than `max_push` past its own radius)."""
+    t = ctx.t
     axis_y = t["hips"].y
-    trees = _armour_trees(ctx) + base_trees(ctx)
     trunk = trunk_bvh(ctx)
-    half = t["upperarm.l"].x + 0.035  # outside the hanging arm
+    half = t["upperarm.l"].x + side  # outside the hanging arm
     rows, columns = 18, 56
     phase = 1.7
     grid = []
@@ -1940,39 +2015,182 @@ def order_mantle(ctx):
             theta = c / columns * 2 * math.pi
             d = horizontal(theta)
             # Capped: a stray arm-weighted vertex in the trunk tree must not throw a spike.
-            depth = min(outer_radius([trunk], origin, d, fallback=0.12), 0.2) + 0.03
+            depth = min(outer_radius([trunk], origin, d, fallback=0.12), 0.2) + pad
             wide = math.sin(theta) ** 2 * float(surfaces.smoothstep(0.0, 0.16, s))
             radius = max(depth, depth + (half - depth) * wide) * (1.0 + 0.2 * s * s)
             radius += 0.012 * s * math.sin(theta * 8 + phase) + 0.006 * s * math.sin(theta * 17)
             # Clear the armour, but never chase the T-posed sleeves (the arms hang down in play).
             pushed = clear_of(trees, axis_y, origin + d * radius, 0.02)
             reach = Vector((pushed.x, pushed.y - axis_y, 0)).length
-            row.append(pushed if reach <= radius + 0.06 else origin + d * (radius + 0.06))
+            # Above the armpit the trees still hold the T-posed shoulders: keep the push short there.
+            limit = max_push if z < t["upperarm.l"].z - 0.12 else min(max_push, 0.06)
+            row.append(pushed if reach <= radius + limit else origin + d * (radius + limit))
         grid.append(row)
     bm = bmesh.new()
     verts = [[bm.verts.new(p) for p in row] for row in grid]
     for r in range(rows):
         for c in range(columns):
             theta = (c + 0.5) / columns * 2 * math.pi
-            if r >= 1 and min(theta, 2 * math.pi - theta) < math.radians(20):
+            if r >= 1 and min(theta, 2 * math.pi - theta) < math.radians(open_deg):
                 continue  # open front
             bm.faces.new((verts[r][c], verts[r][(c + 1) % columns], verts[r + 1][(c + 1) % columns],
                           verts[r + 1][c]))
     bmesh.ops.delete(bm, geom=[v for v in bm.verts if not v.link_faces], context="VERTS")
     bmesh.ops.recalc_face_normals(bm, faces=list(bm.faces))
-    mesh = bpy.data.meshes.new("Garment_order_mantle")
+    mesh = bpy.data.meshes.new(name)
     bm.to_mesh(mesh)
     bm.free()
-    obj = bpy.data.objects.new("Garment_order_mantle", mesh)
+    obj = bpy.data.objects.new(name, mesh)
     bpy.context.scene.collection.objects.link(obj)
     _mantle_weights(ctx, obj, top_z, hem_z)
     grain_uv(ctx, obj, "wool", override=lambda p: "torso")
-    color = ctx.palette("order_mantle", (0.86, 0.85, 0.80))
-    mantle = finish(ctx, obj, "wool", color, "order_mantle", 0.004)
-    tree = BVHTree.FromObject(mantle, bpy.context.evaluated_depsgraph_get())
-    return [mantle,
-            _cross_patch(ctx, "Garment_order_cross_back", tree, 180.0, top_z - 0.22, 0.26, top_z, hem_z),
-            _cross_patch(ctx, "Garment_order_cross_breast", tree, 34.0, top_z - 0.2, 0.11, top_z, hem_z)]
+    return finish(ctx, obj, "wool", color, key, 0.004)
+
+
+def scapular(ctx):
+    """Dominican scapular: a straight white wool panel hanging front and back to a hand above the
+    habit's hem, over the belt. Its shoulder yoke is always under a capuce cape (white indoors,
+    black over the cappa), so only the hanging panels are built, from mid-chest down."""
+    t = ctx.t
+    over = ctx.spec.get("apron_over", "habit")
+    trees = [ctx.bvh] + [ctx.layers[k] for k in (over,) if k in ctx.layers]
+    # The belt with its purse and knife is worn under the scapular.
+    depsgraph = bpy.context.evaluated_depsgraph_get()
+    trees += [BVHTree.FromObject(bpy.data.objects[n], depsgraph)
+              for n in ("Garment_belt", "Garment_purse", "Garment_knife_sheath") if n in bpy.data.objects]
+    color = ctx.palette("scapular", ctx.palette(over, (0.86, 0.85, 0.80)))
+    half = float(ctx.spec.get("scapular_half", 0.125))
+    top_z = ctx.collar(t["head"].y) - 0.13
+    hem_z = hem_height(ctx, "ankle") + 0.11
+    rows, cols = 34, 10
+    parts = []
+    for name, sign in (("front", -1.0), ("back", 1.0)):
+        def surface(x, z):
+            """Outermost worn point along y on this side (front: most negative y)."""
+            best = None
+            for tree in trees:
+                hit = tree.ray_cast(Vector((x, sign * 1.0, z)), Vector((0, -sign, 0)))
+                if hit[0] is not None:
+                    best = hit[0].y if best is None else (min(best, hit[0].y) if sign < 0 else max(best, hit[0].y))
+            return best
+        bm = bmesh.new()
+        grid, previous = [], None
+        for r in range(rows + 1):
+            z = top_z + (hem_z - top_z) * r / rows
+            hits = [surface(-half + 2 * half * c / cols, z) for c in range(cols + 1)]
+            known = [h for h in hits if h is not None]
+            fallback = (min(known) if sign < 0 else max(known)) if known else t["hips"].y + sign * 0.15
+            hits = [fallback if h is None else h for h in hits]
+            # A flat strip: mostly the outermost point of the row, a little of the local one.
+            extreme = min(hits) if sign < 0 else max(hits)
+            row = []
+            for c, h in enumerate(hits):
+                y = 0.65 * extreme + 0.35 * h + sign * 0.018  # clears the belt too
+                if previous is not None:
+                    # Cloth hangs: it may fall back toward the body only slowly.
+                    limit = previous[c] - sign * 0.004
+                    y = min(y, limit) if sign < 0 else max(y, limit)
+                row.append(y)
+            previous = row
+            verts = []
+            for c, y in enumerate(row):
+                x = -half + 2 * half * c / cols
+                curve = sign * (abs(x) / half) ** 2 * 0.02  # edges curve round the body
+                verts.append(bm.verts.new((x, y - curve, z)))
+            grid.append(verts)
+        for r in range(rows):
+            for c in range(cols):
+                bm.faces.new((grid[r][c], grid[r][c + 1], grid[r + 1][c + 1], grid[r + 1][c]))
+        bmesh.ops.recalc_face_normals(bm, faces=list(bm.faces))
+        mesh = bpy.data.meshes.new(f"Garment_scapular_{name}")
+        bm.to_mesh(mesh)
+        bm.free()
+        obj = bpy.data.objects.new(mesh.name, mesh)
+        bpy.context.scene.collection.objects.link(obj)
+        groups = {b: obj.vertex_groups.new(name=b) for b in ("chest", "spine", "hips", "upperleg.l", "upperleg.r")}
+        for v in obj.data.vertices:
+            if v.co.z > t["spine"].z:
+                groups["chest"].add([v.index], 0.7, "REPLACE")
+                groups["spine"].add([v.index], 0.3, "REPLACE")
+            elif v.co.z > t["hips"].z:
+                groups["spine"].add([v.index], 0.5, "REPLACE")
+                groups["hips"].add([v.index], 0.5, "REPLACE")
+            else:
+                for bone, w in skirt_weights(ctx, v.co, t["hips"].z, hem_z).items():
+                    groups[bone].add([v.index], w, "REPLACE")
+        grain_uv(ctx, obj, "wool", override=lambda p: "torso")
+        parts.append(finish(ctx, obj, "wool", color, "scapular", 0.003))
+    # The capuce cape and the cappa lie over it.
+    joined = [BVHTree.FromObject(o, bpy.context.evaluated_depsgraph_get()) for o in parts]
+    ctx.layers["scapular"] = _UnionTree(joined)
+    return parts
+
+
+class _UnionTree:
+    """Ray casts against several BVH trees as one (nearest hit), for layer clearance."""
+
+    def __init__(self, trees):
+        self.trees = trees
+
+    def ray_cast(self, origin, direction, distance=1.0e9):
+        best = (None, None, None, None)
+        for tree in self.trees:
+            hit = tree.ray_cast(origin, direction, distance)
+            if hit[0] is not None and (best[0] is None or hit[3] < best[3]):
+                best = hit
+        return best
+
+
+def under_shirt(ctx):
+    """Linen shirt worn under a tunic: built a little higher at the neck and longer at the wrist
+    than the wool, so its collar and cuffs show; the body stops short of the tunic hem."""
+    t = ctx.t
+    obj = bodice(ctx, "Garment_under_shirt", lambda p: 0.004, t["wrist.l"].x + 0.026, t["hips"].z + 0.02,
+                 neck_raise=0.028, iterations=12)
+    loft_skirt(ctx, obj, t["hips"].z - 0.1, flare=1.15, fold_depth=0.006, folds=12, seed=5)
+    grain_uv(ctx, obj, "linen")
+    color = ctx.palette("linen_shirt", textiles_color("linen"))
+    hems = hem_rolls(ctx, obj, 0.0025, "linen", "linen", color)
+    return [finish(ctx, obj, "linen", color, "linen", 0.002)] + \
+        [finish_hem(ctx, h, "linen", color, "linen") for h in hems] + [shirt_collar(ctx, color)]
+
+
+def shirt_collar(ctx, color):
+    """The shirt's neck band standing just above the tunic's neckline. The shell itself cannot
+    reach that high (the neck skin is weighted to the head), so the band is built round the neck."""
+    t, lm = ctx.t, ctx.lm
+    front_y, back_y = lm["chin"][1] + 0.02, t["head"].y + 0.06
+    axis_y = (front_y + back_y) / 2
+    points = []
+    for k in range(48):
+        a = k / 48 * 2 * math.pi
+        direction = horizontal(a)
+        y_edge = axis_y + direction.y * (back_y - front_y) / 2
+        origin = Vector((0, axis_y, ctx.collar(y_edge) + 0.017))
+        hit = ctx.bvh.ray_cast(origin + direction * 0.3, -direction)
+        r = ((hit[0] - origin).length if hit[0] else 0.06) + 0.004
+        points.append(origin + direction * r)
+    obj = band("Garment_shirt_collar", points, width=0.011, thickness=0.003)
+    chest = obj.vertex_groups.new(name="chest")
+    head = obj.vertex_groups.new(name="head")
+    chest.add([v.index for v in obj.data.vertices], 0.75, "REPLACE")
+    head.add([v.index for v in obj.data.vertices], 0.25, "REPLACE")
+    grain_uv(ctx, obj, "linen", override=lambda p: "torso")
+    return finish(ctx, obj, "linen", color, "linen")
+
+
+def shirt_tunic(ctx):
+    """Knee-length wool tunic, belted with a pouch and no knife, over a linen shirt whose collar
+    and cuffs show (one torso-slot wearable; the tunic comes first so later layers clear it)."""
+    extra = ctx.spec.get("tunic_ease", 0.0) + 0.006
+    return tunic(ctx, "shirt_tunic", hem="knee", color_key="shirt_tunic", extra_ease=extra,
+                 belted=ctx.spec.get("belted", "plain")) + under_shirt(ctx)
+
+
+def habit(ctx):
+    """Friar's habit: ankle-length white wool tunic with full sleeves, leather belt with knife and purse."""
+    return tunic(ctx, "habit", hem="ankle", color_key="habit", extra_ease=0.008, flare=2.0, folds=22,
+                 belted=True)
 
 
 # Wardrobe definitions: slot, hidden body regions, builder.
@@ -2021,4 +2239,14 @@ WARDROBE = {
     "paternoster": ("accessory", [], paternoster),
     "satchel": ("accessory", [], satchel),
     "back_sack": ("accessory", [], back_sack),
+    # Healer's boy (ADR 0052): shirt under a knee tunic, short linen apron, low shoes.
+    "shirt_tunic": ("torso", ["Anatomy_Torso", "Anatomy_Arms", "Anatomy_Forearms"], shirt_tunic),
+    "short_apron": ("outerwear", [], short_apron),
+    "turnshoes": ("feet", ["Anatomy_Feet"], turnshoes),
+    # Dominican friar: white habit, scapular and capuce; black cappa with its black capuce (`hood`).
+    "habit": ("torso", ["Anatomy_Torso", "Anatomy_Arms", "Anatomy_Forearms", "Anatomy_Legs", "Anatomy_Calves"],
+              habit),
+    "scapular": ("outerwear", [], scapular),
+    "capuce": ("head", [], capuce),
+    "cappa": ("back", [], cappa),
 }
