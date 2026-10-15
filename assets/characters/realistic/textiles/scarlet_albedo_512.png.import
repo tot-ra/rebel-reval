@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://b8l0q3bveyi7d"
-path.s3tc="res://.godot/imported/scarlet_albedo_512.png-2192cc01429a7b0d98678acd56690fd4.s3tc.ctex"
-path.etc2="res://.godot/imported/scarlet_albedo_512.png-2192cc01429a7b0d98678acd56690fd4.etc2.ctex"
+path.s3tc="res://.godot/imported/scarlet_albedo_512.png-7f0ad681194c0cc0db20dbdbf17af910.s3tc.ctex"
+path.etc2="res://.godot/imported/scarlet_albedo_512.png-7f0ad681194c0cc0db20dbdbf17af910.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -12,8 +12,8 @@ metadata={
 
 [deps]
 
-source_file="res://build/aita_meshy/v4/textiles/scarlet_albedo_512.png"
-dest_files=["res://.godot/imported/scarlet_albedo_512.png-2192cc01429a7b0d98678acd56690fd4.s3tc.ctex", "res://.godot/imported/scarlet_albedo_512.png-2192cc01429a7b0d98678acd56690fd4.etc2.ctex"]
+source_file="res://assets/characters/realistic/textiles/scarlet_albedo_512.png"
+dest_files=["res://.godot/imported/scarlet_albedo_512.png-7f0ad681194c0cc0db20dbdbf17af910.s3tc.ctex", "res://.godot/imported/scarlet_albedo_512.png-7f0ad681194c0cc0db20dbdbf17af910.etc2.ctex"]
 
 [params]
 

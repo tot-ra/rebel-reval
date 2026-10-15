@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://g4ipel15ktgd"
-path.s3tc="res://.godot/imported/iron_orm.png-7cc45f562b988c584e21cf73c19b72ef.s3tc.ctex"
-path.etc2="res://.godot/imported/iron_orm.png-7cc45f562b988c584e21cf73c19b72ef.etc2.ctex"
+path.s3tc="res://.godot/imported/iron_orm.png-5d3b982bde3bcadda996d368af5f6843.s3tc.ctex"
+path.etc2="res://.godot/imported/iron_orm.png-5d3b982bde3bcadda996d368af5f6843.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -12,8 +12,8 @@ metadata={
 
 [deps]
 
-source_file="res://build/aita_meshy/v4/textiles/iron_orm.png"
-dest_files=["res://.godot/imported/iron_orm.png-7cc45f562b988c584e21cf73c19b72ef.s3tc.ctex", "res://.godot/imported/iron_orm.png-7cc45f562b988c584e21cf73c19b72ef.etc2.ctex"]
+source_file="res://assets/characters/realistic/textiles/iron_orm.png"
+dest_files=["res://.godot/imported/iron_orm.png-5d3b982bde3bcadda996d368af5f6843.s3tc.ctex", "res://.godot/imported/iron_orm.png-5d3b982bde3bcadda996d368af5f6843.etc2.ctex"]
 
 [params]
 

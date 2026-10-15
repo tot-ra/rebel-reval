@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://d14jknb6kbyt"
-path.s3tc="res://.godot/imported/iron_albedo_512.png-5826618eebfbbb4c794f47ba76b09a0e.s3tc.ctex"
-path.etc2="res://.godot/imported/iron_albedo_512.png-5826618eebfbbb4c794f47ba76b09a0e.etc2.ctex"
+path.s3tc="res://.godot/imported/iron_albedo_512.png-f00ce3f331c8c858764f77284f00c1b7.s3tc.ctex"
+path.etc2="res://.godot/imported/iron_albedo_512.png-f00ce3f331c8c858764f77284f00c1b7.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -12,8 +12,8 @@ metadata={
 
 [deps]
 
-source_file="res://build/aita_meshy/v4/textiles/iron_albedo_512.png"
-dest_files=["res://.godot/imported/iron_albedo_512.png-5826618eebfbbb4c794f47ba76b09a0e.s3tc.ctex", "res://.godot/imported/iron_albedo_512.png-5826618eebfbbb4c794f47ba76b09a0e.etc2.ctex"]
+source_file="res://assets/characters/realistic/textiles/iron_albedo_512.png"
+dest_files=["res://.godot/imported/iron_albedo_512.png-f00ce3f331c8c858764f77284f00c1b7.s3tc.ctex", "res://.godot/imported/iron_albedo_512.png-f00ce3f331c8c858764f77284f00c1b7.etc2.ctex"]
 
 [params]
 

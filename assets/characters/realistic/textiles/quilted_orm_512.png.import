@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dh0kg8wlbys8g"
-path="res://.godot/imported/quilted_orm_512.png-bd2de03ac49426ef946e7bc7584c86c7.ctex"
+path="res://.godot/imported/quilted_orm_512.png-468fa4776993109361f4d8bb0102b08f.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://build/aita_meshy/v4/textiles/quilted_orm_512.png"
-dest_files=["res://.godot/imported/quilted_orm_512.png-bd2de03ac49426ef946e7bc7584c86c7.ctex"]
+source_file="res://assets/characters/realistic/textiles/quilted_orm_512.png"
+dest_files=["res://.godot/imported/quilted_orm_512.png-468fa4776993109361f4d8bb0102b08f.ctex"]
 
 [params]
 

@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://c3cisu0ur8m6q"
-path.s3tc="res://.godot/imported/homespun_orm_512.png-bbf598ccf97b3ffb5f7ecbfedfde5330.s3tc.ctex"
-path.etc2="res://.godot/imported/homespun_orm_512.png-bbf598ccf97b3ffb5f7ecbfedfde5330.etc2.ctex"
+path.s3tc="res://.godot/imported/homespun_orm_512.png-65661aa7e3a333f62f8263f6aa47e909.s3tc.ctex"
+path.etc2="res://.godot/imported/homespun_orm_512.png-65661aa7e3a333f62f8263f6aa47e909.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -12,8 +12,8 @@ metadata={
 
 [deps]
 
-source_file="res://build/aita_meshy/v4/textiles/homespun_orm_512.png"
-dest_files=["res://.godot/imported/homespun_orm_512.png-bbf598ccf97b3ffb5f7ecbfedfde5330.s3tc.ctex", "res://.godot/imported/homespun_orm_512.png-bbf598ccf97b3ffb5f7ecbfedfde5330.etc2.ctex"]
+source_file="res://assets/characters/realistic/textiles/homespun_orm_512.png"
+dest_files=["res://.godot/imported/homespun_orm_512.png-65661aa7e3a333f62f8263f6aa47e909.s3tc.ctex", "res://.godot/imported/homespun_orm_512.png-65661aa7e3a333f62f8263f6aa47e909.etc2.ctex"]
 
 [params]
 

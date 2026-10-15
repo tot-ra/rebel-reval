@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cp1xaekrsh1gb"
-path.s3tc="res://.godot/imported/leather_orm_512.png-a1427085c2f69172b388e5faa912dd32.s3tc.ctex"
-path.etc2="res://.godot/imported/leather_orm_512.png-a1427085c2f69172b388e5faa912dd32.etc2.ctex"
+path.s3tc="res://.godot/imported/leather_orm_512.png-85be8b7a5c17e4a8b4a19afcf8060cfa.s3tc.ctex"
+path.etc2="res://.godot/imported/leather_orm_512.png-85be8b7a5c17e4a8b4a19afcf8060cfa.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -12,8 +12,8 @@ metadata={
 
 [deps]
 
-source_file="res://build/aita_meshy/v4/textiles/leather_orm_512.png"
-dest_files=["res://.godot/imported/leather_orm_512.png-a1427085c2f69172b388e5faa912dd32.s3tc.ctex", "res://.godot/imported/leather_orm_512.png-a1427085c2f69172b388e5faa912dd32.etc2.ctex"]
+source_file="res://assets/characters/realistic/textiles/leather_orm_512.png"
+dest_files=["res://.godot/imported/leather_orm_512.png-85be8b7a5c17e4a8b4a19afcf8060cfa.s3tc.ctex", "res://.godot/imported/leather_orm_512.png-85be8b7a5c17e4a8b4a19afcf8060cfa.etc2.ctex"]
 
 [params]
 

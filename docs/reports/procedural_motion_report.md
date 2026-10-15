@@ -1,6 +1,6 @@
 # Procedural motion report
 
-Status: research report, 2026-10-08. Task **CM-01**. Page for the system: [Procedural motion (research)](../SYSTEMS/PROCEDURAL_MOTION.md). Code: `tools/research/procedural_motion/`, open source at <https://github.com/tot-ra/skeleto-nn>. Nothing here runs in the game. Showcase gallery of the research runs: [gallery](../../tools/research/procedural_motion/runs/showcase/gallery.md).
+Status: research report, 2026-10-08. Task **CM-01**. Page for the system: [Procedural motion (research)](../SYSTEMS/MUSCLE_LOCOMOTION.md). Code: `tools/research/procedural_motion/`, open source at <https://github.com/tot-ra/skeleto-nn>. Nothing here runs in the game. Showcase gallery of the research runs: [gallery](../../tools/research/procedural_motion/runs/showcase/gallery.md).
 
 The question: can one motion system, driven by body parameters and a few general rules, cover the situations the game needs (people, animals and birds; terrain; obstacles; everyday actions; blows and falls; clothing) instead of a clip per situation, and can it be used on the shipped rigs later? This report shows what exists, how each motion is made, and what does not work yet.
 
@@ -187,4 +187,4 @@ The same motion, exported as world rotations of the mapped bones, drives `assets
 
 ## 12. How to rerun
 
-See the commands in [Procedural motion (research)](../SYSTEMS/PROCEDURAL_MOTION.md). The gallery is `python make_showcase.py` and opens `runs/showcase/index.html`.
+See the commands in [Procedural motion (research)](../SYSTEMS/MUSCLE_LOCOMOTION.md). The gallery is `python make_showcase.py` and opens `runs/showcase/index.html`.

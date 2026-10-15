@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://ce26hh5dbdvx0"
-path.s3tc="res://.godot/imported/mail_normal.png-3fcfc6be9c4450ed998635cb073d4831.s3tc.ctex"
-path.etc2="res://.godot/imported/mail_normal.png-3fcfc6be9c4450ed998635cb073d4831.etc2.ctex"
+path.s3tc="res://.godot/imported/mail_normal.png-2007ce410906492ddab241100c9e8a26.s3tc.ctex"
+path.etc2="res://.godot/imported/mail_normal.png-2007ce410906492ddab241100c9e8a26.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -12,8 +12,8 @@ metadata={
 
 [deps]
 
-source_file="res://assets/characters/realistic/textiles/mail_normal.png"
-dest_files=["res://.godot/imported/mail_normal.png-3fcfc6be9c4450ed998635cb073d4831.s3tc.ctex", "res://.godot/imported/mail_normal.png-3fcfc6be9c4450ed998635cb073d4831.etc2.ctex"]
+source_file="res://build/aita_meshy/v4/textiles/mail_normal.png"
+dest_files=["res://.godot/imported/mail_normal.png-2007ce410906492ddab241100c9e8a26.s3tc.ctex", "res://.godot/imported/mail_normal.png-2007ce410906492ddab241100c9e8a26.etc2.ctex"]
 
 [params]
 

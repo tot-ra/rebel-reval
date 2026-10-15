@@ -5,7 +5,7 @@
 Recorded: 2026-07-23  
 Task: **P0-039** (cancelled)  
 Evidence pack: [`data/p039_readability_pack.json`](data/p039_readability_pack.json)  
-Blind stimuli: [`../images/p039_blind_pack/`](../images/p039_blind_pack/)  
+Blind stimuli: [`images/p039_blind_pack/`](images/p039_blind_pack/)
 Results template: [`data/p039_readability_results.template.json`](data/p039_readability_results.template.json)
 
 ## Purpose
@@ -80,4 +80,4 @@ Commit the updated manifest and blind PNG copies together.
 
 - Development performance baseline: [`p0_038_3d_view_comparison.md`](p0_038_3d_view_comparison.md)
 - Heuristic contrast review (not blind): [`visual_targets_p0_036_ux_review.md`](visual_targets_p0_036_ux_review.md)
-- Slice surface captures: [`../images/view3d/`](../images/view3d/)
+- Slice surface captures: [`images/view3d/`](images/view3d/)

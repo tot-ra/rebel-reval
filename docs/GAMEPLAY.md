@@ -1,6 +1,6 @@
 > **Legacy status:** `reference`  
-> **Reason:** Living City meters and allegiance-pressure design return under [ADR 0017](./docs/adr/0017-legacy-design-reintroduction.md); this file remains a seed after P7-004.  
-> **Scope reconciliation:** [ADR 0008](./docs/adr/0008-three-act-campaign-and-faction-scope.md), [ADR 0017](./docs/adr/0017-legacy-design-reintroduction.md), [`LEGACY_REINTRODUCTION.md`](./LEGACY_REINTRODUCTION.md)  
+> **Reason:** Living City meters and allegiance-pressure design return under [ADR 0017](./adr/0017-legacy-design-reintroduction.md); this file remains a seed after P7-004.
+> **Scope reconciliation:** [ADR 0008](./adr/0008-three-act-campaign-and-faction-scope.md), [ADR 0017](./adr/0017-legacy-design-reintroduction.md), [`LEGACY_REINTRODUCTION.md`](./LEGACY_REINTRODUCTION.md)
 > **Reactivating via ADR 0017:** Hope/Fear city meters; NPC allegiance pressure reinterpreted as relationships + explicit events; forge-to-consequence day/night loop.  
 > **Still out:** universal good/evil morality score; Balance of Power aggregate; tower-capture until a later ADR.  
 > **Current source of truth:** [`docs/SYSTEMS/LIVING_CITY.md`](./SYSTEMS/LIVING_CITY.md) (P7-004). Runtime remains **P7-012**.
@@ -55,7 +55,7 @@ To win Chapter 1, you must shift the Balance of Power decisively in your faction
 The game operates on a dynamic day/night cycle, where each phase offers different opportunities and dangers, creating a core loop of preparation, action, and consequence. This loop remains consistent across both phases of the game, but the stakes and mission types will change dramatically.
 
 #### The Inner World (The Soul's Journey)
-Your actions in the physical world create ripples in your psyche. During sleep or meditation, you can travel to the **[Hingepuu (Soul Tree)](character/PSYCHE.md)**, your inner world. Here you will confront the consequences of your choices, commune with the archetypes of your soul, and tend to your **Seven Hearths** to grow your power. This inner journey is crucial for unlocking your full potential and understanding your place in the conflict.
+Your actions in the physical world create ripples in your psyche. During sleep or meditation, you can travel to the **[Hingepuu (Soul Tree)](../character/PSYCHE.md)**, your inner world. Here you will confront the consequences of your choices, commune with the archetypes of your soul, and tend to your **Seven Hearths** to grow your power. This inner journey is crucial for unlocking your full potential and understanding your place in the conflict.
 
 #### Day (The Smith's Mask)
 By day, you are Kalev the smith. The city is under the watchful eye of the Livonian Order.

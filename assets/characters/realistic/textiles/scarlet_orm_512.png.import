@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cpdludrgkpffn"
-path.s3tc="res://.godot/imported/scarlet_orm_512.png-f40f6afb41c7d4767df695cfe4fcd028.s3tc.ctex"
-path.etc2="res://.godot/imported/scarlet_orm_512.png-f40f6afb41c7d4767df695cfe4fcd028.etc2.ctex"
+path.s3tc="res://.godot/imported/scarlet_orm_512.png-80965be2cf9d886209dc2a4912b146b8.s3tc.ctex"
+path.etc2="res://.godot/imported/scarlet_orm_512.png-80965be2cf9d886209dc2a4912b146b8.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -12,8 +12,8 @@ metadata={
 
 [deps]
 
-source_file="res://build/aita_meshy/v4/textiles/scarlet_orm_512.png"
-dest_files=["res://.godot/imported/scarlet_orm_512.png-f40f6afb41c7d4767df695cfe4fcd028.s3tc.ctex", "res://.godot/imported/scarlet_orm_512.png-f40f6afb41c7d4767df695cfe4fcd028.etc2.ctex"]
+source_file="res://assets/characters/realistic/textiles/scarlet_orm_512.png"
+dest_files=["res://.godot/imported/scarlet_orm_512.png-80965be2cf9d886209dc2a4912b146b8.s3tc.ctex", "res://.godot/imported/scarlet_orm_512.png-80965be2cf9d886209dc2a4912b146b8.etc2.ctex"]
 
 [params]
 

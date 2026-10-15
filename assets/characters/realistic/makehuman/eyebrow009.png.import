@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://y1n7hdsnhv33"
-path.s3tc="res://.godot/imported/eyebrow009.png-cea75508e05fdbfeb5f52166440f6182.s3tc.ctex"
-path.etc2="res://.godot/imported/eyebrow009.png-cea75508e05fdbfeb5f52166440f6182.etc2.ctex"
+path.s3tc="res://.godot/imported/eyebrow009.png-6eb5a550553675eee2b984ac366ea968.s3tc.ctex"
+path.etc2="res://.godot/imported/eyebrow009.png-6eb5a550553675eee2b984ac366ea968.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -12,8 +12,8 @@ metadata={
 
 [deps]
 
-source_file="res://build/aita_meshy/v4/makehuman/eyebrow009.png"
-dest_files=["res://.godot/imported/eyebrow009.png-cea75508e05fdbfeb5f52166440f6182.s3tc.ctex", "res://.godot/imported/eyebrow009.png-cea75508e05fdbfeb5f52166440f6182.etc2.ctex"]
+source_file="res://assets/characters/realistic/makehuman/eyebrow009.png"
+dest_files=["res://.godot/imported/eyebrow009.png-6eb5a550553675eee2b984ac366ea968.s3tc.ctex", "res://.godot/imported/eyebrow009.png-6eb5a550553675eee2b984ac366ea968.etc2.ctex"]
 
 [params]
 

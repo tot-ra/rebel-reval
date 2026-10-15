@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cr0urcexqbvtc"
-path.s3tc="res://.godot/imported/wool_orm_512.png-4a97b52256a4bc8cc812ce9b76df3deb.s3tc.ctex"
-path.etc2="res://.godot/imported/wool_orm_512.png-4a97b52256a4bc8cc812ce9b76df3deb.etc2.ctex"
+path.s3tc="res://.godot/imported/wool_orm_512.png-fcd658ba4fa0404ae95302ca35b9fe8f.s3tc.ctex"
+path.etc2="res://.godot/imported/wool_orm_512.png-fcd658ba4fa0404ae95302ca35b9fe8f.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -12,8 +12,8 @@ metadata={
 
 [deps]
 
-source_file="res://build/aita_meshy/v4/textiles/wool_orm_512.png"
-dest_files=["res://.godot/imported/wool_orm_512.png-4a97b52256a4bc8cc812ce9b76df3deb.s3tc.ctex", "res://.godot/imported/wool_orm_512.png-4a97b52256a4bc8cc812ce9b76df3deb.etc2.ctex"]
+source_file="res://assets/characters/realistic/textiles/wool_orm_512.png"
+dest_files=["res://.godot/imported/wool_orm_512.png-fcd658ba4fa0404ae95302ca35b9fe8f.s3tc.ctex", "res://.godot/imported/wool_orm_512.png-fcd658ba4fa0404ae95302ca35b9fe8f.etc2.ctex"]
 
 [params]
 

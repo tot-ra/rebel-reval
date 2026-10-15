@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dtlo0hh0yd2wp"
-path="res://.godot/imported/quilted_albedo_512.png-e7b8250363c7a8ddf259ca8dadf85bda.ctex"
+path="res://.godot/imported/quilted_albedo_512.png-3a6b63919a73bb5a5144a09b4eaa6cf7.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://build/aita_meshy/v4/textiles/quilted_albedo_512.png"
-dest_files=["res://.godot/imported/quilted_albedo_512.png-e7b8250363c7a8ddf259ca8dadf85bda.ctex"]
+source_file="res://assets/characters/realistic/textiles/quilted_albedo_512.png"
+dest_files=["res://.godot/imported/quilted_albedo_512.png-3a6b63919a73bb5a5144a09b4eaa6cf7.ctex"]
 
 [params]
 

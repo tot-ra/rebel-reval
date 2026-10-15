@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dbrn5wrfskm2j"
-path.s3tc="res://.godot/imported/wear_mask_512.png-5ca828dfa64d8c9932dad780be63190b.s3tc.ctex"
-path.etc2="res://.godot/imported/wear_mask_512.png-5ca828dfa64d8c9932dad780be63190b.etc2.ctex"
+path.s3tc="res://.godot/imported/wear_mask_512.png-a080334706467cd2d784946fc02b174d.s3tc.ctex"
+path.etc2="res://.godot/imported/wear_mask_512.png-a080334706467cd2d784946fc02b174d.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -12,8 +12,8 @@ metadata={
 
 [deps]
 
-source_file="res://build/aita_meshy/v4/textiles/wear_mask_512.png"
-dest_files=["res://.godot/imported/wear_mask_512.png-5ca828dfa64d8c9932dad780be63190b.s3tc.ctex", "res://.godot/imported/wear_mask_512.png-5ca828dfa64d8c9932dad780be63190b.etc2.ctex"]
+source_file="res://assets/characters/realistic/textiles/wear_mask_512.png"
+dest_files=["res://.godot/imported/wear_mask_512.png-a080334706467cd2d784946fc02b174d.s3tc.ctex", "res://.godot/imported/wear_mask_512.png-a080334706467cd2d784946fc02b174d.etc2.ctex"]
 
 [params]
 

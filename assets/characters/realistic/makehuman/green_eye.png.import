@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://crmblfd6iyhsr"
-path.s3tc="res://.godot/imported/green_eye.png-5d91c3ee799856f31dad596af1c74d22.s3tc.ctex"
-path.etc2="res://.godot/imported/green_eye.png-5d91c3ee799856f31dad596af1c74d22.etc2.ctex"
+path.s3tc="res://.godot/imported/green_eye.png-f75da5ea59f6f388292c92e91b6a4672.s3tc.ctex"
+path.etc2="res://.godot/imported/green_eye.png-f75da5ea59f6f388292c92e91b6a4672.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -12,8 +12,8 @@ metadata={
 
 [deps]
 
-source_file="res://build/aita_meshy/v4/makehuman/green_eye.png"
-dest_files=["res://.godot/imported/green_eye.png-5d91c3ee799856f31dad596af1c74d22.s3tc.ctex", "res://.godot/imported/green_eye.png-5d91c3ee799856f31dad596af1c74d22.etc2.ctex"]
+source_file="res://assets/characters/realistic/makehuman/green_eye.png"
+dest_files=["res://.godot/imported/green_eye.png-f75da5ea59f6f388292c92e91b6a4672.s3tc.ctex", "res://.godot/imported/green_eye.png-f75da5ea59f6f388292c92e91b6a4672.etc2.ctex"]
 
 [params]
 

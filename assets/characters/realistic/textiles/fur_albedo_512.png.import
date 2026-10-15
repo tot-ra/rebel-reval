@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://ck2mxbhk8n3q"
-path.s3tc="res://.godot/imported/fur_albedo_512.png-4030d86b7fb8ec067f561083114265f6.s3tc.ctex"
-path.etc2="res://.godot/imported/fur_albedo_512.png-4030d86b7fb8ec067f561083114265f6.etc2.ctex"
+path.s3tc="res://.godot/imported/fur_albedo_512.png-35214a81f63518fc74246fb0f1c1b5cc.s3tc.ctex"
+path.etc2="res://.godot/imported/fur_albedo_512.png-35214a81f63518fc74246fb0f1c1b5cc.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -12,8 +12,8 @@ metadata={
 
 [deps]
 
-source_file="res://build/aita_meshy/v4/textiles/fur_albedo_512.png"
-dest_files=["res://.godot/imported/fur_albedo_512.png-4030d86b7fb8ec067f561083114265f6.s3tc.ctex", "res://.godot/imported/fur_albedo_512.png-4030d86b7fb8ec067f561083114265f6.etc2.ctex"]
+source_file="res://assets/characters/realistic/textiles/fur_albedo_512.png"
+dest_files=["res://.godot/imported/fur_albedo_512.png-35214a81f63518fc74246fb0f1c1b5cc.s3tc.ctex", "res://.godot/imported/fur_albedo_512.png-35214a81f63518fc74246fb0f1c1b5cc.etc2.ctex"]
 
 [params]
 

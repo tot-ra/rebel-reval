@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dsw4ovibd1kao"
-path.s3tc="res://.godot/imported/eyelashes03.png-1ebdea71734753260146c3e4c1861b78.s3tc.ctex"
-path.etc2="res://.godot/imported/eyelashes03.png-1ebdea71734753260146c3e4c1861b78.etc2.ctex"
+path.s3tc="res://.godot/imported/eyelashes03.png-155f9dd682dcfb2caee1f8a458b14c75.s3tc.ctex"
+path.etc2="res://.godot/imported/eyelashes03.png-155f9dd682dcfb2caee1f8a458b14c75.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -12,8 +12,8 @@ metadata={
 
 [deps]
 
-source_file="res://build/aita_meshy/v4/makehuman/eyelashes03.png"
-dest_files=["res://.godot/imported/eyelashes03.png-1ebdea71734753260146c3e4c1861b78.s3tc.ctex", "res://.godot/imported/eyelashes03.png-1ebdea71734753260146c3e4c1861b78.etc2.ctex"]
+source_file="res://assets/characters/realistic/makehuman/eyelashes03.png"
+dest_files=["res://.godot/imported/eyelashes03.png-155f9dd682dcfb2caee1f8a458b14c75.s3tc.ctex", "res://.godot/imported/eyelashes03.png-155f9dd682dcfb2caee1f8a458b14c75.etc2.ctex"]
 
 [params]
 

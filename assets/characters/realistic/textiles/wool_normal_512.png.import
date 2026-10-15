@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://3hdh2cexhitk"
-path.s3tc="res://.godot/imported/wool_normal_512.png-69f5b9240b607175595ba0bb7b35d656.s3tc.ctex"
-path.etc2="res://.godot/imported/wool_normal_512.png-69f5b9240b607175595ba0bb7b35d656.etc2.ctex"
+path.s3tc="res://.godot/imported/wool_normal_512.png-12da9a542a6204a5b2280384e453e5f3.s3tc.ctex"
+path.etc2="res://.godot/imported/wool_normal_512.png-12da9a542a6204a5b2280384e453e5f3.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -12,8 +12,8 @@ metadata={
 
 [deps]
 
-source_file="res://build/aita_meshy/v4/textiles/wool_normal_512.png"
-dest_files=["res://.godot/imported/wool_normal_512.png-69f5b9240b607175595ba0bb7b35d656.s3tc.ctex", "res://.godot/imported/wool_normal_512.png-69f5b9240b607175595ba0bb7b35d656.etc2.ctex"]
+source_file="res://assets/characters/realistic/textiles/wool_normal_512.png"
+dest_files=["res://.godot/imported/wool_normal_512.png-12da9a542a6204a5b2280384e453e5f3.s3tc.ctex", "res://.godot/imported/wool_normal_512.png-12da9a542a6204a5b2280384e453e5f3.etc2.ctex"]
 
 [params]
 

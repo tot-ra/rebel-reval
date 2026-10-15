@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bnipyhu7pcp48"
-path.s3tc="res://.godot/imported/homespun_albedo_512.png-ba0c1d1fb31715020df8dafc17cea155.s3tc.ctex"
-path.etc2="res://.godot/imported/homespun_albedo_512.png-ba0c1d1fb31715020df8dafc17cea155.etc2.ctex"
+path.s3tc="res://.godot/imported/homespun_albedo_512.png-cee705e8cdbdf1b6c72d05a8692fd428.s3tc.ctex"
+path.etc2="res://.godot/imported/homespun_albedo_512.png-cee705e8cdbdf1b6c72d05a8692fd428.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -12,8 +12,8 @@ metadata={
 
 [deps]
 
-source_file="res://build/aita_meshy/v4/textiles/homespun_albedo_512.png"
-dest_files=["res://.godot/imported/homespun_albedo_512.png-ba0c1d1fb31715020df8dafc17cea155.s3tc.ctex", "res://.godot/imported/homespun_albedo_512.png-ba0c1d1fb31715020df8dafc17cea155.etc2.ctex"]
+source_file="res://assets/characters/realistic/textiles/homespun_albedo_512.png"
+dest_files=["res://.godot/imported/homespun_albedo_512.png-cee705e8cdbdf1b6c72d05a8692fd428.s3tc.ctex", "res://.godot/imported/homespun_albedo_512.png-cee705e8cdbdf1b6c72d05a8692fd428.etc2.ctex"]
 
 [params]
 

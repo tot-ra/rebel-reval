@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cqwyj52u0y7wl"
-path.s3tc="res://.godot/imported/quilted_orm.png-69cc45058ad074d475d94f150e37b45d.s3tc.ctex"
-path.etc2="res://.godot/imported/quilted_orm.png-69cc45058ad074d475d94f150e37b45d.etc2.ctex"
+path.s3tc="res://.godot/imported/quilted_orm.png-bcfc139b431a4496c426bede594c2198.s3tc.ctex"
+path.etc2="res://.godot/imported/quilted_orm.png-bcfc139b431a4496c426bede594c2198.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -12,8 +12,8 @@ metadata={
 
 [deps]
 
-source_file="res://assets/characters/realistic/textiles/quilted_orm.png"
-dest_files=["res://.godot/imported/quilted_orm.png-69cc45058ad074d475d94f150e37b45d.s3tc.ctex", "res://.godot/imported/quilted_orm.png-69cc45058ad074d475d94f150e37b45d.etc2.ctex"]
+source_file="res://build/aita_meshy/v4/textiles/quilted_orm.png"
+dest_files=["res://.godot/imported/quilted_orm.png-bcfc139b431a4496c426bede594c2198.s3tc.ctex", "res://.godot/imported/quilted_orm.png-bcfc139b431a4496c426bede594c2198.etc2.ctex"]
 
 [params]
 
