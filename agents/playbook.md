@@ -29,6 +29,8 @@ Keep this file short. Append a durable reusable rule, not a dated incident log. 
 - `grep` a line that starts with `-` using `--` or `-e`. Guard expected-empty searches with `|| true` under `set -e`.
 - On macOS, GNU `timeout` may be missing (exit 127). Use a Python subprocess watchdog. Never kill unrelated long-running processes.
 - `code_execution` may isolate helpers and imports. Keep diagnostics inline or use project `python3` via bash.
+- `code_execution` has a restricted builtin set: even `isinstance` may raise `NameError`. For filtering textual task-board results, prefer a `pipeline` stage with `filter`; use project `python3` for ordinary Python semantics.
+- `content_search` and `file_search` take a directory as `path`, not a file. For a known single file, use `filter` or `read` instead of trying to build an index rooted at that file.
 - Stateful browser actions cannot run through a parallel wrapper.
 - Markdown backticks inside a double-quoted bash string are command substitution. Write SQL or task-board updates with Python or a single-quoted heredoc. A backtick path can execute a file and silently blank the intended text.
 - `git log -S --all` can hang on this LFS-heavy repo. Scope pickaxe searches to one path and a recent range (`-n 50`) instead of walking every ref.
