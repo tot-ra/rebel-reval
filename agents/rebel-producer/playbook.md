@@ -18,4 +18,5 @@ This file contains lessons specific to the Producer role.
 - Prefer Current focus over a historical QA report that says "do not start X". Open a Dev row for ambient runtime defects rather than widening a Producer allowlist.
 
 - Request-card and parent-body refs can outlive deleted or cancelled board items. Resolve every dependency with a live project-scoped list/get before updating; missing refs and cancelled rows must become explicit decision blockers or verified successors, never assumed completed prerequisites.
+- An `in_progress` row with no commit naming its ref may already be delivered inside an aggregate "save current work" commit. Search by a distinctive symbol or file (`git log -S`, `git log -- <allowed file>`) and check the row's ADR gate before releasing it; move delivered rows to `in_review`, and flag code that landed ahead of a Proposed ADR as `#needs-approval` rather than reverting it.
 - A task's promised report path is not evidence that the file exists. Discover it before reading; an absent deliverable alone does not establish lease expiry, worker inactivity, or permission to reclaim the task.

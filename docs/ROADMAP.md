@@ -176,6 +176,13 @@ Coordination note (2026-08-27 R-751): hardened empty water-contour sampling in [
 - **Current slice:** `demo-forge-return-recovery`, unchanged. It stalled for five days (317 commits since 2026-10-11, none on R-1456/R-1458/R-1457/R-1478) while user-directed epics moved. The slice is now more urgent, not less: `ab63e6b5f` (2026-10-14) removed the standalone `forge` scene from `content/transitions/active_destinations.json`; the forge is Kalev's seamless-city forge bay `site.kalev_smithy` in `loc.reval_city`. `WorldItemController.DEFAULT_PLACEMENTS` still seeds the spearhead only under the retired `loc.kalev_smithy`, so the checkpoint pickup is probably unreachable on today's New Game route (hypothesis for R-1456, not a finding).
 - **Next playable checkpoint:** New Game/prologue -> current city host -> walk into the city forge bay (`site.kalev_smithy`); pick up `world.spearhead_anvil` / `item.seized_spearhead`, observe pickup/inventory feedback, leave and return, then save/load (including released `save.demo_post_pickup.json`). The item remains taken, exactly one copy remains in inventory, and the route works with keyboard/mouse and gamepad. This checkpoint does not waive bed, quest-branch, encumbrance or other full-suite failures.
 
+### Tick 2026-10-16b decisions (follow-up reconciliation)
+
+- **Snapshot:** 794 tasks (75 idea, 641 todo, 5 -> 2 in_progress, 23 -> 26 in_review, 1 done, 49 cancelled); origin/main at `9d72ed71d`, no commits on the slice since the previous tick. Slice, checkpoint and ready work unchanged: QA **R-1456**, fallback QA **R-1479**.
+- **Stale in_progress reconciled by evidence, not by lease age:** three rows had no commit naming their ref, but `git log -S` shows their deliverables inside the 2026-10-14 aggregates. **R-1901** (idle foot lock, `ab63e6b5f`) and **R-1769** (cirrus, `7a41b7baf`) moved to `in_review`; done still needs an independent focused-test and capture check.
+- **Gate bypass found, R-1914 (SPL-2):** the trust meter and `resolved_eased` ending landed in `7a41b7baf` while ADR 0048 is still **Proposed**. Moved to `in_review` with `#needs-approval`; not reverted. Owner: maintainer decision on ADR 0048. Open: SPIRIT_DIALOGUE.md still says "planned", no trust-win capture exists, `spell.word.` prefix risk unreviewed. **R-1915** (SPL-3) stays gated.
+- **Remaining in_progress:** epics **R-1884** and **R-1966** are active user-directed parents, not leases to release. Zero open request cards; no idea promoted.
+
 ### Tick 2026-10-16 decisions
 
 - **Snapshot:** 794 tasks (75 idea, 643 todo, 5 in_progress, 23 in_review, 48 cancelled, 0 done listed); `main...origin/main` 0/0. The shared checkout carries a concurrent session's staged SOC-3 / ADR 0050 work, untouched by this tick.
