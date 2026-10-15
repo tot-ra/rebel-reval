@@ -14,29 +14,36 @@ Out of scope: a gambling economy or casino loop; a universal good/evil score; pr
 
 ## Evidence
 
-Dossier: `history/dossiers/dailylife/pastimes-1343.md` (task **R-1957**, not written yet). Until it lands, every item below is a **candidate** to be confirmed, labelled or excluded.
+Dossier: [`pastimes-1343`](../../history/dossiers/dailylife/pastimes-1343.md) (task **R-1957**, status partial, awaiting canon review). Key findings:
 
-Questions the dossier must answer: was there anything like football or a bat-and-ball game in Livonia (expected answer: no reliable evidence, which is itself a fact to teach); which dice games and board games are attested in Hanseatic towns; what the Tallinn excavations show (bone dice, gaming pieces, tops, bone skates); which Estonian folk contests (stick-pulling, wrestling, swings) can be shown as a simplified later form; how the council and church treated gambling.
+- **Dice** are the best-attested adult pastime: 14 bone and antler dice from the Town Hall Square, faces numbered 1:2, 3:4, 5:6, one die with enlarged high faces for cheating. Council and guild statutes fined gamblers (Tallinn records from 1394).
+- **Football:** no evidence for Livonia. Children's leather ball (Tartu find) and the village ball-and-stick folk game (`ämmamuna`, recorded only in the 19th-20th centuries) are what we can show.
+- **Children:** buzz bones (`vurriluu`, the commonest toy in Estonian digs), knucklebones, four-sided tops, toy weapons.
+- **Excluded:** popinjay and marksmen's companies, Blackheads, merchant-guild May Count feasts, playing cards, clay whistles, hopscotch.
+- **Siege rule** (from [`festivals-games-and-public-life`](../../history/dossiers/culture/festivals-games-and-public-life.md)): after 23 April alarms, ration queues and musters displace leisure; keep watchmen's dice and children's play, drop feast-day and village games.
+- **Unconfirmed:** a morris/tables/chess find from medieval Estonia; any dating for wrestling or stick-pulling.
 
 ## Design (draft, pending R-1957 and R-1958)
 
 ### Ambient pastimes (watch)
 
-| Candidate | Who, where, when | Task |
-|---|---|---|
-| Dice circle | journeymen, carters, sailors; bench or table by a tavern or harbour, evening | R-1959 |
-| Board game (morris or tables) | artisans, clerks, older men; bench by a door, evening, Sundays | R-1959 |
-| Tops and knucklebones | boys and girls; lanes and yards, by day | R-1959 |
-| Feast-day swing, wrestling, races | Estonian village youth; village green, Easter (13 Apr 1343) and St George (23 Apr) | R-1959 |
-| Tavern songs and a travelling musician | mixed; tavern interiors, evening | later, after R-1957 |
+Ranked by the dossier; labels A (Reval/Livonia), B (Baltic/Hanseatic or Estonian archaeology), C (plausible or simplified later form).
+
+| Candidate | Who, where, when | Label | Task |
+|---|---|---|---|
+| Dice circle | journeymen, sailors, carters; Town Hall Square edge, alehouse, harbour; evening, not on Sunday morning | A/B | R-1959 |
+| Buzz bones, knucklebones, tops | children; lanes, yards, doorsteps; by day | B | R-1959 |
+| Toy swords and bows, leather ball | boys; lanes, waste ground; by day | B | R-1959 |
+| Morris over a bench board | artisans, older men; benches, doorways; evening, Sunday afternoon | B | R-1959 |
+| Easter-week swing, ball-and-stick | Harju village youth; village green; Easter week (Easter 13 Apr 1343) | C | R-1959 |
 
 ### Playable games (play, max 3 for Act 1)
 
-| Candidate | Feel | Task |
-|---|---|---|
-| Dice for a small stake | quick luck game, under 2 minutes | R-1962 |
-| Nine men's morris (or tables, per R-1957) | calm thinking game, opponent skill by who they are | R-1963 |
-| Strength contest (stick-pulling or wrestling) | physical timing contest at a village feast | R-1964 (idea) |
+| Candidate | Feel | Label | Task |
+|---|---|---|---|
+| Dice "Pasch or more": three dice, triples beat any total, best of three, opponent may carry a weighted die the player can spot | quick luck game, under 2 minutes | C rules on A material | R-1962 |
+| Nine men's morris | calm thinking game, opponent skill by who they are | B | R-1963 |
+| Buzz-bone duel (timing pulls keep the bone humming) or, if dated, a strength contest | skill toy for the teen protagonist / village feast contest | B / U | R-1964 (idea) |
 
 All games start from a conversation ("Play a game?") with a citizen whose place, hour, age and rank fit; the citizen may refuse. Throws and AI are seeded from `GameState`, so results replay after save/load. Stakes are small (a coin or a drink, a trust nudge, a rumour). The first time the player watches or plays a pastime a short sourced note joins the journal (R-1965).
 

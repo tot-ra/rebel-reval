@@ -82,7 +82,7 @@ The evidence supports a distinction between **portable pastime** and **organised
 
 | Activity | Where it fits | 1343 Reval verdict |
 |---|---|---|
-| Dice | Tavern bench, merchant diele, guard room, yard | Plausible composite; no named local set or ordinance in the reviewed record [7] |
+| Dice | Tavern bench, merchant diele, guard room, yard | Attested: 14 bone/antler dice from the Town Hall Square; gaming statutes later-attested (from 1394). See [`pastimes-1343`](../dailylife/pastimes-1343.md) [7] |
 | Tables / chess-like board play | Merchant or guild table, quiet tavern corner | Plausible composite from medieval game culture; avoid claiming a Reval rulebook [7][8] |
 | Simple ball or throwing games | Yard, green margin, youth or labour downtime | Plausible composite only; keep it informal and out of the forum's main traffic [8] |
 | Wrestling or strength contest | Feast yard or rural gathering | Plausible composite for a local crowd, not an attested Reval annual event [8] |
@@ -134,7 +134,7 @@ The dossier reuses three already licensed evidence plates rather than downloadin
 - **Reval weekly market weekday in 1340-1343** - resolve through AWB and council ordinances before setting `market_weekday` in systems or dialogue; candidate **R-050**.
 - **1343 Rogation procession route** - identify any parish boundary or perambulation evidence before converting the composite route into a map contract.
 - **Named Reval taverns or public inns before 1343** - search AWB, tax, and property records; do not promote a later inn name into campaign canon.
-- **Local game finds and rules** - archaeological pass on dice, board pieces, and gaming contexts from 13th-14th-century Tallinn.
+- **Local game finds and rules** - dice answered in [`pastimes-1343`](../dailylife/pastimes-1343.md); board pieces and stratum dates for the Town Hall Square dice remain open.
 - **Reval archery or crossbow competition** - search guild, militia, and feast records; current shooting evidence is a French/Flemish comparative pattern only.
 - **Forum pillory coordinates and hardware** - reconcile the 1337 attestation with the 1343 forum polygon and archaeological open-ground evidence.
 
