@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bwcs2q34biijy"
-path="res://.godot/imported/common_open_rack_medieval_storage_common_softwood_albedo.png-f9605160f2af32c74aca55268b244d3a.ctex"
+path.s3tc="res://.godot/imported/common_open_rack_medieval_storage_common_softwood_albedo.png-f9605160f2af32c74aca55268b244d3a.s3tc.ctex"
+path.etc2="res://.godot/imported/common_open_rack_medieval_storage_common_softwood_albedo.png-f9605160f2af32c74aca55268b244d3a.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "ca5c27a8265e84f6e9d699d812080155"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/props/furniture/medieval_storage/common_open_rack/common_open_rack_medieval_storage_common_softwood_albedo.png"
-dest_files=["res://.godot/imported/common_open_rack_medieval_storage_common_softwood_albedo.png-f9605160f2af32c74aca55268b244d3a.ctex"]
+dest_files=["res://.godot/imported/common_open_rack_medieval_storage_common_softwood_albedo.png-f9605160f2af32c74aca55268b244d3a.s3tc.ctex", "res://.godot/imported/common_open_rack_medieval_storage_common_softwood_albedo.png-f9605160f2af32c74aca55268b244d3a.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +42,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

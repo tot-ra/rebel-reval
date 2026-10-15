@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://q3ur23tmungd"
-path="res://.godot/imported/longbow_WeaponYew_roughness.png-e1ac2906367654bd42178200945f90f1.ctex"
+path.s3tc="res://.godot/imported/longbow_WeaponYew_roughness.png-e1ac2906367654bd42178200945f90f1.s3tc.ctex"
+path.etc2="res://.godot/imported/longbow_WeaponYew_roughness.png-e1ac2906367654bd42178200945f90f1.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "cf9ee1e761b85e9ffeef8bbcbaafb6bc"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/props/weapons/longbow/longbow_WeaponYew_roughness.png"
-dest_files=["res://.godot/imported/longbow_WeaponYew_roughness.png-e1ac2906367654bd42178200945f90f1.ctex"]
+dest_files=["res://.godot/imported/longbow_WeaponYew_roughness.png-e1ac2906367654bd42178200945f90f1.s3tc.ctex", "res://.godot/imported/longbow_WeaponYew_roughness.png-e1ac2906367654bd42178200945f90f1.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +42,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

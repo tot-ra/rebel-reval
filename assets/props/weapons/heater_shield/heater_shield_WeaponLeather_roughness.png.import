@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cphuu0mx0oj22"
-path="res://.godot/imported/heater_shield_WeaponLeather_roughness.png-9c898557140f261826f338784393fc00.ctex"
+path.s3tc="res://.godot/imported/heater_shield_WeaponLeather_roughness.png-9c898557140f261826f338784393fc00.s3tc.ctex"
+path.etc2="res://.godot/imported/heater_shield_WeaponLeather_roughness.png-9c898557140f261826f338784393fc00.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "d05538fee2f74566f56d4b5c7439ebb8"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/props/weapons/heater_shield/heater_shield_WeaponLeather_roughness.png"
-dest_files=["res://.godot/imported/heater_shield_WeaponLeather_roughness.png-9c898557140f261826f338784393fc00.ctex"]
+dest_files=["res://.godot/imported/heater_shield_WeaponLeather_roughness.png-9c898557140f261826f338784393fc00.s3tc.ctex", "res://.godot/imported/heater_shield_WeaponLeather_roughness.png-9c898557140f261826f338784393fc00.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +42,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://0lr6oqyrriqf"
-path="res://.godot/imported/brewhouse_LowerTownServiceOakWeathered_albedo.jpg-2c5047216863e4cc6d1c0bd931e6b9ef.ctex"
+path.s3tc="res://.godot/imported/brewhouse_LowerTownServiceOakWeathered_albedo.jpg-2c5047216863e4cc6d1c0bd931e6b9ef.s3tc.ctex"
+path.etc2="res://.godot/imported/brewhouse_LowerTownServiceOakWeathered_albedo.jpg-2c5047216863e4cc6d1c0bd931e6b9ef.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "7278fc6329eb113048e623dc98aa15bc"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/props/architecture/buildings/brewhouse/brewhouse_LowerTownServiceOakWeathered_albedo.jpg"
-dest_files=["res://.godot/imported/brewhouse_LowerTownServiceOakWeathered_albedo.jpg-2c5047216863e4cc6d1c0bd931e6b9ef.ctex"]
+dest_files=["res://.godot/imported/brewhouse_LowerTownServiceOakWeathered_albedo.jpg-2c5047216863e4cc6d1c0bd931e6b9ef.s3tc.ctex", "res://.godot/imported/brewhouse_LowerTownServiceOakWeathered_albedo.jpg-2c5047216863e4cc6d1c0bd931e6b9ef.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +42,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

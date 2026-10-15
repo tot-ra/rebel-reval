@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bqoe5aoj83pkl"
-path="res://.godot/imported/merchant_stone_MerchantStoneRecess_albedo.jpg-b5e49c49354c3a8194d6c5e45a3f15d5.ctex"
+path.s3tc="res://.godot/imported/merchant_stone_MerchantStoneRecess_albedo.jpg-b5e49c49354c3a8194d6c5e45a3f15d5.s3tc.ctex"
+path.etc2="res://.godot/imported/merchant_stone_MerchantStoneRecess_albedo.jpg-b5e49c49354c3a8194d6c5e45a3f15d5.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "217d57e1b6d02c6af2f1809cc5ebdad3"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/props/architecture/houses/merchant_stone/merchant_stone_MerchantStoneRecess_albedo.jpg"
-dest_files=["res://.godot/imported/merchant_stone_MerchantStoneRecess_albedo.jpg-b5e49c49354c3a8194d6c5e45a3f15d5.ctex"]
+dest_files=["res://.godot/imported/merchant_stone_MerchantStoneRecess_albedo.jpg-b5e49c49354c3a8194d6c5e45a3f15d5.s3tc.ctex", "res://.godot/imported/merchant_stone_MerchantStoneRecess_albedo.jpg-b5e49c49354c3a8194d6c5e45a3f15d5.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +42,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

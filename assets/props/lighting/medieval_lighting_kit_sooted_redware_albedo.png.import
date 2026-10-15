@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bjp8gbe5t31ce"
-path="res://.godot/imported/medieval_lighting_kit_sooted_redware_albedo.png-a18ee8675e47157fc82c030ef43f2a19.ctex"
+path.s3tc="res://.godot/imported/medieval_lighting_kit_sooted_redware_albedo.png-a18ee8675e47157fc82c030ef43f2a19.s3tc.ctex"
+path.etc2="res://.godot/imported/medieval_lighting_kit_sooted_redware_albedo.png-a18ee8675e47157fc82c030ef43f2a19.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "b7fda158bd4ebdf8d73060cb92118131"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/props/lighting/medieval_lighting_kit_sooted_redware_albedo.png"
-dest_files=["res://.godot/imported/medieval_lighting_kit_sooted_redware_albedo.png-a18ee8675e47157fc82c030ef43f2a19.ctex"]
+dest_files=["res://.godot/imported/medieval_lighting_kit_sooted_redware_albedo.png-a18ee8675e47157fc82c030ef43f2a19.s3tc.ctex", "res://.godot/imported/medieval_lighting_kit_sooted_redware_albedo.png-a18ee8675e47157fc82c030ef43f2a19.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +42,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

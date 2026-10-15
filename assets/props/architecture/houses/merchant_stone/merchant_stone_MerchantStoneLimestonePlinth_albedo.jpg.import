@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cexuxd1s4fm8g"
-path="res://.godot/imported/merchant_stone_MerchantStoneLimestonePlinth_albedo.jpg-1a503cbed8f6e118e53435f5a5b77d07.ctex"
+path.s3tc="res://.godot/imported/merchant_stone_MerchantStoneLimestonePlinth_albedo.jpg-1a503cbed8f6e118e53435f5a5b77d07.s3tc.ctex"
+path.etc2="res://.godot/imported/merchant_stone_MerchantStoneLimestonePlinth_albedo.jpg-1a503cbed8f6e118e53435f5a5b77d07.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "49022f6b70a4203aa8c6f0d6074ccaf8"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/props/architecture/houses/merchant_stone/merchant_stone_MerchantStoneLimestonePlinth_albedo.jpg"
-dest_files=["res://.godot/imported/merchant_stone_MerchantStoneLimestonePlinth_albedo.jpg-1a503cbed8f6e118e53435f5a5b77d07.ctex"]
+dest_files=["res://.godot/imported/merchant_stone_MerchantStoneLimestonePlinth_albedo.jpg-1a503cbed8f6e118e53435f5a5b77d07.s3tc.ctex", "res://.godot/imported/merchant_stone_MerchantStoneLimestonePlinth_albedo.jpg-1a503cbed8f6e118e53435f5a5b77d07.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +42,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

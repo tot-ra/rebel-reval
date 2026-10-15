@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://d3s5ofscq3f22"
-path="res://.godot/imported/brewhouse_LowerTownServiceLimestoneDressed_albedo.jpg-db5d0aede7f470e8c90ac6bb1fa7e302.ctex"
+path.s3tc="res://.godot/imported/brewhouse_LowerTownServiceLimestoneDressed_albedo.jpg-db5d0aede7f470e8c90ac6bb1fa7e302.s3tc.ctex"
+path.etc2="res://.godot/imported/brewhouse_LowerTownServiceLimestoneDressed_albedo.jpg-db5d0aede7f470e8c90ac6bb1fa7e302.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "5158dec64d0c4cd55d0a632eff23c26c"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/props/architecture/buildings/brewhouse/brewhouse_LowerTownServiceLimestoneDressed_albedo.jpg"
-dest_files=["res://.godot/imported/brewhouse_LowerTownServiceLimestoneDressed_albedo.jpg-db5d0aede7f470e8c90ac6bb1fa7e302.ctex"]
+dest_files=["res://.godot/imported/brewhouse_LowerTownServiceLimestoneDressed_albedo.jpg-db5d0aede7f470e8c90ac6bb1fa7e302.s3tc.ctex", "res://.godot/imported/brewhouse_LowerTownServiceLimestoneDressed_albedo.jpg-db5d0aede7f470e8c90ac6bb1fa7e302.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +42,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

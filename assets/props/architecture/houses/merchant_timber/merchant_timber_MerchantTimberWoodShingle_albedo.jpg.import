@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://c67dtk37b6y0"
-path="res://.godot/imported/merchant_timber_MerchantTimberWoodShingle_albedo.jpg-8de35e4309e953e6a9aa45ced843e654.ctex"
+path.s3tc="res://.godot/imported/merchant_timber_MerchantTimberWoodShingle_albedo.jpg-8de35e4309e953e6a9aa45ced843e654.s3tc.ctex"
+path.etc2="res://.godot/imported/merchant_timber_MerchantTimberWoodShingle_albedo.jpg-8de35e4309e953e6a9aa45ced843e654.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "bc2cc96df8466c4288222a31f8da2aa0"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/props/architecture/houses/merchant_timber/merchant_timber_MerchantTimberWoodShingle_albedo.jpg"
-dest_files=["res://.godot/imported/merchant_timber_MerchantTimberWoodShingle_albedo.jpg-8de35e4309e953e6a9aa45ced843e654.ctex"]
+dest_files=["res://.godot/imported/merchant_timber_MerchantTimberWoodShingle_albedo.jpg-8de35e4309e953e6a9aa45ced843e654.s3tc.ctex", "res://.godot/imported/merchant_timber_MerchantTimberWoodShingle_albedo.jpg-8de35e4309e953e6a9aa45ced843e654.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +42,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

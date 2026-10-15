@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://ca0w2348u6xvg"
-path="res://.godot/imported/market_stall_dark_oak_frame_albedo.png-59e7b33b81a3798dc7f9e505fcb3c1c3.ctex"
+path.s3tc="res://.godot/imported/market_stall_dark_oak_frame_albedo.png-59e7b33b81a3798dc7f9e505fcb3c1c3.s3tc.ctex"
+path.etc2="res://.godot/imported/market_stall_dark_oak_frame_albedo.png-59e7b33b81a3798dc7f9e505fcb3c1c3.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "21f120f425b3d58b6081ffca0d47fb3c"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/props/market/market_stall_dark_oak_frame_albedo.png"
-dest_files=["res://.godot/imported/market_stall_dark_oak_frame_albedo.png-59e7b33b81a3798dc7f9e505fcb3c1c3.ctex"]
+dest_files=["res://.godot/imported/market_stall_dark_oak_frame_albedo.png-59e7b33b81a3798dc7f9e505fcb3c1c3.s3tc.ctex", "res://.godot/imported/market_stall_dark_oak_frame_albedo.png-59e7b33b81a3798dc7f9e505fcb3c1c3.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +42,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

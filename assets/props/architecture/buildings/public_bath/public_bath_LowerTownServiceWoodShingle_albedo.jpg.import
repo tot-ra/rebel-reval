@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://su3dyyshp0ab"
-path="res://.godot/imported/public_bath_LowerTownServiceWoodShingle_albedo.jpg-d11afa76637f3499fffce723511f2700.ctex"
+path.s3tc="res://.godot/imported/public_bath_LowerTownServiceWoodShingle_albedo.jpg-d11afa76637f3499fffce723511f2700.s3tc.ctex"
+path.etc2="res://.godot/imported/public_bath_LowerTownServiceWoodShingle_albedo.jpg-d11afa76637f3499fffce723511f2700.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "22b88e797506725df9d48fb25fec5228"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/props/architecture/buildings/public_bath/public_bath_LowerTownServiceWoodShingle_albedo.jpg"
-dest_files=["res://.godot/imported/public_bath_LowerTownServiceWoodShingle_albedo.jpg-d11afa76637f3499fffce723511f2700.ctex"]
+dest_files=["res://.godot/imported/public_bath_LowerTownServiceWoodShingle_albedo.jpg-d11afa76637f3499fffce723511f2700.s3tc.ctex", "res://.godot/imported/public_bath_LowerTownServiceWoodShingle_albedo.jpg-d11afa76637f3499fffce723511f2700.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +42,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://kfbyrg41px1u"
-path="res://.godot/imported/merchant_timber_MerchantTimberLimestoneRubble_albedo.jpg-5c3c403f1a9b719e9d2903581acdca06.ctex"
+path.s3tc="res://.godot/imported/merchant_timber_MerchantTimberLimestoneRubble_albedo.jpg-5c3c403f1a9b719e9d2903581acdca06.s3tc.ctex"
+path.etc2="res://.godot/imported/merchant_timber_MerchantTimberLimestoneRubble_albedo.jpg-5c3c403f1a9b719e9d2903581acdca06.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "8d85be8ad28969c0cd11767875737e04"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/props/architecture/houses/merchant_timber/merchant_timber_MerchantTimberLimestoneRubble_albedo.jpg"
-dest_files=["res://.godot/imported/merchant_timber_MerchantTimberLimestoneRubble_albedo.jpg-5c3c403f1a9b719e9d2903581acdca06.ctex"]
+dest_files=["res://.godot/imported/merchant_timber_MerchantTimberLimestoneRubble_albedo.jpg-5c3c403f1a9b719e9d2903581acdca06.s3tc.ctex", "res://.godot/imported/merchant_timber_MerchantTimberLimestoneRubble_albedo.jpg-5c3c403f1a9b719e9d2903581acdca06.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +42,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://i4r4p0frai23"
-path="res://.godot/imported/stairs_hero_tex_skin_albedo.png-07e5e7de26b8543c1e381edf63b25496.ctex"
+path.s3tc="res://.godot/imported/stairs_hero_tex_skin_albedo.png-07e5e7de26b8543c1e381edf63b25496.s3tc.ctex"
+path.etc2="res://.godot/imported/stairs_hero_tex_skin_albedo.png-07e5e7de26b8543c1e381edf63b25496.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "9dee1d76d3ffbfaeb9076acb08e465fe"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://tools/research/procedural_motion/runs/bake/stairs_hero_tex_skin_albedo.png"
-dest_files=["res://.godot/imported/stairs_hero_tex_skin_albedo.png-07e5e7de26b8543c1e381edf63b25496.ctex"]
+dest_files=["res://.godot/imported/stairs_hero_tex_skin_albedo.png-07e5e7de26b8543c1e381edf63b25496.s3tc.ctex", "res://.godot/imported/stairs_hero_tex_skin_albedo.png-07e5e7de26b8543c1e381edf63b25496.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +42,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

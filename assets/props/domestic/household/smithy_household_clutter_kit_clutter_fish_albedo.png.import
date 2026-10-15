@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://h4nfwbmipphh"
-path="res://.godot/imported/smithy_household_clutter_kit_clutter_fish_albedo.png-80d1994c7fb9da6c934b6961135af2f3.ctex"
+path.s3tc="res://.godot/imported/smithy_household_clutter_kit_clutter_fish_albedo.png-80d1994c7fb9da6c934b6961135af2f3.s3tc.ctex"
+path.etc2="res://.godot/imported/smithy_household_clutter_kit_clutter_fish_albedo.png-80d1994c7fb9da6c934b6961135af2f3.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "d9f8d72e0db382eadc43fd78e5925336"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/props/domestic/household/smithy_household_clutter_kit_clutter_fish_albedo.png"
-dest_files=["res://.godot/imported/smithy_household_clutter_kit_clutter_fish_albedo.png-80d1994c7fb9da6c934b6961135af2f3.ctex"]
+dest_files=["res://.godot/imported/smithy_household_clutter_kit_clutter_fish_albedo.png-80d1994c7fb9da6c934b6961135af2f3.s3tc.ctex", "res://.godot/imported/smithy_household_clutter_kit_clutter_fish_albedo.png-80d1994c7fb9da6c934b6961135af2f3.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +42,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

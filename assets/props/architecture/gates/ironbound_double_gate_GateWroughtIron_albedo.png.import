@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cupqjvaepge6h"
-path="res://.godot/imported/ironbound_double_gate_GateWroughtIron_albedo.png-f48cb8029bc67eb3b776c92193fa16bc.ctex"
+path.s3tc="res://.godot/imported/ironbound_double_gate_GateWroughtIron_albedo.png-f48cb8029bc67eb3b776c92193fa16bc.s3tc.ctex"
+path.etc2="res://.godot/imported/ironbound_double_gate_GateWroughtIron_albedo.png-f48cb8029bc67eb3b776c92193fa16bc.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "f18baf1ef3f8ed823c928e16ffa1b680"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/props/architecture/gates/ironbound_double_gate_GateWroughtIron_albedo.png"
-dest_files=["res://.godot/imported/ironbound_double_gate_GateWroughtIron_albedo.png-f48cb8029bc67eb3b776c92193fa16bc.ctex"]
+dest_files=["res://.godot/imported/ironbound_double_gate_GateWroughtIron_albedo.png-f48cb8029bc67eb3b776c92193fa16bc.s3tc.ctex", "res://.godot/imported/ironbound_double_gate_GateWroughtIron_albedo.png-f48cb8029bc67eb3b776c92193fa16bc.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +42,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

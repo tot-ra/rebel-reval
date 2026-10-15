@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://majtrbio1shs"
-path.s3tc="res://.godot/imported/brownlight_eye.png-cf8432f1cd55cd28152258cc8e8fff83.s3tc.ctex"
-path.etc2="res://.godot/imported/brownlight_eye.png-cf8432f1cd55cd28152258cc8e8fff83.etc2.ctex"
+path.s3tc="res://.godot/imported/brownlight_eye.png-da8c2215b2c1efc71736c1794e14d33f.s3tc.ctex"
+path.etc2="res://.godot/imported/brownlight_eye.png-da8c2215b2c1efc71736c1794e14d33f.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -12,8 +12,8 @@ metadata={
 
 [deps]
 
-source_file="res://build/aita_meshy/v4/makehuman/brownlight_eye.png"
-dest_files=["res://.godot/imported/brownlight_eye.png-cf8432f1cd55cd28152258cc8e8fff83.s3tc.ctex", "res://.godot/imported/brownlight_eye.png-cf8432f1cd55cd28152258cc8e8fff83.etc2.ctex"]
+source_file="res://assets/characters/realistic/makehuman/brownlight_eye.png"
+dest_files=["res://.godot/imported/brownlight_eye.png-da8c2215b2c1efc71736c1794e14d33f.s3tc.ctex", "res://.godot/imported/brownlight_eye.png-da8c2215b2c1efc71736c1794e14d33f.etc2.ctex"]
 
 [params]
 

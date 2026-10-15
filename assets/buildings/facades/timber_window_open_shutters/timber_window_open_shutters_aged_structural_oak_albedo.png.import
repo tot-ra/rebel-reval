@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dpgqegmoypa2u"
-path="res://.godot/imported/timber_window_open_shutters_aged_structural_oak_albedo.png-3425877dfd457fa4aa7fd505f727fad6.ctex"
+path.s3tc="res://.godot/imported/timber_window_open_shutters_aged_structural_oak_albedo.png-3425877dfd457fa4aa7fd505f727fad6.s3tc.ctex"
+path.etc2="res://.godot/imported/timber_window_open_shutters_aged_structural_oak_albedo.png-3425877dfd457fa4aa7fd505f727fad6.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "16d2be70c38c6652171a4f697f3cc6a9"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/buildings/facades/timber_window_open_shutters/timber_window_open_shutters_aged_structural_oak_albedo.png"
-dest_files=["res://.godot/imported/timber_window_open_shutters_aged_structural_oak_albedo.png-3425877dfd457fa4aa7fd505f727fad6.ctex"]
+dest_files=["res://.godot/imported/timber_window_open_shutters_aged_structural_oak_albedo.png-3425877dfd457fa4aa7fd505f727fad6.s3tc.ctex", "res://.godot/imported/timber_window_open_shutters_aged_structural_oak_albedo.png-3425877dfd457fa4aa7fd505f727fad6.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +42,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

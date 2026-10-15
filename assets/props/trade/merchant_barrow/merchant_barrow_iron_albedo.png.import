@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cobivgo0fxtma"
-path="res://.godot/imported/merchant_barrow_iron_albedo.png-b7cca1342b0604a79bc811d0690e725c.ctex"
+path.s3tc="res://.godot/imported/merchant_barrow_iron_albedo.png-b7cca1342b0604a79bc811d0690e725c.s3tc.ctex"
+path.etc2="res://.godot/imported/merchant_barrow_iron_albedo.png-b7cca1342b0604a79bc811d0690e725c.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "6e18a01cb2c5f397340a571a31c9e0ef"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/props/trade/merchant_barrow/merchant_barrow_iron_albedo.png"
-dest_files=["res://.godot/imported/merchant_barrow_iron_albedo.png-b7cca1342b0604a79bc811d0690e725c.ctex"]
+dest_files=["res://.godot/imported/merchant_barrow_iron_albedo.png-b7cca1342b0604a79bc811d0690e725c.s3tc.ctex", "res://.godot/imported/merchant_barrow_iron_albedo.png-b7cca1342b0604a79bc811d0690e725c.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +42,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

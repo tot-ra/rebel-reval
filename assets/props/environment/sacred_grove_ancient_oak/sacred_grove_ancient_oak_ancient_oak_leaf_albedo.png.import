@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bc56bjmce5xl"
-path="res://.godot/imported/sacred_grove_ancient_oak_ancient_oak_leaf_albedo.png-21650b82eb138a0a51e0dd8d3fa225a2.ctex"
+path.s3tc="res://.godot/imported/sacred_grove_ancient_oak_ancient_oak_leaf_albedo.png-21650b82eb138a0a51e0dd8d3fa225a2.s3tc.ctex"
+path.etc2="res://.godot/imported/sacred_grove_ancient_oak_ancient_oak_leaf_albedo.png-21650b82eb138a0a51e0dd8d3fa225a2.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "96d1ae3ef0955351d7d9b01ee2cd2f1e"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/props/environment/sacred_grove_ancient_oak/sacred_grove_ancient_oak_ancient_oak_leaf_albedo.png"
-dest_files=["res://.godot/imported/sacred_grove_ancient_oak_ancient_oak_leaf_albedo.png-21650b82eb138a0a51e0dd8d3fa225a2.ctex"]
+dest_files=["res://.godot/imported/sacred_grove_ancient_oak_ancient_oak_leaf_albedo.png-21650b82eb138a0a51e0dd8d3fa225a2.s3tc.ctex", "res://.godot/imported/sacred_grove_ancient_oak_ancient_oak_leaf_albedo.png-21650b82eb138a0a51e0dd8d3fa225a2.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +42,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

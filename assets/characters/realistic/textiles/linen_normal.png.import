@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://de3nxlt1g5j0x"
-path.s3tc="res://.godot/imported/linen_normal.png-c595d0fa5ad99168e08a2f42b4163b32.s3tc.ctex"
-path.etc2="res://.godot/imported/linen_normal.png-c595d0fa5ad99168e08a2f42b4163b32.etc2.ctex"
+path.s3tc="res://.godot/imported/linen_normal.png-43c0451d56281747d56028bb09b3c6cb.s3tc.ctex"
+path.etc2="res://.godot/imported/linen_normal.png-43c0451d56281747d56028bb09b3c6cb.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -12,8 +12,8 @@ metadata={
 
 [deps]
 
-source_file="res://build/aita_meshy/v4/textiles/linen_normal.png"
-dest_files=["res://.godot/imported/linen_normal.png-c595d0fa5ad99168e08a2f42b4163b32.s3tc.ctex", "res://.godot/imported/linen_normal.png-c595d0fa5ad99168e08a2f42b4163b32.etc2.ctex"]
+source_file="res://assets/characters/realistic/textiles/linen_normal.png"
+dest_files=["res://.godot/imported/linen_normal.png-43c0451d56281747d56028bb09b3c6cb.s3tc.ctex", "res://.godot/imported/linen_normal.png-43c0451d56281747d56028bb09b3c6cb.etc2.ctex"]
 
 [params]
 

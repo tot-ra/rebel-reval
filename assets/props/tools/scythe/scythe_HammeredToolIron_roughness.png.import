@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cfx4s7s7lscqy"
-path="res://.godot/imported/scythe_HammeredToolIron_roughness.png-de8edc3256a1e534e92d652bd2f739eb.ctex"
+path.s3tc="res://.godot/imported/scythe_HammeredToolIron_roughness.png-de8edc3256a1e534e92d652bd2f739eb.s3tc.ctex"
+path.etc2="res://.godot/imported/scythe_HammeredToolIron_roughness.png-de8edc3256a1e534e92d652bd2f739eb.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "be1d989c18ab9b55cf70f363fa56cf1c"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/props/tools/scythe/scythe_HammeredToolIron_roughness.png"
-dest_files=["res://.godot/imported/scythe_HammeredToolIron_roughness.png-de8edc3256a1e534e92d652bd2f739eb.ctex"]
+dest_files=["res://.godot/imported/scythe_HammeredToolIron_roughness.png-de8edc3256a1e534e92d652bd2f739eb.s3tc.ctex", "res://.godot/imported/scythe_HammeredToolIron_roughness.png-de8edc3256a1e534e92d652bd2f739eb.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +42,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

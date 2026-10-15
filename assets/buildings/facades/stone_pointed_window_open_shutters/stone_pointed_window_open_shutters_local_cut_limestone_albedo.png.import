@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://0pfaoin7u2jd"
-path="res://.godot/imported/stone_pointed_window_open_shutters_local_cut_limestone_albedo.png-45053f0c42608e441e677c0f2c8ecb27.ctex"
+path.s3tc="res://.godot/imported/stone_pointed_window_open_shutters_local_cut_limestone_albedo.png-45053f0c42608e441e677c0f2c8ecb27.s3tc.ctex"
+path.etc2="res://.godot/imported/stone_pointed_window_open_shutters_local_cut_limestone_albedo.png-45053f0c42608e441e677c0f2c8ecb27.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "ed186d0f7ebf97fb3a41c3d185be60e0"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/buildings/facades/stone_pointed_window_open_shutters/stone_pointed_window_open_shutters_local_cut_limestone_albedo.png"
-dest_files=["res://.godot/imported/stone_pointed_window_open_shutters_local_cut_limestone_albedo.png-45053f0c42608e441e677c0f2c8ecb27.ctex"]
+dest_files=["res://.godot/imported/stone_pointed_window_open_shutters_local_cut_limestone_albedo.png-45053f0c42608e441e677c0f2c8ecb27.s3tc.ctex", "res://.godot/imported/stone_pointed_window_open_shutters_local_cut_limestone_albedo.png-45053f0c42608e441e677c0f2c8ecb27.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +42,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

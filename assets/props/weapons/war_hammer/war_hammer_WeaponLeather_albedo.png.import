@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://nwgxt1wfr8j3"
-path="res://.godot/imported/war_hammer_WeaponLeather_albedo.png-a8ca52eb6a307650f04e57c55c9ab29f.ctex"
+path.s3tc="res://.godot/imported/war_hammer_WeaponLeather_albedo.png-a8ca52eb6a307650f04e57c55c9ab29f.s3tc.ctex"
+path.etc2="res://.godot/imported/war_hammer_WeaponLeather_albedo.png-a8ca52eb6a307650f04e57c55c9ab29f.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "52e281ed5552668de4d75b1c0b8397a4"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/props/weapons/war_hammer/war_hammer_WeaponLeather_albedo.png"
-dest_files=["res://.godot/imported/war_hammer_WeaponLeather_albedo.png-a8ca52eb6a307650f04e57c55c9ab29f.ctex"]
+dest_files=["res://.godot/imported/war_hammer_WeaponLeather_albedo.png-a8ca52eb6a307650f04e57c55c9ab29f.s3tc.ctex", "res://.godot/imported/war_hammer_WeaponLeather_albedo.png-a8ca52eb6a307650f04e57c55c9ab29f.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +42,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

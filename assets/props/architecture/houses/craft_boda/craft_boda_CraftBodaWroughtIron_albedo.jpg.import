@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cdlscajaynbi3"
-path="res://.godot/imported/craft_boda_CraftBodaWroughtIron_albedo.jpg-ebb3cfee10b704c35c16fe15cc45a47b.ctex"
+path.s3tc="res://.godot/imported/craft_boda_CraftBodaWroughtIron_albedo.jpg-ebb3cfee10b704c35c16fe15cc45a47b.s3tc.ctex"
+path.etc2="res://.godot/imported/craft_boda_CraftBodaWroughtIron_albedo.jpg-ebb3cfee10b704c35c16fe15cc45a47b.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "b91f56af2d33e502f834c4bf6f00d3c4"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/props/architecture/houses/craft_boda/craft_boda_CraftBodaWroughtIron_albedo.jpg"
-dest_files=["res://.godot/imported/craft_boda_CraftBodaWroughtIron_albedo.jpg-ebb3cfee10b704c35c16fe15cc45a47b.ctex"]
+dest_files=["res://.godot/imported/craft_boda_CraftBodaWroughtIron_albedo.jpg-ebb3cfee10b704c35c16fe15cc45a47b.s3tc.ctex", "res://.godot/imported/craft_boda_CraftBodaWroughtIron_albedo.jpg-ebb3cfee10b704c35c16fe15cc45a47b.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +42,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

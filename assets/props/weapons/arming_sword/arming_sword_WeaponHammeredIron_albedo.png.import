@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bnlemqhnunuq7"
-path="res://.godot/imported/arming_sword_WeaponHammeredIron_albedo.png-a952d9329c71681701651e63717238af.ctex"
+path.s3tc="res://.godot/imported/arming_sword_WeaponHammeredIron_albedo.png-a952d9329c71681701651e63717238af.s3tc.ctex"
+path.etc2="res://.godot/imported/arming_sword_WeaponHammeredIron_albedo.png-a952d9329c71681701651e63717238af.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "459358f69c9b6addf01b045ab5547d66"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/props/weapons/arming_sword/arming_sword_WeaponHammeredIron_albedo.png"
-dest_files=["res://.godot/imported/arming_sword_WeaponHammeredIron_albedo.png-a952d9329c71681701651e63717238af.ctex"]
+dest_files=["res://.godot/imported/arming_sword_WeaponHammeredIron_albedo.png-a952d9329c71681701651e63717238af.s3tc.ctex", "res://.godot/imported/arming_sword_WeaponHammeredIron_albedo.png-a952d9329c71681701651e63717238af.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +42,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

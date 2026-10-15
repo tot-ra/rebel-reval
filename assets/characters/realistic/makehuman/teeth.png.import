@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://6aa32fi6ye67"
-path.s3tc="res://.godot/imported/teeth.png-5d1f617255f4727ad071a6855aa4afa7.s3tc.ctex"
-path.etc2="res://.godot/imported/teeth.png-5d1f617255f4727ad071a6855aa4afa7.etc2.ctex"
+path.s3tc="res://.godot/imported/teeth.png-fa7f2754212f2f20f879e4a0aeb52fcd.s3tc.ctex"
+path.etc2="res://.godot/imported/teeth.png-fa7f2754212f2f20f879e4a0aeb52fcd.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -12,8 +12,8 @@ metadata={
 
 [deps]
 
-source_file="res://build/aita_meshy/v4/makehuman/teeth.png"
-dest_files=["res://.godot/imported/teeth.png-5d1f617255f4727ad071a6855aa4afa7.s3tc.ctex", "res://.godot/imported/teeth.png-5d1f617255f4727ad071a6855aa4afa7.etc2.ctex"]
+source_file="res://assets/characters/realistic/makehuman/teeth.png"
+dest_files=["res://.godot/imported/teeth.png-fa7f2754212f2f20f879e4a0aeb52fcd.s3tc.ctex", "res://.godot/imported/teeth.png-fa7f2754212f2f20f879e4a0aeb52fcd.etc2.ctex"]
 
 [params]
 
