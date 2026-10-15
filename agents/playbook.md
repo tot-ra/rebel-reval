@@ -388,3 +388,5 @@ Keep this file short. Append a durable reusable rule, not a dated incident log. 
 - Image attachments do not reach CLI-backed sessions. When the user refers to a screenshot you cannot see, ask at once for a disk path or map + location instead of guessing or searching `~/Downloads`.
 - After overwriting an image in place, editors and Godot can keep showing the cached old one; prove the swap with size/hash, and prefer a new filename (e.g. `.jpg`) plus a link update when replacing portraits.
 - Before spending a single allowed Docker-reviewer call, preflight its configured image with `docker image inspect <image:tag>`. A missing `a2gent-brute:latest` plus registry pull denial is an environment blocker, not a code-review verdict; preserve `in_review`, record the infrastructure clearing condition, and do not spend another delegation retry.
+
+- Before/after plates: keep the baseline with `cp -p` (or rename it) and confirm the capture printed its "plate: <path>" line before judging; do not filter capture output so hard that a failed run looks like an unchanged image.
