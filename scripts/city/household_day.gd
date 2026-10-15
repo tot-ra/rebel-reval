@@ -74,7 +74,8 @@ static func activity(r: Dictionary, hour: float, is_cook: bool, has_work: bool) 
 		return {"pose": &"sit", "slot": &"sit"}
 	if is_cook:
 		return {"pose": &"hearth", "slot": &"hearth"}
-	if has_work and String(r["pattern"]) == "craft" and hour >= 7.0 and hour < 18.5:
+	# Brewers and alewives (`host`, SOCIAL_LIFE.md) brew in the house like any craft.
+	if has_work and String(r["pattern"]) in ["craft", "host"] and hour >= 7.0 and hour < 18.5:
 		return {"pose": &"work", "slot": &"work"}
 	# Elders and small children sit; the rest are up and about.
 	if int(r["age"]) >= 60 or int(r["age"]) < 7:

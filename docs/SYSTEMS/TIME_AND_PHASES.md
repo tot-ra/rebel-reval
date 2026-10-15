@@ -47,7 +47,7 @@ godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_pha
 Two time layers run alongside story phases:
 
 - **Day/night clock** (`scripts/global/day_night_cycle.gd`): a full game day lasts `CYCLE_DURATION_SECONDS` (1440 s, one game minute per real second) of real time; new clocks start at the player's local time of day. Phase profiles may pin it (`presentation.cycle_enabled: false` with a fixed `cycle_progress`). The debug overlay can scale it for review.
-- **Campaign calendar** (`GameCalendar`, `scripts/global/game_calendar.gd`): each phase maps to a Julian 1343 date leading into St. George's Night in late April (`date_for_phase`). While an outdoor cycle runs, every completed solar day advances the date. Market days, seasons, and moon phase read this date ([`WORLD_LIFE.md`](./WORLD_LIFE.md#market-day)).
+- **Campaign calendar** (`GameCalendar`, `scripts/global/game_calendar.gd`): each phase maps to a Julian 1343 date leading into St. George's Night in late April (`date_for_phase`). While an outdoor cycle runs, every completed solar day advances the date. Market days, seasons, moon phase and the citizens' week ([`SOCIAL_LIFE.md`](./SOCIAL_LIFE.md)) read this date ([`WORLD_LIFE.md`](./WORLD_LIFE.md#market-day)). `GameCalendar.weekday_index` uses the Julian calendar (Easter 1343 = Sunday 13 April; fixed in R-1984, it was one day early).
 
 `MusicDirector` plays night themes at about −6 dB at full night.
 

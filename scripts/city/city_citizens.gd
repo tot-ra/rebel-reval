@@ -69,6 +69,8 @@ static func create(city_plan: CityPlan, kalev: Node2D) -> CityCitizens:
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--city-hour="):
 			node.hour_override = float(arg.substr(12))
+	if CitizenRoster.pinned_weekday() >= 0:
+		CitizenRoster.weekday = CitizenRoster.pinned_weekday()
 	return node
 
 
@@ -176,7 +178,8 @@ func _scan_step() -> void:
 			var distance := (state["pos"] as Vector2).distance_to(_scan_origin)
 			if distance <= SPAWN_RADIUS:
 				_wanted.append([distance, index, false])
-		elif interiors != null:
+		elif interiors != null and state["dest"] == "home":
+			# Only people at home are shown in their house; drinkers inside a beer-shop are not.
 			var inside := interiors.indoor_state(index, _scan_hour, float(state["arrived"]))
 			if not inside.is_empty():
 				var distance := (inside["pos"] as Vector2).distance_to(_scan_origin)

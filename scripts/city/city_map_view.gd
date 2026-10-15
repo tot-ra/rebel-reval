@@ -414,6 +414,8 @@ func set_calendar_date(date: Dictionary) -> void:
 	var fauna := world.get_node_or_null("CityFauna") if world != null else null
 	if fauna is CityFauna:
 		(fauna as CityFauna).set_calendar_date(date)
+	# Residents keep their Saturday bath and Sunday rest (SOCIAL_LIFE.md).
+	CitizenRoster.set_calendar_date(date)
 
 
 func sync_actor(actor: Node3D, logic_position: Vector2) -> void:

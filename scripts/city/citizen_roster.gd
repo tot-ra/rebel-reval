@@ -57,6 +57,12 @@ const _STAY_LABELS := {
 	"friary_granary": "Working in the friary granary",
 	"porter": "Keeping the friary gate",
 	"stores": "Working in the friary stores",
+	# Social life (SOCIAL_LIFE.md).
+	"evening_beershop": "Drinking at a beer-shop",
+	"evening_guild_st_olaf": "At St Olaf's guild house",
+	"evening_wine_cellar": "Drinking in the council wine cellar",
+	"bath": "At the bath house",
+	"doorstep": "Talking with the neighbours on the doorstep",
 }
 ## Destination phrase per place_label_key() while on the way.
 const _DEST_LABELS := {
@@ -101,7 +107,20 @@ const _DEST_LABELS := {
 	"friary_granary": "to the friary granary",
 	"porter": "to the gate",
 	"stores": "to the stores",
+	"evening_beershop": "to a beer-shop",
+	"evening_guild_st_olaf": "to St Olaf's guild house",
+	"evening_wine_cellar": "to the council wine cellar",
+	"bath": "to the bath house",
+	"doorstep": "home",
 }
+## Timetable variant per GameCalendar.weekday_index (Monday=0): `craft@sat`, `craft@sun`.
+const _WEEKDAY_SUFFIX := {5: "@sat", 6: "@sun"}
+
+## Campaign weekday (GameCalendar.weekday_index, Monday=0) every roster schedules for;
+## -1 uses the ordinary weekday timetables. Set by CityMapView.set_calendar_date, so a
+## resident's place stays a pure function of (weekday, hour).
+static var weekday := -1
+
 
 static var _default: CitizenRoster
 
@@ -121,6 +140,23 @@ var _astar := AStar2D.new()
 var _nodes := PackedVector2Array()
 var _routes: Dictionary = {}
 var _grid: Dictionary = {}
+
+
+
+## Schedules every roster for the weekday of the campaign `date`; `--city-weekday=N`
+## (Monday=0) on the command line pins the day for review captures.
+static func set_calendar_date(date: Dictionary) -> void:
+	weekday = GameCalendar.weekday_index(date)
+	var pinned := pinned_weekday()
+	if pinned >= 0:
+		weekday = pinned
+
+
+static func pinned_weekday() -> int:
+	for arg in OS.get_cmdline_user_args():
+		if arg.begins_with("--city-weekday="):
+			return int(arg.substr(15))
+	return -1
 
 
 static func load_default() -> CitizenRoster:
@@ -211,7 +247,7 @@ func candidates_near(world_xz: Vector2, radius: float) -> PackedInt32Array:
 ## -1 while still under way).
 func resolve(index: int, hour: float) -> Dictionary:
 	var r: Dictionary = residents[index]
-	var entries: Array = patterns[r["pattern"]]
+	var entries := _entries(r)
 	var jitter := float(r["jitter"])
 	var leg := -1
 	var depart := 0.0
@@ -225,11 +261,11 @@ func resolve(index: int, hour: float) -> Dictionary:
 		depart = at_hour
 	if leg < 0:
 		var arrived := hour + 24.0 - _leg_end(r, entries, entries.size() - 1)
-		var night := _hold(r, String(entries[-1][1]), arrived)
+		var night := _hold(r, _effective(r, String(entries[-1][1])), arrived)
 		night["arrived"] = arrived
 		return night
-	var dest_key := String(entries[leg][1])
-	var from_key := String(entries[leg - 1][1]) if leg > 0 else String(entries[-1][1])
+	var dest_key := _effective(r, String(entries[leg][1]))
+	var from_key := _effective(r, String(entries[leg - 1][1] if leg > 0 else entries[-1][1]))
 	var from_place := _place_of(r, from_key)
 	var to_place := _place_of(r, dest_key)
 	if from_place == to_place:
@@ -263,12 +299,35 @@ func _leg_end(r: Dictionary, entries: Array, leg: int) -> float:
 	var depart := float(entries[leg][0])
 	if depart > 0.0:
 		depart = clampf(depart + float(r["jitter"]), 0.5, 23.0)
-	var from_key := String(entries[leg - 1][1]) if leg > 0 else String(entries[-1][1])
+	var from_key := _effective(r, String(entries[leg - 1][1] if leg > 0 else entries[-1][1]))
 	var a := _place_of(r, from_key)
-	var b := _place_of(r, String(entries[leg][1]))
+	var b := _place_of(r, _effective(r, String(entries[leg][1])))
 	if a == b:
 		return depart
 	return depart + float(_route(a, b)["length"]) / (3600.0 * float(r["walk"]))
+
+
+## The timetable a resident keeps on the current `weekday` (Saturday and Sunday variants).
+func _entries(r: Dictionary) -> Array:
+	var variant := String(r["pattern"]) + String(_WEEKDAY_SUFFIX.get(weekday, ""))
+	return patterns.get(variant, patterns[r["pattern"]])
+
+
+## The key a conditional timetable entry stands for with this resident (SOCIAL_LIFE.md):
+## `evening` / `sunday` is their venue when they go out that evening, otherwise the
+## doorstep (if they like a walk) or indoors; `bath` is the bath house for those who
+## bathe on Saturday, otherwise work at the door (craftsmen) or indoors.
+func _effective(r: Dictionary, key: String) -> String:
+	match key:
+		"evening", "sunday":
+			if r.get("evenings" if key == "evening" else "sundays", false):
+				return "evening"
+			return "doorstep" if r.get("strolls", false) else "home"
+		"bath":
+			if r.get("bathes", false):
+				return "bath"
+			return "door" if String(r["pattern"]) in ["craft", "host"] else "home"
+	return key
 
 
 ## Short English description of what the resident is doing at `hour`.
@@ -296,8 +355,10 @@ func place_label_key(r: Dictionary, key: String) -> String:
 			return "food_" + String(r["food_kind"])
 		"supply":
 			return "supply_" + String(r["supply_kind"])
-		"door", "water", "fuel", "latrine", "school", "church", "stroll":
+		"door", "water", "fuel", "latrine", "school", "church", "stroll", "bath", "doorstep":
 			return key
+		"evening":
+			return "evening_" + String(r["evening_kind"])
 		"choir", "chapter", "refectory", "study", "kitchen":
 			return key
 	return "home"
@@ -306,6 +367,8 @@ func place_label_key(r: Dictionary, key: String) -> String:
 func _stay_label(r: Dictionary, key: String) -> String:
 	var kind := place_label_key(r, key)
 	if kind == "door":
+		if r["pattern"] == "host":
+			return "Selling beer at their door"
 		return "Working at their own door" if r["pattern"] == "craft" else "Outside their house"
 	if kind == "patrol":
 		return "On patrol: %s" % _duty_label(r)
@@ -401,7 +464,8 @@ func _still(r: Dictionary, key: String) -> Dictionary:
 		var look := float(absi(hash(String(r["id"]) + key)) % 628) / 100.0
 		facing = Vector2(cos(look), sin(look))
 	return {
-		"visible": key != "home",
+		# Most of an evening's drinkers sit inside the beer-shop or cellar (not drawn).
+		"visible": key != "home" and not (key == "evening" and r.get("evening_inside", false)),
 		"moving": false,
 		"pos": pos,
 		"facing": facing,
@@ -471,6 +535,11 @@ func _build_grid() -> void:
 		var box := Rect2(place_position(int(r["home"])), Vector2.ZERO)
 		for key: String in ["work", "errand", "errand2"]:
 			box = box.expand(place_position(int(r[key])))
+		# Venues only for those who go there (keeps the scan sets small).
+		if r.get("evenings", false) or r.get("sundays", false):
+			box = box.expand(place_position(int(r["evening"])))
+		if r.get("bathes", false):
+			box = box.expand(place_position(int(r["bath"])))
 		if r.has("duty") and r["duty"].has("route"):
 			for point: Vector2 in patrols[int(r["duty"]["route"])]["points"]:
 				box = box.expand(point)

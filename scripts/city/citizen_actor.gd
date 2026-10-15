@@ -125,7 +125,7 @@ func _physics_process_timed(delta: float) -> void:
 	at_home = false
 	pose = &"walk"
 	pose_h = 0.0
-	if not outdoors and interiors != null:
+	if not outdoors and interiors != null and state["dest"] == "home":
 		var inside := interiors.indoor_state(index, h, float(state["arrived"]))
 		if not inside.is_empty():
 			at_home = true

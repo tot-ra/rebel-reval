@@ -9,7 +9,8 @@ const ProfileScript := preload("res://scripts/world/urban_population_profile.gd"
 
 const PHASE_DAY := GameState.PHASE_INVESTIGATION_MORNING
 const DATE_OFF_DAY := {"day": 22, "month": 4, "year": 1343}
-const DATE_MARKET_DAY := {"day": 24, "month": 4, "year": 1343}
+# Julian 1343: 22 April is a Tuesday, 23 April (St George) a Wednesday, 26 April a Saturday.
+const DATE_MARKET_DAY := {"day": 23, "month": 4, "year": 1343}
 const REPLAY_SEED := 412
 const FLAG_MARKET_DAY := &"flag.market_day_active"
 
@@ -44,10 +45,10 @@ func test_calendar_transitions_drive_population_once_per_state_change() -> void:
 	controller.market_day_changed.connect(probe.record_signal)
 
 	controller.sync_for_test(PHASE_DAY, 0)
+	controller.sync_for_test(PHASE_DAY, 1)
+	controller.sync_for_test(PHASE_DAY, 1)
 	controller.sync_for_test(PHASE_DAY, 2)
-	controller.sync_for_test(PHASE_DAY, 2)
-	controller.sync_for_test(PHASE_DAY, 3)
-	controller.sync_for_test(PHASE_DAY, 5)
+	controller.sync_for_test(PHASE_DAY, 4)
 
 	assert_eq(
 		probe.calls,
@@ -71,7 +72,7 @@ func test_calendar_transitions_drive_population_once_per_state_change() -> void:
 	controller.free()
 
 
-func test_market_day_profile_contains_both_trade_sides_without_authored_keeper_duplication() -> void:
+func test_market_day_profile_contains_both_trade_sides_without_keeper_duplication() -> void:
 	var profile := ProfileScript.resolve_for_context(
 		PHASE_DAY,
 		DATE_MARKET_DAY,
@@ -95,7 +96,8 @@ func test_market_day_profile_contains_both_trade_sides_without_authored_keeper_d
 	assert_eq(profile["profile_id"], ProfileScript.PROFILE_MARKET_DAY)
 	assert_true(profile["calendar_market_day"])
 	assert_true(profile["market_day"])
-	assert_true(profile["civilian_count"] > ProfileScript.day(PHASE_DAY, DATE_OFF_DAY)["civilian_count"])
+	var off_day: Dictionary = ProfileScript.day(PHASE_DAY, DATE_OFF_DAY)
+	assert_true(profile["civilian_count"] > off_day["civilian_count"])
 	assert_true(market_merchants > 0, "market lane must receive merchant activity")
 	assert_true(market_customers > 0, "market lane must receive customer traffic")
 	assert_eq(actor_plan.size(), profile["total_count"])
@@ -154,7 +156,7 @@ func test_market_day_transition_only_changes_its_own_game_state_flag() -> void:
 	controller._state = state
 	controller.bind_population_controller(PopulationProbe.new())
 
-	controller.sync_for_test(PHASE_DAY, 2)
+	controller.sync_for_test(PHASE_DAY, 1)
 
 	assert_true(state.get_flag(FLAG_MARKET_DAY))
 	assert_eq(state.get_phase(), PHASE_DAY)

@@ -152,6 +152,72 @@ PATTERNS = {
                 [12.0, "home"], [14.0, "door"], [15.0, "stroll"], [16.2, "water"], [16.6, "home"]],
 }
 
+# Social life (docs/SYSTEMS/SOCIAL_LIFE.md, R-1984; evidence in
+# history/dossiers/dailylife/social-life-and-daily-rhythm-1343.md). Work stops at the
+# evening Ave Maria bell; the night bell at nine closes the beer-shops and wine rooms,
+# so everyone is home by 21:00 (latest departure 20.4 + 0.6 jitter). Conditional keys
+# the roster resolves per resident: `evening` and `sunday` (their venue if they go out
+# that evening, else the doorstep or indoors), `bath` (the bath house if they bathe on
+# Saturday, else their door or indoors).
+PATTERNS["craft"] = PATTERNS["craft"][:-1] + [[18.8, "evening"], [20.4, "home"]]
+PATTERNS["market"] = PATTERNS["market"][:-1] + [[18.0, "evening"], [20.4, "home"]]
+PATTERNS["admin"] += [[18.4, "evening"], [20.4, "home"]]
+PATTERNS["military"] = PATTERNS["military"][:-1] + [[18.8, "evening"], [20.4, "home"]]
+PATTERNS["domestic"] += [[18.6, "evening"], [20.2, "home"]]
+PATTERNS["well"] += [[17.4, "evening"], [20.0, "home"]]
+PATTERNS["leisure"] += [[17.2, "evening"], [19.6, "home"]]
+# Brewers, alewives and innkeepers sell beer from their own house and close about the
+# night bell (20.6 +- 0.6 jitter; a host open past nine was fined).
+PATTERNS["host"] = PATTERNS["craft"][:-3] + [[17.8, "door"], [20.6, "home"]]
+# Saturday: the German burghers' bath day (bath dossier), in the afternoon before vespers.
+PATTERNS["craft@sat"] = [e if e != [15.0, "supply"] else [15.0, "bath"] for e in PATTERNS["craft"]]
+PATTERNS["craft@sat"][PATTERNS["craft@sat"].index([15.6, "door"])] = [16.4, "door"]
+PATTERNS["host@sat"] = PATTERNS["craft@sat"][:-3] + [[17.8, "door"], [20.6, "home"]]
+PATTERNS["market@sat"] = [[5.5, "work"], [9.4, "food"], [10.0, "work"], [12.0, "home"], [13.0, "work"],
+                          [15.2, "bath"], [16.6, "work"], [18.0, "evening"], [20.4, "home"]]
+PATTERNS["admin@sat"] = [[7.0, "work"], [10.0, "food"], [10.5, "work"], [12.0, "home"], [13.5, "work"],
+                         [15.2, "bath"], [16.6, "stroll"], [17.0, "church"], [17.8, "home"],
+                         [18.4, "evening"], [20.4, "home"]]
+PATTERNS["domestic@sat"] = [[5.6, "water"], [6.0, "home"], [6.4, "latrine"], [6.6, "home"], [7.3, "food"],
+                            [8.2, "home"], [10.2, "fuel"], [10.7, "home"], [13.6, "water"], [14.0, "home"],
+                            [14.6, "bath"], [16.0, "church"], [17.0, "stroll"], [17.8, "home"],
+                            [18.6, "evening"], [20.2, "home"]]
+# Sunday: no work and no routine trade; water, mass, dinner at home, an afternoon walk,
+# then the week's longest evening out (`sunday`). The generic `church` slot stays until
+# the church services of ADR 0046 replace it.
+_SUNDAY = [[6.0, "water"], [6.4, "home"], [8.2, "church"], [10.6, "home"], [13.6, "stroll"],
+           [15.0, "sunday"], [20.4, "home"]]
+for _name in ("craft", "market", "admin", "domestic", "well", "leisure"):
+    PATTERNS[_name + "@sun"] = _SUNDAY
+PATTERNS["host@sun"] = [[6.0, "water"], [6.4, "home"], [8.2, "church"], [10.6, "home"], [13.0, "door"],
+                        [20.6, "home"]]
+PATTERNS["child@sun"] = PATTERNS["school@sun"] = [[6.6, "water"], [7.0, "home"], [8.2, "church"],
+                                                  [10.6, "home"], [13.0, "door"], [15.5, "stroll"],
+                                                  [17.5, "home"]]
+
+HOSTS = {"brewer", "alewife", "innkeeper"}
+# Evening venues by status: council and merchants drink wine under the town hall
+# (cellarium civitatis, 1322); masters of St Olaf's trades meet in its guild house
+# (Pikk 24, held from 1341); everyone else goes to the nearest beer-shop. St Canute's
+# house (Pikk 20, held from 1326) has no building in the plan yet (SOC-5).
+WINE_STATUSES = {"patrician", "burgher_merchant", "guest_merchant", "noble"}
+OLAF_TRADES = {"butcher", "mason", "carpenter", "cooper", "furrier", "saddler", "ropemaker"}
+GUILD_HOUSES = {"guild_st_olaf": "bldg.osm.w200675339"}
+WINE_CELLAR_POI = "poi.watch.town_hall"
+BATH_POIS = ("poi.bath.nunne",)
+# Share of adults out on an ordinary evening, by status (men; women go far less).
+EVENING_SHARE = {"journeyman": 0.7, "apprentice": 0.65, "labourer": 0.6, "soldier": 0.6,
+                 "free_commoner": 0.55, "master_craftsman": 0.5, "burgher_merchant": 0.45,
+                 "patrician": 0.45, "guest_merchant": 0.6, "noble": 0.4, "clerk": 0.45,
+                 "servant": 0.35}
+EVENING_WOMEN = 0.12
+SUNDAY_EXTRA = 0.25  # more people go out on Sunday afternoon
+EVENING_MIN_AGE = 16
+# Weekly bath: German, Danish and Swedish burghers mostly; Estonian labourers far less.
+BATH_SHARE = {"german": 0.6, "danish": 0.6, "swedish": 0.5, "finnish": 0.3, "estonian": 0.2,
+              "russian": 0.2}
+BATH_POOR = {"labourer", "servant", "dependent"}
+
 # Religious houses that live in their landmark site (a `community` block in the
 # site manifest, docs/SYSTEMS/CITY_LANDMARK_SITES.md): a horarium instead of the
 # generic cleric day. St Catherine's Dominicans, c. 1343 (plausible composite
@@ -596,6 +662,32 @@ def build():
         if p["household_role"] == "head":
             head_trade[p["household"]] = p["trade"]
 
+    # Beer-shops: the doors of the brewers', alewives' and innkeepers' houses (the
+    # three in the Viru and Karja road suburbs are the krugs outside the gates).
+    beershops = sorted((places[hh_door[h]][0], places[hh_door[h]][1], h) for h, t in head_trade.items()
+                       if t in HOSTS and h in hh_door)
+    household_of = {h["building"]: h["id"] for h in census["households"] if h.get("building")}
+    venue_place = {}
+    for kind, bid in GUILD_HOUSES.items():
+        hh = household_of.get(bid)
+        if hh in hh_door:
+            venue_place[kind] = hh_door[hh]
+        else:
+            x, z, ang = building_door[bid]
+            venue_place[kind] = place("venue:" + kind, x + math.cos(ang) * DOOR_STAND,
+                                      z + math.sin(ang) * DOOR_STAND, ang)
+
+    def evening_venue(p, x, z, trade):
+        """(place, kind) of the venue a resident goes to in the evening."""
+        key = p["id"]
+        if p["status"] in WINE_STATUSES:
+            return poi_place(WINE_CELLAR_POI, key + ":ev"), "wine_cellar"
+        if p["status"] == "master_craftsman" and trade in OLAF_TRADES and hash01(key + ":gu") < 0.6:
+            return venue_place["guild_st_olaf"], "guild_st_olaf"
+        # One of the two nearest beer-shops, so a street does not all drink at one door.
+        near = sorted(beershops, key=lambda b: math.hypot(b[0] - x, b[1] - z))[:2]
+        return hh_door[near[int(hash01(key + ":bs") * len(near))][2]], "beershop"
+
     residents = []
     for p in census["persons"]:
         if p["age"] < MIN_AGE or p["household"] not in hh_door:
@@ -615,6 +707,9 @@ def build():
         if trade == "apprentice" and head_trade.get(p["household"]) in PATTERN_OF:
             pattern = PATTERN_OF[head_trade[p["household"]]]
             work_kind = WORK_OF[head_trade[p["household"]]]
+        if pattern == "craft" and (trade in HOSTS or head_trade.get(p["household"]) in HOSTS
+                                   and trade == "apprentice"):
+            pattern = "host"
         key = p["id"]
         x, z = door[0], door[1]
         work = hh_door[p["household"]]
@@ -674,6 +769,15 @@ def build():
                        if churches else hh_door[p["household"]])
         stroll_poi = STROLLS[int(hash01(key + ":stroll") * len(STROLLS))]
         stroll = poi_place(stroll_poi, key + ":st")
+        evening, evening_kind = evening_venue(p, x, z, trade)
+        out = 0.0
+        if p["age"] >= EVENING_MIN_AGE and pattern != "host" and trade not in CLERGY:
+            out = EVENING_SHARE.get(p["status"], 0.3) if p["sex"] == "m" else EVENING_WOMEN
+            if p["age"] > 60:
+                out *= 0.5
+        evening_roll = hash01(key + ":eve")
+        bath_share = BATH_SHARE.get(p["ethnicity"], 0.3) * (0.5 if p["status"] in BATH_POOR else 1.0)
+        bath_poi = min(BATH_POIS, key=lambda b: math.hypot(pois[b]["at"][0] - x, pois[b]["at"][1] - z))
         body, stage, cloth, under = body_for(p)
         ap = p["appearance"]
         head = 1.0 + HEAD_BUILD.get(ap["build"], 0.0) + (hash01(key + ":h") - 0.5) * 0.10
@@ -726,6 +830,14 @@ def build():
             "stroll": stroll,
             "devout": trade in CLERGY or hash01(key + ":devout") < 0.75,
             "strolls": hash01(key + ":walks") < 0.6,
+            "evening": evening,
+            "evening_kind": evening_kind,
+            "evenings": evening_roll < out,
+            # Most drinkers sit inside (hidden); the rest stand at the door or arcade.
+            "evening_inside": hash01(key + ":in") < (0.8 if evening_kind == "wine_cellar" else 0.65),
+            "sundays": out > 0.0 and evening_roll < out + SUNDAY_EXTRA,
+            "bath": poi_place(bath_poi, key + ":ba"),
+            "bathes": p["age"] >= 7 and hash01(key + ":bath") < bath_share,
             "errand_kind": errand_kind,
             "errand2_kind": errand2_kind,
             "card": card[1] if card else "",

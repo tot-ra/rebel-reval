@@ -3,6 +3,12 @@ extends "res://tests/godot/test_case.gd"
 ## Census residents of Reval as a timetable (docs/SYSTEMS/CITIZENS.md).
 
 
+func before_each() -> void:
+	super.before_each()
+	# The weekday is shared static state; a city test may have left a Sunday behind.
+	CitizenRoster.weekday = -1
+
+
 func _roster() -> CitizenRoster:
 	return CitizenRoster.load_default()
 
@@ -160,3 +166,98 @@ func test_patrol_walks_its_route_and_turns_back() -> void:
 	assert_true(first["moving"] and later["moving"], "walking")
 	assert_true((first["pos"] as Vector2).distance_to(later["pos"]) > 20.0, "covers ground")
 	assert_true(roster.describe(i, hour).begins_with("On patrol"), roster.describe(i, hour))
+
+
+## Social life (docs/SYSTEMS/SOCIAL_LIFE.md, R-1984).
+func _first(roster: CitizenRoster, test: Callable) -> int:
+	for i in roster.count():
+		if test.call(roster.residents[i]):
+			return i
+	return -1
+
+
+func _near(roster: CitizenRoster, state: Dictionary, place: int, radius: float) -> bool:
+	return (state["pos"] as Vector2).distance_to(roster.place_position(place)) < radius
+
+
+func test_campaign_weekdays_follow_the_julian_calendar() -> void:
+	var easter := {"day": 13, "month": 4, "year": 1343}
+	var st_george := {"day": 23, "month": 4, "year": 1343}
+	var kanavere := {"day": 11, "month": 5, "year": 1343}
+	assert_eq(GameCalendar.weekday_index(easter), 6, "Easter is a Sunday")
+	assert_eq(GameCalendar.weekday_index(st_george), 2, "St George: Wednesday")
+	assert_eq(GameCalendar.weekday_index(kanavere), 6, "Kanavere: Sunday")
+
+
+func test_evening_drinker_stands_at_their_venue_after_work() -> void:
+	var roster := _roster()
+	CitizenRoster.weekday = 2
+	var i := _first(roster, func(r: Dictionary) -> bool: return (
+		r["pattern"] == "craft" and r["evenings"] and not r["evening_inside"]
+		and r["evening_kind"] == "beershop"
+	))
+	assert_true(i >= 0, "some craftsmen drink at a beer-shop outside")
+	var r: Dictionary = roster.residents[i]
+	# Mid-evening for this resident: the leg runs 18.8-20.4 shifted by their jitter.
+	var hour := 19.9 + float(r["jitter"])
+	var state := roster.resolve(i, hour)
+	assert_true(state["visible"], "standing at the beer-shop door")
+	assert_true(_near(roster, state, int(r["evening"]), 6.0), "at the venue")
+	assert_eq(roster.describe(i, hour), "Drinking at a beer-shop")
+
+
+func test_drinkers_inside_are_hidden_and_not_seated_at_home() -> void:
+	var roster := _roster()
+	var i := _first(roster, func(r: Dictionary) -> bool: return (
+		r["pattern"] == "craft" and r["evenings"] and r["evening_inside"]
+	))
+	assert_true(i >= 0)
+	var state := roster.resolve(i, 19.9 + float(roster.residents[i]["jitter"]))
+	assert_false(state["visible"], "inside the beer-shop")
+	assert_eq(state["dest"], "evening", "not at home, so no household interior seats them")
+
+
+func test_host_sells_beer_at_the_door_in_the_evening() -> void:
+	var roster := _roster()
+	var i := _first(roster, func(r: Dictionary) -> bool: return r["pattern"] == "host")
+	assert_true(i >= 0, "brewers, alewives and innkeepers keep beer-shops")
+	assert_true(roster.resolve(i, 19.5)["visible"])
+	assert_eq(roster.describe(i, 19.5), "Selling beer at their door")
+
+
+func test_everyone_is_home_after_the_night_bell() -> void:
+	var roster := _roster()
+	for day in [2, 5, 6]:
+		CitizenRoster.weekday = day
+		for i in roster.count():
+			var r: Dictionary = roster.residents[i]
+			if r["pattern"] == "watch_night":
+				continue
+			var state := roster.resolve(i, 21.8)
+			assert_eq(state["dest"], "home", "%s home after nine (day %d)" % [r["id"], day])
+
+
+func test_saturday_bather_goes_to_the_bath_house() -> void:
+	var roster := _roster()
+	CitizenRoster.weekday = 5
+	var i := _first(roster, func(r: Dictionary) -> bool: return (
+		r["pattern"] == "craft" and r["bathes"]
+	))
+	assert_true(i >= 0)
+	var state := roster.resolve(i, 16.0)
+	assert_true(state["visible"])
+	assert_true(_near(roster, state, int(roster.residents[i]["bath"]), 12.0), "at the bath house")
+	CitizenRoster.weekday = 2
+	assert_false(_near(roster, roster.resolve(i, 16.0), int(roster.residents[i]["bath"]), 12.0),
+		"no bath on a weekday")
+
+
+func test_traders_rest_on_sunday() -> void:
+	var roster := _roster()
+	var i := _first(roster, func(r: Dictionary) -> bool: return (
+		r["pattern"] == "market" and r["work_kind"] == "forum"
+	))
+	CitizenRoster.weekday = 2
+	assert_eq(roster.resolve(i, 11.0)["dest"], "work", "at the forum on a weekday")
+	CitizenRoster.weekday = 6
+	assert_ne(roster.resolve(i, 11.0)["dest"], "work", "no trade on Sunday")

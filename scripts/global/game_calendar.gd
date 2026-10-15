@@ -54,7 +54,9 @@ static func weekday_index(date: Dictionary) -> int:
 		y -= 1
 	var k := y % 100
 	var j := y / 100
-	var h := (day + int(13 * (m + 1) / 5) + k + int(k / 4) + int(j / 4) + 5 * j) % 7
+	# Zeller's congruence for the JULIAN calendar (the campaign's Old Style dates):
+	# + 5 + 6J, not the Gregorian J/4 + 5J. Easter 1343 = Sunday 13 April (R-1984).
+	var h := (day + int(13 * (m + 1) / 5) + k + int(k / 4) + 5 + 6 * j) % 7
 	# Zeller: 0=Saturday, 1=Sunday, ... 6=Friday -> ISO Monday=0.
 	return (h + 5) % 7
 

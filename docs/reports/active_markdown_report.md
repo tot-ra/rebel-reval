@@ -14,11 +14,11 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `1294`
-- Markdown files excluded as archive/reference/out of active scope: `772`
-- Local/external links inspected: `15008`
-- Links to active Markdown docs: `12973`
-- Links to existing archive/reference/non-active local docs: `547`
+- Active Markdown files scanned: `1296`
+- Markdown files excluded as archive/reference/out of active scope: `773`
+- Local/external links inspected: `15030`
+- Links to active Markdown docs: `12989`
+- Links to existing archive/reference/non-active local docs: `550`
 - External links skipped for reachability: `192`
 - Issues found: `0`
 
@@ -85,6 +85,7 @@ No active Markdown documentation issues found.
 - `docs/adr/0046-church-services-and-collective-channeling.md`
 - `docs/adr/0047-interaction-stances-and-conversation-camera.md`
 - `docs/adr/0048-psychological-spells-and-willpower-cost.md`
+- `docs/adr/0050-social-life-venues-and-weekly-rhythm.md`
 - `docs/adr/README.md`
 - `docs/AGENT_LOOPS.md`
 - `docs/ANIMAL_3D_SOURCING.md`
@@ -1231,6 +1232,7 @@ No active Markdown documentation issues found.
 - `docs/SYSTEMS/SETTINGS_AND_ACCESSIBILITY.md`
 - `docs/SYSTEMS/SHIPS.md`
 - `docs/SYSTEMS/SKY_ATMOSPHERE.md`
+- `docs/SYSTEMS/SOCIAL_LIFE.md`
 - `docs/SYSTEMS/SPIRIT_DIALOGUE.md`
 - `docs/SYSTEMS/SPIRIT_SIGHT.md`
 - `docs/SYSTEMS/STATE_AND_SAVES.md`

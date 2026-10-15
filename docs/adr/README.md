@@ -52,5 +52,6 @@ Numbered decisions (Status / Context / Decision / Alternatives / Consequences). 
 - [ADR 0046: Church services, soul-light soot and collective spirit channeling](0046-church-services-and-collective-channeling.md)
 - [ADR 0047: Talk, fight or duel with anyone: stances and a universal conversation camera](0047-interaction-stances-and-conversation-camera.md)
 - [ADR 0048: Psychological spells, trust endings and a willpower cost for the spirit world](0048-psychological-spells-and-willpower-cost.md)
+- [ADR 0050: Social life of the census citizens: venues, weekly rhythm, gatherings and travel](0050-social-life-venues-and-weekly-rhythm.md)
 
 <!-- docs-index:end -->
