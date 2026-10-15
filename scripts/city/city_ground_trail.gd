@@ -16,10 +16,27 @@ extends Node3D
 ## Near Kalev a fine relief mesh (`_relief`, the ground shader's trail mesh mode)
 ## lifts the prints into real geometry so a grazing camera sees their silhouette.
 
-## Deep snow is waded, not stepped: a trench this wide opens behind the walker once
-## the snow is this deep (metres).
+## Deep snow is waded, not stepped: once the snow is this deep (metres) each leg
+## ploughs its own furrow behind the walker (see stamp_wade).
 const TRENCH_MIN_DEPTH := 0.08
-const TRENCH_HALF_WIDTH := 0.2
+## Wading (R-1968): half the distance between the two leg furrows, the half width
+## of one furrow, and how far a leg strays from its line (all world units). The
+## furrows are ragged on purpose: width, depth and line wander with deterministic
+## noise over the distance waded, so the trail reads as two dragged legs, not a
+## machined groove.
+const WADE_HALF_GAUGE := 0.13
+const WADE_HALF_WIDTH := 0.085
+const WADE_SWAY := 0.035
+## A swinging leg bows outward by this much mid-swing (world units).
+const WADE_SWING_ARC := 0.025
+## Past this snow depth (metres) the shins and coat drag the ridge between the
+## legs down as well; at WADE_PLOUGH_FULL it is pressed to WADE_RIDGE_PRESS of the
+## furrow depth (the two furrows still show as deeper lines in a wider trench).
+const WADE_PLOUGH_DEPTH := 0.3
+const WADE_PLOUGH_FULL := 0.5
+const WADE_RIDGE_PRESS := 0.55
+## Share of furrow stamps that throw a clump of snow out beside the furrow.
+const WADE_CLUMP_CHANCE := 0.07
 ## Dull brown-grey, and drawn lit (see _build_dust) so it darkens with the evening.
 const DUST_COLOR := Color(0.46, 0.41, 0.34)
 ## A boot in settled snow kicks up a small white powder puff.
@@ -94,6 +111,9 @@ var _marks: Dictionary = {}
 var _tick := 0
 var _relief: MeshInstance3D
 var _relief_centre := Vector2.INF
+## Distance waded through deep snow: the coordinate the furrow noise runs along,
+## so a furrow keeps its shape however the walk is cut into frames.
+var _waded := 0.0
 
 
 static func create(city_plan: CityPlan, surface: Callable) -> CityGroundTrail:
@@ -139,7 +159,7 @@ func update_for(world_xz: Vector2, _delta: float) -> void:
 	if snow_cover > 0.0 and step.length() > 0.0001:
 		var depth := CitySnow.depth_at(world_xz, snow_cover)
 		if depth > TRENCH_MIN_DEPTH:
-			stamp_track(_last, world_xz, TRENCH_HALF_WIDTH, clampf(depth / 0.3, 0.3, 0.95))
+			stamp_wade(_last, world_xz, depth)
 	_travelled += step.length()
 	if _travelled >= STRIDE and step.length() > 0.0001:
 		_travelled = fmod(_travelled, STRIDE)
@@ -280,6 +300,89 @@ func stamp_track(a: Vector2, b: Vector2, half_width: float, depth: float) -> voi
 		stamp_oval(at, Vector2(CELL * 2.5, half_width), dir, depth, 0.1)
 
 
+## Wading through `snow_depth` metres of snow from `a` to `b`: each leg drags its
+## own furrow. WHY two ragged furrows rather than one groove: a walker in deep snow
+## cannot lift their feet clear, so each shin ploughs a line, and since no two steps
+## land alike the lines wander, narrow and widen (R-1968, the RDR2 look). Noise is
+## keyed to the distance waded, so the result does not depend on frame rate.
+func stamp_wade(a: Vector2, b: Vector2, snow_depth: float) -> void:
+	var length := a.distance_to(b)
+	if length < 0.0001:
+		return
+	var dir := (b - a) / length
+	var side := Vector2(-dir.y, dir.x)
+	var depth := clampf(snow_depth / 0.3, 0.3, 0.95)
+	var plough := clampf(
+		(snow_depth - WADE_PLOUGH_DEPTH) / (WADE_PLOUGH_FULL - WADE_PLOUGH_DEPTH), 0.0, 1.0
+	)
+	var steps := maxi(int(ceil(length / (CELL * 2.0))), 1)
+	for i in range(1, steps + 1):
+		var t := float(i) / float(steps)
+		var at := a.lerp(b, t)
+		var d := _waded + length * t
+		if plough > 0.0:
+			# The ridge between the legs, dragged down by shins and coat; no rim,
+			# the leg furrows heap their own walls.
+			stamp_oval(
+				at, Vector2(CELL * 2.5, WADE_HALF_GAUGE), dir, depth * WADE_RIDGE_PRESS * plough, 0.0
+			)
+		for foot_sign: float in [1.0, -1.0]:
+			var salt := 0.0 if foot_sign > 0.0 else 37.0
+			# Stride phase 0..1 over a left+right pair; each leg swings for one half
+			# of it and bows outward mid-swing.
+			var phase := fmod(d / (STRIDE * 2.0) + (0.0 if foot_sign > 0.0 else 0.5), 1.0)
+			var swing := sin(PI * clampf(phase * 2.0, 0.0, 1.0)) if phase < 0.5 else 0.0
+			var wander := (CitySnow.value_noise(Vector2(d * 2.3, salt)) - 0.5) * 2.0 * WADE_SWAY
+			var offset := foot_sign * (WADE_HALF_GAUGE + swing * WADE_SWING_ARC) + wander
+			var width := WADE_HALF_WIDTH * lerpf(
+				0.75, 1.3, CitySnow.value_noise(Vector2(d * 4.1, salt + 11.0))
+			)
+			var press := depth * lerpf(
+				0.72, 1.0, CitySnow.value_noise(Vector2(d * 1.7, salt + 23.0))
+			)
+			var centre := at + side * offset
+			stamp_oval(centre, Vector2(CELL * 2.5, width), dir, press, 0.12 + 0.1 * depth)
+			# Now and then the boot flicks a clump out over the furrow wall.
+			var roll := CitySnow.hash12(Vector2(floorf(d / (CELL * 2.0)), salt + 5.0))
+			if roll < WADE_CLUMP_CHANCE:
+				var out := width + lerpf(0.03, 0.14, roll / WADE_CLUMP_CHANCE)
+				var size := lerpf(0.025, 0.055, CitySnow.hash12(Vector2(d * 13.0, salt)))
+				stamp_heap(centre + side * foot_sign * out + dir * 0.06, size, 0.35 + 0.3 * depth)
+	_waded += length
+
+
+## Where a wading foot comes down it punches a hole deeper than the furrow and
+## shoves a heap of snow forward and out of it.
+func _post_hole(foot: Vector2, facing: Vector2, foot_sign: float, snow_depth: float) -> void:
+	var depth := clampf(snow_depth / 0.3 + 0.15, 0.4, 1.0)
+	var jitter := CitySnow.hash12(foot * 7.0)
+	var radii := Vector2(0.15, 0.085) * lerpf(0.85, 1.2, jitter)
+	stamp_oval(foot, radii, facing.rotated((jitter - 0.5) * 0.4), depth, 0.25)
+	var side := Vector2(-facing.y, facing.x)
+	stamp_heap(
+		foot + facing * 0.2 + side * foot_sign * 0.1, 0.06 + 0.03 * jitter, 0.3 + 0.2 * depth
+	)
+
+
+## A loose heap of snow (or earth) `radius` wide, `height` 0..1 of full relief,
+## laid only on ground that is not already pressed down.
+func stamp_heap(world_xz: Vector2, radius: float, height: float) -> void:
+	var lo := _cell_of(world_xz - Vector2(radius, radius))
+	var hi := _cell_of(world_xz + Vector2(radius, radius))
+	for cy in range(maxi(lo.y, 0), mini(hi.y, WINDOW_CELLS - 1) + 1):
+		for cx in range(maxi(lo.x, 0), mini(hi.x, WINDOW_CELLS - 1) + 1):
+			var p := _origin + (Vector2(cx, cy) + Vector2(0.5, 0.5)) * CELL - world_xz
+			var r2 := p.length_squared() / (radius * radius)
+			if r2 >= 1.0:
+				continue
+			var current := _image.get_pixel(cx, cy).r
+			if current < NEUTRAL - 0.02:
+				continue
+			current = maxf(current, NEUTRAL + NEUTRAL * height * (1.0 - r2))
+			_image.set_pixel(cx, cy, Color(minf(current, 1.0), 0.0, 0.0))
+	_dirty = true
+
+
 ## Vector2(give, softness) of the ground at a spot: give is what a print needs
 ## (grass and sand take a faint one, paving none), softness is bare earth/mud.
 func _softness_at(world_xz: Vector2) -> Vector2:
@@ -347,9 +450,14 @@ func _footfall(world_xz: Vector2, facing: Vector2) -> void:
 		return
 	var side := Vector2(-facing.y, facing.x)
 	var foot_sign := 1.0 if _left_foot else -1.0
-	var foot := world_xz + side * FOOT_SPREAD * foot_sign
 	_left_foot = not _left_foot
+	var snow_depth := CitySnow.depth_at(world_xz, snow_cover)
+	# Wading feet land in their own furrow, a little wider apart than on firm ground.
+	var wading := snow_depth > TRENCH_MIN_DEPTH
+	var foot := world_xz + side * (WADE_HALF_GAUGE if wading else FOOT_SPREAD) * foot_sign
 	var snow := CitySnow.patch(foot, snow_cover)
+	if wading:
+		_post_hole(foot, facing, foot_sign, snow_depth)
 	stamp_foot(foot, facing.rotated(TOE_OUT * foot_sign), _weight(snow))
 	if snow > CitySnow.LYING:
 		_puff(foot, true)

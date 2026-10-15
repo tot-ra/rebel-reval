@@ -413,19 +413,28 @@ float snow_height_lod(vec2 p) {
 	return max(snow_depth_m * factor - 0.04, 0.0);
 }
 
-// Trail map value at p for the vertex stage (no implicit LOD there).
-float trail_press_lod(vec2 p) {
+// Signed trail relief at p for the vertex stage (no implicit LOD there): -1 fully
+// pressed, 0 untouched, +1 full heap.
+float trail_relief_lod(vec2 p) {
 	vec2 uv = (p - trail_rect.xy) / trail_rect.zw;
 	if (uv.x <= 0.0 || uv.y <= 0.0 || uv.x >= 1.0 || uv.y >= 1.0) {
 		return 0.0;
 	}
-	return clamp((0.5 - textureLod(trail, uv, 0.0).r) * 2.0, 0.0, 1.0);
+	return clamp((textureLod(trail, uv, 0.0).r - 0.5) * 2.0, -1.0, 1.0);
 }
 
-// How far the snow surface stands above the ground at p when the trail map says
-// the ground was pressed `press` (0..1): a walked line packs down to ~8 %.
-float snow_lift(vec2 p, float press) {
-	return snow_height_lod(p) * (1.0 - 0.92 * press);
+// Spoil: snow shoved out of a furrow heaps on its walls and lies in clumps beside
+// it (R-1968). A heap stands up to this share of the snow depth, and never more
+// than SNOW_SPOIL_CAP metres, so a full-relief clump in a deep drift stays a clump.
+const float SNOW_SPOIL = 0.9;
+const float SNOW_SPOIL_CAP = 0.3;
+
+// How far the snow surface stands above the ground at p for a signed trail
+// `relief` (-1..1): a walked line packs down to ~8 %, its rim heaps up.
+float snow_lift(vec2 p, float relief) {
+	float height = snow_height_lod(p);
+	return height * (1.0 - 0.92 * max(-relief, 0.0))
+		+ min(height, SNOW_SPOIL_CAP) * SNOW_SPOIL * max(relief, 0.0);
 }
 
 // Vertex-stage variant: reads the trail map only where snow actually lies, so the
@@ -435,7 +444,9 @@ float snow_lift_vertex(vec2 p) {
 	if (height <= 0.0) {
 		return 0.0;
 	}
-	return height * (1.0 - 0.92 * trail_press_lod(p));
+	float relief = trail_relief_lod(p);
+	return height * (1.0 - 0.92 * max(-relief, 0.0))
+		+ min(height, SNOW_SPOIL_CAP) * SNOW_SPOIL * max(relief, 0.0);
 }
 
 // Relief height the mesh lifts into geometry at p: the trail prints scaled by
@@ -496,7 +507,7 @@ void trail_mesh_vertex(inout vec3 vtx, inout vec3 nrm, inout vec3 tan, inout vec
 	// A hair above the chunk so the two never z-fight where neither moved.
 	disp = max(disp, -sink) + 0.004;
 	// Settled snow stands above the ground, packed down along the trail (ADR 0045).
-	float lift = snow_lift(p, clamp(-tr / trail_depth, 0.0, 1.0));
+	float lift = snow_lift(p, clamp(tr / trail_depth, -1.0, 1.0));
 	vtx.y = base + disp + lift - model[3].y;
 	// Shading keeps the undisplaced surface normal: the fragment's trail normal
 	// map already shades the prints, exactly as on the chunks round the mesh.
@@ -1001,7 +1012,7 @@ void fragment() {
 	// Settled snow: coverage from the lifted height, so a trodden trench is thinner and
 	// shows the ground in a dusting; the slope of the surface shades drifts and trenches.
 	float press_raw = clamp(-tr0 / trail_depth, 0.0, 1.0);
-	float snow_here = snow_lift(wuv, press_raw);
+	float snow_here = snow_lift(wuv, clamp(tr0 / trail_depth, -1.0, 1.0));
 	float snow_amount = smoothstep(0.0, 0.03, snow_here);
 	snow_amount *= 1.0 - 0.9 * puddle - 0.7 * rock;
 	snow_amount *= dry_land;
@@ -1014,8 +1025,8 @@ void fragment() {
 	// Snow fills the fine relief, then drifts and trench walls tilt the normal.
 	nxy *= 1.0 - snow_amount * 0.6;
 	vec2 snow_grad = vec2(
-		snow_lift(wuv + e.xy, clamp(-tr_x / trail_depth, 0.0, 1.0)) - snow_here,
-		snow_lift(wuv + e.yx, clamp(-tr_z / trail_depth, 0.0, 1.0)) - snow_here) / e.x;
+		snow_lift(wuv + e.xy, clamp(tr_x / trail_depth, -1.0, 1.0)) - snow_here,
+		snow_lift(wuv + e.yx, clamp(tr_z / trail_depth, -1.0, 1.0)) - snow_here) / e.x;
 	nxy += -snow_grad * snow_amount * detail;
 	// R-1930 contact shade where ground meets wall: 15-30 % darker, fading out
 	// over 0.3-0.6 m, with its own noise so its edge does not trace the band.

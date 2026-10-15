@@ -334,3 +334,56 @@ func test_relief_mesh_has_no_cracks_between_its_densities() -> void:
 				inner_open += 1
 	assert_eq(inner_open, 0, "open edges inside the relief mesh")
 	assert_true(verts.size() < 50000, "two densities keep vertices down, got %d" % verts.size())
+
+
+func test_wading_ploughs_two_ragged_leg_furrows() -> void:
+	# R-1968: deep snow leaves a furrow per leg with a ridge between, and the
+	# furrows wander instead of being one machined groove.
+	var trail := _soft_trail()
+	var pos := Vector2(0, -400)
+	for i in 120:
+		var next := pos + Vector2(0.025, 0.0)
+		trail.stamp_wade(pos, next, 0.25)
+		pos = next
+	var gauge := CityGroundTrail.WADE_HALF_GAUGE
+	var lo := INF
+	var hi := -INF
+	var x := 0.5
+	while x < 2.5:
+		var left := trail.value_at(Vector2(x, -400.0 + gauge))
+		var right := trail.value_at(Vector2(x, -400.0 - gauge))
+		var ridge := trail.value_at(Vector2(x, -400.0))
+		assert_true(left < FLAT - 0.1 and right < FLAT - 0.1, "both legs pressed at x=%.2f" % x)
+		assert_true(ridge > minf(left, right) + 0.05, "a ridge between the legs at x=%.2f" % x)
+		# Press-weighted centre of the left furrow across the walk line.
+		var sum := 0.0
+		var weight := 0.0
+		var y := -400.0
+		while y < -399.5:
+			var press := maxf(FLAT - trail.value_at(Vector2(x, y)), 0.0)
+			sum += press * y
+			weight += press
+			y += CityGroundTrail.CELL
+		var centre := sum / weight
+		lo = minf(lo, centre)
+		hi = maxf(hi, centre)
+		x += 0.1
+	assert_true(hi - lo > 0.02, "the leg line wanders, spread %.3f" % (hi - lo))
+	var beside := trail.value_at(Vector2(1.5, -400.0 + gauge * 3.0))
+	assert_true(beside >= FLAT - 0.01, "untouched beside the trail")
+	trail.free()
+
+
+func test_wading_in_very_deep_snow_ploughs_the_ridge_down() -> void:
+	var shallow := _soft_trail()
+	var deep := _soft_trail()
+	var pos := Vector2(0, -400)
+	for i in 60:
+		var next := pos + Vector2(0.025, 0.0)
+		shallow.stamp_wade(pos, next, 0.15)
+		deep.stamp_wade(pos, next, 0.5)
+		pos = next
+	var at := Vector2(0.8, -400.0)
+	assert_true(deep.value_at(at) < shallow.value_at(at) - 0.1, "shins drag the middle down")
+	shallow.free()
+	deep.free()
