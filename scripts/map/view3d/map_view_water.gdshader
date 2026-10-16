@@ -2465,7 +2465,7 @@ void fragment() {
 		float ice_slush = floe_zone * (1.0 - ice_cover);
 		float ice_bank = 1.0 - smoothstep(0.0, max(ice_reach * 0.6, 0.3), ice_depth_m);
 		IceLook ice_s = ice_look(
-			ixz, ice_pan_cells, clamp(sea_ice * 3.0, 0.0, 1.0), sea_ice_snow, ice_bank, wind_direction, ice_px
+			ixz, ice_pan_cells, clamp(sea_ice * 3.0, 0.0, 1.0), sea_ice_snow, ice_bank, ICE_SNOW_DRIFT, ice_px
 		);
 		ice_weather(ice_s, ixz, ice_pan_cells, sea_ice_melt, sea_ice_glaze, ice_bank, ice_px);
 		float floe_rim = ice_line(floe_edge - ice_gap, 0.14, ice_px) * ice_floe * (1.0 - ice_fast);

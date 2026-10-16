@@ -27,6 +27,9 @@ const LAYER_MIN_SHARE := 0.5
 ## Standing water deeper than this (shader units) is a puddle; the shader shows
 ## a film from 0 and standing water from 0.04.
 const PUDDLE_MIN_DEPTH := 0.04
+## Snow cover above which a step on the frozen moat lands in snow, not on ice
+## (ice_surface.gdshaderinc lays drifts over most of the ice from about here).
+const ICE_SNOW_HEARD := 0.3
 const SurfaceSpeed := preload("res://scripts/player/surface_speed.gd")
 
 var plan: CityPlan
@@ -53,6 +56,14 @@ func surface_at(
 		return SurfaceResolver.water_surface_for_depth(depth)
 	if not is_nan(plan.bridge_deck_height(xz)):
 		return SurfaceResolver.SURFACE_WOOD
+	# Frozen moat or stream: the snow lying on the ice, else hard bare ice (no ice
+	# set in the footstep bank; stone is the closest hard click).
+	if not is_nan(plan.ice_deck_height(xz)):
+		return (
+			SurfaceResolver.SURFACE_SNOW
+			if snow_cover > ICE_SNOW_HEARD
+			else SurfaceResolver.SURFACE_STONE
+		)
 	var site := plan.site_at(xz)
 	if site != null and not site.floor_at(xz).is_empty():
 		return SITE_FLOOR_SURFACES.get(site.id, SurfaceResolver.SURFACE_STONE)
@@ -98,6 +109,9 @@ func soft_ground_drag(xz: Vector2, wetness: float) -> float:
 	if plan == null:
 		return 1.0
 	if not is_nan(plan.bridge_deck_height(xz)) or plan.building_at(xz) >= 0:
+		return 1.0
+	# The frozen ditch bed's mud raster lies under the ice, not underfoot.
+	if not is_nan(plan.ice_deck_height(xz)):
 		return 1.0
 	var site := plan.site_at(xz)
 	if site != null and not site.floor_at(xz).is_empty():

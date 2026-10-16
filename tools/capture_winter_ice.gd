@@ -14,7 +14,9 @@ extends SceneTree
 ##     a thaw day's meltwater (or a frost's refreeze) builds up as in play;
 ##     [--weather=clear] weather state (clear, cloudless, cloudy, overcast, rain);
 ##     [--prime=0.55] first run the settle on the DAY BEFORE at that hour, so the
-##     plate shows yesterday's thaw water refrozen.
+##     plate shows yesterday's thaw water refrozen;
+##     [--wind=0.8] hold the world wind at that strength (0..1, gusts included) so
+##     dry snow drifts and blows off the ground and the moat ice (CityBlowingSnow).
 ## R-2075 daily weather plates (seed ANOMALY_SEED): a thaw after a cold spell,
 ## 1343-01-23 --time=0.55 --settle=30; its refrozen glaze at sunrise, 1343-01-24
 ## --time=0.37 --prime=0.55 --settle=30; a hard-frost day, 1343-01-18.
@@ -34,6 +36,8 @@ var _ice_snow := -1.0
 var _settle := 0.0
 var _weather := SkyWeather3D.WEATHER_CLEAR
 var _prime := -1.0
+## Held world wind strength, or -1 to keep the weather's.
+var _wind := -1.0
 
 
 func _initialize() -> void:
@@ -56,6 +60,8 @@ func _initialize() -> void:
 			_weather = StringName(arg.substr(10))
 		elif arg.begins_with("--prime="):
 			_prime = float(arg.substr(8))
+		elif arg.begins_with("--wind="):
+			_wind = float(arg.substr(7))
 	call_deferred("_run")
 
 
@@ -237,12 +243,18 @@ func _run() -> void:
 		view.apply_cycle_progress(_time)
 		world.environment.tonemap_exposure *= _exposure
 		MapViewMaterials.apply_sea_weather(0.3, 0.0, Vector2(0.4, -0.9))
+		if _wind >= 0.0:
+			MapViewMaterials.apply_world_wind(Vector2(0.8, 0.6), _wind)
 		if world.grass != null:
 			world.grass.update_for(shot["focus"])
-		for i in 40:
+		for i in (120 if _wind >= 0.0 else 40):
 			MapViewRuntimeEnvironment.advance_ocean_time(0.05)
 			await process_frame
 		await RenderingServer.frame_post_draw
+		if _wind >= 0.0 and view._blowing_snow != null:
+			print("ice plates: blowing snow drift %.2f blowing %.2f emitting %s" % [
+				view._blowing_snow.level.x, view._blowing_snow.level.y, view._blowing_snow.emitting
+			])
 		var path := "%s/ice_%s_%s.png" % [OUTPUT_DIR, shot["name"], _tag]
 		if _exposure != 1.0 or _time != DAY_PROGRESS:
 			path = "%s/ice_%s_%s_t%.2f_e%.2f.png" % [OUTPUT_DIR, shot["name"], _tag, _time, _exposure]
@@ -250,6 +262,8 @@ func _run() -> void:
 			path = path.replace(".png", "_snow%.2f.png" % _ice_snow)
 		if _weather != SkyWeather3D.WEATHER_CLEAR:
 			path = path.replace(".png", "_%s.png" % _weather)
+		if _wind >= 0.0:
+			path = path.replace(".png", "_wind%.2f.png" % _wind)
 		viewport.get_texture().get_image().save_png(ProjectSettings.globalize_path(path))
 		print("ice plate: ", path)
 	quit(0)

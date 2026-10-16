@@ -47,6 +47,9 @@ var buildings: Array = []
 var plots: Array = []
 ## Optional (Vector2) -> float deck height of a moving platform (boats, CityShips), NAN off it.
 var dynamic_deck := Callable()
+## Optional (Vector2) -> float top of load-bearing ice on inland water
+## (CityWorld3D.ice_deck_at), NAN where there is none.
+var ice_deck := Callable()
 var streets: Array = []
 ## Landmark sites (ADR 0032) with their compiled placement.
 var sites: Array[CitySite] = []
@@ -275,6 +278,9 @@ func walk_height(world_xz: Vector2) -> float:
 		deck = float(dynamic_deck.call(world_xz))
 		if not is_nan(deck):
 			return deck
+	deck = ice_deck_height(world_xz)
+	if not is_nan(deck):
+		return maxf(deck, ground_height(world_xz))
 	for site in sites:
 		var f := site.floor_at(world_xz)
 		if not f.is_empty():
@@ -286,6 +292,13 @@ func walk_height(world_xz: Vector2) -> float:
 		# ground; standing there put Kalev below the terrain surface.
 		return maxf(floor_height(index), ground_height(world_xz))
 	return ground_height(world_xz)
+
+
+## Top of the frozen moat, stream or lake under the point, or NAN (no ice deck).
+func ice_deck_height(world_xz: Vector2) -> float:
+	if not ice_deck.is_valid():
+		return NAN
+	return float(ice_deck.call(world_xz))
 
 
 ## Deck height of the timber bridge under the point, or NAN off every bridge.

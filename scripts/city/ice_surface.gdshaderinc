@@ -33,6 +33,13 @@ const vec3 ICE_MILKY_SRGB = vec3(0.60, 0.66, 0.70);
 // Pan size (m) and crack cell size (m).
 const float ICE_PAN_SIZE = 3.2;
 const float ICE_CRACK_SIZE = 1.15;
+// Heading the lying snow was drifted along: the winter's prevailing wind, fixed.
+// Hosts used to pass the live wind here, but the streak coordinates rotate about
+// the world origin, so the daily veer and every gust swung the drift pattern
+// hundreds of metres out across the moat: the snow on the ice slid like running
+// water. Lying snow does not move with each gust; blowing snow over it is the
+// separate CityBlowingSnow emitter. Same heading as the ground's ice foot.
+const vec2 ICE_SNOW_DRIFT = vec2(0.8, 0.6);
 
 #ifdef ICE_PHOTO
 // Raw sRGB numbers like the city plates (no source_color); ice_lin() decodes.
@@ -136,7 +143,8 @@ vec3 ice_pans(vec2 xz) {
 }
 
 // thickness 0..1 (ice_cover_target), snow 0..1 (snow cover), bank 0..1 (1 at the
-// shore where drifts pile and snow-ice forms), wind = horizontal wind direction.
+// shore where drifts pile and snow-ice forms), wind = horizontal drift heading
+// (pass ICE_SNOW_DRIFT, never the live wind: see its comment).
 IceLook ice_look(vec2 xz, vec3 pans, float thickness, float snow, float bank, vec2 wind, float px) {
 	IceLook o;
 	// Pan tone: some pans froze clear (black ice), others as milky snow-ice; the

@@ -1165,7 +1165,7 @@ void fragment() {
 	if (frozen_puddle * puddle > 0.001) {
 		// A puddle freezes as one skin: no pan seams (border distance pushed out of reach).
 		vec3 pice_pans = ice_pans(wuv * 2.5);
-		IceLook pice = ice_look(wuv, vec3(pice_pans.x, 8.0, pice_pans.z), puddle_ice, 0.0, 0.0, vec2(0.8, 0.6), ice_px);
+		IceLook pice = ice_look(wuv, vec3(pice_pans.x, 8.0, pice_pans.z), puddle_ice, 0.0, 0.0, ICE_SNOW_DRIFT, ice_px);
 		ice_weather(pice, wuv, pice_pans, ice_melt, ice_glaze, 0.0, ice_px);
 		float growth_ring = (1.0 - smoothstep(0.0, 0.18 + ring_px, abs(fract(ring_phase) - 0.5) * 2.0 - 0.6))
 			* clamp(0.35 / ring_px, 0.0, 1.0);
@@ -1226,7 +1226,7 @@ void fragment() {
 		* (1.0 - smoothstep(sea_level + 0.5, sea_level + 1.1, world_pos.y)) * (1.0 - snow_amount);
 	if (ice_foot > 0.001) {
 		vec3 foot_pans = ice_pans(wuv);
-		IceLook foot_ice = ice_look(wuv, foot_pans, 1.0, snow_cover, 0.6, vec2(0.8, 0.6), ice_px);
+		IceLook foot_ice = ice_look(wuv, foot_pans, 1.0, snow_cover, 0.6, ICE_SNOW_DRIFT, ice_px);
 		ice_weather(foot_ice, wuv, foot_pans, ice_melt, ice_glaze, 0.6, ice_px);
 		col = mix(col, foot_ice.albedo_srgb, ice_foot);
 		nxy = mix(nxy, foot_ice.slope, ice_foot);

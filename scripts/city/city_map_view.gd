@@ -17,6 +17,9 @@ const AmbientOcclusionPassScript := preload("res://scripts/map/view3d/ambient_oc
 const CITY_OBSTACLE_FOCUS_AHEAD := 26.0
 ## WR-7: farthest the foam buffer window centre sits ahead of the camera.
 const CITY_FOAM_FOCUS_AHEAD := 40.0
+## Blowing snow: how often and how far round the player the frozen moat is looked up.
+const ICE_LEVEL_INTERVAL := 0.5
+const ICE_LEVEL_RADIUS := 45.0
 
 var world: CityWorld3D
 var plan: CityPlan
@@ -29,6 +32,11 @@ var water_foam_sim: WaterFoamSim
 var _surface_sampler: CitySurfaceSampler
 ## Autumn leaves shed by the trees around the player (ADR 0045).
 var _leaf_fall: CityLeafFall
+## Drifting and blowing snow off the ground and the frozen moat (SEASONS.md).
+var _blowing_snow: CityBlowingSnow
+## Ice top near the player for the blowing snow, refreshed every ICE_LEVEL_INTERVAL s.
+var _blowing_ice_level := NAN
+var _blowing_ice_timer := 0.0
 var _roof_cutaway_on := false
 ## Settled snow cover (0..1) for the campaign date; footsteps read it.
 var _snow_cover := 0.0
@@ -73,6 +81,7 @@ static func create_city(city_plan: CityPlan, quality_tier: Variant = null) -> Ci
 	view._create_city_foam_sim()
 	view._create_city_underwater_pass()
 	view._create_city_leaf_fall()
+	view._create_blowing_snow()
 	view._create_puddle_step_vfx()
 	return view
 
@@ -84,6 +93,40 @@ func _create_city_leaf_fall() -> void:
 	_leaf_fall = CityLeafFall.new()
 	add_child(_leaf_fall)
 	_leaf_fall.configure(lod)
+
+
+func _create_blowing_snow() -> void:
+	_blowing_snow = CityBlowingSnow.new()
+	add_child(_blowing_snow)
+	_blowing_snow.configure(plan)
+
+
+## Feeds the blowing snow the wind, the ice weather and the snow on the ground and
+## the frozen moat; hidden indoors.
+func _update_blowing_snow(delta: float, focus: Vector3) -> void:
+	if _blowing_snow == null or world == null:
+		return
+	if world.enclosed_interior:
+		_blowing_snow.emitting = false
+		_blowing_snow.visible = false
+		return
+	_blowing_ice_timer -= delta
+	if _blowing_ice_timer <= 0.0:
+		_blowing_ice_timer = ICE_LEVEL_INTERVAL
+		_blowing_ice_level = world.ice_level_near(Vector2(focus.x, focus.z), ICE_LEVEL_RADIUS)
+	var ice_snow := 0.0 if is_nan(_blowing_ice_level) else world.fresh_ice_snow
+	_blowing_snow.update_blowing(
+		focus,
+		-_camera.global_transform.basis.z,
+		MapViewMaterials.WIND_MATERIALS.world_wind_direction(),
+		MapViewMaterials.WIND_MATERIALS.world_wind_strength(),
+		world.air_c,
+		world.ice_melt,
+		world.ice_glaze,
+		_snow_cover,
+		ice_snow,
+		_blowing_ice_level
+	)
 
 
 func _create_puddle_step_vfx() -> void:
@@ -333,6 +376,11 @@ func _process(delta: float) -> void:
 		return
 	if _underwater_pass != null:
 		_underwater_pass.update(delta)
+	if _blowing_snow != null:
+		var snow_rig := get_tree().get_first_node_in_group(&"player_view_rig") as Node3D
+		_update_blowing_snow(
+			delta, snow_rig.global_position if snow_rig != null else _camera.global_position
+		)
 	if _leaf_fall != null:
 		var rig := get_tree().get_first_node_in_group(&"player_view_rig") as Node3D
 		var focus := rig.global_position if rig != null else _camera.global_position
