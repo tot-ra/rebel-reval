@@ -11,6 +11,7 @@ Each built site has its own page under [`landmark_sites/`](./landmark_sites/); p
 - Confidence words follow the dossiers: **attested** (a dated source), **plausible composite** (reconstructed from the type and later fabric), **unknown**. Plans of rooms are composites unless marked attested; no measured 1343 interior plan survives for any Reval building.
 - **Period rule** (maintainer, 2026-10-07): an element dated after 1343 is left out. Where the 1343 state is unrecorded, use a slightly simplified form of the later, documented building. A later feature needs a maintainer-recorded entry in the manifest's `presentation` list.
 - Board references (`R-…`) are task IDs, not delivery dates; states are a snapshot of **2026-10-11**. Legacy district-map tasks are labelled and must be re-scoped before they can deliver a seamless-city site.
+- **House-by-house evidence:** the [Reval house survey 1343](../reports/reval_house_survey_1343.md) walks every Old Town street and register monument and says which plots had a building in April 1343; it is the source for the proposed private houses below. Per-building dossiers live in [`history/dossiers/architecture/buildings/`](../../history/RESEARCH_INDEX.md).
 
 ## Building index
 
@@ -27,8 +28,12 @@ Each built site has its own page under [`landmark_sites/`](./landmark_sites/); p
 | [St Catherine's Dominican friary](./landmark_sites/st_catherine.md) | friary, preaching, school | standing, smaller than its peak | implemented `site.st_catherine` |
 | [St Michael's Cistercian nunnery](./landmark_sites/st_michael.md) | convent | standing, wall tie-in under way | implemented `site.st_michael` |
 | [St Canute's guild house](#st-canutes-guild-house-kanutigilde) | guild, political | house held from 1326 | proposed |
-| [St Olaf's guild house](#st-olafs-guild-house-olaigilde) | guild, political | house held from 1341 | proposed |
+| [St Olaf's guild house](#st-olafs-guild-house-olaigilde) | guild, political | guild named 1341, house on the plot 14th c. | proposed |
 | [St John's leper hospital](#st-johns-leper-hospital-jaani-seek) | hospital, outside the walls | standing (first mention 1237) | proposed |
+| [Cistercian town courts on Vene street](#cistercian-town-courts-on-vene-street) | abbey offices (Kärkna, Roma, Padise) | plots attested 1259-c. 1280; 1343 use plausible | proposed |
+| [Vene 17 early stone house](#vene-17-early-stone-house) | merchant house | stone house, first half of 14th c. | proposed |
+| [Kohtu 12 tower house](#kohtu-12-tower-house-toompea) | vassal house on Toompea | 14th-c. tower core | proposed |
+| [Raekoja plats 18 tower house](#raekoja-plats-18-tower-house) | merchant house on the market | 14th-c. tower core | proposed |
 | [Coastal Gate](#coastal-gate-strantporte) | gate | gate tower, low form | non-site model |
 | [Viru Gate](#viru-gate-lehmporte) | gate | present, possibly unfinished | non-site model |
 | [Karja Gate](#karja-cattle-gate) | gate | present | non-site model |
@@ -103,7 +108,7 @@ None of these has a manifest in the [site registry](../../content/world/reval_ci
 
 ### St Canute's guild house (Kanutigilde)
 
-**Status:** proposed; no ADR or task. Pikk 20 (medieval core under the 1863 front).
+**Status:** proposed; task **R-1987 / SOC-5** places it on the empty plot. Pikk 20 (medieval core under the 1863 front).
 
 **Function in 1343:** seat of the St Canute umbrella guild of the "finer", mostly German crafts (house held from 1326, attested): feasts, elections, mutual aid, burials, and from the mid-14th century political voice against the council. Smiths belong to this umbrella, so this is Kalev's guild ground.
 
@@ -113,19 +118,19 @@ None of these has a manifest in the [site registry](../../content/world/reval_ci
 
 **Left out (later):** the 1863–64 Tudor-Gothic front and its statues.
 
-**Historical research:** [Guild structure](../../history/dossiers/crafts/guild-structure.md); [Schmiede-Amt ordinances before 1363](../../history/dossiers/crafts/schmiede-amt-ordinances-pre-1363.md); A. Mänd, ["Suurgildi liikmeskonnast…"](https://doi.org/10.3176/hist.2005.1.07), *Acta Historica Tallinnensia* 9, 2005.
+**Historical research:** [St Canute's guild house dossier](../../history/dossiers/architecture/buildings/st-canute-guild-house-pikk-20.md) (the 1326 house covered a third of today's plot; the great hall is 1470s); [Guild structure](../../history/dossiers/crafts/guild-structure.md); [Schmiede-Amt ordinances before 1363](../../history/dossiers/crafts/schmiede-amt-ordinances-pre-1363.md); A. Mänd, ["Suurgildi liikmeskonnast…"](https://doi.org/10.3176/hist.2005.1.07), *Acta Historica Tallinnensia* 9, 2005.
 
 ### St Olaf's guild house (Olaigilde)
 
-**Status:** proposed; no ADR or task. Pikk 24 (14th-century core).
+**Status:** proposed; task **R-2171 / HH-7** (needs maintainer approval). Pikk 24 (14th-century core).
 
-**Function in 1343:** seat of the St Olaf umbrella guild of the simpler trades (house held from 1341, attested); later tradition gives it more Estonian members, so it is the natural ground for the Estonian-German tension of the uprising (social colour, not proof of Estonian masters in April).
+**Function in 1343:** seat of the St Olaf umbrella guild of the simpler trades (guild first named 1341, attested; its house on the plot is dated only to the 14th century); later tradition gives it more Estonian members, so it is the natural ground for the Estonian-German tension of the uprising (social colour, not proof of Estonian masters in April).
 
 **Plan and decoration:** as St Canute's, plainer; composite.
 
 **Left out (later):** the 15th-century guild hall rebuild.
 
-**Historical research:** [Guild structure](../../history/dossiers/crafts/guild-structure.md); [Estonian and German populations](../../history/dossiers/people/estonian-and-german-populations.md); Mänd 2005 (above).
+**Historical research:** [St Olaf's guild house dossier](../../history/dossiers/architecture/buildings/st-olaf-guild-house-pikk-24.md) (guild named 1341, house on the plot in the 14th c., hall rebuilt 1419-22); [Guild structure](../../history/dossiers/crafts/guild-structure.md); [Estonian and German populations](../../history/dossiers/people/estonian-and-german-populations.md); Mänd 2005 (above).
 
 ### St John's leper hospital (Jaani seek)
 
@@ -140,6 +145,48 @@ None of these has a manifest in the [site registry](../../content/world/reval_ci
 **Left out (later):** the 1571 siege destruction and rebuild, the 20th-century buildings at Tartu mnt 16.
 
 **Historical research:** Wikipedia (et), ["Jaani seek"](https://et.wikipedia.org/wiki/Jaani_seek) (1237, 1279, late-14th-c. building list, house rules); T. Kala, "Mis oli ja millega tegeles Jaani seek?", *Horisont* 4, 2004; Tallinn City Museum, ["Seegi ajalugu"](https://linnamuuseum.ee/jaani-seek/lugemiseks/seegi-ajalugu/); Tallinn City Archives blog, ["Seek"](https://linnaarhiiv.wordpress.com/2017/10/25/seek/). No project dossier yet.
+
+### Cistercian town courts on Vene street
+
+**Status:** proposed; task **R-2167 / HH-3** (needs maintainer approval). Vene 15 // Pühavaimu 8 (Kärkna), Vene 20-22 (Roma, then Dünamünde/Padise), on the 14th-century "monks' street" (*platea monachorum* 1364).
+
+**Function in 1343:** supply and sales offices of three distant Cistercian abbeys for their Estonian estates: warehouses, stables, an agent's house, room for visiting brothers. Kärkna's plot is attested in 1259 and taxed as a *curia* about 1280 (its use in 1343 is plausible composite); Roma's court stood 1259-1519; the Dünamünde court passed to Padise, whose monks are killed on St George's Night 1343.
+
+**Plan:** three walled yards with gateways, a stone warehouse, a timber agent's house, stables and cart sheds; modest, like ordinary town plots (composite).
+
+**Left out (later):** the Russian merchants' church at Vene 24 (1405, uncertain), all later houses.
+
+**Historical research:** [Vene street Cistercian town courts](../../history/dossiers/architecture/buildings/vene-street-cistercian-town-courts.md).
+
+### Vene 17 early stone house
+
+**Status:** proposed; task **R-2168 / HH-4** (needs maintainer approval). Vene 17 (Tallinn City Museum), register monument 3102.
+
+**Function in 1343:** a merchant's fire-safe stone chamber: a small, probably one-room stone house of the first half of the 14th century survives under the later dornse; the family likely lived in a timber house beside it (plausible composite).
+
+**Left out (later):** the 15th-century portal wall, the 1506 mantel chimney and 1513 portal, the baroque stair.
+
+**Historical research:** [Vene 17 early stone house](../../history/dossiers/architecture/buildings/vene-17-early-stone-house.md).
+
+### Kohtu 12 tower house (Toompea)
+
+**Status:** proposed; task **R-2169 / HH-5** (needs maintainer approval). Kohtu 12, register monument 3002; complements the [bishop's court and vassal houses](#bishops-court-chapter-and-vassal-houses-castrum-maius).
+
+**Function in 1343:** a Danish vassal's fortified town house; massive square walls of a probably 14th-century tower core survive in the baroque palace (plausible composite).
+
+**Left out (later):** the baroque palace front, the 19th-century extension.
+
+**Historical research:** [Kohtu 12 tower house](../../history/dossiers/architecture/buildings/kohtu-12-toompea-tower-house.md).
+
+### Raekoja plats 18 tower house
+
+**Status:** proposed; task **R-2170 / HH-6** (needs maintainer approval). Raekoja plats 18 // Vanaturu kael 3, register monument 3070, east corner of the market.
+
+**Function in 1343:** a merchant's small multi-storey stone tower house of the 14th century (decade unknown); the site held a dwelling and three shops in 1367, after the game date, so booths against it are an optional plausible composite.
+
+**Left out (later):** the late-Gothic merchant house, the 1596 relief frieze, the 1681 baroque fit-out.
+
+**Historical research:** [Raekoja plats 18 tower house](../../history/dossiers/architecture/buildings/raekoja-plats-18-tower-house.md).
 
 ## Gates and wall towers
 
@@ -201,6 +248,10 @@ Do not add these as 1343 buildings; each is dated later in the dossiers.
 | Foregates and barbicans (Viru, Karja, Harju, Coastal) | 1370s-1461 | Walls, gates and towers |
 | St Olaf's spire, St Nicholas' basilica | c. 1450, 1405+ | [Churches](../../history/dossiers/religion/churches-and-religious-houses.md) |
 | Pirita Brigittine convent | 1407 | Churches |
+| Peppersack house (Vana turg 6 // Viru 2); a 14th-c. timber house stood on the plot | 1420-1460 | [Peppersack plot](../../history/dossiers/architecture/buildings/peppersack-plot-vana-turg-6.md) |
+| Olde Hansa packhouse (Vana turg 1); first stone warehouse second half of 14th c. | 1655-56 | [Olde Hansa plot](../../history/dossiers/architecture/buildings/olde-hansa-plot-vana-turg-1.md) |
+| Town Hall Pharmacy (Raeapteek); small weigh house on the site 1358 | 1422 | [House survey](../reports/reval_house_survey_1343.md) |
+| Three Sisters (Pikk 71) as standing houses; buildings on the plot from the 14th c. | 15th c. | [House survey](../reports/reval_house_survey_1343.md) |
 
 **Uncertain, needs research before a site is proposed:** a Rus merchants' Orthodox church in the Vene street quarter (not covered by any dossier); public bath houses (see [Public bath locations](../../history/dossiers/topography/public-bath-locations-1343.md)).
 
