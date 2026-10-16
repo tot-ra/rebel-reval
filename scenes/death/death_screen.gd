@@ -11,6 +11,8 @@ const DAMAGE_TYPE_TO_ILLUSTRATION := {
 	&"slash": &"slash",
 	&"blunt": &"blunt",
 	&"pierce": &"pierce",
+	# ADR 0057: a direct lightning stroke (Player.take_lightning).
+	&"lightning": &"lightning",
 }
 
 var _remaining_sec := RETURN_DELAY_SEC
@@ -22,6 +24,7 @@ var _transition_started := false
 	&"slash": $Center/Panel/Content/FatalHitIllustrations/Slash,
 	&"blunt": $Center/Panel/Content/FatalHitIllustrations/Blunt,
 	&"pierce": $Center/Panel/Content/FatalHitIllustrations/Pierce,
+	&"lightning": $Center/Panel/Content/FatalHitIllustrations/Lightning,
 	&"neutral": $Center/Panel/Content/FatalHitIllustrations/Neutral,
 }
 

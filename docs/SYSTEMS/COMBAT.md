@@ -81,7 +81,7 @@ Status: implemented (task **R-1886**, [ADR 0047](../adr/0047-interaction-stances
 
 ## Brawls with citizens
 
-Status: implemented (task **R-1756**). Scope: census residents in the seamless city (`CityCitizens`). Out of scope: named NPCs (`CityNamedNpcs`) and ambient site workers, guards joining a fight, Living City Fear, legal consequences, saving injuries or the fallen (they last for the session), body looting.
+Status: implemented (task **R-1756**). Scope: census residents in the seamless city (`CityCitizens`). Lightning can fell or wound a resident too, without starting a fight ([lightning strikes](./SKY_ATMOSPHERE.md#lightning-strikes)). Out of scope: named NPCs (`CityNamedNpcs`) and ambient site workers, guards joining a fight, Living City Fear, legal consequences, saving injuries or the fallen (they last for the session), body looting.
 
 **What the player does.** Draw the weapon (`G`, [stance](#peaceful-and-armed-stance-r-1886)), then swing it (or fists) or shoot an arrow at any resident. Nothing happens to people you do not actually hit: clicking a resident still opens the information panel, and a peaceful resident never attracts soft-lock or click attacks. Once struck:
 

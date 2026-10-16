@@ -259,6 +259,17 @@ func _on_citizen_hit(
 	return brawler.take_hit(amount, attacker, actor.global_position, swing_id, pierces_guard)
 
 
+## ADR 0057 (R-2154): lightning fells or burns a resident (LightningHazard). The
+## brawler keeps them down or wounded for the session, like a fight would.
+func strike_by_lightning(actor: CitizenActor, fraction: float, lethal: bool) -> void:
+	var brawler: CitizenBrawler = _brawlers.get(actor.index)
+	if brawler == null:
+		brawler = CitizenBrawler.create(actor.index, actor.record)
+		_brawlers[actor.index] = brawler
+	actor.brawler = brawler
+	brawler.take_lightning(fraction, lethal, actor.global_position)
+
+
 ## Fallen residents are not on the timetable any more: lay them back down where
 ## they fell whenever the hero comes near again.
 func _spawn_fallen(me: Vector2) -> void:
@@ -442,6 +453,8 @@ static func dye(rig: Node, record: Dictionary) -> void:
 			if (
 				name.ends_with("_short_tunic")
 				or name.ends_with("_wool_tunic")
+				or name.ends_with("_long_tunic")
+				or name.ends_with("_cotehardie")
 				or name.ends_with("_work_gown")
 				or name.ends_with("_gown")
 				or name.ends_with("_sideless_surcoat")

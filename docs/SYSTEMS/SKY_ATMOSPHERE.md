@@ -1,8 +1,8 @@
 # Sky and atmosphere: clouds, sunbeams, fog and haze
 
-Status: implemented (tasks **R-1400**, **R-1430**, **R-1436**, **R-1444**, **R-1481**, **R-1482**, **R-1493**, **R-1495**, **R-1501**, **R-1507**, **R-1517**, **R-1531**, **R-1532**, **R-1533**, **R-1165**, **R-1766**, **R-1794**, **R-1768**, **R-1873**, **R-1770**)
+Status: implemented (tasks **R-1400**, **R-1430**, **R-1436**, **R-1444**, **R-1481**, **R-1482**, **R-1493**, **R-1495**, **R-1501**, **R-1507**, **R-1517**, **R-1531**, **R-1532**, **R-1533**, **R-1165**, **R-1766**, **R-1794**, **R-1768**, **R-1873**, **R-1770**; lightning strikes **R-2152**, **R-2153**, **R-2154**)
 
-Scope: everything between the ground and the sky dome in the 3D views (district maps and the seamless city): individual clouds and their shadows, thunderstorms with local rain and lightning, sunbeams, a sun-shower rainbow, ground fog near water, distance haze and blur, and the summer heat mirage. Every layer is presentation only. It reads the shared weather, time of day, season and wind, never changes gameplay, and rebuilds identically from a save.
+Scope: everything between the ground and the sky dome in the 3D views (district maps and the seamless city): individual clouds and their shadows, thunderstorms with local rain and lightning, sunbeams, a sun-shower rainbow, ground fog near water, distance haze and blur, and the summer heat mirage. Every layer is presentation only, with one exception: a cloud-to-ground stroke near the hero hits a real target ([lightning strikes](#lightning-strikes), [ADR 0057](../adr/0057-lightning-strikes-gameplay-hazard.md)). It reads the shared weather, time of day, season and wind, never changes gameplay, and rebuilds identically from a save.
 
 Out of scope: volumetric fog (the GL Compatibility renderer has none), fog that blocks line of sight or AI vision, clouds that react to terrain, thunder timed to strike distance, hail as a ground or gameplay effect, superior mirages over the cold sea, seasonal weather odds. Stars and the Milky Way are on [`NIGHT_SKY.md`](./NIGHT_SKY.md); puddles, mud and drought on [`WEATHER_GROUND.md`](./WEATHER_GROUND.md); the weather cycle itself and its saved state on [`WORLD_PRESENTATION.md`](./WORLD_PRESENTATION.md) and [`SKY_WEATHER_STATE_CONTRACT.md`](../SKY_WEATHER_STATE_CONTRACT.md).
 
@@ -93,6 +93,28 @@ Rain leans with the wind: a cloudy-day breeze slants it about 45 degrees, a gale
 ### Lightning
 
 Lightning comes only from a grown storm. If there is no storm in the sky, there is no lightning, even when the weather itself is thundery; a storm that grew on a fair day can strike under a blue sky. About 40% of strikes are cloud-to-ground: a hairline jagged channel with two thinner branches from the storm base to the ground, its corona coming from the scene glow. The rest are flashes inside the cloud that light the tower from within. A strike near the camera lights the scene more than a distant one. At night the rain curtains are dark grey smudges that only light up in a flash.
+
+### Lightning strikes
+
+Status: implemented for the seamless city (tasks **R-2152**, **R-2153**, **R-2154**, [ADR 0057](../adr/0057-lightning-strikes-gameplay-hazard.md)). Burning and charred trees (**R-2155**) and scorched roofs (**R-2156**) are planned.
+
+A ground stroke that falls within 600 m of Kalev lands on something real. Within its striking distance (6 m plus 3 m per metre of height) the tallest thing usually catches it: a fortification tower or a church tower first, then a lone tree, a roof, a person standing in the open, and bare ground last (weight = height squared, ground counts as a 2 m object). The bolt is drawn down to the top of what it hit.
+
+| What is hit | What happens |
+|---|---|
+| Kalev, directly | He dies. Guard, parry and dodge do not help. The death screen shows the lightning illustration. |
+| Ground within 10 m of Kalev (ground current, side flash) | 45% of his health right beside the strike, fading to 15% at 10 m, a hit stun, and the sound is muffled for 3.5 s while the ears ring. |
+| A resident, directly | Falls dead 70% of the time; the rest lose 80% of their health and run. |
+| A resident within 10 m | Hurt like Kalev, then runs. Nobody turns to fight, and nothing counts as Kalev's guilt. |
+| A tree, a roof, a tower | Only the event for now: the bolt lands on it. |
+
+![The death screen after a direct lightning stroke](../reports/images/lightning/death_screen_lightning.png)
+
+Indoors, in a landmark room or under any enterable roof Kalev is never struck and takes no ground current; residents under a roof are safe too. Out in the open a direct hit is very rare: with a storm right overhead about 3% of ground strokes land within 150 m of him (1-3 per storm at about 4 ground strokes a minute), and about one stroke in 13 000 hits him alone on a field (one in 27 000 with an oak 50 m away); a lone tree beside him takes the stroke instead and leaves him the side flash. Every draw comes from the lightning RNG, which draws the same numbers whatever stands in the world, so a save replays the same strike.
+
+Entry points: `scripts/world/lightning_strike_resolver.gd` (pure targeting, numbers at the top), `scripts/world/lightning_hazard.gd` (collects towers, houses, plan trees and residents near a stroke and applies the hits; added by `scenes/world/reval_city/reval_city.gd`), `SkyWeather3D.strike_target_provider` and its `lightning_struck(strike)` signal, `Player.take_lightning()`, `CombatVitals.resolve_unavoidable()`, `CityCitizens.strike_by_lightning()`. Event: `{kind: ground|tower|tree|building|person|hero, id, position (struck top), ground, distance_to_hero_m, hits_hero}`. Tree ids are `tree@<x*10>,<z*10>` (world units), building and tower ids are the plan ids. Verify: `tests/godot/test_lightning_strikes.gd`, `tests/godot/test_death_flow.gd`.
+
+Limits: only the seamless city has the hazard (regional sites, interiors scenes and district maps keep presentation lightning). Named NPCs are not targets yet, so they are never hurt. A fallen resident stays down for the session, like a brawl, and is not saved. Landmark-site church spires are not candidates (their height is not in the plan); plan houses with a tower and the fortification towers are. The ear ringing is a muffle with no ringing tone, and thunder is still not timed to the strike.
 
 ### Sun-shower rainbow
 
@@ -258,6 +280,7 @@ The names below are entry points; read the file headers for details. Tunable con
 | Area | Files |
 |---|---|
 | Cloud field (pure, deterministic) | `scripts/map/view3d/cloud_cells.gd`, `cloud_cells.gdshaderinc` |
+| Lightning strikes (ADR 0057) | `scripts/world/lightning_strike_resolver.gd`, `scripts/world/lightning_hazard.gd` |
 | Sky, weather cycle, storm rain, lightning | `scripts/map/view3d/sky_weather_3d.gd`, `sky_weather_3d.gdshader`, `sky_clouds.gdshaderinc`, `sky_rainbow.gdshaderinc`, `sky_weather_resources.gd` |
 | Volumetric cloud slab (high tier) | `cloud_slab_effect.gd` (CompositorEffect), `cloud_slab.glsl` (march + resolve compute) |
 | Cloud shadows on ground and water | `cloud_shadow_pass.gd`/`.gdshader`, `water_cloud_shadow.gdshaderinc`, `scripts/city/city_water_light.gdshaderinc` |

@@ -42,8 +42,27 @@ func test_player_records_fatal_damage_type_as_transient_context() -> void:
 	player.free()
 
 
+## ADR 0057: a direct stroke kills through a dodge's invulnerability and records
+## the lightning illustration; ground current hurts without killing.
+func test_player_lightning_kills_through_dodge_and_records_lightning() -> void:
+	SessionState.consume_fatal_hit_damage_type()
+	var player := PLAYER_SCENE.instantiate() as Player
+	var tree := Engine.get_main_loop() as SceneTree
+	tree.root.add_child(player)
+	var hurt := player.take_lightning(player.max_health * 0.3)
+	assert_true(hurt > 0.0)
+	assert_true(player.health > 0.0)
+	assert_eq(SessionState.consume_fatal_hit_damage_type(), &"")
+	# Post-hit frames from the first stroke must not save him from the second.
+	assert_true(player.combat_vitals.is_hit_invulnerable())
+	player.take_lightning(1.0e6)
+	assert_eq(player.health, 0.0)
+	assert_eq(SessionState.consume_fatal_hit_damage_type(), &"lightning")
+	player.free()
+
+
 func test_death_screen_selects_supported_illustrations_and_clears_context() -> void:
-	for damage_type in [&"slash", &"blunt", &"pierce"]:
+	for damage_type in [&"slash", &"blunt", &"pierce", &"lightning"]:
 		var screen := _spawn_death_screen(damage_type)
 		_assert_only_illustration_visible(screen, damage_type)
 		assert_eq(SessionState.consume_fatal_hit_damage_type(), &"")

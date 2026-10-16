@@ -134,6 +134,20 @@ func resolve_hit(
 	return _resolve_open_hit(amount, swing_id, false, landed)
 
 
+## ADR 0057: harm that is not a blow (a lightning stroke). No guard, parry, dodge,
+## post-hit frames or damage reduction stops it; it still starts the post-hit
+## frames, so one stroke never lands twice.
+func resolve_unavoidable(amount: float) -> CombatHitResult:
+	if amount <= 0.0 or health <= 0.0:
+		return _finish(
+			CombatHitResult.make(
+				CombatHitResult.OUTCOME_IGNORED, amount, 0.0, 0.0, health <= 0.0, 0
+			)
+		)
+	_dead = false
+	return _resolve_open_hit(amount, 0, false, amount)
+
+
 func _resolve_guarded(amount: float, swing_id: int, landed: float) -> CombatHitResult:
 	var stamina_need := landed * maxf(0.0, guard_stamina_per_damage)
 	var stamina_taken := minf(stamina, stamina_need)

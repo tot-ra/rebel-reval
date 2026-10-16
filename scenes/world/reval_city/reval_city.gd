@@ -19,6 +19,7 @@ extends "res://scripts/global/BaseLevel.gd"
 const GraphicsPresetsScript := preload("res://scripts/settings/graphics_presets.gd")
 const CitySeatsScript := preload("res://scripts/world/city_seats.gd")
 const SeatPromptScript := preload("res://scripts/world/seat_prompt.gd")
+const LightningHazardScript := preload("res://scripts/world/lightning_hazard.gd")
 const PerfProbeScript := preload("res://scripts/debug/perf_probe.gd")
 const DEFAULT_SPAWN := "poi.forum"
 ## On-foot speeds in city units/s (about 1 m each), converted to logic px. The old
@@ -118,6 +119,12 @@ func _ready() -> void:
 			var snow := CitySnow.walk_drag(CitySnow.depth_at(at, world.snow_cover))
 			var ground := minf(world.grass.walk_drag_at(at), view.soft_ground_drag_at(at))
 			return minf(ground, snow)
+	)
+	# ADR 0057: ground strokes near Kalev hit towers, trees, roofs and people.
+	add_child(
+		LightningHazardScript.create(
+			plan, player, world, _npcs.citizens if _npcs != null else null
+		)
 	)
 	minimap = CityMinimap.create(plan)
 	add_child(minimap)

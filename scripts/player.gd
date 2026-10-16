@@ -19,6 +19,8 @@ const NpcPushScript := preload("res://scripts/physics/npc_push.gd")
 const PlayerLeapScript := preload("res://scripts/player/player_leap.gd")
 const PlayerSeatScript := preload("res://scripts/player/player_seat.gd")
 const DEATH_SCREEN_PATH := "res://scenes/death/death_screen.tscn"
+## Fatal-hit type the death screen shows the lightning illustration for (ADR 0057).
+const DAMAGE_TYPE_LIGHTNING := &"lightning"
 const STAMINA_DRAIN_RATE := 10.0  # per second
 const DODGE_STAMINA_COST := 18.0
 const DODGE_DISTANCE_PX := 80.0
@@ -913,6 +915,23 @@ func _charge_threshold_sec() -> float:
 func apply_hit_stun() -> void:
 	PlayerActionInput.reset_guard_toggle()
 	action_state_machine.apply_hit()
+
+
+## ADR 0057 (R-2153): a lightning stroke. Not a blow, so no guard, parry or dodge
+## stops it (CombatVitals.resolve_unavoidable); a direct stroke passes more than
+## any health and kills, ground current hurts and stuns.
+func take_lightning(amount: float) -> float:
+	_sync_vitals_from_fields()
+	var result := combat_vitals.resolve_unavoidable(amount)
+	_last_hit_result = result
+	if result.died and has_node("/root/SessionState"):
+		SessionState.set_fatal_hit_damage_type(DAMAGE_TYPE_LIGHTNING)
+	_sync_fields_from_vitals()
+	_sync_resource_bars()
+	if result.health_damage > 0.0:
+		health_changed.emit(health, max_health)
+		apply_hit_stun()
+	return result.health_damage
 
 
 func take_damage(

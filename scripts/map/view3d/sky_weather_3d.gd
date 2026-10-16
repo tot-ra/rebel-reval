@@ -21,6 +21,12 @@ const PerfProbeScript := preload("res://scripts/debug/perf_probe.gd")
 const SkyWeatherStateScript := preload("res://scripts/map/view3d/sky_weather_state.gd")
 const CloudCellsScript := preload("res://scripts/map/view3d/cloud_cells.gd")
 const CloudSlabEffectScript := preload("res://scripts/map/view3d/cloud_slab_effect.gd")
+const LightningStrikeResolverScript := preload("res://scripts/world/lightning_strike_resolver.gd")
+
+## ADR 0057 (R-2152): a ground stroke landed near the hero on a real target.
+## `strike` is LightningStrikeResolver.resolve()'s dictionary (kind, id, position,
+## ground, distance_to_hero_m, hits_hero). Gameplay listens; the sky stays the same.
+signal lightning_struck(strike: Dictionary)
 ## Catalog stars baked per staged-assembly unit (about 1 ms each).
 const STAR_BAKE_SLICE := 1000
 # Mirrors SKY_CLOUD_EARTH_RADIUS / sky_cloud_layer_distance in sky_clouds.gdshaderinc.
@@ -618,6 +624,11 @@ var _lightning_rng := RandomNumberGenerator.new()
 var _lightning_origin := Vector3(0.0, 600.0, 0.0)
 var _lightning_ground := Vector3.ZERO
 var _lightning_kind := LIGHTNING_KIND_CLOUD
+## ADR 0057: the world near the hero, asked once per ground stroke. Called with the
+## stroke's world XZ; returns {hero: Vector2, hero_base_y: float, hero_sheltered:
+## bool, candidates: Array, metres_per_unit: float}, or {} when there is no hero
+## (map views, tools). Unset = lightning stays presentation only.
+var strike_target_provider := Callable()
 ## Simulated seconds that drive every cloud cell's life cycle.
 var _cloud_cell_clock := 0.0
 var _cells: CloudCellsScript = CloudCellsScript.new()
@@ -2292,6 +2303,10 @@ func _place_strike(slot: int) -> void:
 	_lightning_ground = Vector3(
 		center.x + cos(ground_angle) * ground_reach, 0.0, center.z + sin(ground_angle) * ground_reach
 	)
+	if _lightning_kind == LIGHTNING_KIND_GROUND:
+		# ADR 0057: drawn for every ground stroke, hero or not, so the lightning
+		# stream never depends on what happens to stand in the world.
+		_resolve_strike_target(_lightning_rng.randf())
 	var view := _view_position()
 	var bearing := CloudCellsScript.wrap_delta(
 		Vector2(_lightning_origin.x, _lightning_origin.z), Vector2(view.x, view.z),
@@ -2301,6 +2316,40 @@ func _place_strike(slot: int) -> void:
 	_lightning_dir = Vector2(bearing.x, -bearing.y).normalized()
 	if _lightning_dir.length_squared() < 0.5:
 		_lightning_dir = Vector2.RIGHT
+
+
+## ADR 0057: snaps the ground stroke onto what it would really hit near the hero
+## and announces it. `_lightning_ground` lives in the storm domain the shader wraps
+## around the camera (sky_weather_3d.gdshader `strike_shift`), so the target is
+## found in real world coordinates and shifted back by the same wrap.
+func _resolve_strike_target(roll: float) -> void:
+	if not strike_target_provider.is_valid():
+		return
+	var view := _view_position()
+	var view_xz := Vector2(view.x, view.z)
+	var origin_xz := Vector2(_lightning_origin.x, _lightning_origin.z)
+	var shift := (
+		CloudCellsScript.wrap_delta(origin_xz, view_xz, CloudCellsScript.KIND_STORM)
+		+ view_xz - origin_xz
+	)
+	var ground := Vector2(_lightning_ground.x, _lightning_ground.z) + shift
+	var world: Dictionary = strike_target_provider.call(ground)
+	if world.is_empty():
+		return
+	var strike := LightningStrikeResolverScript.resolve(
+		ground,
+		world.get("hero", Vector2.ZERO),
+		float(world.get("hero_base_y", 0.0)),
+		bool(world.get("hero_sheltered", false)),
+		world.get("candidates", []),
+		float(world.get("metres_per_unit", 1.0)),
+		roll
+	)
+	if strike.is_empty():
+		return
+	var top: Vector3 = strike["position"]
+	_lightning_ground = Vector3(top.x - shift.x, top.y, top.z - shift.y)
+	lightning_struck.emit(strike)
 
 
 ## Flash shape: a sharp leader stroke plus a fast return-stroke flicker, both

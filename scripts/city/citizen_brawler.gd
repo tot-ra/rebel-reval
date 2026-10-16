@@ -179,6 +179,24 @@ func take_hit(
 	return result.health_damage
 
 
+## ADR 0057 (R-2154): a lightning stroke (`fraction` of max health, or `lethal`).
+## Not a blow from anyone: nobody turns to fight, the survivor runs from the hero
+## like any frightened bystander, and nothing is the hero's guilt.
+func take_lightning(fraction: float, lethal: bool, at: Vector2) -> void:
+	if mode == Mode.DOWN:
+		return
+	if mode == Mode.CALM or mode == Mode.RETURN:
+		position = at
+	var amount := vitals.health + 1.0 if lethal else vitals.max_health * fraction
+	var result := vitals.resolve_unavoidable(amount)
+	if result.died:
+		_fall()
+		return
+	if mode != Mode.FIGHT:
+		mode = Mode.FLEE
+		_flee_sec = 0.0
+
+
 ## One step of the fight. `home` is where the timetable wants the resident now
 ## (logic px); `target` is the hero. Returns the velocity to apply.
 func step(delta: float, target: Node2D, home: Vector2) -> Vector2:

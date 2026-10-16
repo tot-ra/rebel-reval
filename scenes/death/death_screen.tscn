@@ -1,10 +1,11 @@
-[gd_scene load_steps=7 format=3 uid="uid://c4deathscreen01"]
+[gd_scene load_steps=8 format=3 uid="uid://c4deathscreen01"]
 
 [ext_resource type="Script" path="res://scenes/death/death_screen.gd" id="1_death"]
 [ext_resource type="Texture2D" path="res://assets/UI/death/death_slash.png" id="2_slash"]
 [ext_resource type="Texture2D" path="res://assets/UI/death/death_blunt.png" id="3_blunt"]
 [ext_resource type="Texture2D" path="res://assets/UI/death/death_pierce.png" id="4_pierce"]
 [ext_resource type="Texture2D" path="res://assets/UI/death/death_neutral.png" id="5_neutral"]
+[ext_resource type="Texture2D" path="res://assets/UI/death/death_lightning.png" id="6_lightning"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
 bg_color = Color(0.0705882, 0.054902, 0.0627451, 0.96)
@@ -128,6 +129,19 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 texture = ExtResource("5_neutral")
+expand_mode = 1
+stretch_mode = 6
+visible = false
+
+[node name="Lightning" type="TextureRect" parent="Center/Panel/Content/FatalHitIllustrations"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("6_lightning")
 expand_mode = 1
 stretch_mode = 6
 visible = false
