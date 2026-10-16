@@ -14,8 +14,8 @@ Rules follow the research dossier [`clothing-and-status-markers.md`](../../histo
 | Smiths, armourers, cutlers, tanners, cobblers, masons, coopers | leather apron (*Schurz*) | master craftsman (Kalev) |
 | Bakers, butchers, brewers, cooks, alewives, fishmongers, dyers, washerwomen | linen waist apron (bakers and cooks white, dyers stained blue) | alewife, servant girl |
 | Clerks, scribes, scholars, pilgrims, pedlars, healers, midwives | scrip on a shoulder strap: tooled leather for burghers, rawhide or linen for the poor, a pilgrim's plain leather with a pewter scallop ([Bags](#bags-r-2034)) | - |
-| Married women | headscarf always (baked); burgher wives add a linen veil; widows and elders often veiled | burgher wife, market woman |
-| Nuns, lay sisters | black veil over the white headscarf (wimple), beads | Cistercian nun |
+| Married women | headscarf always; burgher wives add a linen veil, rich wives wear a barbette under it; Estonian wives the long head cloth; widows and elders of means a wimple; maidens bare with braids | burgher wife, market woman |
+| Nuns, lay sisters | black veil over the white wimple, beads | Cistercian nun |
 | Monks, lay brothers | white wool habit (the base body's cloth, `DOMINICAN_WHITE` for friars) under the black hood with its shoulder cape (the cappa's capuce), beads. The Order of Preachers wears white tunic, scapular and capuce under a black cappa; census friars do not yet have the scapular or the black cappa (follow-up: fit `scapular` and `cappa` as citizen layers; built for the named infirmarian, see [`CHARACTER_GENERATION.md`](../CHARACTER_GENERATION.md)) | Dominican friar |
 | Town watch on duty | quilted aketon over the street tunic, kettle hat, spear | watch overlay ("does not replace the undertunic") |
 | Crown men-at-arms on duty | aketon, mail haubergeon, red surcoat (Danish crown colours, no invented heraldry), kettle hat | vassal knight / Danish retainer |
@@ -96,6 +96,32 @@ Task **R-2028** (EQ-26 of epic **R-2002**): the hood gains its liripipe and, for
 
 Verify: refit with `Blender --background --python tools/assets/realistic_humans/build_human.py -- --character=citizen_m_adult_<build> --layers-only --only hood`; test `test_hood_dags_show_on_prestige_three`; capture `tools/godot_render.sh --script tools/capture_headwear.gd`.
 
+## Women's headwear (R-2029)
+
+Task **R-2029** (EQ-27 of epic **R-2002**): a woman's head follows marriage, people and purse. Builders: [`women_headwear.py`](../../tools/assets/realistic_humans/women_headwear.py) (new `wimple` and `barbette` layers), the existing `headscarf`, `head_cloth`, `veil_over` and `braids` in `garments.py`; rules in `tools/city/citizen_wardrobe.py` (`WOMAN_HEAD`, `UNDER_VEIL`).
+
+| Wearer | Head |
+|--------|------|
+| Maiden, girl | braids (bare); a kerchief for kitchen and washing trades (`KERCHIEF_TRADES`) |
+| Estonian wife (wrap-skirt body d) | long linen head cloth (75 %), else headscarf; never veil, wimple or barbette |
+| German or other wife, poor and middling | headscarf, a veil over it for 55 % of the middling |
+| Rich burgher wife, noblewoman | barbette (70 %) under a white veil, else headscarf and veil |
+| Widow or elder of means | wimple (rich 80 %, middling 55 %), veil over it for the rich; the poor an unveiled headscarf |
+| Nun | white wimple under a black veil |
+
+- **Wimple.** A linen oval covering chin, throat and the hair's edge, ending at the collar; the face is open from brow to lip. Layer budget 1,400 triangles.
+- **Barbette.** A 2.4 cm band hugging the skin in a loop before the ears, over the crown and under the chin (c. 1300-1350), seen across the chin and cheeks below the veil. 500 triangles. No fillet: it would sit under the veil, unseen.
+- **Drape.** Veils fall over the gown's shoulders (`cape_layers` = the baked gown or surcoat) and their front edge slopes down the chest instead of standing out at the shoulder (`head_wrap(max_flare=...)`); the wimple stops at the throat (`cape=False`).
+- **Variants.** The cell picks the grade, as for every linen layer ([`EQUIPMENT_VARIANTS.md`](./EQUIPMENT_VARIANTS.md#linen-r-2024)): `linen_coarse_w1` (yellowed) or `linen_coarse_w2` (sweat-stained) for the poor, bleached `linen_fine` (w0) for everyone better off; a worn cell takes soil from the wear shader. Test `test_womens_headwear_mounts_with_linen_grades`.
+- **Not built.** The goffered (frilled) veil edge: crimped Krause veils are attested from the 1350s on the Rhine and in the Low Countries, not for the Baltic by 1343, so by the period rule it is left out until a research note dates it.
+
+![Women 1-4 from the front: Estonian maid, kerchief, head cloth, widow](../reports/images/equipment/womens_headwear_front_a.png)
+![Women 5-8 from the front: burgher wife, patrician in barbette, widow in wimple, nun](../reports/images/equipment/womens_headwear_front_b.png)
+![Women 5-8 from behind: the veil drape](../reports/images/equipment/womens_headwear_back_b.png)
+![Women 1-4 from behind: braid, kerchief, head cloth, widow](../reports/images/equipment/womens_headwear_back_a.png)
+
+Verify: refit with `Blender --background --python tools/assets/realistic_humans/build_human.py -- --character=citizen_f_<stage>_<build>[_b|_c] --layers-only --only wimple,barbette,veil_over`; Python test `test_wimple_and_barbette_follow_age_and_purse`; capture `tools/godot_render.sh --script tools/capture_womens_headwear.gd`.
+
 ## Linen that shows (R-2024)
 
 Every man wore a linen shirt and braies under the wool, every woman a chemise (smock, *sark*) under the gown ([clothing dossier](../../history/dossiers/dailylife/clothing-and-status-markers.md)). On a crowd body only its edges are seen, so only the edges are built, by `tools/assets/realistic_humans/underlinen.py` (imported at the end of `garments.py`, it wraps the base outfit entries of `WARDROBE`):
@@ -164,7 +190,7 @@ Variants on the sturdy build (`tools/godot_render.sh --script tools/capture_surc
 | `wear_dye` | `{layer: [r, g, b]}` multiplier of the layer's undyed cloth |
 | `status`, `trade`, `id` | read by `CitizenWardrobe.weave`: grade by wealth, wear by trade, per-resident roll |
 
-Layer ids are stable: `hood`, `coif`, `wool_cap`, `veil_over`, `kettle_hat`, `mail_coif`, `aventail`, `bascinet`, `great_helm`, `gambeson`, `mail_haubergeon`, `coat_of_plates`, `surcoat`, `order_mantle`, `mail_chausses`, `gauntlets`, `smith_apron`, `waist_apron`, `keys`, `paternoster`, `satchel`, `back_sack`. Mounted garment ids are `wear_<layer>`. The armour layers exist on the eight adult men's bodies only. The stack is built in this order, each layer clearing the trees the layers under it registered (`ctx.layers`): aketon, mail, coat of plates, mail coif or aventail, surcoat, mantle.
+Layer ids are stable: `hood`, `coif`, `wool_cap`, `braids`, `headscarf`, `head_cloth`, `wimple`, `barbette`, `veil_over`, `kettle_hat`, `mail_coif`, `aventail`, `bascinet`, `great_helm`, `gambeson`, `mail_haubergeon`, `coat_of_plates`, `surcoat`, `order_mantle`, `mail_chausses`, `gauntlets`, `smith_apron`, `waist_apron`, `keys`, `paternoster`, `satchel`, `back_sack`. Mounted garment ids are `wear_<layer>`. The armour layers exist on the eight adult men's bodies only. The stack is built in this order, each layer clearing the trees the layers under it registered (`ctx.layers`): aketon, mail, coat of plates, mail coif or aventail, surcoat, mantle.
 
 Shields are not layers: the optional resident field `shield` (`order`, `crown`, `field`, `plain`; `citizen_wardrobe.shield_of`) is a modelled GLB chosen by `CitizenShield` (`scripts/city/citizen_shield.gd`, R-2013): `heater_order` (white, black cross, p3), `heater_crown` (plain crown red, p2), `heater_field` (pale board, runtime-tinted, p3), `heater_plain` (scuffed wood with an iron boss, p1), plus `buckler` and `pavise` families (models and `CitizenShield.scene` kinds `buckler`/`pavise` ship; the census does not hand them out yet). The bearer's `gear_variant` cell picks the file, else the nearest shipped cell of that kind. They are mounted on the left hand slot by `CitizenGear` (`_shield_held` turns the board face outward; the enarmes show from behind). Files: [shield variants](../../assets/props/weapons/heater_shield/variants), built by `tools/assets/equipment/build_shields.py`; see [EQUIPMENT_VARIANTS.md](EQUIPMENT_VARIANTS.md#shields-r-2013). `field` shields take the colour of the knight's coat of plates or surcoat. The town watch carries none. Grade ids are stable: `homespun`, `broadcloth`, `scarlet`, `linen_coarse`, `linen_coarse_w1`, `linen_coarse_w2`, `linen_fine`, `leather`, `quilted`, `fur`.
 

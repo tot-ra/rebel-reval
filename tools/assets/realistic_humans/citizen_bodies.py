@@ -99,16 +99,17 @@ LAYERS = {
     ("m", "child"): ("hood", "coif", "wool_cap"),
     # Women's head follows marriage (WD-3): maidens wear their braids (the hair is a
     # layer, so it can come off), wives the headscarf or the Estonian head cloth.
-    ("f", "adult"): ("braids", "headscarf", "head_cloth", "veil_over", "waist_apron", "keys", "paternoster",
-                     "satchel"),
-    ("f", "elder"): ("headscarf", "veil_over", "keys", "paternoster"),
+    ("f", "adult"): ("braids", "headscarf", "head_cloth", "wimple", "barbette", "veil_over", "waist_apron",
+                     "keys", "paternoster", "satchel"),
+    ("f", "elder"): ("headscarf", "wimple", "barbette", "veil_over", "keys", "paternoster"),
     ("f", "child"): (),
 }
 # Layers a woman's base outfit rules out: the long gown bakes its apron; the
 # patrician surcoat takes neither apron nor scrip; the head cloth is the Estonian
-# wife's and the white burgher veil is not worn over it.
+# wife's and the white burgher veil is not worn over it. Wimple and barbette are German
+# burgher dress: the Estonian wrap-skirt body (d) wears neither.
 _NOT_WITH = {"b": {"waist_apron", "head_cloth"}, "c": {"waist_apron", "satchel", "head_cloth"},
-             "a": {"head_cloth"}, "d": {"veil_over"}}
+             "a": {"head_cloth"}, "d": {"veil_over", "wimple", "barbette"}}
 # Extra ease (m) for torso layers so they clear the baked tunic, its blousing and belt.
 LAYER_EASE = 0.022
 

@@ -101,8 +101,8 @@ class WardrobeRules(unittest.TestCase):
                         if role in ("spouse", "head"):
                             self.assertNotIn("braids", wear, (outfit, role, wear))
                         if "veil_over" in wear:
-                            self.assertIn("headscarf", wear, wear)
-                        for h in ("headscarf", "head_cloth"):
+                            self.assertTrue(any(h in wear for h in wd.UNDER_VEIL), wear)
+                        for h in ("headscarf", "head_cloth", "wimple", "barbette"):
                             if h in wear:
                                 self.assertIn(h, dye)
 
@@ -137,6 +137,41 @@ class WardrobeRules(unittest.TestCase):
         covered = {h for i in range(100) for h in wd.dress(dict(wife, id=f"cit.wd3.hc.{i}"), layers(wife, "d"))[0]
                    if h in wd.WOMAN_HEAD}
         self.assertEqual(covered, {"head_cloth", "headscarf"})
+
+    def test_wimple_and_barbette_follow_age_and_purse(self):
+        """EQ-27: barbette only on rich burgher wives, wimple on nuns and widows or elders of
+        means; neither on the Estonian wrap-skirt body nor on maidens, labourers or children."""
+        for outfit in "abc":
+            for layer in ("wimple", "barbette"):
+                self.assertIn(layer, citizen_bodies.layers_of("f", "adult", outfit))
+        for layer in ("wimple", "barbette"):
+            self.assertNotIn(layer, citizen_bodies.layers_of("f", "adult", "d"))
+            self.assertNotIn(layer, citizen_bodies.layers_of("f", "child"))
+        seen = set()
+        for i in range(300):
+            wife = person(id=f"cit.eq27.w.{i}", sex="f", age=34, status="patrician", trade="merchant",
+                          household_role="spouse")
+            wear, dye = wd.dress(wife, layers(wife, "c"))
+            seen.update(wear)
+            if "barbette" in wear:
+                self.assertIn("veil_over", wear)
+                self.assertIn("barbette", dye)
+            maid = person(id=f"cit.eq27.m.{i}", sex="f", age=19, status="patrician", trade="merchant",
+                          household_role="maid")
+            self.assertNotIn("barbette", wd.dress(maid, layers(maid, "c"))[0])
+            poor = person(id=f"cit.eq27.p.{i}", sex="f", age=36, status="servant", trade="spinner",
+                          household_role="spouse")
+            self.assertFalse({"barbette", "wimple"} & set(wd.dress(poor, layers(poor, "b"))[0]))
+            widow = person(id=f"cit.eq27.e.{i}", sex="f", age=66, status="master_craftsman", trade="weaver",
+                           household_role="resident")
+            wear, _ = wd.dress(widow, layers(widow, "b"))
+            seen.update(wear)
+            self.assertEqual(len([h for h in wear if h in wd.WOMAN_HEAD]), 1, wear)
+            nun = person(id=f"cit.eq27.n.{i}", sex="f", age=30, status="master_craftsman", trade="nun")
+            wear, dye = wd.dress(nun, layers(nun, "b"))
+            self.assertEqual([h for h in wear if h in wd.WOMAN_HEAD], ["wimple"])
+            self.assertEqual(dye["veil_over"], list(wd.HABIT_BLACK) if isinstance(wd.HABIT_BLACK, tuple) else wd.HABIT_BLACK)
+        self.assertTrue({"barbette", "wimple", "headscarf"} <= seen, seen)
 
     def test_gown_census_rule(self):
         """Outfit c only on rich women, d only on Estonian or Finnish women below the rich,

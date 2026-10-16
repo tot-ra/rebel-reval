@@ -698,7 +698,8 @@ LAYER_TRIANGLES = {"hood": 3600, "veil_over": 1400, "mail_coif": 1300, "coif": 9
                    "surcoat": 2800, "smith_apron": 900, "waist_apron": 800, "keys": 400,
                    "paternoster": 700, "satchel": 700, "back_sack": 700, "coat_of_plates": 2800,
                    "aventail": 1500, "great_helm": 1100, "mail_chausses": 2200, "gauntlets": 1400,
-                   "order_mantle": 3200}
+                   "order_mantle": 3200,
+                   "braids": 1800, "headscarf": 1200, "head_cloth": 1400, "wimple": 1400, "barbette": 500}
 
 # Bags (R-2034): scrip with flap, toggle, tab and pilgrim badge; sack with a tied, gathered neck.
 LAYER_TRIANGLES.update({"satchel": 1700, "back_sack": 1100})

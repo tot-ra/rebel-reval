@@ -307,6 +307,37 @@ func test_hood_dags_show_on_prestige_three() -> void:
 
 
 ## R-2022: surcoat and Order mantle grades and wear follow the variant cell, not the purse.
+## Women's headwear (task R-2029): every head layer mounts on the bodies that carry it and its
+## linen takes the grade of its wearer's purse: coarse tow (w1 yellowed, w2 sweat-stained) for the
+## poor, bleached fine linen for everyone better off.
+func test_womens_headwear_mounts_with_linen_grades() -> void:
+	var cases := [
+		["citizen_f_adult_sturdy_d", "head_cloth", "servant", ["linen_coarse_w1", "linen_coarse_w2"]],
+		["citizen_f_elder_thin", "headscarf", "servant", ["linen_coarse_w1", "linen_coarse_w2"]],
+		["citizen_f_adult_heavy_b", "veil_over", "master_craftsman", ["linen_fine"]],
+		["citizen_f_elder_heavy", "wimple", "patrician", ["linen_fine"]],
+		["citizen_f_adult_average_c", "barbette", "patrician", ["linen_fine"]],
+	]
+	for case: Array in cases:
+		var rig := _rig(case[0])
+		var record := {
+			"id": "t.women." + String(case[1]), "body": case[0], "sex": "f", "status": case[2],
+			"cloth": [0.3, 0.3, 0.3], "under": [0.2, 0.2, 0.2], "wear": [String(case[1]) + "@p2_w1"],
+		}
+		CitizenWardrobe.dress(rig, record)
+		assert_true(rig.has_garment(StringName("wear_" + String(case[1]))), "%s on %s" % [case[1], case[0]])
+		var grades := {}
+		for mesh: MeshInstance3D in _layer_meshes(rig, case[1]):
+			for surface in mesh.mesh.get_surface_count():
+				var grade := _grade(mesh.get_active_material(surface))
+				if not grade.is_empty():
+					grades[grade] = true
+		assert_false(grades.is_empty(), "%s has a woven linen surface" % case[1])
+		for grade: String in grades:
+			assert_true(grade in case[3], "%s on a %s is %s" % [case[1], case[2], grade])
+		rig.queue_free()
+
+
 func test_fine_wool_grade_by_prestige() -> void:
 	var crown := {"wear": ["surcoat@p2_w1"]}
 	var knight := {"wear": ["surcoat@p3_w0"]}

@@ -1289,7 +1289,8 @@ def veil(ctx):
 
 
 def head_wrap(ctx, name, key, family, color, head_ease=0.028, hem_below_neck=0.25, face=(50, 24, -50),
-              cape_ease=0.03, hair=True, open_front=0, folds=0.004, cape_layers=(), hood_down=False):
+              cape_ease=0.03, hair=True, open_front=0, folds=0.004, cape_layers=(), hood_down=False,
+              max_flare=None, cape=True):
     """Wool hood with shoulder cape (Gugel), worn up, face opening framed.
 
     Parametric: a (theta, v) grid wraps the head (rays from the skull centre)
@@ -1299,6 +1300,10 @@ def head_wrap(ctx, name, key, family, color, head_ease=0.028, hem_below_neck=0.2
 
     `cape_layers`: ids in ctx.layers the cape rows must also clear (worn over them).
     `hood_down`: keep only the collar and cape (the hood lies back; the head is bare).
+    `cape`: False stops the cloth at the throat (the wimple), no shoulder cape.
+    `max_flare`: radial growth allowed per metre of drop below the neck, at the front half only; thin
+    linen drapes down the chest instead of standing out at the shoulders' edge (veil; None = as
+    the body). At the back the cloth keeps clear of the shoulder blades.
     """
     t, lm = ctx.t, ctx.lm
     targets = [trunk_bvh(ctx)]
@@ -1351,6 +1356,10 @@ def head_wrap(ctx, name, key, family, color, head_ease=0.028, hem_below_neck=0.2
             if rh < ra:
                 flat = Vector((here.x, here.y - t["hips"].y, 0)).normalized()
                 grid[r][c] = Vector((0, t["hips"].y, here.z)) + flat * (ra + 0.004)
+            elif (max_flare is not None and rh > ra + max_flare * (above.z - here.z)
+                  and abs(((c / columns + 0.5) % 1.0) - 0.5) < 0.3):  # within ~110 degrees of the front
+                flat = Vector((here.x, here.y - t["hips"].y, 0)).normalized()
+                grid[r][c] = Vector((0, t["hips"].y, here.z)) + flat * (ra + max_flare * (above.z - here.z))
     # Soft folds: shallow at the crown, deepening toward the hem as cloth hangs.
     rng = np.random.default_rng(len(name))
     phase = rng.uniform(0, 2 * math.pi, 2)
@@ -1394,6 +1403,8 @@ def head_wrap(ctx, name, key, family, color, head_ease=0.028, hem_below_neck=0.2
             elevation = 88 - (88 + 62) * (r + 0.5) / head_rows
             if hood_down and r < head_rows:
                 continue  # hood thrown back: collar and cape only
+            if not cape and r >= head_rows:
+                continue
             if r < head_rows and front < math.radians(face[0]) and face[2] < elevation < face[1]:
                 continue  # face opening
             if r >= head_rows - 2 and front < math.radians(open_front):
@@ -1986,7 +1997,9 @@ def veil_over(ctx):
     """Linen veil over the baked headscarf: married burgher women; black for nuns and widows."""
     return head_wrap(ctx, "Garment_veil_over", "veil_over", "linen", ctx.palette("veil_over", (0.86, 0.84, 0.78)),
                      head_ease=0.026, hem_below_neck=0.24, face=(56, 12, -85), cape_ease=0.045, hair=False,
-                     open_front=80, folds=0.01)
+                     open_front=80, folds=0.01, max_flare=0.6,
+                     # Lies over the baked gown's shoulders (the surcoat's are wider than the skin's).
+                     cape_layers=tuple(k for k in (ctx.spec.get("apron_over"),) if k in ctx.layers))
 
 
 def mail_coif(ctx):
@@ -2581,6 +2594,9 @@ WARDROBE = {
     "scapular": ("outerwear", [], scapular),
     "capuce": ("head", [], capuce),
     "cappa": ("back", [], cappa),
+    # EQ-27 (women_headwear.py, imported below: it needs this module first).
+    "wimple": ("head", [], lambda ctx: women_headwear.wimple(ctx)),
+    "barbette": ("head", [], lambda ctx: women_headwear.barbette(ctx)),
 }
 
 # Linen that shows (EQ-22, R-2024): shirt collar and cuffs, the chemise at the neck, on the
@@ -2594,3 +2610,6 @@ underlinen.install(WARDROBE)
 import headwear  # noqa: E402
 
 headwear.install(WARDROBE)
+
+# Women's wimple and barbette (EQ-27, R-2029): builders of the two head layers in WARDROBE.
+import women_headwear  # noqa: E402
