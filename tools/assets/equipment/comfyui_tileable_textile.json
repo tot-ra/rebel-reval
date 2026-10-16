@@ -1,0 +1,13 @@
+{
+  "_comment": "ComfyUI API-format graph for a textile plate source (docs/SYSTEMS/EQUIPMENT_VARIANTS.md, R-2003). Chroma1-HD graph from agents/rebel-art/playbook.md. Set 4.text and 7.seed, POST to /prompt, poll /history/<id>, then run derive_tileable_pbr.py on the saved image. Not run in R-2003 (ComfyUI server was offline); check model file names against /object_info before the first use.",
+  "1": {"class_type": "UNETLoader", "inputs": {"unet_name": "Chroma1-HD.safetensors", "weight_dtype": "default"}},
+  "2": {"class_type": "CLIPLoader", "inputs": {"clip_name": "t5xxl_fp8_e4m3fn.safetensors", "type": "chroma"}},
+  "3": {"class_type": "T5TokenizerOptions", "inputs": {"clip": ["2", 0], "min_padding": 1, "min_length": 0}},
+  "4": {"class_type": "CLIPTextEncode", "inputs": {"clip": ["3", 0], "text": "Flat texture photograph, shot straight-on and filling the entire frame edge to edge: quilted linen aketon surface, medieval, used. Vertical quilting channels 4 cm apart, coarse undyed linen tabby weave, faint grime, no gloss. Even diffuse light, no shadows, no vignette, no perspective, no objects, no edges, no text."}},
+  "5": {"class_type": "CLIPTextEncode", "inputs": {"clip": ["3", 0], "text": "modern fabric, synthetic, print, pattern logo, perspective, shadow, vignette, text, watermark"}},
+  "6": {"class_type": "EmptySD3LatentImage", "inputs": {"width": 1024, "height": 1024, "batch_size": 1}},
+  "7": {"class_type": "KSampler", "inputs": {"model": ["1", 0], "positive": ["4", 0], "negative": ["5", 0], "latent_image": ["6", 0], "seed": 2003, "steps": 30, "cfg": 4.0, "sampler_name": "euler", "scheduler": "beta", "denoise": 1.0}},
+  "8": {"class_type": "VAELoader", "inputs": {"vae_name": "ae.safetensors"}},
+  "9": {"class_type": "VAEDecode", "inputs": {"samples": ["7", 0], "vae": ["8", 0]}},
+  "10": {"class_type": "SaveImage", "inputs": {"images": ["9", 0], "filename_prefix": "equipment_textile"}}
+}

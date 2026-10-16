@@ -22,6 +22,7 @@ One page per implemented or planned feature. Each page opens with a `Status:` li
 | [Water supply: wells, buckets and household water](./WATER_SUPPLY.md) | Planned (epic R-1815): well types, vessels, citizens fetching water, household tubs; today one well model used only by legacy district maps |
 | [Social life: venues, the week and the night bell](./SOCIAL_LIFE.md) | Slice implemented (R-1984): evenings at beer-shops, St Olaf's guild house and the council wine cellar, home by the nine o'clock bell, Saturday bath, Sunday rest; buildings, feasts and travel planned (ADR 0050 proposed) |
 | [Pastimes: games and leisure of common people](./PASTIMES.md) | Planned (epic R-1956): dice, board and children's games, feast-day contests as ambient life; 2-3 playable folk mini-games with citizens after ADR 0049 |
+| [Equipment variants: pipeline, art bible, watch spear](./EQUIPMENT_VARIANTS.md) | Implemented (R-2003): Leonardo -> Meshy -> Blender cleanup pipeline, prestige x wear naming, budgets, sockets, tileable PBR plates; pilot watch spear on the town watch; other items planned (R-2004..R-2035) |
 | [Gate garrisons and patrols](./GATE_GARRISONS.md) | Implemented: census residents hold every gate by shift and walk the town and wall patrols, in their own clothes with a hat and spear |
 | [World presentation (3D view)](./WORLD_PRESENTATION.md) | Implemented |
 | [Cloud cells, seasonal cumulus, shadows and storm lightning](./CLOUD_CELLS.md) | Implemented: discrete clouds and weather phenomena visual atlas with seasonal cumulus scaling |

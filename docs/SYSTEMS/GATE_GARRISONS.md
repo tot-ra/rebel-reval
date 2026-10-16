@@ -52,7 +52,7 @@ Their own clothes are the blank Tier 2 citizen body of their sex and build, dyed
 | `sergeant` | watch sergeants | dark blue town coat | kettle hat, sword |
 | `crown` | Danish men-at-arms | crown red | kettle hat, spear |
 
-`CitizenGear.arm` (`scripts/city/citizen_gear.gd`) mounts the skinned `kettle_hat.glb` as a garment on the shared skeleton and the shipped `spear.tscn` / `sword.tscn` in the right hand slot. These are existing assets; no new art. No individual armour is fitted to the 22 citizen bodies (the fitted armour wearables are tied to the old watchman and Danish warrior bodies), so there is no mail or surcoat yet.
+`CitizenGear.arm` (`scripts/city/citizen_gear.gd`) mounts the skinned `kettle_hat.glb` as a garment on the shared skeleton and a weapon in the right hand slot: the watch spear variant `spear_p1_w1.glb` (R-2003, [`EQUIPMENT_VARIANTS.md`](./EQUIPMENT_VARIANTS.md)) for `watch` and `crown`, the legacy `sword.tscn` for the sergeant. No individual armour is fitted to the 22 citizen bodies (the fitted armour wearables are tied to the old watchman and Danish warrior bodies), so there is no mail or surcoat yet.
 
 ## Runtime entry points and data
 

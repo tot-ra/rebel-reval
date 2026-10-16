@@ -52,7 +52,7 @@ One page per feature, with status, behavior, code entry points, content, saved s
 
 ## Art and audio
 
-- Visual baseline: [`ART_BIBLE.md`](./ART_BIBLE.md) · [material style-lock kit](./MATERIAL_STYLE_LOCK_KIT.md) · [AI texture generation](./TEXTURE_AI_GENERATION.md) · [fonts](./FONTS.md)
+- Visual baseline: [`ART_BIBLE.md`](./ART_BIBLE.md) · [material style-lock kit](./MATERIAL_STYLE_LOCK_KIT.md) · [equipment variants and art bible](./SYSTEMS/EQUIPMENT_VARIANTS.md) · [AI texture generation](./TEXTURE_AI_GENERATION.md) · [fonts](./FONTS.md)
 - Assets: [asset inventory](./ASSET_INVENTORY.md) · [storage policy](./ASSET_STORAGE_POLICY.md) · [storage backlog](./STORAGE_SIZE_BACKLOG.md) · [asset folders](../assets/README.md) · [generated asset runs](../generated/README.md) · [third-party notices](./THIRD_PARTY_NOTICES.md)
 - Audio: [music library and attribution](../music/README.md) · [credits](../CREDITS.md) · [sound effects top 100](./SOUND_EFFECTS_TOP_100.md)
 

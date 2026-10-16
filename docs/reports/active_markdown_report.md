@@ -14,11 +14,11 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `1309`
-- Markdown files excluded as archive/reference/out of active scope: `774`
-- Local/external links inspected: `15217`
-- Links to active Markdown docs: `13102`
-- Links to existing archive/reference/non-active local docs: `562`
+- Active Markdown files scanned: `1310`
+- Markdown files excluded as archive/reference/out of active scope: `776`
+- Local/external links inspected: `15241`
+- Links to active Markdown docs: `13107`
+- Links to existing archive/reference/non-active local docs: `567`
 - External links skipped for reachability: `194`
 - Issues found: `0`
 
@@ -1203,6 +1203,7 @@ No active Markdown documentation issues found.
 - `docs/SYSTEMS/COTTAGE_WINDOWS.md`
 - `docs/SYSTEMS/CUTSCENES.md`
 - `docs/SYSTEMS/DIALOGUE.md`
+- `docs/SYSTEMS/EQUIPMENT_VARIANTS.md`
 - `docs/SYSTEMS/FACTIONS_AND_ECONOMY.md`
 - `docs/SYSTEMS/FARMLAND.md`
 - `docs/SYSTEMS/FLAG_CLOTH.md`

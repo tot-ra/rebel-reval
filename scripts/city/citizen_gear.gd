@@ -8,7 +8,10 @@ extends RefCounted
 ## comes from `duty.kit` in content/world/reval_city/citizens.json.
 
 const KETTLE_HAT := preload("res://assets/characters/realistic/watchman/kettle_hat/kettle_hat.glb")
-const SPEAR := preload("res://assets/characters/shared/spear.tscn")
+## Watch spear variant from the equipment pipeline (docs/SYSTEMS/EQUIPMENT_VARIANTS.md,
+## R-2003): Meshy leaf-blade head on a 2 m ash shaft, origin at the grip, shaft along +Y.
+## The legacy primitive assets/characters/shared/spear.tscn stays until R-2035.
+const SPEAR := preload("res://assets/props/weapons/spear/variants/spear_p1_w1.glb")
 const SWORD := preload("res://assets/characters/shared/sword.tscn")
 
 ## Kit -> {hat, hand}. The gatekeeper carries nothing: his keys are his badge.
@@ -18,12 +21,10 @@ const KITS := {
 	"sergeant": {"hat": true, "hand": &"sword"},
 	"keeper": {"hat": false, "hand": &""},
 }
-## Spear held upright at the side, butt on the ground. The hand slot's X axis points
-## down, so the spear's shaft (its Y) is turned onto hand -X and the grip sits a third
-## of the way up; scaled to a 1.8 m shaft-and-head. Measured with the idle pose.
-static var _spear_held := Transform3D(
-	Basis(Vector3.BACK, PI * 0.5).scaled(Vector3(1.25, 1.25, 1.25)), Vector3(0.415, 0.0, 0.0)
-)
+## Spear held upright at the side, butt near the ground. The hand slot's X axis points
+## down, so the spear's shaft (its Y) is turned onto hand -X; the GLB origin is already
+## the grip (socket_grip), so no offset or scale. Real size, 2.33 m overall.
+static var _spear_held := Transform3D(Basis(Vector3.BACK, PI * 0.5), Vector3.ZERO)
 
 ## Lantern hanging from the left fist by its bail: the hand slot's X points down, so
 ## the lantern's up (Y) is turned onto hand -X, the same turn as the spear.
