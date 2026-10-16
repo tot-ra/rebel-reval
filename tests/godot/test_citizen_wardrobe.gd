@@ -130,7 +130,7 @@ func test_grade_follows_wealth() -> void:
 	}
 	var expected := {
 		"t.rich": ["scarlet", "linen_fine"],
-		"t.poor": ["homespun", "linen_coarse"],
+		"t.poor": ["homespun", "linen_coarse_w2"],
 		"t.mid": ["broadcloth", "linen_fine"],
 	}
 	for record: Dictionary in [rich, poor, middling]:
@@ -183,10 +183,24 @@ func test_wear_rules() -> void:
 	assert_eq(CitizenWardrobe.grade_of("quilted", 2, 1), "quilted")
 
 
+func test_poor_linen_is_worn_and_rich_linen_fine() -> void:
+	assert_eq(CitizenWardrobe.linen_grade({"id": "a", "status": "labourer"}), "linen_coarse_w2")
+	assert_eq(CitizenWardrobe.linen_grade({"id": "a", "status": "servant"}), "linen_coarse_w2")
+	var seen := {}
+	for i in 30:
+		seen[CitizenWardrobe.linen_grade({"id": "p%d" % i, "status": "free_commoner"})] = true
+	assert_eq(seen.size(), 2, "commoners roll yellowed or sweat-stained")
+	var again := {"id": "p7", "status": "apprentice"}
+	assert_eq(CitizenWardrobe.linen_grade(again), CitizenWardrobe.linen_grade(again), "deterministic")
+	assert_eq(CitizenWardrobe.grade_of("linen", 1, 0), "linen_fine")
+	assert_eq(CitizenWardrobe.grade_of("linen", 2, 0), "linen_fine")
+
+
 func test_every_grade_set_loads() -> void:
 	for grade: String in CitizenWardrobe.GRADE_TILE:
 		for kind: String in ["albedo", "normal", "orm"]:
-			var path := "%s%s_%s_512.png" % [CitizenWardrobe.TEXTILE_DIR, grade, kind]
+			var maps: String = grade if kind == "albedo" else CitizenWardrobe.GRADE_BASE.get(grade, grade)
+			var path := "%s%s_%s_512.png" % [CitizenWardrobe.TEXTILE_DIR, maps, kind]
 			assert_true(ResourceLoader.exists(path), path)
 	assert_true(ResourceLoader.exists(CitizenWardrobe.WEAR_MASK))
 

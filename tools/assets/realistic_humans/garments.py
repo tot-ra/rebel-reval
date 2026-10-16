@@ -2250,3 +2250,10 @@ WARDROBE = {
     "capuce": ("head", [], capuce),
     "cappa": ("back", [], cappa),
 }
+
+# Linen that shows (EQ-22, R-2024): shirt collar and cuffs, the chemise at the neck, on the
+# base outfits; replaces under_shirt and shirt_collar. Imported last: it wraps the tunic
+# and gown entries above.
+import underlinen  # noqa: E402
+
+underlinen.install(WARDROBE)

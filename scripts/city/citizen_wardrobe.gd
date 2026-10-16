@@ -48,10 +48,16 @@ const GRADE_TILE := {
 	"scarlet": 0.06,
 	"linen_coarse": 0.09,
 	"linen_fine": 0.05,
+	"linen_coarse_w1": 0.09,
+	"linen_coarse_w2": 0.09,
 	"fur": 0.12,
 	"leather": 0.22,
 	"quilted": 0.20,
 }
+## Worn coarse linen (task R-2024): albedo-only grades over the plain linen_coarse weave.
+const GRADE_BASE := {"linen_coarse_w1": "linen_coarse", "linen_coarse_w2": "linen_coarse"}
+## Statuses that sweat their shirt through (coarse linen w2): day labour and service.
+const SWEAT_STATUS := ["labourer", "servant"]
 ## Rim sheen of the nap; textiles with a hard face have none.
 const GRADE_FUZZ := {"homespun": 0.35, "broadcloth": 0.25, "scarlet": 0.2, "fur": 0.5}
 ## Census status -> wealth: 0 poor, 1 middling, 2 rich (unknown: middling).
@@ -179,6 +185,8 @@ static func weave(rig: SharedCharacterRig, record: Dictionary) -> void:
 				continue
 			var slot := dye_slot(source.resource_name, layer)
 			var grade := grade_of(family, wealth, slot)
+			if grade == "linen_coarse":
+				grade = linen_grade(record)
 			mesh_instance.set_surface_override_material(surface, cloth_material(source, family, grade, slot))
 			woven = true
 		if not layer.is_empty():
@@ -246,6 +254,16 @@ static func grade_of(family: String, wealth: int, slot: int) -> String:
 	return family
 
 
+## Coarse linen of a poor resident by wear (task R-2024): w2 sweat-stained for labourers,
+## servants and one in three of the rest (rolled on the id), else w1 yellowed. Everyone
+## better off wears bleached fine linen, the w0 (docs/SYSTEMS/EQUIPMENT_VARIANTS.md).
+static func linen_grade(record: Dictionary) -> String:
+	var roll := posmod(("linen:" + String(record.get("id", ""))).hash(), 3)
+	if String(record.get("status", "")) in SWEAT_STATUS or roll == 0:
+		return "linen_coarse_w2"
+	return "linen_coarse_w1"
+
+
 ## Baked textile family of a garment material, read off its albedo map
 ## (`textiles/<family>_albedo[_512].png`); "" for skin, hair, mail and iron.
 static func family_of(material: BaseMaterial3D) -> String:
@@ -282,8 +300,10 @@ static func cloth_material(
 	material.shader = _shader(source.cull_mode == BaseMaterial3D.CULL_DISABLED)
 	var maps := "%s%s_%%s_512.png" % [TEXTILE_DIR, grade]
 	material.set_shader_parameter(&"albedo_tex", load(maps % "albedo"))
-	material.set_shader_parameter(&"normal_tex", load(maps % "normal"))
-	material.set_shader_parameter(&"orm_tex", load(maps % "orm"))
+	# Worn grades share the weave of their base grade (GRADE_BASE).
+	var weave_maps := "%s%s_%%s_512.png" % [TEXTILE_DIR, GRADE_BASE.get(grade, grade)]
+	material.set_shader_parameter(&"normal_tex", load(weave_maps % "normal"))
+	material.set_shader_parameter(&"orm_tex", load(weave_maps % "orm"))
 	material.set_shader_parameter(&"wear_tex", load(WEAR_MASK))
 	material.set_shader_parameter(&"base_color", Vector3(
 		source.albedo_color.srgb_to_linear().r,

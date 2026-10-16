@@ -172,6 +172,10 @@ The Viking-age bearded axe of the first forge set is gone (`assets/props/weapons
 
 Verify: `tools/godot_render.sh --script tools/capture_axe_equipment.gd`; `python3 tools/assets/equipment/build_equipment.py tools/assets/equipment/items/axe_*.json`; `test_forge_weapons`.
 
+## Linen (R-2024)
+
+The shirt, braies and chemise are baked base cloth, not files: their cell is the resident's wealth. `linen_fine` is the w0 of everyone above the poor; the poor wear coarse tow at w1 (yellowed) or w2 (sweat-stained). See [`CITIZEN_WARDROBE.md`](./CITIZEN_WARDROBE.md#linen-that-shows-r-2024).
+
 ## Limits
 
 - The spear is held with the same hand turn as the old primitive, so in the idle pose it leans about 10 degrees across the body; the walk cycle holds it upright. The walk arms are the separate T-pose bug R-2036.

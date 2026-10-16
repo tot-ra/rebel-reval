@@ -49,6 +49,8 @@ GRADE_TILE_METRES = {
     "scarlet": 0.06,
     "linen_fine": 0.05,
     "linen_coarse": 0.09,
+    "linen_coarse_w1": 0.09,
+    "linen_coarse_w2": 0.09,
     "fur": 0.12,
 }
 GRADE_SIZE = 512
@@ -313,6 +315,44 @@ def fur():
     return albedo, height_to_normal(height, 2.0), orm(cavity(height, 4), rough, 0.0)
 
 
+# Worn coarse linen (task R-2024, EQ-22): the poor's tow shirt, braies and chemise. Variant
+# wear after docs/SYSTEMS/EQUIPMENT_VARIANTS.md: w1 yellowed (unbleached tow greys and yellows
+# with lye washing and smoke), w2 sweat-stained (tide-lined blotches where it lies on the
+# skin). Fine bleached linen is the w0 of the well-off (`linen_fine`). Only the albedo
+# changes: the weave (normal, ORM) stays the plain linen_coarse set, which the runtime
+# reuses (CitizenWardrobe.GRADE_BASE).
+LINEN_WEAR = {"linen_coarse_w1": 1, "linen_coarse_w2": 2}
+
+
+def linen_coarse_worn(level):
+    """Albedo of coarse linen at wear `level` 1 (yellowed) or 2 (sweat-stained)."""
+    albedo = linen_coarse()[0]
+    # Yellowing is uneven: folds and the parts washed less often stay darker.
+    mottle = periodic_noise(SIZE, 4, 60 + level)
+    yellow = np.array([0.97, 0.93, 0.80]) if level == 1 else np.array([0.93, 0.87, 0.72])
+    albedo = albedo * yellow * (1.0 + 0.05 * mottle[..., None])
+    if level == 2:
+        # Broad soft blotches with a darker dried salt line at their edge; low frequency, so
+        # on a 9 cm tile they read as stains, not a pattern.
+        blot = periodic_noise(SIZE, 7, 62, power=1.0) + 0.35 * periodic_noise(SIZE, 30, 63)
+        sweat = np.clip((blot - 0.05) / 0.5, 0, 1) ** 1.5
+        rim = np.exp(-((blot - 0.08) / 0.05) ** 2) * (0.5 + 0.5 * periodic_noise(SIZE, 12, 64))
+        albedo = albedo * (1 - sweat[..., None] * np.array([0.05, 0.08, 0.18])) \
+            * (1 - np.clip(rim, 0, 1)[..., None] * np.array([0.03, 0.05, 0.10]))
+    return np.clip(albedo, 0, 1)
+
+
+def write_linen_wear():
+    """Writes `<grade>_albedo_512.png` for each worn coarse linen grade."""
+    half = int(round(math.log2(SIZE // GRADE_SIZE)))
+    for grade, level in LINEN_WEAR.items():
+        albedo = linen_coarse_worn(level)
+        for _ in range(half):
+            albedo = _half(albedo)
+        _png(texture_paths(grade, GRADE_SIZE)["albedo"], albedo, srgb=True)
+        print("wrote linen wear", grade)
+
+
 def wear_mask():
     """Shared RGBA wear mask, linear: R mud spatter, G soot smudge, B flour dust, A stains."""
     splash = np.clip(periodic_noise(SIZE, 45, 43, power=0.3) * 3.0 - 0.9, 0, 1)
@@ -394,6 +434,7 @@ def write_grades():
         mask = _half(mask)
     _png(OUT / f"wear_mask_{GRADE_SIZE}.png", mask, srgb=False)
     print("wrote wear mask")
+    write_linen_wear()
 
 
 def write_all():

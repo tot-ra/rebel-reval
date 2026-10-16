@@ -56,6 +56,7 @@ Grades follow the dossier's cloth ladder (undyed homespun for the poor, fulled b
 | `broadcloth` | fulled and napped twill, weave hidden | 8 cm | wool of journeymen, masters, clerks, clerics; under-wool of the rich |
 | `scarlet` | sheared nap, soft sheen | 6 cm | outer wool (tunic, gown, dyed layer) of patricians, nobles, merchants |
 | `linen_coarse` / `linen_fine` | tow linen with shives / bleached fine tabby | 9 / 5 cm | shirts, braies, coifs, veils, aprons: poor / everyone else |
+| `linen_coarse_w1` / `linen_coarse_w2` | the tow yellowed / sweat-stained (albedo only, weave of `linen_coarse`, R-2024) | 9 cm | the linen of the poor ([Linen that shows](#linen-that-shows-r-2024)) |
 | `leather`, `quilted` | the existing family sets | 22 / 20 cm | as made |
 | `fur` | pelt strands in clumps | 12 cm | built for fur trim and linings; no crowd garment uses fur yet (**R-1665**) |
 
@@ -78,6 +79,25 @@ Instance uniforms (per mesh, `GeometryInstance3D.set_instance_shader_parameter`)
 
 ![Rich merchant, poor porter, smith at 3 m](../reports/images/characters/citizen_textiles_3m.jpg)
 
+## Linen that shows (R-2024)
+
+Every man wore a linen shirt and braies under the wool, every woman a chemise (smock, *sark*) under the gown ([clothing dossier](../../history/dossiers/dailylife/clothing-and-status-markers.md)). On a crowd body only its edges are seen, so only the edges are built, by `tools/assets/realistic_humans/underlinen.py` (imported at the end of `garments.py`, it wraps the base outfit entries of `WARDROBE`):
+
+| Base outfit | Linen that shows |
+|---|---|
+| `short_tunic`, `long_tunic` (men, elders, boys) | shirt band 1.1 cm above the tunic's neckline; cuffs 1.4 cm past the wool sleeve, rolled hem |
+| `cotehardie` | shirt band only (the sleeve runs over the hand) |
+| `work_gown`, `gown` (women, elders, girls) | chemise edge 0.8 cm above the round neckline; cuffs |
+| `kirtle` | chemise edge only (the buttoned sleeve covers the wrist) |
+| `linen_shift` (outfit `d`) | the shift itself is the linen |
+| every body | `Clothing_Braies` (baked under the hose) |
+
+`under_shirt` (the healer's boy's `shirt_tunic`) uses the same collar and cuffs; its shell stops inside the wool sleeve. The pieces are textile family `linen` and keep their undyed colour (dye slot 0).
+
+The grade follows the variant rule of [`EQUIPMENT_VARIANTS.md`](./EQUIPMENT_VARIANTS.md#linen-r-2024): the poor wear coarse tow, `linen_coarse_w1` (yellowed) or `linen_coarse_w2` (sweat-stained: labourers, servants and one in three of the rest, `CitizenWardrobe.linen_grade`, rolled on the id); everyone better off wears bleached `linen_fine` (w0). The worn grades are albedo maps only (`textiles.linen_coarse_worn`, `write_linen_wear`); their normal and ORM are the `linen_coarse` set (`CitizenWardrobe.GRADE_BASE`). The braies, coifs, veils and aprons of a resident take the same grade as the shirt.
+
+Capture (`tools/capture_underlinen.gd`): [neck and wrist, three ranks of men and women](../reports/images/characters/citizen_underlinen.jpg).
+
 ## Data and stable IDs
 
 | Field (resident record) | Meaning |
@@ -89,7 +109,7 @@ Instance uniforms (per mesh, `GeometryInstance3D.set_instance_shader_parameter`)
 
 Layer ids are stable: `hood`, `coif`, `wool_cap`, `veil_over`, `kettle_hat`, `mail_coif`, `aventail`, `bascinet`, `great_helm`, `gambeson`, `mail_haubergeon`, `coat_of_plates`, `surcoat`, `order_mantle`, `mail_chausses`, `gauntlets`, `smith_apron`, `waist_apron`, `keys`, `paternoster`, `satchel`, `back_sack`. Mounted garment ids are `wear_<layer>`. The armour layers exist on the eight adult men's bodies only. The stack is built in this order, each layer clearing the trees the layers under it registered (`ctx.layers`): aketon, mail, coat of plates, mail coif or aventail, surcoat, mantle.
 
-Shields are not layers: the optional resident field `shield` (`order`, `crown`, `field`, `plain`; `citizen_wardrobe.shield_of`) is a modelled GLB chosen by `CitizenShield` (`scripts/city/citizen_shield.gd`, R-2013): `heater_order` (white, black cross, p3), `heater_crown` (plain crown red, p2), `heater_field` (pale board, runtime-tinted, p3), `heater_plain` (scuffed wood with an iron boss, p1), plus `buckler` and `pavise` families (models and `CitizenShield.scene` kinds `buckler`/`pavise` ship; the census does not hand them out yet). The bearer's `gear_variant` cell picks the file, else the nearest shipped cell of that kind. They are mounted on the left hand slot by `CitizenGear` (`_shield_held` turns the board face outward; the enarmes show from behind). Files: [shield variants](../../assets/props/weapons/heater_shield/variants), built by `tools/assets/equipment/build_shields.py`; see [EQUIPMENT_VARIANTS.md](EQUIPMENT_VARIANTS.md#shields-r-2013). `field` shields take the colour of the knight's coat of plates or surcoat. The town watch carries none. Grade ids are stable: `homespun`, `broadcloth`, `scarlet`, `linen_coarse`, `linen_fine`, `leather`, `quilted`, `fur`.
+Shields are not layers: the optional resident field `shield` (`order`, `crown`, `field`, `plain`; `citizen_wardrobe.shield_of`) is a modelled GLB chosen by `CitizenShield` (`scripts/city/citizen_shield.gd`, R-2013): `heater_order` (white, black cross, p3), `heater_crown` (plain crown red, p2), `heater_field` (pale board, runtime-tinted, p3), `heater_plain` (scuffed wood with an iron boss, p1), plus `buckler` and `pavise` families (models and `CitizenShield.scene` kinds `buckler`/`pavise` ship; the census does not hand them out yet). The bearer's `gear_variant` cell picks the file, else the nearest shipped cell of that kind. They are mounted on the left hand slot by `CitizenGear` (`_shield_held` turns the board face outward; the enarmes show from behind). Files: [shield variants](../../assets/props/weapons/heater_shield/variants), built by `tools/assets/equipment/build_shields.py`; see [EQUIPMENT_VARIANTS.md](EQUIPMENT_VARIANTS.md#shields-r-2013). `field` shields take the colour of the knight's coat of plates or surcoat. The town watch carries none. Grade ids are stable: `homespun`, `broadcloth`, `scarlet`, `linen_coarse`, `linen_coarse_w1`, `linen_coarse_w2`, `linen_fine`, `leather`, `quilted`, `fur`.
 
 ## Commands
 
