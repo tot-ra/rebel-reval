@@ -22,6 +22,7 @@ extends RefCounted
 ## layer's iron and mail a stand-in finish. Plain "<layer>" entries (older data) are w1.
 
 const EquipmentVariant := preload("res://scripts/city/equipment_variant.gd")
+const CitizenBags := preload("res://scripts/city/citizen_bags.gd")
 
 ## Dags (cut leaf tongues) on the hood's hem (task R-2028, tools/assets/realistic_humans/headwear.py):
 ## the hood layer carries them as their own surface, shown on prestige p3 only.
@@ -58,6 +59,9 @@ const GRADE_TILE := {
 	"fur": 0.12,
 	"leather": 0.22,
 	"quilted": 0.20,
+	# Bag leathers (task R-2034, tools/assets/realistic_humans/bag_textiles.py).
+	"leather_tooled": 0.11,
+	"rawhide": 0.20,
 }
 ## Worn coarse linen (task R-2024): albedo-only grades over the plain linen_coarse weave.
 const GRADE_BASE := {"linen_coarse_w1": "linen_coarse", "linen_coarse_w2": "linen_coarse"}
@@ -204,11 +208,25 @@ static func weave(rig: SharedCharacterRig, record: Dictionary) -> void:
 				if EquipmentVariant.prestige(parts[1]) < 3:
 					mesh_instance.set_surface_override_material(surface, hidden_material())
 				continue
+			# Scrips and sacks (R-2034): the cell picks each part's leather or linen.
+			var bag := (
+				CitizenBags.surface_rule(source, parts[1], record)
+				if layer in CitizenBags.LAYERS
+				else {}
+			)
+			if bag.has("keep"):
+				mesh_instance.set_surface_override_material(surface, bag["keep"])
+				continue
 			var family := family_of(source)
 			if family.is_empty():
 				continue
 			var slot := dye_slot(source.resource_name, layer)
 			var grade := grade_of(family, wealth, slot)
+			if bag.has("grade"):
+				var woven_bag := CitizenBags.cloth(source, family, bag)
+				mesh_instance.set_surface_override_material(surface, woven_bag)
+				woven = true
+				continue
 			if grade == "linen_coarse":
 				grade = linen_grade(record)
 			mesh_instance.set_surface_override_material(surface, cloth_material(source, family, grade, slot))

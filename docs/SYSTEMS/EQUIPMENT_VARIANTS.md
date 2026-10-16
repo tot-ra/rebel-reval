@@ -176,6 +176,10 @@ Verify: `tools/godot_render.sh --script tools/capture_axe_equipment.gd`; `python
 
 The shirt, braies and chemise are baked base cloth, not files: their cell is the resident's wealth. `linen_fine` is the w0 of everyone above the poor; the poor wear coarse tow at w1 (yellowed) or w2 (sweat-stained). See [`CITIZEN_WARDROBE.md`](./CITIZEN_WARDROBE.md#linen-that-shows-r-2024).
 
+## Bags (R-2034)
+
+Scrips and back sacks are fitted layers, not rigid props: one GLB per body carries every part on its own material, and the variant cell picks the cloth at runtime (p1 rawhide or linen, p2/p3 tooled leather, pilgrims plain leather with a pewter scallop; `w2` patched by the cloth wear). No `<layer>_<cell>.glb` files ship for bags. Details, history and captures: [`CITIZEN_WARDROBE.md`](./CITIZEN_WARDROBE.md#bags-r-2034).
+
 ## Limits
 
 - The spear is held with the same hand turn as the old primitive, so in the idle pose it leans about 10 degrees across the body; the walk cycle holds it upright. The walk arms are the separate T-pose bug R-2036.

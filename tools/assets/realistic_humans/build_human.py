@@ -700,6 +700,9 @@ LAYER_TRIANGLES = {"hood": 3600, "veil_over": 1400, "mail_coif": 1300, "coif": 9
                    "aventail": 1500, "great_helm": 1100, "mail_chausses": 2200, "gauntlets": 1400,
                    "order_mantle": 3200}
 
+# Bags (R-2034): scrip with flap, toggle, tab and pilgrim badge; sack with a tied, gathered neck.
+LAYER_TRIANGLES.update({"satchel": 1700, "back_sack": 1100})
+
 
 def export_crowd_layers(spec, motion, wardrobe, out, only=None):
     """Tier 2 layers: each garment of spec["layers"] joined into one skinned mesh,

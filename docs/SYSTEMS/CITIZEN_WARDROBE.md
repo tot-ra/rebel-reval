@@ -1,6 +1,6 @@
 # Citizen wardrobe: dress that shows rank, age, trade and arms
 
-Status: implemented (tasks **R-1663**, **R-1667**, epic **R-1662**; prestige and wear variants **R-2004**). Scope: the census residents of the seamless city ([`CITIZENS.md`](./CITIZENS.md)) wear layers over their baked base outfit, chosen from what the census knows about them: head coverings, aprons, the armour kits of the watch, crown men, knights and Order brothers (coat of plates, aventail, great helm, chausses, gauntlets, white mantle with the black cross, shields), keys, prayer beads, scrips and sacks, each dyed by wealth and office; every piece of cloth is drawn in a grade that matches the wearer's wealth (homespun to scarlet) and dirtied by their trade (see [Cloth grades and wear](#cloth-grades-and-wear)). Out of scope (planned, see [Roadmap](#roadmap)): civilian mantles and cloaks, new gowns, footwear, more child bodies, hand-carried props, hair and tonsure, and a crowd variety gate. Named NPCs keep their own models ([`NAMED_NPCS.md`](./NAMED_NPCS.md)).
+Status: implemented (tasks **R-1663**, **R-1667**, epic **R-1662**; prestige and wear variants **R-2004**; bags **R-2034**). Scope: the census residents of the seamless city ([`CITIZENS.md`](./CITIZENS.md)) wear layers over their baked base outfit, chosen from what the census knows about them: head coverings, aprons, the armour kits of the watch, crown men, knights and Order brothers (coat of plates, aventail, great helm, chausses, gauntlets, white mantle with the black cross, shields), keys, prayer beads, scrips and sacks, each dyed by wealth and office; every piece of cloth is drawn in a grade that matches the wearer's wealth (homespun to scarlet) and dirtied by their trade (see [Cloth grades and wear](#cloth-grades-and-wear)). Out of scope (planned, see [Roadmap](#roadmap)): civilian mantles and cloaks, new gowns, footwear, more child bodies, hand-carried props, hair and tonsure, and a crowd variety gate. Named NPCs keep their own models ([`NAMED_NPCS.md`](./NAMED_NPCS.md)).
 
 ## Historical basis
 
@@ -13,7 +13,7 @@ Rules follow the research dossier [`clothing-and-status-markers.md`](../../histo
 | Labourers, servants, Estonian townsfolk | short tunic in undyed or cheap dyes; coif or wool cap (more caps among Estonians); porters with a sack | labourer, Estonian townsman |
 | Smiths, armourers, cutlers, tanners, cobblers, masons, coopers | leather apron (*Schurz*) | master craftsman (Kalev) |
 | Bakers, butchers, brewers, cooks, alewives, fishmongers, dyers, washerwomen | linen waist apron (bakers and cooks white, dyers stained blue) | alewife, servant girl |
-| Clerks, scribes, scholars, pilgrims, pedlars, healers, midwives | leather scrip on a shoulder strap | - |
+| Clerks, scribes, scholars, pilgrims, pedlars, healers, midwives | scrip on a shoulder strap: tooled leather for burghers, rawhide or linen for the poor, a pilgrim's plain leather with a pewter scallop ([Bags](#bags-r-2034)) | - |
 | Married women | headscarf always (baked); burgher wives add a linen veil; widows and elders often veiled | burgher wife, market woman |
 | Nuns, lay sisters | black veil over the white headscarf (wimple), beads | Cistercian nun |
 | Monks, lay brothers | white wool habit (the base body's cloth, `DOMINICAN_WHITE` for friars) under the black hood with its shoulder cape (the cappa's capuce), beads. The Order of Preachers wears white tunic, scapular and capuce under a black cappa; census friars do not yet have the scapular or the black cappa (follow-up: fit `scapular` and `cappa` as citizen layers; built for the named infirmarian, see [`CHARACTER_GENERATION.md`](../CHARACTER_GENERATION.md)) | Dominican friar |
@@ -58,6 +58,7 @@ Grades follow the dossier's cloth ladder (undyed homespun for the poor, fulled b
 | `linen_coarse` / `linen_fine` | tow linen with shives / bleached fine tabby | 9 / 5 cm | shirts, braies, coifs, veils, aprons: poor / everyone else |
 | `linen_coarse_w1` / `linen_coarse_w2` | the tow yellowed / sweat-stained (albedo only, weave of `linen_coarse`, R-2024) | 9 cm | the linen of the poor ([Linen that shows](#linen-that-shows-r-2024)) |
 | `leather`, `quilted` | the existing family sets | 22 / 20 cm | as made |
+| `leather_tooled` / `rawhide` | vegetable-tanned leather with a blind-tooled lattice and ring stamps / scraped, dried untanned hide, waxy and mottled (`tools/assets/realistic_humans/bag_textiles.py`, R-2034) | 11 / 20 cm | scrips: burghers' pouches / the poor's pouches and straps ([Bags](#bags-r-2034)) |
 | `fur` | pelt strands in clumps | 12 cm | built for fur trim and linings; no crowd garment uses fur yet (**R-1665**) |
 
 Wear is drawn by the same shader from one shared RGBA mask (`wear_mask_512.png`: R mud spatter, G soot smudge, B flour dust, A stain blotches, 60 cm tile) and the skinned model-space position (height above the feet, front of the body):
@@ -114,6 +115,29 @@ The grade follows the variant rule of [`EQUIPMENT_VARIANTS.md`](./EQUIPMENT_VARI
 
 Capture (`tools/capture_underlinen.gd`): [neck and wrist, three ranks of men and women](../reports/images/characters/citizen_underlinen.jpg).
 
+## Bags (R-2034)
+
+Scrips (`satchel`) and back sacks (`back_sack`) stay fitted layers, one GLB per body, but every part has its own material key so the resident's variant cell decides what it is made of at runtime (`scripts/city/citizen_bags.gd`, preloaded by `CitizenWardrobe.weave`). Geometry is built by `satchel` and `back_sack` in `tools/assets/realistic_humans/garments.py`; the strap and rope keep their `_strap_path` routing.
+
+| Part (material key) | Shape | p1 (the poor) | p2, p3 (burghers, merchants, patricians) | Pilgrims (any cell) |
+|---|---|---|---|---|
+| `satchel` (pouch and flap, dyed) | pressed pouch on the left hip under a rounded flap | coarse linen or rawhide, half each (a roll of `"scrip:" + id`), undyed | `leather_tooled`, dyed tan or dark | plain soft `leather`, dyed |
+| `satchel_strap` (strap and toggle tab) | strap over the right shoulder, tab sewn under the flap point | `rawhide` | `leather` | `leather` |
+| `satchel_toggle` | turned wood or horn peg through the tab | baked dark wood | same | same |
+| `satchel_badge` | pewter scallop, 4.4 cm, on the flap | hidden | hidden | shown, pewter (no rust finish) |
+| `back_sack`, `back_sack_rope` | sack with gathers under a tied neck and a ruffled mouth; the tie cord runs on over the right shoulder | `linen_coarse` sacking | same | - |
+
+Wear stays the layer cloth wear: `w0` clean, `w2` dirtier with patch pieces (`CELL_WEAR`, `BATTERED_FLOOR`), so a battered sack or scrip shows mended squares. Prestige comes from `citizen_wardrobe.variants` (the poor `p1`; clerks, masters and merchants `p2`; patricians `p3`), so no census field changed.
+
+History: leather scrips with a flap and toggle, linen sacks tied at the neck. Pilgrim signs, pewter scallops of Santiago de Compostela among them, are found in Tallinn (about forty badges and scallops from a 15th-century landfill at Jahu and Väike-Patarei streets, 2018; Mänd and Selart, "The Relics of the Holy Blood in Riga and Schwerin and the Pilgrim Badges Found in Tallinn", *Forschungen zur baltischen Geschichte* 20, 2026; A. Vunk, "Eesti arheoloogilised palverändurimärgid"). The finds postdate 1343; the scallop sign itself is older (12th c. on), so the badge is a `plausible composite` for 1343. Tooled lattice and ring stamps follow 13th-14th c. North German and Baltic leather finds (sheaths, cases, purses).
+
+Hand-carried trade props (baskets, buckets, carried sacks; **R-1670**) are not layers: they mount on the hand slots. A sack carried in the hand should reuse the `linen_coarse` sacking and the `back_sack` palette colour so it matches the sack on the back.
+
+![Census residents: porters with sacks (used, battered), a merchant's and a clerk's tooled scrip, pedlars' rawhide and linen scrips, a pilgrim's scrip with its scallop](../reports/images/equipment/bag_variants_row.png)
+![Close-ups of the same bags](../reports/images/equipment/bag_variants_closeup.png)
+
+Capture: `tools/godot_render.sh --script tools/capture_bag_variants.gd`. Refit: `build_human.py -- --character=<body> --layers-only --only satchel,back_sack` for each body that has them.
+
 ## Data and stable IDs
 
 | Field (resident record) | Meaning |
@@ -136,6 +160,8 @@ Shields are not layers: the optional resident field `shield` (`order`, `crown`, 
 godot --headless --path . --import
 python3 tools/city/build_citizen_runtime.py            # rules -> citizens.json
 python3 tools/assets/realistic_humans/textiles.py --grades   # cloth grades + wear mask
+python3 tools/assets/realistic_humans/bag_textiles.py        # bag leathers: leather_tooled, rawhide
+tools/godot_render.sh --script tools/capture_bag_variants.gd # porters, merchant, clerk, pedlars, pilgrim
 tools/godot_render.sh --script tools/capture_citizen_textiles.gd   # 3 m close-ups + texture memory delta
 tools/godot_render.sh --script tools/capture_citizen_wardrobe.gd   # review plates
 ```

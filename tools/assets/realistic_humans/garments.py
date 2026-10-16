@@ -1564,39 +1564,163 @@ def _shoulder_top(ctx, x):
     return Vector((x, t["upperarm.l"].y, best))
 
 
+# Scrip proportions in the bag's frame (x along the body, y outward, z up), metres.
+# Profile (radius, z) of the pouch before it is pressed flat to SCRIP_DEPTH of its width.
+SCRIP_PROFILE = [(0.0, 0.105), (0.115, 0.105), (0.122, 0.08), (0.125, 0.0), (0.12, -0.06),
+                 (0.1, -0.095), (0.06, -0.112), (0.0, -0.115)]
+SCRIP_DEPTH = 0.26
+PEWTER = (0.62, 0.62, 0.58)
+
+
+def _profile_radius(profile, z):
+    """Radius of a top-to-bottom lathe profile at height z (0 above or below it)."""
+    for (r0, z0), (r1, z1) in zip(profile, profile[1:]):
+        if z1 <= z <= z0:
+            return r0 + (r1 - r0) * (z0 - z) / max(z0 - z1, 1e-6)
+    return 0.0
+
+
+def _scrip_front(x, z):
+    """Outward depth of the pressed scrip's front face at (x, z) in the bag frame."""
+    r = _profile_radius(SCRIP_PROFILE, min(z, SCRIP_PROFILE[1][1] - 1e-4))
+    return SCRIP_DEPTH * math.sqrt(max(r * r - x * x, 0.0))
+
+
+def _sheet(name, rows, place, out):
+    """Open quad sheet from a grid of bag-frame points, faces wound to look along `out`."""
+    bm = bmesh.new()
+    verts = [[bm.verts.new(place(p)) for p in row] for row in rows]
+    for a, b in zip(verts, verts[1:]):
+        for i in range(len(a) - 1):
+            bm.faces.new((a[i], a[i + 1], b[i + 1], b[i]))
+    bm.normal_update()
+    if sum(f.normal.dot(out) for f in bm.faces) < 0:
+        bmesh.ops.reverse_faces(bm, faces=list(bm.faces))
+    mesh = bpy.data.meshes.new(name)
+    bm.to_mesh(mesh)
+    bm.free()
+    obj = bpy.data.objects.new(name, mesh)
+    bpy.context.scene.collection.objects.link(obj)
+    return obj
+
+
+def _scallop(name, place, out, centre, radius):
+    """Pewter pilgrim badge: a ribbed scallop fan (hinge down) with its two ears, in relief.
+
+    Scallop shells and their pewter copies are the Compostela sign; Baltic towns have them in
+    finds (task R-2034). One small plate, 0.0015 m thick, on the scrip flap."""
+    rows = []
+    for i in range(4):
+        rho = radius * i / 3.0 if i else radius * 0.08
+        row = []
+        for j in range(17):
+            theta = math.radians(-78 + 156 * j / 16)
+            rib = 0.0011 * math.cos(theta * 9.0) ** 2 * (rho / radius)
+            dome = 0.0028 * math.sqrt(max(1.0 - rho / radius, 0.0))
+            row.append(centre + Vector((rho * math.sin(theta), dome + rib, rho * math.cos(theta))))
+        rows.append(row)
+    shell = _sheet(name, rows, place, out)
+    ears = [[centre + Vector((x, 0.0012, z)) for x in (-0.009, 0.0, 0.009)] for z in (-0.002, 0.004)]
+    ear = _sheet(name + "_ears", ears, place, out)
+    activate(shell)
+    ear.select_set(True)
+    bpy.ops.object.join()
+    obj = bpy.context.active_object
+    solidify(obj, 0.0015)
+    return obj
+
+
 def satchel(ctx):
-    """Leather scrip on the left hip, strap over the right shoulder (clerks, pilgrims, pedlars)."""
+    """Scrip on the left hip, strap over the right shoulder (clerks, merchants, pilgrims, pedlars).
+
+    A pressed pouch under a rounded flap closed by a toggle through a leather tab, and a
+    pewter scallop on the flap that only pilgrims show (task R-2034). Each part has its own
+    material key so the runtime can give them different cloth: `satchel` (pouch and flap,
+    dyed), `satchel_strap` (strap and tab), `satchel_toggle` (wood or horn), `satchel_badge`
+    (pewter; CitizenBags hides it on everyone but pilgrims)."""
     t = ctx.t
     leather = ctx.palette("satchel", (0.30, 0.19, 0.10))
     shoulder = _shoulder_top(ctx, -t["upperarm.l"].x * 0.55)
     hip_front, _ = belt_anchor(ctx, math.radians(78), drop=0.05)
     hip_back, _ = belt_anchor(ctx, math.radians(112), drop=0.05)
-    chest_front = Vector((0.0, t["hips"].y - 0.3, t["chest"].z - 0.06))
-    chest_back = Vector((0.0, t["hips"].y + 0.3, t["chest"].z - 0.06))
+    # Keypoints inside the trunk: _strap_path pushes them out onto the worn surface
+    # (points 0.3 m out stayed there and the strap hung off the body as a hoop).
+    chest_front = Vector((0.0, t["hips"].y - 0.02, t["chest"].z - 0.06))
+    chest_back = Vector((0.0, t["hips"].y + 0.02, t["chest"].z - 0.06))
     path = _strap_path(ctx, [hip_front, chest_front, shoulder, chest_back, hip_back], 0.005)
     strap = strap_tube(ctx, "Garment_satchel_strap", path, 0.03, None)
     _chest_hips_weights(ctx, strap)
     grain_uv(ctx, strap, "leather", override=lambda p: "torso")
-    parts = [finish(ctx, strap, "leather", leather, "satchel")]
+    parts = [finish(ctx, strap, "leather", leather, "satchel_strap")]
     anchor, out = belt_anchor(ctx, math.radians(95), drop=0.15)
-    place = frame_placer(anchor + out * 0.035, out)
-    bag = lathe("Garment_satchel_bag", [(0.0, 0.1), (0.1, 0.1), (0.12, 0.06), (0.125, -0.04),
-                                        (0.11, -0.09), (0.0, -0.095)], place, segments=10)
-    # Flatten the lathe into a pouch: thin outward, wide along the body.
+    centre = anchor + out * 0.035
+    place = frame_placer(centre, out)
+    bag = lathe("Garment_satchel_bag", SCRIP_PROFILE, place, segments=16)
+    # Press the lathe into a pouch: thin outward, wide along the body.
     for v in bag.data.vertices:
-        local = v.co - (anchor + out * 0.035)
+        local = v.co - centre
         along_out = out * local.dot(out)
-        v.co = anchor + out * 0.035 + (local - along_out) + along_out * 0.28
+        v.co = centre + (local - along_out) + along_out * SCRIP_DEPTH
     parts.append(rigid_part(ctx, bag, {"hips": 1.0}, "leather", leather, "satchel"))
-    flap = rigid_box(ctx, "Garment_satchel_flap", anchor + out * 0.07 + Vector((0, 0, 0.05)),
-                     (abs(out.y) * 0.2 + 0.006, abs(out.x) * 0.2 + 0.006, 0.09), "hips", "leather", leather,
-                     "satchel")
-    parts.append(flap)
+    # Flap: from the top seam over the front down to a rounded point, 5 mm off the pouch.
+    half, top = 0.118, SCRIP_PROFILE[1][1]
+    rows = []
+    for i in range(9):
+        s = i / 8.0
+        row = []
+        for j in range(11):
+            x = -half + 2 * half * j / 10
+            tip = -0.012 - 0.05 * math.cos(0.5 * math.pi * x / half)
+            z = top + 0.004 - s * (top + 0.004 - tip)
+            y = _scrip_front(x, z) + 0.005
+            row.append(Vector((x, y * (0.45 if i == 0 else 1.0), z)))
+        rows.append(row)
+    flap = _sheet("Garment_satchel_flap", rows, place, out)
+    solidify(flap, 0.003)
+    parts.append(rigid_part(ctx, flap, {"hips": 1.0}, "leather", leather, "satchel"))
+    # Toggle (a turned peg) through a tab sewn to the pouch just under the flap's point.
+    tip_z = -0.062
+    tab_y = _scrip_front(0.0, tip_z - 0.012) + 0.003
+    parts.append(rigid_box(ctx, "Garment_satchel_tab", place(Vector((0.0, tab_y, tip_z - 0.012))),
+                           (0.016, 0.016, 0.03), "hips", "leather", leather, "satchel_strap"))
+    peg = bmesh.new()
+    bmesh.ops.create_cone(peg, cap_ends=True, segments=6, radius1=0.0055, radius2=0.0055, depth=0.038)
+    mesh = bpy.data.meshes.new("Garment_satchel_toggle")
+    peg.to_mesh(mesh)
+    peg.free()
+    toggle = bpy.data.objects.new("Garment_satchel_toggle", mesh)
+    bpy.context.scene.collection.objects.link(toggle)
+    peg_at = Vector((0.0, tab_y + 0.012, tip_z - 0.008))
+    for v in toggle.data.vertices:
+        # Cone axis (z) laid along the body (bag x).
+        v.co = place(peg_at + Vector((v.co.z, v.co.y, v.co.x)))
+    parts.append(rigid_part(ctx, toggle, {"hips": 1.0}, "leather",
+                            ctx.palette("satchel_toggle", (0.20, 0.13, 0.07)), "satchel_toggle"))
+    badge_z = 0.035
+    badge = _scallop("Garment_satchel_badge", place, out,
+                     Vector((0.0, _scrip_front(0.0, badge_z) + 0.009, badge_z - 0.012)), 0.022)
+    parts.append(rigid_part(ctx, badge, {"hips": 1.0}, "iron", PEWTER, "satchel_badge"))
     return parts
 
 
+def _sack_gather(v):
+    """Bag-frame point of the back sack with gathers under the tie and a ruffled mouth."""
+    r = math.hypot(v.x, v.y)
+    if r < 1e-5:
+        return v
+    angle = math.atan2(v.y, v.x)
+    pleat = 0.0
+    if v.z > 0.29:
+        pleat = 0.009 * math.sin(angle * 9.0)  # loose mouth above the tie
+    elif v.z > 0.12:
+        pleat = 0.006 * math.sin(angle * 11.0) * float(surfaces.smoothstep(0.12, 0.27, v.z))
+    k = (r + pleat) / r
+    return Vector((v.x * k, v.y * k, v.z))
+
+
 def back_sack(ctx):
-    """Grain or wool sack on the back, rope over the right shoulder (porters, carters, millers)."""
+    """Grain or wool sack on the back, its neck gathered and tied with a cord that runs on
+    over the right shoulder as the carrying rope (porters, carters, millers; task R-2034)."""
     t = ctx.t
     sacking = ctx.palette("back_sack", (0.62, 0.55, 0.42))
     back = horizontal(math.pi)
@@ -1605,9 +1729,10 @@ def back_sack(ctx):
     centre = origin + back * (r + 0.1)
     up = Vector((-0.28, 0.0, 1.0))
     place = frame_placer(centre, back, up=up, squash=0.62)
-    profile = [(0.0, 0.3), (0.035, 0.29), (0.05, 0.25), (0.13, 0.19), (0.16, 0.08), (0.17, -0.06),
-               (0.155, -0.17), (0.11, -0.23), (0.0, -0.25)]
-    sack = lathe("Garment_back_sack", profile, place, segments=14)
+    profile = [(0.0, 0.335), (0.04, 0.34), (0.056, 0.322), (0.042, 0.298), (0.031, 0.282), (0.036, 0.266),
+               (0.065, 0.245), (0.125, 0.195), (0.157, 0.09), (0.17, -0.05), (0.158, -0.165), (0.112, -0.228),
+               (0.0, -0.25)]
+    sack = lathe("Garment_back_sack", profile, lambda v: place(_sack_gather(v)), segments=16)
     # Lumpy grain: a little low-frequency noise so the sack is not a turned vase.
     for v in sack.data.vertices:
         d = v.co - centre
@@ -1615,14 +1740,19 @@ def back_sack(ctx):
         if d.length > 1e-4:
             v.co += d.normalized() * bump
     parts = [rigid_part(ctx, sack, {"chest": 1.0}, "linen", sacking, "back_sack")]
-    neck = place(Vector((0, 0, 0.27)))
+    rope_colour = (0.55, 0.47, 0.33)
+    tie = [place(Vector((0.037 * math.cos(2 * math.pi * i / 12), 0.037 * math.sin(2 * math.pi * i / 12), 0.283)))
+           for i in range(12)]
+    parts.append(strap_tube(ctx, "Garment_back_sack_tie", tie, 0.011, {"chest": 1.0}, closed=True,
+                            family="linen", color=rope_colour, key="back_sack_rope"))
+    neck = place(Vector((0, 0, 0.283)))
     shoulder = _shoulder_top(ctx, -t["upperarm.l"].x * 0.5)
-    front = Vector((-t["upperarm.l"].x * 0.35, t["hips"].y - 0.3, t["chest"].z - 0.02))
+    front = Vector((-t["upperarm.l"].x * 0.35, t["hips"].y - 0.02, t["chest"].z - 0.02))
     rope = strap_tube(ctx, "Garment_back_sack_rope", _strap_path(ctx, [neck, shoulder, front], 0.006), 0.014,
                       None)
     rope.vertex_groups.new(name="chest").add([v.index for v in rope.data.vertices], 1.0, "REPLACE")
     grain_uv(ctx, rope, "linen", override=lambda p: "torso")
-    parts.append(finish(ctx, rope, "linen", (0.55, 0.47, 0.33), "back_sack_rope"))
+    parts.append(finish(ctx, rope, "linen", rope_colour, "back_sack_rope"))
     return parts
 
 
