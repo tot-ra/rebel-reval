@@ -43,6 +43,8 @@ var site_dir := "%s/%s" % [SITES_ROOT, DEFAULT_SITE]
 var bounds := Rect2()
 var metres_per_unit := 0.87
 var buildings: Array = []
+## WB-13c strip plots behind ordinary houses (`plan.json` "plots").
+var plots: Array = []
 ## Optional (Vector2) -> float deck height of a moving platform (boats, CityShips), NAN off it.
 var dynamic_deck := Callable()
 var streets: Array = []
@@ -57,6 +59,8 @@ var _origin := Vector2.ZERO
 var _building_index: Dictionary = {}
 var _building_ids: Dictionary = {}
 var _footprints: Array[PackedVector2Array] = []
+var _plot_index: Dictionary = {}
+var _plot_rings: Array[PackedVector2Array] = []
 var _height_texture: ImageTexture
 var _moat_line := PackedVector2Array()
 var _moat_bounds := Rect2()
@@ -169,12 +173,14 @@ func load_files(plan_path: String, height_path: String) -> Error:
 	)
 	metres_per_unit = float(data.get("metres_per_world_unit", 0.87))
 	buildings = data.get("buildings", [])
+	plots = data.get("plots", [])
 	streets = data.get("streets", [])
 	sites = CitySiteRegistry.load_for(data, file_path("sites"))
 	var error := _load_heights(height_path)
 	if error != OK:
 		return error
 	_index_buildings()
+	_index_plots()
 	return OK
 
 
@@ -395,6 +401,32 @@ func _index_buildings() -> void:
 				if not _building_index.has(key):
 					_building_index[key] = []
 				(_building_index[key] as Array).append(i)
+
+
+## Index into `plots` of the strip plot containing the point, or -1.
+func plot_at(world_xz: Vector2) -> int:
+	var key := Vector2i(floori(world_xz.x / INDEX_CELL), floori(world_xz.y / INDEX_CELL))
+	for index: int in _plot_index.get(key, []):
+		if Geometry2D.is_point_in_polygon(world_xz, _plot_rings[index]):
+			return index
+	return -1
+
+
+func _index_plots() -> void:
+	_plot_rings.clear()
+	_plot_index.clear()
+	for i in plots.size():
+		var ring := points(plots[i]["polygon"])
+		_plot_rings.append(ring)
+		var box := Rect2(ring[0], Vector2.ZERO)
+		for p in ring:
+			box = box.expand(p)
+		for y in range(floori(box.position.y / INDEX_CELL), floori(box.end.y / INDEX_CELL) + 1):
+			for x in range(floori(box.position.x / INDEX_CELL), floori(box.end.x / INDEX_CELL) + 1):
+				var key := Vector2i(x, y)
+				if not _plot_index.has(key):
+					_plot_index[key] = []
+				(_plot_index[key] as Array).append(i)
 
 
 static func to_logic(world_xz: Vector2) -> Vector2:

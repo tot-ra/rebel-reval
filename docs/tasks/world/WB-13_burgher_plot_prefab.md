@@ -33,6 +33,22 @@ Subtasks (board refs in parentheses):
 | WB-13n | R-1424 | Capture tool and plates |
 | WB-13o | R-1425 | Independent verification and closeout of R-985 |
 
+### WB-13c decisions (R-1413)
+
+Recorded by the unattended complex loop on 2026-10-17; the maintainer may reverse them.
+
+- **Yard shape.** `yard` is the rear part of the plot behind the house's back line, a convex quad
+  (or `[]`), not "plot minus footprint". Walls, gates and items in WB-13d..f work on that quad; the
+  side strips beside a house stay plot but not yard.
+- **Party-wall overhang.** Neighbouring OSM rings overlap by slivers after simplification, so a plot
+  is the free interval around the door and its house may overhang it at a party wall. Plots never
+  overlap each other, a foreign building or a street corridor.
+- **Wide houses.** A house wider than 11 m keeps its own frontage (no house is reshaped here). The
+  H04 median is therefore asserted over houses up to 11 m wide (7.65 m); wider footprints are
+  mostly merged modern blocks and splitting them belongs to AR-06 / UF-04.
+- **No plot.** 98 of 517 eligible houses get none because neighbours or a street close round them;
+  later WB-13 steps skip them.
+
 ### Evidence rule
 
 Every row below cites a section of `docs/reports/reval_domestic_infrastructure_1343.md` (the WB-12

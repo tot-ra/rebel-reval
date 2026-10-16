@@ -1363,6 +1363,13 @@ def build(args) -> dict:
         ring = [(q[0] * mpu, q[1] * mpu) for q in o["polygon"]]
         o["trees"] = sum(1 for t in trees if pip((t[0] * mpu, t[1] * mpu), ring))
 
+    # WB-13c: strip plots behind the houses. Read-only over everything above
+    # (no RNG, nothing moved), so no existing ID or footprint changes.
+    plot_obs = plot_obstacles(
+        streets, circuit_poly, toompea_edge, inner, tw["thickness_m"] / 2 + 0.3, castle_ring,
+        overlay["forum"]["polygon_m"], site_out, mpu)
+    plots = burgher_plots(buildings, plot_obs, mpu)
+
     for s in streets:
         s["points"] = wu(s.pop("points_m"))
         s["width"] = round(s.pop("width_m") / mpu, 3)
@@ -1392,6 +1399,7 @@ def build(args) -> dict:
         "castle": castle,
         "streets": streets,
         "buildings": buildings,
+        "plots": plots,
         "sites": site_out,
         "gutters": gutters,
         "trees": trees,
@@ -1430,7 +1438,8 @@ def build(args) -> dict:
     splat = render_splat(plan, mpu)
     roads = render_roads(plan, mpu)
     minimap = render_minimap(plan, height_wu)
-    return {"plan": plan, "height": height_doc, "splat": splat, "roads": roads, "minimap": minimap, "height_wu": height_wu, "extent_m": (x0, y0, x1, y1), "mpu": mpu}
+    return {"plan": plan, "height": height_doc, "splat": splat, "roads": roads, "minimap": minimap, "height_wu": height_wu, "extent_m": (x0, y0, x1, y1), "mpu": mpu,
+            "plot_obstacles": plot_obs}
 
 
 SITES_DIR = ROOT / "content/world/reval_city/sites"
@@ -2854,6 +2863,199 @@ def door_on_edge(ring, street_point):
 
 def hash_int(s):
     return int(hashlib.sha256(s.encode()).hexdigest()[:12], 16)
+
+
+# ---------------- burgher strip plots (WB-13c, R-1413) ----------------
+# H04 (docs/HISTORICAL_AUDIT.md) and dossier Section 5: an ordinary house fronts
+# the street on a strip plot commonly 7-11 m wide and up to 100 m deep. The
+# per-tier frontage target is a class-D gameplay assignment inside that band
+# (WB-13 tier ladder: poor low end, merchant upper half, great high end).
+PLOT_FRONTAGE_TARGET_M = {"poor": 7.5, "craft": 8.5, "merchant": 9.5, "great": 10.5}
+PLOT_MAX_DEPTH_M = 100.0
+PLOT_GAP_M = 0.05  # clearance kept from every obstacle, so touching never counts as overlap
+PLOT_MIN_YARD_M = 1.0  # a rear strip shallower than this is no yard
+PLOT_STREET_MARGIN_M = 0.25  # added to a street's own half width (plan width_m)
+PLOT_CURTAIN_CLEAR_M = 1.5  # half the 1343 curtain plus a walk behind it
+PLOT_EDGE_CLEAR_M = 0.5  # Toompea plateau edge (klint)
+PLOT_AREA_EPS = 1e-4  # m2; clipped slivers below this are numeric noise
+
+
+def clip_halfplane(poly, a, b, c):
+    """Part of `poly` with a*x + b*y >= c (Sutherland-Hodgman, one edge). The
+    subject may be concave; the clipped area stays exact for a convex window."""
+    out = []
+    n = len(poly)
+    for i in range(n):
+        p, q = poly[i], poly[(i + 1) % n]
+        fp, fq = a * p[0] + b * p[1] - c, a * q[0] + b * q[1] - c
+        if fp >= 0:
+            out.append(p)
+        if (fp >= 0) != (fq >= 0):
+            t = fp / (fp - fq)
+            out.append((p[0] + (q[0] - p[0]) * t, p[1] + (q[1] - p[1]) * t))
+    return out
+
+
+def clip_box(poly, t0, t1, n0, n1):
+    """Clip a polygon already in a (t, n) frame to the box t0..t1 x n0..n1."""
+    for a, b, c in ((1, 0, t0), (-1, 0, -t1), (0, 1, n0), (0, -1, -n1)):
+        poly = clip_halfplane(poly, a, b, c)
+        if len(poly) < 3:
+            return []
+    return poly if abs(poly_area(poly)) > PLOT_AREA_EPS else []
+
+
+def capsule(a, b, r, sides=12):
+    """Convex polygon around segment a-b at radius r (inscribed caps)."""
+    pts = []
+    for p in (a, b):
+        for k in range(sides):
+            ang = 2 * math.pi * k / sides
+            pts.append((p[0] + r * math.cos(ang), p[1] + r * math.sin(ang)))
+    return convex_hull(pts)
+
+
+def burgher_plots(buildings, obstacles, mpu):
+    """One strip plot per ordinary intramural house, in metres internally.
+
+    `obstacles` are (owner, ring) pairs in metres that no plot may enter
+    (owner "street:<id>" marks a street corridor): street corridors,
+    the curtain and klint edge, the castle, the forum, site footprints and
+    reserves. Foreign building footprints and plots placed before are added
+    here. Houses are taken in building-id order, so the result never depends
+    on the order of `buildings`.
+    """
+    def box_of(ring):
+        xs = [p[0] for p in ring]
+        ys = [p[1] for p in ring]
+        return (min(xs), min(ys), max(xs), max(ys))
+
+    rings = []  # (owner building id or "", ring, bbox)
+    for b in buildings:
+        ring = [(p[0] * mpu, p[1] * mpu) for p in b["footprint"]]
+        rings.append((b["id"], ring, box_of(ring)))
+    for oid, ring in obstacles:
+        rings.append((oid, ring, box_of(ring)))
+
+    eligible = sorted(
+        (b for b in buildings
+         if b["kind"] == "house" and b.get("wealth_tier") and not b["landmark_id"] and b["door"] and b["street_id"]),
+        key=lambda b: b["id"])
+    plots = []
+    reach = PLOT_MAX_DEPTH_M + 30.0
+    for b in eligible:
+        ring = [(p[0] * mpu, p[1] * mpu) for p in b["footprint"]]
+        # The strip runs perpendicular to the house's street face (the door
+        # edge, which follows the street line), away from the street.
+        door = (b["door"][0] * mpu, b["door"][1] * mpu)
+        out_ang = b["door"][2]
+        N = (-math.cos(out_ang), -math.sin(out_ang))  # into the plot
+        T = (-N[1], N[0])
+
+        def frame(ring_, o=door, T=T, N=N):
+            return [((p[0] - o[0]) * T[0] + (p[1] - o[1]) * T[1],
+                     (p[0] - o[0]) * N[0] + (p[1] - o[1]) * N[1]) for p in ring_]
+
+        own = frame(ring)
+        t_lo, t_hi = min(p[0] for p in own), max(p[0] for p in own)
+        front, back = min(p[1] for p in own), max(p[1] for p in own)
+        cx, cy = door
+        near = [(oid, frame(r)) for oid, r, bb in rings
+                if oid != b["id"] and bb[0] < cx + reach and bb[2] > cx - reach and bb[1] < cy + reach and bb[3] > cy - reach]
+
+        # Row houses share party walls, and the simplified OSM rings of
+        # neighbours overlap by slivers, so a strip the full width of the
+        # house's box would meet them. The strip is instead the free interval
+        # along the street around the door (t = 0), narrowed by whatever
+        # stands beside it; the house may overhang its plot at a party wall.
+        span = PLOT_FRONTAGE_TARGET_M["great"]
+        mid = (front + back) / 2
+        # 1. Front line: the house's own street corridor may reach over the
+        #    front of the house; the plot starts behind it.
+        n0 = front
+        for oid, r in near:
+            if oid == "street:" + b["street_id"]:
+                part = clip_box(r, t_lo, t_hi, front - 5.0, back)
+                if part and min(p[1] for p in part) <= front + 0.01:
+                    n0 = max(n0, max(p[1] for p in part) + PLOT_GAP_M)
+        if n0 >= mid:
+            continue  # the house stands in its street: no room for a plot
+        # 2. Sides: across the house's depth, a part wholly left or right of
+        #    the door bounds the interval; a part across the door caps depth.
+        # The window stays fixed while lo/hi tighten, so the result does not
+        # depend on the order the obstacles come in.
+        lo, hi = t_lo - span, t_hi + span
+        win_lo, win_hi = lo, hi
+        cap = front + PLOT_MAX_DEPTH_M
+        for _, r in near:
+            part = clip_box(r, win_lo, win_hi, n0, back)
+            if not part:
+                continue
+            a_, b_ = min(p[0] for p in part), max(p[0] for p in part)
+            if b_ <= 0.0:
+                lo = max(lo, b_ + PLOT_GAP_M)
+            elif a_ >= 0.0:
+                hi = min(hi, a_ - PLOT_GAP_M)
+            else:
+                cap = min(cap, min(p[1] for p in part) - PLOT_GAP_M)
+        # 3. Width: the house's own frontage, widened toward the tier target
+        #    where the interval is free (split evenly, the rest to the free side).
+        t0, t1 = max(t_lo, lo), min(t_hi, hi)
+        need = max(0.0, PLOT_FRONTAGE_TARGET_M[b["wealth_tier"]] - (t1 - t0))
+        left = min(need / 2, t0 - lo)
+        right = min(need - left, hi - t1)
+        left = min(need - right, t0 - lo)
+        t0, t1 = t0 - left, t1 + right
+        # 4. Depth: the first obstacle anywhere across the final interval.
+        # Fixed window again: a shrinking one would drop a just-entering
+        # obstacle as a sub-epsilon sliver, depending on obstacle order.
+        far = cap
+        for _, r in near:
+            part = clip_box(r, t0, t1, n0, cap)
+            if part:
+                far = min(far, min(p[1] for p in part) - PLOT_GAP_M)
+        if t1 - t0 < 3.0 or far - n0 < 2.0:
+            continue  # a sliver between neighbours is no plot
+        depth = far - n0
+        corners = [(t0, n0), (t1, n0), (t1, far), (t0, far)]
+        yard_c = [(t0, back), (t1, back), (t1, far), (t0, far)] if far - back >= PLOT_MIN_YARD_M else []
+
+        def world(pts, o=door, T=T, N=N):
+            return [[round((o[0] + t * T[0] + n * N[0]) / mpu, 3), round((o[1] + t * T[1] + n * N[1]) / mpu, 3)] for t, n in pts]
+
+        poly_w = world(corners)
+        plots.append({
+            "id": "plot." + b["id"].removeprefix("bldg."),
+            "building": b["id"],
+            "street_id": b["street_id"],
+            "wealth_tier": b["wealth_tier"],
+            "frontage_m": round(t1 - t0, 2),
+            "depth_m": round(depth, 2),
+            "polygon": poly_w,
+            "yard": world(yard_c) if yard_c else [],
+        })
+        placed = [(p[0] * mpu, p[1] * mpu) for p in poly_w]
+        rings.append((plots[-1]["id"], placed, box_of(placed)))
+    return plots
+
+
+def plot_obstacles(streets, circuit_poly, toompea_edge, toompea_inner, toompea_wall_half, castle_ring, forum_poly, site_out, mpu):
+    """(owner, ring) pairs in metres that bound every strip plot; see burgher_plots."""
+    obs = []
+    for s in streets:
+        pts = s["points_m"]
+        r = s["width_m"] / 2 + PLOT_STREET_MARGIN_M
+        for k in range(len(pts) - 1):
+            obs.append(("street:" + s["id"], capsule(tuple(pts[k]), tuple(pts[k + 1]), r)))
+    for ring_, r in ((circuit_poly, PLOT_CURTAIN_CLEAR_M), (toompea_edge, PLOT_EDGE_CLEAR_M), (toompea_inner, toompea_wall_half)):
+        for k in range(len(ring_)):
+            obs.append(("edge", capsule(tuple(ring_[k]), tuple(ring_[(k + 1) % len(ring_)]), r)))
+    obs.append(("castle", [tuple(p) for p in castle_ring]))
+    obs.append(("forum", [tuple(p) for p in forum_poly]))
+    for so in site_out:
+        for poly in so["footprints"] + ([so["reserve"]] if so["reserve"] else []):
+            obs.append((so["id"], [(p[0] * mpu, p[1] * mpu) for p in poly]))
+    return obs
 
 
 def render_splat(plan, mpu):

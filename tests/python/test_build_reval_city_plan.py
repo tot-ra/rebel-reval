@@ -143,6 +143,156 @@ class CityPlanBuilderTest(unittest.TestCase):
         self.assertGreater(lift, 18.0)
         self.assertLess(lift, 30.0)
 
+    # ---- WB-13c strip plots (R-1413) ----
+
+    def _plot_frame(self, house):
+        # Door frame as the builder uses it: t along the street face, n into the plot.
+        o, a = house["door"][:2], house["door"][2]
+        n = (-math.cos(a), -math.sin(a))
+        t = (-n[1], n[0])
+        return [(q[0] - o[0]) * t[0] + (q[1] - o[1]) * t[1] for q in house["footprint"]]
+
+    @staticmethod
+    def _clip_convex(subject, convex):
+        """Area (m2 at mpu 1) of subject clipped to a counter- or clockwise convex quad."""
+        sign = 1.0 if builder.poly_area(convex) > 0 else -1.0
+        poly = [tuple(p) for p in subject]
+        for i in range(len(convex)):
+            a, b = convex[i], convex[(i + 1) % len(convex)]
+            # inside = left of a->b for a CCW ring
+            nx, ny = -(b[1] - a[1]) * sign, (b[0] - a[0]) * sign
+            poly = builder.clip_halfplane(poly, nx, ny, nx * a[0] + ny * a[1])
+            if len(poly) < 3:
+                return 0.0
+        return abs(builder.poly_area(poly))
+
+    @staticmethod
+    def _bbox(ring):
+        return (min(p[0] for p in ring), min(p[1] for p in ring), max(p[0] for p in ring), max(p[1] for p in ring))
+
+    @staticmethod
+    def _boxes_meet(a, b):
+        return a[0] < b[2] and b[0] < a[2] and a[1] < b[3] and b[1] < a[3]
+
+    def test_plots_are_derived_from_eligible_houses(self):
+        plots = self.plan["plots"]
+        by_id = {b["id"]: b for b in self.plan["buildings"]}
+        self.assertGreater(len(plots), 300)
+        self.assertEqual([p["id"] for p in plots], sorted(p["id"] for p in plots))
+        self.assertEqual(len({p["id"] for p in plots}), len(plots))
+        self.assertEqual(len({p["building"] for p in plots}), len(plots))
+        for p in plots:
+            b = by_id[p["building"]]
+            self.assertEqual(p["id"], "plot." + b["id"].removeprefix("bldg."))
+            self.assertEqual(b["kind"], "house")
+            self.assertFalse(b["landmark_id"], b["id"])
+            self.assertEqual(p["wealth_tier"], b["wealth_tier"])
+            self.assertEqual(p["street_id"], b["street_id"])
+            self.assertEqual(len(p["polygon"]), 4)
+            self.assertIn(len(p["yard"]), (0, 4))
+            self.assertLessEqual(p["depth_m"], builder.PLOT_MAX_DEPTH_M + 0.01)
+            ts = self._plot_frame(b)
+            # Widening stops at the tier target; a wider house keeps its own frontage.
+            self.assertLessEqual(p["frontage_m"], max(11.0, max(ts) - min(ts)) + 0.02, p["id"])
+
+    def test_plots_never_overlap_each_other_or_foreign_buildings(self):
+        plots = self.plan["plots"]
+        boxes = [self._bbox(p["polygon"]) for p in plots]
+        bad = []
+        for i in range(len(plots)):
+            for j in range(i + 1, len(plots)):
+                if self._boxes_meet(boxes[i], boxes[j]):
+                    area = self._clip_convex(plots[j]["polygon"], plots[i]["polygon"])
+                    if area > 0.05:
+                        bad.append((plots[i]["id"], plots[j]["id"], round(area, 3)))
+        self.assertEqual(bad, [], "overlapping plots")
+        for p, box in zip(plots, boxes):
+            for b in self.plan["buildings"]:
+                if b["id"] == p["building"] or not self._boxes_meet(box, self._bbox(b["footprint"])):
+                    continue
+                area = self._clip_convex(b["footprint"], p["polygon"])
+                if area > 0.05:
+                    bad.append((p["id"], b["id"], round(area, 3)))
+        self.assertEqual(bad, [], "plots over foreign buildings")
+
+    def test_plots_keep_off_streets_and_inside_the_town(self):
+        circuit = [tuple(a["at"]) for a in self.plan["circuit"]]
+        toompea = [tuple(q) for q in self.plan["toompea_edge"]]
+        segs = []
+        for s in self.plan["streets"]:
+            # Plan width carries a 1.5 m margin over the street's own width.
+            half = (s["width"] - 1.5) / 2
+            pts = s["points"]
+            segs += [(tuple(pts[k]), tuple(pts[k + 1]), half) for k in range(len(pts) - 1)]
+        bad = []
+        for p in self.plan["plots"]:
+            poly = [tuple(q) for q in p["polygon"]]
+            inside = all(builder.pip(q, circuit) for q in poly) or all(builder.pip(q, toompea) for q in poly)
+            if not inside:
+                bad.append((p["id"], "outside"))
+            box = self._bbox(poly)
+            for a, b, half in segs:
+                if max(a[0], b[0]) < box[0] - 20 or min(a[0], b[0]) > box[2] + 20:
+                    continue
+                if max(a[1], b[1]) < box[1] - 20 or min(a[1], b[1]) > box[3] + 20:
+                    continue
+                if self._seg_poly_distance(a, b, poly) < half - 0.01:
+                    bad.append((p["id"], "street"))
+                    break
+        self.assertEqual(bad, [])
+
+    def _seg_poly_distance(self, a, b, poly):
+        n = len(poly)
+        for i in range(n):
+            if builder.seg_intersection(a, b, poly[i], poly[(i + 1) % n]) is not None:
+                return 0.0
+        if builder.pip(a, poly):
+            return 0.0
+
+        def ps(p, u, v):
+            dx, dy = v[0] - u[0], v[1] - u[1]
+            t = max(0.0, min(1.0, ((p[0] - u[0]) * dx + (p[1] - u[1]) * dy) / max(dx * dx + dy * dy, 1e-12)))
+            return math.dist(p, (u[0] + dx * t, u[1] + dy * t))
+
+        d = min(ps(q, a, b) for q in poly)
+        return min([d] + [ps(e, poly[i], poly[(i + 1) % n]) for e in (a, b) for i in range(n)])
+
+    def test_plot_frontage_follows_the_h04_band(self):
+        plots = self.plan["plots"]
+        by_id = {b["id"]: b for b in self.plan["buildings"]}
+
+        def hist(values, step):
+            buckets = {}
+            for v in values:
+                k = int(v // step) * step
+                buckets[k] = buckets.get(k, 0) + 1
+            return " ".join("%d:%d" % kv for kv in sorted(buckets.items()))
+
+        front = [p["frontage_m"] for p in plots]
+        yard = [abs(builder.poly_area(p["yard"])) if p["yard"] else 0.0 for p in plots]
+        print("\nWB-13c plots %d, frontage m (2 m bins) %s" % (len(plots), hist(front, 2)))
+        print("WB-13c yard m2 (25 m2 bins) %s; empty %d" % (hist(yard, 25), sum(1 for y in yard if not y)))
+        # Houses no wider than the band are widened toward it (H04 7-11 m);
+        # wider OSM footprints (merged modern blocks) keep their own frontage.
+        narrow = sorted(p["frontage_m"] for p in plots
+                        if (lambda ts: max(ts) - min(ts))(self._plot_frame(by_id[p["building"]])) <= 11.0)
+        self.assertGreater(len(narrow), 60)
+        median = narrow[len(narrow) // 2]
+        self.assertGreaterEqual(median, 7.0)
+        self.assertLessEqual(median, 11.0)
+        self.assertGreater(sum(1 for p in plots if p["yard"]), 100, "deep plots open into rear yards")
+
+    def test_plots_ignore_input_order_and_leave_buildings_untouched(self):
+        import copy
+        import random
+        rng = random.Random(1343)
+        buildings = copy.deepcopy(self.plan["buildings"])
+        obstacles = list(self.result["plot_obstacles"])
+        rng.shuffle(buildings)
+        rng.shuffle(obstacles)
+        before = copy.deepcopy(buildings)
+        self.assertEqual(builder.burgher_plots(buildings, obstacles, self.mpu), self.plan["plots"])
+        self.assertEqual(buildings, before)
 
 
 class TerrainReliefTest(unittest.TestCase):

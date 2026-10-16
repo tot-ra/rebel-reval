@@ -393,3 +393,24 @@ func test_bridge_builds_weathered_planked_deck() -> void:
 				planks += (child as MultiMeshInstance3D).multimesh.instance_count
 		assert_true(planks > 3, "%s deck is individual planks" % bridge_node.name)
 	host.free()
+
+
+func test_plot_at_finds_the_strip_plot_behind_a_known_house() -> void:
+	# WB-13c (R-1413): a Pikk house owns the strip plot running back from its street.
+	var plan := _plan()
+	assert_true(plan.plots.size() > 300, "strip plots behind the intramural houses")
+	var house := plan.building_index_by_id("bldg.osm.w200453920")
+	assert_true(house >= 0, "known Pikk house is in the plan")
+	var found := -1
+	for i in plan.plots.size():
+		if plan.plots[i]["building"] == "bldg.osm.w200453920":
+			found = i
+	assert_true(found >= 0, "the house has a plot")
+	var yard := CityPlan.points(plan.plots[found]["yard"])
+	assert_true(yard.size() == 4, "the deep Pikk plot has a rear yard")
+	var centre := Vector2.ZERO
+	for p in yard:
+		centre += p / yard.size()
+	assert_eq(plan.plot_at(centre), found, "plot_at resolves the yard to its plot")
+	assert_eq(plan.building_at(centre), -1, "the yard is open ground, not a building")
+	assert_eq(plan.plot_at(Vector2(5, -10) / plan.metres_per_unit), -1, "no plot on the forum")
