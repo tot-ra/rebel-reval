@@ -233,6 +233,75 @@ vec3 detiled(sampler2D tex, vec2 uv) {
 	return mix(texture(tex, uv).rgb, texture(tex, uv2).rgb, smoothstep(0.3, 0.7, n));
 }
 
+// --- Hex-tiled earth plate (R-2068) --------------------------------------------
+// The mud plate carries big, recognisable crack webs, and the two-sample detiled()
+// above still showed the same pattern every ~1.6 m along a road. Hex tiling
+// (Mikkelsen 2022, after Heitz & Neyret 2018): every hexagon of a triangle grid
+// shows the plate under its own random rotation and offset, and each pixel
+// blends the three hexagons it lies between. Weights are continuous, so there is
+// no seam anywhere; the variance-preserving blend keeps the crack contrast
+// instead of washing it out where three samples meet.
+struct EarthPlate {
+	vec3 albedo;
+	vec2 normal_xy;
+};
+
+// Hexagons per plate repeat: ~0.6 of the plate per patch keeps whole crack webs.
+const float HEX_RATE = 1.7;
+
+// Barycentric weights and the three grid vertices of the triangle holding `uv`.
+void hex_grid(vec2 uv, out vec3 w, out vec2 v1, out vec2 v2, out vec2 v3) {
+	vec2 sk = vec2(uv.x, -0.57735027 * uv.x + 1.15470054 * uv.y) * 3.4641016;
+	vec2 base = floor(sk);
+	vec3 t = vec3(fract(sk), 0.0);
+	t.z = 1.0 - t.x - t.y;
+	float s = step(0.0, -t.z);
+	float s2 = 2.0 * s - 1.0;
+	w = vec3(-t.z * s2, s - t.y * s2, s - t.x * s2);
+	v1 = base + vec2(s, s);
+	v2 = base + vec2(s, 1.0 - s);
+	v3 = base + vec2(1.0 - s, s);
+}
+
+mat2 hex_rot(vec2 v) {
+	float a = hash12(v * 0.37 + 0.13) * 6.2832;
+	float c = cos(a);
+	float s = sin(a);
+	return mat2(vec2(c, s), vec2(-s, c));
+}
+
+// One plate sample under the rotation and offset of hex vertex `v`. Explicit
+// gradients: this runs inside per-pixel branches, where implicit LOD is undefined.
+void hex_tap(vec2 uv, vec2 dx, vec2 dy, vec2 v, out vec3 c, out vec2 n) {
+	mat2 r = hex_rot(v);
+	vec2 u = r * uv + vec2(hash12(v + 7.7), hash12(v + 19.3));
+	c = textureGrad(earth_albedo, u, r * dx, r * dy).rgb;
+	// The plate normal lives in the rotated frame: rotate it back (R^-1 = R^T).
+	n = transpose(r) * (textureGrad(earth_normal, u, r * dx, r * dy).rg * 2.0 - 1.0);
+}
+
+EarthPlate hex_earth(vec2 uv, vec2 dx, vec2 dy, vec2 salt) {
+	vec3 w;
+	vec2 v1, v2, v3;
+	hex_grid(uv * HEX_RATE + salt, w, v1, v2, v3);
+	// Sharpen the weights a little so most pixels show one patch crisply.
+	w = w * w * w;
+	w /= w.x + w.y + w.z;
+	vec3 c1, c2, c3;
+	vec2 n1, n2, n3;
+	hex_tap(uv, dx, dy, v1, c1, n1);
+	hex_tap(uv, dx, dy, v2, c2, n2);
+	hex_tap(uv, dx, dy, v3, c3, n3);
+	// Variance-preserving blend about the plate mean (its 1x1 mip).
+	vec3 mean = textureLod(earth_albedo, vec2(0.5), 11.0).rgb;
+	float k = inversesqrt(dot(w, w));
+	EarthPlate o;
+	o.albedo = max(mean + ((c1 - mean) * w.x + (c2 - mean) * w.y + (c3 - mean) * w.z) * k, vec3(0.0));
+	vec2 n = (n1 * w.x + n2 * w.y + n3 * w.z) * k;
+	o.normal_xy = n * min(1.0, 0.95 / max(length(n), 1e-4));
+	return o;
+}
+
 // --- Loose stones: beach shingle and road stones (R-1606) ---------------------
 // The shingle band used to be the flat shore_shingle plate with a luminance
 // pseudo-normal: no depth next to the fieldstone streets, a hard noise edge, and
@@ -296,13 +365,27 @@ Pebbles pebble_layer(vec2 wp, float cell, float coverage, float bury, float foot
 			vec2 q = vec2(dot(v, cs), cs.x * v.y - cs.y * v.x);
 			// Lone stones at the thin edge of a bed are the smaller ones.
 			// Dense beds pack stones shoulder to shoulder (they overlap the cell).
-			float rad = (0.3 + 0.26 * hash12(id + 5.3)) * mix(0.6, 1.0, coverage);
+			// R-2068: sizes skew small with the odd big stone, like real gravel.
+			float hs = hash12(id + 5.3);
+			float rad = (0.22 + 0.38 * hs * hs) * mix(0.6, 1.0, coverage);
 			vec2 axes = vec2(rad * (1.0 + 0.6 * hash12(id + 8.1)), rad);
 			vec2 qs = q / axes;
 			float d2 = dot(qs, qs);
+			// R-2068: perfect ellipses read as eggs or pills. Second and third
+			// angular harmonics (from the direction, no atan) dent and flatten the
+			// outline into a worn, irregular stone; each stone has its own mix.
+			vec2 dir = qs * inversesqrt(max(d2, 1e-6));
+			float lobes = (hash12(id + 31.1) - 0.5) * (dir.x * dir.x - dir.y * dir.y)
+				+ (hash12(id + 32.7) - 0.5) * (2.0 * dir.x * dir.y)
+				+ (hash12(id + 34.3) - 0.5) * (4.0 * dir.x * dir.x * dir.x - 3.0 * dir.x)
+				+ (hash12(id + 35.9) - 0.5) * (3.0 * dir.y - 4.0 * dir.y * dir.y * dir.y);
+			// Clamped: |lobes| reaches ~1.4, and a factor near 0 would stretch the
+			// stone past the 3x3 cells searched here and cut it off straight.
+			d2 *= clamp(1.0 + 0.65 * lobes, 0.6, 1.8);
 			o.near = min(o.near, d2);
 			float cap = sqrt(max(1.0 - d2, 0.0));
-			float vis = cap - bury;
+			// Some stones barely break the surface, others stand half out.
+			float vis = cap - clamp(bury + (hash12(id + 13.7) - 0.5) * 0.35, 0.0, 0.9);
 			// Flatness = crown height over the short radius: beach pebbles are discs.
 			float flatness = 0.4 + 0.3 * hash12(id + 2.2);
 			float h = vis * flatness * rad;
@@ -315,10 +398,14 @@ Pebbles pebble_layer(vec2 wp, float cell, float coverage, float bury, float foot
 			vec2 mq = qs / axes;
 			vec2 gq = vec2(mq.x * cs.x - mq.y * cs.y, mq.x * cs.y + mq.y * cs.x);
 			o.slope = -gq / max(cap, 0.3) * flatness * rad;
-			o.crown = vis / max(1.0 - bury, 0.001);
+			o.crown = clamp(vis / max(1.0 - bury, 0.001), 0.0, 1.0);
 			o.stone = smoothstep(0.0, 0.06 + footprint * 0.5, vis);
 			float grain = value_noise(wp * 38.0 + id * 3.1) * 0.6 + value_noise(wp * 9.0 - id) * 0.4;
-			o.albedo = pebble_rock(hash12(id + 11.0), grain);
+			// Pitted, chipped faces instead of a polished dome: a little bumpy
+			// relief that fades once the stone shrinks under a few pixels.
+			float pits = value_noise(wp * 55.0 + id * 1.7);
+			o.slope += (vec2(pits, value_noise(wp * 55.0 + id * 1.7 + 4.4)) - 0.5) * 0.6 * (1.0 - smoothstep(0.1, 0.4, footprint));
+			o.albedo = pebble_rock(hash12(id + 11.0), grain) * (0.88 + 0.2 * pits);
 		}
 	}
 	return o;
@@ -650,22 +737,47 @@ void fragment() {
 	}
 	vec3 col = grass;
 	vec2 nxy = mix(meadow.normal_xy, moss_n, moss_ground);
-	col = mix(col, detiled(earth_albedo, wuv * earth_scale) * earth_tint, earth);
-	nxy = mix(nxy, texture(earth_normal, wuv * earth_scale).rg * 2.0 - 1.0, earth);
-	col = mix(col, detiled(earth_albedo, wuv * earth_scale) * vec3(0.62, 0.55, 0.46), mud);
-	nxy = mix(nxy, texture(earth_normal, wuv * earth_scale).rg * 2.0 - 1.0, mud);
+	// R-2068: one hex-tiled earth sample shared by earth, mud, field, road and wall
+	// foot. Further off the plate also blends to a 1.8x finer scale with its own
+	// hex layout: crack webs sized for Kalev's boots read as blotches from the
+	// gameplay camera, and a second layout breaks what repeat is left. The weight
+	// follows the pixel footprint, so both layers stay fixed in the world (no
+	// swimming as the camera moves).
+	vec2 euv = wuv * earth_scale;
+	vec2 edx = dFdx(euv);
+	vec2 edy = dFdy(euv);
+	float earth_far = smoothstep(0.006, 0.03, max(length(edx), length(edy)));
+	EarthPlate ep;
+	ep.albedo = vec3(0.0);
+	ep.normal_xy = vec2(0.0);
+	if (earth_far < 0.999) {
+		EarthPlate en = hex_earth(euv, edx, edy, vec2(0.0));
+		ep.albedo += en.albedo * (1.0 - earth_far);
+		ep.normal_xy += en.normal_xy * (1.0 - earth_far);
+	}
+	if (earth_far > 0.001) {
+		EarthPlate ef = hex_earth(euv * 1.8, edx * 1.8, edy * 1.8, vec2(0.31, 0.67));
+		ep.albedo += ef.albedo * earth_far;
+		ep.normal_xy += ef.normal_xy * earth_far;
+	}
+	vec3 earth_tex = ep.albedo;
+	vec2 earth_n = ep.normal_xy;
+	col = mix(col, earth_tex * earth_tint, earth);
+	nxy = mix(nxy, earth_n, earth);
+	col = mix(col, earth_tex * vec3(0.62, 0.55, 0.46), mud);
+	nxy = mix(nxy, earth_n, mud);
 	// Bare earth under the woods and in wall shade is half grown over with moss too.
 	col = mix(col, moss_plate * 0.85, moss_ground * max(earth, mud) * 0.6);
 	// Ploughed black earth: dark soil with lighter dry clods and stones, no turf.
 	vec2 fh = field_height(wuv);
-	vec3 soil_tex = detiled(earth_albedo, wuv * earth_scale);
+	vec3 soil_tex = earth_tex;
 	// The mud plate is orange clay: pull the hue towards grey-brown for black earth.
 	soil_tex = mix(soil_tex, vec3(dot(soil_tex, vec3(0.33))), 0.55);
 	vec3 soil = soil_tex * vec3(0.34, 0.29, 0.25);
 	soil *= 0.7 + 0.7 * fh.x;
 	soil = mix(soil, vec3(0.36, 0.34, 0.31) * (0.8 + 0.4 * micro), fh.y * 0.85);
 	col = mix(col, soil, field);
-	nxy = mix(nxy, texture(earth_normal, wuv * earth_scale).rg * 2.0 - 1.0, field);
+	nxy = mix(nxy, earth_n, field);
 	col = mix(col, detiled(sand_albedo, wuv * sand_scale), sand);
 	nxy = mix(nxy, texture(sand_normal, wuv * sand_scale).rg * 2.0 - 1.0, sand);
 	// Shore zones read from height (docs/SYSTEMS/CITY_SEA.md): two sands, a dark wet
@@ -770,26 +882,48 @@ void fragment() {
 	float road = rd.r * (1.0 - paving) * dry_land;
 	vec3 road_prof = road_profile(wuv, rd, wet_road);
 	if (road > 0.001) {
-		vec3 clay = detiled(earth_albedo, wuv * earth_scale);
+		vec3 clay = earth_tex;
 		vec3 dust_tone = vec3(1.2, 1.08, 0.88);
 		vec3 clay_tone = vec3(0.5, 0.44, 0.39);
 		vec3 road_col = clay * mix(dust_tone, clay_tone, wet_road);
+		// R-2068: a real track is never one even tone. Stretches of ~10 m swing
+		// between ochre sandy clay and grey till; patches of a few metres are
+		// pale loose dust or darker packed and damp ground (hollows hold the damp
+		// longer); fine mottling keeps any patch from reading as flat paint.
+		float tone_far = value_noise(wuv * 0.09 + vec2(4.1, 9.7));
+		float tone_mid = value_noise(wuv * 0.33 + vec2(13.3, 2.9)) * 0.7 + value_noise(wuv * 0.8 + vec2(1.3, 6.1)) * 0.3;
+		float mottle = value_noise(wuv * 2.6 + vec2(7.2, 0.4));
+		road_col *= mix(vec3(1.06, 1.0, 0.92), vec3(0.84, 0.84, 0.85), smoothstep(0.3, 0.75, tone_far));
+		float damp_patch = smoothstep(0.55, 0.85, tone_mid + hollow_damp * 0.3) * (1.0 - wet_road * 0.6);
+		road_col = mix(road_col, road_col * vec3(0.66, 0.62, 0.58), damp_patch * 0.8);
+		float loose_dust = smoothstep(0.62, 0.3, tone_mid) * (1.0 - wet_road);
+		road_col = mix(road_col, road_col * vec3(1.08, 1.06, 1.02) + vec3(0.03), loose_dust * 0.6);
+		road_col *= 0.88 + 0.24 * mottle;
 		// Wheels and boots keep a used road bare: only the quiet margin of a
 		// lightly travelled track shows a faint green fuzz of tiny sprouts.
 		float quiet = (1.0 - smoothstep(0.15, 0.45, rd.b)) * (1.0 - smoothstep(0.35, 0.85, rd.r));
 		float sprouts = quiet * smoothstep(0.5, 0.8, value_noise(wuv * 1.3)) * (1.0 - wet_road * 0.5);
 		road_col = mix(road_col, grass * 0.7, clamp(sprouts, 0.0, 0.35));
 		col = mix(col, road_col, road);
-		nxy = mix(nxy, texture(earth_normal, wuv * earth_scale).rg * 2.0 - 1.0, road);
+		nxy = mix(nxy, earth_n, road);
 		// R-1606: wheels scour out the odd small stone, bedded deep and dusted with
 		// the road's own clay (it replaced flat pale value-noise blobs). Busy
 		// stretches show more; only near the camera, where a stone can resolve.
 		float stone_detail = 1.0 - smoothstep(0.3, 0.9, px / road_stone_cell);
 		if (stone_detail > 0.0) {
-			float scatter = 0.05 + 0.1 * rd.b;
+			// R-2068: stones gather in scoured patches and along the ruts rather
+			// than peppering the whole road evenly; bare stretches keep only a few.
+			float gather = smoothstep(0.3, 0.7, value_noise(wuv * 0.55 + vec2(2.7, 5.3)) + road_prof.y * 0.35);
+			float scatter = (0.03 + 0.12 * rd.b) * mix(0.3, 1.0, gather);
 			Pebbles rs = pebble_layer(wuv, road_stone_cell, scatter, 0.55, px / road_stone_cell, 73.0);
 			float rs_cover = rs.stone * stone_detail * road;
-			vec3 rs_col = mix(rs.albedo, road_col, 0.45 * (1.0 - wet_road)) * mix(0.7, 1.05, rs.crown);
+			// A road stone is never clean: clay coats it, thickest down at the
+			// bedding line, and in the wet the coat is dark slick mud, so stones
+			// do not glow white out of a dark wet road.
+			float coat = mix(0.55, 0.15, rs.crown) * mix(1.0, 0.55, wet_road);
+			// Iron staining from the soil warms and darkens field stones a little.
+			vec3 rs_rock = rs.albedo * vec3(0.9, 0.85, 0.8) * mix(1.0, 0.7, wet_road);
+			vec3 rs_col = mix(rs_rock, road_col, coat) * mix(0.62, 1.0, rs.crown);
 			col = mix(col * (1.0 - 0.18 * (1.0 - smoothstep(0.9, 1.8, rs.near)) * stone_detail * road), rs_col, rs_cover);
 			nxy = mix(nxy, slope_normal(rs.slope), rs_cover);
 		}
@@ -808,9 +942,9 @@ void fragment() {
 	// The plate keeps only its grain. Wet, it darkens like the loam beside it.
 	// Plate fetches stay outside the branch (implicit LOD); same arguments as the
 	// earth blend above, so the compiler shares them.
-	float trodden_grain = dot(detiled(earth_albedo, wuv * earth_scale), vec3(0.333)) / 0.55;
+	float trodden_grain = dot(earth_tex, vec3(0.333)) / 0.55;
 	vec3 trodden = vec3(0.4, 0.35, 0.29) * mix(0.8, 1.2, clamp(trodden_grain, 0.0, 1.0)) * mix(1.0, 0.7, wet_road);
-	vec2 trodden_n = texture(earth_normal, wuv * earth_scale).rg * 2.0 - 1.0;
+	vec2 trodden_n = earth_n;
 	if (foot > 0.002) {
 		col = mix(col, trodden, foot * 0.8);
 		nxy = mix(nxy, trodden_n, foot * 0.85);

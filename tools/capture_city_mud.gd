@@ -160,6 +160,8 @@ func _run() -> void:
 		["game", focus - dir * 9.0 + side * 3.0, 6.0, 0.0, 55.0],
 		["low", focus - dir * 2.2 + side * 0.4, 0.45, 0.0, 60.0],
 		["verge", focus + side * 4.5 - dir * 3.0, 1.2, 0.0, 65.0],
+		# High and far: the plate repeat and its seams show at this range (R-2068).
+		["far", focus - dir * 26.0 + side * 6.0, 16.0, 0.0, 50.0],
 	]
 	for spec: Array in specs:
 		var e: Vector2 = spec[1]
