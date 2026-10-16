@@ -317,6 +317,8 @@ func apply_time(progress: float) -> void:
 			trail.wetness = clamp(
 				presentation.rain_intensity * 0.6 + presentation.puddle_wetness * 0.4, 0.0, 1.0
 			)
+			# Rain darkens and softens dried dung (R-2077 follow-up).
+			CityDung.set_wetness(trail.wetness)
 	# R-2131: low plants share the rain/frost/snow/drought state.
 	var plant_date: Dictionary = sky_weather.calendar_date if sky_weather != null else {}
 	if not plant_date.is_empty():

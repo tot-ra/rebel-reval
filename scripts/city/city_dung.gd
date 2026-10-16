@@ -10,7 +10,7 @@ extends Node3D
 ##
 ## Where it lies follows the animals (CityFauna.groups_for): round every pen,
 ## tether, pasture, fallow herd and yard, and along the drove from each byre and
-## sheep shed to its grazing (the nearest street towards the nearest pasture or
+## sheep shed to its grazing (through the street graph to the nearest pasture or
 ## fallow field). The town herd goes out the same way from the Karja (cattle)
 ## gate. Cart horses foul the extramural roads and, more thinly, the spines.
 ##
@@ -71,12 +71,30 @@ const DROVE_CLASSES := ["extramural_road", "lane", "spine", "alley"]
 const DROVE_ENTRY := 45.0
 const DROVE_MAX := 520.0
 const DROVE_HALF_WIDTH := 1.6
+## Drove street graph: street vertices this close merge into one junction, and a
+## street end this close to another street's segment joins it there (T-junction).
+const DROVE_SNAP := 3.0
+## A metre walked across open ground costs this many metres of road: herds are
+## kept to the streets and only step off them at the yard and at the grazing.
+const DROVE_OFFROAD := 3.0
+## A metre trampled through a sown (ploughed) field costs this much more again:
+## nobody drove a herd through the crop, so such walks go round by the streets.
+const DROVE_CROP := 12.0
+## A metre through a building's footprint: a herd goes round houses, not through them.
+const DROVE_BUILDING := 40.0
 ## The town herd: burghers' cows driven out daily through the Karja (cattle) gate.
 const TOWN_HERD_GATE := "gate.karja"
 const TOWN_HERD := 6
 ## Cart horses: metres between horse droppings by street class.
 const HORSE_SPACING := {"extramural_road": 18.0, "spine": 45.0, "square_edge": 30.0}
 const HEAP_STOCK := ["byre", "sheep_shed", "pigsty"]
+## A heap keeps this far from a tree or bush trunk and from a kitchen-garden bed
+## (the mound is ~2.2 m across).
+const HEAP_TREE_CLEAR := 1.5
+const HEAP_GARDEN_CLEAR := 1.3
+## Rain darkens and softens dried dung: albedo multiplier and roughness at full wetness.
+const RAIN_DARKEN := Color(0.62, 0.58, 0.55)
+const RAIN_ROUGHNESS := 0.55
 ## Manure heap fill through the year (day of year, 0..1): byre dung piles up all
 ## winter and is carted to the fallow in June, then builds up again.
 const HEAP_FILL: Array[Vector2] = [
@@ -98,9 +116,11 @@ const DRY_SLOWDOWN: Array[float] = [3.0, 3.0, 2.5, 1.8, 1.3, 1.0, 1.0, 1.0, 1.3,
 const CHUNK := 96.0
 ## Opening day of the slice (21 April 1343) until the runtime sets the calendar.
 const DEFAULT_DATE := {"year": 1343, "month": 4, "day": 21}
-
 static var _materials: Dictionary = {}
 static var _meshes: Dictionary = {}
+## Street graph per plan (instance id), built on the first drove route.
+static var _graphs: Dictionary = {}
+static var _wetness := 0.0
 
 var plan: CityPlan
 ## Every drop: {kind, at: Vector2, u: birth phase as a fraction of life, life,
@@ -230,7 +250,11 @@ static func _home_drops(city_plan: CityPlan, group: Dictionary, out: Array[Dicti
 
 
 ## One heap beside each byre, sheep shed and sty, on the first clear side.
+## Two rings round the shed so a crowded yard still finds a spot; a heap never
+## lands in a kitchen-garden bed or under a tree or bush.
 static func _heaps(city_plan: CityPlan, out: Array[Dictionary]) -> void:
+	var gardens := garden_polygons(city_plan)
+	var stems := _stem_buckets(city_plan)
 	for b: Dictionary in city_plan.data.get("buildings", []):
 		if String(b.get("kind", "")) != "outbuilding" or not HEAP_STOCK.has(String(b["type"])):
 			continue
@@ -242,22 +266,69 @@ static func _heaps(city_plan: CityPlan, out: Array[Dictionary]) -> void:
 		var rng := RandomNumberGenerator.new()
 		rng.seed = hash("%s/heap" % b["id"])
 		var start := rng.randi_range(0, 7)
-		for k in 8:
-			var at := centre + Vector2.from_angle(TAU * float(start + k) / 8.0) * (reach + 1.6)
+		var yaw := rng.randf() * TAU
+		var size := rng.randf_range(0.85, 1.15)
+		for k in 16:
+			var ring := reach + (1.6 if k < 8 else 3.0)
+			var at := centre + Vector2.from_angle(TAU * float(start + k) / 8.0) * ring
 			# The heap needs its own clear ground, not just its centre.
 			var far_side := at + Vector2(1, 0)
-			if CityFauna._is_dry(city_plan, at) and CityFauna._is_dry(city_plan, far_side):
+			if (
+				CityFauna._is_dry(city_plan, at) and CityFauna._is_dry(city_plan, far_side)
+				and heap_clear(at, gardens, stems)
+			):
 				out.append({
-					"kind": KIND_HEAP, "at": at, "u": 0.0, "life": 1.0, "yaw": rng.randf() * TAU,
-					"size": rng.randf_range(0.85, 1.15), "grazing": false, "tint": Color.WHITE,
+					"kind": KIND_HEAP, "at": at, "u": 0.0, "life": 1.0, "yaw": yaw,
+					"size": size, "grazing": false, "tint": Color.WHITE,
 				})
 				break
 
 
-## Stock walks from its yard to the grazing and back each day, along the street
-## its yard is on: the drops fall on that walk.
+## Kitchen-garden bed polygons of the plan's farmhouses (CityFarmland).
+static func garden_polygons(city_plan: CityPlan) -> Array[PackedVector2Array]:
+	var out: Array[PackedVector2Array] = []
+	for f: Dictionary in CityFarmland.features_for(city_plan):
+		if f["kind"] == &"kitchen_garden":
+			out.append(f["polygon"])
+	return out
+
+
+## True when a heap at `at` keeps clear of every garden bed and tree or bush stem.
+static func heap_clear(
+	at: Vector2, gardens: Array[PackedVector2Array], stems: Dictionary
+) -> bool:
+	for poly in gardens:
+		if (
+			Geometry2D.is_point_in_polygon(at, poly)
+			or CityFarmland._distance_to_polygon(at, poly) < HEAP_GARDEN_CLEAR
+		):
+			return false
+	var key := Vector2i((at / CityFarmland.TREE_BUCKET).floor())
+	for dx in range(-1, 2):
+		for dy in range(-1, 2):
+			for t: Vector2 in stems.get(key + Vector2i(dx, dy), []):
+				if t.distance_to(at) < HEAP_TREE_CLEAR:
+					return false
+	return true
+
+
+## Tree and bush stems bucketed by CityFarmland.TREE_BUCKET.
+static func _stem_buckets(city_plan: CityPlan) -> Dictionary:
+	var out := {}
+	for key: String in ["trees", "bushes"]:
+		for t: Array in city_plan.data.get(key, []):
+			var p := Vector2(float(t[0]), float(t[1]))
+			var cell := Vector2i((p / CityFarmland.TREE_BUCKET).floor())
+			if not out.has(cell):
+				out[cell] = []
+			(out[cell] as Array).append(p)
+	return out
+
+
+## Stock walks from its yard to the grazing and back each day, along the streets
+## from its yard: the drops fall on that walk.
 static func _droves(city_plan: CityPlan, out: Array[Dictionary]) -> void:
-	var grazing := _grazing_points(city_plan)
+	var grazing := grazing_areas(city_plan)
 	for b: Dictionary in city_plan.data.get("buildings", []):
 		if String(b.get("kind", "")) != "outbuilding" or not DROVE_STOCK.has(String(b["type"])):
 			continue
@@ -273,16 +344,13 @@ static func _droves(city_plan: CityPlan, out: Array[Dictionary]) -> void:
 
 static func _drove(
 	city_plan: CityPlan, out: Array[Dictionary], id: String, from: Vector2,
-	grazing: PackedVector2Array, species: StringName, count: int
+	grazing: Array[Dictionary], species: StringName, count: int
 ) -> void:
-	var to := Vector2.INF
-	for g in grazing:
-		if from.distance_to(g) < minf(DROVE_MAX, from.distance_to(to)):
-			to = g
-	if to == Vector2.INF:
+	var plan_route := drove_plan(city_plan, from, grazing)
+	if plan_route.is_empty():
 		return
 	var kind: StringName = SPECIES_KIND[species]
-	var route := drove_route(city_plan, from, to)
+	var route: PackedVector2Array = plan_route["points"]
 	var rng := RandomNumberGenerator.new()
 	rng.seed = hash(id)
 	var spacing := float(DROVE_SPACING[kind]) / float(count)
@@ -301,39 +369,279 @@ static func _drove(
 		walked += seg
 
 
-## Yard -> the nearest drove street -> along it -> grazing. Falls back to a
-## straight walk when no street is near or the street leads away from the grazing.
-static func drove_route(city_plan: CityPlan, from: Vector2, to: Vector2) -> PackedVector2Array:
-	var best: Array = []
-	var best_d := DROVE_ENTRY
-	for s: Dictionary in city_plan.streets:
-		if not DROVE_CLASSES.has(String(s.get("class", ""))):
+## Yard -> the nearest drove street -> the cheapest way through the street graph
+## -> grazing. Falls back to a straight walk when no street is near the yard or
+## the streets lead nowhere better than the open field.
+## `area` is the grazing polygon round `to`: only the walk to its edge counts as
+## open ground, inside it the herd is where it belongs.
+static func drove_route(
+	city_plan: CityPlan, from: Vector2, to: Vector2, area := PackedVector2Array()
+) -> PackedVector2Array:
+	return drove_path(city_plan, from, to, area)["points"]
+
+
+## drove_route with the street indices walked, in order: {points, streets}.
+static func drove_path(
+	city_plan: CityPlan, from: Vector2, to: Vector2, area := PackedVector2Array()
+) -> Dictionary:
+	return drove_plan(city_plan, from, [{"centre": to, "polygon": area}], INF)
+
+
+## The cheapest drove from `from` to any of the `grazing` areas whose centre is
+## within `reach`: {points, streets: street indices walked in order, area}, or
+## {} when none is in reach. Road metres cost one, open ground DROVE_OFFROAD, so
+## a pasture down the lane beats a nearer one across a neighbour's fields, but
+## a herd still walks straight into a pasture beside its own yard.
+static func drove_plan(
+	city_plan: CityPlan, from: Vector2, grazing: Array[Dictionary], reach := DROVE_MAX
+) -> Dictionary:
+	var graph := _street_graph(city_plan)
+	var nodes: PackedVector2Array = graph["nodes"]
+	var edges: Array = graph["edges"]  # [a, b, street]
+	# Entry: the closest point on any street segment within DROVE_ENTRY of the yard.
+	var entry_edge := -1
+	var entry := Vector2.INF
+	var entry_d := DROVE_ENTRY
+	for i in edges.size():
+		var q := Geometry2D.get_closest_point_to_segment(from, nodes[edges[i][0]], nodes[edges[i][1]])
+		if from.distance_to(q) < entry_d:
+			entry_d = from.distance_to(q)
+			entry = q
+			entry_edge = i
+	var walk: Array = []
+	if entry_edge >= 0:
+		var ea: int = edges[entry_edge][0]
+		var eb: int = edges[entry_edge][1]
+		walk = _dijkstra(graph, {ea: entry.distance_to(nodes[ea]), eb: entry.distance_to(nodes[eb])})
+	var best_cost := INF
+	var best_area := {}
+	var best: Array = []  # [exit point, end node or -1 along the entry segment, edge]; [] = straight
+	var near: Array[Dictionary] = []
+	for area: Dictionary in grazing:
+		if from.distance_to(area["centre"]) < reach:
+			near.append(area)
+	# Nearest first, so the best cost tightens early and prunes the rest.
+	near.sort_custom(func(x: Dictionary, y: Dictionary) -> bool:
+		return from.distance_squared_to(x["centre"]) < from.distance_squared_to(y["centre"]))
+	for area: Dictionary in near:
+		var to: Vector2 = area["centre"]
+		var poly: PackedVector2Array = area["polygon"]
+		var straight := _grazing_leg(from, to, poly)
+		if straight < best_cost:
+			straight += _trample_cost(city_plan, graph, from, to, poly)
+		if straight < best_cost:
+			best_cost = straight
+			best_area = area
+			best = []
+		if walk.is_empty():
 			continue
-		var pts := CityPlan.points(s["points"])
-		var hit := _closest_on(pts, from)
-		if float(hit[2]) < best_d:
-			best_d = float(hit[2])
-			best = [pts, hit]
+		var dist: PackedFloat32Array = walk[0]
+		# Exit: the point on the graph that minimises road walked plus open ground to the grazing.
+		for i in edges.size():
+			var a: int = edges[i][0]
+			var b: int = edges[i][1]
+			# Road walked so far already costs more than the best drove: skip the geometry.
+			var reached := minf(dist[a], dist[b]) + DROVE_OFFROAD * entry_d
+			if i != entry_edge and reached >= best_cost:
+				continue
+			# Leave the street where it passes closest to the grazing's centre or at a vertex.
+			for q: Vector2 in [
+				Geometry2D.get_closest_point_to_segment(to, nodes[a], nodes[b]), nodes[a], nodes[b]
+			]:
+				var leg := DROVE_OFFROAD * entry_d + _grazing_leg(q, to, poly)
+				var nearest := minf(dist[a], dist[b])
+				if i == entry_edge:
+					nearest = minf(nearest, entry.distance_to(q))
+				if nearest + leg >= best_cost:
+					continue  # cheap reject before the crop crossing test
+				leg += _trample_cost(city_plan, graph, q, to, poly)
+				if i == entry_edge and entry.distance_to(q) + leg < best_cost:
+					best_cost = entry.distance_to(q) + leg
+					best_area = area
+					best = [q, -1, i]
+				for end: int in [a, b]:
+					var cost := dist[end] + nodes[end].distance_to(q) + leg
+					if cost < best_cost:
+						best_cost = cost
+						best_area = area
+						best = [q, end, i]
+	if best_area.is_empty():
+		return {}
+	var target: Vector2 = best_area["centre"]
 	if best.is_empty():
-		return PackedVector2Array([from, to])
-	var pts: PackedVector2Array = best[0]
-	var entry: Array = best[1]
-	var exit := _closest_on(pts, to)
-	if float(exit[2]) >= from.distance_to(to) - 5.0:
-		return PackedVector2Array([from, to])
-	var route := PackedVector2Array([from, entry[0]])
-	var s0 := float(entry[1])
-	var s1 := float(exit[1])
-	# Polyline vertices strictly between the entry and exit parameters, in walking order.
-	if s0 < s1:
-		for v in range(floori(s0) + 1, ceili(s1)):
-			route.append(pts[v])
-	else:
-		for v in range(ceili(s0) - 1, floori(s1), -1):
-			route.append(pts[v])
-	route.append(exit[0])
-	route.append(to)
-	return route
+		return {
+			"points": PackedVector2Array([from, target]), "streets": PackedInt32Array(),
+			"area": best_area,
+		}
+	var prev: PackedInt32Array = walk[1]
+	var via: PackedInt32Array = walk[2]
+	var chain := PackedInt32Array()
+	var node: int = best[1]
+	while node >= 0:
+		chain.append(node)
+		node = prev[node]
+	chain.reverse()
+	var points := PackedVector2Array([from, entry])
+	var streets := PackedInt32Array([int(edges[entry_edge][2])])
+	for n in chain:
+		points.append(nodes[n])
+		if via[n] >= 0:
+			streets.append(int(edges[via[n]][2]))
+	points.append(best[0])
+	streets.append(int(edges[best[2]][2]))
+	points.append(target)
+	var route := PackedVector2Array()
+	for p in points:
+		if route.is_empty() or route[-1].distance_to(p) > 0.05:
+			route.append(p)
+	var walked := PackedInt32Array()
+	for s in streets:
+		if walked.is_empty() or walked[-1] != s:
+			walked.append(s)
+	return {"points": route, "streets": walked, "area": best_area}
+
+
+## Cost of walking from `p` straight to the grazing centre `to`: open ground up
+## to the edge of `area` costs DROVE_OFFROAD a metre, the grazing itself one.
+static func _grazing_leg(p: Vector2, to: Vector2, area: PackedVector2Array) -> float:
+	var d := p.distance_to(to)
+	if area.size() < 3 or Geometry2D.is_point_in_polygon(p, area):
+		return d if area.size() >= 3 else DROVE_OFFROAD * d
+	var outside := minf(CityFarmland._distance_to_polygon(p, area), d)
+	return DROVE_OFFROAD * outside + (d - outside)
+
+
+## Extra cost of the straight walk `p` -> `to` through sown fields other than
+## the grazing `area` itself, and through buildings other than the one at `p`
+## (the yard spot can sit in its own shed's footprint).
+static func _trample_cost(
+	city_plan: CityPlan, graph: Dictionary, p: Vector2, to: Vector2, area: PackedVector2Array
+) -> float:
+	var own := city_plan.building_at(p)
+	var length := p.distance_to(to)
+	var walled := 0.0
+	var samples := int(length / 2.0)  # every 2 m: plenty against footprints of 4 m and more
+	for k in samples:
+		var b := city_plan.building_at(p.lerp(to, (float(k) + 0.5) / float(samples)))
+		if b >= 0 and b != own:
+			walled += length / float(samples)
+	var span := Rect2(p, Vector2.ZERO).expand(to)
+	var line := PackedVector2Array([p, to])
+	var trampled := 0.0
+	for crop: Array in graph["crops"]:
+		if not (crop[0] as Rect2).intersects(span) or crop[1] == area:
+			continue
+		for piece: PackedVector2Array in Geometry2D.intersect_polyline_with_polygon(line, crop[1]):
+			for k in range(1, piece.size()):
+				trampled += piece[k - 1].distance_to(piece[k])
+	return DROVE_CROP * trampled + DROVE_BUILDING * walled
+
+
+## Shortest road distance from the `sources` ({node: start cost}) to every node:
+## [dist, previous node (-1 at a source), edge index arrived by (-1 at a source)].
+static func _dijkstra(graph: Dictionary, sources: Dictionary) -> Array:
+	var nodes: PackedVector2Array = graph["nodes"]
+	var edges: Array = graph["edges"]
+	var adjacent: Array = graph["adjacent"]
+	var dist := PackedFloat32Array()
+	dist.resize(nodes.size())
+	dist.fill(INF)
+	var prev := PackedInt32Array()
+	prev.resize(nodes.size())
+	prev.fill(-1)
+	var via := prev.duplicate()
+	var heap := _Heap.new()
+	for n: int in sources:
+		if float(sources[n]) < dist[n]:
+			dist[n] = float(sources[n])
+			heap.push(dist[n], n)
+	while not heap.is_empty():
+		var top := heap.pop()
+		var n := int(top.y)
+		if top.x > dist[n]:
+			continue
+		for e: int in adjacent[n]:
+			var m: int = edges[e][1] if int(edges[e][0]) == n else edges[e][0]
+			var d := dist[n] + nodes[n].distance_to(nodes[m])
+			if d < dist[m]:
+				dist[m] = d
+				prev[m] = n
+				via[m] = e
+				heap.push(d, m)
+	return [dist, prev, via]
+
+
+## The drove streets as a graph: {nodes, edges: [a, b, street index], adjacent}.
+## Vertices within DROVE_SNAP merge into one junction; a street end within
+## DROVE_SNAP of another street's segment splits that segment (a T-junction).
+static func _street_graph(city_plan: CityPlan) -> Dictionary:
+	var key := city_plan.get_instance_id()
+	if _graphs.has(key):
+		return _graphs[key]
+	var lines: Array[PackedVector2Array] = []
+	var ids := PackedInt32Array()
+	for i in city_plan.streets.size():
+		var s: Dictionary = city_plan.streets[i]
+		if DROVE_CLASSES.has(String(s.get("class", ""))):
+			lines.append(CityPlan.points(s["points"]))
+			ids.append(i)
+	# Splice street ends into the segments they butt against.
+	for i in lines.size():
+		for end: Vector2 in [lines[i][0], lines[i][-1]]:
+			for j in lines.size():
+				if j == i:
+					continue
+				var hit := _closest_on(lines[j], end)
+				var t := float(hit[1])
+				if float(hit[2]) < DROVE_SNAP and t - floorf(t) > 0.001 and t < lines[j].size() - 1:
+					# Packed arrays are values: write the spliced copy back.
+					var line := lines[j]
+					line.insert(floori(t) + 1, hit[0])
+					lines[j] = line
+	var nodes := PackedVector2Array()
+	var buckets := {}
+	var edges: Array = []
+	for i in lines.size():
+		var last := -1
+		for p in lines[i]:
+			var n := _snap_node(nodes, buckets, p)
+			if last >= 0 and last != n:
+				edges.append([last, n, ids[i]])
+			last = n
+	var adjacent: Array = []
+	adjacent.resize(nodes.size())
+	for n in nodes.size():
+		adjacent[n] = []  # a plain Array: a packed one would be appended to as a copy
+	for e in edges.size():
+		(adjacent[edges[e][0]] as Array).append(e)
+		(adjacent[edges[e][1]] as Array).append(e)
+	# Sown fields the herds must not cross: [bounds, polygon].
+	var crops: Array = []
+	for field: Dictionary in city_plan.data.get("fields", []):
+		if bool(field["ploughed"]):
+			var poly := CityPlan.points(field["polygon"])
+			var bounds := Rect2(poly[0], Vector2.ZERO)
+			for q in poly:
+				bounds = bounds.expand(q)
+			crops.append([bounds, poly])
+	var graph := {"nodes": nodes, "edges": edges, "adjacent": adjacent, "crops": crops}
+	_graphs[key] = graph
+	return graph
+
+
+## The node within DROVE_SNAP of `p`, or a new one there.
+static func _snap_node(nodes: PackedVector2Array, buckets: Dictionary, p: Vector2) -> int:
+	var cell := Vector2i((p / DROVE_SNAP).floor())
+	for dx in range(-1, 2):
+		for dy in range(-1, 2):
+			for n: int in buckets.get(cell + Vector2i(dx, dy), []):
+				if nodes[n].distance_to(p) < DROVE_SNAP:
+					return n
+	nodes.append(p)
+	if not buckets.has(cell):
+		buckets[cell] = []
+	(buckets[cell] as Array).append(nodes.size() - 1)
+	return nodes.size() - 1
 
 
 ## [closest point, parameter (segment index + t), distance] on a polyline.
@@ -350,14 +658,17 @@ static func _closest_on(pts: PackedVector2Array, p: Vector2) -> Array:
 	return best
 
 
-## Pasture and fallow field centres: where the herds are driven to.
-static func _grazing_points(city_plan: CityPlan) -> PackedVector2Array:
-	var out := PackedVector2Array()
+## Pastures and fallow fields, where the herds are driven to: [{centre, polygon}].
+static func grazing_areas(city_plan: CityPlan) -> Array[Dictionary]:
+	var out: Array[Dictionary] = []
+	var polys: Array[PackedVector2Array] = []
 	for pasture: Dictionary in city_plan.data.get("pastures", []):
-		out.append(CityFauna._centroid(CityPlan.points(pasture["polygon"])))
+		polys.append(CityPlan.points(pasture["polygon"]))
 	for field: Dictionary in city_plan.data.get("fields", []):
 		if not bool(field["ploughed"]):
-			out.append(CityFauna._centroid(CityPlan.points(field["polygon"])))
+			polys.append(CityPlan.points(field["polygon"]))
+	for poly in polys:
+		out.append({"centre": CityFauna._centroid(poly), "polygon": poly})
 	return out
 
 
@@ -474,10 +785,33 @@ static func material(stage: int) -> StandardMaterial3D:
 		var m := StandardMaterial3D.new()
 		m.vertex_color_use_as_albedo = true
 		m.vertex_color_is_srgb = true
-		m.roughness = [0.45, 0.72, 0.92][stage]
-		m.metallic_specular = [0.45, 0.36, 0.3][stage]
 		_materials[stage] = m
+		_apply_wetness(m, stage)
 	return _materials[stage]
+
+
+## Rain soaks dried dung (R-2077 follow-up): damp and crusted pats darken and
+## soften towards the wet gloss. `value` is the ground-trail wetness (0..1) that
+## CityWorld3D feeds from rain and puddles; one change updates every batch.
+static func set_wetness(value: float) -> void:
+	value = clampf(value, 0.0, 1.0)
+	if absf(value - _wetness) < 0.01:
+		return
+	_wetness = value
+	for stage: int in _materials:
+		_apply_wetness(_materials[stage], stage)
+
+
+static func wetness() -> float:
+	return _wetness
+
+
+static func _apply_wetness(m: StandardMaterial3D, stage: int) -> void:
+	# Fresh dung is already wet; only the drier stages take up the rain.
+	var soak := 0.0 if stage == STAGE_WET else _wetness
+	m.albedo_color = Color.WHITE.lerp(RAIN_DARKEN, soak)
+	m.roughness = lerpf([0.45, 0.72, 0.92][stage], RAIN_ROUGHNESS, soak)
+	m.metallic_specular = lerpf([0.45, 0.36, 0.3][stage], 0.42, soak)
 
 
 static func mesh_for(kind: StringName) -> ArrayMesh:
@@ -593,3 +927,42 @@ static func _blob(
 			for v: Array in quad:
 				st.set_color(cols[v[0]][v[1]])
 				st.add_vertex(grid[v[0]][v[1]])
+
+
+## A binary min-heap of (cost, node) for the drove graph's Dijkstra.
+class _Heap:
+	var _items: Array[Vector2] = []
+
+	func is_empty() -> bool:
+		return _items.is_empty()
+
+	func push(cost: float, node: int) -> void:
+		_items.append(Vector2(cost, node))
+		var i := _items.size() - 1
+		while i > 0:
+			var up := (i - 1) >> 1
+			if _items[up].x <= _items[i].x:
+				break
+			var swap := _items[up]
+			_items[up] = _items[i]
+			_items[i] = swap
+			i = up
+
+	func pop() -> Vector2:
+		var top := _items[0]
+		var last: Vector2 = _items.pop_back()
+		if not _items.is_empty():
+			_items[0] = last
+			var i := 0
+			while true:
+				var small := i
+				for c in [2 * i + 1, 2 * i + 2]:
+					if c < _items.size() and _items[c].x < _items[small].x:
+						small = c
+				if small == i:
+					break
+				var swap := _items[small]
+				_items[small] = _items[i]
+				_items[i] = swap
+				i = small
+		return top

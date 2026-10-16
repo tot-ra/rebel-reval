@@ -48,7 +48,112 @@ func test_drove_follows_the_street_to_grazing() -> void:
 	var route := CityDung.drove_route(plan, from, to)
 	assert_true(route.size() > 4, "the drove walks along the road's bends (%d points)" % route.size())
 	for i in range(2, route.size() - 2):
-		assert_true(pts.has(route[i]), "inner route point %d is a road vertex" % i)
+		assert_true(
+			_street_distance(plan, route[i]) < CityDung.DROVE_SNAP,
+			"inner route point %d is on a drove street" % i
+		)
+
+
+## Byres and sheep sheds drive their stock through the street graph unless their
+## grazing lies across open ground beside the yard: some routes change street at
+## a junction, each ends on its pasture or fallow, and no straight walk tramples
+## a sown field or goes through a house. The town herd crosses the suburb.
+func test_drove_routes_through_the_street_graph() -> void:
+	var plan := CityPlan.load_default()
+	var grazing := CityDung.grazing_areas(plan)
+	var routed := 0
+	var multi := 0
+	var off_road := 0.0
+	var reached := true
+	var trampling := 0
+	var straight := 0
+	var graph := CityDung._street_graph(plan)
+	for b: Dictionary in plan.data.get("buildings", []):
+		if String(b.get("kind", "")) != "outbuilding" or not CityDung.DROVE_STOCK.has(String(b["type"])):
+			continue
+		var yard := CityFauna._centroid(CityPlan.points(b["footprint"])) + Vector2(3.5, 3.5)
+		var path := CityDung.drove_plan(plan, yard, grazing)
+		if path.is_empty():
+			continue
+		var to: Vector2 = path["area"]["centre"]
+		var points: PackedVector2Array = path["points"]
+		var streets: PackedInt32Array = path["streets"]
+		if streets.is_empty():
+			straight += 1
+			if CityDung._trample_cost(plan, graph, yard, to, path["area"]["polygon"]) > 0.0:
+				trampling += 1
+			continue
+		routed += 1
+		if streets.size() >= 2:
+			multi += 1
+		if not points[points.size() - 1].is_equal_approx(to):
+			reached = false
+		# Open ground walked from the last street to the grazing's edge.
+		var poly: PackedVector2Array = path["area"]["polygon"]
+		var leave := points[points.size() - 2]
+		if not Geometry2D.is_point_in_polygon(leave, poly):
+			off_road = maxf(off_road, CityFarmland._distance_to_polygon(leave, poly))
+	assert_true(routed >= 6, "yards drive their stock along streets (%d)" % routed)
+	# A yard with no street in reach may still clip a house corner on its way out.
+	assert_true(
+		trampling * 10 <= straight,
+		"straight walks keep off sown fields and houses (%d of %d clip one)" % [trampling, straight]
+	)
+	assert_true(reached, "every drove ends at its pasture or fallow field")
+	assert_true(multi >= 2, "drives cross at least two streets (%d of %d)" % [multi, routed])
+	assert_true(off_road < CityDung.DROVE_ENTRY, "and leaves the street near it (%.0f m)" % off_road)
+	var gate := CityFauna._anchor_point(plan, CityDung.TOWN_HERD_GATE)
+	var herd := CityDung.drove_plan(plan, gate, grazing)
+	assert_false(
+		(herd.get("streets", PackedInt32Array()) as PackedInt32Array).is_empty(),
+		"the town herd walks out of the Karja gate along the road"
+	)
+	print("drove routes: %d on streets, %d over 2+ streets, longest last off-road leg %.0f m" % [
+		routed, multi, off_road
+	])
+
+
+func test_heaps_keep_out_of_gardens_and_bushes() -> void:
+	var plan := CityPlan.load_default()
+	var gardens := CityDung.garden_polygons(plan)
+	assert_true(gardens.size() > 0, "the plan has kitchen gardens")
+	var stems := CityDung._stem_buckets(plan)
+	var heaps := 0
+	var bad := 0
+	for d: Dictionary in CityDung.drops_for(plan):
+		if d["kind"] != CityDung.KIND_HEAP:
+			continue
+		heaps += 1
+		var at: Vector2 = d["at"]
+		for poly in gardens:
+			if Geometry2D.is_point_in_polygon(at, poly):
+				bad += 1
+		if not CityDung.heap_clear(at, gardens, stems):
+			bad += 1
+	assert_true(heaps > 10, "byres, sheds and sties keep heaps (%d)" % heaps)
+	assert_eq(bad, 0, "no heap in a garden bed or under a tree or bush")
+
+
+func test_rain_darkens_and_softens_dried_dung() -> void:
+	var crust := CityDung.material(CityDung.STAGE_CRUST)
+	var wet := CityDung.material(CityDung.STAGE_WET)
+	CityDung.set_wetness(0.0)
+	var dry_rough := crust.roughness
+	var dry_albedo := crust.albedo_color.get_luminance()
+	CityDung.set_wetness(1.0)
+	assert_true(crust.roughness < dry_rough - 0.2, "a soaked crust turns glossy")
+	assert_true(crust.albedo_color.get_luminance() < dry_albedo - 0.2, "and darker")
+	assert_almost_eq(wet.roughness, 0.45, 0.001, "fresh dung is wet either way")
+	CityDung.set_wetness(0.0)
+	assert_almost_eq(crust.roughness, dry_rough, 0.001, "it dries back")
+
+
+static func _street_distance(plan: CityPlan, p: Vector2) -> float:
+	var best := INF
+	for s: Dictionary in plan.streets:
+		if CityDung.DROVE_CLASSES.has(String(s.get("class", ""))):
+			best = minf(best, float(CityDung._closest_on(CityPlan.points(s["points"]), p)[2]))
+	return best
 
 
 func test_turn_out_and_housing_gate_grazing_dung() -> void:
