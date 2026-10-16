@@ -8,7 +8,8 @@ extends SceneTree
 ##   tools/godot_render.sh --script tools/capture_winter_ice.gd -- --date=1343-02-05
 ##     [--only=moat_game,puddle]
 ##     [--time=0.5] day progress; [--exposure=1.0] review-only tonemap multiplier (snow
-##     fields clip at the game's daylight exposure, which hides the ice detail).
+##     fields clip at the game's daylight exposure, which hides the ice detail);
+##     [--ice-snow=0.1] review-only snow on the moat ice (bare black ice plates).
 ## Output: build/season/ice_<shot>_<date>.png
 
 const OUTPUT_DIR := "res://build/season"
@@ -20,6 +21,8 @@ var _tag := "1343-02-05"
 var _only := ""
 var _time := DAY_PROGRESS
 var _exposure := 1.0
+## Review-only override of the snow lying on moat ice (-1 keeps the date's cover).
+var _ice_snow := -1.0
 
 
 func _initialize() -> void:
@@ -34,6 +37,8 @@ func _initialize() -> void:
 			_time = float(arg.substr(7))
 		elif arg.begins_with("--exposure="):
 			_exposure = float(arg.substr(11))
+		elif arg.begins_with("--ice-snow="):
+			_ice_snow = float(arg.substr(11))
 	call_deferred("_run")
 
 
@@ -58,6 +63,13 @@ func _shots(plan: CityPlan, world: CityWorld3D) -> Array[Dictionary]:
 	shots.append({
 		"name": "moat_close", "eye": Vector3(low.x, surface + 1.6, low.y),
 		"look": Vector3(mid.x + along.x * 3.0, surface, mid.y + along.y * 3.0), "fov": 60.0,
+		"focus": mid
+	})
+	# Across the ditch from above one bank: both waterlines against the banks.
+	var bank_eye := mid + side * 7.0 - along * 3.0
+	shots.append({
+		"name": "moat_bank", "eye": Vector3(bank_eye.x, surface + 5.0, bank_eye.y),
+		"look": Vector3(mid.x - side.x * 3.0, surface, mid.y - side.y * 3.0), "fov": 60.0,
 		"focus": mid
 	})
 	var high := mid + side * 9.0 - along * 11.0
@@ -168,6 +180,9 @@ func _run() -> void:
 	world.sky_weather.auto_weather = false
 	world.sky_weather.set_process(false)
 	view.set_calendar_date(_date)
+	if _ice_snow >= 0.0:
+		for water: ShaderMaterial in world.water_materials:
+			water.set_shader_parameter("ice_snow", _ice_snow)
 	print("ice plates: sea ice %.2f fresh %.2f puddle %.2f snow %.2f" % [
 		SeasonState.ice_cover_target(SeasonState.ICE_SEA, SeasonState.day_of_year_for(_date)),
 		SeasonState.ice_cover_target(SeasonState.ICE_FRESH, SeasonState.day_of_year_for(_date)),
@@ -193,6 +208,8 @@ func _run() -> void:
 		var path := "%s/ice_%s_%s.png" % [OUTPUT_DIR, shot["name"], _tag]
 		if _exposure != 1.0 or _time != DAY_PROGRESS:
 			path = "%s/ice_%s_%s_t%.2f_e%.2f.png" % [OUTPUT_DIR, shot["name"], _tag, _time, _exposure]
+		if _ice_snow >= 0.0:
+			path = path.replace(".png", "_snow%.2f.png" % _ice_snow)
 		viewport.get_texture().get_image().save_png(ProjectSettings.globalize_path(path))
 		print("ice plate: ", path)
 	quit(0)

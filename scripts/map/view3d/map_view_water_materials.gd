@@ -91,6 +91,7 @@ const WATER_WAVE_BASE := {
 }
 
 const SKY_WEATHER := preload("res://scripts/map/view3d/sky_weather_3d.gd")
+const IceTextures := preload("res://scripts/city/ice_textures.gd")
 
 ## WS-04 baked FFT ocean (WS-03 output). The profile JSON is the source of truth
 ## for patch sizes, loop periods, frame counts, and channel decode scales.
@@ -913,6 +914,8 @@ static func apply_sea_ice(ice: float, snow: float, wave_profiles: Dictionary) ->
 		var material := water_surface(terrain_id as StringName, wave_profiles)
 		material.set_shader_parameter("sea_ice", clampf(ice, 0.0, 1.0))
 		material.set_shader_parameter("sea_ice_snow", clampf(snow, 0.0, 1.0))
+		if ice > 0.0:
+			IceTextures.bind(material)
 
 
 ## Pushes sky sun-disk visibility and day/night blend into cached water

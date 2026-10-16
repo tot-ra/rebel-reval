@@ -32,6 +32,14 @@ uniform float ice_snow = 0.0;
 uniform bool vertex_depth = false;
 uniform float vertex_depth_offset = 0.5;
 uniform float vertex_depth_scale = 2.5;
+// Water column per pixel from the terrain heightmap (CityPlan.height_texture, the
+// same grid the ground mesh is built from), when ground_rect.z > 0. The vertex
+// column has only three rows across the ditch, so its waterline ran in straight
+// lines along the ribbon instead of following the bank, and the ribbon's outer edge
+// showed as a hard polygon cut. The mesh now overhangs into the banks
+// (CityWorld3D.MOAT_MESH_OVERHANG) and this column fades it out on the real contour.
+uniform sampler2D ground_height : filter_linear, repeat_disable;
+uniform vec4 ground_rect = vec4(0.0, 0.0, 0.0, 0.0);
 // WS-15 interactive ripples (WaterRippleSim, bound by CityMapView): R = height,
 // B = aeration, on a window that follows Kalev. ripple_window = (origin x,
 // origin z, size, valid); valid 0 turns the wake off. Same read as the sea's
@@ -52,6 +60,7 @@ const float RIPPLE_MAX_SLOPE = 0.6;
 varying vec3 world_pos;
 
 #include "res://scripts/city/city_water_light.gdshaderinc"
+#define ICE_PHOTO
 #include "res://scripts/city/ice_surface.gdshaderinc"
 
 float hash12(vec2 p) {
@@ -115,7 +124,10 @@ void fragment() {
 	vec4 ground_view = INV_PROJECTION_MATRIX * vec4(vec3(SCREEN_UV * 2.0 - 1.0, raw * 2.0 - 1.0), 1.0);
 	ground_view.xyz /= ground_view.w;
 	float column = max(VERTEX.z - ground_view.z, 0.0);
-	if (vertex_depth) {
+	if (ground_rect.z > 0.0) {
+		float bed = texture(ground_height, (world_pos.xz - ground_rect.xy) / ground_rect.zw).r;
+		column = max(world_pos.y - bed, 0.0);
+	} else if (vertex_depth) {
 		column = max(COLOR.r * vertex_depth_scale - vertex_depth_offset, 0.0);
 	}
 	float depth_hint = clamp(column / deep_depth, 0.0, 1.0);
@@ -153,7 +165,9 @@ void fragment() {
 		ROUGHNESS = mix(ROUGHNESS, ice_s.roughness, frozen);
 		SPECULAR = mix(SPECULAR, ice_s.specular, frozen);
 		water_f0 = 0.16 * SPECULAR * SPECULAR;
-		float ice_rim = smoothstep(0.0, edge_soft * 0.35, column);
+		// Soft, ragged fade onto the snowed bank (city_ground `moat_ice`): the bank
+		// snow stands above the ground and would otherwise cut the ice in a hard line.
+		float ice_rim = smoothstep(0.0, 0.4, column + (noise(world_pos.xz * 1.3) - 0.5) * 0.25);
 		ALPHA = mix(ALPHA, ice_rim, frozen);
 		vec3 ice_n = normalize(vec3(-ice_s.slope.x, 1.0, -ice_s.slope.y));
 		vec3 flat_n = normalize(mix(n, ice_n, frozen));
