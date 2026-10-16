@@ -1,6 +1,6 @@
 # Citizen wardrobe: dress that shows rank, age, trade and arms
 
-Status: implemented (tasks **R-1663**, **R-1667**, epic **R-1662**). Scope: the census residents of the seamless city ([`CITIZENS.md`](./CITIZENS.md)) wear layers over their baked base outfit, chosen from what the census knows about them: head coverings, aprons, the armour kits of the watch, crown men, knights and Order brothers (coat of plates, aventail, great helm, chausses, gauntlets, white mantle with the black cross, shields), keys, prayer beads, scrips and sacks, each dyed by wealth and office; every piece of cloth is drawn in a grade that matches the wearer's wealth (homespun to scarlet) and dirtied by their trade (see [Cloth grades and wear](#cloth-grades-and-wear)). Out of scope (planned, see [Roadmap](#roadmap)): civilian mantles and cloaks, new gowns, footwear, more child bodies, hand-carried props, hair and tonsure, and a crowd variety gate. Named NPCs keep their own models ([`NAMED_NPCS.md`](./NAMED_NPCS.md)).
+Status: implemented (tasks **R-1663**, **R-1667**, epic **R-1662**; prestige and wear variants **R-2004**). Scope: the census residents of the seamless city ([`CITIZENS.md`](./CITIZENS.md)) wear layers over their baked base outfit, chosen from what the census knows about them: head coverings, aprons, the armour kits of the watch, crown men, knights and Order brothers (coat of plates, aventail, great helm, chausses, gauntlets, white mantle with the black cross, shields), keys, prayer beads, scrips and sacks, each dyed by wealth and office; every piece of cloth is drawn in a grade that matches the wearer's wealth (homespun to scarlet) and dirtied by their trade (see [Cloth grades and wear](#cloth-grades-and-wear)). Out of scope (planned, see [Roadmap](#roadmap)): civilian mantles and cloaks, new gowns, footwear, more child bodies, hand-carried props, hair and tonsure, and a crowd variety gate. Named NPCs keep their own models ([`NAMED_NPCS.md`](./NAMED_NPCS.md)).
 
 ## Historical basis
 
@@ -42,6 +42,8 @@ Never mixed (the dossier's table, enforced by tests): no armour on burghers, mas
 
 5. **Cloth grade and wear (R-1667).** At the end of `dress`, `CitizenWardrobe.weave` replaces every cloth surface (base body and layers; wool, linen, leather and quilted, read off the material's `textiles/<family>_albedo*.png`) with a shared `ShaderMaterial` of `scripts/city/citizen_cloth.gdshader`, one per (garment material, grade). The resident's dyes and wear go into instance uniforms on the mesh, so residents share materials and textures (see below).
 
+6. **Variants (R-2004).** After `dress`, `citizen_wardrobe.variants` tags every worn layer with a prestige and wear cell, `"<layer>@p<1-3>_w<0-2>"`, and gives armed residents a `gear_variant` cell for the spear, sword or shield; duty-kit layers share one cell per post. Rules, fallback and the stand-in finish: [`EQUIPMENT_VARIANTS.md`](./EQUIPMENT_VARIANTS.md#runtime-variant-choice-r-2004). At runtime `CitizenWardrobe.dress` mounts the cell's own fitted layer when a body has one, else the base layer, and `weave` scales the layer's cloth wear by the cell (`CELL_WEAR`) and wears its iron.
+
 Today 3,941 residents wear about 3,440 layers; body plus layers gives about 330 distinct silhouettes (22 before), before dyes.
 
 ## Cloth grades and wear
@@ -80,7 +82,8 @@ Instance uniforms (per mesh, `GeometryInstance3D.set_instance_shader_parameter`)
 
 | Field (resident record) | Meaning |
 |---|---|
-| `wear` | ordered layer ids, e.g. `["gambeson", "mail_haubergeon", "surcoat", "kettle_hat"]` |
+| `wear` | ordered layer ids with their variant cell (R-2004), e.g. `["gambeson@p2_w1", "mail_haubergeon@p2_w1", "surcoat@p2_w1", "kettle_hat@p2_w1"]`; `citizen_wardrobe.layer_of` and `EquipmentVariant.split` strip the cell. A plain `"<layer>"` entry still works (cell `w1`) |
+| `gear_variant` | prestige and wear cell (`p1_w2`) of the duty weapon or shield; only on residents who carry one |
 | `wear_dye` | `{layer: [r, g, b]}` multiplier of the layer's undyed cloth |
 | `status`, `trade`, `id` | read by `CitizenWardrobe.weave`: grade by wealth, wear by trade, per-resident roll |
 
@@ -103,14 +106,15 @@ tools/godot_render.sh --script tools/capture_citizen_wardrobe.gd   # review plat
 
 ## Save and load
 
-None: the wardrobe is a pure function of the static census and duty roster.
+None: the wardrobe and its variant cells are a pure function of the static census and duty roster. Player items keep their own variant in the save ([`EQUIPMENT_VARIANTS.md`](./EQUIPMENT_VARIANTS.md#runtime-variant-choice-r-2004)).
 
 ## Verify
 
 ```bash
-python3 -m unittest tests.python.test_citizen_wardrobe -v
+python3 -m unittest tests.python.test_citizen_wardrobe tests.python.test_equipment_variants -v
 python3 tools/city/build_citizen_runtime.py --check
-godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_citizen_wardrobe
+godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_citizen_wardrobe,test_equipment_variants
+tools/godot_render.sh --script tools/capture_watch_variants.gd   # six watchmen, mixed variants
 ```
 
 Armour plates (four builds, five kits each: man-at-arms, coat of plates, vassal knight, great helm, Order brother), idle and walk (`--walk`), by build: thin [front](../reports/images/characters/citizen_armour_thin_front.jpg), [back](../reports/images/characters/citizen_armour_thin_back.jpg), [walk front](../reports/images/characters/citizen_armour_thin_front_walk.jpg), [walk back](../reports/images/characters/citizen_armour_thin_back_walk.jpg), average [front](../reports/images/characters/citizen_armour_average_front.jpg), [back](../reports/images/characters/citizen_armour_average_back.jpg), [walk front](../reports/images/characters/citizen_armour_average_front_walk.jpg), [walk back](../reports/images/characters/citizen_armour_average_back_walk.jpg), sturdy [front](../reports/images/characters/citizen_armour_sturdy_front.jpg), [back](../reports/images/characters/citizen_armour_sturdy_back.jpg), [walk front](../reports/images/characters/citizen_armour_sturdy_front_walk.jpg), [walk back](../reports/images/characters/citizen_armour_sturdy_back_walk.jpg), heavy [front](../reports/images/characters/citizen_armour_heavy_front.jpg), [back](../reports/images/characters/citizen_armour_heavy_back.jpg), [walk front](../reports/images/characters/citizen_armour_heavy_front_walk.jpg), [walk back](../reports/images/characters/citizen_armour_heavy_back_walk.jpg).
@@ -134,6 +138,7 @@ Cloth grades and wear (`tools/capture_citizen_textiles.gd`, 3 m): [rich](../repo
 - Elbows and knees are not worn through: the shader knows height and front, not limbs.
 - Named NPCs ([`NAMED_NPCS.md`](./NAMED_NPCS.md)) and heroes keep their own StandardMaterials; only census residents dressed through `CitizenGear.arm` are woven. `CityCitizens.dye` still duplicates the tunic and hose material per resident before `weave` replaces it (a transient copy; folding the dye into `weave` would touch `city_citizens.gd`).
 - The fur grade has no garment yet (**R-1665** trims, **R-1664** mantles).
+- No layer ships a variant file yet, so prestige cells look alike; wear cells differ by the stand-in cloth wear and iron finish only (**R-2004**, item tasks of epic **R-2002**).
 
 ## Roadmap
 

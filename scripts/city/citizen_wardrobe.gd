@@ -15,8 +15,16 @@ extends RefCounted
 ## trade and wealth (smith soot, baker flour, butcher stains, labourer mud,
 ## patched and faded poor wool) through instance uniforms of
 ## scripts/city/citizen_cloth.gdshader. No resident owns a material or texture.
+##
+## Variants (task R-2004): a `wear` entry is "<layer>@<cell>" (prestige and wear cell,
+## docs/SYSTEMS/EQUIPMENT_VARIANTS.md). A layer mounts `<layer>_<cell>.glb` when the body
+## has one, else its base layer; the cell's wear then scales the cloth wear and gives the
+## layer's iron and mail a stand-in finish. Plain "<layer>" entries (older data) are w1.
+
+const EquipmentVariant := preload("res://scripts/city/equipment_variant.gd")
 
 const LAYER_PATH := "res://assets/characters/realistic/%s/layers/%s.glb"
+const LAYER_DIR := "res://assets/characters/realistic/%s/layers"
 const GARMENT_PREFIX := "wear_"
 ## Layers whose cloth material is named after its textile, not the layer
 ## (garments.py reuses the hero builders: hood_wool, apron_leather, mail, iron).
@@ -52,6 +60,10 @@ const WEALTH := {
 	"journeyman": 1, "master_craftsman": 1, "clerk": 1, "cleric": 1, "burgher": 1,
 	"burgher_merchant": 2, "guest_merchant": 2, "patrician": 2, "noble": 2,
 }
+## Variant wear (w0, w1, w2) -> [soil, patches, fade] scale on a layer's cloth wear.
+const CELL_WEAR := [[0.5, 0.2, 0.3], [1.0, 1.0, 1.0], [1.5, 2.2, 1.8]]
+## Floor of [patches, fade] on a battered (w2) layer, so even a rich man's old aketon shows it.
+const BATTERED_FLOOR := [0.45, 0.35]
 ## Wealth -> [mud, patches, fade]: the poor walk the lanes in mended, sun-pale wool.
 const WEALTH_WEAR := [[0.45, 0.7, 0.5], [0.22, 0.15, 0.18], [0.06, 0.0, 0.0]]
 ## Trade -> [mud, soot, flour, stain] on top of the wealth wear (the larger wins).
@@ -116,12 +128,17 @@ static func dress(rig: SharedCharacterRig, record: Dictionary) -> int:
 	var body := String(record.get("body", ""))
 	var dyes: Dictionary = record.get("wear_dye", {})
 	var worn := 0
-	for layer: String in record.get("wear", []):
+	for entry: String in record.get("wear", []):
+		var parts := EquipmentVariant.split(entry)
+		var layer := parts[0]
 		var garment_id := StringName(GARMENT_PREFIX + layer)
 		if rig.has_garment(garment_id):
 			worn += 1
 			continue
-		var scene := layer_scene(body, layer)
+		# The variant's own fitted layer when shipped, else the base layer (fallback).
+		var scene := EquipmentVariant.variant_scene(LAYER_DIR % body, layer, parts[1])
+		if scene == null:
+			scene = layer_scene(body, layer)
 		if scene == null or not rig.equip_garment(garment_id, scene):
 			continue
 		worn += 1
@@ -151,7 +168,9 @@ static func weave(rig: SharedCharacterRig, record: Dictionary) -> void:
 		var mesh_instance := child as MeshInstance3D
 		if mesh_instance == null or mesh_instance.mesh == null:
 			continue
-		var layer := _layer_of(mesh_instance, record)
+		var parts := _layer_of(mesh_instance, record)
+		var layer := parts[0]
+		var level := EquipmentVariant.wear(parts[1])
 		var woven := false
 		for surface in mesh_instance.mesh.get_surface_count():
 			var source := mesh_instance.mesh.surface_get_material(surface) as BaseMaterial3D
@@ -162,6 +181,9 @@ static func weave(rig: SharedCharacterRig, record: Dictionary) -> void:
 			var grade := grade_of(family, wealth, slot)
 			mesh_instance.set_surface_override_material(surface, cloth_material(source, family, grade, slot))
 			woven = true
+		if not layer.is_empty():
+			# Iron and mail of the layer (kettle hat, haubergeon): stand-in wear finish.
+			EquipmentVariant.finish_mesh(mesh_instance, level)
 		if not woven:
 			continue
 		var outer := Color(1, 1, 1, 0)
@@ -173,8 +195,9 @@ static func weave(rig: SharedCharacterRig, record: Dictionary) -> void:
 			outer = _linear_dye(outer_dyes.get(layer, []))
 		mesh_instance.set_instance_shader_parameter(&"dye_outer", outer)
 		mesh_instance.set_instance_shader_parameter(&"dye_under", under)
-		mesh_instance.set_instance_shader_parameter(&"wear_soil", wear[0])
-		mesh_instance.set_instance_shader_parameter(&"wear_age", wear[1])
+		var layer_wear := wear if layer.is_empty() else cell_wear(wear, level)
+		mesh_instance.set_instance_shader_parameter(&"wear_soil", layer_wear[0])
+		mesh_instance.set_instance_shader_parameter(&"wear_age", layer_wear[1])
 
 
 static func wealth_of(record: Dictionary) -> int:
@@ -194,6 +217,20 @@ static func wear_of(record: Dictionary) -> Array[Vector4]:
 	var patches := clampf(base[1] * scale, 0.0, 1.0)
 	var fade := clampf(base[2] * scale, 0.0, 1.0)
 	return [soil, Vector4(patches, fade, seed, 0.0)]
+
+
+## The resident's cloth wear scaled for a layer of variant wear `level` (0..2).
+static func cell_wear(wear: Array[Vector4], level: int) -> Array[Vector4]:
+	if level == 1:
+		return wear
+	var scale: Array = CELL_WEAR[clampi(level, 0, 2)]
+	var soil := (wear[0] * float(scale[0])).clamp(Vector4.ZERO, Vector4.ONE)
+	var patches := clampf(wear[1].x * float(scale[1]), 0.0, 1.0)
+	var fade := clampf(wear[1].y * float(scale[2]), 0.0, 1.0)
+	if level == 2:
+		patches = maxf(patches, BATTERED_FLOOR[0])
+		fade = maxf(fade, BATTERED_FLOOR[1])
+	return [soil, Vector4(patches, fade, wear[1].z, 0.0)]
 
 
 ## Cloth grade of a surface: wool by wealth (the rich wear scarlet outside and
@@ -274,13 +311,14 @@ static func _shader(double_sided: bool) -> Shader:
 	return _shaders[double_sided]
 
 
-## Layer id of a mounted `Garment_wear_<layer>_*` mesh, "" for the base body.
-static func _layer_of(mesh_instance: MeshInstance3D, record: Dictionary) -> String:
+## [layer id, variant cell] of a mounted `Garment_wear_<layer>_*` mesh; ["", ""] for the base body.
+static func _layer_of(mesh_instance: MeshInstance3D, record: Dictionary) -> PackedStringArray:
 	var name := String(mesh_instance.name)
-	for layer: String in record.get("wear", []):
-		if name.begins_with("Garment_%s%s_" % [GARMENT_PREFIX, layer]):
-			return layer
-	return ""
+	for entry: String in record.get("wear", []):
+		var parts := EquipmentVariant.split(entry)
+		if name.begins_with("Garment_%s%s_" % [GARMENT_PREFIX, parts[0]]):
+			return parts
+	return PackedStringArray(["", ""])
 
 
 ## Record dye [r, g, b] (sRGB) as a linear instance colour; alpha 0 = no dye.

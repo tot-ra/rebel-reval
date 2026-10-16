@@ -53,6 +53,7 @@ or, for clothes, `"garment": "cape"` instead of `scene`. No `equip` block means 
 - Equipping into an occupied slot returns the previous item to the bag first; if the grid cannot fit it, the swap is rejected with no partial mutation (same no-partial-mutation discipline as quest state).
 - Unequip is the reverse: needs free grid space, else rejected.
 - Quest/content ownership flags (`add_item`/`has_item`) are unaffected by equip state — an equipped hammer is still owned.
+- **Variants (R-2004):** a placement, an equipped slot and a world item may carry a prestige and wear variant id (`InventoryPlacement.variant`, `GameState.equipped_variant(slot)`, the world item record's `variant`; naming in [`EQUIPMENT_VARIANTS.md`](SYSTEMS/EQUIPMENT_VARIANTS.md)). The item id never changes: `item.forge_spear` stays `item.forge_spear`. `bag.try_add(item_id, quantity, variant)` stacks only with the same variant; pickup, drop, equip and unequip carry the variant through, and saves keep it. "" is the base item.
 
 **UI**: the bag overlay places a nine-socket equipment paper doll (head, back, body, arms, belt, legs, feet, and both hands) beside the 8 x 5 packed-goods grid. Click an equipable item → "Equip" action; click an occupied socket → returns the item to the bag. Encumbrance meter unchanged.
 

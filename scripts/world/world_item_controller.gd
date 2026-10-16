@@ -57,6 +57,8 @@ var _interactables: Dictionary = {}
 var _interactable_binder: InteractableViewBinder
 var _hovered: WorldItem = null
 var _overlay: WorldItemOverlay
+## WorldItem -> variant id from its record (R-2004, EQUIPMENT_VARIANTS.md), carried into the bag.
+var _variants: Dictionary = {}
 
 
 func setup(
@@ -190,7 +192,11 @@ func _reposition_seeded_entries(entries: Array) -> void:
 			if StringName(record.get("object_id", "")) != object_id:
 				continue
 			_state.place_world_item(
-				location_id, object_id, StringName(record.get("item_id", "")), position
+				location_id,
+				object_id,
+				StringName(record.get("item_id", "")),
+				position,
+				StringName(String(record.get("variant", "")))
 			)
 			break
 
@@ -252,6 +258,7 @@ func _spawn_item(record: Dictionary) -> void:
 	var item: WorldItem = WORLD_ITEM_SCENE.instantiate()
 	item.configure(object_id, item_id, location_id, position)
 	_items_root.add_child(item)
+	_variants[item] = StringName(String(record.get("variant", "")))
 	if _view_runtime != null:
 		item.set_3d_presentation(true)
 
@@ -298,6 +305,7 @@ func _clear_items() -> void:
 		if is_instance_valid(view):
 			view.free()
 	_views.clear()
+	_variants.clear()
 	for child in _items_root.get_children():
 		child.free()
 
@@ -351,7 +359,8 @@ func _try_pickup(item: WorldItem) -> bool:
 	if is_instance_valid(_player):
 		_player.leave_spirit_sight()
 	var item_id := item.get_item_id()
-	var result := _state.bag.try_add(item_id)
+	var variant: StringName = _variants.get(item, &"")
+	var result := _state.bag.try_add(item_id, 1, variant)
 	if result != InventoryBag.AddResult.OK:
 		if _overlay != null:
 			_overlay.show_feedback(PickupLabelsScript.label_for(result))
@@ -371,6 +380,7 @@ func _try_pickup(item: WorldItem) -> bool:
 	if view != null and is_instance_valid(view):
 		view.queue_free()
 	_views.erase(item)
+	_variants.erase(item)
 	item.queue_free()
 	if _hovered == item:
 		_hovered = null
@@ -391,12 +401,13 @@ func _drop_placement(placement: InventoryPlacement, logic_position: Vector2) -> 
 	if _state == null or placement == null:
 		return false
 	var item_id := placement.item_id
+	var variant := placement.variant
 	if not _state.bag.remove(placement):
 		return false
 
 	var object_id := _next_drop_object_id(item_id)
-	if not _state.place_world_item(location_id, object_id, item_id, logic_position):
-		_state.bag.try_add(item_id)
+	if not _state.place_world_item(location_id, object_id, item_id, logic_position, variant):
+		_state.bag.try_add(item_id, 1, variant)
 		return false
 
 	var controller := _player.get_node_or_null("InventoryController") as InventoryController
@@ -408,6 +419,7 @@ func _drop_placement(placement: InventoryPlacement, logic_position: Vector2) -> 
 			"object_id": object_id,
 			"item_id": item_id,
 			"position": logic_position,
+			"variant": variant,
 		}
 	)
 	return true

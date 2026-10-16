@@ -97,7 +97,8 @@ func can_place_at(
 	return true
 
 
-func check_add(item_id: StringName, quantity: int = 1) -> AddResult:
+## `variant` (R-2004): only stacks of the same variant merge.
+func check_add(item_id: StringName, quantity: int = 1, variant: StringName = &"") -> AddResult:
 	if item_id.is_empty():
 		return AddResult.UNKNOWN_ITEM
 
@@ -108,7 +109,7 @@ func check_add(item_id: StringName, quantity: int = 1) -> AddResult:
 
 	if profile.stackable:
 		for placement in placements:
-			if placement.item_id != item_id:
+			if placement.item_id != item_id or placement.variant != variant:
 				continue
 			var next_quantity := placement.quantity + add_count
 			if next_quantity > profile.max_stack:
@@ -126,7 +127,7 @@ func check_add(item_id: StringName, quantity: int = 1) -> AddResult:
 	return AddResult.OK
 
 
-func try_add(item_id: StringName, quantity: int = 1) -> AddResult:
+func try_add(item_id: StringName, quantity: int = 1, variant: StringName = &"") -> AddResult:
 	if item_id.is_empty():
 		return AddResult.UNKNOWN_ITEM
 
@@ -137,7 +138,7 @@ func try_add(item_id: StringName, quantity: int = 1) -> AddResult:
 
 	if profile.stackable:
 		for placement in placements:
-			if placement.item_id != item_id:
+			if placement.item_id != item_id or placement.variant != variant:
 				continue
 			var next_quantity := placement.quantity + add_count
 			if next_quantity > profile.max_stack:
@@ -156,7 +157,7 @@ func try_add(item_id: StringName, quantity: int = 1) -> AddResult:
 	if origin.x < 0:
 		return AddResult.NO_SPACE
 
-	placements.append(InventoryPlacement.new(item_id, origin.x, origin.y, add_count))
+	placements.append(InventoryPlacement.new(item_id, origin.x, origin.y, add_count, variant))
 	_rebuild_occupancy()
 	return AddResult.OK
 

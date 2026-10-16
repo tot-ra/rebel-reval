@@ -30,17 +30,16 @@ static func save_payload(state: GameState) -> Dictionary:
 
 	var placements: Array[Dictionary] = []
 	for placement in state.bag.placements:
-		(
-			placements
-			. append(
-				{
-					"item_id": String(placement.item_id),
-					"grid_x": placement.grid_x,
-					"grid_y": placement.grid_y,
-					"quantity": placement.quantity,
-				}
-			)
-		)
+		var row := {
+			"item_id": String(placement.item_id),
+			"grid_x": placement.grid_x,
+			"grid_y": placement.grid_y,
+			"quantity": placement.quantity,
+		}
+		# Optional (R-2004): saves without it load as the base item.
+		if not placement.variant.is_empty():
+			row["variant"] = String(placement.variant)
+		placements.append(row)
 
 	var payload: Dictionary = {
 		"version": state.version,
@@ -59,6 +58,7 @@ static func save_payload(state: GameState) -> Dictionary:
 			"placements": placements,
 		},
 		"equipped": _string_dictionary(state._equipped),
+		"equipped_variants": _string_dictionary(state._equipped_variants),
 		"equipped_forge_technique": String(state.equipped_forge_technique()),
 		"facts": _bool_dictionary(state._facts),
 		"flags": _bool_dictionary(state._flags),
@@ -169,12 +169,17 @@ static func load_payload(state: GameState, payload: Dictionary) -> Array[String]
 						StringName(String(placement_dict.get("item_id", ""))),
 						int(placement_dict.get("grid_x", 0)),
 						int(placement_dict.get("grid_y", 0)),
-						int(placement_dict.get("quantity", 1))
+						int(placement_dict.get("quantity", 1)),
+						StringName(String(placement_dict.get("variant", "")))
 					)
 				)
 			state.bag._rebuild_occupancy()
 
 	state._equipped = _load_string_dictionary(candidate.get("equipped", {}), errors, "equipped")
+	# Optional for older saves: no entry means the base item.
+	state._equipped_variants = _load_string_dictionary(
+		candidate.get("equipped_variants", {}), errors, "equipped_variants"
+	)
 	# Optional for older saves; empty means no technique equipped.
 	var technique_raw := String(candidate.get("equipped_forge_technique", ""))
 	if technique_raw.is_empty():

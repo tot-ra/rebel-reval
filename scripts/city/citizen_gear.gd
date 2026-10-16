@@ -13,6 +13,11 @@ const KETTLE_HAT := preload("res://assets/characters/realistic/watchman/kettle_h
 ## The legacy primitive assets/characters/shared/spear.tscn stays until R-2035.
 const SPEAR := preload("res://assets/props/weapons/spear/variants/spear_p1_w1.glb")
 const SWORD := preload("res://assets/characters/shared/sword.tscn")
+## Variant folders (EQUIPMENT_VARIANTS.md): `<dir>/<family>_<cell>.glb`. The resident's
+## `gear_variant` cell picks the file; a missing cell falls back to SPEAR or SWORD above.
+const SPEAR_DIR := "res://assets/props/weapons/spear/variants"
+const SWORD_DIR := "res://assets/props/weapons/sword/variants"
+const EquipmentVariant := preload("res://scripts/city/equipment_variant.gd")
 
 ## Kit -> {hat, hand}. The gatekeeper carries nothing: his keys are his badge.
 const KITS := {
@@ -56,14 +61,35 @@ static func arm(rig: SharedCharacterRig, record: Dictionary) -> void:
 	# without its own fitted kettle hat layer.
 	if kit["hat"] and not rig.has_garment(&"wear_kettle_hat"):
 		rig.equip_garment(&"duty_hat", KETTLE_HAT)
+	var cell := gear_cell(record)
 	match kit["hand"]:
 		&"spear":
-			var spear := rig.equip(&"right_hand", SPEAR)
+			var spear := _equip_variant(rig, SPEAR_DIR, "spear", cell, SPEAR)
 			if spear != null:
 				spear.transform = _spear_held
 		&"sword":
-			rig.equip(&"right_hand", SWORD)
+			_equip_variant(rig, SWORD_DIR, "sword", cell, SWORD)
 	_carry_lantern(rig, duty, kit)
+
+
+## Prestige and wear cell of the resident's hand gear (`gear_variant`), base cell if unset.
+static func gear_cell(record: Dictionary) -> String:
+	var cell := String(record.get("gear_variant", ""))
+	return cell if EquipmentVariant.is_cell(cell) else EquipmentVariant.BASE_CELL
+
+
+## Mounts `<family>_<cell>` on the right hand, or the base item with a stand-in wear
+## finish when that variant is not shipped. Returns the mounted node.
+static func _equip_variant(
+	rig: SharedCharacterRig, dir: String, family: String, cell: String, base: PackedScene
+) -> Node3D:
+	var own := EquipmentVariant.variant_scene(dir, family, cell)
+	var item := rig.equip(&"right_hand", own if own != null else base)
+	if item != null:
+		item.set_meta(&"variant", "%s_%s" % [family, cell])
+		if own == null:
+			EquipmentVariant.finish(item, cell)
+	return item
 
 
 ## The night shift carries a horn lantern in the free left hand; it lights itself
@@ -101,6 +127,6 @@ static func _carry_shield(rig: SharedCharacterRig, record: Dictionary) -> void:
 			var rgb: Array = dyes[layer]
 			field = Color(float(rgb[0]), float(rgb[1]), float(rgb[2]))
 			break
-	var shield := rig.equip(&"left_hand", CitizenShield.scene(kind, field))
+	var shield := rig.equip(&"left_hand", CitizenShield.scene(kind, field, gear_cell(record)))
 	if shield != null:
 		shield.transform = _shield_held

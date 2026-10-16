@@ -56,6 +56,7 @@ A new game seeds the starter magic grants (`magic.grant.starter_fireball`, `star
 | Manual save | Quick menu → **Save game** (current slot) |
 | Load | Main menu **Load** opens the save list (`scenes/menu/save_list_overlay.gd`); entries show phase, location, spawn, and time |
 | Envelope | `SaveEnvelope` validates and migrates (envelope version 1). A failed load leaves the live state untouched |
+| Item variants | Optional, R-2004: a bag placement row may carry `variant` (`spear_p2_w0`), `equipped_variants` maps slot to variant id, a `world_items` record may carry `variant`. Absent means the base item, so older saves load unchanged ([`EQUIPMENT_VARIANTS.md`](./EQUIPMENT_VARIANTS.md#runtime-variant-choice-r-2004)) |
 | Fixtures | Released saves in `content/saves/released/` (must keep loading), Act 1 boundary and Act 2 route saves in `content/saves/act1/`, `content/saves/act2/`. See [`content/saves/README.md`](../../content/saves/README.md) |
 
 ## Debug state jumps

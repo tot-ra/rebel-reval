@@ -10,6 +10,10 @@ extends RefCounted
 ##   field - the knight's own surcoat colour, plain
 ##   plain - bare wood with an iron boss
 ## Dimensions follow a heater shield of the 1340s: about 0.46 m wide, 0.62 m tall.
+## Variants (R-2004): the bearer's `gear_variant` cell picks a shipped
+## `assets/props/armour/heater_shield/variants/heater_shield_<cell>.glb` when one exists;
+## until then the board is built here and its paint and wood follow the cell's wear
+## (fresh for w0, faded and darkened for w2).
 
 const HALF_WIDTH := 0.23
 const TOP := 0.30
@@ -19,6 +23,10 @@ const IRON := Color(0.36, 0.36, 0.37)
 const CROWN_RED := Color(0.58, 0.11, 0.09)
 const ORDER_WHITE := Color(0.86, 0.85, 0.80)
 const ORDER_BLACK := Color(0.07, 0.07, 0.07)
+const VARIANT_DIR := "res://assets/props/armour/heater_shield/variants"
+## Wear (w0, w1, w2) -> [paint brightness, fade toward the wood].
+const PAINT_WEAR := [[1.08, 0.0], [1.0, 0.0], [0.72, 0.35]]
+const EquipmentVariant := preload("res://scripts/city/equipment_variant.gd")
 ## Heater outline, clockwise from the top left (x, y); the point is at the bottom.
 const OUTLINE: Array[Vector2] = [
 	Vector2(-0.23, 0.30), Vector2(0.23, 0.30), Vector2(0.23, 0.06), Vector2(0.21, -0.06),
@@ -29,13 +37,20 @@ const OUTLINE: Array[Vector2] = [
 static var _cache: Dictionary = {}
 
 
-## PackedScene of one shield; `field` is only read for kind "field".
-static func scene(kind: String, field: Color = Color(0.4, 0.4, 0.4)) -> PackedScene:
-	var key := "%s:%s" % [kind, field.to_html(false) if kind == "field" else ""]
+## PackedScene of one shield; `field` is only read for kind "field". `cell` is the
+## bearer's prestige and wear cell; a shipped variant GLB wins over the built board.
+static func scene(
+	kind: String, field: Color = Color(0.4, 0.4, 0.4), cell: String = EquipmentVariant.BASE_CELL
+) -> PackedScene:
+	var shipped := EquipmentVariant.variant_scene(VARIANT_DIR, "heater_shield", cell)
+	if shipped != null:
+		return shipped
+	var level := EquipmentVariant.wear(cell)
+	var key := "%s:%s:%d" % [kind, field.to_html(false) if kind == "field" else "", level]
 	if not _cache.has(key):
 		var root := Node3D.new()
 		root.name = "Shield_" + kind
-		var colour := _field_colour(kind, field)
+		var colour := _worn(_field_colour(kind, field), level)
 		root.add_child(_board(colour))
 		if kind == "order":
 			for size: Vector2 in [Vector2(0.07, 0.50), Vector2(0.38, 0.07)]:
@@ -50,6 +65,14 @@ static func scene(kind: String, field: Color = Color(0.4, 0.4, 0.4)) -> PackedSc
 		root.free()
 		_cache[key] = packed
 	return _cache[key]
+
+
+## Paint of wear `level`: fresh, as made, or faded toward the bare wood and darkened.
+static func _worn(colour: Color, level: int) -> Color:
+	var wear: Array = PAINT_WEAR[clampi(level, 0, 2)]
+	var faded := colour.lerp(WOOD, float(wear[1]))
+	var light := float(wear[0])
+	return Color(faded.r * light, faded.g * light, faded.b * light, colour.a)
 
 
 static func _field_colour(kind: String, field: Color) -> Color:

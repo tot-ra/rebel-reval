@@ -76,7 +76,9 @@ func test_runtime_records_only_wear_fitted_layers() -> void:
 	var roster := CitizenRoster.load_default()
 	var worn := 0
 	for r: Dictionary in roster.residents:
-		for layer: String in r.get("wear", []):
+		for entry: String in r.get("wear", []):
+			# Entries carry a variant cell, "<layer>@<cell>" (R-2004).
+			var layer := entry.get_slice("@", 0)
 			worn += 1
 			assert_true(
 				ResourceLoader.exists(CitizenWardrobe.LAYER_PATH % [r["body"], layer]),

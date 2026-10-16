@@ -135,6 +135,8 @@ var in_spirit_world: bool:
 var _environment_state: Dictionary = {}
 
 var _equipped: Dictionary[StringName, StringName] = {}
+## Slot -> variant id of the equipped item (R-2004); absent for the base item.
+var _equipped_variants: Dictionary[StringName, StringName] = {}
 var _facts: Dictionary[StringName, bool] = {}
 var _relationships: Dictionary[StringName, int] = {}
 var _faction_events: Dictionary[StringName, Dictionary] = {}
@@ -597,6 +599,11 @@ func equipped_item(slot: StringName) -> StringName:
 	return _equipped.get(slot, &"")
 
 
+## Variant id of the item in `slot` (`spear_p1_w1`), "" for the base item or an empty slot.
+func equipped_variant(slot: StringName) -> StringName:
+	return _equipped_variants.get(slot, &"")
+
+
 func equipped_slots() -> Array[StringName]:
 	var slots: Array[StringName] = []
 	for slot: StringName in _equipped:
@@ -612,6 +619,7 @@ func equip_from_bag(slot: StringName, item_id: StringName) -> bool:
 	if placement == null:
 		return false
 
+	var variant := placement.variant
 	# Take one unit out of the grid before attempting the swap-back so the
 	# previous occupant can use the freed cells.
 	if placement.quantity > 1:
@@ -620,15 +628,20 @@ func equip_from_bag(slot: StringName, item_id: StringName) -> bool:
 		bag.remove(placement)
 
 	var previous := equipped_item(slot)
-	if not previous.is_empty() and bag.try_add(previous) != InventoryBag.AddResult.OK:
+	var previous_variant := equipped_variant(slot)
+	if (
+		not previous.is_empty()
+		and bag.try_add(previous, 1, previous_variant) != InventoryBag.AddResult.OK
+	):
 		# Rollback: the previous occupant does not fit back into the grid.
 		if placement.quantity >= 1 and bag.find_placement(item_id) == placement:
 			placement.quantity += 1
 		else:
-			bag.try_add(item_id)
+			bag.try_add(item_id, 1, variant)
 		return false
 
 	_equipped[slot] = item_id
+	_set_equipped_variant(slot, variant)
 	_refresh_reserved_weight()
 	equipment_changed.emit(slot)
 	_free_hands_for(slot, item_id)
@@ -666,13 +679,21 @@ func unequip_to_bag(slot: StringName) -> bool:
 	# The item's own weight is already counted as reserved, so release it
 	# for the duration of the add-back check.
 	bag.reserved_weight_kg -= bag.profile_for(item_id).weight_kg
-	if bag.try_add(item_id) != InventoryBag.AddResult.OK:
+	if bag.try_add(item_id, 1, equipped_variant(slot)) != InventoryBag.AddResult.OK:
 		_refresh_reserved_weight()
 		return false
 	_equipped.erase(slot)
+	_equipped_variants.erase(slot)
 	_refresh_reserved_weight()
 	equipment_changed.emit(slot)
 	return true
+
+
+func _set_equipped_variant(slot: StringName, variant: StringName) -> void:
+	if variant.is_empty():
+		_equipped_variants.erase(slot)
+	else:
+		_equipped_variants[slot] = variant
 
 
 ## Bag weight plus worn weight; the cap covers everything Kalev carries.
@@ -803,19 +824,28 @@ func is_world_item_placed(location_id: StringName, object_id: StringName) -> boo
 	return bucket is Dictionary and (bucket as Dictionary).has(String(object_id))
 
 
+## `variant` (R-2004) is the item's variant id, kept on the record only when set, so
+## `take_world_item` hands it back for the bag.
 func place_world_item(
-	location_id: StringName, object_id: StringName, item_id: StringName, position: Vector2
+	location_id: StringName,
+	object_id: StringName,
+	item_id: StringName,
+	position: Vector2,
+	variant: StringName = &""
 ) -> bool:
 	if location_id.is_empty() or object_id.is_empty() or item_id.is_empty():
 		return false
 	var bucket: Dictionary = _world_items.get(String(location_id), {}) as Dictionary
 	if not _world_items.has(String(location_id)):
 		_world_items[String(location_id)] = bucket
-	bucket[String(object_id)] = {
+	var record := {
 		"object_id": object_id,
 		"item_id": item_id,
 		"position": position,
 	}
+	if not variant.is_empty():
+		record["variant"] = variant
+	bucket[String(object_id)] = record
 	return true
 
 

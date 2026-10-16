@@ -257,7 +257,7 @@ class RuntimeData(unittest.TestCase):
     def test_every_worn_layer_has_a_fitted_glb(self):
         missing = set()
         for r in self.residents:
-            for layer in r["wear"]:
+            for layer in map(wd.layer_of, r["wear"]):
                 path = ROOT / f"assets/characters/realistic/{r['body']}/layers/{layer}.glb"
                 if not path.is_file():
                     missing.add(str(path.relative_to(ROOT)))
@@ -265,7 +265,7 @@ class RuntimeData(unittest.TestCase):
 
     def test_armour_residents_obey_rules(self):
         for r in self.residents:
-            if set(r["wear"]) & wd.KNIGHT_ONLY:
+            if set(map(wd.layer_of, r["wear"])) & wd.KNIGHT_ONLY:
                 self.assertEqual((r["trade"], r["status"]), ("knight", "noble"), r["id"])
             if r.get("shield"):
                 self.assertTrue(r["trade"] in ("knight", "man_at_arms"), r["id"])
@@ -275,13 +275,14 @@ class RuntimeData(unittest.TestCase):
         self.assertEqual(len(friars), 24)
         for r in friars:
             self.assertEqual(r["cloth"], list(runtime.DOMINICAN_WHITE), r["id"])
-            self.assertIn("hood", r["wear"], r["id"])
+            worn = [wd.layer_of(e) for e in r["wear"]]
+            self.assertIn("hood", worn, r["id"])
             self.assertEqual(r["wear_dye"]["hood"], [round(c, 3) for c in wd.HABIT_BLACK], r["id"])
-            self.assertNotIn("order_mantle", r["wear"], r["id"])
+            self.assertNotIn("order_mantle", worn, r["id"])
             self.assertFalse(r.get("shield"), r["id"])
 
     def test_variety(self):
-        looks = {(r["body"], tuple(r["wear"])) for r in self.residents}
+        looks = {(r["body"], tuple(map(wd.layer_of, r["wear"]))) for r in self.residents}
         self.assertGreater(len(looks), 200)
         dressed = sum(1 for r in self.residents if r["wear"])
         self.assertGreater(dressed / len(self.residents), 0.5)

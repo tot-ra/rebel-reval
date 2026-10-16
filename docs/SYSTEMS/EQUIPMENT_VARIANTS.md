@@ -1,9 +1,9 @@
 # Equipment variants: pipeline, art bible and the watch spear pilot
 
-Status: implemented (task **R-2003**, EQ-1 of epic **R-2002**). The pipeline and art bible are in place and proven on one item: the town-watch spear variant `spear_p1_w1`, now carried by every `watch` and `crown` duty kit in the seamless city.
+Status: implemented (tasks **R-2003** EQ-1 and **R-2004** EQ-2 of epic **R-2002**). The pipeline and art bible are in place and proven on one item: the town-watch spear variant `spear_p1_w1`. Every census resident's worn layers and hand gear now carry a prestige and wear cell chosen from the census, with a fallback to the base item while a cell has no file ([Runtime variant choice](#runtime-variant-choice-r-2004)); player items carry a save-safe variant id.
 
-Scope: how a period-accurate item brief becomes a game-ready Godot asset in several prestige and wear variants; the rules every equipment variant follows; the pilot.
-Out of scope: runtime variant selection by rank or wear (R-2004), every other item family (R-2005..R-2034, one task each), retiring the legacy primitives (R-2035), the walk-cycle arm pose (R-2036).
+Scope: how a period-accurate item brief becomes a game-ready Godot asset in several prestige and wear variants; the rules every equipment variant follows; how the city picks a variant per resident; the pilot.
+Out of scope: every other item family and its variant files (R-2005..R-2034, one task each), stats or prices per variant, retiring the legacy primitives (R-2035), the walk-cycle arm pose (R-2036).
 
 ![Watchman with the pilot spear: idle and walk, three-quarter and side](../reports/images/equipment/watch_spear_capture.png)
 
@@ -22,6 +22,26 @@ Out of scope: runtime variant selection by rank or wear (R-2004), every other it
 - **File name** `<family>_<p>_<w>.glb` under the family's folder: `assets/props/weapons/<family>/variants/`, `assets/props/armour/<family>/variants/`, `assets/props/clothing/<family>/variants/`. Textile plates under `assets/materials/equipment/<plate>/`.
 - **Stable ids:** the variant id is the file stem (`spear_p1_w1`); the item it belongs to is its object-catalog id (`obj.spear_watch`, [`OBJECT_CATALOG.md`](./OBJECT_CATALOG.md)), which links on to combat `item.*` records. Variant ids never change once shipped; a remodel gets a new wear or prestige slot, not a reused name.
 - Not every cell of the 3x3 grid exists; each item task lists the cells it ships.
+
+## Runtime variant choice (R-2004)
+
+**Census rules** (`tools/city/citizen_wardrobe.py`, run by `tools/city/build_citizen_runtime.py` after the duty roster and the wardrobe): every resident gets a cell `p<prestige>_w<wear>`, a pure function of the record, so the same census gives the same variants.
+
+| Axis | Rule (`prestige_of`, `wear_of`) |
+|---|---|
+| Prestige by office | town watch `p1` (town munition), crown men on duty `p2` (crown issue), watch sergeant `p1` (`p2` for the crown's), gatekeeper `p1`; noble knights `p3`; men-at-arms and squires `p2` under the crown or Order, else `p1` |
+| Prestige by rank | patricians and nobles `p3`; merchants, masters, journeymen, clerks, clergy `p2`; the poor `p1`. A rich burgher's own gear outranks the town sergeant's issue |
+| Wear | rebels (`harju_kings`, `black_cloaks`, `vitalienbruder`) always `w2`, old and looted; Livonian Order `w0` or `w1` (kept by the house); everyone else from a roll of the id, older (50+) and hard trades (porters, carters, smiths, masons, sailors...) toward `w2`, the young (under 25) and the rich toward `w0` |
+| Issue kits | the duty kit's layers (aketon, kettle hat, mail, surcoat) and the hand weapon share one cell per unit, `crc32("issue:<kit>:<post>")`: men of one post carry the same store's gear, men of different posts differ. Wear odds per lord `ISSUE_WEAR` (the crown keeps its stores better) |
+
+**Data** (`content/world/reval_city/citizens.json`): `wear` entries are `"<layer>@<cell>"` (`"kettle_hat@p1_w2"`); own clothes take the resident's cell, duty-kit layers the unit's. `gear_variant` (only on residents with a duty weapon or a shield) is the cell of the spear, sword or shield. Layer ids, garment ids (`wear_<layer>`) and the item ids are unchanged; the cell is extra data.
+
+**Runtime** (helper `scripts/city/equipment_variant.gd`, preloaded): `CitizenGear` mounts `<dir>/<family>_<cell>.glb` (`assets/props/weapons/spear/variants/spear_p2_w0.glb`, `.../sword/variants/sword_<cell>.glb`) when shipped, else the base item (`spear_p1_w1`, the legacy sword); the mounted node carries meta `variant` = `spear_<cell>`. `CitizenWardrobe.dress` mounts `<body>/layers/<layer>_<cell>.glb` when shipped, else the base layer; `CitizenShield.scene(kind, field, cell)` uses `assets/props/armour/heater_shield/variants/heater_shield_<cell>.glb` when shipped, else its built board. Until the item tasks ship the cells, a fallback is told apart by a stand-in finish: `w0` slightly brighter and smoother, `w2` darker, rougher and, on iron, rust-browned with less bare metal; layer cloth scales its patches, fade and dirt by `CitizenWardrobe.CELL_WEAR`; shield paint fades toward the wood. `w1` is the base look. Finished materials are shared per source material and wear, or the rig's own per-garment duplicate, so no resident adds a material of its own.
+
+**Player items:** an item instance may carry a `variant` id (`spear_p2_w0`): `InventoryPlacement.variant`, `GameState.equipped_variant(slot)`, and the world item record's `variant`. Pickup (`WorldItemController`), drop, equip and unequip carry it through; bag stacks merge only with the same variant. Saves write it only when set (bag rows `variant`, top-level `equipped_variants`, world item records), so old saves load as the base item ([`STATE_AND_SAVES.md`](./STATE_AND_SAVES.md)). The item id (`item.forge_spear`, `obj.spear_watch`) never changes. No seeded item sets a variant yet, and the player's held weapon is drawn from the item's base scene.
+
+![Six town watchmen from four gates and two patrols: new, used and battered issue](../reports/images/equipment/watch_variants_row.png)
+![Close-up: rusted kettle hat and dark shaft of a battered (w2) issue beside new (w0) issue](../reports/images/equipment/watch_variants_closeup.png)
 
 ## Budgets
 
@@ -106,11 +126,14 @@ Feasibility input for EQ-13 (kettle hat), from the R-2002 check: reference and M
 - Rebuild and turntables: `python3 tools/assets/equipment/build_equipment.py tools/assets/equipment/items/spear_p1_w1.json` (needs the raw scan in `build/equipment_pilot/`; re-download it from Meshy by the manifest's task id if missing, the hash check confirms it).
 - In game: `tools/godot_render.sh --script tools/capture_watch_spear.gd` writes `docs/reports/images/equipment/watch_spear_capture.png` (idle and walk, three-quarter and side) and `watch_spear_closeup.png`.
 - Tests: `test_watch_carries_the_spear_variant` in `tests/godot/test_citizen_wardrobe.gd` (variant mounted, sockets exported, 2.1-2.4 m, origin at the grip); `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_citizen_brawl,test_citizen_roster,test_citizen_wardrobe` and `python3 -m pytest tests/python/test_citizen_wardrobe*.py`.
+- Variant choice (R-2004): `python3 -m unittest tests.python.test_equipment_variants -v` (same census same cells, prestige per office, rebel and Order wear, one cell per unit, runtime data distribution); `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_equipment_variants` (shipped cell mounted as is, missing cell falls back with a finish, variant layer entries, shield wear, bag/equip/world-item variants survive a JSON save round trip, old saves load the base item); `python3 tools/city/build_citizen_runtime.py --check`.
+- Capture: `tools/godot_render.sh --script tools/capture_watch_variants.gd` writes `watch_variants_row.png` and `watch_variants_closeup.png` (six census watchmen of different posts, labelled with post and cell).
 
 ## Limits
 
 - The spear is held with the same hand turn as the old primitive, so in the idle pose it leans about 10 degrees across the body; the walk cycle holds it upright. The walk arms are the separate T-pose bug R-2036.
-- One variant only; `p2`/`p3` and `w0`/`w2` spears and runtime choice are R-2004 and the spear family task.
+- One variant file only; `p2`/`p3` and `w0`/`w2` spears are the spear family task. Until then other cells show the base spear with the stand-in finish, so prestige is not visible yet (a `p3` knight's gear looks like `p1` of the same wear), and the finish is a material change, not modelled wear.
+- Variants change looks only: no stats or prices per variant (follow-up idea).
 - Meshy bakes soft studio light into the base colour, so a scan reads slightly flat under hard sun.
 - The cavity cut is implemented but not yet used on a shipped wearable (first use: EQ-13 kettle hat). The ComfyUI textile graph was not run in R-2003 (server offline); the Leonardo route was.
 - The wearable `socket_head`, `socket_hip` and `socket_back` conventions are defined here, not yet mounted.

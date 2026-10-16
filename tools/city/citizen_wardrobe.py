@@ -92,6 +92,23 @@ KNIGHT_ONLY = {"coat_of_plates", "great_helm", "aventail", "bascinet", "gauntlet
 ARMOUR = KNIGHT_ONLY | {"gambeson", "mail_haubergeon", "mail_coif", "surcoat", "kettle_hat", "mail_chausses"}
 STRAPS = ("satchel", "back_sack")  # both cross the right shoulder: one at a time
 
+# --- prestige and wear variants (EQ-2, docs/SYSTEMS/EQUIPMENT_VARIANTS.md) ----
+# A variant cell is "p<prestige>_w<wear>": p1 munition, p2 burgher or lord's issue, p3 noble;
+# w0 new, w1 used, w2 battered. Worn layers become "<layer>@<cell>"; hand gear (spear, sword,
+# shield) reads the resident's `gear_variant` cell. Runtime falls back to the base item when a
+# cell has no file of its own.
+# Issued kits: one cell per unit (kit + post), so a gate's watch carries the town's munition
+# and the crown's men the crown's issue, alike within a post and different between posts.
+ISSUE_PRESTIGE = {"watch": 1, "crown": 2, "keeper": 1}
+# Unit wear odds (w0, w1) for each issuing lord; the rest is w2. The crown keeps its stores better.
+ISSUE_WEAR = {"watch": (0.2, 0.75), "crown": (0.35, 0.9), "sergeant": (0.3, 0.85), "keeper": (0.2, 0.75)}
+REBELS = {"harju_kings", "black_cloaks", "vitalienbruder"}  # old, looted or home-made gear
+LORDS = {"danish_crown", "livonian_order"}
+# Trades that wear their things out (outdoor, heavy or dirty work).
+HARD_WEAR = {"labourer", "porter", "carter", "drover", "farmer", "stable_hand", "fisher", "boatman",
+             "sailor", "smith", "nailsmith", "tanner", "mason", "limeburner", "brickmaker", "tiler",
+             "shipwright", "pilgrim", "pedlar"}
+
 
 def hash01(key: str) -> float:
     return (zlib.crc32(key.encode()) & 0xFFFFFF) / float(0x1000000)
@@ -298,3 +315,71 @@ def shield_of(person: dict, wear: list) -> str:
             and hash01(f"{person['id']}:wd:shield") < 0.5:
         return "crown" if person.get("faction") == "danish_crown" else "plain"
     return ""
+
+
+def prestige_of(person: dict) -> int:
+    """Prestige of a resident's own gear: office first, then rank and wealth."""
+    kit = (person.get("duty") or {}).get("kit", "")
+    faction = person.get("faction", "none")
+    if kit == "sergeant":
+        # The crown's sergeant draws crown issue, the town's sergeant the town munition.
+        return 2 if faction == "danish_crown" else 1
+    if kit in ISSUE_PRESTIGE:
+        return ISSUE_PRESTIGE[kit]
+    if person["trade"] == "knight" and person["status"] == "noble":
+        return 3
+    if person["trade"] in ("man_at_arms", "squire"):
+        return 2 if faction in LORDS else 1
+    if person["status"] in ("noble", "patrician"):
+        return 3
+    return 1 if wealth_of(person) == "poor" else 2
+
+
+def wear_of(person: dict) -> int:
+    """Wear of a resident's own gear: rebels' is battered, the Order's kept, else by age, wealth, trade."""
+    faction = person.get("faction", "none")
+    if faction in REBELS:
+        return 2
+    roll = hash01(f"{person['id']}:wd:variant_wear")
+    if faction == "livonian_order":
+        return 0 if roll < 0.5 else 1
+    score = 1.0 + (roll - 0.5) * 1.2
+    age = person["age"]
+    score += -0.4 if age < 25 else 0.5 if age >= 50 else 0.0
+    score += {"rich": -0.5, "mid": 0.0, "poor": 0.3}[wealth_of(person)]
+    if person["trade"] in HARD_WEAR:
+        score += 0.4
+    return max(0, min(2, int(score + 0.5)))
+
+
+def issue_cell(person: dict) -> str:
+    """Shared cell of a duty kit's unit (kit + post), or "" off duty."""
+    duty = person.get("duty") or {}
+    kit = duty.get("kit", "")
+    if kit not in ISSUE_WEAR:
+        return ""
+    w0, w1 = ISSUE_WEAR[kit]
+    roll = hash01(f"issue:{kit}:{duty.get('post', '')}")
+    return f"p{prestige_of(person)}_w{0 if roll < w0 else 1 if roll < w1 else 2}"
+
+
+def own_cell(person: dict) -> str:
+    return f"p{prestige_of(person)}_w{wear_of(person)}"
+
+
+def variants(person: dict, wear: list) -> tuple[list[str], str]:
+    """(wear entries as "<layer>@<cell>", gear cell) for one dressed resident.
+
+    Layers of the duty kit take the unit's issue cell, everything else the resident's own.
+    The gear cell is the issue cell on duty (the spear or sword came from the same store),
+    else the own cell (a knight's or man-at-arms' shield)."""
+    issue = issue_cell(person)
+    kit_layers = DUTY_KITS.get((person.get("duty") or {}).get("kit", ""), ())
+    own = own_cell(person)
+    entries = [f"{layer}@{issue if issue and layer in kit_layers else own}" for layer in wear]
+    return entries, issue or own
+
+
+def layer_of(entry: str) -> str:
+    """Layer id of a wear entry ("kettle_hat@p1_w2" -> "kettle_hat")."""
+    return entry.split("@", 1)[0]

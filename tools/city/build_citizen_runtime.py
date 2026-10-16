@@ -852,10 +852,15 @@ def build():
     for rec in residents:
         _, sex, stage = rec["body"].split("_")[:3]
         available = citizen_bodies.layers_of(sex, stage, citizen_bodies.outfit_of(rec["body"]))
-        rec["wear"], rec["wear_dye"] = citizen_wardrobe.dress(rec, available)
-        shield = citizen_wardrobe.shield_of(rec, rec["wear"])
+        wear, rec["wear_dye"] = citizen_wardrobe.dress(rec, available)
+        shield = citizen_wardrobe.shield_of(rec, wear)
         if shield:
             rec["shield"] = shield
+        # Prestige and wear cells (EQUIPMENT_VARIANTS.md): "<layer>@<cell>" entries, and a
+        # gear cell only for residents who carry a hand weapon or shield.
+        rec["wear"], gear = citizen_wardrobe.variants(rec, wear)
+        if shield or (rec.get("duty") or {}).get("kit") in ("watch", "crown", "sergeant"):
+            rec["gear_variant"] = gear
 
     # Households living in a plan house: what their rooms are furnished with
     # (docs/SYSTEMS/HOUSEHOLDS.md). Size counts every member, infants too.
