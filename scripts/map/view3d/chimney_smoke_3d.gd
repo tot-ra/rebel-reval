@@ -1,15 +1,22 @@
 class_name ChimneySmoke3D
 extends GPUParticles3D
 
-## Per-chimney smoke plume: simple rounded billboards with world wind from
-## SkyWeather, a tiny building-specific bias, gust-driven sway, and day/night
-## emission schedules.
+## Per-chimney smoke plume: lit, noise-carved puffs (chimney_smoke.gdshader)
+## that read as a small volume of gas, curl-noise turbulence so the column
+## billows and breaks up as it ages, world wind from SkyWeather, a tiny
+## building-specific bias, gust-driven sway, and day/night emission schedules.
 
 enum Schedule { NEVER, DAY_ONLY, NIGHT_ONLY, ALWAYS }
 
-const SMOKE_LIFETIME := 8.5
-## Seed a short plume so smoke is visible at the chimney mouth immediately.
-const SMOKE_PREWARM_SECONDS := 1.0
+const SMOKE_LIFETIME := 11.0
+## Plumes stream in as Kalev walks (CityChimneySmoke): prewarm a whole
+## lifetime so a new plume appears as a full trail, not a column growing
+## out of the stack in front of the player.
+const SMOKE_PREWARM_SECONDS := SMOKE_LIFETIME
+const PerfProbeScript := preload("res://scripts/debug/perf_probe.gd")
+const SMOKE_SHADER := preload("res://scripts/map/view3d/chimney_smoke.gdshader")
+
+static var _material: ShaderMaterial
 
 var _building_seed: int = 0
 var _horizontal_wind := Vector3(0.2, 0.0, 0.08)
@@ -40,8 +47,10 @@ func configure(building_id: StringName) -> void:
 	# prevailing direction still comes from SkyWeather every frame.
 	var wind_angle := fmod(float((_building_seed >> 3) % 6283) / 1000.0, TAU)
 	_horizontal_wind = Vector3(cos(wind_angle), 0.0, sin(wind_angle)).normalized() * 0.18
-	_day_amount = (22 + ((_building_seed >> 5) % 14)) * 2
-	_night_amount = (30 + ((_building_seed >> 7) % 16)) * 2
+	# Overlapping puffs build the body of the column; each one is mostly
+	# transparent noise, so the plume needs more of them than flat discs did.
+	_day_amount = (22 + ((_building_seed >> 5) % 14)) * 3
+	_night_amount = (30 + ((_building_seed >> 7) % 16)) * 3
 	_setup_particles(building_id)
 	apply_time_of_day(_time_of_day)
 
@@ -75,7 +84,10 @@ func _setup_particles(building_id: StringName) -> void:
 	local_coords = true
 	explosiveness = 0.0
 	randomness = 0.12
-	visibility_aabb = AABB(Vector3(-5.0, -1.5, -5.0), Vector3(10.0, 12.0, 10.0))
+	# Lit puffs differ in brightness, so far ones must not paint over near ones.
+	draw_order = DRAW_ORDER_VIEW_DEPTH
+	cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	visibility_aabb = AABB(Vector3(-8.0, -1.5, -8.0), Vector3(16.0, 14.0, 16.0))
 
 	var process := ParticleProcessMaterial.new()
 	process.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_POINT
@@ -83,26 +95,42 @@ func _setup_particles(building_id: StringName) -> void:
 	process.direction = Vector3.UP
 	process.spread = 6.0 + float((_building_seed >> 9) % 6)
 	process.flatness = 0.0
-	process.initial_velocity_min = 0.85
-	process.initial_velocity_max = 1.15 + float((_building_seed >> 11) % 12) * 0.02
+	# Warm smoke keeps rising a few metres before the wind lays it over.
+	process.initial_velocity_min = 1.0
+	process.initial_velocity_max = 1.3 + float((_building_seed >> 11) % 12) * 0.02
 	process.gravity = Vector3.ZERO
 	process.linear_accel_min = -0.04
 	process.linear_accel_max = -0.01
-	process.damping_min = 0.18
-	process.damping_max = 0.42
+	process.damping_min = 0.1
+	process.damping_max = 0.22
 	process.angle_min = -180.0
 	process.angle_max = 180.0
 	process.angular_velocity_min = -12.0
 	process.angular_velocity_max = 12.0
-	process.scale_min = 0.9
-	process.scale_max = 1.5
+	process.scale_min = 1.0
+	process.scale_max = 2.2
 	process.hue_variation_min = 0.0
 	process.hue_variation_max = 0.0
-	process.turbulence_enabled = false
+	# Curl-noise turbulence: the fresh column leaves the flue coherent, then
+	# rolls into eddies and tears apart as it cools and spreads.
+	process.turbulence_enabled = true
+	process.turbulence_noise_strength = 1.6
+	process.turbulence_noise_scale = 3.2
+	process.turbulence_noise_speed = Vector3(0.0, 0.25, 0.0)
+	process.turbulence_noise_speed_random = 0.3
+	process.turbulence_influence_min = 0.05
+	process.turbulence_influence_max = 0.12
+	var swirl_curve := Curve.new()
+	swirl_curve.add_point(Vector2(0.0, 0.1))
+	swirl_curve.add_point(Vector2(0.35, 0.6))
+	swirl_curve.add_point(Vector2(1.0, 1.0))
+	var swirl_texture := CurveTexture.new()
+	swirl_texture.curve = swirl_curve
+	process.turbulence_influence_over_life = swirl_texture
 
 	var scale_curve := Curve.new()
-	scale_curve.add_point(Vector2(0.0, 0.12))
-	scale_curve.add_point(Vector2(0.18, 0.45))
+	scale_curve.add_point(Vector2(0.0, 0.18))
+	scale_curve.add_point(Vector2(0.18, 0.5))
 	scale_curve.add_point(Vector2(1.0, 1.0))
 	var curve_texture := CurveTexture.new()
 	curve_texture.curve = scale_curve
@@ -111,62 +139,49 @@ func _setup_particles(building_id: StringName) -> void:
 	process_material = process
 	_update_color_ramp(false)
 
-	var puff := _rounded_puff_mesh()
-	puff.surface_set_material(0, MapViewMaterials.smoke())
+	var puff := QuadMesh.new()
+	puff.size = Vector2.ONE
+	puff.material = smoke_material()
 	draw_pass_1 = puff
 
 	set_meta("building_id", building_id)
 
 
-## Eight-sided fan mesh: flat-tinted billboards without per-vertex alpha gradients.
-static func _rounded_puff_mesh() -> ArrayMesh:
-	const SIDES := 8
-	const RADIUS := 0.5
-	var vertices := PackedVector3Array([Vector3.ZERO])
-	var indices := PackedInt32Array()
-	for point in SIDES:
-		var angle := TAU * float(point) / float(SIDES) + PI / 8.0
-		vertices.append(Vector3(cos(angle) * RADIUS, sin(angle) * RADIUS, 0.0))
-	for point in SIDES:
-		indices.append(0)
-		indices.append(point + 1)
-		indices.append((point + 1) % SIDES + 1)
-	var arrays := []
-	arrays.resize(Mesh.ARRAY_MAX)
-	arrays[Mesh.ARRAY_VERTEX] = vertices
-	arrays[Mesh.ARRAY_INDEX] = indices
-	var mesh := ArrayMesh.new()
-	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
-	return mesh
+## Shared puff material: all plumes use one shader instance, so they batch.
+static func smoke_material() -> ShaderMaterial:
+	if _material == null:
+		_material = ShaderMaterial.new()
+		_material.shader = SMOKE_SHADER
+	return _material
 
 
 func _update_color_ramp(night: bool) -> void:
 	var process := process_material as ParticleProcessMaterial
 	if process == null:
 		return
+	# The puffs are lit now, so the ramp is albedo: wood smoke leaves the flue
+	# a sooty brown-grey and pales to blue-grey as it thins out.
 	var warmth := float((_building_seed >> 4) % 100) / 100.0
 	var base := Color(
-		lerpf(0.70, 0.78, warmth), lerpf(0.71, 0.75, warmth), lerpf(0.73, 0.69, warmth), 1.0
+		lerpf(0.46, 0.54, warmth), lerpf(0.46, 0.50, warmth), lerpf(0.48, 0.44, warmth), 1.0
 	)
 	if night:
-		base = base.lerp(Color(0.62, 0.66, 0.74), 0.28).darkened(0.06)
-	else:
-		base = base.lightened(0.03)
-	var mid := base.lightened(0.05)
-	var fade := base.lerp(Color(0.88, 0.88, 0.90), 0.35)
+		base = base.lerp(Color(0.55, 0.60, 0.70), 0.25)
+	var mid := base.lerp(Color(0.74, 0.75, 0.78), 0.45)
+	var fade := base.lerp(Color(0.80, 0.82, 0.86), 0.6)
 	var alpha_ramp := Gradient.new()
-	alpha_ramp.set_color(0, Color(fade.r, fade.g, fade.b, 0.0))
+	alpha_ramp.set_color(0, Color(base.r, base.g, base.b, 0.0))
 	# Configure both default endpoints before inserting sorted intermediate points.
 	alpha_ramp.set_color(1, Color(fade.r, fade.g, fade.b, 0.0))
-	alpha_ramp.add_point(0.1, Color(base.r, base.g, base.b, 0.32 if night else 0.26))
-	alpha_ramp.add_point(0.4, Color(mid.r, mid.g, mid.b, 0.20 if night else 0.16))
-	alpha_ramp.add_point(0.75, Color(fade.r, fade.g, fade.b, 0.06))
+	# The trail must stay readable from the iso camera, so mid-life puffs keep
+	# most of their opacity and only the last third thins out.
+	alpha_ramp.add_point(0.07, Color(base.r, base.g, base.b, 0.3 if night else 0.27))
+	alpha_ramp.add_point(0.3, Color(mid.r, mid.g, mid.b, 0.3 if night else 0.27))
+	alpha_ramp.add_point(0.62, Color(mid.r, mid.g, mid.b, 0.2 if night else 0.18))
+	alpha_ramp.add_point(0.88, Color(fade.r, fade.g, fade.b, 0.06))
 	var ramp_texture := GradientTexture1D.new()
 	ramp_texture.gradient = alpha_ramp
 	process.color_ramp = ramp_texture
-
-
-const PerfProbeScript := preload("res://scripts/debug/perf_probe.gd")
 
 
 func _process(_delta: float) -> void:

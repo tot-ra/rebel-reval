@@ -74,6 +74,7 @@ Keep this file short. Append a durable reusable rule, not a dated incident log. 
 - `refs/stash` is shared by every worktree of the repo. Do not `git stash` even in an isolated worktree to compare against the base; check the base in a second detached worktree (or `git show origin/main:<path>`) instead.
 
 ### Godot and Python verification
+- Streamed `GPUParticles3D` (chimney plumes) need `preprocess` of a whole lifetime, or each plume pops in as a column growing out of the stack; a capture that awaits N frames also simulates only about N/60 s, so a short trail in a plate can be the capture, not the tuning.
 - Export `GODOT_BIN` in a preceding command (macOS: `/Applications/Godot.app/Contents/MacOS/Godot`). Inline `GODOT_BIN=... "$GODOT_BIN"` expands the old empty value and exits 127.
 - Stale Godot tests often fail parse before runtime when APIs move: check enum renames (`RoutineState` -> `ActivityMode`), removed static helpers (`water_surface_height()` -> `MapViewMeshBuilderConfig` constants), and harness helpers (`assert_almost_eq`, `_assert_true` in custom RefCounted tests).
 - Typed GDScript parse failures: a later `:=` in a loop (`entry := dir.get_next()`) is illegal after the first declaration, use `=`. Annotate chained `.to_dict()` after `snapshot_state()` as `Dictionary`; that helper returns `RefCounted` and `:=` cannot infer the type.
