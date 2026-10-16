@@ -196,6 +196,32 @@ func test_quick_hud_shows_only_in_the_spirit_world() -> void:
 	hud.free()
 
 
+func test_elemental_slots_hide_while_the_spirit_arena_is_open() -> void:
+	var state := GameState.new()
+	var db := _make_db()
+	assert_true(MagicResolver.apply_grant_operation(state, db, GRANT_FIREBALL))
+	state.in_spirit_world = true
+	var model := ModelScript.new() as SpellforgeModel
+	model.configure(state, db)
+	var hud := HudScript.new() as SpellforgeHud
+	hud.configure(model)
+	(Engine.get_main_loop() as SceneTree).root.add_child(hud)
+	var column := hud.find_child("QuickSpellSlots", true, false) as Control
+	var dim := Control.new()
+	hud.add_child(dim)
+
+	hud._process(0.0)
+	assert_true(column.visible, "slots show in sight outside a duel")
+	dim.add_to_group(&"spell_input_overlay")
+	hud._process(0.0)
+	assert_false(column.visible, "a duel speaks words, not Fireball")
+	assert_false((hud.find_child("QuickSpellFeedback", true, false) as Label).visible)
+	dim.remove_from_group(&"spell_input_overlay")
+	hud._process(0.0)
+	assert_true(column.visible)
+	hud.free()
+
+
 func test_number_keys_cast_the_first_learned_spell() -> void:
 	var state := GameState.new()
 	var db := _make_db()

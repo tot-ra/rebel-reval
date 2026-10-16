@@ -62,9 +62,27 @@ func _process(_delta: float) -> void:
 		_quick_root.visible = shown
 		layer = QUICK_HUD_SPIRIT_LAYER if shown else QUICK_HUD_WORLD_LAYER
 	if shown:
+		# WHY: a spirit duel speaks words (SpiritWordSpells), not the old elemental recipes;
+		# the learned-spell list, recipe line and its feedback would show Fireball and friends
+		# over the duel, so only the willpower orb stays while the arena is up.
+		var dueling := _arena_is_open()
+		_quick_spell_column.visible = not dueling
+		if dueling:
+			_quick_sequence_label.visible = false
+			_quick_feedback_label.visible = false
 		var willpower := _model.willpower()
 		_quick_willpower_label.text = str(willpower)
 		_mana_orb.set_values(willpower, maxi(ORB_BASELINE_MAX, willpower))
+
+
+func _arena_is_open() -> bool:
+	var tree := get_tree()
+	if tree == null:
+		return false
+	for overlay: Node in tree.get_nodes_in_group(&"spell_input_overlay"):
+		if overlay is CanvasItem and (overlay as CanvasItem).visible:
+			return true
+	return false
 
 
 func open() -> void:
