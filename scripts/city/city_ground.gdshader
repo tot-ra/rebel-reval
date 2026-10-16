@@ -78,6 +78,16 @@ uniform vec3 earth_tint : source_color = vec3(0.60, 0.55, 0.47);
 uniform float wetness = 0.0;
 // Standing water after rain (SkyWeather3D.puddle_wetness()).
 uniform float puddles = 0.0;
+// ADR 0045: puddle ice 0..1 (SeasonState ICE_PUDDLE). Frozen puddles keep their
+// water: ice does not evaporate, so the deepest hollows and ruts hold ice through
+// a dry frost even when `puddles` has dried to nothing.
+uniform float puddle_ice = 0.0;
+// ADR 0045: 1 once fast ice lines the sea shore (from SeasonState ICE_SEA). The
+// snow map is bare below 0.4 m (beach, swash band), so without this the strand
+// between the snowfield and the sea ice stayed a band of brown wet sand.
+// Not `shore_*`: CityWorld3D.mirror_shore_to_ground copies every shore_ uniform
+// from the sea material each frame, which would reset it to 0.
+uniform float coast_ice = 0.0;
 // Sun-baked bare soil (SkyWeather3D.ground_dryness()): dusty above 0, the puddle
 // basins crack open from ~0.45 (drought only, see docs/SYSTEMS/WEATHER_GROUND.md).
 uniform float ground_dryness = 0.0;
@@ -104,6 +114,7 @@ global uniform float ocean_time;
 #include "res://scripts/map/view3d/shore_swash.gdshaderinc"
 
 #include "res://scripts/map/view3d/fieldstone_paving.gdshaderinc"
+#include "res://scripts/city/ice_surface.gdshaderinc"
 
 varying vec3 world_pos;
 varying vec3 world_normal;
@@ -397,6 +408,13 @@ vec3 grid_normal(ivec2 g, float cell) {
 float grid_sink(ivec2 g, vec2 origin, float cell) {
 	vec2 off = abs(origin + vec2(g) * cell - trail_mesh_rect.xy);
 	return (trail_mesh_rect.w > 0.5 && max(off.x, off.y) <= trail_mesh_rect.z) ? trail_sink : 0.0;
+}
+
+// 1 on land, 0 over the moat, stream and lakes (CitySnow map G channel; white,
+// i.e. land, until the map is baked the first time snow lies).
+float snow_map_land(vec2 p) {
+	vec2 uv = (p - snow_map_rect.xy) / snow_map_rect.zw;
+	return textureLod(snow_depth_map, clamp(uv, vec2(0.0), vec2(1.0)), 0.0).g;
 }
 
 // Settled snow depth at p in world units (== metres): the baked CitySnow factor map
@@ -910,10 +928,16 @@ void fragment() {
 		value_noise(wuv * 0.13 + vec2(4.1, 9.7)) * 0.62 + value_noise(wuv * 0.47 + vec2(2.3, 5.5)) * 0.26
 		+ value_noise(wuv * 1.9 + vec2(7.7, 1.3)) * 0.12);
 	float cobble_pool = cobble_sink * (1.0 + (1.0 - paving_stone) * 0.15) * flat_ground;
-	float water_depth = mix(pool - (1.05 - puddles * 0.75), cobble_pool - (1.3 - puddles * 0.72), paving);
+	float frozen_puddle = smoothstep(0.05, 0.35, puddle_ice);
+	// Only on land: the moat and stream bed under open water must not ice over.
+	float pool_level = puddles;
+	if (puddle_ice > 0.001) {
+		pool_level = max(puddles, puddle_ice * 0.55 * smoothstep(0.5, 0.9, snow_map_land(wuv)));
+	}
+	float water_depth = mix(pool - (1.05 - pool_level * 0.75), cobble_pool - (1.3 - pool_level * 0.72), paving);
 	// Gradation, driest to wettest: damp earth round the pool, a thin wet film that
 	// still shows the bed, then standing water that hides it and mirrors the sky.
-	float damp_ring = smoothstep(-0.32, 0.0, water_depth) * step(0.001, puddles);
+	float damp_ring = smoothstep(-0.32, 0.0, water_depth) * step(0.001, pool_level) * (1.0 - frozen_puddle);
 	// Baked ground drinks the first rain (R-1516): no standing water or film until
 	// the crust has soaked, even in the deepest ruts.
 	float soaked = 1.0 - smoothstep(0.05, 0.3, ground_dryness);
@@ -925,7 +949,7 @@ void fragment() {
 	seep *= soaked;
 	// Sand joints round a cobble pool stay brimming after rain: a mirror net between
 	// stones that are already out of the water.
-	float joint_film = (1.0 - paving_stone) * paving * smoothstep(0.3, 0.8, puddles)
+	float joint_film = (1.0 - paving_stone) * paving * smoothstep(0.3, 0.8, pool_level)
 		* smoothstep(-0.3, 0.0, water_depth) * flat_ground * soaked;
 	float puddle = max(film, max(seep * 0.8, joint_film * 0.75));
 	// Drought: the same basins that hold puddles after rain bake into cracked clay,
@@ -985,18 +1009,42 @@ void fragment() {
 	// Film keeps the bed visible but dark; deep water is a murky, almost bedless tint.
 	vec3 water_col = mix(col * 0.6, vec3(0.115, 0.135, 0.135), deep);
 	col = mix(col, water_col, puddle * 0.92);
+	// Frozen puddle: the water drains out from under a skin as it freezes, so the
+	// edge is white, opaque ice with growth rings following the shoreline (contours
+	// of the water level), the centre stays clear and dark over the bed, crossed by
+	// cracks and air bubbles (ice_surface.gdshaderinc).
+	float ice_px = max(length(dFdx(wuv)), length(dFdy(wuv)));
+	if (frozen_puddle * puddle > 0.001) {
+		// A puddle freezes as one skin: no pan seams (border distance pushed out of reach).
+		vec3 pice_pans = ice_pans(wuv * 2.5);
+		IceLook pice = ice_look(wuv, vec3(pice_pans.x, 8.0, pice_pans.z), puddle_ice, 0.0, 0.0, vec2(0.8, 0.6), ice_px);
+		float ring_phase = water_depth * 26.0 + value_noise(wuv * 3.1) * 0.8;
+		float ring_px = max(fwidth(ring_phase), 0.001);
+		float growth_ring = (1.0 - smoothstep(0.0, 0.18 + ring_px, abs(fract(ring_phase) - 0.5) * 2.0 - 0.6))
+			* clamp(0.35 / ring_px, 0.0, 1.0);
+		float milky_edge = 1.0 - smoothstep(0.0, 0.11, water_depth);
+		// Clear ice in the middle shows the dark wet bed through it with a cold cast;
+		// the drained rim is white, opaque ice with its growth rings.
+		vec3 clear_bed = mix(col, vec3(0.16, 0.19, 0.2), 0.35);
+		vec3 pice_col = mix(clear_bed, pice.albedo_srgb, 0.3 + milky_edge * 0.6);
+		pice_col = mix(pice_col, vec3(0.74, 0.78, 0.8), milky_edge * 0.55);
+		pice_col = mix(pice_col, pice_col * 1.18 + 0.04, growth_ring * (0.25 + milky_edge * 0.4));
+		col = mix(col, pice_col, frozen_puddle * puddle);
+	}
 	// Water is level: the bed relief vanishes under it, and rain pocks the surface
 	// with expanding rings. Only standing water (deep) ripples, a film just shines.
 	nxy = mix(nxy, vec2(0.0), clamp(puddle * 0.55 + deep * 0.45, 0.0, 1.0));
+	// Ice is still: no rain rings, no wind ripples.
+	float open_water = 1.0 - frozen_puddle;
 	vec2 rcell = floor(wuv * 3.0);
 	vec2 rloc = fract(wuv * 3.0) - 0.5;
 	float rphase = fract(ocean_time * 0.9 + hash12(rcell));
 	float rdist = length(rloc - (vec2(hash12(rcell + 3.1), hash12(rcell + 7.7)) - 0.5) * 0.5);
 	float ring = cos((rdist - rphase * 0.7) * 38.0) * exp(-abs(rdist - rphase * 0.7) * 14.0) * (1.0 - rphase);
-	float rain_on_water = rain_intensity * deep * detail;
+	float rain_on_water = rain_intensity * deep * detail * open_water;
 	nxy += normalize(rloc + vec2(0.0001)) * ring * 0.16 * rain_on_water;
 	float water_footprint = max(length(dFdx(wuv)), length(dFdy(wuv)));
-	nxy -= water_wind_slope(wuv, ocean_time, water_footprint) * deep * detail;
+	nxy -= water_wind_slope(wuv, ocean_time, water_footprint) * deep * detail * open_water;
 	// Meadow relief: cavity shading and a tussock normal on pure turf only. Fades
 	// out with distance like the other micro relief so it cannot shimmer.
 	float turf = (1.0 - max(field, max(max(earth, mud), max(sand, max(road, paving))))) * (1.0 - max(rock, bank)) * (1.0 - puddle);
@@ -1014,12 +1062,23 @@ void fragment() {
 	float press_raw = clamp(-tr0 / trail_depth, 0.0, 1.0);
 	float snow_here = snow_lift(wuv, clamp(tr0 / trail_depth, -1.0, 1.0));
 	float snow_amount = smoothstep(0.0, 0.03, snow_here);
-	snow_amount *= 1.0 - 0.9 * puddle - 0.7 * rock;
+	// Snow buries a frozen puddle like the ground round it.
+	snow_amount *= 1.0 - 0.9 * (1.0 - frozen_puddle) * puddle - 0.7 * rock;
 	snow_amount *= dry_land;
 	// R-1930: the eaves shelter a ragged strip at the wall foot from snow.
 	snow_amount *= mix(0.1, 1.0, smoothstep(0.0, 0.55, wall_d + foot_wob * 0.5)) * foot_on + (1.0 - foot_on);
 	snow_amount = clamp(snow_amount, 0.0, 1.0);
 	col = mix(col, snow_color * (0.92 + 0.08 * micro), snow_amount);
+	// Ice foot: the frozen swash band where the shore ice meets the beach, snowed
+	// over in streaks like the ice beyond it; fades out up the beach into the snow.
+	float ice_foot = coast_ice * step(sea_level - 0.8, world_pos.y)
+		* (1.0 - smoothstep(sea_level + 0.3, sea_level + 0.65, world_pos.y)) * (1.0 - snow_amount);
+	if (ice_foot > 0.001) {
+		IceLook foot_ice = ice_look(wuv, ice_pans(wuv), 1.0, snow_cover, 0.6, vec2(0.8, 0.6), ice_px);
+		col = mix(col, foot_ice.albedo_srgb, ice_foot);
+		nxy = mix(nxy, foot_ice.slope, ice_foot);
+		snow_amount = max(snow_amount, foot_ice.snow * ice_foot);
+	}
 	// Packed snow in a print is bluer and darker.
 	col = mix(col, col * vec3(0.78, 0.85, 0.95), press_raw * snow_amount * 0.55);
 	// Snow fills the fine relief, then drifts and trench walls tilt the normal.
@@ -1046,6 +1105,10 @@ void fragment() {
 	// Turf scatters light diffusely: no glint and no wet-gloss on dry-looking grass.
 	ROUGHNESS = mix(ROUGHNESS, 1.0, turf * 0.85);
 	SPECULAR = mix(mix(0.3, grass_specular, turf), mix(0.4, 0.6, deep), puddle);
+	// Puddle ice: glassy in the clear centre, satin at the white rim.
+	float ice_rough = mix(0.05, 0.3, 1.0 - smoothstep(0.0, 0.11, water_depth));
+	ROUGHNESS = mix(ROUGHNESS, ice_rough, frozen_puddle * puddle);
+	SPECULAR = mix(SPECULAR, 0.5, frozen_puddle * puddle);
 	// R-1748: wet cobbles mirror the sky in streaks: traffic-polished crowns go glossy,
 	// sand joints stay duller. Lasts while `puddles` holds (the street dries with them).
 	float wet_paving = wet * paving * (1.0 - puddle);

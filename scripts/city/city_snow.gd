@@ -36,6 +36,9 @@ const DRAG_START := 0.06
 const DRAG_DEEP := 0.5
 ## Trees within this of a texel count towards the wood.
 const FOREST_TREES_FULL := 5.0
+## Texels whose centre lies within the water's half width plus this many metres
+## stay bare; the bilinear ramp to the next texel then lays snow up to the bank.
+const WATER_MARGIN := 2.0
 ## Shelter mask resolution and how far past a wall it reaches (eaves). The growth
 ## exceeds one texel diagonal (1.41 m) so the bilinear mask is exactly 1 at every
 ## point inside a footprint: no snow indoors, not even along the walls.
@@ -116,22 +119,27 @@ static func bake(
 	for rec: Array in water:
 		var a: Vector2 = rec[0]
 		var b: Vector2 = rec[1]
-		var reach := int(ceil((float(rec[4]) + 3.0) / TEXEL))
-		var steps := maxi(int(a.distance_to(b) / (TEXEL * 0.6)), 1)
-		for k in steps + 1:
-			var at := a.lerp(b, float(k) / float(steps))
-			var cx0 := floori((at.x - origin.x) / TEXEL)
-			var cy0 := floori((at.y - origin.y) / TEXEL)
-			for dy in range(-reach, reach + 1):
-				for dx in range(-reach, reach + 1):
-					var cx := cx0 + dx
-					var cy := cy0 + dy
-					if cx >= 0 and cy >= 0 and cx < cols and cy < rows:
-						wet[cy * cols + cx] = 1
+		# Only texels whose centre lies over the water itself: the old square of
+		# +-(half width + 3 m) rounded up to whole 8 m texels left 15-20 m of bare
+		# brown bank on both sides of a frozen, snow-covered moat (ADR 0045 ice).
+		var half := float(rec[4]) + WATER_MARGIN
+		var lo := Vector2(minf(a.x, b.x), minf(a.y, b.y)) - Vector2(half, half)
+		var hi := Vector2(maxf(a.x, b.x), maxf(a.y, b.y)) + Vector2(half, half)
+		var cx_lo := maxi(floori((lo.x - origin.x) / TEXEL), 0)
+		var cx_hi := mini(ceili((hi.x - origin.x) / TEXEL), cols - 1)
+		var cy_lo := maxi(floori((lo.y - origin.y) / TEXEL), 0)
+		var cy_hi := mini(ceili((hi.y - origin.y) / TEXEL), rows - 1)
+		for cy in range(cy_lo, cy_hi + 1):
+			for cx in range(cx_lo, cx_hi + 1):
+				var c := origin + Vector2((cx + 0.5) * TEXEL, (cy + 0.5) * TEXEL)
+				if c.distance_to(Geometry2D.get_closest_point_to_segment(c, a, b)) < half:
+					wet[cy * cols + cx] = 1
 	var grid := PackedFloat32Array()
 	grid.resize(cols * rows)
+	# RG8: R = depth factor, G = 255 on land, 0 over the moat, stream and lakes. The
+	# ground shader reads G to keep frozen puddles off the water bed (ADR 0045 ice).
 	var data := PackedByteArray()
-	data.resize(cols * rows)
+	data.resize(cols * rows * 2)
 	for cy in rows:
 		for cx in cols:
 			var index := cy * cols + cx
@@ -146,13 +154,14 @@ static func bake(
 				if f > 0.0 and plan.site_at(p) != null:
 					f = 0.0
 			grid[index] = f
-			data[index] = int(clampf(f / FACTOR_SCALE, 0.0, 1.0) * 255.0 + 0.5)
+			data[index * 2] = int(clampf(f / FACTOR_SCALE, 0.0, 1.0) * 255.0 + 0.5)
+			data[index * 2 + 1] = 0 if wet[index] == 1 else 255
 	_origin = origin
 	_cols = cols
 	_rows = rows
 	_grid = grid
 	_bake_shelter(plan)
-	var image := Image.create_from_data(cols, rows, false, Image.FORMAT_R8, data)
+	var image := Image.create_from_data(cols, rows, false, Image.FORMAT_RG8, data)
 	return ImageTexture.create_from_image(image)
 
 

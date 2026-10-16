@@ -140,6 +140,8 @@ const SHORE_DEBRIS_ALPHA_RIM: Array[StringName] = [&"shore_shingle", &"shore_wra
 const SHORE_DEBRIS_ALPHA_CUT: Array[StringName] = [&"shore_algae"]
 
 static var _shore_debris_materials: Dictionary = {}
+## Last sea ice pushed by apply_sea_ice (ADR 0045), damps the shore swash.
+static var _sea_ice := 0.0
 
 ## Shader sources live in MapViewMaterialShaders; procedural textures in MapViewMaterialPatterns.
 
@@ -255,6 +257,13 @@ static func water_surface(terrain_id: StringName) -> ShaderMaterial:
 	return WATER_MATERIALS.water_surface(terrain_id, WATER_WAVE_BASE)
 
 
+## ADR 0045: sea ice 0..1 and the snow on it. The shore swash reads it on the
+## next apply_sea_weather (fast ice stills the run-up).
+static func apply_sea_ice(ice: float, snow: float) -> void:
+	_sea_ice = clampf(ice, 0.0, 1.0)
+	WATER_MATERIALS.apply_sea_ice(_sea_ice, snow, WATER_WAVE_BASE)
+
+
 ## WR-8: transient gust front (0..1 of its peak) for the sea's cat's-paw cells.
 static func apply_sea_gust(gust: float) -> void:
 	WATER_MATERIALS.apply_sea_gust(gust, WATER_WAVE_BASE)
@@ -266,7 +275,9 @@ static func apply_sea_weather(
 	WATER_MATERIALS.apply_sea_weather(wind, rain, WATER_WAVE_BASE, wind_direction)
 	# WS-08: the shore wave sets read the same scalar sea state as the FFT table,
 	# so a storm lengthens run-up on the water and the wet band on the sand together.
-	SHORE_MATERIALS.apply_sea_state(wind, rain)
+	# ADR 0045: fast ice along the shore stills the swash on the sand.
+	var ice_calm := 1.0 - smoothstep(0.05, 0.3, _sea_ice)
+	SHORE_MATERIALS.apply_sea_state(wind * ice_calm, rain * ice_calm)
 	# R-1734: an oblique onshore wind turns the swash crests (slowly, see the rate).
 	SHORE_MATERIALS.apply_swash_obliquity(wind_direction)
 
