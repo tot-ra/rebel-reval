@@ -129,7 +129,7 @@ It does **not** include:
 - restoring legacy pixel sprites or superseded NATURAL HUD art as production runtime assets;
 - the non-canon 1351 plague epilogue.
 
-Tower-capture strategy, naval/castle-building mini-games, and other fringe legacy loops stay out until a dedicated ADR accepts them. Sprawl crafting trees, randomized loot, and blacksmith rhythm minigames remain excluded unless P7 mini-game reconciliation explicitly reinstates a named variant.
+Tower-capture strategy and naval/castle-building mini-games are permanently out of scope for Acts 1-3 under ADR 0023 Decision 7, and are not eligible for a future ADR. Other fringe legacy loops stay out unless an approved ADR accepts them. Sprawl crafting trees, randomized loot, and blacksmith rhythm minigames remain excluded unless P7 mini-game reconciliation explicitly reinstates a named variant.
 
 Campaign breadth is governed by [ADR 0008](./docs/adr/0008-three-act-campaign-and-faction-scope.md) as amended by [ADR 0017](./docs/adr/0017-legacy-design-reintroduction.md). The working inventory is [`docs/LEGACY_REINTRODUCTION.md`](./docs/LEGACY_REINTRODUCTION.md). A further major addition must replace comparable scope, be recorded in an ADR, and receive a verifiable the project task board (`tasks` tool) entry before implementation.
 

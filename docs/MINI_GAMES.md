@@ -1,6 +1,6 @@
 > **Legacy status:** `reconciled` (P7-007)  
-> **Reason:** Priority pass completed under [ADR 0017](./adr/0017-legacy-design-reintroduction.md). Naval and castle-building sims stay deferred without a new ADR.  
-> **Scope reconciliation:** [ADR 0017](./adr/0017-legacy-design-reintroduction.md), [`LEGACY_REINTRODUCTION.md`](./LEGACY_REINTRODUCTION.md)  
+> **Reason:** Priority pass completed under [ADR 0017](./adr/0017-legacy-design-reintroduction.md). ADR 0023 Decision 7 permanently excludes tower-capture, naval, and castle-building mini-games from Acts 1-3; none are eligible for a future ADR.<br>
+> **Scope reconciliation:** [ADR 0017](./adr/0017-legacy-design-reintroduction.md), ADR 0023 Decision 7, [`LEGACY_REINTRODUCTION.md`](./LEGACY_REINTRODUCTION.md)
 > **Current source of truth:** This file for mini-game planning; implementation requires per-game the project task board (`tasks` tool) rows.
 
 # Mini-Game Priority Pass (P7-007)
@@ -21,8 +21,8 @@ Act tags: **slice** = vertical-slice MVP district, **A1** = Act 1 (Simmering Cit
 
 | Category | Examples | Status |
 |----------|----------|--------|
-| Naval mini-games | ship combat, piracy sims, open-coast sailing | **defer** until a later ADR |
-| Castle-building sims | stronghold/base builder loops | **defer** until a later ADR |
+| Naval mini-games | ship combat, piracy sims, open-coast sailing | **reject** - permanently out of scope for Acts 1-3 under ADR 0023 Decision 7; not eligible for a future ADR |
+| Castle-building sims | stronghold/base builder loops | **reject** - permanently out of scope for Acts 1-3 under ADR 0023 Decision 7; not eligible for a future ADR |
 | Army/fleet battle sims | ADR 0017 still excludes | **reject** |
 | Blacksmith rhythm minigames | README carve-out unless explicitly reinstated | **reject** (forge stays narrative problem-solving) |
 
@@ -30,9 +30,9 @@ Act tags: **slice** = vertical-slice MVP district, **A1** = Act 1 (Simmering Cit
 
 | Idea | Source section | Label | Target | Notes |
 |------|----------------|-------|--------|-------|
-| Castle Building | Player-Suggested | **defer** | A2+ | Stronghold/base builder is a castle-building sim; needs a dedicated ADR before design returns |
-| Pirate Ship | Player-Suggested | **defer** | A3+ | Naval trade/piracy; excluded until naval ADR |
-| Catching Fish on a Ship | Player-Suggested | **defer** | A2+ | Ship fishing is naval-adjacent; dock-side fishing without a boat may return as a separate **defer** economy beat after harbor content lands |
+| Castle Building | Player-Suggested | **reject** | — | Permanently out of scope for Acts 1-3 under ADR 0023 Decision 7; not eligible for a future ADR |
+| Pirate Ship | Player-Suggested | **reject** | — | Naval mini-game, permanently out of scope for Acts 1-3 under ADR 0023 Decision 7; not eligible for a future ADR |
+| Catching Fish on a Ship | Player-Suggested | **reject** | — | Ship-based fishing is a naval mini-game, permanently out of scope for Acts 1-3 under ADR 0023 Decision 7 and not eligible for a future ADR; dock-side fishing without a boat remains a separate **defer** economy beat after harbor content lands |
 | Tavern Brawling | Additional Recommendations | **accept** | slice / A1 | Social combat in Lower Town taverns; uses existing hammer combat presentation with authored room rules |
 | Smuggling Run | Additional Recommendations | **accept** | A1 | Night patrol evasion for illicit goods; aligns with P5 night templates and rebel/ruler interception hooks |
 | Market Haggling | Additional Recommendations | **accept** | slice | Barter loop for Civic Quarter merchants; extends commission/commerce without a separate economy sim |
@@ -74,15 +74,15 @@ Only these three may open implementation rows before Act 2 design closes. Each n
 
 Games of ordinary people in 1343 (dice, nine men's morris or tables, a village strength contest) are planned in [`SYSTEMS/PASTIMES.md`](./SYSTEMS/PASTIMES.md). They are not on the signed shortlist above: ADR 0049 (task R-1958) decides which become playable after the research dossier (R-1957) lands.
 
-## Deferred backlog (post-Act 1)
+## Deferred backlog and permanent exclusions
 
-| Idea | Blocker | Revisit when |
-|------|---------|------------|
+| Idea | Status / blocker | Revisit when |
+|------|------------------|------------|
 | Dock fishing (no ship) | Harbor slice dressing incomplete | Harbor east map + economy row |
 | Ritual Chanting | P7-011 NATURAL/magic runtime | Magic foundation ships |
 | Herbalism & Alchemy | Reagent catalog + combinatorial inputs | P7-010/011 content |
-| Castle Building | Naval/castle ADR | Maintainer ADR |
-| Pirate Ship / ship fishing | Naval ADR | Maintainer ADR |
+| Castle Building | Permanently out of scope for Acts 1-3 under ADR 0023 Decision 7 | Not eligible for a future ADR |
+| Pirate Ship / ship fishing | Naval mini-games are permanently out of scope for Acts 1-3 under ADR 0023 Decision 7 | Not eligible for a future ADR |
 
 ## Implementation dependency map
 

@@ -22,7 +22,7 @@ P7 design/canon rows may run in parallel. P7 implementation rows depend on slice
 | Combat depth | `character/COMBAT.md` | [`docs/SYSTEMS/COMBAT_NIGHT.md`](./SYSTEMS/COMBAT_NIGHT.md), extending the hammer-first combat contract after magic/NATURAL reconciliation | P7-001, P7-005 | act-gated after P7-010/011 |
 | Night systems | `docs/GAMEPLAY-NIGHT.md` | [`docs/SYSTEMS/COMBAT_NIGHT.md`](./SYSTEMS/COMBAT_NIGHT.md), enriching P5 authored night templates while excluding tower capture | P7-001, P7-005 | P5/P7 follow-ons |
 | Quest seeds | `QUESTS.md`, `docs/IDEAS_RESEARCH.md` | content packages via P4 quest pipeline | P7-001, P7-006 | per-quest P4/P5/P6 rows |
-| Mini-games (selected) | `docs/MINI_GAMES.md` | priority shortlist; reject naval/castle sims unless later ADR | P7-001, P7-007 | per accepted mini-game row |
+| Mini-games (selected) | `docs/MINI_GAMES.md` | priority shortlist; tower-capture, naval, and castle-building mini-games are permanently out of scope for Acts 1-3 under ADR 0023 Decision 7, not eligible for a future ADR | P7-001, P7-007 | per accepted mini-game row |
 | Story / timeline | `story/STORY.md`, `history/HISTORY.md`, `history/TIMELINE.md` | `docs/CANON.md` Timeline 1342–1346, Political landscape, Promoted and rejected story seeds | P7-001, P7-008 (delivered; pending canon) | P5/P6 act design + content tasks |
 | Expanded cast | `characters/**` sheets | [`docs/cast_faction_promotion.md`](./cast_faction_promotion.md) + `docs/CHARACTERS/*.md` briefs + portraits/models via art pipeline | P7-001, P7-009 (delivered; pending canon on first briefs) | P7-013 brief batches; P2-004 follow-ons / A-track |
 | Expanded factions | `characters/README.md` (15+ roster) | Promotion plan faction-candidate table; Blackheads / Ösel-Wiek candidates; Lizard Union stays intrigue cell until ADR | P7-001, P7-009 (delivered) | P4-045 Blackheads ledger stub; further P4-016+ follow-ons |
@@ -42,7 +42,7 @@ P7 design/canon rows may run in parallel. P7 implementation rows depend on slice
 2. Every promoted NPC needs a `docs/CHARACTERS/` brief before quest content references them as active cast.
 3. Living City meters must state how they interact with the existing per-faction ledger (complement, drive, or replace specific ledger displays) - no silent dual bookkeeping.
 4. Magic must remain deterministic and offline-authored (ADR 0003). No runtime LLM spell invention.
-5. Tower-capture strategic loops, party control, army/fleet sims, open world, and other-city campaigns stay out unless a future ADR explicitly reinstates them.
+5. Tower-capture, naval, and castle-building mini-games are permanently out of scope for Acts 1-3 under ADR 0023 Decision 7, and are not eligible for a future ADR. Party control, army/fleet sims, open world, and other-city campaigns stay out unless a future ADR explicitly reinstates them.
 6. Slice quest **P4-007 Root and Ember** stays valid as ambiguous folklore content; later magic systems may add literal branches without invalidating that ship.
 
 ## Maintainer decisions recorded
