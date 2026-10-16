@@ -19,7 +19,7 @@ shot's intent from a finished still loses the staging, and the staging is the di
 
 Photographic **cinematic realism**, not painted illustration. Real lens behaviour, practical
 light sources, period dirt and wear, film grain. The playable world is stylized
-([ADR 0007](../docs/adr/0007-visual-direction.md)); cutscenes read as the historical record
+([ADR 0007](../docs/adr/0007-ai-generated-isometric-presentation.md)); cutscenes read as the historical record
 against it, and they survive the move to AI video, which a painterly look does not.
 
 Chapters are separated by **colour grade**, never by medium:
