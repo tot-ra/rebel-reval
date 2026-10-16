@@ -147,7 +147,12 @@ godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_reg
 tools/godot_render.sh --script tools/capture_regional_sites.gd
 tools/godot_render.sh --script tools/capture_hinterland_sites.gd
 python3 -m unittest tests.python.test_verify_world_building_visual_gate   # sites stay out of the RRMap gate
+godot --headless --path . res://tools/verify_site_traversal.tscn -- [--site=paide,padise] [--max-roads=6] [--out=build/qa/site_traversal.json]
+godot --headless --path . res://tools/verify_site_traversal.tscn -- --travel      # every scenes/world_travel/*.tscn loads and its player is free
+godot --headless --path . res://tools/verify_site_traversal.tscn -- --leak=5 --site=saaremaa   # repeated enter/leave memory growth
 ```
+
+`tools/verify_site_traversal.gd` (QA, R-1687) is the deterministic traversal check: for each site it places the player on every arrival spawn through `arrive_at()` (fails when the body starts inside collision or the STEEP layer) and then walks every plan road end to end with real movement input; two seconds without progress is a block, reported with the world xz, waypoint, road id and last slide collider. Plan roads that cross a building footprint or a fire ring show up here (see the open findings in [`docs/reports/perf_traversal_log.md`](../reports/perf_traversal_log.md)). It exits 1 on any failure; a whole run takes about 10 minutes.
 
 `test_regional_site_plan.gd` loads the Paide plan and scene, checks that no sea node exists while sky, sun and weather do, that every manifest spawn is a plan arrival inside the edge, that ids are site-prefixed, that the noon sun follows the site latitude and is restored on exit, and that walking into the edge opens the travel map.
 
