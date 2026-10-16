@@ -14,8 +14,10 @@ extends Node3D
 ## fallow field). The town herd goes out the same way from the Karja (cattle)
 ## gate. Cart horses foul the extramural roads and, more thinly, the spines.
 ##
-## Each drop has a fixed age fraction, so the plan always lays the same dung;
-## the date decides what shows (set_calendar_date): grazing stock is housed
+## Each drop has a fixed birth phase in its life cycle, so the plan always lays
+## the same dung, and its age runs with the calendar: the same pat dries, pales
+## and flattens day by day, then crumbles and a fresh one falls in its place.
+## The date decides what shows (set_calendar_date): grazing stock is housed
 ## through the cold months (CityFauna.stock_housed), so after turn-out only
 ## dung younger than the days out is on the ground; settled snow buries all but
 ## the freshest. Visual only: no collision, no GameState, procedural meshes.
@@ -35,12 +37,12 @@ const SPECIES_KIND := {
 	&"pig": KIND_PIG, &"hare": KIND_HARE, &"chicken": KIND_FOWL, &"goose": KIND_FOWL,
 }
 ## Per kind: `life` days a drop stays readable before it crumbles, washes or is
-## trodden in; `dry` days from fresh to pale; `home` drops per animal round its
+## trodden in; `dry` days from fresh to pale in summer; `home` drops per animal round its
 ## home; `range` draw distance in metres; `fresh` the colour of a new drop as a
 ## multiplier on the mesh's dried palette.
 const SPEC := {
 	&"cow_pat": {
-		"life": 40.0, "dry": 18.0, "home": 5, "range": 75.0, "fresh": Color(0.58, 0.52, 0.36)
+		"life": 40.0, "dry": 12.0, "home": 5, "range": 75.0, "fresh": Color(0.58, 0.52, 0.36)
 	},
 	&"horse_balls": {
 		"life": 12.0, "dry": 7.0, "home": 4, "range": 60.0, "fresh": Color(0.62, 0.55, 0.38)
@@ -57,8 +59,9 @@ const SPEC := {
 const SPECIES_TINT := {&"goose": Color(0.72, 0.95, 0.58)}
 ## Grazing herds spread their dung over the field, so they leave more of it in view.
 const GRAZE_FACTOR := 2
-## Dung on a road is broken by hooves and wheels within days.
-const ROAD_LIFE := 6.0
+## Dung on a road is broken up by hooves and wheels within a couple of weeks;
+## long enough that a pat on a drove visibly dries before it goes.
+const ROAD_LIFE := 12.0
 ## Drove routes: from yards with these outbuildings, metres between drops per
 ## animal of the group (a herd of four leaves a pat every 2.5 m), how far a yard
 ## may be from the street it joins and from the grazing it walks to.
@@ -82,7 +85,16 @@ const HEAP_FILL: Array[Vector2] = [
 ## Snow deeper than this hides a drop unless it fell after the snow did.
 const SNOW_BURY := 0.02
 const SNOW_FRESH_DAYS := 1.5
+## Drying stages by age: a wet glossy skin for the first day, a damp sheen
+## until DAMP_SHARE of the drying time, then a dull crust.
 const WET_DAYS := 1.0
+const DAMP_SHARE := 0.3
+const STAGE_WET := 0
+const STAGE_DAMP := 1
+const STAGE_CRUST := 2
+## Drying time multiplier by month: cool, damp spring and autumn days dry dung
+## far slower than summer sun and wind; winter dung barely dries at all.
+const DRY_SLOWDOWN: Array[float] = [3.0, 3.0, 2.5, 1.8, 1.3, 1.0, 1.0, 1.0, 1.3, 1.8, 2.5, 3.0]
 const CHUNK := 96.0
 ## Opening day of the slice (21 April 1343) until the runtime sets the calendar.
 const DEFAULT_DATE := {"year": 1343, "month": 4, "day": 21}
@@ -91,14 +103,16 @@ static var _materials: Dictionary = {}
 static var _meshes: Dictionary = {}
 
 var plan: CityPlan
-## Every drop: {kind, at: Vector2, u: age fraction of life, life, yaw, size,
-## grazing: only out when stock is, tint}.
+## Every drop: {kind, at: Vector2, u: birth phase as a fraction of life, life,
+## yaw, size, grazing: only out when stock is, tint}.
 var _drops: Array[Dictionary] = []
-## [kind, Transform3D, wet] per shown instance in batch order; kept because the
-## headless dummy renderer does not store MultiMesh transforms.
+## [kind, Transform3D, wet, stage, age] per shown instance in batch order; kept
+## because the headless dummy renderer does not store MultiMesh transforms.
 var _placed: Array = []
 var _housed := false
 var _days_out := 0.0
+var _day_number := 0
+var _dry_slowdown := 1.0
 
 
 ## Mounted beside CityFauna by the city scene (it needs the fauna's groups, and
@@ -128,6 +142,8 @@ static func drops_for(city_plan: CityPlan) -> Array[Dictionary]:
 func set_calendar_date(date: Dictionary) -> void:
 	_housed = CityFauna.stock_housed(date)
 	_days_out = 0.0 if _housed else days_out(date)
+	_day_number = day_number(date)
+	_dry_slowdown = DRY_SLOWDOWN[int(GameCalendar.normalize_date(date)["month"]) - 1]
 	var cover := VegetationPhenology.snow_cover_for(date)
 	var fill := heap_fill(GameCalendar.day_of_year(date))
 	_rebuild(cover, fill)
@@ -139,6 +155,28 @@ static func days_out(date: Dictionary) -> float:
 		if CityFauna.stock_housed(GameCalendar.add_days(date, -d)):
 			return float(d)
 	return 366.0
+
+
+## Consecutive day count (Julian calendar), so ages run on across New Year.
+static func day_number(date: Dictionary) -> int:
+	var year := int(GameCalendar.normalize_date(date)["year"]) - 1
+	return year * 365 + floori(year / 4.0) + GameCalendar.day_of_year(date)
+
+
+## Days since `drop` fell on day `day`: each spot is a cycle of fall, drying and
+## crumbling, phase-shifted by the drop's `u` so neighbours are of mixed age.
+static func age_on(drop: Dictionary, day: int) -> float:
+	var life := float(drop["life"])
+	return fposmod(float(day) + float(drop["u"]) * life, life)
+
+
+## Drying stage of a drop `age` days old that takes `dry_days` to dry out.
+static func stage_for(age: float, dry_days: float) -> int:
+	if age < WET_DAYS:
+		return STAGE_WET
+	if age < dry_days * DAMP_SHARE:
+		return STAGE_DAMP
+	return STAGE_CRUST
 
 
 static func heap_fill(doy: int) -> float:
@@ -166,7 +204,7 @@ func instance_count(kind: StringName) -> int:
 	return n
 
 
-## Every shown instance as [kind, transform, wet], in build order (for tests).
+## Every shown instance as [kind, transform, wet, stage, age], in build order (for tests).
 func placements() -> Array:
 	return _placed
 
@@ -369,12 +407,12 @@ func _rebuild(cover: float, fill: float) -> void:
 		remove_child(child)
 		child.queue_free()
 	_placed.clear()
-	var buckets: Dictionary = {}  # [kind, wet, chunk] -> {transforms, colors}
+	var buckets: Dictionary = {}  # [kind, stage, chunk] -> {transforms, colors, ages}
 	for drop: Dictionary in _drops:
 		var kind: StringName = drop["kind"]
 		var at: Vector2 = drop["at"]
 		var spec: Dictionary = SPEC[kind]
-		var age := float(drop["u"]) * float(drop["life"])
+		var age := 0.0 if kind == KIND_HEAP else age_on(drop, _day_number)
 		if bool(drop["grazing"]) and (_housed or age > _days_out):
 			continue
 		var lift := 0.0
@@ -382,7 +420,8 @@ func _rebuild(cover: float, fill: float) -> void:
 			lift = CitySnow.depth_at(at, cover)
 			if lift > SNOW_BURY and age > SNOW_FRESH_DAYS:
 				continue
-		var dried := clampf(age / float(spec["dry"]), 0.0, 1.0)
+		var dry_days := float(spec["dry"]) * _dry_slowdown
+		var dried := clampf(age / dry_days, 0.0, 1.0)
 		var size := float(drop["size"])
 		var squash := Vector3(size, size, size)
 		if kind == KIND_COW_PAT:
@@ -394,27 +433,32 @@ func _rebuild(cover: float, fill: float) -> void:
 		var origin := Vector3(at.x, plan.ground_height(at) + lift - 0.004, at.y)
 		var xf := Transform3D(basis, origin)
 		var color := (spec["fresh"] as Color).lerp(Color.WHITE, dried) * (drop["tint"] as Color)
-		var wet := age < WET_DAYS and kind != KIND_HEAP
-		var key := [kind, wet, Vector2i(floori(at.x / CHUNK), floori(at.y / CHUNK))]
+		var stage := STAGE_CRUST if kind == KIND_HEAP else stage_for(age, dry_days)
+		var key := [kind, stage, Vector2i(floori(at.x / CHUNK), floori(at.y / CHUNK))]
 		if not buckets.has(key):
-			buckets[key] = {"transforms": [] as Array[Transform3D], "colors": [] as Array[Color]}
+			buckets[key] = {
+				"transforms": [] as Array[Transform3D], "colors": [] as Array[Color], "ages": []
+			}
 		(buckets[key]["transforms"] as Array[Transform3D]).append(xf)
 		(buckets[key]["colors"] as Array[Color]).append(color)
+		(buckets[key]["ages"] as Array).append(age)
 	var keys := buckets.keys()
 	keys.sort_custom(func(x: Array, y: Array) -> bool: return str(x) < str(y))
 	for key: Array in keys:
 		var kind: StringName = key[0]
+		var stage := int(key[1])
 		var batch: Dictionary = buckets[key]
 		var mmi := MapViewMeshBuilderPrimitives.multi_mesh(
-			"%s_%s_%d_%d" % [kind, "wet" if key[1] else "dry", key[2].x, key[2].y],
+			"%s_s%d_%d_%d" % [kind, stage, key[2].x, key[2].y],
 			mesh_for(kind),
 			batch["transforms"],
 			batch["colors"],
-			material(key[1]),
+			material(stage),
 			Vector3.ZERO
 		)
-		for xf: Transform3D in batch["transforms"]:
-			_placed.append([kind, xf, key[1]])
+		var transforms: Array[Transform3D] = batch["transforms"]
+		for i in transforms.size():
+			_placed.append([kind, transforms[i], stage == STAGE_WET, stage, batch["ages"][i]])
 		# Only the heap is big enough to cast a shadow worth its cost.
 		if kind != KIND_HEAP:
 			mmi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
@@ -423,16 +467,17 @@ func _rebuild(cover: float, fill: float) -> void:
 		add_child(mmi)
 
 
-## Fresh dung is wet and glossy; anything older than a day has a dull crust.
-static func material(wet: bool) -> StandardMaterial3D:
-	if not _materials.has(wet):
+## Fresh dung is wet and glossy, then keeps a damp sheen for some days, then
+## dulls to a crust.
+static func material(stage: int) -> StandardMaterial3D:
+	if not _materials.has(stage):
 		var m := StandardMaterial3D.new()
 		m.vertex_color_use_as_albedo = true
 		m.vertex_color_is_srgb = true
-		m.roughness = 0.45 if wet else 0.92
-		m.metallic_specular = 0.45 if wet else 0.3
-		_materials[wet] = m
-	return _materials[wet]
+		m.roughness = [0.45, 0.72, 0.92][stage]
+		m.metallic_specular = [0.45, 0.36, 0.3][stage]
+		_materials[stage] = m
+	return _materials[stage]
 
 
 static func mesh_for(kind: StringName) -> ArrayMesh:

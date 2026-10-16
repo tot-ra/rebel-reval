@@ -114,3 +114,44 @@ func test_days_out_counts_from_turn_out() -> void:
 	var april := CityDung.days_out(OPENING)
 	assert_true(april >= 1.0 and april <= 10.0, "freshly out on 21 April (%.0f days)" % april)
 	assert_true(CityDung.days_out(SUMMER) > 60.0, "long out by July")
+
+
+func test_the_same_pat_dries_from_day_to_day() -> void:
+	var plan := CityPlan.load_default()
+	var node := _dung(plan)
+	var later := GameCalendar.add_days(SUMMER, 5)
+	assert_eq(CityDung.day_number(later) - CityDung.day_number(SUMMER), 5, "day numbers run on")
+	var new_year := {"year": 1344, "month": 1, "day": 1}
+	assert_eq(
+		CityDung.day_number(new_year) - CityDung.day_number({"year": 1343, "month": 12, "day": 31}),
+		1, "and across New Year"
+	)
+	node.set_calendar_date(SUMMER)
+	var before := {}  # origin -> [y/x ratio, colour-free stage, age]
+	for entry: Array in node.placements():
+		if entry[0] == CityDung.KIND_COW_PAT:
+			var xf: Transform3D = entry[1]
+			before[xf.origin] = [xf.basis.get_scale().y / xf.basis.get_scale().x, entry[3], entry[4]]
+	node.set_calendar_date(later)
+	var aged := 0
+	var flatter := 0
+	var wet_then_dry := 0
+	for entry: Array in node.placements():
+		var xf: Transform3D = entry[1]
+		if entry[0] != CityDung.KIND_COW_PAT or not before.has(xf.origin):
+			continue
+		var was: Array = before[xf.origin]
+		if float(entry[4]) < float(was[2]):
+			continue  # crumbled and fell fresh again in between
+		aged += 1
+		assert_almost_eq(float(entry[4]) - float(was[2]), 5.0, 0.001, "five days older")
+		if xf.basis.get_scale().y / xf.basis.get_scale().x < float(was[0]) - 0.001:
+			flatter += 1
+		if int(was[1]) == CityDung.STAGE_WET and int(entry[3]) != CityDung.STAGE_WET:
+			wet_then_dry += 1
+	assert_true(aged > 50, "most pats lie on and age (%d)" % aged)
+	assert_true(flatter > aged / 3, "young ones slump as they dry (%d of %d)" % [flatter, aged])
+	assert_true(wet_then_dry > 0, "yesterday's wet pats have lost their gloss")
+	assert_true(CityDung.stage_for(4.0, 18.0) == CityDung.STAGE_DAMP, "a damp sheen for days")
+	assert_true(CityDung.stage_for(10.0, 18.0) == CityDung.STAGE_CRUST, "then a crust")
+	node.free()
