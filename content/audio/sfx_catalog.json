@@ -80,6 +80,7 @@
         "sounds.footsteps.stone_step_04",
         "sounds.footsteps.stone_step_05"
       ],
+      "volume_db": 6.0,
       "pitch_jitter": 0.06,
       "volume_jitter_db": 1.5,
       "no_repeat": 2,

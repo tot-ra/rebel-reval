@@ -40,6 +40,11 @@ func test_every_surface_and_gait_resolves_to_a_catalog_entry() -> void:
 			assert_true(catalog.has_entry(sound_id), "catalog lost %s" % sound_id)
 
 
+func test_short_stone_impacts_get_an_audibility_boost() -> void:
+	var entry := SfxCatalog.load_default().get_entry(&"sfx.footstep.stone.walk")
+	assert_eq(float(entry.get("volume_db", 0.0)), 6.0)
+
+
 func test_pilot_map_terrains_all_sound() -> void:
 	var catalog := SfxCatalog.load_default()
 	for terrain: StringName in PILOT_TERRAINS:

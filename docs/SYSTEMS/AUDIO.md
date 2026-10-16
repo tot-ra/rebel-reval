@@ -1,6 +1,6 @@
 # Sound effects (audio)
 
-Status: implemented for Phases 0-1 (ADR 0035: policy, tooling, core runtime) and Phase 2 (slice pilot: surfaces, footsteps, doors, layered ambience - tasks **R-1357**, **R-1358**, **R-1382**, **R-1383**, partly **R-1356**; footsteps on every map and for NPCs with recorded pools - **R-1641**; wading and swim strokes - **R-1648**), plus weather-driven sea surf and wind (task **R-1550**). Phases 3-6 (combat, fauna, space, act expansion) are planned.
+Status: implemented for Phases 0-1 (ADR 0035: policy, tooling, core runtime) and Phase 2 (slice pilot: surfaces, footsteps, doors, layered ambience - tasks **R-1357**, **R-1358**, **R-1382**, **R-1383**, partly **R-1356**; footsteps on every map and for NPCs with recorded pools - **R-1641**; wading and swim strokes - **R-1648**; audible stone steps on city paving - **R-2148**), plus weather-driven sea surf and wind (task **R-1550**). Phases 3-6 (combat, fauna, space, act expansion) are planned.
 
 Scope: every non-music sound. Music stays with [`music/README.md`](../../music/README.md) and `scripts/global/music_director.gd`. Decision record: [ADR 0035](../adr/0035-game-audio-sourcing-and-sfx-system.md).
 
@@ -38,6 +38,8 @@ The player and every walking NPC near the player make one footstep per foot cont
 Sound IDs are `sfx.footstep.<surface>.<gait>` with gaits `walk`, `run`, `sneak`; gait comes from logic speed (`RUN_SPEED_THRESHOLD`, the same threshold the run animation uses). Only `walk` pools exist; `run` falls back to the same surface at a walk.
 
 **A stand-in may only name the same material** (**R-1383**). Every surface has a pool of its own since **R-1641**, so `SURFACE_FALLBACKS` is empty and a missing pool resolves to `&""` (silent). Earlier phases borrowed across materials and the result was audible as a defect (`world_saaremaa` knocked like a plank on its beaches); a wrong surface type is heard immediately, a missing step is not. Adding a catalog entry retires a silent surface with no code change.
+
+The city’s stone one-shots are short concrete impacts (~0.1 s); their catalog entry adds **+6 dB** so dry cobble steps remain perceptible against the city ambience (**R-2148**). Other surface pools keep their existing levels.
 
 ### Where the surface comes from
 
