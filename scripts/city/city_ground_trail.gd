@@ -16,6 +16,12 @@ extends Node3D
 ## Near Kalev a fine relief mesh (`_relief`, the ground shader's trail mesh mode)
 ## lifts the prints into real geometry so a grazing camera sees their silhouette.
 
+## A foot came down (Kalev's under KALEV_KEY, a citizen's under its track_walker
+## key), on any ground, soft or paved: CityDungLive squashes dung under it (R-2175).
+signal footfall(key: Variant, world_xz: Vector2, facing: Vector2)
+
+const KALEV_KEY := &"kalev"
+
 ## Deep snow is waded, not stepped: once the snow is this deep (metres) each leg
 ## ploughs its own furrow behind the walker (see stamp_wade).
 const TRENCH_MIN_DEPTH := 0.08
@@ -178,18 +184,15 @@ func track_walker(key: Variant, world_xz: Vector2) -> void:
 	if mark.is_empty() or float(mark["travelled"]) < STRIDE:
 		return
 	mark["travelled"] = fmod(float(mark["travelled"]), STRIDE)
-	var soft := _softness_at(world_xz)
-	if soft.x < MIN_SOFTNESS:
-		return
 	var facing: Vector2 = mark["facing"]
 	var foot_sign := 1.0 if mark["left"] else -1.0
 	mark["left"] = not mark["left"]
 	var side := Vector2(-facing.y, facing.x)
-	stamp_foot(
-		world_xz + side * FOOT_SPREAD * foot_sign,
-		facing.rotated(TOE_OUT * foot_sign),
-		_weight() * 0.85
-	)
+	var foot := world_xz + side * FOOT_SPREAD * foot_sign
+	footfall.emit(key, foot, facing)
+	if _softness_at(world_xz).x < MIN_SOFTNESS:
+		return
+	stamp_foot(foot, facing.rotated(TOE_OUT * foot_sign), _weight() * 0.85)
 
 
 ## A hoofed animal (`species` is a key of HOOVES, anything else leaves nothing):
@@ -444,10 +447,6 @@ func _forget_unseen() -> void:
 
 
 func _footfall(world_xz: Vector2, facing: Vector2) -> void:
-	var soft := _softness_at(world_xz)
-	var softness := soft.y
-	if soft.x < MIN_SOFTNESS:
-		return
 	var side := Vector2(-facing.y, facing.x)
 	var foot_sign := 1.0 if _left_foot else -1.0
 	_left_foot = not _left_foot
@@ -455,6 +454,11 @@ func _footfall(world_xz: Vector2, facing: Vector2) -> void:
 	# Wading feet land in their own furrow, a little wider apart than on firm ground.
 	var wading := snow_depth > TRENCH_MIN_DEPTH
 	var foot := world_xz + side * (WADE_HALF_GAUGE if wading else FOOT_SPREAD) * foot_sign
+	footfall.emit(KALEV_KEY, foot, facing)
+	var soft := _softness_at(world_xz)
+	var softness := soft.y
+	if soft.x < MIN_SOFTNESS:
+		return
 	var snow := CitySnow.patch(foot, snow_cover)
 	if wading:
 		_post_hole(foot, facing, foot_sign, snow_depth)

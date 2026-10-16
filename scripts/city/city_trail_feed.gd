@@ -8,12 +8,14 @@ extends RefCounted
 ## WHEELED_GROUP with `world_xz() -> Vector2` and `trail_vehicle_class() ->
 ## StringName` (a CartTransportModel class). The trail itself ignores whoever is
 ## outside its window or beyond TRACK_RADIUS, so no distance test is needed here.
+## With `dung` (R-2175) the same animals may drop fresh dung near `focus` (Kalev).
 
 const WHEELED_GROUP := &"city_wheeled"
 
 
 static func feed(
-	trail: CityGroundTrail, citizens: CityCitizens, fauna: CityFauna, tree: SceneTree
+	trail: CityGroundTrail, citizens: CityCitizens, fauna: CityFauna, tree: SceneTree,
+	dung: CityDungLive = null, focus := Vector2.INF
 ) -> void:
 	if trail == null:
 		return
@@ -29,6 +31,14 @@ static func feed(
 				trail, animal.get_instance_id(), Vector2(animal.position.x, animal.position.z),
 				species
 			)
+			if dung != null and focus != Vector2.INF:
+				dung.track_animal(
+					animal.get_instance_id(), Vector2(animal.position.x, animal.position.z), species,
+					focus
+				)
+	if dung != null:
+		dung.snow_cover = trail.snow_cover
+		dung.end_frame()
 	if tree != null:
 		for node in tree.get_nodes_in_group(WHEELED_GROUP):
 			trail.track_cart(

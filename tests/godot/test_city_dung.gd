@@ -260,3 +260,120 @@ func test_the_same_pat_dries_from_day_to_day() -> void:
 	assert_true(CityDung.stage_for(4.0, 18.0) == CityDung.STAGE_DAMP, "a damp sheen for days")
 	assert_true(CityDung.stage_for(10.0, 18.0) == CityDung.STAGE_CRUST, "then a crust")
 	node.free()
+
+
+## R-2175: a cow walking near Kalev drops fresh pats at its walking rate, behind
+## itself; the newest LIVE_CAP stay, and nothing falls beyond LIVE_RADIUS.
+func test_live_drops_fall_behind_walking_animals() -> void:
+	var plan := CityPlan.load_default()
+	var dung := _dung(plan)
+	var live := CityDungLive.create(dung)
+	var centre: Vector2 = CityDung.grazing_areas(plan)[0]["centre"]
+	# A cow ambles round a 6 m circle in the pasture for 600 m.
+	var walked := 0.0
+	var angle := 0.0
+	var pos := centre + Vector2(6.0, 0.0)
+	while walked < 600.0:
+		angle += 0.05
+		var next := centre + Vector2.from_angle(angle) * 6.0
+		walked += pos.distance_to(next)
+		pos = next
+		live.track_animal(7, pos, &"cow", centre)
+		live.end_frame()
+	var n := live.live_drops().size()
+	var expected := 600.0 / float(CityDungLive.LIVE_SPACING[CityDung.KIND_COW_PAT])
+	assert_true(n >= 3 and n <= expected * 2.0, "about one pat per 60 m (%d in 600 m)" % n)
+	for entry: Dictionary in live.live_drops():
+		assert_eq(entry["kind"], CityDung.KIND_COW_PAT, "a cow drops cow pats")
+		var r := (entry["at"] as Vector2).distance_to(centre)
+		assert_true(absf(r - 6.0) < 1.2, "on the cow's walk, a body behind it (r %.2f)" % r)
+	var far := centre + Vector2(CityDungLive.LIVE_RADIUS + 10.0, 0.0)
+	for i in 2000:
+		live.track_animal(8, centre + Vector2(6.0, 0.0).rotated(0.05 * i), &"horse", far)
+		live.end_frame()
+	assert_eq(live.live_drops().size(), n, "animals far from Kalev drop nothing live")
+	for i in CityDungLive.LIVE_CAP + 10:
+		live.drop(&"sheep", centre + Vector2(0.1 * (i % 7), 0.0), 0.0)
+	assert_eq(live.live_drops().size(), CityDungLive.LIVE_CAP, "a ring of the newest drops")
+	live.free()
+	dung.free()
+
+
+## R-2175: a foot on a pat squashes it flat and leaves a smear, then a couple of
+## fainter muddy prints; the next date rebuild lays the same untouched pat again.
+func test_stepping_on_a_pat_squashes_it_and_smears_the_boot() -> void:
+	var plan := CityPlan.load_default()
+	var dung := _dung(plan)
+	dung.set_calendar_date(SUMMER)
+	var live := CityDungLive.create(dung)
+	var index := -1
+	for i in dung.placements().size():
+		if dung.placements()[i][0] == CityDung.KIND_COW_PAT:
+			index = i
+			break
+	assert_true(index >= 0, "a cow pat lies out in July")
+	var before: Transform3D = dung.placements()[index][1]
+	var at := Vector2(before.origin.x, before.origin.z)
+	var ratio_before := before.basis.get_scale().y / before.basis.get_scale().x
+	assert_true(
+		live.step_on(&"kalev", at + Vector2(0.05, 0.0), Vector2.RIGHT), "the foot finds the pat"
+	)
+	var after: Transform3D = dung.placements()[index][1]
+	assert_true(after.basis.get_scale().y < 0.01, "the standing pat is gone from the static layer")
+	var flat: Dictionary = live.live_drops()[-1]
+	assert_true(bool(flat["squashed"]), "and lies trodden flat in the live ring")
+	assert_true((flat["at"] as Vector2).is_equal_approx(at), "where it lay")
+	var standing := CityDung.mesh_for(CityDung.KIND_COW_PAT).get_aabb().size.y
+	var trodden := CityDungLive.squashed_mesh(CityDung.KIND_COW_PAT).get_aabb().size.y
+	assert_true(trodden < standing * 0.4, "flat: %.3f m vs %.3f m" % [trodden, standing])
+	assert_eq(live.smears().size(), 1, "a smear dragged off the pat")
+	var away := at + Vector2(40.0, 40.0)
+	live.step_on(&"kalev", away, Vector2.RIGHT)
+	live.step_on(&"kalev", away + Vector2(0.85, 0.0), Vector2.RIGHT)
+	live.step_on(&"kalev", away + Vector2(1.7, 0.0), Vector2.RIGHT)
+	assert_eq(
+		live.smears().size(), 1 + CityDungLive.MUDDY_PRINTS, "a couple of muddy prints, then clean"
+	)
+	var smear: Color = live.smears()[0][1]
+	var last: Color = live.smears()[CityDungLive.MUDDY_PRINTS][1]
+	assert_true(last.a < smear.a, "each print fainter")
+	# A live drop is squashed the same way (where dung may lie at all).
+	if live.drop(&"horse", away + Vector2(5.0, 0.0), 0.0):
+		live.step_on(&"citizen", away + Vector2(5.0, 0.0), Vector2.UP)
+		assert_true(bool(live.live_drops()[-1]["squashed"]), "a fresh drop squashes too")
+	dung.set_calendar_date(SUMMER)
+	live.end_frame()
+	var copies := 0
+	for entry: Dictionary in live.live_drops():
+		if bool(entry["static"]):
+			copies += 1
+	assert_eq(copies, 0, "trodden copies of static pats leave with the rebuild")
+	var again: Transform3D = dung.placements()[index][1]
+	assert_almost_eq(
+		again.basis.get_scale().y / again.basis.get_scale().x, ratio_before, 0.001,
+		"the static layer stays deterministic: the date rebuild lays it whole"
+	)
+	live.free()
+	dung.free()
+
+
+## R-2175: every footfall is announced, Kalev's and a citizen's, with the foot's spot.
+func test_trail_announces_each_footfall() -> void:
+	var plan := CityPlan.load_default()
+	var trail := CityGroundTrail.create(plan, func(_p: Vector2) -> Color: return Color(0, 1, 0, 0))
+	var seen := {}
+	trail.footfall.connect(func(key: Variant, xz: Vector2, _facing: Vector2) -> void:
+		seen[key] = int(seen.get(key, 0)) + 1
+		assert_true(xz.y > -402.0 and xz.y < -394.0, "the foot is beside the walker")
+	)
+	var pos := Vector2(0, -400)
+	trail.update_for(pos, 0.016)
+	var walker := Vector2(3, -395)
+	for i in 40:
+		pos += Vector2(0.25, 0.0)
+		walker += Vector2(0.25, 0.0)
+		trail.update_for(pos, 0.016)
+		trail.track_walker(5, walker)
+	assert_true(int(seen.get(CityGroundTrail.KALEV_KEY, 0)) >= 8, "Kalev's steps (%s)" % seen)
+	assert_true(int(seen.get(5, 0)) >= 8, "the citizen's steps (%s)" % seen)
+	trail.free()

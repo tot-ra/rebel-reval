@@ -46,6 +46,7 @@ var _world_items: WorldItemController
 var _music_timer := 0.0
 var _npcs: CityNpcs
 var _fauna: CityFauna
+var _dung_live: CityDungLive
 ## Site room Kalev stands in: {site, room} and its key, or empty.
 var _site_room: Dictionary = {}
 var _site_room_key := ""
@@ -79,7 +80,12 @@ func _ready() -> void:
 		_fauna = CityFauna.create(plan, player)
 		world.add_child(_fauna)
 		# What the stock leaves on its roads, pastures and yards (R-2077).
-		world.add_child(CityDung.create(plan))
+		var dung := CityDung.create(plan)
+		world.add_child(dung)
+		# Fresh drops near Kalev and pats squashed underfoot (R-2175).
+		_dung_live = CityDungLive.create(dung)
+		world.add_child(_dung_live)
+		world.trail.footfall.connect(_dung_live.step_on)
 		world.add_child(CityFish.create(plan, player))
 	runtime = CityRuntime.install(self, view, player)
 	interiors = CityInteriors.create(plan, CitizenRoster.load_for(plan), world.chimneys)
@@ -236,7 +242,9 @@ func _process(delta: float) -> void:
 	PerfProbeScript.stop(&"city/farmland", t)
 	t = PerfProbeScript.start()
 	world.trail.update_for(xz, delta)
-	CityTrailFeed.feed(world.trail, _npcs.citizens if _npcs != null else null, _fauna, get_tree())
+	CityTrailFeed.feed(
+		world.trail, _npcs.citizens if _npcs != null else null, _fauna, get_tree(), _dung_live, xz
+	)
 	PerfProbeScript.stop(&"city/ground_trail", t)
 	t = PerfProbeScript.start()
 	world.smoke.update_for(xz, delta)
