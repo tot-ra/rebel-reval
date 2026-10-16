@@ -445,6 +445,11 @@ const COLD_DAMP_PER_SECOND := 0.02
 ## default campaign date could never dry bare soil at all.
 const COLD_DAMP_WARMTH := 0.25
 const COLD_PUDDLE_DRY_SHARE := 0.15
+## R-2075: frozen topsoil cannot drink, so rain on it runs into the hollows: puddles
+## fill this much faster (SeasonState.soil_frost). Snow lying on a thaw day melts
+## into the puddles at up to MELT_FILL_PER_SECOND (full above +4 C air).
+const FROZEN_RUNOFF_GAIN := 0.8
+const MELT_FILL_PER_SECOND := 0.015
 const DRYNESS_SOAK_PER_SECOND := 0.06
 const DROUGHT_ONSET_DRYNESS := 0.3
 const DROUGHT_START_CHANCE := 0.25
@@ -1887,12 +1892,19 @@ func _maybe_start_drought() -> void:
 func _advance_ground_water(delta: float) -> void:
 	# ADR 0045: snow lies instead of running off; only the liquid share wets the soil.
 	var rain := rain_intensity() * (1.0 - precipitation_snow_share())
-	var rain_fill := rain * PUDDLE_RAIN_FILL_PER_SECOND
+	var frost := SeasonState.soil_frost(calendar_date)
+	var rain_fill := rain * PUDDLE_RAIN_FILL_PER_SECOND * (1.0 + FROZEN_RUNOFF_GAIN * frost)
+	# R-2075: on a thaw day the lying snow melts into the hollows.
+	var air := air_temperature_c()
+	var snow_lying := smoothstep(
+		0.0, 0.05, SeasonState.snow_cover_target_m(SeasonState.day_of_year_for(calendar_date))
+	)
+	var melt_fill := MELT_FILL_PER_SECOND * snow_lying * smoothstep(0.0, 4.0, air)
 	if rain > 0.001:
 		# Rain (even a forced debug shower) breaks a drought, and the dry crust
 		# drinks first: puddles only get the share the soil could not absorb.
 		_drought_seconds_left = 0.0
-		var soak := rain * DRYNESS_SOAK_PER_SECOND * delta
+		var soak := rain * DRYNESS_SOAK_PER_SECOND * delta * (1.0 - frost)
 		var absorbed := minf(soak, _ground_dryness)
 		_ground_dryness -= absorbed
 		rain_fill *= 1.0 - absorbed / maxf(soak, 0.000001)
@@ -1905,9 +1917,13 @@ func _advance_ground_water(delta: float) -> void:
 	var damp := 1.0 - smoothstep(0.0, COLD_DAMP_WARMTH, warmth)
 	if damp > 0.0:
 		_ground_dryness = maxf(_ground_dryness - COLD_DAMP_PER_SECOND * damp * delta, 0.0)
-	var drying := PUDDLE_DRY_PER_SECOND if rain <= 0.001 else 0.0
+	var drying := PUDDLE_DRY_PER_SECOND if rain <= 0.001 and melt_fill <= 0.0 else 0.0
 	drying *= lerpf(COLD_PUDDLE_DRY_SHARE, 1.0, warmth)
-	_puddle_wetness = clampf(_puddle_wetness + (rain_fill - drying) * delta, 0.0, 1.0)
+	# Frozen puddles do not evaporate: they keep their water for the next thaw.
+	drying *= smoothstep(-1.0, 0.5, air)
+	_puddle_wetness = clampf(
+		_puddle_wetness + (rain_fill + melt_fill - drying) * delta, 0.0, 1.0
+	)
 	# Keep the live ground water on the save grid (_json_safe_float), so a restored
 	# snapshot continues bit-for-bit instead of drifting by the rounding remainder.
 	_puddle_wetness = _json_safe_float(_puddle_wetness)
@@ -2360,10 +2376,18 @@ func ground_warmth() -> float:
 	return smoothstep(1.0, 9.0, SeasonState.mean_temperature_c(doy))
 
 
-## ADR 0045: share (0..1) of the precipitation that falls as snow on the campaign
-## date, from the Tallinn climate. 0 in warm months, 1 in deep winter.
+## ADR 0045: share (0..1) of the precipitation that falls as snow. 0 in warm
+## months, 1 in deep winter; R-2075: from the air temperature now, so a January
+## thaw rains and a cold April night can still snow.
 func precipitation_snow_share() -> float:
-	return SeasonState.snow_share(SeasonState.day_of_year_for(calendar_date))
+	return SeasonState.snow_share_at(air_temperature_c())
+
+
+## R-2075: air temperature (C) now: the date's climate, the day's deterministic
+## anomaly (SeasonState) and the time of day, its swing set by the cloud cover.
+## Everything it reads is in the saved weather state, so it restores exactly.
+func air_temperature_c() -> float:
+	return SeasonState.air_temperature_c(calendar_date, _cycle_progress, cloud_coverage())
 
 
 ## Whether the snowfall emitter should draw this frame (the snow twin of

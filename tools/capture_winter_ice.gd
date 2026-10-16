@@ -9,7 +9,15 @@ extends SceneTree
 ##     [--only=moat_game,puddle]
 ##     [--time=0.5] day progress; [--exposure=1.0] review-only tonemap multiplier (snow
 ##     fields clip at the game's daylight exposure, which hides the ice detail);
-##     [--ice-snow=0.1] review-only snow on the moat ice (bare black ice plates).
+##     [--ice-snow=0.1] review-only snow on the moat ice (bare black ice plates);
+##     [--settle=30] R-2075: weather seconds run at that hour before the shots, so
+##     a thaw day's meltwater (or a frost's refreeze) builds up as in play;
+##     [--weather=clear] weather state (clear, cloudless, cloudy, overcast, rain);
+##     [--prime=0.55] first run the settle on the DAY BEFORE at that hour, so the
+##     plate shows yesterday's thaw water refrozen.
+## R-2075 daily weather plates (seed ANOMALY_SEED): a thaw after a cold spell,
+## 1343-01-23 --time=0.55 --settle=30; its refrozen glaze at sunrise, 1343-01-24
+## --time=0.37 --prime=0.55 --settle=30; a hard-frost day, 1343-01-18.
 ## Output: build/season/ice_<shot>_<date>.png
 
 const OUTPUT_DIR := "res://build/season"
@@ -23,6 +31,9 @@ var _time := DAY_PROGRESS
 var _exposure := 1.0
 ## Review-only override of the snow lying on moat ice (-1 keeps the date's cover).
 var _ice_snow := -1.0
+var _settle := 0.0
+var _weather := SkyWeather3D.WEATHER_CLEAR
+var _prime := -1.0
 
 
 func _initialize() -> void:
@@ -39,6 +50,12 @@ func _initialize() -> void:
 			_exposure = float(arg.substr(11))
 		elif arg.begins_with("--ice-snow="):
 			_ice_snow = float(arg.substr(11))
+		elif arg.begins_with("--settle="):
+			_settle = float(arg.substr(9))
+		elif arg.begins_with("--weather="):
+			_weather = StringName(arg.substr(10))
+		elif arg.begins_with("--prime="):
+			_prime = float(arg.substr(8))
 	call_deferred("_run")
 
 
@@ -158,6 +175,16 @@ func _road_spot(plan: CityPlan, near_point: Vector2, world: CityWorld3D) -> Vect
 	return best
 
 
+func _settle_weather(
+	view: CityMapView, world: CityWorld3D, progress: float, seconds: float
+) -> void:
+	view.apply_cycle_progress(progress)
+	var settled := 0.0
+	while settled < seconds:
+		world.sky_weather.advance(0.5)
+		settled += 0.5
+
+
 func _run() -> void:
 	if DisplayServer.get_name() == "headless":
 		push_error("Ice plates need a real renderer (tools/godot_render.sh)")
@@ -179,23 +206,34 @@ func _run() -> void:
 	camera.current = true
 	world.sky_weather.auto_weather = false
 	world.sky_weather.set_process(false)
+	# Run the day's weather at the plate's hour (R-2075): meltwater fills on a thaw.
+	# With --prime the settle runs the day before, and the water carries over.
+	world.sky_weather.set_weather(_weather)
+	world.sky_weather.advance(SkyWeather3D.TRANSITION_SECONDS + 0.1)
+	if _prime >= 0.0:
+		view.set_calendar_date(GameCalendar.add_days(_date, -1))
+		_settle_weather(view, world, _prime, _settle)
 	view.set_calendar_date(_date)
+	_settle_weather(view, world, _time, 0.0 if _prime >= 0.0 else _settle)
 	if _ice_snow >= 0.0:
 		for water: ShaderMaterial in world.water_materials:
 			water.set_shader_parameter("ice_snow", _ice_snow)
-	print("ice plates: sea ice %.2f fresh %.2f puddle %.2f snow %.2f" % [
-		SeasonState.ice_cover_target(SeasonState.ICE_SEA, SeasonState.day_of_year_for(_date)),
-		SeasonState.ice_cover_target(SeasonState.ICE_FRESH, SeasonState.day_of_year_for(_date)),
-		SeasonState.ice_cover_target(SeasonState.ICE_PUDDLE, SeasonState.day_of_year_for(_date)),
-		world.snow_cover,
+	var hour := SeasonState.ice_weather(_date, _time, world.sky_weather.cloud_coverage())
+	print((
+		"ice plates: day %.1f C air %.1f C | sea ice %.2f fresh %.2f puddle %.2f snow %.2f"
+		+ " | melt %.2f glaze %.2f puddles %.2f"
+	) % [
+		SeasonState.day_temperature_c(_date), world.sky_weather.air_temperature_c(),
+		SeasonState.ice_cover_for(SeasonState.ICE_SEA, _date),
+		SeasonState.ice_cover_for(SeasonState.ICE_FRESH, _date),
+		float(hour["ice_puddle"]), world.snow_cover, float(hour["melt"]), float(hour["glaze"]),
+		world.sky_weather.puddle_wetness(),
 	])
 	for shot in _shots(plan, world):
 		if not _only.is_empty() and not shot["name"] in _only.split(","):
 			continue
 		camera.fov = shot["fov"]
 		camera.look_at_from_position(shot["eye"], shot["look"], Vector3.UP)
-		world.sky_weather.set_weather(SkyWeather3D.WEATHER_CLEAR)
-		world.sky_weather.advance(SkyWeather3D.TRANSITION_SECONDS + 0.1)
 		view.apply_cycle_progress(_time)
 		world.environment.tonemap_exposure *= _exposure
 		MapViewMaterials.apply_sea_weather(0.3, 0.0, Vector2(0.4, -0.9))
@@ -210,6 +248,8 @@ func _run() -> void:
 			path = "%s/ice_%s_%s_t%.2f_e%.2f.png" % [OUTPUT_DIR, shot["name"], _tag, _time, _exposure]
 		if _ice_snow >= 0.0:
 			path = path.replace(".png", "_snow%.2f.png" % _ice_snow)
+		if _weather != SkyWeather3D.WEATHER_CLEAR:
+			path = path.replace(".png", "_%s.png" % _weather)
 		viewport.get_texture().get_image().save_png(ProjectSettings.globalize_path(path))
 		print("ice plate: ", path)
 	quit(0)

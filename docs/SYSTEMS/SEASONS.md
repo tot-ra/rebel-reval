@@ -20,7 +20,7 @@ Status: partial (core **SeasonState** implemented; presentation tasks planned, [
 | Calendar, sun path | `scripts/global/game_calendar.gd`, `scripts/map/view3d/sky_astronomy.gd` | existing: the sun already follows the date |
 | Crown phenology, falling leaves | `vegetation_phenology.gd`, `tree_leaf_fall_3d.gd` | existing |
 
-`SeasonState.snapshot(date)` returns: `season`, `weights`, `temperature_c`, `snow_cover_target_m`, `snow_share`, `ice_puddle|fresh|sea`, `heating_demand`, `clothing_warmth`. Climate is a Tallinn-normals sinusoid (coldest day 30 at about -4 C, warmest day 212 at about +17 C).
+`SeasonState.snapshot(date)` returns: `season`, `weights`, `temperature_c`, `temperature_anomaly_c`, `snow_cover_target_m`, `snow_share`, `ice_puddle|fresh|sea` (mean climate), `heating_demand`, `clothing_warmth`. Climate is a Tallinn-normals sinusoid (coldest day 30 at about -4 C, warmest day 212 at about +17 C). The day's weather on top of it (thaws, cold snaps) is under **Daily weather on the ice**.
 
 ## Task plan
 
@@ -31,7 +31,7 @@ Status: partial (core **SeasonState** implemented; presentation tasks planned, [
 | 3 | Snowfall weather | done: three looks (fine, flakes, heavy), one pooled GPU emitter, see **Snowfall** |
 | 4 | Ground snow, roof snow, icicles, melt | shader `snow_depth` uniforms, thaw by temperature |
 | 5 | Movement in snow, depth and footprints | done: depth map, drifts, trenches, walking drag, prints, crunch |
-| 6 | Ice on puddles, ponds, moat, rivers, shore | done for the seamless city, see **Water, reeds, lilies and ice** |
+| 6 | Ice on puddles, ponds, moat, rivers, shore | done for the seamless city, see **Water, reeds, lilies and ice**; daily weather on it (R-2075), see **Daily weather on the ice** |
 | 7 | Vegetation seasons: blossom, fruit, wither, grass, litter under trees | extends phenology |
 | 8 | Sky, clouds, sea per season | |
 | 9 | Citizen winter/summer wardrobe | `clothing_warmth` |
@@ -90,6 +90,27 @@ Status: implemented for the moat, the Hareapea stream, lakes, the sea shore and 
 - **Puddles** (`city_ground.gdshader` `puddle_ice`, from `ICE_PUDDLE`): a frozen puddle has a white opaque rim with growth rings following its shoreline (the water drained from under the skin as it froze) and a clear dark centre with cracks and bubbles; no rain rings or wind ripples. Ice does not evaporate, so the deepest hollows and ruts keep their ice through a dry frost (`pool_level = max(puddles, puddle_ice x 0.55)`), on land only: the snow map is RG8 and its G channel (`CitySnow.bake`, 0 over the moat, stream and lakes) keeps ice off the water bed seen through open water. Snow buries frozen puddles like the ground round them, so they show on bare roads and before the first snow.
 - Plates: `tools/godot_render.sh --script tools/capture_winter_ice.gd -- --date=1343-02-05 [--time=0.5 --exposure=0.45]` (moat from the follow camera, close and above; the harbour shore; a road rut). `--exposure` and `--ice-snow` (snow on the moat ice, e.g. 0.1 for bare black ice) are review-only knobs; the game's daylight exposure clips snowfields to white (see Limits). Shots: `moat_game`, `moat_close`, `moat_bank` (both waterlines), `moat_high`, `sea_shore`, `sea_wide`, `sea_edge`, `puddle`. Older moat plates: `tools/capture_city_season.gd -- --date=1343-01-15`. Review plates of 2026-10-16 (game exposure, low February sun, plus early January): `docs/reports/images/winter_ice/`.
 
+## Daily weather on the ice
+
+Status: implemented for the seamless city (task **R-2075**). Scope: the day's weather moves the ice off the mean climate: thaw days with meltwater on the ice, overnight refreeze into glaze, thin ice after a mild spell, thicker ice after a cold snap. Out of scope: settled snow does not thin or deepen with the day's weather (it follows the date's cover curve), district maps (MapView3D) keep the mean-climate ice, the Markov weather chain is not biased by the anomaly (a thaw is not rainier than a frost day).
+
+- **Day's temperature (pure, no saved state):** `SeasonState.temperature_anomaly_c(date)` is red noise on the absolute day (`day_index`, Julian Day Number): each day adds a hashed shock (`ANOMALY_SEED`) and keeps 0.8 of the day before, so spells last several days (lag-1 correlation about 0.8). Spread about 4.6 C in January-February, 2.1 C in summer; warm departures saturate softly at +7 C, cold ones stretch in winter (Tallinn thaws are capped by sea air, Siberian highs are not); a bias term keeps the long-run mean on the climate. A day is equally warm whenever it is revisited, on any machine, and needs no save field. The seed was picked so 21 April 1343 (campaign opening) is a near-normal spring day and mid-January 1343 a plain frost.
+- **Hour:** `SeasonState.air_temperature_c(date, progress, cloud)` adds the daily swing (half range 2.5 C in January, 4.5 C in July; coldest about sunrise, 08:30 in January and 04:30 in July, warmest at 14:00), widened by a clear sky and flattened by overcast (`cloud` = the weather profile's cover). Daily anomalies sit at noon and blend into the next day, so a thaw does not switch on at midnight. `SkyWeather3D.air_temperature_c()` reads only saved weather state (date, cycle progress, cloud profile), so a save round trip continues identically.
+- **Ice lags by kind:** puddles answer the hour (`ice_weather().ice_puddle`: 85 % the air an hour and a half ago, 15 % the last day; solid 2 C below the -0.5 C freeze); the moat, stream and lakes (`ice_cover_for(ICE_FRESH, date)`) and the sea shore (`ICE_SEA`) are stepped day by day from 1 September: ice grows toward the day's target at 1/7 (fresh) or 1/22 (sea) per day and only melts while the day is above freezing (`ICE_MELT_PER_DAY` per 3.5 C of thaw). A cold week's moat ice survives a two-day thaw, a mild week thins it to open leads, the sea answers slowest. With the mean climate it peaks like the old target and clears in April. Memoised, so the first call of a season steps at most a year of days.
+- **Rain on frozen ground:** a thaw day rains instead of snowing (`precipitation_snow_share` from the air now). `SeasonState.soil_frost(date)` stops the soil drinking, so rain fills puddles 1.8x faster; snow lying on a thaw day melts into the hollows (`MELT_FILL_PER_SECOND`); frozen puddles do not evaporate. At night those puddles freeze (`pool_level = max(puddles, puddle_ice ...)` in the ground shader), so a thaw-and-frost leaves wide frozen puddles where a dry frost leaves only the deepest ruts iced.
+- **Wet ice and glaze:** `ice_weather()` also returns `melt` (the air above freezing, or rain) and `glaze` (a thaw within the last 36 hours and frost now). `CityWorld3D.apply_ice_weather` pushes them every frame (moat and sea only when they change): `ice_melt`/`ice_glaze` on the moat, stream and lake shader, `sea_ice_melt`/`sea_ice_glaze` on the sea (`MapViewMaterials.apply_sea_ice_weather`), `ice_melt`/`ice_glaze` on the ground (puddle ice, ice foot, and a glaze sheet on wet roads, paving and trodden earth where rain or meltwater froze). One shader helper, `ice_weather()` in `ice_surface.gdshaderinc`: a thaw darkens the ice into a mirror, sinks the snow on it into grey slush and gathers meltwater pools in the low parts of each pan; glaze is glassy refrozen film, and snow lying on refrozen ice or ground wears a hard, shinier crust. No texture fetches, two value-noise lookups per iced pixel, nothing when both are 0.
+- **Verify:** `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_city_seasons` (determinism and spells, lag order puddle > moat > sea, overnight freeze and noon melt, glaze after a thaw, rain on frozen ground, meltwater, save round trip, material pushes). Plates: `tools/godot_render.sh --script tools/capture_winter_ice.gd -- --date=1343-01-23 --time=0.55 --settle=30` (thaw after the cold spell of 16-20 January), `--date=1343-01-24 --time=0.39 --settle=30` (refrozen at sunrise), `--date=1343-01-18` (hard frost). `--settle` runs the weather at that hour first, `--weather=` picks the state. Review plates: `docs/reports/images/winter_ice/daily_*.png`.
+
+Puddles on a hard-frost noon, a thaw noon (meltwater) and the dawn after it (refrozen puddles, glaze in the wet ruts):
+
+![Puddles through a thaw](../reports/images/winter_ice/daily_puddles.png)
+
+Moat ice: snow on the ice in the frost, grey slush and meltwater pools in the thaw, refrozen crust at dawn:
+
+![Moat ice through a thaw](../reports/images/winter_ice/daily_moat.png)
+
+![Sea shore ice, frost and thaw](../reports/images/winter_ice/daily_sea_edge.png)
+
 ## Snow depth, drifts and trenches
 
 Status: implemented for the seamless city.
@@ -127,4 +148,4 @@ Status: implemented for the seamless city (Kalev, NPCs, hooves and wheels all us
 
 Snowfall consumes the climate; everything else (ground and roof snow, ice, vegetation, sky, clothing, smoke, movement) is still planned.
 
-Ice limits: ice follows the mean climate of the date, not the day's weather (no thaw puddles on a mild January day); the ice look is shading only (no ice geometry, pressure ridges or holes, and walking on the ice is not modelled); district maps (MapView3D) take sea ice only through `MapViewMaterials.apply_sea_ice` and have no frozen puddle decals; at the game's noon exposure a full snowfield clips to white, which flattens snow and snow-covered ice alike (a lighting follow-up, not an ice one). Not yet measured with the F3 monitor (the ice adds two or three Voronoi lookups per frozen pixel and nothing in summer: every ice branch is gated on its uniform).
+Ice limits: the day's weather moves the ice in the seamless city only (see **Daily weather on the ice**); the ice look is shading only (no ice geometry, pressure ridges or holes, and walking on the ice is not modelled); district maps (MapView3D) take sea ice only through `MapViewMaterials.apply_sea_ice` and have no frozen puddle decals; at the game's noon exposure a full snowfield clips to white, which flattens snow and snow-covered ice alike (a lighting follow-up, not an ice one). Not yet measured with the F3 monitor (the ice adds two or three Voronoi lookups per frozen pixel and nothing in summer: every ice branch is gated on its uniform).

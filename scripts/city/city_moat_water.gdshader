@@ -26,6 +26,10 @@ uniform float time_scale = 1.0;
 // The look (pans, cracks, bubbles, wind-blown snow) is ice_surface.gdshaderinc.
 uniform float ice = 0.0;
 uniform float ice_snow = 0.0;
+// R-2075 daily weather on the ice (SeasonState.ice_weather): wet film and
+// meltwater pools in a thaw, glassy glaze after one (ice_weather()).
+uniform float ice_melt = 0.0;
+uniform float ice_glaze = 0.0;
 // Water column from the mesh instead of the depth texture: COLOR.r =
 // (depth + vertex_depth_offset) / vertex_depth_scale, baked by CityWorld3D for
 // the stream (the depth-texture column reads ~0 in perspective there).
@@ -158,6 +162,7 @@ void fragment() {
 		// Ice reaches the bank; drifts pile against it.
 		float bank = 1.0 - smoothstep(0.05, 0.9, column);
 		IceLook ice_s = ice_look(world_pos.xz, pans, skin, ice_snow, bank, wind_dir, px);
+		ice_weather(ice_s, world_pos.xz, pans, ice_melt, ice_glaze, bank, px);
 		// The broken edge of the ice against open water is pale.
 		float ice_edge = (1.0 - smoothstep(0.0, 0.06 + px, front - 0.42)) * frozen;
 		vec3 sheet = mix(ice_s.albedo_srgb, vec3(0.7, 0.76, 0.8), ice_edge * 0.6);

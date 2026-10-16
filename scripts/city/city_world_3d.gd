@@ -109,6 +109,11 @@ var _sea_ring_cells := PackedByteArray()
 var _sea_static_cells := PackedByteArray()
 ## WR-9 `shore_*` uniform names of the ground shader (mirror_shore_to_ground).
 var _ground_shore_uniforms := PackedStringArray()
+## R-2075: last cycle progress seen by apply_time, so apply_season can push the
+## hourly ice weather for the new date at once; and the melt/glaze last pushed to
+## the moat and sea materials (they are many, so only real changes are pushed).
+var _ice_progress := 0.5
+var _water_ice_weather := Vector2(-1.0, -1.0)
 
 
 static func create(city_plan: CityPlan) -> CityWorld3D:
@@ -199,15 +204,16 @@ func set_enclosed_interior(value: bool) -> void:
 func apply_season(date: Dictionary) -> void:
 	var doy := SeasonState.day_of_year_for(date)
 	# Fresh water freezes with the cold (moat, stream, lake): shallows first.
-	var ice := SeasonState.ice_cover_target(SeasonState.ICE_FRESH, doy)
+	# R-2075: the date's weather too, so a mild spell thins it and a cold snap thickens it.
+	var ice := SeasonState.ice_cover_for(SeasonState.ICE_FRESH, date)
+	_water_ice_weather = Vector2(-1.0, -1.0)
 	var ice_snow := VegetationPhenology.snow_cover_for(date)
 	for water: ShaderMaterial in water_materials:
 		water.set_shader_parameter("ice", ice)
 		water.set_shader_parameter("ice_snow", ice_snow)
 	# The sea shore freezes last (fast ice and floes, map_view_water.gdshader).
-	MapViewMaterials.apply_sea_ice(
-		SeasonState.ice_cover_target(SeasonState.ICE_SEA, doy), ice_snow
-	)
+	var sea_ice := SeasonState.ice_cover_for(SeasonState.ICE_SEA, date)
+	MapViewMaterials.apply_sea_ice(sea_ice, ice_snow)
 	MoatPlants.apply_season(moat_plants, doy)
 	# Fresh-coloured fallen leaves in autumn, brown later, hidden under snow.
 	CityVegetationBuilder.apply_litter_season(date, ice_snow)
@@ -217,13 +223,8 @@ func apply_season(date: Dictionary) -> void:
 	var weights := SeasonState.season_weights(SeasonState.day_of_year_for(date))
 	var dormancy := float(weights[SeasonState.WINTER]) + 0.35 * float(weights[SeasonState.AUTUMN])
 	ground.set_shader_parameter("winter", clampf(dormancy, 0.0, 1.0))
-	# Puddles skin over in one frost night (ICE_PUDDLE); frozen water stays put.
-	ground.set_shader_parameter(
-		"puddle_ice", SeasonState.ice_cover_target(SeasonState.ICE_PUDDLE, doy)
-	)
-	ground.set_shader_parameter(
-		"coast_ice", smoothstep(0.03, 0.15, SeasonState.ice_cover_target(SeasonState.ICE_SEA, doy))
-	)
+	# Puddle ice follows the hour (apply_ice_weather); the ice foot follows the sea ice.
+	ground.set_shader_parameter("coast_ice", smoothstep(0.03, 0.15, sea_ice))
 	# Frozen moat/stream: the banks under the ice edge take the snow too.
 	ground.set_shader_parameter("moat_ice", ice)
 	var cover := VegetationPhenology.snow_cover_for(date)
@@ -236,6 +237,36 @@ func apply_season(date: Dictionary) -> void:
 	ground.set_shader_parameter("snow_depth_m", cover * CitySnow.MAX_DEPTH_M)
 	if trail != null:
 		trail.snow_cover = cover
+	if sky_weather != null:
+		apply_ice_weather(_ice_progress, sky_weather.cloud_coverage(), 0.0, sky_weather.puddle_wetness())
+
+
+## R-2075: the hourly ice weather (SeasonState.ice_weather) for the sky's date:
+## puddles skin over on a frosty night and soften on a sunny thaw; any ice wears a
+## wet film while the air is above freezing or it rains (`ice_melt`), and the film
+## refreezes into glassy glaze after a thaw (`ice_glaze`). Wet ground that freezes
+## (rain or melt puddles) glazes too. `rain` is the liquid rain intensity.
+func apply_ice_weather(progress: float, cloud: float, rain: float, puddles: float) -> void:
+	_ice_progress = progress
+	if sky_weather == null:
+		return
+	var weather := SeasonState.ice_weather(sky_weather.calendar_date, progress, cloud)
+	var melt := maxf(float(weather["melt"]), clampf(rain * 1.5, 0.0, 1.0))
+	var glaze := float(weather["glaze"]) * (1.0 - melt)
+	var frozen_now := 1.0 - smoothstep(-1.5, 0.0, float(weather["air_c"]))
+	var ground := CityTerrainBuilder.shared_material()
+	if ground != null:
+		ground.set_shader_parameter("puddle_ice", weather["ice_puddle"])
+		ground.set_shader_parameter("ice_melt", melt)
+		ground.set_shader_parameter("ice_glaze", maxf(glaze, puddles * frozen_now))
+	var pushed := Vector2(melt, glaze)
+	if pushed.distance_to(_water_ice_weather) < 0.01:
+		return
+	_water_ice_weather = pushed
+	for water: ShaderMaterial in water_materials:
+		water.set_shader_parameter("ice_melt", melt)
+		water.set_shader_parameter("ice_glaze", glaze)
+	MapViewMaterials.apply_sea_ice_weather(melt, glaze)
 
 
 ## Bakes the snow depth map the first time snow lies (a summer run never pays for it):
@@ -268,6 +299,10 @@ func apply_time(progress: float) -> void:
 	if spray != null:
 		spray.set_wind(presentation.wind_strength)
 	set_wind(presentation.wind_direction)
+	apply_ice_weather(
+		progress, presentation.cloud_coverage, presentation.rain_intensity,
+		presentation.puddle_wetness
+	)
 	var ground := CityTerrainBuilder.shared_material()
 	if ground != null:
 		ground.set_shader_parameter("puddles", presentation.puddle_wetness)

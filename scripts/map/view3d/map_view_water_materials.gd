@@ -918,6 +918,13 @@ static func apply_sea_ice(ice: float, snow: float, wave_profiles: Dictionary) ->
 			IceTextures.bind(material)
 
 
+static func apply_sea_ice_weather(melt: float, glaze: float, wave_profiles: Dictionary) -> void:
+	for terrain_id in wave_profiles.keys():
+		var material := water_surface(terrain_id as StringName, wave_profiles)
+		material.set_shader_parameter("sea_ice_melt", clampf(melt, 0.0, 1.0))
+		material.set_shader_parameter("sea_ice_glaze", clampf(glaze, 0.0, 1.0))
+
+
 ## Pushes sky sun-disk visibility and day/night blend into cached water
 ## materials so specular sun glints die with the visible sun.
 static func apply_water_lighting(

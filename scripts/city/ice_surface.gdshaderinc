@@ -243,3 +243,46 @@ IceLook ice_look(vec2 xz, vec3 pans, float thickness, float snow, float bank, ve
 	o.slope = mix(ice_slope + scan_slope, drift_slope + crust_slope, snow_lying);
 	return o;
 }
+
+// R-2075 daily weather on the ice, after ice_look(). `melt` 0..1: the air is above
+// freezing or it rains, so a water film lies on the ice: it darkens and turns into
+// a mirror, the snow on it sinks into grey slush, and meltwater gathers in shallow
+// pools in the low parts of each pan (they widen as the thaw goes on). `glaze`
+// 0..1: the film has refrozen after a thaw: glassy, smoother than any ice, and the
+// snow on the ice wears a hard shiny crust. `bank` as in ice_look(): pools gather
+// mid-ice, never in the drifts against the bank. No texture fetches (hosts are at their
+// sampler budget), two value-noise lookups.
+void ice_weather(inout IceLook o, vec2 xz, vec3 pans, float melt, float glaze, float bank, float px) {
+	if (melt + glaze <= 0.001) {
+		return;
+	}
+	// Pools are 0.5-2 m and cover about a tenth of the ice at full melt; a crisp
+	// waterline (a few cm), antialiased against the pixel footprint.
+	float pool_field = ice_noise(xz * 0.8 + vec2(pans.z * 17.0, 3.7)) * 0.65 + ice_noise(xz * 2.9 + vec2(8.1, 0.6)) * 0.35;
+	float pool_level = 0.74 - melt * 0.08;
+	float soft = 0.006 + px * 0.35;
+	float pool = smoothstep(pool_level - soft, pool_level + soft, pool_field) * smoothstep(0.2, 0.7, melt)
+		* (1.0 - smoothstep(0.2, 0.6, bank));
+	// Wet snow on the ice: grey, translucent slush, then gone into the pools.
+	float slush = o.snow * smoothstep(0.1, 0.8, melt);
+	vec3 col = o.albedo_srgb;
+	col = mix(col, vec3(0.5, 0.56, 0.58), slush * 0.65);
+	// A film fills the micro relief: less scattering, a darker, deeper tone.
+	col *= mix(1.0, 0.8, melt * (1.0 - slush * 0.5));
+	// Meltwater pool: dark water over the ice, a little sky-blue grey.
+	col = mix(col, vec3(0.11, 0.14, 0.16), pool * 0.8);
+	float wet = melt * (1.0 - o.snow * (1.0 - slush));
+	o.roughness = mix(o.roughness, 0.06, wet);
+	o.roughness = mix(o.roughness, 0.45, slush * 0.7);
+	o.roughness = mix(o.roughness, 0.02, pool);
+	o.specular = mix(o.specular, 0.5, max(wet, pool));
+	o.slope *= 1.0 - pool;
+	o.snow *= 1.0 - max(slush * 0.6, pool);
+	// Glaze: clear refrozen film, slightly cooler; crusted snow keeps its white.
+	float g = glaze * (1.0 - melt);
+	col = mix(col, col * vec3(0.9, 0.94, 0.98) + vec3(0.01, 0.02, 0.03), g * 0.5 * (1.0 - o.snow));
+	o.roughness = mix(o.roughness, mix(0.03, 0.5, o.snow), g);
+	o.specular = mix(o.specular, 0.5, g * (1.0 - o.snow * 0.5));
+	o.slope *= 1.0 - g * 0.5 * (1.0 - o.snow);
+	o.albedo_srgb = col;
+}

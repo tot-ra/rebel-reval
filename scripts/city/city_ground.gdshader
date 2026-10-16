@@ -82,6 +82,12 @@ uniform float puddles = 0.0;
 // water: ice does not evaporate, so the deepest hollows and ruts hold ice through
 // a dry frost even when `puddles` has dried to nothing.
 uniform float puddle_ice = 0.0;
+// R-2075 hourly ice weather (CityWorld3D.apply_ice_weather): `ice_melt` lays a wet
+// film and meltwater pools on puddle ice and the ice foot in a thaw or rain;
+// `ice_glaze` is refrozen water: glaze on the ice, and a clear, glassy sheet over
+// the wet ground (roads, paving, trodden earth) where rain or meltwater froze.
+uniform float ice_melt = 0.0;
+uniform float ice_glaze = 0.0;
 // ADR 0045: 1 once fast ice lines the sea shore (from SeasonState ICE_SEA). The
 // snow map is bare below 0.4 m (beach, swash band), so without this the strand
 // between the snowfield and the sea ice stayed a band of brown wet sand.
@@ -1160,6 +1166,7 @@ void fragment() {
 		// A puddle freezes as one skin: no pan seams (border distance pushed out of reach).
 		vec3 pice_pans = ice_pans(wuv * 2.5);
 		IceLook pice = ice_look(wuv, vec3(pice_pans.x, 8.0, pice_pans.z), puddle_ice, 0.0, 0.0, vec2(0.8, 0.6), ice_px);
+		ice_weather(pice, wuv, pice_pans, ice_melt, ice_glaze, 0.0, ice_px);
 		float growth_ring = (1.0 - smoothstep(0.0, 0.18 + ring_px, abs(fract(ring_phase) - 0.5) * 2.0 - 0.6))
 			* clamp(0.35 / ring_px, 0.0, 1.0);
 		float milky_edge = 1.0 - smoothstep(0.0, 0.11, water_depth);
@@ -1218,11 +1225,20 @@ void fragment() {
 	float ice_foot = coast_ice * step(sea_level - 0.8, world_pos.y)
 		* (1.0 - smoothstep(sea_level + 0.5, sea_level + 1.1, world_pos.y)) * (1.0 - snow_amount);
 	if (ice_foot > 0.001) {
-		IceLook foot_ice = ice_look(wuv, ice_pans(wuv), 1.0, snow_cover, 0.6, vec2(0.8, 0.6), ice_px);
+		vec3 foot_pans = ice_pans(wuv);
+		IceLook foot_ice = ice_look(wuv, foot_pans, 1.0, snow_cover, 0.6, vec2(0.8, 0.6), ice_px);
+		ice_weather(foot_ice, wuv, foot_pans, ice_melt, ice_glaze, 0.6, ice_px);
 		col = mix(col, foot_ice.albedo_srgb, ice_foot);
 		nxy = mix(nxy, foot_ice.slope, ice_foot);
 		snow_amount = max(snow_amount, foot_ice.snow * ice_foot);
 	}
+	// R-2075 glaze: water standing on or soaked into hard ground froze into a clear
+	// sheet: the ground keeps its wet, dark tone under it, its relief is smoothed and
+	// it shines. Turf, snow and loose sand do not hold a sheet.
+	float glaze_sheet = ice_glaze * (1.0 - turf * 0.85) * (1.0 - sand) * (1.0 - snow_amount)
+		* clamp(max(road, paving) + max(earth, mud) * 0.4 + puddle + pressed * 0.5, 0.0, 1.0);
+	col = mix(col, col * vec3(0.8, 0.84, 0.9), glaze_sheet * 0.6);
+	nxy *= 1.0 - glaze_sheet * 0.6;
 	// Packed snow in a print is bluer and darker.
 	col = mix(col, col * vec3(0.78, 0.85, 0.95), press_raw * snow_amount * 0.55);
 	// Snow fills the fine relief, then drifts and trench walls tilt the normal.
@@ -1251,6 +1267,8 @@ void fragment() {
 	SPECULAR = mix(mix(0.3, grass_specular, turf), mix(0.4, 0.6, deep), puddle);
 	// Puddle ice: glassy in the clear centre, satin at the white rim.
 	float ice_rough = mix(0.05, 0.3, 1.0 - smoothstep(0.0, 0.11, water_depth));
+	// R-2075: a thaw film or refrozen glaze makes even the white rim a mirror.
+	ice_rough = mix(ice_rough, 0.04, max(ice_melt, ice_glaze));
 	ROUGHNESS = mix(ROUGHNESS, ice_rough, frozen_puddle * puddle);
 	SPECULAR = mix(SPECULAR, 0.5, frozen_puddle * puddle);
 	// R-1748: wet cobbles mirror the sky in streaks: traffic-polished crowns go glossy,
@@ -1269,6 +1287,10 @@ void fragment() {
 	SPECULAR = mix(SPECULAR, 0.5, max(beach_glisten, beach_wet * beach_porous * 0.8));
 	ROUGHNESS = mix(ROUGHNESS, 0.88, snow_amount);
 	SPECULAR = mix(SPECULAR, 0.28, snow_amount);
+	ROUGHNESS = mix(ROUGHNESS, 0.05, glaze_sheet);
+	SPECULAR = mix(SPECULAR, 0.5, glaze_sheet);
+	// A refrozen thaw crust on the snow: harder and shinier than powder.
+	ROUGHNESS = mix(ROUGHNESS, 0.55, ice_glaze * snow_amount * 0.7);
 	nxy = clamp(nxy * mix(1.0, 0.75, wet) * (1.0 - rock) + rock_nxy, vec2(-0.95), vec2(0.95));
 	NORMAL_MAP = vec3(nxy, sqrt(max(1.0 - dot(nxy, nxy), 0.0))) * 0.5 + 0.5;
 }

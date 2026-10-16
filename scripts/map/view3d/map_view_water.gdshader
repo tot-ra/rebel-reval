@@ -181,6 +181,9 @@ uniform float rainbow_gain = 0.32;
 // a band beyond it, with grey slush (grease ice) between them.
 uniform float sea_ice = 0.0;
 uniform float sea_ice_snow = 0.0;
+// R-2075: thaw film and meltwater pools, then refrozen glaze (ice_weather()).
+uniform float sea_ice_melt = 0.0;
+uniform float sea_ice_glaze = 0.0;
 const float SEA_ICE_REACH_M = 6.0;
 const float SEA_FLOE_SIZE = 4.5;
 global uniform sampler2D cloud_noise_tex : filter_linear_mipmap, repeat_enable;
@@ -2464,6 +2467,7 @@ void fragment() {
 		IceLook ice_s = ice_look(
 			ixz, ice_pan_cells, clamp(sea_ice * 3.0, 0.0, 1.0), sea_ice_snow, ice_bank, wind_direction, ice_px
 		);
+		ice_weather(ice_s, ixz, ice_pan_cells, sea_ice_melt, sea_ice_glaze, ice_bank, ice_px);
 		float floe_rim = ice_line(floe_edge - ice_gap, 0.14, ice_px) * ice_floe * (1.0 - ice_fast);
 		vec3 ice_sheet = mix(ice_s.albedo_srgb, vec3(0.8, 0.85, 0.88), floe_rim * 0.7);
 		ALBEDO = mix(ALBEDO, ALBEDO * 0.55 + ice_lin(vec3(0.36, 0.4, 0.42)) * 0.45, ice_slush * 0.85);

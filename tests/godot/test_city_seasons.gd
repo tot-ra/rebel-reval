@@ -1,10 +1,18 @@
 extends "res://tests/godot/test_case.gd"
 
-## ADR 0045 city seasons: leaf fall by tree and wind, water plants and moat ice.
+## ADR 0045 city seasons: leaf fall by tree and wind, water plants and moat ice,
+## and (R-2075) the day's weather on the ice: thaw, refreeze, glaze, lag by kind.
 
 const OCT := {"day": 20, "month": 10, "year": 1343}
 const JAN := {"day": 15, "month": 1, "year": 1343}
 const JUL := {"day": 15, "month": 7, "year": 1343}
+
+## R-2075 dates (ANOMALY_SEED): a cold spell 16-20 January 1343, then a thaw.
+const COLD_DAY := {"day": 18, "month": 1, "year": 1343}
+const THAW_DAY := {"day": 23, "month": 1, "year": 1343}
+## About sunrise (08:24), the coldest hour of a January day.
+const DAWN := 0.35
+const NOON := 0.55
 
 
 func _doy(date: Dictionary) -> float:
@@ -140,6 +148,176 @@ func test_puddles_and_sea_shore_freeze_in_order() -> void:
 	for u: Dictionary in ground.get_shader_uniform_list():
 		uniforms.append(String(u["name"]))
 	assert_true("puddle_ice" in uniforms and "coast_ice" in uniforms)
+	assert_true("ice_melt" in uniforms and "ice_glaze" in uniforms)
+
+
+## The day's anomaly is a pure function of the date: equal on every call and
+## after the memo is dropped, spells last several days, winter swings wider than
+## summer, and over decades it averages out to the climate.
+func test_daily_anomaly_is_deterministic_with_spells() -> void:
+	var first := SeasonState.temperature_anomaly_c(THAW_DAY)
+	SeasonState._anomaly_memo.clear()
+	assert_eq(SeasonState.temperature_anomaly_c(THAW_DAY), first, "same date, same weather")
+	assert_true(SeasonState.day_temperature_c(COLD_DAY) < -8.0, "the cold spell is a hard frost")
+	assert_true(SeasonState.day_temperature_c(THAW_DAY) > 1.0, "the thaw lifts the day above zero")
+	var winter_sq := 0.0
+	var summer_sq := 0.0
+	var winter_sum := 0.0
+	var lag_product := 0.0
+	var days := 0
+	for year in range(1300, 1340):
+		var jan := SeasonState.day_index({"day": 1, "month": 1, "year": year})
+		var jul := SeasonState.day_index({"day": 1, "month": 7, "year": year})
+		for k in 59:
+			var a := SeasonState.anomaly_for_day(jan + k)
+			winter_sq += a * a
+			winter_sum += a
+			lag_product += a * SeasonState.anomaly_for_day(jan + k + 1)
+			summer_sq += pow(SeasonState.anomaly_for_day(jul + k), 2.0)
+			days += 1
+	var winter_sd := sqrt(winter_sq / days)
+	print("anomaly: winter sd %.2f summer sd %.2f winter mean %.2f lag-1 r %.2f" % [
+		winter_sd, sqrt(summer_sq / days), winter_sum / days, lag_product / winter_sq
+	])
+	assert_true(winter_sd > 3.5 and winter_sd < 6.5, "Tallinn winter days swing by about 5 C")
+	assert_true(sqrt(summer_sq / days) < winter_sd * 0.7, "summer days are steadier")
+	assert_true(absf(winter_sum / days) < 0.8, "anomalies keep the climate's mean")
+	assert_true(lag_product / winter_sq > 0.6, "weather comes in spells, not day-by-day noise")
+
+
+## Puddles answer the hour, the moat the last fortnight, the sea the last month:
+## across a winter the biggest day-to-day change shrinks in that order.
+func test_ice_lags_puddles_fast_moat_slow_sea_slowest() -> void:
+	var jump := {SeasonState.ICE_PUDDLE: 0.0, SeasonState.ICE_FRESH: 0.0, SeasonState.ICE_SEA: 0.0}
+	var start := {"day": 1, "month": 12, "year": 1342}
+	var previous := {}
+	for k in 120:
+		var date := GameCalendar.add_days(start, k)
+		var today := {
+			SeasonState.ICE_PUDDLE: float(SeasonState.ice_weather(date, NOON, 0.3)["ice_puddle"]),
+			SeasonState.ICE_FRESH: SeasonState.ice_cover_for(SeasonState.ICE_FRESH, date),
+			SeasonState.ICE_SEA: SeasonState.ice_cover_for(SeasonState.ICE_SEA, date),
+		}
+		for kind in today:
+			if not previous.is_empty():
+				jump[kind] = maxf(jump[kind], absf(today[kind] - previous[kind]))
+		previous = today
+	print("largest daily ice change: ", jump)
+	assert_true(jump[SeasonState.ICE_PUDDLE] > jump[SeasonState.ICE_FRESH])
+	assert_true(jump[SeasonState.ICE_FRESH] > jump[SeasonState.ICE_SEA])
+	assert_true(jump[SeasonState.ICE_SEA] > 0.0, "the sea still follows the weather")
+	# A thaw after a cold spell: puddles go soft at noon, the moat keeps its ice.
+	var thaw := SeasonState.ice_weather(THAW_DAY, NOON, 0.2)
+	assert_true(float(thaw["ice_puddle"]) < 0.3, "puddle ice softens on a thaw noon")
+	assert_true(SeasonState.ice_cover_for(SeasonState.ICE_FRESH, THAW_DAY) > 0.5, "the moat holds")
+	# A mild spell thins the moat below what the mean climate would give.
+	var mild := {"day": 22, "month": 2, "year": 1343}
+	assert_true(
+		SeasonState.ice_cover_for(SeasonState.ICE_FRESH, mild)
+		< SeasonState.ice_cover_target(SeasonState.ICE_FRESH, _doy(mild)) - 0.2,
+		"thin ice after a mild spell"
+	)
+
+
+## A thaw day: frozen at night, meltwater film at noon; the night after it the
+## film is glaze. A hard-frost day has neither.
+func test_thaw_melts_by_day_and_refreezes_into_glaze() -> void:
+	var night := SeasonState.ice_weather(THAW_DAY, DAWN, 0.2)
+	var noon := SeasonState.ice_weather(THAW_DAY, NOON, 0.2)
+	assert_true(float(noon["air_c"]) > 1.0 and float(night["air_c"]) < float(noon["air_c"]) - 3.0)
+	assert_true(float(night["ice_puddle"]) > float(noon["ice_puddle"]) + 0.2, "overnight freeze")
+	assert_true(float(noon["melt"]) > 0.7, "wet film on the ice at a thaw noon")
+	var after := SeasonState.ice_weather(GameCalendar.add_days(THAW_DAY, 3), DAWN, 0.0)
+	assert_true(float(after["glaze"]) > 0.3, "the thaw water refreezes into glaze")
+	var cold := SeasonState.ice_weather(COLD_DAY, NOON, 0.0)
+	assert_eq(float(cold["melt"]), 0.0)
+	assert_eq(float(cold["glaze"]), 0.0, "no thaw, no glaze")
+	assert_eq(float(cold["ice_puddle"]), 1.0)
+	# Overcast flattens the day: a cloudy noon is cooler than a clear one.
+	var cloudy := SeasonState.ice_weather(THAW_DAY, NOON, 1.0)
+	assert_true(float(cloudy["air_c"]) < float(noon["air_c"]) - 1.0)
+
+
+## Rain on a thaw day falls as rain, frozen soil cannot drink it, so it stands in
+## puddles faster than on soft spring soil; at night the puddles freeze and keep
+## their water instead of drying.
+func test_rain_on_frozen_ground_pools_and_freezes_overnight() -> void:
+	var thaw := _rainy_sky(THAW_DAY, NOON)
+	var share := thaw.precipitation_snow_share()
+	assert_true(share < 0.5, "a thaw day rains, got %.2f" % share)
+	assert_true(SeasonState.soil_frost(THAW_DAY) > 0.9, "the soil is still frozen")
+	var spring := _rainy_sky({"day": 10, "month": 5, "year": 1343}, NOON)
+	thaw._puddle_wetness = 0.0
+	spring._puddle_wetness = 0.0
+	thaw.advance(4.0)
+	spring.advance(4.0)
+	assert_true(thaw.puddle_wetness() > spring.puddle_wetness() * 1.4, "frozen ground runs off")
+	thaw.set_weather(SkyWeather3D.WEATHER_CLOUDLESS)
+	thaw.advance(SkyWeather3D.TRANSITION_SECONDS + 1.0)
+	thaw.presentation_snapshot(DAWN, 0.0)
+	assert_true(thaw.air_temperature_c() < -1.0, "a clear dawn after the thaw freezes")
+	var held := thaw.puddle_wetness()
+	thaw.advance(60.0)
+	assert_eq(thaw.puddle_wetness(), held, "frozen puddles do not evaporate")
+	thaw.free()
+	spring.free()
+
+
+## Snow lying on a thaw day melts into the hollows even without rain.
+func test_thaw_meltwater_fills_puddles() -> void:
+	var sky := _rainy_sky(THAW_DAY, NOON)
+	sky.set_weather(SkyWeather3D.WEATHER_CLOUDLESS)
+	sky.advance(SkyWeather3D.TRANSITION_SECONDS + 1.0)
+	sky._puddle_wetness = 0.0
+	var before := sky.puddle_wetness()
+	sky.advance(20.0)
+	assert_true(sky.puddle_wetness() > before + 0.1, "meltwater stands on the frozen ground")
+	sky.free()
+
+
+## The air temperature only reads saved weather state (date, cycle progress,
+## cloud profile), so a save round trip continues identically.
+func test_air_temperature_survives_a_save_round_trip() -> void:
+	var sky := _rainy_sky(THAW_DAY, NOON)
+	sky.advance(3.0)
+	var state = sky.snapshot_state(NOON, 0)
+	var restored := SkyWeather3D.new()
+	assert_true(restored.restore_state(state.to_dict()))
+	assert_eq(restored.air_temperature_c(), sky.air_temperature_c())
+	sky.advance(5.0)
+	restored.advance(5.0)
+	assert_eq(restored.puddle_wetness(), sky.puddle_wetness())
+	sky.free()
+	restored.free()
+
+
+## CityWorld3D pushes the hourly ice weather to the moat and sea materials.
+func test_city_pushes_ice_weather_to_water() -> void:
+	var world := CityWorld3D.new()
+	world.sky_weather = SkyWeather3D.new()
+	world.sky_weather.set_calendar_date(THAW_DAY)
+	var moat := ShaderMaterial.new()
+	world.water_materials.append(moat)
+	world.apply_ice_weather(NOON, 0.2, 0.0, 0.0)
+	assert_true(float(moat.get_shader_parameter("ice_melt")) > 0.7)
+	var sea := MapViewMaterials.water_surface(MapTypes.TERRAIN_SHALLOW_WATER)
+	assert_true(float(sea.get_shader_parameter("sea_ice_melt")) > 0.7)
+	world.sky_weather.set_calendar_date(COLD_DAY)
+	world.apply_ice_weather(NOON, 0.2, 0.0, 0.0)
+	assert_eq(float(moat.get_shader_parameter("ice_melt")), 0.0)
+	MapViewMaterials.apply_sea_ice_weather(0.0, 0.0)
+	world.sky_weather.free()
+	world.free()
+
+
+func _rainy_sky(date: Dictionary, progress: float) -> SkyWeather3D:
+	var sky := SkyWeather3D.new()
+	sky.auto_weather = false
+	sky.set_calendar_date(date)
+	sky.presentation_snapshot(progress, 1.0)
+	sky.set_weather(SkyWeather3D.WEATHER_RAIN)
+	sky.advance(SkyWeather3D.TRANSITION_SECONDS + 1.0)
+	return sky
 
 
 func test_snow_patches_follow_cover() -> void:

@@ -533,8 +533,9 @@ func _assert_shelter_preserves_outdoor_field(sky: SkyWeather) -> void:
 	var presentation := sky.presentation_snapshot(0.25, 1.0)
 	assert_true(presentation.rain_suppressed, "the snapshot must record roof suppression")
 	assert_eq(presentation.weather, before_weather, "the snapshot weather must stay the outdoor regime")
+	# ADR 0045: the snapshot carries the liquid share (R-2075: of the air temperature now).
 	assert_almost_eq(
-		presentation.rain_intensity, before_rain, 0.0001,
+		presentation.rain_intensity, before_rain * (1.0 - sky.precipitation_snow_share()), 0.0001,
 		"the snapshot must keep outdoor rain intensity under a roof"
 	)
 	sky.rain_suppressed = false

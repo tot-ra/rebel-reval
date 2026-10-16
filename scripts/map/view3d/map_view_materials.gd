@@ -264,6 +264,12 @@ static func apply_sea_ice(ice: float, snow: float) -> void:
 	WATER_MATERIALS.apply_sea_ice(_sea_ice, snow, WATER_WAVE_BASE)
 
 
+## R-2075: a wet film on the sea ice in a thaw or rain (`melt`) and glassy
+## refrozen glaze after one (`glaze`), both 0..1 (SeasonState.ice_weather).
+static func apply_sea_ice_weather(melt: float, glaze: float) -> void:
+	WATER_MATERIALS.apply_sea_ice_weather(melt, glaze, WATER_WAVE_BASE)
+
+
 ## WR-8: transient gust front (0..1 of its peak) for the sea's cat's-paw cells.
 static func apply_sea_gust(gust: float) -> void:
 	WATER_MATERIALS.apply_sea_gust(gust, WATER_WAVE_BASE)
