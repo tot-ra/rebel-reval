@@ -304,3 +304,64 @@ func test_hood_dags_show_on_prestige_three() -> void:
 		else:
 			assert_true(hidden > 0 and shown == 0, "p1 hood hides its dags")
 		rig.queue_free()
+
+
+## R-2022: surcoat and Order mantle grades and wear follow the variant cell, not the purse.
+func test_fine_wool_grade_by_prestige() -> void:
+	var crown := {"wear": ["surcoat@p2_w1"]}
+	var knight := {"wear": ["surcoat@p3_w0"]}
+	var brother := {"wear": ["surcoat@p3_w0", "order_mantle@p3_w0"]}
+	assert_eq(CitizenWardrobe.fine_grade("surcoat", "p2_w1", crown), "broadcloth", "crown issue")
+	assert_eq(CitizenWardrobe.fine_grade("surcoat", "p3_w0", knight), "scarlet", "a knight's own")
+	assert_eq(CitizenWardrobe.fine_grade("surcoat", "p3_w0", brother), "broadcloth", "Order plain")
+	assert_eq(CitizenWardrobe.fine_grade("order_mantle", "p3_w0", brother), "broadcloth", "mantle")
+
+
+func test_fine_wool_wear_ignores_poverty_and_trade() -> void:
+	# A poor soldier (patched, sun-pale own wool) and a butcher's stains must not reach the issue.
+	var wear := CitizenWardrobe.wear_of({"id": "x", "status": "soldier", "trade": "butcher"})
+	for level in 3:
+		var cell := CitizenWardrobe.fine_wool_wear(wear, level)
+		assert_eq(cell[0].w, 0.0, "no stains on w%d" % level)
+		assert_eq(cell[0].y, 0.0, "no soot on w%d" % level)
+	assert_eq(CitizenWardrobe.fine_wool_wear(wear, 0)[1].x, 0.0, "w0 fresh: no patches")
+	assert_eq(CitizenWardrobe.fine_wool_wear(wear, 1)[1].x, 0.0, "w1 travel-worn: no patches")
+	assert_true(CitizenWardrobe.fine_wool_wear(wear, 1)[1].y > 0.0, "w1 sun-faded")
+	assert_true(CitizenWardrobe.fine_wool_wear(wear, 2)[1].x > 0.0, "w2 patched")
+	var muddy := CitizenWardrobe.fine_wool_wear(wear, 1)[0].x
+	assert_true(muddy > CitizenWardrobe.fine_wool_wear(wear, 0)[0].x, "w1 muddier hem than w0")
+
+
+func test_battered_surcoat_tears_its_hem() -> void:
+	for cell: String in ["p2_w1", "p2_w2"]:
+		var rig := _rig()
+		var record := {
+			"id": "t.crown",
+			"body": BODY,
+			"status": "soldier",
+			"cloth": [0.3, 0.3, 0.28],
+			"under": [0.2, 0.2, 0.2],
+			"wear": ["gambeson@" + cell, "mail_haubergeon@" + cell, "surcoat@" + cell],
+			"wear_dye": {"surcoat": [0.58, 0.11, 0.09]},
+		}
+		CitizenWardrobe.dress(rig, record)
+		var meshes := _layer_meshes(rig, "surcoat")
+		assert_false(meshes.is_empty(), "surcoat mounted")
+		var mesh := meshes[0]
+		var material := mesh.get_surface_override_material(0) as ShaderMaterial
+		assert_true(material != null, "surcoat woven")
+		var torn := material.shader.code.contains("#define TORN_HEM")
+		assert_eq(torn, cell.ends_with("w2"), "%s: torn hem shader only on w2" % cell)
+		var format: int = mesh.mesh.surface_get_format(0)
+		assert_true(format & Mesh.ARRAY_FORMAT_TEX_UV2 != 0, "surcoat carries its HemRise UV2")
+		var dye: Color = mesh.get_instance_shader_parameter(&"dye_outer")
+		assert_true(dye.a > 0.5 and dye.r > dye.g * 2.0, "%s: red crown dye" % cell)
+		rig.queue_free()
+
+
+## R-1994: the city has more per-instance cloth, plant and water uniforms than Godot's default
+## global buffer (65536); overflowing instances read other residents' dyes and stains.
+func test_instance_uniform_buffer_fits_the_city() -> void:
+	var key := "rendering/limits/global_shader_variables/buffer_size"
+	var size := int(ProjectSettings.get_setting(key, 0))
+	assert_true(size >= 262144, "instance uniform buffer raised (%d)" % size)

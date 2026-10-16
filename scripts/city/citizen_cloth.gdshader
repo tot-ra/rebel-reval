@@ -31,6 +31,12 @@ instance uniform vec4 dye_under = vec4(1.0, 1.0, 1.0, 0.0);
 instance uniform vec4 wear_soil = vec4(0.0);
 // patches, fade, seed (0..1), unused.
 instance uniform vec4 wear_age = vec4(0.0);
+// Torn hem (R-2022): CitizenWardrobe compiles a variant with TORN_HEM defined for battered
+// (w2) surcoats and mantles only, so no other cloth pays for the discard. UV2 of those
+// layers is (metres above the hem in the rest pose, 1) - garments.hem_rise_uv.
+#ifdef TORN_HEM
+instance uniform float wear_tear = 0.0;
+#endif
 
 // Model-space height and front of the skinned body (metres; feet at 0, face +Z).
 varying vec3 body_pos;
@@ -69,6 +75,20 @@ void fragment() {
 	float rough = orm.g;
 	float seed = wear_age.z;
 	vec2 metres = UV * tile_metres;
+	float fray = 0.0;
+#ifdef TORN_HEM
+	if (UV2.y > 0.5 && wear_tear > 0.0) {
+		// Ragged notches torn up from the hem (blotch channel: a few deep rents) with a
+		// fine frayed edge (spatter channel), round the garment in metres of cloth.
+		float rent = texture(wear_tex, vec2(metres.x / 0.9, 0.13 + seed * 0.5)).a;
+		float frayed = texture(wear_tex, vec2(metres.x / 0.25, 0.57)).r;
+		float notch = wear_tear * (0.1 * smoothstep(0.3, 0.7, rent) + 0.018 * frayed);
+		if (UV2.x < notch) {
+			discard;
+		}
+		fray = 1.0 - smoothstep(notch, notch + 0.025, UV2.x);
+	}
+#endif
 
 	// Patches: some 16 cm cells of a poor garment are pieces of other cloth,
 	// sewn on with a darker seam. Hashed per resident (seed), stable per garment.
@@ -109,6 +129,8 @@ void fragment() {
 	albedo = mix(albedo, SOOT, smoothstep(0.5, 1.0, soot) * 0.8);
 	albedo = mix(albedo, FLOUR, flour);
 	albedo = mix(albedo, STAIN, stain * 0.85);
+	// Loose threads and grime along a torn edge.
+	albedo *= 1.0 - 0.35 * fray;
 	rough = mix(rough, 0.97, max(mud, flour));
 	rough = mix(rough, 0.6, stain * 0.5);
 

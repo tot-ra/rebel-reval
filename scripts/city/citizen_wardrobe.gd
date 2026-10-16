@@ -79,6 +79,14 @@ const WEALTH := {
 const CELL_WEAR := [[0.5, 0.2, 0.3], [1.0, 1.0, 1.0], [1.5, 2.2, 1.8]]
 ## Floor of [patches, fade] on a battered (w2) layer, so even a rich man's old aketon shows it.
 const BATTERED_FLOOR := [0.45, 0.35]
+## Fine wool layers (task R-2022): the surcoat and the Order mantle are the lord's issue or a
+## knight's own cloth, not the wearer's purse, so the variant cell alone sets grade and wear.
+## p2 (crown and lords' issue) broadcloth, p3 (a knight's own surcoat) scarlet; the Order
+## mantle and its brothers' surcoats stay broadcloth (the Rule asks plain cloth, not scarlet).
+const FINE_WOOL_LAYERS := ["surcoat", "order_mantle"]
+## Variant wear (w0, w1, w2) -> [mud at the hem, patches, sun fade, torn hem]: w0 fresh from the
+## store, w1 travel-worn (hem mud, faded), w2 torn at the hem and patched.
+const FINE_WOOL_WEAR := [[0.04, 0.0, 0.0, 0.0], [0.4, 0.0, 0.3, 0.0], [0.7, 0.45, 0.45, 1.0]]
 ## Wealth -> [mud, patches, fade]: the poor walk the lanes in mended, sun-pale wool.
 const WEALTH_WEAR := [[0.45, 0.7, 0.5], [0.22, 0.15, 0.18], [0.06, 0.0, 0.0]]
 ## Trade -> [mud, soot, flour, stain] on top of the wealth wear (the larger wins).
@@ -201,6 +209,8 @@ static func weave(rig: SharedCharacterRig, record: Dictionary) -> void:
 		var parts := _layer_of(mesh_instance, record)
 		var layer := parts[0]
 		var level := EquipmentVariant.wear(parts[1])
+		# A battered (w2) surcoat or mantle has a torn hem (shader variant with discard).
+		var torn := level == 2 and layer in FINE_WOOL_LAYERS
 		var woven := false
 		for surface in mesh_instance.mesh.get_surface_count():
 			var source := mesh_instance.mesh.surface_get_material(surface) as BaseMaterial3D
@@ -222,6 +232,8 @@ static func weave(rig: SharedCharacterRig, record: Dictionary) -> void:
 				continue
 			var slot := dye_slot(source.resource_name, layer)
 			var grade := grade_of(family, wealth, slot)
+			if family == "wool" and layer in FINE_WOOL_LAYERS:
+				grade = fine_grade(layer, parts[1], record)
 			if bag.has("grade"):
 				var woven_bag := CitizenBags.cloth(source, family, bag)
 				mesh_instance.set_surface_override_material(surface, woven_bag)
@@ -229,7 +241,9 @@ static func weave(rig: SharedCharacterRig, record: Dictionary) -> void:
 				continue
 			if grade == "linen_coarse":
 				grade = linen_grade(record)
-			mesh_instance.set_surface_override_material(surface, cloth_material(source, family, grade, slot))
+			mesh_instance.set_surface_override_material(
+				surface, cloth_material(source, family, grade, slot, torn)
+			)
 			woven = true
 		if not layer.is_empty():
 			# Iron and mail of the layer (kettle hat, haubergeon): stand-in wear finish.
@@ -246,6 +260,12 @@ static func weave(rig: SharedCharacterRig, record: Dictionary) -> void:
 		mesh_instance.set_instance_shader_parameter(&"dye_outer", outer)
 		mesh_instance.set_instance_shader_parameter(&"dye_under", under)
 		var layer_wear := wear if layer.is_empty() else cell_wear(wear, level)
+		if layer in FINE_WOOL_LAYERS:
+			layer_wear = fine_wool_wear(wear, level)
+		if torn:
+			mesh_instance.set_instance_shader_parameter(
+				&"wear_tear", float(FINE_WOOL_WEAR[2][3])
+			)
 		mesh_instance.set_instance_shader_parameter(&"wear_soil", layer_wear[0])
 		mesh_instance.set_instance_shader_parameter(&"wear_age", layer_wear[1])
 
@@ -281,6 +301,26 @@ static func cell_wear(wear: Array[Vector4], level: int) -> Array[Vector4]:
 		patches = maxf(patches, BATTERED_FLOOR[0])
 		fade = maxf(fade, BATTERED_FLOOR[1])
 	return [soil, Vector4(patches, fade, wear[1].z, 0.0)]
+
+
+## Wool grade of a fine wool layer of variant `cell` (see FINE_WOOL_LAYERS).
+static func fine_grade(layer: String, cell: String, record: Dictionary) -> String:
+	if layer != "surcoat" or EquipmentVariant.prestige(cell) < 3:
+		return "broadcloth"
+	for entry: String in record.get("wear", []):
+		if EquipmentVariant.split(entry)[0] == "order_mantle":
+			return "broadcloth"
+	return "scarlet"
+
+
+## Wear of a fine wool layer: its cell's FINE_WOOL_WEAR, not the wearer's trade or purse
+## (a poor soldier's issue surcoat is not his mended own; no butcher stains on a garrison).
+## The resident's seed still varies the mud and the patch pattern.
+static func fine_wool_wear(wear: Array[Vector4], level: int) -> Array[Vector4]:
+	var cell: Array = FINE_WOOL_WEAR[clampi(level, 0, 2)]
+	var seed := wear[1].z
+	var mud := clampf(float(cell[0]) * (0.8 + 0.4 * seed), 0.0, 1.0)
+	return [Vector4(mud, 0.0, 0.0, 0.0), Vector4(float(cell[1]), float(cell[2]), seed, 0.0)]
 
 
 ## Cloth grade of a surface: wool by wealth (the rich wear scarlet outside and
@@ -331,15 +371,16 @@ static func dye_slot(material_name: String, layer: String) -> int:
 
 ## The shared material of `source` woven in `grade`.
 static func cloth_material(
-	source: BaseMaterial3D, family: String, grade: String, slot: int
+	source: BaseMaterial3D, family: String, grade: String, slot: int, torn: bool = false
 ) -> ShaderMaterial:
 	var by_grade: Dictionary = _cloth.get_or_add(source, {})
-	if by_grade.has(grade):
-		return by_grade[grade]
+	var key := grade + ("/torn" if torn else "")
+	if by_grade.has(key):
+		return by_grade[key]
 	var material := ShaderMaterial.new()
 	# Keep the garment's name: dye rules and tests match on it.
 	material.resource_name = source.resource_name
-	material.shader = _shader(source.cull_mode == BaseMaterial3D.CULL_DISABLED)
+	material.shader = _shader(source.cull_mode == BaseMaterial3D.CULL_DISABLED, torn)
 	var maps := "%s%s_%%s_512.png" % [TEXTILE_DIR, grade]
 	material.set_shader_parameter(&"albedo_tex", load(maps % "albedo"))
 	# Worn grades share the weave of their base grade (GRADE_BASE).
@@ -358,19 +399,27 @@ static func cloth_material(
 	material.set_shader_parameter(&"normal_depth", depth)
 	material.set_shader_parameter(&"fuzz", float(GRADE_FUZZ.get(grade, 0.0)))
 	material.set_shader_parameter(&"dye_slot", slot)
-	by_grade[grade] = material
+	by_grade[key] = material
 	return material
 
 
-static func _shader(double_sided: bool) -> Shader:
-	if not _shaders.has(double_sided):
-		if double_sided:
+## The cloth shader, double-sided and/or with TORN_HEM defined. Only torn layers get the
+## variant with `discard`, so every other cloth keeps the cheaper opaque pipeline.
+static func _shader(double_sided: bool, torn: bool = false) -> Shader:
+	var key := Vector2i(int(double_sided), int(torn))
+	if not _shaders.has(key):
+		if double_sided or torn:
+			var code := CLOTH_SHADER.code
+			if double_sided:
+				code = code.replace("cull_back", "cull_disabled")
+			if torn:
+				code = code.replace("shader_type spatial;", "shader_type spatial;\n#define TORN_HEM")
 			var shader := Shader.new()
-			shader.code = CLOTH_SHADER.code.replace("cull_back", "cull_disabled")
-			_shaders[double_sided] = shader
+			shader.code = code
+			_shaders[key] = shader
 		else:
-			_shaders[double_sided] = CLOTH_SHADER
-	return _shaders[double_sided]
+			_shaders[key] = CLOTH_SHADER
+	return _shaders[key]
 
 
 ## [layer id, variant cell] of a mounted `Garment_wear_<layer>_*` mesh; ["", ""] for the base body.

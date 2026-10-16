@@ -197,6 +197,7 @@ textures/default_filters/anisotropic_filtering_level=4
 viewport/hdr_2d=true
 anti_aliasing/quality/msaa_3d=2
 environment/defaults/default_clear_color=Color(0, 0, 0, 1)
+limits/global_shader_variables/buffer_size=262144
 
 [shader_globals]
 
