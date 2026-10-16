@@ -27,6 +27,8 @@ uniform vec4 moon_color : source_color = vec4(0.88, 0.86, 0.82, 1.0);
 
 // 0 = midnight, 1 = noon (matches DayNightCycle.day_blend).
 uniform float day_blend : hint_range(0.0, 1.0) = 1.0;
+// Seasonal presentation-only gain for the visible night floor: 0 winter, 1 summer.
+uniform float seasonal_night_brightness : hint_range(0.0, 1.0) = 0.5;
 // 1 while the sun sits on the horizon, 0 once it climbs or fully sets.
 uniform float sunset_factor : hint_range(0.0, 1.0) = 0.0;
 uniform vec3 sun_direction = vec3(0.0, 1.0, 0.0);
@@ -965,16 +967,26 @@ void sky() {
 	// concentrated toward the sun rather than a uniform blue gradient.
 	float air_mass = 1.0 / max(height + 0.12, 0.12);
 	float haze = 1.0 - exp(-air_mass * (0.10 + cloud_darken * 0.12));
-	// Visible sky and material reflections must share the same night floor.
+	// Both views share the base floor; only the visible dome gets seasonal grading.
 	float readability = night_floor_readability(sun_direction.y, moon_direction.y, moon_phase);
 	float glow = twilight_glow(sun_direction.y);
 	// R-1767: sunset_factor ramps over 16 deg, so by 8 deg it is already 0.5 and the whole
 	// art dusk palette (pink, violet, broad glare) arrived while the sun was still high.
 	// Split it: golden hour (8-16 deg) is warm and narrow; true pink waits for < ~5 deg.
 	float pink_ramp = smoothstep(0.4, 0.75, sunset_factor);
-	vec3 night_top = mix(DARK_NIGHT_TOP, night_top_color.rgb, readability) + TWILIGHT_TOP * glow;
-	vec3 night_horizon = mix(DARK_NIGHT_HORIZON, night_horizon_color.rgb, readability)
-		+ TWILIGHT_HORIZON * glow;
+	// Keep seasonal art grading off the radiance cubemap so it cannot alter water
+	// reflections or ambient/gameplay light. Summer's long twilight stays brighter;
+	// deep winter nights settle to a darker floor.
+	float seasonal_night_gain = AT_CUBEMAP_PASS
+		? 1.0
+		: mix(0.72, 1.18, seasonal_night_brightness);
+	vec3 night_top = (
+		mix(DARK_NIGHT_TOP, night_top_color.rgb, readability) + TWILIGHT_TOP * glow
+	) * seasonal_night_gain;
+	vec3 night_horizon = (
+		mix(DARK_NIGHT_HORIZON, night_horizon_color.rgb, readability)
+		+ TWILIGHT_HORIZON * glow
+	) * seasonal_night_gain;
 	vec3 horizon;
 	vec3 color;
 	// Physical sky only: LUT ambient for cloud shadows (zenith + horizon average).

@@ -60,6 +60,13 @@ static func solar_declination_degrees(date: Dictionary) -> float:
 	)
 
 
+## Presentation-only seasonal gain from the same solar model that moves the sun.
+## 0 is winter-dark, 0.5 is an equinox, and 1 is summer-white-night brightness.
+static func seasonal_night_brightness(date: Dictionary) -> float:
+	var declination := solar_declination_degrees(date)
+	return clampf(0.5 + 0.5 * declination / EARTH_AXIAL_TILT_DEGREES, 0.0, 1.0)
+
+
 ## Local ENU direction for a body with the given equatorial declination.
 ## +X east, -Z north, and +Y up. Progress 0.5 is local meridian transit.
 static func celestial_direction(progress: float, declination_degrees: float) -> Vector3:

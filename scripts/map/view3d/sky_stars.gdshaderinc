@@ -17,7 +17,7 @@ uniform float star_gain : hint_range(0.0, 8.0) = 2.4;
 // are the J2000 values.
 uniform vec3 galactic_pole = vec3(-0.86766, -0.19808, 0.45598);
 uniform vec3 galactic_center = vec3(-0.05487, -0.87342, -0.48384);
-uniform float milky_way_strength : hint_range(0.0, 4.0) = 1.0;
+uniform float milky_way_strength : hint_range(0.0, 4.0) = 0.55;
 
 // Must match SkyWeatherResources.STAR_MAP_WIDTH / STAR_MAP_HEIGHT.
 const float STAR_TEXELS_X = 2048.0;

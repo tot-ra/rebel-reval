@@ -2,8 +2,9 @@ extends SceneTree
 
 ## R-1443: night-sky evidence for round twinkling stars and the Milky Way over
 ## Reval. Run via tools/godot_render.sh --script tools/capture_night_sky.gd.
-## Writes docs/reports/images/night_sky/night_sky.png (three panels) and
-## night_sky_twinkle.png (one zoomed field at two twinkle times).
+## Writes docs/reports/images/night_sky/night_sky.png (five panels, including a
+## winter/summer comparison) and night_sky_twinkle.png (one zoomed field at two
+## twinkle times).
 ## Cloud coverage is zeroed for evidence only; gameplay weather is untouched.
 ## A/B flags after `--`: --no-stars, --no-star-points, --no-milky-way,
 ## --milky-way=<strength>; each adds a suffix to the panel sheet's file name.
@@ -18,8 +19,8 @@ const OUTPUT_DIR := "res://docs/reports/images/night_sky"
 ## Any open outdoor map works; the camera looks at the sky.
 const MAP_CANDIDATES: Array[String] = ["smithy_courtyard", "lower_town_slice", "reval_harbor_north"]
 
-## Both dates sit near a new moon (1343-04-25 and four lunations later), so the
-## Milky Way is not washed out by moonlight.
+## The seasonal comparison dates (18 Dec and 24 Jun) are near new moons, so
+## their contrast primarily shows the seasonal sky floor rather than moonlight.
 const SHOTS: Array[Dictionary] = [
 	{
 		"label": "23 Apr 1343 00:00, north: Milky Way low over the horizon",
@@ -45,6 +46,22 @@ const SHOTS: Array[Dictionary] = [
 		"pitch": 0.0,
 		"fov": 28.0,
 		"target_star": Vector4(310.358, 45.280, 1.25, 0.09),
+	},
+	{
+		"label": "18 Dec 1343 00:00, winter night: dark northern sky",
+		"date": {"day": 18, "month": 12, "year": 1343},
+		"progress": 0.0,
+		"bearing": Vector3(0.0, 0.0, -1.0),
+		"pitch": 22.0,
+		"fov": 90.0,
+	},
+	{
+		"label": "24 Jun 1343 00:00, summer white night: same northern view",
+		"date": {"day": 24, "month": 6, "year": 1343},
+		"progress": 0.0,
+		"bearing": Vector3(0.0, 0.0, -1.0),
+		"pitch": 22.0,
+		"fov": 90.0,
 	},
 ]
 
@@ -151,7 +168,10 @@ func _render(viewport: SubViewport, sky: Node, twinkle_time: float) -> Image:
 				)
 		await process_frame
 		await RenderingServer.frame_post_draw
-	return viewport.get_texture().get_image()
+	var image := viewport.get_texture().get_image()
+	# GPU readback may be HDR; blit_rect requires matching formats.
+	image.convert(Image.FORMAT_RGBA8)
+	return image
 
 
 func _shot_direction(shot: Dictionary, progress: float, date: Dictionary) -> Vector3:

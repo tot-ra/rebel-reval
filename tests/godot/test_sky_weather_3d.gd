@@ -586,6 +586,21 @@ func test_sky_shader_covers_required_features() -> void:
 	var source: String = SkyWeather.SKY_SHADER.code
 	assert_true("shader_type sky" in source, "the dome must be a sky shader, not a mesh hack")
 	assert_true("day_blend" in source, "the sky must follow the day/night cycle")
+	assert_true(
+		"seasonal_night_brightness" in source,
+		"the visible night floor must follow the campaign season"
+	)
+	assert_true(
+		"float seasonal_night_gain = AT_CUBEMAP_PASS" in source,
+		"seasonal night grading must not change reflections or ambient/gameplay light"
+	)
+	var star_shader := FileAccess.get_file_as_string(
+		"res://scripts/map/view3d/sky_stars.gdshaderinc"
+	)
+	assert_true(
+		"uniform float milky_way_strength : hint_range(0.0, 4.0) = 0.55;" in star_shader,
+		"the Milky Way should stay restrained for Reval's night sky"
+	)
 	assert_true("sunset_factor" in source, "dawn and dusk must warm the horizon")
 	assert_true("cloud_coverage" in source, "weather must drive procedural cloud coverage")
 	assert_true("cloud_detail_offset" in source, "cloud edges must drift independently of bank masses")
