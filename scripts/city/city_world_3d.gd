@@ -58,6 +58,15 @@ const LAKE_SECTORS := 48
 ## bank above the waterline (negative depth) still fades smoothly to zero.
 const STREAM_DEPTH_OFFSET := 0.5
 const STREAM_DEPTH_SCALE := 2.5
+## Walkable ice (ice_deck_at): below this thickness (ICE_FRESH 0..1) the ice is a
+## skin that does not carry a person even where it shows.
+const ICE_BEARING := 0.35
+## city_moat_water.gdshader freeze front: `frozen` from 0.42, and the largest
+## downward jitter its pan cell (0.175) and noise (0.06) terms can add.
+const ICE_FROZEN_FRONT := 0.42
+const ICE_FRONT_JITTER := 0.235
+## Bucket size (m) of the inland-water lookup grid (_ice_cells).
+const ICE_CELL := 16.0
 
 var plan: CityPlan
 ## Spray emitters on the waterline (CityShoreSpray); null until the sea is built.
@@ -103,6 +112,15 @@ var smoke: CityChimneySmoke
 ## Landmark site models by site id (ADR 0032).
 var site_nodes: Dictionary = {}
 var ships: CityShips
+## Fresh-water ice thickness 0..1 last applied (SeasonState ICE_FRESH), and the
+## snow lying on it; ice_deck_at() and the blowing snow read them.
+var fresh_ice := 0.0
+var fresh_ice_snow := 0.0
+## Last hourly ice weather (apply_ice_weather): wet film, refrozen glaze and the
+## air temperature (C). Wet or crusted snow does not blow (CityBlowingSnow).
+var ice_melt := 0.0
+var ice_glaze := 0.0
+var air_c := 0.0
 ## _surface_grid(split_rings): 1 per 4 m cell drawn by the rings / by a static
 ## sea mesh (surf band or the stitched skirt), row-major over the sea lattice.
 var _sea_ring_cells := PackedByteArray()
@@ -114,6 +132,9 @@ var _ground_shore_uniforms := PackedStringArray()
 ## the moat and sea materials (they are many, so only real changes are pushed).
 var _ice_progress := 0.5
 var _water_ice_weather := Vector2(-1.0, -1.0)
+## ICE_CELL-sized cells near inland water -> moat_water record indices, built on
+## the first winter query so walk_height does not scan every record per call.
+var _ice_cells: Dictionary = {}
 
 
 static func create(city_plan: CityPlan) -> CityWorld3D:
@@ -208,6 +229,8 @@ func apply_season(date: Dictionary) -> void:
 	var ice := SeasonState.ice_cover_for(SeasonState.ICE_FRESH, date)
 	_water_ice_weather = Vector2(-1.0, -1.0)
 	var ice_snow := VegetationPhenology.snow_cover_for(date)
+	fresh_ice = ice
+	fresh_ice_snow = ice_snow
 	for water: ShaderMaterial in water_materials:
 		water.set_shader_parameter("ice", ice)
 		water.set_shader_parameter("ice_snow", ice_snow)
@@ -255,6 +278,9 @@ func apply_ice_weather(progress: float, cloud: float, rain: float, puddles: floa
 	var melt := maxf(float(weather["melt"]), clampf(rain * 1.5, 0.0, 1.0))
 	var glaze := float(weather["glaze"]) * (1.0 - melt)
 	var frozen_now := 1.0 - smoothstep(-1.5, 0.0, float(weather["air_c"]))
+	ice_melt = melt
+	ice_glaze = glaze
+	air_c = float(weather["air_c"])
 	var ground := CityTerrainBuilder.shared_material()
 	if ground != null:
 		ground.set_shader_parameter(
@@ -539,6 +565,8 @@ func _build_water() -> void:
 	if plan.has_coast():
 		_build_sea(root)
 	_build_inland_water(root)
+	# Frozen moat, stream and lakes carry Kalev (walk_height reads ice_deck_at).
+	plan.ice_deck = ice_deck_at
 
 
 ## FFT sea, surf band, shore field and the open water to the horizon (coastal plans only).
@@ -1193,6 +1221,100 @@ func water_surface_at(world_xz: Vector2) -> float:
 		if world_xz.distance_to(a + ab * t) < float(m[4]):
 			return lerpf(float(m[2]), float(m[3]), t)
 	return -INF
+
+
+## Top of load-bearing ice at `world_xz` on the moat, stream or a lake, or NAN
+## where it is open water, dry ground or the sea. CityPlan.walk_height stands
+## Kalev on it, so a frozen moat is walked across instead of waded through.
+## The test mirrors the freeze front of city_moat_water.gdshader (shallows and
+## still water first, the deep middle and moving water later) with the shader's
+## pan and noise jitter taken at its worst, so wherever this says "ice" the
+## surface shows ice; only a thin rim at the front reads ice yet breaks.
+func ice_deck_at(world_xz: Vector2) -> float:
+	if fresh_ice < ICE_BEARING or moat_water.is_empty():
+		return NAN
+	var bed := plan.ground_height(world_xz)
+	if bed < 0.0:
+		return NAN
+	if _ice_cells.is_empty():
+		_build_ice_cells()
+	var cell := Vector2i((world_xz / ICE_CELL).floor())
+	for i: int in _ice_cells.get(cell, []):
+		var m: Array = moat_water[i]
+		var a: Vector2 = m[0]
+		var ab: Vector2 = m[1] - a
+		var t := clampf((world_xz - a).dot(ab) / maxf(ab.length_squared(), 0.001), 0.0, 1.0)
+		if world_xz.distance_to(a + ab * t) >= float(m[4]):
+			continue
+		var surface := lerpf(float(m[2]), float(m[3]), t)
+		var column := surface - bed
+		if column <= 0.0:
+			return NAN
+		return surface if ice_bears(i, column) else NAN
+	return NAN
+
+
+## Whether the ice of moat_water record `i` is frozen solid over `column` metres
+## of water: the shader's front (`skin * 2.2 - depth_hint * 0.6`) less its largest
+## pan and noise jitter must clear the frozen threshold.
+func ice_bears(i: int, column: float) -> bool:
+	var material := _segment_material(i)
+	var flow := 0.0
+	var deep := 1.6
+	if material != null:
+		# Unset parameters read null: keep the shader defaults then.
+		var f: Variant = material.get_shader_parameter("flow_speed")
+		if f != null:
+			flow = float(f)
+		var d: Variant = material.get_shader_parameter("deep_depth")
+		if d != null:
+			deep = float(d)
+	var skin := fresh_ice * (1.0 - minf(flow, 1.0) * 0.4)
+	var depth_hint := clampf(column / deep, 0.0, 1.0)
+	return skin * 2.2 - depth_hint * 0.6 - ICE_FRONT_JITTER >= ICE_FROZEN_FRONT
+
+
+## Ice top of the frozen inland water nearest `world_xz` within `radius`, or NAN
+## (open water, no ice, nothing near). Blowing snow over the moat rides on it and
+## takes snow off it, so a stretch counts only once it bears ice over its
+## centre line (the deepest water): then the whole width is frozen, never a strip
+## of open water next to the ice.
+func ice_level_near(world_xz: Vector2, radius: float) -> float:
+	if fresh_ice < ICE_BEARING:
+		return NAN
+	var best := radius
+	var level := NAN
+	for i in moat_water.size():
+		var m: Array = moat_water[i]
+		var a: Vector2 = m[0]
+		var ab: Vector2 = m[1] - a
+		var t := clampf((world_xz - a).dot(ab) / maxf(ab.length_squared(), 0.001), 0.0, 1.0)
+		var centre := a + ab * t
+		var d := world_xz.distance_to(centre) - float(m[4])
+		if d >= best:
+			continue
+		var surface := lerpf(float(m[2]), float(m[3]), t)
+		if not ice_bears(i, maxf(surface - plan.ground_height(centre), 0.0)):
+			continue
+		best = d
+		level = surface
+	return level
+
+
+func _build_ice_cells() -> void:
+	for i in moat_water.size():
+		var m: Array = moat_water[i]
+		var a: Vector2 = m[0]
+		var b: Vector2 = m[1]
+		var reach := float(m[4])
+		var lo := Vector2i(((a.min(b) - Vector2(reach, reach)) / ICE_CELL).floor())
+		var hi := Vector2i(((a.max(b) + Vector2(reach, reach)) / ICE_CELL).floor())
+		for y in range(lo.y, hi.y + 1):
+			for x in range(lo.x, hi.x + 1):
+				var key := Vector2i(x, y)
+				if not _ice_cells.has(key):
+					_ice_cells[key] = []
+				(_ice_cells[key] as Array).append(i)
 
 
 ## Water material of moat_water record `i`: stream, then lakes, then the moat.

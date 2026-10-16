@@ -161,7 +161,7 @@ void fragment() {
 		float frozen = smoothstep(0.4 - px * 0.5, 0.42 + px * 0.5, front);
 		// Ice reaches the bank; drifts pile against it.
 		float bank = 1.0 - smoothstep(0.05, 0.9, column);
-		IceLook ice_s = ice_look(world_pos.xz, pans, skin, ice_snow, bank, wind_dir, px);
+		IceLook ice_s = ice_look(world_pos.xz, pans, skin, ice_snow, bank, ICE_SNOW_DRIFT, px);
 		ice_weather(ice_s, world_pos.xz, pans, ice_melt, ice_glaze, bank, px);
 		// The broken edge of the ice against open water is pale.
 		float ice_edge = (1.0 - smoothstep(0.0, 0.06 + px, front - 0.42)) * frozen;
