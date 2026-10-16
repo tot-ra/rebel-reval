@@ -37,6 +37,8 @@ const TREMOR_RAD := 0.035
 
 ## Knob values {name: float}; usually `MotionStyleAgent.style` (shared, read every frame).
 var style: Dictionary = {}
+## Seated (a sit clip plays): the legs rest on the seat, so no crouch, stance or limp.
+var seated := false
 ## The wound point in body coordinates (x front, y left, z 0..1 of the height), from the agent
 ## channels.
 var wound := Vector3(0.0, 0.0, 0.5)
@@ -66,7 +68,9 @@ func _process_modification() -> void:
 	var fwd_axis := to_skel * Vector3.BACK  # rig +Z (forward)
 	var up_axis := to_skel * Vector3.UP
 	var pitch := float(style.get("trunk_pitch", 0.0))
-	var roll := float(style.get("trunk_roll", 0.0)) + _limp_roll(skeleton, up_axis)
+	var roll := float(style.get("trunk_roll", 0.0))
+	if not seated:
+		roll += _limp_roll(skeleton, up_axis)
 	var tremor := float(style.get("tremor", 0.0))
 	var shiver := TREMOR_RAD * tremor
 	# Trunk: half of the lean at the spine, half at the chest; positive pitch bows forward (about
@@ -85,14 +89,15 @@ func _process_modification() -> void:
 			- 0.3 * pitch
 		)
 	)
-	_crouch(
-		skeleton,
-		right_axis,
-		up_axis,
-		float(style.get("crouch", 0.0)),
-		float(style.get("width", 1.0)),
-		fwd_axis
-	)
+	if not seated:
+		_crouch(
+			skeleton,
+			right_axis,
+			up_axis,
+			float(style.get("crouch", 0.0)),
+			float(style.get("width", 1.0)),
+			fwd_axis
+		)
 	for side: float in [LEFT, RIGHT]:
 		_arm(skeleton, side, to_skel, shiver)
 

@@ -17,6 +17,8 @@ extends "res://scripts/global/BaseLevel.gd"
 ## default_spawn(); citizens, fauna and interiors follow the plan's feature flags.
 
 const GraphicsPresetsScript := preload("res://scripts/settings/graphics_presets.gd")
+const CitySeatsScript := preload("res://scripts/world/city_seats.gd")
+const SeatPromptScript := preload("res://scripts/world/seat_prompt.gd")
 const PerfProbeScript := preload("res://scripts/debug/perf_probe.gd")
 const DEFAULT_SPAWN := "poi.forum"
 ## On-foot speeds in city units/s (about 1 m each), converted to logic px. The old
@@ -37,6 +39,8 @@ var minimap: CityMinimap
 var interiors: CityInteriors
 var music_zones := CityMusicZones.new()
 var inside_building := -1
+## Places to sit and the "Sit" prompt that follows the nearest free one (SITTING.md).
+var seats: RefCounted
 var _world_items: WorldItemController
 var _music_timer := 0.0
 var _npcs: CityNpcs
@@ -85,6 +89,9 @@ func _ready() -> void:
 	player.set_water_depth_provider(
 		func(logic: Vector2) -> float: return view.water_depth_at(CityPlan.to_world_xz(logic))
 	)
+	seats = CitySeatsScript.create(plan, interiors)
+	seats.occupied_fn = _seated_people
+	SeatPromptScript.install(self, player, seats)
 	# The jump reads ground, wall tops and water ahead (ADR 0053, PlayerLeap).
 	player.set_leap_ground_provider(
 		func(xz: Vector2) -> Vector2:
@@ -139,6 +146,17 @@ func spawn_id() -> String:
 			return arg.substr(13)
 	var pending := String(CityTravel.consume_pending_spawn(scene_id()))
 	return pending if not pending.is_empty() else default_spawn()
+
+
+## World xz of residents sitting at home now: their seats are not offered to Kalev.
+func _seated_people() -> Array:
+	var out: Array = []
+	if _npcs == null or _npcs.citizens == null:
+		return out
+	for actor in _npcs.citizens.live_actors():
+		if actor.at_home and actor.pose == &"sit":
+			out.append(actor.world_xz())
+	return out
 
 
 func _place_player(id: String) -> void:

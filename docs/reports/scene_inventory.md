@@ -278,3 +278,4 @@ Both commands should print `135` on a clean checkout at this revision.
 | 198 | `tools/capture_wall_foot.tscn` | partial | Developer capture tool (city wall foot scatter). |
 | 199 | `tools/capture_city_leap.tscn` | partial | Developer capture tool (context-aware jump, ADR 0053, in the seamless city). |
 | 200 | `assets/characters/variants/brother_tidemann.tscn` | working | Almshouse cast body (ADR 0052). |
+| 201 | `tools/capture_city_sit.tscn` | partial | Developer capture tool (sitting, ADR 0054, in the seamless city). |

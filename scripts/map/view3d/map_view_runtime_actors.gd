@@ -216,6 +216,9 @@ func sync_player(snap: bool, delta: float = 0.0) -> void:
 	# A hop lifts the rig off the ground; logic stays flat (PlayerJumpState).
 	if _player.has_method("jump_height"):
 		_player_rig.position.y += float(_player.call("jump_height"))
+	# Sitting lowers the rig so the sit clips rest on the seat (SITTING.md).
+	if _player.has_method("seat_height_offset"):
+		_player_rig.position.y += float(_player.call("seat_height_offset"))
 	# Velocity carries the time-flow multiplier; gait choice must not.
 	var raw_flow: Variant = _player.get(&"time_flow_scale")
 	var flow_scale := float(raw_flow) if raw_flow != null else 1.0

@@ -105,6 +105,8 @@ static func humanoid(rig: Node3D, delta: float, world_speed: float, extra: Array
 	conds.append_array(extra)
 	agent.update(delta, conds, env.exposure(), world_speed)
 	modifier.style = agent.style
+	var clip := String(rig.call(&"current_canonical_animation"))
+	modifier.seated = clip.begins_with("sit_")
 	var ch: Dictionary = agent.channels
 	modifier.wound = Vector3(
 		float(ch.get("wound_x", 0.0)), float(ch.get("wound_y", 0.0)), float(ch.get("wound_z", 0.5))

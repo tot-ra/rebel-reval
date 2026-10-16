@@ -53,7 +53,7 @@ The capture puts Kalev inside houses of each class, prints the pieces and who is
 
 ## Limits
 
-- Kalev cannot use anything: no sitting, sleeping, opening chests, taking or stealing. The catalog `actions` are the contract for that.
+- Kalev can sit on the household seats that no resident is using ([`SITTING.md`](SITTING.md)); he cannot sleep, open chests, take or steal yet. The catalog `actions` are the contract for that.
 - Sleepers are the standing idle laid flat (no lying clip); people at the hearth and workbench stand idle (no cooking or working clip). Seated people use the shared `sit_idle` clip.
 - Indoor walking is a straight line between doorways; people may cross a piece of furniture on the way. Two residents can share a slot when a house has more people than seats.
 - Partitions are only built while the house is furnished; from far away a big house has no inner walls (not visible from the street through the small windows).

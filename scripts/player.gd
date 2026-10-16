@@ -17,6 +17,7 @@ const AttackProfileScript := preload("res://scripts/combat/attack_profile.gd")
 const AttackProfileResolverScript := preload("res://scripts/combat/attack_profile_resolver.gd")
 const NpcPushScript := preload("res://scripts/physics/npc_push.gd")
 const PlayerLeapScript := preload("res://scripts/player/player_leap.gd")
+const PlayerSeatScript := preload("res://scripts/player/player_seat.gd")
 const DEATH_SCREEN_PATH := "res://scenes/death/death_screen.tscn"
 const STAMINA_DRAIN_RATE := 10.0  # per second
 const DODGE_STAMINA_COST := 18.0
@@ -114,6 +115,9 @@ var _downhill_provider := Callable()
 var _leap := PlayerLeapScript.new()
 ## Callable(world_xz) -> Vector2(ground_y, water_surface_y); set where the map knows its heights.
 var _leap_ground_provider := Callable()
+## Sitting on a chair, stool or bench (docs/SYSTEMS/SITTING.md).
+var _seat := PlayerSeatScript.new()
+var _mask_before_seat := 0
 
 @onready var animation_player: AnimatedSprite2D = get_node_or_null("AnimatedSprite2D")
 # Optional so headless unit tests can construct Player.new() without the full scene.
@@ -179,6 +183,56 @@ func is_leaping() -> bool:
 	return _leap.is_active()
 
 
+## Sit on a CitySeats record (from SeatPrompt). Refused while busy, airborne or in water.
+func sit_on(seat: Dictionary) -> bool:
+	if seat.is_empty() or _seat.is_active() or _leap.is_active() or _jump.is_airborne():
+		return false
+	if _swim.medium != PlayerSwimState.Medium.WALK or _movement_blocked():
+		return false
+	if not action_state_machine.allows_movement():
+		return false
+	_seat.sit(seat)
+	velocity = Vector2.ZERO
+	_facing_direction = _seat.facing()
+	# Seated bodies do not block or get blocked (as seated residents).
+	_mask_before_seat = collision_mask
+	collision_mask = 0
+	global_position = _seat.seated_point()
+	return true
+
+
+func stand_up() -> void:
+	_seat.stand()
+
+
+## True from sitting down until standing up is finished.
+func is_sitting() -> bool:
+	return _seat.is_active()
+
+
+func is_seated() -> bool:
+	return _seat.is_seated()
+
+
+## How far the rig is lowered so the sit clips rest on the seat (MapViewRuntimeActors).
+func seat_height_offset() -> float:
+	return _seat.height_offset()
+
+
+func _advance_seat(delta: float) -> void:
+	var wants_up := not ScreenDirectionInput.read_axis().is_zero_approx() or (
+		InputMap.has_action(&"player_jump") and Input.is_action_just_pressed(&"player_jump")
+	)
+	if _seat.is_seated() and wants_up and combat_input_enabled:
+		_seat.stand()
+	global_position = _seat.advance(delta * time_flow_scale, global_position)
+	velocity = Vector2.ZERO
+	_facing_direction = _seat.facing()
+	if not _seat.is_active():
+		collision_mask = _mask_before_seat
+		_apply_steep_mask()
+
+
 ## Pose of the running jump for the rig (LeapPoseModifier); empty when not jumping.
 func leap_pose() -> Dictionary:
 	return _leap.pose()
@@ -201,6 +255,8 @@ func try_jump() -> bool:
 	if _movement_blocked() or not action_state_machine.allows_movement():
 		return false
 	if is_spirit_sight_active() or stamina < PlayerJumpState.STAMINA_COST or _leap.is_active():
+		return false
+	if _seat.is_active():
 		return false
 	if _leap_ground_provider.is_valid():
 		return _try_leap()
@@ -374,6 +430,11 @@ func _physics_process(_delta):
 	_update_jump(_delta)
 	if _leap.is_active():
 		_advance_leap(_delta)
+		_sync_resource_bars()
+		update_animation("idle")
+		return
+	if _seat.is_active():
+		_advance_seat(_delta)
 		_sync_resource_bars()
 		update_animation("idle")
 		return
@@ -931,6 +992,8 @@ func begin_cast_gesture(delivery_kind: String) -> bool:
 
 
 func view_facing() -> Vector2:
+	if _seat.is_active():
+		return _seat.facing()
 	if (
 		action_state_machine.state == PlayerActionState.State.DODGE
 		and not _dodge_facing.is_zero_approx()
@@ -961,6 +1024,8 @@ func set_camera_facing(direction: Vector2) -> void:
 func view_animation() -> StringName:
 	if _leap.is_active():
 		return _leap.animation()
+	if _seat.is_active():
+		return _seat.animation()
 	var animation_base := _combat_or_locomotion_animation(_current_locomotion_animation())
 	if animation_base == "attack":
 		return _active_attack_profile.animation
