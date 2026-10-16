@@ -45,6 +45,12 @@ const SAIL_ROWS := 8
 ## Ropes, oars, pennants and load are invisible beyond this (cheap LOD; the hull
 ## and mast still read as a boat from the far shore).
 const DETAIL_RANGE := 140.0
+## The static sea surface crosses an open boat unless its fitted floor is above it.
+const DRY_FLOOR_CLEARANCE := 0.3
+## Sample just below the top edge so fitted boards stay inside the loft.
+const FLOORBOARD_EDGE_SAMPLE_DEPTH := 0.04
+const FLOORBOARD_SEGMENTS := 24
+const THWART_FLOOR_CLEARANCE := 0.12
 
 ## design -> card (metres). `card` names the baltic_vessels_1343.md entry.
 ## length/beam/depth: hull over the stems, at the sheer amidships, keel to sheer.
@@ -223,7 +229,26 @@ static func overturned(design: StringName, wear: StringName) -> Node3D:
 
 
 static func _floor_y(s: Dictionary) -> float:
-	return float(s["depth"]) * 0.22
+	# Keep the open boat's fitted floor above the shared still-water plane. Draft
+	# stays unchanged; only the dry interior boards rise above the bilge.
+	return maxf(float(s["depth"]) * 0.22, float(s["draught"]) + DRY_FLOOR_CLEARANCE)
+
+
+static func _floor_half_width(s: Dictionary, t: float, y: float) -> float:
+	var u := absf(t * 2.0 - 1.0)
+	var keel_y := _keel(s, u)
+	var sheer_y := _sheer(s, u)
+	if y <= keel_y:
+		return 0.0
+	var vertical_fraction := clampf((y - keel_y) / (sheer_y - keel_y), 0.0, 1.0)
+	var section := pow(vertical_fraction, 1.0 / float(s["bottom"]))
+	var width := _half_beam(s, u) * pow(sin(section * PI * 0.5), float(s["bilge"]))
+	# Leave a small margin to the inner hull skin so the floor never pokes out.
+	return maxf(width - 0.04, 0.0)
+
+
+static func _thwart_y(s: Dictionary, t: float, floor_y: float) -> float:
+	return maxf(_point(s, t, 0.86).y - 0.05, floor_y + THWART_FLOOR_CLEARANCE)
 
 
 static func _half_beam(s: Dictionary, u: float) -> float:
@@ -378,17 +403,44 @@ static func _add_interior(parts: CogParts, s: Dictionary, wear: StringName) -> v
 	var length := float(s["length"])
 	var floor_y := _floor_y(s)
 	var board := PLANK_WOOD * (0.62 if wear == WEAR_FRESH_TAR else 0.8)
-	parts.box(
-		Vector3(0.0, floor_y, 0.0),
-		Vector3(length * 0.66, 0.035, _half_beam(s, 0.0) * 0.95),
-		board
-	)
+	var bottom_y := floor_y - FLOORBOARD_EDGE_SAMPLE_DEPTH
+	# A fitted floor closes the otherwise open bilge above the shared water plane.
+	# Segment widths follow each hull station, so the boards remain inside the loft.
+	for i in FLOORBOARD_SEGMENTS:
+		var t0 := float(i) / FLOORBOARD_SEGMENTS
+		var t1 := float(i + 1) / FLOORBOARD_SEGMENTS
+		var x0 := (t0 - 0.5) * length
+		var x1 := (t1 - 0.5) * length
+		var half0 := _floor_half_width(s, t0, bottom_y)
+		var half1 := _floor_half_width(s, t1, bottom_y)
+		if minf(half0, half1) <= 0.02:
+			continue
+		var uv_x0 := x0 / CogParts.GRAIN_U
+		var uv_x1 := x1 / CogParts.GRAIN_U
+		var uv_z0 := -half0 / CogParts.GRAIN_V
+		var uv_z1 := -half1 / CogParts.GRAIN_V
+		var uv_z2 := half1 / CogParts.GRAIN_V
+		var uv_z3 := half0 / CogParts.GRAIN_V
+		# Match CogInterior._slab's upward-facing corner order; the reverse order
+		# is back-face culled when viewed into the boat from above.
+		parts.quad(
+			Vector3(x0, floor_y, -half0),
+			Vector3(x0, floor_y, half0),
+			Vector3(x1, floor_y, half1),
+			Vector3(x1, floor_y, -half1),
+			Vector3.UP,
+			board,
+			Vector2(uv_x0, uv_z0),
+			Vector2(uv_x0, uv_z3),
+			Vector2(uv_x1, uv_z2),
+			Vector2(uv_x1, uv_z1)
+		)
 	# Thwarts at the oar stations; the forward one carries the mast partner.
 	for k in _thwart_stations(s):
 		var x := float(k) * length
 		var t := 0.5 + float(k)
 		var half := _point(s, t, 0.86).z
-		var y := _point(s, t, 0.86).y - 0.05
+		var y := _thwart_y(s, t, floor_y)
 		parts.box(Vector3(x, y, 0.0), Vector3(0.22, 0.05, half * 2.0), board * 0.95)
 	# Frames (ribs) seen from above, every ~0.9 m.
 	var ribs := int(length / 0.9)

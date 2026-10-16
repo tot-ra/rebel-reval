@@ -42,6 +42,70 @@ func test_hulls_follow_their_co05_card_dimensions() -> void:
 	assert_false(VesselFleet.is_rigged(VesselFleet.ROWING_OPEN), "the ferry boat is rowed")
 
 
+func test_afloat_working_craft_have_dry_fitted_floorboards() -> void:
+	for design: StringName in VesselFleet.designs():
+		var s: Dictionary = VesselFleet.spec(design)
+		var floor_y := VesselFleet.deck(design).z
+		assert_true(
+			floor_y >= VesselFleet.draught(design) + VesselFleet.DRY_FLOOR_CLEARANCE - 0.001,
+			"%s floorboards clear the still-water plane" % design
+		)
+		var mesh := VesselFleet.hull_mesh(design, VesselFleet.WEAR_WEATHERED)
+		var arrays := mesh.surface_get_arrays(0)
+		var vertices := arrays[Mesh.ARRAY_VERTEX] as PackedVector3Array
+		var normals := arrays[Mesh.ARRAY_NORMAL] as PackedVector3Array
+		var floor_vertex_count := 0
+		var floor_min_x := INF
+		var floor_max_x := -INF
+		for i in vertices.size():
+			if absf(vertices[i].y - floor_y) > 0.001 or normals[i].y < 0.99:
+				continue
+			floor_vertex_count += 1
+			floor_min_x = minf(floor_min_x, vertices[i].x)
+			floor_max_x = maxf(floor_max_x, vertices[i].x)
+		var floor_triangle_count := 0
+		for i in range(0, vertices.size(), 3):
+			if (
+				absf(vertices[i].y - floor_y) > 0.001
+				or absf(vertices[i + 1].y - floor_y) > 0.001
+				or absf(vertices[i + 2].y - floor_y) > 0.001
+				or normals[i].y < 0.99
+				or normals[i + 1].y < 0.99
+				or normals[i + 2].y < 0.99
+			):
+				continue
+			var edge_a := vertices[i + 1] - vertices[i]
+			var edge_b := vertices[i + 2] - vertices[i]
+			var top_winding := edge_a.x * edge_b.z - edge_a.z * edge_b.x
+			assert_true(top_winding > 0.0, "%s floor triangles face upward" % design)
+			floor_triangle_count += 1
+		assert_true(floor_triangle_count > 0, "%s has visible top-facing floor triangles" % design)
+		assert_true(
+			floor_vertex_count >= VesselFleet.FLOORBOARD_SEGMENTS * 3,
+			"%s mesh contains the fitted floor surface" % design
+		)
+		assert_true(
+			floor_min_x < -float(s["length"]) * 0.3
+			and floor_max_x > float(s["length"]) * 0.3,
+			"%s floorboards span most of the hull length" % design
+		)
+		for station: float in VesselFleet._thwart_stations(s):
+			var t := 0.5 + station
+			var thwart_y := VesselFleet._thwart_y(s, t, floor_y)
+			var gunwale_y := VesselFleet._sheer(s, absf(t * 2.0 - 1.0))
+			assert_true(
+				thwart_y - 0.025 > floor_y and thwart_y + 0.025 < gunwale_y,
+				"%s thwart stays between floorboards and gunwale" % design
+			)
+		assert_true(
+			VesselFleet._floor_half_width(
+				s, 0.5, floor_y - VesselFleet.FLOORBOARD_EDGE_SAMPLE_DEPTH
+			)
+			> float(s["beam"]) * 0.4,
+			"%s floorboards cover most of the bilge at midships" % design
+		)
+
+
 func test_sails_are_segmented_for_billow() -> void:
 	for design: StringName in VesselFleet.designs():
 		if not VesselFleet.is_rigged(design):
