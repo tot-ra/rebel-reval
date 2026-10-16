@@ -44,7 +44,7 @@ func _feature(plan: CityPlan, kind: StringName, crop: StringName = &"") -> Dicti
 
 func _shots(plan: CityPlan) -> Array[Dictionary]:
 	var shots: Array[Dictionary] = []
-	for crop: StringName in [&"rye", &"barley", &"cabbage"]:
+	for crop: StringName in [&"rye", &"wheat", &"barley", &"oat", &"cabbage"]:
 		var f := _feature(plan, &"field", crop)
 		if f.is_empty():
 			continue
@@ -54,6 +54,8 @@ func _shots(plan: CityPlan) -> Array[Dictionary]:
 		shots.append({"name": "field_%s_top" % crop, "eye": Vector3(c.x, g + 70.0, c.y + 1.0), "look": Vector3(c.x, g, c.y), "fov": 50.0, "focus": c})  # gdlint: ignore=max-line-length
 		shots.append({"name": "field_%s_eye" % crop, "eye": Vector3(c.x + side.x * 5.0, g + 1.7, c.y + side.y * 5.0), "look": Vector3(c.x, g + 0.4, c.y), "fov": 60.0, "focus": c})  # gdlint: ignore=max-line-length
 		shots.append({"name": "field_%s_game" % crop, "eye": Vector3(c.x + side.x * 14.0, g + 6.0, c.y + side.y * 14.0), "look": Vector3(c.x, g, c.y), "fov": 60.0, "focus": c})  # gdlint: ignore=max-line-length
+		# R-2112: about the gameplay camera's distance and pitch, narrow lens.
+		shots.append({"name": "field_%s_iso" % crop, "eye": Vector3(c.x + side.x * 34.0, g + 25.0, c.y + side.y * 34.0), "look": Vector3(c.x, g, c.y), "fov": 32.0, "focus": c})  # gdlint: ignore=max-line-length
 	# The north wall: towers seen from the field side.
 	for id: String in ["tower.stolting", "tower.rentenitorn", "gate.coastal.tower"]:
 		for t: Dictionary in plan.data.get("towers", []):
@@ -237,6 +239,12 @@ func _run() -> void:
 		world.apply_time(DAY_PROGRESS)
 		if shot.has("cutaway"):
 			world.set_roof_hidden(int(shot["cutaway"]), true)
+		# Field plates stand a player at the focus, as in play: grass and grain
+		# tier fades are then measured from there, not from the lens (R-2112).
+		if String(shot["name"]).begins_with("field_"):
+			MapViewMaterials.apply_grass_interaction(shot["focus"], Vector2.ZERO)
+		else:
+			MapViewMaterials.clear_grass_interaction()
 		for i in 40:
 			world.grass.update_for(shot["focus"])
 			world.farmland.update_for(shot["focus"])

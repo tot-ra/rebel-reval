@@ -192,6 +192,46 @@ Sources: [`harbour-and-shoreline.md`](../../history/dossiers/topography/harbour-
 
 Tilled fields and gardens use a dark cultivated-soil treatment, not turf. This is a rendering choice, not a claim that all local soil is black earth. `render_splat` paints each non-fallow field as full packed earth plus a mud-channel marker `FIELD_MUD_LEVEL` (110/255), with the outline warped by smooth noise so strips are not ruler-straight. `city_ground.gdshader` (`field_zone`, `field_height`) reads that band as ploughed soil: dark desaturated earth, lighter dry clods, warped ridges, scattered stones, plus clod relief in the normal map. `CityGrass.field_share` keeps the grass scatter off it. Fallow strips stay rough grass. Review: `tools/godot_render.sh --script tools/capture_city_farmland.gd -- --only=field_rye_game --date=4-21`. Limits: no straight furrow lines in the ground (rows come from the crop plants), and a house seam in the mud channel at the same value would read as field soil.
 
+## Grain clumps
+
+Status: implemented (task **R-2112**, FLORA-1). Rye, wheat, barley and oat strips are drawn with `CityGrainMeshes` (`scripts/city/city_grain_meshes.gd`): procedural clumps of curved stalks with darker nodes, a leaf blade at a lower node and a crop-specific head, instead of the `MapViewPlantMeshes` tufts that peas, flax and the garden crops still use. Visual only: no collision, no harvest, no saved state.
+
+**Silhouettes.** Rye is tallest (about 1.55 m ripe) with a slim two-row spike and short awns, nodding a little at harvest; wheat is about 1.15 m with a plump beardless ear held upright; barley is shortest (about 0.85 m) with a six-row ear and a long brush of awns that hangs over on an arched neck when ripe; oats are about 1.05 m with an open panicle of drooping spikelet pairs. Heights follow taller medieval landraces, not modern cultivars (`invented for the game`, scaled from botanical ranges).
+
+**Stages.** `CityFarmland.grain_stage(sowing, day)` picks the model: `leafy` (tillers of leaf blades) until growth reaches `GRAIN_HEADING`, `headed` (green ears), `ripe` (straw stalks, gold ears) from halfway between full height and ripeness, `stubble` (cut straw a hand high) after the cut day. On the slice opening, 21 April, winter grain is low leafy tufts over the soil and spring grain is not up. The fine phenology (tillering, sheaves, ploughed furrows) is **R-2133**.
+
+**Tiers.** `CityFarmland.grain_cells` plants a clump on every node of the strip's row grid (`CROPS` row and step) and buckets the instances per `GRAIN_CELL` square. Each live field has two MultiMeshes refilled whenever the player moves `GRAIN_REFILL_STEP`: `Crop_<crop>` holds the detailed clumps (at most `NEAR_TRI_BUDGET` = 240 triangles) of cells within `GRAIN_NEAR_RANGE` of the player; `Crop_<crop>_far` holds a checkerboard half of the clumps out to `GRAIN_MID_RANGE` as light clumps (at most `FAR_TRI_BUDGET` = 24 triangles, stalks and ear cards drawn several times their real width so they still register from the gameplay camera) that shrink away between `MID_FADE` 36 and 44 m from the player. Beyond that the far sheet below shows the field.
+
+**Shader.** `city_grain.gdshader` uses the shared wind field (`wind_field.gdshaderinc`). Vertex `UV.y` marks ears, awns and panicles: they read the gust front `ear_lag` seconds late and overshoot, so a gust lays the stalks over and the heads follow. Stalks part round the player and are pressed along the footfall trail of **R-1327**: both grain materials register with `MapViewWindMaterials.register_interaction_material`, so `apply_grass_interaction` drives them with the grass. Lower stalks are shaded toward the ground so the city's outdoor exposure gain does not bleach the straw.
+
+**Budget.** On the `grain_field_eye_level` benchmark camera (15 June, wheat) the wheat and barley strips dropped from 770,328 triangles as tufts to 78,208 as clumps (232 near and 2,104 far instances). The `grain` layer is still over its 250,000 target there because a pea strip in view draws 395,136 triangles of `MapViewPlantMeshes` tufts (follow-up). `tools/capture_vegetation_benchmark.gd` resets farmland streaming through `CityFarmland._free_feature`, which did not exist before this task, so earlier runs never reset the farmland between cameras.
+
+![Ripe rye, wheat, barley and oats, left to right (lineup plate)](../reports/images/r2112/grain_lineup_ripe_eye.jpg)
+
+![Winter rye in mid June: green ears, eye level in the strip](../reports/images/r2112/field_rye_eye_jun.jpg)
+
+![Ripe barley in late July: heads hanging over](../reports/images/r2112/field_barley_eye_jul.jpg)
+
+![Ripe oats in late July: open panicles](../reports/images/r2112/field_oat_eye_jul.jpg)
+
+![Winter rye on 21 April: leafy tufts over the tilled soil](../reports/images/r2112/field_rye_game_apr.jpg)
+
+![Wheat strip at gameplay distance in late July, after](../reports/images/r2112/field_wheat_iso_jul.jpg)
+
+![The same view before R-2112: green tufts on the ripe strip](../reports/images/r2112/field_wheat_iso_before.jpg)
+
+More plates: `docs/reports/images/r2112/` (headed, leafy, stubble and far-tier lineups; rye at eye level in July). Review:
+
+```bash
+tools/godot_render.sh --script tools/capture_grain_lineup.gd -- --stage=ripe   # headed|leafy|stubble, --far
+tools/godot_render.sh --script tools/capture_city_farmland.gd -- --only=field_rye_eye,field_wheat_iso,field_barley_eye,field_oat_eye --date=7-25
+tools/godot_render.sh --script tools/capture_flora_cards.gd -- --only=grain
+```
+
+Tests: `tests/godot/test_city_grain_meshes.gd` (triangle caps, rooted and cached models, per-crop silhouettes, green and gold ears, calendar stages, deterministic cells, near ring round the player).
+
+**Limits.** Stand density is about nine stalks per square metre near the player, far below a real field; from the gameplay camera the heads read as a speckle over the far sheet rather than a closed canopy, and the gold sheet under ripe grain is bright (**R-2134**, FLORA-3, owns the far-field look). No weeds among the grain, no lodged patches, no sheaves or stooks (**R-2133**). Rye's awns and barley's brush are single strips without the ear-atlas texture. With no player driving the view (overview captures, tools that call `clear_grass_interaction`), the mid tier fades by camera distance instead, so a camera more than about 40 m away sees only the far sheet.
+
 ## Far fields
 
 `CityFarmland._rebuild_far` draws every sown field as a translucent, row-banded crop wash (`FAR_SHEET_ALPHA`) that hugs the ground, thins to a ragged margin and fades in with the plants (bare soil gets no sheet, the ground shader shows it), so fields read from the whole city and beyond `DRAW_RANGE`. Colour follows crop and date (`far_color`): tilled soil, greening, then gold. In April winter grain is green and spring fields are brown; wheat and barley turn gold in July and August (`--date=7-25` in the capture tool).

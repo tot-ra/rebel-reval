@@ -70,6 +70,9 @@ const MOSS_SEASON := {
 static var _cache: Dictionary = {}
 ## Recent footfalls pressing the grass down (R-1327).
 static var _trail := VegetationInteractionBuffer.new()
+## Other vegetation materials that part round the player and follow the footfall
+## trail like the grass (CityGrainMeshes, R-2112). They declare the same uniforms.
+static var _extra_interaction: Array[ShaderMaterial] = []
 ## Last snow cover pushed to the grass (R-1327), for materials built later.
 static var _snow_cover := 0.0
 static var _dormancy := 0.0
@@ -227,10 +230,18 @@ static func empty_trail() -> PackedVector4Array:
 
 
 static func _grass_interaction_materials() -> Array[ShaderMaterial]:
-	return [
+	var out: Array[ShaderMaterial] = [
 		grass_blades(), grass_blades_near(), grass_blade_tier(true), grass_blade_tier(false),
 		grass_blade_far(),
 	]
+	out.append_array(_extra_interaction)
+	return out
+
+
+## Adds a material to the character-parting and trail updates (idempotent).
+static func register_interaction_material(material: ShaderMaterial) -> void:
+	if not _extra_interaction.has(material):
+		_extra_interaction.append(material)
 
 
 ## Clears character parting when no player rig is driving the view.

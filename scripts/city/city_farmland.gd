@@ -15,6 +15,7 @@ const PlantMeshes := preload("res://scripts/map/view3d/map_view_plant_meshes.gd"
 const HayMeshes := preload("res://scripts/map/view3d/map_view_hay_meshes.gd")
 const KitchenGardenModels := preload("res://scripts/map/view3d/map_view_kitchen_garden_models.gd")
 const Shore := preload("res://scripts/city/city_shore.gd")
+const GrainMeshes := preload("res://scripts/city/city_grain_meshes.gd")
 
 const BUILD_RANGE := 95.0
 const FREE_RANGE := 135.0
@@ -43,6 +44,21 @@ const SEASONS := {
 	&"spring": {"sprout": 118, "full": 190, "ripe": 215, "cut": 240, "start": 0.0},
 	&"garden": {"sprout": 112, "full": 200, "ripe": 400, "cut": 290, "start": 0.35},
 }
+## Cereals drawn as CityGrainMeshes clumps of real stalks and ears (R-2112);
+## the other crops keep the MapViewPlantMeshes tufts above.
+const GRAIN_CROPS := {&"rye": true, &"wheat": true, &"barley": true, &"oat": true}
+## Growth at which the ear emerges (heading); below it a clump is leaf blades.
+const GRAIN_HEADING := 0.82
+## Grain tiers, in metres on the ground from the player: detailed clumps in the
+## cells round the player, light clumps at half density to GRAIN_MID_RANGE (they
+## have shrunk away by then, GrainMeshes.MID_FADE); beyond, the FarFields sheet.
+## Selected per GRAIN_CELL square and refilled every GRAIN_REFILL_STEP of travel.
+const GRAIN_CELL := 4.0
+const GRAIN_NEAR_RANGE := 6.0
+const GRAIN_MID_RANGE := 44.0
+const GRAIN_REFILL_STEP := 2.0
+## Floats per instance in a MultiMesh buffer (3x4 transform, then colour).
+const GRAIN_STRIDE := 16
 const FAR_STEP := 10.0
 const FAR_BAND := 1.8
 const FAR_LIFT := 0.07
@@ -92,6 +108,12 @@ var collision_parent: Node2D
 var _features: Array[Dictionary] = []
 var _live: Dictionary = {}
 var _far: MeshInstance3D
+## Live grain fields by feature id: {near, far (MultiMeshInstance3D), cells,
+## cells_far ({Vector2i: PackedFloat32Array} instance buffers per GRAIN_CELL)}.
+var _grain: Dictionary = {}
+## Player position of the last update_for, and of the last grain refill.
+var _focus := Vector2(INF, INF)
+var _grain_focus := Vector2(INF, INF)
 
 
 static func create(city_plan: CityPlan) -> CityFarmland:
@@ -118,6 +140,22 @@ static func growth(sowing: StringName, doy: int) -> float:
 		1.0
 	)
 	return lerpf(float(season["start"]), 1.0, t)
+
+
+## Which CityGrainMeshes stage a grain field shows on a day of year: leaf
+## blades until heading, green ears, ripe gold from halfway between full height
+## and ripeness, stubble after the cut. Pure function.
+static func grain_stage(sowing: StringName, doy: int) -> StringName:
+	var season: Dictionary = SEASONS.get(sowing, {})
+	if season.is_empty() or sowing == &"garden":
+		return GrainMeshes.STAGE_LEAFY
+	if doy >= int(season["cut"]):
+		return GrainMeshes.STAGE_STUBBLE
+	if growth(sowing, doy) < GRAIN_HEADING:
+		return GrainMeshes.STAGE_LEAFY
+	if doy * 2 >= int(season["full"]) + int(season["ripe"]):
+		return GrainMeshes.STAGE_RIPE
+	return GrainMeshes.STAGE_HEADED
 
 
 ## Tint on a day of year: green until full height, then ripening to gold.
@@ -353,6 +391,7 @@ func set_calendar_date(date: Dictionary) -> void:
 	for id: String in _live.keys():
 		(_live[id] as Node).queue_free()
 	_live.clear()
+	_grain.clear()
 	_rebuild_far()
 
 
@@ -361,17 +400,38 @@ func live_count() -> int:
 
 
 func update_for(world_xz: Vector2) -> void:
+	_focus = world_xz
 	for id: String in _live.keys():
 		var feature := _feature(id)
 		if _edge_distance(feature, world_xz) > FREE_RANGE:
-			(_live[id] as Node).queue_free()
-			_live.erase(id)
+			_free_feature(id)
+	if _grain_focus.distance_to(_focus) >= GRAIN_REFILL_STEP:
+		_grain_focus = _focus
+		for id: String in _grain:
+			_fill_grain(_grain[id])
 	for feature in _features:
 		var id: String = feature["id"]
 		if _live.has(id) or _edge_distance(feature, world_xz) > BUILD_RANGE:
 			continue
 		_live[id] = _build(feature)
 		return  # at most one feature per call
+
+
+## Frees one streamed feature with its grain tiers (also the vegetation
+## benchmark's streaming reset, tools/capture_vegetation_benchmark.gd).
+func _free_feature(id: String) -> void:
+	if _live.has(id):
+		(_live[id] as Node).queue_free()
+		_live.erase(id)
+	_grain.erase(id)
+
+
+## Grain clumps the near / far tier of field `id` draws now (tests, benchmarks).
+func grain_instance_count(id: String, far: bool) -> int:
+	if not _grain.has(id):
+		return 0
+	var inst: MultiMeshInstance3D = _grain[id]["far" if far else "near"]
+	return inst.multimesh.instance_count
 
 
 func _feature(id: String) -> Dictionary:
@@ -459,6 +519,9 @@ func _plant_field(root: Node3D, feature: Dictionary, rng: RandomNumberGenerator)
 	var amount := growth(feature["sowing"], day_of_year)
 	if crop.is_empty() or amount < MIN_GROWTH:
 		return
+	if GRAIN_CROPS.has(feature["crop"]):
+		_plant_grain(root, feature)
+		return
 	var poly: PackedVector2Array = feature["polygon"]
 	var frame := strip_frame(poly, float(feature["angle"]))
 	var origin: Vector2 = frame["origin"]
@@ -503,6 +566,120 @@ func _plant_field(root: Node3D, feature: Dictionary, rng: RandomNumberGenerator)
 	inst.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	inst.visibility_range_end = DRAW_RANGE
 	root.add_child(inst)
+
+
+## Grain field: both tiers as MultiMeshes whose instances are picked per cell
+## round the player (_fill_grain), so only the ring near Kalev is detailed.
+func _plant_grain(root: Node3D, feature: Dictionary) -> void:
+	var crop: StringName = feature["crop"]
+	var stage := grain_stage(feature["sowing"], day_of_year)
+	var cells := grain_cells(plan, feature, day_of_year)
+	if (cells["near"] as Dictionary).is_empty():
+		return
+	var entry := {"cells": cells["near"], "cells_far": cells["far"]}
+	for far: bool in [false, true]:
+		var inst := MultiMeshInstance3D.new()
+		inst.name = "Crop_%s_far" % crop if far else "Crop_%s" % crop
+		var multi := MultiMesh.new()
+		multi.transform_format = MultiMesh.TRANSFORM_3D
+		multi.use_colors = true
+		multi.mesh = GrainMeshes.mesh_for(crop, stage, far)
+		inst.multimesh = multi
+		inst.material_override = GrainMeshes.material(far)
+		inst.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		inst.visibility_range_end = DRAW_RANGE
+		root.add_child(inst)
+		entry["far" if far else "near"] = inst
+	_grain[String(feature["id"])] = entry
+	_fill_grain(entry)
+
+
+## Refills one grain field's tiers for the last refill position.
+func _fill_grain(entry: Dictionary) -> void:
+	var near := PackedFloat32Array()
+	var far := PackedFloat32Array()
+	var cells_far: Dictionary = entry["cells_far"]
+	for key: Vector2i in entry["cells"]:
+		var dist := ((Vector2(key) + Vector2(0.5, 0.5)) * GRAIN_CELL).distance_to(_grain_focus)
+		if dist <= GRAIN_NEAR_RANGE:
+			near.append_array(entry["cells"][key])
+		elif dist <= GRAIN_MID_RANGE and cells_far.has(key):
+			far.append_array(cells_far[key])
+	for pair: Array in [[entry["near"], near], [entry["far"], far]]:
+		var inst: MultiMeshInstance3D = pair[0]
+		var buffer: PackedFloat32Array = pair[1]
+		inst.multimesh.instance_count = buffer.size() / GRAIN_STRIDE
+		if inst.multimesh.instance_count > 0:
+			inst.multimesh.buffer = buffer
+		inst.visible = inst.multimesh.instance_count > 0
+
+
+## Grain clump instances of a field on day `doy`, as MultiMesh buffers per
+## GRAIN_CELL: {"near": {Vector2i: buffer}, "far": {Vector2i: buffer}}. Near
+## holds every clump on the CROPS row grid; far keeps a checkerboard half of
+## them (the far clump is drawn wider). Deterministic from the field id.
+static func grain_cells(city_plan: CityPlan, feature: Dictionary, doy: int) -> Dictionary:
+	var out := {"near": {}, "far": {}}
+	var crop: Dictionary = CROPS.get(feature["crop"], {})
+	var amount := growth(feature["sowing"], doy)
+	if crop.is_empty() or amount < MIN_GROWTH:
+		return out
+	var stage := grain_stage(feature["sowing"], doy)
+	# Leaf tufts grow toward heading height; ears stand at the field's growth;
+	# stubble is modelled at its cut height.
+	var height := 1.0
+	var width := 1.0
+	if stage == GrainMeshes.STAGE_LEAFY:
+		height = clampf(amount / GRAIN_HEADING, 0.2, 1.0)
+		width = lerpf(0.6, 1.0, height)
+	elif stage != GrainMeshes.STAGE_STUBBLE:
+		height = amount
+	var rng := RandomNumberGenerator.new()
+	rng.seed = hash(feature["id"])
+	var poly: PackedVector2Array = feature["polygon"]
+	var frame := strip_frame(poly, float(feature["angle"]))
+	var origin: Vector2 = frame["origin"]
+	var u: Vector2 = frame["u"]
+	var v: Vector2 = frame["v"]
+	var row_gap: float = crop["row"]
+	var step: float = crop["step"]
+	var rows := int((float(frame["width"]) - HEADLAND * 2.0) / row_gap)
+	var per_row := int((float(frame["length"]) - HEADLAND * 2.0) / step)
+	for r in rows:
+		for c in per_row:
+			var jitter := Vector2(rng.randf_range(-0.12, 0.12), rng.randf_range(-0.1, 0.1))
+			var p := origin + u * (HEADLAND + c * step + jitter.x) + v * (HEADLAND + r * row_gap + jitter.y)
+			var variety := rng.randf_range(0.9, 1.1)
+			var yaw := rng.randf() * TAU
+			var shade := rng.randf_range(0.9, 1.06)
+			if frame["clipped"] and not Geometry2D.is_point_in_polygon(p, poly):
+				continue
+			var basis := Basis(Vector3.UP, yaw).scaled(
+				Vector3(width * variety, height * variety, width * variety)
+			)
+			var buf := _grain_pack(
+				Transform3D(basis, Vector3(p.x, city_plan.ground_height(p) - 0.02, p.y)),
+				Color(shade, shade, shade, 1.0)
+			)
+			var key := Vector2i((p / GRAIN_CELL).floor())
+			for tier: String in ["near", "far"]:
+				if tier == "far" and (r + c) % 2 != 0:
+					continue
+				var cells: Dictionary = out[tier]
+				var merged: PackedFloat32Array = cells.get(key, PackedFloat32Array())
+				merged.append_array(buf)
+				cells[key] = merged
+	return out
+
+
+static func _grain_pack(t: Transform3D, c: Color) -> PackedFloat32Array:
+	var b := t.basis
+	return PackedFloat32Array([
+		b.x.x, b.y.x, b.z.x, t.origin.x,
+		b.x.y, b.y.y, b.z.y, t.origin.y,
+		b.x.z, b.y.z, b.z.z, t.origin.z,
+		c.r, c.g, c.b, c.a,
+	])
 
 
 ## (width, height) multipliers: young plants are low and thin.

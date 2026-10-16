@@ -10,13 +10,14 @@ extends SceneTree
 ##
 ## Needs a renderer:
 ##   tools/godot_render.sh --script tools/capture_flora_cards.gd \
-##     [-- --only=trees|plants|forbs]
+##     [-- --only=trees|plants|forbs|grain]
 ## Output: docs/FLORA/images/<trees|herbs|crops>/<id>.jpg (900x900).
 
 const TreeSpecies := preload("res://scripts/map/view3d/map_view_tree_species.gd")
 const PlantSpecies := preload("res://scripts/map/view3d/map_view_plant_species.gd")
 const PlantMeshes := preload("res://scripts/map/view3d/map_view_plant_meshes.gd")
 const ForbMeshes := preload("res://scripts/city/city_forb_meshes.gd")
+const GrainMeshes := preload("res://scripts/city/city_grain_meshes.gd")
 
 const OUTPUT_DIR := "res://docs/FLORA/images"
 const SIZE := Vector2i(900, 900)
@@ -67,7 +68,24 @@ func _run() -> void:
 			forb.mesh = ForbMeshes.mesh_for(kind)
 			forb.material_override = CityForbs.material_unfaded()
 			failed = await _shoot(viewport, camera, forb, "herbs", String(kind)) or failed
+	if _only in ["", "grain"]:
+		# City cereal clumps (R-2112): a small ripe stand, saved as <crop>_grain.
+		for crop: StringName in GrainMeshes.ALL_CROPS:
+			failed = await _shoot(viewport, camera, _grain_stand(crop), "crops", "%s_grain" % crop) or failed
 	quit(1 if failed else 0)
+
+
+## Three by three ripe CityGrainMeshes clumps on the field row grid.
+func _grain_stand(crop: StringName) -> Node3D:
+	var stand := Node3D.new()
+	for i in 9:
+		var clump := MeshInstance3D.new()
+		clump.mesh = GrainMeshes.mesh_for(crop, GrainMeshes.STAGE_RIPE)
+		clump.material_override = GrainMeshes.material(false)
+		clump.position = Vector3(float(i % 3) * 0.55, 0.0, float(i / 3) * 0.8)
+		clump.rotation.y = float(i) * 2.4
+		stand.add_child(clump)
+	return stand
 
 
 ## A tree as the district maps draw it (medium size): wood, crown, fruit.
