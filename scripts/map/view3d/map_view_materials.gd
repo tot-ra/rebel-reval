@@ -443,6 +443,7 @@ static func apply_vegetation_season(date: Dictionary) -> void:
 		VegetationPhenology.snow_cover_for(WIND_MATERIALS.vegetation_season_date())
 	)
 	PROP_MATERIALS.apply_fruit_season(date)
+	MapViewBushMeshes.apply_adornment_season(date)
 
 
 static func tree_fruit_for_species(species: StringName) -> StandardMaterial3D:

@@ -64,6 +64,39 @@ const FRUIT_MONTHS := {
 }
 
 
+## Shrub flowers and fruit by day of year (R-2125), inclusive [from, to]. A window
+## with from > to wraps the new year (rosehips and guelder berries hang into winter).
+const SHRUB_BLOOM_DAYS := {
+	&"elder": [152, 186],
+	&"guelder_rose": [152, 186],
+	&"willow_shrub": [91, 125],
+	&"alder_shrub": [79, 115],
+	&"dog_rose": [156, 196],
+	&"raspberry": [150, 175],
+}
+const SHRUB_FRUIT_DAYS := {
+	&"elder": [222, 293],
+	&"guelder_rose": [232, 59],
+	&"spindle": [244, 334],
+	&"sea_buckthorn": [232, 74],
+	&"juniper_shrub": [200, 59],
+	&"dog_rose": [227, 59],
+	&"raspberry": [182, 243],
+}
+
+
+## True when this shrub carries `kind` (&"flower" or &"fruit") on the date.
+static func shrub_adornment_visible(species: StringName, kind: StringName, date: Dictionary) -> bool:
+	var table: Dictionary = SHRUB_BLOOM_DAYS if kind == &"flower" else SHRUB_FRUIT_DAYS
+	if not table.has(species):
+		return false
+	var day := GameCalendar.day_of_year(GameCalendar.normalize_date(date))
+	var window: Array = table[species]
+	var from := int(window[0])
+	var to := int(window[1])
+	return (day >= from and day <= to) if from <= to else (day >= from or day <= to)
+
+
 ## Wild-plant (forb) phases for CityForbs (R-1557), by species. Tallinn-area
 ## timings: rosettes show from mid April and die back under the November frost
 ## and snow; dandelion flowers May-June and seeds in June; clover flowers June-

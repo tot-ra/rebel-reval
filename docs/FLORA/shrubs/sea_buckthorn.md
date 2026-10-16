@@ -10,7 +10,7 @@
 | Estonian | astelpaju |
 | Runtime ID | `bush.sea_buckthorn`, city `sea_buckthorn` |
 | Period (1343) | high |
-| Model | City: blackthorn tree mesh (`CityVegetationBuilder.SHRUB_AS_TREE`) |
+| Model | City cane shrub (`MapViewBushMeshes.city_mesh_for`, R-2125), willow leaf plate, dated flowers and fruit |
 
 ## Where it grows in game
 
@@ -18,7 +18,7 @@ Coastal sand and the beach strand.
 
 ## Seasons
 
-Orange berries August-October (not drawn).
+Orange berries August-October (drawn by date).
 
 ## Folk use and herbalism (planned)
 

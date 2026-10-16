@@ -10,7 +10,7 @@
 | Estonian | harilik kikkapuu |
 | Runtime ID | `bush.spindle`, city `spindle` |
 | Period (1343) | high |
-| Model | City: hawthorn tree mesh (`CityVegetationBuilder.SHRUB_AS_TREE`) |
+| Model | City cane shrub (`MapViewBushMeshes.city_mesh_for`, R-2125), cherry leaf plate, dated flowers and fruit |
 
 ## Where it grows in game
 
@@ -18,7 +18,7 @@ Hedges and wood edges.
 
 ## Seasons
 
-Pink fruit September-October (not drawn).
+Pink fruit September-October (drawn by date).
 
 ## Folk use and herbalism (planned)
 

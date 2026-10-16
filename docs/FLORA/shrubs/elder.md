@@ -10,15 +10,15 @@
 | Estonian | must leeder |
 | Runtime ID | `bush.elder`, city `elder` |
 | Period (1343) | medium (garden plant; wild range in Estonia is marginal) |
-| Model | City: hazel tree mesh (`CityVegetationBuilder.SHRUB_AS_TREE`) |
+| Model | City cane shrub (`MapViewBushMeshes.city_mesh_for`, R-2125), rowan leaf plate, dated flowers and fruit |
 
 ## Where it grows in game
 
-Yard shrub drawn with the hazel mesh.
+Yard shrub drawn as a multi-stem cane shrub with compound leaves.
 
 ## Seasons
 
-Flowers June, berries August-September (not drawn).
+Flowers June, berries August-September (drawn by date).
 
 ## Folk use and herbalism (planned)
 

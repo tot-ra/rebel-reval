@@ -10,7 +10,7 @@
 | Estonian | paju |
 | Runtime ID | `bush.willow_shrub`, city `willow_shrub` |
 | Period (1343) | high |
-| Model | City: hazel tree mesh (`CityVegetationBuilder.SHRUB_AS_TREE`) |
+| Model | City cane shrub (`MapViewBushMeshes.city_mesh_for`, R-2125), willow leaf plate, dated flowers and fruit |
 
 ## Where it grows in game
 

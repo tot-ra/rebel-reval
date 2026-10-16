@@ -63,19 +63,12 @@ const TRUNK_DIAMETER_M := {
 ## much, so neighbours vary without the odd giant.
 const SIZE_VARIATION := 0.6
 ## Large shrubs read best as low multi-stem crowns: drawn with the tree meshes.
+## Elder, guelder rose, willow, alder, spindle, sea buckthorn and juniper have
+## their own cane shrubs (MapViewBushMeshes, R-2125) and are no longer listed.
 const SHRUB_AS_TREE := {
-	&"elder": &"hazel",
 	&"hazel_shrub": &"hazel",
-	&"guelder_rose": &"hazel",
-	&"willow_shrub": &"hazel",
-	&"alder_shrub": &"hazel",
 	&"hawthorn": &"hawthorn",
 	&"blackthorn": &"blackthorn",
-	&"spindle": &"hawthorn",
-	# The shared block-shaped shrub meshes read as giant flat-shaded stalks beside
-	# a 1.83 m figure; these draw with the real-size leaf-card shrub trees.
-	&"juniper_shrub": &"juniper",
-	&"sea_buckthorn": &"blackthorn",
 }
 
 ## Crowns are expensive (layered leaf cards): chunk them spatially and only
@@ -284,7 +277,8 @@ static func build(plan: CityPlan, parent: Node3D) -> Node3D:
 		(by_species[bucket]["colors"] as Array[Color]).append(Color(tone, tone, tone, 1.0))
 		# Fallen leaves or needles under about two thirds of the trees; the
 		# rest keep bare earth so the carpet reads as natural, not as a decal.
-		if rng.randf() < LITTER_SHARE and not SHRUB_AS_TREE.values().has(String(species)):
+		if rng.randf() < LITTER_SHARE and not SHRUB_AS_TREE.values().has(String(species)) \
+				and species != &"juniper":
 			var litter_basis := Basis(Vector3.UP, rng.randf() * TAU).scaled(Vector3.ONE * scale)
 			(by_species[bucket]["litter"] as Array[Transform3D]).append(
 				Transform3D(litter_basis, xf.origin + Vector3(0.0, 0.25, 0.0))
@@ -483,3 +477,18 @@ static func build_bushes(plan: CityPlan, root: Node3D) -> void:
 		inst.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		inst.visibility_range_end = BUSH_RANGE
 		root.add_child(inst)
+		# Seasonal flowers and fruit ride the same transforms (R-2125).
+		for kind: StringName in [&"flower", &"fruit"]:
+			if not BushMeshes.has_adornment(species, kind):
+				continue
+			var extra := MapViewMeshBuilderPrimitives.multi_mesh(
+				"Bush%s_%s" % [String(kind).capitalize(), species],
+				BushMeshes.city_adornment_mesh(species, BUSH_SIZE_M[species], kind),
+				buckets[key]["transforms"],
+				buckets[key]["colors"],
+				BushMeshes.adornment_material(species, kind),
+				Vector3.ZERO
+			)
+			extra.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+			extra.visibility_range_end = BUSH_RANGE
+			root.add_child(extra)

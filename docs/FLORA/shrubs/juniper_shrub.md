@@ -10,7 +10,7 @@
 | Estonian | harilik kadakas |
 | Runtime ID | `bush.juniper_shrub`, city `juniper_shrub` |
 | Period (1343) | high |
-| Model | City: juniper tree mesh (`CityVegetationBuilder.SHRUB_AS_TREE`) |
+| Model | City cane shrub (`MapViewBushMeshes.city_mesh_for`, R-2125), juniper leaf plate, dated flowers and fruit |
 
 ## Where it grows in game
 

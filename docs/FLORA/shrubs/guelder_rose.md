@@ -10,7 +10,7 @@
 | Estonian | harilik lodjapuu |
 | Runtime ID | `bush.guelder_rose`, city `guelder_rose` |
 | Period (1343) | high |
-| Model | City: hazel tree mesh (`CityVegetationBuilder.SHRUB_AS_TREE`) |
+| Model | City cane shrub (`MapViewBushMeshes.city_mesh_for`, R-2125), maple leaf plate, dated flowers and fruit |
 
 ## Where it grows in game
 
@@ -18,7 +18,7 @@ Damp wood edges and stream banks.
 
 ## Seasons
 
-White flowers June, red berries September (not drawn).
+White flowers June, red berries September (drawn by date).
 
 ## Folk use and herbalism (planned)
 

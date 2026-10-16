@@ -165,19 +165,31 @@ Heavy attacks shake harder; autumn yields more leaves, bare crowns none. Ambient
 
 ## Shrubs
 
-| Dog rose | Raspberry | Elder (hazel mesh) |
+| Dog rose | Raspberry | Elder (hazel mesh, before R-2125) |
 |---|---|---|
 | ![City dog rose with arching canes and leaf cards](../reports/images/vegetation/veg_city_dog_rose_close.jpg) | ![City raspberry canes](../reports/images/vegetation/veg_city_raspberry_close.jpg) | ![Elder drawn with the hazel tree mesh](../reports/images/vegetation/veg_city_elder_close.jpg) |
 
-City shrubs reuse tree meshes through [`CityVegetationBuilder.SHRUB_AS_TREE`](../../scripts/city/city_vegetation_builder.gd):
+Most city shrubs are multi-stem cane shrubs from [`MapViewBushMeshes.city_mesh_for`](../../scripts/map/view3d/map_view_bush_meshes.gd) (R-2125): arching canes carrying real-size leaf cards. Each species has a preset (cane count, arch, droop, card size and width, stem thickness) in `CITY_CANES` and borrows a leaf plate and phenology from a proxy tree (`CITY_LEAF_PROXY`). Only `hazel_shrub`, `hawthorn` and `blackthorn` still draw as tree meshes through [`CityVegetationBuilder.SHRUB_AS_TREE`](../../scripts/city/city_vegetation_builder.gd).
 
-| City plan species | Rendered model |
-|---|---|
-| [`elder`](../FLORA/shrubs/elder.md), [`hazel_shrub`](../FLORA/shrubs/hazel_shrub.md), [`guelder_rose`](../FLORA/shrubs/guelder_rose.md), [`willow_shrub`](../FLORA/shrubs/willow_shrub.md), [`alder_shrub`](../FLORA/shrubs/alder_shrub.md) | Hazel tree mesh, scaled |
-| [`hawthorn`](../FLORA/shrubs/hawthorn.md), [`spindle`](../FLORA/shrubs/spindle.md) | Hawthorn tree mesh |
-| [`blackthorn`](../FLORA/shrubs/blackthorn.md), [`sea_buckthorn`](../FLORA/shrubs/sea_buckthorn.md) | Blackthorn tree mesh |
-| [`juniper_shrub`](../FLORA/shrubs/juniper_shrub.md) | Juniper tree mesh |
-| [`dog_rose`](../FLORA/shrubs/dog_rose.md), [`raspberry`](../FLORA/shrubs/raspberry.md) | Curved canes with leaf cards ([`MapViewBushMeshes.city_mesh_for`](../../scripts/map/view3d/map_view_bush_meshes.gd)); rose uses rowan leaves, raspberry hazel; no flowers or fruit |
+| City plan species | Rendered model | Leaf plate | Flowers | Fruit |
+|---|---|---|---|---|
+| [`elder`](../FLORA/shrubs/elder.md) | Cane shrub, thick stems | rowan (compound) | cream umbels June | black berries Aug-Oct |
+| [`guelder_rose`](../FLORA/shrubs/guelder_rose.md) | Cane shrub | maple (lobed) | white heads June | red berries Aug-Feb |
+| [`willow_shrub`](../FLORA/shrubs/willow_shrub.md) | Cane shrub, many whips, narrow cards | willow | catkins Apr | none |
+| [`alder_shrub`](../FLORA/shrubs/alder_shrub.md) | Cane shrub | alder | catkins late Mar-Apr | none |
+| [`spindle`](../FLORA/shrubs/spindle.md) | Cane shrub | cherry | none | pink capsules Sep-Nov |
+| [`sea_buckthorn`](../FLORA/shrubs/sea_buckthorn.md) | Cane shrub, narrow cards | willow | none | orange berries Aug-Mar |
+| [`juniper_shrub`](../FLORA/shrubs/juniper_shrub.md) | Low spreading cane shrub | juniper needles | none | blue berries Jul-Feb |
+| [`dog_rose`](../FLORA/shrubs/dog_rose.md) | Cane shrub | rowan | pink blossoms June-Jul | hips Aug-Feb |
+| [`raspberry`](../FLORA/shrubs/raspberry.md) | Cane shrub, upright | hazel | white blossoms June | berries Jul-Aug |
+| [`hazel_shrub`](../FLORA/shrubs/hazel_shrub.md), [`hawthorn`](../FLORA/shrubs/hawthorn.md), [`blackthorn`](../FLORA/shrubs/blackthorn.md) | Tree meshes (`SHRUB_AS_TREE`) | own | none | tree fruit |
+
+Flowers and fruit are separate vertex-coloured meshes (`city_adornment_mesh`) on the same instance transforms, shown by an alpha-scissor material the season switches per date: windows in `VegetationPhenology.SHRUB_BLOOM_DAYS` and `SHRUB_FRUIT_DAYS` (a window that wraps the new year keeps rosehips and berries on the winter bush). Canes stay bare and leafless in winter. Plates: [`tools/capture_shrub_plates.gd`](../../tools/capture_shrub_plates.gd) writes the June-August lineup and spring, summer, autumn and winter plates to `docs/reports/images/vegetation/shrubs_*.jpg`.
+
+![Shrub lineup, late August](../reports/images/vegetation/shrubs_lineup.jpg)
+
+![Elder, guelder rose and sea buckthorn in summer](../reports/images/vegetation/shrubs_season_summer.jpg)
+![The same three in winter](../reports/images/vegetation/shrubs_season_winter.jpg)
 
 Species with neither a proxy nor a city mesh are skipped rather than drawn as a blob.
 

@@ -322,3 +322,58 @@ func test_city_bush_leaf_cards_are_real_size() -> void:
 		var stats := MapViewTreeMeshes.city_canopy_near_stats(species, scale)
 		assert_true(float(stats["count_factor"]) > 1.1, "%s near crown keeps its mass" % species)
 		assert_true(int(stats["canopy_triangles"]) <= MapViewTreeMeshes.NEAR_TRIANGLE_CAP)
+
+
+const DEDICATED_SHRUBS: Array[StringName] = [
+	&"elder", &"guelder_rose", &"willow_shrub", &"alder_shrub", &"spindle",
+	&"sea_buckthorn", &"juniper_shrub",
+]
+## Triangle ceiling for one shrub (leaf cards, canes, then each adornment mesh).
+const SHRUB_TRIANGLE_CAP := 14000
+const ADORNMENT_TRIANGLE_CAP := 4000
+
+
+func test_dedicated_shrubs_have_their_own_mesh() -> void:
+	# R-2125: these seven no longer borrow hazel/hawthorn tree meshes.
+	for species in DEDICATED_SHRUBS:
+		assert_false(CityVegetationBuilder.SHRUB_AS_TREE.has(species), "%s still a tree" % species)
+		assert_true(MapViewBushMeshes.has_city_variant(species), "%s has no variant" % species)
+		assert_true(CityVegetationBuilder.BUSH_SIZE_M.has(species), "%s has no size" % species)
+		var mesh := CityVegetationBuilder.bush_mesh(species)
+		var triangles := mesh.surface_get_array_len(0) / 3
+		assert_true(triangles > 400, "%s only %d triangles" % [species, triangles])
+		assert_true(triangles < SHRUB_TRIANGLE_CAP, "%s %d triangles over budget" % [species, triangles])
+		var card := _max_card_metres(mesh, 1.35)
+		assert_true(card > 0.08 and card < 0.45, "%s leaf card %.2f m" % [species, card])
+		for kind: StringName in [&"flower", &"fruit"]:
+			if MapViewBushMeshes.has_adornment(species, kind):
+				var extra := MapViewBushMeshes.city_adornment_mesh(
+					species, CityVegetationBuilder.BUSH_SIZE_M[species], kind
+				)
+				var count := extra.surface_get_array_len(0) / 3
+				assert_true(count > 0 and count < ADORNMENT_TRIANGLE_CAP, "%s %s %d" % [species, kind, count])
+
+
+func test_shrub_flowers_and_fruit_follow_the_calendar() -> void:
+	var june := {"day": 15, "month": 6, "year": 1343}
+	var october := {"day": 5, "month": 10, "year": 1343}
+	var january := {"day": 15, "month": 1, "year": 1343}
+	var april := {"day": 10, "month": 4, "year": 1343}
+	assert_true(VegetationPhenology.shrub_adornment_visible(&"elder", &"flower", june))
+	assert_false(VegetationPhenology.shrub_adornment_visible(&"elder", &"fruit", june))
+	assert_false(
+		VegetationPhenology.shrub_adornment_visible(&"elder", &"fruit", {"day": 20, "month": 11, "year": 1343})
+	)
+	assert_true(VegetationPhenology.shrub_adornment_visible(&"spindle", &"fruit", october))
+	# Winter berries and rosehips wrap the new year.
+	assert_true(VegetationPhenology.shrub_adornment_visible(&"guelder_rose", &"fruit", january))
+	assert_true(VegetationPhenology.shrub_adornment_visible(&"dog_rose", &"fruit", january))
+	assert_true(VegetationPhenology.shrub_adornment_visible(&"willow_shrub", &"flower", april))
+	assert_false(VegetationPhenology.shrub_adornment_visible(&"willow_shrub", &"flower", june))
+	var july := {"day": 20, "month": 7, "year": 1343}
+	assert_true(VegetationPhenology.shrub_adornment_visible(&"raspberry", &"fruit", july))
+	var material := MapViewBushMeshes.adornment_material(&"elder", &"flower")
+	MapViewBushMeshes.apply_adornment_season(june)
+	assert_eq(material.albedo_color.a, 1.0)
+	MapViewBushMeshes.apply_adornment_season(october)
+	assert_eq(material.albedo_color.a, 0.0)

@@ -10,7 +10,7 @@
 | Estonian | koerroos / kibuvits |
 | Runtime ID | `bush.dog_rose`, city `dog_rose` |
 | Period (1343) | high |
-| Model | City cane model (`MapViewBushMeshes.city_mesh_for`) |
+| Model | City cane model (`MapViewBushMeshes.city_mesh_for`), dated flowers and fruit |
 
 ## Where it grows in game
 
@@ -18,7 +18,7 @@ Arching canes with leaf cards (rowan leaves); yards and wall feet.
 
 ## Seasons
 
-Hips August-October (not drawn).
+Hips August-October (drawn by date).
 
 ## Folk use and herbalism (planned)
 

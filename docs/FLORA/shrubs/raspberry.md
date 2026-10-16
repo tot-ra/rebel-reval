@@ -10,7 +10,7 @@
 | Estonian | harilik vaarikas |
 | Runtime ID | `bush.raspberry`, city `raspberry` |
 | Period (1343) | high |
-| Model | City cane model (`MapViewBushMeshes.city_mesh_for`) |
+| Model | City cane model (`MapViewBushMeshes.city_mesh_for`), dated flowers and fruit |
 
 ## Where it grows in game
 
@@ -18,7 +18,7 @@ Upright canes with hazel leaves; clearings and yards.
 
 ## Seasons
 
-Berries July-August (not drawn).
+Berries July-August (drawn by date).
 
 ## Folk use and herbalism (planned)
 

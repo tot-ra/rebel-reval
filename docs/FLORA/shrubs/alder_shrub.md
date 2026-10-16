@@ -10,7 +10,7 @@
 | Estonian | hall lepp |
 | Runtime ID | `bush.alder_shrub`, city `alder_shrub` |
 | Period (1343) | high |
-| Model | City: hazel tree mesh (`CityVegetationBuilder.SHRUB_AS_TREE`) |
+| Model | City cane shrub (`MapViewBushMeshes.city_mesh_for`, R-2125), alder leaf plate, dated flowers and fruit |
 
 ## Where it grows in game
 
