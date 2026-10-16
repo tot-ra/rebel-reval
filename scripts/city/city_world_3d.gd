@@ -484,7 +484,7 @@ func _build_buildings() -> void:
 		var enterable := bool(b.get("enterable", false))
 		var floor_y := plan.floor_height(i)
 		var built := CityBuildingBuilder.build_building(
-			b, ring, floor_y, enterable, plan.ground_height, _site_keep_out(ring)
+			b, ring, floor_y, enterable, plan.ground_height, _site_keep_out(ring), plan.door_steps(i)
 		)
 		var top: Vector3 = built["chimney"]
 		if top != Vector3.INF:

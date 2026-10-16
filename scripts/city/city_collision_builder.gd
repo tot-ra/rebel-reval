@@ -6,6 +6,7 @@ extends RefCounted
 ## - enterable houses: one thin quad per wall with a gap at the door, so the
 ##   inside is walkable and matches the visible interior;
 ## - other buildings: a solid footprint polygon;
+## - rails and parapets of door stairs (CityDoorSteps);
 ## - curtains, gate jambs, towers, the Toompea wall and the castle ring;
 ## - the klint and other slopes steeper than MAX_WALK_SLOPE (sea and moat stay open:
 ##   Kalev swims, ADR 0021).
@@ -72,6 +73,11 @@ static func _buildings(plan: CityPlan, add_poly: Callable) -> void:
 		var ring := CityBuildingBuilder.normalized_ring(plan.footprint(i))
 		if ring.size() < 3:
 			continue
+		# R-2197: rails and parapets of a door stair, so a landing is reached up
+		# its flight and not by stepping onto it from the side.
+		if b.get("door") != null:
+			for poly in CityDoorSteps.collision_polygons(plan.door_steps(i)):
+				add_poly.call(poly)
 		if not bool(b.get("enterable", false)):
 			# Concave footprints are fine for CollisionPolygon2D (decomposed).
 			add_poly.call(ring)

@@ -1130,6 +1130,7 @@ def build(args) -> dict:
     buildings = [b_ for b_ in buildings if b_["id"] not in replaced]
     site_out = [terrace_site(site, height_wu, h_at_m, x0, y0, mpu) for site in sites]
     fix_blocked_doors(buildings, [poly for so in site_out for poly in so["footprints"]])
+    lower_high_doors(buildings, [poly for so in site_out for poly in so["footprints"]], h_at_m, mpu)
     # R-1929: farm-suburb houses are smoke cottages and the barn-dwelling is a
     # walk-in two-bay elurehi (no household: the census only counts houses).
     # After the door fix, so the plan follows the final door.
@@ -1641,7 +1642,12 @@ def terrace_landmarks(buildings, height_wu, h_at_m, x0, y0, mpu):
     # the footprints once more with a 2.2 m apron (just over one 2 wu grid cell,
     # so every cell the bilinear lookup at a footprint corner reads is at level)
     # and almost no blend, so each floor ends up at its own door level.
-    for ring, level, _blend in plots:
+    # R-2197: highest plot first. A later (lower) cut can only lower a corner
+    # it shares with a higher neighbour, never raise it, so no house's floor
+    # (the highest ground at its corners) climbs to the uphill neighbour's
+    # level. In list order a row of houses down a slope took the upper
+    # neighbour's level at the shared wall and left 1.5-2.8 m door steps.
+    for ring, level, _blend in sorted(plots, key=lambda p_: -p_[1]):
         flatten_ground(height_wu, ring, level, 2.3, x0, y0, mpu, apron=2.2)
     # Bases of every building near a terrace changed: recompute them all.
     for b in buildings:
@@ -2809,6 +2815,65 @@ def fix_blocked_doors(buildings, extra_blockers):
             b["door"] = None
             b["enterable"] = False
         else:
+            b["door"] = [round(best[0], 3), round(best[1], 3), round(best[2], 4)]
+
+
+# R-2197: the floor stands on the highest ground under the footprint, and the
+# plot terrace (terrace_landmarks) only levels house spans up to
+# HOUSE_TERRACE_MAX_SPAN_WU. A merged OSM block on a steep slope (the St
+# Catherine's houses by the town wall span 4-5 wu) kept its street door on the
+# low side, metres above the ground at the top of a long flight. A house built
+# into a slope is entered from the upper side and shows a cellar plinth below,
+# so such a door moves to the clear edge with the least rise.
+DOOR_HIGH_RISE_WU = 1.0
+DOOR_RISE_GAIN_WU = 0.5
+
+
+def door_rise(door, top, h_at_m, mpu):
+    """Floor-to-street height of a door: `top` (wu) minus the ground 1 m out."""
+    o = (math.cos(door[2]), math.sin(door[2]))
+    return top - h_at_m((door[0] + o[0]) * mpu, (door[1] + o[1]) * mpu)
+
+
+def lower_high_doors(buildings, extra_blockers, h_at_m, mpu):
+    """Move doors that rise more than DOOR_HIGH_RISE_WU above the street, on
+    buildings the plot terrace leaves alone, to the clear edge with the least
+    rise when that saves at least DOOR_RISE_GAIN_WU. Run after fix_blocked_doors
+    and before terrace_landmarks (which levels to the final door)."""
+    polys = [[tuple(q) for q in b_["footprint"]] for b_ in buildings] + [[tuple(q) for q in p_] for p_ in extra_blockers]
+
+    def clear(door, own):
+        o = (math.cos(door[2]), math.sin(door[2]))
+        for k in DOOR_CLEAR_PROBES:
+            pt = (door[0] + o[0] * k, door[1] + o[1] * k)
+            if any(j != own and point_in_ring(pt, pl) for j, pl in enumerate(polys)):
+                return False
+        return True
+
+    for i, b in enumerate(buildings):
+        # A building nobody enters already sets its threshold at the street
+        # level in front of the door (CityPlan.floor_height).
+        if not b["door"] or not b["enterable"]:
+            continue
+        terraced =(b["kind"] in TERRACE_KINDS and b["base_span"] >= TERRACE_MIN_SPAN_WU) or (
+            b["kind"] == "house" and HOUSE_TERRACE_MIN_SPAN_WU <= b["base_span"] <= HOUSE_TERRACE_MAX_SPAN_WU
+        )
+        if terraced:
+            continue
+        top = max(h_at_m(q[0] * mpu, q[1] * mpu) for q in b["footprint"])
+        rise = door_rise(b["door"], top, h_at_m, mpu)
+        if rise <= DOOR_HIGH_RISE_WU:
+            continue
+        d = b["door"]
+        street = (d[0] + math.cos(d[2]) * 6.0, d[1] + math.sin(d[2]) * 6.0)
+        best, best_rise = None, rise - DOOR_RISE_GAIN_WU
+        # door_candidates is ordered nearest the street first, so a tie keeps
+        # the door on the street side.
+        for cand in door_candidates(polys[i], street):
+            r = door_rise(cand, top, h_at_m, mpu)
+            if r < best_rise - 0.05 and clear(cand, i):
+                best, best_rise = cand, r
+        if best is not None:
             b["door"] = [round(best[0], 3), round(best[1], 3), round(best[2], 4)]
 
 

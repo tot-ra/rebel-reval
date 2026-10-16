@@ -66,6 +66,11 @@ var _plot_index: Dictionary = {}
 var _plot_rings: Array[PackedVector2Array] = []
 var _height_texture: ImageTexture
 var _moat_line := PackedVector2Array()
+## R-2197 door stairs by building index (CityDoorSteps layouts, lazily built)
+## and building indices by INDEX_CELL bucket of their tread bounds.
+var _door_steps: Dictionary = {}
+var _step_index: Dictionary = {}
+var _step_index_built := false
 var _moat_bounds := Rect2()
 
 
@@ -286,6 +291,12 @@ func walk_height(world_xz: Vector2) -> float:
 		if not f.is_empty():
 			return site.floor_height_at(f, world_xz)
 	var index := building_at(world_xz)
+	# Outside every shell a door stair may carry the actor (R-2197). Inside one
+	# the floor wins, so a flight that clips a neighbour never lifts its room.
+	if index < 0:
+		var step := door_step_height(world_xz)
+		if not is_nan(step):
+			return maxf(step, ground_height(world_xz))
 	if index >= 0:
 		# A shell with no interior site (sheds, barns, pigsties on a slope) has a
 		# threshold-based floor that can sit up to a metre under the uphill
@@ -356,6 +367,60 @@ func floor_height(index: int) -> float:
 		var at_door := ground_height(Vector2(door[0], door[1]) + out) + FLOOR_LIFT
 		return clampf(at_door, float(b["base_h"]) + FLOOR_LIFT, highest)
 	return highest
+
+
+## Stair layout in front of the building's door (CityDoorSteps), {} without a
+## door. The city draws, walks and collides with this one layout.
+func door_steps(index: int) -> Dictionary:
+	if _door_steps.has(index):
+		return _door_steps[index]
+	var steps := CityDoorSteps.for_building(
+		buildings[index], _footprints[index], floor_height(index), ground_height,
+		func(p: Vector2) -> bool: return _open_for_steps(p, index)
+	)
+	_door_steps[index] = steps
+	return steps
+
+
+## Top of the door-stair tread under the point, or NAN off every stair.
+func door_step_height(world_xz: Vector2) -> float:
+	if not _step_index_built:
+		_build_step_index()
+	var key := Vector2i(floori(world_xz.x / INDEX_CELL), floori(world_xz.y / INDEX_CELL))
+	var best := NAN
+	for index: int in _step_index.get(key, []):
+		var h := CityDoorSteps.height_at(_door_steps[index], world_xz)
+		if not is_nan(h):
+			best = h if is_nan(best) else maxf(best, h)
+	return best
+
+
+func _build_step_index() -> void:
+	_step_index_built = true
+	for i in buildings.size():
+		if buildings[i].get("door") == null or _footprints[i].size() < 3:
+			continue
+		var steps := door_steps(i)
+		if (steps.get("treads", []) as Array).is_empty():
+			continue
+		var box := CityDoorSteps.bounds(steps)
+		for y in range(floori(box.position.y / INDEX_CELL), floori(box.end.y / INDEX_CELL) + 1):
+			for x in range(floori(box.position.x / INDEX_CELL), floori(box.end.x / INDEX_CELL) + 1):
+				var key := Vector2i(x, y)
+				if not _step_index.has(key):
+					_step_index[key] = []
+				(_step_index[key] as Array).append(i)
+
+
+## A stair may stand where no other building or landmark site does.
+func _open_for_steps(p: Vector2, own: int) -> bool:
+	var other := building_at(p)
+	if other >= 0 and other != own:
+		return false
+	for site in sites:
+		if site.building_index_at(p) >= 0:
+			return false
+	return true
 
 
 func footprint(index: int) -> PackedVector2Array:

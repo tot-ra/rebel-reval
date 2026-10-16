@@ -86,6 +86,7 @@ const Chimney := preload("res://scripts/city/city_chimney_builder.gd")
 const HouseDetails := preload("res://scripts/city/city_house_details.gd")
 const Footing := preload("res://scripts/city/city_footing.gd")
 const RuralPlan := preload("res://scripts/city/rural_dwelling_plan.gd")
+const DoorSteps := preload("res://scripts/city/city_door_steps.gd")
 const WINDOW_WOOD := preload("res://scripts/city/city_window_wood.gdshader")
 const WINDOW_GLASS := preload("res://scripts/city/city_window_glass.gdshader")
 
@@ -673,7 +674,8 @@ static func build_building(
 	floor_y: float,
 	enterable: bool,
 	ground_at: Callable = Callable(),
-	keep_out: Array[PackedVector2Array] = []
+	keep_out: Array[PackedVector2Array] = [],
+	steps: Dictionary = {}
 ) -> Dictionary:
 	var ring := wall_ring(b, ring_in)
 	var shell := Shell.new()
@@ -717,14 +719,9 @@ static func build_building(
 	var door_edge := -1
 	var door_t := 0.5
 	if door != null:
-		door_edge = _closest_edge(ring, Vector2(door[0], door[1]))
-		var a := ring[door_edge]
-		var c := ring[(door_edge + 1) % ring.size()]
-		door_t = clampf(
-			(Vector2(door[0], door[1]) - a).dot(c - a) / maxf((c - a).length_squared(), 0.001),
-			0.2,
-			0.8
-		)
+		var placed := door_on_ring(ring, Vector2(door[0], door[1]))
+		door_edge = int(placed.x)
+		door_t = placed.y
 	var windows: Array[Dictionary] = []
 	# Exterior walls with gable infill, windows and the door opening.
 	for i in ring.size():
@@ -743,14 +740,19 @@ static func build_building(
 			windows.append_array(CityWindows.placements(a, c, floor_y, eave, gap, rng, look))
 		else:
 			_lancets(shell, a, c, floor_y, eave)
-	if door_edge >= 0 and ground_at.is_valid():
-		_door_steps(shell, ring, door_edge, door_t, floor_y, ground_at, door_size(b).x)
+	# R-2197: the city passes the plan's stair layout (the one actors walk on);
+	# standalone callers get the same layout computed here.
+	var stair := steps
+	if stair.is_empty() and door_edge >= 0 and ground_at.is_valid():
+		stair = DoorSteps.for_building(b, ring_in, floor_y, ground_at)
+	if not stair.is_empty():
+		DoorSteps.build(shell, stair, ground_at)
 	# R-1933: every plan building stands on a footing, outbuildings and smoke
 	# dwellings included (log pads and a sill log); R-1760 quoins stay on
 	# limestone houses with openings.
 	_house_details(
 		shell, b, ring_in, ring, family, bottom, floor_y, eave, door_edge, door_t, ground_at,
-		bool(b.get("openings", true)) and not smoke_dwelling
+		bool(b.get("openings", true)) and not smoke_dwelling, stair.get("span", Vector2(door_t, door_t))
 	)
 	# Roof halves.
 	_roof(roof, roof_key, ring, frame, roof_tint, roof_family, keep_out)
@@ -820,7 +822,7 @@ static func build_building(
 static func _house_details(
 	shell: Shell, b: Dictionary, ring_in: PackedVector2Array, ring: PackedVector2Array,
 	family: StringName, bottom: float, floor_y: float, eave: float, door_edge: int, door_t: float,
-	ground_at: Callable = Callable(), quoins := true
+	ground_at: Callable = Callable(), quoins := true, stair_span := Vector2(0.5, 0.5)
 ) -> void:
 	var stone := family == &"limestone"
 	var door_a := Vector2.INF
@@ -828,9 +830,13 @@ static func _house_details(
 	if door_edge >= 0:
 		var a := ring[door_edge]
 		var c := ring[(door_edge + 1) % ring.size()]
-		var half := (door_size(b).x * 0.5 + 0.3) / maxf(a.distance_to(c), 0.01)
-		door_a = a.lerp(c, clampf(door_t - half, 0.0, 1.0))
-		door_b = a.lerp(c, clampf(door_t + half, 0.0, 1.0))
+		var length := maxf(a.distance_to(c), 0.01)
+		var half := (door_size(b).x * 0.5 + 0.3) / length
+		# A side flight runs along the wall: no footing stone may poke through it.
+		var t0 := minf(door_t - half, stair_span.x - 0.1 / length)
+		var t1 := maxf(door_t + half, stair_span.y + 0.1 / length)
+		door_a = a.lerp(c, clampf(t0, 0.0, 1.0))
+		door_b = a.lerp(c, clampf(t1, 0.0, 1.0))
 	# The raw footprint, not the filleted wall ring: straight runs of stones
 	# and a corner stone (or crossing sill-log ends) at every outer corner.
 	Footing.build(
@@ -888,64 +894,14 @@ static func wall_top_cap(
 			)
 
 
-## Limestone steps from the street up to a raised floor, so every door sits at
-## a walkable threshold rather than floating above the ground.
-static func _door_steps(
-	shell: Shell,
-	ring: PackedVector2Array,
-	edge: int,
-	door_t: float,
-	floor_y: float,
-	ground_at: Callable,
-	door_width: float = DOOR_WIDTH
-) -> void:
+## Door edge index (x) and position along it (y, 0.2-0.8) of the door nearest
+## `door_xy` on `ring`; shared by the walls, the stair and the plan.
+static func door_on_ring(ring: PackedVector2Array, door_xy: Vector2) -> Vector2:
+	var edge := _closest_edge(ring, door_xy)
 	var a := ring[edge]
 	var c := ring[(edge + 1) % ring.size()]
-	var dir := (c - a).normalized()
-	var out := Vector2(-dir.y, dir.x)
-	var mid := a.lerp(c, door_t)
-	if Geometry2D.is_point_in_polygon(mid + out * 0.3, ring):
-		out = -out
-	var rise := floor_y - float(ground_at.call(mid + out * 1.0))
-	if rise < 0.12:
-		return
-	# Up to 14 treads keeps the riser near 0.18 m even on the few doors that
-	# still face a steep drop; 8 made 0.7 m risers there.
-	var steps := clampi(int(ceil(rise / 0.18)), 1, 14)
-	var tread := 0.32
-	var half_w := door_width * 0.5 + 0.25
-	for k in steps:
-		var top := floor_y - rise * float(k) / steps
-		var depth := tread * float(k + 1)
-		var p0 := mid - dir * half_w
-		var p1 := mid + dir * half_w
-		var o := out * depth
-		var bottom := float(ground_at.call(mid + out * depth)) - 0.4
-		var corners: Array[Vector3] = [
-			Vector3(p0.x, bottom, p0.y),
-			Vector3(p1.x, bottom, p1.y),
-			Vector3(p1.x + o.x, bottom, p1.y + o.y),
-			Vector3(p0.x + o.x, bottom, p0.y + o.y),
-		]
-		var tops: Array[Vector3] = []
-		for v in corners:
-			tops.append(Vector3(v.x, top - 0.01, v.z))
-		var center := Vector3(mid.x + o.x * 0.5, top, mid.y + o.y * 0.5)
-		shell.quad_out(
-			"stone", tops[0], tops[1], tops[2], tops[3], Color(0.9, 0.88, 0.84), Vector3.UP
-		)
-		for i in 4:
-			var j := (i + 1) % 4
-			var face := (corners[i] + corners[j]) * 0.5 - center
-			shell.quad_out(
-				"stone",
-				corners[i],
-				corners[j],
-				tops[j],
-				tops[i],
-				Color(0.82, 0.8, 0.76),
-				Vector3(face.x, 0, face.z)
-			)
+	var t := clampf((door_xy - a).dot(c - a) / maxf((c - a).length_squared(), 0.001), 0.2, 0.8)
+	return Vector2(edge, t)
 
 
 ## Door opening (width, height) of a building: reduced for farmstead outbuildings,
