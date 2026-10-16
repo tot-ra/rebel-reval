@@ -2943,6 +2943,14 @@ PLOT_STREET_MARGIN_M = 0.25  # added to a street's own half width (plan width_m)
 PLOT_CURTAIN_CLEAR_M = 1.5  # half the 1343 curtain plus a walk behind it
 PLOT_EDGE_CLEAR_M = 0.5  # Toompea plateau edge (klint)
 PLOT_AREA_EPS = 1e-4  # m2; clipped slivers below this are numeric noise
+# WB-13d plot walls. Gate widths and wall kinds are the class-D tier ladder of
+# docs/tasks/world/WB-13_burgher_plot_prefab.md (merchant and great get a cart gate).
+PLOT_GATE_WIDTH_M = {"poor": 1.4, "craft": 1.6, "merchant": 2.0, "great": 2.4}
+PLOT_WALL_HEIGHT_M = {"wattle": 1.5, "plank": 1.8, "stone": 2.0}
+PLOT_WALL_CLEAR_M = 0.3  # a wall stays this far from any foreign footprint (roof overhang rule)
+PLOT_WALL_STEP_M = 0.1  # wall sampling step
+PLOT_WALL_SHARE_M = 0.2  # two plot walls closer than this are one shared wall
+PLOT_GATE_STREET_M = 0.5  # a street gate centre lies within this of a street corridor
 
 
 def clip_halfplane(poly, a, b, c):
@@ -3007,6 +3015,7 @@ def burgher_plots(buildings, obstacles, mpu):
          if b["kind"] == "house" and b.get("wealth_tier") and not b["landmark_id"] and b["door"] and b["street_id"]),
         key=lambda b: b["id"])
     plots = []
+    metas = []  # per plot: frame and extents the wall pass needs
     reach = PLOT_MAX_DEPTH_M + 30.0
     for b in eligible:
         ring = [(p[0] * mpu, p[1] * mpu) for p in b["footprint"]]
@@ -3101,7 +3110,246 @@ def burgher_plots(buildings, obstacles, mpu):
         })
         placed = [(p[0] * mpu, p[1] * mpu) for p in poly_w]
         rings.append((plots[-1]["id"], placed, box_of(placed)))
+        metas.append({"door": door, "T": T, "N": N, "t_lo": t_lo, "t_hi": t_hi, "t0": t0, "t1": t1,
+                      "n0": n0, "back": back, "far": far, "has_yard": bool(yard_c)})
+    plot_walls(plots, metas, rings, mpu)
     return plots
+
+
+def plot_walls(plots, metas, rings, mpu):
+    """Add `wall` to every plot (WB-13d, R-1414); `None` for plots without a yard.
+
+    Works in metres in each plot's door frame (t along the street face, n into
+    the plot). The wall encloses the yard: its two sides, its back, and the
+    part of its front line beside the house (the house's own back wall is the
+    enclosure behind it). The line is sampled every PLOT_WALL_STEP_M and a
+    sample is dropped when it
+    - is within PLOT_WALL_CLEAR_M of a foreign house or site footprint (their
+      walls and eaves enclose there, and a wall that close would z-fight a roof), or
+    - lies on a boundary a lower-id plot already walls (one shared wall, owned
+      by the lower id; both records list the other in `shared_with`).
+    The gate is the narrowest case first: on a sample within PLOT_GATE_STREET_M
+    of a street corridor; else across the side passage beside the house when
+    that passage opens on a street; else none, and the yard is entered through
+    the house (`access: "through_house"`, the Diele drive-through of H04).
+    Plots are handled in id order, so the result never depends on input order.
+    """
+    step = PLOT_WALL_STEP_M
+    foreign = [(oid, np.array(r), bb) for oid, r, bb in rings if oid.startswith("bldg.") or oid.startswith("site.")]
+    streets = [("", np.array(r), bb) for oid, r, bb in rings if oid.startswith("street:")]
+
+    def ring_dist(pts, ring):
+        best = np.full(len(pts), np.inf)
+        for k in range(len(ring)):
+            a, b = ring[k], ring[(k + 1) % len(ring)]
+            d, _ = dist_point_seg(pts[:, 0], pts[:, 1], a[0], a[1], b[0], b[1])
+            best = np.minimum(best, d)
+        return best
+
+    def near_rings(group, box, pad):
+        return [g for g in group if g[-1][0] < box[2] + pad and g[-1][2] > box[0] - pad
+                and g[-1][1] < box[3] + pad and g[-1][3] > box[1] - pad]
+
+    def min_dist(pts, group):
+        best = np.full(len(pts), np.inf)
+        for g in group:
+            best = np.minimum(best, ring_dist(pts, g[1]))
+        return best
+
+    order = sorted(range(len(plots)), key=lambda i: plots[i]["id"])
+    # Pieces (straight, in frame) of every plot with a yard, sampled once.
+    pieces = {}
+    for i in order:
+        m = metas[i]
+        if not m["has_yard"]:
+            continue
+        t0, t1, back, far = m["t0"], m["t1"], m["back"], m["far"]
+        cl = min(max(m["t_lo"], t0), t1)
+        cr = min(max(m["t_hi"], t0), t1)
+        chain = []
+        if cl - t0 > 1e-6:
+            chain.append(("front", (cl, back), (t0, back)))
+        chain += [("side", (t0, back), (t0, far)), ("back", (t0, far), (t1, far)), ("side", (t1, far), (t1, back))]
+        if t1 - cr > 1e-6:
+            chain.append(("front", (t1, back), (cr, back)))
+        out = []
+        for kind, a, b in chain:
+            n = max(1, int(math.ceil(math.dist(a, b) / step)))
+            out.append((kind, a, b, [(a[0] + (b[0] - a[0]) * k / n, a[1] + (b[1] - a[1]) * k / n) for k in range(n + 1)]))
+        pieces[i] = out
+
+    def to_world(m, t, n):
+        return (m["door"][0] + t * m["T"][0] + n * m["N"][0], m["door"][1] + t * m["T"][1] + n * m["N"][1])
+
+    # Every yard's full perimeter, to keep gates off a neighbour's yard.
+    def cell(p):
+        return (int(math.floor(p[0] / PLOT_WALL_SHARE_M)), int(math.floor(p[1] / PLOT_WALL_SHARE_M)))
+
+    def near_owner(grid, p, skip):
+        cx, cy = cell(p)
+        for dx in (-1, 0, 1):
+            for dy in (-1, 0, 1):
+                for owner, q in grid.get((cx + dx, cy + dy), ()):
+                    if owner != skip and math.dist(p, q) <= PLOT_WALL_SHARE_M:
+                        yield owner
+
+    yards = {}
+    for i, ps in pieces.items():
+        m = metas[i]
+        t0, t1, back, far = m["t0"], m["t1"], m["back"], m["far"]
+        ring = [(t0, back), (t1, back), (t1, far), (t0, far)]
+        for k in range(4):
+            a, b = ring[k], ring[(k + 1) % 4]
+            n = max(1, int(math.ceil(math.dist(a, b) / step)))
+            for j in range(n + 1):
+                q = to_world(m, a[0] + (b[0] - a[0]) * j / n, a[1] + (b[1] - a[1]) * j / n)
+                yards.setdefault(cell(q), []).append((plots[i]["id"], q))
+    kept_grid = {}
+    shared = {plots[i]["id"]: set() for i in pieces}
+
+    for i in order:
+        if i not in pieces:
+            continue
+        p, m = plots[i], metas[i]
+        pid = p["id"]
+        pcs = pieces[i]
+        world = [[to_world(m, *q) for q in pc[3]] for pc in pcs]
+        allpts = np.array([q for w in world for q in w])
+        box = (allpts[:, 0].min(), allpts[:, 1].min(), allpts[:, 0].max(), allpts[:, 1].max())
+        own = "bldg." + pid.removeprefix("plot.")
+        f_near = [g for g in near_rings(foreign, box, 1.0) if g[0] != own]
+        s_near = near_rings(streets, box, 2.0)
+        keep = []
+        for w in world:
+            pts = np.array(w)
+            ok = min_dist(pts, f_near) >= PLOT_WALL_CLEAR_M + step / 2 if f_near else np.ones(len(pts), bool)
+            ok = list(ok)
+            for k, q in enumerate(w):
+                if ok[k]:
+                    for owner in near_owner(kept_grid, q, pid):
+                        if owner < pid:
+                            ok[k] = False
+                            shared[pid].add(owner)
+                            shared[owner].add(pid)
+                            break
+            keep.append(ok)
+        for w, ok in zip(world, keep):
+            for q, o in zip(w, ok):
+                if o:
+                    kept_grid.setdefault(cell(q), []).append((pid, q))
+
+        tier = p["wealth_tier"]
+        width = PLOT_GATE_WIDTH_M[tier]
+        half = int(math.ceil(width / 2 / step))
+
+        def window_ok(pi, k):
+            if k - half < 0 or k + half >= len(world[pi]):
+                return False
+            for j in range(k - half, k + half + 1):
+                if not keep[pi][j]:
+                    return False
+                if any(True for _ in near_owner(yards, world[pi][j], pid)):
+                    return False
+            return True
+
+        gate = None
+        best = None
+        if s_near:
+            for pi, w in enumerate(world):
+                d = min_dist(np.array(w), s_near)
+                for k in np.nonzero(d <= PLOT_GATE_STREET_M)[0]:
+                    cand = (float(d[k]), pi, int(k))
+                    if (best is None or cand < best) and window_ok(pi, int(k)):
+                        best = cand
+        gate_at = None
+        if best:
+            gate = {"via": "street", "pi": best[1], "k": best[2], "street_dist_m": round(best[0], 3)}
+        else:
+            # Side passage: the longest uncovered front piece that opens on a street.
+            fronts = sorted((-math.dist(pc[1], pc[2]), pi) for pi, pc in enumerate(pcs) if pc[0] == "front")
+            for _, pi in fronts:
+                k = len(world[pi]) // 2
+                tm = pcs[pi][3][k][0]
+                mouth = to_world(m, tm, m["n0"])
+                if s_near and float(min_dist(np.array([mouth]), s_near)[0]) <= PLOT_GATE_STREET_M and window_ok(pi, k):
+                    gate = {"via": "passage", "pi": pi, "k": k, "mouth": mouth}
+                    break
+        if gate:
+            pi, k = gate["pi"], gate["k"]
+            pc = pcs[pi]
+            dt, dn = pc[2][0] - pc[1][0], pc[2][1] - pc[1][1]
+            tc, nc = (m["t0"] + m["t1"]) / 2, (m["back"] + m["far"]) / 2
+            q = pc[3][k]
+            nt, nn = dn, -dt
+            if nt * (q[0] - tc) + nn * (q[1] - nc) < 0:
+                nt, nn = -nt, -nn
+            vx = nt * m["T"][0] + nn * m["N"][0]
+            vy = nt * m["T"][1] + nn * m["N"][1]
+            at = world[pi][k]
+            rec = {"at": [round(at[0] / mpu, 3), round(at[1] / mpu, 3)], "angle": round(math.atan2(vy, vx), 4),
+                   "width": round(width / mpu, 3), "via": gate["via"]}
+            if gate["via"] == "street":
+                rec["street_dist_m"] = gate["street_dist_m"]
+            else:
+                rec["mouth"] = [round(gate["mouth"][0] / mpu, 3), round(gate["mouth"][1] / mpu, 3)]
+            gate_at = (pi, k)
+            gate = rec
+            for j in range(k - half + 1, k + half):
+                keep[pi][j] = False
+
+        # Runs: contiguous kept samples of a piece, joined across piece corners.
+        runs = []
+        pending = None  # run that ends on the last sample of the previous piece
+        for w, ok in zip(world, keep):
+            prev, pending = pending, None
+            piece_runs, cur = [], []
+            for q, o in zip(w, ok):
+                if o:
+                    cur.append(q)
+                else:
+                    piece_runs.append(cur)
+                    cur = []
+            piece_runs.append(cur)
+            for r in (r for r in piece_runs if len(r) >= 2):
+                if prev is not None and r[0] == w[0] and math.dist(prev[-1], r[0]) < 1e-9:
+                    joined, prev = prev + [r[-1]], None
+                else:
+                    if prev is not None:
+                        runs.append(prev)
+                        prev = None
+                    joined = [r[0], r[-1]]
+                if r[-1] == w[-1]:
+                    pending = joined
+                else:
+                    runs.append(joined)
+            if prev is not None:
+                runs.append(prev)
+        if pending is not None:
+            runs.append(pending)
+
+        if tier == "poor":
+            kind = "wattle"
+        elif tier == "craft":
+            kind = ("wattle", "plank")[hash_int(pid) % 2]
+        elif tier == "merchant":
+            kind = ("plank", "stone")[hash_int(pid) % 2]
+        else:
+            kind = "stone"
+        height = 2.2 if tier == "great" else PLOT_WALL_HEIGHT_M[kind]
+        p["wall"] = {
+            "kind": kind,
+            "height_m": height,
+            "runs": [[[round(q[0] / mpu, 3), round(q[1] / mpu, 3)] for q in r] for r in runs],
+            "gate": gate,
+            "access": "gate" if gate else "through_house",
+            "shared_with": [],
+        }
+    for pid, others in shared.items():
+        for p in plots:
+            if p["id"] == pid and p.get("wall"):
+                p["wall"]["shared_with"] = sorted(others)
+    for p in plots:
+        p.setdefault("wall", None)
 
 
 def plot_obstacles(streets, circuit_poly, toompea_edge, toompea_inner, toompea_wall_half, castle_ring, forum_poly, site_out, mpu):
