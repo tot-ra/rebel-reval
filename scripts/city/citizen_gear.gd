@@ -31,9 +31,11 @@ const KITS := {
 ## the grip (socket_grip), so no offset or scale. Real size, 2.33 m overall.
 static var _spear_held := Transform3D(Basis(Vector3.BACK, PI * 0.5), Vector3.ZERO)
 
-## Lantern hanging from the left fist by its bail: the hand slot's X points down, so
-## the lantern's up (Y) is turned onto hand -X, the same turn as the spear.
-static var _lantern_held := Transform3D(Basis(Vector3.BACK, PI * 0.5), Vector3(0.05, 0.0, 0.0))
+## Lantern hanging from the left fist by its bail. The left hand slot mirrors the right
+## one, so the spear's turn would stand the lantern on its head and bury the horn body in
+## the sleeve (only its light showed): turn the other way. WatchLantern then keeps
+## itself plumb while lit, so this only matters for the unlit lantern.
+static var _lantern_held := Transform3D(Basis(Vector3.BACK, -PI * 0.5), Vector3(-0.05, 0.0, 0.0))
 
 static var _lantern: PackedScene
 
