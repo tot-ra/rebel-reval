@@ -59,7 +59,7 @@ One page per feature, with status, behavior, code entry points, content, saved s
 ## Engineering
 
 - [Runtime architecture and file ownership](./ARCHITECTURE.md) · [setup and headless commands](./SETUP.md) · [performance report](./PERFORMANCE_REPORT.md) · [known runtime defects](./reports/known_runtime_defects.md)
-- Decisions: [`adr/`](./adr/README.md)
+- Decisions: [`adr/`](./adr/README.md) · [content-maturity policy (ADR 0060, proposed)](./adr/0060-content-maturity-policy.md)
 - Evidence, acceptance, and audits: [`reports/`](./reports/README.md), including the [code-health audit](./reports/code_health_audit_2026-10-07.md) of dead code and unwired features
 
 ## Planning and process
