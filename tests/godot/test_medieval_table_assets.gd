@@ -57,6 +57,13 @@ func test_tabletop_items_are_independent_modules_and_share_stable_surface_slots(
 		if module != null:
 			assert_eq(module.get_meta(&"table_item_kind"), item_kind)
 			assert_true(module.position.y >= TableModels.TABLETOP_HEIGHTS[PropStyleVariants.TABLE_TRESTLE_WORK])
+	assert_true(model.has_node("FishModule/Herring"), "fresh table fish must use the authored herring mesh")
+	var table_fish := model.get_node("FishModule/Herring") as MeshInstance3D
+	var table_fish_material := table_fish.get_active_material(0) as StandardMaterial3D
+	assert_true(
+		table_fish_material != null and table_fish_material.albedo_texture != null,
+		"table herring must retain the authored textured fish material"
+	)
 	assert_true(model.get_node("CandleModule/LightingModel") != null, "table candle must reuse the authored lighting kit")
 	assert_true(model.find_child("CandleLight", true, false) != null, "composed candle keeps day/night behavior")
 	host.free()

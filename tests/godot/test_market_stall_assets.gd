@@ -60,6 +60,17 @@ func test_each_countertop_goods_kind_is_an_independent_module() -> void:
 		var slot := display.get_child(0) as Node3D
 		var module := slot.get_child(0) as Node3D
 		assert_eq(module.get_meta(&"market_stall_goods_kind"), goods_kind)
+		if goods_kind == MapTypes.MARKET_STALL_GOODS_FISH:
+			var herrings := module.find_children("Herring*", "Node3D", true, false)
+			assert_eq(herrings.size(), 3, "fish stall tray must contain three herring")
+			for herring_node in herrings:
+				var herring := herring_node as Node3D
+				assert_eq(herring.get_meta(&"display_fish_species"), &"herring")
+				assert_true(herring.scale.is_equal_approx(Vector3.ONE * 0.4))
+				var fish_meshes := herring.find_children("*", "MeshInstance3D", true, false)
+				assert_eq(fish_meshes.size(), 1)
+				var fish_material := (fish_meshes[0] as MeshInstance3D).get_active_material(0) as StandardMaterial3D
+				assert_true(fish_material != null and fish_material.albedo_texture != null)
 		assert_true(module.find_children("*", "MeshInstance3D", true, false).size() >= 2, "%s needs readable display geometry" % String(goods_kind))
 		assert_true(
 			is_equal_approx(slot.position.y + module.position.y, MarketStallModels.COUNTERTOP_HEIGHT + 0.025),
