@@ -45,6 +45,7 @@ Roles `level`, `map`, and `event` have full conversion specifications later in t
 | `assets/characters/variants/innkeeper.tscn` | actor | `retain` | Innkeeper NPC variant | Future slice cast; texture and equipment swap only | not a map definition; P0-037 actor conversion |
 | `assets/characters/variants/mart.tscn` | actor | `retain` | Mart NPC variant | Demo dialogue target; slice cast after P0-037 | not a map definition; P0-037 actor conversion |
 | `assets/characters/variants/watchman.tscn` | actor | `retain` | Watchman NPC variant | P2-005 combat archetype; spear silhouette; never release patrol host until map wiring lands | not a map definition; P0-037 actor conversion |
+| `assets/characters/variants/brother_tidemann.tscn` | actor | `retain` | Brother Tidemann NPC variant (ADR 0052 almshouse) | Healer's apprentice cast | not a map definition; P0-037 actor conversion |
 | `assets/characters/variants/sergeant.tscn` | actor | `retain` | Sergeant NPC variant | P2-005 combat archetype; pauldron/helmet silhouette; never release patrol host until map wiring lands | not a map definition; P0-037 actor conversion |
 | `scenes/comparison_room/comparison_room.tscn` | level | `retain` | `dev.comparison_room.baseline` | Developer-only reference; never release-playable | none - retained procedural reference |
 | `scenes/comparison_room/diamond_isometric_8_direction.tscn` | level | `archive` | `dev.comparison_room.legacy_isometric` | Superseded after P0-040; screenshots and report remain | none - archive |
@@ -192,6 +193,7 @@ Roles `level`, `map`, and `event` have full conversion specifications later in t
 | `tools/capture_city_painted_iso.tscn` | test | `retain` | Capture painted-iso camera tool scene | Developer-only capture or profiling host; never release-playable | not a map definition |
 | `tools/capture_character_talk.tscn` | test | `retain` | Capture talk and duel conversation camera tool scene | Developer-only capture or profiling host; never release-playable | not a map definition |
 | `tools/capture_city_jump.tscn` | test | `retain` | Capture player jump tool scene | Developer-only capture or profiling host; never release-playable | not a map definition |
+| `tools/capture_city_leap.tscn` | test | `retain` | Capture context-aware jump (ADR 0053) tool scene | Developer-only capture host; never release-playable | not a map definition |
 | `tools/capture_grass_blueprint_iso.tscn` | test | `retain` | Blueprint-map grass capture (third person vs painted iso) | Developer-only capture host; never release-playable | not a map definition |
 | `tools/capture_spirit_trust_win.tscn` | test | `retain` | Spirit duel trust-win capture tool scene | Developer-only capture host; never release-playable | not a map definition |
 | `tools/capture_city_lighting.tscn` | test | `retain` | Capture city lighting tool scene | Developer-only capture or profiling host; never release-playable | not a map definition |

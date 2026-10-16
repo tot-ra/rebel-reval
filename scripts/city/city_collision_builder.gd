@@ -12,6 +12,7 @@ extends RefCounted
 
 const Fort := preload("res://scripts/city/city_fortification_builder.gd")
 const RuralPlan := preload("res://scripts/city/rural_dwelling_plan.gd")
+const LeapProbe := preload("res://scripts/motion/motion_leap_probe.gd")
 const PX := CityPlan.LOGIC_PX_PER_UNIT
 const MAX_WALK_SLOPE_DEG := 38.0
 const BODY_CHUNK := 128.0
@@ -24,7 +25,10 @@ static func build(plan: CityPlan, parent: Node) -> Node2D:
 	var bodies: Dictionary = {}
 	var steep_bodies: Dictionary = {}
 	# One factory for both layers: `layer` picks the body set a polygon joins.
-	var add_on_layer := func(points: PackedVector2Array, layer: int, group: Dictionary) -> void:
+	# `top` (world y of the wall top, or NAN) lets a jump read how high a wall is (ADR 0053).
+	var add_on_layer := func(
+		points: PackedVector2Array, layer: int, group: Dictionary, top: float
+	) -> void:
 		if points.size() < 3:
 			return
 		var c := Vector2.ZERO
@@ -45,13 +49,17 @@ static func build(plan: CityPlan, parent: Node) -> Node2D:
 		for p in points:
 			scaled.append(p * PX)
 		shape.polygon = scaled
+		if not is_nan(top):
+			shape.set_meta(LeapProbe.TOP_META, top)
 		(group[key] as StaticBody2D).add_child(shape)
 	var add_poly := func(points: PackedVector2Array) -> void:
-		add_on_layer.call(points, CollisionLayers.WORLD, bodies)
+		add_on_layer.call(points, CollisionLayers.WORLD, bodies, NAN)
+	var add_wall := func(points: PackedVector2Array, top: float) -> void:
+		add_on_layer.call(points, CollisionLayers.WORLD, bodies, top)
 	var add_steep := func(points: PackedVector2Array) -> void:
-		add_on_layer.call(points, CollisionLayers.STEEP, steep_bodies)
+		add_on_layer.call(points, CollisionLayers.STEEP, steep_bodies, NAN)
 	_buildings(plan, add_poly)
-	_sites(plan, add_poly)
+	_sites(plan, add_poly, add_wall)
 	_fortifications(plan, add_poly)
 	_terrain_blocks(plan, add_steep)
 	_bounds(plan, add_poly)
@@ -106,7 +114,7 @@ static func _buildings(plan: CityPlan, add_poly: Callable) -> void:
 ## Landmark sites (ADR 0032): authored wall segments (outer face line, the
 ## thickness going into the building), solids, and dressing with a footprint.
 ## Door gaps are simply where no wall segment is authored.
-static func _sites(plan: CityPlan, add_poly: Callable) -> void:
+static func _sites(plan: CityPlan, add_poly: Callable, add_wall: Callable) -> void:
 	for site in plan.sites:
 		var inner: Array[PackedVector2Array] = []
 		for f: Dictionary in site.floors:
@@ -125,9 +133,9 @@ static func _sites(plan: CityPlan, add_poly: Callable) -> void:
 				n = -n
 			var a2 := a - dir * 0.05
 			var b2 := b + dir * 0.05
-			add_poly.call(
-				PackedVector2Array([a2 - n * 0.06, b2 - n * 0.06, b2 + n * t, a2 + n * t])
-			)
+			var quad := PackedVector2Array([a2 - n * 0.06, b2 - n * 0.06, b2 + n * t, a2 + n * t])
+			# Fabric walls know their top (a churchyard wall is waist high); others count as tall.
+			add_wall.call(quad, float(w.get("top", NAN)))
 		for poly in site.solids:
 			add_poly.call(poly)
 

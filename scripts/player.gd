@@ -16,6 +16,7 @@ const MeleeAttackResolverScript := preload("res://scripts/combat/melee_attack_re
 const AttackProfileScript := preload("res://scripts/combat/attack_profile.gd")
 const AttackProfileResolverScript := preload("res://scripts/combat/attack_profile_resolver.gd")
 const NpcPushScript := preload("res://scripts/physics/npc_push.gd")
+const PlayerLeapScript := preload("res://scripts/player/player_leap.gd")
 const DEATH_SCREEN_PATH := "res://scenes/death/death_screen.tscn"
 const STAMINA_DRAIN_RATE := 10.0  # per second
 const DODGE_STAMINA_COST := 18.0
@@ -46,6 +47,9 @@ const LUNGE_STOP_PX := 30.0
 ## Debug/pacing clock multiplier pushed by MapViewRuntime each frame, so the hero
 ## covers ground at the same rate the day/night clock runs (1.0 = normal).
 var time_flow_scale := 1.0
+## Situation channels of the hero's motion-style agent (ice, wounds, wet, load ...) for the jump
+## (ADR 0053), fed by the view.
+var leap_channels: Dictionary = {}
 
 var health: float = 100.0
 var max_health: float = 100.0
@@ -106,6 +110,10 @@ var _air_velocity := Vector2.ZERO
 var _steep_ghost := false
 ## Callable(logic_position) -> Vector2 downhill gradient; see MapDefinition.downhill_at_world.
 var _downhill_provider := Callable()
+## Context-aware jump (ADR 0053): what lies ahead decides hop, vault, pull-up, drop or refusal.
+var _leap := PlayerLeapScript.new()
+## Callable(world_xz) -> Vector2(ground_y, water_surface_y); set where the map knows its heights.
+var _leap_ground_provider := Callable()
 
 @onready var animation_player: AnimatedSprite2D = get_node_or_null("AnimatedSprite2D")
 # Optional so headless unit tests can construct Player.new() without the full scene.
@@ -152,11 +160,33 @@ func configure_map_movement(
 
 ## Height of the feet above the ground in world units (0 on the ground), for the view.
 func jump_height() -> float:
+	if _leap.is_active() and _leap_ground_provider.is_valid():
+		var g: Vector2 = _leap_ground_provider.call(global_position / _leap.px_per_m)
+		return _leap.height_above(g.x)
 	return _jump.height
 
 
 func is_airborne() -> bool:
-	return _jump.is_airborne()
+	return _jump.is_airborne() or _leap.is_airborne()
+
+
+## Ground and water heights for the context-aware jump (ADR 0053). Without it the hop is used.
+func set_leap_ground_provider(provider: Callable) -> void:
+	_leap_ground_provider = provider
+
+
+func is_leaping() -> bool:
+	return _leap.is_active()
+
+
+## Pose of the running jump for the rig (LeapPoseModifier); empty when not jumping.
+func leap_pose() -> Dictionary:
+	return _leap.pose()
+
+
+## The last jump decision (label, knobs, arc), for tests and the debug overlay.
+func last_leap_decision() -> Dictionary:
+	return _leap.decision
 
 
 func set_downhill_provider(provider: Callable) -> void:
@@ -170,8 +200,10 @@ func try_jump() -> bool:
 		return false
 	if _movement_blocked() or not action_state_machine.allows_movement():
 		return false
-	if is_spirit_sight_active() or stamina < PlayerJumpState.STAMINA_COST:
+	if is_spirit_sight_active() or stamina < PlayerJumpState.STAMINA_COST or _leap.is_active():
 		return false
+	if _leap_ground_provider.is_valid():
+		return _try_leap()
 	stamina -= PlayerJumpState.STAMINA_COST
 	_sync_resource_bars()
 	var heading := movement_direction_for_screen_input(ScreenDirectionInput.read_axis())
@@ -180,6 +212,46 @@ func try_jump() -> bool:
 	_jump.start()
 	_apply_steep_mask()
 	return true
+
+
+## Ask the leap network what to do with what lies ahead, and start it (or balk).
+func _try_leap() -> bool:
+	var heading := movement_direction_for_screen_input(ScreenDirectionInput.read_axis())
+	if heading.is_zero_approx():
+		heading = _facing_direction
+	var speed_mps := velocity.length() / maxf(time_flow_scale, 0.01) / _leap.px_per_m
+	# Spent stamina weakens the legs like fatigue does.
+	var strength := 0.75 + 0.25 * clampf(stamina / maxf(max_stamina, 1.0), 0.0, 1.0)
+	var decision: Dictionary = _leap.plan(
+		get_world_2d().direct_space_state,
+		_leap_ground_provider,
+		global_position,
+		heading,
+		speed_mps,
+		leap_channels,
+		strength
+	)
+	if decision.get("action", "") != "jump":
+		return false
+	var cost := PlayerJumpState.STAMINA_COST * (0.6 + 0.6 * float(decision["flight_s"]))
+	stamina = maxf(0.0, stamina - cost)
+	_sync_resource_bars()
+	_facing_direction = heading.normalized()
+	# The probe proved the way clear and the landing free: walls do not stop the body in the air.
+	set_collision_mask_value(1, false)
+	set_collision_mask_value(6, false)
+	return true
+
+
+func _advance_leap(delta: float) -> void:
+	var before := global_position
+	global_position = _leap.advance(delta * time_flow_scale, global_position)
+	velocity = (global_position - before) / maxf(delta, 1e-4)
+	if not _leap.is_active():
+		velocity = Vector2.ZERO
+		set_collision_mask_value(1, true)
+		_steep_ghost = _is_overlapping_steep()
+		_apply_steep_mask()
 
 
 func _downhill_here() -> Vector2:
@@ -255,6 +327,8 @@ func set_water_depth_provider(provider: Callable) -> void:
 
 
 func _update_water(delta: float) -> void:
+	if _leap.is_airborne():
+		return
 	var previous := _swim.medium
 	var depth := (
 		float(_water_depth_provider.call(global_position))
@@ -298,6 +372,11 @@ func _physics_process(_delta):
 	):
 		try_jump()
 	_update_jump(_delta)
+	if _leap.is_active():
+		_advance_leap(_delta)
+		_sync_resource_bars()
+		update_animation("idle")
+		return
 	# Water and scripted movement invalidate sight before this tick accepts actions.
 	get_node("SpiritSight").enforce_availability()
 	_process_action_input(_delta)
@@ -880,6 +959,8 @@ func set_camera_facing(direction: Vector2) -> void:
 
 
 func view_animation() -> StringName:
+	if _leap.is_active():
+		return _leap.animation()
 	var animation_base := _combat_or_locomotion_animation(_current_locomotion_animation())
 	if animation_base == "attack":
 		return _active_attack_profile.animation

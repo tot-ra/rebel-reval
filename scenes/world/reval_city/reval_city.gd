@@ -85,6 +85,11 @@ func _ready() -> void:
 	player.set_water_depth_provider(
 		func(logic: Vector2) -> float: return view.water_depth_at(CityPlan.to_world_xz(logic))
 	)
+	# The jump reads ground, wall tops and water ahead (ADR 0053, PlayerLeap).
+	player.set_leap_ground_provider(
+		func(xz: Vector2) -> Vector2:
+			return Vector2(view.plan.walk_height(xz), view.world.water_surface_at(xz))
+	)
 	# Steep ground pulls the hero downhill (PlayerJumpState.slide_velocity).
 	player.set_downhill_provider(
 		func(logic: Vector2) -> Vector2: return view.definition.downhill_at_world(logic)

@@ -52,6 +52,10 @@ const CANONICAL_ANIMATIONS: Dictionary = {
 	&"sit_down": &"Sit_Chair_Down",
 	&"sit_idle": &"Sit_Chair_Idle",
 	&"sit_up": &"Sit_Chair_StandUp",
+	# Context-aware jump (ADR 0053): take-off, in the air, landing.
+	&"jump_start": &"Jump_Start",
+	&"jump_air": &"Jump_Idle",
+	&"jump_land": &"Jump_Land",
 }
 ## Death_A (canonical `fall`) was retargeted with the hips key ending ~0.47 clip units
 ## above the floor, while its IK hand/elbow/toe targets already lie on the ground, so
@@ -65,6 +69,7 @@ const LOOPING_ANIMATIONS: Array[StringName] = [
 	&"run",
 	&"guard",
 	&"sit_idle",
+	&"jump_air",
 ]
 
 ## Ground speed (world units/s) at which each locomotion cycle looks right at

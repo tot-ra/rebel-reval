@@ -1,6 +1,6 @@
 # ADR 0036: Jump, vault and expanded melee verbs
 
-- **Status:** Proposed (2026-10-08). Needs maintainer approval before any runtime code; nothing here is truth until a task verifies it.
+- **Status:** Proposed (2026-10-08). Needs maintainer approval before any runtime code; nothing here is truth until a task verifies it. The jump part (decisions 1 to 4) is superseded by [ADR 0053](0053-context-aware-jumping-leap-network.md) (2026-10-16): the leap network chooses hop, vault, pull-up, drop or refusal from the real heights, with no `vaultable` tags; decision 6 (strikes) stands.
 - **Amends:** [`COMBAT_ANIMATION.md`](../SYSTEMS/COMBAT_ANIMATION.md) (its §9 lists directional attacks as a known limit). Does not touch ADR 0033's guilt rules: new blows are physical blows and open guilt like any other.
 
 ## Context

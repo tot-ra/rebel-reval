@@ -40,11 +40,11 @@ additive and calibrated to change nothing in a normal situation; reverting it re
 
 1. **Situations are data that set physical channels.** A condition (ice, wet cobbles, mud, deep
    snow, frost, gale, night, smoke, bleeding at a body region, sprain, broken arm, drunk, exhausted,
-   heavy load ...) only states its effect on 25 channels (friction, sink, wetness, insulation, air
+   heavy load ...) only states its effect on 24 channels (friction, sink, wetness, insulation, air
    temperature, core cooling, wind, bleeding and wound position, pain per region, fatigue,
    dizziness, load, darkness, smoke). The registry is one JSON file shared by trainer and game.
-2. **One style network for every body plan.** An MLP (32 inputs, two hidden layers of 64, 24
-   outputs; about 7,000 weights) maps the channels and the body (biped, quadruped, bird; mass; leg
+2. **One style network for every body plan.** An MLP (31 inputs, two hidden layers of 64, 24
+   outputs; about 7,800 weights) maps the channels and the body (biped, quadruped, bird; mass; leg
    length; flying; speed as a Froude number) to generic style knobs: speed taken, stride, ground
    contact share, stance width, crouch, trunk pitch and roll, arms out, each arm hugged, each hand
    pressed on the wound point, head down, shoulders raised, shiver, flat feet, swing clearance,
@@ -76,7 +76,7 @@ additive and calibrated to change nothing in a normal situation; reverting it re
 - The style is a modulation of clips, not physics: it changes how a walk looks and how fast it
   goes, it does not make a body fall on ice. Falls, knock-downs and reactions to blows stay with
   combat animation.
-- Cost: one 7,000-multiply forward pass per creature at 4 Hz, cached by quantised input; measured
+- Cost: one 7,800-multiply forward pass per creature at 4 Hz, cached by quantised input; measured
   0.14 ms per evaluation and 0.34 ms per frame for 40 agents in headless GDScript.
 - Constants of the teacher are order-of-magnitude values; the result is judged by eye in the game.
 
@@ -88,4 +88,4 @@ additive and calibrated to change nothing in a normal situation; reverting it re
   for animals; combinations (drunk on ice in a gale) explode.
 - **A learned physics controller** (PPO, AMP): needs a physical rig and a muscle model in Godot;
   skeleto-nn's PPO tracker did not converge. Possible later for the hero only.
-- **ONNX runtime GDExtension:** viable for larger networks later; unnecessary for 7,000 weights.
+- **ONNX runtime GDExtension:** viable for larger networks later; unnecessary for 7,800 weights.

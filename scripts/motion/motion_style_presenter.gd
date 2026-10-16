@@ -12,9 +12,11 @@ const MotionStyleAgent := preload("res://scripts/motion/motion_style_agent.gd")
 const MotionEnvironment := preload("res://scripts/motion/motion_environment.gd")
 const HumanModifier := preload("res://scripts/characters/motion_style_modifier.gd")
 const AnimalModifier := preload("res://scripts/characters/animal_style_modifier.gd")
+const LeapModifier := preload("res://scripts/characters/leap_pose_modifier.gd")
 
 const AGENT_META := &"motion_style_agent"
 const MODIFIER_META := &"motion_style_modifier"
+const LEAP_META := &"leap_pose_modifier"
 const ENABLED_SETTING := "rebel/motion/style_network"
 
 ## Body of each animal species: kind, mass (kg), leg length (m), fur or plumage insulation.
@@ -117,6 +119,38 @@ static func humanoid(rig: Node3D, delta: float, world_speed: float, extra: Array
 
 
 ## Skinned city animals (CityFauna). Call after `MedievalAnimalModels.sync_animation`.
+## Pose of a context-aware jump (ADR 0053) over the jump clips; `pose` from `Player.leap_pose()`.
+## The layer is installed on first use, after the style layer and before the muscles.
+static func leap(rig: Node3D, pose: Dictionary) -> void:
+	if rig == null or not rig.is_node_ready():
+		return
+	var modifier: Object = rig.get_meta(LEAP_META) if rig.has_meta(LEAP_META) else null
+	if modifier == null:
+		if pose.is_empty():
+			return
+		var skeleton := rig.call(&"skeleton") as Skeleton3D
+		var model := rig.get_node_or_null("Model") as Node3D
+		if skeleton == null or model == null:
+			return
+		modifier = LeapModifier.new()
+		modifier.name = "LeapPose"
+		modifier.rig = model
+		skeleton.add_child(modifier)
+		var muscles := skeleton.get_node_or_null("AnatomicalMuscles")
+		if muscles != null:
+			skeleton.move_child(modifier, muscles.get_index())
+		rig.set_meta(LEAP_META, modifier)
+	modifier.leap = pose
+
+
+## Situation channels of a creature's style agent (empty before its first update).
+static func channels_of(node: Object) -> Dictionary:
+	if node == null or not node.has_meta(AGENT_META):
+		return {}
+	var agent: Variant = node.get_meta(AGENT_META)
+	return agent.channels if agent != null else {}
+
+
 static func animal(actor: Node3D, delta: float, species: StringName, extra: Array = []) -> void:
 	if not enabled() or actor == null:
 		return

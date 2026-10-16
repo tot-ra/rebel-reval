@@ -18,7 +18,7 @@ var rotation := 0.0
 ## Logic-plane data in world XZ, built once.
 var floors: Array[Dictionary] = []  # {id, polygon: PackedVector2Array, height}
 var rooms: Array[Dictionary] = []  # {id, name, polygon, floor, hide}
-var walls: Array[Dictionary] = []  # {a, b, thickness}
+var walls: Array[Dictionary] = []  # {a, b, thickness[, top: world y of the wall top]}
 var solids: Array[PackedVector2Array] = []
 var doors: Array[Dictionary] = []  # {id, a, b, inward, floor, height, style, paint}
 var people: Array[Dictionary] = []  # {id, role, rig, at, facing, pose}
@@ -175,6 +175,7 @@ func _build_walk() -> void:
 					"a": to_world(w["a"]),
 					"b": to_world(w["b"]),
 					"thickness": float(w["thickness"]),
+					"top": level + float(w["top"]),
 				}
 			)
 		)

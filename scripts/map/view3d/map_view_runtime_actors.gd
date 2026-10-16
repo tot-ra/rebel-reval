@@ -270,6 +270,10 @@ func sync_player(snap: bool, delta: float = 0.0) -> void:
 			_player_rig, delta, speed * MapViewBridge.world_scale(_definition.cell_size),
 			MotionStylePresenter.vitals_conditions(_player)
 		)
+	# The jump reads the hero's situation and poses the rig (ADR 0053).
+	if _player.has_method("leap_pose"):
+		MotionStylePresenter.leap(_player_rig, _player.call("leap_pose") as Dictionary)
+		_player.set(&"leap_channels", MotionStylePresenter.channels_of(_player_rig))
 	if moving:
 		var planted_foot := _player_rig.consume_foot_plant()
 		if not planted_foot.is_empty():

@@ -1089,7 +1089,8 @@ static func _v2(raw: Variant) -> Vector2:
 
 ## Logic-plane wall segments of a fabric list: each wall split around the
 ## openings people walk through (doors and arches whose sill is at the floor),
-## as {a, b, thickness} with the thickness on the `inside` side of the line.
+## as {a, b, thickness, inside, top} with the thickness on the `inside` side of the line and `top`
+## the wall's height (y1, site-local).
 static func walk_walls(fabric: Array) -> Array[Dictionary]:
 	var out: Array[Dictionary] = []
 	for w: Dictionary in fabric:
@@ -1125,7 +1126,8 @@ static func walk_walls(fabric: Array) -> Array[Dictionary]:
 					"a": a + dir * sp.x,
 					"b": a + dir * sp.y,
 					"thickness": float(w["thick"]),
-					"inside": _v2(w["inside"])
+					"inside": _v2(w["inside"]),
+					"top": float(w["y1"]),
 				}
 			)
 	return out

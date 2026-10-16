@@ -55,6 +55,7 @@ One page per implemented or planned feature. Each page opens with a `Status:` li
 | [Spirit dialogue combat](./SPIRIT_DIALOGUE.md) | Partial (ADR 0033): smithy duel, duel with anyone (R-1889) |
 | [Spirit sight, auras and soul lights](./SPIRIT_SIGHT.md) | Partial: toggle (R-1484) and aura data (R-1485) implemented; auras on screen planned (epic R-1483) |
 | [Motion style: adapting to ice, cold, rain, wind, wounds](./MOTION_STYLE.md) | Implemented (ADR 0051 proposed): one small network poses people, animals and flying birds from weather, season and vitals; wounds API without a gameplay caller |
+| [Leaping: one jump key chosen by what lies ahead](./LEAPING.md) | Implemented for the hero in the city (ADR 0053 proposed): vault, pull up, jump down, into the water or refuse, from wall tops, ground and water and the hero's state |
 | [Muscle-driven procedural locomotion](./MUSCLE_LOCOMOTION.md) | Planned; build-time research prototype only (planar quadruped and biped walk) |
 
 ## All files in this folder

@@ -276,3 +276,5 @@ Both commands should print `135` on a clean checkout at this revision.
 | 196 | `tools/capture_spirit_trust_win.tscn` | partial | Developer capture tool (spirit duel trust win). |
 | 197 | `tools/capture_footings.tscn` | partial | Developer capture tool (city wall footings). |
 | 198 | `tools/capture_wall_foot.tscn` | partial | Developer capture tool (city wall foot scatter). |
+| 199 | `tools/capture_city_leap.tscn` | partial | Developer capture tool (context-aware jump, ADR 0053, in the seamless city). |
+| 200 | `assets/characters/variants/brother_tidemann.tscn` | working | Almshouse cast body (ADR 0052). |
