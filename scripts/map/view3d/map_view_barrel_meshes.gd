@@ -98,8 +98,11 @@ static func iron_material() -> StandardMaterial3D:
 		return _mesh_cache["iron_material"]
 	var material := StandardMaterial3D.new()
 	material.albedo_color = IRON_ALBEDO
-	material.metallic = 0.55
-	material.roughness = 0.6
+	# Blackened, scaled strap iron reads as a dielectric oxide skin, not bare
+	# metal. A metallic hoop has almost no diffuse, so outdoors it mirrored the
+	# saturated sky ambient and turned bright blue in shade.
+	material.metallic = 0.1
+	material.roughness = 0.8
 	material.vertex_color_use_as_albedo = true
 	material.cull_mode = BaseMaterial3D.CULL_DISABLED
 	_mesh_cache["iron_material"] = material

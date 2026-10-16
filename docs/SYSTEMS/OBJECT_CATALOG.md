@@ -317,7 +317,7 @@ Save/load: the catalog is static content and adds no saved state. A bag or world
 | `obj.shield_round` | Round shield | weapon | carry_one_hand | 3.2 | take, equip |  | `storybook/equipment/shield.glb` | usable |
 | `obj.spear_watch` | Watch spear | weapon | carry_one_hand | 2.2 | take, throw, equip |  | missing | planned |
 | `obj.spearhead_iron` | Iron spearhead | weapon | pocketable | 0.35 | take |  | missing | planned |
-| `obj.sword_cruciform` | Cruciform sword | weapon | carry_one_hand | 1.45 | take, equip |  | `storybook/equipment/sword.glb` | usable |
+| `obj.sword_cruciform` | Cruciform sword | weapon | carry_one_hand | 1.45 | take, equip |  | `props/weapons/arming_sword/variants/arming_sword_p1_w1.glb` | usable |
 
 <!-- object-catalog-index:end -->
 
@@ -342,7 +342,7 @@ Things that are not catalog objects keep their card on the owning page:
 ![Oak barrel before and after](../reports/images/props/barrel_before_after.jpg)
 
 - **Placement rule:** one `barrels` prop is one barrel. A map sets how many barrels stand somewhere by placing that many props, each with its own stable ID. Older definitions that placed one prop for a pair (`barrel_pair` in the smithy courtyard prototype) now show a single barrel. The stable ID picks a deterministic turn, so neighbours do not look cloned.
-- **Model:** `map_view_barrel_meshes.gd`, a 0.9 m by 0.62 m cask: 18 staves with a parabolic bilge, recessed seams and per-stave tone, a damp-darkened foot, a chime lip above inset heads of four jointed boards (a bung on the top head, a plug on the bilge), and four flat forged-iron hoops that follow the profile. Wood uses the seamless door grain with vertex colours, iron its own dark material; every mesh is cached and shared.
+- **Model:** `map_view_barrel_meshes.gd`, a 0.9 m by 0.62 m cask: 18 staves with a parabolic bilge, recessed seams and per-stave tone, a damp-darkened foot, a chime lip above inset heads of four jointed boards (a bung on the top head, a plug on the bilge), and four flat forged-iron hoops that follow the profile. Wood uses the seamless door grain with vertex colours, iron its own dark, nearly non-metallic material (metallic 0.1, roughness 0.8: blackened strap iron; a metallic hoop mirrored the outdoor sky ambient and showed bright blue in shade); every mesh is cached and shared.
 - **Also used by:** harbour cargo stacks in the seamless city (`city_harbour.gd`, stack kind `barrel`, a jittered 2x2 group) and boat cargo loads (`vessel_fleet.gd`), both through `MapViewBarrelMeshes.add_barrel`.
 - **Gameplay:** the player can stand on it (`MapClimbableProps`, 0.9 m). View-only otherwise: the map definition owns the footprint.
 - **Check:** `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_barrel_prop_model`; captures `tools/godot_render.sh --script tools/capture_barrel_preview.gd` (`build/previews/barrel_preview*.png`) and `tools/godot_render.sh --script tools/capture_city_shore_barrels.gd` (`build/shore_barrels/`).
