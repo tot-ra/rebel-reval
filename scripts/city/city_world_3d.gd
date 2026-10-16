@@ -12,6 +12,14 @@ const ShoreSpray := preload("res://scripts/city/city_shore_spray.gd")
 const Fort := preload("res://scripts/city/city_fortification_builder.gd")
 const WATER_SHADER := preload("res://scripts/city/city_water.gdshader")
 const MOAT_WATER_SHADER := preload("res://scripts/city/city_moat_water.gdshader")
+const IceTextures := preload("res://scripts/city/ice_textures.gd")
+## The moat ribbon reaches this share of its half width further into the banks, so
+## its outer edge lies under the ground and the shader's per-pixel water column
+## (terrain heightmap) draws the waterline on the real bank contour (ADR 0045 ice).
+const MOAT_MESH_OVERHANG := 0.35
+## Moat water stays this far below the lower bank crest, and at least this deep.
+const MOAT_FREEBOARD_M := 0.15
+const MOAT_MIN_DEPTH_M := 0.3
 ## Length of the moat's tapered end stretches, metres (see _moat_pools).
 const MOAT_TAPER_M := 80.0
 const MoatPlants := preload("res://scripts/city/city_moat_plants.gd")
@@ -216,6 +224,8 @@ func apply_season(date: Dictionary) -> void:
 	ground.set_shader_parameter(
 		"coast_ice", smoothstep(0.03, 0.15, SeasonState.ice_cover_target(SeasonState.ICE_SEA, doy))
 	)
+	# Frozen moat/stream: the banks under the ice edge take the snow too.
+	ground.set_shader_parameter("moat_ice", ice)
 	var cover := VegetationPhenology.snow_cover_for(date)
 	snow_cover = cover
 	ground.set_shader_parameter("snow_cover", cover)
@@ -655,6 +665,10 @@ func _moat_material() -> ShaderMaterial:
 	mat.set_shader_parameter("vertex_depth", true)
 	mat.set_shader_parameter("vertex_depth_offset", STREAM_DEPTH_OFFSET)
 	mat.set_shader_parameter("vertex_depth_scale", STREAM_DEPTH_SCALE)
+	# Per-pixel water column from the terrain grid: the waterline follows the bank.
+	mat.set_shader_parameter("ground_height", plan.height_texture())
+	mat.set_shader_parameter("ground_rect", plan.height_texture_rect())
+	IceTextures.bind(mat)
 	water_materials.append(mat)
 	return mat
 
@@ -1061,17 +1075,18 @@ func _moat_pools(
 	for i in line.size() - 1:
 		if lows[i] > cutoff and lows[i + 1] > cutoff:
 			continue
-		var ya := lows[i] + 1.1
-		var yb := lows[i + 1] + 1.1
 		var a := line[i]
 		var b := line[i + 1]
+		var ya := _moat_surface(a, edges[i], lows[i])
+		var yb := _moat_surface(b, edges[i + 1], lows[i + 1])
 		moat_water.append([a, b, ya, yb, (edges[i].length() + edges[i + 1].length()) * 0.5])
 		# Three lateral rows (bank, middle, bank): the ditch floor is deepest in the
 		# middle, and a two-row ribbon would interpolate the bank's zero depth
 		# across the whole width.
 		for lane in 2:
-			var l0 := float(lane) - 1.0  # -1 then 0
-			var l1 := l0 + 1.0  # 0 then 1
+			# Bank rows overhang into the bank (MOAT_MESH_OVERHANG); the middle stays.
+			var l0 := -1.0 - MOAT_MESH_OVERHANG if lane == 0 else 0.0
+			var l1 := 0.0 if lane == 0 else 1.0 + MOAT_MESH_OVERHANG
 			var quad := [
 				Vector3(a.x + edges[i].x * l0, ya, a.y + edges[i].y * l0),
 				Vector3(b.x + edges[i + 1].x * l0, yb, b.y + edges[i + 1].y * l0),
@@ -1088,6 +1103,19 @@ func _moat_pools(
 				st.add_vertex(v)
 		count += 1
 	return st.commit() if count > 0 else null
+
+
+## Moat water level at ditch point `at`: 1.1 m over the floor, but below the ground
+## at the ribbon's outer edges. Where the field outside falls away (counterscarp
+## lower than the scarp) the full level left the ribbon perched over the field, its
+## edge a straight cut in mid-air; real water would have run out to the lower bank.
+func _moat_surface(at: Vector2, edge: Vector2, low: float) -> float:
+	var rim := INF
+	for side: float in [-1.0, 1.0]:
+		for k in 3:
+			var reach := 1.0 + MOAT_MESH_OVERHANG * (0.7 + 0.3 * float(k))
+			rim = minf(rim, plan.ground_height(at + edge * side * reach))
+	return maxf(minf(low + 1.1, rim - MOAT_FREEBOARD_M), low + MOAT_MIN_DEPTH_M)
 
 
 ## Water surface height at `world_xz` (sea at 0, moat pools at their level),

@@ -88,6 +88,11 @@ uniform float puddle_ice = 0.0;
 // Not `shore_*`: CityWorld3D.mirror_shore_to_ground copies every shore_ uniform
 // from the sea material each frame, which would reset it to 0.
 uniform float coast_ice = 0.0;
+// Fresh-water ice 0..1 (moat, stream, lakes; the moat material's `ice`). Once it
+// bears snow, the bed and banks under the water (CitySnow land mask 0, no lifted
+// snow) are painted snowed over, so the moat ice can fade out at the bank onto
+// snow instead of showing a hard waterline or the bare mud under it.
+uniform float moat_ice = 0.0;
 // Sun-baked bare soil (SkyWeather3D.ground_dryness()): dusty above 0, the puddle
 // basins crack open from ~0.45 (drought only, see docs/SYSTEMS/WEATHER_GROUND.md).
 uniform float ground_dryness = 0.0;
@@ -1014,12 +1019,13 @@ void fragment() {
 	// of the water level), the centre stays clear and dark over the bed, crossed by
 	// cracks and air bubbles (ice_surface.gdshaderinc).
 	float ice_px = max(length(dFdx(wuv)), length(dFdy(wuv)));
+	// Derivatives in uniform control flow, outside the per-pixel branch below.
+	float ring_phase = water_depth * 26.0 + value_noise(wuv * 3.1) * 0.8;
+	float ring_px = max(fwidth(ring_phase), 0.001);
 	if (frozen_puddle * puddle > 0.001) {
 		// A puddle freezes as one skin: no pan seams (border distance pushed out of reach).
 		vec3 pice_pans = ice_pans(wuv * 2.5);
 		IceLook pice = ice_look(wuv, vec3(pice_pans.x, 8.0, pice_pans.z), puddle_ice, 0.0, 0.0, vec2(0.8, 0.6), ice_px);
-		float ring_phase = water_depth * 26.0 + value_noise(wuv * 3.1) * 0.8;
-		float ring_px = max(fwidth(ring_phase), 0.001);
 		float growth_ring = (1.0 - smoothstep(0.0, 0.18 + ring_px, abs(fract(ring_phase) - 0.5) * 2.0 - 0.6))
 			* clamp(0.35 / ring_px, 0.0, 1.0);
 		float milky_edge = 1.0 - smoothstep(0.0, 0.11, water_depth);
@@ -1065,6 +1071,10 @@ void fragment() {
 	// Snow buries a frozen puddle like the ground round it.
 	snow_amount *= 1.0 - 0.9 * (1.0 - frozen_puddle) * puddle - 0.7 * rock;
 	snow_amount *= dry_land;
+	if (moat_ice > 0.001) {
+		float under_ice = (1.0 - smoothstep(0.5, 0.9, snow_map_land(wuv))) * smoothstep(0.3, 0.6, moat_ice);
+		snow_amount = max(snow_amount, under_ice * smoothstep(0.0, 0.3, snow_cover));
+	}
 	// R-1930: the eaves shelter a ragged strip at the wall foot from snow.
 	snow_amount *= mix(0.1, 1.0, smoothstep(0.0, 0.55, wall_d + foot_wob * 0.5)) * foot_on + (1.0 - foot_on);
 	snow_amount = clamp(snow_amount, 0.0, 1.0);
@@ -1072,7 +1082,7 @@ void fragment() {
 	// Ice foot: the frozen swash band where the shore ice meets the beach, snowed
 	// over in streaks like the ice beyond it; fades out up the beach into the snow.
 	float ice_foot = coast_ice * step(sea_level - 0.8, world_pos.y)
-		* (1.0 - smoothstep(sea_level + 0.3, sea_level + 0.65, world_pos.y)) * (1.0 - snow_amount);
+		* (1.0 - smoothstep(sea_level + 0.5, sea_level + 1.1, world_pos.y)) * (1.0 - snow_amount);
 	if (ice_foot > 0.001) {
 		IceLook foot_ice = ice_look(wuv, ice_pans(wuv), 1.0, snow_cover, 0.6, vec2(0.8, 0.6), ice_px);
 		col = mix(col, foot_ice.albedo_srgb, ice_foot);

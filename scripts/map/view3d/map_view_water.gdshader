@@ -169,6 +169,11 @@ uniform float rainbow_secondary = 1.0;
 uniform float rainbow_gain = 0.32;
 #include "res://scripts/map/view3d/sky_rainbow.gdshaderinc"
 // ADR 0045 sea ice: shared winter ice look (pans, cracks, bubbles, blown snow).
+// The photo scans add four samplers; GL Compatibility has no units left here
+// (see sea_depth_t), so it keeps the procedural ice.
+#if CURRENT_RENDERER != RENDERER_COMPATIBILITY
+#define ICE_PHOTO
+#endif
 #include "res://scripts/city/ice_surface.gdshaderinc"
 // Sea ice 0..1 (SeasonState ICE_SEA, about 0.3 in a mean Reval February) and the
 // snow lying on it, pushed by MapViewMaterials.apply_sea_ice. Fast ice locks the
@@ -2440,7 +2445,6 @@ void fragment() {
 	// ADR 0045 sea ice over the composited water (see sea_ice). The fast-ice edge
 	// follows the depth with a pan-ragged line; floes are Voronoi plates with a
 	// pushed-up pale rim, thinning out with depth; their gaps are matte grey slush.
-	float sea_ice_cover = 0.0;
 	if (sea_ice > 0.001 && !swash_sheet) {
 		vec2 ixz = wave_sample_xz;
 		float ice_px = max(length(dFdx(ixz)), length(dFdy(ixz)));
@@ -2455,7 +2459,6 @@ void fragment() {
 		float ice_floe = step(floe_cells.z, floe_zone * 0.9)
 			* smoothstep(ice_gap - ice_px * 0.5, ice_gap + ice_px * 0.5, floe_edge);
 		float ice_cover = max(ice_fast, ice_floe);
-		sea_ice_cover = ice_cover;
 		float ice_slush = floe_zone * (1.0 - ice_cover);
 		float ice_bank = 1.0 - smoothstep(0.0, max(ice_reach * 0.6, 0.3), ice_depth_m);
 		IceLook ice_s = ice_look(
@@ -2548,8 +2551,7 @@ void fragment() {
 		float foam_edge = smoothstep(0.0, CITY_EDGE_FADE_FLOOR, basin_column);
 		edge_fade = mix(edge_fade, foam_edge, clamp(swash_bore, 0.0, 1.0));
 	}
-	// Fast ice is opaque right up to the beach: no soft waterline showing the bed.
-	ALPHA *= max(city_coverage * mix(edge_fade, 1.0, sea_ice_cover), tip_foam) * runup_drain;
+	ALPHA *= max(city_coverage * edge_fade, tip_foam) * runup_drain;
 	if (debug_foam_mask > 0.5) {
 		// Unlit mask: lighting and the foam tile must not hide renderer coverage.
 		vec3 mask = vec3(fft_foam.x);

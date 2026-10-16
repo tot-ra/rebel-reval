@@ -1,0 +1,26 @@
+{
+  "id": "material.lake_ice",
+  "family": "lake_ice",
+  "kind": "cc0_scan_pack",
+  "target": "assets/materials/pbr/lake_ice/lake_ice_clear_albedo_rough.png",
+  "prompt": "Not AI-generated: CC0 1.0 photogrammetry scans from ambientCG, packed losslessly. Ice003 (clear black lake ice with white plate rims, cracks and frozen-in flecks) -> lake_ice_clear_albedo_rough.png (RGB colour, A roughness); Ice004 (milky crazed plate ice) -> lake_ice_milky_albedo_rough.png; Ice003 + Ice004 GL normals -> lake_ice_normals.png (RG, BA); Snow014 GL normal + displacement -> snow_crust_normal.png (RG, B). To refresh, download the 1K-JPG zips, unzip into one folder and run the packer.",
+  "sources": [
+    "https://ambientcg.com/view?id=Ice003",
+    "https://ambientcg.com/view?id=Ice004",
+    "https://ambientcg.com/view?id=Snow014"
+  ],
+  "license": "CC0-1.0",
+  "processor": "tools/assets/pack_lake_ice_textures.py",
+  "targets": [
+    "assets/materials/pbr/lake_ice/lake_ice_clear_albedo_rough.png",
+    "assets/materials/pbr/lake_ice/lake_ice_milky_albedo_rough.png",
+    "assets/materials/pbr/lake_ice/lake_ice_normals.png",
+    "assets/materials/pbr/lake_ice/snow_crust_normal.png"
+  ],
+  "consumers": [
+    "scripts/city/ice_surface.gdshaderinc",
+    "scripts/city/ice_textures.gd"
+  ],
+  "task": "R-2066",
+  "notes": "ADR 0045 winter ice. The shader divides out the scans' mean colour (ICE_CLEAR_PHOTO_MEAN, ICE_MILKY_PHOTO_MEAN printed by the packer) so they keep their detail but take the game tone."
+}
