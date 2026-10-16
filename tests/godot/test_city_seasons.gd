@@ -210,6 +210,13 @@ func test_ice_lags_puddles_fast_moat_slow_sea_slowest() -> void:
 	var thaw := SeasonState.ice_weather(THAW_DAY, NOON, 0.2)
 	assert_true(float(thaw["ice_puddle"]) < 0.3, "puddle ice softens on a thaw noon")
 	assert_true(SeasonState.ice_cover_for(SeasonState.ICE_FRESH, THAW_DAY) > 0.5, "the moat holds")
+	# ...but not under lying snow: the ground is frozen, so the puddle stays ice
+	# (wet with melt), never open water cut into the snow. Bare ground follows the hour.
+	var thaw_ice := float(thaw["ice_puddle"])
+	var snow := VegetationPhenology.snow_cover_for(THAW_DAY)
+	assert_true(snow > 0.5, "the thaw day lies in the snow season")
+	assert_eq(SeasonState.puddle_ice_with_snow(thaw_ice, snow), 1.0, "snowed puddles stay frozen")
+	assert_eq(SeasonState.puddle_ice_with_snow(thaw_ice, 0.0), thaw_ice, "bare ground: the hour")
 	# A mild spell thins the moat below what the mean climate would give.
 	var mild := {"day": 22, "month": 2, "year": 1343}
 	assert_true(

@@ -257,7 +257,9 @@ func apply_ice_weather(progress: float, cloud: float, rain: float, puddles: floa
 	var frozen_now := 1.0 - smoothstep(-1.5, 0.0, float(weather["air_c"]))
 	var ground := CityTerrainBuilder.shared_material()
 	if ground != null:
-		ground.set_shader_parameter("puddle_ice", weather["ice_puddle"])
+		ground.set_shader_parameter(
+			"puddle_ice", SeasonState.puddle_ice_with_snow(float(weather["ice_puddle"]), snow_cover)
+		)
 		ground.set_shader_parameter("ice_melt", melt)
 		ground.set_shader_parameter("ice_glaze", maxf(glaze, puddles * frozen_now))
 	var pushed := Vector2(melt, glaze)

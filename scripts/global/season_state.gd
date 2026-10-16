@@ -308,6 +308,15 @@ static func ice_weather(date: Dictionary, progress: float, cloud: float) -> Dict
 	}
 
 
+## Puddle ice under lying snow. Snow cover is climatological (it stays through a
+## thaw day) while `ice_puddle` follows the hour, so a winter thaw used to cut open
+## black water into a snowed field. Lying snow means frozen ground: standing water
+## cannot soak away and freezes from below, so a thaw only wets the ice (`melt`
+## film) instead of opening it. Bare ground follows `ice_puddle` alone.
+static func puddle_ice_with_snow(ice_puddle: float, snow_cover: float) -> float:
+	return maxf(ice_puddle, smoothstep(0.15, 0.5, snow_cover))
+
+
 ## R-2075: fresh (moat, stream, lakes) or sea ice 0..1 for the date with its
 ## weather (see ICE_GROWTH_PER_DAY). One value per day.
 static func ice_cover_for(kind: StringName, date: Dictionary) -> float:
