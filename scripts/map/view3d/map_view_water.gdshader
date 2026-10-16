@@ -1217,9 +1217,12 @@ vec2 _city_foam_cells(vec2 xz) {
 // to bubble rims and holes open in it (the industry "foam dissolve" threshold).
 // The edge widens with the pixel footprint of the structure (fwidth), so distant
 // or grazing foam averages to grey coverage instead of moire rims.
-float _foam_dissolve(float structure, float c) {
+// `footprint` is fwidth(structure), taken by the caller in uniform control flow:
+// derivatives inside a per-pixel branch (obstacle or memory foam present) are
+// undefined in GLSL and flicker at the branch edge on some drivers.
+float _foam_dissolve(float structure, float c, float footprint) {
 	float k = clamp(c, 0.0, 1.0);
-	float soft = 0.12 + min(fwidth(structure) * 1.5, 0.5);
+	float soft = 0.12 + min(footprint * 1.5, 0.5);
 	return smoothstep(1.0 - k - soft * 0.5, 1.0 - k + soft * 0.5, structure) * step(0.001, k);
 }
 
@@ -2005,6 +2008,7 @@ void fragment() {
 	}
 
 	vec2 city_foam = vec2(0.0);
+	float city_foam_fw = 0.0;
 	// WR-7: persistent foam at the same rest coordinate (shifted by the surge below, so
 	// it rides the swash like the WR-2 structure). a = 0 keeps the analytic foam.
 	vec4 foam_memory = vec4(0.0);
@@ -2019,6 +2023,7 @@ void fragment() {
 			advected -= shore_now.to_land * shift * shore_now.valid;
 		}
 		city_foam = _city_foam_cells(advected);
+		city_foam_fw = fwidth(city_foam.x);
 		foam_memory = _foam_memory(advected);
 	}
 	// COLOR.r is baked from the same smooth contour that clips the mesh. A pair
@@ -2095,21 +2100,21 @@ void fragment() {
 			float shallow = 1.0 - smoothstep(0.03, CITY_SHALLOW_FOAM_DEPTH, basin_column);
 			coverage = max(coverage, shallow * CITY_SHALLOW_FOAM * mix(0.45, 1.0, trail)
 				* shore_now.beach * energy * drain.foam_keep);
-			swash_bore = _foam_dissolve(city_foam.x, coverage * shore_now.valid)
+			swash_bore = _foam_dissolve(city_foam.x, coverage * shore_now.valid, city_foam_fw)
 				* mix(0.7, 1.0, roller);
 		}
 	}
 	if (obstacle_foam > 0.001) {
 		// WR-5 impact foam: dense where a crest just hit the rock, lace as it wraps
 		// around and dissolves (same attached cells as the surf foam).
-		swash_bore = max(swash_bore, _foam_dissolve(city_foam.x, clamp(obstacle_foam, 0.0, 1.0)));
+		swash_bore = max(swash_bore, _foam_dissolve(city_foam.x, clamp(obstacle_foam, 0.0, 1.0), city_foam_fw));
 	}
 	if (shore_live && foam_memory.a > 0.0) {
 		// WR-7: surf and slosh foam the buffer still holds past the analytic roller, so
 		// a breaker leaves a trail that drifts and thins instead of vanishing with it.
 		float memory_surf = foam_memory.r * foam_memory.a * shore_now.valid
 			* smoothstep(0.03, 0.10, basin_column);
-		swash_bore = max(swash_bore, _foam_dissolve(city_foam.x, memory_surf * 0.85));
+		swash_bore = max(swash_bore, _foam_dissolve(city_foam.x, memory_surf * 0.85, city_foam_fw));
 	}
 	vec2 foam_uv = water_world_position.xz * 3.4 + vec2(-TIME * 0.22, TIME * 0.09) * wave_speed;
 	float foam_noise = _noise(foam_uv + _noise(foam_uv * 0.47) * 2.2);
@@ -2162,7 +2167,7 @@ void fragment() {
 			float breaking = clamp((foam_mask - CITY_WHITECAP_THRESHOLD)
 				/ (1.0 - CITY_WHITECAP_THRESHOLD), 0.0, 1.0);
 			whitecap = _foam_dissolve(foam_texture,
-				mix(breaking * CITY_WHITECAP_GAIN, foam_memory.r, foam_memory.a));
+				mix(breaking * CITY_WHITECAP_GAIN, foam_memory.r, foam_memory.a), city_foam_fw);
 		}
 		// Storm streaks: the tile's B channel is stretched 6:1 along +X, which is
 		// downwind in the wind frame. The coarse C0 mask links them to whitecaps.
@@ -2190,7 +2195,7 @@ void fragment() {
 		float foam_trail = smoothstep(0.06, 0.3, foam_mask) * smoothstep(0.35, 0.75, foam_texture) * open_water;
 		if (sea_physical_depth) {
 			// Old whitecap foam: sparse lace that thins as the mask decays.
-			foam_trail = _foam_dissolve(foam_texture, smoothstep(0.2, 0.9, foam_mask) * 0.35) * open_water;
+			foam_trail = _foam_dissolve(foam_texture, smoothstep(0.2, 0.9, foam_mask) * 0.35, city_foam_fw) * open_water;
 		}
 		float whitecap_old = max(whitecap - whitecap_fresh, foam_trail * 0.9);
 		water_color = mix(water_color, mix(w_shallow_color, w_foam_color, 0.4), whitecap_old * 0.6);

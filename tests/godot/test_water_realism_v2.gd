@@ -7,6 +7,10 @@ extends "res://tests/godot/test_case.gd"
 const WATER_SHADER := "res://scripts/map/view3d/map_view_water.gdshader"
 const FFT_INCLUDE := "res://scripts/map/view3d/ocean_fft_common.gdshaderinc"
 const SANDBOX := "res://tools/water_sandbox/water_sandbox.gd"
+## WR-4 (R-1509)
+const Surface := preload("res://scripts/city/city_water_surface.gd")
+const ShoreField := preload("res://scripts/city/city_shore_field.gd")
+const SWASH := "res://scripts/map/view3d/shore_swash.gdshaderinc"
 
 
 func test_bed_trough_keeps_deep_troughs_and_eases_into_a_shallow_bed() -> void:
@@ -54,6 +58,12 @@ func test_city_foam_is_lagrangian_and_dissolves_with_age() -> void:
 	# The old pattern scrolled with the ocean clock; foam must ride the water.
 	assert_false(body.contains("ocean_time") or body.contains("TIME"), "no clock-driven drift")
 	assert_true(shader.contains("float _foam_dissolve("), "age dissolve")
+	# Its callers sit in per-pixel branches (obstacle, memory foam): the footprint is
+	# taken once in uniform flow, never inside the helper.
+	var dissolve_at := shader.find("float _foam_dissolve(")
+	var dissolve := shader.substr(dissolve_at, shader.find("\n}\n", dissolve_at) - dissolve_at)
+	assert_false(dissolve.contains("fwidth"), "no derivative inside the dissolve helper")
+	assert_true(shader.contains("city_foam_fw = fwidth(city_foam.x)"), "footprint hoisted")
 	assert_true(shader.contains("shore_now.surge"), "surf foam follows the swash excursion")
 	assert_true(shader.contains("shore_now.foam_age"), "surf foam coverage follows bore age")
 
@@ -97,10 +107,6 @@ func test_sandbox_builds_every_bay_with_sea_land_and_obstacles() -> void:
 
 
 # WR-4 (R-1509): waves feel the seabed.
-
-const Surface := preload("res://scripts/city/city_water_surface.gd")
-const ShoreField := preload("res://scripts/city/city_shore_field.gd")
-const SWASH := "res://scripts/map/view3d/shore_swash.gdshaderinc"
 
 
 func _sandbox() -> Node3D:
@@ -155,7 +161,8 @@ func test_bed_bake_slows_trains_and_turns_crests_to_the_contours() -> void:
 		# Shoaling: the train slows (time per metre rises) as the water shallows.
 		var pace := grad.length()
 		assert_true(pace > previous_pace, "slower in shallower water at %d m" % int(d))
-		assert_almost_eq(pace, 1.0 / ShoreField.bed_celerity(bed.x), 0.12 / ShoreField.bed_celerity(bed.x))
+		var celerity := ShoreField.bed_celerity(bed.x)
+		assert_almost_eq(pace, 1.0 / celerity, 0.12 / celerity)
 		previous_pace = pace
 
 
