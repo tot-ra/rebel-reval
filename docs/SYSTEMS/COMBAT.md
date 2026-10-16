@@ -45,7 +45,7 @@ Status: implemented (tasks **R-1754** models, items and forge pickups; **R-1755*
 | Item | Slot | Class | Behaviour |
 |---|---|---|---|
 | `item.forge_arming_sword` | right hand | sword | balanced cut and thrust chain |
-| `item.forge_bearded_axe` | right hand | axe | slow heavy chops; hold for a two-handed cleave |
+| `item.forge_bearded_axe` ("Peasant axe", R-2009) | right hand | axe | slow heavy chops; hold for a two-handed cleave |
 | `item.forge_war_hammer` | right hand | hammer | crushing blows; hold for an overhead smash |
 | `item.forge_spear` | right hand | spear | long reach; the heavy lunge pierces a guard |
 | `item.forge_longbow` | left hand (two-handed) | bow | every attack looses an arrow along the facing (~20 m), a three-shot volley; hold for a full draw (more damage, x1.3 range, pierces guard). Equipping it returns the right-hand item to the bag |
@@ -55,7 +55,7 @@ Status: implemented (tasks **R-1754** models, items and forge pickups; **R-1755*
 
 | Piece | File | Role |
 |---|---|---|
-| Weapon models | `tools/assets/build_forge_weapons.py` -> `assets/props/weapons/<slug>/<slug>.glb` | Deterministic Blender geometry; origin at the right-hand grip, long axis +Y. Rebuild: `blender --background --factory-startup --python tools/assets/build_forge_weapons.py -- --preview` |
+| Weapon models | `tools/assets/build_forge_weapons.py` -> `assets/props/weapons/<slug>/<slug>.glb` (the axe is the modelled `axe_peasant` variant, [`EQUIPMENT_VARIANTS.md`](./EQUIPMENT_VARIANTS.md)) | Deterministic Blender geometry; origin at the right-hand grip, long axis +Y. Rebuild: `blender --background --factory-startup --python tools/assets/build_forge_weapons.py -- --preview` |
 | Held / world scenes | `assets/props/weapons/<slug>/<slug>_held.tscn`, `<slug>_ground.tscn` | Hand-slot rotation (item `equip.scene`) and the leaning display (item `equip.world_scene`, read by `WorldItemController`) |
 | Forge pickups | `WorldItemController.SEED_GROUPS` (`scripts/world/world_item_controller.gd`), installed by `scenes/world/reval_city/reval_city.gd` | Seeded once per save under `loc.reval_city#forge_weapons`; a taken weapon never respawns. Stable object ids `world.forge_<slug>` |
 | Move sets | `CombatMoveCatalog.CLASS_AXE`, `CLASS_BOW`; clips in `SharedCharacterRig.CANONICAL_ANIMATIONS` | Axe and bow rows in [`COMBAT_ANIMATION.md`](./COMBAT_ANIMATION.md) |

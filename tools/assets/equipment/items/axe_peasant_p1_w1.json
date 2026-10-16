@@ -1,0 +1,55 @@
+{
+  "task": "R-2009",
+  "doc": "docs/SYSTEMS/EQUIPMENT_VARIANTS.md",
+  "cleanup": "cleanup_axe.py",
+  "prestige": "p1",
+  "meshy_options": {
+    "pbr": true,
+    "texture": true,
+    "model_type": "standard",
+    "target_polycount": 4000
+  },
+  "tris": 3500,
+  "lod1_tris": 1000,
+  "tex": 1024,
+  "item_id": "item.forge_bearded_axe",
+  "family": "axe_peasant",
+  "variant": "axe_peasant_p1_w1",
+  "wear": "w1",
+  "look": "Village woodsman's axe: small one-piece forged head, narrow flaring blade, steel-welded edge; used",
+  "raw": "build/equipment_axe/axe_peasant_w1_raw.glb",
+  "raw_sha256": "19692f794da72bf2bda825dda331e74a9093c3b1c6081d16acc5c9d9f380feca",
+  "out": "assets/props/weapons/axe_peasant/variants/axe_peasant_p1_w1.glb",
+  "leonardo_generation": "1f1c992b-e5e8-6630-b973-f53a1258d243",
+  "meshy_task": "01a14610-fd1e-74d9-9369-b19fc5ca02a7",
+  "prompt": "Museum catalogue photo of a single object: a medieval iron axe head WITHOUT any wooden haft, 14th century Estonian peasant woodsman's axe, seen from the side showing one flat cheek of the head. Outline: a solid rectangular poll block 4 cm tall at the left, then the head flares into a fan: the cutting edge on the right is a gently convex line 9 cm long, the head is 15 cm from poll to edge. The cheek is a plain smooth flat face with NO holes and NO openings (the haft eye runs top to bottom through the poll and cannot be seen from this side). Hand-forged wrought iron, dull grey-black, faint hammer marks, few small brown rust spots, steel-welded edge slightly brighter. No beard, no hook, no ornament, not Viking, not fantasy. Lying flat, poll on the left, edge on the right, whole object in frame with margin, plain pure white background, soft even studio light, no cast shadow, no text.",
+  "scan": {
+    "head_len_m": 0.15,
+    "eye_from_poll": 0.1,
+    "rough_floor": 0.5,
+    "metal_cap": 0.8,
+    "ao": true,
+    "poll_depth": 0.22,
+    "edge_stretch": 1.7,
+    "edge_thin": 0.75
+  },
+  "haft": {
+    "length_m": 0.72,
+    "stub_m": 0.015,
+    "butt_radius_m": 0.0155,
+    "eye_radius_m": 0.011,
+    "oval": 1.25,
+    "segments": 12,
+    "rings": 8,
+    "uv_repeat_m": 0.5,
+    "albedo": "assets/materials/equipment/ash_shaft_used/ash_shaft_used_albedo.png",
+    "normal": "assets/materials/equipment/ash_shaft_used/ash_shaft_used_normal.png",
+    "roughness": "assets/materials/equipment/ash_shaft_used/ash_shaft_used_roughness.png"
+  },
+  "pivot_from_base_m": 0.2,
+  "turntable_detail_y": [
+    0.38,
+    0.7
+  ],
+  "reference_model": "Leonardo gpt-image-1.5 1536x1024"
+}

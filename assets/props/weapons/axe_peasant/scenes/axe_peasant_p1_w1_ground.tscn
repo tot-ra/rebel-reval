@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="PackedScene" uid="uid://b2j062i8o30yh" path="res://assets/props/weapons/axe_peasant/variants/axe_peasant_p1_w1.glb" id="1"]
+
+[node name="AxePeasantGround" type="Node3D"]
+metadata/variant = "axe_peasant_p1_w1"
+
+[node name="Visual" parent="." instance=ExtResource("1")]
+transform = Transform3D(0.984808, 0.173648, 0, -0.173648, 0.984808, 0, 0, 0, 1, -0.0356, 0.2019, 0)

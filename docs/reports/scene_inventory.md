@@ -251,8 +251,8 @@ Both commands should print `135` on a clean checkout at this revision.
 | 171 | `tools/capture_forge_brawl.tscn` | partial | Developer capture tool (R-1754..R-1756 forge weapon row, pickup and equip, citizen brawl plates). |
 | 172 | `assets/props/weapons/arming_sword/arming_sword_ground.tscn` | working | Forge arming sword leaning display shown as a world pickup in Kalev's smithy (R-1754). |
 | 173 | `assets/props/weapons/arming_sword/arming_sword_held.tscn` | working | Forge arming sword hand-slot equipment scene on the shared rig (R-1754). |
-| 174 | `assets/props/weapons/bearded_axe/bearded_axe_ground.tscn` | working | Forge bearded axe leaning display shown as a world pickup in Kalev's smithy (R-1754). |
-| 175 | `assets/props/weapons/bearded_axe/bearded_axe_held.tscn` | working | Forge bearded axe hand-slot equipment scene on the shared rig (R-1754). |
+| 174 | `assets/props/weapons/axe_peasant/scenes/axe_peasant_p1_w1_ground.tscn` | working | Forge peasant axe (R-2009) leaning display shown as a world pickup in Kalev's smithy (R-1754). |
+| 175 | `assets/props/weapons/axe_peasant/scenes/axe_peasant_p1_w1_held.tscn` | working | Forge peasant axe (R-2009) hand-slot equipment scene on the shared rig (R-1754). |
 | 176 | `assets/props/weapons/heater_shield/heater_shield_ground.tscn` | working | Forge heater shield leaning display shown as a world pickup in Kalev's smithy (R-1754). |
 | 177 | `assets/props/weapons/heater_shield/heater_shield_held.tscn` | working | Forge heater shield hand-slot equipment scene on the shared rig (R-1754). |
 | 178 | `assets/props/weapons/longbow/longbow_ground.tscn` | working | Forge longbow leaning display shown as a world pickup in Kalev's smithy (R-1754). |

@@ -1,13 +1,13 @@
 {
   "type": "item",
   "id": "item.forge_bearded_axe",
-  "name": "Bearded axe",
+  "name": "Peasant axe",
   "category": "weapon",
   "confidence": "plausible composite",
   "canon_status": "draft",
   "approval": {
     "status": "review",
-    "notes": "Forge weapon set (R-1754). Broad axe head with a welded steel edge on an ash haft, the farmer-rebel's weapon."
+    "notes": "Forge weapon set (R-1754); remodelled R-2009: a small one-piece forged woodsman's axe with a steel-welded edge on an ash haft, the farmer-rebel's weapon (the Viking-age bearded silhouette is gone). Item id kept."
   },
   "material_grade": "common",
   "gameplay": {
@@ -24,8 +24,8 @@
     },
     "equip": {
       "slot": "right_hand",
-      "scene": "res://assets/props/weapons/bearded_axe/bearded_axe_held.tscn",
-      "world_scene": "res://assets/props/weapons/bearded_axe/bearded_axe_ground.tscn"
+      "scene": "res://assets/props/weapons/axe_peasant/scenes/axe_peasant_p1_w1_held.tscn",
+      "world_scene": "res://assets/props/weapons/axe_peasant/scenes/axe_peasant_p1_w1_ground.tscn"
     },
     "weapon_class": "axe",
     "attack_profile": {
@@ -52,7 +52,7 @@
   "source_notes": [
     {
       "confidence": "plausible composite",
-      "summary": "Axe heads with steel edges are smith work; rebel farmers fought with axes.",
+      "summary": "Axe heads with steel edges are smith work; rebel farmers fought with axes. The Baltic form is a small eye-axe, not a Viking bearded or Danish axe (dossier section on axes).",
       "citations": [
         "history/dossiers/military/arms-and-armour-livonia-1340s.md#item-ledger-materials-for-systems-and-art"
       ]

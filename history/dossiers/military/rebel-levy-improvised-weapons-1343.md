@@ -46,7 +46,7 @@ Research note for board task R-2014 (EQ-12, epic R-2002). It decides which farm 
 | Wooden hayfork | Forked branch, two or three natural tines, peeled, 1.6-1.9 m | Forged iron tines (rebel kit), dung fork | plausible composite [6] | Wooden forks are the everyday farm form; iron tines cost a smith's work |
 | Sickle | Toothed crescent on a short turned grip, as `obj.sickle` | Straightened sickle on a pole | attested as tool [5][6]; plausible composite as weapon | Same silhouette as the game's farm sickle |
 | Re-hafted scythe | Not allowed | Any straightened scythe on a pole | dated later: exclude [7] | `docs/LOCATIONS/rebel_kings_camp.md` lists "scythe-blade on a pole" and a re-hafting quest; those rows conflict with this note and go to the canon keeper |
-| Axe, spear | Existing items (`bearded_axe`, `spear`) at `w2` | New rebel axe or spear meshes in this task | plausible composite [8] | Socketed spearheads are common in Estonian Late Iron Age finds [5] |
+| Axe, spear | Existing items (`axe_peasant` since R-2009, `spear`) at `w2` | New rebel axe or spear meshes in this task | plausible composite [8] | Socketed spearheads are common in Estonian Late Iron Age finds [5] |
 | Looted crown/Order item | Existing item at `w2`, one per band | A whole looted kit on one man | plausible composite [8] | |
 
 ## Production hooks

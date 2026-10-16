@@ -42,7 +42,8 @@ def build(manifest_path: Path, turntable: bool) -> dict:
     sha = hashlib.sha256(raw.read_bytes()).hexdigest()
     if sha != m["raw_sha256"]:
         sys.exit(f"{raw}: sha256 {sha} != manifest {m['raw_sha256']}")
-    log = _blender("cleanup_equipment.py", "--manifest", str(manifest_path))
+    # Side-on heads (axes) need their own orientation and haft: manifest "cleanup": "cleanup_axe.py".
+    log = _blender(m.get("cleanup", "cleanup_equipment.py"), "--manifest", str(manifest_path))
     info = json.loads(next(ln for ln in log.splitlines() if ln.startswith("EQUIPMENT ")).removeprefix("EQUIPMENT "))
     out = ROOT / m["out"]
     info["out_sha256"] = hashlib.sha256(out.read_bytes()).hexdigest()

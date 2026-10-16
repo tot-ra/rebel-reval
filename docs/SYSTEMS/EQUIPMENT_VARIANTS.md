@@ -148,6 +148,30 @@ Verify: Build: `/Applications/Blender.app/Contents/MacOS/Blender -b --factory-st
 
 Limits: the census does not give out `buckler` (burgher sidearm) or `pavise` (wall crossbowmen) yet; the buckler and pavise have no carry pose; the pavise prop stick is fixed (no hinge).
 
+## Axes (R-2009)
+
+The Viking-age bearded axe of the first forge set is gone (`assets/props/weapons/bearded_axe/` deleted, its builder removed from `tools/assets/build_forge_weapons.py`). Forms and sources: the axes section of [`history/dossiers/military/arms-and-armour-livonia-1340s.md`](../../history/dossiers/military/arms-and-armour-livonia-1340s.md).
+
+| Variant | Used for | Notes |
+|---|---|---|
+| `axe_peasant_p1_w1` | the player's `item.forge_bearded_axe` (id kept, now "Peasant axe"), villagers, woodcutters | small one-piece head, 15 cm poll to edge, steel-welded edge, 72 cm ash haft |
+| `axe_peasant_p1_w2` | rebels (always wear `w2`) | same head, nicked edge, broken corner, rust; darker worn-ash haft plate `assets/materials/equipment/ash_haft_worn` |
+| `axe_broad_p2_w1` | carpenters and joiners (a tool, never a weapon kit) | 18 cm deep head, 15 cm straight edge, 60 cm haft; no combat item |
+| war axe (`axe_war_p2_w0`) | - | **not shipped**: the research note found no Baltic evidence for a long-hafted war axe c.1343 |
+
+**Pipeline difference from the spear.** `tools/assets/equipment/cleanup_axe.py` (manifest key `"cleanup": "cleanup_axe.py"`, run by `build_equipment.py`) replaces `cleanup_equipment.py` because an axe head sits on the haft through its eye, side-on. The Leonardo/OpenAI reference must be a **cheek view with no eye drawn**: image generators draw the hole and the fan outline on the same face, and a Meshy scan of that gives an adze (edge across the haft), which the first build did. The script stands the edge along the haft, turns the cheeks sideways and the blade forward (Godot +Z, `socket_edge`), widens the blade (`edge_stretch`), thins the cheeks toward the edge (`edge_thin`) and builds an oval haft through the poll with a short stub above it. Origin is the grip (0.2 m above the butt, 0.18 for the broad axe); sockets `socket_grip/butt/tip/edge`. Budget 3,500 tris LOD0 / 1,000 LOD1.
+
+**Mounting.** Scenes live in `assets/props/weapons/axe_peasant/scenes/` and `axe_broad/scenes/` (`<variant>_held.tscn`, `<variant>_ground.tscn`, meta `variant`). The held scenes keep the legacy hand turn (`rotation.z = PI / 2`, haft up along the forearm) that the `axe_attack` animation was authored for. The census gives no resident an axe kit, so no citizen carries one in the city yet; rebel and carpenter hands are shown by the capture only. The item keeps its combat numbers.
+
+![Player, a census rebel and a census carpenter holding the three axe variants](../reports/images/equipment/axe_equipment_row.png)
+![Heads and hands: rusted w2 peasant axe, broad carpenter axe](../reports/images/equipment/axe_equipment_hands.png)
+![The apprentice at the contact frame of the axe chop](../reports/images/equipment/axe_equipment_chop.png)
+![Peasant axe turntable](../reports/images/equipment/axe_peasant_p1_w1_turntable.png)
+![Battered peasant axe, detail](../reports/images/equipment/axe_peasant_p1_w2_detail.png)
+![Carpenter broad axe, detail](../reports/images/equipment/axe_broad_p2_w1_detail.png)
+
+Verify: `tools/godot_render.sh --script tools/capture_axe_equipment.gd`; `python3 tools/assets/equipment/build_equipment.py tools/assets/equipment/items/axe_*.json`; `test_forge_weapons`.
+
 ## Limits
 
 - The spear is held with the same hand turn as the old primitive, so in the idle pose it leans about 10 degrees across the body; the walk cycle holds it upright. The walk arms are the separate T-pose bug R-2036.

@@ -5,9 +5,9 @@ Run from the repository root:
     blender --background --factory-startup --python tools/assets/build_forge_weapons.py -- --preview
     blender --background --factory-startup --python tools/assets/build_forge_weapons.py -- --only=longbow
 
-Six weapons a 1343 Reval smithy could forge, keep or repair (see
+Five weapons a 1343 Reval smithy could forge, keep or repair (see
 history/dossiers/military/arms-and-armour-livonia-1340s.md): an arming sword, a
-yew longbow, a socketed spear, a painted heater shield, a bearded axe and a war
+yew longbow, a socketed spear, a painted heater shield and a war
 hammer. Output: assets/props/weapons/<slug>/<slug>.glb.
 
 Grip convention (what the Godot equip scenes rely on):
@@ -112,7 +112,7 @@ SPECS = (
     _spec_for("longbow", "Longbow", (0.2, 1.8, 0.05), 3000, (0.0, 0.0, 0.9), (2.2, -3.4, 1.4), 2.05),
     _spec_for("spear", "Spear", (0.07, 2.25, 0.07), 2500, (0.0, 0.0, 1.12), (2.6, -3.8, 1.6), 2.5),
     # heater_shield retired by R-2013: the modelled shields come from tools/assets/equipment/build_shields.py.
-    _spec_for("bearded_axe", "BeardedAxe", (0.26, 0.8, 0.05), 2500, (0.0, 0.0, 0.4), (1.4, -2.3, 1.0), 1.0),
+    # bearded_axe retired by R-2009: the Viking-age silhouette is replaced by the period axes of tools/assets/equipment (cleanup_axe.py).
     _spec_for("war_hammer", "WarHammer", (0.22, 0.78, 0.06), 2500, (0.0, 0.0, 0.4), (1.4, -2.3, 1.0), 1.0),
 )
 
@@ -220,30 +220,6 @@ def _build_spear(root, m) -> list:
     ]
 
 
-def _build_bearded_axe(root, m) -> list:
-    # Bearded axe, 0.80 m ash haft held near the foot: the beard sweeps down along
-    # the haft so the hand can choke up behind it. Edge faces +X.
-    head_z = 0.52
-    blade = [
-        (0.020, head_z + 0.035),
-        (0.070, head_z + 0.045),
-        (0.150, head_z + 0.075),
-        (0.158, head_z + 0.010),
-        (0.150, head_z - 0.080),
-        (0.120, head_z - 0.150),
-        (0.085, head_z - 0.165),
-        (0.060, head_z - 0.090),
-        (0.020, head_z - 0.030),
-    ]
-    return [
-        HT._tube(root, "AshHaft", [(0.0, 0.0, -0.17), (-0.008, 0.0, 0.2), (0.0, 0.0, 0.62)], [0.0165, 0.0150, 0.0160], m["wood"], sides=10, samples=4),
-        HT._box(root, "Eye", (0.0, 0.0, head_z), (0.045, 0.040, 0.075), m["iron"]),
-        _profile_plate(root, "BeardedBlade", blade, 0.010, m["iron"]),
-        _profile_plate(root, "PolishedEdge", [(0.146, head_z + 0.075), (0.162, head_z + 0.012), (0.154, head_z - 0.080), (0.124, head_z - 0.152), (0.116, head_z - 0.140), (0.142, head_z - 0.076), (0.148, head_z + 0.012), (0.136, head_z + 0.068)], 0.012, m["edge"]),
-        HT._box(root, "Poll", (-0.035, 0.0, head_z), (0.03, 0.036, 0.055), m["iron"]),
-    ]
-
-
 def _build_war_hammer(root, m) -> list:
     # Horseman's war hammer, 0.78 m: square four-point face (+X), curved back
     # spike (-X), short top spike, iron langets riveted down the haft.
@@ -338,7 +314,6 @@ BUILDERS = {
     "arming_sword": (_build_arming_sword, "arming sword with tapering two-edged blade, straight cross and wheel pommel"),
     "longbow": (_build_longbow, "strung yew self bow with leather grip wrap, horn nocks and linen string"),
     "spear": (_build_spear, "ash-shafted spear with riveted socket, leaf-shaped head and iron butt cap"),
-    "bearded_axe": (_build_bearded_axe, "bearded axe on an ash haft with a polished welded edge"),
     "war_hammer": (_build_war_hammer, "war hammer with four-point face, back spike, top spike and iron langets"),
 }
 

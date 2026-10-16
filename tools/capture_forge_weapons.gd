@@ -14,7 +14,10 @@ const FIGURE_HEIGHT := 2.0
 ## slug -> slot, attack animation and its contact time (CombatMoveCatalog).
 const WEAPONS: Array[Dictionary] = [
 	{"slug": "arming_sword", "slot": &"right_hand", "attack": &"sword_attack", "time": 0.40},
-	{"slug": "bearded_axe", "slot": &"right_hand", "attack": &"axe_attack", "time": 0.68},
+	{
+		"slug": "axe_peasant", "slot": &"right_hand", "attack": &"axe_attack", "time": 0.68,
+		"scene": "res://assets/props/weapons/axe_peasant/scenes/axe_peasant_p1_w1_held.tscn",
+	},
 	{"slug": "war_hammer", "slot": &"right_hand", "attack": &"hammer_attack", "time": 0.68},
 	{"slug": "spear", "slot": &"right_hand", "attack": &"spear_attack", "time": 0.45},
 	{"slug": "longbow", "slot": &"left_hand", "attack": &"bow_attack", "time": 0.30},
@@ -51,7 +54,8 @@ func _run() -> void:
 
 	for weapon: Dictionary in WEAPONS:
 		var slug := String(weapon["slug"])
-		var scene := load("res://assets/props/weapons/%s/%s_held.tscn" % [slug, slug]) as PackedScene
+		var scene_path := String(weapon.get("scene", "res://assets/props/weapons/%s/%s_held.tscn" % [slug, slug]))
+		var scene := load(scene_path) as PackedScene
 		for slot: StringName in SharedCharacterRig.EQUIPMENT_SLOTS:
 			rig.unequip(slot)
 		if slug != "heater_shield":

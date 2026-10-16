@@ -9,7 +9,7 @@ related:
   - ../crafts/blacksmith-materials-and-techniques.md
   - ../power/jurisdictions-of-reval.md
   - ../economy/coinage-prices-and-measures.md
-updated: 2026-07-28
+updated: 2026-10-16
 ---
 
 # Arms and armour in Livonia, 1340s (Reval focus)
@@ -108,6 +108,17 @@ Price scale now lives in [`../economy/coinage-prices-and-measures.md`](../econom
 
 Apply **×1.25–1.5** siege multiplier April–May 1343 per economy dossier.
 
+## Axes: peasant, carpenter and war forms (R-2009)
+
+Question: which axe forms may the game show around Reval in 1343, replacing the Viking-age bearded axe of the first forge set (R-1754)?
+
+- **Peasant and woodsman axe - allowed.** The evidence nearest to Estonia is Latvian and Lithuanian: Latvian archaeology holds axes among 482 close-combat artefacts of the 14th-16th centuries [12], and a typological study counts 79 Latvian axes of the 14th-17th centuries [13]; Lithuania has 275 axes of the 14th-16th centuries in 16 museums, which fall into two eye-axe types, the older with round or angular butt, a cheek ending in a "tooth", mostly symmetrical blades, shapes continuing the pre-1300 tradition [14]. Reading these as small one-piece forged eye-axes without beard or long hook is a design inference from the Lithuanian summary and the abstracts, not a finding of an Estonian typology. Estonian rural finds also include axes beside spearheads and sickles [15]. Form for the game: head about 15 cm from poll to edge, edge 7-10 cm, a squared poll block, cheeks thinning to a convex steel-welded edge, ash haft about 70 cm. Wear `w2` = nicked edge, rust, dented poll, grimy haft.
+- **Carpenter broad axe - allowed as a tool, not as a weapon kit.** Hewing timber to a flat face with a wide straight-edged axe is universal medieval carpentry; Reval's timber building and shipyards need it. I found no Estonian find of this exact T-shaped form, so it is a plausible composite: head about 18 cm from poll to edge with a straight edge of about 15 cm, a small poll, haft about 60 cm. It is carried by craftsmen (prestige `p2`, a good tool kept sharp), never by rebels or the watch.
+- **Long-hafted war axe ("Danish axe") - NOT confirmed, not modelled.** The broad two-handed Dane axe is a Viking-age and early medieval weapon, common after about AD 1000 and rare after the 12th century in the sources consulted [16]; the bearded axe is likewise an early medieval silhouette [17]. No source found attests either as crown or Order kit in Livonia c.1343; the dossier's own watch and Order kits (above) name spear, sword, crossbow, lance and mace. The research gate of R-2009 stays closed: no `axe_war` variant ships. Reopen only with a dated Baltic or Hanseatic find or an inventory.
+- **Do not show:** bearded or hooked axes, Viking-style long axes, throwing axes, axes with engraved or decorated cheeks.
+
+Confidence: peasant axe = attested neighbouring-region type; carpenter broad axe = plausible composite; war axe = excluded for lack of evidence. Gaps: no Estonian-specific typology was reachable (the Latvian typology article was paywalled; only abstracts read); a maintainer or the research role with library access should check Mäesalu or Brūzis for an Estonian and Livonian axe table.
+
 ## Production hooks
 
 - **Art:** Burgher watch = **padded textile silhouette + iron cap + spear** [`military.arms-and-armour-livonia-1340s.03`]; wall crossbowmen [`military.arms-and-armour-livonia-1340s.02`]; upper-tier mail [`military.arms-and-armour-livonia-1340s.04`]; forge interior [`military.arms-and-armour-livonia-1340s.01`]; rebel levy = axe/scythe + wool tunic, no plate (no licensed rebel-specific plate — use tool silhouettes from forge plate).
@@ -158,3 +169,9 @@ Apply **×1.25–1.5** siege multiplier April–May 1343 per economy dossier.
 9. [`lower-town-street-plan.md`](../topography/lower-town-street-plan.md) — Harju / smith street (project dossier).
 10. D. E. Kaiser, "A brief examination of warfare by medieval urban militias in Central and Northern Europe," 2013 — militia arms obligation (English).
 11. [`toompea-castle-and-upper-town.md`](../architecture/toompea-castle-and-upper-town.md) — Danish garrison distinct from burgher watch (project dossier).
+12. R. Brūzis, *14.-16. gs. tuvcīņas ieroči Latvijas arheoloģiskajā materiālā* (doctoral thesis, University of Latvia, 2013), abstract: https://dspace.lu.lv/items/6fd8203f-f3b8-4d90-98c5-fb5d66e2d066 (Latvian, English abstract; only the abstract was read).
+13. R. Bruzis, "Axes in the 14th-17th century archaeological material from Latvia: a typological analysis", 2010, https://www.academia.edu/45716697 (English; abstract only, full text not reachable).
+14. A. Malonaitis, "XIV-XVI a. kirviai: kai kurie pavidalo bruožai" (Axes of the 14th-16th century: some features of shape), *Istorija* 95(3), 2014, pp. 5-23, English summary read in full (Lithuanian).
+15. A. Mäesalu and Estonian Open Air Museum, see [`rebel-levy-improvised-weapons-1343.md`](rebel-levy-improvised-weapons-1343.md) sources 5-6 - axes in Estonian rural finds.
+16. "Dane axe", Wikipedia, https://en.wikipedia.org/wiki/Dane_axe (early medieval, widest use 9th-11th century; secondary source).
+17. "Bearded axe", Wikipedia, https://en.wikipedia.org/wiki/Bearded_axe (from the 6th century, early medieval; secondary source).
