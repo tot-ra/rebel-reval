@@ -14,11 +14,11 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `1303`
+- Active Markdown files scanned: `1308`
 - Markdown files excluded as archive/reference/out of active scope: `774`
-- Local/external links inspected: `15158`
-- Links to active Markdown docs: `13065`
-- Links to existing archive/reference/non-active local docs: `561`
+- Local/external links inspected: `15209`
+- Links to active Markdown docs: `13099`
+- Links to existing archive/reference/non-active local docs: `562`
 - External links skipped for reachability: `194`
 - Issues found: `0`
 
@@ -88,6 +88,9 @@ No active Markdown documentation issues found.
 - `docs/adr/0050-social-life-venues-and-weekly-rhythm.md`
 - `docs/adr/0051-condition-adaptive-motion-style-network.md`
 - `docs/adr/0052-healer-apprentice-and-family-cure-loop.md`
+- `docs/adr/0053-context-aware-jumping-leap-network.md`
+- `docs/adr/0054-hero-sits-on-seats.md`
+- `docs/adr/0055-soul-attachments-and-sin-inclinations.md`
 - `docs/adr/README.md`
 - `docs/AGENT_LOOPS.md`
 - `docs/ANIMAL_3D_SOURCING.md`
@@ -1215,6 +1218,7 @@ No active Markdown documentation issues found.
 - `docs/SYSTEMS/landmark_sites/st_michael.md`
 - `docs/SYSTEMS/landmark_sites/st_nicholas.md`
 - `docs/SYSTEMS/landmark_sites/st_olaf.md`
+- `docs/SYSTEMS/LEAPING.md`
 - `docs/SYSTEMS/LIVING_CITY.md`
 - `docs/SYSTEMS/LIVING_VEGETATION.md`
 - `docs/SYSTEMS/LIVING_WORLD.md`
@@ -1238,6 +1242,7 @@ No active Markdown documentation issues found.
 - `docs/SYSTEMS/SEASONS.md`
 - `docs/SYSTEMS/SETTINGS_AND_ACCESSIBILITY.md`
 - `docs/SYSTEMS/SHIPS.md`
+- `docs/SYSTEMS/SITTING.md`
 - `docs/SYSTEMS/SKY_ATMOSPHERE.md`
 - `docs/SYSTEMS/SOCIAL_LIFE.md`
 - `docs/SYSTEMS/SPIRIT_DIALOGUE.md`
