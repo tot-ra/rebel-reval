@@ -1,8 +1,10 @@
 [gd_scene load_steps=2 format=3]
 
-[ext_resource type="PackedScene" path="res://assets/props/weapons/heater_shield/heater_shield.glb" id="1"]
+[ext_resource type="PackedScene" path="res://assets/props/weapons/heater_shield/variants/heater_plain_p1_w0.glb" id="1"]
 
 [node name="HeaterShieldHeld" type="Node3D"]
 rotation = Vector3(0, 0, 1.5707963267948966)
 
+; Origin is the hand on the enarmes: the board sits 4.5 cm in front of it (R-2013 model, origin mid-board).
 [node name="Visual" parent="." instance=ExtResource("1")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.04, 0.045)

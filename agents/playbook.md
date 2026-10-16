@@ -396,3 +396,5 @@ Keep this file short. Append a durable reusable rule, not a dated incident log. 
 - zsh aborts the whole command on an unmatched glob ("no matches found"), so `rm -f build/x/*_tag.png && capture ...` silently skips the capture and the next `grep` reads an old log. Delete with `find <dir> -name "*_tag.png" -delete` (or `setopt nullglob`) and read the log the run just wrote.
 
 - Pre-commit docs gates run on HEAD+owned paths: never regenerate `docs/reports/active_markdown_report.md` from a dirty worktree (foreign untracked docs inflate counts). Take HEAD's report and patch only the summary counts your docs change. `git commit --only` locks `next-index-<pid>.lock`, so retry matchers must test `.lock`, not `index.lock`.
+
+- In an edit script that rewrites a shared file in place (`open(dst, "w").write(f(open(src).read()))` with src == dst), `open(dst, "w")` truncates before the read: an exception in `f` left `assets/SOURCES.csv` empty and cost another session's uncommitted rows (R-2013). Read first, transform, then write; try the transform on a scratch copy of `git show HEAD:<file>` before touching the worktree file.

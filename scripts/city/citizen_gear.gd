@@ -38,9 +38,11 @@ static var _lantern_held := Transform3D(Basis(Vector3.BACK, PI * 0.5), Vector3(0
 static var _lantern: PackedScene
 
 ## Shield strapped to the left forearm, face outward. Measured with the idle pose
-## (tools/capture_citizen_wardrobe.gd).
+## (tools/capture_citizen_wardrobe.gd, tools/capture_shields.gd). The modelled shields
+## (R-2013) face +Z with the enarmes behind, so the last turn about Y puts the painted face
+## away from the body; the old flat board was symmetric and hid that.
 static var _shield_held := Transform3D(
-	(Basis(Vector3.BACK, PI * 0.5) * Basis(Vector3.UP, -PI * 0.5)).scaled(Vector3(0.8, 0.8, 0.8)),
+	(Basis(Vector3.BACK, PI * 0.5) * Basis(Vector3.UP, PI * 0.5)).scaled(Vector3(0.9, 0.9, 0.9)),
 	Vector3(0.08, 0.0, 0.06)
 )
 

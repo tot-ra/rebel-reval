@@ -129,6 +129,25 @@ Feasibility input for EQ-13 (kettle hat), from the R-2002 check: reference and M
 - Variant choice (R-2004): `python3 -m unittest tests.python.test_equipment_variants -v` (same census same cells, prestige per office, rebel and Order wear, one cell per unit, runtime data distribution); `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_equipment_variants` (shipped cell mounted as is, missing cell falls back with a finish, variant layer entries, shield wear, bag/equip/world-item variants survive a JSON save round trip, old saves load the base item); `python3 tools/city/build_citizen_runtime.py --check`.
 - Capture: `tools/godot_render.sh --script tools/capture_watch_variants.gd` writes `watch_variants_row.png` and `watch_variants_closeup.png` (six census watchmen of different posts, labelled with post and cell).
 
+## Shields (R-2013)
+
+Shields are modelled, not scanned: a flat painted board needs exact heraldry (the Order's black cross on white, the crown's plain red, no invented arms) and Meshy cannot promise that, so `tools/assets/equipment/build_shields.py` (Blender, headless) builds the geometry (curved planked board, leather rim binding, enarmes and guige on the back, iron boss, rivets) and draws the face paint in numpy with wear (edge dirt, scratches, paint loss). Origin mid-board, face +Z, `socket_forearm` and `socket_back` empties. Under 2.5k tris, 1024 px JPEG.
+
+| Family (dir) | Files `<family>_<cell>.glb` | Look |
+|--------------|-----------------------------|------|
+| `heater_order` (`heater_shield/variants`) | `p3_w0`, `p3_w1` | white field, black cross pattee, 0.46 x 0.62 m |
+| `heater_crown` | `p2_w1` | plain crown red |
+| `heater_field` | `p3_w1` | pale board, `shield_face` material tinted by `CitizenShield.scene(kind, field)` |
+| `heater_plain` | `p1_w0` (forge item), `p1_w2` | bare wood, iron boss, paint loss |
+| `buckler` (`buckler/variants`) | `p1_w1`, `p2_w1` | 0.31 m round, iron boss, rim, grip bar |
+| `pavise` (`pavise/variants`) | `p1_w1` | 0.46 x 0.90 m ridged board, town red, prop stick |
+
+`CitizenShield.scene(kind, field, cell)` keeps its API (`order`, `crown`, `field`, `plain`, plus `buckler`, `pavise`); a cell that is not shipped resolves to the nearest of that kind (wear gap first, then prestige). The forge `item.forge_heater_shield` scenes now instance `heater_plain_p1_w0`; the old code-built board and the old `heater_shield.glb` are gone. `CitizenGear._shield_held` carries a half turn about the shield's up axis so the face points away from the body.
+
+Verify: Build: `/Applications/Blender.app/Contents/MacOS/Blender -b --factory-startup --python tools/assets/equipment/build_shields.py` then `render_turntable.py --glb <file> --out docs/reports/images/equipment/<name>_turntable.png` (front and back tiles); `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_equipment_variants,test_citizen_wardrobe,test_forge_weapons` (includes the `ShieldGuard` tests); `tools/godot_render.sh --script tools/capture_shields.gd` writes `shields_front.png` and `shields_back.png` (Order brother, crown man, field knight, plain man-at-arms).
+
+Limits: the census does not give out `buckler` (burgher sidearm) or `pavise` (wall crossbowmen) yet; the buckler and pavise have no carry pose; the pavise prop stick is fixed (no hinge).
+
 ## Limits
 
 - The spear is held with the same hand turn as the old primitive, so in the idle pose it leans about 10 degrees across the body; the walk cycle holds it upright. The walk arms are the separate T-pose bug R-2036.

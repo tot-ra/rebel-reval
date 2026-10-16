@@ -79,12 +79,16 @@ func test_variant_wear_entry_mounts_the_base_layer() -> void:
 	assert_eq(CitizenWardrobe.cell_wear(base, 1), base)
 
 
-func test_shield_paint_follows_the_wear_cell() -> void:
-	var used := CitizenShield.scene("crown", Color.GRAY, "p2_w1")
-	var battered := CitizenShield.scene("crown", Color.GRAY, "p2_w2")
-	assert_true(used != null and battered != null)
-	assert_true(used != battered, "w2 board is a different, faded scene")
-	assert_eq(CitizenShield.scene("crown", Color.GRAY, "p3_w1"), used, "same wear, same board")
+func test_shield_resolves_to_a_modelled_variant() -> void:
+	# R-2013: shipped GLBs, nearest cell of the kind when the exact one is not made.
+	var crown := CitizenShield.scene("crown", Color.GRAY, "p2_w1")
+	assert_true(crown != null and crown.instantiate().get_node_or_null("socket_forearm") != null)
+	assert_eq(CitizenShield.scene("crown", Color.GRAY, "p2_w2"), crown, "only one crown cell")
+	var fresh := CitizenShield.scene("plain", Color.GRAY, "p1_w0")
+	var battered := CitizenShield.scene("plain", Color.GRAY, "p1_w2")
+	assert_true(fresh != battered, "plain wear picks its own file")
+	assert_true(CitizenShield.scene("buckler") != null and CitizenShield.scene("pavise") != null)
+	assert_true(CitizenShield.scene("field", Color.RED) != CitizenShield.scene("field", Color.BLUE))
 
 
 func _state() -> GameState:

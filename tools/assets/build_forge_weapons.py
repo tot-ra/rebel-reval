@@ -111,7 +111,7 @@ SPECS = (
     _spec_for("arming_sword", "ArmingSword", (0.22, 1.02, 0.05), 3000, (0.0, 0.0, 0.51), (1.6, -2.4, 1.1), 1.25),
     _spec_for("longbow", "Longbow", (0.2, 1.8, 0.05), 3000, (0.0, 0.0, 0.9), (2.2, -3.4, 1.4), 2.05),
     _spec_for("spear", "Spear", (0.07, 2.25, 0.07), 2500, (0.0, 0.0, 1.12), (2.6, -3.8, 1.6), 2.5),
-    _spec_for("heater_shield", "HeaterShield", (0.62, 0.8, 0.14), 4000, (0.0, -0.05, 0.4), (1.4, -2.2, 1.0), 1.05),
+    # heater_shield retired by R-2013: the modelled shields come from tools/assets/equipment/build_shields.py.
     _spec_for("bearded_axe", "BeardedAxe", (0.26, 0.8, 0.05), 2500, (0.0, 0.0, 0.4), (1.4, -2.3, 1.0), 1.0),
     _spec_for("war_hammer", "WarHammer", (0.22, 0.78, 0.06), 2500, (0.0, 0.0, 0.4), (1.4, -2.3, 1.0), 1.0),
 )
@@ -338,7 +338,6 @@ BUILDERS = {
     "arming_sword": (_build_arming_sword, "arming sword with tapering two-edged blade, straight cross and wheel pommel"),
     "longbow": (_build_longbow, "strung yew self bow with leather grip wrap, horn nocks and linen string"),
     "spear": (_build_spear, "ash-shafted spear with riveted socket, leaf-shaped head and iron butt cap"),
-    "heater_shield": (_build_heater_shield, "curved painted heater shield of glued boards with leather enarmes"),
     "bearded_axe": (_build_bearded_axe, "bearded axe on an ash haft with a polished welded edge"),
     "war_hammer": (_build_war_hammer, "war hammer with four-point face, back spike, top spike and iron langets"),
 }

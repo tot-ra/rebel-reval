@@ -1,65 +1,52 @@
 class_name CitizenShield
 extends RefCounted
 
-## Heater shields of armed census residents (docs/SYSTEMS/CITIZEN_WARDROBE.md, WD-4).
-## Built in code (a flat lime-wood board with a painted face), so no art file is needed and a
-## shield is a plain prop on the left hand slot, not a skinned layer. Kinds come from the
-## wardrobe rules (`shield` in content/world/reval_city/citizens.json):
-##   order - white field with the Order's black cross
-##   crown - plain red (the Danish crown's colour, no invented heraldry)
-##   field - the knight's own surcoat colour, plain
-##   plain - bare wood with an iron boss
-## Dimensions follow a heater shield of the 1340s: about 0.46 m wide, 0.62 m tall.
-## Variants (R-2004): the bearer's `gear_variant` cell picks a shipped
-## `assets/props/armour/heater_shield/variants/heater_shield_<cell>.glb` when one exists;
-## until then the board is built here and its paint and wood follow the cell's wear
-## (fresh for w0, faded and darkened for w2).
+## Shields of armed census residents (docs/SYSTEMS/CITIZEN_WARDROBE.md, WD-4), modelled GLBs
+## from tools/assets/equipment/build_shields.py (R-2013, EQ-11). A shield is a plain prop on
+## the left hand slot, not a skinned layer. Kinds come from the wardrobe rules (`shield` in
+## content/world/reval_city/citizens.json):
+##   order - white field with the Order's black cross (p3)
+##   crown - plain red, the Danish crown's colour, no invented arms (p2)
+##   field - the knight's own surcoat colour: a pale painted board tinted at runtime (p3)
+##   plain - scuffed lime wood with an iron boss (p1)
+##   buckler, pavise - round burgher sidearm and the wall crossbowman's standing shield
+## Files `<dir>/<family>_<cell>.glb` (heater families `heater_<kind>`); the bearer's
+## `gear_variant` cell picks one, else the nearest shipped cell of that kind (wear first,
+## then prestige). Heater 0.46 x 0.62 m, face toward +Z, origin mid-board.
 
-const HALF_WIDTH := 0.23
-const TOP := 0.30
-const THICKNESS := 0.018
-const WOOD := Color(0.42, 0.31, 0.19)
-const IRON := Color(0.36, 0.36, 0.37)
-const CROWN_RED := Color(0.58, 0.11, 0.09)
-const ORDER_WHITE := Color(0.86, 0.85, 0.80)
-const ORDER_BLACK := Color(0.07, 0.07, 0.07)
-const VARIANT_DIR := "res://assets/props/armour/heater_shield/variants"
-## Wear (w0, w1, w2) -> [paint brightness, fade toward the wood].
-const PAINT_WEAR := [[1.08, 0.0], [1.0, 0.0], [0.72, 0.35]]
+const VARIANT_DIRS := {
+	"heater": "res://assets/props/weapons/heater_shield/variants",
+	"buckler": "res://assets/props/weapons/buckler/variants",
+	"pavise": "res://assets/props/weapons/pavise/variants",
+}
+## Shipped cells per family (file stem `<family>_<cell>`), newest wear first.
+const SHIPPED := {
+	"heater_order": ["p3_w0", "p3_w1"],
+	"heater_crown": ["p2_w1"],
+	"heater_field": ["p3_w1"],
+	"heater_plain": ["p1_w0", "p1_w2"],
+	"buckler": ["p1_w1", "p2_w1"],
+	"pavise": ["p1_w1"],
+}
 const EquipmentVariant := preload("res://scripts/city/equipment_variant.gd")
-## Heater outline, clockwise from the top left (x, y); the point is at the bottom.
-const OUTLINE: Array[Vector2] = [
-	Vector2(-0.23, 0.30), Vector2(0.23, 0.30), Vector2(0.23, 0.06), Vector2(0.21, -0.06),
-	Vector2(0.16, -0.18), Vector2(0.09, -0.27), Vector2(0.0, -0.32), Vector2(-0.09, -0.27),
-	Vector2(-0.16, -0.18), Vector2(-0.21, -0.06), Vector2(-0.23, 0.06),
-]
 
 static var _cache: Dictionary = {}
 
 
 ## PackedScene of one shield; `field` is only read for kind "field". `cell` is the
-## bearer's prestige and wear cell; a shipped variant GLB wins over the built board.
+## bearer's prestige and wear cell.
 static func scene(
 	kind: String, field: Color = Color(0.4, 0.4, 0.4), cell: String = EquipmentVariant.BASE_CELL
 ) -> PackedScene:
-	var shipped := EquipmentVariant.variant_scene(VARIANT_DIR, "heater_shield", cell)
-	if shipped != null:
-		return shipped
-	var level := EquipmentVariant.wear(cell)
-	var key := "%s:%s:%d" % [kind, field.to_html(false) if kind == "field" else "", level]
+	var family := _family(kind)
+	var chosen := _nearest(family, cell)
+	var key := "%s:%s:%s" % [family, chosen, field.to_html(false) if kind == "field" else ""]
 	if not _cache.has(key):
-		var root := Node3D.new()
+		var source := load("%s/%s_%s.glb" % [VARIANT_DIRS[_dir_key(family)], family, chosen]) as PackedScene
+		var root := source.instantiate() as Node3D
 		root.name = "Shield_" + kind
-		var colour := _worn(_field_colour(kind, field), level)
-		root.add_child(_board(colour))
-		if kind == "order":
-			for size: Vector2 in [Vector2(0.07, 0.50), Vector2(0.38, 0.07)]:
-				var at := Vector3(0.0, 0.03, THICKNESS * 0.5 + 0.0025)
-				root.add_child(_bar(size, ORDER_BLACK, at))
-		else:
-			root.add_child(_boss())
-		for child: Node in root.get_children():
-			child.owner = root
+		if kind == "field":
+			_tint_face(root, field)
 		var packed := PackedScene.new()
 		packed.pack(root)
 		root.free()
@@ -67,93 +54,43 @@ static func scene(
 	return _cache[key]
 
 
-## Paint of wear `level`: fresh, as made, or faded toward the bare wood and darkened.
-static func _worn(colour: Color, level: int) -> Color:
-	var wear: Array = PAINT_WEAR[clampi(level, 0, 2)]
-	var faded := colour.lerp(WOOD, float(wear[1]))
-	var light := float(wear[0])
-	return Color(faded.r * light, faded.g * light, faded.b * light, colour.a)
+static func _family(kind: String) -> String:
+	return kind if kind in ["buckler", "pavise"] else "heater_" + (kind if kind in ["order", "crown", "field"] else "plain")
 
 
-static func _field_colour(kind: String, field: Color) -> Color:
-	match kind:
-		"order":
-			return ORDER_WHITE
-		"crown":
-			return CROWN_RED
-		"field":
-			return field
-	return WOOD
+static func _dir_key(family: String) -> String:
+	return "heater" if family.begins_with("heater_") else family
 
 
-static func _material(
-	colour: Color, metallic: float = 0.0, roughness: float = 0.85
-) -> StandardMaterial3D:
-	var material := StandardMaterial3D.new()
-	material.albedo_color = colour
-	material.metallic = metallic
-	material.roughness = roughness
-	return material
+## The shipped cell of `family` nearest to `cell`: smallest wear gap, then prestige gap,
+## newer wear on a tie.
+static func _nearest(family: String, cell: String) -> String:
+	var shipped: Array = SHIPPED[family]
+	var want_wear := EquipmentVariant.wear(cell)
+	var want_prestige := EquipmentVariant.prestige(cell)
+	var best: String = shipped[0]
+	var best_score := 1 << 30
+	for candidate: String in shipped:
+		var wear_gap := absi(EquipmentVariant.wear(candidate) - want_wear)
+		var score := (
+			wear_gap * 100
+			+ absi(EquipmentVariant.prestige(candidate) - want_prestige) * 10
+			+ (1 if EquipmentVariant.wear(candidate) > want_wear else 0)
+		)
+		if score < best_score:
+			best_score = score
+			best = candidate
+	return best
 
 
-## Front (face colour) and back plus rim (wood) as two surfaces of one mesh.
-static func _board(face: Color) -> MeshInstance3D:
-	var mesh := ArrayMesh.new()
-	var half := THICKNESS * 0.5
-	var front := SurfaceTool.new()
-	front.begin(Mesh.PRIMITIVE_TRIANGLES)
-	front.set_material(_material(face))
-	var wood := SurfaceTool.new()
-	wood.begin(Mesh.PRIMITIVE_TRIANGLES)
-	wood.set_material(_material(WOOD))
-	var centre := Vector3(0.0, 0.0, half)
-	for i in OUTLINE.size():
-		var a := OUTLINE[i]
-		var b := OUTLINE[(i + 1) % OUTLINE.size()]
-		# Fan from the centre, counter-clockwise seen from +Z: the outline runs clockwise.
-		_tri(front, Vector3(0, 0, 1), centre, Vector3(b.x, b.y, half), Vector3(a.x, a.y, half))
-		var back_a := Vector3(a.x, a.y, -half)
-		var back_b := Vector3(b.x, b.y, -half)
-		_tri(wood, Vector3(0, 0, -1), Vector3(0, 0, -half), back_a, back_b)
-		var side := Vector3(b.y - a.y, a.x - b.x, 0.0).normalized()
-		var a0 := Vector3(a.x, a.y, half)
-		var a1 := Vector3(a.x, a.y, -half)
-		var b0 := Vector3(b.x, b.y, half)
-		var b1 := Vector3(b.x, b.y, -half)
-		_tri(wood, side, a0, a1, b1)
-		_tri(wood, side, a0, b1, b0)
-	front.commit(mesh)
-	wood.commit(mesh)
-	var instance := MeshInstance3D.new()
-	instance.name = "Board"
-	instance.mesh = mesh
-	return instance
-
-
-static func _tri(tool: SurfaceTool, normal: Vector3, a: Vector3, b: Vector3, c: Vector3) -> void:
-	for p: Vector3 in [a, b, c]:
-		tool.set_normal(normal)
-		tool.add_vertex(p)
-
-
-static func _bar(size: Vector2, colour: Color, at: Vector3) -> MeshInstance3D:
-	var box := BoxMesh.new()
-	box.size = Vector3(size.x, size.y, 0.005)
-	box.material = _material(colour)
-	var instance := MeshInstance3D.new()
-	instance.name = "Cross"
-	instance.mesh = box
-	instance.position = at
-	return instance
-
-
-static func _boss() -> MeshInstance3D:
-	var sphere := SphereMesh.new()
-	sphere.radius = 0.045
-	sphere.height = 0.045
-	sphere.material = _material(IRON, 0.8, 0.4)
-	var instance := MeshInstance3D.new()
-	instance.name = "Boss"
-	instance.mesh = sphere
-	instance.position = Vector3(0.0, 0.05, THICKNESS * 0.5)
-	return instance
+## The painted face (material `shield_face`) of a field shield takes the knight's colour: the
+## texture is a pale board, so the albedo colour multiplies it into that surcoat tone.
+static func _tint_face(root: Node, field: Color) -> void:
+	for node: Node in root.find_children("*", "MeshInstance3D", true, false):
+		var mesh := (node as MeshInstance3D).mesh
+		for i in mesh.get_surface_count():
+			var material := mesh.surface_get_material(i) as StandardMaterial3D
+			if material != null and material.resource_name == "shield_face":
+				var tinted := material.duplicate() as StandardMaterial3D
+				tinted.albedo_color = field
+				(node as MeshInstance3D).set_surface_override_material(i, tinted)
