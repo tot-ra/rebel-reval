@@ -20,6 +20,8 @@ func _run() -> void:
 	var viewport := SubViewport.new()
 	viewport.size = Vector2i(1280, 720)
 	viewport.own_world_3d = true
+	# No ViewportContainer displays this studio; WHEN_VISIBLE never renders it.
+	viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	root.add_child(viewport)
 	var stage := Node3D.new()
 	viewport.add_child(stage)
@@ -37,6 +39,14 @@ func _run() -> void:
 	Hall.add_details(hall, building, SIZE, HEIGHT)
 	var snapshot: Array = []
 	for child: MeshInstance3D in hall.get_children():
+		# Wind uses shader TIME. Freeze capture-only copies, never cached runtime materials.
+		var animated := child.material_override as ShaderMaterial
+		if animated != null:
+			var frozen := animated.duplicate() as ShaderMaterial
+			var shader := Shader.new()
+			shader.code = animated.shader.code.replace("TIME", "0.0")
+			frozen.shader = shader
+			child.material_override = frozen
 		var mat := child.material_override as StandardMaterial3D
 		var item := {"name": String(child.name), "position": str(child.position),
 			"rotation": str(child.rotation), "aabb": str(child.mesh.get_aabb())}
@@ -68,11 +78,21 @@ func _run() -> void:
 	camera.current = true
 	for frame in 8:
 		await process_frame
+	await RenderingServer.frame_post_draw
 	var image := viewport.get_texture().get_image()
-	if image.is_empty():
-		push_error("Landmark capture needs a GPU renderer (use godot_render.sh)")
+	if image.is_empty() or not _has_scene_pixels(image):
+		push_error("Landmark capture is blank (use godot_render.sh and an updating viewport)")
 		quit(1)
 		return
 	var error := image.save_png("%s/%s.png" % [OUTPUT_DIR, label])
 	print("landmark weathering capture: %s/%s (%d meshes)" % [OUTPUT_DIR, label, snapshot.size()])
 	quit(0 if error == OK else 1)
+
+
+func _has_scene_pixels(image: Image) -> bool:
+	var background := image.get_pixel(0, 0)
+	for x in range(0, image.get_width(), 32):
+		for y in range(0, image.get_height(), 32):
+			if not image.get_pixel(x, y).is_equal_approx(background):
+				return true
+	return false

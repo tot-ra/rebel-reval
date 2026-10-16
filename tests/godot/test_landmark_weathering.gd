@@ -140,13 +140,67 @@ func test_town_hall_rebuild_keeps_gables_separate_from_dark_plinth() -> void:
 	assert_eq(gable_mat.albedo_color, wall.albedo_color)
 	assert_eq(plinth_mat.albedo_color, wall.albedo_color.darkened(0.28))
 	assert_ne(gable_mat, plinth_mat)
-	# The Town Hall still owns its wear recipe; shared-kit migration is not assumed.
-	assert_true(wall.has_meta(&"town_hall_toned"))
-	assert_true(Hall.roof_material(BUILDING).has_meta(&"town_hall_toned"))
+	assert_eq(gable_mat, Wear.triplanar(wall, Hall.WALL_STEM))
+	var step := first.get_node("TownHallPortalStepWear") as MeshInstance3D
+	assert_eq(step.material_override, Wear.flat_grime_material())
+	assert_eq(step.material_override.albedo_color, Color(0.36, 0.34, 0.3))
+	# Every facade now uses the shared tone recipe; the plinth must not mutate it.
+	assert_true(wall.has_meta(&"landmark_toned"))
+	assert_false(wall.has_meta(&"town_hall_toned"))
+	assert_true(Hall.roof_material(BUILDING).has_meta(&"landmark_toned"))
 	assert_true(gable_mat.uv1_triplanar)
 	assert_eq(gable_mat.uv1_scale, Materials.library_world_uv_density(Hall.WALL_STEM))
 	first.free()
 	second.free()
+
+
+func test_town_hall_sill_preserves_scalar_precision_and_rng_order() -> void:
+	for facing: float in [-1.0, 1.0]:
+		var root := Node3D.new()
+		var rng := _rng(456)
+		var expected_rng := _rng(456)
+		# Neither origin is exactly representable as a Vector3 component.
+		var x := 37.0 / 7.0
+		var sill_y := 1.8
+		Hall._add_sill_streaks(root, rng, "Window", x, sill_y, 0.86, 3.5 * facing, facing)
+		for index in 3:
+			var length := expected_rng.randf_range(0.5, 1.4)
+			var streak_x := x + (float(index) - 1.0) * 0.86 * 0.34
+			streak_x += expected_rng.randf_range(-0.06, 0.06)
+			var width := expected_rng.randf_range(0.14, 0.3)
+			var strength := snappedf(expected_rng.randf_range(0.35, 0.6), 0.05)
+			var node := root.get_node("WindowStreak%d" % index) as MeshInstance3D
+			assert_eq(node.position, Vector3(streak_x, sill_y - 0.12 - length * 0.5,
+				3.5 * facing + facing * 0.015 * 2.0))
+			assert_eq((node.mesh as QuadMesh).size, Vector2(width, length))
+			assert_eq(node.material_override, Wear.grime_material(strength, true, true))
+		assert_eq(rng.state, expected_rng.state)
+		root.free()
+
+
+func test_town_hall_faces_keep_names_ranges_and_rng_order() -> void:
+	var root := Node3D.new()
+	var rng := _rng(123)
+	var expected_rng := _rng(123)
+	Hall._add_weathering(root, rng, Vector2(26, 7), 5)
+	for face: Array in [["N", 26], ["S", 26], ["E", 7], ["W", 7]]:
+		var span: float = face[1]
+		var damp := root.get_node("TownHallDamp%s" % face[0]) as MeshInstance3D
+		assert_eq(damp.position.y, Vector3(0, 0.62 + 0.75, 0).y)
+		var count := int(span / 0.9)
+		for index in count:
+			var width := expected_rng.randf_range(0.25, 0.8)
+			var length := expected_rng.randf_range(0.5, 2.1)
+			expected_rng.randf_range(0.2, 0.8)
+			var strength := snappedf(expected_rng.randf_range(0.2, 0.4), 0.05)
+			var node := root.get_node(
+				"TownHallEaveStreak%s%02d" % [face[0], index]
+			) as MeshInstance3D
+			assert_eq((node.mesh as QuadMesh).size, Vector2(width, length))
+			assert_eq(node.material_override, Wear.grime_material(strength, true, true))
+	assert_eq(root.get_child_count(), 74)
+	assert_eq(rng.state, expected_rng.state)
+	root.free()
 
 
 func test_st_olaf_still_builds_with_shared_kit() -> void:

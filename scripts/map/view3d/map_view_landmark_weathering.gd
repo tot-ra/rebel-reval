@@ -9,8 +9,8 @@ extends RefCounted
 ## stay in the AR-03 library cache so the anti-tiling quality toggle reaches them.
 ## Output is deterministic per building id (callers seed the RNG from it).
 ##
-## St Olaf (R-1120) is the first consumer. The Town Hall still carries its own copy
-## of this recipe until R-1123 moves it here with identical output.
+## St Olaf (R-1120) and the Town Hall (R-1123) share this recipe. Optional
+## ranges, name suffixes and sill orientation preserve each authored facade.
 
 const _BuildingMaterials := preload("res://scripts/map/view3d/map_view_building_materials.gd")
 
@@ -52,7 +52,8 @@ static func triplanar(material: StandardMaterial3D, stem: String) -> StandardMat
 
 ## Damp band above the plinth and seeded eave streaks for one wall face.
 ## `origin` is the face centre at ground level, `yaw` turns +Z onto the outward
-## normal, `eave_y` is where runoff starts.
+## normal, `eave_y` is where runoff starts. Optional min/max lengths use scalar
+## floats (not Vector2) to retain the original RNG interpolation precision.
 static func add_face_wear(
 	root: Node3D,
 	rng: RandomNumberGenerator,
@@ -61,14 +62,18 @@ static func add_face_wear(
 	origin: Vector3,
 	yaw: float,
 	eave_y: float,
-	plinth_height: float = 0.6
+	plinth_height: float = 0.6,
+	eave_lengths: Array[float] = [],
+	face_suffix: String = ""
 ) -> void:
 	var along := Vector3(cos(yaw), 0.0, -sin(yaw))
 	var normal := Vector3(sin(yaw), 0.0, cos(yaw))
 	var base := origin + normal * DECAL_OFFSET
+	if eave_lengths.is_empty():
+		eave_lengths = [0.6, minf(2.6, eave_y * 0.4)]
 	decal(
 		root,
-		"%sDamp" % prefix,
+		"%sDamp%s" % [prefix, face_suffix],
 		Vector2(span, 1.5),
 		base + Vector3(0.0, plinth_height + 0.75, 0.0),
 		yaw,
@@ -79,11 +84,11 @@ static func add_face_wear(
 	var streak_count := maxi(int(span / 0.9), 1)
 	for index in streak_count:
 		var width := rng.randf_range(0.25, 0.8)
-		var length := rng.randf_range(0.6, minf(2.6, eave_y * 0.4))
+		var length := rng.randf_range(eave_lengths[0], eave_lengths[1])
 		var t := (float(index) + rng.randf_range(0.2, 0.8)) / float(streak_count) - 0.5
 		decal(
 			root,
-			"%sEaveStreak%02d" % [prefix, index],
+			"%sEaveStreak%s%02d" % [prefix, face_suffix, index],
 			Vector2(width, length),
 			base + along * (t * span) + Vector3(0.0, eave_y - length * 0.5, 0.0),
 			yaw,
@@ -93,29 +98,37 @@ static func add_face_wear(
 
 
 ## Three runoff streaks below a sill centred at `sill` (on the wall face).
+## The Town Hall samples along world X on both facades; keep that seeded pattern
+## instead of mirroring its north-face streaks when sharing the tangent recipe.
+## Optional [x, y, z] scalars avoid early Vector3 rounding of its sill origin.
 static func add_sill_streaks(
 	root: Node3D,
 	rng: RandomNumberGenerator,
 	prefix: String,
 	sill: Vector3,
 	width: float,
-	yaw: float
+	yaw: float,
+	world_x_sill: Array[float] = []
 ) -> void:
 	var along := Vector3(cos(yaw), 0.0, -sin(yaw))
 	var normal := Vector3(sin(yaw), 0.0, cos(yaw))
 	for index in 3:
 		var length := rng.randf_range(0.5, 1.4)
-		var offset := (float(index) - 1.0) * width * 0.34 + rng.randf_range(-0.06, 0.06)
+		var jitter := rng.randf_range(-0.06, 0.06)
+		var offset := (float(index) - 1.0) * width * 0.34 + jitter
+		var center := (sill + along * offset + normal * DECAL_OFFSET * 2.0
+			+ Vector3(0.0, -0.12 - length * 0.5, 0.0))
+		if not world_x_sill.is_empty():
+			center = Vector3(
+				world_x_sill[0] + (float(index) - 1.0) * width * 0.34 + jitter,
+				world_x_sill[1] - 0.12 - length * 0.5,
+				world_x_sill[2] + cos(yaw) * DECAL_OFFSET * 2.0
+			)
 		decal(
 			root,
 			"%sStreak%d" % [prefix, index],
 			Vector2(rng.randf_range(0.14, 0.3), length),
-			(
-				sill
-				+ along * offset
-				+ normal * DECAL_OFFSET * 2.0
-				+ Vector3(0.0, -0.12 - length * 0.5, 0.0)
-			),
+			center,
 			yaw,
 			rng.randf_range(0.35, 0.6),
 			true
@@ -170,4 +183,16 @@ static func grime_material(strength: float, from_top: bool, soft_sides: bool) ->
 	material.metallic_specular = 0.0
 	material.cull_mode = BaseMaterial3D.CULL_BACK
 	_cache[key] = material
+	return material
+
+
+## Opaque abrasion for worn portal steps, separate from alpha runoff masks.
+static func flat_grime_material() -> StandardMaterial3D:
+	if _cache.has("grime_flat"):
+		return _cache["grime_flat"]
+	var material := StandardMaterial3D.new()
+	material.albedo_color = Color(0.36, 0.34, 0.3)
+	material.roughness = 1.0
+	material.metallic_specular = 0.1
+	_cache["grime_flat"] = material
 	return material

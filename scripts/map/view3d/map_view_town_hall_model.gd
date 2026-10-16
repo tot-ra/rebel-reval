@@ -17,6 +17,7 @@ extends RefCounted
 ## labelled in docs/CANON.md.
 
 const _BuildingMaterials := preload("res://scripts/map/view3d/map_view_building_materials.gd")
+const Wear := preload("res://scripts/map/view3d/map_view_landmark_weathering.gd")
 
 const PRIMITIVE := &"town_hall_1343"
 ## Pinned library stems. The hall's fabric is attested, so it is not rolled.
@@ -35,9 +36,6 @@ const GLASS_TINT := Color(0.17, 0.2, 0.18)
 ## Madder red and unbleached linen, both sun-faded.
 const BANNER_RED := Color(0.55, 0.13, 0.1)
 const BANNER_WHITE := Color(0.86, 0.82, 0.72)
-const GRIME := Color(0.1, 0.09, 0.07)
-## Keeps the overlay quads off the wall face without visible floating.
-const DECAL_OFFSET := 0.015
 
 static var _cache: Dictionary = {}
 
@@ -48,11 +46,8 @@ static func is_town_hall(building: Dictionary) -> bool:
 
 static func wall_material(building: Dictionary, size: Vector3) -> StandardMaterial3D:
 	var color := Color(building.get("wall_color", MapViewMeshBuilderConfig.DEFAULT_WALL_COLOR))
-	var material := _toned(
-		_BuildingMaterials.library_surface_for_building(
-			"town_hall_wall", building.get("id", &""), WALL_STEM, color
-		),
-		WALL_TONE
+	var material := Wear.toned_surface(
+		"town_hall_wall", building.get("id", &""), WALL_STEM, color, WALL_TONE
 	)
 	material.uv1_scale = _BuildingMaterials.library_box_uv_scale(WALL_STEM, size)
 	return material
@@ -60,11 +55,8 @@ static func wall_material(building: Dictionary, size: Vector3) -> StandardMateri
 
 static func roof_material(building: Dictionary) -> StandardMaterial3D:
 	var color := Color(building.get("roof_color", MapViewMeshBuilderConfig.DEFAULT_ROOF_COLOR))
-	var material := _toned(
-		_BuildingMaterials.library_surface_for_building(
-			"town_hall_roof", building.get("id", &""), ROOF_STEM, color
-		),
-		ROOF_TONE
+	var material := Wear.toned_surface(
+		"town_hall_roof", building.get("id", &""), ROOF_STEM, color, ROOF_TONE
 	)
 	material.uv1_scale = _BuildingMaterials.library_world_uv_density(ROOF_STEM)
 	return material
@@ -102,7 +94,7 @@ static func _add_gables(
 	var pitch := MapViewMeshBuilderConfig.ROOF_PITCH
 	var eave_y := height + overhang * pitch
 	var apex_y := height + (half_z + overhang) * pitch
-	var gable_material := _triplanar(wall)
+	var gable_material := Wear.triplanar(wall, WALL_STEM)
 	var depth := overhang + 0.04
 	for side: float in [-1.0, 1.0]:
 		var suffix := "E" if side > 0.0 else "W"
@@ -173,7 +165,8 @@ static func _add_gables(
 
 ## Rising-damp plinth of larger, darker footing stones around the whole hall.
 static func _add_plinth(root: Node3D, size: Vector2, wall: StandardMaterial3D) -> void:
-	var plinth_material := _triplanar(wall)
+	# Projection is cached and shared with the gable; darken a private copy only.
+	var plinth_material := Wear.triplanar(wall, WALL_STEM).duplicate() as StandardMaterial3D
 	plinth_material.albedo_color = wall.albedo_color.darkened(0.28)
 	var plinth_height := 0.62
 	var proud := 0.1
@@ -277,7 +270,7 @@ static func _add_portal(root: Node3D, facade_z: float) -> void:
 		Vector3(door_half * 1.1, 0.02, 0.44),
 		Vector3(0.0, 0.125, facade_z - 0.36)
 	)
-	wear.material_override = _grime_flat_material()
+	wear.material_override = Wear.flat_grime_material()
 
 
 ## Market-facing hall lights with open shutters, and below them the small
@@ -686,33 +679,9 @@ static func _add_weathering(
 		var span: float = face[1]
 		var origin: Vector3 = face[2]
 		var yaw: float = face[3]
-		var along := Vector3(cos(yaw), 0.0, -sin(yaw))
-		var normal := Vector3(sin(yaw), 0.0, cos(yaw))
-		var base := origin + normal * DECAL_OFFSET
-		_decal(
-			root,
-			"TownHallDamp%s" % face_name,
-			Vector2(span, 1.5),
-			base + Vector3(0.0, 0.62 + 0.75, 0.0),
-			yaw,
-			0.5,
-			false,
-			false
+		Wear.add_face_wear(
+			root, rng, "TownHall", span, origin, yaw, height, 0.62, [0.5, 2.1], face_name
 		)
-		var streak_count := int(span / 0.9)
-		for index in streak_count:
-			var width := rng.randf_range(0.25, 0.8)
-			var length := rng.randf_range(0.5, 2.1)
-			var t := (float(index) + rng.randf_range(0.2, 0.8)) / float(streak_count) - 0.5
-			_decal(
-				root,
-				"TownHallEaveStreak%s%02d" % [face_name, index],
-				Vector2(width, length),
-				base + along * (t * span) + Vector3(0.0, height - length * 0.5, 0.0),
-				yaw,
-				rng.randf_range(0.2, 0.4),
-				true
-			)
 
 
 static func _add_sill_streaks(
@@ -725,83 +694,10 @@ static func _add_sill_streaks(
 	face_z: float,
 	facing: float
 ) -> void:
-	var yaw := PI if facing < 0.0 else 0.0
-	for index in 3:
-		var length := rng.randf_range(0.5, 1.4)
-		var streak_x := x + (float(index) - 1.0) * width * 0.34 + rng.randf_range(-0.06, 0.06)
-		_decal(
-			root,
-			"%sStreak%d" % [light_name, index],
-			Vector2(rng.randf_range(0.14, 0.3), length),
-			Vector3(streak_x, sill_y - 0.12 - length * 0.5, face_z + facing * DECAL_OFFSET * 2.0),
-			yaw,
-			rng.randf_range(0.35, 0.6),
-			true
-		)
-
-
-## One faded staining quad. `from_top` darkens at the top edge and fades down
-## (runoff); otherwise it darkens at the bottom and fades up (rising damp).
-static func _decal(
-	root: Node3D,
-	decal_name: String,
-	quad_size: Vector2,
-	center: Vector3,
-	yaw: float,
-	strength: float,
-	from_top: bool,
-	soft_sides: bool = true
-) -> void:
-	var quad := MeshInstance3D.new()
-	quad.name = decal_name
-	var mesh := QuadMesh.new()
-	mesh.size = quad_size
-	quad.mesh = mesh
-	quad.position = center
-	quad.rotation.y = yaw
-	quad.material_override = _grime_material(snappedf(strength, 0.05), from_top, soft_sides)
-	quad.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	root.add_child(quad)
-
-
-## Alpha mask baked per (strength, direction, edge) so every stain of that kind
-## shares one material. Soft sides fade the stain across its width as well, so
-## runoff reads as a streak instead of a translucent rectangle.
-static func _grime_material(
-	strength: float, from_top: bool, soft_sides: bool
-) -> StandardMaterial3D:
-	var key := "grime:%.2f:%s:%s" % [strength, from_top, soft_sides]
-	if _cache.has(key):
-		return _cache[key]
-	var image := Image.create(16, 64, false, Image.FORMAT_RGBA8)
-	for y in 64:
-		var v := float(y) / 63.0
-		var fade := 1.0 - v if from_top else v
-		fade = fade * fade
-		for x in 16:
-			var across := 1.0
-			if soft_sides:
-				across = pow(sin(PI * (float(x) + 0.5) / 16.0), 1.5)
-			image.set_pixel(x, y, Color(GRIME, strength * fade * across))
-	var material := StandardMaterial3D.new()
-	material.albedo_texture = ImageTexture.create_from_image(image)
-	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	material.roughness = 1.0
-	material.metallic_specular = 0.0
-	material.cull_mode = BaseMaterial3D.CULL_BACK
-	_cache[key] = material
-	return material
-
-
-static func _grime_flat_material() -> StandardMaterial3D:
-	if _cache.has("grime_flat"):
-		return _cache["grime_flat"]
-	var material := StandardMaterial3D.new()
-	material.albedo_color = Color(0.36, 0.34, 0.3)
-	material.roughness = 1.0
-	material.metallic_specular = 0.1
-	_cache["grime_flat"] = material
-	return material
+	Wear.add_sill_streaks(
+		root, rng, light_name, Vector3.ZERO, width,
+		PI if facing < 0.0 else 0.0, [x, sill_y, face_z]
+	)
 
 
 ## Dressed limestone for quoins and frames: the grey ashlar plate projected in
@@ -810,36 +706,11 @@ static func _grime_flat_material() -> StandardMaterial3D:
 static func _trim_material() -> StandardMaterial3D:
 	# No local cache: the entry lives in the AR-03 cache, so MapViewMaterials.reset()
 	# and the anti-tiling toggle both reach it. Re-applying the settings is idempotent.
-	var material := _toned(
-		_BuildingMaterials.library_surface_for_building(
-			"town_hall_trim", &"town_hall_trim", TRIM_STEM, TRIM_TINT
-		),
-		TRIM_TONE
+	var material := Wear.toned_surface(
+		"town_hall_trim", &"town_hall_trim", TRIM_STEM, TRIM_TINT, TRIM_TONE
 	)
 	material.uv1_triplanar = true
 	material.uv1_scale = _BuildingMaterials.library_world_uv_density(TRIM_STEM)
-	return material
-
-
-## Scales the tint of a Town Hall-only library entry in place, once. Staying
-## in the library cache keeps it under the anti-tiling quality toggle; the
-## base-tint meta is scaled too, so the toggle keeps the same tone.
-static func _toned(material: StandardMaterial3D, tone: Color) -> StandardMaterial3D:
-	if material.has_meta(&"town_hall_toned"):
-		return material
-	material.set_meta(&"town_hall_toned", true)
-	var base: Color = material.get_meta(&"ar03_base_tint", material.albedo_color)
-	material.set_meta(&"ar03_base_tint", Color(base * tone, base.a))
-	material.albedo_color = Color(material.albedo_color * tone, material.albedo_color.a)
-	return material
-
-
-## Box UVs stretch one plate across a long thin plinth or a pentagon, so those
-## pieces reuse the wall stem projected at its real-world density.
-static func _triplanar(wall: StandardMaterial3D) -> StandardMaterial3D:
-	var material := wall.duplicate() as StandardMaterial3D
-	material.uv1_triplanar = true
-	material.uv1_scale = _BuildingMaterials.library_world_uv_density(WALL_STEM)
 	return material
 
 

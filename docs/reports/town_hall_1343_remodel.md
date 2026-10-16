@@ -66,13 +66,54 @@ Captured with `tools/godot_render.sh --script tools/capture_town_hall_facade.gd`
 - East gable with hoist and flag: [`remodel_after_side.jpg`](images/view3d/town_hall/remodel_after_side.jpg)
 - Gameplay-height dimetric: [`remodel_after_dimetric.jpg`](images/view3d/town_hall/remodel_after_dimetric.jpg)
 
-`tests/godot/test_market_prototype_maps.gd` asserts the 1343 parts, the absence
+At the time, `tests/godot/test_market_prototype_maps.gd` asserted the 1343 parts, the absence
 of the arcade and gallery, full-footprint mass depth, the pinned `rubble_buff` /
 `tile_moss` stems, red-field-white-cross banner colours, and the door on the
 portal axis in the market wall.
 
+## Shared-kit parity (R-1123)
+
+Status: implemented (task **R-1123**). The historical map and its prototype test
+above have since been retired; they were not restored for this refactor.
+`scripts/map/view3d/map_view_town_hall_model.gd` now calls
+`scripts/map/view3d/map_view_landmark_weathering.gd` instead of owning private
+face/sill runoff, alpha masks, opaque step wear, toning and projection recipes.
+The shared API keeps St Olaf defaults unchanged. The hall explicitly keeps its
+0.62 m plinth band, 0.5..2.1 m eave streak lengths, node names and world-X sill
+sampling on both facades. A private plinth material prevents its darkening from
+contaminating the cached gable projection. There is no gameplay or save change.
+
+Baseline: `368325a2f`. Capture command:
+`tools/godot_render.sh --script tools/capture_landmark_weathering.gd -- before`
+(before editing), then the same command with `after` after the migration.
+Godot 4.7.1, Mobile/Metal, 1280x720 studio view, 333 meshes including the body.
+The capture forces its unembedded SubViewport to update, waits for post-draw,
+rejects a uniform frame and freezes shader `TIME` on capture-only flag/rope
+materials. This avoids accepting two unrendered black frames or comparing wind
+at different instants. The final plate has 3894 distinct RGB colours. Results:
+byte-identical numeric snapshots (names, transforms, AABBs, material colours,
+UV scale and stain-mask bytes), identical PNG SHA-256 and **0 differing pixels**.
+[Machine-readable comparison](images/landmark_weathering/parity.json).
+
+| Before | After |
+|---|---|
+| ![Baseline studio hall](images/landmark_weathering/before.png) | ![Shared-kit studio hall](images/landmark_weathering/after.png) |
+
+The required three-file filter (`test_landmark_weathering,test_city_sites,test_map_view_material_resolution`)
+passed before the change (38 tests) and after it (40 tests), zero failures/errors.
+The two added cases pin scalar sill precision, both facade orientations,
+Town Hall face names/ranges, mask sharing and seeded draw order. Existing tests
+also cover idempotent toning/quality toggles and gable/plinth material isolation.
+Baseline and final headless runs both emit resource-leak warnings during shutdown;
+they are not test failures and were not hidden or relaxed.
+
+Limits: this proves exact parity for the isolated legacy hall renderer, not the
+newer seamless-city Town Hall exterior or general landmark visual acceptance.
+The current shared-kit contract is in
+[`WORLD_PRESENTATION.md`](../SYSTEMS/WORLD_PRESENTATION.md#shared-landmark-weathering-r-1123).
+
 ## Open
 
 - Maintainer visual acceptance (R-1135).
-- The shared weathering kit and the other landmarks are tracked in pack R-1121
-  (LM-01..LM-08).
+- Shared-kit Town Hall migration is complete in R-1123; other landmark adoption
+  and visual acceptance remain in pack R-1121 (LM-02..LM-08).

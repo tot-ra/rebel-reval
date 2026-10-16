@@ -48,6 +48,39 @@ Sea, rivers, moats and ponds, rain on water, floating and solid boats, swimming 
 - Fog of war: `map_fog_of_war.gd` remembers explored areas in the orthographic view.
 - **Props** (barrels, wells, tools, furniture, forge fire and every other placeable object): one card file, [`OBJECT_CATALOG.md`](./OBJECT_CATALOG.md#model-notes). Kitchen gardens and farm dressing: [`FARMLAND.md`](./FARMLAND.md).
 
+### Shared landmark weathering (R-1123)
+
+Status: implemented (task **R-1123**). The legacy Town Hall builder
+(`scripts/map/view3d/map_view_town_hall_model.gd`) and St Olaf builder
+(`scripts/map/view3d/map_view_st_olaf_model.gd`) use
+`scripts/map/view3d/map_view_landmark_weathering.gd` for age-toned library
+surfaces, real-world-density triplanar projection, rising damp, seeded eave/sill
+runoff, alpha-mask materials and opaque step abrasion. Callers keep their stable
+building IDs, node names and seeded RNG order. Town Hall-specific lengths and
+world-X sill sampling are explicit options; St Olaf retains the defaults.
+
+This is derived presentation only: no input, `ContentDB` content, `GameState`,
+save/load, collision or navigation change. The cached projection must not be
+darkened in place: the Town Hall plinth duplicates it so gables retain the wall
+tone. Scalar sill coordinates/ranges are kept until final vector construction
+to preserve exact geometry, not only visually indistinguishable pixels.
+
+Verify with `tests/godot/test_landmark_weathering.gd` and:
+
+```bash
+godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_landmark_weathering,test_city_sites,test_map_view_material_resolution
+tools/godot_render.sh --script tools/capture_landmark_weathering.gd -- before
+# Apply the refactor between the baseline and comparison captures.
+tools/godot_render.sh --script tools/capture_landmark_weathering.gd -- after
+```
+
+The capture writes `build/landmark_weathering/{before,after}.{json,png}`. Compare
+both numeric mesh/material/mask snapshots and decoded PNG pixels. The tool rejects
+uniform frames and freezes shader `TIME` on capture-only materials. Recorded
+[evidence and limits](../reports/town_hall_1343_remodel.md#shared-kit-parity-r-1123)
+cover the isolated legacy hall, not acceptance of the newer seamless-city site's
+full exterior. No textures, maps or landmark design are changed by this migration.
+
 ## Vegetation
 
 Estonian trees, bushes, and plants by species (`map_view_tree_species.gd`, `map_view_bush_species.gd`, `map_view_plant_species.gd`) with fractal growth profiles and wind materials. Species reference: [`FLORA_FAUNA.md`](../FLORA_FAUNA.md). Seasonal crowns, rain and wind response, and leaf fall on weapon hits: [`LIVING_VEGETATION.md`](./LIVING_VEGETATION.md).

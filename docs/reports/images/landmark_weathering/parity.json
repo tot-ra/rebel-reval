@@ -1,0 +1,28 @@
+{
+  "task": "R-1123",
+  "baseline_revision": "368325a2f1f75a1bd7b3a2e16a1f54de505b5129",
+  "scope": "isolated legacy Town Hall renderer, not the seamless-city exterior",
+  "godot": "4.7.1.stable.official.a13da4feb",
+  "renderer": "mobile/metal",
+  "capture_shader_time": 0.0,
+  "resolution": [
+    1280,
+    720
+  ],
+  "meshes": 333,
+  "snapshot_fields": [
+    "name",
+    "position",
+    "rotation",
+    "aabb",
+    "color",
+    "uv",
+    "mask"
+  ],
+  "snapshots_byte_identical": true,
+  "snapshot_sha256": "837e4adbbcafe977eceed8ef36368771f06407fffe8027d30bb917e862f3bb68",
+  "distinct_colors": 3894,
+  "different_pixels": 0,
+  "before_png_sha256": "6139c13ea9353fbb6bed233bf83f146e9b82650fcc443a02c4bc2e79cbf57464",
+  "after_png_sha256": "6139c13ea9353fbb6bed233bf83f146e9b82650fcc443a02c4bc2e79cbf57464"
+}
