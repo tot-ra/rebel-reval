@@ -21,6 +21,14 @@ const BUILD_BUDGET_USEC := 1500
 const DARK_BELOW := 0.35
 ## Houses that keep their own scene behind the door.
 const SKIP_LANDMARKS := ["landmark.kalev_smithy"]
+## Furniture wear (R-2078, HouseholdLayout.WEAR_ODDS): albedo multiplier by
+## wear (kept, used, worn) and by wood tone (light, mid, dark), and how dark
+## the multiplied grime blotches get (0 = none). One material copy per
+## combination is shared by every house, so the cost is a handful of shaders.
+const WEAR_TINT: Array[Color] = [Color(1, 1, 1), Color(0.93, 0.91, 0.88), Color(0.84, 0.8, 0.75)]
+const TONE_TINT: Array[Color] = [Color(1.08, 1.05, 1.0), Color(1, 1, 1), Color(0.9, 0.89, 0.9)]
+const GRIME: Array[float] = [0.0, 0.2, 0.38]
+static var _grime_textures: Dictionary = {}
 
 var plan: CityPlan
 var roster: CitizenRoster
@@ -41,6 +49,8 @@ var _chimneys: Dictionary = {}  # building id -> chimney world xz
 var _layouts: Dictionary = {}  # building index -> HouseholdLayout (or null)
 var _homes: Dictionary = {}  # building index -> {node, body, hearth, firewood, lights, state}
 var _templates: Dictionary = {}
+## Weathered copies of model materials: "material id:wear:tone" -> material.
+var _worn_materials: Dictionary = {}
 var _cooks: Dictionary = {}  # hh id -> resident index or -1
 var _since := REFRESH_SECONDS
 var _origin := Vector2.INF
@@ -311,7 +321,7 @@ func _build_items(index: int, budget_usec: int) -> bool:
 			else:
 				holder.add_child(DryingLoft.build_model(item))
 		else:
-			var model := _instance(String(item["object"]), "")
+			var model := _instance(String(item["object"]), "", lay.wear, lay.tone)
 			if model != null:
 				holder.add_child(model)
 		if budget_usec > 0 and Time.get_ticks_usec() - start >= budget_usec:
@@ -585,13 +595,64 @@ static func _clear(holder: Node3D) -> void:
 		child.queue_free()
 
 
-## A fresh copy of a catalog object's model (or one of its states).
-func _instance(object_id: String, state: String) -> Node3D:
-	var key := object_id + "#" + state
+## A fresh copy of a catalog object's model (or one of its states), weathered
+## to `wear` / `tone` (HouseholdLayout.wear) unless `wear` is negative.
+func _instance(object_id: String, state: String, wear := -1, tone := 1) -> Node3D:
+	var key := "%s#%s#%d%d" % [object_id, state, wear, tone]
 	if not _templates.has(key):
-		_templates[key] = _template(object_id, state)
+		var template := _template(object_id, state)
+		if template != null and wear >= 0:
+			_weather(template, wear, tone)
+		_templates[key] = template
 	var template: Node3D = _templates[key]
 	return template.duplicate() as Node3D if template != null else null
+
+
+func _weather(node: Node, wear: int, tone: int) -> void:
+	var mi := node as MeshInstance3D
+	if mi != null and mi.mesh != null:
+		for s in mi.mesh.get_surface_count():
+			var mat := mi.get_active_material(s) as BaseMaterial3D
+			if mat != null:
+				mi.set_surface_override_material(s, _worn_material(mat, wear, tone))
+	for child in node.get_children():
+		_weather(child, wear, tone)
+
+
+func _worn_material(mat: BaseMaterial3D, wear: int, tone: int) -> BaseMaterial3D:
+	var key := "%d:%d:%d" % [mat.get_instance_id(), wear, tone]
+	if not _worn_materials.has(key):
+		var m := mat.duplicate() as BaseMaterial3D
+		m.albedo_color = mat.albedo_color * WEAR_TINT[wear] * TONE_TINT[tone]
+		if GRIME[wear] > 0.0 and not mat.detail_enabled:
+			# Grime: a seamless noise multiplied over the albedo on UV1 (no mask:
+			# BaseMaterial3D's default detail mask is white, so it covers all).
+			m.detail_enabled = true
+			m.detail_blend_mode = BaseMaterial3D.BLEND_MODE_MUL
+			m.detail_uv_layer = BaseMaterial3D.DETAIL_UV_1
+			m.detail_albedo = grime_texture(wear)
+		_worn_materials[key] = m
+	return _worn_materials[key]
+
+
+## Seamless grime blotches for `wear`: white (no change) down to 1 - GRIME.
+static func grime_texture(wear: int) -> NoiseTexture2D:
+	if not _grime_textures.has(wear):
+		var noise := FastNoiseLite.new()
+		noise.seed = 1343
+		noise.frequency = 0.035
+		noise.fractal_octaves = 4
+		var ramp := Gradient.new()
+		ramp.set_color(0, Color.WHITE.darkened(GRIME[wear]))
+		ramp.set_color(1, Color.WHITE)
+		var tex := NoiseTexture2D.new()
+		tex.width = 256
+		tex.height = 256
+		tex.seamless = true
+		tex.noise = noise
+		tex.color_ramp = ramp
+		_grime_textures[wear] = tex
+	return _grime_textures[wear]
 
 
 static func _template(object_id: String, state: String) -> Node3D:

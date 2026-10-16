@@ -859,6 +859,9 @@ def build():
 
     # Households living in a plan house: what their rooms are furnished with
     # (docs/SYSTEMS/HOUSEHOLDS.md). Size counts every member, infants too.
+    # Infants (under MIN_AGE) are not residents; "infants" (only when > 0) puts
+    # a cradle in the house.
+    age_of = {p["id"]: p["age"] for p in census["persons"]}
     households = {}
     for h in census["households"]:
         if h["kind"] != "house" or not h["members"] or h["id"] not in hh_door:
@@ -869,6 +872,9 @@ def build():
             "trade": head_trade.get(h["id"], ""),
             "size": len(h["members"]),
         }
+        infants = sum(1 for m in h["members"] if age_of.get(m, MIN_AGE) < MIN_AGE)
+        if infants:
+            households[h["id"]]["infants"] = infants
 
     return {
         "schema": SCHEMA,

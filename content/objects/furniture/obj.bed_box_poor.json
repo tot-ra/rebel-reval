@@ -1,0 +1,69 @@
+{
+  "type": "world_object",
+  "id": "obj.bed_box_poor",
+  "name": "Worn plank box bed",
+  "description": "A crude box bed of weathered pine boards pegged together, with a torn straw tick, a stained bolster and a patched wool blanket.",
+  "category": "furniture",
+  "handling": "fixed",
+  "tags": [
+    "bed",
+    "sleep",
+    "worn"
+  ],
+  "physical": {
+    "mass_kg": 40,
+    "size_m": [
+      2.0,
+      0.95,
+      1.28
+    ],
+    "materials": [
+      "wood",
+      "straw",
+      "linen_cloth",
+      "wool"
+    ],
+    "flammable": true
+  },
+  "actions": [
+    "inspect",
+    "sit",
+    "sleep"
+  ],
+  "economy": {
+    "base_pfennigs": 40,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 0
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "home_poor",
+      "home_burgher"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/furniture/beds/bed_box_poor/bed_box_poor.glb",
+    "prop_kind": "bed",
+    "measured_size_m": [
+      2.0,
+      0.95,
+      1.28
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.bed_box_poor.png",
+    "icon": "res://assets/objects/icons/obj.bed_box_poor.png",
+    "icon_status": "missing",
+    "look": "Grey weathered pine box bed, cracked boards and pegs, lumpy straw tick with straw poking out, patched brown-grey blanket thrown back.",
+    "image_prompt": "Worn plank box bed: Grey weathered pine box bed, cracked boards and pegs, lumpy straw tick with straw poking out, patched brown-grey blanket thrown back."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "uses": [
+    "sleep"
+  ]
+}

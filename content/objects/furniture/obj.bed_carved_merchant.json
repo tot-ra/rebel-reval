@@ -1,0 +1,69 @@
+{
+  "type": "world_object",
+  "id": "obj.bed_carved_merchant",
+  "name": "Carved merchant's bed",
+  "description": "A dark oak bed with Gothic arch panels and knob finials, piled with feather beds and linen pillows under a madder-red coverlet lined with squirrel fur.",
+  "category": "furniture",
+  "handling": "fixed",
+  "tags": [
+    "bed",
+    "sleep",
+    "rich"
+  ],
+  "physical": {
+    "mass_kg": 95,
+    "size_m": [
+      2.15,
+      1.32,
+      1.65
+    ],
+    "materials": [
+      "wood",
+      "linen_cloth",
+      "food_organic",
+      "wool",
+      "fur"
+    ],
+    "flammable": true
+  },
+  "actions": [
+    "inspect",
+    "sit",
+    "sleep"
+  ],
+  "economy": {
+    "base_pfennigs": 420,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 0
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "home_noble"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/furniture/beds/bed_carved_merchant/bed_carved_merchant.glb",
+    "prop_kind": "bed",
+    "measured_size_m": [
+      2.15,
+      1.32,
+      1.65
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.bed_carved_merchant.png",
+    "icon": "res://assets/objects/icons/obj.bed_carved_merchant.png",
+    "icon_status": "missing",
+    "look": "Dark oak bed with carved Gothic arch panels and turned finials, white linen pillows, red coverlet with grey squirrel-fur lining.",
+    "image_prompt": "Carved merchant's bed: Dark oak bed with carved Gothic arch panels and turned finials, white linen pillows, red coverlet with grey squirrel-fur lining."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "uses": [
+    "sleep"
+  ]
+}

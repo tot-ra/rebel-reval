@@ -98,7 +98,7 @@ func test_pieces_stay_inside_the_walls_and_apart() -> void:
 				)
 
 
-func test_rich_houses_have_framed_beds_and_cupboards() -> void:
+func test_great_houses_have_the_curtained_bed_and_cupboards() -> void:
 	var interiors := _interiors()
 	var homes := _homes(interiors)
 	var rich := 0
@@ -107,11 +107,104 @@ func test_rich_houses_have_framed_beds_and_cupboards() -> void:
 		if String(household["class"]) != "great":
 			continue
 		var pieces := _pieces(interiors.layout(entry[1]))
-		assert_array_contains(pieces, &"bed_framed")
+		assert_array_contains(pieces, &"bed_curtained")
+		assert_array_contains(pieces, &"cupboard")
 		rich += 1
 		if rich >= 5:
 			break
 	assert_true(rich > 0, "found great households")
+
+
+## R-2078: the head couple's bed follows the household's standing and varies
+## between houses of one class; poor houses never get a rich bed.
+func test_beds_follow_class_and_vary_between_houses() -> void:
+	var interiors := _interiors()
+	var head_beds := {}
+	var poor_seen := 0
+	for entry: Array in _homes(interiors):
+		var household := interiors.household_at(entry[1])
+		var layout := interiors.layout(entry[1])
+		var pieces := _pieces(layout)
+		if String(household["class"]) == "poor":
+			poor_seen += 1
+			assert_false(pieces.has(&"bed_carved"), "no carved bed in a poor house")
+			assert_false(pieces.has(&"bed_curtained"), "no curtained bed in a poor house")
+		var tier := layout.tier_of(household)
+		for piece: StringName in pieces:
+			if HouseholdLayout.PIECES[piece].has("lie_h"):
+				if not head_beds.has(tier):
+					head_beds[tier] = {}
+				head_beds[tier][piece] = true
+				break
+		if poor_seen >= 40 and head_beds.size() >= 3:
+			if head_beds.values().all(func(kinds: Dictionary) -> bool: return kinds.size() >= 2):
+				break
+	for tier: StringName in head_beds:
+		assert_true(head_beds[tier].size() >= 2, "%s houses have more than one head bed" % tier)
+	interiors.free()
+
+
+func test_a_household_with_an_infant_has_a_cradle() -> void:
+	var interiors := _interiors()
+	var with_infant := 0
+	var cradles := 0
+	for entry: Array in _homes(interiors):
+		var household := interiors.household_at(entry[1])
+		var pieces := _pieces(interiors.layout(entry[1]))
+		if int(household.get("infants", 0)) > 0:
+			with_infant += 1
+			cradles += 1 if pieces.has(&"cradle") else 0
+		else:
+			assert_false(pieces.has(&"cradle"), "no cradle without an infant")
+		if with_infant >= 40:
+			break
+	# A cramped cottage may have no floor left for it; most houses do.
+	assert_true(with_infant > 0, "found households with infants")
+	assert_true(cradles * 4 >= with_infant * 3, "%d of %d have a cradle" % [cradles, with_infant])
+	interiors.free()
+
+
+func test_furniture_wear_is_deterministic_and_follows_class() -> void:
+	var worn := {&"poor": 0, &"rich": 0}
+	for k in 400:
+		var id := "bldg.test.%d" % k
+		assert_eq(HouseholdLayout.wear_of(id, &"poor"), HouseholdLayout.wear_of(id, &"poor"))
+		for tier: StringName in worn:
+			worn[tier] += HouseholdLayout.wear_of(id, tier)
+		assert_true(HouseholdLayout.tone_of(id) in [0, 1, 2])
+	assert_true(worn[&"poor"] > worn[&"rich"] * 3, "poor houses are far more worn: %s" % worn)
+	assert_true(
+		HouseholdLayout.wear_of("bldg.test.1", &"poor") >= 1, "a poor house is never kept like new"
+	)
+
+
+func test_worn_furniture_gets_darker_grimed_materials() -> void:
+	var interiors := _interiors()
+	var kept := interiors._instance("obj.bed_box_master", "", 0, 1)
+	var worn := interiors._instance("obj.bed_box_master", "", 2, 1)
+	var kept_mat := _first_material(kept)
+	var worn_mat := _first_material(worn)
+	assert_true(kept_mat != null and worn_mat != null, "the bed has materials")
+	assert_false(kept_mat.detail_enabled, "kept furniture has no grime")
+	assert_true(worn_mat.detail_enabled, "worn furniture is grimed")
+	assert_true(worn_mat.albedo_color.v < kept_mat.albedo_color.v, "worn furniture is darker")
+	var again := interiors._instance("obj.bed_box_master", "", 2, 1)
+	assert_eq(_first_material(again), worn_mat, "houses share one weathered material")
+	kept.free()
+	worn.free()
+	again.free()
+	interiors.free()
+
+
+func _first_material(node: Node) -> BaseMaterial3D:
+	var mi := node as MeshInstance3D
+	if mi != null and mi.mesh != null and mi.mesh.get_surface_count() > 0:
+		return mi.get_active_material(0) as BaseMaterial3D
+	for child in node.get_children():
+		var m := _first_material(child)
+		if m != null:
+			return m
+	return null
 
 
 func test_fire_is_lit_for_meals_and_banked_at_night() -> void:
@@ -241,7 +334,10 @@ func test_the_largest_houses_are_furnished_homes_with_a_hall() -> void:
 			if float(item["y"]) > 0.0:
 				continue
 			for p: Vector2 in item["poly"]:
-				assert_true(Geometry2D.is_point_in_polygon(p, layout.inner), "%s inside %s" % [item["piece"], label])
+				assert_true(
+					Geometry2D.is_point_in_polygon(p, layout.inner),
+					"%s inside %s" % [item["piece"], label]
+				)
 
 
 ## The census spells the trade `ropemaker`; the rope walk's goods follow it

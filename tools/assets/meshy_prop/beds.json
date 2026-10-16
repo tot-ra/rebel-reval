@@ -1,0 +1,98 @@
+{
+  "task": "R-2078",
+  "skill": "agents/rebel-art/skills/meshy-prop/SKILL.md",
+  "raw_dir": "build/beds_meshy",
+  "out_dir": "assets/props/furniture/beds",
+  "props": [
+    {
+      "id": "bed_floor_straw",
+      "leonardo_generation": "1f1c94a8-f942-6690-bd9a-3c1879bd625e",
+      "meshy_task": "01a14437-6638-77d2-a173-9b2aa3d86fd1",
+      "raw_sha256": "d00f52edd378b641a580e75ab674d700898d636d5f9b81d270bec775f554ca72",
+      "yaw": 0,
+      "size": [
+        2.0,
+        0.24,
+        0.95
+      ],
+      "tris": 9000,
+      "prompt": "Game asset reference photo of a single object: the poorest sleeping place of a 14th-century Baltic town labourer, lying directly on the floor. A long flat coarse hemp sack stuffed with straw, about two metres long, lumpy and sagging, patched and stained, straw sticking out at a torn corner, a worn grey-white sheepskin and a threadbare dark-grey homespun wool blanket rumpled on top, a rolled coarse cloth as a pillow, all laid on three old split planks on the ground. Worn, dirty, realistic. Three-quarter view from the front-left and slightly above, whole object in frame with margin, plain pure white background, soft even studio light, no cast shadow, no people, no text, no modern objects.",
+      "leonardo_model": "gemini-2.5-flash-image 1248x832"
+    },
+    {
+      "id": "bed_box_poor",
+      "leonardo_generation": "1f1c94a8-3e32-63a0-8deb-50d6a72d249a",
+      "meshy_task": "01a14439-1800-74aa-9449-ef91a28d0a70",
+      "raw_sha256": "605f6a1bba894d97e847d256585e1cc106d6f9fcfb8578e6daf9f5d1c2c968b0",
+      "yaw": 90,
+      "size": [
+        2.0,
+        0.95,
+        1.28
+      ],
+      "tris": 10000,
+      "prompt": "Game asset reference photo of a single object: a crude low plank box bed of a poor 14th-century Baltic town household. Rough-hewn grey weathered pine boards, cracked and split, held with wooden pegs, short thick legs. Filled with a lumpy straw tick in coarse undyed hemp ticking, wisps of straw poking out of a torn seam, a stained flat linen bolster, a patched and threadbare brown-grey homespun wool blanket thrown back. Worn, old, dirty, realistic. Three-quarter view from the front-left and slightly above, whole bed in frame with margin, plain pure white background, soft even studio light, no cast shadow, no people, no text, no modern objects.",
+      "leonardo_model": "gemini-2.5-flash-image 1248x832"
+    },
+    {
+      "id": "bed_box_master",
+      "leonardo_generation": "1f1c94ab-5096-6250-8b37-18eef2ef38f7",
+      "meshy_task": "01a1443b-8151-76b1-bf54-43b8ce3b25ee",
+      "raw_sha256": "575840da6d3fadb1707b3e0c8cb26792abd0fecf4e15255e268545d5156a0ac4",
+      "yaw": 90,
+      "size": [
+        2.05,
+        1.25,
+        1.35
+      ],
+      "tris": 10500,
+      "prompt": "Game asset reference photo of a single object: a medieval box bed (Kastenbett) of a master craftsman in a 14th-century Hanseatic town, about 2 m long and 1.3 m wide. Heavy hand-adzed oak planks, darkened and greasy from years of use, deep side boards forming a box, a tall plain headboard of vertical boards with a simple gabled top, thick square corner posts, visible wooden pegs and mortise joints, slightly uneven hand-made proportions. Inside: a straw tick under a feather bed in faded blue-striped linen ticking, a coarse off-white linen sheet, a long sausage bolster, a russet-red homespun wool blanket folded back. Used and tidy but not new. Not modern, not polished, no machine-turned parts. Three-quarter view from the front-left and slightly above, whole bed in frame with margin, plain pure white background, soft even studio light, no cast shadow, no people, no text.",
+      "leonardo_model": "gemini-2.5-flash-image 1248x832"
+    },
+    {
+      "id": "bed_carved_merchant",
+      "leonardo_generation": "1f1c94a9-a9e8-6940-8d79-aab136543e02",
+      "meshy_task": "01a1443c-e1d7-710c-a79d-f3dd8e0faed9",
+      "raw_sha256": "f12d7b9ab8f9a6d30c711891d5bd84933eb2db87596a3203db6b0e20e696c11e",
+      "yaw": 90,
+      "size": [
+        2.15,
+        1.32,
+        1.65
+      ],
+      "tris": 16000,
+      "prompt": "Game asset reference photo of a single object: a wealthy Hanseatic merchant's bed, northern Europe around 1340, large enough for two adults (about 2.1 m long, 1.5 m wide). Dark waxed oak frame, headboard and footboard carved with Gothic tracery panels and linenfold-free simple arches, turned corner posts with knob finials. Piled high with two thick feather beds, a long bolster and two large white linen pillows, a fine white linen sheet, a deep madder-red wool coverlet with a grey squirrel fur lining turned back. Rich, clean, slightly used. Three-quarter view from the front-left and slightly above, whole bed in frame with margin, plain pure white background, soft even studio light, no cast shadow, no people, no text, no modern objects.",
+      "leonardo_model": "gemini-2.5-flash-image 1248x832"
+    },
+    {
+      "id": "bed_curtained_great",
+      "leonardo_generation": "1f1c94ab-b7b0-6300-bf6b-4af00fefaf7d",
+      "meshy_task": "01a1443e-a781-7345-9d0e-77195b880d7b",
+      "raw_sha256": "ddee3aa1cbcab6ba19811f53f9653a659377f4e37efce1cad50e1da5a8851917",
+      "yaw": 0,
+      "size": [
+        2.1,
+        2.0,
+        1.6
+      ],
+      "tris": 19000,
+      "prompt": "Game asset reference photo of a single object: the great curtained bed of a rich Hanseatic merchant family around 1340 (about 2.1 m long, 1.6 m wide, 2.2 m tall). Dark oak bed with four tall plain square posts carrying a flat plank tester canopy with a plain moulded edge and a short row of Gothic pointed-arch blind tracery, no classical ornament. Heavy dark green dyed woollen curtains hang from the tester and are gathered and tied open at each post with cords, so the bedding is visible. High feather beds, a bolster and square white linen pillows, white linen sheet, deep madder-red wool coverlet. Hand-made, slightly irregular, used. Three-quarter view from the front-left and slightly above, whole bed in frame with margin, plain pure white background, soft even studio light, no cast shadow, no people, no text, no Greek key, no Renaissance or Victorian style.",
+      "leonardo_model": "gemini-2.5-flash-image 1248x832"
+    },
+    {
+      "id": "cradle_rocking",
+      "leonardo_generation": "1f1c94aa-6b26-6cb0-83b0-b941afaba94a",
+      "meshy_task": "01a14441-73d6-733f-9084-d603afb371e6",
+      "raw_sha256": "4f71066d715513eb2433ff0b17c60b752719a28c9eaaa253d72386b75376e679",
+      "yaw": 0,
+      "size": [
+        0.95,
+        0.48,
+        0.55
+      ],
+      "tris": 6000,
+      "prompt": "Game asset reference photo of a single object: a 14th-century northern European wooden rocking cradle for a baby (about 0.9 m long, 0.45 m wide). A plank oak box with slightly flared sides on two curved rockers, round wooden knobs on the top edges for tying swaddling bands, a small straw-filled linen mattress and a folded little grey wool blanket inside. Plain, sturdy, worn smooth by use. Three-quarter view from the front-left and slightly above, whole cradle in frame with margin, plain pure white background, soft even studio light, no cast shadow, no people, no text, no modern objects.",
+      "leonardo_model": "gemini-2.5-flash-image 1248x832"
+    }
+  ]
+}

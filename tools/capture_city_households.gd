@@ -9,8 +9,10 @@ extends Node
 ##        [--scene=res://scenes/world/sites/harju.tscn] [--trade=farmer]
 ##        [--buildings=417,223] (plan building indices, instead of picking by class)
 ## Output: docs/reports/images/city/households_<tag>_<n>.png (+ _eye.png from the
-## doorway, _door.png over Kalev at the street door, _hearth.png close on the hearth and its chimney breast, _top.png from
-## the gameplay camera, _outside.png on the chimney from the street); prints
+## doorway, _door.png over Kalev at the street door, _hearth.png close on the
+## hearth and its chimney breast, _bed.png close on the head couple's bed,
+## _top.png from the gameplay camera, _outside.png on the chimney from the
+## street); prints
 ## the pieces and who is at home doing what.
 
 const SCENE := preload("res://scenes/world/reval_city/reval_city.tscn")
@@ -182,6 +184,19 @@ func _run() -> void:
 			await RenderingServer.frame_post_draw
 			get_viewport().get_texture().get_image().save_png(
 				ProjectSettings.globalize_path("%s/households_%s_%d_hearth.png" % [OUTPUT_DIR, tag, n]))
+		# Close on the head couple's bed (R-2078: bed by class, wear by house).
+		var bed := lay._first_bed()
+		if bed >= 0:
+			var yaw := float(lay.items[bed]["yaw"])
+			var front := Vector2(sin(yaw), cos(yaw))
+			var bp: Vector2 = lay.items[bed]["pos"]
+			var eye: Vector2 = bp + front * 2.3 + front.orthogonal() * 1.1
+			cam.global_position = Vector3(eye.x, lay.floor_y + 1.7, eye.y)
+			cam.look_at(Vector3(bp.x, lay.floor_y + 0.5, bp.y), Vector3.UP)
+			await _frames(3)
+			await RenderingServer.frame_post_draw
+			get_viewport().get_texture().get_image().save_png(
+				ProjectSettings.globalize_path("%s/households_%s_%d_bed.png" % [OUTPUT_DIR, tag, n]))
 		cam.queue_free()
 		city.view.view_camera().make_current()
 		city.runtime.set_camera_mode(MapViewRuntimeCamera.CameraMode.TOP_DOWN)

@@ -1,0 +1,67 @@
+{
+  "type": "world_object",
+  "id": "obj.bed_box_master",
+  "name": "Craftsman's box bed",
+  "description": "A heavy adzed oak box bed with a gabled headboard; straw tick and feather bed in striped ticking, linen sheet, bolster and a russet wool blanket.",
+  "category": "furniture",
+  "handling": "fixed",
+  "tags": [
+    "bed",
+    "sleep"
+  ],
+  "physical": {
+    "mass_kg": 70,
+    "size_m": [
+      2.05,
+      1.25,
+      1.35
+    ],
+    "materials": [
+      "wood",
+      "linen_cloth",
+      "food_organic",
+      "wool"
+    ],
+    "flammable": true
+  },
+  "actions": [
+    "inspect",
+    "sit",
+    "sleep"
+  ],
+  "economy": {
+    "base_pfennigs": 120,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 0
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "home_burgher"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/furniture/beds/bed_box_master/bed_box_master.glb",
+    "prop_kind": "bed",
+    "measured_size_m": [
+      2.05,
+      1.25,
+      1.35
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.bed_box_master.png",
+    "icon": "res://assets/objects/icons/obj.bed_box_master.png",
+    "icon_status": "missing",
+    "look": "Dark adzed oak box bed with a gabled plank headboard and pegged posts, blue-striped ticking, off-white linen, russet blanket folded back.",
+    "image_prompt": "Craftsman's box bed: Dark adzed oak box bed with a gabled plank headboard and pegged posts, blue-striped ticking, off-white linen, russet blanket folded back."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "uses": [
+    "sleep"
+  ]
+}

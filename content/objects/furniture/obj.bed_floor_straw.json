@@ -1,0 +1,68 @@
+{
+  "type": "world_object",
+  "id": "obj.bed_floor_straw",
+  "name": "Floor straw sack",
+  "description": "A coarse hemp sack of straw on a few old planks, with a sheepskin and a threadbare blanket; the bed of the poorest households and of the children and servants of a crowded house.",
+  "category": "furniture",
+  "handling": "fixed",
+  "tags": [
+    "bed",
+    "sleep",
+    "worn"
+  ],
+  "physical": {
+    "mass_kg": 18,
+    "size_m": [
+      2.0,
+      0.24,
+      0.95
+    ],
+    "materials": [
+      "straw",
+      "linen_cloth",
+      "fur",
+      "wool"
+    ],
+    "flammable": true
+  },
+  "actions": [
+    "inspect",
+    "sit",
+    "sleep"
+  ],
+  "economy": {
+    "base_pfennigs": 10,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 0
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "home_poor"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/furniture/beds/bed_floor_straw/bed_floor_straw.glb",
+    "prop_kind": "bed",
+    "measured_size_m": [
+      2.0,
+      0.24,
+      0.95
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.bed_floor_straw.png",
+    "icon": "res://assets/objects/icons/obj.bed_floor_straw.png",
+    "icon_status": "missing",
+    "look": "Lumpy patched straw sack on split planks, grey sheepskin and threadbare dark wool blanket, straw spilling from a torn corner.",
+    "image_prompt": "Floor straw sack: Lumpy patched straw sack on split planks, grey sheepskin and threadbare dark wool blanket, straw spilling from a torn corner."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "uses": [
+    "sleep"
+  ]
+}

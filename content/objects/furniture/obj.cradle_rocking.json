@@ -1,0 +1,67 @@
+{
+  "type": "world_object",
+  "id": "obj.cradle_rocking",
+  "name": "Rocking cradle",
+  "description": "A small plank oak cradle on two rockers with knobs for the swaddling bands, a straw-filled linen mattress and a little grey blanket.",
+  "category": "furniture",
+  "handling": "fixed",
+  "tags": [
+    "cradle",
+    "infant",
+    "household"
+  ],
+  "physical": {
+    "mass_kg": 9,
+    "size_m": [
+      0.95,
+      0.48,
+      0.55
+    ],
+    "materials": [
+      "wood",
+      "straw",
+      "linen_cloth",
+      "wool"
+    ],
+    "flammable": true
+  },
+  "actions": [
+    "inspect"
+  ],
+  "economy": {
+    "base_pfennigs": 30,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 0
+  },
+  "placement": {
+    "mount": "floor",
+    "spaces": [
+      "home_poor",
+      "home_burgher",
+      "home_noble"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/furniture/beds/cradle_rocking/cradle_rocking.glb",
+    "measured_size_m": [
+      0.95,
+      0.48,
+      0.55
+    ]
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.cradle_rocking.png",
+    "icon": "res://assets/objects/icons/obj.cradle_rocking.png",
+    "icon_status": "missing",
+    "look": "Plain oak cradle on curved rockers, corner knobs, small linen mattress and folded grey wool blanket.",
+    "image_prompt": "Rocking cradle: Plain oak cradle on curved rockers, corner knobs, small linen mattress and folded grey wool blanket."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "uses": [
+    "rock an infant to sleep"
+  ]
+}

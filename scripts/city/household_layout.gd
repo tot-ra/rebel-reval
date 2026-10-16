@@ -38,6 +38,12 @@ const PIECES := {
 	&"hearth": {"object": "obj.hearth_domestic", "front": -1, "solid": true},
 	&"bed_framed": {"object": "obj.bed_smithy", "front": 1, "solid": true, "lie_h": 0.62},
 	&"bed_pallet": {"object": "obj.bed_straw_pallet", "front": 1, "solid": true, "lie_h": 0.42},
+	&"bed_floor": {"object": "obj.bed_floor_straw", "front": 1, "solid": true, "lie_h": 0.2},
+	&"bed_box_poor": {"object": "obj.bed_box_poor", "front": 1, "solid": true, "lie_h": 0.6},
+	&"bed_box": {"object": "obj.bed_box_master", "front": 1, "solid": true, "lie_h": 0.6},
+	&"bed_carved": {"object": "obj.bed_carved_merchant", "front": 1, "solid": true, "lie_h": 0.7},
+	&"bed_curtained": {"object": "obj.bed_curtained_great", "front": 1, "solid": true, "lie_h": 0.78},
+	&"cradle": {"object": "obj.cradle_rocking", "front": 1, "solid": false},
 	&"table": {"object": "obj.table_common_household", "front": 1, "solid": true},
 	&"table_long": {"object": "obj.table_long_board", "front": 1, "solid": true},
 	&"workbench": {"object": "obj.table_trestle_work", "front": 1, "solid": true},
@@ -71,6 +77,31 @@ const PIECES := {
 	&"scythe": {"object": "obj.scythe", "front": 1, "solid": false},
 	&"pitchfork": {"object": "obj.pitchfork", "front": 1, "solid": false},
 	&"sickle": {"object": "obj.sickle", "front": 1, "solid": false},
+}
+## Beds by furnishing tier (R-2078): the head couple's bed, then the beds of
+## children, kin and servants. Each bed is picked from its pool by a hash of
+## the house and the bed's rank (bed_piece), so neighbours of one class differ;
+## a great house always has the curtained bed. A bed that does not fit falls
+## back along BED_FALLBACK to the smaller ones.
+const HEAD_BEDS := {
+	&"poor": [&"bed_box_poor", &"bed_pallet"],
+	&"mid": [&"bed_box", &"bed_framed"],
+	&"rich": [&"bed_carved", &"bed_curtained"],
+}
+const OTHER_BEDS := {
+	&"poor": [&"bed_floor", &"bed_pallet", &"bed_box_poor"],
+	&"mid": [&"bed_pallet", &"bed_box_poor", &"bed_floor"],
+	&"rich": [&"bed_box", &"bed_pallet"],
+}
+const BED_FALLBACK: Array[StringName] = [&"bed_box", &"bed_pallet", &"bed_floor"]
+## Furniture wear (R-2078): share of houses of a tier whose things are kept
+## (wear 0) and kept-or-used (wear <= 1); the rest are worn and grimy (2).
+## CityInteriors darkens and grimes the materials by `wear` and shifts the
+## wood tone by `tone`, so the same table differs from house to house.
+const WEAR_ODDS := {
+	&"poor": [0.0, 0.3],
+	&"mid": [0.25, 0.85],
+	&"rich": [0.7, 0.95],
 }
 ## Census household class -> furnishing tier.
 const TIER := {
@@ -165,6 +196,10 @@ var firewood := -1
 ## CityInteriors, not one node per sheaf).
 var loft_sheaves: Array[int] = []
 var lights: Array[int] = []
+## How worn the house's things look (0 kept, 1 used, 2 worn) and its wood
+## tone (0 light, 1 mid, 2 dark): see WEAR_ODDS.
+var wear := 1
+var tone := 1
 ## Just inside the door: where people come in and go out.
 var entry := Vector2.ZERO
 ## A big house is split across its length by plank partitions into rooms,
@@ -239,10 +274,34 @@ func tier_of(household: Dictionary) -> StringName:
 	return TIER.get(String(household.get("class", "poor")), &"poor")
 
 
+## Which bed the `rank`-th bed of the house is (0 = the head couple's).
+static func bed_piece(building_id: String, household: Dictionary, rank: int) -> StringName:
+	var cls := String(household.get("class", "poor"))
+	if rank == 0 and cls == "great":
+		return &"bed_curtained"
+	var tier: StringName = TIER.get(cls, &"poor")
+	var pool: Array = (HEAD_BEDS if rank == 0 else OTHER_BEDS)[tier]
+	return pool[posmod(hash("%s:bed:%d" % [building_id, rank]), pool.size())]
+
+
+## Furniture wear of a house of `tier`: 0 kept, 1 used, 2 worn (WEAR_ODDS).
+static func wear_of(building_id: String, tier: StringName) -> int:
+	var u := float(posmod(hash(building_id + ":wear"), 10007)) / 10007.0
+	var odds: Array = WEAR_ODDS[tier]
+	return 0 if u < float(odds[0]) else (1 if u < float(odds[1]) else 2)
+
+
+## Wood tone of a house: 0 light, 1 mid, 2 dark.
+static func tone_of(building_id: String) -> int:
+	return posmod(hash(building_id + ":tone"), 3)
+
+
 func _build(plan: CityPlan, index: int, household: Dictionary, chimney: Vector2) -> void:
 	building_index = index
 	var b: Dictionary = plan.buildings[index]
 	_rng.seed = hash(String(b["id"]) + ":furnish")
+	wear = wear_of(String(b["id"]), tier_of(household))
+	tone = tone_of(String(b["id"]))
 	floor_y = plan.floor_height(index)
 	var ring := CityBuildingBuilder.wall_ring(b, plan.footprint(index))
 	var thick := (
@@ -274,14 +333,14 @@ func _build(plan: CityPlan, index: int, household: Dictionary, chimney: Vector2)
 		_threshing_keep = _rural_rooms(b, thick)
 	else:
 		_partition(chimney)
-	_furnish(household, chimney)
+	_furnish(household, chimney, String(b["id"]))
 	_open_threshing_floor()
 	# Last, so every other piece keeps the place (and the RNG stream) it had.
 	if String(b.get("type", "")) == "smoke_room":
 		_furnish_loft(String(b["id"]), float(b.get("wall_h", 2.3)))
 
 
-func _furnish(household: Dictionary, chimney: Vector2) -> void:
+func _furnish(household: Dictionary, chimney: Vector2, building_id: String) -> void:
 	var tier := tier_of(household)
 	var size := maxi(int(household.get("size", 2)), 1)
 	var trade := String(household.get("trade", ""))
@@ -312,15 +371,17 @@ func _furnish(household: Dictionary, chimney: Vector2) -> void:
 		firewood = _place_near(&"firewood", h["pos"], 0.4)
 		_place_near(&"bucket", h["pos"], 0.3)
 		_place_near(&"pot", h["pos"], 0.3)
-	# Beds: a shared bed sleeps two or three; the head couple of a better
-	# house has a framed bed. Beds, table and storage gather round the hearth
-	# (the warm living end); a big house keeps its front hall for work and goods.
+	# Beds: a shared bed sleeps two or three; the head couple's bed shows the
+	# house's standing (HEAD_BEDS), the rest are humbler (OTHER_BEDS). Beds,
+	# table and storage gather round the hearth (the warm living end); a big
+	# house keeps its front hall for work and goods.
 	var beds := clampi(ceili(size / 2.5), 1, 6)
 	for k in beds:
-		var piece := &"bed_framed" if k == 0 and tier != &"poor" else &"bed_pallet"
-		var bed := _place_on_wall(piece, _living(3.6, sleeping_room()))
-		if bed < 0 and piece == &"bed_framed":
-			bed = _place_on_wall(&"bed_pallet", _living(3.6, sleeping_room()))
+		var bed := -1
+		for piece: StringName in _bed_choices(bed_piece(building_id, household, k)):
+			bed = _place_on_wall(piece, _living(3.6, sleeping_room()))
+			if bed >= 0:
+				break
 		if bed < 0:
 			break
 		_bed_slots(bed)
@@ -336,7 +397,7 @@ func _furnish(household: Dictionary, chimney: Vector2) -> void:
 			_seat_slots(seat, _front(seat), [0.0])
 	# Storage.
 	var chest_piece := &"chest_poor" if tier == &"poor" else &"chest"
-	var first_bed := _first(&"bed_framed", &"bed_pallet")
+	var first_bed := _first_bed()
 	_place_on_wall(
 		chest_piece,
 		func(p: Vector2, _n: Vector2) -> float:
@@ -410,6 +471,14 @@ func _furnish(household: Dictionary, chimney: Vector2) -> void:
 		var splint := _place_near(&"splint", items[hearth]["pos"], 0.5)
 		if splint >= 0:
 			lights.append(splint)
+	# An infant sleeps in a cradle by the head couple's bed (R-2078).
+	# A cramped cottage may have no floor left for it.
+	if int(household.get("infants", 0)) > 0 and first_bed >= 0:
+		var bed_at: Vector2 = items[first_bed]["pos"]
+		if _place_near(&"cradle", bed_at, 0.15) < 0:
+			_place_on_wall(
+				&"cradle", func(p: Vector2, _n: Vector2) -> float: return -p.distance_to(bed_at)
+			)
 	# Somewhere to stand for anyone without a seat or a task.
 	for k in 3:
 		var p := _open_point()
@@ -1006,9 +1075,21 @@ func slots_of(kind: StringName) -> Array[Dictionary]:
 	return out
 
 
-func _first(a: StringName, b: StringName) -> int:
+## `first`, then the BED_FALLBACK beds with a smaller footprint.
+func _bed_choices(first: StringName) -> Array[StringName]:
+	var out: Array[StringName] = [first]
+	var size := piece_size(first)
+	for piece in BED_FALLBACK:
+		var s := piece_size(piece)
+		if piece != first and s.x * s.z < size.x * size.z:
+			out.append(piece)
+	return out
+
+
+## The first bed placed (the head couple's), or -1.
+func _first_bed() -> int:
 	for i in items.size():
-		if items[i]["piece"] == a or items[i]["piece"] == b:
+		if PIECES.get(items[i]["piece"], {}).has("lie_h"):
 			return i
 	return -1
 
