@@ -12,7 +12,7 @@ Canon: invented mechanic; no historical claim. It builds on the adult nude body 
 
 ## Hard rules
 
-- **Adults only.** Children, the 15-year-old apprentice and anything matching the child/boy/girl/apprentice refusal in `SpiritUndress` never show the hand cursor and cannot be undressed. Same eligibility as the spirit-sight nude layer (a body needs a `layers/nude.glb` twin).
+- **Adults only.** Children and any body matching the child/boy/girl/apprentice refusal in `SpiritUndress` never show the hand cursor and cannot be undressed. Although the protagonist is now 18, the player remains explicitly excluded by the current prototype scope; this age change does not enable new interaction or nudity. Same eligibility as the spirit-sight nude layer (a body needs a `layers/nude.glb` twin).
 - The effect is transient presentation in the first cut: nothing is saved, no state changes.
 
 ## First-cut behaviour (test only)
@@ -33,7 +33,7 @@ Everything here needs its own ADR/task before coding, per the scope rule in [`AG
 
 - `ClothingStrip` (`scripts/characters/clothing_strip.gd`) is mounted by `CityCitizens` and registers every styled resident rig. Hover an adult: hand cursor (`CursorService.LAYER_CHARACTER`). Press on a fitted garment and drag down 56 px: that wearable (gown, apron, headscarf, boots, ...) comes off. With no layer under the cursor, dragging the bare body pulls off the baked outfit and mounts the citizen's `layers/nude.glb` twin via `SpiritUndress`. Press **U** to redress everyone.
 - The asset review galleries mount the same `ClothingStrip` (`scenes/debug/asset_showcase.gd`): the characters gallery on its named variants, the small gallery on four adult citizens beside the cart.
-- Minors and the apprentice are refused (`SpiritUndress.is_protected`).
+- Minor body variants and the adult player character are refused by the current `SpiritUndress.is_protected` prototype guard.
 - Verify: `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_clothing_strip`.
 - Limits: removing the baked outfit is all-or-nothing per body (no per-region mask yet); spirit sight closing restores the outfit of anyone it undressed, including bodies stripped by hand; nothing is saved.
 

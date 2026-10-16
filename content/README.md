@@ -8,7 +8,7 @@ Validated JSON records loaded by `ContentDB`. Schemas: [`schemas/`](../schemas/R
 | `demo/` | Demo items and dialogue ([README](./demo/README.md)) |
 | `cutscenes/` | Cinematic sequences played by `CutscenePlayer` ([README](./cutscenes/README.md)) |
 | `dialogue/` | Generic city conversations and spirit duel spoken by any resident ([README](./dialogue/README.md)) |
-| `prologue/` | Almshouse prologue duels and cast for the teen protagonist ([README](./prologue/README.md)) |
+| `prologue/` | Almshouse prologue duels and cast for the 18-year-old protagonist ([README](./prologue/README.md)) |
 | `spirit_spells/` | Psychological word spells of the spirit duel, read by `SpiritSpellCatalog` ([README](./spirit_spells/README.md)) |
 | `packages/` | Quest packages with branch maps ([README](./packages/README.md)) |
 | `saves/` | Released and act save fixtures ([README](./saves/README.md)) |

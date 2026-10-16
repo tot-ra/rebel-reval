@@ -206,7 +206,7 @@ Hero crimson `#D9364D` is reserved for Kalev and priority reads; no faction uses
 ### Main Cast
 
 * **The Apprentice** (working name) - **`invented`**
-  * *Notes:* 15-year-old clairvoyant orphan, the player character per [ADR 0033](./adr/0033-teen-protagonist-and-spirit-dialogue-combat.md); a healer's apprentice per [ADR 0052](./adr/0052-healer-apprentice-and-family-cure-loop.md), learning from the Holy Spirit almshouse, Kalev and Brother Tidemann. He sleeps at Kalev's smithy. See [The Apprentice brief](./CHARACTERS/apprentice.md).
+  * *Notes:* 18-year-old clairvoyant orphan, the player character per [ADR 0033](./adr/0033-teen-protagonist-and-spirit-dialogue-combat.md), with age amended by [ADR 0058](./adr/0058-protagonist-age-18.md); a healer's apprentice per [ADR 0052](./adr/0052-healer-apprentice-and-family-cure-loop.md), learning from the Holy Spirit almshouse, Kalev and Brother Tidemann. He sleeps at Kalev's smithy. See [The Apprentice brief](./CHARACTERS/apprentice.md).
 * **Kalev** (The Smith) - **`invented`**
   * *Pronunciation:* KAH-lev
   * *Notes:* Lower-town master smith, folk healer of iron wounds, and the apprentice's mentor (ADR 0052; the player character in the current prototype, until ADR 0033 lands). His work is mostly nails, hinges, tools and horseshoes; weapons enter only through the plot. Kalev lives and works at his lower-town smithy; see [Kalev Family and Household Canon](./CHARACTERS/kalev-family.md) and [Kalev Character Brief](./CHARACTERS/kalev.md).

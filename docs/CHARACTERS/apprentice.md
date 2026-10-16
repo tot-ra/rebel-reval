@@ -1,20 +1,20 @@
 # The Apprentice (player character, working name)
 
 **Confidence label:** `invented`
-**Role:** Protagonist (per [ADR 0033](../adr/0033-teen-protagonist-and-spirit-dialogue-combat.md)); healer's apprentice (per [ADR 0052](../adr/0052-healer-apprentice-and-family-cure-loop.md)). The New Game opening already plays him; commissions in the older quests still assume the forge.
+**Role:** Protagonist (per [ADR 0033](../adr/0033-teen-protagonist-and-spirit-dialogue-combat.md), age 18 per [ADR 0058](../adr/0058-protagonist-age-18.md)); healer's apprentice (per [ADR 0052](../adr/0052-healer-apprentice-and-family-cure-loop.md)). The New Game opening already plays him; commissions in the older quests still assume the forge.
 **Name:** not yet chosen; `char.apprentice` is the stable ID and may stay as the internal ID after the name is decided. Maintainer decision pending.
 
 <!-- character-images -->
 ![The Apprentice, canonical face](./img/sheets/apprentice.jpg)
 
-Generated 2026-10-12 with Leonardo AI (`gpt-image-1.5`), cinematic low-key style of the other sheets, 682x1024; dialogue avatar `assets/characters/portraits/npc/apprentice.png` (candidate per ADR 0044). He is a minor: every depiction shows him fully clothed.
+Generated 2026-10-12 with Leonardo AI (`gpt-image-1.5`), cinematic low-key style of the other sheets, 682x1024; dialogue avatar `assets/characters/portraits/npc/apprentice.png` (candidate per ADR 0044). These references predate the age change and remain fully clothed; audit their apparent age before any asset replacement.
 
 *Reference only. Image index: [`img/README.md`](./img/README.md).*
 
 ## Who he is
-A 15-year-old orphan raised in the almshouse of the Holy Spirit parish, which takes in the sick and the poor (`attested`; an orphan house there is `plausible composite`). He is thin, watchful, and slow to speak. He grew up carrying bowls to the sick-room and sitting with the dying, and he always knew where it hurt before they said.
+An 18-year-old orphan raised in the almshouse of the Holy Spirit parish, which takes in the sick and the poor (`attested`; an orphan house there is `plausible composite`). He is thin, watchful, and slow to speak. He grew up carrying bowls to the sick-room and sitting with the dying, and he always knew where it hurt before they said.
 
-The opening night makes him a healer's apprentice. A wounded watchman is carried in with a spearhead in his side, and the matron sends for Kalev, the smith who can speak to iron. Kalev sees that the boy found the pain before anyone touched the man, and takes him in to the bed of the missing apprentice [Mart](./mart.md). From then on he learns from three teachers: Kalev's iron charms and folk cures, [Brother Tidemann](./brother_tidemann.md)'s herbs and Latin remedies at St Catherine's, and the almshouse, where the patients keep coming.
+The opening night makes him a healer's apprentice. A wounded watchman is carried in with a spearhead in his side, and the matron sends for Kalev, the smith who can speak to iron. Kalev sees that the apprentice found the pain before anyone touched the man, and takes him in to the bed of the missing apprentice [Mart](./mart.md). From then on he learns from three teachers: Kalev's iron charms and folk cures, [Brother Tidemann](./brother_tidemann.md)'s herbs and Latin remedies at St Catherine's, and the almshouse, where the patients keep coming.
 
 ## Gift and burden
 He sees a spirit world that other people do not: the quarrels, shames, debts, and fears behind what people say appear to him as duels and phantoms. A sickness shows him its cause in the household around the patient, which is why his cures go through families rather than through the body alone. In game terms this is clairvoyance. Others read it as oddness: he stares, he talks to himself. The game gives it no clinical name and does not call it an illness or a superpower; it is both a gift and a cost. Estonian folklore creatures appear to him only as phantoms of fear, never in the physical world. Magic exists only in the spirit world.

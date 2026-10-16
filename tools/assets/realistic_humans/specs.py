@@ -127,16 +127,18 @@ SPECS = {
         palette={"short_tunic": (0.52, 0.42, 0.30), "hose": (0.30, 0.27, 0.22)},
         extra={"tunic_ease": 0.022, "belted": False},
         outfits={"work": ["short_tunic", "hose", "boots"]}),
-    # The 15-year-old orphan apprentice, the playable hero (ADR 0033), a healer's
-    # apprentice since ADR 0052 (Holy Spirit almshouse, Kalev, St Catherine's
-    # infirmarian): thin from almshouse rations, smaller than Mart, pale grey
-    # watchful eyes. Dress of a 1343 healer's boy: undyed linen shirt under a
-    # plain brown-grey knee tunic, belt with a herb pouch and no knife, short
-    # linen apron with faint herb stains, hose and turnshoes; no soot. A minor:
-    # always clothed (no spirit-sight nude layer; SpiritUndress refuses him by
-    # name). Tier 0 (modular wardrobe) like the master he is taken in by.
+    # The 18-year-old orphan apprentice, the playable hero (ADR 0033, age set by
+    # ADR 0058), a healer's apprentice since ADR 0052 (Holy Spirit almshouse,
+    # Kalev, St Catherine's infirmarian): thin from almshouse rations, smaller
+    # than Mart, pale grey watchful eyes. Dress of a 1343 healer's apprentice:
+    # undyed linen shirt under a plain brown-grey knee tunic, belt with a herb
+    # pouch and no knife, short linen apron with faint herb stains, hose and
+    # turnshoes; no soot. The player remains clothed in this Tier 0 asset; the
+    # existing body model needs a separate visual-age audit. SpiritUndress
+    # explicitly excludes the player character. Tier 0 (modular wardrobe) like
+    # the master he is taken in by.
     "apprentice": _person(
-        age=15, sex="m", muscle=0.4, weight=0.34, height_m=1.60, skin="young_caucasian_male",
+        age=18, sex="m", muscle=0.4, weight=0.34, height_m=1.60, skin="young_caucasian_male",
         eyes="grey", hair="short01", hair_color=(0.30, 0.24, 0.18), brows="eyebrow002", lashes="eyelashes01",
         targets={"head-age-decr": 0.7, "head-round": 0.2, "nose-scale-vert-decr": 0.3,
                  "nose-scale-horiz-decr": 0.15, "chin-prominent-decr": 0.25, "cheek-volume-incr": 0.2,

@@ -15,7 +15,7 @@
 
 ## 1. Purpose
 
-Define how the protagonist's seven NATURAL aspects grow and modify play without. Since [ADR 0033](../adr/0033-teen-protagonist-and-spirit-dialogue-combat.md) the protagonist is the 15-year-old apprentice (`char.apprentice`), not Kalev; older wording that names Kalev as the hero means the apprentice:
+Define how the protagonist's seven NATURAL aspects grow and modify play without. Since [ADR 0033](../adr/0033-teen-protagonist-and-spirit-dialogue-combat.md) the protagonist is the 18-year-old apprentice (`char.apprentice`; age per [ADR 0058](../adr/0058-protagonist-age-18.md)), not Kalev; older wording that names Kalev as the hero means the apprentice:
 
 - a separate custom-hero creator (the apprentice is a fixed protagonist);
 - party-controlled companions or follower-cap sims;

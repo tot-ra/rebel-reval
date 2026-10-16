@@ -43,7 +43,7 @@ Ranked by the dossier; labels A (Reval/Livonia), B (Baltic/Hanseatic or Estonian
 |---|---|---|---|
 | Dice "Pasch or more": three dice, triples beat any total, best of three, opponent may carry a weighted die the player can spot | quick luck game, under 2 minutes | C rules on A material | R-1962 |
 | Nine men's morris | calm thinking game, opponent skill by who they are | B | R-1963 |
-| Buzz-bone duel (timing pulls keep the bone humming) or, if dated, a strength contest | skill toy for the teen protagonist / village feast contest | B / U | R-1964 (idea) |
+| Buzz-bone duel (timing pulls keep the bone humming) or, if dated, a strength contest | skill toy for the young-adult protagonist / village feast contest | B / U | R-1964 (idea) |
 
 All games start from a conversation ("Play a game?") with a citizen whose place, hour, age and rank fit; the citizen may refuse. Throws and AI are seeded from `GameState`, so results replay after save/load. Stakes are small (a coin or a drink, a trust nudge, a rumour). The first time the player watches or plays a pastime a short sourced note joins the journal (R-1965).
 

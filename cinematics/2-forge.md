@@ -1,8 +1,8 @@
 # 2 Forge
 
 > **Legacy status: `reference`.** Superseded by [ADR 0034](../docs/adr/0034-cutscene-mode-and-cinematic-prologue.md)
-> and [ADR 0033](../docs/adr/0033-teen-protagonist-and-spirit-dialogue-combat.md): the player character is a
-> fifteen-year-old apprentice and the year is 1343. Kept for its forge-interior description only.
+> and [ADR 0033](../docs/adr/0033-teen-protagonist-and-spirit-dialogue-combat.md), as amended by [ADR 0058](../docs/adr/0058-protagonist-age-18.md): the player character is an
+> 18-year-old apprentice and the year is 1343. Kept for its forge-interior description only.
 
 **Text on screen: "Reval, 1342."**
 

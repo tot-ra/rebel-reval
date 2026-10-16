@@ -8,7 +8,7 @@ Promotion order, act gates, art tiers, and faction-candidate decisions live in [
 
 | Character | Campaign role | Confidence | Brief |
 |---|---|---|---|
-| The Apprentice | Protagonist per ADR 0033 (working name); 15-year-old clairvoyant orphan, healer's apprentice (ADR 0052) | `invented` | [The Apprentice](./apprentice.md) |
+| The Apprentice | Protagonist per ADR 0033 (working name), age 18 per ADR 0058; clairvoyant orphan, healer's apprentice (ADR 0052) | `invented` | [The Apprentice](./apprentice.md) |
 | Kalev | Master smith, folk healer and mentor (protagonist in older prototype content) | `invented` | [Kalev](./kalev.md) |
 | Brother Tidemann | Infirmarian of St Catherine's; teaches the apprentice the Church's medicine | `invented` | [Brother Tidemann](./brother_tidemann.md) |
 | Mart | Apprentice; inciting incident and emotional stake | `invented` | [Mart](./mart.md) |

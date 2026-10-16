@@ -1,6 +1,6 @@
 extends "res://tests/godot/test_case.gd"
 
-## ADR 0033: the playable hero is the 15-year-old orphan apprentice on the
+## ADR 0033 (age amended by ADR 0058): the 18-year-old apprentice is the
 ## shared rig, and the player rig bootstrap spawns him instead of Kalev.
 
 const APPRENTICE := preload("res://assets/characters/variants/apprentice.tscn")
@@ -43,7 +43,10 @@ func test_is_smaller_than_the_master_smith() -> void:
 	var master := _body_height(kalev)
 	SharedCharacterRig._detach_render_geometry(kalev)
 	kalev.free()
-	assert_true(apprentice > 0.0 and apprentice < master * 0.95, "apprentice %.2f vs Kalev %.2f" % [apprentice, master])
+	assert_true(
+		apprentice > 0.0 and apprentice < master * 0.95,
+		"apprentice %.2f vs Kalev %.2f" % [apprentice, master]
+	)
 
 
 func test_named_outfits_cover_the_prologue_and_the_forge() -> void:

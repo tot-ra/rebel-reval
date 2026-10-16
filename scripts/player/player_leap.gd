@@ -20,7 +20,7 @@ const CROUCH_SEC := 0.18
 const LOWER_SEC := 0.75
 const REFUSE_SEC := 0.7
 const APPROACH_SPEED := 2.6
-## The hero: a 15-year-old on the shared rig.
+## The hero: an 18-year-old apprentice on the shared rig.
 const BODY_KIND := &"biped"
 const BODY_MASS := 58.0
 const BODY_LEG := 0.86

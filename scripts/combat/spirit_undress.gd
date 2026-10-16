@@ -9,8 +9,8 @@ extends RefCounted
 ## the same skeleton. Undressing hides the baked body and every mounted garment and mounts that
 ## twin; restoring unmounts it and shows exactly what was visible before.
 ##
-## Minors are never undressed: child bodies have no nude layer and are refused by name, and the
-## apprentice is the player. Heroes (Tier 1) have no nude layer yet and stay dressed.
+## Minor body variants are refused by name. The 18-year-old apprentice is also explicitly
+## protected as the player character; heroes (Tier 1) have no nude layer and stay dressed.
 
 const NUDE_PATH := "res://assets/characters/realistic/%s/layers/nude.glb"
 const NUDE_ID := &"spirit_nude"
@@ -36,7 +36,7 @@ static func nude_scene(rig: SharedCharacterRig) -> PackedScene:
 	return _scenes[path]
 
 
-## Minors and the apprentice are never undressed, by any system (spirit sight, clothing strip).
+## Minor body variants and the player character remain protected by every undress system.
 static func is_protected(rig: SharedCharacterRig) -> bool:
 	if rig.name == &"PlayerRig" or rig.variant_id() == HERO_ID:
 		return true

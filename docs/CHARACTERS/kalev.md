@@ -5,7 +5,7 @@
 
 > **ADR 0052:** most of Kalev's work is everyday iron (nails, hinges, tools, horseshoes), and the Lower Town also comes to him to pull teeth, set bones and speak the *origin of iron* charm over iron wounds. That is how he meets the apprentice: the almshouse sends for him when a watchman is carried in with a spearhead in his side, and the mark on it is his own. Iron at thresholds and forged amulets against spirits are his folk craft (`folklore`; Kalev as healer is `plausible composite`).
 
-> **Planned change (ADR 0033):** the player character becomes a 15-year-old orphan taken in as the forge's new apprentice. Kalev stays the adult smith, with his model, portrait, forge, and ledger, but becomes a mentor NPC. The profile below describes him as the protagonist until the new hero is implemented. Until then, the playable prototype still controls Kalev.
+> **Planned change (ADR 0033):** the player character becomes an 18-year-old orphan taken in as the forge's new apprentice (age amended by ADR 0058). Kalev stays the adult smith, with his model, portrait, forge, and ledger, but becomes a mentor NPC. The profile below describes him as the protagonist until the new hero is implemented. Until then, the playable prototype still controls Kalev.
 
 <!-- character-images -->
 ![Kalev, concept plate](./img/concept/kalev.jpg)
