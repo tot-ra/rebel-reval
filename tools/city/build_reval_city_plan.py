@@ -1150,6 +1150,12 @@ def build(args) -> dict:
         if ter.get("over_houses"):
             ring = [site_to_world(site, q) for q in ter["polygon"]]
             flatten_ground(height_wu, ring, so["level"], 1.2, x0, y0, mpu, apron=0.4)
+    # A side door whose ground a neighbour's plot cut away (the Holy Spirit
+    # almshouse door: the terrace stands ~1.8 m above the house plot next to
+    # it) gets a graded approach from its sill down to the open ground.
+    for site, so in zip(sites, site_out):
+        for appr in site["terrace"].get("approaches", []):
+            grade_approach(site, appr, so["level"], height_wu, h_at_m, x0, y0, mpu)
     # Kalev's smithy: the enterable house nearest the authored spot, unless a
     # landmark site (site.kalev_smithy) already models it and replaced that house.
     ks = overlay.get("kalev_smithy")
@@ -1516,6 +1522,41 @@ def flatten_ground(height_wu, ring, level, blend, x0, y0, mpu, apron=1.0):
     w = np.where(inside, 1.0, 1.0 - t * t * (3.0 - 2.0 * t))
     block = height_wu[i0:i1 + 1, j0:j1 + 1]
     height_wu[i0:i1 + 1, j0:j1 + 1] = block * (1.0 - w) + level * w
+
+
+def grade_approach(site, appr, level, height_wu, h_at_m, x0, y0, mpu):
+    """Grade a straight path from a site door down to `appr["to"]` (site-local).
+
+    A flat landing at the terrace level runs `landing_m` out of the door, then
+    the path falls linearly to the ground already at `to`, so it meets it
+    without a step. Full strength across `width_m`, smoothstep back to the
+    existing ground over `blend_m` on either side; nothing behind the door."""
+    door = next(d for d in site["doors"] if d["id"] == appr["door"])
+    mid = ((door["a"][0] + door["b"][0]) * 0.5, (door["a"][1] + door["b"][1]) * 0.5)
+    a = site_to_world(site, mid)
+    b = site_to_world(site, appr["to"])
+    end_h = h_at_m(*b)
+    half_w = appr.get("width_m", 2.5) * 0.5
+    blend = appr.get("blend_m", 1.2)
+    landing = appr.get("landing_m", 1.2)
+    length = math.dist(a, b)
+    ux, uy = (b[0] - a[0]) / length, (b[1] - a[1]) / length
+    cell = HEIGHT_CELL_WU * mpu
+    ny, nx = height_wu.shape
+    m = half_w + blend
+    j0 = max(0, int((min(a[0], b[0]) - m - x0) / cell))
+    j1 = min(nx - 1, int((max(a[0], b[0]) + m - x0) / cell) + 1)
+    i0 = max(0, int((min(a[1], b[1]) - m - y0) / cell))
+    i1 = min(ny - 1, int((max(a[1], b[1]) + m - y0) / cell) + 1)
+    X, Y = np.meshgrid(x0 + np.arange(j0, j1 + 1) * cell, y0 + np.arange(i0, i1 + 1) * cell)
+    along = (X - a[0]) * ux + (Y - a[1]) * uy
+    across = np.abs((X - a[0]) * uy - (Y - a[1]) * ux)
+    t = np.clip((along - landing) / (length - landing), 0.0, 1.0)
+    path_h = level + (end_h - level) * t
+    w = 1.0 - smoothstep01(across, half_w, half_w + blend)
+    w = np.where((along >= 0.0) & (along <= length), w, 0.0)
+    block = height_wu[i0:i1 + 1, j0:j1 + 1]
+    height_wu[i0:i1 + 1, j0:j1 + 1] = block * (1.0 - w) + path_h * w
 
 
 def terrace_site(site, height_wu, h_at_m, x0, y0, mpu):

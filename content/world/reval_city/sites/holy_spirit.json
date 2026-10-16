@@ -50,7 +50,18 @@
       "door": "door.holy_spirit.north",
       "outside_m": 2.0
     },
-    "blend_m": 5.0
+    "blend_m": 5.0,
+    "approaches": [
+      {
+        "door": "door.holy_spirit.almshouse",
+        "to": [
+          55.0,
+          12.0
+        ],
+        "width_m": 2.6,
+        "note": "the log house plot east of the almshouse is cut ~1.8 m below the terrace; grade a path from the yard door south-east to the open ground"
+      }
+    ]
   },
   "reserve": [],
   "visual": {
@@ -2096,6 +2107,21 @@
     }
   ],
   "review_shots": [
+    {
+      "id": "almshouse_yard_path",
+      "eye": [
+        60.0,
+        3.0,
+        16.0
+      ],
+      "look": [
+        49.0,
+        -0.4,
+        5.2
+      ],
+      "fov": 60,
+      "note": "graded path from the almshouse yard door down to the open ground (terrace.approaches)"
+    },
     {
       "id": "photo_north",
       "eye": [
