@@ -66,5 +66,6 @@ Review plates (`tools/godot_render.sh --script tools/capture_motion_style.gd -- 
 - Flocks (flipbook birds) keep their species profile; perched birds do not exist in the city.
 - Hen and goose wings: the network asks for wings out on ice and tight when cold, but in the review plate the storybook hen's `Wing.L/R` rotation does not visibly change the wing; the bone axes of those rigs need checking. Fluff (a slight swelling of the body) does show.
 - The teacher model's constants are order-of-magnitude values; acceptance is visual.
+- The hero's `wet` and `core_cold` also come from the gameplay meters of [`HERO_EXPOSURE.md`](HERO_EXPOSURE.md) (ADR 0061); the agent keeps the larger of those and its own physiology.
 - The same channels decide jumps: [`LEAPING.md`](LEAPING.md) (ADR 0053).
 - Research context and the earlier hard-coded experiments: [`MUSCLE_LOCOMOTION.md`](MUSCLE_LOCOMOTION.md); licence survey of existing solutions: [`procedural_motion_existing_solutions.md`](../reports/procedural_motion_existing_solutions.md).

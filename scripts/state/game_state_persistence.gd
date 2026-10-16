@@ -50,6 +50,8 @@ static func save_payload(state: GameState) -> Dictionary:
 			"max_health": state.player.max_health,
 			"stamina": state.player.stamina,
 			"max_stamina": state.player.max_stamina,
+			"wetness": state.player.wetness,
+			"body_heat": state.player.body_heat,
 			"location_id": String(state.player.location_id),
 			"spawn_id": String(state.player.spawn_id),
 		},
@@ -142,6 +144,9 @@ static func load_payload(state: GameState, payload: Dictionary) -> Array[String]
 		state.player.max_health = float(player_dict.get("max_health", state.player.max_health))
 		state.player.stamina = float(player_dict.get("stamina", state.player.stamina))
 		state.player.max_stamina = float(player_dict.get("max_stamina", state.player.max_stamina))
+		# ADR 0061: saves from before the cold mechanic load dry and warm.
+		state.player.wetness = clampf(float(player_dict.get("wetness", 0.0)), 0.0, 1.0)
+		state.player.body_heat = clampf(float(player_dict.get("body_heat", 1.0)), 0.0, 1.0)
 		state.player.location_id = StringName(
 			String(player_dict.get("location_id", state.player.location_id))
 		)
