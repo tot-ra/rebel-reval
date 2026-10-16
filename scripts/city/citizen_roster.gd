@@ -17,6 +17,16 @@ const LANE_WIDTH := 0.22
 const DEFAULT_FACING := Vector2(0.0, 1.0)
 ## Patrols walk their route back and forth at this speed (m/s), tools/city/gate_garrisons.py.
 const PATROL_SPEED := 0.9
+## The clock runs one game minute per real second (DayNightCycle), so the census
+## walking speed (1.0-1.45 m/s, in game seconds) read as 60-87 m/s on screen -
+## citizens outran the hero (run 5.6 m/s) many times over. WALK_PACE slows legs
+## to about 7-10 m/s on screen (hero walk 3.1, run 5.6; slower breaks
+## the timetable); a leg whose gap to the
+## next departure is too short is squeezed to TRAVEL_SHARE of it, the only
+## time they hurry. Patrols have no deadline and walk at a real walking pace.
+const WALK_PACE := 0.12
+const TRAVEL_SHARE := 0.5
+const PATROL_PACE := 0.03
 
 ## Fixed status line per place_label_key() while staying there.
 const _STAY_LABELS := {
@@ -274,13 +284,15 @@ func resolve(index: int, hour: float) -> Dictionary:
 		same["arrived"] = hour - depart
 		return same
 	var route := _route(from_place, to_place)
-	var travelled := (hour - depart) * 3600.0 * float(r["walk"])
-	if travelled >= float(route["length"]):
-		var waited := (travelled - float(route["length"])) / (3600.0 * float(r["walk"]))
+	var length := float(route["length"])
+	var duration := _travel_hours(r, entries, leg, length)
+	if hour - depart >= duration:
+		var waited := hour - depart - duration
 		var done := _hold(r, dest_key, waited)
 		done["from"] = from_key
 		done["arrived"] = waited
 		return done
+	var travelled := (hour - depart) / duration * length
 	var spot := _along(route["points"], travelled)
 	var lane := Vector2(-spot[1].y, spot[1].x) * (float(_slot(r) % 7) - 3.0) * LANE_WIDTH
 	return {
@@ -294,6 +306,17 @@ func resolve(index: int, hour: float) -> Dictionary:
 	}
 
 
+## Game hours leg `leg` takes over `length` m: a slow on-screen pace, but done
+## within TRAVEL_SHARE of the gap to the next departure (so nobody pops to the
+## next leg mid-street) and never quicker than the census walking speed.
+func _travel_hours(r: Dictionary, entries: Array, leg: int, length: float) -> float:
+	var walk := float(r["walk"]) * 3600.0
+	var gap := float(entries[(leg + 1) % entries.size()][0]) - float(entries[leg][0])
+	if gap <= 0.0:
+		gap += 24.0
+	return maxf(minf(length / (walk * WALK_PACE), gap * TRAVEL_SHARE), length / walk)
+
+
 ## Hour at which leg `leg` of `entries` reaches its destination.
 func _leg_end(r: Dictionary, entries: Array, leg: int) -> float:
 	var depart := float(entries[leg][0])
@@ -304,7 +327,7 @@ func _leg_end(r: Dictionary, entries: Array, leg: int) -> float:
 	var b := _place_of(r, _effective(r, String(entries[leg][1])))
 	if a == b:
 		return depart
-	return depart + float(_route(a, b)["length"]) / (3600.0 * float(r["walk"]))
+	return depart + _travel_hours(r, entries, leg, float(_route(a, b)["length"]))
 
 
 ## The timetable a resident keeps on the current `weekday` (Saturday and Sunday variants).
@@ -421,7 +444,7 @@ func _patrol(r: Dictionary, waited: float) -> Dictionary:
 	var route: Dictionary = patrols[int(r["duty"]["route"])]
 	var points: PackedVector2Array = route["points"]
 	var length: float = route["length"]
-	var travelled := waited * 3600.0 * PATROL_SPEED + float(r["duty"].get("offset", 0.0))
+	var travelled := waited * 3600.0 * PATROL_SPEED * PATROL_PACE + float(r["duty"].get("offset", 0.0))
 	var phase := fposmod(travelled, 2.0 * length)
 	var forward := phase <= length
 	var spot := _along(points, phase if forward else 2.0 * length - phase)
