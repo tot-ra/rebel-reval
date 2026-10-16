@@ -257,18 +257,15 @@ static func _add_malt_sack_pile(root: Node3D) -> void:
 
 
 static func _add_brewery_keg_stack(root: Node3D) -> void:
+	# WHY: the old plain cylinders with one band read as tubs next to the coopered
+	# barrels used everywhere else. Reuse the shared barrel mesh; the top barrel
+	# stands on the chime rims of the two below (spaced just over a bilge apart).
 	for spec in [
-		{"name": "KegLow", "pos": Vector3(-0.28, 0.0, 0.1), "yaw": -0.08},
-		{"name": "KegMid", "pos": Vector3(0.3, 0.0, -0.14), "yaw": 0.14},
-		{"name": "KegTop", "pos": Vector3(0.02, 0.72, 0.0), "yaw": 0.04},
+		{"name": "KegLow", "pos": Vector3(-0.33, 0.0, 0.08), "yaw": 0.6},
+		{"name": "KegMid", "pos": Vector3(0.33, 0.0, -0.06), "yaw": 2.1},
+		{"name": "KegTop", "pos": Vector3(0.0, MapViewBarrelMeshes.HEIGHT, 0.01), "yaw": 4.0},
 	]:
-		var keg := Node3D.new()
-		keg.name = spec["name"]
-		keg.position = spec["pos"]
-		keg.rotation.y = spec["yaw"]
-		root.add_child(keg)
-		_Primitives.cylinder(keg, "Body", 0.28, 0.68, Vector3(0.0, 0.34, 0.0), &"wood")
-		_Primitives.cylinder(keg, "Band", 0.3, 0.05, Vector3(0.0, 0.42, 0.0), &"metal")
+		MapViewBarrelMeshes.add_barrel(root, spec["name"], spec["pos"], spec["yaw"])
 
 
 static func _add_charcoal_storage(root: Node3D, prop: Dictionary) -> void:

@@ -178,7 +178,7 @@ Save/load: the catalog is static content and adds no saved state. A bag or world
 | `obj.set_smithy_household_clutter` | Smithy household clutter | composite | fixed | 12 |  |  | `props/domestic/household/smithy_household_clutter_kit.glb` › states | usable |
 | `obj.barrel_oak` | Oak barrel | container | heavy | 38 | push, pull, open, break |  | procedural (`barrels`) | usable |
 | `obj.basket_wicker` | Wicker basket | container | carry_one_hand | 1.2 | take, open |  | `props/furniture/household_kit/household_furniture_kit.glb` › Basket | usable |
-| `obj.brewery_keg` | Small keg | container | carry_two_hands | 12 | take, push, open |  | procedural (`brewery_keg_stack`) | usable |
+| `obj.brewery_keg` | Small keg | container | carry_two_hands | 12 | take, push, open |  | procedural (`brewery_keg_stack`, shared coopered barrel mesh) | usable |
 | `obj.cargo_crate` | Cargo crate | container | carry_two_hands | 14 | take, push, open, throw |  | procedural (`cargo_crates`) | usable |
 | `obj.chest_burgher` | Burgher chest | container | heavy | 38 | push, pull, open |  | `props/furniture/chest_burgher_household/chest_burgher_household.glb` | usable |
 | `obj.chest_merchant_strongbox` | Merchant strongbox | container | heavy | 85 | push, pull, open |  | `props/furniture/chest_merchant_strongbox/chest_merchant_strongbox.glb` | usable |
