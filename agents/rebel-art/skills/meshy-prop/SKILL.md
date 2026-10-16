@@ -27,7 +27,7 @@ Meshy output: one mesh, about 1.9 units on its longest axis, centred, 2048 px ba
 
 ## 4. Normalize in Blender
 
-Write a manifest like [`tools/assets/meshy_prop/beds.json`](../../../tools/assets/meshy_prop/beds.json) (id, Leonardo generation, Meshy task, raw SHA-256, prompt, `yaw`, `size` [x length, y height, z depth] in metres, `tris`). Then:
+Write a manifest like [`tools/assets/meshy_prop/beds.json`](../../../../tools/assets/meshy_prop/beds.json) (id, Leonardo generation, Meshy task, raw SHA-256, prompt, `yaw`, `size` [x length, y height, z depth] in metres, `tris`). Then:
 
 ```bash
 B=/Applications/Blender.app/Contents/MacOS/Blender
@@ -51,7 +51,7 @@ Conventions the runtime expects: long side along X, the usable front (the side p
 
 - Per-tier pools in `HouseholdLayout` (`HEAD_BEDS`, `OTHER_BEDS`, `BED_FALLBACK`); `bed_piece(building_id, household, rank)` picks by a hash of the house, never by the furnishing RNG, so adding a model does not move other houses' furniture choices.
 - `HouseholdLayout.wear_of` / `tone_of` give each house a wear (0 kept, 1 used, 2 worn; odds by tier in `WEAR_ODDS`) and a wood tone; `CityInteriors._instance(object, state, wear, tone)` darkens the albedo and multiplies a seamless grime noise through the material's detail layer. One material copy per combination is shared by all houses.
-- Docs: [`docs/SYSTEMS/HOUSEHOLDS.md`](../../../docs/SYSTEMS/HOUSEHOLDS.md).
+- Docs: [`docs/SYSTEMS/HOUSEHOLDS.md`](../../../../docs/SYSTEMS/HOUSEHOLDS.md).
 
 ## 7. Verify
 
