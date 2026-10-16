@@ -278,6 +278,8 @@ The season only picks which model a candidate becomes; it never changes random d
 
 **Blueprint maps (R-1559).** `plant.plantain`, `plant.dandelion`, `plant.clover` and `plant.burdock` zones scatter the same models with no distance fade, using a fixed high-summer mix (`MapViewPlantSpecies.forb_kind_for`). Before and after: [dandelion](../reports/images/vegetation/blueprint_forbs_dandelion_after.png), [burdock](../reports/images/vegetation/blueprint_forbs_burdock_after.png).
 
+**Plant material response (R-2131).** `scripts/map/view3d/plant_common.gdshaderinc` is the shared low-plant look: backlit transmission that grows toward a low sun (`cloud_sun_dir`), rain wetness (darker, sheen), dew/frost speckle and snow dusting on top-facing surfaces only, autumn yellowing then browning with per-instance age variation (world-position hash) and a per-group `autumn_offset`, and a dry-summer straw tint. State is two shader globals (`plant_weather_g`: wet, frost, snow, drought; `plant_season_g`: autumn) written only by `PlantMaterial` from `CityWorld3D`, so no samplers or instance uniforms are added (R-1690). `city_forb.gdshader` includes it; grass and crop shaders can adopt it by including the file. Trees (R-1211) and ground tint (R-1192) are separate. Before/after plates in rain, frost, snow and low sun are still owed.
+
 ## Placement and ecology
 
 Realism comes more from where things grow than from how each plant is drawn.

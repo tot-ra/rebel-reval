@@ -215,6 +215,7 @@ func apply_season(date: Dictionary) -> void:
 	var sea_ice := SeasonState.ice_cover_for(SeasonState.ICE_SEA, date)
 	MapViewMaterials.apply_sea_ice(sea_ice, ice_snow)
 	MoatPlants.apply_season(moat_plants, doy)
+	PlantMaterial.set_season(date)
 	# Fresh-coloured fallen leaves in autumn, brown later, hidden under snow.
 	CityVegetationBuilder.apply_litter_season(date, ice_snow)
 	var ground := CityTerrainBuilder.shared_material()
@@ -316,6 +317,19 @@ func apply_time(progress: float) -> void:
 			trail.wetness = clamp(
 				presentation.rain_intensity * 0.6 + presentation.puddle_wetness * 0.4, 0.0, 1.0
 			)
+	# R-2131: low plants share the rain/frost/snow/drought state.
+	var plant_date: Dictionary = sky_weather.calendar_date if sky_weather != null else {}
+	if not plant_date.is_empty():
+		var ice_weather := SeasonState.ice_weather(
+			plant_date, progress, presentation.cloud_coverage
+		)
+		var air_c := float(ice_weather["air_c"])
+		PlantMaterial.set_weather(
+			clampf(presentation.rain_intensity * 0.8 + presentation.puddle_wetness * 0.3, 0.0, 1.0),
+			1.0 - smoothstep(-1.5, 1.0, air_c),
+			snow_cover,
+			presentation.ground_dryness * (1.0 - presentation.rain_intensity)
+		)
 	# Walls and roofs darken in the rain too.
 	CityBuildingBuilder.set_wetness(
 		clamp(presentation.rain_intensity * 0.8 + presentation.puddle_wetness * 0.3, 0.0, 1.0)

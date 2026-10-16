@@ -8,6 +8,7 @@ render_mode cull_disabled, depth_draw_opaque;
 // (tools/assets/generate_forb_leaf_atlas.py; neutral tile on stems and heads).
 
 #include "res://scripts/map/view3d/wind_field.gdshaderinc"
+#include "res://scripts/map/view3d/plant_common.gdshaderinc"
 
 // Veins, clover chevrons and mottling as a multiplier stored at half scale
 // (0.5 = x1), so vertex colours keep the tone and the atlas adds the detail.
@@ -48,11 +49,16 @@ void fragment() {
 		// Pale whatever the upper side: hairs and wax scatter light on their own.
 		albedo = mix(albedo, underside_tint * (0.42 + luma * 1.2), v_under);
 	}
+	// R-2131: the world position seeds age variation; the normal's up component
+	// is the top-facing mask for frost and snow.
+	vec3 world_pos = (INV_VIEW_MATRIX * vec4(VERTEX, 1.0)).xyz;
+	float snow_up = clamp((INV_VIEW_MATRIX * vec4(NORMAL, 0.0)).y, 0.0, 1.0);
+	albedo = plant_albedo(albedo, world_pos.xz, snow_up);
 	ALBEDO = albedo;
 	// Lean toward the sky so a leaf seen edge-on or from below never turns black.
 	NORMAL = normalize(mix(NORMAL, (VIEW_MATRIX * vec4(0.0, 1.0, 0.0, 0.0)).xyz, 0.3));
-	BACKLIGHT = albedo * COLOR.a;
+	BACKLIGHT = plant_backlight(albedo, COLOR.a, plant_autumn(world_pos.xz));
 	// Low specular: at grazing angles a glossier leaf mirrors the blue sky.
-	ROUGHNESS = 0.8;
-	SPECULAR = 0.14;
+	ROUGHNESS = plant_roughness(0.8);
+	SPECULAR = plant_specular(0.14);
 }

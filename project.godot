@@ -256,6 +256,14 @@ cloud_shadow_strength={
 "type": "float",
 "value": 0.55
 }
+plant_weather_g={
+"type": "vec4",
+"value": Vector4(0, 0, 0, 0)
+}
+plant_season_g={
+"type": "vec4",
+"value": Vector4(0, 0, 0, 0)
+}
 moss_season_g={
 "type": "vec4",
 "value": Vector4(1, 1, 1, 0)
