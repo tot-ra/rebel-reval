@@ -36,7 +36,7 @@ func test_every_adult_body_has_a_nude_twin() -> void:
 
 func test_adult_is_shown_nude_and_dressed_again() -> void:
 	var rig := _rig("citizen_m_adult_average")
-	rig.equip_garment(&"wear_hood", load("res://assets/characters/realistic/citizen_m_adult_average/layers/hood.glb"))
+	rig.equip_garment(&"wear_hood", load(CitizenWardrobe.layer_path("citizen_m_adult_average", "hood")))
 	var dressed := _visible_meshes(rig)
 	assert_true(dressed.has("Anatomy_CrowdBody"), "baked body is drawn before sight")
 	SpiritUndress.undress(rig)

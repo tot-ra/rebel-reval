@@ -12,6 +12,9 @@ Pure data, importable without Blender. The key set is mirrored by
 `tests/python/test_citizen_bodies.py`.
 """
 
+import json
+from pathlib import Path
+
 # MakeHuman macro age: 0 -> 1 y, 0.1875 -> 11 y, 0.5 -> 25 y, 1.0 -> 90 y.
 _AGE_KNOTS = [(1, 0.0), (11, 0.1875), (25, 0.5), (90, 1.0)]
 
@@ -86,7 +89,8 @@ def outfit_of(body):
 
 
 # Layers fitted to each body and exported apart from it (build_human.py writes
-# assets/characters/realistic/<body>/layers/<layer>.glb); the census wardrobe
+# assets/characters/realistic/shapes/<layer_body>/layers/<layer>.glb, see
+# layer_body); the census wardrobe
 # rules in tools/city/build_citizen_runtime.py pick which ones a resident wears
 # (docs/SYSTEMS/CITIZEN_WARDROBE.md). Order matters: aprons and accessories fit
 # over the baked base, the armour kit stacks aketon -> mail -> mail coif -> surcoat.
@@ -122,6 +126,46 @@ def layers_of(sex, stage, outfit="a"):
 
 def body_id(sex, stage, build, outfit="a"):
     return f"citizen_{sex}_{stage}_{build}" + ("" if outfit == "a" else f"_{outfit}")
+
+
+# Variants of one body shape (sex, stage, build) share one MPFB body, so a layer that
+# does not sit over the baked outfit comes out identical for all of them. The fit table
+# maps shape -> layer -> outfit -> the outfit whose build ships the file (R-2212); the
+# runtime (CitizenWardrobe.layer_body) reads the same file. It is measured from the
+# built GLBs by `share_layers.py --measure` (outfits merge where their vertex
+# positions are equal).
+LAYER_FIT_PATH = Path(__file__).resolve().parents[3] / "assets/characters/realistic/layer_fit.json"
+SHAPES_DIR = "shapes"
+_fit = {}
+
+
+def layer_fit():
+    if not _fit:
+        _fit.update(json.loads(LAYER_FIT_PATH.read_text()))
+    return _fit
+
+
+def layer_body(sex, stage, build, outfit, layer):
+    """Body whose build writes `layer` for this body: the layer's folder under shapes/.
+
+    A layer missing from the fit table stays with its own body."""
+    shape = layer_fit().get(f"{sex}_{stage}_{build}", {})
+    return body_id(sex, stage, build, shape.get(layer, {}).get(outfit, outfit))
+
+
+def parse_body(body):
+    """`citizen_f_adult_thin_c` -> (sex, stage, build, outfit), or None for other bodies."""
+    parts = body.split("_")
+    if parts[0] != "citizen" or len(parts) not in (4, 5):
+        return None
+    return parts[1], parts[2], parts[3], parts[4] if len(parts) == 5 else "a"
+
+
+def layer_path(body, layer):
+    """Repo-relative path of the GLB that body wears for `layer`."""
+    parsed = parse_body(body)
+    owner = layer_body(*parsed, layer) if parsed else body
+    return f"assets/characters/realistic/{SHAPES_DIR}/{owner}/layers/{layer}.glb"
 
 
 def reference_height_m(sex, stage):

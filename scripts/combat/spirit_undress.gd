@@ -5,14 +5,13 @@ extends RefCounted
 ##
 ## A crowd body bakes its outfit into one mesh with no skin under it, so stripping cloth at
 ## runtime shows a hole. Each adult citizen body therefore ships a build-time nude twin,
-## assets/characters/realistic/<body>/layers/nude.glb (build_human.py --nude-only), skinned to
+## assets/characters/realistic/shapes/<layer_body>/layers/nude.glb (CitizenWardrobe.layer_path), skinned to
 ## the same skeleton. Undressing hides the baked body and every mounted garment and mounts that
 ## twin; restoring unmounts it and shows exactly what was visible before.
 ##
 ## Minor body variants are refused by name. The 18-year-old apprentice is also explicitly
 ## protected as the player character; heroes (Tier 1) have no nude layer and stay dressed.
 
-const NUDE_PATH := "res://assets/characters/realistic/%s/layers/nude.glb"
 const NUDE_ID := &"spirit_nude"
 const GARMENT_PREFIX := "Garment_"
 const MINOR_MARKERS: Array[String] = ["child", "apprentice", "boy", "girl"]
@@ -30,7 +29,7 @@ static func nude_scene(rig: SharedCharacterRig) -> PackedScene:
 	var body := rig.body_basename()
 	if body.is_empty():
 		return null
-	var path := NUDE_PATH % body
+	var path := CitizenWardrobe.layer_path(body, "nude")
 	if not _scenes.has(path):
 		_scenes[path] = load(path) if ResourceLoader.exists(path) else null
 	return _scenes[path]

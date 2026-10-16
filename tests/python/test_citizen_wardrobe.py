@@ -13,6 +13,7 @@ sys.path.insert(0, str(ROOT / "tools/assets/realistic_humans"))
 import build_citizen_runtime as runtime  # noqa: E402
 import citizen_bodies  # noqa: E402
 import citizen_wardrobe as wd  # noqa: E402
+import share_layers  # noqa: E402
 
 CITIZENS = ROOT / "content/world/reval_city/citizens.json"
 ARMOUR = wd.ARMOUR | wd.KNIGHT_ONLY
@@ -284,6 +285,33 @@ class ArmourRange(unittest.TestCase):
                     self.assertNotIn(layer, citizen_bodies.LAYERS[(key, stage)])
 
 
+class SharedLayers(unittest.TestCase):
+    """Each fitted layer is shipped once per body shape (task R-2212)."""
+
+    def test_layout_follows_the_fit_table_without_duplicate_geometry(self):
+        self.assertEqual(share_layers.check(), 0)
+
+    def test_every_shared_file_has_a_building_body(self):
+        """The body named by layer_body must itself carry the layer, or no build writes the file."""
+        for sex in ("m", "f"):
+            for stage, builds in citizen_bodies.STAGE_BUILDS.items():
+                for build in builds:
+                    for outfit in citizen_bodies.outfits_of(sex, stage):
+                        for layer in citizen_bodies.layers_of(sex, stage, outfit):
+                            owner = citizen_bodies.layer_body(sex, stage, build, outfit, layer)
+                            sex_, stage_, build_, outfit_ = citizen_bodies.parse_body(owner)
+                            self.assertEqual((sex_, stage_, build_), (sex, stage, build), owner)
+                            self.assertIn(layer, citizen_bodies.layers_of(sex, stage, outfit_), owner)
+
+    def test_variants_resolve_to_their_shape(self):
+        self.assertEqual(citizen_bodies.layer_path("citizen_f_adult_thin_c", "headscarf"),
+                         "assets/characters/realistic/shapes/citizen_f_adult_thin/layers/headscarf.glb")
+        self.assertEqual(citizen_bodies.layer_path("citizen_m_adult_sturdy_b", "surcoat"),
+                         "assets/characters/realistic/shapes/citizen_m_adult_sturdy_b/layers/surcoat.glb")
+        self.assertEqual(citizen_bodies.layer_path("kalev", "hood"),
+                         "assets/characters/realistic/shapes/kalev/layers/hood.glb")
+
+
 class RuntimeData(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -293,7 +321,7 @@ class RuntimeData(unittest.TestCase):
         missing = set()
         for r in self.residents:
             for layer in map(wd.layer_of, r["wear"]):
-                path = ROOT / f"assets/characters/realistic/{r['body']}/layers/{layer}.glb"
+                path = ROOT / citizen_bodies.layer_path(r["body"], layer)
                 if not path.is_file():
                     missing.add(str(path.relative_to(ROOT)))
         self.assertEqual(sorted(missing), [])

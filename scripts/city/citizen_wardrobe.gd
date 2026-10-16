@@ -6,7 +6,7 @@ extends RefCounted
 ## wardrobe rules chose (`wear` in content/world/reval_city/citizens.json):
 ## hoods, coifs, veils, aprons, aketon, mail, surcoat, helmets, keys, beads,
 ## scrips and sacks. Each layer is a skinned GLB fitted to that very body
-## (assets/characters/realistic/<body>/layers/<layer>.glb), so it deforms with
+## (assets/characters/realistic/shapes/<layer_body>/layers/<layer>.glb), so it deforms with
 ## the rig like the baked clothes, and is dyed with the resident's `wear_dye`.
 ##
 ## Cloth grade and wear (task R-1667): every cloth surface, baked or layered, is
@@ -31,8 +31,13 @@ const BeltGear := preload("res://scripts/city/belt_gear.gd")
 const HOOD_DAGS := "_hood_dags"
 static var _hidden: ShaderMaterial
 
-const LAYER_PATH := "res://assets/characters/realistic/%s/layers/%s.glb"
-const LAYER_DIR := "res://assets/characters/realistic/%s/layers"
+## Fitted layers are shipped once per body shape (task R-2212): `layer_body` names the
+## folder under shapes/ that holds a body's layer, `layer_fit.json` (written by
+## tools/assets/realistic_humans/share_layers.py) says which outfits share a file.
+const SHAPE_LAYER_DIR := "res://assets/characters/realistic/shapes/%s/layers"
+## Pre-R-2212 layout, kept as a fallback for bodies that are not in the fit table.
+const BODY_LAYER_DIR := "res://assets/characters/realistic/%s/layers"
+const LAYER_FIT_PATH := "res://assets/characters/realistic/layer_fit.json"
 const GARMENT_PREFIX := "wear_"
 ## Layers whose cloth material is named after its textile, not the layer
 ## (garments.py reuses the hero builders: hood_wool, apron_leather, mail, iron).
@@ -142,6 +147,8 @@ const BODY_DYE_SLOT := {
 
 ## Layer path -> PackedScene, or null for a layer the body was not fitted with.
 static var _scenes: Dictionary = {}
+## layer_fit.json: shape -> layer -> outfit -> outfit whose build ships the file.
+static var _fit: Dictionary = {}
 ## Source garment material -> {grade: ShaderMaterial}, shared by all residents.
 static var _cloth: Dictionary = {}
 static var _shaders: Dictionary = {}
@@ -163,7 +170,7 @@ static func dress(rig: SharedCharacterRig, record: Dictionary) -> int:
 			worn += 1
 			continue
 		# The variant's own fitted layer when shipped, else the base layer (fallback).
-		var scene := EquipmentVariant.variant_scene(LAYER_DIR % body, layer, parts[1])
+		var scene := EquipmentVariant.variant_scene(layer_dir(body, layer), layer, parts[1])
 		if scene == null:
 			scene = layer_scene(body, layer)
 		if scene == null or not rig.equip_garment(garment_id, scene):
@@ -174,8 +181,36 @@ static func dress(rig: SharedCharacterRig, record: Dictionary) -> int:
 	return worn
 
 
+## Folder name under shapes/ that holds `layer` for `body` (`citizen_f_adult_thin_c` wears the
+## headscarf of `citizen_f_adult_thin`). Bodies outside the fit table keep their own name.
+static func layer_body(body: String, layer: String) -> String:
+	var parts := body.split("_")
+	if parts.size() < 4 or parts.size() > 5 or parts[0] != "citizen":
+		return body
+	if _fit.is_empty():
+		var file := FileAccess.open(LAYER_FIT_PATH, FileAccess.READ)
+		_fit = JSON.parse_string(file.get_as_text()) if file != null else {"": {}}
+	var outfit := parts[4] if parts.size() == 5 else "a"
+	var shape: Dictionary = _fit.get("_".join(parts.slice(1, 4)), {})
+	var canon: String = shape.get(layer, {}).get(outfit, outfit)
+	return "_".join(parts.slice(0, 4)) + ("" if canon == "a" else "_" + canon)
+
+
+## Folder of the GLBs of `layer` for `body`.
+static func layer_dir(body: String, layer: String) -> String:
+	return SHAPE_LAYER_DIR % layer_body(body, layer)
+
+
+## Path of the layer GLB; the pre-shapes per-body path when the shared file is absent.
+static func layer_path(body: String, layer: String) -> String:
+	var path := "%s/%s.glb" % [layer_dir(body, layer), layer]
+	if ResourceLoader.exists(path):
+		return path
+	return "%s/%s.glb" % [BODY_LAYER_DIR % body, layer]
+
+
 static func layer_scene(body: String, layer: String) -> PackedScene:
-	var path := LAYER_PATH % [body, layer]
+	var path := layer_path(body, layer)
 	if not _scenes.has(path):
 		_scenes[path] = load(path) if ResourceLoader.exists(path) else null
 		if _scenes[path] == null:

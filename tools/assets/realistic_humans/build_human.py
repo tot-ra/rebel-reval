@@ -40,6 +40,7 @@ ROOT = HERE.parents[2]
 sys.path.insert(0, str(HERE))
 import numpy as np  # noqa: E402
 import specs as spec_module  # noqa: E402
+import citizen_bodies  # noqa: E402
 import surfaces  # noqa: E402
 import garments  # noqa: E402
 import run_cycle  # noqa: E402
@@ -707,10 +708,20 @@ LAYER_TRIANGLES.update({"satchel": 1700, "back_sack": 1100})
 
 def export_crowd_layers(spec, motion, wardrobe, out, only=None):
     """Tier 2 layers: each garment of spec["layers"] joined into one skinned mesh,
-    decimated to its budget and written to <out>/layers/<garment>.glb."""
+    decimated to its budget and written to shapes/<layer_body>/layers/<garment>.glb.
+
+    Variants of one body shape share a layer unless it sits over the baked outfit
+    (citizen_bodies.layer_body), so each file is written by one body's build only."""
+    citizen = spec.get("citizen")
     for garment in spec.get("layers", []):
         if only and garment not in only:
             continue  # --only refits just these layers (keeps the other shipped GLBs byte-identical)
+        owner = out.name
+        if citizen:
+            owner = citizen_bodies.layer_body(citizen["sex"], citizen["stage"], citizen["build"],
+                                              citizen["outfit"], garment)
+            if owner != out.name:
+                continue  # a sibling outfit of the same shape builds this file
         objects = [o for o in wardrobe[garment][2] if o.type == "MESH"]
         bpy.ops.object.select_all(action="DESELECT")
         for o in objects:
@@ -726,7 +737,8 @@ def export_crowd_layers(spec, motion, wardrobe, out, only=None):
             decimate(obj, budget / tris)
         bind(obj, motion)
         obj["garment"] = garment
-        path = out / "layers" / f"{garment}.glb"
+        shared_dir = OUT_ROOT / citizen_bodies.SHAPES_DIR / owner / "layers"
+        path = (shared_dir if citizen else out / "layers") / f"{garment}.glb"
         export_glb(path, [motion, obj], animations=False)
         finish_glb(path, out)
         log(f"layer {garment}: {sum(len(p.vertices) - 2 for p in obj.data.polygons)} triangles")

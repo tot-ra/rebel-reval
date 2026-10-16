@@ -1,0 +1,707 @@
+{
+ "f_adult_average": {
+  "barbette": {
+   "a": "a",
+   "b": "a",
+   "c": "a"
+  },
+  "braids": {
+   "a": "a",
+   "b": "a",
+   "c": "a",
+   "d": "a"
+  },
+  "head_cloth": {
+   "d": "d"
+  },
+  "headscarf": {
+   "a": "a",
+   "b": "a",
+   "c": "a",
+   "d": "a"
+  },
+  "keys": {
+   "a": "a",
+   "b": "a",
+   "c": "a",
+   "d": "a"
+  },
+  "nude": {
+   "a": "a",
+   "b": "a",
+   "c": "a",
+   "d": "a"
+  },
+  "paternoster": {
+   "a": "a",
+   "b": "b",
+   "c": "c",
+   "d": "d"
+  },
+  "satchel": {
+   "a": "a",
+   "b": "b",
+   "d": "d"
+  },
+  "veil_over": {
+   "a": "a",
+   "b": "b",
+   "c": "c"
+  },
+  "waist_apron": {
+   "a": "a",
+   "d": "d"
+  },
+  "wimple": {
+   "a": "a",
+   "b": "b",
+   "c": "b"
+  }
+ },
+ "f_adult_heavy": {
+  "barbette": {
+   "a": "a",
+   "b": "a",
+   "c": "a"
+  },
+  "braids": {
+   "a": "a",
+   "b": "a",
+   "c": "a",
+   "d": "a"
+  },
+  "head_cloth": {
+   "d": "d"
+  },
+  "headscarf": {
+   "a": "a",
+   "b": "a",
+   "c": "a",
+   "d": "a"
+  },
+  "keys": {
+   "a": "a",
+   "b": "a",
+   "c": "a",
+   "d": "a"
+  },
+  "nude": {
+   "a": "a",
+   "b": "a",
+   "c": "a",
+   "d": "a"
+  },
+  "paternoster": {
+   "a": "a",
+   "b": "b",
+   "c": "c",
+   "d": "d"
+  },
+  "satchel": {
+   "a": "a",
+   "b": "b",
+   "d": "d"
+  },
+  "veil_over": {
+   "a": "a",
+   "b": "a",
+   "c": "c"
+  },
+  "waist_apron": {
+   "a": "a",
+   "d": "d"
+  },
+  "wimple": {
+   "a": "a",
+   "b": "a",
+   "c": "a"
+  }
+ },
+ "f_adult_sturdy": {
+  "barbette": {
+   "a": "a",
+   "b": "a",
+   "c": "a"
+  },
+  "braids": {
+   "a": "a",
+   "b": "a",
+   "c": "a",
+   "d": "a"
+  },
+  "head_cloth": {
+   "d": "d"
+  },
+  "headscarf": {
+   "a": "a",
+   "b": "a",
+   "c": "a",
+   "d": "a"
+  },
+  "keys": {
+   "a": "a",
+   "b": "b",
+   "c": "c",
+   "d": "c"
+  },
+  "nude": {
+   "a": "a",
+   "b": "a",
+   "c": "a",
+   "d": "a"
+  },
+  "paternoster": {
+   "a": "a",
+   "b": "b",
+   "c": "c",
+   "d": "d"
+  },
+  "satchel": {
+   "a": "a",
+   "b": "b",
+   "d": "d"
+  },
+  "veil_over": {
+   "a": "a",
+   "b": "a",
+   "c": "c"
+  },
+  "waist_apron": {
+   "a": "a",
+   "d": "d"
+  },
+  "wimple": {
+   "a": "a",
+   "b": "a",
+   "c": "a"
+  }
+ },
+ "f_adult_thin": {
+  "barbette": {
+   "a": "a",
+   "b": "a",
+   "c": "a"
+  },
+  "braids": {
+   "a": "a",
+   "b": "a",
+   "c": "a",
+   "d": "a"
+  },
+  "head_cloth": {
+   "d": "d"
+  },
+  "headscarf": {
+   "a": "a",
+   "b": "a",
+   "c": "a",
+   "d": "a"
+  },
+  "keys": {
+   "a": "a",
+   "b": "b",
+   "c": "c",
+   "d": "c"
+  },
+  "nude": {
+   "a": "a",
+   "b": "a",
+   "c": "a",
+   "d": "a"
+  },
+  "paternoster": {
+   "a": "a",
+   "b": "b",
+   "c": "c",
+   "d": "d"
+  },
+  "satchel": {
+   "a": "a",
+   "b": "b",
+   "d": "d"
+  },
+  "veil_over": {
+   "a": "a",
+   "b": "a",
+   "c": "c"
+  },
+  "waist_apron": {
+   "a": "a",
+   "d": "d"
+  },
+  "wimple": {
+   "a": "a",
+   "b": "a",
+   "c": "a"
+  }
+ },
+ "f_elder_heavy": {
+  "barbette": {
+   "a": "a"
+  },
+  "headscarf": {
+   "a": "a"
+  },
+  "keys": {
+   "a": "a"
+  },
+  "nude": {
+   "a": "a"
+  },
+  "paternoster": {
+   "a": "a"
+  },
+  "veil_over": {
+   "a": "a"
+  },
+  "wimple": {
+   "a": "a"
+  }
+ },
+ "f_elder_thin": {
+  "barbette": {
+   "a": "a"
+  },
+  "headscarf": {
+   "a": "a"
+  },
+  "keys": {
+   "a": "a"
+  },
+  "nude": {
+   "a": "a"
+  },
+  "paternoster": {
+   "a": "a"
+  },
+  "veil_over": {
+   "a": "a"
+  },
+  "wimple": {
+   "a": "a"
+  }
+ },
+ "m_adult_average": {
+  "aventail": {
+   "a": "a",
+   "b": "a"
+  },
+  "back_sack": {
+   "a": "a",
+   "b": "a"
+  },
+  "bascinet": {
+   "a": "a",
+   "b": "a"
+  },
+  "coat_of_plates": {
+   "a": "a",
+   "b": "a"
+  },
+  "coif": {
+   "a": "a",
+   "b": "a"
+  },
+  "gambeson": {
+   "a": "a",
+   "b": "a"
+  },
+  "gauntlets": {
+   "a": "a",
+   "b": "a"
+  },
+  "great_helm": {
+   "a": "a",
+   "b": "a"
+  },
+  "hood": {
+   "a": "a",
+   "b": "a"
+  },
+  "kettle_hat": {
+   "a": "a",
+   "b": "a"
+  },
+  "keys": {
+   "a": "a",
+   "b": "a"
+  },
+  "mail_chausses": {
+   "a": "a",
+   "b": "a"
+  },
+  "mail_coif": {
+   "a": "a",
+   "b": "a"
+  },
+  "mail_haubergeon": {
+   "a": "a",
+   "b": "a"
+  },
+  "nude": {
+   "a": "a",
+   "b": "a"
+  },
+  "order_mantle": {
+   "a": "a",
+   "b": "b"
+  },
+  "paternoster": {
+   "a": "a",
+   "b": "b"
+  },
+  "satchel": {
+   "a": "a",
+   "b": "b"
+  },
+  "smith_apron": {
+   "a": "a",
+   "b": "b"
+  },
+  "surcoat": {
+   "a": "a",
+   "b": "b"
+  },
+  "waist_apron": {
+   "a": "a",
+   "b": "b"
+  },
+  "wool_cap": {
+   "a": "a",
+   "b": "a"
+  }
+ },
+ "m_adult_heavy": {
+  "aventail": {
+   "a": "a",
+   "b": "a"
+  },
+  "back_sack": {
+   "a": "a",
+   "b": "a"
+  },
+  "bascinet": {
+   "a": "a",
+   "b": "a"
+  },
+  "coat_of_plates": {
+   "a": "a",
+   "b": "a"
+  },
+  "coif": {
+   "a": "a",
+   "b": "a"
+  },
+  "gambeson": {
+   "a": "a",
+   "b": "a"
+  },
+  "gauntlets": {
+   "a": "a",
+   "b": "a"
+  },
+  "great_helm": {
+   "a": "a",
+   "b": "a"
+  },
+  "hood": {
+   "a": "a",
+   "b": "b"
+  },
+  "kettle_hat": {
+   "a": "a",
+   "b": "a"
+  },
+  "keys": {
+   "a": "a",
+   "b": "a"
+  },
+  "mail_chausses": {
+   "a": "a",
+   "b": "a"
+  },
+  "mail_coif": {
+   "a": "a",
+   "b": "a"
+  },
+  "mail_haubergeon": {
+   "a": "a",
+   "b": "a"
+  },
+  "nude": {
+   "a": "a",
+   "b": "a"
+  },
+  "order_mantle": {
+   "a": "a",
+   "b": "b"
+  },
+  "paternoster": {
+   "a": "a",
+   "b": "b"
+  },
+  "satchel": {
+   "a": "a",
+   "b": "b"
+  },
+  "smith_apron": {
+   "a": "a",
+   "b": "b"
+  },
+  "surcoat": {
+   "a": "a",
+   "b": "b"
+  },
+  "waist_apron": {
+   "a": "a",
+   "b": "b"
+  },
+  "wool_cap": {
+   "a": "a",
+   "b": "a"
+  }
+ },
+ "m_adult_sturdy": {
+  "aventail": {
+   "a": "a",
+   "b": "a"
+  },
+  "back_sack": {
+   "a": "a",
+   "b": "a"
+  },
+  "bascinet": {
+   "a": "a",
+   "b": "a"
+  },
+  "coat_of_plates": {
+   "a": "a",
+   "b": "a"
+  },
+  "coif": {
+   "a": "a",
+   "b": "a"
+  },
+  "gambeson": {
+   "a": "a",
+   "b": "a"
+  },
+  "gauntlets": {
+   "a": "a",
+   "b": "a"
+  },
+  "great_helm": {
+   "a": "a",
+   "b": "a"
+  },
+  "hood": {
+   "a": "a",
+   "b": "b"
+  },
+  "kettle_hat": {
+   "a": "a",
+   "b": "a"
+  },
+  "keys": {
+   "a": "a",
+   "b": "a"
+  },
+  "mail_chausses": {
+   "a": "a",
+   "b": "a"
+  },
+  "mail_coif": {
+   "a": "a",
+   "b": "a"
+  },
+  "mail_haubergeon": {
+   "a": "a",
+   "b": "a"
+  },
+  "nude": {
+   "a": "a",
+   "b": "a"
+  },
+  "order_mantle": {
+   "a": "a",
+   "b": "b"
+  },
+  "paternoster": {
+   "a": "a",
+   "b": "b"
+  },
+  "satchel": {
+   "a": "a",
+   "b": "b"
+  },
+  "smith_apron": {
+   "a": "a",
+   "b": "b"
+  },
+  "surcoat": {
+   "a": "a",
+   "b": "b"
+  },
+  "waist_apron": {
+   "a": "a",
+   "b": "b"
+  },
+  "wool_cap": {
+   "a": "a",
+   "b": "a"
+  }
+ },
+ "m_adult_thin": {
+  "aventail": {
+   "a": "a",
+   "b": "a"
+  },
+  "back_sack": {
+   "a": "a",
+   "b": "a"
+  },
+  "bascinet": {
+   "a": "a",
+   "b": "a"
+  },
+  "coat_of_plates": {
+   "a": "a",
+   "b": "a"
+  },
+  "coif": {
+   "a": "a",
+   "b": "a"
+  },
+  "gambeson": {
+   "a": "a",
+   "b": "a"
+  },
+  "gauntlets": {
+   "a": "a",
+   "b": "a"
+  },
+  "great_helm": {
+   "a": "a",
+   "b": "a"
+  },
+  "hood": {
+   "a": "a",
+   "b": "b"
+  },
+  "kettle_hat": {
+   "a": "a",
+   "b": "a"
+  },
+  "keys": {
+   "a": "a",
+   "b": "a"
+  },
+  "mail_chausses": {
+   "a": "a",
+   "b": "a"
+  },
+  "mail_coif": {
+   "a": "a",
+   "b": "a"
+  },
+  "mail_haubergeon": {
+   "a": "a",
+   "b": "a"
+  },
+  "nude": {
+   "a": "a",
+   "b": "a"
+  },
+  "order_mantle": {
+   "a": "a",
+   "b": "b"
+  },
+  "paternoster": {
+   "a": "a",
+   "b": "b"
+  },
+  "satchel": {
+   "a": "a",
+   "b": "b"
+  },
+  "smith_apron": {
+   "a": "a",
+   "b": "b"
+  },
+  "surcoat": {
+   "a": "a",
+   "b": "b"
+  },
+  "waist_apron": {
+   "a": "a",
+   "b": "b"
+  },
+  "wool_cap": {
+   "a": "a",
+   "b": "a"
+  }
+ },
+ "m_child_average": {
+  "coif": {
+   "a": "a"
+  },
+  "hood": {
+   "a": "a"
+  },
+  "wool_cap": {
+   "a": "a"
+  }
+ },
+ "m_elder_heavy": {
+  "coif": {
+   "a": "a"
+  },
+  "hood": {
+   "a": "a"
+  },
+  "keys": {
+   "a": "a"
+  },
+  "nude": {
+   "a": "a"
+  },
+  "paternoster": {
+   "a": "a"
+  },
+  "satchel": {
+   "a": "a"
+  },
+  "waist_apron": {
+   "a": "a"
+  },
+  "wool_cap": {
+   "a": "a"
+  }
+ },
+ "m_elder_thin": {
+  "coif": {
+   "a": "a"
+  },
+  "hood": {
+   "a": "a"
+  },
+  "keys": {
+   "a": "a"
+  },
+  "nude": {
+   "a": "a"
+  },
+  "paternoster": {
+   "a": "a"
+  },
+  "satchel": {
+   "a": "a"
+  },
+  "waist_apron": {
+   "a": "a"
+  },
+  "wool_cap": {
+   "a": "a"
+  }
+ }
+}

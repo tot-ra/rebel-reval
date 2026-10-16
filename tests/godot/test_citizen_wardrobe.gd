@@ -65,6 +65,25 @@ func test_dress_mounts_and_dyes_the_crown_kit() -> void:
 	rig.queue_free()
 
 
+## Fitted layers are shipped once per body shape (task R-2212).
+func test_outfit_variants_share_their_shape_layers() -> void:
+	assert_eq(
+		CitizenWardrobe.layer_path("citizen_f_adult_thin_c", "headscarf"),
+		"res://assets/characters/realistic/shapes/citizen_f_adult_thin/layers/headscarf.glb"
+	)
+	assert_eq(
+		CitizenWardrobe.layer_body("citizen_m_adult_sturdy_b", "surcoat"),
+		"citizen_m_adult_sturdy_b",
+		"a layer that sits over the baked tunic stays with its outfit"
+	)
+	assert_eq(CitizenWardrobe.layer_body("kalev", "hood"), "kalev", "other bodies keep their own folder")
+	assert_true(
+		CitizenWardrobe.layer_scene("citizen_m_adult_sturdy_b", "coif")
+		== CitizenWardrobe.layer_scene("citizen_m_adult_sturdy", "coif"),
+		"the two outfits load one scene"
+	)
+
+
 func test_missing_layer_is_skipped() -> void:
 	var rig := _rig("citizen_f_child_average")
 	var record := {"body": "citizen_f_child_average", "wear": ["bascinet"]}
@@ -81,7 +100,7 @@ func test_runtime_records_only_wear_fitted_layers() -> void:
 			var layer := entry.get_slice("@", 0)
 			worn += 1
 			assert_true(
-				ResourceLoader.exists(CitizenWardrobe.LAYER_PATH % [r["body"], layer]),
+				ResourceLoader.exists(CitizenWardrobe.layer_path(r["body"], layer)),
 				"%s wears %s" % [r["id"], layer]
 			)
 	assert_true(worn > 2000, "the crowd is dressed in layers, got %d" % worn)

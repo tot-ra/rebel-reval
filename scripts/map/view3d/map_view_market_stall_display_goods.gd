@@ -55,6 +55,8 @@ static func _add_fish(root: Node3D) -> void:
 		"TrayFront",
 		Vector3(0.72, 0.07, 0.035),
 		Vector3(0.0, 0.055, -0.19),
+		_material(&"tray_dark", Color8(70, 43, 29))
+	)
 	for spec in [
 		{"name": "HerringA", "position": Vector3(-0.09, 0.085, -0.105), "yaw": -0.08},
 		{"name": "HerringB", "position": Vector3(0.08, 0.09, 0.0), "yaw": 0.06},
@@ -68,7 +70,6 @@ static func _add_fish(root: Node3D) -> void:
 		fish.scale = Vector3.ONE * HERRING_DISPLAY_SCALE
 		fish.set_meta(&"display_fish_species", &"herring")
 		root.add_child(fish)
-			fin.rotation.y = side * 0.48
 
 
 static func _add_cloth(root: Node3D) -> void:
