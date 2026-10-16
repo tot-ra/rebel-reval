@@ -26,6 +26,7 @@ One page per implemented or planned feature. Each page opens with a `Status:` li
 | [World presentation (3D view)](./WORLD_PRESENTATION.md) | Implemented |
 | [Cloud cells, seasonal cumulus, shadows and storm lightning](./CLOUD_CELLS.md) | Implemented: discrete clouds and weather phenomena visual atlas with seasonal cumulus scaling |
 | [Weather on the ground: puddles, drought and cracked earth](./WEATHER_GROUND.md) | Implemented (R-1516): drought spells, sun-baked dryness, cracked clay in dried puddle basins, rain soaks cracks before puddles return; after-rain cobble puddles and wet paving (R-1748) |
+| [Animal dung: pats, droppings and manure heaps](./ANIMAL_DUNG.md) | Implemented (R-2077): cow pats on drove roads and pastures, horse dung on roads and tethers, pellets, pig and fowl droppings, manure heaps; ages and follows turn-out and snow |
 | [Night sky: stars and the Milky Way](./NIGHT_SKY.md) | Implemented (R-1443): round twinkling Hipparcos stars, Milky Way placed for Tallinn in 1343, seasonal sidereal drift |
 | [Night lighting and fire](./NIGHT_LIGHTING.md) | Slice implemented (R-2054, epic R-2053): no street lights; moon- and snow-driven night fill, lived-in windows glow on the household schedule, night watch horn lanterns; churches, venues, shutters, rural and gates planned |
 | [Seamless Reval city (1343)](./SEAMLESS_CITY.md) | Playable preview (ADR 0031); no quests or saves yet |

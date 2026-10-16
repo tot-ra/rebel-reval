@@ -77,6 +77,8 @@ func _ready() -> void:
 	if plan.feature_enabled("fauna"):
 		_fauna = CityFauna.create(plan, player)
 		world.add_child(_fauna)
+		# What the stock leaves on its roads, pastures and yards (R-2077).
+		world.add_child(CityDung.create(plan))
 		world.add_child(CityFish.create(plan, player))
 	runtime = CityRuntime.install(self, view, player)
 	interiors = CityInteriors.create(plan, CitizenRoster.load_for(plan), world.chimneys)

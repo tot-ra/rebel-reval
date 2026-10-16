@@ -14,10 +14,10 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `1308`
+- Active Markdown files scanned: `1309`
 - Markdown files excluded as archive/reference/out of active scope: `774`
-- Local/external links inspected: `15209`
-- Links to active Markdown docs: `13099`
+- Local/external links inspected: `15217`
+- Links to active Markdown docs: `13102`
 - Links to existing archive/reference/non-active local docs: `562`
 - External links skipped for reachability: `194`
 - Issues found: `0`
@@ -1187,6 +1187,7 @@ No active Markdown documentation issues found.
 - `docs/SKY_WEATHER_STATE_CONTRACT.md`
 - `docs/SOUND_EFFECTS_TOP_100.md`
 - `docs/STORAGE_SIZE_BACKLOG.md`
+- `docs/SYSTEMS/ANIMAL_DUNG.md`
 - `docs/SYSTEMS/AUDIO.md`
 - `docs/SYSTEMS/BESTIARY.md`
 - `docs/SYSTEMS/CHURCH_INTERIORS.md`

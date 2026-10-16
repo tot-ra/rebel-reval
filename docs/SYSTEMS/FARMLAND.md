@@ -84,6 +84,7 @@ Runtime entry points:
 
 - `CityFarmland` (`scripts/city/city_farmland.gd`, mounted by `CityWorld3D`, updated from `reval_city.gd`): streams up to one near feature (field, pasture, orchard fence or kitchen garden) per update within 95 m of Kalev (freed beyond 135 m). Crops are `MapViewPlantMeshes` MultiMeshes in rows; fences are `CityFences` meshes (one rod mesh per enclosure, MultiMesh stones for walls); ricks are `MapViewHayMeshes` (see Hay stacks). `set_calendar_date` rebuilds crops when the date changes.
 - `CityFauna.groups_for`: pasture and farmstead animal groups.
+- `CityDung` ([Animal dung](./ANIMAL_DUNG.md)): pats on the drove roads and pastures, manure heaps by byres, sheep sheds and sties.
 - `CityNpcs._stream_field_workers`: the farm hands (the shared `Walker`).
 - `CityVegetationBuilder`: `juniper_shrub` and `sea_buckthorn` now draw with the real-size leaf-card tree meshes (the shared block-shaped shrub meshes read as giant flat stalks beside a 1.83 m figure).
 
