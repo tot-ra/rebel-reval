@@ -251,6 +251,7 @@ Start with:
 - [R-997 interior wall plaster density: smithy evidence](r997_interior_wall_density.md)
 - [R-999: map-pipeline parity and routes](r999_map_pipeline_parity.md)
 - [Realistic human characters — Kalev first (ADR 0022), 2026-09-26](realistic_humans_2026-09-26.md)
+- [Rebel Art Producer Status Report - 2026-07-29](rebel_art_status_report_2026-07-29.md)
 - [Relief traversal (WB-03, R-975)](relief_traversal_2026-09-26.md)
 - [P0-142 renderer evaluation report](renderer_evaluation.md)
 - [Rentenitorn Interior Historical and Art Review](rentenitorn_interior_review.md)
