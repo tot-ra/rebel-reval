@@ -95,7 +95,8 @@ def _write_tree(root: Path) -> str:
         try:
             return run(["git", "write-tree"], cwd=root).stdout.decode("ascii").strip()
         except subprocess.CalledProcessError as error:
-            if b"index.lock" not in (error.stderr or b"") or attempt == 19:
+            # `git commit --only` locks "next-index-<pid>.lock", which does not contain "index.lock".
+            if b".lock" not in (error.stderr or b"") or attempt == 19:
                 raise
             time.sleep(0.1)
     raise RuntimeError("unreachable")

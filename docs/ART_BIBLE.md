@@ -328,6 +328,16 @@ All tiers share one skeleton and animation library. The tier determines the maxi
 
 Performance caps in `tools/character_fidelity_tiers.py` remain binding. High detail means intentional information at the correct tier, not exceeding those caps.
 
+## Burgher plot ladder (WB-13a / R-1411)
+
+Yard and plot wall readability follows a wealth ladder (`poor`, `craft`, `merchant`, `great`), age
+tiers (`new`, `settled`, `old`) and upkeep (`kept`, `worn`). Tiers change wall kind (wattle, plank,
+dry-stone or limestone), service range, yard surface and item set; frontage stays inside the 7-11 m
+H04 band. Full ladder, evidence classes and the reject list (no byre or hay barn, no timber pipes,
+no chimney pots) are in
+[`docs/tasks/world/WB-13_burgher_plot_prefab.md`](tasks/world/WB-13_burgher_plot_prefab.md); sources
+in [`docs/reports/reval_domestic_infrastructure_1343.md`](reports/reval_domestic_infrastructure_1343.md).
+
 ## Approval and migration
 
 The maintainer's saturated HDR-range fantasy/anime decision is accepted through ADR 0018. P0-038 and P0-040 still govern the final technical production freeze for renderer/camera/scale/performance values. Until that gate closes:

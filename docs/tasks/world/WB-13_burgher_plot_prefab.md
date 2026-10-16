@@ -1,5 +1,101 @@
 # WB-13: Burgher plot prefab family - front house, rear service range, yard, plot wall
 
+## Retarget (ADR 0031)
+
+Recorded by WB-13a (**R-1411**). This section is the contract for every later WB-13 subtask. The
+original text below is kept for history.
+
+Burgher plots are **plan records**, not a grid prefab. They live in
+`content/world/reval_city/plan.json`, are built by `tools/city/build_reval_city_plan.py`, and are
+rendered by the city scene (ADR 0031). The `lower_town_slice` grid is unreachable from the seamless
+city, so deliverable 1 below (`burgher_plot_package.gd`, blueprint registry, prefab expander,
+`tests/fixtures/maps/rrmap_burgher_plot_example.rrmap`) and its allowed files are **superseded**
+unless the maintainer reverses this decision. Deliverables 2-5 (deterministic IDs, tier-driven
+variation, new art only for yard objects, tests and docs) stay in force, retargeted to plan records.
+
+Subtasks (board refs in parentheses):
+
+| Sub | Ref | Scope |
+|---|---|---|
+| WB-13a | R-1411 | This contract and trace table (docs only) |
+| WB-13b | R-1412 | Predecessor of WB-13c named by its `Depends on`; not on the board under that ref at WB-13a time, resolve before WB-13c starts |
+| WB-13c | R-1413 | Strip plots behind street-fronting houses in the plan |
+| WB-13d | R-1414 | Plot wall runs, one gate per yard, wall kind by tier |
+| WB-13e | R-1415 | Rear service ranges in deep yards |
+| WB-13f | R-1416 | Yard infrastructure items from the WB-12 table |
+| WB-13g | R-1417 | Yard objects art batch 1: privy, plot gate, water butt |
+| WB-13h | R-1418 | Yard objects art batch 2: midden, garden bed, drying line, coop, sweep well |
+| WB-13i | R-1419 | Yard ground surfaces in the splat |
+| WB-13j | R-1420 | Runtime: plot walls and gates, collision, open gate gap |
+| WB-13k | R-1421 | Runtime: yard items and service ranges near the player |
+| WB-13l | R-1422 | Reachability and roof-clearance gate |
+| WB-13m | R-1423 | Performance cost of yards |
+| WB-13n | R-1424 | Capture tool and plates |
+| WB-13o | R-1425 | Independent verification and closeout of R-985 |
+
+### Evidence rule
+
+Every row below cites a section of `docs/reports/reval_domestic_infrastructure_1343.md` (the WB-12
+dossier, "dossier" below) and carries its evidence class: `A` attested, `B` bounded range inferred
+from attested observations, `C` later survival for general form only, `D` gameplay assignment
+inside A-C limits, `U` unknown. A number with no dossier citation is not allowed; where the dossier
+says unknown, the plan records no number. Tier-to-element assignments are class `D` and say so.
+
+### Trace table: plot element to dossier
+
+| Plot element | Dossier row | Class | Per-plot rule | Tiers |
+|---|---|---|---|---|
+| Plot strip (7-11 m frontage, up to 100 m deep) | Section 5 intro; `docs/HISTORICAL_AUDIT.md` H04 | A/B | Frontage inside 7-11 m; depth stops at the first of another plot, building, street corridor, curtain or 100 m | all |
+| Plot wall | Section 1 (gutters, yard fall) and Section 5; wall kinds are H04 plot walls | B (kind per tier is D) | One wall run closing the yard sides and rear; none across the street frontage | all; kind by tier |
+| Gate | Section 5 (gated yard); chicken-coop row "Rear yard, gated" | D | Exactly one gate per yard onto the street or a close, with an open gap | all |
+| Rear service range: store | Food: grain / beer store | A type, B contents | Only where the yard is deep enough after sheds | craft, merchant, great |
+| Rear service range: workshop | Food: commercial bakery, fuel: forge and charcoal crib (hot trades) | D | Fire-separated rear or side; only on a plot whose house trade needs it | craft, some merchant |
+| Rear service range: round-log auxiliary dwelling | H05 round-log evidence via Section 4 intro | A | Dirt floor, wattle; poorer tiers | poor, craft |
+| Rear service range: kitchen shed | Food: household hearth kitchen | A/B | Rear-yard kitchen shed as an alternative to the living-bay hearth | merchant, great |
+| Rear service range: byre or hay barn | Section 2 livestock, Section 5, reject list | reject | **None** on an inner-wall burgher plot | none |
+| Yard surface: packed earth | Section 4 "Where refuse sat" (P0-072 ground) | A/B | Default trodden earth | all |
+| Yard surface: wood chip | Section 4, H05 chip layers | A | Chip patches near the woodpile and workshop | craft, poor |
+| Yard surface: manure layer | Section 4, H05 manure layers | A (extent U) | Small patch by the midden only; never a whole-yard stain | all with a midden |
+| Firewood stack | Section 3 authoring table | A type, volume U | 1 on every plot with a dwelling hearth, clear of privy and well; no stack size from a foreign figure | all |
+| Privy shed over pit or barrel | Section 4 authoring table | B, lining U | 1 per burgess plot with a rear yard, downslope of the well; labourer plots may share | all except shared poor |
+| Midden / chip heap | Section 4 authoring table | A layers, size U | 1 small heap per rear yard, never at the forum or gate apron | all |
+| Well (private 0-1 or shared) | Section 1 authoring table | B, construction U | 0-1 private on plots with a rear yard; poor plots may share; sweep or windlass with timber collar, no later stone monument | craft, merchant, great private; poor shared |
+| Water butt | Section 1 authoring table (roof drain) | B, count U | 0-1 under a timber-roof eaves channel, against a rear or side wall | craft, merchant, great |
+| Kitchen-garden bed | Section 2 authoring table | A/B/U | 0-1 where open ground remains after sheds; district share stays inside the P0-072 3-10% band | all with spare ground |
+| Drying line | Section 2 authoring table | D | 0-1, rear yard only, never the frontage | poor, craft |
+| Chicken coop | Section 2 authoring table | B/U | 0-1 wattle or basket coop, gated yard, never a street flock | poor, craft |
+
+### Wealth and age tier ladder
+
+Wealth tiers match the census classes in `content/world/reval_city/citizens.json`: `poor`, `craft`
+(census `master`), `merchant`, `great`. Age tiers are `new`, `settled`, `old`. Upkeep is `kept` or
+`worn`. All assignments are class `D` inside the dossier limits. Frontage is always inside the H04
+7-11 m band (class `A/B`); the plan records no finer measured statistic.
+
+| Tier | Frontage band | Wall kind | Service range | Yard surface | Item set |
+|---|---|---|---|---|---|
+| poor | low end of 7-11 m | wattle | round-log auxiliary dwelling or none | trodden earth, chip | firewood, shared privy, shared well access, midden, drying line, coop |
+| craft | 7-11 m | wattle or plank | workshop or store | earth with chip | firewood, privy, 0-1 private well, midden, water butt, bed, line, coop |
+| merchant | upper half of 7-11 m | plank or dry-stone / limestone | store, kitchen shed | earth, swept near the house | firewood, privy, private well, midden, water butt, bed |
+| great | high end of 7-11 m | dry-stone or limestone | store, kitchen shed | earth, swept | as merchant; hypocaust is house form, owned by AR-01, not a yard item (Section 3, class C) |
+
+Age and upkeep modulate, never add elements: `new` has fresh timber and a clean yard, `settled` is
+the baseline, `old` shows weathering and a larger midden patch; `worn` upkeep adds gaps in the wall
+and a sparser bed, `kept` the reverse. Neither changes the element set above.
+
+### Yard reject list (copied from dossier Section 6)
+
+- No byre, hay barn or cattle herd on an inner-wall yard; larger animals stay on the P0-072 `low`
+  band, at most one tether or small pen where routes allow.
+- No timber water pipes (later Viru pipes are not medieval household plumbing).
+- No sewer grates and no citywide underground sewer.
+- No brick chimney pots.
+- No stone Tartu 1335 latrine dimensions copied as Reval measurements; privy lining stays unknown.
+- No night soil in the street gutter; no named municipal dung-cart roster.
+- No drinking from harbour, ditch or moat water.
+
+---
+
 Board row: **R-985**. Priority: high. Depends on: **R-984**, **R-981**.
 
 ## Player-facing goal
