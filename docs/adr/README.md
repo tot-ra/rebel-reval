@@ -61,5 +61,6 @@ Numbered decisions (Status / Context / Decision / Alternatives / Consequences). 
 - [ADR 0057: Lightning strikes as a gameplay hazard](0057-lightning-strikes-gameplay-hazard.md)
 - [ADR 0058: The Apprentice is 18](0058-protagonist-age-18.md)
 - [ADR 0060: Content maturity policy: rating target, violence, adult sexuality and nudity, sexual violence, evidence](0060-content-maturity-policy.md)
+- [ADR 0061: Cold and wetness exposure for the hero](0061-hero-cold-and-wetness-exposure.md)
 
 <!-- docs-index:end -->

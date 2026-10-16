@@ -20,6 +20,7 @@ const GraphicsPresetsScript := preload("res://scripts/settings/graphics_presets.
 const CitySeatsScript := preload("res://scripts/world/city_seats.gd")
 const SeatPromptScript := preload("res://scripts/world/seat_prompt.gd")
 const LightningHazardScript := preload("res://scripts/world/lightning_hazard.gd")
+const HeroExposureHazardScript := preload("res://scripts/world/hero_exposure_hazard.gd")
 const PerfProbeScript := preload("res://scripts/debug/perf_probe.gd")
 const DEFAULT_SPAWN := "poi.forum"
 ## On-foot speeds in city units/s (about 1 m each), converted to logic px. The old
@@ -132,6 +133,8 @@ func _ready() -> void:
 			plan, player, world, _npcs.citizens if _npcs != null else null
 		)
 	)
+	# ADR 0061: rain and water soak Kalev, cold air chills him, rooms and fires warm him.
+	add_child(HeroExposureHazardScript.create(plan, player, world))
 	minimap = CityMinimap.create(plan)
 	add_child(minimap)
 	_face_door_on_arrival(arrival)

@@ -509,6 +509,12 @@ func _apply_states_for(index: int) -> void:
 		if state.get("hearth") != fire:
 			state["hearth"] = fire
 			changed = true
+			# ADR 0061: a lit hearth warms and dries the hero; banked embers do not.
+			var holder: Node3D = home["hearth"]
+			if fire == &"lit":
+				holder.add_to_group(&"heat_source")
+			elif holder.is_in_group(&"heat_source"):
+				holder.remove_from_group(&"heat_source")
 			_clear(home["hearth"])
 			# A smoke dwelling's heap oven is masonry in the walls: fire only (R-1929).
 			var hearth_item: Dictionary = lay.items[lay.hearth]

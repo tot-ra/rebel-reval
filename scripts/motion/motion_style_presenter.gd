@@ -13,6 +13,7 @@ const MotionEnvironment := preload("res://scripts/motion/motion_environment.gd")
 const HumanModifier := preload("res://scripts/characters/motion_style_modifier.gd")
 const AnimalModifier := preload("res://scripts/characters/animal_style_modifier.gd")
 const LeapModifier := preload("res://scripts/characters/leap_pose_modifier.gd")
+const HeroExposure := preload("res://scripts/player/hero_exposure.gd")
 
 const AGENT_META := &"motion_style_agent"
 const MODIFIER_META := &"motion_style_modifier"
@@ -75,6 +76,18 @@ static func vitals_conditions(node: Object) -> Array:
 	var s: Variant = source.get(&"stamina")
 	if max_s != null and s != null and float(max_s) > 0.0:
 		out["fatigue"] = clampf(1.0 - float(s) / float(max_s), 0.0, 1.0)
+	# ADR 0061 (R-2185): the hero's gameplay wetness and cold (PlayerState via HeroExposure). The
+	# agent keeps the larger of these and its own physiology. Stepped to 0.05 so the conditions
+	# memo (keyed by the condition list) is not flooded by a slowly drifting value. Duck-typed on
+	# Player.take_cold: naming the Player class here compiles player.gd before the autoloads exist.
+	if node.has_method(&"take_cold"):
+		var session := (Engine.get_main_loop() as SceneTree).root.get_node_or_null("SessionState")
+		if session != null and session.state != null:
+			var exposure := HeroExposure.motion_channels(session.state.player)
+			for k: String in exposure:
+				var v := snappedf(clampf(float(exposure[k]), 0.0, 1.0), 0.05)
+				if v > 0.0:
+					out[k] = v
 	return [out] if not out.is_empty() else []
 
 

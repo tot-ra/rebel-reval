@@ -21,6 +21,8 @@ const PlayerSeatScript := preload("res://scripts/player/player_seat.gd")
 const DEATH_SCREEN_PATH := "res://scenes/death/death_screen.tscn"
 ## Fatal-hit type the death screen shows the lightning illustration for (ADR 0057).
 const DAMAGE_TYPE_LIGHTNING := &"lightning"
+## Fatal-hit type of freezing to death (ADR 0061); the death screen falls back to neutral art.
+const DAMAGE_TYPE_COLD := &"cold"
 const STAMINA_DRAIN_RATE := 10.0  # per second
 const DODGE_STAMINA_COST := 18.0
 const DODGE_DISTANCE_PX := 80.0
@@ -53,6 +55,8 @@ var time_flow_scale := 1.0
 ## Situation channels of the hero's motion-style agent (ice, wounds, wet, load ...) for the jump
 ## (ADR 0053), fed by the view.
 var leap_channels: Dictionary = {}
+## ADR 0061: walk speed share left by the cold (HeroExposureHazard sets it; 1 = warm).
+var cold_speed_multiplier := 1.0
 
 var health: float = 100.0
 var max_health: float = 100.0
@@ -921,16 +925,27 @@ func apply_hit_stun() -> void:
 ## stops it (CombatVitals.resolve_unavoidable); a direct stroke passes more than
 ## any health and kills, ground current hurts and stuns.
 func take_lightning(amount: float) -> float:
+	return _take_unavoidable(amount, DAMAGE_TYPE_LIGHTNING, true)
+
+
+## ADR 0061 (R-2183): freezing. Unavoidable like lightning, but no hit stun, so a
+## freezing hero can still walk to a fire.
+func take_cold(amount: float) -> float:
+	return _take_unavoidable(amount, DAMAGE_TYPE_COLD, false)
+
+
+func _take_unavoidable(amount: float, damage_type: StringName, stun: bool) -> float:
 	_sync_vitals_from_fields()
 	var result := combat_vitals.resolve_unavoidable(amount)
 	_last_hit_result = result
 	if result.died and has_node("/root/SessionState"):
-		SessionState.set_fatal_hit_damage_type(DAMAGE_TYPE_LIGHTNING)
+		SessionState.set_fatal_hit_damage_type(damage_type)
 	_sync_fields_from_vitals()
 	_sync_resource_bars()
 	if result.health_damage > 0.0:
 		health_changed.emit(health, max_health)
-		apply_hit_stun()
+		if stun:
+			apply_hit_stun()
 	return result.health_damage
 
 
@@ -1312,10 +1327,12 @@ func _movement_blocked() -> bool:
 	return commission != null and commission.is_open()
 
 
+## What the body carries and bears: the bag's load and, since ADR 0061, stiff cold legs. Both
+## apply on land and in water alike, so they share this one factor.
 func _get_encumbrance_speed_multiplier() -> float:
 	if not has_node("/root/SessionState"):
-		return 1.0
-	return SessionState.state.bag.get_speed_multiplier()
+		return cold_speed_multiplier
+	return SessionState.state.bag.get_speed_multiplier() * cold_speed_multiplier
 
 
 func _get_terrain_speed_multiplier() -> float:

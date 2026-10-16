@@ -17,6 +17,8 @@ const DayNightCycle := preload("res://scripts/global/day_night_cycle.gd")
 const FIRE_COLOR := Color8(255, 170, 106)
 const DAY_ENERGY := 0.95
 const NIGHT_ENERGY := 2.8
+## ADR 0061: lit fires the hero warms and dries at (HeroExposureHazard reads heat_position()).
+const HEAT_GROUP := &"heat_source"
 
 var _light: OmniLight3D
 var _flames: Node3D
@@ -37,6 +39,15 @@ func configure(
 	_flames = flames
 	_sparks = sparks
 	_smoke = smoke
+	# The forge burns day and night, so it is always a heat source.
+	add_to_group(HEAT_GROUP)
+
+
+## World position of the fire's heat (the forge mouth, where its light sits).
+func heat_position() -> Vector3:
+	if _light != null and _light.is_inside_tree():
+		return _light.global_position
+	return Vector3.INF
 
 
 func _process(delta: float) -> void:
