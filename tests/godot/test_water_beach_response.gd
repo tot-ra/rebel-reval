@@ -4,6 +4,7 @@ extends "res://tests/godot/test_case.gd"
 ## glistens behind the swash and dries; shingle drains the backwash film and its
 ## foam; wet pebbles sheen, dry pebbles above the berm stay matte.
 
+const MOBILE_GROUND_SAMPLER_BUDGET := 20
 const SWASH_INCLUDE := "res://scripts/map/view3d/shore_swash.gdshaderinc"
 const GROUND_SHADER := "res://scripts/city/city_ground.gdshader"
 const WATER_SHADER := "res://scripts/map/view3d/map_view_water.gdshader"
@@ -75,20 +76,35 @@ func test_ground_mirrors_every_shore_uniform_the_include_declares() -> void:
 
 
 func test_ground_stays_inside_its_texture_unit_budget() -> void:
-	# Godot binds a texture unit to every declared sampler; one past 13 made GL
-	# Compatibility drop the whole city ground draw on macOS without an error.
+	# Godot binds a texture unit to every declared sampler. One past 13 made GL
+	# Compatibility drop the whole city ground draw on macOS without an error, but
+	# ADR 0043 moved the game to Mobile (Metal) and dropped the 16-sampler
+	# workarounds. The ground draws there with 20 (snow depth, roof shelter and the
+	# four winter-ice maps, Oct 2026). Metal offers 31 per-stage texture slots and
+	# Mobile binds its own scene textures beside the material, so raising the
+	# budget needs a fresh Mobile capture proving the ground still draws.
+	# Includes are followed from the shader itself: a hand-kept list once missed
+	# ice_surface.gdshaderinc and under-counted by four.
 	var pattern := RegEx.create_from_string("(?m)^uniform\\s+sampler")
+	var include := RegEx.create_from_string('(?m)^#include\\s+"([^"]+)"')
 	var count := 0
-	var sources := [
-		GROUND_SHADER,
-		SWASH_INCLUDE,
-		"res://scripts/city/city_grass_ground.gdshaderinc",
-		"res://scripts/map/view3d/water_capillary.gdshaderinc",
-		"res://scripts/map/view3d/fieldstone_paving.gdshaderinc",
-	]
-	for path: String in sources:
-		count += pattern.search_all(FileAccess.get_file_as_string(path)).size()
-	assert_true(count <= 13, "city ground declares %d samplers (max 13)" % count)
+	var pending: Array[String] = [GROUND_SHADER]
+	var seen: Array[String] = []
+	while not pending.is_empty():
+		var path: String = pending.pop_back()
+		if seen.has(path):
+			continue
+		seen.append(path)
+		var source := FileAccess.get_file_as_string(path)
+		assert_false(source.is_empty(), "%s readable" % path)
+		count += pattern.search_all(source).size()
+		for found: RegExMatch in include.search_all(source):
+			pending.append(found.get_string(1))
+	assert_true(seen.has(SWASH_INCLUDE), "the ground still includes the swash")
+	assert_true(
+		count <= MOBILE_GROUND_SAMPLER_BUDGET,
+		"city ground declares %d samplers (max %d)" % [count, MOBILE_GROUND_SAMPLER_BUDGET]
+	)
 	var ground := FileAccess.get_file_as_string(GROUND_SHADER)
 	assert_false(
 		ground.contains("uniform sampler2D rock_normal"), "rock_normal unit went to shore_field"

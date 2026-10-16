@@ -73,7 +73,7 @@ Status: partial (ADR 0045). Snow on the ground and ice on the moat, stream and l
 
 | Ground state | When | Look | Status |
 |---|---|---|---|
-| Cold soil | Mean temperature below 9 C (`SkyWeather3D.ground_warmth()`, smoothstep 1..9 C) | Sun-baking scales with warmth and soil re-dampens by `COLD_DAMP_PER_SECOND * (1 - warmth)`; below about 5 C no drought starts, at 1 C or below the sun no longer dries soil at all, so winter never shows cracked crust. Puddles evaporate at down to 15% speed (`COLD_PUDDLE_DRY_SHARE`) and linger. | implemented |
+| Cold soil | Mean temperature below 9 C (`SkyWeather3D.ground_warmth()`, smoothstep 1..9 C) | Sun-baking scales with warmth; near freezing (warmth under `COLD_DAMP_WARMTH`, about 3 C) soil re-dampens at up to `COLD_DAMP_PER_SECOND`, so cool spring sun still dusts bare soil; below about 5 C no drought starts, at 1 C or below the sun no longer dries soil at all, so winter never shows cracked crust. Puddles evaporate at down to 15% speed (`COLD_PUDDLE_DRY_SHARE`) and linger. | implemented |
 | Snowfall | Rain weather while the date's `snow_share` is 0.5 or more (about November to early April) | Snow emitter replaces rain streaks. Only the liquid share wets soil or fills puddles (`_advance_ground_water`), so snowfall leaves dryness and puddles alone. | implemented |
 | Settled snow | Date's snow cover (`SeasonState.snapshot`), not the live snowfall | `city_ground.gdshader` lifts the ground by the baked `CitySnow` depth: drifts, bare paving and roofs, deeper in woods. Snow is thinned over puddle basins (`1 - 0.9 * puddle`) and rock. Walking leaves trenches and prints, footsteps crunch. | implemented |
 | Ice on moat, stream, lakes | `SeasonState.ice_cover_target(ICE_FRESH)` | Shallows freeze first, then open water; running water later; waves die out; snow and cracks on the ice. | implemented |
@@ -107,6 +107,6 @@ Plates: `tools/godot_render.sh --script tools/capture_snow_prints.gd -- --date=1
 - Cobble puddles (R-1748) reflect only the sky, not buildings or people, and the paving basins are noise, not real street drainage (gutters, kennels).
 
 - Weather "stay" outcomes in `_pick_next_weather` do not reset the state timer (pre-existing), so a stay re-rolls every frame until the sky changes. The drought roll is tied to real weather changes to stay independent of that.
-- Drought odds follow the calendar only through cold soil (`ground_warmth`): no drought below about 5 C mean, otherwise the same odds in every warm month. No test covers the cold-soil rules yet.
+- Drought odds follow the calendar only through cold soil (`ground_warmth`): no drought below about 5 C mean, otherwise the same odds in every warm month. `tests/godot/test_ground_drought.gd` covers spring dusting and frozen-ground re-damping; the drought tests run in midsummer because the default campaign date (21 April) is too cool for a drought.
 - Puddles do not freeze and there is no sea ice (see **Snow and ice**). Settled snow follows the date's cover curve, not the snow that actually fell, so a snowfall does not deepen it.
 - District-map crust exists only where a puddle decal was scattered (`PUDDLE_CHANCE`); there is no dusty-soil tint on district terrain below the crack threshold.

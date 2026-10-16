@@ -9,9 +9,18 @@ const SkyWeatherState := preload("res://scripts/map/view3d/sky_weather_state.gd"
 # gdlint: disable=max-line-length
 
 
-func _manual_sky() -> Node:
+## Drought spells only happen on warm soil (ADR 0045 ground_warmth), and the
+## default campaign date (21 April) is too cold for one, so the drought mechanics
+## below run in midsummer. The cold-soil tests set their own dates.
+const MIDSUMMER := {"day": 15, "month": 7, "year": 1343}
+const SPRING := {"day": 21, "month": 4, "year": 1343}
+const DEEP_WINTER := {"day": 30, "month": 1, "year": 1343}
+
+
+func _manual_sky(date: Dictionary = MIDSUMMER) -> Node:
 	var sky = SkyWeather.new()
 	sky.auto_weather = false
+	sky.set_calendar_date(date)
 	return sky
 
 
@@ -24,6 +33,30 @@ func test_fair_spell_dusts_ground_but_never_cracks_it() -> void:
 		sky.ground_dryness() <= SkyWeather.DRYNESS_FAIR_CAP + 0.0001,
 		"without a drought dryness stays under the crack threshold"
 	)
+	sky.free()
+
+
+func test_spring_sun_still_dusts_cool_ground() -> void:
+	var sky = _manual_sky(SPRING)
+	assert_true(sky.ground_warmth() > 0.0 and sky.ground_warmth() < 0.5, "April soil is cool, not frozen")
+	sky.set_weather(SkyWeather.WEATHER_CLOUDLESS)
+	sky.advance(2000.0)
+	assert_true(sky.ground_dryness() > 0.1, "cool spring sun must still dry bare soil")
+	sky.free()
+
+
+func test_frozen_ground_redampens_and_never_starts_a_drought() -> void:
+	var sky = _manual_sky()
+	sky.set_weather(SkyWeather.WEATHER_CLOUDLESS)
+	sky.advance(2000.0)
+	assert_true(sky.ground_dryness() > 0.3, "summer sun parches the ground first")
+	sky.set_calendar_date(DEEP_WINTER)
+	assert_eq(sky.ground_warmth(), 0.0, "late January soil is frozen")
+	for step in 80:
+		sky.set_weather(SkyWeather.WEATHER_CLOUDY if step % 2 == 0 else SkyWeather.WEATHER_CLOUDLESS)
+		assert_false(sky.drought_active(), "no drought starts on frozen ground")
+	sky.advance(100.0)
+	assert_eq(sky.ground_dryness(), 0.0, "frozen soil takes up damp instead of staying baked")
 	sky.free()
 
 

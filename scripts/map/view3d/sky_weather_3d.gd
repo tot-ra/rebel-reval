@@ -437,9 +437,13 @@ const PUDDLE_DRY_PER_SECOND := 0.004
 const DRYNESS_GAIN_PER_SECOND := 0.0025
 const DRYNESS_DROUGHT_GAIN := 2.5
 const DRYNESS_FAIR_CAP := 0.4
-## ADR 0045: cold ground does not bake or crack. Below freezing the soil takes up
+## ADR 0045: cold ground does not bake or crack. Near freezing the soil takes up
 ## damp again (dryness falls this much per weather second) and puddles linger.
 const COLD_DAMP_PER_SECOND := 0.02
+## Re-damping fades out by this ground_warmth() (about 3 C mean). Scaling it by the
+## whole (1 - warmth) outran the sun-baking up to ~7.5 C, so an April noon on the
+## default campaign date could never dry bare soil at all.
+const COLD_DAMP_WARMTH := 0.25
 const COLD_PUDDLE_DRY_SHARE := 0.15
 const DRYNESS_SOAK_PER_SECOND := 0.06
 const DROUGHT_ONSET_DRYNESS := 0.3
@@ -1898,11 +1902,16 @@ func _advance_ground_water(delta: float) -> void:
 			_ground_dryness = _bake_dryness(_ground_dryness, delta)
 	# Cold soil re-dampens instead of cracking, and cold puddles hardly evaporate.
 	var warmth := ground_warmth()
-	if warmth < 1.0:
-		_ground_dryness = maxf(_ground_dryness - COLD_DAMP_PER_SECOND * (1.0 - warmth) * delta, 0.0)
+	var damp := 1.0 - smoothstep(0.0, COLD_DAMP_WARMTH, warmth)
+	if damp > 0.0:
+		_ground_dryness = maxf(_ground_dryness - COLD_DAMP_PER_SECOND * damp * delta, 0.0)
 	var drying := PUDDLE_DRY_PER_SECOND if rain <= 0.001 else 0.0
 	drying *= lerpf(COLD_PUDDLE_DRY_SHARE, 1.0, warmth)
 	_puddle_wetness = clampf(_puddle_wetness + (rain_fill - drying) * delta, 0.0, 1.0)
+	# Keep the live ground water on the save grid (_json_safe_float), so a restored
+	# snapshot continues bit-for-bit instead of drifting by the rounding remainder.
+	_puddle_wetness = _json_safe_float(_puddle_wetness)
+	_ground_dryness = _json_safe_float(_ground_dryness)
 	if rain > 0.001:
 		_seconds_since_rain = 0.0
 	elif not is_inf(_seconds_since_rain):
