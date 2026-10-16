@@ -282,6 +282,110 @@ class CityPlanBuilderTest(unittest.TestCase):
         self.assertLessEqual(median, 11.0)
         self.assertGreater(sum(1 for p in plots if p["yard"]), 100, "deep plots open into rear yards")
 
+    # ---- WB-13d plot walls and gates (R-1414) ----
+
+    def _walled(self):
+        return [p for p in self.plan["plots"] if p["yard"]]
+
+    @staticmethod
+    def _run_samples(run, step=0.1):
+        out = []
+        for a, b in zip(run, run[1:]):
+            n = max(1, int(math.ceil(math.dist(a, b) / step)))
+            out += [(a[0] + (b[0] - a[0]) * k / n, a[1] + (b[1] - a[1]) * k / n) for k in range(n)]
+        out.append(tuple(run[-1]))
+        return out
+
+    def test_every_yard_has_one_wall_record_with_a_gate_or_house_access(self):
+        plots = self._walled()
+        self.assertGreater(len(plots), 100)
+        through = 0
+        for p in plots:
+            w = p["wall"]
+            self.assertIn(w["kind"], ("wattle", "plank", "stone"))
+            self.assertGreaterEqual(w["height_m"], 1.4)
+            self.assertLessEqual(w["height_m"], 2.2)
+            self.assertTrue(w["runs"], p["id"])
+            if w["gate"] is None:
+                through += 1
+                self.assertEqual(w["access"], "through_house")
+            else:
+                self.assertEqual(w["access"], "gate")
+                self.assertIn(w["gate"]["via"], ("street", "passage"))
+                self.assertGreaterEqual(w["gate"]["width"], 1.4)
+                self.assertLessEqual(w["gate"]["width"], 2.4)
+        for p in self.plan["plots"]:
+            if not p["yard"]:
+                self.assertIsNone(p["wall"])
+        print("\nWB-13d yards %d, gate %d, through_house %d" % (len(plots), len(plots) - through, through))
+
+    def test_gates_open_on_a_street_corridor_or_a_passage_to_one(self):
+        segs = []
+        for s in self.plan["streets"]:
+            # The corridor the plot pass uses: half the plan width plus its 0.25 m margin.
+            half = s["width"] / 2 + 0.25
+            pts = s["points"]
+            segs += [(pts[k], pts[k + 1], half) for k in range(len(pts) - 1)]
+
+        def corridor_gap(q):
+            best = 1e9
+            for a, b, half in segs:
+                if min(a[0], b[0]) - 60 > q[0] or max(a[0], b[0]) + 60 < q[0]:
+                    continue
+                best = min(best, self._seg_poly_distance(q, q, [(a[0], a[1]), (b[0], b[1]), (b[0], b[1])]) - half)
+            return best
+
+        by_id = {p["id"]: p for p in self.plan["plots"]}
+        for p in self._walled():
+            g = p["wall"]["gate"]
+            if g is None:
+                continue
+            target = g["at"] if g["via"] == "street" else g["mouth"]
+            self.assertLessEqual(corridor_gap(target), 0.5 + 0.01, p["id"])
+            if g["via"] == "passage":
+                mid = [(g["at"][0] + g["mouth"][0]) / 2, (g["at"][1] + g["mouth"][1]) / 2]
+                self.assertTrue(builder.pip(mid, [tuple(q) for q in by_id[p["id"]]["polygon"]]), p["id"])
+
+    def test_plot_walls_keep_clear_of_foreign_footprints_and_share_boundaries_once(self):
+        houses = self.plan["buildings"]
+        walled = self._walled()
+        owned = []
+        for p in walled:
+            pts = [q for run in p["wall"]["runs"] for q in self._run_samples(run)]
+            owned.append((p["id"], pts))
+            box = self._bbox(pts)
+            for b in houses:
+                if b["id"] == p["building"] or not self._boxes_meet(box, self._bbox(b["footprint"])):
+                    continue
+                ring = [tuple(q) for q in b["footprint"]]
+                for q in pts:
+                    if builder.pip(q, ring):
+                        self.fail((p["id"], b["id"], "wall inside footprint"))
+                    d = min(self._seg_poly_distance(q, q, [ring[i], ring[(i + 1) % len(ring)], ring[(i + 1) % len(ring)]])
+                            for i in range(len(ring)))
+                    self.assertGreaterEqual(d, 0.3 - 1e-6, (p["id"], b["id"]))
+        grid = {}
+        for pid, pts in owned:
+            for q in pts:
+                grid.setdefault((int(q[0] // 0.2), int(q[1] // 0.2)), []).append((pid, q))
+        for pid, pts in owned:
+            for q in pts:
+                cx, cy = int(q[0] // 0.2), int(q[1] // 0.2)
+                for dx in (-1, 0, 1):
+                    for dy in (-1, 0, 1):
+                        for other, r in grid.get((cx + dx, cy + dy), ()):
+                            if other != pid:
+                                self.assertGreater(math.dist(q, r), 0.1, (pid, other, "boundary walled twice"))
+        by_id = {p["id"]: p for p in walled}
+        for p in walled:
+            for other in p["wall"]["shared_with"]:
+                self.assertIn(p["id"], by_id[other]["wall"]["shared_with"])
+
+    def test_wall_kind_follows_the_tier_ladder(self):
+        allowed = {"poor": {"wattle"}, "craft": {"wattle", "plank"}, "merchant": {"plank", "stone"}, "great": {"stone"}}
+        for p in self._walled():
+            self.assertIn(p["wall"]["kind"], allowed[p["wealth_tier"]], p["id"])
+
     def test_plots_ignore_input_order_and_leave_buildings_untouched(self):
         import copy
         import random
