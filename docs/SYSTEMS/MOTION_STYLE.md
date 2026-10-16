@@ -8,7 +8,7 @@ The same clips play, but how a creature carries itself follows the situation it 
 
 | Situation (from the world) | People | Animals | Birds |
 |---|---|---|---|
-| Puddles below freezing (ice) | arms out for balance, knees bent, short flat-footed steps at a quicker cadence | body lowered, careful, slower wandering | (hens and geese should open their wings; see Limits) |
+| Puddles below freezing (ice) | arms out for balance while walking (a hand holding a weapon, lantern or shield keeps it), knees bent, short flat-footed steps at a quicker cadence | body lowered, careful, slower wandering | (hens and geese should open their wings; see Limits) |
 | Wet cobbles after rain | slightly shorter, flatter steps | slightly careful | |
 | Lying snow | shorter steps, slower | slower | |
 | Rain on an unsheltered body, cold air | over minutes: arms hugged across the chest, shoulders up, head down, shivering | hunched, head low, tail tucked, fur fluffed, shivering | plumage fluffed; in flight a wet bird beats faster and wider |
@@ -34,6 +34,7 @@ Review plates (`tools/godot_render.sh --script tools/capture_motion_style.gd -- 
 4. **The network** (`scripts/motion/motion_style_net.gd`, weights `assets/motion/style_net.json`): 31 inputs, two hidden layers of 64, 24 outputs; about 7,800 weights. Inputs are the body (biped, quadruped or bird; mass; leg length; flying; speed as a Froude number) and 24 channels; outputs are style knobs (speed share, stride, stance width, crouch, trunk pitch and roll, arms out, each arm hugged, each hand pressed, head down, shrug, shiver, flat feet, clearance, limp side, caution, tail tuck, fluff, wingbeat rate, amplitude and glide). Results are cached by quantised input, so creatures in the same weather share evaluations. The applied style is `neutral + net(situation) - net(no situation)`.
 5. **Presentation** (`scripts/motion/motion_style_presenter.gd`):
    - People: `MapViewRuntimeActors` calls `MotionStylePresenter.humanoid` after `set_locomotion_speed` for every rig and the hero (not while swimming). It installs `MotionStyle` (`scripts/characters/motion_style_modifier.gd`, a `SkeletonModifier3D` before `AnatomicalMuscles`): trunk pitch and roll on `spine` and `chest`, head, crouch on the legs with the hips lowered, limp roll while the sore leg carries, two-bone arm reach toward the blend of wound, hug and out goals, shiver. The walk clip plays faster by 1/stride so short steps are not skating. Health and stamina feed `pain_torso` and `fatigue` (`vitals_conditions`).
+   - Arms out is a mid-stride balance reflex (R-2036): the presenter eases the modifier's `balance` from 0 standing to 1 at 0.9 m/s, so a resident standing on ice keeps the idle arms, and a hand with something in its slot (`held_l` / `held_r`: spear, sword, lantern, shield) never swings out. Before this a watchman standing on ice held both arms out with the spear diagonal, which read as a T-pose.
    - Animals: `CityFauna._advance` calls `MotionStylePresenter.animal`. `AnimalStyleModifier` (`scripts/characters/animal_style_modifier.gd`) poses `Body` (hunch, lower, lean, fluff scale, shiver), `Head`, `Tail` and `Wing.L/R` where the skeleton has them. Wandering speed is multiplied by the agent's `speed_factor` (`MapViewGroundWander.advance` reads `motion_speed_factor`); wandering animals are presentation only.
    - Flying birds: `MapViewBirdFlight._advance_flap` takes its flap profile through `MotionStylePresenter.bird_profile`: frequency times `flap_rate`, stroke up and down times `flap_amp`, longer pauses with `glide`. One agent per species (all birds of a species share the weather).
 6. **Settings:** `rebel/motion/style_network` (project setting, default on) disables the layer.
@@ -52,9 +53,9 @@ Review plates (`tools/godot_render.sh --script tools/capture_motion_style.gd -- 
 
 ## Verification
 
-- `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_motion_style_net,test_motion_style_presenter`: the GDScript network, conditions and body state equal the Python trainer on golden cases; ice gives arms out and short steps, a dry day is neutral, a wound brings the hand and blood loss, a dog cannot press but limps, a wet bird flaps harder; puddles below freezing are ice; wind bearings are relative to the body; vitals become pain and fatigue; on a real rig the modifier is installed and ice spreads the arms.
+- `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_motion_style_net,test_motion_style_presenter`: the GDScript network, conditions and body state equal the Python trainer on golden cases; ice gives arms out and short steps, a dry day is neutral, a wound brings the hand and blood loss, a dog cannot press but limps, a wet bird flaps harder; puddles below freezing are ice; wind bearings are relative to the body; vitals become pain and fatigue; on a real rig the modifier is installed and ice spreads the arms while walking but not standing. `--filter=test_armed_kit_idle`: every armed kit (watch, crown, sergeant) plays Idle within 30 frames of spawn and, standing on ice, keeps its hands within 10 % of an arm length of the unstyled idle.
 - Cost: one network evaluation 0.14 ms; 40 agents 0.34 ms per frame (headless GDScript, M5 Pro).
-- Visual: the review plates above; `--off` renders the same scene with the layer disabled.
+- Visual: the review plates above; `--off` renders the same scene with the layer disabled. Armed kits on ice: `tools/godot_render.sh --script tools/capture_armed_kit_ice.gd -- [--legacy]` writes `docs/reports/images/motion_style/armed_kit_ice.png` (`--legacy`: the pre-R-2036 T-pose).
 
 ## Limits
 

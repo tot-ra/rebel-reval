@@ -18,6 +18,10 @@ const AGENT_META := &"motion_style_agent"
 const MODIFIER_META := &"motion_style_modifier"
 const LEAP_META := &"leap_pose_modifier"
 const ENABLED_SETTING := "rebel/motion/style_network"
+## World speed (m/s) at which arms start / fully go out for balance; a walk is about 1.4 m/s.
+const BALANCE_SPEED_MIN := 0.15
+const BALANCE_SPEED_FULL := 0.9
+const BALANCE_SMOOTH_SECONDS := 0.45
 
 ## Body of each animal species: kind, mass (kg), leg length (m), fur or plumage insulation.
 const ANIMAL_BODIES: Dictionary = {
@@ -107,6 +111,13 @@ static func humanoid(rig: Node3D, delta: float, world_speed: float, extra: Array
 	modifier.style = agent.style
 	var clip := String(rig.call(&"current_canonical_animation"))
 	modifier.seated = clip.begins_with("sit_")
+	# R-2036: the network's arm_out is a mid-stride balance reflex; standing on ice it held the
+	# arms out like a T-pose. Eased like the style itself so a stop or a start does not snap.
+	var walking := smoothstep(BALANCE_SPEED_MIN, BALANCE_SPEED_FULL, world_speed)
+	modifier.balance += (walking - modifier.balance) * minf(1.0, delta / BALANCE_SMOOTH_SECONDS)
+	if rig.has_method(&"equipped"):
+		modifier.held_l = rig.call(&"equipped", &"left_hand") != null
+		modifier.held_r = rig.call(&"equipped", &"right_hand") != null
 	var ch: Dictionary = agent.channels
 	modifier.wound = Vector3(
 		float(ch.get("wound_x", 0.0)), float(ch.get("wound_y", 0.0)), float(ch.get("wound_z", 0.5))

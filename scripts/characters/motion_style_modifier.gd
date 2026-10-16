@@ -44,6 +44,14 @@ var seated := false
 var wound := Vector3(0.0, 0.0, 0.5)
 ## The rig's Model node; its frame is rig space.
 var rig: Node3D
+## Share of `arm_out` applied, 0 standing .. 1 walking (MotionStylePresenter eases it by speed):
+## arms go out to catch a slip in mid-stride; a person standing on ice keeps them down (R-2036).
+## Starts at 0 so a rig spawned standing never flashes its arms out before the first ease.
+var balance := 0.0
+## A hand holding something (spear, sword, lantern, shield) keeps its clip pose instead of
+## swinging out for balance; the prop would otherwise point sideways like a T-pose.
+var held_l := false
+var held_r := false
 
 var _bones: Dictionary = {}
 var _time := 0.0
@@ -196,7 +204,8 @@ func _arm(skeleton: Skeleton3D, side: float, to_skel: Basis, shiver: float) -> v
 	var s := "l" if side == LEFT else "r"
 	var press := float(style.get("press_" + ("L" if side == LEFT else "R"), 0.0))
 	var hug := float(style.get("hug_" + ("L" if side == LEFT else "R"), 0.0))
-	var out := float(style.get("arm_out", 0.0))
+	var held := held_l if side == LEFT else held_r
+	var out := 0.0 if held else float(style.get("arm_out", 0.0)) * balance
 	var wsum := press + hug + 0.8 * out
 	var upper: int = _bones["upperarm." + s]
 	var lower: int = _bones["lowerarm." + s]

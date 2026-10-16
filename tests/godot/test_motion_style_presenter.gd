@@ -65,14 +65,14 @@ func test_wind_bearing_is_relative_to_the_body() -> void:
 	assert_almost_eq(float(gale[2]["dir"]), PI / 2.0, 1e-4, "from the left")
 
 
-func _hand_spread(env: RefCounted) -> float:
+func _hand_spread(env: RefCounted, speed: float = 1.4) -> float:
 	MotionEnvironment.set_current(env)
 	var rig := RIG_SCENE.instantiate() as SharedCharacterRig
 	(Engine.get_main_loop() as SceneTree).root.add_child(rig)
 	_rigs.append(rig)
 	rig.play_animation(&"idle", 0.0)
 	for i in 40:
-		MotionStylePresenter.humanoid(rig, 0.05, 0.0)
+		MotionStylePresenter.humanoid(rig, 0.05, speed)
 	# Modified poses exist only between the modifier pass and the next frame: read them on the
 	# signal.
 	var sk := rig.skeleton()
@@ -93,6 +93,13 @@ func test_modifier_is_installed_and_ice_spreads_the_arms() -> void:
 	var icy := await _hand_spread(_env(-6.0, 0.9))
 	assert_true(_rigs[0].skeleton().get_node_or_null("MotionStyle") != null, "modifier installed")
 	assert_true(icy > calm * 1.15, "arms held out on ice: %.2f vs %.2f" % [icy, calm])
+
+
+## R-2036: arms out is a mid-stride balance reflex; standing on ice keeps the idle arms.
+func test_standing_on_ice_keeps_the_arms_down() -> void:
+	var calm := await _hand_spread(_env(10.0, 0.0), 0.0)
+	var icy := await _hand_spread(_env(-6.0, 0.9), 0.0)
+	assert_true(icy < calm * 1.05, "standing on ice, arms at rest: %.2f vs %.2f" % [icy, calm])
 
 
 func test_vitals_become_pain_and_fatigue() -> void:
