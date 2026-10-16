@@ -38,11 +38,13 @@ func _build_ui() -> void:
 	var panel := PanelContainer.new()
 	panel.name = "QuestPouchPanel"
 	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	panel.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
-	panel.offset_left = PANEL_MARGIN
-	panel.offset_top = PANEL_MARGIN
-	panel.offset_right = PANEL_MARGIN + 180
-	panel.offset_bottom = PANEL_MARGIN + 88
+	# Bottom centre: the top of the screen is for the minimap and the spirit-sight reading
+	# strip; vitals sit bottom-left and the quick menu bottom-right.
+	panel.set_anchors_and_offsets_preset(Control.PRESET_CENTER_BOTTOM)
+	panel.offset_left = -90.0
+	panel.offset_right = 90.0
+	panel.offset_top = -PANEL_MARGIN - 88.0
+	panel.offset_bottom = -PANEL_MARGIN
 	InventoryUiThemeScene.apply_panel(panel)
 	add_child(panel)
 

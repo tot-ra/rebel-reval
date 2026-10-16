@@ -9,7 +9,8 @@ extends CanvasLayer
 ## Nothing is saved; the card closes when sight closes.
 
 const UiStyle := preload("res://scripts/ui/pause_menu_style.gd")
-const CARD_WIDTH := 340.0
+## Right-hand screen band kept free for MinimapHud (map block + margin + rim overhang).
+const MINIMAP_CLEARANCE := 390.0
 const ROW_HEIGHT := 22.0
 const PIP_COUNT := 5
 
@@ -34,7 +35,7 @@ var _lost := 0.0
 
 var _panel: PanelContainer
 var _title: Label
-var _rows: VBoxContainer
+var _rows: HFlowContainer
 var _summary: Label
 
 
@@ -49,13 +50,14 @@ func _init() -> void:
 	style.content_margin_top = 12
 	style.content_margin_bottom = 12
 	_panel.add_theme_stylebox_override("panel", style)
-	# Top-right: the citizen card and the Tools strip own the top-left corner.
-	_panel.anchor_left = 1.0
+	# Top strip, read left to right. WHY: the minimap owns the top-right corner (it used to
+	# hide this card), so the strip stops short of it; the Tools pouch moved to the bottom.
+	_panel.anchor_left = 0.0
 	_panel.anchor_right = 1.0
-	_panel.offset_left = -24.0 - CARD_WIDTH
-	_panel.offset_right = -24.0
-	_panel.offset_top = 120.0
-	_panel.offset_bottom = 120.0
+	_panel.offset_left = 20.0
+	_panel.offset_right = -MINIMAP_CLEARANCE
+	_panel.offset_top = 20.0
+	_panel.offset_bottom = 20.0
 	_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_panel)
 	var box := VBoxContainer.new()
@@ -64,8 +66,10 @@ func _init() -> void:
 	_title = Label.new()
 	_title.add_theme_font_size_override("font_size", 18)
 	box.add_child(_title)
-	_rows = VBoxContainer.new()
-	_rows.add_theme_constant_override("separation", 2)
+	# Lights flow left to right and wrap when the strip is narrow.
+	_rows = HFlowContainer.new()
+	_rows.add_theme_constant_override("h_separation", 20)
+	_rows.add_theme_constant_override("v_separation", 2)
 	box.add_child(_rows)
 	_summary = Label.new()
 	_summary.add_theme_font_size_override("font_size", 14)
@@ -234,7 +238,7 @@ func _render() -> void:
 	for child in _rows.get_children():
 		_rows.remove_child(child)
 		child.queue_free()
-	# The card lists the crown first, so the column reads like the body: crown on top.
+	# Crown first: the strip reads left to right, crown light leading.
 	var lights: Array = reading["lights"].duplicate()
 	lights.reverse()
 	for light: Dictionary in lights:

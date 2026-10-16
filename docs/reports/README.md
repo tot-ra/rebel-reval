@@ -261,6 +261,7 @@ Start with:
 - [1343 Reval domestic infrastructure](reval_domestic_infrastructure_1343.md)
 - [Reval fortifications and tower interiors - 1343 baseline](reval_fortifications_1343.md)
 - [Reval harbour geography and visual reconstruction for 1343](reval_harbour_1343_research.md)
+- [Reval house-by-house survey - which buildings stood in spring 1343](reval_house_survey_1343.md)
 - [Reval street, lane and open-space register - spring 1343](reval_street_register_1343.md)
 - [Saaremaa location design: the Kaali crater coast](saaremaa_kaali_location_design.md)
 - [Scene inventory (P0-018, reconciled P0-055)](scene_inventory.md)

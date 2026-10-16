@@ -48,7 +48,7 @@ func _init() -> void:
 	_panel.anchor_top = 0.0
 	_panel.anchor_right = 0.0
 	_panel.anchor_bottom = 0.0
-	# Below the Tools strip in the top-left corner; height follows the content.
+	# Top-left, below the spirit-sight reading strip; height follows the content.
 	_panel.offset_left = 24.0
 	_panel.offset_top = 160.0
 	_panel.offset_right = 24.0 + CARD_WIDTH
