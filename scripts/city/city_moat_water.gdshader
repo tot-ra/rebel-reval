@@ -23,9 +23,9 @@ global uniform float ocean_time;
 uniform float time_scale = 1.0;
 // ADR 0045: ice thickness 0..1 (SeasonState.ice_cover_target) and the snow lying
 // on it. Shallows freeze first, then the open water; moving water freezes later.
+// The look (pans, cracks, bubbles, wind-blown snow) is ice_surface.gdshaderinc.
 uniform float ice = 0.0;
 uniform float ice_snow = 0.0;
-uniform vec3 ice_color : source_color = vec3(0.62, 0.74, 0.80);
 // Water column from the mesh instead of the depth texture: COLOR.r =
 // (depth + vertex_depth_offset) / vertex_depth_scale, baked by CityWorld3D for
 // the stream (the depth-texture column reads ~0 in perspective there).
@@ -52,6 +52,7 @@ const float RIPPLE_MAX_SLOPE = 0.6;
 varying vec3 world_pos;
 
 #include "res://scripts/city/city_water_light.gdshaderinc"
+#include "res://scripts/city/ice_surface.gdshaderinc"
 
 float hash12(vec2 p) {
 	vec3 p3 = fract(vec3(p.xyx) * 0.1031);
@@ -134,19 +135,28 @@ void fragment() {
 	float rim = smoothstep(0.0, edge_soft, column);
 	ALPHA = rim * mix(opacity * mix(0.78, 1.0, depth_hint), 1.0, fres * 0.4);
 	if (ice > 0.001) {
+		// Freeze front: the shallows and still water first, pan by pan, so the ice
+		// edge against open water follows pan borders with a crisp rim, not a fog.
 		float skin = ice * (1.0 - min(flow_speed, 1.0) * 0.4);
-		float patches = noise(world_pos.xz * 0.42) * 0.6 + noise(world_pos.xz * 1.9) * 0.4;
-		float frozen = clamp(skin * 1.7 - depth_hint * 0.8 + (patches - 0.5) * 0.5, 0.0, 1.0);
-		frozen = smoothstep(0.15, 0.7, frozen);
-		// Cracks: thin dark lines where two noise fields cross.
-		float crack = 1.0 - smoothstep(0.0, 0.035, abs(noise(world_pos.xz * 1.3) - noise(world_pos.xz * 1.3 + 7.1)));
-		vec3 sheet = ice_color * (0.82 + 0.25 * patches) * (1.0 - crack * 0.35);
-		sheet = mix(sheet, vec3(0.9, 0.93, 0.97), ice_snow * smoothstep(0.15, 0.55, patches) * 0.9);
-		ALBEDO = mix(ALBEDO, sheet, frozen);
-		ROUGHNESS = mix(ROUGHNESS, mix(0.1, 0.8, ice_snow), frozen);
-		SPECULAR = mix(SPECULAR, 0.5, frozen);
-		ALPHA = mix(ALPHA, max(ALPHA, 0.97) * rim + (1.0 - rim) * 0.0, frozen);
-		vec3 flat_n = normalize(mix(n, vec3(0.0, 1.0, 0.0), frozen * 0.93));
+		vec3 pans = ice_pans(world_pos.xz);
+		float px = max(length(dFdx(world_pos.xz)), length(dFdy(world_pos.xz)));
+		float front = skin * 2.2 - depth_hint * 0.6 + (pans.z - 0.5) * 0.35
+			+ (noise(world_pos.xz * 1.7) - 0.5) * 0.12;
+		float frozen = smoothstep(0.4 - px * 0.5, 0.42 + px * 0.5, front);
+		// Ice reaches the bank; drifts pile against it.
+		float bank = 1.0 - smoothstep(0.05, 0.9, column);
+		IceLook ice_s = ice_look(world_pos.xz, pans, skin, ice_snow, bank, wind_dir, px);
+		// The broken edge of the ice against open water is pale.
+		float ice_edge = (1.0 - smoothstep(0.0, 0.06 + px, front - 0.42)) * frozen;
+		vec3 sheet = mix(ice_s.albedo_srgb, vec3(0.7, 0.76, 0.8), ice_edge * 0.6);
+		ALBEDO = mix(ALBEDO, ice_lin(sheet), frozen);
+		ROUGHNESS = mix(ROUGHNESS, ice_s.roughness, frozen);
+		SPECULAR = mix(SPECULAR, ice_s.specular, frozen);
+		water_f0 = 0.16 * SPECULAR * SPECULAR;
+		float ice_rim = smoothstep(0.0, edge_soft * 0.35, column);
+		ALPHA = mix(ALPHA, ice_rim, frozen);
+		vec3 ice_n = normalize(vec3(-ice_s.slope.x, 1.0, -ice_s.slope.y));
+		vec3 flat_n = normalize(mix(n, ice_n, frozen));
 		NORMAL = normalize((VIEW_MATRIX * vec4(flat_n, 0.0)).xyz);
 	}
 }

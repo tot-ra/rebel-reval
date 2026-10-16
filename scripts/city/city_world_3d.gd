@@ -196,6 +196,10 @@ func apply_season(date: Dictionary) -> void:
 	for water: ShaderMaterial in water_materials:
 		water.set_shader_parameter("ice", ice)
 		water.set_shader_parameter("ice_snow", ice_snow)
+	# The sea shore freezes last (fast ice and floes, map_view_water.gdshader).
+	MapViewMaterials.apply_sea_ice(
+		SeasonState.ice_cover_target(SeasonState.ICE_SEA, doy), ice_snow
+	)
 	MoatPlants.apply_season(moat_plants, doy)
 	# Fresh-coloured fallen leaves in autumn, brown later, hidden under snow.
 	CityVegetationBuilder.apply_litter_season(date, ice_snow)
@@ -205,6 +209,13 @@ func apply_season(date: Dictionary) -> void:
 	var weights := SeasonState.season_weights(SeasonState.day_of_year_for(date))
 	var dormancy := float(weights[SeasonState.WINTER]) + 0.35 * float(weights[SeasonState.AUTUMN])
 	ground.set_shader_parameter("winter", clampf(dormancy, 0.0, 1.0))
+	# Puddles skin over in one frost night (ICE_PUDDLE); frozen water stays put.
+	ground.set_shader_parameter(
+		"puddle_ice", SeasonState.ice_cover_target(SeasonState.ICE_PUDDLE, doy)
+	)
+	ground.set_shader_parameter(
+		"coast_ice", smoothstep(0.03, 0.15, SeasonState.ice_cover_target(SeasonState.ICE_SEA, doy))
+	)
 	var cover := VegetationPhenology.snow_cover_for(date)
 	snow_cover = cover
 	ground.set_shader_parameter("snow_cover", cover)

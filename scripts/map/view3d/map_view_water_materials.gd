@@ -906,6 +906,15 @@ static func apply_sea_gust(gust: float, wave_profiles: Dictionary) -> void:
 		water_surface(terrain_id as StringName, wave_profiles).set_shader_parameter("gust_level", level)
 
 
+## ADR 0045: sea ice thickness 0..1 (SeasonState ICE_SEA) and the snow on it,
+## for every cached water material (map_view_water.gdshader `sea_ice`).
+static func apply_sea_ice(ice: float, snow: float, wave_profiles: Dictionary) -> void:
+	for terrain_id in wave_profiles.keys():
+		var material := water_surface(terrain_id as StringName, wave_profiles)
+		material.set_shader_parameter("sea_ice", clampf(ice, 0.0, 1.0))
+		material.set_shader_parameter("sea_ice_snow", clampf(snow, 0.0, 1.0))
+
+
 ## Pushes sky sun-disk visibility and day/night blend into cached water
 ## materials so specular sun glints die with the visible sun.
 static func apply_water_lighting(

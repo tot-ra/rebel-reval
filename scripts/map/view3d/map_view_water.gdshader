@@ -168,6 +168,16 @@ uniform float rainbow_secondary = 1.0;
 // additive bow (and its bright interior) read as a white blot on the water.
 uniform float rainbow_gain = 0.32;
 #include "res://scripts/map/view3d/sky_rainbow.gdshaderinc"
+// ADR 0045 sea ice: shared winter ice look (pans, cracks, bubbles, blown snow).
+#include "res://scripts/city/ice_surface.gdshaderinc"
+// Sea ice 0..1 (SeasonState ICE_SEA, about 0.3 in a mean Reval February) and the
+// snow lying on it, pushed by MapViewMaterials.apply_sea_ice. Fast ice locks the
+// shallows out to SEA_ICE_REACH_M x sea_ice of water depth; broken floes drift in
+// a band beyond it, with grey slush (grease ice) between them.
+uniform float sea_ice = 0.0;
+uniform float sea_ice_snow = 0.0;
+const float SEA_ICE_REACH_M = 6.0;
+const float SEA_FLOE_SIZE = 4.5;
 global uniform sampler2D cloud_noise_tex : filter_linear_mipmap, repeat_enable;
 global uniform vec3 cloud_sun_dir;
 
@@ -417,6 +427,8 @@ varying vec2 sea_bed_slope;
 varying float invalid_surface_vertex;
 varying vec2 wave_sample_xz;
 varying float shore_factor;
+// Water depth in metres for the ice edge (city bed, or the district depth hint).
+varying float ice_depth_m;
 // WS-13b: 1 on in-map water whose rendered sea bed may lie below the flat gameplay
 // bed; flat_bed_world_y is that bed plane in world space (from UV2).
 varying float flat_bed_flag;
@@ -1356,6 +1368,18 @@ bool _sea_lod_pixel_drawn(vec2 xz, vec4 cells) {
 	return drawn > 0.5;
 }
 
+// 1 under fast ice, 0.6 among the floes (they still ride the swell), 0 in open
+// water. Geometry only: the fragment adds the ragged edge.
+float _sea_ice_lock(float depth) {
+	if (sea_ice <= 0.001) {
+		return 0.0;
+	}
+	float reach = sea_ice * SEA_ICE_REACH_M;
+	float fast = 1.0 - smoothstep(reach * 0.8, reach + 0.6, depth);
+	float floes = 1.0 - smoothstep(reach, reach * 2.2 + 0.8, depth);
+	return max(fast, floes * 0.6);
+}
+
 void vertex() {
 	vec3 undisplaced_world = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
 	sea_ground_y = (MODEL_MATRIX * vec4(VERTEX.x, UV2.y, VERTEX.z, 1.0)).y;
@@ -1494,6 +1518,10 @@ void vertex() {
 				- undisplaced_world.y - tide_height * tide_level;
 		}
 	}
+	// ADR 0045: ice locks the surface, waves and run-up included, at rest level.
+	ice_depth_m = sea_physical_depth ? max(undisplaced_world.y - sea_ground_y, 0.0)
+		: shore_factor * CITY_SHORE_DEPTH;
+	displacement *= 1.0 - _sea_ice_lock(ice_depth_m);
 	invalid_surface_vertex = 0.0;
 	if (debug_surface_validity && (any(isnan(displacement)) || any(isinf(displacement)))) {
 		// A NaN vertex can disappear before fragment diagnostics see it.
@@ -2404,6 +2432,43 @@ void fragment() {
 	// built-in diffuse. Dropping it to 0.02 would leave the sea lit by ambient
 	// only. Moving the sky reflection out of ALBEDO belongs to WS-11.
 	diffuse_share = 1.0;
+	// ADR 0045 sea ice over the composited water (see sea_ice). The fast-ice edge
+	// follows the depth with a pan-ragged line; floes are Voronoi plates with a
+	// pushed-up pale rim, thinning out with depth; their gaps are matte grey slush.
+	float sea_ice_cover = 0.0;
+	if (sea_ice > 0.001 && !swash_sheet) {
+		vec2 ixz = wave_sample_xz;
+		float ice_px = max(length(dFdx(ixz)), length(dFdy(ixz)));
+		float ice_reach = sea_ice * SEA_ICE_REACH_M;
+		vec3 ice_pan_cells = ice_pans(ixz);
+		float ice_ragged = ice_depth_m + (ice_pan_cells.z - 0.5) * 0.5 + (_noise(ixz * 0.6) - 0.5) * 0.4;
+		float ice_fast = 1.0 - smoothstep(ice_reach - ice_px * 0.5, ice_reach + 0.02 + ice_px * 0.5, ice_ragged);
+		float floe_zone = 1.0 - smoothstep(ice_reach, ice_reach * 2.2 + 0.8, ice_depth_m);
+		vec3 floe_cells = ice_cells(ixz / SEA_FLOE_SIZE + vec2(3.1, 9.4));
+		float floe_edge = floe_cells.y * SEA_FLOE_SIZE;
+		float ice_gap = mix(0.12, 0.9, 1.0 - floe_zone);
+		float ice_floe = step(floe_cells.z, floe_zone * 0.9)
+			* smoothstep(ice_gap - ice_px * 0.5, ice_gap + ice_px * 0.5, floe_edge);
+		float ice_cover = max(ice_fast, ice_floe);
+		sea_ice_cover = ice_cover;
+		float ice_slush = floe_zone * (1.0 - ice_cover);
+		float ice_bank = 1.0 - smoothstep(0.0, max(ice_reach * 0.6, 0.3), ice_depth_m);
+		IceLook ice_s = ice_look(
+			ixz, ice_pan_cells, clamp(sea_ice * 3.0, 0.0, 1.0), sea_ice_snow, ice_bank, wind_direction, ice_px
+		);
+		float floe_rim = ice_line(floe_edge - ice_gap, 0.14, ice_px) * ice_floe * (1.0 - ice_fast);
+		vec3 ice_sheet = mix(ice_s.albedo_srgb, vec3(0.8, 0.85, 0.88), floe_rim * 0.7);
+		ALBEDO = mix(ALBEDO, ALBEDO * 0.55 + ice_lin(vec3(0.36, 0.4, 0.42)) * 0.45, ice_slush * 0.85);
+		ALBEDO = mix(ALBEDO, ice_lin(ice_sheet), ice_cover);
+		ALPHA = mix(ALPHA, 1.0, max(ice_cover, ice_slush * 0.5));
+		ROUGHNESS = mix(mix(ROUGHNESS, 0.35, ice_slush * 0.8), ice_s.roughness, ice_cover);
+		SPECULAR = mix(SPECULAR, ice_s.specular, ice_cover);
+		glint_alpha = ROUGHNESS * ROUGHNESS;
+		directional_glint_gate *= mix(1.0, 1.0 - ice_s.snow, ice_cover) * (1.0 - ice_slush * 0.7);
+		local_glint_gate *= 1.0 - ice_cover * ice_s.snow;
+		vec3 ice_n = normalize(vec3(-ice_s.slope.x, 1.0, -ice_s.slope.y));
+		NORMAL = normalize(mix(NORMAL, (VIEW_MATRIX * vec4(ice_n, 0.0)).xyz, ice_cover));
+	}
 	// WS-13: the surface seen from below. The old P0-227 fog tint is gone; the
 	// UnderwaterPass fogs everything between the lens and this surface, so the
 	// branch only resolves what the surface itself shows: Snell's window inside
@@ -2455,7 +2520,9 @@ void fragment() {
 	if (swash_sheet) {
 		NORMAL = sheet_normal;
 		ALBEDO = sheet_albedo;
-		ALPHA = sheet_alpha;
+		// Fast ice along the shore: no swash film runs up the beach. The sheet lies
+		// on the sand, so its own depth varying cannot say where the ice is.
+		ALPHA = sheet_alpha * (1.0 - smoothstep(0.03, 0.15, sea_ice));
 		ROUGHNESS = sheet_roughness;
 		SPECULAR = mix(0.05, 0.5, sun_visibility);
 		glint_alpha = sheet_roughness * sheet_roughness;
@@ -2476,7 +2543,8 @@ void fragment() {
 		float foam_edge = smoothstep(0.0, CITY_EDGE_FADE_FLOOR, basin_column);
 		edge_fade = mix(edge_fade, foam_edge, clamp(swash_bore, 0.0, 1.0));
 	}
-	ALPHA *= max(city_coverage * edge_fade, tip_foam) * runup_drain;
+	// Fast ice is opaque right up to the beach: no soft waterline showing the bed.
+	ALPHA *= max(city_coverage * mix(edge_fade, 1.0, sea_ice_cover), tip_foam) * runup_drain;
 	if (debug_foam_mask > 0.5) {
 		// Unlit mask: lighting and the foam tile must not hide renderer coverage.
 		vec3 mask = vec3(fft_foam.x);

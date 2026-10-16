@@ -31,7 +31,7 @@ Status: partial (core **SeasonState** implemented; presentation tasks planned, [
 | 3 | Snowfall weather | done: three looks (fine, flakes, heavy), one pooled GPU emitter, see **Snowfall** |
 | 4 | Ground snow, roof snow, icicles, melt | shader `snow_depth` uniforms, thaw by temperature |
 | 5 | Movement in snow, depth and footprints | done: depth map, drifts, trenches, walking drag, prints, crunch |
-| 6 | Ice on puddles, ponds, moat, rivers, shore | |
+| 6 | Ice on puddles, ponds, moat, rivers, shore | done for the seamless city, see **Water, reeds, lilies and ice** |
 | 7 | Vegetation seasons: blossom, fruit, wither, grass, litter under trees | extends phenology |
 | 8 | Sky, clouds, sea per season | |
 | 9 | Citizen winter/summer wardrobe | `clothing_warmth` |
@@ -77,12 +77,16 @@ Status: implemented for the seamless city.
 
 ## Water, reeds, lilies and ice
 
-Status: implemented for the moat, the Hareapea stream and lakes (sea ice is planned).
+Status: implemented for the moat, the Hareapea stream, lakes, the sea shore and puddles in the seamless city.
 
 - **Reeds and cattails** (`CityMoatPlants.apply_season`) yellow through autumn (`SeasonState.reed_dead_share`), lose stems as the water cools and are gone in a hard winter (`reed_standing`, via `MultiMesh.visible_instance_count` over a shuffled stand, so it thins evenly).
 - **Lily pads and duckweed** fade with `water_plant_vigour` (water trails the air by about a week and a half); pads turn brown in autumn; **lily flowers** need warmer water than the pads.
-- **Ice:** `city_moat_water.gdshader` has `ice` (thickness 0..1 from `SeasonState.ice_cover_target(ICE_FRESH)`) and `ice_snow`. The shallows freeze first, then the open water; running water (the stream) freezes later; waves die out; cracks and snow on the ice show. Pushed to every moat/stream/lake material by `CityWorld3D.apply_season`.
-- Plates: `tools/godot_render.sh --script tools/capture_city_season.gd -- --date=1343-01-15` (also `1343-07-15`, `1343-10-20`).
+- **One ice look** (`scripts/city/ice_surface.gdshaderinc`, `ice_look()`), shared by the moat, the sea and puddles. Ice reads through sharp structure, not soft noise: pans (3.2 m Voronoi plates, each clear black ice or milky snow-ice, more snow-ice at the bank and in a snowy winter) with pale refrozen seams; a domain-warped crack net in clusters (white planes in clear ice, grey lines in milky ice, hidden under snow); air bubbles frozen into clear ice; snow lying in streaks along the wind (sastrugi), drifted deeper against the bank, with wind-scoured glassy patches mid-channel even at full cover; grey slush where snow lies on thin ice. Every line is antialiased against the pixel footprint, so detail fades to its average instead of shimmering. Colours are sRGB tones decoded like `city_albedo`, so snow on the ice matches snow on the ground (the old moat ice wrote sRGB constants into linear albedo and glared white).
+- **Moat, stream, lakes:** `city_moat_water.gdshader` has `ice` (thickness 0..1 from `SeasonState.ice_cover_target(ICE_FRESH)`) and `ice_snow`. The freeze front runs pan by pan, shallows first, with a crisp pale edge against open water; running water (the stream) freezes later; waves die out. Pushed to every moat/stream/lake material by `CityWorld3D.apply_season`.
+- **Snow on the banks:** `CitySnow.bake` only keeps texels bare whose centre lies within the water's half width plus `WATER_MARGIN` (2 m). It used to clear a square of half width + 3 m rounded up to whole 8 m texels, which left 15-20 m of brown bank on both sides of a snow-covered frozen moat.
+- **Sea shore** (`map_view_water.gdshader`, `sea_ice`, `sea_ice_snow`, from `ICE_SEA`, about 0.2 in a mean February): fast ice locks the shallows out to `SEA_ICE_REACH_M` (6 m) x `sea_ice` of water depth, with a pan-ragged edge; beyond it a band of broken floes (4.5 m Voronoi plates with a pushed-up pale rim) thins out with depth, with matte grey slush between them. Waves, run-up and the swash film stop under the fast ice (vertex lock, `_sea_ice_lock`), floes still ride 40 % of the swell, and the fast ice is opaque right up to the beach. The ground paints an **ice foot** over the strand around sea level (`city_ground.gdshader` `coast_ice`), where the snow map is bare. `MapViewMaterials.apply_sea_ice` pushes it and damps the shore swash state.
+- **Puddles** (`city_ground.gdshader` `puddle_ice`, from `ICE_PUDDLE`): a frozen puddle has a white opaque rim with growth rings following its shoreline (the water drained from under the skin as it froze) and a clear dark centre with cracks and bubbles; no rain rings or wind ripples. Ice does not evaporate, so the deepest hollows and ruts keep their ice through a dry frost (`pool_level = max(puddles, puddle_ice x 0.55)`), on land only: the snow map is RG8 and its G channel (`CitySnow.bake`, 0 over the moat, stream and lakes) keeps ice off the water bed seen through open water. Snow buries frozen puddles like the ground round them, so they show on bare roads and before the first snow.
+- Plates: `tools/godot_render.sh --script tools/capture_winter_ice.gd -- --date=1343-02-05 [--time=0.5 --exposure=0.45]` (moat from the follow camera, close and above; the harbour shore; a road rut). `--exposure` is review-only: the game's daylight exposure clips snowfields to white (see Limits). Older moat plates: `tools/capture_city_season.gd -- --date=1343-01-15`. Review plates of 2026-10-16 (game exposure, low February sun, plus early January): `docs/reports/images/winter_ice/`.
 
 ## Snow depth, drifts and trenches
 
@@ -120,3 +124,5 @@ Status: implemented for the seamless city (Kalev, NPCs, hooves and wheels all us
 ## Limits
 
 Snowfall consumes the climate; everything else (ground and roof snow, ice, vegetation, sky, clothing, smoke, movement) is still planned.
+
+Ice limits: ice follows the mean climate of the date, not the day's weather (no thaw puddles on a mild January day); the ice look is shading only (no ice geometry, pressure ridges or holes, and walking on the ice is not modelled); district maps (MapView3D) take sea ice only through `MapViewMaterials.apply_sea_ice` and have no frozen puddle decals; at the game's noon exposure a full snowfield clips to white, which flattens snow and snow-covered ice alike (a lighting follow-up, not an ice one). Not yet measured with the F3 monitor (the ice adds two or three Voronoi lookups per frozen pixel and nothing in summer: every ice branch is gated on its uniform).

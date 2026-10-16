@@ -119,6 +119,29 @@ func test_moat_freezes_by_temperature() -> void:
 	assert_true(SeasonState.ice_cover_target(SeasonState.ICE_FRESH, _doy(feb)) > 0.5)
 
 
+## ADR 0045 task 6: puddles skin over first, the sea shore last; the sea material
+## and the ground shader take the ice the city pushes in apply_season.
+func test_puddles_and_sea_shore_freeze_in_order() -> void:
+	var feb := {"day": 5, "month": 2, "year": 1343}
+	assert_almost_eq(SeasonState.ice_cover_target(SeasonState.ICE_SEA, _doy(JUL)), 0.0, 0.001)
+	var puddle := SeasonState.ice_cover_target(SeasonState.ICE_PUDDLE, _doy(feb))
+	var fresh := SeasonState.ice_cover_target(SeasonState.ICE_FRESH, _doy(feb))
+	var sea := SeasonState.ice_cover_target(SeasonState.ICE_SEA, _doy(feb))
+	assert_true(puddle >= fresh and fresh > sea, "puddles, then the moat, then the sea")
+	assert_true(sea > 0.15, "a mean February lines the shore with fast ice, got %.2f" % sea)
+	MapViewMaterials.apply_sea_ice(0.4, 0.7)
+	var water := MapViewMaterials.water_surface(MapTypes.TERRAIN_SHALLOW_WATER)
+	assert_almost_eq(float(water.get_shader_parameter("sea_ice")), 0.4, 0.001)
+	assert_almost_eq(float(water.get_shader_parameter("sea_ice_snow")), 0.7, 0.001)
+	MapViewMaterials.apply_sea_ice(0.0, 0.0)
+	assert_almost_eq(float(water.get_shader_parameter("sea_ice")), 0.0, 0.001)
+	var uniforms: Array[String] = []
+	var ground := load("res://scripts/city/city_ground.gdshader") as Shader
+	for u: Dictionary in ground.get_shader_uniform_list():
+		uniforms.append(String(u["name"]))
+	assert_true("puddle_ice" in uniforms and "coast_ice" in uniforms)
+
+
 func test_snow_patches_follow_cover() -> void:
 	var spot := Vector2(123.4, -56.7)
 	assert_eq(CitySnow.patch(spot, 0.0), 0.0)
