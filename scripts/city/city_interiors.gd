@@ -556,6 +556,8 @@ func _apply_states_for(index: int) -> void:
 		if home["hearth"] != null:
 			holders.append(home["hearth"])
 		for holder: Node in holders:
+			for light: Node in holder.find_children("*", "Light3D", true, false):
+				CityDoors.keep_indoors(light as Light3D)
 			for child in holder.get_children():
 				if child.has_method(&"apply_cycle_progress") and not child.is_queued_for_deletion():
 					controllers.append(child)

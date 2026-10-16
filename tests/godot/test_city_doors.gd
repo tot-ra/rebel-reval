@@ -54,7 +54,7 @@ func test_profiles_preserve_leaf_bounds_and_separate_iron_material() -> void:
 					assert_true(material.albedo_texture == null, "iron must not sample timber")
 					assert_true(material.metallic > 0.5)
 			assert_true(triangles < 4500, "bounded per-leaf geometry budget")
-			assert_eq(mesh.get_surface_count(), 1 if style == &"rough" else 2)
+			assert_eq(mesh.get_surface_count(), 2 if style == &"rough" else 3, "room/street split")
 	assert_ne(Details.mesh(&"plank", 1.3, 2.4, 0), Details.mesh(&"plank", 1.3, 2.4, 1))
 
 
@@ -79,7 +79,7 @@ func test_ornament_faces_outside_for_both_endpoint_orders_and_double_leaves() ->
 func test_camera_ray_selects_nearby_door_aperture() -> void:
 	var plan := CityPlan.load_default()
 	var node := CityDoors.create(plan)
-	root.add_child(node)
+	(Engine.get_main_loop() as SceneTree).root.add_child(node)
 	var door_key := "site:door.council_hall.north"
 	var door: Dictionary = node.doors[door_key]
 	var center: Vector2 = door["center"]
@@ -277,3 +277,39 @@ func test_st_mary_buttress_clears_the_priests_door() -> void:
 			# The wall runs east to west (x = 14 - s); buttress half-width 0.55.
 			var east_edge := 14.0 - float(face["s"])
 			assert_true(Builder.CHANCEL_BAY - 0.55 > east_edge + 0.2, "buttress clear")
+
+
+func test_interior_lights_skip_the_street_face_of_a_leaf() -> void:
+	var halves := Details.split(Details.mesh(&"ecclesiastical", 1.3, 2.4, 0, Vector2(1.3, 2.9)))
+	assert_eq(
+		halves, Details.split(Details.mesh(&"ecclesiastical", 1.3, 2.4, 0, Vector2(1.3, 2.9)))
+	)
+	assert_eq(halves[0].get_surface_count(), 1)
+	assert_eq(halves[0].surface_get_name(0), "wood_room")
+	assert_true(halves[0].get_aabb().end.z < 0.0, "inner half stays on the room side")
+	# Street boards: nothing of the facade's timber sits behind the room face.
+	for surface in halves[1].get_surface_count():
+		if halves[1].surface_get_name(surface) != "wood":
+			continue
+		var verts: PackedVector3Array = halves[1].surface_get_arrays(surface)[Mesh.ARRAY_VERTEX]
+		for v in verts:
+			assert_true(v.z >= -Details.THICKNESS * 0.5 - 0.001, "facade timber on the street side")
+	var names: Array[String] = []
+	for surface in halves[1].get_surface_count():
+		names.append(halves[1].surface_get_name(surface))
+	assert_true("iron" in names and "wood" in names, "street boards and ironwork on the facade")
+	var node := CityDoors.new()
+	var record := node._hang(
+		"test", Vector2.ZERO, Vector2(1.3, 0), 0, Vector2(0, 1), &"parish", Color.WHITE, 2.4, false
+	)
+	var leaf := (record["hinges"][0] as Node3D).get_child(0) as MeshInstance3D
+	var face := leaf.get_node("Facade") as MeshInstance3D
+	assert_eq(face.layers, 1 << (CityDoors.FACADE_LAYER - 1))
+	var candle := OmniLight3D.new()
+	CityDoors.keep_indoors(candle)
+	assert_eq(candle.light_cull_mask & face.layers, 0, "indoor light misses the facade")
+	assert_true(
+		candle.light_cull_mask & leaf.layers != 0, "indoor light still lights the room face"
+	)
+	candle.free()
+	node.free()

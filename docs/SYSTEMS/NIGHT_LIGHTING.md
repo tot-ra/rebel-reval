@@ -70,6 +70,7 @@ tools/godot_render.sh --resolution 1600x900 res://tools/capture_city_lighting.ts
 ## Limits
 
 - Window glow is emissive only: it does not light the street or the wall around it. Real lights stay with the furnished houses near Kalev (`CityInteriors`).
+- Interior lights cast no shadows. New indoor lights must call `CityDoors.keep_indoors(light)` so they skip the street face of door leaves ([`CITY_DOORS.md`](./CITY_DOORS.md)); otherwise a candle behind a shut door glints through it.
 - The glow schedule copies `HouseholdDay` constants into the shader; change both together.
 - Bare paving (Raekoja plats) on a moonless night is still near black; tuning and review in R-2064.
 - The lantern is primitive geometry and reads as a glow in the fist (R-2057). Guards do not raise it or react to the hero's light (R-2056).

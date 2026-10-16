@@ -105,6 +105,8 @@ static func _hall(site: CitySite) -> Node3D:
 	candle.light_energy = 1.6
 	candle.omni_range = 9.0
 	candle.position = Vector3(-9.8, FLOOR + 1.6, 0.0)
+	# Duplicates below copy the cull mask.
+	CityDoors.keep_indoors(candle)
 	lower_node.add_child(candle)
 	for spot: Vector3 in [Vector3(8.2, FLOOR + 1.4, 0.3), Vector3(1.6, FLOOR + 1.6, 4.4)]:
 		var light := candle.duplicate() as OmniLight3D

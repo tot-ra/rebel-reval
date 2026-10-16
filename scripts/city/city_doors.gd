@@ -21,6 +21,11 @@ const CHECK_RADIUS := 12.0
 const TIMBER_ALBEDO := "res://assets/materials/pbr/timber/timber_albedo.png"
 const TIMBER_NORMAL := "res://assets/materials/pbr/timber/timber_normal.png"
 const Details := preload("res://scripts/city/city_door_details.gd")
+## Render layer of each leaf's street half (CityDoorDetails.split). Interior
+## lights cast no shadows, so a candle behind a shut door reached its street
+## face through the boards and the board normal map turned that into a hot
+## glint at night; keep_indoors() lights cull this layer.
+const FACADE_LAYER := 19
 
 static var _materials: Dictionary = {}
 
@@ -145,11 +150,18 @@ func _hang(
 		var toward: Vector2 = (b - a).normalized() * (1.0 if k == 0 else -1.0)
 		hinge.position = Vector3(from.x, floor_y, from.y)
 		hinge.basis = Basis(Vector3.UP, atan2(-toward.y, toward.x))
+		var halves := Details.split(Details.mesh(style, leaf_w, height, variant, head))
 		var leaf := MeshInstance3D.new()
-		leaf.mesh = Details.mesh(style, leaf_w, height, variant, head)
-		for surface in leaf.mesh.get_surface_count():
-			if leaf.mesh.surface_get_name(surface) == "wood":
-				leaf.set_surface_override_material(surface, _material(paint))
+		leaf.mesh = halves[0]
+		var facade := MeshInstance3D.new()
+		facade.name = "Facade"
+		facade.mesh = halves[1]
+		facade.layers = 1 << (FACADE_LAYER - 1)
+		leaf.add_child(facade)
+		for part: MeshInstance3D in [leaf, facade]:
+			for surface in part.mesh.get_surface_count():
+				if part.mesh.surface_get_name(surface) in ["wood", "wood_room"]:
+					part.set_surface_override_material(surface, _material(paint))
 		# The authored inward normal, not endpoint order, determines the facade.
 		# Otherwise one leaf or an entire north-facing entrance hides its ironwork.
 		if _inward_sign(hinge, inward) < 0.0:
@@ -310,6 +322,11 @@ static func _inward_sign(hinge: Node3D, inward: Vector2) -> float:
 	# The leaf's local -Z (after a +90 deg yaw +X maps to -Z) must point inward.
 	var minus_z := -hinge.basis.z
 	return 1.0 if Vector2(minus_z.x, minus_z.z).dot(inward) > 0.0 else -1.0
+
+
+## Marks a light as indoor: it no longer reaches the street face of door leaves.
+static func keep_indoors(light: Light3D) -> void:
+	light.light_cull_mask &= ~(1 << (FACADE_LAYER - 1))
 
 
 static func _material(paint: Color) -> Material:

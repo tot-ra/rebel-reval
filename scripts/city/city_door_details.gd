@@ -18,6 +18,7 @@ const POOLS := [[&"ledged", &"plank"], [&"braced", &"plank"], [&"merchant", &"st
 const PAINTS := [Color(0.53, 0.46, 0.36), Color(0.56, 0.40, 0.25), Color(0.39, 0.26, 0.16)]
 const THICKNESS := 0.09
 static var _cache: Dictionary = {}
+static var _split_cache: Dictionary = {}
 static var _iron: StandardMaterial3D
 
 
@@ -76,7 +77,7 @@ static func mesh(
 	for y: float in [h * 0.16, h * 0.79]:
 		box(
 			shell,
-			"wood",
+			"wood_room",
 			Vector3(w * 0.04, y, -0.095),
 			Vector3(w * 0.96, y + 0.10, -0.044),
 			Color(0.78, 0.78, 0.78)
@@ -84,7 +85,7 @@ static func mesh(
 	if style in [&"braced", &"rough"]:
 		_bar(
 			shell,
-			"wood",
+			"wood_room",
 			Vector2(w * 0.08, h * 0.2),
 			Vector2(w * 0.91, h * 0.78),
 			0.09,
@@ -109,6 +110,29 @@ static func mesh(
 	for i in keys.size():
 		result.surface_set_name(i, keys[i])
 	_cache[key] = result
+	return result
+
+
+## [inner, facade] halves of a leaf mesh (cached per mesh). Inner keeps the
+## room-side `wood_room` surface (board room face, ledges, braces); facade
+## takes the rest (street face, board edges, all ironwork: the small back
+## latch and pull ride along to keep a leaf at three surfaces). CityDoors
+## puts the facade on CityDoors.FACADE_LAYER so shadowless interior lights
+## do not glint through a shut leaf. Whole surfaces move, so this stays cheap.
+static func split(leaf: ArrayMesh) -> Array[ArrayMesh]:
+	if _split_cache.has(leaf):
+		return _split_cache[leaf]
+	var inner := ArrayMesh.new()
+	var facade := ArrayMesh.new()
+	for surface in leaf.get_surface_count():
+		var surface_name := leaf.surface_get_name(surface)
+		var target := inner if surface_name == "wood_room" else facade
+		target.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, leaf.surface_get_arrays(surface))
+		var index := target.get_surface_count() - 1
+		target.surface_set_name(index, surface_name)
+		target.surface_set_material(index, leaf.surface_get_material(surface))
+	var result: Array[ArrayMesh] = [inner, facade]
+	_split_cache[leaf] = result
 	return result
 
 
@@ -251,7 +275,7 @@ static func _head_details(
 	if span.y - span.x > 0.2:
 		box(
 			s,
-			"wood",
+			"wood_room",
 			Vector3(span.x + 0.03, y, -0.095),
 			Vector3(span.y - 0.03, y + 0.1, -0.044),
 			Color(0.78, 0.78, 0.78)
@@ -283,10 +307,12 @@ static func _board(s: CityBuildingBuilder.Shell, edge: PackedVector2Array, color
 		middle += p / n
 	for side: float in [-1.0, 1.0]:
 		var normal := Vector3(0, 0, side)
+		# The room face goes to its own surface for CityDoorDetails.split.
+		var key := "wood_room" if side < 0.0 else "wood"
 		# Four-sided boards stay two triangles a face (the R-1692 budget).
 		if n == 4:
 			s.quad_out(
-				"wood",
+				key,
 				Vector3(inset[0].x, inset[0].y, t * side),
 				Vector3(inset[1].x, inset[1].y, t * side),
 				Vector3(inset[2].x, inset[2].y, t * side),
@@ -298,7 +324,7 @@ static func _board(s: CityBuildingBuilder.Shell, edge: PackedVector2Array, color
 			var j := (i + 1) % n
 			if n != 4:
 				s.tri_out(
-					"wood",
+					key,
 					Vector3(middle.x, middle.y, t * side),
 					Vector3(inset[i].x, inset[i].y, t * side),
 					Vector3(inset[j].x, inset[j].y, t * side),
@@ -306,7 +332,7 @@ static func _board(s: CityBuildingBuilder.Shell, edge: PackedVector2Array, color
 					normal
 				)
 			s.quad_out(
-				"wood",
+				key,
 				Vector3(edge[i].x, edge[i].y, (t - bevel) * side),
 				Vector3(edge[j].x, edge[j].y, (t - bevel) * side),
 				Vector3(inset[j].x, inset[j].y, t * side),

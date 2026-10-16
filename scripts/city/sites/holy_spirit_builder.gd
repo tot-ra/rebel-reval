@@ -406,6 +406,7 @@ static func _lights(node: Node3D) -> void:
 		light.light_energy = 1.5
 		light.omni_range = 10.0
 		light.position = spot
+		CityDoors.keep_indoors(light)
 		node.add_child(light)
 	# Glowing charcoal in the brazier pan, and its low ember light.
 	var coals := MeshInstance3D.new()
@@ -427,4 +428,5 @@ static func _lights(node: Node3D) -> void:
 	ember.light_energy = 0.8
 	ember.omni_range = 3.5
 	ember.position = BRAZIER + Vector3(0, 0.9, 0)
+	CityDoors.keep_indoors(ember)
 	node.add_child(ember)

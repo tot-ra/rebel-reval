@@ -793,4 +793,5 @@ static func _lights(node: Node3D) -> void:
 		light.light_energy = spot[2]
 		light.omni_range = spot[3]
 		light.shadow_enabled = false
+		CityDoors.keep_indoors(light)
 		node.add_child(light)

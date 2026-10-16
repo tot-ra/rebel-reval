@@ -2,6 +2,9 @@ extends SceneTree
 
 ## Isolated actual landmark assemblies, not mock portals. Run minimized via
 ## tools/godot_render.sh --script tools/capture_city_doors.gd [-- --site=st_olaf]
+## `--night` swaps the sun and fill for a dim moon so the site's own candles
+## show; `--leak` (evidence only) lets those candles reach the leaf's street
+## face again, as before CityDoors.keep_indoors.
 const OUTPUT := "res://docs/reports/images/city/doors/"
 const Details := preload("res://scripts/city/city_door_details.gd")
 const SHOTS := {
@@ -45,6 +48,14 @@ func _run() -> void:
 	sun.rotation_degrees = Vector3(-35, -25, 0)
 	sun.light_energy = 1.3
 	viewport.add_child(sun)
+	if "--night" in OS.get_cmdline_user_args():
+		env.background_color = Color(0.05, 0.07, 0.14)
+		env.ambient_light_color = Color(0.45, 0.52, 0.7)
+		env.ambient_light_energy = 0.25
+		env.tonemap_mode = Environment.TONE_MAPPER_AGX
+		env.glow_enabled = true
+		sun.light_color = Color(0.62, 0.7, 1.0)
+		sun.light_energy = 0.12
 	stage = Node3D.new()
 	viewport.add_child(stage)
 	var site_name := ""
@@ -93,7 +104,8 @@ func _repertoire() -> void:
 		stage.add_child(label)
 
 
-## `--door=<id>` picks another entrance; `--view=outside|inside|open` (R-1693).
+## `--door=<id>` picks another entrance; `--view=outside|inside|open|graze`
+## (R-1693; graze looks along the street face of the wall).
 func _site(site_name: String) -> void:
 	var door_id := String(SHOTS.get(site_name, ""))
 	var view := "outside"
@@ -110,6 +122,9 @@ func _site(site_name: String) -> void:
 		var model: Node3D = script.call("build", site, plan)
 		model.transform = site.transform3d()
 		stage.add_child(model)
+		if "--leak" in OS.get_cmdline_user_args():
+			for light: Node in model.find_children("*", "Light3D", true, false):
+				(light as Light3D).light_cull_mask = 0xFFFFF
 		var doors := CityDoors.new()
 		stage.add_child(doors)
 		for d: Dictionary in site.doors:
@@ -140,7 +155,7 @@ func _site(site_name: String) -> void:
 					var leaf := hinge.get_child(0) as Node3D
 					leaf.rotation.y = CityDoors._inward_sign(hinge, d["inward"]) * hang["angle"]
 			var center: Vector2 = (d["a"] + d["b"]) * 0.5
-			var side: Vector2 = d["inward"] if view != "outside" else -d["inward"]
+			var side: Vector2 = -d["inward"] if view in ["outside", "graze"] else d["inward"]
 			var height := float(hang["head"].y) if hang["head"].y > 0.0 else float(d["height"])
 			var target := Vector3(center.x, floor_y + height * 0.5, center.y)
 			var eye := target + Vector3(side.x, 0.05, side.y) * maxf(5.5, width * 2.1)
@@ -148,19 +163,34 @@ func _site(site_name: String) -> void:
 				# Three-quarter view from inside shows the leaf against the rear arch.
 				var along: Vector2 = (d["b"] - d["a"]).normalized()
 				eye = target + Vector3(side.x + along.x * 0.8, 0.1, side.y + along.y * 0.8) * 4.5
+			if view == "graze":
+				# `--run=<m>` slides the eye along the wall (sign picks the side).
+				var run: Vector2 = (d["b"] - d["a"]).normalized() * _float_arg("--run=", 9.0)
+				eye = target + Vector3(side.x * 2.6 + run.x, 0.0, side.y * 2.6 + run.y)
 			camera.look_at_from_position(eye, target)
-			var fill := OmniLight3D.new()
-			fill.position = eye + Vector3(1.3, 1.5, 0.5)
-			fill.light_energy = 1.5
-			fill.omni_range = 12
-			viewport.add_child(fill)
+			if "--night" not in OS.get_cmdline_user_args():
+				var fill := OmniLight3D.new()
+				fill.position = eye + Vector3(1.3, 1.5, 0.5)
+				fill.light_energy = 1.5
+				fill.omni_range = 12
+				viewport.add_child(fill)
 		var suffix := ""
 		if door_id != String(SHOTS.get(site_name, "")):
 			suffix = "_" + door_id.get_slice(".", 2)
+		for flag: String in ["--night", "--leak"]:
+			if flag in OS.get_cmdline_user_args():
+				suffix += "_" + flag.trim_prefix("--")
 		await _save(site_name + suffix + ("" if view == "outside" else "_" + view))
 		return
 	push_error("Unknown door capture site: " + site_name)
 	quit(1)
+
+
+func _float_arg(prefix: String, fallback: float) -> float:
+	for arg in OS.get_cmdline_user_args():
+		if arg.begins_with(prefix):
+			return float(arg.trim_prefix(prefix))
+	return fallback
 
 
 func _save(filename: String) -> void:
@@ -188,10 +218,12 @@ func _budget() -> void:
 	var drawn := 0
 	for record: Dictionary in doors.doors.values():
 		for hinge: Node3D in record["hinges"]:
-			var mesh := (hinge.get_child(0) as MeshInstance3D).mesh
+			var leaf := hinge.get_child(0) as MeshInstance3D
 			leaves += 1
-			drawn += _triangles(mesh)
-			unique[mesh] = true
+			# Room-side half plus its street-side Facade child (CityDoorDetails.split).
+			for mesh: Mesh in [leaf.mesh, (leaf.get_node("Facade") as MeshInstance3D).mesh]:
+				drawn += _triangles(mesh)
+				unique[mesh] = true
 	var cached := 0
 	for mesh: Mesh in unique:
 		cached += _triangles(mesh)
