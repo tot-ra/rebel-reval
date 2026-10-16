@@ -693,7 +693,7 @@ def bake_crowd_body(spec, meshes, wardrobe):
 
 # Triangle budget of one exported citizen layer (docs/SYSTEMS/CITIZEN_WARDROBE.md):
 # a resident wears up to four, so a dressed crowd body stays near 15k triangles.
-LAYER_TRIANGLES = {"hood": 1400, "veil_over": 1400, "mail_coif": 1300, "coif": 900, "wool_cap": 700,
+LAYER_TRIANGLES = {"hood": 3600, "veil_over": 1400, "mail_coif": 1300, "coif": 900, "wool_cap": 700,
                    "bascinet": 700, "kettle_hat": 700, "gambeson": 2600, "mail_haubergeon": 2200,
                    "surcoat": 2000, "smith_apron": 900, "waist_apron": 800, "keys": 400,
                    "paternoster": 700, "satchel": 700, "back_sack": 700, "coat_of_plates": 2800,

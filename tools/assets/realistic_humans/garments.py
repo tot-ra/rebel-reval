@@ -2257,3 +2257,8 @@ WARDROBE = {
 import underlinen  # noqa: E402
 
 underlinen.install(WARDROBE)
+
+# Hood with liripipe and dagged hem (EQ-26, R-2028): wraps the hood entry above.
+import headwear  # noqa: E402
+
+headwear.install(WARDROBE)

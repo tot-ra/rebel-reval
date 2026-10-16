@@ -79,6 +79,22 @@ Instance uniforms (per mesh, `GeometryInstance3D.set_instance_shader_parameter`)
 
 ![Rich merchant, poor porter, smith at 3 m](../reports/images/characters/citizen_textiles_3m.jpg)
 
+## Men's headwear (R-2028)
+
+Task **R-2028** (EQ-26 of epic **R-2002**): the hood gains its liripipe and, for the rich, dagged hem; the coif and the wool cap take their variants from the existing cell rules. Builder: [`headwear.py`](../../tools/assets/realistic_humans/headwear.py), wrapped round the `hood` entry of `garments.WARDROBE`.
+
+- **Liripipe.** Every crowd hood carries the long tail of its crown: a tapering strap (6.2 cm to 1.8 cm wide, 62 cm long) that hangs down the back over the cape and falls to one side per body. Friars' capuces (spec `hood_over`) keep the plain cape.
+- **Dags.** A ring of 32 cut leaf tongues (6-10 cm) below the cape's hem, the mid-14th-c. fashion of the rich, is its own surface `<body>_hood_dags`. `weave` hides it with `hidden_material` below prestige p3 (`CitizenWardrobe.HOOD_DAGS`), as the sleeve buttons are hidden on p1. Crowd layers only (spec `tier` 2); the layer budget is 3,600 triangles.
+- **Variants.** Hood: p1 w1 and w2 homespun (worn: faded, patched), p2 w0 broadcloth, p3 dagged and scarlet by the wealth grade. Coif: coarse linen w1 (yellowed) or w2 (sweat-stained), fine bleached linen for the better off (`linen_grade`). Wool cap: homespun, broadcloth, scarlet by wealth, with the cell's wear. No new garment files: the cell picks the cloth and the dags.
+- **Not built.** Felt, straw and fur hats are new hat kinds that need an approved P0-040 task naming the files; the approval question timed out unanswered, so they stay open (follow-up on the board).
+
+![Four hoods seen from behind: plain, worn, fine, dagged](../reports/images/equipment/headwear_hoods_back.png)
+![The same four from the front](../reports/images/equipment/headwear_hoods_front.png)
+![Coif and wool cap by purse](../reports/images/equipment/headwear_caps.png)
+![The dagged hood on the four adult builds](../reports/images/equipment/headwear_builds.png)
+
+Verify: refit with `Blender --background --python tools/assets/realistic_humans/build_human.py -- --character=citizen_m_adult_<build> --layers-only --only hood`; test `test_hood_dags_show_on_prestige_three`; capture `tools/godot_render.sh --script tools/capture_headwear.gd`.
+
 ## Linen that shows (R-2024)
 
 Every man wore a linen shirt and braies under the wool, every woman a chemise (smock, *sark*) under the gown ([clothing dossier](../../history/dossiers/dailylife/clothing-and-status-markers.md)). On a crowd body only its edges are seen, so only the edges are built, by `tools/assets/realistic_humans/underlinen.py` (imported at the end of `garments.py`, it wraps the base outfit entries of `WARDROBE`):

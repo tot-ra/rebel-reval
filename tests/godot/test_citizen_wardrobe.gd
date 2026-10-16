@@ -273,3 +273,34 @@ func test_watch_carries_the_spear_variant() -> void:
 			var length := tip.position.y - butt.position.y
 			assert_true(length > 2.1 and length < 2.4, "spear length %.2f m" % length)
 	rig.queue_free()
+
+
+## R-2028: every hood has a liripipe; the dags on the hem show on p3 only.
+func test_hood_dags_show_on_prestige_three() -> void:
+	var body := "citizen_m_adult_average"
+	for cell: String in ["p1_w1", "p3_w0"]:
+		var rig := _rig(body)
+		var record := {
+			"id": "t.hood." + cell, "body": body, "sex": "m", "status": "burgher",
+			"cloth": [0.4, 0.4, 0.4], "under": [0.2, 0.2, 0.2], "wear": ["hood@" + cell],
+		}
+		CitizenWardrobe.dress(rig, record)
+		var shown := 0
+		var hidden := 0
+		for node: Node in rig.find_children("*", "MeshInstance3D", true, false):
+			var mesh := node as MeshInstance3D
+			if mesh.mesh == null or not String(mesh.name).contains("hood"):
+				continue
+			for s in mesh.mesh.get_surface_count():
+				var source := mesh.mesh.surface_get_material(s)
+				if source == null or not source.resource_name.ends_with(CitizenWardrobe.HOOD_DAGS):
+					continue
+				if mesh.get_surface_override_material(s) == CitizenWardrobe.hidden_material():
+					hidden += 1
+				else:
+					shown += 1
+		if cell == "p3_w0":
+			assert_true(shown > 0 and hidden == 0, "p3 hood shows its dags")
+		else:
+			assert_true(hidden > 0 and shown == 0, "p1 hood hides its dags")
+		rig.queue_free()

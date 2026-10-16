@@ -23,6 +23,11 @@ extends RefCounted
 
 const EquipmentVariant := preload("res://scripts/city/equipment_variant.gd")
 
+## Dags (cut leaf tongues) on the hood's hem (task R-2028, tools/assets/realistic_humans/headwear.py):
+## the hood layer carries them as their own surface, shown on prestige p3 only.
+const HOOD_DAGS := "_hood_dags"
+static var _hidden: ShaderMaterial
+
 const LAYER_PATH := "res://assets/characters/realistic/%s/layers/%s.glb"
 const LAYER_DIR := "res://assets/characters/realistic/%s/layers"
 const GARMENT_PREFIX := "wear_"
@@ -161,6 +166,21 @@ static func layer_scene(body: String, layer: String) -> PackedScene:
 	return _scenes[path]
 
 
+## Shared material that draws nothing: collapses every vertex, so a hidden surface
+## (p1 sleeve buttons) costs no fragments and casts no shadow.
+static func hidden_material() -> ShaderMaterial:
+	if _hidden == null:
+		var shader := Shader.new()
+		shader.code = (
+			"shader_type spatial;\nrender_mode unshaded;\n"
+			+ "void vertex() {\n\tPOSITION = vec4(0.0, 0.0, 2.0, 1.0);\n}\n"
+		)
+		_hidden = ShaderMaterial.new()
+		_hidden.resource_name = "hidden"
+		_hidden.shader = shader
+	return _hidden
+
+
 ## Gives every cloth surface on the rig its shared grade material and sets this
 ## resident's dyes and wear as instance uniforms. Safe to call twice.
 static func weave(rig: SharedCharacterRig, record: Dictionary) -> void:
@@ -180,6 +200,10 @@ static func weave(rig: SharedCharacterRig, record: Dictionary) -> void:
 		var woven := false
 		for surface in mesh_instance.mesh.get_surface_count():
 			var source := mesh_instance.mesh.surface_get_material(surface) as BaseMaterial3D
+			if source != null and source.resource_name.ends_with(HOOD_DAGS):
+				if EquipmentVariant.prestige(parts[1]) < 3:
+					mesh_instance.set_surface_override_material(surface, hidden_material())
+				continue
 			var family := family_of(source)
 			if family.is_empty():
 				continue
