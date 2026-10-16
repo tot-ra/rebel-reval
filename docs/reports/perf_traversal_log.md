@@ -1,6 +1,6 @@
 # Performance and traversal coverage ledger
 
-Status: QA coverage ledger for active Reval locations and travel destinations. Updated 2026-10-16.
+Status: QA coverage ledger for active Reval locations and travel destinations. Updated 2026-10-17.
 
 Metrics are recorded only when the named place is actually measured. `not measured` is not a pass. Headless benchmark frame times are wall-clock instrumentation and are not rendered FPS. A full player traversal requires the player route tool or an equivalent deterministic end-to-end test; manifest/validator checks alone do not count as a walk.
 
@@ -10,8 +10,8 @@ Metrics are recorded only when the named place is actually measured. `not measur
 
 | Place ID | Region / map type | Last perf check | Last traversal check | avg / p1 frame time | Peak memory | Nodes / collisions | Hitches / open tasks |
 |---|---|---|---|---|---|---|---|
-| `forge` | Reval / smithy interior | 2026-10-16 (headless, load-contaminated) | never | median 8.9 / p95 32.5 ms (2026-10-11: p95 8.4; host load ~30) | +222.9 MiB (was +231.4) | 1,909 / 46 | No route walk; R-1687 |
-| `reval_city` | Reval / continuous city | 2026-10-16 (headless, load-contaminated) | 2026-10-16 (4 street routes pass; house-door step is a stale harness, R-2178) | median 106.9 / p95 390.9 ms (host load ~30; 2026-10-11: p95 90.2) | +1,899.5 MiB (was +1,521.9) | 37,528 / 17,771 (was 31,294 / 15,216) | startup 71.3 s; R-1686, R-1687, R-2178 |
+| `forge` | Reval / smithy interior | 2026-10-17 (headless, load-contaminated) | never | median 7.1 / p95 21.5 ms (2026-10-16: 8.9 / 32.5) | +224.6 MiB (was +222.9) | 1,909 / 46 | No route walk; R-1687 |
+| `reval_city` | Reval / continuous city | 2026-10-17 (headless, load-contaminated) | 2026-10-17 (17/17 manifest spawns placed and movable; 2026-10-16: 4 street routes pass; R-2178 stale harness) | median 84.3 / p95 244.5 ms (host load 16-99; 2026-10-16: 106.9 / 390.9) | +2,022.4 MiB (was +1,899.5, +6.5%); 2,300 -> 2,720 MiB over a 17-spawn tour, plateau ~2.6 GiB (cache, laps 2-3 flat) | 40,857 / 17,771 (was 37,528 / 17,771) | startup ~82 s; R-1686 (evidence added), R-1687, R-2178 |
 | `world_sacred_grove` | Harju / sacred grove site | 2026-10-16 (headless) | 2026-10-16 (3 spawns, 3/3 roads) | median 12.4 / p95 59.1 ms (load-contaminated) | +640 MiB | 2,750 / 39 | R-2177 |
 | `world_harju` | Harju / hinterland site | 2026-10-16 (headless) | 2026-10-16 (6 spawns, 7/7 roads) | median 12.4 / p95 57.6 ms (load-contaminated) | +664 MiB | 2,520 / 447 | R-2177, R-1593 |
 | `world_padise` | Lääne / monastery site | 2026-10-16 (headless) | 2026-10-16 (3 spawns, 5/6 roads) | median 10.2 / p95 53.8 ms (load-contaminated) | +684 MiB | 2,181 / 42 | R-2177, R-2176 (road.grange) |
@@ -22,10 +22,10 @@ Metrics are recorded only when the named place is actually measured. `not measur
 | `world_paide` | Järva / town site | 2026-10-16 (headless) | 2026-10-16 (4 spawns, 5/6 roads) | median 15.5 / p95 74.1 ms (load-contaminated) | +656 MiB | 2,147 / 106 | R-2177, R-2176 (road.east) |
 | `world_parnu` | Pärnu / travel map | 2026-10-16 (load only, headless) | 2026-10-16 (load + spawn free in 3-4/4 dirs; no walk) | not measured (load 1715 ms) | not measured | 1057 / n.a. | R-1687 |
 | `world_poide` | Saaremaa / travel map | 2026-10-16 (load only, headless) | 2026-10-16 (load + spawn free in 3-4/4 dirs; no walk) | not measured (load 1673 ms) | not measured | 1124 / n.a. | R-1687 |
-| `world_rakvere` | Virumaa / travel map | 2026-10-16 (load only, headless) | 2026-10-16 (load + spawn free in 3-4/4 dirs; no walk) | not measured (load 1753 ms) | not measured | 1098 / n.a. | R-1687 |
+| `world_rakvere` | Virumaa / travel map | 2026-10-17 (headless, --quick 20 frames; full 120 frames never finishes, R-2198) | 2026-10-16 (load + spawn free in 3-4/4 dirs; no walk) | median 6.8 / p95 7.7 ms (20 frames, hitches 837/547 ms at frames 63/125 in a probe) | +116.0 MiB | 1098 / 15 | R-2198, R-1687 |
 | `world_haapsalu` | Lääne / travel map | 2026-10-16 (load only, headless) | 2026-10-16 (load + spawn free in 3-4/4 dirs; no walk) | not measured (load 1841 ms) | not measured | 1098 / n.a. | R-1687 |
 | `world_lihula` | Lääne / travel map | 2026-10-16 (load only, headless) | 2026-10-16 (load + spawn free in 3-4/4 dirs; no walk) | not measured (load 1770 ms) | not measured | 1105 / n.a. | R-1687 |
-| `world_tartu` | Ugandi / travel map | 2026-10-16 (load only, headless) | 2026-10-16 (load + spawn free in 3-4/4 dirs; no walk) | not measured (load 1823 ms) | not measured | 1101 / n.a. | R-1687 |
+| `world_tartu` | Ugandi / travel map | 2026-10-17 (headless, --quick 20 frames; full 120 frames never finishes, R-2198) | 2026-10-16 (load + spawn free in 3-4/4 dirs; no walk) | median 6.8 / p95 7.6 ms (20 frames, hitches 837/547 ms at frames 63/125 in a probe) | +123.0 MiB | 1101 / 13 | R-2198, R-1687 |
 | `world_viljandi` | Sakala / travel map | 2026-10-16 (load only, headless) | 2026-10-16 (load + spawn free in 3-4/4 dirs; no walk) | not measured (load 1752 ms) | not measured | 1112 / n.a. | R-1687 |
 | `world_poltsamaa` | Järva / travel map | 2026-10-16 (load only, headless) | 2026-10-16 (load + spawn free in 3-4/4 dirs; no walk) | not measured (load 1744 ms) | not measured | 1105 / n.a. | R-1687 |
 | `world_narva` | Virumaa / travel map | 2026-10-16 (load only, headless) | 2026-10-16 (load + spawn free in 3-4/4 dirs; no walk) | not measured (load 1682 ms) | not measured | 1091 / n.a. | R-1687 |
@@ -33,24 +33,24 @@ Metrics are recorded only when the named place is actually measured. `not measur
 | `world_helme` | Ugandi / travel map | 2026-10-16 (load only, headless) | 2026-10-16 (load + spawn free in 3-4/4 dirs; no walk) | not measured (load 1735 ms) | not measured | 1098 / n.a. | R-1687 |
 | `world_maasilinna` | Saaremaa / travel map | 2026-10-16 (load only, headless) | 2026-10-16 (load + spawn free in 3-4/4 dirs; no walk) | not measured (load 1674 ms) | not measured | 1098 / n.a. | R-1687 |
 | `world_karja` | Saaremaa / travel map | 2026-10-16 (load only, headless) | 2026-10-16 (load + spawn free in 3-4/4 dirs; no walk) | not measured (load 1683 ms) | not measured | 1091 / n.a. | R-1687 |
-| `world_klint` | Harju / coastal travel map | 2026-10-16 (load only, headless) | 2026-10-16 (load + spawn free in 3-4/4 dirs; no walk) | not measured (load 1708 ms) | not measured | 1003 / n.a. | R-1687 |
+| `world_klint` | Harju / coastal travel map | 2026-10-17 (headless, --quick 20 frames; full 120 frames never finishes, R-2198) | 2026-10-16 (load + spawn free in 3-4/4 dirs; no walk) | median 6.9 / p95 7.9 ms (20 frames, hitches 837/547 ms at frames 63/125 in a probe) | +116.9 MiB | 1003 / 9 | R-2198, R-1687 |
 | `world_soomaa` | Sakala / wetland travel map | 2026-10-16 (load only, headless) | 2026-10-16 (load + spawn free in 3-4/4 dirs; no walk) | not measured (load 1742 ms) | not measured | 1009 / n.a. | R-1687 |
 | `world_frontier_ugandi` | Ugandi / frontier travel map | 2026-10-16 (load only, headless) | 2026-10-16 (load + spawn free in 3-4/4 dirs; no walk) | not measured (load 12646 ms) | not measured | 1032 / n.a. | R-1687 |
-| `district.toompea` | Reval / upper town and castle | never | 2026-10-16 (street route luhike_jalg_up 25/25 (Lühike jalg), rendered walk) | not measured | not measured | not measured | R-1687; see historical ledger |
-| `district.lower_town` | Reval / lower town | never | 2026-10-16 (street route pikk_jalg_up 44/44 (Pikk jalg), rendered walk) | not measured | not measured | not measured | R-1687; see historical ledger |
-| `district.kalarand` | Reval / harbour shoreline | never | 2026-10-16 (street route pikk_to_harbour 111/111 (to the Coastal Gate), rendered walk) | not measured | not measured | not measured | R-1687; see historical ledger |
-| `district.viru` | Reval / gate and road suburb | never | 2026-10-16 (street route viru_inward 32/32, rendered walk) | not measured | not measured | not measured | R-1687; see historical ledger |
-| `district.karja` | Reval / farmsteads and road | never | 2026-10-10 (historical walk, not traversal QA) | not measured | not measured | not measured | R-1687; see historical ledger |
-| `district.harju` | Reval / road and houses | never | 2026-10-10 (historical walk, not traversal QA) | not measured | not measured | not measured | R-1687; see historical ledger |
+| `district.toompea` | Reval / upper town and castle | 2026-10-17 (spawn `road.toompea_west`, headless, load-contaminated) | 2026-10-17 (spawns road.toompea_west, poi.barracks.castle, poi.well.bishop_garden placed and movable; 2026-10-16 street route luhike_jalg_up 25/25) | median 46.2 / p95 336.3 ms | 2,719.8 MiB static (city total at that point) | 41917 nodes (whole tree) / n.a. | R-1686 (peak city memory is reached here), R-1687 |
+| `district.lower_town` | Reval / lower town | 2026-10-17 (spawn `poi.forum`, headless, load-contaminated) | 2026-10-17 (spawns poi.forum, gate.viru, st_olaf, st_nicholas, granary placed and movable; 2026-10-16 street route pikk_jalg_up 44/44) | median 78.0 / p95 289.2 ms | 2,300.6 MiB static (city total at that point) | 41799 nodes (whole tree) / n.a. | R-1686, R-1687; spawn poi.granary.pikk and poi.well.bishop_garden sit inside enterable buildings (door click needed) |
+| `district.kalarand` | Reval / harbour shoreline | 2026-10-17 (spawn `suburb.kalarand`, headless, load-contaminated) | 2026-10-17 (spawns suburb.kalarand, poi.fish_landing, gate.coastal placed and movable; 2026-10-16 street route pikk_to_harbour 111/111) | median 36.9 / p95 58.5 ms | 2,687.8 MiB static (city total at that point) | 42484 nodes (whole tree) / n.a. | R-1686, R-1687 |
+| `district.viru` | Reval / gate and road suburb | 2026-10-17 (spawn `gate.viru`, headless, load-contaminated) | 2026-10-17 (spawns gate.viru, gate.viru.outside placed and movable; 2026-10-16 street route viru_inward 32/32) | median 34.0 / p95 133.2 ms | 2,415.3 MiB static (city total at that point) | 42709 nodes (whole tree) / n.a. | R-1686, R-1687 |
+| `district.karja` | Reval / farmsteads and road | 2026-10-17 (spawn `gate.karja.outside`, headless, load-contaminated) | 2026-10-17 (spawn placed, movable, on the street; no street-route walk) | median 46.4 / p95 103.8 ms | 2,445.3 MiB static (city total at that point) | 42275 nodes (whole tree) / n.a. | R-1687 |
+| `district.harju` | Reval / road and houses | 2026-10-17 (spawn `gate.harju.outside`, headless, load-contaminated) | 2026-10-17 (spawn placed, movable, on the street; no street-route walk) | median 41.3 / p95 172.0 ms | 2,447.3 MiB static (city total at that point) | 42327 nodes (whole tree) / n.a. | R-1687 |
 | `district.toompea_foot` | Reval / castle-foot yards | never | 2026-10-09 (historical walk, not traversal QA) | not measured | not measured | not measured | R-1687; see historical ledger |
 | `site.raekoja_plats` | Reval / Town Hall square | never | 2026-10-10 (historical walk, not traversal QA) | not measured | not measured | not measured | R-1687; see historical ledger |
-| `site.holy_spirit` | Reval / church and almshouse | never | 2026-10-15 (site-door traversal; not interregional) | not measured | not measured | not measured | R-1687; performance still unmeasured |
-| `site.st_olaf` | Reval / church | never | 2026-10-15 (site-door traversal; not interregional) | not measured | not measured | not measured | R-1687; performance still unmeasured |
-| `site.st_nicholas` | Reval / church | never | never | not measured | not measured | not measured | R-1687 |
+| `site.holy_spirit` | Reval / church and almshouse | 2026-10-17 (spawn `holy_spirit_almshouse`, headless, load-contaminated) | 2026-10-17 (interior spawn placed, movable; 2026-10-15 site-door traversal pass) | median 52.1 / p95 164.5 ms | 2,341.7 MiB static (city total at that point) | 42324 nodes (whole tree) / n.a. | R-1687 |
+| `site.st_olaf` | Reval / church | 2026-10-17 (spawn `landmark.st_olaf`, headless, load-contaminated) | 2026-10-17 (exterior spawn; 2026-10-15 site-door traversal pass) | median 56.0 / p95 97.8 ms | 2,528.7 MiB static (city total at that point) | 42759 nodes (whole tree) / n.a. | R-1687 |
+| `site.st_nicholas` | Reval / church | 2026-10-17 (spawn `landmark.st_nicholas`, headless, load-contaminated) | 2026-10-17 (exterior spawn placed, on the street; no door/room walk) | median 39.1 / p95 148.1 ms | 2,571.7 MiB static (city total at that point) | 41449 nodes (whole tree) / n.a. | R-1687 |
 | `site.st_mary` | Reval / Dome church building site | never | 2026-10-11 (historical walk, not traversal QA) | not measured | not measured | not measured | R-1687; see historical ledger |
-| `site.kalev_smithy` | Reval / smithy site | never | never | not measured | not measured | not measured | R-1687 |
+| `site.kalev_smithy` | Reval / smithy site | 2026-10-17 (spawn `kalev_smithy (forge bay)`, headless, load-contaminated) | 2026-10-17 (interior spawn placed, movable in 4 dirs: 88/46/94/31 px per 0.6 s; no street exit walk) | median 48.9 / p95 215.1 ms | 2,313.5 MiB static (city total at that point) | 42178 nodes (whole tree) / n.a. | R-1687 |
 
-Coverage count (2026-10-16): 7/39 places have a completed performance-and-traversal check: the six hinterland sites (`world_sacred_grove`, `world_harju`, `world_padise`, `world_saaremaa`, `world_rebel_kings`, `world_paide`; headless perf plus spawn and full-road traversal) and `reval_city` (perf plus four street routes). 18 global-map travel scenes were loaded and spawn-checked only (counted as partial, 0 points). `forge` has perf only; four city districts have a street-route walk (pass) but no per-district perf; `site.st_nicholas`, `site.kalev_smithy` and the remaining districts are still uncovered. Coverage percentage 7/39 = 18% (26 manifest scenes + 13 city areas; not every enterable interior room is enumerated).
+Coverage count (2026-10-17): 11/39 places have a completed performance-and-traversal check: the six hinterland sites and `reval_city` (2026-10-16) plus the four districts `district.toompea`, `district.lower_town`, `district.kalarand`, `district.viru` (street-route walk 2026-10-16 plus spawn placement and per-spawn nodes/memory/frame time 2026-10-17). Partial (not counted): `district.karja`, `district.harju`, `site.st_nicholas`, `site.st_olaf`, `site.kalev_smithy`, `site.holy_spirit` (spawn placement and movement only, no room or street-route walk), `forge` (perf only) and the 18 `world_travel` scenes (load, spawn free, 3 of them also quick perf). Coverage percentage 11/39 = 28% (was 18%).
 
 ## Run log
 
@@ -74,6 +74,20 @@ Coverage count (2026-10-16): 7/39 places have a completed performance-and-traver
 - Screenshot: none. Headless benchmark produced no visual frame; no minimized `godot_render.sh` capture was run because there was no route/session state to capture.
 - Defect tasks filed: R-1686 (measured city performance budget exceedance), R-1687 (missing reproducible active-world route coverage/harness).
 - Worst observed issue: city scene headless instrumentation p95 90.218 ms, 5.41x the target, alongside 16.91x collision and 5.44x memory budgets. It is a performance-budget defect, not a verified rendered FPS reading.
+
+### 2026-10-17 - city spawns (all districts), travel-map perf and hitch probe
+
+- Commit: `d70bf1f4e` (main). Machine: macOS, Apple M5 Pro, Godot 4.7.1, headless. Host load average 16-99 from other agents' Godot jobs, so every TIME number below is contaminated; node, collision, memory and draw-call-free counts are not.
+- Places picked (oldest or never visited, three map types): `district.karja`, `district.harju`, `district.toompea` (and foot road spawn), `district.kalarand`, `site.st_nicholas`, `site.kalev_smithy` (city, never visited); `world_rakvere`, `world_tartu`, `world_klint` (travel maps, load-only before); recent-commit place `reval_city` (plot walls, dung, seasons commits within 2 days). Last run's hinterland sites were not repeated.
+- New tool: `tools/verify_city_spawn_traversal.tscn` (documented in docs/SYSTEMS/SEAMLESS_CITY.md). It runs headless: 17/17 city spawns placed (0 STEEP overlaps, 0 inside closed buildings, all movable in at least one direction, no fall-through). 7 of 17 spawn->nearest-street straight-line walks stopped next to houses or walls (bldg.osm.w200516967, bldg.kalarand.29, interiors) - a heuristic limit, not counted as defects. Under `tools/godot_render.sh` the same tool failed to compile (`Identifier not found: DoorNavigator` in scripts/player.gd:150 and rrmap_resource_format_loader), the existing `capture_reval_city_walk.tscn` showed no such error in 75 s; headless works, so draw calls were not recorded (0 in headless).
+- Quick baseline (`tools/run_performance_report.sh build/benchmarks/perf-traversal-2026-10-17.json --quick`, exit 0): `reval_city_scene` nodes 37,528 -> 40,857 (+8.9%), collisions 17,771 -> 17,771 (flat), memory +1,899.5 -> +2,022.4 MiB (+6.5%), median 84.3 / p95 244.5 ms / max 1,104.7 ms (load-contaminated; 2026-10-16: 106.9 / 390.9). `kalev_smithy_scene` nodes 1,909 (flat), +224.6 MiB (was +222.9), median 7.1 / p95 21.5 ms (was 8.9 / 32.5, both loaded).
+- Memory over a tour: static memory poi.forum 2,300.6 -> road.toompea_west 2,719.8 MiB (+419 MiB) across 17 teleports. Laps 2 and 3 over 5 spawns are flat (poi.forum 2,287.0 first, 2,594.5 second, 2,600.9 third): cache plateau ~2.6 GiB, not a leak. Added to R-1686.
+- Travel maps: `verify_site_traversal --travel` 18/18 pass, free_dirs 3-4 (poide 3), load 1.0-1.4 s (frontier_ugandi 8.2 s cold). `scene_benchmark --quick` on world_klint/rakvere/tartu: 1,003-1,101 nodes, 9-15 collisions, +116 to +123 MiB, p95 7.6-7.9 ms.
+- Defect: `scene_benchmark` on a world_travel scene without `--quick` never finishes (klint >150 s, rakvere >16 min, main thread in GDScript). A bare probe of world_rakvere shows a 837 ms frame at frame 63 (nodes 1,212 -> 2,387) and 547 ms at frame 125. Filed R-2198.
+- Routes tried: 17 city spawn placements pass; 17 spawn->street walks 10 pass / 7 heuristic stops (not defects); 18 travel-map loads pass. Not tested: click-to-travel chains region to region, city interiors beyond landmark sites, rendered draw calls.
+- Evidence: `build/qa/city_spawns_2026-10-17.json|log`, `build/qa/city_spawns_repeat.json`, `build/benchmarks/perf-traversal-2026-10-17.json`, `build/qa/travel_*.json` (ignored, local). No screenshot: headless run, and the GPU path of the new tool fails to compile (see above).
+- Tasks: filed R-2198; evidence added to R-1686 and R-1687.
+- Worst problem: `scene_benchmark` hang on world_travel maps (R-2198), with the city's retained +300 MiB memory after a tour (R-1686) as the largest budget breach (7.2x).
 
 ### 2026-10-16 - hinterland sites, travel maps and street routes
 
@@ -100,10 +114,11 @@ Coverage count (2026-10-16): 7/39 places have a completed performance-and-traver
 
 ## Uncovered places
 
-Never covered by the combined gate: `forge` (no traversal), `site.st_nicholas`, `site.kalev_smithy`, `site.raekoja_plats`, `site.st_mary`, the districts `district.karja`, `district.harju`, `district.toompea_foot` (no street-route walk; perf unmeasured for all districts), and the 18 global-map scenes (only load and spawn). City interiors outside landmark sites and the city <-> region and region <-> region transitions are untested.
+Never covered by the combined gate (2026-10-17): `district.toompea_foot`, `site.raekoja_plats`, `site.st_mary`, any room-level walk of `site.st_nicholas` and `site.kalev_smithy`, a street-route walk for `district.karja` and `district.harju`, and all 18 global-map scenes (only load, spawn and for three of them quick perf; no walk). City interiors outside landmark sites, click-to-travel on the global map and region to region chains are untested.
 
 ## Reproduction references
 
+- City spawns: `godot --headless --path . res://tools/verify_city_spawn_traversal.tscn -- [--spawn=gate.viru,poi.forum] [--out=build/qa/city_spawns.json]` (see docs/SYSTEMS/SEAMLESS_CITY.md)
 - Site traversal: `godot --headless --path . res://tools/verify_site_traversal.tscn -- [--site=paide] [--travel] [--leak=5]` (see docs/SYSTEMS/REGIONAL_SITES.md)
 - Site perf: `godot --headless --path . res://tools/benchmarks/scene_benchmark.tscn -- --scene=res://scenes/world/sites/<site>.tscn --profile-id=world_<site> --output=build/qa/<site>.json`
 
