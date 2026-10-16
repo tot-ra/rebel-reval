@@ -23,6 +23,8 @@ extends RefCounted
 
 const EquipmentVariant := preload("res://scripts/city/equipment_variant.gd")
 const CitizenBags := preload("res://scripts/city/citizen_bags.gd")
+## Rigid belt gear on the baked belt (task R-2033): buckle, purse, keys, beads.
+const BeltGear := preload("res://scripts/city/belt_gear.gd")
 
 ## Dags (cut leaf tongues) on the hood's hem (task R-2028, tools/assets/realistic_humans/headwear.py):
 ## the hood layer carries them as their own surface, shown on prestige p3 only.
@@ -151,11 +153,13 @@ static func dress(rig: SharedCharacterRig, record: Dictionary) -> int:
 	var body := String(record.get("body", ""))
 	var dyes: Dictionary = record.get("wear_dye", {})
 	var worn := 0
+	# Keys and beads hang as rigid parts on a baked belt (BeltGear), not as fitted layers.
+	var rigid := BeltGear.handles(rig, record)
 	for entry: String in record.get("wear", []):
 		var parts := EquipmentVariant.split(entry)
 		var layer := parts[0]
 		var garment_id := StringName(GARMENT_PREFIX + layer)
-		if rig.has_garment(garment_id):
+		if rig.has_garment(garment_id) or layer in rigid:
 			worn += 1
 			continue
 		# The variant's own fitted layer when shipped, else the base layer (fallback).
@@ -166,6 +170,7 @@ static func dress(rig: SharedCharacterRig, record: Dictionary) -> int:
 			continue
 		worn += 1
 	weave(rig, record)
+	BeltGear.hang(rig, record)
 	return worn
 
 

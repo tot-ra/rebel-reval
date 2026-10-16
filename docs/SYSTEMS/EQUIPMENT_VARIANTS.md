@@ -180,6 +180,26 @@ The shirt, braies and chemise are baked base cloth, not files: their cell is the
 
 Scrips and back sacks are fitted layers, not rigid props: one GLB per body carries every part on its own material, and the variant cell picks the cloth at runtime (p1 rawhide or linen, p2/p3 tooled leather, pilgrims plain leather with a pewter scallop; `w2` patched by the cloth wear). No `<layer>_<cell>.glb` files ship for bags. Details, history and captures: [`CITIZEN_WARDROBE.md`](./CITIZEN_WARDROBE.md#bags-r-2034).
 
+## Belt gear (R-2033)
+
+Rigid scanned parts hung at runtime on the belt baked into every base outfit, by the resident's own prestige (`scripts/city/belt_gear.gd`, preloaded by `CitizenWardrobe.dress`):
+
+| Part | p1 | p2 | p3 |
+|------|----|----|----|
+| Buckle | plain D-shaped iron frame on a leather end | cast latten frame with a riveted plate | silver-gilt frame, engraved plate in a beaded border |
+| Free end | short tucked tail | 16 cm tail, latten strap-end with knop | 24 cm tail, engraved gilt strap-end |
+| Mounts | - | - | gilt quatrefoil studs round the front |
+| Purse (right hip) | undyed leather drawstring purse | dark leather flap pouch with toggle | madder-red silk aumoniere with gold diaper and tassels |
+
+Keys (iron bunch on a ring, left front) and the paternoster (right front; beads bone, boxwood, amber or coral by the census dye, boxwood on p2+ turned bone) replace the fitted `keys` and `paternoster` layers on any body with a baked belt; bodies without one, or whose base outfit covers it (the sideless surcoat of the `_c` gowns), keep the layers. Nothing hangs under an aketon, mail, surcoat, coat of plates or mantle; behind a smith's or waist apron the buckle, tail and mounts are left off. Wear is the resident's own cell through the stand-in finish (`w2` grimes the latten, rusts the iron); beads do not wear. Parts vanish beyond 16 m with the body's LOD0. History: Tallinn finds of copper-alloy buckles and strap-ends, decorative belt mounts for the well-off, leather pouches and drawstring purses, key bunches of housewives and gatekeepers, wood, bone and amber prayer beads.
+
+- Files: `assets/props/clothing/belt_gear/<family>_p<n>_w1.glb` (families `buckle`, `strap_end`, `mount`, `purse`, `keys`, `paternoster`). Frame: +X along the belt, +Y up, +Z out from the body, back at z = 0; origin at the centre (buckle, mount) or where a hanging part meets the belt line.
+- Pipeline: references from OpenAI `gpt-image-1` (Leonardo was out of tokens), Meshy image-to-3D for the buckles, strap-ends, mount and purses; keys and paternoster are procedural in Blender (Meshy funds ran out) and can be replaced file for file by a scan of their reference. Manifest with prompts, generation and task ids, raw hashes: `tools/assets/equipment/belt_gear/belt_gear.json`; build `python3 tools/assets/equipment/belt_gear/build_belt_gear.py` (raw scans in the gitignored `build/belt_gear/`).
+- The belt band stays the baked `garments.belt`; its purse box is dropped from the builder (it shows until the next body rebuild, hidden behind the hung purse). The knife stays baked until R-2008.
+- Verify: `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_belt_gear` (parts shipped, prestige mirror agrees with every census own cell, belt ring found, tiers, covers, beads); `tools/godot_render.sh --script tools/capture_belt_gear.gd` writes `belt_gear_row.png` and `belt_gear_closeup.png` (p1 labourer and servant, p2 master and keyed wife, p3 patrician and wife with amber beads).
+
+![Belt gear of three ranks, front and purse side](../reports/images/equipment/belt_gear_closeup.png)
+
 ## Limits
 
 - The spear is held with the same hand turn as the old primitive, so in the idle pose it leans about 10 degrees across the body; the walk cycle holds it upright. The walk arms are the separate T-pose bug R-2036.

@@ -164,6 +164,10 @@ Hand-carried trade props (baskets, buckets, carried sacks; **R-1670**) are not l
 
 Capture: `tools/godot_render.sh --script tools/capture_bag_variants.gd`. Refit: `build_human.py -- --character=<body> --layers-only --only satchel,back_sack` for each body that has them.
 
+## Belt gear (R-2033)
+
+Keys and prayer beads no longer use their fitted layers on a body with a baked belt: they hang as rigid parts with the buckle, strap-end, mounts and purse of the resident's prestige (`scripts/city/belt_gear.gd`, called at the end of `dress`). The census rules and layer ids are unchanged. Details and captures: [`EQUIPMENT_VARIANTS.md`](./EQUIPMENT_VARIANTS.md#belt-gear-r-2033).
+
 ## Surcoats and the Order mantle (R-2022)
 
 Task **R-2022** (EQ-20 of epic **R-2002**) recut the crown red surcoat, the knight's field surcoat, the Order's white surcoat and the white mantle with the black cross, and fixed **R-1994** (crown men-at-arms looked blood-spattered).

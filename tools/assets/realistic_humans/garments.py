@@ -715,7 +715,11 @@ def torus(name, centre, axis, major, minor, segments=32, sides=10):
 
 
 def belt(ctx, waist_z, knife=True, ease=0.0, knife_at=8):
-    """Leather belt with iron buckle, purse and knife (plausible composite).
+    """Leather belt with its knife (plausible composite).
+
+    Buckle, strap-end, mounts, purse, keys and beads are rigid scanned parts hung on
+    this band at runtime by prestige (scripts/city/belt_gear.gd, task R-2033), which
+    finds it by the `belt_leather` material; the knife moves to R-2008.
 
     `ease` (spec `belt_ease`) moves it out over a roomy tunic;
     `knife_at` is the sheath's index of 48 round the waist (8 = left front)."""
@@ -734,10 +738,7 @@ def belt(ctx, waist_z, knife=True, ease=0.0, knife_at=8):
     group.add([v.index for v in obj.data.vertices], 1.0, "REPLACE")
     grain_uv(ctx, obj, "leather")
     parts = [finish(ctx, obj, "leather", leather, "belt_leather")]
-    # Purse on the right hip, knife sheath on the left front.
-    purse_at = points[36] + Vector((0, 0, -0.07))
-    parts.append(rigid_box(ctx, "Garment_purse", purse_at, (0.03, 0.11, 0.12), "hips", "leather", leather,
-                           "belt_leather"))
+    # Knife sheath on the left front (the purse is a BeltGear part on the right hip).
     if knife:
         sheath_at = points[knife_at] + Vector((0.0, 0, -0.10))
         parts.append(rigid_box(ctx, "Garment_knife_sheath", sheath_at, (0.018, 0.035, 0.2), "hips",
