@@ -13,6 +13,7 @@ const FRAME_Y := 0.04
 var _outline_root: Node3D
 var _outline_material: StandardMaterial3D
 var _hovered := false
+var _item_root: Node3D
 
 
 func configure(item_scene: PackedScene, logic_position: Vector2, cell_size: int) -> void:
@@ -21,14 +22,20 @@ func configure(item_scene: PackedScene, logic_position: Vector2, cell_size: int)
 	_outline_root = null
 	_outline_material = null
 	_hovered = false
+	_item_root = null
 
 	if item_scene != null:
-		var item_root := item_scene.instantiate() as Node3D
-		if item_root != null:
-			add_child(item_root)
+		_item_root = item_scene.instantiate() as Node3D
+		if _item_root != null:
+			add_child(_item_root)
 
 	MapViewBridge.sync_actor(self, logic_position, cell_size)
 	_build_outline()
+
+
+## Excludes PickupOutline so focus outlines the item, not its floor frame.
+func get_item_visual_root() -> Node3D:
+	return _item_root if is_instance_valid(_item_root) else null
 
 
 func sync_logic_position(logic_position: Vector2, cell_size: int) -> void:

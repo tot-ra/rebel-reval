@@ -974,12 +974,11 @@ void sky() {
 	// art dusk palette (pink, violet, broad glare) arrived while the sun was still high.
 	// Split it: golden hour (8-16 deg) is warm and narrow; true pink waits for < ~5 deg.
 	float pink_ramp = smoothstep(0.4, 0.75, sunset_factor);
-	// Keep seasonal art grading off the radiance cubemap so it cannot alter water
-	// reflections or ambient/gameplay light. Summer's long twilight stays brighter;
-	// deep winter nights settle to a darker floor.
+	// Reduce the whole visible night floor by 30% in every season, then retain the
+	// solar-declination gradient (winter darkest, summer white nights brighter).
 	float seasonal_night_gain = AT_CUBEMAP_PASS
 		? 1.0
-		: mix(0.72, 1.18, seasonal_night_brightness);
+		: mix(0.72, 1.18, seasonal_night_brightness) * 0.70;
 	vec3 night_top = (
 		mix(DARK_NIGHT_TOP, night_top_color.rgb, readability) + TWILIGHT_TOP * glow
 	) * seasonal_night_gain;

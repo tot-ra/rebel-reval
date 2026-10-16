@@ -3,7 +3,7 @@ name: rebel-simple-task-loop
 description: Unattended hourly loop that selects and completes one autonomous c1-c2 task within about 30 minutes, verifies it, and commits only its own paths on main.
 ---
 
-# Simple task loop (autonomous)
+# Simple task loop
 
 This loop runs on a schedule with **no human present**. Nobody answers questions or approves decisions during the run. Complete at most one task per tick, within an approximately 30-minute end-to-end budget.
 
@@ -12,8 +12,7 @@ Read first: `AGENTS.md`, `agents/WORK_PROTOCOL.md`, `agents/playbook.md`, `agent
 ## Autonomy rules
 
 - Never call the `question` tool or wait for a reply. A step requiring human input, approval, rights clearance, or a product/canon/art decision is a blocker; do not perform it.
-- Do not lower the eligibility bar to find work. "No eligible task" is a valid result (`idle: no autonomous candidate`).
-- Do not make product, scope, canon, or art-direction decisions. Implement only what the task contract, accepted ADRs, and `docs/CANON.md` already decide. For a small technical detail left open, choose a reversible option consistent with neighbouring code and record it in the task body.
+- Do your best
 - Work on `main` only. Never switch branches or create a feature branch.
 - Take one task only and finish it in this tick. **Do not split work into increments, make partial commits, or leave a claimed task for a later run.** If it cannot be completed and verified within the budget, release it as blocked and undo only this run's uncommitted changes.
 
@@ -26,24 +25,6 @@ Read first: `AGENTS.md`, `agents/WORK_PROTOCOL.md`, `agents/playbook.md`, `agent
 ## 2. Select one eligible task
 
 Consider only ready `todo` tasks with explicit complexity **c1 or c2**, highest priority first (`p0` > `p4`). Read the full body of the best candidates before choosing. Do not select `idea`, `in_progress`, `in_review`, or otherwise unready work. Do not pick any task tagged **`complex-loop`**, even if its complexity is c1-c2; that tag belongs to the separate complex-task loop.
-
-A task is eligible only if every check passes:
-
-| Check | Reject when |
-|-------|-------------|
-| Human approval | Tags or body contain `blocked-external`, `blocked-decision`, `rights`, `needs-human`, `review: canon`, or require human/named/historical/art sign-off, review, approval, or a decision not already settled by an accepted ADR or canon. |
-| Scope | Needs a new ADR, changes approved scope, or depends on an ADR whose status is not Accepted. |
-| Asset freeze | Creates or replaces art without exact file paths and the required `assets/SOURCES.csv` rows (P0-040). |
-| Canon | Adds period-visible people, places, dialogue, or history without an approved content dependency. |
-| Role | Belongs to Producer, Canon Keeper, Research, or another role rather than Dev / eligible implementation work. |
-| Contract | Lacks a concrete deliverable, unambiguous allowed/write paths, constraints/non-goals, or reproducible `verify:` clause. |
-| Dependencies | Any declared task or content dependency is not done/approved. |
-| Environment | Requires unavailable hardware, credentials, paid services, accounts, or human-provided input. |
-| Collision | Write paths overlap another active task or foreign staged, dirty, or untracked work. |
-| Already done | `git log origin/main --grep <ref>` or inspection of the deliverable paths shows the task already landed. |
-| Too large | The complete deliverable plus applicable docs and verification cannot reasonably fit this single run's 30-minute budget. |
-| Complex loop | Task has the `complex-loop` tag, regardless of its stated complexity. |
-| Epic | Tagged `epic`; select a ready, eligible child instead. |
 
 Do not spend more than about 5 minutes on selection. If no task qualifies, report `idle: no autonomous candidate` and the top rejected candidates with concise reasons.
 

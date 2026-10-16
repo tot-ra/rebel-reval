@@ -5,6 +5,7 @@ extends RefCounted
 ## the visual day/night response so the view node can focus on scene assembly,
 ## streaming, actor projection, and occlusion while retaining its public API.
 
+const SkyAstronomy := preload("res://scripts/map/view3d/sky_astronomy.gd")
 const DayNightCycle := preload("res://scripts/global/day_night_cycle.gd")
 
 const SUN_DAY_COLOR := Color8(255, 243, 222)
@@ -165,12 +166,12 @@ const LOW_SUN_EXPOSURE_BOOST := 0.3
 ## Applied outdoors only and scaled by the day fill, so night, twilight and rooms keep the
 ## grade R-1537 calibrated.
 const OUTDOOR_DAY_EXPOSURE_GAIN := 1.9
-## The same linearisation darkened night streets too, but R-1748 left night at 1.0, so
-## moonlit lanes read pitch black (docs/SYSTEMS/NIGHT_LIGHTING.md). A smaller night gain
-## keeps night well under day while walls, snow and figures read by moonlight; the
-## dome still divides it back out (sky_exposure_gain_compensation), so the night sky
-## tuned by R-2037 is unchanged.
+## The original exposure gain brightened night streets to recover readability. Scale
+## that gain down by season instead of changing individual lights, so the whole outdoor
+## night image gets darker while practical lights, moon/snow relations, and interiors stay coherent.
 const OUTDOOR_NIGHT_EXPOSURE_GAIN := 1.7
+const SEASONAL_NIGHT_EXPOSURE_MIN := 0.65
+const SEASONAL_NIGHT_EXPOSURE_MAX := 0.75
 const LOW_SUN_EXPOSURE_FULL_ELEVATION := 8.0
 const LOW_SUN_EXPOSURE_NONE_ELEVATION := 35.0
 const GRADE_NIGHT_EXPOSURE := 0.94
@@ -314,7 +315,12 @@ static func apply_cycle_progress(
 	# gain out so the dome can reach the horizon without a seam. Fog colour is left
 	# alone: scaling it exposed the sea's bright horizon reflection as a white line and
 	# would dim street mist.
-	var gain_compensation := sky_exposure_gain_compensation(fill_blend, enclosed_interior)
+	var seasonal_night_brightness := SkyAstronomy.seasonal_night_brightness(
+		sky_weather.calendar_date
+	)
+	var gain_compensation := sky_exposure_gain_compensation(
+		fill_blend, enclosed_interior, seasonal_night_brightness
+	)
 	MapViewMaterials.apply_coastal_tide(presentation.tide_level)
 	# Glints answer to clouds (cloud_clear) and to the same mist/rain haze that
 	# apply_ground_mist puts in the Environment, so dawn mist dims the glitter path.
@@ -349,7 +355,9 @@ static func apply_cycle_progress(
 	)
 	apply_post_grade_snapshot(environment, presentation)
 	if not enclosed_interior:
-		environment.tonemap_exposure *= outdoor_exposure_gain(fill_blend)
+		environment.tonemap_exposure *= outdoor_exposure_gain(
+			fill_blend, seasonal_night_brightness
+		)
 	sky_weather.set_exposure_gain_compensation(gain_compensation)
 	return presentation.day_blend < 0.5
 
@@ -481,18 +489,31 @@ static func night_ambient_energy(moon_visibility: float, snow_cover: float) -> f
 	return AMBIENT_NIGHT_ENERGY * moon * snow
 
 
-static func outdoor_exposure_gain(fill_blend: float) -> float:
+static func seasonal_night_exposure_scale(seasonal_brightness: float) -> float:
 	return lerpf(
-		OUTDOOR_NIGHT_EXPOSURE_GAIN, OUTDOOR_DAY_EXPOSURE_GAIN, clampf(fill_blend, 0.0, 1.0)
+		SEASONAL_NIGHT_EXPOSURE_MIN,
+		SEASONAL_NIGHT_EXPOSURE_MAX,
+		clampf(seasonal_brightness, 0.0, 1.0)
 	)
 
 
-## R-1766: factor the sky dome applies so it keeps the pre-R-1748 exposure: 1 / the outdoor
-## gain outdoors by day and night, 1 in enclosed rooms (which get no gain).
-static func sky_exposure_gain_compensation(fill_blend: float, enclosed_interior: bool) -> float:
+static func outdoor_exposure_gain(fill_blend: float, seasonal_brightness: float = 0.5) -> float:
+	var seasonal_night_gain := (
+		OUTDOOR_NIGHT_EXPOSURE_GAIN * seasonal_night_exposure_scale(seasonal_brightness)
+	)
+	return lerpf(
+		seasonal_night_gain, OUTDOOR_DAY_EXPOSURE_GAIN, clampf(fill_blend, 0.0, 1.0)
+	)
+
+
+## R-1766: factor the sky dome applies so it keeps its authored exposure. It must
+## cancel the exact outdoor gain used on the world, including seasonal night dimming.
+static func sky_exposure_gain_compensation(
+	fill_blend: float, enclosed_interior: bool, seasonal_brightness: float = 0.5
+) -> float:
 	if enclosed_interior:
 		return 1.0
-	return 1.0 / outdoor_exposure_gain(fill_blend)
+	return 1.0 / outdoor_exposure_gain(fill_blend, seasonal_brightness)
 
 
 ## Stand-in for eye adaptation, which GL Compatibility lacks. A low sun throws

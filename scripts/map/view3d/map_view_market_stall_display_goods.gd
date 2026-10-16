@@ -10,6 +10,8 @@ const GOODS_FISH := &"fish"
 const GOODS_CLOTH := &"cloth"
 const GOODS_GRAIN := &"grain"
 const GOODS_POTTERY := &"pottery"
+const HERRING_SCENE := preload("res://assets/animals/fish/herring/herring.gltf")
+const HERRING_DISPLAY_SCALE := 0.4
 
 static var _materials: Dictionary = {}
 
@@ -56,44 +58,18 @@ static func _add_fish(root: Node3D) -> void:
 		_material(&"tray_dark", Color8(70, 43, 29))
 	)
 	for spec in [
-		{"name": "HerringA", "position": Vector3(-0.09, 0.105, -0.105), "yaw": -0.08},
-		{"name": "HerringB", "position": Vector3(0.08, 0.11, 0.0), "yaw": 0.06},
-		{"name": "HerringC", "position": Vector3(-0.05, 0.115, 0.11), "yaw": -0.03},
+		{"name": "HerringA", "position": Vector3(-0.09, 0.085, -0.105), "yaw": -0.08},
+		{"name": "HerringB", "position": Vector3(0.08, 0.09, 0.0), "yaw": 0.06},
+		{"name": "HerringC", "position": Vector3(-0.05, 0.095, 0.11), "yaw": -0.03},
 	]:
-		var fish := Node3D.new()
+		var fish := HERRING_SCENE.instantiate() as Node3D
+		assert(fish != null, "Textured herring scene root must be Node3D")
 		fish.name = spec["name"]
 		fish.position = spec["position"]
 		fish.rotation.y = spec["yaw"]
+		fish.scale = Vector3.ONE * HERRING_DISPLAY_SCALE
+		fish.set_meta(&"display_fish_species", &"herring")
 		root.add_child(fish)
-		_sphere(
-			fish,
-			"Body",
-			0.11,
-			Vector3.ZERO,
-			Vector3(2.05, 0.48, 0.62),
-			_material(&"herring", Color8(112, 137, 141), 0.62, 0.18)
-		)
-		_sphere(
-			fish,
-			"Head",
-			0.075,
-			Vector3(0.19, 0.0, 0.0),
-			Vector3(0.95, 0.78, 0.82),
-			_material(&"herring_head", Color8(92, 116, 121), 0.65, 0.15)
-		)
-		var tail := Node3D.new()
-		tail.name = "Tail"
-		tail.position = Vector3(-0.25, 0.0, 0.0)
-		fish.add_child(tail)
-		for side in [-1.0, 1.0]:
-			var fin := _box(
-				tail,
-				"Fin%s" % ("L" if side < 0.0 else "R"),
-				Vector3(0.12, 0.018, 0.075),
-				Vector3(-0.025, 0.0, side * 0.025),
-				_material(&"herring_fin", Color8(80, 105, 111), 0.7, 0.1)
-			)
-			fin.rotation.y = side * 0.48
 
 
 static func _add_cloth(root: Node3D) -> void:

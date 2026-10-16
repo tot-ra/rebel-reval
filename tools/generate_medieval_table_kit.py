@@ -32,14 +32,14 @@ OUTPUT = (
     / "medieval_table_kit"
     / "medieval_table_kit.glb"
 )
-EVIDENCE_DIR = ROOT / "generated" / "blender" / "medieval_table_kit_v1"
+EVIDENCE_DIR = ROOT / "generated" / "blender" / "medieval_table_kit_v2"
 BRIEF_PATH = EVIDENCE_DIR / "brief.json"
 REPORT_PATH = EVIDENCE_DIR / "report.json"
 STATE_PATH = EVIDENCE_DIR / "state.json"
 DEFAULT_PREVIEW = EVIDENCE_DIR / "preview.png"
 ASSET_ID = "prop.medieval_table_kit"
 BLENDER_VERSION = "Blender 5.2 LTS"
-GENERATOR_VERSION = "medieval_table_kit_v1"
+GENERATOR_VERSION = "medieval_table_kit_v2"
 
 COMPONENT_ROOTS = {
     "table.common_household": "CommonHouseholdTable",
@@ -68,7 +68,6 @@ COLORS = {
     "timber": (0x53 / 255.0, 0x37 / 255.0, 0x2A / 255.0),
     "board": (0x9A / 255.0, 0x70 / 255.0, 0x46 / 255.0),
     "iron": (0x46 / 255.0, 0x4F / 255.0, 0x52 / 255.0),
-    "herring": (0x70 / 255.0, 0x89 / 255.0, 0x8D / 255.0),
 }
 
 
@@ -400,16 +399,30 @@ def _build_cutting_board(materials: list[bpy.types.Material]) -> tuple[bpy.types
     return _new_component("CuttingBoardModule", "CuttingBoard", mesh, materials)
 
 
-def _build_fish(materials: list[bpy.types.Material]) -> tuple[bpy.types.Object, bpy.types.Object]:
-    mesh = bmesh.new()
-    _add_icosphere(mesh, (0.0, 0.0, 0.057), (0.20, 0.065, 0.052), 4, 2)
-    _add_icosphere(mesh, (0.17, 0.0, 0.058), (0.075, 0.058, 0.047), 4, 1)
-    # Forked tail and dorsal fin retain the herring read from the gameplay camera.
-    _add_box(mesh, (-0.225, -0.025, 0.06), (0.13, 0.022, 0.055), 4, (5.0, -29.0, 0.0))
-    _add_box(mesh, (-0.225, 0.025, 0.06), (0.13, 0.022, 0.055), 4, (-5.0, 29.0, 0.0))
-    _add_box(mesh, (-0.015, 0.0, 0.105), (0.10, 0.015, 0.06), 4, (0.0, 20.0, 0.0))
-    _add_icosphere(mesh, (0.205, -0.052, 0.077), (0.011, 0.006, 0.011), 3, 1)
-    return _new_component("FishModule", "Herring", mesh, materials)
+def _build_fish(_materials: list[bpy.types.Material]) -> tuple[bpy.types.Object, bpy.types.Object]:
+    # Reuse the authored fish model instead of maintaining a second, boxy herring
+    # silhouette in the table kit. Its 0.40 scale preserves the module's half-metre
+    # tabletop footprint; the lift puts the lowest fin on the cutting board.
+    source_model = ROOT / "assets" / "animals" / "fish" / "herring" / "herring.gltf"
+    objects_before_import = set(bpy.data.objects)
+    bpy.ops.import_scene.gltf(filepath=str(source_model))
+    imported_meshes = [
+        obj for obj in bpy.data.objects if obj not in objects_before_import and obj.type == "MESH"
+    ]
+    if len(imported_meshes) != 1:
+        raise RuntimeError(f"Expected one mesh in {source_model}, found {len(imported_meshes)}")
+
+    root = bpy.data.objects.new("FishModule", None)
+    bpy.context.collection.objects.link(root)
+    fish = imported_meshes[0]
+    fish.name = "Herring"
+    fish.parent = root
+    fish.location = (0.0, 0.0, 0.0493)
+    fish.scale = (0.40, 0.40, 0.40)
+    fish["asset_id"] = ASSET_ID
+    root["asset_id"] = ASSET_ID
+    root["component"] = "FishModule"
+    return root, fish
 
 
 def _build_knife(materials: list[bpy.types.Material]) -> tuple[bpy.types.Object, bpy.types.Object]:
@@ -428,7 +441,6 @@ def _build_model() -> tuple[list[bpy.types.Object], list[bpy.types.Object]]:
         _create_material("dark_joinery_timber", COLORS["timber"], 0.91, 0.0, "wood"),
         _create_material("pale_cutting_board", COLORS["board"], 0.88, 0.0, "pale_wood"),
         _create_material("wrought_iron_utensil", COLORS["iron"], 0.66, 0.62, "iron"),
-        _create_material("baltic_herring", COLORS["herring"], 0.64, 0.10, "fish"),
     ]
     builders = (
         _build_common_table,

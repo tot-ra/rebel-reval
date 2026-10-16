@@ -1,6 +1,6 @@
 # Night sky: stars and the Milky Way over Reval
 
-Status: implemented (tasks **R-1443**, **R-2037**)
+Status: implemented (tasks **R-1443**, **R-2037**, **R-2180**)
 
 Scope: the naked-eye star field and the Milky Way on the 3D sky dome (`SkyWeather3D`), as seen from Reval (59.437 N) in 1343. Used by every `MapView3D` map and the seamless city.
 
@@ -12,7 +12,7 @@ Out of scope: stars fainter than magnitude 5 (the catalog stops there), planets,
 - **Twinkling.** Stars flicker smoothly at a few hertz, each with its own rhythm. Near the zenith the flicker is faint; toward the horizon, where the light crosses more air, it grows strong, and bright low stars also flash red and blue (chromatic scintillation).
 - **Milky Way.** A soft, lumpy band of light with brighter star clouds, a split dark lane (the Great Rift) from Cygnus toward Aquila, a bright region in Cygnus and a faint, narrow anticentre in Auriga. Its intensity is tuned to 55% of the previous baseline so it reads as unresolved starlight rather than a bright nebula over Estonia. Its position comes from the real galactic frame, precessed to 1343, so it matches the view from Tallinn: on spring nights (the slice's April dates) it lies low along the northern horizon through Cassiopeia and Perseus; on late-summer and autumn nights it arches overhead through Cygnus. The bright galactic centre in Sagittarius never rises clear of the southern horizon at this latitude.
 - **When it shows.** The Milky Way needs real darkness: it fades in only once the sun is about 7-16 degrees below the horizon, so it is faint in May and absent in Reval's white nights of June and July. A risen bright moon washes it out (up to 85% at full moon), clouds hide it with the stars, and it disappears into haze in the lowest degrees of sky.
-- **Seasons.** The star field drifts about 0.986 degrees per calendar day, so the same clock time shows different constellations through the year: Orion in winter evenings, the Summer Triangle overhead in August. The visible night floor also follows the existing solar declination: darkest in winter, brighter through summer, and especially blue around the Estonian white nights. The presentation gain ranges from 0.72 in winter to 1.18 in summer; it does not change the radiance cubemap, water reflections, ambient or gameplay lighting.
+- **Seasons.** The star field drifts about 0.986 degrees per calendar day, so the same clock time shows different constellations through the year: Orion in winter evenings, the Summer Triangle overhead in August. The camera-visible night floor follows solar declination: darkest in winter, brighter through summer, especially around the Estonian white nights. Its previous seasonal multiplier (0.72 in winter to 1.18 in summer) is now scaled by 0.70, darkening the full night floor by 30% without flattening the seasons. This sky-only grade does not enter the radiance cubemap or water reflections; outdoor world exposure has its own season-aware reduction in [Night lighting](./NIGHT_LIGHTING.md).
 - **Twilight blue.** Between the horizon and -18 degrees the dome keeps a deep-blue glow (`TWILIGHT_TOP`, `TWILIGHT_HORIZON` in `sky_weather_3d.gdshader`), graded by season so Reval's long summer twilight stays lighter than winter's dark nights; details in [Regional sites](./REGIONAL_SITES.md).
 
 ## Runtime entry points
@@ -46,5 +46,5 @@ Reads the committed Hipparcos catalog (`EstoniaStarCatalog`, BSD-3 attribution i
 - The catalog stops at magnitude 5, about 1600 stars; a truly dark 1343 sky shows roughly three times as many to the naked eye.
 - The radiance cubemap omits stars and the Milky Way, so they do not add to night ambient light.
 - Stars are not dimmed by moonlight; only the Milky Way is.
-- Seasonal brightness is an art-directed 0.72..1.18 multiplier over normalized solar declination, not a measured historical sky-radiance model. It grades the camera-visible floor only; the radiance cubemap, water reflections, ambient and gameplay lighting remain unchanged.
+- Seasonal sky brightness is an art-directed 0.70x multiplier over the 0.72..1.18 winter-to-summer gain, not a measured historical sky-radiance model. It grades the camera-visible floor only; the radiance cubemap and water reflections stay unchanged. The outdoor world also uses a separate season-aware night exposure reduction documented in [Night lighting](./NIGHT_LIGHTING.md).
 - Before R-1443 the star map was filled with `Color.TRANSPARENT` (white with zero alpha), so every empty texel added a uniform white haze to the night dome and the water's star reflection. Nights are now darker and clearer than older captures show.

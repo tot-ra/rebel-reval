@@ -4,6 +4,31 @@ Status: implemented (tasks **R-1320**, **R-1329**, **R-1704**). Engineering comp
 
 ## Procedural textures
 
+The **R-1997** readability refactor keeps `tools/assets/generate_vegetation_atlases.py`
+as the CLI, file-output and review-sheet entry point. Its implementation lives in
+focused modules with one-way dependencies (species data -> raster helpers ->
+foliage -> surfaces/grain):
+
+| Module | Responsibility |
+|---|---|
+| `tools/assets/vegetation_atlases/species.py` | Species parameters, seed, stable tile order and output paths |
+| `tools/assets/vegetation_atlases/raster.py` | Canvas, deterministic noise/RNG, capsules, downsampling and normal/surface finishing |
+| `tools/assets/vegetation_atlases/foliage.py` | Broadleaf/needle drawing, twig layouts, coverage tuning and leaf atlas assembly |
+| `tools/assets/vegetation_atlases/surfaces.py` | Seamless bark and forest-floor plates |
+| `tools/assets/vegetation_atlases/grain.py` | Grain-ear drawing and atlas assembly |
+
+Script invocation, `python3 -m tools.assets.generate_vegetation_atlases`, and the
+legacy `tools/assets/build_leaf_card_atlas.py` wrapper remain available. The legacy
+wrapper intentionally takes no options; use the main generator for `--out-root`,
+`--tune` and comparison sheets. The refactor changes no species IDs, random streams,
+PNG bytes or runtime assets, and has no save/load effect. All 22 generated PNGs
+were compared by SHA-256 before and after extraction using temporary output roots.
+Verify the output/visual contracts and CLI compatibility with:
+
+```sh
+python3 -m unittest tests.python.test_generate_vegetation_atlases tests.python.test_generate_vegetation_atlases_cli -v
+```
+
 Implemented in **R-1329**. Every vegetation texture is drawn in code, with no image-generator rights risk; the canopy atlas no longer comes from Leonardo (`leaf_cards_v1`) or OpenAI needle plates.
 
 **Run.** `python3 tools/assets/generate_vegetation_atlases.py` (NumPy and Pillow, about 12 s). Every output is a pure function of species parameters and seed 1343 (PCG64 streams, FFT-filtered noise, fixed PNG encoder, no metadata), so two runs give byte-identical files. `--tune` re-derives each leaf species' `size_scale` for its coverage target (about 2.5 min); `--compare-old OLD.png --sheets DIR` writes review sheets; `--out-root DIR` writes elsewhere. `tools/assets/build_leaf_card_atlas.py` calls the generator; `build_vegetation_plates.py` is kept for bark only.

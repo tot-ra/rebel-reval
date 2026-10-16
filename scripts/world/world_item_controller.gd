@@ -286,7 +286,11 @@ func _spawn_pickup_interactable(item: WorldItem) -> void:
 	_items_root.add_child(interactable)
 	_interactables[item] = interactable
 	if _interactable_binder != null:
-		_interactable_binder.bind(interactable)
+		var indicator := _interactable_binder.bind(interactable)
+		var view: WorldItemView = _views.get(item)
+		if indicator != null and is_instance_valid(view):
+			# The sensor is a sibling of the item, not an actor with a mirrored rig.
+			indicator.set_outline_root(view.get_item_visual_root())
 	_refresh_interactable_prompt(interactable, item)
 
 

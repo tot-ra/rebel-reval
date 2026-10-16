@@ -812,157 +812,17 @@ def surcoat(ctx):
         return tunic(ctx, "surcoat", sleeve="none", hem="knee", extra_ease=0.05, belted="plain",
                      color_key="surcoat", flare=1.45)
     # Citizen layer: no belt of its own (it would sit under the mail), and every
-    # vertex pushed out of the aketon and mail it is always worn over. Cut of the
-    # 1340s (R-2022): slit front and back for riding, deep soft folds, a hem that
-    # follows the legs instead of swinging as one stiff bell.
+    # vertex pushed out of the aketon and mail it is always worn over.
     parts = tunic(ctx, "surcoat", sleeve="none", hem="knee", extra_ease=0.05 + layer_ease(ctx), belted=False,
-                  color_key="surcoat", flare=1.9, folds=20, post=lambda obj: _riding_slits(ctx, obj))
+                  color_key="surcoat", flare=2.2)
     trees = [ctx.layers[k] for k in ("gambeson", "mail_haubergeon", "mail_coif") if k in ctx.layers]
     trees += [ctx.layers[k] for k in ("coat_of_plates", "aventail") if k in ctx.layers]
     for part in parts:
         for v in part.data.vertices:
             v.co = clear_of(trees, ctx.t["hips"].y, v.co, 0.012)
-    _surcoat_skirt_weights(ctx, parts)
-    hem_rise_uv(parts, min(v.co.z for v in parts[0].data.vertices))
     # The Order's mantle hangs over the surcoat (order_mantle() clears this tree).
     ctx.layers["surcoat"] = BVHTree.FromObject(parts[0], bpy.context.evaluated_depsgraph_get())
     return parts
-
-
-def hem_rise_uv(parts, hem_z):
-    """Second UV map `HemRise` = (metres above the hem, flag) on every vertex of `parts`.
-
-    The citizen cloth shader tears a battered (w2) layer's hem from it (R-2022): the
-    skinned VERTEX moves with the walk and the grain UVs change frame per bone, so the
-    rest-pose height is carried in the mesh. glTF flips V (v' = 1 - v), so the Blender
-    v = 0 written here reads as UV2.y = 1 in Godot; untagged garments read (0, 0) and never tear."""
-    for obj in parts:
-        mesh = obj.data
-        layer = mesh.uv_layers.get("HemRise") or mesh.uv_layers.new(name="HemRise")
-        for loop in mesh.loops:
-            layer.data[loop.index].uv = (max(0.0, mesh.vertices[loop.vertex_index].co.z - hem_z), 0.0)
-
-
-# Riding slits of the surcoat (R-2022): degrees either side of centre front/back that
-# count as the slit line, how far below the hip joint they stop, and the extra soft
-# pleats (metres, count round the body) laid over the loft folds of the skirt.
-SLIT_DEG = 7.0
-SLIT_BELOW_HIPS = 0.12
-SURCOAT_PLEAT = (0.014, 7)
-
-
-def _riding_slits(ctx, obj):
-    """Cut the surcoat skirt open at centre front and back from the hem to the fork and lay
-    soft pleats over the loft folds. Each half of the skirt follows its own thigh, so the panels
-    part at the slits like a riding coat (weights: _surcoat_skirt_weights). The slit edges
-    are subdivided so the hem roll (hem_rolls skips loops with steps over 4 cm) still binds
-    the whole cut edge."""
-    t = ctx.t
-    axis_y = t["hips"].y
-    fork = t["hips"].z - SLIT_BELOW_HIPS
-    hip_cut = t["hips"].z + 0.02
-
-    def side_of(co):
-        return math.degrees(math.atan2(co.x, -(co.y - axis_y)))  # 0 front, +-180 back, + is left
-
-    def on_slit(co):
-        a = abs(side_of(co))
-        return a < SLIT_DEG or a > 180.0 - SLIT_DEG
-
-    bm = bmesh.new()
-    bm.from_mesh(obj.data)
-    # Soft pleats over the loft folds, growing toward the hem (heavy wool falls in few deep folds).
-    depth, count = SURCOAT_PLEAT
-    for v in bm.verts:
-        if v.co.z >= hip_cut:
-            continue
-        s = min(1.0, (hip_cut - v.co.z) / max(1e-3, hip_cut - fork + 0.3))
-        radial = Vector((v.co.x, v.co.y - axis_y, 0))
-        if radial.length > 1e-4:
-            phi = math.radians(side_of(v.co))
-            v.co += radial.normalized() * depth * s ** 1.3 * math.cos(phi * count)
-    # The slit seams: the vertical skirt edges of the meridian nearest centre front and back.
-    lines = {}
-    for v in bm.verts:
-        if v.co.z < fork and on_slit(v.co):
-            a = side_of(v.co)
-            front = abs(a) < 90
-            off = abs(a) if front else 180 - abs(a)
-            if front not in lines or off < lines[front][0]:
-                lines[front] = (off, a)
-
-    def seam_edges():
-        return [e for e in bm.edges
-                if all(v.co.z < fork + 0.01 for v in e.verts)
-                and abs(e.verts[0].co.z - e.verts[1].co.z) > 0.005
-                and any(all(abs((side_of(v.co) - a + 180) % 360 - 180) < 0.3 for v in e.verts)
-                        for _, a in lines.values())]
-    bmesh.ops.subdivide_edges(bm, edges=seam_edges(), cuts=1, use_grid_fill=False)
-    bmesh.ops.split_edges(bm, edges=seam_edges())
-    # Open the cut a little so the bound edges read as a slit, not a crease.
-    for v in bm.verts:
-        if v.co.z < fork + 0.01 and on_slit(v.co) and v.is_boundary and v.link_faces:
-            centre = sum((f.calc_center_median() for f in v.link_faces), Vector()) / len(v.link_faces)
-            v.co.x += 0.004 if centre.x > v.co.x else -0.004
-    bm.to_mesh(obj.data)
-    bm.free()
-
-
-def _nearest_weights(source):
-    """Lookup co -> {bone: weight} of the nearest vertex of `source` (KD tree)."""
-    from mathutils.kdtree import KDTree
-    verts = source.data.vertices
-    kd = KDTree(len(verts))
-    for v in verts:
-        kd.insert(v.co, v.index)
-    kd.balance()
-    names = {g.index: g.name for g in source.vertex_groups}
-
-    def lookup(co):
-        _, i, _ = kd.find(co)
-        return {names[g.group]: g.weight for g in verts[i].groups if names[g.group] in BONE_NAMES}
-    return lookup
-
-
-def _surcoat_skirt_weights(ctx, parts):
-    """Skirt weights of the slit surcoat (R-2022), after it was pushed clear of the armour.
-
-    Down to the hem of the mail (or aketon) under it the surcoat copies that layer's weights,
-    so in the walk the two move as one and the mail never pokes through the wool. Below it
-    each panel follows only its own thigh, more so toward the hem: the slits let the halves
-    part instead of stretching between the legs. The hem rolls then copy the cloth's weights."""
-    t = ctx.t
-    hip_cut = t["hips"].z + 0.02
-    fork = t["hips"].z - SLIT_BELOW_HIPS
-    obj = parts[0]
-    hem_z = min(v.co.z for v in obj.data.vertices)
-    under = next((o for o in (bpy.data.objects.get("Garment_" + k) for k in ("mail_haubergeon", "gambeson")
-                              if k in ctx.layers) if o is not None), None)
-    look = _nearest_weights(under) if under is not None else None
-    under_hem = min(v.co.z for v in under.data.vertices) if under is not None else hip_cut
-    for v in obj.data.vertices:
-        if v.co.z >= hip_cut:
-            continue
-        depth = min(1.0, max(0.0, (hip_cut - v.co.z) / max(1e-4, hip_cut - hem_z)))
-        legs = 0.25 + 0.45 * depth
-        # Below the fork each panel goes wholly to its own leg; above it the skirt blends.
-        hard = float(1.0 - surfaces.smoothstep(fork, fork + 0.08, v.co.z))
-        side = float(surfaces.smoothstep(-0.07, 0.07, v.co.x)) * (1 - hard) + (1.0 if v.co.x > 0 else 0.0) * hard
-        weights = {"hips": 1.0 - legs, "upperleg.l": legs * side, "upperleg.r": legs * (1 - side)}
-        if look is not None:
-            own = float(1.0 - surfaces.smoothstep(under_hem - 0.1, under_hem, v.co.z))
-            near = look(v.co)
-            weights = {b: near.get(b, 0.0) * (1 - own) + weights.get(b, 0.0) * own
-                       for b in set(near) | set(weights)}
-        for group in obj.vertex_groups:
-            group.remove([v.index])
-        set_weights(obj, v.index, {b: w for b, w in weights.items() if w > 1e-4})
-    cloth = _nearest_weights(obj)
-    for part in parts[1:]:
-        for v in part.data.vertices:
-            for group in part.vertex_groups:
-                group.remove([v.index])
-            set_weights(part, v.index, cloth(v.co))
 
 
 def gambeson(ctx):
@@ -2248,60 +2108,12 @@ def order_mantle(ctx):
     top_z = ctx.collar(t["head"].y) - 0.02
     hem_z = t["lowerleg.l"].z - 0.1
     color = ctx.palette("order_mantle", (0.86, 0.85, 0.80))
-    # Fulled wool hangs in fewer, deeper folds than the lighter cloaks (R-2022).
-    # The slit surcoat's skirt stands well out over aketon and mail: let the mantle clear it
-    # below the armpits (the default 6 cm push left it inside the surcoat, R-2022).
     mantle = _cloak(ctx, "Garment_order_mantle", "order_mantle", color, top_z, hem_z,
-                    _armour_trees(ctx) + base_trees(ctx), max_push=0.2, fold=2.0, hang=True)
+                    _armour_trees(ctx) + base_trees(ctx))
     tree = BVHTree.FromObject(mantle, bpy.context.evaluated_depsgraph_get())
-    parts = [mantle,
-             _cross_patch(ctx, "Garment_order_cross_back", tree, 180.0, top_z - 0.22, 0.26, top_z, hem_z),
-             _cross_patch(ctx, "Garment_order_cross_breast", tree, 34.0, top_z - 0.2, 0.11, top_z, hem_z)]
-    parts += [tie for tie in (_mantle_ties(ctx, mantle, top_z),) if tie is not None]
-    # Below the waist the mantle hangs over the surcoat's skirt: it takes the surcoat's weights
-    # there, so the slit panels swinging with the thighs never pierce it (R-2022).
-    surcoat = bpy.data.objects.get("Garment_surcoat")
-    if surcoat is not None and "surcoat" in ctx.layers:
-        look = _nearest_weights(surcoat)
-        for part in parts:
-            for v in part.data.vertices:
-                k = float(surfaces.smoothstep(t["spine"].z, t["hips"].z, v.co.z))
-                if k <= 0.0:
-                    continue
-                near = look(v.co)
-                own = {part.vertex_groups[g.group].name: g.weight for g in v.groups}
-                weights = {b: own.get(b, 0.0) * (1 - k) + near.get(b, 0.0) * k for b in set(own) | set(near)}
-                for group in part.vertex_groups:
-                    group.remove([v.index])
-                set_weights(part, v.index, {b: w for b, w in weights.items() if w > 1e-4})
-    hem_rise_uv(parts, min(v.co.z for v in mantle.data.vertices))
-    return parts
-
-
-def _mantle_ties(ctx, mantle, top_z):
-    """Leather tie across the open front at the neck (the mantle ties there, it has no brooch):
-    from the front edge on each side, sagging a little over the chest."""
-    t = ctx.t
-    axis_y = t["hips"].y
-    z = top_z - 0.06
-    edges = {}
-    for v in mantle.data.vertices:
-        if abs(v.co.z - z) > 0.05:
-            continue
-        theta = math.atan2(v.co.x, -(v.co.y - axis_y))
-        # The collar band above row 1 is closed; the opening starts at _cloak's open_deg (20).
-        if not math.radians(15) < abs(theta) < math.radians(60):
-            continue
-        sign = 1 if theta > 0 else -1
-        # The front edge: the vertex nearest the centre line on each side.
-        if sign not in edges or abs(theta) < edges[sign][0]:
-            edges[sign] = (abs(theta), v.co.copy())
-    if len(edges) < 2:
-        return None
-    left, right = edges[1][1], edges[-1][1]
-    mid = (left + right) / 2 + Vector((0, -0.012, -0.025))
-    return strap_tube(ctx, "Garment_order_mantle_tie", [left, mid, right], 0.007, {"chest": 1.0},
-                      family="leather", color=(0.2, 0.13, 0.08), key="order_mantle_tie")
+    return [mantle,
+            _cross_patch(ctx, "Garment_order_cross_back", tree, 180.0, top_z - 0.22, 0.26, top_z, hem_z),
+            _cross_patch(ctx, "Garment_order_cross_breast", tree, 34.0, top_z - 0.2, 0.11, top_z, hem_z)]
 
 
 def cappa(ctx):
@@ -2328,12 +2140,9 @@ def cappa(ctx):
     return [cloak]
 
 
-def _cloak(ctx, name, key, color, top_z, hem_z, trees, open_deg=20.0, max_push=0.06, side=0.035, pad=0.03,
-           fold=1.0, hang=False):
+def _cloak(ctx, name, key, color, top_z, hem_z, trees, open_deg=20.0, max_push=0.06, side=0.035, pad=0.03):
     """Cloak hung from the shoulders, open at the front by `open_deg` each side, clearing `trees`
-    (but never pushed more than `max_push` past its own radius); `fold` scales the hanging folds.
-    `hang`: below the armpits a row never comes back in once a wider layer pushed the row above
-    out, so the cloth falls as one bell over a wide skirt instead of stepping in and out."""
+    (but never pushed more than `max_push` past its own radius)."""
     t = ctx.t
     axis_y = t["hips"].y
     trunk = trunk_bvh(ctx)
@@ -2353,7 +2162,7 @@ def _cloak(ctx, name, key, color, top_z, hem_z, trees, open_deg=20.0, max_push=0
             depth = min(outer_radius([trunk], origin, d, fallback=0.12), 0.2) + pad
             wide = math.sin(theta) ** 2 * float(surfaces.smoothstep(0.0, 0.16, s))
             radius = max(depth, depth + (half - depth) * wide) * (1.0 + 0.2 * s * s)
-            radius += fold * s * (0.012 * math.sin(theta * 8 + phase) + 0.006 * math.sin(theta * 17))
+            radius += 0.012 * s * math.sin(theta * 8 + phase) + 0.006 * s * math.sin(theta * 17)
             # Clear the armour, but never chase the T-posed sleeves (the arms hang down in play).
             pushed = clear_of(trees, axis_y, origin + d * radius, 0.02)
             reach = Vector((pushed.x, pushed.y - axis_y, 0)).length
@@ -2361,17 +2170,6 @@ def _cloak(ctx, name, key, color, top_z, hem_z, trees, open_deg=20.0, max_push=0
             limit = max_push if z < t["upperarm.l"].z - 0.12 else min(max_push, 0.06)
             row.append(pushed if reach <= radius + limit else origin + d * (radius + limit))
         grid.append(row)
-    if hang:
-        for r in range(1, rows + 1):
-            for c in range(columns):
-                p, above = grid[r][c], grid[r - 1][c]
-                if p.z >= t["upperarm.l"].z - 0.12:
-                    continue
-                out = Vector((p.x, p.y - axis_y, 0))
-                need = Vector((above.x, above.y - axis_y, 0)).length
-                if 1e-4 < out.length < need:
-                    out = out.normalized() * need
-                    grid[r][c] = Vector((out.x, axis_y + out.y, p.z))
     bm = bmesh.new()
     verts = [[bm.verts.new(p) for p in row] for row in grid]
     for r in range(rows):
