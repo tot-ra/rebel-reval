@@ -80,6 +80,11 @@ static func clear() -> void:
 	_tiers = {}
 
 
+## True when a census household lives in the plan building (bound by `bind`).
+static func has_household(building_id: String) -> bool:
+	return _tiers.has(building_id)
+
+
 static func tier_of(b: Dictionary, ring: PackedVector2Array) -> int:
 	var id := String(b["id"])
 	if _tiers.has(id):

@@ -377,6 +377,10 @@ func _pose_rigs() -> void:
 			var lying := -PI * 0.5 if actor.is_lying() else 0.0
 			if not is_equal_approx(model.rotation.x, lying):
 				model.rotation.x = lying
+		# The night watch's lantern stays by the door while he sleeps at home by day.
+		var lantern := rig.equipped(&"left_hand") as WatchLantern
+		if lantern != null and lantern.visible == actor.at_home:
+			lantern.visible = not actor.at_home
 		var carrying := rig.equipped(&"back") != null
 		if actor.carrying_wood != carrying:
 			if actor.carrying_wood:

@@ -212,6 +212,10 @@ ocean_time={
 "type": "float",
 "value": 0.0
 }
+city_night_clock={
+"type": "vec4",
+"value": Vector4(12, 0, 0, 0)
+}
 cloud_noise_tex={
 "type": "sampler2D",
 "value": ""

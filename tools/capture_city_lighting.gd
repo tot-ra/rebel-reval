@@ -8,6 +8,7 @@ extends Node
 ##   tools/godot_render.sh --resolution 1600x900 res://tools/capture_city_lighting.tscn \
 ##     -- --tag=after [--states=h10,h18,after_rain] [--ao=0]
 ## Output: build/city_lighting/<state>_<spot>_<mode>_<tag>.jpg
+## Night states: --states=h22,h23,dec_h17,dec_h20,dec_h23
 
 const SCENE := preload("res://scenes/world/reval_city/reval_city.tscn")
 const OUTPUT_DIR := "res://build/city_lighting"
@@ -17,7 +18,17 @@ const STATES := [
 	["h10", 10.0, 0.0],
 	["h18", 18.0, 0.0],
 	["after_rain", 10.0, 0.85],
+	# Night plates (R-NIGHT lighting): 22h is after the nine o'clock bell, 23h is deep night.
+	["h22", 22.0, 0.0],
+	["h23", 23.0, 0.0],
+	# Winter plates: dark from 16h, so the households' evening lights, the watch's
+	# lanterns and the moonlit snow all show (docs/SYSTEMS/NIGHT_LIGHTING.md).
+	["dec_h17", 17.0, 0.0, {"year": 1343, "month": 12, "day": 15}],
+	["dec_h20", 20.0, 0.0, {"year": 1343, "month": 12, "day": 15}],
+	["dec_h23", 23.0, 0.0, {"year": 1343, "month": 12, "day": 15}],
 ]
+## The slice's spring date, restored for states without their own.
+const DEFAULT_DATE := {"year": 1343, "month": 4, "day": 23}
 
 var city: Node
 var _tag := "now"
@@ -71,6 +82,7 @@ func _pin_weather(puddles: float) -> void:
 func _shot(at: Vector2, spot: String, state: Array) -> void:
 	var runtime: MapViewRuntime = city.runtime
 	city.player.global_position = CityPlan.to_logic(at)
+	city.view.set_calendar_date(state[3] if state.size() > 3 else DEFAULT_DATE)
 	for mode: Array in [
 		[MapViewRuntimeCamera.CameraMode.THIRD_PERSON, "third"],
 		[MapViewRuntimeCamera.CameraMode.PAINTED_ISO, "iso"],
@@ -84,6 +96,13 @@ func _shot(at: Vector2, spot: String, state: Array) -> void:
 		)
 		get_viewport().get_texture().get_image().save_jpg(path, 0.9)
 		print("saved ", path)
+		var env: Environment = city.world.environment
+		print(
+			"  env: exposure %.3f ambient %.3f %s sun %.3f fog %.4f bright %.3f" % [
+				env.tonemap_exposure, env.ambient_light_energy, env.ambient_light_color,
+				city.world.sun.light_energy, env.fog_density, env.adjustment_brightness
+			]
+		)
 
 
 func _run() -> void:
@@ -106,4 +125,7 @@ func _run() -> void:
 			continue
 		await _shot(forum, "forum", state)
 		await _shot(forge, "forge", state)
+		# Night states also visit the Viru gate, where the night watch stands with lanterns.
+		if float(state[1]) >= 17.0:
+			await _shot(CityTravel.spawn_position(plan, "gate.viru"), "viru_gate", state)
 	get_tree().quit(0)
