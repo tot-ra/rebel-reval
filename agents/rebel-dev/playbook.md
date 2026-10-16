@@ -426,3 +426,5 @@ This file contains lessons specific to the Dev role.
 - In a shared worktree, scope `git diff --check` to task-owned paths so unrelated whitespace noise does not obscure task results.
 - `CityFauna` (via `CityTravel`) needs the game autoloads (`DoorNavigator`), so anything mounted from `CityWorld3D`/`CityDressingBuilder` must not reference it: world-only `SceneTree` capture tools would fail to compile. Mount fauna-dependent layers next to `CityFauna` in `reval_city.gd`, and capture them through the city scene (`extends Node` + `.tscn`).
 - Albedo for small ground props in the seamless city must sit about 2x darker than it looks right in sRGB: the outdoor exposure gain (R-1748) lifts it, so a "dried dung" 0.5 grey-brown renders as pale stone. Check a game-camera plate before tuning by eye.
+- Run campaign save-fixture tests for `content/saves/released/`; the generic content validator does not accept the save-envelope format.
+- If a combined headless Godot filter aborts in terrain worker code, rerun the test files separately in fresh processes before diagnosing the feature; threaded map cleanup can be order-sensitive.

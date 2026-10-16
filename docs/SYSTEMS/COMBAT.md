@@ -14,7 +14,7 @@ Status: foundation implemented (tasks **P1-024..P1-027**, **P2-009**, **P5-008**
 - Enemies telegraph before striking, retreat when wounded unless cornered, and disengage past their leash.
 - Losing a fight restores the encounter checkpoint: narrative progress made before the fight survives, the fight restarts.
 - Encounters can close lethally or non-lethally (surrender, flee, bypass, talk). Both paths write the same quest state vocabulary.
-- Six forge weapons (sword, bow, spear, shield, axe, war hammer) stand by the anvil in the seamless city's Kalev smithy; pick them up, equip them from the bag, and fight with each ([Forge weapon set](#forge-weapon-set)).
+- **New Game starts unarmed:** no weapon is granted to the bag or either hand. Six forge weapons stand by the anvil in Kalev's smithy; pick one up, then choose and equip it from the bag. A taken weapon never respawns. Existing saves keep their recorded equipment.
 - Every city resident has health and stamina. Strike one and a physical fight starts: men fight back, others run ([Brawls with citizens](#brawls-with-citizens)).
 - **Forge techniques** (quick menu **Iron**): one equipped technique, `Iron`, `Ember`, or `Root`. Iron pierces a braced guard outside the parry window.
 
@@ -40,7 +40,7 @@ Status: foundation implemented (tasks **P1-024..P1-027**, **P2-009**, **P5-008**
 
 Status: implemented (tasks **R-1754** models, items and forge pickups; **R-1755** equip and attack per class). Out of scope: arrow ammunition (the bow never runs out), inventory icons, shield bash, enemy use of bows.
 
-**What the player does.** In Kalev's city smithy (`loc.reval_city`) six weapons stand in a row beside the anvil in the seamless city forge bay. The retired standalone 2D forge scene is inactive; old transitions redirect here. Each weapon has a gold floor outline. Click one (or stand by it and press interact) to put it in the bag. Open the bag, select the weapon and equip it: sword, axe, war hammer and spear go to the **right hand**, the bow and the shield to the **left hand**. The equipped weapon appears in the hero's hand in the 3D view. Attack as usual (tap for the light chain, hold for the heavy strike, see [`COMBAT_ANIMATION.md`](./COMBAT_ANIMATION.md)). Use **G** to draw or sheathe the equipped weapon; attack with the normal attack input. Hold guard to benefit from the shield when it is equipped in the left hand.
+**What the player does.** The new-game character starts without a weapon in either hand or in the bag; previously saved equipment remains unchanged. In Kalev's city smithy (`loc.reval_city`) six weapons stand in a row beside the anvil in the seamless city forge bay. The retired standalone 2D forge scene is inactive; old transitions redirect here. Each weapon has a gold floor outline. Click one (or stand by it and press interact) to put it in the bag. Open the bag, select the weapon and equip it: sword, axe, war hammer and spear go to the **right hand**, the bow and the shield to the **left hand**. The equipped weapon appears in the hero's hand in the 3D view. Attack as usual (tap for the light chain, hold for the heavy strike, see [`COMBAT_ANIMATION.md`](./COMBAT_ANIMATION.md)). Use **G** to draw or sheathe the equipped weapon; attack with the normal attack input. Hold guard to benefit from the shield when it is equipped in the left hand.
 
 | Item | Slot | Class | Behaviour |
 |---|---|---|---|

@@ -134,7 +134,8 @@ func test_released_demo_fresh_start_matches_demo_seed_shape() -> void:
 	)
 	assert_true(result["ok"])
 	var state := result["state"] as GameState
-	assert_eq(state.equipped_item(&"right_hand"), ITEM_HAMMER)
+	assert_true(state.equipped_item(&"right_hand").is_empty())
+	assert_true(state.bag.is_empty())
 	assert_true(state.is_world_item_placed(LOC_SMITHY, OBJ_SPEAR))
 	assert_true(state.are_world_defaults_seeded(LOC_SMITHY))
 

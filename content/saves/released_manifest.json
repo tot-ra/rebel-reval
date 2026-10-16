@@ -3,7 +3,7 @@
     {
       "id": "save.demo_fresh_start",
       "path": "released/save.demo_fresh_start.json",
-      "description": "Demo session after hammer seed; spearhead remains on the anvil."
+      "description": "Fresh New Game session with no weapon equipped; the spearhead remains on the anvil."
     },
     {
       "id": "save.demo_post_pickup",

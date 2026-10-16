@@ -3,10 +3,8 @@ extends "res://tests/godot/test_case.gd"
 ## Forge weapon set (R-1754) and its combat classes (R-1755): items, equip and world
 ## scenes, move sets, the bow's arrow, the shield's guard, and forge seeding.
 
-const LOC_SMITHY := &"loc.kalev_smithy"
-const SMITHY_DEFINITION := preload(
-	"res://scripts/map/definitions/lower_town/kalev_smithy_definition.gd"
-)
+const CITY_LOCATION := &"loc.reval_city"
+const CITY_PLAN := preload("res://scripts/city/city_plan.gd")
 ## item id -> expected weapon class (&"" = not an attack item).
 const WEAPONS := {
 	&"item.forge_arming_sword": &"sword",
@@ -203,29 +201,6 @@ func test_sword_shield_and_axe_can_be_equipped_and_used() -> void:
 	assert_eq(axe_profile.animation, &"axe_attack")
 
 
-func test_sword_shield_and_axe_can_be_equipped_and_used() -> void:
-	var state := _fresh_state()
-	for item_id: StringName in [
-		&"item.forge_arming_sword", &"item.forge_heater_shield", &"item.forge_bearded_axe"
-	]:
-		assert_eq(state.bag.try_add(item_id), InventoryBag.AddResult.OK)
-	assert_true(state.equip_from_bag(&"right_hand", &"item.forge_arming_sword"))
-	assert_true(state.equip_from_bag(&"left_hand", &"item.forge_heater_shield"))
-	assert_eq(
-		AttackProfileResolver.weapon_class_for_state(state, SessionState.content_db), &"sword"
-	)
-	var shield_vitals := CombatVitals.new()
-	ShieldGuard.apply(shield_vitals, state, SessionState.content_db)
-	assert_almost_eq(shield_vitals.parry_window_sec, 0.26, 0.001)
-	assert_true(state.equip_from_bag(&"right_hand", &"item.forge_bearded_axe"))
-	assert_eq(
-		AttackProfileResolver.weapon_class_for_state(state, SessionState.content_db), &"axe"
-	)
-	var axe_profile := AttackProfileResolver.resolve_move(
-		state, SessionState.content_db, false, 0
-	)
-	assert_eq(axe_profile.animation, &"axe_attack")
-
 
 func _world_item_for(root: Node, object_id: StringName) -> WorldItem:
 	for node: Node in root.find_children("*", "WorldItem", true, false):
@@ -238,10 +213,10 @@ func _world_item_for(root: Node, object_id: StringName) -> WorldItem:
 func test_seeded_but_unpicked_old_weapon_positions_are_repaired() -> void:
 	var state := _fresh_state()
 	state.mark_world_defaults_seeded(
-		WorldItemController.seed_group_key(LOC_SMITHY, &"forge_weapons")
+		WorldItemController.seed_group_key(CITY_LOCATION, &"forge_weapons")
 	)
 	state.place_world_item(
-		LOC_SMITHY,
+		CITY_LOCATION,
 		&"world.forge_arming_sword",
 		&"item.forge_arming_sword",
 		Vector2(441.6, 262.4)
@@ -250,9 +225,9 @@ func test_seeded_but_unpicked_old_weapon_positions_are_repaired() -> void:
 	var repaired := _world_item_for(forge, &"world.forge_arming_sword")
 	assert_true(repaired != null, "an unpicked weapon remains on the ground")
 	if repaired != null:
-		assert_true(repaired.global_position.x > 14.0 * SMITHY_DEFINITION.create().cell_size)
+		assert_true(repaired.global_position.x > 14.0 * _city_map_definition().cell_size)
 	assert_false(
-		state.is_world_item_placed(LOC_SMITHY, &"world.forge_heater_shield"),
+		state.is_world_item_placed(CITY_LOCATION, &"world.forge_heater_shield"),
 		"repairing a saved group does not respawn other weapons the player already took"
 	)
 	forge.free()
@@ -261,19 +236,19 @@ func test_seeded_but_unpicked_old_weapon_positions_are_repaired() -> void:
 func test_old_save_without_weapons_gets_them_once() -> void:
 	var state := _fresh_state()
 	# An older save: the original defaults were seeded and the spearhead taken.
-	state.mark_world_defaults_seeded(LOC_SMITHY)
+	state.mark_world_defaults_seeded(CITY_LOCATION)
 	var forge := _seed_smithy(state)
-	assert_false(state.is_world_item_placed(LOC_SMITHY, &"world.spearhead_anvil"))
-	assert_eq(state.get_world_items(LOC_SMITHY).size(), 6, "the weapon group is added")
+	assert_false(state.is_world_item_placed(CITY_LOCATION, &"world.spearhead_anvil"))
+	assert_eq(state.get_world_items(CITY_LOCATION).size(), 6, "the weapon group is added")
 	forge.free()
-	state.take_world_item(LOC_SMITHY, &"world.forge_spear")
+	state.take_world_item(CITY_LOCATION, &"world.forge_spear")
 	forge = _seed_smithy(state)
 	assert_false(
-		state.is_world_item_placed(LOC_SMITHY, &"world.forge_spear"), "a taken weapon never respawns"
+		state.is_world_item_placed(CITY_LOCATION, &"world.forge_spear"), "a taken weapon never respawns"
 	)
 	assert_true(
 		state.are_world_defaults_seeded(
-			WorldItemController.seed_group_key(LOC_SMITHY, &"forge_weapons")
+			WorldItemController.seed_group_key(CITY_LOCATION, &"forge_weapons")
 		)
 	)
 	forge.free()
@@ -307,9 +282,13 @@ func _seed_smithy(state: GameState) -> Node2D:
 	get_tree_root().add_child(root)
 	var controller := WorldItemController.new()
 	root.add_child(controller)
-	controller.setup(root, SMITHY_DEFINITION.create(), null, null, LOC_SMITHY)
+	controller.setup(root, _city_map_definition(), null, null, CITY_LOCATION)
 	SessionState.state = previous
 	return root
+
+
+func _city_map_definition() -> CityMapDefinition:
+	return CityMapDefinition.from_plan(CITY_PLAN.load_default())
 
 
 func _weapon_object_ids() -> Array[StringName]:

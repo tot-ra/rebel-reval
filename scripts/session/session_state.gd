@@ -176,9 +176,7 @@ func _seed_demo_bag_if_empty() -> void:
 	if _demo_seeded or not state.bag.is_empty():
 		return
 	_demo_seeded = true
-	state.bag.try_add(&"item.forge_hammer")
-	# Kalev starts with his working hammer in hand; stow it from the bag (I).
-	state.equip_from_bag(&"right_hand", &"item.forge_hammer")
+	# New Game starts unarmed; the player chooses a weapon from the smithy's world pickups.
 	# Magic is optional on the critical slice path. Seed the three executable
 	# starter recipes so the HUD has visible, numbered spells instead of a
 	# locked eight-element catalog.

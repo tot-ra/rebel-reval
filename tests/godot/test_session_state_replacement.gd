@@ -18,6 +18,7 @@ var _original_state: GameState
 var _original_save_service: SaveService
 var _forge: Node2D
 var _save_directory := ""
+var _original_demo_seeded := false
 var _replacement_events: Array[Dictionary] = []
 
 
@@ -25,6 +26,7 @@ func before_each() -> void:
 	_replacement_events.clear()
 	_original_state = SessionState.state
 	_original_save_service = SessionState.save_service
+	_original_demo_seeded = SessionState._demo_seeded
 	SessionState.content_db.load_from_directories(SessionState.DEMO_CONTENT_DIRS)
 	SessionState.debug_presets.load_manifest()
 	SessionState.replace_state(_preset_state("debug.reset.demo_fresh"), &"test_setup")
@@ -35,14 +37,30 @@ func after_each() -> void:
 		SessionState.state_replaced.disconnect(_record_state_replacement)
 	_free_forge()
 	SessionState.save_service = _original_save_service
+	SessionState._demo_seeded = _original_demo_seeded
 	SessionState.replace_state(_original_state, &"test_cleanup")
 	if not _save_directory.is_empty():
 		_remove_tree(_save_directory)
 	_save_directory = ""
 	super.after_each()
 
+
+func test_new_apprentice_starts_unarmed() -> void:
+	var fresh := GameState.new_apprentice_game()
+	assert_true(SessionState.replace_state(fresh, &"test_new_game_start"))
+	SessionState._demo_seeded = false
+	SessionState._seed_demo_bag_if_empty()
+
+	assert_true(fresh.bag.is_empty(), "New Game must not grant a starter weapon")
+	assert_true(fresh.equipped_item(&"right_hand").is_empty())
+	assert_true(fresh.equipped_item(&"left_hand").is_empty())
+
+
 func test_manual_load_rebinds_live_consumers_and_subsequent_saves() -> void:
 	var previous := SessionState.state
+	# This test verifies stale equipment listeners are detached, not the New Game loadout.
+	assert_eq(previous.bag.try_add(ITEM_HAMMER), InventoryBag.AddResult.OK)
+	assert_true(previous.equip_from_bag(&"right_hand", ITEM_HAMMER))
 	var target := _preset_state("debug.reset.demo_post_pickup")
 	target.set_phase(GameState.PHASE_INVESTIGATION_NIGHT)
 	target.set_quest_state(&"quest.makers_mark", &"not_started")
