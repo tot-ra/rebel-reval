@@ -228,6 +228,8 @@ func apply_season(date: Dictionary) -> void:
 	ground.set_shader_parameter("moat_ice", ice)
 	var cover := VegetationPhenology.snow_cover_for(date)
 	snow_cover = cover
+	# Moonlit snow lifts the night fill (docs/SYSTEMS/NIGHT_LIGHTING.md).
+	MapViewLighting.night_snow_cover = cover
 	ground.set_shader_parameter("snow_cover", cover)
 	if cover > 0.0 and not CitySnow.has_map():
 		_bake_snow_map(ground)
@@ -284,6 +286,13 @@ func apply_time(progress: float) -> void:
 		clamp(presentation.rain_intensity * 0.8 + presentation.puddle_wetness * 0.3, 0.0, 1.0)
 	)
 	smoke.set_time_of_day(MapView3D.TIME_DAY if day_blend > 0.35 else MapView3D.TIME_NIGHT)
+	# Lived-in windows glow from the hearth and table light after dusk; the fade
+	# straddles CityInteriors.DARK_BELOW (0.35), where indoor lights come on.
+	CityWindows.set_night_clock(
+		DayNightCycle.progress_to_hour(progress),
+		1.0 - smoothstep(0.25, 0.45, day_blend),
+		fmod(Time.get_ticks_msec() / 1000.0, 3600.0)
+	)
 	# Site fire and candle controllers (the smithy hearth) follow the same clock.
 	if is_inside_tree():
 		get_tree().call_group(&"city_cycle_lights", &"apply_cycle_progress", progress)
@@ -1166,3 +1175,10 @@ func water_medium_at(world_xz: Vector2) -> Dictionary:
 				"material": _segment_material(i)
 			}
 	return {}
+
+
+## Night-lighting statics outlive the city: a district map loaded next must not keep
+## the city's snow fill or lit windows (docs/SYSTEMS/NIGHT_LIGHTING.md).
+func _exit_tree() -> void:
+	MapViewLighting.night_snow_cover = 0.0
+	CityWindows.set_night_clock(12.0, 0.0, 0.0)

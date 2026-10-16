@@ -534,6 +534,8 @@ static func material_for_key(key: String) -> Material:
 			return paint_material()
 		"glass":
 			return glass_material(family)
+		"window_glow":
+			return CityWindows.glow_material()
 		"iron":
 			if not _materials.has("iron"):
 				var iron := StandardMaterial3D.new()
@@ -697,6 +699,12 @@ static func build_building(
 		wall_key = "wall:%s:%s" % [family, stem]
 		tint = HouseWealth.wall_tint(b, tint)
 	var look := CityWindows.look(look_rng, family, wealth)
+	# Night light leaking from the windows follows the household's hearth and
+	# table light (docs/SYSTEMS/NIGHT_LIGHTING.md); empty buildings stay dark.
+	if HouseWealth.has_household(String(b["id"])):
+		look["glow"] = Color(
+			(HouseholdDay.house_shift(String(b["id"])) + 0.3) / 0.6, float(wealth) / 2.0, 0.0, 1.0
+		)
 	var bottom := float(b["base_h"]) - SINK
 	var eave := floor_y + float(b["wall_h"])
 	var frame := roof_frame(ring, float(b["ridge_angle"]), eave, roof_pitch(b))

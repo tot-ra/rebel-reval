@@ -27,6 +27,7 @@ One page per implemented or planned feature. Each page opens with a `Status:` li
 | [Cloud cells, seasonal cumulus, shadows and storm lightning](./CLOUD_CELLS.md) | Implemented: discrete clouds and weather phenomena visual atlas with seasonal cumulus scaling |
 | [Weather on the ground: puddles, drought and cracked earth](./WEATHER_GROUND.md) | Implemented (R-1516): drought spells, sun-baked dryness, cracked clay in dried puddle basins, rain soaks cracks before puddles return; after-rain cobble puddles and wet paving (R-1748) |
 | [Night sky: stars and the Milky Way](./NIGHT_SKY.md) | Implemented (R-1443): round twinkling Hipparcos stars, Milky Way placed for Tallinn in 1343, seasonal sidereal drift |
+| [Night lighting and fire](./NIGHT_LIGHTING.md) | Slice implemented (R-2054, epic R-2053): no street lights; moon- and snow-driven night fill, lived-in windows glow on the household schedule, night watch horn lanterns; churches, venues, shutters, rural and gates planned |
 | [Seamless Reval city (1343)](./SEAMLESS_CITY.md) | Playable preview (ADR 0031); no quests or saves yet |
 | [City doors: wealth and landmark entrances](./CITY_DOORS.md) | Implemented (R-1692, R-1693): separate wood/iron geometry, household tiers, explicit civic/church entrance profiles, stepped landmark portals with leaves cut to their heads |
 | [Regional sites (distant destinations)](./REGIONAL_SITES.md) | Implemented for the Paide pilot (R-1520, ADR 0042): site-parameterised builder and runtime, inland site with sky and weather, no sea; other sites planned |

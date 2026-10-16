@@ -41,6 +41,10 @@ const STONE_POOLS := [
 ## Trim palette entries reachable per tier: the poor keep bare or red-washed
 ## wood; only the rich reach the costlier green and blue-grey.
 const TIER_PALETTE := [[0, 0, 3], [0, 1, 2, 3], [0, 1, 2, 3, 4, 5]]
+## Night light leaking from lived-in houses (docs/SYSTEMS/NIGHT_LIGHTING.md).
+const WINDOW_GLOW := preload("res://scripts/city/city_window_glow.gdshader")
+
+static var _glow_material: ShaderMaterial
 
 
 ## `wealth` (0..2, CityHouseWealth) selects the tier's pools; -1 keeps the
@@ -229,6 +233,65 @@ static func add_placed(shell: CityBuildingBuilder.Shell, window: Dictionary) -> 
 	)
 
 
+## Additive night light card material (city_window_glow.gdshader), one for the city.
+static func glow_material() -> Material:
+	if _glow_material == null:
+		_glow_material = ShaderMaterial.new()
+		_glow_material.shader = WINDOW_GLOW
+	return _glow_material
+
+
+## Pushes the clock the window glow reads: hour, darkness 0..1 and flicker seconds.
+static func set_night_clock(hour: float, darkness: float, seconds: float) -> void:
+	RenderingServer.global_shader_parameter_set(
+		&"city_night_clock", Vector4(hour, clampf(darkness, 0.0, 1.0), seconds, 0.0)
+	)
+
+
+## Night light card of a lived-in house (city_window_glow.gdshader): one outward
+## quad inside the opening, 10 cm behind the wall face and so behind the glazing,
+## hidden by closed shutters and invisible from inside the room (back-face culled).
+## `glow` carries the house inputs; blue is replaced by a per-window pick from the
+## window's position so rooms of one house light differently.
+static func _glow_card(
+	shell: CityBuildingBuilder.Shell,
+	m: Vector2,
+	dir: Vector2,
+	nrm: Vector2,
+	y0: float,
+	hw: float,
+	h: float,
+	glow: Color
+) -> void:
+	var color := glow
+	color.b = float(absi(hash(Vector2i(roundi(m.x * 10.0), roundi(m.y * 10.0)))) % 1000) / 1000.0
+	var p0 := m - dir * hw - nrm * 0.1
+	var p1 := m + dir * hw - nrm * 0.1
+	# UV y runs from the sill (0) to the head (1): the shader brightens the sill.
+	shell.tri_out(
+		"window_glow",
+		Vector3(p0.x, y0, p0.y),
+		Vector3(p1.x, y0, p1.y),
+		Vector3(p1.x, y0 + h, p1.y),
+		color,
+		Vector3(nrm.x, 0, nrm.y),
+		Vector2(0, 0),
+		Vector2(1, 0),
+		Vector2(1, 1)
+	)
+	shell.tri_out(
+		"window_glow",
+		Vector3(p0.x, y0, p0.y),
+		Vector3(p1.x, y0 + h, p1.y),
+		Vector3(p0.x, y0 + h, p0.y),
+		color,
+		Vector3(nrm.x, 0, nrm.y),
+		Vector2(0, 0),
+		Vector2(1, 1),
+		Vector2(0, 1)
+	)
+
+
 ## One box in a window's local frame: u along the wall, y up, z out of the wall.
 static func _wbox(
 	shell: CityBuildingBuilder.Shell,
@@ -346,6 +409,8 @@ static func add_window(
 			Color.WHITE,
 			Vector3(nrm.x, 0, nrm.y)
 		)
+	if look.has("glow"):
+		_glow_card(shell, m, dir, nrm, y0, hw, h, look["glow"])
 	# Frame: four bars standing 7 cm off the wall.
 	var fc := trim if style != &"surround" else Color(0.74, 0.70, 0.62)
 	var fkey := "paint" if style != &"surround" else "stone"

@@ -14,11 +14,11 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `1302`
+- Active Markdown files scanned: `1303`
 - Markdown files excluded as archive/reference/out of active scope: `774`
-- Local/external links inspected: `15141`
-- Links to active Markdown docs: `13057`
-- Links to existing archive/reference/non-active local docs: `558`
+- Local/external links inspected: `15158`
+- Links to active Markdown docs: `13065`
+- Links to existing archive/reference/non-active local docs: `561`
 - External links skipped for reachability: `194`
 - Issues found: `0`
 
@@ -1223,6 +1223,7 @@ No active Markdown documentation issues found.
 - `docs/SYSTEMS/MUSCLE_LOCOMOTION.md`
 - `docs/SYSTEMS/NAMED_NPCS.md`
 - `docs/SYSTEMS/NATURAL.md`
+- `docs/SYSTEMS/NIGHT_LIGHTING.md`
 - `docs/SYSTEMS/NIGHT_SKY.md`
 - `docs/SYSTEMS/NPC_MIND.md`
 - `docs/SYSTEMS/OBJECT_CATALOG.md`

@@ -25,6 +25,12 @@ static var _spear_held := Transform3D(
 	Basis(Vector3.BACK, PI * 0.5).scaled(Vector3(1.25, 1.25, 1.25)), Vector3(0.415, 0.0, 0.0)
 )
 
+## Lantern hanging from the left fist by its bail: the hand slot's X points down, so
+## the lantern's up (Y) is turned onto hand -X, the same turn as the spear.
+static var _lantern_held := Transform3D(Basis(Vector3.BACK, PI * 0.5), Vector3(0.05, 0.0, 0.0))
+
+static var _lantern: PackedScene
+
 ## Shield strapped to the left forearm, face outward. Measured with the idle pose
 ## (tools/capture_citizen_wardrobe.gd).
 static var _shield_held := Transform3D(
@@ -56,6 +62,29 @@ static func arm(rig: SharedCharacterRig, record: Dictionary) -> void:
 				spear.transform = _spear_held
 		&"sword":
 			rig.equip(&"right_hand", SWORD)
+	_carry_lantern(rig, duty, kit)
+
+
+## The night shift carries a horn lantern in the free left hand; it lights itself
+## after dusk (WatchLantern). A shield-bearer keeps his shield instead.
+static func _carry_lantern(rig: SharedCharacterRig, duty: Dictionary, kit: Dictionary) -> void:
+	if String(duty.get("shift", "")) != "night" or kit["hand"] == &"":
+		return
+	if rig.equipped(&"left_hand") != null:
+		return
+	var lantern := rig.equip(&"left_hand", _lantern_scene())
+	if lantern != null:
+		lantern.transform = _lantern_held
+
+
+
+static func _lantern_scene() -> PackedScene:
+	if _lantern == null:
+		var node := WatchLantern.new()
+		_lantern = PackedScene.new()
+		_lantern.pack(node)
+		node.free()
+	return _lantern
 
 
 ## Left-hand shield of an armed resident (`shield` kind from the wardrobe rules). A "field"

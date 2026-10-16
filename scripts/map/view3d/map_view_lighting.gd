@@ -36,6 +36,15 @@ const SUN_NIGHT_ENERGY := 0.28
 ## A small ambient floor retains silhouettes without day-bright whitecaps.
 const AMBIENT_NIGHT_COLOR := Color8(76, 94, 138)
 const AMBIENT_NIGHT_ENERGY := 0.45
+## Night fill follows what actually lit a 1343 street after the bell: the moon and
+## the snow, not street lamps (docs/SYSTEMS/NIGHT_LIGHTING.md). A cloudy new-moon
+## night drops below the old flat floor; a clear full moon, and more so over snow,
+## lifts it so lanes read by moonlight as people then planned their night walks.
+## The scales also stand in for night (scotopic) vision: AgX crushes the old 0.45 fill
+## to pure black (0.2/255 street luma measured with tools/capture_city_lighting.gd).
+const NIGHT_MOONLESS_SCALE := 2.4
+const NIGHT_FULL_MOON_SCALE := 4.0
+const NIGHT_SNOW_GAIN := 0.6
 const BACKGROUND_NIGHT_COLOR := Color8(14, 18, 28)
 ## Under a roofed room shell the fill is daylight bounced off limewash, timber
 ## and clay, not open sky: warm it instead of letting sky-blue fill tint every
@@ -156,6 +165,12 @@ const LOW_SUN_EXPOSURE_BOOST := 0.3
 ## Applied outdoors only and scaled by the day fill, so night, twilight and rooms keep the
 ## grade R-1537 calibrated.
 const OUTDOOR_DAY_EXPOSURE_GAIN := 1.9
+## The same linearisation darkened night streets too, but R-1748 left night at 1.0, so
+## moonlit lanes read pitch black (docs/SYSTEMS/NIGHT_LIGHTING.md). A smaller night gain
+## keeps night well under day while walls, snow and figures read by moonlight; the
+## dome still divides it back out (sky_exposure_gain_compensation), so the night sky
+## tuned by R-2037 is unchanged.
+const OUTDOOR_NIGHT_EXPOSURE_GAIN := 1.7
 const LOW_SUN_EXPOSURE_FULL_ELEVATION := 8.0
 const LOW_SUN_EXPOSURE_NONE_ELEVATION := 35.0
 const GRADE_NIGHT_EXPOSURE := 0.94
@@ -169,6 +184,9 @@ const GLOW_BLOOM := 0.10
 const GLOW_STRENGTH := 1.0
 const GLOW_MIX := 0.05
 
+
+## Ground snow 0..1, pushed by the seamless city (CityWorld3D) from the season.
+static var night_snow_cover := 0.0
 
 ## One-time WorldEnvironment setup: tonemap, glow, and color-adjustment toggles.
 static func configure_post_process(environment: Environment) -> void:
@@ -268,7 +286,11 @@ static func apply_cycle_progress(
 		else Environment.REFLECTION_SOURCE_BG
 	)
 	environment.ambient_light_energy = (
-		lerpf(AMBIENT_NIGHT_ENERGY, AMBIENT_DAY_ENERGY, fill_blend)
+		lerpf(
+			night_ambient_energy(presentation.moon_visibility, night_snow_cover),
+			AMBIENT_DAY_ENERGY,
+			fill_blend
+		)
 		* presentation.ambient_energy
 		+ presentation.lightning * LIGHTNING_AMBIENT_ENERGY
 	)
@@ -448,12 +470,25 @@ static func apply_post_grade_snapshot(
 
 
 ## Outdoor-only daylight exposure lift (R-1748): 1 at night, OUTDOOR_DAY_EXPOSURE_GAIN by day.
+## Night ambient fill for a moon visibility (phase x altitude x cloud, 0..1) and
+## ground snow (0..1): moonless nights dimmer, moonlit snow brightest.
+static func night_ambient_energy(moon_visibility: float, snow_cover: float) -> float:
+	var moon := lerpf(
+		NIGHT_MOONLESS_SCALE, NIGHT_FULL_MOON_SCALE, clampf(moon_visibility, 0.0, 1.0)
+	)
+	# Snow throws moon and starlight back up; on a moonless night less of it.
+	var snow := 1.0 + NIGHT_SNOW_GAIN * clampf(snow_cover, 0.0, 1.0) * (0.5 + 0.5 * moon_visibility)
+	return AMBIENT_NIGHT_ENERGY * moon * snow
+
+
 static func outdoor_exposure_gain(fill_blend: float) -> float:
-	return lerpf(1.0, OUTDOOR_DAY_EXPOSURE_GAIN, clampf(fill_blend, 0.0, 1.0))
+	return lerpf(
+		OUTDOOR_NIGHT_EXPOSURE_GAIN, OUTDOOR_DAY_EXPOSURE_GAIN, clampf(fill_blend, 0.0, 1.0)
+	)
 
 
 ## R-1766: factor the sky dome applies so it keeps the pre-R-1748 exposure: 1 / the outdoor
-## gain by day, 1 at night and in enclosed rooms (which get no gain).
+## gain outdoors by day and night, 1 in enclosed rooms (which get no gain).
 static func sky_exposure_gain_compensation(fill_blend: float, enclosed_interior: bool) -> float:
 	if enclosed_interior:
 		return 1.0
