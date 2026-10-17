@@ -173,6 +173,7 @@ const HEAD_SCALE_MODIFIER := preload("res://assets/characters/shared/head_scale_
 const ANATOMICAL_MUSCLE_MODIFIER := preload(
 	"res://assets/characters/shared/anatomical_muscle_modifier.gd"
 )
+const HUMAN_MOTION_LIBRARY := preload("res://scripts/characters/human_motion_library.gd")
 const IDLE_FOOT_LOCK_MODIFIER := preload("res://scripts/characters/idle_foot_lock_modifier.gd")
 ## Clips whose legs ride the pelvis without keys; IdleFootLock plants the feet.
 const FOOT_LOCKED_ANIMATIONS: Array[StringName] = [&"idle"]
@@ -240,6 +241,9 @@ func _ready() -> void:
 	add_to_group(SPIRIT_AURA_GROUP)
 	_animation_player = _find_animation_player($Model)
 	_skeleton = _find_skeleton($Model)
+	# Realistic humans ship without clips (R-2211); the shared library is mounted on demand.
+	if _animation_player == null and _skeleton != null:
+		_animation_player = HUMAN_MOTION_LIBRARY.attach($Model, _skeleton)
 	for clip_name in FALL_SOURCE_CLIPS:
 		_ground_fall_clip(clip_name)
 	_install_proportion_modifiers()

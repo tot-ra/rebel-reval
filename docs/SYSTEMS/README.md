@@ -16,6 +16,7 @@ One page per implemented or planned feature. Each page opens with a `Status:` li
 | [NPC mind: reflex, decision model, local LLM](./NPC_MIND.md) | Planned (ADR 0037 proposed) |
 | [World life](./WORLD_LIFE.md) | Implemented in Lower Town; Padise and public events unwired |
 | [Citizens: census, ledger, deep cards](./CITIZENS.md) | Implemented: census residents live in the seamless city with timetables, blank bodies and a click-for-info panel |
+| [Human motion library: shared clips per body shape](./HUMAN_MOTION_LIBRARY.md) | Implemented: realistic bodies ship without clips; 29 shared shape libraries mounted at spawn (R-2211) |
 | [Citizen wardrobe: dress by rank, age, trade and arms](./CITIZEN_WARDROBE.md) | Implemented: per-body fitted layers (hoods, coifs, veils, aprons, aketon, mail, surcoat, helmets, keys, beads, scrips, sacks) chosen from the census; mantles, gowns, textiles, footwear planned (R-1664..R-1672) |
 | [Named NPCs: registry and city presence](./NAMED_NPCS.md) | Implemented (R-1562, R-1563): registry of Wave A/B named NPCs, clock-driven posts in the seamless city, click panel with portrait and faction; overhead marker (R-1564), faction livery, chip and badge (R-1565); models planned |
 | [Households: furnished houses and life at home](./HOUSEHOLDS.md) | Implemented in the seamless city: furniture by household, rooms, hearth and firewood day, people at home; no player use of furniture |

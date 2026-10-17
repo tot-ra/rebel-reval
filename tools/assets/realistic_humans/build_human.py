@@ -965,7 +965,11 @@ def build(name, only_body=False, layers_only=False, only_layers=None):
             return {"character": name, "layers": spec["layers"]}
     for obj in meshes:
         bind(obj, motion)
-    export_glb(out / f"{name}.glb", [motion] + meshes, animations=True)
+    # R-2211: bodies ship without clips. The full export only feeds shared_motion.py, which
+    # cuts one shared motion shape per group of matching bodies (rebuild.sh runs it last).
+    export_glb(shared_motion.SOURCES / f"{name}.glb", [motion] + meshes, animations=True)
+    (shared_motion.SOURCES / ".gdignore").touch()  # Godot must not import build intermediates
+    export_glb(out / f"{name}.glb", [motion] + meshes, animations=False)
     finish_glb(out / f"{name}.glb", out)
     for garment, (slot, covered, objects) in wardrobe.items():
         for obj in objects:
