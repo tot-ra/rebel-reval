@@ -170,11 +170,21 @@ Coordination note (2026-08-27 R-751): hardened empty water-contour sampling in [
 
 
 
-## Current focus (2026-10-17, Producer tick after R-1685)
+## Current focus (2026-10-17b, Producer tick after R-1685)
 
 - **Approved delivery order:** demo -> vertical-slice MVP -> Act 1 -> Act 2 -> Act 3. The July Act 1 package acceptance below is historical evidence for its package SHA, not proof that today's main still passes. No new campaign or historical scope is approved by this tick.
 - **Current slice:** `demo-forge-return-recovery`, unchanged. It stalled for five days (317 commits since 2026-10-11, none on R-1456/R-1458/R-1457/R-1478) while user-directed epics moved. The slice is now more urgent, not less: `ab63e6b5f` (2026-10-14) removed the standalone `forge` scene from `content/transitions/active_destinations.json`; the forge is Kalev's seamless-city forge bay `site.kalev_smithy` in `loc.reval_city`. `WorldItemController.DEFAULT_PLACEMENTS` still seeds the spearhead only under the retired `loc.kalev_smithy`, so the checkpoint pickup is probably unreachable on today's New Game route (hypothesis for R-1456, not a finding).
 - **Next playable checkpoint:** New Game (Holy Spirit almshouse sick-room opening, ADR 0052) -> exit into the city host -> walk into the city forge bay (`site.kalev_smithy`) and back; take `item.seized_spearhead` at the place Canon decides in **R-2071**, observe pickup/inventory feedback, leave and return, then save/load (including released `save.demo_post_pickup.json`). The item remains taken, exactly one copy remains in inventory, and the route works with keyboard/mouse and gamepad. This checkpoint does not waive bed, quest-branch, encumbrance or other full-suite failures.
+
+### Tick 2026-10-17b decisions (evidence reconciliation, stall continues)
+
+- **Snapshot:** 989 -> 1019 tasks (90 idea, 847 todo, 17 -> 8 in_progress, 64 -> 73 in_review, 1 cancelled visible). About 55 commits reached origin/main (`d3fb3198c`) since the morning tick; none names R-1456, R-2071, R-1458, R-1457 or R-1478, and `docs/reports/demo_forge_recovery_triage.md` still does not exist. The slice has now stalled six days; slice, checkpoint and gates are unchanged, and the morning escalation stands: dispatch one QA worker to **R-1456** and one Narrative/Canon worker to **R-2071**.
+- **Stale in_progress reconciled by evidence (9 -> in_review):** aggregate `b5db53da2` ("crowd body variants, forge weapon variants, vegetation phenology, planar reflection") carries **R-1861** (planar reflection), **R-2173** (Space jump, bindings v4), **R-2179** (field-recorded rain), **R-2127** (dwarf shrubs), **R-2128** (meadow herbs), **R-2019** (aketon; its rig blocker cleared because `rig_detail.py` landed in the same commit) and **R-2023** (men's tunics); **R-2180** is listed as implemented in NIGHT_LIGHTING.md / NIGHT_SKY.md; **R-2245** is `b4136bff2`. Each card names what is still missing for done (captures, perf runs, species cards, R-1104 supersede, second review). None is marked done.
+- **Kept in_progress (8):** epics R-1830, R-1884, R-1966, R-2053, R-2151 are active user-directed parents; **R-2129** has only a phenology hook in `vegetation_phenology.gd`, **R-2130** and **R-1419** have no landed deliverable, so they stay claimed (no lease expiry established).
+- **R-1456 re-grounded again:** `009333009` deleted or trimmed 20 tests that depended on deleted `.rrmap` maps. Triage must pin at or after it and report those as "fixture family removed upstream", not as fixed failures. The spearhead hypothesis is still live on `d3fb3198c`.
+- **New risk for R-1458:** QA filed **R-2260** (todo p2): `tools/verify_transitions.gd` reports 37 false missing spawns for `reval_city` and 7 regional sites. If R-1458 touches the transition registry, its mandatory map gate is red for the wrong reason; Dev must cite R-2260 rather than chase those 37 errors. Priority unchanged because R-1458 is still blocked on R-1456.
+- **Requests and ideas:** zero open request cards (only `TEMPLATE.md`). 90 ideas, new ones are QA follow-ups (R-2194, R-2195, R-2198) and `#needs-approval` art (R-2182); none promoted. Farm work ADR 0063 (R-2246) is Proposed and waits for the maintainer.
+- **Ready roles:** QA **R-1456**, Narrative/Canon **R-2071**, fallback QA **R-1479**, off-slice Research **R-2072**. Acceptance capacity remains the bottleneck (in_review 73). Next acceptance event unchanged: independent QA **R-1478**.
 
 ### Tick 2026-10-17 decisions (stall escalation)
 
