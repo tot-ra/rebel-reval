@@ -65,6 +65,11 @@ var hit_handler: Callable
 ## hero (`toward`, a logic-plane body); the clock takes over again on release. A spirit duel
 ## may move the held body itself (SpiritArenaMotion); holding never fights it.
 var held_for_talk := false
+## Neighbours chat (CitizenChat, set by CityCitizens): while waiting outdoors this
+## resident faces `chat_toward` (world xz) and gestures on its speaking turn.
+var chatting := false
+var chat_speaking := false
+var chat_toward := Vector2.ZERO
 var _held_toward: Node2D
 var _facing := Vector2.DOWN
 var _moving := false
@@ -260,6 +265,10 @@ func world_xz() -> Vector2:
 
 
 func view_facing() -> Vector2:
+	if chatting and is_waiting():
+		var toward := chat_toward - world_xz()
+		if toward.length_squared() > 0.01:
+			return toward.normalized()
 	return _facing
 
 
@@ -268,7 +277,21 @@ func view_animation() -> StringName:
 		return brawler.view_animation()
 	if at_home and not _moving:
 		return POSE_ANIMATION.get(pose, &"idle")
+	if chatting and chat_speaking and is_waiting():
+		return &"talk_gesture"
 	return &"walk" if _moving else &"idle"
+
+
+## Outdoors at the place the timetable holds them (door, well, market spot), not
+## walking, fighting or held by the hero: free to chat with a neighbour.
+func is_waiting() -> bool:
+	return (
+		outdoors
+		and not at_home
+		and not _moving
+		and not held_for_talk
+		and (brawler == null or not brawler.owns_motion())
+	)
 
 
 ## Seats the sit pose on its bench and lays a sleeper on the bed (MapViewRuntimeActors).

@@ -48,6 +48,8 @@ func _run() -> void:
 	get_viewport().get_texture().get_image().save_png(
 		ProjectSettings.globalize_path("%s/citizens_%s.png" % [OUTPUT_DIR, tag])
 	)
+	if "--chat" in OS.get_cmdline_user_args():
+		await _capture_chat(city, citizens, tag)
 	var camera: Camera3D = city.view.view_camera()
 	var best: CitizenActor = null
 	var best_d := INF
@@ -87,6 +89,39 @@ func _run() -> void:
 		ProjectSettings.globalize_path("%s/citizens_%s_named_panel.png" % [OUTPUT_DIR, tag])
 	)
 	get_tree().quit(0)
+
+
+## `--chat`: neighbours chat (scripts/city/citizen_chat.gd). Walks Kalev up to the
+## first chatting pair and saves citizens_<tag>_chat.png; exit 1 without a pair.
+func _capture_chat(city: Node, citizens: CityCitizens, tag: String) -> void:
+	var pair: CitizenActor = null
+	for _i in 600:
+		for actor in citizens.live_actors():
+			if actor.chatting:
+				pair = actor
+				break
+		if pair != null:
+			break
+		await get_tree().process_frame
+	if pair == null:
+		print("no chatting pair near the spawn")
+		get_tree().quit(1)
+		return
+	var chatting := 0
+	for actor in citizens.live_actors():
+		chatting += 1 if actor.chatting else 0
+	print("chatting residents: %d, pair at %s" % [chatting, pair.world_xz()])
+	var player := city.get("player") as Node2D
+	if player != null:
+		# Three metres off the pair, so the camera frames both faces.
+		var side := Vector2(pair.chat_toward - pair.world_xz()).orthogonal().normalized()
+		player.global_position = CityPlan.to_logic(pair.world_xz() + side * 3.0)
+	for _i in 90:
+		await get_tree().process_frame
+	await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png(
+		ProjectSettings.globalize_path("%s/citizens_%s_chat.png" % [OUTPUT_DIR, tag])
+	)
 
 
 ## Registry named NPCs in view (docs/SYSTEMS/NAMED_NPCS.md): lists them and

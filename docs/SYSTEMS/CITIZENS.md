@@ -14,6 +14,14 @@ Status: implemented as data, documentation and, since 2026-10-08, runtime in the
 
 Rebuild after changing the census, plan or bodies: `python3 tools/city/build_citizen_runtime.py`; bodies `tools/assets/realistic_humans/rebuild.sh citizen_m_adult_thin ...` then `write_scenes.py`. Review plates: `tools/godot_render.sh --script tools/capture_citizen_bodies.gd` (all bodies) and `tools/godot_render.sh --resolution 1600x900 res://tools/capture_city_citizens.tscn -- --city-spawn=poi.forum --city-hour=10`.
 
+### Neighbours chat (R-2223)
+
+A resident who has arrived where the timetable holds them (their door, the well, a market spot) used to play `idle` for the whole spell, so streets and yards read as people frozen in place. Now two waiting residents within 2.6 m of each other turn to one another and take turns talking: one plays `talk_gesture` while the other listens, swapping every 3.2 s (`scripts/city/citizen_chat.gd`, paired nearest first every 0.5 s by `CityCitizens._pair_chats`). About six residents in ten are talkative (stable per resident), the rest keep to themselves. Walking, fighting, at-home residents and anyone held by the hero never chat. Presentation only: timetable, positions and saves are unchanged.
+
+![Forum at 10:00: two pairs chatting, the rest waiting](../reports/images/citizens/neighbours_chat_forum.jpg)
+
+Plate: `tools/godot_render.sh --resolution 1600x900 res://tools/capture_city_citizens.tscn -- --city-spawn=poi.forum --city-hour=10 --tag=chat_forum --chat` (exit 1 without a chatting pair). Test: `--filter=test_citizen_chat`. Lone residents (a farm wife at her door) still only stand; work poses and outdoor benches are follow-up tasks.
+
 ## Religious houses in their sites
 
 A landmark site may house a census institution (`community` block in the site manifest): St Catherine's Dominican friary (`hh.inst_st_catherine_friary`) lives in its close with a horarium instead of the generic `cleric` day: the night office, lauds, chapter, terce and mass, dinner in the refectory, none, vespers, supper and compline, with study, preaching at the market cross, questing for alms or confessions between the hours; lay brothers brew, garden and keep the granary, stores and gate; servants fetch and cook. Seats (choir stalls, chapter bench, refectory benches) are exact per resident (`exact` keys), one bell keeps everyone within minutes, and the close's walkways join the street graph only at its gates. Friars wear the white habit and black hood. Households of houses a landmark site replaced are rehomed into a free booth or retired by the census (R-1934, [displaced households](../CITIZENS/CENSUS.md#households-displaced-by-landmark-sites)); the runtime still skips any house household whose building is missing. Details and the full timetable: [St Catherine's friary](./landmark_sites/st_catherine.md#community-the-friars-day). St Michael's nuns still use the generic day (R-1721).

@@ -12,6 +12,9 @@ extends Node2D
 ## A press and release this close on one person is a click, not a drag (R-1887).
 const CLICK_SLOP_PX := 8.0
 const PerfProbeScript := preload("res://scripts/debug/perf_probe.gd")
+const CitizenChat := preload("res://scripts/city/citizen_chat.gd")
+## Seconds between re-pairing the waiting residents into chats (CitizenChat).
+const CHAT_PAIR_SECONDS := 0.5
 const SPAWN_RADIUS := 62.0
 const DESPAWN_RADIUS := 80.0
 ## Bound expensive character rigs independently for the street and furnished houses.
@@ -38,6 +41,7 @@ var last_scan_usec := 0
 
 var _live: Dictionary = {}  # resident index -> CitizenActor
 var _since := REFRESH_SECONDS
+var _chat_since := CHAT_PAIR_SECONDS
 var _scan_origin := Vector2.ZERO
 var _scan_hour := 0.0
 var _candidates := PackedInt32Array()
@@ -134,12 +138,44 @@ func _process_timed(delta: float) -> void:
 	var start := Time.get_ticks_usec()
 	_scan_step()
 	last_scan_usec = Time.get_ticks_usec() - start
+	_chat_since += delta
+	if _chat_since >= CHAT_PAIR_SECONDS:
+		_chat_since = 0.0
+		_pair_chats()
 	_style_new_rigs()
 	_pose_rigs()
 	_update_tag()
 	if _selected != null and is_instance_valid(_selected) and _panel.is_open():
 		if _panel.shown_id == String(_selected.record["id"]):
 			_panel.update_now(roster.describe(_selected.index, hour()))
+
+
+## Neighbours chat: residents waiting outdoors near each other pair up, turn to
+## each other and take turns speaking (CitizenChat). At most MAX_LIVE bodies, so
+## the all-pairs scan stays tiny.
+func _pair_chats() -> void:
+	var waiting: Array[CitizenActor] = []
+	var points := PackedVector2Array()
+	for actor: CitizenActor in _live.values():
+		if not is_instance_valid(actor):
+			continue
+		actor.chatting = false
+		actor.chat_speaking = false
+		if actor.is_waiting() and CitizenChat.is_talkative(actor.index):
+			waiting.append(actor)
+			points.append(actor.world_xz())
+	var found := CitizenChat.pairs(points)
+	var seconds := Time.get_ticks_msec() / 1000.0
+	for i in range(0, found.size(), 2):
+		var a := waiting[found[i]]
+		var b := waiting[found[i + 1]]
+		var first := CitizenChat.first_speaks(seconds, a.index + b.index)
+		a.chatting = true
+		b.chatting = true
+		a.chat_toward = b.world_xz()
+		b.chat_toward = a.world_xz()
+		a.chat_speaking = first
+		b.chat_speaking = not first
 
 
 ## Seat the residents who are outdoors within SPAWN_RADIUS and free the rest.
