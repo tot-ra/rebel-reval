@@ -441,3 +441,5 @@ This file contains lessons specific to the Dev role.
 
 - Godot tests in a fresh worktree need `godot --headless --path . --import` first, and `tools/run_godot_tests.gd --filter=` takes exact file stems (`test_citizen_wardrobe`, comma-separated), not substrings.
 - Dedupe assets by vertex-position hash, never file bytes: re-exports differ in names/ids only. Never `--apply` a destructive move before `--check`/dry run; recover with `git checkout -- <dir>`.
+
+- GLB surgery (R-2211): when repacking a GLB binary, keep sparse-accessor bufferViews (face morph targets) or Godot import fails with "Sparse indices out of bounds"; a skeleton-only GLB needs one skinned mesh or Godot builds no Skeleton3D (bone tracks become node tracks). Never let Godot scan `build/` intermediates - drop a `.gdignore` beside them. Verify an animation refactor by diffing key-bone poses from the old and new asset trees (git worktree + `cp -c -R .godot`), not only by screenshots.
