@@ -296,3 +296,4 @@ Both commands should print `135` on a clean checkout at this revision.
 | 216 | `tools/capture_forge_sword.tscn` | partial | Developer capture or QA tool; not player-facing. |
 | 217 | `tools/verify_city_spawn_traversal.tscn` | partial | Developer capture or QA tool; not player-facing. |
 | 218 | `tools/verify_site_traversal.tscn` | partial | Developer capture or QA tool; not player-facing. |
+| 219 | `tools/capture_city_open_boats.tscn` | partial | Developer capture or QA tool; not player-facing. |

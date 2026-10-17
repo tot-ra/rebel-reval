@@ -192,6 +192,7 @@ Roles `level`, `map`, and `event` have full conversion specifications later in t
 | `assets/characters/variants/citizen_m_elder_thin.tscn` | actor | `retain` | Crowd/citizen variant citizen_m_elder_thin | Shared-rig ambient body; not a map destination | not a map definition |
 | `tools/capture_city_citizens.tscn` | test | `retain` | Capture city citizens tool scene | Developer-only capture or profiling host; never release-playable | not a map definition |
 | `tools/capture_city_dung.tscn` | test | `retain` | Capture city dung tool scene | Developer-only capture or profiling host; never release-playable | not a map definition |
+| `tools/capture_city_open_boats.tscn` | test | `retain` | Capture open boats in a rough sea (R-2150) tool scene | Developer-only capture host; never release-playable | not a map definition |
 | `tools/capture_city_surcoats.tscn` | test | `retain` | Capture city surcoats tool scene | Developer-only capture or profiling host; never release-playable | not a map definition |
 | `tools/capture_forge_sword.tscn` | test | `retain` | Capture forge sword tool scene | Developer-only capture or profiling host; never release-playable | not a map definition |
 | `tools/verify_city_spawn_traversal.tscn` | test | `retain` | City spawn traversal QA tool scene | Developer-only capture or profiling host; never release-playable | not a map definition |

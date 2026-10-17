@@ -178,6 +178,7 @@ func _build() -> void:
 	add_child(smoke)
 	if plan.has_coast():
 		ships = CityShips.create(plan)
+		ships.world = self
 		add_child(ships)
 	var t4 := Time.get_ticks_usec()
 	build_stats = {

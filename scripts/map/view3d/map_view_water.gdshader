@@ -419,6 +419,48 @@ const float RAIN_FAR_VEIL = 0.1;
 const float RAIN_RING_MIN_CELL_PX = 6.0;
 const float RAIN_RING_FULL_CELL_PX = 14.0;
 
+// R-2150: open boat hulls (CityShips) cut the sea inside their skin, so a crest
+// running under a small boat never shows inside it. Per hull, world space:
+// frame = (centre x, centre z, bow heading cos, sin), shape = VesselFleet
+// water_mask_shape(), heights = (waterline y, sheer y, top y, keel y).
+const int HULL_MASK_MAX = 24;
+uniform int hull_mask_count = 0;
+uniform vec4 hull_mask_frame[24];
+uniform vec4 hull_mask_shape[24];
+uniform vec4 hull_mask_height[24];
+
+bool _inside_open_hull(vec3 p) {
+	for (int i = 0; i < HULL_MASK_MAX; i++) {
+		if (i >= hull_mask_count) {
+			break;
+		}
+		vec4 h = hull_mask_height[i];
+		if (p.y > h.z) {
+			continue;
+		}
+		vec4 f = hull_mask_frame[i];
+		vec4 s = hull_mask_shape[i];
+		vec2 d = p.xz - f.xy;
+		float u = abs(dot(d, f.zw)) / s.x;
+		if (u >= 1.0) {
+			continue;
+		}
+		// Waterline to sheer flare, then the fine ends of VesselFleet._half_beam().
+		float flare = clamp((p.y - h.x) / max(h.y - h.x, 0.001), 0.0, 1.0);
+		float half_beam = mix(s.y, s.z, flare) * pow(max(1.0 - pow(u, 2.4), 0.0), 0.6);
+		// Keel rocker lifts the ends, so near the stems the waterline section is
+		// finer than the scaled midship one; pull the low mask in so it stays
+		// inside the skin there (about 13% at u = 0.8 on the small boat).
+		half_beam *= 1.0 - 0.2 * u * u * (1.0 - flare);
+		// Below the waterline (a trough) the section closes to the rockered keel.
+		half_beam *= clamp((p.y - h.w - s.w * u * u * u) / max(h.x - h.w, 0.001), 0.0, 1.0);
+		if (abs(dot(d, vec2(-f.w, f.z))) < half_beam) {
+			return true;
+		}
+	}
+	return false;
+}
+
 varying vec3 water_world_position;
 // Shallow (0) .. deep (1) share of the sea look from sea_depth_map, or -1 for the per-family
 // look. Sampled per vertex on purpose: the fragment stage already uses all 16 sampler units
@@ -1581,6 +1623,9 @@ void fragment() {
 	// WR-3: ring nodes cover whole 4 m cells; cells owned by the static skirt and
 	// surf band, or by land, are cut per pixel (after the derivative above).
 	if (sea_lod && !_sea_lod_pixel_drawn(wave_sample_xz, sea_lod_cells)) {
+		discard;
+	}
+	if (hull_mask_count > 0 && _inside_open_hull(water_world_position)) {
 		discard;
 	}
 	// WS-06b: per-pixel baked foam. Do not read a vertex varying; GL Compatibility

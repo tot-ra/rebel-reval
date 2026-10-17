@@ -173,6 +173,27 @@ static func draught(design: StringName) -> float:
 	return float(DESIGNS[design]["draught"])
 
 
+## Sea mask footprint of an open hull (R-2150), just inside the skin:
+## (half length, half beam at the waterline, half beam at the sheer, keel rocker
+## lift at the stems).
+## The water shader tapers it toward the stems like _half_beam().
+static func water_mask_shape(design: StringName) -> Vector4:
+	var s: Dictionary = DESIGNS[design]
+	# _floor_half_width already keeps 0.04 off the skin; 0.02 sits under the 0.03 inner skin.
+	var low := _floor_half_width(s, 0.5, float(s["draught"])) + 0.02
+	return Vector4(
+		float(s["length"]) * 0.5 - 0.05, low, float(s["beam"]) * 0.5 - 0.02, _keel(s, 1.0)
+	)
+
+
+## Mask heights above the keel: (waterline, sheer amidships, highest stem top).
+static func water_mask_heights(design: StringName) -> Vector3:
+	var s: Dictionary = DESIGNS[design]
+	return Vector3(
+		float(s["draught"]), float(s["depth"]), float(s["depth"]) + float(s["rise"]) + 0.22
+	)
+
+
 ## A finished vessel. `variant` comes from variant_for(). Afloat hulls are
 ## lowered by their draught by the caller (origin = keel).
 static func build(variant: Dictionary) -> Node3D:
@@ -336,9 +357,12 @@ static func hull_mesh(design: StringName, wear: StringName) -> ArrayMesh:
 				var c: Array[Vector3] = []
 				var n: Array[Vector3] = []
 				var uv: Array[Vector2] = []
+				# Unlapped loft corners: the inner skin and the lap edge start here.
+				var flush: Array[Vector3] = []
 				for k: Array in [[t0, a0, 0.0], [t1, a0, 0.0], [t1, a1, 1.0], [t0, a1, 1.0]]:
 					var p := _point(s, k[0], k[1])
 					var nn := _normal(s, k[0], k[1])
+					flush.append(Vector3(p.x, p.y, p.z * side))
 					# Lower edge of each strake proud by LAP, flush at its upper edge.
 					p += nn * LAP * (1.0 - float(k[2])) * (1.0 if b > 0 else 0.0)
 					c.append(Vector3(p.x, p.y, p.z * side))
@@ -348,14 +372,19 @@ static func hull_mesh(design: StringName, wear: StringName) -> ArrayMesh:
 					c.reverse()
 					n.reverse()
 					uv.reverse()
+					flush.reverse()
 				var mid_y := (c[0].y + c[2].y) * 0.5
 				var tone := _plank_tone(wear, b, plank + (0 if side > 0.0 else 17), mid_y, s)
 				parts.smooth_quad(c, n, uv, tone)
-				# Inner skin: same loft, pushed in, faces reversed, darker.
+				if b > 0:
+					_add_lap_edge(parts, c, flush, side, tone.darkened(0.15))
+				# Inner skin: the unlapped loft pushed in, faces reversed, darker. It
+				# must not follow the lap step: with back-face culling a stepped inner
+				# skin leaves a see-through slot at every strake seam (R-2150).
 				var ci: Array[Vector3] = []
 				var ni: Array[Vector3] = []
 				for idx in 4:
-					ci.append(c[idx] - n[idx] * 0.03)
+					ci.append(flush[idx] - n[idx] * 0.03)
 					ni.append(-n[idx])
 				ci.reverse()
 				ni.reverse()
@@ -377,6 +406,31 @@ static func hull_mesh(design: StringName, wear: StringName) -> ArrayMesh:
 	var mesh := parts.commit()
 	_hulls[key] = mesh
 	return mesh
+
+
+## Closes the proud lower edge of a lapped strake (the plank's thickness seen
+## from below), so the lap step shows wood instead of the sea behind it.
+## `c` (lapped) and `flush` are the strake quad corners in smooth_quad order.
+static func _add_lap_edge(
+	parts: CogParts,
+	c: Array[Vector3],
+	flush: Array[Vector3],
+	side: float,
+	tone: Color
+) -> void:
+	# Lower-edge corners sit at [0, 1] for starboard and [2, 3] after the port reverse.
+	var lo := [0, 1] if side > 0.0 else [3, 2]
+	var p: Array[Vector3] = [flush[lo[0]], flush[lo[1]], c[lo[1]], c[lo[0]]]
+	# A cross product of mirrored vectors flips sign, so port multiplies it back.
+	var down := (
+		(flush[lo[0]] - c[lo[0]]).cross(flush[lo[1]] - flush[lo[0]]).normalized() * side
+	)
+	var nn: Array[Vector3] = [down, down, down, down]
+	var uv: Array[Vector2] = [Vector2(0, 0), Vector2(1, 0), Vector2(1, 0.05), Vector2(0, 0.05)]
+	if side < 0.0:
+		p.reverse()
+		uv.reverse()
+	parts.smooth_quad(p, nn, uv, tone)
 
 
 static func _add_backbone(parts: CogParts, s: Dictionary, wear: StringName) -> void:

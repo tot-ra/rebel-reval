@@ -106,6 +106,68 @@ func test_afloat_working_craft_have_dry_fitted_floorboards() -> void:
 		)
 
 
+## R-2150: looking into the boat at a strake seam must hit a front face of the
+## inner skin. A lap-stepped inner skin left a slot of culled back faces there,
+## and the sea showed through between the planks.
+func test_strake_seams_are_closed_from_inside() -> void:
+	for design: StringName in VesselFleet.designs():
+		var s: Dictionary = VesselFleet.spec(design)
+		var arrays := VesselFleet.hull_mesh(design, VesselFleet.WEAR_WEATHERED).surface_get_arrays(0)
+		var vertices := arrays[Mesh.ARRAY_VERTEX] as PackedVector3Array
+		var strakes := int(s["strakes"])
+		for b in range(1, strakes):
+			for t: float in [0.3, 0.5, 0.72]:
+				var a := float(b) / strakes
+				var seam := VesselFleet._point(s, t, a)
+				# Middle of the old slot between the stepped inner skins.
+				var target := seam - VesselFleet._normal(s, t, a) * 0.019
+				var origin := Vector3(seam.x, float(s["depth"]) + 1.5, 0.0)
+				var dir := (target - origin).normalized()
+				var nearest := INF
+				var front := false
+				for i in range(0, vertices.size(), 3):
+					var hit: Variant = Geometry3D.ray_intersects_triangle(
+						origin, dir, vertices[i], vertices[i + 1], vertices[i + 2]
+					)
+					if hit == null:
+						continue
+					var dist := origin.distance_to(hit as Vector3)
+					if dist < nearest:
+						nearest = dist
+						# Godot front faces wind clockwise: front normal = -(e1 x e2).
+						var e1 := vertices[i + 1] - vertices[i]
+						var e2 := vertices[i + 2] - vertices[i]
+						front = -e1.cross(e2).dot(dir) < 0.0
+				assert_true(front, "%s strake seam %d at t=%.2f is closed" % [design, b, t])
+
+
+func test_sea_mask_footprint_stays_inside_the_hull() -> void:
+	for design: StringName in VesselFleet.designs():
+		var s: Dictionary = VesselFleet.spec(design)
+		var shape := VesselFleet.water_mask_shape(design)
+		var levels := VesselFleet.water_mask_heights(design)
+		var outer_waterline := VesselFleet._floor_half_width(s, 0.5, float(s["draught"])) + 0.04
+		assert_true(shape.x < float(s["length"]) * 0.5, "%s mask shorter than the hull" % design)
+		assert_true(
+			shape.y > 0.0 and shape.y < outer_waterline, "%s mask inside the waterline" % design
+		)
+		assert_true(shape.z < float(s["beam"]) * 0.5, "%s mask inside the sheer" % design)
+		assert_true(levels.x < levels.y and levels.y < levels.z, "%s mask heights rise" % design)
+	CityShips._set_hull_masks(
+		PackedVector4Array([Vector4.ONE]), PackedVector4Array([Vector4.ONE]),
+		PackedVector4Array([Vector4.ONE])
+	)
+	var mat := MapViewMaterials.water_surface(MapTypes.TERRAIN_SHALLOW_WATER)
+	assert_eq(int(mat.get_shader_parameter(&"hull_mask_count")), 1, "one hull masked")
+	assert_eq(
+		(mat.get_shader_parameter(&"hull_mask_frame") as PackedVector4Array).size(),
+		CityShips.HULL_MASK_MAX,
+		"mask arrays padded to the shader size"
+	)
+	CityShips._set_hull_masks(PackedVector4Array(), PackedVector4Array(), PackedVector4Array())
+	assert_eq(int(mat.get_shader_parameter(&"hull_mask_count")), 0, "mask cleared")
+
+
 func test_sails_are_segmented_for_billow() -> void:
 	for design: StringName in VesselFleet.designs():
 		if not VesselFleet.is_rigged(design):
