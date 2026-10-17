@@ -21,8 +21,9 @@ const DOOR := Vector2(1.2, 1.75)
 ## Smoke-blackened logs, a dark beaten-earth floor in the heated room and the
 ## paler trodden clay of the threshing floor.
 const SMOKED := Color(0.42, 0.36, 0.31)
-const HEATED_FLOOR := Color(0.36, 0.3, 0.25)
-const THRESHING_FLOOR := Color(0.74, 0.64, 0.5)
+## The clay_floor plate is already dark umber, so these are mild multipliers.
+const HEATED_FLOOR := Color(0.78, 0.72, 0.66)
+const THRESHING_FLOOR := Color(1.0, 0.94, 0.84)
 const STONE := Color(0.6, 0.58, 0.54)
 const GATE_WOOD := Color(0.62, 0.52, 0.42)
 ## Smoke vent: a small dark hole high in the log wall, with a board shutter.
@@ -113,6 +114,30 @@ static func in_heated_bay(b: Dictionary, p: Vector2) -> bool:
 	if line.is_empty():
 		return true
 	return (p - line[0]).dot(heated_dir(b)) >= 0.0
+
+
+## Inner face of a smoke dwelling (R-2281): the same plate as the outside
+## wall, but no weather indoors; soot from the smoke room instead (the
+## weathered wall shader's `indoor` mode). `family` is a wall family, or
+## `masonry` for the heap oven's fieldstone (the plate the city drew it with).
+## Cached with the builder's materials, so bind_ground drops it too.
+static func indoor_material(family: StringName) -> Material:
+	var key := "indoor:%s" % family
+	var cache: Dictionary = CityBuildingBuilder._materials
+	if not cache.has(key):
+		var mat: ShaderMaterial
+		if family == &"masonry":
+			var plate := MapViewMaterials.fortification_masonry(Color(0.86, 0.83, 0.76))
+			mat = CityBuildingBuilder.weathered_wall(plate, Color(1.06, 0.98, 0.84))
+		else:
+			var wall := CityBuildingBuilder.wall_material(family) as ShaderMaterial
+			mat = wall.duplicate() as ShaderMaterial
+		mat.set_shader_parameter("rot", 0.0)
+		mat.set_shader_parameter("indoor", 1.0)
+		# The oven's fire licks out of the mouth: soot from just above it.
+		mat.set_shader_parameter("soot_low", 0.25 if family == &"masonry" else 1.1)
+		cache[key] = mat
+	return cache[key]
 
 
 ## Heap oven: {id, at, size, mouth (unit dir)}.
@@ -312,7 +337,9 @@ static func _oven(shell: CityBuildingBuilder.Shell, b: Dictionary, floor_y: floa
 		var h := OVEN_HEIGHT * float(course[1]) * 0.86
 		var turn := f.rotated(rng.randf_range(-0.06, 0.06))
 		var shade := _shade(STONE, rng.randf_range(0.82, 1.0))
-		_obox(shell, "stone", Vector3(c.x, y + h * 0.5, c.y), Vector3(w, h, w), turn, shade)
+		_obox(
+			shell, "indoor:masonry", Vector3(c.x, y + h * 0.5, c.y), Vector3(w, h, w), turn, shade
+		)
 		y += h
 	# The open heap of heating stones (keris) on top.
 	for k in 7:
@@ -321,7 +348,7 @@ static func _oven(shell: CityBuildingBuilder.Shell, b: Dictionary, floor_y: floa
 		var shade := _shade(STONE, rng.randf_range(0.55, 0.85))
 		_obox(
 			shell,
-			"stone",
+			"indoor:masonry",
 			Vector3(p.x, y + s * 0.4, p.y),
 			Vector3(s, s * 0.8, s),
 			f.rotated(rng.randf_range(0.0, PI)),
@@ -341,7 +368,7 @@ static func _oven(shell: CityBuildingBuilder.Shell, b: Dictionary, floor_y: floa
 	var lee := c + f * (size * 0.5 + 0.4)
 	_obox(
 		shell,
-		"stone",
+		"indoor:masonry",
 		Vector3(lee.x, floor_y + 0.03, lee.y),
 		Vector3(1.0, 0.06, 0.7),
 		f,
@@ -446,7 +473,7 @@ static func _wall_box(
 	var m := (p + q) * 0.5
 	_obox(
 		shell,
-		"wall:log",
+		"indoor:log",
 		Vector3(m.x, (y0 + y1) * 0.5, m.y),
 		Vector3(length, y1 - y0, thick),
 		normal,

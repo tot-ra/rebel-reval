@@ -130,7 +130,7 @@ The dossier excludes domestic rabbit hutches for lack of reviewed 1343 Estonian 
 
 ## Rural dwelling plan
 
-Status: implemented (task **R-1929**). Scope: the walk-in plan of 1343 smoke dwellings in the open city and the regional sites: the 43 farm-suburb houses (`bldg.harju.*`, `bldg.karja.*`, `bldg.toompea_foot.*`, `kind: house`) as **smoke cottages**, and the suburban `barn_dwelling` outbuildings plus the Harju and Saaremaa `smoke_room` dwellings as two-bay **barn-dwellings** (*elurehi*). Out of scope: roof pitch and cover (R-1632), footprints, wall heights, the drying poles and sheaves (`DryingLoft`, `HouseholdLayout._furnish_loft`), yard dressing (R-1594), smoke plumes from vents.
+Status: implemented (tasks **R-1929**, interior surfaces and smoke **R-2281**). Scope: the walk-in plan of 1343 smoke dwellings in the open city and the regional sites: the 43 farm-suburb houses (`bldg.harju.*`, `bldg.karja.*`, `bldg.toompea_foot.*`, `kind: house`) as **smoke cottages**, and the suburban `barn_dwelling` outbuildings plus the Harju and Saaremaa `smoke_room` dwellings as two-bay **barn-dwellings** (*elurehi*). Out of scope: roof pitch and cover (R-1632), footprints, wall heights, the drying poles and sheaves (`DryingLoft`, `HouseholdLayout._furnish_loft`), yard dressing (R-1594), smoke plumes from vents.
 
 What the player sees and does:
 
@@ -144,6 +144,14 @@ Runtime and data:
 - Plan rule: the heated bay is the end of the ridge axis away from the outer door; the seam sits at `MapViewRuralDwellingModels.ROOM_SHARE` (0.38) of the length from that end, the same seam as the map-view facade, stepped down to no less than 0.3 only to keep a door on a long wall 0.9 m clear of the partition. The gate is centred on the threshing bay's front (door-side) wall in the longer stretch the door leaves free, width clamp(0.32 x length, 1.75, 2.7) m, height min(2.32, wall - 0.35) m. The oven (1.5 m cottage, 1.8 m barn-dwelling) stands in the back corner, slid inward until it is clear of every wall.
 - `scripts/city/rural_dwelling_plan.gd` reads the plan and builds the structure: `CityBuildingBuilder.build_building` skips windows, plinth and chimney, lays the clay floors, the partition (cut and capped at `CUT_HEIGHT` like the outer walls), the oven, gate, vents and log ends; `CityCollisionBuilder` adds the partition pieces and the oven as walls with the inner doorway open; `HouseholdLayout` takes its rooms (threshing floor = room 0, heated room = room 1, one partition entry without `walls`) and the oven as the household's `hearth` item (`oven`, `depth`, no catalog model). `CityInteriors` gives that hearth only its fire (`MapViewDomesticHearthModels.add_oven_fire`), no hood and no flue.
 - Save/load: nothing is saved; the plan is generated data and every part is a deterministic function of it.
+
+**Interior surfaces and oven smoke (R-2281).** The inner faces of the log walls, the partition and the heap oven use material keys `indoor:log` and `indoor:masonry` (`CityBuildingBuilder.indoor_material`): the same plates as outside, but the weathered wall shader's `indoor` mode grows no weather indoors (no damp foot, rain streaks, rot, moss or lichen rosettes) and instead blackens everything from about 1.1-1.5 m up with a ragged, slightly glossy soot glaze where the smoke layer hangs. The floor is tamped clay worn smooth underfoot (`assets/materials/pbr/clay_floor/clay_floor_albedo.png`, replacing the R-1516 drought-crust plate, which read as a desert indoors), sooty dark in the heated room and paler on the threshing floor. When the household's hearth is lit (or banked, thinner) `MapViewDomesticHearthModels.add_oven_fire` adds the smoke of a chimneyless oven: `OvenSmoke`, puffs rolling out of the mouth and up the oven's front, and `SmokeCeiling`, a slow thin layer from about 1.6 to 2.0 m spread between the oven and the house centre, both on the lit chimney-plume shader so the fire colours them. The floor stays earth by evidence (tamped clay or limestone slabs; plank floors in the *rehetuba* are later); a plank floor would be a recorded canon deviation.
+
+| Cutaway at the lit evening fire (18:00) | From the room | The oven |
+|---|---|---|
+| ![Smoke cottage cutaway after R-2281: smooth tamped clay floor, clean sooty log walls, smoke over the lit oven](../reports/images/farmland/r2281_smoke_cottage.jpg) | ![Smoke cottage from the far corner: smoke rising off the oven mouth into the room](../reports/images/farmland/r2281_smoke_cottage_eye.jpg) | ![Heap oven close: soot over the mouth and the upper courses, smoke layer under the roof](../reports/images/farmland/r2281_smoke_cottage_hearth.jpg) |
+
+Plates: `tools/godot_render.sh --resolution 1600x900 res://tools/capture_city_households.tscn -- --city-spawn=poi.forum --city-hour=18.2 --tag=r2281 --buildings=3` (`bldg.harju.01`).
 
 Evidence (source summary awaiting human approval before it is copied into the dossier and [CANON](../CANON.md)):
 
@@ -174,7 +182,7 @@ Limits:
 
 - Footprints are unchanged: the generator's barn-dwellings (14-18 x 6.8-8 m, 95-144 m2) are the size of the mature later *rehemaja* and too large for a 1343 *elurehi*; the Harju smoke rooms (12.5 x 7 m) are closer. A follow-up task decides smaller footprints.
 - One wall height for both bays: the heated room is not built higher than the threshing floor, and the roof (R-1632) is unchanged.
-- No smoke leaves the vents or the door; the smoke cottage lost its chimney plume and has no replacement plume yet. No smoke-blackened gradient on the upper logs, no sooting on the gate side.
+- Smoke stays inside: none leaves the vents or the door outside, so the smoke cottage has no exterior plume yet; the inside smoke layer does not drift towards the vents. No sooting on the gate side.
 - The gate is closed scenery (no swing, no carts through it); the inner door has no leaf.
 - The heap oven is box masonry in the building shell (no authored model); the household cooks at its mouth.
 - Saaremaa smoke rooms follow the North Estonian rule; the island form (bays of equal width and height) is not modelled.

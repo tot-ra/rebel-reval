@@ -521,7 +521,12 @@ func _apply_states_for(index: int) -> void:
 			if hearth_item.has("oven"):
 				MapViewDomesticHearthModels.add_oven_fire(
 					home["hearth"],
-					{"style_variant": "hearth.%s" % fire, "id": bid, "depth": hearth_item["depth"]}
+					{
+						"style_variant": "hearth.%s" % fire,
+						"id": bid,
+						"depth": hearth_item["depth"],
+						"room": _center(index),
+					}
 				)
 			else:
 				MapViewDomesticHearthModels.add_model(

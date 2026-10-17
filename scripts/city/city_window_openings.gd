@@ -7,7 +7,7 @@ extends RefCounted
 
 static func cut(shell: CityBuildingBuilder.Shell, windows: Array[Dictionary], thick: float) -> void:
 	for key: String in shell.surfaces.keys():
-		if not key.begins_with("wall:") and key != "interior":
+		if not key.begins_with("wall:") and not key.begins_with("indoor:") and key != "interior":
 			continue
 		var source: CityBuildingBuilder.Surf = shell.surfaces[key]
 		for window in windows:
