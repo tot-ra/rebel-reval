@@ -1349,7 +1349,7 @@ def build(args) -> dict:
         trace, hj["width_m"], [(v - sea_asl) / mpu for v in river_level], h_at_m, mpu)
     soil = vegetation_habitat.Soil(shore, h_at_m)
     trees, fields, pastures, woods, farmsteads, orchards = plant(overlay, occupied_by, streets, circuit_poly, toompea_edge, trace, h_at_m, mpu, x0, y0, x1, y1, wet_stream, soil)
-    bushes = shrubs(overlay, occupied_by, streets, circuit_poly, toompea_edge, trace, anchors, h_at_m, mpu, x0, y0, x1, y1, wet_stream)
+    bushes = shrubs(overlay, occupied_by, streets, circuit_poly, toompea_edge, trace, anchors, h_at_m, mpu, x0, y0, x1, y1, wet_stream, soil)
     bushes = drop_inside([[tuple(q) for q in f["polygon"]] for f in fields + pastures + orchards], bushes)
     trees, bushes, closed_orchards = site_closes(sites, trees, bushes, mpu)
     orchards += closed_orchards
@@ -1734,7 +1734,7 @@ def plant(overlay, buildings, streets, circuit_poly, toompea_edge, river, h_at_m
             continue
         add(p, rng.choice(["apple", "apple", "cherry", "plum", "pear", "rowan"]), rng.uniform(0.75, 1.05))
     # Toompea slopes and the cathedral close: lindens, ashes, elms.
-    for _ in range(1400):
+    for _ in range(1000):
         p = (rng.uniform(-560, -150), rng.uniform(-200, 330))
         if pip(p, circuit_poly) or not free(p, 1):
             continue
@@ -2640,7 +2640,26 @@ def seg_intersection(p1, p2, p3, p4):
     return None
 
 
-def shrubs(overlay, buildings, streets, circuit_poly, toompea_edge, river, anchors, h_at_m, mpu, x0, y0, x1, y1, wet_stream):
+def thicket_mix(p, h_at_m, soil, rng):
+    """Shrub species for an open-country thicket at p, by ground; [] skips it.
+
+    Weights repeat entries. Juniper is kept to sandy heath and dry rises and is
+    always a minority inside a mixed stand (R-2245).
+    """
+    h = h_at_m(*p)
+    shore = soil.shore_distance(p)
+    if soil.heath_ground(p):
+        return ["juniper_shrub"] + ["hazel_shrub"] * 2 + ["dog_rose", "raspberry", "hawthorn"]
+    if soil.sandy(p):
+        return ["sea_buckthorn"] * 4 + ["juniper_shrub", "dog_rose"] if shore < 200 else ["sea_buckthorn", "dog_rose"]
+    if h < 3.0:
+        return ["willow_shrub"] * 3 + ["alder_shrub"] * 2 + ["guelder_rose", "elder"]
+    if h > 12.0 and rng.random() < 0.18:
+        return ["juniper_shrub"] * 2 + ["hawthorn", "dog_rose", "blackthorn"]
+    return ["hazel_shrub"] * 3 + ["hawthorn", "blackthorn", "dog_rose", "spindle", "raspberry", "elder", "guelder_rose"]
+
+
+def shrubs(overlay, buildings, streets, circuit_poly, toompea_edge, river, anchors, h_at_m, mpu, x0, y0, x1, y1, wet_stream, soil):
     """Hedges, yard shrubs, wall-foot scrub, stream thickets and field edges."""
     rng = random.Random(1344)
     cell = 2.5
@@ -2685,15 +2704,22 @@ def shrubs(overlay, buildings, streets, circuit_poly, toompea_edge, river, ancho
         for side in (-1, 1):
             q = (p[0] + side * rng.uniform(7, 14), p[1] + rng.uniform(-3, 3))
             add(q, rng.choice(["willow_shrub", "alder_shrub", "guelder_rose"]), rng.uniform(0.9, 1.4))
-    for _ in range(6000):
-        p = (rng.uniform(x0 + 10, x1 - 10), rng.uniform(y0 + 10, y1 - 10))
-        if pip(p, circuit_poly):
+    # Open country (R-2245): shrubs stand in thickets of one habitat, not as lone
+    # random bushes. A lone juniper on every low field read as an alien conifer in
+    # a winter village, so juniper only grows on dry sandy heath and rises, and
+    # damp ground carries willow and alder, loam hazel/thorn/rose scrub.
+    thicket_rng = random.Random(1345)
+    for _ in range(1000):
+        c = (thicket_rng.uniform(x0 + 10, x1 - 10), thicket_rng.uniform(y0 + 10, y1 - 10))
+        if pip(c, circuit_poly) or h_at_m(*c) < 0.5:
             continue
-        h = h_at_m(*p)
-        if h < 3.0:
-            add(p, rng.choice(["juniper_shrub", "sea_buckthorn"]), rng.uniform(0.8, 1.2))
-        elif rng.random() < 0.6:
-            add(p, rng.choice(["hazel_shrub", "hawthorn", "juniper_shrub", "raspberry", "dog_rose", "spindle"]), rng.uniform(0.8, 1.3))
+        mix = thicket_mix(c, h_at_m, soil, thicket_rng)
+        if not mix:
+            continue
+        reach = thicket_rng.uniform(3.0, 8.0)
+        for _ in range(thicket_rng.randint(3, 9)):
+            a, d = thicket_rng.uniform(0, math.tau), reach * math.sqrt(thicket_rng.random())
+            add((c[0] + d * math.cos(a), c[1] + d * math.sin(a)), thicket_rng.choice(mix), thicket_rng.uniform(0.8, 1.3))
     for p in toompea_edge:
         for _ in range(6):
             q = (p[0] + rng.uniform(-30, 30), p[1] + rng.uniform(-30, 30))

@@ -186,6 +186,8 @@ Most city shrubs are multi-stem cane shrubs from [`MapViewBushMeshes.city_mesh_f
 
 Flowers and fruit are separate vertex-coloured meshes (`city_adornment_mesh`) on the same instance transforms, shown by an alpha-scissor material the season switches per date: windows in `VegetationPhenology.SHRUB_BLOOM_DAYS` and `SHRUB_FRUIT_DAYS` (a window that wraps the new year keeps rosehips and berries on the winter bush). Canes stay bare and leafless in winter. Plates: [`tools/capture_shrub_plates.gd`](../../tools/capture_shrub_plates.gd) writes the June-August lineup and spring, summer, autumn and winter plates to `docs/reports/images/vegetation/shrubs_*.jpg`.
 
+**Open-country placement (R-2245).** Outside the wall, `shrubs()` in [`build_reval_city_plan.py`](../../tools/city/build_reval_city_plan.py) plants thickets of 3-9 shrubs within 3-8 m of a seed point, with the species mix chosen by ground in `thicket_mix`: sandy heath gets a few junipers among hazel and rose, the beach strand sea buckthorn, damp low ground willow, alder, guelder rose and elder, and loam hazel, thorn, rose, spindle and elder scrub. Juniper is evergreen and stays dark green on a snowy field, so it is limited to heath, the beach and the odd dry rise instead of dotting every low field as lone bushes. Bare-cane deciduous scrub therefore dominates the winter countryside.
+
 ![Shrub lineup, late August](../reports/images/vegetation/shrubs_lineup.jpg)
 
 ![Elder, guelder rose and sea buckthorn in summer](../reports/images/vegetation/shrubs_season_summer.jpg)

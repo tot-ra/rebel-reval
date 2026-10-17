@@ -16,7 +16,39 @@ if str(CITY_TOOLS) not in sys.path:
 
 import vegetation_habitat as vh  # noqa: E402
 
+import build_reval_city_plan as plan_builder  # noqa: E402
+
 PLAN = ROOT / "content/world/reval_city/plan.json"
+
+
+class ThicketMixTest(unittest.TestCase):
+    """Open-country shrubs follow the ground (R-2245)."""
+
+    class FakeSoil:
+        def __init__(self, sandy=False, heath=False, shore=500.0):
+            self._s, self._h, self._d = sandy, heath, shore
+
+        def sandy(self, p):
+            return self._s
+
+        def heath_ground(self, p):
+            return self._h
+
+        def shore_distance(self, p):
+            return self._d
+
+    def test_damp_low_ground_has_no_juniper(self):
+        mix = plan_builder.thicket_mix((0, 0), lambda x, y: 1.5, self.FakeSoil(), __import__("random").Random(1))
+        self.assertNotIn("juniper_shrub", mix)
+        self.assertIn("willow_shrub", mix)
+
+    def test_juniper_is_minority_on_heath(self):
+        mix = plan_builder.thicket_mix((0, 0), lambda x, y: 5.0, self.FakeSoil(True, True), __import__("random").Random(1))
+        self.assertLess(mix.count("juniper_shrub") / len(mix), 0.3)
+
+    def test_inland_loam_is_deciduous_scrub(self):
+        mix = plan_builder.thicket_mix((0, 0), lambda x, y: 8.0, self.FakeSoil(), __import__("random").Random(1))
+        self.assertNotIn("juniper_shrub", mix)
 
 
 class ClearanceTest(unittest.TestCase):
