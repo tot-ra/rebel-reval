@@ -1,0 +1,72 @@
+{
+  "type": "world_object",
+  "id": "obj.plot_gate",
+  "name": "Plot gate",
+  "description": "The single gate in a burgher plot wall, opening the rear yard onto a street or close.",
+  "category": "structure",
+  "handling": "fixed",
+  "tags": [
+    "yard",
+    "boundary",
+    "door"
+  ],
+  "physical": {
+    "mass_kg": 60,
+    "size_m": [
+      1.96,
+      1.99,
+      0.24
+    ],
+    "materials": [
+      "wood",
+      "iron"
+    ],
+    "flammable": true
+  },
+  "actions": [
+    "inspect",
+    "use"
+  ],
+  "economy": {
+    "base_pfennigs": 0,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 0
+  },
+  "placement": {
+    "mount": "ground",
+    "spaces": [
+      "yard",
+      "street"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/yard/yard_kit_a.glb",
+    "measured_size_m": [
+      1.96,
+      1.99,
+      0.24
+    ],
+    "node": "PlotGatePlank",
+    "states": {
+      "wattle": "PlotGateWattle",
+      "plank": "PlotGatePlank",
+      "stone": "PlotGateStone"
+    }
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.plot_gate.png",
+    "icon": "res://assets/objects/icons/obj.plot_gate.png",
+    "icon_status": "missing",
+    "look": "Riven-plank leaf, ledged and braced, hung on two oak posts with strap hinges and a wooden latch; wattle yards use a woven hurdle leaf tied with withies, stone walls set the leaf between limestone rubble piers.",
+    "image_prompt": "Plot gate: Riven-plank leaf, ledged and braced, hung on two oak posts with strap hinges and a wooden latch; wattle yards use a woven hurdle leaf tied with withies, stone walls set the leaf between limestone rubble piers."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "uses": [
+    "enter the yard",
+    "close the yard"
+  ]
+}
