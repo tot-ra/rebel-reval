@@ -45,6 +45,7 @@ import surfaces  # noqa: E402
 import garments  # noqa: E402
 import run_cycle  # noqa: E402
 import rig_detail  # noqa: E402
+import shared_motion  # noqa: E402
 LOCATION_DATA = None
 
 MOTION_BLEND = ROOT / "assets/characters/kalev_fresh/source/kalev_fresh.blend"
@@ -125,6 +126,7 @@ def create_mpfb_body(spec):
             if not found:
                 raise SystemExit(f"unknown MakeHuman target {name}")
             TargetService.load_target(body, str(found[0]), weight=weight, name=variant)
+    apply_face_fit(body, spec)
     HumanService.add_builtin_rig(body, "game_engine", import_weights=True)
     sources = {"Anatomy_Head_Eyes": ("Eyes", "eyes/high-poly/high-poly.mhclo"),
                "Anatomy_Head_Brows": ("Eyebrows", f"eyebrows/{spec['eyebrows']}/{spec['eyebrows']}.mhclo"),
@@ -145,6 +147,30 @@ def create_mpfb_body(spec):
     rig.name = "MPFBRig"
     body.name = "MPFBBody"
     return body, rig, data, proxies
+
+
+def apply_face_fit(body, spec):
+    """Portrait face shape (face_fit.py) as one more shape key on the basemesh.
+
+    Added before the rig and proxies are fitted, so joints, eyes, brows,
+    lashes and teeth follow the new face and bake_targets folds it in like any
+    MakeHuman target. face_fit.py passes its in-progress `face_fit_delta`."""
+    delta = spec.get("face_fit_delta")
+    if delta is None:
+        path = OUT_ROOT / spec.get("fit", "") / "reference" / "face_fit.json"
+        if spec.get("face_fit") is False or not path.is_file():
+            return
+        offsets = json.loads(path.read_text())["offsets"]
+        delta = np.zeros((len(body.data.vertices), 3))
+        for index, offset in offsets.items():
+            delta[int(index)] = offset
+    if body.data.shape_keys is None:
+        body.shape_key_add(name="Basis")
+    key = body.shape_key_add(name="face_fit", from_mix=False)
+    co = np.zeros(len(body.data.vertices) * 3)
+    key.data.foreach_get("co", co)
+    key.data.foreach_set("co", co + np.asarray(delta).reshape(-1))
+    key.value = 1.0
 
 
 # Facial blend shapes from MakeHuman's CC0 expression units. Godot drives
