@@ -1370,6 +1370,9 @@ def build(args) -> dict:
         streets, circuit_poly, toompea_edge, inner, tw["thickness_m"] / 2 + 0.3, castle_ring,
         overlay["forum"]["polygon_m"], site_out, mpu)
     plots = burgher_plots(buildings, plot_obs, mpu)
+    # WB-13e: rear service ranges, appended after every other building so no
+    # existing ID, footprint or seeded placement changes.
+    buildings.extend(plot_service_ranges(plots, trees, bushes, h_at_m, mpu))
 
     for s in streets:
         s["points"] = wu(s.pop("points_m"))
@@ -2279,6 +2282,12 @@ OUTBUILDING_TYPES = {
     "pigsty": ((3.4, 4.4), (2.5, 3.1), 1.25, 38, "door"),
     "hen_house": ((2.2, 2.8), (1.9, 2.3), 1.1, 40, None),
     "store": ((3.8, 4.6), (3.3, 3.9), 2.2, 50, "door"),
+    # Burgher rear service ranges (WB-13e, R-1415; docs/tasks/world/WB-13_burgher_plot_prefab.md
+    # element table). aux_dwelling is H05's mid-14th-century round-log building with
+    # a dirt floor; the kitchen shed is the rear-yard alternative to the living-bay hearth.
+    "workshop": ((4.6, 6.0), (3.4, 4.0), 2.3, 46, "door"),
+    "aux_dwelling": ((4.2, 5.4), (3.6, 4.2), 2.1, 48, "door"),
+    "kitchen_shed": ((3.0, 3.8), (2.6, 3.2), 2.0, 44, "door"),
     # Harbour (history/dossiers/topography/harbour-and-shoreline.md, kalamaja-fishing-shore-1343.md)
     "cargo_shed": ((8.0, 11.0), (4.6, 5.6), 2.4, 32, None),
     "smoke_shed": ((3.8, 4.8), (2.8, 3.4), 1.8, 38, "door"),
@@ -3005,6 +3014,8 @@ def burgher_plots(buildings, obstacles, mpu):
 
     rings = []  # (owner building id or "", ring, bbox)
     for b in buildings:
+        if b.get("plot"):
+            continue  # a WB-13e service range is derived from the plots, never bounds one
         ring = [(p[0] * mpu, p[1] * mpu) for p in b["footprint"]]
         rings.append((b["id"], ring, box_of(ring)))
     for oid, ring in obstacles:
@@ -3350,6 +3361,133 @@ def plot_walls(plots, metas, rings, mpu):
                 p["wall"]["shared_with"] = sorted(others)
     for p in plots:
         p.setdefault("wall", None)
+
+
+# WB-13e rear service ranges (R-1415). Which building a deep yard keeps follows the
+# tier ladder of docs/tasks/world/WB-13_burgher_plot_prefab.md: poor and craft
+# favour the round-log auxiliary dwelling and a workshop, merchant a store, great
+# a store and a kitchen shed. Never a byre, hay barn, sty or sheep shed inside the
+# wall (WB-12 section 5 reject list).
+PLOT_SERVICE_MIN_YARD_M = 14.0  # yard depth (house back line to plot rear) that carries one
+PLOT_SERVICE_HOUSE_CLEAR_M = 3.0  # open yard kept behind the house
+PLOT_SERVICE_WALL_INSET_M = 0.6  # 0.3 m clearance plus the half thickness of the thickest wall
+PLOT_SERVICE_GATE_CLEAR_M = 1.5  # free ground in front of a gate
+PLOT_SERVICE_TREE_CLEAR_M = 1.0
+PLOT_SERVICE_BUSH_CLEAR_M = 0.6
+PLOT_SERVICE_GAP_M = 1.2  # between two service buildings of one yard
+PLOT_SERVICE_LADDER = {
+    "poor": (("aux_dwelling",), ("aux_dwelling",), ()),
+    "craft": (("workshop",), ("workshop",), ("aux_dwelling",), ("store",)),
+    "merchant": (("store",),),
+    "great": (("store", "kitchen_shed"),),
+}
+PLOT_SERVICE_REJECT = ("byre", "barn", "barn_dwelling", "pigsty", "sheep_shed")
+
+
+def plot_service_ranges(plots, trees, bushes, h_at_m, mpu):
+    """Rear outbuildings in deep burgher yards, as `outbuilding_record`s.
+
+    The plot frame is read back from the yard quad (corner 0 -> 1 runs along the
+    street, 0 -> 3 into the plot). Each building's long axis runs along the plot,
+    it stands at the back of the yard, inset from every yard edge (the wall line),
+    keeps PLOT_SERVICE_HOUSE_CLEAR_M behind the house, keeps the ground in front of
+    the gate free and steers round trees and bushes. Candidate spots are tried in
+    a fixed order and the type and size come from the plot id, so the result is
+    deterministic and never moves anything else. Each record carries `plot`, so
+    the plot pass (burgher_plots) ignores it on a rebuild."""
+    out = []
+    flora = [((t[0] * mpu, t[1] * mpu), PLOT_SERVICE_TREE_CLEAR_M) for t in trees]
+    flora += [((b[0] * mpu, b[1] * mpu), PLOT_SERVICE_BUSH_CLEAR_M) for b in bushes]
+    cell = 16.0
+    flora_grid = {}
+    for q, r in flora:
+        flora_grid.setdefault((int(q[0] // cell), int(q[1] // cell)), []).append((q, r))
+
+    def ring_gap(p, ring):
+        """Distance from point p to a closed ring, 0 inside."""
+        if pip(p, ring):
+            return 0.0
+        return min(float(dist_point_seg(p[0], p[1], ring[k][0], ring[k][1], ring[(k + 1) % len(ring)][0], ring[(k + 1) % len(ring)][1])[0])
+                   for k in range(len(ring)))
+
+    def rings_meet(a, b, gap):
+        return any(ring_gap(q, b) < gap for q in a) or any(ring_gap(q, a) < gap for q in b) or \
+            any(ring_gap(((a[k][0] + a[(k + 1) % 4][0]) / 2, (a[k][1] + a[(k + 1) % 4][1]) / 2), b) < gap for k in range(4))
+
+    for p in sorted(plots, key=lambda p: p["id"]):
+        yard = [(q[0] * mpu, q[1] * mpu) for q in p["yard"]]
+        if not yard:
+            continue
+        width, depth = math.dist(yard[0], yard[1]), math.dist(yard[0], yard[3])
+        if depth < PLOT_SERVICE_MIN_YARD_M:
+            continue
+        options = PLOT_SERVICE_LADDER[p["wealth_tier"]]
+        types = options[hash_int(p["id"] + "service") % len(options)]
+        if not types:
+            continue
+        T = ((yard[1][0] - yard[0][0]) / width, (yard[1][1] - yard[0][1]) / width)
+        N = ((yard[3][0] - yard[0][0]) / depth, (yard[3][1] - yard[0][1]) / depth)
+
+        def at(t, n, o=yard[0], T=T, N=N):
+            return (o[0] + t * T[0] + n * N[0], o[1] + t * T[1] + n * N[1])
+
+        gate = p["wall"]["gate"] if p.get("wall") else None
+        gate_at = (gate["at"][0] * mpu, gate["at"][1] * mpu) if gate else None
+        gate_clear = (gate["width"] * mpu / 2 + PLOT_SERVICE_GATE_CLEAR_M) if gate else 0.0
+        rng = random.Random(hash_int(p["id"] + "range"))
+        suffix = p["id"].removeprefix("plot.")
+        inset = PLOT_SERVICE_WALL_INSET_M
+        placed = []
+        n_back = depth - inset  # rear face of the next building
+        for n_idx, typ in enumerate(types):
+            (lmin, lmax), (dmin, dmax), _, _, _ = OUTBUILDING_TYPES[typ]
+            L, D = rng.uniform(lmin, lmax), rng.uniform(dmin, dmax)
+            free_w = width - 2 * inset
+            if free_w < dmin:
+                break
+            D = min(D, free_w)
+            # Lateral spots: against one side wall (a passage left on the
+            # other), the other side, then centred.
+            side = hash_int(p["id"] + "side") % 2
+            t_spots = [inset + D / 2, width - inset - D / 2]
+            if side:
+                t_spots.reverse()
+            t_spots.append(width / 2)
+            spot = None
+            n_far = n_back
+            while spot is None and n_far - L >= PLOT_SERVICE_HOUSE_CLEAR_M - 1e-9:
+                n_c = n_far - L / 2
+                for t_c in t_spots:
+                    ring = [at(t_c + sx * D / 2, n_c + sy * L / 2) for sx, sy in ((-1, -1), (1, -1), (1, 1), (-1, 1))]
+                    if gate_at is not None and ring_gap(gate_at, ring) < gate_clear:
+                        continue
+                    c = at(t_c, n_c)
+                    reach = math.hypot(L, D) / 2 + PLOT_SERVICE_TREE_CLEAR_M
+                    if any(ring_gap(q, ring) < r
+                           for gx in range(int((c[0] - reach) // cell), int((c[0] + reach) // cell) + 1)
+                           for gy in range(int((c[1] - reach) // cell), int((c[1] + reach) // cell) + 1)
+                           for q, r in flora_grid.get((gx, gy), ())
+                           if math.dist(q, c) < reach + r):
+                        continue
+                    if any(rings_meet(ring, other, PLOT_SERVICE_GAP_M) for other in placed):
+                        continue
+                    spot = (c, ring, n_c)
+                    break
+                n_far -= 0.5
+            if spot is None:
+                continue
+            c, ring, n_c = spot
+            placed.append(ring)
+            n_back = n_c - L / 2 - PLOT_SERVICE_GAP_M
+            # The door faces the house across the open yard.
+            face = at(width / 2, 0.0)
+            out.append(outbuilding_record(
+                "bldg.%s.%s%d" % (suffix, typ.replace("_", ""), n_idx), typ, c[0], c[1],
+                math.atan2(N[1], N[0]), L, D, face, h_at_m, mpu, p["street_id"],
+                "plausible composite (WB-13 element table: H04 rear service buildings, H05 round-log auxiliary building); %s tier" % p["wealth_tier"],
+                {"plot": p["id"]},
+            ))
+    return out
 
 
 def plot_obstacles(streets, circuit_poly, toompea_edge, toompea_inner, toompea_wall_half, castle_ring, forum_poly, site_out, mpu):

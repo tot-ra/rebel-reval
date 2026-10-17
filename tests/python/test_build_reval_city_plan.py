@@ -1,6 +1,7 @@
 """ADR 0031: the continuous Reval 1343 city plan builder."""
 import json
 import math
+import re
 import sys
 import unittest
 from pathlib import Path
@@ -208,7 +209,8 @@ class CityPlanBuilderTest(unittest.TestCase):
         self.assertEqual(bad, [], "overlapping plots")
         for p, box in zip(plots, boxes):
             for b in self.plan["buildings"]:
-                if b["id"] == p["building"] or not self._boxes_meet(box, self._bbox(b["footprint"])):
+                # The plot's own house and its own WB-13e service range are not foreign.
+                if b["id"] == p["building"] or b.get("plot") == p["id"] or not self._boxes_meet(box, self._bbox(b["footprint"])):
                     continue
                 area = self._clip_convex(b["footprint"], p["polygon"])
                 if area > 0.05:
@@ -385,6 +387,87 @@ class CityPlanBuilderTest(unittest.TestCase):
         allowed = {"poor": {"wattle"}, "craft": {"wattle", "plank"}, "merchant": {"plank", "stone"}, "great": {"stone"}}
         for p in self._walled():
             self.assertIn(p["wall"]["kind"], allowed[p["wealth_tier"]], p["id"])
+
+    # ---- WB-13e rear service ranges (R-1415) ----
+
+    def _service(self):
+        return [b for b in self.plan["buildings"] if b.get("plot")]
+
+    @staticmethod
+    def _ring_gap(a, b):
+        """Smallest distance between two closed rings (0 when they cross or nest)."""
+        def edges(r):
+            return [(r[i], r[(i + 1) % len(r)]) for i in range(len(r))]
+        if any(builder.pip(q, b) for q in a) or any(builder.pip(q, a) for q in b):
+            return 0.0
+        best = 1e9
+        for p, q in edges(a):
+            for s, t in edges(b):
+                for x, (u, v) in ((p, (s, t)), (q, (s, t)), (s, (p, q)), (t, (p, q))):
+                    d, _ = builder.dist_point_seg(x[0], x[1], u[0], u[1], v[0], v[1])
+                    best = min(best, float(d))
+        return best
+
+    def test_service_ranges_stand_inside_deep_yards_clear_of_house_walls_and_gate(self):
+        service = self._service()
+        self.assertGreater(len(service), 30, "deep yards carry rear service buildings")
+        plots = {p["id"]: p for p in self.plan["plots"]}
+        by_id = {b["id"]: b for b in self.plan["buildings"]}
+        for b in service:
+            p = plots[b["plot"]]
+            ring = [tuple(q) for q in b["footprint"]]
+            yard = [tuple(q) for q in p["yard"]]
+            self.assertGreaterEqual(math.dist(yard[0], yard[3]) * self.mpu, 14.0 - 1e-6, b["id"])
+            for q in ring:
+                self.assertTrue(builder.pip(q, yard), (b["id"], "outside its yard"))
+            house = [tuple(q) for q in by_id[p["building"]]["footprint"]]
+            self.assertGreaterEqual(self._ring_gap(ring, house) * self.mpu, 3.0 - 0.01, (b["id"], "house"))
+            for run in p["wall"]["runs"]:
+                for q in self._run_samples(run):
+                    d = min(float(builder.dist_point_seg(q[0], q[1], ring[k][0], ring[k][1], ring[(k + 1) % 4][0], ring[(k + 1) % 4][1])[0])
+                            for k in range(4))
+                    self.assertGreaterEqual(d * self.mpu, 0.3, (b["id"], "wall"))
+            g = p["wall"]["gate"]
+            if g:
+                gap = min(float(builder.dist_point_seg(g["at"][0], g["at"][1], ring[k][0], ring[k][1], ring[(k + 1) % 4][0], ring[(k + 1) % 4][1])[0])
+                          for k in range(4))
+                self.assertFalse(builder.pip(tuple(g["at"]), ring), b["id"])
+                self.assertGreaterEqual(gap, g["width"] / 2 + 1.5 - 0.01, (b["id"], "gate line"))
+            self.assertFalse(b["enterable"])
+            self.assertIsNotNone(b["door"])
+
+    def test_service_ranges_keep_off_every_other_building_and_trees(self):
+        service = self._service()
+        others = self.plan["buildings"]
+        for b in service:
+            ring = [tuple(q) for q in b["footprint"]]
+            box = self._bbox(ring)
+            for o in others:
+                if o["id"] == b["id"] or not self._boxes_meet(box, self._bbox(o["footprint"])):
+                    continue
+                self.assertGreater(self._ring_gap(ring, [tuple(q) for q in o["footprint"]]), 0.5, (b["id"], o["id"]))
+            for t in self.plan["trees"]:
+                if box[0] - 3 < t[0] < box[2] + 3 and box[1] - 3 < t[1] < box[3] + 3:
+                    self.assertFalse(builder.pip((t[0], t[1]), ring), (b["id"], "tree inside"))
+
+    def test_service_types_follow_the_tier_ladder_and_reject_list(self):
+        allowed = {"poor": {"aux_dwelling"}, "craft": {"workshop", "aux_dwelling", "store"},
+                   "merchant": {"store"}, "great": {"store", "kitchen_shed"}}
+        tiers = {p["id"]: p["wealth_tier"] for p in self.plan["plots"]}
+        share = {}
+        for b in self._service():
+            tier = tiers[b["plot"]]
+            self.assertIn(b["type"], allowed[tier], b["id"])
+            self.assertNotIn(b["type"], builder.PLOT_SERVICE_REJECT)
+            self.assertRegex(b["id"], r"^bldg\.%s\.[a-z]+\d$" % re.escape(b["plot"].removeprefix("plot.")))
+            share.setdefault(tier, {}).setdefault(b["type"], 0)
+            share[tier][b["type"]] += 1
+        ids = [b["id"] for b in self.plan["buildings"]]
+        self.assertEqual(len(ids), len(set(ids)))
+        # Appended after every other building, so no earlier index or ID moves.
+        first = min(i for i, b in enumerate(self.plan["buildings"]) if b.get("plot"))
+        self.assertTrue(all(b.get("plot") for b in self.plan["buildings"][first:]))
+        print("\nWB-13e service ranges by tier %s" % json.dumps(share, sort_keys=True))
 
     def test_plots_ignore_input_order_and_leave_buildings_untouched(self):
         import copy
