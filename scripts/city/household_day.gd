@@ -18,7 +18,8 @@ const RISE := 5.2
 ## When the household's firewood comes home if no one fetches it (domestic
 ## timetable: out at 10.2, home by about 10.7).
 const DEFAULT_REFILL := 10.7
-## Indoor walking speed from the door to a resident's place (m/s).
+## Indoor walking speed from the door to a resident's place (real m/s at 1x,
+## DayNightCycle.real_seconds).
 const INDOOR_WALK := 1.0
 
 

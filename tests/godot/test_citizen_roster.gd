@@ -162,7 +162,7 @@ func test_patrol_walks_its_route_and_turns_back() -> void:
 	var shift: String = roster.residents[i]["duty"]["shift"]
 	var hour := 10.0 if shift == "day" else 23.0
 	var first := roster.resolve(i, hour)
-	var later := roster.resolve(i, hour + 0.25)
+	var later := roster.resolve(i, hour + 0.5)
 	assert_true(first["moving"] and later["moving"], "walking")
 	assert_true((first["pos"] as Vector2).distance_to(later["pos"]) > 20.0, "covers ground")
 	assert_true(roster.describe(i, hour).begins_with("On patrol"), roster.describe(i, hour))
@@ -261,3 +261,36 @@ func test_traders_rest_on_sunday() -> void:
 	assert_eq(roster.resolve(i, 11.0)["dest"], "work", "at the forum on a weekday")
 	CitizenRoster.weekday = 6
 	assert_ne(roster.resolve(i, 11.0)["dest"], "work", "no trade on Sunday")
+
+
+## Near the hero a resident walks at their census speed in real seconds (a little
+## over: lane offsets swing at corners) and never runs ahead of the timetable
+## (CitizenActor._trail); the schedule alone is untouched.
+func test_trailing_walker_keeps_a_real_gait_behind_the_schedule() -> void:
+	var roster := _roster()
+	var checked := 0
+	for i in range(0, roster.count(), 53):
+		var r: Dictionary = roster.residents[i]
+		var actor := CitizenActor.new()
+		actor.roster = roster
+		actor.index = i
+		actor.record = r
+		var h := 0.0
+		var last := Vector2.ZERO
+		var seen_walk := false
+		# One real second of the clock per frame, as a day runs at 1x.
+		while h < 24.0:
+			h += DayNightCycle.game_hours(1.0)
+			var state := actor._trail(roster.resolve(i, h), h, actor._elapsed_hours(h))
+			if state["moving"] and not seen_walk:
+				seen_walk = true
+			elif state["moving"] and seen_walk:
+				var step := (state["pos"] as Vector2).distance_to(last)
+				assert_true(step <= float(r["walk"]) + 1.0, "%s steps %.2f m a second" % [r["id"], step])
+			if not state["moving"]:
+				seen_walk = false
+			last = state["pos"]
+		assert_true(actor._last_hour >= 0.0)
+		checked += 1
+		actor.free()
+	assert_true(checked > 20, "residents sampled")

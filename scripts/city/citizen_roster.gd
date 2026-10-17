@@ -15,18 +15,17 @@ const CELL := 128.0
 const BBOX_PAD := 45.0
 const LANE_WIDTH := 0.22
 const DEFAULT_FACING := Vector2(0.0, 1.0)
-## Patrols walk their route back and forth at this speed (m/s), tools/city/gate_garrisons.py.
+## Patrols walk their route back and forth at this speed (real m/s at 1x,
+## DayNightCycle.real_seconds), tools/city/gate_garrisons.py.
 const PATROL_SPEED := 0.9
 ## The clock runs one game minute per real second (DayNightCycle), so the census
-## walking speed (1.0-1.45 m/s, in game seconds) read as 60-87 m/s on screen -
-## citizens outran the hero (run 5.6 m/s) many times over. WALK_PACE slows legs
-## to about 7-10 m/s on screen (hero walk 3.1, run 5.6; slower breaks
-## the timetable); a leg whose gap to the
-## next departure is too short is squeezed to TRAVEL_SHARE of it, the only
-## time they hurry. Patrols have no deadline and walk at a real walking pace.
+## walking speed (1.0-1.45 m/s, in game seconds) would read as 60-87 m/s on screen.
+## The timetable therefore only says where a resident SHOULD be: WALK_PACE slows
+## legs to about 7-10 m/s, and a leg whose gap to the next departure is too short
+## is squeezed to TRAVEL_SHARE of it. What is drawn near the hero is a real gait
+## that trails this scheduled point (CitizenActor, route_* keys of resolve).
 const WALK_PACE := 0.12
 const TRAVEL_SHARE := 0.5
-const PATROL_PACE := 0.03
 
 ## Fixed status line per place_label_key() while staying there.
 const _STAY_LABELS := {
@@ -254,7 +253,8 @@ func candidates_near(world_xz: Vector2, radius: float) -> PackedInt32Array:
 ## indoors), moving, pos (world xz metres), facing (unit world xz), dest (the
 ## destination key of the current leg: door, home, work, errand, errand2),
 ## from (the key the leg started at) and arrived (hours since the leg ended,
-## -1 while still under way).
+## -1 while still under way). While moving also route_points / route_s (metres
+## along them) / route_id (the leg), the scheduled point a real gait trails.
 func resolve(index: int, hour: float) -> Dictionary:
 	var r: Dictionary = residents[index]
 	var entries := _entries(r)
@@ -294,7 +294,7 @@ func resolve(index: int, hour: float) -> Dictionary:
 		return done
 	var travelled := (hour - depart) / duration * length
 	var spot := _along(route["points"], travelled)
-	var lane := Vector2(-spot[1].y, spot[1].x) * (float(_slot(r) % 7) - 3.0) * LANE_WIDTH
+	var lane := Vector2(-spot[1].y, spot[1].x) * lane_of(r)
 	return {
 		"visible": true,
 		"moving": true,
@@ -303,6 +303,9 @@ func resolve(index: int, hour: float) -> Dictionary:
 		"dest": dest_key,
 		"from": from_key,
 		"arrived": -1.0,
+		"route_points": route["points"],
+		"route_s": travelled,
+		"route_id": "%s>%s@%.3f" % [from_key, dest_key, depart],
 	}
 
 
@@ -412,6 +415,11 @@ func _label(r: Dictionary, key: String) -> String:
 
 
 ## 0..47, stable per resident: the personal offset slot.
+## Sideways offset (m) of resident `r` from the street centre line, so walkers do not overlap.
+func lane_of(r: Dictionary) -> float:
+	return (float(_slot(r) % 7) - 3.0) * LANE_WIDTH
+
+
 func _slot(r: Dictionary) -> int:
 	return absi(hash(String(r["id"]))) % 48
 
@@ -444,7 +452,9 @@ func _patrol(r: Dictionary, waited: float) -> Dictionary:
 	var route: Dictionary = patrols[int(r["duty"]["route"])]
 	var points: PackedVector2Array = route["points"]
 	var length: float = route["length"]
-	var travelled := waited * 3600.0 * PATROL_SPEED * PATROL_PACE + float(r["duty"].get("offset", 0.0))
+	var travelled := (
+		DayNightCycle.real_seconds(waited) * PATROL_SPEED + float(r["duty"].get("offset", 0.0))
+	)
 	var phase := fposmod(travelled, 2.0 * length)
 	var forward := phase <= length
 	var spot := _along(points, phase if forward else 2.0 * length - phase)

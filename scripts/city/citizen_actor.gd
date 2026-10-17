@@ -17,6 +17,8 @@ const SIT_BACK := 0.44
 const SIT_SURFACE := 0.95
 ## A lying body's back rests this far above the bed's top.
 const LIE_LIFT := 0.12
+## Walked routes end within this many metres of the next leg's start to be chained.
+const CHAIN_REACH := 4.0
 const POSE_ANIMATION := {
 	&"walk": &"walk", &"sit": &"sit_idle", &"sleep": &"idle", &"stand": &"idle",
 	&"hearth": &"idle", &"work": &"idle",
@@ -76,6 +78,21 @@ var _moving := false
 ## Sideways give-way from the player (CrowdYield), on top of the scheduled spot.
 var _yield := Vector2.ZERO
 var _player: CharacterBody2D
+## Real-gait walker (see _trail): the route being walked, metres covered, its length,
+## the leg it belongs to, and the clock hour of the previous frame.
+var _walk_points := PackedVector2Array()
+var _walk_s := 0.0
+var _walk_len := 0.0
+var _walk_id := ""
+var _walk_dest := ""
+var _walk_from := ""
+var _last_hour := -1.0
+## Hour the walker reached the end of its route, -1 when not just arrived.
+var _arrived_hour := -1.0
+var _walk_end := Vector2.ZERO
+## Where the resident last stood still, valid once they have (chains the next walk).
+var _still_pos := Vector2.ZERO
+var _still_valid := false
 
 
 static func create(citizen_roster: CitizenRoster, resident: int, hours: Callable) -> CitizenActor:
@@ -117,11 +134,15 @@ func _physics_process(delta: float) -> void:
 func _physics_process_timed(delta: float) -> void:
 	var h := float(hour_source.call())
 	var state := roster.resolve(index, h)
+	var elapsed := _elapsed_hours(h)
 	if brawler != null and brawler.owns_motion():
+		_walk_points = PackedVector2Array()
+		_still_valid = false
 		_step_brawl(delta, CityPlan.to_logic(state["pos"]))
 		return
 	if _step_held():
 		return
+	state = _trail(state, h, elapsed)
 	outdoors = state["visible"]
 	carrying_wood = state["moving"] and state["dest"] == "home" and state["from"] == "fuel"
 	var moving: bool = state["moving"]
@@ -156,6 +177,119 @@ func _physics_process_timed(delta: float) -> void:
 	_moving = moving and velocity.length_squared() > 4.0
 	if moving or velocity.length_squared() < 4.0:
 		_facing = facing
+
+
+## Clock hours since the previous frame (0 on the first, after a pause or if time ran back).
+func _elapsed_hours(h: float) -> float:
+	var dh := h - _last_hour if _last_hour >= 0.0 else 0.0
+	_last_hour = h
+	if dh < -12.0:
+		dh += 24.0
+	return maxf(dh, 0.0)
+
+
+## The timetable moves a resident across town at a sped-up pace (CitizenRoster:
+## the day runs 60x real time), so what is drawn trails it: a walker covers their
+## census speed in real seconds (DayNightCycle.real_seconds, so debug time speed
+## hurries them along with the clock) along the leg's route, never passing the
+## scheduled point, and keeps going to the route's end after the timetable has
+## them settled there. One who falls a whole leg behind skips what they missed and
+## walks on towards where the timetable has them now. Near the hero this reads as a
+## real gait; the schedule still decides where each person is, and a resident far
+## away is not simulated at all.
+func _trail(state: Dictionary, h: float, elapsed: float) -> Dictionary:
+	var on_leg: bool = state.has("route_points")
+	if _walk_points.is_empty():
+		if not _next_walk(state):
+			# On the timetable: a held spot, or a leg the walker has not joined.
+			if not state["moving"]:
+				_note_still(state)
+			elif on_leg and _still_valid:
+				return _parked(state)
+			return _settled(state, h)
+	_walk_s += float(record["walk"]) * DayNightCycle.real_seconds(elapsed)
+	if on_leg and String(state["route_id"]) == _walk_id:
+		_walk_s = minf(_walk_s, float(state["route_s"]))
+	if _walk_s >= _walk_len:
+		_walk_points = PackedVector2Array()
+		_still_pos = _walk_end
+		_still_valid = true
+		_arrived_hour = h
+		if _next_walk(state):
+			return _trail(state, h, 0.0)
+		return _parked(state) if on_leg else _settled(state, h)
+	var spot := CitizenRoster.along(_walk_points, _walk_s)
+	var out := state.duplicate()
+	out["visible"] = true
+	out["moving"] = true
+	out["pos"] = spot[0] + Vector2(-spot[1].y, spot[1].x) * roster.lane_of(record)
+	out["facing"] = spot[1]
+	out["dest"] = _walk_dest
+	out["from"] = _walk_from
+	out["arrived"] = -1.0
+	return out
+
+
+## Starts a walk when the timetable asks for one the walker is not on: chained at
+## its start when they stand there, joined where the schedule is when they have no
+## position yet, else a catch-up route to where the schedule has them.
+func _next_walk(state: Dictionary) -> bool:
+	var target: Vector2
+	if state.has("route_points"):
+		var points: PackedVector2Array = state["route_points"]
+		if not _still_valid:
+			return _begin_walk(points, state, float(state["route_s"]))
+		if points[0].distance_to(_still_pos) <= CHAIN_REACH:
+			return _begin_walk(points, state, 0.0)
+		target = points[points.size() - 1]
+	else:
+		if not _still_valid or (state["pos"] as Vector2).distance_to(_still_pos) <= CHAIN_REACH:
+			return false
+		target = state["pos"]
+	var catch_up := roster.route_between(_still_pos, target)
+	return _begin_walk(catch_up["points"], state, 0.0, "catch_up")
+
+
+func _begin_walk(points: PackedVector2Array, state: Dictionary, start_s: float, id := "") -> bool:
+	var length := CitizenRoster._polyline_length(points)
+	if length < 0.5:
+		return false
+	_walk_points = points
+	_walk_len = length
+	_walk_end = points[points.size() - 1]
+	_walk_s = start_s
+	_walk_id = String(state["route_id"]) if id.is_empty() else id
+	_walk_dest = String(state["dest"])
+	_walk_from = String(state["from"])
+	_arrived_hour = -1.0
+	return true
+
+
+## Standing where the last walk ended while the schedule is still on its way to the
+## same destination (the walker got there first): nothing left to walk.
+func _parked(state: Dictionary) -> Dictionary:
+	var out := state.duplicate()
+	out["visible"] = true
+	out["moving"] = false
+	out["pos"] = _still_pos
+	out["arrived"] = 0.0
+	return out
+
+
+## Remembers where the resident stands on the timetable (a held spot).
+func _note_still(state: Dictionary) -> void:
+	_still_pos = state["pos"]
+	_still_valid = true
+
+
+## The timetable's own state, with `arrived` counted from when the walker got there
+## (the indoor walk-in from the door starts then, not when the schedule did).
+func _settled(state: Dictionary, h: float) -> Dictionary:
+	if _arrived_hour >= 0.0 and not state["moving"]:
+		var out := state.duplicate()
+		out["arrived"] = minf(float(state["arrived"]), fposmod(h - _arrived_hour, 24.0))
+		return out
+	return state
 
 
 ## The fight, not the timetable, moves the resident: chase, retreat or run in the

@@ -13,6 +13,12 @@ const CYCLE_DURATION_SECONDS := 1440.0
 const HOURS_PER_REAL_SECOND := 24.0 / CYCLE_DURATION_SECONDS
 const SECONDS_PER_REAL_DAY := 86400.0
 
+## Game time per real second at 1x. People walk in real seconds, not game time:
+## the day runs 60x real time for now, so a walk timed in game seconds raced
+## across the screen. Converting through this keeps a real gait at 1x and lets the
+## debug time speed (20x) hurry them along with the clock.
+const GAME_SECONDS_PER_REAL_SECOND := SECONDS_PER_REAL_DAY / CYCLE_DURATION_SECONDS
+
 ## Fallback only (tests, pinned scenes). Live clocks seed from system_progress().
 const DEFAULT_PROGRESS := 0.25
 
@@ -25,6 +31,16 @@ static func system_progress() -> float:
 	# Divide by a real day, not CYCLE_DURATION_SECONDS: the game pace is decoupled
 	# from wall-clock length, and the fraction must stay inside 0..1.
 	return seconds / SECONDS_PER_REAL_DAY
+
+
+## Real seconds (at 1x) that `game_hours` of the clock stand for.
+static func real_seconds(game_hours: float) -> float:
+	return game_hours * 3600.0 / GAME_SECONDS_PER_REAL_SECOND
+
+
+## Clock hours that pass while `seconds` real seconds (at 1x) go by.
+static func game_hours(seconds: float) -> float:
+	return seconds * GAME_SECONDS_PER_REAL_SECOND / 3600.0
 
 
 static func advance(progress: float, delta_seconds: float) -> float:

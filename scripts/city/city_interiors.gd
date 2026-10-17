@@ -770,7 +770,7 @@ func indoor_state(index: int, hour_now: float, arrived: float) -> Dictionary:
 	# Coming in: walk from the door to the place first.
 	var target: Vector2 = slot["pos"]
 	var path := lay.path_to(target)
-	var walked := arrived * 3600.0 * HouseholdDay.INDOOR_WALK
+	var walked := DayNightCycle.real_seconds(arrived) * HouseholdDay.INDOOR_WALK
 	if arrived >= 0.0:
 		for i in range(1, path.size()):
 			var seg := path[i - 1].distance_to(path[i])
