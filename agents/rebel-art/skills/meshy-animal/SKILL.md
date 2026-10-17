@@ -11,13 +11,17 @@ Status: experimental pipeline (first run: mallard `assets/birds/duck/duck.glb`, 
 
 The runtime drives animals by bone names and named clips, not by the mesh. So: keep the donor GLB's armature and actions, move the joints onto the scan, replace the mesh. Birds use the 9-bone `StorybookRig` (Body, Head, Leg.L/R, Tail, Wing.L/R, WingTip.L/R) and eight clips (Idle Walk Hop Peck Fly Glide TakeOff Land).
 
-## 1. Reference image (Leonardo, Nano Banana)
+## 1. Reference image (Leonardo web app, Nano Banana)
 
-`leonardo_generate_image`, model `gemini-2.5-flash-image`, **1248x832** (square sizes are rejected, see the art playbook), 2 images. Prompt: one animal, species Latin name, standing, **limbs/wings spread in a symmetric T-pose**, seen from the front and slightly above, separated feathers/legs, flat shadowless light, pure white background, full body in frame. Spread wings and a gap between the legs matter: Meshy fuses touching parts and you cannot weight them apart afterwards. Pick the image by eye (no cropped wing tip, head toward the camera).
+Default: the Leonardo web app in the maintainer's logged-in Chrome via `chrome_extension`, Nano Banana 2.1 at 43 credits per image (the API bills far more). Follow the recipe in [`meshy-prop` step 2](../meshy-prop/SKILL.md#2-reference-image-leonardo-web-app-nano-banana): check the model and the Generate cost before clicking, poll for the `cdn.leonardo.ai/.../generations/<id>/` image, `curl` it without `?w=`. Run Generate twice to get two candidates. Record the generation id from the CDN URL and the SHA-256 of the image you pick in the animal's build record and `assets/SOURCES.csv` row, as before.
+
+Fallback only when the extension is unavailable: `leonardo_generate_image`, model `gemini-2.5-flash-image`, **1248x832** (the API rejects square sizes, see the art playbook), 2 images.
+
+Prompt: one animal, species Latin name, standing, **limbs/wings spread in a symmetric T-pose**, seen from the front and slightly above, separated feathers/legs, flat shadowless light, pure white background, full body in frame. Spread wings and a gap between the legs matter: Meshy fuses touching parts and you cannot weight them apart afterwards. Pick the image by eye (no cropped wing tip, head toward the camera).
 
 ## 2. Meshy
 
-`meshy_generate_3d` with `image=<jpg>`, `texture=true`, `pbr=true`, `format=glb`. Move the GLB from `generated/meshy/` to `build/<animal>_meshy/` (gitignored). The mallard scan came out true to the photo, about 520k triangles, 1.9 m span, facing -Y in Blender after glTF import.
+`meshy_generate_3d` with `image=<jpg>`, `texture=true`, `pbr=true`, `format=glb`. Stay on the Meshy API, not Leonardo's Meshy 7 mode (cost check in [`meshy-prop` step 3](../meshy-prop/SKILL.md#3-meshy-image-to-3d)). Move the GLB from `generated/meshy/` to `build/<animal>_meshy/` (gitignored). The mallard scan came out true to the photo, about 520k triangles, 1.9 m span, facing -Y in Blender after glTF import.
 
 ## 3. Rig onto the donor
 

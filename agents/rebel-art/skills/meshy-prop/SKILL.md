@@ -11,9 +11,20 @@ Status: production pipeline (first run: the household bed set and cradle, task *
 
 Decide the variant matrix before generating. Households have three furnishing tiers (`HouseholdLayout.TIER`: poor, mid, rich; census `great` is rich with extras) and three wear levels. Give each tier at least two models where it shows (the head couple's bed, the table), and put the wear into the model itself for poor pieces (cracked boards, patched cloth, straw spilling); the runtime wear tint (step 6) only darkens and grimes, it cannot crack wood. Check period plausibility first: 1343 Reval is Hanseatic Gothic - no classical meander, no turned spindles, no Renaissance or Victorian forms, no machine-smooth pine.
 
-## 2. Reference image (Leonardo, Nano Banana)
+## 2. Reference image (Leonardo web app, Nano Banana)
 
-`leonardo_generate_image`, `model_id=gemini-2.5-flash-image`, **1248x832** (square sizes are rejected), `num_images=1`. Probe one request before a batch (402 = no tokens). Prompt grammar that worked:
+Default: the Leonardo **web app** in the maintainer's logged-in Chrome, driven with `chrome_extension`. The API bills far more per image. Recipe (shared playbook, "Prefer the Leonardo web app over the API"):
+
+1. `open_tab` `https://app.leonardo.ai/generate?model=google/nano-banana-2.1&aspectRatio=1:1&size=SMALL&mode=fast`, then `list_pages` for the new `page_id`.
+2. The form keeps the last session's model, prompt and image references. Before Generate, `eval` (wrap it in an async IIFE, top-level `await` is rejected) the model button text and the `button[aria-label=Generate]` cost: Nano Banana 2.1 = **43** credits. Anything else (a leftover Meshy 7 3D mode costs 1515) means stop and fix the form. Click `Turn off Image Reference N` for leftover references, not Remove.
+3. `type` the prompt into `#prompt-textarea` (replaces the old text), click Generate, and in the same async `eval` poll `img` srcs until a new `cdn.leonardo.ai/.../generations/<id>/...jpg` appears (about 15-20 s).
+4. `curl -A "Mozilla/5.0"` that URL **without** the `?w=` suffix into `build/<set>_meshy/ref/<id>.jpg` (1024x1024 at 1:1 SMALL) and record its SHA-256. The extension `screenshot` fails; downscale the JPEG and inspect it instead.
+
+Provenance: the generation id is the `/generations/<id>/` segment of the CDN URL. Put it in the manifest `leonardo_generation` (step 4) and the `assets/SOURCES.csv` notes as before, with `leonardo_model` = `nano-banana-2.1 web 1024x1024`.
+
+Fallback only when the extension or the logged-in tab is unavailable: `leonardo_generate_image`, `model_id=gemini-2.5-flash-image`, **1248x832** (the API rejects square sizes), `num_images=1`. Probe one request before a batch (402 = no tokens).
+
+Prompt grammar that worked (both routes):
 
 > Game asset reference photo of a single object: <what, who owned it, century and place>, <real size in metres>. <materials and construction>. <bedding / contents>. <condition: worn, dirty / used and tidy / rich, clean>. Not modern, not polished. Three-quarter view from the front-left and slightly above, whole object in frame with margin, plain pure white background, soft even studio light, no cast shadow, no people, no text, no modern objects.
 
@@ -22,6 +33,8 @@ Inspect every image before Meshy: Meshy copies mistakes faithfully. In the R-207
 ## 3. Meshy image-to-3D
 
 `meshy_generate_3d` with `image=<abs jpg path>`, `texture=true`, `pbr=true`, `model_type=standard`, `target_polycount` 6000 (small) to 20000 (curtained bed), `timeout_seconds=540`. Six calls in parallel finished in about 10 minutes. If the MCP call times out, the task keeps running: list jobs instead of resubmitting (art playbook). Move the GLB and preview from `generated/meshy/` (not gitignored) to `build/<set>_meshy/<id>.glb` at once and record its SHA-256.
+
+Keep image-to-3D on the Meshy API, not the Leonardo web app's Meshy 7 mode. Checked 2026-10-18: the API charges 30 Meshy credits for a textured PBR image-to-3D (meshy-7.1/latest, 2K textures; Meshy API console log). That is about EUR 0.36-0.57 at plan prices (Ultra EUR 95 / 8000 credits to Pro EUR 19 / 1000). The web app's Meshy 7 costs 1515 Leonardo tokens, about USD 2.1 on the Essential plan (USD 12 / 8500), roughly 4-6x more. The API also returns the GLB with PBR maps and a task id we can list and re-download.
 
 Meshy output: one mesh, about 1.9 units on its longest axis, centred, 2048 px base colour + metallic-roughness + normal. Orientation varies per scan.
 
