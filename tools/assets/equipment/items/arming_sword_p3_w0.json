@@ -1,0 +1,42 @@
+{
+  "task": "R-2007",
+  "doc": "docs/SYSTEMS/EQUIPMENT_VARIANTS.md",
+  "item_id": "obj.sword_cruciform",
+  "family": "arming_sword",
+  "variant": "arming_sword_p3_w0",
+  "prestige": "p3",
+  "wear": "w0",
+  "look": "Knightly: early type XV diamond-section blade, curved round cross, wheel pommel with latten inlay, red leather grip; new",
+  "raw": "build/equipment_sword/arming_sword_p3_w0_meshy_raw.glb",
+  "raw_sha256": "a8dd4efbce39b05ca0f1ce17d9a811d5e08b199f0c33e1cab69e318258ffae5d",
+  "out": "assets/props/weapons/arming_sword/variants/arming_sword_p3_w0.glb",
+  "leonardo_generation": "1f1c96a4-19ed-6280-8d50-0ef5c4b30d6a",
+  "leonardo_model": "gpt-image-1.5 1536x1024",
+  "meshy_task": "01a14508-b5b8-709a-b7ac-10f09c247945",
+  "meshy_options": {
+    "pbr": true,
+    "texture": true,
+    "model_type": "standard",
+    "target_polycount": 5000
+  },
+  "prompt": "Museum catalogue photo of a single object: a medieval knightly sword, 14th century, Baltic (Reval 1343), 98 cm overall, a vassal knight's fine sword, new, shown WITHOUT scabbard. Oakeshott type XV-early: straight two-edged stiff blade 80 cm long, 5 cm wide at the cross, tapering in straight lines to a long acute thrusting point, flattened diamond cross-section with a sharp central ridge, no fuller. Steel cross-guard 20 cm wide, slightly curved toward the blade, round section, both arms mirror each other exactly. Grip 11 cm wrapped in fine dark red leather over cord. Steel wheel pommel, 5.5 cm disc with a raised rim, and in its centre a small round inlaid latten (brass) disc, the only decoration. Material: hand-forged steel, clean grey satin finish, not mirror; latten warm yellow-brown, not shiny gold. New and well kept. No engraving, no etching, no gems, no gold leaf, not chrome, not fantasy, no basket hilt, no ricasso, no knuckle bow. Lying horizontally, pommel on the left and point on the right, seen straight from above, blade flat to the camera, whole sword in frame with margin, plain pure white background, soft even studio light, no cast shadow, no hands, no people, no text.",
+  "scan": {
+    "align_axis": "-X",
+    "longest_m": 0.98,
+    "rough_floor": 0.35,
+    "metal_cap": 0.9,
+    "ao": true
+  },
+  "blade": {
+    "thick_base_m": 0.007,
+    "thick_tip_m": 0.003,
+    "grip_below_cross_m": 0.055
+  },
+  "tris": 4000,
+  "lod1_tris": 1000,
+  "tex": 1024,
+  "turntable_detail_y": [
+    -0.17,
+    0.12
+  ]
+}

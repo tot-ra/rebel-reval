@@ -19,10 +19,7 @@ func test_equip_moves_item_out_of_grid_but_keeps_its_weight() -> void:
 		is_equal_approx(state.get_carried_weight(), grid_weight),
 		"worn weight still counts toward the cap"
 	)
-	assert_true(
-		state.bag.get_speed_multiplier() < 1.0,
-		"encumbrance covers worn items too"
-	)
+	assert_true(state.bag.get_speed_multiplier() < 1.0, "encumbrance covers worn items too")
 
 
 func test_unequip_returns_item_to_grid() -> void:
@@ -63,8 +60,7 @@ func test_equipping_over_occupied_slot_swaps_back_to_bag() -> void:
 	assert_true(state.equip_from_bag(&"right_hand", ITEM_SPEARHEAD))
 	assert_eq(state.equipped_item(&"right_hand"), ITEM_SPEARHEAD)
 	assert_true(
-		state.bag.find_placement(ITEM_HAMMER) != null,
-		"previous occupant returns to the grid"
+		state.bag.find_placement(ITEM_HAMMER) != null, "previous occupant returns to the grid"
 	)
 
 
@@ -91,7 +87,10 @@ func test_sword_carry_and_equip_metadata_drive_inventory_state() -> void:
 
 	assert_eq(String(item.get("category", "")), "weapon")
 	assert_eq(StringName(String(equip.get("slot", ""))), &"right_hand")
-	assert_eq(String(equip.get("scene", "")), "res://assets/storybook/equipment/sword.tscn")
+	assert_eq(
+		String(equip.get("scene", "")),
+		"res://assets/props/weapons/arming_sword/scenes/arming_sword_p1_w1_held.tscn"
+	)
 	assert_eq(state.bag.profile_for(ITEM_SWORD).grid_width, 1)
 	assert_eq(state.bag.profile_for(ITEM_SWORD).grid_height, 4)
 	assert_true(is_equal_approx(state.bag.profile_for(ITEM_SWORD).weight_kg, 1.45))
@@ -104,9 +103,7 @@ func test_equipment_changed_signal_fires_per_slot() -> void:
 	var state := GameState.new()
 	state.bag.try_add(ITEM_HAMMER)
 	var changed_slots: Array[StringName] = []
-	state.equipment_changed.connect(func(slot: StringName) -> void:
-		changed_slots.append(slot)
-	)
+	state.equipment_changed.connect(func(slot: StringName) -> void: changed_slots.append(slot))
 	state.equip_from_bag(&"right_hand", ITEM_HAMMER)
 	state.unequip_to_bag(&"right_hand")
 	assert_eq(changed_slots, [&"right_hand", &"right_hand"])

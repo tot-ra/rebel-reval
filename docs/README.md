@@ -71,7 +71,7 @@ One page per feature, with status, behavior, code entry points, content, saved s
 
 ## Unsorted root files
 
-[`playbook.md`](../playbook.md) and [`rebel_art_status_report_2026-07-29.md`](../rebel_art_status_report_2026-07-29.md) sit at the repository root. They should move or be archived; see the [code-health audit](./reports/code_health_audit_2026-10-07.md).
+[`playbook.md`](../playbook.md) still sits at the repository root; the [code-health audit](./reports/code_health_audit_2026-10-07.md) suggests moving it under `agents/`. The other stray file, `rebel_art_status_report_2026-07-29.md`, has been moved to [`docs/reports/rebel_art_status_report_2026-07-29.md`](./reports/rebel_art_status_report_2026-07-29.md).
 
 ## All files in this folder
 

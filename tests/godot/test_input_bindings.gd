@@ -95,6 +95,95 @@ func test_every_slice_action_has_keyboard_mouse_and_gamepad_defaults() -> void:
 	)
 
 
+func test_jump_uses_space_and_physics_without_a_jump_animation() -> void:
+	var player := Player.new()
+	(Engine.get_main_loop() as SceneTree).root.add_child(player)
+
+	var z := InputEventKey.new()
+	z.physical_keycode = KEY_Z
+	z.pressed = true
+	Input.parse_input_event(z)
+	Input.flush_buffered_events()
+	player._physics_process(1.0 / 60.0)
+	assert_false(player._jump.is_airborne(), "Z is no longer bound to jump")
+	z.pressed = false
+	Input.parse_input_event(z)
+	Input.flush_buffered_events()
+
+	var space := InputEventKey.new()
+	space.physical_keycode = KEY_SPACE
+	space.pressed = true
+	Input.parse_input_event(space)
+	Input.flush_buffered_events()
+	player._physics_process(1.0 / 60.0)
+	assert_true(player._jump.is_airborne(), "Space starts the physics hop without an animation")
+	space.pressed = false
+	Input.parse_input_event(space)
+	Input.flush_buffered_events()
+	player.free()
+
+
+func test_space_jump_and_roll_defaults_migrate_but_custom_bindings_survive() -> void:
+	var old := BindingSettings.default_settings().to_dict()
+	old["version"] = 3
+	var actions: Dictionary = old["actions"]
+	actions["player_jump"][String(BindingSettings.DEVICE_KEYBOARD_MOUSE)] = [
+		{"type": "key", "physical_keycode": KEY_Z}
+	]
+	actions["player_roll"][String(BindingSettings.DEVICE_KEYBOARD_MOUSE)] = [
+		{"type": "key", "physical_keycode": KEY_SPACE}
+	]
+	var loaded := BindingSettings.from_dict(old)
+	var jump_events := loaded.events_for(&"player_jump", BindingSettings.DEVICE_KEYBOARD_MOUSE)
+	var roll_events := loaded.events_for(&"player_roll", BindingSettings.DEVICE_KEYBOARD_MOUSE)
+	assert_eq((jump_events[0] as InputEventKey).physical_keycode, KEY_SPACE)
+	assert_eq((roll_events[0] as InputEventKey).physical_keycode, KEY_CTRL)
+	var jump_pad_events := loaded.events_for(&"player_jump", BindingSettings.DEVICE_GAMEPAD)
+	var roll_pad_events := loaded.events_for(&"player_roll", BindingSettings.DEVICE_GAMEPAD)
+	assert_eq((jump_pad_events[0] as InputEventJoypadButton).button_index, JOY_BUTTON_RIGHT_STICK)
+	assert_eq((roll_pad_events[0] as InputEventJoypadMotion).axis, JOY_AXIS_TRIGGER_RIGHT)
+
+	var custom := old.duplicate(true)
+	var custom_actions: Dictionary = custom["actions"]
+	custom_actions["player_jump"][String(BindingSettings.DEVICE_KEYBOARD_MOUSE)] = [
+		{"type": "key", "physical_keycode": KEY_P}
+	]
+	custom_actions["player_roll"][String(BindingSettings.DEVICE_KEYBOARD_MOUSE)] = [
+		{"type": "key", "physical_keycode": KEY_B}
+	]
+	custom_actions["player_jump"][String(BindingSettings.DEVICE_GAMEPAD)] = [
+		{"type": "joy_button", "button": JOY_BUTTON_B}
+	]
+	custom_actions["player_roll"][String(BindingSettings.DEVICE_GAMEPAD)] = [
+		{"type": "joy_button", "button": JOY_BUTTON_Y}
+	]
+	loaded = BindingSettings.from_dict(custom)
+	jump_events = loaded.events_for(&"player_jump", BindingSettings.DEVICE_KEYBOARD_MOUSE)
+	roll_events = loaded.events_for(&"player_roll", BindingSettings.DEVICE_KEYBOARD_MOUSE)
+	assert_eq(
+		(jump_events[0] as InputEventKey).physical_keycode,
+		KEY_P,
+		"custom jump binding is not retired"
+	)
+	assert_eq(
+		(roll_events[0] as InputEventKey).physical_keycode,
+		KEY_B,
+		"custom roll binding is not retired"
+	)
+	jump_pad_events = loaded.events_for(&"player_jump", BindingSettings.DEVICE_GAMEPAD)
+	roll_pad_events = loaded.events_for(&"player_roll", BindingSettings.DEVICE_GAMEPAD)
+	assert_eq(
+		(jump_pad_events[0] as InputEventJoypadButton).button_index,
+		JOY_BUTTON_B,
+		"custom gamepad jump binding survives migration"
+	)
+	assert_eq(
+		(roll_pad_events[0] as InputEventJoypadButton).button_index,
+		JOY_BUTTON_Y,
+		"custom gamepad roll binding survives migration"
+	)
+
+
 func test_gamepad_walk_is_held_without_toggling_spirit_sight() -> void:
 	var bindings := BindingSettings.default_settings()
 	var button := bindings.events_for(&"ui_shift", BindingSettings.DEVICE_GAMEPAD)[0]

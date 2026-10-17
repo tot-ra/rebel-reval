@@ -5,7 +5,7 @@ const MART := preload("res://assets/characters/variants/mart.tscn")
 const MAIL := preload("res://assets/characters/shared/hero_mail.tres")
 const WEAPONS: Array[PackedScene] = [
 	preload("res://assets/characters/shared/hammer.tscn"),
-	preload("res://assets/characters/shared/sword.tscn"),
+	preload("res://assets/props/weapons/arming_sword/scenes/arming_sword_p1_w1_held.tscn"),
 	null,
 ]
 var _hero: SharedCharacterRig
@@ -16,6 +16,7 @@ var _outfit_button: Button
 var _weapon_button: Button
 var _motion_button: Button
 var _head_button: Button
+
 
 func _ready() -> void:
 	_build_stage()
@@ -35,6 +36,7 @@ func _ready() -> void:
 		_verify_controls.call_deferred()
 	elif "--capture" in OS.get_cmdline_user_args():
 		_capture.call_deferred()
+
 
 func _build_stage() -> void:
 	var environment := Environment.new()
@@ -74,6 +76,7 @@ func _build_stage() -> void:
 	camera.look_at(Vector3(0, 1.0, 0))
 	camera.current = true
 
+
 func _build_controls() -> void:
 	var canvas := CanvasLayer.new()
 	add_child(canvas)
@@ -100,7 +103,9 @@ func _build_controls() -> void:
 	_motion_button = _button(row, "Motion: idle", _cycle_motion)
 	_head_button = _button(row, "Headwear: none", _toggle_headwear)
 	_outfit_button.grab_focus()
-	var captions: Array[String] = ["KALEV · WORK CLOTHES", "KALEV · CHANGEABLE OUTFIT", "MART · APPRENTICE"]
+	var captions: Array[String] = [
+		"KALEV · WORK CLOTHES", "KALEV · CHANGEABLE OUTFIT", "MART · APPRENTICE"
+	]
 	for index: int in 3:
 		var caption := Label.new()
 		caption.text = captions[index]
@@ -115,6 +120,7 @@ func _build_controls() -> void:
 		caption.offset_top = -70
 		caption.offset_bottom = -40
 
+
 func _toggle_headwear() -> void:
 	if _hero.equipped_wearable(&"head") != null:
 		_hero.unequip_wearable(&"head")
@@ -122,6 +128,7 @@ func _toggle_headwear() -> void:
 	else:
 		_hero.equip_wearable(preload("res://assets/characters/shared/hero_hat_wearable.tres"))
 		_head_button.text = "Headwear: cap"
+
 
 func _unhandled_input(event: InputEvent) -> void:
 	# The project overrides ui_left/right with keyboard-only gameplay bindings.
@@ -135,6 +142,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		buttons[posmod(current + step, buttons.size())].grab_focus()
 		get_viewport().set_input_as_handled()
 
+
 func _button(row: HBoxContainer, title: String, action: Callable) -> Button:
 	var button := Button.new()
 	button.text = title
@@ -142,6 +150,7 @@ func _button(row: HBoxContainer, title: String, action: Callable) -> Button:
 	button.pressed.connect(action)
 	row.add_child(button)
 	return button
+
 
 func _toggle_outfit() -> void:
 	if _hero.equipped_wearable(&"torso") != null:
@@ -151,6 +160,7 @@ func _toggle_outfit() -> void:
 		_hero.equip_wearable(MAIL)
 		_outfit_button.text = "Outfit: mail"
 
+
 func _cycle_weapon() -> void:
 	_weapon_index = (_weapon_index + 1) % WEAPONS.size()
 	if WEAPONS[_weapon_index] == null:
@@ -158,6 +168,7 @@ func _cycle_weapon() -> void:
 	else:
 		_hero.equip(&"right_hand", WEAPONS[_weapon_index])
 	_weapon_button.text = "Weapon: %s" % ["hammer", "sword", "unarmed"][_weapon_index]
+
 
 func _cycle_motion() -> void:
 	_motion_index = (_motion_index + 1) % 4
@@ -167,6 +178,7 @@ func _cycle_motion() -> void:
 	_hero.play_animation(motion)
 	_motion_button.text = "Motion: %s" % motion
 
+
 func _capture() -> void:
 	for rig: SharedCharacterRig in _figures:
 		rig.animation_player().seek(0.0, true)
@@ -175,8 +187,11 @@ func _capture() -> void:
 		await get_tree().process_frame
 	var path := "res://docs/reports/images/characters/modular_after/showcase.png"
 	await RenderingServer.frame_post_draw
-	var error := get_viewport().get_texture().get_image().save_png(ProjectSettings.globalize_path(path))
+	var error := get_viewport().get_texture().get_image().save_png(
+		ProjectSettings.globalize_path(path)
+	)
 	get_tree().quit(0 if error == OK else 1)
+
 
 func _verify_controls() -> void:
 	await get_tree().process_frame

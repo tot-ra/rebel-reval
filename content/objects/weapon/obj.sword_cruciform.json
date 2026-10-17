@@ -13,7 +13,7 @@
   "physical": {
     "mass_kg": 1.45,
     "size_m": [
-      0.31,
+      0.18,
       0.94,
       0.05
     ],
@@ -44,9 +44,9 @@
   },
   "model": {
     "status": "glb",
-    "glb": "res://assets/storybook/equipment/sword.glb",
+    "glb": "res://assets/props/weapons/arming_sword/variants/arming_sword_p1_w1.glb",
     "measured_size_m": [
-      0.31,
+      0.18,
       0.94,
       0.05
     ]
@@ -55,7 +55,7 @@
     "preview": "docs/reports/images/object_catalog/obj.sword_cruciform.png",
     "icon": "res://assets/objects/icons/obj.sword_cruciform.png",
     "icon_status": "missing",
-    "look": "Straight double-edged steel blade with a plain iron cross-guard and a leather-wrapped grip.",
+    "look": "Straight two-edged type XII steel blade with one fuller, a plain iron bar cross, wheel pommel and a leather-over-cord grip (munition arming sword, EQ-5).",
     "image_prompt": "Cruciform sword: Straight double-edged steel blade with a plain iron cross-guard and a leather-wrapped grip."
   },
   "lifecycle": "usable",

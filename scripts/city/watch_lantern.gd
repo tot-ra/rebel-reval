@@ -108,3 +108,17 @@ func _process(delta: float) -> void:
 	_phase += delta
 	var tremble := 0.93 + 0.05 * sin(_phase * 5.3) + 0.02 * sin(_phase * 11.9)
 	_light.light_energy = LIGHT_ENERGY * tremble
+	_hang_plumb()
+
+
+## A lantern swings from its bail: whatever the fist does, the body hangs straight
+## down under it, so it never tips into the sleeve while the arm swings.
+func _hang_plumb() -> void:
+	if not is_inside_tree():
+		return
+	var heading := global_basis.z
+	heading.y = 0.0
+	if heading.length_squared() < 0.0001:
+		heading = Vector3.BACK
+	var scale_now := global_basis.get_scale()
+	global_basis = Basis.looking_at(-heading.normalized(), Vector3.UP).scaled(scale_now)

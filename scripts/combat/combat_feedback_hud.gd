@@ -127,7 +127,7 @@ func _build_ui() -> void:
 	_controls_label.text = (
 		"Attack: left click / gamepad X (tap = combo, hold = heavy)\n"
 		+ "Guard / parry: F or right mouse / gamepad LB\n"
-		+ "Roll: Space + direction / gamepad RT; Sidestep: Q / gamepad RB\n"
+		+ "Roll: Ctrl + direction / gamepad RT; Sidestep: Q / gamepad RB\n"
 		+ "Iron: Quick-access Iron button (mouse)\n"
 		+ "Enemies: approach Watchman (gold) or Sergeant (magenta)\n"
 		+ "Non-lethal: Surrender / Escape / Bypass buttons (mouse)\n"

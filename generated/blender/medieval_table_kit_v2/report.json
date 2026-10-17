@@ -1,0 +1,92 @@
+{
+  "asset_id": "prop.medieval_table_kit",
+  "blender_version": "Blender 5.2 LTS",
+  "defects": [],
+  "generator": "tools/generate_medieval_table_kit.py",
+  "generator_version": "medieval_table_kit_v2",
+  "limits": {
+    "max": 8000,
+    "target": 4600
+  },
+  "metrics": {
+    "asset_id": "prop.medieval_table_kit",
+    "cache_key": "690a6b2875373735b58db6ca4d12752bb4973e06d0121ebf9ba6597f11430fb0",
+    "component_roots": 6,
+    "components": {
+      "CommonHouseholdTable": {
+        "dimensions_m": [
+          1.5,
+          0.78,
+          0.7719
+        ],
+        "ground_min_z": 0.0,
+        "triangles": 1248
+      },
+      "CuttingBoardModule": {
+        "dimensions_m": [
+          0.56,
+          0.35,
+          0.0505
+        ],
+        "ground_min_z": 0.0,
+        "triangles": 352
+      },
+      "FishModule": {
+        "dimensions_m": [
+          0.512,
+          0.0457,
+          0.1147
+        ],
+        "ground_min_z": 0.001967,
+        "triangles": 2740
+      },
+      "KnifeModule": {
+        "dimensions_m": [
+          0.4621,
+          0.082,
+          0.04
+        ],
+        "ground_min_z": -0.002,
+        "triangles": 304
+      },
+      "LongBoardTable": {
+        "dimensions_m": [
+          2.3,
+          0.82,
+          0.7919
+        ],
+        "ground_min_z": 0.0,
+        "triangles": 1256
+      },
+      "TrestleWorkTable": {
+        "dimensions_m": [
+          1.58,
+          0.76,
+          0.8219
+        ],
+        "ground_min_z": 0.0,
+        "triangles": 1116
+      }
+    },
+    "faces": 7016,
+    "floating_objects": 0,
+    "materials": 5,
+    "mesh_objects": 6,
+    "sha256": "9e2264f48b536fa4e8dbe456283b33f90448f1d04364cbd62df5dc44a0dfde79",
+    "texture_size": 512,
+    "triangles": 7016,
+    "uv_sets": 1,
+    "vertices": 3785
+  },
+  "preview": "generated/blender/medieval_table_kit_v2/preview.png",
+  "route": "deterministic_blender",
+  "validation": {
+    "floating_components": true,
+    "independent_component_roots": true,
+    "metric_scale": true,
+    "portable_pbr_materials": true,
+    "table_ground_contact": true,
+    "triangle_budget": true,
+    "uvs": true
+  }
+}

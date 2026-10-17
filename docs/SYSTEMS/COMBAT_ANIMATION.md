@@ -35,8 +35,8 @@ Input edges (`just_pressed` / `just_released`) are handed out once per physics f
 
 | Input | Keyboard | Gamepad | Action |
 | --- | --- | --- | --- |
-| Roll | `Space` + direction | RT + left stick | Roll toward the held direction. Forward, left and right turn Kalev into the roll; backward (or no direction) rolls back while still facing the threat |
-| Strafe roll (guard held) | hold `F` / right click, `Space` + `A`/`D` | LB + RT + left stick | Sideways roll shoulder over shoulder (`Roll_Left` / `Roll_Right`); Kalev keeps facing the threat. Forward and back inputs still roll forward / back |
+| Roll | `Ctrl` + direction | RT + left stick | Roll toward the held direction. Forward, left and right turn Kalev into the roll; backward (or no direction) rolls back while still facing the threat |
+| Strafe roll (guard held) | hold `F` / right click, `Ctrl` + `A`/`D` | LB + RT + left stick | Sideways roll shoulder over shoulder (`Roll_Left` / `Roll_Right`); Kalev keeps facing the threat. Forward and back inputs still roll forward / back |
 | Sidestep | `Q` + direction | RB + left stick | Short 0.28 s hop (`Dodge_*` clips, P1-025) |
 
 | Property | Roll | Sidestep |
@@ -49,7 +49,7 @@ Input edges (`just_pressed` / `just_released`) are handed out once per physics f
 
 Either evasion can cancel an attack's follow-through `EVADE_CANCEL_AFTER_IMPACT_SEC` (0.06 s) after its impact, never during the wind-up. Travel uses `move_and_slide`, so walls stop a roll exactly like walking. Distance is a pure function of the action clock.
 
-Saved bindings from version 1 that still bind `Space` to attack drop that default on load (`InputBindingSettings.BINDINGS_VERSION` = 2). A deliberate custom binding survives.
+Saved bindings from version 1 that still bind `Space` to attack drop that default on load (`InputBindingSettings.BINDINGS_VERSION` = 2). In bindings v4, `Space` jumps and `Ctrl` rolls. A deliberate custom binding survives.
 
 ## 4. Move sets
 
@@ -147,7 +147,7 @@ Verification:
 
 ```bash
 godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_combat_animation
-# End to end on engine frames: left click, Space+left roll and a cast animate the 3D PlayerRig
+# End to end on engine frames: left click, Ctrl+left roll and a cast animate the 3D PlayerRig
 godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_combat_animation_runtime
 godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_player_action_state_machine
 godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_combat_room

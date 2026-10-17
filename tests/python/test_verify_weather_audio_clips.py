@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import csv
 import shutil
 import subprocess
 import tempfile
@@ -26,6 +27,21 @@ class VerifyWeatherAudioClipsTests(unittest.TestCase):
             msg=result.stdout + result.stderr,
         )
         self.assertIn("weather audio verification passed", result.stdout)
+
+    def test_manifest_credits_both_weather_field_recordings(self) -> None:
+        with (WEATHER_DIR / "manifest.csv").open(encoding="utf-8", newline="") as handle:
+            rows = {row["clip_id"]: row for row in csv.DictReader(handle)}
+
+        self.assertEqual(set(rows), {"weather.rain_outdoor", "weather.rain_roof"})
+        self.assertEqual(rows["weather.rain_outdoor"]["author"], "Andron827")
+        self.assertIn("publicdomain/zero/1.0", rows["weather.rain_outdoor"]["license"])
+        self.assertIn("/142936/", rows["weather.rain_outdoor"]["page"])
+        self.assertEqual(rows["weather.rain_roof"]["author"], "marsal.oido")
+        self.assertIn("licenses/by/4.0", rows["weather.rain_roof"]["license"])
+        self.assertIn("/415848/", rows["weather.rain_roof"]["page"])
+        for row in rows.values():
+            self.assertIn("48 s field-recording loop", row["notes"])
+            self.assertIn("equal-power loop seam", row["notes"])
 
     def test_invalid_clip_is_reported_without_traceback(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:

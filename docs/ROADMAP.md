@@ -170,11 +170,21 @@ Coordination note (2026-08-27 R-751): hardened empty water-contour sampling in [
 
 
 
-## Current focus (2026-10-16c, Producer tick after R-1685)
+## Current focus (2026-10-17, Producer tick after R-1685)
 
 - **Approved delivery order:** demo -> vertical-slice MVP -> Act 1 -> Act 2 -> Act 3. The July Act 1 package acceptance below is historical evidence for its package SHA, not proof that today's main still passes. No new campaign or historical scope is approved by this tick.
 - **Current slice:** `demo-forge-return-recovery`, unchanged. It stalled for five days (317 commits since 2026-10-11, none on R-1456/R-1458/R-1457/R-1478) while user-directed epics moved. The slice is now more urgent, not less: `ab63e6b5f` (2026-10-14) removed the standalone `forge` scene from `content/transitions/active_destinations.json`; the forge is Kalev's seamless-city forge bay `site.kalev_smithy` in `loc.reval_city`. `WorldItemController.DEFAULT_PLACEMENTS` still seeds the spearhead only under the retired `loc.kalev_smithy`, so the checkpoint pickup is probably unreachable on today's New Game route (hypothesis for R-1456, not a finding).
 - **Next playable checkpoint:** New Game (Holy Spirit almshouse sick-room opening, ADR 0052) -> exit into the city host -> walk into the city forge bay (`site.kalev_smithy`) and back; take `item.seized_spearhead` at the place Canon decides in **R-2071**, observe pickup/inventory feedback, leave and return, then save/load (including released `save.demo_post_pickup.json`). The item remains taken, exactly one copy remains in inventory, and the route works with keyboard/mouse and gamepad. This checkpoint does not waive bed, quest-branch, encumbrance or other full-suite failures.
+
+### Tick 2026-10-17 decisions (stall escalation)
+
+- **Snapshot:** 874 -> 989 tasks (87 idea, 775 todo, 16 in_progress, 53 in_review, 9 done, 49 cancelled). 62 commits reached origin/main since the 2026-10-16c tick (top refs R-2077, R-2034, R-2112, R-2024, R-2022); none names R-1456, R-2071, R-1458, R-1457 or R-1478, and `docs/reports/demo_forge_recovery_triage.md` still does not exist. Local main is 2 ahead / 2 behind origin after patch-equivalent duplicates; the two local-only commits (`d70bf1f4e`, `0558fba17`) belong to concurrent sessions and are left to them.
+- **Hypothesis still live on origin/main:** `scripts/world/world_item_controller.gd:15-18` seeds `world.spearhead_anvil` only under the retired `loc.kalev_smithy`. Still a QA R-1456 classification item, not a finding.
+- **Slice unchanged, no re-scope:** ready rows **R-1456** (QA, p0) and **R-2071** (Narrative -> Canon, p0) are unclaimed, disjoint and not blocked. The stall is an assignment gap, not a dependency or design defect, so no new rows were created. Escalated to the maintainer: dispatch one QA and one Narrative/Canon worker to these two rows before more epic work.
+- **in_progress (16) not released:** 14 rows have no commit naming their ref, but they were claimed after the last tick and several have matching uncommitted paths in the shared checkout (680 dirty entries, including staged deletions under `docs/reports/images/equipment/` owned by another session). Absence of a commit is not lease expiry. Epics R-1830, R-1884, R-1966, R-2053, R-2151 are active user-directed parents.
+- **Requests and ideas:** zero open request cards (only `TEMPLATE.md`). The 87 ideas, 54 of them `#needs-approval`, are maintainer decisions; none promoted.
+- **Risk raised:** in_review grew 32 -> 53 with independent second-reviewer passes owed (AGENTS.md: delegated work needs a second review before done). Acceptance capacity, not implementation, is now the bottleneck; the board-only audit **R-1479** stays the fallback QA row.
+- **Ready roles:** QA **R-1456**, Narrative/Canon **R-2071**, fallback QA **R-1479**, off-slice Research **R-2072**. Next acceptance event unchanged: independent QA **R-1478**.
 
 ### Tick 2026-10-16c decisions (ADR 0052 impact on the slice)
 

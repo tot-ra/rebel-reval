@@ -459,6 +459,10 @@ LONG_SHARE = {"rich": 1.0, "mid": 0.45, "poor": 0.15}
 # and of Estonian and Finnish women below the rich in shift, wrap skirt and solg.
 SURCOAT_SHARE = {"noble": 0.85, "patrician": 0.75, "guest_merchant": 0.4, "burgher_merchant": 0.4}
 WRAP_SHARE = {"mid": 0.35, "poor": 0.6}
+# Men's cotehardie (EQ-21, R-2023): the tight, short, buttoned fashion of the 1340s that
+# moralists blamed on the young; share of rich men up to COTE_MAX_AGE who wear it.
+COTE_SHARE = {"noble": 0.8, "patrician": 0.65, "guest_merchant": 0.45, "burgher_merchant": 0.4}
+COTE_MAX_AGE = 35
 
 
 def clothing(person, stage):
@@ -481,6 +485,9 @@ def clothing(person, stage):
         if person.get("ethnicity") in ("estonian", "finnish") and \
                 hash01(key + ":gown") < WRAP_SHARE.get(wealth, 0.0):
             return "d", list(main), list(under)
+    if stage == "adult" and person["sex"] == "m" and person["trade"] not in HABIT_TRADES and \
+            person["age"] <= COTE_MAX_AGE and hash01(key + ":cote") < COTE_SHARE.get(person["status"], 0.0):
+        return "c", list(main), list(under)
     long_cut = stage == "adult" and (
         person["trade"] in HABIT_TRADES or hash01(key + ":cut") < LONG_SHARE[wealth])
     return ("b" if long_cut else "a"), list(main), list(under)
@@ -859,7 +866,10 @@ def build():
         # Prestige and wear cells (EQUIPMENT_VARIANTS.md): "<layer>@<cell>" entries, and a
         # gear cell only for residents who carry a hand weapon or shield.
         rec["wear"], gear = citizen_wardrobe.variants(rec, wear)
-        if shield or (rec.get("duty") or {}).get("kit") in ("watch", "crown", "sergeant"):
+        sword = citizen_wardrobe.sword_of(rec)
+        if sword:
+            rec["sword"] = True
+        if shield or sword or (rec.get("duty") or {}).get("kit") in ("watch", "crown", "sergeant"):
             rec["gear_variant"] = gear
 
     # Households living in a plan house: what their rooms are furnished with

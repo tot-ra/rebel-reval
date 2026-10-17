@@ -52,6 +52,7 @@ GRADE_TILE_METRES = {
     "linen_coarse_w1": 0.09,
     "linen_coarse_w2": 0.09,
     "fur": 0.12,
+    "quilted_silk": 0.20,
 }
 GRADE_SIZE = 512
 WEAR_TILE_METRES = 0.6
@@ -184,20 +185,71 @@ def mail():
     return albedo, height_to_normal(height, 6.0), orm(occlusion, rough, metal)
 
 
-def quilted():
+# Quilting channels per 20 cm tile (TILE_METRES["quilted"]): one every 4 cm, inside
+# the 3-5 cm of surviving 14th-c. padded jacks (arms dossier item 4). Garment UVs put
+# the channels along V: down the body, round the arms (garments.gambeson).
+QUILT_CHANNELS = 5
+# Running stitches per tile along a channel line (~6 mm a stitch, ~4 mm of it on the face).
+QUILT_STITCHES = 34
+
+
+def quilt_relief(seed, channels=QUILT_CHANNELS, stitches=QUILT_STITCHES, wobble=0.0035, lumps=0.22):
+    """Height terms of a quilted padded garment: (puff, groove, stitch thread, height).
+
+    Each channel is a padded tube between two hand-sewn stitch lines. The lines
+    wander a little (sewn by eye), each channel is stuffed a little fuller or
+    thinner, and the stuffing lies in lumps along it. All terms tile: integer
+    channel and stitch counts, periodic noise."""
     u, v = grid()
-    canvas = weave(u, v, 150, 150, twill=0) * 0.25
-    channels = 4  # quilting every 5 cm on a 20 cm tile, running along V
-    phase = u * channels
-    stitch = np.abs(phase - np.round(phase))
-    puff = np.sin(np.clip(stitch * 2.0, 0, 1) * np.pi / 2) ** 0.6
-    stitch_line = np.exp(-(stitch / 0.012) ** 2) * (np.mod(v * 90, 1.0) < 0.6)
-    pucker = periodic_noise(SIZE, 30, 14) * 0.15 * puff
-    height = puff * 4.0 + canvas + pucker - stitch_line * 0.6
-    tone = 0.80 + 0.05 * periodic_noise(SIZE, 10, 15) - 0.22 * (1 - puff) - 0.25 * stitch_line
-    albedo = np.stack([tone, tone * 0.97, tone * 0.9], -1)
-    rough = np.full((SIZE, SIZE), 0.86)
-    return albedo, height_to_normal(height, 3.5), orm(cavity(height, 10), rough, 0.0)
+    phase = (u + periodic_noise(SIZE, 6, seed) * wobble) * channels
+    index = np.floor(phase).astype(int) % channels
+    across = phase - np.floor(phase)                       # 0..1 across one channel
+    fullness = np.random.default_rng(seed + 1).uniform(0.8, 1.15, channels)[index]
+    lump = 1.0 + lumps * periodic_noise(SIZE, 14, seed + 2)
+    tube = np.sqrt(np.clip(1.0 - (2.0 * across - 1.0) ** 2, 0, 1)) ** 0.75
+    puff = tube * fullness * lump
+    edge = np.minimum(across, 1.0 - across)                # 0 on a stitch line
+    groove = np.exp(-(edge / 0.035) ** 2)
+    dash = np.mod(v * stitches, 1.0)
+    thread = np.exp(-(edge / 0.012) ** 2) * np.clip((0.68 - dash) * 12.0, 0, 1) * np.clip(dash * 12.0, 0, 1)
+    # Wearing creases the padding across the channels (the jack bends at waist and elbow).
+    # Smeared across the channels (U is image axis 1), so they read as bends, not worms.
+    creases = streaks(periodic_noise(SIZE, 16, seed + 3, power=0.6), 40, 1)
+    height = puff * 10.0 - groove * 2.5 + thread * 0.5 + creases * 0.5 * puff
+    return puff, groove, thread, height
+
+
+def quilted():
+    """Undyed linen-canvas aketon face (the garment palette or dye tints it)."""
+    u, v = grid()
+    # 128 threads (1.6 mm) a tile: a whole number of pixels each, so no beat lines.
+    canvas = weave(u + periodic_noise(SIZE, 20, 30) * 0.002, v, 128, 128, twill=0)
+    slub = np.cos(2 * np.pi * np.floor(u * 128) / 6.7) * 0.12 + periodic_noise(SIZE, 50, 31) * 0.15
+    puff, groove, thread, relief = quilt_relief(32)
+    height = relief + canvas * 0.22 + slub * 0.12
+    mottle = periodic_noise(SIZE, 9, 33)
+    # Dirt settles in the stitch grooves; the crowns of the channels rub pale.
+    tone = 0.82 + 0.04 * mottle + 0.04 * slub + 0.03 * (puff - 0.7) - 0.16 * groove
+    albedo = np.stack([tone, tone * 0.975, tone * 0.93], -1)
+    # Linen thread: a little lighter and less yellow than the canvas.
+    albedo = albedo * (1 - thread[..., None] * 0.6) + thread[..., None] * 0.6 * np.array([0.86, 0.85, 0.82])
+    rough = np.clip(0.84 + 0.06 * groove + 0.03 * mottle, 0, 1)
+    return albedo, height_to_normal(height, 3.0), orm(cavity(height, 8), rough, 0.0)
+
+
+def quilted_silk():
+    """Silk-covered aketon of a knight (p3): smooth taffeta face, fuller channels, a sheen."""
+    u, v = grid()
+    taffeta = weave(u, v, 256, 256, twill=0)
+    puff, groove, thread, relief = quilt_relief(36, wobble=0.0015, lumps=0.1)
+    height = relief * 0.8 + taffeta * 0.05
+    sheen = periodic_noise(SIZE, 7, 37)
+    tone = 0.80 + 0.05 * sheen + 0.05 * (puff - 0.7) - 0.12 * groove
+    albedo = np.stack([tone, tone * 0.98, tone * 0.96], -1)
+    albedo = albedo * (1 - thread[..., None] * 0.5) + thread[..., None] * 0.5 * np.array([0.9, 0.86, 0.72])
+    # Silk catches light on the crowns of the channels and dulls in the grooves.
+    rough = np.clip(0.58 + 0.2 * groove - 0.04 * puff + 0.03 * sheen, 0, 1)
+    return albedo, height_to_normal(height, 3.0), orm(cavity(height, 8), rough, 0.0)
 
 
 def iron():
@@ -375,6 +427,7 @@ GRADES = {
     "linen_fine": linen_fine,
     "linen_coarse": linen_coarse,
     "fur": fur,
+    "quilted_silk": quilted_silk,
 }
 
 

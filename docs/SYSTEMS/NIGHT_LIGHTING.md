@@ -37,6 +37,7 @@ Plates (`tools/capture_city_lighting.gd`, 1600x900):
 
 ![December 20:00, snowy lane by the forge](../reports/images/night_lighting/after_dec_h20_forge_lane.jpg)
 ![December 20:00, night watch with lanterns at the Viru gate](../reports/images/night_lighting/after_dec_h20_viru_gate_watch.jpg)
+![Night watchman walking, horn lantern hanging plumb from the left fist](../reports/images/night_lighting/watch_lantern_held_walk.jpg)
 
 ## Runtime entry points
 
@@ -48,7 +49,7 @@ Plates (`tools/capture_city_lighting.gd`, 1600x900):
 | Window glow card | `CityWindows._glow_card` (`scripts/city/city_windows.gd`), surface key `window_glow`, material `CityWindows.glow_material()` | One outward quad 10 cm inside each window opening of a lived-in house; vertex colour carries `HouseholdDay.house_shift` (r), wealth tier (g), a per-window pick (b) and "household lives here" (a); `look["glow"]` set in `CityBuildingBuilder.build_building` from `CityHouseWealth.has_household` |
 | Glow shader | `scripts/city/city_window_glow.gdshader` | Unshaded additive; reads the global `city_night_clock` (x hour, y darkness 0..1, z seconds) and mirrors the `HouseholdDay` hearth windows and table light. No OmniLight per window |
 | Night clock | `CityWindows.set_night_clock`, called from `CityWorld3D.apply_time` | Darkness = 1 - smoothstep(0.25, 0.45, day_blend), straddling `CityInteriors.DARK_BELOW` |
-| Watch lantern | `scripts/city/watch_lantern.gd` (`WatchLantern`), mounted by `CitizenGear._carry_lantern` | Procedural horn lantern (bail, cone cap, horn body, iron posts), `OmniLight3D` 7.5 m without shadows, gentle tremble; group `city_cycle_lights`; lit while `DayNightCycle.day_blend` < 0.35. `CityCitizens._pose_rigs` hides it while the guard is at home |
+| Watch lantern | `scripts/city/watch_lantern.gd` (`WatchLantern`), mounted by `CitizenGear._carry_lantern` | Procedural horn lantern (bail, cone cap, horn body, iron posts), `OmniLight3D` 7.5 m without shadows, gentle tremble; while lit it re-levels itself every frame so the body hangs plumb under the fist (the left hand slot mirrors the right, so `_lantern_held` turns the other way from the spear); group `city_cycle_lights`; lit while `DayNightCycle.day_blend` < 0.35. `CityCitizens._pose_rigs` hides it while the guard is at home |
 | Global | `project.godot` `[shader_globals] city_night_clock` | Default noon, no darkness |
 
 ## Content and stable IDs
@@ -74,5 +75,5 @@ tools/godot_render.sh --resolution 1600x900 res://tools/capture_city_lighting.ts
 - Interior lights cast no shadows. New indoor lights must call `CityDoors.keep_indoors(light)` so they skip the street face of door leaves ([`CITY_DOORS.md`](./CITY_DOORS.md)); otherwise a candle behind a shut door glints through it.
 - The glow schedule copies `HouseholdDay` constants into the shader; change both together.
 - Bare paving (Raekoja plats) on a moonless night is still near black; tuning and review in R-2064.
-- The lantern is primitive geometry and reads as a glow in the fist (R-2057). Guards do not raise it or react to the hero's light (R-2056).
+- The lantern is primitive geometry until the authored model lands (R-2057). Guards do not raise it or react to the hero's light (R-2056).
 - Legacy district maps (`MapView3D`) keep their own `BuildingWindowLights3D`; they get the night gain and moon fill but not the glow cards.

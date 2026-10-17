@@ -85,3 +85,23 @@ func test_watch_lantern_burns_only_in_the_dark() -> void:
 	var omni := lantern.get_node("Omni") as OmniLight3D
 	assert_true(omni.visible and not omni.shadow_enabled, "an unshadowed candle light")
 	lantern.free()
+
+
+## Regression: the left-hand mount once stood the lantern on its head, inside the sleeve,
+## so a guard glowed with no lantern in sight. Lit, it hangs plumb under any fist.
+func test_watch_lantern_hangs_plumb_from_a_tilted_fist() -> void:
+	var tree := Engine.get_main_loop() as SceneTree
+	var fist := Node3D.new()
+	tree.root.add_child(fist)
+	fist.rotation = Vector3(0.4, 1.1, PI * 0.8)
+	var lantern := WatchLantern.new()
+	fist.add_child(lantern)
+	lantern.apply_cycle_progress(0.0)
+	lantern._process(0.016)
+	var omni := lantern.get_node("Omni") as Node3D
+	assert_true(
+		omni.global_position.y < lantern.global_position.y - 0.1,
+		"the horn body hangs below the bail"
+	)
+	assert_true(lantern.global_basis.y.normalized().dot(Vector3.UP) > 0.999, "plumb")
+	fist.free()

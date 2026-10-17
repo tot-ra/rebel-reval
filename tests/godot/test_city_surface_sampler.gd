@@ -124,6 +124,41 @@ func test_painted_ground_layers_map_to_their_surfaces() -> void:
 		assert_true(found.has(surface), "no %s ground found in the city" % surface)
 
 
+## A dry paved point in the shipped city must reach the stone pool, not only be
+## classified as stone by the raster helper.
+func test_dry_paving_dispatches_stone_footsteps() -> void:
+	var plan := _plan()
+	var sampler := CitySurfaceSampler.new(plan)
+	var foot := Vector3.ZERO
+	var found_paving := false
+	var step := 6.0
+	var y := plan.bounds.position.y
+	while y < plan.bounds.end.y and not found_paving:
+		var x := plan.bounds.position.x
+		while x < plan.bounds.end.x:
+			var xz := Vector2(x, y)
+			if _free_ground(plan, xz) and sampler.ground_surface(xz) == SurfaceResolver.SURFACE_STONE:
+				foot = _foot(xz)
+				found_paving = sampler.surface_at(foot) == SurfaceResolver.SURFACE_STONE
+				if found_paving:
+					break
+			x += step
+		y += step
+	assert_true(found_paving, "the city plan must have dry open paving")
+	if not found_paving:
+		return
+
+	var definition := MapDefinition.new()
+	definition.cell_size = 32
+	var footsteps := FootstepAudio.new()
+	(Engine.get_main_loop() as SceneTree).root.add_child(footsteps)
+	footsteps.configure(definition, null, Callable(sampler, &"surface_at"))
+	assert_eq(footsteps.on_foot_plant(foot, 60.0), &"sfx.footstep.stone.walk")
+	assert_eq(footsteps.last_surface(), SurfaceResolver.SURFACE_STONE)
+	assert_eq(footsteps.played_count(), 1)
+	footsteps.queue_free()
+
+
 ## Rain fills the shader's earth basins: puddles appear only with standing
 ## water, never on baked ground, and only over soft ground.
 func test_puddles_follow_rain_and_drought() -> void:

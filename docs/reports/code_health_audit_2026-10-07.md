@@ -53,7 +53,8 @@ Test-only by design (keep): `scripts/slice/*` gate models, `scripts/map/map_audi
 | `character/WARRIOR-BUILD.md` | Empty (0 bytes) | Delete or write |
 | `characters/order/README.md.md` | Double extension | Rename to `README.md` |
 | `scenes/reval_toompea/Untitled.md` | Placeholder name | Rename or delete |
-| `playbook.md`, `rebel_art_status_report_2026-07-29.md` (root) | Root clutter; the playbook index points at `agents/playbook.md` | Move under `agents/` and `docs/reports/` |
+| `playbook.md` (root) | Root clutter; the playbook index points at `agents/playbook.md` | Move under `agents/` |
+| `rebel_art_status_report_2026-07-29.md` (root) | Root clutter | Move under `docs/reports/` - done: now `docs/reports/rebel_art_status_report_2026-07-29.md` |
 
 ## 5. Broken links in legacy pages
 

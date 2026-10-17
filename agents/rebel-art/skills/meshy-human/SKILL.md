@@ -12,7 +12,7 @@ Status: experimental pipeline (first run: Aita, 2026-10-12; shipped as Aita's bo
 Two routes from the same Meshy scan. Prefer **A (conform)**; B is the older fallback.
 
 - **A. Conformed MPFB** (`conform_mpfb_to_meshy.py`, step 4): the character's MPFB body, rig, weights, 76 clips, eyes, lashes, brows, teeth and face shape keys (`blink`, `jaw_open`, `smile`, `brow_up`, `frown`, `pucker`), with its surface moved onto the Meshy shape and the Meshy albedo baked into the MPFB UVs. Armpits deform like MPFB, the face can blink and talk, and every MPFB wearable fitted to that body (headscarf, gown) still fits. Optional `--headcloth` wearable instead of hair.
-- **B. Raw Meshy rig** (`rig_meshy_human.py`, step 4b): one GLB on the 71-bone `HumanMotionRig` plus `eye.l` / `eye.r`. `Body` is the Meshy surface (about 50k triangles) bound in its own pose, `Eye_l` / `Eye_r` are MPFB eyeballs on their own bones, `Hair` is an MPFB hair mesh fitted to the Meshy skull. No face shape keys, and the scan topology stretches at the armpits.
+- **B. Raw Meshy rig** (`rig_meshy_human.py`, step 4b): one GLB on the 75-bone `HumanMotionRig` plus `eye.l` / `eye.r`. `Body` is the Meshy surface (about 50k triangles) bound in its own pose, `Eye_l` / `Eye_r` are MPFB eyeballs on their own bones, `Hair` is an MPFB hair mesh fitted to the Meshy skull. No face shape keys, and the scan topology stretches at the armpits.
 
 ## Inputs
 
@@ -93,7 +93,7 @@ What it does, and why:
    - `<out>_textures/cleanup_masks.png` holds the masks (R seam, G fill edge, B stretch, A lips), and the log prints their share (Aita v4: seam 13.5 %, fill edge 3.8 %, stretch 3.7 %, lips 0.16 %).
 8. **Back to rest.** The posed offset is carried to the rest pose with each vertex's inverse skinning matrix and added to **every** shape key, so blink, smile and jaw still work. The head shift is *not* carried: the head stays over its joint in the MPFB posture and only the shape moves. Teeth and kept hair move with the nearest skin vertex. The headcloth keeps its donor fit and only the vertices the new body swallowed are pushed 4 mm out (following the skull detail would slide the brim over the eyes).
 9. The MPFB brow mesh is dropped unless `--keep-brows`: the scan albedo already paints brows, about 1 cm lower, and both read as double brows.
-10. Exports the GLB with all clips and writes `<out>.report.json` (meshes, shape keys, 76 actions, 71 bones) and `<out>_textures/skin_albedo.png`.
+10. Exports the GLB with all clips and writes `<out>.report.json` (meshes, shape keys, 76 actions, 75 bones) and `<out>_textures/skin_albedo.png`.
 
 A donor GLB copied outside `assets/characters/realistic/<char>/` (for example a `build/.../mpfb_backup/` copy after step 4c replaced the shipped body) loses the shared textures it references as `../makehuman/` and `../textiles/`: the eyes render white and the lashes vanish. Symlink those two folders next to the copy's parent first.
 
@@ -135,7 +135,7 @@ $B -b --factory-startup --python tools/assets/meshy_human/drape_headcloth.py -- 
 - **Shape.** Columns round the head: a shell `--ease` off the outermost skull surface down to ear level, then a straight fall from the widest point of the skull. Each column ends on the face line: the hairline over the brow (`--hairline` above the eye centres), the jaw beside the face, the nape at the back (heights relative to the eyes). `--volume` adds fullness over the back of the skull for the hair knotted underneath. Outward-only folds grow towards the hem.
 - **Ears.** The radius field is dilated and blurred so the cloth bridges the ear instead of following it. Two things failed first: a nearest-point push-out (it follows the normal of the ear's back face and folds the cloth into the gap behind the ear) and a relax pass that keeps the built radius (it cannot round the convex crease over the widest point, which read as a ledge at ear level). Clearance is a ray test from the head centre (horizontal from the head axis below it).
 - **No cloth sim.** Blender cloth with a pinned crown and the head and torso as colliders crumpled the free hem against the ear and the upper back. The hanging profile drapes well enough at game distance.
-- **Skinning.** Only `head` and `chest` (the rig has no neck bone), from the nearest head/torso skin vertices, smoothed, and pure `head` above the jaw. No arm bone moves the cloth, so a raised arm cannot drag a tail with it.
+- **Skinning.** Only `head` and `chest` (written before the rig had a `neck` bone; the cloth still follows head and chest only), from the nearest head/torso skin vertices, smoothed, and pure `head` above the jaw. No arm bone moves the cloth, so a raised arm cannot drag a tail with it.
 - **Material.** Reuses the old cloth's linen material and texel density (UV units per metre).
 - `--wearable-out` writes the cloth alone on the same rig without clips, like the MPFB wearables. Installing it as `assets/characters/realistic/<char>/headscarf/headscarf.glb` needs a board task and refreshed `assets/SOURCES.csv` rows.
 
@@ -180,7 +180,7 @@ The script loads the exported GLB, so the export round-trip is checked as well. 
 - **Clips.** No sheets or fragments between hands and hips in any clip; no triangular "wings" in `armpit_Cheer.png`.
 - **Face.** The lids close fully in `face_blink.png`, the mouth opens at the painted lips (not below them) in `face_jaw_open.png`, no red mouth bag shows on the chin, no grey eyeball shows in front of the lids, and the baked face has no seams or patches. The headcloth shadows the eyes in these renders; for a lit eye check render the head with the garments hidden.
 - **Head.** Both eyeballs show through the lids. Hair or headcloth clears the scalp in `head_back.png`.
-- **Report.** Route A (after step 4c, the installed body also has `Clothing_Braies` and `Hair_Scalp`): 71 bones, 76 actions, the `Anatomy_*` meshes (no `Anatomy_Head_Brows` unless `--keep-brows`) and the six face keys. Route B: 73 bones, 76 actions, `Body`, `Eye_l`, `Eye_r`, `Hair`.
+- **Report.** Route A (after step 4c, the installed body also has `Clothing_Braies` and `Hair_Scalp`): 75 bones, 76 actions, the `Anatomy_*` meshes (no `Anatomy_Head_Brows` unless `--keep-brows`) and the six face keys. Route B: 77 bones, 76 actions, `Body`, `Eye_l`, `Eye_r`, `Hair`.
 
 ## Known limits
 
@@ -200,3 +200,16 @@ Route B (raw Meshy rig):
 - **Baked texture faults.** Meshy bakes concept lighting and blotches into the albedo, for example the knees and upper chest on Aita. Only the hands are corrected.
 - **Hair.** Donor hair is an MPFB card mesh that is only box-fitted, so check the fringe over the eyes. Hair colour comes from the donor material.
 - **Deformation.** The scan topology stretches at the armpits, and there are no face blendshapes, so the face cannot talk or blink. Use route A.
+
+## Rig changes
+
+Rebuilding a conformed character (`rebuild.sh <char>`) replaces it with its MPFB body. When the rig changes and the scan is no longer at hand, carry the shipped shape over instead: copy the rebuilt MPFB character and the shipped one (`git archive HEAD assets/characters/realistic/<char>`) under `build/<char>_graft/{mpfb,shipped}/` with `makehuman` and `textiles` symlinks next to them and a `.gdignore` in `build/<char>_graft/` (otherwise Godot imports the shared textures through the symlinks and rewrites their `.import` files), then
+
+```bash
+$B -b --factory-startup --python tools/assets/meshy_human/graft_conformed_shape.py -- \
+  --rebuilt build/<char>_graft/mpfb/<char>/<char>.glb --shipped build/<char>_graft/shipped/<char>/<char>.glb \
+  --out build/<char>_graft/<char>_conformed.glb
+git checkout HEAD -- assets/characters/realistic/<char>/textures/     # the scan albedo
+```
+
+and run step 4c (`--donor` the rebuilt MPFB body, `--conformed` the graft, `--albedo` the restored skin albedo) and step 4d on the graft. Vertices are matched by MPFB UV across the skin regions (a rig change can move border vertices between regions); the script stops if more than 1 % of a mesh has no exact UV match. Aita was carried to the 75-bone rig this way (ADR 0056).

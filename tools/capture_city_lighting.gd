@@ -6,7 +6,7 @@ extends Node
 ## stopped), and saves the third-person and painted-iso gameplay frames.
 ## Host scene so autoloads resolve:
 ##   tools/godot_render.sh --resolution 1600x900 res://tools/capture_city_lighting.tscn \
-##     -- --tag=after [--states=h10,h18,after_rain] [--ao=0]
+##     -- --tag=after [--states=h10,h18,after_rain] [--ao=0] [--reflection=0]
 ## Output: build/city_lighting/<state>_<spot>_<mode>_<tag>.jpg
 ## Night states: --states=h22,h23,dec_h17,dec_h20,dec_h23
 
@@ -96,6 +96,16 @@ func _shot(at: Vector2, spot: String, state: Array) -> void:
 		)
 		get_viewport().get_texture().get_image().save_jpg(path, 0.9)
 		print("saved ", path)
+		# --mirror=1 also saves the R-1861 reflection target (flipped: the shaders read 1 - y).
+		var mirror: PlanarReflection3D = (
+			city.view.planar_reflection() if city.view.has_method(&"planar_reflection") else null
+		)
+		if mirror != null and _arg("--mirror=", "0") == "1":
+			print("  mirror: active %s plane %.2f" % [mirror.is_active(), mirror.plane_height()])
+			if mirror.is_active():
+				var img := mirror.viewport().get_texture().get_image()
+				img.flip_y()
+				img.save_jpg(path.replace(".jpg", "_mirror.jpg"), 0.9)
 		var env: Environment = city.world.environment
 		print(
 			"  env: exposure %.3f ambient %.3f %s sun %.3f fog %.4f bright %.3f" % [
@@ -116,6 +126,9 @@ func _run() -> void:
 	# --ao=0 hides the screen-space AO pass for an in-build before/after.
 	if _arg("--ao=", "1") == "0" and city.view.has_method(&"set_ambient_occlusion_enabled"):
 		city.view.set_ambient_occlusion_enabled(false)
+	# --reflection=0 turns off the R-1861 planar reflection (puddles mirror only the sky).
+	if _arg("--reflection=", "1") == "0" and city.view.has_method(&"planar_reflection"):
+		city.view.planar_reflection().apply_quality("low")
 	await _settle(10.0, 120)
 	var plan: CityPlan = city.plan
 	var forum := CityTravel.spawn_position(plan, "poi.forum")

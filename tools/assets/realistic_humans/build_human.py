@@ -43,6 +43,7 @@ import specs as spec_module  # noqa: E402
 import surfaces  # noqa: E402
 import garments  # noqa: E402
 import run_cycle  # noqa: E402
+import rig_detail  # noqa: E402
 LOCATION_DATA = None
 
 MOTION_BLEND = ROOT / "assets/characters/kalev_fresh/source/kalev_fresh.blend"
@@ -58,16 +59,16 @@ FINGERS = ("thumb", "index", "middle", "ring", "pinky")
 FINGER_CURL = {"index": (48, 62, 38), "middle": (52, 66, 40), "ring": (56, 68, 42),
                "pinky": (60, 70, 44), "thumb": (22, 28, 24)}
 
-# MPFB game_engine bone -> {shared bone: share}. Fingers fold into the hand:
-# the shared rig has no finger bones, so the hand is baked as a loose fist.
+# MPFB game_engine bone -> {shared bone: share}. Neck, clavicles and the
+# middle spine bone have their own shared bones (rig_detail.py).
 WEIGHT_MAP = {
     "Root": {"hips": 1.0}, "pelvis": {"hips": 1.0},
-    "spine_01": {"spine": 1.0}, "spine_02": {"spine": 1.0}, "spine_03": {"chest": 1.0},
-    "neck_01": {"chest": 0.3, "head": 0.7}, "head": {"head": 1.0},
+    "spine_01": {"spine": 1.0}, "spine_02": {"spine_upper": 1.0}, "spine_03": {"chest": 1.0},
+    "neck_01": {"neck": 1.0}, "head": {"head": 1.0},
 }
 for _s in ("l", "r"):
     WEIGHT_MAP.update({
-        f"clavicle_{_s}": {"chest": 1.0},
+        f"clavicle_{_s}": {f"shoulder.{_s}": 1.0},
         f"upperarm_{_s}": {f"upperarm.{_s}": 1.0},
         f"lowerarm_{_s}": {f"lowerarm.{_s}": 1.0},
         f"hand_{_s}": {f"hand.{_s}": 1.0},
@@ -358,12 +359,18 @@ def joint_targets(mpfb_rig):
     t["hips"] = Vector((0, thigh_mid.y, thigh_mid.z))
     t["spine"] = Vector((0, *p["spine_01"][0].yz))
     t["chest"] = Vector((0, *p["spine_03"][0].yz))
+    t["spine_upper"] = Vector((0, *p["spine_02"][0].yz))
     neck_head, neck_tail = p["neck_01"]
+    # Garments measure from "head" (30 % up the neck, the old single pivot);
+    # the bones now turn at the neck base and the skull base.
     t["head"] = neck_head.lerp(neck_tail, 0.3)
+    t["neck"] = Vector((0, *neck_head.yz))
+    t["head_bone"] = Vector((0, *p["head"][0].yz))
     t["neck_base"] = neck_head.copy()
     t["head_top"] = p["head"][1]
     for s in ("l", "r"):
         t[f"upperarm.{s}"] = p[f"upperarm_{s}"][0]
+        t[f"shoulder.{s}"] = p[f"clavicle_{s}"][0]
         t[f"lowerarm.{s}"] = p[f"lowerarm_{s}"][0]
         t[f"wrist.{s}"] = p[f"hand_{s}"][0]
         axis = (p[f"hand_{s}"][1] - p[f"hand_{s}"][0]).normalized()
@@ -422,6 +429,7 @@ def fit_motion_rig(rig, targets, scale):
         bone.tail = head + direction * length
         bone.align_roll(roll_matrix.to_3x3() @ Vector((0, 0, 1)))
     add_finger_bones(rig, targets)
+    rig_detail.add_bones(rig, targets)
     bpy.ops.object.mode_set(mode="OBJECT")
 
 
@@ -505,14 +513,18 @@ def collar_plane(targets):
     return collar
 
 
+TRUNK = ("hips", "spine", "spine_upper", "chest", "shoulder.l", "shoulder.r")
+
+
 def dominant_region(weights, co, collar):
     if not weights:
         return "Anatomy_Torso"
     bone = weights[0][0]
     # Skin stays visible 3 cm below any neckline so gaps never show the hollow body.
-    if bone == "head" or (bone in ("chest", "spine") and co.z > collar(co.y) - 0.03):
+    # The neck is skin above the collar and trunk below it, as when it folded into the chest.
+    if bone == "head" or (bone in TRUNK + ("neck",) and bone != "hips" and co.z > collar(co.y) - 0.03):
         return "Anatomy_Head"
-    if bone in ("hips", "spine", "chest"):
+    if bone in TRUNK + ("neck",):
         return "Anatomy_Torso"
     if bone.startswith(("hand", "wrist") + FINGERS):
         return "Anatomy_Hands"
@@ -655,12 +667,14 @@ def bake_crowd_body(spec, meshes, wardrobe):
     budget (the face keeps the largest share)."""
     outfit = next(iter(spec["outfits"].values()))
     covered = {c for g in outfit for c in garments.WARDROBE[g][1]}
-    keep = [o for o in meshes if not o.name.startswith("Anatomy_Head_Teeth")
-            and not any(o.name.startswith(c) for c in covered)]
-    for o in meshes:
-        if o not in keep:
-            bpy.data.objects.remove(o, do_unlink=True)
     layers = set(spec.get("layers", []))
+    # A layer may claim a body part (a woman's braid, WD-3): it is exported apart, not baked.
+    claimed = {o.name for g in layers if g in wardrobe for o in wardrobe[g][2]}
+    keep = [o for o in meshes if not o.name.startswith("Anatomy_Head_Teeth")
+            and not any(o.name.startswith(c) for c in covered) and o.name not in claimed]
+    for o in meshes:
+        if o not in keep and o.name not in claimed:
+            bpy.data.objects.remove(o, do_unlink=True)
     for garment, (_, _, objects) in wardrobe.items():
         if garment in outfit:
             keep += objects
@@ -694,8 +708,8 @@ def bake_crowd_body(spec, meshes, wardrobe):
 # Triangle budget of one exported citizen layer (docs/SYSTEMS/CITIZEN_WARDROBE.md):
 # a resident wears up to four, so a dressed crowd body stays near 15k triangles.
 LAYER_TRIANGLES = {"hood": 3600, "veil_over": 1400, "mail_coif": 1300, "coif": 900, "wool_cap": 700,
-                   "bascinet": 700, "kettle_hat": 700, "gambeson": 2600, "mail_haubergeon": 2200,
-                   "surcoat": 2000, "smith_apron": 900, "waist_apron": 800, "keys": 400,
+                   "bascinet": 700, "kettle_hat": 700, "gambeson": 5000, "mail_haubergeon": 2200,
+                   "surcoat": 2800, "smith_apron": 900, "waist_apron": 800, "keys": 400,
                    "paternoster": 700, "satchel": 700, "back_sack": 700, "coat_of_plates": 2800,
                    "aventail": 1500, "great_helm": 1100, "mail_chausses": 2200, "gauntlets": 1400,
                    "order_mantle": 3200,
@@ -712,6 +726,9 @@ def export_crowd_layers(spec, motion, wardrobe, out, only=None):
         if only and garment not in only:
             continue  # --only refits just these layers (keeps the other shipped GLBs byte-identical)
         objects = [o for o in wardrobe[garment][2] if o.type == "MESH"]
+        if not objects:
+            log(f"layer {garment}: nothing to export")
+            continue
         bpy.ops.object.select_all(action="DESELECT")
         for o in objects:
             o.select_set(True)
@@ -914,6 +931,7 @@ def build(name, only_body=False, layers_only=False, only_layers=None):
     bpy.data.objects.remove(mpfb_rig, do_unlink=True)
     fit_motion_rig(motion, targets, targets["hips"].z / motion_rest["hips"][0].z)
     log(f"run cycle: {run_cycle.author(motion):.2f} m/s stance ground speed")
+    log(f"detail bones: {rig_detail.derive_motion(motion)} clips spread over neck, collarbones, upper spine")
 
     shared = rename_weights(body)
     for proxy in proxies:

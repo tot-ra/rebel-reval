@@ -1,7 +1,7 @@
 extends "res://tests/godot/test_case.gd"
 
 ## ADR 0033 (age amended by ADR 0058): the 18-year-old apprentice is the
-## shared rig, and the player rig bootstrap spawns him instead of Kalev.
+## playable hero on the shared rig; the bootstrap spawns him instead of Kalev.
 
 const APPRENTICE := preload("res://assets/characters/variants/apprentice.tscn")
 const BOOTSTRAP := preload("res://scripts/map/view3d/map_view_runtime_bootstrap.gd")
@@ -25,7 +25,7 @@ func after_each() -> void:
 
 func test_keeps_shared_rig_and_every_clip() -> void:
 	assert_eq(rig.validation_errors(), [])
-	assert_eq(rig.skeleton().get_bone_count(), 71)
+	assert_eq(rig.skeleton().get_bone_count(), 75)
 	assert_true(rig.skeleton().find_bone("handslot.r") >= 0)
 	assert_true(rig.animation_player().get_animation_list().size() >= 76)
 	for motion: StringName in [&"idle", &"walk", &"run", &"hammer_attack", &"guard"]:

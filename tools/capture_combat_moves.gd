@@ -12,7 +12,7 @@ const OUTPUT_DIR := "res://docs/reports/images/combat"
 const VIEWPORT_SIZE := Vector2i(1440, 720)
 const WEAPONS: Dictionary = {
 	&"hammer": "res://assets/characters/shared/hammer.tscn",
-	&"sword": "res://assets/characters/shared/sword.tscn",
+	&"sword": "res://assets/props/weapons/arming_sword/scenes/arming_sword_p1_w1_held.tscn",
 	&"spear": "res://assets/characters/shared/spear_thrust_grip.tscn",
 }
 

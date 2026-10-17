@@ -14,7 +14,7 @@ Status: implemented (tasks **P1-013** dialogue settings, **P1-028** input bindin
 
 ## Rebindable actions
 
-Movement (up/down/left/right, walk, spirit sight), interact/continue, confirm, back/close, attack, guard, sidestep, roll, spell cookbook, cast learned spell 1–5, remove forged element, cast forged cookbook spell, inventory, journal, camera view, minimap, map, controls. Each action keeps separate keyboard/mouse and gamepad bindings (`InputBindingSettings.ACTION_DEFINITIONS`).
+Movement (up/down/left/right, walk, spirit sight, jump), interact/continue, confirm, back/close, attack, guard, sidestep, roll, spell cookbook, cast learned spell 1–5, remove forged element, cast forged cookbook spell, inventory, journal, camera view, minimap, map, controls. Each action keeps separate keyboard/mouse and gamepad bindings (`InputBindingSettings.ACTION_DEFINITIONS`).
 
 ## Runtime pieces
 
@@ -24,7 +24,7 @@ Movement (up/down/left/right, walk, spirit sight), interact/continue, confirm, b
 | `UserSettingsStore` | `scripts/settings/user_settings_store.gd` | JSON file under `user://settings/` (format version 4, migrates v1). |
 | `DialogueSettings` | `scripts/settings/dialogue_settings.gd` | Text and subtitle preferences ([`DIALOGUE.md`](./DIALOGUE.md)). |
 | `GameplayAccessibilitySettings` | `scripts/settings/gameplay_accessibility_settings.gd` | Guard mode, screen shake, reduced flashing, focus contrast, `reply_timer_pressure`, `spirit_sight_intensity`. Read by combat input, `map_view_runtime_camera_shake.gd`, `sky_weather_3d.gd`, `UiFocusTheme`, `SpiritArenaHost`. |
-| `InputBindingSettings` | `scripts/settings/input_binding_settings.gd` | Serializes and applies `InputMap`. `BINDINGS_VERSION` 2 moved Space from attack to roll and drops untouched v1 defaults on load; 3 moved the left stick click from walk to spirit sight the same way. |
+| `InputBindingSettings` | `scripts/settings/input_binding_settings.gd` | Serializes and applies `InputMap`. `BINDINGS_VERSION` 2 moved Space from attack to roll and drops untouched v1 defaults on load; 3 moved the left stick click from walk to spirit sight; 4 maps Space to jump, moves roll to Ctrl, and migrates untouched v3 defaults while preserving custom bindings. |
 | `AudioSettings`, `AudioBusService` | `scripts/settings/` | Linear volumes routed to the `Music`, `SFX`, and `Voice` buses. |
 | `GameSettingsOverlay`, `GameSettingsController` | `scripts/ui/` | The settings screen and its Esc entry point. |
 | `ControlsOverlay` | `scripts/ui/controls_overlay.gd` | Binding list and rebinding UI. |

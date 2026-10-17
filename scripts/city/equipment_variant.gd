@@ -50,6 +50,23 @@ static func variant_scene(dir: String, family: String, cell: String) -> PackedSc
 	return _load("%s/%s_%s.glb" % [dir, family, cell])
 
 
+## The shipped cell nearest to `cell` within its prestige: the cell itself, else the
+## nearest wear (newer first on a tie), else "" (use the family's base item). A burgher's
+## used sword is then his new one with the stand-in finish, not the sergeant's munition.
+static func nearest_cell(dir: String, family: String, cell: String) -> String:
+	if not is_cell(cell):
+		return ""
+	if variant_scene(dir, family, cell) != null:
+		return cell
+	var level := wear(cell)
+	for step in [1, 2]:
+		for other in [level - step, level + step]:
+			var near := "%s_w%d" % [cell.substr(0, 2), other]
+			if other >= 0 and other <= 2 and variant_scene(dir, family, near) != null:
+				return near
+	return ""
+
+
 static func _load(path: String) -> PackedScene:
 	if not _scenes.has(path):
 		_scenes[path] = load(path) if ResourceLoader.exists(path) else null

@@ -1,6 +1,6 @@
 # Credits
 
-Rebel Reval uses real-world wildlife field recordings released under Creative Commons licenses. Every recording below is used within the terms of its license, which for commercial use requires attribution (and, for ShareAlike works, that any recording we edited stays under the same license). Recordings were trimmed/normalised for in-game use.
+Rebel Reval uses real-world field recordings and model assets released under the Creative Commons licenses named below; attributions are provided where required. Recordings were trimmed/normalised for in-game use.
 
 ## Bird sounds
 
@@ -105,6 +105,13 @@ CC0 field recordings of surf and wind, cut into seamless loops that crossfade wi
 - Moderate surf on shingle and rock - recorded by leesparey. CC0 1.0 (Public Domain). Source: https://freesound.org/people/leesparey/sounds/653395/
 - Storm waves breaking on a beach - recorded by chris_dagorne. CC0 1.0 (Public Domain). Source: https://freesound.org/people/chris_dagorne/sounds/426076/
 - Strong wind in a tree - recorded by felix.blume. CC0 1.0 (Public Domain). Source: https://freesound.org/people/felix.blume/sounds/187756/
+
+## Weather rain ambience
+
+Field recordings of rain outside and pattering on a wooden roof indoors, trimmed and crossfaded into long weather loops.
+
+- Light rain in a quiet coastal suburb - recorded by Andron827. CC0 1.0 (Public Domain). Source: https://freesound.org/people/Andron827/sounds/142936/
+- Rain interior wooden house roof - recorded by marsal.oido. CC BY 4.0. Source: https://freesound.org/people/marsal.oido/sounds/415848/
 
 ## Footsteps
 

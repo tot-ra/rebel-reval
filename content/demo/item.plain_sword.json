@@ -24,7 +24,7 @@
     },
     "equip": {
       "slot": "right_hand",
-      "scene": "res://assets/storybook/equipment/sword.tscn"
+      "scene": "res://assets/props/weapons/arming_sword/scenes/arming_sword_p1_w1_held.tscn"
     },
     "weapon_class": "sword",
     "attack_profile": {

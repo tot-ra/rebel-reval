@@ -1,10 +1,10 @@
 # Leaping: one jump key, chosen by what lies ahead
 
-Status: implemented for the hero in the seamless city ([ADR 0053](../adr/0053-context-aware-jumping-leap-network.md), proposed; board task pending). Out of scope: citizens and animals jumping, fall damage, maps without ground heights (they keep the fixed hop of [`SEAMLESS_CITY.md`](SEAMLESS_CITY.md)).
+Status: implemented for the hero in the seamless city; default keyboard jump binding updated in task **R-2173** ([ADR 0053](../adr/0053-context-aware-jumping-leap-network.md)). Out of scope: citizens and animals jumping, fall damage, maps without ground heights (they keep the fixed hop of [`SEAMLESS_CITY.md`](SEAMLESS_CITY.md)).
 
 ## What the player sees
 
-`player_jump` (`Z`, gamepad right stick press) in the walking direction (or the facing when standing). What happens depends on what is in front of Kalev and on his state:
+`player_jump` (`Space`, gamepad right stick press) in the walking direction (or the facing when standing). What happens depends on what is in front of Kalev and on his state:
 
 | In front of him | Normal | On ice | Sprained ankle | Heavy load |
 |---|---|---|---|---|

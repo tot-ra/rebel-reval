@@ -1,3 +1,4 @@
+# gdlint:disable=class-definitions-order
 class_name VegetationPhenology
 extends RefCounted
 
@@ -63,7 +64,6 @@ const FRUIT_MONTHS := {
 	&"blackthorn": [9, 11],
 }
 
-
 ## Shrub flowers and fruit by day of year (R-2125), inclusive [from, to]. A window
 ## with from > to wraps the new year (rosehips and guelder berries hang into winter).
 const SHRUB_BLOOM_DAYS := {
@@ -86,7 +86,9 @@ const SHRUB_FRUIT_DAYS := {
 
 
 ## True when this shrub carries `kind` (&"flower" or &"fruit") on the date.
-static func shrub_adornment_visible(species: StringName, kind: StringName, date: Dictionary) -> bool:
+static func shrub_adornment_visible(
+	species: StringName, kind: StringName, date: Dictionary
+) -> bool:
 	var table: Dictionary = SHRUB_BLOOM_DAYS if kind == &"flower" else SHRUB_FRUIT_DAYS
 	if not table.has(species):
 		return false
@@ -134,6 +136,97 @@ static func forb_phase(species: StringName, day: int) -> StringName:
 		if day >= int(window[0]) and day <= int(window[1]):
 			return window[2]
 	return FORB_LEAVES
+
+
+## R-2129 wetland and water-edge plants (CityMoatPlants), Tallinn-area dates.
+## Emergent and bank plants follow the calendar; the floating lilies and
+## duckweed keep SeasonState's water-temperature curves.
+##   reed (Phragmites)  shoots green the bed mid May-June; plumes from August,
+##                      purple-brown, silver-buff seed plumes by October; the
+##                      stand dies straw-brown in October and stays standing
+##                      through winter (in the moat ice), a third lodged by May
+##   cattail (Typha)    green spikes late June, brown by August; the heads
+##                      stand all winter and break into fluff from December
+##   sedge (Carex)      tussocks green in May, straw from October, standing
+##   marsh marigold     yellow cups mid April-May, leaves until mid August
+##   meadowsweet        cream plumes late June-mid August, then brown heads
+##   purple loosestrife magenta spikes July-mid September, then dry stalks
+##   fern               croziers in May, fronds open late May, brown in
+##                      October, collapsed brown litter through winter
+## Dry seed heads and stalks after flowering.
+const FORB_SEED := &"seed"
+const FERN_CROZIER := &"crozier"
+const FERN_OPEN := &"open"
+const FERN_BROWN := &"brown"
+const FERN_LITTER := &"litter"
+## Species -> [first day, last day, phase]; outside every window FORB_NONE
+## (fern: FERN_LITTER, its dead fronds lie on the ground until the croziers).
+const WETLAND_WINDOWS := {
+	&"marsh_marigold": [[105, 151, FORB_FLOWER], [152, 228, FORB_LEAVES]],
+	&"meadowsweet": [[121, 175, FORB_LEAVES], [176, 228, FORB_FLOWER], [229, 300, FORB_SEED]],
+	&"purple_loosestrife":
+	[[135, 190, FORB_LEAVES], [191, 258, FORB_FLOWER], [259, 340, FORB_SEED]],
+	&"fern": [[125, 145, FERN_CROZIER], [146, 272, FERN_OPEN], [273, 305, FERN_BROWN]],
+}
+
+
+## Phase of a wetland bank plant on a day of the year. Pure.
+static func wetland_phase(species: StringName, day: int) -> StringName:
+	for window: Array in WETLAND_WINDOWS.get(species, []):
+		if day >= int(window[0]) and day <= int(window[1]):
+			return window[2]
+	return FERN_LITTER if species == &"fern" else FORB_NONE
+
+
+## 0 dead straw .. 1 green for the reed bed and the cattail leaves: the old
+## stand is straw until the new shoots overtop it (mid May-June), and it ripens
+## from September to straw by late October.
+static func reed_green(day: int) -> float:
+	return _plateau(float(day), 135.0, 178.0, 250.0, 298.0)
+
+
+## Share of reed and cattail stems still standing. Dead canes stand through the
+## winter, in the moat ice too; storms and snow lodge about a third by spring,
+## then the new growth fills the stand again by late June.
+static func reed_standing(day: int) -> float:
+	if day >= 178 and day < 305:
+		return 1.0
+	# Days since 1 November (day 305): 0 .. 238 on 26 June.
+	var since := float((day - 305 + 365) % 365)
+	if since <= 185.0:
+		return 1.0 - 0.35 * _smooth(since / 185.0)
+	return 0.65 + 0.35 * _smooth((since - 185.0) / 53.0)
+
+
+## Reed plumes (panicles): share shown and ripeness (0 purple-brown flowering
+## plume in August, 1 silver-buff seed plume from October). Old plumes stay on
+## the dead canes over winter and break off through spring.
+static func reed_plume(day: int) -> Vector2:
+	var ripe := _smooth((float(day) - 236.0) / 46.0)
+	if day >= 205:
+		return Vector2(_smooth((float(day) - 205.0) / 20.0), ripe)
+	return Vector2(1.0 - _smooth((float(day) - 60.0) / 100.0), 1.0)
+
+
+## Cattail spikes: share shown, ripeness (0 green female spike, 1 dark brown)
+## and fluff (0 velvet, 1 broken into seed wool). Heads stand all winter and
+## shed into fluff from December; the last are gone by mid May.
+static func cattail_head(day: int) -> Vector3:
+	if day >= 172:
+		return Vector3(
+			_smooth((float(day) - 172.0) / 14.0),
+			_smooth((float(day) - 190.0) / 35.0),
+			0.5 * _smooth((float(day) - 335.0) / 30.0)
+		)
+	return Vector3(
+		1.0 - _smooth((float(day) - 100.0) / 35.0), 1.0, 0.5 + 0.5 * _smooth(float(day) / 90.0)
+	)
+
+
+## 0 straw .. 1 green for sedge tussocks: green in May, straw from October; the
+## old leaves keep a pale mound through winter.
+static func sedge_green(day: int) -> float:
+	return _plateau(float(day), 110.0, 150.0, 262.0, 300.0)
 
 
 static func category_for(species: StringName) -> StringName:
@@ -297,6 +390,16 @@ static func _smooth_window(
 	if day < rise_end:
 		return _smooth((day - rise_start) / (rise_end - rise_start))
 	return 1.0 - _smooth((day - rise_end) / (fall_end - rise_end))
+
+
+## 0 before rise_start, smooth up to 1 at rise_end, 1 until fall_start, smooth
+## down to 0 at fall_end (a growing season with a plateau).
+static func _plateau(
+	day: float, rise_start: float, rise_end: float, fall_start: float, fall_end: float
+) -> float:
+	if day < rise_end:
+		return _smooth((day - rise_start) / (rise_end - rise_start))
+	return 1.0 - _smooth((day - fall_start) / (fall_end - fall_start))
 
 
 static func _smooth(t: float) -> float:

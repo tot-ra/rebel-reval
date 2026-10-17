@@ -1,0 +1,44 @@
+{
+  "task": "R-2007",
+  "doc": "docs/SYSTEMS/EQUIPMENT_VARIANTS.md",
+  "item_id": "obj.sword_cruciform",
+  "family": "arming_sword",
+  "variant": "arming_sword_p1_w1",
+  "prestige": "p1",
+  "wear": "w1",
+  "look": "Town munition (sergeant): type XII blade, plain bar cross, flat wheel pommel, leather over cord grip; used",
+  "raw": "build/equipment_sword/arming_sword_p1_w1_meshy_raw.glb",
+  "raw_sha256": "8301fdf3ddfe8d4deda470d890412a76091c37dd0b1071a4355fafa0973da98c",
+  "out": "assets/props/weapons/arming_sword/variants/arming_sword_p1_w1.glb",
+  "leonardo_generation": "1f1c96a1-d699-60d0-af79-f44c05efcb6c",
+  "leonardo_model": "gpt-image-1.5 1536x1024",
+  "meshy_task": "01a14506-d485-7469-a6a1-cbddc325b68d",
+  "meshy_options": {
+    "pbr": true,
+    "texture": true,
+    "model_type": "standard",
+    "target_polycount": 5000
+  },
+  "prompt": "Museum catalogue photo of a single object: a medieval arming sword, 14th century, Baltic (Reval 1343), 94 cm overall, munition grade issued to a town sergeant, shown WITHOUT scabbard. Oakeshott type XII: straight two-edged blade 78 cm long, 5 cm wide at the cross, edges taper evenly in straight lines to a sharp point; one single shallow central fuller along the first two thirds of the blade, nothing else on the blade. Plain straight iron cross-guard bar 18 cm wide, square section, both arms mirror each other exactly. Grip 10 cm, wooden core tightly wrapped with dark brown leather over cord. Plain flat iron wheel pommel, 5 cm disc, no decoration. Material: hand-forged steel blade, dull grey, satin not mirror; hilt of dark matte wrought iron. Used: light scratches, a few small brown rust spots near the cross, grip leather darkened by hands. No ornament, no engraving, no etching, no gold, not polished, not chrome, not fantasy, no basket hilt, no ricasso, no knuckle bow. Lying horizontally, pommel on the left and point on the right, seen straight from above, blade flat to the camera, whole sword in frame with margin, plain pure white background, soft even studio light, no cast shadow, no hands, no people, no text.",
+  "scan": {
+    "align_axis": "-X",
+    "longest_m": 0.94,
+    "rough_floor": 0.35,
+    "metal_cap": 0.9,
+    "ao": true
+  },
+  "blade": {
+    "thick_base_m": 0.007,
+    "thick_tip_m": 0.003,
+    "grip_below_cross_m": 0.055,
+    "pommel_thick_m": 0.03,
+    "pommel_len_m": 0.065
+  },
+  "tris": 4000,
+  "lod1_tris": 1000,
+  "tex": 1024,
+  "turntable_detail_y": [
+    -0.17,
+    0.12
+  ]
+}

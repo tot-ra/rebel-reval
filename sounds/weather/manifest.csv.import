@@ -6,10 +6,10 @@ uid="uid://by7fxluaqr56o"
 
 [deps]
 
-files=["res://sounds/weather/manifest.file.translation", "res://sounds/weather/manifest.license.translation", "res://sounds/weather/manifest.source.translation", "res://sounds/weather/manifest.notes.translation"]
+files=["res://sounds/weather/manifest.title.translation", "res://sounds/weather/manifest.author.translation", "res://sounds/weather/manifest.license.translation", "res://sounds/weather/manifest.page.translation", "res://sounds/weather/manifest.file.translation", "res://sounds/weather/manifest.notes.translation"]
 
 source_file="res://sounds/weather/manifest.csv"
-dest_files=["res://sounds/weather/manifest.file.translation", "res://sounds/weather/manifest.license.translation", "res://sounds/weather/manifest.source.translation", "res://sounds/weather/manifest.notes.translation"]
+dest_files=["res://sounds/weather/manifest.title.translation", "res://sounds/weather/manifest.author.translation", "res://sounds/weather/manifest.license.translation", "res://sounds/weather/manifest.page.translation", "res://sounds/weather/manifest.file.translation", "res://sounds/weather/manifest.notes.translation"]
 
 [params]
 

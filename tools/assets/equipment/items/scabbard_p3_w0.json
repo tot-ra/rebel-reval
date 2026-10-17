@@ -1,0 +1,39 @@
+{
+  "task": "R-2007",
+  "doc": "docs/SYSTEMS/EQUIPMENT_VARIANTS.md",
+  "item_id": "obj.sword_cruciform",
+  "family": "scabbard",
+  "variant": "scabbard_p3_w0",
+  "prestige": "p3",
+  "wear": "w0",
+  "look": "Knightly: red leather with black lacing, gilt latten locket and ball-ended chape; new",
+  "raw": "build/equipment_sword/scabbard_p3_w0_meshy_raw.glb",
+  "raw_sha256": "8189b7bcf80c0a0f89deb6330253d6f400b6fecd4607ef08f896bfb9fa84e53e",
+  "out": "assets/props/weapons/scabbard/variants/scabbard_p3_w0.glb",
+  "leonardo_generation": "1f1c96b3-5772-6380-b876-59cd807d78cd",
+  "leonardo_model": "gpt-image-1.5 1536x1024",
+  "meshy_task": "01a1450e-aa82-73ac-814b-b75dc615b75f",
+  "meshy_options": {
+    "pbr": true,
+    "texture": true,
+    "model_type": "standard",
+    "target_polycount": 3000
+  },
+  "prompt": "Museum catalogue photo of a single object: an empty medieval sword scabbard, 14th century, Baltic (Reval 1343), 86 cm long, a knight's fine scabbard, new. Straight, flat oval section 6 cm wide at the mouth narrowing evenly to 3.5 cm at the tip, both sides mirror each other. Wooden core covered in deep red dyed leather with a black leather band, gilt latten metal fittings: a locket band 5 cm at the mouth with a plain engraved border line, and a long latten chape 10 cm at the tip with a small ball end, warm yellow-brown metal, satin not mirror. Two narrow black leather sword-belt tails, about 8 cm and 20 cm below the mouth, are laced tightly around the scabbard in a neat criss-cross wrap and cut off short, lying flat on its surface, nothing hanging. No studs, no buckles, no frog, no baldric, no gems, no heraldry, no figures, not fantasy, no sword in it. Lying horizontally, mouth on the left and tip on the right, seen almost straight from above with a slight three-quarter tilt, whole object in frame with margin, plain pure white background, soft even studio light, no cast shadow, no hands, no people, no text.",
+  "scan": {
+    "align_axis": "+X",
+    "longest_m": 0.775,
+    "rough_floor": 0.5,
+    "metal_cap": 0.9,
+    "ao": true
+  },
+  "section": {
+    "width_m": 0.062,
+    "thick_m": 0.03
+  },
+  "pivot_at_top": true,
+  "tris": 3000,
+  "lod1_tris": 800,
+  "tex": 1024,
+  "fits": "arming_sword_p3_w0"
+}

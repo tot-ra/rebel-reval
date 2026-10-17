@@ -118,6 +118,23 @@ class RuntimeVariants(unittest.TestCase):
             if r.get("shield"):
                 self.assertRegex(r["gear_variant"], CELL, r["id"])
 
+    def test_sword_belts(self):
+        """R-2007: sergeants, crown men, knights, squires and men-at-arms gird a sword; the watch does not."""
+        by_kit = collections.Counter()
+        for r in self.residents:
+            kit = (r.get("duty") or {}).get("kit", "")
+            if r.get("sword"):
+                self.assertRegex(r["gear_variant"], CELL, r["id"])
+                self.assertTrue(kit in ("sergeant", "crown") or r["trade"] in wd.ARMED_TRADES, r["id"])
+                by_kit[kit or r["trade"]] += 1
+                if r["trade"] == "knight" and r["status"] == "noble":
+                    self.assertTrue(r["gear_variant"].startswith("p3"), r["id"])
+            elif kit in ("sergeant", "crown"):
+                self.fail(f"{r['id']} on {kit} duty without a sword")
+            self.assertFalse(kit == "watch" and r.get("sword"), r["id"])
+        self.assertGreater(by_kit["sergeant"], 0)
+        self.assertGreater(by_kit["knight"], 0)
+
 
 if __name__ == "__main__":
     unittest.main()

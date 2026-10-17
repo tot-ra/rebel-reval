@@ -15,7 +15,10 @@ const FIGURE_HEIGHT := 2.0
 const WEAPONS: Array[Dictionary] = [
 	{"slug": "arming_sword", "slot": &"right_hand", "attack": &"sword_attack", "time": 0.40},
 	{
-		"slug": "axe_peasant", "slot": &"right_hand", "attack": &"axe_attack", "time": 0.68,
+		"slug": "axe_peasant",
+		"slot": &"right_hand",
+		"attack": &"axe_attack",
+		"time": 0.68,
 		"scene": "res://assets/props/weapons/axe_peasant/scenes/axe_peasant_p1_w1_held.tscn",
 	},
 	{"slug": "war_hammer", "slot": &"right_hand", "attack": &"hammer_attack", "time": 0.68},
@@ -54,7 +57,9 @@ func _run() -> void:
 
 	for weapon: Dictionary in WEAPONS:
 		var slug := String(weapon["slug"])
-		var scene_path := String(weapon.get("scene", "res://assets/props/weapons/%s/%s_held.tscn" % [slug, slug]))
+		var scene_path := String(
+			weapon.get("scene", "res://assets/props/weapons/%s/%s_held.tscn" % [slug, slug])
+		)
 		var scene := load(scene_path) as PackedScene
 		for slot: StringName in SharedCharacterRig.EQUIPMENT_SLOTS:
 			rig.unequip(slot)
@@ -62,7 +67,10 @@ func _run() -> void:
 			# The shield is shown beside a sword, as it is carried in a fight.
 			rig.equip(weapon["slot"], scene)
 		else:
-			rig.equip(&"right_hand", load("res://assets/props/weapons/arming_sword/arming_sword_held.tscn"))
+			rig.equip(
+				&"right_hand",
+				load("res://assets/props/weapons/arming_sword/scenes/arming_sword_p2_w0_held.tscn")
+			)
 			rig.equip(&"left_hand", scene)
 		for pose: Array in [[&"idle", 0.0, "idle"], [weapon["attack"], weapon["time"], "attack"]]:
 			rig.rotation_degrees = Vector3(0.0, 25.0, 0.0)

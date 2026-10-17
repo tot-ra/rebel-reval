@@ -68,7 +68,9 @@ SKIN = {("m", "child"): "young_caucasian_male", ("f", "child"): "young_caucasian
 # Women have two more (WD-3, docs/SYSTEMS/CITIZEN_WARDROBE.md): "c" the fitted,
 # buttoned kirtle under a sideless surcoat of patrician and noble women (1340s),
 # "d" the Estonian linen shift, wool wrap skirt and solg brooch.
-OUTFITS = ("a", "b")
+# Men (EQ-21, R-2023): "a" the short tunic, "b" the calf-length tunic of the better-off,
+# "c" the buttoned cotehardie of rich young men (1340s fashion). Elders wear the long tunic.
+OUTFITS = ("a", "b", "c")
 FEMALE_OUTFITS = ("a", "b", "c", "d")
 
 
@@ -110,13 +112,15 @@ LAYERS = {
 # burgher dress: the Estonian wrap-skirt body (d) wears neither.
 _NOT_WITH = {"b": {"waist_apron", "head_cloth"}, "c": {"waist_apron", "satchel", "head_cloth"},
              "a": {"head_cloth"}, "d": {"veil_over", "wimple", "barbette"}}
+# A young man of fashion in his cotehardie does not work in an apron or carry a sack.
+_MEN_NOT_WITH = {"c": {"smith_apron", "waist_apron", "back_sack"}}
 # Extra ease (m) for torso layers so they clear the baked tunic, its blousing and belt.
 LAYER_EASE = 0.022
 
 
 def layers_of(sex, stage, outfit="a"):
-    """Layer ids fitted to one body (see _NOT_WITH for what a woman's outfit rules out)."""
-    skip = _NOT_WITH.get(outfit, set()) if sex == "f" else set()
+    """Layer ids fitted to one body (see _NOT_WITH and _MEN_NOT_WITH for what an outfit rules out)."""
+    skip = (_NOT_WITH if sex == "f" else _MEN_NOT_WITH).get(outfit, set())
     return tuple(g for g in LAYERS[(sex, stage)] if g not in skip)
 
 
@@ -139,9 +143,13 @@ def _spec(person, sex, stage, build, outfit="a"):
         targets.update({"head-age-decr": 0.3})
     male = sex == "m"
     extra = {}
-    if male and outfit == "b":
-        garments = ["wool_tunic", "hose", "boots"]
-        palette = {"wool_tunic": CLOTH, "hose": DARK, "boots": DARK}
+    if male and (outfit == "b" or stage == "elder"):
+        # Calf length shows age and standing (clothing dossier, male dress by status tier).
+        garments = ["long_tunic", "hose", "boots"]
+        palette = {"long_tunic": CLOTH, "hose": DARK, "boots": DARK}
+    elif male and outfit == "c":
+        garments = ["cotehardie", "hose", "boots"]
+        palette = {"cotehardie": CLOTH, "hose": DARK, "boots": DARK}
     elif male:
         garments = ["short_tunic", "hose", "boots"]
         palette = {"short_tunic": CLOTH, "hose": DARK, "boots": DARK}
@@ -178,7 +186,7 @@ def _spec(person, sex, stage, build, outfit="a"):
         targets=targets, complexion={"tan": 0.4, "flush": 0.4},
         garments=garments + layers, palette=palette, outfits={"daily": garments},
         extra={"apron_over": garments[0], "belted": True if male else "plain", "layers": layers,
-               "layer_ease": LAYER_EASE, **extra}, tier=2)
+               "layer_ease": LAYER_EASE, "sleeve_buttons": male, **extra}, tier=2)
     # `_person` converts age through the repo's 25-year scale; the citizen bodies
     # state MakeHuman's own macro so a child really is a child.
     spec["macros"]["age"] = mh_age(age)

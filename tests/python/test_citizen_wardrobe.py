@@ -174,8 +174,8 @@ class WardrobeRules(unittest.TestCase):
         self.assertTrue({"barbette", "wimple", "headscarf"} <= seen, seen)
 
     def test_gown_census_rule(self):
-        """Outfit c only on rich women, d only on Estonian or Finnish women below the rich,
-        no man in c or d, nuns stay in the long habit gown."""
+        """Outfit c only on the rich (women's surcoat, young men's cotehardie), d only on
+        Estonian or Finnish women below the rich, no man in d, nuns stay in the long habit gown."""
         seen = set()
         for i in range(600):
             for status in ("noble", "patrician", "burgher_merchant", "master_craftsman", "servant"):
@@ -186,7 +186,9 @@ class WardrobeRules(unittest.TestCase):
                         outfit = runtime.clothing(p, "adult")[0]
                         seen.add(outfit)
                         if outfit == "c":
-                            self.assertEqual((sex, wd.wealth_of(p)), ("f", "rich"))
+                            self.assertEqual(wd.wealth_of(p), "rich")
+                            if sex == "m":
+                                self.assertLessEqual(p["age"], runtime.COTE_MAX_AGE)
                         if outfit == "d":
                             self.assertEqual(sex, "f")
                             self.assertEqual(eth, "estonian")
@@ -195,6 +197,25 @@ class WardrobeRules(unittest.TestCase):
         nun = person(sex="f", trade="nun", status="cleric", ethnicity="estonian")
         self.assertEqual(runtime.clothing(nun, "adult")[0], "b")
         self.assertEqual(runtime.clothing(person(sex="f", status="noble", age=70), "elder")[0], "a")
+
+    def test_cotehardie_census_rule(self):
+        """EQ-21: the buttoned cotehardie on rich young men only; older rich men wear the
+        calf-length tunic, the poor the short one, friars their habit."""
+        young = [runtime.clothing(person(id=f"cit.cote.{i}", status="patrician", trade="merchant", age=24),
+                                  "adult")[0] for i in range(400)]
+        self.assertGreater(young.count("c"), 200)
+        self.assertEqual(set(young), {"b", "c"})
+        for i in range(400):
+            old = person(id=f"cit.cote.old.{i}", status="noble", trade="knight", age=50)
+            self.assertNotEqual(runtime.clothing(old, "adult")[0], "c")
+            poor = person(id=f"cit.cote.poor.{i}", age=22)
+            self.assertNotEqual(runtime.clothing(poor, "adult")[0], "c")
+            friar = person(id=f"cit.cote.friar.{i}", status="noble", trade="monk", age=22)
+            self.assertNotEqual(runtime.clothing(friar, "adult")[0], "c")
+        self.assertEqual(citizen_bodies.outfits_of("m", "adult"), ("a", "b", "c"))
+        for apron in ("smith_apron", "waist_apron", "back_sack"):
+            self.assertNotIn(apron, citizen_bodies.layers_of("m", "adult", "c"))
+        self.assertIn("gambeson", citizen_bodies.layers_of("m", "adult", "c"))
 
     def test_body_ids_round_trip(self):
         for sex in "mf":
