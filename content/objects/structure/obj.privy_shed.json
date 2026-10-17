@@ -1,0 +1,72 @@
+{
+  "type": "world_object",
+  "id": "obj.privy_shed",
+  "name": "Privy shed",
+  "description": "A narrow timber privy over an unlined pit at the back of a burgher yard, downslope of the well.",
+  "category": "structure",
+  "handling": "fixed",
+  "tags": [
+    "yard",
+    "sanitation",
+    "wash"
+  ],
+  "physical": {
+    "mass_kg": 180,
+    "size_m": [
+      1.49,
+      2.12,
+      1.65
+    ],
+    "materials": [
+      "wood",
+      "iron"
+    ],
+    "flammable": true
+  },
+  "actions": [
+    "inspect",
+    "use"
+  ],
+  "economy": {
+    "base_pfennigs": 0,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 0
+  },
+  "placement": {
+    "mount": "ground",
+    "spaces": [
+      "yard",
+      "home_poor",
+      "home_burgher"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/yard/yard_kit_a.glb",
+    "measured_size_m": [
+      1.49,
+      2.12,
+      1.65
+    ],
+    "node": "PrivyShed",
+    "states": {
+      "plank": "PrivyShed",
+      "wattle": "PrivyShedWattle"
+    }
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.privy_shed.png",
+    "icon": "res://assets/objects/icons/obj.privy_shed.png",
+    "icon_status": "missing",
+    "look": "Weathered riven-board shed on oak corner posts with a lean-to board roof, a ledged door on two strap hinges and a plank seat over the pit; poorer yards wall it in wattle.",
+    "image_prompt": "Privy shed: Weathered riven-board shed on oak corner posts with a lean-to board roof, a ledged door on two strap hinges and a plank seat over the pit; poorer yards wall it in wattle."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "uses": [
+    "relieve oneself",
+    "hide for a moment"
+  ]
+}

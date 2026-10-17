@@ -252,7 +252,8 @@
               "warehouse",
               "wild",
               "brewery",
-              "guard_post"
+              "guard_post",
+              "yard"
             ]
           }
         },

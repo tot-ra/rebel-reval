@@ -1,0 +1,69 @@
+{
+  "type": "world_object",
+  "id": "obj.water_butt",
+  "name": "Water butt",
+  "description": "A coopered butt catching roof water from the eaves, kept against a rear or side wall of the yard for washing and the animals.",
+  "category": "container",
+  "handling": "fixed",
+  "tags": [
+    "yard",
+    "water",
+    "liquid",
+    "wash"
+  ],
+  "physical": {
+    "mass_kg": 260,
+    "size_m": [
+      0.75,
+      1.0,
+      0.78
+    ],
+    "materials": [
+      "wood",
+      "water_liquid"
+    ],
+    "flammable": true
+  },
+  "actions": [
+    "inspect",
+    "use"
+  ],
+  "economy": {
+    "base_pfennigs": 0,
+    "ownership": "household",
+    "legality": "legal",
+    "theft_severity": 0
+  },
+  "placement": {
+    "mount": "ground",
+    "spaces": [
+      "yard",
+      "home_burgher"
+    ],
+    "grouping": "single"
+  },
+  "model": {
+    "status": "glb",
+    "glb": "res://assets/props/yard/yard_kit_a.glb",
+    "measured_size_m": [
+      0.75,
+      1.0,
+      0.78
+    ],
+    "node": "WaterButt"
+  },
+  "visual": {
+    "preview": "docs/reports/images/object_catalog/obj.water_butt.png",
+    "icon": "res://assets/objects/icons/obj.water_butt.png",
+    "icon_status": "missing",
+    "look": "Bulging coopered butt of twenty staves bound with split-hazel hoops, standing on two sleepers, open-topped and full of dark rainwater; an optional hollowed eaves channel drains into it.",
+    "image_prompt": "Water butt: Bulging coopered butt of twenty staves bound with split-hazel hoops, standing on two sleepers, open-topped and full of dark rainwater; an optional hollowed eaves channel drains into it."
+  },
+  "lifecycle": "usable",
+  "confidence": "plausible composite",
+  "uses": [
+    "catch rainwater",
+    "wash",
+    "water animals"
+  ]
+}
