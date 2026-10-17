@@ -124,7 +124,7 @@ The dossier excludes domestic rabbit hutches for lack of reviewed 1343 Estonian 
 | 3. Period building form | Resolve the suburban roof/house evidence conflict before adding more farm buildings. | **R-1632** (`todo`), canon-keeper decision required. | Written evidence/confidence decision; same-camera before/after roof plate; no lost building IDs, doors or routes. Museum resemblance alone is not acceptance. |
 | 4. Used yards | Place water/fuel/manure/cart/tool and fodder cues where work happens, with wear and usable access rather than random clutter. | **R-1594** (`idea`, needs approval); depends on settled yard layout and existing prop availability. | One representative yard at walking height and overhead; paths/doors clear, scale and April fodder reviewed; no unsupported household ownership claim. |
 | 5. Living margins | Replace park-like woodland floors and uniform grass transitions with locally appropriate litter, patchy understorey and seasonal edges. | **R-1595** (`idea`); coordinate with [Vegetation realism](./VEGETATION_REALISM.md), not a parallel vegetation rewrite. | Fixed April wood-edge shot and perf measurement; preserve sightlines and paths, avoid summer foliage as a universal fix. |
-| 6. Labour, last | Only after the landscape reads correctly, consider one researched ploughing/harrowing scene instead of generic walkers. | **R-1596** (`idea`, needs approval); draught animal, implement and action must be reviewed together. | Live-scene capture of the complete routine, scale/tack and route review, population/performance limits. A still image cannot verify an animation. |
+| 6. Labour, last | Only after the landscape reads correctly, replace generic walkers with researched calendar work ([Farm work](./FARM_WORK.md)). | Epic **R-2246** (supersedes R-1596), gated by research R-2247 and ADR 0063; draught animal, implement and action must be reviewed together. | Live-scene capture of the complete routine, scale/tack and route review, population/performance limits. A still image cannot verify an animation. |
 
 **Research/capture gaps, not new promises:** orchard prevalence and spring stage; meadow versus grazing appearance; hay versus straw storage and seasonal depletion; animals/young stock at realistic scale; field-worker actions. Address these in the relevant task contracts before adding models or mechanics. Harvest economy, property simulation, weather-driven agronomy and new quests remain out of scope.
 
@@ -306,7 +306,7 @@ git diff --check -- docs/SYSTEMS/FARMLAND.md
 ## Limits
 
 - Beyond the near-detail draw range (150 m), sown fields use a banded colour sheet rather than individual plants.
-- Farm hands only walk; there is no sowing, hoeing or ploughing animation and no ox team.
+- Farm hands only walk; there is no sowing, hoeing or ploughing animation and no ox team. Purposeful field work by the farm calendar is planned in [Farm work](./FARM_WORK.md) (epic R-2246).
 - Crop stage uses fixed day-of-year anchors, not weather.
 - Outbuildings use the shared log/thatch kit pending R-1632. Fenced crofts, ricks and clearance-tested garden beds exist, but these do not provide every yard with a complete fence, well, fuel, manure or work layout (R-1594). Do not describe the whole countryside as lacking hay or fences.
 - Outbuildings other than the barn-dwelling have no interiors. The barn-dwelling footprints (14-18 m) are larger than the 1343 evidence supports; see [Rural dwelling plan](#rural-dwelling-plan) limits.

@@ -14,11 +14,11 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `1320`
+- Active Markdown files scanned: `1322`
 - Markdown files excluded as archive/reference/out of active scope: `787`
-- Local/external links inspected: `15432`
-- Links to active Markdown docs: `13196`
-- Links to existing archive/reference/non-active local docs: `587`
+- Local/external links inspected: `15465`
+- Links to active Markdown docs: `13212`
+- Links to existing archive/reference/non-active local docs: `589`
 - External links skipped for reachability: `194`
 - Issues found: `0`
 
@@ -98,6 +98,7 @@ No active Markdown documentation issues found.
 - `docs/adr/0060-content-maturity-policy.md`
 - `docs/adr/0061-hero-cold-and-wetness-exposure.md`
 - `docs/adr/0062-destructible-grain-sacks.md`
+- `docs/adr/0063-farm-calendar-and-field-labour.md`
 - `docs/adr/README.md`
 - `docs/AGENT_LOOPS.md`
 - `docs/ANIMAL_3D_SOURCING.md`
@@ -1212,6 +1213,7 @@ No active Markdown documentation issues found.
 - `docs/SYSTEMS/DIALOGUE.md`
 - `docs/SYSTEMS/EQUIPMENT_VARIANTS.md`
 - `docs/SYSTEMS/FACTIONS_AND_ECONOMY.md`
+- `docs/SYSTEMS/FARM_WORK.md`
 - `docs/SYSTEMS/FARMLAND.md`
 - `docs/SYSTEMS/FLAG_CLOTH.md`
 - `docs/SYSTEMS/GATE_GARRISONS.md`
