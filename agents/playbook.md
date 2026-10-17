@@ -351,7 +351,7 @@ Keep this file short. Append a durable reusable rule, not a dated incident log. 
 - Leonardo `gemini-2.5-flash-image` accepts only fixed sizes (width 768/832/864/896/1152/1184/1248/1344/1536, height 672/832/864/896/1024/1152/1184/1248/1344); 1024x768 fails with 400. Use 1248x832 for a 3:2 concept plate.
 - A docs-only review by `dev-code-reviewer` can time out on a broad brief; when only one sub-agent call is allowed, give it 2-3 files and 3 checks, and keep a self-check (link script, `docs_index.py --check`) ready as the fallback.
 - `git pull --rebase --autostash` in the shared tree can stop on another session's local commit; abort (`git rebase --abort`), never resolve it. Commit from a fresh `origin/main` worktree instead and give it the Godot class cache with an APFS clone (`cp -cR <live>/.godot .godot`, instant), or the hook's Godot gates fail on missing `class_name` types. Check the hook log for a commit that silently did not happen before assuming it landed.
-- gdlint `class-definitions-order`: a new `const` placed beside the function that uses it fails the hook; put it in the top constants block.
+- gdlint `class-definitions-order`: a new `const` placed beside the function that uses it fails the hook; put it in the top constants block. The same rule wants public `var`s before `_private` ones: append a new public var above the first `_var`, not at the end of the var block.
 
 - When a change ships from a temporary worktree on `origin/main` while the user's local `main` has diverged, the user's running game does not have it. Before reporting "done", check that the feature exists in the copy the user actually runs (`git branch --contains <sha>`), or bring the runtime files over and say so.
 
