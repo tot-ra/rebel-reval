@@ -23,8 +23,13 @@ Read first: `AGENTS.md`, `agents/WORK_PROTOCOL.md`, `agents/playbook.md`, `agent
 2. Read relevant recent run history for this hourly loop and recent commits to avoid duplicate or already-landed work.
 3. Determine the mode with `git rev-parse --show-toplevel`, `git branch --show-current`, `git worktree list`:
    - **Main checkout on `main`:** work in place and follow step 5 "Direct mode".
-   - **Session worktree on `a2gent/<id>`** (clean tree, top-level differs from the main checkout): work in place and follow step 5 "Worktree mode". Record the worktree path and branch name now; they are needed for cleanup.
+   - **Session worktree on `a2gent/<id>`** (clean tree or only a leftover per step 5, top-level differs from the main checkout): work in place and follow step 5 "Worktree mode". Record the worktree path and branch name now; they are needed for cleanup.
    - Anything else (detached HEAD, another branch, dirty worktree with foreign changes, unrelated worktree): report the blocker and stop without switching branches.
+4. **Sync with the latest `main` (Worktree mode only).** Local `main` in the main checkout is often stale and is not the reference; always use `origin/main` (`git fetch origin` first). Then:
+   - HEAD is an ancestor of `origin/main` (worktree only behind): `git merge --ff-only origin/main`. This works with a dirty tree as long as no dirty path is touched upstream; if git refuses, report the colliding paths as the blocker.
+   - Clean tree with own unpushed commits: `git rebase origin/main`; on conflict `git rebase --abort` and report.
+   - Dirty tree and diverged history: do not rebase (no stash); report the blocker.
+5. **Leftover of an interrupted run.** A dirty session worktree is not foreign work when every changed path lies inside the "Allowed files" of exactly one `in_progress` task tagged `simple-loop`. Treat it as that task's unfinished work: this tick's single task is that task, resume it (read the diff first, finish the deliverable, run its `verify:` clause, then commit with `--only`). If the paths match no such task, or match several, it is foreign: report the blocker.
 
 ## 2. Select one eligible task
 
