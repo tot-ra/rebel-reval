@@ -22,24 +22,25 @@ const DEFAULT_PLACEMENTS: Dictionary = {
 		},
 	],
 }
-## Forge weapons are authored directly in Kalev's seamless-city forge bay below.
+## Forge weapons are authored directly in Kalev's seamless-city forge bay below: a row
+## in front of the new-game spawn (site-local 10.5, 5.6), on the visible floor beside the yard door.
 const SEED_GROUPS: Dictionary = {
 	&"loc.reval_city":
 	{
 		&"forge_weapons":
 		[
 			{"object_id": &"world.forge_arming_sword", "item_id": &"item.forge_arming_sword",
-				"site_id": &"site.kalev_smithy", "at": Vector2(8.1, 3.3)},
+				"site_id": &"site.kalev_smithy", "at": Vector2(10.84, 6.64)},
 			{"object_id": &"world.forge_bearded_axe", "item_id": &"item.forge_bearded_axe",
-				"site_id": &"site.kalev_smithy", "at": Vector2(8.1, 3.8)},
+				"site_id": &"site.kalev_smithy", "at": Vector2(10.54, 6.91)},
 			{"object_id": &"world.forge_war_hammer", "item_id": &"item.forge_war_hammer",
-				"site_id": &"site.kalev_smithy", "at": Vector2(8.1, 4.3)},
+				"site_id": &"site.kalev_smithy", "at": Vector2(10.24, 7.18)},
 			{"object_id": &"world.forge_spear", "item_id": &"item.forge_spear",
-				"site_id": &"site.kalev_smithy", "at": Vector2(8.1, 4.8)},
+				"site_id": &"site.kalev_smithy", "at": Vector2(9.95, 7.45)},
 			{"object_id": &"world.forge_longbow", "item_id": &"item.forge_longbow",
-				"site_id": &"site.kalev_smithy", "at": Vector2(8.1, 5.3)},
+				"site_id": &"site.kalev_smithy", "at": Vector2(9.65, 7.72)},
 			{"object_id": &"world.forge_heater_shield", "item_id": &"item.forge_heater_shield",
-				"site_id": &"site.kalev_smithy", "at": Vector2(8.1, 5.8)},
+				"site_id": &"site.kalev_smithy", "at": Vector2(9.35, 7.98)},
 		],
 	},
 }
@@ -268,6 +269,11 @@ func _spawn_item(record: Dictionary) -> void:
 		var scene_path := _item_scene_path(item_id)
 		var item_scene: PackedScene = load(scene_path) if not scene_path.is_empty() else null
 		view.configure(item_scene, position, _definition.cell_size)
+		# WHY: the city is 3D terrain with raised building floors; a view left at
+		# y=0 sank the forge weapons under Kalev's forge floor (invisible pickups).
+		if _definition is CityMapDefinition:
+			var plan: CityPlan = (_definition as CityMapDefinition).plan
+			view.position.y = plan.walk_height(CityPlan.to_world_xz(position))
 		_view_runtime.add_child(view)
 		_views[item] = view
 

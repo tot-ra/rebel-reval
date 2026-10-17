@@ -9,7 +9,7 @@ func before_each() -> void:
 	restore_demo_session()
 
 
-func test_city_forge_weapon_group_seeds_around_the_city_anvil_and_keeps_picked_items_gone() -> void:
+func test_city_forge_weapons_seed_near_spawn_and_taken_stay_gone() -> void:
 	var plan := CITY_PLAN.load_default()
 	var definition := CityMapDefinition.from_plan(plan)
 	var state := GameState.new()
@@ -31,12 +31,12 @@ func test_city_forge_weapon_group_seeds_around_the_city_anvil_and_keeps_picked_i
 			break
 	assert_true(smithy != null, "the city plan contains Kalev's smithy")
 	if smithy != null:
-		var anvil := smithy.to_world(Vector2(9.33, 4.03))
+		var spawn := smithy.to_world(Vector2(10.5, 5.6))
 		for weapon: Dictionary in weapons:
 			var world_at := CityPlan.to_world_xz(weapon["position"])
 			assert_true(
-				world_at.distance_to(anvil) < 2.2,
-				"weapon must be in the city forge bay near the anvil"
+				world_at.distance_to(spawn) < 3.0,
+				"weapon must lie in the forge bay near the new-game spawn"
 			)
 	state.take_world_item(CITY_LOCATION, &"world.forge_arming_sword")
 	root.free()
