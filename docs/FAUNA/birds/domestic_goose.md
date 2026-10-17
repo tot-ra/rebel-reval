@@ -16,11 +16,11 @@
 
 | Item | Value |
 |---|---|
-| Status | Project-built GLB (procedural) |
+| Status | Meshy scan rigged on the duck StorybookRig (R-2297, 2026-10-18) |
 | Runtime file | [`assets/animals/goose/goose.glb`](../../../assets/animals/goose/goose.glb) |
-| Source | none (project-built or procedural) |
-| Author and licence | Project author (`tools/assets/build_bird_gaits.py`), AGPL-3.0-or-later |
-| Rig and clips | Bird clips: Idle, Walk, Hop, Peck, TakeOff, Fly, Glide, Land (separate shoulder and wing-tip joints). |
+| Source | Leonardo Nano Banana 2.1 reference -> Meshy image-to-3D task `01a14bee-6699-75fc-aa38-b69e4701103e` |
+| Author and licence | Project author (`tools/assets/meshy_animal/rig_meshy_bird.py` + `goose_landmarks.json`), AGPL-3.0-or-later |
+| Rig and clips | Nine-bone StorybookRig from `assets/birds/duck/duck.glb`: Idle, Walk, Hop, Peck, TakeOff, Fly, Glide, Land. The runtime plays Idle, Walk and Peck. Wings are scanned folded and carry no weights, so the flight clips leave them closed. |
 
 ## Code
 
@@ -29,4 +29,7 @@
 
 ## Notes
 
-- Relocated from the earlier greylag walking model. Distinct from the wild `bird.greylag_goose`, which has no GLB.
+- Replaces the procedural `tools/assets/build_bird_gaits.py` goose (sphere head, cylinder neck), which read as unrealistic in villages.
+- Imports through `tools/assets/bird_model_import.gd` (bird plumage shader, embedded textures). Yaw `PI` like the duck.
+- Proof plate (before, after, beside a hen, Walk, Peck): [`goose_v2_plate.png`](../../reports/images/goose_v2/goose_v2_plate.png), `tools/capture_goose_v2.gd`.
+- Distinct from the wild `bird.greylag_goose`, which has no GLB.

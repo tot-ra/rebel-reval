@@ -52,12 +52,8 @@ func test_imported_domestic_fowl_use_skeletal_locomotion_clips() -> void:
 		var skeletons := model.find_children("*", "Skeleton3D", true, false)
 		assert_true(skeletons.size() >= 1, "%s needs an imported skeleton" % species)
 		var skeleton := skeletons[0] as Skeleton3D
-		var legs: Array = (
-			[&"Leg.L", &"Leg.R"]
-			if species == MammalSpecies.SPECIES_DUCK
-			else [&"FrontLeftLeg", &"FrontRightLeg", &"BackLeftLeg", &"BackRightLeg"]
-		)
-		for bone_name: StringName in legs:
+		# Duck and goose are both Meshy scans skinned onto the StorybookRig.
+		for bone_name: StringName in [&"Leg.L", &"Leg.R"]:
 			assert_true(
 				skeleton.find_bone(bone_name) >= 0,
 				"%s is missing authored weight-bearing leg bone %s" % [species, bone_name]
@@ -112,7 +108,7 @@ func test_legacy_chicken_is_procedural_and_uses_articulated_animation_clips() ->
 	host.free()
 
 
-func test_domestic_goose_uses_the_relocated_storybook_greylag_model() -> void:
+func test_domestic_goose_uses_the_rigged_meshy_scan() -> void:
 	assert_eq(
 		Models.MODEL_PATHS[MammalSpecies.SPECIES_GOOSE], "res://assets/animals/goose/goose.glb"
 	)
@@ -122,13 +118,32 @@ func test_domestic_goose_uses_the_relocated_storybook_greylag_model() -> void:
 	var meshes := model.find_children("*", "MeshInstance3D", true, false)
 	assert_true(meshes.size() >= 1)
 	var goose_mesh := meshes[0] as MeshInstance3D
+	# R-2297: one textured scan surface replaced the procedural primitives.
+	var material := goose_mesh.mesh.surface_get_material(0) as ShaderMaterial
+	assert_true(material != null, "Goose scan must import through the bird plumage shader")
 	assert_true(
-		goose_mesh.mesh.get_surface_count() >= 7,
-		"Goose needs distinct feather, bill, eye, leg, and foot materials"
+		material.get_shader_parameter("albedo_map") != null, "Goose scan needs its albedo map"
+	)
+	assert_true(
+		goose_mesh.mesh.get_faces().size() / 3 >= 20000, "Goose needs the dense scan mesh"
 	)
 	assert_true(
 		goose_mesh.get_aabb().size.y >= 0.75, "Goose needs its authored long-neck silhouette"
 	)
+	var aabb := _bounds(model)
+	assert_true(
+		aabb.size.z > aabb.size.x * 1.6, "Goose must be longer nose-to-tail than wide: %s" % aabb
+	)
+	# The bill leads: the head end of the body sits on walk -Z after the yaw.
+	var skeleton := model.find_children("*", "Skeleton3D", true, false)[0] as Skeleton3D
+	var to_host := Transform3D.IDENTITY
+	var node: Node = skeleton
+	while node != host:
+		to_host = (node as Node3D).transform * to_host
+		node = node.get_parent()
+	var head_z := (to_host * skeleton.get_bone_global_rest(skeleton.find_bone("Head")).origin).z
+	var tail_z := (to_host * skeleton.get_bone_global_rest(skeleton.find_bone("Tail")).origin).z
+	assert_true(head_z < tail_z, "Goose must walk bill-first along -Z: %s %s" % [head_z, tail_z])
 	assert_true(
 		is_equal_approx(model.scale.y, 0.45),
 		"Domestic goose must down-scale the catalog greylag so it stays yard-sized"

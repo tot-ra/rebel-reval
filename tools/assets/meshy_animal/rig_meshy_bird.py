@@ -135,16 +135,27 @@ if F:
         r = rest_rot(bn)
         return (r.inverted() @ world_delta @ r).to_quaternion()
 
+    MIRROR_X = Matrix.Diagonal((-1.0, 1.0, 1.0))
+
     def fold_for(side):
         s_ = 1.0 if side == "L" else -1.0
-        roll = Matrix.Rotation(-s_ * np.radians(F["roll"]), 3, "X")
-        yaw = Matrix.Rotation(s_ * np.radians(F["yaw"]), 3, "Z")
-        wing = local_quat("Wing." + side, yaw @ roll)
+        if "euler" in F:
+            # WHY: a scan whose rest wing is already raised and swept back (goose) needs a
+            # full 3-axis fold that roll+yaw cannot reach. `euler` is the left wing's world
+            # delta (XYZ degrees); the right wing is its true mirror image M R M.
+            delta = Euler([np.radians(v) for v in F["euler"]], "XYZ").to_matrix()
+            if side == "R":
+                delta = MIRROR_X @ delta @ MIRROR_X
+        else:
+            roll = Matrix.Rotation(-s_ * np.radians(F["roll"]), 3, "X")
+            yaw = Matrix.Rotation(s_ * np.radians(F["yaw"]), 3, "Z")
+            delta = yaw @ roll
+        wing = local_quat("Wing." + side, delta)
         # Tip bends about its own rest axis most aligned with world Y (sheet normal after roll).
         r = rest_rot("WingTip." + side)
         axes = [r.col[i].normalized() for i in range(3)]
         ai = max(range(3), key=lambda i: abs(axes[i][2]))
-        tip = Quaternion(Vector((1 if i == ai else 0) for i in range(3)), np.radians(F["tip"] * s_))
+        tip = Quaternion(Vector((1 if i == ai else 0) for i in range(3)), np.radians(F.get("tip", 0.0) * s_))
         return wing, tip
 
     def channels(act):

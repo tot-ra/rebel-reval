@@ -36,7 +36,11 @@ It puts the feet on z=0, decimates to 30k triangles (UVs survive), moves each bo
 
 ### Folded wings
 
-The donor ground clips (Idle Walk Peck Hop) hold the wings in one fold made for a thin wing. A scan wing is a broad fan and sticks out in that fold. The `fold` block of the landmarks JSON (`roll`, `yaw`, `tip` in degrees for the left wing, mirrored for the right; `scale` squashes the fan in bone space) replaces only the keys that sit on the donor fold, so Fly, Glide and the transitions keep their values. Choose the numbers by posing the wing in Blender and scoring its 99th-percentile extents against the flank (x about 0.29, z up to 0.62 for the mallard), then confirm on front, side and back renders of Idle.
+The donor ground clips (Idle Walk Peck Hop) hold the wings in one fold made for a thin wing. A scan wing is a broad fan and sticks out in that fold. The `fold` block of the landmarks JSON (`roll`, `yaw`, `tip` in degrees for the left wing, mirrored for the right; `scale` squashes the fan in bone space) replaces only the keys that sit on the donor fold, so Fly, Glide and the transitions keep their values. Choose the numbers by posing the wing in Blender and scoring its 99th-percentile extents against the flank (x about 0.29, z up to 0.62 for the mallard), then confirm on front, side and back renders of Idle. When the scan's rest wing is raised or swept, roll+yaw cannot reach the flank: give `fold.euler` (left wing world delta, XYZ degrees; the right wing gets the true mirror) instead, and add a wing-tip target (primaries over the tail) to the score, or the search parks the tips hanging down by the legs.
+
+### Ground-only birds: scan the wings folded
+
+A long-winged bird (goose, R-2297) never folds convincingly from a T-pose fan: even a searched 3-axis fold plus squash reads as raised, ruffled wings. If the runtime only plays ground clips (livestock fowl: Idle, Walk, Peck; check `map_view_medieval_animal_models.gd`), generate the reference standing with **wings folded tight, wing tips crossed over the tail, clear gap between the legs**, three-quarter or side view, and set the wing weights to zero in the landmarks (`wing_x0`/`wing_zmin`/`tip_x0` = 9). The wings then ride the Body bone and the flight clips leave them closed. Pass `--scale` so the standing height matches the runtime `MODEL_SCALE` (goose: 0.8, 1.43 units).
 
 ## 4. Verify
 

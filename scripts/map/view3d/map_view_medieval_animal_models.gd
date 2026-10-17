@@ -74,9 +74,9 @@ const COW_VARIANT_PATHS: Array[String] = [
 ## ambient actors are turned toward by `look_at` while walking. The cat rig is
 ## and grounded replacement GLBs face +Z. Each
 ## entry corrects its own authored axis so they walk nose-first.
-# The relocated greylag gait GLB is about 1.05 m tall in mesh space. Domestic
-# yard geese must sit beside hens, not beside cattle, so they share the same
-# down-scale pattern as duck/chicken.
+# The Meshy goose scan (R-2297) is about 1.43 units tall in mesh space, neck
+# up. Domestic yard geese must sit beside hens, not beside cattle, so they
+# share the same down-scale pattern as duck/chicken.
 # The authored hen GLB is exported at its real 0.44 m standing height, so it
 # only needs the project's 2-world-units-per-1.82 m character conversion.
 const MODEL_SCALE: Dictionary = {
@@ -88,6 +88,8 @@ const MODEL_SCALE: Dictionary = {
 const MODEL_YAW: Dictionary = {
 	MammalSpecies.SPECIES_CHICKEN: PI,
 	MammalSpecies.SPECIES_DUCK: PI,
+	# Rigged on the duck's StorybookRig, so it shares the duck's authored axis.
+	MammalSpecies.SPECIES_GOOSE: PI,
 	MammalSpecies.SPECIES_RAT: PI,
 	MammalSpecies.SPECIES_RED_FOX: PI,
 	MammalSpecies.SPECIES_HARE: PI,
