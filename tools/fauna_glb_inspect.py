@@ -32,15 +32,16 @@ PBR_DEBT_GLBS = frozenset(
         "fox",
         "goat",
         "hare",
-        "horse",
         "pig",
         "rat",
         "sheep",
     )
 )
 
-# Accent materials on rigged livestock do not need full ORM maps.
+# Accent materials on rigged livestock do not need full ORM maps. Alpha hair cards
+# (horse mane, forelock, tail) are a strand atlas with clipped alpha, not a body surface.
 EXEMPT_MATERIAL_NAME_PARTS = (
+    "hair",
     "eye",
     "pupil",
     "cornea",

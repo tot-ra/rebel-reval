@@ -1,0 +1,54 @@
+{
+  "_comment": "Scan-space landmarks for Meshy horse 01a14bbf-8905-71a9-a340-f28cf12319ba (Blender axes after glTF import: nose -Y, +X is the horse's left/.L side, +Z up). rig_meshy_quadruped.py grounds the hooves, scales withers_z to withers_height and applies the same transform to every point here. Joint positions were read from ortho side renders and per-quadrant leg centroid slices; the far hind leg (RB) stands about 0.2 forward of the near one, as in the scan.",
+  "withers": [0.0, -0.05, 0.448],
+  "withers_height": 1.429,
+  "_withers_height": "1.30 m (HORSE-2 / 1343 dossier) in world units: 2 units per 1.82 m",
+  "mesh_name": "horse_surface",
+  "bones": {
+    "Body": [[0.0, 0.15, 0.17], [0.0, 0.15, 0.41]],
+    "Head": [[0.0, -0.68, 0.52], [0.0, -0.93, 0.55]],
+    "Leg.LF": [[0.13, -0.36, 0.10], [0.14, -0.15, -0.06]],
+    "Shin.LF": [[0.14, -0.15, -0.06], [0.114, -0.17, -0.37]],
+    "Ankle.LF": [[0.114, -0.17, -0.37], [0.116, -0.18, -0.615]],
+    "Foot.LF": [[0.116, -0.18, -0.615], [0.117, -0.28, -0.655]],
+    "Leg.RF": [[-0.13, -0.36, 0.10], [-0.15, -0.18, -0.06]],
+    "Shin.RF": [[-0.15, -0.18, -0.06], [-0.131, -0.223, -0.37]],
+    "Ankle.RF": [[-0.131, -0.223, -0.37], [-0.134, -0.255, -0.615]],
+    "Foot.RF": [[-0.134, -0.255, -0.615], [-0.14, -0.35, -0.655]],
+    "Leg.LB": [[0.15, 0.70, 0.25], [0.17, 0.55, -0.05]],
+    "Shin.LB": [[0.17, 0.55, -0.05], [0.112, 0.84, -0.30]],
+    "Ankle.LB": [[0.112, 0.84, -0.30], [0.117, 0.85, -0.615]],
+    "Foot.LB": [[0.117, 0.85, -0.615], [0.12, 0.75, -0.655]],
+    "Leg.RB": [[-0.15, 0.70, 0.25], [-0.17, 0.52, -0.06]],
+    "Shin.RB": [[-0.17, 0.52, -0.06], [-0.11, 0.70, -0.30]],
+    "Ankle.RB": [[-0.11, 0.70, -0.30], [-0.12, 0.61, -0.615]],
+    "Foot.RB": [[-0.12, 0.61, -0.615], [-0.125, 0.51, -0.655]],
+    "Tail": [[0.0, 0.87, 0.28], [0.0, 0.95, 0.19]]
+  },
+  "weights": {
+    "_comment": "Scan-space heights/offsets. belly_z: underline between the legs; limb_top_pad: how far above each Leg bone head limb weight fades out.",
+    "belly_z": -0.14,
+    "limb_top_pad": 0.04,
+    "limb_lateral": [0.03, 0.15],
+    "head_t": [0.30, 0.95],
+    "tail_y": [0.86, 0.91],
+    "tail_z": [0.05, 0.14],
+    "dock_squash": 0.7
+  },
+  "hair": {
+    "_comment": "Scan-space mane span (crest y at poll and withers), forelock root height on the poll and a lower face-line height (the face profile itself is ray-cast), dock root and stump tip.",
+    "mane_poll_y": -0.64,
+    "mane_withers_y": -0.02,
+    "forelock_root_z": 0.585,
+    "face_point_z": 0.36,
+    "head_scale": 0.85,
+    "dock_root": [0.885, 0.335],
+    "dock_tip": [0.965, 0.22],
+    "mane_chains": 6
+  },
+  "lods": {
+    "lod0": {"tris": 30000, "tex": 2048},
+    "lod1": {"tris": 10000, "tex": 1024},
+    "lod2": {"tris": 3000, "tex": 512, "hair_keep": 3}
+  }
+}

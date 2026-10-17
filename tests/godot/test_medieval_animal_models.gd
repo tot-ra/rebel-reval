@@ -204,15 +204,41 @@ func test_horse_is_tall_rigged_with_a_tail_and_locomotion_clips() -> void:
 	host.free()
 
 
-func test_horse_coat_is_vertex_coloured_and_lit() -> void:
+func test_horse_coat_is_textured_pbr_and_lit() -> void:
+	# R-1173: the Meshy body carries albedo, normal and roughness maps instead of COLOR_0.
 	var host := Node3D.new()
 	var model := Models.add_model(host, MammalSpecies.SPECIES_HORSE)
 	var body := model.find_child("horse_surface", true, false) as MeshInstance3D
 	var material := body.mesh.surface_get_material(0) as StandardMaterial3D
-	assert_true(
-		material != null and material.vertex_color_use_as_albedo, "coat is read from COLOR_0"
-	)
-	assert_ne(material.shading_mode, BaseMaterial3D.SHADING_MODE_UNSHADED, "coat reacts to light")
+	assert_true(material != null and material.albedo_texture != null, "coat albedo map")
+	_assert_livestock_pbr_material(material, "horse")
+	host.free()
+
+
+func test_horse_hair_cards_ride_bone_chains_with_baked_motion() -> void:
+	# Mane and tail are alpha cards on their own bone chains; every clip keys them so
+	# the hair swings with the gait and the wind without runtime code.
+	var host := Node3D.new()
+	var model := Models.add_model(host, MammalSpecies.SPECIES_HORSE)
+	for part in ["horse_mane", "horse_forelock", "horse_tail"]:
+		assert_true(model.find_child(part, true, false) is MeshInstance3D, "horse %s cards" % part)
+	var skeleton := model.find_children("*", "Skeleton3D", true, false)[0] as Skeleton3D
+	for bone_name: String in ["Mane.0.1", "Mane.5.1", "TailHair.3"]:
+		assert_true(skeleton.find_bone(bone_name) >= 0, "horse hair bone %s" % bone_name)
+	var player := host.get_meta(Models.ANIMATION_PLAYER_META) as AnimationPlayer
+	for clip: StringName in [Models.IDLE_ANIMATION, Models.WALK_ANIMATION]:
+		var animation := player.get_animation(clip)
+		var track := -1
+		for index in animation.get_track_count():
+			if String(animation.track_get_path(index)).ends_with(":Mane.2.1"):
+				track = index
+		assert_true(track >= 0, "%s keys the mane chain" % clip)
+		var first: Quaternion = animation.track_get_key_value(track, 0)
+		var moved := false
+		for key in animation.track_get_key_count(track):
+			var value: Quaternion = animation.track_get_key_value(track, key)
+			moved = moved or value.angle_to(first) > 0.02
+		assert_true(moved, "%s mane swings" % clip)
 	host.free()
 
 

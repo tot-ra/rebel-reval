@@ -303,6 +303,15 @@ def weld(parts, name: str):
 
 ATLAS_SIZE = 1024
 ATLAS_COLUMNS = 8  # each column is one strand clump; cards sample one column
+# Where hair() roots its cards: the mane runs back from MANE_POLL_F (forward
+# position at the poll) over MANE_SPAN along the crest; the tail plume roots on
+# the dock between DOCK_ROOT and DOCK_TIP (forward, height). Defaults fit this
+# file's lofted body; tools/assets/meshy_animal/rig_meshy_quadruped.py rebinds
+# them (and HEAD_P0/HEAD_THETA/HS for the forelock) to a scanned body.
+MANE_POLL_F = 1.03
+MANE_SPAN = 0.66
+DOCK_ROOT = (-0.835, 1.405)
+DOCK_TIP = (-0.905, 1.15)
 
 
 def hair_atlas(rng: random.Random):
@@ -421,13 +430,13 @@ def hair(rng: random.Random, crest, tree):
         stand = .006 + .010 * layer
         for i in range(count):
             t = (i + rng.uniform(-.3, .3)) / (count - 1)
-            f = 1.03 - 0.66 * min(1.0, max(0.0, t))
+            f = MANE_POLL_F - MANE_SPAN * min(1.0, max(0.0, t))
             y = -f
             top = crest(f)
             length = rng.uniform(.17, .27) * (0.80 + 0.30 * math.sin(math.pi * min(1.0, t * 1.1)))
             length *= (1.0, .92, .80)[layer]
             # Behind the poll the mane is short (the bridle path), else it hangs over the jowl.
-            length *= .45 + .55 * min(1.0, max(0.0, (1.0 - f) / .10))
+            length *= .45 + .55 * min(1.0, max(0.0, (MANE_POLL_F - .03 - f) / .10))
             phase = rng.uniform(0, math.tau)
             arch = top + rng.uniform(-.002, .008) + .003 * layer
             pts = [Vector((-.012, y, top - .010)), Vector((surface_x(tree, y, top - .015) * .45, y, arch))]
@@ -453,8 +462,8 @@ def hair(rng: random.Random, crest, tree):
     tail = Cards('tail')
     # Tail: hair grows from the whole dock, so cards root along it on a ring and
     # fall as a plume that widens slightly and ends ragged.
-    dock_root = fz(-0.835, 1.405)
-    dock_tip = fz(-0.905, 1.15)
+    dock_root = fz(*DOCK_ROOT)
+    dock_tip = fz(*DOCK_TIP)
     for i in range(130):
         a = rng.uniform(0, math.tau)
         s = rng.uniform(0.0, 1.0)

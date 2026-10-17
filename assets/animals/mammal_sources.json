@@ -138,16 +138,16 @@
       "adaptations": "Scaled to 1.50 world units and oriented for runtime; UV and sculpted surfaces preserved; texture capped at 1024; unlit source material rebuilt as rough dielectric; measured limb rig and six clips."
     },
     "horse": {
-      "author": "project maintainer",
-      "url": "tools/assets/build_horse_source.py",
+      "author": "project maintainer (OpenAI ImageGen reference, Meshy image-to-3D scan)",
+      "url": "tools/assets/meshy_animal/rig_meshy_quadruped.py",
       "license": "AGPL-3.0-or-later (project author)",
       "generated": true,
       "sha256": "",
       "source_bytes": 0,
-      "staging_path": "build/animal_redo/sources/horse.glb",
-      "output": "assets/storybook/horse/horse.glb",
-      "notes": "project-authored anatomical bay cob; replaces the Hunyuan3D pack horse",
-      "adaptations": "Built by build_horse_source.py (lofted anatomy, voxel weld, vertex-colour coat, hair shells); rigged and animated by import_realistic_mammals.py with the shared measured limb chains and six clips."
+      "staging_path": "build/horse_meshy/bare/01a14bbf-8905-71a9-a340-f28cf12319ba.glb",
+      "output": "assets/animals/horse/horse.glb",
+      "notes": "R-1173 HORSE-3 bay cob: Meshy task 01a14bbf-8905-71a9-a340-f28cf12319ba from OpenAI gpt-image-1.5 reference 51bef764-b830-443a-8473-c3f1823f1def-1; bare body (no sculpted hair); replaces the lofted build_horse_source.py surface",
+      "adaptations": "rig_meshy_quadruped.py: withers scaled to 1.43 units (1.30 m), head straightened, analytic skin weights, LOD0/1/2 = 30k/10k/3k tris; rig and six clips from import_realistic_mammals create_rig()/animate(); mane, forelock and tail from build_horse_source.py hair()/hair_atlas() on bone chains with baked spring and wind motion."
     }
   }
 }

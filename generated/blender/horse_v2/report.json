@@ -1,0 +1,83 @@
+{
+  "scan": "01a14bbf-8905-71a9-a340-f28cf12319ba.glb",
+  "scan_tris": 242348,
+  "scale": 1.2887097483428431,
+  "withers_height_units": 1.429,
+  "bounds_min": [
+    -0.362,
+    -1.226,
+    -0.0
+  ],
+  "bounds_max": [
+    0.361,
+    1.221,
+    1.702
+  ],
+  "reference_speeds": {
+    "walk_reference_speed": 0.5414609276382266,
+    "run_reference_speed": 0.6158450723074428
+  },
+  "hair_bones": {
+    "Mane.0": [
+      "Mane.0.0",
+      "Mane.0.1"
+    ],
+    "Mane.1": [
+      "Mane.1.0",
+      "Mane.1.1"
+    ],
+    "Mane.2": [
+      "Mane.2.0",
+      "Mane.2.1"
+    ],
+    "Mane.3": [
+      "Mane.3.0",
+      "Mane.3.1"
+    ],
+    "Mane.4": [
+      "Mane.4.0",
+      "Mane.4.1"
+    ],
+    "Mane.5": [
+      "Mane.5.0",
+      "Mane.5.1"
+    ],
+    "TailHair": [
+      "TailHair.0",
+      "TailHair.1",
+      "TailHair.2",
+      "TailHair.3"
+    ]
+  },
+  "lods": [
+    {
+      "path": "build/horse_meshy/rig/horse.glb",
+      "body_tris": 29999,
+      "hair_tris": 3416,
+      "tex": 2048,
+      "bytes": 10231284
+    },
+    {
+      "path": "build/horse_meshy/rig/horse_lod1.glb",
+      "body_tris": 10000,
+      "hair_tris": 3416,
+      "tex": 1024,
+      "bytes": 2557340
+    },
+    {
+      "path": "build/horse_meshy/rig/horse_lod2.glb",
+      "body_tris": 2999,
+      "hair_tris": 1156,
+      "tex": 512,
+      "bytes": 836560
+    }
+  ],
+  "actions": [
+    "Alert",
+    "Graze",
+    "Idle",
+    "LookAround",
+    "Run",
+    "Walk"
+  ]
+}

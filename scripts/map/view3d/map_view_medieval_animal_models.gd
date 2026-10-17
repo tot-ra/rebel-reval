@@ -128,10 +128,6 @@ static func add_model(parent: Node3D, species: StringName, variant_seed: int = 0
 	model.scale *= float(MODEL_SCALE.get(species, 1.0))
 	model.set_meta(&"production_animal_model", true)
 	model.set_meta(&"species", species)
-	# The horse coat, mane and hooves are stored in COLOR_0. Godot leaves
-	# vertex_color_use_as_albedo off on glTF import, so they would not show.
-	if species == MammalSpecies.SPECIES_HORSE:
-		_enable_vertex_coat(model)
 	# Animation selection runs on the visual actor rather than the imported model.
 	# Store species there as well so direct placements and tests get dog states.
 	parent.set_meta(&"species", species)
@@ -188,25 +184,6 @@ static func sync_animation(actor: Node3D, previous_position: Vector3, delta: flo
 			player.speed_scale = clampf(speed / reference_speed, 0.75, 1.35)
 	else:
 		player.speed_scale = 1.0
-
-
-static func _enable_vertex_coat(model: Node3D) -> void:
-	for node in model.find_children("*", "MeshInstance3D", true, false):
-		var mesh_instance := node as MeshInstance3D
-		if mesh_instance == null or mesh_instance.mesh == null:
-			continue
-		for surface in mesh_instance.mesh.get_surface_count():
-			if (mesh_instance.mesh.surface_get_format(surface) & Mesh.ARRAY_FORMAT_COLOR) == 0:
-				continue
-			var source := mesh_instance.mesh.surface_get_material(surface) as StandardMaterial3D
-			if source == null:
-				continue
-			# Keep the imported material. A surface override is reported as null by the
-			# headless dummy renderer and fails the livestock suite.
-			source.vertex_color_use_as_albedo = true
-			source.vertex_color_is_srgb = true
-			source.albedo_color = Color.WHITE
-			source.albedo_texture = null
 
 
 static func _configure_animation(parent: Node3D, model: Node3D) -> void:

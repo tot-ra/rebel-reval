@@ -117,13 +117,13 @@ def verify(mammals_only=False):
                     assert 'KHR_materials_unlit' not in material.get('extensions', {}), f'{name}: unlit coat ignores night lighting'
                     assert pbr.get('metallicFactor',1)==0, f'{name}: nonmetallic tissue'
                     assert pbr.get('roughnessFactor',1)>=.2, f'{name}: surface response'
-                    if 'baseColorTexture' in pbr:
+                    # Alpha hair cards (horse mane/tail) sample a few atlas columns, so
+                    # their UV set is tiny by design; only coat surfaces need an authored atlas.
+                    if 'baseColorTexture' in pbr and 'hair' not in material.get('name','').lower():
                         textured+=1
                         assert 'TEXCOORD_0' in primitive['attributes'], f'{name}: authored coat UVs'
                         assert len(set(accessor(doc,binary,primitive['attributes']['TEXCOORD_0'])))>100
-            # The project-authored horse paints its coat in COLOR_0 instead of a texture.
-            vertex_coat=all('COLOR_0' in pr['attributes'] for mesh in doc['meshes'] for pr in mesh['primitives'])
-            assert textured>0 or (name=='horse' and vertex_coat), f'{name}: original coat texture required'
+            assert textured>0, f'{name}: original coat texture required'
         elif name in BIRDS:
             assert {'Wing.L','Wing.R','WingTip.L','WingTip.R'} <= names
             for mesh in doc['meshes']:
