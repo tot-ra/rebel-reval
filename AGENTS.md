@@ -24,5 +24,5 @@ Critical rules for AI agents and contributors working on **Reval Rebel** (Godot 
 - No runtime LLM, procedural quests, or free-text chat. No new major system, mechanic, area, or framework without an approved ADR plus a task (see scope skill).
 - **Asset freeze (P0-040):** no new or replaced legacy pixel/iso/HUD art; new art needs a task naming exact files and `assets/SOURCES.csv` rows.
 - Every feature change ships its `docs/SYSTEMS/` page update in the same change; every Markdown file must be linked from `README.md` (`python3 tools/docs_index.py --check`).
-- Do not hand-edit giant city `.tscn` files without visual verification. Visual changes need screenshots.
+- Do not hand-edit giant city `.tscn` files without visual verification. Visual changes need screenshots; when a screenshot or rendered image is available, show it to the user in Caesar via `notify_webapp` with its absolute `image_path` and a short caption, rather than reporting only a filesystem path. If the image cannot be attached, explain why and provide the path as a fallback.
 - Delegated tasks must be independently verifiable and get a second review before done.
