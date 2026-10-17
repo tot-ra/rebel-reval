@@ -1,11 +1,8 @@
 #!/usr/bin/env python3
-"""Generate the R-1358 ambience bed loops and the open-air rain overlay.
+"""Generate the in-house Lower Town and forge ambience beds.
 
-Same approach as tools/audio/generate_rain_roof_clips.py (P0-124): deterministic
-in-house ffmpeg synthesis, so the clips are commercially usable with no
-attribution and no third-party licence to store. They are placeholder beds for
-the ADR 0035 phase-2 pilot: the catalog addresses them by ID, so a licensed or
-recorded replacement drops in without touching code.
+The weather rain beds are field recordings rebuilt by
+`tools/audio/generate_weather_rain_loops.py`.
 
 Usage:
     python3 tools/audio/generate_ambience_beds.py
@@ -21,7 +18,6 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 AMBIENCE_DIR = ROOT / "sounds" / "ambience"
-WEATHER_DIR = ROOT / "sounds" / "weather"
 DURATION_SECONDS = 48
 SAMPLE_RATE = "44100"
 AUDIO_BITRATE = "128k"
@@ -71,26 +67,6 @@ CLIPS: list[dict[str, object]] = [
             "bellows swell, mixed with a gated white-noise crackle layer"
         ),
     },
-    {
-        "clip_id": "weather.rain_outdoor",
-        "directory": WEATHER_DIR,
-        "file": "rain_outdoor.mp3",
-        # Offset from the forge bed, which consumes seed and seed + 1.
-        "seed": 135810,
-        # Open-air rain: brighter and flatter than the roof loop, which is
-        # deliberately muffled for interiors.
-        "inputs": ["anoisesrc=d=%d:c=pink:a=0.26:seed=%d"],
-        "filters": (
-            "highpass=f=300,lowpass=f=8000,"
-            "tremolo=2.5:0.12,"
-            "acompressor=threshold=-20dB:ratio=3:attack=5:release=90,"
-            "loudnorm=I=-24:TP=-2:LRA=7"
-        ),
-        "notes": (
-            "48 s open-air rain loop; pink noise high-passed so it reads as "
-            "rain in the street, unlike the muffled rain_roof interior loop"
-        ),
-    },
 ]
 
 
@@ -132,11 +108,7 @@ def generate(*, dry_run: bool) -> list[Path]:
 
 
 def _write_manifests() -> list[Path]:
-    """One manifest per sounds/ subdirectory, matching the existing convention.
-
-    The weather manifest already carries rain_roof, so its rows are merged
-    instead of replaced.
-    """
+    """Write the selected ambience manifests without touching weather sources."""
     written: list[Path] = []
     for directory in {clip["directory"] for clip in CLIPS}:
         manifest = directory / "manifest.csv"

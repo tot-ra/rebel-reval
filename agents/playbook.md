@@ -14,14 +14,15 @@ Keep this file short. Append a durable reusable rule, not a dated incident log. 
 
 ### Edits
 - Never run parallel edits against the same file. Serialize replacements and re-read the saved block.
-- Before an exact edit, read the live unique block. After any nearby change, re-read again. Stale context is the usual no-match cause.
+- Before an exact edit, read the live unique block. After any nearby change, re-read again. If an edit returns no match, reread the saved text and reconstruct the replacement instead of guessing; stale context is the usual no-match cause.
 - In Python, `open(p, "w").write(f(open(p).read()))` truncates `p` before the read and destroys the file, including other sessions' unsaved hunks that no git object holds. Read into a variable first, then open for writing; for a shared dirty file, copy it to `/tmp` before any scripted rewrite.
 - Pass the complete file path, not a directory. `read` takes one path per call. `start_line` must be `<= end_line`.
 - After inserting a test or helper, re-read neighboring method boundaries and confirm the next `func` / `def` header is still present. Replacing only a header can absorb the following body.
-- Discover the actual path before reading. Do not infer filenames from class names, task summaries, or the connected-skills directory. The active guide is root `AGENTS.md`.
+- Discover the actual path before reading. Do not infer filenames from class names, task summaries, or the connected-skills directory. Preserve the full repository-relative prefix returned by a subdirectory search when reading or editing. The active guide is root `AGENTS.md`.
 - No-op replacements (identical old and new text) are rejected. Apply only a non-empty delta.
 
 ### Tool batches and probes
+- Run generated-document writers and their `--check` commands sequentially against stable inputs. A check overlapping a writer or shared Markdown edit can report transient stale output; regenerate first, then rerun the checks.
 - Never run recursive index/documentation writers in a verification snapshot whose reference folders symlink to the live checkout. They can rewrite live index pages; use an isolated Git worktree or materialize all writable index pages first. Use `git ls-files -z` for filenames with non-ASCII characters rather than parsing quoted line output.
 - Check the project Python version before using newer archive APIs: `tarfile.extractall(filter=...)` is not available in the macOS system Python 3.9. For a trusted local `git archive`, omit that newer argument or use the configured Python 3.11.
 - If a parallel batch fails before execution (wrong schema, missing tool, malformed path), discard the batch and rerun each check independently. Do not infer repository state from a wrapper error.
@@ -402,6 +403,9 @@ Keep this file short. Append a durable reusable rule, not a dated incident log. 
 - In an edit script that rewrites a shared file in place (`open(dst, "w").write(f(open(src).read()))` with src == dst), `open(dst, "w")` truncates before the read: an exception in `f` left `assets/SOURCES.csv` empty and cost another session's uncommitted rows (R-2013). Read first, transform, then write; try the transform on a scratch copy of `git show HEAD:<file>` before touching the worktree file.
 
 - A throwaway `extends SceneTree` probe run with `--script` compiles before autoloads exist: a static type such as `var p: Player` pulls in `player.gd` and fails with "Identifier not found: DoorNavigator" (an autoload), then floods the log. Keep probe scripts untyped toward game classes (`scene.get("player")`) and write their output to a file you poll, not through `| sort | uniq`, which shows nothing until the run ends.
+- File tools may resolve relative paths from a session worktree instead of the declared project root; use absolute project paths and verify with `git -C <project-root> status` before generation or staging. Keep generated preview outputs under `ROOT` when the generator records paths relative to it, or evidence writing can fail after a successful render/export.
+
+- Before a bulk commit, run `tools/run_pre_commit_checks.sh staged` first and fix in this order: unstage scratch (`generated/meshy` GLBs over 10 MiB), SOURCES.csv rows for new runtime textures (lowercase asset_id, no duplicate paths), `docs/MAP_CONVERSION_PLAN.md` plus `docs/reports/scene_inventory.md` rows for new `.tscn`, `generate_active_docs_report.py`, then `python3 -m gdtoolkit.formatter` on failing `.gd` files (it can push files past max-file-lines).
 
 - Docker reviewers mount the project root (main checkout), not a session worktree: a review of uncommitted worktree changes sees nothing and burns the single reviewer call. Commit and push first (then point the reviewer at the commit), or paste the diff into the task.
 - A blanket rename via `str.replace("end_", ...)` also rewrites substrings such as `append_array`; rename identifiers with a word-boundary regex (`re.sub(r"\bend_\b", ...)`) and re-run the parse check afterwards.

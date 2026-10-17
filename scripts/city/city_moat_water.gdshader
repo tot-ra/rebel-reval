@@ -66,6 +66,7 @@ varying vec3 world_pos;
 #include "res://scripts/city/city_water_light.gdshaderinc"
 #define ICE_PHOTO
 #include "res://scripts/city/ice_surface.gdshaderinc"
+#include "res://scripts/map/view3d/planar_reflection.gdshaderinc"
 
 float hash12(vec2 p) {
 	vec3 p3 = fract(vec3(p.xyx) * 0.1031);
@@ -150,6 +151,20 @@ void fragment() {
 	cloud_cell_shadow = city_water_cloud_shadow(world_pos);
 	float rim = smoothstep(0.0, edge_soft, column);
 	ALPHA = rim * mix(opacity * mix(0.78, 1.0, depth_hint), 1.0, fres * 0.4);
+	// R-1861: banks, trees, houses and people mirrored in the water (planar reflection,
+	// planar_reflection.gdshaderinc); waves and the wake bend the image. Where it takes
+	// over, the built-in sky radiance steps back (the mirror holds the sky already).
+	float mirror_w = planar_reflection_weight(world_pos.y) * (1.0 - ice);
+	if (mirror_w > 0.001) {
+		vec3 up_view = normalize((VIEW_MATRIX * vec4(0.0, 1.0, 0.0, 0.0)).xyz);
+		float mirror_f = planar_reflection_fresnel(up_view, VIEW, 0.03);
+		vec3 mirror = planar_reflection_color(SCREEN_UV, n.xz * vec2(0.05, -0.08), 0.004);
+		EMISSION += mirror * mirror_f * mirror_w;
+		// SPECULAR only scales the sky radiance here: the sun glint is light()'s, on
+		// water_f0, which keeps its value.
+		SPECULAR = mix(SPECULAR, 0.05, mirror_w);
+		ALPHA = mix(ALPHA, max(ALPHA, rim), mirror_f * mirror_w);
+	}
 	if (ice > 0.001) {
 		// Freeze front: the shallows and still water first, pan by pan, so the ice
 		// edge against open water follows pan borders with a crisp rim, not a fog.

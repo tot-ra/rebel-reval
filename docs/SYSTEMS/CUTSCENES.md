@@ -12,6 +12,14 @@ three prologue sequences. **Out of scope here:** in-engine scripted-camera cinem
 (removed by ADR 0034), ambience (field reserved, nothing wired), localization of shot text,
 and menu replay of a seen cutscene.
 
+> **Proposed change ([ADR 0059](../adr/0059-staged-scenes-in-the-live-world.md), not approved):**
+> story scenes set in 1343 "now" would become in-engine **staged scenes** in the live world
+> (a data-driven `scene` beat record played by one director that reuses `ConversationShot` and
+> `ShotOcclusion`, with blocking, props, camera shots, voiced character lines and interactive
+> hand-off to dialogue, duel or brawl), and this still / AI-video player would be kept only for
+> memory and vision chapters. Nothing on this page changes until the maintainer approves the ADR
+> and its tasks land.
+
 ## Prologue flow
 
 New Game starts in the seamless city in the Holy Spirit almshouse sick-room: the porter's spirit duel, Gertrud at the wounded watchman's sickbed, the calming duel with his fear, and Kalev's iron charm, all in place (R-1872, ADR 0052, see [`SPIRIT_DIALOGUE.md`](./SPIRIT_DIALOGUE.md#new-game-duel-in-the-smithy-r-1872)). The year card and closing still-image cutscene do not play; their authored records are retained but unused by this flow.

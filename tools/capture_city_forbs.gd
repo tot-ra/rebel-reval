@@ -22,6 +22,19 @@ const SEASONS := {
 	"winter": {"day": 15, "month": 1, "year": 1343},
 }
 
+## R-2128 herbs: one column per species 1.5 m apart from x = 8, the flowering
+## model in front and its seasonal variants behind it (shots "herb_<species>").
+const HERB_COLUMNS := [
+	[&"chamomile", &"chamomile_leaves"],
+	[&"yarrow", &"yarrow_leaves"],
+	[&"st_johns_wort", &"st_johns_wort_leaves"],
+	[&"caraway", &"caraway_seed", &"caraway_leaves"],
+	[&"mint", &"mint_leaves"],
+	[&"thistle", &"thistle_down", &"thistle_leaves"],
+	[&"mugwort", &"mugwort_dry", &"mugwort_leaves"],
+	[&"nettle", &"nettle_leaves", &"nettle_shoots"],
+]
+
 var _tag := ""
 var _studio_only := false
 var _date: Dictionary = SEASONS["summer"]
@@ -49,8 +62,15 @@ func _initialize() -> void:
 				_tag = arg.substr(7)
 	if _tag.is_empty():
 		_tag = "summer"
-	print("forbs for %s: %s" % [GameCalendar.format_date(_date), CityForbs.season_key(
-		GameCalendar.day_of_year(_date))])
+	print(
+		(
+			"forbs for %s: %s"
+			% [
+				GameCalendar.format_date(_date),
+				CityForbs.season_key(GameCalendar.day_of_year(_date))
+			]
+		)
+	)
 	call_deferred("_run")
 
 
@@ -99,7 +119,7 @@ func _studio() -> void:
 	viewport.add_child(sun)
 	var ground := MeshInstance3D.new()
 	var plane := PlaneMesh.new()
-	plane.size = Vector2(30.0, 30.0)
+	plane.size = Vector2(60.0, 30.0)
 	ground.mesh = plane
 	var turf := StandardMaterial3D.new()
 	turf.albedo_color = Color(0.30, 0.34, 0.17)
@@ -132,6 +152,15 @@ func _studio() -> void:
 		plant.position = spots[kind]
 		viewport.add_child(plant)
 		print("%s: %d triangles" % [kind, Meshes.triangle_count(kind)])
+	for i in HERB_COLUMNS.size():
+		var column: Array = HERB_COLUMNS[i]
+		for j in column.size():
+			var herb := MeshInstance3D.new()
+			herb.mesh = Meshes.mesh_for(column[j])
+			herb.material_override = CityForbs.material(column[j] in CityForbs.LARGE_KINDS)
+			herb.position = Vector3(8.0 + 1.5 * float(i), 0.0, -0.8 * float(j))
+			viewport.add_child(herb)
+			print("%s: %d triangles" % [column[j], Meshes.triangle_count(column[j])])
 	var camera := Camera3D.new()
 	viewport.add_child(camera)
 	camera.current = true
@@ -147,7 +176,27 @@ func _studio() -> void:
 		["oxeye_daisy_heads", Vector3(-1.3, 0.52, -0.40), Vector3(-1.44, 0.36, -0.7), 32.0],
 		["seasonal", Vector3(4.1, 1.05, 2.3), Vector3(4.1, 0.25, -0.4), 50.0],
 		["burdock_dry", Vector3(4.15, 1.1, 0.6), Vector3(4.1, 0.45, -1.45), 50.0],
+		["herbs", Vector3(13.25, 2.6, 5.5), Vector3(13.25, 0.3, -0.9), 50.0],
 	]
+	for i in HERB_COLUMNS.size():
+		var x := 8.0 + 1.5 * float(i)
+		var h: float = Meshes.mesh_for(HERB_COLUMNS[i][0]).get_aabb().end.y
+		shots.append(
+			[
+				"herb_%s" % HERB_COLUMNS[i][0],
+				Vector3(x + 0.35, 0.3 + h * 0.75, 0.55 + h * 0.9),
+				Vector3(x, h * 0.4, -0.7),
+				45.0
+			]
+		)
+		shots.append(
+			[
+				"herb_%s_flower" % HERB_COLUMNS[i][0],
+				Vector3(x + 0.1, h * 0.95 + 0.15, 0.32 + h * 0.3),
+				Vector3(x, h * 0.8, 0.0),
+				40.0
+			]
+		)
 	for shot: Array in shots:
 		camera.fov = shot[3]
 		camera.look_at_from_position(shot[1], shot[2], Vector3.UP)
@@ -216,7 +265,9 @@ func _habitat_spots(plan: CityPlan, grass: CityGrass) -> Dictionary:
 					continue
 				var score := 0.0
 				for species: StringName in scores[name]:
-					for o: Vector2 in [Vector2.ZERO, Vector2(2, 0), Vector2(0, 2), Vector2(-2, 0), Vector2(0, -2)]:
+					for o: Vector2 in [
+						Vector2.ZERO, Vector2(2, 0), Vector2(0, 2), Vector2(-2, 0), Vector2(0, -2)
+					]:
 						score += CityForbs.suitability(grass, species, p + o)
 				if score > top:
 					top = score

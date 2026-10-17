@@ -2,7 +2,7 @@ class_name InputBindingSettings
 extends RefCounted
 
 ## Bumped when a shipped default moves to another action (see from_dict).
-const BINDINGS_VERSION := 3
+const BINDINGS_VERSION := 4
 
 ## Persistent, device-separated bindings for every player-facing vertical-slice action.
 ## InputMap remains the runtime authority; this model only serializes and applies it.
@@ -106,7 +106,7 @@ static func default_settings() -> InputBindingSettings:
 		},
 		# Left mouse is listed so the controls screen shows it, but the press is
 		# routed by MapClickInputController (attack vs interact vs travel) and
-		# PlayerActionInput ignores this action while LMB is down. Space is the roll.
+		# PlayerActionInput ignores this action while LMB is down. Space is jump; Ctrl is roll.
 		# R-1886: peaceful by default; G draws or sheathes. The face, shoulder and d-pad buttons
 		# are taken, so the pad uses Share / Capture; the attack button also draws and talking
 		# to someone (A on a person) sheathes.
@@ -132,12 +132,12 @@ static func default_settings() -> InputBindingSettings:
 		},
 		"player_roll":
 		{
-			DEVICE_KEYBOARD_MOUSE: [_key(KEY_SPACE)],
+			DEVICE_KEYBOARD_MOUSE: [_key(KEY_CTRL)],
 			DEVICE_GAMEPAD: [_joy_motion(JOY_AXIS_TRIGGER_RIGHT, 1.0)],
 		},
 		"player_jump":
 		{
-			DEVICE_KEYBOARD_MOUSE: [_key(KEY_Z)],
+			DEVICE_KEYBOARD_MOUSE: [_key(KEY_SPACE)],
 			DEVICE_GAMEPAD: [_joy_button(JOY_BUTTON_RIGHT_STICK)],
 		},
 		"player_self_talk":
@@ -252,12 +252,16 @@ static func from_dict(data: Dictionary) -> InputBindingSettings:
 	return settings
 
 
-## v1 files stored every default, including Space on attack. Space is the roll
-## since v2 (COMBAT_ANIMATION.md), so an untouched v1 default must not survive
-## the load and double-bind Space; a deliberate custom binding still does.
+## When a shipped default moves, discard only that untouched older default so it
+## does not shadow the new action; retain deliberate user-selected bindings.
 static func _is_retired_default(
 	version: int, action: String, device: StringName, decoded: Array[InputEvent]
 ) -> bool:
+	if version < 4 and device == DEVICE_KEYBOARD_MOUSE:
+		if action == "player_jump" and _matches_key_binding(decoded, KEY_Z):
+			return true
+		if action == "player_roll" and _matches_key_binding(decoded, KEY_SPACE):
+			return true
 	# Maintainer chose L3 for sight; retire only the old default walk binding.
 	if version < 3 and action == "ui_shift" and device == DEVICE_GAMEPAD:
 		return (
@@ -266,11 +270,15 @@ static func _is_retired_default(
 		)
 	if version >= 2 or action != "player_attack" or device != DEVICE_KEYBOARD_MOUSE:
 		return false
-	return (
-		decoded.size() == 1
-		and decoded[0] is InputEventKey
-		and (decoded[0] as InputEventKey).physical_keycode == KEY_SPACE
-	)
+	return _matches_key_binding(decoded, KEY_SPACE)
+
+
+static func _matches_key_binding(decoded: Array[InputEvent], keycode: Key) -> bool:
+	if decoded.size() != 1 or not decoded[0] is InputEventKey:
+		return false
+	var key := decoded[0] as InputEventKey
+	var effective_keycode := key.physical_keycode if key.physical_keycode != 0 else key.keycode
+	return effective_keycode == keycode
 
 
 func duplicate_settings() -> InputBindingSettings:

@@ -176,6 +176,10 @@ Roles `level`, `map`, and `event` have full conversion specifications later in t
 | `assets/characters/variants/citizen_f_elder_heavy.tscn` | actor | `retain` | Crowd/citizen variant citizen_f_elder_heavy | Shared-rig ambient body; not a map destination | not a map definition |
 | `assets/characters/variants/citizen_f_elder_thin.tscn` | actor | `retain` | Crowd/citizen variant citizen_f_elder_thin | Shared-rig ambient body; not a map destination | not a map definition |
 | `assets/characters/variants/citizen_m_adult_average_b.tscn` | actor | `retain` | Crowd/citizen variant citizen_m_adult_average_b | Shared-rig ambient body; not a map destination | not a map definition |
+| `assets/characters/variants/citizen_m_adult_average_c.tscn` | actor | `retain` | Crowd/citizen variant citizen_m_adult_average_c | Shared-rig ambient body; not a map destination | not a map definition |
+| `assets/characters/variants/citizen_m_adult_heavy_c.tscn` | actor | `retain` | Crowd/citizen variant citizen_m_adult_heavy_c | Shared-rig ambient body; not a map destination | not a map definition |
+| `assets/characters/variants/citizen_m_adult_sturdy_c.tscn` | actor | `retain` | Crowd/citizen variant citizen_m_adult_sturdy_c | Shared-rig ambient body; not a map destination | not a map definition |
+| `assets/characters/variants/citizen_m_adult_thin_c.tscn` | actor | `retain` | Crowd/citizen variant citizen_m_adult_thin_c | Shared-rig ambient body; not a map destination | not a map definition |
 | `assets/characters/variants/citizen_m_adult_average.tscn` | actor | `retain` | Crowd/citizen variant citizen_m_adult_average | Shared-rig ambient body; not a map destination | not a map definition |
 | `assets/characters/variants/citizen_m_adult_heavy_b.tscn` | actor | `retain` | Crowd/citizen variant citizen_m_adult_heavy_b | Shared-rig ambient body; not a map destination | not a map definition |
 | `assets/characters/variants/citizen_m_adult_heavy.tscn` | actor | `retain` | Crowd/citizen variant citizen_m_adult_heavy | Shared-rig ambient body; not a map destination | not a map definition |
@@ -187,6 +191,11 @@ Roles `level`, `map`, and `event` have full conversion specifications later in t
 | `assets/characters/variants/citizen_m_elder_heavy.tscn` | actor | `retain` | Crowd/citizen variant citizen_m_elder_heavy | Shared-rig ambient body; not a map destination | not a map definition |
 | `assets/characters/variants/citizen_m_elder_thin.tscn` | actor | `retain` | Crowd/citizen variant citizen_m_elder_thin | Shared-rig ambient body; not a map destination | not a map definition |
 | `tools/capture_city_citizens.tscn` | test | `retain` | Capture city citizens tool scene | Developer-only capture or profiling host; never release-playable | not a map definition |
+| `tools/capture_city_dung.tscn` | test | `retain` | Capture city dung tool scene | Developer-only capture or profiling host; never release-playable | not a map definition |
+| `tools/capture_city_surcoats.tscn` | test | `retain` | Capture city surcoats tool scene | Developer-only capture or profiling host; never release-playable | not a map definition |
+| `tools/capture_forge_sword.tscn` | test | `retain` | Capture forge sword tool scene | Developer-only capture or profiling host; never release-playable | not a map definition |
+| `tools/verify_city_spawn_traversal.tscn` | test | `retain` | City spawn traversal QA tool scene | Developer-only capture or profiling host; never release-playable | not a map definition |
+| `tools/verify_site_traversal.tscn` | test | `retain` | Regional site traversal QA tool scene | Developer-only capture or profiling host; never release-playable | not a map definition |
 | `tools/capture_city_households.tscn` | test | `retain` | Capture city households tool scene | Developer-only capture or profiling host; never release-playable | not a map definition |
 | `tools/capture_city_fauna.tscn` | test | `retain` | Capture city fauna tool scene | Developer-only capture or profiling host; never release-playable | not a map definition |
 | `tools/capture_city_moss.tscn` | test | `retain` | Capture city moss and forest floor tool scene | Developer-only capture or profiling host; never release-playable | not a map definition |
@@ -203,6 +212,14 @@ Roles `level`, `map`, and `event` have full conversion specifications later in t
 | `assets/props/weapons/arming_sword/arming_sword_held.tscn` | support | `retain` | Forge arming sword hand-slot equipment mesh | Forge weapon set (R-1754, docs/SYSTEMS/COMBAT.md) | not a map definition |
 | `assets/props/weapons/axe_peasant/scenes/axe_peasant_p1_w1_ground.tscn` | support | `retain` | Forge peasant axe (R-2009) leaning display (world item view) | Forge weapon set (R-1754, docs/SYSTEMS/COMBAT.md) | not a map definition |
 | `assets/props/weapons/axe_peasant/scenes/axe_peasant_p1_w1_held.tscn` | support | `retain` | Forge peasant axe (R-2009) hand-slot equipment mesh | Forge weapon set (R-1754, docs/SYSTEMS/COMBAT.md) | not a map definition |
+| `assets/props/weapons/arming_sword/scenes/arming_sword_p1_w1_held.tscn` | support | `retain` | Forge arming sword variant hand-slot equipment mesh | Forge weapon set (R-1754, docs/SYSTEMS/COMBAT.md) | not a map definition |
+| `assets/props/weapons/arming_sword/scenes/arming_sword_p2_w0_ground.tscn` | support | `retain` | Forge arming sword variant leaning display (world item view) | Forge weapon set (R-1754, docs/SYSTEMS/COMBAT.md) | not a map definition |
+| `assets/props/weapons/arming_sword/scenes/arming_sword_p2_w0_held.tscn` | support | `retain` | Forge arming sword variant hand-slot equipment mesh | Forge weapon set (R-1754, docs/SYSTEMS/COMBAT.md) | not a map definition |
+| `assets/props/weapons/arming_sword/scenes/arming_sword_p2_w2_held.tscn` | support | `retain` | Forge arming sword variant hand-slot equipment mesh | Forge weapon set (R-1754, docs/SYSTEMS/COMBAT.md) | not a map definition |
+| `assets/props/weapons/axe_broad/scenes/axe_broad_p2_w1_ground.tscn` | support | `retain` | Forge broad axe variant leaning display (world item view) | Forge weapon set (R-1754, docs/SYSTEMS/COMBAT.md) | not a map definition |
+| `assets/props/weapons/axe_broad/scenes/axe_broad_p2_w1_held.tscn` | support | `retain` | Forge broad axe variant hand-slot equipment mesh | Forge weapon set (R-1754, docs/SYSTEMS/COMBAT.md) | not a map definition |
+| `assets/props/weapons/axe_peasant/scenes/axe_peasant_p1_w2_ground.tscn` | support | `retain` | Forge peasant axe variant leaning display (world item view) | Forge weapon set (R-1754, docs/SYSTEMS/COMBAT.md) | not a map definition |
+| `assets/props/weapons/axe_peasant/scenes/axe_peasant_p1_w2_held.tscn` | support | `retain` | Forge peasant axe variant hand-slot equipment mesh | Forge weapon set (R-1754, docs/SYSTEMS/COMBAT.md) | not a map definition |
 | `assets/props/weapons/heater_shield/heater_shield_ground.tscn` | support | `retain` | Forge heater shield leaning display (world item view) | Forge weapon set (R-1754, docs/SYSTEMS/COMBAT.md) | not a map definition |
 | `assets/props/weapons/heater_shield/heater_shield_held.tscn` | support | `retain` | Forge heater shield hand-slot equipment mesh | Forge weapon set (R-1754, docs/SYSTEMS/COMBAT.md) | not a map definition |
 | `assets/props/weapons/longbow/longbow_ground.tscn` | support | `retain` | Forge longbow leaning display (world item view) | Forge weapon set (R-1754, docs/SYSTEMS/COMBAT.md) | not a map definition |

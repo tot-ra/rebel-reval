@@ -103,8 +103,12 @@ func set_weapon(index: int) -> void:
 	if weapon_index == 0:
 		rig.unequip(&"right_hand")
 	else:
-		var file := "hammer" if weapon_index == 1 else "sword"
-		var weapon_path := "%s%s/%s.glb" % [DIR, file, file]
+		# Kalev's forge sword is the arming sword family's burgher cell (R-2007); its own
+		# sword/sword.glb is retired with the legacy swords (R-2035).
+		var weapon_path := (
+			"%shammer/hammer.glb" % DIR if weapon_index == 1
+			else "res://assets/props/weapons/arming_sword/scenes/arming_sword_p2_w0_held.tscn"
+		)
 		var mounted := rig.equip(&"right_hand", load(weapon_path) as PackedScene)
 		assert(mounted != null)
 	_update_status()

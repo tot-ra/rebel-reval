@@ -44,6 +44,10 @@ const PRESETS := {
 		"ao_contact_samples": 0,
 		"ao_area_samples": 0,
 		"sun_angular_distance": 0.5,
+		# R-1861 planar reflection in puddles and inland water: mirror render size as a
+		# fraction of the window per axis (0 = off; pools mirror only the sky). It draws the
+		# scene a second time, so it is the costliest optional pass on a wet day.
+		"planar_reflection_scale": 0.0,
 	},
 	MID: {
 		"render_scale": 0.85,
@@ -65,6 +69,7 @@ const PRESETS := {
 		"ao_contact_samples": 4,
 		"ao_area_samples": 4,
 		"sun_angular_distance": 1.0,
+		"planar_reflection_scale": 0.5,
 	},
 	HIGH: {
 		"render_scale": 1.0,
@@ -88,6 +93,7 @@ const PRESETS := {
 		"ao_contact_samples": 6,
 		"ao_area_samples": 6,
 		"sun_angular_distance": 1.5,
+		"planar_reflection_scale": 0.6,
 	},
 }
 

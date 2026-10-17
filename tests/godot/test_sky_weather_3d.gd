@@ -595,6 +595,10 @@ func test_sky_shader_covers_required_features() -> void:
 		"float seasonal_night_gain = AT_CUBEMAP_PASS" in source,
 		"seasonal night grading must not change reflections or ambient/gameplay light"
 	)
+	assert_true(
+		"mix(0.72, 1.18, seasonal_night_brightness) * 0.70" in source,
+		"the camera-visible night floor must be 30 percent darker without losing its seasons"
+	)
 	var star_shader := FileAccess.get_file_as_string(
 		"res://scripts/map/view3d/sky_stars.gdshaderinc"
 	)

@@ -355,6 +355,19 @@ def shield_of(person: dict, wear: list) -> str:
     return ""
 
 
+def sword_of(person: dict) -> bool:
+    """True when the resident wears a sword belt with an arming sword (EQ-5, R-2007).
+
+    The arms dossier's men of war: the watch sergeant (sword in hand, empty scabbard), the
+    crown's men on duty (a sword at the hip beside the spear), and knights, squires and
+    men-at-arms off the roster. Town watchmen carry only the spear; burghers do not walk
+    the town armed."""
+    if (person.get("duty") or {}).get("kit") in ("sergeant", "crown"):
+        return True
+    adult = stage_of(person["age"]) == "adult"  # as the armour rule in dress()
+    return not person.get("duty") and person["trade"] in ARMED_TRADES and adult
+
+
 def prestige_of(person: dict) -> int:
     """Prestige of a resident's own gear: office first, then rank and wealth."""
     kit = (person.get("duty") or {}).get("kit", "")

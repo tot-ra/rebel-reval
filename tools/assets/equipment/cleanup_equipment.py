@@ -14,13 +14,16 @@ What it does, in order (each step is driven by the manifest):
    e.g. the spear point) onto Blender +Z = glTF/Godot +Y, scale uniformly to
    `longest_m` real metres;
 3. wearables: boolean-cut the head cavity Meshy caps solid (`cavity`) and give
-   the new inner faces a liner material;
+   the new inner faces a liner material; swords (`blade`): find the cross and
+   flatten the blade to a real section; scabbards (`section`): scale the round
+   Meshy tube to the flat oval mouth;
 4. hafted weapons: build the shaft procedurally (`shaft`) under the scanned
    head, its top radius matched to the scanned socket - Meshy cannot resolve a
    2 m pole 2 cm thick, so only the iron is scanned;
 5. tame the scan's PBR (roughness floor: wrought iron, no plate shine), bake
    ambient occlusion and repack occlusion/roughness/metal into one ORM image;
-6. put the pivot at the grip (or the wearable's anchor), add socket empties;
+6. put the pivot at the grip (a sword: `grip_below_cross_m` under the cross;
+   a scabbard, `pivot_at_top`: the mouth), add socket empties;
 7. decimate to the LOD0 budget, cap textures, export GLB; write LOD1 next to
    the build files (Godot also generates import LODs, so LOD1 is a budget check).
 
@@ -92,6 +95,93 @@ def _align_and_scale(obj: bpy.types.Object, axis: str, longest_m: float) -> None
     obj.data.transform(Matrix.Translation(-centre))
     s = longest_m / float((hi - lo).max())
     obj.data.transform(Matrix.Diagonal((s, s, s, 1.0)))
+    obj.data.update()
+
+
+def _width_bins(co: np.ndarray, axis: int, bin_m: float) -> tuple[np.ndarray, np.ndarray]:
+    """(bin lower z, extent along `axis`) of the mesh in `bin_m` slices up Blender Z."""
+    z0 = co[:, 2].min()
+    idx = ((co[:, 2] - z0) / bin_m).astype(int)
+    widths = np.zeros(idx.max() + 1)
+    for i in range(len(widths)):
+        s = co[idx == i, axis]
+        widths[i] = s.max() - s.min() if len(s) else 0.0
+    return z0 + np.arange(len(widths)) * bin_m, widths
+
+
+def _find_cross(obj: bpy.types.Object) -> tuple[float, float]:
+    """(bottom, top) z of a sword's cross: the widest slice in the lower half, point up.
+
+    The cross is the only part much wider than the blade, so it is where the width
+    first drops below half of that peak, above and below it."""
+    co = _co(obj)
+    bin_m = 0.002
+    z, w = _width_bins(co, 0, bin_m)
+    half = len(w) // 2
+    peak = int(np.argmax(w[:half]))
+    lo = peak
+    while lo > 0 and w[lo - 1] > w[peak] * 0.5:
+        lo -= 1
+    hi = peak
+    while hi < len(w) - 1 and w[hi + 1] > w[peak] * 0.5:
+        hi += 1
+    return float(z[lo]), float(z[hi] + bin_m)
+
+
+def _thin_blade(obj: bpy.types.Object, spec: dict, cross_top: float) -> None:
+    """Flatten the blade (above the cross) to a real section thickness.
+
+    Meshy infers depth from a flat top view and gives a blade 1-3 cm thick; a real
+    arming sword is about 7 mm at the cross and 3 mm near the point. Each 5 mm slice
+    is squeezed toward the blade's mid-plane (Blender Y = glTF -Z, the flat face)
+    only as much as needed, so a scan that is already thin is left alone."""
+    co = _co(obj)
+    top = float(co[:, 2].max())
+    base, tip = float(spec["thick_base_m"]), float(spec["thick_tip_m"])
+    blade = co[:, 2] > cross_top
+    mid = float(np.median(co[blade, 1]))
+    bin_m = 0.005
+    idx = ((co[:, 2] - cross_top) / bin_m).astype(int)
+    for i in np.unique(idx[blade]):
+        sel = blade & (idx == i)
+        half = float(np.abs(co[sel, 1] - mid).max())
+        t = min(1.0, (i + 0.5) * bin_m / (top - cross_top))
+        want = (base + (tip - base) * t) * 0.5
+        if half > want:
+            co[sel, 1] = mid + (co[sel, 1] - mid) * (want / half)
+    # A wheel pommel scanned from a top view comes out a ball: squeeze its bottom
+    # `pommel_len_m` to the disc thickness, when the manifest names one.
+    # Capped slice by slice, like the blade, so no step is left where the squeeze ends:
+    # `pommel_len_m` must cover the whole ball (a few mm of grip above it is harmless).
+    if spec.get("pommel_thick_m"):
+        bottom = float(co[:, 2].min())
+        pommel = co[:, 2] < bottom + float(spec.get("pommel_len_m", 0.055))
+        pmid = float(co[pommel, 1].mean())
+        want = float(spec["pommel_thick_m"]) * 0.5
+        pidx = ((co[:, 2] - bottom) / 0.002).astype(int)
+        for i in np.unique(pidx[pommel]):
+            sel = pommel & (pidx == i)
+            half = float(np.abs(co[sel, 1] - pmid).max())
+            if half > want:
+                co[sel, 1] = pmid + (co[sel, 1] - pmid) * (want / half)
+    obj.data.vertices.foreach_set("co", co.ravel())
+    obj.data.update()
+
+
+def _fit_section(obj: bpy.types.Object, spec: dict) -> None:
+    """Scale a scabbard's cross-section (X width, Y thickness) to its real mouth size.
+
+    Meshy gives a round tube as wide as it is thick; a scabbard is a flat oval
+    (about 6 x 3 cm at the mouth). The mouth is the top 4 cm; the taper below keeps
+    the scan's own proportions."""
+    co = _co(obj)
+    top = co[:, 2].max()
+    mouth = co[co[:, 2] > top - 0.04]
+    sx = float(spec["width_m"]) / float(np.ptp(mouth[:, 0]))
+    sy = float(spec["thick_m"]) / float(np.ptp(mouth[:, 1]))
+    cx, cy = float(mouth[:, 0].mean()), float(mouth[:, 1].mean())
+    obj.data.transform(Matrix.Translation((-cx, -cy, 0)))
+    obj.data.transform(Matrix.Diagonal((sx, sy, 1.0, 1.0)))
     obj.data.update()
 
 
@@ -352,6 +442,12 @@ def main() -> None:
     _align_and_scale(head, scan["align_axis"], float(scan["longest_m"]))
     if m.get("cavity"):
         _cut_cavity(head, m["cavity"], name)
+    cross = None
+    if m.get("blade"):
+        cross = _find_cross(head)
+        _thin_blade(head, m["blade"], cross[1])
+    if m.get("section"):
+        _fit_section(head, m["section"])
     _scan_material(head, scan, int(m.get("tex", 1024)), name)
     parts = [head]
     lift = 0.0
@@ -368,6 +464,11 @@ def main() -> None:
     top = float(_co(obj)[:, 2].max())
     bottom = float(_co(obj)[:, 2].min())
     pivot = float(m.get("pivot_from_base_m", 0.0))
+    if cross is not None:
+        # Swords: the grip is a fixed distance below the cross, wherever the scan put it.
+        pivot = cross[0] - float(m["blade"].get("grip_below_cross_m", 0.05))
+    elif m.get("pivot_at_top"):
+        pivot = top  # scabbards: origin at the mouth, where the sword's cross rests
     obj.data.transform(Matrix.Translation((0, 0, -pivot)))
     obj.data.update()
     # Sockets in Godot metres relative to the pivot (Godot x, y, z = Blender x, z, -y).
@@ -376,6 +477,14 @@ def main() -> None:
         sockets.setdefault("socket_grip", [0.0, 0.0, 0.0])
         sockets.setdefault("socket_butt", [0.0, round(bottom - pivot, 3), 0.0])
         sockets.setdefault("socket_tip", [0.0, round(top - pivot, 3), 0.0])
+    if cross is not None:
+        sockets.setdefault("socket_grip", [0.0, 0.0, 0.0])
+        sockets.setdefault("socket_cross", [0.0, round(cross[1] - pivot, 3), 0.0])
+        sockets.setdefault("socket_pommel", [0.0, round(bottom - pivot, 3), 0.0])
+        sockets.setdefault("socket_tip", [0.0, round(top - pivot, 3), 0.0])
+    if m.get("pivot_at_top"):
+        sockets.setdefault("socket_throat", [0.0, 0.0, 0.0])
+        sockets.setdefault("socket_chape", [0.0, round(bottom - pivot, 3), 0.0])
     empties = []
     for sname, (gx, gy, gz) in sorted(sockets.items()):
         e = bpy.data.objects.new(sname, None)

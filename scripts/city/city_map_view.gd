@@ -12,6 +12,11 @@ const MotionEnvironment := preload("res://scripts/motion/motion_environment.gd")
 const CITY_RIPPLE_FOCUS_AHEAD := 6.0
 const CityWaterSurfaceScript := preload("res://scripts/city/city_water_surface.gd")
 const AmbientOcclusionPassScript := preload("res://scripts/map/view3d/ambient_occlusion_pass.gd")
+const PlanarReflectionScript := preload("res://scripts/map/view3d/planar_reflection_3d.gd")
+## R-1861: inland water this far ahead of the camera (m) sets the mirror plane.
+const PLANAR_REFLECTION_WATER_PROBES: Array[float] = [3.0, 7.0, 12.0, 18.0, 26.0]
+## Below this rain-puddle wetness the streets hold no pools worth mirroring.
+const PLANAR_REFLECTION_MIN_PUDDLES := 0.02
 ## WR-5: farthest the waves-around-rocks window centre sits ahead of the camera, where
 ## its view meets the sea (world units).
 const CITY_OBSTACLE_FOCUS_AHEAD := 26.0
@@ -42,6 +47,7 @@ var _roof_cutaway_on := false
 var _snow_cover := 0.0
 var _ambient_occlusion_pass: AmbientOcclusionPassScript
 var _puddle_step_vfx: CityPuddleStepVfx
+var _planar_reflection: PlanarReflectionScript
 
 
 ## `quality_tier` (SkyWeather3D QUALITY_*, null = recommended) picks the sky, weather,
@@ -83,6 +89,7 @@ static func create_city(city_plan: CityPlan, quality_tier: Variant = null) -> Ci
 	view._create_city_leaf_fall()
 	view._create_blowing_snow()
 	view._create_puddle_step_vfx()
+	view._create_planar_reflection()
 	return view
 
 
@@ -127,6 +134,57 @@ func _update_blowing_snow(delta: float, focus: Vector3) -> void:
 		ice_snow,
 		_blowing_ice_level
 	)
+
+
+## R-1861: puddles, the moat and the stream mirror houses, trees and people
+## (docs/SYSTEMS/WEATHER_GROUND.md "Reflections"). Surfaces that read the mirror and the
+## full-screen passes go on the main-camera-only layer; the reeds stay in the mirror.
+func _create_planar_reflection() -> void:
+	var terrain := world.get_node_or_null("Terrain")
+	if terrain != null:
+		PlanarReflectionScript.hide_in_reflection(terrain)
+	var water := world.get_node_or_null("Water")
+	if water != null:
+		for child in water.get_children():
+			if child != world.moat_plants:
+				PlanarReflectionScript.hide_in_reflection(child)
+	for pass_node: Node in [
+		_ambient_occlusion_pass, _cloud_shadow_pass, _god_ray_pass, _underwater_pass,
+		_local_atmosphere
+	]:
+		if pass_node != null:
+			PlanarReflectionScript.hide_in_reflection(pass_node)
+	_planar_reflection = PlanarReflectionScript.new()
+	_planar_reflection.name = "PlanarReflection"
+	add_child(_planar_reflection)
+	_planar_reflection.configure(_camera)
+	_planar_reflection.plane_provider = _planar_reflection_plane
+
+
+func planar_reflection() -> PlanarReflectionScript:
+	return _planar_reflection
+
+
+## Mirror plane for this frame: the first inland water surface ahead of the camera,
+## else the ground just ahead of it while rain puddles stand; NAN (off) indoors or on
+## a dry day with no inland water in view.
+func _planar_reflection_plane() -> float:
+	if inside_building >= 0 or world == null or _camera == null or not _camera.is_inside_tree():
+		return NAN
+	var origin := _camera.global_position
+	var forward := -_camera.global_transform.basis.z
+	var flat := Vector2(forward.x, forward.z)
+	flat = flat.normalized() if flat.length() > 0.01 else Vector2.ZERO
+	var at := Vector2(origin.x, origin.z)
+	for d: float in PLANAR_REFLECTION_WATER_PROBES:
+		var probe := world.water_medium_at(at + flat * d)
+		if not probe.is_empty() and not bool(probe["sea"]):
+			return float(probe["surface_y"])
+	var ground := CityTerrainBuilder.shared_material()
+	var puddles: Variant = ground.get_shader_parameter("puddles") if ground != null else null
+	if puddles == null or float(puddles) < PLANAR_REFLECTION_MIN_PUDDLES:
+		return NAN
+	return plan.ground_height(at + flat * CITY_RIPPLE_FOCUS_AHEAD)
 
 
 func _create_puddle_step_vfx() -> void:
@@ -462,6 +520,10 @@ func set_calendar_date(date: Dictionary) -> void:
 	var forest_floor := world.get_node_or_null("Dressing/ForestFloor") if world != null else null
 	if forest_floor is CityForestFloor:
 		(forest_floor as CityForestFloor).set_calendar_date(date)
+	# Bilberry, heather and the other berries flower, fruit and colour (R-2127).
+	var shrubs := world.get_node_or_null("Dressing/DwarfShrubs") if world != null else null
+	if shrubs is CityDwarfShrubs:
+		(shrubs as CityDwarfShrubs).set_calendar_date(date)
 	# Dung follows turn-out, drying and snow (R-2077).
 	var dung := world.get_node_or_null("CityDung") if world != null else null
 	if dung is CityDung:

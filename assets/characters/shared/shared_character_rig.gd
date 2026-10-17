@@ -112,6 +112,9 @@ const EQUIPMENT_SLOTS: Dictionary = {
 	&"left_hand": &"handslot.l",
 	&"head": &"head",
 	&"back": &"chest",
+	## Sword belt and scabbard (SwordBelt, docs/SYSTEMS/EQUIPMENT_VARIANTS.md): on the
+	## hips bone, whose rest frame is the skeleton's, so the belt follows the pelvis.
+	&"hip_l": &"hips",
 }
 
 ## ADR 0041 (SS-3): the seven soul-light anchors, pelvis to the crown, in
@@ -717,6 +720,16 @@ func equip(slot: StringName, scene: PackedScene) -> Node3D:
 	if _skeleton == null or not EQUIPMENT_SLOTS.has(slot) or scene == null:
 		push_warning("Cannot equip on slot %s" % slot)
 		return null
+	return equip_node(slot, scene.instantiate() as Node3D)
+
+## Mounts an already built prop (a sword belt assembled in code) on a slot, as `equip`
+## does with a scene. Frees `instance` and returns null for an unknown slot.
+func equip_node(slot: StringName, instance: Node3D) -> Node3D:
+	if _skeleton == null or not EQUIPMENT_SLOTS.has(slot) or instance == null:
+		push_warning("Cannot equip on slot %s" % slot)
+		if instance != null:
+			instance.free()
+		return null
 	unequip(slot)
 	var attachment: BoneAttachment3D = _slot_attachments.get(slot)
 	if attachment == null:
@@ -725,7 +738,6 @@ func equip(slot: StringName, scene: PackedScene) -> Node3D:
 		attachment.bone_name = String(EQUIPMENT_SLOTS[slot])
 		_skeleton.add_child(attachment)
 		_slot_attachments[slot] = attachment
-	var instance := scene.instantiate() as Node3D
 	attachment.add_child(instance)
 	_apply_visual_layers(instance)
 	if _occlusion_ghost:

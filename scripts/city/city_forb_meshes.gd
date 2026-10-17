@@ -3,7 +3,8 @@ extends RefCounted
 
 ## Detailed procedural models of the commonest wayside and meadow forbs round
 ## Reval: dandelion, broadleaf plantain, white and red clover, burdock (R-1519)
-## and the oxeye daisy of the hay meadows (R-1807).
+## and the oxeye daisy of the hay meadows (R-1807); the meadow herbs and tall
+## weeds of R-2128 are built by city_herb_meshes.gd and city_weed_meshes.gd.
 ## Each plant is built once from botanical proportions and cached; CityForbs
 ## scatters them with MultiMesh. Original geometry only, deterministic (fixed
 ## seed per kind).
@@ -19,6 +20,8 @@ extends RefCounted
 ## reduced to simple volumes, at a fifth to a tenth of the triangles.
 
 const MeshMath := preload("res://scripts/map/view3d/map_view_mesh_builder_math.gd")
+const Herbs := preload("res://scripts/city/city_herb_meshes.gd")
+const Weeds := preload("res://scripts/city/city_weed_meshes.gd")
 
 const KIND_DANDELION_FLOWER := &"dandelion_flower"
 const KIND_DANDELION_CLOCK := &"dandelion_clock"
@@ -37,6 +40,27 @@ const KIND_BURDOCK_DRY := &"burdock_dry"
 ## Oxeye daisy (R-1807): flowering plant and its leaf rosette out of flower.
 const KIND_OXEYE_DAISY := &"oxeye_daisy"
 const KIND_OXEYE_DAISY_LEAVES := &"oxeye_daisy_leaves"
+## Meadow herbs and tall weeds (R-2128), with their seasonal variants.
+const KIND_CHAMOMILE := &"chamomile"
+const KIND_CHAMOMILE_LEAVES := &"chamomile_leaves"
+const KIND_YARROW := &"yarrow"
+const KIND_YARROW_LEAVES := &"yarrow_leaves"
+const KIND_ST_JOHNS_WORT := &"st_johns_wort"
+const KIND_ST_JOHNS_WORT_LEAVES := &"st_johns_wort_leaves"
+const KIND_CARAWAY := &"caraway"
+const KIND_CARAWAY_SEED := &"caraway_seed"
+const KIND_CARAWAY_LEAVES := &"caraway_leaves"
+const KIND_MINT := &"mint"
+const KIND_MINT_LEAVES := &"mint_leaves"
+const KIND_MUGWORT := &"mugwort"
+const KIND_MUGWORT_LEAVES := &"mugwort_leaves"
+const KIND_MUGWORT_DRY := &"mugwort_dry"
+const KIND_THISTLE := &"thistle"
+const KIND_THISTLE_DOWN := &"thistle_down"
+const KIND_THISTLE_LEAVES := &"thistle_leaves"
+const KIND_NETTLE := &"nettle"
+const KIND_NETTLE_LEAVES := &"nettle_leaves"
+const KIND_NETTLE_SHOOTS := &"nettle_shoots"
 
 const ALL_KINDS: Array[StringName] = [
 	KIND_DANDELION_FLOWER,
@@ -53,6 +77,11 @@ const ALL_KINDS: Array[StringName] = [
 	KIND_BURDOCK_DRY,
 	KIND_OXEYE_DAISY,
 	KIND_OXEYE_DAISY_LEAVES,
+	KIND_CHAMOMILE, KIND_CHAMOMILE_LEAVES, KIND_YARROW, KIND_YARROW_LEAVES,
+	KIND_ST_JOHNS_WORT, KIND_ST_JOHNS_WORT_LEAVES, KIND_CARAWAY, KIND_CARAWAY_SEED,
+	KIND_CARAWAY_LEAVES, KIND_MINT, KIND_MINT_LEAVES, KIND_MUGWORT, KIND_MUGWORT_LEAVES,
+	KIND_MUGWORT_DRY, KIND_THISTLE, KIND_THISTLE_DOWN, KIND_THISTLE_LEAVES,
+	KIND_NETTLE, KIND_NETTLE_LEAVES, KIND_NETTLE_SHOOTS,
 ]
 
 # Colours are sRGB, picked from field photographs of each species.
@@ -162,7 +191,8 @@ static func mesh_for(kind: StringName, far: bool = false) -> ArrayMesh:
 			_no_heads = true
 			_oxeye_daisy(b, rng)
 		_:
-			push_error("CityForbMeshes: unknown kind %s" % kind)
+			if not (Herbs.build(kind, b, rng) or Weeds.build(kind, b, rng)):
+				push_error("CityForbMeshes: unknown kind %s" % kind)
 	_far = false
 	_no_heads = false
 	_dry = false

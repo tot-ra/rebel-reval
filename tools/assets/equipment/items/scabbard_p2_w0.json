@@ -1,0 +1,39 @@
+{
+  "task": "R-2007",
+  "doc": "docs/SYSTEMS/EQUIPMENT_VARIANTS.md",
+  "item_id": "obj.sword_cruciform",
+  "family": "scabbard",
+  "variant": "scabbard_p2_w0",
+  "prestige": "p2",
+  "wear": "w0",
+  "look": "Burgher: tooled dark leather, latten locket and chape, neat lacing; new",
+  "raw": "build/equipment_sword/scabbard_p2_w0_meshy_raw.glb",
+  "raw_sha256": "66edb5932fb449c8a27b376de84d131099ed4308285bee5fe0af0636255220b8",
+  "out": "assets/props/weapons/scabbard/variants/scabbard_p2_w0.glb",
+  "leonardo_generation": "1f1c96b2-3438-6ff0-b427-aad994c8a843",
+  "leonardo_model": "gpt-image-1.5 1536x1024",
+  "meshy_task": "01a1450d-ed3c-75c5-a166-96cf519ce8cc",
+  "meshy_options": {
+    "pbr": true,
+    "texture": true,
+    "model_type": "standard",
+    "target_polycount": 3000
+  },
+  "prompt": "Museum catalogue photo of a single object: an empty medieval sword scabbard, 14th century, Baltic (Reval 1343), 84 cm long, a well-off burgher's scabbard, brand new. Straight, flat oval section 6 cm wide at the mouth narrowing evenly to 3.5 cm at the tip, both sides mirror each other. Wooden core covered in smooth dark brown leather with a simple tooled pattern of incised diagonal lines in the upper third, a plain latten (brass) locket band 4 cm at the mouth and a latten chape 8 cm at the tip, warm dull yellow-brown, not shiny. Two narrow brown leather sword-belt tails, about 8 cm and 20 cm below the mouth, are laced tightly around the scabbard in a neat criss-cross wrap and cut off short, lying flat on its surface, nothing hanging. New and clean. No studs, no buckles, no frog, no baldric, no gems, no heraldry, not fantasy, no sword in it. Lying horizontally, mouth on the left and tip on the right, seen almost straight from above with a slight three-quarter tilt, whole object in frame with margin, plain pure white background, soft even studio light, no cast shadow, no hands, no people, no text.",
+  "scan": {
+    "align_axis": "+X",
+    "longest_m": 0.765,
+    "rough_floor": 0.5,
+    "metal_cap": 0.9,
+    "ao": true
+  },
+  "section": {
+    "width_m": 0.062,
+    "thick_m": 0.03
+  },
+  "pivot_at_top": true,
+  "tris": 3000,
+  "lod1_tris": 800,
+  "tex": 1024,
+  "fits": "arming_sword_p2_w0"
+}

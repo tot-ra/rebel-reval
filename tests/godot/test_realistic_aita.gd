@@ -39,7 +39,7 @@ func after_each() -> void:
 
 func test_body_keeps_shared_rig_and_every_clip() -> void:
 	assert_eq(rig.validation_errors(), [])
-	assert_eq(rig.skeleton().get_bone_count(), 71)
+	assert_eq(rig.skeleton().get_bone_count(), 75)
 	# The GLB's own library; combat_roll_clip.gd adds its roll clips in a second one.
 	assert_eq(rig.animation_player().get_animation_library(&"").get_animation_list().size(), 76)
 	for motion: StringName in [&"idle", &"walk", &"run", &"hammer_attack", &"guard"]:
@@ -56,16 +56,22 @@ func test_body_keeps_mpfb_mesh_set() -> void:
 func test_default_outfit_equips_and_covers_the_body() -> void:
 	for slot: StringName in [&"torso", &"outerwear", &"head", &"feet"]:
 		assert_true(rig.equipped_wearable(slot) != null, "%s wearable did not equip" % slot)
-	for hidden: String in ["Anatomy_Torso", "Anatomy_Arms", "Anatomy_Legs", "Anatomy_Feet", "Hair_Scalp"]:
+	for hidden: String in [
+		"Anatomy_Torso", "Anatomy_Arms", "Anatomy_Legs", "Anatomy_Feet", "Hair_Scalp"
+	]:
 		assert_false(_mesh(hidden).visible, "%s must be covered by the outfit" % hidden)
 	assert_true(_mesh("Anatomy_Head").visible)
 
 
 func test_face_blinks_and_talks_through_blend_shapes() -> void:
 	for shape: StringName in [&"blink", &"jaw_open", &"smile", &"brow_up", &"frown", &"pucker"]:
-		assert_true(_mesh("Anatomy_Head").find_blend_shape_by_name(shape) >= 0, "missing %s" % shape)
-	assert_true(_mesh("Anatomy_Head_Lashes").find_blend_shape_by_name(&"blink") >= 0,
-		"lashes must follow the eyelids")
+		assert_true(
+			_mesh("Anatomy_Head").find_blend_shape_by_name(shape) >= 0, "missing %s" % shape
+		)
+	assert_true(
+		_mesh("Anatomy_Head_Lashes").find_blend_shape_by_name(&"blink") >= 0,
+		"lashes must follow the eyelids"
+	)
 	var realistic := rig as Node
 	var blinked := false
 	for _frame: int in 400:

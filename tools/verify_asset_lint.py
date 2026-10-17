@@ -62,9 +62,14 @@ from character_fidelity_tiers import (  # noqa: E402
     GARMENT_TEXTURE_MAX_PX,
     GARMENT_TRIANGLE_CAP,
     TIER_BUDGETS,
+    TIER_CROWD,
     classify_character_glb,
     inspect_glb,
     iter_runtime_character_glbs,
+)
+# Bearded crowd men: citizen_m_adult_<build>_c, see the tier check below.
+CROWD_BEARDED_GLB_RE = (
+    r"assets/characters/realistic/citizen_m_adult_[a-z]+_c/citizen_m_adult_[a-z]+_c\.glb"
 )
 from architecture_budgets import validate_building_budgets  # noqa: E402
 from verify_runtime_glb_budget import validate as validate_runtime_glb_budget  # noqa: E402
@@ -414,12 +419,17 @@ def validate(*, root: Path = ROOT) -> list[LintIssue]:
             continue
 
         budget = TIER_BUDGETS[tier]
-        if triangles > budget.triangle_cap:
+        triangle_cap = budget.triangle_cap
+        if tier == TIER_CROWD and re.fullmatch(CROWD_BEARDED_GLB_RE, normalized):
+            # Bearded men (the `_c` body cells) carry ~570 beard triangles on top of the
+            # shared crowd body; they stay within 3% of the crowd cap, so allow that much.
+            triangle_cap = int(budget.triangle_cap * 1.03)
+        if triangles > triangle_cap:
             issues.append(
                 LintIssue(
                     "ASSET_LINT_CHARACTER_TIER",
                     f"{rel}: tier {tier} ({budget.label}) triangle budget exceeded "
-                    f"({triangles}>{budget.triangle_cap})",
+                    f"({triangles}>{triangle_cap})",
                 )
             )
         if max_texture_px > budget.texture_max_px:

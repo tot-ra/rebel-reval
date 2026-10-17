@@ -1,6 +1,6 @@
 # Equipment variants: pipeline, art bible and the watch spear pilot
 
-Status: implemented (tasks **R-2003** EQ-1 and **R-2004** EQ-2 of epic **R-2002**). The pipeline and art bible are in place and proven on one item: the town-watch spear variant `spear_p1_w1`. Every census resident's worn layers and hand gear now carry a prestige and wear cell chosen from the census, with a fallback to the base item while a cell has no file ([Runtime variant choice](#runtime-variant-choice-r-2004)); player items carry a save-safe variant id.
+Status: implemented (tasks **R-2003** EQ-1, **R-2004** EQ-2 and **R-2019** EQ-17 of epic **R-2002**). The pipeline and art bible are in place and proven on one item: the town-watch spear variant `spear_p1_w1`. Every census resident's worn layers and hand gear now carry a prestige and wear cell chosen from the census, with a fallback to the base item while a cell has no file ([Runtime variant choice](#runtime-variant-choice-r-2004)); player items carry a save-safe variant id. The first garment family is re-cut: the aketon ([The aketon](#the-aketon-r-2019)).
 
 Scope: how a period-accurate item brief becomes a game-ready Godot asset in several prestige and wear variants; the rules every equipment variant follows; how the city picks a variant per resident; the pilot.
 Out of scope: every other item family and its variant files (R-2005..R-2034, one task each), stats or prices per variant, retiring the legacy primitives (R-2035), the walk-cycle arm pose (R-2036).
@@ -118,6 +118,32 @@ Turntables (yaw 0-315 deg in 45 deg steps, then from below):
 
 Feasibility input for EQ-13 (kettle hat), from the R-2002 check: reference and Meshy views (underside capped solid, chin strap fused across the brim; `cleanup_equipment.py`'s `cavity` step cuts the head volume and lines it):
 
+## The aketon (R-2019)
+
+The watch aketon (padded jack, arms dossier item 4) was a loose smock with square patches across its quilting that read as a checkerboard at street distance. It is re-cut to the 14th-c. form and its variants are surface looks of one fitted mesh.
+
+**Cut** (`garments.gambeson`, crowd layer and hero): fitted body (the hero is taken in at the waist; the crowd layer keeps its ease over the baked belt), flared skirt to mid-thigh pushed clear of the baked tunic's skirt, a 4.5 cm standing quilted collar (`aketon_collar`), the front opening as two bound edges from collar to hem, and a single leather thong spirally laced from the collar to the waist with its tie hanging (`aketon_front`; only the diagonals lie on the face, the return runs inside the padding). Quilting runs down the body and round the arms: `grain_uv(..., turn=("arm.l", "arm.r"))` swaps the sleeve UVs. The lacing joins the shell, so the surcoat and mantle clear it; the collar is its own part, registered as `ctx.layers["gambeson_collar"]`, and only the lower head rows of the mail coif and aventail clear it (`head_wrap(collar_layers=...)`; never the whole aketon, whose T-posed sleeves those rays would catch). Crowd budget 2,400 shell triangles plus collar, edges, lace and hems, ~4,900 per layer.
+
+**Textile** (`textiles.py`, procedural and tileable by construction, no photo plate): `quilted` is undyed linen canvas (128 threads a 20 cm tile) with `QUILT_CHANNELS` = 5 padded channels a tile (4 cm, inside the dossier's 3-5 cm), hand-sewn lines that wander a little, uneven stuffing and lumps, running stitches (`QUILT_STITCHES`), dirt in the grooves and creases across the channels; puff is relief in the normal map, not geometry. `quilted_silk` (crowd grade, 512 px) is the knight's silk cover: fine taffeta, smoother channels, satin roughness. The procedural route was chosen over a Leonardo plate because the stitch lines must fall exactly on the garment's UV grain (an integer number of channels per tile) for patches and sleeves to line up.
+
+**Variants** (`CitizenWardrobe`, no `gambeson_<cell>.glb` files: the cut is the same for every cell, so a cell is a material choice on the base layer):
+
+| Cell | Look | How |
+|---|---|---|
+| `p1_w0` / `p1_w1` | undyed linen (town munition), light sweat at collar and armpits, the wearer's trade dirt | grade `quilted`, no dye, `PADDED_SWEAT` 0.15 / 0.55 |
+| `p1_w2` | patched and sweat-stained | `PADDED_PATCHES` 0.6: whole-channel pieces (`QUILT_PATCH` 8 x 12 cm, snapped to the stitch lines), sweat 0.85 |
+| `p2_*` | linen dyed madder red or woad blue (crown and lords' issue); bound edges and hems take the dye | `PADDED_DYES[2]`, one dye per duty post (else per resident), `padded_dye` |
+| `p3_*` | silk-covered knight's under-aketon in deep madder, woad or brown; in the city mail and surcoat cover it but for the collar and hem | grade `quilted_silk`, `PADDED_DYES[3]` |
+
+Patches on a padded layer are set by its cell alone (the store mends issue gear, not the wearer's purse), not by the resident's wealth. Sweat is the shader's `wear_age.w`: a yellow-brown multiply at the collar, armpits and down the back, in tide-marked blotches of the wear mask, placed by adult body heights.
+
+![Four aketon variants: undyed and stained, patched, crown-dyed, silk-covered](../reports/images/equipment/aketon_variants.png)
+![Close-up: standing collar, spiral lacing, channels down the body and round the arms](../reports/images/equipment/aketon_variants_closeup.png)
+![Census town watchman (a tanner on watch, battered issue): front, side and walking](../reports/images/equipment/aketon_watchman.png)
+![The watch kit on the four adult builds](../reports/images/equipment/aketon_builds.png)
+![Armour over the aketon: crown, sergeant, vassal knight, Order brother](../reports/images/equipment/aketon_armour.png)
+![Tier 1 watchman (assets/characters/variants/watchman.tscn)](../reports/images/equipment/aketon_watchman_hero.png)
+
 ![Kettle hat reference](../reports/images/equipment/pilot/kettle_hat_reference.jpg)
 ![Kettle hat Meshy scan views](../reports/images/equipment/pilot/kettle_hat_meshy_views.jpg)
 
@@ -127,6 +153,7 @@ Feasibility input for EQ-13 (kettle hat), from the R-2002 check: reference and M
 - In game: `tools/godot_render.sh --script tools/capture_watch_spear.gd` writes `docs/reports/images/equipment/watch_spear_capture.png` (idle and walk, three-quarter and side) and `watch_spear_closeup.png`.
 - Tests: `test_watch_carries_the_spear_variant` in `tests/godot/test_citizen_wardrobe.gd` (variant mounted, sockets exported, 2.1-2.4 m, origin at the grip); `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_citizen_brawl,test_citizen_roster,test_citizen_wardrobe` and `python3 -m pytest tests/python/test_citizen_wardrobe*.py`.
 - Variant choice (R-2004): `python3 -m unittest tests.python.test_equipment_variants -v` (same census same cells, prestige per office, rebel and Order wear, one cell per unit, runtime data distribution); `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_equipment_variants` (shipped cell mounted as is, missing cell falls back with a finish, variant layer entries, shield wear, bag/equip/world-item variants survive a JSON save round trip, old saves load the base item); `python3 tools/city/build_citizen_runtime.py --check`.
+- Aketon (R-2019): `python3 tools/assets/realistic_humans/textiles.py`, then refit the aketon and the layers that clear it on the eight adult men, `Blender --background --python tools/assets/realistic_humans/build_human.py -- --character=citizen_m_adult_<build>[_b] --layers-only --only gambeson,mail_coif,aventail,surcoat,coat_of_plates,gauntlets,order_mantle`, and the hero `--character=watchman`. Tests: `python3 -m unittest tests.python.test_textiles_quilted` (maps tile, five channels along V, silk smoother) and `test_aketon_*` in `tests/godot/test_citizen_wardrobe.gd` (cell looks, one dye per post, collar and lacing in the layer). Capture: `tools/godot_render.sh --script tools/capture_aketon_variants.gd` writes the six `aketon_*.png` plates above.
 - Capture: `tools/godot_render.sh --script tools/capture_watch_variants.gd` writes `watch_variants_row.png` and `watch_variants_closeup.png` (six census watchmen of different posts, labelled with post and cell).
 
 ## Shields (R-2013)
@@ -156,7 +183,7 @@ The Viking-age bearded axe of the first forge set is gone (`assets/props/weapons
 |---|---|---|
 | `axe_peasant_p1_w1` | the player's `item.forge_bearded_axe` (id kept, now "Peasant axe"), villagers, woodcutters | small one-piece head, 15 cm poll to edge, steel-welded edge, 72 cm ash haft |
 | `axe_peasant_p1_w2` | rebels (always wear `w2`) | same head, nicked edge, broken corner, rust; darker worn-ash haft plate `assets/materials/equipment/ash_haft_worn` |
-| `axe_broad_p2_w1` | carpenters and joiners (a tool, never a weapon kit) | 18 cm deep head, 15 cm straight edge, 60 cm haft; no combat item |
+| `axe_broad_p2_w1` | carpenters and joiners (a tool, never a weapon kit) | 18 cm poll-to-edge head, edge about 15 cm (the generated reference drew a narrower blade than prompted, so `edge_stretch` 2.6 widens it), 60 cm haft; no combat item |
 | war axe (`axe_war_p2_w0`) | - | **not shipped**: the research note found no Baltic evidence for a long-hafted war axe c.1343 |
 
 **Pipeline difference from the spear.** `tools/assets/equipment/cleanup_axe.py` (manifest key `"cleanup": "cleanup_axe.py"`, run by `build_equipment.py`) replaces `cleanup_equipment.py` because an axe head sits on the haft through its eye, side-on. The Leonardo/OpenAI reference must be a **cheek view with no eye drawn**: image generators draw the hole and the fan outline on the same face, and a Meshy scan of that gives an adze (edge across the haft), which the first build did. The script stands the edge along the haft, turns the cheeks sideways and the blade forward (Godot +Z, `socket_edge`), widens the blade (`edge_stretch`), thins the cheeks toward the edge (`edge_thin`) and builds an oval haft through the poll with a short stub above it. Origin is the grip (0.2 m above the butt, 0.18 for the broad axe); sockets `socket_grip/butt/tip/edge`. Budget 3,500 tris LOD0 / 1,000 LOD1.
@@ -172,6 +199,10 @@ The Viking-age bearded axe of the first forge set is gone (`assets/props/weapons
 
 Verify: `tools/godot_render.sh --script tools/capture_axe_equipment.gd`; `python3 tools/assets/equipment/build_equipment.py tools/assets/equipment/items/axe_*.json`; `test_forge_weapons`.
 
+## Men's tunics (R-2023)
+
+Baked base garments take a cell too. A man's tunic or cotehardie has no variant file: `CitizenWardrobe.tunic_cell(record)` derives `p<wealth+1>_w<0-2>` from the census record (prestige by wealth, wear rolled per resident, mud-wading trades w2), and the cell drives the grade (homespun, broadcloth, scarlet), rubbed elbows and seat, frayed hems, patches on w2 and the pewter sleeve buttons (p2, p3). Details: [`CITIZEN_WARDROBE.md`](./CITIZEN_WARDROBE.md#mens-tunics-r-2023).
+
 ## Linen (R-2024)
 
 The shirt, braies and chemise are baked base cloth, not files: their cell is the resident's wealth. `linen_fine` is the w0 of everyone above the poor; the poor wear coarse tow at w1 (yellowed) or w2 (sweat-stained). See [`CITIZEN_WARDROBE.md`](./CITIZEN_WARDROBE.md#linen-that-shows-r-2024).
@@ -179,6 +210,10 @@ The shirt, braies and chemise are baked base cloth, not files: their cell is the
 ## Bags (R-2034)
 
 Scrips and back sacks are fitted layers, not rigid props: one GLB per body carries every part on its own material, and the variant cell picks the cloth at runtime (p1 rawhide or linen, p2/p3 tooled leather, pilgrims plain leather with a pewter scallop; `w2` patched by the cloth wear). No `<layer>_<cell>.glb` files ship for bags. Details, history and captures: [`CITIZEN_WARDROBE.md`](./CITIZEN_WARDROBE.md#bags-r-2034).
+
+## Linen (R-2024)
+
+The shirt, braies and chemise are baked base cloth, not files: their cell is the resident's wealth. `linen_fine` is the w0 of everyone above the poor; the poor wear coarse tow at w1 (yellowed) or w2 (sweat-stained). See [`CITIZEN_WARDROBE.md`](./CITIZEN_WARDROBE.md#linen-that-shows-r-2024).
 
 ## Belt gear (R-2033)
 
@@ -208,3 +243,4 @@ Keys (iron bunch on a ring, left front) and the paternoster (right front; beads 
 - Meshy bakes soft studio light into the base colour, so a scan reads slightly flat under hard sun.
 - The cavity cut is implemented but not yet used on a shipped wearable (first use: EQ-13 kettle hat). The ComfyUI textile graph was not run in R-2003 (server offline); the Leonardo route was.
 - The wearable `socket_head`, `socket_hip` and `socket_back` conventions are defined here, not yet mounted.
+- Aketon: the skirt is skinned, not simulated, so in a long stride the forward thigh still opens holes in its hem (as for every skirt, [`CITIZEN_WARDROBE.md`](./CITIZEN_WARDROBE.md#limits)). Sweat placement assumes adult male heights. Kalev's own aketon (hero spec) keeps the old cut until his next rebuild. The collar shows through the open face of the mail coif, as worn.

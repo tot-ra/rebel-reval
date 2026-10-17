@@ -38,8 +38,11 @@ var _bob_phase := 0.0
 var _focused := false
 var _enabled := true
 var _view_runtime: Node
-var _outlined_meshes: Array[MeshInstance3D] = []
+# Instance IDs are transient presentation handles: typed Object keys cannot be
+# iterated after a pickup frees its mesh, even before is_instance_valid runs.
+var _outlined_meshes: Dictionary[int, Material] = {}
 var _outline_material: ShaderMaterial
+var _outline_root: Node3D
 
 
 func attach(interactable: Interactable, cell_size: int, view_runtime: Node = null) -> void:
@@ -57,6 +60,14 @@ func attach(interactable: Interactable, cell_size: int, view_runtime: Node = nul
 func set_enabled(value: bool) -> void:
 	_enabled = value
 	visible = value
+	_apply_visual_state()
+
+
+## Explicit presentation binding for non-actor sensors (for example sibling pickups).
+## Only the model subtree belongs here, never the floor marker or a whole map.
+func set_outline_root(visual_root: Node3D) -> void:
+	_outline_root = visual_root
+	_set_outline(_focused and _enabled)
 
 
 func set_focused(value: bool) -> void:
@@ -66,6 +77,7 @@ func set_focused(value: bool) -> void:
 
 func _process(delta: float) -> void:
 	if _interactable == null or not is_instance_valid(_interactable):
+		set_enabled(false)
 		return
 	if _interactable.is_enabled() != _enabled:
 		set_enabled(_interactable.is_enabled())
@@ -170,16 +182,20 @@ func _apply_visual_state() -> void:
 
 
 func _set_outline(active: bool) -> void:
-	# WHY: inverted-hull overlay draws a yellow contour on the focused actor's meshes
-	# without touching their authored materials.
-	for mesh in _outlined_meshes:
-		if is_instance_valid(mesh):
-			mesh.material_overlay = null
+	# WHY: the overlay lives outside the indicator. Hiding/freeing the indicator
+	# alone cannot clear it, and authored overlays must survive focus/unfocus.
+	for mesh_id: int in _outlined_meshes:
+		if not is_instance_id_valid(mesh_id):
+			continue
+		var mesh := instance_from_id(mesh_id) as MeshInstance3D
+		if mesh != null and mesh.material_overlay == _outline_material:
+			mesh.material_overlay = _outlined_meshes[mesh_id]
 	_outlined_meshes.clear()
 	if not active or _interactable == null or not is_instance_valid(_interactable):
 		return
-	var host := _interactable.get_parent()
-	var rig := _resolve_actor_rig(host)
+	var rig: Node = _outline_root if is_instance_valid(_outline_root) else null
+	if rig == null:
+		rig = _resolve_actor_rig(_interactable.get_parent())
 	if rig == null:
 		return
 	if _outline_material == null:
@@ -187,11 +203,22 @@ func _set_outline(active: bool) -> void:
 		_outline_material.shader = OUTLINE_SHADER
 		_outline_material.set_shader_parameter("outline_color", OUTLINE_COLOR)
 		_outline_material.set_shader_parameter("grow_amount", OUTLINE_GROW)
+	# Rigid pickup faces need the full hull; the actor-only facing filter removes
+	# flat axe/chest edges. Keep its default for layered clothes and hair.
+	_outline_material.set_shader_parameter(
+		"silhouette_limit", 1.0 if is_instance_valid(_outline_root) else 0.28
+	)
+	# A PackedScene may itself be a MeshInstance3D, not just a model container.
+	if rig is MeshInstance3D:
+		_outline_mesh(rig as MeshInstance3D)
 	for node in rig.find_children("*", "MeshInstance3D", true, false):
-		var mesh := node as MeshInstance3D
-		if mesh.visible and mesh.mesh != null:
-			mesh.material_overlay = _outline_material
-			_outlined_meshes.append(mesh)
+		_outline_mesh(node as MeshInstance3D)
+
+
+func _outline_mesh(mesh: MeshInstance3D) -> void:
+	if mesh.is_visible_in_tree() and mesh.mesh != null:
+		_outlined_meshes[mesh.get_instance_id()] = mesh.material_overlay
+		mesh.material_overlay = _outline_material
 
 
 func _on_focused() -> void:

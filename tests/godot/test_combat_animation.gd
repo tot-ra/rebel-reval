@@ -260,7 +260,10 @@ func test_side_rolls_tumble_toward_their_own_side_and_end_standing() -> void:
 			"%s tumbles toward its own side (%.2f)" % [id, head_side]
 		)
 		var end := skeleton.get_bone_global_pose(hips)
-		assert_true(end.basis.y.normalized().dot(start.basis.y.normalized()) > 0.95, "%s ends upright" % id)
+		assert_true(
+			end.basis.y.normalized().dot(start.basis.y.normalized()) > 0.95,
+			"%s ends upright" % id
+		)
 	kalev.queue_free()
 
 
@@ -301,10 +304,10 @@ func test_v1_bindings_retire_space_attack_but_keep_custom_keys() -> void:
 	for event in migrated.events_for(&"player_attack", InputBindingSettings.DEVICE_KEYBOARD_MOUSE):
 		assert_false(
 			event is InputEventKey and (event as InputEventKey).physical_keycode == KEY_SPACE,
-			"Space is the roll since bindings v2"
+			"Space must not remain an attack default after migration"
 		)
 	var roll := migrated.events_for(&"player_roll", InputBindingSettings.DEVICE_KEYBOARD_MOUSE)
-	assert_eq((roll[0] as InputEventKey).physical_keycode, KEY_SPACE)
+	assert_eq((roll[0] as InputEventKey).physical_keycode, KEY_CTRL)
 
 
 func test_spear_item_resolves_spear_move_set_with_guard_piercing_heavy() -> void:

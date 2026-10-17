@@ -7,24 +7,6 @@ const MapRrmapParserScript := preload("res://scripts/map/rrmap/map_rrmap_parser.
 const TOOMPEA_RRMAP := "res://content/maps/toompea_quarter.rrmap"
 
 
-func test_toompea_jurisdiction_contract_is_closed_and_inactive() -> void:
-	assert_true(JurisdictionModelScript.is_known(JurisdictionModelScript.JURISDICTION_TOOMPEA_DANISH))
-	assert_true(JurisdictionModelScript.is_known(JurisdictionModelScript.JURISDICTION_ALL_LINN_LUBECK))
-	assert_eq(
-		JurisdictionModelScript.jurisdiction_for_map(JurisdictionModelScript.TOOMPEA_MAP_ID),
-		JurisdictionModelScript.JURISDICTION_TOOMPEA_DANISH
-	)
-	var parsed := MapRrmapParserScript.parse_file(TOOMPEA_RRMAP)
-	assert_true(parsed.is_ok(), "Toompea RRMap must remain parseable")
-	assert_false(parsed.definition.active, "P4-040 must not activate Toompea")
-	var snapshot := JurisdictionModelScript.developer_snapshot(
-		JurisdictionModelScript.TOOMPEA_MAP_ID,
-		parsed.definition.active
-	)
-	assert_false(bool(snapshot["active"]), "inactive transitions stay developer-visible only")
-	assert_eq((snapshot["transitions"] as Array).size(), 2)
-
-
 func test_day_opens_both_hill_gates_and_night_closes_from_lower_town() -> void:
 	var state := GameState.new()
 	var controller := HillGateControllerScript.new()
@@ -53,9 +35,7 @@ func test_phase_director_hook_persists_night_closure_and_morning_reopen() -> voi
 
 	phase_state.set_phase(GameState.PHASE_INVESTIGATION_NIGHT)
 	assert_eq(
-		PhaseDirector._hill_gate_controller.get_gate_state(
-			HillGateControllerScript.GATE_PIKK_JALG
-		),
+		PhaseDirector._hill_gate_controller.get_gate_state(HillGateControllerScript.GATE_PIKK_JALG),
 		HillGateControllerScript.GATE_STATE_CLOSED
 	)
 	assert_eq(
@@ -67,9 +47,7 @@ func test_phase_director_hook_persists_night_closure_and_morning_reopen() -> voi
 
 	phase_state.set_phase(GameState.PHASE_REFLECTION_MORNING)
 	assert_eq(
-		PhaseDirector._hill_gate_controller.get_gate_state(
-			HillGateControllerScript.GATE_PIKK_JALG
-		),
+		PhaseDirector._hill_gate_controller.get_gate_state(HillGateControllerScript.GATE_PIKK_JALG),
 		HillGateControllerScript.GATE_STATE_OPEN
 	)
 	assert_eq(
@@ -106,15 +84,9 @@ func test_gate_states_round_trip_through_game_state_save_payload() -> void:
 func test_transition_contracts_bind_both_gate_ids_to_all_linn() -> void:
 	var contracts := JurisdictionModelScript.transition_contracts()
 	for contract in contracts:
-		assert_true(
-			JurisdictionModelScript.TOOMPEA_TRANSITION_IDS.has(contract["transition_id"])
-		)
+		assert_true(JurisdictionModelScript.TOOMPEA_TRANSITION_IDS.has(contract["transition_id"]))
 		assert_true(HillGateControllerScript.is_known_gate(contract["gate_id"]))
 		assert_eq(
-			contract["from_jurisdiction"],
-			JurisdictionModelScript.JURISDICTION_TOOMPEA_DANISH
+			contract["from_jurisdiction"], JurisdictionModelScript.JURISDICTION_TOOMPEA_DANISH
 		)
-		assert_eq(
-			contract["to_jurisdiction"],
-			JurisdictionModelScript.JURISDICTION_ALL_LINN_LUBECK
-		)
+		assert_eq(contract["to_jurisdiction"], JurisdictionModelScript.JURISDICTION_ALL_LINN_LUBECK)

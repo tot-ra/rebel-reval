@@ -7,16 +7,20 @@ extends RefCounted
 ## post is a kettle hat on the head and a spear or sword in the hand. The kit id
 ## comes from `duty.kit` in content/world/reval_city/citizens.json.
 
+const SwordBelt := preload("res://scripts/city/sword_belt.gd")
 const KETTLE_HAT := preload("res://assets/characters/realistic/watchman/kettle_hat/kettle_hat.glb")
 ## Watch spear variant from the equipment pipeline (docs/SYSTEMS/EQUIPMENT_VARIANTS.md,
 ## R-2003): Meshy leaf-blade head on a 2 m ash shaft, origin at the grip, shaft along +Y.
 ## The legacy primitive assets/characters/shared/spear.tscn stays until R-2035.
 const SPEAR := preload("res://assets/props/weapons/spear/variants/spear_p1_w1.glb")
-const SWORD := preload("res://assets/characters/shared/sword.tscn")
+## Arming sword family (R-2007): Meshy scans, origin at the grip, blade along +Y. The
+## munition sword is the base; the legacy primitive shared/sword.tscn goes in R-2035.
+const SWORD := preload("res://assets/props/weapons/arming_sword/variants/arming_sword_p1_w1.glb")
 ## Variant folders (EQUIPMENT_VARIANTS.md): `<dir>/<family>_<cell>.glb`. The resident's
-## `gear_variant` cell picks the file; a missing cell falls back to SPEAR or SWORD above.
+## `gear_variant` cell picks the file, else the nearest shipped wear of its prestige
+## (EquipmentVariant.nearest_cell), else SPEAR or SWORD above.
 const SPEAR_DIR := "res://assets/props/weapons/spear/variants"
-const SWORD_DIR := "res://assets/props/weapons/sword/variants"
+const SWORD_DIR := SwordBelt.SWORD_DIR
 const EquipmentVariant := preload("res://scripts/city/equipment_variant.gd")
 
 ## Kit -> {hat, hand}. The gatekeeper carries nothing: his keys are his badge.
@@ -30,6 +34,10 @@ const KITS := {
 ## down, so the spear's shaft (its Y) is turned onto hand -X; the GLB origin is already
 ## the grip (socket_grip), so no offset or scale. Real size, 2.33 m overall.
 static var _spear_held := Transform3D(Basis(Vector3.BACK, PI * 0.5), Vector3.ZERO)
+## The sword out of the thumb side of the fist, not along the forearm as the spear: turned
+## 0.9 rad less than the spear, so the hanging idle arm holds it forward and up at the
+## ready instead of running the blade up through the sleeve (capture_arming_swords.gd).
+static var _sword_held := Transform3D(Basis(Vector3.BACK, PI * 0.5 - 0.9), Vector3.ZERO)
 
 ## Lantern hanging from the left fist by its bail. The left hand slot mirrors the right
 ## one, so the spear's turn would stand the lantern on its head and bury the horn body in
@@ -58,9 +66,12 @@ static func arm(rig: SharedCharacterRig, record: Dictionary) -> void:
 	CitizenWardrobe.dress(rig, record)
 	_carry_shield(rig, record)
 	var duty: Dictionary = record.get("duty", {})
-	if duty.is_empty() or not KITS.has(duty.get("kit", "")):
+	var kit: Dictionary = KITS.get(String(duty.get("kit", "")), {})
+	# Sword belt (census `sword`): the scabbard hangs empty while the sword is in the hand.
+	if bool(record.get("sword", false)):
+		SwordBelt.gird(rig, gear_cell(record), kit.get("hand", &"") != &"sword")
+	if kit.is_empty():
 		return
-	var kit: Dictionary = KITS[duty["kit"]]
 	# Fallback hat (the watchman's, skinned to the shared skeleton) for a body
 	# without its own fitted kettle hat layer.
 	if kit["hat"] and not rig.has_garment(&"wear_kettle_hat"):
@@ -72,7 +83,9 @@ static func arm(rig: SharedCharacterRig, record: Dictionary) -> void:
 			if spear != null:
 				spear.transform = _spear_held
 		&"sword":
-			_equip_variant(rig, SWORD_DIR, "sword", cell, SWORD)
+			var sword := _equip_variant(rig, SWORD_DIR, "arming_sword", cell, SWORD)
+			if sword != null:
+				sword.transform = _sword_held
 	_carry_lantern(rig, duty, kit)
 
 
@@ -82,16 +95,20 @@ static func gear_cell(record: Dictionary) -> String:
 	return cell if EquipmentVariant.is_cell(cell) else EquipmentVariant.BASE_CELL
 
 
-## Mounts `<family>_<cell>` on the right hand, or the base item with a stand-in wear
-## finish when that variant is not shipped. Returns the mounted node.
+## Mounts `<family>_<cell>` on the right hand, or the nearest shipped cell of its
+## prestige, or the base item; a stand-in wear finish marks a substitute of another wear.
+## Returns the mounted node (meta `variant` = the requested id).
 static func _equip_variant(
 	rig: SharedCharacterRig, dir: String, family: String, cell: String, base: PackedScene
 ) -> Node3D:
-	var own := EquipmentVariant.variant_scene(dir, family, cell)
+	var shipped := EquipmentVariant.nearest_cell(dir, family, cell)
+	var own: PackedScene = (
+		EquipmentVariant.variant_scene(dir, family, shipped) if not shipped.is_empty() else null
+	)
 	var item := rig.equip(&"right_hand", own if own != null else base)
 	if item != null:
 		item.set_meta(&"variant", "%s_%s" % [family, cell])
-		if own == null:
+		if shipped != cell:
 			EquipmentVariant.finish(item, cell)
 	return item
 

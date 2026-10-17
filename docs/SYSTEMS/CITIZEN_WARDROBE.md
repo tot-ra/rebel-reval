@@ -1,6 +1,6 @@
 # Citizen wardrobe: dress that shows rank, age, trade and arms
 
-Status: implemented (tasks **R-1663**, **R-1667**, epic **R-1662**; prestige and wear variants **R-2004**; surcoats and the Order mantle **R-2022**; bags **R-2034**). Scope: the census residents of the seamless city ([`CITIZENS.md`](./CITIZENS.md)) wear layers over their baked base outfit, chosen from what the census knows about them: head coverings, aprons, the armour kits of the watch, crown men, knights and Order brothers (coat of plates, aventail, great helm, chausses, gauntlets, white mantle with the black cross, shields), keys, prayer beads, scrips and sacks, each dyed by wealth and office; every piece of cloth is drawn in a grade that matches the wearer's wealth (homespun to scarlet) and dirtied by their trade (see [Cloth grades and wear](#cloth-grades-and-wear)). Out of scope (planned, see [Roadmap](#roadmap)): civilian mantles and cloaks, new gowns, footwear, more child bodies, hand-carried props, hair and tonsure, and a crowd variety gate. Named NPCs keep their own models ([`NAMED_NPCS.md`](./NAMED_NPCS.md)).
+Status: implemented (tasks **R-1663**, **R-1667**, epic **R-1662**; prestige and wear variants **R-2004**; surcoats and the Order mantle **R-2022**; bags **R-2034**; men's tunics and cotehardie **R-2023**). Scope: the census residents of the seamless city ([`CITIZENS.md`](./CITIZENS.md)) wear layers over their baked base outfit, chosen from what the census knows about them: head coverings, aprons, the armour kits of the watch, crown men, knights and Order brothers (coat of plates, aventail, great helm, chausses, gauntlets, white mantle with the black cross, shields), keys, prayer beads, scrips and sacks, each dyed by wealth and office; every piece of cloth is drawn in a grade that matches the wearer's wealth (homespun to scarlet) and dirtied by their trade (see [Cloth grades and wear](#cloth-grades-and-wear)). Out of scope (planned, see [Roadmap](#roadmap)): civilian mantles and cloaks, new gowns, footwear, more child bodies, hand-carried props, hair and tonsure, and a crowd variety gate. Named NPCs keep their own models ([`NAMED_NPCS.md`](./NAMED_NPCS.md)).
 
 ## Historical basis
 
@@ -59,6 +59,7 @@ Grades follow the dossier's cloth ladder (undyed homespun for the poor, fulled b
 | `linen_coarse_w1` / `linen_coarse_w2` | the tow yellowed / sweat-stained (albedo only, weave of `linen_coarse`, R-2024) | 9 cm | the linen of the poor ([Linen that shows](#linen-that-shows-r-2024)) |
 | `leather`, `quilted` | the existing family sets | 22 / 20 cm | as made |
 | `leather_tooled` / `rawhide` | vegetable-tanned leather with a blind-tooled lattice and ring stamps / scraped, dried untanned hide, waxy and mottled (`tools/assets/realistic_humans/bag_textiles.py`, R-2034) | 11 / 20 cm | scrips: burghers' pouches / the poor's pouches and straps ([Bags](#bags-r-2034)) |
+| `quilted_silk` | silk-covered quilting of a knight's aketon (`p3`, R-2019) | 20 cm | aketon cells `p3_*` |
 | `fur` | pelt strands in clumps | 12 cm | built for fur trim and linings; no crowd garment uses fur yet (**R-1665**) |
 
 Wear is drawn by the same shader from one shared RGBA mask (`wear_mask_512.png`: R mud spatter, G soot smudge, B flour dust, A stain blotches, 60 cm tile) and the skinned model-space position (height above the feet, front of the body):
@@ -79,6 +80,21 @@ Instance uniforms (per mesh, `GeometryInstance3D.set_instance_shader_parameter`)
 **Memory.** Materials are cached per source material and grade (about 10 garments per body, 22 bodies plus layers); no resident owns a material or a texture. The grade sets add **3.78 MiB** of texture memory once (measured, see [`PERFORMANCE_REPORT.md`](../PERFORMANCE_REPORT.md#citizen-cloth-grades-r-1667)); the family sets the GLBs reference stay loaded.
 
 ![Rich merchant, poor porter, smith at 3 m](../reports/images/characters/citizen_textiles_3m.jpg)
+
+## Men's tunics (R-2023)
+
+Task **R-2023** (EQ-21 of epic **R-2002**) recut the men's base tunics and added the cotehardie. Builders: [`mens_dress.py`](../../tools/assets/realistic_humans/mens_dress.py), registered over the plain entries of `garments.WARDROBE` (`wool_tunic`, `short_tunic`, `long_tunic`, `work_tunic`, `shirt_tunic`, new `cotehardie`).
+
+- **Cut (Herjolfsnes and Bocksten comparanda, clothing dossier).** Fitted bodice; the skirt's fullness sits in gores at centre front, back and sides (eight on the calf-length tunic), so the hem hangs in cones over the gores and flat over the panels. Side slits from the hem (9 cm thigh, 15 cm knee, 24 cm calf). Sleeves close at the forearm to the wrist. The belt is laid on the tunic's own surface, so blousing and gores never swallow it.
+- **Length shows age and standing.** Men's body outfits: `a` short tunic to the thigh (poor, children), `b` calf-length tunic (the better-off; elders always wear it), `c` the cotehardie.
+- **Cotehardie (1340s fashion of rich young men).** Close-fitting, padded at the chest, skirt to mid-thigh, latten buttons from neck to hem and elbow to wrist, belt slung on the hips with purse and knife, the linen shirt's band at the neck. Census rule `build_citizen_runtime.COTE_SHARE` (noble 0.8, patrician 0.65, guest merchant 0.45, burgher merchant 0.4) for men up to `COTE_MAX_AGE` 35, not clerics: 44 residents today. Bodies `citizen_m_adult_{thin,average,sturdy,heavy}_c`, with every men's layer except `smith_apron`, `waist_apron` and `back_sack` (`citizen_bodies._MEN_NOT_WITH`).
+- **Variant cell of the base tunic.** `CitizenWardrobe.tunic_cell(record)` gives a man's baked tunic a cell like a layer's ([`EQUIPMENT_VARIANTS.md`](./EQUIPMENT_VARIANTS.md)): prestige from wealth (p1 `homespun`, p2 `broadcloth`, p3 `scarlet`, the existing grade sets), wear rolled per resident (poor w1 or w2, middling w0 or w1, rich w0; trades with mud wear 0.7 or more, porters, carters, farmers, w2). So the task's variants are p1 w1/w2 homespun, p2 w0/w1 broadcloth, p3 w0 scarlet (long tunic or cotehardie). Women's gowns return `""` and keep the wealth wear.
+- **Wear.** Men's tunics carry a second UV map `Wear` (glTF `TEXCOORD_1`, Godot `UV2`): U rub (elbows, cuffs, seat), V nearness to a free edge (hems, cuffs, slits, neckline). `weave` sets the instance uniform `wear_cloth` (rub, fray) from `TUNIC_WEAR`; the cloth shader paints rubbed elbows and seat smooth, pale and shiny with a flattened nap, and greys hems and cuffs with pale broken threads. Patches come only with wear: none on w0, the wealth patches x 0.4 on w1, at least 0.45 on w2. Layers leave `wear_cloth` at 0 (the surcoat and mantle use their own `UV2`, R-2022).
+- **Buttons.** Crowd tunics bake a row of five pewter buttons above each wrist (`<body>_tunic_buttons`); `weave` hides them on p1 with a shared material that collapses the surface (`CitizenWardrobe.hidden_material`). Heroes show them when their spec sets `sleeve_buttons` (Jurgen).
+
+![Earlier citizen wardrobe overview, shown for context only](../reports/images/characters/citizen_wardrobe_1_front.jpg)
+
+The earlier [rear view](../reports/images/characters/citizen_wardrobe_1_back.jpg) is also contextual only; neither image documents the R-2023 tunic variants. The dedicated market lineup, sleeve and hem close-ups, cotehardie, and seat-detail captures are absent from tracked files and Git history, so there is no equivalent evidence to relink. Capture source: `tools/godot_render.sh --script tools/capture_mens_tunics.gd`.
 
 ## Shared layers (R-2212)
 
@@ -174,6 +190,25 @@ Hand-carried trade props (baskets, buckets, carried sacks; **R-1670**) are not l
 
 Capture: `tools/godot_render.sh --script tools/capture_bag_variants.gd`. Refit: `build_human.py -- --character=<body> --layers-only --only satchel,back_sack` for each body that has them.
 
+## Linen that shows (R-2024)
+
+Every man wore a linen shirt and braies under the wool, every woman a chemise (smock, *sark*) under the gown ([clothing dossier](../../history/dossiers/dailylife/clothing-and-status-markers.md)). On a crowd body only its edges are seen, so only the edges are built, by `tools/assets/realistic_humans/underlinen.py` (imported at the end of `garments.py`, it wraps the base outfit entries of `WARDROBE`):
+
+| Base outfit | Linen that shows |
+|---|---|
+| `short_tunic`, `long_tunic` (men, elders, boys) | shirt band 1.1 cm above the tunic's neckline; cuffs 1.4 cm past the wool sleeve, rolled hem |
+| `cotehardie` | shirt band only (the sleeve runs over the hand) |
+| `work_gown`, `gown` (women, elders, girls) | chemise edge 0.8 cm above the round neckline; cuffs |
+| `kirtle` | chemise edge only (the buttoned sleeve covers the wrist) |
+| `linen_shift` (outfit `d`) | the shift itself is the linen |
+| every body | `Clothing_Braies` (baked under the hose) |
+
+`under_shirt` (the healer's boy's `shirt_tunic`) uses the same collar and cuffs; its shell stops inside the wool sleeve. The pieces are textile family `linen` and keep their undyed colour (dye slot 0).
+
+The grade follows the variant rule of [`EQUIPMENT_VARIANTS.md`](./EQUIPMENT_VARIANTS.md#linen-r-2024): the poor wear coarse tow, `linen_coarse_w1` (yellowed) or `linen_coarse_w2` (sweat-stained: labourers, servants and one in three of the rest, `CitizenWardrobe.linen_grade`, rolled on the id); everyone better off wears bleached `linen_fine` (w0). The worn grades are albedo maps only (`textiles.linen_coarse_worn`, `write_linen_wear`); their normal and ORM are the `linen_coarse` set (`CitizenWardrobe.GRADE_BASE`). The braies, coifs, veils and aprons of a resident take the same grade as the shirt.
+
+Capture (`tools/capture_underlinen.gd`): [neck and wrist, three ranks of men and women](../reports/images/characters/citizen_underlinen.jpg).
+
 ## Belt gear (R-2033)
 
 Keys and prayer beads no longer use their fitted layers on a body with a baked belt: they hang as rigid parts with the buckle, strap-end, mounts and purse of the resident's prestige (`scripts/city/belt_gear.gd`, called at the end of `dress`). The census rules and layer ids are unchanged. Details and captures: [`EQUIPMENT_VARIANTS.md`](./EQUIPMENT_VARIANTS.md#belt-gear-r-2033).
@@ -206,7 +241,7 @@ Variants on the sturdy build (`tools/godot_render.sh --script tools/capture_surc
 
 Layer ids are stable: `hood`, `coif`, `wool_cap`, `braids`, `headscarf`, `head_cloth`, `wimple`, `barbette`, `veil_over`, `kettle_hat`, `mail_coif`, `aventail`, `bascinet`, `great_helm`, `gambeson`, `mail_haubergeon`, `coat_of_plates`, `surcoat`, `order_mantle`, `mail_chausses`, `gauntlets`, `smith_apron`, `waist_apron`, `keys`, `paternoster`, `satchel`, `back_sack`. Mounted garment ids are `wear_<layer>`. The armour layers exist on the eight adult men's bodies only. The stack is built in this order, each layer clearing the trees the layers under it registered (`ctx.layers`): aketon, mail, coat of plates, mail coif or aventail, surcoat, mantle.
 
-Shields are not layers: the optional resident field `shield` (`order`, `crown`, `field`, `plain`; `citizen_wardrobe.shield_of`) is a modelled GLB chosen by `CitizenShield` (`scripts/city/citizen_shield.gd`, R-2013): `heater_order` (white, black cross, p3), `heater_crown` (plain crown red, p2), `heater_field` (pale board, runtime-tinted, p3), `heater_plain` (scuffed wood with an iron boss, p1), plus `buckler` and `pavise` families (models and `CitizenShield.scene` kinds `buckler`/`pavise` ship; the census does not hand them out yet). The bearer's `gear_variant` cell picks the file, else the nearest shipped cell of that kind. They are mounted on the left hand slot by `CitizenGear` (`_shield_held` turns the board face outward; the enarmes show from behind). Files: [shield variants](../../assets/props/weapons/heater_shield/variants), built by `tools/assets/equipment/build_shields.py`; see [EQUIPMENT_VARIANTS.md](EQUIPMENT_VARIANTS.md#shields-r-2013). `field` shields take the colour of the knight's coat of plates or surcoat. The town watch carries none. Grade ids are stable: `homespun`, `broadcloth`, `scarlet`, `linen_coarse`, `linen_coarse_w1`, `linen_coarse_w2`, `linen_fine`, `leather`, `quilted`, `fur`.
+Shields are not layers: the optional resident field `shield` (`order`, `crown`, `field`, `plain`; `citizen_wardrobe.shield_of`) is a modelled GLB chosen by `CitizenShield` (`scripts/city/citizen_shield.gd`, R-2013): `heater_order` (white, black cross, p3), `heater_crown` (plain crown red, p2), `heater_field` (pale board, runtime-tinted, p3), `heater_plain` (scuffed wood with an iron boss, p1), plus `buckler` and `pavise` families (models and `CitizenShield.scene` kinds `buckler`/`pavise` ship; the census does not hand them out yet). The bearer's `gear_variant` cell picks the file, else the nearest shipped cell of that kind. They are mounted on the left hand slot by `CitizenGear` (`_shield_held` turns the board face outward; the enarmes show from behind). Files: [shield variants](../../assets/props/weapons/heater_shield/variants), built by `tools/assets/equipment/build_shields.py`; see [EQUIPMENT_VARIANTS.md](EQUIPMENT_VARIANTS.md#shields-r-2013). `field` shields take the colour of the knight's coat of plates or surcoat. The town watch carries none. Grade ids are stable: `homespun`, `broadcloth`, `scarlet`, `linen_coarse`, `linen_coarse_w1`, `linen_coarse_w2`, `linen_fine`, `leather`, `quilted`, `quilted_silk`, `fur`. The aketon's variant cell sets its cover, dye, patches and sweat ([`EQUIPMENT_VARIANTS.md`](./EQUIPMENT_VARIANTS.md#the-aketon-r-2019)).
 
 ## Commands
 
@@ -235,6 +270,7 @@ python3 -m unittest tests.python.test_citizen_wardrobe tests.python.test_equipme
 python3 tools/city/build_citizen_runtime.py --check
 godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_citizen_wardrobe,test_equipment_variants
 tools/godot_render.sh --script tools/capture_watch_variants.gd   # six watchmen, mixed variants
+tools/godot_render.sh --script tools/capture_mens_tunics.gd      # twelve men, tunic cells and cotehardie
 ```
 
 Armour plates (four builds, five kits each: man-at-arms, coat of plates, vassal knight, great helm, Order brother), idle and walk (`--walk`), by build: thin [front](../reports/images/characters/citizen_armour_thin_front.jpg), [back](../reports/images/characters/citizen_armour_thin_back.jpg), [walk front](../reports/images/characters/citizen_armour_thin_front_walk.jpg), [walk back](../reports/images/characters/citizen_armour_thin_back_walk.jpg), average [front](../reports/images/characters/citizen_armour_average_front.jpg), [back](../reports/images/characters/citizen_armour_average_back.jpg), [walk front](../reports/images/characters/citizen_armour_average_front_walk.jpg), [walk back](../reports/images/characters/citizen_armour_average_back_walk.jpg), sturdy [front](../reports/images/characters/citizen_armour_sturdy_front.jpg), [back](../reports/images/characters/citizen_armour_sturdy_back.jpg), [walk front](../reports/images/characters/citizen_armour_sturdy_front_walk.jpg), [walk back](../reports/images/characters/citizen_armour_sturdy_back_walk.jpg), heavy [front](../reports/images/characters/citizen_armour_heavy_front.jpg), [back](../reports/images/characters/citizen_armour_heavy_back.jpg), [walk front](../reports/images/characters/citizen_armour_heavy_front_walk.jpg), [walk back](../reports/images/characters/citizen_armour_heavy_back_walk.jpg).
@@ -251,11 +287,11 @@ Cloth grades and wear (`tools/capture_citizen_textiles.gd`, 3 m): [rich](../repo
 
 - Layers are worn indoors and in bed too (no hood down, no undressing at home); weather does not change dress yet (**R-1664**).
 - Women's headscarf and the men's belt with purse and knife are baked into every base body, so maidens cannot go bareheaded and poor men cannot lose the knife until **R-1665** and **R-1668** move them to layers.
-- One base cut per wealth bracket (short or long); no sideless surcoat, fitted kirtle, fur trim or Estonian wrap skirt yet (**R-1665**). Novgorod merchants dress like Germans (no kaftan or fur hat).
+- Men's base cuts are short, calf-length or cotehardie ([Men's tunics](#mens-tunics-r-2023)); the knee-length `wool_tunic` and the work tunic are heroes' only. No sideless surcoat, fitted kirtle, fur trim or Estonian wrap skirt yet (**R-1665**). Novgorod merchants dress like Germans (no kaftan or fur hat).
 - Layers clear the baked base by ease and a final push, not by cloth simulation. Skirts are skinned to the hips and thighs, so in the walk cycle the forward knee shows through the hem of the baked tunic and of the aketon or surcoat alike (also true of bodies without layers).
 - Armour exists on adult men's bodies only: an elder knight (the census's one Order brother is 67) wears none. Plates are cloth-covered, so no bare plate cuirass, and a gauntlet is a smooth shell, not articulated. The shield is a flat board hung at the hip, not strapped to the forearm in the walk cycle. The Order mantle follows the surcoat's skirt in the walk (R-2022), so on a long stride it swings out as one stiff panel; the census has no Order brother young enough to wear it in the city.
-- Wear is a tint and roughness change, not geometry: no frayed hems, torn holes or wet cloth; mud does not change with weather or season, and nothing washes off (clothes stay as dirty at Sunday mass).
-- Elbows and knees are not worn through: the shader knows height and front, not limbs.
+- Wear is a tint and roughness change, not geometry: frayed hems and rubbed elbows on men's tunics are painted (no torn holes outside the surcoat and mantle, no wet cloth); mud does not change with weather or season, and nothing washes off (clothes stay as dirty at Sunday mass).
+- Only men's tunics know their elbows, seat and hems (`Wear` UV2); gowns and layers are worn by height and front only, and knees are never worn.
 - Named NPCs ([`NAMED_NPCS.md`](./NAMED_NPCS.md)) and heroes keep their own StandardMaterials; only census residents dressed through `CitizenGear.arm` are woven. `CityCitizens.dye` still duplicates the tunic and hose material per resident before `weave` replaces it (a transient copy; folding the dye into `weave` would touch `city_citizens.gd`).
 - The fur grade has no garment yet (**R-1665** trims, **R-1664** mantles).
 - No layer ships a variant file yet, so prestige cells look alike; wear cells differ by the stand-in cloth wear and iron finish only (**R-2004**, item tasks of epic **R-2002**).

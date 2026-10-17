@@ -3,7 +3,7 @@ name: rebel-complex-task-loop
 description: Unattended recurring loop that picks one high-complexity task the agent can finish without human approval, delivers a verified slice, commits and pushes on main, and hands off the rest as board follow-ups.
 ---
 
-# Complex task loop (autonomous)
+# Complex task loop
 
 This loop runs on a schedule with **no human present**. Nobody answers questions, approves decisions, or reviews art during the run. Every choice below follows from that.
 
@@ -12,8 +12,7 @@ Read first: `AGENTS.md`, `agents/WORK_PROTOCOL.md`, `agents/playbook.md`, `agent
 ## Autonomy rules
 
 - Never call the `question` tool and never stop to wait for a reply. If a step needs a human, it is a blocker: record it and move on.
-- Do not lower the selection bar to find work. "No eligible task" is a valid result (`idle: no autonomous candidate`).
-- Do not make product, scope, canon, or art-direction decisions. Implement only what the task contract, accepted ADRs, and `docs/CANON.md` already decide. Where the contract is silent on a small technical detail, choose the option that is reversible and consistent with neighbouring code, and write the choice into the task body as a decision.
+- Implement only what is in task contract. Do your best judgement
 
 ## 1. Orient and recover
 
@@ -24,25 +23,6 @@ Read first: `AGENTS.md`, `agents/WORK_PROTOCOL.md`, `agents/playbook.md`, `agent
 ## 2. Select one eligible task
 
 Candidates: status `todo`, complexity `c3`-`c5` (or `c0` with an estimate of 6h or more), highest priority first (`p0` > `p4`), then tasks that advance the `docs/ROADMAP.md` current focus (`track:demo`, `track:slice`).
-
-A task is eligible only if **all** of these hold:
-
-| Check | Reject when |
-|-------|-------------|
-| Human gate | Tags or body contain `blocked-external`, `blocked-decision`, `rights`, `needs-human`, `review: canon`, or the deliverable is a human/named/historical/art sign-off, review, or approval |
-| Scope | Needs a new ADR, a scope change, or depends on an ADR whose status is not Accepted |
-| Asset freeze | Creates or replaces art and the task does not name the exact files and `assets/SOURCES.csv` rows (P0-040) |
-| Canon | Adds period-visible content (people, places, dialogue, history) whose content dependency is not canon-approved |
-| Role | Owned by Producer, Canon Keeper, or Research (decision roles). Dev, QA-tooling, and Map work is eligible |
-| Contract | Missing a concrete deliverable, an unambiguous write set, or a reproducible `verify:` clause |
-| Dependencies | Any `depends_on` / `deps:` task is not `done` |
-| Environment | Needs hardware, accounts, or services not available here (for example "recommended-host" measurements, a paid service without an integration) |
-| Collision | Allowed paths overlap an `in_progress` task or dirty files of another session |
-| Already built | `git log origin/main --grep <ref>` or a search of the deliverable paths shows the work already landed |
-| Repeat failure | The body records two failed attempts by this loop |
-| Epic | Tagged `epic`: pick its ready child instead of the parent |
-
-Read the full body (`tasks.get`) of the top few candidates before deciding. If a strong candidate fails only on a human gate, leave it alone; if it fails on a missing contract, add one short note to its body (`autonomy: blocked - <reason>`) so later runs skip it faster. Do not spend more than about 10 minutes on selection.
 
 Claim with `tasks.update` (`status: in_progress`, add tag `complex-loop`), then `tasks.get` again to confirm no concurrent worker (for example the hourly `task` loop) claimed it in between.
 

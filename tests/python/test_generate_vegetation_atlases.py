@@ -62,7 +62,8 @@ class GeneratedSetTests(unittest.TestCase):
 
     def test_every_output_is_power_of_two(self) -> None:
         for relative in self.digests:
-            width, height = Image.open(self.first / relative).size
+            with Image.open(self.first / relative) as image:
+                width, height = image.size
             for side in (width, height):
                 self.assertEqual(side & (side - 1), 0, f"{relative} is {width}x{height}")
 
@@ -157,7 +158,8 @@ class ReviewSheetTests(unittest.TestCase):
             sheets = gen.review_sheets(atlas, atlas, out)
             self.assertEqual([path.name for path in sheets],
                              [f"{species}_before_after.png" for species in gen.TILES])
-            self.assertEqual(Image.open(sheets[0]).size, (1024, 256))
+            with Image.open(sheets[0]) as image:
+                self.assertEqual(image.size, (1024, 256))
 
 
 if __name__ == "__main__":

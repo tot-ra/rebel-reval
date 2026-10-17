@@ -58,9 +58,12 @@ Numbered decisions (Status / Context / Decision / Alternatives / Consequences). 
 - [ADR 0053: Context-aware jumping chosen by a small network](0053-context-aware-jumping-leap-network.md)
 - [ADR 0054: The hero sits on chairs, stools and benches](0054-hero-sits-on-seats.md)
 - [ADR 0055: Soul attachments and per-light sin inclinations](0055-soul-attachments-and-sin-inclinations.md)
+- [ADR 0056: Neural motor control, one network per body family](0056-neural-motor-control-per-body-family.md)
 - [ADR 0057: Lightning strikes as a gameplay hazard](0057-lightning-strikes-gameplay-hazard.md)
 - [ADR 0058: The Apprentice is 18](0058-protagonist-age-18.md)
+- [ADR 0059: Staged scenes in the live world; stills and AI video only for memory and vision](0059-staged-scenes-in-the-live-world.md)
 - [ADR 0060: Content maturity policy: rating target, violence, adult sexuality and nudity, sexual violence, evidence](0060-content-maturity-policy.md)
 - [ADR 0061: Cold and wetness exposure for the hero](0061-hero-cold-and-wetness-exposure.md)
+- [ADR 0062: Separate grain sacks that can be pushed and torn open](0062-destructible-grain-sacks.md)
 
 <!-- docs-index:end -->

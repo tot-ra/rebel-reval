@@ -14,19 +14,19 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Summary
 
-- Active Markdown files scanned: `1316`
+- Active Markdown files scanned: `1320`
 - Markdown files excluded as archive/reference/out of active scope: `787`
-- Local/external links inspected: `15383`
-- Links to active Markdown docs: `13170`
-- Links to existing archive/reference/non-active local docs: `584`
+- Local/external links inspected: `15432`
+- Links to active Markdown docs: `13196`
+- Links to existing archive/reference/non-active local docs: `587`
 - External links skipped for reachability: `194`
-- Issues found: `1`
+- Issues found: `0`
 
 ## Issue counts
 
 | Code | Count |
 | --- | ---: |
-| `BROKEN_LINK` | 1 |
+| `BROKEN_LINK` | 0 |
 | `BROKEN_ANCHOR` | 0 |
 | `DUPLICATE_CHARACTER_NAME` | 0 |
 | `CONTRADICTORY_DATE` | 0 |
@@ -34,9 +34,7 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 
 ## Issues
 
-| Code | Location | Detail |
-| --- | --- | --- |
-| `BROKEN_LINK` | `docs/SYSTEMS/COMBAT_ANIMATION.md:186` | Local Markdown link target does not exist: `../reports/images/characters/idle_foot_lock_before_after.png` |
+No active Markdown documentation issues found.
 
 ## Active files scanned
 
@@ -93,10 +91,13 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/adr/0053-context-aware-jumping-leap-network.md`
 - `docs/adr/0054-hero-sits-on-seats.md`
 - `docs/adr/0055-soul-attachments-and-sin-inclinations.md`
+- `docs/adr/0056-neural-motor-control-per-body-family.md`
 - `docs/adr/0057-lightning-strikes-gameplay-hazard.md`
 - `docs/adr/0058-protagonist-age-18.md`
+- `docs/adr/0059-staged-scenes-in-the-live-world.md`
 - `docs/adr/0060-content-maturity-policy.md`
 - `docs/adr/0061-hero-cold-and-wetness-exposure.md`
+- `docs/adr/0062-destructible-grain-sacks.md`
 - `docs/adr/README.md`
 - `docs/AGENT_LOOPS.md`
 - `docs/ANIMAL_3D_SOURCING.md`
@@ -1214,6 +1215,7 @@ This deliberately excludes legacy root design docs, `characters/`, `scenes/`, `s
 - `docs/SYSTEMS/FARMLAND.md`
 - `docs/SYSTEMS/FLAG_CLOTH.md`
 - `docs/SYSTEMS/GATE_GARRISONS.md`
+- `docs/SYSTEMS/GRAIN_SACKS.md`
 - `docs/SYSTEMS/HERO_EXPOSURE.md`
 - `docs/SYSTEMS/HOIST_ROPE.md`
 - `docs/SYSTEMS/HOUSEHOLD_CURE.md`

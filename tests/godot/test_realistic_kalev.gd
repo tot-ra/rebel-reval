@@ -48,8 +48,9 @@ func after_each() -> void:
 
 func test_body_keeps_shared_rig_and_every_clip() -> void:
 	assert_eq(rig.validation_errors(), [])
-	# 41 shared bones + 30 finger bones (ADR 0022 follow-up).
-	assert_eq(rig.skeleton().get_bone_count(), 71)
+	# 41 shared bones + 30 finger bones (ADR 0022 follow-up) + neck, collarbones,
+	# upper spine (ADR 0056).
+	assert_eq(rig.skeleton().get_bone_count(), 75)
 	assert_true(rig.skeleton().find_bone("handslot.r") >= 0)
 	# The GLB's own library; combat_roll_clip.gd adds its roll clips in a second one.
 	assert_eq(rig.animation_player().get_animation_library(&"").get_animation_list().size(), 76)
@@ -125,9 +126,13 @@ func _mesh(mesh_name: String) -> MeshInstance3D:
 
 func test_face_blinks_and_talks_through_blend_shapes() -> void:
 	for shape: StringName in [&"blink", &"jaw_open", &"smile", &"frown"]:
-		assert_true(_mesh("Anatomy_Head").find_blend_shape_by_name(shape) >= 0, "missing %s" % shape)
-	assert_true(_mesh("Anatomy_Head_Lashes").find_blend_shape_by_name(&"blink") >= 0,
-		"lashes must follow the eyelids")
+		assert_true(
+			_mesh("Anatomy_Head").find_blend_shape_by_name(shape) >= 0, "missing %s" % shape
+		)
+	assert_true(
+		_mesh("Anatomy_Head_Lashes").find_blend_shape_by_name(&"blink") >= 0,
+		"lashes must follow the eyelids"
+	)
 	var realistic := rig as Node
 	var blinked := false
 	for _frame: int in 400:
@@ -157,7 +162,8 @@ func test_fingers_relax_empty_handed_and_grip_a_weapon() -> void:
 	assert_almost_eq(float(realistic.call("finger_openness", "r")), 1.0, 0.01)
 	skeleton.force_update_all_bone_transforms()
 	var open_gap := skeleton.get_bone_global_pose(index_tip).origin.distance_to(
-		skeleton.get_bone_global_pose(palm).origin)
+		skeleton.get_bone_global_pose(palm).origin
+	)
 	var hammer := load("res://assets/characters/kalev_fresh/hammer/hammer.glb") as PackedScene
 	rig.equip(&"right_hand", hammer)
 	for _frame: int in 30:
@@ -165,7 +171,8 @@ func test_fingers_relax_empty_handed_and_grip_a_weapon() -> void:
 	assert_almost_eq(float(realistic.call("finger_openness", "r")), 0.0, 0.01)
 	skeleton.force_update_all_bone_transforms()
 	var grip_gap := skeleton.get_bone_global_pose(index_tip).origin.distance_to(
-		skeleton.get_bone_global_pose(palm).origin)
+		skeleton.get_bone_global_pose(palm).origin
+	)
 	assert_true(
 		grip_gap < open_gap - 0.01,
 		"fingers close around a held weapon (%.3f vs %.3f)" % [grip_gap, open_gap]

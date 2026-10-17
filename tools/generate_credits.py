@@ -108,11 +108,9 @@ def main() -> None:
     lines.append("# Credits")
     lines.append("")
     lines.append(
-        "Rebel Reval uses real-world wildlife field recordings released under "
-        "Creative Commons licenses. Every recording below is used within the "
-        "terms of its license, which for commercial use requires attribution "
-        "(and, for ShareAlike works, that any recording we edited stays under "
-        "the same license). Recordings were trimmed/normalised for in-game use."
+        "Rebel Reval uses real-world field recordings and model assets released "
+        "under the Creative Commons licenses named below; attributions are "
+        "provided where required. Recordings were trimmed/normalised for in-game use."
     )
     lines.append("")
 
@@ -202,6 +200,29 @@ def main() -> None:
         lines.append("")
 
     # --- Footsteps (R-1641) ---------------------------------------------
+
+    # --- Weather rain ambience (R-2179) ----------------------------------
+    weather_path = os.path.join(ROOT, "sounds/weather/manifest.csv")
+    weather = read_csv(weather_path) if os.path.exists(weather_path) else []
+    if weather:
+        lines.append("## Weather rain ambience")
+        lines.append("")
+        lines.append(
+            "Field recordings of rain outside and pattering on a wooden roof "
+            "indoors, trimmed and crossfaded into long weather loops."
+        )
+        lines.append("")
+        for row in sorted(weather, key=lambda item: item.get("title") or ""):
+            title = (row.get("title") or row.get("clip_id") or "Untitled clip").strip()
+            author = (row.get("author") or "Unknown author").strip()
+            lic = license_name(row.get("license") or "")
+            src = (row.get("page") or "").strip()
+            line = f"- {title} - recorded by {author}. {lic}."
+            if src:
+                line += f" Source: {src}"
+            lines.append(line)
+        lines.append("")
+
     steps_path = os.path.join(ROOT, "sounds/footsteps/manifest.csv")
     if os.path.exists(steps_path):
         # One manifest row per cut step; credit each recording once.
@@ -264,7 +285,8 @@ def main() -> None:
         f.write("\n".join(lines))
     print(
         f"Wrote {out} ({len(birds)} birds, {len(insects)} insects, "
-        f"{len(water)} water clips, {len(sea_wind)} sea/wind loops, 3D model credits)"
+        f"{len(water)} water clips, {len(sea_wind)} sea/wind loops, "
+        f"{len(weather)} weather loops, 3D model credits)"
     )
 
 

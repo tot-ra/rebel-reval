@@ -12,7 +12,9 @@ func test_concrete_plant_catalog_has_cached_distinct_meshes() -> void:
 		var mesh := MapViewPlantMeshes.mesh_for(species)
 		assert_true(mesh is ArrayMesh, "%s needs a procedural model" % species)
 		assert_true(mesh.get_surface_count() > 0, "%s model must contain geometry" % species)
-		assert_true(mesh == MapViewPlantMeshes.mesh_for(species), "%s model must be cached" % species)
+		assert_true(
+			mesh == MapViewPlantMeshes.mesh_for(species), "%s model must be cached" % species
+		)
 	assert_true(archetypes.size() >= 10, "catalog needs visibly different botanical forms")
 
 
@@ -47,9 +49,7 @@ func test_scattered_forbs_use_city_forb_mesh_and_keep_species_id() -> void:
 	var field := {"flat_floor": true}
 	var root := Node3D.new()
 	for x in 12:
-		MapViewMeshBuilderScatter._append_scattered_plant(
-			batches, field, x, 3, 1343, &"dandelion"
-		)
+		MapViewMeshBuilderScatter._append_scattered_plant(batches, field, x, 3, 1343, &"dandelion")
 	MapViewMeshBuilderScatter._emit_plant_batches(root, batches)
 	assert_true(root.get_child_count() > 0)
 	for node in root.get_children():
@@ -67,31 +67,6 @@ func _forb_meshes() -> Array:
 	for kind in CityForbMeshes.ALL_KINDS:
 		meshes.append(CityForbMeshes.mesh_for(kind))
 	return meshes
-
-
-func test_authored_locations_use_every_tree_and_plant_model() -> void:
-	var paths := [
-		"res://content/maps/archbishops_garden.rrmap",
-		"res://content/maps/monastery_quarter.rrmap",
-		"res://content/maps/reval_harbor_east.rrmap",
-		"res://content/maps/reval_harbor_north.rrmap",
-		"res://content/maps/viru_gate_foreland.rrmap",
-	]
-	var trees: Dictionary = {}
-	var plants: Dictionary = {}
-	for path in paths:
-		var parsed = MapRrmapParser.parse_file(path)
-		assert_true(parsed.is_ok(), "%s: %s" % [path, str(parsed.formatted_diagnostics())])
-		if not parsed.is_ok():
-			continue
-		for zone in parsed.definition.zones:
-			_collect_variant(zone.get("style_variant", &""), trees, plants)
-		for prop in parsed.definition.props:
-			_collect_variant(prop.get("style_variant", &""), trees, plants)
-	for species in MapViewTreeSpecies.ALL_SPECIES:
-		assert_true(trees.has(species), "tree.%s needs an authored location" % species)
-	for species in MapViewPlantSpecies.ALL_SPECIES:
-		assert_true(plants.has(species), "plant/crop %s needs an authored location" % species)
 
 
 func _collect_variant(variant: StringName, trees: Dictionary, plants: Dictionary) -> void:

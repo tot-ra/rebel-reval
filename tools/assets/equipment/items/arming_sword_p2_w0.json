@@ -1,0 +1,42 @@
+{
+  "task": "R-2007",
+  "doc": "docs/SYSTEMS/EQUIPMENT_VARIANTS.md",
+  "item_id": "obj.sword_cruciform",
+  "family": "arming_sword",
+  "variant": "arming_sword_p2_w0",
+  "prestige": "p2",
+  "wear": "w0",
+  "look": "Burgher: imported type XII blade, slightly curved octagonal cross, brazil-nut pommel, leather grip with cord bands; new",
+  "raw": "build/equipment_sword/arming_sword_p2_w0_meshy_raw.glb",
+  "raw_sha256": "f115295519faffb78de2848893da6c7abf0c902ef70b69b2d8b38dc7b410063c",
+  "out": "assets/props/weapons/arming_sword/variants/arming_sword_p2_w0.glb",
+  "leonardo_generation": "1f1c96a2-f811-60e0-8920-2ea176c2c5ff",
+  "leonardo_model": "gpt-image-1.5 1536x1024",
+  "meshy_task": "01a14507-d00d-73fd-b2da-f6b95b493a33",
+  "meshy_options": {
+    "pbr": true,
+    "texture": true,
+    "model_type": "standard",
+    "target_polycount": 5000
+  },
+  "prompt": "Museum catalogue photo of a single object: a medieval arming sword, 14th century, Baltic (Reval 1343), 95 cm overall, a well-off burgher's sword: imported German blade with a hilt of good local work, brand new, shown WITHOUT scabbard. Oakeshott type XII: straight two-edged blade 78 cm long, 5 cm wide at the cross, tapering evenly to a sharp point; one single shallow central fuller along the first two thirds of the blade, nothing else on the blade. Iron cross-guard 19 cm wide, very slightly curved toward the blade, octagonal section, ends gently thickened, both arms mirror each other exactly. Grip 10 cm, wooden core covered in smooth brown vegetable-tanned leather with thin cord bands at each end. Iron \"brazil-nut\" pommel: a rounded faceted oval pommel, plain, well filed. Material: hand-forged steel, clean grey, satin finish, freshly ground edges slightly brighter; hilt dark grey filed iron. New: clean, no rust. No engraving, no etching, no gold, no gems, not chrome, not fantasy, no basket hilt, no ricasso, no knuckle bow. Lying horizontally, pommel on the left and point on the right, seen straight from above, blade flat to the camera, whole sword in frame with margin, plain pure white background, soft even studio light, no cast shadow, no hands, no people, no text.",
+  "scan": {
+    "align_axis": "+X",
+    "longest_m": 0.95,
+    "rough_floor": 0.35,
+    "metal_cap": 0.9,
+    "ao": true
+  },
+  "blade": {
+    "thick_base_m": 0.007,
+    "thick_tip_m": 0.003,
+    "grip_below_cross_m": 0.055
+  },
+  "tris": 4000,
+  "lod1_tris": 1000,
+  "tex": 1024,
+  "turntable_detail_y": [
+    -0.17,
+    0.12
+  ]
+}

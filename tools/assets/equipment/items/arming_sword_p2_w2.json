@@ -1,0 +1,44 @@
+{
+  "task": "R-2007",
+  "doc": "docs/SYSTEMS/EQUIPMENT_VARIANTS.md",
+  "item_id": "obj.sword_cruciform",
+  "family": "arming_sword",
+  "variant": "arming_sword_p2_w2",
+  "prestige": "p2",
+  "wear": "w2",
+  "look": "Battered: type XIII blade with notched edges and rust, re-hilted with a bent bar cross, hemp-cord grip and a dented pommel",
+  "raw": "build/equipment_sword/arming_sword_p2_w2_meshy_raw.glb",
+  "raw_sha256": "c75ae1d842c1b8329d01955805ecaf007b8c9f4ff6abd8f1bf41a75f18b30127",
+  "out": "assets/props/weapons/arming_sword/variants/arming_sword_p2_w2.glb",
+  "leonardo_generation": "1f1c96a5-3d5e-6880-8d97-30f46159d4db",
+  "leonardo_model": "gpt-image-1.5 1536x1024",
+  "meshy_task": "01a14509-9f28-77fc-aa5c-e9df0b425132",
+  "meshy_options": {
+    "pbr": true,
+    "texture": true,
+    "model_type": "standard",
+    "target_polycount": 5000
+  },
+  "prompt": "Museum catalogue photo of a single object: a battered old medieval arming sword, 14th century, Baltic (Reval 1343), 93 cm overall, a looted blade that has been re-hilted crudely, shown WITHOUT scabbard. Oakeshott type XIII: broad straight two-edged blade 76 cm long, 5.5 cm wide, edges nearly parallel down to a rounded spatulate point; one single shallow central fuller along half the blade. Both edges NOTCHED with several small nicks and one deeper notch, a patchy grey and brown rusted surface, dark pitting near the cross. Replacement hilt: a plain straight iron bar cross-guard 17 cm wide, slightly bent, roughly forged; grip wrapped in coarse brown hemp cord, frayed; plain iron wheel pommel, dented, rusted. Hand-forged iron and steel, dull, matte, grimy. No ornament, no engraving, no gold, not polished, not chrome, not fantasy, no basket hilt, no knuckle bow, not broken in two. Lying horizontally, pommel on the left and point on the right, seen straight from above, blade flat to the camera, whole sword in frame with margin, plain pure white background, soft even studio light, no cast shadow, no hands, no people, no text.",
+  "scan": {
+    "align_axis": "-X",
+    "longest_m": 0.93,
+    "rough_floor": 0.35,
+    "metal_cap": 0.9,
+    "ao": true
+  },
+  "blade": {
+    "thick_base_m": 0.007,
+    "thick_tip_m": 0.003,
+    "grip_below_cross_m": 0.055,
+    "pommel_thick_m": 0.03,
+    "pommel_len_m": 0.078
+  },
+  "tris": 4000,
+  "lod1_tris": 1000,
+  "tex": 1024,
+  "turntable_detail_y": [
+    -0.17,
+    0.12
+  ]
+}

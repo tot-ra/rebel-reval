@@ -279,3 +279,20 @@ Both commands should print `135` on a clean checkout at this revision.
 | 199 | `tools/capture_city_leap.tscn` | partial | Developer capture tool (context-aware jump, ADR 0053, in the seamless city). |
 | 200 | `assets/characters/variants/brother_tidemann.tscn` | working | Almshouse cast body (ADR 0052). |
 | 201 | `tools/capture_city_sit.tscn` | partial | Developer capture tool (sitting, ADR 0054, in the seamless city). |
+| 202 | `assets/characters/variants/citizen_m_adult_average_c.tscn` | working | Seamless city citizen or cast body (MPFB pipeline). |
+| 203 | `assets/characters/variants/citizen_m_adult_heavy_c.tscn` | working | Seamless city citizen or cast body (MPFB pipeline). |
+| 204 | `assets/characters/variants/citizen_m_adult_sturdy_c.tscn` | working | Seamless city citizen or cast body (MPFB pipeline). |
+| 205 | `assets/characters/variants/citizen_m_adult_thin_c.tscn` | working | Seamless city citizen or cast body (MPFB pipeline). |
+| 206 | `assets/props/weapons/arming_sword/scenes/arming_sword_p1_w1_held.tscn` | working | Forge arming sword variant hand-slot equipment mesh (R-1754). |
+| 207 | `assets/props/weapons/arming_sword/scenes/arming_sword_p2_w0_ground.tscn` | working | Forge arming sword variant leaning display (world item view) (R-1754). |
+| 208 | `assets/props/weapons/arming_sword/scenes/arming_sword_p2_w0_held.tscn` | working | Forge arming sword variant hand-slot equipment mesh (R-1754). |
+| 209 | `assets/props/weapons/arming_sword/scenes/arming_sword_p2_w2_held.tscn` | working | Forge arming sword variant hand-slot equipment mesh (R-1754). |
+| 210 | `assets/props/weapons/axe_broad/scenes/axe_broad_p2_w1_ground.tscn` | working | Forge broad axe variant leaning display (world item view) (R-1754). |
+| 211 | `assets/props/weapons/axe_broad/scenes/axe_broad_p2_w1_held.tscn` | working | Forge broad axe variant hand-slot equipment mesh (R-1754). |
+| 212 | `assets/props/weapons/axe_peasant/scenes/axe_peasant_p1_w2_ground.tscn` | working | Forge peasant axe variant leaning display (world item view) (R-1754). |
+| 213 | `assets/props/weapons/axe_peasant/scenes/axe_peasant_p1_w2_held.tscn` | working | Forge peasant axe variant hand-slot equipment mesh (R-1754). |
+| 214 | `tools/capture_city_dung.tscn` | partial | Developer capture or QA tool; not player-facing. |
+| 215 | `tools/capture_city_surcoats.tscn` | partial | Developer capture or QA tool; not player-facing. |
+| 216 | `tools/capture_forge_sword.tscn` | partial | Developer capture or QA tool; not player-facing. |
+| 217 | `tools/verify_city_spawn_traversal.tscn` | partial | Developer capture or QA tool; not player-facing. |
+| 218 | `tools/verify_site_traversal.tscn` | partial | Developer capture or QA tool; not player-facing. |

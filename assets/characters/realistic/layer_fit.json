@@ -284,7 +284,8 @@
  "m_adult_average": {
   "aventail": {
    "a": "a",
-   "b": "a"
+   "b": "a",
+   "c": "a"
   },
   "back_sack": {
    "a": "a",
@@ -292,51 +293,63 @@
   },
   "bascinet": {
    "a": "a",
-   "b": "a"
+   "b": "a",
+   "c": "a"
   },
   "coat_of_plates": {
    "a": "a",
-   "b": "a"
+   "b": "b",
+   "c": "b"
   },
   "coif": {
    "a": "a",
-   "b": "a"
+   "b": "a",
+   "c": "a"
   },
   "gambeson": {
    "a": "a",
-   "b": "a"
+   "b": "b",
+   "c": "b"
   },
   "gauntlets": {
    "a": "a",
-   "b": "a"
+   "b": "a",
+   "c": "a"
   },
   "great_helm": {
    "a": "a",
-   "b": "a"
+   "b": "a",
+   "c": "a"
   },
   "hood": {
    "a": "a",
-   "b": "a"
+   "b": "a",
+   "c": "c"
   },
   "kettle_hat": {
    "a": "a",
-   "b": "a"
+   "b": "a",
+   "c": "a"
   },
   "keys": {
    "a": "a",
-   "b": "a"
+   "b": "a",
+   "c": "c"
   },
   "mail_chausses": {
    "a": "a",
-   "b": "a"
+   "b": "a",
+   "c": "a"
   },
   "mail_coif": {
    "a": "a",
-   "b": "a"
+   "b": "a",
+   "c": "a"
   },
   "mail_haubergeon": {
    "a": "a",
-   "b": "a"
+   "b": "a",
+   "c": "a"
   },
   "nude": {
    "a": "a",
@@ -344,15 +357,18 @@
   },
   "order_mantle": {
    "a": "a",
-   "b": "b"
+   "b": "b",
+   "c": "c"
   },
   "paternoster": {
    "a": "a",
-   "b": "b"
+   "b": "b",
+   "c": "c"
   },
   "satchel": {
    "a": "a",
-   "b": "b"
+   "b": "b",
+   "c": "c"
   },
   "smith_apron": {
    "a": "a",
@@ -360,7 +376,8 @@
   },
   "surcoat": {
    "a": "a",
-   "b": "b"
+   "b": "b",
+   "c": "b"
   },
   "waist_apron": {
    "a": "a",
@@ -368,13 +385,15 @@
   },
   "wool_cap": {
    "a": "a",
-   "b": "a"
+   "b": "a",
+   "c": "a"
   }
  },
  "m_adult_heavy": {
   "aventail": {
    "a": "a",
-   "b": "a"
+   "b": "a",
+   "c": "a"
   },
   "back_sack": {
    "a": "a",
@@ -382,51 +401,63 @@
   },
   "bascinet": {
    "a": "a",
-   "b": "a"
+   "b": "a",
+   "c": "a"
   },
   "coat_of_plates": {
    "a": "a",
-   "b": "a"
+   "b": "a",
+   "c": "a"
   },
   "coif": {
    "a": "a",
-   "b": "a"
+   "b": "a",
+   "c": "a"
   },
   "gambeson": {
    "a": "a",
-   "b": "a"
+   "b": "b",
+   "c": "b"
   },
   "gauntlets": {
    "a": "a",
-   "b": "a"
+   "b": "a",
+   "c": "a"
   },
   "great_helm": {
    "a": "a",
-   "b": "a"
+   "b": "a",
+   "c": "a"
   },
   "hood": {
    "a": "a",
-   "b": "b"
+   "b": "b",
+   "c": "c"
   },
   "kettle_hat": {
    "a": "a",
-   "b": "a"
+   "b": "a",
+   "c": "a"
   },
   "keys": {
    "a": "a",
-   "b": "a"
+   "b": "a",
+   "c": "c"
   },
   "mail_chausses": {
    "a": "a",
-   "b": "a"
+   "b": "a",
+   "c": "a"
   },
   "mail_coif": {
    "a": "a",
-   "b": "a"
+   "b": "a",
+   "c": "a"
   },
   "mail_haubergeon": {
    "a": "a",
-   "b": "a"
+   "b": "a",
+   "c": "a"
   },
   "nude": {
    "a": "a",
@@ -434,15 +465,18 @@
   },
   "order_mantle": {
    "a": "a",
-   "b": "b"
+   "b": "b",
+   "c": "a"
   },
   "paternoster": {
    "a": "a",
-   "b": "b"
+   "b": "b",
+   "c": "c"
   },
   "satchel": {
    "a": "a",
-   "b": "b"
+   "b": "b",
+   "c": "c"
   },
   "smith_apron": {
    "a": "a",
@@ -450,7 +484,8 @@
   },
   "surcoat": {
    "a": "a",
-   "b": "b"
+   "b": "b",
+   "c": "b"
   },
   "waist_apron": {
    "a": "a",
@@ -458,13 +493,15 @@
   },
   "wool_cap": {
    "a": "a",
-   "b": "a"
+   "b": "a",
+   "c": "a"
   }
  },
  "m_adult_sturdy": {
   "aventail": {
    "a": "a",
-   "b": "a"
+   "b": "a",
+   "c": "a"
   },
   "back_sack": {
    "a": "a",
@@ -472,51 +509,63 @@
   },
   "bascinet": {
    "a": "a",
-   "b": "a"
+   "b": "a",
+   "c": "a"
   },
   "coat_of_plates": {
    "a": "a",
-   "b": "a"
+   "b": "a",
+   "c": "a"
   },
   "coif": {
    "a": "a",
-   "b": "a"
+   "b": "a",
+   "c": "a"
   },
   "gambeson": {
    "a": "a",
-   "b": "a"
+   "b": "b",
+   "c": "b"
   },
   "gauntlets": {
    "a": "a",
-   "b": "a"
+   "b": "b",
+   "c": "b"
   },
   "great_helm": {
    "a": "a",
-   "b": "a"
+   "b": "a",
+   "c": "a"
   },
   "hood": {
    "a": "a",
-   "b": "b"
+   "b": "b",
+   "c": "c"
   },
   "kettle_hat": {
    "a": "a",
-   "b": "a"
+   "b": "a",
+   "c": "a"
   },
   "keys": {
    "a": "a",
-   "b": "a"
+   "b": "a",
+   "c": "c"
   },
   "mail_chausses": {
    "a": "a",
-   "b": "a"
+   "b": "a",
+   "c": "a"
   },
   "mail_coif": {
    "a": "a",
-   "b": "a"
+   "b": "a",
+   "c": "a"
   },
   "mail_haubergeon": {
    "a": "a",
-   "b": "a"
+   "b": "a",
+   "c": "a"
   },
   "nude": {
    "a": "a",
@@ -524,15 +573,18 @@
   },
   "order_mantle": {
    "a": "a",
-   "b": "b"
+   "b": "b",
+   "c": "a"
   },
   "paternoster": {
    "a": "a",
-   "b": "b"
+   "b": "b",
+   "c": "c"
   },
   "satchel": {
    "a": "a",
-   "b": "b"
+   "b": "b",
+   "c": "c"
   },
   "smith_apron": {
    "a": "a",
@@ -540,7 +592,8 @@
   },
   "surcoat": {
    "a": "a",
-   "b": "b"
+   "b": "b",
+   "c": "b"
   },
   "waist_apron": {
    "a": "a",
@@ -548,13 +601,15 @@
   },
   "wool_cap": {
    "a": "a",
-   "b": "a"
+   "b": "a",
+   "c": "a"
   }
  },
  "m_adult_thin": {
   "aventail": {
    "a": "a",
-   "b": "a"
+   "b": "a",
+   "c": "a"
   },
   "back_sack": {
    "a": "a",
@@ -562,51 +617,63 @@
   },
   "bascinet": {
    "a": "a",
-   "b": "a"
+   "b": "a",
+   "c": "a"
   },
   "coat_of_plates": {
    "a": "a",
-   "b": "a"
+   "b": "b",
+   "c": "b"
   },
   "coif": {
    "a": "a",
-   "b": "a"
+   "b": "a",
+   "c": "a"
   },
   "gambeson": {
    "a": "a",
-   "b": "a"
+   "b": "b",
+   "c": "b"
   },
   "gauntlets": {
    "a": "a",
-   "b": "a"
+   "b": "a",
+   "c": "a"
   },
   "great_helm": {
    "a": "a",
-   "b": "a"
+   "b": "a",
+   "c": "a"
   },
   "hood": {
    "a": "a",
-   "b": "b"
+   "b": "b",
+   "c": "c"
   },
   "kettle_hat": {
    "a": "a",
-   "b": "a"
+   "b": "a",
+   "c": "a"
   },
   "keys": {
    "a": "a",
-   "b": "a"
+   "b": "a",
+   "c": "c"
   },
   "mail_chausses": {
    "a": "a",
-   "b": "a"
+   "b": "a",
+   "c": "a"
   },
   "mail_coif": {
    "a": "a",
-   "b": "a"
+   "b": "a",
+   "c": "a"
   },
   "mail_haubergeon": {
    "a": "a",
-   "b": "a"
+   "b": "a",
+   "c": "a"
   },
   "nude": {
    "a": "a",
@@ -614,15 +681,18 @@
   },
   "order_mantle": {
    "a": "a",
-   "b": "b"
+   "b": "b",
+   "c": "c"
   },
   "paternoster": {
    "a": "a",
-   "b": "b"
+   "b": "b",
+   "c": "c"
   },
   "satchel": {
    "a": "a",
-   "b": "b"
+   "b": "b",
+   "c": "c"
   },
   "smith_apron": {
    "a": "a",
@@ -630,7 +700,8 @@
   },
   "surcoat": {
    "a": "a",
-   "b": "b"
+   "b": "b",
+   "c": "b"
   },
   "waist_apron": {
    "a": "a",
@@ -638,7 +709,8 @@
   },
   "wool_cap": {
    "a": "a",
-   "b": "a"
+   "b": "a",
+   "c": "a"
   }
  },
  "m_child_average": {

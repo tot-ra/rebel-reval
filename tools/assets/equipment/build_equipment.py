@@ -55,7 +55,8 @@ def build(manifest_path: Path, turntable: bool) -> dict:
             _blender(
                 "render_turntable.py", "--glb", str(out),
                 "--out", str(SHEETS / f"{m['variant']}_detail.png"),
-                "--frame-y", f"{lo},{hi}", "--tile", "220x420",
+                # One token: a negative band ("-0.17,0.12", below the grip) would parse as a flag.
+                f"--frame-y={lo},{hi}", "--tile", "220x420",
             )
     return info
 

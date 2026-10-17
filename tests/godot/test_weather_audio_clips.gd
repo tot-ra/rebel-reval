@@ -2,12 +2,21 @@ extends "res://tests/godot/test_case.gd"
 
 const SkyWeatherRoofAudio := preload("res://scripts/map/view3d/sky_weather_roof_audio.gd")
 const ROOF_LOOP_PATH := "res://sounds/weather/rain_roof.mp3"
+const OUTDOOR_LOOP_PATH := "res://sounds/weather/rain_outdoor.mp3"
 
 
 func test_rain_roof_clip_imports_as_loopable_audio() -> void:
 	assert_true(ResourceLoader.exists(ROOF_LOOP_PATH), "roof rain clip must exist")
 	var stream := load(ROOF_LOOP_PATH) as AudioStream
 	assert_true(stream is AudioStream, "roof rain clip must import as AudioStream")
+
+
+func test_rain_outdoor_clip_imports_as_loopable_audio() -> void:
+	assert_true(ResourceLoader.exists(OUTDOOR_LOOP_PATH), "outdoor rain clip must exist")
+	var stream := load(OUTDOOR_LOOP_PATH) as AudioStream
+	assert_true(stream is AudioStream, "outdoor rain clip must import as AudioStream")
+	assert_true(stream.get_length() >= 30.0, "outdoor loop must be long enough to avoid obvious seams")
+	assert_true(stream.get_length() <= 60.0, "outdoor loop must stay within the authored cap")
 	assert_true(stream.get_length() >= 30.0, "roof loop must be long enough to avoid obvious seams")
 	assert_true(stream.get_length() <= 60.0, "roof loop must stay within the authored cap")
 

@@ -1,6 +1,7 @@
 extends "res://tests/godot/map_view_3d_test_base.gd"
 
 const Lighting := preload("res://scripts/map/view3d/map_view_lighting.gd")
+const SkyAstronomy := preload("res://scripts/map/view3d/sky_astronomy.gd")
 
 
 func test_post_process_grade_is_enabled_with_frozen_values() -> void:
@@ -27,9 +28,14 @@ func test_post_process_grade_is_enabled_with_frozen_values() -> void:
 	assert_true(is_equal_approx(env.glow_intensity, MapView3D.GLOW_INTENSITY_DAY))
 
 	view._sky_weather.set_calendar_date({"year": 1343, "month": 12, "day": 21})
+	var winter_brightness := SkyAstronomy.seasonal_night_brightness(
+		view._sky_weather.calendar_date
+	)
 	view.apply_cycle_progress(0.0)
 	assert_true(is_equal_approx(
-		env.tonemap_exposure, MapView3D.GRADE_NIGHT_EXPOSURE * Lighting.outdoor_exposure_gain(0.0)
+		env.tonemap_exposure,
+		MapView3D.GRADE_NIGHT_EXPOSURE
+			* Lighting.outdoor_exposure_gain(0.0, winter_brightness)
 	))
 	assert_true(is_equal_approx(env.adjustment_saturation, MapView3D.GRADE_NIGHT_SATURATION))
 	assert_true(is_equal_approx(env.adjustment_contrast, MapView3D.GRADE_NIGHT_CONTRAST))
@@ -43,8 +49,9 @@ func test_sky_gain_compensation_cancels_the_outdoor_gain() -> void:
 	var day_gain := Lighting.outdoor_exposure_gain(1.0)
 	assert_true(day_gain > 1.0, "the day gain must still lift the city")
 	assert_true(is_equal_approx(Lighting.sky_exposure_gain_compensation(1.0, false), 1.0 / day_gain))
+	var night_gain := Lighting.outdoor_exposure_gain(0.0)
 	assert_true(is_equal_approx(
-		Lighting.sky_exposure_gain_compensation(0.0, false), 1.0 / Lighting.OUTDOOR_NIGHT_EXPOSURE_GAIN
+		Lighting.sky_exposure_gain_compensation(0.0, false), 1.0 / night_gain
 	))
 	assert_true(
 		Lighting.OUTDOOR_NIGHT_EXPOSURE_GAIN < day_gain, "night streets stay darker than day"
@@ -67,11 +74,19 @@ func test_sky_gain_compensation_cancels_the_outdoor_gain() -> void:
 	# The default 21 April midnight is still astronomical twilight (fill ~0.13 at -16 deg);
 	# a winter midnight is full night.
 	view._sky_weather.set_calendar_date({"year": 1343, "month": 12, "day": 21})
+	var winter_brightness := SkyAstronomy.seasonal_night_brightness(
+		view._sky_weather.calendar_date
+	)
+	var winter_gain := Lighting.outdoor_exposure_gain(0.0, winter_brightness)
 	view.apply_cycle_progress(0.0)
 	var night_value: float = material.get_shader_parameter(&"sky_gain_compensation")
 	assert_true(
-		is_equal_approx(night_value, 1.0 / Lighting.OUTDOOR_NIGHT_EXPOSURE_GAIN),
-		"midnight sky uniform must cancel the night street gain"
+		is_equal_approx(night_value, 1.0 / winter_gain),
+		"midnight sky compensation must cancel the season-adjusted night gain"
+	)
+	assert_true(
+		is_equal_approx(view._sky_weather.exposure_gain_compensation(), 1.0 / winter_gain),
+		"the haze pass must use the same season-adjusted gain as the dome"
 	)
 	view.free()
 

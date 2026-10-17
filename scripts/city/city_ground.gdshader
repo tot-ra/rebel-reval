@@ -118,6 +118,8 @@ uniform sampler2D snow_shelter_map : filter_linear, repeat_disable, hint_default
 uniform vec4 snow_shelter_rect = vec4(0.0, 0.0, 1.0, 1.0); // origin.xz, size.xz
 uniform float sea_level = 0.0;
 uniform float rain_intensity = 0.0;
+// R-1861: brightness of the planar reflection in pools and wet paving.
+uniform float mirror_gain = 1.6;
 global uniform float ocean_time;
 #include "res://scripts/map/view3d/water_capillary.gdshaderinc"
 // WR-9: the beach reads the same analytic swash as the sea (uniforms mirrored by
@@ -126,6 +128,7 @@ global uniform float ocean_time;
 
 #include "res://scripts/map/view3d/fieldstone_paving.gdshaderinc"
 #include "res://scripts/city/ice_surface.gdshaderinc"
+#include "res://scripts/map/view3d/planar_reflection.gdshaderinc"
 
 varying vec3 world_pos;
 varying vec3 world_normal;
@@ -1291,6 +1294,23 @@ void fragment() {
 	SPECULAR = mix(SPECULAR, 0.5, glaze_sheet);
 	// A refrozen thaw crust on the snow: harder and shinier than powder.
 	ROUGHNESS = mix(ROUGHNESS, 0.55, ice_glaze * snow_amount * 0.7);
+	// R-1861: open pools mirror the houses, trees and people round them (planar
+	// reflection), not only the sky. Standing water is sharp and its ripples and rain
+	// rings bend the image; a film and wet crowns give a blurred, weaker streak. The
+	// mirror replaces the built-in sky specular there (it already holds the sky), so
+	// SPECULAR drops where it takes over, or the sky would be counted twice.
+	float pool_mirror = puddle * open_water * (1.0 - snow_amount);
+	float mirror_w = planar_reflection_weight(world_pos.y) * max(pool_mirror, wet_paving * 0.35);
+	if (mirror_w > 0.001) {
+		vec3 up_view = normalize((VIEW_MATRIX * vec4(0.0, 1.0, 0.0, 0.0)).xyz);
+		// F0 above water's 0.02: the bed under a pool is dark and wet, so the mirror reads
+		// far stronger than its physical share (matched by eye to the sky-only pools).
+		float mirror_f = planar_reflection_fresnel(up_view, VIEW, mix(0.12, 0.25, deep)) * mirror_gain;
+		float mirror_blur = mix(mix(0.012, 0.0, deep), 0.02, wet_paving);
+		vec3 mirror = planar_reflection_color(SCREEN_UV, nxy * vec2(0.03, -0.06), mirror_blur);
+		EMISSION += mirror * mirror_f * mirror_w;
+		SPECULAR = mix(SPECULAR, 0.0, mirror_w * mix(0.4, 0.7, deep));
+	}
 	nxy = clamp(nxy * mix(1.0, 0.75, wet) * (1.0 - rock) + rock_nxy, vec2(-0.95), vec2(0.95));
 	NORMAL_MAP = vec3(nxy, sqrt(max(1.0 - dot(nxy, nxy), 0.0))) * 0.5 + 0.5;
 }

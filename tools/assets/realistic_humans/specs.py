@@ -206,6 +206,8 @@ SPECS = {
         garments=["long_tunic", "hose", "boots", "hood"],
         palette={"long_tunic": MADDER_RED, "hose": WOAD_BLUE, "hose_right": MADDER_RED,
                  "hood": (0.18, 0.20, 0.26), "boots": (0.14, 0.09, 0.06)},
+        # A rich merchant's tunic buttons above the wrist (1340s, R-2023).
+        extra={"sleeve_buttons": True},
         outfits={"street": ["long_tunic", "hose", "boots", "hood"]}),
     # Kaja, bilingual courier (docs/CHARACTERS/kaja.md): working gown and
     # headscarf of an Estonian townswoman who travels.
@@ -255,7 +257,7 @@ SPECS = {
         beard={"length": 0.007, "color": (0.30, 0.23, 0.16), "grey": 0.0, "coverage": 0.7, "shells": 5},
         complexion={"tan": 0.5, "flush": 0.4},
         garments=["short_tunic", "gambeson", "kettle_hat", "hose", "boots"],
-        palette={"gambeson": (0.60, 0.54, 0.42), "short_tunic": UNDYED_GREY_BROWN},
+        palette={"gambeson": (0.86, 0.82, 0.72), "short_tunic": UNDYED_GREY_BROWN},
         outfits={"duty": ["gambeson", "kettle_hat", "hose", "boots"]}),
     "sergeant": _person(
         age=40, sex="m", muscle=0.85, weight=0.66, height_m=1.76, skin="middleage_caucasian_male",

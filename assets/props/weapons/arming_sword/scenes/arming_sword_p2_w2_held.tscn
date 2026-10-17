@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="PackedScene" uid="uid://dytjnyq6jd8hl" path="res://assets/props/weapons/arming_sword/variants/arming_sword_p2_w2.glb" id="1"]
+
+[node name="ArmingSwordHeld" type="Node3D"]
+rotation = Vector3(0, 0, 0.6707963267948966)
+metadata/variant = "arming_sword_p2_w2"
+
+[node name="Visual" parent="." instance=ExtResource("1")]

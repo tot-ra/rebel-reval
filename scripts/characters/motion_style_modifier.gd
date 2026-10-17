@@ -32,6 +32,10 @@ const BONES: Array[String] = [
 	"lowerleg.r",
 	"foot.r",
 ]
+## Detail bones of the realistic human rig (tools/assets/realistic_humans/rig_detail.py); rigs
+## without them keep the coarse mapping.
+const DETAIL_BONES: Array[String] = ["spine_upper", "neck", "shoulder.l", "shoulder.r"]
+const SHRUG_RAD := 0.22
 const CROUCH_KNEE := 0.5
 const TREMOR_RAD := 0.035
 
@@ -81,22 +85,26 @@ func _process_modification() -> void:
 		roll += _limp_roll(skeleton, up_axis)
 	var tremor := float(style.get("tremor", 0.0))
 	var shiver := TREMOR_RAD * tremor
-	# Trunk: half of the lean at the spine, half at the chest; positive pitch bows forward (about
-	# +X).
-	for b: String in ["spine", "chest"]:
+	# Trunk: the lean is shared by the spine joints; positive pitch bows forward (about +X).
+	var trunk: Array[String] = ["spine", "chest"]
+	if _bones.has("spine_upper"):
+		trunk = ["spine", "spine_upper", "chest"]
+	for b: String in trunk:
 		var tw := shiver * sin(_time * TAU * (9.0 if b == "spine" else 10.5))
-		_rotate(skeleton, b, right_axis, 0.5 * pitch + tw)
-		_rotate(skeleton, b, fwd_axis, -0.5 * roll)
-	_rotate(
-		skeleton,
-		"head",
-		right_axis,
-		(
-			0.45 * float(style.get("head_down", 0.0))
-			+ 0.2 * float(style.get("shrug", 0.0))
-			- 0.3 * pitch
-		)
-	)
+		_rotate(skeleton, b, right_axis, pitch / trunk.size() + tw)
+		_rotate(skeleton, b, fwd_axis, -roll / trunk.size())
+	var shrug := float(style.get("shrug", 0.0))
+	var has_shoulders := _bones.has("shoulder.l") and _bones.has("shoulder.r")
+	var nod := 0.45 * float(style.get("head_down", 0.0)) - 0.3 * pitch
+	nod += (0.08 if has_shoulders else 0.2) * shrug
+	if _bones.has("neck"):
+		# The neck takes most of the nod, the head the rest.
+		_rotate(skeleton, "neck", right_axis, 0.6 * nod)
+		_rotate(skeleton, "head", right_axis, 0.4 * nod)
+	else:
+		_rotate(skeleton, "head", right_axis, nod)
+	if has_shoulders:
+		_shoulders(skeleton, fwd_axis, up_axis, shrug)
 	if not seated:
 		_crouch(
 			skeleton,
@@ -117,6 +125,10 @@ func _resolve_bones(skeleton: Skeleton3D) -> void:
 			_bones.clear()
 			return
 		_bones[bone_name] = index
+	for bone_name in DETAIL_BONES:
+		var index := skeleton.find_bone(bone_name)
+		if index >= 0:
+			_bones[bone_name] = index
 	var head_y := skeleton.get_bone_global_rest(_bones["head"]).origin.y
 	var foot_y := skeleton.get_bone_global_rest(_bones["foot.l"]).origin.y
 	_height = maxf(0.3, (head_y - foot_y) * 1.08)
@@ -140,6 +152,16 @@ func _set_global_basis(skeleton: Skeleton3D, bone: int, basis: Basis) -> void:
 	skeleton.set_bone_pose_rotation(
 		bone, (parent_basis.inverse() * basis).get_rotation_quaternion()
 	)
+
+
+## Collarbones: a shrug lifts both shoulders; hugging draws them forward and in.
+func _shoulders(skeleton: Skeleton3D, fwd_axis: Vector3, up_axis: Vector3, shrug: float) -> void:
+	for side: float in [LEFT, RIGHT]:
+		var s := "l" if side == LEFT else "r"
+		var hug := float(style.get("hug_" + ("L" if side == LEFT else "R"), 0.0))
+		# Rig +X is the left: about the forward axis +angle lifts the left side, -angle the right.
+		_rotate(skeleton, "shoulder." + s, fwd_axis, side * SHRUG_RAD * shrug)
+		_rotate(skeleton, "shoulder." + s, up_axis, -side * 0.18 * hug)
 
 
 ## Bend hips, knees and ankles by the same small angles so the feet keep their orientation, and drop

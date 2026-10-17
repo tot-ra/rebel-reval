@@ -5,7 +5,9 @@ extends SceneTree
 ## tools/godot_render.sh --script tools/capture_sword_equipment.gd
 
 const KALEV_SCENE := preload("res://assets/characters/kalev/kalev.tscn")
-const SWORD_SCENE := preload("res://assets/characters/shared/sword.tscn")
+const SWORD_SCENE := preload(
+	"res://assets/props/weapons/arming_sword/scenes/arming_sword_p1_w1_held.tscn"
+)
 const OUTPUT_DIR := "res://docs/reports/images/combat"
 const CLOSEUP_SIZE := Vector2i(1440, 900)
 const GAMEPLAY_SIZE := Vector2i(1440, 810)
@@ -31,10 +33,14 @@ func _capture_closeup() -> void:
 	idle.position = screen_right * -0.86
 	var attack := _make_sword_rig(viewport, &"sword_attack", ATTACK_SAMPLE_SEC)
 	attack.position = screen_right * 0.86
-	_add_labels(viewport, "PLAIN CRUCIFORM SWORD - GRIP AND CLEARANCE", [
-		{"text": "IDLE / HANDSLOT.R", "x": 170.0},
-		{"text": "DIAGONAL SLASH", "x": 880.0},
-	])
+	_add_labels(
+		viewport,
+		"PLAIN CRUCIFORM SWORD - GRIP AND CLEARANCE",
+		[
+			{"text": "IDLE / HANDSLOT.R", "x": 170.0},
+			{"text": "DIAGONAL SLASH", "x": 880.0},
+		]
+	)
 	await _save_after_frames(viewport, "%s/sword_closeup_idle_attack.png" % OUTPUT_DIR)
 
 
@@ -46,9 +52,13 @@ func _capture_gameplay() -> void:
 	var target := _make_target()
 	target.position = Vector3(1.15, 0.0, 0.15)
 	viewport.add_child(target)
-	_add_labels(viewport, "GAMEPLAY SCALE - SWORD LIGHT ATTACK", [
-		{"text": "66 PX REACH  |  11 SLASH  |  7 STAMINA", "x": 390.0},
-	])
+	_add_labels(
+		viewport,
+		"GAMEPLAY SCALE - SWORD LIGHT ATTACK",
+		[
+			{"text": "66 PX REACH  |  11 SLASH  |  7 STAMINA", "x": 390.0},
+		]
+	)
 	await _save_after_frames(viewport, "%s/sword_gameplay_attack.png" % OUTPUT_DIR)
 
 

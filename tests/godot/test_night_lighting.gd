@@ -29,6 +29,22 @@ func test_night_street_gain_stays_below_the_day_gain() -> void:
 	assert_true(Lighting.outdoor_exposure_gain(0.0) < Lighting.outdoor_exposure_gain(1.0))
 
 
+func test_night_exposure_is_darker_by_about_thirty_percent_and_still_seasonal() -> void:
+	var winter := Lighting.seasonal_night_exposure_scale(0.0)
+	var equinox := Lighting.seasonal_night_exposure_scale(0.5)
+	var summer := Lighting.seasonal_night_exposure_scale(1.0)
+	assert_true(winter < equinox and equinox < summer, "winter nights stay darker than summer")
+	assert_almost_eq(winter, 0.65, 0.001, "winter outdoor night exposure is reduced by 35%")
+	assert_almost_eq(equinox, 0.70, 0.001, "equinox outdoor night exposure is reduced by 30%")
+	assert_almost_eq(summer, 0.75, 0.001, "summer outdoor night exposure is reduced by 25%")
+	assert_almost_eq(
+		Lighting.outdoor_exposure_gain(1.0, 0.0),
+		Lighting.OUTDOOR_DAY_EXPOSURE_GAIN,
+		0.001,
+		"the seasonal night adjustment must not change daytime exposure"
+	)
+
+
 func _window(look: Dictionary) -> CityBuildingBuilder.Shell:
 	var shell := CityBuildingBuilder.Shell.new()
 	CityWindows.add_window(
