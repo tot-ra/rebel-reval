@@ -150,6 +150,7 @@ python3 -m unittest tests.python.test_verify_world_building_visual_gate   # site
 godot --headless --path . res://tools/verify_site_traversal.tscn -- [--site=paide,padise] [--max-roads=6] [--out=build/qa/site_traversal.json]
 godot --headless --path . res://tools/verify_site_traversal.tscn -- --travel      # every scenes/world_travel/*.tscn loads and its player is free
 godot --headless --path . res://tools/verify_site_traversal.tscn -- --leak=5 --site=saaremaa   # repeated enter/leave memory growth
+godot --headless --path . res://tools/verify_travel_graph.tscn -- [--out=build/qa/travel_graph.json]   # click-to-travel planner: every scene reachable from and back to the city, every plan lands on a real spawn
 ```
 
 `tools/verify_site_traversal.gd` (QA, R-1687) is the deterministic traversal check: for each site it places the player on every arrival spawn through `arrive_at()` (fails when the body starts inside collision or the STEEP layer) and then walks every plan road end to end with real movement input; two seconds without progress is a block, reported with the world xz, waypoint, road id and last slide collider. Plan roads that cross a building footprint or a fire ring show up here (see the open findings in [`docs/reports/perf_traversal_log.md`](../reports/perf_traversal_log.md)). It exits 1 on any failure; a whole run takes about 10 minutes.
