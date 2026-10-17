@@ -6,6 +6,7 @@ One page per implemented or planned feature. Each page opens with a `Status:` li
 |---|---|
 | [Physical object catalog](./OBJECT_CATALOG.md) | Implemented (data, validator, bag rules); gameplay verbs and map gating unwired |
 | [Household cure: patients, families, the doctor of souls](./HOUSEHOLD_CURE.md) | Planned (ADR 0052): healer's core loop and dark path; only the almshouse opening is built |
+| [Farm work: the peasant year in the fields](./FARM_WORK.md) | Planned (ADR 0063 proposed, epic R-2246): farm calendar, field crews with tools at a work front, haymaking, harvest to store, fodder for the stock |
 | [Grain sacks: separate sacks, push, tear and spill](./GRAIN_SACKS.md) | Planned (ADR 0062 proposed, R-2188): separate sack kit, rigid-body push, edged blow tears a sack and spills grain |
 | [Quests, commissions, investigations](./QUESTS.md) | Implemented (Act 1); Act 2 finale and Act 3 ending are models only |
 | [Dialogue, barks, localization](./DIALOGUE.md) | Implemented |
