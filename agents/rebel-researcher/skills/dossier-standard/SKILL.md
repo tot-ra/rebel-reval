@@ -128,7 +128,7 @@ no licensed visual evidence was found.
 
 | Plate | Shows | Source, date, origin | License | Answers |
 |-------|-------|----------------------|---------|---------|
-| [`crafts.blacksmith-workshop.01`](../../reference/crafts/blacksmith-workshop/crafts.blacksmith-workshop.01.jpg) | forge hearth, bellows, tool rack | Mendel Hausbuch f. 34r, Nuremberg, c. 1425 - later comparandum | public domain | how the bellows meets the hearth wall |
+| [`crafts.blacksmith-materials-and-techniques.03`](../../../../history/reference/crafts/blacksmith-materials-and-techniques/crafts.blacksmith-materials-and-techniques.03.jpg) | smith drawing flat bar at hearth | Mendel Hausbuch I f. 35a, Nuremberg, c. 1425 ms - later comparandum | public domain | bar stock drawing before shaping |
 | `crafts.blacksmith-workshop.02` (link-only) | tong and hammer finds | Tallinn City Museum catalogue, 14th c., Reval | rights unclear | tool silhouettes and proportions |
 
 ## Cross-references
