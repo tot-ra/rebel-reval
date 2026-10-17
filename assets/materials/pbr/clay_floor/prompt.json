@@ -1,0 +1,29 @@
+{
+  "id": "material.clay_floor.albedo",
+  "family": "clay_floor",
+  "map_type": "albedo",
+  "kind": "openai_material_plate",
+  "target": "assets/materials/pbr/clay_floor/clay_floor_albedo.png",
+  "source": "generated/openai/clay_floor_v1/candidate_1.png",
+  "candidates": [
+    "generated/openai/clay_floor_v1/candidate_1.png"
+  ],
+  "prompt": "Seamless tileable top-down material texture (albedo only) of an indoor beaten-earth clay floor in a medieval Estonian peasant smoke hut, year 1343. Dense tamped clay-loam packed hard and smooth by generations of feet, dark umber and smoky grey-brown tones (#4A3B30, #5C4A3C, #3A302A), faint soot film, subtle low undulations and shallow worn hollows, scattered fine grit, a few crushed straw fibres and juniper needles, tiny embedded pebbles. NO cracks at all. Orthographic straight-down view, perfectly tileable on all four edges, even flat diffuse lighting, no cast shadows, no horizon, no objects, no text, photogrammetry scan look.",
+  "model_name": "OpenAI gpt-image-1",
+  "width": 1024,
+  "height": 1024,
+  "quality": "high",
+  "generation_id": "4bcbba40-9043-48de-8bb8-e4f00e8f1531",
+  "selected_candidate": 1,
+  "processor": "tools/process_leonardo_terrain_textures.py --only clay_floor",
+  "style_refs": [
+    "docs/ART_BIBLE.md",
+    "docs/MATERIAL_STYLE_LOCK_KIT.md"
+  ],
+  "notes": "R-2281. Replaces the R-1516 drought crust (cracked_earth) on smoke dwelling floors, which read as a desert indoors. Leonardo was out of API tokens, so OpenAI was used. Albedo only.",
+  "derived_maps": {},
+  "runtime_size": {
+    "albedo": 1024
+  },
+  "task": "R-2281"
+}

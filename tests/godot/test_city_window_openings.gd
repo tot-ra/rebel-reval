@@ -218,7 +218,11 @@ func test_actual_plan_house_glass_centres_have_no_wall_backing() -> void:
 					var start := centre - out
 					var end := centre + out * 0.1
 					for wall_key: String in shell.surfaces:
-						if not wall_key.begins_with("wall:") and wall_key != "interior":
+						if not (
+							wall_key.begins_with("wall:")
+							or wall_key.begins_with("indoor:")
+							or wall_key == "interior"
+						):
 							continue
 						var wall := shell.surface(wall_key)
 						for k in range(0, wall.verts.size(), 3):

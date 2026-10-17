@@ -79,6 +79,9 @@ GROUND_OUTPUTS = {
     # R-1516: drought crust for dried puddle basins. Leonardo was out of tokens, so
     # this plate comes from OpenAI gpt-image-1 (generated/openai is gitignored too).
     "cracked_earth": ROOT / "generated" / "openai" / "cracked_earth_v1" / "candidate_1.png",
+    # R-2281: tamped clay floor of a smoke dwelling's heated room (the drought
+    # crust read as a desert indoors). OpenAI again: Leonardo was out of tokens.
+    "clay_floor": ROOT / "generated" / "openai" / "clay_floor_v1" / "candidate_1.png",
 }
 ## Per-family derivation constants.
 ## - normal_strength: slope gain of the height field (higher = deeper relief).
@@ -100,6 +103,12 @@ GROUND_DERIVATION = {
     # second normal sampler. size: the 1024 px source is not upscaled.
     "cracked_earth": {
         "normal_strength": 7.0, "roughness": (0.97, 0.90), "blur": 0.8,
+        "albedo_only": True, "size": 1024,
+    },
+    # Interior floor material (StandardMaterial3D): albedo only, the floor reads
+    # flat from the cutaway camera and the plate carries its own grit.
+    "clay_floor": {
+        "normal_strength": 3.0, "roughness": (0.93, 0.85), "blur": 0.8,
         "albedo_only": True, "size": 1024,
     },
 }

@@ -267,12 +267,13 @@ static func floor_material() -> Material:
 	return _materials["floor"]
 
 
-## Beaten-earth floor of a smoke dwelling (R-1929): the cracked clay plate,
-## tinted per bay by vertex colour (dark heated room, pale threshing floor).
+## Beaten-earth floor of a smoke dwelling (R-1929): tamped clay worn smooth
+## underfoot (R-2281; the earlier drought-crust plate read as a desert),
+## tinted per bay by vertex colour (sooty heated room, paler threshing floor).
 static func clay_material() -> Material:
 	if not _materials.has("clay"):
 		var mat := StandardMaterial3D.new()
-		var path := "res://assets/materials/pbr/cracked_earth/cracked_earth_albedo.png"
+		var path := "res://assets/materials/pbr/clay_floor/clay_floor_albedo.png"
 		mat.albedo_texture = load(path) if ResourceLoader.exists(path) else null
 		mat.uv1_triplanar = true
 		mat.uv1_world_triplanar = true
@@ -527,6 +528,8 @@ static func material_for_key(key: String) -> Material:
 			return floor_material()
 		"clay":
 			return clay_material()
+		"indoor":
+			return RuralPlan.indoor_material(family if family != &"" else &"log")
 		"opening":
 			return opening_material()
 		"timber":
@@ -1394,7 +1397,7 @@ static func _interior(
 	else:
 		_floor(shell, inner, floor_y)
 	var ceiling := eave - 0.05
-	var key := "wall:log" if rural else "interior"
+	var key := "indoor:log" if rural else "interior"
 	var col := RURAL_SMOKED if rural else Color(1, 1, 1)
 	var door_w := door.x
 	# A town door may rise past a low ceiling (the lintel sits in the gable);
