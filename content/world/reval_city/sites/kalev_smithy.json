@@ -795,11 +795,11 @@
     {
       "id": "kalev_smithy",
       "at": [
-        10.5,
+        9.9,
         5.6
       ],
       "facing_deg": 52.0,
-      "note": "new game and the old forge scene arrive here: in the forge bay by the hearth, facing the rack and the yard door so the 6 m third-person camera starts inside the room by the street door"
+      "note": "new game and the old forge scene arrive here: in the forge bay in front of the weapon shelf, facing the shelf and the yard door so the 6 m third-person camera starts inside the room by the street door"
     }
   ],
   "dressing": [
@@ -1038,6 +1038,15 @@
       "at": [
         9.6,
         -0.32
+      ],
+      "rotation_deg": 0.0
+    },
+    {
+      "id": "forge.weapon_shelf",
+      "kind": "weapon_shelf",
+      "at": [
+        8.45,
+        8.78
       ],
       "rotation_deg": 0.0
     },

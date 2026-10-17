@@ -11,6 +11,9 @@ const OUTLINE_COLOR := Color(1.0, 0.85, 0.15, 1.0)
 # WHY: thin hull so only the outer silhouette reads; thicker values leak through
 # neighbouring body parts (clothes, hair, limbs) and look like inner contours.
 const OUTLINE_GROW := 0.007
+## Pickups are thin rigid props (spear haft, bow limb): a 7 mm hull vanishes at play
+## distance, so they get a wider contour than the actors.
+const OUTLINE_GROW_PICKUP := 0.022
 const OUTLINE_SHADER := preload("res://scripts/interaction/actor_outline.gdshader")
 
 const GLYPH_BY_KIND: Dictionary = {
@@ -36,6 +39,7 @@ var _glyph: Label3D
 var _ring: MeshInstance3D
 var _bob_phase := 0.0
 var _focused := false
+var _hovered := false
 var _enabled := true
 var _view_runtime: Node
 # Instance IDs are transient presentation handles: typed Object keys cannot be
@@ -67,7 +71,15 @@ func set_enabled(value: bool) -> void:
 ## Only the model subtree belongs here, never the floor marker or a whole map.
 func set_outline_root(visual_root: Node3D) -> void:
 	_outline_root = visual_root
-	_set_outline(_focused and _enabled)
+	_set_outline((_focused or _hovered) and _enabled)
+
+
+## Cursor hover (pickups): contour only, independent of proximity focus.
+func set_hovered(value: bool) -> void:
+	if _hovered == value:
+		return
+	_hovered = value
+	_apply_visual_state()
 
 
 func set_focused(value: bool) -> void:
@@ -177,8 +189,14 @@ func _apply_visual_state() -> void:
 		return
 	_glyph.modulate = FOCUSED_GLYPH_COLOR if _focused else IDLE_GLYPH_COLOR
 	_glyph.font_size = 64 if _focused else 56
-	_ring.visible = _focused and _enabled
-	_set_outline(_focused and _enabled)
+	# WHY: a glowing floor ring lit pickups from below; pickups show only the contour.
+	var is_pickup := (
+		_interactable != null
+		and is_instance_valid(_interactable)
+		and _interactable.get_interaction_kind() == InteractionKinds.PICKUP
+	)
+	_ring.visible = _focused and _enabled and not is_pickup
+	_set_outline((_focused or _hovered) and _enabled)
 
 
 func _set_outline(active: bool) -> void:
@@ -207,6 +225,9 @@ func _set_outline(active: bool) -> void:
 	# flat axe/chest edges. Keep its default for layered clothes and hair.
 	_outline_material.set_shader_parameter(
 		"silhouette_limit", 1.0 if is_instance_valid(_outline_root) else 0.28
+	)
+	_outline_material.set_shader_parameter(
+		"grow_amount", OUTLINE_GROW_PICKUP if is_instance_valid(_outline_root) else OUTLINE_GROW
 	)
 	# A PackedScene may itself be a MeshInstance3D, not just a model container.
 	if rig is MeshInstance3D:

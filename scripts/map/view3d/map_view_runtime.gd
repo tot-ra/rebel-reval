@@ -255,6 +255,11 @@ func logic_position_at_screen(screen_position: Vector2) -> Vector2:
 	return _camera_binding.logic_position_at_screen(screen_position)
 
 
+## Screen position of a world point (Vector2.INF when behind the camera).
+func world_to_screen(world: Vector3) -> Vector2:
+	return _camera_binding.world_to_screen(world)
+
+
 func set_time_of_day(next_time: StringName) -> void:
 	_environment.set_time_of_day(next_time)
 

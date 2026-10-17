@@ -160,7 +160,7 @@ func test_item_view_exposes_only_the_model_and_handles_missing_models() -> void:
 	root.add_child(view)
 	view.configure(packed, Vector2.ZERO, MapTypes.DEFAULT_CELL_SIZE)
 	assert_true(view.get_item_visual_root() is MeshInstance3D)
-	assert_true(view.get_item_visual_root() != view.get_node("PickupOutline"))
+	assert_false(view.has_node("PickupOutline"), "no floor frame: pickups show only the contour")
 	view.configure(null, Vector2.ZERO, MapTypes.DEFAULT_CELL_SIZE)
 	assert_true(view.get_item_visual_root() == null)
 	root.free()
@@ -189,8 +189,23 @@ func test_controller_spawn_binds_the_actual_pickup_model_and_unbind_clears_it() 
 	assert_false(meshes.is_empty(), "the actual pickup must have model meshes")
 	for node: Node in meshes:
 		assert_true((node as MeshInstance3D).material_overlay is ShaderMaterial)
-	for node: Node in view.get_node("PickupOutline").get_children():
+	assert_false(view.has_node("PickupOutline"), "no floor frame lighting the pickup from below")
+	var indicator: InteractableWorldIndicator = controller._indicators[item]
+	assert_false(
+		(indicator.get_node("FocusRing") as MeshInstance3D).visible,
+		"pickups get no floor ring"
+	)
+	# Cursor hover alone (no proximity focus) draws the contour.
+	sensor.set_focused(false)
+	for node: Node in meshes:
 		assert_true((node as MeshInstance3D).material_overlay == null)
+	controller._set_view_hovered(item, true)
+	for node: Node in meshes:
+		assert_true((node as MeshInstance3D).material_overlay is ShaderMaterial)
+	controller._set_view_hovered(item, false)
+	for node: Node in meshes:
+		assert_true((node as MeshInstance3D).material_overlay == null)
+	sensor.set_focused(true)
 	controller._interactable_binder.unbind(sensor)
 	# Binder frees the marker deferred; its exit hook must restore the external model.
 	await (Engine.get_main_loop() as SceneTree).process_frame

@@ -31,12 +31,12 @@ func test_city_forge_weapons_seed_near_spawn_and_taken_stay_gone() -> void:
 			break
 	assert_true(smithy != null, "the city plan contains Kalev's smithy")
 	if smithy != null:
-		var spawn := smithy.to_world(Vector2(10.5, 5.6))
+		var spawn := smithy.to_world(Vector2(9.9, 5.6))
 		for weapon: Dictionary in weapons:
 			var world_at := CityPlan.to_world_xz(weapon["position"])
 			assert_true(
-				world_at.distance_to(spawn) < 3.0,
-				"weapon must lie in the forge bay near the new-game spawn"
+				world_at.distance_to(spawn) < 4.5,
+				"weapon must stand on the shelf in the forge bay, near the spawn"
 			)
 	state.take_world_item(CITY_LOCATION, &"world.forge_arming_sword")
 	root.free()

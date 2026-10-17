@@ -548,6 +548,8 @@ static func _dress(parent: Node3D, outside: CityBuildingBuilder.Shell, item: Dic
 			_bar_iron(outside, at)
 		"shop_counter":
 			_shop_counter(outside, at)
+		"weapon_shelf":
+			_weapon_shelf(outside, at)
 		"ladder":
 			_ladder(parent, at)
 		_:
@@ -761,6 +763,48 @@ static func _shop_counter(shell: CityBuildingBuilder.Shell, at: Vector3) -> void
 		0.03,
 		OAK_DARK
 	)
+
+
+## Display shelf on the yard-side wall (inner face z 8.78): the forge weapons stand on it, leaning on a
+## rail, out of the walkway and within reach of the cursor. `at` is the centre of the
+## wall face; WorldItemController.SEED_GROUPS stands the pickups at SHELF_TOP.
+const SHELF_HALF := 1.0
+const SHELF_TOP := 0.98
+const SHELF_DEPTH := 0.3
+const RAIL_Y := 1.35
+
+
+static func _weapon_shelf(shell: CityBuildingBuilder.Shell, at: Vector3) -> void:
+	var base := at.y - FLOOR
+	var x0 := at.x - SHELF_HALF
+	var x1 := at.x + SHELF_HALF
+	var z0 := at.z - SHELF_DEPTH
+	CitySiteProps._box(
+		shell,
+		"timber",
+		Vector3(x0, base + FLOOR + SHELF_TOP - 0.05, z0),
+		Vector3(x1, base + FLOOR + SHELF_TOP, at.z),
+		OAK * 0.9
+	)
+	# Rail on the wall that the leaning hafts rest against.
+	CitySiteProps._box(
+		shell,
+		"timber",
+		Vector3(x0, base + FLOOR + RAIL_Y, at.z - 0.08),
+		Vector3(x1, base + FLOOR + RAIL_Y + 0.07, at.z),
+		OAK_DARK
+	)
+	# Diagonal brackets under the board, one every ~0.8 m.
+	for k in 4:
+		var x := x0 + 0.1 + k * (SHELF_HALF * 2.0 - 0.2) / 3.0
+		Kit.bar(
+			shell,
+			"timber",
+			Vector3(x, base + FLOOR + SHELF_TOP - 0.05, z0 + 0.02),
+			Vector3(x, base + FLOOR + SHELF_TOP - 0.5, at.z),
+			0.04,
+			OAK_DARK
+		)
 
 
 ## Ladder up to the loft hatch, leaning on the partition in the living bay.

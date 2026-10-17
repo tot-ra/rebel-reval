@@ -28,6 +28,13 @@ func logic_position_at_screen(screen_position: Vector2) -> Vector2:
 	)
 
 
+## Screen position of a world point, or Vector2.INF when it is behind the lens.
+func world_to_screen(world: Vector3) -> Vector2:
+	if _host._camera.is_position_behind(world):
+		return Vector2.INF
+	return _host._camera.unproject_position(world)
+
+
 func toggle_camera_view() -> void:
 	_host._camera_controller.cycle_camera_mode()
 	sync_movement_and_ghost()

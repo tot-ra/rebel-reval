@@ -9,6 +9,7 @@ extends Node
 const WORLD_ITEM_SCENE := preload("res://scenes/interaction/world_item.tscn")
 const INTERACTABLE_SCENE := preload("res://scenes/interaction/interactable.tscn")
 const OverlayScript := preload("res://scripts/world/world_item_overlay.gd")
+const PICK_MARGIN_PX := 10.0
 const PickupLabelsScript := preload("res://scripts/world/world_item_pickup_labels.gd")
 
 const DEFAULT_PLACEMENTS: Dictionary = {
@@ -22,25 +23,27 @@ const DEFAULT_PLACEMENTS: Dictionary = {
 		},
 	],
 }
-## Forge weapons are authored directly in Kalev's seamless-city forge bay below: a row
-## in front of the new-game spawn (site-local 10.5, 5.6), on the visible floor beside the yard door.
+## Forge weapons are authored directly in Kalev's seamless-city forge bay below: they
+## stand on the weapon shelf (kalev_smithy_builder `weapon_shelf`) on the yard-side
+## wall, right of the yard door. "height" is the shelf top above the floor; "yaw_deg"
+## 90 leans the hafts (which tilt toward local -x) onto the wall at +z.
 const SEED_GROUPS: Dictionary = {
 	&"loc.reval_city":
 	{
 		&"forge_weapons":
 		[
 			{"object_id": &"world.forge_arming_sword", "item_id": &"item.forge_arming_sword",
-				"site_id": &"site.kalev_smithy", "at": Vector2(10.84, 6.64)},
+				"site_id": &"site.kalev_smithy", "at": Vector2(7.7, 8.52), "height": 0.98, "yaw_deg": 90.0},
 			{"object_id": &"world.forge_bearded_axe", "item_id": &"item.forge_bearded_axe",
-				"site_id": &"site.kalev_smithy", "at": Vector2(10.54, 6.91)},
+				"site_id": &"site.kalev_smithy", "at": Vector2(8.0, 8.52), "height": 0.98, "yaw_deg": 90.0},
 			{"object_id": &"world.forge_war_hammer", "item_id": &"item.forge_war_hammer",
-				"site_id": &"site.kalev_smithy", "at": Vector2(10.24, 7.18)},
+				"site_id": &"site.kalev_smithy", "at": Vector2(8.3, 8.52), "height": 0.98, "yaw_deg": 90.0},
 			{"object_id": &"world.forge_spear", "item_id": &"item.forge_spear",
-				"site_id": &"site.kalev_smithy", "at": Vector2(9.95, 7.45)},
+				"site_id": &"site.kalev_smithy", "at": Vector2(8.6, 8.52), "height": 0.98, "yaw_deg": 90.0},
 			{"object_id": &"world.forge_longbow", "item_id": &"item.forge_longbow",
-				"site_id": &"site.kalev_smithy", "at": Vector2(9.65, 7.72)},
+				"site_id": &"site.kalev_smithy", "at": Vector2(8.9, 8.52), "height": 0.98, "yaw_deg": 90.0},
 			{"object_id": &"world.forge_heater_shield", "item_id": &"item.forge_heater_shield",
-				"site_id": &"site.kalev_smithy", "at": Vector2(9.35, 7.98)},
+				"site_id": &"site.kalev_smithy", "at": Vector2(9.2, 8.52), "height": 0.98, "yaw_deg": 90.0},
 		],
 	},
 }
@@ -56,6 +59,8 @@ var _items_root: Node2D
 var _views: Dictionary = {}
 var _interactables: Dictionary = {}
 var _interactable_binder: InteractableViewBinder
+## WorldItem -> its InteractableWorldIndicator, driven by cursor hover.
+var _indicators: Dictionary = {}
 var _hovered: WorldItem = null
 var _overlay: WorldItemOverlay
 ## WorldItem -> variant id from its record (R-2004, EQUIPMENT_VARIANTS.md), carried into the bag.
@@ -127,8 +132,7 @@ func try_handle_click(event: InputEvent) -> bool:
 	if _is_inventory_blocking_pickup():
 		return _try_drop_from_inventory(_logic_at_screen(mouse_button.position))
 
-	var logic_position := _logic_at_screen(mouse_button.position)
-	var item := _find_item_at(logic_position)
+	var item := _find_item_at_screen(mouse_button.position)
 	if item == null:
 		return false
 	return _try_pickup(item)
@@ -213,6 +217,17 @@ func _place_entries(entries: Array) -> void:
 		_state.place_world_item(location_id, object_id, item_id, _placement_position(entry))
 
 
+## Shelf height and yaw of a seeded item, from its SEED_GROUPS entry. Presentation
+## only: the saved record keeps just the logic position.
+func _seed_pose(object_id: StringName) -> Dictionary:
+	var groups: Dictionary = SEED_GROUPS.get(location_id, {})
+	for entries: Array in groups.values():
+		for entry: Dictionary in entries:
+			if StringName(entry.get("object_id", &"")) == object_id:
+				return entry
+	return {}
+
+
 func _placement_position(entry: Dictionary) -> Vector2:
 	if entry.has("site_id") and _definition is CityMapDefinition:
 		var plan: CityPlan = (_definition as CityMapDefinition).plan
@@ -274,6 +289,10 @@ func _spawn_item(record: Dictionary) -> void:
 		if _definition is CityMapDefinition:
 			var plan: CityPlan = (_definition as CityMapDefinition).plan
 			view.position.y = plan.walk_height(CityPlan.to_world_xz(position))
+		# Seeded shelf items stand on the shelf board and lean onto the wall.
+		var pose := _seed_pose(object_id)
+		view.position.y += float(pose.get("height", 0.0))
+		view.rotation.y = deg_to_rad(float(pose.get("yaw_deg", 0.0)))
 		_view_runtime.add_child(view)
 		_views[item] = view
 
@@ -293,6 +312,8 @@ func _spawn_pickup_interactable(item: WorldItem) -> void:
 	_interactables[item] = interactable
 	if _interactable_binder != null:
 		var indicator := _interactable_binder.bind(interactable)
+		if indicator != null:
+			_indicators[item] = indicator
 		var view: WorldItemView = _views.get(item)
 		if indicator != null and is_instance_valid(view):
 			# The sensor is a sibling of the item, not an actor with a mirrored rig.
@@ -310,6 +331,7 @@ func _clear_items() -> void:
 			interactable.disable_interaction()
 			interactable.free()
 	_interactables.clear()
+	_indicators.clear()
 	for item: WorldItem in _views.keys():
 		var view: WorldItemView = _views[item]
 		if is_instance_valid(view):
@@ -321,8 +343,7 @@ func _clear_items() -> void:
 
 
 func _update_hover() -> void:
-	var logic_position := _logic_at_screen(get_viewport().get_mouse_position())
-	var next := _find_item_at(logic_position)
+	var next := _find_item_at_screen(get_viewport().get_mouse_position())
 	if _hovered == next:
 		return
 	if _hovered != null:
@@ -335,9 +356,9 @@ func _update_hover() -> void:
 
 
 func _set_view_hovered(item: WorldItem, value: bool) -> void:
-	var view: WorldItemView = _views.get(item)
-	if view != null and is_instance_valid(view):
-		view.set_hovered(value)
+	var indicator: InteractableWorldIndicator = _indicators.get(item)
+	if indicator != null and is_instance_valid(indicator):
+		indicator.set_hovered(value)
 
 
 func _update_tooltip() -> void:
@@ -443,6 +464,44 @@ func _next_drop_object_id(item_id: StringName) -> StringName:
 	return StringName("%s.%d" % [base, suffix])
 
 
+## Cursor pick. In the 3D view the item is hit where it is drawn (its model bounds
+## projected to the screen), not on the y=0 logic plane: the forge floor is raised
+## and weapons stand on a shelf, so a plane intersection misses them.
+func _find_item_at_screen(screen_position: Vector2) -> WorldItem:
+	if _view_runtime == null:
+		return _find_item_at(screen_position)
+	var best: WorldItem = null
+	var best_distance := INF
+	for item: WorldItem in _views.keys():
+		var view: WorldItemView = _views[item]
+		if not is_instance_valid(item) or not is_instance_valid(view) or not view.visible:
+			continue
+		var rect := _screen_rect(view)
+		if not rect.has_point(screen_position):
+			continue
+		var distance := rect.get_center().distance_squared_to(screen_position)
+		if distance < best_distance:
+			best_distance = distance
+			best = item
+	return best
+
+
+func _screen_rect(view: WorldItemView) -> Rect2:
+	var box := view.get_world_aabb()
+	if box.size == Vector3.ZERO:
+		box = AABB(view.global_position + Vector3(-0.2, 0.0, -0.2), Vector3(0.4, 0.6, 0.4))
+	var rect := Rect2()
+	var first := true
+	for corner in 8:
+		var point := _view_runtime.world_to_screen(box.get_endpoint(corner))
+		if point == Vector2.INF:
+			return Rect2()
+		rect = Rect2(point, Vector2.ZERO) if first else rect.expand(point)
+		first = false
+	# Thin items (spear, bow) are a few pixels wide; keep them easy to hit.
+	return rect.grow(PICK_MARGIN_PX)
+
+
 func _find_item_at(logic_position: Vector2) -> WorldItem:
 	var best: WorldItem = null
 	var best_distance := INF
@@ -515,6 +574,7 @@ func _remove_pickup_interactable(item: WorldItem) -> void:
 		interactable.disable_interaction()
 		interactable.queue_free()
 	_interactables.erase(item)
+	_indicators.erase(item)
 
 
 func _refresh_interactable_prompt(interactable: Interactable, item: WorldItem) -> void:

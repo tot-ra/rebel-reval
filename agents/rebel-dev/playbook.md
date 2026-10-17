@@ -455,3 +455,6 @@ This file contains lessons specific to the Dev role.
 - When a pure hour-to-position timetable cannot carry a real walking pace (legs outlast the gap to the next entry), do not chain the legs inside the pure function: that breaks night bells, meals and tests. Keep the schedule pure and let the live body trail it (`CitizenActor._trail`), capped at the scheduled point.
 
 - World-item 3D views in the seamless city must be lifted to `CityPlan.walk_height`; `MapViewBridge.sync_actor` keeps y, so a view left at y=0 sits under the raised site floor and the pickup looks missing. A test that only checks seeded positions cannot see this: render the real `--city-spawn=kalev_smithy` start and unproject the views.
+
+- World-item cursor picking in the 3D city must project the model bounds to the screen (`MapViewRuntime.world_to_screen`), never intersect the y=0 logic plane: raised floors and shelves miss it. Seeded items stand at `walk_height + height` and need lean/yaw toward the wall; check the wall's real inner face (site wall `thick` extends inward from the line, so kalev_smithy rear face is z 8.78) before placing furniture against it.
+- Scripted `str.replace` patches fail silently on a wrong tab depth: after patching GDScript, grep for the inserted symbol or run the scene once.
