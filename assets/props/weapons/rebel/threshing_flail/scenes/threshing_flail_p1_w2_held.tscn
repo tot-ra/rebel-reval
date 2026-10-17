@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="PackedScene" uid="uid://tmohvrx3tu5r" path="res://assets/props/weapons/rebel/threshing_flail/variants/threshing_flail_p1_w2.glb" id="1"]
+
+[node name="ThreshingFlailHeld" type="Node3D"]
+rotation = Vector3(0, 0, 1.5707963267948966)
+metadata/variant = "threshing_flail_p1_w2"
+
+[node name="Visual" parent="." instance=ExtResource("1")]

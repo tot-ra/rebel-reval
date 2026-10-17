@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="PackedScene" uid="uid://bh6m8c3yay5xu" path="res://assets/props/weapons/rebel/club_ironbound/variants/club_ironbound_p1_w2.glb" id="1"]
+
+[node name="ClubIronboundHeld" type="Node3D"]
+rotation = Vector3(0, 0, -1.5707963267948966)
+metadata/variant = "club_ironbound_p1_w2"
+
+[node name="Visual" parent="." instance=ExtResource("1")]

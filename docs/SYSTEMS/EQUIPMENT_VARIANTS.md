@@ -1,6 +1,6 @@
 # Equipment variants: pipeline, art bible and the watch spear pilot
 
-Status: implemented (tasks **R-2003** EQ-1, **R-2004** EQ-2 and **R-2019** EQ-17 of epic **R-2002**). The pipeline and art bible are in place and proven on one item: the town-watch spear variant `spear_p1_w1`. Every census resident's worn layers and hand gear now carry a prestige and wear cell chosen from the census, with a fallback to the base item while a cell has no file ([Runtime variant choice](#runtime-variant-choice-r-2004)); player items carry a save-safe variant id. The first garment family is re-cut: the aketon ([The aketon](#the-aketon-r-2019)).
+Status: implemented (tasks **R-2003** EQ-1, **R-2004** EQ-2, **R-2014** EQ-12 and **R-2019** EQ-17 of epic **R-2002**). The pipeline and art bible are in place and proven on one item: the town-watch spear variant `spear_p1_w1`. Every census resident's worn layers and hand gear now carry a prestige and wear cell chosen from the census, with a fallback to the base item while a cell has no file ([Runtime variant choice](#runtime-variant-choice-r-2004)); player items carry a save-safe variant id. The first garment family is re-cut: the aketon ([The aketon](#the-aketon-r-2019)).
 
 Scope: how a period-accurate item brief becomes a game-ready Godot asset in several prestige and wear variants; the rules every equipment variant follows; how the city picks a variant per resident; the pilot.
 Out of scope: every other item family and its variant files (R-2005..R-2034, one task each), stats or prices per variant, retiring the legacy primitives (R-2035), the walk-cycle arm pose (R-2036).
@@ -198,6 +198,43 @@ The Viking-age bearded axe of the first forge set is gone (`assets/props/weapons
 ![Carpenter broad axe, detail](../reports/images/equipment/axe_broad_p2_w1_detail.png)
 
 Verify: `tools/godot_render.sh --script tools/capture_axe_equipment.gd`; `python3 tools/assets/equipment/build_equipment.py tools/assets/equipment/items/axe_*.json`; `test_forge_weapons`.
+
+## Rebel levy weapons (R-2014)
+
+The Estonian levy's farm tools and plain clubs, worn and mended. Forms and evidence: [`rebel-levy-improvised-weapons-1343.md`](../../history/dossiers/military/rebel-levy-improvised-weapons-1343.md). The written sources list no rebel weapons ("farmers with farm tools" is a later trope), so every item is a plausible composite. Item list approved by the maintainer under P0-040 (2026-10-17).
+
+| Family (`assets/props/weapons/rebel/<family>/variants/`) | Files | Form | Carry |
+|---|---|---|---|
+| `club_oak` | `p1_w1`, `p1_w2` | one-piece oak club, root-knob head; w2 split head bound with a thong | hang |
+| `club_ironbound` | `p1_w1`, `p1_w2` | oak billet with two shrunk iron hoops and flush nail heads, no spikes; w2 rusted | hang |
+| `sickle` | `p1_w1`, `p1_w2` | toothed crescent on a turned grip with a ferrule (`obj.sickle` silhouette); w2 rusted, broken teeth, cord-bound grip | hang |
+| `threshing_flail` | `p1_w1`, `p1_w2` | farm flail: 1.3 m ash staff, 0.6 m beater, two interlocked rawhide loops; no chain, no iron; w2 cracked beater and staff bound with cord | upright |
+| `hayfork` | `p1_w1`, `p1_w2` | peeled forked branch, 1.35 m stem, two natural tines, knots (not the iron `obj.pitchfork`); w2 one tine broken, crotch bound | upright |
+
+- **Not shipped:** the re-hafted war scythe (first attested 1499, research note), military flails, spiked clubs. The rebel axe, spear and looted crown/Order pieces are the existing items at `w2` (`axe_peasant_p1_w2` from R-2009). Every rebel item is `p1`.
+- **How they were built.** Meshy (402, no funds) and Leonardo (402, no tokens) were both out of credit, so nothing is scanned. `tools/assets/equipment/rebel/build_rebel_weapons.py` reads the manifest [`rebel/rebel_weapons.json`](../../tools/assets/equipment/rebel/rebel_weapons.json) and has two routes:
+  - **Photo items (clubs, sickle): photo-lathe.** The OpenAI gpt-image-1.5 reference is the source. Its silhouette is cut from the white background, with a strict mask for round items so the faint contact shadow stays out. A club becomes a body of revolution along the silhouette's centre line; a sickle becomes a 3 mm plate with a grip turned from its measured width. The photo is projected back as albedo, with the studio light evened across the round, and the normal and ORM maps are derived from it: roughness comes from wood, iron or rust colour inside a manifest zone, and metal only from bare grey iron.
+  - **Poles (flail, hayfork): procedural.** They are swept tubes on the repo's ash plates (`ash_shaft_used` for w1, `ash_haft_worn` for w2) with rawhide and cord parts.
+  - **Shared steps.** The Blender half is `rebel_mesh.py`. The references are kept in `docs/reports/images/equipment/rebel/<variant>_reference.jpg`, because the generation cannot be downloaded again. A later Meshy scan of the same reference can replace a GLB file for file.
+- **Budgets and sockets:** 760-3,600 tris LOD0 (LOD1 1,000 to `build/equipment/`), 1024 px textures, origin at the grip (clubs 0.10 m above the butt, flail 0.45 m, hayfork 0.75 m, sickle mid-grip), `socket_grip/butt/tip`, plus `socket_beater` on the flail.
+- **Mounting:** `<family>/scenes/<variant>_held.tscn` (meta `variant`) for `right_hand`. `upright` uses the spear's quarter turn. `hang` uses the opposite turn, so a club or sickle hangs head-down by the leg: turned up like the axe, a 0.8 m club ran its head through the shoulder. The census gives no resident a rebel kit yet, so no rebel in the city carries one; the band is shown by the capture only.
+
+![Rebel band: hayfork, threshing flail, oak club, iron-bound club, sickle (census rebels, w2)](../reports/images/equipment/rebel/rebel_band.png)
+![Rebel band, hands and heads](../reports/images/equipment/rebel/rebel_band_closeup.png)
+![club_oak_p1_w1 turntable](../reports/images/equipment/rebel/club_oak_p1_w1_turntable.png)
+![club_oak_p1_w2 turntable](../reports/images/equipment/rebel/club_oak_p1_w2_turntable.png)
+![club_ironbound_p1_w1 turntable](../reports/images/equipment/rebel/club_ironbound_p1_w1_turntable.png)
+![club_ironbound_p1_w2 turntable](../reports/images/equipment/rebel/club_ironbound_p1_w2_turntable.png)
+![sickle_p1_w1 turntable](../reports/images/equipment/rebel/sickle_p1_w1_turntable.png)
+![sickle_p1_w2 turntable](../reports/images/equipment/rebel/sickle_p1_w2_turntable.png)
+![threshing_flail_p1_w1 turntable](../reports/images/equipment/rebel/threshing_flail_p1_w1_turntable.png)
+![threshing_flail_p1_w2 turntable](../reports/images/equipment/rebel/threshing_flail_p1_w2_turntable.png)
+![hayfork_p1_w1 turntable](../reports/images/equipment/rebel/hayfork_p1_w1_turntable.png)
+![hayfork_p1_w2 turntable](../reports/images/equipment/rebel/hayfork_p1_w2_turntable.png)
+
+Verify: `python3 tools/assets/equipment/rebel/build_rebel_weapons.py` (then `godot --headless --path . --import` and `build_rebel_weapons.py --scenes`); `godot --headless --path . --script tools/run_godot_tests.gd -- --filter=test_rebel_weapons` (ten variants, sockets, real sizes, carry turns, no scythe); `tools/godot_render.sh --script tools/capture_rebel_band.gd` writes `rebel_band.png` and `rebel_band_closeup.png`.
+
+Limits: a photo-lathe item mirrors the photographed face onto its back, and a club is round in section, so axe facets and the leather thong are painted, not modelled. The sickle's teeth are texture only. The hayfork and flail use tiled plates, not a bark-and-knot texture. There are no ground scenes, catalogue entries or combat items yet. The census rebel kit (which rebel carries what) is a follow-up.
 
 ## Men's tunics (R-2023)
 

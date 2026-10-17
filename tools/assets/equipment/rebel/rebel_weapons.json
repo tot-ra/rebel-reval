@@ -1,0 +1,194 @@
+{
+  "task": "R-2014",
+  "doc": "docs/SYSTEMS/EQUIPMENT_VARIANTS.md",
+  "research": "history/dossiers/military/rebel-levy-improvised-weapons-1343.md",
+  "note": "Meshy returned 402 (no funds) and Leonardo 402 (no tokens) on 2026-10-17: photo items are built by photo-lathe from the OpenAI reference (silhouette = shape, photo = albedo), wooden poles procedurally. A later Meshy scan of the same reference can replace a GLB file for file.",
+  "out_dir": "assets/props/weapons/rebel",
+  "tris": 4000,
+  "lod1_tris": 1000,
+  "tex": 1024,
+  "items": [
+    {
+      "variant": "club_oak_p1_w1",
+      "family": "club_oak",
+      "wear": "w1",
+      "build": "lathe",
+      "look": "One-piece oak club, root-knob head with bark patches, axe-faceted shaft, hand-darkened grip; used",
+      "reference": "docs/reports/images/equipment/rebel/club_oak_p1_w1_reference.jpg",
+      "reference_generation": "openai 0245d851-d669-455d-aafb-549d21e3c300",
+      "reference_sha256_png": "16e132965ae0d45745f8c8922a64a46c8462021919a95cabccbce1f7dd8dbdc3",
+      "reference_model": "OpenAI gpt-image-1.5 1536x1024 quality high (Leonardo out of tokens)",
+      "prompt": "Museum catalogue photo of a single object: a medieval Estonian peasant's wooden club, 14th century, Baltic (Reval 1343), 85 cm long, cut from one piece of oak. Outline: a thick rounded root-knob head about 11 cm across at the right end, the shaft tapering smoothly to a round hand grip 3.5 cm thick at the left end; the grip end is cut off flat and slightly rounded. Bark stripped from the grip and middle, patches of dark grey oak bark still on the head, knots and branch stubs trimmed flush, a few axe-cut facets along the shaft. Plain wood only: no metal, no nails, no studs, no spikes, no carving, no handle wrap. Used: grip smoothed and darkened by hands, a few small dents in the head. Lying horizontally, grip on the left and head on the right, seen almost straight from above with a slight three-quarter tilt, whole object in frame with margin, plain pure white background, soft even studio light, no cast shadow, no hands, no people, no text.",
+      "length_m": 0.85,
+      "pivot_from_base_m": 0.1,
+      "lumps": 0.03,
+      "carry": "hang"
+    },
+    {
+      "variant": "club_oak_p1_w2",
+      "family": "club_oak",
+      "wear": "w2",
+      "build": "lathe",
+      "look": "Old oak club, split head bound with a leather thong, splintered dents, grey weathered wood, black grip; battered",
+      "reference": "docs/reports/images/equipment/rebel/club_oak_p1_w2_reference.jpg",
+      "reference_generation": "openai 4bdb5cfb-8153-409c-be0e-495ce22cec6f",
+      "reference_sha256_png": "099c3785d3b88f2f39c65e4afeb83f41c379a46ae7257659a1ffe8f8f6e4b4a7",
+      "reference_model": "OpenAI gpt-image-1.5 1536x1024 quality high (Leonardo out of tokens)",
+      "prompt": "Museum catalogue photo of a single object: an old battered medieval Estonian peasant's wooden club, 14th century, Baltic (Reval 1343), 82 cm long, cut from one piece of oak. Outline: a thick rounded root-knob head about 10 cm across at the right end, the shaft tapering to a round hand grip 3.5 cm thick at the left end. Heavily worn: a long split runs into the head and is bound tight with three turns of a twisted dark leather thong; the head is battered and splintered with many dents and bruises; old dark grey weathered wood with grime in the cracks, grip blackened and polished by hands, bark long gone. Plain wood only: no metal, no nails, no studs, no spikes, no carving. Lying horizontally, grip on the left and head on the right, seen almost straight from above with a slight three-quarter tilt, whole object in frame with margin, plain pure white background, soft even studio light, no cast shadow, no hands, no people, no text.",
+      "length_m": 0.82,
+      "pivot_from_base_m": 0.1,
+      "lumps": 0.045,
+      "carry": "hang"
+    },
+    {
+      "variant": "club_ironbound_p1_w1",
+      "family": "club_ironbound",
+      "wear": "w1",
+      "build": "lathe",
+      "look": "Oak billet with two shrunk wrought-iron hoops and flush nail heads at the head (smith's off-cuts, no spikes); used",
+      "reference": "docs/reports/images/equipment/rebel/club_ironbound_p1_w1_reference.jpg",
+      "reference_generation": "openai 77b2ec19-85ab-4ac6-889d-11d327783ae7",
+      "reference_sha256_png": "407f1665104016b43ae46023364f6eefd1ef29d942df1719825fe88bc4a5669b",
+      "reference_model": "OpenAI gpt-image-1.5 1536x1024 quality high (Leonardo out of tokens)",
+      "prompt": "Museum catalogue photo of a single object: a medieval Estonian peasant's iron-bound club, 14th century, Baltic (Reval 1343), 80 cm long. A plain oak billet: a thick round club head 9 cm across at the right end, tapering to a round hand grip 3.5 cm thick at the left end. Two plain flat forged wrought-iron hoops, each 2 cm wide, shrunk tight around the head 5 cm apart, and a ring of six large square iron nail heads hammered flush into the head between the hoops. The nails do NOT stick out: no spikes, no points, no studs standing proud, no flanges, not a mace. Wrought iron dull grey-black with faint hammer marks and a few small brown rust spots; oak pale grey-brown, bark stripped, grip darkened by hands. No carving, no ornament. Lying horizontally, grip on the left and head on the right, seen almost straight from above with a slight three-quarter tilt, whole object in frame with margin, plain pure white background, soft even studio light, no cast shadow, no hands, no people, no text.",
+      "length_m": 0.8,
+      "pivot_from_base_m": 0.1,
+      "lumps": 0.0,
+      "metal_x": [
+        0.72,
+        1.0
+      ],
+      "carry": "hang"
+    },
+    {
+      "variant": "club_ironbound_p1_w2",
+      "family": "club_ironbound",
+      "wear": "w2",
+      "build": "lathe",
+      "look": "Old iron-bound club: rusted pitted hoops, rust bleeding into cracked grey oak, splintered head; battered",
+      "reference": "docs/reports/images/equipment/rebel/club_ironbound_p1_w2_reference.jpg",
+      "reference_generation": "openai ea2f1e55-f91a-4bb0-9d9d-cd2e1f32c323",
+      "reference_sha256_png": "b87f23d7c74319401102259d413ba6c3e58b60c941791e120aa74460fbf9d1d2",
+      "reference_model": "OpenAI gpt-image-1.5 1536x1024 quality high (Leonardo out of tokens)",
+      "prompt": "Museum catalogue photo of a single object: an old battered medieval Estonian peasant's iron-bound club, 14th century, Baltic (Reval 1343), 80 cm long. A plain oak billet: a thick round club head 9 cm across at the right end, tapering to a round hand grip 3.5 cm thick at the left end. Two plain flat forged wrought-iron hoops, each 2 cm wide, around the head 5 cm apart, heavily rusted orange-brown and pitted, one hoop dented; a ring of large square iron nail heads hammered flush into the head, rusted. The nails do NOT stick out: no spikes, no points, no studs standing proud, no flanges, not a mace. The oak is old, dark grey and cracked, rust stains bleeding into the wood under the hoops, splintered dents on the head, grip blackened by hands. No carving, no ornament. Lying horizontally, grip on the left and head on the right, seen almost straight from above with a slight three-quarter tilt, whole object in frame with margin, plain pure white background, soft even studio light, no cast shadow, no hands, no people, no text.",
+      "length_m": 0.8,
+      "pivot_from_base_m": 0.1,
+      "lumps": 0.0,
+      "metal_x": [
+        0.72,
+        1.0
+      ],
+      "metal_rusted": true,
+      "carry": "hang"
+    },
+    {
+      "variant": "sickle_p1_w1",
+      "family": "sickle",
+      "item_id": "obj.sickle",
+      "wear": "w1",
+      "build": "flat",
+      "look": "Toothed crescent harvest sickle on a turned birch grip with an iron ferrule (the obj.sickle silhouette); used",
+      "reference": "docs/reports/images/equipment/rebel/sickle_p1_w1_reference.jpg",
+      "reference_generation": "openai 648ad9fd-713e-45fa-9b2b-4e94b51dda44",
+      "reference_sha256_png": "03234fc5d93b35794da6e5e138eb81333bdabb0e270aaea1d9e4674165c91d18",
+      "reference_model": "OpenAI gpt-image-1.5 1536x1024 quality high (Leonardo out of tokens)",
+      "prompt": "Museum catalogue photo of a single object: a medieval Estonian harvest sickle, 14th century, Baltic (Reval 1343), 48 cm overall. A thin flat crescent-shaped blade of hand-forged wrought iron, 3 cm wide, curving in a smooth even arc about 35 cm across, the inner cutting edge finely toothed (serrated) along its whole length, the point thin and curving back toward the handle. The blade tang runs straight into a short round turned birch-wood grip 12 cm long, with a plain iron ferrule ring at the grip mouth. Blade and grip lie flat in one plane. Iron dull grey-black with faint hammer marks and a few small brown rust spots, the toothed edge slightly brighter; grip pale wood darkened by hands. Used. Not a sword, not a sickle-sword, not straightened, no ornament, no engraving, not chrome, not fantasy. Lying flat, grip at the lower left, blade arc opening to the upper right, seen straight from above, whole object in frame with margin, plain pure white background, soft even studio light, no cast shadow, no hands, no people, no text.",
+      "grip_axis_px": [
+        [
+          113,
+          625
+        ],
+        [
+          437,
+          625
+        ]
+      ],
+      "blade_thick_m": 0.003,
+      "longest_m": 0.48,
+      "carry": "hang"
+    },
+    {
+      "variant": "sickle_p1_w2",
+      "family": "sickle",
+      "item_id": "obj.sickle",
+      "wear": "w2",
+      "build": "flat",
+      "look": "Rusted pitted sickle with broken teeth and a notch, split grip bound with cord, rusty ferrule; battered",
+      "reference": "docs/reports/images/equipment/rebel/sickle_p1_w2_reference.jpg",
+      "reference_generation": "openai 37679665-d560-4f94-b229-61c9bfee65b7",
+      "reference_sha256_png": "597944356ad7a45240f6886e315e96051078da87fda721bd732a0c52ece9b5cc",
+      "reference_model": "OpenAI gpt-image-1.5 1536x1024 quality high (Leonardo out of tokens)",
+      "prompt": "Museum catalogue photo of a single object: an old battered medieval Estonian harvest sickle, 14th century, Baltic (Reval 1343), 46 cm overall. A thin flat crescent-shaped blade of hand-forged wrought iron, 3 cm wide, curving in a smooth even arc about 34 cm across, the inner edge toothed (serrated) but worn, with several teeth broken and a small notch in the blade; the point thin and curving back toward the handle. Heavily rusted orange-brown and pitted, only the toothed edge rubbed brighter. The tang runs straight into a short round wooden grip 12 cm long that is split and bound with a few turns of dark cord; rusty iron ferrule ring at the grip mouth. Blade and grip lie flat in one plane. Not a sword, not a sickle-sword, not straightened, no ornament, not fantasy. Lying flat, grip at the lower left, blade arc opening to the upper right, seen straight from above, whole object in frame with margin, plain pure white background, soft even studio light, no cast shadow, no hands, no people, no text.",
+      "grip_axis_px": [
+        [
+          291,
+          866
+        ],
+        [
+          292,
+          598
+        ]
+      ],
+      "blade_thick_m": 0.003,
+      "metal_rusted": true,
+      "longest_m": 0.42,
+      "carry": "hang"
+    },
+    {
+      "variant": "threshing_flail_p1_w1",
+      "family": "threshing_flail",
+      "wear": "w1",
+      "build": "flail",
+      "look": "Farm threshing flail: 1.3 m ash hand staff, 0.6 m beater, joined by two interlocked rawhide loops; used",
+      "plate": "assets/materials/equipment/ash_shaft_used",
+      "staff_m": 1.3,
+      "beater_m": 0.6,
+      "pivot_from_base_m": 0.45,
+      "carry": "upright"
+    },
+    {
+      "variant": "threshing_flail_p1_w2",
+      "family": "threshing_flail",
+      "wear": "w2",
+      "build": "flail",
+      "look": "Old flail: grey worn ash, cracked beater bound with cord, mended thong; battered",
+      "plate": "assets/materials/equipment/ash_haft_worn",
+      "staff_m": 1.28,
+      "beater_m": 0.58,
+      "pivot_from_base_m": 0.45,
+      "mend": true,
+      "carry": "upright"
+    },
+    {
+      "variant": "hayfork_p1_w1",
+      "family": "hayfork",
+      "wear": "w1",
+      "build": "fork",
+      "look": "Peeled forked branch: 1.35 m stem, two natural tines 0.38 m, knots, sharpened tips (not the iron obj.pitchfork); used",
+      "plate": "assets/materials/equipment/ash_shaft_used",
+      "stem_m": 1.35,
+      "tines_m": [
+        0.38,
+        0.36
+      ],
+      "pivot_from_base_m": 0.75,
+      "carry": "upright"
+    },
+    {
+      "variant": "hayfork_p1_w2",
+      "family": "hayfork",
+      "wear": "w2",
+      "build": "fork",
+      "look": "Old forked branch: grey worn wood, one tine broken short, split crotch bound with cord; battered",
+      "plate": "assets/materials/equipment/ash_haft_worn",
+      "stem_m": 1.33,
+      "tines_m": [
+        0.37,
+        0.2
+      ],
+      "pivot_from_base_m": 0.75,
+      "mend": true,
+      "carry": "upright"
+    }
+  ]
+}

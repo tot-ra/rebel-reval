@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="PackedScene" uid="uid://bheo2b4omkt3s" path="res://assets/props/weapons/rebel/club_oak/variants/club_oak_p1_w1.glb" id="1"]
+
+[node name="ClubOakHeld" type="Node3D"]
+rotation = Vector3(0, 0, -1.5707963267948966)
+metadata/variant = "club_oak_p1_w1"
+
+[node name="Visual" parent="." instance=ExtResource("1")]

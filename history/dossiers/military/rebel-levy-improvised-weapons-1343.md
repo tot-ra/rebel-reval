@@ -51,7 +51,7 @@ Research note for board task R-2014 (EQ-12, epic R-2002). It decides which farm 
 
 ## Production hooks
 
-- **Art:** five new families, each `p1` x `w1`/`w2` under `assets/props/weapons/rebel/` (`club_oak`, `club_ironbound`, `threshing_flail`, `hayfork`, `sickle`), naming per [`EQUIPMENT_VARIANTS.md`](../../../docs/SYSTEMS/EQUIPMENT_VARIANTS.md). No scythe.
+- **Art:** five new families, each `p1` x `w1`/`w2` under `assets/props/weapons/rebel/` (`club_oak`, `club_ironbound`, `threshing_flail`, `hayfork`, `sickle`), naming per [`EQUIPMENT_VARIANTS.md`](../../../docs/SYSTEMS/EQUIPMENT_VARIANTS.md#rebel-levy-weapons-r-2014). No scythe. Shipped 2026-10-17 (approved under P0-040).
 - **Dev:** rebels (`harju_kings`, `black_cloaks`) already roll wear `w2` (R-2004); a rebel band mixes the five tools with one axe, spear or looted piece.
 - **Quest / canon:** `quest.camp_field_forge` ("re-haft scythe-blades") and the camp crowd row "young recruit with a scythe-blade on a pole" need rewording (re-haft axes and spearheads, mend flails); canon keeper decision.
 

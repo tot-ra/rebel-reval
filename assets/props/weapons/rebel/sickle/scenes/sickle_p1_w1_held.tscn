@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="PackedScene" uid="uid://dseqq1fcbpqiy" path="res://assets/props/weapons/rebel/sickle/variants/sickle_p1_w1.glb" id="1"]
+
+[node name="SickleHeld" type="Node3D"]
+rotation = Vector3(0, 0, -1.5707963267948966)
+metadata/variant = "sickle_p1_w1"
+
+[node name="Visual" parent="." instance=ExtResource("1")]
