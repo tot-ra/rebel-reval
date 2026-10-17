@@ -14,14 +14,17 @@ Read first: `AGENTS.md`, `agents/WORK_PROTOCOL.md`, `agents/playbook.md`, `agent
 - Never call the `question` tool or wait for a reply. A step requiring human input, approval, rights clearance, or a product/canon/art decision is a blocker; do not perform it.
 - Do not lower the eligibility bar to find work. "No eligible task" is a valid result (`idle: no autonomous candidate`).
 - Do not make product, scope, canon, or art-direction decisions. Implement only what the task contract, accepted ADRs, and `docs/CANON.md` already decide. For a small technical detail left open, choose a reversible option consistent with neighbouring code and record it in the task body.
-- Work on `main` only. Never switch branches or create a feature branch.
+- Land on `main` only. The loop may run either in the main checkout on `main` or in an isolated session worktree on a throwaway `a2gent/<id>` branch. That worktree branch is scratch space, not a feature branch: its commits are integrated into `main` and the branch is deleted in step 5. Never switch branches inside a checkout and never create other branches.
 - Take one task only and finish it in this tick. **Do not split work into increments, make partial commits, or leave a claimed task for a later run.** If it cannot be completed and verified within the budget, release it as blocked and undo only this run's uncommitted changes.
 
 ## 1. Orient
 
 1. Read `git status`, current branch, task-board stats and ready candidates. Fetch `origin` if safe; preserve every foreign staged, dirty, or untracked path. Do not stash, reset, restore, or clean the repository.
 2. Read relevant recent run history for this hourly loop and recent commits to avoid duplicate or already-landed work.
-3. Confirm the current branch is `main`. If not, or if the tree cannot be safely worked in place, report the blocker and stop without switching branches.
+3. Determine the mode with `git rev-parse --show-toplevel`, `git branch --show-current`, `git worktree list`:
+   - **Main checkout on `main`:** work in place and follow step 5 "Direct mode".
+   - **Session worktree on `a2gent/<id>`** (clean tree, top-level differs from the main checkout): work in place and follow step 5 "Worktree mode". Record the worktree path and branch name now; they are needed for cleanup.
+   - Anything else (detached HEAD, another branch, dirty worktree with foreign changes, unrelated worktree): report the blocker and stop without switching branches.
 
 ## 2. Select one eligible task
 
@@ -65,12 +68,23 @@ Budget: approximately 30 minutes total, including orientation, selection, implem
 
 ## 5. Commit and push
 
-Commit only after the complete task deliverable and required verification pass. Commit on `main` with normal hooks and push normally.
+Commit only after the complete task deliverable and required verification pass, with normal hooks.
+
+**Direct mode (main checkout):** commit on `main` and push normally.
+
+**Worktree mode (session worktree):** the work is not finished until it is on `origin/main` and the worktree is gone.
+1. Commit on the worktree branch with normal hooks (message cites the task ref).
+2. `git fetch origin`, then `git rebase origin/main` (safe here: this worktree holds only this run's commit). On conflicts, `git rebase --abort`, then treat as blocked.
+3. If the rebase pulled in new commits, rerun the task's `verify:` clause and focused tests on the rebased result. Only a green result may be integrated.
+4. Integrate without touching the main checkout's working tree: `git push origin HEAD:main`. Never force-push. A rejected push means fetch/rebase/verify once more; a second rejection is a reported blocker.
+5. Confirm with `git fetch origin && git merge-base --is-ancestor HEAD origin/main`.
+6. Clean up only after step 5 succeeded: from the main checkout run `git -C <main-checkout> worktree remove <this-worktree-path>` and `git -C <main-checkout> branch -d <a2gent/id>` (use `-D` only if `-d` refuses solely because the main checkout's local `main` is behind `origin/main`, and step 5 passed). Do this as the very last command of the run, after the task is closed and the report is composed. Remove only this run's worktree and branch, never others'.
+7. If verification or the push failed, do not remove the worktree or branch; report the blocker and the exact clearing condition.
 
 - Stage only explicit paths allowed by this task and changed by this run. Inspect the staged diff and confirm it contains no foreign content.
 - Other workers may already have staged unrelated changes. Never unstage or include them: commit this task with `git commit --only -- <explicit-owned-paths>` so the commit contains only this run's paths. Inspect the resulting commit's file list and diff before pushing.
 - Never use broad staging, stash, reset, restore, clean, force-push, or `GIT_INDEX_FILE`.
-- If hooks fail, diagnose within the budget. Do not bypass them. If push is rejected, do not rebase a checkout containing any foreign staged or dirty changes; report the blocker.
+- If hooks fail, diagnose within the budget. Do not bypass them. In Direct mode, if push is rejected, do not rebase a checkout containing any foreign staged or dirty changes; report the blocker.
 
 ## 6. Close the task
 
@@ -88,3 +102,5 @@ Append a reusable lesson to the narrowest playbook only when a failure exposed a
 ## Report (in Russian)
 
 Report the task ref and why it passed autonomy checks, what was delivered, verification commands and results, commit hash and push result, final task state, follow-ups, and any remaining blocker. If nothing qualified, say `idle: no autonomous candidate` and list the top rejected candidates and reasons.
+
+In Worktree mode an idle or blocked-before-commit run with no commits of its own still removes its empty worktree and branch (step 5.6) once the report is composed; a run that left unmerged commits keeps them and reports the path.
