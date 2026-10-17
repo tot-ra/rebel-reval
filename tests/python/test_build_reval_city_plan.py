@@ -478,8 +478,154 @@ class CityPlanBuilderTest(unittest.TestCase):
         rng.shuffle(buildings)
         rng.shuffle(obstacles)
         before = copy.deepcopy(buildings)
-        self.assertEqual(builder.burgher_plots(buildings, obstacles, self.mpu), self.plan["plots"])
+        # Items (WB-13f) are a later pass over the plots, not part of the strip derivation.
+        plots = [{k: v for k, v in p.items() if k != "items"} for p in self.plan["plots"]]
+        self.assertEqual(builder.burgher_plots(buildings, obstacles, self.mpu), plots)
         self.assertEqual(buildings, before)
+
+    # ---- WB-13f yard items (R-1416) ----
+    ITEM_TYPES = {"firewood_stack", "privy", "midden", "well", "shared_well", "water_butt",
+                  "garden_bed", "drying_line", "chicken_coop"}
+
+    def _placed(self, p):
+        """Items that stand in the yard (a shared well or shared privy points elsewhere)."""
+        return [i for i in p["items"] if i["type"] != "shared_well" and "shared_with" not in i]
+
+    def _full_yards(self):
+        out = []
+        for p in self.plan["plots"]:
+            if not p["yard"]:
+                self.assertEqual(p["items"], [], p["id"])
+                continue
+            q = p["yard"]
+            if min(math.dist(q[0], q[1]), math.dist(q[0], q[3])) >= builder.PLOT_ITEM_MIN_YARD_M:
+                out.append(p)
+        return out
+
+    def test_yard_items_use_only_allowed_types_ids_and_classes(self):
+        seen = {}
+        for p in self.plan["plots"]:
+            for i in p["items"]:
+                self.assertIn(i["type"], self.ITEM_TYPES, i["id"])
+                self.assertRegex(i["id"], r"^%s\.%s\d$" % (re.escape(p["id"]), i["type"].replace("_", "")))
+                self.assertIn(i["class"], ("A", "B", "D"), i["id"])
+                self.assertNotIn(i["id"], seen)
+                seen[i["id"]] = i
+        self.assertGreater(len(seen), 500)
+
+    def test_every_roomy_yard_carries_the_minimum_set(self):
+        yards = self._full_yards()
+        self.assertGreater(len(yards), 60)
+        for p in yards:
+            types = {i["type"] for i in p["items"]}
+            self.assertIn("firewood_stack", types, p["id"])
+            self.assertIn("midden", types, p["id"])
+            self.assertIn("privy", types, p["id"])  # an own privy or one shared_with a neighbour
+            for typ in self.ITEM_TYPES:
+                self.assertLessEqual(sum(1 for i in p["items"] if i["type"] == typ), 1, (p["id"], typ))
+            self.assertFalse("well" in types and "shared_well" in types, p["id"])
+            tier = p["wealth_tier"]
+            if tier in ("merchant", "great"):
+                self.assertNotIn("drying_line", types)
+                self.assertNotIn("chicken_coop", types)
+
+    def test_shared_references_point_at_real_neighbours_and_wells(self):
+        ids = {i["id"] for p in self.plan["plots"] for i in p["items"] if i["type"] == "well"}
+        ids |= {w["id"] for w in self.plan["points_of_interest"] if w["kind"] == "well"}
+        plots = {p["id"] for p in self.plan["plots"]}
+        for p in self.plan["plots"]:
+            for i in p["items"]:
+                if i["type"] == "shared_well":
+                    self.assertIn(i["ref"], ids, i["id"])
+                    self.assertLessEqual(i["distance_m"], builder.PLOT_ITEM_SHARED_WELL_M, i["id"])
+                if "shared_with" in i:
+                    self.assertIn(i["shared_with"], plots)
+                    self.assertNotEqual(i["shared_with"], p["id"])
+
+    def test_privies_stand_downslope_of_and_clear_of_every_near_well(self):
+        wells = [(w["id"], tuple(w["at"])) for w in self.plan["points_of_interest"] if w["kind"] == "well"]
+        wells += [(i["id"], tuple(i["at"])) for p in self.plan["plots"] for i in p["items"] if i["type"] == "well"]
+        self.assertGreater(len(wells), 30)
+        checked = 0
+        for p in self.plan["plots"]:
+            for i in p["items"]:
+                if i["type"] != "privy" or "shared_with" in i:
+                    continue
+                for wid, w in wells:
+                    d = math.dist(i["at"], w) * self.mpu
+                    if d > builder.PLOT_ITEM_WELL_NEAR_M:
+                        continue
+                    checked += 1
+                    self.assertGreaterEqual(d, builder.PLOT_ITEM_PRIVY_WELL_M - 0.01, (i["id"], wid))
+                    self.assertLessEqual(self.h_at(*i["at"]), self.h_at(*w) + 0.005, (i["id"], wid, "uphill of a well"))
+        self.assertGreater(checked, 0)
+
+    def h_at(self, x, y):
+        return self.result["h_at_m"](x * self.mpu, y * self.mpu)
+
+    def test_yard_items_do_not_overlap_buildings_walls_or_the_gate_path(self):
+        by_id = {b["id"]: b for b in self.plan["buildings"]}
+        for p in self.plan["plots"]:
+            if not p["items"]:
+                continue
+            yard = [tuple(q) for q in p["yard"]]
+            placed = self._placed(p)
+            gate = p["wall"]["gate"] if p.get("wall") else None
+            door = None
+            if gate:
+                q = p["yard"]
+                door = tuple((q[0][k] + q[1][k]) / 2 for k in (0, 1))
+            for a in placed:
+                r = builder.PLOT_ITEM_RADIUS_M[a["type"]] / self.mpu
+                self.assertTrue(builder.pip(tuple(a["at"]), yard), (a["id"], "outside its yard"))
+                for k in range(1, len(yard)):  # edge 0 is the house back line, not a wall
+                    d, _ = builder.dist_point_seg(a["at"][0], a["at"][1], yard[k][0], yard[k][1], yard[(k + 1) % len(yard)][0], yard[(k + 1) % len(yard)][1])
+                    self.assertGreaterEqual(float(d) * self.mpu, r * self.mpu + builder.PLOT_ITEM_WALL_CLEAR_M - 0.01, (a["id"], "wall line"))
+                if gate:
+                    d, _ = builder.dist_point_seg(a["at"][0], a["at"][1], gate["at"][0], gate["at"][1], door[0], door[1])
+                    self.assertGreaterEqual(float(d) * self.mpu, builder.PLOT_ITEM_PATH_HALF_M + r * self.mpu - 0.01, (a["id"], "gate path"))
+                for b in self.plan["buildings"]:
+                    fp = [tuple(q) for q in b["footprint"]]
+                    box = self._bbox(fp)
+                    if not (box[0] - 3 < a["at"][0] < box[2] + 3 and box[1] - 3 < a["at"][1] < box[3] + 3):
+                        continue
+                    own_butt = a["type"] == "water_butt" and b["id"] == p["building"]
+                    gap = 0.0 if builder.pip(tuple(a["at"]), fp) else min(
+                        float(builder.dist_point_seg(a["at"][0], a["at"][1], fp[k][0], fp[k][1], fp[(k + 1) % len(fp)][0], fp[(k + 1) % len(fp)][1])[0]) for k in range(len(fp)))
+                    self.assertGreater(gap * self.mpu, r * self.mpu + (0.0 if own_butt else 0.4), (a["id"], b["id"]))
+            for x in range(len(placed)):
+                for y in range(x + 1, len(placed)):
+                    a, b = placed[x], placed[y]
+                    need = builder.PLOT_ITEM_RADIUS_M[a["type"]] + builder.PLOT_ITEM_RADIUS_M[b["type"]]
+                    self.assertGreaterEqual(math.dist(a["at"], b["at"]) * self.mpu, need + builder.PLOT_ITEM_GAP_M - 0.01, (a["id"], b["id"]))
+            for a in placed:
+                if a["type"] == "firewood_stack":
+                    for b in placed:
+                        if b["type"] in ("privy", "well"):
+                            self.assertGreater(math.dist(a["at"], b["at"]) * self.mpu, builder.PLOT_ITEM_FUEL_CLEAR_M, (a["id"], b["id"]))
+            self.assertIn(p["building"], by_id)
+
+    def test_yard_items_per_district_stay_inside_the_dossier_bands(self):
+        districts = [(d["id"], [tuple(q) for q in d["polygon"]]) for d in self.plan["districts"]]
+        counts, beds, area = {}, {}, {}
+        for p in self.plan["plots"]:
+            if not p["yard"]:
+                continue
+            c = p["yard"][0]
+            dist = next((did for did, poly in districts if builder.pip(tuple(c), poly)), "district.lower_town")
+            row = counts.setdefault(dist, {})
+            for i in p["items"]:
+                row[i["type"]] = row.get(i["type"], 0) + 1
+            area[dist] = area.get(dist, 0.0) + abs(builder.poly_area([tuple(q) for q in p["yard"]]))
+            beds[dist] = beds.get(dist, 0.0) + builder.PLOT_ITEM_BED_M2 * sum(1 for i in p["items"] if i["type"] == "garden_bed")
+        print("\nWB-13f yard items by district %s" % json.dumps(counts, sort_keys=True))
+        for dist, row in counts.items():
+            yards = sum(1 for p in self.plan["plots"] if p["yard"] and p["items"] is not None and
+                        next((did for did, poly in districts if builder.pip(tuple(p["yard"][0]), poly)), "district.lower_town") == dist)
+            for typ, n in row.items():
+                self.assertLessEqual(n, yards, (dist, typ))  # 0-1 per yard, one of each at most
+            # P0-072 band: kitchen plots are 3-10% of developable land; the beds stay below its top.
+            self.assertLessEqual(beds[dist] / area[dist], 0.10, dist)
 
 
 class TerrainReliefTest(unittest.TestCase):

@@ -1373,6 +1373,8 @@ def build(args) -> dict:
     # WB-13e: rear service ranges, appended after every other building so no
     # existing ID, footprint or seeded placement changes.
     buildings.extend(plot_service_ranges(plots, trees, bushes, h_at_m, mpu))
+    # WB-13f: yard items, after the service ranges that they must stay clear of.
+    plot_yard_items(plots, buildings, pois, trees, bushes, h_at_m, mpu)
 
     for s in streets:
         s["points"] = wu(s.pop("points_m"))
@@ -1443,7 +1445,7 @@ def build(args) -> dict:
     roads = render_roads(plan, mpu)
     minimap = render_minimap(plan, height_wu)
     return {"plan": plan, "height": height_doc, "splat": splat, "roads": roads, "minimap": minimap, "height_wu": height_wu, "extent_m": (x0, y0, x1, y1), "mpu": mpu,
-            "plot_obstacles": plot_obs}
+            "plot_obstacles": plot_obs, "h_at_m": h_at_m}
 
 
 SITES_DIR = ROOT / "content/world/reval_city/sites"
@@ -3488,6 +3490,261 @@ def plot_service_ranges(plots, trees, bushes, h_at_m, mpu):
                 {"plot": p["id"]},
             ))
     return out
+
+
+# WB-13f yard infrastructure items (R-1416). The set and the evidence class of each
+# item come from docs/reports/reval_domestic_infrastructure_1343.md section 5 and the
+# trace table of docs/tasks/world/WB-13_burgher_plot_prefab.md. Only these types exist;
+# nothing from the WB-12 reject list (byre, barn, pipes, sewer grates) is ever placed.
+PLOT_ITEM_CLASS = {
+    "firewood_stack": "A", "privy": "B", "midden": "A", "well": "B", "shared_well": "B",
+    "water_butt": "B", "garden_bed": "B", "drying_line": "D", "chicken_coop": "B",
+}
+# Conflict radius (m) of each item; a garden bed is 3 x 2 m and a drying line 3 m long.
+PLOT_ITEM_RADIUS_M = {
+    "firewood_stack": 1.2, "privy": 1.0, "midden": 1.0, "well": 1.0, "water_butt": 0.5,
+    "garden_bed": 1.8, "drying_line": 1.6, "chicken_coop": 0.8,
+}
+PLOT_ITEM_WALL_INSET_M = 0.6  # wall line (0.3 m clearance + half of the thickest wall)
+PLOT_ITEM_WALL_CLEAR_M = 0.3  # an item's circle stays this far inside the wall line
+PLOT_ITEM_BUILDING_CLEAR_M = 0.5  # open ground between an item and any house or outbuilding
+PLOT_ITEM_GAP_M = 0.4  # between two items
+PLOT_ITEM_PATH_HALF_M = 0.6  # the gate -> back door path is 1.2 m wide
+PLOT_ITEM_GATE_APRON_M = 3.0  # nothing heaps up in front of a gate
+PLOT_ITEM_FUEL_CLEAR_M = 3.0  # firewood keeps clear of privy and well
+PLOT_ITEM_WELL_NEAR_M = 20.0  # the privy-vs-well rules cover wells this close (same or neighbouring yard)
+PLOT_ITEM_PRIVY_WELL_M = 6.0  # a privy stands at least this far from a well, and downslope of it
+PLOT_ITEM_SHARED_WELL_M = 40.0  # reach of a shared well reference
+PLOT_ITEM_BED_MIN_OPEN_M2 = 12.0  # open yard needed before a kitchen-garden bed
+PLOT_ITEM_BED_M2 = 6.0
+PLOT_ITEM_SPACING_M = 0.6  # candidate lattice
+PLOT_ITEM_MIN_YARD_M = 6.0  # a yard this deep and wide always carries firewood, privy and midden
+
+
+def plot_yard_items(plots, buildings, pois, trees, bushes, h_at_m, mpu):
+    """Add `items` to every plot (WB-13f, R-1416): `[]` for plots without a yard.
+
+    Works in metres on each yard quad (frame as in plot_service_ranges). Passes run
+    over plots in id order so the result never depends on input order: privies first
+    (lowest ground that is downslope of and >= 6 m from every near well), then
+    private wells of merchant and great yards on the highest ground that keeps the
+    same rule against every placed privy, then the rest of the set per plot. Items
+    keep off every building (service ranges included), tree, bush, other item, the
+    yard edge (wall line) and the 1.2 m path from the gate to the back door. Spots
+    are tried in a fixed order and the choice between equal ones comes from the plot
+    id, so nothing else in the plan moves."""
+    yards = {}
+    for p in plots:
+        p["items"] = []
+        yard = [(q[0] * mpu, q[1] * mpu) for q in p["yard"]]
+        if not yard:
+            continue
+        width, depth = math.dist(yard[0], yard[1]), math.dist(yard[0], yard[3])
+        T = ((yard[1][0] - yard[0][0]) / width, (yard[1][1] - yard[0][1]) / width)
+        N = ((yard[3][0] - yard[0][0]) / depth, (yard[3][1] - yard[0][1]) / depth)
+        yards[p["id"]] = {"plot": p, "o": yard[0], "T": T, "N": N, "w": width, "d": depth, "ring": yard, "items": []}
+
+    cell = 16.0
+
+    def grid_of(entries):
+        g = {}
+        for q, r in entries:
+            g.setdefault((int(q[0] // cell), int(q[1] // cell)), []).append((q, r))
+        return g
+
+    flora = grid_of([((t[0] * mpu, t[1] * mpu), PLOT_SERVICE_TREE_CLEAR_M) for t in trees]
+                    + [((b[0] * mpu, b[1] * mpu), PLOT_SERVICE_BUSH_CLEAR_M) for b in bushes])
+    rings = []  # (building id, ring, bbox) of every house and outbuilding
+    for b in buildings:
+        ring = [(q[0] * mpu, q[1] * mpu) for q in b["footprint"]]
+        rings.append((b["id"], ring, (min(q[0] for q in ring), min(q[1] for q in ring), max(q[0] for q in ring), max(q[1] for q in ring))))
+    by_id = {b["id"]: b for b in buildings}
+
+    def ring_gap(p, ring):
+        if pip(p, ring):
+            return 0.0
+        return min(float(dist_point_seg(p[0], p[1], ring[k][0], ring[k][1], ring[(k + 1) % len(ring)][0], ring[(k + 1) % len(ring)][1])[0])
+                   for k in range(len(ring)))
+
+    wells = [("%s" % w["id"], (w["at"][0] * mpu, w["at"][1] * mpu), h_at_m(w["at"][0] * mpu, w["at"][1] * mpu))
+             for w in pois if w["kind"] == "well"]
+    privies = []  # (plot id, at, ground)
+
+    def near_wells(c):
+        return [w for w in wells if math.dist(c, w[1]) <= PLOT_ITEM_WELL_NEAR_M + PLOT_ITEM_PRIVY_WELL_M]
+
+    def candidates(y):
+        out = []
+        r_t = int((y["w"] - 2 * PLOT_ITEM_WALL_INSET_M) / PLOT_ITEM_SPACING_M)
+        r_n = int((y["d"] - 2 * PLOT_ITEM_WALL_INSET_M) / PLOT_ITEM_SPACING_M)
+        for i in range(r_t + 1):
+            for j in range(r_n + 1):
+                t = PLOT_ITEM_WALL_INSET_M + i * PLOT_ITEM_SPACING_M
+                n = PLOT_ITEM_WALL_INSET_M + j * PLOT_ITEM_SPACING_M
+                out.append((t, n, (y["o"][0] + t * y["T"][0] + n * y["N"][0], y["o"][1] + t * y["T"][1] + n * y["N"][1])))
+        return out
+
+    for y in yards.values():
+        y["cand"] = candidates(y)
+        p = y["plot"]
+        y["house"] = [(q[0] * mpu, q[1] * mpu) for q in by_id[p["building"]]["footprint"]]
+        gate = p["wall"]["gate"] if p.get("wall") else None
+        y["gate"] = (gate["at"][0] * mpu, gate["at"][1] * mpu) if gate else None
+        y["door"] = (y["o"][0] + min(max(y["w"] / 2, 0.0), y["w"]) * y["T"][0], y["o"][1] + min(max(y["w"] / 2, 0.0), y["w"]) * y["T"][1])
+        # Buildings that can touch this yard: every ring whose box meets it.
+        xs = [q[0] for q in y["ring"]]
+        ys = [q[1] for q in y["ring"]]
+        box = (min(xs) - 3, min(ys) - 3, max(xs) + 3, max(ys) + 3)
+        y["near"] = [(bid, r) for bid, r, bb in rings if bb[0] < box[2] and bb[2] > box[0] and bb[1] < box[3] and bb[3] > box[1]]
+        y["area"] = abs(poly_area(y["ring"]))
+        y["used"] = sum(abs(poly_area(r)) for bid, r in y["near"] if by_id[bid].get("plot") == p["id"])
+
+    def spot_ok(y, c, typ, r):
+        t = (c[0] - y["o"][0]) * y["T"][0] + (c[1] - y["o"][1]) * y["T"][1]
+        n = (c[0] - y["o"][0]) * y["N"][0] + (c[1] - y["o"][1]) * y["N"][1]
+        if min(t, y["w"] - t, y["d"] - n) < r + PLOT_ITEM_WALL_CLEAR_M:
+            return False
+        for bid, ring in y["near"]:
+            need = r + (0.05 if (typ == "water_butt" and bid == y["plot"]["building"]) else PLOT_ITEM_BUILDING_CLEAR_M)
+            if ring_gap(c, ring) < need:
+                return False
+        for q, rr in (e for gx in range(int((c[0] - 4) // cell), int((c[0] + 4) // cell) + 1)
+                      for gy in range(int((c[1] - 4) // cell), int((c[1] + 4) // cell) + 1)
+                      for e in flora.get((gx, gy), ())):
+            if math.dist(q, c) < r + rr:
+                return False
+        for it in y["items"]:
+            if math.dist(it["c"], c) < r + it["r"] + PLOT_ITEM_GAP_M:
+                return False
+        if y["gate"] is not None:
+            if math.dist(c, y["gate"]) < PLOT_ITEM_GATE_APRON_M + r and typ in ("midden", "privy", "firewood_stack"):
+                return False
+            # Path from the gate to the house's back door stays clear.
+            if dist_point_seg(c[0], c[1], y["gate"][0], y["gate"][1], y["door"][0], y["door"][1])[0] < PLOT_ITEM_PATH_HALF_M + r:
+                return False
+        return True
+
+    def put(y, typ, t, n, c, angle, extra=None):
+        r = PLOT_ITEM_RADIUS_M[typ]
+        count = sum(1 for it in y["items"] if it["type"] == typ)
+        rec = {"id": "%s.%s%d" % (y["plot"]["id"], typ.replace("_", ""), count), "type": typ,
+               "at": [round(c[0] / mpu, 3), round(c[1] / mpu, 3)], "angle": round(angle, 4), "class": PLOT_ITEM_CLASS[typ]}
+        y["plot"]["items"].append(rec)
+        y["items"].append({"type": typ, "c": c, "r": r, "area": math.pi * r * r if typ != "garden_bed" else PLOT_ITEM_BED_M2})
+        return rec
+
+    def ground(c):
+        return h_at_m(c[0], c[1])
+
+    order = sorted(yards)
+    axis = lambda y: math.atan2(y["T"][1], y["T"][0])  # noqa: E731
+    facing = lambda y: math.atan2(-y["N"][1], -y["N"][0])  # noqa: E731
+
+    # Pass 1: privies. Lowest ground first, deeper in the yard on ties.
+    for pid in order:
+        y = yards[pid]
+        r = PLOT_ITEM_RADIUS_M["privy"]
+        best = None
+        for t, n, c in y["cand"]:
+            if n < 3.0 or not spot_ok(y, c, "privy", r):
+                continue
+            g = ground(c)
+            if any(math.dist(c, w[1]) < PLOT_ITEM_PRIVY_WELL_M or (math.dist(c, w[1]) <= PLOT_ITEM_WELL_NEAR_M and g > w[2]) for w in near_wells(c)):
+                continue
+            key = (round(g, 2), -n, t)
+            if best is None or key < best[0]:
+                best = (key, t, n, c)
+        if best:
+            put(y, "privy", best[1], best[2], best[3], facing(y))
+            privies.append((pid, best[3], ground(best[3])))
+        else:
+            # Poor and crowded plots share a neighbour's privy (WB-13 trace table).
+            near = sorted((math.dist(y["o"], q), o) for o, q, _ in privies if o != pid and math.dist(y["o"], q) <= 30.0)
+            if near:
+                rec = {"id": "%s.privy0" % pid, "type": "privy", "at": next(i["at"] for i in yards[near[0][1]]["plot"]["items"] if i["type"] == "privy"),
+                       "angle": 0.0, "class": PLOT_ITEM_CLASS["privy"], "shared_with": near[0][1]}
+                y["plot"]["items"].append(rec)
+
+    # Pass 2: private wells on merchant and great yards, on the highest ground that keeps
+    # every near privy downslope and 6 m away; the others get a shared-well reference below.
+    placed_wells = list(wells)
+    for pid in order:
+        y = yards[pid]
+        if y["plot"]["wealth_tier"] not in ("merchant", "great"):
+            continue
+        r = PLOT_ITEM_RADIUS_M["well"]
+        best = None
+        for t, n, c in y["cand"]:
+            if n < 2.0 or not spot_ok(y, c, "well", r):
+                continue
+            g = ground(c)
+            if any(math.dist(c, q) < PLOT_ITEM_PRIVY_WELL_M or (math.dist(c, q) <= PLOT_ITEM_WELL_NEAR_M and pg > g) for _, q, pg in privies):
+                continue
+            key = (-round(g, 2), n, t)
+            if best is None or key < best[0]:
+                best = (key, t, n, c)
+        if best:
+            put(y, "well", best[1], best[2], best[3], 0.0)
+            placed_wells.append((pid + ".well0", best[3], ground(best[3])))
+
+    # Pass 3: the rest of the set, per plot.
+    for pid in order:
+        y = yards[pid]
+        p = y["plot"]
+        tier = p["wealth_tier"]
+        h = hash_int(pid + "items")
+        kinds = ["firewood_stack", "midden"]
+        if tier in ("craft", "merchant", "great") and by_id[p["building"]]["roof"] == "shingle":
+            kinds.append("water_butt")
+        kinds.append("garden_bed")
+        if tier in ("poor", "craft") and h % 2 == 0:
+            kinds.append("drying_line")
+        if tier in ("poor", "craft") and h % 3 == 0:
+            kinds.append("chicken_coop")
+        for typ in kinds:
+            r = PLOT_ITEM_RADIUS_M[typ]
+            if typ == "garden_bed":
+                open_m2 = y["area"] - y["used"] - sum(it["area"] for it in y["items"])
+                if open_m2 < PLOT_ITEM_BED_MIN_OPEN_M2:
+                    continue
+            best = None
+            for t, n, c in y["cand"]:
+                if not spot_ok(y, c, typ, r):
+                    continue
+                if typ == "firewood_stack" and any(
+                        math.dist(c, it["c"]) < PLOT_ITEM_FUEL_CLEAR_M + r for it in y["items"] if it["type"] in ("privy", "well")):
+                    continue
+                edge = min(t, y["w"] - t, y["d"] - n)
+                if typ == "firewood_stack":
+                    key = (n, abs(t - y["w"] / 2), t)  # by the house back wall
+                elif typ == "midden":
+                    key = (-n, edge, t)  # far back
+                elif typ == "water_butt":
+                    key = (ring_gap(c, y["house"]), n, t)  # against the house wall
+                elif typ == "garden_bed":
+                    key = (n, -edge, t)  # sunny side of the house
+                else:
+                    key = (edge, -n, t)  # against a wall
+                if best is None or key < best[0]:
+                    best = (key, t, n, c)
+            if best is None:
+                continue
+            angle = {"privy": 0.0, "chicken_coop": facing(y)}.get(typ, axis(y))
+            if typ == "midden":
+                angle = (hash_int(pid + "midden") % 628) / 100.0
+            put(y, typ, best[1], best[2], best[3], angle)
+
+    # Wells every other yard may draw from (existing POI wells count): a reference, not a copy.
+    for pid in order:
+        y = yards[pid]
+        if any(i["type"] == "well" for i in y["plot"]["items"]):
+            continue
+        centre = (y["o"][0] + (y["w"] / 2) * y["T"][0] + (y["d"] / 2) * y["N"][0], y["o"][1] + (y["w"] / 2) * y["T"][1] + (y["d"] / 2) * y["N"][1])
+        near = sorted((math.dist(centre, q), wid, q) for wid, q, _ in placed_wells if not wid.startswith(pid + ".") and math.dist(centre, q) <= PLOT_ITEM_SHARED_WELL_M)
+        if near:
+            d, wid, q = near[0]
+            y["plot"]["items"].append({"id": "%s.sharedwell0" % pid, "type": "shared_well", "at": [round(q[0] / mpu, 3), round(q[1] / mpu, 3)],
+                                       "angle": 0.0, "class": PLOT_ITEM_CLASS["shared_well"], "ref": wid, "distance_m": round(d, 1)})
 
 
 def plot_obstacles(streets, circuit_poly, toompea_edge, toompea_inner, toompea_wall_half, castle_ring, forum_poly, site_out, mpu):
